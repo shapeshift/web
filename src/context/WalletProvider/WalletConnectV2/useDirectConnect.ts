@@ -9,12 +9,12 @@ import { EthereumProvider as EthProvider } from '@walletconnect/ethereum-provide
 import { useCallback, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 
+import { WalletConnectV2Config, walletConnectV2ProviderConfig } from './config'
+
 import { WalletActions } from '@/context/WalletProvider/actions'
 import { KeyManager } from '@/context/WalletProvider/KeyManager'
 import { useLocalWallet } from '@/context/WalletProvider/local-wallet'
 import { useWallet } from '@/hooks/useWallet/useWallet'
-
-import { walletConnectV2ProviderConfig, WalletConnectV2Config } from './config'
 
 type WalletId = 'metamask' | 'trust' | 'rainbow'
 
@@ -72,13 +72,15 @@ export const useDirectWalletConnect = () => {
         const provider = await EthProvider.init(uglyConfig as any) // UGLY: Type cast for POC
         console.log('🚨 UGLY: Provider created:', provider)
 
-        // Track if display_uri was called
-        let uriReceived = false
+        // Store provider globally for debugging on mobile
+        if (isMobile) {
+          ;(window as any).uglyProvider = provider
+          console.log('🚨 UGLY MOBILE: Stored provider globally as window.uglyProvider')
+        }
 
         // Set up the UGLY URI handler
         provider.on('display_uri', (uri: string) => {
           console.log('🚨🚨🚨 UGLY: display_uri EVENT FIRED! URI:', uri)
-          uriReceived = true
           setCurrentUri(uri)
 
           const deepLink = UGLY_WALLET_DEEP_LINKS[walletId]
@@ -113,12 +115,16 @@ export const useDirectWalletConnect = () => {
           }
         })
 
-        // UGLY: Trigger the connection (this fires display_uri event)
-        console.log('🚨 UGLY: About to call provider.enable()...')
-
         // Add connection event listeners
         provider.on('connect', (info: any) => {
           console.log('🚨 UGLY: PROVIDER CONNECTED!', info)
+
+          // UGLY: Update state when connection succeeds on mobile
+          if (isMobile) {
+            console.log('🚨 UGLY MOBILE: Connection established, updating state...')
+            setIsConnecting(false)
+            // We'll handle the wallet setup in the promise handler
+          }
         })
 
         provider.on('disconnect', () => {
@@ -129,42 +135,76 @@ export const useDirectWalletConnect = () => {
           console.log('🚨 UGLY: Session event:', event)
         })
 
-        try {
-          // On mobile, this will hang because we navigate away
-          // But that's OK - the connection will complete when user returns
-          console.log('🚨 UGLY: Calling provider.enable() - this may hang on mobile...')
+        // UGLY: Trigger the connection (this fires display_uri event)
+        console.log('🚨 UGLY: About to call provider.enable()...')
 
-          // Set a timeout for mobile
-          const timeoutPromise = new Promise((_, reject) => {
-            setTimeout(() => {
-              if (isMobile && uriReceived) {
-                console.log('🚨 UGLY: Mobile timeout reached, but URI was sent - this is expected')
-                // Don't reject on mobile if we sent the URI
-              } else {
-                reject(new Error('UGLY: Connection timeout'))
-              }
-            }, 30000) // 30 second timeout
-          })
+        // UGLY: Handle mobile and desktop differently
+        if (isMobile) {
+          console.log('🚨 UGLY MOBILE: Starting async connection flow')
 
-          const accounts = await Promise.race([
-            provider.enable(),
-            timeoutPromise
-          ]).catch(err => {
-            if (isMobile && uriReceived) {
-              console.log('🚨 UGLY: Mobile navigation detected, connection pending in wallet app')
-              return [] // Return empty for now, user needs to approve in wallet
-            }
-            throw err
-          })
+          // Start connection but don't await on mobile
+          provider
+            .enable()
+            .then(async accounts => {
+              console.log('🚨 UGLY MOBILE SUCCESS: Connection completed!', accounts)
 
-          console.log('🚨 UGLY SUCCESS: provider.enable() returned accounts:', accounts)
+              // UGLY SUCCESS: Wrap in HDWallet and update state
+              const { WalletConnectV2HDWallet } = await import(
+                '@shapeshiftoss/hdwallet-walletconnectv2'
+              )
+              const wallet = new WalletConnectV2HDWallet(provider)
 
-          if (!uriReceived) {
-            console.warn('🚨 UGLY WARNING: display_uri event was never fired!')
+              const deviceId = await wallet.getDeviceID()
+              const { name, icon } = WalletConnectV2Config
+
+              // Update state (same as normal flow)
+              dispatch({
+                type: WalletActions.SET_WCV2_PROVIDER,
+                payload: provider as unknown as EthereumProvider,
+              })
+
+              dispatch({
+                type: WalletActions.SET_WALLET,
+                payload: {
+                  wallet,
+                  name: `${name} (UGLY DIRECT)`, // UGLY: Add marker to name
+                  icon,
+                  deviceId,
+                  connectedType: KeyManager.WalletConnectV2,
+                },
+              })
+
+              dispatch({
+                type: WalletActions.SET_IS_CONNECTED,
+                payload: true,
+              })
+
+              localWallet.setLocalWallet({ type: KeyManager.WalletConnectV2, deviceId })
+
+              console.log('🚨 UGLY MOBILE: State updated successfully!')
+              setIsConnecting(false)
+              setCurrentUri(null)
+            })
+            .catch(err => {
+              console.error('🚨 UGLY MOBILE ERROR: Connection failed:', err)
+              setError(err.message || 'UGLY: Mobile connection failed')
+              setIsConnecting(false)
+            })
+
+          console.log('🚨 UGLY MOBILE: Returning early - connection will complete async')
+
+          // Don't continue with the rest of the function on mobile
+          return
+        } else {
+          // Desktop: await normally
+          try {
+            console.log('🚨 UGLY DESKTOP: Awaiting provider.enable()...')
+            const accounts = await provider.enable()
+            console.log('🚨 UGLY DESKTOP SUCCESS: provider.enable() returned accounts:', accounts)
+          } catch (enableError) {
+            console.error('🚨 UGLY ERROR: provider.enable() failed:', enableError)
+            throw enableError
           }
-        } catch (enableError) {
-          console.error('🚨 UGLY ERROR: provider.enable() failed:', enableError)
-          throw enableError
         }
 
         // UGLY SUCCESS: Wrap in HDWallet
@@ -190,7 +230,7 @@ export const useDirectWalletConnect = () => {
             name: `${name} (UGLY DIRECT)`, // UGLY: Add marker to name
             icon,
             deviceId,
-            connectedType: KeyManager.WalletConnectV2
+            connectedType: KeyManager.WalletConnectV2,
           },
         })
 

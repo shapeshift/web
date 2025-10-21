@@ -45,6 +45,9 @@ export const useDirectWalletConnect = () => {
 
   const connectToWallet = useCallback(
     async (walletId: WalletId) => {
+      console.log('🚨 UGLY START: connectToWallet called with:', walletId)
+      console.log('🚨 UGLY: Platform is mobile?', isMobile)
+
       setIsConnecting(true)
       setError(null)
 
@@ -53,6 +56,7 @@ export const useDirectWalletConnect = () => {
 
         // Get the adapter
         const adapter = await getAdapter(KeyManager.WalletConnectV2)
+        console.log('🚨 UGLY: Got adapter:', adapter)
         if (!adapter) {
           throw new Error('UGLY ERROR: WalletConnectV2 adapter not found')
         }
@@ -64,12 +68,17 @@ export const useDirectWalletConnect = () => {
           qrModalOptions: undefined, // UGLY: Remove modal options to avoid type conflicts
         }
 
-        console.log('🚨 UGLY: Creating provider without modal')
+        console.log('🚨 UGLY: Creating provider with config:', uglyConfig)
         const provider = await EthProvider.init(uglyConfig as any) // UGLY: Type cast for POC
+        console.log('🚨 UGLY: Provider created:', provider)
+
+        // Track if display_uri was called
+        let uriReceived = false
 
         // Set up the UGLY URI handler
         provider.on('display_uri', (uri: string) => {
-          console.log('🚨 UGLY: Got URI from provider:', uri)
+          console.log('🚨🚨🚨 UGLY: display_uri EVENT FIRED! URI:', uri)
+          uriReceived = true
           setCurrentUri(uri)
 
           const deepLink = UGLY_WALLET_DEEP_LINKS[walletId]
@@ -79,21 +88,74 @@ export const useDirectWalletConnect = () => {
           }
 
           const fullDeepLink = deepLink + encodeURIComponent(uri)
+          console.log('🚨 UGLY: Full deep link constructed:', fullDeepLink)
 
           if (isMobile) {
             // UGLY: Mobile - direct deep link
-            console.log('🚨 UGLY: Opening mobile deep link:', fullDeepLink)
+            console.log('🚨 UGLY: MOBILE DETECTED - Opening deep link NOW')
+            console.log('🚨 UGLY: Deep link URL:', fullDeepLink)
             window.location.href = fullDeepLink
+            console.log('🚨 UGLY: Deep link opened, waiting for wallet response...')
           } else {
             // UGLY: Desktop - show QR
-            console.log('🚨 UGLY: Desktop detected, showing QR')
+            console.log('🚨 UGLY: DESKTOP DETECTED - Showing QR/alert')
             showUglyQRCode(uri, walletId)
           }
         })
 
         // UGLY: Trigger the connection (this fires display_uri event)
-        console.log('🚨 UGLY: Calling provider.enable()')
-        await provider.enable()
+        console.log('🚨 UGLY: About to call provider.enable()...')
+
+        // Add connection event listeners
+        provider.on('connect', (info: any) => {
+          console.log('🚨 UGLY: PROVIDER CONNECTED!', info)
+        })
+
+        provider.on('disconnect', () => {
+          console.log('🚨 UGLY: Provider disconnected')
+        })
+
+        provider.on('session_event', (event: any) => {
+          console.log('🚨 UGLY: Session event:', event)
+        })
+
+        try {
+          // On mobile, this will hang because we navigate away
+          // But that's OK - the connection will complete when user returns
+          console.log('🚨 UGLY: Calling provider.enable() - this may hang on mobile...')
+
+          // Set a timeout for mobile
+          const timeoutPromise = new Promise((_, reject) => {
+            setTimeout(() => {
+              if (isMobile && uriReceived) {
+                console.log('🚨 UGLY: Mobile timeout reached, but URI was sent - this is expected')
+                // Don't reject on mobile if we sent the URI
+              } else {
+                reject(new Error('UGLY: Connection timeout'))
+              }
+            }, 30000) // 30 second timeout
+          })
+
+          const accounts = await Promise.race([
+            provider.enable(),
+            timeoutPromise
+          ]).catch(err => {
+            if (isMobile && uriReceived) {
+              console.log('🚨 UGLY: Mobile navigation detected, connection pending in wallet app')
+              return [] // Return empty for now, user needs to approve in wallet
+            }
+            throw err
+          })
+
+          console.log('🚨 UGLY SUCCESS: provider.enable() returned accounts:', accounts)
+
+          if (!uriReceived) {
+            console.warn('🚨 UGLY WARNING: display_uri event was never fired!')
+          }
+        } catch (enableError) {
+          console.error('🚨 UGLY ERROR: provider.enable() failed:', enableError)
+          throw enableError
+        }
 
         // UGLY SUCCESS: Wrap in HDWallet
         console.log('🚨 UGLY SUCCESS: Connection established!')

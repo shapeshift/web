@@ -21,7 +21,7 @@ type WalletId = 'metamask' | 'trust' | 'rainbow'
 // UGLY: Deep link schemas for different wallets
 const UGLY_WALLET_DEEP_LINKS: Record<WalletId, string> = {
   metamask: 'metamask://wc?uri=',
-  trust: 'trust://wc?uri=',
+  trust: 'https://link.trustwallet.com/wc?uri=', // UGLY: Trust uses universal link
   rainbow: 'rainbow://wc?uri=',
 }
 

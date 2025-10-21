@@ -79,45 +79,49 @@ export const WalletConnectDirectButton = () => {
     }
   }, [error, toast])
 
-  const handleDirectConnect = useCallback(async () => {
-    console.log('🚨 UGLY: Button clicked!')
-    setIsLoading(true)
+  const handleDirectConnect = useCallback(
+    async (walletId: 'metamask' | 'trust') => {
+      console.log(`🚨 UGLY: Button clicked for ${walletId}!`)
+      setIsLoading(true)
 
-    try {
-      await connectToWallet('metamask')
+      try {
+        await connectToWallet(walletId)
 
-      // On mobile, connection happens async
-      if (isMobile) {
-        console.log('🚨 UGLY: Mobile mode - setting pending state')
-        setMobilePending(true)
+        // On mobile, connection happens async
+        if (isMobile) {
+          console.log('🚨 UGLY: Mobile mode - setting pending state')
+          setMobilePending(true)
+          toast({
+            title: '🚨 UGLY: Check MetaMask! 🚨',
+            description: 'Approve the connection in MetaMask, then return here',
+            status: 'info',
+            duration: null, // Keep it open
+            isClosable: true,
+          })
+        } else {
+          // Desktop shows QR code via alert, just wait for connection
+          console.log('🚨 UGLY: Desktop mode - waiting for QR scan')
+        }
+      } catch (error) {
+        console.error('🚨 UGLY: Direct connection failed:', error)
         toast({
-          title: '🚨 UGLY: Check MetaMask! 🚨',
-          description: 'Approve the connection in MetaMask, then return here',
-          status: 'info',
-          duration: null, // Keep it open
+          title: '🚨 UGLY: Connection Failed 🚨',
+          description: error instanceof Error ? error.message : 'Failed to connect directly',
+          status: 'error',
+          duration: 5000,
           isClosable: true,
         })
-      } else {
-        // Desktop shows QR code via alert, just wait for connection
-        console.log('🚨 UGLY: Desktop mode - waiting for QR scan')
+        setIsLoading(false)
+        setMobilePending(false)
       }
-    } catch (error) {
-      console.error('🚨 UGLY: Direct connection failed:', error)
-      toast({
-        title: '🚨 UGLY: Connection Failed 🚨',
-        description: error instanceof Error ? error.message : 'Failed to connect directly',
-        status: 'error',
-        duration: 5000,
-        isClosable: true,
-      })
-      setIsLoading(false)
-      setMobilePending(false)
-    }
-  }, [connectToWallet, toast])
+    },
+    [connectToWallet, toast],
+  )
 
   // UGLY: Memoize props to satisfy React linting
   const spinnerElement = useMemo(() => <Spinner color='white' />, [])
 
+  // MetaMask button styles
   const hoverStyles = useMemo(
     () => ({
       bg: mobilePending ? 'orange.700' : 'red.700',
@@ -135,6 +139,24 @@ export const WalletConnectDirectButton = () => {
     [mobilePending],
   )
 
+  // Trust wallet button styles
+  const trustHoverStyles = useMemo(
+    () => ({
+      bg: mobilePending ? 'purple.700' : 'blue.700',
+      transform: 'scale(1.02)',
+      border: '3px solid lime',
+    }),
+    [mobilePending],
+  )
+
+  const trustActiveStyles = useMemo(
+    () => ({
+      bg: mobilePending ? 'purple.800' : 'blue.800',
+      transform: 'scale(0.98)',
+    }),
+    [mobilePending],
+  )
+
   const disabledStyles = useMemo(
     () => ({
       opacity: 0.6,
@@ -143,52 +165,111 @@ export const WalletConnectDirectButton = () => {
     [],
   )
 
-  return (
-    <Box mt={4} position='relative'>
-      <Button
-        onClick={handleDirectConnect}
-        isLoading={isLoading || isConnecting || mobilePending}
-        loadingText={
-          mobilePending
-            ? '🚨 Check MetaMask App! 🚨'
-            : isMobile
-            ? 'Opening MetaMask...'
-            : 'Show QR for MetaMask...'
-        }
-        spinner={spinnerElement}
-        size='lg'
-        width='100%'
-        height='60px'
-        bg={mobilePending ? 'orange.600' : 'red.600'}
-        color='white'
-        border='3px dashed yellow'
-        borderRadius='md'
-        _hover={hoverStyles}
-        _active={activeStyles}
-        fontWeight='bold'
-        fontSize='lg'
-        textTransform='uppercase'
-        boxShadow='0 4px 6px rgba(255, 0, 0, 0.3)'
-        _disabled={disabledStyles}
-      >
-        {mobilePending ? '🚨 WAITING FOR APPROVAL 🚨' : '🚨 UGLY POC: Connect WC MM 🚨'}
-      </Button>
+  // UGLY: Callbacks for button clicks
+  const handleMetaMaskClick = useCallback(
+    () => handleDirectConnect('metamask'),
+    [handleDirectConnect],
+  )
+  const handleTrustClick = useCallback(() => handleDirectConnect('trust'), [handleDirectConnect])
 
-      <Box
-        position='absolute'
-        top='-10px'
-        right='-10px'
-        bg='yellow.400'
-        color='red.900'
-        px={2}
-        py={1}
-        borderRadius='md'
-        fontSize='xs'
-        fontWeight='bold'
-        transform='rotate(12deg)'
-        boxShadow='0 2px 4px rgba(0,0,0,0.2)'
-      >
-        TEST ONLY!
+  return (
+    <Box mt={4}>
+      {/* UGLY MetaMask Button */}
+      <Box position='relative' mb={3}>
+        <Button
+          onClick={handleMetaMaskClick}
+          isLoading={isLoading || isConnecting || mobilePending}
+          loadingText={
+            mobilePending
+              ? '🚨 Check MetaMask App! 🚨'
+              : isMobile
+              ? 'Opening MetaMask...'
+              : 'Show QR for MetaMask...'
+          }
+          spinner={spinnerElement}
+          size='lg'
+          width='100%'
+          height='60px'
+          bg={mobilePending ? 'orange.600' : 'red.600'}
+          color='white'
+          border='3px dashed yellow'
+          borderRadius='md'
+          _hover={hoverStyles}
+          _active={activeStyles}
+          fontWeight='bold'
+          fontSize='lg'
+          textTransform='uppercase'
+          boxShadow='0 4px 6px rgba(255, 0, 0, 0.3)'
+          _disabled={disabledStyles}
+        >
+          {mobilePending ? '🚨 WAITING FOR APPROVAL 🚨' : '🚨 UGLY POC: Connect WC MM 🚨'}
+        </Button>
+
+        <Box
+          position='absolute'
+          top='-10px'
+          right='-10px'
+          bg='yellow.400'
+          color='red.900'
+          px={2}
+          py={1}
+          borderRadius='md'
+          fontSize='xs'
+          fontWeight='bold'
+          transform='rotate(12deg)'
+          boxShadow='0 2px 4px rgba(0,0,0,0.2)'
+        >
+          TEST ONLY!
+        </Box>
+      </Box>
+
+      {/* UGLY Trust Wallet Button */}
+      <Box position='relative'>
+        <Button
+          onClick={handleTrustClick}
+          isLoading={isLoading || isConnecting || mobilePending}
+          loadingText={
+            mobilePending
+              ? '🚨 Check Trust Wallet! 🚨'
+              : isMobile
+              ? 'Opening Trust...'
+              : 'Show QR for Trust...'
+          }
+          spinner={spinnerElement}
+          size='lg'
+          width='100%'
+          height='60px'
+          bg={mobilePending ? 'purple.600' : 'blue.600'}
+          color='white'
+          border='3px dashed lime'
+          borderRadius='md'
+          _hover={trustHoverStyles}
+          _active={trustActiveStyles}
+          fontWeight='bold'
+          fontSize='lg'
+          textTransform='uppercase'
+          boxShadow='0 4px 6px rgba(0, 0, 255, 0.3)'
+          _disabled={disabledStyles}
+        >
+          {mobilePending ? '🚨 WAITING FOR TRUST! 🚨' : '🚨 UGLY POC: Connect WC TRUST 🚨'}
+        </Button>
+
+        <Box
+          position='absolute'
+          top='-10px'
+          left='-10px'
+          bg='lime.400'
+          color='blue.900'
+          px={2}
+          py={1}
+          borderRadius='md'
+          fontSize='xs'
+          fontWeight='bold'
+          transform='rotate(-12deg)'
+          boxShadow='0 2px 4px rgba(0,0,0,0.2)'
+        >
+          ALSO UGLY!
+        </Box>
       </Box>
     </Box>
   )

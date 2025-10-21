@@ -12,6 +12,7 @@ import { snapshot, snapshotApi } from './apis/snapshot/snapshot'
 import { swapperApi } from './apis/swapper/swapperApi'
 import {
   clearActionMigrations,
+  clearAddressBookMigrations,
   clearAssetsMigrations,
   clearMarketDataMigrations,
   clearOpportunitiesMigrations,
@@ -143,7 +144,8 @@ const swapPersistConfig = {
 const addressBookPersistConfig = {
   key: 'addressBook',
   storage: localforage,
-  version: 0,
+  version: Math.max(...Object.keys(clearAddressBookMigrations).map(Number)),
+  migrate: createMigrate(clearAddressBookMigrations, { debug: false }),
 }
 
 export const sliceReducers = {

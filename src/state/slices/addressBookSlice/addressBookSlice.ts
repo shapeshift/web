@@ -15,7 +15,7 @@ export type AddressBookState = {
   ids: string[]
 }
 
-const initialState: AddressBookState = {
+export const initialState: AddressBookState = {
   byId: {},
   ids: [],
 }

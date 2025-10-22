@@ -16,13 +16,13 @@ Comprehensive documentation for WalletConnect v2 integration in ShapeShift, incl
 WalletConnect v2 uses a relay server to broker encrypted communication:
 
 ```
-DApp → WalletConnect SDK → Relay Server ← Wallet App
+ShapeShift (dApp) → WalletConnect SDK → Relay Server ← User's Wallet App
 ```
 
-1. DApp initiates connection via `@walletconnect/ethereum-provider`
+1. ShapeShift initiates connection via `@walletconnect/ethereum-provider`
 2. SDK generates connection URI containing topic, relay URL, and encryption key
-3. Wallet receives URI via QR code or deep link
-4. Relay server facilitates encrypted WebSocket communication
+3. User's wallet app (MetaMask, Trust, etc.) receives URI via QR code or deep link
+4. Relay server facilitates encrypted WebSocket communication between ShapeShift and the wallet
 
 ### Connection URI Format
 ```
@@ -32,7 +32,7 @@ wc:94caa59c77dae0dd234b5818fb7292540d017b27d41f7f387ee75b22b9738c94@2?relay-prot
 ### Key Insight: Modal is Optional
 The WalletConnect modal is **purely UI**. The protocol works with `showQrModal: false` - you just need to handle the `display_uri` event yourself.
 
-## App Implementation
+## ShapeShift App Implementation
 
 ### File Structure
 ```
@@ -69,10 +69,10 @@ Stores the `EthereumProvider` instance for event handling and session management
 - `SET_WALLET_MODAL` - Modal visibility
 
 **Local Storage**:
-Persists wallet selection via `localWallet.setLocalWallet()`
+Persists wallet selection in ShapeShift via `localWallet.setLocalWallet()`
 
 ### HDWallet Abstraction
-All wallets are wrapped in `WalletConnectV2HDWallet` from `@shapeshiftoss/hdwallet-walletconnectv2`, providing a consistent interface for:
+All wallets in ShapeShift are wrapped in `WalletConnectV2HDWallet` from `@shapeshiftoss/hdwallet-walletconnectv2`, providing a consistent interface for:
 - Transaction signing
 - Message signing
 - Network switching
@@ -105,7 +105,7 @@ provider.on('display_uri', (uri: string) => {
 // Wait for connection (promise survives app switch!)
 await provider.enable()
 
-// Register wallet in app state
+// Register wallet in ShapeShift state
 await setWallet(provider, dispatch, localWallet)
 ```
 
@@ -120,12 +120,12 @@ Examples:
 **Implementation**: Since wallet IDs match their schemes, we build deep links directly without a lookup table.
 
 #### Mobile Flow
-1. User clicks wallet button
-2. Deep link opens wallet app (browser shows "Open in [Wallet]?" popup)
-3. User approves in wallet app
-4. Browser returns to web app
+1. User clicks wallet button in ShapeShift
+2. Deep link opens user's wallet app (browser shows "Open in [Wallet]?" popup)
+3. User approves connection in their wallet app
+4. Browser returns to ShapeShift web app
 5. `provider.enable()` promise resolves (survives app switch!)
-6. Connection registered, modal closes
+6. Connection registered in ShapeShift, modal closes
 
 ### Key Files
 

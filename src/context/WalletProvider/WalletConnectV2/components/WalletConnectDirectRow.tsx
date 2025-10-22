@@ -26,7 +26,7 @@ const DirectWalletButton = ({ wallet, isLoading, onConnect }: DirectWalletButton
     if (isLoading) {
       return <Spinner thickness='4px' speed='0.65s' boxSize='64px' />
     }
-    if ('IconComponent' in wallet) {
+    if ('IconComponent' in wallet && wallet.IconComponent) {
       return (
         <Flex boxSize='64px' align='center' justify='center' bg='white' borderRadius='lg' p={2}>
           <wallet.IconComponent boxSize='48px' />

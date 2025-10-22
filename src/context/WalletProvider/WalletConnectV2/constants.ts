@@ -164,19 +164,16 @@ export type EthereumProviderOptions = {
 
 export type WalletConnectWalletId = 'metamask' | 'trust' | 'zerion'
 
-type WalletConfigWithIcon = {
+type WalletConfigBase = {
   id: WalletConnectWalletId
   name: string
-  IconComponent: React.ComponentType<{ boxSize?: string }>
 }
 
-type WalletConfigWithImage = {
-  id: WalletConnectWalletId
-  name: string
-  imageUrl: string
-}
-
-export type WalletConfig = WalletConfigWithIcon | WalletConfigWithImage
+export type WalletConfig = WalletConfigBase &
+  (
+    | { IconComponent: React.ComponentType<{ boxSize?: string }>; imageUrl?: never }
+    | { imageUrl: string; IconComponent?: never }
+  )
 
 export const WALLET_CONFIGS: WalletConfig[] = [
   {

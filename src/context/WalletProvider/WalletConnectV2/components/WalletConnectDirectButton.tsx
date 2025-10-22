@@ -1,11 +1,11 @@
-import { Box, Button, Flex, Image, Spinner, Text } from '@chakra-ui/react'
+import { Button, Circle, Flex, Image, Spinner, Text } from '@chakra-ui/react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 
 import { useDirectWalletConnect } from '../useDirectConnect'
 
 import { MetaMaskIcon } from '@/components/Icons/MetaMaskIcon'
-import { WalletConnectIcon } from '@/components/Icons/WalletConnectIcon'
+import { WalletConnectCurrentColorIcon } from '@/components/Icons/WalletConnectIcon'
 import { getConfig } from '@/config'
 import { WalletActions } from '@/context/WalletProvider/actions'
 import { useWallet } from '@/hooks/useWallet/useWallet'
@@ -30,7 +30,7 @@ const WALLET_CONFIGS: WalletConfig[] = [
   },
   {
     id: 'trust',
-    name: 'Trust Wallet',
+    name: 'Trust',
     imageId: '7677b54f-3486-46e2-4e37-bf8747814f00',
   },
   {
@@ -119,14 +119,14 @@ export const WalletConnectDirectButton = () => {
 
   const renderWalletIcon = (wallet: WalletConfig) => {
     if (wallet.IconComponent) {
-      return <wallet.IconComponent boxSize='48px' />
+      return <wallet.IconComponent boxSize='64px' />
     }
     if (wallet.imageId) {
       return (
         <Image
           src={`https://explorer-api.walletconnect.com/v3/logo/md/${wallet.imageId}?projectId=${VITE_WALLET_CONNECT_WALLET_PROJECT_ID}`}
-          boxSize='48px'
-          borderRadius='md'
+          boxSize='64px'
+          borderRadius='lg'
         />
       )
     }
@@ -134,7 +134,7 @@ export const WalletConnectDirectButton = () => {
   }
 
   return (
-    <Flex gap={4} mt={4}>
+    <Flex gap={4} mt={4} align='stretch'>
       {/* MetaMask */}
       <Button
         onClick={handleMetaMaskClick}
@@ -142,44 +142,48 @@ export const WalletConnectDirectButton = () => {
         spinner={spinnerElement}
         variant='ghost'
         height='auto'
+        minH='120px'
         py={4}
         px={3}
         whiteSpace='normal'
-        position='relative'
         flex={1}
       >
-        <Flex direction='column' align='center' width='full'>
+        <Flex direction='column' align='center' justify='center' width='full'>
           {renderWalletIcon(WALLET_CONFIGS[0])}
-          <Text fontSize='sm' fontWeight='medium' mt={2}>
-            {WALLET_CONFIGS[0].name}
-          </Text>
-          <Box position='absolute' top={1} right={1} opacity={0.6}>
-            <WalletConnectIcon boxSize='16px' />
-          </Box>
+          <Flex align='center' gap={1.5} mt={3}>
+            <Text fontSize='sm' fontWeight='medium'>
+              {WALLET_CONFIGS[0].name}
+            </Text>
+            <Circle size='20px' bg='blue.500'>
+              <WalletConnectCurrentColorIcon boxSize='12px' color='white' />
+            </Circle>
+          </Flex>
         </Flex>
       </Button>
 
-      {/* Trust Wallet */}
+      {/* Trust */}
       <Button
         onClick={handleTrustClick}
         isLoading={loadingWallet === 'trust'}
         spinner={spinnerElement}
         variant='ghost'
         height='auto'
+        minH='120px'
         py={4}
         px={3}
         whiteSpace='normal'
-        position='relative'
         flex={1}
       >
-        <Flex direction='column' align='center' width='full'>
+        <Flex direction='column' align='center' justify='center' width='full'>
           {renderWalletIcon(WALLET_CONFIGS[1])}
-          <Text fontSize='sm' fontWeight='medium' mt={2}>
-            {WALLET_CONFIGS[1].name}
-          </Text>
-          <Box position='absolute' top={1} right={1} opacity={0.6}>
-            <WalletConnectIcon boxSize='16px' />
-          </Box>
+          <Flex align='center' gap={1.5} mt={3}>
+            <Text fontSize='sm' fontWeight='medium'>
+              {WALLET_CONFIGS[1].name}
+            </Text>
+            <Circle size='20px' bg='blue.500'>
+              <WalletConnectCurrentColorIcon boxSize='12px' color='white' />
+            </Circle>
+          </Flex>
         </Flex>
       </Button>
 
@@ -190,20 +194,22 @@ export const WalletConnectDirectButton = () => {
         spinner={spinnerElement}
         variant='ghost'
         height='auto'
+        minH='120px'
         py={4}
         px={3}
         whiteSpace='normal'
-        position='relative'
         flex={1}
       >
-        <Flex direction='column' align='center' width='full'>
+        <Flex direction='column' align='center' justify='center' width='full'>
           {renderWalletIcon(WALLET_CONFIGS[2])}
-          <Text fontSize='sm' fontWeight='medium' mt={2}>
-            {WALLET_CONFIGS[2].name}
-          </Text>
-          <Box position='absolute' top={1} right={1} opacity={0.6}>
-            <WalletConnectIcon boxSize='16px' />
-          </Box>
+          <Flex align='center' gap={1.5} mt={3}>
+            <Text fontSize='sm' fontWeight='medium'>
+              {WALLET_CONFIGS[2].name}
+            </Text>
+            <Circle size='20px' bg='blue.500'>
+              <WalletConnectCurrentColorIcon boxSize='12px' color='white' />
+            </Circle>
+          </Flex>
         </Flex>
       </Button>
     </Flex>

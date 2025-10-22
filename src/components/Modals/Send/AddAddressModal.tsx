@@ -97,10 +97,6 @@ export const AddAddressModal = ({ address, chainId, onSuccess }: AddAddressModal
               <Input
                 {...register('name', {
                   required: translate('modals.send.addContact.nameRequired'),
-                  minLength: {
-                    value: 1,
-                    message: translate('modals.send.addContact.nameRequired'),
-                  },
                 })}
                 placeholder={translate('modals.send.addContact.namePlaceholder')}
                 autoFocus

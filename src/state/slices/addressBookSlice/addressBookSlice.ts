@@ -26,7 +26,7 @@ export const addressBookSlice = createSlice({
   reducers: create => ({
     addAddress: create.reducer(
       (state, action: PayloadAction<Omit<AddressBookEntry, 'id' | 'createdAt'>>) => {
-        // Extra safety just in case logic is borken on UI side and the user adds the same address twice
+        // Extra safety just in case logic is broken on UI side and the user adds the same address twice
         const isDuplicate = state.ids.some(existingId => {
           const existing = state.byId[existingId]
           return (
@@ -47,12 +47,6 @@ export const addressBookSlice = createSlice({
         state.ids.push(id)
       },
     ),
-    updateAddress: create.reducer((state, action: PayloadAction<{ id: string; name: string }>) => {
-      const entry = state.byId[action.payload.id]
-      if (entry) {
-        entry.name = action.payload.name
-      }
-    }),
     deleteAddress: create.reducer((state, action: PayloadAction<string>) => {
       delete state.byId[action.payload]
       state.ids = state.ids.filter(id => id !== action.payload)
@@ -63,6 +57,6 @@ export const addressBookSlice = createSlice({
     selectAddressBookEntries: state => state.ids.map(id => state.byId[id]),
     selectAddressBookEntryById: (state, entryId: string) => state.byId[entryId],
     selectAddressBookEntriesByChainId: (state, chainId: ChainId) =>
-      state.ids.map(id => state.byId[id]).filter(entry => entry.chainId === chainId),
+      state.ids.filter(id => state.byId[id].chainId === chainId).map(id => state.byId[id]),
   },
 })

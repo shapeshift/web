@@ -9,7 +9,6 @@ import {
   VStack,
 } from '@chakra-ui/react'
 import type { ChainId } from '@shapeshiftoss/caip'
-import get from 'lodash/get'
 import { useCallback, useMemo, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { FaRegAddressBook, FaTrash } from 'react-icons/fa'
@@ -17,6 +16,7 @@ import { useTranslate } from 'react-polyglot'
 
 import { SendFormFields } from '../SendCommon'
 
+import { MiddleEllipsis } from '@/components/MiddleEllipsis/MiddleEllipsis'
 import { ConfirmDelete } from '@/components/Modals/Send/AddressBook/ConfirmDelete'
 import { Text } from '@/components/Text'
 import { makeBlockiesUrl } from '@/lib/blockies/makeBlockiesUrl'
@@ -50,11 +50,6 @@ const deleteButtonSx = {
 const AddressBookEntryButton = ({ entry, onSelect, onDelete }: AddressBookEntryButtonProps) => {
   const avatarUrl = useMemo(() => makeBlockiesUrl(entry.address), [entry.address])
   const handleClick = useCallback(() => onSelect(entry.address), [onSelect, entry.address])
-  const shortAddress = useMemo(
-    () => `${entry.address.slice(0, 6)}...${entry.address.slice(-4)}`,
-    [entry.address],
-  )
-
   const handleDelete = useCallback(
     (id: string) => (e: React.MouseEvent<HTMLButtonElement>) => {
       e.stopPropagation()
@@ -91,9 +86,7 @@ const AddressBookEntryButton = ({ entry, onSelect, onDelete }: AddressBookEntryB
           <CText fontSize='md' fontWeight='semibold' color='text.primary' lineHeight={1}>
             {entry.name}
           </CText>
-          <CText fontSize='sm' color='text.subtle' noOfLines={1}>
-            {shortAddress}
-          </CText>
+          <MiddleEllipsis fontSize='sm' color='text.subtle' noOfLines={1} value={entry.address} />
         </VStack>
       </HStack>
       <Button size='sm' onClick={handleDelete(entry.id)} sx={deleteButtonSx} flexShrink={0}>
@@ -125,9 +118,7 @@ export const AddressBook = ({
     control,
     formState: { errors },
   } = useFormContext()
-  const { isOpen, onClose, onOpen } = useDisclosure({
-    defaultIsOpen: false,
-  })
+  const { isOpen, onClose, onOpen } = useDisclosure()
   const [selectedDeleteEntry, setSelectedDeleteEntry] = useState<AddressBookEntry | null>(null)
   const addressBookEntries = useAppSelector(state =>
     selectAddressBookEntriesByChainNamespace(state, chainId ?? ''),
@@ -137,7 +128,7 @@ export const AddressBook = ({
     control,
     name: SendFormFields.To,
   }) as string
-  const addressError = get(errors, `${SendFormFields.Input}.message`, null)
+  const addressError = errors[SendFormFields.Input]?.message ?? null
 
   const input = useWatch({
     control,
@@ -148,12 +139,10 @@ export const AddressBook = ({
     return addressBookEntries.find(entry => entry.address === input)
   }, [addressBookEntries, input])
 
-  const searchQuery = useMemo(() => input ?? '', [input])
-
   const addressBookSearchEntries = useAppSelector(state =>
     selectAddressBookEntriesBySearchQuery(state, {
       chainId: chainId ?? '',
-      searchQuery,
+      searchQuery: input ?? '',
     }),
   )
 
@@ -212,9 +201,9 @@ export const AddressBook = ({
       {selectedDeleteEntry && (
         <ConfirmDelete
           isOpen={isOpen}
-          onDelete={handleDelete(selectedDeleteEntry?.id)}
+          onDelete={handleDelete(selectedDeleteEntry.id)}
           onClose={onClose}
-          entryName={selectedDeleteEntry?.name}
+          entryName={selectedDeleteEntry.name}
         />
       )}
     </Box>

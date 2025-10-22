@@ -102,8 +102,8 @@ export const AddressInput = ({
   }, [addressBookEntry])
 
   useEffect(() => {
-    if (isFocused) {
-      inputRef.current?.focus()
+    if (isFocused && inputRef.current && document.activeElement !== inputRef.current) {
+      inputRef.current.focus()
     }
   }, [isFocused])
 
@@ -174,7 +174,6 @@ export const AddressInput = ({
           <Flex
             alignItems='center'
             justifyContent='space-between'
-            bg='transparent'
             borderRadius='10px'
             cursor='pointer'
             onClick={props.onClick ?? handleDisplayClick}
@@ -194,7 +193,9 @@ export const AddressInput = ({
                   <CText fontSize='md' fontWeight='semibold' color='text.primary'>
                     {addressBookEntry.name}
                   </CText>
-                  <MiddleEllipsis fontSize='xs' color='text.subtle' value={resolvedAddress ?? ''} />
+                  {resolvedAddress && (
+                    <MiddleEllipsis fontSize='xs' color='text.subtle' value={resolvedAddress} />
+                  )}
                 </VStack>
               </HStack>
             </HStack>
@@ -219,7 +220,7 @@ export const AddressInput = ({
             <Text color='text.subtle' fontSize='sm' minW='20px'>
               {translate('modals.send.sendForm.to')}
             </Text>
-            <Box bg={'background.surface.raised.base'} px={3} py={2} borderRadius='full'>
+            <Box bg='background.surface.raised.base' px={3} py={2} borderRadius='full'>
               <MiddleEllipsis fontSize='sm' color='text.subtle' value={resolvedAddress ?? ''} />
             </Box>
           </HStack>

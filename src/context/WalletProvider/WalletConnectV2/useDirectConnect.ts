@@ -76,8 +76,11 @@ export const useDirectWalletConnect = () => {
           throw new Error('WalletConnectV2 adapter not found')
         }
 
+        // The magic: spin up WalletConnect provider directly without modal (showQrModal: false)
+        // This is the escape hatch that lets us bypass the standard modal and build our own deep links
         const provider = await EthereumProvider.init(walletConnectV2DirectProviderConfig as any)
 
+        // Intercept the URI and open the wallet directly via deep link
         provider.on('display_uri', (uri: string) => openDeepLink(walletId, uri))
 
         await provider.enable()

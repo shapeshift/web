@@ -49,9 +49,10 @@ const getFontSizeByLength = (length: number): string => {
 }
 
 const AmountInput = (props: InputProps & { formattedValueLength?: number }) => {
+  const { formattedValueLength, ...rest } = props
   const fontSize = useMemo(
-    () => getFontSizeByLength(props.formattedValueLength ?? 0),
-    [props.formattedValueLength],
+    () => getFontSizeByLength(formattedValueLength ?? 0),
+    [formattedValueLength],
   )
 
   const lineHeight = useMemo(() => fontSize, [fontSize])
@@ -75,9 +76,9 @@ const AmountInput = (props: InputProps & { formattedValueLength?: number }) => {
       _hover={hoverInputStyle}
       bg='transparent'
       variant='unstyled'
-      color={props.value ? 'text.base' : 'text.subtle'}
+      color={rest.value ? 'text.base' : 'text.subtle'}
       style={combinedStyle}
-      {...props}
+      {...rest}
     />
   )
 }

@@ -158,6 +158,13 @@ export type EthereumProviderOptions = {
   storageOptions?: KeyValueStorageOptions
 } & ChainsProps
 
-// Direct connection polling/timeout values
 export const POLLING_INTERVAL_MS = 1000
 export const CONNECTION_TIMEOUT_MS = 60000
+
+type WalletConnectWalletId = 'metamask' | 'trust' | 'zerion'
+
+export const WALLET_DEEP_LINKS: Record<WalletConnectWalletId, string> = {
+  metamask: 'metamask://wc?uri=',
+  trust: 'trust://wc?uri=',
+  zerion: 'zerion://wc?uri=',
+}

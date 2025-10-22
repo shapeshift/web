@@ -1,40 +1,14 @@
-/**
- * Direct WalletConnect connection hook
- * Connects directly to specific wallets without showing the WalletConnect modal
- */
-
-import type EthereumProvider from '@walletconnect/ethereum-provider'
-import { EthereumProvider as EthProvider } from '@walletconnect/ethereum-provider'
+import EthereumProvider from '@walletconnect/ethereum-provider'
 import { useCallback, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 
 import { WalletConnectV2Config, walletConnectV2ProviderConfig } from './config'
+import { WALLET_DEEP_LINKS } from './constants'
 
 import { WalletActions } from '@/context/WalletProvider/actions'
 import { KeyManager } from '@/context/WalletProvider/KeyManager'
 import { useLocalWallet } from '@/context/WalletProvider/local-wallet'
 import { useWallet } from '@/hooks/useWallet/useWallet'
-
-type WalletConnectWalletId = 'metamask' | 'trust' | 'zerion'
-
-/**
- * Deep link schemas for WalletConnect direct wallet connections
- *
- * This bypasses the WalletConnect modal while maintaining a real WalletConnect connection.
- * The modal is purely UI - the protocol works without it through the EthereumProvider.
- *
- * References:
- * - MetaMask: metamask://wc?uri={uri}
- * - Trust: trust://wc?uri={uri} (custom scheme to avoid webpage redirect)
- * - Zerion: zerion://wc?uri={uri}
- *
- * See docs/walletconnect-direct-connection.md for comprehensive documentation
- */
-const WALLET_DEEP_LINKS: Record<WalletConnectWalletId, string> = {
-  metamask: 'metamask://wc?uri=',
-  trust: 'trust://wc?uri=', // Changed to custom scheme to avoid webpage redirect
-  zerion: 'zerion://wc?uri=',
-}
 
 export const useDirectWalletConnect = () => {
   const { dispatch, getAdapter } = useWallet()
@@ -42,40 +16,28 @@ export const useDirectWalletConnect = () => {
   const [isConnecting, setIsConnecting] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  const showQRCode = useCallback((uri: string, walletName: string) => {
-    // For desktop, show QR code
-    // In a real implementation, you'd render a QR code modal here
-    // For POC, we'll just alert the user
-    alert(`Copy this URI and scan with ${walletName}:\n\n${uri}`)
-  }, [])
-
   const connectToWallet = useCallback(
-    async (walletId: WalletConnectWalletId) => {
+    async (walletId: 'metamask' | 'trust' | 'zerion') => {
       setIsConnecting(true)
       setError(null)
 
       try {
-        // Get the adapter
         const adapter = await getAdapter(KeyManager.WalletConnectV2)
         if (!adapter) {
           throw new Error('WalletConnectV2 adapter not found')
         }
 
-        // Create provider WITHOUT modal
         const providerConfig = {
           ...walletConnectV2ProviderConfig,
-          showQrModal: false, // No modal
-          qrModalOptions: undefined, // Remove modal options to avoid type conflicts
+          showQrModal: false,
+          qrModalOptions: undefined,
         }
 
-        const provider = await EthProvider.init(providerConfig as any)
+        const provider = await EthereumProvider.init(providerConfig as any)
 
-        // Store provider globally for mobile connection detection
         if (isMobile) {
           ;(window as any).walletConnectProvider = provider
         }
-
-        // Helper function to register wallet connection (shared by mobile and desktop flows)
         const registerWalletConnection = async () => {
           const { WalletConnectV2HDWallet } = await import(
             '@shapeshiftoss/hdwallet-walletconnectv2'
@@ -108,65 +70,38 @@ export const useDirectWalletConnect = () => {
           localWallet.setLocalWallet({ type: KeyManager.WalletConnectV2, deviceId })
         }
 
-        // Set up the URI handler
         provider.on('display_uri', (uri: string) => {
           const deepLink = WALLET_DEEP_LINKS[walletId]
-          if (!deepLink) {
-            return
-          }
+          if (!deepLink) return
 
           const fullDeepLink = deepLink + encodeURIComponent(uri)
-
-          if (isMobile) {
-            // Mobile - direct deep link
-            // Try window.open to keep the page alive
-            const opened = window.open(fullDeepLink, '_blank')
-
-            // Fallback to location.href if window.open fails
-            if (!opened) {
-              window.location.href = fullDeepLink
-            }
-          } else {
-            // Desktop - show QR
-            showQRCode(uri, walletId)
+          const opened = window.open(fullDeepLink, '_blank')
+          if (!opened) {
+            window.location.href = fullDeepLink
           }
         })
 
-        // Add connection event listener
-        // Note: disconnect is handled by useWalletConnectV2EventHandler
         provider.on('connect', () => {
-          // Update state when connection succeeds on mobile
           if (isMobile) {
             setIsConnecting(false)
           }
         })
 
-        // Trigger the connection (this fires display_uri event)
-        // Handle mobile and desktop differently
         if (isMobile) {
-          // Start connection but don't await on mobile
           provider
             .enable()
             .then(async _accounts => {
-              // Register wallet connection using shared helper
               await registerWalletConnection()
-
-              // Don't close modal here - let the button's polling handle it
               setIsConnecting(false)
             })
             .catch(err => {
               setError(err.message || 'Mobile connection failed')
               setIsConnecting(false)
             })
-
-          // Don't continue with the rest of the function on mobile
           return
-        } else {
-          // Desktop: await normally
-          await provider.enable()
         }
 
-        // Register wallet connection using shared helper
+        await provider.enable()
         await registerWalletConnection()
       } catch (e) {
         const errorMsg = e instanceof Error ? e.message : 'Unknown error'
@@ -176,7 +111,7 @@ export const useDirectWalletConnect = () => {
         setIsConnecting(false)
       }
     },
-    [dispatch, getAdapter, localWallet, showQRCode],
+    [dispatch, getAdapter, localWallet],
   )
 
   return {

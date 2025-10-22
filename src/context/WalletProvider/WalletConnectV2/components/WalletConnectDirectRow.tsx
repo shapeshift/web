@@ -106,17 +106,15 @@ export const WalletConnectDirectRow = () => {
         if ((provider?.session && provider?.accounts?.length > 0) || state.isConnected) {
           clearInterval(checkInterval)
           setMobilePending(false)
-          setLoadingWallet(null) // Clear loading state after successful connection
-          // Close modal when connection is detected
+          setLoadingWallet(null)
           dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
         }
       }, POLLING_INTERVAL_MS)
 
-      // Stop checking after timeout
       const timeout = setTimeout(() => {
         clearInterval(checkInterval)
         setMobilePending(false)
-        setLoadingWallet(null) // Clear loading state on timeout
+        setLoadingWallet(null)
       }, CONNECTION_TIMEOUT_MS)
 
       return () => {
@@ -126,7 +124,6 @@ export const WalletConnectDirectRow = () => {
     }
   }, [mobilePending, state.isConnected, loadingWallet, dispatch])
 
-  // Show error if one occurs
   useEffect(() => {
     if (error) {
       console.error('Direct connection error:', error)
@@ -142,7 +139,6 @@ export const WalletConnectDirectRow = () => {
       try {
         await connectToWallet(walletId)
 
-        // On mobile, connection happens async
         if (isMobile) {
           setMobilePending(true)
         }

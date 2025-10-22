@@ -22,7 +22,7 @@ const openDeepLink = (walletId: WalletConnectWalletId, uri: string) => {
   }
 }
 
-const registerWalletConnection = async (
+const setWallet = async (
   provider: EthereumProvider,
   dispatch: Dispatch<ActionTypes>,
   localWallet: ReturnType<typeof useLocalWallet>,
@@ -81,7 +81,7 @@ export const useDirectWalletConnect = () => {
         provider.on('display_uri', (uri: string) => openDeepLink(walletId, uri))
 
         await provider.enable()
-        await registerWalletConnection(provider, dispatch, localWallet)
+        await setWallet(provider, dispatch, localWallet)
       } catch (e) {
         const errorMsg = e instanceof Error ? e.message : 'Unknown error'
         setError(errorMsg)

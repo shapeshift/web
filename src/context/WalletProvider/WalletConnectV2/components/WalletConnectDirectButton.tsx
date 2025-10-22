@@ -1,5 +1,5 @@
 import { Button, Circle, Flex, Image, Spinner, Text } from '@chakra-ui/react'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 
 import { useDirectWalletConnect } from '../useDirectConnect'
@@ -108,8 +108,6 @@ export const WalletConnectDirectButton = () => {
     [connectToWallet],
   )
 
-  const spinnerElement = useMemo(() => <Spinner size='sm' />, [])
-
   const handleMetaMaskClick = useCallback(
     () => handleDirectConnect('metamask'),
     [handleDirectConnect],
@@ -138,8 +136,7 @@ export const WalletConnectDirectButton = () => {
       {/* MetaMask */}
       <Button
         onClick={handleMetaMaskClick}
-        isLoading={loadingWallet === 'metamask'}
-        spinner={spinnerElement}
+        isDisabled={loadingWallet === 'metamask'}
         variant='ghost'
         height='auto'
         minH='120px'
@@ -149,7 +146,11 @@ export const WalletConnectDirectButton = () => {
         flex={1}
       >
         <Flex direction='column' align='center' justify='center' width='full'>
-          {renderWalletIcon(WALLET_CONFIGS[0])}
+          {loadingWallet === 'metamask' ? (
+            <Spinner thickness='4px' speed='0.65s' boxSize='64px' />
+          ) : (
+            renderWalletIcon(WALLET_CONFIGS[0])
+          )}
           <Flex align='center' gap={1.5} mt={3}>
             <Text fontSize='sm' fontWeight='medium'>
               {WALLET_CONFIGS[0].name}
@@ -164,8 +165,7 @@ export const WalletConnectDirectButton = () => {
       {/* Trust */}
       <Button
         onClick={handleTrustClick}
-        isLoading={loadingWallet === 'trust'}
-        spinner={spinnerElement}
+        isDisabled={loadingWallet === 'trust'}
         variant='ghost'
         height='auto'
         minH='120px'
@@ -175,7 +175,11 @@ export const WalletConnectDirectButton = () => {
         flex={1}
       >
         <Flex direction='column' align='center' justify='center' width='full'>
-          {renderWalletIcon(WALLET_CONFIGS[1])}
+          {loadingWallet === 'trust' ? (
+            <Spinner thickness='4px' speed='0.65s' boxSize='64px' />
+          ) : (
+            renderWalletIcon(WALLET_CONFIGS[1])
+          )}
           <Flex align='center' gap={1.5} mt={3}>
             <Text fontSize='sm' fontWeight='medium'>
               {WALLET_CONFIGS[1].name}
@@ -190,8 +194,7 @@ export const WalletConnectDirectButton = () => {
       {/* Zerion */}
       <Button
         onClick={handleZerionClick}
-        isLoading={loadingWallet === 'zerion'}
-        spinner={spinnerElement}
+        isDisabled={loadingWallet === 'zerion'}
         variant='ghost'
         height='auto'
         minH='120px'
@@ -201,7 +204,11 @@ export const WalletConnectDirectButton = () => {
         flex={1}
       >
         <Flex direction='column' align='center' justify='center' width='full'>
-          {renderWalletIcon(WALLET_CONFIGS[2])}
+          {loadingWallet === 'zerion' ? (
+            <Spinner thickness='4px' speed='0.65s' boxSize='64px' />
+          ) : (
+            renderWalletIcon(WALLET_CONFIGS[2])
+          )}
           <Flex align='center' gap={1.5} mt={3}>
             <Text fontSize='sm' fontWeight='medium'>
               {WALLET_CONFIGS[2].name}

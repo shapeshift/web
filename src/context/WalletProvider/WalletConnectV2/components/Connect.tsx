@@ -2,7 +2,7 @@ import type EthereumProvider from '@walletconnect/ethereum-provider'
 import { useCallback, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
-import { WalletConnectDirectButton } from './WalletConnectDirectButton'
+import { WalletConnectDirectRow } from './WalletConnectDirectRow'
 
 import { WalletActions } from '@/context/WalletProvider/actions'
 import { ConnectModal } from '@/context/WalletProvider/components/ConnectModal'
@@ -79,8 +79,7 @@ export const WalletConnectV2Connect = () => {
       loading={loading}
       error={null}
     >
-      {/* Direct connection button - now inside the modal! */}
-      <WalletConnectDirectButton />
+      <WalletConnectDirectRow />
     </ConnectModal>
   )
 }

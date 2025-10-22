@@ -157,3 +157,7 @@ export type EthereumProviderOptions = {
   relayUrl?: string
   storageOptions?: KeyValueStorageOptions
 } & ChainsProps
+
+// Direct connection polling/timeout values
+export const POLLING_INTERVAL_MS = 1000
+export const CONNECTION_TIMEOUT_MS = 60000

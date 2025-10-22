@@ -7,7 +7,7 @@ import { PairBody } from '../components/PairBody'
 import { WalletActions } from '@/context/WalletProvider/actions'
 import { KeyManager } from '@/context/WalletProvider/KeyManager'
 import { useLocalWallet } from '@/context/WalletProvider/local-wallet'
-import { WalletConnectDirectButton } from '@/context/WalletProvider/WalletConnectV2/components/WalletConnectDirectButton'
+import { WalletConnectDirectRow } from '@/context/WalletProvider/WalletConnectV2/components/WalletConnectDirectRow'
 import { WalletConnectV2Config } from '@/context/WalletProvider/WalletConnectV2/config'
 import { WalletNotFoundError } from '@/context/WalletProvider/WalletConnectV2/Error'
 import { useWallet } from '@/hooks/useWallet/useWallet'
@@ -85,8 +85,7 @@ export const NewWalletConnectV2Connect = () => {
         error={error}
         onPairDeviceClick={pairDevice}
       />
-      {/* Direct connection button */}
-      <WalletConnectDirectButton />
+      <WalletConnectDirectRow />
     </>
   )
 }

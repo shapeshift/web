@@ -225,8 +225,8 @@ export const useDirectWalletConnect = () => {
 
               localWallet.setLocalWallet({ type: KeyManager.WalletConnectV2, deviceId })
 
-              // UGLY: Close modal on successful mobile connection
-              dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
+              // UGLY: Don't close modal here - let the button's polling handle it
+              // dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
 
               console.log('🚨 UGLY MOBILE: State updated successfully!')
               setIsConnecting(false)
@@ -288,8 +288,8 @@ export const useDirectWalletConnect = () => {
 
         localWallet.setLocalWallet({ type: KeyManager.WalletConnectV2, deviceId })
 
-        // UGLY: Close modal on successful desktop connection
-        dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
+        // UGLY: Don't close modal here - let the button's polling handle it
+        // dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
 
         console.log('🚨 UGLY POC: Direct connection complete!')
         setCurrentUri(null)

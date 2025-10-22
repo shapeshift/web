@@ -24,10 +24,11 @@ export const WalletConnectDirectButton = () => {
       console.log('🚨 UGLY: Checking for connection on mobile...')
       const checkInterval = setInterval(() => {
         const provider = (window as any).uglyProvider
-        console.log('🚨 UGLY: Checking provider connected state:', provider?.connected)
+        console.log('🚨 UGLY: Checking provider session:', provider?.session)
+        console.log('🚨 UGLY: Checking provider accounts:', provider?.accounts)
         console.log('🚨 UGLY: Checking wallet state:', state.isConnected)
 
-        if (provider?.connected || state.isConnected) {
+        if ((provider?.session && provider?.accounts?.length > 0) || state.isConnected) {
           console.log('🚨 UGLY: Connection detected!')
           clearInterval(checkInterval)
           setMobilePending(false)

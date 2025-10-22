@@ -41,7 +41,6 @@ export const useDirectWalletConnect = () => {
   const localWallet = useLocalWallet()
   const [isConnecting, setIsConnecting] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [currentUri, setCurrentUri] = useState<string | null>(null)
 
   const showQRCode = useCallback((uri: string, walletName: string) => {
     // For desktop, show QR code
@@ -76,10 +75,41 @@ export const useDirectWalletConnect = () => {
           ;(window as any).walletConnectProvider = provider
         }
 
+        // Helper function to register wallet connection (shared by mobile and desktop flows)
+        const registerWalletConnection = async () => {
+          const { WalletConnectV2HDWallet } = await import(
+            '@shapeshiftoss/hdwallet-walletconnectv2'
+          )
+          const wallet = new WalletConnectV2HDWallet(provider)
+          const deviceId = await wallet.getDeviceID()
+          const { name, icon } = WalletConnectV2Config
+
+          dispatch({
+            type: WalletActions.SET_WCV2_PROVIDER,
+            payload: provider as unknown as EthereumProvider,
+          })
+
+          dispatch({
+            type: WalletActions.SET_WALLET,
+            payload: {
+              wallet,
+              name,
+              icon,
+              deviceId,
+              connectedType: KeyManager.WalletConnectV2,
+            },
+          })
+
+          dispatch({
+            type: WalletActions.SET_IS_CONNECTED,
+            payload: true,
+          })
+
+          localWallet.setLocalWallet({ type: KeyManager.WalletConnectV2, deviceId })
+        }
+
         // Set up the URI handler
         provider.on('display_uri', (uri: string) => {
-          setCurrentUri(uri)
-
           const deepLink = WALLET_DEEP_LINKS[walletId]
           if (!deepLink) {
             return
@@ -102,21 +132,13 @@ export const useDirectWalletConnect = () => {
           }
         })
 
-        // Add connection event listeners
-        provider.on('connect', (_info: any) => {
+        // Add connection event listener
+        // Note: disconnect is handled by useWalletConnectV2EventHandler
+        provider.on('connect', () => {
           // Update state when connection succeeds on mobile
           if (isMobile) {
             setIsConnecting(false)
-            // We'll handle the wallet setup in the promise handler
           }
-        })
-
-        provider.on('disconnect', () => {
-          // Provider disconnected
-        })
-
-        provider.on('session_event', (_event: any) => {
-          // Session event
         })
 
         // Trigger the connection (this fires display_uri event)
@@ -126,44 +148,11 @@ export const useDirectWalletConnect = () => {
           provider
             .enable()
             .then(async _accounts => {
-              // Wrap in HDWallet and update state
-              const { WalletConnectV2HDWallet } = await import(
-                '@shapeshiftoss/hdwallet-walletconnectv2'
-              )
-              const wallet = new WalletConnectV2HDWallet(provider)
-
-              const deviceId = await wallet.getDeviceID()
-              const { name, icon } = WalletConnectV2Config
-
-              // Update state (same as normal flow)
-              dispatch({
-                type: WalletActions.SET_WCV2_PROVIDER,
-                payload: provider as unknown as EthereumProvider,
-              })
-
-              dispatch({
-                type: WalletActions.SET_WALLET,
-                payload: {
-                  wallet,
-                  name, // Use same name as regular WalletConnect
-                  icon,
-                  deviceId,
-                  connectedType: KeyManager.WalletConnectV2,
-                },
-              })
-
-              dispatch({
-                type: WalletActions.SET_IS_CONNECTED,
-                payload: true,
-              })
-
-              localWallet.setLocalWallet({ type: KeyManager.WalletConnectV2, deviceId })
+              // Register wallet connection using shared helper
+              await registerWalletConnection()
 
               // Don't close modal here - let the button's polling handle it
-              // dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
-
               setIsConnecting(false)
-              setCurrentUri(null)
             })
             .catch(err => {
               setError(err.message || 'Mobile connection failed')
@@ -174,49 +163,11 @@ export const useDirectWalletConnect = () => {
           return
         } else {
           // Desktop: await normally
-          try {
-            await provider.enable()
-          } catch (enableError) {
-            throw enableError
-          }
+          await provider.enable()
         }
 
-        // Wrap in HDWallet
-        // Import and use the HDWallet wrapper
-        const { WalletConnectV2HDWallet } = await import('@shapeshiftoss/hdwallet-walletconnectv2')
-        const wallet = new WalletConnectV2HDWallet(provider)
-
-        const deviceId = await wallet.getDeviceID()
-        const { name, icon } = WalletConnectV2Config
-
-        // Update state (same as normal flow)
-        dispatch({
-          type: WalletActions.SET_WCV2_PROVIDER,
-          payload: provider as unknown as EthereumProvider,
-        })
-
-        dispatch({
-          type: WalletActions.SET_WALLET,
-          payload: {
-            wallet,
-            name, // Use same name as regular WalletConnect
-            icon,
-            deviceId,
-            connectedType: KeyManager.WalletConnectV2,
-          },
-        })
-
-        dispatch({
-          type: WalletActions.SET_IS_CONNECTED,
-          payload: true,
-        })
-
-        localWallet.setLocalWallet({ type: KeyManager.WalletConnectV2, deviceId })
-
-        // Don't close modal here - let the button's polling handle it
-        // dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
-
-        setCurrentUri(null)
+        // Register wallet connection using shared helper
+        await registerWalletConnection()
       } catch (e) {
         const errorMsg = e instanceof Error ? e.message : 'Unknown error'
         setError(errorMsg)
@@ -232,6 +183,5 @@ export const useDirectWalletConnect = () => {
     connectToWallet,
     isConnecting,
     error,
-    currentUri,
   }
 }

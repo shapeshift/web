@@ -7,6 +7,9 @@ import { useDirectWalletConnect } from '../useDirectConnect'
 import { WalletActions } from '@/context/WalletProvider/actions'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 
+const POLLING_INTERVAL_MS = 1000
+const CONNECTION_TIMEOUT_MS = 60000
+
 /**
  * Direct WalletConnect connection button
  * Allows direct connection to specific wallets without showing the WalletConnect modal
@@ -30,14 +33,14 @@ export const WalletConnectDirectButton = () => {
           // Close modal when connection is detected
           dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
         }
-      }, 1000)
+      }, POLLING_INTERVAL_MS)
 
-      // Stop checking after 60 seconds
+      // Stop checking after timeout
       const timeout = setTimeout(() => {
         clearInterval(checkInterval)
         setMobilePending(false)
         setLoadingWallet(null) // Clear loading state on timeout
-      }, 60000)
+      }, CONNECTION_TIMEOUT_MS)
 
       return () => {
         clearInterval(checkInterval)

@@ -4,7 +4,6 @@ import { isMobile } from 'react-device-detect'
 
 import { useDirectWalletConnect } from '../useDirectConnect'
 
-import { WalletActions } from '@/context/WalletProvider/actions'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 
 /**
@@ -14,7 +13,7 @@ import { useWallet } from '@/hooks/useWallet/useWallet'
 export const WalletConnectDirectButton = () => {
   console.log('🚨 UGLY: WalletConnectDirectButton is rendering!')
   const { connectToWallet, error } = useDirectWalletConnect()
-  const { state, dispatch } = useWallet()
+  const { state } = useWallet()
   const [loadingWallet, setLoadingWallet] = useState<'metamask' | 'trust' | 'zerion' | null>(null)
   const [mobilePending, setMobilePending] = useState(false)
 
@@ -32,8 +31,6 @@ export const WalletConnectDirectButton = () => {
           clearInterval(checkInterval)
           setMobilePending(false)
           setLoadingWallet(null)
-          // UGLY: Auto-close modal on success
-          dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
         }
       }, 1000)
 
@@ -49,7 +46,7 @@ export const WalletConnectDirectButton = () => {
         clearTimeout(timeout)
       }
     }
-  }, [mobilePending, state.isConnected, dispatch])
+  }, [mobilePending, state.isConnected])
 
   // UGLY: Show error if one occurs
   useEffect(() => {

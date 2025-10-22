@@ -225,9 +225,6 @@ export const useDirectWalletConnect = () => {
 
               localWallet.setLocalWallet({ type: KeyManager.WalletConnectV2, deviceId })
 
-              // UGLY: Auto-close modal on successful connection
-              dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
-
               console.log('🚨 UGLY MOBILE: State updated successfully!')
               setIsConnecting(false)
               setCurrentUri(null)
@@ -287,9 +284,6 @@ export const useDirectWalletConnect = () => {
         })
 
         localWallet.setLocalWallet({ type: KeyManager.WalletConnectV2, deviceId })
-
-        // UGLY: Auto-close modal on successful connection
-        dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
 
         console.log('🚨 UGLY POC: Direct connection complete!')
         setCurrentUri(null)

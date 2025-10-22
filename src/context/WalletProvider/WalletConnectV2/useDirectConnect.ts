@@ -1,8 +1,10 @@
+import type EthereumProviderType from '@walletconnect/ethereum-provider'
 import EthereumProvider from '@walletconnect/ethereum-provider'
 import { useCallback, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 
 import { WalletConnectV2Config, walletConnectV2ProviderConfig } from './config'
+import type { WalletConnectWalletId } from './constants'
 import { WALLET_DEEP_LINKS } from './constants'
 
 import { WalletActions } from '@/context/WalletProvider/actions'
@@ -17,7 +19,7 @@ export const useDirectWalletConnect = () => {
   const [error, setError] = useState<string | null>(null)
 
   const connectToWallet = useCallback(
-    async (walletId: 'metamask' | 'trust' | 'zerion') => {
+    async (walletId: WalletConnectWalletId) => {
       setIsConnecting(true)
       setError(null)
 
@@ -48,7 +50,7 @@ export const useDirectWalletConnect = () => {
 
           dispatch({
             type: WalletActions.SET_WCV2_PROVIDER,
-            payload: provider as unknown as EthereumProvider,
+            payload: provider as unknown as EthereumProviderType,
           })
 
           dispatch({

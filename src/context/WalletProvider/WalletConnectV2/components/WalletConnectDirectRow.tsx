@@ -2,7 +2,7 @@ import { Button, Circle, Flex, Image, Spinner, Text } from '@chakra-ui/react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 
-import type { WalletConfig } from '../constants'
+import type { WalletConfig, WalletConnectWalletId } from '../constants'
 import { CONNECTION_TIMEOUT_MS, POLLING_INTERVAL_MS, WALLET_CONFIGS } from '../constants'
 import { useDirectWalletConnect } from '../useDirectConnect'
 
@@ -19,7 +19,7 @@ const WalletConnectBadge = () => (
 type DirectWalletButtonProps = {
   wallet: WalletConfig
   isLoading: boolean
-  onConnect: (walletId: 'metamask' | 'trust' | 'zerion') => void
+  onConnect: (walletId: WalletConnectWalletId) => void
 }
 
 const DirectWalletButton = ({ wallet, isLoading, onConnect }: DirectWalletButtonProps) => {
@@ -29,7 +29,7 @@ const DirectWalletButton = ({ wallet, isLoading, onConnect }: DirectWalletButton
     if (isLoading) {
       return <Spinner thickness='4px' speed='0.65s' boxSize='64px' />
     }
-    if (wallet.IconComponent) {
+    if ('IconComponent' in wallet) {
       return (
         <Flex boxSize='64px' align='center' justify='center' bg='white' borderRadius='lg' p={2}>
           <wallet.IconComponent boxSize='48px' />
@@ -67,7 +67,7 @@ const DirectWalletButton = ({ wallet, isLoading, onConnect }: DirectWalletButton
 export const WalletConnectDirectRow = () => {
   const { connectToWallet, error } = useDirectWalletConnect()
   const { state, dispatch } = useWallet()
-  const [loadingWallet, setLoadingWallet] = useState<'metamask' | 'trust' | 'zerion' | null>(null)
+  const [loadingWallet, setLoadingWallet] = useState<WalletConnectWalletId | null>(null)
   const [mobilePending, setMobilePending] = useState(false)
 
   useEffect(() => {
@@ -105,7 +105,7 @@ export const WalletConnectDirectRow = () => {
   }, [error])
 
   const handleDirectConnect = useCallback(
-    async (walletId: 'metamask' | 'trust' | 'zerion') => {
+    async (walletId: WalletConnectWalletId) => {
       setLoadingWallet(walletId)
 
       try {

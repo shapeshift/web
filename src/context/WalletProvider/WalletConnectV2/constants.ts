@@ -1,6 +1,9 @@
 import { MetaMaskIcon } from '@/components/Icons/MetaMaskIcon'
 import { getConfig } from '@/config'
 
+// All the types below are copied from @hdwallet/ethereum-provider so we don't have to import the whole package just for the sake of this type
+// and can lazy load it instead
+
 type MobileWallet = {
   id: string
   name: string
@@ -161,7 +164,7 @@ export type EthereumProviderOptions = {
 export const POLLING_INTERVAL_MS = 1000
 export const CONNECTION_TIMEOUT_MS = 60000
 
-type WalletConnectWalletId = 'metamask' | 'trust' | 'zerion'
+export type WalletConnectWalletId = 'metamask' | 'trust' | 'zerion'
 
 export const WALLET_DEEP_LINKS: Record<WalletConnectWalletId, string> = {
   metamask: 'metamask://wc?uri=',
@@ -171,12 +174,19 @@ export const WALLET_DEEP_LINKS: Record<WalletConnectWalletId, string> = {
 
 const { VITE_WALLET_CONNECT_WALLET_PROJECT_ID } = getConfig()
 
-export type WalletConfig = {
-  id: 'metamask' | 'trust' | 'zerion'
+type WalletConfigWithIcon = {
+  id: WalletConnectWalletId
   name: string
-  imageUrl?: string
-  IconComponent?: React.ComponentType<{ boxSize?: string }>
+  IconComponent: React.ComponentType<{ boxSize?: string }>
 }
+
+type WalletConfigWithImage = {
+  id: WalletConnectWalletId
+  name: string
+  imageUrl: string
+}
+
+export type WalletConfig = WalletConfigWithIcon | WalletConfigWithImage
 
 export const WALLET_CONFIGS: WalletConfig[] = [
   {

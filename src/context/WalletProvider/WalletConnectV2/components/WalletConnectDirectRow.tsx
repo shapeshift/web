@@ -64,16 +64,9 @@ const DirectWalletButton = ({ wallet, isLoading, onConnect }: DirectWalletButton
 }
 
 export const WalletConnectDirectRow = () => {
-  const { connect, error } = useDirectWalletConnect()
+  const { connect } = useDirectWalletConnect()
   const { dispatch } = useWallet()
   const [loadingWallet, setLoadingWallet] = useState<WalletConnectWalletId | null>(null)
-
-  useEffect(() => {
-    if (error) {
-      console.error('Direct connection error:', error)
-      setLoadingWallet(null)
-    }
-  }, [error])
 
   const handleDirectConnect = useCallback(
     async (walletId: WalletConnectWalletId) => {

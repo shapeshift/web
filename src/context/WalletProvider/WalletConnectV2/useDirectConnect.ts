@@ -1,15 +1,62 @@
 import type EthereumProviderType from '@walletconnect/ethereum-provider'
 import EthereumProvider from '@walletconnect/ethereum-provider'
+import type { Dispatch } from 'react'
 import { useCallback, useState } from 'react'
 
 import { WalletConnectV2Config, walletConnectV2DirectProviderConfig } from './config'
 import type { WalletConnectWalletId } from './constants'
 import { WALLET_DEEP_LINKS } from './constants'
 
+import type { ActionTypes } from '@/context/WalletProvider/actions'
 import { WalletActions } from '@/context/WalletProvider/actions'
 import { KeyManager } from '@/context/WalletProvider/KeyManager'
 import { useLocalWallet } from '@/context/WalletProvider/local-wallet'
 import { useWallet } from '@/hooks/useWallet/useWallet'
+
+const openDeepLink = (walletId: WalletConnectWalletId, uri: string) => {
+  const deepLink = WALLET_DEEP_LINKS[walletId]
+  if (!deepLink) return
+
+  const fullDeepLink = deepLink + encodeURIComponent(uri)
+  const opened = window.open(fullDeepLink, '_blank')
+  if (!opened) {
+    window.location.href = fullDeepLink
+  }
+}
+
+const registerWalletConnection = async (
+  provider: EthereumProvider,
+  dispatch: Dispatch<ActionTypes>,
+  localWallet: ReturnType<typeof useLocalWallet>,
+) => {
+  const { WalletConnectV2HDWallet } = await import('@shapeshiftoss/hdwallet-walletconnectv2')
+  const wallet = new WalletConnectV2HDWallet(provider)
+  const deviceId = await wallet.getDeviceID()
+  const { name, icon } = WalletConnectV2Config
+
+  dispatch({
+    type: WalletActions.SET_WCV2_PROVIDER,
+    payload: provider as unknown as EthereumProviderType,
+  })
+
+  dispatch({
+    type: WalletActions.SET_WALLET,
+    payload: {
+      wallet,
+      name,
+      icon,
+      deviceId,
+      connectedType: KeyManager.WalletConnectV2,
+    },
+  })
+
+  dispatch({
+    type: WalletActions.SET_IS_CONNECTED,
+    payload: true,
+  })
+
+  localWallet.setLocalWallet({ type: KeyManager.WalletConnectV2, deviceId })
+}
 
 export const useDirectWalletConnect = () => {
   const { dispatch, getAdapter } = useWallet()
@@ -30,51 +77,10 @@ export const useDirectWalletConnect = () => {
 
         const provider = await EthereumProvider.init(walletConnectV2DirectProviderConfig as any)
 
-        const registerWalletConnection = async () => {
-          const { WalletConnectV2HDWallet } = await import(
-            '@shapeshiftoss/hdwallet-walletconnectv2'
-          )
-          const wallet = new WalletConnectV2HDWallet(provider)
-          const deviceId = await wallet.getDeviceID()
-          const { name, icon } = WalletConnectV2Config
-
-          dispatch({
-            type: WalletActions.SET_WCV2_PROVIDER,
-            payload: provider as unknown as EthereumProviderType,
-          })
-
-          dispatch({
-            type: WalletActions.SET_WALLET,
-            payload: {
-              wallet,
-              name,
-              icon,
-              deviceId,
-              connectedType: KeyManager.WalletConnectV2,
-            },
-          })
-
-          dispatch({
-            type: WalletActions.SET_IS_CONNECTED,
-            payload: true,
-          })
-
-          localWallet.setLocalWallet({ type: KeyManager.WalletConnectV2, deviceId })
-        }
-
-        provider.on('display_uri', (uri: string) => {
-          const deepLink = WALLET_DEEP_LINKS[walletId]
-          if (!deepLink) return
-
-          const fullDeepLink = deepLink + encodeURIComponent(uri)
-          const opened = window.open(fullDeepLink, '_blank')
-          if (!opened) {
-            window.location.href = fullDeepLink
-          }
-        })
+        provider.on('display_uri', (uri: string) => openDeepLink(walletId, uri))
 
         await provider.enable()
-        await registerWalletConnection()
+        await registerWalletConnection(provider, dispatch, localWallet)
       } catch (e) {
         const errorMsg = e instanceof Error ? e.message : 'Unknown error'
         setError(errorMsg)

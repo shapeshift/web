@@ -1,5 +1,5 @@
 import { Button, Circle, Flex, Image, Spinner, Text } from '@chakra-ui/react'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 
 import type { WalletConfig, WalletConnectWalletId } from '../constants'
 import { WALLET_CONFIGS } from '../constants'

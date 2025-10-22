@@ -1,14 +1,44 @@
-import { Box, Button, Spinner } from '@chakra-ui/react'
+import { Box, Button, Flex, Image, Spinner, Text } from '@chakra-ui/react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 
 import { useDirectWalletConnect } from '../useDirectConnect'
 
+import { MetaMaskIcon } from '@/components/Icons/MetaMaskIcon'
+import { WalletConnectIcon } from '@/components/Icons/WalletConnectIcon'
+import { getConfig } from '@/config'
 import { WalletActions } from '@/context/WalletProvider/actions'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 
 const POLLING_INTERVAL_MS = 1000
 const CONNECTION_TIMEOUT_MS = 60000
+
+const { VITE_WALLET_CONNECT_WALLET_PROJECT_ID } = getConfig()
+
+type WalletConfig = {
+  id: 'metamask' | 'trust' | 'zerion'
+  name: string
+  imageId?: string
+  IconComponent?: React.ComponentType<{ boxSize?: string }>
+}
+
+const WALLET_CONFIGS: WalletConfig[] = [
+  {
+    id: 'metamask',
+    name: 'MetaMask',
+    IconComponent: MetaMaskIcon,
+  },
+  {
+    id: 'trust',
+    name: 'Trust Wallet',
+    imageId: '7677b54f-3486-46e2-4e37-bf8747814f00',
+  },
+  {
+    id: 'zerion',
+    name: 'Zerion',
+    imageId: '73f6f52f-7862-49e7-bb85-ba93ab72cc00',
+  },
+]
 
 /**
  * Direct WalletConnect connection button
@@ -78,72 +108,8 @@ export const WalletConnectDirectButton = () => {
     [connectToWallet],
   )
 
-  // Memoize props to satisfy React linting
-  const spinnerElement = useMemo(() => <Spinner color='white' />, [])
+  const spinnerElement = useMemo(() => <Spinner size='sm' />, [])
 
-  // MetaMask button styles
-  const hoverStyles = useMemo(
-    () => ({
-      bg: mobilePending ? 'orange.700' : 'red.700',
-      transform: 'scale(1.02)',
-      border: '3px solid yellow',
-    }),
-    [mobilePending],
-  )
-
-  const activeStyles = useMemo(
-    () => ({
-      bg: mobilePending ? 'orange.800' : 'red.800',
-      transform: 'scale(0.98)',
-    }),
-    [mobilePending],
-  )
-
-  // Trust wallet button styles
-  const trustHoverStyles = useMemo(
-    () => ({
-      bg: mobilePending ? 'purple.700' : 'blue.700',
-      transform: 'scale(1.02)',
-      border: '3px solid lime',
-    }),
-    [mobilePending],
-  )
-
-  const trustActiveStyles = useMemo(
-    () => ({
-      bg: mobilePending ? 'purple.800' : 'blue.800',
-      transform: 'scale(0.98)',
-    }),
-    [mobilePending],
-  )
-
-  // Zerion button styles
-  const zerionHoverStyles = useMemo(
-    () => ({
-      bg: mobilePending && loadingWallet === 'zerion' ? 'green.700' : 'purple.700',
-      transform: 'scale(1.02)',
-      border: '3px solid orange',
-    }),
-    [mobilePending, loadingWallet],
-  )
-
-  const zerionActiveStyles = useMemo(
-    () => ({
-      bg: mobilePending && loadingWallet === 'zerion' ? 'green.800' : 'purple.800',
-      transform: 'scale(0.98)',
-    }),
-    [mobilePending, loadingWallet],
-  )
-
-  const disabledStyles = useMemo(
-    () => ({
-      opacity: 0.6,
-      cursor: 'not-allowed',
-    }),
-    [],
-  )
-
-  // Callbacks for button clicks
   const handleMetaMaskClick = useCallback(
     () => handleDirectConnect('metamask'),
     [handleDirectConnect],
@@ -151,157 +117,95 @@ export const WalletConnectDirectButton = () => {
   const handleTrustClick = useCallback(() => handleDirectConnect('trust'), [handleDirectConnect])
   const handleZerionClick = useCallback(() => handleDirectConnect('zerion'), [handleDirectConnect])
 
+  const renderWalletIcon = (wallet: WalletConfig) => {
+    if (wallet.IconComponent) {
+      return <wallet.IconComponent boxSize='48px' />
+    }
+    if (wallet.imageId) {
+      return (
+        <Image
+          src={`https://explorer-api.walletconnect.com/v3/logo/md/${wallet.imageId}?projectId=${VITE_WALLET_CONNECT_WALLET_PROJECT_ID}`}
+          boxSize='48px'
+          borderRadius='md'
+        />
+      )
+    }
+    return null
+  }
+
   return (
-    <Box mt={4}>
-      {/* MetaMask Button */}
-      <Box position='relative' mb={3}>
-        <Button
-          onClick={handleMetaMaskClick}
-          isLoading={loadingWallet === 'metamask'}
-          loadingText={
-            mobilePending && loadingWallet === 'metamask'
-              ? 'Check MetaMask App!'
-              : isMobile
-              ? 'Opening MetaMask...'
-              : 'Show QR for MetaMask...'
-          }
-          spinner={spinnerElement}
-          size='lg'
-          width='100%'
-          height='60px'
-          bg={mobilePending ? 'orange.600' : 'red.600'}
-          color='white'
-          border='3px dashed yellow'
-          borderRadius='md'
-          _hover={hoverStyles}
-          _active={activeStyles}
-          fontWeight='bold'
-          fontSize='lg'
-          textTransform='uppercase'
-          boxShadow='0 4px 6px rgba(255, 0, 0, 0.3)'
-          _disabled={disabledStyles}
-        >
-          {mobilePending && loadingWallet === 'metamask' ? 'WAITING FOR APPROVAL' : 'METAMASK'}
-        </Button>
+    <Flex gap={4} mt={4}>
+      {/* MetaMask */}
+      <Button
+        onClick={handleMetaMaskClick}
+        isLoading={loadingWallet === 'metamask'}
+        spinner={spinnerElement}
+        variant='ghost'
+        height='auto'
+        py={4}
+        px={3}
+        whiteSpace='normal'
+        position='relative'
+        flex={1}
+      >
+        <Flex direction='column' align='center' width='full'>
+          {renderWalletIcon(WALLET_CONFIGS[0])}
+          <Text fontSize='sm' fontWeight='medium' mt={2}>
+            {WALLET_CONFIGS[0].name}
+          </Text>
+          <Box position='absolute' top={1} right={1} opacity={0.6}>
+            <WalletConnectIcon boxSize='16px' />
+          </Box>
+        </Flex>
+      </Button>
 
-        <Box
-          position='absolute'
-          top='-8px'
-          right='-8px'
-          bg='yellow.400'
-          color='red.900'
-          px={2}
-          py={1}
-          borderRadius='md'
-          fontSize='xs'
-          fontWeight='bold'
-          transform='rotate(12deg)'
-          boxShadow='0 2px 4px rgba(0,0,0,0.2)'
-          zIndex={1}
-        >
-          UGLY!
-        </Box>
-      </Box>
+      {/* Trust Wallet */}
+      <Button
+        onClick={handleTrustClick}
+        isLoading={loadingWallet === 'trust'}
+        spinner={spinnerElement}
+        variant='ghost'
+        height='auto'
+        py={4}
+        px={3}
+        whiteSpace='normal'
+        position='relative'
+        flex={1}
+      >
+        <Flex direction='column' align='center' width='full'>
+          {renderWalletIcon(WALLET_CONFIGS[1])}
+          <Text fontSize='sm' fontWeight='medium' mt={2}>
+            {WALLET_CONFIGS[1].name}
+          </Text>
+          <Box position='absolute' top={1} right={1} opacity={0.6}>
+            <WalletConnectIcon boxSize='16px' />
+          </Box>
+        </Flex>
+      </Button>
 
-      {/* Trust Wallet Button */}
-      <Box position='relative'>
-        <Button
-          onClick={handleTrustClick}
-          isLoading={loadingWallet === 'trust'}
-          loadingText={
-            mobilePending && loadingWallet === 'trust'
-              ? 'Check Trust Wallet!'
-              : isMobile
-              ? 'Opening Trust...'
-              : 'Show QR for Trust...'
-          }
-          spinner={spinnerElement}
-          size='lg'
-          width='100%'
-          height='60px'
-          bg={mobilePending ? 'purple.600' : 'blue.600'}
-          color='white'
-          border='3px dashed lime'
-          borderRadius='md'
-          _hover={trustHoverStyles}
-          _active={trustActiveStyles}
-          fontWeight='bold'
-          fontSize='lg'
-          textTransform='uppercase'
-          boxShadow='0 4px 6px rgba(0, 0, 255, 0.3)'
-          _disabled={disabledStyles}
-        >
-          {mobilePending && loadingWallet === 'trust' ? 'WAITING FOR TRUST!' : 'TRUST'}
-        </Button>
-
-        <Box
-          position='absolute'
-          top='-8px'
-          right='-8px'
-          bg='lime.400'
-          color='blue.900'
-          px={2}
-          py={1}
-          borderRadius='md'
-          fontSize='xs'
-          fontWeight='bold'
-          transform='rotate(12deg)'
-          boxShadow='0 2px 4px rgba(0,0,0,0.2)'
-          zIndex={1}
-        >
-          SUPER UGLY!
-        </Box>
-      </Box>
-
-      {/* Zerion Button */}
-      <Box position='relative' mt={3}>
-        <Button
-          onClick={handleZerionClick}
-          isLoading={loadingWallet === 'zerion'}
-          loadingText={
-            mobilePending && loadingWallet === 'zerion'
-              ? 'Check Zerion!'
-              : isMobile
-              ? 'Opening Zerion...'
-              : 'Show QR for Zerion...'
-          }
-          spinner={spinnerElement}
-          size='lg'
-          width='100%'
-          height='60px'
-          bg={mobilePending && loadingWallet === 'zerion' ? 'green.600' : 'purple.600'}
-          color='white'
-          border='3px dashed orange'
-          borderRadius='md'
-          _hover={zerionHoverStyles}
-          _active={zerionActiveStyles}
-          fontWeight='bold'
-          fontSize='lg'
-          textTransform='uppercase'
-          boxShadow='0 4px 6px rgba(128, 0, 128, 0.3)'
-          _disabled={disabledStyles}
-        >
-          {mobilePending && loadingWallet === 'zerion' ? 'WAITING FOR ZERION!' : 'ZERION'}
-        </Button>
-
-        <Box
-          position='absolute'
-          top='-8px'
-          right='-8px'
-          bg='orange.400'
-          color='purple.900'
-          px={2}
-          py={1}
-          borderRadius='md'
-          fontSize='xs'
-          fontWeight='bold'
-          transform='rotate(15deg)'
-          boxShadow='0 2px 4px rgba(0,0,0,0.2)'
-          zIndex={1}
-        >
-          FUARKIN UGLY!
-        </Box>
-      </Box>
-    </Box>
+      {/* Zerion */}
+      <Button
+        onClick={handleZerionClick}
+        isLoading={loadingWallet === 'zerion'}
+        spinner={spinnerElement}
+        variant='ghost'
+        height='auto'
+        py={4}
+        px={3}
+        whiteSpace='normal'
+        position='relative'
+        flex={1}
+      >
+        <Flex direction='column' align='center' width='full'>
+          {renderWalletIcon(WALLET_CONFIGS[2])}
+          <Text fontSize='sm' fontWeight='medium' mt={2}>
+            {WALLET_CONFIGS[2].name}
+          </Text>
+          <Box position='absolute' top={1} right={1} opacity={0.6}>
+            <WalletConnectIcon boxSize='16px' />
+          </Box>
+        </Flex>
+      </Button>
+    </Flex>
   )
 }

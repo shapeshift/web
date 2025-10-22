@@ -276,9 +276,14 @@ Each wallet uses a specific deep link schema:
 | Trust Wallet | `trust://wc?uri={uri}` | Custom scheme (avoids webpage redirect) |
 | Zerion | `zerion://wc?uri={uri}` | Standard custom URL scheme |
 
-**Note**: Trust Wallet originally used `https://link.trustwallet.com/wc?uri={uri}` (universal link) but this caused Safari to navigate to a webpage. Changed to `trust://` custom scheme for consistent UGLY behavior.
+**Note**: Trust Wallet originally used `https://link.trustwallet.com/wc?uri={uri}` (universal link) but this caused Safari to navigate to a webpage. Changed to `trust://` custom scheme for consistent behavior.
 
-Reference: See `UGLY_WALLET_DEEP_LINKS` constant in `useDirectConnect.ts`
+Reference: See `WALLET_DEEP_LINKS` constant in `useDirectConnect.ts`
+
+**Icon Sources:**
+- MetaMask: Custom SVG icon component (`MetaMaskIcon`)
+- Trust Wallet: WalletConnect Explorer API - `image_id: 7677b54f-3486-46e2-4e37-bf8747814f00`
+- Zerion: WalletConnect Explorer API - `image_id: 73f6f52f-7862-49e7-bb85-ba93ab72cc00`
 
 ### Mobile vs Desktop Handling
 
@@ -340,57 +345,98 @@ Reference: See `UGLY_WALLET_DEEP_LINKS` constant in `useDirectConnect.ts`
 
 ## Adding New Wallets
 
-To add a new wallet (e.g., Rainbow):
+To add a new wallet (e.g., Rainbow), follow these steps:
 
-### Step 1: Find Deep Link Format
-Use Claude with this prompt:
+### Step 1: Find Wallet Info Using WalletConnect Explorer API
+
+Use the WalletConnect Explorer API to find wallet metadata including deep link format and icon:
+
+```bash
+# Search for the wallet
+curl "https://explorer-api.walletconnect.com/v3/wallets?projectId=YOUR_PROJECT_ID&search=rainbow"
 ```
-Find [WalletName]'s WalletConnect deep link URI scheme from their official
-docs or WalletConnect registry. I need the exact format like
-"walletname://wc?uri=" or "https://link.walletname.com/wc?uri="
+
+Replace `YOUR_PROJECT_ID` with your WalletConnect project ID from `.env` (`VITE_WALLET_CONNECT_WALLET_PROJECT_ID`).
+
+The API response will include:
+- `image_id` - For fetching the wallet's icon
+- `mobile.native` - The deep link URI scheme (e.g., `rainbow://`)
+- `mobile.universal` - Universal link format (if available)
+- `name` - Official wallet name
+
+**Example response structure:**
+```json
+{
+  "listings": {
+    "some-id": {
+      "id": "some-id",
+      "name": "Rainbow",
+      "image_id": "abcd-1234-efgh-5678",
+      "mobile": {
+        "native": "rainbow://",
+        "universal": "https://rainbow.me"
+      }
+    }
+  }
+}
+```
+
+**Icon URL format:**
+```
+https://explorer-api.walletconnect.com/v3/logo/md/{image_id}?projectId={YOUR_PROJECT_ID}
 ```
 
 ### Step 2: Update Type Definition
+
 ```typescript
 // useDirectConnect.ts
 type WalletConnectWalletId = 'metamask' | 'trust' | 'zerion' | 'rainbow'
 ```
 
 ### Step 3: Add Deep Link
+
 ```typescript
-const UGLY_WALLET_DEEP_LINKS: Record<WalletConnectWalletId, string> = {
+// useDirectConnect.ts
+const WALLET_DEEP_LINKS: Record<WalletConnectWalletId, string> = {
   metamask: 'metamask://wc?uri=',
-  trust: 'https://link.trustwallet.com/wc?uri=',
+  trust: 'trust://wc?uri=',
   zerion: 'zerion://wc?uri=',
   rainbow: 'rainbow://wc?uri=', // ← Add new wallet
 }
 ```
 
-### Step 4: Add Button
-```tsx
-// WalletConnectDirectButton.tsx
-<Button
-  onClick={handleRainbowClick}
-  isLoading={loadingWallet === 'rainbow'}
-  // ... styling
->
-  UGLY POC: Connect WC RAINBOW
-</Button>
+**Note:** Use the `mobile.native` scheme + `wc?uri=` suffix. For example, if the API returns `"native": "rainbow://"`, the deep link becomes `rainbow://wc?uri=`.
+
+### Step 4: Add Wallet Config
+
+```typescript
+// WalletConnectDirectButton.tsx - Add to WALLET_CONFIGS array
+{
+  id: 'rainbow',
+  name: 'Rainbow',
+  imageId: 'abcd-1234-efgh-5678', // ← From API response
+}
 ```
 
-### Step 5: Test
+### Step 5: Add Click Handler
+
+```typescript
+// WalletConnectDirectButton.tsx
+const handleRainbowClick = useCallback(
+  () => handleDirectConnect('rainbow'),
+  [handleDirectConnect],
+)
+```
+
+### Step 6: Test
+
 - Test on proper domain (not localhost)
 - Test on mobile web
 - Test on mobile app (via deep link)
 - Verify modal closes automatically
+- Verify icon loads correctly from WalletConnect API
 
 ## Technical Decisions
-
-### Why "UGLY POC"?
-- **Intentional** - Clearly marked as a proof of concept
-- **Visual distinction** - Bright colors, loud styling makes it obvious this is temporary
-- **Easy to find** - Searching for "UGLY" in codebase finds all related code
-- **Easy to remove** - When converting to production, search and replace "UGLY" markers
 
 ### Why react-device-detect isMobile?
 - **Covers both cases** - Detects mobile web AND mobile app

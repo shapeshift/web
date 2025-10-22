@@ -166,12 +166,6 @@ export const CONNECTION_TIMEOUT_MS = 60000
 
 export type WalletConnectWalletId = 'metamask' | 'trust' | 'zerion'
 
-export const WALLET_DEEP_LINKS: Record<WalletConnectWalletId, string> = {
-  metamask: 'metamask://wc?uri=',
-  trust: 'trust://wc?uri=',
-  zerion: 'zerion://wc?uri=',
-}
-
 const { VITE_WALLET_CONNECT_WALLET_PROJECT_ID } = getConfig()
 
 type WalletConfigWithIcon = {

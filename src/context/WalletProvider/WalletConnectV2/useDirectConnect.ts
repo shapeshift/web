@@ -5,7 +5,6 @@ import { useCallback, useState } from 'react'
 
 import { WalletConnectV2Config, walletConnectV2DirectProviderConfig } from './config'
 import type { WalletConnectWalletId } from './constants'
-import { WALLET_DEEP_LINKS } from './constants'
 
 import type { ActionTypes } from '@/context/WalletProvider/actions'
 import { WalletActions } from '@/context/WalletProvider/actions'
@@ -14,13 +13,12 @@ import { useLocalWallet } from '@/context/WalletProvider/local-wallet'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 
 const openDeepLink = (walletId: WalletConnectWalletId, uri: string) => {
-  const deepLink = WALLET_DEEP_LINKS[walletId]
-  if (!deepLink) return
+  // Build deep link directly from wallet ID since they match the schemes
+  const deepLink = `${walletId}://wc?uri=${encodeURIComponent(uri)}`
 
-  const fullDeepLink = deepLink + encodeURIComponent(uri)
-  const opened = window.open(fullDeepLink, '_blank')
+  const opened = window.open(deepLink, '_blank')
   if (!opened) {
-    window.location.href = fullDeepLink
+    window.location.href = deepLink
   }
 }
 
@@ -54,6 +52,9 @@ const registerWalletConnection = async (
     type: WalletActions.SET_IS_CONNECTED,
     payload: true,
   })
+
+  // Close the modal after successful connection
+  dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
 
   localWallet.setLocalWallet({ type: KeyManager.WalletConnectV2, deviceId })
 }

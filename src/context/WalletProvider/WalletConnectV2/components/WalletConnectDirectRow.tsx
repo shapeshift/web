@@ -6,8 +6,6 @@ import { WALLET_CONFIGS } from '../constants'
 import { useDirectWalletConnect } from '../useDirectConnect'
 
 import { WalletConnectCurrentColorIcon } from '@/components/Icons/WalletConnectIcon'
-import { WalletActions } from '@/context/WalletProvider/actions'
-import { useWallet } from '@/hooks/useWallet/useWallet'
 
 const WalletConnectBadge = () => (
   <Circle size='20px' bg='#3B99FC'>
@@ -65,7 +63,6 @@ const DirectWalletButton = ({ wallet, isLoading, onConnect }: DirectWalletButton
 
 export const WalletConnectDirectRow = () => {
   const { connect } = useDirectWalletConnect()
-  const { dispatch } = useWallet()
   const [loadingWallet, setLoadingWallet] = useState<WalletConnectWalletId | null>(null)
 
   const handleDirectConnect = useCallback(
@@ -74,14 +71,13 @@ export const WalletConnectDirectRow = () => {
 
       try {
         await connect(walletId)
-        dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
         setLoadingWallet(null)
       } catch (error) {
         console.error('Direct connection failed:', error)
         setLoadingWallet(null)
       }
     },
-    [connect, dispatch],
+    [connect],
   )
 
   return (

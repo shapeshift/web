@@ -20,10 +20,8 @@ import { SendFormFields } from '../SendCommon'
 import { ConfirmDelete } from '@/components/Modals/Send/AddressBook/ConfirmDelete'
 import { Text } from '@/components/Text'
 import { makeBlockiesUrl } from '@/lib/blockies/makeBlockiesUrl'
-import {
-  addressBookSlice,
-  type AddressBookEntry,
-} from '@/state/slices/addressBookSlice/addressBookSlice'
+import type { AddressBookEntry } from '@/state/slices/addressBookSlice/addressBookSlice'
+import { addressBookSlice } from '@/state/slices/addressBookSlice/addressBookSlice'
 import {
   selectAddressBookEntriesByChainNamespace,
   selectAddressBookEntriesBySearchQuery,

@@ -1,5 +1,5 @@
-// All the types below are copied from @hdwallet/ethereum-provider so we don't have to import the whole package just for the sake of this type
-// and can lazy load it instead
+import { MetaMaskIcon } from '@/components/Icons/MetaMaskIcon'
+import { getConfig } from '@/config'
 
 type MobileWallet = {
   id: string
@@ -168,3 +168,30 @@ export const WALLET_DEEP_LINKS: Record<WalletConnectWalletId, string> = {
   trust: 'trust://wc?uri=',
   zerion: 'zerion://wc?uri=',
 }
+
+const { VITE_WALLET_CONNECT_WALLET_PROJECT_ID } = getConfig()
+
+export type WalletConfig = {
+  id: 'metamask' | 'trust' | 'zerion'
+  name: string
+  imageUrl?: string
+  IconComponent?: React.ComponentType<{ boxSize?: string }>
+}
+
+export const WALLET_CONFIGS: WalletConfig[] = [
+  {
+    id: 'metamask',
+    name: 'MetaMask',
+    IconComponent: MetaMaskIcon,
+  },
+  {
+    id: 'trust',
+    name: 'Trust',
+    imageUrl: `https://explorer-api.walletconnect.com/v3/logo/md/7677b54f-3486-46e2-4e37-bf8747814f00?projectId=${VITE_WALLET_CONNECT_WALLET_PROJECT_ID}`,
+  },
+  {
+    id: 'zerion',
+    name: 'Zerion',
+    imageUrl: `https://explorer-api.walletconnect.com/v3/logo/md/73f6f52f-7862-49e7-bb85-ba93ab72cc00?projectId=${VITE_WALLET_CONNECT_WALLET_PROJECT_ID}`,
+  },
+]

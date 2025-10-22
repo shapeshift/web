@@ -2,8 +2,6 @@ import type EthereumProvider from '@walletconnect/ethereum-provider'
 import { useCallback, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
-import { WalletConnectDirectRow } from './WalletConnectDirectRow'
-
 import { WalletActions } from '@/context/WalletProvider/actions'
 import { ConnectModal } from '@/context/WalletProvider/components/ConnectModal'
 import { KeyManager } from '@/context/WalletProvider/KeyManager'
@@ -78,8 +76,6 @@ export const WalletConnectV2Connect = () => {
       onPairDeviceClick={pairDevice}
       loading={loading}
       error={null}
-    >
-      <WalletConnectDirectRow />
-    </ConnectModal>
+    />
   )
 }

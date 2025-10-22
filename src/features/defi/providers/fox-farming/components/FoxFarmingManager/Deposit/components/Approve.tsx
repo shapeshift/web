@@ -1,4 +1,3 @@
-import { useToast } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { useCallback, useContext, useMemo } from 'react'
@@ -18,6 +17,7 @@ import { DefiAction, DefiStep } from '@/features/defi/contexts/DefiManagerProvid
 import { canCoverTxFees } from '@/features/defi/helpers/utils'
 import { useFoxFarming } from '@/features/defi/providers/fox-farming/hooks/useFoxFarming'
 import { useBrowserRouter } from '@/hooks/useBrowserRouter/useBrowserRouter'
+import { useNotificationToast } from '@/hooks/useNotificationToast'
 import { usePoll } from '@/hooks/usePoll/usePoll'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
@@ -44,7 +44,7 @@ export const Approve: React.FC<FoxFarmingApproveProps> = ({ accountId, onNext })
   const { poll } = usePoll()
   const { state, dispatch } = useContext(DepositContext)
   const wallet = useWallet().state.wallet
-  const toast = useToast()
+  const toast = useNotificationToast({ desktopPosition: 'top-right' })
   const estimatedGasCryptoPrecision = state?.approve.estimatedGasCryptoPrecision
   const translate = useTranslate()
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
@@ -132,7 +132,6 @@ export const Approve: React.FC<FoxFarmingApproveProps> = ({ accountId, onNext })
     } catch (error) {
       console.error(error)
       toast({
-        position: 'top-right',
         description: translate('common.transactionFailedBody'),
         title: translate('common.transactionFailed'),
         status: 'error',

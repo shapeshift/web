@@ -214,7 +214,7 @@ Location: `src/context/WalletProvider/WalletConnectV2/components/WalletConnectDi
 Renders three "UGLY" buttons for direct wallet connections:
 - **MetaMask**: Red button with yellow "UGLY!" badge
 - **Trust Wallet**: Blue button with lime "SUPER UGLY!" badge
-- **Zerion**: Purple button with orange "FUCKING UGLY!" badge
+- **Zerion**: Purple button with orange "FUARKIN UGLY!" badge (thick, solid, tight!)
 
 Button Text (simplified):
 - MetaMask: "METAMASK"
@@ -499,10 +499,10 @@ When testing this feature:
 8. **Button Text & Badge Styling (Final Polish)**
    - Simplified button text: Removed "POC: Connect WC" prefix, just show wallet names
    - Buttons now display: "METAMASK", "TRUST", "ZERION"
-   - Badges maintain UGLY hierarchy: "UGLY!", "SUPER UGLY!", "FUCKING UGLY!"
+   - Badges maintain UGLY hierarchy: "UGLY!", "SUPER UGLY!", "FUARKIN UGLY!"
    - Fixed badge positioning: All badges on the right side with consistent rotation
-   - No censorship: Changed "F**KING" to "FUCKING" (it's Australian, mate!)
-   - Attempted spinning animation: Tried keyframes animation but removed (didn't work, fuck it)
+   - Updated to proper terminology: "FUARKIN" means thick, solid, tight (trust me bro)
+   - Attempted spinning animation: Tried keyframes animation but removed (didn't work, fuark it)
 
 ### Current Behavior
 

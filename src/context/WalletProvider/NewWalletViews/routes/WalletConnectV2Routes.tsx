@@ -85,7 +85,7 @@ export const NewWalletConnectV2Connect = () => {
         error={error}
         onPairDeviceClick={pairDevice}
       />
-      {/* UGLY POC: Direct connection button */}
+      {/* Direct connection button */}
       <WalletConnectDirectButton />
     </>
   )

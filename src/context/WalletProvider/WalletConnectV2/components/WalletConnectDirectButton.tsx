@@ -8,32 +8,26 @@ import { WalletActions } from '@/context/WalletProvider/actions'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 
 /**
- * UGLY POC: Direct WalletConnect connection button
- * This is an intentionally ugly proof of concept
+ * Direct WalletConnect connection button
+ * Allows direct connection to specific wallets without showing the WalletConnect modal
  */
 export const WalletConnectDirectButton = () => {
-  console.log('🚨 UGLY: WalletConnectDirectButton is rendering!')
   const { connectToWallet, error } = useDirectWalletConnect()
   const { state, dispatch } = useWallet()
   const [loadingWallet, setLoadingWallet] = useState<'metamask' | 'trust' | 'zerion' | null>(null)
   const [mobilePending, setMobilePending] = useState(false)
 
-  // UGLY: Check if we're connected after returning from wallet on mobile
+  // Check if we're connected after returning from wallet on mobile
   useEffect(() => {
     if (isMobile && mobilePending && loadingWallet) {
-      console.log('🚨 UGLY: Checking for connection on mobile...')
       const checkInterval = setInterval(() => {
-        const provider = (window as any).uglyProvider
-        console.log('🚨 UGLY: Checking provider session:', provider?.session)
-        console.log('🚨 UGLY: Checking provider accounts:', provider?.accounts)
-        console.log('🚨 UGLY: Checking wallet state:', state.isConnected)
+        const provider = (window as any).walletConnectProvider
 
         if ((provider?.session && provider?.accounts?.length > 0) || state.isConnected) {
-          console.log('🚨 UGLY: Connection detected!')
           clearInterval(checkInterval)
           setMobilePending(false)
           setLoadingWallet(null) // Clear loading state after successful connection
-          // UGLY: Close modal when connection is detected
+          // Close modal when connection is detected
           dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
         }
       }, 1000)
@@ -52,10 +46,10 @@ export const WalletConnectDirectButton = () => {
     }
   }, [mobilePending, state.isConnected, loadingWallet, dispatch])
 
-  // UGLY: Show error if one occurs
+  // Show error if one occurs
   useEffect(() => {
     if (error) {
-      console.error('🚨 UGLY ERROR:', error)
+      console.error('Direct connection error:', error)
       setLoadingWallet(null)
       setMobilePending(false)
     }
@@ -63,7 +57,6 @@ export const WalletConnectDirectButton = () => {
 
   const handleDirectConnect = useCallback(
     async (walletId: 'metamask' | 'trust' | 'zerion') => {
-      console.log(`🚨 UGLY: Button clicked for ${walletId}!`)
       setLoadingWallet(walletId)
 
       try {
@@ -71,14 +64,10 @@ export const WalletConnectDirectButton = () => {
 
         // On mobile, connection happens async
         if (isMobile) {
-          console.log('🚨 UGLY: Mobile mode - setting pending state')
           setMobilePending(true)
-        } else {
-          // Desktop shows QR code via alert, just wait for connection
-          console.log('🚨 UGLY: Desktop mode - waiting for QR scan')
         }
       } catch (error) {
-        console.error('🚨 UGLY: Direct connection failed:', error)
+        console.error('Direct connection failed:', error)
         setLoadingWallet(null)
         setMobilePending(false)
       }
@@ -86,7 +75,7 @@ export const WalletConnectDirectButton = () => {
     [connectToWallet],
   )
 
-  // UGLY: Memoize props to satisfy React linting
+  // Memoize props to satisfy React linting
   const spinnerElement = useMemo(() => <Spinner color='white' />, [])
 
   // MetaMask button styles
@@ -151,7 +140,7 @@ export const WalletConnectDirectButton = () => {
     [],
   )
 
-  // UGLY: Callbacks for button clicks
+  // Callbacks for button clicks
   const handleMetaMaskClick = useCallback(
     () => handleDirectConnect('metamask'),
     [handleDirectConnect],
@@ -161,7 +150,7 @@ export const WalletConnectDirectButton = () => {
 
   return (
     <Box mt={4}>
-      {/* UGLY MetaMask Button */}
+      {/* MetaMask Button */}
       <Box position='relative' mb={3}>
         <Button
           onClick={handleMetaMaskClick}
@@ -211,7 +200,7 @@ export const WalletConnectDirectButton = () => {
         </Box>
       </Box>
 
-      {/* UGLY Trust Wallet Button */}
+      {/* Trust Wallet Button */}
       <Box position='relative'>
         <Button
           onClick={handleTrustClick}
@@ -261,7 +250,7 @@ export const WalletConnectDirectButton = () => {
         </Box>
       </Box>
 
-      {/* UGLY Zerion Button */}
+      {/* Zerion Button */}
       <Box position='relative' mt={3}>
         <Button
           onClick={handleZerionClick}

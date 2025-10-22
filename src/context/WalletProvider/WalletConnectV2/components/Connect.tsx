@@ -79,7 +79,7 @@ export const WalletConnectV2Connect = () => {
       loading={loading}
       error={null}
     >
-      {/* UGLY POC: Ugly direct connection button - now inside the modal! */}
+      {/* Direct connection button - now inside the modal! */}
       <WalletConnectDirectButton />
     </ConnectModal>
   )

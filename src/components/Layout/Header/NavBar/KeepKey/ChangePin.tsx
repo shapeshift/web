@@ -1,4 +1,4 @@
-import { Box, Button, Flex, useColorModeValue, useToast } from '@chakra-ui/react'
+import { Box, Button, Flex, useColorModeValue } from '@chakra-ui/react'
 import type { JSX } from 'react'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -17,6 +17,7 @@ import { WalletActions } from '@/context/WalletProvider/actions'
 import { KeepKeyPin } from '@/context/WalletProvider/KeepKey/components/Pin'
 import { PinMatrixRequestType } from '@/context/WalletProvider/KeepKey/KeepKeyTypes'
 import { useKeepKey } from '@/context/WalletProvider/KeepKeyProvider'
+import { useNotificationToast } from '@/hooks/useNotificationToast'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 
 const gridProps = { spacing: 2 }
@@ -37,7 +38,7 @@ export const ChangePin = () => {
     },
     setDeviceState,
   } = useWallet()
-  const toast = useToast()
+  const toast = useNotificationToast()
   const pinButtonBackground = useColorModeValue('gray.200', 'gray.600')
   const pinButtonBackgroundHover = useColorModeValue('gray.100', 'text.subtle')
 

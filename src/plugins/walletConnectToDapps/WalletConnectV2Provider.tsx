@@ -3,6 +3,7 @@ import { createContext, useContext, useEffect, useMemo, useReducer, useRef } fro
 
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { useWalletConnectEventsManager } from '@/plugins/walletConnectToDapps/eventsManager/useWalletConnectEventsManager'
+import { useWalletConnectDeepLink } from '@/plugins/walletConnectToDapps/hooks/useWalletConnectDeepLink'
 import type {
   WalletConnectContextType,
   WalletConnectState,
@@ -48,6 +49,9 @@ export const WalletConnectV2Provider: FC<PropsWithChildren> = ({ children }) => 
   }, [])
 
   useWalletConnectEventsManager(state, dispatch)
+
+  // Handle deep links for WalletConnect URIs from /wc route
+  useWalletConnectDeepLink(state)
 
   useEffect(() => {
     const activeSessions = state.web3wallet?.getActiveSessions()

@@ -40,6 +40,13 @@ const WALLET_CONFIGS: WalletConfig[] = [
   },
 ]
 
+// Small WalletConnect badge to show next to wallet names
+const WalletConnectBadge = () => (
+  <Circle size='20px' bg='#3B99FC'>
+    <WalletConnectCurrentColorIcon boxSize='12px' color='white' />
+  </Circle>
+)
+
 /**
  * Direct WalletConnect connection button
  * Allows direct connection to specific wallets without showing the WalletConnect modal
@@ -159,9 +166,7 @@ export const WalletConnectDirectButton = () => {
             <Text fontSize='sm' fontWeight='medium'>
               {WALLET_CONFIGS[0].name}
             </Text>
-            <Circle size='20px' bg='blue.500'>
-              <WalletConnectCurrentColorIcon boxSize='12px' color='white' />
-            </Circle>
+            <WalletConnectBadge />
           </Flex>
         </Flex>
       </Button>
@@ -188,9 +193,7 @@ export const WalletConnectDirectButton = () => {
             <Text fontSize='sm' fontWeight='medium'>
               {WALLET_CONFIGS[1].name}
             </Text>
-            <Circle size='20px' bg='blue.500'>
-              <WalletConnectCurrentColorIcon boxSize='12px' color='white' />
-            </Circle>
+            <WalletConnectBadge />
           </Flex>
         </Flex>
       </Button>
@@ -217,9 +220,7 @@ export const WalletConnectDirectButton = () => {
             <Text fontSize='sm' fontWeight='medium'>
               {WALLET_CONFIGS[2].name}
             </Text>
-            <Circle size='20px' bg='blue.500'>
-              <WalletConnectCurrentColorIcon boxSize='12px' color='white' />
-            </Circle>
+            <WalletConnectBadge />
           </Flex>
         </Flex>
       </Button>

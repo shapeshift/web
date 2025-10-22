@@ -212,15 +212,21 @@ We just discovered that the modal is **optional UI**, not a required component o
 Location: `src/context/WalletProvider/WalletConnectV2/components/WalletConnectDirectButton.tsx`
 
 Renders three "UGLY" buttons for direct wallet connections:
-- **MetaMask**: Red button with yellow border
-- **Trust Wallet**: Blue button with lime border
-- **Zerion**: Purple button with orange border
+- **MetaMask**: Red button with yellow "UGLY!" badge
+- **Trust Wallet**: Blue button with lime "SUPER UGLY!" badge
+- **Zerion**: Purple button with orange "FUCKING UGLY!" badge
+
+Button Text (simplified):
+- MetaMask: "METAMASK"
+- Trust: "TRUST"
+- Zerion: "ZERION"
 
 Features:
 - Separate loading states per wallet
 - Mobile-specific pending states
 - No toast notifications (removed for cleaner UX)
 - Auto-detects successful connection and closes modal
+- Escalating UGLY levels via rotated badges (all positioned on the right)
 
 #### 2. `useDirectConnect.ts`
 Location: `src/context/WalletProvider/WalletConnectV2/useDirectConnect.ts`
@@ -489,6 +495,14 @@ When testing this feature:
 
 7. **Type Naming Conflict**
    - Changed `WalletId` to `WalletConnectWalletId` to avoid confusion with existing app terminology
+
+8. **Button Text & Badge Styling (Final Polish)**
+   - Simplified button text: Removed "POC: Connect WC" prefix, just show wallet names
+   - Buttons now display: "METAMASK", "TRUST", "ZERION"
+   - Badges maintain UGLY hierarchy: "UGLY!", "SUPER UGLY!", "FUCKING UGLY!"
+   - Fixed badge positioning: All badges on the right side with consistent rotation
+   - No censorship: Changed "F**KING" to "FUCKING" (it's Australian, mate!)
+   - Attempted spinning animation: Tried keyframes animation but removed (didn't work, fuck it)
 
 ### Current Behavior
 

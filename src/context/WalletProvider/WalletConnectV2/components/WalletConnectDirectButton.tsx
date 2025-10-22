@@ -188,15 +188,13 @@ export const WalletConnectDirectButton = () => {
           boxShadow='0 4px 6px rgba(255, 0, 0, 0.3)'
           _disabled={disabledStyles}
         >
-          {mobilePending && loadingWallet === 'metamask'
-            ? 'WAITING FOR APPROVAL'
-            : 'UGLY POC: Connect WC MM'}
+          {mobilePending && loadingWallet === 'metamask' ? 'WAITING FOR APPROVAL' : 'METAMASK'}
         </Button>
 
         <Box
           position='absolute'
-          top='-10px'
-          right='-10px'
+          top='-8px'
+          right='-8px'
           bg='yellow.400'
           color='red.900'
           px={2}
@@ -206,6 +204,7 @@ export const WalletConnectDirectButton = () => {
           fontWeight='bold'
           transform='rotate(12deg)'
           boxShadow='0 2px 4px rgba(0,0,0,0.2)'
+          zIndex={1}
         >
           UGLY!
         </Box>
@@ -239,15 +238,13 @@ export const WalletConnectDirectButton = () => {
           boxShadow='0 4px 6px rgba(0, 0, 255, 0.3)'
           _disabled={disabledStyles}
         >
-          {mobilePending && loadingWallet === 'trust'
-            ? 'WAITING FOR TRUST!'
-            : 'SUPER UGLY POC: Connect WC TRUST'}
+          {mobilePending && loadingWallet === 'trust' ? 'WAITING FOR TRUST!' : 'TRUST'}
         </Button>
 
         <Box
           position='absolute'
-          top='-10px'
-          left='-10px'
+          top='-8px'
+          right='-8px'
           bg='lime.400'
           color='blue.900'
           px={2}
@@ -255,8 +252,9 @@ export const WalletConnectDirectButton = () => {
           borderRadius='md'
           fontSize='xs'
           fontWeight='bold'
-          transform='rotate(-12deg)'
+          transform='rotate(12deg)'
           boxShadow='0 2px 4px rgba(0,0,0,0.2)'
+          zIndex={1}
         >
           SUPER UGLY!
         </Box>
@@ -290,15 +288,13 @@ export const WalletConnectDirectButton = () => {
           boxShadow='0 4px 6px rgba(128, 0, 128, 0.3)'
           _disabled={disabledStyles}
         >
-          {mobilePending && loadingWallet === 'zerion'
-            ? 'WAITING FOR ZERION!'
-            : 'F**KING UGLY POC: Connect WC ZERION'}
+          {mobilePending && loadingWallet === 'zerion' ? 'WAITING FOR ZERION!' : 'ZERION'}
         </Button>
 
         <Box
           position='absolute'
-          top='-10px'
-          right='-10px'
+          top='-8px'
+          right='-8px'
           bg='orange.400'
           color='purple.900'
           px={2}
@@ -308,8 +304,9 @@ export const WalletConnectDirectButton = () => {
           fontWeight='bold'
           transform='rotate(15deg)'
           boxShadow='0 2px 4px rgba(0,0,0,0.2)'
+          zIndex={1}
         >
-          F**KING UGLY!
+          FUCKING UGLY!
         </Box>
       </Box>
     </Box>

@@ -192,19 +192,24 @@ export const WALLET_CONFIGS: WalletConfig[] = [
 **Note**: Deep link is built automatically from wallet ID: `rainbow://wc?uri={uri}`
 
 ### Step 4: Test
-- Deploy to proper domain (WalletConnect rejects localhost)
-- Test on mobile web (iOS Safari, Android Chrome)
-- Verify deep link opens wallet app
-- Verify connection completes and modal closes
+- **Desktop**: Use `localhost` (WalletConnect QR code flow works fine)
+- **Mobile deep links**: Requires real mobile device + deployed environment
+- Deploy to ephemeral environment (e.g., `gome.shapeshift.com`)
+- Test on iOS Safari and Android Chrome
+- Verify deep link opens wallet app and connection completes
 
 ## Environment Requirements
 
-**IMPORTANT**: WalletConnect only works on proper domains, not localhost.
+**Testing on Desktop (`localhost`):**
+- ✅ WalletConnect works fine
+- ✅ Standard modal with QR codes works
+- ✅ Desktop development workflow is normal
 
-- ✅ Works: `*.shapeshift.com` (gome, app, private, etc.)
-- ❌ Fails: `localhost`, `192.168.x.x`, local IPs
-
-This applies to both standard modal and direct connection flows.
+**Testing Deep Links (Mobile):**
+Deep links require actual mobile devices with wallet apps installed. Testing requires:
+- ✅ Deploy to remote domain (`*.shapeshift.com`)
+- ❌ Local IP addresses (`192.168.x.x`) - WalletConnect relay rejects them
+- Must use ephemeral environment (gome, private, etc.) to test on phone
 
 ## Resources
 

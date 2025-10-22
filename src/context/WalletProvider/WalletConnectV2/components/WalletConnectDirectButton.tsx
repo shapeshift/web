@@ -1,9 +1,10 @@
-import { Box, Button, Spinner, useToast } from '@chakra-ui/react'
+import { Box, Button, Spinner } from '@chakra-ui/react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { isMobile } from 'react-device-detect'
 
 import { useDirectWalletConnect } from '../useDirectConnect'
 
+import { WalletActions } from '@/context/WalletProvider/actions'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 
 /**
@@ -12,13 +13,12 @@ import { useWallet } from '@/hooks/useWallet/useWallet'
  */
 export const WalletConnectDirectButton = () => {
   console.log('🚨 UGLY: WalletConnectDirectButton is rendering!')
-  const { connectToWallet, isConnecting, error } = useDirectWalletConnect()
-  const { state } = useWallet()
-  const [isLoading, setIsLoading] = useState(false)
+  const { connectToWallet, error } = useDirectWalletConnect()
+  const { state, dispatch } = useWallet()
+  const [loadingWallet, setLoadingWallet] = useState<'metamask' | 'trust' | 'zerion' | null>(null)
   const [mobilePending, setMobilePending] = useState(false)
-  const toast = useToast()
 
-  // UGLY: Check if we're connected after returning from MetaMask
+  // UGLY: Check if we're connected after returning from wallet on mobile
   useEffect(() => {
     if (isMobile && mobilePending) {
       console.log('🚨 UGLY: Checking for connection on mobile...')
@@ -31,14 +31,9 @@ export const WalletConnectDirectButton = () => {
           console.log('🚨 UGLY: Connection detected!')
           clearInterval(checkInterval)
           setMobilePending(false)
-          setIsLoading(false)
-          toast({
-            title: '🚨 UGLY SUCCESS! 🚨',
-            description: 'Connected via WalletConnect!',
-            status: 'success',
-            duration: 5000,
-            isClosable: true,
-          })
+          setLoadingWallet(null)
+          // UGLY: Auto-close modal on success
+          dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
         }
       }, 1000)
 
@@ -46,14 +41,7 @@ export const WalletConnectDirectButton = () => {
       const timeout = setTimeout(() => {
         clearInterval(checkInterval)
         setMobilePending(false)
-        setIsLoading(false)
-        toast({
-          title: '🚨 UGLY: Timeout 🚨',
-          description: 'Connection attempt timed out. Please try again.',
-          status: 'warning',
-          duration: 5000,
-          isClosable: true,
-        })
+        setLoadingWallet(null)
       }, 60000)
 
       return () => {
@@ -61,28 +49,21 @@ export const WalletConnectDirectButton = () => {
         clearTimeout(timeout)
       }
     }
-  }, [mobilePending, state.isConnected, toast])
+  }, [mobilePending, state.isConnected, dispatch])
 
   // UGLY: Show error if one occurs
   useEffect(() => {
     if (error) {
       console.error('🚨 UGLY ERROR:', error)
-      toast({
-        title: '🚨 UGLY ERROR 🚨',
-        description: error,
-        status: 'error',
-        duration: 5000,
-        isClosable: true,
-      })
-      setIsLoading(false)
+      setLoadingWallet(null)
       setMobilePending(false)
     }
-  }, [error, toast])
+  }, [error])
 
   const handleDirectConnect = useCallback(
-    async (walletId: 'metamask' | 'trust') => {
+    async (walletId: 'metamask' | 'trust' | 'zerion') => {
       console.log(`🚨 UGLY: Button clicked for ${walletId}!`)
-      setIsLoading(true)
+      setLoadingWallet(walletId)
 
       try {
         await connectToWallet(walletId)
@@ -91,31 +72,17 @@ export const WalletConnectDirectButton = () => {
         if (isMobile) {
           console.log('🚨 UGLY: Mobile mode - setting pending state')
           setMobilePending(true)
-          toast({
-            title: '🚨 UGLY: Check MetaMask! 🚨',
-            description: 'Approve the connection in MetaMask, then return here',
-            status: 'info',
-            duration: null, // Keep it open
-            isClosable: true,
-          })
         } else {
           // Desktop shows QR code via alert, just wait for connection
           console.log('🚨 UGLY: Desktop mode - waiting for QR scan')
         }
       } catch (error) {
         console.error('🚨 UGLY: Direct connection failed:', error)
-        toast({
-          title: '🚨 UGLY: Connection Failed 🚨',
-          description: error instanceof Error ? error.message : 'Failed to connect directly',
-          status: 'error',
-          duration: 5000,
-          isClosable: true,
-        })
-        setIsLoading(false)
+        setLoadingWallet(null)
         setMobilePending(false)
       }
     },
-    [connectToWallet, toast],
+    [connectToWallet],
   )
 
   // UGLY: Memoize props to satisfy React linting
@@ -157,6 +124,24 @@ export const WalletConnectDirectButton = () => {
     [mobilePending],
   )
 
+  // Zerion button styles
+  const zerionHoverStyles = useMemo(
+    () => ({
+      bg: mobilePending && loadingWallet === 'zerion' ? 'green.700' : 'purple.700',
+      transform: 'scale(1.02)',
+      border: '3px solid orange',
+    }),
+    [mobilePending, loadingWallet],
+  )
+
+  const zerionActiveStyles = useMemo(
+    () => ({
+      bg: mobilePending && loadingWallet === 'zerion' ? 'green.800' : 'purple.800',
+      transform: 'scale(0.98)',
+    }),
+    [mobilePending, loadingWallet],
+  )
+
   const disabledStyles = useMemo(
     () => ({
       opacity: 0.6,
@@ -171,6 +156,7 @@ export const WalletConnectDirectButton = () => {
     [handleDirectConnect],
   )
   const handleTrustClick = useCallback(() => handleDirectConnect('trust'), [handleDirectConnect])
+  const handleZerionClick = useCallback(() => handleDirectConnect('zerion'), [handleDirectConnect])
 
   return (
     <Box mt={4}>
@@ -178,10 +164,10 @@ export const WalletConnectDirectButton = () => {
       <Box position='relative' mb={3}>
         <Button
           onClick={handleMetaMaskClick}
-          isLoading={isLoading || isConnecting || mobilePending}
+          isLoading={loadingWallet === 'metamask'}
           loadingText={
-            mobilePending
-              ? '🚨 Check MetaMask App! 🚨'
+            mobilePending && loadingWallet === 'metamask'
+              ? 'Check MetaMask App!'
               : isMobile
               ? 'Opening MetaMask...'
               : 'Show QR for MetaMask...'
@@ -202,7 +188,9 @@ export const WalletConnectDirectButton = () => {
           boxShadow='0 4px 6px rgba(255, 0, 0, 0.3)'
           _disabled={disabledStyles}
         >
-          {mobilePending ? '🚨 WAITING FOR APPROVAL 🚨' : '🚨 UGLY POC: Connect WC MM 🚨'}
+          {mobilePending && loadingWallet === 'metamask'
+            ? 'WAITING FOR APPROVAL'
+            : 'UGLY POC: Connect WC MM'}
         </Button>
 
         <Box
@@ -227,10 +215,10 @@ export const WalletConnectDirectButton = () => {
       <Box position='relative'>
         <Button
           onClick={handleTrustClick}
-          isLoading={isLoading || isConnecting || mobilePending}
+          isLoading={loadingWallet === 'trust'}
           loadingText={
-            mobilePending
-              ? '🚨 Check Trust Wallet! 🚨'
+            mobilePending && loadingWallet === 'trust'
+              ? 'Check Trust Wallet!'
               : isMobile
               ? 'Opening Trust...'
               : 'Show QR for Trust...'
@@ -251,7 +239,9 @@ export const WalletConnectDirectButton = () => {
           boxShadow='0 4px 6px rgba(0, 0, 255, 0.3)'
           _disabled={disabledStyles}
         >
-          {mobilePending ? '🚨 WAITING FOR TRUST! 🚨' : '🚨 UGLY POC: Connect WC TRUST 🚨'}
+          {mobilePending && loadingWallet === 'trust'
+            ? 'WAITING FOR TRUST!'
+            : 'UGLY POC: Connect WC TRUST'}
         </Button>
 
         <Box
@@ -269,6 +259,57 @@ export const WalletConnectDirectButton = () => {
           boxShadow='0 2px 4px rgba(0,0,0,0.2)'
         >
           ALSO UGLY!
+        </Box>
+      </Box>
+
+      {/* UGLY Zerion Button */}
+      <Box position='relative' mt={3}>
+        <Button
+          onClick={handleZerionClick}
+          isLoading={loadingWallet === 'zerion'}
+          loadingText={
+            mobilePending && loadingWallet === 'zerion'
+              ? 'Check Zerion!'
+              : isMobile
+              ? 'Opening Zerion...'
+              : 'Show QR for Zerion...'
+          }
+          spinner={spinnerElement}
+          size='lg'
+          width='100%'
+          height='60px'
+          bg={mobilePending && loadingWallet === 'zerion' ? 'green.600' : 'purple.600'}
+          color='white'
+          border='3px dashed orange'
+          borderRadius='md'
+          _hover={zerionHoverStyles}
+          _active={zerionActiveStyles}
+          fontWeight='bold'
+          fontSize='lg'
+          textTransform='uppercase'
+          boxShadow='0 4px 6px rgba(128, 0, 128, 0.3)'
+          _disabled={disabledStyles}
+        >
+          {mobilePending && loadingWallet === 'zerion'
+            ? 'WAITING FOR ZERION!'
+            : 'UGLY POC: Connect WC ZERION'}
+        </Button>
+
+        <Box
+          position='absolute'
+          top='-10px'
+          right='-10px'
+          bg='orange.400'
+          color='purple.900'
+          px={2}
+          py={1}
+          borderRadius='md'
+          fontSize='xs'
+          fontWeight='bold'
+          transform='rotate(15deg)'
+          boxShadow='0 2px 4px rgba(0,0,0,0.2)'
+        >
+          SUPER UGLY!
         </Box>
       </Box>
     </Box>

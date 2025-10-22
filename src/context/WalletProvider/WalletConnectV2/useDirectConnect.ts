@@ -16,13 +16,57 @@ import { KeyManager } from '@/context/WalletProvider/KeyManager'
 import { useLocalWallet } from '@/context/WalletProvider/local-wallet'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 
-type WalletId = 'metamask' | 'trust' | 'rainbow'
+type WalletConnectWalletId = 'metamask' | 'trust' | 'zerion'
 
-// UGLY: Deep link schemas for different wallets
-const UGLY_WALLET_DEEP_LINKS: Record<WalletId, string> = {
+/**
+ * UGLY: Deep link schemas for WalletConnect direct wallet connections
+ *
+ * THE HACK EXPLAINED:
+ * This whole feature is essentially a hack to bypass the WalletConnect modal while still
+ * maintaining a real WalletConnect connection. Here's how it works:
+ *
+ * 1. Every wallet that supports WalletConnect has a deep link format that accepts WC URIs
+ *    - These deep links vary in format (custom scheme vs universal links)
+ *    - But they all ultimately do the same thing: open the wallet app with the WC connection URI
+ *
+ * 2. We instantiate a WalletConnect adapter WITHOUT showing the modal
+ *    - Normally, the adapter's only job is to trigger the modal
+ *    - But the adapter itself doesn't do much - it's just a thin wrapper
+ *    - The real magic happens in the EthereumProvider from @walletconnect/ethereum-provider
+ *
+ * 3. The adapter establishes a WebSocket connection through WalletConnect's relay servers
+ *    - This happens regardless of whether the modal is shown
+ *    - The relay server facilitates encrypted communication between dApp and wallet
+ *    - The modal is purely UI - the protocol works without it
+ *
+ * 4. Once connected, everything works exactly as if we used the modal
+ *    - Signing transactions
+ *    - Sending transactions
+ *    - Reading wallet state
+ *    - All WalletConnect functionality is preserved
+ *
+ * So we're not bypassing WalletConnect - we're bypassing the MODAL.
+ * The connection, security, and functionality are all standard WalletConnect v2.
+ *
+ * To add a new wallet:
+ * 1. Find the wallet's WalletConnect deep link format using Claude with this prompt:
+ *    "Find [WalletName]'s WalletConnect deep link URI scheme from their official docs or WalletConnect registry"
+ * 2. Add the wallet to the WalletConnectWalletId type union above
+ * 3. Add the deep link format to this Record below
+ *
+ * References:
+ * - MetaMask: Standard mobile deep link schema - metamask://wc?uri={uri}
+ * - Trust: Uses universal link instead of custom schema - https://link.trustwallet.com/wc?uri={uri}
+ *   Source: https://developer.trustwallet.com/developer/develop-for-trust/deeplinking
+ * - Zerion: Standard mobile deep link schema - zerion://wc?uri={uri}
+ *   Source: https://developers.zerion.io/reference/initiate-a-connection-from-dapp-to-zerion-wallet
+ *
+ * See docs/walletconnect-direct-connection.md for comprehensive documentation
+ */
+const UGLY_WALLET_DEEP_LINKS: Record<WalletConnectWalletId, string> = {
   metamask: 'metamask://wc?uri=',
-  trust: 'https://link.trustwallet.com/wc?uri=', // UGLY: Trust uses universal link
-  rainbow: 'rainbow://wc?uri=',
+  trust: 'https://link.trustwallet.com/wc?uri=',
+  zerion: 'zerion://wc?uri=',
 }
 
 export const useDirectWalletConnect = () => {
@@ -44,7 +88,7 @@ export const useDirectWalletConnect = () => {
   }, [])
 
   const connectToWallet = useCallback(
-    async (walletId: WalletId) => {
+    async (walletId: WalletConnectWalletId) => {
       console.log('🚨 UGLY START: connectToWallet called with:', walletId)
       console.log('🚨 UGLY: Platform is mobile?', isMobile)
 
@@ -181,6 +225,9 @@ export const useDirectWalletConnect = () => {
 
               localWallet.setLocalWallet({ type: KeyManager.WalletConnectV2, deviceId })
 
+              // UGLY: Auto-close modal on successful connection
+              dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
+
               console.log('🚨 UGLY MOBILE: State updated successfully!')
               setIsConnecting(false)
               setCurrentUri(null)
@@ -240,6 +287,9 @@ export const useDirectWalletConnect = () => {
         })
 
         localWallet.setLocalWallet({ type: KeyManager.WalletConnectV2, deviceId })
+
+        // UGLY: Auto-close modal on successful connection
+        dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
 
         console.log('🚨 UGLY POC: Direct connection complete!')
         setCurrentUri(null)

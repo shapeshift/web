@@ -9,8 +9,9 @@ import {
   VStack,
 } from '@chakra-ui/react'
 import type { ChainId } from '@shapeshiftoss/caip'
+import get from 'lodash/get'
 import { useCallback, useMemo, useState } from 'react'
-import { get, useFormContext, useWatch } from 'react-hook-form'
+import { useFormContext, useWatch } from 'react-hook-form'
 import { FaRegAddressBook, FaTrash } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 
@@ -19,18 +20,15 @@ import { SendFormFields } from '../SendCommon'
 import { ConfirmDelete } from '@/components/Modals/Send/AddressBook/ConfirmDelete'
 import { Text } from '@/components/Text'
 import { makeBlockiesUrl } from '@/lib/blockies/makeBlockiesUrl'
-import { addressBookSlice } from '@/state/slices/addressBookSlice/addressBookSlice'
+import {
+  addressBookSlice,
+  type AddressBookEntry,
+} from '@/state/slices/addressBookSlice/addressBookSlice'
 import {
   selectAddressBookEntriesByChainNamespace,
   selectAddressBookEntriesBySearchQuery,
 } from '@/state/slices/addressBookSlice/selectors'
 import { useAppDispatch, useAppSelector } from '@/state/store'
-
-export type AddressBookEntry = {
-  id: string
-  name: string
-  address: string
-}
 
 type AddressBookEntryButtonProps = {
   entry: AddressBookEntry

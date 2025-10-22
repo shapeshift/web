@@ -17,6 +17,8 @@ export const selectAddressBookEntriesByChainNamespace = createCachedSelector(
   addressBookSlice.selectors.selectAddressBookEntries,
   (_state: ReduxState, chainId: ChainId) => chainId,
   (entries, chainId) => {
+    if (!chainId) return []
+
     const { chainNamespace } = fromChainId(chainId)
 
     // Filter entries that match the same chain namespace
@@ -27,7 +29,8 @@ export const selectAddressBookEntriesByChainNamespace = createCachedSelector(
       return entryNamespace === chainNamespace
     })
   },
-)((_state: ReduxState, chainId: ChainId): ChainNamespace => {
+)((_state: ReduxState, chainId: ChainId): ChainNamespace | string => {
+  if (!chainId) return 'empty'
   const { chainNamespace } = fromChainId(chainId)
   return chainNamespace
 })

@@ -43,6 +43,7 @@ import { AddressInput } from '@/components/Modals/Send/AddressInput/AddressInput
 import { SendMaxButton } from '@/components/Modals/Send/SendMaxButton/SendMaxButton'
 import { SlideTransition } from '@/components/SlideTransition'
 import { Text } from '@/components/Text/Text'
+import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { useLocaleFormatter } from '@/hooks/useLocaleFormatter/useLocaleFormatter'
 import { useModal } from '@/hooks/useModal/useModal'
 import { parseAddressInputWithChainId } from '@/lib/address/address'
@@ -147,6 +148,7 @@ export const SendAmountDetails = () => {
   const supportsENS = asset?.chainId === ethChainId
   const addressError = get(errors, `${SendFormFields.Input}.message`, null)
   const addAddress = useModal('addAddress')
+  const isAddressBookEnabled = useFeatureFlag('AddressBook')
 
   useEffect(() => {
     trigger(SendFormFields.Input)
@@ -306,7 +308,7 @@ export const SendAmountDetails = () => {
   return (
     <SlideTransition className='flex flex-col h-full'>
       <DialogHeader>
-        <DialogBackButton onClick={handleBackClick} />
+        <DialogBackButton aria-label={translate('common.back')} onClick={handleBackClick} />
         <DialogTitle textAlign='center'>
           {translate('modals.send.sendForm.sendAsset', { asset: asset.name })}
         </DialogTitle>
@@ -321,7 +323,7 @@ export const SendAmountDetails = () => {
                 supportsENS ? 'modals.send.toAddressOrEns' : 'modals.send.toAddress',
               )}
               resolvedAddress={to}
-              onSaveContact={handleSaveContact}
+              onSaveContact={isAddressBookEnabled ? handleSaveContact : undefined}
               chainId={asset?.chainId}
               isReadOnly
               onClick={handleBackClick}

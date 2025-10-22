@@ -146,40 +146,52 @@ const RampRoutes = memo(({ onChangeTab, direction }: RampRoutesProps) => {
     [RampQuotesComponent, FiatRampQuoteTimerComponent],
   )
 
+  const clearSelectedQuote = useCallback(() => {
+    if (direction === FiatRampAction.Buy) {
+      dispatch(tradeRampInput.actions.setSelectedBuyFiatRampQuote(null))
+    } else {
+      dispatch(tradeRampInput.actions.setSelectedSellFiatRampQuote(null))
+    }
+  }, [dispatch, direction])
+
   const handleSellAssetChange = useCallback(
     (asset: Asset | null) => {
       if (asset) {
         dispatch(tradeRampInput.actions.setSellAsset(asset))
+        clearSelectedQuote()
       }
     },
-    [dispatch],
+    [dispatch, clearSelectedQuote],
   )
 
   const handleBuyAssetChange = useCallback(
     (asset: Asset | null) => {
       if (asset) {
         dispatch(tradeRampInput.actions.setBuyAsset(asset))
+        clearSelectedQuote()
       }
     },
-    [dispatch],
+    [dispatch, clearSelectedQuote],
   )
 
   const handleSellFiatChange = useCallback(
     (fiat: FiatCurrencyItem | null) => {
       if (fiat) {
         dispatch(tradeRampInput.actions.setSellFiatAsset(fiat))
+        clearSelectedQuote()
       }
     },
-    [dispatch],
+    [dispatch, clearSelectedQuote],
   )
 
   const handleBuyFiatChange = useCallback(
     (fiat: FiatCurrencyItem | null) => {
       if (fiat) {
         dispatch(tradeRampInput.actions.setBuyFiatAsset(fiat))
+        clearSelectedQuote()
       }
     },
-    [dispatch],
+    [dispatch, clearSelectedQuote],
   )
 
   const handleSellAmountChange = useCallback(
@@ -231,6 +243,7 @@ const RampRoutes = memo(({ onChangeTab, direction }: RampRoutesProps) => {
       previousDebouncedBuyDirectionSellAmount !== debouncedBuyDirectionSellAmount
     ) {
       queryClient.invalidateQueries({ queryKey: ['rampQuote'] })
+      clearSelectedQuote()
     }
 
     if (
@@ -238,11 +251,11 @@ const RampRoutes = memo(({ onChangeTab, direction }: RampRoutesProps) => {
       previousDebouncedSellDirectionSellAmount !== debouncedSellDirectionSellAmount
     ) {
       queryClient.invalidateQueries({ queryKey: ['rampQuote'] })
+      clearSelectedQuote()
     }
   }, [
     debouncedBuyDirectionSellAmount,
     debouncedSellDirectionSellAmount,
-    dispatch,
     sellFiatCurrency,
     sellAsset,
     buyFiatCurrency,
@@ -251,22 +264,20 @@ const RampRoutes = memo(({ onChangeTab, direction }: RampRoutesProps) => {
     direction,
     previousDebouncedBuyDirectionSellAmount,
     previousDebouncedSellDirectionSellAmount,
+    clearSelectedQuote,
   ])
 
   // Auto-select the best quote when quotes are available and no quote is selected
-  // This only happens on first load or when amount changes (not on refetch)
+  // This only happens on first load or when amount/asset/fiat changes (not on refetch)
   useEffect(() => {
     // Wait for all quotes to be fetched to select the best quote
     if (isFetchingQuotes) return
     if (pathname.includes('quotes')) return
 
-    if (sortedQuotes.length > 0) {
-      const bestQuote =
-        sortedQuotes.find(quote => selectedQuote && selectedQuote.provider === quote.provider) ||
-        sortedQuotes[0]
+    if (sortedQuotes.length > 0 && !selectedQuote) {
+      const bestQuote = sortedQuotes[0]
 
       if (!bestQuote) return
-      if (bestQuote.id === selectedQuote?.id) return
 
       if (direction === FiatRampAction.Buy) {
         dispatch(tradeRampInput.actions.setSelectedBuyFiatRampQuote(bestQuote))
@@ -394,7 +405,8 @@ const RampRoutes = memo(({ onChangeTab, direction }: RampRoutesProps) => {
         (!sellAsset && !sellFiatCurrency) ||
         (!buyAsset && !buyFiatCurrency),
       networkFeeFiatUserCurrency: selectedQuote?.networkFee ?? '0',
-      quoteStatusTranslation: 'trade.previewTrade',
+      quoteStatusTranslation:
+        direction === FiatRampAction.Buy ? 'fiatRamps.previewPurchase' : 'fiatRamps.previewSale',
       noExpand: true,
       invertRate: false,
       onOpenQuoteList: () => {

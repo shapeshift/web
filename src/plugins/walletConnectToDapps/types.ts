@@ -4,6 +4,7 @@ import type { FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import type { PartialRecord } from '@shapeshiftoss/types'
 import type WalletConnectCore from '@walletconnect/core'
 import type { PairingTypes, SessionTypes } from '@walletconnect/types'
+import type { TypedData, TypedDataDomain } from 'abitype'
 import type { Dispatch } from 'react'
 import type { Address, Hex } from 'viem'
 
@@ -109,11 +110,7 @@ export type CustomTransactionData = {
   nonce?: string
   gas?: string
   gasLimit?: string
-  speed: WalletConnectFeeDataKey
-  customFee?: {
-    baseFee: string
-    priorityFee: string
-  }
+  speed: FeeDataKey
 }
 
 export type TransactionParams = {
@@ -241,18 +238,21 @@ export type RequestParams =
   | CosmosSignDirectCallRequestParams
   | CosmosSignAminoCallRequestParams
 
-export type WalletConnectFeeDataKey = FeeDataKey | 'custom'
-
 export type ConfirmData = {
   nonce?: string
   gasLimit?: string
-  speed: WalletConnectFeeDataKey
-  customFee?: {
-    baseFee: string
-    priorityFee: string
-  }
+  speed: FeeDataKey
 }
 
 export type SessionProposalRef = {
   handleReject: () => Promise<void>
+}
+
+export type EIP712Value = string | number | boolean | (string | number | boolean)[] | null
+
+export type EIP712TypedData = {
+  domain: TypedDataDomain
+  types: TypedData
+  primaryType: string
+  message: Record<string, EIP712Value>
 }

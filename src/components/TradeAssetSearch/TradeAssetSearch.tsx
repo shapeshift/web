@@ -1,30 +1,54 @@
 import { ChevronDownIcon, SearchIcon } from '@chakra-ui/icons'
 import type { BoxProps, InputProps } from '@chakra-ui/react'
-import { Flex, Input, InputGroup, InputLeftElement, Stack } from '@chakra-ui/react'
+import {
+  Box,
+  Center,
+  Flex,
+  Icon,
+  Input,
+  InputGroup,
+  InputLeftElement,
+  Stack,
+  Tab,
+  TabList,
+  TabPanel,
+  TabPanels,
+  Tabs,
+} from '@chakra-ui/react'
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
+import { matchSorter } from 'match-sorter'
 import type { FC, FormEvent } from 'react'
 import { useCallback, useMemo, useState } from 'react'
-import { useForm } from 'react-hook-form'
+import { FaRegCompass } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { useNavigate } from 'react-router-dom'
+import type { TopItemListProps } from 'react-virtuoso'
+import { Virtuoso } from 'react-virtuoso'
 
 import { CustomAssetAcknowledgement } from './components/CustomAssetAcknowledgement'
 import { DefaultAssetList } from './components/DefaultAssetList'
 import { SearchTermAssetList } from './components/SearchTermAssetList'
+import { useAssetSearchWorker } from './hooks/useAssetSearchWorker'
 import { useGetPopularAssetsQuery } from './hooks/useGetPopularAssetsQuery'
 
+import { INCREASE_VIEWPORT_BY } from '@/components/AssetSearch/components/AssetList'
 import { AssetMenuButton } from '@/components/AssetSelection/components/AssetMenuButton'
 import { AllChainMenu } from '@/components/ChainMenu'
+import { Text } from '@/components/Text'
+import { FiatRow } from '@/components/TradeAssetSearch/components/FiatRow'
 import { knownChainIds } from '@/constants/chains'
+import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
+import type { FiatCurrencyItem } from '@/lib/fiatCurrencies/fiatCurrencies'
+import { fiatCurrencyItems } from '@/lib/fiatCurrencies/fiatCurrencies'
 import { sortChainIdsByDisplayName } from '@/lib/utils'
 import {
-  selectAssetsSortedByMarketCap,
-  selectPortfolioFungibleAssetsSortedByBalance,
+  selectPortfolioAssetsByChainId,
   selectPortfolioTotalUserCurrencyBalance,
+  selectPrimaryAssetsByChainId,
   selectWalletConnectedChainIds,
 } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
@@ -42,26 +66,42 @@ const assetButtonProps = {
   borderRadius: '2xl',
   height: 'auto',
 }
+const style = { minHeight: 'calc(50vh + 40px)' }
+
+const textSelectedProps = {
+  color: 'text.base',
+}
 
 const NUM_QUICK_ACCESS_ASSETS = 6
 
 export type TradeAssetSearchProps = {
   onAssetClick?: (asset: Asset) => void
+  onSelectFiatCurrency?: (fiat: FiatCurrencyItem) => void
   formProps?: BoxProps
   allowWalletUnsupportedAssets?: boolean
   assetFilterPredicate?: (assetId: AssetId) => boolean
   chainIdFilterPredicate?: (chainId: ChainId) => boolean
   selectedChainId?: ChainId | 'All'
   onSelectedChainIdChange?: (chainId: ChainId | 'All') => void
+  showFiatTab?: boolean
+  showAssetTab?: boolean
 }
+
+const Footer = () => <Box height='0.5rem' />
+const TopItemList = ({ children }: TopItemListProps) => <div>{children}</div>
+const components = { TopItemList, Footer }
+
 export const TradeAssetSearch: FC<TradeAssetSearchProps> = ({
   onAssetClick,
+  onSelectFiatCurrency,
   formProps,
   allowWalletUnsupportedAssets,
   assetFilterPredicate,
   chainIdFilterPredicate,
   selectedChainId = 'All',
   onSelectedChainIdChange,
+  showFiatTab = false,
+  showAssetTab = true,
 }) => {
   const { walletInfo } = useWallet().state
   const hasWallet = useMemo(() => Boolean(walletInfo?.deviceId), [walletInfo?.deviceId])
@@ -70,6 +110,7 @@ export const TradeAssetSearch: FC<TradeAssetSearchProps> = ({
   const [activeChainId, setActiveChainId] = useState<ChainId | 'All'>(selectedChainId)
   const [assetToImport, setAssetToImport] = useState<Asset | undefined>(undefined)
   const [shouldShowWarningAcknowledgement, setShouldShowWarningAcknowledgement] = useState(false)
+  const isSwapperFiatRampsEnabled = useFeatureFlag('SwapperFiatRamps')
 
   const portfolioTotalUserCurrencyBalance = useAppSelector(selectPortfolioTotalUserCurrencyBalance)
 
@@ -77,9 +118,10 @@ export const TradeAssetSearch: FC<TradeAssetSearchProps> = ({
     // When no wallet is connected, there is no portfolio, hence we display all Assets
     // If a wallet is connected with zero balances everywhere, we do the same
     // Since 0-balances are not reflected in selectPortfolioUserCurrencyBalances/selectPortfolioFungibleAssetsSortedByBalance/
-    hasWallet && bnOrZero(portfolioTotalUserCurrencyBalance).gt(0)
-      ? selectPortfolioFungibleAssetsSortedByBalance
-      : selectAssetsSortedByMarketCap,
+    state =>
+      hasWallet && bnOrZero(portfolioTotalUserCurrencyBalance).gt(0)
+        ? selectPortfolioAssetsByChainId(state, activeChainId)
+        : selectPrimaryAssetsByChainId(state, activeChainId),
   )
   const walletConnectedChainIds = useAppSelector(selectWalletConnectedChainIds)
 
@@ -97,28 +139,22 @@ export const TradeAssetSearch: FC<TradeAssetSearchProps> = ({
     [navigate],
   )
   const handleAssetClick = onAssetClick ?? defaultClickHandler
-  const { register, watch } = useForm<{ search: string }>({
-    mode: 'onChange',
-    defaultValues: {
-      search: '',
-    },
-  })
-  const searchString = watch('search').trim()
-  const isSearching = useMemo(() => searchString.length > 0, [searchString])
 
-  const inputProps: InputProps = useMemo(
+  const assetWorkerParams = useMemo(
     () => ({
-      ...register('search'),
-      autoFocus: !window.matchMedia('(pointer: coarse)').matches, // Don't auto bust open the keyboard on mobile
-      type: 'text',
-      placeholder: translate('common.searchNameOrAddress'),
-      pl: 10,
-      variant: 'filled',
-      borderWidth: 0,
-      autoComplete: 'off',
+      activeChainId,
+      allowWalletUnsupportedAssets,
+      walletConnectedChainIds,
+      hasWallet,
     }),
-    [register, translate],
+    [activeChainId, allowWalletUnsupportedAssets, hasWallet, walletConnectedChainIds],
   )
+
+  // Asset search worker hook
+  const { searchString, workerSearchState, handleSearchChange } =
+    useAssetSearchWorker(assetWorkerParams)
+
+  const isSearching = useMemo(() => searchString.length > 0, [searchString])
 
   const handleSubmit = useCallback((e: FormEvent<unknown>) => e.preventDefault(), [])
 
@@ -176,12 +212,8 @@ export const TradeAssetSearch: FC<TradeAssetSearchProps> = ({
       asset => assetFilterPredicate?.(asset.assetId) ?? true,
     )
 
-    if (activeChainId === 'All') {
-      return filteredPortfolioAssetsSortedByBalance
-    }
-
-    return filteredPortfolioAssetsSortedByBalance.filter(asset => asset.chainId === activeChainId)
-  }, [activeChainId, portfolioAssetsSortedByBalance, assetFilterPredicate])
+    return filteredPortfolioAssetsSortedByBalance
+  }, [portfolioAssetsSortedByBalance, assetFilterPredicate])
 
   const chainIds: (ChainId | 'All')[] = useMemo(() => {
     const unsortedChainIds = (() => {
@@ -228,6 +260,180 @@ export const TradeAssetSearch: FC<TradeAssetSearchProps> = ({
     setShouldShowWarningAcknowledgement(true)
   }, [])
 
+  const inputProps: InputProps = useMemo(
+    () => ({
+      value: searchString,
+      onChange: handleSearchChange,
+      autoFocus: !window.matchMedia('(pointer: coarse)').matches, // Don't auto bust open the keyboard on mobile
+      type: 'text',
+      placeholder: translate('common.searchNameOrAddress'),
+      pl: 10,
+      variant: 'filled',
+      borderWidth: 0,
+      autoComplete: 'off',
+    }),
+    [searchString, handleSearchChange, translate],
+  )
+
+  const searchFiatCurrencies = useMemo(() => {
+    return matchSorter(fiatCurrencyItems, searchString, {
+      keys: ['code', 'name', 'symbol', 'name_plural'],
+      threshold: matchSorter.rankings.CONTAINS,
+    }) as FiatCurrencyItem[]
+  }, [searchString])
+
+  const handleFiatClick = useCallback(
+    (fiat: FiatCurrencyItem) => {
+      onSelectFiatCurrency?.(fiat)
+    },
+    [onSelectFiatCurrency],
+  )
+
+  const renferFiatItem = useCallback(
+    (index: number) => {
+      const fiat = searchFiatCurrencies[index]
+      return <FiatRow key={fiat.code} fiat={fiat} onClick={handleFiatClick} />
+    },
+    [handleFiatClick, searchFiatCurrencies],
+  )
+
+  const listContent = useMemo(() => {
+    if (isSwapperFiatRampsEnabled && !showAssetTab && showFiatTab) {
+      return (
+        <Box p={4}>
+          <Text translation='common.fiat' mb={2} />
+          {searchFiatCurrencies.length > 0 ? (
+            <Virtuoso
+              className='scroll-container'
+              data={searchFiatCurrencies}
+              itemContent={renferFiatItem}
+              style={style}
+              overscan={1000}
+              increaseViewportBy={INCREASE_VIEWPORT_BY}
+              components={components}
+            />
+          ) : (
+            <Center flexDir='column' gap={2} mt={4} minH='calc(50vh + 24px)'>
+              <Icon as={FaRegCompass} boxSize='24px' color='text.subtle' />
+              <Text color='text.subtle' translation='common.noResultsFound' />
+            </Center>
+          )}
+        </Box>
+      )
+    }
+
+    if (isSwapperFiatRampsEnabled && showFiatTab) {
+      return (
+        <Tabs variant='unstyled' display='flex' flexDirection='column' height='100%' isLazy>
+          <TabList gap={4} flex='0 0 auto' px={4} pt={4}>
+            <Tab
+              p={0}
+              fontSize='md'
+              fontWeight='bold'
+              color='text.subtle'
+              _selected={textSelectedProps}
+            >
+              <Text translation='common.crypto' />
+            </Tab>
+            <Tab
+              p={0}
+              fontSize='md'
+              fontWeight='bold'
+              color='text.subtle'
+              _selected={textSelectedProps}
+            >
+              <Text translation='common.fiat' />
+            </Tab>
+          </TabList>
+          <TabPanels height='100%' px={0}>
+            <TabPanel px={0} py={0} height='100%'>
+              {isSearching ? (
+                <SearchTermAssetList
+                  activeChainId={activeChainId}
+                  searchString={searchString}
+                  onAssetClick={handleAssetClick}
+                  onImportClick={handleImportIntent}
+                  isLoading={isPopularAssetIdsLoading}
+                  assetFilterPredicate={assetFilterPredicate}
+                  allowWalletUnsupportedAssets={!hasWallet || allowWalletUnsupportedAssets}
+                  workerSearchState={workerSearchState}
+                />
+              ) : (
+                <DefaultAssetList
+                  portfolioAssetsSortedByBalance={portfolioAssetsSortedByBalanceForChain}
+                  popularAssets={popularAssets}
+                  onAssetClick={handleAssetClick}
+                  activeChainId={activeChainId}
+                />
+              )}
+            </TabPanel>
+
+            <TabPanel px={2} py={0} height='100%' pt={2}>
+              {searchFiatCurrencies.length > 0 ? (
+                <Virtuoso
+                  className='scroll-container'
+                  data={searchFiatCurrencies}
+                  itemContent={renferFiatItem}
+                  style={style}
+                  overscan={1000}
+                  increaseViewportBy={INCREASE_VIEWPORT_BY}
+                  components={components}
+                />
+              ) : (
+                <Center flexDir='column' gap={2} mt={4} minH='calc(50vh + 24px)'>
+                  <Icon as={FaRegCompass} boxSize='24px' color='text.subtle' />
+                  <Text color='text.subtle' translation='common.noResultsFound' />
+                </Center>
+              )}
+            </TabPanel>
+          </TabPanels>
+        </Tabs>
+      )
+    }
+
+    if (isSearching) {
+      return (
+        <SearchTermAssetList
+          activeChainId={activeChainId}
+          searchString={searchString}
+          onAssetClick={handleAssetClick}
+          onImportClick={handleImportIntent}
+          isLoading={isPopularAssetIdsLoading}
+          assetFilterPredicate={assetFilterPredicate}
+          allowWalletUnsupportedAssets={!hasWallet || allowWalletUnsupportedAssets}
+          workerSearchState={workerSearchState}
+        />
+      )
+    }
+
+    return (
+      <DefaultAssetList
+        portfolioAssetsSortedByBalance={portfolioAssetsSortedByBalanceForChain}
+        popularAssets={popularAssets}
+        onAssetClick={handleAssetClick}
+        activeChainId={activeChainId}
+      />
+    )
+  }, [
+    activeChainId,
+    allowWalletUnsupportedAssets,
+    assetFilterPredicate,
+    handleAssetClick,
+    handleImportIntent,
+    hasWallet,
+    isPopularAssetIdsLoading,
+    isSearching,
+    isSwapperFiatRampsEnabled,
+    popularAssets,
+    portfolioAssetsSortedByBalanceForChain,
+    workerSearchState,
+    renferFiatItem,
+    searchFiatCurrencies,
+    searchString,
+    showFiatTab,
+    showAssetTab,
+  ])
+
   return (
     <>
       <CustomAssetAcknowledgement
@@ -255,37 +461,25 @@ export const TradeAssetSearch: FC<TradeAssetSearchProps> = ({
             </InputLeftElement>
             <Input {...inputProps} />
           </InputGroup>
-          <AllChainMenu
-            activeChainId={activeChainId}
-            chainIds={chainIds}
-            isActiveChainIdSupported={true}
-            isDisabled={false}
-            onMenuOptionClick={handleSelectedChainIdChange}
-            buttonProps={buttonProps}
-            disableTooltip
-          />
+          {showAssetTab && (
+            <AllChainMenu
+              activeChainId={activeChainId}
+              chainIds={chainIds}
+              isActiveChainIdSupported={true}
+              isDisabled={false}
+              onMenuOptionClick={handleSelectedChainIdChange}
+              buttonProps={buttonProps}
+              disableTooltip
+            />
+          )}
         </Flex>
-        <Flex flexWrap='wrap' gap={2}>
-          {quickAccessAssetButtons}
-        </Flex>
+        {showAssetTab && (
+          <Flex flexWrap='wrap' gap={2}>
+            {quickAccessAssetButtons}
+          </Flex>
+        )}
       </Stack>
-      {isSearching ? (
-        <SearchTermAssetList
-          activeChainId={activeChainId}
-          searchString={searchString}
-          onAssetClick={handleAssetClick}
-          onImportClick={handleImportIntent}
-          isLoading={isPopularAssetIdsLoading}
-          assetFilterPredicate={assetFilterPredicate}
-          allowWalletUnsupportedAssets={!hasWallet || allowWalletUnsupportedAssets}
-        />
-      ) : (
-        <DefaultAssetList
-          portfolioAssetsSortedByBalance={portfolioAssetsSortedByBalanceForChain}
-          popularAssets={popularAssets}
-          onAssetClick={handleAssetClick}
-        />
-      )}
+      {listContent}
     </>
   )
 }

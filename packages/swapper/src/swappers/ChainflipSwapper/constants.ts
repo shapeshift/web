@@ -56,7 +56,7 @@ export const usdcAsset: Asset = {
   explorerAddressLink: 'https://etherscan.io/address/',
   explorerTxLink: 'https://etherscan.io/tx/',
   icon: 'https://rawcdn.githack.com/trustwallet/assets/master/blockchains/ethereum/assets/0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48/logo.png',
-  name: 'USDC on Ethereum',
+  name: 'USDC',
   precision: 6,
   relatedAssetKey: 'eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
   symbol: 'USDC',

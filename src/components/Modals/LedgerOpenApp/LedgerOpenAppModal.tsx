@@ -11,14 +11,15 @@ import {
   VStack,
 } from '@chakra-ui/react'
 import type { ChainId } from '@shapeshiftoss/caip'
-import { ethAssetId } from '@shapeshiftoss/caip'
-import { getLedgerAppName, isEvmChainId } from '@shapeshiftoss/chain-adapters'
+import { ethAssetId, thorchainAssetId } from '@shapeshiftoss/caip'
+import { getLedgerAppName, isEvmChainId, isThorMayaChainId } from '@shapeshiftoss/chain-adapters'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 
 import { AssetOnLedger } from './components/AssetOnLedger'
 
 import { RawText } from '@/components/Text'
+import { useModalRegistration } from '@/context/ModalStackProvider'
 import { useModal } from '@/hooks/useModal/useModal'
 import { selectAssetById, selectFeeAssetByChainId } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
@@ -32,7 +33,18 @@ export const LedgerOpenAppModal = ({ chainId, onCancel }: LedgerOpenAppModalProp
   const translate = useTranslate()
   const feeAsset = useAppSelector(state => selectFeeAssetByChainId(state, chainId))
   const ethAsset = useAppSelector(state => selectAssetById(state, ethAssetId))
+  const thorchainAsset = useAppSelector(state => selectAssetById(state, thorchainAssetId))
   const { close: closeModal, isOpen } = useModal('ledgerOpenApp')
+
+  const handleClose = useCallback(() => {
+    closeModal()
+    onCancel()
+  }, [closeModal, onCancel])
+
+  const { modalProps, overlayProps, modalContentProps } = useModalRegistration({
+    isOpen,
+    onClose: handleClose,
+  })
 
   const appName = useMemo(() => {
     return getLedgerAppName(chainId)
@@ -40,18 +52,15 @@ export const LedgerOpenAppModal = ({ chainId, onCancel }: LedgerOpenAppModalProp
 
   const appAsset = useMemo(() => {
     if (isEvmChainId(chainId)) return ethAsset
-    return feeAsset
-  }, [feeAsset, chainId, ethAsset])
+    if (isThorMayaChainId(chainId)) return thorchainAsset
 
-  const handleClose = useCallback(() => {
-    closeModal()
-    onCancel()
-  }, [closeModal, onCancel])
+    return feeAsset
+  }, [feeAsset, chainId, ethAsset, thorchainAsset])
 
   return (
-    <Modal isOpen={isOpen} onClose={handleClose} isCentered size='md' closeOnOverlayClick={false}>
-      <ModalOverlay />
-      <ModalContent>
+    <Modal {...modalProps} isCentered size='md' closeOnOverlayClick={false}>
+      <ModalOverlay {...overlayProps} />
+      <ModalContent {...modalContentProps}>
         <ModalHeader textAlign='left' pt={14}>
           <VStack spacing={2} width='full'>
             {appAsset ? <AssetOnLedger assetId={appAsset.assetId} size='lg' /> : null}

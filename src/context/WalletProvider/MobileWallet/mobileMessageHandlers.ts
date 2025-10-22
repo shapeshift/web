@@ -39,17 +39,6 @@ type Message =
       cmd: 'listWallets' | 'getWalletCount'
     }
   | {
-      cmd: 'hashPassword'
-      email: string
-      password: string
-    }
-  | {
-      cmd: 'decryptWallet'
-      email: string
-      password: string
-      encryptedWallet: string
-    }
-  | {
       cmd: 'showDeveloperModal'
       key: string
     }
@@ -105,7 +94,7 @@ const postMessage = <T>(msg: Message): Promise<T> => {
         // @see https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/removeEventListener
         // No effect if `eventListener` has already been removed
         window.removeEventListener('message', eventListener)
-        reject(new Error('PostMessage timed out'))
+        reject(new Error(`PostMessage ${msg.cmd} timed out`))
       }, 10000)
 
       window.addEventListener('message', eventListener)
@@ -203,23 +192,6 @@ export const reloadWebview = (): Promise<boolean> => {
 }
 
 /**
- * Get a password hash for logging into legacy ShapeShift
- */
-export const hashPassword = (email: string, password: string): Promise<string | null> => {
-  return postMessage<string | null>({ cmd: 'hashPassword', email, password })
-}
-
-/**
- * Decrypt a legacy ShapeShift wallet
- */
-export const decryptWallet = (
-  email: string,
-  password: string,
-  encryptedWallet: string,
-): Promise<string | null> => {
-  return postMessage<string | null>({ cmd: 'decryptWallet', email, password, encryptedWallet })
-}
-
 export const getExpoToken = (): Promise<string | null> => {
   return postMessage<string | null>({ cmd: 'getExpoToken' })
 }

@@ -50,7 +50,9 @@ export const QuickBuyEdit: React.FC<Props> = ({ onCancel, onSave }) => {
       return
     }
 
-    const sortedAmounts = parsedAmounts.sort((a, b) => a.comparedTo(b)).map(num => num.toNumber())
+    const sortedAmounts = parsedAmounts
+      .sort((a, b) => a.comparedTo(b) ?? 0)
+      .map(num => num.toNumber())
 
     dispatch(preferences.actions.setQuickBuyPreferences(sortedAmounts))
     onSave()

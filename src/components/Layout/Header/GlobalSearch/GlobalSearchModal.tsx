@@ -21,6 +21,7 @@ import { AssetSearchResults } from './AssetSearchResults'
 
 import { GlobalFilter } from '@/components/StakingVaults/GlobalFilter'
 import { useGetCustomTokensQuery } from '@/components/TradeAssetSearch/hooks/useGetCustomTokensQuery'
+import { useModalRegistration } from '@/context/ModalStackProvider'
 import { ALCHEMY_SDK_SUPPORTED_CHAIN_IDS } from '@/lib/alchemySdkInstance'
 import { isSome } from '@/lib/utils'
 import { assets as assetsSlice } from '@/state/slices/assetsSlice/assetsSlice'
@@ -50,6 +51,15 @@ export const GlobalSearchModal = memo(
     const assetResults = results
     const resultsCount = results.length
     const isMac = useMemo(() => /Mac/.test(navigator.userAgent), [])
+    const handleClose = useCallback(() => {
+      setSearchQuery('')
+      onClose()
+    }, [onClose])
+
+    const { modalContentProps, overlayProps, modalProps } = useModalRegistration({
+      isOpen,
+      onClose: handleClose,
+    })
 
     const customTokenSupportedChainIds = useMemo(() => {
       // Solana _is_ supported by Alchemy, but not by the SDK
@@ -189,11 +199,6 @@ export const GlobalSearchModal = memo(
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [isOpen])
 
-    const handleClose = useCallback(() => {
-      setSearchQuery('')
-      onClose()
-    }, [onClose])
-
     useUpdateEffect(() => {
       setActiveIndex(0)
     }, [searchQuery])
@@ -204,9 +209,9 @@ export const GlobalSearchModal = memo(
     )
 
     return (
-      <Modal scrollBehavior='inside' isOpen={isOpen} onClose={handleClose} size='lg'>
-        <ModalOverlay />
-        <ModalContent overflow='hidden'>
+      <Modal scrollBehavior='inside' {...modalProps} size='lg'>
+        <ModalOverlay {...overlayProps} />
+        <ModalContent overflow='hidden' {...modalContentProps}>
           <ModalHeader
             position='sticky'
             top={0}
@@ -226,7 +231,6 @@ export const GlobalSearchModal = memo(
           <ModalBody px={0} ref={menuRef}>
             <AssetSearchResults
               results={assetResults}
-              activeIndex={activeIndex}
               searchQuery={searchQuery}
               isSearching={isSearching}
               onClickResult={handleClick}

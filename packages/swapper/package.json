@@ -1,9 +1,10 @@
 {
   "name": "@shapeshiftoss/swapper",
-  "version": "17.6.5",
+  "version": "17.6.4",
   "packageManager": "yarn@3.5.0",
   "repository": "https://github.com/shapeshift/web",
   "license": "MIT",
+  "type": "module",
   "main": "dist/cjs/index.js",
   "module": "dist/esm/index.js",
   "types": "dist/esm/index.d.ts",
@@ -21,9 +22,12 @@
     "access": "public"
   },
   "scripts": {
-    "build": "yarn clean && yarn run -T tsc --build",
+    "build": "yarn clean && yarn run -T tsc --build && yarn postbuild",
     "clean": "rm -rf dist",
-    "dev": "yarn run -T tsc --build --watch"
+    "dev": "yarn run -T tsc --build --watch",
+    "postbuild": "yarn postbuild:esm && yarn postbuild:cjs",
+    "postbuild:esm": "yarn run -T tsc-esm-fix --target=dist/esm --ext=.js",
+    "postbuild:cjs": "echo '{\"type\": \"commonjs\"}' > dist/cjs/package.json"
   },
   "dependencies": {
     "@coral-xyz/anchor": "0.29.0",

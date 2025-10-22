@@ -3,130 +3,104 @@ import {
   btcChainId,
   ethAssetId,
   ethChainId,
-  ltcAssetId,
-  ltcChainId,
+  solanaChainId,
+  solAssetId,
 } from '@shapeshiftoss/caip'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 
-import type { ParseAddressByChainIdOutput } from './address'
-import { parseMaybeUrlWithChainId } from './address'
+import { parseAddress, parseAddressInputWithChainId } from './address'
+
+import { mockChainAdapters } from '@/test/mocks/portfolio'
+
+vi.mock('@/context/PluginProvider/chainAdapterSingleton', () => ({
+  getChainAdapterManager: () => mockChainAdapters,
+}))
 
 describe('@/lib/address', () => {
-  describe('parseMaybeUrlWithChainId', () => {
-    it('should not parse EIP-681 URL for ENS domain', () => {
-      const input = {
-        assetId: ethAssetId,
-        chainId: ethChainId,
-        urlOrAddress: 'vitalik.eth',
-      }
+  describe('parseAddress', () => {
+    it('should find Bitcoin address in correct chain', async () => {
+      const result = await parseAddress({
+        address: '1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa',
+      })
 
-      const expectedOutput: ParseAddressByChainIdOutput = {
-        assetId: ethAssetId,
-        chainId: ethChainId,
-        maybeAddress: 'vitalik.eth',
-      }
-
-      expect(parseMaybeUrlWithChainId(input)).toEqual(expectedOutput)
-    })
-
-    it('should parse address from EIP-681 URL without parameters', () => {
-      const input = {
-        assetId: ethAssetId,
-        chainId: ethChainId,
-        urlOrAddress: 'ethereum:0x1234DEADBEEF5678ABCD1234DEADBEEF5678ABCD',
-      }
-
-      const expectedOutput: ParseAddressByChainIdOutput = {
-        assetId: ethAssetId,
-        chainId: ethChainId,
-        maybeAddress: '0x1234DEADBEEF5678ABCD1234DEADBEEF5678ABCD',
-      }
-
-      expect(parseMaybeUrlWithChainId(input)).toEqual(expectedOutput)
-    })
-
-    it('should parse EIP-681 URL with dangerous parameters and strip them', () => {
-      const input = {
-        assetId: ethAssetId,
-        chainId: ethChainId,
-        urlOrAddress:
-          'ethereum:0x1234DEADBEEF5678ABCD1234DEADBEEF5678ABCD?dangerousParam=2.014e18&gas=10&gasLimit=21000&gasPrice=50',
-      }
-
-      const expectedOutput: ParseAddressByChainIdOutput = {
-        assetId: ethAssetId,
-        chainId: ethChainId,
-        maybeAddress: '0x1234DEADBEEF5678ABCD1234DEADBEEF5678ABCD',
-      }
-
-      expect(parseMaybeUrlWithChainId(input)).toEqual(expectedOutput)
-    })
-
-    it('should parse EIP-681 URL with amount/value params', () => {
-      const input = {
-        assetId: ethAssetId,
-        chainId: ethChainId,
-        urlOrAddress:
-          'ethereum:0x1234DEADBEEF5678ABCD1234DEADBEEF5678ABCD?amount=2.014e18&gas=10&gasLimit=21000&gasPrice=50',
-      }
-
-      const expectedOutput: ParseAddressByChainIdOutput = {
-        assetId: ethAssetId,
-        chainId: ethChainId,
-        maybeAddress: '0x1234DEADBEEF5678ABCD1234DEADBEEF5678ABCD',
-        amountCryptoPrecision: '2014000000000000000',
-      }
-
-      expect(parseMaybeUrlWithChainId(input)).toEqual(expectedOutput)
-
-      const input2 = {
-        assetId: ethAssetId,
-        chainId: ethChainId,
-        urlOrAddress:
-          'ethereum:0x1234DEADBEEF5678ABCD1234DEADBEEF5678ABCD?value=2.014e18&gas=10&gasLimit=21000&gasPrice=50',
-      }
-
-      const expectedOutput2: ParseAddressByChainIdOutput = {
-        assetId: ethAssetId,
-        chainId: ethChainId,
-        maybeAddress: '0x1234DEADBEEF5678ABCD1234DEADBEEF5678ABCD',
-        amountCryptoPrecision: '2014000000000000000',
-      }
-
-      expect(parseMaybeUrlWithChainId(input2)).toEqual(expectedOutput2)
-    })
-
-    it('should parse address from BIP-21 URL with bitcoin URN scheme', () => {
-      const input = {
-        assetId: btcAssetId,
+      expect(result).toEqual({
         chainId: btcChainId,
-        urlOrAddress: 'bitcoin:1BgGZ9tcN4rm9KBzDn7KprQz87SZ26SAMH?amount=20.3&label=Foobar',
-      }
-
-      const expectedOutput: ParseAddressByChainIdOutput = {
+        value: '1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa',
         assetId: btcAssetId,
-        chainId: btcChainId,
-        maybeAddress: '1BgGZ9tcN4rm9KBzDn7KprQz87SZ26SAMH',
-        amountCryptoPrecision: '20.3',
-      }
-
-      expect(parseMaybeUrlWithChainId(input)).toEqual(expectedOutput)
+      })
     })
 
-    it('should not parse address if there is a mismatch between chainId and URN scheme', () => {
-      const input = {
-        assetId: ltcAssetId,
-        chainId: ltcChainId,
-        urlOrAddress: 'dogecoin:1BgGZ9tcN4rm9KBzDn7KprQz87SZ26SAMH?amount=20.3&label=Foobar',
-      }
+    it('should find Ethereum address in correct chain', async () => {
+      const result = await parseAddress({
+        address: '0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045',
+      })
 
-      const expectedOutput: ParseAddressByChainIdOutput = {
-        assetId: ltcAssetId,
-        chainId: ltcChainId,
-        maybeAddress: 'dogecoin:1BgGZ9tcN4rm9KBzDn7KprQz87SZ26SAMH?amount=20.3&label=Foobar',
-      }
+      expect(result).toEqual({
+        chainId: ethChainId,
+        value: '0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045',
+        assetId: ethAssetId,
+      })
+    })
 
-      expect(parseMaybeUrlWithChainId(input)).toEqual(expectedOutput)
+    it('should find Solana address in correct chain', async () => {
+      const result = await parseAddress({
+        address: '9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM',
+      })
+
+      expect(result).toEqual({
+        chainId: solanaChainId,
+        value: '9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM',
+        assetId: solAssetId,
+      })
+    })
+
+    it('should throw error for invalid address', async () => {
+      await expect(
+        parseAddress({
+          address: 'invalid-address-format',
+        }),
+      ).rejects.toThrow('Address validation failed')
+    })
+  })
+
+  describe('parseAddressInputWithChainId', () => {
+    it('should validate Bitcoin address for correct chain', async () => {
+      const result = await parseAddressInputWithChainId({
+        chainId: btcChainId,
+        urlOrAddress: '1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa',
+      })
+
+      expect(result).toEqual({
+        address: '1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa',
+        vanityAddress: '',
+        chainId: btcChainId,
+      })
+    })
+
+    it('should return empty for invalid address on specific chain', async () => {
+      const result = await parseAddressInputWithChainId({
+        chainId: btcChainId,
+        urlOrAddress: 'invalid-bitcoin-address',
+      })
+
+      expect(result).toEqual({
+        address: '',
+        vanityAddress: '',
+        chainId: btcChainId,
+      })
+    })
+
+    it('should return empty for address on wrong chain', async () => {
+      const result = await parseAddressInputWithChainId({
+        chainId: btcChainId,
+        urlOrAddress: '0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045',
+      })
+
+      expect(result).toEqual({
+        address: '',
+        vanityAddress: '',
+        chainId: btcChainId,
+      })
     })
   })
 })

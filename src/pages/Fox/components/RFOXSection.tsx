@@ -14,6 +14,7 @@ import {
   Stack,
   Tag,
   Text as CText,
+  usePrevious,
 } from '@chakra-ui/react'
 import {
   foxOnArbitrumOneAssetId,
@@ -22,26 +23,30 @@ import {
   uniV2EthFoxArbitrumAssetId,
 } from '@shapeshiftoss/caip'
 import { useCallback, useEffect, useMemo, useState } from 'react'
+import { TbArrowDown, TbArrowUp } from 'react-icons/tb'
 import { useTranslate } from 'react-polyglot'
-import { useNavigate } from 'react-router-dom'
-
-import { useFoxPageContext } from '../hooks/useFoxPageContext'
-import type { Filter } from './FoxTokenFilterButton'
-import { FoxTokenFilterButton } from './FoxTokenFilterButton'
-import { RFOXSimulator } from './RFOXSimulator'
+import { useLocation, useNavigate } from 'react-router-dom'
 
 import { Amount } from '@/components/Amount/Amount'
 import { RFOXIcon } from '@/components/Icons/RFOX'
 import { Text } from '@/components/Text'
 import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
-import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
+import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { fromBaseUnit } from '@/lib/math'
 import { formatSecondsToDuration } from '@/lib/utils/time'
-import { getStakingContract, selectStakingBalance } from '@/pages/RFOX/helpers'
-import { useAffiliateRevenueQuery } from '@/pages/RFOX/hooks/useAffiliateRevenueQuery'
+import type { Filter } from '@/pages/Fox/components/FoxTokenFilterButton'
+import { FoxTokenFilterButton } from '@/pages/Fox/components/FoxTokenFilterButton'
+import { RFOXSimulator } from '@/pages/Fox/components/RFOXSimulator'
+import { useFoxPageContext } from '@/pages/Fox/hooks/useFoxPageContext'
+import { ClaimModal } from '@/pages/RFOX/components/ClaimModal'
+import { Stats } from '@/pages/RFOX/components/Overview/Stats'
+import { StakeModal } from '@/pages/RFOX/components/StakeModal'
+import { UnstakeModal } from '@/pages/RFOX/components/UnstakeModal'
+import { selectStakingBalance } from '@/pages/RFOX/helpers'
 import { useCurrentApyQuery } from '@/pages/RFOX/hooks/useCurrentApyQuery'
 import { useCurrentEpochMetadataQuery } from '@/pages/RFOX/hooks/useCurrentEpochMetadataQuery'
 import { useCurrentEpochRewardsQuery } from '@/pages/RFOX/hooks/useCurrentEpochRewardsQuery'
+import type { UnstakingRequest } from '@/pages/RFOX/hooks/useGetUnstakingRequestsQuery/utils'
 import { useLifetimeRewardsQuery } from '@/pages/RFOX/hooks/useLifetimeRewardsQuery'
 import { useRFOXContext } from '@/pages/RFOX/hooks/useRfoxContext'
 import { useStakingInfoQuery } from '@/pages/RFOX/hooks/useStakingInfoQuery'
@@ -54,6 +59,9 @@ import {
   selectMarketDataByAssetIdUserCurrency,
 } from '@/state/slices/selectors'
 import { useAppDispatch, useAppSelector } from '@/state/store'
+
+const tbArrowUp = <TbArrowUp />
+const tbArrowDown = <TbArrowDown />
 
 const hstackProps: StackProps = {
   flexWrap: {
@@ -95,13 +103,33 @@ export const RFOXSection = () => {
   const translate = useTranslate()
   const navigate = useNavigate()
   const isRFOXEnabled = useFeatureFlag('FoxPageRFOX')
+  const isRFOXFoxEcosystemPageEnabled = useFeatureFlag('RfoxFoxEcosystemPage')
   const isRFOXLPEnabled = useFeatureFlag('RFOX_LP')
   const { assetAccountNumber } = useFoxPageContext()
   const { setStakingAssetAccountId } = useRFOXContext()
   const appDispatch = useAppDispatch()
-  const [stakingAssetId, setStakingAssetId] = useState(foxOnArbitrumOneAssetId)
+  const location = useLocation()
+  const selectedUnstakingRequest = location.state?.selectedUnstakingRequest as
+    | UnstakingRequest
+    | undefined
 
-  const runeAsset = useAppSelector(state => selectAssetById(state, thorchainAssetId))
+  const [stakingAssetId, setStakingAssetId] = useState(foxOnArbitrumOneAssetId)
+  const [isStakeModalOpen, setIsStakeModalOpen] = useState(false)
+  const [isUnstakeModalOpen, setIsUnstakeModalOpen] = useState(false)
+  const [isClaimModalOpen, setIsClaimModalOpen] = useState(!!selectedUnstakingRequest)
+  const previousIsClaimModalOpen = usePrevious(isClaimModalOpen)
+
+  useEffect(() => {
+    if (selectedUnstakingRequest) {
+      setStakingAssetAccountId(selectedUnstakingRequest.stakingAssetAccountId)
+    }
+  }, [selectedUnstakingRequest, setStakingAssetAccountId])
+
+  useEffect(() => {
+    if (selectedUnstakingRequest && !isClaimModalOpen && !previousIsClaimModalOpen) {
+      setIsClaimModalOpen(true)
+    }
+  }, [selectedUnstakingRequest, isClaimModalOpen, previousIsClaimModalOpen])
 
   useEffect(() => {
     appDispatch(marketApi.endpoints.findByAssetId.initiate(stakingAssetId))
@@ -114,6 +142,11 @@ export const RFOXSection = () => {
   )
 
   const stakingAsset = useAppSelector(state => selectAssetById(state, stakingAssetId))
+  const runeAsset = useAppSelector(state => selectAssetById(state, thorchainAssetId))
+
+  const stakingAssetMarketData = useAppSelector(state =>
+    selectMarketDataByAssetIdUserCurrency(state, stakingAssetId),
+  )
   const runeMarketData = useAppSelector(state =>
     selectMarketDataByAssetIdUserCurrency(state, thorchainAssetId),
   )
@@ -144,12 +177,17 @@ export const RFOXSection = () => {
     return matchingAccountId
   }, [accountIdsByAccountNumberAndChainId, assetAccountNumber, stakingAssetId])
 
-  const handleManageClick = useCallback(() => {
+  useEffect(() => {
+    if (selectedUnstakingRequest) return
+
     setStakingAssetAccountId(stakingAssetAccountId)
+  }, [selectedUnstakingRequest, setStakingAssetAccountId, stakingAssetAccountId])
+
+  const handleManageClick = useCallback(() => {
     navigate({
       pathname: '/rfox',
     })
-  }, [navigate, stakingAssetAccountId, setStakingAssetAccountId])
+  }, [navigate])
 
   const selectStakingBalanceCryptoPrecision = useCallback(
     (abiStakingInfo: AbiStakingInfo) => {
@@ -165,6 +203,15 @@ export const RFOXSection = () => {
     select: selectStakingBalanceCryptoPrecision,
   })
 
+  const stakingBalanceUserCurrency = useMemo(() => {
+    if (!stakingAssetMarketData?.price) return '0'
+    if (!stakingBalanceCryptoPrecisionQuery.data) return '0'
+
+    return bnOrZero(stakingBalanceCryptoPrecisionQuery.data)
+      .times(bnOrZero(stakingAssetMarketData.price))
+      .toFixed(2)
+  }, [stakingBalanceCryptoPrecisionQuery.data, stakingAssetMarketData?.price])
+
   const currentEpochMetadataQuery = useCurrentEpochMetadataQuery()
 
   const currentEpochRewardsQuery = useCurrentEpochRewardsQuery({
@@ -178,10 +225,31 @@ export const RFOXSection = () => {
     [currentEpochRewardsQuery.data, runeAsset?.precision],
   )
 
+  const currentEpochRewardsUserCurrency = useMemo(() => {
+    if (!runeMarketData?.price) return '0'
+    if (!currentEpochRewardsCryptoPrecision) return '0'
+
+    return bnOrZero(currentEpochRewardsCryptoPrecision)
+      .times(bnOrZero(runeMarketData.price))
+      .toFixed(2)
+  }, [currentEpochRewardsCryptoPrecision, runeMarketData?.price])
+
   const lifetimeRewardsQuery = useLifetimeRewardsQuery({
     stakingAssetId,
     stakingAssetAccountId,
   })
+
+  const lifetimeRewardsCryptoPrecision = useMemo(
+    () => fromBaseUnit(lifetimeRewardsQuery.data?.toString(), runeAsset?.precision ?? 0),
+    [lifetimeRewardsQuery.data, runeAsset?.precision],
+  )
+
+  const lifetimeRewardsUserCurrency = useMemo(() => {
+    if (!runeMarketData?.price) return '0'
+    if (!lifetimeRewardsCryptoPrecision) return '0'
+
+    return bnOrZero(lifetimeRewardsCryptoPrecision).times(bnOrZero(runeMarketData.price)).toFixed(2)
+  }, [lifetimeRewardsCryptoPrecision, runeMarketData?.price])
 
   const {
     data: timeInPoolHuman,
@@ -202,36 +270,74 @@ export const RFOXSection = () => {
     return isTimeInPoolQueryLoading || isTimeInPoolFetching
   }, [isTimeInPoolQueryLoading, isTimeInPoolFetching])
 
-  const affiliateRevenueQuery = useAffiliateRevenueQuery<string>({
-    startTimestamp: currentEpochMetadataQuery.data?.epochStartTimestamp,
-    endTimestamp: currentEpochMetadataQuery.data?.epochEndTimestamp,
-    select: (totalRevenue: bigint) => {
-      return bn(fromBaseUnit(totalRevenue.toString(), runeAsset?.precision ?? 0))
-        .times(bnOrZero(runeMarketData?.price))
-        .toFixed(2)
-    },
-  })
+  const handleStakeClick = useCallback(() => {
+    setIsStakeModalOpen(true)
+  }, [])
 
-  const emissionsPoolUserCurrency = useMemo(() => {
-    if (!affiliateRevenueQuery.data) return
-    if (!currentEpochMetadataQuery.data) return
+  const handleUnstakeClick = useCallback(() => {
+    setIsUnstakeModalOpen(true)
+  }, [])
 
-    const distributionRate =
-      currentEpochMetadataQuery.data.distributionRateByStakingContract[
-        getStakingContract(stakingAssetId)
-      ]
+  const handleClaimClick = useCallback(() => {
+    setIsClaimModalOpen(true)
+  }, [])
 
-    return bn(affiliateRevenueQuery.data).times(distributionRate).toFixed(2)
-  }, [affiliateRevenueQuery, currentEpochMetadataQuery, stakingAssetId])
+  const handleCloseStakeModal = useCallback(() => {
+    setIsStakeModalOpen(false)
+  }, [])
+
+  const handleCloseUnstakeModal = useCallback(() => {
+    setIsUnstakeModalOpen(false)
+  }, [])
+
+  const handleCloseClaimModal = useCallback(() => {
+    setIsClaimModalOpen(false)
+  }, [])
+
+  const actionsButtons = useMemo(() => {
+    if (!isRFOXFoxEcosystemPageEnabled) {
+      return (
+        <Button onClick={handleManageClick} colorScheme='gray'>
+          {translate('common.manage')}
+        </Button>
+      )
+    }
+
+    return (
+      <Flex flexWrap='wrap' gap={2}>
+        <Button onClick={handleStakeClick} colorScheme='gray' flex='1 1 auto' leftIcon={tbArrowUp}>
+          {translate('defi.stake')}
+        </Button>
+        <Button
+          onClick={handleUnstakeClick}
+          colorScheme='gray'
+          flex='1 1 auto'
+          leftIcon={tbArrowDown}
+        >
+          {translate('defi.unstake')}
+        </Button>
+        <Button onClick={handleClaimClick} colorScheme='green' flex='1 1 auto'>
+          {translate('defi.claim')}
+        </Button>
+      </Flex>
+    )
+  }, [
+    isRFOXFoxEcosystemPageEnabled,
+    handleManageClick,
+    handleStakeClick,
+    handleUnstakeClick,
+    handleClaimClick,
+    translate,
+  ])
 
   if (!(stakingAsset && runeAsset)) return null
 
   if (!isRFOXEnabled) return null
 
   return (
-    <>
+    <Box>
       <Divider mt={2} mb={6} />
-      <Box py={4} px={containerPaddingX}>
+      <Box py={4} px={containerPaddingX} id='rfox'>
         <Flex sx={headerSx}>
           <Box mb={headerTitleMb}>
             <Heading as='h2' fontSize='2xl' display='flex' alignItems='center'>
@@ -264,18 +370,30 @@ export const RFOXSection = () => {
             <CardBody py={4} px={4}>
               <Text fontSize='md' color='text.subtle' translation='RFOX.pendingRewardsBalance' />
 
-              <Skeleton isLoaded={!currentEpochRewardsQuery.isFetching}>
+              <Skeleton isLoaded={!currentEpochRewardsQuery.isLoading}>
                 <Amount.Crypto
                   value={currentEpochRewardsCryptoPrecision}
                   symbol={runeAsset.symbol ?? ''}
                 />
               </Skeleton>
+              <Amount.Fiat
+                fontSize='xs'
+                value={currentEpochRewardsUserCurrency}
+                color='text.subtle'
+              />
             </CardBody>
           </Card>
         </Flex>
 
         <SimpleGrid my={4} columns={columnsProps} spacing='26px' width='100%' mb={8}>
-          <Stack {...stackProps} alignItems='center' flexDir='row' justifyContent='space-between'>
+          <Stack
+            {...stackProps}
+            alignItems='center'
+            flexDir='row'
+            justifyContent='space-between'
+            flexWrap='wrap'
+            gap={4}
+          >
             <Box>
               <Text
                 fontSize='md'
@@ -284,17 +402,16 @@ export const RFOXSection = () => {
                 translation='defi.stakingBalance'
                 mb={1}
               />
-              <Skeleton isLoaded={!stakingBalanceCryptoPrecisionQuery.isFetching}>
+              <Skeleton isLoaded={!stakingBalanceCryptoPrecisionQuery.isLoading}>
                 <Amount.Crypto
                   fontSize='2xl'
                   value={stakingBalanceCryptoPrecisionQuery.data}
                   symbol={stakingAsset.symbol ?? ''}
                 />
               </Skeleton>
+              <Amount.Fiat fontSize='xs' value={stakingBalanceUserCurrency} color='text.subtle' />
             </Box>
-            <Button onClick={handleManageClick} colorScheme='gray' size='sm'>
-              {translate('common.manage')}
-            </Button>
+            {actionsButtons}
           </Stack>
 
           <Stack {...stackProps}>
@@ -305,16 +422,14 @@ export const RFOXSection = () => {
               translation='RFOX.lifetimeRewards'
               mb={1}
             />
-            <Skeleton isLoaded={!Boolean(lifetimeRewardsQuery.isFetching)}>
+            <Skeleton isLoaded={!lifetimeRewardsQuery.isLoading}>
               <Amount.Crypto
                 fontSize='2xl'
-                value={fromBaseUnit(
-                  lifetimeRewardsQuery.data?.toString(),
-                  runeAsset.precision ?? 0,
-                )}
+                value={lifetimeRewardsCryptoPrecision}
                 symbol={runeAsset.symbol ?? ''}
               />
             </Skeleton>
+            <Amount.Fiat fontSize='xs' value={lifetimeRewardsUserCurrency} color='text.subtle' />
           </Stack>
 
           <Stack {...stackProps}>
@@ -329,29 +444,15 @@ export const RFOXSection = () => {
               <CText fontSize='2xl'>{timeInPoolHuman ?? 'N/A'}</CText>
             </Skeleton>
           </Stack>
-
-          <Stack {...stackProps}>
-            <Text
-              fontSize='md'
-              color='text.subtle'
-              fontWeight='medium'
-              // we need to pass a local scope arg here, so we need an anonymous function wrapper
-              // eslint-disable-next-line react-memo/require-usememo
-              translation={[
-                'foxPage.rfox.totalSymbolBurn',
-                {
-                  symbol: stakingAsset.symbol,
-                },
-              ]}
-              mb={1}
-            />
-            <Skeleton isLoaded={Boolean(emissionsPoolUserCurrency)}>
-              <Amount.Fiat fontSize='2xl' value={emissionsPoolUserCurrency} suffix='🔥 _ 🔥' />
-            </Skeleton>
-          </Stack>
         </SimpleGrid>
         <RFOXSimulator stakingAssetId={stakingAssetId} />
+        <Box py={4}>
+          <Stats />
+        </Box>
       </Box>
-    </>
+      <StakeModal isOpen={isStakeModalOpen} onClose={handleCloseStakeModal} />
+      <UnstakeModal isOpen={isUnstakeModalOpen} onClose={handleCloseUnstakeModal} />
+      <ClaimModal isOpen={isClaimModalOpen} onClose={handleCloseClaimModal} />
+    </Box>
   )
 }

@@ -30,6 +30,7 @@ import { AssetIconWithBadge } from '@/components/AssetIconWithBadge'
 import { Row } from '@/components/Row/Row'
 import { RawText, Text } from '@/components/Text'
 import { TransactionTypeIcon } from '@/components/TransactionHistory/TransactionTypeIcon'
+import { useModalRegistration } from '@/context/ModalStackProvider'
 import { useErrorToast } from '@/hooks/useErrorToast/useErrorToast'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
@@ -77,6 +78,11 @@ export const CancelLimitOrder = ({ orderToCancel, onSetOrderToCancel }: CancelLi
     reset()
     onSetOrderToCancel(undefined)
   }, [onSetOrderToCancel, reset])
+
+  const { modalProps, overlayProps, modalContentProps } = useModalRegistration({
+    isOpen: orderToCancel !== undefined,
+    onClose: handleClose,
+  })
 
   const handleRequestCancellation = useCallback(async () => {
     if (!orderToCancel || !wallet) {
@@ -141,9 +147,9 @@ export const CancelLimitOrder = ({ orderToCancel, onSetOrderToCancel }: CancelLi
   }, [orderToCancel])
 
   return (
-    <Modal isOpen={orderToCancel !== undefined} onClose={handleClose}>
-      <ModalOverlay />
-      <ModalContent pointerEvents='all'>
+    <Modal {...modalProps}>
+      <ModalOverlay {...overlayProps} />
+      <ModalContent pointerEvents='all' {...modalContentProps}>
         <ModalHeader px={6} pt={4} borderWidth={0}>
           <Heading textAlign='center' fontSize='md'>
             <Text translation='limitOrder.cancel.cancelOrder' />
@@ -173,7 +179,7 @@ export const CancelLimitOrder = ({ orderToCancel, onSetOrderToCancel }: CancelLi
           borderBottomRadius={cardBorderRadius}
         >
           <Stack spacing={4} width='full'>
-            <Card bg='background.surface.raised.accent' borderRadius='xl' p={4}>
+            <Card bg='darkNeutral.800' borderRadius='xl' p={4}>
               <Stack spacing={4}>
                 <Row px={2}>
                   <Row.Label>

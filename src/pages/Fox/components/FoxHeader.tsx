@@ -1,4 +1,4 @@
-import { Container, Flex, Heading, Stack } from '@chakra-ui/react'
+import { Container, Flex, Heading, HStack, Link, Stack } from '@chakra-ui/react'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -14,7 +14,6 @@ import { Text } from '@/components/Text'
 import { selectPortfolioAccountIdsByAssetIdFilter } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
-const containerPadding = { base: 6, '2xl': 8 }
 const containerPaddingTop = { base: 0, md: 8 }
 const accountDropdownButtonProps = { variant: 'solid', width: 'full' }
 
@@ -31,6 +30,37 @@ export const FoxHeader = () => {
   const handleBack = useCallback(() => {
     navigate('/explore')
   }, [navigate])
+
+  const handleAnchorClick = useCallback(
+    (event: React.MouseEvent<HTMLAnchorElement>, id: string) => {
+      event.preventDefault()
+      const element = document.getElementById(id)
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth', block: 'start' })
+        if (window.history && window.history.replaceState) {
+          window.history.replaceState(null, '', `#${id}`)
+        }
+      }
+    },
+    [],
+  )
+
+  const handleRfoxClick = useCallback(
+    (event: React.MouseEvent<HTMLAnchorElement>) => handleAnchorClick(event, 'rfox'),
+    [handleAnchorClick],
+  )
+  const handleFarmingClick = useCallback(
+    (event: React.MouseEvent<HTMLAnchorElement>) => handleAnchorClick(event, 'farming'),
+    [handleAnchorClick],
+  )
+  const handleGovernanceClick = useCallback(
+    (event: React.MouseEvent<HTMLAnchorElement>) => handleAnchorClick(event, 'governance'),
+    [handleAnchorClick],
+  )
+  const handleTokenClick = useCallback(
+    (event: React.MouseEvent<HTMLAnchorElement>) => handleAnchorClick(event, 'token'),
+    [handleAnchorClick],
+  )
 
   const activeAccountDropdown = useMemo(() => {
     if (accountIds.length <= 1) return null
@@ -63,7 +93,7 @@ export const FoxHeader = () => {
         </PageHeader>
       </Display.Mobile>
       <Stack mb={4}>
-        <Container maxWidth='container.4xl' px={containerPadding} pt={containerPaddingTop} pb={4}>
+        <Container pt={containerPaddingTop} pb={4}>
           <Display.Desktop>
             <Stack>
               <Flex alignItems='center' justifyContent='space-between'>
@@ -71,6 +101,20 @@ export const FoxHeader = () => {
                 {activeAccountDropdown}
               </Flex>
               <Text color='text.subtle' translation='foxPage.description' />
+              <HStack gap={4} mt={6}>
+                <Link href='#rfox' color='text.link' onClick={handleRfoxClick}>
+                  {translate('RFOX.staking')}
+                </Link>
+                <Link href='#token' color='text.link' onClick={handleTokenClick}>
+                  {translate('foxPage.foxToken')}
+                </Link>
+                <Link href='#farming' color='text.link' onClick={handleFarmingClick}>
+                  {translate('foxPage.foxFarming.title')}
+                </Link>
+                <Link href='#governance' color='text.link' onClick={handleGovernanceClick}>
+                  {translate('foxPage.governance.title')}
+                </Link>
+              </HStack>
             </Stack>
           </Display.Desktop>
         </Container>

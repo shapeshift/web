@@ -1,10 +1,10 @@
-import { Modal, ModalContent, ModalOverlay } from '@chakra-ui/react'
 import { useEffect } from 'react'
 import { MemoryRouter, useNavigate } from 'react-router-dom'
 
 import { SettingsRoutes } from './SettingsCommon'
 import { SettingsRouter } from './SettingsRouter'
 
+import { Dialog } from '@/components/Modal/components/Dialog'
 import { useModal } from '@/hooks/useModal/useModal'
 import type { MobileMessageEvent } from '@/plugins/mobile'
 
@@ -28,6 +28,9 @@ const Settings = () => {
   useEffect(() => {
     if (!isOpen) return
     const shakeEventListener = (e: MessageEvent<MobileMessageEvent>) => {
+      // Only accept messages from the mobile app WebView, which does not set a web origin
+      // and is only present when running in the RN environment. Any other origins are ignored.
+      if (e.origin && e.origin !== 'null' && e.origin !== 'file://') return
       if (e.data?.cmd === 'shakeEvent' && isOpen) {
         appHistory('/flags')
         close()
@@ -39,14 +42,11 @@ const Settings = () => {
   }, [appHistory, close, isOpen])
 
   return (
-    <Modal isOpen={isOpen} onClose={close} isCentered size='md'>
-      <ModalOverlay />
-      <ModalContent>
-        <MemoryRouter initialEntries={entries} initialIndex={0}>
-          <SettingsRouter />
-        </MemoryRouter>
-      </ModalContent>
-    </Modal>
+    <Dialog isOpen={isOpen} onClose={close} height='auto'>
+      <MemoryRouter initialEntries={entries} initialIndex={0}>
+        <SettingsRouter />
+      </MemoryRouter>
+    </Dialog>
   )
 }
 

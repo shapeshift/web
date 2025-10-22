@@ -3,6 +3,8 @@
     "amount": "Miktar",
     "ascending": "Yükselen",
     "descending": "Azalan",
+    "selectAll": "Tümünü Seç",
+    "unselectAll": "Tümünü Kaldır",
     "free": "Uygun",
     "trade": "Takas",
     "trades": "İşlemler",
@@ -31,12 +33,16 @@
     "claimable": "Toplanabilir",
     "comingSoon": "Yakında...",
     "approve": "Onayla",
+    "approveToken": "Token'ı Onayla",
+    "approveAmount": "Bakiyeyi Onayla",
+    "approveTo": "Onaylamak İçin",
     "reset": "Sıfırla",
     "confirm": "Onaylayın",
     "seeDetails": "Detayları gör",
     "activity": "Aktivite",
     "reject": "İptal",
     "goBack": "Geri git",
+    "fiat": "Fiyat",
     "connected": "Bağlandı",
     "allocation": "Dağılım",
     "trendingTokens": "Trend Tokenlar",
@@ -62,6 +68,7 @@
     "pairing": "Eşleştirme",
     "connectWalletToGetStartedWith": "%{feature} ile başlamak için bir cüzdan bağlayın",
     "connectedWallet": "Cüzdan Bağlandı",
+    "crypto": "Kripto",
     "walletActions": "Cüzdan Hareketleri",
     "connectedWalletSettings": "Cüzdan Ayarları",
     "noWallet": "Bağlı Bir Cüzdan Yok",
@@ -127,6 +134,11 @@
     "enterAmount": "Miktarı Girin",
     "enterAddress": "Adresi Girin",
     "pageNotFound": "Aradığınız sayfa bulunamadı",
+    "creditCard": "Kredi Kartı",
+    "bankTransfer": "Banka Transferi",
+    "applePay": "Apple Pay",
+    "googlePay": "Google Pay",
+    "sepa": "SEPA",
     "buySell": "Al/Sat",
     "all": "Hepsi",
     "viewAll": "Hepsini Gör",
@@ -214,7 +226,23 @@
     "dca": "DCA",
     "boost": "Yükseltme",
     "viewOnExplorer": "Explorer'da görüntüle",
-    "approval": "Onay"
+    "viewAssetDetails": "Varlık Ayrıntılarını Görüntüle",
+    "approval": "Onay",
+    "permit2Approval": "Permit2 Onayı",
+    "network": "Ağ",
+    "feeEstimate": "Ücret Tahmini"
+  },
+  "quickBuy": {
+    "title": "Hızlı Satın Al %{assetOnChain}",
+    "nativeNotAvailable": "Hızlı Satın Al yerel varlıklarda mevcut değildir",
+    "balance": "Mevcut Bakiye",
+    "confirm": "Satın almak istediğinizden emin misiniz?",
+    "edit": "Satın alma miktarlarını düzenle",
+    "error": {
+      "insufficientFunds": "%{amount} tutarındaki hızlı satın al işlemi başarısız oldu, yeterli bakiye yok, başka bir tutar deneyin?",
+      "noQuote": "%{amount} tutarındaki hızlı satın al işlemi başarısız oldu, geçerli bir teklif alınamadı.",
+      "failed": "%{amount} tutarındaki hızlı satın al işlemi başarısız oldu."
+    }
   },
   "consentBanner": {
     "body": "DApp'imiz, performansı analiz etmek ve deneyiminizi iyileştirmek için anonimleştirilmiş tıklama izlemeyi kullanır. app.shapeshift.com'u kullanarak izlememizi kabul etmiş olursunuz.  %{privateLink} Anonim olarak takip edilmek istemiyorsanız ziyaret edin. Daha fazla ayrıntı için %{privacyPolicyLink} göz atın.",
@@ -225,12 +253,41 @@
     "body": "Bir şeyler ters gitti",
     "cta": "Tekrar dene"
   },
-  "buyPage": {
-    "title": "Saniyeler içinde <span>Kripto Satın Alın</span>",
-    "body": "Kredi kartı, banka kartı veya banka hesabı kullanın. Bitcoin, Ethereum, USDT, USDC veya diğer en iyi kripto para birimlerini satın alın. KYC gerekmeyen sağlayıcılar mevcuttur.",
-    "disclaimer": "*Ayrıca kriptonuzu banka hesabınıza doğrudan nakit olarak satabilirsiniz.",
-    "ctaTitle": "Ayrıca ShapeShift'i en iyi cüzdanların tümü ile takas yapmak, kazanç elde etmek ve <span>Kripto paranızı %{chainCount} farklı ağda takip edebilirsiniz</span>",
-    "availableAssets": "Kullanılabilir Varlıklar"
+  "errorBoundary": {
+    "component": {
+      "title": "Bileşen Hatası",
+      "body": "Bu bileşen bir hatayla karşılaştı ve düzgün yüklenemedi.",
+      "retry": "Tekrar dene"
+    },
+    "chart": {
+      "title": "Grafik mevcut değil",
+      "body": "Şu anda grafik verileri yüklenemiyor.",
+      "retry": "Tekrar dene"
+    },
+    "trading": {
+      "title": "İşlem Hatası",
+      "body": "İşlem arayüzünde bir hata oluştu. Tekrar deneyebilir veya sayfayı yenileyebilirsiniz.",
+      "retry": "Tekrar deneyin"
+    },
+    "ramp": {
+      "title": "Ramp Hatası",
+      "body": "Rampa arayüzünde bir hata oluştu. Tekrar deneyebilir veya sayfayı yenileyebilirsiniz.",
+      "retry": "Tekrar Dene"
+    },
+    "suspense": {
+      "title": "Yükleme başarısız oldu",
+      "body": "Bu içerik düzgün şekilde yüklenemedi.",
+      "retry": "Tekrar dene"
+    }
+  },
+  "rampPage": {
+    "buyTitle": "Kriptoyu <span>Saniyeler İçinde</span> Satın Alın",
+    "sellTitle": "Kripto Paranızı <span>Saniyeler İçinde</span> Satın",
+    "buyBody": "Kredi kartı, banka kartı veya banka hesabı kullanın. Bitcoin, Ethereum, USDT, USDC veya diğer popüler kripto para birimlerini satın alın. KYC dışı sağlayıcılar mevcuttur.",
+    "sellBody": "Kredi kartı, banka kartı veya banka hesabı kullanın. Bitcoin, Ethereum, USDT, USDC veya diğer popüler kripto para birimlerini satın. KYC dışı sağlayıcılar mevcuttur.",
+    "disclaimer": "*Kripto paranızı doğrudan banka hesabınıza nakit olarak da satabilirsiniz.",
+    "ctaTitle": "ShapeShift'i tüm en iyi cüzdanlarla kullanarak ticaret yapabilir, getiri elde edebilir ve <span>kripto paranızı %{chainCount} zincirde takip edebilirsiniz</span>",
+    "availableAssets": "Mevcut Varlıklar"
   },
   "updateToast": {
     "body": "Uygulama güncellemesi mevcut!",
@@ -334,6 +391,9 @@
       "switchWallet": "Cüzdanı Değiştir",
       "disconnect": "Bağlantıyı kes",
       "disconnected": "(Bağlantı kesildi)",
+      "locked": "(Kilitli)",
+      "reconnectWallet": "Cüzdanı Tekrar Bağla",
+      "walletNotConnected": "Cüzdanınız şu anda bağlı değil. Bu durum işlemlerinizi etkileyecektir.",
       "connecting": "Bağlanıyor..."
     }
   },
@@ -372,8 +432,6 @@
       },
       "cosmosOverview": {
         "rewards": "Kazandığınız ödüller otomatik olarak tahakkuk edecektir.",
-        "cta": "Stake Etmeye Başlayın",
-        "learnMore": "Daha fazla bilgi edin",
         "withdrawals": "Stake'ten Çık",
         "emptyWithdraws": "Bekleyen staking istekleri burada gösterilir.",
         "availableDate": "kullanılabilir %{date}"
@@ -511,6 +569,7 @@
     "netWorth": "Net Değer",
     "loadingAccounts": "Yüklenen %{portfolioAccountsLoaded} hesap",
     "walletBalance": "Cüzdan Bakiyesi",
+    "walletBalanceChange24Hr": "24 saatlik değişim",
     "earnBalance": "Kazanç Bakiyesi",
     "rewardsBalance": "Ödül Bakiyesi",
     "earnBody": "Varlıklarınızı stake ederek veya bir DeFi stratejisine yatırarak pasif gelir elde edin.",
@@ -624,7 +683,6 @@
     "market": "Market",
     "limitOrder": "Limit Emirleri",
     "claims": "Toplanacaklar",
-    "tradeShort": "Takas",
     "buyCrypto": "Kripto Al/Sat",
     "buyCryptoShort": "Al/Sat",
     "lending": "Borç Verme",
@@ -633,6 +691,8 @@
     "tcy": "TCY",
     "foxEcosystem": "FOX Ekosistem",
     "markets": "Piyasalar",
+    "tokens": "Tokenlar",
+    "swap": "Takas",
     "actionMenu": {
       "send": {
         "title": "Gönder",
@@ -656,6 +716,34 @@
       }
     }
   },
+  "shapeShiftMenu": {
+    "products": "Ürünler",
+    "mobileApp": {
+      "title": "Mobil App",
+      "subtitle": "Kripto ticareti yapın ve yönetin"
+    },
+    "foxToken": {
+      "title": "FOX Token",
+      "subtitle": "Yönetim Tokenımız"
+    },
+    "classic": {
+      "title": "Klasik",
+      "subtitle": "OG ShapeShift"
+    },
+    "wallet": {
+      "title": "ShapeShift Cüzdanı",
+      "subtitle": "Cüzdanımız hakkında bilgi edinin"
+    },
+    "footer": {
+      "governance": "Yönetim",
+      "support": "Destek",
+      "blog": "Blog",
+      "faq": "SSS",
+      "github": "GitHub",
+      "discord": "Discord",
+      "twitter": "Twitter"
+    }
+  },
   "transactionRow": {
     "send": "Gönderilen",
     "receive": "Alınan",
@@ -668,7 +756,6 @@
     "confirmed": "Onaylandı",
     "pending": "Beklemede",
     "failed": "Hatalı",
-    "network": "Ağ",
     "blockHeight": "Blok Yüksekliği",
     "to": "İle",
     "from": "İtibaren",
@@ -838,7 +925,10 @@
     "confirmAndClaim": "Onayla ve Talep Et",
     "viewClaims": "Talepleri Görüntüle",
     "viewClaimStatus": "Talep Durumunu Görüntüle",
-    "availableClaimsNotification": "Köprü talepleriniz hazır!"
+    "availableClaimsNotification": "Köprü talepleriniz hazır!",
+    "bridgeWithdrawalReadyNotification": "Köprü çekimi talep edilmeye hazır",
+    "bridgeWithdrawalFailedNotification": "Köprünün çekilmesi başarısız oldu",
+    "checkActionCenterNotification": "Ayrıntılar için Eylem Merkezi'ni kontrol edin"
   },
   "trade": {
     "trade": "Takas",
@@ -912,7 +1002,7 @@
     "viewTransaction": "İşlemi Görüntüle",
     "noQuotesAvailable": "Teklif Yok",
     "noQuotesAvailableDescription": "Şu anda kullanılabilir teklif bulunamadı. Başka bir çift seçmeyi deneyin.",
-    "availableSwappers": "Mevcut Fiyat Teklifleri",
+    "availableQuotes": "Mevcut Teklifler",
     "unavailableSwappers": "Kullanılamayan Swapper'lar",
     "unlimited": "Limitsiz",
     "streamStatus": "Yayın Durumu",
@@ -931,6 +1021,8 @@
     "intoAssetSymbolBody": "Bu ticarete devam edebilirsiniz, ancak %{assetSymbol} almak için işlem geçmişi geçici olarak kullanılamıyor",
     "manualReceiveAddress": "Alıcı adresi",
     "recipientAddress": "Alıcı adresi",
+    "changeAddress": "Adresi değiştir",
+    "changeAddressExplainer": "UTXO tabanlı ağlar üzerinden kripto para gönderirken, işlemden kalan fonlar bu adrese geri gönderilir.",
     "customRecipientAddress": "Özel alıcı adresi",
     "customRecipientAddressDescription": "Bu takas için özel bir alıcı adresi girin",
     "thisIsYourCustomRecipientAddress": "Bu sizin özel alıcı adresinizdir",
@@ -1086,7 +1178,19 @@
       "youGotMore": "Bu işlemde %{cryptoUpside} daha fazla kazandınız"
     },
     "networkFee": "Ağ Ücreti",
-    "feeExplainer": "Teklife %{feePercentage}% ShapeShift ücreti dahildir"
+    "feeExplainer": "Teklife %{feePercentage}% ShapeShift ücreti dahildir",
+    "claim": {
+      "pending": "%{amount} %{symbol} tutarındaki talebiniz işleniyor.",
+      "complete": "%{amount} %{symbol} tutarındaki talebiniz tamamlandı."
+    },
+    "rewardDistribution": {
+      "pending": {
+        "description": "%{amountAndSymbol} tutarındaki ödülünüz işleniyor..."
+      },
+      "complete": {
+        "description": "%{amountAndSymbol} tutarındaki ödülünüz tamamlandı."
+      }
+    }
   },
   "limitOrder": {
     "heading": "Limit",
@@ -1356,7 +1460,8 @@
         "total": "Toplam",
         "amount": "Tutar",
         "transactionFee": "İşlem ücreti",
-        "fees": "Ücretler %{feeType}"
+        "fees": "Ücretler %{feeType}",
+        "pendingConfirmation": "Onay bekleniyor"
       },
       "sendForm": {
         "optionalAssetMemo": "İsteğe bağlı %{assetSymbol} Memo",
@@ -1380,7 +1485,7 @@
     "receive": {
       "connectAWallet": "%{symbol} almak için bir cüzdan bağlayın",
       "receiveAsset": "%{asset} alın",
-      "onlySend": "Bu adrese yalnızca %{asset} (%{symbol}) gönderin. Başka coinlerin gönderilmesi kalıcı kayba neden olabilir.",
+      "onlySend": "%{symbol} sembolünü yalnızca desteklenen ağlarda gönderin. Diğer belirteçler veya ağlar kalıcı kayba neden olabilir.",
       "copy": "Kopyala",
       "copied": "%{symbol} alım adresi panoya kopyalandı",
       "copyFailed": "%{symbol} alım adresi panoya kopyalanamadı",
@@ -1389,7 +1494,9 @@
       "verify": "Doğrulayın",
       "verified": "Doğrulandı",
       "notVerified": "Adres Uyuşmazlığı",
-      "blockExplorer": "Tarayıcı"
+      "blockExplorer": "Tarayıcı",
+      "supportedNetworks": "Desteklenen Ağlar",
+      "amountNote": "Talep etmek istediğiniz tutarı girin. Bu, ödemeyi kolaylaştırmak için tutarın yazılı olduğu bir QR kodu oluşturacaktır."
     },
     "deposit": {
       "allocation": {
@@ -1553,6 +1660,26 @@
         "ILS": "İsrail Şekeli",
         "IDR": "Endonezya Rupiahı"
       }
+    },
+    "ramp": {
+      "payWith": "İle Öde",
+      "youGet": "Alacaksın",
+      "sellAmount": "Satış Miktarı",
+      "receiveAmount": "Alınan Tutar",
+      "buyAsset": "Varlık Satın Al",
+      "sellAsset": "Varlık Sat",
+      "receiveAsset": "Varlık Al",
+      "previewOrder": "Siparişi Önizleme",
+      "processingTime": "İşlem Süresi: 1-3 iş günü",
+      "buyInfo": "Kripto parayı itibari para birimiyle satın alın",
+      "sellInfo": "Kripto paraları itibari para birimi karşılığında sat",
+      "availableQuotes": "Mevcut Teklifler",
+      "bestRate": "En İyi Fiyat",
+      "fastest": "En hızlı",
+      "rate": "Oran",
+      "amount": "Miktar",
+      "paymentMethods": "Ödeme Yöntemleri",
+      "selectFiat": "Fiat Para Birimini Seçin"
     },
     "mobileWelcome": {
       "success": {
@@ -1722,8 +1849,13 @@
         "pairExistingDeviceBody": "Farklı bir Ledger cihazı mı bağlanıyorsunuz? Yeni bir başlangıç ​​yapmak için 'Yeni cihazı eşleştir'e tıklayın."
       },
       "failure": {
-        "body": "Ledger cüzdanına bağlanılamıyor"
+        "header": "Ledger'a bağlanılamıyor",
+        "body": "Ledger'ınızı tespit edemedik ancak salt okunur modda bağlanabilirsiniz."
       },
+      "readOnly": {
+        "button": "Salt Okunur Olarak Bağlan"
+      },
+      "gettingChangeAddress": "Adres değişikliği alınıyor...",
       "connectWarning": "Bir zinciri bağlamadan önce uygulamanın cihazınızda açık olduğundan emin olun.",
       "signWarning": "İmzalamadan önce cihazınızda %{chain} uygulamasının açık olduğundan emin olun."
     },
@@ -1767,6 +1899,7 @@
       "active": "Aktif",
       "notActive": "Aktif değil",
       "addSnap": "Snap Ekle",
+      "installError": "MetaMask'a Multichain Snap yüklenirken bir hata oluştu",
       "uninstall": {
         "title": "Multichain desteğini MetaMask'tan kaldırdınız!",
         "subtitle": "Aşağıdaki zincirlerle göndermek, almak, takip etmek, ticaret yapmak ve kazanmak için Multichain Snap'i MetaMask'a yeniden ekleyin:"
@@ -2048,11 +2181,12 @@
   },
   "assets": {
     "more": "Daha fazla",
+    "hideAsset": "Varlığı Gizle",
+    "showAsset": "Varlığı Göster",
+    "cannotHidePrimary": "İlgili varyantlara sahip birincil varlıklar gizlenemez",
     "spam": {
-      "warning": "Bu varlık gizlenecek çünkü onu spam olarak işaretlediniz.",
-      "marked": "Bu varlık spam olarak işaretlendi.",
-      "reportAsSpam": "Spam olarak bildir",
-      "reportAsNotSpam": "Spam değil olarak işaretle"
+      "warning": "Bu varlık, cüzdan açılır menüsünü açıp 'Gizli Varlıkları Yönet'e tıklayarak tekrar gösterilebilir.",
+      "marked": "Bu varlık şu anda gizli."
     },
     "assetDetails": {
       "assetHeader": {
@@ -2222,7 +2356,8 @@
     "today": "Bugün",
     "yesterday": "Dün",
     "thisWeek": "Bu Hafta",
-    "thisMonth": "Bu Ay"
+    "thisMonth": "Bu Ay",
+    "transactionDetails": "İşlem Ayrıntıları"
   },
   "plugins": {
     "foxPage": {
@@ -2305,6 +2440,18 @@
         "title": "WalletConnect",
         "ethereum": "Ethereum",
         "connectAll": "Tüm Hesapları Bağla",
+        "interactContract": "Etkileşim Sözleşmesi",
+        "transactionData": "İşlem Verileri",
+        "method": "Yöntem",
+        "signingWith": "İle İmzala",
+        "connectWith": "İle Bağlan",
+        "chooseAccount": "Hesap Seçin",
+        "chooseNetwork": "Ağ Seçin",
+        "required": "Gerekli",
+        "noAccount": "Bu adres için %{chainName} üzerinde bir hesabınız yok",
+        "connectionRequest": "Bağlantı Talebi",
+        "connectionRequestTooltip": "Bağlantı, bu dApp'in işlem onayları talep etmesine olanak tanır",
+        "sendingTo": "Gönderilecek",
         "signMessage": {
           "signingFrom": "İmzalayan",
           "requestFrom": "İstek Gönderen",
@@ -2322,7 +2469,9 @@
           "chainId": "Zincir ID",
           "authInfo": "Yetki bilgisi",
           "body": "Mesaj",
-          "comingSoon": "Çok yakında"
+          "comingSoon": "Çok yakında",
+          "contract": "Sözleşme",
+          "primaryType": "Birincil Tip"
         },
         "sendTransaction": {
           "sendingFrom": "Gönderen",
@@ -2356,7 +2505,6 @@
         },
         "connect": {
           "title": "Cüzdanınızı WalletConnect aracılığıyla bir dApp'e bağlayın ve işlemleri tetikleyin",
-          "howTo": "Bir dApp'e nasıl bağlanılır?",
           "linkPlaceholder": "QR kod veya bağlantı link'i",
           "connect": "Bağlan",
           "connectionError": "Sağlanan URI'ye bağlanılamıyor.",
@@ -2653,6 +2801,13 @@
     },
     "title": "İzleme listesi"
   },
+  "manageHiddenAssets": {
+    "title": "Gizli Varlıkları Yönet",
+    "empty": {
+      "title": "Gizli varlık yok",
+      "body": "Gizlediğiniz varlıklar burada görünecek ve bunları daha sonra tekrar göstermeniz kolaylaşacaktır."
+    }
+  },
   "explore": {
     "pools": {
       "title": "Havuzlar",
@@ -2680,6 +2835,9 @@
     }
   },
   "RFOX": {
+    "stakeInitiated": "Stake Başlatıldı",
+    "unstakeInitiated": "Unstake Başlatıldı",
+    "claimWithdraw": "Talep Geri Çekme",
     "staking": "rFOX Stake Etme",
     "bridge": "Köprü",
     "bridgeFunds": "Köprü Fonları",
@@ -2981,6 +3139,7 @@
       "switchChainFailed": "Cüzdan zinciri değiştirilemedi. Cüzdan etkin zincirinizi manuel olarak %{chain} olarak değiştirmeyi deneyin.",
       "buildTransaction": "İşlem oluşturulamadı.",
       "signTransaction": "İşlem imzalanamadı.",
+      "blindSigningRequired": "İşlem için gizli imzalama gerekiyor. Lütfen Ledger uygulama ayarlarınızda 'Blind Signing'i etkinleştirin ve tekrar deneyin.",
       "signAndBroadcastTransaction": "İşlem imzalanamadı ve yayınlanamadı.",
       "signMessage": "Mesaj imzalanamadı.",
       "broadcastTransaction": "İşlem yayınlanamadı.",
@@ -3015,7 +3174,9 @@
       "claimAvailable": "Talep Mevcuttur",
       "claimed": "Talep edildi",
       "unknown": "Bilinmeyen",
-      "initiated": "Başlatıldı"
+      "initiated": "Başlatıldı",
+      "awaitingApproval": "Onay Bekleniyor",
+      "awaitingSwap": "Takas Bekleniyor"
     },
     "emptyState": {
       "title": "ShapeShift'e hoş geldiniz",
@@ -3027,7 +3188,9 @@
       "processing": "%{sellAmountAndSymbol} ile %{buyAmountAndSymbol} arasındaki takas işleminiz işleniyor.",
       "complete": "%{sellAmountAndSymbol} ürününü %{buyAmountAndSymbol} ürününe dönüştürme işleminiz tamamlandı.",
       "failed": "%{sellAmountAndSymbol} ile %{buyAmountAndSymbol} arasındaki takas işleminiz başarısız oldu.",
-      "streaming": "%{sellAmountAndSymbol} ile %{buyAmountAndSymbol} arasındaki takasınız yayında."
+      "streaming": "%{sellAmountAndSymbol} ile %{buyAmountAndSymbol} arasındaki takasınız yayında.",
+      "awaitingApproval": "%{sellAmountAndSymbol} ile %{buyAmountAndSymbol} arasındaki takasınız onay bekliyor.",
+      "awaitingSwap": "%{sellAmountAndSymbol} ile %{buyAmountAndSymbol} arasındaki takasınız gerçekleştirilmeyi bekliyor."
     },
     "thorchainLp": {
       "pairAssets": "%{asset1} ve %{asset2}",
@@ -3053,10 +3216,17 @@
       "complete": "%{amount} %{symbol} tutarındaki talebiniz tamamlandı."
     },
     "bridge": {
-      "processing": "%{sellAmountAndSymbol}.%{sellChainShortName} ile %{buyAmountAndSymbol}.%{buyChainShortName} arasındaki köprünüz işleniyor.",
-      "complete": "%{sellAmountAndSymbol}.%{sellChainShortName} ile %{buyAmountAndSymbol}.%{buyChainShortName} arasındaki köprünüz tamamlandı.",
-      "initiated": "%{sellAmountAndSymbol}.%{sellChainShortName} ile %{buyAmountAndSymbol}.%{buyChainShortName} arasındaki köprünüz başlatıldı.",
-      "failed": "%{sellAmountAndSymbol}.%{sellChainShortName} ile %{buyAmountAndSymbol}.%{buyChainShortName} arasındaki köprünüz başarısız oldu."
+      "processing": "İşleniyor...",
+      "complete": "%{amountAndSymbol} köprünüz tamamlandı.",
+      "initiated": "%{sellAmountAndSymbol} ile %{buyAmountAndSymbol} arasındaki köprünüz başlatıldı.",
+      "pendingWithdraw": "%{amountAndSymbol} tutarındaki çekim işleminiz %{timeText} tarihinde gerçekleştirilebilecek.",
+      "claimAvailable": "%{amountAndSymbol} köprünüz talep edilebilir.",
+      "failed": "%{sellAmountAndSymbol}.%{sellChainShortName} ile %{buyAmountAndSymbol}.%{buyChainShortName} arasındaki köprünüz başarısız oldu.",
+      "transactionInitiated": "İşlem Başlatıldı",
+      "claimWithdraw": "Talep Geri Çekme",
+      "withdrawTx": "Tx'i Çek",
+      "claimTx": "Talep Tx",
+      "claimNotAvailable": "Talep henüz aktif değil. Lütfen cayma süresinin dolmasını bekleyin."
     },
     "limitOrder": {
       "placed": "%{sellAmountAndSymbol} ile %{buyAmountAndSymbol} arasında limit emri verildi",
@@ -3087,6 +3257,14 @@
     "limitOrderTitle": "%{sellAmount} %{sellSymbol} → %{buyAmount} %{buySymbol}",
     "pendingTransactions": "%{count} Bekliyor",
     "orderCancelled": "İşlem İptal Edildi",
-    "orderExpired": "İşlem Süresi Doldu"
+    "orderExpired": "İşlem Süresi Doldu",
+    "rewardDistribution": {
+      "pending": {
+        "description": "%{amountAndSymbol} tutarındaki ödülünüz işleniyor..."
+      },
+      "complete": {
+        "description": "%{amountAndSymbol} tutarındaki ödülünüz tamamlandı."
+      }
+    }
   }
 }

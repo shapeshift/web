@@ -49,6 +49,8 @@ export type CosmosSdkChainId =
   | KnownChainIds.ThorchainMainnet
   | KnownChainIds.MayachainMainnet
 
+export type ThorMayaChainId = KnownChainIds.ThorchainMainnet | KnownChainIds.MayachainMainnet
+
 export type UtxoChainId =
   | KnownChainIds.BitcoinMainnet
   | KnownChainIds.BitcoinCashMainnet
@@ -85,6 +87,8 @@ export type Asset = {
   explorerTxLink: string
   explorerAddressLink: string
   relatedAssetKey: AssetId | null | undefined
+  isPrimary?: boolean
+  isChainSpecific?: boolean
   isPool?: boolean
 }
 

@@ -25,22 +25,21 @@ export const ButtonWalletPredicate = ({
     dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
   }, [dispatch])
 
-  if (!isConnected)
+  if (!isConnected) {
     return (
       <Button {...restProps} onClick={handleConnect} isDisabled={false} colorScheme='blue'>
         {translate('common.connectWallet')}
       </Button>
     )
+  }
 
   return (
-    <>
-      <Button
-        {...restProps}
-        isDisabled={!isValidWallet || restProps.isDisabled}
-        colorScheme={isValidWallet ? restProps.colorScheme : 'red'}
-      >
-        {children}
-      </Button>
-    </>
+    <Button
+      {...restProps}
+      isDisabled={!isValidWallet || restProps.isDisabled}
+      colorScheme={isValidWallet ? restProps.colorScheme : 'red'}
+    >
+      {children}
+    </Button>
   )
 }

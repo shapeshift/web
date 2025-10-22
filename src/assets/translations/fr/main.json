@@ -3,6 +3,8 @@
     "amount": "Montant",
     "ascending": "Croissant",
     "descending": "Décroissant",
+    "selectAll": "Sélectionner tout",
+    "unselectAll": "Désélectionner tout",
     "free": "Gratuit",
     "trade": "Échange",
     "trades": "Échanges",
@@ -31,12 +33,16 @@
     "claimable": "Réclamable",
     "comingSoon": "Bientôt disponible...",
     "approve": "Autoriser",
+    "approveToken": "Autoriser le jeton",
+    "approveAmount": "Autoriser le montant",
+    "approveTo": "Autoriser à",
     "reset": "Réinitialiser",
     "confirm": "Confirmer",
     "seeDetails": "Voir les détails",
     "activity": "Activité",
     "reject": "Rejeter",
     "goBack": "Retour",
+    "fiat": "Fiat",
     "connected": "Connecté",
     "allocation": "Répartition",
     "trendingTokens": "Jetons tendances",
@@ -62,6 +68,7 @@
     "pairing": "Appairage",
     "connectWalletToGetStartedWith": "Connectez un porte-monnaie pour commencer à utiliser %{feature}",
     "connectedWallet": "Porte-monnaie connecté",
+    "crypto": "Crypto",
     "walletActions": "Actions porte-monnaie",
     "connectedWalletSettings": "Paramètres Porte-monnaie",
     "noWallet": "Aucun porte-monnaie connecté",
@@ -127,6 +134,11 @@
     "enterAmount": "Entrer le montant",
     "enterAddress": "Entrer une adresse",
     "pageNotFound": "La page que vous recherchez est introuvable",
+    "creditCard": "Carte de crédit",
+    "bankTransfer": "Virement bancaire",
+    "applePay": "Apple Pay",
+    "googlePay": "Google Pay",
+    "sepa": "SEPA",
     "buySell": "Acheter/Vendre",
     "all": "Tout",
     "viewAll": "Tout voir",
@@ -214,7 +226,23 @@
     "dca": "DCA",
     "boost": "Boost",
     "viewOnExplorer": "Voir dans l'explorateur",
-    "approval": "Autorisation"
+    "viewAssetDetails": "Afficher les détails de l'actif",
+    "approval": "Autorisation",
+    "permit2Approval": "Autorisation Permit2",
+    "network": "Réseau",
+    "feeEstimate": "Estimation des frais"
+  },
+  "quickBuy": {
+    "title": "Achat rapide de %{assetOnChain}",
+    "nativeNotAvailable": "Achat rapide non disponible pour les actifs natifs",
+    "balance": "Solde disponible",
+    "confirm": "Êtes-vous sûr de vouloir acheter ?",
+    "edit": "Modifier les montants d'achat",
+    "error": {
+      "insufficientFunds": "L'achat rapide de %{amount} a échoué, fonds insuffisants, essayez un autre montant ?",
+      "noQuote": "L'achat rapide de %{amount} a échoué, impossible de récupérer un devis valide.",
+      "failed": "L'achat rapide de %{amount} a échoué."
+    }
   },
   "consentBanner": {
     "body": "Notre dApp utilise un suivi des clics anonymisé pour analyser les performances et améliorer votre expérience. En utilisant app.shapeshift.com, vous acceptez notre suivi. Visitez %{privateLink} si vous ne souhaitez pas être suivi de manière anonyme. Consultez notre %{privacyPolicyLink} pour plus de détails.",
@@ -225,11 +253,40 @@
     "body": "Quelque chose s'est mal passé",
     "cta": "Réessayer"
   },
-  "buyPage": {
-    "title": "Acheter des cryptos <span>en quelques secondes</span>",
-    "body": "Utilisez une carte de crédit, de débit ou un compte bancaire. Achetez du Bitcoin, de l'Ethereum, de l'USDT, de l'USDC ou d'autres cryptomonnaies majeures. Fournisseurs non-KYC disponibles.",
-    "disclaimer": "*Vous pouvez aussi vendre des cryptos directement pour de l'argent sur votre compte bancaire.",
-    "ctaTitle": "Vous pouvez aussi utiliser ShapeShift avec tous les principaux porte-monnaie pour échanger, gagner du rendement et <span>suivre vos cryptos sur %{chainCount} chaînes</span>",
+  "errorBoundary": {
+    "component": {
+      "title": "Erreur de composant",
+      "body": "Ce composant a rencontré une erreur et n'a pas pu se charger correctement.",
+      "retry": "Réessayer"
+    },
+    "chart": {
+      "title": "Graphique indisponible",
+      "body": "Impossible de charger les données du graphique pour le moment.",
+      "retry": "Réessayer"
+    },
+    "trading": {
+      "title": "Erreur de trading",
+      "body": "L'interface de trading a rencontré une erreur. Vous pouvez réessayer ou actualiser la page.",
+      "retry": "Réessayer"
+    },
+    "ramp": {
+      "title": "Erreur de rampe",
+      "body": "L'interface de la rampe a rencontré une erreur. Vous pouvez réessayer ou actualiser la page.",
+      "retry": "Réessayer"
+    },
+    "suspense": {
+      "title": "Le chargement a échoué",
+      "body": "Ce contenu n'a pas pu être chargé correctement.",
+      "retry": "Réessayer"
+    }
+  },
+  "rampPage": {
+    "buyTitle": "Achetez des cryptos <span>en quelques secondes</span>",
+    "sellTitle": "Vendez des cryptos <span>en quelques secondes</span>",
+    "buyBody": "Utilisez une carte de crédit, une carte de débit ou un compte bancaire. Achetez du Bitcoin, de l'Ethereum, de l'USDT, de l'USDC ou d'autres cryptomonnaies populaires. Prestataires sans KYC disponibles.",
+    "sellBody": "Utilisez une carte de crédit, une carte de débit ou un compte bancaire. Vendez du Bitcoin, de l'Ethereum, de l'USDT, de l'USDC ou d'autres cryptomonnaies populaires. Prestataires sans KYC disponibles.",
+    "disclaimer": "*Vous pouvez également vendre des cryptos directement contre de l'argent sur votre compte bancaire.",
+    "ctaTitle": "Vous pouvez également utiliser ShapeShift avec tous les principaux porte-monnaie pour échanger, gagner des rendements et <span>suivre vos cryptos sur %{chainCount} chaînes</span>",
     "availableAssets": "Actifs disponibles"
   },
   "updateToast": {
@@ -334,6 +391,9 @@
       "switchWallet": "Changer de porte-monnaie",
       "disconnect": "Déconnecter",
       "disconnected": "(Déconnecté)",
+      "locked": "(Verrouillé)",
+      "reconnectWallet": "Reconnecter le porte-monnaie",
+      "walletNotConnected": "Votre porte-monnaie n'est pas connecté actuellement. Cela impactera les transactions.",
       "connecting": "Connexion..."
     }
   },
@@ -372,8 +432,6 @@
       },
       "cosmosOverview": {
         "rewards": "Les récompenses que vous gagnez s'accumuleront automatiquement.",
-        "cta": "Commencer à miser",
-        "learnMore": "En apprendre davantage",
         "withdrawals": "En cours de démise",
         "emptyWithdraws": "Les demandes de démise en attente s'affichent ici.",
         "availableDate": "disponible %{date}"
@@ -511,6 +569,7 @@
     "netWorth": "Patrimoine net",
     "loadingAccounts": "%{portfolioAccountsLoaded} comptes chargés",
     "walletBalance": "Solde du porte-monnaie",
+    "walletBalanceChange24Hr": "Évolution sur 24 heures",
     "earnBalance": "Solde dans Gagner",
     "rewardsBalance": "Solde des récompenses",
     "earnBody": "Gagnez des revenus passifs en misant vos actifs ou en les déposant dans une stratégie DeFi.",
@@ -624,7 +683,6 @@
     "market": "Marché",
     "limitOrder": "Ordres à cours limité",
     "claims": "Réclamations",
-    "tradeShort": "Échanger",
     "buyCrypto": "Acheter/Vendre des cryptos",
     "buyCryptoShort": "Achat/Vente",
     "lending": "Prêts",
@@ -633,6 +691,8 @@
     "tcy": "TCY",
     "foxEcosystem": "Écosystème FOX",
     "markets": "Marchés",
+    "tokens": "Jetons",
+    "swap": "Échanger",
     "actionMenu": {
       "send": {
         "title": "Envoyer",
@@ -656,6 +716,34 @@
       }
     }
   },
+  "shapeShiftMenu": {
+    "products": "Produits",
+    "mobileApp": {
+      "title": "App mobile",
+      "subtitle": "Échangez et gérez des cryptos"
+    },
+    "foxToken": {
+      "title": "Jeton FOX",
+      "subtitle": "Notre jeton de gouvernance"
+    },
+    "classic": {
+      "title": "Classique",
+      "subtitle": "OG ShapeShift"
+    },
+    "wallet": {
+      "title": "Porte-monnaie ShapeShift",
+      "subtitle": "Découvrez notre porte-monnaie"
+    },
+    "footer": {
+      "governance": "Gouvernance",
+      "support": "Support",
+      "blog": "Blog",
+      "faq": "FAQ",
+      "github": "GitHub",
+      "discord": "Discord",
+      "twitter": "Twitter"
+    }
+  },
   "transactionRow": {
     "send": "Envoi",
     "receive": "Réception",
@@ -668,7 +756,6 @@
     "confirmed": "Confirmé",
     "pending": "En attente",
     "failed": "Échoué",
-    "network": "Réseau",
     "blockHeight": "Hauteur du bloc",
     "to": "Pour",
     "from": "De",
@@ -838,7 +925,10 @@
     "confirmAndClaim": "Confirmer et réclamer",
     "viewClaims": "Voir les réclamations",
     "viewClaimStatus": "Afficher le statut de la réclamation",
-    "availableClaimsNotification": "Vos réclamations de bridge sont prêtes !"
+    "availableClaimsNotification": "Vos réclamations de bridge sont prêtes !",
+    "bridgeWithdrawalReadyNotification": "Retrait du bridge prêt à être réclamé",
+    "bridgeWithdrawalFailedNotification": "Le retrait du bridge a échoué",
+    "checkActionCenterNotification": "Consultez le centre d'actions pour plus de détails"
   },
   "trade": {
     "trade": "Échanger",
@@ -912,7 +1002,7 @@
     "viewTransaction": "Voir la transaction",
     "noQuotesAvailable": "Aucun devis disponible",
     "noQuotesAvailableDescription": "Aucun devis n'a été trouvé pour le moment. Essayez de sélectionner une autre paire.",
-    "availableSwappers": "Échanges disponibles",
+    "availableQuotes": "Devis disponibles",
     "unavailableSwappers": "Échanges indisponibles",
     "unlimited": "Illimitée",
     "streamStatus": "Statut du stream",
@@ -931,6 +1021,8 @@
     "intoAssetSymbolBody": "Vous pouvez procéder à cet échange, mais l'historique des transactions de réception en %{assetSymbol} est temporairement indisponible",
     "manualReceiveAddress": "Adresse de réception",
     "recipientAddress": "Adresse du destinataire",
+    "changeAddress": "Adresse de change",
+    "changeAddressExplainer": "Lors de l'envoi de cryptomonnaies sur les réseaux basés sur UTXO, tous les fonds restants de votre transaction vous sont renvoyés à cette adresse.",
     "customRecipientAddress": "Adresse de destinataire personnalisée",
     "customRecipientAddressDescription": "Saisissez une adresse de destinataire personnalisée pour cet échange",
     "thisIsYourCustomRecipientAddress": "Il s'agit de l'adresse personnalisée du destinataire",
@@ -969,7 +1061,7 @@
     },
     "permit2Allowance": {
       "title": "Allocation de contrat Permit2",
-      "tooltip": "Cet échange utilise Permit2, qui nécessite une approbation unique pour accorder une allocation illimitée au contrat Permit2. Après cette configuration initiale, vous pouvez autoriser les transactions sur n'importe quel protocole pris en charge par Permit2 en signant des messages sans frais de carburant qui accordent des allocations temporaires de 5 minutes."
+      "tooltip": "Cet échange utilise Permit2, qui nécessite une autorisation unique pour accorder une allocation illimitée au contrat Permit2. Après cette configuration initiale, vous pouvez autoriser les transactions sur n'importe quel protocole pris en charge par Permit2 en signant des messages sans frais de carburant qui accordent des allocations temporaires de 5 minutes."
     },
     "permit2Eip712": {
       "title": "Autoriser le transfert de jetons",
@@ -1086,7 +1178,19 @@
       "youGotMore": "Vous avez obtenu %{cryptoUpside} en plus sur cette échange"
     },
     "networkFee": "Frais de réseau",
-    "feeExplainer": "Le devis comprend des frais ShapeShift de %{feePercentage}%"
+    "feeExplainer": "Le devis comprend des frais ShapeShift de %{feePercentage}%",
+    "claim": {
+      "pending": "Votre réclamation de %{amount} %{symbol} est en cours de traitement.",
+      "complete": "Votre réclamation de %{amount} %{symbol} est terminée."
+    },
+    "rewardDistribution": {
+      "pending": {
+        "description": "Votre récompense de %{amountAndSymbol} est en cours de traitement..."
+      },
+      "complete": {
+        "description": "Votre récompense de %{amountAndSymbol} est terminée."
+      }
+    }
   },
   "limitOrder": {
     "heading": "Limite",
@@ -1152,7 +1256,7 @@
       "allowanceResetRequired": "Réinitialisation d'allocation requise"
     },
     "warnings": {
-      "limitPriceIsPercentLowerThanMarket": "Le prix est inférieur de %{percent}% au prix du marché.\n\nBien que CoW s'efforce toujours de vous proposer le meilleur prix disponible, cela pourrait vous faire vendre vos %{sellAssetSymbol} à perte. Envisagez plutôt de cliquer sur \"Marché\"."
+      "limitPriceIsPercentLowerThanMarket": "Le prix est inférieur de %{percent}% au prix du marché.\n\nBien que CoW s'efforce toujours de vous proposer le meilleur prix disponible, cela pourrait vous faire vendre vos %{sellAssetSymbol} à perte. Envisagez plutôt de cliquer sur « Marché »."
     },
     "usdtAllowanceReset": {
       "title": "Impossible d'approuver l'allocation d'USDT",
@@ -1172,7 +1276,7 @@
     "orderCard": {
       "warning": {
         "insufficientBalance": "Votre porte-monnaie ne dispose actuellement pas d'un solde en %{symbol} suffisant sur %{chainName} pour exécuter cet ordre. L'ordre est toujours ouvert et deviendra exécutable lorsque vous approvisionnerez votre solde en %{symbol} sur %{chainName}.",
-        "insufficientAllowance": "Cet ordre nécessite qu'une allocation supplémentaire en %{symbol} sur %{chainName} soit approuvée pour que CoW Swap puisse exécuter cet ordre. L'ordre est toujours ouvert et deviendra exécutable une fois l'approbation d'allocation terminée."
+        "insufficientAllowance": "Cet ordre nécessite qu'une allocation supplémentaire en %{symbol} sur %{chainName} soit approuvée pour que CoW Swap puisse exécuter cet ordre. L'ordre est toujours ouvert et deviendra exécutable une fois l'autorisation d'allocation terminée."
       }
     },
     "limitOrderFilled": "Ordre à cours limité exécuté",
@@ -1356,7 +1460,8 @@
         "total": "Total",
         "amount": "Montant",
         "transactionFee": "Frais de transaction",
-        "fees": "Frais %{feeType}"
+        "fees": "Frais %{feeType}",
+        "pendingConfirmation": "En attente de confirmation"
       },
       "sendForm": {
         "optionalAssetMemo": "Mémo %{assetSymbol} facultatif",
@@ -1380,7 +1485,7 @@
     "receive": {
       "connectAWallet": "Connecter un porte-monnaie pour recevoir des %{symbol}",
       "receiveAsset": "Recevoir des %{asset}",
-      "onlySend": "Seul %{asset} (%{symbol}) peut être envoyé à cette adresse. L'envoi de toute autre monnaie peut entraîner une perte définitive.",
+      "onlySend": "Envoyez uniquement des %{symbol} sur les réseaux pris en charge. L'utilisation d'autres jetons ou réseaux peut entraîner une perte définitive.",
       "copy": "Copier",
       "copied": "Adresse de réception pour %{symbol} copiée vers le presse-papiers",
       "copyFailed": "Échec de la copie de l'adresse de réception %{symbol} dans le presse-papiers",
@@ -1389,7 +1494,9 @@
       "verify": "Vérifier",
       "verified": "Vérifié",
       "notVerified": "Mauvaise concordance d'adresse",
-      "blockExplorer": "Explorateur"
+      "blockExplorer": "Explorateur",
+      "supportedNetworks": "Réseaux pris en charge",
+      "amountNote": "Saisissez le montant souhaité. Un QR code contenant le montant sera généré pour faciliter les paiements."
     },
     "deposit": {
       "allocation": {
@@ -1553,6 +1660,26 @@
         "ILS": "Shekel israélien",
         "IDR": "Roupie indonésienne"
       }
+    },
+    "ramp": {
+      "payWith": "Payez avec",
+      "youGet": "Vous obtenez",
+      "sellAmount": "Montant à vendre",
+      "receiveAmount": "Montant à recevoir",
+      "buyAsset": "Actif d'achat",
+      "sellAsset": "Actif de vente",
+      "receiveAsset": "Actif à recevoir",
+      "previewOrder": "Prévisualisation de l'ordre",
+      "processingTime": "Délai de traitement : 1 à 3 jours ouvrables",
+      "buyInfo": "Acheter des cryptos avec de la monnaie fiat",
+      "sellInfo": "Vendre des cryptos contre de la monnaie fiat",
+      "availableQuotes": "Devis disponibles",
+      "bestRate": "Meilleur taux",
+      "fastest": "Rapidité",
+      "rate": "Taux",
+      "amount": "Montant",
+      "paymentMethods": "Modes de paiement",
+      "selectFiat": "Sélectionnez la monnaie fiat"
     },
     "mobileWelcome": {
       "success": {
@@ -1719,11 +1846,16 @@
         "pairNewDeviceBody": "Cliquez sur « Appairer un nouvel appareil » pour commencer",
         "pairNewDeviceButton": "Appairer un nouvel appareil",
         "pairExistingDeviceButton": "Appairer un appareil existant",
-        "pairExistingDeviceBody": "Vous connectez un autre appareil Ledger ? Cliquez sur \"Appairer un nouvel appareil\" pour commencer à zéro."
+        "pairExistingDeviceBody": "Vous connectez un autre appareil Ledger ? Cliquez sur « Appairer un nouvel appareil » pour commencer à zéro."
       },
       "failure": {
-        "body": "Impossible de connecter le porte-monnaie Ledger"
+        "header": "Impossible de se connecter au Ledger",
+        "body": "Nous n'avons pas pu détecter votre Ledger, mais vous pouvez vous connecter en mode lecture seule."
       },
+      "readOnly": {
+        "button": "Se connecter en lecture seule"
+      },
+      "gettingChangeAddress": "Obtention de l'adresse de change...",
       "connectWarning": "Avant de connecter une chaîne, assurez-vous que l'app est ouverte sur votre appareil.",
       "signWarning": "Avant de signer, assurez-vous que l'app %{chain} est ouverte sur votre appareil."
     },
@@ -1767,13 +1899,14 @@
       "active": "Actif",
       "notActive": "Pas actif",
       "addSnap": "Ajouter le Snap",
+      "installError": "Une erreur s'est produite lors de l'installation du Multichain Snap sur MetaMask",
       "uninstall": {
         "title": "Vous avez supprimé le support multichaîne de MetaMask !",
         "subtitle": "Ajoutez à nouveau le Snap Multichain sur MetaMask pour envoyer, recevoir, suivre, échanger et gagner sur les chaînes suivantes :"
       },
       "update": {
         "title": "Le Snap Multichain doit être mis à jour",
-        "subtitle": "Cliquez sur \"Mettre à jour\" pour continuer à utiliser les fonctionnalités multichaînes de ShapeShift avec MetaMask !"
+        "subtitle": "Cliquez sur « Mettre à jour » pour continuer à utiliser les fonctionnalités multichaînes de ShapeShift avec MetaMask !"
       },
       "connectMetaMask": "Connecter MetaMask",
       "andMore": "... et plus",
@@ -1788,7 +1921,7 @@
     "metaMaskSnapConfirm": {
       "title": "Installer le Snap Multichain",
       "updateTitle": "Mise à jour du Snap Multichain",
-      "warningExperimental": "Le Snap ShapeShift Multichain est une nouvelle fonctionnalité expérimentale, fournie \"telle quelle\".",
+      "warningExperimental": "Le Snap ShapeShift Multichain est une nouvelle fonctionnalité expérimentale, fournie « telle quelle ».",
       "warningBackup": "Assurez-vous d'avoir sauvegardé votre phrase de récupération MetaMask. Tous les fonds que vous envoyez sur des chaînes non-EVM à l'aide de ce Snap seront dirigés vers le compte par défaut que vous avez créé dans MetaMask.",
       "agreeIntro": "Avant de continuer, veuillez lire ce qui suit :",
       "agreeItem1": "Les porte-monnaie matériels ne sont <strong>PAS</strong> pris en charge",
@@ -2048,11 +2181,12 @@
   },
   "assets": {
     "more": "Plus",
+    "hideAsset": "Masquer l'actif",
+    "showAsset": "Afficher l'actif",
+    "cannotHidePrimary": "Impossible de masquer les actifs principaux qui ont des variantes liées",
     "spam": {
-      "warning": "Cet élément sera masqué car vous l'avez marqué comme spam.",
-      "marked": "Cet actif est marqué comme spam.",
-      "reportAsSpam": "Signaler comme spam",
-      "reportAsNotSpam": "Marquer comme non-spam"
+      "warning": "Cet actif peut être affiché à nouveau en ouvrant la liste déroulante du porte-monnaie et en cliquant sur « Gérer les actifs masqués ».",
+      "marked": "Cet actif est actuellement masqué."
     },
     "assetDetails": {
       "assetHeader": {
@@ -2222,7 +2356,8 @@
     "today": "Aujourd'hui",
     "yesterday": "Hier",
     "thisWeek": "Cette semaine",
-    "thisMonth": "Ce mois-ci"
+    "thisMonth": "Ce mois-ci",
+    "transactionDetails": "Détails de transaction"
   },
   "plugins": {
     "foxPage": {
@@ -2248,7 +2383,7 @@
         "FOXy": "Opportunités"
       },
       "otherOpportunitiesDescription": {
-        "FOX": "Explorez les nombreuses possibilités pour fournir des liquidités, recourir au farming de rendement, prêter et d'emprunter. Cliquez sur les liens \"Commencer\" ci-dessous pour visiter les sites externes qui vous intéressent afin d'en apprendre davantage — et mettez votre FOX à votre service.",
+        "FOX": "Explorez les nombreuses possibilités pour fournir des liquidités, recourir au farming de rendement, prêter et d'emprunter. Cliquez sur les liens « Commencer » ci-dessous pour visiter les sites externes qui vous intéressent afin d'en apprendre davantage — et mettez votre FOX à votre service.",
         "FOXy": "Achetez rapidement et facilement du FOXy, le premier jeton de rebasement DAO de l'industrie qui offre à la fois des récompenses de rendement et de profit."
       },
       "liquidityPools": "Pools de liquidité",
@@ -2305,6 +2440,18 @@
         "title": "WalletConnect",
         "ethereum": "Ethereum",
         "connectAll": "Connecter tous les comptes",
+        "interactContract": "Interaction avec un contrat",
+        "transactionData": "Données de transaction",
+        "method": "Méthode",
+        "signingWith": "Signature avec",
+        "connectWith": "Connecter avec",
+        "chooseAccount": "Choisir le compte",
+        "chooseNetwork": "Choisir le réseau",
+        "required": "Requis",
+        "noAccount": "Vous n'avez pas de compte sur %{chainName} pour cette adresse",
+        "connectionRequest": "Demande de connexion",
+        "connectionRequestTooltip": "La connexion permet à cette dApp de demander des approbations de transaction",
+        "sendingTo": "Envoi à",
         "signMessage": {
           "signingFrom": "Signature depuis",
           "requestFrom": "Requête depuis",
@@ -2322,7 +2469,9 @@
           "chainId": "ID de chaîne",
           "authInfo": "Info auth",
           "body": "Corps",
-          "comingSoon": "Bientôt disponible"
+          "comingSoon": "Bientôt disponible",
+          "contract": "Contrat",
+          "primaryType": "Type principal"
         },
         "sendTransaction": {
           "sendingFrom": "Envoi depuis",
@@ -2356,7 +2505,6 @@
         },
         "connect": {
           "title": "Connecter votre porte-monnaie à une dApp via WalletConnect et déclencher des transactions",
-          "howTo": "Comment se connecter à une dApp ?",
           "linkPlaceholder": "Code QR ou lien de connexion",
           "connect": "Connecter",
           "connectionError": "Impossible de se connecter à l'URI fourni.",
@@ -2571,7 +2719,7 @@
     "symAfterRuneAlert": "Les dépôts symétriques ne sont pas possibles après un dépôt RUNE asymétrique en raison de la manière dont fonctionne le réseau THOR.",
     "withdrawTypeNotAvailable": "Ce type de retrait n'est pas disponible pour ce pool.",
     "incompletePositionDepositAlert": "Cette position est incomplète, veuillez déposer le montant correspondant en %{asset} pour finaliser cette position.",
-    "incompletePositionWithdrawAlert": "Cette position est incomplète, veuillez annuler la position en supprimant 100% de la liquidité. Vous pouvez également finaliser la position via \"Ajouter des liquidités\".",
+    "incompletePositionWithdrawAlert": "Cette position est incomplète, veuillez annuler la position en supprimant 100% de la liquidité. Vous pouvez également finaliser la position via « Ajouter des liquidités ».",
     "unsupportedNetworkExplainer": "Votre porte-monnaie n'est pas connecté à %{network}. Veuillez connecter cette chaîne ou passez à un porte-monnaie prenant en charge ce réseau.",
     "unsupportedNetworksExplainer": "Votre porte-monnaie n'est pas connecté à %{network1} et %{network2}. Veuillez connecter ces chaînes ou passez à un porte-monnaie prenant en charge ces réseaux.",
     "depositsDisabled": "Dépôts désactivés",
@@ -2653,6 +2801,13 @@
     },
     "title": "Liste de suivi"
   },
+  "manageHiddenAssets": {
+    "title": "Gérer les actifs masqués",
+    "empty": {
+      "title": "Aucun actif masqué",
+      "body": "Les actifs que vous masquez apparaîtront ici, ce qui vous permettra de les afficher à nouveau facilement ultérieurement."
+    }
+  },
   "explore": {
     "pools": {
       "title": "Pools",
@@ -2680,6 +2835,9 @@
     }
   },
   "RFOX": {
+    "stakeInitiated": "Mise initiée",
+    "unstakeInitiated": "Démise initiée",
+    "claimWithdraw": "Réclamer le retrait",
     "staking": "Mises en rFOX",
     "bridge": "Bridger",
     "bridgeFunds": "Bridger des fonds",
@@ -2763,7 +2921,7 @@
       "title": "FAQ",
       "what": {
         "title": "Qu’est-ce que rFOX ?",
-        "body": "rFOX est un terme utilisé pour décrire les avantages et les récompenses que vous recevez lorsque vous misez vos jetons FOX sur Arbitrum. Actuellement, vous verrouillez et déverrouillez les jetons \"vanilla\" FOX (sur Arbitrum) pour les émissions de mises."
+        "body": "rFOX est un terme utilisé pour décrire les avantages et les récompenses que vous recevez lorsque vous misez vos jetons FOX sur Arbitrum. Actuellement, vous verrouillez et déverrouillez les jetons « vanilla » FOX (sur Arbitrum) pour les émissions de mises."
       },
       "why": {
         "title": "Pourquoi miser vos FOX ?",
@@ -2981,6 +3139,7 @@
       "switchChainFailed": "Échec du changement de la chaîne du porte-monnaie. Essayez de changer manuellement la chaîne active de votre porte-monnaie pour %{chain}.",
       "buildTransaction": "Échec de la création de la transaction.",
       "signTransaction": "Échec de la signature de la transaction.",
+      "blindSigningRequired": "La transaction nécessite une signature aveugle. Veuillez activer « Blind signing » dans les paramètres de votre app Ledger et réessayer.",
       "signAndBroadcastTransaction": "Échec de la signature et de la diffusion de la transaction.",
       "signMessage": "Échec de la signature du message.",
       "broadcastTransaction": "Échec de la diffusion de la transaction.",
@@ -3015,7 +3174,9 @@
       "claimAvailable": "Réclamation disponible",
       "claimed": "Réclamé",
       "unknown": "Inconnu",
-      "initiated": "Initié"
+      "initiated": "Initié",
+      "awaitingApproval": "En attente d'autorisation",
+      "awaitingSwap": "En attente d'échange"
     },
     "emptyState": {
       "title": "Bienvenue sur ShapeShift",
@@ -3027,7 +3188,9 @@
       "processing": "Votre échange de %{sellAmountAndSymbol} contre %{buyAmountAndSymbol} est en cours de traitement.",
       "complete": "Votre échange de %{sellAmountAndSymbol} contre %{buyAmountAndSymbol} est terminé.",
       "failed": "Votre échange de %{sellAmountAndSymbol} contre %{buyAmountAndSymbol} a échoué.",
-      "streaming": "Votre échange de %{sellAmountAndSymbol} contre %{buyAmountAndSymbol} est en cours de streaming."
+      "streaming": "Votre échange de %{sellAmountAndSymbol} contre %{buyAmountAndSymbol} est en cours de streaming.",
+      "awaitingApproval": "Votre échange de %{sellAmountAndSymbol} contre %{buyAmountAndSymbol} est en attente d'approbation.",
+      "awaitingSwap": "Votre échange de %{sellAmountAndSymbol} contre %{buyAmountAndSymbol} est en attente d'exécution."
     },
     "thorchainLp": {
       "pairAssets": "%{asset1} et %{asset2}",
@@ -3053,10 +3216,17 @@
       "complete": "Votre réclamation de %{amount} %{symbol} est terminée."
     },
     "bridge": {
-      "processing": "Votre bridge de %{sellAmountAndSymbol}.%{sellChainShortName} vers %{buyAmountAndSymbol}.%{buyChainShortName} est en cours de traitement.",
-      "complete": "Votre bridge de %{sellAmountAndSymbol}.%{sellChainShortName} vers %{buyAmountAndSymbol}.%{buyChainShortName} est terminé.",
-      "initiated": "Votre bridge de %{sellAmountAndSymbol}.%{sellChainShortName} vers %{buyAmountAndSymbol}.%{buyChainShortName} a été initié.",
-      "failed": "Votre bridge de %{sellAmountAndSymbol}.%{sellChainShortName} vers %{buyAmountAndSymbol}.%{buyChainShortName} a échoué."
+      "processing": "En traitement...",
+      "complete": "Votre bridge de %{amountAndSymbol} est terminé.",
+      "initiated": "Votre bridge de %{sellAmountAndSymbol} ver %{buyAmountAndSymbol} a été initié.",
+      "pendingWithdraw": "Votre retrait de %{amountAndSymbol} sera disponible %{timeText}.",
+      "claimAvailable": "Votre bridge de %{amountAndSymbol} est disponible pour être réclamé.",
+      "failed": "Votre bridge de %{sellAmountAndSymbol}.%{sellChainShortName} vers %{buyAmountAndSymbol}.%{buyChainShortName} a échoué.",
+      "transactionInitiated": "Transaction initiée",
+      "claimWithdraw": "Réclamer le retrait",
+      "withdrawTx": "Tx de retrait",
+      "claimTx": "Tx de réclamation",
+      "claimNotAvailable": "La réclamation n'est pas encore disponible. Veuillez patienter jusqu'à la fin du délai de retrait."
     },
     "limitOrder": {
       "placed": "Ordre à cours limité de %{sellAmountAndSymbol} contre %{buyAmountAndSymbol} placé",
@@ -3080,13 +3250,21 @@
       "claimTxComplete": "Votre réclamation TCY de %{amount} %{symbol} est terminée."
     },
     "approve": {
-      "approvalTxPending": "Approbation de %{contractName}  pour utiliser %{amountCryptoPrecision} %{symbol} en cours.",
+      "approvalTxPending": "Autorisation de %{contractName}  pour utiliser %{amountCryptoPrecision} %{symbol} en cours.",
       "approvalTxComplete": "Approuvé %{contractName} pour utiliser %{amountCryptoPrecision} %{symbol}."
     },
     "swapTitle": "%{sellAmount} %{sellSymbol} → %{buyAmount} %{buySymbol}",
     "limitOrderTitle": "%{sellAmount} %{sellSymbol} → %{buyAmount} %{buySymbol}",
     "pendingTransactions": "%{count} en attente",
     "orderCancelled": "Ordre annulé",
-    "orderExpired": "Ordre expiré"
+    "orderExpired": "Ordre expiré",
+    "rewardDistribution": {
+      "pending": {
+        "description": "Votre récompense de %{amountAndSymbol} est en cours de traitement..."
+      },
+      "complete": {
+        "description": "Votre récompense de %{amountAndSymbol} est terminée."
+      }
+    }
   }
 }

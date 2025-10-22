@@ -1,12 +1,12 @@
 import { ArrowForwardIcon, ExternalLinkIcon } from '@chakra-ui/icons'
-import { Button, Flex, Tag } from '@chakra-ui/react'
+import { Button, Flex, Tag, useMediaQuery } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { fromAssetId, thorchainAssetId } from '@shapeshiftoss/caip'
 import type { Asset, MarketData } from '@shapeshiftoss/types'
 import qs from 'qs'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useLocation, useNavigate } from 'react-router-dom'
+import { useLocation } from 'react-router-dom'
 import type { Column, Row } from 'react-table'
 
 import { Amount } from '@/components/Amount/Amount'
@@ -15,6 +15,9 @@ import { ReactTable } from '@/components/ReactTable/ReactTable'
 import { RawText } from '@/components/Text'
 import { WalletActions } from '@/context/WalletProvider/actions'
 import { DefiAction } from '@/features/defi/contexts/DefiManagerProvider/DefiCommon'
+import { useBrowserRouter } from '@/hooks/useBrowserRouter/useBrowserRouter'
+import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
+import { useModal } from '@/hooks/useModal/useModal'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
 import { trackOpportunityEvent } from '@/lib/mixpanel/helpers'
@@ -33,9 +36,11 @@ import {
   selectMarketDataUserCurrency,
 } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
+import { breakpoints } from '@/theme/theme'
 
 type StakingPositionsByProviderProps = {
   ids: OpportunityId[]
+  forceCompactView?: boolean
 }
 
 const arrowForwardIcon = <ArrowForwardIcon />
@@ -83,10 +88,18 @@ const calculateRewardFiatAmount: CalculateRewardFiatAmount = ({
   }, 0)
 }
 
-export const StakingPositionsByProvider: React.FC<StakingPositionsByProviderProps> = ({ ids }) => {
+export const StakingPositionsByProvider: React.FC<StakingPositionsByProviderProps> = ({
+  ids,
+  forceCompactView,
+}) => {
   const location = useLocation()
-  const navigate = useNavigate()
+  const { navigate } = useBrowserRouter()
+  const walletDrawer = useModal('walletDrawer')
   const translate = useTranslate()
+  const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
+
+  const isCompactCols = !isLargerThanMd || forceCompactView
+
   const {
     state: { isConnected },
     dispatch,
@@ -96,6 +109,7 @@ export const StakingPositionsByProvider: React.FC<StakingPositionsByProviderProp
   const stakingOpportunities = useAppSelector(
     selectAggregatedEarnUserStakingOpportunitiesIncludeEmpty,
   )
+  const isRfoxFoxEcosystemPageEnabled = useFeatureFlag('RfoxFoxEcosystemPage')
   const filteredDown = useMemo(
     () =>
       stakingOpportunities.filter(
@@ -126,7 +140,26 @@ export const StakingPositionsByProvider: React.FC<StakingPositionsByProviderProp
       const { assetReference, assetNamespace } = fromAssetId(assetId)
 
       if (provider === DefiProvider.rFOX) {
-        return navigate('/rfox')
+        if (walletDrawer.isOpen) {
+          walletDrawer.close()
+        }
+        return navigate(isRfoxFoxEcosystemPageEnabled ? '/fox-ecosystem' : '/fox')
+      }
+
+      if (forceCompactView) {
+        if (walletDrawer.isOpen) {
+          walletDrawer.close()
+        }
+
+        switch (provider) {
+          case DefiProvider.EthFoxStaking:
+            return navigate(isRfoxFoxEcosystemPageEnabled ? '/fox-ecosystem' : '/fox')
+          case DefiProvider.CosmosSdk:
+          case DefiProvider.ThorchainSavers:
+            return navigate(`/assets/${assetId}`)
+          default:
+            break
+        }
       }
 
       if (!isConnected) {
@@ -142,6 +175,10 @@ export const StakingPositionsByProvider: React.FC<StakingPositionsByProviderProp
         },
         assets,
       )
+
+      if (walletDrawer.isOpen) {
+        walletDrawer.close()
+      }
 
       navigate(
         {
@@ -163,7 +200,16 @@ export const StakingPositionsByProvider: React.FC<StakingPositionsByProviderProp
         },
       )
     },
-    [assets, dispatch, navigate, isConnected, location],
+    [
+      forceCompactView,
+      isConnected,
+      assets,
+      walletDrawer,
+      navigate,
+      location,
+      isRfoxFoxEcosystemPageEnabled,
+      dispatch,
+    ],
   )
   const columns: Column<StakingEarnOpportunityType>[] = useMemo(
     () => [
@@ -245,6 +291,7 @@ export const StakingPositionsByProvider: React.FC<StakingPositionsByProviderProp
       {
         Header: translate('defi.claimableRewards'),
         accessor: 'rewardsCryptoBaseUnit',
+        display: isCompactCols ? 'none' : undefined,
         Cell: ({ row }: { row: RowProps }) => {
           const fiatAmount = calculateRewardFiatAmount({
             rewardAssetIds: row.original.rewardAssetIds,
@@ -294,6 +341,7 @@ export const StakingPositionsByProvider: React.FC<StakingPositionsByProviderProp
       {
         Header: () => null,
         id: 'expander',
+        display: isCompactCols ? 'none' : undefined,
         Cell: ({ row }: { row: RowProps }) => {
           const url = getMetadataForProvider(row.original.provider)?.url
           const translation = (() => {
@@ -326,10 +374,26 @@ export const StakingPositionsByProvider: React.FC<StakingPositionsByProviderProp
         },
       },
     ],
-    [assets, handleClick, marketDataUserCurrency, translate],
+    [assets, handleClick, marketDataUserCurrency, translate, isCompactCols],
+  )
+
+  const handleRowClick = useCallback(
+    (row: RowProps) => {
+      if (isCompactCols) {
+        handleClick(row, DefiAction.Overview)
+      }
+    },
+    [isCompactCols, handleClick],
   )
 
   if (!filteredDown.length) return null
 
-  return <ReactTable data={filteredDown} columns={columns} />
+  return (
+    <ReactTable
+      data={filteredDown}
+      columns={columns}
+      displayHeaders={!isCompactCols}
+      onRowClick={isCompactCols ? handleRowClick : undefined}
+    />
+  )
 }

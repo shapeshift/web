@@ -19,6 +19,7 @@ import { useTranslate } from 'react-polyglot'
 import { AssetActions } from './AssetActions'
 
 import { Amount } from '@/components/Amount/Amount'
+import { ChartErrorBoundary } from '@/components/ErrorBoundary'
 import { TimeControls } from '@/components/Graph/TimeControls'
 import { PriceChart } from '@/components/PriceChart/PriceChart'
 import { RawText } from '@/components/Text'
@@ -141,15 +142,17 @@ export const AssetChart = ({ accountId, assetId, isLoaded }: AssetChartProps) =>
           </Skeleton>
         </Flex>
       </CardHeader>
-      <PriceChart
-        assetId={assetId}
-        timeframe={timeframe}
-        percentChange={percentChange}
-        setPercentChange={setPercentChange}
-        setFiatChange={setFiatChange}
-        chartHeight={isLargerThanMd ? '350px' : '200px'}
-        hideAxis={true}
-      />
+      <ChartErrorBoundary height={isLargerThanMd ? '350px' : '200px'}>
+        <PriceChart
+          assetId={assetId}
+          timeframe={timeframe}
+          percentChange={percentChange}
+          setPercentChange={setPercentChange}
+          setFiatChange={setFiatChange}
+          chartHeight={isLargerThanMd ? '350px' : '200px'}
+          hideAxis={true}
+        />
+      </ChartErrorBoundary>
       <Skeleton isLoaded={isLoaded} display={displayBaseBlockMdNone}>
         <TimeControls
           onChange={handleTimeframeChange}

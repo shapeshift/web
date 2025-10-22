@@ -12,17 +12,18 @@ import { useTranslate } from 'react-polyglot'
 
 import { CircularProgress } from '@/components/CircularProgress/CircularProgress'
 import { Text } from '@/components/Text'
+import { useModalRegistration } from '@/context/ModalStackProvider'
 import { useModal } from '@/hooks/useModal/useModal'
 import { breakpoints } from '@/theme/theme'
 
 function popupCenterWindow(url: string, windowName: string, w: number, h: number) {
-  if (!window.top) return window.open(url, '_blank')?.focus()
+  if (!window.top) return window.open(url, '_blank', 'noopener,noreferrer')?.focus()
   const y = window.top.outerHeight / 2 + window.top.screenY - h / 2
   const x = window.top.outerWidth / 2 + window.top.screenX - w / 2
   return window.open(
     url,
     windowName,
-    `toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=no, resizable=no, copyhistory=no, width=${w}, height=${h}, top=${y}, left=${x}`,
+    `noopener,noreferrer, toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=no, resizable=no, copyhistory=no, width=${w}, height=${h}, top=${y}, left=${x}`,
   )
 }
 
@@ -48,6 +49,10 @@ export const PopupWindowModal: React.FC<PopupWindowModalProps> = ({
   const overlayBgOne = useColorModeValue('rgba(255,255,255,1)', 'rgba(0,0,0,1)')
   const overlayBgTwo = useColorModeValue('rgba(255,255,255,0)', 'rgba(0,0,0,0)')
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`)
+  const { modalProps, overlayProps, modalContentProps } = useModalRegistration({
+    isOpen,
+    onClose,
+  })
 
   const handleFocusWindow = useCallback(() => popupWindow?.focus?.(), [popupWindow])
 
@@ -56,7 +61,10 @@ export const PopupWindowModal: React.FC<PopupWindowModalProps> = ({
     popup.close()
   }, [popup, popupWindow])
 
-  const handleContinue = useCallback(() => window.open(url, '_blank')?.focus(), [url])
+  const handleContinue = useCallback(
+    () => window.open(url, '_blank', 'noopener,noreferrer')?.focus(),
+    [url],
+  )
 
   useEffect(() => {
     if (!isOpen) return
@@ -75,13 +83,19 @@ export const PopupWindowModal: React.FC<PopupWindowModalProps> = ({
   }, [popup, isOpen, title, url, width, height, popupWindow])
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} size='full'>
+    <Modal {...modalProps} size='full'>
       <ModalOverlay
         backdropFilter='blur(10px)'
         bgColor='blackAlpha.100'
         bgImage={`radial-gradient(ellipse at center, ${overlayBgOne} 0%,${overlayBgOne} 1%,${overlayBgTwo} 100%);`}
+        {...overlayProps}
       />
-      <ModalContent alignItems='center' justifyContent='center' bg='transparent'>
+      <ModalContent
+        alignItems='center'
+        justifyContent='center'
+        bg='transparent'
+        {...modalContentProps}
+      >
         <Center
           width={centerWidth}
           height={height}

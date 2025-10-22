@@ -15,6 +15,7 @@ import { useTranslate } from 'react-polyglot'
 
 import { DiscordIcon } from '@/components/Icons/Discord'
 import { MainNavLink } from '@/components/Layout/Header/NavBar/MainNavLink'
+import { useModalRegistration } from '@/context/ModalStackProvider'
 import { useModal } from '@/hooks/useModal/useModal'
 
 const chatIcon = <ChatIcon />
@@ -26,6 +27,10 @@ export const FeedbackAndSupport = () => {
   const { close, isOpen } = useModal('feedbackSupport')
   const translate = useTranslate()
   const isChatwootEnabled = import.meta.env.VITE_FEATURE_CHATWOOT === 'true'
+  const { modalContentProps, overlayProps, modalProps } = useModalRegistration({
+    isOpen,
+    onClose: close,
+  })
 
   const handleChatWoot = useCallback(() => {
     // @ts-ignore
@@ -34,9 +39,9 @@ export const FeedbackAndSupport = () => {
   }, [close])
 
   return (
-    <Modal isOpen={isOpen} onClose={close} isCentered size='sm'>
-      <ModalOverlay />
-      <ModalContent>
+    <Modal {...modalProps} isCentered size='sm'>
+      <ModalOverlay {...overlayProps} />
+      <ModalContent {...modalContentProps}>
         <ModalCloseButton />
         <ModalHeader>{translate('common.feedbackAndSupport')}</ModalHeader>
         <ModalBody>

@@ -1,9 +1,10 @@
 import { usePrevious } from '@chakra-ui/react'
-import { fromAccountId } from '@shapeshiftoss/caip'
+import { baseChainId, fromAccountId } from '@shapeshiftoss/caip'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { useEffect } from 'react'
 
 import { useNotificationToast } from '../useNotificationToast'
+import { useBasePortfolioManagement } from './useFetchBasePortfolio'
 
 import { useActionCenterContext } from '@/components/Layout/Header/ActionCenter/ActionCenterContext'
 import { GenericTransactionNotification } from '@/components/Layout/Header/ActionCenter/components/Notifications/GenericTransactionNotification'
@@ -24,16 +25,26 @@ export const useSendActionSubscriber = () => {
   const pendingSendActions = useAppSelector(selectPendingWalletSendActions)
   const txs = useAppSelector(selectTxs)
 
+  const { fetchBasePortfolio, upsertBasePortfolio } = useBasePortfolioManagement()
+
   useEffect(() => {
-    pendingSendActions.forEach(action => {
-      const { accountId, txHash } = action.transactionMetadata
+    pendingSendActions.forEach(async action => {
+      const { accountId, txHash, chainId, assetId } = action.transactionMetadata
       const accountAddress = fromAccountId(accountId).account
 
       const serializedTxIndex = serializeTxIndex(accountId, txHash, accountAddress)
       const tx = txs[serializedTxIndex]
 
-      if (!tx) return
-      if (tx.status !== TxStatus.Confirmed) return
+      // TEMP HACK FOR BASE
+      if (chainId !== baseChainId) {
+        if (!tx) return
+        if (tx.status !== TxStatus.Confirmed) return
+      } else {
+        // give time for on chain confirmation (~2sec/block)
+        await new Promise(resolve => setTimeout(resolve, 10000))
+        fetchBasePortfolio()
+        upsertBasePortfolio({ accountId, assetId })
+      }
 
       dispatch(
         actionSlice.actions.upsertAction({
@@ -74,7 +85,16 @@ export const useSendActionSubscriber = () => {
         },
       })
     })
-  }, [txs, pendingSendActions, dispatch, isDrawerOpen, openActionCenter, toast])
+  }, [
+    txs,
+    pendingSendActions,
+    dispatch,
+    isDrawerOpen,
+    openActionCenter,
+    toast,
+    fetchBasePortfolio,
+    upsertBasePortfolio,
+  ])
 
   const previousIsDrawerOpen = usePrevious(isDrawerOpen)
 

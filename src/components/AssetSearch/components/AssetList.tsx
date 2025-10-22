@@ -1,20 +1,16 @@
 import type { ListProps } from '@chakra-ui/react'
-import { Center, Flex, Icon, Skeleton } from '@chakra-ui/react'
+import { Box, Center, Flex, Icon, Skeleton } from '@chakra-ui/react'
 import type { Asset } from '@shapeshiftoss/types'
 import { range } from 'lodash'
-import type { CSSProperties, FC } from 'react'
-import { useCallback, useEffect, useMemo, useRef } from 'react'
+import type { FC, WheelEvent } from 'react'
+import { useCallback, useMemo } from 'react'
 import { FaRegCompass } from 'react-icons/fa6'
-import type { VerticalSize } from 'react-virtualized-auto-sizer'
-import AutoSizer from 'react-virtualized-auto-sizer'
-import type { ListChildComponentProps } from 'react-window'
-import { FixedSizeList } from 'react-window'
+import { Virtuoso } from 'react-virtuoso'
 
+import type { AssetRowData } from './AssetRow'
 import { AssetRow } from './AssetRow'
 
 import { Text } from '@/components/Text'
-import { useRefCallback } from '@/hooks/useRefCallback/useRefCallback'
-import { useRouteAssetId } from '@/hooks/useRouteAssetId/useRouteAssetId'
 import type { PortalsAssets } from '@/pages/Markets/hooks/usePortalsAssetsQuery'
 
 export type AssetData = {
@@ -23,17 +19,17 @@ export type AssetData = {
   handleLongPress?: (asset: Asset) => void
   disableUnsupported?: boolean
   hideZeroBalanceAmounts?: boolean
-  rowComponent?: FC<ListChildComponentProps<AssetData>>
+  rowComponent?: FC<AssetRowData>
   isLoading?: boolean
   portalsAssets?: PortalsAssets
+  showPrice?: boolean
+  onImportClick?: (asset: Asset) => void
+  showRelatedAssets?: boolean
 }
 
 type AssetListProps = AssetData & ListProps
 
-const scrollbarStyle: CSSProperties = {
-  scrollbarWidth: 'none',
-  msOverflowStyle: 'none',
-}
+export const INCREASE_VIEWPORT_BY = { top: 300, bottom: 100 } as const
 
 export const AssetList: FC<AssetListProps> = ({
   assets,
@@ -44,34 +40,17 @@ export const AssetList: FC<AssetListProps> = ({
   rowComponent = AssetRow,
   isLoading = false,
   portalsAssets,
+  showPrice = false,
+  height = '50vh',
+  onImportClick,
+  showRelatedAssets = false,
 }) => {
-  const assetId = useRouteAssetId()
-  const tokenListRef = useRef<FixedSizeList<AssetData> | null>(null)
-
-  useRefCallback<FixedSizeList<AssetData>>({
-    deps: [assetId],
-    onInit: node => {
-      if (!node) return
-      tokenListRef.current = node
-    },
-  })
-
-  useEffect(() => {
-    if (!tokenListRef.current) return
-    const parsedAssetId = assetId ? decodeURIComponent(assetId) : undefined
-    const index = tokenListRef.current.props.itemData?.assets.findIndex(
-      ({ assetId }: Asset) => assetId === parsedAssetId,
-    )
-    if (typeof index === 'number' && index >= 0) {
-      tokenListRef.current.scrollToItem(index, 'center')
-    }
-  }, [assetId, assets])
-
-  useEffect(() => {
-    if (!tokenListRef.current) return
-    tokenListRef.current.scrollTo(0)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [assets])
+  const virtuosoStyle = useMemo(
+    () => ({
+      height: typeof height === 'string' ? height : `${height}px`,
+    }),
+    [height],
+  )
 
   const itemData = useMemo(
     () => ({
@@ -81,6 +60,8 @@ export const AssetList: FC<AssetListProps> = ({
       disableUnsupported,
       hideZeroBalanceAmounts,
       portalsAssets,
+      onImportClick,
+      showRelatedAssets,
     }),
     [
       assets,
@@ -89,63 +70,93 @@ export const AssetList: FC<AssetListProps> = ({
       handleLongPress,
       hideZeroBalanceAmounts,
       portalsAssets,
+      onImportClick,
+      showRelatedAssets,
     ],
   )
 
-  const renderContent = useCallback(
-    ({ height }: VerticalSize) => {
-      if (isLoading) {
-        return (
-          <Flex flexDir='column' width='100%' overflowY='auto' flex='1' minHeight={0} mt={4}>
-            {range(3).map(index => (
-              <Flex key={index} align='center' width='100%' justifyContent='space-between' mb={4}>
-                <Flex align='center'>
-                  <Skeleton width='40px' height='40px' borderRadius='100%' me={2} />
-                  <Flex flexDir='column' gap={2}>
-                    <Skeleton width='140px' height='18px' />
-                    <Skeleton width='80px' height='18px' />
-                  </Flex>
-                </Flex>
-                <Flex align='flex-end' flexDir='column' gap={2}>
-                  <Skeleton width='120px' height='18px' />
-                  <Skeleton width='80px' height='18px' />
-                </Flex>
-              </Flex>
-            ))}
-          </Flex>
-        )
-      }
-      if (assets?.length === 0) {
-        return (
-          <Center flexDir='column' gap={2} mt={4}>
-            <Icon as={FaRegCompass} boxSize='24px' color='text.subtle' />
-            <Text color='text.subtle' translation='common.noResultsFound' />
-          </Center>
-        )
-      }
+  const renderRow = useCallback(
+    (index: number) => {
+      const asset = assets[index]
+      const RowComponent = rowComponent
 
       return (
-        <FixedSizeList
-          itemSize={60}
-          height={height}
-          width='100%'
-          itemData={itemData}
-          itemCount={assets.length}
-          ref={tokenListRef}
-          className='token-list'
-          overscanCount={1}
-          style={scrollbarStyle}
-        >
-          {rowComponent}
-        </FixedSizeList>
+        <RowComponent
+          asset={asset}
+          index={index}
+          data={itemData}
+          showPrice={showPrice}
+          onImportClick={onImportClick}
+          showRelatedAssets={showRelatedAssets}
+        />
       )
     },
-    [assets.length, itemData, rowComponent, isLoading],
+    [assets, itemData, rowComponent, showPrice, onImportClick, showRelatedAssets],
   )
 
+  // Handle wheel events to ensure scrolling works in nested modal context
+  const handleWheel = useCallback((e: WheelEvent) => {
+    e.stopPropagation()
+  }, [])
+
+  if (isLoading) {
+    return (
+      <Flex
+        flexDir='column'
+        width='100%'
+        overflowY='auto'
+        flex='1'
+        minHeight='calc(50vh - 16px)'
+        mt={4}
+        px={2}
+      >
+        {range(3).map(index => (
+          <Flex key={index} align='center' width='100%' justifyContent='space-between' mb={4}>
+            <Flex align='center'>
+              <Skeleton width='40px' height='40px' borderRadius='100%' me={2} />
+              <Flex flexDir='column' gap={2}>
+                <Skeleton width='140px' height='18px' />
+                <Skeleton width='80px' height='18px' />
+              </Flex>
+            </Flex>
+            <Flex align='flex-end' flexDir='column' gap={2}>
+              <Skeleton width='120px' height='18px' />
+              <Skeleton width='80px' height='18px' />
+            </Flex>
+          </Flex>
+        ))}
+      </Flex>
+    )
+  }
+
+  if (assets?.length === 0) {
+    return (
+      <Center flexDir='column' gap={2} mt={4} minH='50vh'>
+        <Icon as={FaRegCompass} boxSize='24px' color='text.subtle' />
+        <Text color='text.subtle' translation='common.noResultsFound' />
+      </Center>
+    )
+  }
+
+  if (assets.length <= 10) {
+    return (
+      <Box overflow='auto' height='auto' className='scroll-container'>
+        {assets.map((asset, index) => (
+          <Box key={asset.assetId}>{renderRow(index)}</Box>
+        ))}
+      </Box>
+    )
+  }
+
   return (
-    <AutoSizer disableWidth className='auto-sizered'>
-      {renderContent}
-    </AutoSizer>
+    <Virtuoso
+      onWheel={handleWheel}
+      className='scroll-container'
+      data={assets}
+      itemContent={renderRow}
+      style={virtuosoStyle}
+      overscan={1000}
+      increaseViewportBy={INCREASE_VIEWPORT_BY}
+    />
   )
 }

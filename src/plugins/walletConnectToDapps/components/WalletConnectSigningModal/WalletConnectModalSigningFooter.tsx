@@ -1,0 +1,155 @@
+import { Button, HStack, Image, VStack } from '@chakra-ui/react'
+import type { AccountId } from '@shapeshiftoss/caip'
+import { fromAccountId } from '@shapeshiftoss/caip'
+import type { FC } from 'react'
+import { useCallback, useMemo } from 'react'
+import type { UseFormReturn } from 'react-hook-form'
+import { useTranslate } from 'react-polyglot'
+
+import { WalletConnectFooter } from '../WalletConnectFooter'
+import { GasSelectionMenu } from './GasSelectionMenu'
+
+import { Amount } from '@/components/Amount/Amount'
+import { MiddleEllipsis } from '@/components/MiddleEllipsis/MiddleEllipsis'
+import { RawText } from '@/components/Text'
+import { useSimulateEvmTransaction } from '@/plugins/walletConnectToDapps/hooks/useSimulateEvmTransaction'
+import type { CustomTransactionData, TransactionParams } from '@/plugins/walletConnectToDapps/types'
+import {
+  selectAssetById,
+  selectFeeAssetByChainId,
+  selectPortfolioCryptoPrecisionBalanceByFilter,
+  selectPortfolioUserCurrencyBalanceByFilter,
+} from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
+
+const disabledProp = { opacity: 0.5, cursor: 'not-allowed', userSelect: 'none' }
+
+type WalletConnectSigningWithSectionProps = {
+  accountId: AccountId
+}
+
+const WalletConnectSigningWithSection: React.FC<WalletConnectSigningWithSectionProps> = ({
+  accountId,
+}) => {
+  const translate = useTranslate()
+  const userAddress = useMemo(() => fromAccountId(accountId).account, [accountId])
+  const chainId = useMemo(() => fromAccountId(accountId).chainId, [accountId])
+  const feeAssetId = useAppSelector(state => selectFeeAssetByChainId(state, chainId)?.assetId)
+  const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId ?? ''))
+
+  const feeAssetBalanceCryptoPrecision = useAppSelector(state =>
+    selectPortfolioCryptoPrecisionBalanceByFilter(state, { assetId: feeAssetId, accountId }),
+  )
+
+  const feeAssetBalanceUserCurrency = useAppSelector(state =>
+    selectPortfolioUserCurrencyBalanceByFilter(state, { assetId: feeAssetId, accountId }),
+  )
+
+  const networkIcon = useMemo(() => {
+    return feeAsset?.networkIcon ?? feeAsset?.icon
+  }, [feeAsset?.networkIcon, feeAsset?.icon])
+
+  if (!feeAsset) return null
+
+  return (
+    <HStack justify='space-between' align='center' w='full'>
+      <HStack spacing={2} align='center'>
+        <Image boxSize='32px' src={networkIcon} borderRadius='full' />
+        <VStack align='flex-start' spacing={0} justify='center'>
+          <RawText fontSize='sm' color='text.subtle' lineHeight='1.2' mb={1}>
+            {translate('plugins.walletConnectToDapps.modal.signingWith')}
+          </RawText>
+          <MiddleEllipsis value={userAddress} fontSize='sm' fontWeight='medium' lineHeight='1.2' />
+        </VStack>
+      </HStack>
+      <VStack align='flex-end' spacing={0} justify='center'>
+        <Amount.Fiat
+          value={feeAssetBalanceUserCurrency}
+          fontSize='md'
+          fontWeight='medium'
+          lineHeight='1.2'
+        />
+        <Amount.Crypto
+          value={feeAssetBalanceCryptoPrecision}
+          symbol={feeAsset.symbol}
+          fontSize='sm'
+          color='text.subtle'
+          lineHeight='1.2'
+        />
+      </VStack>
+    </HStack>
+  )
+}
+
+type WalletConnectSigningFooterProps = {
+  accountId: AccountId
+  transaction?: TransactionParams
+  onConfirm: (customTransactionData?: CustomTransactionData) => Promise<void> | void
+  onReject: () => void
+  isSubmitting: boolean
+  formContext?: UseFormReturn<CustomTransactionData>
+}
+
+export const WalletConnectModalSigningFooter: FC<WalletConnectSigningFooterProps> = ({
+  accountId,
+  transaction,
+  onConfirm,
+  onReject,
+  isSubmitting,
+  formContext,
+}) => {
+  const chainId = useMemo(() => fromAccountId(accountId).chainId, [accountId])
+  const translate = useTranslate()
+
+  const speed = formContext?.watch('speed')
+
+  const { simulationQuery } = useSimulateEvmTransaction({
+    transaction,
+    chainId,
+    speed,
+  })
+
+  const isSimulationLoading = simulationQuery.isLoading
+
+  const handleSubmit = useCallback(() => {
+    if (!formContext?.handleSubmit) return onConfirm()
+
+    formContext.handleSubmit(onConfirm)()
+  }, [formContext, onConfirm])
+
+  return (
+    <WalletConnectFooter>
+      <VStack spacing={4} width='full'>
+        <VStack px={2} spacing={4} width='full'>
+          <WalletConnectSigningWithSection accountId={accountId} />
+          {transaction && chainId && (
+            <GasSelectionMenu transaction={transaction} chainId={chainId} />
+          )}
+        </VStack>
+        <HStack spacing={4} w='full'>
+          <Button
+            size='lg'
+            flex={1}
+            onClick={onReject}
+            isDisabled={isSubmitting || isSimulationLoading}
+            _disabled={disabledProp}
+          >
+            {translate('common.cancel')}
+          </Button>
+          <Button
+            size='lg'
+            flex={1}
+            colorScheme='blue'
+            type='submit'
+            onClick={handleSubmit}
+            isLoading={isSubmitting || isSimulationLoading}
+            isDisabled={isSubmitting || isSimulationLoading}
+            _disabled={disabledProp}
+          >
+            {translate('plugins.walletConnectToDapps.modal.signMessage.confirm')}
+          </Button>
+        </HStack>
+      </VStack>
+    </WalletConnectFooter>
+  )
+}

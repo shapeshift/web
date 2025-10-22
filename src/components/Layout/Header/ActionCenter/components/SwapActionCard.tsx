@@ -1,4 +1,5 @@
 import { Box, useDisclosure } from '@chakra-ui/react'
+import { ethChainId } from '@shapeshiftoss/caip'
 import { SwapperName } from '@shapeshiftoss/swapper'
 import type { KnownChainIds } from '@shapeshiftoss/types'
 import { getChainShortName } from '@shapeshiftoss/utils'
@@ -18,6 +19,7 @@ import { SwapperIcons } from '@/components/MultiHopTrade/components/SwapperIcons
 import { RawText } from '@/components/Text'
 import type { TextPropTypes } from '@/components/Text/Text'
 import { Text } from '@/components/Text/Text'
+import { useActualBuyAmountCryptoPrecision } from '@/hooks/useActualBuyAmountCryptoPrecision'
 import { formatSmartDate } from '@/lib/utils/time'
 import type { SwapAction } from '@/state/slices/actionSlice/types'
 import { ActionStatus, GenericTransactionDisplayType } from '@/state/slices/actionSlice/types'
@@ -42,7 +44,11 @@ export const SwapActionCard = ({ action, isCollapsable = false }: SwapActionCard
     return swapsById[action.swapMetadata.swapId]
   }, [action, swapsById])
 
-  const isArbitrumBridge = useMemo(() => swap.swapperName === SwapperName.ArbitrumBridge, [swap])
+  const actualBuyAmountCryptoPrecision = useActualBuyAmountCryptoPrecision(
+    action.swapMetadata.swapId,
+  )
+
+  const isArbitrumBridge = useMemo(() => swap?.swapperName === SwapperName.ArbitrumBridge, [swap])
 
   const { isOpen, onToggle } = useDisclosure({
     defaultIsOpen:
@@ -71,7 +77,7 @@ export const SwapActionCard = ({ action, isCollapsable = false }: SwapActionCard
       ),
       buyAmountAndSymbol: (
         <Amount.Crypto
-          value={swap.actualBuyAmountCryptoPrecision ?? swap.expectedBuyAmountCryptoPrecision}
+          value={actualBuyAmountCryptoPrecision ?? swap.expectedBuyAmountCryptoPrecision}
           symbol={swap.buyAsset.symbol}
           fontSize='sm'
           fontWeight='bold'
@@ -86,12 +92,16 @@ export const SwapActionCard = ({ action, isCollapsable = false }: SwapActionCard
         </Box>
       ),
     }
-  }, [swap])
+  }, [swap, actualBuyAmountCryptoPrecision])
 
   const title = useMemo(() => {
     const { status } = action
     if (isArbitrumBridge) {
-      if (status === ActionStatus.Complete) return 'actionCenter.bridge.complete'
+      if (status === ActionStatus.Complete) {
+        // Complete is not really complete for withdrawals
+        const isWithdrawal = swap?.buyAsset.chainId === ethChainId
+        return isWithdrawal ? 'actionCenter.bridge.initiated' : 'actionCenter.bridge.complete'
+      }
       if (status === ActionStatus.Failed) return 'actionCenter.bridge.failed'
       if (status === ActionStatus.Initiated) return 'actionCenter.bridge.initiated'
 
@@ -101,9 +111,11 @@ export const SwapActionCard = ({ action, isCollapsable = false }: SwapActionCard
     if (swap?.isStreaming && status === ActionStatus.Pending) return 'actionCenter.swap.streaming'
     if (status === ActionStatus.Complete) return 'actionCenter.swap.complete'
     if (status === ActionStatus.Failed) return 'actionCenter.swap.failed'
+    if (status === ActionStatus.AwaitingApproval) return 'actionCenter.swap.awaitingApproval'
+    if (status === ActionStatus.AwaitingSwap) return 'actionCenter.swap.awaitingSwap'
 
     return 'actionCenter.swap.processing'
-  }, [action, isArbitrumBridge, swap?.isStreaming])
+  }, [action, isArbitrumBridge, swap?.isStreaming, swap?.buyAsset.chainId])
 
   const icon = useMemo(() => {
     return (
@@ -137,6 +149,8 @@ export const SwapActionCard = ({ action, isCollapsable = false }: SwapActionCard
       </>
     )
   }, [action.status, swap?.swapperName])
+
+  if (!swap) return null
 
   return (
     <ActionCard

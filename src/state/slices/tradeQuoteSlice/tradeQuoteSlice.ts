@@ -18,11 +18,13 @@ export const tradeQuoteSlice = createSlice({
   reducers: create => ({
     clear: create.reducer(state => ({
       ...initialState,
+      isQuickBuy: false,
       tradeExecution: state.tradeExecution, // Leave the trade execution state alone
       sortOption: state.sortOption, // Preserve the sort option
     })),
     clearTradeQuotes: create.reducer(state => ({
       ...initialState,
+      isQuickBuy: false,
       tradeExecution: state.tradeExecution, // Leave the trade execution state alone
       activeQuoteMeta: state.activeQuoteMeta, // And the activeQuoteMeta too, or we'll lose the active quote when backing out from preview
       sortOption: state.sortOption, // Preserve the sort option
@@ -70,6 +72,7 @@ export const tradeQuoteSlice = createSlice({
       (state, action: PayloadAction<TradeQuote | TradeRate>) => {
         const quote = action.payload
         state.confirmedQuote = quote
+        state.isQuickBuy = true
         state.tradeExecution[quote.id] = createInitialTradeExecutionState()
         state.tradeExecution[quote.id].state = TradeExecutionState.Previewing
       },
@@ -194,6 +197,10 @@ export const tradeQuoteSlice = createSlice({
         const hopKey = hopIndex === 0 ? HopKey.FirstHop : HopKey.SecondHop
         state.tradeExecution[id][hopKey].permit2.state = TransactionExecutionState.Complete
         state.tradeExecution[id][hopKey].permit2.permit2Signature = permit2Signature
+
+        // Mark the allowance approval as complete since Permit2 replaces traditional allowance approval
+        state.tradeExecution[id][hopKey].allowanceApproval.state =
+          TransactionExecutionState.Complete
 
         // Mark the whole Permit2 step complete. We can do this here because no on-chain processing is
         // required, unlike allowance reset and allowance approval.

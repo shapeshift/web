@@ -3,6 +3,8 @@
     "amount": "Amount",
     "ascending": "Ascending",
     "descending": "Descending",
+    "selectAll": "Select All",
+    "unselectAll": "Unselect All",
     "free": "Free",
     "trade": "Trade",
     "trades": "Trades",
@@ -31,12 +33,16 @@
     "claimable": "Claimable",
     "comingSoon": "Coming Soon ...",
     "approve": "Approve",
+    "approveToken": "Approve Token",
+    "approveAmount": "Approve Amount",
+    "approveTo": "Approve To",
     "reset": "Reset",
     "confirm": "Confirm",
     "seeDetails": "See details",
     "activity": "Activity",
     "reject": "Reject",
     "goBack": "Go back",
+    "fiat": "Fiat",
     "connected": "Connected",
     "allocation": "Allocation",
     "trendingTokens": "Trending Tokens",
@@ -62,6 +68,7 @@
     "pairing": "Pairing",
     "connectWalletToGetStartedWith": "Connect a wallet to get started with %{feature}",
     "connectedWallet": "Connected Wallet",
+    "crypto": "Crypto",
     "walletActions": "Wallet Actions",
     "connectedWalletSettings": "Wallet Settings",
     "noWallet": "No Wallet Connected",
@@ -70,6 +77,7 @@
     "rename": "Rename",
     "forget": "Forget?",
     "pending": "Pending",
+    "preview": "Preview",
     "incomplete": "Incomplete",
     "available": "Available",
     "or": "or",
@@ -127,6 +135,11 @@
     "enterAmount": "Enter Amount",
     "enterAddress": "Enter Address",
     "pageNotFound": "The page you're looking for cannot be found",
+    "creditCard": "Credit Card",
+    "bankTransfer": "Bank Transfer",
+    "applePay": "Apple Pay",
+    "googlePay": "Google Pay",
+    "sepa": "SEPA",
     "buySell": "Buy/Sell",
     "all": "All",
     "viewAll": "View All",
@@ -214,7 +227,14 @@
     "dca": "DCA",
     "boost": "Boost",
     "viewOnExplorer": "View on explorer",
-    "approval": "Approval"
+    "viewAssetDetails": "View Asset Details",
+    "approval": "Approval",
+    "permit2Approval": "Permit2 Approval",
+    "network": "Network",
+    "feeEstimate": "Fee Estimate"
+  },
+  "accountSelector": {
+    "chooseAccount": "Choose Account"
   },
   "quickBuy": {
     "title": "Quick Buy %{assetOnChain}",
@@ -237,9 +257,38 @@
     "body": "Something went wrong",
     "cta": "Try again"
   },
-  "buyPage": {
-    "title": "Buy Crypto <span>in Seconds</span>",
-    "body": "Use a credit card, debit card or bank account. Buy Bitcoin, Ethereum, USDT, USDC or other top cryptocurrencies. Non-KYC providers available.",
+  "errorBoundary": {
+    "component": {
+      "title": "Component Error",
+      "body": "This component encountered an error and couldn't load properly.",
+      "retry": "Retry"
+    },
+    "chart": {
+      "title": "Chart unavailable",
+      "body": "Unable to load chart data at this time.",
+      "retry": "Retry"
+    },
+    "trading": {
+      "title": "Trading Error",
+      "body": "The trading interface encountered an error. You can try again or refresh the page.",
+      "retry": "Try Again"
+    },
+    "ramp": {
+      "title": "Ramp Error",
+      "body": "The ramp interface encountered an error. You can try again or refresh the page.",
+      "retry": "Try Again"
+    },
+    "suspense": {
+      "title": "Loading failed",
+      "body": "This content failed to load properly.",
+      "retry": "Retry"
+    }
+  },
+  "rampPage": {
+    "buyTitle": "Buy Crypto <span>in Seconds</span>",
+    "sellTitle": "Sell Crypto <span>in Seconds</span>",
+    "buyBody": "Use a credit card, debit card or bank account. Buy Bitcoin, Ethereum, USDT, USDC or other top cryptocurrencies. Non-KYC providers available.",
+    "sellBody": "Use a credit card, debit card or bank account. Sell Bitcoin, Ethereum, USDT, USDC or other top cryptocurrencies. Non-KYC providers available.",
     "disclaimer": "*You can also sell crypto directly for cash into your bank account.",
     "ctaTitle": "You can also use ShapeShift with all the top wallets to trade, earn yield and <span>track your crypto across %{chainCount} chains</span>",
     "availableAssets": "Available Assets"
@@ -346,6 +395,9 @@
       "switchWallet": "Switch Wallet",
       "disconnect": "Disconnect",
       "disconnected": "(Disconnected)",
+      "locked": "(Locked)",
+      "reconnectWallet": "Reconnect Wallet",
+      "walletNotConnected": "Your wallet is not currently connected. This will impact transactions.",
       "connecting": "Connecting..."
     }
   },
@@ -384,8 +436,6 @@
       },
       "cosmosOverview": {
         "rewards": "The rewards you earn will accrue automatically.",
-        "cta": "Start Staking",
-        "learnMore": "Learn More",
         "withdrawals": "Unstaking",
         "emptyWithdraws": "Pending unstaking requests will show here.",
         "availableDate": "available %{date}"
@@ -523,6 +573,7 @@
     "netWorth": "Net Worth",
     "loadingAccounts": "Loaded %{portfolioAccountsLoaded} accounts",
     "walletBalance": "Wallet Balance",
+    "walletBalanceChange24Hr": "24-hour change",
     "earnBalance": "Earn Balance",
     "rewardsBalance": "Rewards Balance",
     "earnBody": "Earn passive income by staking your assets or depositing them into a DeFi strategy.",
@@ -636,7 +687,6 @@
     "market": "Market",
     "limitOrder": "Limit Orders",
     "claims": "Claims",
-    "tradeShort": "Trade",
     "buyCrypto": "Buy/Sell Crypto",
     "buyCryptoShort": "Buy/Sell",
     "lending": "Lending",
@@ -645,6 +695,8 @@
     "tcy": "TCY",
     "foxEcosystem": "FOX Ecosystem",
     "markets": "Markets",
+    "tokens": "Tokens",
+    "swap": "Swap",
     "actionMenu": {
       "send": {
         "title": "Send",
@@ -668,6 +720,34 @@
       }
     }
   },
+  "shapeShiftMenu": {
+    "products": "Products",
+    "mobileApp": {
+      "title": "Mobile App",
+      "subtitle": "Trade and manage crypto"
+    },
+    "foxToken": {
+      "title": "FOX Token",
+      "subtitle": "Our Governance Token"
+    },
+    "classic": {
+      "title": "Classic",
+      "subtitle": "The OG ShapeShift"
+    },
+    "wallet": {
+      "title": "ShapeShift Wallet",
+      "subtitle": "Learn about our wallet"
+    },
+    "footer": {
+      "governance": "Governance",
+      "support": "Support",
+      "blog": "Blog",
+      "faq": "FAQ",
+      "github": "GitHub",
+      "discord": "Discord",
+      "twitter": "Twitter"
+    }
+  },
   "transactionRow": {
     "send": "Sent",
     "receive": "Received",
@@ -680,7 +760,6 @@
     "confirmed": "Confirmed",
     "pending": "Pending",
     "failed": "Failed",
-    "network": "Network",
     "blockHeight": "Block Height",
     "to": "To",
     "from": "From",
@@ -850,7 +929,10 @@
     "confirmAndClaim": "Confirm & Claim",
     "viewClaims": "View Claims",
     "viewClaimStatus": "View Claim Status",
-    "availableClaimsNotification": "You have bridge claims ready!"
+    "availableClaimsNotification": "You have bridge claims ready!",
+    "bridgeWithdrawalReadyNotification": "Bridge withdrawal ready to claim",
+    "bridgeWithdrawalFailedNotification": "Bridge withdrawal failed",
+    "checkActionCenterNotification": "Check Action Center for details"
   },
   "trade": {
     "trade": "Trade",
@@ -924,7 +1006,7 @@
     "viewTransaction": "View Transaction",
     "noQuotesAvailable": "No Quotes Available",
     "noQuotesAvailableDescription": "No available quotes found at this time. Try selecting another pair.",
-    "availableSwappers": "Available Swappers",
+    "availableQuotes": "Available Quotes",
     "unavailableSwappers": "Unavailable Swappers",
     "unlimited": "Unlimited",
     "streamStatus": "Stream Status",
@@ -943,6 +1025,8 @@
     "intoAssetSymbolBody": "You can proceed with this trade, but transaction history for receiving %{assetSymbol} is temporarily unavailable",
     "manualReceiveAddress": "Receive address",
     "recipientAddress": "Recipient address",
+    "changeAddress": "Change address",
+    "changeAddressExplainer": "When sending cryptocurrencies on UTXO-based networks, any leftover funds from your transaction are sent back to you at this address.",
     "customRecipientAddress": "Custom recipient address",
     "customRecipientAddressDescription": "Enter a custom recipient address for this trade",
     "thisIsYourCustomRecipientAddress": "This is your custom recipient address",
@@ -1098,7 +1182,19 @@
       "youGotMore": "You got %{cryptoUpside} more on this trade"
     },
     "networkFee": "Network Fee",
-    "feeExplainer": "Quote includes a %{feePercentage}% ShapeShift fee"
+    "feeExplainer": "Quote includes a %{feePercentage}% ShapeShift fee",
+    "claim": {
+      "pending": "Your claim of %{amount} %{symbol} is being processed.",
+      "complete": "Your claim of %{amount} %{symbol} is complete."
+    },
+    "rewardDistribution": {
+      "pending": {
+        "description": "Your reward of %{amountAndSymbol} is processing..."
+      },
+      "complete": {
+        "description": "Your reward of %{amountAndSymbol} is complete."
+      }
+    }
   },
   "limitOrder": {
     "heading": "Limit",
@@ -1329,12 +1425,13 @@
         },
         "skip": {
           "title": "Skip this step?",
-          "description": "Skipping the backup means you won't be able to recover your wallet if you lose access to your device.",
+          "description": "Skipping the backup means you won’t be able to recover your wallet if you lose access to your device.",
           "confirmCta": "Yes, I’ve saved my seed phrase"
         }
       }
     },
     "send": {
+      "confirmSend": "Confirm send",
       "consolidate": {
         "body": "ShapeShift honors %{asset}'s security design by using a new address for each transaction. To align with THORChain's protocol, which operates with a single address, we'll consolidate your funds into a single address.",
         "tooltip": "Send funds to a single address for THORChain compatibility.",
@@ -1342,9 +1439,9 @@
       },
       "getFeesError": "Error getting fees",
       "broadcastingTransaction": "Broadcasting Transaction",
-      "youHaveSent": "You have successfully sent %{amount} %{symbol}",
-      "tokenAddress": "To Address",
-      "addressInput": "To Address or ENS",
+      "youHaveSent": "You have successfully sent %{amountAndSymbol}",
+      "toAddress": "To Address",
+      "toAddressOrEns": "To Address or ENS",
       "scanQrCode": "Scan QR Code",
       "qrCode": "QR Code",
       "permissionsButton": "Try again",
@@ -1359,7 +1456,6 @@
         "qrDangerousEthUrl": "QR codes containing a contract address not supported. Please paste the destination address manually."
       },
       "confirm": {
-        "sendAsset": "Send %{asset}",
         "send": "Send",
         "sendTo": "Send To",
         "customNonce": "Custom Nonce",
@@ -1368,7 +1464,9 @@
         "total": "Total",
         "amount": "Amount",
         "transactionFee": "Transaction Fee",
-        "fees": "Fees %{feeType}"
+        "fees": "Fees %{feeType}",
+        "pendingConfirmation": "Pending confirmation",
+        "holdToSend": "Hold to send"
       },
       "sendForm": {
         "optionalAssetMemo": "Optional %{assetSymbol} Memo",
@@ -1377,13 +1475,16 @@
         "memoExplainer": "Some %{assetSymbol} recipients may require a memo in order for the transaction to be processed correctly",
         "sendAsset": "Send %{asset}",
         "sendTo": "Send To",
+        "chain": "Chain",
         "sendAmount": "Send Amount",
         "max": "Max",
         "transactionFee": "Transaction Fee",
         "slow": "Slow",
         "average": "Average",
         "fast": "Fast",
-        "enterAmount": "Enter Amount"
+        "enterAmount": "Enter Amount",
+        "scanQrCodeDescription": "Tap to scan an address",
+        "yourAddresses": "Your Addresses"
       },
       "status": {
         "pendingBody": "Sending %{amount} %{symbol}"
@@ -1392,7 +1493,7 @@
     "receive": {
       "connectAWallet": "Connect a wallet to receive %{symbol}",
       "receiveAsset": "Receive %{asset}",
-      "onlySend": "Only send %{asset} (%{symbol}) to this address. Sending any other coins may result in permanent loss.",
+      "onlySend": "Only send %{symbol} on supported networks. Other tokens or networks may result in permanent loss.",
       "copy": "Copy",
       "copied": "%{symbol} receive address copied to clipboard",
       "copyFailed": "Failed to copy %{symbol} receive address to clipboard",
@@ -1401,7 +1502,9 @@
       "verify": "Verify",
       "verified": "Verified",
       "notVerified": "Address Mismatch",
-      "blockExplorer": "Explorer"
+      "blockExplorer": "Explorer",
+      "supportedNetworks": "Supported Networks",
+      "amountNote": "Enter the amount you want to request. This will generate a QR code with the amount for easier payments."
     },
     "deposit": {
       "allocation": {
@@ -1565,6 +1668,26 @@
         "ILS": "Israeli Shekel",
         "IDR": "Indonesian Rupiah"
       }
+    },
+    "ramp": {
+      "payWith": "Pay With",
+      "youGet": "You Get",
+      "sellAmount": "Sell Amount",
+      "receiveAmount": "Receive Amount",
+      "buyAsset": "Buy Asset",
+      "sellAsset": "Sell Asset",
+      "receiveAsset": "Receive Asset",
+      "previewOrder": "Preview Order",
+      "processingTime": "Processing Time: 1-3 business days",
+      "buyInfo": "Buy crypto with fiat currency",
+      "sellInfo": "Sell crypto for fiat currency",
+      "availableQuotes": "Available Quotes",
+      "bestRate": "Best Rate",
+      "fastest": "Fastest",
+      "rate": "Rate",
+      "amount": "Amount",
+      "paymentMethods": "Payment Methods",
+      "selectFiat": "Select Fiat Currency"
     },
     "mobileWelcome": {
       "success": {
@@ -1734,8 +1857,13 @@
         "pairExistingDeviceBody": "Connecting a different Ledger device? Click 'Pair new device' to start fresh."
       },
       "failure": {
-        "body": "Unable to connect Ledger wallet"
+        "header": "Can't connect to Ledger",
+        "body": "We were not able to detect your Ledger, but you can connect in read only mode."
       },
+      "readOnly": {
+        "button": "Connect as Read Only"
+      },
+      "gettingChangeAddress": "Getting change address...",
       "connectWarning": "Before connecting a chain, make sure you have the app open on your device.",
       "signWarning": "Before signing, make sure you have the %{chain} app open on your device."
     },
@@ -1779,6 +1907,7 @@
       "active": "Active",
       "notActive": "Not Active",
       "addSnap": "Add Snap",
+      "installError": "An error occurred installing the Multichain Snap on MetaMask",
       "uninstall": {
         "title": "You have removed Multichain support from MetaMask!",
         "subtitle": "Re-add the Multichain Snap on MetaMask to send, receive, track, trade, and earn with the following chains:"
@@ -2060,11 +2189,12 @@
   },
   "assets": {
     "more": "More",
+    "hideAsset": "Hide Asset",
+    "showAsset": "Show Asset",
+    "cannotHidePrimary": "Cannot hide primary assets that have related variants",
     "spam": {
-      "warning": "This asset will be hidden because you've marked it as spam.",
-      "marked": "This asset is marked as spam.",
-      "reportAsSpam": "Report as spam",
-      "reportAsNotSpam": "Mark as not spam"
+      "warning": "This asset can be shown again by opening the wallet dropdown and clicking 'Manage Hidden Assets'.",
+      "marked": "This asset is currently hidden."
     },
     "assetDetails": {
       "assetHeader": {
@@ -2234,7 +2364,8 @@
     "today": "Today",
     "yesterday": "Yesterday",
     "thisWeek": "This Week",
-    "thisMonth": "This Month"
+    "thisMonth": "This Month",
+    "transactionDetails": "Transaction Details"
   },
   "plugins": {
     "foxPage": {
@@ -2317,6 +2448,18 @@
         "title": "WalletConnect",
         "ethereum": "Ethereum",
         "connectAll": "Connect All Accounts",
+        "interactContract": "Interact Contract",
+        "transactionData": "Transaction Data",
+        "method": "Method",
+        "signingWith": "Signing With",
+        "connectWith": "Connect With",
+        "chooseAccount": "Choose Account",
+        "chooseNetwork": "Choose Network",
+        "required": "Required",
+        "noAccount": "You don't have an account on %{chainName} for this address",
+        "connectionRequest": "Connection Request",
+        "connectionRequestTooltip": "Connecting allows this dApp to request transaction approvals",
+        "sendingTo": "Sending To",
         "signMessage": {
           "signingFrom": "Signing From",
           "requestFrom": "Request From",
@@ -2334,7 +2477,9 @@
           "chainId": "Chain ID",
           "authInfo": "Auth info",
           "body": "Body",
-          "comingSoon": "Coming soon"
+          "comingSoon": "Coming soon",
+          "contract": "Contract",
+          "primaryType": "Primary Type"
         },
         "sendTransaction": {
           "sendingFrom": "Sending From",
@@ -2368,7 +2513,6 @@
         },
         "connect": {
           "title": "Connect your wallet to a dApp via WalletConnect and trigger transactions",
-          "howTo": "How to connect to a dApp?",
           "linkPlaceholder": "QR code or connection link",
           "connect": "Connect",
           "connectionError": "Can't connect to provided URI.",
@@ -2665,6 +2809,13 @@
     },
     "title": "Watchlist"
   },
+  "manageHiddenAssets": {
+    "title": "Manage Hidden Assets",
+    "empty": {
+      "title": "No hidden assets",
+      "body": "Assets you hide will appear here, making it easy to show them again later."
+    }
+  },
   "explore": {
     "pools": {
       "title": "Pools",
@@ -2692,6 +2843,9 @@
     }
   },
   "RFOX": {
+    "stakeInitiated": "Stake Initiated",
+    "unstakeInitiated": "Unstake Initiated",
+    "claimWithdraw": "Claim Withdraw",
     "staking": "rFOX Staking",
     "bridge": "Bridge",
     "bridgeFunds": "Bridge Funds",
@@ -2856,7 +3010,7 @@
       "confirmTitle": "Confirm Claim",
       "networkFee": "Network Fee",
       "confirmAndClaim": "Claim & Stake",
-      "notice": "You’re claiming %{amount} TCY. It’ll be automatically staked — unstake anytime after to receive it in your wallet."
+      "notice": "You’re claiming %{amount} TCY. It’ll be automatically staked — unstake anytime after to receive it in your wallet."
     },
     "assetClaimButton": {
       "claimAction": "Claim"
@@ -2993,6 +3147,7 @@
       "switchChainFailed": "Failed to switch wallet chain. Try manually switching your wallet active chain to %{chain}.",
       "buildTransaction": "Failed to build transaction.",
       "signTransaction": "Failed to sign transaction.",
+      "blindSigningRequired": "Transaction requires blind signing. Please enable 'Blind signing' in your Ledger app settings and try again.",
       "signAndBroadcastTransaction": "Failed to sign and broadcast transaction.",
       "signMessage": "Failed to sign message.",
       "broadcastTransaction": "Failed to broadcast transaction.",
@@ -3027,7 +3182,9 @@
       "claimAvailable": "Claim Available",
       "claimed": "Claimed",
       "unknown": "Unknown",
-      "initiated": "Initiated"
+      "initiated": "Initiated",
+      "awaitingApproval": "Awaiting Approval",
+      "awaitingSwap": "Awaiting Swap"
     },
     "emptyState": {
       "title": "Welcome to ShapeShift",
@@ -3039,7 +3196,9 @@
       "processing": "Your swap of %{sellAmountAndSymbol} to %{buyAmountAndSymbol} is being processed.",
       "complete": "Your swap of %{sellAmountAndSymbol} to %{buyAmountAndSymbol} is complete.",
       "failed": "Your swap of %{sellAmountAndSymbol} to %{buyAmountAndSymbol} has failed.",
-      "streaming": "Your swap of %{sellAmountAndSymbol} to %{buyAmountAndSymbol} is streaming."
+      "streaming": "Your swap of %{sellAmountAndSymbol} to %{buyAmountAndSymbol} is streaming.",
+      "awaitingApproval": "Your swap of %{sellAmountAndSymbol} to %{buyAmountAndSymbol} is awaiting approval.",
+      "awaitingSwap": "Your swap of %{sellAmountAndSymbol} to %{buyAmountAndSymbol} is awaiting execution."
     },
     "thorchainLp": {
       "pairAssets": "%{asset1} and %{asset2}",
@@ -3067,8 +3226,15 @@
     "bridge": {
       "processing": "Your bridge of %{sellAmountAndSymbol}.%{sellChainShortName} to %{buyAmountAndSymbol}.%{buyChainShortName} is being processed.",
       "complete": "Your bridge of %{sellAmountAndSymbol}.%{sellChainShortName} to %{buyAmountAndSymbol}.%{buyChainShortName} is complete.",
-      "initiated": "Your bridge of %{sellAmountAndSymbol}.%{sellChainShortName} to %{buyAmountAndSymbol}.%{buyChainShortName} has been initiated.",
-      "failed": "Your bridge of %{sellAmountAndSymbol}.%{sellChainShortName} to %{buyAmountAndSymbol}.%{buyChainShortName} has failed."
+      "initiated": "Your bridge of %{sellAmountAndSymbol} to %{buyAmountAndSymbol} has been initiated.",
+      "pendingWithdraw": "Your withdraw of %{amountAndSymbol} will be available %{timeText}.",
+      "claimAvailable": "Your bridge of %{amountAndSymbol} is available to claim.",
+      "failed": "Your bridge of %{sellAmountAndSymbol}.%{sellChainShortName} to %{buyAmountAndSymbol}.%{buyChainShortName} has failed.",
+      "transactionInitiated": "Transaction Initiated",
+      "claimWithdraw": "Claim Withdraw",
+      "withdrawTx": "Withdraw Tx",
+      "claimTx": "Claim Tx",
+      "claimNotAvailable": "Claim is not yet available. Please wait for the withdrawal period to complete."
     },
     "limitOrder": {
       "placed": "Limit order placed for %{sellAmountAndSymbol} to %{buyAmountAndSymbol}",
@@ -3099,6 +3265,14 @@
     "limitOrderTitle": "%{sellAmount} %{sellSymbol} → %{buyAmount} %{buySymbol}",
     "pendingTransactions": "%{count} Pending",
     "orderCancelled": "Order Cancelled",
-    "orderExpired": "Order Expired"
+    "orderExpired": "Order Expired",
+    "rewardDistribution": {
+      "pending": {
+        "description": "Your reward of %{amountAndSymbol} is processing..."
+      },
+      "complete": {
+        "description": "Your reward of %{amountAndSymbol} is complete."
+      }
+    }
   }
 }

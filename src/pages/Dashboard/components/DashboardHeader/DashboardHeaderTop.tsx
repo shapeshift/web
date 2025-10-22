@@ -3,7 +3,7 @@ import type { ResponsiveValue } from '@chakra-ui/react'
 import { Box, Button, Container, Flex, Text, VStack } from '@chakra-ui/react'
 import type { Property } from 'csstype'
 import { memo, useCallback, useMemo } from 'react'
-import { FaExpand, FaRegCreditCard } from 'react-icons/fa'
+import { FaRegCreditCard } from 'react-icons/fa'
 import { IoSwapVerticalSharp } from 'react-icons/io5'
 import { useTranslate } from 'react-polyglot'
 import { useNavigate } from 'react-router-dom'
@@ -12,16 +12,21 @@ import { vibrate } from '../../../../lib/vibrate'
 import { WalletBalance } from './WalletBalance'
 
 import { Display } from '@/components/Display'
+import { QRCodeIcon } from '@/components/Icons/QRCode'
 import { SendIcon } from '@/components/Icons/SendIcon'
 import { SwapIcon } from '@/components/Icons/SwapIcon'
 import { FiatRampAction } from '@/components/Modals/FiatRamps/FiatRampsCommon'
 import { TradeRoutePaths } from '@/components/MultiHopTrade/types'
+import { WalletBalanceChange } from '@/components/WalletBalanceChange/WalletBalanceChange'
+import { KeyManager } from '@/context/WalletProvider/KeyManager'
+import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { useModal } from '@/hooks/useModal/useModal'
 import { useRouteAccountId } from '@/hooks/useRouteAccountId/useRouteAccountId'
 import { useRouteAssetId } from '@/hooks/useRouteAssetId/useRouteAssetId'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from '@/lib/mixpanel/types'
+import { selectWalletType } from '@/state/slices/localWalletSlice/selectors'
 import { selectAssetById } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
@@ -50,13 +55,17 @@ const buyIcon = (
 )
 const sendIcon = <SendIcon boxSize='6' />
 const receiveIcon = <ArrowDownIcon boxSize={6} />
-const qrCodeIcon = (
-  <Box>
-    <FaExpand />
-  </Box>
+const qrCodeIcon = <QRCodeIcon />
+
+const mobileNetWorth = (
+  // react-memo you're drunk, this is outside of component scope
+  // eslint-disable-next-line react-memo/require-usememo
+  <Flex alignItems='center' flexDir={containerInnerFlexDir} gap={4} gridColumn={profileGridColumn}>
+    <WalletBalanceChange showErroredAccounts={false} />
+  </Flex>
 )
 
-const netWorth = (
+const desktopNetWorth = (
   // react-memo you're drunk, this is outside of component scope
   // eslint-disable-next-line react-memo/require-usememo
   <Flex alignItems='center' flexDir={containerInnerFlexDir} gap={4} gridColumn={profileGridColumn}>
@@ -101,6 +110,15 @@ export const DashboardHeaderTop = memo(() => {
   const assetId = useRouteAssetId()
   const accountId = useRouteAccountId()
   const asset = useAppSelector(state => selectAssetById(state, assetId ?? ''))
+  const isLedgerReadOnlyEnabled = useFeatureFlag('LedgerReadOnly')
+  const walletType = useAppSelector(selectWalletType)
+  const isLedgerReadOnly = isLedgerReadOnlyEnabled && walletType === KeyManager.Ledger
+
+  // Either wallet is physically connected, or it's a Ledger in read-only mode
+  const canDisplayWalletActions = useMemo(
+    () => isConnected || isLedgerReadOnly,
+    [isConnected, isLedgerReadOnly],
+  )
 
   const navigate = useNavigate()
   const send = useModal('send')
@@ -147,30 +165,37 @@ export const DashboardHeaderTop = memo(() => {
       >
         <MobileActionButton
           icon={swapIcon}
-          label={translate('navBar.tradeShort')}
+          label={translate('common.trade')}
           onClick={handleTradeClick}
         />
         <MobileActionButton
           icon={buyIcon}
           label={translate('fiatRamps.buy')}
           onClick={handleBuyClick}
-          isDisabled={!isConnected}
+          isDisabled={!canDisplayWalletActions}
         />
         <MobileActionButton
           icon={sendIcon}
           label={translate('common.send')}
           onClick={handleSendClick}
-          isDisabled={!isConnected}
+          isDisabled={!canDisplayWalletActions}
         />
         <MobileActionButton
           icon={receiveIcon}
           label={translate('common.receive')}
           onClick={handleReceiveClick}
-          isDisabled={!isConnected}
+          isDisabled={!canDisplayWalletActions}
         />
       </Flex>
     ),
-    [handleTradeClick, handleBuyClick, handleSendClick, handleReceiveClick, isConnected, translate],
+    [
+      handleTradeClick,
+      handleBuyClick,
+      handleSendClick,
+      handleReceiveClick,
+      canDisplayWalletActions,
+      translate,
+    ],
   )
 
   const desktopButtons = useMemo(
@@ -182,17 +207,29 @@ export const DashboardHeaderTop = memo(() => {
         justifyContent={'center'}
         display={desktopButtonGroupDisplay}
       >
-        <Button isDisabled={!isConnected} onClick={handleQrCodeClick} leftIcon={qrCodeIcon}>
+        <Button
+          isDisabled={!canDisplayWalletActions}
+          onClick={handleQrCodeClick}
+          leftIcon={qrCodeIcon}
+        >
           {translate('modals.send.qrCode')}
         </Button>
-        <Button isDisabled={!isConnected} onClick={handleSendClick} leftIcon={arrowUpIcon}>
+        <Button
+          isDisabled={!canDisplayWalletActions}
+          onClick={handleSendClick}
+          leftIcon={arrowUpIcon}
+        >
           {translate('common.send')}
         </Button>
-        <Button isDisabled={!isConnected} onClick={handleReceiveClick} leftIcon={arrowDownIcon}>
+        <Button
+          isDisabled={!canDisplayWalletActions}
+          onClick={handleReceiveClick}
+          leftIcon={arrowDownIcon}
+        >
           {translate('common.receive')}
         </Button>
         <Button onClick={handleTradeClick} leftIcon={ioSwapVerticalSharpIcon}>
-          {translate('navBar.tradeShort')}
+          {translate('common.trade')}
         </Button>
       </Flex>
     ),
@@ -201,7 +238,7 @@ export const DashboardHeaderTop = memo(() => {
       handleSendClick,
       handleReceiveClick,
       handleTradeClick,
-      isConnected,
+      canDisplayWalletActions,
       translate,
     ],
   )
@@ -214,13 +251,12 @@ export const DashboardHeaderTop = memo(() => {
             width='100%'
             display='grid'
             gridTemplateColumns={profileGridTemplate}
-            maxWidth='container.4xl'
             px={containerPadding}
             pt={4}
             pb={4}
             gap={containerGap}
           >
-            {netWorth}
+            {mobileNetWorth}
             {desktopButtons}
           </Container>
           {mobileButtons}
@@ -231,15 +267,13 @@ export const DashboardHeaderTop = memo(() => {
           width='full'
           display='grid'
           gridTemplateColumns={profileGridTemplate}
-          maxWidth='container.4xl'
-          px={containerPadding}
           pt={4}
           pb={4}
           alignItems='flex-start'
           justifyContent='space-between'
           gap={containerGap}
         >
-          {netWorth}
+          {desktopNetWorth}
           <Flex
             gridColumn={3}
             gap={4}

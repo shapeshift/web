@@ -1,26 +1,43 @@
 import { ArrowDownIcon, ArrowUpIcon } from '@chakra-ui/icons'
 import type { StackDirection } from '@chakra-ui/react'
-import { Button, Flex, IconButton, Stack } from '@chakra-ui/react'
+import {
+  Button,
+  Flex,
+  IconButton,
+  Menu,
+  MenuButton,
+  MenuItem,
+  MenuList,
+  Stack,
+  Tooltip,
+} from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
-import { ethAssetId, isNft } from '@shapeshiftoss/caip'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { ethAssetId, fromAssetId, isNft } from '@shapeshiftoss/caip'
+import { isToken } from '@shapeshiftoss/utils'
+import { useCallback, useMemo } from 'react'
 import { FaCreditCard, FaEllipsisH } from 'react-icons/fa'
+import { TbExternalLink, TbFlag, TbStar, TbStarFilled } from 'react-icons/tb'
 import { useTranslate } from 'react-polyglot'
 import { useNavigate } from 'react-router-dom'
 
 import { SwapIcon } from '@/components/Icons/SwapIcon'
 import { FiatRampAction } from '@/components/Modals/FiatRamps/FiatRampsCommon'
-import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
 import { WalletActions } from '@/context/WalletProvider/actions'
+import { KeyManager } from '@/context/WalletProvider/KeyManager'
+import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { useModal } from '@/hooks/useModal/useModal'
 import { useWallet } from '@/hooks/useWallet/useWallet'
+import { useWalletSupportsChain } from '@/hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from '@/lib/mixpanel/types'
 import { vibrate } from '@/lib/vibrate'
 import { selectSupportsFiatRampByAssetId } from '@/state/apis/fiatRamps/selectors'
+import { selectWalletType } from '@/state/slices/localWalletSlice/selectors'
+import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
+import { selectRelatedAssetIdsInclusive } from '@/state/slices/related-assets-selectors'
 import { selectAssetById } from '@/state/slices/selectors'
-import { useAppSelector } from '@/state/store'
+import { useAppDispatch, useAppSelector } from '@/state/store'
 
 const IconButtonAfter = {
   content: 'attr(aria-label)',
@@ -45,6 +62,10 @@ const arrowUpIcon = <ArrowUpIcon />
 const arrowDownIcon = <ArrowDownIcon />
 const swapIcon = <SwapIcon />
 const faCreditCardIcon = <FaCreditCard />
+const starIcon = <TbStar />
+const fullStarIcon = <TbStarFilled />
+const linkIcon = <TbExternalLink />
+const flagIcon = <TbFlag />
 
 const ButtonRowDisplay = { base: 'flex', md: 'none' }
 
@@ -62,9 +83,8 @@ export const AssetActions: React.FC<AssetActionProps> = ({
   isMobile,
 }) => {
   const navigate = useNavigate()
+  const appDispatch = useAppDispatch()
 
-  const [isValidChainId, setIsValidChainId] = useState(true)
-  const chainAdapterManager = getChainAdapterManager()
   const send = useModal('send')
   const receive = useModal('receive')
   const fiatRamps = useModal('fiatRamps')
@@ -72,18 +92,45 @@ export const AssetActions: React.FC<AssetActionProps> = ({
   const translate = useTranslate()
   const mixpanel = getMixPanel()
   const {
-    state: { isConnected },
+    state: { isConnected, wallet },
     dispatch,
   } = useWallet()
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   if (!asset) throw new Error(`Asset not found for AssetId ${assetId}`)
-  const filter = useMemo(() => ({ assetId }), [assetId])
-  const assetSupportsBuy = useAppSelector(s => selectSupportsFiatRampByAssetId(s, filter))
 
-  useEffect(() => {
-    const isValid = chainAdapterManager.has(asset.chainId)
-    setIsValidChainId(isValid)
-  }, [chainAdapterManager, asset])
+  const spamMarkedAssetIds = useAppSelector(preferences.selectors.selectSpamMarkedAssetIds)
+  const isSpamMarked = useMemo(
+    () => spamMarkedAssetIds.includes(assetId),
+    [assetId, spamMarkedAssetIds],
+  )
+
+  const filter = useMemo(() => ({ assetId }), [assetId])
+  const relatedAssetIds = useAppSelector(s => selectRelatedAssetIdsInclusive(s, filter))
+  const relatedAssetCount = relatedAssetIds?.length ?? 0
+  const isPrimaryWithRelatedVariants = Boolean(asset?.isPrimary) && relatedAssetCount > 1
+  const canHideAsset = !isPrimaryWithRelatedVariants
+  const canToggleSpam = canHideAsset || isSpamMarked
+  const hideTooltipLabel = isPrimaryWithRelatedVariants && !isSpamMarked
+
+  const isLedgerReadOnlyEnabled = useFeatureFlag('LedgerReadOnly')
+  const walletType = useAppSelector(selectWalletType)
+  const isLedgerReadOnly = isLedgerReadOnlyEnabled && walletType === KeyManager.Ledger
+
+  // Either wallet is physically connected, or it's a Ledger in read-only mode
+  const canDisplayAssetActions = useMemo(
+    () => isConnected || isLedgerReadOnly,
+    [isConnected, isLedgerReadOnly],
+  )
+
+  const assetSupportsBuy = useAppSelector(s => selectSupportsFiatRampByAssetId(s, filter))
+  const watchlistAssetIds = useAppSelector(preferences.selectors.selectWatchedAssetIds)
+
+  const isWatchlistMarked = useMemo(
+    () => watchlistAssetIds.includes(assetId),
+    [assetId, watchlistAssetIds],
+  )
+
+  const isValidChainId = useWalletSupportsChain(asset.chainId, wallet)
 
   const handleWalletModalOpen = useCallback(
     () => dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true }),
@@ -91,18 +138,18 @@ export const AssetActions: React.FC<AssetActionProps> = ({
   )
   const handleSendClick = useCallback(() => {
     vibrate('heavy')
-    if (!isConnected) return handleWalletModalOpen()
+    if (!canDisplayAssetActions) return handleWalletModalOpen()
     mixpanel?.track(MixPanelEvent.SendClick)
     send.open({ assetId, accountId })
-  }, [accountId, assetId, handleWalletModalOpen, isConnected, mixpanel, send])
+  }, [accountId, assetId, handleWalletModalOpen, canDisplayAssetActions, mixpanel, send])
   const handleReceiveClick = useCallback(() => {
     vibrate('heavy')
-    if (isConnected) {
+    if (canDisplayAssetActions) {
       return receive.open({ asset, accountId })
     }
 
     handleWalletModalOpen()
-  }, [accountId, asset, handleWalletModalOpen, isConnected, receive])
+  }, [accountId, asset, handleWalletModalOpen, canDisplayAssetActions, receive])
   const hasValidBalance = bnOrZero(cryptoBalance).gt(0)
 
   const handleBuySellClick = useCallback(() => {
@@ -123,6 +170,28 @@ export const AssetActions: React.FC<AssetActionProps> = ({
     vibrate('heavy')
     assetActionsDrawer.open({ assetId })
   }, [assetActionsDrawer, assetId])
+
+  const handleWatchAsset = useCallback(() => {
+    appDispatch(preferences.actions.toggleWatchedAssetId(assetId))
+  }, [assetId, appDispatch])
+
+  const handleToggleSpam = useCallback(() => {
+    appDispatch(preferences.actions.toggleSpamMarkedAssetId(assetId))
+  }, [assetId, appDispatch])
+
+  const explorerHref = useMemo(() => {
+    if (!asset) return
+    const { assetReference } = fromAssetId(asset.assetId)
+
+    if (isNft(asset.assetId)) {
+      const [token] = assetReference.split('/')
+      return `${asset.explorer}/token/${token}?a=${asset.id}`
+    }
+
+    if (isToken(asset.assetId)) return `${asset?.explorerAddressLink}${assetReference}`
+
+    return asset.explorer
+  }, [asset])
 
   if (isMobile) {
     return (
@@ -160,7 +229,7 @@ export const AssetActions: React.FC<AssetActionProps> = ({
               icon={swapIcon}
               size='lg'
               isRound
-              aria-label={translate('navBar.tradeShort')}
+              aria-label={translate('common.trade')}
               _after={IconButtonAfter}
               onClick={handleTradeClick}
               colorScheme='blue'
@@ -175,7 +244,7 @@ export const AssetActions: React.FC<AssetActionProps> = ({
                 aria-label={translate('navBar.buyCryptoShort')}
                 _after={IconButtonAfter}
                 onClick={handleBuySellClick}
-                isDisabled={!isConnected}
+                isDisabled={!canDisplayAssetActions}
                 colorScheme='blue'
               />
             </Flex>
@@ -253,6 +322,57 @@ export const AssetActions: React.FC<AssetActionProps> = ({
         >
           {translate('common.receive')}
         </Button>
+        <Menu>
+          <MenuButton
+            as={Button}
+            leftIcon={moreIcon}
+            size='sm-multiline'
+            flex={buttonFlexProps}
+            width={buttonWidthProps}
+            aria-label={translate('assets.more')}
+          >
+            {translate('assets.more')}
+          </MenuButton>
+          <MenuList>
+            <MenuItem
+              as='a'
+              icon={isWatchlistMarked ? fullStarIcon : starIcon}
+              onClick={handleWatchAsset}
+              cursor='pointer'
+            >
+              {isWatchlistMarked ? translate('watchlist.remove') : translate('watchlist.add')}
+            </MenuItem>
+            {explorerHref && (
+              <MenuItem
+                icon={linkIcon}
+                as='a'
+                href={explorerHref}
+                target='_blank'
+                rel='noopener noreferrer'
+              >
+                {translate('common.viewOnExplorer')}
+              </MenuItem>
+            )}
+            <Tooltip
+              label={hideTooltipLabel ? translate('assets.cannotHidePrimary') : ''}
+              hasArrow
+              isDisabled={!hideTooltipLabel}
+              shouldWrapChildren
+            >
+              <MenuItem
+                as='a'
+                icon={flagIcon}
+                onClick={canToggleSpam ? handleToggleSpam : undefined}
+                color={isSpamMarked ? 'inherit' : 'red.400'}
+                cursor={canToggleSpam ? 'pointer' : 'not-allowed'}
+                isDisabled={!canToggleSpam}
+                opacity={canToggleSpam ? 1 : 0.6}
+              >
+                {isSpamMarked ? translate('assets.showAsset') : translate('assets.hideAsset')}
+              </MenuItem>
+            </Tooltip>
+          </MenuList>
+        </Menu>
       </Flex>
     </Stack>
   )

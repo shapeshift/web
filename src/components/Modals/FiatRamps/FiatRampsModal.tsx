@@ -12,6 +12,7 @@ import type { FiatRampAction } from './FiatRampsCommon'
 
 import { FiatForm } from '@/components/Modals/FiatRamps/views/FiatForm'
 import { Text } from '@/components/Text'
+import { useModalRegistration } from '@/context/ModalStackProvider'
 import { useModal } from '@/hooks/useModal/useModal'
 import { breakpoints } from '@/theme/theme'
 
@@ -33,23 +34,21 @@ export const FiatRampsModal: React.FC<FiatRampsModalProps> = ({
 }) => {
   const { close, isOpen } = useModal('fiatRamps')
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`)
+  const { modalContentProps, overlayProps, modalProps } = useModalRegistration({
+    isOpen,
+    onClose: close,
+  })
 
   return (
-    <Modal
-      isOpen={isOpen}
-      onClose={close}
-      isCentered={isLargerThanMd}
-      variant='fluid'
-      trapFocus={false}
-      size={modalSize}
-    >
-      <ModalOverlay />
+    <Modal {...modalProps} isCentered={isLargerThanMd} variant='fluid' size={modalSize}>
+      <ModalOverlay {...overlayProps} />
 
       <ModalContent
         width='full'
         borderRadius={modalContentBorderRadius}
         minWidth={modalContentMinWidth}
         maxWidth={modalContentMaxWidth}
+        {...modalContentProps}
       >
         <ModalHeader>
           <Text translation={'fiatRamps.title'} />

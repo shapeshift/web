@@ -1,6 +1,8 @@
+import { useMediaQuery } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
-import { ethAssetId } from '@shapeshiftoss/caip'
+import { CHAIN_NAMESPACE, fromAssetId } from '@shapeshiftoss/caip'
 import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
+import { isToken } from '@shapeshiftoss/utils'
 import { AnimatePresence } from 'framer-motion'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
@@ -11,18 +13,20 @@ import { useFormSend } from '../Send/hooks/useFormSend/useFormSend'
 import { SendFormFields, SendRoutes } from '../Send/SendCommon'
 import { Address } from '../Send/views/Address'
 import { Confirm } from '../Send/views/Confirm'
-import { Details } from '../Send/views/Details'
 import { Status } from '../Send/views/Status'
 
+import { SendAmountDetails } from '@/components/Modals/Send/views/SendAmountDetails'
 import { QrCodeScanner } from '@/components/QrCodeScanner/QrCodeScanner'
 import { SelectAssetRouter } from '@/components/SelectAssets/SelectAssetRouter'
 import { useModal } from '@/hooks/useModal/useModal'
-import { parseAddressInputWithChainId, parseMaybeUrl } from '@/lib/address/address'
+import { parseAddress, parseAddressInputWithChainId } from '@/lib/address/address'
+import { parseUrlDirect } from '@/lib/address/bip21'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { ConnectModal } from '@/plugins/walletConnectToDapps/components/modals/connect/Connect'
 import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
 import { selectAssetById, selectMarketDataByAssetIdUserCurrency } from '@/state/slices/selectors'
 import { store, useAppSelector } from '@/state/store'
+import { breakpoints } from '@/theme/theme'
 
 type QrCodeFormProps = {
   assetId?: AssetId
@@ -31,10 +35,13 @@ type QrCodeFormProps = {
 
 const scanRedirect = <Navigate to={SendRoutes.Scan} replace />
 
+const formStyle = { height: '100%' }
+
 export const Form: React.FC<QrCodeFormProps> = ({ accountId }) => {
   const navigate = useNavigate()
   const { handleFormSend } = useFormSend()
   const selectedCurrency = useAppSelector(preferences.selectors.selectSelectedCurrency)
+  const [isSmallerThanMd] = useMediaQuery(`(max-width: ${breakpoints.md})`, { ssr: false })
 
   const [addressError, setAddressError] = useState<string | null>(null)
   const { isOpen, close: handleClose } = useModal('qrCode')
@@ -67,14 +74,20 @@ export const Form: React.FC<QrCodeFormProps> = ({ accountId }) => {
       if (!asset) return
       methods.setValue(SendFormFields.AssetId, asset.assetId)
 
-      navigate(SendRoutes.Address)
+      if (isSmallerThanMd) {
+        navigate(SendRoutes.Address)
+        return
+      }
+      // On desktop, go directly to AmountDetails
+      // On mobile, go to Address first
+      navigate(SendRoutes.AmountDetails)
     },
-    [methods, navigate],
+    [methods, navigate, isSmallerThanMd],
   )
 
   const handleBack = useCallback(() => {
     setAddressError(null)
-    navigate(-1)
+    navigate(SendRoutes.Scan)
   }, [navigate])
 
   const handleSubmit = useCallback(
@@ -101,23 +114,43 @@ export const Form: React.FC<QrCodeFormProps> = ({ accountId }) => {
           if (decodedText.startsWith('wc:')) return setWalletConnectDappUrl(decodedText)
 
           // This should
-          // - Parse the address, amount and asset. This should also exhaust URI parsers (EVM and UTXO currently) and set the amount/asset if applicable
+          // - First attempt parsing as payment URI (BIP-21, ERC-681, Solana Pay) to extract address, amount, asset and chainId
+          // - If no valid payment URI, fall back to plain address parsing by exhausting knownChainIds
           // - If there is a valid asset (i.e UTXO, or ETH, but not ERC-20s because they're unsafe), populates the asset and goes directly to the address step
           // If no valid asset is found, it should go to the select asset step
-          const maybeUrlResult = await parseMaybeUrl({ urlOrAddress: decodedText })
+          const urlDirectResult = parseUrlDirect(decodedText)
+
+          // Attempts parsing as payment URI first, otherwise defaults to address parsing
+          // (finding assetId/chainId by exhausting knownChainIds)
+          const maybeUrlResult = await (() => {
+            if (urlDirectResult)
+              return {
+                assetId: urlDirectResult.assetId,
+                chainId: urlDirectResult.chainId,
+                value: decodedText,
+                amountCryptoPrecision: urlDirectResult.amountCryptoPrecision,
+              }
+            return parseAddress({ address: decodedText })
+          })()
 
           if (!maybeUrlResult.assetId) return
 
-          const parseAddressInputWithChainIdArgs = {
-            assetId: maybeUrlResult.assetId,
-            chainId: maybeUrlResult.chainId,
-            urlOrAddress: decodedText,
-          }
-          const { address } = await parseAddressInputWithChainId(parseAddressInputWithChainIdArgs)
+          const { address, vanityAddress } = urlDirectResult
+            ? {
+                address: urlDirectResult.maybeAddress,
+                vanityAddress: urlDirectResult.maybeAddress,
+              }
+            : await parseAddressInputWithChainId({
+                assetId: maybeUrlResult.assetId,
+                chainId: maybeUrlResult.chainId,
+                urlOrAddress: decodedText,
+              })
 
           methods.setValue(SendFormFields.AssetId, maybeUrlResult.assetId ?? '')
           methods.setValue(SendFormFields.Input, address)
-          methods.setValue(SendFormFields.AssetId, maybeUrlResult.assetId ?? '')
+          methods.setValue(SendFormFields.To, address)
+          methods.setValue(SendFormFields.VanityAddress, vanityAddress)
+
           if (maybeUrlResult.amountCryptoPrecision) {
             const marketData = selectMarketDataByAssetIdUserCurrency(
               store.getState(),
@@ -135,13 +168,24 @@ export const Form: React.FC<QrCodeFormProps> = ({ accountId }) => {
             )
           }
 
-          // We don't parse EIP-681 URLs because they're unsafe
-          // Some wallets may be smart, like Trust just showing an address as a QR code to avoid dangerously unsafe parameters
-          // Others might do dangerous tricks in the way they represent an asset, using various parameters to do so
-          // There's also the fact that we will assume the AssetId to be the native one of the first chain we managed to validate the address
-          // Which may not be the chain the user wants to send, or they may want to send a token - so we should always ask the user to select the asset
-          if (maybeUrlResult.assetId === ethAssetId) return navigate(SendRoutes.Select)
-          navigate(SendRoutes.Address)
+          const { chainNamespace } = fromAssetId(maybeUrlResult.assetId)
+          // i.e ERC-681 and Solana Pay for Solana, basically the exact same spec
+          const supportsErc681 =
+            chainNamespace === CHAIN_NAMESPACE.Evm || chainNamespace === CHAIN_NAMESPACE.Solana
+          // Most wallets do not specify target_address on purpose for ERC-20 or Solana token transfers, as it's inherently unsafe
+          // (although we have heuristics to make it safe)
+          // For the purpose of being spec compliant, we assume that if there was an `amount` field, that means native amount (which it should, according to the spec)
+          // And we then assume native asset transfer as a result - users can always change asset in the amount screen if that was wrong
+          // However, if not asset AND no amount are specific, we don't assume anything, and let em select the asset manually
+          const isAmbiguousTransfer =
+            supportsErc681 &&
+            !isToken(maybeUrlResult.assetId) &&
+            !maybeUrlResult.amountCryptoPrecision
+
+          if (isAmbiguousTransfer) {
+            return navigate(SendRoutes.Select)
+          }
+          return navigate(SendRoutes.AmountDetails, { state: { isFromQrCode: true } })
         } catch (e: any) {
           setAddressError(e.message)
         }
@@ -156,14 +200,17 @@ export const Form: React.FC<QrCodeFormProps> = ({ accountId }) => {
   )
 
   const addressElement = useMemo(() => <Address />, [])
-  const detailsElement = useMemo(() => <Details />, [])
+  const detailsElement = useMemo(() => <SendAmountDetails />, [])
   const qrCodeScannerElement = useMemo(
     () => (
       <QrCodeScanner onSuccess={handleQrSuccess} onBack={handleClose} addressError={addressError} />
     ),
     [handleClose, handleQrSuccess, addressError],
   )
-  const confirmElement = useMemo(() => <Confirm />, [])
+  const confirmElement = useMemo(
+    () => <Confirm handleSubmit={methods.handleSubmit(handleSubmit)} />,
+    [methods, handleSubmit],
+  )
   const statusElement = useMemo(() => <Status />, [])
 
   if (walletConnectDappUrl)
@@ -172,12 +219,16 @@ export const Form: React.FC<QrCodeFormProps> = ({ accountId }) => {
   return (
     <FormProvider {...methods}>
       {/* eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions */}
-      <form onSubmit={methods.handleSubmit(handleSubmit)} onKeyDown={checkKeyDown}>
+      <form
+        onSubmit={methods.handleSubmit(handleSubmit)}
+        onKeyDown={checkKeyDown}
+        style={formStyle}
+      >
         <AnimatePresence mode='wait' initial={false}>
           <Routes>
             <Route path={`${SendRoutes.Select}/*`} element={selectAssetRouterElement} />
             <Route path={SendRoutes.Address} element={addressElement} />
-            <Route path={SendRoutes.Details} element={detailsElement} />
+            <Route path={SendRoutes.AmountDetails} element={detailsElement} />
             <Route path={SendRoutes.Scan} element={qrCodeScannerElement} />
             <Route path={SendRoutes.Confirm} element={confirmElement} />
             <Route path={SendRoutes.Status} element={statusElement} />

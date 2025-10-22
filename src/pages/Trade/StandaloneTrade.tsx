@@ -3,8 +3,8 @@ import { useCallback, useEffect, useMemo, useRef } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { MemoryRouter, useNavigate } from 'react-router-dom'
 
+import { TradingErrorBoundary } from '@/components/ErrorBoundary'
 import { LimitOrderRoutePaths } from '@/components/MultiHopTrade/components/LimitOrder/types'
-import { ClaimRoutePaths } from '@/components/MultiHopTrade/components/TradeInput/components/Claim/types'
 import type { StandaloneTradeCardProps } from '@/components/MultiHopTrade/StandaloneMultiHopTrade'
 import { StandaloneMultiHopTrade } from '@/components/MultiHopTrade/StandaloneMultiHopTrade'
 import { TradeInputTab, TradeRoutePaths } from '@/components/MultiHopTrade/types'
@@ -113,9 +113,6 @@ const StandaloneTradeInner: React.FC<StandaloneTradeProps> = props => {
         case TradeInputTab.LimitOrder:
           navigate(LimitOrderRoutePaths.Input)
           break
-        case TradeInputTab.Claim:
-          navigate(ClaimRoutePaths.Select)
-          break
         default:
           break
       }
@@ -124,7 +121,11 @@ const StandaloneTradeInner: React.FC<StandaloneTradeProps> = props => {
   )
 
   const standaloneMultiHopTradeElement = useMemo(
-    () => <StandaloneMultiHopTrade {...props} onChangeTab={handleChangeTab} isStandalone />,
+    () => (
+      <TradingErrorBoundary>
+        <StandaloneMultiHopTrade {...props} onChangeTab={handleChangeTab} isStandalone />
+      </TradingErrorBoundary>
+    ),
     [props, handleChangeTab],
   )
 

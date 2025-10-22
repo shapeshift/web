@@ -13,6 +13,7 @@ import { SwapIcon } from '@/components/Icons/SwapIcon'
 import { FiatRampAction } from '@/components/Modals/FiatRamps/FiatRampsCommon'
 import { TradeRoutePaths } from '@/components/MultiHopTrade/types'
 import { Text } from '@/components/Text'
+import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { useModal } from '@/hooks/useModal/useModal'
 import { marketApi } from '@/state/slices/marketDataSlice/marketDataSlice'
 import { selectMarketDataByAssetIdUserCurrency } from '@/state/slices/selectors'
@@ -51,6 +52,7 @@ export const FoxTokenHeader = () => {
   const marketData = useAppSelector(state => selectMarketDataByAssetIdUserCurrency(state, assetId))
   const fiatRamps = useModal('fiatRamps')
   const navigate = useNavigate()
+  const isRfoxFoxEcosystemPageEnabled = useFeatureFlag('RfoxFoxEcosystemPage')
 
   const handleSwapClick = useCallback(() => navigate(TradeRoutePaths.Input), [navigate])
 
@@ -135,30 +137,25 @@ export const FoxTokenHeader = () => {
       </SimpleGrid>
 
       <Flex alignItems='center'>
-        <Button
-          mx={2}
-          variant='solid'
-          size='sm'
-          leftIcon={faCreditCardIcon}
-          onClick={handleBuyClick}
-        >
+        <Button mx={2} variant='solid' leftIcon={faCreditCardIcon} onClick={handleBuyClick}>
           <Text translation='assets.assetCards.assetActions.buy' />
         </Button>
 
-        <Button mx={2} variant='solid' size='sm' leftIcon={swapIcon} onClick={handleSwapClick}>
+        <Button mx={2} variant='solid' leftIcon={swapIcon} onClick={handleSwapClick}>
           <Text translation='common.trade' />
         </Button>
 
-        <Button
-          mx={2}
-          variant='solid'
-          size='sm'
-          colorScheme='blue'
-          leftIcon={rewardsIcon}
-          onClick={handleStakeClick}
-        >
-          <Text translation='defi.stake' />
-        </Button>
+        {!isRfoxFoxEcosystemPageEnabled && (
+          <Button
+            mx={2}
+            variant='solid'
+            colorScheme='blue'
+            leftIcon={rewardsIcon}
+            onClick={handleStakeClick}
+          >
+            <Text translation='defi.stake' />
+          </Button>
+        )}
       </Flex>
     </Flex>
   )

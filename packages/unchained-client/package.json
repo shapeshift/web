@@ -3,6 +3,7 @@
   "version": "10.14.4",
   "repository": "https://github.com/shapeshift/web",
   "license": "MIT",
+  "type": "module",
   "main": "dist/cjs/index.js",
   "module": "dist/esm/index.js",
   "types": "dist/esm/index.d.ts",
@@ -20,10 +21,13 @@
     "access": "public"
   },
   "scripts": {
-    "build": "yarn clean && yarn generate && yarn run -T tsc --build",
-    "clean": "rm -rf dist",
+    "build": "yarn clean && yarn generate && yarn run -T tsc --build && yarn postbuild",
+    "clean": "rm -rf dist src/generated",
     "dev": "yarn run -T tsc --build --watch",
-    "generate": "TS_POST_PROCESS_FILE=./generator/post_process.sh JAVA_OPTS='-Dlog.level=error' openapi-generator-cli generate"
+    "generate": "TS_POST_PROCESS_FILE=./generator/post_process.sh JAVA_OPTS='-Dlog.level=error' openapi-generator-cli generate",
+    "postbuild": "yarn postbuild:esm && yarn postbuild:cjs",
+    "postbuild:esm": "yarn run -T tsc-esm-fix --target=dist/esm --ext=.js",
+    "postbuild:cjs": "echo '{\"type\": \"commonjs\"}' > dist/cjs/package.json"
   },
   "dependencies": {
     "@shapeshiftoss/caip": "workspace:^",

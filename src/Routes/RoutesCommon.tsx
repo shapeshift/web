@@ -9,6 +9,7 @@ import { RouteCategory } from './helpers'
 
 import { ExploreIcon } from '@/components/Icons/Explore'
 import { FoxIcon } from '@/components/Icons/FoxIcon'
+import { FoxPageIcon } from '@/components/Icons/FoxPageIcon'
 import { HomeIcon } from '@/components/Icons/Home'
 import { PoolsIcon } from '@/components/Icons/Pools'
 import { RFOXIcon } from '@/components/Icons/RFOX'
@@ -16,19 +17,19 @@ import { SwapIcon } from '@/components/Icons/SwapIcon'
 import { TCYIcon } from '@/components/Icons/TCYIcon'
 import { WalletIcon } from '@/components/Icons/WalletIcon'
 import { LimitOrderRoutePaths } from '@/components/MultiHopTrade/components/LimitOrder/types'
-import { ClaimRoutePaths } from '@/components/MultiHopTrade/components/TradeInput/components/Claim/types'
 import { TradeRoutePaths } from '@/components/MultiHopTrade/types'
 import { getConfig } from '@/config'
 import { assetIdPaths } from '@/hooks/useRouteAssetId/useRouteAssetId'
 import { Accounts } from '@/pages/Accounts/Accounts'
 import { ExploreCategory } from '@/pages/Explore/ExploreCategory'
+import { FoxEcosystemPage } from '@/pages/Fox/FoxEcosystemPage'
 import { FoxPage } from '@/pages/Fox/FoxPage'
 import { History } from '@/pages/History/History'
 import { RFOX } from '@/pages/RFOX/RFOX'
 import { TCYNavIndicator } from '@/pages/TCY/components/TCYNavIndicator'
 import { TCY } from '@/pages/TCY/tcy'
-import { ClaimTab } from '@/pages/Trade/tabs/ClaimTab'
 import { LimitTab } from '@/pages/Trade/tabs/LimitTab'
+import { RampTab } from '@/pages/Trade/tabs/RampTab'
 import { TradeTab } from '@/pages/Trade/tabs/TradeTab'
 import { makeSuspenseful } from '@/utils/makeSuspenseful'
 
@@ -43,6 +44,8 @@ const Dashboard = makeSuspenseful(
       default: Dashboard,
     })),
   ),
+  {},
+  true,
 )
 
 const Asset = makeSuspenseful(
@@ -51,6 +54,8 @@ const Asset = makeSuspenseful(
       default: Asset,
     })),
   ),
+  {},
+  true,
 )
 
 const Assets = makeSuspenseful(
@@ -59,14 +64,18 @@ const Assets = makeSuspenseful(
       default: Assets,
     })),
   ),
+  {},
+  true,
 )
 
-const Buy = makeSuspenseful(
+const Ramp = makeSuspenseful(
   lazy(() =>
-    import('@/pages/Buy/Buy').then(({ Buy }) => ({
-      default: Buy,
+    import('@/pages/Ramp/Ramp').then(({ Ramp }) => ({
+      default: Ramp,
     })),
   ),
+  {},
+  true,
 )
 
 const Flags = makeSuspenseful(
@@ -75,6 +84,8 @@ const Flags = makeSuspenseful(
       default: Flags,
     })),
   ),
+  {},
+  true,
 )
 
 const Explore = makeSuspenseful(
@@ -83,6 +94,8 @@ const Explore = makeSuspenseful(
       default: Explore,
     })),
   ),
+  {},
+  true,
 )
 
 const LendingPage = makeSuspenseful(
@@ -91,6 +104,8 @@ const LendingPage = makeSuspenseful(
       default: LendingPage,
     })),
   ),
+  {},
+  true,
 )
 
 const PoolsPage = makeSuspenseful(
@@ -99,6 +114,8 @@ const PoolsPage = makeSuspenseful(
       default: PoolsPage,
     })),
   ),
+  {},
+  true,
 )
 
 const MarketsPage = makeSuspenseful(
@@ -107,6 +124,20 @@ const MarketsPage = makeSuspenseful(
       default: MarketsPage,
     })),
   ),
+  {},
+  true,
+)
+
+const WalletConnectDeepLink = makeSuspenseful(
+  lazy(() =>
+    import('@/pages/WalletConnectDeepLink/WalletConnectDeepLink').then(
+      ({ WalletConnectDeepLink }) => ({
+        default: WalletConnectDeepLink,
+      }),
+    ),
+  ),
+  {},
+  true,
 )
 
 /**
@@ -162,13 +193,13 @@ export const routes: Route[] = [
   {
     path: '/trade/*',
     label: 'navBar.trade',
-    shortLabel: 'navBar.tradeShort',
+    shortLabel: 'common.trade',
     icon: <SwapIcon />,
     mobileNav: true,
     priority: 2,
     main: TradeTab,
     category: RouteCategory.Featured,
-    relatedPaths: ['/trade', '/limit', '/claim'],
+    relatedPaths: ['/trade', '/limit'],
     routes: [
       {
         path: TRADE_ROUTE_ASSET_SPECIFIC,
@@ -208,19 +239,47 @@ export const routes: Route[] = [
     disable: !getConfig().VITE_FEATURE_MARKETS,
   },
   {
-    path: '/buy-crypto',
+    path: '/ramp/*',
     label: 'navBar.buyCrypto',
     shortLabel: 'navBar.buyCryptoShort',
     icon: <FaCreditCard />,
-    main: Buy,
+    main: Ramp,
     category: RouteCategory.Featured,
     mobileNav: false,
     priority: 4,
-    routes: assetIdPaths.map(assetIdPath => ({
-      path: assetIdPath,
-      main: Buy,
-      hide: true,
-    })),
+    routes: [
+      {
+        path: `trade/*`,
+        main: RampTab,
+        hide: true,
+      },
+      {
+        path: '/ramp/buy/*',
+        label: 'fiatRamps.buy',
+        main: Ramp,
+        hide: true,
+      },
+      {
+        path: '/ramp/sell/*',
+        label: 'fiatRamps.sell',
+        main: Ramp,
+        hide: true,
+      },
+      ...assetIdPaths.flatMap(assetIdPath => [
+        {
+          path: `/ramp/buy${assetIdPath}`,
+          label: 'fiatRamps.buy',
+          main: Ramp,
+          hide: true,
+        },
+        {
+          path: `/ramp/sell${assetIdPath}`,
+          label: 'fiatRamps.sell',
+          main: Ramp,
+          hide: true,
+        },
+      ]),
+    ],
   },
   {
     path: '/explore',
@@ -251,7 +310,7 @@ export const routes: Route[] = [
     priority: 1,
     main: RFOX,
     category: RouteCategory.Fox,
-    disable: !getConfig().VITE_FEATURE_RFOX,
+    disable: !getConfig().VITE_FEATURE_RFOX || getConfig().VITE_FEATURE_RFOX_FOX_ECOSYSTEM_PAGE,
   },
   {
     path: '/fox',
@@ -261,7 +320,16 @@ export const routes: Route[] = [
     category: RouteCategory.Fox,
     priority: 6,
     mobileNav: false,
-    disable: !getConfig().VITE_FEATURE_FOX_PAGE,
+    disable: !getConfig().VITE_FEATURE_FOX_PAGE || getConfig().VITE_FEATURE_RFOX_FOX_ECOSYSTEM_PAGE,
+  },
+  {
+    path: '/fox-ecosystem/*',
+    label: 'navBar.foxEcosystem',
+    icon: <FoxPageIcon />,
+    main: FoxEcosystemPage,
+    priority: 6,
+    mobileNav: false,
+    disable: !getConfig().VITE_FEATURE_RFOX_FOX_ECOSYSTEM_PAGE,
   },
   {
     path: '/tcy/*',
@@ -311,6 +379,11 @@ export const routes: Route[] = [
     main: Flags,
   },
   {
+    path: '/wc',
+    main: WalletConnectDeepLink,
+    hide: true,
+  },
+  {
     path: '/limit/*',
     label: '',
     hideDesktop: true,
@@ -339,26 +412,6 @@ export const routes: Route[] = [
       {
         path: LimitOrderRoutePaths.Orders,
         main: LimitTab,
-        hide: true,
-      },
-    ],
-  },
-  {
-    path: '/claim/*',
-    label: '',
-    hideDesktop: true,
-    mobileNav: false,
-    priority: 4,
-    main: ClaimTab,
-    routes: [
-      {
-        path: ClaimRoutePaths.Confirm,
-        main: ClaimTab,
-        hide: true,
-      },
-      {
-        path: ClaimRoutePaths.Status,
-        main: ClaimTab,
         hide: true,
       },
     ],

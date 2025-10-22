@@ -1,4 +1,3 @@
-import { useToast } from '@chakra-ui/react'
 import { ChainAdapterError } from '@shapeshiftoss/chain-adapters'
 import { SolanaLogsError } from '@shapeshiftoss/swapper'
 import camelCase from 'lodash/camelCase'
@@ -8,11 +7,12 @@ import { useTranslate } from 'react-polyglot'
 
 import { InlineCopyButton } from '@/components/InlineCopyButton'
 import { RawText } from '@/components/Text'
+import { useNotificationToast } from '@/hooks/useNotificationToast'
 
 const defaultErrorMsgTranslation = 'common.generalError'
 
 export const useErrorToast = () => {
-  const toast = useToast()
+  const toast = useNotificationToast()
   const translate = useTranslate()
 
   const showErrorToast = useCallback(
@@ -21,25 +21,21 @@ export const useErrorToast = () => {
       errorMsgTranslation?: string,
       errorMsgTranslationOptions?: InterpolationOptions,
     ) => {
-      const translationArgs = (() => {
+      const description = (() => {
         if (error instanceof SolanaLogsError) {
-          return [`trade.errors.${camelCase(error.name)}`]
+          return translate(`trade.errors.${camelCase(error.name)}`)
         }
 
-        // Chain adapter errors take priority
         if (error instanceof ChainAdapterError) {
-          return [error.metadata.translation, error.metadata.options]
+          return translate(error.metadata.translation, error.metadata.options)
         }
 
-        // If we specified an error translation, use it
         if (errorMsgTranslation) {
-          return [errorMsgTranslation, errorMsgTranslationOptions]
+          return translate(errorMsgTranslation, errorMsgTranslationOptions)
         }
 
-        return [defaultErrorMsgTranslation]
+        return translate(defaultErrorMsgTranslation)
       })()
-
-      const description = translate(...translationArgs)
 
       console.error(error)
 
@@ -53,7 +49,6 @@ export const useErrorToast = () => {
         status: 'error',
         duration: 9000,
         isClosable: true,
-        position: 'top-right',
       })
     },
     [toast, translate],

@@ -6,7 +6,7 @@ import { abiApi } from './apis/abi/abiApi'
 import { fiatRampApi } from './apis/fiatRamps/fiatRamps'
 import { foxyApi } from './apis/foxy/foxyApi'
 import { limitOrderApi } from './apis/limit-orders/limitOrderApi'
-import { portals, portalsApi } from './apis/portals/portalsApi'
+import { portalsApi } from './apis/portals/portalsApi'
 import type { SnapshotState } from './apis/snapshot/snapshot'
 import { snapshot, snapshotApi } from './apis/snapshot/snapshot'
 import { swapperApi } from './apis/swapper/swapperApi'
@@ -45,6 +45,7 @@ import type { TxHistory } from './slices/txHistorySlice/txHistorySlice'
 import { txHistory, txHistoryApi } from './slices/txHistorySlice/txHistorySlice'
 
 import { tradeQuoteSlice } from '@/state/slices/tradeQuoteSlice/tradeQuoteSlice'
+import { tradeRampInput } from '@/state/slices/tradeRampInputSlice/tradeRampInputSlice'
 
 export const slices = {
   assets,
@@ -55,6 +56,7 @@ export const slices = {
   opportunities,
   tradeInput,
   limitOrderInput,
+  tradeRampInput,
   tradeQuote: tradeQuoteSlice,
   limitOrder: limitOrderSlice,
   snapshot,
@@ -143,6 +145,7 @@ export const sliceReducers = {
   preferences: persistReducer<Preferences>(preferencesPersistConfig, preferences.reducer),
   tradeInput: tradeInput.reducer,
   limitOrderInput: limitOrderInput.reducer,
+  tradeRampInput: tradeRampInput.reducer,
   opportunities: persistReducer<OpportunitiesState>(
     opportunitiesPersistConfig,
     opportunities.reducer,
@@ -167,7 +170,6 @@ export const apiSlices = {
   foxyApi,
   fiatRampApi,
   snapshotApi,
-  portals,
   portalsApi,
   opportunitiesApi,
   abiApi,
@@ -183,7 +185,6 @@ export const apiReducers = {
   [foxyApi.reducerPath]: foxyApi.reducer,
   [fiatRampApi.reducerPath]: fiatRampApi.reducer,
   [snapshotApi.reducerPath]: snapshotApi.reducer,
-  [portals.reducerPath]: portals.reducer,
   [portalsApi.reducerPath]: portalsApi.reducer,
   [opportunitiesApi.reducerPath]: opportunitiesApi.reducer,
   [abiApi.reducerPath]: abiApi.reducer,

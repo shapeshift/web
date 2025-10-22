@@ -24,16 +24,20 @@ export const Tags = () => {
 
   const { tag: tagParam } = useParams<{ tag?: string }>()
 
-  const buttonTextColor = useColorModeValue('white', 'white')
   const activeBgColor = useColorModeValue('black', 'white')
   const activeTextColor = useColorModeValue('white', 'black')
   const navigate = useNavigate()
 
   const handleClick = useCallback(
     (tag: string) => {
-      navigate(`/explore/category/${MarketsCategories.OneClickDefi}/${tag}`)
+      // If the clicked tag is already selected, go back to explore, effectively "unselecting" it
+      if (tagParam === tag) {
+        navigate('/explore')
+      } else {
+        navigate(`/explore/category/${MarketsCategories.OneClickDefi}/${tag}`)
+      }
     },
-    [navigate],
+    [navigate, tagParam],
   )
 
   const activeStyle = useMemo(() => {
@@ -99,7 +103,7 @@ export const Tags = () => {
             px={4}
             py={2}
             bg={tagParam === tag ? activeBgColor : 'background.surface.raised.base'}
-            color={tagParam === tag ? activeTextColor : buttonTextColor}
+            color={tagParam === tag ? activeTextColor : 'text.base'}
             _hover={activeStyle}
             _active={activeStyle}
             _focus={activeStyle}

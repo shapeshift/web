@@ -8,7 +8,7 @@ import { dirname, resolve } from 'path'
 import * as ssri from 'ssri'
 import { fileURLToPath } from 'url'
 import type { PluginOption } from 'vite'
-import { defineConfig } from 'vite'
+import { defineConfig, loadEnv } from 'vite'
 import { analyzer } from 'vite-bundle-analyzer'
 import checker from 'vite-plugin-checker'
 import { nodePolyfills } from 'vite-plugin-node-polyfills'
@@ -66,6 +66,8 @@ const defineGlobalThis: PluginOption = {
 
 // eslint-disable-next-line import/no-default-export
 export default defineConfig(({ mode }) => {
+  const env = loadEnv(mode, process.cwd(), '')
+
   return {
     plugins: [
       mode === 'development' && !process.env.DEPLOY && defineGlobalThis,
@@ -99,7 +101,11 @@ export default defineConfig(({ mode }) => {
       ...Object.fromEntries(
         Object.entries(publicFilesEnvVars).map(([key, value]) => [`process.env.${key}`, value]),
       ),
-      'process.env': 'import.meta.env',
+      ...Object.fromEntries(
+        Object.entries(env)
+          .filter(([key]) => key.startsWith('VITE_'))
+          .map(([key, value]) => [`process.env.${key}`, JSON.stringify(value)]),
+      ),
     },
     server: {
       port: 3000,
@@ -127,18 +133,24 @@ export default defineConfig(({ mode }) => {
       port: 3000,
       headers,
     },
+    worker: {
+      format: 'es',
+    },
     resolve: {
       alias: {
         '@': resolve(__dirname, './src'),
         'ethers/lib/utils': 'ethers5/lib/utils.js',
         'ethers/lib/utils.js': 'ethers5/lib/utils.js',
         'dayjs/locale': resolve(__dirname, 'node_modules/dayjs/locale'),
+        '@shapeshiftoss/caip': resolve(__dirname, './packages/caip/src'),
+        '@shapeshiftoss/types': resolve(__dirname, './packages/types/src'),
       },
     },
     build: {
       target: 'esnext',
       commonjsOptions: {
         transformMixedEsModules: true,
+        exclude: ['@shapeshiftoss/caip', '@shapeshiftoss/types'],
       },
       chunkSizeWarningLimit: 2000,
       rollupOptions: {

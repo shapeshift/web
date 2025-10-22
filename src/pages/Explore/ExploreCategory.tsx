@@ -17,7 +17,6 @@ import { MarketsCategories } from '../Markets/constants'
 import { CATEGORY_TO_QUERY_HOOK } from '../Markets/hooks/useCoingeckoData'
 import { usePortalsAssetsQuery } from '../Markets/hooks/usePortalsAssetsQuery'
 import { useRows } from '../Markets/hooks/useRows'
-import { AssetSearchRow } from './components/AssetSearchRow'
 import { Tags } from './components/Tags'
 
 import { AssetListFiltersDialog } from '@/components/AssetListFiltersDialog/AssetListFiltersDialog'
@@ -27,7 +26,9 @@ import { Main } from '@/components/Layout/Main'
 import { SEO } from '@/components/Layout/Seo'
 import { OrderDirection } from '@/components/OrderDropdown/types'
 import { SortOptionsKeys } from '@/components/SortDropdown/types'
+import { useModal } from '@/hooks/useModal/useModal'
 import { isSome } from '@/lib/utils'
+import { PortalAssetRow } from '@/pages/Explore/components/PortalAssetRow'
 import { marketData } from '@/state/slices/marketDataSlice/marketDataSlice'
 import { selectAssets } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
@@ -41,11 +42,14 @@ export const ExploreCategory = () => {
   const assetsById = useAppSelector(selectAssets)
   const marketDataUsd = useAppSelector(marketData.selectors.selectMarketDataUsd)
   const [isFiltersDialogOpen, setIsFiltersDialogOpen] = useState(false)
-  const [selectedSort, setSelectedSort] = useState<SortOptionsKeys>(SortOptionsKeys.Volume)
+  const [selectedSort, setSelectedSort] = useState<SortOptionsKeys>(
+    category === MarketsCategories.MarketCap ? SortOptionsKeys.MarketCap : SortOptionsKeys.Volume,
+  )
   const [selectedOrder, setSelectedOrder] = useState<OrderDirection>(OrderDirection.Descending)
   const [selectedChainId, setSelectedChainId] = useState<ChainId | 'all'>('all')
 
   const tag = useMemo(() => (tagParam ? `#${tagParam}` : undefined), [tagParam])
+  const assetActionsDrawer = useModal('assetActionsDrawer')
 
   const { register, watch, setValue } = useForm<{ search: string }>({
     mode: 'onChange',
@@ -71,21 +75,15 @@ export const ExploreCategory = () => {
 
   const rows = useRows({ limit: 250 })
 
-  const {
-    data: categoryQueryData,
-    isLoading: isCategoryQueryDataLoading,
-    isFetching: isCategoryQueryDataFetching,
-  } = categoryHook({
+  const { data: categoryQueryData, isLoading: isCategoryQueryDataLoading } = categoryHook({
     enabled: category !== MarketsCategories.OneClickDefi,
     orderBy: selectedOrder,
     sortBy: selectedSort,
+    page: category === MarketsCategories.MarketCap ? 1 : undefined,
+    limit: category === MarketsCategories.MarketCap ? 250 : undefined,
   })
 
-  const {
-    data: portalsAssets,
-    isLoading: isPortalsAssetsLoading,
-    isFetching: isPortalsAssetsFetching,
-  } = usePortalsAssetsQuery({
+  const { data: portalsAssets, isLoading: isPortalsAssetsLoading } = usePortalsAssetsQuery({
     enabled: true,
     chainIds:
       category && selectedChainId === 'all' ? rows[category].supportedChainIds : [selectedChainId],
@@ -217,6 +215,14 @@ export const ExploreCategory = () => {
     setSelectedChainId(chainId)
   }, [])
 
+  const handleAssetLongPress = useCallback(
+    (asset: Asset) => {
+      const { assetId } = asset
+      assetActionsDrawer.open({ assetId })
+    },
+    [assetActionsDrawer],
+  )
+
   if (!category) return null
 
   return (
@@ -245,7 +251,7 @@ export const ExploreCategory = () => {
           flexDir='column'
           flex='1 1 auto'
           height={
-            'calc(100vh - var(--mobile-nav-offset) - env(safe-area-inset-bottom) - var(--safe-area-inset-bottom) - 98px - 1rem)'
+            'calc(100vh - var(--mobile-nav-offset) - 80px - var(--safe-area-inset-top) - env(safe-area-inset-top))'
           }
         >
           <Box as='form' flex='0 0 auto' mb={3} visibility='visible' onSubmit={handleSubmit}>
@@ -265,14 +271,16 @@ export const ExploreCategory = () => {
             assets={filteredAssets}
             handleClick={handleAssetClick}
             disableUnsupported={false}
-            rowComponent={AssetSearchRow}
             portalsAssets={portalsAssets}
             isLoading={
-              isPortalsAssetsLoading ||
-              isPortalsAssetsFetching ||
-              isCategoryQueryDataLoading ||
-              isCategoryQueryDataFetching
+              (category === MarketsCategories.OneClickDefi && isPortalsAssetsLoading) ||
+              isCategoryQueryDataLoading
             }
+            height='100vh'
+            showPrice
+            showRelatedAssets
+            handleLongPress={handleAssetLongPress}
+            rowComponent={category === MarketsCategories.OneClickDefi ? PortalAssetRow : undefined}
           />
         </Box>
       </Main>

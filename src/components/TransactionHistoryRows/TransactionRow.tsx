@@ -90,6 +90,7 @@ export const TransactionRowFromTxDetails = forwardRef<TransactionRowFromTxDetail
     ref,
   ) => {
     const [isOpen, setIsOpen] = useState(initOpen)
+
     const toggleOpen = useCallback(
       () => (disableCollapse ? undefined : setIsOpen(!isOpen)),
       [disableCollapse, isOpen],
@@ -98,18 +99,18 @@ export const TransactionRowFromTxDetails = forwardRef<TransactionRowFromTxDetail
     const borderColor = useColorModeValue('blackAlpha.100', 'whiteAlpha.100')
 
     const backgroundProps = useMemo(
-      () => ({ bg: !disableCollapse ? 'background.surface.hover' : undefined }),
+      () => ({ bg: !disableCollapse ? 'border.base' : undefined }),
       [disableCollapse],
     )
 
     return (
       <Box
         width='full'
-        rounded='lg'
+        rounded='2xl'
         _hover={backgroundProps}
         _selected={backgroundProps}
         cursor={!disableCollapse ? 'pointer' : undefined}
-        bg={isOpen ? 'background.surface.hover' : 'transparent'}
+        bg={isOpen ? 'border.base' : 'transparent'}
         borderColor={isOpen ? borderColor : 'transparent'}
         borderWidth={1}
         ref={ref}

@@ -14,8 +14,9 @@ import { useNavigate } from 'react-router-dom'
 import { AssetList } from './components/AssetList'
 
 import { ChainList } from '@/components/TradeAssetSearch/Chains/ChainList'
-import { filterAssetsBySearchTerm } from '@/components/TradeAssetSearch/helpers/filterAssetsBySearchTerm/filterAssetsBySearchTerm'
+import { searchAssets } from '@/lib/assetSearch'
 import { sortChainIdsByDisplayName } from '@/lib/utils'
+import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
 import { selectWalletConnectedChainIds } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
@@ -26,26 +27,31 @@ export type AssetSearchProps = {
   onAssetClick?: (asset: Asset) => void
   formProps?: BoxProps
   allowWalletUnsupportedAssets?: boolean
+  showRelatedAssets?: boolean
 }
 export const AssetSearch: FC<AssetSearchProps> = ({
   assets,
   onAssetClick,
   formProps,
   allowWalletUnsupportedAssets,
+  showRelatedAssets,
 }) => {
   const translate = useTranslate()
   const navigate = useNavigate()
   const [activeChain, setActiveChain] = useState<ChainId | 'All'>('All')
   const walletConnectedChainIds = useAppSelector(selectWalletConnectedChainIds)
+  const spamMarkedAssetIds = useAppSelector(preferences.selectors.selectSpamMarkedAssetIds)
 
   const supportedAssets = useMemo(() => {
-    const fungibleAssets = assets.filter(asset => !isNft(asset.assetId))
+    const spamAssetIdsSet = new Set(spamMarkedAssetIds)
+    const fungibleAssets = assets.filter(
+      asset => !isNft(asset.assetId) && !spamAssetIdsSet.has(asset.assetId),
+    )
     if (allowWalletUnsupportedAssets) {
       return fungibleAssets
     }
-
     return fungibleAssets.filter(asset => walletConnectedChainIds.includes(asset.chainId))
-  }, [allowWalletUnsupportedAssets, assets, walletConnectedChainIds])
+  }, [allowWalletUnsupportedAssets, assets, walletConnectedChainIds, spamMarkedAssetIds])
 
   /**
    * assets filtered by selected chain ids
@@ -79,9 +85,7 @@ export const AssetSearch: FC<AssetSearchProps> = ({
   const searching = useMemo(() => searchString.length > 0, [searchString])
   useEffect(() => {
     if (filteredAssets) {
-      setSearchTermAssets(
-        searching ? filterAssetsBySearchTerm(searchString, filteredAssets) : filteredAssets,
-      )
+      setSearchTermAssets(searching ? searchAssets(searchString, filteredAssets) : filteredAssets)
     }
   }, [searchString, searching, filteredAssets])
   const listAssets = searching ? searchTermAssets : filteredAssets
@@ -136,6 +140,7 @@ export const AssetSearch: FC<AssetSearchProps> = ({
           assets={listAssets}
           handleClick={handleClick}
           disableUnsupported={!allowWalletUnsupportedAssets}
+          showRelatedAssets={showRelatedAssets}
         />
       </Box>
     </>

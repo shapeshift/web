@@ -17,12 +17,14 @@ import { LanguageTypeEnum } from '@/constants/LanguageTypeEnum'
 import { usePlugins } from '@/context/PluginProvider/PluginProvider'
 import { useActionCenterSubscribers } from '@/hooks/useActionCenterSubscribers/useActionCenterSubscribers'
 import { useIsSnapInstalled } from '@/hooks/useIsSnapInstalled/useIsSnapInstalled'
+import { useLedgerConnectionState } from '@/hooks/useLedgerConnectionState'
 import { useMixpanelPortfolioTracking } from '@/hooks/useMixpanelPortfolioTracking/useMixpanelPortfolioTracking'
 import { useModal } from '@/hooks/useModal/useModal'
 import { useRouteAssetId } from '@/hooks/useRouteAssetId/useRouteAssetId'
 import { useTransactionsSubscriber } from '@/hooks/useTransactionsSubscriber'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { walletSupportsChain } from '@/hooks/useWalletSupportsChain/useWalletSupportsChain'
+import { useGetFiatRampsQuery } from '@/state/apis/fiatRamps/fiatRamps'
 import {
   marketApi,
   useFindAllMarketDataQuery,
@@ -70,6 +72,8 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   useTransactionsSubscriber()
   useActionCenterSubscribers()
   useSnapStatusHandler()
+  // Handle Ledger device connection state and wallet disconnection
+  useLedgerConnectionState()
 
   useManageUser()
 
@@ -109,6 +113,8 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
 
   useDiscoverAccounts()
   usePortfolioFetch()
+
+  useGetFiatRampsQuery()
 
   const selectedLocale = useAppSelector(preferences.selectors.selectSelectedLocale)
   useEffect(() => {
@@ -162,7 +168,8 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
 
     return portfolioAssetIdsDelta
   }, [
-    findAllQueryData,
+    findAllQueryData.status,
+    findAllQueryData.currentData,
     isConnected,
     isLoadingLocalWallet,
     modal,

@@ -201,6 +201,11 @@ export const selectConfirmedQuote: Selector<ReduxState, TradeQuote | TradeRate |
     return tradeQuoteState.confirmedQuote
   })
 
+export const selectIsQuickBuy: Selector<ReduxState, boolean> = createSelector(
+  tradeQuoteSlice.selectSlice,
+  tradeQuoteState => tradeQuoteState.isQuickBuy,
+)
+
 export const selectActiveQuoteMetaOrDefault: Selector<
   ReduxState,
   { swapperName: SwapperName; identifier: string } | undefined

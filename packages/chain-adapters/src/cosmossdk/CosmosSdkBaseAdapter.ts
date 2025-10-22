@@ -1,6 +1,11 @@
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import { fromChainId, generateAssetIdFromCosmosSdkDenom } from '@shapeshiftoss/caip'
-import type { Bip44Params, CosmosSdkChainId, RootBip44Params } from '@shapeshiftoss/types'
+import type {
+  Bip44Params,
+  CosmosSdkChainId,
+  RootBip44Params,
+  ThorMayaChainId,
+} from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import * as unchained from '@shapeshiftoss/unchained-client'
 import { isSome } from '@shapeshiftoss/utils'
@@ -77,6 +82,15 @@ export const cosmosSdkChainIds = [
   KnownChainIds.ThorchainMainnet,
   KnownChainIds.MayachainMainnet,
 ] as const
+
+const thorMayaChainIds = [KnownChainIds.ThorchainMainnet, KnownChainIds.MayachainMainnet] as const
+
+// is any of THORChain or THOR fork (only MAYAChain at the time of writing)
+export const isThorMayaChainId = (
+  maybeThorMayaChainId: string | ChainId,
+): maybeThorMayaChainId is ThorMayaChainId => {
+  return thorMayaChainIds.includes(maybeThorMayaChainId as ThorMayaChainId)
+}
 
 export type CosmosSdkChainAdapter = CosmosSdkBaseAdapter<CosmosSdkChainId>
 
@@ -164,10 +178,16 @@ export abstract class CosmosSdkBaseAdapter<T extends CosmosSdkChainId> implement
         ) {
           const data = await this.providers.http.getAccount({ pubkey })
 
-          const assets = data.assets.map<CosmosSDKToken>(asset => ({
-            amount: asset.amount,
-            assetId: generateAssetIdFromCosmosSdkDenom(asset.denom),
-          }))
+          const assets = data.assets.reduce<CosmosSDKToken[]>((acc, asset) => {
+            try {
+              acc.push({
+                amount: asset.amount,
+                assetId: generateAssetIdFromCosmosSdkDenom(asset.denom),
+              })
+            } catch {}
+
+            return acc
+          }, [])
 
           return {
             ...data,
@@ -217,12 +237,16 @@ export abstract class CosmosSdkBaseAdapter<T extends CosmosSdkChainId> implement
             })),
         }))
 
-        const assets = data.assets
-          .filter(asset => !asset.denom.includes('ibc'))
-          .map<CosmosSDKToken>(asset => ({
-            amount: asset.amount,
-            assetId: generateAssetIdFromCosmosSdkDenom(asset.denom),
-          }))
+        const assets = data.assets.reduce<CosmosSDKToken[]>((acc, asset) => {
+          try {
+            acc.push({
+              amount: asset.amount,
+              assetId: generateAssetIdFromCosmosSdkDenom(asset.denom),
+            })
+          } catch {}
+
+          return acc
+        }, [])
 
         return { ...data, delegations, redelegations, undelegations, rewards, assets }
       })()

@@ -37,7 +37,6 @@ export type TabItem = {
 }
 
 const flexDirTabs: ResponsiveValue<Property.FlexDirection> = { base: 'column', md: 'row' }
-const navItemPadding = { base: 6, '2xl': 8 }
 const navCss = {
   '&::-webkit-scrollbar': {
     display: 'none',
@@ -133,11 +132,9 @@ export const DashboardHeader = memo(() => {
       >
         <Container
           ref={containerRef}
-          maxWidth='container.4xl'
           className='navbar-scroller'
           display='flex'
           gap={8}
-          px={navItemPadding}
           overflowY='auto'
           css={navCss}
         >
@@ -190,7 +187,6 @@ export const DashboardHeader = memo(() => {
           zIndex='banner'
           bg={y > TRIGGER_BACKGROUND_HEIGHT_Y ? 'background.surface.base' : 'transparent'}
           pb={4}
-          maxWidth='100%'
         >
           <MobileUserHeader
             onSearchOpen={onSearchOpen}

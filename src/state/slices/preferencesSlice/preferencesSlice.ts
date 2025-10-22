@@ -59,7 +59,6 @@ export type FeatureFlags = {
   RFOX: boolean
   RFOX_LP: boolean
   CustomTokenImport: boolean
-  ArbitrumBridgeClaims: boolean
   UsdtApprovalReset: boolean
   RunePool: boolean
   RunePoolDeposit: boolean
@@ -87,7 +86,11 @@ export type FeatureFlags = {
   MayaSwap: boolean
   ButterSwap: boolean
   LazyTxHistory: boolean
+  RfoxFoxEcosystemPage: boolean
+  LedgerReadOnly: boolean
   QuickBuy: boolean
+  NewWalletManager: boolean
+  SwapperFiatRamps: boolean
 }
 
 export type Flag = keyof FeatureFlags
@@ -115,7 +118,7 @@ export enum QuoteDisplayOption {
 export type Preferences = {
   featureFlags: FeatureFlags
   selectedLocale: string
-  balanceThreshold: string
+  balanceThresholdUserCurrency: string
   selectedCurrency: SupportedFiatCurrencies
   currencyFormat: CurrencyFormats
   chartTimeframe: HistoryTimeframe
@@ -180,7 +183,6 @@ const initialState: Preferences = {
     RFOX: getConfig().VITE_FEATURE_RFOX,
     RFOX_LP: getConfig().VITE_FEATURE_RFOX_LP,
     CustomTokenImport: getConfig().VITE_FEATURE_CUSTOM_TOKEN_IMPORT,
-    ArbitrumBridgeClaims: getConfig().VITE_FEATURE_ARBITRUM_BRIDGE_CLAIMS,
     UsdtApprovalReset: getConfig().VITE_FEATURE_USDT_APPROVAL_RESET,
     RunePool: getConfig().VITE_FEATURE_RUNEPOOL,
     RunePoolDeposit: getConfig().VITE_FEATURE_RUNEPOOL_DEPOSIT,
@@ -208,11 +210,15 @@ const initialState: Preferences = {
     MayaSwap: getConfig().VITE_FEATURE_MAYA_SWAP,
     ButterSwap: getConfig().VITE_FEATURE_BUTTERSWAP,
     LazyTxHistory: getConfig().VITE_FEATURE_TX_HISTORY_BYE_BYE,
+    RfoxFoxEcosystemPage: getConfig().VITE_FEATURE_RFOX_FOX_ECOSYSTEM_PAGE,
+    LedgerReadOnly: getConfig().VITE_FEATURE_LEDGER_READ_ONLY,
     QuickBuy: getConfig().VITE_FEATURE_QUICK_BUY,
+    NewWalletManager: getConfig().VITE_FEATURE_NEW_WALLET_MANAGER,
+    SwapperFiatRamps: getConfig().VITE_FEATURE_SWAPPER_FIAT_RAMPS,
   },
   selectedLocale: simpleLocale(),
   hasWalletSeenTcyClaimAlert: {},
-  balanceThreshold: '0',
+  balanceThresholdUserCurrency: '0',
   selectedCurrency: 'USD',
   currencyFormat: CurrencyFormats.DotDecimalCommaThousands,
   chartTimeframe: DEFAULT_HISTORY_TIMEFRAME,
@@ -257,7 +263,7 @@ export const preferences = createSlice({
 
     setBalanceThreshold: create.reducer(
       (state, { payload }: { payload: { threshold: string } }) => {
-        state.balanceThreshold = payload.threshold
+        state.balanceThresholdUserCurrency = payload.threshold
       },
     ),
     setCurrencyFormat: create.reducer(
@@ -351,7 +357,7 @@ export const preferences = createSlice({
     selectSpamMarkedAssetIds: state => state.spamMarkedAssets,
     selectSelectedLocale: state => state.selectedLocale,
     selectSelectedCurrency: state => state.selectedCurrency,
-    selectBalanceThreshold: state => state.balanceThreshold,
+    selectBalanceThresholdUserCurrency: state => state.balanceThresholdUserCurrency,
     selectCurrencyFormat: state => state.currencyFormat,
     selectChartTimeframe: state => state.chartTimeframe,
     selectShowWelcomeModal: state => state.showWelcomeModal,

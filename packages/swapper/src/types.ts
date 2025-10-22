@@ -400,7 +400,6 @@ export type Swap = {
   expectedBuyAmountCryptoBaseUnit: string
   sellAmountCryptoPrecision: string
   expectedBuyAmountCryptoPrecision: string
-  actualBuyAmountCryptoPrecision?: string | undefined
   txLink?: string
   metadata: SwapperSpecificMetadata
   isStreaming?: boolean
@@ -614,6 +613,7 @@ export type QuoteResult = Result<TradeQuote[], SwapErrorRight> & {
 
 export type RateResult = Result<TradeRate[], SwapErrorRight> & {
   swapperName: SwapperName
+  fallback?: Promise<Result<TradeRate[], SwapErrorRight>>
 }
 
 export type CommonTradeExecutionInput = {

@@ -118,8 +118,8 @@ export const WalletConnectDirectButton = () => {
   const renderWalletIcon = (wallet: WalletConfig) => {
     if (wallet.IconComponent) {
       return (
-        <Flex boxSize='64px' align='center' justify='center'>
-          <wallet.IconComponent boxSize='64px' />
+        <Flex boxSize='64px' align='center' justify='center' bg='white' borderRadius='lg' p={2}>
+          <wallet.IconComponent boxSize='48px' />
         </Flex>
       )
     }

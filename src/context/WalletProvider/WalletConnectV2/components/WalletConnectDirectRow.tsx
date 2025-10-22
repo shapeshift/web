@@ -1,9 +1,8 @@
 import { Button, Circle, Flex, Image, Spinner, Text } from '@chakra-ui/react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { isMobile } from 'react-device-detect'
 
 import type { WalletConfig, WalletConnectWalletId } from '../constants'
-import { CONNECTION_TIMEOUT_MS, POLLING_INTERVAL_MS, WALLET_CONFIGS } from '../constants'
+import { WALLET_CONFIGS } from '../constants'
 import { useDirectWalletConnect } from '../useDirectConnect'
 
 import { WalletConnectCurrentColorIcon } from '@/components/Icons/WalletConnectIcon'
@@ -65,42 +64,14 @@ const DirectWalletButton = ({ wallet, isLoading, onConnect }: DirectWalletButton
 }
 
 export const WalletConnectDirectRow = () => {
-  const { connectToWallet, error } = useDirectWalletConnect()
-  const { state, dispatch } = useWallet()
+  const { connect, error } = useDirectWalletConnect()
+  const { dispatch } = useWallet()
   const [loadingWallet, setLoadingWallet] = useState<WalletConnectWalletId | null>(null)
-  const [mobilePending, setMobilePending] = useState(false)
-
-  useEffect(() => {
-    if (isMobile && mobilePending && loadingWallet) {
-      const checkInterval = setInterval(() => {
-        const provider = (window as any).walletConnectProvider
-
-        if ((provider?.session && provider?.accounts?.length > 0) || state.isConnected) {
-          clearInterval(checkInterval)
-          setMobilePending(false)
-          setLoadingWallet(null)
-          dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
-        }
-      }, POLLING_INTERVAL_MS)
-
-      const timeout = setTimeout(() => {
-        clearInterval(checkInterval)
-        setMobilePending(false)
-        setLoadingWallet(null)
-      }, CONNECTION_TIMEOUT_MS)
-
-      return () => {
-        clearInterval(checkInterval)
-        clearTimeout(timeout)
-      }
-    }
-  }, [mobilePending, state.isConnected, loadingWallet, dispatch])
 
   useEffect(() => {
     if (error) {
       console.error('Direct connection error:', error)
       setLoadingWallet(null)
-      setMobilePending(false)
     }
   }, [error])
 
@@ -109,18 +80,15 @@ export const WalletConnectDirectRow = () => {
       setLoadingWallet(walletId)
 
       try {
-        await connectToWallet(walletId)
-
-        if (isMobile) {
-          setMobilePending(true)
-        }
+        await connect(walletId)
+        dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
+        setLoadingWallet(null)
       } catch (error) {
         console.error('Direct connection failed:', error)
         setLoadingWallet(null)
-        setMobilePending(false)
       }
     },
-    [connectToWallet],
+    [connect, dispatch],
   )
 
   return (

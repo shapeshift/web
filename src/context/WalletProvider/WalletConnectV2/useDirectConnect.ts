@@ -1,9 +1,8 @@
 import type EthereumProviderType from '@walletconnect/ethereum-provider'
 import EthereumProvider from '@walletconnect/ethereum-provider'
 import { useCallback, useState } from 'react'
-import { isMobile } from 'react-device-detect'
 
-import { WalletConnectV2Config, walletConnectV2ProviderConfig } from './config'
+import { WalletConnectV2Config, walletConnectV2DirectProviderConfig } from './config'
 import type { WalletConnectWalletId } from './constants'
 import { WALLET_DEEP_LINKS } from './constants'
 
@@ -18,7 +17,7 @@ export const useDirectWalletConnect = () => {
   const [isConnecting, setIsConnecting] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  const connectToWallet = useCallback(
+  const connect = useCallback(
     async (walletId: WalletConnectWalletId) => {
       setIsConnecting(true)
       setError(null)
@@ -29,17 +28,8 @@ export const useDirectWalletConnect = () => {
           throw new Error('WalletConnectV2 adapter not found')
         }
 
-        const providerConfig = {
-          ...walletConnectV2ProviderConfig,
-          showQrModal: false,
-          qrModalOptions: undefined,
-        }
+        const provider = await EthereumProvider.init(walletConnectV2DirectProviderConfig as any)
 
-        const provider = await EthereumProvider.init(providerConfig as any)
-
-        if (isMobile) {
-          ;(window as any).walletConnectProvider = provider
-        }
         const registerWalletConnection = async () => {
           const { WalletConnectV2HDWallet } = await import(
             '@shapeshiftoss/hdwallet-walletconnectv2'
@@ -83,26 +73,6 @@ export const useDirectWalletConnect = () => {
           }
         })
 
-        provider.on('connect', () => {
-          if (isMobile) {
-            setIsConnecting(false)
-          }
-        })
-
-        if (isMobile) {
-          provider
-            .enable()
-            .then(async _accounts => {
-              await registerWalletConnection()
-              setIsConnecting(false)
-            })
-            .catch(err => {
-              setError(err.message || 'Mobile connection failed')
-              setIsConnecting(false)
-            })
-          return
-        }
-
         await provider.enable()
         await registerWalletConnection()
       } catch (e) {
@@ -117,7 +87,7 @@ export const useDirectWalletConnect = () => {
   )
 
   return {
-    connectToWallet,
+    connect,
     isConnecting,
     error,
   }

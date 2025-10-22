@@ -65,7 +65,7 @@ type WalletConnectWalletId = 'metamask' | 'trust' | 'zerion'
  */
 const UGLY_WALLET_DEEP_LINKS: Record<WalletConnectWalletId, string> = {
   metamask: 'metamask://wc?uri=',
-  trust: 'https://link.trustwallet.com/wc?uri=',
+  trust: 'trust://wc?uri=', // UGLY: Changed to custom scheme to avoid webpage redirect
   zerion: 'zerion://wc?uri=',
 }
 
@@ -225,6 +225,9 @@ export const useDirectWalletConnect = () => {
 
               localWallet.setLocalWallet({ type: KeyManager.WalletConnectV2, deviceId })
 
+              // UGLY: Close modal on successful mobile connection
+              dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
+
               console.log('🚨 UGLY MOBILE: State updated successfully!')
               setIsConnecting(false)
               setCurrentUri(null)
@@ -284,6 +287,9 @@ export const useDirectWalletConnect = () => {
         })
 
         localWallet.setLocalWallet({ type: KeyManager.WalletConnectV2, deviceId })
+
+        // UGLY: Close modal on successful desktop connection
+        dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
 
         console.log('🚨 UGLY POC: Direct connection complete!')
         setCurrentUri(null)

@@ -4,6 +4,7 @@ import { isMobile } from 'react-device-detect'
 
 import { useDirectWalletConnect } from '../useDirectConnect'
 
+import { WalletActions } from '@/context/WalletProvider/actions'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 
 /**
@@ -13,13 +14,13 @@ import { useWallet } from '@/hooks/useWallet/useWallet'
 export const WalletConnectDirectButton = () => {
   console.log('🚨 UGLY: WalletConnectDirectButton is rendering!')
   const { connectToWallet, error } = useDirectWalletConnect()
-  const { state } = useWallet()
+  const { state, dispatch } = useWallet()
   const [loadingWallet, setLoadingWallet] = useState<'metamask' | 'trust' | 'zerion' | null>(null)
   const [mobilePending, setMobilePending] = useState(false)
 
   // UGLY: Check if we're connected after returning from wallet on mobile
   useEffect(() => {
-    if (isMobile && mobilePending) {
+    if (isMobile && mobilePending && loadingWallet) {
       console.log('🚨 UGLY: Checking for connection on mobile...')
       const checkInterval = setInterval(() => {
         const provider = (window as any).uglyProvider
@@ -30,7 +31,9 @@ export const WalletConnectDirectButton = () => {
           console.log('🚨 UGLY: Connection detected!')
           clearInterval(checkInterval)
           setMobilePending(false)
-          setLoadingWallet(null)
+          setLoadingWallet(null) // Clear loading state after successful connection
+          // UGLY: Close modal when connection is detected
+          dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
         }
       }, 1000)
 
@@ -38,7 +41,7 @@ export const WalletConnectDirectButton = () => {
       const timeout = setTimeout(() => {
         clearInterval(checkInterval)
         setMobilePending(false)
-        setLoadingWallet(null)
+        setLoadingWallet(null) // Clear loading state on timeout
       }, 60000)
 
       return () => {
@@ -46,7 +49,7 @@ export const WalletConnectDirectButton = () => {
         clearTimeout(timeout)
       }
     }
-  }, [mobilePending, state.isConnected])
+  }, [mobilePending, state.isConnected, loadingWallet, dispatch])
 
   // UGLY: Show error if one occurs
   useEffect(() => {
@@ -204,7 +207,7 @@ export const WalletConnectDirectButton = () => {
           transform='rotate(12deg)'
           boxShadow='0 2px 4px rgba(0,0,0,0.2)'
         >
-          TEST ONLY!
+          UGLY!
         </Box>
       </Box>
 
@@ -238,7 +241,7 @@ export const WalletConnectDirectButton = () => {
         >
           {mobilePending && loadingWallet === 'trust'
             ? 'WAITING FOR TRUST!'
-            : 'UGLY POC: Connect WC TRUST'}
+            : 'SUPER UGLY POC: Connect WC TRUST'}
         </Button>
 
         <Box
@@ -255,7 +258,7 @@ export const WalletConnectDirectButton = () => {
           transform='rotate(-12deg)'
           boxShadow='0 2px 4px rgba(0,0,0,0.2)'
         >
-          ALSO UGLY!
+          SUPER UGLY!
         </Box>
       </Box>
 
@@ -289,7 +292,7 @@ export const WalletConnectDirectButton = () => {
         >
           {mobilePending && loadingWallet === 'zerion'
             ? 'WAITING FOR ZERION!'
-            : 'UGLY POC: Connect WC ZERION'}
+            : 'F**KING UGLY POC: Connect WC ZERION'}
         </Button>
 
         <Box
@@ -306,7 +309,7 @@ export const WalletConnectDirectButton = () => {
           transform='rotate(15deg)'
           boxShadow='0 2px 4px rgba(0,0,0,0.2)'
         >
-          SUPER UGLY!
+          F**KING UGLY!
         </Box>
       </Box>
     </Box>

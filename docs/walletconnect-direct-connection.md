@@ -4,6 +4,10 @@
 
 This document describes the "UGLY POC" (Proof of Concept) feature that enables direct WalletConnect connections to specific wallets without showing the standard WalletConnect modal. This was implemented as a spike to explore programmatic wallet selection.
 
+**Last Updated**: October 22, 2025
+**Status**: Working on remote environments (not localhost)
+**Wallets Supported**: MetaMask, Trust Wallet, Zerion
+
 ## Background & Motivation
 
 ### The Problem
@@ -263,8 +267,10 @@ Each wallet uses a specific deep link schema:
 | Wallet | Deep Link Format | Notes |
 |--------|-----------------|-------|
 | MetaMask | `metamask://wc?uri={uri}` | Standard custom URL scheme |
-| Trust Wallet | `https://link.trustwallet.com/wc?uri={uri}` | **Universal link** (not custom scheme) - Falls back to App Store if not installed |
+| Trust Wallet | `trust://wc?uri={uri}` | Custom scheme (avoids webpage redirect) |
 | Zerion | `zerion://wc?uri={uri}` | Standard custom URL scheme |
+
+**Note**: Trust Wallet originally used `https://link.trustwallet.com/wc?uri={uri}` (universal link) but this caused Safari to navigate to a webpage. Changed to `trust://` custom scheme for consistent UGLY behavior.
 
 Reference: See `UGLY_WALLET_DEEP_LINKS` constant in `useDirectConnect.ts`
 
@@ -442,8 +448,71 @@ When testing this feature:
 - `packages/hdwallet-walletconnectV2/` - HDWallet adapter implementation
 - `src/context/WalletProvider/actions.ts` - Wallet state actions
 
+## Implementation Journey & Issues Fixed
+
+### Session 1: Initial Discovery (Opus)
+- Discovered that WalletConnect modal can be bypassed with `showQrModal: false`
+- Found the `display_uri` event that provides the connection URI
+- Implemented first version with deep links
+- Issue: Mobile connections were hanging because `provider.enable()` never resolved when navigating away
+
+### Session 2: Polish & UX Improvements (Sonnet)
+**Issues Fixed:**
+
+1. **Shared Loading States**
+   - Problem: All buttons showed loading when any was clicked
+   - Solution: Individual `loadingWallet` state tracking per button
+
+2. **No Modal Auto-Close**
+   - Initial approach: Close modal immediately after setting wallet state
+   - Problem: Modal closed before deep link even opened
+   - Fixed approach: Removed all manual closes, let parent handle it
+   - Final approach: Close modal only when connection is actually detected
+
+3. **Toast Spam**
+   - Removed all 🚨 toast notifications for cleaner UX
+   - Button states provide sufficient feedback
+
+4. **Added Zerion Support**
+   - Added third UGLY button with purple/orange color scheme
+   - Deep link: `zerion://wc?uri=`
+
+5. **Trust Wallet Redirect Issue**
+   - Problem: Using `https://link.trustwallet.com/wc?uri=` caused webpage redirect
+   - Solution: Changed to `trust://wc?uri=` custom scheme
+   - Result: Shows Safari popup instead of navigating to Trust website
+
+6. **Loading State Persistence**
+   - Problem: Loading state dropped after 1-2 seconds (when deep link opened)
+   - Solution: Maintain `loadingWallet` state until connection actually completes or times out
+   - Added polling with 60-second timeout
+
+7. **Type Naming Conflict**
+   - Changed `WalletId` to `WalletConnectWalletId` to avoid confusion with existing app terminology
+
+### Current Behavior
+
+**Mobile Flow:**
+1. User clicks UGLY button → Loading state begins
+2. Deep link opens wallet app → Loading continues
+3. User approves in wallet app
+4. User returns to web app
+5. Polling detects connection → Modal closes, loading stops
+
+**Desktop Flow:**
+1. User clicks UGLY button → Alert shows QR code
+2. User scans with mobile wallet
+3. Connection completes → Modal closes
+
+### Environment Considerations
+
+**IMPORTANT**: This feature only works on remote environments, not localhost!
+- WalletConnect relay servers reject connections from local IPs for security
+- Must deploy to proper domain (e.g., `*.shapeshift.com`)
+- Both regular modal and direct connection need proper environment
+
 ## Credits
 
-This feature was developed through pair programming sessions with Claude (Opus and Sonnet), exploring WalletConnect's internals and discovering that programmatic wallet selection is possible without custom backend infrastructure.
+This UGLY feature was developed through pair programming sessions with Claude (Opus and Sonnet), exploring WalletConnect's internals and discovering that programmatic wallet selection is possible without custom backend infrastructure.
 
-Key insight: **The modal is just UI. The protocol works without it.**
+Key insight: **The modal is just UI. The protocol works without it. UGLY but functional!**

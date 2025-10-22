@@ -1,5 +1,6 @@
 import { MetaMaskIcon } from '@/components/Icons/MetaMaskIcon'
-import { getConfig } from '@/config'
+import TrustWalletIcon from '@/assets/trust-wallet.png'
+import ZerionWalletIcon from '@/assets/zerion-wallet.png'
 
 // All the types below are copied from @hdwallet/ethereum-provider so we don't have to import the whole package just for the sake of this type
 // and can lazy load it instead
@@ -163,8 +164,6 @@ export type EthereumProviderOptions = {
 
 export type WalletConnectWalletId = 'metamask' | 'trust' | 'zerion'
 
-const { VITE_WALLET_CONNECT_WALLET_PROJECT_ID } = getConfig()
-
 type WalletConfigWithIcon = {
   id: WalletConnectWalletId
   name: string
@@ -188,11 +187,11 @@ export const WALLET_CONFIGS: WalletConfig[] = [
   {
     id: 'trust',
     name: 'Trust',
-    imageUrl: `https://explorer-api.walletconnect.com/v3/logo/md/7677b54f-3486-46e2-4e37-bf8747814f00?projectId=${VITE_WALLET_CONNECT_WALLET_PROJECT_ID}`,
+    imageUrl: TrustWalletIcon,
   },
   {
     id: 'zerion',
     name: 'Zerion',
-    imageUrl: `https://explorer-api.walletconnect.com/v3/logo/md/73f6f52f-7862-49e7-bb85-ba93ab72cc00?projectId=${VITE_WALLET_CONNECT_WALLET_PROJECT_ID}`,
+    imageUrl: ZerionWalletIcon,
   },
 ]

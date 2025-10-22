@@ -161,9 +161,6 @@ export type EthereumProviderOptions = {
   storageOptions?: KeyValueStorageOptions
 } & ChainsProps
 
-export const POLLING_INTERVAL_MS = 1000
-export const CONNECTION_TIMEOUT_MS = 60000
-
 export type WalletConnectWalletId = 'metamask' | 'trust' | 'zerion'
 
 const { VITE_WALLET_CONNECT_WALLET_PROJECT_ID } = getConfig()

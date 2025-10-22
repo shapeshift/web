@@ -211,7 +211,7 @@ export const useDirectWalletConnect = () => {
                 type: WalletActions.SET_WALLET,
                 payload: {
                   wallet,
-                  name: `${name} (UGLY DIRECT)`, // UGLY: Add marker to name
+                  name, // UGLY: Use same name as regular WalletConnect
                   icon,
                   deviceId,
                   connectedType: KeyManager.WalletConnectV2,
@@ -274,7 +274,7 @@ export const useDirectWalletConnect = () => {
           type: WalletActions.SET_WALLET,
           payload: {
             wallet,
-            name: `${name} (UGLY DIRECT)`, // UGLY: Add marker to name
+            name, // UGLY: Use same name as regular WalletConnect
             icon,
             deviceId,
             connectedType: KeyManager.WalletConnectV2,

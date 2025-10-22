@@ -10,6 +10,7 @@ import { useLocalWallet } from '@/context/WalletProvider/local-wallet'
 import { WalletConnectDirectRow } from '@/context/WalletProvider/WalletConnectV2/components/WalletConnectDirectRow'
 import { WalletConnectV2Config } from '@/context/WalletProvider/WalletConnectV2/config'
 import { WalletNotFoundError } from '@/context/WalletProvider/WalletConnectV2/Error'
+import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { isWalletConnectWallet } from '@/lib/utils'
 import { clearWalletConnectLocalStorage } from '@/plugins/walletConnectToDapps/utils/clearAllWalletConnectToDappsSessions'
@@ -23,6 +24,7 @@ export const NewWalletConnectV2Connect = () => {
   const navigate = useNavigate()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const isWcDirectConnectionEnabled = useFeatureFlag('WcDirectConnection')
 
   const pairDevice = useCallback(async () => {
     clearWalletConnectLocalStorage()
@@ -85,7 +87,7 @@ export const NewWalletConnectV2Connect = () => {
         error={error}
         onPairDeviceClick={pairDevice}
       />
-      <WalletConnectDirectRow />
+      {isWcDirectConnectionEnabled && <WalletConnectDirectRow />}
     </>
   )
 }

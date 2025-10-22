@@ -1,5 +1,6 @@
 import { ExternalLinkIcon } from '@chakra-ui/icons'
 import {
+  Avatar,
   Box,
   Button,
   Divider,
@@ -54,11 +55,12 @@ import { getConfig } from '@/config'
 import { defaultLongPressConfig } from '@/constants/longPress'
 import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
 import { useWallet } from '@/hooks/useWallet/useWallet'
+import { makeBlockiesUrl } from '@/lib/blockies/makeBlockiesUrl'
 import { isMobile } from '@/lib/globals'
 import { middleEllipsis } from '@/lib/utils'
 import { isUtxoAccountId } from '@/lib/utils/utxo'
 import { vibrate } from '@/lib/vibrate'
-import { ProfileAvatar } from '@/pages/Dashboard/components/ProfileAvatar/ProfileAvatar'
+import { selectAddressBookEntriesByChainNamespace } from '@/state/slices/addressBookSlice/selectors'
 import { selectAssetById, selectFeeAssetById } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
@@ -111,6 +113,14 @@ export const Confirm = ({ handleSubmit }: ConfirmProps) => {
     state: { wallet },
   } = useWallet()
 
+  const addressBookEntries = useAppSelector(state =>
+    selectAddressBookEntriesByChainNamespace(state, asset?.chainId ?? ''),
+  )
+
+  const selectedAddressBookEntry = useMemo(() => {
+    return addressBookEntries.find(entry => entry.address === to)
+  }, [addressBookEntries, to])
+
   const showMemoRow = useMemo(
     () => Boolean(assetId && fromAssetId(assetId).chainNamespace === CHAIN_NAMESPACE.CosmosSdk),
     [assetId],
@@ -125,6 +135,14 @@ export const Confirm = ({ handleSubmit }: ConfirmProps) => {
           isLedger(wallet),
       ),
     [assetId, wallet],
+  )
+
+  const avatarUrl = useMemo(
+    () =>
+      selectedAddressBookEntry
+        ? makeBlockiesUrl(selectedAddressBookEntry.address)
+        : makeBlockiesUrl(to ?? ''),
+    [selectedAddressBookEntry, to],
   )
 
   const borderColor = useColorModeValue('gray.100', 'gray.750')
@@ -252,11 +270,16 @@ export const Confirm = ({ handleSubmit }: ConfirmProps) => {
               <Divider width='100%' height='1px' backgroundColor='border.base' />
             </Flex>
             <Box fontSize='2xl' fontWeight='bold'>
-              <Tooltip label={to} shouldWrapChildren>
+              <Tooltip label={to} shouldWrapChildren lineHeight='short'>
                 <InlineCopyButton value={to}>
                   {vanityAddress ? vanityAddress : <MiddleEllipsis value={to} />}
                 </InlineCopyButton>
               </Tooltip>
+              {selectedAddressBookEntry && (
+                <CText fontSize='sm' color='text.subtle' fontWeight='normal' lineHeight='0.8'>
+                  {selectedAddressBookEntry.name}
+                </CText>
+              )}
             </Box>
           </Box>
           <Flex
@@ -280,8 +303,7 @@ export const Confirm = ({ handleSubmit }: ConfirmProps) => {
             >
               <AnimatedDots />
             </Box>
-            {/* @TODO: Use custom receive address avatar */}
-            <ProfileAvatar borderRadius='full' position='relative' zIndex={2} size='md' />
+            <Avatar src={avatarUrl} size='md' flexShrink={0} />
           </Flex>
         </Flex>
         <Stack spacing={4} mb={6} px={4}>

@@ -28,6 +28,7 @@ import { SharedTradeInput } from '@/components/MultiHopTrade/components/SharedTr
 import { SlideTransitionRoute } from '@/components/MultiHopTrade/components/SlideTransitionRoute'
 import type { CollapsibleQuoteListProps } from '@/components/MultiHopTrade/components/TradeInput/components/CollapsibleQuoteList'
 import { CollapsibleQuoteList } from '@/components/MultiHopTrade/components/TradeInput/components/CollapsibleQuoteList'
+import { getReceiveAddress } from '@/components/MultiHopTrade/hooks/useReceiveAddress'
 import { TradeInputTab } from '@/components/MultiHopTrade/types'
 import { useDebounce } from '@/hooks/useDebounce/useDebounce'
 import { useModal } from '@/hooks/useModal/useModal'
@@ -39,7 +40,7 @@ import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from '@/lib/mixpanel/types'
 import { marketApi, marketData } from '@/state/slices/marketDataSlice/marketDataSlice'
 import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
-import { selectAssets } from '@/state/slices/selectors'
+import { selectAssets, selectPortfolioAccountMetadataByAccountId } from '@/state/slices/selectors'
 import {
   selectBuyAccountId,
   selectBuyFiatCurrency,
@@ -85,7 +86,7 @@ const RampRoutes = memo(({ onChangeTab, direction }: RampRoutesProps) => {
   const dispatch = useAppDispatch()
   const navigate = useNavigate()
   const {
-    state: { isConnected },
+    state: { isConnected, wallet },
   } = useWallet()
 
   const sellAsset = useAppSelector(selectInputSellAsset)
@@ -114,6 +115,12 @@ const RampRoutes = memo(({ onChangeTab, direction }: RampRoutesProps) => {
   const manualReceiveAddress = useAppSelector(selectManualReceiveAddress)
 
   const fiatMarketData = useAppSelector(marketData.selectors.selectFiatMarketData)
+
+  const buyAccountFilter = useMemo(() => ({ accountId: buyAccountId ?? '' }), [buyAccountId])
+
+  const buyAccountMetadata = useAppSelector(state =>
+    selectPortfolioAccountMetadataByAccountId(state, buyAccountFilter),
+  )
 
   const walletReceiveAddress = useMemo(() => {
     return buyAccountId ? fromAccountId(buyAccountId).account : undefined
@@ -292,6 +299,7 @@ const RampRoutes = memo(({ onChangeTab, direction }: RampRoutesProps) => {
       e.preventDefault()
       if (!selectedQuote?.provider) return
       if (!isConnected) return
+      if (!buyAccountMetadata) return
 
       const ramp = supportedFiatRamps[selectedQuote.provider]
       const mpData = {
@@ -302,12 +310,23 @@ const RampRoutes = memo(({ onChangeTab, direction }: RampRoutesProps) => {
         ),
         ramp: ramp.id,
       }
+
+      const receiveAddress =
+        direction === FiatRampAction.Buy
+          ? await getReceiveAddress({
+              asset: direction === FiatRampAction.Buy ? buyAsset : sellAsset,
+              wallet,
+              accountMetadata: buyAccountMetadata,
+              pubKey: walletReceiveAddress,
+            })
+          : undefined
+
       getMixPanel()?.track(MixPanelEvent.FiatRamp, mpData)
       const url = await ramp.onSubmit({
         action: direction,
         assetId:
           direction === FiatRampAction.Buy ? buyAsset?.assetId ?? '' : sellAsset?.assetId ?? '',
-        address: manualReceiveAddress ?? walletReceiveAddress ?? '',
+        address: manualReceiveAddress ?? receiveAddress ?? '',
         fiatCurrency:
           direction === FiatRampAction.Buy ? sellFiatCurrency.code : buyFiatCurrency.code,
         fiatAmount: direction === FiatRampAction.Buy ? sellFiatAmount : undefined,
@@ -323,12 +342,10 @@ const RampRoutes = memo(({ onChangeTab, direction }: RampRoutesProps) => {
     },
     [
       assets,
-      buyAsset?.assetId,
       buyFiatCurrency,
       colorMode,
       popup,
       selectedLocale,
-      sellAsset?.assetId,
       sellFiatCurrency,
       direction,
       manualReceiveAddress,
@@ -337,6 +354,10 @@ const RampRoutes = memo(({ onChangeTab, direction }: RampRoutesProps) => {
       sellAmountCryptoPrecision,
       sellFiatAmount,
       isConnected,
+      buyAccountMetadata,
+      buyAsset,
+      sellAsset,
+      wallet,
     ],
   )
 

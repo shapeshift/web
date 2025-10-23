@@ -140,7 +140,7 @@ export const AssetList: FC<AssetListProps> = ({
 
   if (assets.length <= 10) {
     return (
-      <Box overflow='auto' height='auto' className='scroll-container'>
+      <Box overflow='auto' height='auto'>
         {assets.map((asset, index) => (
           <Box key={asset.assetId}>{renderRow(index)}</Box>
         ))}
@@ -151,7 +151,6 @@ export const AssetList: FC<AssetListProps> = ({
   return (
     <Virtuoso
       onWheel={handleWheel}
-      className='scroll-container'
       data={assets}
       itemContent={renderRow}
       style={virtuosoStyle}

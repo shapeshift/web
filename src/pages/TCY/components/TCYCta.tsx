@@ -1,4 +1,13 @@
-import { Alert, AlertTitle, Button, Skeleton, SkeletonCircle, Stack } from '@chakra-ui/react'
+import { CloseIcon } from '@chakra-ui/icons'
+import {
+  Alert,
+  AlertTitle,
+  Button,
+  IconButton,
+  Skeleton,
+  SkeletonCircle,
+  Stack,
+} from '@chakra-ui/react'
 import { tcyAssetId } from '@shapeshiftoss/caip'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -8,6 +17,7 @@ import { useNavigate } from 'react-router'
 import { useTCYClaims } from '../queries/useTcyClaims'
 
 import { AssetIcon } from '@/components/AssetIcon'
+import { useLocalStorage } from '@/hooks/useLocalStorage/useLocalStorage'
 import { selectIsPortfolioLoading } from '@/state/slices/selectors'
 
 const margin = { base: 4, md: 0 }
@@ -27,18 +37,27 @@ const CtaSkeleton = () => {
   )
 }
 
+const closeIcon = <CloseIcon />
+
 export const TCYCta = () => {
   const navigate = useNavigate()
   const loading = useSelector(selectIsPortfolioLoading)
   const translate = useTranslate()
   const claimsQuery = useTCYClaims('all')
+  const [isClosed, setIsClosed] = useLocalStorage<boolean>('TCY_CTA_CLOSED', false)
   const hasClaims = useMemo(() => claimsQuery.some(query => query.data.length), [claimsQuery])
+
+  const handleClose = useCallback(() => {
+    setIsClosed(true)
+  }, [setIsClosed])
 
   const handleClick = useCallback(() => {
     navigate('/tcy')
   }, [navigate])
 
   if (loading) return <CtaSkeleton />
+
+  if (isClosed) return null
 
   return (
     <Alert status='info' m={margin} width='auto'>
@@ -58,6 +77,7 @@ export const TCYCta = () => {
       >
         {translate('TCY.cta.button')}
       </Button>
+      <IconButton variant='ghost' icon={closeIcon} aria-label='Close' onClick={handleClose} />
     </Alert>
   )
 }

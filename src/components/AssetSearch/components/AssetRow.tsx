@@ -45,6 +45,7 @@ export type AssetRowData = {
   index: number
   data: AssetData
   showPrice?: boolean
+  showMarketCap?: boolean
   showChainName?: boolean
   onImportClick?: (asset: Asset) => void
   showRelatedAssets?: boolean
@@ -65,6 +66,7 @@ export const AssetRow: FC<AssetRowProps> = memo(
     showPrice = false,
     onImportClick,
     showRelatedAssets = false,
+    showMarketCap = false,
     showChainName = false,
     ...props
   }) => {
@@ -181,6 +183,19 @@ export const AssetRow: FC<AssetRowProps> = memo(
         )
       }
 
+      if (showMarketCap) {
+        return (
+          <Flex flexDir='column' justifyContent='flex-end' alignItems='flex-end' gap={1}>
+            <Amount.Fiat
+              fontWeight='medium'
+              color='text.base'
+              lineHeight={1}
+              value={marketData?.marketCap}
+            />
+          </Flex>
+        )
+      }
+
       if (
         canDisplayBalances &&
         !hideAssetBalance &&
@@ -199,12 +214,14 @@ export const AssetRow: FC<AssetRowProps> = memo(
       return null
     }, [
       marketData?.price,
+      marketData?.marketCap,
       userCurrencyBalance,
       handleImportClick,
       hideAssetBalance,
       canDisplayBalances,
       isCustomAsset,
       showPrice,
+      showMarketCap,
       translate,
       hideZeroBalanceAmounts,
       changePercent24Hr,
@@ -231,7 +248,8 @@ export const AssetRow: FC<AssetRowProps> = memo(
         isDisabled={!isSupported && disableUnsupported}
         _focus={focus}
         width='100%'
-        py={8}
+        height='auto'
+        p={4}
         {...props}
         {...longPressHandlers(asset)}
       >

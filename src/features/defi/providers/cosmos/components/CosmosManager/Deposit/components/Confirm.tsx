@@ -1,4 +1,4 @@
-import { Alert, AlertDescription, AlertIcon, Box, Stack, useToast } from '@chakra-ui/react'
+import { Alert, AlertDescription, AlertIcon, Box, Stack } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { ASSET_REFERENCE, toAssetId } from '@shapeshiftoss/caip'
 import { useCallback, useContext, useEffect, useMemo } from 'react'
@@ -22,6 +22,7 @@ import type {
 } from '@/features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { DefiStep } from '@/features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useBrowserRouter } from '@/hooks/useBrowserRouter/useBrowserRouter'
+import { useNotificationToast } from '@/hooks/useNotificationToast'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { fromBaseUnit, toBaseUnit } from '@/lib/math'
@@ -100,7 +101,7 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
   const { state: walletState } = useWallet()
 
   // notify
-  const toast = useToast()
+  const toast = useNotificationToast({ desktopPosition: 'top-right' })
 
   const filter = useMemo(
     () => ({ assetId: feeAsset?.assetId ?? '', accountId: accountId ?? '' }),
@@ -159,7 +160,6 @@ export const Confirm: React.FC<ConfirmProps> = ({ onNext, accountId }) => {
     } catch (error) {
       console.error(error)
       toast({
-        position: 'top-right',
         description: translate('common.transactionFailedBody'),
         title: translate('common.transactionFailed'),
         status: 'error',

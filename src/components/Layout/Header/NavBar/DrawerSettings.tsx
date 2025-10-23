@@ -65,7 +65,7 @@ export const DrawerSettings: FC<DrawerSettingsProps> = ({ onBack, onClose }) => 
           <Text translation='modals.settings.settings' fontWeight='medium' />
         </DialogHeader.Middle>
       </DialogHeader>
-      <Box flex='1' overflow='auto' maxHeight={'100%'} className='scroll-container'>
+      <Box flex='1' overflow='auto' maxHeight={'100%'}>
         <Routes>
           <Route path={SettingsRoutesRelative.Index} element={settingsContentElement} />
           <Route path={SettingsRoutesRelative.Languages} element={languagesElement} />

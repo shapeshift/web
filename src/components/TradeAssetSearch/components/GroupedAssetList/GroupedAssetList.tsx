@@ -103,7 +103,6 @@ export const GroupedAssetList = ({
 
   return (
     <GroupedVirtuoso
-      className='scroll-container'
       groupCounts={groupCounts}
       groupContent={renderGroupContent}
       itemContent={renderItem}

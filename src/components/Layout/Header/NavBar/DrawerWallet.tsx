@@ -201,7 +201,7 @@ const DrawerWalletInner: FC = memo(() => {
     <Drawer placement='right' size='sm' {...modalProps}>
       <DrawerOverlay {...overlayProps} />
       <DrawerContent width='full' maxWidth='512px' {...modalContentProps}>
-        <DrawerBody p={4} display='flex' flexDirection='column' height='100%'>
+        <DrawerBody p={0} display='flex' flexDirection='column' height='100%'>
           <Routes>
             <Route
               path='/'
@@ -221,7 +221,7 @@ const DrawerWalletInner: FC = memo(() => {
                     <WalletBalanceChange showErroredAccounts={false} />
                   </Box>
 
-                  <Flex width='100%' pb={4} gap={2}>
+                  <Flex width='100%' pb={4} gap={2} px={4}>
                     <ActionButton
                       icon={sendIcon}
                       label={translate('common.send')}
@@ -251,8 +251,8 @@ const DrawerWalletInner: FC = memo(() => {
                         bg='transparent'
                         borderWidth={0}
                         pt={2}
-                        pb={4}
-                        px={0}
+                        pb={0}
+                        px={4}
                         gap={2}
                         flexShrink={0}
                       >
@@ -262,13 +262,8 @@ const DrawerWalletInner: FC = memo(() => {
                         <Tab>{translate('navBar.defi')}</Tab>
                         <Tab>{translate('common.activity')}</Tab>
                       </TabList>
-                      <TabPanels
-                        flex='1'
-                        overflow='auto'
-                        maxHeight={'100%'}
-                        className='scroll-container'
-                      >
-                        <TabPanel p={0} pt={2} pr={2} height='100%'>
+                      <TabPanels flex='1' overflow='auto' maxHeight={'100%'}>
+                        <TabPanel px={2} pb={4} height='100%'>
                           {loadedTabs.has(0) ? (
                             <Suspense fallback={accountTableSkeletonFallback}>
                               <Box height='100%'>
@@ -279,18 +274,18 @@ const DrawerWalletInner: FC = memo(() => {
                             accountTableSkeletonFallback
                           )}
                         </TabPanel>
-                        <TabPanel p={0} pt={2} pr={2}>
+                        <TabPanel px={2} pb={4}>
                           {loadedTabs.has(1) && (
                             <AccountsListContent onClose={onClose} isSimpleMenu />
                           )}
                         </TabPanel>
-                        <TabPanel p={0} pt={2} pr={2}>
+                        <TabPanel px={2} py={4}>
                           {loadedTabs.has(2) && <WatchlistTable forceCompactView />}
                         </TabPanel>
-                        <TabPanel p={0} pt={2} pr={2}>
+                        <TabPanel px={2} py={4}>
                           {loadedTabs.has(3) && <DeFiEarn forceCompactView />}
                         </TabPanel>
-                        <TabPanel p={0} pt={2} pr={2}>
+                        <TabPanel px={0} py={4}>
                           {loadedTabs.has(4) && <TransactionHistoryContent isCompact />}
                         </TabPanel>
                       </TabPanels>

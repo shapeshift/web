@@ -191,7 +191,6 @@ export const reloadWebview = (): Promise<boolean> => {
   return postMessage<boolean>({ cmd: 'reloadWebview' })
 }
 
-/**
 export const getExpoToken = (): Promise<string | null> => {
   return postMessage<string | null>({ cmd: 'getExpoToken' })
 }

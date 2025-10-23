@@ -8,7 +8,6 @@ import React, { useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 
 import { useDiscoverAccounts } from './hooks/useDiscoverAccounts'
-import { useManageUser } from './hooks/useManageUser'
 import { usePortfolioFetch } from './hooks/usePortfolioFetch'
 import { useSnapStatusHandler } from './hooks/useSnapStatusHandler'
 
@@ -22,6 +21,7 @@ import { useMixpanelPortfolioTracking } from '@/hooks/useMixpanelPortfolioTracki
 import { useModal } from '@/hooks/useModal/useModal'
 import { useRouteAssetId } from '@/hooks/useRouteAssetId/useRouteAssetId'
 import { useTransactionsSubscriber } from '@/hooks/useTransactionsSubscriber'
+import { useUser } from '@/hooks/useUser/useUser'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { walletSupportsChain } from '@/hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { useGetFiatRampsQuery } from '@/state/apis/fiatRamps/fiatRamps'
@@ -75,7 +75,8 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   // Handle Ledger device connection state and wallet disconnection
   useLedgerConnectionState()
 
-  useManageUser()
+  // Initialize user system
+  useUser()
 
   useEffect(() => {
     const handleLedgerOpenApp = ({ chainId, reject }: LedgerOpenAppEventArgs) => {

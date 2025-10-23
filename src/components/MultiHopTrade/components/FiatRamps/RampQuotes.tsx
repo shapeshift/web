@@ -30,7 +30,7 @@ type RampQuotesProps = {
 export const RampQuotes: React.FC<RampQuotesProps> = ({ isLoading = false, onBack, direction }) => {
   const sellAsset = useAppSelector(selectInputSellAsset)
   const buyAsset = useAppSelector(selectInputBuyAsset)
-  const sellAmount = useAppSelector(selectInputSellAmountCryptoPrecision)
+  const sellAmountCryptoPrecision = useAppSelector(selectInputSellAmountCryptoPrecision)
   const sellFiatCurrency = useAppSelector(selectSellFiatCurrency)
   const buyFiatCurrency = useAppSelector(selectBuyFiatCurrency)
 
@@ -44,8 +44,8 @@ export const RampQuotes: React.FC<RampQuotesProps> = ({ isLoading = false, onBac
   )
 
   const quoteAmount = useMemo(() => {
-    return direction === FiatRampAction.Buy ? buyFiatAmount : sellAmount
-  }, [direction, sellAmount, buyFiatAmount])
+    return direction === FiatRampAction.Buy ? buyFiatAmount : sellAmountCryptoPrecision
+  }, [direction, sellAmountCryptoPrecision, buyFiatAmount])
 
   const { queries: quotesQueries, sortedQuotes } = useGetRampQuotes({
     fiatCurrency: direction === FiatRampAction.Buy ? sellFiatCurrency : buyFiatCurrency,

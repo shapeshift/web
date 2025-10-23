@@ -1,12 +1,7 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import { adapters, btcAssetId, fromAssetId, gnosisChainId, usdtAssetId } from '@shapeshiftoss/caip'
-import noop from 'lodash/noop'
 
-import {
-  createBanxaUrl,
-  getBanxaQuote,
-  getSupportedBanxaFiatCurrencies,
-} from './fiatRampProviders/banxa'
+import { createBanxaUrl, getSupportedBanxaFiatCurrencies } from './fiatRampProviders/banxa'
 import {
   createCoinbaseUrl,
   getCoinbaseSupportedAssets,
@@ -26,6 +21,7 @@ import banxaLogo from '@/assets/banxa.png'
 import CoinbaseLogo from '@/assets/coinbase-logo.svg'
 import MtPelerinLogo from '@/assets/mtpelerin.png'
 import OnRamperLogo from '@/assets/onramper-logo.svg'
+import { getBanxaQuote } from '@/components/Modals/FiatRamps/fiatRampProviders/banxa/utils'
 import { getOnramperQuote } from '@/components/Modals/FiatRamps/fiatRampProviders/onramper/utils'
 import type { CommonFiatCurrencies, FiatCurrencyItem } from '@/lib/fiatCurrencies/fiatCurrencies'
 import type { FeatureFlags } from '@/state/slices/preferencesSlice/preferencesSlice'
@@ -50,7 +46,7 @@ export type RampQuote = {
 
 export type GetQuotesArgs = {
   fiatCurrency: FiatCurrencyItem
-  crypto: AssetId
+  crypto: string
   amount: string
   direction: 'buy' | 'sell'
 }
@@ -69,7 +65,7 @@ export interface SupportedFiatRampConfig {
   isActive: (featureFlags: FeatureFlags) => boolean
   getBuyAndSellList: () => Promise<[AssetId[], AssetId[]]>
   getSupportedFiatList: () => CommonFiatCurrencies[]
-  getQuotes: (args: GetQuotesArgs) => Promise<RampQuote | undefined> | void
+  getQuotes?: (args: GetQuotesArgs) => Promise<RampQuote | null>
   onSubmit: (args: CreateUrlProps) => Promise<string | undefined>
   minimumSellThreshold?: number
 }
@@ -91,7 +87,6 @@ export const supportedFiatRamps: SupportedFiatRamp = {
       return Promise.resolve([buyList, sellList])
     },
     getSupportedFiatList: () => getSupportedCoinbaseFiatCurrencies(),
-    getQuotes: noop,
     onSubmit: props => {
       return Promise.resolve(createCoinbaseUrl(props))
     },

@@ -114,8 +114,7 @@ export const Ramp: React.FC = () => {
     <Routes>
       <Route path='buy/*' element={rampContentElement} />
       <Route path='sell/*' element={rampContentElement} />
-      <Route path='trade/buy' element={rampTabElement} />
-      <Route path='trade/sell' element={rampTabElement} />
+      <Route path='trade/*' element={rampTabElement} />
       <Route index element={navigateElement} />
     </Routes>
   )

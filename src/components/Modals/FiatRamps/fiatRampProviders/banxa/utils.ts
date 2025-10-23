@@ -20,30 +20,29 @@ export const getBanxaQuote = async ({
   crypto,
   amount,
   direction,
-}: GetQuotesArgs): Promise<RampQuote | undefined> => {
+}: GetQuotesArgs): Promise<RampQuote | null> => {
   const baseUrl = getConfig().VITE_BANXA_API_URL
 
   const supportedFiatCurrencies = getSupportedBanxaFiatCurrencies()
 
   if (!supportedFiatCurrencies.includes(fiatCurrency.code as CommonFiatCurrencies)) {
-    return
+    return null
   }
 
   const banxaTicker = adapters.assetIdToBanxaTicker(crypto as AssetId)
   if (!banxaTicker) {
     console.warn(`Asset ${crypto} not supported by Banxa`)
-    return
+    return null
   }
 
   const blockchain = adapters.getBanxaBlockchainFromChainId(fromAssetId(crypto as AssetId).chainId)
   if (!blockchain) {
     console.warn(`Blockchain not supported by Banxa for asset ${crypto}`)
-    return
+    return null
   }
 
   const requestData: BanxaQuoteRequest = {
     partner: 'shapeshift',
-    orderType: direction,
     crypto: banxaTicker,
     blockchain,
     fiat: fiatCurrency.code,
@@ -57,7 +56,6 @@ export const getBanxaQuote = async ({
     requestData.cryptoAmount = amount
   }
 
-  // Clean up undefined values from requestData
   const params = Object.fromEntries(
     Object.entries(requestData).filter(([_, value]) => value !== undefined),
   )
@@ -75,7 +73,7 @@ export const getBanxaQuote = async ({
   // Check for the expected fields
   if (!quote) {
     console.error('[Banxa] No response from API')
-    return
+    return null
   }
 
   const cryptoAmount = quote.cryptoAmount

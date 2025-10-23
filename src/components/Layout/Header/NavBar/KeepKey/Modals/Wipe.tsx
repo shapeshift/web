@@ -14,6 +14,7 @@ import { useTranslate } from 'react-polyglot'
 
 import { AwaitKeepKey } from '@/components/Layout/Header/NavBar/KeepKey/AwaitKeepKey'
 import { Text } from '@/components/Text'
+import { useModalRegistration } from '@/context/ModalStackProvider'
 import { useKeepKey } from '@/context/WalletProvider/KeepKeyProvider'
 import { useModal } from '@/hooks/useModal/useModal'
 import { useWallet } from '@/hooks/useWallet/useWallet'
@@ -34,7 +35,6 @@ export const WipeModal = () => {
   } = useWallet()
   const toast = useToast()
   const [wipeConfirmationChecked, setWipeConfirmationChecked] = useState(false)
-
   const handleClose = useCallback(() => {
     keepKeyWallet?.cancel().catch(e => {
       console.error(e)
@@ -47,6 +47,11 @@ export const WipeModal = () => {
     })
     close()
   }, [close, keepKeyWallet, toast, translate])
+
+  const { modalContentProps, overlayProps, modalProps } = useModalRegistration({
+    isOpen,
+    onClose: handleClose,
+  })
 
   const handleWipeDeviceClick = useCallback(async () => {
     try {
@@ -70,17 +75,9 @@ export const WipeModal = () => {
   )
 
   return (
-    <Modal
-      initialFocusRef={initRef}
-      finalFocusRef={finalRef}
-      isCentered
-      closeOnOverlayClick
-      closeOnEsc
-      isOpen={isOpen}
-      onClose={handleClose}
-    >
-      <ModalOverlay />
-      <ModalContent justifyContent='center' px={3} pt={3} pb={6}>
+    <Modal initialFocusRef={initRef} finalFocusRef={finalRef} isCentered {...modalProps}>
+      <ModalOverlay {...overlayProps} />
+      <ModalContent justifyContent='center' px={3} pt={3} pb={6} {...modalContentProps}>
         <ModalHeader>
           <Text translation={'walletProvider.keepKey.modals.headings.wipeKeepKey'} />
         </ModalHeader>

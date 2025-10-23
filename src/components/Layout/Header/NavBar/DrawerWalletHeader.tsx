@@ -13,8 +13,9 @@ import {
 } from '@chakra-ui/react'
 import type { FC } from 'react'
 import { memo, useCallback, useMemo } from 'react'
-import { TbDots, TbSettings } from 'react-icons/tb'
+import { TbDots, TbEyeOff, TbSettings } from 'react-icons/tb'
 import { useTranslate } from 'react-polyglot'
+import { useNavigate } from 'react-router-dom'
 
 import { WalletImage } from './WalletImage'
 
@@ -28,10 +29,12 @@ import { useAppSelector } from '@/state/store'
 
 const settingsIcon = <TbSettings />
 const dotsIcon = <Icon as={TbDots} />
+const eyeOffIcon = <Icon as={TbEyeOff} />
 
 type DrawerHeaderProps = {
   walletInfo: InitialState['walletInfo']
   isConnected: boolean
+  isLocked: boolean
   connectedType: InitialState['connectedType']
   onDisconnect: () => void
   onSwitchProvider: () => void
@@ -40,9 +43,18 @@ type DrawerHeaderProps = {
 }
 
 export const DrawerWalletHeader: FC<DrawerHeaderProps> = memo(
-  ({ walletInfo, isConnected, connectedType, onDisconnect, onSwitchProvider, onSettingsClick }) => {
+  ({
+    walletInfo,
+    isConnected,
+    isLocked,
+    connectedType,
+    onDisconnect,
+    onSwitchProvider,
+    onSettingsClick,
+  }) => {
     const translate = useTranslate()
     const settings = useModal('settings')
+    const navigate = useNavigate()
 
     const maybeRdns = useAppSelector(selectWalletRdns)
     const mipdProviders = useMipdProviders()
@@ -62,6 +74,10 @@ export const DrawerWalletHeader: FC<DrawerHeaderProps> = memo(
       settings.open({})
     }, [settings, onSettingsClick])
 
+    const handleManageHiddenAssetsClick = useCallback(() => {
+      navigate('/manage-hidden-assets')
+    }, [navigate])
+
     const repeatIcon = useMemo(() => <RepeatIcon />, [])
     const closeIcon = useMemo(() => <CloseIcon />, [])
 
@@ -70,9 +86,12 @@ export const DrawerWalletHeader: FC<DrawerHeaderProps> = memo(
       [connectedType],
     )
 
-    const walletImageIcon = useMemo(() => <WalletImage walletInfo={walletInfo} />, [walletInfo])
+    const walletImageIcon = useMemo(
+      () => <WalletImage walletInfo={maybeMipdProvider?.info ?? walletInfo} />,
+      [walletInfo, maybeMipdProvider?.info],
+    )
 
-    if (!isConnected || !walletInfo) return null
+    if (!isConnected || isLocked || !walletInfo) return null
 
     return (
       <Flex align='center' justify='space-between'>
@@ -102,13 +121,17 @@ export const DrawerWalletHeader: FC<DrawerHeaderProps> = memo(
               <MenuGroup title={translate('common.connectedWallet')} color='text.subtle'>
                 <MenuItem icon={walletImageIcon} isDisabled closeOnSelect={false}>
                   <Flex flexDir='row' justifyContent='space-between' alignItems='center'>
-                    <Text>{walletInfo?.name}</Text>
+                    <Text>{label}</Text>
                   </Flex>
                 </MenuItem>
               </MenuGroup>
               <MenuDivider />
               <MenuGroup title={translate('common.walletActions')} color='text.subtle'>
                 {ConnectMenuComponent && <ConnectMenuComponent />}
+                <MenuDivider />
+                <MenuItem icon={eyeOffIcon} onClick={handleManageHiddenAssetsClick}>
+                  {translate('manageHiddenAssets.title')}
+                </MenuItem>
                 <MenuDivider />
                 <MenuItem icon={repeatIcon} onClick={onSwitchProvider}>
                   {translate('connectWallet.menu.switchWallet')}

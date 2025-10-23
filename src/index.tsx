@@ -9,6 +9,7 @@ import {
   init as initSentry,
   setUser,
 } from '@sentry/react'
+import { TradeQuoteError } from '@shapeshiftoss/swapper'
 import { isAxiosError } from 'axios'
 import React from 'react'
 import { createRoot } from 'react-dom/client'
@@ -24,12 +25,19 @@ import { httpClientIntegration } from './utils/sentry/httpclient'
 
 const enableReactScan = false
 
+const SENTRY_ENABLED = true
+
 scan({
   enabled: window.location.hostname === 'localhost' && enableReactScan,
 })
 
-// Remove this condition to test sentry locally
-if (window.location.hostname !== 'localhost') {
+// Sentry is disabled on localhost by default
+// To test locally, set VITE_ENABLE_SENTRY_LOCALHOST=true in your .env.local file
+const isLocalhost = window.location.hostname === 'localhost'
+const enableSentryOnLocalhost = import.meta.env.VITE_ENABLE_SENTRY_LOCALHOST === 'true'
+const shouldEnableSentry = SENTRY_ENABLED && (!isLocalhost || enableSentryOnLocalhost)
+
+if (shouldEnableSentry) {
   const VALID_ENVS = [
     'localhost',
     'develop',
@@ -53,20 +61,55 @@ if (window.location.hostname !== 'localhost') {
   initSentry({
     environment,
     dsn: getConfig().VITE_SENTRY_DSN_URL,
+    release: `shapeshift-web@${import.meta.env.VITE_VERSION ?? 'unknown'}`,
     attachStacktrace: true,
     // This is the default value, but we're setting it explicitly to make it clear that we're using it
     autoSessionTracking: true,
+    ignoreErrors: [
+      // Network connectivity errors
+      'NetworkError',
+      'Failed to fetch',
+      'Network request failed',
+      'Load failed',
+      /timeout of \d+ms exceeded/i,
+
+      // WebSocket errors (defense-in-depth with beforeSend)
+      'failed to reconnect, connection closed',
+      'timeout while trying to connect',
+
+      // Browser extension errors
+      /chrome-extension:/i,
+      /extensions\//i,
+      /moz-extension:/i,
+
+      // ResizeObserver (common benign error)
+      'ResizeObserver loop',
+
+      // User cancelled actions
+      'User rejected',
+      'User denied',
+      'transactionRejected',
+
+      // Common business logic errors that are user-facing
+      TradeQuoteError.UnsupportedTradePair,
+      TradeQuoteError.NoRouteFound,
+      TradeQuoteError.RateLimitExceeded,
+    ],
     integrations: [
       // Sentry.browserTracingIntegration(),
       // Sentry.replayIntegration(),
       httpClientIntegration({
         failedRequestStatusCodes: [
-          [400, 428],
-          // i.e no 429s
-          [430, 599],
+          [500, 599], // Only server errors, not client errors
         ],
 
-        denyUrls: ['alchemy.com', 'snapshot.org'],
+        denyUrls: [
+          'alchemy.com',
+          'snapshot.org',
+          'coingecko.com',
+          'coincap.io',
+          'coinmarketcap.com',
+        ],
       }),
       browserApiErrorsIntegration(),
       breadcrumbsIntegration(),
@@ -74,19 +117,41 @@ if (window.location.hostname !== 'localhost') {
       httpContextIntegration(),
     ],
     beforeSend(event, hint) {
+      const error = hint?.originalException
+      const errorMessage = error instanceof Error ? error.message : event.message ?? ''
+
+      // Filter browser extension errors
+      if (
+        event.request?.url?.includes('extension://') ||
+        event.request?.url?.includes('chrome://') ||
+        event.request?.url?.includes('moz-extension://')
+      ) {
+        return null
+      }
+
+      // Filter expected trade errors (defense-in-depth with ignoreErrors)
+      if (
+        errorMessage.includes('TradeQuoteError') ||
+        errorMessage.includes(TradeQuoteError.UnsupportedTradePair) ||
+        errorMessage.includes(TradeQuoteError.NoRouteFound)
+      ) {
+        return null
+      }
+
       // Enriches Axios errors with context
       if (isAxiosError(hint?.originalException)) {
-        const error = hint.originalException
-        if (error.response) {
+        const axiosError = hint.originalException
+        if (axiosError.response) {
           const contexts = { ...event.contexts }
           contexts.Axios = {
-            Request: error.request,
-            Response: error.response,
+            Request: axiosError.request,
+            Response: axiosError.response,
           }
           event.contexts = contexts
         }
       }
-      // Drop closed ws errors to avoid spew
+
+      // Drop closed ws errors to avoid spew (defense-in-depth with ignoreErrors)
       if (
         ['failed to reconnect, connection closed', 'timeout while trying to connect'].some(
           errorPredicate =>
@@ -96,23 +161,42 @@ if (window.location.hostname !== 'localhost') {
         return null
       }
 
-      // Group all status 0 XHR errors together using 'XMLHttpRequest Error' as a custom fingerprint.
-      // and the ones with a status (i.e with a URL) by their URL.
-      // By default, Sentry will group errors based on event.request.url, which is the client-side URL e.g http://localhost:3000/#/trade for status 0 errors.
-      // This is not ideal, as having XMLHttpRequest errors while in different parts of the app will result in different groups
+      // Group HTTP Client Errors by URL for better grouping
+      // Note: status: 0 errors are filtered at the integration level
       if (event.message?.includes('HTTP Client Error')) {
-        if (event.message.includes('status: 0')) {
-          event.fingerprint = ['XMLHttpRequest Error']
-        } else {
-          event.fingerprint = [event.request?.url ?? '']
-        }
+        event.fingerprint = [event.request?.url ?? 'unknown-url']
       }
+
+      // Add error classification tags
+      event.tags = {
+        ...(event.tags ?? {}),
+        errorType: error instanceof Error ? error.constructor.name : 'unknown',
+      }
+
       // Leave other errors untouched to leverage Sentry's default grouping
       return event
     },
-    enableTracing: true,
-    // Set 'tracePropagationTargets' to control for which URLs distributed tracing should be enabled
-    tracePropagationTargets: ['localhost'],
+    beforeBreadcrumb(breadcrumb, _hint) {
+      // Filter console logs except errors
+      if (breadcrumb.category === 'console' && breadcrumb.level !== 'error') {
+        return null
+      }
+
+      // Filter successful HTTP requests (only keep failures)
+      if (breadcrumb.category === 'fetch' || breadcrumb.category === 'xhr') {
+        if (breadcrumb.data?.status_code && breadcrumb.data.status_code < 400) {
+          return null
+        }
+      }
+
+      // Filter UI events (too noisy for error context)
+      if (breadcrumb.category === 'ui.click' || breadcrumb.category === 'ui.input') {
+        return null
+      }
+
+      return breadcrumb
+    },
+    enableTracing: false,
   })
 
   // Set a unique user ID if one is not already set

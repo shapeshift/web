@@ -12,6 +12,7 @@ import {
   Progress,
   Skeleton,
   Stack,
+  useInterval,
 } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
@@ -41,7 +42,6 @@ import { SlideTransition } from '@/components/SlideTransition'
 import { RawText, Text } from '@/components/Text'
 import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
 import { queryClient } from '@/context/QueryClientProvider/queryClient'
-import { useInterval } from '@/hooks/useInterval/useInterval'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
 import { getMaybeCompositeAssetSymbol } from '@/lib/mixpanel/helpers'

@@ -62,7 +62,6 @@ export type BanxaQuoteResponse = {
 
 export type BanxaQuoteRequest = {
   partner: string
-  orderType: 'buy' | 'sell'
   paymentMethodId?: string
   crypto: string
   blockchain: string

@@ -1,4 +1,5 @@
 import { Box, useDisclosure } from '@chakra-ui/react'
+import { ethChainId } from '@shapeshiftoss/caip'
 import { SwapperName } from '@shapeshiftoss/swapper'
 import type { KnownChainIds } from '@shapeshiftoss/types'
 import { getChainShortName } from '@shapeshiftoss/utils'
@@ -96,7 +97,11 @@ export const SwapActionCard = ({ action, isCollapsable = false }: SwapActionCard
   const title = useMemo(() => {
     const { status } = action
     if (isArbitrumBridge) {
-      if (status === ActionStatus.Complete) return 'actionCenter.bridge.complete'
+      if (status === ActionStatus.Complete) {
+        // Complete is not really complete for withdrawals
+        const isWithdrawal = swap?.buyAsset.chainId === ethChainId
+        return isWithdrawal ? 'actionCenter.bridge.initiated' : 'actionCenter.bridge.complete'
+      }
       if (status === ActionStatus.Failed) return 'actionCenter.bridge.failed'
       if (status === ActionStatus.Initiated) return 'actionCenter.bridge.initiated'
 
@@ -110,7 +115,7 @@ export const SwapActionCard = ({ action, isCollapsable = false }: SwapActionCard
     if (status === ActionStatus.AwaitingSwap) return 'actionCenter.swap.awaitingSwap'
 
     return 'actionCenter.swap.processing'
-  }, [action, isArbitrumBridge, swap?.isStreaming])
+  }, [action, isArbitrumBridge, swap?.isStreaming, swap?.buyAsset.chainId])
 
   const icon = useMemo(() => {
     return (

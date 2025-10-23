@@ -1,6 +1,6 @@
 import { useContext, useMemo } from 'react'
 
-import { ModalContext } from '@/context/ModalProvider/ModalContainer'
+import { ModalContext } from '@/context/ModalProvider/ModalContext'
 import type { BaseProps, ModalProps, Modals } from '@/context/ModalProvider/types'
 
 export const useModal = <T extends keyof Modals>(key: T): BaseProps<T> => {

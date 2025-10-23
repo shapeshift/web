@@ -10,7 +10,6 @@ import MtPelerinLogo from '@/assets/mtpelerin.png'
 import { getMtPelerinFiatCurrencies } from '@/components/Modals/FiatRamps/fiatRampProviders/mtpelerin'
 import { getConfig } from '@/config'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
-import type { CommonFiatCurrencies } from '@/lib/fiatCurrencies/fiatCurrencies'
 
 /**
  * Get minimum sell limits for a currency from Mt Pelerin API
@@ -39,28 +38,33 @@ export const getMtPelerinQuote = async ({
   crypto,
   amount,
   direction,
-}: GetQuotesArgs): Promise<RampQuote | undefined> => {
+}: GetQuotesArgs): Promise<RampQuote | null> => {
   try {
     const baseUrl = getConfig().VITE_MTPELERIN_API_URL
 
     const supportedFiatCurrencies = getMtPelerinFiatCurrencies()
 
-    if (!supportedFiatCurrencies.includes(fiatCurrency.code as CommonFiatCurrencies)) {
-      return
+    if (!supportedFiatCurrencies.includes(fiatCurrency.code)) {
+      return null
     }
 
     // Get the Mt Pelerin symbol for the crypto asset
     const mtPelerinSymbol = adapters.assetIdToMtPelerinSymbol(crypto as AssetId)
     if (!mtPelerinSymbol) {
       console.warn(`Asset ${crypto} not supported by Mt Pelerin`)
-      return
+      return null
     }
 
     // Get the network for the asset
     const network = adapters.getMtPelerinNetFromAssetId(crypto as AssetId)
     if (!network) {
       console.warn(`Network not supported by Mt Pelerin for asset ${crypto}`)
-      return
+      return null
+    }
+
+    if (bnOrZero(amount).lte(0)) {
+      console.warn(`Amount ${amount} is less than or equal to 0`)
+      return null
     }
 
     const requestData = {
@@ -79,6 +83,7 @@ export const getMtPelerinQuote = async ({
         headers: {
           'Content-Type': 'application/json',
         },
+        timeout: QUOTE_TIMEOUT_MS,
       },
     )
 
@@ -87,7 +92,7 @@ export const getMtPelerinQuote = async ({
       const minLimit = await getMtPelerinSellLimits(fiatCurrency.code)
       if (minLimit && bnOrZero(quote.destAmount).lt(bnOrZero(minLimit))) {
         console.warn(`Amount ${amount} is below minimum limit ${minLimit} for ${fiatCurrency.code}`)
-        return
+        return null
       }
     }
 
@@ -111,6 +116,6 @@ export const getMtPelerinQuote = async ({
     }
   } catch (e) {
     console.error('Error fetching Mt Pelerin quotes:', e)
-    return
+    return null
   }
 }

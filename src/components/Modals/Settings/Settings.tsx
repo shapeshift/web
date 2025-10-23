@@ -1,10 +1,10 @@
-import { Modal, ModalContent, ModalOverlay } from '@chakra-ui/react'
 import { useEffect } from 'react'
 import { MemoryRouter, useNavigate } from 'react-router-dom'
 
 import { SettingsRoutes } from './SettingsCommon'
 import { SettingsRouter } from './SettingsRouter'
 
+import { Dialog } from '@/components/Modal/components/Dialog'
 import { useModal } from '@/hooks/useModal/useModal'
 import type { MobileMessageEvent } from '@/plugins/mobile'
 
@@ -42,14 +42,11 @@ const Settings = () => {
   }, [appHistory, close, isOpen])
 
   return (
-    <Modal isOpen={isOpen} onClose={close} isCentered size='md'>
-      <ModalOverlay />
-      <ModalContent>
-        <MemoryRouter initialEntries={entries} initialIndex={0}>
-          <SettingsRouter />
-        </MemoryRouter>
-      </ModalContent>
-    </Modal>
+    <Dialog isOpen={isOpen} onClose={close} height='auto'>
+      <MemoryRouter initialEntries={entries} initialIndex={0}>
+        <SettingsRouter />
+      </MemoryRouter>
+    </Dialog>
   )
 }
 

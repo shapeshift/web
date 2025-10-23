@@ -3,6 +3,8 @@
     "amount": "Betrag",
     "ascending": "Aufsteigend",
     "descending": "Absteigend",
+    "selectAll": "Alles Auswählen",
+    "unselectAll": "Auswahl aufheben",
     "free": "kostenlos",
     "trade": "Handelsumsatz",
     "trades": "Handelsumsätze",
@@ -40,6 +42,7 @@
     "activity": "Aktivität",
     "reject": "Ablehnen",
     "goBack": "Geh zurück",
+    "fiat": "Fiat",
     "connected": "Verbunden",
     "allocation": "Zuweisung",
     "trendingTokens": "Token im Trend",
@@ -65,6 +68,7 @@
     "pairing": "Koppeln",
     "connectWalletToGetStartedWith": "Verbinden Sie eine Wallet, um mit %{feature} zu beginnen",
     "connectedWallet": "Verbundene Wallet",
+    "crypto": "Krypto",
     "walletActions": "Wallet Aktionen",
     "connectedWalletSettings": "Wallet Einstellungen",
     "noWallet": "Keine Wallet verbunden",
@@ -130,6 +134,11 @@
     "enterAmount": "Betrag eingeben",
     "enterAddress": "Adresse eingeben",
     "pageNotFound": "Die gesuchte Seite kann nicht gefunden werden",
+    "creditCard": "Kreditkarte",
+    "bankTransfer": "Banküberweisung",
+    "applePay": "Apple Pay",
+    "googlePay": "Google Pay",
+    "sepa": "SEPA",
     "buySell": "Kaufen/Verkaufen",
     "all": "Alle",
     "viewAll": "Alle ansehen",
@@ -217,6 +226,7 @@
     "dca": "DCA",
     "boost": "Boost",
     "viewOnExplorer": "Im Explorer anzeigen",
+    "viewAssetDetails": "Vermögen Details anzeigen",
     "approval": "Genehmigung",
     "permit2Approval": "Permit2 Genehmigung",
     "network": "Netzwerk",
@@ -259,18 +269,25 @@
       "body": "In der Handelsschnittstelle ist ein Fehler aufgetreten. Sie können es erneut versuchen oder die Seite aktualisieren.",
       "retry": "Versuchen Sie es erneut"
     },
+    "ramp": {
+      "title": "Wechselfehler",
+      "body": "Bei der Wechselschnittstelle ist ein Fehler aufgetreten. Sie können es erneut versuchen oder die Seite aktualisieren.",
+      "retry": "Erneut Versuchen"
+    },
     "suspense": {
       "title": "Laden fehlgeschlagen",
       "body": "Dieser Inhalt konnte nicht richtig geladen werden.",
       "retry": "Wiederholen"
     }
   },
-  "buyPage": {
-    "title": "Krypto kaufen <span>in Sekunden</span>",
-    "body": "Verwenden Sie eine Kreditkarte,  Debitkarte oder ein Bankkonto. Kaufen Sie Bitcoin, Ethereum, USDT, USDC oder andere Top-Kryptowährungen. Anbieter ohne KYC verfügbar.",
-    "disclaimer": "*Sie können Krypto auch direkt gegen Bargeld auf Ihr Bankkonto verkaufen.",
-    "ctaTitle": "Sie können ShapeShift auch mit allen Top-Wallets verwenden, um zu handeln, Erträge zu erzielen und <span>Verfolgen Sie Ihre Krypto über %{chainCount} Ketten</span>",
-    "availableAssets": "Verfügbare Vermögenswerte"
+  "rampPage": {
+    "buyTitle": "Kaufen Sie Krypto <span>in Sekunden</span>",
+    "sellTitle": "Verkaufen Sie Kryptowährungen <span>in Sekunden</span>",
+    "buyBody": "Verwenden Sie eine Kreditkarte, Debitkarte oder ein Bankkonto. Kaufen Sie Bitcoin, Ethereum, USDT, USDC oder andere Top-Kryptowährungen. Anbieter ohne KYC verfügbar.",
+    "sellBody": "Verwenden Sie eine Kreditkarte, Debitkarte oder ein Bankkonto. Verkaufen Sie Bitcoin, Ethereum, USDT, USDC oder andere Top-Kryptowährungen. Anbieter ohne KYC verfügbar.",
+    "disclaimer": "*Sie können Kryptowährungen auch direkt gegen Bargeld auf Ihr Bankkonto verkaufen.",
+    "ctaTitle": "Sie können ShapeShift auch mit allen Top Wallets verwenden, um zu handeln, Erträge zu erzielen und <span>Ihre Kryptowährung über %{chainCount} Ketten hinweg zu verfolgen</span>",
+    "availableAssets": "Verfügbare Assets"
   },
   "updateToast": {
     "body": "Es ist ein App Update verfügbar!",
@@ -374,6 +391,9 @@
       "switchWallet": "Wallet wechseln",
       "disconnect": "Trennen",
       "disconnected": "(Getrennt)",
+      "locked": "(Gesperrt)",
+      "reconnectWallet": "Wallet erneut verbinden",
+      "walletNotConnected": "Ihr Wallet ist derzeit nicht verbunden. Dies wirkt sich auf Transaktionen aus.",
       "connecting": "Verbinde..."
     }
   },
@@ -412,8 +432,6 @@
       },
       "cosmosOverview": {
         "rewards": "Die Belohnungen, die Sie verdienen, akkumulieren sich automatisch.",
-        "cta": "Beginne Staking",
-        "learnMore": "Erfahren Sie mehr",
         "withdrawals": "Beende Staking",
         "emptyWithdraws": "Ausstehende Stake Beendigungs-Anfragen werden hier angezeigt.",
         "availableDate": "verfügbar %{date}"
@@ -665,7 +683,6 @@
     "market": "Markt",
     "limitOrder": "Limit Bestellungen",
     "claims": "Ansprüche",
-    "tradeShort": "Handeln",
     "buyCrypto": "Krypto kaufen/verkaufen",
     "buyCryptoShort": "Kauf/Verkauf",
     "lending": "Verleihen",
@@ -674,6 +691,8 @@
     "tcy": "TCY",
     "foxEcosystem": "FOX Ökosystem",
     "markets": "Märkte",
+    "tokens": "Tokens",
+    "swap": "Swap",
     "actionMenu": {
       "send": {
         "title": "Senden",
@@ -695,6 +714,34 @@
         "title": "QR-Code scannen",
         "body": "Einfaches Scannen zum Senden oder Empfangen von Kryptowährungen"
       }
+    }
+  },
+  "shapeShiftMenu": {
+    "products": "Produkte",
+    "mobileApp": {
+      "title": "Mobile App",
+      "subtitle": "Handeln und verwalten Sie Kryptowährungen"
+    },
+    "foxToken": {
+      "title": "FOX Token",
+      "subtitle": "Unser Governance Token"
+    },
+    "classic": {
+      "title": "Klassisch",
+      "subtitle": "Das OG ShapeShift"
+    },
+    "wallet": {
+      "title": "ShapeShift Wallet",
+      "subtitle": "Erfahren Sie mehr über unser Wallet"
+    },
+    "footer": {
+      "governance": "Governance",
+      "support": "Unterstützung",
+      "blog": "Blog",
+      "faq": "Häufig gestellte Fragen",
+      "github": "GitHub",
+      "discord": "Discord",
+      "twitter": "Twitter/X"
     }
   },
   "transactionRow": {
@@ -878,7 +925,10 @@
     "confirmAndClaim": "Bestätigen und Beanspruchen",
     "viewClaims": "Ansprüche anzeigen",
     "viewClaimStatus": "Anspruchsstatus anzeigen",
-    "availableClaimsNotification": "Sie haben bridge Ansprüche erhalten!"
+    "availableClaimsNotification": "Sie haben bridge Ansprüche erhalten!",
+    "bridgeWithdrawalReadyNotification": "Bridge Abhebung bereit zur Inanspruchnahme",
+    "bridgeWithdrawalFailedNotification": "Bridge Abhebung fehlgeschlagen",
+    "checkActionCenterNotification": "Weitere Einzelheiten im Action Center"
   },
   "trade": {
     "trade": "Handeln",
@@ -952,7 +1002,7 @@
     "viewTransaction": "Transaktion anzeigen",
     "noQuotesAvailable": "Keine Angebote verfügbar",
     "noQuotesAvailableDescription": "Zurzeit wurden keine verfügbaren Angebote gefunden. Versuchen Sie ein anderes Paar auszuwählen.",
-    "availableSwappers": "Verfügbare Angebote",
+    "availableQuotes": "Verfügbare Angebote",
     "unavailableSwappers": "Nicht verfügbare Swapper",
     "unlimited": "Unbegrenzt",
     "streamStatus": "Stream Status",
@@ -1445,7 +1495,8 @@
       "verified": "Verifiziert",
       "notVerified": "Adresskonflikt",
       "blockExplorer": "Explorer",
-      "supportedNetworks": "Unterstützte Netzwerke"
+      "supportedNetworks": "Unterstützte Netzwerke",
+      "amountNote": "Geben Sie den gewünschten Betrag ein. Dadurch wird ein QR-Code mit dem Betrag generiert, der die Zahlung vereinfacht."
     },
     "deposit": {
       "allocation": {
@@ -1609,6 +1660,26 @@
         "ILS": "Israelischer Schekel",
         "IDR": "Indonesische Rupiah"
       }
+    },
+    "ramp": {
+      "payWith": "Bezahlen Mit",
+      "youGet": "Sie Erhalten",
+      "sellAmount": "Verkaufsbetrag",
+      "receiveAmount": "Empfangsbetrag",
+      "buyAsset": "Vermögenswert kaufen",
+      "sellAsset": "Vermögenswert verkaufen",
+      "receiveAsset": "Asset erhalten",
+      "previewOrder": "Bestellvorschau",
+      "processingTime": "Bearbeitungszeit: 1-3 Werktage",
+      "buyInfo": "Kaufen Sie Krypto mit Fiat-Währung",
+      "sellInfo": "Krypto gegen Fiat-Währung verkaufen",
+      "availableQuotes": "Verfügbare Angebote",
+      "bestRate": "Bester Preis",
+      "fastest": "Am schnellsten",
+      "rate": "Preis",
+      "amount": "Betrag",
+      "paymentMethods": "Zahlungsarten",
+      "selectFiat": "Fiat Währung auswählen"
     },
     "mobileWelcome": {
       "success": {
@@ -1778,7 +1849,11 @@
         "pairExistingDeviceBody": "Sie möchten ein anderes Ledger Gerät verbinden? Klicken Sie auf „Neues Gerät koppeln“, um neu zu beginnen."
       },
       "failure": {
-        "body": "Ledger Wallet kann nicht verbunden werden"
+        "header": "Verbindung zum Ledger nicht möglich",
+        "body": "Wir konnten Ihr Ledger nicht erkennen, aber Sie können sich im Nur-Lese-Modus verbinden."
+      },
+      "readOnly": {
+        "button": "Verbindung im Nur-Lese-Modus herstellen"
       },
       "gettingChangeAddress": "Erhalte Retourgeld Adresse",
       "connectWarning": "Bevor Sie eine Kette verbinden, stellen Sie sicher, dass die App auf Ihrem Gerät geöffnet ist.",
@@ -1824,6 +1899,7 @@
       "active": "Aktiv",
       "notActive": "Nicht aktiv",
       "addSnap": "Snap hinzufügen",
+      "installError": "Beim Installieren des Multichain Snap auf MetaMask ist ein Fehler aufgetreten",
       "uninstall": {
         "title": "Sie haben die Multichain Unterstützung von MetaMask entfernt!",
         "subtitle": "Fügen Sie den Multichain Snap auf MetaMask erneut hinzu, um mit den folgenden Ketten - zu senden, empfangen, verfolgen, handeln und verdienen:"
@@ -2105,11 +2181,12 @@
   },
   "assets": {
     "more": "Mehr",
+    "hideAsset": "Vermögen ausblenden",
+    "showAsset": "Vermögen anzeigen",
+    "cannotHidePrimary": "Primäres Vermögen mit zugehörigen Varianten können nicht ausgeblendet werden.",
     "spam": {
-      "warning": "Dieses Asset wird ausgeblendet, da Sie es als Spam markiert haben.",
-      "marked": "Dieses Asset ist als Spam markiert.",
-      "reportAsSpam": "Als Spam melden",
-      "reportAsNotSpam": "Als „Kein Spam“ markieren"
+      "warning": "Dieses Vermögen kann erneut angezeigt werden, indem Sie das Wallet Dropdown-Menü öffnen und auf „Versteckte Vermögen verwalten“ klicken.",
+      "marked": "Dieses Vermögen ist derzeit ausgeblendet."
     },
     "assetDetails": {
       "assetHeader": {
@@ -2367,6 +2444,13 @@
         "transactionData": "Transaktionsdaten",
         "method": "Methode",
         "signingWith": "Unterschreiben mit",
+        "connectWith": "Verbinden mit",
+        "chooseAccount": "Konto auswählen",
+        "chooseNetwork": "Netzwerk auswählen",
+        "required": "Erforderlich",
+        "noAccount": "Sie haben kein Konto bei %{chainName} für diese Adresse",
+        "connectionRequest": "Verbindungsanfrage",
+        "connectionRequestTooltip": "Durch die Verbindung kann diese dApp Genehmigungen für Transaktionen anfordern",
         "sendingTo": "Senden an",
         "signMessage": {
           "signingFrom": "Signieren von",
@@ -2421,7 +2505,6 @@
         },
         "connect": {
           "title": "Verbinden Sie Ihre Wallet über WalletConnect mit einer dApp und lösen Sie Transaktionen aus",
-          "howTo": "Wie verbinde ich mich mit einer dApp?",
           "linkPlaceholder": "QR-Code oder Verbindungslink",
           "connect": "Verbinden",
           "connectionError": "Keine Verbindung zum angegebenen URI möglich.",
@@ -2718,6 +2801,13 @@
     },
     "title": "Merkliste"
   },
+  "manageHiddenAssets": {
+    "title": "Versteckte Vermögen verwalten",
+    "empty": {
+      "title": "Keine versteckten Vermögen",
+      "body": "Ausgeblendete Vermögen werden hier gelistet, sodass sie später problemlos wieder angezeigt werden können."
+    }
+  },
   "explore": {
     "pools": {
       "title": "Pools",
@@ -2820,7 +2910,7 @@
     "myStakedBalanceHelper": "Der Betrag von %{symbol}, den Sie gestaked haben",
     "pendingRewardsBalance": "Ausstehendes Prämienguthaben",
     "pendingRewardsBalanceHelper": "Dies ist nur eine Schätzung Ihrer ausstehenden Belohnungen basierend auf den Einnahmen der Epoche bis heute. Die gesamte Abrechnung erfolgt am Ende der Epoche und kann nicht vor Monatsende genau berechnet werden.",
-    "lifetimeRewards": "Lebenslange Belohnungen",
+    "lifetimeRewards": "Bisherige Belohnungen",
     "lifetimeRewardsHelper": "Die Gesamtbelohnungen, die Sie bisher durch das Staking Ihres %{symbol} erhalten haben",
     "timeInPool": "Zeit im Pool",
     "timeInPoolHelper": "Die Zeit im Pool ist die am längsten bestehende Einzahlung in rFOX",
@@ -3049,6 +3139,7 @@
       "switchChainFailed": "Das Wechseln der Wallet Kette ist fehlgeschlagen. Versuchen Sie, die aktive Wallet Kette manuell auf %{chain} umzustellen.",
       "buildTransaction": "Die Transaktion konnte nicht erstellt werden.",
       "signTransaction": "Die Unterzeichnung der Transaktion ist fehlgeschlagen.",
+      "blindSigningRequired": "Für die Transaktion ist eine Blindsignatur erforderlich. Aktivieren Sie die Option „Blind signing“ in den Einstellungen Ihrer Ledger-App und versuchen Sie es erneut.",
       "signAndBroadcastTransaction": "Signieren und Senden der Transaktion fehlgeschlagen.",
       "signMessage": "Signieren der Nachricht fehlgeschlagen.",
       "broadcastTransaction": "Die Übertragung der Transaktion ist fehlgeschlagen.",
@@ -3125,10 +3216,17 @@
       "complete": "Ihr Anspruch in Höhe von %{amount} %{symbol} ist vollständig."
     },
     "bridge": {
-      "processing": "Ihr Wechsel von %{sellAmountAndSymbol}.%{sellChainShortName} zu %{buyAmountAndSymbol}.%{buyChainShortName} wird verarbeitet.",
-      "complete": "Ihr Wechsel von %{sellAmountAndSymbol}.%{sellChainShortName} zu %{buyAmountAndSymbol}.%{buyChainShortName} ist abgeschlossen.",
-      "initiated": "Ihr Wechsel von %{sellAmountAndSymbol}.%{sellChainShortName} zu %{buyAmountAndSymbol}.%{buyChainShortName} wurde initiiert.",
-      "failed": "Ihr Wechsel von %{sellAmountAndSymbol}.%{sellChainShortName} zu %{buyAmountAndSymbol}.%{buyChainShortName} ist fehlgeschlagen."
+      "processing": "Verarbeitung läuft ...",
+      "complete": "Ihre bridge von %{amountAndSymbol} ist fertig.",
+      "initiated": "Ihre bridge von %{sellAmountAndSymbol} zu %{buyAmountAndSymbol} wurde initiiert.",
+      "pendingWithdraw": "Ihre Auszahlung von %{amountAndSymbol} wird %{timeText} verfügbar sein.",
+      "claimAvailable": "Ihre bridge von %{amountAndSymbol} kann beansprucht werden.",
+      "failed": "Ihr Wechsel von %{sellAmountAndSymbol}.%{sellChainShortName} zu %{buyAmountAndSymbol}.%{buyChainShortName} ist fehlgeschlagen.",
+      "transactionInitiated": "Transaktion eingeleitet",
+      "claimWithdraw": "Auszahlung beanspruchen",
+      "withdrawTx": "Tx abheben",
+      "claimTx": "Anspruch Tx",
+      "claimNotAvailable": "Der Anspruch ist noch nicht verfügbar. Bitte warten Sie, bis die Auszahlungsfrist abgelaufen ist."
     },
     "limitOrder": {
       "placed": "Limit Order für %{sellAmountAndSymbol} bis %{buyAmountAndSymbol} aufgegeben",

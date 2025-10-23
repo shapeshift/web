@@ -1,8 +1,16 @@
 import { Box, Button, Divider, Flex, HStack, useMediaQuery } from '@chakra-ui/react'
 import { useScroll } from 'framer-motion'
 import { lazy, memo, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { FaArrowRight, FaCreditCard } from 'react-icons/fa'
-import { TbChartHistogram } from 'react-icons/tb'
+import {
+  TbArrowRight,
+  TbBuildingBank,
+  TbCreditCard,
+  TbGraph,
+  TbLayersSelected,
+  TbPool,
+  TbRefresh,
+  TbStack,
+} from 'react-icons/tb'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
 import { useLocation, useNavigate } from 'react-router-dom'
@@ -19,7 +27,7 @@ import { WalletManagerDrawer } from './NavBar/WalletManagerDrawer'
 import { SettingsMenu } from './SettingsMenu'
 import { TxWindow } from './TxWindow/TxWindow'
 
-import { SwapIcon } from '@/components/Icons/SwapIcon'
+import { TCYIcon } from '@/components/Icons/TCYIcon'
 import { useDiscoverAccounts } from '@/context/AppProvider/hooks/useDiscoverAccounts'
 import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { useWallet } from '@/hooks/useWallet/useWallet'
@@ -50,21 +58,21 @@ const searchBoxMaxWSx = { base: 'auto', lg: '400px' }
 const searchBoxMinWSx = { base: 'auto', xl: '300px' }
 
 const tradeSubMenuItems = [
-  { label: 'navBar.swap', path: '/trade', icon: SwapIcon },
-  { label: 'limitOrder.heading', path: '/limit', icon: TbChartHistogram },
-  { label: 'fiatRamps.buy', path: '/ramp/buy', icon: FaCreditCard },
-  { label: 'fiatRamps.sell', path: '/ramp/sell', icon: FaArrowRight },
+  { label: 'navBar.swap', path: '/trade', icon: TbRefresh },
+  { label: 'limitOrder.heading', path: '/limit', icon: TbLayersSelected },
+  { label: 'fiatRamps.buy', path: '/ramp/buy', icon: TbCreditCard },
+  { label: 'fiatRamps.sell', path: '/ramp/sell', icon: TbArrowRight },
 ]
 
 const exploreSubMenuItems = [
-  { label: 'navBar.tokens', path: '/assets' },
-  { label: 'navBar.markets', path: '/markets' },
+  { label: 'navBar.tokens', path: '/assets', icon: TbStack },
+  { label: 'navBar.markets', path: '/markets', icon: TbGraph },
 ]
 
 const earnSubMenuItems = [
-  { label: 'navBar.tcy', path: '/tcy' },
-  { label: 'navBar.pools', path: '/pools' },
-  { label: 'navBar.lending', path: '/lending' },
+  { label: 'navBar.tcy', path: '/tcy', icon: TCYIcon },
+  { label: 'navBar.pools', path: '/pools', icon: TbPool },
+  { label: 'navBar.lending', path: '/lending', icon: TbBuildingBank },
 ]
 
 export const Header = memo(() => {
@@ -112,9 +120,26 @@ export const Header = memo(() => {
 
   const hasWallet = Boolean(walletInfo?.deviceId)
 
-  const handleWalletClick = useCallback(() => {
-    navigate('/wallet')
-  }, [navigate])
+  const handleWalletMouseDown = useCallback((e: React.MouseEvent) => {
+    if (e.button === 1) {
+      // Middle-click
+      e.preventDefault()
+      window.open('#/wallet', '_blank')
+    }
+  }, [])
+
+  const handleWalletClick = useCallback(
+    (e: React.MouseEvent) => {
+      if (e.ctrlKey || e.metaKey) {
+        // Ctrl/Cmd+click
+        e.preventDefault()
+        window.open('#/wallet', '_blank')
+      } else {
+        navigate('/wallet')
+      }
+    },
+    [navigate],
+  )
 
   const isWalletActive = useMemo(() => {
     return location.pathname.startsWith('/wallet')
@@ -168,6 +193,7 @@ export const Header = memo(() => {
                 variant='ghost'
                 fontWeight='medium'
                 onClick={handleWalletClick}
+                onMouseDown={handleWalletMouseDown}
                 px={3}
                 py={2}
                 borderRadius='md'

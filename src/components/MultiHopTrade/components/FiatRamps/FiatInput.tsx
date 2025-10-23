@@ -1,6 +1,6 @@
 import type { InputProps } from '@chakra-ui/react'
 import { Box, Flex, Input, Skeleton, Text } from '@chakra-ui/react'
-import { useCallback, useMemo } from 'react'
+import { useCallback, useMemo, useRef, useState } from 'react'
 import type { NumberFormatValues } from 'react-number-format'
 import NumberFormat from 'react-number-format'
 
@@ -34,12 +34,40 @@ const hoverInputStyle = {
   border: 'none',
 }
 
-const AmountInput = (props: InputProps) => {
+// Thresholds for progressive font size reduction based on amount length
+const FONT_SIZE_THRESHOLDS = {
+  SMALL: 10,
+  MEDIUM: 14,
+  LARGE: 18,
+} as const
+
+const getFontSizeByLength = (length: number): string => {
+  if (length >= FONT_SIZE_THRESHOLDS.LARGE) return '24px'
+  if (length >= FONT_SIZE_THRESHOLDS.MEDIUM) return '30px'
+  if (length >= FONT_SIZE_THRESHOLDS.SMALL) return '38px'
+  return '65px'
+}
+
+const AmountInput = (props: InputProps & { formattedValueLength?: number }) => {
+  const { formattedValueLength, ...rest } = props
+  const fontSize = useMemo(
+    () => getFontSizeByLength(formattedValueLength ?? 0),
+    [formattedValueLength],
+  )
+
+  const lineHeight = useMemo(() => fontSize, [fontSize])
+
+  const combinedStyle = useMemo(
+    () => ({
+      fontSize,
+      lineHeight,
+    }),
+    [fontSize, lineHeight],
+  )
+
   return (
     <Input
       size='lg'
-      fontSize='65px'
-      lineHeight='65px'
       fontWeight='bold'
       textAlign='center'
       border='none'
@@ -48,8 +76,9 @@ const AmountInput = (props: InputProps) => {
       _hover={hoverInputStyle}
       bg='transparent'
       variant='unstyled'
-      color={props.value ? 'text.base' : 'text.subtle'}
-      {...props}
+      color={rest.value ? 'text.base' : 'text.subtle'}
+      style={combinedStyle}
+      {...rest}
     />
   )
 }
@@ -71,6 +100,9 @@ export const FiatInput: React.FC<FiatInputProps> = ({
     number: { localeParts },
   } = useLocaleFormatter()
 
+  const formattedValueLengthRef = useRef<number>(0)
+  const [formattedValueLength, setFormattedValueLength] = useState(0)
+
   const fiatSymbol = useMemo(() => {
     if (!showPrefix) return ''
     return selectedFiatCurrency.symbol
@@ -78,6 +110,13 @@ export const FiatInput: React.FC<FiatInputProps> = ({
 
   const handleAmountChange = useCallback(
     (values: NumberFormatValues) => {
+      // Update the formatted value length
+      const newLength = values.formattedValue?.length ?? 0
+      if (newLength !== formattedValueLengthRef.current) {
+        formattedValueLengthRef.current = newLength
+        setFormattedValueLength(newLength)
+      }
+
       if (onAmountChange) {
         onAmountChange(values.value)
       }
@@ -120,16 +159,16 @@ export const FiatInput: React.FC<FiatInputProps> = ({
             <NumberFormat
               customInput={AmountInput}
               isNumericString={true}
-              disabled={isReadOnly}
+              readOnly={isReadOnly}
               prefix={fiatSymbol}
-              suffix={localeParts.postfix}
               decimalSeparator={localeParts.decimal}
               inputMode='decimal'
               thousandSeparator={localeParts.group}
+              decimalScale={selectedFiatCurrency.decimal_digits}
               placeholder={formattedPlaceholder}
               value={amount}
+              formattedValueLength={formattedValueLength}
               onValueChange={handleAmountChange}
-              decimalScale={2}
             />
           )}
         </Box>

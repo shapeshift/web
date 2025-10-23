@@ -5,6 +5,7 @@ import { I18n } from 'react-polyglot'
 import { Provider as ReduxProvider } from 'react-redux'
 
 import { translations } from '@/assets/translations'
+import { ModalStackProvider } from '@/context/ModalStackProvider'
 import { store } from '@/state/store'
 
 const locale: string = navigator?.language?.split('-')[0] ?? 'en'
@@ -16,7 +17,7 @@ export const TestProviders: React.FC<PropsWithChildren> = ({ children }) => (
   <QueryClientProvider client={queryClient}>
     <ReduxProvider store={store}>
       <I18n locale={locale} messages={messages}>
-        {children}
+        <ModalStackProvider>{children}</ModalStackProvider>
       </I18n>
     </ReduxProvider>
   </QueryClientProvider>

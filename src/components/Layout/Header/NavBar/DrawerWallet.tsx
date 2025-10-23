@@ -19,7 +19,7 @@ import {
   VStack,
 } from '@chakra-ui/react'
 import type { FC } from 'react'
-import { lazy, memo, Suspense, useCallback, useContext, useEffect, useMemo, useState } from 'react'
+import { lazy, memo, Suspense, useCallback, useEffect, useMemo, useState } from 'react'
 import { flushSync } from 'react-dom'
 import { useTranslate } from 'react-polyglot'
 import { MemoryRouter, Route, Routes, useNavigate } from 'react-router-dom'
@@ -29,9 +29,10 @@ import { DrawerWalletHeader } from './DrawerWalletHeader'
 
 import { AccountsListContent } from '@/components/Accounts/AccountsListContent'
 import { SendIcon } from '@/components/Icons/SendIcon'
+import { ManageHiddenAssetsContent } from '@/components/ManageHiddenAssets/ManageHiddenAssetsContent'
 import { SettingsRoutes } from '@/components/Modals/Settings/SettingsCommon'
 import { WalletBalanceChange } from '@/components/WalletBalanceChange/WalletBalanceChange'
-import { ModalContext } from '@/context/ModalProvider/ModalContainer'
+import { useModalRegistration } from '@/context/ModalStackProvider'
 import { WalletActions } from '@/context/WalletProvider/actions'
 import { useModal } from '@/hooks/useModal/useModal'
 import { useWallet } from '@/hooks/useWallet/useWallet'
@@ -132,7 +133,10 @@ const DrawerWalletInner: FC = memo(() => {
   const [activeTabIndex, setActiveTabIndex] = useState(0)
   const [loadedTabs, setLoadedTabs] = useState(new Set<number>()) // No tabs preloaded for better performance
   const navigate = useNavigate()
-  const modalContext = useContext(ModalContext)
+  const { modalContentProps, overlayProps, modalProps } = useModalRegistration({
+    isOpen,
+    onClose,
+  })
 
   const accountTableSkeletonFallback = useMemo(() => <AccountTableSkeleton />, [])
 
@@ -147,25 +151,10 @@ const DrawerWalletInner: FC = memo(() => {
   }, [isOpen, activeTabIndex])
 
   const {
-    state: { isConnected, walletInfo, connectedType, modal: walletModalOpen },
+    state: { isConnected, walletInfo, connectedType, isLocked },
     dispatch,
     disconnect,
   } = useWallet()
-
-  useEffect(() => {
-    if (!modalContext) return
-    const hasOpenModal = Object.entries(modalContext.state).some(
-      ([key, modal]) => key !== 'walletDrawer' && modal.isOpen,
-    )
-    if (hasOpenModal && isOpen) {
-      // Give the lazy modals some time to open
-      setTimeout(onClose, 250)
-    }
-
-    if (walletModalOpen && isOpen) {
-      onClose()
-    }
-  }, [modalContext, walletModalOpen, isOpen, onClose])
 
   const handleSendClick = useCallback(() => {
     send.open({})
@@ -206,10 +195,12 @@ const DrawerWalletInner: FC = memo(() => {
     [handleBackToMain, onClose],
   )
 
+  const manageHiddenAssetsElement = useMemo(() => <ManageHiddenAssetsContent />, [])
+
   return (
-    <Drawer isOpen={isOpen} placement='right' onClose={onClose} size='sm'>
-      <DrawerOverlay />
-      <DrawerContent width='full' maxWidth='512px'>
+    <Drawer placement='right' size='sm' {...modalProps}>
+      <DrawerOverlay {...overlayProps} />
+      <DrawerContent width='full' maxWidth='512px' {...modalContentProps}>
         <DrawerBody p={4} display='flex' flexDirection='column' height='100%'>
           <Routes>
             <Route
@@ -219,6 +210,7 @@ const DrawerWalletInner: FC = memo(() => {
                   <DrawerWalletHeader
                     walletInfo={walletInfo}
                     isConnected={isConnected}
+                    isLocked={isLocked}
                     connectedType={connectedType}
                     onDisconnect={handleDisconnect}
                     onSwitchProvider={handleSwitchProvider}
@@ -307,6 +299,7 @@ const DrawerWalletInner: FC = memo(() => {
                 </>
               }
             />
+            <Route path='/manage-hidden-assets' element={manageHiddenAssetsElement} />
             <Route path='/settings/*' element={drawerSettingsElement} />
           </Routes>
         </DrawerBody>

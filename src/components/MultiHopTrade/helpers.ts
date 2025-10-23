@@ -13,6 +13,7 @@ import {
   selectActiveSwapperName,
   selectBuyAmountBeforeFeesCryptoPrecision,
   selectFirstHopSellAsset,
+  selectIsQuickBuy,
   selectLastHopBuyAsset,
   selectQuoteSellAmountBeforeFeesCryptoPrecision,
   selectQuoteSellAmountUsd,
@@ -44,6 +45,7 @@ export const getMixpanelEventData = () => {
   const sellAmountBeforeFeesCryptoPrecision = selectQuoteSellAmountBeforeFeesCryptoPrecision(state)
   const swapperName = selectActiveSwapperName(state)
   const activeQuote = selectActiveQuote(state)
+  const isQuickBuy = selectIsQuickBuy(state)
 
   const compositeBuyAsset = getMaybeCompositeAssetSymbol(buyAsset.assetId, assets)
   const compositeSellAsset = getMaybeCompositeAssetSymbol(sellAsset.assetId, assets)
@@ -70,6 +72,7 @@ export const getMixpanelEventData = () => {
     isStreaming: activeQuote?.isStreaming ?? false,
     isLongtail: activeQuote?.isLongtail ?? false,
     tradeType,
+    isQuickBuy,
   }
 }
 

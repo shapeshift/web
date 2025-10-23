@@ -12,7 +12,6 @@ import { FiatRampAction } from '@/components/Modals/FiatRamps/FiatRampsCommon'
 import { FiatRampBadges } from '@/components/MultiHopTrade/components/FiatRamps/FiatRampBadges'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import type { FiatCurrencyItem } from '@/lib/fiatCurrencies/fiatCurrencies'
-import type { SupportedFiatCurrencies } from '@/lib/market-service'
 import { marketData } from '@/state/slices/marketDataSlice/marketDataSlice'
 import { selectMarketDataByAssetIdUserCurrency } from '@/state/slices/marketDataSlice/selectors'
 import { preferences, QuoteDisplayOption } from '@/state/slices/preferencesSlice/preferencesSlice'
@@ -65,7 +64,7 @@ export const FiatRampQuoteCard: FC<FiatRampQuoteProps> = memo(
           .toString()
       }
 
-      const fiatRate = fiatMarketData[buyFiatCurrency?.code as SupportedFiatCurrencies]?.price ?? 0
+      const fiatRate = fiatMarketData[buyFiatCurrency?.code]?.price ?? 0
 
       if (buyFiatCurrency?.code === selectedUserCurrency || !fiatRate)
         return bnOrZero(quote.amount)
@@ -87,10 +86,14 @@ export const FiatRampQuoteCard: FC<FiatRampQuoteProps> = memo(
     ])
 
     const handleQuoteSelection = useCallback(() => {
-      dispatch(tradeRampInput.actions.setSelectedFiatRampQuote(quote))
+      if (direction === FiatRampAction.Buy) {
+        dispatch(tradeRampInput.actions.setSelectedBuyFiatRampQuote(quote))
+      } else {
+        dispatch(tradeRampInput.actions.setSelectedSellFiatRampQuote(quote))
+      }
 
       onBack && onBack()
-    }, [quote, onBack, dispatch])
+    }, [quote, onBack, dispatch, direction])
 
     const providerIcon = useMemo(() => {
       return <AssetIcon src={quote.providerLogo} />
@@ -176,7 +179,6 @@ export const FiatRampQuoteCard: FC<FiatRampQuoteProps> = memo(
 
           <HStack spacing={2} wrap='wrap'>
             <FiatRampBadges
-              quoteDisplayOption={QuoteDisplayOption.Basic}
               isCreditCard={quote.isCreditCard}
               isBankTransfer={quote.isBankTransfer}
               isApplePay={quote.isApplePay}
@@ -201,6 +203,7 @@ export const FiatRampQuoteCard: FC<FiatRampQuoteProps> = memo(
         isActive={isActive}
         isActionable={isActionable}
         isDisabled={isDisabled}
+        isAvailable={true}
       />
     )
   },

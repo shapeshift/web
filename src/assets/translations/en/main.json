@@ -33,7 +33,7 @@
     "claimable": "Claimable",
     "comingSoon": "Coming Soon ...",
     "approve": "Approve",
-    "approveToken": "Approve Token", 
+    "approveToken": "Approve Token",
     "approveAmount": "Approve Amount",
     "approveTo": "Approve To",
     "reset": "Reset",
@@ -77,6 +77,7 @@
     "rename": "Rename",
     "forget": "Forget?",
     "pending": "Pending",
+    "preview": "Preview",
     "incomplete": "Incomplete",
     "available": "Available",
     "or": "or",
@@ -226,10 +227,14 @@
     "dca": "DCA",
     "boost": "Boost",
     "viewOnExplorer": "View on explorer",
+    "viewAssetDetails": "View Asset Details",
     "approval": "Approval",
     "permit2Approval": "Permit2 Approval",
     "network": "Network",
     "feeEstimate": "Fee Estimate"
+  },
+  "accountSelector": {
+    "chooseAccount": "Choose Account"
   },
   "quickBuy": {
     "title": "Quick Buy %{assetOnChain}",
@@ -368,7 +373,9 @@
     "availableProviders": "Available Providers",
     "noProvidersAvailable": "No Providers Available",
     "noProvidersBody": "Looks like we don't have any providers for that asset yet.",
-    "notSupported": "%{asset} is not supported by %{wallet}"
+    "notSupported": "%{asset} is not supported by %{wallet}",
+    "previewPurchase": "Preview Purchase",
+    "previewSale": "Preview Sale"
   },
   "connectWalletPage": {
     "shapeshift": "ShapeShift",
@@ -390,6 +397,7 @@
       "switchWallet": "Switch Wallet",
       "disconnect": "Disconnect",
       "disconnected": "(Disconnected)",
+      "locked": "(Locked)",
       "reconnectWallet": "Reconnect Wallet",
       "walletNotConnected": "Your wallet is not currently connected. This will impact transactions.",
       "connecting": "Connecting..."
@@ -923,7 +931,10 @@
     "confirmAndClaim": "Confirm & Claim",
     "viewClaims": "View Claims",
     "viewClaimStatus": "View Claim Status",
-    "availableClaimsNotification": "You have bridge claims ready!"
+    "availableClaimsNotification": "You have bridge claims ready!",
+    "bridgeWithdrawalReadyNotification": "Bridge withdrawal ready to claim",
+    "bridgeWithdrawalFailedNotification": "Bridge withdrawal failed",
+    "checkActionCenterNotification": "Check Action Center for details"
   },
   "trade": {
     "trade": "Trade",
@@ -1422,6 +1433,7 @@
       }
     },
     "send": {
+      "confirmSend": "Confirm send",
       "consolidate": {
         "body": "ShapeShift honors %{asset}'s security design by using a new address for each transaction. To align with THORChain's protocol, which operates with a single address, we'll consolidate your funds into a single address.",
         "tooltip": "Send funds to a single address for THORChain compatibility.",
@@ -1430,8 +1442,8 @@
       "getFeesError": "Error getting fees",
       "broadcastingTransaction": "Broadcasting Transaction",
       "youHaveSent": "You have successfully sent %{amount} %{symbol}",
-      "tokenAddress": "To Address",
-      "addressInput": "To Address or ENS",
+      "toAddress": "To Address",
+      "toAddressOrEns": "To Address or ENS",
       "scanQrCode": "Scan QR Code",
       "qrCode": "QR Code",
       "permissionsButton": "Try again",
@@ -1446,7 +1458,6 @@
         "qrDangerousEthUrl": "QR codes containing a contract address not supported. Please paste the destination address manually."
       },
       "confirm": {
-        "sendAsset": "Send %{asset}",
         "send": "Send",
         "sendTo": "Send To",
         "customNonce": "Custom Nonce",
@@ -1456,7 +1467,8 @@
         "amount": "Amount",
         "transactionFee": "Transaction Fee",
         "fees": "Fees %{feeType}",
-        "pendingConfirmation": "Pending confirmation"
+        "pendingConfirmation": "Pending confirmation",
+        "holdToSend": "Hold to send"
       },
       "sendForm": {
         "optionalAssetMemo": "Optional %{assetSymbol} Memo",
@@ -1465,13 +1477,16 @@
         "memoExplainer": "Some %{assetSymbol} recipients may require a memo in order for the transaction to be processed correctly",
         "sendAsset": "Send %{asset}",
         "sendTo": "Send To",
+        "chain": "Chain",
         "sendAmount": "Send Amount",
         "max": "Max",
         "transactionFee": "Transaction Fee",
         "slow": "Slow",
         "average": "Average",
         "fast": "Fast",
-        "enterAmount": "Enter Amount"
+        "enterAmount": "Enter Amount",
+        "scanQrCodeDescription": "Tap to scan an address",
+        "yourAddresses": "Your Addresses"
       },
       "status": {
         "pendingBody": "Sending %{amount} %{symbol}"
@@ -1845,7 +1860,7 @@
       },
       "failure": {
         "header": "Can't connect to Ledger",
-        "body": "We were not able to detect your ledger, but you can connect in read only mode."
+        "body": "We were not able to detect your Ledger, but you can connect in read only mode."
       },
       "readOnly": {
         "button": "Connect as Read Only"
@@ -2176,11 +2191,12 @@
   },
   "assets": {
     "more": "More",
+    "hideAsset": "Hide Asset",
+    "showAsset": "Show Asset",
+    "cannotHidePrimary": "Cannot hide primary assets that have related variants",
     "spam": {
-      "warning": "This asset will be hidden because you've marked it as spam.",
-      "marked": "This asset is marked as spam.",
-      "reportAsSpam": "Report as spam",
-      "reportAsNotSpam": "Mark as not spam"
+      "warning": "This asset can be shown again by opening the wallet dropdown and clicking 'Manage Hidden Assets'.",
+      "marked": "This asset is currently hidden."
     },
     "assetDetails": {
       "assetHeader": {
@@ -2795,6 +2811,13 @@
     },
     "title": "Watchlist"
   },
+  "manageHiddenAssets": {
+    "title": "Manage Hidden Assets",
+    "empty": {
+      "title": "No hidden assets",
+      "body": "Assets you hide will appear here, making it easy to show them again later."
+    }
+  },
   "explore": {
     "pools": {
       "title": "Pools",
@@ -3126,6 +3149,7 @@
       "switchChainFailed": "Failed to switch wallet chain. Try manually switching your wallet active chain to %{chain}.",
       "buildTransaction": "Failed to build transaction.",
       "signTransaction": "Failed to sign transaction.",
+      "blindSigningRequired": "Transaction requires blind signing. Please enable 'Blind signing' in your Ledger app settings and try again.",
       "signAndBroadcastTransaction": "Failed to sign and broadcast transaction.",
       "signMessage": "Failed to sign message.",
       "broadcastTransaction": "Failed to broadcast transaction.",
@@ -3204,8 +3228,15 @@
     "bridge": {
       "processing": "Your bridge of %{sellAmountAndSymbol}.%{sellChainShortName} to %{buyAmountAndSymbol}.%{buyChainShortName} is being processed.",
       "complete": "Your bridge of %{sellAmountAndSymbol}.%{sellChainShortName} to %{buyAmountAndSymbol}.%{buyChainShortName} is complete.",
-      "initiated": "Your bridge of %{sellAmountAndSymbol}.%{sellChainShortName} to %{buyAmountAndSymbol}.%{buyChainShortName} has been initiated.",
-      "failed": "Your bridge of %{sellAmountAndSymbol}.%{sellChainShortName} to %{buyAmountAndSymbol}.%{buyChainShortName} has failed."
+      "initiated": "Your bridge of %{sellAmountAndSymbol} to %{buyAmountAndSymbol} has been initiated.",
+      "pendingWithdraw": "Your withdraw of %{amountAndSymbol} will be available %{timeText}.",
+      "claimAvailable": "Your bridge of %{amountAndSymbol} is available to claim.",
+      "failed": "Your bridge of %{sellAmountAndSymbol}.%{sellChainShortName} to %{buyAmountAndSymbol}.%{buyChainShortName} has failed.",
+      "transactionInitiated": "Transaction Initiated",
+      "claimWithdraw": "Claim Withdraw",
+      "withdrawTx": "Withdraw Tx",
+      "claimTx": "Claim Tx",
+      "claimNotAvailable": "Claim is not yet available. Please wait for the withdrawal period to complete."
     },
     "limitOrder": {
       "placed": "Limit order placed for %{sellAmountAndSymbol} to %{buyAmountAndSymbol}",

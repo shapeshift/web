@@ -1,7 +1,7 @@
-import { createContext, lazy } from 'react'
+import { lazy } from 'react'
 
 import { CLOSE_MODAL, OPEN_MODAL } from './constants'
-import type { ModalActions, ModalContextType, Modals, ModalState } from './types'
+import type { ModalActions, Modals, ModalState } from './types'
 
 import { makeSuspenseful } from '@/utils/makeSuspenseful'
 
@@ -221,6 +221,16 @@ const WalletDrawer = makeSuspenseful(
   ),
 )
 
+const ManageHiddenAssetsModal = makeSuspenseful(
+  lazy(() =>
+    import('@/components/ManageHiddenAssets/ManageHiddenAssetsModal').then(
+      ({ ManageHiddenAssetsModal }) => ({
+        default: ManageHiddenAssetsModal,
+      }),
+    ),
+  ),
+)
+
 export const MODALS: Modals = {
   receive: ReceiveModal,
   qrCode: QrCodeModal,
@@ -248,6 +258,7 @@ export const MODALS: Modals = {
   assetActionsDrawer: AssetActionsDrawer,
   rating: RatingModal,
   walletDrawer: WalletDrawer,
+  manageHiddenAssets: ManageHiddenAssetsModal,
 } as const
 
 export const modalReducer = (state: ModalState, action: ModalActions<keyof Modals>): ModalState => {
@@ -266,5 +277,3 @@ export const modalReducer = (state: ModalState, action: ModalActions<keyof Modal
       return state
   }
 }
-
-export const ModalContext = createContext<ModalContextType | undefined>(undefined)

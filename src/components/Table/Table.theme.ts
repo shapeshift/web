@@ -9,16 +9,16 @@ export const TableStyle = {
       thead: {
         tr: {
           th: {
-            paddingLeft: 4,
-            paddingRight: 4,
+            paddingLeft: 6,
+            paddingRight: 6,
           },
         },
       },
       tbody: {
         tr: {
           td: {
-            paddingLeft: 4,
-            paddingRight: 4,
+            paddingLeft: 6,
+            paddingRight: 6,
           },
         },
       },

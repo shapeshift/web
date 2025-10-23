@@ -40,18 +40,28 @@ export const selectSellFiatCurrency = createSelector(
   tradeRampInput => tradeRampInput.sellFiatCurrency,
 )
 
-export const selectSellFiatAmount = createSelector(
+export const selectSellCryptoAmount = createSelector(
   selectBaseSlice,
-  tradeRampInput => tradeRampInput.sellFiatAmount,
+  tradeRampInput => tradeRampInput.sellCryptoAmount,
 )
 
-export const selectSelectedFiatRampQuote = createSelector(
+export const selectBuyFiatAmount = createSelector(
   selectBaseSlice,
-  tradeRampInput => tradeRampInput.selectedFiatRampQuote,
+  tradeRampInput => tradeRampInput.buyFiatAmount,
+)
+
+export const selectSelectedBuyFiatRampQuote = createSelector(
+  selectBaseSlice,
+  tradeRampInput => tradeRampInput.selectedBuyFiatRampQuote,
+)
+
+export const selectSelectedSellFiatRampQuote = createSelector(
+  selectBaseSlice,
+  tradeRampInput => tradeRampInput.selectedSellFiatRampQuote,
 )
 
 export const selectFiatBuyAmount = createSelector(
-  [selectSelectedFiatRampQuote, selectInputSellAmountCryptoPrecision],
+  [selectSelectedBuyFiatRampQuote, selectInputSellAmountCryptoPrecision],
   (selectedQuote, sellAmountCryptoPrecision) => {
     if (!selectedQuote || !selectedQuote.rate) return '0'
 
@@ -63,20 +73,20 @@ export const selectFiatBuyAmount = createSelector(
 )
 
 export const selectCryptoBuyAmount = createSelector(
-  [selectSelectedFiatRampQuote, selectSellFiatAmount],
-  (selectedQuote, sellFiatAmount) => {
+  [selectSelectedBuyFiatRampQuote, selectBuyFiatAmount],
+  (selectedQuote, buyFiatAmount) => {
     if (!selectedQuote || !selectedQuote.rate) return '0'
 
     const rate = bnOrZero(selectedQuote.rate)
-    const sellFiatAmountBN = bnOrZero(sellFiatAmount)
+    const buyFiatAmountBN = bnOrZero(buyFiatAmount)
 
-    return sellFiatAmountBN.div(rate).toString()
+    return buyFiatAmountBN.div(rate).toString()
   },
 )
 
 export const selectHasUserEnteredAmount = createSelector(
   selectInputSellAmountCryptoPrecision,
-  selectSellFiatAmount,
-  (sellAmountCryptoPrecision, sellFiatAmount) =>
-    bnOrZero(sellAmountCryptoPrecision).gt(0) || bnOrZero(sellFiatAmount).gt(0),
+  selectBuyFiatAmount,
+  (sellAmountCryptoPrecision, buyFiatAmount) =>
+    bnOrZero(sellAmountCryptoPrecision).gt(0) || bnOrZero(buyFiatAmount).gt(0),
 )

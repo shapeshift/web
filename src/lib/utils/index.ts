@@ -233,8 +233,11 @@ export const sortChainIdsByDisplayName = (unsortedChainIds: ChainId[]) => {
   return sortedChainIds
 }
 
-export const getTimeFrameBounds = (timeframe: HistoryTimeframe): { start: Dayjs; end: Dayjs } => {
-  const end = dayjs().startOf('minute')
+export const getTimeFrameBounds = (
+  timeframe: HistoryTimeframe,
+  stableTimestampMinutes = 1,
+): { start: Dayjs; end: Dayjs } => {
+  const end = dayjs(getStableTimestamp(stableTimestampMinutes))
   switch (timeframe) {
     case HistoryTimeframe.HOUR:
       return { end, start: end.subtract(1, 'hour') }
@@ -251,6 +254,12 @@ export const getTimeFrameBounds = (timeframe: HistoryTimeframe): { start: Dayjs;
     default:
       assertUnreachable(timeframe)
   }
+}
+
+export const getStableTimestamp = (intervalMinutes: number) => {
+  if (!intervalMinutes) return Date.now()
+  const intervalMs = intervalMinutes * 60 * 1000
+  return Math.floor(Date.now() / intervalMs) * intervalMs
 }
 
 export const chainIdToFeeAssetId = (chainId: ChainId): AssetId | undefined =>

@@ -3,6 +3,8 @@
     "amount": "Кількість",
     "ascending": "По зростаючій",
     "descending": "По спадаючій",
+    "selectAll": "Вибрати все",
+    "unselectAll": "Скасувати вибір ",
     "free": "Безкоштовно",
     "trade": "Обмін",
     "trades": "Угоди",
@@ -40,6 +42,7 @@
     "activity": "Активність",
     "reject": "Відхилити",
     "goBack": "Повернутись назад",
+    "fiat": "Фіат",
     "connected": "Підключений",
     "allocation": "Розподіл",
     "trendingTokens": "Трендові токени",
@@ -65,6 +68,7 @@
     "pairing": "Спарити",
     "connectWalletToGetStartedWith": "Підключіть гаманець, щоб почати роботу з %{feature}",
     "connectedWallet": "Підключений гаманець",
+    "crypto": "Крипто",
     "walletActions": "Дії з гаманцем",
     "connectedWalletSettings": "Налаштування гаманця",
     "noWallet": "Немає підключеного гаманця",
@@ -130,6 +134,11 @@
     "enterAmount": "Ввести суму",
     "enterAddress": "Введіть адресу",
     "pageNotFound": "Сторінку, яку ви шукаєте, не вдається знайти",
+    "creditCard": "Кредитна картка",
+    "bankTransfer": "Банківський переказ",
+    "applePay": "Apple Pay",
+    "googlePay": "Google Pay",
+    "sepa": "SEPA",
     "buySell": "Купити/продати",
     "all": "Всі",
     "viewAll": "Переглянути всі",
@@ -217,6 +226,7 @@
     "dca": "DCA",
     "boost": "Буст",
     "viewOnExplorer": "Переглянути в браузері",
+    "viewAssetDetails": "Переглянути деталі активу",
     "approval": "Затвердження",
     "permit2Approval": "Permit2 Схвалення",
     "network": "Мережа",
@@ -259,17 +269,24 @@
       "body": "У торговому інтерфейсі сталася помилка. Ви можете спробувати ще раз або оновити сторінку.",
       "retry": "Спробувати ще раз"
     },
+    "ramp": {
+      "title": "Помилка Ramp ",
+      "body": "У інтерфейсі Ramp сталася помилка. Ви можете спробувати ще раз або оновити сторінку.",
+      "retry": "Спробувати ще раз"
+    },
     "suspense": {
       "title": "Завантаження не вдалося",
       "body": "Цей вміст не вдалося завантажити належним чином.",
       "retry": "Повторити спробу"
     }
   },
-  "buyPage": {
-    "title": "Купити криптовалюту <span>за секунду</span>",
-    "body": "Використовуйте кредитну картку, дебетову картку або банківський рахунок. Купуйте Bitcoin, Ethereum, USDT, USDC або інші популярні криптовалюти. Доступно без KYC.",
+  "rampPage": {
+    "buyTitle": "Купуйте криптовалюту <span>за лічені секунди</span>",
+    "sellTitle": "Продайте криптовалюту <span>за лічені секунди</span>",
+    "buyBody": "Використовуйте кредитну картку, дебетову картку або банківський рахунок. Купуйте біткойни, ефіріум, USDT, USDC або інші популярні криптовалюти. Доступні постачальники послуг без KYC.",
+    "sellBody": "Використовуйте кредитну картку, дебетову картку або банківський рахунок. Продавайте біткойни, ефіріум, USDT, USDC або інші популярні криптовалюти. Доступні постачальники послуг без KYC.",
     "disclaimer": "*Ви також можете продати криптовалюту безпосередньо за готівку на свій банківський рахунок.",
-    "ctaTitle": "Ви також можете використовувати ShapeShift з усіма топовими гаманцями для торгівлі, отримання доходу та <span>відстежувати свою крипту по %{chainCount} мережам</span>",
+    "ctaTitle": "Ви також можете використовувати ShapeShift з усіма провідними гаманцями для торгівлі, отримання доходу та <span>відстеження ваших криптовалют у %{chainCount} ланцюгах</span>.",
     "availableAssets": "Доступні активи"
   },
   "updateToast": {
@@ -374,6 +391,9 @@
       "switchWallet": "Змінити Гаманець",
       "disconnect": "Від'єднати",
       "disconnected": "(Від'єднано)",
+      "locked": "(Заблоковано)",
+      "reconnectWallet": "Повторно підключити гаманець",
+      "walletNotConnected": "Ваш гаманець наразі не підключений. Це вплине на транзакції.",
       "connecting": "З'єднуємо..."
     }
   },
@@ -412,8 +432,6 @@
       },
       "cosmosOverview": {
         "rewards": "Зароблені вами винагороди будуть нараховуватися автоматично.",
-        "cta": "Розпочати Стейкінг",
-        "learnMore": "Дізнатися більше",
         "withdrawals": "Зняти зі стейкінгу",
         "emptyWithdraws": "Тут відображатимуться запити, що очікують на розблокування.",
         "availableDate": "доступно %{date}"
@@ -665,7 +683,6 @@
     "market": "Ринок",
     "limitOrder": "Лімітні ордери",
     "claims": "Клейми",
-    "tradeShort": "Обмін",
     "buyCrypto": "Купити / продати криптовалюту",
     "buyCryptoShort": "Купити/продати",
     "lending": "Кредитування",
@@ -674,6 +691,8 @@
     "tcy": "TCY",
     "foxEcosystem": "Екосистема FOX",
     "markets": "Ринки",
+    "tokens": "Токени",
+    "swap": "Обмін",
     "actionMenu": {
       "send": {
         "title": "Надіслати",
@@ -695,6 +714,34 @@
         "title": "Відскануйте QR-код",
         "body": "Легке сканування для надсилання або отримання криптовалюти"
       }
+    }
+  },
+  "shapeShiftMenu": {
+    "products": "Продукти",
+    "mobileApp": {
+      "title": "Мобільний додаток",
+      "subtitle": "Торгуйте та керуйте криптовалютою"
+    },
+    "foxToken": {
+      "title": "Токен FOX",
+      "subtitle": "Наш токен управління"
+    },
+    "classic": {
+      "title": "Класичний",
+      "subtitle": "ShapeShift OG"
+    },
+    "wallet": {
+      "title": "Гаманець ShapeShift",
+      "subtitle": "Дізнайтеся про наш гаманець"
+    },
+    "footer": {
+      "governance": "Управління",
+      "support": "Підтримка",
+      "blog": "Блог",
+      "faq": "Часті запитання",
+      "github": "GitHub",
+      "discord": "Discord",
+      "twitter": "Twitter"
     }
   },
   "transactionRow": {
@@ -878,7 +925,10 @@
     "confirmAndClaim": "Підтвердити та заявити",
     "viewClaims": "Переглянути заяви",
     "viewClaimStatus": "Переглянути статус заявки",
-    "availableClaimsNotification": "Ви перевели вашу заявку!"
+    "availableClaimsNotification": "Ви перевели вашу заявку!",
+    "bridgeWithdrawalReadyNotification": "Виведення коштів з мосту готові до отримання",
+    "bridgeWithdrawalFailedNotification": "Виведення з мосту не вдалося",
+    "checkActionCenterNotification": "Детальнішу інформацію дивіться в Центрі дій."
   },
   "trade": {
     "trade": "Торгівля",
@@ -952,7 +1002,7 @@
     "viewTransaction": "Переглянути транзакцію",
     "noQuotesAvailable": "Котирування не доступні",
     "noQuotesAvailableDescription": "Наразі не знайдено доступних котирувань. Спробуйте вибрати іншу пару.",
-    "availableSwappers": "Доступні котирування",
+    "availableQuotes": "Доступні котирування",
     "unavailableSwappers": "Недоступні обмінники",
     "unlimited": "Необмежено",
     "streamStatus": "Статус передачі",
@@ -1445,7 +1495,8 @@
       "verified": "Перевірено",
       "notVerified": "Адреса не співпадає",
       "blockExplorer": "Explorer",
-      "supportedNetworks": "Підтримувані мережі"
+      "supportedNetworks": "Підтримувані мережі",
+      "amountNote": "Введіть суму, яку ви хочете запросити. Це створить QR-код із сумою для зручності оплати."
     },
     "deposit": {
       "allocation": {
@@ -1609,6 +1660,26 @@
         "ILS": "Ізраїльський шекель",
         "IDR": "Індонезійська рупія"
       }
+    },
+    "ramp": {
+      "payWith": "Оплатити за допомогою",
+      "youGet": "Ви отримуєте",
+      "sellAmount": "Сума продажу",
+      "receiveAmount": "Отримана сума",
+      "buyAsset": "Купити актив",
+      "sellAsset": "Продати актив",
+      "receiveAsset": "Отримати актив",
+      "previewOrder": "Попередній перегляд замовлення",
+      "processingTime": "Термін обробки: 1-3 робочих дні",
+      "buyInfo": "Купуйте криптовалюту за фіатну валюту",
+      "sellInfo": "Продаж криптовалюти за фіатну валюту",
+      "availableQuotes": "Доступні котирування",
+      "bestRate": "Найкращий курс",
+      "fastest": "Найшвидший",
+      "rate": "Ставка",
+      "amount": "Сума",
+      "paymentMethods": "Способи оплати",
+      "selectFiat": "Виберіть фіатну валюту"
     },
     "mobileWelcome": {
       "success": {
@@ -1778,7 +1849,11 @@
         "pairExistingDeviceBody": "Підключаєте інший пристрій Ledger? Натисніть \"Створити пару з новим пристроєм\", щоб почати з чистого аркуша."
       },
       "failure": {
-        "body": "Не вдається підключити гаманець Ledger"
+        "header": "Не вдається підключитися до Ledger",
+        "body": "Ми не змогли виявити ваш Ledger, але ви можете підключитися в режимі тільки для читання."
+      },
+      "readOnly": {
+        "button": "Підключити тільки для читання"
       },
       "gettingChangeAddress": "Отримання адреси для зміни...",
       "connectWarning": "Перш ніж підключати мережу, переконайтеся, що на вашому пристрої відкрито додаток.",
@@ -1824,6 +1899,7 @@
       "active": "Активна",
       "notActive": "Не активна",
       "addSnap": "Додати Snap",
+      "installError": "Сталася помилка під час інсталяції Multichain Snap на MetaMask",
       "uninstall": {
         "title": "Ви вилучили підтримку мультичейну з MetaMask!",
         "subtitle": "Повторно додайте прив'язку Multichain Snap на MetaMask, щоб відправляти, отримувати, відстежувати, торгувати і заробляти за допомогою наступних ланцюжків:"
@@ -2105,11 +2181,12 @@
   },
   "assets": {
     "more": "Більше",
+    "hideAsset": "Приховати актив",
+    "showAsset": "Показати актив",
+    "cannotHidePrimary": "Неможливо приховати основні активи, які мають пов'язані варіанти",
     "spam": {
-      "warning": "Цей актив буде прихований, оскільки ви позначили його як спам.",
-      "marked": "Цей актив позначений як спам.",
-      "reportAsSpam": "Повідомити про спам",
-      "reportAsNotSpam": "Позначити як не спам"
+      "warning": "Цей актив можна знову відобразити, відкривши випадаюче меню гаманця та натиснувши «Керувати прихованими активами».",
+      "marked": "Цей актив наразі прихований."
     },
     "assetDetails": {
       "assetHeader": {
@@ -2367,6 +2444,13 @@
         "transactionData": "Дані про транзакції",
         "method": "Метод",
         "signingWith": "Підписання з",
+        "connectWith": "Підключитись з",
+        "chooseAccount": "Виберіть обліковий запис",
+        "chooseNetwork": "Виберіть мережу",
+        "required": "Необхідно",
+        "noAccount": "Ви не маєте облікового запису на %{chainName} для цієї адреси",
+        "connectionRequest": "Запит на підключення",
+        "connectionRequestTooltip": "Підключення дозволяє цій dApp запитувати затвердження транзакцій",
         "sendingTo": "Відправлення до",
         "signMessage": {
           "signingFrom": "Підпис Від",
@@ -2421,7 +2505,6 @@
         },
         "connect": {
           "title": "Підключіть свій гаманець до dApp через WalletConnect і запускайте транзакції",
-          "howTo": "Як підключитися до dApp?",
           "linkPlaceholder": "QR-код або посилання для підключення",
           "connect": "Підключитися",
           "connectionError": "Не вдається з'єднатися з наданим URI.",
@@ -2717,6 +2800,13 @@
       "cta": "Дослідіть більше активів"
     },
     "title": "Список спостереження"
+  },
+  "manageHiddenAssets": {
+    "title": "Управління прихованими активами",
+    "empty": {
+      "title": "Ніяких прихованих активів",
+      "body": "Приховані активи з'являться тут, що дозволить легко показати їх знову пізніше."
+    }
   },
   "explore": {
     "pools": {
@@ -3049,6 +3139,7 @@
       "switchChainFailed": "Не вдалося переключити мережу гаманця. Спробуйте вручну змінити активну мережу гаманця на %{chain}.",
       "buildTransaction": "Не вдалося створити транзакцію.",
       "signTransaction": "Не вдалося підписати транзакцію.",
+      "blindSigningRequired": "Транзакція вимагає сліпого підпису. Увімкніть  'Blind signing' у налаштуваннях програми Ledger і спробуйте ще раз.",
       "signAndBroadcastTransaction": "Не вдалося підписати та відправити транзакцію.",
       "signMessage": "Не вдалося підписати повідомлення.",
       "broadcastTransaction": "Не вдалося передати транзакцію.",
@@ -3125,10 +3216,17 @@
       "complete": "Ваша вимога на суму %{amount} %{symbol} виконана."
     },
     "bridge": {
-      "processing": "Ваш міст %{sellAmountAndSymbol}.%{sellChainShortName} до %{buyAmountAndSymbol}.%{buyChainShortName} обробляється.",
-      "complete": "Ваш міст від %{sellAmountAndSymbol}.%{sellChainShortName} до %{buyAmountAndSymbol}.%{buyChainShortName} завершено.",
-      "initiated": "Ваш міст %{sellAmountAndSymbol}.%{sellChainShortName} до %{buyAmountAndSymbol}.%{buyChainShortName} було ініційовано.",
-      "failed": "Ваш міст %{sellAmountAndSymbol}.%{sellChainShortName} до %{buyAmountAndSymbol}.%{buyChainShortName} не вдався."
+      "processing": "Обробка...",
+      "complete": "Ваш міст на суму %{amountAndSymbol} готовий.",
+      "initiated": "Ваш міст від %{sellAmountAndSymbol} до %{buyAmountAndSymbol} було ініційовано.",
+      "pendingWithdraw": "Ваш вивід %{amountAndSymbol} буде доступний %{timeText}.",
+      "claimAvailable": "Ваш міст на суму %{amountAndSymbol} доступний для отримання.",
+      "failed": "Ваш міст %{sellAmountAndSymbol}.%{sellChainShortName} до %{buyAmountAndSymbol}.%{buyChainShortName} не вдався.",
+      "transactionInitiated": "Транзакція ініційована",
+      "claimWithdraw": "Заклеймити вивід",
+      "withdrawTx": "Транзакція виводу",
+      "claimTx": "Заклеймлені транзакції",
+      "claimNotAvailable": "Заявка ще не доступна. Будь ласка, зачекайте, поки закінчиться термін зняття."
     },
     "limitOrder": {
       "placed": "Обмежити замовлення, розміщене на %{sellAmountAndSymbol} до %{buyAmountAndSymbol}",

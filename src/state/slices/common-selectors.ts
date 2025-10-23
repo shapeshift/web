@@ -12,6 +12,7 @@ import {
   selectAssets,
   selectPrimaryAssets,
   selectPrimaryAssetsSortedByMarketCap,
+  selectPrimaryAssetsSortedByMarketCapNoSpam,
 } from './assetsSlice/selectors'
 import { getFeeAssetByChainId } from './assetsSlice/utils'
 import { marketData } from './marketDataSlice/marketDataSlice'
@@ -25,6 +26,7 @@ import { preferences } from './preferencesSlice/preferencesSlice'
 import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
 import { fromBaseUnit } from '@/lib/math'
 import { isSome } from '@/lib/utils'
+import { isContractAddress } from '@/lib/utils/isContractAddress'
 import type { ReduxState } from '@/state/reducer'
 import { createDeepEqualOutputSelector } from '@/state/selector-utils'
 import {
@@ -146,19 +148,26 @@ export const selectPortfolioUserCurrencyBalances = createDeepEqualOutputSelector
   selectMarketDataUserCurrency,
   selectPortfolioAssetBalancesBaseUnit,
   preferences.selectors.selectBalanceThresholdUserCurrency,
-  (assetsById, marketData, balances, balanceThresholdUserCurrency) =>
-    Object.entries(balances).reduce<Record<AssetId, string>>((acc, [assetId, baseUnitBalance]) => {
-      const asset = assetsById[assetId]
-      if (!asset) return acc
-      const precision = asset.precision
-      if (precision === undefined) return acc
-      const price = marketData[assetId]?.price
-      const cryptoValue = fromBaseUnit(baseUnitBalance, precision)
-      const assetUserCurrencyBalance = bnOrZero(cryptoValue).times(bnOrZero(price))
-      if (assetUserCurrencyBalance.lt(bnOrZero(balanceThresholdUserCurrency))) return acc
-      acc[assetId] = assetUserCurrencyBalance.toFixed(2)
-      return acc
-    }, {}),
+  preferences.selectors.selectSpamMarkedAssetIds,
+  (assetsById, marketData, balances, balanceThresholdUserCurrency, spamMarkedAssetIds) => {
+    const spamAssetIdsSet = new Set(spamMarkedAssetIds)
+    return Object.entries(balances).reduce<Record<AssetId, string>>(
+      (acc, [assetId, baseUnitBalance]) => {
+        const asset = assetsById[assetId]
+        if (!asset) return acc
+        if (spamAssetIdsSet.has(assetId)) return acc
+        const precision = asset.precision
+        if (precision === undefined) return acc
+        const price = marketData[assetId]?.price
+        const cryptoValue = fromBaseUnit(baseUnitBalance, precision)
+        const assetUserCurrencyBalance = bnOrZero(cryptoValue).times(bnOrZero(price))
+        if (assetUserCurrencyBalance.lt(bnOrZero(balanceThresholdUserCurrency))) return acc
+        acc[assetId] = assetUserCurrencyBalance.toFixed(2)
+        return acc
+      },
+      {},
+    )
+  },
 )
 
 export const selectRelatedAssetIdsByAssetIdInclusive = createDeepEqualOutputSelector(
@@ -485,12 +494,18 @@ export const selectIsAssetWithoutMarketData = createSelector(
 )
 
 export const selectAssetsBySearchQuery = createCachedSelector(
-  selectPrimaryAssetsSortedByMarketCap,
+  selectPrimaryAssetsSortedByMarketCapNoSpam,
+  selectAssetsSortedByMarketCapUserCurrencyBalanceCryptoPrecisionAndName,
   marketData.selectors.selectMarketDataUsd,
   selectSearchQueryFromFilter,
   selectLimitParamFromFilter,
-  (sortedAssets, marketDataUsd, searchQuery, limit): Asset[] => {
-    if (!searchQuery) return sortedAssets.slice(0, limit)
+  (primaryAssets, allAssets, marketDataUsd, searchQuery, limit): Asset[] => {
+    if (!searchQuery) return primaryAssets.slice(0, limit)
+
+    // Contract address searches need all assets to find related variants
+    // Name/symbol searches use primaries to avoid duplicates
+    const isContractAddressSearch = isContractAddress(searchQuery)
+    const sortedAssets = isContractAddressSearch ? allAssets : primaryAssets
 
     // Filters by low market-cap to avoid spew
     const filteredAssets = sortedAssets.filter(asset => {

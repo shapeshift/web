@@ -94,3 +94,12 @@ export const selectAssetsNoSpam = createSelector(
     return assets.filter(({ assetId }) => !spamAssetSet.has(assetId))
   },
 )
+
+export const selectPrimaryAssetsSortedByMarketCapNoSpam = createDeepEqualOutputSelector(
+  selectPrimaryAssetsSortedByMarketCap,
+  preferences.selectors.selectSpamMarkedAssetIds,
+  (assets, spamMarkedAssetIds) => {
+    const spamAssetSet = new Set(spamMarkedAssetIds)
+    return assets.filter(({ assetId }) => !spamAssetSet.has(assetId))
+  },
+)

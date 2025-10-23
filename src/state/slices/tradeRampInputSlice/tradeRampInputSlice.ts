@@ -22,7 +22,8 @@ export type TradeRampInputState = {
   sellAccountId: AccountId | undefined
   buyAccountId: AccountId | undefined
   sellAmountCryptoPrecision: string
-  sellFiatAmount: string
+  sellCryptoAmount: string
+  buyFiatAmount: string
   isInputtingFiatSellAmount: boolean
   manualReceiveAddress: string | undefined
   isManualReceiveAddressValidating: boolean
@@ -30,7 +31,8 @@ export type TradeRampInputState = {
   isManualReceiveAddressValid: boolean | undefined
   selectedSellAssetChainId: ChainId | 'All'
   selectedBuyAssetChainId: ChainId | 'All'
-  selectedFiatRampQuote: RampQuote | null
+  selectedBuyFiatRampQuote: RampQuote | null
+  selectedSellFiatRampQuote: RampQuote | null
 }
 
 const initialState: TradeRampInputState = {
@@ -41,7 +43,8 @@ const initialState: TradeRampInputState = {
   sellAccountId: undefined,
   buyAccountId: undefined,
   sellAmountCryptoPrecision: '0',
-  sellFiatAmount: '0',
+  sellCryptoAmount: '0',
+  buyFiatAmount: '0',
   isInputtingFiatSellAmount: false,
   manualReceiveAddress: undefined,
   isManualReceiveAddressValidating: false,
@@ -50,7 +53,8 @@ const initialState: TradeRampInputState = {
   slippagePreferencePercentage: undefined,
   selectedSellAssetChainId: 'All',
   selectedBuyAssetChainId: 'All',
-  selectedFiatRampQuote: null,
+  selectedBuyFiatRampQuote: null,
+  selectedSellFiatRampQuote: null,
 }
 
 export const tradeRampInput = createTradeInputBaseSlice({
@@ -63,20 +67,30 @@ export const tradeRampInput = createTradeInputBaseSlice({
     setSellFiatAsset: (state: TradeRampInputState, action: PayloadAction<FiatCurrencyItem>) => {
       state.sellFiatCurrency = action.payload
     },
-    setSellFiatAmount: (state: TradeRampInputState, action: PayloadAction<string>) => {
-      state.sellFiatAmount = action.payload
+    setSellCryptoAmount: (state: TradeRampInputState, action: PayloadAction<string>) => {
+      state.sellCryptoAmount = action.payload
     },
-    setSelectedFiatRampQuote: (
+    setBuyFiatAmount: (state: TradeRampInputState, action: PayloadAction<string>) => {
+      state.buyFiatAmount = action.payload
+    },
+    setSelectedBuyFiatRampQuote: (
       state: TradeRampInputState,
       action: PayloadAction<RampQuote | null>,
     ) => {
-      state.selectedFiatRampQuote = action.payload
+      state.selectedBuyFiatRampQuote = action.payload
+    },
+    setSelectedSellFiatRampQuote: (
+      state: TradeRampInputState,
+      action: PayloadAction<RampQuote | null>,
+    ) => {
+      state.selectedSellFiatRampQuote = action.payload
     },
   }),
   selectors: {
     selectBuyFiatCurrency: state => state.buyFiatCurrency,
     selectSellFiatCurrency: state => state.sellFiatCurrency,
-    selectSellFiatAmount: state => state.sellFiatAmount,
-    selectSelectedFiatRampQuote: state => state.selectedFiatRampQuote,
+    selectSellCryptoAmount: state => state.sellCryptoAmount,
+    selectSelectedBuyFiatRampQuote: state => state.selectedBuyFiatRampQuote,
+    selectSelectedSellFiatRampQuote: state => state.selectedSellFiatRampQuote,
   },
 })

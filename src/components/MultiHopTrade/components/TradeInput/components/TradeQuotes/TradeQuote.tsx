@@ -278,13 +278,14 @@ export const TradeQuote: FC<TradeQuoteProps> = memo(
     return showSwapper ? (
       <TradeQuoteCard
         icon={swapperIcon}
-        title={quote?.steps[0].source ?? quoteData.swapperName}
+        title={quoteData.swapperName}
         headerContent={headerContent}
         bodyContent={bodyContent}
         onClick={handleQuoteSelection}
         isActive={isActive}
         isActionable={hasAmountWithPositiveReceive && errors.length === 0}
         isDisabled={isDisabled}
+        isAvailable={!!quote}
       />
     ) : null
   },

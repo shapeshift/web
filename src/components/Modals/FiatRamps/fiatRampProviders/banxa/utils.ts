@@ -4,7 +4,7 @@ import axios from 'axios'
 import { QUOTE_TIMEOUT_MS } from 'packages/swapper/src/constants'
 
 import type { GetQuotesArgs, RampQuote } from '../../config'
-import type { BanxaQuoteRequest, BanxaQuoteResponse } from './types'
+import type { BanxaQuoteRequest } from './types'
 
 import banxaLogo from '@/assets/banxa.png'
 import { getSupportedBanxaFiatCurrencies } from '@/components/Modals/FiatRamps/fiatRampProviders/banxa'
@@ -21,77 +21,84 @@ export const getBanxaQuote = async ({
   amount,
   direction,
 }: GetQuotesArgs): Promise<RampQuote | undefined> => {
-  try {
-    const baseUrl = getConfig().VITE_BANXA_API_URL
+  const baseUrl = getConfig().VITE_BANXA_API_URL
 
-    const supportedFiatCurrencies = getSupportedBanxaFiatCurrencies()
+  const supportedFiatCurrencies = getSupportedBanxaFiatCurrencies()
 
-    if (!supportedFiatCurrencies.includes(fiatCurrency.code as CommonFiatCurrencies)) {
-      return
-    }
-
-    const banxaTicker = adapters.assetIdToBanxaTicker(crypto as AssetId)
-    if (!banxaTicker) {
-      console.warn(`Asset ${crypto} not supported by Banxa`)
-      return
-    }
-
-    const blockchain = adapters.getBanxaBlockchainFromChainId(
-      fromAssetId(crypto as AssetId).chainId,
-    )
-    if (!blockchain) {
-      console.warn(`Blockchain not supported by Banxa for asset ${crypto}`)
-      return
-    }
-
-    const requestData: BanxaQuoteRequest = {
-      fiat_code: fiatCurrency.code,
-      coin_code: banxaTicker,
-    }
-
-    if (direction === 'buy') {
-      requestData.fiat_amount = amount
-    } else {
-      requestData.coin_amount = amount
-    }
-
-    const { data: quote } = await axios.get<BanxaQuoteResponse>(
-      `${baseUrl}v2/quotes/${direction}`,
-      {
-        params: requestData,
-        timeout: QUOTE_TIMEOUT_MS,
-        headers: {
-          'Content-Type': 'application/json',
-          'x-api-key': getConfig().VITE_BANXA_API_KEY,
-        },
-      },
-    )
-
-    const attributes = quote.data.attributes
-    const paymentMethod = attributes.payment_method
-
-    const rate =
-      direction === 'buy'
-        ? bnOrZero(attributes.crypto.amount).div(attributes.fiat.amount).toString()
-        : bnOrZero(attributes.fiat.amount).div(attributes.crypto.amount).toString()
-
-    return {
-      id: `banxa-${attributes.fiat.code}-${attributes.crypto.code}-${Date.now()}`,
-      provider: 'Banxa',
-      providerLogo: banxaLogo,
-      rate,
-      fiatFee: attributes.fee.value,
-      networkFee: '0', // Banxa doesn't separate network fees
-      amount: direction === 'buy' ? attributes.crypto.amount : attributes.fiat.amount,
-      isBestRate: false,
-      isCreditCard: paymentMethod.type === 'card',
-      isBankTransfer: paymentMethod.type === 'bank_transfer',
-      isApplePay: paymentMethod.name.toLowerCase().includes('apple'),
-      isGooglePay: paymentMethod.name.toLowerCase().includes('google'),
-      isSepa: paymentMethod.name.toLowerCase().includes('sepa'),
-    }
-  } catch (e) {
-    console.error('Error fetching Banxa quotes:', e)
+  if (!supportedFiatCurrencies.includes(fiatCurrency.code as CommonFiatCurrencies)) {
     return
+  }
+
+  const banxaTicker = adapters.assetIdToBanxaTicker(crypto as AssetId)
+  if (!banxaTicker) {
+    console.warn(`Asset ${crypto} not supported by Banxa`)
+    return
+  }
+
+  const blockchain = adapters.getBanxaBlockchainFromChainId(fromAssetId(crypto as AssetId).chainId)
+  if (!blockchain) {
+    console.warn(`Blockchain not supported by Banxa for asset ${crypto}`)
+    return
+  }
+
+  const requestData: BanxaQuoteRequest = {
+    partner: 'shapeshift',
+    orderType: direction,
+    crypto: banxaTicker,
+    blockchain,
+    fiat: fiatCurrency.code,
+    // TODO: Fetch available payment methods, we probably want to display multiple quotes for each payment method then
+    paymentMethodId: 'debit-credit-card',
+  }
+
+  if (direction === 'buy') {
+    requestData.fiatAmount = amount
+  } else {
+    requestData.cryptoAmount = amount
+  }
+
+  // Clean up undefined values from requestData
+  const params = Object.fromEntries(
+    Object.entries(requestData).filter(([_, value]) => value !== undefined),
+  )
+
+  const { data: quote } = await axios.get<any>(`${baseUrl}v2/quotes/${direction}`, {
+    params,
+    timeout: QUOTE_TIMEOUT_MS,
+    headers: {
+      'Content-Type': 'application/json',
+      'x-api-key': getConfig().VITE_BANXA_API_KEY,
+    },
+  })
+
+  // The API returns a flat response with cryptoAmount, fiatAmount, etc.
+  // Check for the expected fields
+  if (!quote) {
+    console.error('[Banxa] No response from API')
+    return
+  }
+
+  const cryptoAmount = quote.cryptoAmount
+  const fiatAmount = quote.fiatAmount
+
+  const rate =
+    direction === 'buy'
+      ? bnOrZero(cryptoAmount).div(fiatAmount).toString()
+      : bnOrZero(fiatAmount).div(cryptoAmount).toString()
+
+  return {
+    id: `banxa-${fiatCurrency.code}-${banxaTicker}-${Date.now()}`,
+    provider: 'Banxa',
+    providerLogo: banxaLogo,
+    rate,
+    fiatFee: quote.feeAmount || '0',
+    networkFee: '0', // Banxa doesn't separate network fees
+    amount: direction === 'buy' ? cryptoAmount : fiatAmount,
+    isBestRate: false,
+    isCreditCard: true,
+    isBankTransfer: false,
+    isApplePay: false,
+    isGooglePay: false,
+    isSepa: false,
   }
 }

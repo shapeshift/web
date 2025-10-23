@@ -48,8 +48,6 @@ export const useGetRampQuotes = ({
     return ramps?.byAssetId[assetId]?.[direction].map(fiatRampId => supportedFiatRamps[fiatRampId])
   }, [ramps, assetId, direction])
 
-  console.log('supportedRamps', supportedRamps)
-
   const rampQuoteQueries = useQueries({
     queries:
       supportedRamps?.map(fiatRamp => ({

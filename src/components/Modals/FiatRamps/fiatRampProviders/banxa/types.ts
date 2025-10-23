@@ -61,9 +61,15 @@ export type BanxaQuoteResponse = {
 }
 
 export type BanxaQuoteRequest = {
-  fiat_code: string
-  coin_code: string
-  fiat_amount?: string
-  coin_amount?: string
-  payment_method_id?: string
+  partner: string
+  orderType: 'buy' | 'sell'
+  paymentMethodId?: string
+  crypto: string
+  blockchain: string
+  fiat: string
+  cryptoAmount?: string
+  fiatAmount?: string
+  externalCustomerId?: string
+  ipAddress?: string
+  discountCode?: string
 }

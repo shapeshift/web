@@ -14,6 +14,7 @@ type Command =
   | 'listWallets'
   | 'getWalletCount'
   | 'reloadWebview'
+  | 'getExpoToken'
   | 'requestStoreReview'
   | 'getAppVersion'
 
@@ -43,6 +44,9 @@ type Message =
     }
   | {
       cmd: 'reloadWebview'
+    }
+  | {
+      cmd: 'getExpoToken'
     }
   | {
       cmd: 'vibrate'
@@ -185,6 +189,10 @@ export const deleteWallet = (key: string): Promise<boolean> => {
  */
 export const reloadWebview = (): Promise<boolean> => {
   return postMessage<boolean>({ cmd: 'reloadWebview' })
+}
+
+export const getExpoToken = (): Promise<string | null> => {
+  return postMessage<string | null>({ cmd: 'getExpoToken' })
 }
 
 /**

@@ -1,7 +1,7 @@
 import { Button, FormControl, HStack, Icon, Input, Text } from '@chakra-ui/react'
 import type { Asset } from 'packages/types/src/base'
 import { useCallback, useMemo } from 'react'
-import type { Control } from 'react-hook-form'
+import type { Control, FieldValues, Path } from 'react-hook-form'
 import { Controller } from 'react-hook-form'
 import { TbSwitchVertical } from 'react-icons/tb'
 import type { NumberFormatValues } from 'react-number-format'
@@ -13,13 +13,13 @@ import { useLocaleFormatter } from '@/hooks/useLocaleFormatter/useLocaleFormatte
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { allowedDecimalSeparators } from '@/state/slices/preferencesSlice/preferencesSlice'
 
-export type CryptoFiatInputProps = {
+export type CryptoFiatInputProps<T extends FieldValues = FieldValues> = {
   asset: Asset
   handleInputChange(inputValue: string): void
-  fieldName: string
+  fieldName: Path<T>
   toggleIsFiat(): void
   isFiat: boolean
-  control: Control<any>
+  control: Control<T>
   fiatAmount?: string
   cryptoAmount?: string
 }
@@ -68,7 +68,7 @@ const AmountInput = (props: any) => {
   )
 }
 
-export const CryptoFiatInput = ({
+export const CryptoFiatInput = <T extends FieldValues = FieldValues>({
   asset,
   handleInputChange,
   fieldName,
@@ -77,11 +77,12 @@ export const CryptoFiatInput = ({
   toggleIsFiat,
   fiatAmount,
   cryptoAmount,
-}: CryptoFiatInputProps) => {
+}: CryptoFiatInputProps<T>) => {
   const {
     number: { localeParts },
   } = useLocaleFormatter()
   const displayPlaceholder = isFiat ? `${localeParts.prefix}0.00` : `0.00 ${asset.symbol}`
+
   const handleValueChange = useCallback(
     (onChange: (value: string) => void, value: string) => (values: NumberFormatValues) => {
       onChange(values.value)
@@ -89,6 +90,7 @@ export const CryptoFiatInput = ({
     },
     [handleInputChange],
   )
+
   const renderController = useCallback(
     ({ field: { onChange, value } }: { field: any }) => {
       return (

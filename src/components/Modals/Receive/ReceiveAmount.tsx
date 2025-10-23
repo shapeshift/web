@@ -75,9 +75,10 @@ const ReceiveAmountContent = ({
   const currentValue = isFiat ? fiatAmount : amountCryptoPrecision
 
   useEffect(() => {
+    const initialFiat = currentAmount && bnOrZero(currentAmount).times(bnOrZero(price)).toFixed()
     setValue(ReceiveAmountFormFields.AmountCryptoPrecision, currentAmount ?? '')
-    setValue(ReceiveAmountFormFields.FiatAmount, currentAmount ?? '')
-  }, [currentAmount, setValue])
+    setValue(ReceiveAmountFormFields.FiatAmount, initialFiat ?? '')
+  }, [currentAmount, setValue, price])
 
   const toggleIsFiat = useCallback(() => {
     setFieldName(
@@ -179,7 +180,7 @@ const ReceiveAmountContent = ({
             flex={1}
             size='lg'
             onClick={handleConfirm}
-            isDisabled={!currentValue}
+            isDisabled={!bnOrZero(currentValue).gt(0)}
           >
             {translate('common.confirm')}
           </Button>
@@ -188,7 +189,7 @@ const ReceiveAmountContent = ({
       {isModal && (
         <Display.Desktop>
           <ModalHeader>
-            <Text translation={'modals.receive.setAmount'} />
+            <Text textAlign='center' translation={'modals.receive.setAmount'} fontSize='md' />
           </ModalHeader>
           <ModalCloseButton />
           <ModalBody>
@@ -206,11 +207,20 @@ const ReceiveAmountContent = ({
               textAlign='center'
               fontSize='sm'
               color='text.subtle'
-              mt={2}
+              my={4}
               translation={'modals.receive.amountNote'}
             />
           </ModalBody>
-          <ModalFooter>
+          <ModalFooter
+            borderTop='1px solid'
+            borderColor='border.base'
+            borderRight='1px solid'
+            borderLeft='1px solid'
+            borderRightColor='border.base'
+            borderLeftColor='border.base'
+            borderTopRadius='20'
+            pt={4}
+          >
             <Button variant='ghost' mr={3} onClick={onClose}>
               {translate('common.cancel')}
             </Button>
@@ -219,7 +229,11 @@ const ReceiveAmountContent = ({
                 {translate('common.clear')}
               </Button>
             )}
-            <Button colorScheme='blue' onClick={handleConfirm} isDisabled={!currentValue}>
+            <Button
+              colorScheme='blue'
+              onClick={handleConfirm}
+              isDisabled={!bnOrZero(currentValue).gt(0)}
+            >
               {translate('common.confirm')}
             </Button>
           </ModalFooter>

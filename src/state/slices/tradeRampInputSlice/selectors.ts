@@ -40,9 +40,14 @@ export const selectSellFiatCurrency = createSelector(
   tradeRampInput => tradeRampInput.sellFiatCurrency,
 )
 
-export const selectSellFiatAmount = createSelector(
+export const selectSellCryptoAmount = createSelector(
   selectBaseSlice,
-  tradeRampInput => tradeRampInput.sellFiatAmount,
+  tradeRampInput => tradeRampInput.sellCryptoAmount,
+)
+
+export const selectBuyFiatAmount = createSelector(
+  selectBaseSlice,
+  tradeRampInput => tradeRampInput.buyFiatAmount,
 )
 
 export const selectSelectedBuyFiatRampQuote = createSelector(
@@ -68,20 +73,20 @@ export const selectFiatBuyAmount = createSelector(
 )
 
 export const selectCryptoBuyAmount = createSelector(
-  [selectSelectedBuyFiatRampQuote, selectSellFiatAmount],
-  (selectedQuote, sellFiatAmount) => {
+  [selectSelectedBuyFiatRampQuote, selectBuyFiatAmount],
+  (selectedQuote, buyFiatAmount) => {
     if (!selectedQuote || !selectedQuote.rate) return '0'
 
     const rate = bnOrZero(selectedQuote.rate)
-    const sellFiatAmountBN = bnOrZero(sellFiatAmount)
+    const buyFiatAmountBN = bnOrZero(buyFiatAmount)
 
-    return sellFiatAmountBN.div(rate).toString()
+    return buyFiatAmountBN.div(rate).toString()
   },
 )
 
 export const selectHasUserEnteredAmount = createSelector(
   selectInputSellAmountCryptoPrecision,
-  selectSellFiatAmount,
-  (sellAmountCryptoPrecision, sellFiatAmount) =>
-    bnOrZero(sellAmountCryptoPrecision).gt(0) || bnOrZero(sellFiatAmount).gt(0),
+  selectBuyFiatAmount,
+  (sellAmountCryptoPrecision, buyFiatAmount) =>
+    bnOrZero(sellAmountCryptoPrecision).gt(0) || bnOrZero(buyFiatAmount).gt(0),
 )

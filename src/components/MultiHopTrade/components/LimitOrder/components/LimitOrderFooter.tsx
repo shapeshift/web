@@ -11,6 +11,7 @@ import { useCallback, useMemo } from 'react'
 
 import { Row } from '@/components/Row/Row'
 import { Text } from '@/components/Text'
+import { useModalChildZIndex } from '@/context/ModalStackProvider'
 import { useActions } from '@/hooks/useActions'
 import { assertUnreachable } from '@/lib/utils'
 import { ExpiryOption } from '@/state/slices/limitOrderInputSlice/constants'
@@ -56,6 +57,7 @@ const getExpiryOptionTranslation = (expiryOption: ExpiryOption) => {
 }
 
 export const LimitOrderFooter = () => {
+  const modalChildZIndex = useModalChildZIndex()
   const expiry = useAppSelector(selectExpiry)
   const { setExpiry } = useActions(limitOrderInput.actions)
 
@@ -100,7 +102,7 @@ export const LimitOrderFooter = () => {
           >
             <Text translation={expiryOptionTranslation} />
           </MenuButton>
-          <MenuList zIndex='modal'>
+          <MenuList zIndex={modalChildZIndex}>
             <MenuOptionGroup type='radio' value={expiry} onChange={handleChangeExpiryOption}>
               {expiryOptions}
             </MenuOptionGroup>

@@ -226,6 +226,7 @@
     "dca": "DCA",
     "boost": "Aumentar",
     "viewOnExplorer": "Ver en el explorador",
+    "viewAssetDetails": "Ver Detalles del Activo",
     "approval": "Aprobación",
     "permit2Approval": "Permiso para Aprobar",
     "network": "Red",
@@ -390,6 +391,7 @@
       "switchWallet": "Cambiar Billetera",
       "disconnect": "Desconectar",
       "disconnected": "(Desconectado)",
+      "locked": "(Bloqueado)",
       "reconnectWallet": "Reconectar Billetera",
       "walletNotConnected": "Tu billetera no está conectada actualmente. Esto afectará tus transacciones.",
       "connecting": "Conectando..."
@@ -923,7 +925,10 @@
     "confirmAndClaim": "Confirmar y Reclamar",
     "viewClaims": "Ver Reclamos",
     "viewClaimStatus": "Ver Estado del Reclamo",
-    "availableClaimsNotification": "¡Tienes reclamos bridge listos!"
+    "availableClaimsNotification": "¡Tienes reclamos bridge listos!",
+    "bridgeWithdrawalReadyNotification": "Retiro de Bridge listo para reclamar",
+    "bridgeWithdrawalFailedNotification": "Retirada del Bridge falló",
+    "checkActionCenterNotification": "Consulte el Centro de actividades para más detalles"
   },
   "trade": {
     "trade": "Intercambiar",
@@ -2176,11 +2181,12 @@
   },
   "assets": {
     "more": "Más",
+    "hideAsset": "Ocultar Activo",
+    "showAsset": "Mostrar Activo",
+    "cannotHidePrimary": "No se puede ocultar activos principales que tengan variantes relacionadas",
     "spam": {
-      "warning": "Este activo quedará oculto porque lo has marcado como spam.",
-      "marked": "Este activo está marcado como spam.",
-      "reportAsSpam": "Reportar como spam",
-      "reportAsNotSpam": "Marcar como no spam"
+      "warning": "Este activo se puede mostrar nuevamente abriendo el menú desplegable de la billetera y haciendo clic en \"Administrar activos ocultos\".",
+      "marked": "Este activo está actualmente oculto."
     },
     "assetDetails": {
       "assetHeader": {
@@ -2795,6 +2801,13 @@
     },
     "title": "Lista de seguimiento"
   },
+  "manageHiddenAssets": {
+    "title": "Gestionar Activos Ocultos",
+    "empty": {
+      "title": "Sin activos ocultos",
+      "body": "Los activos que ocultes aparecerán aquí, será más fácil volver a mostrarlos más tarde."
+    }
+  },
   "explore": {
     "pools": {
       "title": "Pools",
@@ -3126,6 +3139,7 @@
       "switchChainFailed": "No se pudo cambiar cadena de billetera. Intente cambiar manualmente la cadena activa de su billetera a %{chain}.",
       "buildTransaction": "Error al crear la transacción.",
       "signTransaction": "No se pudo firmar la transacción.",
+      "blindSigningRequired": "La transacción requiere firma ciega. Activa 'Blind signing' en la configuración de tu app Ledger y vuelve a intentarlo.",
       "signAndBroadcastTransaction": "No se pudo firmar ni transmitir la transacción.",
       "signMessage": "No se pudo firmar el mensaje.",
       "broadcastTransaction": "No se pudo transmitir la transacción.",
@@ -3202,10 +3216,17 @@
       "complete": "Su reclamo de %{amount} %{symbol} está completo."
     },
     "bridge": {
-      "processing": "Bridge de %{sellAmountAndSymbol}.%{sellChainShortName} a %{buyAmountAndSymbol}.%{buyChainShortName} se está procesando.",
-      "complete": "Bridge de %{sellAmountAndSymbol}.%{sellChainShortName} a %{buyAmountAndSymbol}.%{buyChainShortName} está completo.",
-      "initiated": "Bridge iniciado de %{sellAmountAndSymbol}.%{sellChainShortName} a %{buyAmountAndSymbol}.%{buyChainShortName}.",
-      "failed": "Bridge de %{sellAmountAndSymbol}.%{sellChainShortName} a %{buyAmountAndSymbol}.%{buyChainShortName} ha fallado."
+      "processing": "Procesando...",
+      "complete": "Su bridge de %{amountAndSymbol} está completo.",
+      "initiated": "Se ha iniciado su bridge de %{sellAmountAndSymbol} a %{buyAmountAndSymbol}.",
+      "pendingWithdraw": "Su retiro de %{amountAndSymbol} estará disponible %{timeText}.",
+      "claimAvailable": "Su bridge de %{amountAndSymbol} está disponible para reclamar.",
+      "failed": "Bridge de %{sellAmountAndSymbol}.%{sellChainShortName} a %{buyAmountAndSymbol}.%{buyChainShortName} ha fallado.",
+      "transactionInitiated": "Transacción Iniciada",
+      "claimWithdraw": "Reclamar Retiro",
+      "withdrawTx": "Retirar Tx",
+      "claimTx": "Reclamar Tx",
+      "claimNotAvailable": "EL Reclamo aún no está disponible. Espere que finalice el período de retiro."
     },
     "limitOrder": {
       "placed": "Orden Limite colocada para %{sellAmountAndSymbol} a %{buyAmountAndSymbol}",

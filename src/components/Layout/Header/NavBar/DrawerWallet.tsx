@@ -19,7 +19,7 @@ import {
   VStack,
 } from '@chakra-ui/react'
 import type { FC } from 'react'
-import { lazy, memo, Suspense, useCallback, useContext, useEffect, useMemo, useState } from 'react'
+import { lazy, memo, Suspense, useCallback, useEffect, useMemo, useState } from 'react'
 import { flushSync } from 'react-dom'
 import { useTranslate } from 'react-polyglot'
 import { MemoryRouter, Route, Routes, useNavigate } from 'react-router-dom'
@@ -32,7 +32,7 @@ import { SendIcon } from '@/components/Icons/SendIcon'
 import { ManageHiddenAssetsContent } from '@/components/ManageHiddenAssets/ManageHiddenAssetsContent'
 import { SettingsRoutes } from '@/components/Modals/Settings/SettingsCommon'
 import { WalletBalanceChange } from '@/components/WalletBalanceChange/WalletBalanceChange'
-import { ModalContext } from '@/context/ModalProvider/ModalContext'
+import { useModalRegistration } from '@/context/ModalStackProvider'
 import { WalletActions } from '@/context/WalletProvider/actions'
 import { useModal } from '@/hooks/useModal/useModal'
 import { useWallet } from '@/hooks/useWallet/useWallet'
@@ -133,7 +133,10 @@ const DrawerWalletInner: FC = memo(() => {
   const [activeTabIndex, setActiveTabIndex] = useState(0)
   const [loadedTabs, setLoadedTabs] = useState(new Set<number>()) // No tabs preloaded for better performance
   const navigate = useNavigate()
-  const modalContext = useContext(ModalContext)
+  const { modalContentProps, overlayProps, modalProps } = useModalRegistration({
+    isOpen,
+    onClose,
+  })
 
   const accountTableSkeletonFallback = useMemo(() => <AccountTableSkeleton />, [])
 
@@ -148,25 +151,10 @@ const DrawerWalletInner: FC = memo(() => {
   }, [isOpen, activeTabIndex])
 
   const {
-    state: { isConnected, walletInfo, connectedType, isLocked, modal: walletModalOpen },
+    state: { isConnected, walletInfo, connectedType, isLocked },
     dispatch,
     disconnect,
   } = useWallet()
-
-  useEffect(() => {
-    if (!modalContext) return
-    const hasOpenModal = Object.entries(modalContext.state).some(
-      ([key, modal]) => key !== 'walletDrawer' && modal.isOpen,
-    )
-    if (hasOpenModal && isOpen) {
-      // Give the lazy modals some time to open
-      setTimeout(onClose, 250)
-    }
-
-    if (walletModalOpen && isOpen) {
-      onClose()
-    }
-  }, [modalContext, walletModalOpen, isOpen, onClose])
 
   const handleSendClick = useCallback(() => {
     send.open({})
@@ -210,10 +198,10 @@ const DrawerWalletInner: FC = memo(() => {
   const manageHiddenAssetsElement = useMemo(() => <ManageHiddenAssetsContent />, [])
 
   return (
-    <Drawer isOpen={isOpen} placement='right' onClose={onClose} size='sm'>
-      <DrawerOverlay />
-      <DrawerContent width='full' maxWidth='512px'>
-        <DrawerBody p={4} display='flex' flexDirection='column' height='100%'>
+    <Drawer placement='right' size='sm' {...modalProps}>
+      <DrawerOverlay {...overlayProps} />
+      <DrawerContent width='full' maxWidth='512px' {...modalContentProps}>
+        <DrawerBody p={0} display='flex' flexDirection='column' height='100%'>
           <Routes>
             <Route
               path='/'
@@ -233,7 +221,7 @@ const DrawerWalletInner: FC = memo(() => {
                     <WalletBalanceChange showErroredAccounts={false} />
                   </Box>
 
-                  <Flex width='100%' pb={4} gap={2}>
+                  <Flex width='100%' pb={4} gap={2} px={4}>
                     <ActionButton
                       icon={sendIcon}
                       label={translate('common.send')}
@@ -263,8 +251,8 @@ const DrawerWalletInner: FC = memo(() => {
                         bg='transparent'
                         borderWidth={0}
                         pt={2}
-                        pb={4}
-                        px={0}
+                        pb={0}
+                        px={4}
                         gap={2}
                         flexShrink={0}
                       >
@@ -274,13 +262,8 @@ const DrawerWalletInner: FC = memo(() => {
                         <Tab>{translate('navBar.defi')}</Tab>
                         <Tab>{translate('common.activity')}</Tab>
                       </TabList>
-                      <TabPanels
-                        flex='1'
-                        overflow='auto'
-                        maxHeight={'100%'}
-                        className='scroll-container'
-                      >
-                        <TabPanel p={0} pt={2} pr={2} height='100%'>
+                      <TabPanels flex='1' overflow='auto' maxHeight={'100%'}>
+                        <TabPanel px={2} pb={4} height='100%'>
                           {loadedTabs.has(0) ? (
                             <Suspense fallback={accountTableSkeletonFallback}>
                               <Box height='100%'>
@@ -291,18 +274,18 @@ const DrawerWalletInner: FC = memo(() => {
                             accountTableSkeletonFallback
                           )}
                         </TabPanel>
-                        <TabPanel p={0} pt={2} pr={2}>
+                        <TabPanel px={2} pb={4}>
                           {loadedTabs.has(1) && (
                             <AccountsListContent onClose={onClose} isSimpleMenu />
                           )}
                         </TabPanel>
-                        <TabPanel p={0} pt={2} pr={2}>
+                        <TabPanel px={2} py={4}>
                           {loadedTabs.has(2) && <WatchlistTable forceCompactView />}
                         </TabPanel>
-                        <TabPanel p={0} pt={2} pr={2}>
+                        <TabPanel px={2} py={4}>
                           {loadedTabs.has(3) && <DeFiEarn forceCompactView />}
                         </TabPanel>
-                        <TabPanel p={0} pt={2} pr={2}>
+                        <TabPanel px={0} py={4}>
                           {loadedTabs.has(4) && <TransactionHistoryContent isCompact />}
                         </TabPanel>
                       </TabPanels>

@@ -74,6 +74,7 @@ export enum MixPanelEvent {
   SendClick = 'Send Click',
   SendBroadcast = 'Send Broadcast',
   HighlightedTokenClicked = 'Highlighted Token Clicked',
+  FiveStarRating = 'Five Star Rating',
 }
 
 export type TrackOpportunityProps = {

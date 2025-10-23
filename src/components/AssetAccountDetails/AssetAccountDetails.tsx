@@ -14,7 +14,6 @@ import { Equity } from '../Equity/Equity'
 import { Main } from '../Layout/Main'
 import { MaybeChartUnavailable } from '../MaybeChartUnavailable'
 import { RelatedAssets } from '../RelatedAssets/RelatedAssets'
-import { EarnOpportunities } from '../StakingVaults/EarnOpportunities'
 import { SpamWarningBanner } from './components/SpamWarningBanner'
 
 import { AssetTransactionHistory } from '@/components/TransactionHistory/AssetTransactionHistory'
@@ -62,7 +61,6 @@ export const AssetAccountDetails = ({ assetId, accountId }: AssetDetailsProps) =
           <Equity assetId={assetId} accountId={accountId} />
           {accountId && <AccountAssets assetId={assetId} accountId={accountId} />}
           <RelatedAssets assetId={assetId} />
-          <EarnOpportunities assetId={assetId} accountId={accountId} />
           <AssetTransactionHistory limit={10} assetId={assetId} accountId={accountId} />
         </Stack>
         <Flex flexDir='column' flex='1 1 0%' width='full' maxWidth={maxWidth} gap={4}>

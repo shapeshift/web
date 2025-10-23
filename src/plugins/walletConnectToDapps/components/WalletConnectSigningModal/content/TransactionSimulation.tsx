@@ -53,7 +53,7 @@ export const TransactionSimulation: FC<TransactionSimulationProps> = ({ transact
   const exposureChanges = useMemo(
     (): TenderlyExposureChange[] =>
       simulationQuery.data?.transaction.transaction_info?.exposure_changes || [],
-    [simulationQuery.data?.transaction.transaction_info?.exposure_changes],
+    [simulationQuery.data],
   )
 
   const allowanceSimulationRows = useMemo(() => {
@@ -197,20 +197,37 @@ export const TransactionSimulation: FC<TransactionSimulationProps> = ({ transact
     })
   }, [receiveChanges, translate])
 
-  if (
-    !simulationQuery.isLoading &&
-    !(allowanceSimulationRows.length || sendChanges.length || receiveChanges.length)
-  ) {
+  const isLoading = simulationQuery.isFetching
+  const hasContent = allowanceSimulationRows.length || sendChanges.length || receiveChanges.length
+
+  if (!hasContent && !isLoading) {
     return null
   }
 
-  return (
-    <Skeleton isLoaded={!simulationQuery.isLoading}>
+  if (isLoading && !hasContent) {
+    return (
       <VStack spacing={2} align='stretch'>
-        {allowanceSimulationRows}
-        {sendChangeRow}
-        {receiveChangeRow}
+        <HStack justify='space-between' align='center' py={1}>
+          <RawText fontSize='sm' color='text.subtle'>
+            {translate('common.send')}
+          </RawText>
+          <Skeleton height='20px' width='120px' />
+        </HStack>
+        <HStack justify='space-between' align='center' py={1}>
+          <RawText fontSize='sm' color='text.subtle'>
+            {translate('common.receive')}
+          </RawText>
+          <Skeleton height='20px' width='120px' />
+        </HStack>
       </VStack>
-    </Skeleton>
+    )
+  }
+
+  return (
+    <VStack spacing={2} align='stretch'>
+      {allowanceSimulationRows}
+      {sendChangeRow}
+      {receiveChangeRow}
+    </VStack>
   )
 }

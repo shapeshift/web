@@ -226,6 +226,7 @@
     "dca": "DCA",
     "boost": "Буст",
     "viewOnExplorer": "Просмотр в проводнике",
+    "viewAssetDetails": "Просмотреть сведения об активе",
     "approval": "Утверждение",
     "permit2Approval": "Permit2 Одобрение",
     "network": "Сеть",
@@ -390,6 +391,7 @@
       "switchWallet": "Поменять Кошелек ",
       "disconnect": "Отключить",
       "disconnected": "(Отключен)",
+      "locked": "(Заблокировано)",
       "reconnectWallet": "Повторно подключите кошелек",
       "walletNotConnected": "Ваш кошелек в настоящее время не подключен. Это повлияет на транзакции.",
       "connecting": "Подключение..."
@@ -923,7 +925,10 @@
     "confirmAndClaim": "Подтвердить и заклеймить",
     "viewClaims": "Просмотр претензий",
     "viewClaimStatus": "Просмотр статуса клейма",
-    "availableClaimsNotification": "У вы уже перевели клейм!"
+    "availableClaimsNotification": "У вы уже перевели клейм!",
+    "bridgeWithdrawalReadyNotification": "Мост готов к выводу средств",
+    "bridgeWithdrawalFailedNotification": "Снятие с моста не удалось",
+    "checkActionCenterNotification": "Подробности см. в Центре действий."
   },
   "trade": {
     "trade": "Торговля",
@@ -2176,11 +2181,12 @@
   },
   "assets": {
     "more": "Еще",
+    "hideAsset": "Скрыть актив",
+    "showAsset": "Показать актив",
+    "cannotHidePrimary": "Невозможно скрыть основные активы, имеющие связанные варианты",
     "spam": {
-      "warning": "Этот актив будет скрыт, поскольку вы пометили его как спам.",
-      "marked": "Этот актив помечен как спам.",
-      "reportAsSpam": "Пометить как спам",
-      "reportAsNotSpam": "Пометить как не спам"
+      "warning": "Этот актив можно снова отобразить, открыв раскрывающийся список кошелька и нажав 'Управление скрытыми активами'.",
+      "marked": "Этот актив в настоящее время скрыт."
     },
     "assetDetails": {
       "assetHeader": {
@@ -2795,6 +2801,13 @@
     },
     "title": "Список наблюдения"
   },
+  "manageHiddenAssets": {
+    "title": "Управление скрытыми активами",
+    "empty": {
+      "title": "Нет скрытых активов",
+      "body": "Скрытые вами активы появятся здесь, что позволит легко отобразить их снова позже."
+    }
+  },
   "explore": {
     "pools": {
       "title": "Пулы",
@@ -3126,6 +3139,7 @@
       "switchChainFailed": "Не удалось переключить цепочку кошелька. Попробуйте вручную переключить активную цепочку вашего кошелька на %{chain}.",
       "buildTransaction": "Не удалось создать транзакцию.",
       "signTransaction": "Не удалось подписать транзакцию.",
+      "blindSigningRequired": "Для транзакции требуется слепая подпись. Включите функцию 'Blind signing' в настройках приложения Ledger и повторите попытку.",
       "signAndBroadcastTransaction": "Не удалось подписать и передать транзакцию.",
       "signMessage": "Не удалось подписать сообщение.",
       "broadcastTransaction": "Не удалось передать транзакцию.",
@@ -3202,10 +3216,17 @@
       "complete": "Ваше требование на %{amount} %{symbol} выполнено."
     },
     "bridge": {
-      "processing": "Ваш мост %{sellAmountAndSymbol}.%{sellChainShortName} на %{buyAmountAndSymbol}.%{buyChainShortName} находится в обработке.",
-      "complete": "Ваш мост из %{sellAmountAndSymbol}.%{sellChainShortName} в %{buyAmountAndSymbol}.%{buyChainShortName} завершен.",
-      "initiated": "Ваш мост из %{sellAmountAndSymbol}.%{sellChainShortName} в %{buyAmountAndSymbol}.%{buyChainShortName} был инициирован.",
-      "failed": "Ваш мост из %{sellAmountAndSymbol}.%{sellChainShortName} в %{buyAmountAndSymbol}.%{buyChainShortName} потерпел неудачу."
+      "processing": "Обработка...",
+      "complete": "Ваш мост %{amountAndSymbol} готов.",
+      "initiated": "Ваш мост от %{sellAmountAndSymbol} до %{buyAmountAndSymbol} был инициирован.",
+      "pendingWithdraw": "Ваш вывод %{amountAndSymbol} будет доступен %{timeText}.",
+      "claimAvailable": "Ваш мост %{amountAndSymbol} доступен для получения.",
+      "failed": "Ваш мост из %{sellAmountAndSymbol}.%{sellChainShortName} в %{buyAmountAndSymbol}.%{buyChainShortName} потерпел неудачу.",
+      "transactionInitiated": "Транзакция инициирована",
+      "claimWithdraw": "Заклеймить вывод",
+      "withdrawTx": "Тx вывода",
+      "claimTx": "Tx клейма",
+      "claimNotAvailable": "Заявка еще не доступна. Пожалуйста, дождитесь окончания периода отзыва."
     },
     "limitOrder": {
       "placed": "Размещен лимитный ордер %{sellAmountAndSymbol} на %{buyAmountAndSymbol}.",

@@ -100,7 +100,7 @@ export const DrawerWalletHeader: FC<DrawerHeaderProps> = memo(
     if (!isConnected || isLocked || !walletInfo) return null
 
     return (
-      <Flex align='center' justify='space-between'>
+      <Flex align='center' px={4} pt={4} justify='space-between'>
         <Flex align='center' gap={2}>
           <ProfileAvatar size='md' borderRadius='full' />
           <Text fontWeight='medium'>{label}</Text>

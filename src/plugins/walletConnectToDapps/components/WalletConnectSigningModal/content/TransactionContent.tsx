@@ -50,7 +50,7 @@ export const TransactionContent: FC<TransactionContentProps> = ({ transaction, c
 
   const functionName = useMemo(() => {
     return simulationQuery.data?.simulation?.method || null
-  }, [simulationQuery.data?.simulation?.method])
+  }, [simulationQuery.data])
 
   const decodedArguments = useMemo((): ParsedArgument[] => {
     if (!simulationQuery.data) return []
@@ -63,6 +63,8 @@ export const TransactionContent: FC<TransactionContentProps> = ({ transaction, c
 
   const hoverStyle = useMemo(() => ({ bg: 'transparent' }), [])
 
+  const isLoading = simulationQuery.isFetching
+
   return (
     <Card borderRadius='2xl' p={4}>
       <VStack spacing={3} align='stretch'>
@@ -71,16 +73,18 @@ export const TransactionContent: FC<TransactionContentProps> = ({ transaction, c
             <RawText fontSize='sm' color='text.subtle'>
               {translate('common.network')}
             </RawText>
-            <HStack spacing={2}>
-              <RawText fontSize='sm' fontWeight='bold'>
-                {feeAsset.networkName || feeAsset.name}
-              </RawText>
-              <Image
-                boxSize='20px'
-                src={feeAsset.networkIcon || feeAsset.icon}
-                borderRadius='full'
-              />
-            </HStack>
+            <Skeleton isLoaded={!isLoading}>
+              <HStack spacing={2}>
+                <RawText fontSize='sm' fontWeight='bold'>
+                  {feeAsset.networkName || feeAsset.name}
+                </RawText>
+                <Image
+                  boxSize='20px'
+                  src={feeAsset.networkIcon || feeAsset.icon}
+                  borderRadius='full'
+                />
+              </HStack>
+            </Skeleton>
           </HStack>
         )}
         <TransactionSimulation transaction={transaction} chainId={chainId} />
@@ -88,9 +92,11 @@ export const TransactionContent: FC<TransactionContentProps> = ({ transaction, c
           <RawText fontSize='sm' color='text.subtle'>
             {translate('plugins.walletConnectToDapps.modal.interactContract')}
           </RawText>
-          <ExpandableCell value={transaction.to} threshold={20} />
+          <Skeleton isLoaded={!isLoading} minW='120px'>
+            <ExpandableCell value={transaction.to} threshold={20} />
+          </Skeleton>
         </HStack>
-        {functionName && (
+        {(functionName || isLoading) && (
           <>
             <Box borderTop='1px solid' borderColor={sectionBorderColor} pt={4} mt={2}>
               <Button
@@ -116,16 +122,16 @@ export const TransactionContent: FC<TransactionContentProps> = ({ transaction, c
                     <RawText fontSize='sm' color='text.subtle'>
                       {translate('plugins.walletConnectToDapps.modal.method')}
                     </RawText>
-                    <Skeleton isLoaded={!simulationQuery.isLoading}>
+                    <Skeleton isLoaded={!isLoading} minW='150px'>
                       <RawText fontSize='sm' fontFamily='mono' fontWeight='bold'>
-                        {functionName}
+                        {functionName ?? ''}
                       </RawText>
                     </Skeleton>
                   </HStack>
                   <StructuredMessage
                     fields={structuredFields}
                     chainId={chainId}
-                    isLoading={simulationQuery.isLoading}
+                    isLoading={isLoading}
                   />
                 </VStack>
               )}

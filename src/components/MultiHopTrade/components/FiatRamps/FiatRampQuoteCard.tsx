@@ -203,6 +203,7 @@ export const FiatRampQuoteCard: FC<FiatRampQuoteProps> = memo(
         isActive={isActive}
         isActionable={isActionable}
         isDisabled={isDisabled}
+        isAvailable={true}
       />
     )
   },

@@ -1,7 +1,7 @@
 import { createSlice } from '@reduxjs/toolkit'
 import { createApi } from '@reduxjs/toolkit/query/react'
 import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
-import { fromAccountId, isNft, thorchainChainId } from '@shapeshiftoss/caip'
+import { baseChainId, fromAccountId, isNft, thorchainChainId } from '@shapeshiftoss/caip'
 import type { ChainAdapter, thorchain, Transaction } from '@shapeshiftoss/chain-adapters'
 import type { PartialRecord, UtxoAccountType } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
@@ -201,7 +201,7 @@ export const txHistoryApi = createApi({
               let currentCursor = ''
 
               do {
-                const pageSize = 10
+                const pageSize = chainId === baseChainId ? 100 : 10
                 const requestCursor = currentCursor
 
                 const state = getState() as State

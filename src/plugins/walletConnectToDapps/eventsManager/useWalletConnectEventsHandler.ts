@@ -97,7 +97,7 @@ export const useWalletConnectEventsHandler = (
           })
 
         case EIP155_SigningMethod.WALLET_ADD_ETHEREUM_CHAIN:
-        case EIP155_SigningMethod.WALLET_SWITCH_ETHEREUM_CHAIN:
+        case EIP155_SigningMethod.WALLET_SWITCH_ETHEREUM_CHAIN: {
           const rpcParams = params.request.params as WalletSwitchEthereumChainParams
           const evmNetworkIdHex = rpcParams[0]?.chainId
           if (!evmNetworkIdHex) return
@@ -139,6 +139,7 @@ export const useWalletConnectEventsHandler = (
             },
           })
           return
+        }
         case CosmosSigningMethod.COSMOS_SIGN_DIRECT:
         case CosmosSigningMethod.COSMOS_SIGN_AMINO:
           return dispatch({

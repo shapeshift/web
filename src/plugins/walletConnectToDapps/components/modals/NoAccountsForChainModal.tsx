@@ -43,7 +43,12 @@ export const NoAccountsForChainModal: React.FC<WalletConnectSessionModalProps> =
   return (
     <Center flexDir='column' flex={1} p={6}>
       <AssetIcon size='lg' assetId={feeAssetId} showNetworkIcon mb={4} />
-      <Text translation='RFOX.noSupportedChains' fontSize='xl' fontWeight='bold' mb={4} />
+      <Text
+        translation='plugins.walletConnectToDapps.modal.noAccountsForChain.title'
+        fontSize='xl'
+        fontWeight='bold'
+        mb={4}
+      />
       <RawText fontSize='md' color='text.subtle' mb={4} textAlign='center'>
         {translate('plugins.walletConnectToDapps.modal.noAccountsForChain.description', {
           chainLabel,

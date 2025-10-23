@@ -2534,6 +2534,7 @@
           "optionalPermissionMessage": "The following permissions are optional."
         },
         "noAccountsForChain": {
+          "title": "Chain not supported",
           "description": "No %{chainLabel} account connected to this dApp."
         }
       },

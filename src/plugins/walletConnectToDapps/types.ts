@@ -104,6 +104,7 @@ export enum WalletConnectModal {
   SignEIP155TransactionConfirmation = 'signEIP155TransactionConfirmation',
   SendEIP155TransactionConfirmation = 'sendEIP155TransactionConfirmation',
   SendCosmosTransactionConfirmation = 'sendCosmosTransactionConfirmation',
+  NoAccountsForChain = 'noAccountsForChain',
 }
 
 export type CustomTransactionData = {
@@ -137,14 +138,28 @@ export type SupportedSessionRequest<T = WalletConnectRequest> = Omit<
   }
 }
 
-type WalletAddEthereumChainCallRequest = {
-  method: EIP155_SigningMethod.WALLET_ADD_ETHEREUM_CHAIN
-  params: TransactionParams[]
+export type WalletSwitchEthereumChainParams = [{ chainId: Hex }]
+export type WalletSwitchEthereumChainCallRequest = {
+  method: EIP155_SigningMethod.WALLET_SWITCH_ETHEREUM_CHAIN
+  params: WalletSwitchEthereumChainParams
 }
 
-type WalletSwitchEthereumChainCallRequest = {
-  method: EIP155_SigningMethod.WALLET_SWITCH_ETHEREUM_CHAIN
-  params: TransactionParams[]
+export type AddEthereumChainParameter = {
+  chainId: Hex
+  chainName?: string
+  nativeCurrency?: {
+    name: string
+    symbol: string
+    decimals: number
+  }
+  rpcUrls?: string[]
+  blockExplorerUrls?: string[]
+  iconUrls?: string[]
+}
+export type WalletAddEthereumChainParams = [AddEthereumChainParameter]
+export type WalletAddEthereumChainCallRequest = {
+  method: EIP155_SigningMethod.WALLET_ADD_ETHEREUM_CHAIN
+  params: WalletAddEthereumChainParams
 }
 
 export type EthSignTransactionCallRequest = {
@@ -234,6 +249,8 @@ export type EthSignParams =
 
 export type RequestParams =
   | TransactionParams[]
+  | WalletSwitchEthereumChainParams
+  | WalletAddEthereumChainParams
   | EthSignParams
   | CosmosSignDirectCallRequestParams
   | CosmosSignAminoCallRequestParams

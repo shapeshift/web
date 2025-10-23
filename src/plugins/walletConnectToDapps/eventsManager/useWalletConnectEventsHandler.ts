@@ -1,11 +1,15 @@
 import { formatJsonRpcResult } from '@json-rpc-tools/utils'
 import type { WalletKitTypes } from '@reown/walletkit'
+import type { ChainReference } from '@shapeshiftoss/caip'
+import { CHAIN_NAMESPACE, fromAccountId, toChainId } from '@shapeshiftoss/caip'
 import { useCallback } from 'react'
+import { hexToNumber } from 'viem'
 
 import type {
   SupportedSessionRequest,
   WalletConnectContextType,
   WalletConnectState,
+  WalletSwitchEthereumChainParams,
 } from '@/plugins/walletConnectToDapps/types'
 import {
   CosmosSigningMethod,
@@ -51,6 +55,8 @@ export const useWalletConnectEventsHandler = (
         }
       }
 
+      const session = getRequestSession()
+
       switch (request.method) {
         case EIP155_SigningMethod.ETH_SIGN:
         case EIP155_SigningMethod.PERSONAL_SIGN:
@@ -91,14 +97,49 @@ export const useWalletConnectEventsHandler = (
           })
 
         case EIP155_SigningMethod.WALLET_ADD_ETHEREUM_CHAIN:
-        case EIP155_SigningMethod.WALLET_SWITCH_ETHEREUM_CHAIN:
-          // This doesn't fit our usual pattern and doesn't require a modal
-          // We implicitly return a happy JSON-RPC response
+        case EIP155_SigningMethod.WALLET_SWITCH_ETHEREUM_CHAIN: {
+          const rpcParams = params.request.params as WalletSwitchEthereumChainParams
+          const evmNetworkIdHex = rpcParams[0]?.chainId
+          if (!evmNetworkIdHex) return
+
+          const chainId = toChainId({
+            chainNamespace: CHAIN_NAMESPACE.Evm,
+            chainReference: String(hexToNumber(evmNetworkIdHex)) as ChainReference,
+          })
+          const sessionAccountIds = session?.namespaces.eip155?.accounts ?? []
+          const isChainInSession = sessionAccountIds.some(
+            accountId => fromAccountId(accountId).chainId === chainId,
+          )
+          // There's an account for said chain in the session - all g, we can "switch" to it (as far as WC is concerned)
+          if (isChainInSession)
+            return web3wallet?.respondSessionRequest({
+              topic,
+              response: formatJsonRpcResult(requestEvent.id, null),
+            })
+
+          dispatch({
+            type: WalletConnectActionType.SET_MODAL,
+            payload: {
+              modal: WalletConnectModal.NoAccountsForChain,
+              data: { requestEvent, requestSession: getRequestSession() },
+            },
+          })
+
+          // Return error 4902 (unrecognized chain) - de facto standard from MM and recognized by WC (or well, so it is by Relay)
+          // See: https://docs.metamask.io/wallet/reference/wallet_switchethereumchain/
           await web3wallet?.respondSessionRequest({
             topic,
-            response: formatJsonRpcResult(requestEvent.id, null),
+            response: {
+              id: requestEvent.id,
+              jsonrpc: '2.0',
+              error: {
+                code: 4902,
+                message: `No accounts for chain: ${evmNetworkIdHex}.`,
+              },
+            },
           })
           return
+        }
         case CosmosSigningMethod.COSMOS_SIGN_DIRECT:
         case CosmosSigningMethod.COSMOS_SIGN_AMINO:
           return dispatch({

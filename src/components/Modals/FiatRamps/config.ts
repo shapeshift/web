@@ -21,6 +21,7 @@ import banxaLogo from '@/assets/banxa.png'
 import CoinbaseLogo from '@/assets/coinbase-logo.svg'
 import MtPelerinLogo from '@/assets/mtpelerin.png'
 import OnRamperLogo from '@/assets/onramper-logo.svg'
+import { getBanxaQuote } from '@/components/Modals/FiatRamps/fiatRampProviders/banxa/utils'
 import { getOnramperQuote } from '@/components/Modals/FiatRamps/fiatRampProviders/onramper/utils'
 import type { CommonFiatCurrencies, FiatCurrencyItem } from '@/lib/fiatCurrencies/fiatCurrencies'
 import type { FeatureFlags } from '@/state/slices/preferencesSlice/preferencesSlice'
@@ -133,6 +134,7 @@ export const supportedFiatRamps: SupportedFiatRamp = {
       return Promise.resolve([buyAssetIds, sellAssetIds])
     },
     getSupportedFiatList: () => getSupportedBanxaFiatCurrencies(),
+    getQuotes: getBanxaQuote,
     onSubmit: props => {
       try {
         const banxaCheckoutUrl = createBanxaUrl(props)

@@ -83,6 +83,7 @@ export const getMtPelerinQuote = async ({
         headers: {
           'Content-Type': 'application/json',
         },
+        timeout: QUOTE_TIMEOUT_MS,
       },
     )
 

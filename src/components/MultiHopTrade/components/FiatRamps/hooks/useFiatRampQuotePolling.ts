@@ -5,11 +5,12 @@ import { useMemo } from 'react'
 import type { FiatRampAction } from '@/components/Modals/FiatRamps/FiatRampsCommon'
 import { useHasFocus } from '@/hooks/useHasFocus'
 import {
+  selectBuyFiatAmount,
   selectBuyFiatCurrency,
   selectInputBuyAsset,
   selectInputSellAmountCryptoPrecision,
   selectInputSellAsset,
-  selectSellFiatAmount,
+  selectSellCryptoAmount,
   selectSellFiatCurrency,
 } from '@/state/slices/tradeRampInputSlice/selectors'
 import { useAppSelector } from '@/state/store'
@@ -20,7 +21,8 @@ export const useFiatRampQuotePolling = (direction: FiatRampAction) => {
   const sellAsset = useAppSelector(selectInputSellAsset)
   const buyAsset = useAppSelector(selectInputBuyAsset)
   const sellAmountCryptoPrecision = useAppSelector(selectInputSellAmountCryptoPrecision)
-  const sellFiatAmount = useAppSelector(selectSellFiatAmount)
+  const sellCryptoAmount = useAppSelector(selectSellCryptoAmount)
+  const buyFiatAmount = useAppSelector(selectBuyFiatAmount)
   const sellFiatCurrency = useAppSelector(selectSellFiatCurrency)
   const buyFiatCurrency = useAppSelector(selectBuyFiatCurrency)
 
@@ -33,7 +35,8 @@ export const useFiatRampQuotePolling = (direction: FiatRampAction) => {
       buyAsset,
       sellAmountCryptoPrecision,
       sellAsset,
-      sellFiatAmount,
+      sellCryptoAmount,
+      buyCryptoAmount: buyFiatAmount,
       sellFiatCurrency,
       buyFiatCurrency,
       direction,
@@ -42,7 +45,8 @@ export const useFiatRampQuotePolling = (direction: FiatRampAction) => {
       buyAsset,
       sellAmountCryptoPrecision,
       sellAsset,
-      sellFiatAmount,
+      sellCryptoAmount,
+      buyFiatAmount,
       sellFiatCurrency,
       buyFiatCurrency,
       direction,

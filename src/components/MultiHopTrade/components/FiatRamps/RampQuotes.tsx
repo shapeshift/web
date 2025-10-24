@@ -8,13 +8,13 @@ import { FiatRampAction } from '@/components/Modals/FiatRamps/FiatRampsCommon'
 import { useGetRampQuotes } from '@/components/MultiHopTrade/components/FiatRamps/hooks/useGetRampQuotes'
 import { Text } from '@/components/Text'
 import {
+  selectBuyFiatAmount,
   selectBuyFiatCurrency,
   selectInputBuyAsset,
   selectInputSellAmountCryptoPrecision,
   selectInputSellAsset,
   selectSelectedBuyFiatRampQuote,
   selectSelectedSellFiatRampQuote,
-  selectSellFiatAmount,
   selectSellFiatCurrency,
 } from '@/state/slices/tradeRampInputSlice/selectors'
 import { useAppSelector } from '@/state/store'
@@ -30,11 +30,11 @@ type RampQuotesProps = {
 export const RampQuotes: React.FC<RampQuotesProps> = ({ isLoading = false, onBack, direction }) => {
   const sellAsset = useAppSelector(selectInputSellAsset)
   const buyAsset = useAppSelector(selectInputBuyAsset)
-  const sellAmount = useAppSelector(selectInputSellAmountCryptoPrecision)
+  const sellAmountCryptoPrecision = useAppSelector(selectInputSellAmountCryptoPrecision)
   const sellFiatCurrency = useAppSelector(selectSellFiatCurrency)
   const buyFiatCurrency = useAppSelector(selectBuyFiatCurrency)
 
-  const sellFiatAmount = useAppSelector(selectSellFiatAmount)
+  const buyFiatAmount = useAppSelector(selectBuyFiatAmount)
   const selectedBuyQuote = useAppSelector(selectSelectedBuyFiatRampQuote)
   const selectedSellQuote = useAppSelector(selectSelectedSellFiatRampQuote)
 
@@ -44,8 +44,8 @@ export const RampQuotes: React.FC<RampQuotesProps> = ({ isLoading = false, onBac
   )
 
   const quoteAmount = useMemo(() => {
-    return direction === FiatRampAction.Buy ? sellFiatAmount : sellAmount
-  }, [direction, sellAmount, sellFiatAmount])
+    return direction === FiatRampAction.Buy ? buyFiatAmount : sellAmountCryptoPrecision
+  }, [direction, sellAmountCryptoPrecision, buyFiatAmount])
 
   const { queries: quotesQueries, sortedQuotes } = useGetRampQuotes({
     fiatCurrency: direction === FiatRampAction.Buy ? sellFiatCurrency : buyFiatCurrency,

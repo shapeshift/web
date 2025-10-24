@@ -8,15 +8,16 @@ import { selectWalletType } from '@/state/slices/localWalletSlice/selectors'
 import { selectIsPortfolioLoading, selectPortfolioAccounts } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
-export const useLedgerAccountGuard = () => {
+export const useAddAccountsGuard = () => {
   const {
-    state: { wallet, isConnected },
+    state: { wallet, isConnected, deviceId },
   } = useWallet()
   const portfolioAccounts = useSelector(selectPortfolioAccounts)
   const isPortfolioLoading = useSelector(selectIsPortfolioLoading)
   const walletType = useAppSelector(selectWalletType)
   const manageAccountsModal = useModal('manageAccounts')
   const hasCheckedRef = useRef(false)
+  const prevDeviceIdRef = useRef<string | null>(null)
 
   // Reset the hasChecked flag when wallet disconnects
   useEffect(() => {
@@ -25,10 +26,18 @@ export const useLedgerAccountGuard = () => {
     }
   }, [isConnected])
 
+  // Reset the hasChecked flag when wallet deviceId changes
+  useEffect(() => {
+    if (deviceId !== prevDeviceIdRef.current) {
+      hasCheckedRef.current = false
+      prevDeviceIdRef.current = deviceId
+    }
+  }, [deviceId])
+
   useEffect(() => {
     if (!isConnected || !wallet || hasCheckedRef.current) return
 
-    if (walletType !== KeyManager.Ledger) return
+    if (walletType !== KeyManager.Ledger && walletType !== KeyManager.GridPlus) return
 
     // Only open if we don't already have accounts connected
     const accountIds = Object.keys(portfolioAccounts)

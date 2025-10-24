@@ -3,13 +3,16 @@ import { Box, Button, Flex, Stack, Text as CText, useColorModeValue } from '@cha
 import { useCallback } from 'react'
 
 import { Text } from '@/components/Text'
+import { GridPlusConfig } from '@/context/WalletProvider/GridPlus/config'
 import { KeepKeyConfig } from '@/context/WalletProvider/KeepKey/config'
 import { KeyManager } from '@/context/WalletProvider/KeyManager'
 import { LedgerConfig } from '@/context/WalletProvider/Ledger/config'
+import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 
 const LedgerIcon = LedgerConfig.icon
 const KeepKeyIcon = KeepKeyConfig.icon
+const GridPlusIcon = GridPlusConfig.icon
 
 type WalletOptionProps = {
   connect: () => void
@@ -69,6 +72,13 @@ export const HardwareWalletsSection = ({
     connect(KeyManager.KeepKey, false)
   }, [connect, onWalletSelect])
 
+  const handleConnectGridPlus = useCallback(() => {
+    onWalletSelect(KeyManager.GridPlus, '/gridplus/connect')
+    connect(KeyManager.GridPlus, false)
+  }, [connect, onWalletSelect])
+
+  const isGridPlusWalletEnabled = useFeatureFlag('GridPlusWallet')
+
   return (
     <Stack spacing={2} my={6}>
       <Text
@@ -91,6 +101,15 @@ export const HardwareWalletsSection = ({
         icon={KeepKeyIcon}
         name={KeepKeyConfig.name}
       />
+      {isGridPlusWalletEnabled && (
+        <WalletOption
+          connect={handleConnectGridPlus}
+          isSelected={selectedWalletId === KeyManager.GridPlus}
+          isDisabled={isLoading && selectedWalletId !== KeyManager.GridPlus}
+          icon={GridPlusIcon}
+          name={GridPlusConfig.name}
+        />
+      )}
     </Stack>
   )
 }

@@ -526,7 +526,7 @@ export const ImportAccounts = forwardRef<ImportAccountsRef, ImportAccountsProps>
                 <LoadingRow
                   numRows={
                     accounts.pages[accounts.pages.length - 1]?.accountIdWithActivityAndMetadata
-                      .length ?? 0
+                      .length || 3
                   }
                 />
               )}

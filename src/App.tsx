@@ -11,9 +11,9 @@ import { useAppSelector } from './state/store'
 
 import { ConsentBanner } from '@/components/ConsentBanner'
 import { IconCircle } from '@/components/IconCircle'
+import { useAddAccountsGuard } from '@/hooks/useAddAccountsGuard/useAddAccountsGuard'
 import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { useHasAppUpdated } from '@/hooks/useHasAppUpdated/useHasAppUpdated'
-import { useLedgerAccountGuard } from '@/hooks/useLedgerAccountGuard/useLedgerAccountGuard'
 import { useModal } from '@/hooks/useModal/useModal'
 import { useNotificationToast } from '@/hooks/useNotificationToast'
 import { isMobile as isMobileApp } from '@/lib/globals'
@@ -32,7 +32,7 @@ export const App = () => {
   const isActionCenterEnabled = useFeatureFlag('ActionCenter')
   const { isOpen: isNativeOnboardOpen, open: openNativeOnboard } = useModal('nativeOnboard')
 
-  useLedgerAccountGuard()
+  useAddAccountsGuard()
 
   useEffect(() => {
     if (hasUpdated && !toast.isActive(updateId) && !isActionCenterEnabled) {

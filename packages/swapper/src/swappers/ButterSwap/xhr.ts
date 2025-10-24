@@ -9,14 +9,7 @@ import type { SwapErrorRight } from '../../types'
 import { TradeQuoteError } from '../../types'
 import { makeSwapErrorRight } from '../../utils'
 import { getTreasuryAddressFromChainId } from '../utils/helpers/helpers'
-import type {
-  BridgeInfo,
-  BridgeInfoApiResponse,
-  BuildTxResponse,
-  DetailedBridgeInfo,
-  DetailedBridgeInfoApiResponse,
-  RouteResponse,
-} from './types'
+import type { BridgeInfo, BridgeInfoApiResponse, BuildTxResponse, RouteResponse } from './types'
 import { butterHistoryService } from './utils/butterSwapHistoryService'
 import { butterService } from './utils/butterSwapService'
 import { chainIdToButterSwapChainId } from './utils/helpers'
@@ -145,47 +138,22 @@ export function isBuildTxSuccess(
 export const getBridgeInfoBySourceHash = async (
   hash: string,
 ): ButterSwapPromise<BridgeInfo | undefined> => {
-  try {
-    const result = await butterHistoryService.get<BridgeInfoApiResponse>(
-      '/api/queryBridgeInfoBySourceHash',
-      {
-        params: { hash },
-      },
-    )
-    if (result.isErr()) {
-      throw result.unwrapErr()
-    }
-    const data = result.unwrap().data
-    if (!data || !data.data || !data.data.info) {
-      return Ok(undefined)
-    }
-    return Ok(data.data.info)
-  } catch (e) {
-    return Ok(undefined)
-  }
-}
+  const endpoint = '/api/queryBridgeInfoBySourceHash'
+  const params = { hash }
 
-/**
- * Get detailed bridge information by ID
- * This endpoint is undocumented by Butter, but used in their UI
- */
-export const getBridgeInfoById = async (
-  id: number,
-): ButterSwapPromise<DetailedBridgeInfo | undefined> => {
   try {
-    const result = await butterHistoryService.get<DetailedBridgeInfoApiResponse>(
-      '/api/queryBridgeInfoById',
-      {
-        params: { id },
-      },
-    )
+    const result = await butterHistoryService.get<BridgeInfoApiResponse>(endpoint, { params })
+
     if (result.isErr()) {
       throw result.unwrapErr()
     }
+
     const data = result.unwrap().data
+
     if (!data || !data.data || !data.data.info) {
       return Ok(undefined)
     }
+
     return Ok(data.data.info)
   } catch (e) {
     return Ok(undefined)

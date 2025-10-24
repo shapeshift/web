@@ -169,22 +169,25 @@ export type TokenInfo = {
 
 export type BridgeInfo = {
   id?: number
+  orderId?: string
   fromChain: ChainInfo
-  toChain: ChainInfo
+  toChain: ChainInfo | null
   sourceAddress: string
   amount: string
   fromToken: TokenInfo
   sourceHash: string
   toHash: string | null
-  receiveToken: TokenInfo
-  receiveAmount: string
-  toAddress: string
+  receiveToken: TokenInfo | null
+  receiveAmount: string | null
+  toAddress: string | null
   destinationToken?: TokenInfo | null
   state: number
   timestamp: string
   timestampLong: number
-  completeTime: string
+  completeTime: string | null
   completeTimeLong: number
+  relayerChain?: ChainInfo
+  relayerHash?: string | null
 }
 
 export type DetailedBridgeInfo = {

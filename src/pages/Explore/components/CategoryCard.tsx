@@ -215,7 +215,8 @@ export const CategoryCard = memo(
               // We are not virtualizing so we don't use this prop but reuse the component for simplicity/reusability
               style={emptyStyle}
               color={assetTitleColor}
-              showPrice
+              showPrice={category !== MarketsCategories.MarketCap}
+              showMarketCap={category === MarketsCategories.MarketCap}
             />
           ))}
         </Flex>

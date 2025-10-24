@@ -1,4 +1,3 @@
-import { useToast } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import { useCallback, useContext, useMemo } from 'react'
@@ -14,6 +13,7 @@ import type { DepositValues } from '@/features/defi/components/Deposit/Deposit'
 import { Deposit as ReusableDeposit } from '@/features/defi/components/Deposit/Deposit'
 import { DefiStep } from '@/features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useFoxyQuery } from '@/features/defi/providers/foxy/components/FoxyManager/useFoxyQuery'
+import { useNotificationToast } from '@/hooks/useNotificationToast'
 import { BigNumber, bn, bnOrZero } from '@/lib/bignumber/bignumber'
 import { getFoxyApi } from '@/state/apis/foxy/foxyApiSingleton'
 import {
@@ -60,7 +60,7 @@ export const Deposit: React.FC<DepositProps> = ({
   )
 
   // notify
-  const toast = useToast()
+  const toast = useNotificationToast({ desktopPosition: 'top-right' })
 
   const handleContinue = useCallback(
     async (formValues: DepositValues) => {
@@ -83,7 +83,6 @@ export const Deposit: React.FC<DepositProps> = ({
         } catch (error) {
           console.error(error)
           toast({
-            position: 'top-right',
             description: translate('common.somethingWentWrongBody'),
             title: translate('common.somethingWentWrong'),
             status: 'error',
@@ -111,7 +110,6 @@ export const Deposit: React.FC<DepositProps> = ({
         } catch (error) {
           console.error(error)
           toast({
-            position: 'top-right',
             description: translate('common.somethingWentWrongBody'),
             title: translate('common.somethingWentWrong'),
             status: 'error',
@@ -154,7 +152,6 @@ export const Deposit: React.FC<DepositProps> = ({
       } catch (error) {
         console.error(error)
         toast({
-          position: 'top-right',
           description: translate('common.somethingWentWrongBody'),
           title: translate('common.somethingWentWrong'),
           status: 'error',

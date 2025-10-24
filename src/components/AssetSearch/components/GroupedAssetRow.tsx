@@ -125,7 +125,6 @@ export const GroupedAssetRow: FC<GroupedAssetRowProps> = ({
           key={assetId}
           asset={relatedAsset}
           index={0}
-          py={8}
           showChainName
           borderRadius='none'
           // eslint-disable-next-line react-memo/require-usememo
@@ -160,8 +159,7 @@ export const GroupedAssetRow: FC<GroupedAssetRowProps> = ({
         gap={2}
         height='auto'
         minHeight='60px'
-        padding={4}
-        py={2}
+        p={4}
         borderBottomRadius={isOpen ? 0 : 'lg'}
         bg={isOpen ? 'background.surface.raised.base' : 'transparent'}
       >

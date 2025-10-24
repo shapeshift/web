@@ -56,7 +56,7 @@ export const DeFiEarn: React.FC<DefiEarnProps> = ({
         {...rest}
       >
         {header && header}
-        <Flex alignItems='center' gap={4}>
+        <Flex alignItems='center' gap={4} px={2}>
           <ChainDropdown
             chainIds={chainIds}
             chainId={selectedChainId}

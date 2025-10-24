@@ -247,7 +247,7 @@ export const ReceiveInfo = ({ asset, accountId, onBack }: ReceivePropsType) => {
     return (
       <ReceiveAmount
         onClose={handleSetAmountClose}
-        symbol={symbol}
+        asset={asset}
         currentAmount={receiveAmount}
         onConfirm={handleSetAmountConfirm}
       />
@@ -428,7 +428,7 @@ export const ReceiveInfo = ({ asset, accountId, onBack }: ReceivePropsType) => {
       {isAmountModalOpen && (
         <ReceiveAmount
           onClose={handleSetAmountClose}
-          symbol={symbol}
+          asset={asset}
           currentAmount={receiveAmount}
           onConfirm={handleSetAmountConfirm}
           isModal

@@ -33,11 +33,6 @@ export function createErrorBoundary({
         },
         level: 'error',
       })
-      getMixPanel()?.track(MixPanelEvent.Error, {
-        error: error.message,
-        errorBoundary: errorBoundaryName,
-        componentStack: info.componentStack,
-      })
     }, [])
 
     const FallbackWithProps = useCallback(

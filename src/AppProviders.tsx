@@ -57,7 +57,6 @@ export function AppProviders({ children }: ProvidersProps) {
         },
         level: 'fatal',
       })
-      getMixPanel()?.track(MixPanelEvent.Error, { error, info })
     },
     [],
   )

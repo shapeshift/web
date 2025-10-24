@@ -58,11 +58,6 @@ export const SuspenseErrorBoundary: React.FC<SuspenseErrorBoundaryProps> = ({
       },
       level: 'error',
     })
-    getMixPanel()?.track(MixPanelEvent.Error, {
-      error: error.message,
-      errorBoundary: 'suspense',
-      componentStack: info.componentStack,
-    })
   }, [])
 
   const suspenseFallback = loadingFallback || <SuspenseLoadingFallback height={height} />

@@ -49,7 +49,6 @@ const Connect = ({ initialUri, isOpen, onClose }: Props) => {
         }
 
         captureException(error)
-        getMixPanel()?.track(MixPanelEvent.Error, { error })
       }
     },
     [onClose, pair, toast, translate],

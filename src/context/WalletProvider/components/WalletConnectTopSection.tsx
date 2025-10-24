@@ -4,7 +4,7 @@ import { useCallback, useState } from 'react'
 
 import { WalletConnectDirectRow } from '../WalletConnectV2/components/WalletConnectDirectRow'
 
-import { RawText } from '@/components/Text'
+import { Text } from '@/components/Text'
 import { WalletActions } from '@/context/WalletProvider/actions'
 import { KeyManager } from '@/context/WalletProvider/KeyManager'
 import { useLocalWallet } from '@/context/WalletProvider/local-wallet'
@@ -72,18 +72,22 @@ export const WalletConnectTopSection = () => {
       <HStack spacing={4}>
         <Divider borderColor='border.bold' />
         <Stack spacing={0} flexShrink={0} flexGrow={0} textAlign='center'>
-          <RawText fontWeight='bold' fontSize='md'>
-            Don't see your wallet?
-          </RawText>
-          <RawText fontSize='sm' color='text.subtle'>
-            Connect to 480+ wallets
-          </RawText>
+          <Text
+            fontWeight='bold'
+            fontSize='md'
+            translation='walletProvider.walletConnect.topSection.dontSeeWallet'
+          />
+          <Text
+            fontSize='sm'
+            color='text.subtle'
+            translation='walletProvider.walletConnect.topSection.connectToWallets'
+          />
         </Stack>
         <Divider borderColor='border.bold' />
       </HStack>
       <Box px={4}>
         <Button colorScheme='blue' size='lg' width='full' onClick={pairDevice} isLoading={loading}>
-          View All Wallets
+          <Text translation='walletProvider.walletConnect.topSection.viewAllWallets' />
         </Button>
       </Box>
     </Stack>

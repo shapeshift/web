@@ -1892,6 +1892,17 @@
         "button": "Appairer"
       }
     },
+    "walletConnect": {
+      "topSection": {
+        "dontSeeWallet": "Vous ne voyez pas votre portefeuille ?",
+        "connectToWallets": "Connectez-vous à 480+ portefeuilles",
+        "viewAllWallets": "Voir Tous les Portefeuilles"
+      }
+    },
+    "multiChainWallets": {
+      "title": "Portefeuilles Multi-Chaînes",
+      "shapeShiftWallet": "ShapeShift Wallet"
+    },
     "metaMaskSnap": {
       "title": "La prise en charge multichaîne est désormais disponible pour MetaMask !",
       "subtitle": "Ajoutez le Snap Multichain sur Metamask pour envoyer, recevoir, suivre, échanger et gagner sur les chaînes suivantes :",

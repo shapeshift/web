@@ -1892,6 +1892,17 @@
         "button": "Emparejar"
       }
     },
+    "walletConnect": {
+      "topSection": {
+        "dontSeeWallet": "¿No ves tu wallet?",
+        "connectToWallets": "Conecta a 480+ wallets",
+        "viewAllWallets": "Ver Todas las Wallets"
+      }
+    },
+    "multiChainWallets": {
+      "title": "Wallets Multi-Cadena",
+      "shapeShiftWallet": "ShapeShift Wallet"
+    },
     "metaMaskSnap": {
       "title": "¡El soporte multicadena ya está disponible para MetaMask!",
       "subtitle": "Agregue Snap Multicadena en Metamask para enviar, recibir, rastrear, intercambiar y ganar con las siguientes cadenas:",

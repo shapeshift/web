@@ -1,4 +1,4 @@
-import { Box, Button, Flex, ModalBody, ModalHeader, Text as CText, VStack } from '@chakra-ui/react'
+import { Box, Button, Flex, Text as CText, VStack } from '@chakra-ui/react'
 import { crypto } from '@shapeshiftoss/hdwallet-native'
 import { skipToken, useQuery } from '@tanstack/react-query'
 import * as bip39 from 'bip39'
@@ -10,6 +10,7 @@ import { useLocation, useNavigate } from 'react-router'
 import { NativeWalletRoutes } from '../../types'
 
 import { getRandomIndicesIndexes, getRandomWords } from '@/components/MobileWalletDialog/utils'
+import { DialogBody } from '@/components/Modal/components/DialogBody'
 import { Text } from '@/components/Text'
 
 const Revocable = crypto.Isolation.Engines.Default.Revocable
@@ -117,10 +118,8 @@ export const NativeTestPhrase = () => {
 
   return !testState ? null : (
     <>
-      <ModalHeader>
-        <Text translation={'modals.shapeShift.backupPassphrase.title'} />
-      </ModalHeader>
-      <ModalBody width='100%'>
+      <DialogBody width='100%'>
+        <Text fontWeight='bold' mb={6} translation={'modals.shapeShift.backupPassphrase.title'} />
         <Text
           color='text.subtle'
           translation={'modals.shapeShift.backupPassphrase.desktopDescription'}
@@ -183,7 +182,7 @@ export const NativeTestPhrase = () => {
             {translate('common.skip')}
           </Button>
         </Flex>
-      </ModalBody>
+      </DialogBody>
     </>
   )
 }

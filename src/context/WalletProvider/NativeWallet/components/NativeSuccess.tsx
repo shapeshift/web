@@ -1,10 +1,11 @@
-import { Box, ModalBody, ModalHeader } from '@chakra-ui/react'
+import { Box } from '@chakra-ui/react'
 import { useQueryClient } from '@tanstack/react-query'
 import { useEffect } from 'react'
 import { useLocation } from 'react-router'
 
 import { useNativeSuccess } from '../hooks/useNativeSuccess'
 
+import { DialogBody } from '@/components/Modal/components/DialogBody'
 import { Text } from '@/components/Text'
 import { reactQueries } from '@/react-queries'
 
@@ -29,10 +30,8 @@ export const NativeSuccess = () => {
 
   return (
     <>
-      <ModalHeader>
-        <Text translation={'walletProvider.shapeShift.success.header'} />
-      </ModalHeader>
-      <ModalBody>
+      <DialogBody>
+        <Text fontWeight='bold' mb={6} translation={'walletProvider.shapeShift.success.header'} />
         <Box color='text.subtle'>
           {isSuccessful === true ? (
             <Text translation={'walletProvider.shapeShift.success.success'} />
@@ -42,7 +41,7 @@ export const NativeSuccess = () => {
             <Text translation={'walletProvider.shapeShift.success.encryptingWallet'} />
           )}
         </Box>
-      </ModalBody>
+      </DialogBody>
     </>
   )
 }

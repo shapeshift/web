@@ -1,13 +1,8 @@
-import {
-  Alert,
-  AlertDescription,
-  AlertIcon,
-  Button,
-  ModalBody,
-  ModalHeader,
-} from '@chakra-ui/react'
+import { Alert, AlertDescription, AlertIcon, Button } from '@chakra-ui/react'
 import type { ReactNode } from 'react'
 
+import { DialogBody } from '@/components/Modal/components/DialogBody'
+import { DialogHeader } from '@/components/Modal/components/DialogHeader'
 import { Text } from '@/components/Text'
 
 export type RedirectModalProps = {
@@ -23,10 +18,10 @@ export type RedirectModalProps = {
 export const RedirectModal: React.FC<RedirectModalProps> = props => {
   return (
     <>
-      <ModalHeader>
+      <DialogHeader>
         <Text translation={props.headerText} />
-      </ModalHeader>
-      <ModalBody>
+      </DialogHeader>
+      <DialogBody>
         <Text mb={4} color='text.subtle' translation={props.bodyText} />
         <Button
           width='full'
@@ -44,7 +39,7 @@ export const RedirectModal: React.FC<RedirectModalProps> = props => {
             </AlertDescription>
           </Alert>
         )}
-      </ModalBody>
+      </DialogBody>
     </>
   )
 }

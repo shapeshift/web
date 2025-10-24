@@ -1,8 +1,9 @@
 import { ArrowForwardIcon } from '@chakra-ui/icons'
-import { Button, Divider, ModalBody, ModalHeader, Stack } from '@chakra-ui/react'
+import { Button, Divider, Stack } from '@chakra-ui/react'
 import { useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 
+import { DialogBody } from '@/components/Modal/components/DialogBody'
 import { Text } from '@/components/Text'
 import { NativeWalletRoutes } from '@/context/WalletProvider/types'
 
@@ -12,13 +13,12 @@ export const NativeStart = () => {
   const navigate = useNavigate()
   const handleCreate = useCallback(() => navigate(NativeWalletRoutes.Create), [navigate])
   const handleImportClick = useCallback(() => navigate(NativeWalletRoutes.ImportSelect), [navigate])
+  const handleSavedWalletsClick = useCallback(() => navigate(NativeWalletRoutes.Load), [navigate])
 
   return (
     <>
-      <ModalHeader>
-        <Text translation={'walletProvider.shapeShift.start.header'} />
-      </ModalHeader>
-      <ModalBody>
+      <DialogBody>
+        <Text fontWeight='bold' translation={'walletProvider.shapeShift.start.header'} />
         <Text mb={4} color='text.subtle' translation={'walletProvider.shapeShift.start.body'} />
         <Stack mt={6} spacing={4}>
           <Divider />
@@ -44,8 +44,19 @@ export const NativeStart = () => {
           >
             <Text translation={'walletProvider.shapeShift.start.import'} />
           </Button>
+          <Button
+            w='full'
+            h='auto'
+            px={6}
+            py={4}
+            justifyContent='space-between'
+            rightIcon={arrowForwardIcon}
+            onClick={handleSavedWalletsClick}
+          >
+            <Text translation={'connectWalletPage.viewSavedWallets'} />
+          </Button>
         </Stack>
-      </ModalBody>
+      </DialogBody>
     </>
   )
 }

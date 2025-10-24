@@ -1,15 +1,9 @@
-import {
-  Alert,
-  AlertDescription,
-  AlertIcon,
-  Button,
-  ModalBody,
-  ModalHeader,
-  Spinner,
-} from '@chakra-ui/react'
+import { Alert, AlertDescription, AlertIcon, Button, Spinner } from '@chakra-ui/react'
 import type { InterpolationOptions } from 'node-polyglot'
 import type { ReactNode } from 'react'
 
+import { DialogBody } from '@/components/Modal/components/DialogBody'
+import { DialogHeader } from '@/components/Modal/components/DialogHeader'
 import { Text } from '@/components/Text'
 
 export type ConnectModalProps = {
@@ -37,10 +31,10 @@ export const ConnectModal: React.FC<ConnectModalProps> = ({
 }) => {
   return (
     <>
-      <ModalHeader>
+      <DialogHeader>
         <Text translation={headerText} />
-      </ModalHeader>
-      <ModalBody>
+      </DialogHeader>
+      <DialogBody>
         <Text mb={4} color='text.subtle' translation={bodyText} />
         {error && (
           <Alert status='info' mb={2}>
@@ -72,7 +66,7 @@ export const ConnectModal: React.FC<ConnectModalProps> = ({
           </Button>
         )}
         {children}
-      </ModalBody>
+      </DialogBody>
     </>
   )
 }

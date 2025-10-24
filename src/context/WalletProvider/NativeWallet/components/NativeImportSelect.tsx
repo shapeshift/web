@@ -1,9 +1,10 @@
 import { ArrowForwardIcon } from '@chakra-ui/icons'
-import { Button, HStack, ModalBody, ModalHeader, Stack, VStack } from '@chakra-ui/react'
+import { Button, HStack, Stack, VStack } from '@chakra-ui/react'
 import { useCallback } from 'react'
 import { FaFile, FaKey } from 'react-icons/fa'
 import { useNavigate } from 'react-router-dom'
 
+import { DialogBody } from '@/components/Modal/components/DialogBody'
 import { Text } from '@/components/Text'
 import { NativeWalletRoutes } from '@/context/WalletProvider/types'
 
@@ -22,10 +23,12 @@ export const NativeImportSelect = () => {
 
   return (
     <>
-      <ModalHeader>
-        <Text translation={'walletProvider.shapeShift.start.selectHeader'} />
-      </ModalHeader>
-      <ModalBody>
+      <DialogBody>
+        <Text
+          fontWeight='bold'
+          mb={6}
+          translation={'walletProvider.shapeShift.start.selectHeader'}
+        />
         <Text
           mb={4}
           color='text.subtle'
@@ -77,7 +80,7 @@ export const NativeImportSelect = () => {
             </HStack>
           </Button>
         </Stack>
-      </ModalBody>
+      </DialogBody>
     </>
   )
 }

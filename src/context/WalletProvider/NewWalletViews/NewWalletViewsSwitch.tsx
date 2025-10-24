@@ -1,24 +1,12 @@
-import { ArrowBackIcon } from '@chakra-ui/icons'
-import {
-  Box,
-  Divider,
-  Flex,
-  IconButton,
-  Modal,
-  ModalCloseButton,
-  ModalContent,
-  ModalOverlay,
-  useColorModeValue,
-  useMediaQuery,
-  useToast,
-} from '@chakra-ui/react'
+import type { ModalProps } from '@chakra-ui/react'
+import { Box, Divider, Flex, useMediaQuery, useToast } from '@chakra-ui/react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { Suspense, useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Route, Routes, useLocation, useNavigate } from 'react-router-dom'
 
 import type { KeyManager } from '../KeyManager'
-import { MobileWebSelect } from '../MobileWebSelect'
+import { MobileWebSelectContent } from '../MobileWebSelectContent'
 import { NativeWalletRoutes } from '../types'
 import { RDNS_TO_FIRST_CLASS_KEYMANAGER } from './constants'
 import { KeepKeyRoutes } from './routes/KeepKeyRoutes'
@@ -33,10 +21,14 @@ import { SavedWalletsSection } from './sections/SavedWalletsSection'
 import type { RightPanelContentProps } from './types'
 import { NativeIntro } from './wallets/native/NativeIntro'
 
+import { Dialog } from '@/components/Modal/components/Dialog'
+import { DialogBackButton } from '@/components/Modal/components/DialogBackButton'
+import { DialogBody } from '@/components/Modal/components/DialogBody'
+import { DialogHeader } from '@/components/Modal/components/DialogHeader'
 import { Text } from '@/components/Text'
-import { useModalRegistration } from '@/context/ModalStackProvider'
 import { WalletActions } from '@/context/WalletProvider/actions'
 import { KeepKeyRoutes as KeepKeyRoutesEnum } from '@/context/WalletProvider/routes'
+import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { isMobile } from '@/lib/globals'
 import { reactQueries } from '@/react-queries'
@@ -48,15 +40,14 @@ const containerWidth = {
   base: 'full',
 }
 
-const arrowBackIcon = <ArrowBackIcon />
+const modalProps: Omit<ModalProps, 'children' | 'isOpen' | 'onClose'> = { size: '4xl' }
 
 const INITIAL_WALLET_MODAL_ROUTE = '/'
 
 type RightPanelProps = Omit<RightPanelContentProps, 'location'>
 
-const modalSize = {
-  base: 'full',
-}
+const sectionBorderWidth = { base: 0, md: 1 }
+const sectionBorderRadius = { base: 0, md: '2xl' }
 
 const containerMinHeight = {
   base: '650px',
@@ -111,6 +102,8 @@ export const NewWalletViewsSwitch = () => {
   const [selectedWalletId, setSelectedWalletId] = useState<string | null>(null)
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
   const queryClient = useQueryClient()
+
+  const isWcDirectConnectionEnabled = useFeatureFlag('WcDirectConnection')
 
   const navigate = useNavigate()
   const location = useLocation()
@@ -191,11 +184,6 @@ export const NewWalletViewsSwitch = () => {
     wallet,
   ])
 
-  const { modalProps, overlayProps, modalContentProps } = useModalRegistration({
-    isOpen: modal,
-    onClose,
-  })
-
   const handleWalletSelect = useCallback(
     (walletId: string, _initialRoute: string) => {
       if (_initialRoute) navigate(_initialRoute)
@@ -248,15 +236,34 @@ export const NewWalletViewsSwitch = () => {
     }
   }, [queryClient])
 
-  const sections = useMemo(
-    () => (
-      <Box w={sectionsWidth} p={6} maxH='800px' overflowY='auto'>
+  const sections = useMemo(() => {
+    // Show MobileWebSelectContent when conditions are met
+    if (!isLargerThanMd && !isMobile && isWcDirectConnectionEnabled) {
+      return (
+        <MobileWebSelectContent
+          onWalletSelect={handleWalletSelect}
+          selectedWalletId={selectedWalletId}
+        />
+      )
+    }
+
+    return (
+      <Box
+        w={sectionsWidth}
+        p={6}
+        maxH='800px'
+        overflowY='auto'
+        bg='background.surface.raised.accent'
+        borderRightWidth={sectionBorderWidth}
+        borderColor='border.base'
+        borderLeftRadius={sectionBorderRadius}
+      >
         <SavedWalletsSection
           selectedWalletId={selectedWalletId}
           onWalletSelect={handleWalletSelect}
         />
         <Divider mb={2} />
-        <Text translation='common.connectWallet' fontSize='xl' fontWeight='semibold' />
+        <Text translation='common.connectWallet' fontSize='lg' fontWeight='semibold' />
         <InstalledWalletsSection
           isLoading={isLoading}
           selectedWalletId={selectedWalletId}
@@ -274,12 +281,8 @@ export const NewWalletViewsSwitch = () => {
           onWalletSelect={handleWalletSelect}
         />
       </Box>
-    ),
-    [handleWalletSelect, isLoading, selectedWalletId],
-  )
-
-  const bodyBgColor = useColorModeValue('gray.50', '#2b2f33')
-  const buttonContainerBgColor = useColorModeValue('gray.100', 'whiteAlpha.100')
+    )
+  }, [handleWalletSelect, isLoading, selectedWalletId, isLargerThanMd, isWcDirectConnectionEnabled])
 
   const Body = useCallback(() => {
     // These routes do not have a previous step, so don't display back button
@@ -294,28 +297,13 @@ export const NewWalletViewsSwitch = () => {
       /^\/[^/]+\/connect$/.test(location.pathname) || location.pathname === '/native/enter-password'
 
     return (
-      <Box flex={1} bg={bodyBgColor} p={6} position={isLargerThanMd ? 'relative' : 'initial'}>
+      <Box flex={1} p={6} position={isLargerThanMd ? 'relative' : 'initial'}>
         {!isRootRoute ? (
-          <Box
-            position='absolute'
-            left={3}
-            top={2}
-            zIndex={1}
-            bg={buttonContainerBgColor}
-            borderRadius='2xl'
-          >
-            <IconButton
-              icon={arrowBackIcon}
-              aria-label={translate('common.back')}
-              variant='ghost'
-              fontSize='xl'
-              size='sm'
-              isRound
-              position='static'
-              isDisabled={isLoading}
-              onClick={isConnectRoute ? handleRouteReset : handleBack}
-            />
-          </Box>
+          <DialogHeader position='absolute' top={0} left={0} right={0} zIndex={1} p={0}>
+            <DialogHeader.Left>
+              <DialogBackButton onClick={isConnectRoute ? handleRouteReset : handleBack} />
+            </DialogHeader.Left>
+          </DialogHeader>
         ) : null}
         <Flex height='full' alignItems='center'>
           <Box width='full'>
@@ -329,66 +317,32 @@ export const NewWalletViewsSwitch = () => {
         </Flex>
       </Box>
     )
-  }, [
-    bodyBgColor,
-    buttonContainerBgColor,
-    error,
-    handleBack,
-    handleRouteReset,
-    isLoading,
-    location.pathname,
-    translate,
-    isLargerThanMd,
-  ])
+  }, [error, handleBack, handleRouteReset, isLoading, location.pathname, isLargerThanMd])
 
   const body = useMemo(() => <Body />, [Body])
 
-  if (!isLargerThanMd && !isMobile) {
-    return <MobileWebSelect isOpen={modal} onClose={onClose} />
-  }
-
   return (
-    <>
-      <Modal {...modalProps} isCentered size={!isLargerThanMd ? modalSize : undefined}>
-        <ModalOverlay {...overlayProps} />
-        <ModalContent
-          justifyContent='center'
-          overflow='hidden'
-          borderRadius={!isLargerThanMd ? 'none' : 'xl'}
-          maxW='900px'
-          bg={!isLargerThanMd ? bodyBgColor : undefined}
-          {...modalContentProps}
-        >
-          <Box position={isLargerThanMd ? 'relative' : 'initial'}>
-            <Box
-              position='absolute'
-              right={!isLargerThanMd ? 3 : 3}
-              top={!isLargerThanMd ? 3 : 3}
-              zIndex={1}
-              bg={buttonContainerBgColor}
-              borderRadius='full'
-            >
-              <ModalCloseButton position='static' borderRadius='full' size='sm' />
-            </Box>
-            <Flex minH={containerMinHeight} maxH={containerMaxHeight} w={containerWidth}>
-              <Suspense fallback={defaultSuspenseFallback}>
-                <Routes>
-                  {/* Always display sections for the root route, no matter the viewport */}
-                  <Route path='/' element={sections} />
-                  {/* For all non-root routes, only display sections (i.e 2-col layout) on desktop - mobile should be 2-step of sorts rather than a 2-col layout*/}
-                  <Route path='*' element={isLargerThanMd ? sections : null} />
-                </Routes>
-                <Routes>
-                  {/* Only display side panel after a wallet has been selected on mobile */}
-                  <Route path='/' element={!isLargerThanMd ? null : <Body />} />
-                  {/* And for all non-root routes, no matter the viewport */}
-                  <Route path='*' element={body} />
-                </Routes>
-              </Suspense>
-            </Flex>
-          </Box>
-        </ModalContent>
-      </Modal>
-    </>
+    <Dialog isOpen={modal} onClose={onClose} height='auto' modalProps={modalProps}>
+      <DialogBody padding={0}>
+        <Box position={isLargerThanMd ? 'relative' : 'initial'}>
+          <Flex minH={containerMinHeight} maxH={containerMaxHeight} w={containerWidth}>
+            <Suspense fallback={defaultSuspenseFallback}>
+              <Routes>
+                {/* Always display sections for the root route, no matter the viewport */}
+                <Route path='/' element={sections} />
+                {/* For all non-root routes, only display sections (i.e 2-col layout) on desktop - mobile should be 2-step of sorts rather than a 2-col layout*/}
+                <Route path='*' element={isLargerThanMd ? sections : null} />
+              </Routes>
+              <Routes>
+                {/* Only display side panel after a wallet has been selected on mobile */}
+                <Route path='/' element={!isLargerThanMd ? null : <Body />} />
+                {/* And for all non-root routes, no matter the viewport */}
+                <Route path='*' element={body} />
+              </Routes>
+            </Suspense>
+          </Flex>
+        </Box>
+      </DialogBody>
+    </Dialog>
   )
 }

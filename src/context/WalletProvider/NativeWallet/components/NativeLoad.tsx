@@ -6,8 +6,6 @@ import {
   Box,
   Button,
   IconButton,
-  ModalBody,
-  ModalHeader,
   VStack,
 } from '@chakra-ui/react'
 import dayjs from 'dayjs'
@@ -19,6 +17,7 @@ import { useNavigate } from 'react-router'
 import { NativeConfig } from '../config'
 
 import { IconCircle } from '@/components/IconCircle'
+import { DialogBody } from '@/components/Modal/components/DialogBody'
 import { Row } from '@/components/Row/Row'
 import { RawText, Text } from '@/components/Text'
 import { WalletActions } from '@/context/WalletProvider/actions'
@@ -154,10 +153,8 @@ export const NativeLoad = () => {
 
   return (
     <>
-      <ModalHeader>
-        <Text translation={'walletProvider.shapeShift.load.header'} />
-      </ModalHeader>
-      <ModalBody>
+      <DialogBody>
+        <Text fontWeight='bold' mb={6} translation={'walletProvider.shapeShift.load.header'} />
         <VStack mx={-4} spacing={0}>
           {wallets.map(wallet => {
             return (
@@ -233,7 +230,7 @@ export const NativeLoad = () => {
             </Alert>
           )}
         </VStack>
-      </ModalBody>
+      </DialogBody>
     </>
   )
 }

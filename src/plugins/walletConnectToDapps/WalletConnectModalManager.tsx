@@ -15,6 +15,7 @@ import { CosmosSignMessageConfirmationModal } from '@/plugins/walletConnectToDap
 import { EIP155SignMessageConfirmationModal } from '@/plugins/walletConnectToDapps/components/modals/EIP155SignMessageConfirmation'
 import { EIP155SignTypedDataConfirmation } from '@/plugins/walletConnectToDapps/components/modals/EIP155SignTypedDataConfirmation'
 import { EIP155TransactionConfirmation } from '@/plugins/walletConnectToDapps/components/modals/EIP155TransactionConfirmation'
+import { NoAccountsForChainModal } from '@/plugins/walletConnectToDapps/components/modals/NoAccountsForChainModal'
 import { SendTransactionConfirmation } from '@/plugins/walletConnectToDapps/components/modals/SendTransactionConfirmation'
 import { SessionProposalModal } from '@/plugins/walletConnectToDapps/components/modals/SessionProposal'
 import { SessionProposalRoutes } from '@/plugins/walletConnectToDapps/components/modals/SessionProposalRoutes'
@@ -159,6 +160,9 @@ export const WalletConnectModalManager: FC<WalletConnectModalManagerProps> = ({
       case WalletConnectModal.SendCosmosTransactionConfirmation:
         await handleRejectRequest()
         break
+      case WalletConnectModal.NoAccountsForChain:
+        // No rejection needed, error already sent to dApp
+        break
       case undefined:
         break
       default:
@@ -209,9 +213,9 @@ export const WalletConnectModalManager: FC<WalletConnectModalManagerProps> = ({
         const requestParams = state.modalData?.requestEvent?.params.request.params
         const transaction = Array.isArray(requestParams) ? requestParams[0] : undefined
 
-        if (!transaction) return null
+        if (!transaction || typeof transaction === 'string' || !('data' in transaction)) return null
 
-        const isNativeSend = typeof transaction !== 'string' && transaction.data === '0x'
+        const isNativeSend = transaction.data === '0x'
 
         if (isNativeSend)
           return (
@@ -247,6 +251,8 @@ export const WalletConnectModalManager: FC<WalletConnectModalManagerProps> = ({
             topic={topic}
           />
         )
+      case WalletConnectModal.NoAccountsForChain:
+        return <NoAccountsForChainModal onClose={handleClose} dispatch={dispatch} state={state} />
       default:
         assertUnreachable(activeModal)
     }

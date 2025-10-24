@@ -248,7 +248,8 @@ export const AssetRow: FC<AssetRowProps> = memo(
         isDisabled={!isSupported && disableUnsupported}
         _focus={focus}
         width='100%'
-        py={8}
+        height='auto'
+        p={4}
         {...props}
         {...longPressHandlers(asset)}
       >

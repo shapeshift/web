@@ -5,6 +5,8 @@ export type TenderlySimulationRequest = {
   input: string
   gas?: number
   gas_price?: string
+  max_fee_per_gas?: string
+  max_priority_fee_per_gas?: string
   value?: string
 }
 

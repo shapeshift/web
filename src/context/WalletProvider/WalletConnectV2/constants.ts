@@ -1,3 +1,7 @@
+import TrustWalletIcon from '@/assets/trust-wallet.png'
+import ZerionWalletIcon from '@/assets/zerion-wallet.png'
+import { MetaMaskIcon } from '@/components/Icons/MetaMaskIcon'
+
 // All the types below are copied from @hdwallet/ethereum-provider so we don't have to import the whole package just for the sake of this type
 // and can lazy load it instead
 
@@ -157,3 +161,34 @@ export type EthereumProviderOptions = {
   relayUrl?: string
   storageOptions?: KeyValueStorageOptions
 } & ChainsProps
+
+export type WalletConnectWalletId = 'metamask' | 'trust' | 'zerion'
+
+type WalletConfigBase = {
+  id: WalletConnectWalletId
+  name: string
+}
+
+export type WalletConfig = WalletConfigBase &
+  (
+    | { IconComponent: React.ComponentType<{ boxSize?: string }>; imageUrl?: never }
+    | { imageUrl: string; IconComponent?: never }
+  )
+
+export const WALLET_CONFIGS: WalletConfig[] = [
+  {
+    id: 'metamask',
+    name: 'MetaMask',
+    IconComponent: MetaMaskIcon,
+  },
+  {
+    id: 'trust',
+    name: 'Trust',
+    imageUrl: TrustWalletIcon,
+  },
+  {
+    id: 'zerion',
+    name: 'Zerion',
+    imageUrl: ZerionWalletIcon,
+  },
+]

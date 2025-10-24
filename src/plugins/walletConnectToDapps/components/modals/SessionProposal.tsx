@@ -1,5 +1,5 @@
 import type { AccountId, ChainId } from '@shapeshiftoss/caip'
-import { fromAccountId } from '@shapeshiftoss/caip'
+import { fromAccountId, fromChainId } from '@shapeshiftoss/caip'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { SessionTypes } from '@walletconnect/types'
 import { getSdkError } from '@walletconnect/utils'
@@ -21,6 +21,7 @@ import type { WalletConnectSessionModalProps } from '@/plugins/walletConnectToDa
 import {
   selectAccountIdsByAccountNumberAndChainId,
   selectUniqueEvmAccountNumbers,
+  selectWalletConnectedChainIdsSorted,
 } from '@/state/slices/portfolioSlice/selectors'
 import { useAppSelector } from '@/state/store'
 
@@ -59,6 +60,7 @@ const SessionProposal = forwardRef<SessionProposalRef, WalletConnectSessionModal
     )
 
     const uniqueEvmAccountNumbers = useAppSelector(selectUniqueEvmAccountNumbers)
+    const chainIdsSortedByBalance = useAppSelector(selectWalletConnectedChainIdsSorted)
 
     const requiredChainIds = useMemo(
       () => Object.values(requiredNamespaces).flatMap(namespace => namespace.chains ?? []),
@@ -69,6 +71,25 @@ const SessionProposal = forwardRef<SessionProposalRef, WalletConnectSessionModal
       if (selectedAccountNumber === null) return null
       return accountIdsByAccountNumberAndChainId[selectedAccountNumber] ?? null
     }, [selectedAccountNumber, accountIdsByAccountNumberAndChainId])
+
+    const orderAccountIdsByBalance = useCallback(
+      (chainIds: ChainId[], accountIdsByChain: Partial<Record<ChainId, AccountId[]>>) => {
+        const requiredChains = chainIds.filter(chainId => requiredChainIds.includes(chainId))
+        const optionalChains = chainIds.filter(chainId => !requiredChainIds.includes(chainId))
+
+        const optionalChainsSorted = optionalChains.sort((a, b) => {
+          const aIndex = chainIdsSortedByBalance.indexOf(a)
+          const bIndex = chainIdsSortedByBalance.indexOf(b)
+          if (aIndex === -1) return 1
+          if (bIndex === -1) return -1
+          return aIndex - bIndex
+        })
+
+        const orderedChainIds = [...requiredChains, ...optionalChainsSorted]
+        return orderedChainIds.flatMap(chainId => accountIdsByChain[chainId] ?? [])
+      },
+      [requiredChainIds, chainIdsSortedByBalance],
+    )
 
     useEffect(() => {
       if (uniqueEvmAccountNumbers.length > 0 && selectedAccountNumber === null) {
@@ -83,13 +104,14 @@ const SessionProposal = forwardRef<SessionProposalRef, WalletConnectSessionModal
         return
       }
 
-      const accountIds = Object.entries(selectedAccountNumberAccountIdsByChainId)
-        .filter(([chainId]) => isEvmChainId(chainId))
-        .flatMap(([, accountIds]) => accountIds ?? [])
-        .filter((id): id is AccountId => Boolean(id))
+      const evmChainIds = Object.keys(selectedAccountNumberAccountIdsByChainId).filter(isEvmChainId)
+      const orderedAccountIds = orderAccountIdsByBalance(
+        evmChainIds,
+        selectedAccountNumberAccountIdsByChainId,
+      )
 
-      setSelectedAccountIds(accountIds)
-    }, [selectedAccountNumberAccountIdsByChainId])
+      setSelectedAccountIds(orderedAccountIds)
+    }, [selectedAccountNumberAccountIdsByChainId, orderAccountIdsByBalance])
 
     const handleAccountClick = useCallback(() => {
       navigate(SessionProposalRoutes.ChooseAccount)
@@ -109,13 +131,14 @@ const SessionProposal = forwardRef<SessionProposalRef, WalletConnectSessionModal
       (chainIds: ChainId[]) => {
         if (!selectedAccountNumberAccountIdsByChainId) return
 
-        const filteredAccountIds = chainIds
-          .filter(isEvmChainId)
-          .flatMap(chainId => selectedAccountNumberAccountIdsByChainId[chainId] ?? [])
-          .filter((id): id is AccountId => Boolean(id))
-        setSelectedAccountIds(filteredAccountIds)
+        const evmChainIds = chainIds.filter(isEvmChainId)
+        const orderedAccountIds = orderAccountIdsByBalance(
+          evmChainIds,
+          selectedAccountNumberAccountIdsByChainId,
+        )
+        setSelectedAccountIds(orderedAccountIds)
       },
-      [selectedAccountNumberAccountIdsByChainId],
+      [selectedAccountNumberAccountIdsByChainId, orderAccountIdsByBalance],
     )
 
     /*
@@ -149,6 +172,29 @@ const SessionProposal = forwardRef<SessionProposalRef, WalletConnectSessionModal
           namespaces: approvalNamespaces,
         })
         dispatch({ type: WalletConnectActionType.ADD_SESSION, payload: session })
+
+        // Emit chainChanged to signal intended active chain
+        // Per WC spec, event.data uses numeric chain ref, chainId param uses CAIP-2
+        // https://specs.walletconnect.com/2.0/specs/clients/sign/session-events
+        if (selectedChainIds.length > 0) {
+          try {
+            const primaryChainId = selectedChainIds[0]
+            const { chainReference } = fromChainId(primaryChainId)
+            const chainIdNumber = parseInt(chainReference, 10)
+
+            await web3wallet.emitSessionEvent({
+              topic: session.topic,
+              event: {
+                name: 'chainChanged',
+                data: chainIdNumber,
+              },
+              chainId: primaryChainId,
+            })
+          } catch (error) {
+            console.warn('Failed to emit chainChanged event:', error)
+          }
+        }
+
         handleClose()
       },
       [

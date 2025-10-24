@@ -34,6 +34,7 @@ import type { RightPanelContentProps } from './types'
 import { NativeIntro } from './wallets/native/NativeIntro'
 
 import { Text } from '@/components/Text'
+import { useModalRegistration } from '@/context/ModalStackProvider'
 import { WalletActions } from '@/context/WalletProvider/actions'
 import { KeepKeyRoutes as KeepKeyRoutesEnum } from '@/context/WalletProvider/routes'
 import { useWallet } from '@/hooks/useWallet/useWallet'
@@ -190,6 +191,11 @@ export const NewWalletViewsSwitch = () => {
     wallet,
   ])
 
+  const { modalProps, overlayProps, modalContentProps } = useModalRegistration({
+    isOpen: modal,
+    onClose,
+  })
+
   const handleWalletSelect = useCallback(
     (walletId: string, _initialRoute: string) => {
       if (_initialRoute) navigate(_initialRoute)
@@ -277,14 +283,19 @@ export const NewWalletViewsSwitch = () => {
 
   const Body = useCallback(() => {
     // These routes do not have a previous step, so don't display back button
-    const isRootRoute = ['/', KeepKeyRoutesEnum.Pin].includes(location.pathname)
+    const isRootRoute = [
+      '/',
+      KeepKeyRoutesEnum.Pin,
+      NativeWalletRoutes.Rename,
+      NativeWalletRoutes.Delete,
+    ].includes(location.pathname)
     // The main connect route for a given wallet. If we're here, clicking back should reset the route to the initial native CTA one
     const isConnectRoute =
       /^\/[^/]+\/connect$/.test(location.pathname) || location.pathname === '/native/enter-password'
 
     return (
       <Box flex={1} bg={bodyBgColor} p={6} position={isLargerThanMd ? 'relative' : 'initial'}>
-        {!isRootRoute || !isLargerThanMd ? (
+        {!isRootRoute ? (
           <Box
             position='absolute'
             left={3}
@@ -338,21 +349,15 @@ export const NewWalletViewsSwitch = () => {
 
   return (
     <>
-      <Modal
-        isOpen={modal}
-        onClose={onClose}
-        isCentered
-        trapFocus={false}
-        closeOnOverlayClick={true}
-        size={!isLargerThanMd ? modalSize : undefined}
-      >
-        <ModalOverlay />
+      <Modal {...modalProps} isCentered size={!isLargerThanMd ? modalSize : undefined}>
+        <ModalOverlay {...overlayProps} />
         <ModalContent
           justifyContent='center'
           overflow='hidden'
           borderRadius={!isLargerThanMd ? 'none' : 'xl'}
           maxW='900px'
           bg={!isLargerThanMd ? bodyBgColor : undefined}
+          {...modalContentProps}
         >
           <Box position={isLargerThanMd ? 'relative' : 'initial'}>
             <Box

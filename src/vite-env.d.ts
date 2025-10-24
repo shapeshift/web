@@ -171,6 +171,9 @@ interface ImportMetaEnv {
 
   // Only present in *some* envs
   readonly VITE_MIXPANEL_TOKEN?: string
+
+  // Local development only - enables Sentry on localhost
+  readonly VITE_ENABLE_SENTRY_LOCALHOST?: string
 }
 
 interface ImportMeta {

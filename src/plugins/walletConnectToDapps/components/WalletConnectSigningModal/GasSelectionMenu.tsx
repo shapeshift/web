@@ -44,7 +44,7 @@ export const GasSelectionMenu: FC<GasSelectionMenuProps> = ({ transaction, chain
   const { gasLimit } = useWatch<CustomTransactionData>()
   const selectedSpeed = speed
 
-  const { simulationQuery, gasFeeDataQuery, fee } = useSimulateEvmTransaction({
+  const { gasEstimateQuery, fee } = useSimulateEvmTransaction({
     transaction,
     chainId,
     speed: selectedSpeed,
@@ -52,14 +52,14 @@ export const GasSelectionMenu: FC<GasSelectionMenuProps> = ({ transaction, chain
 
   // Ensure no failures by trusting too low gas limit e.g wc demo dApp enforces 21000 gas limit for ETH.ARB sends, but actual gas may be e.g 23322
   useEffect(() => {
-    const maybeGasUsed = simulationQuery.data?.transaction?.gas_used
+    const maybeGasUsed = gasEstimateQuery.data?.simulation?.transaction?.gas_used
     if (!maybeGasUsed) return
 
     // Only update gasLimit if simulation shows we need MORE gas than currently set
     if (bnOrZero(maybeGasUsed).lte(gasLimit ?? 0)) return
 
     setValue('gasLimit', maybeGasUsed.toString())
-  }, [simulationQuery.data?.transaction?.gas_used, setValue, gasLimit])
+  }, [gasEstimateQuery.data?.simulation?.transaction?.gas_used, setValue, gasLimit])
 
   const handleSpeedChange = useCallback(
     (newSpeed: FeeDataKey) => {
@@ -78,36 +78,18 @@ export const GasSelectionMenu: FC<GasSelectionMenuProps> = ({ transaction, chain
     [handleSpeedChange],
   )
 
-  if (!fee?.feeAsset) return null
-
-  if (gasFeeDataQuery.isLoading || simulationQuery.isLoading) {
-    return (
-      <HStack justify='space-between' w='full' align='center'>
-        <VStack spacing={0} align='flex-start'>
-          <Skeleton height='20px' width='120px' />
-          <HStack spacing={1} align='center'>
-            <HelperTooltip
-              label={translate('modals.status.estimatedGas')}
-              iconProps={tooltipIconSx}
-            />
-            <RawText fontSize='xs' color='text.subtle'>
-              {translate('common.feeEstimate')}
-            </RawText>
-          </HStack>
-        </VStack>
-        <Skeleton height='32px' width='100px' />
-      </HStack>
-    )
-  }
-
-  if (!fee) return null
+  const isLoading = !fee
 
   return (
     <HStack justify='space-between' w='full' align='center'>
       <VStack spacing={0} align='flex-start'>
-        <RawText fontSize='sm' fontWeight='medium'>
-          {fee.txFeeCryptoPrecision} {fee.feeAsset.symbol} (${fee.fiatFee})
-        </RawText>
+        {isLoading ? (
+          <Skeleton height='20px' width='180px' />
+        ) : (
+          <RawText fontSize='sm' fontWeight='medium'>
+            {fee.txFeeCryptoPrecision} {fee.feeAsset.symbol} (${fee.fiatFee})
+          </RawText>
+        )}
         <HStack spacing={1} align='center'>
           <HelperTooltip
             label={translate('modals.status.estimatedGas')}

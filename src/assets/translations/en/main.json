@@ -77,6 +77,7 @@
     "rename": "Rename",
     "forget": "Forget?",
     "pending": "Pending",
+    "preview": "Preview",
     "incomplete": "Incomplete",
     "available": "Available",
     "or": "or",
@@ -231,6 +232,9 @@
     "permit2Approval": "Permit2 Approval",
     "network": "Network",
     "feeEstimate": "Fee Estimate"
+  },
+  "accountSelector": {
+    "chooseAccount": "Choose Account"
   },
   "quickBuy": {
     "title": "Quick Buy %{assetOnChain}",
@@ -1427,6 +1431,7 @@
       }
     },
     "send": {
+      "confirmSend": "Confirm send",
       "consolidate": {
         "body": "ShapeShift honors %{asset}'s security design by using a new address for each transaction. To align with THORChain's protocol, which operates with a single address, we'll consolidate your funds into a single address.",
         "tooltip": "Send funds to a single address for THORChain compatibility.",
@@ -1435,8 +1440,8 @@
       "getFeesError": "Error getting fees",
       "broadcastingTransaction": "Broadcasting Transaction",
       "youHaveSent": "You have successfully sent %{amount} %{symbol}",
-      "tokenAddress": "To Address",
-      "addressInput": "To Address or ENS",
+      "toAddress": "To Address",
+      "toAddressOrEns": "To Address or ENS",
       "scanQrCode": "Scan QR Code",
       "qrCode": "QR Code",
       "permissionsButton": "Try again",
@@ -1451,7 +1456,6 @@
         "qrDangerousEthUrl": "QR codes containing a contract address not supported. Please paste the destination address manually."
       },
       "confirm": {
-        "sendAsset": "Send %{asset}",
         "send": "Send",
         "sendTo": "Send To",
         "customNonce": "Custom Nonce",
@@ -1461,7 +1465,8 @@
         "amount": "Amount",
         "transactionFee": "Transaction Fee",
         "fees": "Fees %{feeType}",
-        "pendingConfirmation": "Pending confirmation"
+        "pendingConfirmation": "Pending confirmation",
+        "holdToSend": "Hold to send"
       },
       "sendForm": {
         "optionalAssetMemo": "Optional %{assetSymbol} Memo",
@@ -1470,13 +1475,16 @@
         "memoExplainer": "Some %{assetSymbol} recipients may require a memo in order for the transaction to be processed correctly",
         "sendAsset": "Send %{asset}",
         "sendTo": "Send To",
+        "chain": "Chain",
         "sendAmount": "Send Amount",
         "max": "Max",
         "transactionFee": "Transaction Fee",
         "slow": "Slow",
         "average": "Average",
         "fast": "Fast",
-        "enterAmount": "Enter Amount"
+        "enterAmount": "Enter Amount",
+        "scanQrCodeDescription": "Tap to scan an address",
+        "yourAddresses": "Your Addresses"
       },
       "status": {
         "pendingBody": "Sending %{amount} %{symbol}"
@@ -2524,6 +2532,10 @@
           "selectedAccounts": "Selected Accounts",
           "permissionMessage": "Please select at least one account per chain.",
           "optionalPermissionMessage": "The following permissions are optional."
+        },
+        "noAccountsForChain": {
+          "title": "Chain not supported",
+          "description": "No %{chainLabel} account connected to this dApp."
         }
       },
       "registry": {

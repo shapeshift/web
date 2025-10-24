@@ -1,4 +1,4 @@
-import { Box, Button, Flex, ModalCloseButton, Textarea, useToast } from '@chakra-ui/react'
+import { Box, Button, Flex, ModalCloseButton, Textarea } from '@chakra-ui/react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 
@@ -6,10 +6,15 @@ import { requestStoreReview } from '../context/WalletProvider/MobileWallet/mobil
 import { useModal } from '../hooks/useModal/useModal'
 import { useSendDiscordWebhook } from '../hooks/useSendDiscordWebhook'
 import { isMobile } from '../lib/globals'
+import { getMixPanel } from '../lib/mixpanel/mixPanelSingleton'
+import { MixPanelEvent } from '../lib/mixpanel/types'
+import { captureExceptionWithContext } from '../utils/sentry/helpers'
 import { FoxIcon } from './Icons/FoxIcon'
 import { Dialog } from './Modal/components/Dialog'
 import { StarRating } from './StarRating/StarRating'
 import { Text } from './Text'
+
+import { useNotificationToast } from '@/hooks/useNotificationToast'
 
 const FEEDBACK_DISCORD_CHANNEL_URI =
   'https://discord.com/api/webhooks/1405155259898265620/AvtQbvanqdqjjf-DFq0tn_qfwFUiwLxkF7YeUqWKf-tpuittEeStLgxPMXrbOaPtItWk'
@@ -56,18 +61,48 @@ export const RatingModal = () => {
   const { sendFeedback, isPending, isSuccess } = useSendDiscordWebhook({
     uri: FEEDBACK_DISCORD_CHANNEL_URI,
   })
+  const mixpanel = useMemo(() => getMixPanel(), [])
 
   const isFiveStarRating = useMemo(() => rating === 5, [rating])
   const showFeedbackForm = useMemo(() => rating > 0 && rating < 5, [rating])
-  const toast = useToast()
+  const toast = useNotificationToast()
 
   const handleRatingChange = useCallback(
     async (newRating: number) => {
       if (newRating === 5) {
-        if (isMobile) {
-          const hasSentReview = await requestStoreReview()
+        // Track 5-star rating in MixPanel
+        mixpanel?.track(MixPanelEvent.FiveStarRating, {
+          platform: isMobile ? 'Mobile App' : 'Web App',
+        })
 
-          if (hasSentReview) {
+        if (isMobile) {
+          try {
+            const hasSentReview = await requestStoreReview()
+
+            if (hasSentReview) {
+              toast({
+                title: translate('common.feedbackSubmitted'),
+                description: translate('common.thankYouForYourFeedback'),
+                status: 'success',
+              })
+            }
+          } catch (error) {
+            // Capture error to Sentry if store review fails
+            captureExceptionWithContext(error, {
+              tags: {
+                feature: 'rating-modal',
+                action: 'request-store-review',
+              },
+              extra: {
+                platform: 'mobile',
+                rating: newRating,
+              },
+              level: 'error',
+            })
+
+            console.error('Failed to request store review:', error)
+
+            // Still show success message to user - the rating was recorded
             toast({
               title: translate('common.feedbackSubmitted'),
               description: translate('common.thankYouForYourFeedback'),
@@ -88,7 +123,7 @@ export const RatingModal = () => {
 
       setRating(newRating)
     },
-    [close, toast, translate],
+    [close, toast, translate, mixpanel],
   )
 
   const handleFeedbackChange = useCallback((value: string) => {

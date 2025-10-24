@@ -9,6 +9,7 @@ import {
   useDialog,
   withDialogProvider,
 } from '@/context/DialogContextProvider/DialogContextProvider'
+import { useModalRegistration } from '@/context/ModalStackProvider'
 import { isMobile } from '@/lib/globals'
 import { breakpoints } from '@/theme/theme'
 
@@ -20,7 +21,7 @@ export type DialogProps = {
   modalProps?: Omit<ModalProps, 'children' | 'isOpen' | 'onClose'>
 } & PropsWithChildren
 
-const CustomDrawerContent = styled(Drawer.Content)`
+const CustomDrawerContent = styled(Drawer.Content)<{ zIndex?: string; pointerEvents?: string }>`
   background-color: var(--chakra-colors-background-surface-base);
   display: flex;
   flex-direction: column;
@@ -30,14 +31,16 @@ const CustomDrawerContent = styled(Drawer.Content)`
   bottom: 0;
   left: 0;
   right: 0;
-  z-index: var(--chakra-zIndices-modal);
+  z-index: ${props => props.zIndex || 'var(--chakra-zIndices-modal)'};
+  pointer-events: ${props => props.pointerEvents || 'auto'}!important;
 `
 
-const CustomDrawerOverlay = styled(Drawer.Overlay)`
+const CustomDrawerOverlay = styled(Drawer.Overlay)<{ zIndex?: string; pointerEvents?: string }>`
   position: fixed;
   inset: 0;
   background-color: rgba(0, 0, 0, 0.8);
-  z-index: var(--chakra-zIndices-overlay);
+  z-index: ${props => props.zIndex || 'var(--chakra-zIndices-overlay)'};
+  pointer-events: ${props => props.pointerEvents || 'auto'}!important;
 
   user-select: none;
   -webkit-user-select: none;
@@ -56,6 +59,15 @@ const DialogWindow: React.FC<DialogProps> = ({
 }) => {
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
   const { setIsOpen, isOpen: isDialogOpen } = useDialog()
+  const {
+    modalContentProps,
+    overlayProps,
+    modalProps: stackedModalProps,
+    isHighestModal,
+  } = useModalRegistration({
+    isOpen,
+    onClose,
+  })
 
   const [viewportHeight, setViewportHeight] = useState(window.visualViewport?.height)
 
@@ -91,9 +103,9 @@ const DialogWindow: React.FC<DialogProps> = ({
     [onClose, setIsOpen],
   )
 
-  // If we stack multiple modals and drawers on mobile then we shouldn't trap focus
+  // If we stack multiple modals and drawers on mobile then we shouldn't trap focus which is a bug from vaul
   useLayoutEffect(() => {
-    if (!isMobile || isLargerThanMd) return
+    if (isHighestModal) return
 
     document.addEventListener('focusin', e => e.stopImmediatePropagation())
     document.addEventListener('focusout', e => e.stopImmediatePropagation())
@@ -102,7 +114,7 @@ const DialogWindow: React.FC<DialogProps> = ({
       document.removeEventListener('focusin', e => e.stopImmediatePropagation())
       document.removeEventListener('focusout', e => e.stopImmediatePropagation())
     }
-  }, [isLargerThanMd])
+  }, [isLargerThanMd, isHighestModal])
 
   if (isMobile || !isLargerThanMd) {
     return (
@@ -112,18 +124,24 @@ const DialogWindow: React.FC<DialogProps> = ({
         onClose={onClose}
         activeSnapPoint={snapPoint}
         modal
+        disablePreventScroll={!isHighestModal}
+        noBodyStyles={!isHighestModal}
       >
         <Drawer.Portal>
-          <CustomDrawerOverlay onClick={handleClose} />
-          <CustomDrawerContent style={contentStyle}>{children}</CustomDrawerContent>
+          <CustomDrawerOverlay onClick={handleClose} {...overlayProps?.sx} />
+          <CustomDrawerContent style={contentStyle} {...modalContentProps?.containerProps?.sx}>
+            {children}
+          </CustomDrawerContent>
         </Drawer.Portal>
       </Drawer.Root>
     )
   }
   return (
-    <Modal isOpen={isOpen} onClose={onClose} isCentered {...modalProps}>
-      <ModalOverlay />
-      <ModalContent height={height}>{children}</ModalContent>
+    <Modal isCentered {...modalProps} {...stackedModalProps}>
+      <ModalOverlay {...overlayProps} />
+      <ModalContent height={height} {...modalContentProps}>
+        {children}
+      </ModalContent>
     </Modal>
   )
 }

@@ -1,5 +1,4 @@
 import { Center, CircularProgress } from '@chakra-ui/react'
-import { captureException } from '@sentry/react'
 import type { ReactNode } from 'react'
 import React, { Suspense, useCallback } from 'react'
 import { ErrorBoundary } from 'react-error-boundary'
@@ -7,8 +6,7 @@ import { useTranslate } from 'react-polyglot'
 
 import { ErrorFallback } from './ErrorFallback'
 
-import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
-import { MixPanelEvent } from '@/lib/mixpanel/types'
+import { captureExceptionWithContext } from '@/utils/sentry/helpers'
 
 type SuspenseErrorFallbackProps = {
   error: Error
@@ -49,20 +47,14 @@ export const SuspenseErrorBoundary: React.FC<SuspenseErrorBoundaryProps> = ({
   height,
 }) => {
   const handleError = useCallback((error: Error, info: { componentStack: string }) => {
-    captureException(error, {
+    captureExceptionWithContext(error, {
       tags: {
         errorBoundary: 'suspense',
       },
-      contexts: {
-        react: {
-          componentStack: info.componentStack,
-        },
+      extra: {
+        componentStack: info.componentStack,
       },
-    })
-    getMixPanel()?.track(MixPanelEvent.Error, {
-      error: error.message,
-      errorBoundary: 'suspense',
-      componentStack: info.componentStack,
+      level: 'error',
     })
   }, [])
 

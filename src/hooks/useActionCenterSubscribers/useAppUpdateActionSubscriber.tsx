@@ -1,12 +1,14 @@
 import stringify from 'fast-json-stable-stringify'
 import { useEffect, useMemo, useRef } from 'react'
+import { FaSync } from 'react-icons/fa'
+import { useTranslate } from 'react-polyglot'
 
 import type { Metadata } from '../useHasAppUpdated/useHasAppUpdated'
 import { useHasAppUpdated } from '../useHasAppUpdated/useHasAppUpdated'
 import { useNotificationToast } from '../useNotificationToast'
 
+import { IconCircle } from '@/components/IconCircle'
 import { useActionCenterContext } from '@/components/Layout/Header/ActionCenter/ActionCenterContext'
-import { AppUpdateNotification } from '@/components/Layout/Header/ActionCenter/components/Notifications/AppUpdateNotification'
 import { actionSlice } from '@/state/slices/actionSlice/actionSlice'
 import { ActionStatus, ActionType } from '@/state/slices/actionSlice/types'
 import { useAppDispatch, useAppSelector } from '@/state/store'
@@ -18,6 +20,7 @@ export const useAppUpdateActionSubscriber = () => {
   const dispatch = useAppDispatch()
   const { hasUpdated, initialMetadata } = useHasAppUpdated()
   const hasShownToast = useRef(false)
+  const translate = useTranslate()
 
   const actionsById = useAppSelector(actionSlice.selectors.selectActionsById)
 
@@ -54,7 +57,16 @@ export const useAppUpdateActionSubscriber = () => {
       // this ensures we don't accidentally double toast if this runs twice due to some reference update while hasUpdated = true and currentVersionExistingAction = undefined
       if (!hasShownToast.current) {
         toast({
-          render: props => <AppUpdateNotification handleClick={openActionCenter} {...props} />,
+          icon: (
+            <IconCircle boxSize={8} color='text.subtle'>
+              <FaSync />
+            </IconCircle>
+          ),
+          title: translate('updateToast.body'),
+          onClick: () => {
+            window.location.reload()
+            openActionCenter()
+          },
         })
 
         hasShownToast.current = true
@@ -67,6 +79,7 @@ export const useAppUpdateActionSubscriber = () => {
     hasUpdated,
     currentVersionExistingAction,
     currentVersionId,
+    translate,
   ])
 
   // Delete any app update actions that are not relevant to our current version

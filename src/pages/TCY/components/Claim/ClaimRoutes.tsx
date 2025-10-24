@@ -8,6 +8,7 @@ import { TCYClaimRoute } from '../../types'
 import type { Claim } from './types'
 
 import { AnimatedSwitch } from '@/components/AnimatedSwitch'
+import { useModalRegistration } from '@/context/ModalStackProvider'
 import { actionSlice } from '@/state/slices/actionSlice/actionSlice'
 import { selectPendingTcyClaimActions } from '@/state/slices/actionSlice/selectors'
 import { ActionStatus, ActionType } from '@/state/slices/actionSlice/types'
@@ -152,10 +153,15 @@ type ClaimModalProps = {
 }
 
 export const ClaimModal = ({ isOpen, onClose, claim }: ClaimModalProps) => {
+  const { modalProps, overlayProps, modalContentProps } = useModalRegistration({
+    isOpen,
+    onClose,
+  })
+
   return (
-    <Modal isOpen={isOpen} onClose={onClose}>
-      <ModalOverlay />
-      <ModalContent>
+    <Modal {...modalProps}>
+      <ModalOverlay {...overlayProps} />
+      <ModalContent {...modalContentProps}>
         <ClaimContent claim={claim} />
       </ModalContent>
     </Modal>

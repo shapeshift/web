@@ -6,6 +6,7 @@ import { Route, Switch } from 'wouter'
 import { ImportSuccess } from './views/ImportSuccess'
 import { Notice } from './views/Notice'
 
+import { useModalRegistration } from '@/context/ModalStackProvider'
 import { useModal } from '@/hooks/useModal/useModal'
 
 const importSuccess = <ImportSuccess />
@@ -14,17 +15,15 @@ const successRedirect = <Navigate to='/success' replace />
 
 export const MobileWelcomeModal = () => {
   const { close: handleClose, isOpen } = useModal('mobileWelcomeModal')
+  const { modalProps, overlayProps, modalContentProps } = useModalRegistration({
+    isOpen,
+    onClose: handleClose,
+  })
 
   return (
-    <Modal
-      isCentered
-      closeOnOverlayClick={false}
-      closeOnEsc={false}
-      isOpen={isOpen}
-      onClose={handleClose}
-    >
-      <ModalOverlay />
-      <ModalContent justifyContent='center' px={3} pt={3} pb={6}>
+    <Modal isCentered {...modalProps} closeOnOverlayClick={false} closeOnEsc={false}>
+      <ModalOverlay {...overlayProps} />
+      <ModalContent justifyContent='center' px={3} pt={3} pb={6} {...modalContentProps}>
         <MemoryRouter>
           <AnimatePresence mode='wait' initial={false}>
             <RoutesWithAnimation />

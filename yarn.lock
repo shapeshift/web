@@ -10793,7 +10793,7 @@ __metadata:
     "@walletconnect/web3-provider": ^1.8.0
     alchemy-sdk: ^3.4.1
     assert: ^2.0.0
-    axios: ^1.12.0
+    axios: ^1.12.1
     axios-cache-interceptor: ^1.5.3
     axios-retry: ^4.5.0
     bignumber.js: ^9.3.1
@@ -10832,7 +10832,7 @@ __metadata:
     framer-motion: ^12.6.5
     friendly-challenge: 0.9.2
     grapheme-splitter: ^1.0.4
-    happy-dom: ^15.10.2
+    happy-dom: ^20.0.2
     html-react-parser: ^5.2.3
     html5-qrcode: ^2.3.8
     http-proxy-middleware: ^2.0.9
@@ -10903,7 +10903,7 @@ __metadata:
     uuid: ^9.0.0
     vaul: ^1.1.2
     viem: ^2.10.9
-    vite: 6.3.6
+    vite: 6.4.1
     vite-bundle-analyzer: ^0.18.1
     vite-plugin-checker: ^0.9.1
     vite-plugin-node-polyfills: ^0.23.0
@@ -12356,6 +12356,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/node@npm:^20.0.0":
+  version: 20.19.21
+  resolution: "@types/node@npm:20.19.21"
+  dependencies:
+    undici-types: ~6.21.0
+  checksum: 79eeb55b109a54e212d963870d0a9184bbc1b6ed07a26a52d9aa87c15f594648d3832876b37635e5fb5c6206acd9240209394579d4e6ec0870d1b78cfa4c13d2
+  languageName: node
+  linkType: hard
+
 "@types/node@npm:^20.17.9":
   version: 20.17.30
   resolution: "@types/node@npm:20.17.30"
@@ -12629,6 +12638,13 @@ __metadata:
   version: 1.0.8
   resolution: "@types/w3c-web-usb@npm:1.0.8"
   checksum: 5b3206c5d646118e1b87fb74dcbdf99b991f42fa25042e63b98875662950213504325a53e1e5eddc29d7faaa7572f87a55141576a64e829f37eda19de00e30e1
+  languageName: node
+  linkType: hard
+
+"@types/whatwg-mimetype@npm:^3.0.2":
+  version: 3.0.2
+  resolution: "@types/whatwg-mimetype@npm:3.0.2"
+  checksum: 30e2599ae02c539a6dd08b58de255aad24a41cdabeebc0293814884f1301f1328443b9915f2e990e4f484fa7f226ca8718991b63d2d387287f898c36390ef856
   languageName: node
   linkType: hard
 
@@ -15509,14 +15525,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"axios@npm:^1.12.0":
-  version: 1.12.0
-  resolution: "axios@npm:1.12.0"
+"axios@npm:^1.12.1":
+  version: 1.12.2
+  resolution: "axios@npm:1.12.2"
   dependencies:
     follow-redirects: ^1.15.6
     form-data: ^4.0.4
     proxy-from-env: ^1.1.0
-  checksum: f2a109efea16711907ae86acc46434d52da28e889bf1d2fc2b66844e82c9908f6d96d988ad9043b37d4146abc182e67d61abd87367152bbbc1cd73afa3c5de71
+  checksum: f0331594fe053a4bbff04104edb073973a3aabfad2e56b0aa18de82428aa63f6f0839ca3d837258ec739cb4528014121793b1649a21e5115ffb2bf8237eadca3
   languageName: node
   linkType: hard
 
@@ -19046,7 +19062,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"entities@npm:^4.2.0, entities@npm:^4.5.0":
+"entities@npm:^4.2.0":
   version: 4.5.0
   resolution: "entities@npm:4.5.0"
   checksum: 853f8ebd5b425d350bffa97dd6958143179a5938352ccae092c62d1267c4e392a039be1bae7d51b6e4ffad25f51f9617531fedf5237f15df302ccfb452cbf2d7
@@ -22008,14 +22024,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"happy-dom@npm:^15.10.2":
-  version: 15.10.2
-  resolution: "happy-dom@npm:15.10.2"
+"happy-dom@npm:^20.0.2":
+  version: 20.0.2
+  resolution: "happy-dom@npm:20.0.2"
   dependencies:
-    entities: ^4.5.0
-    webidl-conversions: ^7.0.0
+    "@types/node": ^20.0.0
+    "@types/whatwg-mimetype": ^3.0.2
     whatwg-mimetype: ^3.0.0
-  checksum: 37ef0875565fe94e3fc47c8ddba422268966ffabc4efd84bc79db692d63b28478090e41a58f68b3e66f1b6dc510a9390fc45a1ceb2b64e9cc1a3c66dd088592f
+  checksum: 1ee07fa3ca446ae57cc8333d4bc11d0e937ff58e1afe044a62590261d5d72154bde8bf3e3e65ec5350f52f05139d595f854ec5dfe91d564ffb97905c95c6bd53
   languageName: node
   linkType: hard
 
@@ -26897,27 +26913,27 @@ __metadata:
   languageName: node
   linkType: hard
 
-"playwright-core@npm:1.51.1":
-  version: 1.51.1
-  resolution: "playwright-core@npm:1.51.1"
+"playwright-core@npm:1.56.1":
+  version: 1.56.1
+  resolution: "playwright-core@npm:1.56.1"
   bin:
     playwright-core: cli.js
-  checksum: 1eb37e22e97435a5ed6389b4caa666fbe618348861cae97e67586e20c8fed9ac3d3dc899ff3b9237d0ddfcf087d5b552b80be247e246fc45b75282f96be714bb
+  checksum: 170dff398b47da140182631ae025190248dabde7a5264335f54e238546a478f522ac9a620b31462e6e31c883273223bff8e883b502a699da490abe9741fb3b71
   languageName: node
   linkType: hard
 
 "playwright@npm:^1.49.0":
-  version: 1.51.1
-  resolution: "playwright@npm:1.51.1"
+  version: 1.56.1
+  resolution: "playwright@npm:1.56.1"
   dependencies:
     fsevents: 2.3.2
-    playwright-core: 1.51.1
+    playwright-core: 1.56.1
   dependenciesMeta:
     fsevents:
       optional: true
   bin:
     playwright: cli.js
-  checksum: 2d78f53eed438d26df9743f98227d2e33bb5a378c8d0144a4ed75b4010c9c517d5a6ee6c1c9245ad61dc615054c5e19d2ded5a6e285e35d2bca39b05bc9c4a35
+  checksum: e7537e7d5048a1a8544d7675b005196ba9db919edc3b6d46b92273ee6f20e37ada8991774c5df9ef5123ea4610978d582feb141c8a02f4cf256a6c0b224b8793
   languageName: node
   linkType: hard
 
@@ -32404,9 +32420,9 @@ pvutils@latest:
   languageName: node
   linkType: hard
 
-"vite@npm:6.3.6":
-  version: 6.3.6
-  resolution: "vite@npm:6.3.6"
+"vite@npm:6.4.1":
+  version: 6.4.1
+  resolution: "vite@npm:6.4.1"
   dependencies:
     esbuild: ^0.25.0
     fdir: ^6.4.4
@@ -32455,7 +32471,7 @@ pvutils@latest:
       optional: true
   bin:
     vite: bin/vite.js
-  checksum: bf1e90cb31ea0bb8b13dd046fe9584cb6108dac59332cf56e3ea7a4a77fd4e795c0486957d3cc56a6179608d990110ec9569ed973d53f7adff1590401ebb8f55
+  checksum: 7a939dbd6569ba829a7c21a18f8eca395a3a13cb93ce0fec02e8aa462e127a8daac81d00f684086648d905786056bba1ad931f51d88f06835d3b972bc9fbddda
   languageName: node
   linkType: hard
 
@@ -32745,13 +32761,6 @@ pvutils@latest:
   version: 4.0.2
   resolution: "webidl-conversions@npm:4.0.2"
   checksum: c93d8dfe908a0140a4ae9c0ebc87a33805b416a33ee638a605b551523eec94a9632165e54632f6d57a39c5f948c4bab10e0e066525e9a4b87a79f0d04fbca374
-  languageName: node
-  linkType: hard
-
-"webidl-conversions@npm:^7.0.0":
-  version: 7.0.0
-  resolution: "webidl-conversions@npm:7.0.0"
-  checksum: f05588567a2a76428515333eff87200fae6c83c3948a7482ebb109562971e77ef6dc49749afa58abb993391227c5697b3ecca52018793e0cb4620a48f10bd21b
   languageName: node
   linkType: hard
 

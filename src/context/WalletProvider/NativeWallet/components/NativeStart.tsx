@@ -1,8 +1,9 @@
 import { ArrowForwardIcon } from '@chakra-ui/icons'
-import { Button, Divider, ModalBody, ModalHeader, Stack } from '@chakra-ui/react'
+import { Button, Divider, Stack } from '@chakra-ui/react'
 import { useCallback, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 
+import { DialogBody } from '@/components/Modal/components/DialogBody'
 import { Text } from '@/components/Text'
 import { NativeWalletRoutes } from '@/context/WalletProvider/types'
 import { useStateIfMounted } from '@/hooks/useStateIfMounted/useStateIfMounted'
@@ -32,10 +33,8 @@ export const NativeStart = () => {
 
   return (
     <>
-      <ModalHeader>
-        <Text translation={'walletProvider.shapeShift.start.header'} />
-      </ModalHeader>
-      <ModalBody>
+      <DialogBody>
+        <Text fontWeight='bold' mb={6} translation={'walletProvider.shapeShift.start.header'} />
         <Text mb={4} color='text.subtle' translation={'walletProvider.shapeShift.start.body'} />
         <Stack mt={6} spacing={4}>
           <Button
@@ -77,7 +76,7 @@ export const NativeStart = () => {
             <Text translation={'walletProvider.shapeShift.start.import'} />
           </Button>
         </Stack>
-      </ModalBody>
+      </DialogBody>
     </>
   )
 }

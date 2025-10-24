@@ -1900,6 +1900,17 @@
         "button": "Pair"
       }
     },
+    "walletConnect": {
+      "topSection": {
+        "dontSeeWallet": "Don't see your wallet?",
+        "connectToWallets": "Connect to 480+ wallets",
+        "viewAllWallets": "View All Wallets"
+      }
+    },
+    "multiChainWallets": {
+      "title": "Multi-Chain Wallets",
+      "shapeShiftWallet": "ShapeShift Wallet"
+    },
     "metaMaskSnap": {
       "title": "Multichain support is now available for MetaMask!",
       "subtitle": "Add the Multichain Snap on Metamask to send, receive, track, trade, and earn with the following chains:",

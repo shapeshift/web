@@ -1,9 +1,10 @@
+import { Box, Button, Divider, HStack, Stack } from '@chakra-ui/react'
 import type EthereumProvider from '@walletconnect/ethereum-provider'
 import { useCallback, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
 
-import { PairBody } from '../components/PairBody'
+import { WalletConnectDirectRow } from '../WalletConnectV2/components/WalletConnectDirectRow'
 
+import { Text } from '@/components/Text'
 import { WalletActions } from '@/context/WalletProvider/actions'
 import { KeyManager } from '@/context/WalletProvider/KeyManager'
 import { useLocalWallet } from '@/context/WalletProvider/local-wallet'
@@ -13,19 +14,13 @@ import { useWallet } from '@/hooks/useWallet/useWallet'
 import { isWalletConnectWallet } from '@/lib/utils'
 import { clearWalletConnectLocalStorage } from '@/plugins/walletConnectToDapps/utils/clearAllWalletConnectToDappsSessions'
 
-const Icon = WalletConnectV2Config.icon
-const icon = <Icon boxSize='64px' />
-
-export const NewWalletConnectV2Connect = () => {
+export const WalletConnectTopSection = () => {
   const { dispatch, state, getAdapter } = useWallet()
   const localWallet = useLocalWallet()
-  const navigate = useNavigate()
   const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
 
   const pairDevice = useCallback(async () => {
     clearWalletConnectLocalStorage()
-    setError(null)
     setLoading(true)
     dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
 
@@ -63,36 +58,38 @@ export const NewWalletConnectV2Connect = () => {
     } catch (e: unknown) {
       if (e instanceof WalletNotFoundError) {
         console.error(e)
-        setError('walletProvider.errors.walletNotFound')
       } else {
-        setError('walletProvider.walletConnect.errors.unknown')
-        navigate('/walletconnect/failure')
+        console.error('WalletConnect pairing failed:', e)
       }
     } finally {
       setLoading(false)
     }
-  }, [dispatch, getAdapter, navigate, localWallet, state.wallet])
+  }, [dispatch, getAdapter, localWallet, state.wallet])
 
   return (
-    <PairBody
-      icon={icon}
-      headerTranslation='walletProvider.walletConnect.connect.header'
-      bodyTranslation='walletProvider.walletConnect.connect.body'
-      buttonTranslation='walletProvider.walletConnect.connect.button'
-      isLoading={loading}
-      error={error}
-      onPairDeviceClick={pairDevice}
-    />
+    <Stack spacing={6} justifyContent='space-between' flex={1}>
+      <WalletConnectDirectRow />
+      <HStack spacing={4}>
+        <Divider borderColor='border.bold' />
+        <Stack spacing={0} flexShrink={0} flexGrow={0} textAlign='center'>
+          <Text
+            fontWeight='bold'
+            fontSize='md'
+            translation='walletProvider.walletConnect.topSection.dontSeeWallet'
+          />
+          <Text
+            fontSize='sm'
+            color='text.subtle'
+            translation='walletProvider.walletConnect.topSection.connectToWallets'
+          />
+        </Stack>
+        <Divider borderColor='border.bold' />
+      </HStack>
+      <Box px={4}>
+        <Button colorScheme='blue' size='lg' width='full' onClick={pairDevice} isLoading={loading}>
+          <Text translation='walletProvider.walletConnect.topSection.viewAllWallets' />
+        </Button>
+      </Box>
+    </Stack>
   )
-}
-
-// Yeah, this isn't a router component but just keeping the "Routes" name for consistency
-export const WalletConnectV2Routes = () => {
-  const {
-    state: { modalType },
-  } = useWallet()
-
-  if (!modalType) return null
-
-  return <NewWalletConnectV2Connect />
 }

@@ -1,4 +1,4 @@
-import { Button, Circle, Flex, Image, Spinner, Text } from '@chakra-ui/react'
+import { Avatar, Button, Circle, Flex, Spinner, Text } from '@chakra-ui/react'
 import { useCallback, useMemo, useState } from 'react'
 
 import type { WalletConfig, WalletConnectWalletId } from '../constants'
@@ -8,8 +8,8 @@ import { useDirectWalletConnect } from '../useDirectConnect'
 import { WalletConnectCurrentColorIcon } from '@/components/Icons/WalletConnectIcon'
 
 const WalletConnectBadge = () => (
-  <Circle size='20px' bg='#3B99FC'>
-    <WalletConnectCurrentColorIcon boxSize='12px' color='white' />
+  <Circle size='16px' bg='#3B99FC'>
+    <WalletConnectCurrentColorIcon boxSize='10px' color='white' />
   </Circle>
 )
 
@@ -19,22 +19,27 @@ type DirectWalletButtonProps = {
   onConnect: (walletId: WalletConnectWalletId) => void
 }
 
-const DirectWalletButton = ({ wallet, isLoading, onConnect }: DirectWalletButtonProps) => {
+const spinner = <Spinner thickness='4px' speed='0.65s' boxSize='32px' />
+
+export const DirectWalletButton = ({ wallet, isLoading, onConnect }: DirectWalletButtonProps) => {
   const handleClick = useCallback(() => onConnect(wallet.id), [onConnect, wallet.id])
+
+  const walletIcon = useMemo(() => {
+    if ('IconComponent' in wallet && wallet.IconComponent) {
+      return <wallet.IconComponent boxSize='80%' />
+    }
+    return undefined
+  }, [wallet])
 
   const icon = useMemo(() => {
     if (isLoading) {
-      return <Spinner thickness='4px' speed='0.65s' boxSize='64px' />
+      return <Avatar icon={spinner} size='xl' borderRadius='lg' bg='white' />
     }
-    if ('IconComponent' in wallet && wallet.IconComponent) {
-      return (
-        <Flex boxSize='64px' align='center' justify='center' bg='white' borderRadius='lg' p={2}>
-          <wallet.IconComponent boxSize='48px' />
-        </Flex>
-      )
+    if (walletIcon) {
+      return <Avatar size='xl' icon={walletIcon} borderRadius='lg' bg='white' />
     }
-    return <Image src={wallet.imageUrl} boxSize='64px' borderRadius='lg' />
-  }, [isLoading, wallet])
+    return <Avatar size='xl' src={wallet.imageUrl} borderRadius='lg' />
+  }, [isLoading, wallet, walletIcon])
 
   return (
     <Button
@@ -43,10 +48,9 @@ const DirectWalletButton = ({ wallet, isLoading, onConnect }: DirectWalletButton
       variant='ghost'
       height='auto'
       minH='120px'
-      py={4}
-      px={3}
+      color='text.base'
+      p={0}
       whiteSpace='normal'
-      flex={1}
     >
       <Flex direction='column' align='center' justify='center' width='full'>
         {icon}
@@ -81,7 +85,7 @@ export const WalletConnectDirectRow = () => {
   )
 
   return (
-    <Flex gap={4} mt={4} align='stretch'>
+    <Flex px={6} pt={6} justifyContent='space-between' gap={6}>
       {WALLET_CONFIGS.map(wallet => (
         <DirectWalletButton
           key={wallet.id}

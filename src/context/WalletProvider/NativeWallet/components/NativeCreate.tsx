@@ -1,15 +1,4 @@
-import {
-  Alert,
-  AlertDescription,
-  AlertIcon,
-  Button,
-  Code,
-  ModalBody,
-  ModalFooter,
-  ModalHeader,
-  Tag,
-  Wrap,
-} from '@chakra-ui/react'
+import { Alert, AlertDescription, AlertIcon, Button, Code, Tag, Wrap } from '@chakra-ui/react'
 import { crypto } from '@shapeshiftoss/hdwallet-native'
 import type { Vault } from '@shapeshiftoss/hdwallet-native-vault'
 import { useQuery } from '@tanstack/react-query'
@@ -18,6 +7,8 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { FaEye } from 'react-icons/fa'
 import { useLocation, useNavigate } from 'react-router-dom'
 
+import { DialogBody } from '@/components/Modal/components/DialogBody'
+import { DialogFooter } from '@/components/Modal/components/DialogFooter'
 import { Text } from '@/components/Text'
 import { NativeWalletRoutes } from '@/context/WalletProvider/types'
 import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
@@ -129,10 +120,8 @@ export const NativeCreate = () => {
 
   return (
     <>
-      <ModalHeader>
-        <Text translation={'walletProvider.shapeShift.create.header'} />
-      </ModalHeader>
-      <ModalBody>
+      <DialogBody>
+        <Text fontWeight='bold' mb={6} translation={'walletProvider.shapeShift.create.header'} />
         <Text color='text.subtle' translation={'walletProvider.shapeShift.create.body'} />
         {location?.state?.error && (
           <Alert status='error'>
@@ -143,8 +132,8 @@ export const NativeCreate = () => {
         <Wrap mt={12} mb={6}>
           {revealed ? words : placeholders}
         </Wrap>
-      </ModalBody>
-      <ModalFooter justifyContent='space-between'>
+      </DialogBody>
+      <DialogFooter justifyContent='space-between'>
         <Button onClick={handleShow} leftIcon={faEyeIcon}>
           <Text
             translation={`walletProvider.shapeShift.create.${revealed ? 'hide' : 'show'}Words`}
@@ -158,7 +147,7 @@ export const NativeCreate = () => {
         >
           <Text translation={'walletProvider.shapeShift.create.button'} />
         </Button>
-      </ModalFooter>
+      </DialogFooter>
     </>
   )
 }

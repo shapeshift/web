@@ -5,8 +5,6 @@ import { useTranslate } from 'react-polyglot'
 import { Dialog } from '@/components/Modal/components/Dialog'
 import { DialogBody } from '@/components/Modal/components/DialogBody'
 import { useNotificationToast } from '@/hooks/useNotificationToast'
-import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
-import { MixPanelEvent } from '@/lib/mixpanel/types'
 import { ConnectContent } from '@/plugins/walletConnectToDapps/components/modals/connect/ConnectContent'
 import { useWalletConnectV2 } from '@/plugins/walletConnectToDapps/WalletConnectV2Provider'
 

@@ -6,8 +6,6 @@ import { useTranslate } from 'react-polyglot'
 
 import { ErrorFallback } from './ErrorFallback'
 
-import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
-import { MixPanelEvent } from '@/lib/mixpanel/types'
 import { captureExceptionWithContext } from '@/utils/sentry/helpers'
 
 type SuspenseErrorFallbackProps = {

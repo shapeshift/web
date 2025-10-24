@@ -3,8 +3,6 @@ import { useCallback } from 'react'
 import type { FallbackProps } from 'react-error-boundary'
 import { ErrorBoundary } from 'react-error-boundary'
 
-import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
-import { MixPanelEvent } from '@/lib/mixpanel/types'
 import { captureExceptionWithContext } from '@/utils/sentry/helpers'
 
 type CreateErrorBoundaryOptions = {

@@ -1,5 +1,5 @@
 import { Button, FormControl, HStack, Icon, Input, Text } from '@chakra-ui/react'
-import type { Asset } from 'packages/types/src/base'
+import type { Asset } from '@shapeshiftoss/types'
 import { useCallback, useMemo } from 'react'
 import type { Control, FieldValues, Path } from 'react-hook-form'
 import { Controller } from 'react-hook-form'
@@ -123,7 +123,7 @@ export const CryptoFiatInput = <T extends FieldValues = FieldValues>({
 
   return (
     <FormControl>
-      <Controller name={fieldName} control={control} render={renderController} />
+      <Controller key={fieldName} name={fieldName} control={control} render={renderController} />
       <HStack justify='center' mt={2} spacing={2} onClick={toggleIsFiat}>
         <Text fontSize='sm' color='text.subtle'>
           {isFiat ? (

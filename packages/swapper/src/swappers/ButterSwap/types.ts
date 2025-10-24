@@ -169,7 +169,6 @@ export type TokenInfo = {
 
 export type BridgeInfo = {
   id?: number
-  orderId?: string
   fromChain: ChainInfo
   toChain: ChainInfo | null
   sourceAddress: string

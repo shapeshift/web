@@ -30,11 +30,9 @@ export const checkTradeStatus = async (input: CheckTradeStatusInput): Promise<Tr
     assertGetSolanaChainAdapter,
     fetchIsSmartContractAddressQuery,
   } = input
-
   try {
     // Same-chain swaps don't go through the bridge indexer. Short-circuit to on-chain status.
     const isSameChainSwap = Boolean(swap && swap.sellAsset.chainId === swap.buyAsset?.chainId)
-
     if (isSameChainSwap) {
       if (sellChainId === solanaChainId) {
         return await checkSolanaSwapStatus({
@@ -85,9 +83,7 @@ export const checkTradeStatus = async (input: CheckTradeStatusInput): Promise<Tr
     let status: TxStatus = (() => {
       // Optimistically return Confirmed if we have a destination tx hash, useful to chains with long block
       // times (e.g. BTC)
-      if (!!destinationTxHash) {
-        return TxStatus.Confirmed
-      }
+      if (!!destinationTxHash) return TxStatus.Confirmed
 
       switch (bridgeInfo.state) {
         case BUTTER_SWAP_STATES.Pending:
@@ -101,15 +97,13 @@ export const checkTradeStatus = async (input: CheckTradeStatusInput): Promise<Tr
       }
     })()
 
-    const result = {
+    return {
       status,
       buyTxHash: destinationTxHash,
       relayerTxHash,
       relayerExplorerTxLink,
       message: undefined,
     }
-
-    return result
   } catch (e) {
     return { status: TxStatus.Unknown, buyTxHash: undefined, message: (e as Error).message }
   }

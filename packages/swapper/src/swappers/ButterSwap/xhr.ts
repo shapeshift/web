@@ -138,22 +138,20 @@ export function isBuildTxSuccess(
 export const getBridgeInfoBySourceHash = async (
   hash: string,
 ): ButterSwapPromise<BridgeInfo | undefined> => {
-  const endpoint = '/api/queryBridgeInfoBySourceHash'
-  const params = { hash }
-
   try {
-    const result = await butterHistoryService.get<BridgeInfoApiResponse>(endpoint, { params })
-
+    const result = await butterHistoryService.get<BridgeInfoApiResponse>(
+      '/api/queryBridgeInfoBySourceHash',
+      {
+        params: { hash },
+      },
+    )
     if (result.isErr()) {
       throw result.unwrapErr()
     }
-
     const data = result.unwrap().data
-
     if (!data || !data.data || !data.data.info) {
       return Ok(undefined)
     }
-
     return Ok(data.data.info)
   } catch (e) {
     return Ok(undefined)

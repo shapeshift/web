@@ -78,9 +78,8 @@ export const selectCryptoBuyAmount = createSelector(
     if (!selectedQuote || !selectedQuote.rate) return '0'
 
     const rate = bnOrZero(selectedQuote.rate)
-    const buyFiatAmountBN = bnOrZero(buyFiatAmount)
 
-    return buyFiatAmountBN.div(rate).toString()
+    return bnOrZero(buyFiatAmount).div(rate).toString()
   },
 )
 

@@ -67,9 +67,6 @@ export const tradeRampInput = createTradeInputBaseSlice({
     setSellFiatAsset: (state: TradeRampInputState, action: PayloadAction<FiatCurrencyItem>) => {
       state.sellFiatCurrency = action.payload
     },
-    setSellCryptoAmount: (state: TradeRampInputState, action: PayloadAction<string>) => {
-      state.sellCryptoAmount = action.payload
-    },
     setBuyFiatAmount: (state: TradeRampInputState, action: PayloadAction<string>) => {
       state.buyFiatAmount = action.payload
     },

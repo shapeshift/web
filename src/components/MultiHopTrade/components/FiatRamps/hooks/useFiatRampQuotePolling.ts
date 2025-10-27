@@ -36,7 +36,7 @@ export const useFiatRampQuotePolling = (direction: FiatRampAction) => {
       sellAmountCryptoPrecision,
       sellAsset,
       sellCryptoAmount,
-      buyCryptoAmount: buyFiatAmount,
+      buyFiatAmount,
       sellFiatCurrency,
       buyFiatCurrency,
       direction,

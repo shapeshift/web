@@ -1,10 +1,10 @@
 import {
   Button,
-  Text as CText,
   Flex,
   FormControl,
   Icon,
   Stack,
+  Text as CText,
   useColorModeValue,
   VStack,
 } from '@chakra-ui/react'
@@ -186,7 +186,7 @@ export const Address = () => {
     navigate(SendRoutes.Scan)
   }, [navigate])
 
-  const handleSelectAddressBookEntry = useCallback(
+  const handleClickAddressBookEntry = useCallback(
     (entryAddress: string) => {
       setValue(SendFormFields.Input, entryAddress, { shouldValidate: true })
       navigate(SendRoutes.AmountDetails)
@@ -258,7 +258,7 @@ export const Address = () => {
           </Button>
 
           {isAddressBookEnabled && (
-            <AddressBook chainId={asset?.chainId} onSelectEntry={handleSelectAddressBookEntry} />
+            <AddressBook chainId={asset?.chainId} onEntryClick={handleClickAddressBookEntry} />
           )}
         </VStack>
       </DialogBody>

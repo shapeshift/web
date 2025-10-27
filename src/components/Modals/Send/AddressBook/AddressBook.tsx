@@ -22,7 +22,7 @@ import { useAppDispatch, useAppSelector } from '@/state/store'
 
 type AddressBookProps = {
   chainId?: ChainId
-  onSelectEntry: (address: string) => void
+  onEntryClick: (address: string) => void
   emptyMessage?: string
 }
 
@@ -33,7 +33,7 @@ const addressBookMaxHeight = {
 
 export const AddressBook = ({
   chainId,
-  onSelectEntry,
+  onEntryClick,
   emptyMessage = 'modals.send.noEntries',
 }: AddressBookProps) => {
   const translate = useTranslate()
@@ -116,12 +116,12 @@ export const AddressBook = ({
           label={entry.label}
           address={entry.address}
           entryKey={entryKey}
-          onSelect={onSelectEntry}
+          onSelect={onEntryClick}
           onDelete={handleDeleteConfirm(entry)}
         />
       )
     })
-  }, [entries, entryAvatars, handleDeleteConfirm, onSelectEntry, emptyMessage])
+  }, [entries, entryAvatars, handleDeleteConfirm, onEntryClick, emptyMessage])
 
   return (
     <Box>

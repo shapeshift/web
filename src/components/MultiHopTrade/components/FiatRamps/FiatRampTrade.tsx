@@ -156,9 +156,10 @@ const RampRoutes = memo(({ onChangeTab, direction }: RampRoutesProps) => {
   const clearSelectedQuote = useCallback(() => {
     if (direction === FiatRampAction.Buy) {
       dispatch(tradeRampInput.actions.setSelectedBuyFiatRampQuote(null))
-    } else {
-      dispatch(tradeRampInput.actions.setSelectedSellFiatRampQuote(null))
+      return
     }
+
+    dispatch(tradeRampInput.actions.setSelectedSellFiatRampQuote(null))
   }, [dispatch, direction])
 
   const handleSellAssetChange = useCallback(

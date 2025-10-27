@@ -1449,10 +1449,10 @@
       "addressBook": "Address Book",
       "noEntries": "No address found.",
       "addNewAddress": "Add New Address",
-      "addContact": {
+      "addAddress": {
         "nameRequired": "Name is required",
         "namePlaceholder": "Name",
-        "title": "Add Contact"
+        "title": "Add Address"
       },
       "confirmDelete": {
         "title": "Delete Address",

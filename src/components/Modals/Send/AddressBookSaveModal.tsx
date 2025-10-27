@@ -119,9 +119,9 @@ export const AddressBookSaveModal = ({
             <FormControl isInvalid={!!errors.label}>
               <Input
                 {...register('label', {
-                  required: translate('modals.send.addContact.nameRequired'),
+                  required: translate('modals.send.addAddress.nameRequired'),
                 })}
-                placeholder={translate('modals.send.addContact.namePlaceholder')}
+                placeholder={translate('modals.send.addAddress.namePlaceholder')}
                 autoFocus
                 variant='filled'
                 size='lg'
@@ -143,7 +143,7 @@ export const AddressBookSaveModal = ({
               <Text translation='common.cancel' />
             </Button>
             <Button type='submit' colorScheme='blue' width='full' size='lg' isDisabled={!isValid}>
-              <Text translation='modals.send.addContact.title' />
+              <Text translation='modals.send.addAddress.title' />
             </Button>
           </Stack>
         </DialogFooter>

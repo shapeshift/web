@@ -194,7 +194,7 @@ export const Address = () => {
     [setValue, navigate],
   )
 
-  const handleSaveContact = useCallback(
+  const handleSaveAddress = useCallback(
     (e: React.MouseEvent<HTMLButtonElement>) => {
       e.stopPropagation()
 
@@ -231,7 +231,7 @@ export const Address = () => {
               )}
               resolvedAddress={address}
               chainId={asset?.chainId}
-              onSaveContact={showSaveButton ? handleSaveContact : undefined}
+              onSaveContact={showSaveButton ? handleSaveAddress : undefined}
               onEmptied={handleEmptyChange}
             />
           </FormControl>

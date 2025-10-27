@@ -32,7 +32,7 @@ URL format: `https://app.shapeshift.com/wc?uri={encodedWalletConnectV2Uri}`
 
 - **Desktop**: Paste link + Deep link
 - **Mobile Web**: Paste link + Deep link
-- **Mobile App**: Deep link only
+- **Mobile App**: Paste link + Deep link
 
 ---
 

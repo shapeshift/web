@@ -8,7 +8,7 @@ export enum SendRoutes {
   Amount = '/send/amount',
 }
 
-export const sendRoutes = [
+export const initialEntries = [
   SendRoutes.Confirm,
   SendRoutes.Status,
   SendRoutes.Scan,

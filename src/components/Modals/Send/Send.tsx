@@ -4,7 +4,7 @@ import { MemoryRouter } from 'react-router-dom'
 import { Form } from './Form'
 
 import { Dialog } from '@/components/Modal/components/Dialog'
-import { sendRoutes } from '@/components/Modals/Send/SendCommon'
+import { initialEntries } from '@/components/Modals/Send/SendCommon'
 import { useModal } from '@/hooks/useModal/useModal'
 
 export type SendModalProps = {
@@ -18,7 +18,7 @@ export const SendModal = ({ assetId, accountId, input }: SendModalProps) => {
 
   return (
     <Dialog isOpen={isOpen} onClose={close} isFullScreen>
-      <MemoryRouter initialEntries={sendRoutes}>
+      <MemoryRouter initialEntries={initialEntries}>
         <Form initialAssetId={assetId} accountId={accountId} input={input} />
       </MemoryRouter>
     </Dialog>

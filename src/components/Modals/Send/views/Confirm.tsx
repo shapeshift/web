@@ -60,8 +60,16 @@ import { isMobile } from '@/lib/globals'
 import { middleEllipsis } from '@/lib/utils'
 import { isUtxoAccountId } from '@/lib/utils/utxo'
 import { vibrate } from '@/lib/vibrate'
-import { selectAddressBookEntriesByChainNamespace } from '@/state/slices/addressBookSlice/selectors'
-import { selectAssetById, selectFeeAssetById } from '@/state/slices/selectors'
+import {
+  selectExternalAddressBookEntryByAddress,
+  selectInternalAccountIdByAddress,
+} from '@/state/slices/addressBookSlice/selectors'
+import { accountIdToLabel } from '@/state/slices/portfolioSlice/utils'
+import {
+  selectAssetById,
+  selectFeeAssetById,
+  selectPortfolioAccountMetadata,
+} from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
 export type FeePrice = {
@@ -113,13 +121,110 @@ export const Confirm = ({ handleSubmit }: ConfirmProps) => {
     state: { wallet },
   } = useWallet()
 
-  const addressBookEntries = useAppSelector(state =>
-    selectAddressBookEntriesByChainNamespace(state, asset?.chainId ?? ''),
+  const addressBookEntryFilter = useMemo(
+    () => ({ accountAddress: to, chainId: asset?.chainId }),
+    [to, asset?.chainId],
+  )
+  const addressBookEntry = useAppSelector(state =>
+    selectExternalAddressBookEntryByAddress(state, addressBookEntryFilter),
   )
 
-  const selectedAddressBookEntry = useMemo(() => {
-    return addressBookEntries.find(entry => entry.address === to)
-  }, [addressBookEntries, to])
+  const internalAccountIdFilter = useMemo(
+    () => ({
+      accountAddress: to,
+      chainId: asset?.chainId,
+    }),
+    [to, asset?.chainId],
+  )
+
+  const internalAccountId = useAppSelector(state =>
+    selectInternalAccountIdByAddress(state, internalAccountIdFilter),
+  )
+
+  const accountMetadata = useAppSelector(selectPortfolioAccountMetadata)
+
+  const accountNumber = useMemo(
+    () =>
+      internalAccountId
+        ? accountMetadata[internalAccountId]?.bip44Params?.accountNumber
+        : undefined,
+    [accountMetadata, internalAccountId],
+  )
+
+  const internalAccountLabel = useMemo(() => {
+    if (!internalAccountId) return null
+
+    if (isUtxoAccountId(internalAccountId)) {
+      return accountIdToLabel(internalAccountId)
+    }
+
+    // Fallback to "Account" if accountNumber is not available yet
+    return accountNumber !== undefined
+      ? translate('accounts.accountNumber', { accountNumber })
+      : translate('common.account')
+  }, [internalAccountId, accountNumber, translate])
+
+  const displayDestinationContent = useMemo(() => {
+    if (vanityAddress) {
+      return (
+        <>
+          <CText fontSize='2xl' fontWeight='bold'>
+            {vanityAddress}
+          </CText>
+          <InlineCopyButton value={to ?? ''}>
+            <MiddleEllipsis
+              value={to ?? ''}
+              fontSize='sm'
+              color='text.subtle'
+              fontWeight='normal'
+            />
+          </InlineCopyButton>
+        </>
+      )
+    }
+
+    if (addressBookEntry) {
+      return (
+        <>
+          <CText fontSize='2xl' fontWeight='bold'>
+            {addressBookEntry.label}
+          </CText>
+          <InlineCopyButton value={to ?? ''}>
+            <MiddleEllipsis
+              value={to ?? ''}
+              fontSize='sm'
+              color='text.subtle'
+              fontWeight='normal'
+            />
+          </InlineCopyButton>
+        </>
+      )
+    }
+
+    if (internalAccountLabel) {
+      return (
+        <>
+          <CText fontSize='2xl' fontWeight='bold'>
+            {internalAccountLabel}
+          </CText>
+          <InlineCopyButton value={to ?? ''}>
+            <MiddleEllipsis
+              value={to ?? ''}
+              fontSize='sm'
+              color='text.subtle'
+              fontWeight='normal'
+            />
+          </InlineCopyButton>
+        </>
+      )
+    }
+
+    return (
+      <InlineCopyButton value={to ?? ''}>
+        <MiddleEllipsis value={to ?? ''} fontSize='2xl' fontWeight='bold' />
+      </InlineCopyButton>
+    )
+  }, [vanityAddress, addressBookEntry, internalAccountLabel, to])
 
   const showMemoRow = useMemo(
     () => Boolean(assetId && fromAssetId(assetId).chainNamespace === CHAIN_NAMESPACE.CosmosSdk),
@@ -139,10 +244,10 @@ export const Confirm = ({ handleSubmit }: ConfirmProps) => {
 
   const avatarUrl = useMemo(
     () =>
-      selectedAddressBookEntry
-        ? makeBlockiesUrl(selectedAddressBookEntry.address)
+      addressBookEntry && addressBookEntry.isExternal
+        ? makeBlockiesUrl(addressBookEntry.address)
         : makeBlockiesUrl(to ?? ''),
-    [selectedAddressBookEntry, to],
+    [addressBookEntry, to],
   )
 
   const borderColor = useColorModeValue('gray.100', 'gray.750')
@@ -269,17 +374,10 @@ export const Confirm = ({ handleSubmit }: ConfirmProps) => {
               />
               <Divider width='100%' height='1px' backgroundColor='border.base' />
             </Flex>
-            <Box fontSize='2xl' fontWeight='bold'>
+            <Box>
               <Tooltip label={to} shouldWrapChildren lineHeight='short'>
-                <InlineCopyButton value={to}>
-                  {vanityAddress ? vanityAddress : <MiddleEllipsis value={to} />}
-                </InlineCopyButton>
+                {displayDestinationContent}
               </Tooltip>
-              {selectedAddressBookEntry && (
-                <CText fontSize='sm' color='text.subtle' fontWeight='normal' lineHeight='0.8'>
-                  {selectedAddressBookEntry.name}
-                </CText>
-              )}
             </Box>
           </Box>
           <Flex

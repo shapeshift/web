@@ -22,16 +22,18 @@ import { Text } from '@/components/Text'
 import { useModal } from '@/hooks/useModal/useModal'
 import { makeBlockiesUrl } from '@/lib/blockies/makeBlockiesUrl'
 import { addressBookSlice } from '@/state/slices/addressBookSlice/addressBookSlice'
-import { useAppDispatch } from '@/state/store'
+import { selectInternalAccountIdByAddress } from '@/state/slices/addressBookSlice/selectors'
+import type { AddressBookEntry } from '@/state/slices/addressBookSlice/types'
+import { useAppDispatch, useAppSelector } from '@/state/store'
 
-export type AddAddressModalProps = {
+export type AddressBookSaveModalProps = {
   address: string
   chainId: ChainId
   onSuccess?: () => void
 }
 
 type FormData = {
-  name: string
+  label: string
 }
 
 const focusInputStyle = {
@@ -43,10 +45,26 @@ const hoverInputStyle = {
   border: 'none',
 }
 
-export const AddAddressModal = ({ address, chainId, onSuccess }: AddAddressModalProps) => {
+export const AddressBookSaveModal = ({
+  address,
+  chainId,
+  onSuccess,
+}: AddressBookSaveModalProps) => {
   const translate = useTranslate()
   const dispatch = useAppDispatch()
-  const { isOpen, close: onClose } = useModal('addAddress')
+  const { isOpen, close: onClose } = useModal('addressBookSave')
+
+  const internalAccountIdFilter = useMemo(
+    () => ({
+      accountAddress: address,
+      chainId,
+    }),
+    [address, chainId],
+  )
+
+  const internalAccountId = useAppSelector(state =>
+    selectInternalAccountIdByAddress(state, internalAccountIdFilter),
+  )
 
   const {
     register,
@@ -56,7 +74,7 @@ export const AddAddressModal = ({ address, chainId, onSuccess }: AddAddressModal
   } = useForm<FormData>({
     mode: 'onChange',
     defaultValues: {
-      name: '',
+      label: '',
     },
   })
 
@@ -69,17 +87,22 @@ export const AddAddressModal = ({ address, chainId, onSuccess }: AddAddressModal
 
   const onSubmit = useCallback(
     (data: FormData) => {
-      dispatch(
-        addressBookSlice.actions.addAddress({
-          name: data.name,
-          address,
-          chainId,
-        }),
-      )
+      // Can't access here if it's an internal account id as its supposed to be added automatically as a system
+      if (internalAccountId) return
+
+      const entry: AddressBookEntry = {
+        address,
+        chainId,
+        label: data.label,
+        isInternal: false,
+        isExternal: true,
+      }
+
+      dispatch(addressBookSlice.actions.addAddress(entry))
       onSuccess?.()
       handleClose()
     },
-    [dispatch, address, chainId, onSuccess, handleClose],
+    [dispatch, address, chainId, onSuccess, handleClose, internalAccountId],
   )
 
   return (
@@ -93,9 +116,9 @@ export const AddAddressModal = ({ address, chainId, onSuccess }: AddAddressModal
         <DialogBody>
           <VStack spacing={4} align='center'>
             <Avatar src={avatarUrl} size='lg' />
-            <FormControl isInvalid={!!errors.name}>
+            <FormControl isInvalid={!!errors.label}>
               <Input
-                {...register('name', {
+                {...register('label', {
                   required: translate('modals.send.addContact.nameRequired'),
                 })}
                 placeholder={translate('modals.send.addContact.namePlaceholder')}
@@ -108,7 +131,7 @@ export const AddAddressModal = ({ address, chainId, onSuccess }: AddAddressModal
                 _focus={focusInputStyle}
                 _hover={hoverInputStyle}
               />
-              <FormErrorMessage>{errors.name?.message}</FormErrorMessage>
+              <FormErrorMessage>{errors.label?.message}</FormErrorMessage>
             </FormControl>
             <MiddleEllipsis value={address} />
           </VStack>

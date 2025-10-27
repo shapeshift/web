@@ -365,7 +365,6 @@ export const mockStore: ReduxState = {
       version: 0,
       rehydrated: false,
     },
-    byId: {},
-    ids: [],
+    byAccountId: {},
   },
 }

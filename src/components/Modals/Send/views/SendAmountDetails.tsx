@@ -147,7 +147,7 @@ export const SendAmountDetails = () => {
 
   const supportsENS = asset?.chainId === ethChainId
   const addressError = get(errors, `${SendFormFields.Input}.message`, null)
-  const addAddress = useModal('addAddress')
+  const addressBookSaveModal = useModal('addressBookSave')
   const isAddressBookEnabled = useFeatureFlag('AddressBook')
 
   useEffect(() => {
@@ -244,10 +244,10 @@ export const SendAmountDetails = () => {
       e.stopPropagation()
 
       if (to && asset?.chainId) {
-        addAddress.open({ address: to, chainId: asset.chainId })
+        addressBookSaveModal.open({ address: to, chainId: asset.chainId })
       }
     },
-    [to, asset?.chainId, addAddress],
+    [to, asset?.chainId, addressBookSaveModal],
   )
 
   const renderController = useCallback(

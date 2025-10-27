@@ -221,10 +221,10 @@ const WalletDrawer = makeSuspenseful(
   ),
 )
 
-const AddAddressModal = makeSuspenseful(
+const AddressBookSaveModal = makeSuspenseful(
   lazy(() =>
-    import('@/components/Modals/Send/AddAddressModal').then(({ AddAddressModal }) => ({
-      default: AddAddressModal,
+    import('@/components/Modals/Send/AddressBookSaveModal').then(({ AddressBookSaveModal }) => ({
+      default: AddressBookSaveModal,
     })),
   ),
 )
@@ -266,7 +266,7 @@ export const MODALS: Modals = {
   assetActionsDrawer: AssetActionsDrawer,
   rating: RatingModal,
   walletDrawer: WalletDrawer,
-  addAddress: AddAddressModal,
+  addressBookSave: AddressBookSaveModal,
   manageHiddenAssets: ManageHiddenAssetsModal,
 } as const
 

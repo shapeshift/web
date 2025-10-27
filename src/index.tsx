@@ -23,7 +23,7 @@ import { renderConsoleArt } from './lib/consoleArt'
 import { reportWebVitals } from './lib/reportWebVitals'
 import { httpClientIntegration } from './utils/sentry/httpclient'
 
-const enableReactScan = false
+const enableReactScan = true
 
 const SENTRY_ENABLED = true
 

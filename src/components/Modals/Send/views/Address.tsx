@@ -32,7 +32,10 @@ import { Text } from '@/components/Text'
 import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { useModal } from '@/hooks/useModal/useModal'
 import { parseAddressInputWithChainId } from '@/lib/address/address'
-import { selectAddressBookEntriesByChainNamespace } from '@/state/slices/addressBookSlice/selectors'
+import {
+  selectInternalAccountIdByAddress,
+  selectIsAddressInAddressBook,
+} from '@/state/slices/addressBookSlice/selectors'
 import { selectAssetById } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
@@ -59,7 +62,7 @@ export const Address = () => {
   const qrCode = useModal('qrCode')
   const assetId = useWatch<SendInput, SendFormFields.AssetId>({ name: SendFormFields.AssetId })
   const qrBackground = useColorModeValue('blackAlpha.200', 'whiteAlpha.200')
-  const addAddress = useModal('addAddress')
+  const addressBookSaveModal = useModal('addressBookSave')
   const isAddressBookEnabled = useFeatureFlag('AddressBook')
 
   const location = useLocation()
@@ -83,8 +86,21 @@ export const Address = () => {
   )
 
   const asset = useAppSelector(state => selectAssetById(state, assetId))
-  const addressBookEntries = useAppSelector(state =>
-    selectAddressBookEntriesByChainNamespace(state, asset?.chainId ?? ''),
+
+  const isInAddressBookFilter = useMemo(
+    () => ({ accountAddress: address, chainId: asset?.chainId }),
+    [address, asset?.chainId],
+  )
+  const isInAddressBook = useAppSelector(state =>
+    selectIsAddressInAddressBook(state, isInAddressBookFilter),
+  )
+
+  const internalAccountIdFilter = useMemo(
+    () => ({ accountAddress: address, chainId: asset?.chainId }),
+    [address, asset?.chainId],
+  )
+  const internalAccountId = useAppSelector(state =>
+    selectInternalAccountIdByAddress(state, internalAccountIdFilter),
   )
 
   const supportsENS = asset?.chainId === ethChainId // We only support ENS resolution on ETH mainnet
@@ -92,13 +108,19 @@ export const Address = () => {
 
   const isCustomAddress = useMemo(() => {
     if (!input || !address || !asset?.chainId) return false
-    const existsInAddressBook = addressBookEntries.some(entry => entry.address === address)
-    return !existsInAddressBook
-  }, [input, address, addressBookEntries, asset?.chainId])
+    return !isInAddressBook
+  }, [input, address, isInAddressBook, asset?.chainId])
 
   useEffect(() => {
-    setShowSaveButton(isCustomAddress && !!address && !addressError && isAddressBookEnabled)
-  }, [isCustomAddress, address, addressError, isAddressBookEnabled])
+    setShowSaveButton(
+      Boolean(
+        (isCustomAddress || internalAccountId) &&
+          !!address &&
+          !addressError &&
+          isAddressBookEnabled,
+      ),
+    )
+  }, [isCustomAddress, address, addressError, isAddressBookEnabled, internalAccountId])
 
   useEffect(() => {
     trigger(SendFormFields.Input)
@@ -182,10 +204,10 @@ export const Address = () => {
       e.stopPropagation()
 
       if (address && asset?.chainId) {
-        addAddress.open({ address, chainId: asset.chainId })
+        addressBookSaveModal.open({ address, chainId: asset.chainId })
       }
     },
-    [address, asset?.chainId, addAddress],
+    [address, asset?.chainId, addressBookSaveModal],
   )
 
   const handleEmptyChange = useCallback(() => {

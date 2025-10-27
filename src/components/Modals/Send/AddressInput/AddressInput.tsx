@@ -28,7 +28,13 @@ import { QRCodeIcon } from '@/components/Icons/QRCode'
 import { MiddleEllipsis } from '@/components/MiddleEllipsis/MiddleEllipsis'
 import type { SendInput } from '@/components/Modals/Send/Form'
 import { makeBlockiesUrl } from '@/lib/blockies/makeBlockiesUrl'
-import { selectAddressBookEntriesByChainNamespace } from '@/state/slices/addressBookSlice/selectors'
+import { isUtxoAccountId } from '@/lib/utils/utxo'
+import {
+  selectExternalAddressBookEntryByAddress,
+  selectInternalAccountIdByAddress,
+} from '@/state/slices/addressBookSlice/selectors'
+import { accountIdToLabel } from '@/state/slices/portfolioSlice/utils'
+import { selectPortfolioAccountMetadata } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
 type AddressInputProps = {
@@ -69,12 +75,55 @@ export const AddressInput = ({
   const isValid = useFormContext<SendInput>().formState.isValid
   const isDirty = useFormContext<SendInput>().formState.isDirty
   const isValidating = useFormContext<SendInput>().formState.isValidating
-  const value = useWatch<SendInput, SendFormFields.Input>({ name: SendFormFields.Input })
+
+  const { vanityAddress, input: value } = useWatch() as Partial<SendInput>
   const inputRef = useRef<HTMLInputElement>(null)
 
-  const addressBookEntries = useAppSelector(state =>
-    chainId ? selectAddressBookEntriesByChainNamespace(state, chainId) : [],
+  const addressBookEntryFilter = useMemo(
+    () => ({
+      accountAddress: value,
+      chainId,
+    }),
+    [value, chainId],
   )
+  const addressBookEntry = useAppSelector(state =>
+    selectExternalAddressBookEntryByAddress(state, addressBookEntryFilter),
+  )
+
+  const internalAccountIdFilter = useMemo(
+    () => ({
+      accountAddress: resolvedAddress,
+      chainId,
+    }),
+    [resolvedAddress, chainId],
+  )
+
+  const internalAccountId = useAppSelector(state =>
+    selectInternalAccountIdByAddress(state, internalAccountIdFilter),
+  )
+
+  const accountMetadata = useAppSelector(selectPortfolioAccountMetadata)
+
+  const accountNumber = useMemo(
+    () =>
+      internalAccountId
+        ? accountMetadata[internalAccountId]?.bip44Params?.accountNumber
+        : undefined,
+    [accountMetadata, internalAccountId],
+  )
+
+  const internalAccountLabel = useMemo(() => {
+    if (!internalAccountId) return null
+
+    if (isUtxoAccountId(internalAccountId)) {
+      return accountIdToLabel(internalAccountId)
+    }
+
+    // Fallback to "Account" if accountNumber is not available yet
+    return accountNumber !== undefined
+      ? translate('accounts.accountNumber', { accountNumber })
+      : translate('common.account')
+  }, [internalAccountId, accountNumber, translate])
 
   const isInvalid = useMemo(() => {
     // Don't go invalid when async invalidation is running
@@ -85,15 +134,7 @@ export const AddressInput = ({
     return isValid === false
   }, [isValid, isValidating, value])
 
-  const addressBookEntry = useMemo(() => {
-    if (!resolvedAddress) return null
-    return addressBookEntries.find(entry => entry.address === resolvedAddress)
-  }, [resolvedAddress, addressBookEntries])
-
-  const avatarUrl = useMemo(
-    () => (resolvedAddress ? makeBlockiesUrl(resolvedAddress) : ''),
-    [resolvedAddress],
-  )
+  const avatarUrl = useMemo(() => (value ? makeBlockiesUrl(value) : ''), [value])
 
   useEffect(() => {
     if (addressBookEntry) {
@@ -131,13 +172,48 @@ export const AddressInput = ({
     setIsFocused(true)
   }, [])
 
+  const handlePaste = useCallback(() => {
+    if (isFocused && inputRef.current) {
+      // Add this at the end of the callstack so we leave space for the paste event to be handled
+      // by the onChange event handler of the form before blurring which would cancel the paste event
+      setTimeout(() => {
+        inputRef.current?.blur()
+        setIsFocused(false)
+      }, 0)
+    }
+  }, [isFocused])
+
+  const ensOrRawAddress = useMemo(() => {
+    if (vanityAddress) {
+      const ensAvatarAddress = makeBlockiesUrl(resolvedAddress ?? value ?? '')
+
+      return (
+        <HStack spacing={2}>
+          <Avatar src={ensAvatarAddress} size='sm' />
+          <VStack align='start' spacing={0}>
+            <CText fontSize='md' fontWeight='semibold' color='text.primary'>
+              {vanityAddress}
+            </CText>
+            {value && <MiddleEllipsis fontSize='xs' color='text.subtle' value={value} />}
+          </VStack>
+        </HStack>
+      )
+    }
+
+    return (
+      <Box bg='background.surface.raised.base' px={3} py={2} borderRadius='full'>
+        <MiddleEllipsis fontSize='sm' color='text.subtle' value={resolvedAddress ?? ''} />
+      </Box>
+    )
+  }, [value, resolvedAddress, vanityAddress])
+
   const renderController = useCallback(
     ({
       field: { onChange, value },
     }: {
       field: ControllerRenderProps<FieldValues, SendFormFields.Input>
     }) => {
-      if ((isFocused || !resolvedAddress || isInvalid) && !isReadOnly) {
+      if ((isFocused || !value || isInvalid) && !isReadOnly) {
         return (
           <InputGroup alignItems='center'>
             <InputLeftElement pointerEvents='none' height='100%'>
@@ -161,7 +237,7 @@ export const AddressInput = ({
               isInvalid={isInvalid && isDirty}
               onFocus={handleFocus}
               onBlur={handleBlur}
-              onPaste={onPaste}
+              onPaste={handlePaste}
               {...props}
               onChange={onChange}
             />
@@ -191,11 +267,13 @@ export const AddressInput = ({
                 <Avatar src={avatarUrl} size='sm' />
                 <VStack align='start' spacing={0}>
                   <CText fontSize='md' fontWeight='semibold' color='text.primary'>
-                    {addressBookEntry.name}
+                    {addressBookEntry.label}
                   </CText>
-                  {resolvedAddress && (
-                    <MiddleEllipsis fontSize='xs' color='text.subtle' value={resolvedAddress} />
-                  )}
+                  <MiddleEllipsis
+                    fontSize='xs'
+                    color='text.subtle'
+                    value={addressBookEntry.address}
+                  />
                 </VStack>
               </HStack>
             </HStack>
@@ -213,18 +291,30 @@ export const AddressInput = ({
           w='full'
           px={4}
           sx={addressInputSx}
-          onClick={handleDisplayClick}
+          onClick={props.onClick ?? handleDisplayClick}
           cursor='pointer'
         >
           <HStack spacing={3}>
             <Text color='text.subtle' fontSize='sm' minW='20px'>
               {translate('modals.send.sendForm.to')}
             </Text>
-            <Box bg='background.surface.raised.base' px={3} py={2} borderRadius='full'>
-              <MiddleEllipsis fontSize='sm' color='text.subtle' value={resolvedAddress ?? ''} />
-            </Box>
+            {internalAccountId ? (
+              <HStack spacing={2}>
+                <Avatar src={avatarUrl} size='sm' />
+                <VStack align='start' spacing={0}>
+                  <CText fontSize='md' fontWeight='semibold' color='text.primary'>
+                    {`${internalAccountLabel}${vanityAddress ? ` (${vanityAddress})` : ''}`}
+                  </CText>
+                  {resolvedAddress && (
+                    <MiddleEllipsis fontSize='xs' color='text.subtle' value={resolvedAddress} />
+                  )}
+                </VStack>
+              </HStack>
+            ) : (
+              ensOrRawAddress
+            )}
           </HStack>
-          {onSaveContact && (
+          {onSaveContact && !internalAccountId && (
             <Button size='sm' onClick={onSaveContact}>
               {translate('common.save')}
             </Button>
@@ -246,6 +336,9 @@ export const AddressInput = ({
       onPaste,
       resolvedAddress,
       addressBookEntry,
+      internalAccountId,
+      internalAccountLabel,
+      avatarUrl,
       onSaveContact,
     ],
   )

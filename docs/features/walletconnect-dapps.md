@@ -2,15 +2,17 @@
 
 Use ShapeShift as a wallet to connect to any DApp that supports WalletConnect.
 
+**Note**: Currently only works with ShapeShift's native wallet (not WalletConnect wallets)
+
 ## Method 1: Paste Connection Link
 
 1. Go to DApp (Uniswap, OpenSea, etc.)
 2. Choose "WalletConnect"
 3. Copy the connection link
-4. In ShapeShift: Settings → WalletConnect to DApps
+4. In ShapeShift: Click "Connect dApp" button
 5. Paste link and connect
 
-[INSERT IMAGE HERE: Paste WalletConnect Link Modal]
+[INSERT IMAGE HERE: Connect dApp Modal]
 
 ## Method 2: Deep Link
 
@@ -24,16 +26,7 @@ DApps can connect directly to ShapeShift:
 
 URL format: `https://app.shapeshift.com/wc?uri={encodedWalletConnectV2Uri}`
 
-[INSERT IMAGE HERE: DApp Selecting ShapeShift from Wallet List - from PR screenshots]
-
-## What You Can Do
-
-- Trade on DEXes
-- Buy/sell NFTs
-- Lend/borrow crypto
-- Provide liquidity
-- Vote in governance
-- Sign transactions and messages
+[INSERT IMAGE HERE: DApp Selecting ShapeShift from Wallet List]
 
 ## Session Management
 

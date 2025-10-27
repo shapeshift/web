@@ -13,12 +13,13 @@ Connect external wallets (MetaMask, Trust Wallet, Zerion, etc.) to ShapeShift us
 
 
 ### Mobile Web: Deep Link via WalletConnect Modal
+0. Go to ShapeShift mobile app on e.g Safari
 1. Click "Connect Wallet" → "WalletConnect"
 2. WalletConnect modal opens and shows diff wallet options
 3. Tap your preferred wallet → said wallet app opens via deep link
 4. Approve in app and return to ShapeShift, you're connected
 
-<img width="645" height="1294" alt="TradeBridge  ShapeShift" src="https://github.com/user-attachments/assets/5a6434a6-b2e6-45a4-af14-a7d14249c1fb" />
+<img width="645" height="1398" alt="Dashboard  ShapeShift" src="https://github.com/user-attachments/assets/2cef68c4-cc2a-4899-b94c-ee184e582288" />
 
 
 Works in mobile browsers and even in-app browsers (e.g MM mobile browser)!

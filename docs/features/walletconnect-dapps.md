@@ -28,12 +28,6 @@ URL format: `https://app.shapeshift.com/wc?uri={encodedWalletConnectV2Uri}`
 
 [INSERT IMAGE HERE: DApp Selecting ShapeShift from Wallet List]
 
-## Session Management
-
-- View active connections: Settings → WalletConnect to DApps
-- Disconnect anytime
-- Multiple DApps can be connected simultaneously
-
 ## Platform Support
 
 - **Desktop**: Paste link + Deep link

@@ -8,6 +8,8 @@ import {
   Input,
   InputGroup,
   InputRightElement,
+  ModalBody,
+  ModalHeader,
   useColorModeValue,
 } from '@chakra-ui/react'
 import { useCallback, useMemo, useState } from 'react'
@@ -19,7 +21,6 @@ import { useLocation, useNavigate } from 'react-router'
 
 import type { NativeWalletValues } from '../types'
 
-import { DialogBody } from '@/components/Modal/components/DialogBody'
 import { Text } from '@/components/Text'
 import { NativeWalletRoutes } from '@/context/WalletProvider/types'
 
@@ -101,8 +102,10 @@ export const NativePassword = () => {
 
   return (
     <>
-      <DialogBody>
-        <Text fontWeight='bold' mb={6} translation={'walletProvider.shapeShift.password.header'} />
+      <ModalHeader>
+        <Text translation={'walletProvider.shapeShift.password.header'} />
+      </ModalHeader>
+      <ModalBody>
         <Text mb={4} color='text.subtle' translation={'walletProvider.shapeShift.password.body'} />
         <Alert
           mb={4}
@@ -189,7 +192,7 @@ export const NativePassword = () => {
             <Text translation={'walletProvider.shapeShift.password.button'} />
           </Button>
         </form>
-      </DialogBody>
+      </ModalBody>
     </>
   )
 }

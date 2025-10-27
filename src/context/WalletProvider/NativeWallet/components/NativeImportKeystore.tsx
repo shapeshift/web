@@ -1,4 +1,12 @@
-import { Button, FormControl, FormErrorMessage, Input, VStack } from '@chakra-ui/react'
+import {
+  Button,
+  FormControl,
+  FormErrorMessage,
+  Input,
+  ModalBody,
+  ModalHeader,
+  VStack,
+} from '@chakra-ui/react'
 import { useCallback, useState } from 'react'
 import type { FieldValues } from 'react-hook-form'
 import { useForm } from 'react-hook-form'
@@ -8,7 +16,6 @@ import { useNavigate } from 'react-router-dom'
 import type { NativeWalletValues } from '../types'
 
 import { FileUpload } from '@/components/FileUpload/FileUpload'
-import { DialogBody } from '@/components/Modal/components/DialogBody'
 import { Text } from '@/components/Text'
 import { NativeWalletRoutes } from '@/context/WalletProvider/types'
 import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
@@ -66,12 +73,10 @@ export const NativeImportKeystore = () => {
 
   return (
     <>
-      <DialogBody>
-        <Text
-          fontWeight='bold'
-          mb={6}
-          translation={'walletProvider.shapeShift.import.keystoreHeader'}
-        />
+      <ModalHeader>
+        <Text translation={'walletProvider.shapeShift.import.keystoreHeader'} />
+      </ModalHeader>
+      <ModalBody>
         <Text
           color='text.subtle'
           mb={4}
@@ -109,7 +114,7 @@ export const NativeImportKeystore = () => {
             )}
           </VStack>
         </form>
-      </DialogBody>
+      </ModalBody>
     </>
   )
 }

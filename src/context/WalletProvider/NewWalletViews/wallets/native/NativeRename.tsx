@@ -6,6 +6,8 @@ import {
   Input,
   InputGroup,
   InputRightElement,
+  ModalBody,
+  ModalHeader,
   useToast,
 } from '@chakra-ui/react'
 import type { InterpolationOptions } from 'node-polyglot'
@@ -15,8 +17,6 @@ import { useForm } from 'react-hook-form'
 import { FaEye, FaEyeSlash } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 
-import { DialogBody } from '@/components/Modal/components/DialogBody'
-import { DialogHeader } from '@/components/Modal/components/DialogHeader'
 import { Text } from '@/components/Text'
 import { WalletActions } from '@/context/WalletProvider/actions'
 import { useLocalWallet } from '@/context/WalletProvider/local-wallet'
@@ -127,12 +127,10 @@ export const NativeRename = () => {
 
   return (
     <>
-      <DialogHeader>
-        <DialogHeader.Middle>
-          <Text translation={'walletProvider.shapeShift.rename.header'} />
-        </DialogHeader.Middle>
-      </DialogHeader>
-      <DialogBody>
+      <ModalHeader>
+        <Text translation={'walletProvider.shapeShift.rename.header'} />
+      </ModalHeader>
+      <ModalBody>
         <Text mb={6} color='text.subtle' translation={walletTranslations} />
         <form onSubmit={handleFormSubmit}>
           <FormControl mb={6} isInvalid={Boolean(errors.name)}>
@@ -178,7 +176,7 @@ export const NativeRename = () => {
             <Text translation={'walletProvider.shapeShift.rename.button'} />
           </Button>
         </form>
-      </DialogBody>
+      </ModalBody>
     </>
   )
 }

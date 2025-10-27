@@ -137,7 +137,7 @@ export const SavedWalletsSection = ({
   return (
     <>
       <Text
-        fontSize='lg'
+        fontSize='xl'
         fontWeight='semibold'
         translation='walletProvider.shapeShift.onboarding.shapeshiftNative'
       />

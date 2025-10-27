@@ -1,8 +1,6 @@
-import { Button, Flex, Icon, Text, VStack } from '@chakra-ui/react'
+import { Button, Flex, Icon, ModalBody, Text, VStack } from '@chakra-ui/react'
 import { TbHelpHexagonFilled } from 'react-icons/tb'
 import { useTranslate } from 'react-polyglot'
-
-import { DialogBody } from '@/components/Modal/components/DialogBody'
 
 type SkipConfirmModalProps = {
   onConfirm: () => void
@@ -14,7 +12,7 @@ export const SkipConfirmModal = ({ onConfirm, onBack }: SkipConfirmModalProps) =
 
   return (
     <>
-      <DialogBody>
+      <ModalBody>
         <VStack spacing={6} alignItems='center' flex={1} justifyContent='center'>
           <Icon as={TbHelpHexagonFilled} boxSize='70px' color='blue.500' />
 
@@ -35,7 +33,7 @@ export const SkipConfirmModal = ({ onConfirm, onBack }: SkipConfirmModalProps) =
             {translate('common.goBack')}
           </Button>
         </Flex>
-      </DialogBody>
+      </ModalBody>
     </>
   )
 }

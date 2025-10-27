@@ -9,6 +9,8 @@ import {
   Input,
   InputGroup,
   InputRightElement,
+  ModalBody,
+  ModalHeader,
 } from '@chakra-ui/react'
 import type { crypto, NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
 import type { Property } from 'csstype'
@@ -21,7 +23,6 @@ import { useTranslate } from 'react-polyglot'
 import type { NativeWalletValues } from '../types'
 
 import { IconCircle } from '@/components/IconCircle'
-import { DialogBody } from '@/components/Modal/components/DialogBody'
 import { RawText, Text } from '@/components/Text'
 import { WalletActions } from '@/context/WalletProvider/actions'
 import { KeyManager } from '@/context/WalletProvider/KeyManager'
@@ -121,8 +122,10 @@ export const EnterPassword = () => {
 
   return (
     <>
-      <DialogBody>
-        <Text fontWeight='bold' mb={6} translation={'modals.shapeShift.password.header'} />
+      <ModalHeader>
+        <Text translation={'modals.shapeShift.password.header'} />
+      </ModalHeader>
+      <ModalBody>
         {state.isLoadingLocalWallet ? (
           <Button
             px={4}
@@ -199,7 +202,7 @@ export const EnterPassword = () => {
             </Button>
           </Flex>
         )}
-      </DialogBody>
+      </ModalBody>
     </>
   )
 }

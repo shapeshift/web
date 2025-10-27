@@ -6,6 +6,8 @@ import {
   Input,
   InputGroup,
   InputRightElement,
+  ModalBody,
+  ModalHeader,
   useToast,
 } from '@chakra-ui/react'
 import type { InterpolationOptions } from 'node-polyglot'
@@ -15,8 +17,6 @@ import { useForm, useWatch } from 'react-hook-form'
 import { FaEye, FaEyeSlash } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 
-import { DialogBody } from '@/components/Modal/components/DialogBody'
-import { DialogHeader } from '@/components/Modal/components/DialogHeader'
 import { Text } from '@/components/Text'
 import { WalletActions } from '@/context/WalletProvider/actions'
 import { createRevocableWallet } from '@/context/WalletProvider/MobileWallet/RevocableWallet'
@@ -120,12 +120,10 @@ export const NativeDelete = () => {
 
   return (
     <>
-      <DialogHeader>
-        <DialogHeader.Middle>
-          <Text translation={'walletProvider.shapeShift.delete.header'} />
-        </DialogHeader.Middle>
-      </DialogHeader>
-      <DialogBody>
+      <ModalHeader>
+        <Text translation={'walletProvider.shapeShift.delete.header'} />
+      </ModalHeader>
+      <ModalBody>
         <Text mb={6} color='text.subtle' translation={walletTranslations} />
         <form onSubmit={handleFormSubmit}>
           <FormControl mb={6} isInvalid={Boolean(errors.password)}>
@@ -161,7 +159,7 @@ export const NativeDelete = () => {
             <Text translation={'walletProvider.shapeShift.delete.confirmDelete'} />
           </Button>
         </form>
-      </DialogBody>
+      </ModalBody>
     </>
   )
 }

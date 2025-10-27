@@ -1,4 +1,11 @@
-import { Button, FormControl, FormErrorMessage, Textarea } from '@chakra-ui/react'
+import {
+  Button,
+  FormControl,
+  FormErrorMessage,
+  ModalBody,
+  ModalHeader,
+  Textarea,
+} from '@chakra-ui/react'
 import * as bip39 from 'bip39'
 import { useCallback, useMemo } from 'react'
 import type { FieldValues } from 'react-hook-form'
@@ -8,7 +15,6 @@ import { useNavigate } from 'react-router-dom'
 
 import type { NativeWalletValues } from '../types'
 
-import { DialogBody } from '@/components/Modal/components/DialogBody'
 import { Text } from '@/components/Text'
 import { NativeWalletRoutes } from '@/context/WalletProvider/types'
 import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
@@ -62,8 +68,10 @@ export const NativeImportSeed = () => {
   )
   return (
     <>
-      <DialogBody>
-        <Text fontWeight='bold' mb={6} translation={'walletProvider.shapeShift.import.header'} />
+      <ModalHeader>
+        <Text translation={'walletProvider.shapeShift.import.header'} />
+      </ModalHeader>
+      <ModalBody>
         <Text color='text.subtle' mb={4} translation={'walletProvider.shapeShift.import.body'} />
         <form onSubmit={handleFormSubmit}>
           <FormControl isInvalid={Boolean(errors.mnemonic)} mb={6} mt={6}>
@@ -91,7 +99,7 @@ export const NativeImportSeed = () => {
             <Text translation={'walletProvider.shapeShift.import.button'} />
           </Button>
         </form>
-      </DialogBody>
+      </ModalBody>
     </>
   )
 }

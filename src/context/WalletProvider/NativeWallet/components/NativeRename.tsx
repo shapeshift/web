@@ -6,6 +6,8 @@ import {
   Input,
   InputGroup,
   InputRightElement,
+  ModalBody,
+  ModalHeader,
 } from '@chakra-ui/react'
 import { useCallback, useMemo, useState } from 'react'
 import type { FieldValues } from 'react-hook-form'
@@ -16,7 +18,6 @@ import { useLocation, useNavigate } from 'react-router-dom'
 
 import type { NativeWalletValues } from '../types'
 
-import { DialogBody } from '@/components/Modal/components/DialogBody'
 import { Text } from '@/components/Text'
 
 export const NativeRename = () => {
@@ -87,8 +88,10 @@ export const NativeRename = () => {
   )
   return (
     <>
-      <DialogBody>
-        <Text fontWeight='bold' mb={6} translation={'walletProvider.shapeShift.rename.header'} />
+      <ModalHeader>
+        <Text translation={'walletProvider.shapeShift.rename.header'} />
+      </ModalHeader>
+      <ModalBody>
         <Text mb={6} color='text.subtle' translation={'walletProvider.shapeShift.rename.body'} />
         <form onSubmit={handleFormSubmit}>
           <FormControl mb={6} isInvalid={Boolean(errors.name)}>
@@ -134,7 +137,7 @@ export const NativeRename = () => {
             <Text translation={'walletProvider.shapeShift.rename.button'} />
           </Button>
         </form>
-      </DialogBody>
+      </ModalBody>
     </>
   )
 }

@@ -109,6 +109,8 @@ export const CryptoFiatInput = <T extends FieldValues = FieldValues>({
           thousandSeparator={localeParts.group}
           decimalSeparator={localeParts.decimal}
           allowedDecimalSeparators={allowedDecimalSeparators}
+          allowNegative={false}
+          allowLeadingZeros={false}
           value={value}
           placeholder={displayPlaceholder}
           prefix={isFiat ? localeParts.prefix : ''}

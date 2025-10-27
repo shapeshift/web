@@ -37,7 +37,7 @@ export const useWalletConnectState = (state: WalletConnectState) => {
     if (requestParams && isEthSignParams(requestParams))
       return getWalletAddressFromEthSignParams(connectedAccounts, requestParams)
     if (requestParams && isTransactionParamsArray(requestParams)) return requestParams[0].from
-    if (requestParams) return requestParams.signerAddress
+    if (requestParams && 'signerAddress' in requestParams) return requestParams.signerAddress
     else return undefined
   }, [connectedAccounts, requestParams])
 
@@ -51,7 +51,8 @@ export const useWalletConnectState = (state: WalletConnectState) => {
       (isEthSignParams(requestParams) || isTransactionParamsArray(requestParams))
     )
       return getWalletAccountFromEthParams(connectedAccounts, requestParams, chainId)
-    if (requestParams) return getWalletAccountFromCosmosParams(connectedAccounts, requestParams)
+    if (requestParams && 'signerAddress' in requestParams)
+      return getWalletAccountFromCosmosParams(connectedAccounts, requestParams)
     else return undefined
   }, [connectedAccounts, requestParams, chainId])
 

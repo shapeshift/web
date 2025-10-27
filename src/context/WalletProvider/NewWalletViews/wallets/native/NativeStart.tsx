@@ -9,8 +9,6 @@ import { NativeWalletRoutes } from '@/context/WalletProvider/types'
 
 const arrowForwardIcon = <ArrowForwardIcon />
 
-const savedWalletsDisplay = { base: 'flex', md: 'none' }
-
 export const NativeStart = () => {
   const navigate = useNavigate()
   const handleCreate = useCallback(() => navigate(NativeWalletRoutes.Create), [navigate])
@@ -52,7 +50,6 @@ export const NativeStart = () => {
             px={6}
             py={4}
             justifyContent='space-between'
-            display={savedWalletsDisplay}
             rightIcon={arrowForwardIcon}
             onClick={handleSavedWalletsClick}
           >

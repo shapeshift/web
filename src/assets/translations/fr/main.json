@@ -77,6 +77,7 @@
     "rename": "Renommer",
     "forget": "Oublier ?",
     "pending": "En attente",
+    "preview": "Prévisualiser",
     "incomplete": "Incomplet",
     "available": "Disponible",
     "or": "ou",
@@ -231,6 +232,9 @@
     "permit2Approval": "Autorisation Permit2",
     "network": "Réseau",
     "feeEstimate": "Estimation des frais"
+  },
+  "accountSelector": {
+    "chooseAccount": "Choisir un compte"
   },
   "quickBuy": {
     "title": "Achat rapide de %{assetOnChain}",
@@ -1427,6 +1431,7 @@
       }
     },
     "send": {
+      "confirmSend": "Confirmer l'envoi",
       "consolidate": {
         "body": "ShapeShift honore le concept de sécurité pour %{asset} en utilisant une nouvelle adresse pour chaque transaction. Pour nous aligner sur le protocole de THORChain, qui fonctionne avec une seule adresse, nous consoliderons vos fonds dans une seule adresse.",
         "tooltip": "Envoyer les fonds à une seule adresse pour la compatibilité THORChain.",
@@ -1435,8 +1440,8 @@
       "getFeesError": "Erreur lors de l'obtention des frais",
       "broadcastingTransaction": "Diffusion de la transaction",
       "youHaveSent": "Vous avez envoyé %{amount} %{symbol} avec succès",
-      "tokenAddress": "Adresse de destination",
-      "addressInput": " Adresse de destination ou ENS",
+      "toAddress": "Adresse de destination",
+      "toAddressOrEns": "Adresse de destination ou ENS",
       "scanQrCode": "Scanner code QR",
       "qrCode": "QR Code",
       "permissionsButton": "Réessayer",
@@ -1451,7 +1456,6 @@
         "qrDangerousEthUrl": "Les codes QR contenant une adresse de contrat ne sont pas pris en charge. Veuillez coller l'adresse de destination manuellement."
       },
       "confirm": {
-        "sendAsset": "Envoyer des %{asset}",
         "send": "Envoyer",
         "sendTo": "Envoyer à",
         "customNonce": "Nonce personnalisé",
@@ -1461,7 +1465,8 @@
         "amount": "Montant",
         "transactionFee": "Frais de transaction",
         "fees": "Frais %{feeType}",
-        "pendingConfirmation": "En attente de confirmation"
+        "pendingConfirmation": "En attente de confirmation",
+        "holdToSend": "Maintenez pour envoyer"
       },
       "sendForm": {
         "optionalAssetMemo": "Mémo %{assetSymbol} facultatif",
@@ -1470,13 +1475,16 @@
         "memoExplainer": "Certains destinataires de %{assetSymbol} peuvent avoir besoin d'un mémo pour que la transaction soit traitée correctement",
         "sendAsset": "Envoyer des %{asset}",
         "sendTo": "Envoyer à",
+        "chain": "Chaîne",
         "sendAmount": "Montant à envoyer",
         "max": "Max",
         "transactionFee": "Frais de transaction",
         "slow": "Lent",
         "average": "Moyen",
         "fast": "Rapide",
-        "enterAmount": "Entrer un montant"
+        "enterAmount": "Entrer un montant",
+        "scanQrCodeDescription": "Appuyez pour scanner une adresse",
+        "yourAddresses": "Vos adresses"
       },
       "status": {
         "pendingBody": "Envoi de %{amount} %{symbol}"
@@ -2524,6 +2532,10 @@
           "selectedAccounts": "Comptes sélectionnés",
           "permissionMessage": "Veuillez sélectionner au moins un compte par chaîne.",
           "optionalPermissionMessage": "Les permissions suivantes sont optionnelles."
+        },
+        "noAccountsForChain": {
+          "title": "Chaîne non prise en charge",
+          "description": "Aucun compte %{chainLabel} n'est connecté à cette dApp."
         }
       },
       "registry": {
@@ -2709,7 +2721,7 @@
     "poolInformation": "Informations du pool",
     "poolsBody": "Fournissez des liquidités et gagnez des frais sur les échanges de ce pool.",
     "availablePools": "Pools disponibles",
-    "addLiquidity": "Ajouter de la liquidité",
+    "addLiquidity": "Ajouter des liquidités",
     "customSlippageDisabled": "Nous ne sommes pas en mesure de définir un glissement/slippage personnalisé",
     "unsafeQuote": "Ce dépôt présente un glissement/slippage élevé (%{slippagePercentage}%). Procédez avec prudence.",
     "removeLiquidity": "Retirer de la liquidité",
@@ -3216,6 +3228,8 @@
       "complete": "Votre réclamation de %{amount} %{symbol} est terminée."
     },
     "bridge": {
+      "processing": "Votre bridge de %{sellAmountAndSymbol}.%{sellChainShortName} vers %{buyAmountAndSymbol}.%{buyChainShortName} est en cours de traitement.",
+      "complete": "Votre bridge de %{sellAmountAndSymbol}.%{sellChainShortName} à %{buyAmountAndSymbol}.%{buyChainShortName} est terminé.",
       "initiated": "Votre bridge de %{sellAmountAndSymbol} ver %{buyAmountAndSymbol} a été initié.",
       "pendingWithdraw": "Votre retrait de %{amountAndSymbol} sera disponible %{timeText}.",
       "claimAvailable": "Votre bridge de %{amountAndSymbol} est disponible pour être réclamé.",

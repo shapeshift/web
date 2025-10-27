@@ -33,7 +33,7 @@ Skip the WalletConnect modal step entirely - wallet buttons shown directly in Sh
 
 **Exploring for iOS**: Automatic detection of installed wallets - spike in progress ([#10893](https://github.com/shapeshift/web/issues/10893))
 
-**Demo**: [Direct Connection Video](https://private-user-images.githubusercontent.com/17035424/504411701-c72816f5-3683-4c91-b964-c516b84f199e.mov?jwt=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTUiLCJleHAiOjE3NjE1ODQ3OTYsIm5iZiI6MTc2MTU4NDQ5NiwicGF0aCI6Ii8xNzAzNTQyNC81MDQ0MTE3MDEtYzcyODE2ZjUtMzY4My00YzkxLWI5NjQtYzUxNmI4NGYxOTllLm1vdj9YLUFtei1BbGdvcml0aG09QVdTNC1ITUFDLVNIQTI1NiZYLUFtei1DcmVkZW50aWFsPUFLSUFWQ09EWUxTQTUzUFFLNFpBJTJGMjAyNTEwMjclMkZ1cy1lYXN0LTElMkZzMyUyRmF3czRfcmVxdWVzdCZYLUFtei1EYXRlPTIwMjUxMDI3VDE3MDEzNlomWC1BbXotRXhwaXJlcz0zMDAmWC1BbXotU2lnbmF0dXJlPTY2NzEwYTUxZTQ5M2FkYjljOWY4Mzc2MjZjMWFlNDliYWY1MTk4MjA0NmQ1MGFiZWUwYWYwOTM5NGVkN2JlNGImWC1BbXotU2lnbmVkSGVhZGVycz1ob3N0In0.3o6VWcyXWEazi-yVEgC-oU6AdLzIC_XrQKJcZWi5Lxo)
+**Demo**: [Direct Connection Video](https://github.com/user-attachments/assets/c72816f5-3683-4c91-b964-c516b84f199e)
 
 ## Supported Wallets
 

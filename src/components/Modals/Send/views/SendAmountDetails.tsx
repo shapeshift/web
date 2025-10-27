@@ -59,9 +59,9 @@ const MAX_MEMO_LENGTH = 256
 
 // Thresholds for progressive font size reduction based on amount length
 const FONT_SIZE_THRESHOLDS = {
-  SMALL: 12,
-  MEDIUM: 16,
-  LARGE: 24,
+  SMALL: 10,
+  MEDIUM: 14,
+  LARGE: 22,
 } as const
 
 const getFontSizeByLength = (length: number): string => {

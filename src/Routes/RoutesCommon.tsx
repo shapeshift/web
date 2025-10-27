@@ -128,6 +128,18 @@ const MarketsPage = makeSuspenseful(
   true,
 )
 
+const WalletConnectDeepLink = makeSuspenseful(
+  lazy(() =>
+    import('@/pages/WalletConnectDeepLink/WalletConnectDeepLink').then(
+      ({ WalletConnectDeepLink }) => ({
+        default: WalletConnectDeepLink,
+      }),
+    ),
+  ),
+  {},
+  true,
+)
+
 /**
  * WARNING: whenever routes that contain user addresses are edited here, we need
  * to make sure that we update the tests in lib/mixpanel/helpers.test.ts and
@@ -365,6 +377,11 @@ export const routes: Route[] = [
     icon: <FaFlag />,
     hide: window.location.hostname !== 'localhost',
     main: Flags,
+  },
+  {
+    path: '/wc',
+    main: WalletConnectDeepLink,
+    hide: true,
   },
   {
     path: '/limit/*',

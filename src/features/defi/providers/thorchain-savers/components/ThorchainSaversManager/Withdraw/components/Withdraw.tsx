@@ -1,4 +1,4 @@
-import { Alert, AlertIcon, Skeleton, useToast } from '@chakra-ui/react'
+import { Alert, AlertIcon, Skeleton } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { thorchainAssetId, toAssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
@@ -28,6 +28,7 @@ import type {
 } from '@/features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { DefiStep } from '@/features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useBrowserRouter } from '@/hooks/useBrowserRouter/useBrowserRouter'
+import { useNotificationToast } from '@/hooks/useNotificationToast'
 import { BigNumber, bn, bnOrZero } from '@/lib/bignumber/bignumber'
 import { fromBaseUnit, toBaseUnit } from '@/lib/math'
 import { trackOpportunityEvent } from '@/lib/mixpanel/helpers'
@@ -68,7 +69,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, fromAddress, onNe
   const [quoteLoading, setQuoteLoading] = useState(false)
   const { state, dispatch } = useContext(WithdrawContext)
   const translate = useTranslate()
-  const toast = useToast()
+  const toast = useNotificationToast({ desktopPosition: 'top-right' })
   const queryClient = useQueryClient()
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId, assetNamespace, assetReference } = query
@@ -289,7 +290,6 @@ export const Withdraw: React.FC<WithdrawProps> = ({ accountId, fromAddress, onNe
       } catch (error) {
         console.error(error)
         toast({
-          position: 'top-right',
           description: translate('common.somethingWentWrongBody'),
           title: translate('common.somethingWentWrong'),
           status: 'error',

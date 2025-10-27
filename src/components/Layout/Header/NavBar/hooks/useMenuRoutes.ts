@@ -1,9 +1,9 @@
-import { useToast } from '@chakra-ui/react'
 import { useCallback } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useNavigate } from 'react-router-dom'
 
 import { useKeepKey } from '@/context/WalletProvider/KeepKeyProvider'
+import { useNotificationToast } from '@/hooks/useNotificationToast'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 
 export enum WalletConnectedRoutes {
@@ -22,7 +22,7 @@ export const useMenuRoutes = () => {
     state: { keepKeyWallet },
   } = useKeepKey()
   const { setDeviceState } = useWallet()
-  const toast = useToast()
+  const toast = useNotificationToast({ desktopPosition: 'top-right' })
   const translate = useTranslate()
 
   const resetKeepKeyState = useCallback(async () => {

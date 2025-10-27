@@ -42,7 +42,7 @@ export const TransactionHistoryContent = memo(
       }
     }, [handleInputChange, resetFilters])
 
-    const headingPadding = isCompact ? 0 : [2, 3, 6]
+    const headingPadding = isCompact ? 4 : [2, 3, 6]
     const stackMargin = isCompact ? 0 : { base: 0, xl: -4, '2xl': -6 }
 
     return (

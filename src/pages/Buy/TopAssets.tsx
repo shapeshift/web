@@ -3,7 +3,7 @@ import type { AssetId } from '@shapeshiftoss/caip'
 import { useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
-import type { Column, Row } from 'react-table'
+import type { Column, Row, TableState } from 'react-table'
 
 import { PageContainer } from './components/PageContainer'
 import { SparkLine } from './components/Sparkline'
@@ -23,7 +23,10 @@ type RowProps = Row<AssetWithMarketData>
 
 const pageContainerPaddingTop = { base: 8, md: '5rem' }
 const headingPaddingX = { base: 2, xl: 4 }
-const reactTableInitialState = { sortBy: [{ id: 'marketCap', desc: true }] }
+const reactTableInitialState: Partial<TableState<AssetWithMarketData>> = {
+  sortBy: [{ id: 'marketCap', desc: true }],
+  pageSize: 10,
+}
 
 export const TopAssets: React.FC = () => {
   const fiatRamps = useModal('fiatRamps')
@@ -39,7 +42,9 @@ export const TopAssets: React.FC = () => {
         Header: () => <Text translation='dashboard.portfolio.asset' />,
         accessor: 'assetId',
         disableSortBy: true,
-        Cell: ({ row }: { row: RowProps }) => <AssetCell assetId={row.original.assetId} />,
+        Cell: ({ row }: { row: RowProps }) => (
+          <AssetCell maxWidth='300px' minWidth='300px' assetId={row.original.assetId} />
+        ),
       },
       {
         Header: () => <Text translation='dashboard.portfolio.price' />,
@@ -82,7 +87,7 @@ export const TopAssets: React.FC = () => {
         display: { base: 'none', lg: 'table-cell' },
         Cell: ({ row }: { row: RowProps }) => (
           <Button data-test={`${row.original.name}-buy-button`}>
-            <Text translation='fiatRamps.buy' />
+            <Text translation='navBar.buyCryptoShort' />
           </Button>
         ),
       },
@@ -122,6 +127,7 @@ export const TopAssets: React.FC = () => {
           onPageChange={handlePageChange}
           rowDataTestKey='name'
           rowDataTestPrefix='fiat-ramp'
+          showPagination={false}
         />
       </PageContainer>
     </Box>

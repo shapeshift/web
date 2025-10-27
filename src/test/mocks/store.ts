@@ -116,6 +116,7 @@ export const mockStore: ReduxState = {
       Chatwoot: false,
       AdvancedSlippage: false,
       WalletConnectV2: false,
+      WcDirectConnection: false,
       CustomSendNonce: false,
       ThorchainLending: false,
       ThorchainLendingBorrow: false,

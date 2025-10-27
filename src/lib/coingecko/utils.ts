@@ -57,7 +57,7 @@ const getCoinDetails = async (
 
     if (assetIds && assetIds.length > 0) {
       // Check if we already have this asset in memory
-      const existingAsset = assetIds.find(assetId => assets[assetId])
+      const existingAsset = assetIds.find(assetId => assets[assetId]?.isPrimary)
 
       if (existingAsset) {
         // We already have this asset, create CoingeckoAsset without details

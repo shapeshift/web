@@ -98,7 +98,7 @@ export const RateChangedModal = ({ prevAmountCryptoBaseUnit }: RateChangedModalP
   }, [percentageDifferenceHuman])
 
   return (
-    <Modal {...modalProps} isCentered size='sm'>
+    <Modal {...modalProps} isCentered size='sm' closeOnEsc={false} closeOnOverlayClick={false}>
       <ModalOverlay {...overlayProps} />
       <ModalContent maxW='440px' {...modalContentProps}>
         <ModalBody display='flex' alignItems='center' py={12} flexDir='column' gap={6}>

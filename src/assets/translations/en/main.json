@@ -2550,6 +2550,10 @@
           "selectedAccounts": "Selected Accounts",
           "permissionMessage": "Please select at least one account per chain.",
           "optionalPermissionMessage": "The following permissions are optional."
+        },
+        "noAccountsForChain": {
+          "title": "Chain not supported",
+          "description": "No %{chainLabel} account connected to this dApp."
         }
       },
       "registry": {

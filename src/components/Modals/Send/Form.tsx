@@ -1,5 +1,5 @@
 import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
-import { fromAccountId } from '@shapeshiftoss/caip'
+import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import type { FeeDataEstimate } from '@shapeshiftoss/chain-adapters'
 import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import { AnimatePresence } from 'framer-motion'
@@ -36,7 +36,11 @@ import {
   GenericTransactionDisplayType,
 } from '@/state/slices/actionSlice/types'
 import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
-import { selectMarketDataByAssetIdUserCurrency } from '@/state/slices/selectors'
+import {
+  selectFirstAccountIdByChainId,
+  selectMarketDataByAssetIdUserCurrency,
+  selectPortfolioAccountIdsByAssetIdFilter,
+} from '@/state/slices/selectors'
 import { store, useAppDispatch, useAppSelector } from '@/state/store'
 
 const status = <Status />
@@ -87,12 +91,23 @@ export const Form: React.FC<SendFormProps> = ({ initialAssetId, input = '', acco
     state: { wallet },
   } = useWallet()
 
+  const filter = useMemo(() => ({ assetId: initialAssetId }), [initialAssetId])
+  const accountIds = useAppSelector(state =>
+    selectPortfolioAccountIdsByAssetIdFilter(state, filter),
+  )
+
   const [addressError, setAddressError] = useState<string | null>(null)
+
+  const defaultAccountId = useMemo(() => {
+    if (accountId) return accountId
+
+    return accountIds[0]
+  }, [accountIds, accountId])
 
   const methods = useForm<SendInput>({
     mode: 'onChange',
     defaultValues: {
-      accountId,
+      accountId: defaultAccountId,
       to: '',
       input,
       vanityAddress: '',
@@ -104,6 +119,7 @@ export const Form: React.FC<SendFormProps> = ({ initialAssetId, input = '', acco
       txHash: '',
     },
   })
+
   const assetId = useWatch<SendInput, SendFormFields.AssetId>({
     name: SendFormFields.AssetId,
     control: methods.control,
@@ -200,10 +216,16 @@ export const Form: React.FC<SendFormProps> = ({ initialAssetId, input = '', acco
     (assetId: AssetId) => {
       // Set all form values
       methods.setValue(SendFormFields.AssetId, assetId)
-      methods.setValue(SendFormFields.AccountId, '')
       methods.setValue(SendFormFields.AmountCryptoPrecision, '')
       methods.setValue(SendFormFields.FiatAmount, '')
       methods.setValue(SendFormFields.FiatSymbol, selectedCurrency)
+
+      const accountId = selectFirstAccountIdByChainId(
+        store.getState(),
+        fromAssetId(assetId).chainId,
+      )
+
+      methods.setValue(SendFormFields.AccountId, accountId ?? '')
 
       // Use requestAnimationFrame to ensure navigation happens after state updates
       requestAnimationFrame(() => {

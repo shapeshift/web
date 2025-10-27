@@ -1,10 +1,10 @@
 import {
   Button,
+  Text as CText,
   Flex,
   FormControl,
   Icon,
   Stack,
-  Text as CText,
   useColorModeValue,
   VStack,
 } from '@chakra-ui/react'
@@ -106,21 +106,16 @@ export const Address = () => {
   const supportsENS = asset?.chainId === ethChainId // We only support ENS resolution on ETH mainnet
   const addressError = get(errors, `${SendFormFields.Input}.message`, null)
 
-  const isCustomAddress = useMemo(() => {
-    if (!input || !address || !asset?.chainId) return false
-    return !isInAddressBook
-  }, [input, address, isInAddressBook, asset?.chainId])
-
   useEffect(() => {
     setShowSaveButton(
       Boolean(
-        (isCustomAddress || internalAccountId) &&
+        (!isInAddressBook || internalAccountId) &&
           !!address &&
           !addressError &&
           isAddressBookEnabled,
       ),
     )
-  }, [isCustomAddress, address, addressError, isAddressBookEnabled, internalAccountId])
+  }, [isInAddressBook, address, addressError, isAddressBookEnabled, internalAccountId])
 
   useEffect(() => {
     trigger(SendFormFields.Input)

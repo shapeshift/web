@@ -1,7 +1,7 @@
 import { Button, FormControl, HStack, Icon, Input, Text } from '@chakra-ui/react'
 import type { Asset } from '@shapeshiftoss/types'
 import { useCallback, useMemo } from 'react'
-import type { Control, FieldValues, Path } from 'react-hook-form'
+import type { Control, ControllerRenderProps, FieldValues, Path } from 'react-hook-form'
 import { Controller } from 'react-hook-form'
 import { TbSwitchVertical } from 'react-icons/tb'
 import type { NumberFormatValues } from 'react-number-format'
@@ -24,6 +24,13 @@ export type CryptoFiatInputProps<T extends FieldValues = FieldValues> = {
   cryptoAmount?: string
 }
 
+type AmountInputProps = {
+  value?: string
+  onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void
+  placeholder?: string
+  [key: string]: any
+}
+
 // Thresholds for progressive font size reduction based on amount length
 const FONT_SIZE_THRESHOLDS = {
   SMALL: 10,
@@ -38,7 +45,7 @@ const getFontSizeByLength = (length: number): string => {
   return '65px'
 }
 
-const AmountInput = (props: any) => {
+const AmountInput = (props: AmountInputProps) => {
   const valueLength = useMemo(() => {
     return props.value ? String(props.value).length : 0
   }, [props.value])
@@ -92,7 +99,7 @@ export const CryptoFiatInput = <T extends FieldValues = FieldValues>({
   )
 
   const renderController = useCallback(
-    ({ field: { onChange, value } }: { field: any }) => {
+    ({ field: { onChange, value } }: { field: ControllerRenderProps<T, Path<T>> }) => {
       return (
         <NumberFormat
           customInput={AmountInput}

@@ -3216,8 +3216,6 @@
       "complete": "%{amount} %{symbol} の請求が完了しました。"
     },
     "bridge": {
-      "processing": "処理中...",
-      "complete": "%{amountAndSymbol} のブリッジが完成しました。",
       "initiated": "%{sellAmountAndSymbol} から %{buyAmountAndSymbol} へのブリッジが開始されました。",
       "pendingWithdraw": "%{amountAndSymbol} の出金は %{timeText} から可能になります。",
       "claimAvailable": "ブリッジした %{amountAndSymbol} を受け取れます",

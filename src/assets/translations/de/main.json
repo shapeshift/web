@@ -3216,8 +3216,6 @@
       "complete": "Ihr Anspruch in Höhe von %{amount} %{symbol} ist vollständig."
     },
     "bridge": {
-      "processing": "Verarbeitung läuft ...",
-      "complete": "Ihre bridge von %{amountAndSymbol} ist fertig.",
       "initiated": "Ihre bridge von %{sellAmountAndSymbol} zu %{buyAmountAndSymbol} wurde initiiert.",
       "pendingWithdraw": "Ihre Auszahlung von %{amountAndSymbol} wird %{timeText} verfügbar sein.",
       "claimAvailable": "Ihre bridge von %{amountAndSymbol} kann beansprucht werden.",

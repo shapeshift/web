@@ -3216,8 +3216,6 @@
       "complete": "%{amount} %{symbol} tutarındaki talebiniz tamamlandı."
     },
     "bridge": {
-      "processing": "İşleniyor...",
-      "complete": "%{amountAndSymbol} köprünüz tamamlandı.",
       "initiated": "%{sellAmountAndSymbol} ile %{buyAmountAndSymbol} arasındaki köprünüz başlatıldı.",
       "pendingWithdraw": "%{amountAndSymbol} tutarındaki çekim işleminiz %{timeText} tarihinde gerçekleştirilebilecek.",
       "claimAvailable": "%{amountAndSymbol} köprünüz talep edilebilir.",

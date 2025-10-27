@@ -3216,8 +3216,6 @@
       "complete": "Su reclamo de %{amount} %{symbol} está completo."
     },
     "bridge": {
-      "processing": "Procesando...",
-      "complete": "Su bridge de %{amountAndSymbol} está completo.",
       "initiated": "Se ha iniciado su bridge de %{sellAmountAndSymbol} a %{buyAmountAndSymbol}.",
       "pendingWithdraw": "Su retiro de %{amountAndSymbol} estará disponible %{timeText}.",
       "claimAvailable": "Su bridge de %{amountAndSymbol} está disponible para reclamar.",

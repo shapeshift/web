@@ -3216,8 +3216,6 @@
       "complete": "Ваше требование на %{amount} %{symbol} выполнено."
     },
     "bridge": {
-      "processing": "Обработка...",
-      "complete": "Ваш мост %{amountAndSymbol} готов.",
       "initiated": "Ваш мост от %{sellAmountAndSymbol} до %{buyAmountAndSymbol} был инициирован.",
       "pendingWithdraw": "Ваш вывод %{amountAndSymbol} будет доступен %{timeText}.",
       "claimAvailable": "Ваш мост %{amountAndSymbol} доступен для получения.",

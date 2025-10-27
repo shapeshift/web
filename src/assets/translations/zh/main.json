@@ -3216,8 +3216,6 @@
       "complete": "您领取的 %{amount} %{symbol} 已完成。"
     },
     "bridge": {
-      "processing": "正在处理中...",
-      "complete": "您桥接的 %{amountAndSymbol} 已完成。",
       "initiated": "您将 %{sellAmountAndSymbol} 桥接到 %{buyAmountAndSymbol} 的操作已发起。",
       "pendingWithdraw": "您提现的 %{amountAndSymbol} 将在 %{timeText} 可用。",
       "claimAvailable": "您桥接的 %{amountAndSymbol} 已可领取。",

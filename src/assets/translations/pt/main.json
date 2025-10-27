@@ -3216,8 +3216,6 @@
       "complete": "Seu resgate de %{amount} %{symbol} foi concluído."
     },
     "bridge": {
-      "processing": "Processando...",
-      "complete": "Sua ponte de %{amountAndSymbol} está concluída.",
       "initiated": "Sua ponte de %{sellAmountAndSymbol} para %{buyAmountAndSymbol} foi iniciada.",
       "pendingWithdraw": "Seu saque de %{amountAndSymbol} estará disponível em %{timeText}.",
       "claimAvailable": "Sua ponte de %{amountAndSymbol} está disponível para ser resgatada.",

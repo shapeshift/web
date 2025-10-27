@@ -17,7 +17,6 @@ vi.mock('../../../utils', () => ({
 // Mock the XHR functions
 vi.mock('../xhr', () => ({
   getBridgeInfoBySourceHash: vi.fn(),
-  getBridgeInfoById: vi.fn(),
 }))
 
 describe('checkTradeStatus same-chain short-circuit', () => {
@@ -72,7 +71,6 @@ describe('checkTradeStatus same-chain short-circuit', () => {
     // Assert other status checks were NOT called
     expect(utils.checkEvmSwapStatus).not.toHaveBeenCalled()
     expect(xhr.getBridgeInfoBySourceHash).not.toHaveBeenCalled()
-    expect(xhr.getBridgeInfoById).not.toHaveBeenCalled()
 
     // Assert correct result
     expect(result).toEqual(mockSolanaStatus)
@@ -109,7 +107,6 @@ describe('checkTradeStatus same-chain short-circuit', () => {
     // Assert other status checks were NOT called
     expect(utils.checkSolanaSwapStatus).not.toHaveBeenCalled()
     expect(xhr.getBridgeInfoBySourceHash).not.toHaveBeenCalled()
-    expect(xhr.getBridgeInfoById).not.toHaveBeenCalled()
 
     // Assert correct result
     expect(result).toEqual(mockEvmStatus)
@@ -141,15 +138,14 @@ describe('checkTradeStatus same-chain short-circuit', () => {
     expect(utils.checkSolanaSwapStatus).not.toHaveBeenCalled()
     expect(utils.checkEvmSwapStatus).not.toHaveBeenCalled()
     expect(xhr.getBridgeInfoBySourceHash).not.toHaveBeenCalled()
-    expect(xhr.getBridgeInfoById).not.toHaveBeenCalled()
 
     // Assert correct result
     expect(result).toEqual(mockDefaultStatus)
   })
 
   it('should proceed to bridge polling for cross-chain swaps', async () => {
-    const mockBridgeInfo = { id: 12345 }
-    const mockDetailedInfo = {
+    const mockBridgeInfo = {
+      id: 12345,
       state: 1, // Confirmed
       toHash: 'dest-tx',
       relayerHash: 'relayer-tx',
@@ -157,7 +153,6 @@ describe('checkTradeStatus same-chain short-circuit', () => {
     }
 
     vi.mocked(xhr.getBridgeInfoBySourceHash).mockResolvedValue(Ok(mockBridgeInfo as any))
-    vi.mocked(xhr.getBridgeInfoById).mockResolvedValue(Ok(mockDetailedInfo as any))
 
     const input = {
       txHash: mockTxHash,
@@ -174,9 +169,8 @@ describe('checkTradeStatus same-chain short-circuit', () => {
 
     const result = await checkTradeStatus(input)
 
-    // Assert bridge polling functions were called
+    // Assert bridge polling function was called
     expect(xhr.getBridgeInfoBySourceHash).toHaveBeenCalledWith(mockTxHash)
-    expect(xhr.getBridgeInfoById).toHaveBeenCalledWith(12345)
 
     // Assert same-chain checks were NOT called
     expect(utils.checkSolanaSwapStatus).not.toHaveBeenCalled()
@@ -194,11 +188,12 @@ describe('checkTradeStatus same-chain short-circuit', () => {
   })
 
   it('should handle missing swap data and proceed to bridge polling', async () => {
-    const mockBridgeInfo = { id: 99999 }
-    const mockDetailedInfo = { state: 0 } // Pending
+    const mockBridgeInfo = {
+      id: 99999,
+      state: 0, // Pending
+    }
 
     vi.mocked(xhr.getBridgeInfoBySourceHash).mockResolvedValue(Ok(mockBridgeInfo as any))
-    vi.mocked(xhr.getBridgeInfoById).mockResolvedValue(Ok(mockDetailedInfo as any))
 
     const input = {
       txHash: mockTxHash,
@@ -214,7 +209,6 @@ describe('checkTradeStatus same-chain short-circuit', () => {
 
     // Assert bridge polling was used (no swap data means can't determine if same-chain)
     expect(xhr.getBridgeInfoBySourceHash).toHaveBeenCalledWith(mockTxHash)
-    expect(xhr.getBridgeInfoById).toHaveBeenCalledWith(99999)
 
     // Assert same-chain checks were NOT called
     expect(utils.checkSolanaSwapStatus).not.toHaveBeenCalled()

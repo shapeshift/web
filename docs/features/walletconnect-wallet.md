@@ -9,9 +9,9 @@ Connect external wallets (MetaMask, Trust Wallet, Zerion, etc.) to ShapeShift us
 2. Scan QR code with mobile wallet
 3. Approve connection
 
-### Mobile Web: Modal with Wallet Buttons
+### Mobile Web: Deep Link via WalletConnect Modal
 1. Click "Connect Wallet" → "WalletConnect"
-2. Modal shows wallet options
+2. WalletConnect modal shows wallet options
 3. Tap wallet → app opens via deep link
 4. Approve and return to ShapeShift
 
@@ -21,7 +21,7 @@ Works in mobile browsers and even in-app browsers (like MetaMask mobile browser)
 
 ## Coming Soon: Direct Connection (Mobile Web Only)
 
-**Status**: [PR #10912](https://github.com/shapeshift/web/pull/10912)
+**Status**: Initial implementation in [PR #10879](https://github.com/shapeshift/web/pull/10879), landing in [PR #10912](https://github.com/shapeshift/web/pull/10912)
 
 Skip the WalletConnect modal step entirely - wallet buttons shown directly in ShapeShift's UI:
 
@@ -31,9 +31,9 @@ Skip the WalletConnect modal step entirely - wallet buttons shown directly in Sh
 
 **Difference from current**: No WalletConnect modal at all - buttons are part of ShapeShift's interface
 
-**Next for iOS**: Automatic detection of installed wallets ([#10893](https://github.com/shapeshift/web/issues/10893))
+**Exploring for iOS**: Automatic detection of installed wallets - spike in progress ([#10893](https://github.com/shapeshift/web/issues/10893))
 
-[INSERT IMAGE HERE: Direct Connection Buttons in ShapeShift UI]
+**Demo**: [Direct Connection Video](https://private-user-images.githubusercontent.com/17035424/504411701-c72816f5-3683-4c91-b964-c516b84f199e.mov?jwt=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTUiLCJleHAiOjE3NjE1ODQ3OTYsIm5iZiI6MTc2MTU4NDQ5NiwicGF0aCI6Ii8xNzAzNTQyNC81MDQ0MTE3MDEtYzcyODE2ZjUtMzY4My00YzkxLWI5NjQtYzUxNmI4NGYxOTllLm1vdj9YLUFtei1BbGdvcml0aG09QVdTNC1ITUFDLVNIQTI1NiZYLUFtei1DcmVkZW50aWFsPUFLSUFWQ09EWUxTQTUzUFFLNFpBJTJGMjAyNTEwMjclMkZ1cy1lYXN0LTElMkZzMyUyRmF3czRfcmVxdWVzdCZYLUFtei1EYXRlPTIwMjUxMDI3VDE3MDEzNlomWC1BbXotRXhwaXJlcz0zMDAmWC1BbXotU2lnbmF0dXJlPTY2NzEwYTUxZTQ5M2FkYjljOWY4Mzc2MjZjMWFlNDliYWY1MTk4MjA0NmQ1MGFiZWUwYWYwOTM5NGVkN2JlNGImWC1BbXotU2lnbmVkSGVhZGVycz1ob3N0In0.3o6VWcyXWEazi-yVEgC-oU6AdLzIC_XrQKJcZWi5Lxo)
 
 ## Supported Wallets
 
@@ -45,7 +45,7 @@ Skip the WalletConnect modal step entirely - wallet buttons shown directly in Sh
 ## Platform Support
 
 - **Desktop**: QR code
-- **Mobile Web**: Modal with wallet buttons + Direct Connection (coming)
+- **Mobile Web**: Deep link via WalletConnect modal + Direct Connection (coming)
 - **Mobile App**: Not supported
 
 ---

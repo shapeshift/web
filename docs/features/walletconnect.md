@@ -20,7 +20,7 @@ Connect ShapeShift wallet to DApps. Users can interact with Uniswap, OpenSea, Aa
 |---------|------------|------------|-------------------|
 | **WalletConnect Wallet** | ✅ Yes | ✅ Yes | ❌ No |
 | **WalletConnect Wallet - Direct Connection** | ❌ No | 🚧 Coming Soon | ❌ No |
-| **WalletConnect to dApps (Paste Link)** | ✅ Yes | ✅ Yes | ❌ No |
+| **WalletConnect to dApps (Paste Link)** | ✅ Yes | ✅ Yes | ✅ Yes |
 | **WalletConnect to dApps (Deep Link)** | ✅ Yes | ✅ Yes | ✅ Yes |
 
 ## Learn More

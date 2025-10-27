@@ -62,7 +62,6 @@ export const Address = () => {
   const qrCode = useModal('qrCode')
   const assetId = useWatch<SendInput, SendFormFields.AssetId>({ name: SendFormFields.AssetId })
   const qrBackground = useColorModeValue('blackAlpha.200', 'whiteAlpha.200')
-  const addressBookSaveModal = useModal('addressBookSave')
   const isAddressBookEnabled = useFeatureFlag('AddressBook')
 
   const location = useLocation()
@@ -194,17 +193,6 @@ export const Address = () => {
     [setValue, navigate],
   )
 
-  const handleSaveAddress = useCallback(
-    (e: React.MouseEvent<HTMLButtonElement>) => {
-      e.stopPropagation()
-
-      if (address && asset?.chainId) {
-        addressBookSaveModal.open({ address, chainId: asset.chainId })
-      }
-    },
-    [address, asset?.chainId, addressBookSaveModal],
-  )
-
   const handleEmptyChange = useCallback(() => {
     setValue(SendFormFields.Input, '', { shouldValidate: true })
     setValue(SendFormFields.To, '')
@@ -231,8 +219,8 @@ export const Address = () => {
               )}
               resolvedAddress={address}
               chainId={asset?.chainId}
-              onSaveContact={showSaveButton ? handleSaveAddress : undefined}
               onEmptied={handleEmptyChange}
+              shouldShowSaveButton={showSaveButton}
             />
           </FormControl>
 

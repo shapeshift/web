@@ -27,6 +27,8 @@ import { SendFormFields, SendRoutes } from '../SendCommon'
 import { QRCodeIcon } from '@/components/Icons/QRCode'
 import { MiddleEllipsis } from '@/components/MiddleEllipsis/MiddleEllipsis'
 import type { SendInput } from '@/components/Modals/Send/Form'
+import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
+import { useModal } from '@/hooks/useModal/useModal'
 import { makeBlockiesUrl } from '@/lib/blockies/makeBlockiesUrl'
 import { isUtxoAccountId } from '@/lib/utils/utxo'
 import {
@@ -34,7 +36,7 @@ import {
   selectInternalAccountIdByAddress,
 } from '@/state/slices/addressBookSlice/selectors'
 import { accountIdToLabel } from '@/state/slices/portfolioSlice/utils'
-import { selectPortfolioAccountMetadata } from '@/state/slices/selectors'
+import { selectAssetById, selectPortfolioAccountMetadata } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
 type AddressInputProps = {
@@ -45,7 +47,7 @@ type AddressInputProps = {
   resolvedAddress?: string
   isReadOnly?: boolean
   chainId?: ChainId
-  onSaveContact?: (e: React.MouseEvent<HTMLButtonElement>) => void
+  shouldShowSaveButton?: boolean
 } & Omit<InputProps, 'as' | 'value' | 'onChange'>
 
 const addressInputSx = {
@@ -63,7 +65,7 @@ export const AddressInput = ({
   isReadOnly = false,
   resolvedAddress,
   chainId,
-  onSaveContact,
+  shouldShowSaveButton = true,
   onFocus,
   onBlur,
   onPaste,
@@ -76,8 +78,24 @@ export const AddressInput = ({
   const isDirty = useFormContext<SendInput>().formState.isDirty
   const isValidating = useFormContext<SendInput>().formState.isValidating
 
-  const { vanityAddress, input: value } = useWatch() as Partial<SendInput>
+  const isAddressBookEnabled = useFeatureFlag('AddressBook')
+
+  const { vanityAddress, input: value, to, assetId } = useWatch() as Partial<SendInput>
   const inputRef = useRef<HTMLInputElement>(null)
+  const addressBookSaveModal = useModal('addressBookSave')
+
+  const asset = useAppSelector(state => selectAssetById(state, assetId ?? ''))
+
+  const handleSaveContact = useCallback(
+    (e: React.MouseEvent<HTMLButtonElement>) => {
+      e.stopPropagation()
+
+      if (to && asset?.chainId) {
+        addressBookSaveModal.open({ address: to, chainId: asset.chainId })
+      }
+    },
+    [to, asset?.chainId, addressBookSaveModal],
+  )
 
   const addressBookEntryFilter = useMemo(
     () => ({
@@ -316,8 +334,8 @@ export const AddressInput = ({
               ensOrRawAddress
             )}
           </HStack>
-          {onSaveContact && !internalAccountId && (
-            <Button size='sm' onClick={onSaveContact}>
+          {isAddressBookEnabled && shouldShowSaveButton && !internalAccountId && (
+            <Button size='sm' onClick={handleSaveContact}>
               {translate('common.save')}
             </Button>
           )}
@@ -341,7 +359,8 @@ export const AddressInput = ({
       internalAccountId,
       internalAccountLabel,
       avatarUrl,
-      onSaveContact,
+      shouldShowSaveButton,
+      isAddressBookEnabled,
     ],
   )
 

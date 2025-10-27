@@ -43,9 +43,7 @@ import { AddressInput } from '@/components/Modals/Send/AddressInput/AddressInput
 import { SendMaxButton } from '@/components/Modals/Send/SendMaxButton/SendMaxButton'
 import { SlideTransition } from '@/components/SlideTransition'
 import { Text } from '@/components/Text/Text'
-import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { useLocaleFormatter } from '@/hooks/useLocaleFormatter/useLocaleFormatter'
-import { useModal } from '@/hooks/useModal/useModal'
 import { parseAddressInputWithChainId } from '@/lib/address/address'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { allowedDecimalSeparators } from '@/state/slices/preferencesSlice/preferencesSlice'
@@ -147,8 +145,6 @@ export const SendAmountDetails = () => {
 
   const supportsENS = asset?.chainId === ethChainId
   const addressError = get(errors, `${SendFormFields.Input}.message`, null)
-  const addressBookSaveModal = useModal('addressBookSave')
-  const isAddressBookEnabled = useFeatureFlag('AddressBook')
 
   useEffect(() => {
     trigger(SendFormFields.Input)
@@ -239,17 +235,6 @@ export const SendAmountDetails = () => {
     [handleInputChange],
   )
 
-  const handleSaveContact = useCallback(
-    (e: React.MouseEvent<HTMLButtonElement>) => {
-      e.stopPropagation()
-
-      if (to && asset?.chainId) {
-        addressBookSaveModal.open({ address: to, chainId: asset.chainId })
-      }
-    },
-    [to, asset?.chainId, addressBookSaveModal],
-  )
-
   const renderController = useCallback(
     ({ field: { onChange, value } }: { field: any }) => {
       return (
@@ -323,7 +308,6 @@ export const SendAmountDetails = () => {
                 supportsENS ? 'modals.send.toAddressOrEns' : 'modals.send.toAddress',
               )}
               resolvedAddress={to}
-              onSaveContact={isAddressBookEnabled ? handleSaveContact : undefined}
               chainId={asset?.chainId}
               isReadOnly
               onClick={handleBackClick}

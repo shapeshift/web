@@ -1892,17 +1892,6 @@
         "button": "ペア"
       }
     },
-    "walletConnect": {
-      "topSection": {
-        "dontSeeWallet": "ウォレットが見つかりませんか？",
-        "connectToWallets": "480以上のウォレットに接続",
-        "viewAllWallets": "すべてのウォレットを表示"
-      }
-    },
-    "multiChainWallets": {
-      "title": "マルチチェーンウォレット",
-      "shapeShiftWallet": "ShapeShift Wallet"
-    },
     "metaMaskSnap": {
       "title": "MetaMaskでマルチチェーンのサポートが利用できるようになりました。",
       "subtitle": "MetaMaskにマルチチェーンスナップを追加して、次のチェーンを使用して送信、受信、追跡、取引、獲得を行います。",

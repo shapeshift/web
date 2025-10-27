@@ -17,7 +17,7 @@ import { NativeWalletRoutes } from '../types'
 
 import { ChainIcon } from '@/components/ChainMenu'
 import { FoxIcon } from '@/components/Icons/FoxIcon'
-import { RawText, Text } from '@/components/Text'
+import { RawText } from '@/components/Text'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 
 const LedgerIcon = <Icon as={LedgerConfig.icon} />
@@ -58,7 +58,7 @@ export const MultiChainWalletsSection = ({ onWalletSelect }: MultiChainWalletsSe
       pb={4}
     >
       <Flex px={4} pt={4} width='full' justifyContent='space-between' alignItems='center'>
-        <Text fontWeight='bold' translation='walletProvider.multiChainWallets.title' />
+        <RawText fontWeight='bold'>Multi-Chain Wallets</RawText>
         <HStack>
           <ChainIcon size='xs' chainId={btcChainId} />
           <ChainIcon size='xs' chainId={ethChainId} />
@@ -86,10 +86,7 @@ export const MultiChainWalletsSection = ({ onWalletSelect }: MultiChainWalletsSe
               borderRadius='lg'
               icon={foxAvatarIcon}
             />
-            <Text
-              color='text.base'
-              translation='walletProvider.multiChainWallets.shapeShiftWallet'
-            />
+            <RawText color='text.base'>ShapeShift Wallet</RawText>
           </HStack>
         </Button>
         <Button

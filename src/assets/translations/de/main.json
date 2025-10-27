@@ -1892,17 +1892,6 @@
         "button": "Kopple"
       }
     },
-    "walletConnect": {
-      "topSection": {
-        "dontSeeWallet": "Ihre Wallet nicht gefunden?",
-        "connectToWallets": "Verbinden Sie sich mit 480+ Wallets",
-        "viewAllWallets": "Alle Wallets anzeigen"
-      }
-    },
-    "multiChainWallets": {
-      "title": "Multi-Chain Wallets",
-      "shapeShiftWallet": "ShapeShift Wallet"
-    },
     "metaMaskSnap": {
       "title": "Multichain Unterstützung ist jetzt für MetaMask verfügbar!",
       "subtitle": "Fügen Sie den Multichain Snap auf Metamask hinzu, um mit den folgenden Ketten - zu senden, empfangen, verfolgen, handeln und verdienen:",

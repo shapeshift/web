@@ -1,8 +1,8 @@
 # WalletConnect Feature Documentation
 
-## What is WalletConnect?
+## Overview
 
-WalletConnect allows ShapeShift to securely connect with external wallets, and dApps to connect to ShapeShift as a wallet.
+WalletConnect allows ShapeShift to securely connect with external wallets (typically mobile ones e.g MM Mobile, Zerion, Trust etc), and dApps to connect to ShapeShift as a wallet.
 
 ## How ShapeShift Uses WalletConnect
 

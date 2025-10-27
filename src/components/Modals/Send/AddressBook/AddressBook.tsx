@@ -62,7 +62,6 @@ export const AddressBook = ({
     return addressBookEntries?.find(entry => entry.isExternal && entry.address === input)
   }, [addressBookEntries, input])
 
-  // Only run expensive search when we have input
   const addressBookSearchEntriesFilter = useMemo(
     () => ({ chainId, searchQuery: input }),
     [chainId, input],

@@ -194,7 +194,9 @@ export const AddressInput = ({
             <CText fontSize='md' fontWeight='semibold' color='text.primary'>
               {vanityAddress}
             </CText>
-            {value && <MiddleEllipsis fontSize='xs' color='text.subtle' value={value} />}
+            {resolvedAddress && (
+              <MiddleEllipsis fontSize='xs' color='text.subtle' value={resolvedAddress} />
+            )}
           </VStack>
         </HStack>
       )

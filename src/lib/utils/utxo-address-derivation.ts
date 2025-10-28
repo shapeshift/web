@@ -247,10 +247,6 @@ export const findUtxoAccountIdByAddress = (
     return accountChainId === chainId
   })
 
-  // Derive 30 addresses per path (60 total: 30 receive + 30 change)
-  // This covers the standard gap limit (20) with a reasonable buffer
-  const DERIVATION_COUNT = 30
-
   // Try each account
   for (const accountId of relevantAccountIds) {
     const metadata = accountMetadata[accountId]
@@ -260,7 +256,7 @@ export const findUtxoAccountIdByAddress = (
       const derivedAddresses = deriveUtxoAddressesForAccountId(
         accountId,
         metadata.accountType,
-        DERIVATION_COUNT,
+        UTXO_ADDRESS_DERIVATION_CONFIG.DEFAULT_DERIVATION_COUNT,
       )
 
       const matchIndex = derivedAddresses.findIndex(

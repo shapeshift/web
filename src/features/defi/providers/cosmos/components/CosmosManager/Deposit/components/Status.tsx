@@ -70,7 +70,7 @@ export const Status = () => {
   )
 
   const handleViewPosition = useCallback(() => {
-    navigate('/tcy')
+    navigate('/wallet/earn')
   }, [navigate])
 
   const handleCancel = useCallback(() => navigate(-1), [navigate])

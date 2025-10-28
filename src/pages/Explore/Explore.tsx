@@ -135,7 +135,7 @@ export const Explore = memo(() => {
   }, [navigate])
 
   const handleEarnClick = useCallback(() => {
-    navigate('/tcy')
+    navigate('/wallet/earn')
   }, [navigate])
 
   const handleAssetClick = useCallback(

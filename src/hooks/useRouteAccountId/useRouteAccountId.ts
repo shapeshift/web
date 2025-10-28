@@ -5,8 +5,8 @@ import { matchPath, useLocation } from 'react-router-dom'
 const accountPaths = [
   '/accounts/:accountId/:assetId',
   '/accounts/:accountId',
-  '/accounts/:accountId/:chainId/:assetSubId/:nftId',
-  '/accounts/:accountId/:chainId/:assetSubId',
+  '/wallet/accounts/:accountId/:chainId/:assetSubId/:nftId',
+  '/wallet/accounts/:accountId/:chainId/:assetSubId',
   '/lending/poolAccount/:accountId/:chainId/:assetSubId',
   '/lending/poolAccount/:accountId/:chainNamespace\\::chainReference/:assetSubId',
   '/lending/poolAccount/:accountId/:assetId',

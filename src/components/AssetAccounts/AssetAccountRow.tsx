@@ -82,7 +82,7 @@ export const AssetAccountRow = (props: AssetAccountRowProps) => {
       selectPortfolioAllocationPercentByFilter(state, { accountId, assetId: rowAssetId }),
     ) ?? 0
   const path = generatePath(
-    assetId ? '/accounts/:accountId/:assetId' : '/accounts/:accountId',
+    assetId ? '/wallet/accounts/:accountId/:assetId' : '/wallet/accounts/:accountId',
     filter,
   )
   const label = accountIdToLabel(accountId)

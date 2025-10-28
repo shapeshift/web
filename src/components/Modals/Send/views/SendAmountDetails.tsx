@@ -11,7 +11,7 @@ import {
   Skeleton,
   Stack,
   Tooltip,
-  VStack
+  VStack,
 } from '@chakra-ui/react'
 import { CHAIN_NAMESPACE, ethChainId, fromAssetId } from '@shapeshiftoss/caip'
 import get from 'lodash/get'

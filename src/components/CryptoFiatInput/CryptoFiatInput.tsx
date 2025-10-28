@@ -142,7 +142,7 @@ export const CryptoFiatInput = <T extends FieldValues = FieldValues>({
               <Amount.Fiat value={bnOrZero(fiatAmount).toFixed(2)} />
             )}
           </Text>
-          <Icon as={TbSwitchVertical} fontSize='xs' color='text.subtle' />
+          <Icon as={TbSwitchVertical} fontSize='xs' color='text.subtle' ml={2} />
         </Button>
       </HStack>
     </FormControl>

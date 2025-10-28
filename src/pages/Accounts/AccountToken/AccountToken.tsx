@@ -57,7 +57,7 @@ export const AccountToken = () => {
   const header = useMemo(() => <AccountHeader accountId={accountId} />, [accountId])
 
   if (!accountIds.length) return null
-  if (!isCurrentAccountIdOwner) return <Navigate to='/wallet/accounts' replace />
+  if (!isCurrentAccountIdOwner) return <Navigate to='/accounts' replace />
 
   if (!assetId) return null
   if (!accountId) return null

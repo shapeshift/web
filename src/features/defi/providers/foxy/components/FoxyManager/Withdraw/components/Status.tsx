@@ -48,7 +48,7 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
   }, [state?.withdraw.withdrawType, state?.withdraw.cryptoAmount, state?.foxyFeePercentage])
 
   const handleViewPosition = useCallback(() => {
-    navigate('/wallet/earn')
+    navigate('/tcy')
   }, [navigate])
 
   const handleCancel = useCallback(() => {

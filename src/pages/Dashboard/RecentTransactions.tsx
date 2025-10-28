@@ -13,10 +13,11 @@ import { selectTxIdsByFilter } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
 type RecentTransactionFilter = {
-  acccountId?: AccountId
+  accountId?: AccountId
   assetId?: AssetId
   txStatus?: TxStatus
   parser?: TxMetadata['parser']
+  memo?: string
 }
 type RecentTransactionProps = {
   limit?: number
@@ -50,7 +51,7 @@ export const RecentTransactions: React.FC<RecentTransactionProps> = memo(
             <Text translation={'dashboard.recentTransactions.recentTransactions'} />
           </Heading>
           {viewMoreLink && (
-            <Button as={NavLink} to='/wallet/activity' variant='link' size='sm' colorScheme='blue'>
+            <Button as={NavLink} to='/history' variant='link' size='sm' colorScheme='blue'>
               {translate('common.viewAll')}
             </Button>
           )}

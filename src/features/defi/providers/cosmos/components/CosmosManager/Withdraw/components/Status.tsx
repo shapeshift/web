@@ -85,7 +85,7 @@ export const Status: React.FC<StatusProps> = ({ accountId }) => {
   const navigate = useNavigate()
 
   const handleViewPosition = useCallback(() => {
-    navigate('/wallet/earn')
+    navigate('/tcy')
   }, [navigate])
 
   const handleCancel = useCallback(() => {

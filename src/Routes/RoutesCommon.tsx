@@ -10,17 +10,14 @@ import { RouteCategory } from './helpers'
 import { ExploreIcon } from '@/components/Icons/Explore'
 import { FoxIcon } from '@/components/Icons/FoxIcon'
 import { FoxPageIcon } from '@/components/Icons/FoxPageIcon'
-import { HomeIcon } from '@/components/Icons/Home'
 import { PoolsIcon } from '@/components/Icons/Pools'
 import { RFOXIcon } from '@/components/Icons/RFOX'
 import { SwapIcon } from '@/components/Icons/SwapIcon'
 import { TCYIcon } from '@/components/Icons/TCYIcon'
-import { WalletIcon } from '@/components/Icons/WalletIcon'
 import { LimitOrderRoutePaths } from '@/components/MultiHopTrade/components/LimitOrder/types'
 import { TradeRoutePaths } from '@/components/MultiHopTrade/types'
 import { getConfig } from '@/config'
 import { assetIdPaths } from '@/hooks/useRouteAssetId/useRouteAssetId'
-import { Accounts } from '@/pages/Accounts/Accounts'
 import { ExploreCategory } from '@/pages/Explore/ExploreCategory'
 import { FoxEcosystemPage } from '@/pages/Fox/FoxEcosystemPage'
 import { FoxPage } from '@/pages/Fox/FoxPage'
@@ -37,16 +34,6 @@ export const TRADE_ROUTE_ASSET_SPECIFIC =
   '/trade/:chainId/:assetSubId/:sellChainId/:sellAssetSubId/:sellAmountCryptoBaseUnit'
 export const LIMIT_ORDER_ROUTE_ASSET_SPECIFIC =
   '/limit/:chainId/:assetSubId/:sellChainId/:sellAssetSubId/:sellAmountCryptoBaseUnit/:limitPriceMode/:limitPriceDirection/:limitPrice'
-
-const Dashboard = makeSuspenseful(
-  lazy(() =>
-    import('@/pages/Dashboard/Dashboard').then(({ Dashboard }) => ({
-      default: Dashboard,
-    })),
-  ),
-  {},
-  true,
-)
 
 const Asset = makeSuspenseful(
   lazy(() =>
@@ -149,38 +136,6 @@ const WalletConnectDeepLink = makeSuspenseful(
  */
 
 export const routes: Route[] = [
-  {
-    path: '/wallet/*',
-    label: 'navBar.home',
-    shortLabel: 'navBar.home',
-    icon: <HomeIcon />,
-    main: Dashboard,
-    category: RouteCategory.Featured,
-    mobileNav: true,
-    hideDesktop: true,
-    priority: 1,
-  },
-  {
-    path: '/accounts/*',
-    label: 'navBar.myWallet',
-    shortLabel: 'navBar.wallet',
-    icon: <WalletIcon />,
-    main: Accounts,
-    category: RouteCategory.Featured,
-    mobileNav: false,
-    priority: 5,
-    hide: true,
-  },
-  {
-    path: '/wallet/*',
-    label: 'navBar.myWallet',
-    shortLabel: 'navBar.wallet',
-    icon: <WalletIcon />,
-    main: Dashboard,
-    category: RouteCategory.Featured,
-    mobileNav: false,
-    priority: 5,
-  },
   {
     path: '/history',
     label: 'navBar.history',

@@ -42,7 +42,7 @@ const MobileConnect = makeSuspenseful(
 )
 
 const tradeRedirect = <Navigate to={TradeRoutePaths.Input} replace />
-const walletEarnRedirect = <Navigate to='/wallet/earn' replace />
+const earnRedirect = <Navigate to='/tcy' replace />
 
 const InnerRoutes = ({ appRoutesList }: { appRoutesList: React.ReactNode[] }) => {
   return (
@@ -51,8 +51,8 @@ const InnerRoutes = ({ appRoutesList }: { appRoutesList: React.ReactNode[] }) =>
       <Route path='/' element={tradeRedirect} />
       {/* Handle legacy /connect-wallet/* routes by redirecting to main app route. We don't expose these anymore, but users may have old bookmarks */}
       <Route path='/connect-wallet/*' element={tradeRedirect} />
-      {/* Handle legacy /earn/* routes by redirecting to wallet/earn route. We don't expose these anymore, but users may have old bookmarks */}
-      <Route path='/earn/*' element={walletEarnRedirect} />
+      {/* Handle legacy /earn/* routes by redirecting to TCY earn route. We don't expose these anymore, but users may have old bookmarks */}
+      <Route path='/earn/*' element={earnRedirect} />
       {/* Don't memoize me - this takes no props in, and this paranoia ensures that this lazy loads */}
       {/* eslint-disable-next-line react-memo/require-usememo */}
       <Route path='*' element={<NotFound />} />

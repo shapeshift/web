@@ -253,18 +253,26 @@ export const findUtxoAccountIdByAddress = (
     if (!metadata?.accountType) continue
 
     try {
-      const derivedAddresses = deriveUtxoAddressesForAccountId(
-        accountId,
-        metadata.accountType,
+      const searchBatches = [
         UTXO_ADDRESS_DERIVATION_CONFIG.DEFAULT_DERIVATION_COUNT,
-      )
+        50,
+        UTXO_ADDRESS_DERIVATION_CONFIG.MAX_DERIVATION_COUNT,
+      ]
 
-      const matchIndex = derivedAddresses.findIndex(
-        derivedAddress => derivedAddress && derivedAddress.toLowerCase() === normalizedAddress,
-      )
+      for (const count of searchBatches) {
+        const derivedAddresses = deriveUtxoAddressesForAccountId(
+          accountId,
+          metadata.accountType,
+          count,
+        )
 
-      if (matchIndex !== -1) {
-        return accountId
+        const matchIndex = derivedAddresses.findIndex(
+          derivedAddress => derivedAddress && derivedAddress.toLowerCase() === normalizedAddress,
+        )
+
+        if (matchIndex !== -1) {
+          return accountId
+        }
       }
     } catch (error) {
       console.error(`Failed to derive addresses for account ${accountId}:`, error)

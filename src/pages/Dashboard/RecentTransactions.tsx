@@ -17,7 +17,6 @@ type RecentTransactionFilter = {
   assetId?: AssetId
   txStatus?: TxStatus
   parser?: TxMetadata['parser']
-  memo?: string
 }
 type RecentTransactionProps = {
   limit?: number

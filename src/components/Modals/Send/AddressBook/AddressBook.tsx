@@ -10,6 +10,7 @@ import { SendFormFields } from '../SendCommon'
 
 import { AddressBookEntryButton } from '@/components/Modals/Send/AddressBook/AddressBookEntryButton'
 import { ConfirmDelete } from '@/components/Modals/Send/AddressBook/ConfirmDelete'
+import { InternalAccountsList } from '@/components/Modals/Send/AddressBook/InternalAccountsList'
 import { Text } from '@/components/Text'
 import { makeBlockiesUrl } from '@/lib/blockies/makeBlockiesUrl'
 import { addressBookSlice } from '@/state/slices/addressBookSlice/addressBookSlice'
@@ -28,7 +29,7 @@ type AddressBookProps = {
 
 const addressBookMaxHeight = {
   base: 'auto',
-  md: '200px',
+  md: '400px',
 }
 
 export const AddressBook = ({
@@ -124,7 +125,14 @@ export const AddressBook = ({
   }, [entries, entryAvatars, handleDeleteConfirm, onEntryClick, emptyMessage])
 
   return (
-    <Box>
+    <Box
+      maxHeight={addressBookMaxHeight}
+      overflowY='auto'
+      overflowX='hidden'
+      mx={-4}
+      px={4}
+      className='scroll-container'
+    >
       <HStack spacing={2} mb={2}>
         <Icon as={FaRegAddressBook} boxSize={4} color='text.subtle' />
         <CText fontSize='sm' fontWeight='medium' color='text.subtle'>
@@ -143,6 +151,9 @@ export const AddressBook = ({
           {addressBookButtons}
         </VStack>
       </Box>
+
+      <InternalAccountsList chainId={chainId} onAccountClick={onEntryClick} />
+
       {selectedDeleteEntry && (
         <ConfirmDelete
           isOpen={isOpen}

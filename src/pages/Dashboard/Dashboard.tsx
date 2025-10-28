@@ -24,6 +24,7 @@ const pageProps = { paddingTop: 0, pb: 0 }
 
 const walletDashboard = <WalletDashboard />
 const earnDashboard = <EarnDashboard />
+const accounts = <Accounts />
 const dashboardHeader = <DashboardHeader />
 
 const ScrollView = (props: FlexProps) => (
@@ -97,7 +98,7 @@ const MobileHome = memo(() => {
           <TabPanel p={0} pt={2}>
             <Routes>
               <Route path='' element={walletDashboard} />
-              <Route path='accounts/*' element={<Accounts />} />
+              <Route path='accounts/*' element={accounts} />
             </Routes>
           </TabPanel>
           <TabPanel p={0} pt={2}>
@@ -131,6 +132,7 @@ export const Dashboard = memo(() => {
 
   const mobileHome = useMemo(() => <MobileHome />, [])
   const mobileEarn = useMemo(() => <ScrollView>{earnDashboard}</ScrollView>, [])
+  const desktopRedirect = useMemo(() => <Navigate to='/trade' replace />, [])
 
   return (
     <>
@@ -138,7 +140,7 @@ export const Dashboard = memo(() => {
       <Display.Desktop>
         {/* Desktop users are redirected to trade page */}
         <Routes>
-          <Route path='*' element={<Navigate to='/trade' replace />} />
+          <Route path='*' element={desktopRedirect} />
         </Routes>
       </Display.Desktop>
       <Display.Mobile>

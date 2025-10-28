@@ -7,7 +7,7 @@ import { Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-
 import { WatchlistTable } from '../Home/WatchlistTable'
 import { DashboardHeader } from './components/DashboardHeader/DashboardHeader'
 import { EarnDashboard } from './EarnDashboard'
-import { WalletDashboard } from './WalletDashboard'
+import { Portfolio } from './Portfolio'
 
 import { Display } from '@/components/Display'
 import { Main } from '@/components/Layout/Main'
@@ -22,7 +22,7 @@ import { useAppSelector } from '@/state/store'
 
 const pageProps = { paddingTop: 0, pb: 0 }
 
-const walletDashboard = <WalletDashboard />
+const portfolio = <Portfolio />
 const earnDashboard = <EarnDashboard />
 const accounts = <Accounts />
 const dashboardHeader = <DashboardHeader />
@@ -97,7 +97,7 @@ const MobileHome = memo(() => {
         <TabPanels>
           <TabPanel p={0} pt={2}>
             <Routes>
-              <Route path='' element={walletDashboard} />
+              <Route path='' element={portfolio} />
               <Route path='accounts/*' element={accounts} />
             </Routes>
           </TabPanel>

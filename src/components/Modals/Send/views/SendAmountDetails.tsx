@@ -7,14 +7,11 @@ import {
   FormControl,
   FormHelperText,
   FormLabel,
-  HStack,
-  Icon,
   Input,
   Skeleton,
   Stack,
-  Text as ChakraText,
   Tooltip,
-  VStack,
+  VStack
 } from '@chakra-ui/react'
 import { CHAIN_NAMESPACE, ethChainId, fromAssetId } from '@shapeshiftoss/caip'
 import get from 'lodash/get'
@@ -22,9 +19,6 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import type { ControllerRenderProps, FieldValues } from 'react-hook-form'
 import { Controller, useFormContext, useWatch } from 'react-hook-form'
 import { FaInfoCircle } from 'react-icons/fa'
-import { TbSwitchVertical } from 'react-icons/tb'
-import type { NumberFormatValues } from 'react-number-format'
-import NumberFormat from 'react-number-format'
 import { useTranslate } from 'react-polyglot'
 import { useLocation, useNavigate } from 'react-router-dom'
 
@@ -33,7 +27,7 @@ import { useSendDetails } from '../hooks/useSendDetails/useSendDetails'
 import { SendFormFields, SendRoutes } from '../SendCommon'
 
 import { AccountSelector } from '@/components/AccountSelector/AccountSelector'
-import { Amount } from '@/components/Amount/Amount'
+import { CryptoFiatInput } from '@/components/CryptoFiatInput/CryptoFiatInput'
 import { DialogBackButton } from '@/components/Modal/components/DialogBackButton'
 import { DialogBody } from '@/components/Modal/components/DialogBody'
 import { DialogFooter } from '@/components/Modal/components/DialogFooter'
@@ -43,10 +37,8 @@ import { AddressInput } from '@/components/Modals/Send/AddressInput/AddressInput
 import { SendMaxButton } from '@/components/Modals/Send/SendMaxButton/SendMaxButton'
 import { SlideTransition } from '@/components/SlideTransition'
 import { Text } from '@/components/Text/Text'
-import { useLocaleFormatter } from '@/hooks/useLocaleFormatter/useLocaleFormatter'
 import { parseAddressInputWithChainId } from '@/lib/address/address'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
-import { allowedDecimalSeparators } from '@/state/slices/preferencesSlice/preferencesSlice'
 import { selectAssetById } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
@@ -57,55 +49,11 @@ const accountDropdownButtonProps = { px: 2 }
 // Currently only Cosmos SDK chains support memos in the send flow
 const MAX_MEMO_LENGTH = 256
 
-// Thresholds for progressive font size reduction based on amount length
-const FONT_SIZE_THRESHOLDS = {
-  SMALL: 10,
-  MEDIUM: 14,
-  LARGE: 22,
-} as const
-
-const getFontSizeByLength = (length: number): string => {
-  if (length >= FONT_SIZE_THRESHOLDS.LARGE) return '24px'
-  if (length >= FONT_SIZE_THRESHOLDS.MEDIUM) return '30px'
-  if (length >= FONT_SIZE_THRESHOLDS.SMALL) return '38px'
-  return '65px'
-}
-
 type RenderController = ({
   field,
 }: {
   field: ControllerRenderProps<FieldValues, SendFormFields.Memo>
 }) => React.ReactElement
-
-const AmountInput = (props: any) => {
-  const valueLength = useMemo(() => {
-    return props.value ? String(props.value).length : 0
-  }, [props.value])
-
-  const fontSize = useMemo(() => {
-    return getFontSizeByLength(valueLength)
-  }, [valueLength])
-
-  const lineHeight = useMemo(() => {
-    return getFontSizeByLength(valueLength)
-  }, [valueLength])
-
-  return (
-    <Input
-      size='lg'
-      fontSize={fontSize}
-      lineHeight={lineHeight}
-      fontWeight='normal'
-      textAlign='center'
-      border='none'
-      borderRadius='lg'
-      bg='transparent'
-      variant='unstyled'
-      color={props.value ? 'text.base' : 'text.subtle'}
-      {...props}
-    />
-  )
-}
 
 export const SendAmountDetails = () => {
   const {
@@ -117,9 +65,6 @@ export const SendAmountDetails = () => {
   const navigate = useNavigate()
   const location = useLocation()
   const translate = useTranslate()
-  const {
-    number: { localeParts },
-  } = useLocaleFormatter()
 
   const [isValidating, setIsValidating] = useState(false)
 
@@ -178,8 +123,6 @@ export const SendAmountDetails = () => {
   const currentValue = fieldName === SendFormFields.FiatAmount ? fiatAmount : amountCryptoPrecision
   const isFiat = fieldName === SendFormFields.FiatAmount
 
-  const displayPlaceholder = isFiat ? `${localeParts.prefix}0.00` : `0.00 ${asset?.symbol}`
-
   const showMemoField = useMemo(
     () => Boolean(assetId && fromAssetId(assetId).chainNamespace === CHAIN_NAMESPACE.CosmosSdk),
     [assetId],
@@ -225,44 +168,6 @@ export const SendAmountDetails = () => {
       },
     }),
     [asset, setValue],
-  )
-
-  const handleValueChange = useCallback(
-    (onChange: (value: string) => void, value: string) => (values: NumberFormatValues) => {
-      onChange(values.value)
-      if (values.value !== value) handleInputChange(values.value)
-    },
-    [handleInputChange],
-  )
-
-  const renderController = useCallback(
-    ({ field: { onChange, value } }: { field: any }) => {
-      return (
-        <NumberFormat
-          customInput={AmountInput}
-          isNumericString={true}
-          decimalScale={isFiat ? localeParts.fraction : asset?.precision}
-          inputMode='decimal'
-          thousandSeparator={localeParts.group}
-          decimalSeparator={localeParts.decimal}
-          allowedDecimalSeparators={allowedDecimalSeparators}
-          value={value}
-          placeholder={displayPlaceholder}
-          prefix={isFiat ? localeParts.prefix : ''}
-          onValueChange={handleValueChange(onChange, value)}
-        />
-      )
-    },
-    [
-      asset?.precision,
-      isFiat,
-      localeParts.fraction,
-      localeParts.decimal,
-      localeParts.group,
-      localeParts.prefix,
-      displayPlaceholder,
-      handleValueChange,
-    ],
   )
 
   const handleMemoChange = useCallback(
@@ -317,35 +222,16 @@ export const SendAmountDetails = () => {
             {balancesLoading ? (
               <Skeleton height='80px' width='100%' maxWidth='240px' mx='auto' />
             ) : (
-              <FormControl>
-                {fieldName === SendFormFields.AmountCryptoPrecision && (
-                  <Controller
-                    name={SendFormFields.AmountCryptoPrecision}
-                    control={control}
-                    render={renderController}
-                  />
-                )}
-                {fieldName === SendFormFields.FiatAmount && (
-                  <Controller
-                    name={SendFormFields.FiatAmount}
-                    control={control}
-                    render={renderController}
-                  />
-                )}
-
-                <HStack justify='center' mt={2} spacing={2} onClick={toggleIsFiat} cursor='pointer'>
-                  <Button variant='ghost' size='sm' p={1} minW='auto' h='auto' px={2}>
-                    <ChakraText fontSize='sm' color='text.subtle' me={2}>
-                      {isFiat ? (
-                        <Amount.Crypto value={amountCryptoPrecision} symbol={asset.symbol} />
-                      ) : (
-                        <Amount.Fiat value={bnOrZero(fiatAmount).toFixed(2)} />
-                      )}
-                    </ChakraText>
-                    <Icon as={TbSwitchVertical} fontSize='xs' color='text.subtle' />
-                  </Button>
-                </HStack>
-              </FormControl>
+              <CryptoFiatInput
+                asset={asset}
+                handleInputChange={handleInputChange}
+                fieldName={fieldName}
+                toggleIsFiat={toggleIsFiat}
+                isFiat={isFiat}
+                control={control}
+                fiatAmount={fiatAmount}
+                cryptoAmount={amountCryptoPrecision}
+              />
             )}
           </Flex>
           {showMemoField && (

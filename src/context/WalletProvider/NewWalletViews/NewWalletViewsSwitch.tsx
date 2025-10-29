@@ -343,9 +343,9 @@ export const NewWalletViewsSwitch = () => {
 
   const body = useMemo(() => <Body />, [Body])
 
-  if (!isLargerThanMd && !isMobile) {
-    return <MobileWebSelect isOpen={modal} onClose={onClose} />
-  }
+  // if (!isLargerThanMd && !isMobile) {
+  //   return <MobileWebSelect isOpen={modal} onClose={onClose} />
+  // }
 
   return (
     <>

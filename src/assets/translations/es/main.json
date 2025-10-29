@@ -77,6 +77,7 @@
     "rename": "Renombrar",
     "forget": "Olvidar?",
     "pending": "Pendiente",
+    "preview": "Vista Previa",
     "incomplete": "Incompleto",
     "available": "Disponible",
     "or": "ó",
@@ -231,6 +232,9 @@
     "permit2Approval": "Permiso para Aprobar",
     "network": "Red",
     "feeEstimate": "Tarifa Estimada"
+  },
+  "accountSelector": {
+    "chooseAccount": "Elija Cuenta"
   },
   "quickBuy": {
     "title": "Compra Rápida %{assetOnChain}",
@@ -1427,6 +1431,7 @@
       }
     },
     "send": {
+      "confirmSend": "Confirmar envío",
       "consolidate": {
         "body": "ShapeShift respeta el diseño de seguridad de %{asset} al utilizar una nueva dirección para cada transacción. Para alinearnos con el protocolo THORChain, que opera con una sola dirección, consolidaremos sus fondos en una sola dirección.",
         "tooltip": "Envíe fondos a dirección única por compatibilidad THORChain.",
@@ -1435,8 +1440,8 @@
       "getFeesError": "Error al obtener tarifas",
       "broadcastingTransaction": "Enviando Transacción",
       "youHaveSent": "Has enviado con éxito %{amount} %{symbol}",
-      "tokenAddress": "A Dirección",
-      "addressInput": "Para Dirección o ENS",
+      "toAddress": "A Dirección",
+      "toAddressOrEns": "Para Dirección o ENS",
       "scanQrCode": "Escanear código QR",
       "qrCode": "Código QR",
       "permissionsButton": "Intentar nuevamente",
@@ -1451,7 +1456,6 @@
         "qrDangerousEthUrl": "Los códigos QR contienen una dirección no compatible. Pegue la dirección manualmente."
       },
       "confirm": {
-        "sendAsset": "Enviar %{asset}",
         "send": "Enviar",
         "sendTo": "Enviar A",
         "customNonce": "Nonce personalizado",
@@ -1461,7 +1465,8 @@
         "amount": "Cantidad",
         "transactionFee": "Tarifa de transacción",
         "fees": "Tarifa %{feeType}",
-        "pendingConfirmation": "Pendiente de confirmación"
+        "pendingConfirmation": "Pendiente de confirmación",
+        "holdToSend": "Mantener pulsado para enviar"
       },
       "sendForm": {
         "optionalAssetMemo": "Nota %{assetSymbol} opcional",
@@ -1470,13 +1475,16 @@
         "memoExplainer": "Algunos destinatarios de %{assetSymbol} pueden requerir una nota para que la transacción se procese correctamente",
         "sendAsset": "Enviar %{asset}",
         "sendTo": "Enviar A",
+        "chain": "Cadena",
         "sendAmount": "Enviar cantidad",
         "max": "Máximo",
         "transactionFee": "Tarifa de transacción",
         "slow": "Lento",
         "average": "Promedio",
         "fast": "Rápido",
-        "enterAmount": "Ingrese la cantidad"
+        "enterAmount": "Ingrese la cantidad",
+        "scanQrCodeDescription": "Toque para escanear una dirección",
+        "yourAddresses": "Sus Direcciones"
       },
       "status": {
         "pendingBody": "Enviando %{amount} %{symbol}"
@@ -2524,6 +2532,10 @@
           "selectedAccounts": "Cuentas seleccionadas",
           "permissionMessage": "Seleccione al menos una cuenta por cadena.",
           "optionalPermissionMessage": "Los siguientes permisos son opcionales."
+        },
+        "noAccountsForChain": {
+          "title": "Cadena no compatible",
+          "description": "No hay cuenta %{chainLabel} conectada a esta dApp."
         }
       },
       "registry": {
@@ -3216,6 +3228,8 @@
       "complete": "Su reclamo de %{amount} %{symbol} está completo."
     },
     "bridge": {
+      "processing": "Su bridge de %{sellAmountAndSymbol}.%{sellChainShortName} a %{buyAmountAndSymbol}.%{buyChainShortName} se está procesando.",
+      "complete": "Su bridge de %{sellAmountAndSymbol}.%{sellChainShortName} a %{buyAmountAndSymbol}.%{buyChainShortName} está completo.",
       "initiated": "Se ha iniciado su bridge de %{sellAmountAndSymbol} a %{buyAmountAndSymbol}.",
       "pendingWithdraw": "Su retiro de %{amountAndSymbol} estará disponible %{timeText}.",
       "claimAvailable": "Su bridge de %{amountAndSymbol} está disponible para reclamar.",

@@ -7,9 +7,6 @@
     "unselectAll": "Unselect All",
     "free": "Free",
     "trade": "Trade",
-    "trades": "Trades",
-    "lpDeposit": "LP Deposit",
-    "lpDeposits": "LP Deposits",
     "back": "Back",
     "and": "and",
     "balance": "Balance",
@@ -17,9 +14,6 @@
     "edit": "Edit",
     "error": "Error",
     "show": "Show",
-    "account": "Account",
-    "address": "Address",
-    "noThanks": "No Thanks",
     "done": "Done",
     "cancel": "Cancel",
     "close": "Close",
@@ -29,9 +23,6 @@
     "saveChanges": "Save Changes",
     "new": "New",
     "continue": "Continue",
-    "reward": "Reward",
-    "claimable": "Claimable",
-    "comingSoon": "Coming Soon ...",
     "approve": "Approve",
     "approveToken": "Approve Token",
     "approveAmount": "Approve Amount",
@@ -44,9 +35,7 @@
     "goBack": "Go back",
     "fiat": "Fiat",
     "connected": "Connected",
-    "allocation": "Allocation",
     "trendingTokens": "Trending Tokens",
-    "value": "Value",
     "created": "Created %{date}",
     "noResultsFound": "No results found.",
     "noResultsBody": "There were no results for %{searchQuery}. Try a new search.",
@@ -54,7 +43,6 @@
     "insufficientFundsForTrade": "Insufficient funds for trade",
     "insufficientAllowance": "Insufficient Allowance",
     "estimatedGas": "Estimated Gas Fee",
-    "relayerGasFee": "Relayer Gas Fee",
     "insufficientAmountForGas": "Not enough %{assetSymbol}.%{chainSymbol} to cover gas",
     "invalidAddress": "Invalid Address",
     "deposit": "Deposit",
@@ -63,7 +51,6 @@
     "claim": "Claim",
     "withdrawAndClaim": "Withdraw & Claim",
     "overview": "Overview",
-    "getStarted": "Get Started",
     "connectWallet": "Connect Wallet",
     "pairing": "Pairing",
     "connectWalletToGetStartedWith": "Connect a wallet to get started with %{feature}",
@@ -72,7 +59,6 @@
     "walletActions": "Wallet Actions",
     "connectedWalletSettings": "Wallet Settings",
     "noWallet": "No Wallet Connected",
-    "darkMode": "Dark Mode",
     "darkTheme": "Dark Theme",
     "rename": "Rename",
     "forget": "Forget?",
@@ -87,47 +73,34 @@
     "accountTxHistoryError": "Temporarily unable to fetch transaction history for the following accounts:",
     "degradedState": "The App is in a degraded state",
     "degradedTransactionHistory": "Transaction history degraded",
-    "degradedInfo": "Unable to fetch data for some accounts.",
     "success": "Success",
     "happySuccess": "Success!",
-    "retry": "Retry",
-    "retryQuestion": "Retry?",
     "transactionFailed": "Transaction Failed",
     "transactionFailedBody": "Transaction Failed",
     "safeProposalQueued": "SAFE proposal queued. %{currentConfirmations} out of %{confirmationsRequired} signed.",
-    "safeProposalExecuted": "SAFE proposal executed.",
     "submitFeedback": "Submit Feedback",
     "send": "Send",
     "receive": "Receive",
     "privacy": "Privacy Policy",
     "terms": "Terms of Service",
-    "days": "Days",
     "clear": "Clear",
     "copy": "Copy",
     "copied": "Copied to clipboard.",
     "copyFailed": "Failed to copy to clipboard",
     "copyFailedDescription": "Please copy manually",
-    "viewAsset": "View Asset",
     "settings": "Settings",
     "joinDiscord": "Join Discord",
     "legalDated": "Dated: January 2022",
-    "approveOnWallet": "Approve On Wallet",
-    "confirmOnWallet": "Confirm On Wallet",
-    "login": "Log In",
     "verify": "Verify",
-    "notRobot": "I am not a Robot",
     "skip": "Skip",
     "generalError": "An error has occurred",
     "showDetails": "Show Details",
     "hideDetails": "Hide Details",
-    "walletSupportsETHOnly": "Ethereum Only",
     "loadingText": "Loading...",
-    "txId": "Tx ID",
     "selectAsset": "Select an Asset",
     "switchNetwork": "Switch Network",
     "selectNetwork": "Select a network",
     "unsupportedNetwork": "Unsupported Network",
-    "unsupportedWallet": "Unsupported Wallet",
     "chartUnavailable": "Balance chart data is temporarily unavailable for %{unavailableAssetNames}.",
     "search": "Search",
     "searchAsset": "Search for asset",
@@ -142,18 +115,13 @@
     "sepa": "SEPA",
     "buySell": "Buy/Sell",
     "all": "All",
-    "viewAll": "View All",
     "seeMore": "See More",
     "slippage": "Slippage",
     "feesPlusSlippage": "Fees + Slippage",
-    "best": "Best",
     "gasFee": "Gas Fee",
     "approvalFee": "Approval Fee",
     "allowanceResetFee": "Allowance Reset Fee",
-    "consolidationFee": "Consolidation Fee",
     "fees": "Fees",
-    "alternative": "Alternative",
-    "validator": "the %{name} Validator",
     "howWasYourExperience": "How was your trade experience?",
     "leaveUsAReview": "Leave us a review",
     "sendFeedback": "Send Feedback",
@@ -166,18 +134,12 @@
     "manage": "Manage",
     "view": "View",
     "viewOnly": "View-Only",
-    "selectedAccount": "Selected Account",
     "allChains": "All Chains",
     "wallet": "Wallet",
-    "action": "Action",
     "feedbackAndSupport": "Feedback & Support",
     "getSupport": "Get Support",
-    "viewMyWallet": "View My Wallet",
     "submitFeatureRequest": "Submit a Feature Request",
     "learnMore": "Learn more",
-    "showAll": "Show All",
-    "showLess": "Show Less",
-    "showMore": "Show More",
     "yourBalance": "Your balance",
     "signTransaction": "Sign transaction",
     "active": "Active",
@@ -189,7 +151,6 @@
     "poolStaged": "Pool Staged",
     "chainHalted": "Chain Halted",
     "poolDisabled": "Pool Disabled",
-    "prices": "Prices",
     "symmetric": "Symmetric",
     "asymmetric": "Asymmetric (%{assetSymbol})",
     "import": "Import",
@@ -202,7 +163,6 @@
     "carousel": {
       "next": "Next",
       "prev": "Previous",
-      "back": "Back",
       "dot": "Dot"
     },
     "table": {
@@ -217,7 +177,6 @@
     "activeAccount": "Active Account",
     "update": "Update",
     "apy": "APY",
-    "tbd": "TBD",
     "installed": "Installed",
     "others": "Others",
     "hardwareWallets": "Hardware Wallets",
@@ -227,7 +186,6 @@
     "dca": "DCA",
     "boost": "Boost",
     "viewOnExplorer": "View on explorer",
-    "viewAssetDetails": "View Asset Details",
     "approval": "Approval",
     "permit2Approval": "Permit2 Approval",
     "network": "Network",
@@ -311,16 +269,9 @@
   },
   "dashboard": {
     "portfolio": {
-      "rainbowChart": "🌈 Rainbow",
-      "totalChart": "💰 Total",
-      "addAsset": "Add Asset",
-      "myAssets": "My Assets",
       "asset": "Asset",
-      "portfolioBalance": "Portfolio Balance",
       "balance": "Balance",
       "price": "Price",
-      "value": "Value",
-      "apy": "APY",
       "priceChange": "Price Change",
       "allocation": "Allocation",
       "marketCap": "Market Cap",
@@ -331,41 +282,25 @@
         "title": "Every journey starts with a first step",
         "body": "Send yourself some crypto to get started.",
         "cta": "Add Crypto"
-      },
-      "stakedInfo": "You cannot send or trade the amount staked"
-    },
-    "recentTransactions": {
-      "recentTransactions": "Recent Transactions"
-    },
-    "tradeCard": {
-      "trade": "Trade",
-      "bridge": "Bridge",
-      "earn": "Earn"
+      }
     }
   },
   "fiatRamps": {
-    "routeTitle": "Buy or Sell",
-    "routeTitleForGem": "Gem on Ramp",
     "title": "Buy or Sell Crypto",
     "titleMessage": "You can %{action} %{asset} using:",
     "banxa": "Banxa",
     "mtPelerin": "Mt Pelerin",
     "onRamper": "OnRamper",
     "coinbase": "Coinbase",
-    "comingSoon": "Coming Soon ...",
     "buy": "Buy",
     "sell": "Sell",
     "asset": "Asset",
-    "assetToBuy": "Select Asset to Buy",
     "selectAnAssetToBuy": "Select an asset to buy",
     "selectBody": "Choose from a growing list of cryptocurrencies.",
-    "assetToSell": "Select Asset to Sell",
     "selectAnAssetToSell": "Select an asset to sell",
     "fundsTo": "Funds will be sent to",
     "fundsFrom": "Funds will be sent from",
-    "headerLabel": "Buy/Sell Crypto",
     "insufficientCryptoAmountToSell": "Minimum amount to sell is $%{amount}",
-    "usOnly": "US-Only",
     "noKYC": "NO KYC",
     "nonUS": "NON-US",
     "buyWith": "Buy with",
@@ -391,7 +326,6 @@
   },
   "connectWallet": {
     "menu": {
-      "triggerButton": "Connect Wallet",
       "switchWallet": "Switch Wallet",
       "disconnect": "Disconnect",
       "disconnected": "(Disconnected)",
@@ -418,34 +352,14 @@
           "unbondingInfo": "When you unstake your tokens, they’ll remain locked for %{unbondingDays} days, during which time they won’t earn rewards. After the %{unbondingDays} days, your %{assetName} will return to your Primary Wallet.",
           "slashingInfo": "Staking is done through a validator. It’s incredibly rare, but if the validator you’ve staked with messes up by allowing false or incorrect transactions to go through, you could lose a part of your assets.",
           "partnerInfo": "We’ve mitigated this risk by partnering with a reputable validator—which has a secure, reliable, and audited infrastructure."
-        },
-        "userProtectionInfo": "*Returns are estimated and fluctuate with market conditions.",
-        "cta": {
-          "startStaking": "Start Staking",
-          "learnMore": "Learn More"
-        }
-      },
-      "getStarted": {
-        "header": "Stake your %{assetName} to earn",
-        "body": "Staking is the process of holding funds in a cryptocurrency wallet to support the operations of a blockchain network and, in return, holders are rewarded for their contribution.",
-        "userProtectionInfo": "*Returns are estimated and fluctuate with market conditions.",
-        "cta": {
-          "startStaking": "Start Staking",
-          "learnMore": "Learn More"
         }
       },
       "cosmosOverview": {
-        "rewards": "The rewards you earn will accrue automatically.",
         "withdrawals": "Unstaking",
         "emptyWithdraws": "Pending unstaking requests will show here.",
         "availableDate": "available %{date}"
       },
       "foxyOverview": {
-        "header": "Deposit FOX to get FOXy to earn",
-        "body": "FOXy is a rebasing token pegged to the price of FOX. Staked FOX is put to work across different DeFi protocols to earn the best yield possible.",
-        "rewards": "The rewards you earn will accrue automatically.",
-        "cta": "Deposit FOX Now",
-        "foxyBalance": "FOXy Balance",
         "withdrawals": "Withdrawals",
         "emptyWithdraws": "Pending or active withdrawals will show here.",
         "availableDate": "available %{date}",
@@ -455,27 +369,15 @@
         "header": "Deposit ETH-FOX LP tokens to %{opportunity} to earn",
         "body": "Approve and stake your liquidity tokens to earn bonus FOX rewards.",
         "rewards": "The rewards you earn will accrue automatically.",
-        "cta": "Deposit ETH-FOX LP tokens Now",
-        "foxFarmingBalance": "ETH-FOX LP tokens Balance",
-        "withdrawals": "Withdrawals",
-        "emptyWithdraws": "Pending or active withdrawals will show here.",
-        "availableDate": "available %{date}"
+        "cta": "Deposit ETH-FOX LP tokens Now"
       },
       "overview": {
         "underlyingTokens": "Underlying Tokens",
-        "underlyingToken": "Underlying Token",
         "availableRewards": "Available Rewards",
         "about": "About",
-        "tvl": "TVL",
-        "apy": "APY",
         "noWithdrawals": "You don't have any withdrawals to claim."
       },
       "claim": {
-        "rewardDepositInfo": "Your rewards will be deposited into your primary wallet.",
-        "title": "Claim Staking Rewards",
-        "confirmAndClaim": "Confirm & Claim",
-        "rewardAmount": "Reward Amount",
-        "claimingRewards": "Claiming Rewards",
         "claimAmount": "Claim Amount",
         "claimToAddress": "Claim To",
         "confirmClaim": "Confirm Claim",
@@ -490,12 +392,10 @@
         "vaultCapTooltip": "Current maximum capacity for this vault",
         "haltedDepositTitle": "Deposits are temporarily halted.",
         "disabledDepositTitle": "Deposits are temporarily disabled.",
-        "haltedWithdrawTitle": "Withdraws are temporarily halted.",
         "disabledWithdrawTitle": "Withdraws are temporarily disabled.",
         "withdrawLockedTitle": "You have to wait %{timeHuman} to withdraw.",
         "haltedDescription": "Please tweet at @THORChain to raise the caps!",
         "protocolFee": "Protocol Fee",
-        "fee": "Fee",
         "dustAmount": "Dust Amount",
         "dustAmountTooltip": "A tiny amount of dust is required to identify your address, and will be reserved for later use, when you want to make a withdrawal",
         "sendDustBody": "You need to send some dust to this address to be able to withdraw.",
@@ -507,16 +407,12 @@
           "vaults": "Refer to <link>this article</link> for risks involved with savers vaults.",
           "runePool": "Refer to <link>this article</link> for risks involved with RUNEPool."
         },
-        "understand": "I understand",
-        "days": "%{amount} days",
-        "day": "%{amount} day",
         "timeToBreakEven": {
           "title": "Time to break even",
           "tooltip": "Estimated time to cover deposit fees and earnings."
         },
         "cannotDepositWhilePendingTx": "Cannot deposit while Txs are pending",
         "cannotWithdrawWhilePendingTx": "Cannot withdraw while Txs are pending",
-        "dangerousWithdrawWarning": "THORChain fee could result in the total loss of the funds being withdrawn. Consider withdrawing a higher amount to avoid this issue.",
         "agreeRunePool": "I understand that RUNEPool has both a 30 day minimum lockup and a heightened risk of impermanent loss."
       }
     },
@@ -524,96 +420,38 @@
       "title": "Please don't edit the transaction memo",
       "body": "Transactions originating from ShapeShift help support the DAO."
     },
-    "amountToStake": "Amount to Stake",
-    "amountToUnstake": "Amount to Unstake",
-    "confirmDetails": "Confirm Details",
     "broadcastingTransaction": "Broadcasting Transaction",
     "transactionComplete": "Transaction Complete",
     "transactionFailed": "Transaction Failed",
     "notEnoughFundsInReserve": "Not enough funds in liquidity reserve contract",
-    "validator": "Validator",
-    "validatorMoniker": "%{moniker} Validator",
-    "stakedAmount": "Staked Amount",
-    "unstakeFrom": "Unstake From",
-    "underlyingAsset": "Underlying Asset",
-    "gasFee": "Gas Fee",
     "provider": "Provider",
-    "currentTvl": "Current TVL",
-    "unbondInfoItWillTake": "While your tokens are staked you will not be able to transfer or spend them. It will take %{unbondingDays} days to unlock them after you unstake them.",
-    "unbondInfoItWillTakeShort": "It will take %{unbondingDays} days to unstake your tokens",
-    "confirmAndBroadcast": "Confirm & Broadcast",
-    "signAndBroadcast": "Sign & Broadcast",
-    "averageApr": "Average APR",
-    "estimatedYearlyRewards": "Estimated Yearly Rewards",
-    "staked": "Staked",
-    "amountStaked": "Amount Staked",
-    "assetStaking": "%{assetName} Staking",
     "stake": "Stake",
     "version": "Version",
     "unstake": "Unstake",
-    "stakeAsset": "Stake %{assetSymbol}",
-    "unstakeAsset": "Unstake %{assetSymbol}",
-    "claimAsset": "Claim Staking Rewards",
     "claim": "Claim",
-    "rewards": "Rewards",
-    "unstaking": "Unstaking",
-    "available": "Available %{unbondingEnd}",
     "earn": "Earn",
     "asset": "Asset",
-    "category": "Category",
     "tvl": "TVL",
     "type": "Type",
     "apy": "APY",
-    "apr": "APR",
     "ended": "Ended",
     "balance": "Balance",
-    "startEarning": "Start Earning",
-    "eligibleOpportunities": "Eligible Opportunities",
-    "defiBody": "Explore a growing universe of DeFi opportunities.",
     "netWorth": "Net Worth",
     "loadingAccounts": "Loaded %{portfolioAccountsLoaded} accounts",
-    "walletBalance": "Wallet Balance",
     "walletBalanceChange24Hr": "24-hour change",
-    "earnBalance": "Earn Balance",
-    "rewardsBalance": "Rewards Balance",
     "earnBody": "Earn passive income by staking your assets or depositing them into a DeFi strategy.",
     "noAccountsOpportunities": "You have no accounts for this asset, so staking opportunities are currently unavailable.",
-    "clickHereToEarn": "Click here to earn %{apr} APR* by farming your ETH-FOX liquidity pool tokens",
     "overview": "Overview",
     "myPositions": "My Positions",
     "myPositionsBody": "A list of your active DeFi positions.",
-    "viewAllPositions": "View All Positions",
-    "liquidityPools": "Liquidity Pools",
     "liquidityLockupWarning": "There is a lockup period of %{time}. During lockup you can't access your liquidity.",
     "liquidityLocked": "Liquidity Locked (%{time})",
-    "stakingVaults": "Staking & Vaults",
-    "farming": "Farming",
-    "totalEarningBalance": "Total Earning Balance",
     "stakingBalance": "Staking Balance",
-    "farmingBalance": "Farming Balance",
-    "liquidityPoolBalance": "Liquidity Pool Balance",
-    "poolValue": "Pool Value",
-    "yearn": "Yearn Finance",
     "totalValue": "Total Value",
     "claimableRewards": "Claimable Rewards",
     "stakingPosition": "Staking Position",
     "liquidityPool": "Liquidity Pool",
     "noActivePositions": "No Active Positions",
-    "emptyEarn": "Earn opportunities will appear here.",
-    "empty": {
-      "farming": {
-        "body": "You are not currently farming anything.",
-        "cta": "View Opportunities"
-      },
-      "stakingVaults": {
-        "body": "Explore opportunities to earn interest on your crypto assets.",
-        "cta": "View Opportunities"
-      },
-      "pools": {
-        "body": "You have not deposited into any liquidity pools.",
-        "cta": "View Opportunities"
-      }
-    },
     "viewOnChain": "View on chain",
     "steps": {
       "deposit": {
@@ -631,12 +469,6 @@
           "rewardsInfo": "Rewards you'll receive"
         }
       },
-      "claim": {
-        "info": {
-          "title": "Claim Info",
-          "description": "Withdraw the accrued farmed tokens"
-        }
-      },
       "approve": {
         "title": "Approve"
       },
@@ -648,45 +480,23 @@
       }
     }
   },
-  "staking": {
-    "staking": "Staking",
-    "itWillTake": "It will take",
-    "toUnlock": "to unlock your %{assetSymbol} after you unstake. Staking rewards will need to be withdrawn separately.",
-    "assetStakingBalance": "%{assetSymbol} Staking Balance"
-  },
   "navBar": {
     "history": "History",
-    "thorchain": "THORChain",
-    "fox": "fox",
     "home": "Home",
     "myWallet": "My Wallet",
     "dashboard": "Dashboard",
-    "dashboardShort": "Dashboard",
     "assets": "Assets",
-    "assetDetails": "Asset Details",
     "accounts": "Accounts",
-    "accountAsset": "Account Asset",
-    "accountDetails": "Account Details",
     "defi": "DeFi",
-    "openMenu": "Open menu",
     "closeNav": "Close Nav",
-    "openNotif": "Open notifications",
-    "transactionHistory": "Transaction History",
-    "overview": "Overview",
     "transactions": "Transactions",
     "pendingTransactions": "Pending Transactions",
-    "tradeHistory": "Trade History",
-    "foxToken": "FOX Opportunities",
-    "dApps": "dApps",
     "featureFlags": "Feature Flags",
-    "clickToConnect": "Click to connect a wallet",
     "wallet": "Wallet",
     "explore": "Explore",
-    "rewards": "Rewards",
     "trade": "Trade/Bridge",
     "market": "Market",
     "limitOrder": "Limit Orders",
-    "claims": "Claims",
     "buyCrypto": "Buy/Sell Crypto",
     "buyCryptoShort": "Buy/Sell",
     "lending": "Lending",
@@ -696,29 +506,7 @@
     "foxEcosystem": "FOX Ecosystem",
     "markets": "Markets",
     "tokens": "Tokens",
-    "swap": "Swap",
-    "actionMenu": {
-      "send": {
-        "title": "Send",
-        "body": "Send your crypto"
-      },
-      "receive": {
-        "title": "Receive",
-        "body": "Receive crypto"
-      },
-      "trade": {
-        "title": "Trade or Bridge",
-        "body": "Trade or bridge your crypto"
-      },
-      "buy": {
-        "title": "Buy or Sell",
-        "body": "Buy or sell crypto with credit card"
-      },
-      "qrcode": {
-        "title": "Scan QR Code",
-        "body": "Easily scan to send or receive crypto"
-      }
-    }
+    "swap": "Swap"
   },
   "shapeShiftMenu": {
     "products": "Products",
@@ -749,24 +537,12 @@
     }
   },
   "transactionRow": {
-    "send": "Sent",
-    "receive": "Received",
     "common": "Transaction",
-    "moreDetails": "More Details",
-    "date": "Date",
-    "txid": "Transaction ID",
-    "fee": "Fee",
-    "status": "Status",
     "confirmed": "Confirmed",
     "pending": "Pending",
     "failed": "Failed",
-    "blockHeight": "Block Height",
-    "to": "To",
-    "from": "From",
-    "trade": "Trade",
     "swap": "Swap",
     "amount": "Amount",
-    "for": "for",
     "emptyMessage": "Your %{status} transactions will appear here.",
     "parser": {
       "arbitrumBridge": {
@@ -891,47 +667,19 @@
   },
   "bridge": {
     "nativeAssetWarning": "Make sure you have %{destinationSymbol} in your %{destinationChainName} account, you’ll need it for transactions",
-    "confirm": "Confirm Bridge",
-    "selectChain": "Select Chain",
-    "selectAsset": "Select Asset",
-    "startBridge": "Start Bridge",
-    "confirmBridge": "Confirm Bridge",
-    "preview": "Preview Bridge",
-    "transferring": "Transferring",
-    "transferComplete": "Transfer Complete",
-    "bridgeAnother": "Bridge another asset",
-    "feeExceedsSend": "Fee exceeds send amount",
-    "receiveAddress": "Receive Address",
-    "route": "Route",
     "waitTimeLabel": "Approx. Wait Time",
-    "waitTimeValue": "~5-10 minutes",
-    "noSupportedAssets": "No supported assets in portfolio.",
     "arbitrum": {
       "description": "Bridge via Arbitrum",
       "waitWarning": "Arbitrum’s native bridge is more secure but can take up to a week to claim.",
       "waitCta": "I understand that it will take ~7 days before I can claim funds on Ethereum",
       "claimCta": "I understand that after claiming my funds, I’ll have to send another transaction with a fee",
       "success": {
-        "tradeSuccess": "Bridge initiated",
-        "withdrawComplete": "Successfully initiated bridging %{symbol} to %{chainName}."
+        "tradeSuccess": "Bridge initiated"
       }
     },
-    "claim": "Claim",
     "claimReceiveAddress": "Claim Receive Address",
-    "claimPending": "Awaiting your claim of",
-    "claimSuccess": "You have successfully claimed",
-    "claimFailed": "Error attempting to claim",
-    "availableClaims": "Available",
-    "noAvailableClaims": "No claims available",
-    "pendingClaims": "Pending",
-    "noPendingClaims": "No claims pending",
-    "availableIn": "Available in %{time}",
     "confirmAndClaim": "Confirm & Claim",
-    "viewClaims": "View Claims",
-    "viewClaimStatus": "View Claim Status",
-    "availableClaimsNotification": "You have bridge claims ready!",
     "bridgeWithdrawalReadyNotification": "Bridge withdrawal ready to claim",
-    "bridgeWithdrawalFailedNotification": "Bridge withdrawal failed",
     "checkActionCenterNotification": "Check Action Center for details"
   },
   "trade": {
@@ -943,7 +691,6 @@
     "verifyAsset": "Verify %{asset}",
     "verifyAddressMessage": "Ensure your addresses are correct before proceeding.",
     "slippageInfo": "Your transaction will revert if the price changes unfavorably by more than this percentage.",
-    "resetAllowanceTooltip": "When there is a non-zero allowance remaining for this token, the allowance must first be reset to 0 before approving the final allowance.",
     "allowanceTooltip": "The amount you will grant the smart contract permission to use on your behalf.",
     "searchingRate": "Fetching rate...",
     "noRateAvailable": "No rate available.",
@@ -952,7 +699,6 @@
       "description": "Fetching quotes for this pair, this can take up to %{maxTimeSeconds} seconds"
     },
     "previewTrade": "Preview Trade",
-    "rate": "Rate",
     "tradeFrom": "Trade from",
     "priceImpact": "Price Impact",
     "tradeSettings": "Trade Settings",
@@ -971,7 +717,6 @@
     },
     "sort": {
       "sortBy": "Sort Quotes By",
-      "auto": "Auto",
       "bestRate": "Best Rate",
       "lowestGas": "Lowest Gas",
       "fastest": "Fastest",
@@ -980,13 +725,10 @@
     "from": "From",
     "to": "To",
     "on": "on",
-    "youPay": "You Pay",
     "payWith": "Pay With",
     "youGet": "You Get",
     "tradeTo": "Trade to",
-    "quoteStatus": "Quote status",
     "expand": "Expand",
-    "availableRoutes": "Available Routes",
     "minerFee": "Miner Fee",
     "protocolFee": "Protocol Fee",
     "protocol": "Protocol",
@@ -995,35 +737,23 @@
     "confirmDetails": "Confirm Details",
     "confirmAndTrade": "Confirm and Trade",
     "signAndSwap": "Sign & Swap",
-    "tradeAnyway": "Trade Anyway",
     "pending": "Trade Pending",
     "complete": "Trade Complete",
     "approveAsset": "Approve interacting with %{symbol}",
-    "whyNeedThis": "Why do I need to do this?",
-    "estimatedGasFee": "Estimated Gas Fee",
-    "receiveInclFee": "Receive (incl. fees)",
-    "approvingAsset": "Approving %{symbol}",
     "viewTransaction": "View Transaction",
     "noQuotesAvailable": "No Quotes Available",
     "noQuotesAvailableDescription": "No available quotes found at this time. Try selecting another pair.",
     "availableQuotes": "Available Quotes",
     "unavailableSwappers": "Unavailable Swappers",
     "unlimited": "Unlimited",
-    "streamStatus": "Stream Status",
     "swapsFailed": "%{failedSwaps} swaps failed",
     "exact": "Exact",
-    "expectedAmount": "Expected Amount",
-    "beforeFees": "Before Fees",
-    "minAmountAfterSlippage": "Min. expected after slippage (%{slippage}%)",
     "free": "Free",
-    "shapeShiftFee": "ShapeShift Fee",
     "transactionFee": "Transaction Fee",
     "slowSwapTitle": "%{protocol} trade",
     "slowSwapBody": "This swap may take a few minutes to complete.",
     "thorSmartContractWalletUnsupported": "The THORChain network currently does not support smart contract wallets.",
-    "updatingQuote": "Updating quote...",
     "intoAssetSymbolBody": "You can proceed with this trade, but transaction history for receiving %{assetSymbol} is temporarily unavailable",
-    "manualReceiveAddress": "Receive address",
     "recipientAddress": "Recipient address",
     "changeAddress": "Change address",
     "changeAddressExplainer": "When sending cryptocurrencies on UTXO-based networks, any leftover funds from your transaction are sent back to you at this address.",
@@ -1034,21 +764,11 @@
     "receiveAtLeast": "Receive at least",
     "tooltip": {
       "continueSwapping": "Continue swapping for final details",
-      "changeQuote": "Change quote",
-      "rate": "This is the expected rate for this trade pair.",
       "noRateAvailable": "This is often due to very limited or no liquidity on the trade pair.",
-      "priceImpactWarning": "A swap of this size may have a high price impact given the current liquidity in the pool. There may be a large difference between the amount of your input token and what you will receive in the output token",
       "minerFee": "This is the fee to process the transaction on the blockchain, this is not a fee charged by ShapeShift.",
-      "protocol": "This is the protocol where your trade is being routed.",
       "protocolFee": "This is the fee charged by the protocol selected to process this transaction, this is not a fee charged by ShapeShift",
-      "shapeshiftFee": "ShapeShift does not add fees on trades 🎉",
-      "manualReceiveAddress": "This is the address you will receive your funds to. It has been manually entered, please ensure it is correct.",
-      "amountPercentageDifference": "This is the percentage difference in the total amount of %{buyAssetSymbol} you will receive, compared to the best quote",
-      "overallPercentageDifference": "This is the percentage difference in the overall amount received after all fees are deducted, compared to the best quote",
       "inputOutputDifference": "The estimated difference between the USD values of input and output amounts.",
-      "gasFee": "This is the estimated gas fee to complete this trade.",
       "slippageWithAmount": "If the price moves so that you will receive less than %{amount}, your transaction will be reverted. This is the minimum amount you are guaranteed to receive.",
-      "slippage": "Your transaction will revert if the price changes unfavorably by more than this percentage.",
       "noRelatedAssets": "This asset is only available on %{chainDisplayName}",
       "chainNotSupportedByWallet": "This chain is not supported by your wallet. Switch to a different wallet to trade this asset.",
       "chainNotConnected": "This chain is not connected to your wallet. Connect %{chainDisplayName} to trade this asset."
@@ -1069,8 +789,6 @@
     },
     "permit2Eip712": {
       "title": "Permit token transfer",
-      "description": "Grant the smart contract permission to use %{symbol} on your behalf.",
-      "error": "A problem occurred signing Permit2 message",
       "signMessage": "Sign message",
       "tooltip": "This will grant %{swapperName} a 5-minute allowance to complete the trade on your behalf."
     },
@@ -1111,50 +829,26 @@
       "consumedMoreFees": "The transaction did revert because the fees consumed by this trade were higher than expected.",
       "swapperTimeout": "Request timed out."
     },
-    "swappingComingSoonForWallet": "Swapping for %{walletName} is coming soon",
-    "recentTrades": "Recent Trades",
     "or": "or",
     "onChainName": "on %{chainName}",
     "unknownGas": "(unknown)",
-    "unknownProtocolFee": "(unknown)",
-    "numHops": "This trade includes %{numHops} hops",
     "receiveAddress": "Receive Address",
     "receiveAddressDescription": "No %{chainName} address found from connected wallet. Manually enter an address",
-    "disableThorNativeSmartContractReceive": "We've detected that you're sending to a smart contract address on %{chainName}. Due to THORChain limitations, receiving %{nativeAssetSymbol} to a smart contract address is not supported. Please enter another address",
     "disableThorTaprootReceive": "We've detected that you're sending to a taproot Bitcoin address. Due to THORChain limitations, receiving BTC to a taproot address is not currently supported. Please enter another address.",
-    "disableChainflipKeepKeyTaprootReceive": "Due to KeepKey limitations, selling BTC on ChainFlip is not available yet. Please choose another pair, or connect a different wallet.",
     "toContinue": "to continue.",
-    "addressPlaceholder": "%{chainName} address",
-    "priceImpactWarning": "Due to the size of this trade relative to available liquidity, the expected price impact of this trade is %{priceImpactPercentage}%. Are you sure you want to trade?",
     "enableMetaMaskSnap": "use the multichain snap",
     "connectChain": "connect %{chainName}",
-    "approvalGasFee": "Allowance approval gas fee %{fee}",
-    "approvalGasFeeLoading": "Allowance approval gas fee loading...",
-    "approvalResetGasFee": "Allowance reset gas fee %{fee}",
-    "approvalResetGasFeeLoading": "Allowance reset gas fee loading...",
-    "approvalFailed": "A problem occurred during allowance approval",
-    "approvalResetFailed": "A problem occurred during allowance reset",
-    "allowanceResetTxName": "Allowance reset tx:",
-    "allowanceApprovalTxName": "Allowance approval tx:",
-    "tradeComplete": "You now have %{cryptoAmountFormatted} in your wallet on %{chainName}!",
-    "tradeCompleteSurplus": "You got an extra %{extraPercent}!",
     "doAnotherTrade": "Do another trade",
     "summary": "Trade Summary",
     "estimatedCompletionTime": "Estimated Completion Time",
     "transactionSuccessful": "Transaction successful, waiting for confirmations",
     "thorchainSwapperVolatilityAcknowledgementMessage": "The THORCHain protocol is experiencing volatility. Proceed with extra caution and consider additional available routes.",
     "temp": {
-      "tradeSuccess": "Trade complete",
-      "tradeComplete": "Successfully received %{symbol} on %{chainName}."
+      "tradeSuccess": "Trade complete"
     },
     "hopTitle": {
-      "bridge": "Bridge via %{swapperName}",
       "swap": "Swap via %{swapperName}",
       "swapEta": "Swap via %{swapperName} in ~%{eta}"
-    },
-    "transactionFailed": {
-      "bridge": "A problem occurred executing the bridge",
-      "swap": "A problem occurred executing the swap"
     },
     "transactionTitle": {
       "bridge": "Swap from %{sellChainName} to %{buyChainName} via %{swapperName}",
@@ -1171,44 +865,21 @@
     },
     "awaitingPermit2Approval": "Awaiting token transfer",
     "awaitingSwap": "Awaiting swap via %{swapperName}",
-    "awaitingBridge": "Awaiting bridge via %{bridgeName}",
     "awaitingApproval": "Awaiting approval",
     "awaitingAllowanceReset": "Awaiting allowance reset",
     "foxSavings": {
-      "youSaved": "You saved %{feeSaving} on your trade!",
-      "buyFox": "Buy FOX",
-      "share": "Share",
-      "postBody": "I just saved %{fee} trading on @ShapeShift just by owning $FOX!",
       "youGotMore": "You got %{cryptoUpside} more on this trade"
     },
     "networkFee": "Network Fee",
-    "feeExplainer": "Quote includes a %{feePercentage}% ShapeShift fee",
-    "claim": {
-      "pending": "Your claim of %{amount} %{symbol} is being processed.",
-      "complete": "Your claim of %{amount} %{symbol} is complete."
-    },
-    "rewardDistribution": {
-      "pending": {
-        "description": "Your reward of %{amountAndSymbol} is processing..."
-      },
-      "complete": {
-        "description": "Your reward of %{amountAndSymbol} is complete."
-      }
-    }
+    "feeExplainer": "Quote includes a %{feePercentage}% ShapeShift fee"
   },
   "limitOrder": {
     "heading": "Limit",
     "confirm": "Confirm",
-    "placeOrderPending": "Waiting for Confirmation",
-    "placeOrderSuccess": "Success!",
-    "placeOrderFailed": "Something Went Wrong",
     "placeOrder": "Place Order",
-    "placeAnotherOrder": "Place Another Order",
-    "orderSummary": "Order Summary",
     "when": "When",
     "isWorth": "is worth",
     "market": "Market:",
-    "success": "Limit order placed successfully",
     "cancel": {
       "cancelOrder": "Cancel Limit Order",
       "requestCancellation": "Yes, request cancellation",
@@ -1218,16 +889,12 @@
     "viewOrder": "View Order",
     "viewOnChain": "View transaction on chain",
     "yourOrderHasBeenPlaced": "Your order has been placed.",
-    "yourCancellationHasBeenSubmitted": "Your cancellation has been submitted.",
     "limitPrice": "Limit Price",
-    "executionPrice": "Execution Price",
     "provider": "Provider",
     "expiration": "Expiration",
     "confirmInfo": "The limit order may not fill exactly when on-chain prices reach the limit price.",
     "learnMore": "Learn More",
-    "previewOrder": "Preview Order",
     "youGet": "You get at least",
-    "whenPriceReaches": "When price reaches",
     "expiry": "Expiry",
     "noOpenOrders": "No open orders yet.",
     "noHistoricalOrders": "No historical orders yet.",
@@ -1241,14 +908,6 @@
     "sellBuy": "Sell → Buy",
     "limitExecution": "Limit/Execution",
     "statusHead": "Status",
-    "expiryOption": {
-      "oneHour": "1 hour",
-      "oneDay": "1 day",
-      "threeDays": "3 days",
-      "sevenDays": "7 days",
-      "twentyEightDays": "28 days",
-      "custom": "Custom"
-    },
     "expires": "Expires %{time}",
     "errors": {
       "nativeSellAssetNotSupported": "Native sell asset not supported",
@@ -1284,7 +943,6 @@
       }
     },
     "limitOrderFilled": "Limit order filled",
-    "limitOrderPartiallyFilled": "Limit order partially filled",
     "assetToAsset": "%{sellAmount} %{sellAsset} to %{buyAmount} %{buyAsset}"
   },
   "modals": {
@@ -1297,15 +955,10 @@
       "body": "We've launched a secure window to complete your order.",
       "body2": "Don't see the secure window? We'll help you re-launch the window to complete your order.",
       "continue": "Click to Continue",
-      "showWindow": "Show Window",
-      "cancel": "Cancel"
+      "showWindow": "Show Window"
     },
     "keepKey": {
       "passphrase": {
-        "errors": {
-          "unknown": "There was an error submitting your passphrase",
-          "empty": "You are using an empty passphrase"
-        },
         "header": "Enter Your Passphrase",
         "body": "After submitting your passphrase, use the button on the KeepKey to approve it",
         "button": "Submit Passphrase"
@@ -1372,8 +1025,6 @@
         "walletNameRequired": "Wallet nickname (required)",
         "body": "Enter your password to decrypt your wallet",
         "placeholder": "Enter Password",
-        "show": "Show password",
-        "hide": "Hide password",
         "error": {
           "invalid": "Invalid Password",
           "required": "Password is required",
@@ -1383,17 +1034,10 @@
         }
       },
       "confirmPassword": {
-        "header": "Confirm Your Password",
-        "walletName": "Wallet nickname (optional)",
-        "body": "Confirm your password to decrypt your wallet",
         "placeholder": "Confirm Password",
-        "show": "Show password",
-        "hide": "Hide password",
         "error": {
           "invalid": "Password must match",
-          "required": "Password confirmation is required",
-          "length": "Your password must be at least %{length} characters",
-          "maxLength": "Nickname must be %{length} characters maximum"
+          "required": "Password confirmation is required"
         }
       },
       "backupPassphrase": {
@@ -1404,11 +1048,6 @@
         "description": "Please tap the correct answer to seed phrases below.",
         "desktopDescription": "Complete this quick test to confirm you’ve saved everything correctly.",
         "wordNumber": "Word #%{number}",
-        "confirm": {
-          "title": "Backup wallet",
-          "body": "Before you forget your wallet, would you like to back up your secret recovery phrase?",
-          "backupNow": "Backup Now"
-        },
         "info": {
           "title": "Your Secret Recovery Phrase",
           "description": "Write these 12 words down and store them securely offline. This 12 word phrase is used to recover your wallet private keys.",
@@ -1445,7 +1084,6 @@
       "scanQrCode": "Scan QR Code",
       "qrCode": "QR Code",
       "permissionsButton": "Try again",
-      "transactionSent": "Transaction sent",
       "sent": "%{asset} sent",
       "errorTitle": "Your send of %{asset} failed",
       "errors": {
@@ -1456,15 +1094,7 @@
         "qrDangerousEthUrl": "QR codes containing a contract address not supported. Please paste the destination address manually."
       },
       "confirm": {
-        "send": "Send",
-        "sendTo": "Send To",
         "customNonce": "Custom Nonce",
-        "sendFrom": "Send From",
-        "edit": "Edit",
-        "total": "Total",
-        "amount": "Amount",
-        "transactionFee": "Transaction Fee",
-        "fees": "Fees %{feeType}",
         "pendingConfirmation": "Pending confirmation",
         "holdToSend": "Hold to send"
       },
@@ -1474,24 +1104,18 @@
         "charactersRemaining": "%{charactersRemaining} characters remaining",
         "memoExplainer": "Some %{assetSymbol} recipients may require a memo in order for the transaction to be processed correctly",
         "sendAsset": "Send %{asset}",
-        "sendTo": "Send To",
         "chain": "Chain",
-        "sendAmount": "Send Amount",
         "max": "Max",
-        "transactionFee": "Transaction Fee",
         "slow": "Slow",
         "average": "Average",
         "fast": "Fast",
-        "enterAmount": "Enter Amount",
-        "scanQrCodeDescription": "Tap to scan an address",
-        "yourAddresses": "Your Addresses"
+        "scanQrCodeDescription": "Tap to scan an address"
       },
       "status": {
         "pendingBody": "Sending %{amount} %{symbol}"
       }
     },
     "receive": {
-      "connectAWallet": "Connect a wallet to receive %{symbol}",
       "receiveAsset": "Receive %{asset}",
       "onlySend": "Only send %{symbol} on supported networks. Other tokens or networks may result in permanent loss.",
       "copy": "Copy",
@@ -1499,25 +1123,14 @@
       "copyFailed": "Failed to copy %{symbol} receive address to clipboard",
       "copyFailedDescription": "Please copy the address manually",
       "setAmount": "Set Amount",
-      "verify": "Verify",
-      "verified": "Verified",
-      "notVerified": "Address Mismatch",
       "blockExplorer": "Explorer",
       "supportedNetworks": "Supported Networks",
       "amountNote": "Enter the amount you want to request. This will generate a QR code with the amount for easier payments."
     },
     "deposit": {
-      "allocation": {
-        "heading": "Your Allocation",
-        "fractionDescription": "% of pool"
-      },
       "amountToDeposit": "Amount To Deposit",
       "depositInto": "Deposit Into %{opportunity}",
       "estimatedReturns": "Estimated Yearly Returns*",
-      "estimateDisclaimer": "*Estimates fluctuate with market conditions.",
-      "footerDisclaimer": "By continuing you agree to our ",
-      "footerDisclaimerLink": "terms of service.",
-      "slippageSettings": "Slippage Settings",
       "status": {
         "pending": "Your transaction has been broadcast and is pending confirmation.",
         "success": "You have successfully deposited into %{opportunity}.",
@@ -1528,12 +1141,7 @@
       "claimFrom": "Claim From %{opportunity}"
     },
     "stake": {
-      "amountToStake": "Amount To Stake",
       "stakeYour": "Stake your %{opportunity}",
-      "estimatedReturns": "Estimated Yearly Returns*",
-      "estimateDisclaimer": "*Estimates fluctuate with market conditions.",
-      "footerDisclaimer": "By continuing you agree to our ",
-      "footerDisclaimerLink": "terms of service.",
       "status": {
         "pending": "Your transaction has been broadcast and is pending confirmation.",
         "success": "You have successfully staked your %{opportunity}.",
@@ -1544,39 +1152,28 @@
       "amountToWithdraw": "Amount To Withdraw",
       "withdrawFrom": "Withdraw From %{opportunity}",
       "unstakeYour": "Withdraw your %{opportunity}",
-      "footerDisclaimer": "This transaction will require one transaction gas fee.",
       "slippageSettings": "Slippage Settings",
       "withdrawType": "Withdraw Type",
       "instant": "Instant",
       "delayed": "7 to 14 days",
       "fee": "%{fee}% %{symbol} fee",
       "noFee": "No %{symbol} fee",
-      "requestWithdraw": "Request Withdraw",
       "withdrawFee": "There will be separate gas fee to withdraw.",
       "notEnoughGas": "Not enough %{assetSymbol} to cover gas",
-      "disclaimer": "Subsequent requests will be combined and reset the withdrawal time.",
       "withdrawalFee": "Withdrawal Fee",
       "status": {
         "pending": "Your transaction has been broadcast and is pending confirmation.",
         "success": "You have successfully withdrawn from %{opportunity}.",
         "failed": "There was an issue with your withdraw."
-      },
-      "info": {
-        "delayed": "The delayed withdrawal has two transactions:",
-        "delayedOne": "Request the withdrawal",
-        "delayedTwo": "Claim the withdrawal after 7 to 14 days",
-        "instant": "The instant withdrawal is one transaction and requires you to withdraw the full amount staked."
       }
     },
     "approve": {
       "header": "Allow %{spenderName} to use your %{asset}",
       "resetHeader": "Reset %{spenderName} allowance for %{asset}",
-      "shapeshiftRouterName": "ShapeShift DAO Router",
       "body": "needs your permission to use your %{asset}",
       "learnMore": "Why do I need to do this?",
       "depositFee": "There will be a separate gas fee to deposit.",
       "estimatedGas": "Estimated Gas Fee",
-      "confirm": "Confirm",
       "reject": "Reject",
       "approved": "Approved"
     },
@@ -1586,8 +1183,6 @@
       },
       "deposit": {
         "header": "Confirm Deposit",
-        "averageApr": "Average APR",
-        "estimatedReturns": "Estimated Yearly Returns*",
         "preFooter": "Rewards accrue automatically"
       },
       "withdrawTo": "Withdraw To",
@@ -1595,20 +1190,14 @@
       "amountDeposited": "Amount Deposited",
       "amountToStake": "Amount To Stake",
       "amountToWithdraw": "Amount To Withdraw",
-      "amountToClaim": "Amount To Claim",
-      "withdrawFrom": "Withdraw From",
-      "depositTo": "Deposit To",
-      "averageApy": "Average APY",
       "withdrawTime": "Withdraw Time",
       "withdrawFee": "Withdraw Fee",
       "withdrawInstantTime": "Instant",
       "withdrawDelayedTime": "7 to 14 days",
       "xDays": "%{unbondingDays} days",
-      "estimatedReturns": "Estimated Yearly Returns*",
       "estimatedGas": "Estimated Gas Fee",
       "notEnoughGas": "Not enough %{assetSymbol} to cover gas",
       "missingFundsForGas": "Not enough funds, you need %{cryptoAmountHuman} %{assetSymbol} more to complete transaction",
-      "preFooter": "Rewards accrue automatically",
       "signBroadcast": "Sign & Broadcast",
       "cancel": "Cancel"
     },
@@ -1618,20 +1207,11 @@
         "success": "Transaction Confirmed",
         "failed": "Transaction Execution Failed"
       },
-      "depositTo": "Deposit To",
       "transactionId": "TX ID",
-      "averageApy": "Average APY",
-      "estimatedReturns": "Estimated Yearly Returns*",
       "estimatedGas": "Estimated Gas Fee",
       "gasUsed": "Total Gas Fee",
-      "continue": "View Transaction",
       "position": "View Position",
-      "viewAsset": "View Asset",
-      "close": "Close",
       "viewExplorer": "View in Explorer"
-    },
-    "connect": {
-      "loadingText": "Pairing Wallet"
     },
     "settings": {
       "clearCache": "Clear cache",
@@ -1645,49 +1225,15 @@
       "currencyFormat": "Currency Format",
       "language": "Language",
       "balanceThreshold": "Balance Threshold",
-      "balanceThresholdTooltip": "On dashboard and charts, hide balances below this value",
-      "currencies": {
-        "CNY": "Chinese Yuan",
-        "USD": "United States Dollar (default)",
-        "EUR": "Euro",
-        "JPY": "Japanese Yen",
-        "GBP": "Great Britain Pound",
-        "KRW": "Korean Won",
-        "INR": "Indian Rupee",
-        "CAD": "Canadian Dollar",
-        "HKD": "Hong Kong Dollar",
-        "AUD": "Australian Dollar",
-        "TWD": "New Taiwan Dollar",
-        "BRL": "Brazilian Real",
-        "CHF": "Swiss Franc",
-        "THB": "Thai Baht",
-        "MXN": "Mexican Peso",
-        "RUB": "Russian Ruble",
-        "SAR": "Saudi Riyal",
-        "SGD": "Singapore Dollar",
-        "ILS": "Israeli Shekel",
-        "IDR": "Indonesian Rupiah"
-      }
+      "balanceThresholdTooltip": "On dashboard and charts, hide balances below this value"
     },
     "ramp": {
       "payWith": "Pay With",
-      "youGet": "You Get",
       "sellAmount": "Sell Amount",
       "receiveAmount": "Receive Amount",
       "buyAsset": "Buy Asset",
       "sellAsset": "Sell Asset",
-      "receiveAsset": "Receive Asset",
-      "previewOrder": "Preview Order",
-      "processingTime": "Processing Time: 1-3 business days",
-      "buyInfo": "Buy crypto with fiat currency",
-      "sellInfo": "Sell crypto for fiat currency",
-      "availableQuotes": "Available Quotes",
-      "bestRate": "Best Rate",
-      "fastest": "Fastest",
-      "rate": "Rate",
-      "amount": "Amount",
-      "paymentMethods": "Payment Methods",
-      "selectFiat": "Select Fiat Currency"
+      "receiveAsset": "Receive Asset"
     },
     "mobileWelcome": {
       "success": {
@@ -1723,21 +1269,6 @@
         "conflictingApp": "Could not find your KeepKey. Another application may be trying to connect with your KeepKey.",
         "downloadUpdaterApp": "Download updater app"
       },
-      "pin": {
-        "header": "Enter Your PIN",
-        "body": "Use PIN layout shown on your device to find the location to press on the PIN pad.",
-        "button": "Unlock"
-      },
-      "newPin": {
-        "header": "Enter Your New PIN",
-        "body": "Create a new PIN (up to 9 digits) using the layout display on your KeepKey.",
-        "button": "Confirm"
-      },
-      "newPinConfirm": {
-        "header": "Confirm Your New PIN",
-        "body": "Re-enter your PIN using the layout displayed on your KeepKey.",
-        "button": "Save PIN"
-      },
       "settings": {
         "menuLabels": {
           "bootloader": "Bootloader",
@@ -1757,9 +1288,6 @@
         },
         "headings": {
           "deviceSetting": "Device %{setting}",
-          "enterPin": "Enter current PIN",
-          "setPin": "Set a new PIN",
-          "confirmPin": "Confirm new PIN",
           "passphrase": "Passphrase"
         },
         "descriptions": {
@@ -1784,8 +1312,7 @@
         },
         "actions": {
           "update": "Update %{setting}",
-          "enable": "Enable %{setting}",
-          "learnMore": "Learn More"
+          "enable": "Enable %{setting}"
         }
       },
       "modals": {
@@ -1808,7 +1335,6 @@
     },
     "keplr": {
       "errors": {
-        "connectFailure": "Unable to connect Keplr wallet",
         "unknown": "An unexpected error occurred communicating with Keplr",
         "noProvider": "Keplr wallet extension not found"
       },
@@ -1826,7 +1352,6 @@
         "header": "Import Ledger Accounts",
         "body": "To see your balances for each chain, you'll need to connect each app.",
         "availableChains": "Available Chains",
-        "error": "There was an error connecting your wallet",
         "followTheInstructions": "Follow the instructions",
         "toGetTheRuneApp": "to get the RUNE app on your device",
         "added": "Added",
@@ -1838,14 +1363,10 @@
       },
       "success": {
         "header": "Ledger Connected",
-        "success": "You can now close this window.",
-        "error": "There was an error connecting your wallet"
+        "success": "You can now close this window."
       },
       "errors": {
-        "connectFailure": "Unable to connect Ledger wallet",
         "unknown": "An unexpected error occurred communicating with Ledger wallet",
-        "appNotOpen": "%{app} not open on Ledger",
-        "appNotOpenDescription": "Please open the %{app} app on your device and try again.",
         "noDeviceConnected": "No Ledger device connected",
         "multipleDevicesConnected": "Multiple Ledger devices connected. Please disconnect all but one device."
       },
@@ -1890,9 +1411,7 @@
     },
     "phantom": {
       "errors": {
-        "unknown": "An unexpected error occurred communicating with Phantom",
-        "connectFailure": "Unable to connect Phantom wallet",
-        "multipleWallets": "Detected Ethereum provider is not Phantom. Do you have multiple wallets installed?"
+        "connectFailure": "Unable to connect Phantom wallet"
       },
       "connect": {
         "header": "Pair Phantom",
@@ -1916,8 +1435,6 @@
         "title": "Multichain Snap needs updating",
         "subtitle": "Click 'Update' to continue using ShapeShift's multichain features with MetaMask!"
       },
-      "connectMetaMask": "Connect MetaMask",
-      "andMore": "...and more",
       "snapInstalledToast": "ShapeShift Multichain MetaMask Snap Installed",
       "snapUninstalledToast": "ShapeShift Multichain MetaMask Snap Uninstalled",
       "dontAskAgain": "Don't ask again",
@@ -1942,11 +1459,6 @@
       "acceptUpdate": "Confirm & Update"
     },
     "coinbase": {
-      "errors": {
-        "unknown": "An unexpected error occurred communicating with Coinbase",
-        "connectFailure": "Unable to connect Coinbase wallet",
-        "multipleWallets": "Detected Ethereum provider is not Coinbase. Do you have multiple wallets installed?"
-      },
       "connect": {
         "header": "Pair Coinbase",
         "body": "Click Pair and login to Coinbase from the popup window",
@@ -1958,16 +1470,12 @@
     },
     "walletConnect": {
       "errors": {
-        "unknown": "An unexpected error occurred communicating with WalletConnect",
-        "connectFailure": "Unable to connect WalletConnect wallet"
+        "unknown": "An unexpected error occurred communicating with WalletConnect"
       },
       "connect": {
         "header": "Pair WalletConnect",
         "body": "Click Pair then select WalletConnect from the popup window",
         "button": "Pair"
-      },
-      "failure": {
-        "body": "Unable to connect WalletConnect wallet"
       }
     },
     "shapeShift": {
@@ -1979,8 +1487,6 @@
           "fetchingWallets": "An error occurred while fetching wallets."
         },
         "header": "Saved Wallets",
-        "body": "Loading your saved wallet... Enter your password when prompted.",
-        "button": "Continue",
         "forgetWallet": "Forget Wallet",
         "confirmForget": "Are you sure you want to forget %{wallet}?",
         "confirmForgetBody": "You will not be able to access your wallet if you have not backed it up."
@@ -2008,14 +1514,11 @@
       "create": {
         "header": "Your Secret Recovery Phrase",
         "body": "Write these 12 words down and store them securely offline. This 12 word phrase is used to recover your wallet private keys.",
-        "button": "Next",
-        "hideWords": "Hide Words",
-        "showWords": "Show Words"
+        "button": "Next"
       },
       "start": {
         "header": "ShapeShift Wallet",
         "selectHeader": "Import Wallet",
-        "keystoreHeader": "Keystore Wallet",
         "body": "You can have multiple ShapeShift wallets. You may load a wallet, import a wallet from a Secret Recovery Phrase, or create a new wallet.",
         "selectBody": "Import wallet using your Secret Recovery Phrase or by loading your keystore file.",
         "import": "Import a wallet",
@@ -2033,8 +1536,7 @@
         "error": "There was an error connecting your wallet"
       },
       "testPhrase": {
-        "header": "Verify Your Secret Recovery Phrase",
-        "button": "Next"
+        "header": "Verify Your Secret Recovery Phrase"
       },
       "rename": {
         "header": "Rename my wallet",
@@ -2054,35 +1556,7 @@
         "confirmDelete": "Confirm",
         "success": "Wallet deleted successfully"
       },
-      "legacy": {
-        "deprecatedWarning": "ShapeShift Log In is being Deprecated",
-        "learnMore": "Learn More",
-        "alreadySavedConfirm": "I confirm that my Secret Recovery Phrase is already backed up securely.",
-        "mobileWalletTitle": "ShapeShift Mobile Wallet",
-        "importInformations": "To continue using your ShapeShift Mobile Wallet, you'll need to import it.",
-        "importWallet": "Import Wallet",
-        "haveMobileWallet": "Have a ShapeShift Mobile Wallet?",
-        "loginWithAccount": "Log In with ShapeShift Account",
-        "loginInformations": "Enter your email address and password you use to login to your ShapeShift Mobile App.",
-        "loginSuccess": "Successfully Logged In",
-        "emailAddress": "Email Address",
-        "password": "Password",
-        "emailRequired": "Email is required",
-        "invalidEmail": "Email is invalid",
-        "invalidCaptcha": "Captcha is invalid",
-        "captchaRequired": "Captcha is required",
-        "tooManyAttempts": "Too many attempts, please try again later.",
-        "invalidLogin": "Invalid login",
-        "noWallet": "Could not find a ShapeShift Wallet for your login. If you feel this message is in error, please contact ShapeShift support.",
-        "decryptionError": "Something went wrong decrypting your wallet.",
-        "twoFactorAuthentication": "Two-Factor Authentication",
-        "twoFactorPlaceholder": "6-digit code",
-        "twoFactorRequired": "2FA is required",
-        "invalidTwoFactor": "6-digit code is invalid",
-        "twoFactorDescription": "Two-factor authentication is enabled for your account. Please enter the code from your authentication app."
-      },
       "onboarding": {
-        "skip": "Skip",
         "shapeshiftWallet": "ShapeShift Wallet",
         "createNewWallet": "Create a new wallet",
         "shapeshiftNative": "ShapeShift Wallet",
@@ -2092,56 +1566,16 @@
         "importFromKeystore": "Import from keystore",
         "whatIsShapeshiftWallet": "What is ShapeShift Wallet?",
         "yourDecentralizedGateway": "Your decentralization gateway. Trade and earn Bitcoin, Ethereum, Solana and more from a single, secure wallet.",
-        "crossChainFreedom": "Cross chain freedom. Access the best rates across multiple decentralized exchanges, no middleman required.",
-        "selfCustody": {
-          "title": "Your ShapeShift Wallet is Self-Custody",
-          "subTitle": "You hold the keys and you're the only one who can access it.",
-          "body": "A self-custody wallet means that you own it, and only you have access to your funds. Your secret recovery phrase is your key to accessing it. Nobody can block you from accessing your funds.",
-          "cta": "Next"
-        },
-        "multiChain": {
-          "title": "Multiple chains are supported simultaneously",
-          "subTitle": "You never need to switch chains in the wallet, it works with each chain seamlessly.",
-          "body": "When a new chain is added on ShapeShift, your ShapeShift Wallet will automatically support it.",
-          "cta": "Next"
-        },
-        "easyToUse": {
-          "title": "It's easy to use!",
-          "subTitle": "With ShapeShift Wallet you can:",
-          "trackBalance": "Track your balances",
-          "sendReceive": "Send/receive crypto",
-          "buyCrypto": "Buy crypto",
-          "tradeAssets": "Trade assets",
-          "earnYield": "Earn yield on your idle assets",
-          "cta": "Buy Crypto",
-          "secondaryCta": "Go to my dashboard"
-        }
+        "crossChainFreedom": "Cross chain freedom. Access the best rates across multiple decentralized exchanges, no middleman required."
       }
     },
     "selectModal": {
       "header": "Connect A Wallet",
       "body": "By connecting a wallet, you agree to ShapeShift's Terms of Service and acknowledge that you have read and understand the ShapeShift disclaimer.",
-      "footer": "Don't have a wallet?",
       "create": "Create",
       "or": "or",
       "import": "Import",
       "aWallet": "a wallet"
-    },
-    "walletConnectV2": {
-      "start": {
-        "header": "Wallet Connect V2",
-        "load": "Saved connections",
-        "create": "Connect new wallet"
-      },
-      "load": {
-        "header": "Saved Connections",
-        "confirmForget": "Are you sure you want to forget %{connection}?",
-        "error": {
-          "delete": "Unable to delete your wallet, sorry.",
-          "noWallet": "You have no saved wallets",
-          "pair": "Unable to pair your wallet"
-        }
-      }
     },
     "create": {
       "header": "Give your wallet a name",
@@ -2198,20 +1632,12 @@
     },
     "assetDetails": {
       "assetHeader": {
-        "balance": "Balance",
         "price": "Price",
         "marketCap": "Market Cap",
         "24HrVolume": "24hr Volume",
         "dayChange": "Day Change",
         "aboutAsset": "About %{asset}",
-        "SegwitP2sh": "Segwit",
-        "SegwitNative": "Segwit Native",
-        "P2pkh": "Legacy",
-        "SegwitNativeTooltip": "Recommended for most users. Only use the other addresses if you know what they are for",
-        "btcFormat": "BTC format",
         "assetUnavailable": "Market data for this asset isn't available yet. We're working on it, hang tight!",
-        "customAsset": "This is a custom imported asset. Market data may not be accurate.",
-        "loading": "Fetching price history, hang tight...",
         "maxTotalSupply": "Max Total Supply",
         "availableSupply": "Available Supply",
         "marketData": "Market Data"
@@ -2221,8 +1647,6 @@
         "showLess": "Show Less"
       },
       "assetHistory": {
-        "transactionHistory": "Transaction History",
-        "recentTransactions": "Recent Transactions",
         "emptyTransactions": "Transactions will appear here."
       },
       "assetAccounts": {
@@ -2236,32 +1660,15 @@
     "assetCards": {
       "assetActions": {
         "buy": "Buy",
-        "sell": "Sell",
         "trade": "Trade"
       },
-      "equity": "Equity",
       "accountTokens": "Account Tokens",
       "relatedAssets": "Related Assets",
-      "showTokens": "Show Tokens (%{amount})",
-      "hideTokens": "Hide Tokens (%{amount})",
-      "underlyingAssets": "Underlying Assets",
-      "rewards": {
-        "farmingRewards": "Farming Rewards",
-        "currentRewards": "Current Rewards",
-        "currentAPY": "Current APY",
-        "yourRewards": "Your Rewards",
-        "currentAPYLabel": "The current APY for your rewards",
-        "claimRewards": "Claim Rewards"
-      },
-      "accounts": "Accounts",
-      "stakingVaults": "Staking & Vaults",
-      "stakingBody": "Earn passive income by staking your assets or depositing them into a DeFi strategy.",
-      "pools": "Pools"
+      "stakingBody": "Earn passive income by staking your assets or depositing them into a DeFi strategy."
     }
   },
   "accounts": {
     "accounts": "Accounts",
-    "selectAccount": "Select an Account",
     "addAccount": "Add Account",
     "accountNumber": "Account #%{accountNumber}",
     "accountChain": "Account Chain",
@@ -2291,7 +1698,6 @@
     "importAccounts": {
       "title": "Import %{chainNamespaceDisplayName} Accounts",
       "description": "Select the accounts you would like to import from the list below.",
-      "import": "Import",
       "loadMoreDisabled": "This wallet does not support multiple accounts for this chain."
     }
   },
@@ -2300,13 +1706,11 @@
     "description": "To continue, you will need to open the %{appName} app on your Ledger device.",
     "devicePrompt": "Your device will prompt you with any necessary steps required to complete your current action."
   },
-  "loremIpsum": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut sed lectus efficitur, iaculis sapien eu, luctus tellus. Maecenas eget sapien dignissim, finibus mauris nec, mollis ipsum. Donec sodales sit amet felis sagittis vestibulum. Ut in consectetur lacus. Suspendisse potenti. Aenean at massa consequat lectus semper pretium. Cras sed bibendum enim. Mauris euismod sit amet dolor in placerat.",
   "transactionHistory": {
     "transactionHistory": "Transaction History",
     "recentTransactions": "Recent Transactions",
     "filter": "Filter",
     "filters": {
-      "filters": "Filters",
       "resetFilters": "Reset Filters",
       "to": "to",
       "categories": "Categories",
@@ -2336,90 +1740,17 @@
       "outputCurrency": "Output currency",
       "outputAddress": "Output address"
     },
-    "transactionTypes": {
-      "Send": "Send",
-      "Receive": "Receive",
-      "Trade": "Trade",
-      "Swap": "Swap",
-      "Refund": "Refund"
-    },
-    "assets": "Assets",
-    "txid": "TX ID",
-    "fee": "Fee",
-    "youSent": "You Sent",
-    "youReceived": "You Received",
     "sentTo": "Sent to %{address}",
     "receivedFrom": "Received from %{address}",
-    "orderRoute": "Order Route",
-    "status": "Status",
-    "transactionType": "Transaction Type",
-    "minerFee": "Miner Fee",
-    "approvalAmount": "Approval Amount",
-    "unknownType": "Transaction",
-    "date": "Date",
-    "from": "From",
-    "to": "To",
-    "for": "For",
-    "transfers": "Transfers",
     "today": "Today",
     "yesterday": "Yesterday",
     "thisWeek": "This Week",
-    "thisMonth": "This Month",
-    "transactionDetails": "Transaction Details"
+    "thisMonth": "This Month"
   },
   "plugins": {
     "foxPage": {
-      "buyAssetOnCoinbase": "Buy %{assetSymbol} on Coinbase",
-      "totalFoxValue": "Total Fox Value",
-      "foxToken": "ShapeShift %{assetSymbol} Token",
-      "foxDescription": "Since 2019, our shapeshifting FOX Token has been offering users an ever-expanding world of utility and advantages. Today, our ERC-20 governance token not only enables you to influence the future of ShapeShift through your vote, you also have an ever-expanding universe of investing opportunities. Invest, track, and manage your FOX holdings here.",
       "getAsset": "Get %{assetSymbol}",
-      "trade": "Trade",
-      "receive": "Receive",
-      "mainStakingTitle": "%{assetSymbol} Token Staking",
-      "mainStakingDescription": "Put your FOX to work in single-sided staking contracts to earn FOX rewards. (FOX can still be used in governance while staked, but is otherwise locked into the contract during staking.)",
-      "tvl": "TVL",
-      "currentApy": "Current APY",
-      "balance": "Balance",
-      "getStarted": "Get Started",
-      "manage": "Manage",
-      "currentPrice": "Current Price",
-      "tradingUnavailable": "%{assetSymbol} is not yet tradeable on ShapeShift. You can trade %{assetSymbol} on ElasticSwap.",
-      "tradeOnElasticSwap": "Trade %{assetSymbol} on ElasticSwap",
-      "otherOpportunitiesTitle": {
-        "FOX": "Other Opportunities",
-        "FOXy": "Opportunities"
-      },
-      "otherOpportunitiesDescription": {
-        "FOX": "Explore the many opportunities for providing liquidity, farming for yield, lending and borrowing. Click the “Get Started” links below to visit the external sites of interest to learn more—and put your FOX to work for you.",
-        "FOXy": "Quickly and easily purchase FOXy, the industry’s first DAO rebasing token that offers both yield and profit rewards."
-      },
-      "liquidityPools": "Liquidity Pools",
-      "farming": "Farming",
-      "borrowingAndLending": "Borrowing & Lending",
-      "governanceTitle": "Governance",
-      "governanceDescription": "As a FOX holder, you can have a voice in the future of ShapeShift. Below are active or recently passed DAO proposals voted on by token holders.",
-      "seeAllProposals": "See All Proposals",
-      "availableToTradeOn": "Available to Trade On",
-      "dex": "DEX",
-      "centralized": "Centralized",
-      "dappBack": {
-        "title": "✨ Get FOX rewards + more! ✨",
-        "body": "Earn FOX rewards by completing tasks on DappBack",
-        "cta": "Launch DappBack"
-      }
-    },
-    "analytics": {
-      "optInModal": {
-        "title": "Help us improve ShapeShift",
-        "description": "ShapeShift would like to gather usage data to better understand how our users interact with the app. This data will be used to continually improve the usability and user experience of our product.",
-        "actionsSentence": "ShapeShift will...",
-        "noThanks": "No thanks, take me to the private version",
-        "sendEvents": "Send anonymized click and pageview events",
-        "neverCollectPersonalInformations": "Never collect keys, addresses, transactions, balances, or any personal information ",
-        "neverCollectIp": "Never collect your full IP address",
-        "neverSellData": "Never sell data for profit"
-      }
+      "currentPrice": "Current Price"
     },
     "walletConnectToDapps": {
       "errors": {
@@ -2436,9 +1767,7 @@
           "reconnect": "Reconnect",
           "addresses": "Addresses",
           "address": "Address",
-          "connected": "Connected",
           "networks": "Network(s)",
-          "unsupportedNetwork": "Unsupported Network",
           "expiry": "Session expiry"
         },
         "multipleSessionsConnected": "%{count} dApps connected",
@@ -2446,8 +1775,6 @@
       },
       "modal": {
         "title": "WalletConnect",
-        "ethereum": "Ethereum",
-        "connectAll": "Connect All Accounts",
         "interactContract": "Interact Contract",
         "transactionData": "Transaction Data",
         "method": "Method",
@@ -2459,7 +1786,6 @@
         "noAccount": "You don't have an account on %{chainName} for this address",
         "connectionRequest": "Connection Request",
         "connectionRequestTooltip": "Connecting allows this dApp to request transaction approvals",
-        "sendingTo": "Sending To",
         "signMessage": {
           "signingFrom": "Signing From",
           "requestFrom": "Request From",
@@ -2467,8 +1793,6 @@
           "description": "You will need to confirm signing this message with your connected wallet.",
           "confirm": "Confirm",
           "reject": "Reject",
-          "messageData": "Message data",
-          "domain": "Domain",
           "memo": "Memo",
           "messages": "Messages",
           "noMessages": "No messages",
@@ -2478,19 +1802,9 @@
           "authInfo": "Auth info",
           "body": "Body",
           "comingSoon": "Coming soon",
-          "contract": "Contract",
-          "primaryType": "Primary Type"
+          "contract": "Contract"
         },
         "sendTransaction": {
-          "sendingFrom": "Sending From",
-          "sendingTo": "Sending To",
-          "interactingWith": "Interacting With",
-          "amount": "Amount",
-          "contractInteraction": {
-            "title": "Contract Interaction",
-            "sendingEth": "Sending ETH",
-            "data": "Raw Data (hex encoded)"
-          },
           "advancedParameters": {
             "title": "Advanced Parameters",
             "alert": "For advanced use only. Modifying these settings could result in stuck transactions.",
@@ -2504,95 +1818,25 @@
               "placeholder": "Gas Limit...",
               "tooltip": "The gas limit refers to the maximum amount of gas a user can consume to conduct a transaction."
             }
-          },
-          "estGasCost": "Est. Gas Cost",
-          "description": "You're about to create a transaction and will have to confirm it with your currently connected wallet."
-        },
-        "signTransaction": {
-          "description": "You're about to sign a transaction and will have to confirm it with your currently connected wallet."
+          }
         },
         "connect": {
           "title": "Connect your wallet to a dApp via WalletConnect and trigger transactions",
           "linkPlaceholder": "QR code or connection link",
-          "connect": "Connect",
-          "connectionError": "Can't connect to provided URI.",
-          "invalidUri": "Invalid URI",
-          "v1UriUnsupported": "WalletConnect V1 URI not enabled",
-          "v2UriUnsupported": "WalletConnect V2 URI not enabled",
           "disclaimerBody": "ShapeShift cannot ensure the safety or security of third-party applications. By using WalletConnect, you assume full responsibility for any risks involved."
         },
         "sessionProposal": {
-          "dAppInfo": "dApp Info",
-          "permissions": "Required Permissions",
-          "optionalPermissions": "Optional Permissions",
-          "accountSelection": "Choose accounts",
-          "unsupportedChain": "Unsupported chain namespace in session proposal.",
-          "methods": "Methods",
-          "events": "Events",
-          "selectedAccounts": "Selected Accounts",
-          "permissionMessage": "Please select at least one account per chain.",
-          "optionalPermissionMessage": "The following permissions are optional."
+          "unsupportedChain": "Unsupported chain namespace in session proposal."
         },
         "noAccountsForChain": {
           "title": "Chain not supported",
           "description": "No %{chainLabel} account connected to this dApp."
         }
-      },
-      "registry": {
-        "availableDapps": "Available dApps",
-        "getStarted": "Get Started",
-        "learnMore": "Learn More",
-        "banner": {
-          "title": "Connect to over 300+ dApps",
-          "subtitle": "Connect your wallet to a dApp via WalletConnect and trigger transactions"
-        },
-        "emptyStateDescription": "Try adjusting your search query and try again.",
-        "pageInput": {
-          "label": "%{current} of %{total}",
-          "nextPage": "Next Page",
-          "prevPage": "Previous Page"
-        }
       }
     }
   },
   "gasInput": {
-    "duration": {
-      "slow": "~ 10 mins",
-      "average": "~ 3 mins",
-      "fast": "~ 3 secs"
-    },
-    "estGasCost": "Est. Gas Cost",
-    "gasPrice": {
-      "label": "Gas Price",
-      "tooltip": "The amount you want to pay per unit of gas as a fee to the miner or validator"
-    },
-    "base": {
-      "label": "Base fee",
-      "tooltip": "The base fee is set by the network and changes every 13-14 seconds depending on demand. Set the maximum price (not including priority fee) in gwei that you're willing to pay for each unit of gas."
-    },
-    "priority": {
-      "label": "Priority fee",
-      "tooltip": "The priority fee is an optional tip to incentivize block producers to prioritize your transaction. Set the priority fee in gwei that you'd like to pay for each unit of gas."
-    },
     "custom": "Custom"
-  },
-  "promo": {
-    "onRamper": {
-      "title": "Buy Crypto with NO KYC",
-      "body": "Purchase up to $1,000 with Apple Pay",
-      "cta": "Buy Now"
-    },
-    "savers": {
-      "title": "Earn rewards on your %{asset}",
-      "body": "Stake to THORChain savers vault. No lock-up time.",
-      "cta": "Deposit Now"
-    }
-  },
-  "avatar": {
-    "modal": {
-      "title": "Set a New Avatar",
-      "restoreDefault": "Restore default"
-    }
   },
   "lending": {
     "lending": "Lending",
@@ -2637,14 +1881,11 @@
     "unlockedCollateral": "Unlocked Collateral",
     "depositAsset": "Deposit %{asset}",
     "switchAssets": "Switch Assets",
-    "backToLending": "Back to lending",
     "outstandingDebt": "Outstanding Debt",
     "outstandingDebtDescription": "The amount of collateral you've borrowed",
     "collateral": "Collateral",
     "debt": "Debt",
     "healthy": "Depth is optimal, loans are efficient.",
-    "caution": "Depth is moderate, expect some slippage on your borrow",
-    "risky": "Depth is low, high slippage likely on your borrow.",
     "confirmAndBorrow": "Confirm and Borrow",
     "confirmAndRepay": "Confirm and Repay",
     "borrowAgain": "Borrow Again",
@@ -2680,8 +1921,7 @@
       "amountTooLowToReturnCollateralTooltip": "The repayment is too low for your collateral to be returned. Please try again with a higher amount, or repay a partial amount (which will not return your collateral, but will decrease your debt).",
       "amountTooSmallUnknownMinimumTooltip": "The repayment amount you have entered is too small. Please try again with a higher amount.",
       "repaymentUnavailableTooltip": "It is not possible to repay your loan yet. Please wait until the repayment lock has elapsed.",
-      "repaymentsHaltedTooltip": "Repayments are temporarily halted. Please try again later.",
-      "errorGettingQuote": "There was an error getting the quote. Please try again."
+      "repaymentsHaltedTooltip": "Repayments are temporarily halted. Please try again later."
     },
     "quote": {
       "collateral": "Total asset amount which will be secured against your loan",
@@ -2718,17 +1958,13 @@
     "earnings": "Earnings",
     "poolShare": "Pool Share",
     "yourPosition": "Your Position",
-    "poolInformation": "Pool Information",
     "poolsBody": "Provide liquidity and earn fees on trades in that pool.",
     "availablePools": "Available Pools",
     "addLiquidity": "Add Liquidity",
-    "customSlippageDisabled": "We are unable to set a custom slippage",
-    "unsafeQuote": "This deposit has high slippage (%{slippagePercentage}%). Proceed with caution.",
     "removeLiquidity": "Remove Liquidity",
     "initialPricesAndPoolShare": "Initial Prices and Pool Share",
     "pricePerAsset": "%{from} per %{to}",
     "symAlert": "Your %{from} will be split into a 50:50 exposure to both %{to} and %{from} upon entering the pool.",
-    "symAfterRuneAlert": "Symmetrical deposits are not possible following an asymmetric RUNE deposit due to the way the THOR network works.",
     "withdrawTypeNotAvailable": "This withdrawal type is not available for this pool.",
     "incompletePositionDepositAlert": "This position is incomplete, please deposit the corresponding amount of %{asset} to finalize this position.",
     "incompletePositionWithdrawAlert": "This position is incomplete, please cancel the position by removing 100% of the liquidity. You can also finalize the position via 'Add Liquidity'.",
@@ -2736,16 +1972,11 @@
     "unsupportedNetworksExplainer": "Your wallet isn't connected to %{network1} and %{network2}. Please connect this chain or switch to a wallet that supports these networks.",
     "depositsDisabled": "Deposits Disabled",
     "shareOfPool": "Share of Pool",
-    "assetDepositAmount": "%{asset} Deposit Amount",
     "totalLiquidity": "Total Liquidity",
     "totalVolume": "Total Volume",
     "fees24h": "Fees 24H",
-    "estimatedTime": "Estimated Time",
-    "liquidityValue": "Liquidity Value",
     "selectPair": "Select Pair",
     "depositAmounts": "Deposit Amount(s)",
-    "awaitingConfirmation": "Awaiting confirmation",
-    "transactionSubmitted": "Transaction submitted",
     "waitingForConfirmation": "Waiting for Confirmation",
     "totalTokensLocked": "Total Tokens Locked",
     "chainFee": "%{chain} Fee",
@@ -2754,7 +1985,6 @@
     "confirmAndDeposit": "Confirm and Deposit",
     "confirmAndWithdraw": "Confirm and Withdraw",
     "removeAmounts": "Remove Amount(s)",
-    "stagedTooltip": "Staged pools are new pools accepting liquidity, but will not accrue any earnings until Available",
     "newPosition": "New position",
     "newPositionTooltip": "This will create a new LP position instead of adding to any existing ones.",
     "notSupported": "Not possible",
@@ -2825,10 +2055,6 @@
       "title": "Pools",
       "body": "Earn Fees on trades in pools."
     },
-    "lending": {
-      "title": "Lending",
-      "body": "Borrow against your assets."
-    },
     "foxEcosystem": {
       "body": "Your dashboard for all things FOX."
     },
@@ -2858,7 +2084,6 @@
     "unstake": "Unstake",
     "claim": "Claim",
     "rewards": "Rewards",
-    "claims": "Claims",
     "chainNotSupportedByWallet": "Chain not supported by wallet",
     "changeAddress": "Change address",
     "sameAddressNotAllowed": "Same address not allowed",
@@ -2869,7 +2094,6 @@
     "confirmAndUnstake": "Confirm & Unstake",
     "confirmAndClaim": "Confirm & Claim",
     "shapeShiftFee": "ShapeShift Fee",
-    "approvalFee": "Approval Fee",
     "lockupPeriod": "Lockup Period",
     "shareOfPool": "Share of Pool",
     "thorchainRewardAddress": "THORChain Reward Address",
@@ -2891,23 +2115,14 @@
     "stakePending": "Staking %{amount} %{symbol}...",
     "changeAddressPending": "Changing RFOX Reward Address to %{newAddress}",
     "changeAddressSuccess": "Changed RFOX Reward Address to %{newAddress}",
-    "addressUpdated": "Address updated",
-    "changeRewardAddressPending": "Changing Reward Address...",
-    "changeRewardAddressSuccess": "You have successfully changed your THORChain Reward Address.",
     "unstakePending": "Requesting withdraw of %{amount} %{symbol}",
     "unstakeSuccess": "Once %{cooldownPeriod} has elapsed you will be able to claim your %{amount} %{symbol}",
     "currentRewardAddress": "Current Reward Address",
     "newRewardAddress": "New Reward Address",
     "rewardCycleExplainer": "This will update for the next reward cycle.",
-    "noPositionTitle": "No Active Position",
-    "noPositionBody": "You will be able to change your reward address here once you have an active position.",
-    "stakeNow": "Stake Now",
     "noAddressFound": "No address found",
     "newAddressInfo": "This will update for the next reward cycle",
     "confirmAndUpdateAddress": "Confirm & Update Address",
-    "unstakeFrom": "Unstake from r%{assetSymbol}",
-    "claimPending": "Awaiting your claim of %{amount} %{symbol}",
-    "claimSuccess": "You have successfully claimed %{amount} %{symbol}.",
     "claimReceiveAddress": "Claim Receive Address",
     "noRewardsYet": "No rewards yet",
     "noClaimsAvailable": "No claims available",
@@ -2917,7 +2132,6 @@
     "bridgeAndConfirm": "Bridge & Confirm",
     "noSupportedChains": "Chain not supported",
     "noSupportedChainsDescription": "Add %{chainLabel} or connect to a wallet that supports it.",
-    "confirmAndBridge": "Confirm & Bridge",
     "myStakedBalance": "My Staked Balance",
     "myStakedBalanceHelper": "The amount of %{symbol} you have staked",
     "pendingRewardsBalance": "Pending Rewards Balance",
@@ -2926,7 +2140,6 @@
     "lifetimeRewardsHelper": "The total rewards you have earned from staking your %{symbol} to date",
     "timeInPool": "Time in Pool",
     "timeInPoolHelper": "Time in pool is the longest living deposit into rFOX",
-    "myPosition": "My Position",
     "positionDetails": "Position Details",
     "mySymbolPosition": "My %{symbol} Position",
     "faq": {
@@ -2979,33 +2192,11 @@
     "myStakedBalanceHelper": "The amount of %{symbol} you have staked",
     "myRewardsBalance": "My RUNE Rewards Balance",
     "myRewardsBalanceHelper": "The amount of RUNE staking rewards. Automatically distributed to your wallet daily.",
-    "pendingRewardsBalance": "Pending Rewards Balance",
-    "pendingRewardsBalanceHelper": "This is only an estimate of your pending rewards based on epoch to date revenues. All accounting is done at epoch end and cannot be calculated exactly before the end of the month",
-    "lifetimeRewards": "Lifetime Rewards",
-    "lifetimeRewardsHelper": "The total rewards you have earned from staking your %{symbol} to date",
-    "timeStaked": "Time Staked",
-    "timeStakedHelper": "The amount of time you have staked your %{symbol}",
-    "stakingReward": "Staking Reward",
     "claimNow": "You had a savers/lending position on Thorchain. You can claim your TCY now.",
     "claimsEmpty": {
       "emptyTitle": "No claims available",
       "emptyBody": "It appears you have no TCY claims available. Try with another wallet?",
       "connectWalletBody": "Connect your wallet to see your TCY claims."
-    },
-    "claimSelect": {
-      "unavailableClaims": "Unavailable Claims",
-      "notEligible": "Not Eligible"
-    },
-    "claimStatus": {
-      "pendingTitle": "Claim is pending",
-      "back": "Back",
-      "pendingSubtitle": "We are processing your claim for %{amount} TCY",
-      "viewTransaction": "View Transaction",
-      "successTitle": "Claim is successful",
-      "successSubtitle": "You have successfully claimed %{amount} TCY",
-      "goBack": "Go Back",
-      "failedTitle": "Something went wrong",
-      "failedSubtitle": "Your claim has failed. Please try again."
     },
     "claimConfirm": {
       "dustAmountTooltip": "A tiny amount of %{symbol} is required to identify your address on the THOR network",
@@ -3015,9 +2206,6 @@
       "networkFee": "Network Fee",
       "confirmAndClaim": "Claim & Stake",
       "notice": "You’re claiming %{amount} TCY. It’ll be automatically staked — unstake anytime after to receive it in your wallet."
-    },
-    "assetClaimButton": {
-      "claimAction": "Claim"
     },
     "claimAddressInput": {
       "label": "Claim Address",
@@ -3041,25 +2229,6 @@
     "unstakeConfirm": {
       "confirmTitle": "Confirm Unstake",
       "confirmAndUnstake": "Confirm & Unstake"
-    },
-    "unstakeStatus": {
-      "pendingTitle": "Unstake is pending",
-      "pendingSubtitle": "We are processing your unstake for %{amount} TCY",
-      "successTitle": "Unstake is successful",
-      "failedTitle": "Something went wrong",
-      "failedSubtitle": "Your unstake has failed. Please try again.",
-      "successSubtitle": "You have successfully unstaked %{amount} TCY",
-      "goBack": "Go Back"
-    },
-    "stakeStatus": {
-      "pendingTitle": "Stake is pending",
-      "pendingSubtitle": "We are processing your stake for %{amount} TCY",
-      "successTitle": "Stake is successful",
-      "failedTitle": "Something went wrong",
-      "failedSubtitle": "Your stake has failed. Please try again.",
-      "viewTransaction": "View Transaction",
-      "successSubtitle": "You have successfully staked %{amount} TCY",
-      "goBack": "Go Back"
     },
     "cta": {
       "title": "THORChain TCY Claims are here!",
@@ -3116,7 +2285,6 @@
     "foxToken": "FOX Token",
     "24hrPriceChange": "24h Price Change",
     "rfox": {
-      "whatIs": "What is rFOX Staking?",
       "totalSymbolBurn": "Total %{symbol} Burn",
       "simulateTitle": "rFOX Simulator",
       "simulateSubtle": "Simulate your rFOX staking yield",
@@ -3172,7 +2340,6 @@
     "limitPrice": "Limit Price",
     "expires": "Expires",
     "filled": "Filled",
-    "protocol": "Protocol",
     "streamingStatus": "Streaming Status",
     "executionPrice": "Execution Price",
     "status": {
@@ -3207,12 +2374,10 @@
     "thorchainLp": {
       "pairAssets": "%{asset1} and %{asset2}",
       "withdraw": {
-        "processing": "Your withdraw of %{assetAmountsAndSymbols} from the %{poolName} pool is processing.",
-        "complete": "Your withdraw of %{assetAmountsAndSymbols} from the %{poolName} pool is complete."
+        "processing": "Your withdraw of %{assetAmountsAndSymbols} from the %{poolName} pool is processing."
       },
       "deposit": {
-        "processing": "Your deposit of %{amountCryptoPrecision} %{symbol} to %{poolName} pool is processing.",
-        "complete": "Your deposit of %{amountCryptoPrecision} %{symbol} to %{poolName} pool is complete."
+        "processing": "Your deposit of %{amountCryptoPrecision} %{symbol} to %{poolName} pool is processing."
       }
     },
     "deposit": {
@@ -3237,8 +2402,7 @@
       "transactionInitiated": "Transaction Initiated",
       "claimWithdraw": "Claim Withdraw",
       "withdrawTx": "Withdraw Tx",
-      "claimTx": "Claim Tx",
-      "claimNotAvailable": "Claim is not yet available. Please wait for the withdrawal period to complete."
+      "claimTx": "Claim Tx"
     },
     "limitOrder": {
       "placed": "Limit order placed for %{sellAmountAndSymbol} to %{buyAmountAndSymbol}",
@@ -3247,7 +2411,6 @@
       "expired": "Your order to buy %{buyAmountAndSymbol} for %{sellAmountAndSymbol} expired."
     },
     "rfox": {
-      "unstakeConfirmed": "Your unstake of %{amount} %{symbol} will be available to claim in %{cooldownPeriod}.",
       "unstakeReady": "Your unstake of %{amount} %{symbol} is ready to claim.",
       "unstakeTxPending": "Your unstake of %{amount} %{symbol} is pending.",
       "unstakeTxComplete": "Your unstake of %{amount} %{symbol} is complete."
@@ -3265,11 +2428,7 @@
       "approvalTxPending": "Approving %{contractName} to use %{amountCryptoPrecision} %{symbol}.",
       "approvalTxComplete": "Approved %{contractName} to use %{amountCryptoPrecision} %{symbol}."
     },
-    "swapTitle": "%{sellAmount} %{sellSymbol} → %{buyAmount} %{buySymbol}",
-    "limitOrderTitle": "%{sellAmount} %{sellSymbol} → %{buyAmount} %{buySymbol}",
     "pendingTransactions": "%{count} Pending",
-    "orderCancelled": "Order Cancelled",
-    "orderExpired": "Order Expired",
     "rewardDistribution": {
       "pending": {
         "description": "Your reward of %{amountAndSymbol} is processing..."

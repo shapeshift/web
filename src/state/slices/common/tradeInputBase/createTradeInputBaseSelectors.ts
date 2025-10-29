@@ -7,11 +7,7 @@ import {
 } from '../../common-selectors'
 import { marketData } from '../../marketDataSlice/marketDataSlice'
 import { selectUserCurrencyToUsdRate } from '../../marketDataSlice/selectors'
-import {
-  selectAccountIdByAccountNumberAndChainId,
-  selectPortfolioAccountMetadata,
-  selectPortfolioAssetAccountBalancesSortedUserCurrency,
-} from '../../portfolioSlice/selectors'
+import { selectPortfolioAssetAccountBalancesSortedUserCurrency } from '../../portfolioSlice/selectors'
 import {
   getFirstAccountIdByChainId,
   getHighestUserCurrencyBalanceAccountByAssetId,
@@ -120,40 +116,21 @@ export const createTradeInputBaseSelectors = <T extends TradeInputBaseState>(
     selectBaseSlice,
     selectInputBuyAsset,
     selectEnabledWalletAccountIds,
-    selectAccountIdByAccountNumberAndChainId,
-    selectSellAccountId,
-    selectPortfolioAccountMetadata,
-    (
-      baseSlice,
-      buyAsset,
-      accountIds,
-      accountIdByAccountNumberAndChainId,
-      firstHopSellAccountId,
-      accountMetadata,
-    ) => {
+    selectPortfolioAssetAccountBalancesSortedUserCurrency,
+    (baseSlice, buyAsset, accountIds, accountIdAssetValues) => {
       // return the users selection if it exists
       if (baseSlice.buyAccountId) {
         return baseSlice.buyAccountId
       }
 
-      // maybe convert the account id to an account number
-      const maybeMatchingBuyAccountNumber = firstHopSellAccountId
-        ? accountMetadata[firstHopSellAccountId]?.bip44Params.accountNumber
-        : undefined
-
-      // maybe convert account number to account id on the buy asset chain
-      const maybeMatchingBuyAccountId =
-        maybeMatchingBuyAccountNumber !== undefined
-          ? accountIdByAccountNumberAndChainId[maybeMatchingBuyAccountNumber]?.[buyAsset.chainId]
-          : undefined
-
-      // an AccountId was found matching the sell asset's account number and chainId, return it
-      if (maybeMatchingBuyAccountId) {
-        return maybeMatchingBuyAccountId
-      }
+      const highestFiatBalanceBuyAccountId = getHighestUserCurrencyBalanceAccountByAssetId(
+        accountIdAssetValues,
+        buyAsset.assetId,
+      )
+      const firstBuyAssetAccountId = getFirstAccountIdByChainId(accountIds, buyAsset.chainId)
 
       // otherwise return a sane default
-      return getFirstAccountIdByChainId(accountIds, buyAsset.chainId)
+      return highestFiatBalanceBuyAccountId ?? firstBuyAssetAccountId
     },
   )
 

@@ -25,7 +25,7 @@ import { useTranslate } from 'react-polyglot'
 import { usePriceImpact } from '../hooks/quoteValidation/usePriceImpact'
 
 import type { AccountDropdownProps } from '@/components/AccountDropdown/AccountDropdown'
-import { AccountDropdown } from '@/components/AccountDropdown/AccountDropdown'
+import { AccountDropdownV2 } from '@/components/AccountDropdown/AccountDropdownV2'
 import { Amount } from '@/components/Amount/Amount'
 import { Balance } from '@/components/DeFi/components/Balance'
 import { PercentOptionsButtonGroup } from '@/components/DeFi/components/PercentOptionsButtonGroup'
@@ -387,9 +387,9 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = memo(
             </Flex>
           )}
           <Display.Desktop>
-            {balance && label && !isAccountSelectionHidden && (
-              <AccountDropdown
-                defaultAccountId={accountId}
+            {balance && label && !isAccountSelectionHidden && accountId && (
+              <AccountDropdownV2
+                value={accountId}
                 assetId={assetId}
                 onChange={onAccountIdChange}
                 disabled={isAccountSelectionDisabled}
@@ -476,9 +476,9 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = memo(
             )}
             <Flex alignItems='center' justifyContent='flex-end' gap={2}>
               <Display.Mobile>
-                {balance && label && !isAccountSelectionHidden && (
-                  <AccountDropdown
-                    defaultAccountId={accountId}
+                {balance && label && !isAccountSelectionHidden && accountId && (
+                  <AccountDropdownV2
+                    value={accountId}
                     assetId={assetId}
                     onChange={onAccountIdChange}
                     disabled={isAccountSelectionDisabled}
@@ -490,9 +490,9 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = memo(
                   />
                 )}
 
-                {balance && !label && !isAccountSelectionHidden && (
-                  <AccountDropdown
-                    defaultAccountId={accountId}
+                {balance && !label && !isAccountSelectionHidden && accountId && (
+                  <AccountDropdownV2
+                    value={accountId}
                     assetId={assetId}
                     onChange={onAccountIdChange}
                     disabled={isAccountSelectionDisabled}
@@ -511,9 +511,9 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = memo(
                 onClick={onPercentOptionClick ?? noop}
               />
               <Display.Desktop>
-                {balance && !label && !isAccountSelectionHidden && (
-                  <AccountDropdown
-                    defaultAccountId={accountId}
+                {balance && !label && !isAccountSelectionHidden && accountId && (
+                  <AccountDropdownV2
+                    value={accountId}
                     assetId={assetId}
                     onChange={onAccountIdChange}
                     disabled={isAccountSelectionDisabled}

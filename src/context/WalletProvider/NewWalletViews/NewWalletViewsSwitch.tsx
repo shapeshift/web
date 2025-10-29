@@ -362,10 +362,6 @@ export const NewWalletViewsSwitch = () => {
 
   const body = useMemo(() => <Body />, [Body])
 
-  // if (!isLargerThanMd && !isMobile) {
-  //   return <MobileWebSelect isOpen={modal} onClose={onClose} />
-  // }
-
   return (
     <>
       <Modal {...modalProps} isCentered size={!isLargerThanMd ? modalSize : undefined}>

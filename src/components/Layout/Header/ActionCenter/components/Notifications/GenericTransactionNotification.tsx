@@ -59,8 +59,11 @@ export const GenericTransactionNotification = ({
       action.transactionMetadata.message,
       {
         amount: action.transactionMetadata.amountCryptoPrecision,
+        amountCryptoPrecision: action.transactionMetadata.amountCryptoPrecision,
         symbol: asset.symbol,
         newAddress: firstFourLastFour(action.transactionMetadata.newAddress ?? ''),
+        assetAmountsAndSymbols: action.transactionMetadata.assetAmountsAndSymbols,
+        poolName: action.transactionMetadata.poolName,
       },
     ] as [string, Record<string, string | number>]
   }, [action, asset])

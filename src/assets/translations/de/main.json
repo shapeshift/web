@@ -77,6 +77,7 @@
     "rename": "Umbenennen",
     "forget": "Vergessen?",
     "pending": "Ausstehend",
+    "preview": "Vorschau",
     "incomplete": "Unvollständig",
     "available": "Verfügbar",
     "or": "oder",
@@ -232,6 +233,9 @@
     "network": "Netzwerk",
     "feeEstimate": "Voraussichtliche Gebühren"
   },
+  "accountSelector": {
+    "chooseAccount": "Konto auswählen"
+  },
   "quickBuy": {
     "title": "Schnellkauf %{assetOnChain}",
     "nativeNotAvailable": "Schnellkauf ist für native Assets nicht verfügbar",
@@ -335,7 +339,7 @@
     },
     "tradeCard": {
       "trade": "Handeln",
-      "bridge": "Bridge",
+      "bridge": "Wechsel",
       "earn": "Verdiene"
     }
   },
@@ -679,7 +683,7 @@
     "wallet": "Wallet",
     "explore": "Entdecken",
     "rewards": "Belohnung",
-    "trade": "Handeln/Bridge",
+    "trade": "Handeln/Wechsel",
     "market": "Markt",
     "limitOrder": "Limit Bestellungen",
     "claims": "Ansprüche",
@@ -703,7 +707,7 @@
         "body": "Krypto empfangen"
       },
       "trade": {
-        "title": "Handeln oder \"Bridgen\"",
+        "title": "Handeln oder Wechseln",
         "body": "Kryptowährungen Handeln oder Wechseln"
       },
       "buy": {
@@ -887,15 +891,15 @@
   },
   "bridge": {
     "nativeAssetWarning": "Stellen Sie sicher, dass Sie %{destinationSymbol} in Ihrem %{destinationChainName}-Konto haben, Sie benötigen es für Transaktionen",
-    "confirm": "Bridge bestätigen",
+    "confirm": "Wechsel bestätigen",
     "selectChain": "Wählen Sie eine Blockchain",
     "selectAsset": "Wählen Sie Vermögenswert aus",
-    "startBridge": "Starte Bridge Protokoll",
-    "confirmBridge": "Bestätige Bridge Protokoll",
-    "preview": "Vorschau Bridge Protokoll",
+    "startBridge": "Starte Wechsel Protokoll",
+    "confirmBridge": "Bestätige Wechsel Protokoll",
+    "preview": "Vorschau Wechsel Protokoll",
     "transferring": "Übertrag",
     "transferComplete": "Übertrag erledigt",
-    "bridgeAnother": "Bridge einen anderen Vermögenswert",
+    "bridgeAnother": "Wechsel einen anderen Vermögenswert",
     "feeExceedsSend": "Die Gebühr übersteigt den Sendebetrag",
     "receiveAddress": "Empfänger Adresse",
     "route": "Route",
@@ -903,13 +907,13 @@
     "waitTimeValue": "~5-10 Minuten",
     "noSupportedAssets": "Kein unterstützter Vermögenswert im Portfolio.",
     "arbitrum": {
-      "description": "Bridge über Arbitrum",
+      "description": "Wechseln über Arbitrum",
       "waitWarning": "Die natives bridging von Arbitrum ist sicherer, aber die Geltendmachung kann bis zu einer Woche dauern.",
       "waitCta": "Ich verstehe, dass es zirka 7 Tage dauern wird, bis ich Guthaben auf Ethereum einfordern kann",
       "claimCta": "Ich verstehe, dass ich nach der Beantragung meines Geldes eine weitere gebührenpflichtige Transaktion durchführen muss.",
       "success": {
-        "tradeSuccess": "Bridging initiiert",
-        "withdrawComplete": "Das Bridging von %{symbol} zu %{chainName} wurde erfolgreich initiiert."
+        "tradeSuccess": "Wechsel initiiert",
+        "withdrawComplete": "Der Wechsel von %{symbol} zu %{chainName} wurde erfolgreich initiiert."
       }
     },
     "claim": "Beanspruchen",
@@ -925,9 +929,9 @@
     "confirmAndClaim": "Bestätigen und Beanspruchen",
     "viewClaims": "Ansprüche anzeigen",
     "viewClaimStatus": "Anspruchsstatus anzeigen",
-    "availableClaimsNotification": "Sie haben bridge Ansprüche erhalten!",
-    "bridgeWithdrawalReadyNotification": "Bridge Abhebung bereit zur Inanspruchnahme",
-    "bridgeWithdrawalFailedNotification": "Bridge Abhebung fehlgeschlagen",
+    "availableClaimsNotification": "Sie haben Wechsel Ansprüche erhalten!",
+    "bridgeWithdrawalReadyNotification": "Wechsel Abhebung bereit zur Inanspruchnahme",
+    "bridgeWithdrawalFailedNotification": "Wechsel Abhebung fehlgeschlagen",
     "checkActionCenterNotification": "Weitere Einzelheiten im Action Center"
   },
   "trade": {
@@ -1144,12 +1148,12 @@
       "tradeComplete": "%{symbol} wurde erfolgreich auf %{chainName} empfangen."
     },
     "hopTitle": {
-      "bridge": "Bridge über %{swapperName}",
+      "bridge": "Wechsel über %{swapperName}",
       "swap": "Tauschen über %{swapperName}",
       "swapEta": "Tausch via %{swapperName} in ~%{eta}"
     },
     "transactionFailed": {
-      "bridge": "Beim Ausführen der Bridge ist ein Problem aufgetreten",
+      "bridge": "Beim Ausführen des Wechsels ist ein Problem aufgetreten",
       "swap": "Beim Ausführen des Tausches ist ein Problem aufgetreten"
     },
     "transactionTitle": {
@@ -1427,6 +1431,7 @@
       }
     },
     "send": {
+      "confirmSend": "Senden bestätigen",
       "consolidate": {
         "body": "ShapeShift berücksichtigt das Sicherheitsdesign von %{asset}, indem es für jede Transaktion eine neue Adresse verwendet. Zur Anpassung an das THORChain-Protokoll, das mit einer einzigen Adresse arbeitet, konsolidieren wir Ihre Gelder an einer einzigen Adresse.",
         "tooltip": "Senden Sie an eine einzige Adresse, um die THORChain-Kompatibilität zu gewährleisten.",
@@ -1435,8 +1440,8 @@
       "getFeesError": "Fehler beim Abrufen der Gebühren",
       "broadcastingTransaction": "Transaktion übertragen",
       "youHaveSent": "Sie haben %{amount} %{symbol} erfolgreich gesendet",
-      "tokenAddress": "An Adresse",
-      "addressInput": "An Adresse oder ENS",
+      "toAddress": "an Adresse",
+      "toAddressOrEns": "An Adresse oder ENS",
       "scanQrCode": "QR-Code scannen",
       "qrCode": "QR Code",
       "permissionsButton": "Versuchen Sie es nochmal",
@@ -1451,7 +1456,6 @@
         "qrDangerousEthUrl": "QR-Codes, die eine Vertragsadresse enthalten, werden nicht unterstützt. Bitte fügen Sie die Zieladresse manuell ein."
       },
       "confirm": {
-        "sendAsset": "%{asset} senden",
         "send": "Senden",
         "sendTo": "Senden an",
         "customNonce": "Benutzerdefinierte Nonce",
@@ -1461,7 +1465,8 @@
         "amount": "Betrag",
         "transactionFee": "Transaktionsgebühr",
         "fees": "Gebühren %{feeType}",
-        "pendingConfirmation": "Ausstehende Bestätigung"
+        "pendingConfirmation": "Ausstehende Bestätigung",
+        "holdToSend": "Zum Senden gedrückt halten"
       },
       "sendForm": {
         "optionalAssetMemo": "Optionales %{assetSymbol} Memo",
@@ -1470,13 +1475,16 @@
         "memoExplainer": "Einige %{assetSymbol}-Empfänger benötigen möglicherweise ein Memo, damit die Transaktion korrekt verarbeitet werden kann",
         "sendAsset": "%{asset} senden",
         "sendTo": "Senden an",
+        "chain": "Kette",
         "sendAmount": "Betrag senden",
         "max": "Max",
         "transactionFee": "Transaktionsgebühr",
         "slow": "Langsam",
         "average": "Durchschnittlich",
         "fast": "Schnell",
-        "enterAmount": "Betrag eingeben"
+        "enterAmount": "Betrag eingeben",
+        "scanQrCodeDescription": "Tippen, um eine Adresse zu scannen",
+        "yourAddresses": "Ihre Adressen"
       },
       "status": {
         "pendingBody": "Sende %{amount} %{symbol}"
@@ -2229,7 +2237,7 @@
       "assetActions": {
         "buy": "Kaufen",
         "sell": "Verkaufen",
-        "trade": "Handeln/Bridge"
+        "trade": "Handeln"
       },
       "equity": "Eigenkapital",
       "accountTokens": "Konto-Token",
@@ -2524,6 +2532,10 @@
           "selectedAccounts": "Ausgewählte Konten",
           "permissionMessage": "Bitte wählen Sie mindestens ein Konto pro Kette aus.",
           "optionalPermissionMessage": "Die folgenden Berechtigungen sind optional."
+        },
+        "noAccountsForChain": {
+          "title": "Kette nicht unterstützt",
+          "description": "Kein %{chainLabel} Konto mit dieser dApp verbunden."
         }
       },
       "registry": {
@@ -2839,9 +2851,9 @@
     "unstakeInitiated": "Unstake eingeleitet",
     "claimWithdraw": "Anspruch einfordern",
     "staking": "rFOX Staking",
-    "bridge": "Bridge",
-    "bridgeFunds": "Bridge Betrag",
-    "bridgeSuccess": "Ihr Betrag wurden erfolgreich gebridged. Sie können jetzt mit dem Staking fortfahren.",
+    "bridge": "Wechsel",
+    "bridgeFunds": "Wechsel Betrag",
+    "bridgeSuccess": "Ihr Betrag wurden erfolgreich gewechselt. Sie können jetzt mit dem Staking fortfahren.",
     "stake": "Stake",
     "unstake": "Unstake",
     "claim": "Beanspruchen",
@@ -2902,10 +2914,10 @@
     "errorFetchingClaims": "Beim Abrufen der Ansprüche ist ein Fehler aufgetreten",
     "noClaimsAvailableDescription": "Sie haben keine verfügbaren Ansprüche",
     "unstakeNow": "Unstake des Einsatzes, um FOX zu beanspruchen",
-    "bridgeAndConfirm": "Bridge & Bestätigen",
+    "bridgeAndConfirm": "Wechseln & Bestätigen",
     "noSupportedChains": "Netzwerk wird nicht unterstützt",
     "noSupportedChainsDescription": "Fügen Sie %{chainLabel} hinzu oder stellen Sie eine Verbindung zu einer Wallet her, die dies unterstützt.",
-    "confirmAndBridge": "Bestätigen & Bridge",
+    "confirmAndBridge": "Bestätigen & Wechseln",
     "myStakedBalance": "Mein gestaktes Guthaben",
     "myStakedBalanceHelper": "Der Betrag von %{symbol}, den Sie gestaked haben",
     "pendingRewardsBalance": "Ausstehendes Prämienguthaben",
@@ -3216,9 +3228,11 @@
       "complete": "Ihr Anspruch in Höhe von %{amount} %{symbol} ist vollständig."
     },
     "bridge": {
-      "initiated": "Ihre bridge von %{sellAmountAndSymbol} zu %{buyAmountAndSymbol} wurde initiiert.",
+      "processing": "Ihr Wechsel von %{sellAmountAndSymbol}.%{sellChainShortName} zu %{buyAmountAndSymbol}.%{buyChainShortName} wird verarbeitet.",
+      "complete": "Ihr Wechsel von %{sellAmountAndSymbol}.%{sellChainShortName} zu %{buyAmountAndSymbol}.%{buyChainShortName} ist abgeschlossen.",
+      "initiated": "Ihr Wechsel von %{sellAmountAndSymbol} zu %{buyAmountAndSymbol} wurde initiiert.",
       "pendingWithdraw": "Ihre Auszahlung von %{amountAndSymbol} wird %{timeText} verfügbar sein.",
-      "claimAvailable": "Ihre bridge von %{amountAndSymbol} kann beansprucht werden.",
+      "claimAvailable": "Ihr Wechsel von %{amountAndSymbol} kann beansprucht werden.",
       "failed": "Ihr Wechsel von %{sellAmountAndSymbol}.%{sellChainShortName} zu %{buyAmountAndSymbol}.%{buyChainShortName} ist fehlgeschlagen.",
       "transactionInitiated": "Transaktion eingeleitet",
       "claimWithdraw": "Auszahlung beanspruchen",

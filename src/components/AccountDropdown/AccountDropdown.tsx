@@ -48,6 +48,9 @@ import { useAppSelector } from '@/state/store'
 export type AccountDropdownProps = {
   assetId: AssetId
   onChange: (accountId: AccountId) => void
+  // NEW: Controlled mode - when provided, component uses this value and has no internal state
+  accountId?: AccountId
+  // LEGACY: Uncontrolled mode - used only when accountId is not provided
   defaultAccountId?: AccountId
   // Auto-selects the account with the highest balance, and sorts the account list descending by balance
   autoSelectHighestBalance?: boolean
@@ -175,6 +178,7 @@ export const AccountDropdown: FC<AccountDropdownProps> = memo(
     buttonProps,
     onChange: handleChange,
     disabled,
+    accountId,
     defaultAccountId,
     listProps,
     autoSelectHighestBalance,
@@ -182,6 +186,7 @@ export const AccountDropdown: FC<AccountDropdownProps> = memo(
     showLabel = true,
     label,
   }) => {
+    const isControlled = accountId !== undefined
     const modalChildZIndex = useModalChildZIndex()
     const filter = useMemo(() => ({ assetId }), [assetId])
     const accountIds = useAppSelector((s: ReduxState) =>
@@ -197,9 +202,14 @@ export const AccountDropdown: FC<AccountDropdownProps> = memo(
     const highestUserCurrencyBalanceAccountId = useAppSelector(state =>
       selectHighestUserCurrencyBalanceAccountByAssetId(state, { assetId }),
     )
-    const [selectedAccountId, setSelectedAccountId] = useState<AccountId | undefined>(
-      defaultAccountId,
-    )
+
+    // Internal state only used for uncontrolled mode (legacy)
+    const [internalSelectedAccountId, setInternalSelectedAccountId] = useState<
+      AccountId | undefined
+    >(defaultAccountId)
+
+    // Use controlled value OR internal state
+    const selectedAccountId = isControlled ? accountId : internalSelectedAccountId
 
     // very suspicious of this
     // Poor man's componentDidUpdate until we figure out why this re-renders like crazy
@@ -207,19 +217,25 @@ export const AccountDropdown: FC<AccountDropdownProps> = memo(
     const isDropdownDisabled = disabled || accountIds.length <= 1
 
     /**
-     * react on selectedAccountId change
+     * react on selectedAccountId change (uncontrolled mode only)
      */
     useEffect(() => {
+      if (isControlled) return // Skip for controlled mode
       if (isEmpty(accountMetadata)) return // not enough data to set an AccountId
       if (!selectedAccountId || previousSelectedAccountId === selectedAccountId) return // no-op, this would fire onChange an infuriating amount of times
       handleChange(selectedAccountId)
-    }, [accountMetadata, previousSelectedAccountId, selectedAccountId, handleChange])
+    }, [isControlled, accountMetadata, previousSelectedAccountId, selectedAccountId, handleChange])
 
     /**
-     * react on accountIds on first render
+     * react on accountIds on first render (uncontrolled mode only)
      */
     useEffect(() => {
+      if (isControlled) return // Skip for controlled mode
       if (!accountIds.length) return
+      // Wait for balance data to load when using autoSelectHighestBalance to avoid race condition
+      if (autoSelectHighestBalance && highestUserCurrencyBalanceAccountId === undefined) {
+        return
+      }
       const validatedAccountIdFromArgs = accountIds.find(
         accountId => accountId === defaultAccountId,
       )
@@ -238,8 +254,9 @@ export const AccountDropdown: FC<AccountDropdownProps> = memo(
       if (accountIdChainId !== assetIdChainId) {
         throw new Error('AccountDropdown: chainId mismatch!')
       }
-      setSelectedAccountId(preSelectedAccountId)
+      setInternalSelectedAccountId(preSelectedAccountId)
     }, [
+      isControlled,
       assetId,
       accountIds,
       defaultAccountId,
@@ -248,7 +265,18 @@ export const AccountDropdown: FC<AccountDropdownProps> = memo(
       previousSelectedAccountId,
     ])
 
-    const handleClick = useCallback((accountId: AccountId) => setSelectedAccountId(accountId), [])
+    const handleClick = useCallback(
+      (newAccountId: AccountId) => {
+        if (isControlled) {
+          // Controlled: just call onChange, parent manages state
+          handleChange(newAccountId)
+        } else {
+          // Uncontrolled: update internal state (triggers useEffect → onChange)
+          setInternalSelectedAccountId(newAccountId)
+        }
+      },
+      [isControlled, handleChange],
+    )
 
     /**
      * memoized view bits and bobs

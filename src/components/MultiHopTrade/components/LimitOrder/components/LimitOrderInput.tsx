@@ -32,6 +32,7 @@ import { TradeInputTab } from '@/components/MultiHopTrade/types'
 import { Text } from '@/components/Text'
 import { useDiscoverAccounts } from '@/context/AppProvider/hooks/useDiscoverAccounts'
 import { WalletActions } from '@/context/WalletProvider/actions'
+import { useAccountSelection } from '@/hooks/useAccountSelection'
 import { useActions } from '@/hooks/useActions'
 import { useErrorToast } from '@/hooks/useErrorToast/useErrorToast'
 import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
@@ -44,7 +45,7 @@ import { LimitPriceMode, PriceDirection } from '@/state/slices/limitOrderInputSl
 import { expiryOptionToUnixTimestamp } from '@/state/slices/limitOrderInputSlice/helpers'
 import { limitOrderInput } from '@/state/slices/limitOrderInputSlice/limitOrderInputSlice'
 import {
-  selectBuyAccountId,
+  selectBuyAccountId as selectBuyAccountIdFromSelector,
   selectBuyAmountCryptoBaseUnit,
   selectExpiry,
   selectHasUserEnteredAmount,
@@ -60,14 +61,17 @@ import {
   selectLimitPriceMode,
   selectSelectedBuyAssetChainId,
   selectSelectedSellAssetChainId,
-  selectSellAccountId,
   selectSellAssetBalanceCryptoBaseUnit,
 } from '@/state/slices/limitOrderInputSlice/selectors'
 import { makeLimitInputOutputRatio } from '@/state/slices/limitOrderSlice/helpers'
 import { limitOrderSlice } from '@/state/slices/limitOrderSlice/limitOrderSlice'
 import { selectActiveQuoteNetworkFeeUserCurrency } from '@/state/slices/limitOrderSlice/selectors'
 import { useFindMarketDataByAssetIdQuery } from '@/state/slices/marketDataSlice/marketDataSlice'
-import { selectUsdRateByAssetId, selectUserCurrencyToUsdRate } from '@/state/slices/selectors'
+import {
+  selectPortfolioAccountIdsByAssetIdFilter,
+  selectUsdRateByAssetId,
+  selectUserCurrencyToUsdRate,
+} from '@/state/slices/selectors'
 import {
   selectIsTradeQuoteRequestAborted,
   selectShouldShowTradeQuoteOrAwaitInput,
@@ -103,8 +107,21 @@ export const LimitOrderInput = ({
   const sellAsset = useAppSelector(selectInputSellAsset)
   const buyAsset = useAppSelector(selectInputBuyAsset)
   const limitPrice = useAppSelector(selectLimitPrice)
-  const sellAccountId = useAppSelector(selectSellAccountId)
-  const buyAccountId = useAppSelector(selectBuyAccountId)
+
+  // Get sell asset account IDs and use new hook for selection (auto-select highest balance)
+  const sellAssetFilter = useMemo(() => ({ assetId: sellAsset.assetId }), [sellAsset.assetId])
+  const sellAccountIds = useAppSelector(state =>
+    selectPortfolioAccountIdsByAssetIdFilter(state, sellAssetFilter),
+  )
+  const sellAccountId = useAccountSelection({
+    assetId: sellAsset.assetId,
+    accountIds: sellAccountIds,
+    defaultAccountId: undefined,
+    autoSelectHighestBalance: true,
+  })
+
+  // Keep existing buy account logic (not affected by this UTXO bug fix)
+  const buyAccountId = useAppSelector(selectBuyAccountIdFromSelector)
   const inputSellAmountUserCurrency = useAppSelector(selectInputSellAmountUserCurrency)
   const inputSellAmountUsd = useAppSelector(selectInputSellAmountUsd)
   const isInputtingFiatSellAmount = useAppSelector(selectIsInputtingFiatSellAmount)

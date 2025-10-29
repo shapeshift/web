@@ -106,7 +106,6 @@ export type TradeAmountInputProps = {
     RegisterOptions,
     'valueAsNumber' | 'valueAsDate' | 'setValueAs' | 'disabled'
   >
-  autoSelectHighestBalance?: boolean
   assetId: AssetId
   accountId?: AccountId
   assetSymbol: string
@@ -156,7 +155,6 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = memo(
     assetId,
     accountId,
     assetSymbol,
-    autoSelectHighestBalance = true,
     onChange,
     onMaxClick,
     onPercentOptionClick,
@@ -389,11 +387,10 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = memo(
           <Display.Desktop>
             {balance && label && !isAccountSelectionHidden && (
               <AccountDropdown
-                defaultAccountId={accountId}
+                accountId={accountId}
                 assetId={assetId}
                 onChange={onAccountIdChange}
                 disabled={isAccountSelectionDisabled}
-                autoSelectHighestBalance={autoSelectHighestBalance}
                 buttonProps={buttonProps}
                 boxProps={boxProps}
                 showLabel={false}
@@ -478,11 +475,10 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = memo(
               <Display.Mobile>
                 {balance && label && !isAccountSelectionHidden && (
                   <AccountDropdown
-                    defaultAccountId={accountId}
+                    accountId={accountId}
                     assetId={assetId}
                     onChange={onAccountIdChange}
                     disabled={isAccountSelectionDisabled}
-                    autoSelectHighestBalance={autoSelectHighestBalance}
                     buttonProps={buttonProps}
                     boxProps={boxProps}
                     showLabel={false}
@@ -492,11 +488,10 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = memo(
 
                 {balance && !label && !isAccountSelectionHidden && (
                   <AccountDropdown
-                    defaultAccountId={accountId}
+                    accountId={accountId}
                     assetId={assetId}
                     onChange={onAccountIdChange}
                     disabled={isAccountSelectionDisabled}
-                    autoSelectHighestBalance={autoSelectHighestBalance}
                     buttonProps={buttonProps}
                     boxProps={boxProps}
                     showLabel={false}
@@ -513,11 +508,10 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = memo(
               <Display.Desktop>
                 {balance && !label && !isAccountSelectionHidden && (
                   <AccountDropdown
-                    defaultAccountId={accountId}
+                    accountId={accountId}
                     assetId={assetId}
                     onChange={onAccountIdChange}
                     disabled={isAccountSelectionDisabled}
-                    autoSelectHighestBalance={autoSelectHighestBalance}
                     buttonProps={buttonProps}
                     boxProps={boxProps}
                     showLabel={false}

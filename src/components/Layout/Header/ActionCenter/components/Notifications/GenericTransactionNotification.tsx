@@ -64,6 +64,8 @@ export const GenericTransactionNotification = ({
         newAddress: firstFourLastFour(action.transactionMetadata.newAddress ?? ''),
         assetAmountsAndSymbols: action.transactionMetadata.assetAmountsAndSymbols,
         poolName: action.transactionMetadata.poolName,
+        contractName: action.transactionMetadata.contractName,
+        cooldownPeriod: action.transactionMetadata.cooldownPeriod,
       },
     ] as [string, Record<string, string | number>]
   }, [action, asset])

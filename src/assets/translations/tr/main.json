@@ -77,6 +77,7 @@
     "rename": "İsim Değiştir",
     "forget": "Unut?",
     "pending": "Beklemede",
+    "preview": "Önizleme",
     "incomplete": "Tamamlanmamış",
     "available": "Kullanılabilir",
     "or": "veya",
@@ -231,6 +232,9 @@
     "permit2Approval": "Permit2 Onayı",
     "network": "Ağ",
     "feeEstimate": "Ücret Tahmini"
+  },
+  "accountSelector": {
+    "chooseAccount": "Hesap Seç"
   },
   "quickBuy": {
     "title": "Hızlı Satın Al %{assetOnChain}",
@@ -1427,6 +1431,7 @@
       }
     },
     "send": {
+      "confirmSend": "Göndermeyi onayla",
       "consolidate": {
         "body": "ShapeShift, her işlem için yeni bir adres kullanarak %{asset}'in güvenlik tasarımını onurlandırıyor. THORChain'in tek adresle çalışan protokolüne uyum sağlamak için fonlarınızı tek bir adreste birleştireceğiz.",
         "tooltip": "THORChain uyumluluğu için fonları tek bir adrese gönderin.",
@@ -1435,8 +1440,8 @@
       "getFeesError": "Ücret alınırken hata oluştu",
       "broadcastingTransaction": "İşlem Sırası",
       "youHaveSent": "%{amount} %{symbol} başarıyla gönderdiniz",
-      "tokenAddress": "Adrese",
-      "addressInput": "Adrese veya ENS'ye",
+      "toAddress": "Adrese",
+      "toAddressOrEns": "Adres veya ENS'e",
       "scanQrCode": "QR Kodunu Tara",
       "qrCode": "QR Kod",
       "permissionsButton": "Tekrar deneyin",
@@ -1451,7 +1456,6 @@
         "qrDangerousEthUrl": "Bir sözleşme adresi içeren QR kodları desteklenmez. Lütfen hedef adresi manuel olarak yapıştırın."
       },
       "confirm": {
-        "sendAsset": "%{asset} gönder",
         "send": "Gönder",
         "sendTo": "Send To",
         "customNonce": "Özel Nonce",
@@ -1461,7 +1465,8 @@
         "amount": "Tutar",
         "transactionFee": "İşlem ücreti",
         "fees": "Ücretler %{feeType}",
-        "pendingConfirmation": "Onay bekleniyor"
+        "pendingConfirmation": "Onay bekleniyor",
+        "holdToSend": "Göndermek için basılı tutun"
       },
       "sendForm": {
         "optionalAssetMemo": "İsteğe bağlı %{assetSymbol} Memo",
@@ -1470,13 +1475,16 @@
         "memoExplainer": "Bazı %{assetSymbol} alıcıları, işlemin doğru bir şekilde işlenmesi için bir not gerektirebilir",
         "sendAsset": "%{asset} gönder",
         "sendTo": "'a Gönder",
+        "chain": "Zincir",
         "sendAmount": "Gönderilen Miktar",
         "max": "Maks.",
         "transactionFee": "İşlem ücreti",
         "slow": "Yavaş",
         "average": "Ortalama",
         "fast": "Hızlı",
-        "enterAmount": "Miktarı girin"
+        "enterAmount": "Miktarı girin",
+        "scanQrCodeDescription": "Adresi taramak için dokunun",
+        "yourAddresses": "Adreslerin"
       },
       "status": {
         "pendingBody": "%{amount} %{symbol} gönderiliyor"
@@ -2524,6 +2532,10 @@
           "selectedAccounts": "Bir Hesap Seçin",
           "permissionMessage": "Lütfen her zincir için en az bir hesap seçin.",
           "optionalPermissionMessage": "Aşağıdaki izinler isteğe bağlıdır."
+        },
+        "noAccountsForChain": {
+          "title": "Zincir desteklenmiyor",
+          "description": "Bu dApp'e bağlı %{chainLabel} hesabı yok."
         }
       },
       "registry": {
@@ -3216,6 +3228,8 @@
       "complete": "%{amount} %{symbol} tutarındaki talebiniz tamamlandı."
     },
     "bridge": {
+      "processing": "%{sellAmountAndSymbol}.%{sellChainShortName} ile %{buyAmountAndSymbol}.%{buyChainShortName} arasındaki köprünüz işleniyor.",
+      "complete": "%{sellAmountAndSymbol}.%{sellChainShortName} ile %{buyAmountAndSymbol}.%{buyChainShortName} arasındaki köprünüz tamamlandı.",
       "initiated": "%{sellAmountAndSymbol} ile %{buyAmountAndSymbol} arasındaki köprünüz başlatıldı.",
       "pendingWithdraw": "%{amountAndSymbol} tutarındaki çekim işleminiz %{timeText} tarihinde gerçekleştirilebilecek.",
       "claimAvailable": "%{amountAndSymbol} köprünüz talep edilebilir.",

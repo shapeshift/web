@@ -75,4 +75,3 @@ export const useWalletConnectV2Pairing = () => {
     error,
   }
 }
-

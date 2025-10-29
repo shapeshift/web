@@ -4,7 +4,7 @@ import { createSelector } from 'reselect'
 
 import { addressBookSlice } from './addressBookSlice'
 
-import { findUtxoAccountIdByAddress } from '@/lib/utils/utxo-address-derivation'
+import { findUtxoAccountIdByAddress } from '@/lib/utils/accounts'
 import { createDeepEqualOutputSelector } from '@/state/selector-utils'
 import {
   selectAccountAddressParamFromFilter,
@@ -12,7 +12,6 @@ import {
   selectSearchQueryFromFilter,
 } from '@/state/selectors'
 import { selectAccountIdsWithoutEvms, selectEvmAccountIds } from '@/state/slices/common-selectors'
-import { selectPortfolioAccountMetadata } from '@/state/slices/selectors'
 
 export const selectAddressBookEntries = createSelector(
   [addressBookSlice.selectors.selectEntriesByAccountId],
@@ -86,7 +85,7 @@ export const selectIsAddressInAddressBook = createDeepEqualOutputSelector(
 /**
  * Checks if a given address belongs to one of the user's connected accounts
  * Handles EVM namespace matching (same address across all EVM chains)
- * For UTXO accounts, derives addresses client-side and checks for matches
+ * For UTXO accounts, uses cached addresses from unchained
  * Returns the AccountId if found, null otherwise
  */
 export const selectInternalAccountIdByAddress = createDeepEqualOutputSelector(
@@ -94,8 +93,7 @@ export const selectInternalAccountIdByAddress = createDeepEqualOutputSelector(
   selectChainIdParamFromFilter,
   selectAccountIdsWithoutEvms,
   selectEvmAccountIds,
-  selectPortfolioAccountMetadata,
-  (accountAddress, chainId, accountIdsWithoutEvms, evmAccountIds, accountMetadata) => {
+  (accountAddress, chainId, accountIdsWithoutEvms, evmAccountIds) => {
     if (!accountAddress || !chainId) return null
 
     const normalizedAddress = accountAddress.toLowerCase()
@@ -120,12 +118,7 @@ export const selectInternalAccountIdByAddress = createDeepEqualOutputSelector(
     // This intelligently searches in batches (20, 50, 100) to handle edge cases
     // where users have many transactions and the address is beyond the standard gap limit
     if (chainNamespace === CHAIN_NAMESPACE.Utxo) {
-      return findUtxoAccountIdByAddress(
-        accountAddress,
-        accountIdsWithoutEvms,
-        accountMetadata,
-        chainId,
-      )
+      return findUtxoAccountIdByAddress(accountAddress, accountIdsWithoutEvms, chainId)
     }
 
     // For other non-EVM and non-UTXO chains, find exact chainId + address match

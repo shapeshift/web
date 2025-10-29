@@ -26,10 +26,10 @@ import { LedgerRoutes } from './routes/LedgerRoutes'
 import { MipdRoutes } from './routes/MipdRoutes'
 import { NativeRoutes } from './routes/NativeRoutes'
 import { WalletConnectV2Routes } from './routes/WalletConnectV2Routes'
-import { HardwareWalletsSection } from './sections/HardwareWalletsSection'
+import { HardwareWalletsSection, WalletOptionListButton } from './sections/HardwareWalletsSection'
 import { InstalledWalletsSection } from './sections/InstalledWalletsSection'
 import { OthersSection } from './sections/OthersSection'
-import { SavedWalletsSection } from './sections/SavedWalletsSection'
+import { SavedWalletListButton, SavedWalletsSection } from './sections/SavedWalletsSection'
 import type { RightPanelContentProps } from './types'
 import { NativeIntro } from './wallets/native/NativeIntro'
 
@@ -248,35 +248,54 @@ export const NewWalletViewsSwitch = () => {
     }
   }, [queryClient])
 
-  const sections = useMemo(
-    () => (
-      <Box w={sectionsWidth} p={6} maxH='800px' overflowY='auto'>
-        <SavedWalletsSection
-          selectedWalletId={selectedWalletId}
-          onWalletSelect={handleWalletSelect}
-        />
-        <Divider mb={2} />
-        <Text translation='common.connectWallet' fontSize='xl' fontWeight='semibold' />
-        <InstalledWalletsSection
-          isLoading={isLoading}
-          selectedWalletId={selectedWalletId}
-          onWalletSelect={handleWalletSelect}
-        />
-        <HardwareWalletsSection
-          selectedWalletId={selectedWalletId}
-          onWalletSelect={handleWalletSelect}
-          isLoading={isLoading}
-        />
-        <Divider mb={2} />
-        <OthersSection
-          isLoading={isLoading}
-          selectedWalletId={selectedWalletId}
-          onWalletSelect={handleWalletSelect}
-        />
-      </Box>
-    ),
-    [handleWalletSelect, isLoading, selectedWalletId],
-  )
+  const sections = useMemo(() => {
+    if (!isLargerThanMd && !isMobile) {
+      return (
+        <MobileWebSelect isOpen={modal} onClose={onClose} onWalletSelect={handleWalletSelect}>
+          <SavedWalletsSection
+            selectedWalletId={selectedWalletId}
+            onWalletSelect={handleWalletSelect}
+            renderItem={SavedWalletListButton}
+            showHeader={false}
+          />
+          <HardwareWalletsSection
+            selectedWalletId={selectedWalletId}
+            onWalletSelect={handleWalletSelect}
+            isLoading={isLoading}
+            renderItem={WalletOptionListButton}
+            showHeader={false}
+          />
+        </MobileWebSelect>
+      )
+    } else {
+      return (
+        <Box w={sectionsWidth} p={6} maxH='800px' overflowY='auto'>
+          <SavedWalletsSection
+            selectedWalletId={selectedWalletId}
+            onWalletSelect={handleWalletSelect}
+          />
+          <Divider mb={2} />
+          <Text translation='common.connectWallet' fontSize='xl' fontWeight='semibold' />
+          <InstalledWalletsSection
+            isLoading={isLoading}
+            selectedWalletId={selectedWalletId}
+            onWalletSelect={handleWalletSelect}
+          />
+          <HardwareWalletsSection
+            selectedWalletId={selectedWalletId}
+            onWalletSelect={handleWalletSelect}
+            isLoading={isLoading}
+          />
+          <Divider mb={2} />
+          <OthersSection
+            isLoading={isLoading}
+            selectedWalletId={selectedWalletId}
+            onWalletSelect={handleWalletSelect}
+          />
+        </Box>
+      )
+    }
+  }, [handleWalletSelect, isLargerThanMd, isLoading, modal, onClose, selectedWalletId])
 
   const bodyBgColor = useColorModeValue('gray.50', '#2b2f33')
   const buttonContainerBgColor = useColorModeValue('gray.100', 'whiteAlpha.100')

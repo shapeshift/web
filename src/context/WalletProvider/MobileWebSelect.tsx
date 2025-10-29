@@ -1,106 +1,94 @@
-import type { AvatarProps } from '@chakra-ui/react'
 import {
-  Avatar,
+  Alert,
+  AlertDescription,
+  AlertIcon,
   Box,
   Button,
+  Collapse,
   Divider,
   Flex,
   HStack,
-  IconButton,
+  Icon,
   Stack,
-  Text,
+  useDisclosure,
 } from '@chakra-ui/react'
 import {
-  bscChainId,
+  baseChainId,
   btcChainId,
   ethChainId,
   gnosisChainId,
   polygonChainId,
 } from '@shapeshiftoss/caip'
-import { useMemo } from 'react'
-import { TbChevronRight } from 'react-icons/tb'
+import type { PropsWithChildren } from 'react'
+import { TbChevronDown, TbChevronUp } from 'react-icons/tb'
+import { useTranslate } from 'react-polyglot'
+
+import { WalletConnectDirectRow } from './WalletConnectV2/components/WalletConnectDirectRow'
+import { useWalletConnectV2Pairing } from './WalletConnectV2/useWalletConnectV2Pairing'
 
 import { ChainIcon } from '@/components/ChainMenu'
-import { FoxIcon } from '@/components/Icons/FoxIcon'
-import { MetaMaskIcon } from '@/components/Icons/MetaMaskIcon'
 import { Dialog } from '@/components/Modal/components/Dialog'
 import { DialogBody } from '@/components/Modal/components/DialogBody'
 import { DialogFooter } from '@/components/Modal/components/DialogFooter'
-import { RawText } from '@/components/Text'
+import { Text } from '@/components/Text'
+
+const collapseStyle = { width: '100%' }
 
 type MobileWebSelectProps = {
   isOpen: boolean
   onClose: () => void
+  onWalletSelect: (id: string, initialRoute: string) => void
 }
 
-export const WalletButton = ({
-  name,
-  icon,
-  src,
-}: {
-  name: string
-  icon?: AvatarProps['icon']
-  src?: AvatarProps['src']
+export const MobileWebSelect: React.FC<PropsWithChildren<MobileWebSelectProps>> = ({
+  isOpen,
+  onClose,
+  children,
 }) => {
-  const after = useMemo(() => {
-    return { content: `"${name}"`, inset: 0, fontSize: 'xs' }
-  }, [name])
-  const WalletIcon = useMemo(() => {
-    return (
-      <Avatar
-        bg='white'
-        size='xl'
-        fontSize='65px'
-        borderRadius='xl'
-        borderEndRadius='xl'
-        icon={icon}
-        src={src}
-      />
-    )
-  }, [icon, src])
-  return (
-    <IconButton
-      variant='ghost'
-      flexDir='column'
-      height='auto'
-      gap={2}
-      icon={WalletIcon}
-      aria-label='close dialog'
-      _after={after}
-    />
-  )
-}
+  const translate = useTranslate()
+  const { pairDevice, isLoading, error } = useWalletConnectV2Pairing()
+  const { isOpen: isCollapseOpen, onToggle: onCollapseToggle } = useDisclosure()
 
-const foxAvatarIcon = <FoxIcon />
-const arrowForwardIcon = <TbChevronRight />
-
-const metaMaskIcon = <MetaMaskIcon />
-export const MobileWebSelect = ({ isOpen, onClose }: MobileWebSelectProps) => {
   return (
     <Dialog isOpen={isOpen} onClose={onClose} height='auto'>
       <DialogBody padding={0}>
         <Stack spacing={8} pt={4} pb={6}>
-          <Flex px={4} justifyContent='space-between'>
-            <WalletButton icon={metaMaskIcon} name='Example Wallet' />
-            <WalletButton icon={metaMaskIcon} name='Example Wallet' />
-            <WalletButton icon={metaMaskIcon} name='Example Wallet' />
-          </Flex>
+          <WalletConnectDirectRow />
           <HStack spacing={4}>
             <Divider />
             <Stack spacing={0} flexShrink={0} flexGrow={0} textAlign='center'>
-              <RawText fontWeight='bold' fontSize='md'>
-                Don't see your wallet?
-              </RawText>
-              <RawText fontSize='sm' color='text.subtle'>
-                Connect to 480+ wallets
-              </RawText>
+              <Text
+                translation='walletProvider.selectModal.ctaText'
+                fontWeight='bold'
+                fontSize='md'
+              />
+              <Text
+                translation='walletProvider.selectModal.ctaSubtext'
+                fontSize='sm'
+                color='text.subtle'
+              />
             </Stack>
             <Divider />
           </HStack>
           <Box px={4}>
-            <Button colorScheme='blue' size='lg' width='full'>
-              View All Wallets
+            <Button
+              colorScheme='blue'
+              size='lg'
+              width='full'
+              onClick={pairDevice}
+              isLoading={isLoading}
+              isDisabled={isLoading}
+            >
+              {translate('walletProvider.selectModal.viewAllWallets')}
             </Button>
+            {error && (
+              <Alert status='info'>
+                <AlertIcon />
+                <AlertDescription>
+                  <Text translation={error} />
+                </AlertDescription>
+              </Alert>
+            )}
           </Box>
         </Stack>
       </DialogBody>
@@ -109,37 +97,34 @@ export const MobileWebSelect = ({ isOpen, onClose }: MobileWebSelectProps) => {
         bg='background.surface.raised.accent'
         flexDir='column'
         gap={4}
+        width='full'
         borderTopWidth={1}
         borderColor='border.base'
         pt={4}
       >
-        <Flex px={4} width='full' justifyContent='space-between' alignItems='center'>
-          <RawText fontWeight='bold'>Multi-Chain Wallets</RawText>
-          <HStack>
+        <Flex
+          px={4}
+          height='44px'
+          width='full'
+          justifyContent='space-between'
+          alignItems='center'
+          onClick={onCollapseToggle}
+        >
+          <Text translation='walletProvider.selectModal.multiChainWallets' fontWeight='bold' />
+          <HStack spacing={1}>
             <ChainIcon size='xs' chainId={btcChainId} />
             <ChainIcon size='xs' chainId={ethChainId} />
-            <ChainIcon size='xs' chainId={bscChainId} />
+            <ChainIcon size='xs' chainId={baseChainId} />
             <ChainIcon size='xs' chainId={polygonChainId} />
             <ChainIcon size='xs' chainId={gnosisChainId} />
+            <Icon as={isCollapseOpen ? TbChevronUp : TbChevronDown} />
           </HStack>
         </Flex>
-        <Box px={2} width='full'>
-          <Button
-            variant='ghost'
-            height='auto'
-            py={2}
-            px={2}
-            justifyContent='space-between'
-            size='lg'
-            width='full'
-            rightIcon={arrowForwardIcon}
-          >
-            <HStack spacing={4}>
-              <Avatar size='lg' bg='blue.500' borderRadius='lg' icon={foxAvatarIcon} />
-              <Text color='text.base'>ShapeShift Wallet</Text>
-            </HStack>
-          </Button>
-        </Box>
+        <Collapse in={isCollapseOpen} style={collapseStyle}>
+          <Box px={2} width='full' maxHeight='300px' overflowY='auto'>
+            {children}
+          </Box>
+        </Collapse>
       </DialogFooter>
     </Dialog>
   )

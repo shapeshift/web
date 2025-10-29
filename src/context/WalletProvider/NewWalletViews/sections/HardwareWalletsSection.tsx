@@ -1,8 +1,9 @@
 import type { ComponentWithAs, IconProps } from '@chakra-ui/react'
 import { Box, Button, Flex, Stack, Text as CText, useColorModeValue } from '@chakra-ui/react'
-import { useCallback } from 'react'
+import { useCallback, useMemo } from 'react'
 
 import { Text } from '@/components/Text'
+import { WalletListButton } from '@/context/WalletProvider/components/WalletListButton'
 import { KeepKeyConfig } from '@/context/WalletProvider/KeepKey/config'
 import { KeyManager } from '@/context/WalletProvider/KeyManager'
 import { LedgerConfig } from '@/context/WalletProvider/Ledger/config'
@@ -11,7 +12,7 @@ import { useWallet } from '@/hooks/useWallet/useWallet'
 const LedgerIcon = LedgerConfig.icon
 const KeepKeyIcon = KeepKeyConfig.icon
 
-type WalletOptionProps = {
+export type WalletOptionProps = {
   connect: () => void
   isSelected: boolean
   isDisabled: boolean
@@ -48,15 +49,42 @@ const WalletOption = ({ connect, isSelected, isDisabled, icon: Icon, name }: Wal
   )
 }
 
+// Adapter component that converts WalletOptionProps to WalletListButton props
+export const WalletOptionListButton = ({
+  connect,
+  isSelected,
+  isDisabled,
+  icon: Icon,
+  name,
+}: WalletOptionProps) => {
+  const iconElement = useMemo(() => <Icon />, [Icon])
+
+  return (
+    <WalletListButton
+      name={name}
+      icon={iconElement}
+      onSelect={connect}
+      isSelected={isSelected}
+      isDisabled={isDisabled}
+    />
+  )
+}
+
+export type HardwareWalletsSectionProps = {
+  isLoading: boolean
+  selectedWalletId: string | null
+  onWalletSelect: (id: string, initialRoute: string) => void
+  renderItem?: React.ComponentType<WalletOptionProps>
+  showHeader?: boolean
+}
+
 export const HardwareWalletsSection = ({
   isLoading,
   selectedWalletId,
   onWalletSelect,
-}: {
-  isLoading: boolean
-  selectedWalletId: string | null
-  onWalletSelect: (id: string, initialRoute: string) => void
-}) => {
+  renderItem: RenderItem = WalletOption,
+  showHeader = true,
+}: HardwareWalletsSectionProps) => {
   const { connect } = useWallet()
 
   const handleConnectLedger = useCallback(() => {
@@ -70,21 +98,23 @@ export const HardwareWalletsSection = ({
   }, [connect, onWalletSelect])
 
   return (
-    <Stack spacing={2} my={6}>
-      <Text
-        fontSize='sm'
-        fontWeight='medium'
-        color='gray.500'
-        translation='common.hardwareWallets'
-      />
-      <WalletOption
+    <Stack spacing={2} my={showHeader ? 6 : 0}>
+      {showHeader && (
+        <Text
+          fontSize='sm'
+          fontWeight='medium'
+          color='gray.500'
+          translation='common.hardwareWallets'
+        />
+      )}
+      <RenderItem
         connect={handleConnectLedger}
         isSelected={selectedWalletId === KeyManager.Ledger}
         isDisabled={isLoading && selectedWalletId !== KeyManager.Ledger}
         icon={LedgerIcon}
         name={LedgerConfig.name}
       />
-      <WalletOption
+      <RenderItem
         connect={handleConnectKeepKey}
         isSelected={selectedWalletId === KeyManager.KeepKey}
         isDisabled={isLoading && selectedWalletId !== KeyManager.KeepKey}

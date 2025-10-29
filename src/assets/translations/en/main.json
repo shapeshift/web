@@ -2125,7 +2125,11 @@
       "create": "Create",
       "or": "or",
       "import": "Import",
-      "aWallet": "a wallet"
+      "aWallet": "a wallet",
+      "viewAllWallets": "View all wallets",
+      "ctaText": "Don't see your wallet?",
+      "ctaSubtext": "Connect to 480+ wallets",
+      "multiChainWallets": "Multi-Chain Wallets"
     },
     "walletConnectV2": {
       "start": {

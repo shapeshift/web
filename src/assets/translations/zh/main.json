@@ -77,6 +77,7 @@
     "rename": "重命名",
     "forget": "忘记？",
     "pending": "待处理",
+    "preview": "预览",
     "incomplete": "不完整",
     "available": "可用的",
     "or": "或者",
@@ -231,6 +232,9 @@
     "permit2Approval": "Permit2 授权",
     "network": "网络",
     "feeEstimate": "预计费用"
+  },
+  "accountSelector": {
+    "chooseAccount": "选择帐户"
   },
   "quickBuy": {
     "title": "快速购买 %{assetOnChain}",
@@ -1427,6 +1431,7 @@
       }
     },
     "send": {
+      "confirmSend": "确认发送",
       "consolidate": {
         "body": "ShapeShift 通过为每笔交易使用新地址来尊重 %{asset} 的安全设计。为了与使用单一地址运行的 THORChain 协议保持一致，我们会将您的资金整合到一个地址中。",
         "tooltip": "将资金发送到单个地址以实现 THORChain 兼容性。",
@@ -1435,8 +1440,8 @@
       "getFeesError": "获取费用错误",
       "broadcastingTransaction": "广播交易",
       "youHaveSent": "你已经成功发送 %{amount} %{symbol}",
-      "tokenAddress": "发送到地址",
-      "addressInput": "发送到地址或 ENS",
+      "toAddress": "目标地址",
+      "toAddressOrEns": "目标地址或 ENS",
       "scanQrCode": "扫描二维码",
       "qrCode": "二维码",
       "permissionsButton": "再试一次",
@@ -1451,7 +1456,6 @@
         "qrDangerousEthUrl": "不支持包含合约地址的二维码。请手动粘贴目标地址。"
       },
       "confirm": {
-        "sendAsset": "发送 %{asset}",
         "send": "发送",
         "sendTo": "发送给",
         "customNonce": "自定义随机数",
@@ -1461,7 +1465,8 @@
         "amount": "数量",
         "transactionFee": "交易手续费",
         "fees": "费用 %{feeType}",
-        "pendingConfirmation": "等待确认中"
+        "pendingConfirmation": "等待确认中",
+        "holdToSend": "按住以发送"
       },
       "sendForm": {
         "optionalAssetMemo": "可选 %{assetSymbol} 备忘录",
@@ -1470,13 +1475,16 @@
         "memoExplainer": "某些 %{assetSymbol} 接收者可能需要备忘录才能正确处理交易",
         "sendAsset": "发送 %{asset}",
         "sendTo": "发送给",
+        "chain": "链",
         "sendAmount": "发送数量",
         "max": "最大",
         "transactionFee": "交易手续费",
         "slow": "慢速",
         "average": "中速",
         "fast": "快速",
-        "enterAmount": "输入金额"
+        "enterAmount": "输入金额",
+        "scanQrCodeDescription": "点击以扫描地址",
+        "yourAddresses": "您的地址"
       },
       "status": {
         "pendingBody": "正在发送 %{amount} %{symbol}"
@@ -2524,6 +2532,10 @@
           "selectedAccounts": "所选帐户",
           "permissionMessage": "请为每条链至少选择一个帐户。",
           "optionalPermissionMessage": "以下权限是可选的。"
+        },
+        "noAccountsForChain": {
+          "title": "不支持该链",
+          "description": "没有 %{chainLabel} 帐户连接到该 dApp。"
         }
       },
       "registry": {
@@ -3216,6 +3228,8 @@
       "complete": "您领取的 %{amount} %{symbol} 已完成。"
     },
     "bridge": {
+      "processing": "您从 %{sellAmountAndSymbol}.%{sellChainShortName} 到 %{buyAmountAndSymbol}.%{buyChainShortName} 的跨链交易正在处理中。",
+      "complete": "您从 %{sellAmountAndSymbol}.%{sellChainShortName} 到 %{buyAmountAndSymbol}.%{buyChainShortName} 的跨链交易已完成。",
       "initiated": "您将 %{sellAmountAndSymbol} 桥接到 %{buyAmountAndSymbol} 的操作已发起。",
       "pendingWithdraw": "您提现的 %{amountAndSymbol} 将在 %{timeText} 可用。",
       "claimAvailable": "您桥接的 %{amountAndSymbol} 已可领取。",

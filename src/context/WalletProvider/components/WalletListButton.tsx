@@ -35,7 +35,13 @@ export const WalletListButton = ({
       opacity={isSelected ? 1 : 0.7}
     >
       <HStack spacing={4}>
-        <Avatar size='lg' bg='background.button.secondary.base' borderRadius='lg' icon={icon} />
+        <Avatar
+          size='lg'
+          bg='background.button.secondary.base'
+          borderRadius='lg'
+          fontSize='2xl'
+          icon={icon}
+        />
         <RawText color='text.base'>{name}</RawText>
         {isSelected && <Icon as={TbCircleCheckFilled} color='green.500' />}
       </HStack>

@@ -176,7 +176,10 @@ export const Form: React.FC<QrCodeFormProps> = ({ accountId }) => {
           if (maybeUrlResult.assetId && !accountId) {
             const asset = selectAssetById(store.getState(), maybeUrlResult.assetId)
             if (asset) {
-              const detectedAccountId = selectFirstAccountIdByChainId(store.getState(), asset.chainId)
+              const detectedAccountId = selectFirstAccountIdByChainId(
+                store.getState(),
+                asset.chainId,
+              )
               if (detectedAccountId) {
                 methods.setValue(SendFormFields.AccountId, detectedAccountId)
               }
@@ -206,7 +209,7 @@ export const Form: React.FC<QrCodeFormProps> = ({ accountId }) => {
         }
       })()
     },
-    [methods, navigate],
+    [accountId, methods, navigate],
   )
 
   const selectAssetRouterElement = useMemo(

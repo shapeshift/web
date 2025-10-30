@@ -226,6 +226,12 @@ export const SendAmountDetails = () => {
 
   const hasNoAccountForAsset = useMemo(() => !accountId && assetId, [accountId, assetId])
 
+  const noAccountsOnChainTranslation = useMemo(
+    () =>
+      ['modals.send.errors.noAccountsOnChain', { chain: chainName }] as [string, { chain: string }],
+    [chainName],
+  )
+
   if (!asset) return null
 
   return (
@@ -345,10 +351,7 @@ export const SendAmountDetails = () => {
           {hasNoAccountForAsset && (
             <Alert status='warning' borderRadius='lg' mb={3}>
               <AlertIcon />
-              <Text
-                translation={['modals.send.errors.noAccountsOnChain', { chain: chainName }]}
-                fontSize='sm'
-              />
+              <Text translation={noAccountsOnChainTranslation} fontSize='sm' />
             </Alert>
           )}
           {!hasNoAccountForAsset && (

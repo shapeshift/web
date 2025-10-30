@@ -1069,6 +1069,30 @@
         }
       }
     },
+    "settings": {
+      "currencies": {
+        "CNY": "Chinese Yuan",
+        "USD": "US Dollar",
+        "EUR": "Euro",
+        "JPY": "Japanese Yen",
+        "GBP": "British Pound",
+        "KRW": "South Korean Won",
+        "INR": "Indian Rupee",
+        "CAD": "Canadian Dollar",
+        "HKD": "Hong Kong Dollar",
+        "AUD": "Australian Dollar",
+        "TWD": "Taiwan Dollar",
+        "BRL": "Brazilian Real",
+        "CHF": "Swiss Franc",
+        "THB": "Thai Baht",
+        "MXN": "Mexican Peso",
+        "RUB": "Russian Ruble",
+        "SAR": "Saudi Riyal",
+        "SGD": "Singapore Dollar",
+        "ILS": "Israeli Shekel",
+        "IDR": "Indonesian Rupiah"
+      }
+    },
     "send": {
       "confirmSend": "Confirm send",
       "consolidate": {
@@ -1566,7 +1590,28 @@
         "importFromKeystore": "Import from keystore",
         "whatIsShapeshiftWallet": "What is ShapeShift Wallet?",
         "yourDecentralizedGateway": "Your decentralization gateway. Trade and earn Bitcoin, Ethereum, Solana and more from a single, secure wallet.",
-        "crossChainFreedom": "Cross chain freedom. Access the best rates across multiple decentralized exchanges, no middleman required."
+        "crossChainFreedom": "Cross chain freedom. Access the best rates across multiple decentralized exchanges, no middleman required.",
+        "easyToUse": {
+          "title": "Easy to Use",
+          "subTitle": "Everything you need in one place",
+          "trackBalance": "Track your balance",
+          "sendReceive": "Send & receive crypto",
+          "buyCrypto": "Buy crypto",
+          "tradeAssets": "Trade assets",
+          "earnYield": "Earn yield",
+          "cta": "Buy Crypto",
+          "secondaryCta": "Go to Dashboard"
+        },
+        "multiChain": {
+          "title": "Multi-Chain Support",
+          "subTitle": "Trade across multiple blockchains",
+          "body": "Access Bitcoin, Ethereum, Solana, and many more chains from a single wallet. Seamlessly trade and manage your assets across different networks."
+        },
+        "selfCustody": {
+          "title": "Self-Custody",
+          "subTitle": "You own your keys, you own your crypto",
+          "body": "Your wallet, your keys, your crypto. ShapeShift never has access to your funds. You maintain complete control over your assets at all times."
+        }
       }
     },
     "selectModal": {
@@ -1826,7 +1871,10 @@
           "disclaimerBody": "ShapeShift cannot ensure the safety or security of third-party applications. By using WalletConnect, you assume full responsibility for any risks involved."
         },
         "sessionProposal": {
-          "unsupportedChain": "Unsupported chain namespace in session proposal."
+          "unsupportedChain": "Unsupported chain namespace in session proposal.",
+          "methods": "Methods",
+          "events": "Events",
+          "selectedAccounts": "Selected Accounts"
         },
         "noAccountsForChain": {
           "title": "Chain not supported",
@@ -2234,6 +2282,15 @@
       "title": "THORChain TCY Claims are here!",
       "hasClaimsTitle": "You have TCY claims available!",
       "button": "Check Claims"
+    },
+    "claimPending": "Claiming %{amount} %{symbol}...",
+    "claimStatus": {
+      "pendingSubtitle": "Claiming %{amount} %{symbol}",
+      "goBack": "Go Back",
+      "successTitle": "Claim Successful",
+      "successSubtitle": "Successfully claimed %{amount} TCY",
+      "failedTitle": "Claim Failed",
+      "failedSubtitle": "Your TCY claim transaction failed"
     }
   },
   "markets": {

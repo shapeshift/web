@@ -1,10 +1,10 @@
 import {
   Button,
+  Text as CText,
   Flex,
   FormControl,
   Icon,
   Stack,
-  Text as CText,
   useColorModeValue,
   VStack,
 } from '@chakra-ui/react'
@@ -106,10 +106,7 @@ export const Address = () => {
 
   const showSaveButton = useMemo(() => {
     return Boolean(
-      (!isInAddressBook || !internalAccountId) &&
-        !!address &&
-        !addressError &&
-        isAddressBookEnabled,
+      !isInAddressBook && !internalAccountId && !!address && !addressError && isAddressBookEnabled,
     )
   }, [isInAddressBook, address, addressError, isAddressBookEnabled, internalAccountId])
 

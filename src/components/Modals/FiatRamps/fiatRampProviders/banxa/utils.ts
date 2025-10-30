@@ -41,13 +41,22 @@ export const getBanxaQuote = async ({
     return null
   }
 
+  console.log({
+    fiatCurrency,
+    crypto,
+    amount,
+    direction,
+    banxaTicker,
+    blockchain,
+  })
+
   const requestData: BanxaQuoteRequest = {
     partner: 'shapeshift',
     crypto: banxaTicker,
     blockchain,
     fiat: fiatCurrency.code,
     // TODO: Fetch available payment methods, we probably want to display multiple quotes for each payment method then
-    paymentMethodId: 'debit-credit-card',
+    paymentMethodId: direction === 'buy' ? 'debit-credit-card' : 'sepa-bank-transfer',
   }
 
   if (direction === 'buy') {

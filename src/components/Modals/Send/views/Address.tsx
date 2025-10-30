@@ -15,6 +15,7 @@ import { useFormContext, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useLocation, useNavigate } from 'react-router-dom'
 
+import { AddressBook } from '../AddressBook/AddressBook'
 import { AddressInput } from '../AddressInput/AddressInput'
 import type { SendInput } from '../Form'
 import { SendFormFields, SendRoutes } from '../SendCommon'
@@ -28,8 +29,13 @@ import { DialogTitle } from '@/components/Modal/components/DialogTitle'
 import { SelectAssetRoutes } from '@/components/SelectAssets/SelectAssetCommon'
 import { SlideTransition } from '@/components/SlideTransition'
 import { Text } from '@/components/Text'
+import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { useModal } from '@/hooks/useModal/useModal'
 import { parseAddressInputWithChainId } from '@/lib/address/address'
+import {
+  selectInternalAccountIdByAddress,
+  selectIsAddressInAddressBook,
+} from '@/state/slices/addressBookSlice/selectors'
 import { selectAssetById } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
@@ -55,6 +61,7 @@ export const Address = () => {
   const qrCode = useModal('qrCode')
   const assetId = useWatch<SendInput, SendFormFields.AssetId>({ name: SendFormFields.AssetId })
   const qrBackground = useColorModeValue('blackAlpha.200', 'whiteAlpha.200')
+  const isAddressBookEnabled = useFeatureFlag('AddressBook')
 
   const location = useLocation()
   const isFromQrCode = useMemo(() => location.state?.isFromQrCode === true, [location.state])
@@ -78,8 +85,30 @@ export const Address = () => {
 
   const asset = useAppSelector(state => selectAssetById(state, assetId))
 
+  const isInAddressBookFilter = useMemo(
+    () => ({ accountAddress: address, chainId: asset?.chainId }),
+    [address, asset?.chainId],
+  )
+  const isInAddressBook = useAppSelector(state =>
+    selectIsAddressInAddressBook(state, isInAddressBookFilter),
+  )
+
+  const internalAccountIdFilter = useMemo(
+    () => ({ accountAddress: address, chainId: asset?.chainId }),
+    [address, asset?.chainId],
+  )
+  const internalAccountId = useAppSelector(state =>
+    selectInternalAccountIdByAddress(state, internalAccountIdFilter),
+  )
+
   const supportsENS = asset?.chainId === ethChainId // We only support ENS resolution on ETH mainnet
   const addressError = get(errors, `${SendFormFields.Input}.message`, null)
+
+  const showSaveButton = useMemo(() => {
+    return Boolean(
+      !isInAddressBook && !internalAccountId && !!address && !addressError && isAddressBookEnabled,
+    )
+  }, [isInAddressBook, address, addressError, isAddressBookEnabled, internalAccountId])
 
   useEffect(() => {
     trigger(SendFormFields.Input)
@@ -150,6 +179,20 @@ export const Address = () => {
     navigate(SendRoutes.Scan)
   }, [navigate])
 
+  const handleClickAddressBookEntry = useCallback(
+    (entryAddress: string) => {
+      setValue(SendFormFields.Input, entryAddress, { shouldValidate: true })
+      navigate(SendRoutes.AmountDetails)
+    },
+    [setValue, navigate],
+  )
+
+  const handleEmptyChange = useCallback(() => {
+    setValue(SendFormFields.Input, '', { shouldValidate: true })
+    setValue(SendFormFields.To, '')
+    setValue(SendFormFields.VanityAddress, '')
+  }, [setValue])
+
   if (!asset) return null
 
   return (
@@ -168,8 +211,13 @@ export const Address = () => {
               placeholder={translate(
                 supportsENS ? 'modals.send.toAddressOrEns' : 'modals.send.toAddress',
               )}
+              resolvedAddress={address}
+              chainId={asset?.chainId}
+              onEmptied={handleEmptyChange}
+              shouldShowSaveButton={showSaveButton}
             />
           </FormControl>
+
           <Button
             size='lg'
             leftIcon={qrCodeIcon}
@@ -178,6 +226,7 @@ export const Address = () => {
             height='auto'
             background='transparent'
             m={-2}
+            my={0}
             p={2}
           >
             <VStack align='start' spacing={0}>
@@ -189,6 +238,10 @@ export const Address = () => {
               </CText>
             </VStack>
           </Button>
+
+          {isAddressBookEnabled && (
+            <AddressBook chainId={asset?.chainId} onEntryClick={handleClickAddressBookEntry} />
+          )}
         </VStack>
       </DialogBody>
       <DialogFooter pt={2}>

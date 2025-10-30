@@ -1,4 +1,3 @@
-import { useMediaQuery } from '@chakra-ui/react'
 import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
 import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import type { FeeDataEstimate } from '@shapeshiftoss/chain-adapters'
@@ -43,7 +42,6 @@ import {
   selectPortfolioAccountIdsByAssetIdFilter,
 } from '@/state/slices/selectors'
 import { store, useAppDispatch, useAppSelector } from '@/state/store'
-import { breakpoints } from '@/theme/theme'
 
 const status = <Status />
 const sendAmount = <SendAmountDetails />
@@ -92,7 +90,6 @@ export const Form: React.FC<SendFormProps> = ({ initialAssetId, input = '', acco
   const {
     state: { wallet },
   } = useWallet()
-  const [isSmallerThanMd] = useMediaQuery(`(max-width: ${breakpoints.md})`, { ssr: false })
 
   const filter = useMemo(() => ({ assetId: initialAssetId }), [initialAssetId])
   const accountIds = useAppSelector(state =>
@@ -235,16 +232,10 @@ export const Form: React.FC<SendFormProps> = ({ initialAssetId, input = '', acco
 
       // Use requestAnimationFrame to ensure navigation happens after state updates
       requestAnimationFrame(() => {
-        if (isSmallerThanMd) {
-          navigate(SendRoutes.Address, { replace: true })
-          return
-        }
-        // On desktop, go directly to AmountDetails
-        // On mobile, go to Address first
-        navigate(SendRoutes.AmountDetails, { replace: true })
+        navigate(SendRoutes.Address, { replace: true })
       })
     },
-    [navigate, methods, selectedCurrency, isSmallerThanMd],
+    [navigate, methods, selectedCurrency],
   )
 
   const handleBack = useCallback(() => {
@@ -318,17 +309,12 @@ export const Form: React.FC<SendFormProps> = ({ initialAssetId, input = '', acco
               .toString(),
           )
         }
-        if (isSmallerThanMd) {
-          navigate(SendRoutes.Address)
-          return
-        }
-
-        navigate(SendRoutes.AmountDetails)
+        navigate(SendRoutes.Address)
       } catch (e: any) {
         setAddressError(e.message)
       }
     },
-    [navigate, methods, isSmallerThanMd],
+    [navigate, methods],
   )
 
   const qrCodeScanner = useMemo(

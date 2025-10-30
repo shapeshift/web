@@ -20,7 +20,9 @@
     "closed": "Closed",
     "loadMore": "Load More",
     "volumeShort": "VOL",
+    "save": "Save",
     "saveChanges": "Save Changes",
+    "delete": "Delete",
     "new": "New",
     "continue": "Continue",
     "approve": "Approve",
@@ -1085,6 +1087,18 @@
       "toAddressOrEns": "To Address or ENS",
       "scanQrCode": "Scan QR Code",
       "qrCode": "QR Code",
+      "addressBook": "Address Book",
+      "noEntries": "No address found.",
+      "addNewAddress": "Add New Address",
+      "addAddress": {
+        "nameRequired": "Name is required",
+        "namePlaceholder": "Name",
+        "title": "Add Address"
+      },
+      "confirmDelete": {
+        "title": "Delete Address",
+        "message": "Are you sure you want to delete %{name} from your address book?"
+      },
       "permissionsButton": "Try again",
       "sent": "%{asset} sent",
       "errorTitle": "Your send of %{asset} failed",
@@ -1112,7 +1126,13 @@
         "slow": "Slow",
         "average": "Average",
         "fast": "Fast",
-        "scanQrCodeDescription": "Tap to scan an address"
+        "enterAmount": "Enter Amount",
+        "scanQrCode": "Scan QR Code",
+        "scanQrCodeDescription": "Tap to scan an address",
+        "yourAddresses": "Your Addresses",
+        "to": "To",
+        "from": "From",
+        "availableBalance": "%{balance} available"
       },
       "status": {
         "pendingBody": "Sending %{amount} %{symbol}"

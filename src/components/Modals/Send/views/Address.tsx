@@ -106,10 +106,7 @@ export const Address = () => {
 
   const showSaveButton = useMemo(() => {
     return Boolean(
-      (!isInAddressBook || !internalAccountId) &&
-        !!address &&
-        !addressError &&
-        isAddressBookEnabled,
+      !isInAddressBook && !internalAccountId && !!address && !addressError && isAddressBookEnabled,
     )
   }, [isInAddressBook, address, addressError, isAddressBookEnabled, internalAccountId])
 

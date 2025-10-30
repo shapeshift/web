@@ -421,7 +421,7 @@ export const Confirm = ({ handleSubmit }: ConfirmProps) => {
             <Row.Value display='flex' alignItems='center'>
               <InlineCopyButton
                 isDisabled={!accountId || isUtxoAccountId(accountId)}
-                value={fromAccountId(accountId ?? '').account}
+                value={accountId ? fromAccountId(accountId).account : ''}
               >
                 <AccountDropdown
                   onChange={handleAccountChange}

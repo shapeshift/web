@@ -37,6 +37,7 @@ import { AddressInput } from '@/components/Modals/Send/AddressInput/AddressInput
 import { SendMaxButton } from '@/components/Modals/Send/SendMaxButton/SendMaxButton'
 import { SlideTransition } from '@/components/SlideTransition'
 import { Text } from '@/components/Text/Text'
+import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
 import { parseAddressInputWithChainId } from '@/lib/address/address'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { selectAssetById } from '@/state/slices/selectors'
@@ -193,6 +194,20 @@ export const SendAmountDetails = () => {
     [asset?.symbol, translate, handleMemoChange],
   )
 
+  const chainName = useMemo(() => {
+    if (!asset) return ''
+    const chainAdapterManager = getChainAdapterManager()
+    return chainAdapterManager.get(asset.chainId)?.getDisplayName() ?? asset.chainId
+  }, [asset])
+
+  const hasNoAccountForAsset = useMemo(() => !accountId && assetId, [accountId, assetId])
+
+  const noAccountsOnChainTranslation = useMemo(
+    () =>
+      ['modals.send.errors.noAccountsOnChain', { chain: chainName }] as [string, { chain: string }],
+    [chainName],
+  )
+
   if (!asset) return null
 
   return (
@@ -287,23 +302,31 @@ export const SendAmountDetails = () => {
               <Text translation={amountFieldError} fontSize='sm' />
             </Alert>
           )}
-          <Flex alignItems='center' justifyContent='space-between' mb={4}>
-            <Flex alignItems='center'>
-              <FormLabel color='text.subtle' mb={0}>
-                {translate('trade.from')}
-              </FormLabel>
-              <Box>
-                <AccountSelector
-                  assetId={asset.assetId}
-                  accountId={accountId}
-                  onChange={handleAccountChange}
-                  boxProps={accountDropdownBoxProps}
-                  buttonProps={accountDropdownButtonProps}
-                />
-              </Box>
+          {hasNoAccountForAsset && (
+            <Alert status='warning' borderRadius='lg' mb={3}>
+              <AlertIcon />
+              <Text translation={noAccountsOnChainTranslation} fontSize='sm' />
+            </Alert>
+          )}
+          {!hasNoAccountForAsset && (
+            <Flex alignItems='center' justifyContent='space-between' mb={4}>
+              <Flex alignItems='center'>
+                <FormLabel color='text.subtle' mb={0}>
+                  {translate('trade.from')}
+                </FormLabel>
+                <Box>
+                  <AccountSelector
+                    assetId={asset.assetId}
+                    accountId={accountId}
+                    onChange={handleAccountChange}
+                    boxProps={accountDropdownBoxProps}
+                    buttonProps={accountDropdownButtonProps}
+                  />
+                </Box>
+              </Flex>
+              <SendMaxButton onClick={handleMaxClick} isDisabled={!Boolean(to)} />
             </Flex>
-            <SendMaxButton onClick={handleMaxClick} isDisabled={!Boolean(to)} />
-          </Flex>
+          )}
           <Button
             width='full'
             colorScheme={addressError && !isValidating ? 'red' : 'blue'}
@@ -317,7 +340,8 @@ export const SendAmountDetails = () => {
               Boolean(memoFieldError) ||
               !to ||
               !input ||
-              addressError
+              addressError ||
+              hasNoAccountForAsset
             }
             isLoading={isLoading || isValidating}
           >

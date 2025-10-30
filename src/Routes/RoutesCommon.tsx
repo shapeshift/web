@@ -172,16 +172,6 @@ export const routes: Route[] = [
     hide: true,
   },
   {
-    path: '/wallet/*',
-    label: 'navBar.myWallet',
-    shortLabel: 'navBar.wallet',
-    icon: <WalletIcon />,
-    main: Dashboard,
-    category: RouteCategory.Featured,
-    mobileNav: false,
-    priority: 5,
-  },
-  {
     path: '/history',
     label: 'navBar.history',
     icon: <TimeIcon />,

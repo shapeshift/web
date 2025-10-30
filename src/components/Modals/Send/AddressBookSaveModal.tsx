@@ -8,6 +8,7 @@ import {
   VStack,
 } from '@chakra-ui/react'
 import type { ChainId } from '@shapeshiftoss/caip'
+import { toAccountId } from '@shapeshiftoss/caip'
 import { useCallback, useMemo } from 'react'
 import { useForm } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
@@ -28,6 +29,7 @@ import { useAppDispatch, useAppSelector } from '@/state/store'
 
 export type AddressBookSaveModalProps = {
   address: string
+  vanityAddress?: string
   chainId: ChainId
   onSuccess?: () => void
 }
@@ -47,6 +49,7 @@ const hoverInputStyle = {
 
 export const AddressBookSaveModal = ({
   address,
+  vanityAddress,
   chainId,
   onSuccess,
 }: AddressBookSaveModalProps) => {
@@ -74,7 +77,7 @@ export const AddressBookSaveModal = ({
   } = useForm<FormData>({
     mode: 'onChange',
     defaultValues: {
-      label: '',
+      label: vanityAddress,
     },
   })
 
@@ -90,9 +93,10 @@ export const AddressBookSaveModal = ({
       // Can't access here if it's an internal account id as its supposed to be added automatically as a system
       if (internalAccountId) return
 
+      const accountId = toAccountId({ chainId, account: address })
       const entry: AddressBookEntry = {
         address,
-        chainId,
+        accountId,
         label: data.label,
         isInternal: false,
         isExternal: true,

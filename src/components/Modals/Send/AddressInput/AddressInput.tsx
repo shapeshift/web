@@ -91,10 +91,10 @@ export const AddressInput = ({
       e.stopPropagation()
 
       if (to && asset?.chainId) {
-        addressBookSaveModal.open({ address: to, chainId: asset.chainId })
+        addressBookSaveModal.open({ address: to, vanityAddress, chainId: asset.chainId })
       }
     },
-    [to, asset?.chainId, addressBookSaveModal],
+    [to, vanityAddress, asset?.chainId, addressBookSaveModal],
   )
 
   const addressBookEntryFilter = useMemo(

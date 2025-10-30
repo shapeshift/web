@@ -492,7 +492,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   )
 
   const handleBackClick = useCallback(() => {
-    browserNavigate('/pools')
+    browserNavigate(-1)
   }, [browserNavigate])
 
   const actualAssetDepositAmountCryptoPrecision = useMemo(() => {

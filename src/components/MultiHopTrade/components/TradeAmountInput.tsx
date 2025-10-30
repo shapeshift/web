@@ -404,7 +404,13 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = memo(
         </Flex>
         <Flex sx={inputContainerStyle}>
           {labelPostFix}
-          <Stack direction='row' alignItems='center' px={6} display={hideAmounts ? 'none' : 'flex'}>
+          <Stack
+            direction='row'
+            alignItems='center'
+            px={6}
+            pe={0}
+            display={hideAmounts ? 'none' : 'flex'}
+          >
             <Flex gap={2} flex={1} alignItems='flex-end' pb={layout === 'inline' ? 4 : 0}>
               <Skeleton isLoaded={!showInputSkeleton} width='full'>
                 <Controller

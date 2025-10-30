@@ -1069,30 +1069,6 @@
         }
       }
     },
-    "settings": {
-      "currencies": {
-        "CNY": "Chinese Yuan",
-        "USD": "US Dollar",
-        "EUR": "Euro",
-        "JPY": "Japanese Yen",
-        "GBP": "British Pound",
-        "KRW": "South Korean Won",
-        "INR": "Indian Rupee",
-        "CAD": "Canadian Dollar",
-        "HKD": "Hong Kong Dollar",
-        "AUD": "Australian Dollar",
-        "TWD": "Taiwan Dollar",
-        "BRL": "Brazilian Real",
-        "CHF": "Swiss Franc",
-        "THB": "Thai Baht",
-        "MXN": "Mexican Peso",
-        "RUB": "Russian Ruble",
-        "SAR": "Saudi Riyal",
-        "SGD": "Singapore Dollar",
-        "ILS": "Israeli Shekel",
-        "IDR": "Indonesian Rupiah"
-      }
-    },
     "send": {
       "confirmSend": "Confirm send",
       "consolidate": {
@@ -1249,7 +1225,29 @@
       "currencyFormat": "Currency Format",
       "language": "Language",
       "balanceThreshold": "Balance Threshold",
-      "balanceThresholdTooltip": "On dashboard and charts, hide balances below this value"
+      "balanceThresholdTooltip": "On dashboard and charts, hide balances below this value",
+      "currencies": {
+        "CNY": "Chinese Yuan",
+        "USD": "US Dollar",
+        "EUR": "Euro",
+        "JPY": "Japanese Yen",
+        "GBP": "British Pound",
+        "KRW": "South Korean Won",
+        "INR": "Indian Rupee",
+        "CAD": "Canadian Dollar",
+        "HKD": "Hong Kong Dollar",
+        "AUD": "Australian Dollar",
+        "TWD": "Taiwan Dollar",
+        "BRL": "Brazilian Real",
+        "CHF": "Swiss Franc",
+        "THB": "Thai Baht",
+        "MXN": "Mexican Peso",
+        "RUB": "Russian Ruble",
+        "SAR": "Saudi Riyal",
+        "SGD": "Singapore Dollar",
+        "ILS": "Israeli Shekel",
+        "IDR": "Indonesian Rupiah"
+      }
     },
     "ramp": {
       "payWith": "Pay With",

@@ -308,7 +308,9 @@
     "availableProviders": "Available Providers",
     "noProvidersAvailable": "No Providers Available",
     "noProvidersBody": "Looks like we don't have any providers for that asset yet.",
-    "notSupported": "%{asset} is not supported by %{wallet}"
+    "notSupported": "%{asset} is not supported by %{wallet}",
+    "previewPurchase": "Preview Purchase",
+    "previewSale": "Preview Sale"
   },
   "connectWalletPage": {
     "shapeshift": "ShapeShift",

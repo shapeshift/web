@@ -1,10 +1,10 @@
 import {
   Button,
-  Text as CText,
   Flex,
   FormControl,
   Icon,
   Stack,
+  Text as CText,
   useColorModeValue,
   VStack,
 } from '@chakra-ui/react'

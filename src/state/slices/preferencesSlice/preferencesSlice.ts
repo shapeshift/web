@@ -44,6 +44,7 @@ export type FeatureFlags = {
   Chatwoot: boolean
   AdvancedSlippage: boolean
   WalletConnectV2: boolean
+  WcDirectConnection: boolean
   CustomSendNonce: boolean
   ThorchainLending: boolean
   ThorchainLendingBorrow: boolean
@@ -168,6 +169,7 @@ const initialState: Preferences = {
     Chatwoot: getConfig().VITE_FEATURE_CHATWOOT,
     AdvancedSlippage: getConfig().VITE_FEATURE_ADVANCED_SLIPPAGE,
     WalletConnectV2: getConfig().VITE_FEATURE_WALLET_CONNECT_V2,
+    WcDirectConnection: getConfig().VITE_FEATURE_WC_DIRECT_CONNECTION,
     CustomSendNonce: getConfig().VITE_EXPERIMENTAL_CUSTOM_SEND_NONCE,
     ThorchainLending: getConfig().VITE_FEATURE_THORCHAIN_LENDING,
     ThorchainLendingBorrow: getConfig().VITE_FEATURE_THORCHAIN_LENDING_BORROW,

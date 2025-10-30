@@ -52,7 +52,6 @@ import {
   selectManualReceiveAddress,
   selectSelectedBuyFiatRampQuote,
   selectSelectedSellFiatRampQuote,
-  selectSellCryptoAmount,
   selectSellFiatCurrency,
 } from '@/state/slices/tradeRampInputSlice/selectors'
 import { tradeRampInput } from '@/state/slices/tradeRampInputSlice/tradeRampInputSlice'
@@ -96,7 +95,6 @@ const RampRoutes = memo(({ onChangeTab, direction }: RampRoutesProps) => {
   const hasUserEnteredAmount = useAppSelector(selectHasUserEnteredAmount)
   const sellFiatCurrency = useAppSelector(selectSellFiatCurrency)
   const buyFiatCurrency = useAppSelector(selectBuyFiatCurrency)
-  const sellCryptoAmount = useAppSelector(selectSellCryptoAmount)
   const buyFiatAmount = useAppSelector(selectBuyFiatAmount)
   const selectedBuyQuote = useAppSelector(selectSelectedBuyFiatRampQuote)
   const selectedSellQuote = useAppSelector(selectSelectedSellFiatRampQuote)
@@ -158,9 +156,10 @@ const RampRoutes = memo(({ onChangeTab, direction }: RampRoutesProps) => {
   const clearSelectedQuote = useCallback(() => {
     if (direction === FiatRampAction.Buy) {
       dispatch(tradeRampInput.actions.setSelectedBuyFiatRampQuote(null))
-    } else {
-      dispatch(tradeRampInput.actions.setSelectedSellFiatRampQuote(null))
+      return
     }
+
+    dispatch(tradeRampInput.actions.setSelectedSellFiatRampQuote(null))
   }, [dispatch, direction])
 
   const handleSellAssetChange = useCallback(
@@ -301,7 +300,7 @@ const RampRoutes = memo(({ onChangeTab, direction }: RampRoutesProps) => {
       e.preventDefault()
       if (!selectedQuote?.provider) return
       if (!isConnected) return
-      if (!buyAccountMetadata) return
+      if (direction === FiatRampAction.Buy && !buyAccountMetadata) return
 
       const ramp = supportedFiatRamps[selectedQuote.provider]
       const mpData = {
@@ -314,7 +313,7 @@ const RampRoutes = memo(({ onChangeTab, direction }: RampRoutesProps) => {
       }
 
       const receiveAddress =
-        direction === FiatRampAction.Buy
+        direction === FiatRampAction.Buy && buyAccountMetadata
           ? await getReceiveAddress({
               asset: direction === FiatRampAction.Buy ? buyAsset : sellAsset,
               wallet,
@@ -331,7 +330,7 @@ const RampRoutes = memo(({ onChangeTab, direction }: RampRoutesProps) => {
         address: manualReceiveAddress ?? receiveAddress ?? '',
         fiatCurrency:
           direction === FiatRampAction.Buy ? sellFiatCurrency.code : buyFiatCurrency.code,
-        fiatAmount: direction === FiatRampAction.Buy ? buyFiatAmount : sellCryptoAmount,
+        fiatAmount: direction === FiatRampAction.Buy ? buyFiatAmount : selectedQuote?.amount ?? '0',
         amountCryptoPrecision:
           direction === FiatRampAction.Sell ? sellAmountCryptoPrecision : undefined,
         options: {
@@ -353,8 +352,8 @@ const RampRoutes = memo(({ onChangeTab, direction }: RampRoutesProps) => {
       manualReceiveAddress,
       walletReceiveAddress,
       selectedQuote?.provider,
+      selectedQuote?.amount,
       sellAmountCryptoPrecision,
-      sellCryptoAmount,
       buyFiatAmount,
       isConnected,
       buyAccountMetadata,

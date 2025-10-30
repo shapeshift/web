@@ -1,12 +1,10 @@
-import { useToast } from '@chakra-ui/react'
 import { captureException } from '@sentry/react'
 import { useCallback } from 'react'
 import { useTranslate } from 'react-polyglot'
 
 import { Dialog } from '@/components/Modal/components/Dialog'
 import { DialogBody } from '@/components/Modal/components/DialogBody'
-import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
-import { MixPanelEvent } from '@/lib/mixpanel/types'
+import { useNotificationToast } from '@/hooks/useNotificationToast'
 import { ConnectContent } from '@/plugins/walletConnectToDapps/components/modals/connect/ConnectContent'
 import { useWalletConnectV2 } from '@/plugins/walletConnectToDapps/WalletConnectV2Provider'
 
@@ -22,7 +20,7 @@ const maxWidthProp = { base: 'full', md: '500px' }
 const Connect = ({ initialUri, isOpen, onClose }: Props) => {
   const { pair } = useWalletConnectV2()
   const translate = useTranslate()
-  const toast = useToast()
+  const toast = useNotificationToast({ desktopPosition: 'top-right' })
 
   const handleConnectV2 = useCallback(
     async (uri: string) => {
@@ -38,7 +36,6 @@ const Connect = ({ initialUri, isOpen, onClose }: Props) => {
         // This should *not* be an exception, we handle this as part of our flow.
         if ((error as Error)?.message.includes('Pairing already exists')) {
           toast({
-            position: 'top-right',
             title: translate('plugins.walletConnectToDapps.errors.errorConnectingToDapp'),
             description: translate('plugins.walletConnectToDapps.errors.pairingAlreadyExists'),
             status: 'error',
@@ -50,7 +47,6 @@ const Connect = ({ initialUri, isOpen, onClose }: Props) => {
         }
 
         captureException(error)
-        getMixPanel()?.track(MixPanelEvent.Error, { error })
       }
     },
     [onClose, pair, toast, translate],

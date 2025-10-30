@@ -3,7 +3,7 @@ import { Box, Button, Flex, HStack, Icon, Text, useDisclosure, VStack } from '@c
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import type { FC } from 'react'
-import { memo, useCallback, useEffect, useMemo } from 'react'
+import { memo, useCallback, useMemo } from 'react'
 import { RiExpandUpDownLine } from 'react-icons/ri'
 import { useTranslate } from 'react-polyglot'
 
@@ -66,12 +66,6 @@ export const AccountSelector: FC<AccountSelectorProps> = memo(
           : undefined,
       [accountMetadata, selectedAccountId],
     )
-
-    useEffect(() => {
-      if (!selectedAccountId) {
-        onChange(accountIds[0])
-      }
-    }, [selectedAccountId, accountIds, onChange])
 
     const selectedAccountDetails = useMemo(() => {
       if (!selectedAccountId || !asset) return null

@@ -5,13 +5,13 @@ import { truncate } from 'lodash'
 import { memo, useCallback, useMemo } from 'react'
 import { RiArrowRightDownFill, RiArrowRightUpFill } from 'react-icons/ri'
 import { useTranslate } from 'react-polyglot'
-import { useNavigate } from 'react-router-dom'
 import type { Column, Row } from 'react-table'
 
 import { WatchAssetButton } from './AssetHeader/WatchAssetButton'
 
 import { Amount } from '@/components/Amount/Amount'
 import { Display } from '@/components/Display'
+import { useTradeNavigation } from '@/components/MultiHopTrade/hooks/useTradeNavigation'
 import { ReactTableNoPager } from '@/components/ReactTable/ReactTableNoPager'
 import { AssetCell } from '@/components/StakingVaults/Cells'
 import { Text } from '@/components/Text'
@@ -40,7 +40,7 @@ type MarketsTableProps = {
 export const MarketsTable: React.FC<MarketsTableProps> = memo(
   ({ rows, onRowClick, forceCompactView }) => {
     const translate = useTranslate()
-    const navigate = useNavigate()
+    const { navigateToTrade } = useTradeNavigation()
     const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
     const [isLargerThanLg] = useMediaQuery(`(min-width: ${breakpoints['lg']})`, { ssr: false })
     const showHeaders = isLargerThanMd && !forceCompactView
@@ -63,9 +63,9 @@ export const MarketsTable: React.FC<MarketsTableProps> = memo(
         e.stopPropagation()
         const assetId = e.currentTarget.getAttribute('data-asset-id')
         if (!assetId) return
-        navigate(`/trade/${assetId}`)
+        navigateToTrade(assetId)
       },
-      [navigate],
+      [navigateToTrade],
     )
     const columns: Column<Asset>[] = useMemo(
       () => [

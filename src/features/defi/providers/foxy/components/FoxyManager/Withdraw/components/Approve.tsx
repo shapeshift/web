@@ -1,4 +1,3 @@
-import { useToast } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
@@ -15,6 +14,7 @@ import type { WithdrawValues } from '@/features/defi/components/Withdraw/Withdra
 import { DefiAction, DefiStep } from '@/features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { canCoverTxFees } from '@/features/defi/helpers/utils'
 import { useFoxyQuery } from '@/features/defi/providers/foxy/components/FoxyManager/useFoxyQuery'
+import { useNotificationToast } from '@/hooks/useNotificationToast'
 import { usePoll } from '@/hooks/usePoll/usePoll'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
@@ -39,7 +39,7 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
     feeMarketData,
     contractAddress,
   } = useFoxyQuery()
-  const toast = useToast()
+  const toast = useNotificationToast({ desktopPosition: 'top-right' })
 
   const userAddress: string | undefined = accountId && fromAccountId(accountId).account
 
@@ -84,7 +84,6 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
         const fundsError =
           error instanceof Error && error.message.includes('Not enough funds in reserve')
         toast({
-          position: 'top-right',
           description: fundsError
             ? translate('defi.notEnoughFundsInReserve')
             : translate('common.somethingWentWrong'),
@@ -159,7 +158,6 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext }) => {
     } catch (error) {
       console.error(error)
       toast({
-        position: 'top-right',
         description: translate('common.transactionFailedBody'),
         title: translate('common.transactionFailed'),
         status: 'error',

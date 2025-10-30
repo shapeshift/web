@@ -24,7 +24,11 @@ import { parseUrlDirect } from '@/lib/address/bip21'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { ConnectModal } from '@/plugins/walletConnectToDapps/components/modals/connect/Connect'
 import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
-import { selectAssetById, selectMarketDataByAssetIdUserCurrency } from '@/state/slices/selectors'
+import {
+  selectAssetById,
+  selectFirstAccountIdByChainId,
+  selectMarketDataByAssetIdUserCurrency,
+} from '@/state/slices/selectors'
 import { store, useAppSelector } from '@/state/store'
 import { breakpoints } from '@/theme/theme'
 
@@ -166,6 +170,17 @@ export const Form: React.FC<QrCodeFormProps> = ({ accountId }) => {
                 .times(bnOrZero(marketData?.price))
                 .toString(),
             )
+          }
+
+          // Update accountId to match the scanned asset
+          if (maybeUrlResult.assetId && !accountId) {
+            const asset = selectAssetById(store.getState(), maybeUrlResult.assetId)
+            if (asset) {
+              const detectedAccountId = selectFirstAccountIdByChainId(store.getState(), asset.chainId)
+              if (detectedAccountId) {
+                methods.setValue(SendFormFields.AccountId, detectedAccountId)
+              }
+            }
           }
 
           const { chainNamespace } = fromAssetId(maybeUrlResult.assetId)

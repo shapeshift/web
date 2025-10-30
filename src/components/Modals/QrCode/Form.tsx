@@ -26,8 +26,8 @@ import { ConnectModal } from '@/plugins/walletConnectToDapps/components/modals/c
 import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
 import {
   selectAssetById,
-  selectFirstAccountIdByChainId,
   selectMarketDataByAssetIdUserCurrency,
+  selectPortfolioAccountIdsByAssetIdFilter,
 } from '@/state/slices/selectors'
 import { store, useAppSelector } from '@/state/store'
 import { breakpoints } from '@/theme/theme'
@@ -174,15 +174,16 @@ export const Form: React.FC<QrCodeFormProps> = ({ accountId }) => {
 
           // Update accountId to match the scanned asset
           if (maybeUrlResult.assetId && !accountId) {
-            const asset = selectAssetById(store.getState(), maybeUrlResult.assetId)
-            if (asset) {
-              const detectedAccountId = selectFirstAccountIdByChainId(
-                store.getState(),
-                asset.chainId,
-              )
-              if (detectedAccountId) {
-                methods.setValue(SendFormFields.AccountId, detectedAccountId)
-              }
+            // Get accounts for this asset to ensure we have a valid accountId
+            const state = store.getState()
+            const accountIds = selectPortfolioAccountIdsByAssetIdFilter(state, {
+              assetId: maybeUrlResult.assetId,
+            })
+            const detectedAccountId = accountIds[0]
+
+            // Only set accountId if one exists for this asset
+            if (detectedAccountId) {
+              methods.setValue(SendFormFields.AccountId, detectedAccountId)
             }
           }
 

@@ -1091,7 +1091,8 @@
         "notEnoughNativeToken": "Not enough %{asset} to cover gas",
         "transactionRejected": "User has rejected the transaction",
         "qrPermissions": "This feature needs camera access permissions in order to work. Please change your browser settings.",
-        "qrDangerousEthUrl": "QR codes containing a contract address not supported. Please paste the destination address manually."
+        "qrDangerousEthUrl": "QR codes containing a contract address not supported. Please paste the destination address manually.",
+        "noAccountsOnChain": "No accounts on %{chain}"
       },
       "confirm": {
         "customNonce": "Custom Nonce",

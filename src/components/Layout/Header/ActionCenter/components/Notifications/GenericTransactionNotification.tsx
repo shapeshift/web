@@ -55,19 +55,18 @@ export const GenericTransactionNotification = ({
 
   const translationArgs = useMemo(() => {
     if (!action || !asset) return undefined
+    // Destructure to exclude non-serializable fields from the spread
+    const { confirmedQuote: _confirmedQuote, ...serializableMetadata } = action.transactionMetadata
     return [
       action.transactionMetadata.message,
       {
-        amount: action.transactionMetadata.amountCryptoPrecision,
-        amountCryptoPrecision: action.transactionMetadata.amountCryptoPrecision,
-        symbol: asset.symbol,
-        newAddress: firstFourLastFour(action.transactionMetadata.newAddress ?? ''),
-        assetAmountsAndSymbols: action.transactionMetadata.assetAmountsAndSymbols,
-        poolName: action.transactionMetadata.poolName,
-        contractName: action.transactionMetadata.contractName,
-        cooldownPeriod: action.transactionMetadata.cooldownPeriod,
+        // Spread all serializable metadata fields first to ensure all values are available for interpolation
+        ...serializableMetadata,
+        // Then override with computed/transformed values
+        symbol: asset.symbol, // Symbol comes from asset, not metadata
+        newAddress: firstFourLastFour(action.transactionMetadata.newAddress ?? ''), // Formatted version
       },
-    ] as [string, Record<string, string | number>]
+    ] as [string, Record<string, string | number | undefined>]
   }, [action, asset])
 
   const title = useMemo(() => {

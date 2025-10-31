@@ -327,7 +327,7 @@ export const FiatRampTradeBody: React.FC<FiatRampTradeBodyProps> = ({
 
       <Box mb={6}>
         <FiatInput
-          selectedFiatCurrency={sellFiatCurrency}
+          selectedFiatCurrency={buyFiatCurrency}
           amount={sellFiatAmount}
           labelPostFix={fiatSelect}
           label={translate('modals.ramp.receiveAmount')}

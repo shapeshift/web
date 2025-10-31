@@ -1815,6 +1815,10 @@
       "outputCurrency": "Output currency",
       "outputAddress": "Output address"
     },
+    "txid": "TX ID",
+    "status": "Status",
+    "minerFee": "Miner Fee",
+    "date": "Date",
     "sentTo": "Sent to %{address}",
     "receivedFrom": "Received from %{address}",
     "today": "Today",

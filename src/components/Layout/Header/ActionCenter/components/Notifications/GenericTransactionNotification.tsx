@@ -63,6 +63,7 @@ export const GenericTransactionNotification = ({
         // Spread all serializable metadata fields first to ensure all values are available for interpolation
         ...serializableMetadata,
         // Then override with computed/transformed values
+        amount: action.transactionMetadata.amountCryptoPrecision, // Map to 'amount' for translation strings
         symbol: asset.symbol, // Symbol comes from asset, not metadata
         newAddress: firstFourLastFour(action.transactionMetadata.newAddress ?? ''), // Formatted version
       },

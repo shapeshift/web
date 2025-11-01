@@ -134,7 +134,9 @@ export const AddressInput = ({
     if (!internalAccountId) return null
 
     if (isUtxoAccountId(internalAccountId)) {
-      return accountIdToLabel(internalAccountId)
+      return `${translate('accounts.accountNumber', { accountNumber })} - ${accountIdToLabel(
+        internalAccountId,
+      )}`
     }
 
     // Fallback to "Account" if accountNumber is not available yet

@@ -34,7 +34,7 @@ import {
  * source of truth per banxa
  */
 const AssetIdToBanxaTickerMap = {
-  [btcAssetId]: 'btc',
+  [btcAssetId]: 'BTC',
   [dogeAssetId]: 'doge',
   [cosmosAssetId]: 'atom',
   [ethAssetId]: 'eth',

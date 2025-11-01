@@ -2,7 +2,6 @@ import { assertGetViemClient } from '@shapeshiftoss/contracts'
 import { COW_SWAP_VAULT_RELAYER_ADDRESS, SwapperName } from '@shapeshiftoss/swapper'
 import { useMutation } from '@tanstack/react-query'
 import { useEffect, useMemo } from 'react'
-import { useTranslate } from 'react-polyglot'
 import type { Hash } from 'viem'
 
 import { useActionCenterContext } from '@/components/Layout/Header/ActionCenter/ActionCenterContext'
@@ -41,7 +40,6 @@ export const useAllowanceApproval = ({
   isQueryEnabled,
   isRefetchEnabled,
 }: UseAllowanceApprovalProps) => {
-  const translate = useTranslate()
   const { isDrawerOpen, openActionCenter } = useActionCenterContext()
   const dispatch = useAppDispatch()
   const toast = useNotificationToast({ duration: isDrawerOpen ? 5000 : null })
@@ -144,11 +142,7 @@ export const useAllowanceApproval = ({
             amountCryptoPrecision,
             assetId: activeQuote.params.sellAssetId,
             contractName: SwapperName.CowSwap,
-            message: translate('actionCenter.approve.approvalTxPending', {
-              contractName: SwapperName.CowSwap,
-              amountCryptoPrecision,
-              symbol: sellAsset.symbol,
-            }),
+            message: 'actionCenter.approve.approvalTxPending',
           },
         }),
       )

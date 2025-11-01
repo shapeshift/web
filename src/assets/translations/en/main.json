@@ -2468,7 +2468,7 @@
         "processing": "Your withdraw of %{assetAmountsAndSymbols} from the %{poolName} pool is processing."
       },
       "deposit": {
-        "processing": "Your deposit of %{amountCryptoPrecision} %{symbol} to %{poolName} pool is processing."
+        "processing": "Your deposit of %{amount} %{symbol} to %{poolName} pool is processing."
       }
     },
     "deposit": {
@@ -2516,8 +2516,8 @@
       "claimTxComplete": "Your TCY claim of %{amount} %{symbol} is complete."
     },
     "approve": {
-      "approvalTxPending": "Approving %{contractName} to use %{amountCryptoPrecision} %{symbol}.",
-      "approvalTxComplete": "Approved %{contractName} to use %{amountCryptoPrecision} %{symbol}."
+      "approvalTxPending": "Approving %{contractName} to use %{amount} %{symbol}.",
+      "approvalTxComplete": "Approved %{contractName} to use %{amount} %{symbol}."
     },
     "pendingTransactions": "%{count} Pending",
     "rewardDistribution": {

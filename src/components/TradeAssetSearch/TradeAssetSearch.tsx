@@ -27,6 +27,7 @@ import { useNavigate } from 'react-router-dom'
 import type { TopItemListProps } from 'react-virtuoso'
 import { Virtuoso } from 'react-virtuoso'
 
+import { FiatMenuButton } from '../AssetSelection/components/FiatMenuButton'
 import { CustomAssetAcknowledgement } from './components/CustomAssetAcknowledgement'
 import { DefaultAssetList } from './components/DefaultAssetList'
 import { SearchTermAssetList } from './components/SearchTermAssetList'
@@ -43,7 +44,7 @@ import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import type { FiatCurrencyItem } from '@/lib/fiatCurrencies/fiatCurrencies'
-import { fiatCurrencyItems } from '@/lib/fiatCurrencies/fiatCurrencies'
+import { fiatCurrencyItems, fiatCurrencyItemsByCode } from '@/lib/fiatCurrencies/fiatCurrencies'
 import { sortChainIdsByDisplayName } from '@/lib/utils'
 import {
   selectPortfolioAssetsByChainId,
@@ -73,6 +74,8 @@ const textSelectedProps = {
 }
 
 const NUM_QUICK_ACCESS_ASSETS = 6
+
+const QUICK_ACCESS_FIAT_CURRENCIES = ['EUR', 'USD', 'CAD', 'GBP', 'PLN', 'IDR', 'DKK', 'BRL']
 
 export type TradeAssetSearchProps = {
   onAssetClick?: (asset: Asset) => void
@@ -254,6 +257,19 @@ export const TradeAssetSearch: FC<TradeAssetSearchProps> = ({
       )
     })
   }, [handleAssetClick, isPopularAssetIdsLoading, quickAccessAssets])
+
+  const quickAccessFiatButtons = useMemo(
+    () =>
+      QUICK_ACCESS_FIAT_CURRENCIES.map(fiat => (
+        <FiatMenuButton
+          key={fiat}
+          selectedFiatCurrency={fiatCurrencyItemsByCode[fiat]}
+          onSelectFiat={onSelectFiatCurrency}
+          buttonProps={assetButtonProps}
+        />
+      )),
+    [onSelectFiatCurrency],
+  )
 
   const handleImportIntent = useCallback((asset: Asset) => {
     setAssetToImport(asset)
@@ -473,9 +489,9 @@ export const TradeAssetSearch: FC<TradeAssetSearchProps> = ({
             />
           )}
         </Flex>
-        {showAssetTab && (
+        {(showAssetTab || showFiatTab) && (
           <Flex flexWrap='wrap' gap={2}>
-            {quickAccessAssetButtons}
+            {showAssetTab ? quickAccessAssetButtons : quickAccessFiatButtons}
           </Flex>
         )}
       </Stack>

@@ -492,7 +492,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   )
 
   const handleBackClick = useCallback(() => {
-    browserNavigate('/pools')
+    browserNavigate(-1)
   }, [browserNavigate])
 
   const actualAssetDepositAmountCryptoPrecision = useMemo(() => {
@@ -665,11 +665,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
             amountCryptoPrecision,
             assetId: poolAsset.assetId,
             contractName: 'THORChain LP',
-            message: translate('actionCenter.approve.approvalTxPending', {
-              contractName: 'THORChain LP',
-              amountCryptoPrecision,
-              symbol: poolAsset.symbol,
-            }),
+            message: 'actionCenter.approve.approvalTxPending',
           },
         }),
       )

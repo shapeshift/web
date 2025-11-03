@@ -10,9 +10,7 @@ import {
   Input,
   Skeleton,
   Stack,
-  Text as CText,
   Tooltip,
-  useMediaQuery,
   VStack,
 } from '@chakra-ui/react'
 import { CHAIN_NAMESPACE, ethChainId, fromAssetId } from '@shapeshiftoss/caip'
@@ -24,29 +22,26 @@ import { FaInfoCircle } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { useLocation, useNavigate } from 'react-router-dom'
 
-import { AddressInputWithDropdown } from '../components/AddressInputWithDropdown'
 import type { SendInput } from '../Form'
 import { useSendDetails } from '../hooks/useSendDetails/useSendDetails'
 import { SendFormFields, SendRoutes } from '../SendCommon'
 
 import { AccountSelector } from '@/components/AccountSelector/AccountSelector'
 import { CryptoFiatInput } from '@/components/CryptoFiatInput/CryptoFiatInput'
-import { Display } from '@/components/Display'
-import { MiddleEllipsis } from '@/components/MiddleEllipsis/MiddleEllipsis'
 import { DialogBackButton } from '@/components/Modal/components/DialogBackButton'
 import { DialogBody } from '@/components/Modal/components/DialogBody'
 import { DialogFooter } from '@/components/Modal/components/DialogFooter'
 import { DialogHeader } from '@/components/Modal/components/DialogHeader'
 import { DialogTitle } from '@/components/Modal/components/DialogTitle'
+import { AddressInput } from '@/components/Modals/Send/AddressInput/AddressInput'
 import { SendMaxButton } from '@/components/Modals/Send/SendMaxButton/SendMaxButton'
-import { SelectAssetRoutes } from '@/components/SelectAssets/SelectAssetCommon'
 import { SlideTransition } from '@/components/SlideTransition'
 import { Text } from '@/components/Text/Text'
+import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
 import { parseAddressInputWithChainId } from '@/lib/address/address'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { selectAssetById } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
-import { breakpoints } from '@/theme/theme'
 
 const accountDropdownBoxProps = { px: 0, my: 0 }
 const accountDropdownButtonProps = { px: 2 }
@@ -73,7 +68,6 @@ export const SendAmountDetails = () => {
   const translate = useTranslate()
 
   const [isValidating, setIsValidating] = useState(false)
-  const [isSmallerThanMd] = useMediaQuery(`(max-width: ${breakpoints.md})`, { ssr: false })
 
   const isFromQrCode = useMemo(() => location.state?.isFromQrCode === true, [location.state])
 
@@ -115,19 +109,6 @@ export const SendAmountDetails = () => {
     () => navigate(isFromQrCode ? SendRoutes.Scan : SendRoutes.Address),
     [navigate, isFromQrCode],
   )
-  const handleAssetBackClick = useCallback(() => {
-    if (isFromQrCode) {
-      navigate(SendRoutes.Scan)
-      return
-    }
-    setValue(SendFormFields.AssetId, '')
-    navigate(SendRoutes.Select, {
-      state: {
-        toRoute: SelectAssetRoutes.Search,
-        assetId: '',
-      },
-    })
-  }, [navigate, setValue, isFromQrCode])
 
   const handleMaxClick = useCallback(async () => {
     await handleSendMax()
@@ -139,10 +120,6 @@ export const SendAmountDetails = () => {
     },
     [setValue],
   )
-
-  const handleScanQrCode = useCallback(() => {
-    navigate(SendRoutes.Scan)
-  }, [navigate])
 
   const currentValue = fieldName === SendFormFields.FiatAmount ? fiatAmount : amountCryptoPrecision
   const isFiat = fieldName === SendFormFields.FiatAmount
@@ -217,17 +194,26 @@ export const SendAmountDetails = () => {
     [asset?.symbol, translate, handleMemoChange],
   )
 
+  const chainName = useMemo(() => {
+    if (!asset) return ''
+    const chainAdapterManager = getChainAdapterManager()
+    return chainAdapterManager.get(asset.chainId)?.getDisplayName() ?? asset.chainId
+  }, [asset])
+
+  const hasNoAccountForAsset = useMemo(() => !accountId && assetId, [accountId, assetId])
+
+  const noAccountsOnChainTranslation = useMemo(
+    () =>
+      ['modals.send.errors.noAccountsOnChain', { chain: chainName }] as [string, { chain: string }],
+    [chainName],
+  )
+
   if (!asset) return null
 
   return (
     <SlideTransition className='flex flex-col h-full'>
       <DialogHeader>
-        <Display.Mobile>
-          <DialogBackButton onClick={handleBackClick} />
-        </Display.Mobile>
-        <Display.Desktop>
-          <DialogBackButton onClick={handleAssetBackClick} />
-        </Display.Desktop>
+        <DialogBackButton aria-label={translate('common.back')} onClick={handleBackClick} />
         <DialogTitle textAlign='center'>
           {translate('modals.send.sendForm.sendAsset', { asset: asset.name })}
         </DialogTitle>
@@ -236,33 +222,16 @@ export const SendAmountDetails = () => {
       <DialogBody height='100%'>
         <VStack spacing={6} align='stretch' height='100%'>
           <Box>
-            <Display.Desktop>
-              <AddressInputWithDropdown
-                addressInputRules={addressInputRules}
-                supportsENS={supportsENS}
-                translate={translate}
-                onScanQRCode={handleScanQrCode}
-              />
-            </Display.Desktop>
-            <Display.Mobile>
-              <Box>
-                <Flex
-                  p={4}
-                  borderRadius='2xl'
-                  bg='background.surface.raised.base'
-                  border='1px solid'
-                  borderColor='border.base'
-                  alignItems='center'
-                >
-                  <CText me={4} lineHeight='1'>
-                    {translate('trade.to')}
-                  </CText>
-                  <CText fontSize='sm' color='text.primary' fontWeight='bold' lineHeight='1'>
-                    <MiddleEllipsis value={to || ''} />
-                  </CText>
-                </Flex>
-              </Box>
-            </Display.Mobile>
+            <AddressInput
+              rules={addressInputRules}
+              placeholder={translate(
+                supportsENS ? 'modals.send.toAddressOrEns' : 'modals.send.toAddress',
+              )}
+              resolvedAddress={to}
+              chainId={asset?.chainId}
+              isReadOnly
+              onClick={handleBackClick}
+            />
           </Box>
           <Flex flex='1' alignItems='center' justifyContent='center' pb={6}>
             {balancesLoading ? (
@@ -333,26 +302,34 @@ export const SendAmountDetails = () => {
               <Text translation={amountFieldError} fontSize='sm' />
             </Alert>
           )}
-          <Flex alignItems='center' justifyContent='space-between' mb={4}>
-            <Flex alignItems='center'>
-              <FormLabel color='text.subtle' mb={0}>
-                {translate('trade.from')}
-              </FormLabel>
-              <Box>
-                <AccountSelector
-                  assetId={asset.assetId}
-                  accountId={accountId}
-                  onChange={handleAccountChange}
-                  boxProps={accountDropdownBoxProps}
-                  buttonProps={accountDropdownButtonProps}
-                />
-              </Box>
+          {hasNoAccountForAsset && (
+            <Alert status='warning' borderRadius='lg' mb={3}>
+              <AlertIcon />
+              <Text translation={noAccountsOnChainTranslation} fontSize='sm' />
+            </Alert>
+          )}
+          {!hasNoAccountForAsset && (
+            <Flex alignItems='center' justifyContent='space-between' mb={4}>
+              <Flex alignItems='center'>
+                <FormLabel color='text.subtle' mb={0}>
+                  {translate('trade.from')}
+                </FormLabel>
+                <Box>
+                  <AccountSelector
+                    assetId={asset.assetId}
+                    accountId={accountId}
+                    onChange={handleAccountChange}
+                    boxProps={accountDropdownBoxProps}
+                    buttonProps={accountDropdownButtonProps}
+                  />
+                </Box>
+              </Flex>
+              <SendMaxButton onClick={handleMaxClick} isDisabled={!Boolean(to)} />
             </Flex>
-            <SendMaxButton onClick={handleMaxClick} isDisabled={!Boolean(to)} />
-          </Flex>
+          )}
           <Button
             width='full'
-            colorScheme={addressError && !isValidating && !isSmallerThanMd ? 'red' : 'blue'}
+            colorScheme={addressError && !isValidating ? 'red' : 'blue'}
             size='lg'
             onClick={handleNextClick}
             isDisabled={
@@ -363,7 +340,8 @@ export const SendAmountDetails = () => {
               Boolean(memoFieldError) ||
               !to ||
               !input ||
-              addressError
+              addressError ||
+              hasNoAccountForAsset
             }
             isLoading={isLoading || isValidating}
           >

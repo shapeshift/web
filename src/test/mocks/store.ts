@@ -165,6 +165,7 @@ export const mockStore: ReduxState = {
       NewWalletManager: false,
       SwapperFiatRamps: false,
       LedgerReadOnly: false,
+      AddressBook: false,
     },
     quickBuyAmounts: [10, 50, 100],
     quoteDisplayOption: QuoteDisplayOption.Basic,
@@ -320,7 +321,8 @@ export const mockStore: ReduxState = {
     selectedSellAssetChainId: 'All',
     buyFiatCurrency: fiatCurrencyItemsByCode[FiatCurrencyTypeEnum.USD],
     sellFiatCurrency: fiatCurrencyItemsByCode[FiatCurrencyTypeEnum.USD],
-    sellFiatAmount: '0',
+    buyFiatAmount: '0',
+    sellCryptoAmount: '0',
     slippagePreferencePercentage: undefined,
     selectedBuyFiatRampQuote: null,
     selectedSellFiatRampQuote: null,
@@ -359,5 +361,12 @@ export const mockStore: ReduxState = {
     walletDeviceId: null,
     nativeWalletName: null,
     rdns: null,
+  },
+  addressBook: {
+    _persist: {
+      version: 0,
+      rehydrated: false,
+    },
+    byAccountId: {},
   },
 }

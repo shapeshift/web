@@ -31,12 +31,13 @@ type FiatRampTradeBodyProps = {
   onSellAmountChange: (amount: string) => void
   onSellFiatChange?: (fiat: FiatCurrencyItem | null) => void
   onBuyFiatChange?: (fiat: FiatCurrencyItem | null) => void
-  onSellFiatAmountChange?: (amount: string) => void
+  onBuyFiatAmountChange?: (amount: string) => void
   buyAsset: Asset | null
   sellAsset: Asset | null
   sellAmountCryptoPrecision: string
-  buyAmount: string
+  buyAmountCryptoPrecision: string
   sellFiatAmount?: string
+  buyFiatAmount?: string
   isLoading?: boolean
 }
 
@@ -63,9 +64,10 @@ export const FiatRampTradeBody: React.FC<FiatRampTradeBodyProps> = ({
   onSellAmountChange,
   onSellFiatChange,
   onBuyFiatChange,
-  onSellFiatAmountChange,
+  onBuyFiatAmountChange,
   sellAmountCryptoPrecision,
-  buyAmount,
+  buyAmountCryptoPrecision,
+  buyFiatAmount = '0',
   sellFiatAmount = '0',
   isLoading = false,
 }) => {
@@ -86,10 +88,10 @@ export const FiatRampTradeBody: React.FC<FiatRampTradeBodyProps> = ({
   const buyAssetSearch = useModal('buyTradeAssetSearch')
 
   const buyAmountUserCurrency = useMemo(() => {
-    return bnOrZero(buyAmount)
+    return bnOrZero(buyAmountCryptoPrecision)
       .times(buyAssetMarketData?.price ?? 0)
       .toString()
-  }, [buyAmount, buyAssetMarketData])
+  }, [buyAmountCryptoPrecision, buyAssetMarketData])
 
   const sellAmountUserCurrency = useMemo(() => {
     return bnOrZero(sellAmountCryptoPrecision)
@@ -171,6 +173,13 @@ export const FiatRampTradeBody: React.FC<FiatRampTradeBodyProps> = ({
     [onSellAmountChange],
   )
 
+  const handleBuyFiatAmountChange = useCallback(
+    (amount: string) => {
+      onBuyFiatAmountChange?.(amount)
+    },
+    [onBuyFiatAmountChange],
+  )
+
   const assetSelectButtonProps = useMemo(() => {
     return {
       maxWidth: isSmallerThanMd ? '100%' : undefined,
@@ -240,12 +249,12 @@ export const FiatRampTradeBody: React.FC<FiatRampTradeBodyProps> = ({
   const handleQuickAmountClick = useCallback(
     (amount: string) => {
       if (direction === FiatRampAction.Buy) {
-        onSellFiatAmountChange?.(amount)
+        handleBuyFiatAmountChange?.(amount)
       } else {
         handleSellAmountChange(amount)
       }
     },
-    [direction, onSellFiatAmountChange, handleSellAmountChange],
+    [direction, handleBuyFiatAmountChange, handleSellAmountChange],
   )
 
   const handleAccountIdChange = useCallback(
@@ -266,10 +275,10 @@ export const FiatRampTradeBody: React.FC<FiatRampTradeBodyProps> = ({
       <Stack spacing={4} height='100%' overflowY='auto'>
         <FiatInput
           selectedFiatCurrency={sellFiatCurrency}
-          amount={sellFiatAmount}
+          amount={buyFiatAmount}
           label={translate('trade.payWith')}
           labelPostFix={fiatSelect}
-          onAmountChange={onSellFiatAmountChange}
+          onAmountChange={handleBuyFiatAmountChange}
           onQuickAmountClick={handleQuickAmountClick}
         />
 
@@ -280,14 +289,14 @@ export const FiatRampTradeBody: React.FC<FiatRampTradeBodyProps> = ({
           assetId={buyAsset.assetId}
           assetSymbol={buyAsset.symbol}
           assetIcon={buyAsset.icon}
-          cryptoAmount={buyAmount}
+          cryptoAmount={buyAmountCryptoPrecision}
           fiatAmount={buyAmountUserCurrency}
           percentOptions={percentOptions}
           labelPostFix={buyTradeAssetSelect}
           formControlProps={formControlProps}
           isReadOnly={true}
           showInputSkeleton={isLoading}
-          showFiatSkeleton={Boolean(isLoading && bnOrZero(sellFiatAmount).gt(0))}
+          showFiatSkeleton={Boolean(isLoading && bnOrZero(buyFiatAmount).gt(0))}
           label={translate('trade.youGet')}
           onAccountIdChange={handleAccountIdChange}
         />
@@ -319,7 +328,7 @@ export const FiatRampTradeBody: React.FC<FiatRampTradeBodyProps> = ({
       <Box mb={6}>
         <FiatInput
           selectedFiatCurrency={buyFiatCurrency}
-          amount={buyAmount}
+          amount={sellFiatAmount}
           labelPostFix={fiatSelect}
           label={translate('modals.ramp.receiveAmount')}
           isReadOnly={true}

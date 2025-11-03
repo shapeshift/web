@@ -15,6 +15,7 @@ const paddingTop = {
   md: 6,
 }
 const position: ResponsiveValue<Property.Position> = { base: 'sticky', md: 'relative' }
+const paddingX = { base: 4, md: 8 }
 
 export const PageBackButton: React.FC<{ onBack?: () => void }> = ({ onBack }) => {
   const navigate = useNavigate()
@@ -59,6 +60,7 @@ export const PageHeader: React.FC<PropsWithChildren> & PageHeaderCompoundProps =
       bg='background.surface.alpha'
       backdropFilter='blur(30px)'
       pt={paddingTop}
+      px={paddingX}
       zIndex='sticky'
       pb={2}
       width='full'

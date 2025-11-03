@@ -1,5 +1,6 @@
 import { ExternalLinkIcon } from '@chakra-ui/icons'
 import {
+  Avatar,
   Box,
   Button,
   Divider,
@@ -54,12 +55,21 @@ import { getConfig } from '@/config'
 import { defaultLongPressConfig } from '@/constants/longPress'
 import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
 import { useWallet } from '@/hooks/useWallet/useWallet'
+import { makeBlockiesUrl } from '@/lib/blockies/makeBlockiesUrl'
 import { isMobile } from '@/lib/globals'
 import { middleEllipsis } from '@/lib/utils'
 import { isUtxoAccountId } from '@/lib/utils/utxo'
 import { vibrate } from '@/lib/vibrate'
-import { ProfileAvatar } from '@/pages/Dashboard/components/ProfileAvatar/ProfileAvatar'
-import { selectAssetById, selectFeeAssetById } from '@/state/slices/selectors'
+import {
+  selectExternalAddressBookEntryByAddress,
+  selectInternalAccountIdByAddress,
+} from '@/state/slices/addressBookSlice/selectors'
+import { accountIdToLabel } from '@/state/slices/portfolioSlice/utils'
+import {
+  selectAssetById,
+  selectFeeAssetById,
+  selectPortfolioAccountMetadata,
+} from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
 export type FeePrice = {
@@ -111,6 +121,110 @@ export const Confirm = ({ handleSubmit }: ConfirmProps) => {
     state: { wallet },
   } = useWallet()
 
+  const addressBookEntryFilter = useMemo(
+    () => ({ accountAddress: to, chainId: asset?.chainId }),
+    [to, asset?.chainId],
+  )
+  const addressBookEntry = useAppSelector(state =>
+    selectExternalAddressBookEntryByAddress(state, addressBookEntryFilter),
+  )
+
+  const internalAccountIdFilter = useMemo(
+    () => ({
+      accountAddress: to,
+      chainId: asset?.chainId,
+    }),
+    [to, asset?.chainId],
+  )
+
+  const internalAccountId = useAppSelector(state =>
+    selectInternalAccountIdByAddress(state, internalAccountIdFilter),
+  )
+
+  const accountMetadata = useAppSelector(selectPortfolioAccountMetadata)
+
+  const accountNumber = useMemo(
+    () =>
+      internalAccountId
+        ? accountMetadata[internalAccountId]?.bip44Params?.accountNumber
+        : undefined,
+    [accountMetadata, internalAccountId],
+  )
+
+  const internalAccountLabel = useMemo(() => {
+    if (!internalAccountId) return null
+
+    if (isUtxoAccountId(internalAccountId)) {
+      return accountIdToLabel(internalAccountId)
+    }
+
+    if (accountNumber === undefined) return
+
+    return translate('accounts.accountNumber', { accountNumber })
+  }, [internalAccountId, accountNumber, translate])
+
+  const displayDestinationContent = useMemo(() => {
+    if (vanityAddress) {
+      return (
+        <>
+          <CText fontSize='2xl' fontWeight='bold'>
+            {vanityAddress}
+          </CText>
+          <InlineCopyButton value={to ?? ''}>
+            <MiddleEllipsis
+              value={to ?? ''}
+              fontSize='sm'
+              color='text.subtle'
+              fontWeight='normal'
+            />
+          </InlineCopyButton>
+        </>
+      )
+    }
+
+    if (addressBookEntry) {
+      return (
+        <>
+          <CText fontSize='2xl' fontWeight='bold'>
+            {addressBookEntry.label}
+          </CText>
+          <InlineCopyButton value={to ?? ''}>
+            <MiddleEllipsis
+              value={to ?? ''}
+              fontSize='sm'
+              color='text.subtle'
+              fontWeight='normal'
+            />
+          </InlineCopyButton>
+        </>
+      )
+    }
+
+    if (internalAccountLabel) {
+      return (
+        <>
+          <CText fontSize='2xl' fontWeight='bold'>
+            {internalAccountLabel}
+          </CText>
+          <InlineCopyButton value={to ?? ''}>
+            <MiddleEllipsis
+              value={to ?? ''}
+              fontSize='sm'
+              color='text.subtle'
+              fontWeight='normal'
+            />
+          </InlineCopyButton>
+        </>
+      )
+    }
+
+    return (
+      <InlineCopyButton value={to ?? ''}>
+        <MiddleEllipsis value={to ?? ''} fontSize='2xl' fontWeight='bold' />
+      </InlineCopyButton>
+    )
+  }, [vanityAddress, addressBookEntry, internalAccountLabel, to])
+
   const showMemoRow = useMemo(
     () => Boolean(assetId && fromAssetId(assetId).chainNamespace === CHAIN_NAMESPACE.CosmosSdk),
     [assetId],
@@ -125,6 +239,14 @@ export const Confirm = ({ handleSubmit }: ConfirmProps) => {
           isLedger(wallet),
       ),
     [assetId, wallet],
+  )
+
+  const avatarUrl = useMemo(
+    () =>
+      addressBookEntry && addressBookEntry.isExternal
+        ? makeBlockiesUrl(addressBookEntry.address)
+        : makeBlockiesUrl(to ?? ''),
+    [addressBookEntry, to],
   )
 
   const borderColor = useColorModeValue('gray.100', 'gray.750')
@@ -251,11 +373,9 @@ export const Confirm = ({ handleSubmit }: ConfirmProps) => {
               />
               <Divider width='100%' height='1px' backgroundColor='border.base' />
             </Flex>
-            <Box fontSize='2xl' fontWeight='bold'>
-              <Tooltip label={to} shouldWrapChildren>
-                <InlineCopyButton value={to}>
-                  {vanityAddress ? vanityAddress : <MiddleEllipsis value={to} />}
-                </InlineCopyButton>
+            <Box>
+              <Tooltip label={to} shouldWrapChildren lineHeight='short'>
+                {displayDestinationContent}
               </Tooltip>
             </Box>
           </Box>
@@ -280,8 +400,7 @@ export const Confirm = ({ handleSubmit }: ConfirmProps) => {
             >
               <AnimatedDots />
             </Box>
-            {/* @TODO: Use custom receive address avatar */}
-            <ProfileAvatar borderRadius='full' position='relative' zIndex={2} size='md' />
+            <Avatar src={avatarUrl} size='md' flexShrink={0} />
           </Flex>
         </Flex>
         <Stack spacing={4} mb={6} px={4}>
@@ -301,7 +420,7 @@ export const Confirm = ({ handleSubmit }: ConfirmProps) => {
             <Row.Value display='flex' alignItems='center'>
               <InlineCopyButton
                 isDisabled={!accountId || isUtxoAccountId(accountId)}
-                value={fromAccountId(accountId ?? '').account}
+                value={accountId ? fromAccountId(accountId).account : ''}
               >
                 <AccountDropdown
                   onChange={handleAccountChange}

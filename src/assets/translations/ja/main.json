@@ -77,6 +77,7 @@
     "rename": "名前の変更",
     "forget": "お忘れですか？",
     "pending": "保留中",
+    "preview": "プレビュー",
     "incomplete": "不完全な",
     "available": "利用可能",
     "or": "または",
@@ -231,6 +232,9 @@
     "permit2Approval": "Permit2の承認",
     "network": "ネットワーク",
     "feeEstimate": "料金見積もり"
+  },
+  "accountSelector": {
+    "chooseAccount": "アカウントを選択"
   },
   "quickBuy": {
     "title": "クイック購入 %{assetOnChain}",
@@ -1427,6 +1431,7 @@
       }
     },
     "send": {
+      "confirmSend": "送信を確認",
       "consolidate": {
         "body": "ShapeShift は、トランザクションごとに新しいアドレスを使用することにより、%{asset} のセキュリティ設計を尊重します。単一のアドレスで動作するTHORChainのプロトコルに合わせるために、私たちはあなたの資金を単一のアドレスに統合します。",
         "tooltip": "THORChainとの互換性を確保するために、単一のアドレスに資金を送信します。",
@@ -1435,8 +1440,8 @@
       "getFeesError": "料金取得中のエラー",
       "broadcastingTransaction": "ブロードキャストトランザクション",
       "youHaveSent": "%{amount} %{symbol} を正常に送信しました",
-      "tokenAddress": "宛先アドレス",
-      "addressInput": "宛先またはENS",
+      "toAddress": "宛先",
+      "toAddressOrEns": "宛先またはENS",
       "scanQrCode": "QRコードをスキャン",
       "qrCode": "QRコード",
       "permissionsButton": "もう一度やり直してください",
@@ -1451,7 +1456,6 @@
         "qrDangerousEthUrl": "コントラクトアドレスを含むQRコードはサポートされていません。宛先アドレスを手動で貼り付けてください。"
       },
       "confirm": {
-        "sendAsset": "%{asset} を送信",
         "send": "送信",
         "sendTo": "に送信",
         "customNonce": "カスタムナンス",
@@ -1461,7 +1465,8 @@
         "amount": "額",
         "transactionFee": "取引手数料",
         "fees": "手数料 %{feeType}",
-        "pendingConfirmation": "確認待ち"
+        "pendingConfirmation": "確認待ち",
+        "holdToSend": "長押しして送信"
       },
       "sendForm": {
         "optionalAssetMemo": "任意の %{assetSymbol} メモ",
@@ -1470,13 +1475,16 @@
         "memoExplainer": "一部の %{assetSymbol} 受信者は、トランザクションを正しく処理するためにメモを必要とする場合があります",
         "sendAsset": "%{asset} を送信",
         "sendTo": "に送信",
+        "chain": "チェーン",
         "sendAmount": "送金額",
         "max": "最大",
         "transactionFee": "取引手数料",
         "slow": "遅い",
         "average": "平均",
         "fast": "速い",
-        "enterAmount": "金額を入力します"
+        "enterAmount": "金額を入力します",
+        "scanQrCodeDescription": "タップしてアドレスをスキャン",
+        "yourAddresses": "あなたのアドレス"
       },
       "status": {
         "pendingBody": "%{amount} %{symbol} を送信します"
@@ -2524,6 +2532,10 @@
           "selectedAccounts": "選択したアカウント",
           "permissionMessage": "チェーンごとに少なくとも1つのアカウントを選択してください。",
           "optionalPermissionMessage": "次の承認は任意です。"
+        },
+        "noAccountsForChain": {
+          "title": "チェーンはサポートされていません",
+          "description": "この dApp に接続された %{chainLabel} アカウントはありません。"
         }
       },
       "registry": {
@@ -3216,8 +3228,8 @@
       "complete": "%{amount} %{symbol} の請求が完了しました。"
     },
     "bridge": {
-      "processing": "処理中...",
-      "complete": "%{amountAndSymbol} のブリッジが完成しました。",
+      "processing": "%{sellAmountAndSymbol}.%{sellChainShortName} から %{buyAmountAndSymbol}.%{buyChainShortName} へのブリッジが処理中です。",
+      "complete": "%{sellAmountAndSymbol}.%{sellChainShortName} から %{buyAmountAndSymbol}.%{buyChainShortName} へのブリッジが完了しました。",
       "initiated": "%{sellAmountAndSymbol} から %{buyAmountAndSymbol} へのブリッジが開始されました。",
       "pendingWithdraw": "%{amountAndSymbol} の出金は %{timeText} から可能になります。",
       "claimAvailable": "ブリッジした %{amountAndSymbol} を受け取れます",

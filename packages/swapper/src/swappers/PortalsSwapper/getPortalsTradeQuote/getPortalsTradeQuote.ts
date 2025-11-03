@@ -192,7 +192,6 @@ export async function getPortalsTradeQuote(
         orderId,
         outputAmount: buyAmountAfterFeesCryptoBaseUnit,
         minOutputAmount,
-        slippageTolerancePercentage,
         target: allowanceContract,
         feeAmount,
         gasLimit,
@@ -223,36 +222,19 @@ export async function getPortalsTradeQuote(
       gasLimit: bnOrZero(gasLimit).times(1).toFixed(),
     })
 
-    // Calculate actual buffer that Portals applied: (output - minOutput) / output
-    const actualBufferDecimal = bnOrZero(portalsTradeOrderResponse.context.outputAmount)
-      .minus(portalsTradeOrderResponse.context.minOutputAmount)
-      .div(portalsTradeOrderResponse.context.outputAmount)
+    // Don't use Portals' slippageTolerancePercentage field (it's what we requested, not what they applied)
+    // Instead, calculate the actual buffer Portals applied from the amounts
+    const actualBufferDecimal = bnOrZero(buyAmountAfterFeesCryptoBaseUnit)
+      .minus(minOutputAmount)
+      .div(buyAmountAfterFeesCryptoBaseUnit)
       .toString()
 
-    // Reverse the buffer to get expected output amount
+    // Reverse the buffer to recover the expected output (minOutput / (1 - buffer) = output)
     const buyAmountBeforeSlippageCryptoBaseUnit = bnOrZero(buyAmountAfterFeesCryptoBaseUnit)
       .div(bn(1).minus(actualBufferDecimal))
       .toFixed(0)
 
-    // Keep for slippage display
     const slippageTolerancePercentageDecimal = actualBufferDecimal
-
-    console.log('[Portals Quote] Calculated trade quote:', {
-      sellAsset: sellAsset.symbol,
-      buyAsset: buyAsset.symbol,
-      sellAmount: sellAmountIncludingProtocolFeesCryptoBaseUnit,
-      rawQuoteOutputAmount: portalsTradeOrderResponse.context.outputAmount,
-      rawQuoteMinOutputAmount: portalsTradeOrderResponse.context.minOutputAmount,
-      actualBufferCalculated: bn(actualBufferDecimal).times(100).toFixed(4) + '%',
-      calculatedBuyAmountBeforeSlippage: buyAmountBeforeSlippageCryptoBaseUnit,
-      buyAmountAfterFees: buyAmountAfterFeesCryptoBaseUnit,
-      slippageApplied: slippageTolerancePercentageDecimal,
-      protocolFeeAmount: feeAmount,
-      protocolFeeToken: feeToken === inputToken ? sellAsset.symbol : buyAsset.symbol,
-      rate: inputOutputRate,
-      orderId,
-      note: 'FIXED: Using actual buffer from (output - minOutput) / output',
-    })
 
     const tradeQuote: TradeQuote = {
       id: orderId,

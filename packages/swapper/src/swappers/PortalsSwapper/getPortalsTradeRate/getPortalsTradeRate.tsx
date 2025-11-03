@@ -125,33 +125,19 @@ export async function getPortalsTradeRate(
 
     const allowanceContract = getPortalsRouterAddressByChainId(chainId)
 
-    // Calculate actual buffer that Portals applied: (output - minOutput) / output
+    // Don't use Portals' slippageTolerancePercentage field (it's a price indicator, not actual buffer)
+    // Instead, calculate the actual buffer Portals applied from the amounts
     const actualBufferDecimal = bnOrZero(quoteEstimateResponse.outputAmount)
       .minus(quoteEstimateResponse.minOutputAmount)
       .div(quoteEstimateResponse.outputAmount)
       .toString()
 
-    // Reverse the buffer to get expected output amount
+    // Reverse the buffer to recover the expected output (minOutput / (1 - buffer) = output)
     const buyAmountBeforeSlippageCryptoBaseUnit = bnOrZero(quoteEstimateResponse.minOutputAmount)
       .div(bn(1).minus(actualBufferDecimal))
       .toFixed(0)
 
-    // Keep for slippage display
     const slippageTolerancePercentageDecimal = actualBufferDecimal
-
-    console.log('[Portals Rate] Calculated trade rate:', {
-      sellAsset: sellAsset.symbol,
-      buyAsset: buyAsset.symbol,
-      sellAmount: sellAmountIncludingProtocolFeesCryptoBaseUnit,
-      rawEstimateOutputAmount: quoteEstimateResponse.outputAmount,
-      rawEstimateMinOutputAmount: quoteEstimateResponse.minOutputAmount,
-      actualBufferCalculated: bn(actualBufferDecimal).times(100).toFixed(4) + '%',
-      calculatedBuyAmountBeforeSlippage: buyAmountBeforeSlippageCryptoBaseUnit,
-      buyAmountAfterFees: buyAmountAfterFeesCryptoBaseUnit,
-      slippageApplied: slippageTolerancePercentageDecimal,
-      rate: inputOutputRate,
-      note: 'FIXED: Using actual buffer from (output - minOutput) / output',
-    })
 
     const gasLimit = quoteEstimateResponse.context.gasLimit
     const { average } = await adapter.getGasFeeData()

@@ -111,7 +111,8 @@ export async function getPortalsTradeRate(
       swapperConfig,
     })
 
-    const buyAmountAfterFeesCryptoBaseUnit = quoteEstimateResponse.minOutputAmount
+    // Estimate has no protocol fees, so after-fees = expected output amount
+    const buyAmountAfterFeesCryptoBaseUnit = quoteEstimateResponse.outputAmount
 
     // Use the quote estimate endpoint to get a quote without a wallet
 
@@ -124,14 +125,33 @@ export async function getPortalsTradeRate(
 
     const allowanceContract = getPortalsRouterAddressByChainId(chainId)
 
-    const slippageTolerancePercentageDecimal = quoteEstimateResponse.context
-      .slippageTolerancePercentage
-      ? bn(quoteEstimateResponse.context.slippageTolerancePercentage).div(100).toString()
-      : undefined
+    // Calculate actual buffer that Portals applied: (output - minOutput) / output
+    const actualBufferDecimal = bnOrZero(quoteEstimateResponse.outputAmount)
+      .minus(quoteEstimateResponse.minOutputAmount)
+      .div(quoteEstimateResponse.outputAmount)
+      .toString()
 
+    // Reverse the buffer to get expected output amount
     const buyAmountBeforeSlippageCryptoBaseUnit = bnOrZero(quoteEstimateResponse.minOutputAmount)
-      .div(bn(1).minus(slippageTolerancePercentageDecimal ?? 0))
+      .div(bn(1).minus(actualBufferDecimal))
       .toFixed(0)
+
+    // Keep for slippage display
+    const slippageTolerancePercentageDecimal = actualBufferDecimal
+
+    console.log('[Portals Rate] Calculated trade rate:', {
+      sellAsset: sellAsset.symbol,
+      buyAsset: buyAsset.symbol,
+      sellAmount: sellAmountIncludingProtocolFeesCryptoBaseUnit,
+      rawEstimateOutputAmount: quoteEstimateResponse.outputAmount,
+      rawEstimateMinOutputAmount: quoteEstimateResponse.minOutputAmount,
+      actualBufferCalculated: bn(actualBufferDecimal).times(100).toFixed(4) + '%',
+      calculatedBuyAmountBeforeSlippage: buyAmountBeforeSlippageCryptoBaseUnit,
+      buyAmountAfterFees: buyAmountAfterFeesCryptoBaseUnit,
+      slippageApplied: slippageTolerancePercentageDecimal,
+      rate: inputOutputRate,
+      note: 'FIXED: Using actual buffer from (output - minOutput) / output',
+    })
 
     const gasLimit = quoteEstimateResponse.context.gasLimit
     const { average } = await adapter.getGasFeeData()

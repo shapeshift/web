@@ -90,6 +90,17 @@ export const AssetSummaryStep = ({
 
     if (bpsDiff.lt(RATE_CHANGED_BPS_THRESHOLD)) return
 
+    console.log('[Rate Changed] Delta detected - showing modal:', {
+      asset: asset.symbol,
+      prevAmountCryptoBaseUnit,
+      newAmountCryptoBaseUnit: amountCryptoBaseUnit,
+      deltaBps: bpsDiff.toFixed(2),
+      deltaPercent: bpsDiff.div(100).toFixed(2) + '%',
+      threshold: RATE_CHANGED_BPS_THRESHOLD + ' bps (1%)',
+      prevAmountCryptoPrecision: fromBaseUnit(prevAmountCryptoBaseUnit, asset.precision),
+      newAmountCryptoPrecision: fromBaseUnit(amountCryptoBaseUnit, asset.precision),
+    })
+
     rateChanged.open({ prevAmountCryptoBaseUnit })
   }, [amountCryptoBaseUnit, isLastStep, prevAmountCryptoBaseUnit, rateChanged])
 

@@ -111,6 +111,18 @@ export const useGetTradeRates = () => {
   // Dispatch batch results to Redux when they arrive
   useEffect(() => {
     if (batchTradeRates) {
+      console.log('[Trade Rates] Batch rates received:', {
+        swappers: Array.isArray(batchTradeRates)
+          ? batchTradeRates.map(rate => ({
+              swapperName: rate.swapperName,
+              hasQuote: !!rate.quote,
+              errors: rate.errors.length,
+              quoteOrRate: rate.quote?.quoteOrRate,
+            }))
+          : 'Not an array - logging raw object',
+        data: !Array.isArray(batchTradeRates) ? batchTradeRates : undefined,
+        timestamp: new Date().toISOString(),
+      })
       dispatch(tradeQuoteSlice.actions.upsertTradeQuotes(batchTradeRates))
     }
   }, [batchTradeRates, dispatch])

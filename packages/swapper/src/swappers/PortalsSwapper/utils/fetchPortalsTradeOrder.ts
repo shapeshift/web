@@ -125,6 +125,38 @@ export const fetchPortalsTradeOrder = async ({
 
   try {
     const response = await axios.get<PortalsTradeOrderResponse>(url, { params })
+
+    console.log('[Portals Quote] Order response:', {
+      endpoint: '/v2/portal',
+      request: {
+        sender,
+        partner,
+        inputToken,
+        inputAmount,
+        outputToken,
+        slippageTolerancePercentage: !autoSlippage ? slippageTolerancePercentage : 'auto',
+        feePercentage,
+        validate,
+      },
+      response: {
+        orderId: response.data.context.orderId,
+        outputAmount: response.data.context.outputAmount,
+        minOutputAmount: response.data.context.minOutputAmount,
+        outputAmountUsd: response.data.context.outputAmountUsd,
+        minOutputAmountUsd: response.data.context.minOutputAmountUsd,
+        slippage: response.data.context.slippageTolerancePercentage,
+        feeAmount: response.data.context.feeAmount,
+        feeToken: response.data.context.feeToken,
+        feeAmountUsd: response.data.context.feeAmountUsd,
+        gasLimit: response.data.context.gasLimit,
+        route: response.data.context.route,
+        routeHash: response.data.context.routeHash,
+        steps: response.data.context.steps,
+      },
+      fullResponse: response.data,
+      timestamp: new Date().toISOString(),
+    })
+
     return response.data
   } catch (error) {
     if (axios.isAxiosError(error)) {
@@ -162,6 +194,27 @@ export const fetchPortalsTradeEstimate = async ({
 
   try {
     const response = await axios.get<PortalsTradeOrderEstimateResponse>(url, { params })
+
+    console.log('[Portals Rate] Estimate response:', {
+      endpoint: '/v2/portal/estimate',
+      request: {
+        inputToken,
+        inputAmount,
+        outputToken,
+        slippageTolerancePercentage,
+      },
+      response: {
+        outputAmount: response.data.outputAmount,
+        minOutputAmount: response.data.minOutputAmount,
+        outputAmountUsd: response.data.context.outputAmountUsd,
+        minOutputAmountUsd: response.data.context.minOutputAmountUsd,
+        slippage: response.data.context.slippageTolerancePercentage,
+        gasLimit: response.data.context.gasLimit,
+      },
+      fullResponse: response.data,
+      timestamp: new Date().toISOString(),
+    })
+
     return response.data
   } catch (error) {
     if (axios.isAxiosError(error)) {

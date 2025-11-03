@@ -175,6 +175,17 @@ export const useGetTradeQuotes = () => {
     if (activeTrade && isExecutableTradeQuote(activeTrade)) return reactQuerySkipToken
 
     return async () => {
+      console.log('[Quote Fetch] Fetching executable quote:', {
+        swapperName,
+        isFetchStep,
+        hopState: hopExecutionMetadata?.state,
+        approvalState: hopExecutionMetadata?.approval?.state,
+        swapState: hopExecutionMetadata?.swap?.state,
+        permit2State: hopExecutionMetadata?.permit2?.state,
+        hasActiveTrade: !!activeTrade,
+        isRateNotQuote: activeTrade ? !isExecutableTradeQuote(activeTrade) : 'no active trade',
+      })
+
       dispatch(swapperApi.util.invalidateTags(['TradeQuote']))
 
       const sellAccountNumber = sellAccountMetadata?.bip44Params?.accountNumber
@@ -267,6 +278,15 @@ export const useGetTradeQuotes = () => {
     if (!queryStateMeta?.data) return
     const quoteData = queryStateMeta.data[identifier]
     if (!quoteData?.quote) return
+
+    console.log('[Quote Upgrade] Upgrading rate to executable quote:', {
+      swapperName: activeQuoteMetaRef.current?.swapperName,
+      previousRateId: activeRateRef.current?.id,
+      newQuoteId: quoteData.quote.id,
+      previousBuyAmount: activeTrade?.steps?.[0]?.buyAmountAfterFeesCryptoBaseUnit,
+      newBuyAmount: quoteData.quote.steps?.[0]?.buyAmountAfterFeesCryptoBaseUnit,
+      timestamp: new Date().toISOString(),
+    })
 
     // Set the execution metadata to that of the previous rate so we can take over
     dispatch(

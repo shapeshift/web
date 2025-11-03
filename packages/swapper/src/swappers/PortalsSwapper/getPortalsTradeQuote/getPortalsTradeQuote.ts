@@ -190,7 +190,8 @@ export async function getPortalsTradeQuote(
     const {
       context: {
         orderId,
-        minOutputAmount: buyAmountAfterFeesCryptoBaseUnit,
+        outputAmount: buyAmountAfterFeesCryptoBaseUnit,
+        minOutputAmount,
         slippageTolerancePercentage,
         target: allowanceContract,
         feeAmount,
@@ -222,13 +223,36 @@ export async function getPortalsTradeQuote(
       gasLimit: bnOrZero(gasLimit).times(1).toFixed(),
     })
 
-    const slippageTolerancePercentageDecimal = bnOrZero(slippageTolerancePercentage)
-      .div(100)
+    // Calculate actual buffer that Portals applied: (output - minOutput) / output
+    const actualBufferDecimal = bnOrZero(portalsTradeOrderResponse.context.outputAmount)
+      .minus(portalsTradeOrderResponse.context.minOutputAmount)
+      .div(portalsTradeOrderResponse.context.outputAmount)
       .toString()
 
+    // Reverse the buffer to get expected output amount
     const buyAmountBeforeSlippageCryptoBaseUnit = bnOrZero(buyAmountAfterFeesCryptoBaseUnit)
-      .div(bn(1).minus(slippageTolerancePercentageDecimal ?? 0))
+      .div(bn(1).minus(actualBufferDecimal))
       .toFixed(0)
+
+    // Keep for slippage display
+    const slippageTolerancePercentageDecimal = actualBufferDecimal
+
+    console.log('[Portals Quote] Calculated trade quote:', {
+      sellAsset: sellAsset.symbol,
+      buyAsset: buyAsset.symbol,
+      sellAmount: sellAmountIncludingProtocolFeesCryptoBaseUnit,
+      rawQuoteOutputAmount: portalsTradeOrderResponse.context.outputAmount,
+      rawQuoteMinOutputAmount: portalsTradeOrderResponse.context.minOutputAmount,
+      actualBufferCalculated: bn(actualBufferDecimal).times(100).toFixed(4) + '%',
+      calculatedBuyAmountBeforeSlippage: buyAmountBeforeSlippageCryptoBaseUnit,
+      buyAmountAfterFees: buyAmountAfterFeesCryptoBaseUnit,
+      slippageApplied: slippageTolerancePercentageDecimal,
+      protocolFeeAmount: feeAmount,
+      protocolFeeToken: feeToken === inputToken ? sellAsset.symbol : buyAsset.symbol,
+      rate: inputOutputRate,
+      orderId,
+      note: 'FIXED: Using actual buffer from (output - minOutput) / output',
+    })
 
     const tradeQuote: TradeQuote = {
       id: orderId,

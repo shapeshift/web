@@ -230,7 +230,7 @@ export async function getPortalsTradeQuote(
       .toString()
 
     // Reverse the buffer to recover the expected output (minOutput / (1 - buffer) = output)
-    const buyAmountBeforeSlippageCryptoBaseUnit = bnOrZero(buyAmountAfterFeesCryptoBaseUnit)
+    const buyAmountBeforeSlippageCryptoBaseUnit = bnOrZero(minOutputAmount)
       .div(bn(1).minus(actualBufferDecimal))
       .toFixed(0)
 

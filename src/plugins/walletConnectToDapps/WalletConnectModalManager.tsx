@@ -9,6 +9,7 @@ import { MemoryRouter } from 'react-router-dom'
 
 import { Dialog } from '@/components/Modal/components/Dialog'
 import { useWallet } from '@/hooks/useWallet/useWallet'
+import { assertUnreachable } from '@/lib/utils'
 import { assertGetCosmosSdkChainAdapter } from '@/lib/utils/cosmosSdk'
 import { assertGetEvmChainAdapter } from '@/lib/utils/evm'
 import { CosmosSignMessageConfirmationModal } from '@/plugins/walletConnectToDapps/components/modals/CosmosSignMessageConfirmation'
@@ -277,7 +278,7 @@ export const WalletConnectModalManager: FC<WalletConnectModalManagerProps> = ({
       case undefined:
         break
       default:
-        break
+        assertUnreachable(activeModal)
     }
 
     handleClose()
@@ -376,7 +377,7 @@ export const WalletConnectModalManager: FC<WalletConnectModalManagerProps> = ({
       case WalletConnectModal.NoAccountsForChain:
         return <NoAccountsForChainModal onClose={handleClose} dispatch={dispatch} state={state} />
       default:
-        return null
+        assertUnreachable(activeModal)
     }
   }, [
     activeModal,

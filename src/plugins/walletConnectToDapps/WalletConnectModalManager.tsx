@@ -66,7 +66,7 @@ export type WalletConnectSessionModalProps = {
 export type WalletConnectRequestModalProps<T> = {
   dispatch?: Dispatch<WalletConnectAction>
   state: Required<WalletConnectState<T>>
-  topic: string
+  topic?: string
   onConfirm(customTransactionData?: CustomTransactionData): Promise<void>
   onReject(): Promise<void>
 }
@@ -303,7 +303,6 @@ export const WalletConnectModalManager: FC<WalletConnectModalManagerProps> = ({
               onConfirm={handleConfirmAuthRequest}
               onReject={handleRejectRequestAndClose}
               state={state}
-              topic=''
             />
           </MemoryRouter>
         )

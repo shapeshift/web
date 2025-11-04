@@ -21,6 +21,7 @@ import { NoAccountsForChainModal } from '@/plugins/walletConnectToDapps/componen
 import { SendTransactionConfirmation } from '@/plugins/walletConnectToDapps/components/modals/SendTransactionConfirmation'
 import { SessionAuthenticateConfirmation } from '@/plugins/walletConnectToDapps/components/modals/SessionAuthenticateConfirmation'
 import { SessionProposalModal } from '@/plugins/walletConnectToDapps/components/modals/SessionProposal'
+import { SessionAuthRoutes } from '@/plugins/walletConnectToDapps/components/modals/SessionAuthRoutes'
 import { SessionProposalRoutes } from '@/plugins/walletConnectToDapps/components/modals/SessionProposalRoutes'
 import { useWalletConnectState } from '@/plugins/walletConnectToDapps/hooks/useWalletConnectState'
 import type {
@@ -41,11 +42,6 @@ import { approveCosmosRequest } from '@/plugins/walletConnectToDapps/utils/Cosmo
 import { approveEIP155Request } from '@/plugins/walletConnectToDapps/utils/EIP155RequestHandlerUtil'
 import { selectPortfolioAccountMetadata } from '@/state/slices/portfolioSlice/selectors'
 import { useAppSelector } from '@/state/store'
-
-enum SessionAuthRoutes {
-  Overview = '/overview',
-  ChooseAccount = '/choose-account',
-}
 
 const sessionProposalInitialEntries = [SessionProposalRoutes.Overview]
 const sessionAuthInitialEntries = [SessionAuthRoutes.Overview]
@@ -164,21 +160,17 @@ export const WalletConnectModalManager: FC<WalletConnectModalManagerProps> = ({
     async (customTransactionData?: CustomTransactionData) => {
       if (!state.modalData?.request || !web3wallet || !wallet) return
 
-      const authRequest = state.modalData.request as any
+      const authRequest = state.modalData.request as WalletKitTypes.EventArguments['session_authenticate']
       const { authPayload } = authRequest.params
 
-      // For auth, we need to use the first chain from the auth payload
       const authChainId = authPayload.chains?.[0] || chainId
 
-      // Get the selected account from customTransactionData or fall back to default
       const selectedAccountId = customTransactionData?.accountId || accountId
       if (!selectedAccountId) return
 
       try {
-        // Get the chain adapter for signing
         const chainAdapter = assertGetEvmChainAdapter(authChainId)
 
-        // Format the auth message for signing
         const address = selectedAccountId.split(':')[2]
         const caipChainId = authPayload.chains?.[0] || authChainId
         const iss = `did:pkh:${caipChainId}:${address}`
@@ -188,14 +180,12 @@ export const WalletConnectModalManager: FC<WalletConnectModalManagerProps> = ({
           iss,
         })
 
-        // Get the account metadata for the selected account
         const selectedAccountMetadata = portfolioAccountMetadata[selectedAccountId]
         const bip44Params = selectedAccountMetadata?.bip44Params
         const addressNList = bip44Params
           ? toAddressNList(chainAdapter.getBip44Params(bip44Params))
           : []
 
-        // Sign the message using the same format as EIP155RequestHandler
         const messageToSign = { addressNList, message }
         const input = { messageToSign, wallet }
         const signature = await chainAdapter.signMessage(input)
@@ -205,7 +195,7 @@ export const WalletConnectModalManager: FC<WalletConnectModalManagerProps> = ({
         // Ensure signature has 0x prefix
         const formattedSignature = signature.startsWith('0x') ? signature : `0x${signature}`
 
-        // Build CACAO and approve - payload needs to include the iss field
+        // CACAO payload needs to include the iss field
         const cacaoPayload = {
           ...authPayload,
           iss,
@@ -222,7 +212,6 @@ export const WalletConnectModalManager: FC<WalletConnectModalManagerProps> = ({
           auths: [cacao],
         })
 
-        // Check if we got a session back and add it to state
         if (approvalResponse?.session) {
           dispatch({
             type: WalletConnectActionType.ADD_SESSION,

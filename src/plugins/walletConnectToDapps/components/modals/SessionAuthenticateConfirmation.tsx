@@ -6,6 +6,7 @@ import { useCallback, useMemo, useState } from 'react'
 import { Route, Switch, useLocation } from 'wouter'
 
 import { AccountSelection } from '@/plugins/walletConnectToDapps/components/modals/AccountSelection'
+import { SessionAuthRoutes } from '@/plugins/walletConnectToDapps/components/modals/SessionAuthRoutes'
 import { SessionProposalOverview } from '@/plugins/walletConnectToDapps/components/modals/SessionProposalOverview'
 import { PeerMeta } from '@/plugins/walletConnectToDapps/components/PeerMeta'
 import { MessageContent } from '@/plugins/walletConnectToDapps/components/WalletConnectSigningModal/content/MessageContent'
@@ -17,17 +18,11 @@ import {
 } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
-enum SessionAuthRoutes {
-  Overview = '/overview',
-  ChooseAccount = '/choose-account',
-}
-
 export const SessionAuthenticateConfirmation: FC<WalletConnectRequestModalProps<any>> = ({
   onConfirm,
   onReject,
   state,
 }) => {
-  // Get the auth request from modal data
   const authRequest = state.modalData?.request as
     | WalletKitTypes.EventArguments['session_authenticate']
     | undefined
@@ -40,7 +35,6 @@ export const SessionAuthenticateConfirmation: FC<WalletConnectRequestModalProps<
   const [selectedAccountNumber, setSelectedAccountNumber] = useState<number | null>(null)
   const [location, setLocation] = useLocation()
 
-  // Extract chainId from auth payload (e.g., "eip155:8453" -> chainId)
   const authChainId = useMemo(() => {
     const caipChainId = authPayload?.chains?.[0]
     if (!caipChainId) return undefined
@@ -55,7 +49,6 @@ export const SessionAuthenticateConfirmation: FC<WalletConnectRequestModalProps<
     })
   }, [authPayload])
 
-  // Get unique account numbers and account mapping
   const uniqueAccountNumbers = useAppSelector(selectUniqueEvmAccountNumbers)
   const accountIdsByAccountNumberAndChainId = useAppSelector(
     selectAccountIdsByAccountNumberAndChainId,
@@ -66,7 +59,6 @@ export const SessionAuthenticateConfirmation: FC<WalletConnectRequestModalProps<
     setSelectedAccountNumber(uniqueAccountNumbers[0])
   }
 
-  // Get the account ID for signing (from the selected account number + auth chain)
   const accountId = useMemo(() => {
     if (!authChainId || selectedAccountNumber === null) {
       return undefined
@@ -75,10 +67,7 @@ export const SessionAuthenticateConfirmation: FC<WalletConnectRequestModalProps<
     return accountsByChain?.[authChainId]?.[0]
   }, [authChainId, selectedAccountNumber, accountIdsByAccountNumberAndChainId])
 
-  // Determine if we can connect
   const canConnect = !!accountId && !!authChainId
-
-  // Navigation handlers
   const handleAccountClick = useCallback(() => {
     if (uniqueAccountNumbers.length > 1) {
       setLocation(SessionAuthRoutes.ChooseAccount)
@@ -97,7 +86,7 @@ export const SessionAuthenticateConfirmation: FC<WalletConnectRequestModalProps<
     [setLocation],
   )
 
-  // Format the SIWE message for display - show the actual message that will be signed
+  // Show the actual SIWE message that will be signed
   const displayMessage = useMemo(() => {
     if (!authPayload || !accountId || !state.web3wallet) return 'Invalid authentication request'
 
@@ -107,7 +96,6 @@ export const SessionAuthenticateConfirmation: FC<WalletConnectRequestModalProps<
 
     const iss = `did:pkh:${caipChainId}:${address}`
 
-    // Get the actual SIWE message that will be signed
     try {
       const message = state.web3wallet.formatAuthMessage({
         request: authPayload,
@@ -123,7 +111,6 @@ export const SessionAuthenticateConfirmation: FC<WalletConnectRequestModalProps<
   const handleConfirm = useCallback(async () => {
     setIsLoading(true)
     try {
-      // Pass the account ID to the confirm handler
       const customData: CustomTransactionData = {
         accountId,
       }
@@ -133,7 +120,6 @@ export const SessionAuthenticateConfirmation: FC<WalletConnectRequestModalProps<
     }
   }, [onConfirm, accountId])
 
-  // Use requester metadata for peer info
   const peerMetadata = requester?.metadata
 
   // Check for missing auth request after all hooks

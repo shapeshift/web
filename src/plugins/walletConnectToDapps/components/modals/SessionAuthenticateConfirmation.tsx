@@ -1,16 +1,17 @@
 import { ArrowUpDownIcon } from '@chakra-ui/icons'
-import { Button, HStack, Image, VStack } from '@chakra-ui/react'
-import type { AccountId, ChainId } from '@shapeshiftoss/caip'
-import { fromAccountId, toChainId, CHAIN_NAMESPACE } from '@shapeshiftoss/caip'
+import { Button, HStack, VStack } from '@chakra-ui/react'
+import type { ChainId } from '@shapeshiftoss/caip'
+import { toChainId, CHAIN_NAMESPACE } from '@shapeshiftoss/caip'
 import type { WalletKitTypes } from '@reown/walletkit'
 import type { FC } from 'react'
 import { useCallback, useMemo, useState } from 'react'
 import { Route, Switch, useLocation, useNavigate } from 'wouter'
 
-import { Amount } from '@/components/Amount/Amount'
+import { LazyLoadAvatar } from '@/components/LazyLoadAvatar'
 import { DialogBody } from '@/components/Modal/components/DialogBody'
 import { MiddleEllipsis } from '@/components/MiddleEllipsis/MiddleEllipsis'
 import { RawText } from '@/components/Text'
+import { makeBlockiesUrl } from '@/lib/blockies/makeBlockiesUrl'
 import { AccountSelection } from '@/plugins/walletConnectToDapps/components/modals/AccountSelection'
 import { PeerMeta } from '@/plugins/walletConnectToDapps/components/PeerMeta'
 import { WalletConnectFooter } from '@/plugins/walletConnectToDapps/components/WalletConnectFooter'
@@ -19,12 +20,7 @@ import type { CustomTransactionData } from '@/plugins/walletConnectToDapps/types
 import type { WalletConnectRequestModalProps } from '@/plugins/walletConnectToDapps/WalletConnectModalManager'
 import {
   selectAccountIdsByAccountNumberAndChainId,
-  selectAccountIdsByChainIdFilter,
-  selectAssetById,
   selectEvmAddressByAccountNumber,
-  selectFeeAssetByChainId,
-  selectPortfolioCryptoPrecisionBalanceByFilter,
-  selectPortfolioUserCurrencyBalanceByFilter,
   selectUniqueEvmAccountNumbers,
 } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
@@ -77,42 +73,39 @@ export const SessionAuthenticateConfirmation: FC<
 
   console.log('[WC Auth Modal] Extracted chainId:', authChainId)
 
-  // Get unique account numbers for the requested chain
-  const accountNumbers = useAppSelector(state =>
-    selectUniqueEvmAccountNumbers(state)
+  // Get unique account numbers
+  const uniqueAccountNumbers = useAppSelector(selectUniqueEvmAccountNumbers)
+  const accountIdsByAccountNumberAndChainId = useAppSelector(
+    selectAccountIdsByAccountNumberAndChainId,
   )
 
-  // Get all account IDs for the requested chain
-  const accountIdsForChain = useAppSelector(state =>
-    selectAccountIdsByChainIdFilter(state, { chainId: authChainId })
+  // Use first account number as default if none selected
+  const effectiveAccountNumber = selectedAccountNumber ?? uniqueAccountNumbers[0]
+
+  // Get the address for the selected account number
+  const selectedAddress = useAppSelector(state =>
+    selectEvmAddressByAccountNumber(state, { accountNumber: effectiveAccountNumber ?? undefined }),
   )
 
-  // Get the account IDs for selected account number
-  const targetAccountNumber = selectedAccountNumber ?? accountNumbers[0]
-  const accountIdsForNumber = useAppSelector(state =>
-    authChainId && targetAccountNumber !== undefined
-      ? selectAccountIdsByAccountNumberAndChainId(state, {
-          accountNumber: targetAccountNumber,
-          chainId: authChainId
-        })
-      : []
-  )
-
-  // Derive the selected account ID
+  // Get the account ID for signing (from the selected account number + auth chain)
   const accountId = useMemo(() => {
-    if (!authChainId) return undefined
-    return accountIdsForNumber?.[0] || accountIdsForChain?.[0]
-  }, [authChainId, accountIdsForNumber, accountIdsForChain])
+    if (!authChainId || effectiveAccountNumber === null || effectiveAccountNumber === undefined) {
+      return undefined
+    }
+    const accountsByChain = accountIdsByAccountNumberAndChainId[effectiveAccountNumber]
+    return accountsByChain?.[authChainId]?.[0]
+  }, [authChainId, effectiveAccountNumber, accountIdsByAccountNumberAndChainId])
 
-  console.log('[WC Auth Modal] Selected account:', accountId)
-  console.log('[WC Auth Modal] Available account numbers:', accountNumbers)
+  console.log('[WC Auth Modal] Selected account number:', effectiveAccountNumber)
+  console.log('[WC Auth Modal] Selected address:', selectedAddress)
+  console.log('[WC Auth Modal] Account ID for signing:', accountId)
 
   // Navigation handlers
   const handleAccountClick = useCallback(() => {
-    if (accountNumbers.length > 1) {
+    if (uniqueAccountNumbers.length > 1) {
       navigate(SessionAuthRoutes.ChooseAccount)
     }
-  }, [accountNumbers.length, navigate])
+  }, [uniqueAccountNumbers.length, navigate])
 
   const handleBack = useCallback(() => {
     navigate(SessionAuthRoutes.Overview)
@@ -168,31 +161,17 @@ export const SessionAuthenticateConfirmation: FC<
   // Use requester metadata for peer info
   const peerMetadata = requester?.metadata
 
-  // Get account display info
-  const userAddress = useMemo(() => accountId ? fromAccountId(accountId).account : '', [accountId])
-  const chainId = useMemo(() => accountId ? fromAccountId(accountId).chainId : authChainId, [accountId, authChainId])
-  const feeAssetId = useAppSelector(state => selectFeeAssetByChainId(state, chainId || '')?.assetId)
-  const feeAsset = useAppSelector(state => selectAssetById(state, feeAssetId ?? ''))
-
-  const feeAssetBalanceCryptoPrecision = useAppSelector(state =>
-    selectPortfolioCryptoPrecisionBalanceByFilter(state, { assetId: feeAssetId, accountId })
+  // Hover effect for clickable account (matches SessionProposalOverview)
+  const connectWithHoverSx = useMemo(
+    () => (uniqueAccountNumbers.length > 1 ? { opacity: 0.8 } : undefined),
+    [uniqueAccountNumbers.length],
   )
-
-  const feeAssetBalanceUserCurrency = useAppSelector(state =>
-    selectPortfolioUserCurrencyBalanceByFilter(state, { assetId: feeAssetId, accountId })
-  )
-
-  const networkIcon = useMemo(() => {
-    return feeAsset?.networkIcon ?? feeAsset?.icon
-  }, [feeAsset?.networkIcon, feeAsset?.icon])
-
-  const hasMultipleAccounts = accountNumbers.length > 1
 
   return (
     <Switch location={location}>
       <Route path={SessionAuthRoutes.ChooseAccount}>
         <AccountSelection
-          selectedAccountNumber={targetAccountNumber}
+          selectedAccountNumber={effectiveAccountNumber}
           onBack={handleBack}
           onAccountNumberChange={handleAccountNumberChange}
           onDone={handleBack}
@@ -206,52 +185,38 @@ export const SessionAuthenticateConfirmation: FC<
           </DialogBody>
           <WalletConnectFooter>
             <VStack spacing={4} width='full'>
-              {/* Show account selection section if we have an account */}
-              {accountId && feeAsset && (
-                <VStack px={2} spacing={4} width='full'>
-                  <HStack
-                    justify='space-between'
-                    align='center'
-                    w='full'
-                    cursor={hasMultipleAccounts ? 'pointer' : 'default'}
-                    onClick={handleAccountClick}
-                    _hover={hasMultipleAccounts ? { bg: 'background.surface.raised.base' } : {}}
-                    p={2}
-                    borderRadius='md'
-                  >
-                    <HStack spacing={2} align='center'>
-                      <Image boxSize='32px' src={networkIcon} borderRadius='full' />
-                      <VStack align='flex-start' spacing={0} justify='center'>
-                        <RawText fontSize='sm' color='text.subtle' lineHeight='1.2' mb={1}>
-                          Signing with
-                        </RawText>
-                        <MiddleEllipsis value={userAddress} fontSize='sm' fontWeight='medium' />
-                      </VStack>
+              {/* Account selection - matches SessionProposalOverview pattern */}
+              {selectedAddress && (
+                <HStack spacing={3} align='start' w='full'>
+                  <LazyLoadAvatar
+                    src={makeBlockiesUrl(selectedAddress)}
+                    boxSize='32px'
+                    borderRadius='full'
+                  />
+                  <VStack spacing={1} align='start' h='32px' justify='space-between' flex={1}>
+                    <RawText fontSize='xs' color='text.subtle' fontWeight='medium' lineHeight='1'>
+                      Signing with
+                    </RawText>
+                    <HStack
+                      spacing={3}
+                      align='center'
+                      h='20px'
+                      cursor={uniqueAccountNumbers.length > 1 ? 'pointer' : 'default'}
+                      onClick={uniqueAccountNumbers.length > 1 ? handleAccountClick : undefined}
+                      _hover={connectWithHoverSx}
+                    >
+                      <MiddleEllipsis value={selectedAddress} fontSize='sm' fontWeight='medium' />
+                      {uniqueAccountNumbers.length > 1 && (
+                        <ArrowUpDownIcon color='text.subtle' boxSize={3} />
+                      )}
                     </HStack>
-                    <HStack spacing={2}>
-                      <VStack align='flex-end' spacing={0}>
-                        <Amount.Fiat
-                          value={feeAssetBalanceUserCurrency ?? '0'}
-                          fontSize='sm'
-                          fontWeight='medium'
-                        />
-                        <Amount.Crypto
-                          value={feeAssetBalanceCryptoPrecision ?? '0'}
-                          symbol={feeAsset.symbol}
-                          fontSize='xs'
-                          color='text.subtle'
-                        />
-                      </VStack>
-                      {hasMultipleAccounts && <ArrowUpDownIcon color='text.subtle' />}
-                    </HStack>
-                  </HStack>
-                </VStack>
+                  </VStack>
+                </HStack>
               )}
 
               {/* Buttons */}
-              <HStack spacing={4} w='full'>
+              <HStack spacing={4} w='full' mt={4}>
                 <Button
-                  variant='outline'
                   size='lg'
                   flex={1}
                   onClick={handleReject}
@@ -260,16 +225,14 @@ export const SessionAuthenticateConfirmation: FC<
                   Cancel
                 </Button>
                 <Button
-                  variant='solid'
-                  colorScheme='blue'
                   size='lg'
                   flex={1}
+                  colorScheme='blue'
                   onClick={handleConfirm}
                   isDisabled={!accountId || isLoading}
                   isLoading={isLoading}
-                  loadingText='Signing...'
                 >
-                  {accountId ? 'Sign Message' : 'No Account Available'}
+                  Sign Message
                 </Button>
               </HStack>
             </VStack>

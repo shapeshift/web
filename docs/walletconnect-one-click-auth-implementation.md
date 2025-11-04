@@ -208,6 +208,32 @@ const cacaoPayload = {
 - Dispatch `ADD_SESSION` action to update state
 - This makes the dApp appear in connected list
 
+### Session 4 Updates - Account Selection Implementation 🎯
+
+#### Added Loading State
+**Problem**: No visual feedback during signing process
+
+**Solution**:
+- Added `isLoading` state with spinner and disabled buttons
+- Shows "Signing..." text during auth process
+
+#### Implemented Account Selection
+**Problem**: Users couldn't select accounts for auth requests
+
+**Solution**:
+- Added routing with wouter (`Switch`, `Route`) for navigation
+- Created two routes: Overview and ChooseAccount
+- Reused existing `AccountSelection` component from WC modals
+- Account display becomes clickable with arrow icon when multiple accounts exist
+- Maintains single-chain context (no chain switching needed for auth)
+- Selected account persists in state and updates signing account
+
+**Key Implementation Details**:
+- Uses `selectUniqueEvmAccountNumbers` for account discovery
+- Uses `selectAccountIdsByAccountNumberAndChainId` for account mapping
+- Routes wrapped in `MemoryRouter` in WalletConnectModalManager
+- Account selection UI matches standard WC modal patterns (KISS principle ✨)
+
 ## Latest Fixes (November 4, 2025 - Session 2)
 
 ### Account Selection Fix

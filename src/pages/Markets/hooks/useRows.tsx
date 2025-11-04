@@ -5,7 +5,7 @@ import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 
 import { AssetGridWithData } from '../components/AssetGridWithData'
-import { OneClickDefiAssets } from '../components/LpGrid'
+import { LpGrid } from '../components/LpGrid'
 import { MarketsCategories } from '../constants'
 
 import { OrderDirection } from '@/components/OrderDropdown/types'
@@ -124,12 +124,11 @@ export const useRows = ({ limit }: { limit: number }) => {
         title: translate(`markets.categories.${MarketsCategories.OneClickDefi}.title`),
         subtitle: translate(`markets.categories.${MarketsCategories.OneClickDefi}.subtitle`),
         component: ({ selectedChainId, orderBy, sortBy }: RowProps) => (
-          <OneClickDefiAssets
+          <LpGrid
             selectedChainId={selectedChainId}
             limit={limit}
             orderBy={orderBy}
             sortBy={sortBy}
-            maxApy='500'
           />
         ),
         supportedChainIds: PortalsSupportedChainIds,

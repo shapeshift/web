@@ -24,15 +24,14 @@ import { store } from '@/state/store'
 const emptyIcon = <RiExchangeFundsLine color='pink.200' />
 
 export const LpGrid: React.FC<{
-  assetIds: AssetId[]
   selectedChainId?: ChainId
-  isLoading: boolean
   limit: number
   orderBy?: OrderDirection
   sortBy?: SortOptionsKeys
-  portalsAssets?: ReturnType<typeof usePortalsAssetsQuery>['data']
-}> = ({ assetIds, selectedChainId, isLoading, limit, orderBy, sortBy, portalsAssets }) => {
+}> = ({ selectedChainId, limit, orderBy, sortBy }) => {
+  const { ref, inView } = useInView()
   const navigate = useNavigate()
+
   const handleCardClick = useCallback(
     (assetId: AssetId) => {
       navigate(`/assets/${assetId}`)
@@ -40,14 +39,23 @@ export const LpGrid: React.FC<{
     [navigate],
   )
 
-  const filteredAssetIds = useMemo(
-    () =>
-      (selectedChainId
+  const { data: portalsAssets, isLoading } = usePortalsAssetsQuery({
+    chainIds: selectedChainId ? [selectedChainId] : undefined,
+    sortBy,
+    orderBy,
+    minApy: '1',
+    maxApy: '500',
+    enabled: inView,
+  })
+
+  const filteredAssetIds = useMemo(() => {
+    const assetIds = portalsAssets?.ids ?? []
+    return (
+      selectedChainId
         ? assetIds.filter(assetId => fromAssetId(assetId).chainId === selectedChainId)
         : assetIds
-      ).slice(0, limit),
-    [assetIds, limit, selectedChainId],
-  )
+    ).slice(0, limit)
+  }, [portalsAssets?.ids, limit, selectedChainId])
 
   const sortedAssetIds = useMemo(() => {
     if (!sortBy) return filteredAssetIds
@@ -93,13 +101,24 @@ export const LpGrid: React.FC<{
     })
   }, [filteredAssetIds, orderBy, sortBy, portalsAssets])
 
-  if (isLoading) return <LoadingGrid />
+  if (isLoading) {
+    return (
+      <div ref={ref}>
+        <LoadingGrid />
+      </div>
+    )
+  }
 
-  if (!filteredAssetIds.length)
-    return <ResultsEmpty title='markets.emptyTitle' body='markets.emptyBody' icon={emptyIcon} />
+  if (!filteredAssetIds.length) {
+    return (
+      <div ref={ref}>
+        <ResultsEmpty title='markets.emptyTitle' body='markets.emptyBody' icon={emptyIcon} />
+      </div>
+    )
+  }
 
   return (
-    <div>
+    <div ref={ref}>
       <MarketGrid>
         {sortedAssetIds.map((assetId, index) => {
           const maybePortalsApy = portalsAssets?.byId[assetId]?.metrics.apy
@@ -117,38 +136,6 @@ export const LpGrid: React.FC<{
           )
         })}
       </MarketGrid>
-    </div>
-  )
-}
-
-export const OneClickDefiAssets: React.FC<{
-  selectedChainId: ChainId | undefined
-  limit: number
-  orderBy?: OrderDirection
-  sortBy?: SortOptionsKeys
-  maxApy?: string
-}> = ({ limit, selectedChainId, orderBy, sortBy, maxApy }) => {
-  const { ref, inView } = useInView()
-  const { data: portalsAssets, isLoading: isPortalsAssetsLoading } = usePortalsAssetsQuery({
-    chainIds: selectedChainId ? [selectedChainId] : undefined,
-    sortBy,
-    orderBy,
-    minApy: '1',
-    maxApy,
-    enabled: inView,
-  })
-
-  return (
-    <div ref={ref}>
-      <LpGrid
-        assetIds={portalsAssets?.ids ?? []}
-        selectedChainId={selectedChainId}
-        isLoading={isPortalsAssetsLoading}
-        limit={limit}
-        orderBy={orderBy}
-        sortBy={sortBy}
-        portalsAssets={portalsAssets}
-      />
     </div>
   )
 }

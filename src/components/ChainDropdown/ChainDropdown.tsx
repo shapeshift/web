@@ -87,7 +87,7 @@ export const ChainDropdown: React.FC<ChainDropdownProps> = ({
         {chainId ? <ChainRow chainId={chainId} /> : translate('common.allChains')}
       </MenuButton>
       <Portal>
-        <MenuList zIndex={modalChildZIndex}>
+        <MenuList zIndex={modalChildZIndex} maxHeight='350px' overflowY='auto'>
           <MenuOptionGroup type='radio' value={chainId} onChange={onChange}>
             {showAll && (
               <MenuItemOption value=''>

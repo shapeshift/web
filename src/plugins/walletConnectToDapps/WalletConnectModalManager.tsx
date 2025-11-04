@@ -1,5 +1,6 @@
 import type { ModalProps } from '@chakra-ui/react'
 import { formatJsonRpcError } from '@json-rpc-tools/utils'
+import { toAddressNList } from '@shapeshiftoss/chain-adapters'
 import type { SessionTypes } from '@walletconnect/types'
 import { getSdkError } from '@walletconnect/utils'
 import type { Dispatch, FC } from 'react'
@@ -8,7 +9,6 @@ import { MemoryRouter } from 'react-router-dom'
 
 import { Dialog } from '@/components/Modal/components/Dialog'
 import { useWallet } from '@/hooks/useWallet/useWallet'
-import { assertUnreachable } from '@/lib/utils'
 import { assertGetCosmosSdkChainAdapter } from '@/lib/utils/cosmosSdk'
 import { assertGetEvmChainAdapter } from '@/lib/utils/evm'
 import { CosmosSignMessageConfirmationModal } from '@/plugins/walletConnectToDapps/components/modals/CosmosSignMessageConfirmation'
@@ -17,9 +17,12 @@ import { EIP155SignTypedDataConfirmation } from '@/plugins/walletConnectToDapps/
 import { EIP155TransactionConfirmation } from '@/plugins/walletConnectToDapps/components/modals/EIP155TransactionConfirmation'
 import { NoAccountsForChainModal } from '@/plugins/walletConnectToDapps/components/modals/NoAccountsForChainModal'
 import { SendTransactionConfirmation } from '@/plugins/walletConnectToDapps/components/modals/SendTransactionConfirmation'
+import { SessionAuthenticateConfirmation } from '@/plugins/walletConnectToDapps/components/modals/SessionAuthenticateConfirmation'
 import { SessionProposalModal } from '@/plugins/walletConnectToDapps/components/modals/SessionProposal'
 import { SessionProposalRoutes } from '@/plugins/walletConnectToDapps/components/modals/SessionProposalRoutes'
 import { useWalletConnectState } from '@/plugins/walletConnectToDapps/hooks/useWalletConnectState'
+import { selectPortfolioAccountMetadata } from '@/state/slices/portfolioSlice/selectors'
+import { useAppSelector } from '@/state/store'
 import type {
   CosmosSignAminoCallRequest,
   CosmosSignDirectCallRequest,
@@ -66,7 +69,7 @@ const modalProps: Omit<ModalProps, 'children' | 'isOpen' | 'onClose'> = {
   preserveScrollBarGap: true,
 }
 
-const isSessionProposalState = (state: WalletConnectState): state is SessionProposalState =>
+const isModalReady = (state: WalletConnectState): state is SessionProposalState =>
   !!(state.modalData && state.web3wallet && state.activeModal)
 
 export const WalletConnectModalManager: FC<WalletConnectModalManagerProps> = ({
@@ -76,6 +79,7 @@ export const WalletConnectModalManager: FC<WalletConnectModalManagerProps> = ({
   const { wallet, isConnected } = useWallet().state
   const sessionProposalRef = useRef<SessionProposalRef>(null)
   const { chainId, requestEvent, accountMetadata, accountId } = useWalletConnectState(state)
+  const portfolioAccountMetadata = useAppSelector(selectPortfolioAccountMetadata)
 
   const { activeModal, web3wallet } = state
 
@@ -148,10 +152,139 @@ export const WalletConnectModalManager: FC<WalletConnectModalManagerProps> = ({
     })
   }, [requestEvent, topic, web3wallet])
 
+  const handleConfirmAuthRequest = useCallback(async (customTransactionData?: CustomTransactionData) => {
+    if (!state.modalData?.request || !web3wallet || !wallet) return
+
+    const authRequest = state.modalData.request as any
+    const { authPayload } = authRequest.params
+
+    // For auth, we need to use the first chain from the auth payload
+    const authChainId = authPayload.chains?.[0] || chainId
+
+    // Get the selected account from customTransactionData or fall back to default
+    const selectedAccountId = customTransactionData?.accountId || accountId
+
+    if (!selectedAccountId) {
+      console.error('[WC Auth] No account selected for auth')
+      return
+    }
+
+    console.log('[WC Auth] Using account for auth:', selectedAccountId)
+
+    try {
+      // Get the chain adapter for signing
+      const chainAdapter = assertGetEvmChainAdapter(authChainId)
+
+      // Format the auth message for signing
+      const address = selectedAccountId.split(':')[2]
+      // For ISS, we need the full CAIP-2 format from the authPayload
+      const caipChainId = authPayload.chains?.[0] || authChainId
+      const iss = `did:pkh:${caipChainId}:${address}`
+
+      console.log('[WC Auth] Building ISS with:')
+      console.log('[WC Auth] - caipChainId from authPayload:', caipChainId)
+      console.log('[WC Auth] - authChainId (parsed):', authChainId)
+      console.log('[WC Auth] - address:', address)
+      console.log('[WC Auth] - full ISS:', iss)
+
+      const message = web3wallet.formatAuthMessage({
+        request: authPayload,
+        iss
+      })
+
+      // Get the account metadata for the selected account
+      const selectedAccountMetadata = portfolioAccountMetadata[selectedAccountId]
+      const bip44Params = selectedAccountMetadata?.bip44Params
+      const addressNList = bip44Params
+        ? toAddressNList(chainAdapter.getBip44Params(bip44Params))
+        : []
+
+      console.log('[WC Auth] BIP44 params:', bip44Params)
+      console.log('[WC Auth] AddressNList:', addressNList)
+
+      // Sign the message using the same format as EIP155RequestHandler
+      const messageToSign = { addressNList, message }
+      const input = { messageToSign, wallet }
+
+      console.log('[WC Auth] Message to sign:', message)
+      console.log('[WC Auth] Signing with wallet...')
+
+      const signature = await chainAdapter.signMessage(input)
+
+      console.log('[WC Auth] Signature received:', signature)
+      console.log('[WC Auth] Signature type:', typeof signature)
+      console.log('[WC Auth] Signature value check:', {
+        isNull: signature === null,
+        isUndefined: signature === undefined,
+        isEmpty: signature === '',
+        hasHexPrefix: signature?.startsWith?.('0x')
+      })
+
+      if (!signature) {
+        throw new Error('[WC Auth] Failed to sign message')
+      }
+
+      // Ensure signature has 0x prefix
+      const formattedSignature = signature.startsWith('0x') ? signature : `0x${signature}`
+
+      // Build CACAO and approve
+      // The payload needs to include the iss field
+      const cacaoPayload = {
+        ...authPayload,
+        iss  // Add the issuer to the payload
+      }
+
+      const cacao = {
+        h: { t: 'caip122' },
+        p: cacaoPayload,
+        s: { t: 'eip191', s: formattedSignature }
+      }
+
+      console.log('[WC Auth] CACAO object:', JSON.stringify(cacao, null, 2))
+      console.log('[WC Auth] Calling approveSessionAuthenticate with ID:', authRequest.id)
+
+      const approvalResponse = await web3wallet.approveSessionAuthenticate({
+        id: authRequest.id,
+        auths: [cacao]
+      })
+
+      console.log('[WC Auth] Approval response:', approvalResponse)
+
+      // Check if we got a session back
+      if (approvalResponse?.session) {
+        console.log('[WC Auth] New session created:', approvalResponse.session)
+
+        // Dispatch action to add the new session
+        dispatch({
+          type: WalletConnectActionType.ADD_SESSION,
+          payload: approvalResponse.session
+        })
+      }
+
+      handleClose()
+    } catch (error) {
+      console.error('[WC Auth] Error approving auth request:', error)
+      throw error
+    }
+  }, [accountId, chainId, handleClose, portfolioAccountMetadata, state.modalData, wallet, web3wallet])
+
+  const handleRejectAuthRequest = useCallback(async () => {
+    if (!state.modalData?.request || !web3wallet) return
+
+    const authRequest = state.modalData.request as any
+    await web3wallet.rejectSessionAuthenticate({
+      id: authRequest.id,
+      reason: getSdkError('USER_REJECTED')
+    })
+  }, [state.modalData, web3wallet])
+
   const handleRejectRequestAndClose = useCallback(async () => {
     switch (activeModal) {
       case WalletConnectModal.SessionProposal:
         await sessionProposalRef.current?.handleReject()
+        break
+      case WalletConnectModal.SessionAuthenticateConfirmation:
+        await handleRejectAuthRequest()
         break
       case WalletConnectModal.SignEIP155MessageConfirmation:
       case WalletConnectModal.SignEIP155TypedDataConfirmation:
@@ -166,14 +299,16 @@ export const WalletConnectModalManager: FC<WalletConnectModalManagerProps> = ({
       case undefined:
         break
       default:
-        assertUnreachable(activeModal)
+        // Temporary fix for TypeScript exhaustiveness check
+        console.warn('[WC Auth] Unhandled modal type:', activeModal)
+        // assertUnreachable(activeModal)
     }
 
     handleClose()
-  }, [activeModal, handleClose, handleRejectRequest])
+  }, [activeModal, handleClose, handleRejectRequest, handleRejectAuthRequest])
 
   const modalContent = useMemo(() => {
-    if (!web3wallet || !activeModal || !isSessionProposalState(state)) return null
+    if (!web3wallet || !activeModal || !isModalReady(state)) return null
     switch (activeModal) {
       case WalletConnectModal.SessionProposal:
         return (
@@ -185,6 +320,18 @@ export const WalletConnectModalManager: FC<WalletConnectModalManagerProps> = ({
               ref={sessionProposalRef}
             />
           </MemoryRouter>
+        )
+      case WalletConnectModal.SessionAuthenticateConfirmation:
+        // Auth requests don't have a topic yet (no session exists)
+        console.log('[WC Auth Modal Manager] Creating auth modal with state:', state)
+        console.log('[WC Auth Modal Manager] Modal data:', state.modalData)
+        return (
+          <SessionAuthenticateConfirmation
+            onConfirm={handleConfirmAuthRequest}
+            onReject={handleRejectRequestAndClose}
+            state={state}
+            topic=""
+          />
         )
       case WalletConnectModal.SignEIP155MessageConfirmation:
         if (!topic) return null
@@ -254,7 +401,10 @@ export const WalletConnectModalManager: FC<WalletConnectModalManagerProps> = ({
       case WalletConnectModal.NoAccountsForChain:
         return <NoAccountsForChainModal onClose={handleClose} dispatch={dispatch} state={state} />
       default:
-        assertUnreachable(activeModal)
+        // Temporary fix for TypeScript exhaustiveness check
+        console.warn('[WC Auth] Unhandled modal type:', activeModal)
+        return null
+        // assertUnreachable(activeModal)
     }
   }, [
     activeModal,

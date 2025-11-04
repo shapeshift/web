@@ -94,6 +94,13 @@ export const useWalletConnectEventsManager = (
 
   // Set up WalletConnect event listeners
   useEffect(() => {
+    // [WC Auth Debug] Log event listener registration
+    console.group('[WC Auth Debug - Event Manager Registration]')
+    console.log('Registering WalletConnect event listeners...')
+    console.log('signClientEvents available:', !!signClientEvents)
+    console.log('web3wallet available:', !!state.web3wallet)
+    console.log('pairingEvents available:', !!pairingEvents)
+
     // signClient.events i.e wallet-related session events
     // note, those also exist as walletKit (web3wallet) events, but this guy is more reliable
     signClientEvents?.on('session_ping', sessionPingListener)
@@ -104,6 +111,8 @@ export const useWalletConnectEventsManager = (
 
     // auth-specific - not wallet-related just yet
     state.web3wallet?.on('session_authenticate', handleAuthRequest)
+    console.log('✅ Registered session_authenticate handler:', !!handleAuthRequest)
+    console.groupEnd()
 
     // Pairing events
     pairingEvents?.on('pairing_ping', pairingPingListener)

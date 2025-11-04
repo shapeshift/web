@@ -25,12 +25,25 @@ const Connect = ({ initialUri, isOpen, onClose }: Props) => {
   const handleConnectV2 = useCallback(
     async (uri: string) => {
       try {
-        // We do not handle session_authenticate events, which assumes a SIWE payload, so we make it a session_proposal instead
+        // [WC Auth Debug] Logging Venice.ai authentication flow
+        console.group('[WC Auth Debug - Connect.tsx]')
+        console.log('Raw URI received:', uri)
+        console.log('Contains sessionAuthenticate?', uri.includes('sessionAuthenticate'))
+        console.log('Contains sessionProposal?', uri.includes('sessionProposal'))
+        console.groupEnd()
+
+        // Now we properly handle session_authenticate events with SIWE payloads
         const connectionResult = await pair?.({
-          uri: uri.replace('sessionAuthenticate', 'sessionProposal'),
+          uri,
         })
+
+        console.log('[WC Auth Debug - Connect.tsx] Connection result:', connectionResult)
+
         if (connectionResult) onClose()
       } catch (error: unknown) {
+        console.group('[WC Auth Debug - Connect.tsx ERROR]')
+        console.error('Connection error:', error)
+        console.groupEnd()
         console.debug(error)
 
         // This should *not* be an exception, we handle this as part of our flow.

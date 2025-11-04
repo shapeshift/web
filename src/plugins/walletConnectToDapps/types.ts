@@ -99,6 +99,7 @@ export type WalletConnectContextType = {
 
 export enum WalletConnectModal {
   SessionProposal = 'sessionProposal',
+  SessionAuthenticateConfirmation = 'sessionAuthenticateConfirmation',
   SignEIP155MessageConfirmation = 'signEIP155MessageConfirmation',
   SignEIP155TypedDataConfirmation = 'signEIP155TypedDataConfirmation',
   SignEIP155TransactionConfirmation = 'signEIP155TransactionConfirmation',

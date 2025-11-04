@@ -25,6 +25,16 @@ export const useWalletConnectEventsHandler = (
   // Open session proposal modal for confirmation / rejection
   const handleSessionProposal = useCallback(
     (proposal: WalletKitTypes.EventArguments['session_proposal']) => {
+      // [WC Auth Debug] Log session proposal
+      console.group('[WC Auth Debug - Session Proposal Handler]')
+      console.log('📝 Received session_proposal event')
+      console.log('Proposal ID:', proposal.id)
+      console.log('Proposer metadata:', proposal.params.proposer)
+      console.log('Required namespaces:', proposal.params.requiredNamespaces)
+      console.log('Optional namespaces:', proposal.params.optionalNamespaces)
+      console.log('Full proposal:', proposal)
+      console.groupEnd()
+
       dispatch({
         type: WalletConnectActionType.SET_MODAL,
         payload: { modal: WalletConnectModal.SessionProposal, data: { proposal } },
@@ -34,8 +44,22 @@ export const useWalletConnectEventsHandler = (
   )
 
   const handleAuthRequest = useCallback(
-    (_request: WalletKitTypes.EventArguments['session_authenticate']) => {},
-    [],
+    (request: WalletKitTypes.EventArguments['session_authenticate']) => {
+      // [WC Auth Debug] Log authentication request
+      console.log('[WC Auth] Received session_authenticate event')
+      console.log('Auth request from:', request.params?.requester?.metadata?.name)
+      console.log('Chains requested:', request.params?.authPayload?.chains)
+
+      // Dispatch the auth modal
+      dispatch({
+        type: WalletConnectActionType.SET_MODAL,
+        payload: {
+          modal: WalletConnectModal.SessionAuthenticateConfirmation,
+          data: { request },
+        },
+      })
+    },
+    [dispatch],
   )
 
   // Open request handling modal based on method that was used

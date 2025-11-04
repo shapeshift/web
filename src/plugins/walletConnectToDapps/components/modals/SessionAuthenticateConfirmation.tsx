@@ -1,5 +1,4 @@
-import { ArrowUpDownIcon } from '@chakra-ui/icons'
-import { Button, HStack, VStack } from '@chakra-ui/react'
+import { VStack } from '@chakra-ui/react'
 import type { ChainId } from '@shapeshiftoss/caip'
 import { toChainId, CHAIN_NAMESPACE } from '@shapeshiftoss/caip'
 import type { WalletKitTypes } from '@reown/walletkit'
@@ -7,20 +6,15 @@ import type { FC } from 'react'
 import { useCallback, useMemo, useState } from 'react'
 import { Route, Switch, useLocation, useNavigate } from 'wouter'
 
-import { LazyLoadAvatar } from '@/components/LazyLoadAvatar'
 import { DialogBody } from '@/components/Modal/components/DialogBody'
-import { MiddleEllipsis } from '@/components/MiddleEllipsis/MiddleEllipsis'
-import { RawText } from '@/components/Text'
-import { makeBlockiesUrl } from '@/lib/blockies/makeBlockiesUrl'
 import { AccountSelection } from '@/plugins/walletConnectToDapps/components/modals/AccountSelection'
+import { SessionProposalOverview } from '@/plugins/walletConnectToDapps/components/modals/SessionProposalOverview'
 import { PeerMeta } from '@/plugins/walletConnectToDapps/components/PeerMeta'
-import { WalletConnectFooter } from '@/plugins/walletConnectToDapps/components/WalletConnectFooter'
 import { MessageContent } from '@/plugins/walletConnectToDapps/components/WalletConnectSigningModal/content/MessageContent'
 import type { CustomTransactionData } from '@/plugins/walletConnectToDapps/types'
 import type { WalletConnectRequestModalProps } from '@/plugins/walletConnectToDapps/WalletConnectModalManager'
 import {
   selectAccountIdsByAccountNumberAndChainId,
-  selectEvmAddressByAccountNumber,
   selectUniqueEvmAccountNumbers,
 } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
@@ -73,7 +67,7 @@ export const SessionAuthenticateConfirmation: FC<
 
   console.log('[WC Auth Modal] Extracted chainId:', authChainId)
 
-  // Get unique account numbers
+  // Get unique account numbers and account mapping
   const uniqueAccountNumbers = useAppSelector(selectUniqueEvmAccountNumbers)
   const accountIdsByAccountNumberAndChainId = useAppSelector(
     selectAccountIdsByAccountNumberAndChainId,
@@ -81,11 +75,6 @@ export const SessionAuthenticateConfirmation: FC<
 
   // Use first account number as default if none selected
   const effectiveAccountNumber = selectedAccountNumber ?? uniqueAccountNumbers[0]
-
-  // Get the address for the selected account number
-  const selectedAddress = useAppSelector(state =>
-    selectEvmAddressByAccountNumber(state, { accountNumber: effectiveAccountNumber ?? undefined }),
-  )
 
   // Get the account ID for signing (from the selected account number + auth chain)
   const accountId = useMemo(() => {
@@ -96,9 +85,14 @@ export const SessionAuthenticateConfirmation: FC<
     return accountsByChain?.[authChainId]?.[0]
   }, [authChainId, effectiveAccountNumber, accountIdsByAccountNumberAndChainId])
 
+  // Determine if we can connect
+  const canConnect = useMemo(() => {
+    return !!accountId && !!authChainId
+  }, [accountId, authChainId])
+
   console.log('[WC Auth Modal] Selected account number:', effectiveAccountNumber)
-  console.log('[WC Auth Modal] Selected address:', selectedAddress)
   console.log('[WC Auth Modal] Account ID for signing:', accountId)
+  console.log('[WC Auth Modal] Can connect:', canConnect)
 
   // Navigation handlers
   const handleAccountClick = useCallback(() => {
@@ -161,12 +155,6 @@ export const SessionAuthenticateConfirmation: FC<
   // Use requester metadata for peer info
   const peerMetadata = requester?.metadata
 
-  // Hover effect for clickable account (matches SessionProposalOverview)
-  const connectWithHoverSx = useMemo(
-    () => (uniqueAccountNumbers.length > 1 ? { opacity: 0.8 } : undefined),
-    [uniqueAccountNumbers.length],
-  )
-
   return (
     <Switch location={location}>
       <Route path={SessionAuthRoutes.ChooseAccount}>
@@ -183,60 +171,16 @@ export const SessionAuthenticateConfirmation: FC<
           <DialogBody flex={1} overflow='auto' minHeight={0} pb={6}>
             <MessageContent message={displayMessage} />
           </DialogBody>
-          <WalletConnectFooter>
-            <VStack spacing={4} width='full'>
-              {/* Account selection - matches SessionProposalOverview pattern */}
-              {selectedAddress && (
-                <HStack spacing={3} align='start' w='full'>
-                  <LazyLoadAvatar
-                    src={makeBlockiesUrl(selectedAddress)}
-                    boxSize='32px'
-                    borderRadius='full'
-                  />
-                  <VStack spacing={1} align='start' h='32px' justify='space-between' flex={1}>
-                    <RawText fontSize='xs' color='text.subtle' fontWeight='medium' lineHeight='1'>
-                      Signing with
-                    </RawText>
-                    <HStack
-                      spacing={3}
-                      align='center'
-                      h='20px'
-                      cursor={uniqueAccountNumbers.length > 1 ? 'pointer' : 'default'}
-                      onClick={uniqueAccountNumbers.length > 1 ? handleAccountClick : undefined}
-                      _hover={connectWithHoverSx}
-                    >
-                      <MiddleEllipsis value={selectedAddress} fontSize='sm' fontWeight='medium' />
-                      {uniqueAccountNumbers.length > 1 && (
-                        <ArrowUpDownIcon color='text.subtle' boxSize={3} />
-                      )}
-                    </HStack>
-                  </VStack>
-                </HStack>
-              )}
-
-              {/* Buttons */}
-              <HStack spacing={4} w='full' mt={4}>
-                <Button
-                  size='lg'
-                  flex={1}
-                  onClick={handleReject}
-                  isDisabled={isLoading}
-                >
-                  Cancel
-                </Button>
-                <Button
-                  size='lg'
-                  flex={1}
-                  colorScheme='blue'
-                  onClick={handleConfirm}
-                  isDisabled={!accountId || isLoading}
-                  isLoading={isLoading}
-                >
-                  Sign Message
-                </Button>
-              </HStack>
-            </VStack>
-          </WalletConnectFooter>
+          <SessionProposalOverview
+            selectedAccountNumber={effectiveAccountNumber}
+            selectedNetworks={authChainId ? [authChainId] : []}
+            onAccountClick={handleAccountClick}
+            onConnectSelected={handleConfirm}
+            onReject={handleReject}
+            isLoading={isLoading}
+            canConnect={canConnect}
+            hideNetworkSelection={true}
+          />
         </VStack>
       </Route>
     </Switch>

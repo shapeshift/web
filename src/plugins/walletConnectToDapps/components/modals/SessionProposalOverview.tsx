@@ -25,19 +25,20 @@ import { useAppSelector } from '@/state/store'
 const disabledSx = { opacity: 0.5, cursor: 'not-allowed', userSelect: 'none' }
 
 type SessionProposalOverviewProps = {
-  requiredNamespaces: ProposalTypes.RequiredNamespaces
+  requiredNamespaces?: ProposalTypes.RequiredNamespaces
   selectedAccountNumber: number | null
   selectedNetworks: ChainId[]
   onAccountClick: () => void
-  onNetworkClick: () => void
+  onNetworkClick?: () => void
   onConnectSelected: () => void
   onReject: () => void
   isLoading: boolean
   canConnect: boolean
+  hideNetworkSelection?: boolean
 }
 
 export const SessionProposalOverview: React.FC<SessionProposalOverviewProps> = ({
-  requiredNamespaces,
+  requiredNamespaces = {},
   selectedAccountNumber,
   selectedNetworks,
   onAccountClick,
@@ -46,6 +47,7 @@ export const SessionProposalOverview: React.FC<SessionProposalOverviewProps> = (
   onReject,
   isLoading,
   canConnect,
+  hideNetworkSelection = false,
 }) => {
   const translate = useTranslate()
   const selectedAddress = useAppSelector(state =>
@@ -141,22 +143,26 @@ export const SessionProposalOverview: React.FC<SessionProposalOverviewProps> = (
                 </HStack>
               </VStack>
             </HStack>
-            <VStack spacing={1} align='end' h='32px' justify='space-between'>
-              <RawText fontSize='xs' color='text.subtle' fontWeight='medium' lineHeight='1'>
-                {translate('plugins.walletConnectToDapps.header.menu.networks')}
-              </RawText>
-              <HStack
-                spacing={2}
-                align='center'
-                h='20px'
-                cursor='pointer'
-                onClick={onNetworkClick}
-                _hover={networkHoverSx}
-              >
-                <ChainIcons chainIds={selectedNetworks} />
-                <ArrowUpDownIcon color='text.subtle' boxSize={3} />
-              </HStack>
-            </VStack>
+            {!hideNetworkSelection && (
+              <VStack spacing={1} align='end' h='32px' justify='space-between'>
+                <RawText fontSize='xs' color='text.subtle' fontWeight='medium' lineHeight='1'>
+                  {translate('plugins.walletConnectToDapps.header.menu.networks')}
+                </RawText>
+                <HStack
+                  spacing={2}
+                  align='center'
+                  h='20px'
+                  cursor={onNetworkClick ? 'pointer' : 'default'}
+                  onClick={onNetworkClick}
+                  _hover={onNetworkClick ? networkHoverSx : undefined}
+                >
+                  <ChainIcons chainIds={selectedNetworks} />
+                  {selectedNetworks.length > 1 && (
+                    <ArrowUpDownIcon color='text.subtle' boxSize={3} />
+                  )}
+                </HStack>
+              </VStack>
+            )}
           </HStack>
           <HStack spacing={4} w='full' mt={4}>
             <Button

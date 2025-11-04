@@ -171,6 +171,7 @@ export const useLimitOrderActionSubscriber = () => {
         dispatch(actionSlice.actions.upsertAction(updatedAction))
 
         toast({
+          id: updatedAction.limitOrderMetadata.limitOrderId,
           render: ({ onClose, ...props }) => {
             const handleClick = () => {
               onClose()
@@ -219,6 +220,9 @@ export const useLimitOrderActionSubscriber = () => {
       )
 
       if (!action) return
+
+      // Close any existing toast for the same action to avoid duplicates
+      toast.close(action.limitOrderMetadata.limitOrderId ?? '')
 
       // Partially filled orders
       if (

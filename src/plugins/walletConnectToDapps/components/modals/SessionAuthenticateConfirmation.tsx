@@ -1,4 +1,3 @@
-import { VStack } from '@chakra-ui/react'
 import type { ChainId } from '@shapeshiftoss/caip'
 import { toChainId, CHAIN_NAMESPACE } from '@shapeshiftoss/caip'
 import type { WalletKitTypes } from '@reown/walletkit'
@@ -7,7 +6,6 @@ import { useCallback, useMemo, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { Route, Switch } from 'wouter'
 
-import { DialogBody } from '@/components/Modal/components/DialogBody'
 import { AccountSelection } from '@/plugins/walletConnectToDapps/components/modals/AccountSelection'
 import { SessionProposalOverview } from '@/plugins/walletConnectToDapps/components/modals/SessionProposalOverview'
 import { PeerMeta } from '@/plugins/walletConnectToDapps/components/PeerMeta'
@@ -156,34 +154,38 @@ export const SessionAuthenticateConfirmation: FC<
   // Use requester metadata for peer info
   const peerMetadata = requester?.metadata
 
+  const overview = (
+    <SessionProposalOverview
+      selectedAccountNumber={effectiveAccountNumber}
+      selectedNetworks={authChainId ? [authChainId] : []}
+      onAccountClick={handleAccountClick}
+      onConnectSelected={handleConfirm}
+      onReject={handleReject}
+      isLoading={isLoading}
+      canConnect={canConnect}
+      hideNetworkSelection={true}
+    >
+      <MessageContent message={displayMessage} />
+    </SessionProposalOverview>
+  )
+
   return (
-    <Switch location={location}>
-      <Route path={SessionAuthRoutes.ChooseAccount}>
-        <AccountSelection
-          selectedAccountNumber={effectiveAccountNumber}
-          onBack={handleBack}
-          onAccountNumberChange={handleAccountNumberChange}
-          onDone={handleBack}
-        />
-      </Route>
-      <Route path={SessionAuthRoutes.Overview}>
-        <VStack spacing={0} align='stretch' flex={1} minHeight={0}>
-          {peerMetadata && <PeerMeta metadata={peerMetadata} />}
-          <DialogBody flex={1} overflow='auto' minHeight={0} pb={6}>
-            <MessageContent message={displayMessage} />
-          </DialogBody>
-          <SessionProposalOverview
+    <>
+      {location.pathname === SessionAuthRoutes.Overview && peerMetadata && (
+        <PeerMeta metadata={peerMetadata} />
+      )}
+      <Switch location={location.pathname}>
+        <Route path={SessionAuthRoutes.ChooseAccount}>
+          <AccountSelection
             selectedAccountNumber={effectiveAccountNumber}
-            selectedNetworks={authChainId ? [authChainId] : []}
-            onAccountClick={handleAccountClick}
-            onConnectSelected={handleConfirm}
-            onReject={handleReject}
-            isLoading={isLoading}
-            canConnect={canConnect}
-            hideNetworkSelection={true}
+            onBack={handleBack}
+            onAccountNumberChange={handleAccountNumberChange}
+            onDone={handleBack}
           />
-        </VStack>
-      </Route>
-    </Switch>
+        </Route>
+        <Route path={SessionAuthRoutes.Overview}>{overview}</Route>
+        <Route path='/'>{overview}</Route>
+      </Switch>
+    </>
   )
 }

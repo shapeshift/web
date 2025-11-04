@@ -35,6 +35,7 @@ type SessionProposalOverviewProps = {
   isLoading: boolean
   canConnect: boolean
   hideNetworkSelection?: boolean
+  children?: React.ReactNode
 }
 
 export const SessionProposalOverview: React.FC<SessionProposalOverviewProps> = ({
@@ -48,6 +49,7 @@ export const SessionProposalOverview: React.FC<SessionProposalOverviewProps> = (
   isLoading,
   canConnect,
   hideNetworkSelection = false,
+  children,
 }) => {
   const translate = useTranslate()
   const selectedAddress = useAppSelector(state =>
@@ -89,31 +91,37 @@ export const SessionProposalOverview: React.FC<SessionProposalOverviewProps> = (
   return (
     <>
       <DialogBody pb={6}>
-        {!isAllRequiredNamespacesSupported && (
-          <Alert status='error' mb={4}>
-            <RawText textAlign='center' color='text.subtle'>
-              {translate('plugins.walletConnectToDapps.modal.sessionProposal.unsupportedChain')}
-            </RawText>
-          </Alert>
+        {children ? (
+          children
+        ) : (
+          <>
+            {!isAllRequiredNamespacesSupported && (
+              <Alert status='error' mb={4}>
+                <RawText textAlign='center' color='text.subtle'>
+                  {translate('plugins.walletConnectToDapps.modal.sessionProposal.unsupportedChain')}
+                </RawText>
+              </Alert>
+            )}
+            <Alert
+              status='info'
+              variant='subtle'
+              borderRadius='full'
+              bg='rgba(0, 181, 216, 0.1)'
+              color='cyan.600'
+            >
+              <AlertIcon as={TbPlug} boxSize={6} color='cyan.600' />
+              <RawText fontSize='sm' color='cyan.600' fontWeight='semibold'>
+                {translate('plugins.walletConnectToDapps.modal.connectionRequest')}
+              </RawText>
+              <Tooltip
+                label={translate('plugins.walletConnectToDapps.modal.connectionRequestTooltip')}
+                placement='top'
+              >
+                <InfoOutlineIcon boxSize={4} color='cyan.600' strokeWidth={2} ml='auto' />
+              </Tooltip>
+            </Alert>
+          </>
         )}
-        <Alert
-          status='info'
-          variant='subtle'
-          borderRadius='full'
-          bg='rgba(0, 181, 216, 0.1)'
-          color='cyan.600'
-        >
-          <AlertIcon as={TbPlug} boxSize={6} color='cyan.600' />
-          <RawText fontSize='sm' color='cyan.600' fontWeight='semibold'>
-            {translate('plugins.walletConnectToDapps.modal.connectionRequest')}
-          </RawText>
-          <Tooltip
-            label={translate('plugins.walletConnectToDapps.modal.connectionRequestTooltip')}
-            placement='top'
-          >
-            <InfoOutlineIcon boxSize={4} color='cyan.600' strokeWidth={2} ml='auto' />
-          </Tooltip>
-        </Alert>
       </DialogBody>
       <WalletConnectFooter>
         <VStack spacing={4} width='full'>

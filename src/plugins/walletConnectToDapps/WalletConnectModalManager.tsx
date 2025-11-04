@@ -20,6 +20,11 @@ import { SendTransactionConfirmation } from '@/plugins/walletConnectToDapps/comp
 import { SessionAuthenticateConfirmation } from '@/plugins/walletConnectToDapps/components/modals/SessionAuthenticateConfirmation'
 import { SessionProposalModal } from '@/plugins/walletConnectToDapps/components/modals/SessionProposal'
 import { SessionProposalRoutes } from '@/plugins/walletConnectToDapps/components/modals/SessionProposalRoutes'
+
+enum SessionAuthRoutes {
+  Overview = '/overview',
+  ChooseAccount = '/choose-account',
+}
 import { useWalletConnectState } from '@/plugins/walletConnectToDapps/hooks/useWalletConnectState'
 import { selectPortfolioAccountMetadata } from '@/state/slices/portfolioSlice/selectors'
 import { useAppSelector } from '@/state/store'
@@ -326,12 +331,14 @@ export const WalletConnectModalManager: FC<WalletConnectModalManagerProps> = ({
         console.log('[WC Auth Modal Manager] Creating auth modal with state:', state)
         console.log('[WC Auth Modal Manager] Modal data:', state.modalData)
         return (
-          <SessionAuthenticateConfirmation
-            onConfirm={handleConfirmAuthRequest}
-            onReject={handleRejectRequestAndClose}
-            state={state}
-            topic=""
-          />
+          <MemoryRouter initialEntries={[SessionAuthRoutes.Overview]}>
+            <SessionAuthenticateConfirmation
+              onConfirm={handleConfirmAuthRequest}
+              onReject={handleRejectRequestAndClose}
+              state={state}
+              topic=""
+            />
+          </MemoryRouter>
         )
       case WalletConnectModal.SignEIP155MessageConfirmation:
         if (!topic) return null

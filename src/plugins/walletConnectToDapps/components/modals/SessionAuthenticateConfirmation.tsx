@@ -97,16 +97,28 @@ export const SessionAuthenticateConfirmation: FC<WalletConnectRequestModalProps<
     [setLocation],
   )
 
-  // Format the SIWE message for display
+  // Format the SIWE message for display - show the actual message that will be signed
   const displayMessage = useMemo(() => {
-    if (!authPayload) return 'Invalid authentication request'
+    if (!authPayload || !accountId || !state.web3wallet) return 'Invalid authentication request'
 
-    const statement = authPayload.statement || 'Sign in with your wallet'
-    const domain = authPayload.domain || 'Unknown domain'
-    const chainInfo = authPayload.chains?.[0] || 'Unknown chain'
+    const address = accountId.split(':')[2]
+    const caipChainId = authPayload.chains?.[0]
+    if (!address || !caipChainId) return 'Invalid authentication request'
 
-    return `${domain} wants you to sign in.\n\n${statement}\n\nChain: ${chainInfo}`
-  }, [authPayload])
+    const iss = `did:pkh:${caipChainId}:${address}`
+
+    // Get the actual SIWE message that will be signed
+    try {
+      const message = state.web3wallet.formatAuthMessage({
+        request: authPayload,
+        iss,
+      })
+      return message
+    } catch (error) {
+      console.error('Error formatting SIWE message:', error)
+      return 'Error formatting authentication message'
+    }
+  }, [authPayload, accountId, state.web3wallet])
 
   const handleConfirm = useCallback(async () => {
     setIsLoading(true)
@@ -150,7 +162,6 @@ export const SessionAuthenticateConfirmation: FC<WalletConnectRequestModalProps<
             onReject={onReject}
             isLoading={isLoading}
             canConnect={canConnect}
-            peerMetadata={peerMetadata}
           >
             <MessageContent message={displayMessage} />
           </SessionProposalOverview>

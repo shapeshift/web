@@ -76,7 +76,7 @@ const modalProps: Omit<ModalProps, 'children' | 'isOpen' | 'onClose'> = {
   preserveScrollBarGap: true,
 }
 
-const isModalReady = (state: WalletConnectState): state is SessionProposalState =>
+const isSessionProposalState = (state: WalletConnectState): state is SessionProposalState =>
   !!(state.modalData && state.web3wallet && state.activeModal)
 
 export const WalletConnectModalManager: FC<WalletConnectModalManagerProps> = ({
@@ -285,7 +285,7 @@ export const WalletConnectModalManager: FC<WalletConnectModalManagerProps> = ({
   }, [activeModal, handleClose, handleRejectRequest, handleRejectAuthRequest])
 
   const modalContent = useMemo(() => {
-    if (!web3wallet || !activeModal || !isModalReady(state)) return null
+    if (!web3wallet || !activeModal || !isSessionProposalState(state)) return null
     switch (activeModal) {
       case WalletConnectModal.SessionProposal:
         return (

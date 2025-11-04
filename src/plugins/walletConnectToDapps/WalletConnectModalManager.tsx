@@ -169,13 +169,7 @@ export const WalletConnectModalManager: FC<WalletConnectModalManagerProps> = ({
 
       // Get the selected account from customTransactionData or fall back to default
       const selectedAccountId = customTransactionData?.accountId || accountId
-
-      if (!selectedAccountId) {
-        console.error('[WC Auth] No account selected for auth')
-        return
-      }
-
-      console.log('[WC Auth] Using account for auth:', selectedAccountId)
+      if (!selectedAccountId) return
 
       try {
         // Get the chain adapter for signing
@@ -183,15 +177,8 @@ export const WalletConnectModalManager: FC<WalletConnectModalManagerProps> = ({
 
         // Format the auth message for signing
         const address = selectedAccountId.split(':')[2]
-        // For ISS, we need the full CAIP-2 format from the authPayload
         const caipChainId = authPayload.chains?.[0] || authChainId
         const iss = `did:pkh:${caipChainId}:${address}`
-
-        console.log('[WC Auth] Building ISS with:')
-        console.log('[WC Auth] - caipChainId from authPayload:', caipChainId)
-        console.log('[WC Auth] - authChainId (parsed):', authChainId)
-        console.log('[WC Auth] - address:', address)
-        console.log('[WC Auth] - full ISS:', iss)
 
         const message = web3wallet.formatAuthMessage({
           request: authPayload,
@@ -205,39 +192,20 @@ export const WalletConnectModalManager: FC<WalletConnectModalManagerProps> = ({
           ? toAddressNList(chainAdapter.getBip44Params(bip44Params))
           : []
 
-        console.log('[WC Auth] BIP44 params:', bip44Params)
-        console.log('[WC Auth] AddressNList:', addressNList)
-
         // Sign the message using the same format as EIP155RequestHandler
         const messageToSign = { addressNList, message }
         const input = { messageToSign, wallet }
-
-        console.log('[WC Auth] Message to sign:', message)
-        console.log('[WC Auth] Signing with wallet...')
-
         const signature = await chainAdapter.signMessage(input)
 
-        console.log('[WC Auth] Signature received:', signature)
-        console.log('[WC Auth] Signature type:', typeof signature)
-        console.log('[WC Auth] Signature value check:', {
-          isNull: signature === null,
-          isUndefined: signature === undefined,
-          isEmpty: signature === '',
-          hasHexPrefix: signature?.startsWith?.('0x'),
-        })
-
-        if (!signature) {
-          throw new Error('[WC Auth] Failed to sign message')
-        }
+        if (!signature) throw new Error('Failed to sign message')
 
         // Ensure signature has 0x prefix
         const formattedSignature = signature.startsWith('0x') ? signature : `0x${signature}`
 
-        // Build CACAO and approve
-        // The payload needs to include the iss field
+        // Build CACAO and approve - payload needs to include the iss field
         const cacaoPayload = {
           ...authPayload,
-          iss, // Add the issuer to the payload
+          iss,
         }
 
         const cacao = {
@@ -246,21 +214,13 @@ export const WalletConnectModalManager: FC<WalletConnectModalManagerProps> = ({
           s: { t: 'eip191' as const, s: formattedSignature },
         }
 
-        console.log('[WC Auth] CACAO object:', JSON.stringify(cacao, null, 2))
-        console.log('[WC Auth] Calling approveSessionAuthenticate with ID:', authRequest.id)
-
         const approvalResponse = await web3wallet.approveSessionAuthenticate({
           id: authRequest.id,
           auths: [cacao],
         })
 
-        console.log('[WC Auth] Approval response:', approvalResponse)
-
-        // Check if we got a session back
+        // Check if we got a session back and add it to state
         if (approvalResponse?.session) {
-          console.log('[WC Auth] New session created:', approvalResponse.session)
-
-          // Dispatch action to add the new session
           dispatch({
             type: WalletConnectActionType.ADD_SESSION,
             payload: approvalResponse.session,
@@ -269,19 +229,11 @@ export const WalletConnectModalManager: FC<WalletConnectModalManagerProps> = ({
 
         handleClose()
       } catch (error) {
-        console.error('[WC Auth] Error approving auth request:', error)
+        console.error('Error approving auth request:', error)
         throw error
       }
     },
-    [
-      accountId,
-      chainId,
-      handleClose,
-      portfolioAccountMetadata,
-      state.modalData,
-      wallet,
-      web3wallet,
-    ],
+    [accountId, chainId, dispatch, handleClose, portfolioAccountMetadata, state.modalData, wallet, web3wallet],
   )
 
   const handleRejectAuthRequest = useCallback(async () => {
@@ -315,8 +267,7 @@ export const WalletConnectModalManager: FC<WalletConnectModalManagerProps> = ({
       case undefined:
         break
       default:
-        // Temporary fix for TypeScript exhaustiveness check
-        console.warn('[WC Auth] Unhandled modal type:', activeModal)
+      // Temporary fix for TypeScript exhaustiveness check
       // assertUnreachable(activeModal)
     }
 
@@ -338,9 +289,6 @@ export const WalletConnectModalManager: FC<WalletConnectModalManagerProps> = ({
           </MemoryRouter>
         )
       case WalletConnectModal.SessionAuthenticateConfirmation:
-        // Auth requests don't have a topic yet (no session exists)
-        console.log('[WC Auth Modal Manager] Creating auth modal with state:', state)
-        console.log('[WC Auth Modal Manager] Modal data:', state.modalData)
         return (
           <MemoryRouter initialEntries={[SessionAuthRoutes.Overview]}>
             <SessionAuthenticateConfirmation
@@ -420,7 +368,6 @@ export const WalletConnectModalManager: FC<WalletConnectModalManagerProps> = ({
         return <NoAccountsForChainModal onClose={handleClose} dispatch={dispatch} state={state} />
       default:
         // Temporary fix for TypeScript exhaustiveness check
-        console.warn('[WC Auth] Unhandled modal type:', activeModal)
         return null
       // assertUnreachable(activeModal)
     }

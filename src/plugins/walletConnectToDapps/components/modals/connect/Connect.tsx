@@ -25,26 +25,10 @@ const Connect = ({ initialUri, isOpen, onClose }: Props) => {
   const handleConnectV2 = useCallback(
     async (uri: string) => {
       try {
-        // [WC Auth Debug] Logging Venice.ai authentication flow
-        console.group('[WC Auth Debug - Connect.tsx]')
-        console.log('Raw URI received:', uri)
-        console.log('Contains sessionAuthenticate?', uri.includes('sessionAuthenticate'))
-        console.log('Contains sessionProposal?', uri.includes('sessionProposal'))
-        console.groupEnd()
-
-        // Now we properly handle session_authenticate events with SIWE payloads
-        const connectionResult = await pair?.({
-          uri,
-        })
-
-        console.log('[WC Auth Debug - Connect.tsx] Connection result:', connectionResult)
-
+        const connectionResult = await pair?.({ uri })
         if (connectionResult) onClose()
       } catch (error: unknown) {
-        console.group('[WC Auth Debug - Connect.tsx ERROR]')
-        console.error('Connection error:', error)
-        console.groupEnd()
-        console.debug(error)
+        console.error('WalletConnect connection error:', error)
 
         // This should *not* be an exception, we handle this as part of our flow.
         if ((error as Error)?.message.includes('Pairing already exists')) {

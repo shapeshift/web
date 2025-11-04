@@ -27,8 +27,6 @@ export const SessionAuthenticateConfirmation: FC<WalletConnectRequestModalProps<
   onReject,
   state,
 }) => {
-  console.log('[WC Auth Modal] Rendering SessionAuthenticateConfirmation')
-
   // Get the auth request from modal data
   const authRequest = state.modalData?.request as
     | WalletKitTypes.EventArguments['session_authenticate']
@@ -36,10 +34,6 @@ export const SessionAuthenticateConfirmation: FC<WalletConnectRequestModalProps<
 
   const { params } = authRequest || {}
   const { authPayload, requester } = params || {}
-
-  console.log('[WC Auth Modal] Auth request found:', authRequest)
-  console.log('[WC Auth Modal] Auth payload:', authPayload)
-  console.log('[WC Auth Modal] Requester:', requester)
 
   // All hooks must be called before any early returns
   const [isLoading, setIsLoading] = useState(false)
@@ -61,8 +55,6 @@ export const SessionAuthenticateConfirmation: FC<WalletConnectRequestModalProps<
       chainReference: reference as any,
     })
   }, [authPayload])
-
-  console.log('[WC Auth Modal] Extracted chainId:', authChainId)
 
   // Get unique account numbers and account mapping
   const uniqueAccountNumbers = useAppSelector(selectUniqueEvmAccountNumbers)
@@ -87,10 +79,6 @@ export const SessionAuthenticateConfirmation: FC<WalletConnectRequestModalProps<
     return !!accountId && !!authChainId
   }, [accountId, authChainId])
 
-  console.log('[WC Auth Modal] Selected account number:', effectiveAccountNumber)
-  console.log('[WC Auth Modal] Account ID for signing:', accountId)
-  console.log('[WC Auth Modal] Can connect:', canConnect)
-
   // Navigation handlers
   const handleAccountClick = useCallback(() => {
     if (uniqueAccountNumbers.length > 1) {
@@ -112,23 +100,16 @@ export const SessionAuthenticateConfirmation: FC<WalletConnectRequestModalProps<
 
   // Format the SIWE message for display
   const displayMessage = useMemo(() => {
-    if (!authPayload) {
-      console.error('[WC Auth Modal] No auth payload!')
-      return 'Invalid authentication request'
-    }
+    if (!authPayload) return 'Invalid authentication request'
+
     const statement = authPayload.statement || 'Sign in with your wallet'
     const domain = authPayload.domain || 'Unknown domain'
     const chainInfo = authPayload.chains?.[0] || 'Unknown chain'
 
-    const message = `${domain} wants you to sign in.\n\n${statement}\n\nChain: ${chainInfo}`
-    console.log('[WC Auth Modal] Display message:', message)
-    return message
+    return `${domain} wants you to sign in.\n\n${statement}\n\nChain: ${chainInfo}`
   }, [authPayload])
 
   const handleConfirm = useCallback(async () => {
-    console.log('[WC Auth Modal] Confirm clicked')
-    console.log('[WC Auth Modal] Using account for signing:', accountId)
-
     setIsLoading(true)
     try {
       // Pass the account ID to the confirm handler
@@ -142,7 +123,6 @@ export const SessionAuthenticateConfirmation: FC<WalletConnectRequestModalProps<
   }, [onConfirm, accountId])
 
   const handleReject = useCallback(async () => {
-    console.log('[WC Auth Modal] Reject clicked')
     await onReject()
   }, [onReject])
 
@@ -176,10 +156,7 @@ export const SessionAuthenticateConfirmation: FC<WalletConnectRequestModalProps<
   )
 
   // Check for missing auth request after all hooks
-  if (!authRequest) {
-    console.error('[WC Auth Modal] No auth request found in modal data!')
-    return <div>No auth request data</div>
-  }
+  if (!authRequest) return null
 
   return (
     <>

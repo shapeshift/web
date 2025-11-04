@@ -47,14 +47,6 @@ export const useWalletConnectDeepLink = (state: WalletConnectState) => {
 
       const uri = decodeURIComponent(encodedUri)
 
-      // [WC Auth Debug] Log deep link URI
-      console.group('[WC Auth Debug - DeepLink]')
-      console.log('Encoded URI from params:', encodedUri)
-      console.log('Decoded URI:', uri)
-      console.log('Contains sessionAuthenticate?', uri.includes('sessionAuthenticate'))
-      console.log('Contains sessionProposal?', uri.includes('sessionProposal'))
-      console.groupEnd()
-
       // Validate it's a valid WalletConnect v2 URI
       if (!isWalletConnectV2Uri(uri)) {
         toast({
@@ -96,14 +88,7 @@ export const useWalletConnectDeepLink = (state: WalletConnectState) => {
         if (!uri) return
 
         try {
-          // [WC Auth Debug] Log deep link pairing
-          console.group('[WC Auth Debug - DeepLink Pairing]')
-          console.log('Pairing URI:', uri)
-          console.groupEnd()
-
-          // Now we properly handle session_authenticate events with SIWE payloads
-          const pairResult = await state.pair?.({ uri })
-          console.log('[WC Auth Debug - DeepLink] Pair result:', pairResult)
+          await state.pair?.({ uri })
 
           // Successfully initiated pairing, navigate away
           if (!hasNavigatedRef.current) {

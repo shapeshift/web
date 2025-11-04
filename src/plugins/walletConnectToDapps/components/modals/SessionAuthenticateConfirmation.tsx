@@ -2,7 +2,8 @@ import type { WalletKitTypes } from '@reown/walletkit'
 import type { ChainId } from '@shapeshiftoss/caip'
 import type { FC } from 'react'
 import { useCallback, useMemo, useState } from 'react'
-import { Route, Switch, useLocation } from 'wouter'
+import { useLocation, useNavigate } from 'react-router-dom'
+import { Route, Switch } from 'wouter'
 
 import { AccountSelection } from '@/plugins/walletConnectToDapps/components/modals/AccountSelection'
 import { SessionAuthRoutes } from '@/plugins/walletConnectToDapps/components/modals/SessionAuthRoutes'
@@ -31,7 +32,8 @@ export const SessionAuthenticateConfirmation: FC<WalletConnectSessionAuthModalPr
 
   const [isLoading, setIsLoading] = useState(false)
   const [selectedAccountNumber, setSelectedAccountNumber] = useState<number | null>(null)
-  const [location, setLocation] = useLocation()
+  const location = useLocation()
+  const navigate = useNavigate()
 
   const chainId = sessionAuthPayload?.chains?.[0] as ChainId | undefined
 
@@ -45,7 +47,7 @@ export const SessionAuthenticateConfirmation: FC<WalletConnectSessionAuthModalPr
   }
 
   const accountId = useMemo(() => {
-    if (!chainId || selectedAccountNumber === null) return undefined
+    if (!chainId || selectedAccountNumber === null) return
     const accountsByChain = accountIdsByAccountNumberAndChainId[selectedAccountNumber]
     return accountsByChain?.[chainId]?.[0]
   }, [chainId, selectedAccountNumber, accountIdsByAccountNumberAndChainId])
@@ -53,20 +55,18 @@ export const SessionAuthenticateConfirmation: FC<WalletConnectSessionAuthModalPr
   const canConnect = !!accountId && !!chainId
   const handleAccountClick = useCallback(() => {
     if (uniqueAccountNumbers.length > 1) {
-      setLocation(SessionAuthRoutes.ChooseAccount)
+      navigate(SessionAuthRoutes.ChooseAccount)
     }
-  }, [uniqueAccountNumbers.length, setLocation])
+  }, [uniqueAccountNumbers.length, navigate])
 
-  const handleBack = useCallback(() => {
-    setLocation(SessionAuthRoutes.Overview)
-  }, [setLocation])
+  const handleBack = useCallback(() => navigate(-1), [navigate])
 
   const handleAccountNumberChange = useCallback(
     (accountNumber: number) => {
       setSelectedAccountNumber(accountNumber)
-      setLocation(SessionAuthRoutes.Overview)
+      navigate(SessionAuthRoutes.Overview)
     },
-    [setLocation],
+    [navigate],
   )
 
   const displayMessage = useMemo(() => {
@@ -102,14 +102,17 @@ export const SessionAuthenticateConfirmation: FC<WalletConnectSessionAuthModalPr
 
   const peerMetadata = requester?.metadata
 
+  const peerMetaElement = useMemo(() => {
+    if (location.pathname === SessionAuthRoutes.ChooseAccount || !peerMetadata) return null
+    return <PeerMeta metadata={peerMetadata} />
+  }, [location.pathname, peerMetadata])
+
   if (!sessionAuthRequest) return null
 
   return (
     <>
-      {location !== SessionAuthRoutes.ChooseAccount && peerMetadata && (
-        <PeerMeta metadata={peerMetadata} />
-      )}
-      <Switch location={location}>
+      {peerMetaElement}
+      <Switch location={location.pathname}>
         <Route path={SessionAuthRoutes.ChooseAccount}>
           <AccountSelection
             selectedAccountNumber={selectedAccountNumber}

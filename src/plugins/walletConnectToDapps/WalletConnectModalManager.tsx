@@ -160,15 +160,13 @@ export const WalletConnectModalManager: FC<WalletConnectModalManagerProps> = ({
 
   const handleConfirmSessionAuth = useCallback(
     async (customTransactionData?: CustomTransactionData) => {
-      if (!state.modalData?.request || !web3wallet || !wallet || !chainId) return
+      if (!state.modalData?.request || !web3wallet || !wallet) return
 
       const sessionAuthRequest = state.modalData
         .request as WalletKitTypes.EventArguments['session_authenticate']
 
       const selectedAccountId = customTransactionData?.accountId || accountId
-      const selectedAccountMetadata = selectedAccountId
-        ? portfolioAccountMetadata[selectedAccountId]
-        : undefined
+      const selectedAccountMetadata = portfolioAccountMetadata[selectedAccountId ?? '']
 
       const approvalResponse = await approveSessionAuthRequest({
         wallet,
@@ -176,22 +174,20 @@ export const WalletConnectModalManager: FC<WalletConnectModalManagerProps> = ({
         sessionAuthRequest,
         customTransactionData,
         accountId,
-        chainId,
         accountMetadata: selectedAccountMetadata,
       })
 
-      if (approvalResponse?.session) {
-        dispatch({
-          type: WalletConnectActionType.ADD_SESSION,
-          payload: approvalResponse.session,
-        })
-      }
+      if (!approvalResponse?.session) return
+
+      dispatch({
+        type: WalletConnectActionType.ADD_SESSION,
+        payload: approvalResponse.session,
+      })
 
       handleClose()
     },
     [
       accountId,
-      chainId,
       dispatch,
       handleClose,
       portfolioAccountMetadata,

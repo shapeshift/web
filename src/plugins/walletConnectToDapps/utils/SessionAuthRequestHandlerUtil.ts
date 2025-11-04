@@ -12,7 +12,6 @@ type ApproveSessionAuthRequestArgs = {
   sessionAuthRequest: WalletKitTypes.EventArguments['session_authenticate']
   customTransactionData?: CustomTransactionData
   accountId?: string
-  chainId?: string
   accountMetadata?: AccountMetadata
 }
 
@@ -22,16 +21,15 @@ export const approveSessionAuthRequest = async ({
   sessionAuthRequest,
   customTransactionData,
   accountId,
-  chainId,
   accountMetadata,
 }: ApproveSessionAuthRequestArgs) => {
   const { authPayload } = sessionAuthRequest.params
 
-  const selectedChainId = authPayload.chains?.[0] || chainId
+  const selectedChainId = authPayload.chains?.[0]
+  if (!selectedChainId) throw new Error('No chain ID in session authentication request')
 
   const selectedAccountId = customTransactionData?.accountId || accountId
   if (!selectedAccountId) throw new Error('No account selected for session authentication')
-  if (!selectedChainId) throw new Error('No chain ID available for session authentication')
 
   const chainAdapter = assertGetEvmChainAdapter(selectedChainId)
 

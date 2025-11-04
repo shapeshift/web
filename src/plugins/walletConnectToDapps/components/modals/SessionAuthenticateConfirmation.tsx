@@ -31,20 +31,18 @@ export const SessionAuthenticateConfirmation: FC<WalletConnectSessionAuthModalPr
   const { authPayload: sessionAuthPayload, requester } = params || {}
 
   const [isLoading, setIsLoading] = useState(false)
-  const [selectedAccountNumber, setSelectedAccountNumber] = useState<number | null>(null)
+  const uniqueAccountNumbers = useAppSelector(selectUniqueEvmAccountNumbers)
+  const [selectedAccountNumber, setSelectedAccountNumber] = useState<number | null>(() =>
+    uniqueAccountNumbers.length > 0 ? uniqueAccountNumbers[0] : null,
+  )
   const location = useLocation()
   const navigate = useNavigate()
 
   const chainId = sessionAuthPayload?.chains?.[0] as ChainId | undefined
 
-  const uniqueAccountNumbers = useAppSelector(selectUniqueEvmAccountNumbers)
   const accountIdsByAccountNumberAndChainId = useAppSelector(
     selectAccountIdsByAccountNumberAndChainId,
   )
-
-  if (selectedAccountNumber === null && uniqueAccountNumbers.length > 0) {
-    setSelectedAccountNumber(uniqueAccountNumbers[0])
-  }
 
   const accountId = useMemo(() => {
     if (!chainId || selectedAccountNumber === null) return
@@ -52,7 +50,7 @@ export const SessionAuthenticateConfirmation: FC<WalletConnectSessionAuthModalPr
     return accountsByChain?.[chainId]?.[0]
   }, [chainId, selectedAccountNumber, accountIdsByAccountNumberAndChainId])
 
-  const canConnect = !!accountId && !!chainId
+  const canConnect = useMemo(() => !!accountId && !!chainId, [accountId, chainId])
   const handleAccountClick = useCallback(() => {
     navigate(SessionAuthRoutes.ChooseAccount)
   }, [navigate])
@@ -88,11 +86,18 @@ export const SessionAuthenticateConfirmation: FC<WalletConnectSessionAuthModalPr
 
   const handleConfirm = useCallback(async () => {
     setIsLoading(true)
-    const customData: CustomTransactionData = {
-      accountId,
+    try {
+      const customData: CustomTransactionData = {
+        accountId,
+      }
+      await onConfirm(customData)
+    } catch (error) {
+      console.error('Error confirming session authentication:', error)
+      // Re-throw to let the parent handle the error if needed
+      throw error
+    } finally {
+      setIsLoading(false)
     }
-    await onConfirm(customData)
-    setIsLoading(false)
   }, [onConfirm, accountId])
 
   const peerMetadata = requester?.metadata

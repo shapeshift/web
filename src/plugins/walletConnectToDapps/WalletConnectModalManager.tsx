@@ -1,5 +1,6 @@
 import type { ModalProps } from '@chakra-ui/react'
 import { formatJsonRpcError } from '@json-rpc-tools/utils'
+import type { WalletKitTypes } from '@reown/walletkit'
 import { toAddressNList } from '@shapeshiftoss/chain-adapters'
 import type { SessionTypes } from '@walletconnect/types'
 import { getSdkError } from '@walletconnect/utils'
@@ -247,24 +248,21 @@ export const WalletConnectModalManager: FC<WalletConnectModalManagerProps> = ({
     ],
   )
 
-  const handleRejectAuthRequest = useCallback(async () => {
-    if (!state.modalData?.request || !web3wallet) return
-
-    const authRequest = state.modalData.request as any
-    await web3wallet.rejectSessionAuthenticate({
-      id: authRequest.id,
-      reason: getSdkError('USER_REJECTED'),
-    })
-  }, [state.modalData, web3wallet])
-
   const handleRejectRequestAndClose = useCallback(async () => {
     switch (activeModal) {
       case WalletConnectModal.SessionProposal:
         await sessionProposalRef.current?.handleReject()
         break
-      case WalletConnectModal.SessionAuthenticateConfirmation:
-        await handleRejectAuthRequest()
+      case WalletConnectModal.SessionAuthenticateConfirmation: {
+        if (!state.modalData?.request || !web3wallet) break
+
+        const authRequest = state.modalData.request as WalletKitTypes.EventArguments['session_authenticate']
+        await web3wallet.rejectSessionAuthenticate({
+          id: authRequest.id,
+          reason: getSdkError('USER_REJECTED'),
+        })
         break
+      }
       case WalletConnectModal.SignEIP155MessageConfirmation:
       case WalletConnectModal.SignEIP155TypedDataConfirmation:
       case WalletConnectModal.SignEIP155TransactionConfirmation:
@@ -282,7 +280,7 @@ export const WalletConnectModalManager: FC<WalletConnectModalManagerProps> = ({
     }
 
     handleClose()
-  }, [activeModal, handleClose, handleRejectRequest, handleRejectAuthRequest])
+  }, [activeModal, handleClose, handleRejectRequest, state.modalData, web3wallet])
 
   const modalContent = useMemo(() => {
     if (!web3wallet || !activeModal || !isSessionProposalState(state)) return null

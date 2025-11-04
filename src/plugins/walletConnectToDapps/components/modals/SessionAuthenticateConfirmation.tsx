@@ -1,6 +1,5 @@
 import type { WalletKitTypes } from '@reown/walletkit'
-import type { ChainReference } from '@shapeshiftoss/caip'
-import { CHAIN_NAMESPACE, toChainId } from '@shapeshiftoss/caip'
+import type { ChainId } from '@shapeshiftoss/caip'
 import type { FC } from 'react'
 import { useCallback, useMemo, useState } from 'react'
 import { Route, Switch, useLocation } from 'wouter'
@@ -11,14 +10,14 @@ import { SessionProposalOverview } from '@/plugins/walletConnectToDapps/componen
 import { PeerMeta } from '@/plugins/walletConnectToDapps/components/PeerMeta'
 import { MessageContent } from '@/plugins/walletConnectToDapps/components/WalletConnectSigningModal/content/MessageContent'
 import type { CustomTransactionData } from '@/plugins/walletConnectToDapps/types'
-import type { WalletConnectRequestModalProps } from '@/plugins/walletConnectToDapps/WalletConnectModalManager'
+import type { WalletConnectSessionAuthModalProps } from '@/plugins/walletConnectToDapps/WalletConnectModalManager'
 import {
   selectAccountIdsByAccountNumberAndChainId,
   selectUniqueEvmAccountNumbers,
 } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
-export const SessionAuthenticateConfirmation: FC<WalletConnectRequestModalProps<any>> = ({
+export const SessionAuthenticateConfirmation: FC<WalletConnectSessionAuthModalProps> = ({
   onConfirm,
   onReject,
   state,
@@ -30,44 +29,28 @@ export const SessionAuthenticateConfirmation: FC<WalletConnectRequestModalProps<
   const { params } = sessionAuthRequest || {}
   const { authPayload: sessionAuthPayload, requester } = params || {}
 
-  // All hooks must be called before any early returns
   const [isLoading, setIsLoading] = useState(false)
   const [selectedAccountNumber, setSelectedAccountNumber] = useState<number | null>(null)
   const [location, setLocation] = useLocation()
 
-  const sessionAuthChainId = useMemo(() => {
-    const caipChainId = sessionAuthPayload?.chains?.[0]
-    if (!caipChainId) return undefined
-
-    // Parse CAIP-2 chain ID (e.g., "eip155:8453")
-    const [namespace, reference] = caipChainId.split(':')
-    if (namespace !== 'eip155') return undefined
-
-    return toChainId({
-      chainNamespace: CHAIN_NAMESPACE.Evm,
-      chainReference: reference as ChainReference,
-    })
-  }, [sessionAuthPayload])
+  const chainId = sessionAuthPayload?.chains?.[0] as ChainId | undefined
 
   const uniqueAccountNumbers = useAppSelector(selectUniqueEvmAccountNumbers)
   const accountIdsByAccountNumberAndChainId = useAppSelector(
     selectAccountIdsByAccountNumberAndChainId,
   )
 
-  // Initialize with first account if not set
   if (selectedAccountNumber === null && uniqueAccountNumbers.length > 0) {
     setSelectedAccountNumber(uniqueAccountNumbers[0])
   }
 
   const accountId = useMemo(() => {
-    if (!sessionAuthChainId || selectedAccountNumber === null) {
-      return undefined
-    }
+    if (!chainId || selectedAccountNumber === null) return undefined
     const accountsByChain = accountIdsByAccountNumberAndChainId[selectedAccountNumber]
-    return accountsByChain?.[sessionAuthChainId]?.[0]
-  }, [sessionAuthChainId, selectedAccountNumber, accountIdsByAccountNumberAndChainId])
+    return accountsByChain?.[chainId]?.[0]
+  }, [chainId, selectedAccountNumber, accountIdsByAccountNumberAndChainId])
 
-  const canConnect = !!accountId && !!sessionAuthChainId
+  const canConnect = !!accountId && !!chainId
   const handleAccountClick = useCallback(() => {
     if (uniqueAccountNumbers.length > 1) {
       setLocation(SessionAuthRoutes.ChooseAccount)
@@ -86,16 +69,12 @@ export const SessionAuthenticateConfirmation: FC<WalletConnectRequestModalProps<
     [setLocation],
   )
 
-  // Show the actual session authentication message that will be signed
   const displayMessage = useMemo(() => {
-    if (!sessionAuthPayload || !accountId || !state.web3wallet)
+    if (!sessionAuthPayload || !accountId || !state.web3wallet || !chainId)
       return 'Invalid authentication request'
 
-    const address = accountId.split(':')[2]
-    const caipChainId = sessionAuthPayload.chains?.[0]
-    if (!address || !caipChainId) return 'Invalid authentication request'
-
-    const iss = `did:pkh:${caipChainId}:${address}`
+    // Build DID:PKH identifier for SIWE message (accountId is already in chainId:address format)
+    const iss = `did:pkh:${accountId}`
 
     try {
       const message = state.web3wallet.formatAuthMessage({
@@ -107,7 +86,7 @@ export const SessionAuthenticateConfirmation: FC<WalletConnectRequestModalProps<
       console.error('Error formatting session authentication message:', error)
       return 'Error formatting authentication message'
     }
-  }, [sessionAuthPayload, accountId, state.web3wallet])
+  }, [sessionAuthPayload, accountId, state.web3wallet, chainId])
 
   const handleConfirm = useCallback(async () => {
     setIsLoading(true)
@@ -123,7 +102,6 @@ export const SessionAuthenticateConfirmation: FC<WalletConnectRequestModalProps<
 
   const peerMetadata = requester?.metadata
 
-  // Check for missing session auth request after all hooks
   if (!sessionAuthRequest) return null
 
   return (
@@ -143,7 +121,7 @@ export const SessionAuthenticateConfirmation: FC<WalletConnectRequestModalProps<
         <Route>
           <SessionProposalOverview
             selectedAccountNumber={selectedAccountNumber}
-            selectedNetworks={sessionAuthChainId ? [sessionAuthChainId] : []}
+            selectedNetworks={chainId ? [chainId] : []}
             onAccountClick={handleAccountClick}
             onConnectSelected={handleConfirm}
             onReject={onReject}

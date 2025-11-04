@@ -27,17 +27,18 @@ export const approveSessionAuthRequest = async ({
 }: ApproveSessionAuthRequestArgs) => {
   const { authPayload } = sessionAuthRequest.params
 
-  const sessionAuthChainId = authPayload.chains?.[0] || chainId
+  const selectedChainId = authPayload.chains?.[0] || chainId
 
   const selectedAccountId = customTransactionData?.accountId || accountId
   if (!selectedAccountId) throw new Error('No account selected for session authentication')
-  if (!sessionAuthChainId) throw new Error('No chain ID available for session authentication')
+  if (!selectedChainId) throw new Error('No chain ID available for session authentication')
 
-  const chainAdapter = assertGetEvmChainAdapter(sessionAuthChainId)
+  const chainAdapter = assertGetEvmChainAdapter(selectedChainId)
 
-  const address = selectedAccountId.split(':')[2]
-  const caipChainId = authPayload.chains?.[0] || sessionAuthChainId
-  const iss = `did:pkh:${caipChainId}:${address}`
+  // Build the DID:PKH identifier from the account ID (iss = issuer in SIWE)
+  // Format: did:pkh:<account_id> where account_id is already chainId:address format
+  // See: https://docs.reown.com/advanced/multichain/rpc-reference/ethereum-rpc#session_authenticate
+  const iss = `did:pkh:${selectedAccountId}`
 
   const message = web3wallet.formatAuthMessage({
     request: authPayload,
@@ -53,19 +54,18 @@ export const approveSessionAuthRequest = async ({
 
   if (!signature) throw new Error('Failed to sign message')
 
-  // Ensure signature has 0x prefix
-  const formattedSignature = signature.startsWith('0x') ? signature : `0x${signature}`
-
-  // CACAO payload needs to include the iss field
+  // Build CACAO (Chain Agnostic CApability Object)
+  // See: https://chainagnostic.org/CAIPs/caip-74
+  // See: https://github.com/ChainAgnostic/CAIPs/blob/main/CAIPs/caip-222.md
   const cacaoPayload = {
     ...authPayload,
-    iss,
+    iss, // The "iss" field identifies the signer
   }
 
   const cacao = {
-    h: { t: 'caip122' as const },
-    p: cacaoPayload,
-    s: { t: 'eip191' as const, s: formattedSignature },
+    h: { t: 'caip122' as const }, // Header type: CAIP-122 (SIWx)
+    p: cacaoPayload, // Payload with auth request + iss
+    s: { t: 'eip191' as const, s: signature }, // Signature type and value
   }
 
   const approvalResponse = await web3wallet.approveSessionAuthenticate({

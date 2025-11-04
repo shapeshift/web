@@ -67,6 +67,12 @@ export type WalletConnectRequestModalProps<T> = {
   onReject(): Promise<void>
 }
 
+export type WalletConnectSessionAuthModalProps = {
+  state: Required<WalletConnectState>
+  onConfirm(customTransactionData?: CustomTransactionData): Promise<void>
+  onReject(): Promise<void>
+}
+
 const modalProps: Omit<ModalProps, 'children' | 'isOpen' | 'onClose'> = {
   size: 'md',
   scrollBehavior: 'inside',
@@ -96,9 +102,7 @@ export const WalletConnectModalManager: FC<WalletConnectModalManagerProps> = ({
 
   const handleConfirmEIP155Request = useCallback(
     async (customTransactionData?: CustomTransactionData) => {
-      if (!requestEvent || !chainId || !wallet || !web3wallet || !topic) {
-        return
-      }
+      if (!requestEvent || !chainId || !wallet || !web3wallet || !topic) return
 
       const chainAdapter = assertGetEvmChainAdapter(chainId)
 
@@ -121,9 +125,7 @@ export const WalletConnectModalManager: FC<WalletConnectModalManagerProps> = ({
 
   const handleConfirmCosmosRequest = useCallback(
     async (customTransactionData?: CustomTransactionData) => {
-      if (!requestEvent || !chainId || !wallet || !web3wallet || !topic) {
-        return
-      }
+      if (!requestEvent || !chainId || !wallet || !web3wallet || !topic) return
 
       const chainAdapter = assertGetCosmosSdkChainAdapter(chainId)
 
@@ -255,7 +257,6 @@ export const WalletConnectModalManager: FC<WalletConnectModalManagerProps> = ({
               onConfirm={handleConfirmSessionAuth}
               onReject={handleRejectRequestAndClose}
               state={state}
-              topic=''
             />
           </MemoryRouter>
         )

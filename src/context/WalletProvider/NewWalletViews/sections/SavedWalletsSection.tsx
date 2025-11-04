@@ -27,6 +27,8 @@ import { NativeWalletRoutes } from '@/context/WalletProvider/types'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { reactQueries } from '@/react-queries'
 
+const PlusIcon = <TbPlus />
+
 type VaultInfo = {
   id: string
   name: string
@@ -39,7 +41,6 @@ export type SavedWalletItemProps = {
   id: string
 }
 
-// Default component that renders a saved wallet item
 const SavedWalletItem = ({ onSelect, isSelected, name }: SavedWalletItemProps) => {
   const bgColor = useColorModeValue('blackAlpha.100', 'whiteAlpha.100')
 
@@ -69,8 +70,6 @@ const SavedWalletItem = ({ onSelect, isSelected, name }: SavedWalletItemProps) =
     </Box>
   )
 }
-
-const PlusIcon = <TbPlus />
 
 export const SavedWalletListButton = ({ onSelect, isSelected, name }: SavedWalletItemProps) => {
   const walletIcon = useMemo(() => <FoxIcon />, [])

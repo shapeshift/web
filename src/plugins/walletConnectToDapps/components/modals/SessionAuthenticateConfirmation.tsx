@@ -3,7 +3,7 @@ import type { AccountId, ChainId } from '@shapeshiftoss/caip'
 import { fromAccountId, toChainId, CHAIN_NAMESPACE } from '@shapeshiftoss/caip'
 import type { WalletKitTypes } from '@reown/walletkit'
 import type { FC } from 'react'
-import { useCallback, useMemo } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 
 import { Amount } from '@/components/Amount/Amount'
 import { DialogBody } from '@/components/Modal/components/DialogBody'
@@ -27,6 +27,7 @@ export const SessionAuthenticateConfirmation: FC<
   WalletConnectRequestModalProps<any>
 > = ({ onConfirm, onReject, state, topic }) => {
   console.log('[WC Auth Modal] Rendering SessionAuthenticateConfirmation')
+  const [isLoading, setIsLoading] = useState(false)
 
   // Get the auth request from modal data
   const authRequest = state.modalData?.request as
@@ -94,11 +95,16 @@ export const SessionAuthenticateConfirmation: FC<
       console.log('[WC Auth Modal] Confirm clicked')
       console.log('[WC Auth Modal] Using account for signing:', accountId)
 
-      // Pass the account ID to the confirm handler
-      const customData: CustomTransactionData = {
-        accountId
+      setIsLoading(true)
+      try {
+        // Pass the account ID to the confirm handler
+        const customData: CustomTransactionData = {
+          accountId
+        }
+        await onConfirm(customData)
+      } finally {
+        setIsLoading(false)
       }
-      await onConfirm(customData)
     },
     [onConfirm, accountId],
   )
@@ -172,7 +178,13 @@ export const SessionAuthenticateConfirmation: FC<
 
           {/* Buttons */}
           <HStack spacing={4} w='full'>
-            <Button variant='outline' size='lg' flex={1} onClick={handleReject}>
+            <Button
+              variant='outline'
+              size='lg'
+              flex={1}
+              onClick={handleReject}
+              isDisabled={isLoading}
+            >
               Cancel
             </Button>
             <Button
@@ -181,7 +193,9 @@ export const SessionAuthenticateConfirmation: FC<
               size='lg'
               flex={1}
               onClick={handleConfirm}
-              isDisabled={!accountId}
+              isDisabled={!accountId || isLoading}
+              isLoading={isLoading}
+              loadingText='Signing...'
             >
               {accountId ? 'Sign Message' : 'No Account Available'}
             </Button>

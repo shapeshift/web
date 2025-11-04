@@ -129,6 +129,7 @@ export const useRows = ({ limit }: { limit: number }) => {
             limit={limit}
             orderBy={orderBy}
             sortBy={sortBy}
+            maxApy='500'
           />
         ),
         supportedChainIds: PortalsSupportedChainIds,

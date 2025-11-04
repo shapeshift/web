@@ -30,8 +30,8 @@ export const LpGrid: React.FC<{
   limit: number
   orderBy?: OrderDirection
   sortBy?: SortOptionsKeys
-}> = ({ assetIds, selectedChainId, isLoading, limit, orderBy, sortBy }) => {
-  const { ref, inView } = useInView()
+  portalsAssets?: ReturnType<typeof usePortalsAssetsQuery>['data']
+}> = ({ assetIds, selectedChainId, isLoading, limit, orderBy, sortBy, portalsAssets }) => {
   const navigate = useNavigate()
   const handleCardClick = useCallback(
     (assetId: AssetId) => {
@@ -39,13 +39,6 @@ export const LpGrid: React.FC<{
     },
     [navigate],
   )
-  const { data: portalsAssets } = usePortalsAssetsQuery({
-    chainIds: selectedChainId ? [selectedChainId] : undefined,
-    enabled: inView,
-    sortBy,
-    orderBy,
-    minApy: '1',
-  })
 
   const filteredAssetIds = useMemo(
     () =>
@@ -106,7 +99,7 @@ export const LpGrid: React.FC<{
     return <ResultsEmpty title='markets.emptyTitle' body='markets.emptyBody' icon={emptyIcon} />
 
   return (
-    <div ref={ref}>
+    <div>
       <MarketGrid>
         {sortedAssetIds.map((assetId, index) => {
           const maybePortalsApy = portalsAssets?.byId[assetId]?.metrics.apy
@@ -133,13 +126,15 @@ export const OneClickDefiAssets: React.FC<{
   limit: number
   orderBy?: OrderDirection
   sortBy?: SortOptionsKeys
-}> = ({ limit, selectedChainId, orderBy, sortBy }) => {
+  maxApy?: string
+}> = ({ limit, selectedChainId, orderBy, sortBy, maxApy }) => {
   const { ref, inView } = useInView()
   const { data: portalsAssets, isLoading: isPortalsAssetsLoading } = usePortalsAssetsQuery({
     chainIds: selectedChainId ? [selectedChainId] : undefined,
     sortBy,
     orderBy,
     minApy: '1',
+    maxApy,
     enabled: inView,
   })
 
@@ -152,6 +147,7 @@ export const OneClickDefiAssets: React.FC<{
         limit={limit}
         orderBy={orderBy}
         sortBy={sortBy}
+        portalsAssets={portalsAssets}
       />
     </div>
   )

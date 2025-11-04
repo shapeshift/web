@@ -1,9 +1,9 @@
 import type { WalletKitTypes } from '@reown/walletkit'
+import type { ChainReference } from '@shapeshiftoss/caip'
 import { CHAIN_NAMESPACE, toChainId } from '@shapeshiftoss/caip'
 import type { FC } from 'react'
 import { useCallback, useMemo, useState } from 'react'
-import { useLocation, useNavigate } from 'react-router-dom'
-import { Route, Switch } from 'wouter'
+import { Route, Switch, useLocation } from 'wouter'
 
 import { AccountSelection } from '@/plugins/walletConnectToDapps/components/modals/AccountSelection'
 import { SessionProposalOverview } from '@/plugins/walletConnectToDapps/components/modals/SessionProposalOverview'
@@ -38,8 +38,7 @@ export const SessionAuthenticateConfirmation: FC<WalletConnectRequestModalProps<
   // All hooks must be called before any early returns
   const [isLoading, setIsLoading] = useState(false)
   const [selectedAccountNumber, setSelectedAccountNumber] = useState<number | null>(null)
-  const location = useLocation()
-  const navigate = useNavigate()
+  const [location, setLocation] = useLocation()
 
   // Extract chainId from auth payload (e.g., "eip155:8453" -> chainId)
   const authChainId = useMemo(() => {
@@ -52,7 +51,7 @@ export const SessionAuthenticateConfirmation: FC<WalletConnectRequestModalProps<
 
     return toChainId({
       chainNamespace: CHAIN_NAMESPACE.Evm,
-      chainReference: reference as any,
+      chainReference: reference as ChainReference,
     })
   }, [authPayload])
 
@@ -62,40 +61,40 @@ export const SessionAuthenticateConfirmation: FC<WalletConnectRequestModalProps<
     selectAccountIdsByAccountNumberAndChainId,
   )
 
-  // Use first account number as default if none selected
-  const effectiveAccountNumber = selectedAccountNumber ?? uniqueAccountNumbers[0]
+  // Initialize with first account if not set
+  if (selectedAccountNumber === null && uniqueAccountNumbers.length > 0) {
+    setSelectedAccountNumber(uniqueAccountNumbers[0])
+  }
 
   // Get the account ID for signing (from the selected account number + auth chain)
   const accountId = useMemo(() => {
-    if (!authChainId || effectiveAccountNumber === null || effectiveAccountNumber === undefined) {
+    if (!authChainId || selectedAccountNumber === null) {
       return undefined
     }
-    const accountsByChain = accountIdsByAccountNumberAndChainId[effectiveAccountNumber]
+    const accountsByChain = accountIdsByAccountNumberAndChainId[selectedAccountNumber]
     return accountsByChain?.[authChainId]?.[0]
-  }, [authChainId, effectiveAccountNumber, accountIdsByAccountNumberAndChainId])
+  }, [authChainId, selectedAccountNumber, accountIdsByAccountNumberAndChainId])
 
   // Determine if we can connect
-  const canConnect = useMemo(() => {
-    return !!accountId && !!authChainId
-  }, [accountId, authChainId])
+  const canConnect = !!accountId && !!authChainId
 
   // Navigation handlers
   const handleAccountClick = useCallback(() => {
     if (uniqueAccountNumbers.length > 1) {
-      navigate(SessionAuthRoutes.ChooseAccount)
+      setLocation(SessionAuthRoutes.ChooseAccount)
     }
-  }, [uniqueAccountNumbers.length, navigate])
+  }, [uniqueAccountNumbers.length, setLocation])
 
   const handleBack = useCallback(() => {
-    navigate(SessionAuthRoutes.Overview)
-  }, [navigate])
+    setLocation(SessionAuthRoutes.Overview)
+  }, [setLocation])
 
   const handleAccountNumberChange = useCallback(
     (accountNumber: number) => {
       setSelectedAccountNumber(accountNumber)
-      navigate(SessionAuthRoutes.Overview)
+      setLocation(SessionAuthRoutes.Overview)
     },
-    [navigate],
+    [setLocation],
   )
 
   // Format the SIWE message for display
@@ -122,58 +121,40 @@ export const SessionAuthenticateConfirmation: FC<WalletConnectRequestModalProps<
     }
   }, [onConfirm, accountId])
 
-  const handleReject = useCallback(async () => {
-    await onReject()
-  }, [onReject])
-
   // Use requester metadata for peer info
   const peerMetadata = requester?.metadata
-
-  const overview = useMemo(
-    () => (
-      <SessionProposalOverview
-        selectedAccountNumber={effectiveAccountNumber}
-        selectedNetworks={authChainId ? [authChainId] : []}
-        onAccountClick={handleAccountClick}
-        onConnectSelected={handleConfirm}
-        onReject={handleReject}
-        isLoading={isLoading}
-        canConnect={canConnect}
-      >
-        <MessageContent message={displayMessage} />
-      </SessionProposalOverview>
-    ),
-    [
-      effectiveAccountNumber,
-      authChainId,
-      handleAccountClick,
-      handleConfirm,
-      handleReject,
-      isLoading,
-      canConnect,
-      displayMessage,
-    ],
-  )
 
   // Check for missing auth request after all hooks
   if (!authRequest) return null
 
   return (
     <>
-      {location.pathname === SessionAuthRoutes.Overview && peerMetadata && (
+      {location !== SessionAuthRoutes.ChooseAccount && peerMetadata && (
         <PeerMeta metadata={peerMetadata} />
       )}
-      <Switch location={location.pathname}>
+      <Switch location={location}>
         <Route path={SessionAuthRoutes.ChooseAccount}>
           <AccountSelection
-            selectedAccountNumber={effectiveAccountNumber}
+            selectedAccountNumber={selectedAccountNumber}
             onBack={handleBack}
             onAccountNumberChange={handleAccountNumberChange}
             onDone={handleBack}
           />
         </Route>
-        <Route path={SessionAuthRoutes.Overview}>{overview}</Route>
-        <Route path='/'>{overview}</Route>
+        <Route>
+          <SessionProposalOverview
+            selectedAccountNumber={selectedAccountNumber}
+            selectedNetworks={authChainId ? [authChainId] : []}
+            onAccountClick={handleAccountClick}
+            onConnectSelected={handleConfirm}
+            onReject={onReject}
+            isLoading={isLoading}
+            canConnect={canConnect}
+            peerMetadata={peerMetadata}
+          >
+            <MessageContent message={displayMessage} />
+          </SessionProposalOverview>
+        </Route>
       </Switch>
     </>
   )

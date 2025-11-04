@@ -46,6 +46,7 @@ enum SessionAuthRoutes {
 }
 
 const sessionProposalInitialEntries = [SessionProposalRoutes.Overview]
+const sessionAuthInitialEntries = [SessionAuthRoutes.Overview]
 
 type WalletConnectModalManagerProps = WalletConnectContextType
 
@@ -233,7 +234,16 @@ export const WalletConnectModalManager: FC<WalletConnectModalManagerProps> = ({
         throw error
       }
     },
-    [accountId, chainId, dispatch, handleClose, portfolioAccountMetadata, state.modalData, wallet, web3wallet],
+    [
+      accountId,
+      chainId,
+      dispatch,
+      handleClose,
+      portfolioAccountMetadata,
+      state.modalData,
+      wallet,
+      web3wallet,
+    ],
   )
 
   const handleRejectAuthRequest = useCallback(async () => {
@@ -267,8 +277,7 @@ export const WalletConnectModalManager: FC<WalletConnectModalManagerProps> = ({
       case undefined:
         break
       default:
-      // Temporary fix for TypeScript exhaustiveness check
-      // assertUnreachable(activeModal)
+        break
     }
 
     handleClose()
@@ -290,7 +299,7 @@ export const WalletConnectModalManager: FC<WalletConnectModalManagerProps> = ({
         )
       case WalletConnectModal.SessionAuthenticateConfirmation:
         return (
-          <MemoryRouter initialEntries={[SessionAuthRoutes.Overview]}>
+          <MemoryRouter initialEntries={sessionAuthInitialEntries}>
             <SessionAuthenticateConfirmation
               onConfirm={handleConfirmAuthRequest}
               onReject={handleRejectRequestAndClose}
@@ -367,14 +376,13 @@ export const WalletConnectModalManager: FC<WalletConnectModalManagerProps> = ({
       case WalletConnectModal.NoAccountsForChain:
         return <NoAccountsForChainModal onClose={handleClose} dispatch={dispatch} state={state} />
       default:
-        // Temporary fix for TypeScript exhaustiveness check
         return null
-      // assertUnreachable(activeModal)
     }
   }, [
     activeModal,
     dispatch,
     handleClose,
+    handleConfirmAuthRequest,
     handleConfirmCosmosRequest,
     handleConfirmEIP155Request,
     handleRejectRequestAndClose,

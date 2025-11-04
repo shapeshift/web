@@ -31,7 +31,7 @@ export const SessionAuthenticateConfirmation: FC<
   console.log('[WC Auth Modal] Rendering SessionAuthenticateConfirmation')
   const [isLoading, setIsLoading] = useState(false)
   const [selectedAccountNumber, setSelectedAccountNumber] = useState<number | null>(null)
-  const [location] = useLocation()
+  const location = useLocation()
   const navigate = useNavigate()
 
   // Get the auth request from modal data

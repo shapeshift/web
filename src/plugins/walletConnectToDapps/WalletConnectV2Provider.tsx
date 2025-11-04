@@ -56,6 +56,34 @@ export const WalletConnectV2Provider: FC<PropsWithChildren> = ({ children }) => 
   useEffect(() => {
     const activeSessions = state.web3wallet?.getActiveSessions()
     const sessions = activeSessions ? Object.values(activeSessions) : []
+
+    // Check for authenticated sessions and validate CACAO
+    sessions.forEach(session => {
+      if ('auths' in session && session.auths?.length > 0) {
+        console.log('[WalletConnect] Restored authenticated session:', {
+          topic: session.topic,
+          peer: session.peer.metadata.name,
+          hasAuths: true,
+          authsCount: session.auths.length,
+          // Log first CACAO for debugging (contains the auth payload)
+          firstAuth: session.auths[0],
+        })
+
+        // Validate CACAO timestamps if present
+        const cacao = session.auths[0]
+        if (cacao?.p?.iat) {
+          const issuedAt = new Date(cacao.p.iat).getTime()
+          const now = Date.now()
+          const hoursSinceIssued = (now - issuedAt) / (1000 * 60 * 60)
+          console.log('[WalletConnect] SIWE auth age:', {
+            issuedAt: new Date(cacao.p.iat),
+            hoursSinceIssued: hoursSinceIssued.toFixed(2),
+            expired: cacao.p.exp ? now > new Date(cacao.p.exp).getTime() : false,
+          })
+        }
+      }
+    })
+
     if (sessions.length) {
       dispatch({ type: WalletConnectActionType.SET_SESSIONS, payload: sessions })
     }

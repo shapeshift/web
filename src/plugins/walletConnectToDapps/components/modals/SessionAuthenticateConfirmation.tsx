@@ -125,6 +125,7 @@ export const SessionAuthenticateConfirmation: FC<WalletConnectSessionAuthModalPr
           <SessionProposalOverview
             selectedAccountNumber={selectedAccountNumber}
             selectedNetworks={chainId ? [chainId] : []}
+            hideNetworkSelection={true}
             onAccountClick={handleAccountClick}
             onConnectSelected={handleConfirm}
             onReject={onReject}

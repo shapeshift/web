@@ -2,6 +2,7 @@ import type { WalletKitTypes } from '@reown/walletkit'
 import type { ChainId } from '@shapeshiftoss/caip'
 import type { FC } from 'react'
 import { useCallback, useMemo, useState } from 'react'
+import { useTranslate } from 'react-polyglot'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { Route, Switch } from 'wouter'
 
@@ -30,6 +31,7 @@ export const SessionAuthenticateConfirmation: FC<WalletConnectSessionAuthModalPr
   const { params } = sessionAuthRequest || {}
   const { authPayload: sessionAuthPayload, requester } = params || {}
 
+  const translate = useTranslate()
   const [isLoading, setIsLoading] = useState(false)
   const uniqueAccountNumbers = useAppSelector(selectUniqueEvmAccountNumbers)
   const [selectedAccountNumber, setSelectedAccountNumber] = useState<number | null>(() =>
@@ -67,7 +69,7 @@ export const SessionAuthenticateConfirmation: FC<WalletConnectSessionAuthModalPr
 
   const displayMessage = useMemo(() => {
     if (!sessionAuthPayload || !accountId || !state.web3wallet || !chainId)
-      return 'Invalid authentication request'
+      return translate('plugins.walletConnectToDapps.modal.sessionAuth.invalidRequest')
 
     // Build DID:PKH identifier for SIWE message (accountId is already in chainId:address format)
     const iss = `did:pkh:${accountId}`
@@ -80,9 +82,9 @@ export const SessionAuthenticateConfirmation: FC<WalletConnectSessionAuthModalPr
       return message
     } catch (error) {
       console.error('Error formatting session authentication message:', error)
-      return 'Error formatting authentication message'
+      return translate('plugins.walletConnectToDapps.modal.sessionAuth.formatError')
     }
-  }, [sessionAuthPayload, accountId, state.web3wallet, chainId])
+  }, [sessionAuthPayload, accountId, state.web3wallet, chainId, translate])
 
   const handleConfirm = useCallback(async () => {
     setIsLoading(true)

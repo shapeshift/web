@@ -56,20 +56,6 @@ export const useWalletConnectEventsHandler = (
           const allSessions = web3wallet?.engine.signClient.session.getAll()
           // We should be able to do web3wallet?.engine.signClient.session.get(topic) here, but this always return undefined, another day in closures-land
           const session = allSessions?.find(s => s.topic === topic)
-
-          // Check if this is an authenticated session (has CACAO)
-          if (session && 'auths' in session && session.auths?.length > 0) {
-            console.log('[WalletConnect] Processing request for authenticated session:', {
-              topic: session.topic,
-              peer: session.peer.metadata.name,
-              method: request.method,
-              hasAuths: true,
-              authsCount: session.auths.length,
-              // Log the DID:PKH identifier from the CACAO
-              issuer: session.auths[0]?.p?.iss,
-            })
-          }
-
           return session
         } catch (error) {
           console.error('Failed to get session for topic:', topic, error)

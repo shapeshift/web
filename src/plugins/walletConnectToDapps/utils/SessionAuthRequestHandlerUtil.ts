@@ -5,7 +5,6 @@ import type { AccountMetadata } from '@shapeshiftoss/types'
 
 import { assertGetEvmChainAdapter } from '@/lib/utils/evm'
 import type { CustomTransactionData } from '@/plugins/walletConnectToDapps/types'
-import { WalletConnectActionType } from '@/plugins/walletConnectToDapps/types'
 
 type ApproveSessionAuthRequestArgs = {
   wallet: HDWallet
@@ -14,8 +13,7 @@ type ApproveSessionAuthRequestArgs = {
   customTransactionData?: CustomTransactionData
   accountId?: string
   chainId?: string
-  portfolioAccountMetadata: Record<string, AccountMetadata>
-  dispatch: (action: any) => void
+  accountMetadata?: AccountMetadata
 }
 
 export const approveSessionAuthRequest = async ({
@@ -25,8 +23,7 @@ export const approveSessionAuthRequest = async ({
   customTransactionData,
   accountId,
   chainId,
-  portfolioAccountMetadata,
-  dispatch,
+  accountMetadata,
 }: ApproveSessionAuthRequestArgs) => {
   const { authPayload } = sessionAuthRequest.params
 
@@ -47,8 +44,7 @@ export const approveSessionAuthRequest = async ({
     iss,
   })
 
-  const selectedAccountMetadata = portfolioAccountMetadata[selectedAccountId]
-  const bip44Params = selectedAccountMetadata?.bip44Params
+  const bip44Params = accountMetadata?.bip44Params
   const addressNList = bip44Params ? toAddressNList(chainAdapter.getBip44Params(bip44Params)) : []
 
   const messageToSign = { addressNList, message }
@@ -76,13 +72,6 @@ export const approveSessionAuthRequest = async ({
     id: sessionAuthRequest.id,
     auths: [cacao],
   })
-
-  if (approvalResponse?.session) {
-    dispatch({
-      type: WalletConnectActionType.ADD_SESSION,
-      payload: approvalResponse.session,
-    })
-  }
 
   return approvalResponse
 }

@@ -163,7 +163,6 @@ export const SessionAuthenticateConfirmation: FC<
       onReject={handleReject}
       isLoading={isLoading}
       canConnect={canConnect}
-      hideNetworkSelection={true}
     >
       <MessageContent message={displayMessage} />
     </SessionProposalOverview>

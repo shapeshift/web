@@ -1,6 +1,5 @@
-import type { ChainId } from '@shapeshiftoss/caip'
-import { toChainId, CHAIN_NAMESPACE } from '@shapeshiftoss/caip'
 import type { WalletKitTypes } from '@reown/walletkit'
+import { CHAIN_NAMESPACE, toChainId } from '@shapeshiftoss/caip'
 import type { FC } from 'react'
 import { useCallback, useMemo, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
@@ -23,24 +22,17 @@ enum SessionAuthRoutes {
   ChooseAccount = '/choose-account',
 }
 
-export const SessionAuthenticateConfirmation: FC<
-  WalletConnectRequestModalProps<any>
-> = ({ onConfirm, onReject, state, topic }) => {
+export const SessionAuthenticateConfirmation: FC<WalletConnectRequestModalProps<any>> = ({
+  onConfirm,
+  onReject,
+  state,
+}) => {
   console.log('[WC Auth Modal] Rendering SessionAuthenticateConfirmation')
-  const [isLoading, setIsLoading] = useState(false)
-  const [selectedAccountNumber, setSelectedAccountNumber] = useState<number | null>(null)
-  const location = useLocation()
-  const navigate = useNavigate()
 
   // Get the auth request from modal data
   const authRequest = state.modalData?.request as
     | WalletKitTypes.EventArguments['session_authenticate']
     | undefined
-
-  if (!authRequest) {
-    console.error('[WC Auth Modal] No auth request found in modal data!')
-    return <div>No auth request data</div>
-  }
 
   const { params } = authRequest || {}
   const { authPayload, requester } = params || {}
@@ -48,6 +40,12 @@ export const SessionAuthenticateConfirmation: FC<
   console.log('[WC Auth Modal] Auth request found:', authRequest)
   console.log('[WC Auth Modal] Auth payload:', authPayload)
   console.log('[WC Auth Modal] Requester:', requester)
+
+  // All hooks must be called before any early returns
+  const [isLoading, setIsLoading] = useState(false)
+  const [selectedAccountNumber, setSelectedAccountNumber] = useState<number | null>(null)
+  const location = useLocation()
+  const navigate = useNavigate()
 
   // Extract chainId from auth payload (e.g., "eip155:8453" -> chainId)
   const authChainId = useMemo(() => {
@@ -104,10 +102,13 @@ export const SessionAuthenticateConfirmation: FC<
     navigate(SessionAuthRoutes.Overview)
   }, [navigate])
 
-  const handleAccountNumberChange = useCallback((accountNumber: number) => {
-    setSelectedAccountNumber(accountNumber)
-    navigate(SessionAuthRoutes.Overview)
-  }, [navigate])
+  const handleAccountNumberChange = useCallback(
+    (accountNumber: number) => {
+      setSelectedAccountNumber(accountNumber)
+      navigate(SessionAuthRoutes.Overview)
+    },
+    [navigate],
+  )
 
   // Format the SIWE message for display
   const displayMessage = useMemo(() => {
@@ -124,49 +125,61 @@ export const SessionAuthenticateConfirmation: FC<
     return message
   }, [authPayload])
 
-  const handleConfirm = useCallback(
-    async () => {
-      console.log('[WC Auth Modal] Confirm clicked')
-      console.log('[WC Auth Modal] Using account for signing:', accountId)
+  const handleConfirm = useCallback(async () => {
+    console.log('[WC Auth Modal] Confirm clicked')
+    console.log('[WC Auth Modal] Using account for signing:', accountId)
 
-      setIsLoading(true)
-      try {
-        // Pass the account ID to the confirm handler
-        const customData: CustomTransactionData = {
-          accountId
-        }
-        await onConfirm(customData)
-      } finally {
-        setIsLoading(false)
+    setIsLoading(true)
+    try {
+      // Pass the account ID to the confirm handler
+      const customData: CustomTransactionData = {
+        accountId,
       }
-    },
-    [onConfirm, accountId],
-  )
+      await onConfirm(customData)
+    } finally {
+      setIsLoading(false)
+    }
+  }, [onConfirm, accountId])
 
-  const handleReject = useCallback(
-    async () => {
-      console.log('[WC Auth Modal] Reject clicked')
-      await onReject()
-    },
-    [onReject],
-  )
+  const handleReject = useCallback(async () => {
+    console.log('[WC Auth Modal] Reject clicked')
+    await onReject()
+  }, [onReject])
 
   // Use requester metadata for peer info
   const peerMetadata = requester?.metadata
 
-  const overview = (
-    <SessionProposalOverview
-      selectedAccountNumber={effectiveAccountNumber}
-      selectedNetworks={authChainId ? [authChainId] : []}
-      onAccountClick={handleAccountClick}
-      onConnectSelected={handleConfirm}
-      onReject={handleReject}
-      isLoading={isLoading}
-      canConnect={canConnect}
-    >
-      <MessageContent message={displayMessage} />
-    </SessionProposalOverview>
+  const overview = useMemo(
+    () => (
+      <SessionProposalOverview
+        selectedAccountNumber={effectiveAccountNumber}
+        selectedNetworks={authChainId ? [authChainId] : []}
+        onAccountClick={handleAccountClick}
+        onConnectSelected={handleConfirm}
+        onReject={handleReject}
+        isLoading={isLoading}
+        canConnect={canConnect}
+      >
+        <MessageContent message={displayMessage} />
+      </SessionProposalOverview>
+    ),
+    [
+      effectiveAccountNumber,
+      authChainId,
+      handleAccountClick,
+      handleConfirm,
+      handleReject,
+      isLoading,
+      canConnect,
+      displayMessage,
+    ],
   )
+
+  // Check for missing auth request after all hooks
+  if (!authRequest) {
+    console.error('[WC Auth Modal] No auth request found in modal data!')
+    return <div>No auth request data</div>
+  }
 
   return (
     <>

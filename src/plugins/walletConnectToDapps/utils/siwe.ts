@@ -3,8 +3,6 @@
  * Handles EIP-4361 message parsing and ReCap decoding
  */
 
-import type { AuthTypes } from '@walletconnect/types'
-
 /**
  * Parse a SIWE message string into structured components
  * @param message - The SIWE message string
@@ -111,7 +109,7 @@ export const formatRecapsForDisplay = (recap: any): string[] => {
     if (resource === 'eip155') return // Already processed above
 
     if (typeof abilities === 'object') {
-      Object.entries(abilities as any).forEach(([ability, limits]) => {
+      Object.entries(abilities as any).forEach(([ability, _limits]) => {
         const cleanAbility = ability.replace(/\//g, ' ')
         permissions.push(`${cleanAbility} on ${resource}`)
       })
@@ -148,9 +146,7 @@ export const getChainName = (chainId: string): string => {
 export const getMethodsFromRecap = (recap: any): string[] => {
   if (!recap?.att?.eip155) return []
 
-  return Object.keys(recap.att.eip155).map(method =>
-    method.replace('request/', '')
-  )
+  return Object.keys(recap.att.eip155).map(method => method.replace('request/', ''))
 }
 
 /**

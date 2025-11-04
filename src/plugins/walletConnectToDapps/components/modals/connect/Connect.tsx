@@ -28,9 +28,9 @@ const Connect = ({ initialUri, isOpen, onClose }: Props) => {
         const connectionResult = await pair?.({ uri })
         if (connectionResult) onClose()
       } catch (error: unknown) {
-        console.error('WalletConnect connection error:', error)
-
         console.debug(error)
+
+        // This should *not* be an exception, we handle this as part of our flow.
         if ((error as Error)?.message.includes('Pairing already exists')) {
           toast({
             title: translate('plugins.walletConnectToDapps.errors.errorConnectingToDapp'),

@@ -33,7 +33,7 @@ export const useWalletConnectEventsHandler = (
     [dispatch],
   )
 
-  const handleAuthRequest = useCallback(
+  const handleSessionAuthRequest = useCallback(
     (request: WalletKitTypes.EventArguments['session_authenticate']) => {
       dispatch({
         type: WalletConnectActionType.SET_MODAL,
@@ -165,5 +165,5 @@ export const useWalletConnectEventsHandler = (
     [dispatch, web3wallet],
   )
 
-  return { handleSessionProposal, handleAuthRequest, handleSessionRequest }
+  return { handleSessionProposal, handleSessionAuthRequest, handleSessionRequest }
 }

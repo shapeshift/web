@@ -1,7 +1,6 @@
 import type { ModalProps } from '@chakra-ui/react'
 import { formatJsonRpcError } from '@json-rpc-tools/utils'
 import type { WalletKitTypes } from '@reown/walletkit'
-import { toAddressNList } from '@shapeshiftoss/chain-adapters'
 import type { SessionTypes } from '@walletconnect/types'
 import { getSdkError } from '@walletconnect/utils'
 import type { Dispatch, FC } from 'react'
@@ -20,8 +19,8 @@ import { EIP155TransactionConfirmation } from '@/plugins/walletConnectToDapps/co
 import { NoAccountsForChainModal } from '@/plugins/walletConnectToDapps/components/modals/NoAccountsForChainModal'
 import { SendTransactionConfirmation } from '@/plugins/walletConnectToDapps/components/modals/SendTransactionConfirmation'
 import { SessionAuthenticateConfirmation } from '@/plugins/walletConnectToDapps/components/modals/SessionAuthenticateConfirmation'
-import { SessionProposalModal } from '@/plugins/walletConnectToDapps/components/modals/SessionProposal'
 import { SessionAuthRoutes } from '@/plugins/walletConnectToDapps/components/modals/SessionAuthRoutes'
+import { SessionProposalModal } from '@/plugins/walletConnectToDapps/components/modals/SessionProposal'
 import { SessionProposalRoutes } from '@/plugins/walletConnectToDapps/components/modals/SessionProposalRoutes'
 import { useWalletConnectState } from '@/plugins/walletConnectToDapps/hooks/useWalletConnectState'
 import type {
@@ -40,6 +39,7 @@ import type {
 import { WalletConnectActionType, WalletConnectModal } from '@/plugins/walletConnectToDapps/types'
 import { approveCosmosRequest } from '@/plugins/walletConnectToDapps/utils/CosmosRequestHandlerUtil'
 import { approveEIP155Request } from '@/plugins/walletConnectToDapps/utils/EIP155RequestHandlerUtil'
+import { approveSessionAuthRequest } from '@/plugins/walletConnectToDapps/utils/SessionAuthRequestHandlerUtil'
 import { selectPortfolioAccountMetadata } from '@/state/slices/portfolioSlice/selectors'
 import { useAppSelector } from '@/state/store'
 
@@ -62,7 +62,7 @@ export type WalletConnectSessionModalProps = {
 export type WalletConnectRequestModalProps<T> = {
   dispatch?: Dispatch<WalletConnectAction>
   state: Required<WalletConnectState<T>>
-  topic?: string
+  topic: string
   onConfirm(customTransactionData?: CustomTransactionData): Promise<void>
   onReject(): Promise<void>
 }
@@ -156,72 +156,27 @@ export const WalletConnectModalManager: FC<WalletConnectModalManagerProps> = ({
     })
   }, [requestEvent, topic, web3wallet])
 
-  const handleConfirmAuthRequest = useCallback(
+  const handleConfirmSessionAuth = useCallback(
     async (customTransactionData?: CustomTransactionData) => {
       if (!state.modalData?.request || !web3wallet || !wallet) return
 
-      const authRequest = state.modalData.request as WalletKitTypes.EventArguments['session_authenticate']
-      const { authPayload } = authRequest.params
-
-      const authChainId = authPayload.chains?.[0] || chainId
-
-      const selectedAccountId = customTransactionData?.accountId || accountId
-      if (!selectedAccountId) return
+      const sessionAuthRequest = state.modalData
+        .request as WalletKitTypes.EventArguments['session_authenticate']
 
       try {
-        const chainAdapter = assertGetEvmChainAdapter(authChainId)
-
-        const address = selectedAccountId.split(':')[2]
-        const caipChainId = authPayload.chains?.[0] || authChainId
-        const iss = `did:pkh:${caipChainId}:${address}`
-
-        const message = web3wallet.formatAuthMessage({
-          request: authPayload,
-          iss,
+        await approveSessionAuthRequest({
+          wallet,
+          web3wallet,
+          sessionAuthRequest,
+          customTransactionData,
+          accountId,
+          chainId,
+          portfolioAccountMetadata,
+          dispatch,
         })
-
-        const selectedAccountMetadata = portfolioAccountMetadata[selectedAccountId]
-        const bip44Params = selectedAccountMetadata?.bip44Params
-        const addressNList = bip44Params
-          ? toAddressNList(chainAdapter.getBip44Params(bip44Params))
-          : []
-
-        const messageToSign = { addressNList, message }
-        const input = { messageToSign, wallet }
-        const signature = await chainAdapter.signMessage(input)
-
-        if (!signature) throw new Error('Failed to sign message')
-
-        // Ensure signature has 0x prefix
-        const formattedSignature = signature.startsWith('0x') ? signature : `0x${signature}`
-
-        // CACAO payload needs to include the iss field
-        const cacaoPayload = {
-          ...authPayload,
-          iss,
-        }
-
-        const cacao = {
-          h: { t: 'caip122' as const },
-          p: cacaoPayload,
-          s: { t: 'eip191' as const, s: formattedSignature },
-        }
-
-        const approvalResponse = await web3wallet.approveSessionAuthenticate({
-          id: authRequest.id,
-          auths: [cacao],
-        })
-
-        if (approvalResponse?.session) {
-          dispatch({
-            type: WalletConnectActionType.ADD_SESSION,
-            payload: approvalResponse.session,
-          })
-        }
-
         handleClose()
       } catch (error) {
-        console.error('Error approving auth request:', error)
+        console.error('Error approving session auth request:', error)
         throw error
       }
     },
@@ -245,9 +200,10 @@ export const WalletConnectModalManager: FC<WalletConnectModalManagerProps> = ({
       case WalletConnectModal.SessionAuthenticateConfirmation: {
         if (!state.modalData?.request || !web3wallet) break
 
-        const authRequest = state.modalData.request as WalletKitTypes.EventArguments['session_authenticate']
+        const sessionAuthRequest = state.modalData
+          .request as WalletKitTypes.EventArguments['session_authenticate']
         await web3wallet.rejectSessionAuthenticate({
-          id: authRequest.id,
+          id: sessionAuthRequest.id,
           reason: getSdkError('USER_REJECTED'),
         })
         break
@@ -289,9 +245,10 @@ export const WalletConnectModalManager: FC<WalletConnectModalManagerProps> = ({
         return (
           <MemoryRouter initialEntries={sessionAuthInitialEntries}>
             <SessionAuthenticateConfirmation
-              onConfirm={handleConfirmAuthRequest}
+              onConfirm={handleConfirmSessionAuth}
               onReject={handleRejectRequestAndClose}
               state={state}
+              topic=''
             />
           </MemoryRouter>
         )
@@ -369,7 +326,7 @@ export const WalletConnectModalManager: FC<WalletConnectModalManagerProps> = ({
     activeModal,
     dispatch,
     handleClose,
-    handleConfirmAuthRequest,
+    handleConfirmSessionAuth,
     handleConfirmCosmosRequest,
     handleConfirmEIP155Request,
     handleRejectRequestAndClose,

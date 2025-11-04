@@ -8,7 +8,7 @@ import {
 import { marketData } from '../../marketDataSlice/marketDataSlice'
 import { selectUserCurrencyToUsdRate } from '../../marketDataSlice/selectors'
 import {
-  selectAccountIdByAccountNumberAndChainId,
+  selectAccountIdsByAccountNumberAndChainId,
   selectPortfolioAccountMetadata,
   selectPortfolioAssetAccountBalancesSortedUserCurrency,
 } from '../../portfolioSlice/selectors'
@@ -120,16 +120,18 @@ export const createTradeInputBaseSelectors = <T extends TradeInputBaseState>(
     selectBaseSlice,
     selectInputBuyAsset,
     selectEnabledWalletAccountIds,
-    selectAccountIdByAccountNumberAndChainId,
+    selectAccountIdsByAccountNumberAndChainId,
     selectSellAccountId,
     selectPortfolioAccountMetadata,
+    selectPortfolioAssetAccountBalancesSortedUserCurrency,
     (
       baseSlice,
       buyAsset,
       accountIds,
-      accountIdByAccountNumberAndChainId,
+      accountIdsByAccountNumberAndChainId,
       firstHopSellAccountId,
       accountMetadata,
+      accountIdAssetValues,
     ) => {
       // return the users selection if it exists
       if (baseSlice.buyAccountId) {
@@ -141,18 +143,26 @@ export const createTradeInputBaseSelectors = <T extends TradeInputBaseState>(
         ? accountMetadata[firstHopSellAccountId]?.bip44Params.accountNumber
         : undefined
 
-      // maybe convert account number to account id on the buy asset chain
-      const maybeMatchingBuyAccountId =
+      // Get all account IDs for the matching account number on buy chain
+      const matchingAccountIds =
         maybeMatchingBuyAccountNumber !== undefined
-          ? accountIdByAccountNumberAndChainId[maybeMatchingBuyAccountNumber]?.[buyAsset.chainId]
-          : undefined
+          ? accountIdsByAccountNumberAndChainId[maybeMatchingBuyAccountNumber]?.[
+              buyAsset.chainId
+            ] ?? []
+          : []
 
-      // an AccountId was found matching the sell asset's account number and chainId, return it
-      if (maybeMatchingBuyAccountId) {
-        return maybeMatchingBuyAccountId
+      // If we have matching accounts, pick the one with highest balance
+      if (matchingAccountIds.length > 0) {
+        const highestBalanceMatchingAccount = matchingAccountIds.reduce((highest, accountId) => {
+          const currentBalance = accountIdAssetValues[accountId]?.[buyAsset.assetId] ?? '0'
+          const highestBalance = accountIdAssetValues[highest]?.[buyAsset.assetId] ?? '0'
+          return bnOrZero(currentBalance).gt(bnOrZero(highestBalance)) ? accountId : highest
+        }, matchingAccountIds[0])
+
+        return highestBalanceMatchingAccount
       }
 
-      // otherwise return a sane default
+      // Otherwise return a sane default
       return getFirstAccountIdByChainId(accountIds, buyAsset.chainId)
     },
   )

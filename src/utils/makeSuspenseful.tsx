@@ -29,7 +29,7 @@ const SuspenseSpinner = ({ spinnerStyle }: { spinnerStyle: BoxProps }) => {
   )
 }
 
-// eslint you're drunk, this is a module-scope element with a module-scope const dependancy
+// eslint you're drunk, this is a module-scope element with a module-scope const dependency
 // eslint-disable-next-line react-memo/require-usememo
 export const defaultSuspenseFallback = <SuspenseSpinner spinnerStyle={defaultSpinnerStyle} />
 

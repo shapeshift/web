@@ -134,15 +134,15 @@ export const CryptoFiatInput = <T extends FieldValues = FieldValues>({
     <FormControl>
       <Controller key={fieldName} name={fieldName} control={control} render={renderController} />
       <HStack justify='center' mt={2} spacing={2} onClick={toggleIsFiat}>
-        <Text fontSize='sm' color='text.subtle'>
-          {isFiat ? (
-            <Amount.Crypto value={cryptoAmount} symbol={asset.symbol} />
-          ) : (
-            <Amount.Fiat value={bnOrZero(fiatAmount).toFixed(2)} />
-          )}
-        </Text>
-        <Button variant='ghost' size='sm' p={1} minW='auto' h='auto'>
-          <Icon as={TbSwitchVertical} fontSize='xs' color='text.subtle' />
+        <Button variant='ghost' size='sm' p={1} minW='auto' h='auto' px={2}>
+          <Text fontSize='sm' color='text.subtle'>
+            {isFiat ? (
+              <Amount.Crypto value={cryptoAmount} symbol={asset.symbol} />
+            ) : (
+              <Amount.Fiat value={bnOrZero(fiatAmount).toFixed(2)} />
+            )}
+          </Text>
+          <Icon as={TbSwitchVertical} fontSize='xs' color='text.subtle' ml={2} />
         </Button>
       </HStack>
     </FormControl>

@@ -194,6 +194,7 @@ const validators = {
   VITE_TENDERLY_ACCOUNT_SLUG: str(),
   VITE_TENDERLY_PROJECT_SLUG: str(),
   VITE_TENDERLY_API_KEY: str(),
+  VITE_FEATURE_ADDRESS_BOOK: bool({ default: false }),
 }
 
 function reporter<T>({ errors }: envalid.ReporterOptions<T>) {

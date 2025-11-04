@@ -54,10 +54,8 @@ export const SessionAuthenticateConfirmation: FC<WalletConnectSessionAuthModalPr
 
   const canConnect = !!accountId && !!chainId
   const handleAccountClick = useCallback(() => {
-    if (uniqueAccountNumbers.length > 1) {
-      navigate(SessionAuthRoutes.ChooseAccount)
-    }
-  }, [uniqueAccountNumbers.length, navigate])
+    navigate(SessionAuthRoutes.ChooseAccount)
+  }, [navigate])
 
   const handleBack = useCallback(() => navigate(-1), [navigate])
 
@@ -90,14 +88,11 @@ export const SessionAuthenticateConfirmation: FC<WalletConnectSessionAuthModalPr
 
   const handleConfirm = useCallback(async () => {
     setIsLoading(true)
-    try {
-      const customData: CustomTransactionData = {
-        accountId,
-      }
-      await onConfirm(customData)
-    } finally {
-      setIsLoading(false)
+    const customData: CustomTransactionData = {
+      accountId,
     }
+    await onConfirm(customData)
+    setIsLoading(false)
   }, [onConfirm, accountId])
 
   const peerMetadata = requester?.metadata

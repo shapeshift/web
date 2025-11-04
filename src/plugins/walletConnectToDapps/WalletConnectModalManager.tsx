@@ -102,7 +102,9 @@ export const WalletConnectModalManager: FC<WalletConnectModalManagerProps> = ({
 
   const handleConfirmEIP155Request = useCallback(
     async (customTransactionData?: CustomTransactionData) => {
-      if (!requestEvent || !chainId || !wallet || !web3wallet || !topic) return
+      if (!requestEvent || !chainId || !wallet || !web3wallet || !topic) {
+        return
+      }
 
       const chainAdapter = assertGetEvmChainAdapter(chainId)
 
@@ -125,7 +127,9 @@ export const WalletConnectModalManager: FC<WalletConnectModalManagerProps> = ({
 
   const handleConfirmCosmosRequest = useCallback(
     async (customTransactionData?: CustomTransactionData) => {
-      if (!requestEvent || !chainId || !wallet || !web3wallet || !topic) return
+      if (!requestEvent || !chainId || !wallet || !web3wallet || !topic) {
+        return
+      }
 
       const chainAdapter = assertGetCosmosSdkChainAdapter(chainId)
 

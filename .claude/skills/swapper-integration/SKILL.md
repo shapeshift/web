@@ -297,12 +297,27 @@ Update these files to register your new swapper:
    - Add feature flag to mock state
 
 6. **Configuration**:
-   - **Environment variables** (`.env`, `.env.development`, `.env.base`):
-     ```bash
-     VITE_[SWAPPER]_API_KEY=your-api-key-here
-     VITE_[SWAPPER]_BASE_URL=https://api.example.com
-     VITE_FEATURE_[SWAPPER]_SWAP=false  # Start disabled
-     ```
+
+   **Environment variables** - Follow naming conventions (e.g., Bebop):
+
+   **`.env`** (base/production - both API key and feature flag OFF):
+   ```bash
+   # Bebop
+   VITE_BEBOP_API_KEY=
+   VITE_FEATURE_BEBOP_SWAP=false
+   ```
+
+   **`.env.development`** (development - feature flag ON):
+   ```bash
+   # Bebop
+   VITE_BEBOP_API_KEY=your-dev-api-key-here
+   VITE_FEATURE_BEBOP_SWAP=true
+   ```
+
+   **Naming pattern**:
+   - API key: `VITE_[SWAPPER]_API_KEY` (in both `.env` and `.env.development`)
+   - Feature flag: `VITE_FEATURE_[SWAPPER]_SWAP` (`.env` = false, `.env.development` = true)
+   - Other config: `VITE_[SWAPPER]_BASE_URL` (if needed, both files)
    - **Config file** (`src/config.ts`):
      ```typescript
      export const getConfig = (): Config => ({

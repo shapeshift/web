@@ -20,25 +20,27 @@ Bebop API has been thoroughly tested and analyzed. The integration is feasible a
 
 **Authentication:**
 ```bash
-x-api-key: b4a7ffa9-2abb-45ae-8ddd-ec33bc377939
+x-api-key: <YOUR_BEBOP_API_KEY>
 ```
 
 **Rate Limiting:** No rate limiting observed in testing (5+ rapid requests successful)
 
 ### 1.2 Successful Test Commands
 
+**Note for Claude Code:** To execute these curl commands, replace `<YOUR_BEBOP_API_KEY>` with the actual key from `.env` or `.env.development` (look for `VITE_BEBOP_API_KEY`).
+
 ```bash
 # Ethereum: USDC to WETH (100 USDC)
 curl -s -X GET 'https://api.bebop.xyz/router/ethereum/v1/quote?sell_tokens=0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48&buy_tokens=0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2&sell_amounts=100000000&taker_address=0x0000000000000000000000000000000000000000' \
-  -H 'x-api-key: b4a7ffa9-2abb-45ae-8ddd-ec33bc377939'
+  -H 'x-api-key: <YOUR_BEBOP_API_KEY>'
 
-# Polygon: USDC to WMATIC  
+# Polygon: USDC to WMATIC
 curl -s -X GET 'https://api.bebop.xyz/router/polygon/v1/quote?sell_tokens=0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174&buy_tokens=0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270&sell_amounts=1000000&taker_address=0x0000000000000000000000000000000000000000' \
-  -H 'x-api-key: b4a7ffa9-2abb-45ae-8ddd-ec33bc377939'
+  -H 'x-api-key: <YOUR_BEBOP_API_KEY>'
 
 # Arbitrum: USDC to WETH
 curl -s -X GET 'https://api.bebop.xyz/router/arbitrum/v1/quote?sell_tokens=0xaf88d065e77c8cC2239327C5EDb3A432268e5831&buy_tokens=0x82aF49447D8a07e3bd95BD0d56f35241523fBab1&sell_amounts=1000000&taker_address=0x0000000000000000000000000000000000000000' \
-  -H 'x-api-key: b4a7ffa9-2abb-45ae-8ddd-ec33bc377939'
+  -H 'x-api-key: <YOUR_BEBOP_API_KEY>'
 ```
 
 ## 2. Response Structure Deep Dive
@@ -380,7 +382,7 @@ export function selectBestBebopRoute(response: BebopResponse): BebopRoute {
 
 Add to SwapperConfig:
 ```typescript
-VITE_BEBOP_API_KEY: string              // "b4a7ffa9-2abb-45ae-8ddd-ec33bc377939"
+VITE_BEBOP_API_KEY: string              // Get from .env: VITE_BEBOP_API_KEY
 VITE_BEBOP_BASE_URL: string             // "https://api.bebop.xyz"
 ```
 

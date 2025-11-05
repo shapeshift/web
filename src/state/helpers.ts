@@ -17,6 +17,7 @@ export const isCrossAccountTradeSupported = (swapperName: SwapperName) => {
     case SwapperName.CowSwap:
     case SwapperName.ArbitrumBridge:
     case SwapperName.Portals:
+    case SwapperName.Bebop:
     case SwapperName.Test:
       // Technically supported for Arbitrum Bridge, but we disable it for the sake of simplicity for now
       return false
@@ -37,6 +38,7 @@ export const getEnabledSwappers = (
     RelaySwapper,
     MayaSwap,
     ButterSwap,
+    BebopSwap,
   }: FeatureFlags,
   isCrossAccountTrade: boolean,
   isSolBuyAssetId: boolean,
@@ -66,6 +68,8 @@ export const getEnabledSwappers = (
       MayaSwap && (!isCrossAccountTrade || isCrossAccountTradeSupported(SwapperName.Mayachain)),
     [SwapperName.ButterSwap]:
       ButterSwap && (!isCrossAccountTrade || isCrossAccountTradeSupported(SwapperName.ButterSwap)),
+    [SwapperName.Bebop]:
+      BebopSwap && (!isCrossAccountTrade || isCrossAccountTradeSupported(SwapperName.Bebop)),
     [SwapperName.Test]: false,
   }
 }

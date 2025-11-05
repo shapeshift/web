@@ -61,6 +61,7 @@ export type SwapperConfig = {
   VITE_FEATURE_CHAINFLIP_SWAP_DCA: boolean
   VITE_JUPITER_API_URL: string
   VITE_RELAY_API_URL: string
+  VITE_BEBOP_API_KEY: string
 }
 
 export enum SwapperName {
@@ -75,6 +76,7 @@ export enum SwapperName {
   Jupiter = 'Jupiter',
   Relay = 'Relay',
   ButterSwap = 'ButterSwap',
+  Bebop = 'Bebop',
 }
 
 export type SwapSource = SwapperName | `${SwapperName} • ${string}`
@@ -294,6 +296,12 @@ export type TradeQuoteStep = {
     data: string
     value: string
     gasLimit: string
+  }
+  bebopTransactionMetadata?: {
+    to: Address
+    data: Address
+    value: string
+    gas?: string
   }
   jupiterQuoteResponse?: QuoteResponse
   solanaTransactionMetadata?: {

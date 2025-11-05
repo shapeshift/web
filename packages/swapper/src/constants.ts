@@ -2,6 +2,8 @@ import { assertUnreachable } from '@shapeshiftoss/utils'
 
 import { arbitrumBridgeSwapper } from './swappers/ArbitrumBridgeSwapper/ArbitrumBridgeSwapper'
 import { arbitrumBridgeApi } from './swappers/ArbitrumBridgeSwapper/endpoints'
+import { bebopSwapper } from './swappers/BebopSwapper/BebopSwapper'
+import { bebopApi } from './swappers/BebopSwapper/endpoints'
 import { butterSwap } from './swappers/ButterSwap/ButterSwap'
 import { butterSwapApi } from './swappers/ButterSwap/endpoints'
 import { chainflipSwapper } from './swappers/ChainflipSwapper/ChainflipSwapper'
@@ -74,6 +76,10 @@ export const swappers: Record<SwapperName, (SwapperApi & Swapper) | undefined> =
     ...butterSwap,
     ...butterSwapApi,
   },
+  [SwapperName.Bebop]: {
+    ...bebopSwapper,
+    ...bebopApi,
+  },
   [SwapperName.Test]: undefined,
 }
 
@@ -86,6 +92,7 @@ const DEFAULT_MAYA_SLIPPAGE_DECIMAL_PERCENTAGE = '0.01' // 1%
 const DEFAULT_ARBITRUM_BRIDGE_SLIPPAGE_DECIMAL_PERCENTAGE = '0' // no slippage for Arbitrum Bridge, so no slippage tolerance
 const DEFAULT_CHAINFLIP_SLIPPAGE_DECIMAL_PERCENTAGE = '0.02' // 2%
 const DEFAULT_BUTTERSWAP_SLIPPAGE_DECIMAL_PERCENTAGE = '0.015' // 1.5%
+const DEFAULT_BEBOP_SLIPPAGE_DECIMAL_PERCENTAGE = '0.003' // 0.3%
 
 export const getDefaultSlippageDecimalPercentageForSwapper = (
   swapperName: SwapperName | undefined,
@@ -113,6 +120,8 @@ export const getDefaultSlippageDecimalPercentageForSwapper = (
       throw new Error('Default slippage not supported by Relay')
     case SwapperName.ButterSwap:
       return DEFAULT_BUTTERSWAP_SLIPPAGE_DECIMAL_PERCENTAGE
+    case SwapperName.Bebop:
+      return DEFAULT_BEBOP_SLIPPAGE_DECIMAL_PERCENTAGE
     default:
       return assertUnreachable(swapperName)
   }

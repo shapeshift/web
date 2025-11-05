@@ -11,7 +11,7 @@ import { useWallet } from '@/hooks/useWallet/useWallet'
 const LedgerIcon = LedgerConfig.icon
 const KeepKeyIcon = KeepKeyConfig.icon
 
-export type WalletOptionProps = {
+type WalletOptionProps = {
   connect: () => void
   isSelected: boolean
   isDisabled: boolean
@@ -48,19 +48,15 @@ const WalletOption = ({ connect, isSelected, isDisabled, icon: Icon, name }: Wal
   )
 }
 
-export type HardwareWalletsSectionProps = {
-  isLoading: boolean
-  selectedWalletId: string | null
-  onWalletSelect: (id: string, initialRoute: string) => void
-  showHeader?: boolean
-}
-
 export const HardwareWalletsSection = ({
   isLoading,
   selectedWalletId,
   onWalletSelect,
-  showHeader = true,
-}: HardwareWalletsSectionProps) => {
+}: {
+  isLoading: boolean
+  selectedWalletId: string | null
+  onWalletSelect: (id: string, initialRoute: string) => void
+}) => {
   const { connect } = useWallet()
 
   const handleConnectLedger = useCallback(() => {
@@ -74,15 +70,13 @@ export const HardwareWalletsSection = ({
   }, [connect, onWalletSelect])
 
   return (
-    <Stack spacing={2} my={showHeader ? 6 : 0}>
-      {showHeader && (
-        <Text
-          fontSize='sm'
-          fontWeight='medium'
-          color='gray.500'
-          translation='common.hardwareWallets'
-        />
-      )}
+    <Stack spacing={2} my={6}>
+      <Text
+        fontSize='sm'
+        fontWeight='medium'
+        color='gray.500'
+        translation='common.hardwareWallets'
+      />
       <WalletOption
         connect={handleConnectLedger}
         isSelected={selectedWalletId === KeyManager.Ledger}

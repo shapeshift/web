@@ -35,14 +35,17 @@ type VaultInfo = {
 }
 
 export type SavedWalletItemProps = {
-  onSelect: () => void
+  onSelect: (wallet: VaultInfo) => void
+  wallet: VaultInfo
   isSelected: boolean
-  name: string
-  id: string
 }
 
-const SavedWalletItem = ({ onSelect, isSelected, name }: SavedWalletItemProps) => {
+const SavedWalletItem = ({ onSelect, isSelected, wallet }: SavedWalletItemProps) => {
   const bgColor = useColorModeValue('blackAlpha.100', 'whiteAlpha.100')
+
+  const handleSelect = useCallback(() => {
+    onSelect(wallet)
+  }, [onSelect, wallet])
 
   return (
     <Box
@@ -54,7 +57,7 @@ const SavedWalletItem = ({ onSelect, isSelected, name }: SavedWalletItemProps) =
       mr='-16px'
       py={2.5}
       borderRadius='md'
-      onClick={onSelect}
+      onClick={handleSelect}
       bg={isSelected ? bgColor : undefined}
     >
       <Flex alignItems='center' width='full'>
@@ -63,7 +66,7 @@ const SavedWalletItem = ({ onSelect, isSelected, name }: SavedWalletItemProps) =
         </FoxIcon>
         <Box textAlign='left'>
           <CText isTruncated maxW='200px'>
-            {name}
+            {wallet.name}
           </CText>
         </Box>
       </Flex>
@@ -71,11 +74,20 @@ const SavedWalletItem = ({ onSelect, isSelected, name }: SavedWalletItemProps) =
   )
 }
 
-export const SavedWalletListButton = ({ onSelect, isSelected, name }: SavedWalletItemProps) => {
+export const SavedWalletListButton = ({ onSelect, isSelected, wallet }: SavedWalletItemProps) => {
   const walletIcon = useMemo(() => <FoxIcon />, [])
 
+  const handleSelect = useCallback(() => {
+    onSelect(wallet)
+  }, [onSelect, wallet])
+
   return (
-    <WalletListButton name={name} icon={walletIcon} onSelect={onSelect} isSelected={isSelected} />
+    <WalletListButton
+      name={wallet.name}
+      icon={walletIcon}
+      onSelect={handleSelect}
+      isSelected={isSelected}
+    />
   )
 }
 
@@ -169,11 +181,9 @@ export const SavedWalletsSection = ({
       return (
         <RenderItem
           key={wallet.id}
-          // eslint-disable-next-line react-memo/require-usememo
-          onSelect={() => handleWalletSelect(wallet)}
+          onSelect={handleWalletSelect}
           isSelected={selectedWalletId === wallet.id}
-          name={wallet.name}
-          id={wallet.id}
+          wallet={wallet}
         />
       )
     })

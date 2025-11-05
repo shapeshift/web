@@ -28,7 +28,7 @@ import { NativeRoutes } from './routes/NativeRoutes'
 import { WalletConnectV2Routes } from './routes/WalletConnectV2Routes'
 import { HardwareWalletsSection } from './sections/HardwareWalletsSection'
 import { InstalledWalletsSection } from './sections/InstalledWalletsSection'
-import { OthersSection, OtherWalletListButton } from './sections/OthersSection'
+import { OthersSection } from './sections/OthersSection'
 import { SavedWalletListButton, SavedWalletsSection } from './sections/SavedWalletsSection'
 import type { RightPanelContentProps } from './types'
 import { NativeIntro } from './wallets/native/NativeIntro'
@@ -257,14 +257,6 @@ export const NewWalletViewsSwitch = () => {
             onWalletSelect={handleWalletSelect}
             renderItem={SavedWalletListButton}
             showHeader={false}
-          />
-          <OthersSection
-            isLoading={isLoading}
-            selectedWalletId={selectedWalletId}
-            onWalletSelect={handleWalletSelect}
-            renderItem={OtherWalletListButton}
-            showHeader={false}
-            showWalletConnect={false}
           />
         </MobileWebSelect>
       )

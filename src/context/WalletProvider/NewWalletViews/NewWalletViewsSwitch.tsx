@@ -260,34 +260,33 @@ export const NewWalletViewsSwitch = () => {
           />
         </MobileWebSelect>
       )
-    } else {
-      return (
-        <Box w={sectionsWidth} p={6} maxH='800px' overflowY='auto'>
-          <SavedWalletsSection
-            selectedWalletId={selectedWalletId}
-            onWalletSelect={handleWalletSelect}
-          />
-          <Divider mb={2} />
-          <Text translation='common.connectWallet' fontSize='xl' fontWeight='semibold' />
-          <InstalledWalletsSection
-            isLoading={isLoading}
-            selectedWalletId={selectedWalletId}
-            onWalletSelect={handleWalletSelect}
-          />
-          <HardwareWalletsSection
-            selectedWalletId={selectedWalletId}
-            onWalletSelect={handleWalletSelect}
-            isLoading={isLoading}
-          />
-          <Divider mb={2} />
-          <OthersSection
-            isLoading={isLoading}
-            selectedWalletId={selectedWalletId}
-            onWalletSelect={handleWalletSelect}
-          />
-        </Box>
-      )
     }
+    return (
+      <Box w={sectionsWidth} p={6} maxH='800px' overflowY='auto'>
+        <SavedWalletsSection
+          selectedWalletId={selectedWalletId}
+          onWalletSelect={handleWalletSelect}
+        />
+        <Divider mb={2} />
+        <Text translation='common.connectWallet' fontSize='xl' fontWeight='semibold' />
+        <InstalledWalletsSection
+          isLoading={isLoading}
+          selectedWalletId={selectedWalletId}
+          onWalletSelect={handleWalletSelect}
+        />
+        <HardwareWalletsSection
+          selectedWalletId={selectedWalletId}
+          onWalletSelect={handleWalletSelect}
+          isLoading={isLoading}
+        />
+        <Divider mb={2} />
+        <OthersSection
+          isLoading={isLoading}
+          selectedWalletId={selectedWalletId}
+          onWalletSelect={handleWalletSelect}
+        />
+      </Box>
+    )
   }, [handleWalletSelect, isLargerThanMd, isLoading, modal, onClose, selectedWalletId])
 
   const bodyBgColor = useColorModeValue('gray.50', '#2b2f33')

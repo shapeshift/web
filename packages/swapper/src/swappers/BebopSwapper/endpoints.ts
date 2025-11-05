@@ -48,6 +48,10 @@ export const bebopApi: SwapperApi = {
 
     const feeData = await evm.getFees({ adapter, data, to, value, from, supportsEIP1559 })
 
+    if (!gas) {
+      throw new Error('Bebop API did not provide gas estimate - cannot execute trade safely')
+    }
+
     return adapter.buildCustomApiTx({
       accountNumber,
       data,
@@ -56,7 +60,7 @@ export const bebopApi: SwapperApi = {
       value,
       ...feeData,
       // Use the higher amount of the node or the API, as the node doesn't always provide enough gas padding
-      gasLimit: BigNumber.max(feeData.gasLimit, gas ?? '0').toFixed(),
+      gasLimit: BigNumber.max(feeData.gasLimit, gas).toFixed(),
     })
   },
   getEvmTransactionFees: async ({

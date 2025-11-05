@@ -61,25 +61,45 @@ export type BebopQuoteRoute = {
     requiredSignatures: string[]
     priceImpact: number
     warnings: string[]
-    toSign: any
+    toSign: {
+      partner_id: number
+      expiry: number
+      taker_address: Address
+      maker_address: Address
+      maker_nonce: string
+      taker_token: Address
+      maker_token: Address
+      taker_amount: string
+      maker_amount: string
+      receiver: Address
+      packed_commands: string
+    }
     onchainOrderType?: string
     solver?: string
     makers?: string[]
+    partialFillOffset?: number
     tx: {
       to: Address
       from: Address
       data: Hex
       value: Hex
-      gas?: string
+      gas?: Hex
     }
     partnerFee?: Record<Address, string>
     protocolFee?: Record<Address, string>
   }
 }
 
+// Bebop error responses - route failures during quote aggregation
+export type BebopError = {
+  errorCode: number
+  message: string
+  requestId: string
+}
+
 export type BebopQuoteResponse = {
   routes: BebopQuoteRoute[]
-  errors: Record<string, any>
+  errors: Record<string, BebopError>
   link: string
   bestPrice: string
 }

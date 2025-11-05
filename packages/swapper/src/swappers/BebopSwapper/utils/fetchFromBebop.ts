@@ -39,7 +39,12 @@ export const fetchBebopQuote = async ({
     const checksummedReceiverAddress = getAddress(receiverAddress)
     const chainName = chainIdToBebopChain[sellAsset.chainId as BebopSupportedChainId]
     const sellAmountFormatted = bn(sellAmountIncludingProtocolFeesCryptoBaseUnit).toFixed(0)
-    const slippageBps = bn(slippageTolerancePercentageDecimal ?? 0.003).times(100).toNumber()
+    // Bebop API expects slippage as percentage (not basis points like other APIs)
+    // e.g. 0.3% → send as 0.3, not 30
+    // See: https://api.bebop.xyz/pmm/ethereum/docs#/v3/quote_v3_quote_get
+    const slippagePercentage = bn(slippageTolerancePercentageDecimal ?? 0.003)
+      .times(100)
+      .toNumber()
     const url = `https://api.bebop.xyz/router/${chainName}/v1/quote`
 
     const params = new URLSearchParams({
@@ -48,7 +53,7 @@ export const fetchBebopQuote = async ({
       sell_amounts: sellAmountFormatted,
       taker_address: checksummedTakerAddress,
       receiver_address: checksummedReceiverAddress,
-      slippage: slippageBps.toString(),
+      slippage: slippagePercentage.toString(),
       approval_type: 'Standard',
       skip_validation: 'true',
       gasless: 'false',

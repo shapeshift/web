@@ -6,7 +6,7 @@ import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import { v4 as uuid } from 'uuid'
 import type { Address } from 'viem'
-import { isAddress } from 'viem'
+import { fromHex, isAddress } from 'viem'
 
 import { getDefaultSlippageDecimalPercentageForSwapper } from '../../../constants'
 import type {
@@ -117,10 +117,13 @@ export async function getBebopTradeQuote(
     const adapter = assertGetEvmChainAdapter(chainId)
     const { average } = await adapter.getGasFeeData()
 
+    // Convert gas limit from hex to decimal string (Bebop returns hex values)
+    const gasLimitFromQuote = quote.tx.gas ? fromHex(quote.tx.gas, 'bigint').toString() : '0'
+
     const networkFeeCryptoBaseUnit = evm.calcNetworkFeeCryptoBaseUnit({
       ...average,
       supportsEIP1559: Boolean(supportsEIP1559),
-      gasLimit: quote.tx.gas || '0',
+      gasLimit: gasLimitFromQuote,
     })
 
     return Ok({

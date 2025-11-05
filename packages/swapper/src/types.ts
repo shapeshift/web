@@ -299,8 +299,8 @@ export type TradeQuoteStep = {
   }
   bebopTransactionMetadata?: {
     to: Address
-    data: Address
-    value: string
+    data: Hex
+    value: Hex
     gas?: string
   }
   jupiterQuoteResponse?: QuoteResponse

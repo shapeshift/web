@@ -1,6 +1,5 @@
 import { evm } from '@shapeshiftoss/chain-adapters'
 import BigNumber from 'bignumber.js'
-import type { Hex } from 'viem'
 import { fromHex } from 'viem'
 
 import type { GetEvmTradeQuoteInputBase, GetEvmTradeRateInput, SwapperApi } from '../../types'
@@ -43,11 +42,7 @@ export const bebopApi: SwapperApi = {
     if (!bebopTransactionMetadata) throw new Error('Transaction metadata is required')
 
     const { value: hexValue, to, data, gas } = bebopTransactionMetadata
-
-    // Convert hex value to decimal string (viem expects decimal, Bebop returns hex)
-    const value = hexValue.startsWith('0x')
-      ? fromHex(hexValue as Hex, 'bigint').toString()
-      : hexValue
+    const value = fromHex(hexValue, 'bigint').toString()
 
     const adapter = assertGetEvmChainAdapter(sellAsset.chainId)
 
@@ -79,11 +74,7 @@ export const bebopApi: SwapperApi = {
     if (!bebopTransactionMetadata) throw new Error('Transaction metadata is required')
 
     const { value: hexValue, to, data } = bebopTransactionMetadata
-
-    // Convert hex value to decimal string (viem expects decimal, Bebop returns hex)
-    const value = hexValue.startsWith('0x')
-      ? fromHex(hexValue as Hex, 'bigint').toString()
-      : hexValue
+    const value = fromHex(hexValue, 'bigint').toString()
 
     const adapter = assertGetEvmChainAdapter(sellAsset.chainId)
 

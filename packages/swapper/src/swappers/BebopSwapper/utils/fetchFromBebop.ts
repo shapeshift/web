@@ -35,26 +35,14 @@ export const fetchBebopQuote = async ({
   apiKey: string
 }): Promise<Result<BebopQuoteResponse, SwapErrorRight>> => {
   try {
-    // Get Bebop-formatted token addresses (checksummed)
     const sellToken = assetIdToBebopToken(sellAsset.assetId)
     const buyToken = assetIdToBebopToken(buyAsset.assetId)
-
-    // Checksum the wallet address - Bebop requires checksummed addresses
     const checksummedSellAddress = getAddress(sellAddress)
-
-    // Get chain name for Bebop API
     const chainName = getBebopChainName(sellAsset.chainId)
-
-    // Format sell amount (Bebop expects integers without decimals)
     const sellAmountFormatted = formatBebopAmount(sellAmountIncludingProtocolFeesCryptoBaseUnit)
-
-    // Calculate slippage in basis points
     const slippageBps = getSlippageTolerance(slippageTolerancePercentageDecimal)
-
-    // Build API URL
     const url = buildBebopApiUrl(chainName, 'quote')
 
-    // Build query parameters
     const params = new URLSearchParams({
       sell_tokens: sellToken,
       buy_tokens: buyToken,
@@ -68,15 +56,11 @@ export const fetchBebopQuote = async ({
       source: 'shapeshift',
     })
 
-    // Add affiliate fee if provided (in basis points, same format as affiliateBps)
     if (affiliateBps && affiliateBps !== '0') {
       params.set('fee', affiliateBps)
     }
 
-    // Create service instance
     const bebopService = bebopServiceFactory({ apiKey })
-
-    // Make API request
     const maybeResponse = await bebopService.get<BebopQuoteResponse>(`${url}?${params}`)
 
     if (maybeResponse.isErr()) {
@@ -128,8 +112,6 @@ export const fetchBebopQuote = async ({
   }
 }
 
-// For price-only requests (no wallet connected), we still use quote endpoint
-// but with a valid dummy address (zero address doesn't work with Bebop)
 export const fetchBebopPrice = ({
   buyAsset,
   sellAsset,
@@ -143,17 +125,15 @@ export const fetchBebopPrice = ({
   affiliateBps?: string
   apiKey: string
 }): Promise<Result<BebopQuoteResponse, SwapErrorRight>> => {
-  // Use a valid dummy taker address when wallet isn't connected
-  // Bebop requires a valid address format, zero address may not work
-  const DUMMY_TAKER = '0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045' as Address // Vitalik's address as placeholder
+  const DUMMY_TAKER = '0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045' as Address
 
   return fetchBebopQuote({
     buyAsset,
     sellAsset,
     sellAmountIncludingProtocolFeesCryptoBaseUnit,
     sellAddress: DUMMY_TAKER,
-    slippageTolerancePercentageDecimal: '0.01', // Default 1% for price quotes
-    affiliateBps, // Pass through affiliate fees to show realistic rate
+    slippageTolerancePercentageDecimal: '0.01',
+    affiliateBps,
     apiKey,
   })
 }

@@ -2,7 +2,7 @@ import type { AssetsByIdPartial } from '@shapeshiftoss/types'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import { v4 as uuid } from 'uuid'
-import type { Address } from 'viem'
+import { isAddress } from 'viem'
 
 import { getDefaultSlippageDecimalPercentageForSwapper } from '../../../constants'
 import type {
@@ -31,16 +31,13 @@ export async function getBebopTradeRate(
     sellAmountIncludingProtocolFeesCryptoBaseUnit,
   } = input
 
-  // Validate the trade
   const assertion = assertValidTrade({ buyAsset, sellAsset })
   if (assertion.isErr()) return Err(assertion.unwrapErr())
 
-  // Get slippage tolerance
   const slippageTolerancePercentageDecimal =
     input.slippageTolerancePercentageDecimal ??
     getDefaultSlippageDecimalPercentageForSwapper(SwapperName.Bebop)
 
-  // Fetch price from Bebop (price endpoint doesn't require taker address)
   const maybeBebopPriceResponse = await fetchBebopPrice({
     buyAsset,
     sellAsset,
@@ -52,7 +49,6 @@ export async function getBebopTradeRate(
   if (maybeBebopPriceResponse.isErr()) return Err(maybeBebopPriceResponse.unwrapErr())
   const bebopPriceResponse = maybeBebopPriceResponse.unwrap()
 
-  // Get the best price route by matching the type
   const bestRoute = bebopPriceResponse.routes.find(r => r.type === bebopPriceResponse.bestPrice)
   if (!bestRoute || !bestRoute.quote) {
     return Err(
@@ -65,32 +61,27 @@ export async function getBebopTradeRate(
 
   const quote = bestRoute.quote
 
-  // Get the sell and buy token addresses
-  const sellTokenAddress = Object.keys(quote.sellTokens)[0] as Address
-  const buyTokenAddress = Object.keys(quote.buyTokens)[0] as Address
+  const sellTokenAddress = Object.keys(quote.sellTokens)[0]
+  const buyTokenAddress = Object.keys(quote.buyTokens)[0]
 
-  if (!sellTokenAddress || !buyTokenAddress) {
+  if (!isAddress(sellTokenAddress) || !isAddress(buyTokenAddress)) {
     return Err(
       makeSwapErrorRight({
-        message: 'Invalid token data in response',
+        message: 'Invalid token addresses in response',
         code: TradeQuoteError.InvalidResponse,
       }),
     )
   }
 
-  // Get amounts from the tokens data
   const sellAmount = quote.sellTokens[sellTokenAddress].amount
   const buyAmount = quote.buyTokens[buyTokenAddress].amount
 
-  // Calculate rate
   const rate = calculateRate({ buyAmount, sellAmount, buyAsset, sellAsset })
 
-  // Use amountBeforeFee if available, otherwise use the regular amount
   const buyTokenData = quote.buyTokens[buyTokenAddress]
   const buyAmountBeforeFeesCryptoBaseUnit = buyTokenData.amountBeforeFee || buyAmount
   const buyAmountAfterFeesCryptoBaseUnit = buyAmount
 
-  // Extract gas fee from the quote
   const networkFeeCryptoBaseUnit = quote.gasFee?.native || '0'
 
   return Ok({
@@ -104,9 +95,7 @@ export async function getBebopTradeRate(
     swapperName: SwapperName.Bebop,
     steps: [
       {
-        // Assume instant execution for same-chain swaps
         estimatedExecutionTimeMs: 0,
-        // Use approval target from the quote
         allowanceContract: isNativeEvmAsset(sellAsset.assetId) ? undefined : quote.approvalTarget,
         buyAsset,
         sellAsset,

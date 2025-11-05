@@ -2,11 +2,11 @@ import type { ChainId } from '@shapeshiftoss/caip'
 import type { EvmChainAdapter } from '@shapeshiftoss/chain-adapters'
 import { evm } from '@shapeshiftoss/chain-adapters'
 import type { AssetsByIdPartial } from '@shapeshiftoss/types'
-import { bnOrZero } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import { v4 as uuid } from 'uuid'
-import type { Address } from 'viem'
+import type { Address, Hex } from 'viem'
+import { isAddress } from 'viem'
 
 import { getDefaultSlippageDecimalPercentageForSwapper } from '../../../constants'
 import type {
@@ -39,16 +39,13 @@ export async function getBebopTradeQuote(
     sellAmountIncludingProtocolFeesCryptoBaseUnit,
   } = input
 
-  // Validate the trade
   const assertion = assertValidTrade({ buyAsset, sellAsset })
   if (assertion.isErr()) return Err(assertion.unwrapErr())
 
-  // Get slippage tolerance
   const slippageTolerancePercentageDecimal =
     input.slippageTolerancePercentageDecimal ??
     getDefaultSlippageDecimalPercentageForSwapper(SwapperName.Bebop)
 
-  // Fetch quote from Bebop
   const maybeBebopQuoteResponse = await fetchBebopQuote({
     buyAsset,
     sellAsset,
@@ -62,7 +59,6 @@ export async function getBebopTradeQuote(
   if (maybeBebopQuoteResponse.isErr()) return Err(maybeBebopQuoteResponse.unwrapErr())
   const bebopQuoteResponse = maybeBebopQuoteResponse.unwrap()
 
-  // Get the best price route by matching the type
   const bestRoute = bebopQuoteResponse.routes.find(r => r.type === bebopQuoteResponse.bestPrice)
   if (!bestRoute || !bestRoute.quote) {
     return Err(
@@ -75,63 +71,44 @@ export async function getBebopTradeQuote(
 
   const quote = bestRoute.quote
 
-  // Get the sell and buy token addresses
-  const sellTokenAddress = Object.keys(quote.sellTokens)[0] as Address
-  const buyTokenAddress = Object.keys(quote.buyTokens)[0] as Address
+  const sellTokenAddress = Object.keys(quote.sellTokens)[0]
+  const buyTokenAddress = Object.keys(quote.buyTokens)[0]
 
-  if (!sellTokenAddress || !buyTokenAddress) {
+  if (!isAddress(sellTokenAddress) || !isAddress(buyTokenAddress)) {
     return Err(
       makeSwapErrorRight({
-        message: 'Invalid token data in response',
+        message: 'Invalid token addresses in response',
         code: TradeQuoteError.InvalidResponse,
       }),
     )
   }
 
-  // Get amounts from the tokens data
   const sellAmount = quote.sellTokens[sellTokenAddress].amount
   const buyAmount = quote.buyTokens[buyTokenAddress].amount
 
-  // Use transaction data from the quote response
   const transactionMetadata: TradeQuoteStep['bebopTransactionMetadata'] = {
     to: quote.tx.to,
-    data: quote.tx.data as Address,
-    value: quote.tx.value,
+    data: quote.tx.data as Hex,
+    value: quote.tx.value as Hex,
     gas: quote.tx.gas,
   }
 
-  // Calculate rate
   const rate = calculateRate({ buyAmount, sellAmount, buyAsset, sellAsset })
 
-  // Use amountBeforeFee if available, otherwise use the regular amount
   const buyTokenData = quote.buyTokens[buyTokenAddress]
   const buyAmountBeforeFeesCryptoBaseUnit = buyTokenData.amountBeforeFee || buyAmount
   const buyAmountAfterFeesCryptoBaseUnit = buyAmount
 
   try {
-    // Get network fee estimation
     const adapter = assertGetEvmChainAdapter(chainId)
     const { average } = await adapter.getGasFeeData()
-
-    // Use gas limit from tx if available, otherwise derive from gas fee
-    const gasLimit =
-      quote.tx.gas ||
-      (() => {
-        const gasPriceWei = average.gasPrice || average.maxFeePerGas || '20000000000' // 20 gwei fallback
-        return bnOrZero(quote.gasFee.native)
-          .dividedBy(gasPriceWei)
-          .multipliedBy(1.2) // Add 20% buffer for safety
-          .integerValue()
-          .toString()
-      })()
 
     const networkFeeCryptoBaseUnit = evm.calcNetworkFeeCryptoBaseUnit({
       ...average,
       supportsEIP1559: Boolean(supportsEIP1559),
-      gasLimit,
+      gasLimit: quote.tx.gas || '0',
     })
 
-    // Build the trade quote
     return Ok({
       id: uuid(),
       quoteOrRate: 'quote' as const,
@@ -142,9 +119,7 @@ export async function getBebopTradeQuote(
       swapperName: SwapperName.Bebop,
       steps: [
         {
-          // Assume instant execution for same-chain swaps
           estimatedExecutionTimeMs: 0,
-          // Use approval target from the quote
           allowanceContract: isNativeEvmAsset(sellAsset.assetId) ? undefined : quote.approvalTarget,
           buyAsset,
           sellAsset,

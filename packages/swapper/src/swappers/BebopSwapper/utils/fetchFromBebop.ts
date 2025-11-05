@@ -90,7 +90,6 @@ export const fetchBebopQuote = async ({
       )
     }
 
-    // Validate best price exists
     if (!response.data.bestPrice) {
       return Err(
         makeSwapErrorRight({

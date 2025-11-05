@@ -1,4 +1,5 @@
 import type { Asset } from '@shapeshiftoss/types'
+import { bn } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import type { Address } from 'viem'
@@ -7,21 +8,17 @@ import { getAddress } from 'viem'
 import type { SwapErrorRight } from '../../../types'
 import { TradeQuoteError } from '../../../types'
 import { makeSwapErrorRight } from '../../../utils'
-import type { BebopQuoteResponse } from '../types'
+import type { BebopQuoteResponse, BebopSupportedChainId } from '../types'
+import { BEBOP_DUMMY_ADDRESS, chainIdToBebopChain } from '../types'
 import { bebopServiceFactory } from './bebopService'
-import {
-  assetIdToBebopToken,
-  buildBebopApiUrl,
-  formatBebopAmount,
-  getBebopChainName,
-  getSlippageTolerance,
-} from './helpers/helpers'
+import { assetIdToBebopToken } from './helpers/helpers'
 
 export const fetchBebopQuote = async ({
   buyAsset,
   sellAsset,
   sellAmountIncludingProtocolFeesCryptoBaseUnit,
-  sellAddress,
+  takerAddress,
+  receiverAddress,
   slippageTolerancePercentageDecimal,
   affiliateBps,
   apiKey,
@@ -29,7 +26,8 @@ export const fetchBebopQuote = async ({
   buyAsset: Asset
   sellAsset: Asset
   sellAmountIncludingProtocolFeesCryptoBaseUnit: string
-  sellAddress: Address
+  takerAddress: Address
+  receiverAddress: Address
   slippageTolerancePercentageDecimal: string
   affiliateBps?: string
   apiKey: string
@@ -37,18 +35,19 @@ export const fetchBebopQuote = async ({
   try {
     const sellToken = assetIdToBebopToken(sellAsset.assetId)
     const buyToken = assetIdToBebopToken(buyAsset.assetId)
-    const checksummedSellAddress = getAddress(sellAddress)
-    const chainName = getBebopChainName(sellAsset.chainId)
-    const sellAmountFormatted = formatBebopAmount(sellAmountIncludingProtocolFeesCryptoBaseUnit)
-    const slippageBps = getSlippageTolerance(slippageTolerancePercentageDecimal)
-    const url = buildBebopApiUrl(chainName, 'quote')
+    const checksummedTakerAddress = getAddress(takerAddress)
+    const checksummedReceiverAddress = getAddress(receiverAddress)
+    const chainName = chainIdToBebopChain[sellAsset.chainId as BebopSupportedChainId]
+    const sellAmountFormatted = bn(sellAmountIncludingProtocolFeesCryptoBaseUnit).toFixed(0)
+    const slippageBps = bn(slippageTolerancePercentageDecimal ?? 0.003).times(100).toNumber()
+    const url = `https://api.bebop.xyz/router/${chainName}/v1/quote`
 
     const params = new URLSearchParams({
       sell_tokens: sellToken,
       buy_tokens: buyToken,
       sell_amounts: sellAmountFormatted,
-      taker_address: checksummedSellAddress,
-      receiver_address: checksummedSellAddress,
+      taker_address: checksummedTakerAddress,
+      receiver_address: checksummedReceiverAddress,
       slippage: slippageBps.toString(),
       approval_type: 'Standard',
       skip_validation: 'true',
@@ -115,22 +114,25 @@ export const fetchBebopPrice = ({
   buyAsset,
   sellAsset,
   sellAmountIncludingProtocolFeesCryptoBaseUnit,
+  receiveAddress,
   affiliateBps,
   apiKey,
 }: {
   buyAsset: Asset
   sellAsset: Asset
   sellAmountIncludingProtocolFeesCryptoBaseUnit: string
+  receiveAddress: string | undefined
   affiliateBps?: string
   apiKey: string
 }): Promise<Result<BebopQuoteResponse, SwapErrorRight>> => {
-  const DUMMY_TAKER = '0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045' as Address
+  const address = (receiveAddress as Address | undefined) || BEBOP_DUMMY_ADDRESS
 
   return fetchBebopQuote({
     buyAsset,
     sellAsset,
     sellAmountIncludingProtocolFeesCryptoBaseUnit,
-    sellAddress: DUMMY_TAKER,
+    takerAddress: address,
+    receiverAddress: address,
     slippageTolerancePercentageDecimal: '0.01',
     affiliateBps,
     apiKey,

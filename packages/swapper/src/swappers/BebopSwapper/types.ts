@@ -95,3 +95,8 @@ export const chainIdToBebopChain: Record<BebopSupportedChainId, string> = {
 }
 
 export const BEBOP_NATIVE_MARKER = '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
+
+// Dummy address used for rate quotes when no wallet is connected.
+// This is Vitalik's address, same as what Bebop's own UI uses for price-only quotes.
+// MUST NEVER be used for executable quote transactions.
+export const BEBOP_DUMMY_ADDRESS = '0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045' as Address

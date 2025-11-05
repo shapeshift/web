@@ -5,7 +5,7 @@ import type { AssetsByIdPartial } from '@shapeshiftoss/types'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import { v4 as uuid } from 'uuid'
-import type { Address, Hex } from 'viem'
+import type { Address } from 'viem'
 import { isAddress } from 'viem'
 
 import { getDefaultSlippageDecimalPercentageForSwapper } from '../../../constants'
@@ -19,6 +19,7 @@ import type {
 import { SwapperName, TradeQuoteError } from '../../../types'
 import { makeSwapErrorRight } from '../../../utils'
 import { isNativeEvmAsset } from '../../utils/helpers/helpers'
+import { BEBOP_DUMMY_ADDRESS } from '../types'
 import { fetchBebopQuote } from '../utils/fetchFromBebop'
 import { assertValidTrade, calculateRate } from '../utils/helpers/helpers'
 
@@ -32,6 +33,7 @@ export async function getBebopTradeQuote(
     sellAsset,
     buyAsset,
     accountNumber,
+    sendAddress,
     receiveAddress,
     affiliateBps,
     chainId,
@@ -42,6 +44,17 @@ export async function getBebopTradeQuote(
   const assertion = assertValidTrade({ buyAsset, sellAsset })
   if (assertion.isErr()) return Err(assertion.unwrapErr())
 
+  const takerAddress = (sendAddress || receiveAddress) as Address
+
+  if (takerAddress === BEBOP_DUMMY_ADDRESS) {
+    return Err(
+      makeSwapErrorRight({
+        message: 'Cannot execute quote with dummy address - wallet required',
+        code: TradeQuoteError.UnknownError,
+      }),
+    )
+  }
+
   const slippageTolerancePercentageDecimal =
     input.slippageTolerancePercentageDecimal ??
     getDefaultSlippageDecimalPercentageForSwapper(SwapperName.Bebop)
@@ -50,7 +63,8 @@ export async function getBebopTradeQuote(
     buyAsset,
     sellAsset,
     sellAmountIncludingProtocolFeesCryptoBaseUnit,
-    sellAddress: receiveAddress as Address,
+    takerAddress,
+    receiverAddress: receiveAddress as Address,
     slippageTolerancePercentageDecimal,
     affiliateBps,
     apiKey,
@@ -88,8 +102,8 @@ export async function getBebopTradeQuote(
 
   const transactionMetadata: TradeQuoteStep['bebopTransactionMetadata'] = {
     to: quote.tx.to,
-    data: quote.tx.data as Hex,
-    value: quote.tx.value as Hex,
+    data: quote.tx.data,
+    value: quote.tx.value,
     gas: quote.tx.gas,
   }
 

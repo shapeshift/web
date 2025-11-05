@@ -37,7 +37,6 @@ const collapseStyle = { width: '100%' }
 type MobileWebSelectProps = {
   isOpen: boolean
   onClose: () => void
-  onWalletSelect: (id: string, initialRoute: string) => void
 }
 
 export const MobileWebSelect: React.FC<PropsWithChildren<MobileWebSelectProps>> = ({

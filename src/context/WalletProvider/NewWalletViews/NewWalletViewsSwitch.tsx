@@ -251,7 +251,7 @@ export const NewWalletViewsSwitch = () => {
   const sections = useMemo(() => {
     if (!isLargerThanMd && !isMobile) {
       return (
-        <MobileWebSelect isOpen={modal} onClose={onClose} onWalletSelect={handleWalletSelect}>
+        <MobileWebSelect isOpen={modal} onClose={onClose}>
           <SavedWalletsSection
             selectedWalletId={selectedWalletId}
             onWalletSelect={handleWalletSelect}

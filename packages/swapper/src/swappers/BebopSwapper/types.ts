@@ -94,4 +94,4 @@ export const chainIdToBebopChain: Record<BebopSupportedChainId, string> = {
   [KnownChainIds.BnbSmartChainMainnet]: 'bsc',
 }
 
-export const BEBOP_NATIVE_TOKEN_ADDRESS = '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'
+export const BEBOP_NATIVE_MARKER = '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE'

@@ -42,6 +42,7 @@ export async function getBebopTradeRate(
     buyAsset,
     sellAsset,
     sellAmountIncludingProtocolFeesCryptoBaseUnit,
+    receiveAddress,
     affiliateBps,
     apiKey,
   })

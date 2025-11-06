@@ -11003,7 +11003,7 @@ __metadata:
     "@visx/responsive": ^3.10.2
     "@visx/scale": ^3.5.0
     "@visx/xychart": ^3.12.0
-    "@vitejs/plugin-react": latest
+    "@vitejs/plugin-react": ^5.1.0
     "@walletconnect/core": ^2.20.2
     "@walletconnect/ethereum-provider": ^2.20.2
     "@walletconnect/types": ^2.20.2
@@ -13498,7 +13498,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@vitejs/plugin-react@npm:latest":
+"@vitejs/plugin-react@npm:^5.1.0":
   version: 5.1.0
   resolution: "@vitejs/plugin-react@npm:5.1.0"
   dependencies:

@@ -159,6 +159,7 @@ export const mockStore: ReduxState = {
       ThorchainTcyActivity: false,
       MayaSwap: false,
       ButterSwap: false,
+      BebopSwap: false,
       LazyTxHistory: false,
       RfoxFoxEcosystemPage: false,
       QuickBuy: false,

@@ -34,10 +34,8 @@ export const isValidAccountNumber = (
   return Number.isInteger(accountNumber) && accountNumber >= 0
 }
 
-export const isUtxoAccountWithAddresses = (
-  account: Account<KnownChainIds>,
-): account is Account<UtxoChainId> => {
-  return Boolean(isUtxoChainId(account?.chainId) && 'addresses' in account.chainSpecific)
+export const isUtxoAccount = (account: Account<KnownChainIds>): account is Account<UtxoChainId> => {
+  return isUtxoChainId(account?.chainId)
 }
 
 export const findUtxoAccountIdByAddress = (
@@ -45,26 +43,24 @@ export const findUtxoAccountIdByAddress = (
   accountIds: AccountId[],
   chainId: string,
 ): AccountId | null => {
-  const normalizedAddress = address.toLowerCase()
-
-  const relevantAccountIds = accountIds.filter(accountId => {
+  const matchingAccountIds = accountIds.filter(accountId => {
     const { chainId: accountChainId } = fromAccountId(accountId)
     return accountChainId === chainId
   })
 
-  for (const accountId of relevantAccountIds) {
+  for (const accountId of matchingAccountIds) {
     try {
       // Try to get the account data from the cache synchronously
       const account = queryClient.getQueryData<Account<KnownChainIds>>(
         accountManagement.getAccount(accountId).queryKey,
       )
 
-      if (!account || !isUtxoAccountWithAddresses(account)) {
+      if (!account || !isUtxoAccount(account)) {
         continue
       }
 
-      const addresses = account.chainSpecific.addresses?.map(addr => addr.pubkey) ?? []
-      const hasMatch = addresses.some(addr => addr && addr.toLowerCase() === normalizedAddress)
+      const addresses = account.chainSpecific.addresses.map(addr => addr.pubkey)
+      const hasMatch = addresses.some(addr => addr === address)
 
       if (hasMatch) {
         return accountId

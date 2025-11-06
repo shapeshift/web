@@ -123,9 +123,6 @@ export const selectInternalAccountIdByAddress = createDeepEqualOutputSelector(
       return accountId ?? null
     }
 
-    // For UTXO chains, use progressive address derivation to find matches
-    // This intelligently searches in batches (20, 50, 100) to handle edge cases
-    // where users have many transactions and the address is beyond the standard gap limit
     if (chainNamespace === CHAIN_NAMESPACE.Utxo) {
       return findUtxoAccountIdByAddress(accountAddress, nonEvmAccountIds, chainId)
     }

@@ -41,15 +41,6 @@ export const getBanxaQuote = async ({
     return null
   }
 
-  console.log({
-    fiatCurrency,
-    crypto,
-    amount,
-    direction,
-    banxaTicker,
-    blockchain,
-  })
-
   const requestData: BanxaQuoteRequest = {
     partner: 'shapeshift',
     crypto: banxaTicker,
@@ -90,8 +81,8 @@ export const getBanxaQuote = async ({
 
   const rate =
     direction === 'buy'
-      ? bnOrZero(cryptoAmount).div(fiatAmount).toString()
-      : bnOrZero(fiatAmount).div(cryptoAmount).toString()
+      ? bnOrZero(fiatAmount).div(cryptoAmount).toString()
+      : bnOrZero(cryptoAmount).div(fiatAmount).toString()
 
   return {
     id: `banxa-${fiatCurrency.code}-${banxaTicker}-${Date.now()}`,
@@ -102,8 +93,8 @@ export const getBanxaQuote = async ({
     networkFee: '0', // Banxa doesn't separate network fees
     amount: direction === 'buy' ? cryptoAmount : fiatAmount,
     isBestRate: false,
-    isCreditCard: true,
-    isBankTransfer: false,
+    isCreditCard: direction === 'buy' ? true : false,
+    isBankTransfer: direction === 'buy' ? false : true,
     isApplePay: false,
     isGooglePay: false,
     isSepa: false,

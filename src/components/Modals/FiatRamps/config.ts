@@ -1,5 +1,5 @@
 import type { AssetId } from '@shapeshiftoss/caip'
-import { adapters, btcAssetId, fromAssetId, gnosisChainId, usdtAssetId } from '@shapeshiftoss/caip'
+import { adapters, fromAssetId, gnosisChainId } from '@shapeshiftoss/caip'
 
 import { createBanxaUrl, getSupportedBanxaFiatCurrencies } from './fiatRampProviders/banxa'
 import {
@@ -130,7 +130,7 @@ export const supportedFiatRamps: SupportedFiatRamp = {
     order: 2,
     getBuyAndSellList: () => {
       const buyAssetIds = adapters.getSupportedBanxaAssets().map(({ assetId }) => assetId)
-      const sellAssetIds = [btcAssetId, usdcAssetId, usdtAssetId]
+      const sellAssetIds = adapters.getSupportedBanxaSellAssets()
       return Promise.resolve([buyAssetIds, sellAssetIds])
     },
     getSupportedFiatList: () => getSupportedBanxaFiatCurrencies(),

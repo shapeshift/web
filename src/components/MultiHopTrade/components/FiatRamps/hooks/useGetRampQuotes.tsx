@@ -45,12 +45,6 @@ export const useGetRampQuotes = ({
   )
 
   const supportedRamps = useMemo(() => {
-    console.log({
-      supportedFiatRamps,
-      ramps: ramps?.byAssetId[assetId]?.[direction],
-      assetId,
-      direction,
-    })
     if (!ramps?.byAssetId[assetId]?.[direction]) return []
 
     return ramps?.byAssetId[assetId]?.[direction]

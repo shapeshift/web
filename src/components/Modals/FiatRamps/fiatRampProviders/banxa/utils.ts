@@ -79,10 +79,7 @@ export const getBanxaQuote = async ({
   const cryptoAmount = quote.cryptoAmount
   const fiatAmount = quote.fiatAmount
 
-  const rate =
-    direction === 'buy'
-      ? bnOrZero(fiatAmount).div(cryptoAmount).toString()
-      : bnOrZero(cryptoAmount).div(fiatAmount).toString()
+  const rate = bnOrZero(fiatAmount).div(cryptoAmount).toString()
 
   return {
     id: `banxa-${fiatCurrency.code}-${banxaTicker}-${Date.now()}`,

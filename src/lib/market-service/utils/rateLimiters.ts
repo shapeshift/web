@@ -6,7 +6,7 @@ import { DEFAULT_RATE_LIMITER_INTERVAL_IN_MS } from '../config'
  * Generic rate limiter creator, can be used with any function that returns a promise
  * @param rate
  * @param interval
- * @returns rate limiter function wrappper
+ * @returns rate limiter function wrapper
  * usage:
  *   const rateLimiter = createRateLimiter()
  *   rateLimiter(() => fn(...args))

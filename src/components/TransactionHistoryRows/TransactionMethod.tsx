@@ -4,7 +4,7 @@ import { useTranslate } from 'react-polyglot'
 
 import { TransactionDate } from './TransactionDate'
 import { Amount } from './TransactionDetails/Amount'
-import { ApprovalAmount } from './TransactionDetails/ApprovalAmount'
+import { ApprovalDetails } from './TransactionDetails/ApprovalDetails'
 import { TransactionDetailsContainer } from './TransactionDetails/Container'
 import { Row } from './TransactionDetails/Row'
 import { Status } from './TransactionDetails/Status'
@@ -140,17 +140,16 @@ export const TransactionMethod = ({
       />
       <TransactionDetailsContainer isOpen={isOpen} compactMode={compactMode}>
         <Transfers compactMode={compactMode} transfers={txDetails.transfers} />
+        {(txMetadata.method === 'approve' || txMetadata.method === 'revoke') &&
+          txMetadataWithAssetId?.assetId &&
+          txMetadataWithAssetId?.value && (
+            <ApprovalDetails
+              assetId={txMetadataWithAssetId.assetId}
+              value={txMetadataWithAssetId.value}
+              parser={txMetadataWithAssetId.parser}
+            />
+          )}
         <TxGrid compactMode={compactMode}>
-          {(txMetadata.method === 'approve' || txMetadata.method === 'revoke') &&
-            txMetadataWithAssetId?.assetId &&
-            txMetadataWithAssetId?.value && (
-              // TODO(gomes): add isTransactionMetadata type guard
-              <ApprovalAmount
-                assetId={txMetadataWithAssetId.assetId}
-                value={txMetadataWithAssetId.value}
-                parser={txMetadataWithAssetId.parser}
-              />
-            )}
           <TransactionId txLink={txDetails.txLink} txid={txDetails.tx.txid} />
           <Row title='status'>
             <Status status={txDetails.tx.status} />

@@ -18,6 +18,7 @@ import { useTranslate } from 'react-polyglot'
 import { Route, Routes, useLocation, useNavigate } from 'react-router-dom'
 
 import type { KeyManager } from '../KeyManager'
+import { MobileWebSelect } from '../MobileWebSelect'
 import { NativeWalletRoutes } from '../types'
 import { RDNS_TO_FIRST_CLASS_KEYMANAGER } from './constants'
 import { KeepKeyRoutes } from './routes/KeepKeyRoutes'
@@ -28,14 +29,16 @@ import { WalletConnectV2Routes } from './routes/WalletConnectV2Routes'
 import { HardwareWalletsSection } from './sections/HardwareWalletsSection'
 import { InstalledWalletsSection } from './sections/InstalledWalletsSection'
 import { OthersSection } from './sections/OthersSection'
-import { SavedWalletsSection } from './sections/SavedWalletsSection'
+import { SavedWalletListButton, SavedWalletsSection } from './sections/SavedWalletsSection'
 import type { RightPanelContentProps } from './types'
 import { NativeIntro } from './wallets/native/NativeIntro'
 
 import { Text } from '@/components/Text'
+import { useModalRegistration } from '@/context/ModalStackProvider'
 import { WalletActions } from '@/context/WalletProvider/actions'
 import { KeepKeyRoutes as KeepKeyRoutesEnum } from '@/context/WalletProvider/routes'
 import { useWallet } from '@/hooks/useWallet/useWallet'
+import { isMobile } from '@/lib/globals'
 import { reactQueries } from '@/react-queries'
 import { breakpoints } from '@/theme/theme'
 import { defaultSuspenseFallback } from '@/utils/makeSuspenseful'
@@ -188,6 +191,11 @@ export const NewWalletViewsSwitch = () => {
     wallet,
   ])
 
+  const { modalProps, overlayProps, modalContentProps } = useModalRegistration({
+    isOpen: modal,
+    onClose,
+  })
+
   const handleWalletSelect = useCallback(
     (walletId: string, _initialRoute: string) => {
       if (_initialRoute) navigate(_initialRoute)
@@ -240,8 +248,20 @@ export const NewWalletViewsSwitch = () => {
     }
   }, [queryClient])
 
-  const sections = useMemo(
-    () => (
+  const sections = useMemo(() => {
+    if (!isLargerThanMd && !isMobile) {
+      return (
+        <MobileWebSelect isOpen={modal} onClose={onClose}>
+          <SavedWalletsSection
+            selectedWalletId={selectedWalletId}
+            onWalletSelect={handleWalletSelect}
+            renderItem={SavedWalletListButton}
+            showHeader={false}
+          />
+        </MobileWebSelect>
+      )
+    }
+    return (
       <Box w={sectionsWidth} p={6} maxH='800px' overflowY='auto'>
         <SavedWalletsSection
           selectedWalletId={selectedWalletId}
@@ -266,23 +286,27 @@ export const NewWalletViewsSwitch = () => {
           onWalletSelect={handleWalletSelect}
         />
       </Box>
-    ),
-    [handleWalletSelect, isLoading, selectedWalletId],
-  )
+    )
+  }, [handleWalletSelect, isLargerThanMd, isLoading, modal, onClose, selectedWalletId])
 
   const bodyBgColor = useColorModeValue('gray.50', '#2b2f33')
   const buttonContainerBgColor = useColorModeValue('gray.100', 'whiteAlpha.100')
 
   const Body = useCallback(() => {
     // These routes do not have a previous step, so don't display back button
-    const isRootRoute = ['/', KeepKeyRoutesEnum.Pin].includes(location.pathname)
+    const isRootRoute = [
+      '/',
+      KeepKeyRoutesEnum.Pin,
+      NativeWalletRoutes.Rename,
+      NativeWalletRoutes.Delete,
+    ].includes(location.pathname)
     // The main connect route for a given wallet. If we're here, clicking back should reset the route to the initial native CTA one
     const isConnectRoute =
       /^\/[^/]+\/connect$/.test(location.pathname) || location.pathname === '/native/enter-password'
 
     return (
       <Box flex={1} bg={bodyBgColor} p={6} position={isLargerThanMd ? 'relative' : 'initial'}>
-        {!isRootRoute || !isLargerThanMd ? (
+        {!isRootRoute ? (
           <Box
             position='absolute'
             left={3}
@@ -332,21 +356,15 @@ export const NewWalletViewsSwitch = () => {
 
   return (
     <>
-      <Modal
-        isOpen={modal}
-        onClose={onClose}
-        isCentered
-        trapFocus={false}
-        closeOnOverlayClick={true}
-        size={!isLargerThanMd ? modalSize : undefined}
-      >
-        <ModalOverlay />
+      <Modal {...modalProps} isCentered size={!isLargerThanMd ? modalSize : undefined}>
+        <ModalOverlay {...overlayProps} />
         <ModalContent
           justifyContent='center'
           overflow='hidden'
           borderRadius={!isLargerThanMd ? 'none' : 'xl'}
           maxW='900px'
           bg={!isLargerThanMd ? bodyBgColor : undefined}
+          {...modalContentProps}
         >
           <Box position={isLargerThanMd ? 'relative' : 'initial'}>
             <Box

@@ -3,7 +3,7 @@ import type { ResponsiveValue } from '@chakra-ui/react'
 import { Box, Button, Container, Flex, Text, VStack } from '@chakra-ui/react'
 import type { Property } from 'csstype'
 import { memo, useCallback, useMemo } from 'react'
-import { FaExpand, FaRegCreditCard } from 'react-icons/fa'
+import { FaRegCreditCard } from 'react-icons/fa'
 import { IoSwapVerticalSharp } from 'react-icons/io5'
 import { useTranslate } from 'react-polyglot'
 import { useNavigate } from 'react-router-dom'
@@ -12,6 +12,7 @@ import { vibrate } from '../../../../lib/vibrate'
 import { WalletBalance } from './WalletBalance'
 
 import { Display } from '@/components/Display'
+import { QRCodeIcon } from '@/components/Icons/QRCode'
 import { SendIcon } from '@/components/Icons/SendIcon'
 import { SwapIcon } from '@/components/Icons/SwapIcon'
 import { FiatRampAction } from '@/components/Modals/FiatRamps/FiatRampsCommon'
@@ -54,11 +55,7 @@ const buyIcon = (
 )
 const sendIcon = <SendIcon boxSize='6' />
 const receiveIcon = <ArrowDownIcon boxSize={6} />
-const qrCodeIcon = (
-  <Box>
-    <FaExpand />
-  </Box>
-)
+const qrCodeIcon = <QRCodeIcon />
 
 const mobileNetWorth = (
   // react-memo you're drunk, this is outside of component scope

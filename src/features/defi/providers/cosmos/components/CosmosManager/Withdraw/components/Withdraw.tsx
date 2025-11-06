@@ -1,4 +1,3 @@
-import { useToast } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { toAssetId } from '@shapeshiftoss/caip'
 import { WithdrawType } from '@shapeshiftoss/types'
@@ -20,6 +19,7 @@ import type {
 } from '@/features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { DefiStep } from '@/features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useBrowserRouter } from '@/hooks/useBrowserRouter/useBrowserRouter'
+import { useNotificationToast } from '@/hooks/useNotificationToast'
 import { BigNumber, bn, bnOrZero } from '@/lib/bignumber/bignumber'
 import { trackOpportunityEvent } from '@/lib/mixpanel/helpers'
 import { MixPanelEvent } from '@/lib/mixpanel/types'
@@ -54,7 +54,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
   const navigate = useNavigate()
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { chainId, assetReference, contractAddress: validatorAddress } = query
-  const toast = useToast()
+  const toast = useNotificationToast({ desktopPosition: 'top-right' })
 
   const methods = useForm<CosmosWithdrawValues>({ mode: 'onChange' })
   const { setValue, watch } = methods
@@ -158,7 +158,6 @@ export const Withdraw: React.FC<WithdrawProps> = ({
           payload: false,
         })
         toast({
-          position: 'top-right',
           description: translate('common.somethingWentWrongBody'),
           title: translate('common.somethingWentWrong'),
           status: 'error',

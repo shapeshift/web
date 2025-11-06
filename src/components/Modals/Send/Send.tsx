@@ -2,12 +2,10 @@ import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { MemoryRouter } from 'react-router-dom'
 
 import { Form } from './Form'
-import { SendRoutes } from './SendCommon'
 
 import { Dialog } from '@/components/Modal/components/Dialog'
+import { initialEntries } from '@/components/Modals/Send/SendCommon'
 import { useModal } from '@/hooks/useModal/useModal'
-
-export const entries = Object.values(SendRoutes)
 
 export type SendModalProps = {
   assetId?: AssetId
@@ -20,7 +18,7 @@ export const SendModal = ({ assetId, accountId, input }: SendModalProps) => {
 
   return (
     <Dialog isOpen={isOpen} onClose={close} isFullScreen>
-      <MemoryRouter initialEntries={entries}>
+      <MemoryRouter initialEntries={initialEntries}>
         <Form initialAssetId={assetId} accountId={accountId} input={input} />
       </MemoryRouter>
     </Dialog>

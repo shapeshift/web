@@ -20,6 +20,7 @@ import { ChainRow } from './ChainRow'
 import { Amount } from '@/components/Amount/Amount'
 import { IconCircle } from '@/components/IconCircle'
 import { GridIcon } from '@/components/Icons/GridIcon'
+import { useModalChildZIndex } from '@/context/ModalStackProvider'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { selectPortfolioTotalBalanceByChainIdIncludeStaking } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
@@ -46,6 +47,7 @@ export const ChainDropdown: React.FC<ChainDropdownProps> = ({
   buttonProps,
   ...menuProps
 }) => {
+  const modalChildZIndex = useModalChildZIndex()
   const fiatBalanceByChainId = useAppSelector(selectPortfolioTotalBalanceByChainIdIncludeStaking)
 
   const translate = useTranslate()
@@ -85,7 +87,7 @@ export const ChainDropdown: React.FC<ChainDropdownProps> = ({
         {chainId ? <ChainRow chainId={chainId} /> : translate('common.allChains')}
       </MenuButton>
       <Portal>
-        <MenuList zIndex='popover'>
+        <MenuList zIndex={modalChildZIndex} maxHeight='350px' overflowY='auto'>
           <MenuOptionGroup type='radio' value={chainId} onChange={onChange}>
             {showAll && (
               <MenuItemOption value=''>

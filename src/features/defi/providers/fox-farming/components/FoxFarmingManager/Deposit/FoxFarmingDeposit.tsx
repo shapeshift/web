@@ -1,4 +1,4 @@
-import { Center, useToast } from '@chakra-ui/react'
+import { Center } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
 import qs from 'qs'
 import { useCallback, useEffect, useMemo, useReducer } from 'react'
@@ -42,7 +42,6 @@ export const FoxFarmingDeposit: React.FC<FoxFarmingDepositProps> = ({
 }) => {
   const [state, dispatch] = useReducer(reducer, initialState)
   const translate = useTranslate()
-  const toast = useToast()
   const { query, location } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { assetNamespace, chainId, contractAddress } = query
 
@@ -74,7 +73,7 @@ export const FoxFarmingDeposit: React.FC<FoxFarmingDepositProps> = ({
         console.error(error)
       }
     })()
-  }, [farmingAccountId, translate, toast, contractAddress, foxFarmingOpportunity])
+  }, [farmingAccountId, translate, contractAddress, foxFarmingOpportunity])
 
   const handleBack = useCallback(() => {
     navigate({

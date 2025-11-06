@@ -1,4 +1,3 @@
-import { useToast } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { toAssetId } from '@shapeshiftoss/caip'
 import { useCallback, useContext, useEffect, useMemo, useState } from 'react'
@@ -21,6 +20,7 @@ import { DefiStep } from '@/features/defi/contexts/DefiManagerProvider/DefiCommo
 import { useFoxFarming } from '@/features/defi/providers/fox-farming/hooks/useFoxFarming'
 import { useUniV2LiquidityPool } from '@/features/defi/providers/univ2/hooks/useUniV2LiquidityPool'
 import { useBrowserRouter } from '@/hooks/useBrowserRouter/useBrowserRouter'
+import { useNotificationToast } from '@/hooks/useNotificationToast'
 import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
 import { fromBaseUnit } from '@/lib/math'
 import { trackOpportunityEvent } from '@/lib/mixpanel/helpers'
@@ -117,7 +117,7 @@ export const Deposit: React.FC<DepositProps> = ({
   )
 
   // notify
-  const toast = useToast()
+  const toast = useNotificationToast({ desktopPosition: 'top-right' })
 
   useEffect(() => {
     ;(async () => {
@@ -141,7 +141,6 @@ export const Deposit: React.FC<DepositProps> = ({
         } catch (error) {
           console.error(error)
           toast({
-            position: 'top-right',
             description: translate('common.somethingWentWrongBody'),
             title: translate('common.somethingWentWrong'),
             status: 'error',
@@ -197,7 +196,6 @@ export const Deposit: React.FC<DepositProps> = ({
       } catch (error) {
         console.error(error)
         toast({
-          position: 'top-right',
           description: translate('common.somethingWentWrongBody'),
           title: translate('common.somethingWentWrong'),
           status: 'error',

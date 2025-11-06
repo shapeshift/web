@@ -75,7 +75,7 @@ export const portalsApi: SwapperApi = {
       to,
       value,
       ...feeData,
-      // Use the higher amount of the node or the API, as the node doesn't always provide enought gas padding for total gas used.
+      // Use the higher amount of the node or the API, as the node doesn't always provide enough gas padding for total gas used.
       gasLimit: BigNumber.max(feeData.gasLimit, estimatedGas).toFixed(),
     })
   },

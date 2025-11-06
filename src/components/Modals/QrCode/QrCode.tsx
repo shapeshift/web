@@ -1,13 +1,11 @@
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { MemoryRouter } from 'react-router-dom'
 
-import { SendRoutes } from '../Send/SendCommon'
+import { initialEntries, SendRoutes } from '../Send/SendCommon'
 import { Form } from './Form'
 
 import { Dialog } from '@/components/Modal/components/Dialog'
 import { useModal } from '@/hooks/useModal/useModal'
-
-export const entries = Object.values(SendRoutes)
 
 export type QrCodeModalProps = {
   assetId?: AssetId
@@ -19,7 +17,10 @@ export const QrCodeModal = ({ assetId, accountId }: QrCodeModalProps) => {
 
   return (
     <Dialog isOpen={isOpen} onClose={close} isFullScreen>
-      <MemoryRouter initialEntries={entries}>
+      <MemoryRouter
+        initialEntries={initialEntries}
+        initialIndex={initialEntries.indexOf(SendRoutes.Scan)}
+      >
         <Form assetId={assetId} accountId={accountId} />
       </MemoryRouter>
     </Dialog>

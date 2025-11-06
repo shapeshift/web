@@ -20,6 +20,7 @@ import { SelectModal } from './SelectModal'
 import { NativeWalletRoutes } from './types'
 
 import { SlideTransition } from '@/components/SlideTransition'
+import { useModalRegistration } from '@/context/ModalStackProvider'
 import { WalletActions } from '@/context/WalletProvider/actions'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { isMobile } from '@/lib/globals'
@@ -86,6 +87,11 @@ export const WalletViewsSwitch = () => {
     wallet,
   ])
 
+  const { modalProps, overlayProps, modalContentProps } = useModalRegistration({
+    isOpen: modal,
+    onClose,
+  })
+
   const handleBack = useCallback(async () => {
     if (initialRoute === location.pathname && isMobile) {
       onClose()
@@ -151,15 +157,9 @@ export const WalletViewsSwitch = () => {
 
   return (
     <>
-      <Modal
-        isOpen={modal}
-        onClose={onClose}
-        isCentered
-        trapFocus={false}
-        closeOnOverlayClick={false}
-      >
-        <ModalOverlay />
-        <ModalContent justifyContent='center' px={3} pt={3} pb={6}>
+      <Modal {...modalProps} isCentered closeOnOverlayClick={false}>
+        <ModalOverlay {...overlayProps} />
+        <ModalContent justifyContent='center' px={3} pt={3} pb={6} {...modalContentProps}>
           <Flex justifyContent='space-between' alignItems='center' position='relative'>
             {match && showBackButton && (
               <IconButton

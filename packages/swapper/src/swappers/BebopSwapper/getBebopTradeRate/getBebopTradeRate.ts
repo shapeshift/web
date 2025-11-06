@@ -2,11 +2,11 @@ import type { ChainId } from '@shapeshiftoss/caip'
 import type { EvmChainAdapter } from '@shapeshiftoss/chain-adapters'
 import { evm } from '@shapeshiftoss/chain-adapters'
 import type { AssetsByIdPartial } from '@shapeshiftoss/types'
+import { bnOrZero } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import { v4 as uuid } from 'uuid'
-import type { Hex } from 'viem'
-import { fromHex, isAddress } from 'viem'
+import { isAddress } from 'viem'
 
 import { getDefaultSlippageDecimalPercentageForSwapper } from '../../../constants'
 import type {
@@ -90,7 +90,7 @@ export async function getBebopTradeRate(
 
   const adapter = assertGetEvmChainAdapter(sellAsset.chainId)
   const { fast } = await adapter.getGasFeeData()
-  const gasLimit = quote.tx.gas ? fromHex(quote.tx.gas as Hex, 'bigint').toString() : '0'
+  const gasLimit = bnOrZero(quote.tx.gas).toString()
 
   const networkFeeCryptoBaseUnit = evm.calcNetworkFeeCryptoBaseUnit({
     ...fast,

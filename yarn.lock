@@ -11014,7 +11014,7 @@ __metadata:
     axios: ^1.12.1
     axios-cache-interceptor: ^1.5.3
     axios-retry: ^4.5.0
-    babel-plugin-react-compiler: latest
+    babel-plugin-react-compiler: ^1.0.0
     bignumber.js: ^9.3.1
     bip21: ^2.0.3
     bip39: ^3.0.4
@@ -15794,7 +15794,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"babel-plugin-react-compiler@npm:latest":
+"babel-plugin-react-compiler@npm:^1.0.0":
   version: 1.0.0
   resolution: "babel-plugin-react-compiler@npm:1.0.0"
   dependencies:

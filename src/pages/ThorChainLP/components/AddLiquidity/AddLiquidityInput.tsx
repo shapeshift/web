@@ -1,4 +1,3 @@
-/* eslint-disable react-memo/require-usememo */
 import { ArrowBackIcon, QuestionIcon } from '@chakra-ui/icons'
 import {
   Alert,

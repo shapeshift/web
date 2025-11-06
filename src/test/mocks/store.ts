@@ -159,12 +159,14 @@ export const mockStore: ReduxState = {
       ThorchainTcyActivity: false,
       MayaSwap: false,
       ButterSwap: false,
+      BebopSwap: false,
       LazyTxHistory: false,
       RfoxFoxEcosystemPage: false,
       QuickBuy: false,
       NewWalletManager: false,
       SwapperFiatRamps: false,
       LedgerReadOnly: false,
+      AddressBook: false,
     },
     quickBuyAmounts: [10, 50, 100],
     quoteDisplayOption: QuoteDisplayOption.Basic,
@@ -360,5 +362,12 @@ export const mockStore: ReduxState = {
     walletDeviceId: null,
     nativeWalletName: null,
     rdns: null,
+  },
+  addressBook: {
+    _persist: {
+      version: 0,
+      rehydrated: false,
+    },
+    byAccountId: {},
   },
 }

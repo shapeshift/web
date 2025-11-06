@@ -12,16 +12,16 @@ import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { useNotificationToast } from '@/hooks/useNotificationToast'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { useGetLimitOrdersQuery } from '@/state/apis/limit-orders/limitOrderApi'
+import { selectPartitionedAccountIds } from '@/state/slices/common-selectors'
 import {
   selectAssetById,
-  selectEvmAccountIds,
   selectLimitOrderActionsByWallet,
   selectPortfolioLoadingStatus,
 } from '@/state/slices/selectors'
 import { store, useAppSelector } from '@/state/store'
 
 export const useLimitOrdersQuery = () => {
-  const evmAccountIds = useAppSelector(selectEvmAccountIds)
+  const { evmAccountIds } = useAppSelector(selectPartitionedAccountIds)
   const portfolioLoadingStatus = useAppSelector(selectPortfolioLoadingStatus)
   const {
     state: { isLoadingLocalWallet, modal, isConnected },

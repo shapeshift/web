@@ -86,12 +86,14 @@ export type FeatureFlags = {
   ThorchainTcyActivity: boolean
   MayaSwap: boolean
   ButterSwap: boolean
+  BebopSwap: boolean
   LazyTxHistory: boolean
   RfoxFoxEcosystemPage: boolean
   LedgerReadOnly: boolean
   QuickBuy: boolean
   NewWalletManager: boolean
   SwapperFiatRamps: boolean
+  AddressBook: boolean
 }
 
 export type Flag = keyof FeatureFlags
@@ -211,12 +213,14 @@ const initialState: Preferences = {
     ThorchainTcyActivity: getConfig().VITE_FEATURE_THORCHAIN_TCY_ACTIVITY,
     MayaSwap: getConfig().VITE_FEATURE_MAYA_SWAP,
     ButterSwap: getConfig().VITE_FEATURE_BUTTERSWAP,
+    BebopSwap: getConfig().VITE_FEATURE_BEBOP_SWAP,
     LazyTxHistory: getConfig().VITE_FEATURE_TX_HISTORY_BYE_BYE,
     RfoxFoxEcosystemPage: getConfig().VITE_FEATURE_RFOX_FOX_ECOSYSTEM_PAGE,
     LedgerReadOnly: getConfig().VITE_FEATURE_LEDGER_READ_ONLY,
     QuickBuy: getConfig().VITE_FEATURE_QUICK_BUY,
     NewWalletManager: getConfig().VITE_FEATURE_NEW_WALLET_MANAGER,
     SwapperFiatRamps: getConfig().VITE_FEATURE_SWAPPER_FIAT_RAMPS,
+    AddressBook: getConfig().VITE_FEATURE_ADDRESS_BOOK,
   },
   selectedLocale: simpleLocale(),
   hasWalletSeenTcyClaimAlert: {},

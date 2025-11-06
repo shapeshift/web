@@ -25,19 +25,21 @@ import { useAppSelector } from '@/state/store'
 const disabledSx = { opacity: 0.5, cursor: 'not-allowed', userSelect: 'none' }
 
 type SessionProposalOverviewProps = {
-  requiredNamespaces: ProposalTypes.RequiredNamespaces
+  requiredNamespaces?: ProposalTypes.RequiredNamespaces
   selectedAccountNumber: number | null
   selectedNetworks: ChainId[]
   onAccountClick: () => void
-  onNetworkClick: () => void
+  onNetworkClick?: () => void
   onConnectSelected: () => void
   onReject: () => void
   isLoading: boolean
   canConnect: boolean
+  hideNetworkSelection?: boolean
+  children?: React.ReactNode
 }
 
 export const SessionProposalOverview: React.FC<SessionProposalOverviewProps> = ({
-  requiredNamespaces,
+  requiredNamespaces = {},
   selectedAccountNumber,
   selectedNetworks,
   onAccountClick,
@@ -46,6 +48,8 @@ export const SessionProposalOverview: React.FC<SessionProposalOverviewProps> = (
   onReject,
   isLoading,
   canConnect,
+  hideNetworkSelection = false,
+  children,
 }) => {
   const translate = useTranslate()
   const selectedAddress = useAppSelector(state =>
@@ -87,31 +91,37 @@ export const SessionProposalOverview: React.FC<SessionProposalOverviewProps> = (
   return (
     <>
       <DialogBody pb={6}>
-        {!isAllRequiredNamespacesSupported && (
-          <Alert status='error' mb={4}>
-            <RawText textAlign='center' color='text.subtle'>
-              {translate('plugins.walletConnectToDapps.modal.sessionProposal.unsupportedChain')}
-            </RawText>
-          </Alert>
+        {children ? (
+          children
+        ) : (
+          <>
+            {!isAllRequiredNamespacesSupported && (
+              <Alert status='error' mb={4}>
+                <RawText textAlign='center' color='text.subtle'>
+                  {translate('plugins.walletConnectToDapps.modal.sessionProposal.unsupportedChain')}
+                </RawText>
+              </Alert>
+            )}
+            <Alert
+              status='info'
+              variant='subtle'
+              borderRadius='full'
+              bg='rgba(0, 181, 216, 0.1)'
+              color='cyan.600'
+            >
+              <AlertIcon as={TbPlug} boxSize={6} color='cyan.600' />
+              <RawText fontSize='sm' color='cyan.600' fontWeight='semibold'>
+                {translate('plugins.walletConnectToDapps.modal.connectionRequest')}
+              </RawText>
+              <Tooltip
+                label={translate('plugins.walletConnectToDapps.modal.connectionRequestTooltip')}
+                placement='top'
+              >
+                <InfoOutlineIcon boxSize={4} color='cyan.600' strokeWidth={2} ml='auto' />
+              </Tooltip>
+            </Alert>
+          </>
         )}
-        <Alert
-          status='info'
-          variant='subtle'
-          borderRadius='full'
-          bg='rgba(0, 181, 216, 0.1)'
-          color='cyan.600'
-        >
-          <AlertIcon as={TbPlug} boxSize={6} color='cyan.600' />
-          <RawText fontSize='sm' color='cyan.600' fontWeight='semibold'>
-            {translate('plugins.walletConnectToDapps.modal.connectionRequest')}
-          </RawText>
-          <Tooltip
-            label={translate('plugins.walletConnectToDapps.modal.connectionRequestTooltip')}
-            placement='top'
-          >
-            <InfoOutlineIcon boxSize={4} color='cyan.600' strokeWidth={2} ml='auto' />
-          </Tooltip>
-        </Alert>
       </DialogBody>
       <WalletConnectFooter>
         <VStack spacing={4} width='full'>
@@ -141,22 +151,26 @@ export const SessionProposalOverview: React.FC<SessionProposalOverviewProps> = (
                 </HStack>
               </VStack>
             </HStack>
-            <VStack spacing={1} align='end' h='32px' justify='space-between'>
-              <RawText fontSize='xs' color='text.subtle' fontWeight='medium' lineHeight='1'>
-                {translate('plugins.walletConnectToDapps.header.menu.networks')}
-              </RawText>
-              <HStack
-                spacing={2}
-                align='center'
-                h='20px'
-                cursor='pointer'
-                onClick={onNetworkClick}
-                _hover={networkHoverSx}
-              >
-                <ChainIcons chainIds={selectedNetworks} />
-                <ArrowUpDownIcon color='text.subtle' boxSize={3} />
-              </HStack>
-            </VStack>
+            {!hideNetworkSelection && (
+              <VStack spacing={1} align='end' h='32px' justify='space-between'>
+                <RawText fontSize='xs' color='text.subtle' fontWeight='medium' lineHeight='1'>
+                  {translate('plugins.walletConnectToDapps.header.menu.networks')}
+                </RawText>
+                <HStack
+                  spacing={2}
+                  align='center'
+                  h='20px'
+                  cursor={onNetworkClick ? 'pointer' : 'default'}
+                  onClick={onNetworkClick}
+                  _hover={onNetworkClick ? networkHoverSx : undefined}
+                >
+                  <ChainIcons chainIds={selectedNetworks} />
+                  {selectedNetworks.length > 1 && (
+                    <ArrowUpDownIcon color='text.subtle' boxSize={3} />
+                  )}
+                </HStack>
+              </VStack>
+            )}
           </HStack>
           <HStack spacing={4} w='full' mt={4}>
             <Button

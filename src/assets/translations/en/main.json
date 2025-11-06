@@ -20,7 +20,9 @@
     "closed": "Closed",
     "loadMore": "Load More",
     "volumeShort": "VOL",
+    "save": "Save",
     "saveChanges": "Save Changes",
+    "delete": "Delete",
     "new": "New",
     "continue": "Continue",
     "approve": "Approve",
@@ -272,6 +274,7 @@
       "asset": "Asset",
       "balance": "Balance",
       "price": "Price",
+      "apy": "APY",
       "priceChange": "Price Change",
       "allocation": "Allocation",
       "marketCap": "Market Cap",
@@ -910,6 +913,14 @@
     "sellBuy": "Sell → Buy",
     "limitExecution": "Limit/Execution",
     "statusHead": "Status",
+    "expiryOption": {
+      "oneHour": "1 hour",
+      "oneDay": "1 day",
+      "threeDays": "3 days",
+      "sevenDays": "7 days",
+      "twentyEightDays": "28 days",
+      "custom": "Custom"
+    },
     "expires": "Expires %{time}",
     "errors": {
       "nativeSellAssetNotSupported": "Native sell asset not supported",
@@ -945,6 +956,7 @@
       }
     },
     "limitOrderFilled": "Limit order filled",
+    "limitOrderPartiallyFilled": "Limit order partially filled",
     "assetToAsset": "%{sellAmount} %{sellAsset} to %{buyAmount} %{buyAsset}"
   },
   "modals": {
@@ -1085,6 +1097,18 @@
       "toAddressOrEns": "To Address or ENS",
       "scanQrCode": "Scan QR Code",
       "qrCode": "QR Code",
+      "addressBook": "Address Book",
+      "noEntries": "No address found.",
+      "addNewAddress": "Add New Address",
+      "addAddress": {
+        "nameRequired": "Name is required",
+        "namePlaceholder": "Name",
+        "title": "Add Address"
+      },
+      "confirmDelete": {
+        "title": "Delete Address",
+        "message": "Are you sure you want to delete %{name} from your address book?"
+      },
       "permissionsButton": "Try again",
       "sent": "%{asset} sent",
       "errorTitle": "Your send of %{asset} failed",
@@ -1112,7 +1136,13 @@
         "slow": "Slow",
         "average": "Average",
         "fast": "Fast",
-        "scanQrCodeDescription": "Tap to scan an address"
+        "enterAmount": "Enter Amount",
+        "scanQrCode": "Scan QR Code",
+        "scanQrCodeDescription": "Tap to scan an address",
+        "yourAddresses": "Your Addresses",
+        "to": "To",
+        "from": "From",
+        "availableBalance": "%{balance} available"
       },
       "status": {
         "pendingBody": "Sending %{amount} %{symbol}"
@@ -1539,7 +1569,9 @@
       "create": {
         "header": "Your Secret Recovery Phrase",
         "body": "Write these 12 words down and store them securely offline. This 12 word phrase is used to recover your wallet private keys.",
-        "button": "Next"
+        "button": "Next",
+        "hideWords": "Hide Words",
+        "showWords": "Show Words"
       },
       "start": {
         "header": "ShapeShift Wallet",
@@ -1621,7 +1653,11 @@
       "create": "Create",
       "or": "or",
       "import": "Import",
-      "aWallet": "a wallet"
+      "aWallet": "a wallet",
+      "viewAllWallets": "View all wallets",
+      "ctaText": "Don't see your wallet?",
+      "ctaSubtext": "Connect to 480+ wallets",
+      "multiChainWallets": "Multi-Chain Wallets"
     },
     "create": {
       "header": "Give your wallet a name",
@@ -1786,6 +1822,10 @@
       "outputCurrency": "Output currency",
       "outputAddress": "Output address"
     },
+    "txid": "TX ID",
+    "status": "Status",
+    "minerFee": "Miner Fee",
+    "date": "Date",
     "sentTo": "Sent to %{address}",
     "receivedFrom": "Received from %{address}",
     "today": "Today",
@@ -1869,7 +1909,8 @@
         "connect": {
           "title": "Connect your wallet to a dApp via WalletConnect and trigger transactions",
           "linkPlaceholder": "QR code or connection link",
-          "disclaimerBody": "ShapeShift cannot ensure the safety or security of third-party applications. By using WalletConnect, you assume full responsibility for any risks involved."
+          "disclaimerBody": "ShapeShift cannot ensure the safety or security of third-party applications. By using WalletConnect, you assume full responsibility for any risks involved.",
+          "connect": "Connect"
         },
         "sessionProposal": {
           "unsupportedChain": "Unsupported chain namespace in session proposal.",
@@ -1880,6 +1921,10 @@
         "noAccountsForChain": {
           "title": "Chain not supported",
           "description": "No %{chainLabel} account connected to this dApp."
+        },
+        "sessionAuth": {
+          "invalidRequest": "Invalid authentication request",
+          "formatError": "Error formatting authentication message"
         }
       }
     }
@@ -2435,7 +2480,7 @@
         "processing": "Your withdraw of %{assetAmountsAndSymbols} from the %{poolName} pool is processing."
       },
       "deposit": {
-        "processing": "Your deposit of %{amountCryptoPrecision} %{symbol} to %{poolName} pool is processing."
+        "processing": "Your deposit of %{amount} %{symbol} to %{poolName} pool is processing."
       }
     },
     "deposit": {
@@ -2483,8 +2528,8 @@
       "claimTxComplete": "Your TCY claim of %{amount} %{symbol} is complete."
     },
     "approve": {
-      "approvalTxPending": "Approving %{contractName} to use %{amountCryptoPrecision} %{symbol}.",
-      "approvalTxComplete": "Approved %{contractName} to use %{amountCryptoPrecision} %{symbol}."
+      "approvalTxPending": "Approving %{contractName} to use %{amount} %{symbol}.",
+      "approvalTxComplete": "Approved %{contractName} to use %{amount} %{symbol}."
     },
     "pendingTransactions": "%{count} Pending",
     "rewardDistribution": {

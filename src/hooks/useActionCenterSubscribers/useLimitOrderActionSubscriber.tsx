@@ -221,9 +221,6 @@ export const useLimitOrderActionSubscriber = () => {
 
       if (!action) return
 
-      // Close any existing toast for the same action to avoid duplicates
-      toast.close(action.limitOrderMetadata.limitOrderId ?? '')
-
       // Partially filled orders
       if (
         order.order.status === OrderStatus.OPEN &&
@@ -245,6 +242,8 @@ export const useLimitOrderActionSubscriber = () => {
         }
 
         dispatch(actionSlice.actions.upsertAction(updatedAction))
+
+        if (toast.isActive(order.order.uid)) return
 
         toast({
           render: props => (
@@ -283,6 +282,8 @@ export const useLimitOrderActionSubscriber = () => {
 
         dispatch(actionSlice.actions.upsertAction(updatedAction))
 
+        if (toast.isActive(order.order.uid)) return
+
         toast({
           render: props => (
             <LimitOrderNotification
@@ -307,6 +308,8 @@ export const useLimitOrderActionSubscriber = () => {
 
         dispatch(actionSlice.actions.upsertAction(updatedAction))
 
+        if (toast.isActive(order.order.uid)) return
+
         // @TODO: replace title by the notification UI product prepared
         toast({
           render: props => (
@@ -328,6 +331,8 @@ export const useLimitOrderActionSubscriber = () => {
         }
 
         dispatch(actionSlice.actions.upsertAction(updatedAction))
+
+        if (toast.isActive(order.order.uid)) return
 
         // @TODO: replace title by the notification UI product prepared
         toast({

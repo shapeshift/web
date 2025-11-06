@@ -105,7 +105,7 @@ export async function getBebopTradeQuote(
     to: quote.tx.to,
     data: quote.tx.data,
     value: quote.tx.value,
-    gas: quote.tx.gas,
+    gas: quote.tx.gas?.toString(),
   }
 
   const rate = calculateRate({ buyAmount, sellAmount, buyAsset, sellAsset })

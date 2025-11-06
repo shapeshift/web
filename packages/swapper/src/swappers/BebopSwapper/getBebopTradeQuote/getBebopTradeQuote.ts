@@ -115,13 +115,13 @@ export async function getBebopTradeQuote(
 
   try {
     const adapter = assertGetEvmChainAdapter(chainId)
-    const { average } = await adapter.getGasFeeData()
+    const { fast } = await adapter.getGasFeeData()
 
     // Convert gas limit from hex to decimal string (Bebop returns hex values)
     const gasLimitFromQuote = quote.tx.gas ? fromHex(quote.tx.gas, 'bigint').toString() : '0'
 
     const networkFeeCryptoBaseUnit = evm.calcNetworkFeeCryptoBaseUnit({
-      ...average,
+      ...fast,
       supportsEIP1559: Boolean(supportsEIP1559),
       gasLimit: gasLimitFromQuote,
     })

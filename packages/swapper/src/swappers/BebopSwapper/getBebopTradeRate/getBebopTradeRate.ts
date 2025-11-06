@@ -89,9 +89,9 @@ export async function getBebopTradeRate(
   const buyAmountAfterFeesCryptoBaseUnit = buyAmount
 
   const adapter = assertGetEvmChainAdapter(sellAsset.chainId)
-  const { average } = await adapter.getGasFeeData()
+  const { fast } = await adapter.getGasFeeData()
   const gasLimit = quote.tx.gas ? fromHex(quote.tx.gas as Hex, 'bigint').toString() : '0'
-  const networkFeeCryptoBaseUnit = bnOrZero(average.gasPrice).times(gasLimit).toFixed(0)
+  const networkFeeCryptoBaseUnit = bnOrZero(fast.gasPrice).times(gasLimit).toFixed(0)
 
   return Ok({
     id: uuid(),

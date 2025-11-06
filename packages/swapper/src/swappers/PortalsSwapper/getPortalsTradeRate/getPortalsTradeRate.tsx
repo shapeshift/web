@@ -146,7 +146,7 @@ export async function getPortalsTradeRate(
     const networkFeeCryptoBaseUnit = evm.calcNetworkFeeCryptoBaseUnit({
       ...average,
       supportsEIP1559: Boolean(input.supportsEIP1559),
-      gasLimit,
+      gasLimit: gasLimit.toString(),
     })
 
     const tradeRate = {

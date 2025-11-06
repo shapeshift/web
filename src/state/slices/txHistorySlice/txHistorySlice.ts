@@ -1,7 +1,13 @@
 import { createSlice } from '@reduxjs/toolkit'
 import { createApi } from '@reduxjs/toolkit/query/react'
 import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
-import { baseChainId, fromAccountId, isNft, thorchainChainId } from '@shapeshiftoss/caip'
+import {
+  CHAIN_NAMESPACE,
+  fromAccountId,
+  fromChainId,
+  isNft,
+  thorchainChainId,
+} from '@shapeshiftoss/caip'
 import type { ChainAdapter, thorchain, Transaction } from '@shapeshiftoss/chain-adapters'
 import type { PartialRecord, UtxoAccountType } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
@@ -201,10 +207,22 @@ export const txHistoryApi = createApi({
               let currentCursor = ''
 
               do {
-                const pageSize = chainId === baseChainId ? 100 : 10
+                const state = getState() as State
+
+                const txsByAccountId = state.txHistory.txs.byAccountIdAssetId
+
+                const hasExistingTxHistory = Object.values(txsByAccountId[accountId] ?? {}).some(
+                  txIds => txIds && txIds.length > 0,
+                )
+
+                const pageSize =
+                  !hasExistingTxHistory &&
+                  fromChainId(chainId).chainNamespace === CHAIN_NAMESPACE.Evm
+                    ? 100
+                    : 10
+
                 const requestCursor = currentCursor
 
-                const state = getState() as State
                 const txsById = state.txHistory.txs.byId
 
                 // Passes the list of known (confirmed) Txids for the account to the adapter getHistory() fn, so we don't spam parseTx()
@@ -221,7 +239,7 @@ export const txHistoryApi = createApi({
                   }
                 })
 
-                const { cursor, transactions } = await getTxHistory({
+                const { cursor, transactions, txIds } = await getTxHistory({
                   cursor: requestCursor,
                   pubkey,
                   pageSize,
@@ -229,9 +247,7 @@ export const txHistoryApi = createApi({
                   knownTxIds,
                 })
 
-                const hasTx = transactions.some(
-                  tx => !!txsById[serializeTxIndex(accountId, tx.txid, tx.pubkey, tx.data)],
-                )
+                const hasTx = txIds.some(txid => knownTxIds.has(txid))
 
                 const results: TransactionsByAccountId = { [accountId]: transactions }
                 dispatch(txHistory.actions.upsertTxsByAccountId(results))

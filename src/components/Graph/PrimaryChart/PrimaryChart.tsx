@@ -1,3 +1,4 @@
+/* eslint-disable react-memo/require-usememo */
 import { Stack as CStack, useColorModeValue, useToken } from '@chakra-ui/react'
 import type { HistoryData } from '@shapeshiftoss/types'
 import { scaleLinear } from '@visx/scale'
@@ -7,7 +8,7 @@ import type { RenderTooltipParams, TooltipProps } from '@visx/xychart/lib/compon
 import type { Numeric } from 'd3-array'
 import { extent, max, min } from 'd3-array'
 import dayjs from 'dayjs'
-import { lazy, useCallback, useMemo } from 'react'
+import { lazy } from 'react'
 
 import { MaxPrice } from '../MaxPrice'
 import { MinPrice } from '../MinPrice'
@@ -76,6 +77,7 @@ export const PrimaryChart = ({
   margin,
   hideAxis = false,
 }: PrimaryChartProps) => {
+  'use memo'
   const selectedLocale = useAppSelector(preferences.selectors.selectSelectedLocale)
 
   const {
@@ -88,90 +90,67 @@ export const PrimaryChart = ({
   const tooltipColor = useColorModeValue(colors.gray[800], 'white')
 
   // bounds
-  const xMax = useMemo(
-    () => Math.max(width - margin.left - margin.right, 0),
-    [margin.left, margin.right, width],
-  )
-  const yMax = useMemo(
-    () => Math.max(height - margin.top - margin.bottom, 0),
-    [height, margin.bottom, margin.top],
-  )
+  const xMax = Math.max(width - margin.left - margin.right, 0)
+  const yMax = Math.max(height - margin.top - margin.bottom, 0)
 
-  const minPrice = useMemo(() => Math.min(...data.map(getStockValue)), [data])
-  const maxPrice = useMemo(() => Math.max(...data.map(getStockValue)), [data])
+  const minPrice = Math.min(...data.map(getStockValue))
+  const maxPrice = Math.max(...data.map(getStockValue))
 
-  const priceScale = useMemo(() => {
-    return scaleLinear({
-      range: [yMax + margin.top - 32, margin.top + 32],
-      domain: [min(data, getStockValue) || 0, max(data, getStockValue) || 0],
-    })
-  }, [yMax, margin.top, data])
+  const priceScale = scaleLinear({
+    range: [yMax + margin.top - 32, margin.top + 32],
+    domain: [min(data, getStockValue) || 0, max(data, getStockValue) || 0],
+  })
 
-  const xyChartMargin = useMemo(
-    () => ({ top: 0, bottom: margin.bottom, left: 0, right: 0 }),
-    [margin],
-  )
+  const xyChartMargin = { top: 0, bottom: margin.bottom, left: 0, right: 0 }
 
   const labelColor = useColorModeValue(colors.gray[300], colors.gray[600])
-  const tickLabelProps = useMemo(
-    () => ({
-      textAnchor: 'middle' as const,
-      verticalAnchor: 'middle' as const,
-      fontSize: 12,
-      fontWeight: 'bold',
-      fill: labelColor,
-      letterSpacing: 0,
-    }),
-    [labelColor],
-  )
-  const xScale = useMemo(
-    () => ({
-      type: 'time' as const,
-      range: [0, xMax] as [Numeric, Numeric],
-      domain: extent(data, d => new Date(d.date)) as [Date, Date],
-    }),
-    [data, xMax],
-  )
-  const yScale = useMemo(
-    () => ({
-      type: 'linear' as const,
-      range: [yMax + margin.top - margin.bottom, margin.top + margin.bottom], // values are reversed, y increases down - this is really [bottom, top] in cartersian coordinates
-      domain: [minPrice, maxPrice],
-      zero: false,
-    }),
-    [yMax, margin.top, margin.bottom, minPrice, maxPrice],
-  )
+  const tickLabelProps = {
+    textAnchor: 'middle' as const,
+    verticalAnchor: 'middle' as const,
+    fontSize: 12,
+    fontWeight: 'bold',
+    fill: labelColor,
+    letterSpacing: 0,
+  }
+  const xScale = {
+    type: 'time' as const,
+    range: [0, xMax] as [Numeric, Numeric],
+    domain: extent(data, d => new Date(d.date)) as [Date, Date],
+  }
+  const yScale = {
+    type: 'linear' as const,
+    range: [yMax + margin.top - margin.bottom, margin.top + margin.bottom], // values are reversed, y increases down - this is really [bottom, top] in cartersian coordinates
+    domain: [minPrice, maxPrice],
+    zero: false,
+  }
 
-  const renderTooltip = useCallback(
-    ({ tooltipData }: RenderTooltipParams<HistoryData>) => {
-      const { datum } = tooltipData?.nearestDatum ?? {}
+  const renderTooltip = ({ tooltipData }: RenderTooltipParams<HistoryData>) => {
+    const { datum } = tooltipData?.nearestDatum ?? {}
 
-      if (!datum) return null
+    if (!datum) return null
 
-      const { date, price } = datum as HistoryData
-      return (
-        <CStack
-          borderRadius={'lg'}
-          borderColor={tooltipBorder}
-          borderWidth={1}
-          color={tooltipColor}
-          bgColor={tooltipBg}
-          direction='column'
-          spacing={0}
-          p={2}
-        >
-          <Amount.Fiat value={price} fontWeight='bold' />
-          <RawText fontSize={'xs'} color={colors.gray[500]}>
-            {dayjs(date).locale(selectedLocale).format('LLL')}
-          </RawText>
-        </CStack>
-      )
-    },
-    [selectedLocale, tooltipBg, tooltipBorder, tooltipColor],
-  )
+    const { date, price } = datum as HistoryData
+    return (
+      <CStack
+        borderRadius={'lg'}
+        borderColor={tooltipBorder}
+        borderWidth={1}
+        color={tooltipColor}
+        bgColor={tooltipBg}
+        direction='column'
+        spacing={0}
+        p={2}
+      >
+        <Amount.Fiat value={price} fontWeight='bold' />
+        <RawText fontSize={'xs'} color={colors.gray[500]}>
+          {dayjs(date).locale(selectedLocale).format('LLL')}
+        </RawText>
+      </CStack>
+    )
+  }
 
-  const lineProps = useMemo(() => ({ stroke: chartColor }), [chartColor])
-  const tickLabelPropsFn = useCallback(() => tickLabelProps, [tickLabelProps])
+  const lineProps = { stroke: chartColor }
+  const tickLabelPropsFn = () => tickLabelProps
 
   return (
     <ScaleSVG width={width} height={height}>

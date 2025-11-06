@@ -1,4 +1,4 @@
-import react from '@vitejs/plugin-react-swc'
+import react from '@vitejs/plugin-react'
 import * as fs from 'fs'
 import { CID } from 'multiformats/cid'
 import * as raw from 'multiformats/codecs/raw'
@@ -79,7 +79,18 @@ export default defineConfig(({ mode }) => {
         },
         protocolImports: true,
       }),
-      react(),
+      react({
+        babel: {
+          plugins: [
+            [
+              'babel-plugin-react-compiler',
+              {
+                compilationMode: 'annotation', // Enable opt-in mode with "use memo" directive
+              },
+            ],
+          ],
+        },
+      }),
       tsconfigPaths(),
       checker({
         typescript: {

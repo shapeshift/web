@@ -9,7 +9,7 @@ import type { Asset } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { positiveOrZero } from '@shapeshiftoss/utils'
 import type { FormEvent } from 'react'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useFormContext } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useNavigate } from 'react-router-dom'
@@ -95,6 +95,7 @@ export const TradeInput = ({
   tradeInputRef,
   onChangeTab,
 }: TradeInputProps) => {
+  'use memo'
   const {
     dispatch: walletDispatch,
     state: { isConnected, wallet },
@@ -142,10 +143,7 @@ export const TradeInput = ({
   const availableTradeQuotesDisplayCache = useAppSelector(selectUserAvailableTradeQuotes)
   const unavailableTradeQuotesDisplayCache = useAppSelector(selectUserUnavailableTradeQuotes)
   const walletSupportsSellAssetChain = useWalletSupportsChain(sellAsset.chainId, wallet)
-  const isAnyGetAccountPortfolioLoadedForChainIdFilter = useMemo(
-    () => ({ chainId: sellAsset.chainId }),
-    [sellAsset.chainId],
-  )
+  const isAnyGetAccountPortfolioLoadedForChainIdFilter = { chainId: sellAsset.chainId }
   const isAnyGetAccountPortfolioLoadedForChainId = useAppSelector(state =>
     selectIsAnyGetAccountPortfolioLoadedForChainId(
       state,
@@ -169,25 +167,14 @@ export const TradeInput = ({
   const tradeRateInput = useGetTradeRateInput()
   const { status: rateQueryStatus } = useGetTradeRatesQuery(tradeRateInput ?? skipToken)
 
-  const isLoading = useMemo(
-    () =>
-      // No account meta loaded for that chain for the sell asset (assuming wallet support)
-      Boolean(
-        walletId && walletSupportsSellAssetChain && !isAnyGetAccountPortfolioLoadedForChainId,
-      ) ||
-      (rateQueryStatus === QueryStatus.pending && !hasQuotes) ||
-      isConfirmationLoading ||
-      Boolean(walletId && isWalletReceiveAddressLoading),
-    [
-      hasQuotes,
-      walletSupportsSellAssetChain,
-      rateQueryStatus,
-      walletId,
-      isAnyGetAccountPortfolioLoadedForChainId,
-      isConfirmationLoading,
-      isWalletReceiveAddressLoading,
-    ],
-  )
+  const isLoading =
+    // No account meta loaded for that chain for the sell asset (assuming wallet support)
+    Boolean(
+      walletId && walletSupportsSellAssetChain && !isAnyGetAccountPortfolioLoadedForChainId,
+    ) ||
+    (rateQueryStatus === QueryStatus.pending && !hasQuotes) ||
+    isConfirmationLoading ||
+    Boolean(walletId && isWalletReceiveAddressLoading)
 
   // Reset the trade quote slice to initial state on mount
   useEffect(() => {
@@ -207,16 +194,16 @@ export const TradeInput = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeQuote])
 
-  const isEstimatedExecutionTimeOverThreshold = useMemo(() => {
+  const isEstimatedExecutionTimeOverThreshold = (() => {
     if (!tradeQuoteStep?.estimatedExecutionTimeMs) return false
 
     if (tradeQuoteStep?.estimatedExecutionTimeMs >= STREAM_ACKNOWLEDGEMENT_MINIMUM_TIME_THRESHOLD)
       return true
 
     return false
-  }, [tradeQuoteStep?.estimatedExecutionTimeMs])
+  })()
 
-  const warningAcknowledgementMessage = useMemo(() => {
+  const warningAcknowledgementMessage = (() => {
     const recommendedMinimumCryptoBaseUnit = (activeQuote as ThorTradeQuote)
       ?.recommendedMinimumCryptoBaseUnit
     if (!recommendedMinimumCryptoBaseUnit) return translate('warningAcknowledgement.unsafeTrade')
@@ -229,15 +216,13 @@ export const TradeInput = ({
       recommendedMin: recommendedMinimumCryptoPrecision,
     })
     return message
-  }, [activeQuote, sellAsset.precision, sellAsset.symbol, translate])
+  })()
 
-  const thorchainSwapperVolatilityAcknowledgementMessage = useMemo(() => {
-    return translate('trade.thorchainSwapperVolatilityAcknowledgementMessage')
-  }, [translate])
+  const thorchainSwapperVolatilityAcknowledgementMessage = translate(
+    'trade.thorchainSwapperVolatilityAcknowledgementMessage',
+  )
 
-  const headerRightContent = useMemo(() => {
-    return <TradeSettingsMenu isCompact={isCompact} />
-  }, [isCompact])
+  const headerRightContent = <TradeSettingsMenu isCompact={isCompact} />
 
   // Master effect syncing URL with state - note this is only done at trade input time
   // That's the only place we want things to be in sync, other routes should be a redirect
@@ -259,24 +244,16 @@ export const TradeInput = ({
     hasUserEnteredAmount,
   ])
 
-  const setBuyAsset = useCallback(
-    (asset: Asset) => dispatch(tradeInput.actions.setBuyAsset(asset)),
-    [dispatch],
-  )
-  const setSellAsset = useCallback(
-    (asset: Asset) => dispatch(tradeInput.actions.setSellAsset(asset)),
-    [dispatch],
-  )
-  const handleSwitchAssets = useCallback(
-    () => dispatch(tradeInput.actions.switchAssets({ sellAssetUsdRate, buyAssetUsdRate })),
-    [buyAssetUsdRate, dispatch, sellAssetUsdRate],
-  )
+  const setBuyAsset = (asset: Asset) => dispatch(tradeInput.actions.setBuyAsset(asset))
+  const setSellAsset = (asset: Asset) => dispatch(tradeInput.actions.setSellAsset(asset))
+  const handleSwitchAssets = () =>
+    dispatch(tradeInput.actions.switchAssets({ sellAssetUsdRate, buyAssetUsdRate }))
 
-  const handleConnect = useCallback(() => {
+  const handleConnect = () => {
     walletDispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
-  }, [walletDispatch])
+  }
 
-  const onSubmit = useCallback(() => {
+  const onSubmit = () => {
     // No preview happening if wallet isn't connected
     if (!isConnected) {
       return handleConnect()
@@ -312,104 +289,70 @@ export const TradeInput = ({
     }
 
     setIsConfirmationLoading(false)
-  }, [
-    activeQuote,
-    activeQuoteMeta,
-    dispatch,
-    handleConnect,
-    navigate,
-    isConnected,
-    trackMixpanelEvent,
-    showErrorToast,
-    tradeQuoteStep,
-    wallet,
-  ])
+  }
 
-  const handleFormSubmit = useMemo(() => handleSubmit(onSubmit), [handleSubmit, onSubmit])
+  const handleFormSubmit = handleSubmit(onSubmit)
 
   // If the warning acknowledgement is shown, we need to handle the submit differently because we might want to show the streaming acknowledgement
-  const handleWarningAcknowledgementSubmit = useCallback(() => {
+  const handleWarningAcknowledgementSubmit = () => {
     if (activeQuote?.isStreaming && isEstimatedExecutionTimeOverThreshold)
       return setShouldShowStreamingAcknowledgement(true)
     if (isArbitrumBridgeTradeQuoteOrRate(activeQuote) && activeQuote.direction === 'withdrawal')
       return setShouldShowArbitrumBridgeAcknowledgement(true)
     handleFormSubmit()
-  }, [activeQuote, isEstimatedExecutionTimeOverThreshold, handleFormSubmit])
+  }
 
-  const handleThorchainSwapperAcknowledgementSubmit = useCallback(() => {
+  const handleThorchainSwapperAcknowledgementSubmit = () => {
     handleFormSubmit()
-  }, [handleFormSubmit])
+  }
 
-  const handleTradeQuoteConfirm = useCallback(
-    (e: FormEvent<unknown>) => {
-      e.preventDefault()
-      if (isUnsafeQuote) return setShouldShowWarningAcknowledgement(true)
-      if (activeQuote?.isStreaming && isEstimatedExecutionTimeOverThreshold)
-        return setShouldShowStreamingAcknowledgement(true)
-      if (isArbitrumBridgeTradeQuoteOrRate(activeQuote) && activeQuote.direction === 'withdrawal')
-        return setShouldShowArbitrumBridgeAcknowledgement(true)
-      if (
-        isThorchainSwapperVolatilityAckEnabled &&
-        (activeQuote?.swapperName === SwapperName.Thorchain ||
-          activeQuote?.swapperName === SwapperName.Mayachain)
-      ) {
-        return setShouldShowThorchainSwapperVolatilityAcknowledgement(true)
-      }
-      handleFormSubmit()
-    },
-    [
-      isUnsafeQuote,
-      activeQuote,
-      isEstimatedExecutionTimeOverThreshold,
-      handleFormSubmit,
-      isThorchainSwapperVolatilityAckEnabled,
-    ],
-  )
+  const handleTradeQuoteConfirm = (e: FormEvent<unknown>) => {
+    e.preventDefault()
+    if (isUnsafeQuote) return setShouldShowWarningAcknowledgement(true)
+    if (activeQuote?.isStreaming && isEstimatedExecutionTimeOverThreshold)
+      return setShouldShowStreamingAcknowledgement(true)
+    if (isArbitrumBridgeTradeQuoteOrRate(activeQuote) && activeQuote.direction === 'withdrawal')
+      return setShouldShowArbitrumBridgeAcknowledgement(true)
+    if (
+      isThorchainSwapperVolatilityAckEnabled &&
+      (activeQuote?.swapperName === SwapperName.Thorchain ||
+        activeQuote?.swapperName === SwapperName.Mayachain)
+    ) {
+      return setShouldShowThorchainSwapperVolatilityAcknowledgement(true)
+    }
+    handleFormSubmit()
+  }
 
-  const handleChangeSellAmountCryptoPrecision = useCallback(
-    (sellAmountCryptoPrecision: string) => {
-      dispatch(tradeInput.actions.setSellAmountCryptoPrecision(sellAmountCryptoPrecision))
-    },
-    [dispatch],
-  )
+  const handleChangeSellAmountCryptoPrecision = (sellAmountCryptoPrecision: string) => {
+    dispatch(tradeInput.actions.setSellAmountCryptoPrecision(sellAmountCryptoPrecision))
+  }
 
-  const handleIsInputtingFiatSellAmountChange = useCallback(
-    (isInputtingFiatSellAmount: boolean) => {
-      dispatch(tradeInput.actions.setIsInputtingFiatSellAmount(isInputtingFiatSellAmount))
-    },
-    [dispatch],
-  )
+  const handleIsInputtingFiatSellAmountChange = (isInputtingFiatSellAmount: boolean) => {
+    dispatch(tradeInput.actions.setIsInputtingFiatSellAmount(isInputtingFiatSellAmount))
+  }
 
   const isSolanaSwapperEnabled = useFeatureFlag('SolanaSwapper')
   const isMayaSwapEnabled = useFeatureFlag('MayaSwap')
 
-  const assetFilterPredicate = useCallback(
-    (assetId: AssetId) => {
-      const { chainId } = fromAssetId(assetId)
-      if (chainId === KnownChainIds.SolanaMainnet) return isSolanaSwapperEnabled
-      if (chainId === KnownChainIds.MayachainMainnet) return isMayaSwapEnabled
+  const assetFilterPredicate = (assetId: AssetId) => {
+    const { chainId } = fromAssetId(assetId)
+    if (chainId === KnownChainIds.SolanaMainnet) return isSolanaSwapperEnabled
+    if (chainId === KnownChainIds.MayachainMainnet) return isMayaSwapEnabled
 
-      return true
-    },
-    [isSolanaSwapperEnabled, isMayaSwapEnabled],
-  )
+    return true
+  }
 
-  const chainIdFilterPredicate = useCallback(
-    (chainId: ChainId) => {
-      if (chainId === KnownChainIds.SolanaMainnet) return isSolanaSwapperEnabled
-      if (chainId === KnownChainIds.MayachainMainnet) return isMayaSwapEnabled
+  const chainIdFilterPredicate = (chainId: ChainId) => {
+    if (chainId === KnownChainIds.SolanaMainnet) return isSolanaSwapperEnabled
+    if (chainId === KnownChainIds.MayachainMainnet) return isMayaSwapEnabled
 
-      return true
-    },
-    [isSolanaSwapperEnabled, isMayaSwapEnabled],
-  )
+    return true
+  }
 
-  const setSelectedBuyAssetChainId = useCallback(
-    (chainId: ChainId | 'All') => dispatch(tradeInput.actions.setSelectedBuyAssetChainId(chainId)),
-    [dispatch],
-  )
+  const setSelectedBuyAssetChainId = (chainId: ChainId | 'All') =>
+    dispatch(tradeInput.actions.setSelectedBuyAssetChainId(chainId))
 
-  const handleBuyAssetClick = useCallback(() => {
+  const handleBuyAssetClick = () => {
     buyAssetSearch.open({
       onAssetClick: setBuyAsset,
       title: 'trade.tradeTo',
@@ -418,131 +361,104 @@ export const TradeInput = ({
       selectedChainId: selectedBuyAssetChainId,
       onSelectedChainIdChange: setSelectedBuyAssetChainId,
     })
-  }, [
-    assetFilterPredicate,
-    buyAssetSearch,
-    chainIdFilterPredicate,
-    setBuyAsset,
-    selectedBuyAssetChainId,
-    setSelectedBuyAssetChainId,
-  ])
+  }
 
-  const setSelectedSellAssetChainId = useCallback(
-    (chainId: ChainId | 'All') => dispatch(tradeInput.actions.setSelectedSellAssetChainId(chainId)),
-    [dispatch],
+  const setSelectedSellAssetChainId = (chainId: ChainId | 'All') =>
+    dispatch(tradeInput.actions.setSelectedSellAssetChainId(chainId))
+
+  const assetSelectButtonProps = {
+    maxWidth: isSmallerThanMd ? '100%' : undefined,
+  }
+
+  const buyTradeAssetSelect = (
+    <TradeAssetSelect
+      assetId={buyAsset.assetId}
+      // React Compiler now handles memoization automagically here
+      // eslint-disable-next-line react-memo/require-usememo
+      onAssetClick={handleBuyAssetClick}
+      // React Compiler now handles memoization automagically here
+      // eslint-disable-next-line react-memo/require-usememo
+      onAssetChange={setBuyAsset}
+      onlyConnectedChains={false}
+      // React Compiler now handles memoization automagically here
+      // eslint-disable-next-line react-memo/require-usememo
+      assetFilterPredicate={assetFilterPredicate}
+      // React Compiler now handles memoization automagically here
+      // eslint-disable-next-line react-memo/require-usememo
+      chainIdFilterPredicate={chainIdFilterPredicate}
+      showChainDropdown={!isSmallerThanMd}
+      // React Compiler now handles memoization automagically here
+      // eslint-disable-next-line react-memo/require-usememo
+      buttonProps={assetSelectButtonProps}
+      mb={isSmallerThanMd ? 0 : 4}
+    />
   )
 
-  const assetSelectButtonProps = useMemo(() => {
-    return {
-      maxWidth: isSmallerThanMd ? '100%' : undefined,
-    }
-  }, [isSmallerThanMd])
-
-  const buyTradeAssetSelect = useMemo(
-    () => (
-      <TradeAssetSelect
-        assetId={buyAsset.assetId}
-        onAssetClick={handleBuyAssetClick}
-        onAssetChange={setBuyAsset}
-        onlyConnectedChains={false}
-        assetFilterPredicate={assetFilterPredicate}
-        chainIdFilterPredicate={chainIdFilterPredicate}
-        showChainDropdown={!isSmallerThanMd}
-        buttonProps={assetSelectButtonProps}
-        mb={isSmallerThanMd ? 0 : 4}
-      />
-    ),
-    [
-      buyAsset.assetId,
-      isSmallerThanMd,
-      assetSelectButtonProps,
-      handleBuyAssetClick,
-      setBuyAsset,
-      assetFilterPredicate,
-      chainIdFilterPredicate,
-    ],
+  const bodyContent = (
+    <SharedTradeInputBody
+      buyAsset={buyAsset}
+      sellAccountId={sellAssetAccountId}
+      isInputtingFiatSellAmount={isInputtingFiatSellAmount}
+      isLoading={isLoading}
+      sellAsset={sellAsset}
+      sellAmountCryptoPrecision={sellAmountCryptoPrecision}
+      sellAmountUserCurrency={sellAmountUserCurrency}
+      // React Compiler now handles memoization automagically here
+      // eslint-disable-next-line react-memo/require-usememo
+      onSwitchAssets={handleSwitchAssets}
+      // React Compiler now handles memoization automagically here
+      // eslint-disable-next-line react-memo/require-usememo
+      setSellAsset={setSellAsset}
+      setSellAccountId={setSellAssetAccountId}
+      // React Compiler now handles memoization automagically here
+      // eslint-disable-next-line react-memo/require-usememo
+      onChangeIsInputtingFiatSellAmount={handleIsInputtingFiatSellAmountChange}
+      // React Compiler now handles memoization automagically here
+      // eslint-disable-next-line react-memo/require-usememo
+      onChangeSellAmountCryptoPrecision={handleChangeSellAmountCryptoPrecision}
+      // React Compiler now handles memoization automagically here
+      // eslint-disable-next-line react-memo/require-usememo
+      assetFilterPredicate={assetFilterPredicate}
+      // React Compiler now handles memoization automagically here
+      // eslint-disable-next-line react-memo/require-usememo
+      chainIdFilterPredicate={chainIdFilterPredicate}
+      selectedSellAssetChainId={selectedSellAssetChainId}
+      // React Compiler now handles memoization automagically here
+      // eslint-disable-next-line react-memo/require-usememo
+      onSellAssetChainIdChange={setSelectedSellAssetChainId}
+      subContent={isSmallerThanMd && !hasUserEnteredAmount ? <HighlightedTokens /> : undefined}
+    >
+      <>
+        <TradeAssetInput
+          // Disable account selection when user set a manual receive address
+          isAccountSelectionHidden={Boolean(manualReceiveAddress)}
+          isReadOnly={true}
+          accountId={buyAssetAccountId}
+          assetId={buyAsset.assetId}
+          assetSymbol={buyAsset.symbol}
+          assetIcon={buyAsset.icon}
+          cryptoAmount={
+            hasUserEnteredAmount ? positiveOrZero(buyAmountAfterFeesCryptoPrecision).toFixed() : '0'
+          }
+          fiatAmount={
+            hasUserEnteredAmount ? positiveOrZero(buyAmountAfterFeesUserCurrency).toFixed() : '0'
+          }
+          percentOptions={emptyPercentOptions}
+          showInputSkeleton={isLoading}
+          showFiatSkeleton={isLoading}
+          label={translate('trade.youGet')}
+          onAccountIdChange={setBuyAssetAccountId}
+          formControlProps={formControlProps}
+          // React Compiler now handles memoization automagically here
+          // eslint-disable-next-line react-memo/require-usememo
+          labelPostFix={buyTradeAssetSelect}
+          activeQuote={activeQuote}
+        />
+      </>
+    </SharedTradeInputBody>
   )
 
-  const bodyContent = useMemo(() => {
-    return (
-      <SharedTradeInputBody
-        buyAsset={buyAsset}
-        sellAccountId={sellAssetAccountId}
-        isInputtingFiatSellAmount={isInputtingFiatSellAmount}
-        isLoading={isLoading}
-        sellAsset={sellAsset}
-        sellAmountCryptoPrecision={sellAmountCryptoPrecision}
-        sellAmountUserCurrency={sellAmountUserCurrency}
-        onSwitchAssets={handleSwitchAssets}
-        setSellAsset={setSellAsset}
-        setSellAccountId={setSellAssetAccountId}
-        onChangeIsInputtingFiatSellAmount={handleIsInputtingFiatSellAmountChange}
-        onChangeSellAmountCryptoPrecision={handleChangeSellAmountCryptoPrecision}
-        assetFilterPredicate={assetFilterPredicate}
-        chainIdFilterPredicate={chainIdFilterPredicate}
-        selectedSellAssetChainId={selectedSellAssetChainId}
-        onSellAssetChainIdChange={setSelectedSellAssetChainId}
-        subContent={isSmallerThanMd && !hasUserEnteredAmount ? <HighlightedTokens /> : undefined}
-      >
-        <>
-          <TradeAssetInput
-            // Disable account selection when user set a manual receive address
-            isAccountSelectionHidden={Boolean(manualReceiveAddress)}
-            isReadOnly={true}
-            accountId={buyAssetAccountId}
-            assetId={buyAsset.assetId}
-            assetSymbol={buyAsset.symbol}
-            assetIcon={buyAsset.icon}
-            cryptoAmount={
-              hasUserEnteredAmount
-                ? positiveOrZero(buyAmountAfterFeesCryptoPrecision).toFixed()
-                : '0'
-            }
-            fiatAmount={
-              hasUserEnteredAmount ? positiveOrZero(buyAmountAfterFeesUserCurrency).toFixed() : '0'
-            }
-            percentOptions={emptyPercentOptions}
-            showInputSkeleton={isLoading}
-            showFiatSkeleton={isLoading}
-            label={translate('trade.youGet')}
-            onAccountIdChange={setBuyAssetAccountId}
-            formControlProps={formControlProps}
-            labelPostFix={buyTradeAssetSelect}
-            activeQuote={activeQuote}
-          />
-        </>
-      </SharedTradeInputBody>
-    )
-  }, [
-    buyAmountAfterFeesCryptoPrecision,
-    buyAmountAfterFeesUserCurrency,
-    buyAsset,
-    buyAssetAccountId,
-    buyTradeAssetSelect,
-    hasUserEnteredAmount,
-    isInputtingFiatSellAmount,
-    isLoading,
-    manualReceiveAddress,
-    sellAmountCryptoPrecision,
-    sellAmountUserCurrency,
-    sellAsset,
-    sellAssetAccountId,
-    translate,
-    assetFilterPredicate,
-    chainIdFilterPredicate,
-    handleChangeSellAmountCryptoPrecision,
-    handleIsInputtingFiatSellAmountChange,
-    handleSwitchAssets,
-    setBuyAssetAccountId,
-    setSellAsset,
-    setSellAssetAccountId,
-    selectedSellAssetChainId,
-    setSelectedSellAssetChainId,
-    activeQuote,
-    isSmallerThanMd,
-  ])
-
-  const footerContent = useMemo(() => {
+  const footerContent = (() => {
     if (isSmallerThanMd && !hasUserEnteredAmount) return null
 
     return (
@@ -552,14 +468,7 @@ export const TradeInput = ({
         receiveAddress={manualReceiveAddress ?? walletReceiveAddress}
       />
     )
-  }, [
-    isCompact,
-    isLoading,
-    isSmallerThanMd,
-    manualReceiveAddress,
-    walletReceiveAddress,
-    hasUserEnteredAmount,
-  ])
+  })()
 
   // TODO: Its possible for multiple Acknowledgements to appear at once. Based on the logical paths,
   // if the WarningAcknowledgement shows, it can then show either StreamingAcknowledgement or
@@ -583,12 +492,16 @@ export const TradeInput = ({
       />
       <WarningAcknowledgement
         message={warningAcknowledgementMessage}
+        // React Compiler now handles memoization automagically here
+        // eslint-disable-next-line react-memo/require-usememo
         onAcknowledge={handleWarningAcknowledgementSubmit}
         shouldShowAcknowledgement={Boolean(walletId && shouldShowWarningAcknowledgement)}
         setShouldShowAcknowledgement={setShouldShowWarningAcknowledgement}
       />
       <WarningAcknowledgement
         message={thorchainSwapperVolatilityAcknowledgementMessage}
+        // React Compiler now handles memoization automagically here
+        // eslint-disable-next-line react-memo/require-usememo
         onAcknowledge={handleThorchainSwapperAcknowledgementSubmit}
         shouldShowAcknowledgement={Boolean(
           walletId && shouldShowThorchainSwapperVolatilityAcknowledgement,
@@ -596,8 +509,12 @@ export const TradeInput = ({
         setShouldShowAcknowledgement={setShouldShowThorchainSwapperVolatilityAcknowledgement}
       />
       <SharedTradeInput
+        // React Compiler now handles memoization automagically here
+        // eslint-disable-next-line react-memo/require-usememo
         bodyContent={bodyContent}
         footerContent={footerContent}
+        // React Compiler now handles memoization automagically here
+        // eslint-disable-next-line react-memo/require-usememo
         headerRightContent={headerRightContent}
         isCompact={isCompact}
         isLoading={isLoading}
@@ -605,6 +522,8 @@ export const TradeInput = ({
         shouldOpenSideComponent={hasUserEnteredAmount}
         tradeInputRef={tradeInputRef}
         tradeInputTab={TradeInputTab.Trade}
+        // React Compiler now handles memoization automagically here
+        // eslint-disable-next-line react-memo/require-usememo
         onSubmit={handleTradeQuoteConfirm}
         onChangeTab={onChangeTab}
         isStandalone={isStandalone}

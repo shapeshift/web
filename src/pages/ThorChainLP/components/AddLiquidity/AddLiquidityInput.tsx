@@ -1,3 +1,4 @@
+/* eslint-disable react-memo/require-usememo */
 import { ArrowBackIcon, QuestionIcon } from '@chakra-ui/icons'
 import {
   Alert,
@@ -160,6 +161,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   currentAccountIdByChainId,
   onAccountIdChange: handleAccountIdChange,
 }) => {
+  'use memo'
   const { isDrawerOpen, openActionCenter } = useActionCenterContext()
   const toast = useNotificationToast({ duration: isDrawerOpen ? 5000 : null })
   const mixpanel = getMixPanel()

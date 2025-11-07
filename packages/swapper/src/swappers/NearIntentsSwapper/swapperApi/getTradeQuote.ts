@@ -204,12 +204,6 @@ export const getTradeQuote = async (
       ],
     }
 
-    console.log('[NEAR Intents] Generated trade quote with nearIntentsSpecific:', {
-      depositAddress: quote.depositAddress,
-      nearIntentsSpecific: tradeQuote.steps[0].nearIntentsSpecific,
-      fullTradeQuote: tradeQuote,
-    })
-
     return Ok([tradeQuote])
   } catch (error) {
     return Err(

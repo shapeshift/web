@@ -297,10 +297,6 @@ export const TradeInput = ({
         dispatch(tradeQuoteSlice.actions.setActiveQuote(bestQuote))
       }
 
-      console.log('[NEAR Debug] TradeInput setConfirmedQuote:', {
-        quoteOrRate: activeQuote?.quoteOrRate,
-        nearIntentsSpecific: activeQuote?.steps?.[0]?.nearIntentsSpecific,
-      })
       dispatch(tradeQuoteSlice.actions.setConfirmedQuote(activeQuote))
       dispatch(tradeQuoteSlice.actions.clearQuoteExecutionState(activeQuote.id))
 

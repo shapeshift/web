@@ -182,9 +182,17 @@ export const nearIntentsApi: SwapperApi = {
 
   // Check swap status by polling 1Click API
   checkTradeStatus: async ({ config, swap }): Promise<TradeStatus> => {
+    console.log('[NEAR Intents] checkTradeStatus called with swap:', swap)
+    console.log('[NEAR Intents] swap.metadata:', swap?.metadata)
+    console.log('[NEAR Intents] nearIntentsSpecific:', swap?.metadata?.nearIntentsSpecific)
+
     const { nearIntentsSpecific } = swap?.metadata ?? {}
 
     if (!nearIntentsSpecific?.depositAddress) {
+      console.error('[NEAR Intents] Missing depositAddress in metadata:', {
+        metadata: swap?.metadata,
+        nearIntentsSpecific,
+      })
       throw new Error('depositAddress is required for NEAR Intents status check')
     }
 

@@ -382,14 +382,12 @@ export type SwapExecutionMetadata = {
 
 export type SwapperSpecificMetadata = {
   chainflipSwapId: number | undefined
-  nearIntentsSpecific:
-    | {
-        depositAddress: string
-        depositMemo?: string
-        timeEstimate: number
-        deadline: string
-      }
-    | undefined
+  nearIntentsSpecific?: {
+    depositAddress: string
+    depositMemo?: string
+    timeEstimate: number
+    deadline: string
+  }
   relayTransactionMetadata: RelayTransactionMetadata | undefined
   relayerExplorerTxLink: string | undefined
   relayerTxHash: string | undefined

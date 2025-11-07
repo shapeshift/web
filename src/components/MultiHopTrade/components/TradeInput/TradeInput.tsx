@@ -301,11 +301,7 @@ export const TradeInput = ({
         quoteOrRate: activeQuote?.quoteOrRate,
         nearIntentsSpecific: activeQuote?.steps?.[0]?.nearIntentsSpecific,
       })
-      // Only set confirmed quote if it's actually a quote (not a rate)
-      // Rates don't have execution metadata like deposit addresses
-      if (activeQuote.quoteOrRate === 'quote') {
-        dispatch(tradeQuoteSlice.actions.setConfirmedQuote(activeQuote))
-      }
+      dispatch(tradeQuoteSlice.actions.setConfirmedQuote(activeQuote))
       dispatch(tradeQuoteSlice.actions.clearQuoteExecutionState(activeQuote.id))
 
       if (isLedger(wallet)) {

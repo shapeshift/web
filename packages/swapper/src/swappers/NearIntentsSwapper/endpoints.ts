@@ -37,15 +37,16 @@ export const nearIntentsApi: SwapperApi = {
 
     const adapter = assertGetEvmChainAdapter(sellAsset.chainId as EvmChainId)
 
-    const contractAddress = contractAddressOrUndefined(sellAsset.assetId)
     const to = nearIntentsSpecific.depositAddress
     const value = step.sellAmountIncludingProtocolFeesCryptoBaseUnit
+    const contractAddress = contractAddressOrUndefined(sellAsset.assetId)
+    const data = evm.getErc20Data(to, value, contractAddress)
 
     const feeData = await evm.getFees({
       adapter,
-      to,
-      value,
-      data: '0x',
+      data: data || '0x',
+      to: contractAddress ?? to,
+      value: isNativeEvmAsset(sellAsset.assetId) ? value : '0',
       from,
       supportsEIP1559,
     })
@@ -76,15 +77,16 @@ export const nearIntentsApi: SwapperApi = {
 
     const adapter = assertGetEvmChainAdapter(sellAsset.chainId as EvmChainId)
 
-    const contractAddress = contractAddressOrUndefined(sellAsset.assetId)
     const to = nearIntentsSpecific.depositAddress
     const value = step.sellAmountIncludingProtocolFeesCryptoBaseUnit
+    const contractAddress = contractAddressOrUndefined(sellAsset.assetId)
+    const data = evm.getErc20Data(to, value, contractAddress)
 
     const feeData = await evm.getFees({
       adapter,
-      to,
-      value,
-      data: '0x',
+      data: data || '0x',
+      to: contractAddress ?? to,
+      value: isNativeEvmAsset(sellAsset.assetId) ? value : '0',
       from,
       supportsEIP1559,
     })

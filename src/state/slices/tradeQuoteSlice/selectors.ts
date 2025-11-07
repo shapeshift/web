@@ -247,6 +247,13 @@ export const selectActiveQuote: Selector<ReduxState, TradeQuote | TradeRate | un
       // This prevents the quote changing during trade execution, but has implications on the UI
       // displaying stale data. To prevent displaying stale data, we must ensure to clear the
       // confirmedQuote when not executing a trade.
+      console.log('[NEAR Debug] selectActiveQuote:', {
+        hasConfirmedQuote: !!confirmedQuote,
+        confirmedQuoteNearIntents: confirmedQuote?.steps?.[0]?.nearIntentsSpecific,
+        responseQuoteNearIntents: response?.quote?.steps?.[0]?.nearIntentsSpecific,
+        returning: confirmedQuote ? 'confirmedQuote' : 'response.quote',
+      })
+
       if (confirmedQuote) return confirmedQuote
       return response?.quote
     },

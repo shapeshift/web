@@ -2,6 +2,7 @@ import { fromAssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 
+import { isNativeEvmAsset } from '../../../utils/helpers/helpers'
 import { DEFAULT_SLIPPAGE_BPS } from '../../constants'
 import type { GetExecutionStatusResponse } from '../../types'
 import {
@@ -9,7 +10,6 @@ import {
   getNearIntentsAssetId,
   NEAR_INTENTS_NATIVE_EVM_MARKER,
 } from '../../types'
-import { isNativeEvmAsset } from '../../utils/helpers/helpers'
 
 export const convertSlippageToBps = (slippageDecimal: string | undefined): number => {
   if (!slippageDecimal) return DEFAULT_SLIPPAGE_BPS
@@ -34,7 +34,7 @@ export const assetToNearIntentsId = (asset: Asset): string => {
 
   // For native assets (ETH, MATIC, BNB, etc.), use zero address
   const contractAddress = isNativeEvmAsset(asset.assetId)
-    ? NEAR_INTENTS_NATIVE_MARKER
+    ? NEAR_INTENTS_NATIVE_EVM_MARKER
     : fromAssetId(asset.assetId).assetReference
 
   return getNearIntentsAssetId(blockchain, contractAddress)

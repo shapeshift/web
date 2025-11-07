@@ -286,7 +286,9 @@ const tradeQuote: TradeQuote = {
 }
 ```
 
-**c. Extract into swap** (`src/components/MultiHopTrade/components/TradeConfirm/hooks/useTradeButtonProps.tsx`):
+**c. Extract into swap** (TWO places required!):
+
+**Place 1**: `src/components/MultiHopTrade/components/TradeConfirm/hooks/useTradeButtonProps.tsx`
 
 Add to metadata object around line 114-126:
 ```typescript
@@ -301,6 +303,26 @@ metadata: {
   streamingSwapMetadata: { ... }
 }
 ```
+
+**Place 2**: `src/lib/tradeExecution.ts` (CRITICAL - often forgotten!)
+
+Add to metadata object around line 156-161:
+```typescript
+metadata: {
+  ...swap.metadata,
+  chainflipSwapId: tradeQuote.steps[0]?.chainflipSpecific?.chainflipSwapId,
+  nearIntentsSpecific: tradeQuote.steps[0]?.nearIntentsSpecific,
+  // Add your swapper's metadata extraction here:
+  [swapperName]Specific: tradeQuote.steps[0]?.[swapperName]Specific,
+  relayTransactionMetadata: tradeQuote.steps[0]?.relayTransactionMetadata,
+  stepIndex,
+}
+```
+
+**Why both places?**
+- `useTradeButtonProps` creates the initial swap (before wallet signature)
+- `tradeExecution` updates the swap during execution (after wallet signature, with actual tradeQuote)
+- If you only add to one place, metadata will be missing!
 
 **d. Access in status check** (`packages/swapper/src/swappers/[Swapper]/endpoints.ts`):
 

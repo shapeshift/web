@@ -1,7 +1,7 @@
 import { KnownChainIds } from '@shapeshiftoss/types'
 
+export { QuoteRequest } from '@defuse-protocol/one-click-sdk-typescript'
 export type {
-  QuoteRequest,
   QuoteResponse,
   GetExecutionStatusResponse,
   TokenResponse,

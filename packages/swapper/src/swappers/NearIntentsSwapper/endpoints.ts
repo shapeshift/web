@@ -193,16 +193,9 @@ export const nearIntentsApi: SwapperApi = {
       return createDefaultStatusResponse(swap?.buyTxHash)
     }
 
-    // TODO(gomes): Remove when we have API key
-    // For now, return unknown status since we can't call API without key
-    if (
-      !config.VITE_NEAR_INTENTS_API_KEY ||
-      config.VITE_NEAR_INTENTS_API_KEY === 'requested-now-we-wait'
-    ) {
-      return createDefaultStatusResponse(undefined)
-    }
-
-    initializeOneClickService(config.VITE_NEAR_INTENTS_API_KEY)
+    // API works without JWT token (just charges 0.1% fee)
+    const apiKey = config.VITE_NEAR_INTENTS_API_KEY || ''
+    initializeOneClickService(apiKey)
 
     try {
       // TODO(gomes): SDK doesn't support depositMemo yet in getExecutionStatus

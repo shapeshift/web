@@ -427,7 +427,8 @@ const RampRoutes = memo(({ onChangeTab, direction }: RampRoutesProps) => {
       shouldDisablePreviewButton:
         !hasUserEnteredAmount ||
         (!sellAsset && !sellFiatCurrency) ||
-        (!buyAsset && !buyFiatCurrency),
+        (!buyAsset && !buyFiatCurrency) ||
+        !selectedQuote,
       networkFeeFiatUserCurrency: selectedQuote?.networkFee ?? '0',
       quoteStatusTranslation:
         direction === FiatRampAction.Buy ? 'fiatRamps.previewPurchase' : 'fiatRamps.previewSale',
@@ -472,11 +473,11 @@ const RampRoutes = memo(({ onChangeTab, direction }: RampRoutesProps) => {
     buyAsset,
     sellFiatCurrency,
     buyFiatCurrency,
+    selectedQuote,
     hasUserEnteredAmount,
     rampIcon,
     isFetchingQuotes,
     rateValue,
-    selectedQuote?.networkFee,
     navigate,
   ])
 

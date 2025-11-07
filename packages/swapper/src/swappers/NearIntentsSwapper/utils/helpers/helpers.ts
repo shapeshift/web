@@ -16,33 +16,21 @@ export const convertSlippageToBps = (slippageDecimal: string | undefined): numbe
   return Math.round(Number(slippageDecimal) * 10000)
 }
 
-/**
- * Convert ShapeShift Asset to NEAR Intents asset ID format
- * Format: "blockchain.contractAddress"
- * Example: "eth.0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48" for USDC on Ethereum
- *
- * @param asset - ShapeShift Asset object
- * @returns NEAR Intents asset ID string
- */
-export const assetToNearIntentsId = (asset: Asset): string => {
-  const chainId = asset.chainId
-  const blockchain = chainIdToNearIntentsChain[chainId as keyof typeof chainIdToNearIntentsChain]
+export const assetToNearIntentsAsset = (asset: Asset): string => {
+  const nearIntentsChain =
+    chainIdToNearIntentsChain[asset.chainId as keyof typeof chainIdToNearIntentsChain]
 
-  if (!blockchain) {
-    throw new Error(`Unsupported chain for NEAR Intents: ${chainId}`)
+  if (!nearIntentsChain) {
+    throw new Error(`Unsupported chain for NEAR Intents: ${asset.chainId}`)
   }
 
-  // For native assets (ETH, MATIC, BNB, etc.), use zero address
   const contractAddress = isNativeEvmAsset(asset.assetId)
     ? NEAR_INTENTS_NATIVE_EVM_MARKER
     : fromAssetId(asset.assetId).assetReference
 
-  return getNearIntentsAssetId(blockchain, contractAddress)
+  return getNearIntentsAsset(nearIntentsChain, contractAddress)
 }
 
-/**
- * Map 1Click swap status to ShapeShift TxStatus
- */
 export const mapNearIntentsStatus = (status: GetExecutionStatusResponse['status']): TxStatus => {
   switch (status) {
     case 'PENDING_DEPOSIT':
@@ -71,7 +59,7 @@ export const getNearIntentsStatusMessage = (
     case 'PROCESSING':
       return 'Processing swap...'
     case 'SUCCESS':
-      return undefined // No message needed for success
+      return undefined
     case 'INCOMPLETE_DEPOSIT':
       return 'Insufficient deposit amount'
     case 'REFUNDED':

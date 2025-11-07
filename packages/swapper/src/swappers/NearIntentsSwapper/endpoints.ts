@@ -189,11 +189,8 @@ export const nearIntentsApi: SwapperApi = {
     const { nearIntentsSpecific } = swap?.metadata ?? {}
 
     if (!nearIntentsSpecific?.depositAddress) {
-      console.error('[NEAR Intents] Missing depositAddress in metadata:', {
-        metadata: swap?.metadata,
-        nearIntentsSpecific,
-      })
-      throw new Error('depositAddress is required for NEAR Intents status check')
+      console.warn('[NEAR Intents] Missing depositAddress in metadata, returning Unknown status')
+      return createDefaultStatusResponse(swap?.buyTxHash)
     }
 
     // TODO(gomes): Remove when we have API key

@@ -8,7 +8,7 @@ export type {
   TokenResponse,
 } from '@defuse-protocol/one-click-sdk-typescript'
 
-// Supported EVM chains (verified from docs)
+// Supported EVM chains (verified from /v0/tokens API on 2025-11-07)
 export const nearIntentsSupportedChainIds = [
   KnownChainIds.EthereumMainnet,
   KnownChainIds.ArbitrumMainnet,
@@ -16,9 +16,8 @@ export const nearIntentsSupportedChainIds = [
   KnownChainIds.BnbSmartChainMainnet,
   KnownChainIds.PolygonMainnet,
   KnownChainIds.GnosisMainnet,
-  // TODO: Verify these are supported by calling /v0/tokens
-  // KnownChainIds.AvalancheMainnet,
-  // KnownChainIds.OptimismMainnet,
+  KnownChainIds.AvalancheMainnet, // Verified ✅
+  KnownChainIds.OptimismMainnet, // Verified ✅
 ] as const
 
 export type NearIntentsSupportedChainId = (typeof nearIntentsSupportedChainIds)[number]
@@ -31,9 +30,8 @@ export const chainIdToNearIntentsChain: Record<NearIntentsSupportedChainId, stri
   [KnownChainIds.BnbSmartChainMainnet]: 'bnb',
   [KnownChainIds.PolygonMainnet]: 'pol',
   [KnownChainIds.GnosisMainnet]: 'gnosis',
-  // TODO: Add when verified
-  // [KnownChainIds.AvalancheMainnet]: 'avax',
-  // [KnownChainIds.OptimismMainnet]: 'op',
+  [KnownChainIds.AvalancheMainnet]: 'avax',
+  [KnownChainIds.OptimismMainnet]: 'op',
 }
 
 // Asset ID format: "blockchain.contractAddress"

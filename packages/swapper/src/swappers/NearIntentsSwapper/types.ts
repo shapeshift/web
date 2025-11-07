@@ -13,6 +13,9 @@ export const nearIntentsSupportedChainIds = [
   KnownChainIds.BnbSmartChainMainnet,
   KnownChainIds.PolygonMainnet,
   KnownChainIds.GnosisMainnet,
+  KnownChainIds.BitcoinMainnet,
+  KnownChainIds.DogecoinMainnet,
+  KnownChainIds.SolanaMainnet,
   // TODO: Add NEP-245 support for these chains - https://github.com/shapeshift/web/issues/11020
   // KnownChainIds.AvalancheMainnet,
   // KnownChainIds.OptimismMainnet,
@@ -27,6 +30,9 @@ export const chainIdToNearIntentsChain: Record<NearIntentsSupportedChainId, stri
   [KnownChainIds.BnbSmartChainMainnet]: 'bnb',
   [KnownChainIds.PolygonMainnet]: 'pol',
   [KnownChainIds.GnosisMainnet]: 'gnosis',
+  [KnownChainIds.BitcoinMainnet]: 'btc',
+  [KnownChainIds.DogecoinMainnet]: 'doge',
+  [KnownChainIds.SolanaMainnet]: 'sol',
   // TODO: Map to NEP-245 format - https://github.com/shapeshift/web/issues/11020
   // [KnownChainIds.AvalancheMainnet]: 'avax',
   // [KnownChainIds.OptimismMainnet]: 'op',

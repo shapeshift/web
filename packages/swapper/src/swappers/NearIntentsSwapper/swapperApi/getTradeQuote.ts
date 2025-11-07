@@ -84,15 +84,11 @@ export const getTradeQuote = async (
       recipient: receiveAddress,
       recipientType: QuoteRequest.recipientType.DESTINATION_CHAIN,
       deadline: new Date(Date.now() + DEFAULT_QUOTE_DEADLINE_MS).toISOString(),
-      // TODO(gomes): Implement affiliate fees when NEAR address confirmed for fee recipient
-      // CRITICAL: appFees.recipient ONLY accepts NEAR addresses (e.g., "alice.near")
-      // Cannot use EVM treasury addresses here - fees must be collected on NEAR
-      // appFees: [
-      //   {
-      //     recipient: 'shapeshift.near', // Need to create this NEAR account
-      //     fee_bps: Number(affiliateBps), // '55' from app
-      //   }
-      // ],
+      // TODO: Add affiliate fees when NEAR account created - https://github.com/shapeshift/web/issues/11022
+      // appFees: [{
+      //   recipient: 'shapeshift.near',
+      //   fee_bps: Number(affiliateBps),
+      // }],
     }
 
     // Call 1Click API to get quote with deposit address

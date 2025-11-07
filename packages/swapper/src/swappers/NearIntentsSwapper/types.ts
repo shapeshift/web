@@ -13,8 +13,9 @@ export const nearIntentsSupportedChainIds = [
   KnownChainIds.BnbSmartChainMainnet,
   KnownChainIds.PolygonMainnet,
   KnownChainIds.GnosisMainnet,
-  KnownChainIds.AvalancheMainnet, // Verified ✅
-  KnownChainIds.OptimismMainnet, // Verified ✅
+  // TODO: Add NEP-245 support for these chains - https://github.com/shapeshift/web/issues/11020
+  // KnownChainIds.AvalancheMainnet,
+  // KnownChainIds.OptimismMainnet,
 ] as const
 
 export type NearIntentsSupportedChainId = (typeof nearIntentsSupportedChainIds)[number]
@@ -26,8 +27,9 @@ export const chainIdToNearIntentsChain: Record<NearIntentsSupportedChainId, stri
   [KnownChainIds.BnbSmartChainMainnet]: 'bnb',
   [KnownChainIds.PolygonMainnet]: 'pol',
   [KnownChainIds.GnosisMainnet]: 'gnosis',
-  [KnownChainIds.AvalancheMainnet]: 'avax',
-  [KnownChainIds.OptimismMainnet]: 'op',
+  // TODO: Map to NEP-245 format - https://github.com/shapeshift/web/issues/11020
+  // [KnownChainIds.AvalancheMainnet]: 'avax',
+  // [KnownChainIds.OptimismMainnet]: 'op',
 }
 
 export const getNearIntentsAsset = (blockchain: string, contractAddress: string): string => {

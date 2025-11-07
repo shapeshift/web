@@ -221,12 +221,19 @@ Create `packages/swapper/src/swappers/[SwapperName]Swapper/`
 
 **Refer to** `@examples.md` for code templates. **Copy patterns** from similar existing swappers.
 
-#### Step 3: Add Swapper-Specific Metadata (if needed)
+#### Step 3: Add Swapper-Specific Metadata (ONLY if needed)
 
 **When is metadata needed?**
-- Deposit-to-address swappers (Chainflip, NEAR Intents) - need deposit address, swap ID
-- Order-based swappers (CowSwap) - need order ID
+- Deposit-to-address swappers (Chainflip, NEAR Intents) - need deposit address, swap ID for status polling
+- Order-based swappers (CowSwap) - need order ID for status tracking
 - Any swapper that requires tracking state between quote → execution → status polling
+
+**When is metadata NOT needed?**
+- Direct transaction swappers (Bebop, 0x, Portals) - transaction is built from quote, no async tracking needed
+- Same-chain aggregators where transaction hash is sufficient for status tracking
+- Most EVM-only swappers that return transaction data directly
+
+**If your swapper doesn't need async status polling or deposit addresses, skip this step!**
 
 **Three places to add metadata:**
 

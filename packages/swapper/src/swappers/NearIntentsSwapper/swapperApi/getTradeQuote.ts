@@ -68,8 +68,8 @@ export const getTradeQuote = async (
     const apiKey = deps.config.VITE_NEAR_INTENTS_API_KEY
     initializeOneClickService(apiKey)
 
-    const originAsset = assetToNearIntentsAsset(sellAsset)
-    const destinationAsset = assetToNearIntentsAsset(buyAsset)
+    const originAsset = await assetToNearIntentsAsset(sellAsset)
+    const destinationAsset = await assetToNearIntentsAsset(buyAsset)
 
     const quoteRequest: QuoteRequest = {
       dry: false,

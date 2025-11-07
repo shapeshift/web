@@ -31,8 +31,8 @@ export const getTradeRate = async (
     const apiKey = deps.config.VITE_NEAR_INTENTS_API_KEY
     initializeOneClickService(apiKey)
 
-    const originAsset = assetToNearIntentsAsset(sellAsset)
-    const destinationAsset = assetToNearIntentsAsset(buyAsset)
+    const originAsset = await assetToNearIntentsAsset(sellAsset)
+    const destinationAsset = await assetToNearIntentsAsset(buyAsset)
 
     // Use dummy address for rates (no wallet connected yet)
     const dummyAddress = receiveAddress ?? NEAR_INTENTS_DUMMY_ADDRESS

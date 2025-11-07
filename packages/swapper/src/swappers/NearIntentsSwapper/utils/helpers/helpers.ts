@@ -1,4 +1,4 @@
-import { fromAssetId } from '@shapeshiftoss/caip'
+import { fromAssetId, solanaChainId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { isToken } from '@shapeshiftoss/utils'
@@ -10,13 +10,14 @@ import {
   getNearIntentsAsset,
   NEAR_INTENTS_NATIVE_EVM_MARKER,
 } from '../../types'
+import { OneClickService } from '../oneClickService'
 
 export const convertSlippageToBps = (slippageDecimal: string | undefined): number => {
   if (!slippageDecimal) return DEFAULT_SLIPPAGE_BPS
   return Math.round(Number(slippageDecimal) * 10000)
 }
 
-export const assetToNearIntentsAsset = (asset: Asset): string => {
+export const assetToNearIntentsAsset = async (asset: Asset): Promise<string> => {
   const nearIntentsChain =
     chainIdToNearIntentsChain[asset.chainId as keyof typeof chainIdToNearIntentsChain]
 
@@ -24,8 +25,22 @@ export const assetToNearIntentsAsset = (asset: Asset): string => {
     throw new Error(`Unsupported chain for NEAR Intents: ${asset.chainId}`)
   }
 
-  // isToken() works for all chains (EVM, UTXO, Solana)
-  // Returns false for native assets (ETH, BTC, SOL, etc.)
+  // Solana tokens need lookup from /v0/tokens (can't be generated)
+  if (asset.chainId === solanaChainId && isToken(asset.assetId)) {
+    const tokens = await OneClickService.getTokens()
+    const solanaAddress = fromAssetId(asset.assetId).assetReference
+    const match = tokens.find(
+      t => t.blockchain === 'sol' && t.contractAddress === solanaAddress,
+    )
+
+    if (!match) {
+      throw new Error(`Solana token not found in NEAR Intents: ${solanaAddress}`)
+    }
+
+    return match.assetId
+  }
+
+  // For EVM, Bitcoin, Doge, and native assets - use predictable format
   const contractAddress = isToken(asset.assetId)
     ? fromAssetId(asset.assetId).assetReference
     : NEAR_INTENTS_NATIVE_EVM_MARKER
@@ -33,7 +48,9 @@ export const assetToNearIntentsAsset = (asset: Asset): string => {
   return getNearIntentsAsset(nearIntentsChain, contractAddress)
 }
 
-export const mapNearIntentsStatus = (status: GetExecutionStatusResponse['status']): TxStatus => {
+export const mapNearIntentsStatus = (
+  status: GetExecutionStatusResponse['status'],
+): TxStatus => {
   switch (status) {
     case 'PENDING_DEPOSIT':
     case 'KNOWN_DEPOSIT_TX':

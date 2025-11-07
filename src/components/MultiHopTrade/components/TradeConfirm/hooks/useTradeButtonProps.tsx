@@ -90,6 +90,14 @@ export const useTradeButtonProps = ({
     const firstStep = activeQuote.steps[0]
     const lastStep = activeQuote.steps[activeQuote.steps.length - 1]
 
+    console.log('[NEAR Debug] useTradeButtonProps activeQuote:', {
+      id: activeQuote.id,
+      quoteOrRate: activeQuote.quoteOrRate,
+      swapperName: activeQuote.swapperName,
+      nearIntentsSpecific: firstStep?.nearIntentsSpecific,
+      allStepKeys: firstStep ? Object.keys(firstStep) : [],
+    })
+
     console.log('[NEAR Intents] Creating swap from quote, firstStep:', {
       swapperName: activeQuote.swapperName,
       nearIntentsSpecific: firstStep?.nearIntentsSpecific,

@@ -1,8 +1,8 @@
 import { fromAssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
+import { isToken } from '@shapeshiftoss/utils'
 
-import { isNativeEvmAsset } from '../../../utils/helpers/helpers'
 import { DEFAULT_SLIPPAGE_BPS } from '../../constants'
 import type { GetExecutionStatusResponse } from '../../types'
 import {
@@ -24,9 +24,11 @@ export const assetToNearIntentsAsset = (asset: Asset): string => {
     throw new Error(`Unsupported chain for NEAR Intents: ${asset.chainId}`)
   }
 
-  const contractAddress = isNativeEvmAsset(asset.assetId)
-    ? NEAR_INTENTS_NATIVE_EVM_MARKER
-    : fromAssetId(asset.assetId).assetReference
+  // isToken() works for all chains (EVM, UTXO, Solana)
+  // Returns false for native assets (ETH, BTC, SOL, etc.)
+  const contractAddress = isToken(asset.assetId)
+    ? fromAssetId(asset.assetId).assetReference
+    : NEAR_INTENTS_NATIVE_EVM_MARKER
 
   return getNearIntentsAsset(nearIntentsChain, contractAddress)
 }

@@ -9,6 +9,7 @@ import {
   getNearIntentsAssetId,
   NEAR_INTENTS_NATIVE_MARKER,
 } from '../../types'
+import { isNativeEvmAsset } from '../../utils/helpers/helpers'
 
 /**
  * Convert ShapeShift slippage decimal to 1Click basis points
@@ -37,10 +38,9 @@ export const assetToNearIntentsId = (asset: Asset): string => {
   }
 
   // For native assets (ETH, MATIC, BNB, etc.), use zero address
-  const contractAddress =
-    asset.assetId === asset.chainId
-      ? NEAR_INTENTS_NATIVE_MARKER
-      : fromAssetId(asset.assetId).assetReference
+  const contractAddress = isNativeEvmAsset(asset.assetId)
+    ? NEAR_INTENTS_NATIVE_MARKER
+    : fromAssetId(asset.assetId).assetReference
 
   return getNearIntentsAssetId(blockchain, contractAddress)
 }
@@ -65,9 +65,6 @@ export const mapNearIntentsStatus = (status: GetExecutionStatusResponse['status'
   }
 }
 
-/**
- * Get user-friendly status message for 1Click swap status
- */
 export const getNearIntentsStatusMessage = (
   status: GetExecutionStatusResponse['status'],
 ): string | undefined => {

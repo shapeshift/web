@@ -10,6 +10,7 @@ import ChainflipIcon from './chainflip-icon.png'
 import CowIcon from './cow-icon.png'
 import JupiterIcon from './jupiter-icon.svg'
 import MayachainIcon from './maya_logo.png'
+import NearIntentsIcon from './near-intents-icon.png'
 import PortalsIcon from './portals-icon.png'
 import RelayIcon from './relay-icon.svg'
 import THORChainIcon from './thorchain-icon.png'
@@ -49,8 +50,7 @@ export const SwapperIcon = ({
       case SwapperName.Bebop:
         return BebopIcon
       case SwapperName.NearIntents:
-        // TODO: Add NEAR Intents icon from https://pages.near.org/about/brand/
-        return ''
+        return NearIntentsIcon
       case SwapperName.Test:
         return ''
       default:

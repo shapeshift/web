@@ -24,6 +24,7 @@ export const getTradeQuote = async (
   input: CommonTradeQuoteInput,
   deps: SwapperDeps,
 ): Promise<Result<TradeQuote[], SwapErrorRight>> => {
+  console.log('[NEAR Intents] getTradeQuote called')
   const {
     sellAsset,
     buyAsset,
@@ -68,8 +69,10 @@ export const getTradeQuote = async (
     const apiKey = deps.config.VITE_NEAR_INTENTS_API_KEY
     initializeOneClickService(apiKey)
 
+    console.log('[NEAR Intents] Converting assets')
     const originAsset = await assetToNearIntentsAsset(sellAsset)
     const destinationAsset = await assetToNearIntentsAsset(buyAsset)
+    console.log('[NEAR Intents] Assets:', { originAsset, destinationAsset })
 
     const quoteRequest: QuoteRequest = {
       dry: false,
@@ -92,7 +95,9 @@ export const getTradeQuote = async (
     }
 
     // Call 1Click API to get quote with deposit address
+    console.log('[NEAR Intents] Calling API')
     const quoteResponse: QuoteResponse = await OneClickService.getQuote(quoteRequest)
+    console.log('[NEAR Intents] API success')
 
     const { quote } = quoteResponse
 
@@ -200,8 +205,10 @@ export const getTradeQuote = async (
       ],
     }
 
+    console.log('[NEAR Intents] Returning quote')
     return Ok([tradeQuote])
   } catch (error) {
+    console.error('[NEAR Intents] getTradeQuote error:', error)
     return Err(
       makeSwapErrorRight({
         message:

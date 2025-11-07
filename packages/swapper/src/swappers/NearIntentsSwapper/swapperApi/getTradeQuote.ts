@@ -144,12 +144,15 @@ export const getTradeQuote = async (
       case CHAIN_NAMESPACE.Solana: {
         console.log('[NEAR Intents] Getting Solana fee data')
         const sellAdapter = deps.assertGetSolanaChainAdapter(sellAsset.chainId)
+        const tokenId = isToken(sellAsset.assetId)
+          ? fromAssetId(sellAsset.assetId).assetReference
+          : undefined
         const getFeeDataInput: GetFeeDataInput<KnownChainIds.SolanaMainnet> = {
           to: quote.depositAddress,
           value: sellAmount,
           chainSpecific: {
             from: sendAddress,
-            tokenId: sellAsset.assetId,
+            tokenId,
           },
           sendMax: false,
         }

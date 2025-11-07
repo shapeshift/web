@@ -1,14 +1,11 @@
 import { KnownChainIds } from '@shapeshiftoss/types'
 
-// Re-export SDK types for convenience
 export type {
   QuoteRequest,
   QuoteResponse,
   GetExecutionStatusResponse,
   TokenResponse,
 } from '@defuse-protocol/one-click-sdk-typescript'
-
-// Supported EVM chains (verified from /v0/tokens API on 2025-11-07)
 export const nearIntentsSupportedChainIds = [
   KnownChainIds.EthereumMainnet,
   KnownChainIds.ArbitrumMainnet,
@@ -22,7 +19,6 @@ export const nearIntentsSupportedChainIds = [
 
 export type NearIntentsSupportedChainId = (typeof nearIntentsSupportedChainIds)[number]
 
-// Chain ID mapping to NEAR Intents chain names
 export const chainIdToNearIntentsChain: Record<NearIntentsSupportedChainId, string> = {
   [KnownChainIds.EthereumMainnet]: 'eth',
   [KnownChainIds.ArbitrumMainnet]: 'arb',
@@ -34,17 +30,12 @@ export const chainIdToNearIntentsChain: Record<NearIntentsSupportedChainId, stri
   [KnownChainIds.OptimismMainnet]: 'op',
 }
 
-// Asset ID format: "blockchain.contractAddress"
-// Example: "eth.0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48" for USDC on Ethereum
 export const getNearIntentsAssetId = (blockchain: string, contractAddress: string): string => {
   return `${blockchain}.${contractAddress.toLowerCase()}`
 }
 
-// Native token marker (used for ETH, MATIC, etc.)
-export const NEAR_INTENTS_NATIVE_MARKER = '0x0000000000000000000000000000000000000000'
+export const NEAR_INTENTS_NATIVE_EVM_MARKER = '0x0000000000000000000000000000000000000000'
 
-// Dummy address for rate quotes (when no wallet connected)
-// Using same approach as Bebop - Vitalik's address
 export const NEAR_INTENTS_DUMMY_ADDRESS = '0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045'
 
 // CRITICAL: appFees recipient parameter ONLY accepts NEAR addresses

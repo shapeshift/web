@@ -7,15 +7,10 @@ import type { GetExecutionStatusResponse } from '../../types'
 import {
   chainIdToNearIntentsChain,
   getNearIntentsAssetId,
-  NEAR_INTENTS_NATIVE_MARKER,
+  NEAR_INTENTS_NATIVE_EVM_MARKER,
 } from '../../types'
 import { isNativeEvmAsset } from '../../utils/helpers/helpers'
 
-/**
- * Convert ShapeShift slippage decimal to 1Click basis points
- * @param slippageDecimal - e.g., '0.005' for 0.5%
- * @returns basis points - e.g., 50 for 0.5%
- */
 export const convertSlippageToBps = (slippageDecimal: string | undefined): number => {
   if (!slippageDecimal) return DEFAULT_SLIPPAGE_BPS
   return Math.round(Number(slippageDecimal) * 10000)

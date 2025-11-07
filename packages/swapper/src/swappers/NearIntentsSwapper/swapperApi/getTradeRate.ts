@@ -86,14 +86,13 @@ export const getTradeRate = async (
       swapperName: SwapperName.NearIntents,
       steps: [
         {
-          accountNumber: undefined, // Rate quotes don't have account numbers
-          allowanceContract: '', // Not needed for rates
+          accountNumber: undefined,
+          allowanceContract: '',
           buyAmountBeforeFeesCryptoBaseUnit: quote.amountOut,
           buyAmountAfterFeesCryptoBaseUnit: quote.amountOut,
           buyAsset,
           feeData: {
             protocolFees: {},
-            // Network fees are estimated at quote time, not rate time
             networkFeeCryptoBaseUnit: '0',
           },
           rate: bn(quote.amountOut).div(quote.amountIn).toString(),
@@ -115,10 +114,4 @@ export const getTradeRate = async (
       }),
     )
   }
-}
-
-// Helper to get default slippage
-const getDefaultSlippageDecimalPercentageForSwapper = (_swapperName: SwapperName): string => {
-  // 0.5% = 0.005
-  return '0.005'
 }

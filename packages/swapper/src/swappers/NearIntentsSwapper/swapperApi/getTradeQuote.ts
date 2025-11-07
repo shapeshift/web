@@ -10,6 +10,7 @@ import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import { v4 as uuid } from 'uuid'
 
+import { getDefaultSlippageDecimalPercentageForSwapper } from '../../../constants'
 import type { CommonTradeQuoteInput, SwapErrorRight, SwapperDeps, TradeQuote } from '../../../types'
 import { SwapperName, TradeQuoteError } from '../../../types'
 import { makeSwapErrorRight } from '../../../utils'
@@ -221,10 +222,4 @@ export const getTradeQuote = async (
       }),
     )
   }
-}
-
-// Helper to get default slippage (defined in swapper constants)
-const getDefaultSlippageDecimalPercentageForSwapper = (_swapperName: SwapperName): string => {
-  // 0.5% = 0.005
-  return '0.005'
 }

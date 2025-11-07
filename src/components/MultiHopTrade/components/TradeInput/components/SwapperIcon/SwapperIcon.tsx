@@ -48,6 +48,9 @@ export const SwapperIcon = ({
         return ButterSwapIcon
       case SwapperName.Bebop:
         return BebopIcon
+      case SwapperName.NearIntents:
+        // TODO: Add NEAR Intents icon from https://pages.near.org/about/brand/
+        return ''
       case SwapperName.Test:
         return ''
       default:

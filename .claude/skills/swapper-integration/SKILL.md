@@ -221,7 +221,104 @@ Create `packages/swapper/src/swappers/[SwapperName]Swapper/`
 
 **Refer to** `@examples.md` for code templates. **Copy patterns** from similar existing swappers.
 
-#### Step 3: Register the swapper
+#### Step 3: Add Swapper-Specific Metadata (if needed)
+
+**When is metadata needed?**
+- Deposit-to-address swappers (Chainflip, NEAR Intents) - need deposit address, swap ID
+- Order-based swappers (CowSwap) - need order ID
+- Any swapper that requires tracking state between quote → execution → status polling
+
+**Three places to add metadata:**
+
+**a. Define types** (`packages/swapper/src/types.ts`):
+
+Add to `TradeQuoteStep` type:
+```typescript
+export type TradeQuoteStep = {
+  // ... existing fields
+  [swapperName]Specific?: {
+    depositAddress: string
+    swapId: number
+    // ... other swapper-specific fields
+  }
+}
+```
+
+Add to `SwapperSpecificMetadata` type (for swap storage):
+```typescript
+export type SwapperSpecificMetadata = {
+  chainflipSwapId: number | undefined
+  nearIntentsSpecific?: {
+    depositAddress: string
+    depositMemo?: string
+    timeEstimate: number
+    deadline: string
+  }
+  // Add your swapper's metadata here
+  [swapperName]Specific?: {
+    // ... fields needed for status polling
+  }
+  // ... other fields
+}
+```
+
+**b. Populate in quote** (`packages/swapper/src/swappers/[Swapper]/swapperApi/getTradeQuote.ts`):
+
+Store metadata in the TradeQuoteStep:
+```typescript
+const tradeQuote: TradeQuote = {
+  // ... other fields
+  steps: [{
+    // ... step fields
+    [swapperName]Specific: {
+      depositAddress: response.depositAddress,
+      swapId: response.id,
+      // ... other data needed later
+    }
+  }]
+}
+```
+
+**c. Extract into swap** (`src/components/MultiHopTrade/components/TradeConfirm/hooks/useTradeButtonProps.tsx`):
+
+Add to metadata object around line 114-126:
+```typescript
+metadata: {
+  chainflipSwapId: firstStep?.chainflipSpecific?.chainflipSwapId,
+  nearIntentsSpecific: firstStep?.nearIntentsSpecific,
+  // Add your swapper's metadata extraction here:
+  [swapperName]Specific: firstStep?.[swapperName]Specific,
+  relayTransactionMetadata: firstStep?.relayTransactionMetadata,
+  stepIndex: currentHopIndex,
+  quoteId: activeQuote.id,
+  streamingSwapMetadata: { ... }
+}
+```
+
+**d. Access in status check** (`packages/swapper/src/swappers/[Swapper]/endpoints.ts`):
+
+```typescript
+checkTradeStatus: async ({ config, swap }) => {
+  const { [swapperName]Specific } = swap?.metadata ?? {}
+
+  if (![swapperName]Specific?.swapId) {
+    throw new Error('swapId is required for status check')
+  }
+
+  // Use metadata to poll API
+  const status = await api.getStatus([swapperName]Specific.swapId)
+  // ...
+}
+```
+
+**Example: NEAR Intents metadata flow**
+```
+1. Quote: Store in step.nearIntentsSpecific.depositAddress
+2. Swap creation: Extract to swap.metadata.nearIntentsSpecific
+3. Status check: Read from swap.metadata.nearIntentsSpecific.depositAddress
+```
+
+#### Step 4: Register the swapper
 
 Update these files to register your new swapper:
 
@@ -234,8 +331,7 @@ Update these files to register your new swapper:
    - Export new swapper
 
 3. **`packages/swapper/src/types.ts`**
-   - Add transaction metadata type if needed
-   - Add API config fields
+   - Add API config fields (if not already done in metadata step)
 
 4. **CSP Headers** (if swapper calls external API):
    - Create `headers/csps/defi/swappers/[SwapperName].ts`:

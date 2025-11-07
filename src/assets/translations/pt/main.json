@@ -3211,7 +3211,6 @@
         "complete": "Sua retirada de %{assetAmountsAndSymbols} do pool %{poolName} foi concluída."
       },
       "deposit": {
-        "processing": "Seu depósito de %{amountCryptoPrecision} %{symbol} no pool %{poolName} está sendo processado.",
         "complete": "Seu depósito de %{amountCryptoPrecision} %{symbol} no pool %{poolName} foi concluído."
       }
     },
@@ -3260,10 +3259,6 @@
       "claimReady": "Seu resgate de TCY %{amount} %{symbol} está pronto.",
       "claimTxPending": "Seu resgate de TCY %{amount} %{symbol} está pendente. ",
       "claimTxComplete": "Seu resgate de TCY %{amount} %{symbol} foi completado."
-    },
-    "approve": {
-      "approvalTxPending": "Aprovando %{contractName} para uso %{amountCryptoPrecision} %{symbol}.",
-      "approvalTxComplete": "Approved %{contractName} para usar %{amountCryptoPrecision} %{symbol}."
     },
     "swapTitle": "%{sellAmount} %{sellSymbol} → %{buyAmount} %{buySymbol}",
     "limitOrderTitle": "%{sellAmount} %{sellSymbol} → %{buyAmount} %{buySymbol}",

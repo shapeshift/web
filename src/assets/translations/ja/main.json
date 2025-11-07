@@ -3211,7 +3211,6 @@
         "complete": "%{poolName} プールからの %{assetAmountsAndSymbols} の引き出しが完了しました。"
       },
       "deposit": {
-        "processing": "%{poolName} プールへの %{amountCryptoPrecision} %{symbol} の入金が処理中です。",
         "complete": "%{poolName} プールへの %{amountCryptoPrecision} %{symbol} の入金が完了しました。"
       }
     },
@@ -3260,10 +3259,6 @@
       "claimReady": "%{amount} %{symbol}のTCY請求が準備完了です。",
       "claimTxPending": "%{amount} %{symbol} の TCY 請求は保留中です。",
       "claimTxComplete": "%{amount} %{symbol} の TCY 請求が完了しました。"
-    },
-    "approve": {
-      "approvalTxPending": "%{contractName} が %{amountCryptoPrecision} %{symbol} を使用することを承認しています。",
-      "approvalTxComplete": "%{contractName} が %{amountCryptoPrecision} %{symbol} を使用することを承認しました。"
     },
     "swapTitle": "%{sellAmount} %{sellSymbol} → %{buyAmount} %{buySymbol}",
     "limitOrderTitle": "%{sellAmount} %{sellSymbol} → %{buyAmount} %{buySymbol}",

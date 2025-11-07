@@ -3211,7 +3211,6 @@
         "complete": "%{poolName} havuzundan %{assetAmountsAndSymbols} tutarındaki çekim işleminiz tamamlandı."
       },
       "deposit": {
-        "processing": "%{poolName} havuzuna %{amountCryptoPrecision} %{symbol} tutarındaki yatırımınız işleniyor.",
         "complete": "%{poolName} havuzuna %{amountCryptoPrecision} %{symbol} tutarındaki yatırımınız tamamlandı."
       }
     },
@@ -3260,10 +3259,6 @@
       "claimReady": "%{amount} %{symbol} tutarındaki TCY talebiniz hazır.",
       "claimTxPending": "%{amount} %{symbol} tutarındaki TCY talebiniz beklemede.",
       "claimTxComplete": "%{amount} %{symbol} tutarındaki TCY talebiniz tamamlandı."
-    },
-    "approve": {
-      "approvalTxPending": "%{contractName}'in %{amountCryptoPrecision} %{symbol}'u kullanması onaylanıyor.",
-      "approvalTxComplete": "%{contractName}'in %{amountCryptoPrecision} %{symbol}'u kullanması onaylandı."
     },
     "swapTitle": "%{sellAmount} %{sellSymbol} → %{buyAmount} %{buySymbol}",
     "limitOrderTitle": "%{sellAmount} %{sellSymbol} → %{buyAmount} %{buySymbol}",

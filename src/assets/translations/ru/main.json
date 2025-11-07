@@ -3211,7 +3211,6 @@
         "complete": "Ваш вывод %{assetAmountsAndSymbols} из пула %{poolName} завершен."
       },
       "deposit": {
-        "processing": "Ваш депозит в размере %{amountCryptoPrecision} %{symbol} в пул %{poolName} находится в процессе обработки.",
         "complete": "Ваш депозит в размере %{amountCryptoPrecision} %{symbol} в пул %{poolName} завершен."
       }
     },
@@ -3260,10 +3259,6 @@
       "claimReady": "Ваше требование TCY в размере %{amount} %{symbol} готово.",
       "claimTxPending": "Ваше требование TCY на сумму %{amount} %{symbol} находится на рассмотрении.",
       "claimTxComplete": "Ваше требование TCY в размере %{amount} %{symbol} выполнено."
-    },
-    "approve": {
-      "approvalTxPending": "Одобряю %{contractName} для использования %{amountCryptoPrecision} %{symbol}.",
-      "approvalTxComplete": "Одобрено %{contractName} для использования %{amountCryptoPrecision} %{symbol}."
     },
     "swapTitle": "%{sellAmount} %{sellSymbol} → %{buyAmount} %{buySymbol}",
     "limitOrderTitle": "%{sellAmount} %{sellSymbol} → %{buyAmount} %{buySymbol}",

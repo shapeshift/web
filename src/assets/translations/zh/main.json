@@ -3211,7 +3211,6 @@
         "complete": "您从 %{poolName} 池中提取 %{assetAmountsAndSymbols} 的操作已完成。"
       },
       "deposit": {
-        "processing": "您向 %{poolName} 池中存入 %{amountCryptoPrecision} %{symbol} 的操作正在进行中。",
         "complete": "您向 %{poolName} 池中存入 %{amountCryptoPrecision} %{symbol} 的操作已完成。"
       }
     },
@@ -3260,10 +3259,6 @@
       "claimReady": "您领取的 %{amount} %{symbol} TCY 已就绪。",
       "claimTxPending": "您领取的 %{amount} %{symbol} TCY 待处理中。",
       "claimTxComplete": "您领取的 %{amount} %{symbol} TCY 已完成。"
-    },
-    "approve": {
-      "approvalTxPending": "正在批准 %{contractName} 使用 %{amountCryptoPrecision} %{symbol}。",
-      "approvalTxComplete": "已批准 %{contractName} 使用 %{amountCryptoPrecision} %{symbol}。"
     },
     "swapTitle": "%{sellAmount} %{sellSymbol} → %{buyAmount} %{buySymbol}",
     "limitOrderTitle": "%{sellAmount} %{sellSymbol} → %{buyAmount} %{buySymbol}",

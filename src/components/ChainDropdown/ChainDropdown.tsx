@@ -25,6 +25,8 @@ import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { selectPortfolioTotalBalanceByChainIdIncludeStaking } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
+const menuListMaxHeight = { base: 'calc(100vh * 0.4)', md: '350px' }
+
 type ChainDropdownProps = {
   chainId?: ChainId
   onClick: (arg: ChainId | undefined) => void
@@ -87,7 +89,7 @@ export const ChainDropdown: React.FC<ChainDropdownProps> = ({
         {chainId ? <ChainRow chainId={chainId} /> : translate('common.allChains')}
       </MenuButton>
       <Portal>
-        <MenuList zIndex={modalChildZIndex} maxHeight='350px' overflowY='auto'>
+        <MenuList zIndex={modalChildZIndex} maxHeight={menuListMaxHeight} overflowY='auto'>
           <MenuOptionGroup type='radio' value={chainId} onChange={onChange}>
             {showAll && (
               <MenuItemOption value=''>

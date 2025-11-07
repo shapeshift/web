@@ -157,12 +157,6 @@ export async function getZrxTradeQuote(
       ] as SingleHopTradeQuoteSteps,
     }
 
-    console.log('[Zrx Debug] Generated trade quote:', {
-      quoteOrRate: zrxQuote.quoteOrRate,
-      receiveAddress: zrxQuote.receiveAddress,
-      swapperName: zrxQuote.swapperName,
-    })
-
     return Ok(zrxQuote)
   } catch (err) {
     return Err(

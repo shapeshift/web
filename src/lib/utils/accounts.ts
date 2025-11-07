@@ -2,7 +2,7 @@ import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { accountIdToChainId, fromAccountId } from '@shapeshiftoss/caip'
 import type { Asset, PartialRecord } from '@shapeshiftoss/types'
 
-import { firstFourLastFour } from '.'
+import { middleEllipsis } from '.'
 import { isUtxoAccountId } from './utxo'
 
 import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
@@ -12,7 +12,7 @@ export const getAccountTitle = (accountId: AccountId, assets: PartialRecord<Asse
   const feeAssetId = accountIdToFeeAssetId(accountId ?? '') ?? ''
   return isUtxoAccount
     ? assets[feeAssetId]?.name ?? ''
-    : firstFourLastFour(fromAccountId(accountId).account)
+    : middleEllipsis(fromAccountId(accountId).account)
 }
 
 export const accountIdToFeeAssetId = (accountId: AccountId): AssetId | undefined =>

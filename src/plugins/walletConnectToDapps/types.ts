@@ -1,5 +1,5 @@
 import type { IWalletKit, WalletKitTypes } from '@reown/walletkit'
-import type { ChainId } from '@shapeshiftoss/caip'
+import type { AccountId, ChainId } from '@shapeshiftoss/caip'
 import type { FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import type { PartialRecord } from '@shapeshiftoss/types'
 import type WalletConnectCore from '@walletconnect/core'
@@ -99,6 +99,7 @@ export type WalletConnectContextType = {
 
 export enum WalletConnectModal {
   SessionProposal = 'sessionProposal',
+  SessionAuthenticateConfirmation = 'sessionAuthenticateConfirmation',
   SignEIP155MessageConfirmation = 'signEIP155MessageConfirmation',
   SignEIP155TypedDataConfirmation = 'signEIP155TypedDataConfirmation',
   SignEIP155TransactionConfirmation = 'signEIP155TransactionConfirmation',
@@ -111,7 +112,8 @@ export type CustomTransactionData = {
   nonce?: string
   gas?: string
   gasLimit?: string
-  speed: FeeDataKey
+  speed?: FeeDataKey
+  accountId?: AccountId
 }
 
 export type TransactionParams = {

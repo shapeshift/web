@@ -31,7 +31,12 @@ export const chainIdToNearIntentsChain: Record<NearIntentsSupportedChainId, stri
 }
 
 export const getNearIntentsAsset = (blockchain: string, contractAddress: string): string => {
-  return `${blockchain}.${contractAddress.toLowerCase()}`
+  // Native assets: "nep141:eth.omft.near"
+  if (contractAddress === NEAR_INTENTS_NATIVE_EVM_MARKER) {
+    return `nep141:${blockchain}.omft.near`
+  }
+  // ERC20 tokens: "nep141:eth-0x{address}.omft.near"
+  return `nep141:${blockchain}-${contractAddress.toLowerCase()}.omft.near`
 }
 
 export const NEAR_INTENTS_NATIVE_EVM_MARKER = '0x0000000000000000000000000000000000000000'

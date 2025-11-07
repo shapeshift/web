@@ -7,13 +7,7 @@ import { getDefaultSlippageDecimalPercentageForSwapper } from '../../../constant
 import type { GetTradeRateInput, SwapErrorRight, SwapperDeps, TradeRate } from '../../../types'
 import { SwapperName, TradeQuoteError } from '../../../types'
 import { makeSwapErrorRight } from '../../../utils'
-import {
-  DEFAULT_DEPOSIT_TYPE,
-  DEFAULT_QUOTE_DEADLINE_MS,
-  DEFAULT_RECIPIENT_TYPE,
-  DEFAULT_REFUND_TYPE,
-  DEFAULT_SWAP_TYPE,
-} from '../constants'
+import { DEFAULT_QUOTE_DEADLINE_MS } from '../constants'
 import type { QuoteRequest, QuoteResponse } from '../types'
 import { NEAR_INTENTS_DUMMY_ADDRESS } from '../types'
 import { assetToNearIntentsId, convertSlippageToBps } from '../utils/helpers/helpers'
@@ -44,19 +38,18 @@ export const getTradeRate = async (
     // Use dummy address for rates (no wallet connected yet)
     const dummyAddress = receiveAddress ?? NEAR_INTENTS_DUMMY_ADDRESS
 
-    // Build rate request (dry run - no deposit address generated)
     const quoteRequest: QuoteRequest = {
-      dry: true, // Dry run - no deposit address, just pricing
-      swapType: DEFAULT_SWAP_TYPE,
+      dry: true,
+      swapType: QuoteRequest.swapType.EXACT_INPUT,
       slippageTolerance: convertSlippageToBps(slippageTolerancePercentageDecimal),
       originAsset,
       destinationAsset,
       amount: sellAmount,
-      depositType: DEFAULT_DEPOSIT_TYPE,
+      depositType: QuoteRequest.depositType.ORIGIN_CHAIN,
       refundTo: dummyAddress,
-      refundType: DEFAULT_REFUND_TYPE,
+      refundType: QuoteRequest.refundType.ORIGIN_CHAIN,
       recipient: dummyAddress,
-      recipientType: DEFAULT_RECIPIENT_TYPE,
+      recipientType: QuoteRequest.recipientType.DESTINATION_CHAIN,
       deadline: new Date(Date.now() + DEFAULT_QUOTE_DEADLINE_MS).toISOString(),
       // TODO(gomes): Implement affiliate fees when NEAR address confirmed for fee recipient
       // CRITICAL: appFees.recipient ONLY accepts NEAR addresses (e.g., "alice.near")

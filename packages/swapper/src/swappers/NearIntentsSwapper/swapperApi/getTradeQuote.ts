@@ -14,13 +14,7 @@ import { getDefaultSlippageDecimalPercentageForSwapper } from '../../../constant
 import type { CommonTradeQuoteInput, SwapErrorRight, SwapperDeps, TradeQuote } from '../../../types'
 import { SwapperName, TradeQuoteError } from '../../../types'
 import { makeSwapErrorRight } from '../../../utils'
-import {
-  DEFAULT_DEPOSIT_TYPE,
-  DEFAULT_QUOTE_DEADLINE_MS,
-  DEFAULT_RECIPIENT_TYPE,
-  DEFAULT_REFUND_TYPE,
-  DEFAULT_SWAP_TYPE,
-} from '../constants'
+import { DEFAULT_QUOTE_DEADLINE_MS } from '../constants'
 import type { QuoteRequest, QuoteResponse } from '../types'
 import { assetToNearIntentsId, convertSlippageToBps } from '../utils/helpers/helpers'
 import { initializeOneClickService, OneClickService } from '../utils/oneClickService'
@@ -77,19 +71,18 @@ export const getTradeQuote = async (
     const originAsset = assetToNearIntentsId(sellAsset)
     const destinationAsset = assetToNearIntentsId(buyAsset)
 
-    // Build quote request
     const quoteRequest: QuoteRequest = {
-      dry: false, // Real quote with deposit address
-      swapType: DEFAULT_SWAP_TYPE,
+      dry: false,
+      swapType: QuoteRequest.swapType.EXACT_INPUT,
       slippageTolerance: convertSlippageToBps(slippageTolerancePercentageDecimal),
       originAsset,
       destinationAsset,
       amount: sellAmount,
-      depositType: DEFAULT_DEPOSIT_TYPE,
+      depositType: QuoteRequest.depositType.ORIGIN_CHAIN,
       refundTo: sendAddress,
-      refundType: DEFAULT_REFUND_TYPE,
+      refundType: QuoteRequest.refundType.ORIGIN_CHAIN,
       recipient: receiveAddress,
-      recipientType: DEFAULT_RECIPIENT_TYPE,
+      recipientType: QuoteRequest.recipientType.DESTINATION_CHAIN,
       deadline: new Date(Date.now() + DEFAULT_QUOTE_DEADLINE_MS).toISOString(),
       // TODO(gomes): Implement affiliate fees when NEAR address confirmed for fee recipient
       // CRITICAL: appFees.recipient ONLY accepts NEAR addresses (e.g., "alice.near")

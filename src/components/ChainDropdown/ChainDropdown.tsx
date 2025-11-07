@@ -25,7 +25,7 @@ import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { selectPortfolioTotalBalanceByChainIdIncludeStaking } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
-const menuListMaxHeight = { base: 'calc(100vh * 0.4)', md: '350px' }
+const menuListMaxHeight = { base: 'clamp(120px, 45vh, 450px)', md: '350px' }
 
 type ChainDropdownProps = {
   chainId?: ChainId

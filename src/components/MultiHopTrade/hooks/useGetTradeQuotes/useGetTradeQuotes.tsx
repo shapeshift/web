@@ -277,6 +277,10 @@ export const useGetTradeQuotes = () => {
     )
     // Set as both confirmed *and* active
     dispatch(tradeQuoteSlice.actions.setActiveQuote(quoteData))
+    console.log('[NEAR Debug] useGetTradeQuotes setConfirmedQuote:', {
+      quoteOrRate: quoteData.quote?.quoteOrRate,
+      nearIntentsSpecific: quoteData.quote?.steps?.[0]?.nearIntentsSpecific,
+    })
     dispatch(tradeQuoteSlice.actions.setConfirmedQuote(quoteData.quote))
   }, [activeTrade, activeQuoteMeta, dispatch, queryStateMeta.data, confirmedTradeExecution])
 

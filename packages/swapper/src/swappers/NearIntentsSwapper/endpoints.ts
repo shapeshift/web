@@ -9,6 +9,7 @@ import {
   getExecutableTradeStep,
   isExecutableTradeQuote,
 } from '../../utils'
+import { isNativeEvmAsset } from '../utils/helpers/helpers'
 import { getTradeQuote } from './swapperApi/getTradeQuote'
 import { getTradeRate } from './swapperApi/getTradeRate'
 import { getNearIntentsStatusMessage, mapNearIntentsStatus } from './utils/helpers/helpers'

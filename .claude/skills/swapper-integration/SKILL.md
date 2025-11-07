@@ -238,8 +238,23 @@ Update these files to register your new swapper:
    - Add API config fields
 
 4. **CSP Headers** (if swapper calls external API):
-   - Add API domain to `headers/csps/index.ts`
-   - Create `headers/csps/defi/swappers/[SwapperName].ts` with CSP rules
+   - Create `headers/csps/defi/swappers/[SwapperName].ts`:
+     ```typescript
+     import type { Csp } from '../../../types'
+
+     export const csp: Csp = {
+       'connect-src': ['https://api.[swapper].com'],
+     }
+     ```
+   - Register in `headers/csps/index.ts`:
+     ```typescript
+     import { csp as [swapperName] } from './defi/swappers/[SwapperName]'
+
+     export const csps = [
+       // ... other csps
+       [swapperName],
+     ]
+     ```
 
 5. **UI Integration** (`src/`):
 
@@ -277,11 +292,14 @@ Update these files to register your new swapper:
 
    **d. Wire up feature flag:**
    - File: `src/state/helpers.ts`
-   - Add to `isCrossAccountTradeSupported` (if applicable)
-   - Add to `getEnabledSwappers`:
+   - Add to `isCrossAccountTradeSupported` function parameter and switch statement (if swapper supports cross-account)
+   - Add to `getEnabledSwappers` function:
      ```typescript
      export const getEnabledSwappers = (
-       { [SwapperName]Swap, ...otherFlags }: FeatureFlags,
+       {
+         [SwapperName]Swap,  // Add to destructured parameters
+         ...otherFlags
+       }: FeatureFlags,
        ...
      ): Record<SwapperName, boolean> => {
        return {
@@ -292,9 +310,15 @@ Update these files to register your new swapper:
      }
      ```
 
-   **e. Update test mocks (if applicable):**
+   **e. Update test mocks (REQUIRED):**
    - File: `src/test/mocks/store.ts`
-   - Add feature flag to mock state
+   - Add feature flag to mock featureFlags object:
+     ```typescript
+     featureFlags: {
+       // ... other flags
+       [SwapperName]Swap: false,
+     }
+     ```
 
 6. **Configuration**:
 

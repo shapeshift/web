@@ -29,9 +29,7 @@ export const assetToNearIntentsAsset = async (asset: Asset): Promise<string> => 
   if (asset.chainId === solanaChainId && isToken(asset.assetId)) {
     const tokens = await OneClickService.getTokens()
     const solanaAddress = fromAssetId(asset.assetId).assetReference
-    const match = tokens.find(
-      t => t.blockchain === 'sol' && t.contractAddress === solanaAddress,
-    )
+    const match = tokens.find(t => t.blockchain === 'sol' && t.contractAddress === solanaAddress)
 
     if (!match) {
       throw new Error(`Solana token not found in NEAR Intents: ${solanaAddress}`)
@@ -48,9 +46,7 @@ export const assetToNearIntentsAsset = async (asset: Asset): Promise<string> => 
   return getNearIntentsAsset(nearIntentsChain, contractAddress)
 }
 
-export const mapNearIntentsStatus = (
-  status: GetExecutionStatusResponse['status'],
-): TxStatus => {
+export const mapNearIntentsStatus = (status: GetExecutionStatusResponse['status']): TxStatus => {
   switch (status) {
     case 'PENDING_DEPOSIT':
     case 'KNOWN_DEPOSIT_TX':

@@ -15,7 +15,8 @@ import type { CommonTradeQuoteInput, SwapErrorRight, SwapperDeps, TradeQuote } f
 import { SwapperName, TradeQuoteError } from '../../../types'
 import { makeSwapErrorRight } from '../../../utils'
 import { DEFAULT_QUOTE_DEADLINE_MS } from '../constants'
-import type { QuoteRequest, QuoteResponse } from '../types'
+import type { QuoteResponse } from '../types'
+import { QuoteRequest } from '../types'
 import { assetToNearIntentsId, convertSlippageToBps } from '../utils/helpers/helpers'
 import { initializeOneClickService, OneClickService } from '../utils/oneClickService'
 

@@ -107,6 +107,7 @@ export const getTradeQuote = async (
 
     // Get fee data for the deposit transaction
     const { chainNamespace } = fromAssetId(sellAsset.assetId)
+    console.log('[NEAR Intents] Chain namespace:', chainNamespace)
 
     let feeDataPromise: Promise<string>
 
@@ -141,6 +142,7 @@ export const getTradeQuote = async (
       }
 
       case CHAIN_NAMESPACE.Solana: {
+        console.log('[NEAR Intents] Getting Solana fee data')
         const sellAdapter = deps.assertGetSolanaChainAdapter(sellAsset.chainId)
         const getFeeDataInput: GetFeeDataInput<KnownChainIds.SolanaMainnet> = {
           to: quote.depositAddress,
@@ -164,7 +166,9 @@ export const getTradeQuote = async (
         )
     }
 
+    console.log('[NEAR Intents] Awaiting fee data')
     const networkFeeCryptoBaseUnit = await feeDataPromise
+    console.log('[NEAR Intents] Fee data received:', networkFeeCryptoBaseUnit)
 
     // Build TradeQuote response
     const tradeQuote: TradeQuote = {

@@ -30,7 +30,7 @@ export const chainIdToNearIntentsChain: Record<NearIntentsSupportedChainId, stri
   [KnownChainIds.OptimismMainnet]: 'op',
 }
 
-export const getNearIntentsAssetId = (blockchain: string, contractAddress: string): string => {
+export const getNearIntentsAsset = (blockchain: string, contractAddress: string): string => {
   return `${blockchain}.${contractAddress.toLowerCase()}`
 }
 

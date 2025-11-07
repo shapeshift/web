@@ -7,7 +7,7 @@ import { DEFAULT_SLIPPAGE_BPS } from '../../constants'
 import type { GetExecutionStatusResponse } from '../../types'
 import {
   chainIdToNearIntentsChain,
-  getNearIntentsAssetId,
+  getNearIntentsAsset,
   NEAR_INTENTS_NATIVE_EVM_MARKER,
 } from '../../types'
 

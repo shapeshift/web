@@ -10,7 +10,7 @@ import { makeSwapErrorRight } from '../../../utils'
 import { DEFAULT_QUOTE_DEADLINE_MS } from '../constants'
 import type { QuoteResponse } from '../types'
 import { NEAR_INTENTS_DUMMY_ADDRESS, QuoteRequest } from '../types'
-import { assetToNearIntentsId, convertSlippageToBps } from '../utils/helpers/helpers'
+import { assetToNearIntentsAsset, convertSlippageToBps } from '../utils/helpers/helpers'
 import { initializeOneClickService, OneClickService } from '../utils/oneClickService'
 
 export const getTradeRate = async (
@@ -31,9 +31,8 @@ export const getTradeRate = async (
     const apiKey = deps.config.VITE_NEAR_INTENTS_API_KEY
     initializeOneClickService(apiKey)
 
-    // Convert assets to NEAR Intents format
-    const originAsset = assetToNearIntentsId(sellAsset)
-    const destinationAsset = assetToNearIntentsId(buyAsset)
+    const originAsset = assetToNearIntentsAsset(sellAsset)
+    const destinationAsset = assetToNearIntentsAsset(buyAsset)
 
     // Use dummy address for rates (no wallet connected yet)
     const dummyAddress = receiveAddress ?? NEAR_INTENTS_DUMMY_ADDRESS

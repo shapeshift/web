@@ -17,7 +17,7 @@ import { makeSwapErrorRight } from '../../../utils'
 import { DEFAULT_QUOTE_DEADLINE_MS } from '../constants'
 import type { QuoteResponse } from '../types'
 import { QuoteRequest } from '../types'
-import { assetToNearIntentsId, convertSlippageToBps } from '../utils/helpers/helpers'
+import { assetToNearIntentsAsset, convertSlippageToBps } from '../utils/helpers/helpers'
 import { initializeOneClickService, OneClickService } from '../utils/oneClickService'
 
 export const getTradeQuote = async (
@@ -68,9 +68,8 @@ export const getTradeQuote = async (
     const apiKey = deps.config.VITE_NEAR_INTENTS_API_KEY
     initializeOneClickService(apiKey)
 
-    // Convert assets to NEAR Intents format
-    const originAsset = assetToNearIntentsId(sellAsset)
-    const destinationAsset = assetToNearIntentsId(buyAsset)
+    const originAsset = assetToNearIntentsAsset(sellAsset)
+    const destinationAsset = assetToNearIntentsAsset(buyAsset)
 
     const quoteRequest: QuoteRequest = {
       dry: false,

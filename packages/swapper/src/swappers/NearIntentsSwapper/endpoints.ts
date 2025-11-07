@@ -37,25 +37,25 @@ export const nearIntentsApi: SwapperApi = {
 
     const adapter = assertGetEvmChainAdapter(sellAsset.chainId as EvmChainId)
 
-    // Get fee data for transaction to deposit address
+    const contractAddress = contractAddressOrUndefined(sellAsset.assetId)
+    const to = nearIntentsSpecific.depositAddress
+    const value = step.sellAmountIncludingProtocolFeesCryptoBaseUnit
+
     const feeData = await evm.getFees({
       adapter,
-      to: nearIntentsSpecific.depositAddress,
-      value: step.sellAmountIncludingProtocolFeesCryptoBaseUnit,
+      to,
+      value,
       data: '0x',
       from,
       supportsEIP1559,
     })
 
-    // Build simple send transaction to deposit address
     return adapter.buildSendApiTransaction({
       accountNumber,
-      to: nearIntentsSpecific.depositAddress,
-      value: step.sellAmountIncludingProtocolFeesCryptoBaseUnit,
       from,
-      chainSpecific: {
-        ...feeData,
-      },
+      to,
+      value,
+      chainSpecific: { contractAddress, ...feeData },
     })
   },
 
@@ -76,10 +76,14 @@ export const nearIntentsApi: SwapperApi = {
 
     const adapter = assertGetEvmChainAdapter(sellAsset.chainId as EvmChainId)
 
+    const contractAddress = contractAddressOrUndefined(sellAsset.assetId)
+    const to = nearIntentsSpecific.depositAddress
+    const value = step.sellAmountIncludingProtocolFeesCryptoBaseUnit
+
     const feeData = await evm.getFees({
       adapter,
-      to: nearIntentsSpecific.depositAddress,
-      value: step.sellAmountIncludingProtocolFeesCryptoBaseUnit,
+      to,
+      value,
       data: '0x',
       from,
       supportsEIP1559,

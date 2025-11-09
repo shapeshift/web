@@ -11,6 +11,7 @@ import { useAppSelector } from './state/store'
 
 import { ConsentBanner } from '@/components/ConsentBanner'
 import { IconCircle } from '@/components/IconCircle'
+import { useAppleSearchAdsAttribution } from '@/hooks/useAppleSearchAdsAttribution/useAppleSearchAdsAttribution'
 import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { useHasAppUpdated } from '@/hooks/useHasAppUpdated/useHasAppUpdated'
 import { useLedgerAccountGuard } from '@/hooks/useLedgerAccountGuard/useLedgerAccountGuard'
@@ -33,6 +34,7 @@ export const App = () => {
   const { isOpen: isNativeOnboardOpen, open: openNativeOnboard } = useModal('nativeOnboard')
 
   useLedgerAccountGuard()
+  useAppleSearchAdsAttribution()
 
   useEffect(() => {
     if (hasUpdated && !toast.isActive(updateId) && !isActionCenterEnabled) {

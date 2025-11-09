@@ -5,6 +5,7 @@ import { getMixPanel } from './mixPanelSingleton'
 import type { MixPanelEvent, TrackOpportunityProps } from './types'
 
 import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
+import type { AppleSearchAdsAttribution } from '@/context/WalletProvider/MobileWallet/mobileMessageHandlers'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 
 // Returns an altered path when necessary or null if the path should not be tracked for privacy
@@ -73,4 +74,44 @@ export const trackOpportunityEvent = (
     ...(element && { element }),
   }
   mixpanel?.track(event, eventData)
+}
+
+/**
+ * Track Apple Search Ads attribution data
+ *
+ * This function should be called once when ASA attribution data is received from the mobile app.
+ * It tracks the event and sets first-touch user properties using people.set_once to ensure
+ * the properties persist after wallet ID aliasing.
+ *
+ * @param attribution - The attribution data from Apple Search Ads
+ */
+export const trackAppleSearchAdsAttribution = (
+  attribution: AppleSearchAdsAttribution | undefined,
+) => {
+  const mixpanel = getMixPanel()
+  if (!mixpanel) return
+
+  // Apply fallback values per requirements
+  const appleKeyword = attribution?.appleKeyword || 'unknown_keyword'
+  const appleKeywordId = attribution?.appleKeywordId || 'unknown'
+
+  // Track the event
+  mixpanel.track('ad_attribution_received', {
+    ua_source: 'apple_search_ads',
+    apple_keyword: appleKeyword,
+    apple_keyword_id: appleKeywordId,
+    ...(attribution?.campaignId && { campaign_id: attribution.campaignId }),
+    ...(attribution?.adGroupId && { ad_group_id: attribution.adGroupId }),
+    ...(attribution?.creativeSetId && { creative_set_id: attribution.creativeSetId }),
+  })
+
+  // Set first-touch properties using set_once to ensure they persist after aliasing
+  mixpanel.people.set_once({
+    ft_source: 'apple_search_ads',
+    ft_apple_keyword: appleKeyword,
+    ft_apple_keyword_id: appleKeywordId,
+    ...(attribution?.campaignId && { ft_campaign_id: attribution.campaignId }),
+    ...(attribution?.adGroupId && { ft_ad_group_id: attribution.adGroupId }),
+    ...(attribution?.creativeSetId && { ft_creative_set_id: attribution.creativeSetId }),
+  })
 }

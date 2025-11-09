@@ -83,7 +83,7 @@ export const trackOpportunityEvent = (
  * It tracks the event and sets first-touch user properties using people.set_once to ensure
  * the properties persist after wallet ID aliasing.
  *
- * @param attribution - The attribution data from Apple Search Ads
+ * @param attribution - The attribution response from the mobile app (can be data or token)
  */
 export const trackAppleSearchAdsAttribution = (
   attribution: AppleSearchAdsAttribution | undefined,
@@ -91,27 +91,70 @@ export const trackAppleSearchAdsAttribution = (
   const mixpanel = getMixPanel()
   if (!mixpanel) return
 
-  // Apply fallback values per requirements
-  const appleKeyword = attribution?.appleKeyword || 'unknown_keyword'
-  const appleKeywordId = attribution?.appleKeywordId || 'unknown'
+  // Handle token-only response (web app would need to exchange with Apple API)
+  if (attribution?.type === 'token') {
+    console.warn(
+      'Received Apple Search Ads token but web app cannot exchange it with Apple API due to CORS. ' +
+        'Mobile app should exchange the token and send full attribution data instead.',
+    )
+    // Track minimal event without campaign details
+    mixpanel.track('ad_attribution_received', {
+      ua_source: 'apple_search_ads',
+      apple_keyword: 'unknown_keyword',
+      apple_keyword_id: 'unknown',
+      token_received: true,
+    })
+    mixpanel.people.set_once({
+      ft_source: 'apple_search_ads',
+      ft_apple_keyword: 'unknown_keyword',
+      ft_apple_keyword_id: 'unknown',
+    })
+    return
+  }
 
-  // Track the event
+  // Handle full attribution data response
+  const data = attribution?.type === 'data' ? attribution.data : undefined
+
+  // Only track if attribution was found
+  if (!data?.attribution) {
+    console.log('No Apple Search Ads attribution found for this install')
+    return
+  }
+
+  // Extract keyword ID (use 'unknown' as fallback per requirements)
+  const keywordId = data.keywordId?.toString() || 'unknown'
+
+  // Note: Apple's API doesn't provide the actual keyword text in the response
+  // Only the keywordId is available. To get the keyword text, you would need to:
+  // 1. Use Apple Search Ads Campaign Management API with your developer credentials
+  // 2. Map keywordId to keyword text from your campaign data
+  // For now, we use 'unknown_keyword' as the fallback
+  const keyword = 'unknown_keyword' // Apple API doesn't return keyword text
+
+  // Track the event with all available campaign data
   mixpanel.track('ad_attribution_received', {
     ua_source: 'apple_search_ads',
-    apple_keyword: appleKeyword,
-    apple_keyword_id: appleKeywordId,
-    ...(attribution?.campaignId && { campaign_id: attribution.campaignId }),
-    ...(attribution?.adGroupId && { ad_group_id: attribution.adGroupId }),
-    ...(attribution?.creativeSetId && { creative_set_id: attribution.creativeSetId }),
+    apple_keyword: keyword,
+    apple_keyword_id: keywordId,
+    campaign_id: data.campaignId,
+    ad_group_id: data.adGroupId,
+    ad_id: data.adId,
+    org_id: data.orgId,
+    country: data.countryOrRegion,
+    conversion_type: data.conversionType,
+    claim_type: data.claimType,
+    ...(data.clickDate && { click_date: data.clickDate }),
   })
 
   // Set first-touch properties using set_once to ensure they persist after aliasing
   mixpanel.people.set_once({
     ft_source: 'apple_search_ads',
-    ft_apple_keyword: appleKeyword,
-    ft_apple_keyword_id: appleKeywordId,
-    ...(attribution?.campaignId && { ft_campaign_id: attribution.campaignId }),
-    ...(attribution?.adGroupId && { ft_ad_group_id: attribution.adGroupId }),
-    ...(attribution?.creativeSetId && { ft_creative_set_id: attribution.creativeSetId }),
+    ft_apple_keyword: keyword,
+    ft_apple_keyword_id: keywordId,
+    ft_campaign_id: data.campaignId,
+    ft_ad_group_id: data.adGroupId,
+    ft_ad_id: data.adId,
+    ft_country: data.countryOrRegion,
+    ft_conversion_type: data.conversionType,
   })
 }

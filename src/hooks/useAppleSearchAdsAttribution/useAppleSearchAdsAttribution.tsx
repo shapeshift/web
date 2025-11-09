@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 
 import { getAppleSearchAdsAttribution } from '@/context/WalletProvider/MobileWallet/mobileMessageHandlers'
+import { exchangeAppleSearchAdsToken } from '@/lib/appleSearchAds/exchangeToken'
 import { isMobile } from '@/lib/globals'
 import { trackAppleSearchAdsAttribution } from '@/lib/mixpanel/helpers'
 
@@ -40,8 +41,26 @@ export const useAppleSearchAdsAttribution = () => {
         // Request attribution data from the mobile app
         const attribution = await getAppleSearchAdsAttribution()
 
-        // Track the attribution in Mixpanel
-        trackAppleSearchAdsAttribution(attribution)
+        // If we received a token, try to exchange it with Apple's API directly
+        if (attribution?.type === 'token') {
+          console.log('Attempting to exchange Apple Search Ads token from browser...')
+          const data = await exchangeAppleSearchAdsToken(attribution.token)
+
+          if (data) {
+            // Success! We can call Apple's API from the browser
+            console.log('Successfully exchanged token with Apple API from browser')
+            trackAppleSearchAdsAttribution({ type: 'data', data })
+          } else {
+            // CORS blocked or API error - track with token fallback
+            console.warn(
+              'Failed to exchange token from browser. Mobile app should exchange token instead.',
+            )
+            trackAppleSearchAdsAttribution(attribution)
+          }
+        } else {
+          // We received full data from mobile app (preferred)
+          trackAppleSearchAdsAttribution(attribution)
+        }
 
         // Mark as tracked in localStorage so we never track again
         try {

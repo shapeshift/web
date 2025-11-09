@@ -69,13 +69,39 @@ export type MobileAppVersion = {
   build: string
 }
 
-export type AppleSearchAdsAttribution = {
-  appleKeywordId?: string
-  appleKeyword?: string
-  campaignId?: string
-  adGroupId?: string
-  creativeSetId?: string
+/**
+ * Apple Search Ads Attribution Data
+ * This is the response from Apple's AdServices Attribution API
+ * https://api-adservices.apple.com/api/v1/
+ */
+export type AppleSearchAdsAttributionData = {
+  attribution?: boolean // Whether attribution was found
+  orgId?: number
+  campaignId?: number
+  conversionType?: 'Download' | 'Redownload'
+  clickDate?: string // ISO 8601 format (requires ATT permission)
+  adGroupId?: number
+  countryOrRegion?: string
+  keywordId?: number
+  adId?: number
+  claimType?: 'Click' | 'View'
 }
+
+/**
+ * Response from mobile app when requesting Apple Search Ads attribution
+ * Can be either:
+ * 1. Full attribution data (if mobile app exchanges token with Apple)
+ * 2. Just the token (if web app needs to exchange it)
+ */
+export type AppleSearchAdsAttribution =
+  | {
+      type: 'data'
+      data: AppleSearchAdsAttributionData
+    }
+  | {
+      type: 'token'
+      token: string
+    }
 
 /**
  * Create a Promise that sends a message and waits for the matching response

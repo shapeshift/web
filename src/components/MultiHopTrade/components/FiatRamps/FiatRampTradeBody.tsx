@@ -32,6 +32,8 @@ type FiatRampTradeBodyProps = {
   onSellFiatChange?: (fiat: FiatCurrencyItem | null) => void
   onBuyFiatChange?: (fiat: FiatCurrencyItem | null) => void
   onBuyFiatAmountChange?: (amount: string) => void
+  onToggleIsInputtingFiatSellAmount?: (isInputtingFiatSellAmount: boolean) => void
+  isInputtingFiatSellAmount?: boolean
   buyAsset: Asset | null
   sellAsset: Asset | null
   sellAmountCryptoPrecision: string
@@ -65,6 +67,8 @@ export const FiatRampTradeBody: React.FC<FiatRampTradeBodyProps> = ({
   onSellFiatChange,
   onBuyFiatChange,
   onBuyFiatAmountChange,
+  onToggleIsInputtingFiatSellAmount,
+  isInputtingFiatSellAmount = false,
   sellAmountCryptoPrecision,
   buyAmountCryptoPrecision,
   buyFiatAmount = '0',
@@ -313,6 +317,8 @@ export const FiatRampTradeBody: React.FC<FiatRampTradeBodyProps> = ({
         assetIcon={sellAsset.icon}
         cryptoAmount={sellAmountCryptoPrecision}
         fiatAmount={sellAmountUserCurrency}
+        isFiat={isInputtingFiatSellAmount}
+        onToggleIsFiat={onToggleIsInputtingFiatSellAmount}
         percentOptions={percentOptions}
         labelPostFix={sellTradeAssetSelect}
         onChange={handleSellAmountChange}

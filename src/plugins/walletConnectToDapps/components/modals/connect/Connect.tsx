@@ -25,10 +25,7 @@ const Connect = ({ initialUri, isOpen, onClose }: Props) => {
   const handleConnectV2 = useCallback(
     async (uri: string) => {
       try {
-        // We do not handle session_authenticate events, which assumes a SIWE payload, so we make it a session_proposal instead
-        const connectionResult = await pair?.({
-          uri: uri.replace('sessionAuthenticate', 'sessionProposal'),
-        })
+        const connectionResult = await pair?.({ uri })
         if (connectionResult) onClose()
       } catch (error: unknown) {
         console.debug(error)

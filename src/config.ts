@@ -186,6 +186,8 @@ const validators = {
   VITE_COINCAP_API_KEY: str(),
   VITE_FEATURE_MAYA_SWAP: bool({ default: false }),
   VITE_FEATURE_BUTTERSWAP: bool({ default: false }),
+  VITE_FEATURE_BEBOP_SWAP: bool({ default: false }),
+  VITE_BEBOP_API_KEY: str(),
   VITE_FEATURE_TX_HISTORY_BYE_BYE: bool({ default: false }),
   VITE_FEATURE_RFOX_FOX_ECOSYSTEM_PAGE: bool({ default: false }),
   VITE_FEATURE_LEDGER_READ_ONLY: bool({ default: false }),

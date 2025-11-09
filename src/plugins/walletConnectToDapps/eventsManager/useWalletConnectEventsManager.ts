@@ -32,7 +32,7 @@ export const useWalletConnectEventsManager = (
   state: WalletConnectState,
   dispatch: WalletConnectContextType['dispatch'],
 ) => {
-  const { handleSessionProposal, handleAuthRequest, handleSessionRequest } =
+  const { handleSessionProposal, handleSessionAuthRequest, handleSessionRequest } =
     useWalletConnectEventsHandler(dispatch, state.web3wallet)
 
   const signClientEvents = useMemo(() => state.web3wallet?.engine.signClient.events, [state])
@@ -102,8 +102,7 @@ export const useWalletConnectEventsManager = (
     signClientEvents?.on('session_update', sessionUpdateListener)
     signClientEvents?.on('session_delete', sessionDeleteListener)
 
-    // auth-specific - not wallet-related just yet
-    state.web3wallet?.on('session_authenticate', handleAuthRequest)
+    state.web3wallet?.on('session_authenticate', handleSessionAuthRequest)
 
     // Pairing events
     pairingEvents?.on('pairing_ping', pairingPingListener)
@@ -117,7 +116,7 @@ export const useWalletConnectEventsManager = (
       signClientEvents?.off('session_update', sessionUpdateListener)
       signClientEvents?.off('session_delete', sessionDeleteListener)
 
-      state.web3wallet?.off('session_authenticate', handleAuthRequest)
+      state.web3wallet?.off('session_authenticate', handleSessionAuthRequest)
 
       pairingEvents?.off('pairing_ping', pairingPingListener)
       pairingEvents?.off('pairing_delete', pairingDeleteListener)
@@ -126,7 +125,7 @@ export const useWalletConnectEventsManager = (
   }, [
     handleSessionProposal,
     handleSessionRequest,
-    handleAuthRequest,
+    handleSessionAuthRequest,
     state,
     signClientEvents,
     pairingEvents,

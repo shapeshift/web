@@ -1653,7 +1653,11 @@
       "create": "Create",
       "or": "or",
       "import": "Import",
-      "aWallet": "a wallet"
+      "aWallet": "a wallet",
+      "viewAllWallets": "View all wallets",
+      "ctaText": "Don't see your wallet?",
+      "ctaSubtext": "Connect to 480+ wallets",
+      "multiChainWallets": "Multi-Chain Wallets"
     },
     "create": {
       "header": "Give your wallet a name",
@@ -1917,6 +1921,10 @@
         "noAccountsForChain": {
           "title": "Chain not supported",
           "description": "No %{chainLabel} account connected to this dApp."
+        },
+        "sessionAuth": {
+          "invalidRequest": "Invalid authentication request",
+          "formatError": "Error formatting authentication message"
         }
       }
     }

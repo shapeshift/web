@@ -185,11 +185,24 @@ const processRelatedAssetIds = async (
   assetId: AssetId,
   assetData: Record<AssetId, PartialFields<Asset, 'relatedAssetKey'>>,
   relatedAssetIndex: Record<AssetId, AssetId[]>,
+  coingeckoPlatformsByAssetId: Record<AssetId, number>,
   throttle: () => Promise<void>,
 ): Promise<void> => {
   const existingRelatedAssetKey = assetData[assetId].relatedAssetKey
-  // We already have an existing relatedAssetKey, so we don't need to fetch it again
-  if (existingRelatedAssetKey !== undefined) return
+
+  if (existingRelatedAssetKey) {
+    return
+  }
+
+  // For assets with relatedAssetKey: null, check if CoinGecko now has multiple platforms
+  if (existingRelatedAssetKey === null) {
+    const platformCount = coingeckoPlatformsByAssetId[assetId]
+    if (platformCount === undefined || platformCount <= 1) {
+      // Still no related assets upstream, skip expensive API calls
+      await throttle()
+      return
+    }
+  }
 
   console.log(`Processing related assetIds for ${assetId}`)
 
@@ -289,6 +302,26 @@ export const generateRelatedAssetIndex = async () => {
   const { assetData: generatedAssetData, sortedAssetIds } = decodeAssetData(encodedAssetData)
   const relatedAssetIndex = decodeRelatedAssetIndex(encodedRelatedAssetIndex, sortedAssetIds)
 
+  const coingeckoData = await adapters.fetchCoingeckoData(adapters.coingeckoUrl)
+
+  const coingeckoPlatformsByAssetId = coingeckoData.reduce<Record<AssetId, number>>((acc, coin) => {
+    const supportedPlatforms = Object.entries(coin.platforms)
+      .map(([platform, address]) => {
+        try {
+          return coingeckoPlatformDetailsToMaybeAssetId([platform, address])
+        } catch {
+          return undefined
+        }
+      })
+      .filter((assetId): assetId is AssetId => assetId !== undefined)
+
+    for (const assetId of supportedPlatforms) {
+      acc[assetId] = supportedPlatforms.length
+    }
+
+    return acc
+  }, {})
+
   // Remove stale related asset data from the assetData where:
   // a) the primary related asset no longer exists in the dataset
   Object.values(generatedAssetData).forEach(asset => {
@@ -324,7 +357,13 @@ export const generateRelatedAssetIndex = async () => {
     console.log(`Processing chunk: ${i} of ${chunks.length}`)
     await Promise.all(
       batch.map(async assetId => {
-        await processRelatedAssetIds(assetId, generatedAssetData, relatedAssetIndex, throttle)
+        await processRelatedAssetIds(
+          assetId,
+          generatedAssetData,
+          relatedAssetIndex,
+          coingeckoPlatformsByAssetId,
+          throttle,
+        )
         return
       }),
     )

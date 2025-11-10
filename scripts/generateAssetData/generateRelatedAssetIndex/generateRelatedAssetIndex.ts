@@ -313,7 +313,7 @@ export const generateRelatedAssetIndex = async () => {
           return undefined
         }
       })
-      .filter((assetId): assetId is AssetId => assetId !== undefined)
+      .filter(isSome)
 
     for (const assetId of supportedPlatforms) {
       acc[assetId] = supportedPlatforms.length

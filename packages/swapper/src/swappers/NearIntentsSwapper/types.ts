@@ -16,7 +16,7 @@ export const nearIntentsSupportedChainIds = [
   KnownChainIds.BitcoinMainnet,
   KnownChainIds.DogecoinMainnet,
   KnownChainIds.SolanaMainnet,
-  // TODO: Add NEP-245 support for these chains - https://github.com/shapeshift/web/issues/11020
+  // TODO(gomes): NEP-245 support for Avalanche, Optimism - https://github.com/shapeshift/web/issues/11020
   // KnownChainIds.AvalancheMainnet,
   // KnownChainIds.OptimismMainnet,
 ] as const
@@ -33,37 +33,9 @@ export const chainIdToNearIntentsChain: Record<NearIntentsSupportedChainId, stri
   [KnownChainIds.BitcoinMainnet]: 'btc',
   [KnownChainIds.DogecoinMainnet]: 'doge',
   [KnownChainIds.SolanaMainnet]: 'sol',
-  // TODO: Map to NEP-245 format - https://github.com/shapeshift/web/issues/11020
+  // TODO(gomes): NEP-245 support - https://github.com/shapeshift/web/issues/11020
   // [KnownChainIds.AvalancheMainnet]: 'avax',
   // [KnownChainIds.OptimismMainnet]: 'op',
 }
 
-export const getNearIntentsAsset = (blockchain: string, contractAddress: string): string => {
-  // Native assets: "nep141:eth.omft.near"
-  if (contractAddress === NEAR_INTENTS_NATIVE_EVM_MARKER) {
-    return `nep141:${blockchain}.omft.near`
-  }
-  // ERC20 tokens: "nep141:eth-0x{address}.omft.near"
-  return `nep141:${blockchain}-${contractAddress.toLowerCase()}.omft.near`
-}
-
-export const NEAR_INTENTS_NATIVE_EVM_MARKER = '0x0000000000000000000000000000000000000000'
-
-export const NEAR_INTENTS_DUMMY_ADDRESS = '0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045'
-
-// CRITICAL: appFees recipient parameter ONLY accepts NEAR addresses
-// From research: "Fee recipients (appFees[].recipient) exclusively accept NEAR account IDs"
-// This is different from swap recipient which accepts EVM/Solana/etc.
-// Fee collection happens natively on NEAR regardless of swap chains
-//
-// Examples of VALID fee recipients:
-// - "alice.near" (named account)
-// - "sub.parent.near" (subaccount)
-// - "c6d7058a1ce15260..." (implicit account, 64 hex chars)
-//
-// Examples of INVALID fee recipients:
-// - "0x553e771500f2d7..." (EVM address - NOT SUPPORTED)
-// - "13QkxhNMrTPxoCk..." (Solana address - NOT SUPPORTED)
-//
-// TODO: Get ShapeShift NEAR account for affiliate fees
-// Until then, affiliate fees will be disabled in implementation
+// TODO(gomes): appFees.recipient only accepts NEAR addresses - https://github.com/shapeshift/web/issues/11022

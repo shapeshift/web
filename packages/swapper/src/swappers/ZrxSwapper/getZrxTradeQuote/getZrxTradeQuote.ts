@@ -124,7 +124,7 @@ export async function getZrxTradeQuote(
       gasLimit: bnOrZero(transaction.gas).times(1.2).toFixed(),
     })
 
-    const zrxQuote = {
+    return Ok({
       id: uuid(),
       quoteOrRate: 'quote' as const,
       receiveAddress,
@@ -155,9 +155,7 @@ export async function getZrxTradeQuote(
           zrxTransactionMetadata: transactionMetadata,
         },
       ] as SingleHopTradeQuoteSteps,
-    }
-
-    return Ok(zrxQuote)
+    })
   } catch (err) {
     return Err(
       makeSwapErrorRight({

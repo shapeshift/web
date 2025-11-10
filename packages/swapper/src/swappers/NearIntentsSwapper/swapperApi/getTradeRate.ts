@@ -9,7 +9,7 @@ import { SwapperName, TradeQuoteError } from '../../../types'
 import { makeSwapErrorRight } from '../../../utils'
 import { DEFAULT_QUOTE_DEADLINE_MS } from '../constants'
 import type { QuoteResponse } from '../types'
-import { NEAR_INTENTS_DUMMY_ADDRESS, QuoteRequest } from '../types'
+import { QuoteRequest } from '../types'
 import { assetToNearIntentsAsset, convertSlippageToBps } from '../utils/helpers/helpers'
 import { initializeOneClickService, OneClickService } from '../utils/oneClickService'
 
@@ -28,17 +28,15 @@ export const getTradeRate = async (
   } = input
 
   try {
-    // Initialize 1Click SDK with API key
     const apiKey = deps.config.VITE_NEAR_INTENTS_API_KEY
     initializeOneClickService(apiKey)
 
     const originAsset = await assetToNearIntentsAsset(sellAsset)
     const destinationAsset = await assetToNearIntentsAsset(buyAsset)
 
-    // For dry run rates: use actual addresses if wallet connected, otherwise use dummy
-    // refundTo should be sender's address (origin chain) for semantically correct refunds
-    const refundAddress = sendAddress ?? NEAR_INTENTS_DUMMY_ADDRESS
-    const recipientAddress = receiveAddress ?? NEAR_INTENTS_DUMMY_ADDRESS
+    // Wallet connected: use actual addresses
+    // No wallet: use "check-price" sentinel with INTENTS types
+    const hasWallet = sendAddress !== undefined
 
     const quoteRequest: QuoteRequest = {
       dry: true,
@@ -48,10 +46,14 @@ export const getTradeRate = async (
       destinationAsset,
       amount: sellAmount,
       depositType: QuoteRequest.depositType.ORIGIN_CHAIN,
-      refundTo: refundAddress,
-      refundType: QuoteRequest.refundType.ORIGIN_CHAIN,
-      recipient: recipientAddress,
-      recipientType: QuoteRequest.recipientType.DESTINATION_CHAIN,
+      refundTo: sendAddress ?? 'check-price',
+      refundType: hasWallet
+        ? QuoteRequest.refundType.ORIGIN_CHAIN
+        : QuoteRequest.refundType.INTENTS,
+      recipient: receiveAddress ?? 'check-price',
+      recipientType: hasWallet
+        ? QuoteRequest.recipientType.DESTINATION_CHAIN
+        : QuoteRequest.recipientType.INTENTS,
       deadline: new Date(Date.now() + DEFAULT_QUOTE_DEADLINE_MS).toISOString(),
       // TODO(gomes): Implement affiliate fees when NEAR address confirmed for fee recipient
       // CRITICAL: appFees.recipient ONLY accepts NEAR addresses (e.g., "alice.near")

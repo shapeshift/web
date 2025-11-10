@@ -2,15 +2,27 @@ import { fromAssetId, solanaChainId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { isToken } from '@shapeshiftoss/utils'
+import { zeroAddress } from 'viem'
 
 import { DEFAULT_SLIPPAGE_BPS } from '../../constants'
 import type { GetExecutionStatusResponse } from '../../types'
-import {
-  chainIdToNearIntentsChain,
-  getNearIntentsAsset,
-  NEAR_INTENTS_NATIVE_EVM_MARKER,
-} from '../../types'
+import { chainIdToNearIntentsChain } from '../../types'
 import { OneClickService } from '../oneClickService'
+
+export const getNearIntentsAsset = ({
+  nearNetwork,
+  contractAddress,
+}: {
+  nearNetwork: string
+  contractAddress: string
+}): string => {
+  // Native EVM assets: "nep141:eth.omft.near"
+  if (contractAddress === zeroAddress) {
+    return `nep141:${nearNetwork}.omft.near`
+  }
+  // ERC20 tokens: "nep141:eth-0x{address}.omft.near"
+  return `nep141:${nearNetwork}-${contractAddress.toLowerCase()}.omft.near`
+}
 
 export const convertSlippageToBps = (slippageDecimal: string | undefined): number => {
   if (!slippageDecimal) return DEFAULT_SLIPPAGE_BPS
@@ -18,10 +30,10 @@ export const convertSlippageToBps = (slippageDecimal: string | undefined): numbe
 }
 
 export const assetToNearIntentsAsset = async (asset: Asset): Promise<string> => {
-  const nearIntentsChain =
+  const nearNetwork =
     chainIdToNearIntentsChain[asset.chainId as keyof typeof chainIdToNearIntentsChain]
 
-  if (!nearIntentsChain) {
+  if (!nearNetwork) {
     throw new Error(`Unsupported chain for NEAR Intents: ${asset.chainId}`)
   }
 
@@ -41,9 +53,9 @@ export const assetToNearIntentsAsset = async (asset: Asset): Promise<string> => 
   // For EVM, Bitcoin, Doge, and native assets - use predictable format
   const contractAddress = isToken(asset.assetId)
     ? fromAssetId(asset.assetId).assetReference
-    : NEAR_INTENTS_NATIVE_EVM_MARKER
+    : zeroAddress
 
-  return getNearIntentsAsset(nearIntentsChain, contractAddress)
+  return getNearIntentsAsset({ nearNetwork, contractAddress })
 }
 
 export const mapNearIntentsStatus = (status: GetExecutionStatusResponse['status']): TxStatus => {

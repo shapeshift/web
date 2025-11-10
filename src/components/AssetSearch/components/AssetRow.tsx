@@ -262,7 +262,7 @@ export const AssetRow: FC<AssetRowProps> = memo(
               textOverflow='ellipsis'
               whiteSpace='nowrap'
               overflow='hidden'
-              maxWidth='150px'
+              width='100%'
             >
               {showChainName ? `${chainName} (${asset.symbol})` : asset.name}
             </Text>

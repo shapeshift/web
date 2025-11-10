@@ -4,7 +4,6 @@ import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { isToken } from '@shapeshiftoss/utils'
 import { zeroAddress } from 'viem'
 
-import { DEFAULT_SLIPPAGE_BPS } from '../../constants'
 import type { GetExecutionStatusResponse } from '../../types'
 import { chainIdToNearIntentsChain } from '../../types'
 import { OneClickService } from '../oneClickService'
@@ -24,11 +23,6 @@ export const getNearIntentsAsset = ({
   return `nep141:${nearNetwork}-${contractAddress.toLowerCase()}.omft.near`
 }
 
-export const convertSlippageToBps = (slippageDecimal: string | undefined): number => {
-  if (!slippageDecimal) return DEFAULT_SLIPPAGE_BPS
-  return Math.round(Number(slippageDecimal) * 10000)
-}
-
 export const assetToNearIntentsAsset = async (asset: Asset): Promise<string> => {
   const nearNetwork =
     chainIdToNearIntentsChain[asset.chainId as keyof typeof chainIdToNearIntentsChain]
@@ -37,7 +31,9 @@ export const assetToNearIntentsAsset = async (asset: Asset): Promise<string> => 
     throw new Error(`Unsupported chain for NEAR Intents: ${asset.chainId}`)
   }
 
-  // Solana tokens need lookup from /v0/tokens (can't be generated)
+  // Solana tokens need lookup from /v0/tokens
+  // Unlike other chains, Solana token IDs can't be generated from contract addresses
+  // because NEAR Intents uses their own internal token registry for Solana SPL tokens
   if (asset.chainId === solanaChainId && isToken(asset.assetId)) {
     const tokens = await OneClickService.getTokens()
     const solanaAddress = fromAssetId(asset.assetId).assetReference
@@ -50,7 +46,7 @@ export const assetToNearIntentsAsset = async (asset: Asset): Promise<string> => 
     return match.assetId
   }
 
-  // For EVM, Bitcoin, Doge, and native assets - use predictable format
+  // For all other chains: use predictable NEP-141 format
   const contractAddress = isToken(asset.assetId)
     ? fromAssetId(asset.assetId).assetReference
     : zeroAddress

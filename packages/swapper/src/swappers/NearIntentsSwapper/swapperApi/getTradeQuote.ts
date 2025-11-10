@@ -9,10 +9,10 @@ import { getDefaultSlippageDecimalPercentageForSwapper } from '../../../constant
 import type { CommonTradeQuoteInput, SwapErrorRight, SwapperDeps, TradeQuote } from '../../../types'
 import { SwapperName, TradeQuoteError } from '../../../types'
 import { makeSwapErrorRight } from '../../../utils'
-import { DEFAULT_QUOTE_DEADLINE_MS } from '../constants'
+import { DEFAULT_QUOTE_DEADLINE_MS, DEFAULT_SLIPPAGE_BPS } from '../constants'
 import type { QuoteResponse } from '../types'
 import { QuoteRequest } from '../types'
-import { assetToNearIntentsAsset, convertSlippageToBps } from '../utils/helpers/helpers'
+import { assetToNearIntentsAsset } from '../utils/helpers/helpers'
 import { initializeOneClickService, OneClickService } from '../utils/oneClickService'
 
 const ASSOCIATED_TOKEN_PROGRAM_ID = 'ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL'
@@ -94,7 +94,9 @@ export const getTradeQuote = async (
     const quoteRequest: QuoteRequest = {
       dry: false,
       swapType: QuoteRequest.swapType.EXACT_INPUT,
-      slippageTolerance: convertSlippageToBps(slippageTolerancePercentageDecimal),
+      slippageTolerance: slippageTolerancePercentageDecimal
+        ? bnOrZero(slippageTolerancePercentageDecimal).times(10000).toNumber()
+        : DEFAULT_SLIPPAGE_BPS,
       originAsset,
       destinationAsset,
       amount: sellAmount,
@@ -104,11 +106,7 @@ export const getTradeQuote = async (
       recipient: receiveAddress,
       recipientType: QuoteRequest.recipientType.DESTINATION_CHAIN,
       deadline: new Date(Date.now() + DEFAULT_QUOTE_DEADLINE_MS).toISOString(),
-      // TODO: Add affiliate fees when NEAR account created - https://github.com/shapeshift/web/issues/11022
-      // appFees: [{
-      //   recipient: 'shapeshift.near',
-      //   fee_bps: Number(affiliateBps),
-      // }],
+      // TODO(gomes): appFees disabled - https://github.com/shapeshift/web/issues/11022
     }
 
     const quoteResponse: QuoteResponse = await OneClickService.getQuote(quoteRequest)

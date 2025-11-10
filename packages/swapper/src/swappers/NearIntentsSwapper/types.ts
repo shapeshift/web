@@ -37,5 +37,3 @@ export const chainIdToNearIntentsChain: Record<NearIntentsSupportedChainId, stri
   // [KnownChainIds.AvalancheMainnet]: 'avax',
   // [KnownChainIds.OptimismMainnet]: 'op',
 }
-
-// TODO(gomes): appFees.recipient only accepts NEAR addresses - https://github.com/shapeshift/web/issues/11022

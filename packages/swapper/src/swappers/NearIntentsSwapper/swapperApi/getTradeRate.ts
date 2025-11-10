@@ -1,4 +1,4 @@
-import { bn } from '@shapeshiftoss/utils'
+import { bn, bnOrZero } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import { v4 as uuid } from 'uuid'
@@ -7,10 +7,10 @@ import { getDefaultSlippageDecimalPercentageForSwapper } from '../../../constant
 import type { GetTradeRateInput, SwapErrorRight, SwapperDeps, TradeRate } from '../../../types'
 import { SwapperName, TradeQuoteError } from '../../../types'
 import { makeSwapErrorRight } from '../../../utils'
-import { DEFAULT_QUOTE_DEADLINE_MS } from '../constants'
+import { DEFAULT_QUOTE_DEADLINE_MS, DEFAULT_SLIPPAGE_BPS } from '../constants'
 import type { QuoteResponse } from '../types'
 import { QuoteRequest } from '../types'
-import { assetToNearIntentsAsset, convertSlippageToBps } from '../utils/helpers/helpers'
+import { assetToNearIntentsAsset } from '../utils/helpers/helpers'
 import { initializeOneClickService, OneClickService } from '../utils/oneClickService'
 
 export const getTradeRate = async (
@@ -41,7 +41,9 @@ export const getTradeRate = async (
     const quoteRequest: QuoteRequest = {
       dry: true,
       swapType: QuoteRequest.swapType.EXACT_INPUT,
-      slippageTolerance: convertSlippageToBps(slippageTolerancePercentageDecimal),
+      slippageTolerance: slippageTolerancePercentageDecimal
+        ? bnOrZero(slippageTolerancePercentageDecimal).times(10000).toNumber()
+        : DEFAULT_SLIPPAGE_BPS,
       originAsset,
       destinationAsset,
       amount: sellAmount,
@@ -55,23 +57,13 @@ export const getTradeRate = async (
         ? QuoteRequest.recipientType.DESTINATION_CHAIN
         : QuoteRequest.recipientType.INTENTS,
       deadline: new Date(Date.now() + DEFAULT_QUOTE_DEADLINE_MS).toISOString(),
-      // TODO(gomes): Implement affiliate fees when NEAR address confirmed for fee recipient
-      // CRITICAL: appFees.recipient ONLY accepts NEAR addresses (e.g., "alice.near")
-      // Cannot use EVM treasury addresses here - fees must be collected on NEAR
-      // appFees: [
-      //   {
-      //     recipient: 'shapeshift.near', // Need to create this NEAR account
-      //     fee_bps: Number(affiliateBps), // '55' from app
-      //   }
-      // ],
+      // TODO(gomes): appFees disabled - https://github.com/shapeshift/web/issues/11022
     }
 
-    // Call 1Click API to get rate (dry run)
     const quoteResponse: QuoteResponse = await OneClickService.getQuote(quoteRequest)
 
     const { quote } = quoteResponse
 
-    // Build TradeRate response
     const tradeRate: TradeRate = {
       id: uuid(),
       receiveAddress: receiveAddress ?? undefined,

@@ -10,13 +10,13 @@ export const nearIntentsSupportedChainIds = [
   KnownChainIds.EthereumMainnet,
   KnownChainIds.ArbitrumMainnet,
   KnownChainIds.BaseMainnet,
-  KnownChainIds.BnbSmartChainMainnet,
-  KnownChainIds.PolygonMainnet,
   KnownChainIds.GnosisMainnet,
   KnownChainIds.BitcoinMainnet,
   KnownChainIds.DogecoinMainnet,
   KnownChainIds.SolanaMainnet,
-  // TODO(gomes): NEP-245 support for Avalanche, Optimism - https://github.com/shapeshift/web/issues/11020
+  // TODO(gomes): NEP-245 support - https://github.com/shapeshift/web/issues/11020
+  // KnownChainIds.BnbSmartChainMainnet,
+  // KnownChainIds.PolygonMainnet,
   // KnownChainIds.AvalancheMainnet,
   // KnownChainIds.OptimismMainnet,
 ] as const
@@ -27,13 +27,8 @@ export const chainIdToNearIntentsChain: Record<NearIntentsSupportedChainId, stri
   [KnownChainIds.EthereumMainnet]: 'eth',
   [KnownChainIds.ArbitrumMainnet]: 'arb',
   [KnownChainIds.BaseMainnet]: 'base',
-  [KnownChainIds.BnbSmartChainMainnet]: 'bnb',
-  [KnownChainIds.PolygonMainnet]: 'pol',
   [KnownChainIds.GnosisMainnet]: 'gnosis',
   [KnownChainIds.BitcoinMainnet]: 'btc',
   [KnownChainIds.DogecoinMainnet]: 'doge',
   [KnownChainIds.SolanaMainnet]: 'sol',
-  // TODO(gomes): NEP-245 support - https://github.com/shapeshift/web/issues/11020
-  // [KnownChainIds.AvalancheMainnet]: 'avax',
-  // [KnownChainIds.OptimismMainnet]: 'op',
 }

@@ -194,8 +194,9 @@ const processRelatedAssetIds = async (
     return
   }
 
-  // For assets with relatedAssetKey: null, check if CoinGecko now has multiple platforms
-  if (existingRelatedAssetKey === null) {
+  // For assets with relatedAssetKey: null or undefined, check if CoinGecko now has multiple platforms
+  // This optimization skips expensive API calls for assets that only exist on one chain
+  if (existingRelatedAssetKey === null || existingRelatedAssetKey === undefined) {
     const platformCount = coingeckoPlatformsByAssetId[assetId]
     if (platformCount === undefined || platformCount <= 1) {
       // Still no related assets upstream, skip expensive API calls
@@ -275,13 +276,22 @@ const processRelatedAssetIds = async (
   const hasRelatedAssets = mergedRelatedAssetIds.length > 1
 
   if (hasRelatedAssets) {
-    // attach the relatedAssetKey for all related assets including the primary implementation
+    // Check if this exact group already exists in the index (can happen with parallel processing)
+    const existingGroup = relatedAssetIndex[relatedAssetKey]
+    const isAlreadyGrouped = existingGroup && existingGroup.includes(assetId)
+
+    if (!isAlreadyGrouped) {
+      // This is the first asset in this group to be processed, set up the group
+      relatedAssetIndex[relatedAssetKey] = mergedRelatedAssetIds
+    }
+
+    // Always ensure all assets in the group have the correct relatedAssetKey
+    // This handles both new groups and updates from parallel processing
     for (const relatedAssetId of mergedRelatedAssetIds) {
       if (assetData[relatedAssetId]) {
         assetData[relatedAssetId].relatedAssetKey = relatedAssetKey
       }
     }
-    relatedAssetIndex[relatedAssetKey] = mergedRelatedAssetIds
   } else {
     // If there are no related assets, set relatedAssetKey to null
     assetData[assetId].relatedAssetKey = null

@@ -2,7 +2,6 @@ import { CHAIN_NAMESPACE, fromAssetId } from '@shapeshiftoss/caip'
 import { bn, bnOrZero, isToken } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
-import type { TransactionInstruction } from '@solana/web3.js'
 import { v4 as uuid } from 'uuid'
 
 import { getDefaultSlippageDecimalPercentageForSwapper } from '../../../constants'
@@ -12,24 +11,8 @@ import { makeSwapErrorRight } from '../../../utils'
 import { DEFAULT_QUOTE_DEADLINE_MS, DEFAULT_SLIPPAGE_BPS } from '../constants'
 import type { QuoteResponse } from '../types'
 import { QuoteRequest } from '../types'
-import { assetToNearIntentsAsset } from '../utils/helpers/helpers'
+import { assetToNearIntentsAsset, calculateAccountCreationCosts } from '../utils/helpers/helpers'
 import { initializeOneClickService, OneClickService } from '../utils/oneClickService'
-
-const ASSOCIATED_TOKEN_PROGRAM_ID = 'ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL'
-const ATA_RENT_LAMPORTS = 2040000
-
-// Calculate ATA creation costs from instructions
-const calculateAccountCreationCosts = (instructions: TransactionInstruction[]): string => {
-  let totalCost = bnOrZero(0)
-
-  for (const ix of instructions) {
-    if (ix.programId.toString() === ASSOCIATED_TOKEN_PROGRAM_ID) {
-      totalCost = totalCost.plus(ATA_RENT_LAMPORTS)
-    }
-  }
-
-  return totalCost.toString()
-}
 
 export const getTradeQuote = async (
   input: CommonTradeQuoteInput,

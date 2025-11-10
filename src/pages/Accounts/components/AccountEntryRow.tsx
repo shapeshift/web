@@ -31,7 +31,6 @@ type AccountEntryRowProps = {
 const fontSizeProps = { base: 'sm', md: 'md' }
 const flexDisplayProps = { base: 'none', md: 'flex' }
 const cryptoDisplayProps = { base: 'block', md: 'none' }
-const titleMaxWidthProps = { base: '100%', md: 'auto' }
 
 export const AccountEntryRow: React.FC<AccountEntryRowProps> = ({
   accountId,
@@ -105,13 +104,14 @@ export const AccountEntryRow: React.FC<AccountEntryRowProps> = ({
         onClick={onClick}
         {...buttonProps}
       >
-        <Stack alignItems='flex-start' spacing={0} flex={1} minW={0}>
+        <Stack alignItems='flex-start' spacing={0} flex={1} minW={0} width='100%'>
           <RawText
             color='var(--chakra-colors-chakra-body-text)'
             textOverflow='ellipsis'
             overflow='hidden'
             whiteSpace='nowrap'
-            maxWidth={titleMaxWidthProps}
+            textAlign='left'
+            width='100%'
           >
             {title}
           </RawText>
@@ -137,7 +137,6 @@ export const AccountEntryRow: React.FC<AccountEntryRowProps> = ({
 
         <Flex
           className='account-entry-row__amounts'
-          flex={1}
           justifyContent='flex-end'
           alignItems='flex-end'
           direction='column'

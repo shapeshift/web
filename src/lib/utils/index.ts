@@ -70,7 +70,7 @@ export function partitionCompare<T>(first: T[], second: T[]) {
 }
 
 export const middleEllipsis = (value: string): string =>
-  value.length >= 12 ? `${value.slice(0, 6)}...${value.slice(-6)}` : value
+  value.length >= 16 ? `${value.slice(0, 6)}...${value.slice(-6)}` : value
 
 /**
  * Compare two arrays and call an "add" or "remove" function

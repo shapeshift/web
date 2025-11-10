@@ -118,11 +118,19 @@ export const AccountEntryRow: React.FC<AccountEntryRowProps> = ({
           <RawText fontSize='sm' color='text.subtle'>
             {subtitle}
           </RawText>
+          <Flex
+            flex={1}
+            justifyContent='flex-end'
+            display={flexDisplayProps}
+            gap={2}
+            fontWeight='normal'
+            fontSize='sm'
+          >
+            <Amount.Crypto value={cryptoBalance} symbol={symbol ?? ''} />
+            {asset?.id && <RawText color='text.subtle'>{middleEllipsis(asset?.id)}</RawText>}
+          </Flex>
         </Stack>
-        <Flex flex={1} justifyContent='flex-end' display={flexDisplayProps} gap={2}>
-          <Amount.Crypto value={cryptoBalance} symbol={symbol ?? ''} />
-          {asset?.id && <RawText color='text.subtle'>{middleEllipsis(asset?.id)}</RawText>}
-        </Flex>
+
         <Flex
           className='account-entry-row__amounts'
           flex={1}

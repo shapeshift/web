@@ -21,7 +21,6 @@ export const nearIntentsApi: SwapperApi = {
     return getTradeRate(input, deps)
   },
 
-  // Build unsigned EVM transaction to deposit address
   getUnsignedEvmTransaction: async ({
     from,
     stepIndex,
@@ -61,7 +60,6 @@ export const nearIntentsApi: SwapperApi = {
     })
   },
 
-  // Get EVM transaction fees for deposit
   getEvmTransactionFees: async ({
     from,
     stepIndex,
@@ -95,7 +93,6 @@ export const nearIntentsApi: SwapperApi = {
     return feeData.networkFeeCryptoBaseUnit
   },
 
-  // Build unsigned UTXO transaction to deposit address
   getUnsignedUtxoTransaction: ({ stepIndex, tradeQuote, assertGetUtxoChainAdapter, xpub }) => {
     if (!isExecutableTradeQuote(tradeQuote)) throw new Error('Unable to execute a trade rate quote')
 
@@ -123,7 +120,6 @@ export const nearIntentsApi: SwapperApi = {
     })
   },
 
-  // Get UTXO transaction fees for deposit
   getUtxoTransactionFees: ({ tradeQuote, stepIndex }) => {
     if (!isExecutableTradeQuote(tradeQuote)) throw new Error('Unable to execute a trade rate quote')
 
@@ -134,7 +130,6 @@ export const nearIntentsApi: SwapperApi = {
     return Promise.resolve(step.feeData.networkFeeCryptoBaseUnit)
   },
 
-  // Build unsigned Solana transaction to deposit address
   getUnsignedSolanaTransaction: async ({
     stepIndex,
     tradeQuote,
@@ -179,7 +174,6 @@ export const nearIntentsApi: SwapperApi = {
     })
   },
 
-  // Get Solana transaction fees for deposit
   getSolanaTransactionFees: ({ tradeQuote, stepIndex }) => {
     if (!isExecutableTradeQuote(tradeQuote)) throw new Error('Unable to execute a trade rate quote')
 
@@ -190,7 +184,6 @@ export const nearIntentsApi: SwapperApi = {
     return Promise.resolve(step.feeData.networkFeeCryptoBaseUnit)
   },
 
-  // Check swap status by polling 1Click API
   checkTradeStatus: async ({ config, swap }): Promise<TradeStatus> => {
     const { nearIntentsSpecific } = swap?.metadata ?? {}
 
@@ -198,7 +191,7 @@ export const nearIntentsApi: SwapperApi = {
       return createDefaultStatusResponse(swap?.buyTxHash)
     }
 
-    // API works without JWT token (just charges 0.1% fee)
+    // TODO(gomes): add API key - https://github.com/shapeshift/web/issues/11021
     const apiKey = config.VITE_NEAR_INTENTS_API_KEY || ''
     initializeOneClickService(apiKey)
 

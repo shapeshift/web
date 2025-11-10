@@ -1921,6 +1921,10 @@
         "noAccountsForChain": {
           "title": "Chain not supported",
           "description": "No %{chainLabel} account connected to this dApp."
+        },
+        "sessionAuth": {
+          "invalidRequest": "Invalid authentication request",
+          "formatError": "Error formatting authentication message"
         }
       }
     }

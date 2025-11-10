@@ -1,4 +1,8 @@
+import type { ChainId } from '@shapeshiftoss/caip'
+import type { EvmChainAdapter } from '@shapeshiftoss/chain-adapters'
+import { evm } from '@shapeshiftoss/chain-adapters'
 import type { AssetsByIdPartial } from '@shapeshiftoss/types'
+import { bnOrZero } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import { v4 as uuid } from 'uuid'
@@ -19,6 +23,7 @@ import { assertValidTrade, calculateRate } from '../utils/helpers/helpers'
 
 export async function getBebopTradeRate(
   input: GetEvmTradeRateInput,
+  assertGetEvmChainAdapter: (chainId: ChainId) => EvmChainAdapter,
   _assetsById: AssetsByIdPartial,
   apiKey: string,
 ): Promise<Result<TradeRate, SwapErrorRight>> {
@@ -83,7 +88,15 @@ export async function getBebopTradeRate(
   const buyAmountBeforeFeesCryptoBaseUnit = buyTokenData.amountBeforeFee || buyAmount
   const buyAmountAfterFeesCryptoBaseUnit = buyAmount
 
-  const networkFeeCryptoBaseUnit = quote.gasFee?.native || '0'
+  const adapter = assertGetEvmChainAdapter(sellAsset.chainId)
+  const { fast } = await adapter.getGasFeeData()
+  const gasLimit = bnOrZero(quote.tx.gas).toString()
+
+  const networkFeeCryptoBaseUnit = evm.calcNetworkFeeCryptoBaseUnit({
+    ...fast,
+    supportsEIP1559: Boolean(input.supportsEIP1559),
+    gasLimit,
+  })
 
   return Ok({
     id: uuid(),

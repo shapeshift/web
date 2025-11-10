@@ -23,6 +23,7 @@ export const getTradeRate = async (
     sellAmountIncludingProtocolFeesCryptoBaseUnit: sellAmount,
     slippageTolerancePercentageDecimal,
     affiliateBps,
+    sendAddress,
     receiveAddress,
   } = input
 
@@ -34,8 +35,10 @@ export const getTradeRate = async (
     const originAsset = await assetToNearIntentsAsset(sellAsset)
     const destinationAsset = await assetToNearIntentsAsset(buyAsset)
 
-    // Use dummy address for rates (no wallet connected yet)
-    const dummyAddress = receiveAddress ?? NEAR_INTENTS_DUMMY_ADDRESS
+    // For dry run rates: use actual addresses if wallet connected, otherwise use dummy
+    // refundTo should be sender's address (origin chain) for semantically correct refunds
+    const refundAddress = sendAddress ?? NEAR_INTENTS_DUMMY_ADDRESS
+    const recipientAddress = receiveAddress ?? NEAR_INTENTS_DUMMY_ADDRESS
 
     const quoteRequest: QuoteRequest = {
       dry: true,
@@ -45,9 +48,9 @@ export const getTradeRate = async (
       destinationAsset,
       amount: sellAmount,
       depositType: QuoteRequest.depositType.ORIGIN_CHAIN,
-      refundTo: dummyAddress,
+      refundTo: refundAddress,
       refundType: QuoteRequest.refundType.ORIGIN_CHAIN,
-      recipient: dummyAddress,
+      recipient: recipientAddress,
       recipientType: QuoteRequest.recipientType.DESTINATION_CHAIN,
       deadline: new Date(Date.now() + DEFAULT_QUOTE_DEADLINE_MS).toISOString(),
       // TODO(gomes): Implement affiliate fees when NEAR address confirmed for fee recipient

@@ -126,7 +126,11 @@ export const AccountEntryRow: React.FC<AccountEntryRowProps> = ({
             fontWeight='normal'
             fontSize='sm'
           >
-            <Amount.Crypto value={cryptoBalance} symbol={symbol ?? ''} />
+            <Amount.Crypto
+              value={cryptoBalance}
+              symbol={symbol ?? ''}
+              maximumFractionDigits={maximumFractionDigits}
+            />
             {asset?.id && <RawText color='text.subtle'>{middleEllipsis(asset?.id)}</RawText>}
           </Flex>
         </Stack>

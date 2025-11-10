@@ -18,7 +18,7 @@ import { initializeOneClickService, OneClickService } from '../utils/oneClickSer
 const ASSOCIATED_TOKEN_PROGRAM_ID = 'ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL'
 const ATA_RENT_LAMPORTS = 2040000
 
-// Calculate ATA creation costs from instructions (follows Jupiter pattern)
+// Calculate ATA creation costs from instructions
 const calculateAccountCreationCosts = (instructions: TransactionInstruction[]): string => {
   let totalCost = bnOrZero(0)
 

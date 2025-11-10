@@ -103,7 +103,6 @@ export const nearIntentsApi: SwapperApi = {
 
     const adapter = assertGetUtxoChainAdapter(sellAsset.chainId)
 
-    // Extract satoshiPerByte from the quote's fee data
     const satoshiPerByte =
       (feeData.chainSpecific as { satsPerByte: string } | undefined)?.satsPerByte ?? '0'
 

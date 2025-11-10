@@ -101,10 +101,14 @@ export const nearIntentsApi: SwapperApi = {
 
     const step = getExecutableTradeStep(tradeQuote, stepIndex)
 
-    const { sellAsset, accountNumber, nearIntentsSpecific } = step
+    const { sellAsset, accountNumber, nearIntentsSpecific, feeData } = step
     if (!nearIntentsSpecific) throw new Error('nearIntentsSpecific is required')
 
     const adapter = assertGetUtxoChainAdapter(sellAsset.chainId)
+
+    // Extract satoshiPerByte from the quote's fee data
+    const satoshiPerByte =
+      (feeData.chainSpecific as { satsPerByte: string } | undefined)?.satsPerByte ?? '0'
 
     return adapter.buildSendApiTransaction({
       accountNumber,
@@ -112,7 +116,7 @@ export const nearIntentsApi: SwapperApi = {
       value: step.sellAmountIncludingProtocolFeesCryptoBaseUnit,
       sendMax: false,
       chainSpecific: {
-        satoshiPerByte: '0',
+        satoshiPerByte,
         accountType: UtxoAccountType.SegwitNative,
       },
       xpub,

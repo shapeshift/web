@@ -3,12 +3,10 @@
 // Brand: https://pages.near.org/about/brand/
 
 import { CHAIN_NAMESPACE, fromAssetId } from '@shapeshiftoss/caip'
-import type { GetFeeDataInput } from '@shapeshiftoss/chain-adapters'
-import type { KnownChainIds } from '@shapeshiftoss/types'
 import { bn, bnOrZero, isToken } from '@shapeshiftoss/utils'
-import type { TransactionInstruction } from '@solana/web3.js'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
+import type { TransactionInstruction } from '@solana/web3.js'
 import { v4 as uuid } from 'uuid'
 
 import { getDefaultSlippageDecimalPercentageForSwapper } from '../../../constants'
@@ -127,13 +125,14 @@ export const getTradeQuote = async (
     // Get fee data for the deposit transaction
     const { chainNamespace } = fromAssetId(sellAsset.assetId)
 
-    let feeDataPromise: Promise<string>
-
-    switch (chainNamespace) {
-      case CHAIN_NAMESPACE.Evm: {
-        const sellAdapter = deps.assertGetEvmChainAdapter(sellAsset.chainId)
-        feeDataPromise = sellAdapter
-          .getFeeData({
+    const getFeeData = async (): Promise<{
+      networkFeeCryptoBaseUnit: string
+      chainSpecific?: { satsPerByte: string }
+    }> => {
+      switch (chainNamespace) {
+        case CHAIN_NAMESPACE.Evm: {
+          const sellAdapter = deps.assertGetEvmChainAdapter(sellAsset.chainId)
+          const feeData = await sellAdapter.getFeeData({
             to: quote.depositAddress,
             value: sellAmount,
             chainSpecific: {
@@ -142,68 +141,64 @@ export const getTradeQuote = async (
             },
             sendMax: false,
           })
-          .then(feeData => feeData.fast.txFee)
-        break
-      }
+          return { networkFeeCryptoBaseUnit: feeData.fast.txFee }
+        }
 
-      case CHAIN_NAMESPACE.Utxo: {
-        const sellAdapter = deps.assertGetUtxoChainAdapter(sellAsset.chainId)
-        feeDataPromise = sellAdapter
-          .getFeeData({
+        case CHAIN_NAMESPACE.Utxo: {
+          const sellAdapter = deps.assertGetUtxoChainAdapter(sellAsset.chainId)
+          const feeData = await sellAdapter.getFeeData({
             to: quote.depositAddress,
             value: sellAmount,
             chainSpecific: { from: sendAddress, pubkey: sendAddress },
             sendMax: false,
           })
-          .then(feeData => feeData.fast.txFee)
-        break
-      }
-
-      case CHAIN_NAMESPACE.Solana: {
-        const sellAdapter = deps.assertGetSolanaChainAdapter(sellAsset.chainId)
-        const tokenId = isToken(sellAsset.assetId)
-          ? fromAssetId(sellAsset.assetId).assetReference
-          : undefined
-
-        // Build estimation instructions to check for ATA creation needs
-        const instructions = await sellAdapter.buildEstimationInstructions({
-          from: sendAddress,
-          to: quote.depositAddress,
-          tokenId,
-          value: sellAmount,
-        })
-
-        const getFeeDataInput: GetFeeDataInput<KnownChainIds.SolanaMainnet> = {
-          to: quote.depositAddress,
-          value: sellAmount,
-          chainSpecific: {
-            from: sendAddress,
-            tokenId,
-            instructions, // Pass instructions so getFeeData uses them
-          },
-          sendMax: false,
+          return {
+            networkFeeCryptoBaseUnit: feeData.fast.txFee,
+            chainSpecific: {
+              satsPerByte: feeData.fast.chainSpecific.satoshiPerByte,
+            },
+          }
         }
 
-        // Get transaction fee and add ATA creation costs (like Jupiter does)
-        feeDataPromise = sellAdapter.getFeeData(getFeeDataInput).then(feeData => {
+        case CHAIN_NAMESPACE.Solana: {
+          const sellAdapter = deps.assertGetSolanaChainAdapter(sellAsset.chainId)
+          const tokenId = isToken(sellAsset.assetId)
+            ? fromAssetId(sellAsset.assetId).assetReference
+            : undefined
+
+          // Build estimation instructions to check for ATA creation needs
+          const instructions = await sellAdapter.buildEstimationInstructions({
+            from: sendAddress,
+            to: quote.depositAddress,
+            tokenId,
+            value: sellAmount,
+          })
+
+          const feeData = await sellAdapter.getFeeData({
+            to: quote.depositAddress,
+            value: sellAmount,
+            chainSpecific: {
+              from: sendAddress,
+              tokenId,
+              instructions, // Pass instructions so getFeeData uses them
+            },
+            sendMax: false,
+          })
+
+          // Get transaction fee and add ATA creation costs (like Jupiter does)
           const txFee = feeData.fast.txFee
           const ataCreationCost = calculateAccountCreationCosts(instructions)
           const totalFee = bn(txFee).plus(ataCreationCost).toString()
-          return totalFee
-        })
-        break
-      }
 
-      default:
-        return Err(
-          makeSwapErrorRight({
-            message: `Unsupported chain namespace: ${chainNamespace}`,
-            code: TradeQuoteError.UnsupportedChain,
-          }),
-        )
+          return { networkFeeCryptoBaseUnit: totalFee }
+        }
+
+        default:
+          throw new Error(`Unsupported chain namespace: ${chainNamespace}`)
+      }
     }
 
-    const networkFeeCryptoBaseUnit = await feeDataPromise
+    const { networkFeeCryptoBaseUnit, chainSpecific } = await getFeeData()
 
     // Build TradeQuote response
     const tradeQuote: TradeQuote = {
@@ -227,6 +222,7 @@ export const getTradeQuote = async (
           feeData: {
             protocolFees: {},
             networkFeeCryptoBaseUnit,
+            ...(chainSpecific && { chainSpecific }),
           },
           rate: bn(quote.amountOut).div(quote.amountIn).toString(),
           sellAmountIncludingProtocolFeesCryptoBaseUnit: quote.amountIn,

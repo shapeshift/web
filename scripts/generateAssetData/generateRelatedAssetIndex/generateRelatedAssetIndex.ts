@@ -199,6 +199,7 @@ const processRelatedAssetIds = async (
   if (existingRelatedAssetKey === null || existingRelatedAssetKey === undefined) {
     const platformCount = coingeckoPlatformsByAssetId[assetId]
     if (platformCount === undefined || platformCount <= 1) {
+      assetData[assetId].relatedAssetKey = null
       // Still no related assets upstream, skip expensive API calls
       await throttle()
       return

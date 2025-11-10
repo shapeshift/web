@@ -150,36 +150,28 @@ export const nearIntentsApi: SwapperApi = {
     const value = step.sellAmountIncludingProtocolFeesCryptoBaseUnit
     const tokenId = contractAddressOrUndefined(sellAsset.assetId)
 
-    // Build instructions first (required for SPL token transfers)
-    const instructions = await adapter.buildEstimationInstructions({
-      from,
-      to,
-      tokenId,
-      value,
-    })
-
     const { fast } = await adapter.getFeeData({
       to,
       value,
-      chainSpecific: { from, tokenId, instructions },
+      chainSpecific: { from, tokenId },
     })
 
-    // Convert instructions to HDWallet format
-    const solanaInstructions = instructions.map(instruction =>
-      adapter.convertInstruction(instruction),
-    )
-
     return adapter.buildSendApiTransaction({
+      to,
       from,
-      to: tokenId ? '' : to,
-      value: tokenId ? '0' : value,
+      value,
       accountNumber,
-      chainSpecific: {
-        instructions: solanaInstructions,
-        tokenId,
-        computeUnitLimit: fast.chainSpecific.computeUnits,
-        computeUnitPrice: fast.chainSpecific.priorityFee,
-      },
+      chainSpecific: tokenId
+        ? {
+            // For SPL tokens: include compute budget parameters
+            tokenId,
+            computeUnitLimit: fast.chainSpecific.computeUnits,
+            computeUnitPrice: fast.chainSpecific.priorityFee,
+          }
+        : {
+            // For native SOL: no compute budget needed for simple transfers
+            tokenId,
+          },
     })
   },
 

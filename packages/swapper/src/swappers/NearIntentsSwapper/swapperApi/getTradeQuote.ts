@@ -5,7 +5,8 @@
 import { CHAIN_NAMESPACE, fromAssetId } from '@shapeshiftoss/caip'
 import type { GetFeeDataInput } from '@shapeshiftoss/chain-adapters'
 import type { KnownChainIds } from '@shapeshiftoss/types'
-import { bn, isToken } from '@shapeshiftoss/utils'
+import { bn, bnOrZero, isToken } from '@shapeshiftoss/utils'
+import type { TransactionInstruction } from '@solana/web3.js'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import { v4 as uuid } from 'uuid'
@@ -20,11 +21,33 @@ import { QuoteRequest } from '../types'
 import { assetToNearIntentsAsset, convertSlippageToBps } from '../utils/helpers/helpers'
 import { initializeOneClickService, OneClickService } from '../utils/oneClickService'
 
+// Associated Token Program ID for ATA creation detection
+const ASSOCIATED_TOKEN_PROGRAM_ID = 'ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL'
+// ATA rent-exempt minimum (slightly higher than exact 2,039,280 for safety margin)
+const ATA_RENT_LAMPORTS = 2040000
+
+// Calculate total cost of ATA creation from instructions (similar to Jupiter's approach)
+const calculateAccountCreationCosts = (instructions: TransactionInstruction[]): string => {
+  let totalCost = bnOrZero(0)
+
+  for (const ix of instructions) {
+    const programId = ix.programId.toString()
+
+    // Check if this is an Associated Token Program instruction
+    if (programId === ASSOCIATED_TOKEN_PROGRAM_ID) {
+      // ATA creation instructions from the ATA program always require rent
+      // The presence of the instruction itself indicates account creation
+      totalCost = totalCost.plus(ATA_RENT_LAMPORTS)
+    }
+  }
+
+  return totalCost.toString()
+}
+
 export const getTradeQuote = async (
   input: CommonTradeQuoteInput,
   deps: SwapperDeps,
 ): Promise<Result<TradeQuote[], SwapErrorRight>> => {
-  console.log('[NEAR Intents] getTradeQuote called')
   const {
     sellAsset,
     buyAsset,
@@ -69,10 +92,8 @@ export const getTradeQuote = async (
     const apiKey = deps.config.VITE_NEAR_INTENTS_API_KEY
     initializeOneClickService(apiKey)
 
-    console.log('[NEAR Intents] Converting assets')
     const originAsset = await assetToNearIntentsAsset(sellAsset)
     const destinationAsset = await assetToNearIntentsAsset(buyAsset)
-    console.log('[NEAR Intents] Assets:', { originAsset, destinationAsset })
 
     const quoteRequest: QuoteRequest = {
       dry: false,
@@ -95,9 +116,7 @@ export const getTradeQuote = async (
     }
 
     // Call 1Click API to get quote with deposit address
-    console.log('[NEAR Intents] Calling API')
     const quoteResponse: QuoteResponse = await OneClickService.getQuote(quoteRequest)
-    console.log('[NEAR Intents] API success')
 
     const { quote } = quoteResponse
 
@@ -107,7 +126,6 @@ export const getTradeQuote = async (
 
     // Get fee data for the deposit transaction
     const { chainNamespace } = fromAssetId(sellAsset.assetId)
-    console.log('[NEAR Intents] Chain namespace:', chainNamespace)
 
     let feeDataPromise: Promise<string>
 
@@ -142,21 +160,37 @@ export const getTradeQuote = async (
       }
 
       case CHAIN_NAMESPACE.Solana: {
-        console.log('[NEAR Intents] Getting Solana fee data')
         const sellAdapter = deps.assertGetSolanaChainAdapter(sellAsset.chainId)
         const tokenId = isToken(sellAsset.assetId)
           ? fromAssetId(sellAsset.assetId).assetReference
           : undefined
+
+        // Build estimation instructions to check for ATA creation needs
+        const instructions = await sellAdapter.buildEstimationInstructions({
+          from: sendAddress,
+          to: quote.depositAddress,
+          tokenId,
+          value: sellAmount,
+        })
+
         const getFeeDataInput: GetFeeDataInput<KnownChainIds.SolanaMainnet> = {
           to: quote.depositAddress,
           value: sellAmount,
           chainSpecific: {
             from: sendAddress,
             tokenId,
+            instructions, // Pass instructions so getFeeData uses them
           },
           sendMax: false,
         }
-        feeDataPromise = sellAdapter.getFeeData(getFeeDataInput).then(feeData => feeData.fast.txFee)
+
+        // Get transaction fee and add ATA creation costs (like Jupiter does)
+        feeDataPromise = sellAdapter.getFeeData(getFeeDataInput).then(feeData => {
+          const txFee = feeData.fast.txFee
+          const ataCreationCost = calculateAccountCreationCosts(instructions)
+          const totalFee = bn(txFee).plus(ataCreationCost).toString()
+          return totalFee
+        })
         break
       }
 
@@ -169,9 +203,7 @@ export const getTradeQuote = async (
         )
     }
 
-    console.log('[NEAR Intents] Awaiting fee data')
     const networkFeeCryptoBaseUnit = await feeDataPromise
-    console.log('[NEAR Intents] Fee data received:', networkFeeCryptoBaseUnit)
 
     // Build TradeQuote response
     const tradeQuote: TradeQuote = {
@@ -212,7 +244,6 @@ export const getTradeQuote = async (
       ],
     }
 
-    console.log('[NEAR Intents] Returning quote')
     return Ok([tradeQuote])
   } catch (error) {
     console.error('[NEAR Intents] getTradeQuote error:', error)

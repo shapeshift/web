@@ -190,9 +190,7 @@ export const nearIntentsApi: SwapperApi = {
       return createDefaultStatusResponse(swap?.buyTxHash)
     }
 
-    // TODO(gomes): add API key - https://github.com/shapeshift/web/issues/11021
-    const apiKey = config.VITE_NEAR_INTENTS_API_KEY || ''
-    initializeOneClickService(apiKey)
+    initializeOneClickService(config.VITE_NEAR_INTENTS_API_KEY)
 
     try {
       // TODO(gomes): SDK doesn't support depositMemo yet in getExecutionStatus

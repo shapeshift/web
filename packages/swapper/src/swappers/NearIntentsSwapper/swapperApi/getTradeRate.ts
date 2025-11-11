@@ -28,8 +28,7 @@ export const getTradeRate = async (
   } = input
 
   try {
-    const apiKey = deps.config.VITE_NEAR_INTENTS_API_KEY
-    initializeOneClickService(apiKey)
+    initializeOneClickService(deps.config.VITE_NEAR_INTENTS_API_KEY)
 
     const originAsset = await assetToNearIntentsAsset(sellAsset)
     const destinationAsset = await assetToNearIntentsAsset(buyAsset)

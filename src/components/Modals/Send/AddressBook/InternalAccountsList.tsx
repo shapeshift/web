@@ -1,6 +1,6 @@
 import { Box, HStack, Icon, Text as CText, VStack } from '@chakra-ui/react'
 import type { AccountId, ChainId } from '@shapeshiftoss/caip'
-import { CHAIN_NAMESPACE, fromAccountId, fromChainId, toAccountId } from '@shapeshiftoss/caip'
+import { fromAccountId, toAccountId } from '@shapeshiftoss/caip'
 import { memo, useMemo, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { FaWallet } from 'react-icons/fa'
@@ -49,11 +49,6 @@ export const InternalAccountsList = memo(
     const accountMetadata = useAppSelector(selectPortfolioAccountMetadata)
     const asset = useAppSelector(state => selectAssetById(state, assetId))
 
-    const chainNamespace = useMemo(() => {
-      if (!chainId) return null
-      return fromChainId(chainId).chainNamespace
-    }, [chainId])
-
     const chainFilter = useMemo(() => ({ chainId }), [chainId])
     const allAccountIds = useAppSelector(state =>
       selectAccountIdsByChainIdFilter(state, chainFilter),
@@ -67,37 +62,27 @@ export const InternalAccountsList = memo(
     const accountIds = !input || !addressError ? allAccountIds : searchAccountIds
 
     const internalAccounts = useMemo(() => {
-      return accountIds.map(accountId => {
-        const { account } = fromAccountId(accountId)
-        const metadata = accountMetadata[accountId]
-        const accountNumber = metadata?.bip44Params?.accountNumber
-        const isUtxo = chainNamespace === CHAIN_NAMESPACE.Utxo && isUtxoAccountId(accountId)
+      return accountIds
+        .map(accountId => {
+          const { account } = fromAccountId(accountId)
+          const metadata = accountMetadata[accountId]
+          const accountNumber = metadata?.bip44Params?.accountNumber
 
-        let label: string
-        let accountType: string | undefined
-
-        if (isUtxo) {
-          accountType = accountIdToLabel(accountId)
-          label =
+          const label =
             accountNumber !== undefined
               ? translate('accounts.accountNumber', { accountNumber })
               : translate('common.account')
-        } else {
-          label =
-            accountNumber !== undefined
-              ? translate('accounts.accountNumber', { accountNumber })
-              : translate('common.account')
-        }
 
-        return {
-          accountId,
-          address: account,
-          label,
-          accountNumber,
-          accountType,
-        }
-      })
-    }, [accountIds, accountMetadata, chainNamespace, translate])
+          return {
+            accountId,
+            address: account,
+            label,
+            accountNumber,
+            accountType: isUtxoAccountId(accountId) ? accountIdToLabel(accountId) : undefined,
+          }
+        })
+        .sort((a, b) => a.accountNumber - b.accountNumber)
+    }, [accountIds, accountMetadata, translate])
 
     const filteredAccounts = internalAccounts
 

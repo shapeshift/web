@@ -191,7 +191,8 @@
     "approval": "Approval",
     "permit2Approval": "Permit2 Approval",
     "network": "Network",
-    "feeEstimate": "Fee Estimate"
+    "feeEstimate": "Fee Estimate",
+    "list": "List"
   },
   "accountSelector": {
     "chooseAccount": "Choose Account"

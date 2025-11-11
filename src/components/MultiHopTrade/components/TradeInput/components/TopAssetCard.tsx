@@ -58,32 +58,37 @@ export const TopAssetCard = ({ asset }: TopAssetCardProps) => {
       tabIndex={0}
       transition='all 0.2s'
       _hover={hoverProps}
+      whiteSpace='nowrap'
     >
-      <Flex alignItems='center' gap={2} justifyContent='center'>
-        <Flex alignItems='center' gap={2} minWidth={0}>
-          <AssetIcon assetId={asset.assetId} size='2xs' />
-          <Box flex={1} minWidth={0}>
+      <Flex alignItems='center' gap={2} justifyContent='center' minWidth={0}>
+        <Flex alignItems='center' gap={2} minWidth={0} flex={1} overflow='hidden'>
+          <AssetIcon assetId={asset.assetId} size='2xs' flexShrink={0} />
+          <Box minWidth={0} overflow='hidden' flex={1}>
             <Text
               fontWeight='semibold'
               fontSize='xs'
               color={textColor}
               noOfLines={1}
+              overflow='hidden'
               textOverflow='ellipsis'
-              lineHeight='shorter'
+              whiteSpace='nowrap'
+              lineHeight={1}
             >
               {asset.symbol}
             </Text>
           </Box>
         </Flex>
-        <HStack spacing={1} mt='1px'>
+        <HStack spacing={1} flexShrink={0}>
           <Amount.Fiat
             fontWeight='semibold'
             color={textColor}
             fontSize='xs'
+            lineHeight={1}
             value={marketData?.price}
           />
           <Icon
             as={isPositive ? TbCircleArrowUpRightFilled : TbCircleArrowDownRightFilled}
+            lineHeight={1}
             color={isPositive ? 'text.success' : 'text.error'}
           />
           <Amount.Percent
@@ -91,6 +96,7 @@ export const TopAssetCard = ({ asset }: TopAssetCardProps) => {
             color={isPositive ? 'text.success' : 'text.error'}
             fontWeight='semibold'
             fontSize='xs'
+            lineHeight={1}
           />
         </HStack>
       </Flex>

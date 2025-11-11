@@ -9,7 +9,10 @@ import {
   MenuItemOption,
   MenuList,
   MenuOptionGroup,
-  Portal,
+  Popover,
+  PopoverBody,
+  PopoverContent,
+  PopoverTrigger,
   useMediaQuery,
 } from '@chakra-ui/react'
 import { fromAssetId } from '@shapeshiftoss/caip'
@@ -22,8 +25,11 @@ import { useTranslate } from 'react-polyglot'
 
 import { TopAssetCard } from './TopAssetCard'
 
+import { OrderDirection } from '@/components/OrderDropdown/types'
+import { SortOptionsKeys } from '@/components/SortDropdown/types'
+import { RawText, Text } from '@/components/Text'
 import { isSome } from '@/lib/utils'
-import { MarketsCategories } from '@/pages/Markets/constants'
+import { MarketsCategories, sortOptionsByCategory } from '@/pages/Markets/constants'
 import { CATEGORY_TO_QUERY_HOOK } from '@/pages/Markets/hooks/useCoingeckoData'
 import { usePortalsAssetsQuery } from '@/pages/Markets/hooks/usePortalsAssetsQuery'
 import { useRows } from '@/pages/Markets/hooks/useRows'
@@ -34,10 +40,35 @@ import { useAppDispatch, useAppSelector } from '@/state/store'
 import { breakpoints } from '@/theme/theme'
 
 const TOP_ASSETS_LIMIT = 20
-const CARD_WIDTH = 250
+const MAX_CARD_WIDTH = 250
 
-const settingsIcon = <TbAdjustmentsHorizontal />
 const buttonHoverProps = { bg: 'transparent', color: 'text.base' }
+const settingsIcon = <TbAdjustmentsHorizontal />
+const checkedIcon = <Icon as={CheckIcon} color='blue.200' fontSize='20px' />
+const menuButtonHoverProps = { bg: 'background.surface.raised.hover' }
+
+// Static animation variants - defined outside component for performance
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.05,
+    },
+  },
+}
+
+const cardVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 0.4,
+      ease: 'easeOut',
+    },
+  },
+}
 
 type CategoryMenuItemProps = {
   category: MarketsCategories
@@ -67,10 +98,9 @@ const CategoryMenuItem = ({
     <MenuItemOption
       value={category}
       onClick={handleClick}
-      fontSize='md'
+      fontSize='sm'
       iconPlacement='end'
       icon={checkedIcon}
-      fontWeight='bold'
       color={selectedCategory === category ? 'text.primary' : 'text.subtle'}
     >
       {label}
@@ -84,11 +114,16 @@ export const TopAssetsCarousel = () => {
   const [isSmallerThanMd] = useMediaQuery(`(max-width: ${breakpoints.md})`, { ssr: false })
   const hasUserEnteredAmount = useAppSelector(selectHasUserEnteredAmount)
   const assetsById = useAppSelector(selectAssets)
-  const [isVisible, setIsVisible] = useState(false)
   const { selectedCategory, selectedOrder, selectedSort, selectedChainId } = useAppSelector(
     preferences.selectors.selectHighlightedTokensFilters,
   )
   const rows = useRows({ limit: TOP_ASSETS_LIMIT })
+
+  const shouldShow = useMemo(() => {
+    return !isSmallerThanMd && !hasUserEnteredAmount
+  }, [isSmallerThanMd, hasUserEnteredAmount])
+
+  const [isVisible, setIsVisible] = useState(false)
 
   const categoryHook = useMemo(
     () =>
@@ -98,13 +133,13 @@ export const TopAssetsCarousel = () => {
     [selectedCategory],
   )
 
-  const { data: categoryQueryData, isLoading: isCategoryQueryDataLoading } = categoryHook({
+  const { data: categoryQueryData } = categoryHook({
     enabled: selectedCategory !== MarketsCategories.OneClickDefi,
     orderBy: selectedOrder,
     sortBy: selectedSort,
   })
 
-  const { data: portalsAssets, isLoading: isPortalsAssetsLoading } = usePortalsAssetsQuery({
+  const { data: portalsAssets } = usePortalsAssetsQuery({
     chainIds:
       selectedChainId === 'all'
         ? rows[selectedCategory].supportedChainIds ?? []
@@ -160,43 +195,76 @@ export const TopAssetsCarousel = () => {
   const handleCategoryChange = useCallback(
     (category: MarketsCategories) => {
       dispatch(preferences.actions.setHighlightedTokensSelectedCategory(category))
+
+      switch (category) {
+        case MarketsCategories.TopMovers:
+          dispatch(
+            preferences.actions.setHighlightedTokensSelectedSort(SortOptionsKeys.PriceChange),
+          )
+          break
+        case MarketsCategories.OneClickDefi:
+          dispatch(preferences.actions.setHighlightedTokensSelectedSort(SortOptionsKeys.Apy))
+          break
+        case MarketsCategories.MarketCap:
+          dispatch(preferences.actions.setHighlightedTokensSelectedSort(SortOptionsKeys.MarketCap))
+          break
+        case MarketsCategories.RecentlyAdded:
+          dispatch(preferences.actions.setHighlightedTokensSelectedSort(SortOptionsKeys.MarketCap))
+          break
+        default:
+          dispatch(
+            preferences.actions.setHighlightedTokensSelectedSort(SortOptionsKeys.PriceChange),
+          )
+          break
+      }
     },
     [dispatch],
   )
 
-  const checkedIcon = useMemo(() => <Icon as={CheckIcon} color='blue.200' fontSize='20px' />, [])
+  const handleSortChange = useCallback(
+    (sort: SortOptionsKeys) => {
+      dispatch(preferences.actions.setHighlightedTokensSelectedSort(sort))
+    },
+    [dispatch],
+  )
 
-  const categoryMenuItems = useMemo(() => {
-    return (
-      <MenuOptionGroup type='radio' value={selectedCategory}>
-        {Object.values(MarketsCategories).map(category => (
-          <CategoryMenuItem
-            key={category}
-            category={category}
-            selectedCategory={selectedCategory}
-            onCategoryChange={handleCategoryChange}
-            checkedIcon={checkedIcon}
-          />
-        ))}
-      </MenuOptionGroup>
-    )
-  }, [selectedCategory, handleCategoryChange, checkedIcon])
+  const handleOrderChange = useCallback(
+    (order: OrderDirection) => {
+      dispatch(preferences.actions.setHighlightedTokensSelectedOrder(order))
+    },
+    [dispatch],
+  )
 
-  const shouldShow = useMemo(() => {
-    return (
-      !isSmallerThanMd &&
-      !hasUserEnteredAmount &&
-      popularAssets.length > 0 &&
-      !isCategoryQueryDataLoading &&
-      !isPortalsAssetsLoading
+  const categoryLabel = useMemo(() => {
+    return selectedCategory === MarketsCategories.OneClickDefi
+      ? translate(`markets.categories.${selectedCategory}.filterTitle`)
+      : translate(`markets.categories.${selectedCategory}.title`)
+  }, [selectedCategory, translate])
+
+  const orderLabel = useMemo(() => {
+    return translate(
+      selectedOrder === OrderDirection.Ascending ? 'common.ascending' : 'common.descending',
     )
-  }, [
-    isSmallerThanMd,
-    hasUserEnteredAmount,
-    popularAssets.length,
-    isCategoryQueryDataLoading,
-    isPortalsAssetsLoading,
-  ])
+  }, [selectedOrder, translate])
+
+  const sortOptions = useMemo(() => {
+    return sortOptionsByCategory[selectedCategory]
+  }, [selectedCategory])
+
+  const handleSortOptionClick = useCallback(
+    (sortOption: SortOptionsKeys) => () => {
+      handleSortChange(sortOption)
+    },
+    [handleSortChange],
+  )
+
+  const handleOrderDescendingClick = useCallback(() => {
+    handleOrderChange(OrderDirection.Descending)
+  }, [handleOrderChange])
+
+  const handleOrderAscendingClick = useCallback(() => {
+    handleOrderChange(OrderDirection.Ascending)
+  }, [handleOrderChange])
 
   const [emblaRef, emblaApi] = useEmblaCarousel(
     {
@@ -215,51 +283,14 @@ export const TopAssetsCarousel = () => {
   useEffect(() => {
     if (!emblaApi || !shouldShow) return
     emblaApi.reInit()
-  }, [emblaApi, popularAssets.length, shouldShow])
-
-  const containerVariants = useMemo(
-    () => ({
-      hidden: { opacity: 0 },
-      visible: {
-        opacity: 1,
-        transition: {
-          staggerChildren: 0.05,
-        },
-      },
-    }),
-    [],
-  )
-
-  const cardVariants = useMemo(
-    () => ({
-      hidden: { opacity: 0, y: 20 },
-      visible: {
-        opacity: 1,
-        y: 0,
-        transition: {
-          duration: 0.4,
-          ease: 'easeOut',
-        },
-      },
-    }),
-    [],
-  )
+  }, [emblaApi, popularAssets, shouldShow])
 
   if (!shouldShow) return null
 
   return (
-    <Box
-      position='fixed'
-      bottom={0}
-      left={0}
-      right={0}
-      zIndex={1000}
-      width='100%'
-      overflow='hidden'
-    >
+    <Box position='fixed' bottom={0} left={0} right={0} zIndex={1000} width='100%'>
       <Flex
         width='100%'
-        overflow='hidden'
         bg='background.surface.raised.base'
         backdropFilter='blur(30px)'
         position='relative'
@@ -289,7 +320,8 @@ export const TopAssetsCarousel = () => {
                   className='embla__slide'
                   style={{
                     minWidth: 0,
-                    flex: `0 0 ${CARD_WIDTH - 8}px`,
+                    flex: '0 0 auto',
+                    maxWidth: `${MAX_CARD_WIDTH - 8}px`,
                     position: 'relative',
                     paddingLeft: '0.5rem',
                   }}
@@ -310,21 +342,162 @@ export const TopAssetsCarousel = () => {
           width='auto'
           aspectRatio='1/1'
         >
-          <Menu>
-            <MenuButton
-              as={IconButton}
-              aria-label={translate('common.settings')}
-              icon={settingsIcon}
-              size='md'
-              fontSize='xl'
-              variant='ghost'
-              _hover={buttonHoverProps}
-              _active={buttonHoverProps}
-            />
-            <Portal>
-              <MenuList zIndex={1001}>{categoryMenuItems}</MenuList>
-            </Portal>
-          </Menu>
+          <Popover placement='top-end' closeOnBlur={true} returnFocusOnClose={false}>
+            <PopoverTrigger>
+              <IconButton
+                aria-label={translate('common.settings')}
+                icon={settingsIcon}
+                size='md'
+                fontSize='xl'
+                variant='ghost'
+                _hover={buttonHoverProps}
+                _active={buttonHoverProps}
+              />
+            </PopoverTrigger>
+            <PopoverContent zIndex={1001} width='280px'>
+              <PopoverBody p={4}>
+                <Flex flexDirection='column' gap={4}>
+                  <Box>
+                    <Text
+                      translation='common.list'
+                      mb={2}
+                      color='text.primary'
+                      fontWeight='bold'
+                      fontSize='sm'
+                    />
+                    <Menu>
+                      <MenuButton
+                        as={Box}
+                        width='100%'
+                        px={3}
+                        py={2}
+                        bg='background.surface.raised.base'
+                        borderRadius='md'
+                        cursor='pointer'
+                        _hover={menuButtonHoverProps}
+                      >
+                        <RawText fontSize='sm'>{categoryLabel}</RawText>
+                      </MenuButton>
+                      <MenuList zIndex={1002}>
+                        <MenuOptionGroup type='radio' value={selectedCategory}>
+                          {Object.values(MarketsCategories).map(category => (
+                            <CategoryMenuItem
+                              key={category}
+                              category={category}
+                              selectedCategory={selectedCategory}
+                              onCategoryChange={handleCategoryChange}
+                              checkedIcon={checkedIcon}
+                            />
+                          ))}
+                        </MenuOptionGroup>
+                      </MenuList>
+                    </Menu>
+                  </Box>
+
+                  {sortOptions && (
+                    <Box>
+                      <Text
+                        translation='common.sortBy'
+                        mb={2}
+                        color='text.primary'
+                        fontWeight='bold'
+                        fontSize='sm'
+                      />
+                      <Menu>
+                        <MenuButton
+                          as={Box}
+                          width='100%'
+                          px={3}
+                          py={2}
+                          bg='background.surface.raised.base'
+                          borderRadius='md'
+                          cursor='pointer'
+                          _hover={menuButtonHoverProps}
+                        >
+                          <RawText fontSize='sm'>
+                            {translate(`dashboard.portfolio.${selectedSort}`)}
+                          </RawText>
+                        </MenuButton>
+                        <MenuList zIndex={1002}>
+                          <MenuOptionGroup type='radio' value={selectedSort}>
+                            {sortOptions.map(sortOption => (
+                              <MenuItemOption
+                                key={sortOption}
+                                value={sortOption}
+                                onClick={handleSortOptionClick(sortOption)}
+                                fontSize='sm'
+                                iconPlacement='end'
+                                icon={checkedIcon}
+                                color={selectedSort === sortOption ? 'text.primary' : 'text.subtle'}
+                              >
+                                {translate(`dashboard.portfolio.${sortOption}`)}
+                              </MenuItemOption>
+                            ))}
+                          </MenuOptionGroup>
+                        </MenuList>
+                      </Menu>
+                    </Box>
+                  )}
+
+                  <Box>
+                    <Text
+                      translation='common.orderBy'
+                      mb={2}
+                      color='text.primary'
+                      fontWeight='bold'
+                      fontSize='sm'
+                    />
+                    <Menu>
+                      <MenuButton
+                        as={Box}
+                        width='100%'
+                        px={3}
+                        py={2}
+                        bg='background.surface.raised.base'
+                        borderRadius='md'
+                        cursor='pointer'
+                        _hover={menuButtonHoverProps}
+                      >
+                        <RawText fontSize='sm'>{orderLabel}</RawText>
+                      </MenuButton>
+                      <MenuList zIndex={1002}>
+                        <MenuOptionGroup type='radio' value={selectedOrder}>
+                          <MenuItemOption
+                            value={OrderDirection.Descending}
+                            onClick={handleOrderDescendingClick}
+                            fontSize='sm'
+                            iconPlacement='end'
+                            icon={checkedIcon}
+                            color={
+                              selectedOrder === OrderDirection.Descending
+                                ? 'text.primary'
+                                : 'text.subtle'
+                            }
+                          >
+                            {translate('common.descending')}
+                          </MenuItemOption>
+                          <MenuItemOption
+                            value={OrderDirection.Ascending}
+                            onClick={handleOrderAscendingClick}
+                            fontSize='sm'
+                            iconPlacement='end'
+                            icon={checkedIcon}
+                            color={
+                              selectedOrder === OrderDirection.Ascending
+                                ? 'text.primary'
+                                : 'text.subtle'
+                            }
+                          >
+                            {translate('common.ascending')}
+                          </MenuItemOption>
+                        </MenuOptionGroup>
+                      </MenuList>
+                    </Menu>
+                  </Box>
+                </Flex>
+              </PopoverBody>
+            </PopoverContent>
+          </Popover>
         </Flex>
       </Flex>
     </Box>

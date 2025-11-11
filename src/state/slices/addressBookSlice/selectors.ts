@@ -3,7 +3,7 @@ import { matchSorter } from 'match-sorter'
 
 import { addressBookSlice } from './addressBookSlice'
 
-import { findUtxoAccountIdByAddress } from '@/lib/utils/accounts'
+import { findUtxoAccountIdByAddress } from '@/lib/utils/account/utxo'
 import { createDeepEqualOutputSelector } from '@/state/selector-utils'
 import {
   selectAccountAddressParamFromFilter,
@@ -124,7 +124,11 @@ export const selectInternalAccountIdByAddress = createDeepEqualOutputSelector(
     }
 
     if (chainNamespace === CHAIN_NAMESPACE.Utxo) {
-      return findUtxoAccountIdByAddress(accountAddress, nonEvmAccountIds, chainId)
+      return findUtxoAccountIdByAddress({
+        address: accountAddress,
+        accountIds: nonEvmAccountIds,
+        chainId,
+      })
     }
 
     // For non-EVM chains, find exact chainId + address match

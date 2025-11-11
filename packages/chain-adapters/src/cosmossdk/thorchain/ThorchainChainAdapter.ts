@@ -18,6 +18,7 @@ import type {
   GetFeeDataInput,
   SignAndBroadcastTransactionInput,
   SignTxInput,
+  Transaction,
   TxHistoryInput,
   TxHistoryResponse,
   ValidAddressResult,
@@ -165,14 +166,19 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.ThorchainMa
         }),
       )
 
-      const txs = await Promise.all(
-        data.txs.map(tx => requestQueue.add(() => this.parseTx(tx, input.pubkey))),
+      const transactions = await Promise.all(
+        data.txs.reduce<Promise<Transaction>[]>((prev, tx) => {
+          if (input.knownTxIds?.has(tx.txid)) return prev
+          prev.push(requestQueue.add(() => this.parseTx(tx, input.pubkey)))
+          return prev
+        }, []),
       )
 
       return {
         cursor: data.cursor,
         pubkey: input.pubkey,
-        transactions: txs,
+        transactions,
+        txIds: data.txs.map(tx => tx.txid),
       }
     } catch (err) {
       return ErrorHandler(err)

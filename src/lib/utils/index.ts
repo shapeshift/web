@@ -19,9 +19,6 @@ import crypto from 'node:crypto'
 
 import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
 
-export const firstFourLastFour = (address: string): string =>
-  `${address.slice(0, 6)}...${address.slice(-4)}`
-
 export const trimWithEndEllipsis = (content?: string, trimmedContentLength?: number): string => {
   if (!content) return ''
 
@@ -73,7 +70,7 @@ export function partitionCompare<T>(first: T[], second: T[]) {
 }
 
 export const middleEllipsis = (value: string): string =>
-  value.length >= 12 ? `${value.slice(0, 4)}...${value.slice(-4)}` : value
+  value.length >= 16 ? `${value.slice(0, 6)}...${value.slice(-6)}` : value
 
 /**
  * Compare two arrays and call an "add" or "remove" function

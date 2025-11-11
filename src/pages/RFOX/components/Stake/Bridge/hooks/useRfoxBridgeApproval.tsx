@@ -3,7 +3,6 @@ import { TxStatus } from '@shapeshiftoss/unchained-client'
 import type { UseQueryResult } from '@tanstack/react-query'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { useTranslate } from 'react-polyglot'
 import { encodeFunctionData, erc20Abi, getAddress } from 'viem'
 
 import type { RfoxBridgeQuote } from '../types'
@@ -53,7 +52,6 @@ export const useRfoxBridgeApproval = ({
   const dispatch = useAppDispatch()
   const queryClient = useQueryClient()
   const toast = useNotificationToast({ duration: isDrawerOpen ? 5000 : null })
-  const translate = useTranslate()
   const wallet = useWallet().state.wallet
   const [approvalTxHash, setApprovalTxHash] = useState<string>()
   const { sellAssetAccountNumber, feeAsset, allowanceContract } = useRfoxBridge({ confirmedQuote })
@@ -121,11 +119,7 @@ export const useRfoxBridgeApproval = ({
             amountCryptoPrecision,
             assetId: confirmedQuote.sellAssetId,
             contractName: 'Arbitrum Bridge',
-            message: translate('actionCenter.approve.approvalTxPending', {
-              contractName: 'Arbitrum Bridge',
-              amountCryptoPrecision,
-              symbol: sellAsset.symbol,
-            }),
+            message: 'actionCenter.approve.approvalTxPending',
           },
         }),
       )

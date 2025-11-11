@@ -12,6 +12,7 @@ export const isCrossAccountTradeSupported = (swapperName: SwapperName) => {
     case SwapperName.Relay:
     case SwapperName.Mayachain:
     case SwapperName.ButterSwap:
+    case SwapperName.Bebop:
       return true
     case SwapperName.Zrx:
     case SwapperName.CowSwap:
@@ -37,6 +38,7 @@ export const getEnabledSwappers = (
     RelaySwapper,
     MayaSwap,
     ButterSwap,
+    BebopSwap,
   }: FeatureFlags,
   isCrossAccountTrade: boolean,
   isSolBuyAssetId: boolean,
@@ -66,6 +68,8 @@ export const getEnabledSwappers = (
       MayaSwap && (!isCrossAccountTrade || isCrossAccountTradeSupported(SwapperName.Mayachain)),
     [SwapperName.ButterSwap]:
       ButterSwap && (!isCrossAccountTrade || isCrossAccountTradeSupported(SwapperName.ButterSwap)),
+    [SwapperName.Bebop]:
+      BebopSwap && (!isCrossAccountTrade || isCrossAccountTradeSupported(SwapperName.Bebop)),
     [SwapperName.Test]: false,
   }
 }

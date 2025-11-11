@@ -274,6 +274,7 @@
       "asset": "Asset",
       "balance": "Balance",
       "price": "Price",
+      "apy": "APY",
       "priceChange": "Price Change",
       "allocation": "Allocation",
       "marketCap": "Market Cap",
@@ -1568,7 +1569,9 @@
       "create": {
         "header": "Your Secret Recovery Phrase",
         "body": "Write these 12 words down and store them securely offline. This 12 word phrase is used to recover your wallet private keys.",
-        "button": "Next"
+        "button": "Next",
+        "hideWords": "Hide Words",
+        "showWords": "Show Words"
       },
       "start": {
         "header": "ShapeShift Wallet",
@@ -1650,7 +1653,11 @@
       "create": "Create",
       "or": "or",
       "import": "Import",
-      "aWallet": "a wallet"
+      "aWallet": "a wallet",
+      "viewAllWallets": "View all wallets",
+      "ctaText": "Don't see your wallet?",
+      "ctaSubtext": "Connect to 480+ wallets",
+      "multiChainWallets": "Multi-Chain Wallets"
     },
     "create": {
       "header": "Give your wallet a name",
@@ -1902,7 +1909,8 @@
         "connect": {
           "title": "Connect your wallet to a dApp via WalletConnect and trigger transactions",
           "linkPlaceholder": "QR code or connection link",
-          "disclaimerBody": "ShapeShift cannot ensure the safety or security of third-party applications. By using WalletConnect, you assume full responsibility for any risks involved."
+          "disclaimerBody": "ShapeShift cannot ensure the safety or security of third-party applications. By using WalletConnect, you assume full responsibility for any risks involved.",
+          "connect": "Connect"
         },
         "sessionProposal": {
           "unsupportedChain": "Unsupported chain namespace in session proposal.",
@@ -1913,6 +1921,10 @@
         "noAccountsForChain": {
           "title": "Chain not supported",
           "description": "No %{chainLabel} account connected to this dApp."
+        },
+        "sessionAuth": {
+          "invalidRequest": "Invalid authentication request",
+          "formatError": "Error formatting authentication message"
         }
       }
     }
@@ -2468,7 +2480,7 @@
         "processing": "Your withdraw of %{assetAmountsAndSymbols} from the %{poolName} pool is processing."
       },
       "deposit": {
-        "processing": "Your deposit of %{amountCryptoPrecision} %{symbol} to %{poolName} pool is processing."
+        "processing": "Your deposit of %{amount} %{symbol} to %{poolName} pool is processing."
       }
     },
     "deposit": {
@@ -2516,8 +2528,8 @@
       "claimTxComplete": "Your TCY claim of %{amount} %{symbol} is complete."
     },
     "approve": {
-      "approvalTxPending": "Approving %{contractName} to use %{amountCryptoPrecision} %{symbol}.",
-      "approvalTxComplete": "Approved %{contractName} to use %{amountCryptoPrecision} %{symbol}."
+      "approvalTxPending": "Approving %{contractName} to use %{amount} %{symbol}.",
+      "approvalTxComplete": "Approved %{contractName} to use %{amount} %{symbol}."
     },
     "pendingTransactions": "%{count} Pending",
     "rewardDistribution": {

@@ -22,6 +22,7 @@ const navCss = {
     display: 'none',
   },
 }
+const paddingX = { base: 4, md: 8 }
 
 type TabMenuProps = {
   items: TabItem[]
@@ -70,6 +71,7 @@ export const TabMenu: React.FC<TabMenuProps> = ({ items }) => {
         display='flex'
         gap={8}
         overflowY='auto'
+        px={paddingX}
         css={navCss}
       >
         {renderNavItems}

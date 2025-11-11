@@ -1100,6 +1100,8 @@
       "qrCode": "QR Code",
       "addressBook": "Address Book",
       "noEntries": "No address found.",
+      "yourWallets": "Your Wallets",
+      "noInternalAccounts": "No accounts found.",
       "addNewAddress": "Add New Address",
       "addAddress": {
         "nameRequired": "Name is required",

@@ -9,8 +9,9 @@ export const NestedList = forwardRef<ListProps, 'div'>((props, ref) => {
   const borderColor = useColorModeValue('blackAlpha.100', 'whiteAlpha.100')
   return (
     <List
-      px={listPaddingX}
       ml={listMarginLeft}
+      pl={listPaddingX}
+      pr={listPaddingX}
       borderLeftWidth={listBorderLeftWidth}
       borderColor={borderColor}
       ref={ref}

@@ -262,7 +262,7 @@ export const AccountNumberRow: React.FC<AccountNumberRowProps> = ({
         )}
       </Flex>
       <NestedList as={Collapse} in={isOpen} pr={0}>
-        <ListItem>{isOpen && accountEntries}</ListItem>
+        {isOpen && accountEntries}
       </NestedList>
     </ListItem>
   )

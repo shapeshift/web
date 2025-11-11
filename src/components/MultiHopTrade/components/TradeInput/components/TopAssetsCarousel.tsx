@@ -16,6 +16,7 @@ import {
   useMediaQuery,
 } from '@chakra-ui/react'
 import { fromAssetId } from '@shapeshiftoss/caip'
+import type { Asset } from '@shapeshiftoss/types'
 import AutoScroll from 'embla-carousel-auto-scroll'
 import useEmblaCarousel from 'embla-carousel-react'
 import { motion } from 'framer-motion'
@@ -28,7 +29,10 @@ import { TopAssetCard } from './TopAssetCard'
 import { OrderDirection } from '@/components/OrderDropdown/types'
 import { SortOptionsKeys } from '@/components/SortDropdown/types'
 import { RawText, Text } from '@/components/Text'
+import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
+import { MixPanelEvent } from '@/lib/mixpanel/types'
 import { isSome } from '@/lib/utils'
+import { vibrate } from '@/lib/vibrate'
 import { MarketsCategories, sortOptionsByCategory } from '@/pages/Markets/constants'
 import { CATEGORY_TO_QUERY_HOOK } from '@/pages/Markets/hooks/useCoingeckoData'
 import { usePortalsAssetsQuery } from '@/pages/Markets/hooks/usePortalsAssetsQuery'
@@ -36,6 +40,7 @@ import { useRows } from '@/pages/Markets/hooks/useRows'
 import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
 import { selectAssets } from '@/state/slices/selectors'
 import { selectHasUserEnteredAmount } from '@/state/slices/tradeInputSlice/selectors'
+import { tradeInput } from '@/state/slices/tradeInputSlice/tradeInputSlice'
 import { useAppDispatch, useAppSelector } from '@/state/store'
 import { breakpoints } from '@/theme/theme'
 
@@ -235,6 +240,45 @@ export const TopAssetsCarousel = () => {
     [dispatch],
   )
 
+  const handleRowClick = useCallback(
+    (asset: Asset) => {
+      const mixpanel = getMixPanel()
+      vibrate('heavy')
+
+      mixpanel?.track(MixPanelEvent.HighlightedTokenClicked, {
+        assetId: asset.assetId,
+        asset: asset.symbol,
+        name: asset.name,
+        category: selectedCategory,
+        chainId: selectedChainId,
+        order: selectedOrder,
+        sort: selectedSort,
+      })
+
+      dispatch(tradeInput.actions.setBuyAsset(asset))
+    },
+    [dispatch, selectedCategory, selectedChainId, selectedOrder, selectedSort],
+  )
+
+  const popularAssetsCards = useMemo(() => {
+    return popularAssets.map(asset => (
+      <motion.div
+        key={asset.assetId}
+        className='embla__slide'
+        style={{
+          minWidth: 0,
+          flex: '0 0 auto',
+          maxWidth: `${MAX_CARD_WIDTH - 8}px`,
+          position: 'relative',
+          paddingLeft: '0.5rem',
+        }}
+        variants={cardVariants}
+      >
+        <TopAssetCard asset={asset} onClick={handleRowClick} />
+      </motion.div>
+    ))
+  }, [popularAssets, handleRowClick])
+
   const categoryLabel = useMemo(() => {
     return selectedCategory === MarketsCategories.OneClickDefi
       ? translate(`markets.categories.${selectedCategory}.filterTitle`)
@@ -314,22 +358,7 @@ export const TopAssetsCarousel = () => {
               initial='hidden'
               animate={isVisible ? 'visible' : 'hidden'}
             >
-              {popularAssets.map(asset => (
-                <motion.div
-                  key={asset.assetId}
-                  className='embla__slide'
-                  style={{
-                    minWidth: 0,
-                    flex: '0 0 auto',
-                    maxWidth: `${MAX_CARD_WIDTH - 8}px`,
-                    position: 'relative',
-                    paddingLeft: '0.5rem',
-                  }}
-                  variants={cardVariants}
-                >
-                  <TopAssetCard asset={asset} />
-                </motion.div>
-              ))}
+              {popularAssetsCards}
             </motion.div>
           </Box>
         </Box>

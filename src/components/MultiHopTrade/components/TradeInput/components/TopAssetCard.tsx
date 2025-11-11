@@ -6,10 +6,8 @@ import { TbCircleArrowDownRightFilled, TbCircleArrowUpRightFilled } from 'react-
 
 import { Amount } from '@/components/Amount/Amount'
 import { AssetIcon } from '@/components/AssetIcon'
-import { vibrate } from '@/lib/vibrate'
 import { selectMarketDataByAssetIdUserCurrency } from '@/state/slices/selectors'
-import { tradeInput } from '@/state/slices/tradeInputSlice/tradeInputSlice'
-import { useAppDispatch, useAppSelector } from '@/state/store'
+import { useAppSelector } from '@/state/store'
 
 const hoverProps = {
   bg: 'background.surface.raised.hover',
@@ -17,10 +15,10 @@ const hoverProps = {
 
 type TopAssetCardProps = {
   asset: Asset
+  onClick: (asset: Asset) => void
 }
 
-export const TopAssetCard = ({ asset }: TopAssetCardProps) => {
-  const dispatch = useAppDispatch()
+export const TopAssetCard = ({ asset, onClick }: TopAssetCardProps) => {
   const textColor = useColorModeValue('black', 'white')
 
   const marketData = useAppSelector(state =>
@@ -28,21 +26,20 @@ export const TopAssetCard = ({ asset }: TopAssetCardProps) => {
   )
   const changePercent24Hr = marketData?.changePercent24Hr
 
-  const handleClick = useCallback(() => {
-    vibrate('heavy')
-    dispatch(tradeInput.actions.setBuyAsset(asset))
-  }, [asset, dispatch])
-
   const isPositive = bnOrZero(changePercent24Hr).gt(0)
+
+  const handleClick = useCallback(() => {
+    onClick(asset)
+  }, [asset, onClick])
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
       if (e.key === 'Enter' || e.key === ' ') {
         e.preventDefault()
-        handleClick()
+        onClick(asset)
       }
     },
-    [handleClick],
+    [asset, onClick],
   )
 
   return (

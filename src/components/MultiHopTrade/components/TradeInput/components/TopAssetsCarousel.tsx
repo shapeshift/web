@@ -32,7 +32,6 @@ import { RawText, Text } from '@/components/Text'
 import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from '@/lib/mixpanel/types'
 import { isSome } from '@/lib/utils'
-import { vibrate } from '@/lib/vibrate'
 import { MarketsCategories, sortOptionsByCategory } from '@/pages/Markets/constants'
 import { CATEGORY_TO_QUERY_HOOK } from '@/pages/Markets/hooks/useCoingeckoData'
 import { usePortalsAssetsQuery } from '@/pages/Markets/hooks/usePortalsAssetsQuery'
@@ -52,7 +51,6 @@ const settingsIcon = <TbAdjustmentsHorizontal />
 const checkedIcon = <Icon as={CheckIcon} color='blue.200' fontSize='20px' />
 const menuButtonHoverProps = { bg: 'background.surface.raised.hover' }
 
-// Static animation variants - defined outside component for performance
 const containerVariants = {
   hidden: { opacity: 0 },
   visible: {
@@ -199,7 +197,6 @@ export const TopAssetsCarousel = () => {
         ? isPortalsAssetsLoading
         : isCategoryQueryDataLoading
 
-    // Don't return assets if we're still loading or if we don't have data yet
     if (isLoading) return []
 
     return selectedCategory === MarketsCategories.OneClickDefi ? oneClickDefiAssets : categoryAssets
@@ -257,8 +254,6 @@ export const TopAssetsCarousel = () => {
   const handleRowClick = useCallback(
     (asset: Asset) => {
       const mixpanel = getMixPanel()
-      vibrate('heavy')
-
       mixpanel?.track(MixPanelEvent.HighlightedTokenClicked, {
         assetId: asset.assetId,
         asset: asset.symbol,
@@ -338,7 +333,6 @@ export const TopAssetsCarousel = () => {
     setIsVisible(true)
   }, [])
 
-  // Reset visibility when filters change to trigger animation
   useEffect(() => {
     if (popularAssets.length === 0) {
       setIsVisible(false)
@@ -350,7 +344,6 @@ export const TopAssetsCarousel = () => {
   useEffect(() => {
     if (!emblaApi || !shouldShow || popularAssets.length === 0) return
 
-    // Use requestAnimationFrame to ensure DOM is updated before re-initializing
     const timeoutId = requestAnimationFrame(() => {
       emblaApi.reInit()
     })

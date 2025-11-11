@@ -15,6 +15,7 @@ export type CarouselProps = {
   autoPlay?: boolean
   isVisible?: boolean
   slideSize?: string
+  gap?: string
   renderHeader?: (arg: CarouselHeaderProps) => JSX.Element
 }
 

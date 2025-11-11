@@ -138,13 +138,13 @@ export const TopAssetsCarousel = () => {
     [selectedCategory],
   )
 
-  const { data: categoryQueryData } = categoryHook({
+  const { data: categoryQueryData, isLoading: isCategoryQueryDataLoading } = categoryHook({
     enabled: selectedCategory !== MarketsCategories.OneClickDefi,
     orderBy: selectedOrder,
     sortBy: selectedSort,
   })
 
-  const { data: portalsAssets } = usePortalsAssetsQuery({
+  const { data: portalsAssets, isLoading: isPortalsAssetsLoading } = usePortalsAssetsQuery({
     chainIds:
       selectedChainId === 'all'
         ? rows[selectedCategory].supportedChainIds ?? []
@@ -194,8 +194,22 @@ export const TopAssetsCarousel = () => {
   }, [selectedCategory, categoryQueryData, selectedChainId, assetsById])
 
   const popularAssets = useMemo(() => {
+    const isLoading =
+      selectedCategory === MarketsCategories.OneClickDefi
+        ? isPortalsAssetsLoading
+        : isCategoryQueryDataLoading
+
+    // Don't return assets if we're still loading or if we don't have data yet
+    if (isLoading) return []
+
     return selectedCategory === MarketsCategories.OneClickDefi ? oneClickDefiAssets : categoryAssets
-  }, [oneClickDefiAssets, categoryAssets, selectedCategory])
+  }, [
+    oneClickDefiAssets,
+    categoryAssets,
+    selectedCategory,
+    isPortalsAssetsLoading,
+    isCategoryQueryDataLoading,
+  ])
 
   const handleCategoryChange = useCallback(
     (category: MarketsCategories) => {
@@ -324,12 +338,29 @@ export const TopAssetsCarousel = () => {
     setIsVisible(true)
   }, [])
 
+  // Reset visibility when filters change to trigger animation
   useEffect(() => {
-    if (!emblaApi || !shouldShow) return
-    emblaApi.reInit()
+    if (popularAssets.length === 0) {
+      setIsVisible(false)
+    } else {
+      setIsVisible(true)
+    }
+  }, [popularAssets.length, selectedCategory, selectedSort, selectedOrder, selectedChainId])
+
+  useEffect(() => {
+    if (!emblaApi || !shouldShow || popularAssets.length === 0) return
+
+    // Use requestAnimationFrame to ensure DOM is updated before re-initializing
+    const timeoutId = requestAnimationFrame(() => {
+      emblaApi.reInit()
+    })
+
+    return () => {
+      cancelAnimationFrame(timeoutId)
+    }
   }, [emblaApi, popularAssets, shouldShow])
 
-  if (!shouldShow) return null
+  if (!shouldShow || popularAssets.length === 0) return null
 
   return (
     <Box position='fixed' bottom={0} left={0} right={0} zIndex={1000} width='100%'>
@@ -347,6 +378,7 @@ export const TopAssetsCarousel = () => {
             width='100%'
           >
             <motion.div
+              key={`carousel-${selectedCategory}-${selectedSort}-${selectedOrder}-${selectedChainId}-${popularAssets.length}`}
               className='embla__container'
               style={{
                 display: 'flex',
@@ -356,7 +388,7 @@ export const TopAssetsCarousel = () => {
               }}
               variants={containerVariants}
               initial='hidden'
-              animate={isVisible ? 'visible' : 'hidden'}
+              animate={isVisible && popularAssets.length > 0 ? 'visible' : 'hidden'}
             >
               {popularAssetsCards}
             </motion.div>

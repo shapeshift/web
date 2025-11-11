@@ -4,32 +4,12 @@ import AutoHeight from 'embla-carousel-auto-height'
 import Autoplay from 'embla-carousel-autoplay'
 import useEmblaCarousel from 'embla-carousel-react'
 import type { MouseEvent } from 'react'
-import {
-  Children,
-  createContext,
-  useCallback,
-  useContext,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react'
+import { Children, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 
 import { Arrow } from './Arrow'
 import { DotButton } from './DotButton'
 import type { CarouselProps } from './types'
-
-type CarouselContextType = {
-  clickAllowed: () => boolean
-}
-
-const CarouselContext = createContext<CarouselContextType | null>(null)
-
-export const useCarouselContext = () => {
-  const context = useContext(CarouselContext)
-  return context
-}
 
 export const Carousel = ({
   children,
@@ -38,7 +18,6 @@ export const Carousel = ({
   options = { loop: true, skipSnaps: false },
   slideSize = '100%',
   autoPlay,
-  gap = '1rem',
   renderHeader,
 }: CarouselProps) => {
   const translate = useTranslate()
@@ -85,10 +64,6 @@ export const Carousel = ({
     onSelect()
     setScrollSnaps(embla.scrollSnapList())
     embla.on('select', onSelect)
-
-    return () => {
-      embla.off('select', onSelect)
-    }
   }, [embla, setScrollSnaps, onSelect])
 
   useEffect(() => {
@@ -111,13 +86,6 @@ export const Carousel = ({
     setIsVisible(true)
   }, [])
 
-  const carouselContextValue = useMemo<CarouselContextType>(
-    () => ({
-      clickAllowed: () => (embla ? embla.clickAllowed() : true),
-    }),
-    [embla],
-  )
-
   const renderSlides = useMemo(() => {
     return childrens.map((child, i) => (
       <Box
@@ -126,13 +94,13 @@ export const Carousel = ({
         minWidth={0}
         key={i}
         flex={`0 0 ${slideSize}`}
-        paddingLeft={gap}
+        paddingLeft='1rem'
         onClick={handleSlideClick}
       >
         {child}
       </Box>
     ))
-  }, [childrens, handleSlideClick, slideSize, gap])
+  }, [childrens, handleSlideClick, slideSize])
 
   const Controls = useMemo(() => {
     return (
@@ -156,65 +124,63 @@ export const Carousel = ({
   }, [nextBtnEnabled, prevBtnEnabled, scrollNext, scrollPrev, translate])
 
   return (
-    <CarouselContext.Provider value={carouselContextValue}>
-      <Flex flexDir='column' gap={4}>
-        {renderHeader && <Flex>{renderHeader({ controls: Controls })}</Flex>}
-        <Box className='embla'>
-          <Box className='embla__viewport' ref={isVisible ? viewportRef : null} overflow='hidden'>
-            <Box
-              className='embla__container'
-              display='flex'
-              alignItems='flex-start'
-              transition='height 0.2s'
-              height='auto'
-              marginLeft={`calc(${gap} * -1)`}
-            >
-              {renderSlides}
-            </Box>
+    <Flex flexDir='column' gap={4}>
+      {renderHeader && <Flex>{renderHeader({ controls: Controls })}</Flex>}
+      <Box className='embla'>
+        <Box className='embla__viewport' ref={isVisible ? viewportRef : null} overflow='hidden'>
+          <Box
+            className='embla__container'
+            display='flex'
+            alignItems='flex-start'
+            transition='height 0.2s'
+            height='auto'
+            marginLeft='calc(1rem * -1)'
+          >
+            {renderSlides}
           </Box>
-          {(showDots || showArrows) && (
-            <Flex justifyContent='space-between' alignItems='center' mt={2} width='full'>
-              {showArrows && (
-                <Arrow
-                  aria-label={translate('common.carousel.prev')}
-                  isDisabled={!prevBtnEnabled}
-                  onClick={scrollPrev}
-                >
-                  <ArrowBackIcon />
-                </Arrow>
-              )}
-              {showDots && (
-                <Flex
-                  className='embla__dots'
-                  gap={2}
-                  justifyContent='center'
-                  mx='auto'
-                  minHeight='10px'
-                >
-                  {scrollSnaps.map((_, index) => (
-                    <DotButton
-                      key={index}
-                      selected={index === selectedIndex}
-                      // we need to pass an arg here, so we need an anonymous function wrapper
-                      // eslint-disable-next-line react-memo/require-usememo
-                      onClick={() => scrollTo(index)}
-                    />
-                  ))}
-                </Flex>
-              )}
-              {showArrows && (
-                <Arrow
-                  aria-label={translate('common.carousel.next')}
-                  isDisabled={!nextBtnEnabled}
-                  onClick={scrollNext}
-                >
-                  <ArrowForwardIcon />
-                </Arrow>
-              )}
-            </Flex>
-          )}
         </Box>
-      </Flex>
-    </CarouselContext.Provider>
+        {(showDots || showArrows) && (
+          <Flex justifyContent='space-between' alignItems='center' mt={2} width='full'>
+            {showArrows && (
+              <Arrow
+                aria-label={translate('common.carousel.prev')}
+                isDisabled={!prevBtnEnabled}
+                onClick={scrollPrev}
+              >
+                <ArrowBackIcon />
+              </Arrow>
+            )}
+            {showDots && (
+              <Flex
+                className='embla__dots'
+                gap={2}
+                justifyContent='center'
+                mx='auto'
+                minHeight='10px'
+              >
+                {scrollSnaps.map((_, index) => (
+                  <DotButton
+                    key={index}
+                    selected={index === selectedIndex}
+                    // we need to pass an arg here, so we need an anonymous function wrapper
+                    // eslint-disable-next-line react-memo/require-usememo
+                    onClick={() => scrollTo(index)}
+                  />
+                ))}
+              </Flex>
+            )}
+            {showArrows && (
+              <Arrow
+                aria-label={translate('common.carousel.next')}
+                isDisabled={!nextBtnEnabled}
+                onClick={scrollNext}
+              >
+                <ArrowForwardIcon />
+              </Arrow>
+            )}
+          </Flex>
+        )}
+      </Box>
+    </Flex>
   )
 }

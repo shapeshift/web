@@ -224,6 +224,9 @@ export const TopAssetsCarousel = () => {
         case MarketsCategories.MarketCap:
           dispatch(preferences.actions.setHighlightedTokensSelectedSort(SortOptionsKeys.MarketCap))
           break
+        case MarketsCategories.TradingVolume:
+          dispatch(preferences.actions.setHighlightedTokensSelectedSort(SortOptionsKeys.Volume))
+          break
         case MarketsCategories.RecentlyAdded:
           dispatch(preferences.actions.setHighlightedTokensSelectedSort(SortOptionsKeys.MarketCap))
           break

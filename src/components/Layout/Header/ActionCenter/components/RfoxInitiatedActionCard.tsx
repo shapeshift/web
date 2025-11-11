@@ -11,7 +11,7 @@ import { ActionStatusTag } from './ActionStatusTag'
 
 import { AssetIconWithBadge } from '@/components/AssetIconWithBadge'
 import { getTxLink } from '@/lib/getTxLink'
-import { firstFourLastFour } from '@/lib/utils'
+import { middleEllipsis } from '@/lib/utils'
 import type { GenericTransactionAction } from '@/state/slices/actionSlice/types'
 import { ActionType } from '@/state/slices/actionSlice/types'
 import { selectAssetById, selectFeeAssetByChainId } from '@/state/slices/assetsSlice/selectors'
@@ -91,7 +91,7 @@ export const RfoxInitiatedActionCard = ({ action }: RfoxInitiatedActionCardProps
         ...action.transactionMetadata,
         amount: action.transactionMetadata.amountCryptoPrecision,
         symbol: asset?.symbol,
-        newAddress: firstFourLastFour(action.transactionMetadata.newAddress ?? ''),
+        newAddress: middleEllipsis(action.transactionMetadata.newAddress ?? ''),
       })}
       icon={icon}
       footer={footer}
@@ -105,7 +105,7 @@ export const RfoxInitiatedActionCard = ({ action }: RfoxInitiatedActionCardProps
                 {translate(isUnstake ? 'RFOX.unstakeInitiated' : 'RFOX.stakeInitiated')}
               </Text>
               <Link href={txLink} isExternal color='blue.300' fontSize='sm' fontWeight='medium'>
-                {firstFourLastFour(action.transactionMetadata.txHash)}
+                {middleEllipsis(action.transactionMetadata.txHash)}
               </Link>
             </Stack>
 

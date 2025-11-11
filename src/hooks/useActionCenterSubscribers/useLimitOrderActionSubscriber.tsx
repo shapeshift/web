@@ -171,6 +171,7 @@ export const useLimitOrderActionSubscriber = () => {
         dispatch(actionSlice.actions.upsertAction(updatedAction))
 
         toast({
+          id: updatedAction.limitOrderMetadata.limitOrderId,
           render: ({ onClose, ...props }) => {
             const handleClick = () => {
               onClose()
@@ -242,6 +243,8 @@ export const useLimitOrderActionSubscriber = () => {
 
         dispatch(actionSlice.actions.upsertAction(updatedAction))
 
+        if (toast.isActive(order.order.uid)) return
+
         toast({
           render: props => (
             <LimitOrderNotification
@@ -279,6 +282,8 @@ export const useLimitOrderActionSubscriber = () => {
 
         dispatch(actionSlice.actions.upsertAction(updatedAction))
 
+        if (toast.isActive(order.order.uid)) return
+
         toast({
           render: props => (
             <LimitOrderNotification
@@ -303,6 +308,8 @@ export const useLimitOrderActionSubscriber = () => {
 
         dispatch(actionSlice.actions.upsertAction(updatedAction))
 
+        if (toast.isActive(order.order.uid)) return
+
         // @TODO: replace title by the notification UI product prepared
         toast({
           render: props => (
@@ -324,6 +331,8 @@ export const useLimitOrderActionSubscriber = () => {
         }
 
         dispatch(actionSlice.actions.upsertAction(updatedAction))
+
+        if (toast.isActive(order.order.uid)) return
 
         // @TODO: replace title by the notification UI product prepared
         toast({

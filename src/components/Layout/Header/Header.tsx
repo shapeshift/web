@@ -1,4 +1,4 @@
-import { Box, Button, Divider, Flex, HStack, useMediaQuery } from '@chakra-ui/react'
+import { Box, Divider, Flex, HStack, useMediaQuery } from '@chakra-ui/react'
 import { useScroll } from 'framer-motion'
 import { lazy, memo, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import {
@@ -11,9 +11,8 @@ import {
   TbRefresh,
   TbStack,
 } from 'react-icons/tb'
-import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
-import { useLocation, useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 import { ActionCenter } from './ActionCenter/ActionCenter'
 import { DegradedStateBanner } from './DegradedStateBanner'
@@ -40,8 +39,6 @@ const WalletConnectToDappsHeaderButton = lazy(() =>
   ),
 )
 
-const buttonHoverSx = { bg: 'background.surface.elevated' }
-const buttonActiveSx = { bg: 'transparent' }
 const displayProp2 = { base: 'none', md: 'block' }
 const paddingTopProp = {
   base: 'calc(env(safe-area-inset-top) + var(--safe-area-inset-top))',
@@ -76,12 +73,10 @@ const earnSubMenuItems = [
 ]
 
 export const Header = memo(() => {
-  const translate = useTranslate()
   const isDegradedState = useSelector(selectPortfolioDegradedState)
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`)
 
   const navigate = useNavigate()
-  const location = useLocation()
   const {
     state: { isConnected, walletInfo },
   } = useWallet()
@@ -119,31 +114,6 @@ export const Header = memo(() => {
   const { degradedChainIds } = useDiscoverAccounts()
 
   const hasWallet = Boolean(walletInfo?.deviceId)
-
-  const handleWalletMouseDown = useCallback((e: React.MouseEvent) => {
-    if (e.button === 1) {
-      // Middle-click
-      e.preventDefault()
-      window.open('#/wallet', '_blank')
-    }
-  }, [])
-
-  const handleWalletClick = useCallback(
-    (e: React.MouseEvent) => {
-      if (e.ctrlKey || e.metaKey) {
-        // Ctrl/Cmd+click
-        e.preventDefault()
-        window.open('#/wallet', '_blank')
-      } else {
-        navigate('/wallet')
-      }
-    },
-    [navigate],
-  )
-
-  const isWalletActive = useMemo(() => {
-    return location.pathname.startsWith('/wallet')
-  }, [location.pathname])
 
   /**
    * FOR DEVELOPERS:
@@ -189,21 +159,6 @@ export const Header = memo(() => {
           <HStack spacing={leftHStackSpacingSx} flex='1' minW={0}>
             <ShapeShiftMenu />
             <HStack spacing={navHStackSpacingSx} display={navHStackDisplaySx}>
-              <Button
-                variant='ghost'
-                fontWeight='medium'
-                onClick={handleWalletClick}
-                onMouseDown={handleWalletMouseDown}
-                px={3}
-                py={2}
-                borderRadius='md'
-                _hover={buttonHoverSx}
-                _active={buttonActiveSx}
-                fontSize='md'
-                color={isWalletActive ? 'text.base' : 'text.subtle'}
-              >
-                {translate('common.wallet')}
-              </Button>
               <NavigationDropdown
                 label='common.trade'
                 items={tradeSubMenuItems}

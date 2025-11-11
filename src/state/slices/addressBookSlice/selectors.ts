@@ -1,20 +1,19 @@
 import { CHAIN_NAMESPACE, fromAccountId, fromChainId } from '@shapeshiftoss/caip'
 import { matchSorter } from 'match-sorter'
-import { createSelector } from 'reselect'
 
 import { addressBookSlice } from './addressBookSlice'
 
-import { findUtxoAccountIdByAddress } from '@/lib/utils/accounts'
+import { findUtxoAccountIdByAddress } from '@/lib/utils/account/utxo'
 import { createDeepEqualOutputSelector } from '@/state/selector-utils'
 import {
   selectAccountAddressParamFromFilter,
   selectChainIdParamFromFilter,
   selectSearchQueryFromFilter,
 } from '@/state/selectors'
-import { selectAccountIdsWithoutEvms, selectEvmAccountIds } from '@/state/slices/common-selectors'
+import { selectPartitionedAccountIds } from '@/state/slices/common-selectors'
 
-export const selectAddressBookEntries = createSelector(
-  [addressBookSlice.selectors.selectEntriesByAccountId],
+export const selectAddressBookEntries = createDeepEqualOutputSelector(
+  addressBookSlice.selectors.selectEntriesByAccountId,
   byAccountId => Object.values(byAccountId),
 )
 
@@ -24,7 +23,20 @@ export const selectAddressBookEntriesByChainId = createDeepEqualOutputSelector(
   (chainId, entries) => {
     if (!chainId) return []
 
-    return entries.filter(entry => entry.chainId === chainId)
+    const { chainNamespace } = fromChainId(chainId)
+
+    return entries.filter(entry => {
+      const { chainId: entryChainId } = fromAccountId(entry.accountId)
+      const { chainNamespace: entryChainNamespace } = fromChainId(entryChainId)
+
+      // For EVM chains, return all EVM entries (cross-chain matching)
+      if (chainNamespace === CHAIN_NAMESPACE.Evm && entryChainNamespace === CHAIN_NAMESPACE.Evm) {
+        return true
+      }
+
+      // For non-EVM chains, exact chain match only
+      return entryChainId === chainId
+    })
   },
 )
 
@@ -37,7 +49,7 @@ export const selectAddressBookEntriesBySearchQuery = createDeepEqualOutputSelect
 
     const matchedEntries = matchSorter(entries, searchQuery, {
       keys: [
-        { key: 'label', threshold: matchSorter.rankings.MATCHES },
+        { key: 'label', threshold: matchSorter.rankings.CONTAINS },
         { key: 'address', threshold: matchSorter.rankings.CONTAINS },
       ],
     })
@@ -60,10 +72,11 @@ export const selectIsAddressInAddressBook = createDeepEqualOutputSelector(
     const normalizedAddress = accountAddress.toLowerCase()
     const { chainNamespace } = fromChainId(chainId)
 
-    // For EVM chains, check if address exists in any EVM entry
+    // For EVM chains, check if address exists in any entry
     if (chainNamespace === CHAIN_NAMESPACE.Evm) {
       return entries.some(entry => {
-        const entryChainNamespace = fromChainId(entry.chainId).chainNamespace
+        const { chainId: entryChainId } = fromAccountId(entry.accountId)
+        const entryChainNamespace = fromChainId(entryChainId).chainNamespace
         return (
           entry.isExternal &&
           entryChainNamespace === CHAIN_NAMESPACE.Evm &&
@@ -73,12 +86,14 @@ export const selectIsAddressInAddressBook = createDeepEqualOutputSelector(
     }
 
     // For non-EVM chains, check for exact chain + address match
-    return entries.some(
-      entry =>
+    return entries.some(entry => {
+      const { chainId: entryChainId } = fromAccountId(entry.accountId)
+      return (
         entry.isExternal &&
-        entry.chainId === chainId &&
-        entry.address.toLowerCase() === normalizedAddress,
-    )
+        entryChainId === chainId &&
+        entry.address.toLowerCase() === normalizedAddress
+      )
+    })
   },
 )
 
@@ -91,9 +106,8 @@ export const selectIsAddressInAddressBook = createDeepEqualOutputSelector(
 export const selectInternalAccountIdByAddress = createDeepEqualOutputSelector(
   selectAccountAddressParamFromFilter,
   selectChainIdParamFromFilter,
-  selectAccountIdsWithoutEvms,
-  selectEvmAccountIds,
-  (accountAddress, chainId, accountIdsWithoutEvms, evmAccountIds) => {
+  selectPartitionedAccountIds,
+  (accountAddress, chainId, { evmAccountIds, nonEvmAccountIds }) => {
     if (!accountAddress || !chainId) return null
 
     const normalizedAddress = accountAddress.toLowerCase()
@@ -101,29 +115,25 @@ export const selectInternalAccountIdByAddress = createDeepEqualOutputSelector(
 
     // For EVM chains, find first matching EVM account
     if (chainNamespace === CHAIN_NAMESPACE.Evm) {
-      const accountId = evmAccountIds.find(accountId => {
-        const { account, chainId: accountChainId } = fromAccountId(accountId)
-        const accountChainNamespace = fromChainId(accountChainId).chainNamespace
-
-        return (
-          accountChainNamespace === CHAIN_NAMESPACE.Evm &&
-          account.toLowerCase() === normalizedAddress
-        )
+      const accountId = evmAccountIds.find(evmAccountId => {
+        const { account } = fromAccountId(evmAccountId)
+        return account.toLowerCase() === normalizedAddress
       })
 
       return accountId ?? null
     }
 
-    // For UTXO chains, use progressive address derivation to find matches
-    // This intelligently searches in batches (20, 50, 100) to handle edge cases
-    // where users have many transactions and the address is beyond the standard gap limit
     if (chainNamespace === CHAIN_NAMESPACE.Utxo) {
-      return findUtxoAccountIdByAddress(accountAddress, accountIdsWithoutEvms, chainId)
+      return findUtxoAccountIdByAddress({
+        address: accountAddress,
+        accountIds: nonEvmAccountIds,
+        chainId,
+      })
     }
 
-    // For other non-EVM and non-UTXO chains, find exact chainId + address match
-    const accountId = accountIdsWithoutEvms.find(accountId => {
-      const { account, chainId: accountChainId } = fromAccountId(accountId)
+    // For non-EVM chains, find exact chainId + address match
+    const accountId = nonEvmAccountIds.find(nonEvmAccountId => {
+      const { account, chainId: accountChainId } = fromAccountId(nonEvmAccountId)
       return accountChainId === chainId && account.toLowerCase() === normalizedAddress
     })
     return accountId ?? null

@@ -1,4 +1,4 @@
-import { CHAIN_NAMESPACE, fromChainId, toAccountId } from '@shapeshiftoss/caip'
+import { CHAIN_NAMESPACE, fromAccountId, fromChainId } from '@shapeshiftoss/caip'
 
 import type { AddressBookEntry } from '@/state/slices/addressBookSlice/types'
 
@@ -7,22 +7,23 @@ export const isDuplicateEntry = (
   newEntry: AddressBookEntry,
 ): boolean => {
   if (newEntry.isInternal) {
-    const newKey = toAccountId({ chainId: newEntry.chainId, account: newEntry.address })
-    return newKey in entries
+    return newEntry.accountId in entries
   }
 
   if (!newEntry.isExternal) {
     throw new Error('Invalid entry type')
   }
 
-  const { chainNamespace } = fromChainId(newEntry.chainId)
+  const { chainId } = fromAccountId(newEntry.accountId)
+  const { chainNamespace } = fromChainId(chainId)
   const normalizedAddress = newEntry.address.toLowerCase()
 
   // For EVM chains, check if this address exists on ANY EVM chain
   if (chainNamespace === CHAIN_NAMESPACE.Evm) {
     return Object.values(entries).some(entry => {
       if (!entry.isExternal) return false
-      const entryChainNamespace = fromChainId(entry.chainId).chainNamespace
+      const { chainId: entryChainId } = fromAccountId(entry.accountId)
+      const entryChainNamespace = fromChainId(entryChainId).chainNamespace
 
       return (
         entryChainNamespace === CHAIN_NAMESPACE.Evm &&
@@ -32,6 +33,5 @@ export const isDuplicateEntry = (
   }
 
   // For non-EVM chains, use exact key match
-  const newKey = toAccountId({ chainId: newEntry.chainId, account: newEntry.address })
-  return newKey in entries
+  return newEntry.accountId in entries
 }

@@ -91,6 +91,8 @@ interface ImportMetaEnv {
   readonly VITE_MTPELERIN_SELL_URL: string
   readonly VITE_MTPELERIN_REFERRAL_CODE: string
   readonly VITE_MTPELERIN_INTEGRATION_KEY: string
+  readonly VITE_BANXA_API_URL: string
+  readonly VITE_BANXA_API_KEY: string
   readonly VITE_ONRAMPER_WIDGET_URL: string
   readonly VITE_ONRAMPER_API_URL: string
   readonly VITE_ONRAMPER_API_KEY: string

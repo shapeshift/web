@@ -48,7 +48,6 @@ const qrCodeSx = {
 
 export const Address = () => {
   const [isValidating, setIsValidating] = useState(false)
-  const [showSaveButton, setShowSaveButton] = useState(false)
   const navigate = useNavigate()
   const translate = useTranslate()
   const {
@@ -105,14 +104,9 @@ export const Address = () => {
   const supportsENS = asset?.chainId === ethChainId // We only support ENS resolution on ETH mainnet
   const addressError = get(errors, `${SendFormFields.Input}.message`, null)
 
-  useEffect(() => {
-    setShowSaveButton(
-      Boolean(
-        (!isInAddressBook || internalAccountId) &&
-          !!address &&
-          !addressError &&
-          isAddressBookEnabled,
-      ),
+  const showSaveButton = useMemo(() => {
+    return Boolean(
+      !isInAddressBook && !internalAccountId && !!address && !addressError && isAddressBookEnabled,
     )
   }, [isInAddressBook, address, addressError, isAddressBookEnabled, internalAccountId])
 

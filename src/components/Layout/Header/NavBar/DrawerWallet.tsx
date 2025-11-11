@@ -280,7 +280,7 @@ const DrawerWalletInner: FC = memo(() => {
                           )}
                         </TabPanel>
                         <TabPanel px={2} py={4}>
-                          {loadedTabs.has(2) && <WatchlistTable forceCompactView />}
+                          {loadedTabs.has(2) && <WatchlistTable />}
                         </TabPanel>
                         <TabPanel px={2} py={4}>
                           {loadedTabs.has(3) && <DeFiEarn forceCompactView />}

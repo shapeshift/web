@@ -158,10 +158,9 @@ export const Confirm = ({ handleSubmit }: ConfirmProps) => {
       return accountIdToLabel(internalAccountId)
     }
 
-    // Fallback to "Account" if accountNumber is not available yet
-    return accountNumber !== undefined
-      ? translate('accounts.accountNumber', { accountNumber })
-      : translate('common.account')
+    if (accountNumber === undefined) return
+
+    return translate('accounts.accountNumber', { accountNumber })
   }, [internalAccountId, accountNumber, translate])
 
   const displayDestinationContent = useMemo(() => {
@@ -421,7 +420,7 @@ export const Confirm = ({ handleSubmit }: ConfirmProps) => {
             <Row.Value display='flex' alignItems='center'>
               <InlineCopyButton
                 isDisabled={!accountId || isUtxoAccountId(accountId)}
-                value={fromAccountId(accountId ?? '').account}
+                value={accountId ? fromAccountId(accountId).account : ''}
               >
                 <AccountDropdown
                   onChange={handleAccountChange}

@@ -1,5 +1,4 @@
-import { ArrowBackIcon } from '@chakra-ui/icons'
-import { Alert, AlertIcon, Box, Button, Flex, IconButton } from '@chakra-ui/react'
+import { Alert, AlertIcon, Box, Button, Flex } from '@chakra-ui/react'
 import type {
   Html5QrcodeError,
   Html5QrcodeResult,
@@ -10,6 +9,7 @@ import { Html5QrcodeErrorTypes } from 'html5-qrcode/cjs/core'
 import { useCallback, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 
+import { DialogBackButton } from '../Modal/components/DialogBackButton'
 import { QrCodeReader } from './QrCodeReader'
 
 import { DialogBody } from '@/components/Modal/components/DialogBody'
@@ -33,8 +33,6 @@ const boxStyle = {
   borderRadius: '1rem',
 }
 const qrBoxStyle = { width: 250, height: 250 }
-
-const arrowBackIcon = <ArrowBackIcon />
 
 export const QrCodeScanner = ({
   onSuccess,
@@ -79,15 +77,7 @@ export const QrCodeScanner = ({
     <SlideTransition>
       <DialogHeader>
         <DialogHeader.Left>
-          <IconButton
-            variant='ghost'
-            icon={arrowBackIcon}
-            aria-label={translate('common.back')}
-            fontSize='xl'
-            size='sm'
-            isRound
-            onClick={onBack}
-          />
+          <DialogBackButton onClick={onBack} />
         </DialogHeader.Left>
         <DialogHeader.Middle>
           <DialogTitle>{translate('modals.send.scanQrCode')}</DialogTitle>

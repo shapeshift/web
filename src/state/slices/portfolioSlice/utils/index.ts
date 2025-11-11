@@ -70,7 +70,7 @@ import {
   getMoralisNftAccount,
 } from '@/lib/moralis'
 import { fetchPortalsAccount, fetchPortalsPlatforms, maybeTokenImage } from '@/lib/portals/utils'
-import { assertUnreachable, firstFourLastFour } from '@/lib/utils'
+import { assertUnreachable, middleEllipsis } from '@/lib/utils'
 import { isSpammyNftText, isSpammyTokenText } from '@/state/blacklist'
 import type { ReduxState } from '@/state/reducer'
 import type { UpsertAssetsPayload } from '@/state/slices/assetsSlice/assetsSlice'
@@ -93,7 +93,7 @@ export const accountIdToLabel = (accountId: AccountId): string => {
     case mayachainChainId:
     case cosmosChainId:
     case solanaChainId:
-      return firstFourLastFour(pubkey)
+      return middleEllipsis(pubkey)
     case btcChainId:
       // TODO(0xdef1cafe): translations
       if (pubkey.startsWith('xpub')) return 'Legacy'

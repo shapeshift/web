@@ -1,6 +1,5 @@
 import { Box, HStack, Icon, Text as CText, useDisclosure, VStack } from '@chakra-ui/react'
 import type { ChainId } from '@shapeshiftoss/caip'
-import { toAccountId } from '@shapeshiftoss/caip'
 import { useCallback, useMemo, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
 import { FaRegAddressBook } from 'react-icons/fa'
@@ -11,6 +10,7 @@ import { SendFormFields } from '../SendCommon'
 import { AddressBookEntryButton } from '@/components/Modals/Send/AddressBook/AddressBookEntryButton'
 import { ConfirmDelete } from '@/components/Modals/Send/AddressBook/ConfirmDelete'
 import { InternalAccountsList } from '@/components/Modals/Send/AddressBook/InternalAccountsList'
+import type { SendInput } from '@/components/Modals/Send/Form'
 import { Text } from '@/components/Text'
 import { makeBlockiesUrl } from '@/lib/blockies/makeBlockiesUrl'
 import { addressBookSlice } from '@/state/slices/addressBookSlice/addressBookSlice'
@@ -42,7 +42,7 @@ export const AddressBook = ({
   const {
     control,
     formState: { errors },
-  } = useFormContext()
+  } = useFormContext<SendInput>()
   const { isOpen, onClose, onOpen } = useDisclosure()
   const [selectedDeleteEntry, setSelectedDeleteEntry] = useState<AddressBookEntry | null>(null)
 
@@ -51,7 +51,7 @@ export const AddressBook = ({
   const input = useWatch({
     control,
     name: SendFormFields.Input,
-  }) as string
+  })
 
   const addressBookEntriesFilter = useMemo(() => ({ chainId }), [chainId])
   const addressBookEntries = useAppSelector(state =>
@@ -108,15 +108,13 @@ export const AddressBook = ({
       return <Text translation={emptyMessage} size='xs' mx={2} color='text.subtle' />
 
     return entries?.map(entry => {
-      const entryKey = toAccountId({ chainId: entry.chainId, account: entry.address })
-
       return (
         <AddressBookEntryButton
-          key={entryKey}
+          key={entry.accountId}
           avatarUrl={entryAvatars?.[entry.address] ?? ''}
           label={entry.label}
           address={entry.address}
-          entryKey={entryKey}
+          entryKey={entry.accountId}
           onSelect={onEntryClick}
           onDelete={handleDeleteConfirm(entry)}
         />

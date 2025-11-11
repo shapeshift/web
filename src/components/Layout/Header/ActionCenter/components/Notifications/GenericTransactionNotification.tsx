@@ -7,7 +7,7 @@ import { Amount } from '@/components/Amount/Amount'
 import { Text } from '@/components/Text'
 import type { TextPropTypes } from '@/components/Text/Text'
 import { StandardToast } from '@/components/Toast/StandardToast'
-import { firstFourLastFour } from '@/lib/utils'
+import { middleEllipsis } from '@/lib/utils'
 import {
   selectAssetById,
   selectWalletGenericTransactionActionsSorted,
@@ -55,14 +55,19 @@ export const GenericTransactionNotification = ({
 
   const translationArgs = useMemo(() => {
     if (!action || !asset) return undefined
+    // Destructure to exclude non-serializable fields from the spread
+    const { confirmedQuote: _confirmedQuote, ...serializableMetadata } = action.transactionMetadata
     return [
       action.transactionMetadata.message,
       {
-        amount: action.transactionMetadata.amountCryptoPrecision,
-        symbol: asset.symbol,
-        newAddress: firstFourLastFour(action.transactionMetadata.newAddress ?? ''),
+        // Spread all serializable metadata fields first to ensure all values are available for interpolation
+        ...serializableMetadata,
+        // Then override with computed/transformed values
+        amount: action.transactionMetadata.amountCryptoPrecision, // Map to 'amount' for translation strings
+        symbol: asset.symbol, // Symbol comes from asset, not metadata
+        newAddress: middleEllipsis(action.transactionMetadata.newAddress ?? ''), // Formatted version
       },
-    ] as [string, Record<string, string | number>]
+    ] as [string, Record<string, string | number | undefined>]
   }, [action, asset])
 
   const title = useMemo(() => {

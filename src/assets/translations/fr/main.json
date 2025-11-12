@@ -2331,7 +2331,7 @@
     },
     "claimPending": "Réclamation de %{amount} %{symbol}...",
     "claimStatus": {
-      "pendingSubtitle": "Nous traitons votre réclamation de %{amount} TCY",
+      "pendingSubtitle": "Nous traitons votre réclamation de %{amount} %{symbol}",
       "goBack": "Retour",
       "successTitle": "La réclamation est acceptée",
       "successSubtitle": "Vous avez réclamé %{amount} TCY avec succès",

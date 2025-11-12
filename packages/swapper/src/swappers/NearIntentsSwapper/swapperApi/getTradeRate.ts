@@ -79,41 +79,28 @@ export const getTradeRate = async (
     const { chainNamespace } = fromAssetId(sellAsset.assetId)
     const depositAddress = quote.depositAddress
 
-    console.log('[NEAR Intents Rate] Calculating fees:', {
-      chainNamespace,
-      hasSendAddress: !!sendAddress,
-      depositAddress,
-      sellAssetId: sellAsset.assetId,
-    })
-
     const getFeeData = async (): Promise<string | undefined> => {
       switch (chainNamespace) {
         case CHAIN_NAMESPACE.Evm: {
-          const sellAdapter = deps.assertGetEvmChainAdapter(sellAsset.chainId)
-          const contractAddress = contractAddressOrUndefined(sellAsset.assetId)
-          const data = evm.getErc20Data(depositAddress, sellAmount, contractAddress)
+          try {
+            const sellAdapter = deps.assertGetEvmChainAdapter(sellAsset.chainId)
+            const contractAddress = contractAddressOrUndefined(sellAsset.assetId)
+            const data = evm.getErc20Data(depositAddress, sellAmount, contractAddress)
 
-          console.log('[NEAR Intents Rate] EVM fee params:', {
-            to: contractAddress ?? depositAddress,
-            value: isNativeEvmAsset(sellAsset.assetId) ? sellAmount : '0',
-            from: sendAddress || depositAddress,
-            contractAddress,
-            hasData: !!data,
-          })
-
-          // For rates without wallet, sendAddress might be undefined
-          const feeData = await sellAdapter.getFeeData({
-            to: contractAddress ?? depositAddress,
-            value: isNativeEvmAsset(sellAsset.assetId) ? sellAmount : '0',
-            chainSpecific: {
-              from: sendAddress || depositAddress,
-              contractAddress,
-              data: data || '0x',
-            },
-            sendMax: false,
-          })
-          console.log('[NEAR Intents Rate] EVM fee calculated:', feeData.fast.txFee)
-          return feeData.fast.txFee
+            const feeData = await sellAdapter.getFeeData({
+              to: contractAddress ?? depositAddress,
+              value: isNativeEvmAsset(sellAsset.assetId) ? sellAmount : '0',
+              chainSpecific: {
+                from: sendAddress || depositAddress,
+                contractAddress,
+                data: data || '0x',
+              },
+              sendMax: false,
+            })
+            return feeData.fast.txFee
+          } catch (error) {
+            return '0'
+          }
         }
 
         case CHAIN_NAMESPACE.Utxo: {
@@ -134,37 +121,40 @@ export const getTradeRate = async (
         }
 
         case CHAIN_NAMESPACE.Solana: {
-          const sellAdapter = deps.assertGetSolanaChainAdapter(sellAsset.chainId)
-          const tokenId = isToken(sellAsset.assetId)
-            ? fromAssetId(sellAsset.assetId).assetReference
-            : undefined
+          try {
+            const sellAdapter = deps.assertGetSolanaChainAdapter(sellAsset.chainId)
+            const tokenId = isToken(sellAsset.assetId)
+              ? fromAssetId(sellAsset.assetId).assetReference
+              : undefined
 
-          // For rates without wallet, sendAddress might be undefined
-          if (!sendAddress) {
-            return undefined
-          }
+            if (!sendAddress) {
+              return '0'
+            }
 
-          const instructions = await sellAdapter.buildEstimationInstructions({
-            from: sendAddress,
-            to: depositAddress,
-            tokenId,
-            value: sellAmount,
-          })
-
-          const feeData = await sellAdapter.getFeeData({
-            to: depositAddress,
-            value: sellAmount,
-            chainSpecific: {
+            const instructions = await sellAdapter.buildEstimationInstructions({
               from: sendAddress,
+              to: depositAddress,
               tokenId,
-              instructions,
-            },
-            sendMax: false,
-          })
+              value: sellAmount,
+            })
 
-          const txFee = feeData.fast.txFee
-          const ataCreationCost = calculateAccountCreationCosts(instructions)
-          return bn(txFee).plus(ataCreationCost).toString()
+            const feeData = await sellAdapter.getFeeData({
+              to: depositAddress,
+              value: sellAmount,
+              chainSpecific: {
+                from: sendAddress,
+                tokenId,
+                instructions,
+              },
+              sendMax: false,
+            })
+
+            const txFee = feeData.fast.txFee
+            const ataCreationCost = calculateAccountCreationCosts(instructions)
+            return bn(txFee).plus(ataCreationCost).toString()
+          } catch (error) {
+            return '0'
+          }
         }
 
         default:
@@ -172,14 +162,7 @@ export const getTradeRate = async (
       }
     }
 
-    let networkFeeCryptoBaseUnit: string
-    try {
-      networkFeeCryptoBaseUnit = (await getFeeData()) || '0'
-      console.log('[NEAR Intents Rate] Final fee:', networkFeeCryptoBaseUnit)
-    } catch (error) {
-      console.error('[NEAR Intents Rate] Fee estimation failed:', error)
-      throw error
-    }
+    const networkFeeCryptoBaseUnit = (await getFeeData()) || '0'
 
     const tradeRate: TradeRate = {
       id: uuid(),

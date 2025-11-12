@@ -87,6 +87,11 @@ export const selectPartitionedAccountIds = createDeepEqualOutputSelector(
   },
 )
 
+export const selectAccountIdsWithoutEvms = createDeepEqualOutputSelector(
+  selectEnabledWalletAccountIds,
+  accountIds => accountIds.filter(accountId => !isEvmChainId(fromAccountId(accountId).chainId)),
+)
+
 export const selectWalletConnectedChainIds = createDeepEqualOutputSelector(
   selectEnabledWalletAccountIds,
   accountIds => {

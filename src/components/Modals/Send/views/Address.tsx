@@ -244,6 +244,7 @@ export const Address = () => {
           )}
         </VStack>
       </DialogBody>
+
       <DialogFooter pt={2}>
         <Stack flex={1}>
           <Button

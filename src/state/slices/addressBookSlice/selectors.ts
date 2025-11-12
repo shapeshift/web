@@ -3,6 +3,7 @@ import { matchSorter } from 'match-sorter'
 
 import { addressBookSlice } from './addressBookSlice'
 
+import { findUtxoAccountIdByAddress } from '@/lib/utils/account/utxo'
 import { createDeepEqualOutputSelector } from '@/state/selector-utils'
 import {
   selectAccountAddressParamFromFilter,
@@ -99,6 +100,7 @@ export const selectIsAddressInAddressBook = createDeepEqualOutputSelector(
 /**
  * Checks if a given address belongs to one of the user's connected accounts
  * Handles EVM namespace matching (same address across all EVM chains)
+ * For UTXO accounts, uses cached addresses from unchained
  * Returns the AccountId if found, null otherwise
  */
 export const selectInternalAccountIdByAddress = createDeepEqualOutputSelector(
@@ -119,6 +121,14 @@ export const selectInternalAccountIdByAddress = createDeepEqualOutputSelector(
       })
 
       return accountId ?? null
+    }
+
+    if (chainNamespace === CHAIN_NAMESPACE.Utxo) {
+      return findUtxoAccountIdByAddress({
+        address: accountAddress,
+        accountIds: nonEvmAccountIds,
+        chainId,
+      })
     }
 
     // For non-EVM chains, find exact chainId + address match

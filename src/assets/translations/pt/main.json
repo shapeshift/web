@@ -20,7 +20,9 @@
     "closed": "Fechado",
     "loadMore": "Carregar mais",
     "volumeShort": "VOL",
+    "save": "Salvar",
     "saveChanges": "Salvar Mudanças",
+    "delete": "Deletar",
     "new": "Novo",
     "continue": "Continuar",
     "approve": "Aprovar",
@@ -309,7 +311,9 @@
     "availableProviders": "Soluções disponíveis",
     "noProvidersAvailable": "Nenhuma solução disponível",
     "noProvidersBody": "Parece que ainda não temos nenhuma solução para esse ativo.",
-    "notSupported": "%{asset} não é suportado pela %{wallet}"
+    "notSupported": "%{asset} não é suportado pela %{wallet}",
+    "previewPurchase": "Compra Anterior",
+    "previewSale": "Venda Anterior"
   },
   "connectWalletPage": {
     "shapeshift": "ShapeShift",
@@ -1093,9 +1097,17 @@
       "toAddressOrEns": "Para Endereço ou ENS",
       "scanQrCode": "Digitalizar código QR",
       "qrCode": "QR Code",
+      "addressBook": "Lista de Endereços",
+      "noEntries": "Nenhum endereço encontrado",
+      "addNewAddress": "Adicionar Novo Endereço",
       "addAddress": {
+        "nameRequired": "Nome é necessário",
+        "namePlaceholder": "Nome",
+        "title": "Adicionar Endereço"
       },
       "confirmDelete": {
+        "title": "Deletar Endereço",
+        "message": "Tem certeza de que deseja excluir %{name} da sua lista de endereços?"
       },
       "permissionsButton": "Tente novamente",
       "sent": "enviado %{asset}",
@@ -1105,7 +1117,8 @@
         "notEnoughNativeToken": "Não há %{asset} suficiente para efetivar taxas na rede",
         "transactionRejected": "O usuário rejeitou a transação",
         "qrPermissions": "Esse recurso precisa de permissões de acesso à câmera para funcionar. Por favor, altere as configurações do seu navegador.",
-        "qrDangerousEthUrl": "Códigos QR contendo endereços de contratos não são suportados. Cole o endereço de destino manualmente."
+        "qrDangerousEthUrl": "Códigos QR contendo endereços de contratos não são suportados. Cole o endereço de destino manualmente.",
+        "noAccountsOnChain": "Nenhuma conta na %{chain}"
       },
       "confirm": {
         "customNonce": "Nonce customizável",
@@ -1124,8 +1137,12 @@
         "average": "Médio",
         "fast": "Rápido",
         "enterAmount": "Insira o valor",
+        "scanQrCode": "Escaneie o QR Code",
         "scanQrCodeDescription": "Aperte para escanear um endereço",
-        "yourAddresses": "Seus Endereços"
+        "yourAddresses": "Seus Endereços",
+        "to": "Para",
+        "from": "De",
+        "availableBalance": "%{balance} disponível"
       },
       "status": {
         "pendingBody": "Enviando %{amount} %{symbol}"
@@ -1636,7 +1653,11 @@
       "create": "Criar",
       "or": "ou",
       "import": "Importar",
-      "aWallet": "uma carteira"
+      "aWallet": "uma carteira",
+      "viewAllWallets": "Ver todas as carteiras",
+      "ctaText": "Não encontrou sua carteira?",
+      "ctaSubtext": "Conecte-se a mais de 480 carteiras",
+      "multiChainWallets": "Carteiras Multi-Chain"
     },
     "create": {
       "header": "Dê um nome à sua carteira",
@@ -1902,6 +1923,8 @@
           "description": "Nenhuma conta %{chainLabel} conectada a este dApp."
         },
         "sessionAuth": {
+          "invalidRequest": "Solicitação de autenticação inválida",
+          "formatError": "Mensagem de autenticação com erro de formatação"
         }
       }
     }
@@ -2306,6 +2329,7 @@
       "hasClaimsTitle": "Você tem resgate de TCY disponíveis!",
       "button": "Verificar Resgates"
     },
+    "claimPending": "Resgatando %{amount} %{symbol}...",
     "claimStatus": {
       "pendingSubtitle": "Estamos processando sua solicitação de %{amount} %{symbol}",
       "goBack": "Volte",
@@ -2456,6 +2480,7 @@
         "processing": "Seu saque de %{assetAmountsAndSymbols} do pool %{poolName} está sendo processado."
       },
       "deposit": {
+        "processing": "Seu depósito de %{amount} %{symbol} na pool %{poolName} está sendo processado."
       }
     },
     "deposit": {
@@ -2503,6 +2528,8 @@
       "claimTxComplete": "Seu resgate de TCY %{amount} %{symbol} foi completado."
     },
     "approve": {
+      "approvalTxPending": "Aprovando %{contractName} para usar %{amount} %{symbol}.",
+      "approvalTxComplete": "Aprovado %{contractName} para usar %{amount} %{symbol}."
     },
     "pendingTransactions": "%{count} Pendente",
     "rewardDistribution": {

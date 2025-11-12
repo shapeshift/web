@@ -3,6 +3,7 @@ import {
   Avatar,
   Box,
   Button,
+  Text as CText,
   Divider,
   Flex,
   HStack,
@@ -11,7 +12,6 @@ import {
   Link,
   Skeleton,
   Stack,
-  Text as CText,
   Tooltip,
   useColorModeValue,
 } from '@chakra-ui/react'
@@ -172,7 +172,7 @@ export const Confirm = ({ handleSubmit }: ConfirmProps) => {
           </CText>
           <InlineCopyButton value={to ?? ''}>
             <MiddleEllipsis
-              value={to ?? ''}
+              value={to?.replace('bitcoincash:', '') ?? ''}
               fontSize='sm'
               color='text.subtle'
               fontWeight='normal'
@@ -190,7 +190,7 @@ export const Confirm = ({ handleSubmit }: ConfirmProps) => {
           </CText>
           <InlineCopyButton value={to ?? ''}>
             <MiddleEllipsis
-              value={to ?? ''}
+              value={to?.replace('bitcoincash:', '') ?? ''}
               fontSize='sm'
               color='text.subtle'
               fontWeight='normal'
@@ -208,7 +208,7 @@ export const Confirm = ({ handleSubmit }: ConfirmProps) => {
           </CText>
           <InlineCopyButton value={to ?? ''}>
             <MiddleEllipsis
-              value={to ?? ''}
+              value={to?.replace('bitcoincash:', '') ?? ''}
               fontSize='sm'
               color='text.subtle'
               fontWeight='normal'

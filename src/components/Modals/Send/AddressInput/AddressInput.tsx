@@ -3,6 +3,7 @@ import {
   Avatar,
   Box,
   Button,
+  Text as CText,
   Flex,
   HStack,
   IconButton,
@@ -10,7 +11,6 @@ import {
   InputGroup,
   InputLeftElement,
   InputRightElement,
-  Text as CText,
   Text,
   VStack,
 } from '@chakra-ui/react'
@@ -215,7 +215,11 @@ export const AddressInput = ({
               {vanityAddress}
             </CText>
             {resolvedAddress && (
-              <MiddleEllipsis fontSize='xs' color='text.subtle' value={resolvedAddress} />
+              <MiddleEllipsis
+                fontSize='xs'
+                color='text.subtle'
+                value={resolvedAddress.replace('bitcoincash:', '')}
+              />
             )}
           </VStack>
         </HStack>
@@ -294,7 +298,7 @@ export const AddressInput = ({
                   <MiddleEllipsis
                     fontSize='xs'
                     color='text.subtle'
-                    value={addressBookEntry.address}
+                    value={addressBookEntry.address.replace('bitcoincash:', '')}
                   />
                 </VStack>
               </HStack>
@@ -328,7 +332,11 @@ export const AddressInput = ({
                     {`${internalAccountLabel}${vanityAddress ? ` (${vanityAddress})` : ''}`}
                   </CText>
                   {resolvedAddress && (
-                    <MiddleEllipsis fontSize='xs' color='text.subtle' value={resolvedAddress} />
+                    <MiddleEllipsis
+                      fontSize='xs'
+                      color='text.subtle'
+                      value={resolvedAddress.replace('bitcoincash:', '')}
+                    />
                   )}
                 </VStack>
               </HStack>

@@ -2,7 +2,7 @@ import { evm } from '@shapeshiftoss/chain-adapters'
 import type { EvmChainId } from '@shapeshiftoss/types'
 import { contractAddressOrUndefined } from '@shapeshiftoss/utils'
 
-import type { SwapperApi, TradeStatus } from '../../types'
+import type { SwapperApi, TradeStatus, UtxoFeeData } from '../../types'
 import {
   createDefaultStatusResponse,
   getExecutableTradeStep,
@@ -105,11 +105,11 @@ export const nearIntentsApi: SwapperApi = {
 
     const { sellAsset, accountNumber, nearIntentsSpecific, feeData } = step
     if (!nearIntentsSpecific) throw new Error('nearIntentsSpecific is required')
+    if (!xpub) throw new Error('xpub is required for UTXO transactions')
 
     const adapter = assertGetUtxoChainAdapter(sellAsset.chainId)
 
-    const satoshiPerByte =
-      (feeData.chainSpecific as { satsPerByte: string } | undefined)?.satsPerByte ?? '0'
+    const satoshiPerByte = (feeData.chainSpecific as UtxoFeeData | undefined)?.satsPerByte ?? '0'
 
     return adapter.buildSendApiTransaction({
       accountNumber,

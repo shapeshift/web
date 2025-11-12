@@ -5,7 +5,13 @@ import { Err, Ok } from '@sniptt/monads'
 import { v4 as uuid } from 'uuid'
 
 import { getDefaultSlippageDecimalPercentageForSwapper } from '../../../constants'
-import type { CommonTradeQuoteInput, SwapErrorRight, SwapperDeps, TradeQuote } from '../../../types'
+import type {
+  CommonTradeQuoteInput,
+  GetUtxoTradeQuoteInput,
+  SwapErrorRight,
+  SwapperDeps,
+  TradeQuote,
+} from '../../../types'
 import { SwapperName, TradeQuoteError } from '../../../types'
 import { makeSwapErrorRight } from '../../../utils'
 import { DEFAULT_QUOTE_DEADLINE_MS, DEFAULT_SLIPPAGE_BPS } from '../constants'
@@ -114,16 +120,18 @@ export const getTradeQuote = async (
 
         case CHAIN_NAMESPACE.Utxo: {
           const sellAdapter = deps.assertGetUtxoChainAdapter(sellAsset.chainId)
-          const xpub = 'xpub' in input ? input.xpub : undefined
+          const pubkey = (input as GetUtxoTradeQuoteInput).xpub
 
-          if (!xpub) {
-            throw new Error('xpub is required for UTXO fee estimation')
+          if (!pubkey) {
+            return {
+              networkFeeCryptoBaseUnit: undefined,
+            }
           }
 
           const feeData = await sellAdapter.getFeeData({
             to: depositAddress,
             value: sellAmount,
-            chainSpecific: { pubkey: xpub },
+            chainSpecific: { pubkey },
             sendMax: false,
           })
           return {

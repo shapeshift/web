@@ -44,6 +44,7 @@ import { csp as mixPanel } from './mixPanel'
 import { csp as moralis } from './moralis'
 import { csp as foxPage } from './plugins/foxPage'
 import { csp as walletConnectToDapps } from './plugins/walletConnectToDapps'
+import { csp as railway } from './railway'
 import { csp as relay } from './relay'
 import { csp as sentry } from './sentry'
 import { csp as shapeshiftGateway } from './shapeshiftGateway'
@@ -115,5 +116,6 @@ export const csps = [
   walletConnect,
   walletMigration,
   relay,
+  railway,
   discord,
 ]

@@ -91,6 +91,7 @@ export type FeatureFlags = {
   QuickBuy: boolean
   NewWalletManager: boolean
   SwapperFiatRamps: boolean
+  Webservices: boolean
 }
 
 export type Flag = keyof FeatureFlags
@@ -215,6 +216,7 @@ const initialState: Preferences = {
     QuickBuy: getConfig().VITE_FEATURE_QUICK_BUY,
     NewWalletManager: getConfig().VITE_FEATURE_NEW_WALLET_MANAGER,
     SwapperFiatRamps: getConfig().VITE_FEATURE_SWAPPER_FIAT_RAMPS,
+    Webservices: getConfig().VITE_FEATURE_WEBSERVICES,
   },
   selectedLocale: simpleLocale(),
   hasWalletSeenTcyClaimAlert: {},

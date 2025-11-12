@@ -164,34 +164,38 @@ export class TradeExecution {
 
       store.dispatch(swapSlice.actions.upsertSwap(updatedSwap))
 
-      const enabledAccountIds = selectWalletEnabledAccountIds(store.getState())
-      const userData = queryClient.getQueryData<{ id: string }>(['user', enabledAccountIds])
+      const isWebservicesEnabled = getConfig().VITE_FEATURE_WEBSERVICES
 
-      queryClient.fetchQuery({
-        queryKey: ['createSwap', swap.id],
-        queryFn: () => {
-          return axios.post(`${import.meta.env.VITE_SWAPS_SERVER_URL}/swaps`, {
-            swapId: swap.id,
-            sellTxHash,
-            userId: userData?.id,
-            sellAsset: updatedSwap.sellAsset,
-            buyAsset: updatedSwap.buyAsset,
-            sellAmountCryptoBaseUnit: updatedSwap.sellAmountCryptoBaseUnit,
-            expectedBuyAmountCryptoBaseUnit: updatedSwap.expectedBuyAmountCryptoBaseUnit,
-            sellAmountCryptoPrecision: updatedSwap.sellAmountCryptoPrecision,
-            expectedBuyAmountCryptoPrecision: updatedSwap.expectedBuyAmountCryptoPrecision,
-            source: updatedSwap.source,
-            swapperName: updatedSwap.swapperName,
-            sellAccountId: accountId,
-            buyAccountId: accountId,
-            receiveAddress: updatedSwap.receiveAddress,
-            isStreaming: updatedSwap.isStreaming,
-            metadata: updatedSwap.metadata,
-          })
-        },
-        staleTime: 0,
-        gcTime: 0,
-      })
+      if (isWebservicesEnabled) {
+        const enabledAccountIds = selectWalletEnabledAccountIds(store.getState())
+        const userData = queryClient.getQueryData<{ id: string }>(['user', enabledAccountIds])
+
+        queryClient.fetchQuery({
+          queryKey: ['createSwap', swap.id],
+          queryFn: () => {
+            return axios.post(`${import.meta.env.VITE_SWAPS_SERVER_URL}/swaps`, {
+              swapId: swap.id,
+              sellTxHash,
+              userId: userData?.id,
+              sellAsset: updatedSwap.sellAsset,
+              buyAsset: updatedSwap.buyAsset,
+              sellAmountCryptoBaseUnit: updatedSwap.sellAmountCryptoBaseUnit,
+              expectedBuyAmountCryptoBaseUnit: updatedSwap.expectedBuyAmountCryptoBaseUnit,
+              sellAmountCryptoPrecision: updatedSwap.sellAmountCryptoPrecision,
+              expectedBuyAmountCryptoPrecision: updatedSwap.expectedBuyAmountCryptoPrecision,
+              source: updatedSwap.source,
+              swapperName: updatedSwap.swapperName,
+              sellAccountId: accountId,
+              buyAccountId: accountId,
+              receiveAddress: updatedSwap.receiveAddress,
+              isStreaming: updatedSwap.isStreaming,
+              metadata: updatedSwap.metadata,
+            })
+          },
+          staleTime: 0,
+          gcTime: 0,
+        })
+      }
 
       const { cancelPolling } = poll({
         fn: async () => {

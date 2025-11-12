@@ -3,6 +3,7 @@ import { useMemo } from 'react'
 import { v4 as uuidv4 } from 'uuid'
 
 import { getExpoToken } from '@/context/WalletProvider/MobileWallet/mobileMessageHandlers'
+import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { isMobile } from '@/lib/globals'
 import { getOrCreateUser, registerDevice } from '@/lib/user/api'
 import type { User } from '@/lib/user/types'
@@ -23,6 +24,7 @@ type UseUserReturn = {
 
 export const useUser = (): UseUserReturn => {
   const walletEnabledAccountIds = useAppSelector(selectWalletEnabledAccountIds)
+  const isWebservicesEnabled = useFeatureFlag('Webservices')
 
   const {
     data: mobileExpoToken,
@@ -31,7 +33,7 @@ export const useUser = (): UseUserReturn => {
   } = useQuery({
     queryKey: ['expoToken'],
     queryFn: getExpoToken,
-    enabled: isMobile,
+    enabled: isMobile && isWebservicesEnabled,
     gcTime: Infinity,
     staleTime: Infinity,
   })
@@ -44,7 +46,7 @@ export const useUser = (): UseUserReturn => {
   } = useQuery({
     queryKey: ['user', walletEnabledAccountIds],
     queryFn: () => getOrCreateUser({ accountIds: walletEnabledAccountIds }),
-    enabled: walletEnabledAccountIds.length > 0,
+    enabled: walletEnabledAccountIds.length > 0 && isWebservicesEnabled,
     staleTime: Infinity,
     gcTime: Infinity,
   })
@@ -83,7 +85,7 @@ export const useUser = (): UseUserReturn => {
         expoToken: isMobile ? mobileExpoToken : null,
       }
     },
-    enabled: !!userData && (!isMobile || !isLoadingExpoToken),
+    enabled: !!userData && (!isMobile || !isLoadingExpoToken) && isWebservicesEnabled,
     staleTime: Infinity,
     gcTime: Infinity,
   })

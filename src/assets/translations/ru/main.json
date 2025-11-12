@@ -20,7 +20,9 @@
     "closed": "Закрытый",
     "loadMore": "Загрузить еще",
     "volumeShort": "VOL",
+    "save": "Сохранить",
     "saveChanges": "Сохранить изменения",
+    "delete": "Удалить",
     "new": "Новое",
     "continue": "Продолжить",
     "approve": "Подтвердить",
@@ -309,7 +311,9 @@
     "availableProviders": "Доступные провайдеры",
     "noProvidersAvailable": "Провайдеры отсутствуют",
     "noProvidersBody": "Похоже, у нас пока нет провайдеров для этого актива.",
-    "notSupported": "%{asset} не поддерживается %{wallet}"
+    "notSupported": "%{asset} не поддерживается %{wallet}",
+    "previewPurchase": "Предварительный просмотр Покупки",
+    "previewSale": "Предварительный просмотр продажи"
   },
   "connectWalletPage": {
     "shapeshift": "ShapeShift",
@@ -1093,9 +1097,17 @@
       "toAddressOrEns": "На адрес или ENS",
       "scanQrCode": "Отсканировать QR код",
       "qrCode": "QR Code",
+      "addressBook": "Адресная книга",
+      "noEntries": "Адрес не найден.",
+      "addNewAddress": "Добавить новый адрес",
       "addAddress": {
+        "nameRequired": "Имя обязательно",
+        "namePlaceholder": "Имя",
+        "title": "Добавить адрес"
       },
       "confirmDelete": {
+        "title": "Удалить адрес",
+        "message": "Вы уверены, что хотите удалить %{name} из своей адресной книги?"
       },
       "permissionsButton": "Попробуйте еще раз",
       "sent": "%{asset} отправлено",
@@ -1105,7 +1117,8 @@
         "notEnoughNativeToken": "Недостаточно %{asset} для покрытия оплаты газа",
         "transactionRejected": " Пользователь отклонил транзакцию",
         "qrPermissions": "Для работы этой функции необходимы разрешения на доступ к камере. Пожалуйста, измените настройки браузера.",
-        "qrDangerousEthUrl": "QR-коды, содержащие адрес контракта, не поддерживаются. Пожалуйста, вставьте адрес назначения вручную."
+        "qrDangerousEthUrl": "QR-коды, содержащие адрес контракта, не поддерживаются. Пожалуйста, вставьте адрес назначения вручную.",
+        "noAccountsOnChain": "Нет учетных записей на %{chain}"
       },
       "confirm": {
         "customNonce": "Пользовательский Nonce",
@@ -1124,8 +1137,12 @@
         "average": "Средняя",
         "fast": "Быстро",
         "enterAmount": "Введите сумму",
+        "scanQrCode": "Сканировать QR-код",
         "scanQrCodeDescription": "Нажмите, чтобы отсканировать адрес",
-        "yourAddresses": "Ваши адреса"
+        "yourAddresses": "Ваши адреса",
+        "to": "К",
+        "from": "От",
+        "availableBalance": "%{balance} доступно"
       },
       "status": {
         "pendingBody": "Отправка %{amount} %{symbol}"
@@ -1636,7 +1653,11 @@
       "create": "Создать",
       "or": "или",
       "import": "Импортировать",
-      "aWallet": "кошелек"
+      "aWallet": "кошелек",
+      "viewAllWallets": "Посмотреть все кошельки",
+      "ctaText": "Не видите свой кошелек?",
+      "ctaSubtext": "Подключение к более чем 480 кошелькам",
+      "multiChainWallets": "Мультичейн-кошельки"
     },
     "create": {
       "header": "Дайте имя своему кошельку",
@@ -1902,6 +1923,8 @@
           "description": "К этому dApp не подключена учетная запись %{chainLabel}."
         },
         "sessionAuth": {
+          "invalidRequest": "Недопустимый запрос аутентификации",
+          "formatError": "Ошибка форматирования сообщения аутентификации"
         }
       }
     }
@@ -2306,6 +2329,7 @@
       "hasClaimsTitle": "Вам доступнен клейм TCY!",
       "button": "Проверьте претензии"
     },
+    "claimPending": "Запрос %{amount} %{symbol}...",
     "claimStatus": {
       "pendingSubtitle": "Мы обрабатываем ваше заявление на %{amount} %{symbol}",
       "goBack": "Вернуться",
@@ -2456,6 +2480,7 @@
         "processing": "Ваш вывод %{assetAmountsAndSymbols} из пула %{poolName} находится в процессе обработки."
       },
       "deposit": {
+        "processing": "Ваш депозит в размере %{amount} %{symbol} в пул %{poolName} обрабатывается."
       }
     },
     "deposit": {
@@ -2503,6 +2528,8 @@
       "claimTxComplete": "Ваше требование TCY в размере %{amount} %{symbol} выполнено."
     },
     "approve": {
+      "approvalTxPending": "Подтверждаю использование %{amount} %{symbol} для %{contractName}.",
+      "approvalTxComplete": "Одобрено использование %{contractName} для %{amount} %{symbol}."
     },
     "pendingTransactions": "%{count} В ожидании",
     "rewardDistribution": {

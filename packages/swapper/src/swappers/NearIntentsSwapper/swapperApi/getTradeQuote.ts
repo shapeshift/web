@@ -14,7 +14,8 @@ import type {
   TradeQuote,
 } from '../../../types'
 import { SwapperName, TradeQuoteError } from '../../../types'
-import { isNativeEvmAsset, makeSwapErrorRight } from '../../../utils'
+import { makeSwapErrorRight } from '../../../utils'
+import { isNativeEvmAsset } from '../../utils/helpers/helpers'
 import { DEFAULT_QUOTE_DEADLINE_MS, DEFAULT_SLIPPAGE_BPS } from '../constants'
 import type { QuoteResponse } from '../types'
 import { QuoteRequest } from '../types'

@@ -56,15 +56,6 @@ export const getTradeQuote = async (
     )
   }
 
-  if (sendAddress === undefined) {
-    return Err(
-      makeSwapErrorRight({
-        message: `sendAddress is required`,
-        code: TradeQuoteError.UnknownError,
-      }),
-    )
-  }
-
   const from = sendAddress
 
   try {

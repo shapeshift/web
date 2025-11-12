@@ -11,7 +11,7 @@ import { DeviceType } from '@/lib/user/types'
 import { selectWalletEnabledAccountIds } from '@/state/slices/common-selectors'
 import { useAppSelector } from '@/state/store'
 
-type UseUserReturn = {
+type UseUserData = {
   user: User | null
   expoToken: string | null | undefined
   isLoadingUser: boolean
@@ -22,7 +22,7 @@ type UseUserReturn = {
   refetchDevice: () => void
 }
 
-export const useUser = (): UseUserReturn => {
+export const useUser = (): UseUserData => {
   const walletEnabledAccountIds = useAppSelector(selectWalletEnabledAccountIds)
   const isWebservicesEnabled = useFeatureFlag('Webservices')
 

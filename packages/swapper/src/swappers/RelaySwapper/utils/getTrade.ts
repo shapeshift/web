@@ -521,15 +521,6 @@ export async function getTrade<T extends 'quote' | 'rate'>({
             },
           )
 
-          console.log('[Relay] Tenderly simulation result:', {
-            success: tenderlySimulation.success,
-            gasUsed: tenderlySimulation.gasUsed.toString(),
-            gasLimit: tenderlySimulation.gasLimit.toString(),
-            relayGasLimit: selectedItem.data.gas,
-            sellAsset: sellAsset.assetId,
-            errorMessage: tenderlySimulation.errorMessage,
-          })
-
           if (tenderlySimulation.success) {
             // Use Tenderly's gas estimate instead of Relay's
             const adapter = deps.assertGetEvmChainAdapter(sellAsset.chainId)
@@ -539,22 +530,6 @@ export async function getTrade<T extends 'quote' | 'rate'>({
               ...fast,
               supportsEIP1559: true,
               gasLimit: tenderlySimulation.gasLimit.toString(),
-            })
-
-            const relayNetworkFee = quote.fees.gas.amount
-
-            console.log('[Relay] Gas estimate comparison:', {
-              tenderlyGasLimit: tenderlySimulation.gasLimit.toString(),
-              relayGasLimit: selectedItem.data.gas,
-              tenderlyNetworkFee,
-              relayNetworkFee,
-              difference: bnOrZero(tenderlyNetworkFee).minus(relayNetworkFee).toString(),
-              percentDiff:
-                bnOrZero(tenderlyNetworkFee)
-                  .minus(relayNetworkFee)
-                  .div(relayNetworkFee)
-                  .times(100)
-                  .toFixed(2) + '%',
             })
 
             return tenderlyNetworkFee

@@ -7,7 +7,7 @@ import { bn, bnOrZero, convertBasisPointsToDecimalPercentage } from '@shapeshift
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import { v4 as uuid } from 'uuid'
-import type { Hex } from 'viem'
+import type { Address, Hex } from 'viem'
 import { zeroAddress } from 'viem'
 
 import { getDefaultSlippageDecimalPercentageForSwapper } from '../../..'
@@ -168,12 +168,12 @@ export async function getPortalsTradeRate(
       {
         chainId: chainIdNumber,
         from: tx.from,
-        to: tx.to, // The contract being called (multicall router)
+        to: tx.to,
         data: tx.data as Hex,
         value: tx.value,
         sellAsset,
         sellAmount: sellAmountIncludingProtocolFeesCryptoBaseUnit,
-        spenderAddress: context.target as Address, // The spender for allowance (allowanceContract)
+        spenderAddress: context.target as Address,
       },
       {
         apiKey: swapperConfig.VITE_TENDERLY_API_KEY,
@@ -181,15 +181,6 @@ export async function getPortalsTradeRate(
         projectSlug: swapperConfig.VITE_TENDERLY_PROJECT_SLUG,
       },
     )
-
-    console.log('[Portals Rate] Tenderly simulation result:', {
-      success: tenderlySimulation.success,
-      gasUsed: tenderlySimulation.gasUsed.toString(),
-      gasLimit: tenderlySimulation.gasLimit.toString(),
-      portalsGasLimit: tx.gasLimit,
-      sellAsset: sellAsset.assetId,
-      errorMessage: tenderlySimulation.errorMessage,
-    })
 
     if (!tenderlySimulation.success) {
       throw new Error(`Tenderly simulation failed: ${tenderlySimulation.errorMessage}`)

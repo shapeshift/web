@@ -8,6 +8,7 @@ import type { Address, Hex } from 'viem'
 
 import { getDefaultSlippageDecimalPercentageForSwapper } from '../../../constants'
 import type {
+  GetEvmTradeQuoteInputBase,
   GetTradeRateInput,
   GetUtxoTradeRateInput,
   SwapErrorRight,
@@ -88,14 +89,12 @@ export const getTradeRate = async (
             const contractAddress = contractAddressOrUndefined(sellAsset.assetId)
             const data = evm.getErc20Data(depositAddress, sellAmount, contractAddress)
 
-            // Use Tenderly simulation with state overrides for accurate gas estimation
-            // This works even when the user lacks sufficient balance
-            const chainIdNumber = Number(fromAssetId(sellAsset.assetId).chainReference)
-
+            console.log({ sendAddress, data })
             const simulationResult = await simulateWithStateOverrides(
               {
-                chainId: chainIdNumber,
-                from: (sendAddress || depositAddress) as Address,
+                chainId: Number(fromAssetId(sellAsset.assetId).chainReference),
+                // vitalik.eth - since we do state overrides anyway, that allows things to work even without a wallet connected
+                from: (sendAddress || '0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045') as Address,
                 to: (contractAddress ?? depositAddress) as Address,
                 data: (data || '0x') as Hex,
                 value: isNativeEvmAsset(sellAsset.assetId) ? sellAmount : '0',
@@ -109,30 +108,23 @@ export const getTradeRate = async (
               },
             )
 
-            if (!simulationResult.success) {
-              return '0'
-            }
-
-            // Calculate network fee using the simulated gas limit
             const sellAdapter = deps.assertGetEvmChainAdapter(sellAsset.chainId)
             const { average } = await sellAdapter.getGasFeeData()
 
             const networkFeeCryptoBaseUnit = evm.calcNetworkFeeCryptoBaseUnit({
               ...average,
-              supportsEIP1559: true,
+              // supportsEIP1559 is false in GetEvmTradeRateInput but that's not necessarily true
+              // it's really like that for discriminated uion purposes, in reality, it *can* be true
+              supportsEIP1559: Boolean(
+                (input as unknown as GetEvmTradeQuoteInputBase).supportsEIP1559,
+              ),
               gasLimit: simulationResult.gasLimit.toString(),
-            })
-
-            console.log('[Near Intents] Gas fee calculation:', {
-              gasLimit: simulationResult.gasLimit.toString(),
-              maxFeePerGas: average.maxFeePerGas,
-              maxPriorityFeePerGas: average.maxPriorityFeePerGas,
-              gasPrice: average.gasPrice,
-              networkFeeCryptoBaseUnit,
             })
 
             return networkFeeCryptoBaseUnit
           } catch (error) {
+            // Worst case scenario, we shouldn't hide the quote, but let it fail with 0 fees at display time
+            console.error(error)
             return '0'
           }
         }

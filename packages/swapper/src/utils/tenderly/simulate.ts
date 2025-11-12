@@ -64,7 +64,6 @@ export async function simulateWithStateOverrides(
       input: data,
       value: value ? toHex(BigInt(value)) : '0x0',
       save: false,
-      save_if_fails: true,
       state_objects: stateOverrides,
     }
 

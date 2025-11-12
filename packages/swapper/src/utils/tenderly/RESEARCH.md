@@ -180,7 +180,6 @@ For broader coverage:
   "gas": 300000,
   "gas_price": "0",
   "save": false,
-  "save_if_fails": true,
   "state_objects": {
     "0xuseraddress": {
       "balance": "0x56BC75E2D63100000",

@@ -20,7 +20,6 @@ export type TenderlySimulationRequest = {
   max_fee_per_gas?: string
   max_priority_fee_per_gas?: string
   save?: boolean
-  save_if_fails?: boolean
   state_objects?: TenderlyStateOverrides
 }
 

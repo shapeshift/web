@@ -74,7 +74,6 @@ POST https://api.tenderly.co/api/v1/account/{accountSlug}/project/{projectSlug}/
   gas: number,                  // High limit for simulation (e.g., 30000000)
   gas_price: string,            // Can be "0" for simulation
   save: boolean,                // false - don't save to dashboard
-  save_if_fails: boolean,       // true - return gas even if reverts
   state_objects: {              // THE KEY PART: State overrides
     [address: string]: {
       balance?: string,         // Override ETH balance (hex)

@@ -1,6 +1,5 @@
 import { evm } from '@shapeshiftoss/chain-adapters'
 import type { EvmChainId } from '@shapeshiftoss/types'
-import { UtxoAccountType } from '@shapeshiftoss/types'
 import { contractAddressOrUndefined } from '@shapeshiftoss/utils'
 
 import type { SwapperApi, TradeStatus } from '../../types'
@@ -93,7 +92,13 @@ export const nearIntentsApi: SwapperApi = {
     return feeData.networkFeeCryptoBaseUnit
   },
 
-  getUnsignedUtxoTransaction: ({ stepIndex, tradeQuote, assertGetUtxoChainAdapter, xpub }) => {
+  getUnsignedUtxoTransaction: ({
+    stepIndex,
+    tradeQuote,
+    assertGetUtxoChainAdapter,
+    xpub,
+    accountType,
+  }) => {
     if (!isExecutableTradeQuote(tradeQuote)) throw new Error('Unable to execute a trade rate quote')
 
     const step = getExecutableTradeStep(tradeQuote, stepIndex)
@@ -113,7 +118,7 @@ export const nearIntentsApi: SwapperApi = {
       sendMax: false,
       chainSpecific: {
         satoshiPerByte,
-        accountType: UtxoAccountType.SegwitNative,
+        accountType,
       },
       xpub,
     })

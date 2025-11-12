@@ -114,10 +114,18 @@ export const getTradeQuote = async (
 
         case CHAIN_NAMESPACE.Utxo: {
           const sellAdapter = deps.assertGetUtxoChainAdapter(sellAsset.chainId)
+          const pubkey = 'xpub' in input ? input.xpub : undefined
+
+          if (!pubkey) {
+            return {
+              networkFeeCryptoBaseUnit: undefined,
+            }
+          }
+
           const feeData = await sellAdapter.getFeeData({
             to: depositAddress,
             value: sellAmount,
-            chainSpecific: { from, pubkey: from },
+            chainSpecific: { pubkey },
             sendMax: false,
           })
           return {

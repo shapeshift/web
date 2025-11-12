@@ -121,6 +121,7 @@ export const getTradeQuote = async (
             },
             sendMax: false,
           })
+
           return { networkFeeCryptoBaseUnit: feeData.fast.txFee }
         }
 

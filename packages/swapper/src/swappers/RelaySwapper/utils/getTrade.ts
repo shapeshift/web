@@ -1,6 +1,6 @@
 import { btcChainId, fromChainId, solanaChainId } from '@shapeshiftoss/caip'
 import type { GetFeeDataInput } from '@shapeshiftoss/chain-adapters'
-import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
+import { evm, isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { UtxoChainId } from '@shapeshiftoss/types'
 import {
   bnOrZero,
@@ -14,6 +14,7 @@ import { Err, Ok } from '@sniptt/monads'
 import type { TransactionInstruction } from '@solana/web3.js'
 import { PublicKey } from '@solana/web3.js'
 import axios from 'axios'
+import type { Address, Hex } from 'viem'
 import { zeroAddress } from 'viem'
 
 import type {
@@ -26,6 +27,7 @@ import type {
 } from '../../../types'
 import { MixPanelEvent, SwapperName, TradeQuoteError } from '../../../types'
 import { getInputOutputRate, makeSwapErrorRight } from '../../../utils'
+import { simulateWithStateOverrides } from '../../../utils/tenderly'
 import { isNativeEvmAsset } from '../../utils/helpers/helpers'
 import type { chainIdToRelayChainId as relayChainMapImplementation } from '../constant'
 import { MAXIMUM_SUPPORTED_RELAY_STEPS, relayErrorCodeToTradeQuoteError } from '../constant'
@@ -493,6 +495,80 @@ export async function getTrade<T extends 'quote' | 'rate'>({
       return feeData.fast.txFee
     }
 
+    // Use Tenderly simulation with state overrides for EVM chains
+    if (isEvmChainId(sellAsset.chainId)) {
+      const firstStep = swapSteps[0]
+      const selectedItem = firstStep?.items?.[0]
+
+      if (selectedItem?.data && isRelayQuoteEvmItemData(selectedItem.data)) {
+        try {
+          const chainIdNumber = Number(fromChainId(sellAsset.chainId).chainReference)
+
+          const tenderlySimulation = await simulateWithStateOverrides(
+            {
+              chainId: chainIdNumber,
+              from: (sendAddress ?? zeroAddress) as Address,
+              to: (selectedItem.data.to ?? '') as Address,
+              data: (selectedItem.data.data ?? '0x') as Hex,
+              value: selectedItem.data.value ?? '0',
+              sellAsset,
+              sellAmount: sellAmountIncludingProtocolFeesCryptoBaseUnit,
+            },
+            {
+              apiKey: deps.config.VITE_TENDERLY_API_KEY,
+              accountSlug: deps.config.VITE_TENDERLY_ACCOUNT_SLUG,
+              projectSlug: deps.config.VITE_TENDERLY_PROJECT_SLUG,
+            },
+          )
+
+          console.log('[Relay] Tenderly simulation result:', {
+            success: tenderlySimulation.success,
+            gasUsed: tenderlySimulation.gasUsed.toString(),
+            gasLimit: tenderlySimulation.gasLimit.toString(),
+            relayGasLimit: selectedItem.data.gas,
+            sellAsset: sellAsset.assetId,
+            errorMessage: tenderlySimulation.errorMessage,
+          })
+
+          if (tenderlySimulation.success) {
+            // Use Tenderly's gas estimate instead of Relay's
+            const adapter = deps.assertGetEvmChainAdapter(sellAsset.chainId)
+            const { fast } = await adapter.getGasFeeData()
+
+            const tenderlyNetworkFee = evm.calcNetworkFeeCryptoBaseUnit({
+              ...fast,
+              supportsEIP1559: true,
+              gasLimit: tenderlySimulation.gasLimit.toString(),
+            })
+
+            const relayNetworkFee = quote.fees.gas.amount
+
+            console.log('[Relay] Gas estimate comparison:', {
+              tenderlyGasLimit: tenderlySimulation.gasLimit.toString(),
+              relayGasLimit: selectedItem.data.gas,
+              tenderlyNetworkFee,
+              relayNetworkFee,
+              difference: bnOrZero(tenderlyNetworkFee).minus(relayNetworkFee).toString(),
+              percentDiff:
+                bnOrZero(tenderlyNetworkFee)
+                  .minus(relayNetworkFee)
+                  .div(relayNetworkFee)
+                  .times(100)
+                  .toFixed(2) + '%',
+            })
+
+            return tenderlyNetworkFee
+          }
+        } catch (error) {
+          console.error('[Relay] Tenderly simulation error:', {
+            error: error instanceof Error ? error.message : 'Unknown error',
+            sellAsset: sellAsset.assetId,
+          })
+        }
+      }
+    }
+
+    // Fallback to Relay's gas amount
     return quote.fees.gas.amount
   })()
 

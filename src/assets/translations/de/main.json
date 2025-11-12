@@ -20,7 +20,9 @@
     "closed": "Abgeschlossen",
     "loadMore": "Mehr laden",
     "volumeShort": "VOL",
+    "save": "Speichern",
     "saveChanges": "Änderungen speichern",
+    "delete": "Löschen",
     "new": "Neu",
     "continue": "Fortsetzen",
     "approve": "Genehmigen",
@@ -309,7 +311,9 @@
     "availableProviders": "Verfügbare Anbieter",
     "noProvidersAvailable": "Keine Anbieter verfügbar",
     "noProvidersBody": "Es sieht so aus, als hätten wir noch keine Anbieter für diesen Vermögenswert.",
-    "notSupported": "%{asset} wird von %{wallet} nicht unterstützt"
+    "notSupported": "%{asset} wird von %{wallet} nicht unterstützt",
+    "previewPurchase": "Kaufvorschau",
+    "previewSale": "Verkaufsvorschau"
   },
   "connectWalletPage": {
     "shapeshift": "ShapeShift",
@@ -1093,9 +1097,17 @@
       "toAddressOrEns": "An Adresse oder ENS",
       "scanQrCode": "QR-Code scannen",
       "qrCode": "QR Code",
+      "addressBook": "Adressbuch",
+      "noEntries": "Keine Adresse gefunden.",
+      "addNewAddress": "Neue Adresse hinzufügen",
       "addAddress": {
+        "nameRequired": "Name erforderlich",
+        "namePlaceholder": "Name",
+        "title": "Adresse hinzufügen"
       },
       "confirmDelete": {
+        "title": "Adresse löschen",
+        "message": "Möchten Sie %{name} wirklich aus Ihrem Adressbuch löschen?"
       },
       "permissionsButton": "Versuchen Sie es nochmal",
       "sent": "%{asset} gesendet",
@@ -1105,7 +1117,8 @@
         "notEnoughNativeToken": "Nicht genug %{asset}, um Gaskosten abzudecken",
         "transactionRejected": "Der Benutzer hat die Transaktion abgelehnt",
         "qrPermissions": "Diese Funktion benötigt Kamerazugriffsberechtigungen, um zu funktionieren. Bitte ändern Sie Ihre Browsereinstellungen.",
-        "qrDangerousEthUrl": "QR-Codes, die eine Vertragsadresse enthalten, werden nicht unterstützt. Bitte fügen Sie die Zieladresse manuell ein."
+        "qrDangerousEthUrl": "QR-Codes, die eine Vertragsadresse enthalten, werden nicht unterstützt. Bitte fügen Sie die Zieladresse manuell ein.",
+        "noAccountsOnChain": "Keine Konten auf %{chain}"
       },
       "confirm": {
         "customNonce": "Benutzerdefinierte Nonce",
@@ -1124,8 +1137,12 @@
         "average": "Durchschnittlich",
         "fast": "Schnell",
         "enterAmount": "Betrag eingeben",
+        "scanQrCode": "Scanne QR Code",
         "scanQrCodeDescription": "Tippen, um eine Adresse zu scannen",
-        "yourAddresses": "Ihre Adressen"
+        "yourAddresses": "Ihre Adressen",
+        "to": "Zu",
+        "from": "Von",
+        "availableBalance": "%{balance} verfügbar"
       },
       "status": {
         "pendingBody": "Sende %{amount} %{symbol}"
@@ -1636,7 +1653,11 @@
       "create": "Erstellen",
       "or": "oder",
       "import": "Importiere",
-      "aWallet": "eine Wallet"
+      "aWallet": "eine Wallet",
+      "viewAllWallets": "Alle Wallets anzeigen",
+      "ctaText": "Sie sehen Ihre Wallet nicht?",
+      "ctaSubtext": "Verbindung zu über 480 Wallets herstellen",
+      "multiChainWallets": "Multi-Chain Wallets"
     },
     "create": {
       "header": "Geben Sie Ihrer Wallet einen Namen",
@@ -1902,6 +1923,8 @@
           "description": "Kein %{chainLabel} Konto mit dieser dApp verbunden."
         },
         "sessionAuth": {
+          "invalidRequest": "Ungültige Authentifizierungsanfrage",
+          "formatError": "Fehler beim Formatieren der Authentifizierungsnachricht"
         }
       }
     }
@@ -2306,6 +2329,7 @@
       "hasClaimsTitle": "Ihnen stehen TCY Ansprüche zur Verfügung!",
       "button": "Ansprüche prüfen"
     },
+    "claimPending": "Anspruch auf %{amount} %{symbol}...",
     "claimStatus": {
       "pendingSubtitle": "Wir bearbeiten Ihren Anspruch über %{amount} %{symbol}",
       "goBack": "Geh zurück",
@@ -2456,6 +2480,7 @@
         "processing": "Ihre Auszahlung von %{assetAmountsAndSymbols} aus dem Pool %{poolName} wird verarbeitet."
       },
       "deposit": {
+        "processing": "Ihre Einzahlung von %{amount} %{symbol} auf den Pool %{poolName} wird verarbeitet."
       }
     },
     "deposit": {
@@ -2503,6 +2528,8 @@
       "claimTxComplete": "Ihr TCY Anspruch in Höhe von %{amount} %{symbol} ist abgeschlossen."
     },
     "approve": {
+      "approvalTxPending": "Genehmigung für %{contractName} um %{amount} %{symbol} zu verwenden.",
+      "approvalTxComplete": "Genehmigt für %{contractName} die Verwendung von %{amount} %{symbol}."
     },
     "pendingTransactions": "%{count} Ausstehend",
     "rewardDistribution": {

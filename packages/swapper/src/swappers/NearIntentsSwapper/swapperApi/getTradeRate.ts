@@ -47,7 +47,7 @@ export const getTradeRate = async (
     const hasWallet = sendAddress !== undefined
 
     const quoteRequest: QuoteRequest = {
-      dry: true,
+      dry: false,
       swapType: QuoteRequest.swapType.EXACT_INPUT,
       slippageTolerance: slippageTolerancePercentageDecimal
         ? bnOrZero(slippageTolerancePercentageDecimal).times(10000).toNumber()
@@ -76,7 +76,6 @@ export const getTradeRate = async (
       throw new Error('Missing deposit address in quote response')
     }
 
-    // Calculate fees for rate (same logic as getTradeQuote)
     const { chainNamespace } = fromAssetId(sellAsset.assetId)
     const depositAddress = quote.depositAddress
 

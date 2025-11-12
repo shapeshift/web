@@ -94,7 +94,7 @@ export const getTradeQuote = async (
     const depositAddress = quote.depositAddress
 
     const getFeeData = async (): Promise<{
-      networkFeeCryptoBaseUnit: string
+      networkFeeCryptoBaseUnit: string | undefined
       chainSpecific?: { satsPerByte: string }
     }> => {
       switch (chainNamespace) {

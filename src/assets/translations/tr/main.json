@@ -20,7 +20,9 @@
     "closed": "Kapalı",
     "loadMore": "Daha fazla",
     "volumeShort": "VOL",
+    "save": "Kaydet",
     "saveChanges": "Değişiklikleri Kaydet",
+    "delete": "Sil",
     "new": "Yeni",
     "continue": "Devam et",
     "approve": "Onayla",
@@ -309,7 +311,9 @@
     "availableProviders": "Mevcut Sağlayıcılar",
     "noProvidersAvailable": "Uygun Sağlayıcı Yok",
     "noProvidersBody": "Görünüşe göre henüz bu öğe için herhangi bir sağlayıcımız yok.",
-    "notSupported": "%{asset}, %{wallet} tarafından desteklenmiyor"
+    "notSupported": "%{asset}, %{wallet} tarafından desteklenmiyor",
+    "previewPurchase": "Satın Alım Önizlemesi ",
+    "previewSale": "Satış Önizlemesi"
   },
   "connectWalletPage": {
     "shapeshift": "ShapeShift",
@@ -1093,9 +1097,17 @@
       "toAddressOrEns": "Adres veya ENS'e",
       "scanQrCode": "QR Kodunu Tara",
       "qrCode": "QR Kod",
+      "addressBook": "Adres Defteri",
+      "noEntries": "Adres bulunamadı.",
+      "addNewAddress": "Yeni Adres Ekle",
       "addAddress": {
+        "nameRequired": "İsim gerekli",
+        "namePlaceholder": "İsim",
+        "title": "Adres Ekle"
       },
       "confirmDelete": {
+        "title": "Adresi Sil",
+        "message": "%{name} adresini adres defterinizden silmek istediğinizden emin misiniz?"
       },
       "permissionsButton": "Tekrar deneyin",
       "sent": "%{asset} gönderildi",
@@ -1105,7 +1117,8 @@
         "notEnoughNativeToken": "Gazı kapatmak için yeterli %{asset} yok",
         "transactionRejected": "Kullanıcı işlemi reddetti",
         "qrPermissions": "Bu özelliğin çalışması için kamera erişim izinlerine ihtiyacı var. Lütfen tarayıcı ayarlarınızı değiştirin.",
-        "qrDangerousEthUrl": "Bir sözleşme adresi içeren QR kodları desteklenmez. Lütfen hedef adresi manuel olarak yapıştırın."
+        "qrDangerousEthUrl": "Bir sözleşme adresi içeren QR kodları desteklenmez. Lütfen hedef adresi manuel olarak yapıştırın.",
+        "noAccountsOnChain": "%{chain} üzerinde hesap yok"
       },
       "confirm": {
         "customNonce": "Özel Nonce",
@@ -1124,8 +1137,12 @@
         "average": "Ortalama",
         "fast": "Hızlı",
         "enterAmount": "Miktarı girin",
+        "scanQrCode": "QR Kodu Tara",
         "scanQrCodeDescription": "Adresi taramak için dokunun",
-        "yourAddresses": "Adreslerin"
+        "yourAddresses": "Adreslerin",
+        "to": "'a",
+        "from": "'dan",
+        "availableBalance": "%{balance} mevcut"
       },
       "status": {
         "pendingBody": "%{amount} %{symbol} gönderiliyor"
@@ -1636,7 +1653,11 @@
       "create": "Yarat",
       "or": "veya",
       "import": "İçe Aktar",
-      "aWallet": "Bir cüzdan"
+      "aWallet": "Bir cüzdan",
+      "viewAllWallets": "Tüm cüzdanları görüntüle",
+      "ctaText": "Cüzdanınızı görmüyor musunuz?",
+      "ctaSubtext": "480'den fazla cüzdana bağlanın",
+      "multiChainWallets": "Multi-Chain Cüzdanlar"
     },
     "create": {
       "header": "Cüzdanınıza bir isim verin",
@@ -1902,6 +1923,8 @@
           "description": "Bu dApp'e bağlı %{chainLabel} hesabı yok."
         },
         "sessionAuth": {
+          "invalidRequest": "Geçersiz kimlik doğrulama isteği",
+          "formatError": "Kimlik doğrulama mesajı biçimlendirilirken hata oluştu"
         }
       }
     }
@@ -2306,6 +2329,7 @@
       "hasClaimsTitle": "TCY talepleriniz mevcut!",
       "button": "Talepleri Kontrol Et"
     },
+    "claimPending": "%{amount} %{symbol} talep ediliyor...",
     "claimStatus": {
       "pendingSubtitle": "%{amount} %{symbol} tutarındaki talebinizi işliyoruz",
       "goBack": "Geri Git",
@@ -2456,6 +2480,7 @@
         "processing": "%{poolName} havuzundan %{assetAmountsAndSymbols} tutarındaki çekim işleminiz işleniyor."
       },
       "deposit": {
+        "processing": "%{poolName} havuzuna %{amount} %{symbol} tutarındaki yatırımınız işleniyor."
       }
     },
     "deposit": {
@@ -2503,6 +2528,8 @@
       "claimTxComplete": "%{amount} %{symbol} tutarındaki TCY talebiniz tamamlandı."
     },
     "approve": {
+      "approvalTxPending": "%{contractName} sözleşmesinin %{amount} %{symbol} sembolünü kullanması onaylanıyor.",
+      "approvalTxComplete": "%{contractName}'in %{amount} %{symbol}'ü kullanması onaylandı."
     },
     "pendingTransactions": "%{count} Bekliyor",
     "rewardDistribution": {

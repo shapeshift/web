@@ -3,9 +3,9 @@ import type { Asset } from '@shapeshiftoss/types'
 import { memo, useCallback, useMemo } from 'react'
 import { FaStar } from 'react-icons/fa6'
 import { useTranslate } from 'react-polyglot'
-import type { Row } from 'react-table'
 
-import { MarketsTable } from '@/components/MarketsTable'
+import { AssetList } from '@/components/AssetSearch/components/AssetList'
+import { MarketRow } from '@/components/AssetSearch/components/MarketRow'
 import { ResultsEmpty } from '@/components/ResultsEmpty'
 import { useBrowserRouter } from '@/hooks/useBrowserRouter/useBrowserRouter'
 import { useModal } from '@/hooks/useModal/useModal'
@@ -17,11 +17,7 @@ import { useAppSelector } from '@/state/store'
 const starFilled = <FaStar />
 const emptyButtonProps = { size: 'lg', width: 'full', colorScheme: 'blue' }
 
-type WatchlistTableProps = {
-  forceCompactView?: boolean
-}
-
-export const WatchlistTable = memo(({ forceCompactView = false }: WatchlistTableProps) => {
+export const WatchlistTable = memo(() => {
   const watchedAssetIds = useAppSelector(preferences.selectors.selectWatchedAssetIds)
   const assets = useAppSelector(selectAssetsSortedByMarketCap)
   const { navigate } = useBrowserRouter()
@@ -39,12 +35,12 @@ export const WatchlistTable = memo(({ forceCompactView = false }: WatchlistTable
   }, [navigate, walletDrawer])
 
   const handleRowClick = useCallback(
-    (row: Row<Asset>) => {
+    (asset: Asset) => {
       if (walletDrawer.isOpen) {
         walletDrawer.close()
       }
       vibrate('heavy')
-      const { assetId } = row.original
+      const { assetId } = asset
       const url = assetId ? `/assets/${assetId}` : ''
       navigate(url)
     },
@@ -66,8 +62,8 @@ export const WatchlistTable = memo(({ forceCompactView = false }: WatchlistTable
   }
   return (
     <>
-      <MarketsTable rows={rows} onRowClick={handleRowClick} forceCompactView={forceCompactView} />
-      <Button mx={6} onClick={handleButtonClick}>
+      <AssetList assets={rows} handleClick={handleRowClick} rowComponent={MarketRow} />
+      <Button onClick={handleButtonClick} width='full' mt={4}>
         {translate('watchlist.empty.cta')}
       </Button>
     </>

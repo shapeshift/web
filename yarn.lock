@@ -10793,7 +10793,7 @@ __metadata:
     "@walletconnect/web3-provider": ^1.8.0
     alchemy-sdk: ^3.4.1
     assert: ^2.0.0
-    axios: ^1.12.1
+    axios: ^1.13.0
     axios-cache-interceptor: ^1.5.3
     axios-retry: ^4.5.0
     bignumber.js: ^9.3.1
@@ -15525,14 +15525,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"axios@npm:^1.12.1":
-  version: 1.12.2
-  resolution: "axios@npm:1.12.2"
+"axios@npm:^1.13.0":
+  version: 1.13.2
+  resolution: "axios@npm:1.13.2"
   dependencies:
     follow-redirects: ^1.15.6
     form-data: ^4.0.4
     proxy-from-env: ^1.1.0
-  checksum: f0331594fe053a4bbff04104edb073973a3aabfad2e56b0aa18de82428aa63f6f0839ca3d837258ec739cb4528014121793b1649a21e5115ffb2bf8237eadca3
+  checksum: 057d0204d5930e2969f0bccb9f0752745b1524a36994667833195e7e1a82f245d660752ba8517b2dbea17e9e4ed0479f10b80c5fe45edd0b5a0df645c0060386
   languageName: node
   linkType: hard
 
@@ -25055,11 +25055,11 @@ __metadata:
   linkType: hard
 
 "min-document@npm:^2.19.0":
-  version: 2.19.0
-  resolution: "min-document@npm:2.19.0"
+  version: 2.19.1
+  resolution: "min-document@npm:2.19.1"
   dependencies:
     dom-walk: ^0.1.0
-  checksum: da6437562ea2228041542a2384528e74e22d1daa1a4ec439c165abf0b9d8a63e17e3b8a6dc6e0c731845e85301198730426932a0e813d23f932ca668340c9623
+  checksum: 8c49f61efa8b8cb9578d11ba626619519f474da9a6d98efb0e21e6fc222259f16514a1e0d1d301014ea14240b974f85381697107688d2c48873aa79a3c0a166c
   languageName: node
   linkType: hard
 

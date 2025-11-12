@@ -193,5 +193,7 @@ export const useTradeNetworkFeeCryptoBaseUnit = ({
         : skipToken,
   })
 
+  console.log({ quoteNetworkFeesCryptoBaseUnitQuery })
+
   return quoteNetworkFeesCryptoBaseUnitQuery
 }

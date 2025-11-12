@@ -109,13 +109,11 @@ export async function simulateWithStateOverrides(
     const request: TenderlySimulationRequest = {
       network_id: chainId.toString(),
       from: from.toLowerCase() as Address,
-      to: to.toLowerCase() as Address, // tx.to - the contract being called
+      to: to.toLowerCase() as Address,
       input: data,
       value: value ? toHex(BigInt(value)) : '0x0',
-      gas: 30000000, // Very high limit for complex multicall transactions (Tenderly doesn't charge for gas)
-      gas_price: '0', // Gas price doesn't matter for simulation
-      save: false, // Don't save to Tenderly dashboard
-      save_if_fails: true, // Return gas even if simulation fails
+      save: false,
+      save_if_fails: true,
       state_objects: stateOverrides,
     }
 

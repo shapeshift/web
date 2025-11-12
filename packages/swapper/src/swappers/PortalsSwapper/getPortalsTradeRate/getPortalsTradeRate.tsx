@@ -191,56 +191,40 @@ export async function getPortalsTradeRate(
       errorMessage: tenderlySimulation.errorMessage,
     })
 
+    if (!tenderlySimulation.success) {
+      throw new Error(`Tenderly simulation failed: ${tenderlySimulation.errorMessage}`)
+    }
+
     const { average } = await adapter.getGasFeeData()
 
-    // Use Tenderly's gas estimate if successful, otherwise fall back to Portals' estimate
-    const networkFeeCryptoBaseUnit = (() => {
-      if (tenderlySimulation.success) {
-        const tenderlyNetworkFee = evm.calcNetworkFeeCryptoBaseUnit({
-          ...average,
-          supportsEIP1559: Boolean(input.supportsEIP1559),
-          gasLimit: tenderlySimulation.gasLimit.toString(),
-        })
+    const networkFeeCryptoBaseUnit = evm.calcNetworkFeeCryptoBaseUnit({
+      ...average,
+      supportsEIP1559: Boolean(input.supportsEIP1559),
+      gasLimit: tenderlySimulation.gasLimit.toString(),
+    })
 
-        // Compare with Portals' original estimate
-        if (tx.gasLimit) {
-          const portalsNetworkFee = evm.calcNetworkFeeCryptoBaseUnit({
-            ...average,
-            supportsEIP1559: Boolean(input.supportsEIP1559),
-            gasLimit: tx.gasLimit,
-          })
-
-          console.log('[Portals Rate] Gas estimate comparison:', {
-            tenderlyGasLimit: tenderlySimulation.gasLimit.toString(),
-            portalsGasLimit: tx.gasLimit,
-            tenderlyNetworkFee,
-            portalsNetworkFee,
-            difference: bnOrZero(tenderlyNetworkFee).minus(portalsNetworkFee).toString(),
-            percentDiff:
-              bnOrZero(tenderlyNetworkFee)
-                .minus(portalsNetworkFee)
-                .div(portalsNetworkFee)
-                .times(100)
-                .toFixed(2) + '%',
-          })
-        }
-
-        return tenderlyNetworkFee
-      }
-
-      // Fallback to Portals' gas estimate if Tenderly fails
-      if (!tx.gasLimit) {
-        throw new Error('No gas estimate available from Tenderly or Portals')
-      }
-
-      console.log('[Portals Rate] Using Portals gas (Tenderly failed):', tx.gasLimit)
-
-      return evm.calcNetworkFeeCryptoBaseUnit({
+    // Compare with Portals' original estimate
+    if (tx.gasLimit) {
+      const portalsNetworkFee = evm.calcNetworkFeeCryptoBaseUnit({
         ...average,
         supportsEIP1559: Boolean(input.supportsEIP1559),
         gasLimit: tx.gasLimit,
       })
-    })()
+
+      console.log('[Portals Rate] Gas estimate comparison:', {
+        tenderlyGasLimit: tenderlySimulation.gasLimit.toString(),
+        portalsGasLimit: tx.gasLimit,
+        tenderlyNetworkFee: networkFeeCryptoBaseUnit,
+        portalsNetworkFee,
+        difference: bnOrZero(networkFeeCryptoBaseUnit).minus(portalsNetworkFee).toString(),
+        percentDiff:
+          bnOrZero(networkFeeCryptoBaseUnit)
+            .minus(portalsNetworkFee)
+            .div(portalsNetworkFee)
+            .times(100)
+            .toFixed(2) + '%',
+      })
+    }
 
     const tradeRate = {
       id: uuid(),

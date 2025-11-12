@@ -115,12 +115,20 @@ export const getTradeRate = async (
 
             // Calculate network fee using the simulated gas limit
             const sellAdapter = deps.assertGetEvmChainAdapter(sellAsset.chainId)
-            const { fast } = await sellAdapter.getGasFeeData()
+            const { average } = await sellAdapter.getGasFeeData()
 
             const networkFeeCryptoBaseUnit = evm.calcNetworkFeeCryptoBaseUnit({
-              ...fast,
+              ...average,
               supportsEIP1559: true,
               gasLimit: simulationResult.gasLimit.toString(),
+            })
+
+            console.log('[Near Intents] Gas fee calculation:', {
+              gasLimit: simulationResult.gasLimit.toString(),
+              maxFeePerGas: average.maxFeePerGas,
+              maxPriorityFeePerGas: average.maxPriorityFeePerGas,
+              gasPrice: average.gasPrice,
+              networkFeeCryptoBaseUnit,
             })
 
             return networkFeeCryptoBaseUnit
@@ -143,7 +151,7 @@ export const getTradeRate = async (
             chainSpecific: { pubkey },
             sendMax: false,
           })
-          return feeData.fast.txFee
+          return feeData.average.txFee
         }
 
         case CHAIN_NAMESPACE.Solana: {
@@ -175,7 +183,7 @@ export const getTradeRate = async (
               sendMax: false,
             })
 
-            const txFee = feeData.fast.txFee
+            const txFee = feeData.average.txFee
             const ataCreationCost = calculateAccountCreationCosts(instructions)
             return bn(txFee).plus(ataCreationCost).toString()
           } catch (error) {

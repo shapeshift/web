@@ -80,12 +80,27 @@ export const getTradeRate = async (
     const { chainNamespace } = fromAssetId(sellAsset.assetId)
     const depositAddress = quote.depositAddress
 
+    console.log('[NEAR Intents Rate] Calculating fees:', {
+      chainNamespace,
+      hasSendAddress: !!sendAddress,
+      depositAddress,
+      sellAssetId: sellAsset.assetId,
+    })
+
     const getFeeData = async (): Promise<string | undefined> => {
       switch (chainNamespace) {
         case CHAIN_NAMESPACE.Evm: {
           const sellAdapter = deps.assertGetEvmChainAdapter(sellAsset.chainId)
           const contractAddress = contractAddressOrUndefined(sellAsset.assetId)
           const data = evm.getErc20Data(depositAddress, sellAmount, contractAddress)
+
+          console.log('[NEAR Intents Rate] EVM fee params:', {
+            to: contractAddress ?? depositAddress,
+            value: isNativeEvmAsset(sellAsset.assetId) ? sellAmount : '0',
+            from: sendAddress || depositAddress,
+            contractAddress,
+            hasData: !!data,
+          })
 
           // For rates without wallet, sendAddress might be undefined
           const feeData = await sellAdapter.getFeeData({
@@ -98,6 +113,7 @@ export const getTradeRate = async (
             },
             sendMax: false,
           })
+          console.log('[NEAR Intents Rate] EVM fee calculated:', feeData.fast.txFee)
           return feeData.fast.txFee
         }
 
@@ -157,7 +173,14 @@ export const getTradeRate = async (
       }
     }
 
-    const networkFeeCryptoBaseUnit = (await getFeeData()) || '0'
+    let networkFeeCryptoBaseUnit: string
+    try {
+      networkFeeCryptoBaseUnit = (await getFeeData()) || '0'
+      console.log('[NEAR Intents Rate] Final fee:', networkFeeCryptoBaseUnit)
+    } catch (error) {
+      console.error('[NEAR Intents Rate] Fee estimation failed:', error)
+      throw error
+    }
 
     const tradeRate: TradeRate = {
       id: uuid(),

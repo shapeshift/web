@@ -20,7 +20,9 @@
     "closed": "Закрити.",
     "loadMore": "Читати далі",
     "volumeShort": "VOL",
+    "save": "Зберегти",
     "saveChanges": "Зберегти зміни",
+    "delete": "Видалити",
     "new": "Новий",
     "continue": "Продовжити",
     "approve": "Схвалити",
@@ -309,7 +311,9 @@
     "availableProviders": "Доступні постачальники",
     "noProvidersAvailable": "Постачальники відсутні",
     "noProvidersBody": "Схоже, у нас поки що немає постачальників для цього активу.",
-    "notSupported": "%{asset} не підтримується %{wallet}"
+    "notSupported": "%{asset} не підтримується %{wallet}",
+    "previewPurchase": "Попередній перегляд купівлі",
+    "previewSale": "Попередній перегляд продажу"
   },
   "connectWalletPage": {
     "shapeshift": "ShapeShift",
@@ -1093,9 +1097,17 @@
       "toAddressOrEns": "На адресу або ENS",
       "scanQrCode": "Відсканувати QR-код",
       "qrCode": "QR Code",
+      "addressBook": "Адресна книга",
+      "noEntries": "Адреса не знайдена.",
+      "addNewAddress": "Додати нову адресу",
       "addAddress": {
+        "nameRequired": "Ім'я є обов'язковим",
+        "namePlaceholder": "Ім'я ",
+        "title": "Додати адрес"
       },
       "confirmDelete": {
+        "title": "Видалити адрес",
+        "message": "Ви впевнені, що хочете видалити %{name} зі своєї адресної книги?"
       },
       "permissionsButton": "Спробуйте ще раз",
       "sent": "%{asset} надіслано",
@@ -1105,7 +1117,8 @@
         "notEnoughNativeToken": "Не достатньо %{asset}, щоб покрити газ",
         "transactionRejected": "Користувач відхилив транзакцію",
         "qrPermissions": "Для роботи цієї функції потрібен дозвіл на доступ до камери. Будь ласка, змініть налаштування вашого браузера.",
-        "qrDangerousEthUrl": "QR-коди, що містять адресу контракту, не підтримуються. Будь ласка, вставте адресу призначення вручну."
+        "qrDangerousEthUrl": "QR-коди, що містять адресу контракту, не підтримуються. Будь ласка, вставте адресу призначення вручну.",
+        "noAccountsOnChain": "Немає рахунків на %{chain}"
       },
       "confirm": {
         "customNonce": "Користувацький Nonce",
@@ -1124,8 +1137,12 @@
         "average": "Середньо",
         "fast": "Швидко",
         "enterAmount": "Введіть суму",
+        "scanQrCode": "Сканувати QR-код",
         "scanQrCodeDescription": "Натисніть, щоб відсканувати адресу",
-        "yourAddresses": "Ваші адреси"
+        "yourAddresses": "Ваші адреси",
+        "to": "До",
+        "from": "Від",
+        "availableBalance": "%{balance} доступно"
       },
       "status": {
         "pendingBody": "Відправлення %{amount} %{symbol}"
@@ -1636,7 +1653,11 @@
       "create": "Створити",
       "or": "або",
       "import": "Імпортувати",
-      "aWallet": "гаманець"
+      "aWallet": "гаманець",
+      "viewAllWallets": "Переглянути всі гаманці",
+      "ctaText": "Не бачите свій гаманець?",
+      "ctaSubtext": "Підключіться до понад 480 гаманців",
+      "multiChainWallets": "Багато мережеві гаманці"
     },
     "create": {
       "header": "Дайте своєму гаманцю ім'я",
@@ -1902,6 +1923,8 @@
           "description": "До цього dApp не підключено жодного облікового запису %{chainLabel}."
         },
         "sessionAuth": {
+          "invalidRequest": "Недійсний запит на автентифікацію",
+          "formatError": "Помилка форматування повідомлення про автентифікацію"
         }
       }
     }
@@ -2306,6 +2329,7 @@
       "hasClaimsTitle": "Ви можете подати заяву на клейм TCY!",
       "button": "Перевірити претензії"
     },
+    "claimPending": "Заявка на %{amount} %{symbol}...",
     "claimStatus": {
       "pendingSubtitle": "Ми обробляємо вашу заяву на %{amount} %{symbol}",
       "goBack": "Повернутися",
@@ -2456,6 +2480,7 @@
         "processing": "Ваше зняття %{assetAmountsAndSymbols} з пулу %{poolName} обробляється."
       },
       "deposit": {
+        "processing": "Ваш депозит у розмірі %{amount} %{symbol} до пулу %{poolName} обробляється."
       }
     },
     "deposit": {
@@ -2503,6 +2528,8 @@
       "claimTxComplete": "Ваша заявка на TCY у розмірі %{amount} %{symbol} завершена."
     },
     "approve": {
+      "approvalTxPending": "Затвердження %{contractName} для використання %{amount} %{symbol}.",
+      "approvalTxComplete": "Затверджено %{contractName} для використання %{amount} %{symbol}."
     },
     "pendingTransactions": "%{count} На розгляді",
     "rewardDistribution": {

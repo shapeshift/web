@@ -1,8 +1,8 @@
+import { TriangleDownIcon, TriangleUpIcon } from '@chakra-ui/icons'
 import { Box, Flex, HStack, Icon, Text, useColorModeValue } from '@chakra-ui/react'
 import type { Asset } from '@shapeshiftoss/types'
 import { bnOrZero } from '@shapeshiftoss/utils'
 import { useCallback } from 'react'
-import { TbCircleArrowDownRightFilled, TbCircleArrowUpRightFilled } from 'react-icons/tb'
 
 import { Amount } from '@/components/Amount/Amount'
 import { AssetIcon } from '@/components/AssetIcon'
@@ -32,25 +32,15 @@ export const TopAssetCard = ({ asset, onClick }: TopAssetCardProps) => {
     onClick(asset)
   }, [asset, onClick])
 
-  const handleKeyDown = useCallback(
-    (e: React.KeyboardEvent) => {
-      if (e.key === 'Enter' || e.key === ' ') {
-        e.preventDefault()
-        onClick(asset)
-      }
-    },
-    [asset, onClick],
-  )
-
   return (
     <Flex
       cursor='pointer'
       px={2}
-      height='44px'
+      py={4}
+      alignSelf='stretch'
       justifyContent='center'
       alignItems='center'
       onClick={handleClick}
-      onKeyDown={handleKeyDown}
       role='button'
       tabIndex={0}
       transition='all 0.2s'
@@ -84,8 +74,9 @@ export const TopAssetCard = ({ asset, onClick }: TopAssetCardProps) => {
             value={marketData?.price}
           />
           <Icon
-            as={isPositive ? TbCircleArrowUpRightFilled : TbCircleArrowDownRightFilled}
+            as={isPositive ? TriangleDownIcon : TriangleUpIcon}
             lineHeight={1}
+            boxSize={3}
             color={isPositive ? 'text.success' : 'text.error'}
           />
           <Amount.Percent

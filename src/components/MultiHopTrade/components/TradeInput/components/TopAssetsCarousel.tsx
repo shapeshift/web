@@ -76,20 +76,17 @@ const cardVariants = {
 type CategoryMenuItemProps = {
   category: MarketsCategories
   selectedCategory: MarketsCategories
-  onCategoryChange: (category: MarketsCategories) => void
+  onClick: () => void
   checkedIcon: React.ReactElement
 }
 
 const CategoryMenuItem = ({
   category,
   selectedCategory,
-  onCategoryChange,
+  onClick,
   checkedIcon,
 }: CategoryMenuItemProps) => {
   const translate = useTranslate()
-  const handleClick = useCallback(() => {
-    onCategoryChange(category)
-  }, [category, onCategoryChange])
 
   const label = useMemo(() => {
     return category === MarketsCategories.OneClickDefi
@@ -100,7 +97,7 @@ const CategoryMenuItem = ({
   return (
     <MenuItemOption
       value={category}
-      onClick={handleClick}
+      onClick={onClick}
       fontSize='sm'
       iconPlacement='end'
       icon={checkedIcon}
@@ -152,6 +149,12 @@ export const TopAssetsCarousel = () => {
     orderBy: selectedOrder,
     minApy: '1',
   })
+
+  const isLoading = useMemo(() => {
+    return selectedCategory === MarketsCategories.OneClickDefi
+      ? isPortalsAssetsLoading
+      : isCategoryQueryDataLoading
+  }, [selectedCategory, isPortalsAssetsLoading, isCategoryQueryDataLoading])
 
   const autoScrollPlugin = useMemo(
     () =>
@@ -209,7 +212,7 @@ export const TopAssetsCarousel = () => {
   ])
 
   const handleCategoryChange = useCallback(
-    (category: MarketsCategories) => {
+    (category: MarketsCategories) => () => {
       dispatch(preferences.actions.setHighlightedTokensSelectedCategory(category))
 
       switch (category) {
@@ -356,7 +359,7 @@ export const TopAssetsCarousel = () => {
     }
   }, [emblaApi, popularAssets, shouldShow])
 
-  if (!shouldShow || popularAssets.length === 0) return null
+  if (!shouldShow || (popularAssets.length === 0 && !isLoading)) return null
 
   return (
     <Box position='fixed' bottom={0} left={0} right={0} zIndex={1000} width='100%'>
@@ -391,8 +394,8 @@ export const TopAssetsCarousel = () => {
           </Box>
         </Box>
         <Flex
-          height='44px'
           zIndex={99}
+          height={12}
           alignItems='center'
           justifyContent='center'
           bg='background.surface.raised.base'
@@ -407,6 +410,7 @@ export const TopAssetsCarousel = () => {
                 size='md'
                 fontSize='xl'
                 variant='ghost'
+                isLoading={isLoading}
                 _hover={buttonHoverProps}
                 _active={buttonHoverProps}
               />
@@ -442,7 +446,7 @@ export const TopAssetsCarousel = () => {
                               key={category}
                               category={category}
                               selectedCategory={selectedCategory}
-                              onCategoryChange={handleCategoryChange}
+                              onClick={handleCategoryChange(category)}
                               checkedIcon={checkedIcon}
                             />
                           ))}

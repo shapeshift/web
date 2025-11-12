@@ -1,5 +1,6 @@
 import { CHAIN_NAMESPACE, fromAssetId } from '@shapeshiftoss/caip'
-import { bn, bnOrZero, isToken } from '@shapeshiftoss/utils'
+import { evm } from '@shapeshiftoss/chain-adapters'
+import { bn, bnOrZero, contractAddressOrUndefined, isToken } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import { v4 as uuid } from 'uuid'
@@ -13,7 +14,7 @@ import type {
   TradeQuote,
 } from '../../../types'
 import { SwapperName, TradeQuoteError } from '../../../types'
-import { makeSwapErrorRight } from '../../../utils'
+import { isNativeEvmAsset, makeSwapErrorRight } from '../../../utils'
 import { DEFAULT_QUOTE_DEADLINE_MS, DEFAULT_SLIPPAGE_BPS } from '../constants'
 import type { QuoteResponse } from '../types'
 import { QuoteRequest } from '../types'
@@ -106,12 +107,16 @@ export const getTradeQuote = async (
       switch (chainNamespace) {
         case CHAIN_NAMESPACE.Evm: {
           const sellAdapter = deps.assertGetEvmChainAdapter(sellAsset.chainId)
+          const contractAddress = contractAddressOrUndefined(sellAsset.assetId)
+          const data = evm.getErc20Data(depositAddress, sellAmount, contractAddress)
+
           const feeData = await sellAdapter.getFeeData({
-            to: depositAddress,
-            value: sellAmount,
+            to: contractAddress ?? depositAddress,
+            value: isNativeEvmAsset(sellAsset.assetId) ? sellAmount : '0',
             chainSpecific: {
               from,
-              data: '0x',
+              contractAddress,
+              data: data || '0x',
             },
             sendMax: false,
           })

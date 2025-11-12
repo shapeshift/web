@@ -1,16 +1,24 @@
-import { bn, bnOrZero } from '@shapeshiftoss/utils'
+import { CHAIN_NAMESPACE, fromAssetId } from '@shapeshiftoss/caip'
+import { evm } from '@shapeshiftoss/chain-adapters'
+import { bn, bnOrZero, contractAddressOrUndefined, isToken } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import { v4 as uuid } from 'uuid'
 
 import { getDefaultSlippageDecimalPercentageForSwapper } from '../../../constants'
-import type { GetTradeRateInput, SwapErrorRight, SwapperDeps, TradeRate } from '../../../types'
+import type {
+  GetTradeRateInput,
+  GetUtxoTradeRateInput,
+  SwapErrorRight,
+  SwapperDeps,
+  TradeRate,
+} from '../../../types'
 import { SwapperName, TradeQuoteError } from '../../../types'
-import { makeSwapErrorRight } from '../../../utils'
+import { isNativeEvmAsset, makeSwapErrorRight } from '../../../utils'
 import { DEFAULT_QUOTE_DEADLINE_MS, DEFAULT_SLIPPAGE_BPS } from '../constants'
 import type { QuoteResponse } from '../types'
 import { QuoteRequest } from '../types'
-import { assetToNearIntentsAsset } from '../utils/helpers/helpers'
+import { assetToNearIntentsAsset, calculateAccountCreationCosts } from '../utils/helpers/helpers'
 import { initializeOneClickService, OneClickService } from '../utils/oneClickService'
 
 export const getTradeRate = async (
@@ -63,6 +71,93 @@ export const getTradeRate = async (
 
     const { quote } = quoteResponse
 
+    if (!quote.depositAddress) {
+      throw new Error('Missing deposit address in quote response')
+    }
+
+    // Calculate fees for rate (same logic as getTradeQuote)
+    const { chainNamespace } = fromAssetId(sellAsset.assetId)
+    const depositAddress = quote.depositAddress
+
+    const getFeeData = async (): Promise<string | undefined> => {
+      switch (chainNamespace) {
+        case CHAIN_NAMESPACE.Evm: {
+          const sellAdapter = deps.assertGetEvmChainAdapter(sellAsset.chainId)
+          const contractAddress = contractAddressOrUndefined(sellAsset.assetId)
+          const data = evm.getErc20Data(depositAddress, sellAmount, contractAddress)
+
+          // For rates without wallet, sendAddress might be undefined
+          const feeData = await sellAdapter.getFeeData({
+            to: contractAddress ?? depositAddress,
+            value: isNativeEvmAsset(sellAsset.assetId) ? sellAmount : '0',
+            chainSpecific: {
+              from: sendAddress || depositAddress,
+              contractAddress,
+              data: data || '0x',
+            },
+            sendMax: false,
+          })
+          return feeData.fast.txFee
+        }
+
+        case CHAIN_NAMESPACE.Utxo: {
+          const sellAdapter = deps.assertGetUtxoChainAdapter(sellAsset.chainId)
+          const pubkey = (input as GetUtxoTradeRateInput).xpub
+
+          if (!pubkey) {
+            return undefined
+          }
+
+          const feeData = await sellAdapter.getFeeData({
+            to: depositAddress,
+            value: sellAmount,
+            chainSpecific: { pubkey },
+            sendMax: false,
+          })
+          return feeData.fast.txFee
+        }
+
+        case CHAIN_NAMESPACE.Solana: {
+          const sellAdapter = deps.assertGetSolanaChainAdapter(sellAsset.chainId)
+          const tokenId = isToken(sellAsset.assetId)
+            ? fromAssetId(sellAsset.assetId).assetReference
+            : undefined
+
+          // For rates without wallet, sendAddress might be undefined
+          if (!sendAddress) {
+            return undefined
+          }
+
+          const instructions = await sellAdapter.buildEstimationInstructions({
+            from: sendAddress,
+            to: depositAddress,
+            tokenId,
+            value: sellAmount,
+          })
+
+          const feeData = await sellAdapter.getFeeData({
+            to: depositAddress,
+            value: sellAmount,
+            chainSpecific: {
+              from: sendAddress,
+              tokenId,
+              instructions,
+            },
+            sendMax: false,
+          })
+
+          const txFee = feeData.fast.txFee
+          const ataCreationCost = calculateAccountCreationCosts(instructions)
+          return bn(txFee).plus(ataCreationCost).toString()
+        }
+
+        default:
+          return undefined
+      }
+    }
+
+    const networkFeeCryptoBaseUnit = (await getFeeData()) || '0'
+
     const tradeRate: TradeRate = {
       id: uuid(),
       receiveAddress: receiveAddress ?? undefined,
@@ -82,7 +177,7 @@ export const getTradeRate = async (
           buyAsset,
           feeData: {
             protocolFees: {},
-            networkFeeCryptoBaseUnit: '0',
+            networkFeeCryptoBaseUnit,
           },
           rate: bn(quote.amountOut).div(quote.amountIn).toString(),
           sellAmountIncludingProtocolFeesCryptoBaseUnit: quote.amountIn,

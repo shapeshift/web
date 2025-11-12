@@ -20,7 +20,9 @@
     "closed": "Cerrado",
     "loadMore": "Cargar más",
     "volumeShort": "VOL",
+    "save": "Guardar",
     "saveChanges": "Guardar cambios",
+    "delete": "Borrar",
     "new": "Nueva",
     "continue": "Continuar",
     "approve": "Aprobar",
@@ -309,7 +311,9 @@
     "availableProviders": "Proveedores Disponibles",
     "noProvidersAvailable": "No hay Proveedores Disponibles",
     "noProvidersBody": "Parece que todavía no tenemos ningún proveedor para ese recurso.",
-    "notSupported": "%{asset} no es compatible con %{wallet}"
+    "notSupported": "%{asset} no es compatible con %{wallet}",
+    "previewPurchase": "Vista Previa de la Compra",
+    "previewSale": "Vista Previa de la Venta"
   },
   "connectWalletPage": {
     "shapeshift": "ShapeShift",
@@ -1093,9 +1097,17 @@
       "toAddressOrEns": "Para Dirección o ENS",
       "scanQrCode": "Escanear código QR",
       "qrCode": "Código QR",
+      "addressBook": "Libro de Direcciones",
+      "noEntries": "Ninguna dirección encontrada.",
+      "addNewAddress": "Agregar Nueva Dirección",
       "addAddress": {
+        "nameRequired": "El nombre es obligatorio",
+        "namePlaceholder": "Nombre",
+        "title": "Agregar Dirección"
       },
       "confirmDelete": {
+        "title": "Eliminar Dirección",
+        "message": "¿Seguro que quieres eliminar %{name} de tu libreta de direcciones?"
       },
       "permissionsButton": "Intentar nuevamente",
       "sent": "%{asset} enviado",
@@ -1105,7 +1117,8 @@
         "notEnoughNativeToken": "No hay suficiente %{asset} para cubrir gas",
         "transactionRejected": "El usuario ha rechazado la transacción.",
         "qrPermissions": "Esta función necesita permisos de acceso a la cámara para funcionar. Por favor cambia la configuración de tu navegador.",
-        "qrDangerousEthUrl": "Los códigos QR contienen una dirección no compatible. Pegue la dirección manualmente."
+        "qrDangerousEthUrl": "Los códigos QR contienen una dirección no compatible. Pegue la dirección manualmente.",
+        "noAccountsOnChain": "No hay cuentas en %{chain}"
       },
       "confirm": {
         "customNonce": "Nonce personalizado",
@@ -1124,8 +1137,12 @@
         "average": "Promedio",
         "fast": "Rápido",
         "enterAmount": "Ingrese la cantidad",
+        "scanQrCode": "Escanear Código QR",
         "scanQrCodeDescription": "Toque para escanear una dirección",
-        "yourAddresses": "Sus Direcciones"
+        "yourAddresses": "Sus Direcciones",
+        "to": "A",
+        "from": "De",
+        "availableBalance": "%{balance} disponible"
       },
       "status": {
         "pendingBody": "Enviando %{amount} %{symbol}"
@@ -1636,7 +1653,11 @@
       "create": "Crear",
       "or": "o",
       "import": "Importar",
-      "aWallet": "una billetera"
+      "aWallet": "una billetera",
+      "viewAllWallets": "Ver todas las billeteras",
+      "ctaText": "¿No encuentras tu billetera?",
+      "ctaSubtext": "Conéctate a más de 480 billeteras",
+      "multiChainWallets": "Billeteras Multicadena"
     },
     "create": {
       "header": "Dale un nombre a tu billetera",
@@ -1902,6 +1923,8 @@
           "description": "No hay cuenta %{chainLabel} conectada a esta dApp."
         },
         "sessionAuth": {
+          "invalidRequest": "Solicitud de autenticación no válida",
+          "formatError": "Error al formatear el mensaje de autenticación"
         }
       }
     }
@@ -2306,6 +2329,7 @@
       "hasClaimsTitle": "¡Tienes reclamaciones TCY disponibles!",
       "button": "Verificar Reclamaciones"
     },
+    "claimPending": "Reclamando %{amount} %{symbol}...",
     "claimStatus": {
       "pendingSubtitle": "Estamos procesando su reclamo por %{amount} %{symbol}",
       "goBack": "Regresar",
@@ -2456,6 +2480,7 @@
         "processing": "Su retiro de %{assetAmountsAndSymbols} del pool %{poolName} se está procesando."
       },
       "deposit": {
+        "processing": "Su depósito de %{amount} %{symbol} en el pool %{poolName} se está procesando."
       }
     },
     "deposit": {
@@ -2503,6 +2528,8 @@
       "claimTxComplete": "Su reclamo TCY de %{amount} %{symbol} ha completado."
     },
     "approve": {
+      "approvalTxPending": "Aprobando a %{contractName} para usar %{amount} %{symbol}.",
+      "approvalTxComplete": "Aprobado a %{contractName} el uso de %{amount} %{symbol}."
     },
     "pendingTransactions": "%{count} Pendiente",
     "rewardDistribution": {

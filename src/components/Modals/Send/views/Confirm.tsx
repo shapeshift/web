@@ -3,7 +3,6 @@ import {
   Avatar,
   Box,
   Button,
-  Text as CText,
   Divider,
   Flex,
   HStack,
@@ -12,6 +11,7 @@ import {
   Link,
   Skeleton,
   Stack,
+  Text as CText,
   Tooltip,
   useColorModeValue,
 } from '@chakra-ui/react'

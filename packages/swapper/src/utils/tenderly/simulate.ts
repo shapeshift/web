@@ -38,11 +38,20 @@ export type SimulateTransactionParams = {
   spenderAddress?: Address
 }
 
-export async function simulateWithStateOverrides(
+export const simulateWithStateOverrides = async (
   params: SimulateTransactionParams,
   config: TenderlyConfig,
-): Promise<SimulationResult> {
-  const { chainId, from, to, data, value, sellAsset, sellAmount, spenderAddress } = params
+): Promise<SimulationResult> => {
+  const {
+    chainId,
+    from,
+    to,
+    data,
+    value,
+    sellAsset,
+    sellAmount: amountCryptoBaseUnit,
+    spenderAddress,
+  } = params
 
   try {
     if (!isAddress(from)) throw new Error(`Invalid from address: ${from}`)
@@ -54,7 +63,7 @@ export async function simulateWithStateOverrides(
       from,
       spender,
       sellAsset,
-      sellAmount,
+      amountCryptoBaseUnit,
     })
 
     const request: TenderlySimulationRequest = {
@@ -93,12 +102,11 @@ export async function simulateWithStateOverrides(
 
     const { transaction } = response.data
     const gasUsed = BigInt(transaction.gas_used)
-    const gasLimit = (gasUsed * 11n) / 10n // 10% buffer
 
     return {
       success: transaction.status,
       gasUsed,
-      gasLimit,
+      gasLimit: gasUsed,
       errorMessage: transaction.error_message,
     }
   } catch (error) {
@@ -111,49 +119,50 @@ export async function simulateWithStateOverrides(
   }
 }
 
-function buildStateOverrides(params: {
+const buildStateOverrides = (params: {
   from: Address
   spender: Address
   sellAsset: Asset
-  sellAmount: string | bigint
-}): TenderlyStateOverrides {
+  amountCryptoBaseUnit: string | bigint
+}): TenderlyStateOverrides => {
   const { from, spender, sellAsset } = params
-  const stateOverrides: TenderlyStateOverrides = {}
   const nativeBalanceOverride = toHex(maxUint256 >> 10n)
   const isNative = isNativeEvmAsset(sellAsset.assetId)
 
-  if (isNative) {
-    stateOverrides[from.toLowerCase() as Address] = {
-      balance: nativeBalanceOverride,
-    }
-  } else {
-    const contractAddress = contractAddressOrUndefined(sellAsset.assetId)
-
-    if (!contractAddress) {
-      stateOverrides[from.toLowerCase() as Address] = {
-        balance: nativeBalanceOverride,
+  return isNative
+    ? {
+        [from.toLowerCase() as Address]: {
+          balance: nativeBalanceOverride,
+        },
       }
-      return stateOverrides
-    }
+    : (() => {
+        const contractAddress = contractAddressOrUndefined(sellAsset.assetId)
 
-    stateOverrides[from.toLowerCase() as Address] = {
-      balance: nativeBalanceOverride,
-    }
+        if (!contractAddress) {
+          return {
+            [from.toLowerCase() as Address]: {
+              balance: nativeBalanceOverride,
+            },
+          }
+        }
 
-    const balanceSlot = getTokenBalanceSlot(contractAddress as Address)
-    const balanceStorageSlot = getBalanceStorageSlot(from, balanceSlot)
-    const maxBalance = getMaxBalanceValue(contractAddress as Address)
+        const balanceSlot = getTokenBalanceSlot(contractAddress as Address)
+        const balanceStorageSlot = getBalanceStorageSlot(from, balanceSlot)
+        const maxBalance = getMaxBalanceValue(contractAddress as Address)
 
-    const allowanceSlot = getTokenAllowanceSlot(contractAddress as Address)
-    const allowanceStorageSlot = getAllowanceStorageSlot(from, spender, allowanceSlot)
+        const allowanceSlot = getTokenAllowanceSlot(contractAddress as Address)
+        const allowanceStorageSlot = getAllowanceStorageSlot(from, spender, allowanceSlot)
 
-    stateOverrides[contractAddress.toLowerCase() as Address] = {
-      storage: {
-        [balanceStorageSlot]: maxBalance,
-        [allowanceStorageSlot]: toHex(maxUint256),
-      },
-    }
-  }
-
-  return stateOverrides
+        return {
+          [from.toLowerCase() as Address]: {
+            balance: nativeBalanceOverride,
+          },
+          [contractAddress.toLowerCase() as Address]: {
+            storage: {
+              [balanceStorageSlot]: maxBalance,
+              [allowanceStorageSlot]: toHex(maxUint256),
+            },
+          },
+        }
+      })()
 }

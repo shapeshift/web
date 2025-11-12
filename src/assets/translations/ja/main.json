@@ -20,7 +20,9 @@
     "closed": "閉鎖",
     "loadMore": "もっと見る",
     "volumeShort": "巻",
+    "save": "保存",
     "saveChanges": "変更内容を保存",
+    "delete": "削除",
     "new": "New",
     "continue": "次へ",
     "approve": "承認する",
@@ -309,7 +311,9 @@
     "availableProviders": "利用可能なプロバイダー",
     "noProvidersAvailable": "利用可能なプロバイダーがありません",
     "noProvidersBody": "そのアセットのプロバイダーはまだありません",
-    "notSupported": "%{asset} は %{wallet} でサポートされていません"
+    "notSupported": "%{asset} は %{wallet} でサポートされていません",
+    "previewPurchase": "購入内容の確認\n",
+    "previewSale": "売却プレビュー"
   },
   "connectWalletPage": {
     "shapeshift": "ShapeShift",
@@ -1093,9 +1097,17 @@
       "toAddressOrEns": "宛先またはENS",
       "scanQrCode": "QRコードをスキャン",
       "qrCode": "QRコード",
+      "addressBook": "アドレス帳",
+      "noEntries": "アドレスが見つかりません。",
+      "addNewAddress": "新しいアドレスを追加",
       "addAddress": {
+        "nameRequired": "名前は必須です",
+        "namePlaceholder": "名前",
+        "title": "アドレスを追加"
       },
       "confirmDelete": {
+        "title": "アドレスを削除",
+        "message": "アドレス帳から %{name} を削除してもよろしいですか?"
       },
       "permissionsButton": "もう一度やり直してください",
       "sent": "%{asset} を送信しました",
@@ -1105,7 +1117,8 @@
         "notEnoughNativeToken": "ガス代の十分な %{asset} がありません",
         "transactionRejected": "ユーザーが取引を拒否しました",
         "qrPermissions": "この機能が動作するには、カメラへのアクセス許可が必要です。ブラウザの設定を変更してください。",
-        "qrDangerousEthUrl": "コントラクトアドレスを含むQRコードはサポートされていません。宛先アドレスを手動で貼り付けてください。"
+        "qrDangerousEthUrl": "コントラクトアドレスを含むQRコードはサポートされていません。宛先アドレスを手動で貼り付けてください。",
+        "noAccountsOnChain": "%{chain} にアカウントがありません"
       },
       "confirm": {
         "customNonce": "カスタムナンス",
@@ -1124,8 +1137,12 @@
         "average": "平均",
         "fast": "速い",
         "enterAmount": "金額を入力します",
+        "scanQrCode": "QRコードをスキャン",
         "scanQrCodeDescription": "タップしてアドレスをスキャン",
-        "yourAddresses": "あなたのアドレス"
+        "yourAddresses": "あなたのアドレス",
+        "to": "宛先",
+        "from": "送信元",
+        "availableBalance": "%{balance} 利用可能"
       },
       "status": {
         "pendingBody": "%{amount} %{symbol} を送信します"
@@ -1636,7 +1653,11 @@
       "create": "作成する",
       "or": "または",
       "import": "インポート",
-      "aWallet": "ウォレット"
+      "aWallet": "ウォレット",
+      "viewAllWallets": "すべてのウォレットを表示",
+      "ctaText": "ウォレットが見つかりませんか？",
+      "ctaSubtext": "480以上のウォレットに接続",
+      "multiChainWallets": "マルチチェーンウォレット"
     },
     "create": {
       "header": "ウォレットに名前を付ける",
@@ -1902,6 +1923,8 @@
           "description": "この dApp に接続された %{chainLabel} アカウントはありません。"
         },
         "sessionAuth": {
+          "invalidRequest": "無効な認証要求",
+          "formatError": "認証メッセージのフォーマットエラー"
         }
       }
     }
@@ -2306,6 +2329,7 @@
       "hasClaimsTitle": "TCY 請求が利用可能です。",
       "button": "請求を確認する"
     },
+    "claimPending": "%{amount} %{symbol} を取得中です...",
     "claimStatus": {
       "pendingSubtitle": "%{amount} %{symbol}の請求を処理中です",
       "goBack": "戻る",
@@ -2456,6 +2480,7 @@
         "processing": "%{poolName} プールからの %{assetAmountsAndSymbols} の引き出しが処理中です。"
       },
       "deposit": {
+        "processing": "%{poolName} プールへの %{amount} %{symbol} の入金が処理中です。"
       }
     },
     "deposit": {
@@ -2503,6 +2528,8 @@
       "claimTxComplete": "%{amount} %{symbol} の TCY 請求が完了しました。"
     },
     "approve": {
+      "approvalTxPending": "%{contractName} が %{amount} %{symbol} の使用を承認中です。",
+      "approvalTxComplete": "%{contractName} が %{amount} %{symbol} を使用することを承認しました。"
     },
     "pendingTransactions": "%{count} 保留中",
     "rewardDistribution": {

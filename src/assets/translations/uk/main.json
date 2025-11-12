@@ -77,6 +77,7 @@
     "rename": "Перейменувати",
     "forget": "Забули?",
     "pending": "Розглядається",
+    "preview": "Попередній перегляд",
     "incomplete": "Не завершено",
     "available": "Доступно",
     "or": "або",
@@ -231,6 +232,9 @@
     "permit2Approval": "Permit2 Схвалення",
     "network": "Мережа",
     "feeEstimate": "Орієнтовна комісія"
+  },
+  "accountSelector": {
+    "chooseAccount": "Виберіть обліковий запис"
   },
   "quickBuy": {
     "title": "Швидка покупка %{assetOnChain}",
@@ -1427,6 +1431,7 @@
       }
     },
     "send": {
+      "confirmSend": "Підтвердити відправлення",
       "consolidate": {
         "body": "ShapeShift поважає дизайн безпеки %{asset}використовуючи нову адресу для кожної транзакції. Щоб відповідати протоколу THORChain, який працює з однією адресою, ми консолідуємо ваші кошти на одній адресі.",
         "tooltip": "Надсилайте кошти на єдину адресу для сумісності з THORChain.",
@@ -1435,8 +1440,8 @@
       "getFeesError": "Помилка отримання комісій",
       "broadcastingTransaction": "Транзакція відправляється",
       "youHaveSent": "Ви успішно відправили %{amount} %{symbol}",
-      "tokenAddress": "На адресу",
-      "addressInput": "На адресу або ENS",
+      "toAddress": "На адресу",
+      "toAddressOrEns": "На адресу або ENS",
       "scanQrCode": "Відсканувати QR-код",
       "qrCode": "QR Code",
       "permissionsButton": "Спробуйте ще раз",
@@ -1451,7 +1456,6 @@
         "qrDangerousEthUrl": "QR-коди, що містять адресу контракту, не підтримуються. Будь ласка, вставте адресу призначення вручну."
       },
       "confirm": {
-        "sendAsset": "Надіслати %{asset}",
         "send": "Send",
         "sendTo": "Надіслати на",
         "customNonce": "Користувацький Nonce",
@@ -1461,7 +1465,8 @@
         "amount": "Сума",
         "transactionFee": "Комісія за транзакцію",
         "fees": "Комісії %{feeType}",
-        "pendingConfirmation": "Очікується підтвердження"
+        "pendingConfirmation": "Очікується підтвердження",
+        "holdToSend": "Утримуйте, щоб надіслати"
       },
       "sendForm": {
         "optionalAssetMemo": "За бажанням %{assetSymbol} Memo",
@@ -1470,13 +1475,16 @@
         "memoExplainer": "Деякі %{assetSymbol} одержувачі можуть вимагати мемо для того, щоб транзакція була оброблена коректно",
         "sendAsset": "Надіслати %{asset}",
         "sendTo": "Надіслати на",
+        "chain": "Мережа",
         "sendAmount": "Сума переказу",
         "max": "Максимум",
         "transactionFee": "Комісія за транзакцію",
         "slow": "Повільно",
         "average": "Середньо",
         "fast": "Швидко",
-        "enterAmount": "Введіть суму"
+        "enterAmount": "Введіть суму",
+        "scanQrCodeDescription": "Натисніть, щоб відсканувати адресу",
+        "yourAddresses": "Ваші адреси"
       },
       "status": {
         "pendingBody": "Відправлення %{amount} %{symbol}"
@@ -2524,6 +2532,10 @@
           "selectedAccounts": "Вибрані акаунти",
           "permissionMessage": "Будь ласка, оберіть принаймні один рахунок для кожного ланцюжка.",
           "optionalPermissionMessage": "Наступні дозволи є необов'язковими."
+        },
+        "noAccountsForChain": {
+          "title": "Мережа не підтримується",
+          "description": "До цього dApp не підключено жодного облікового запису %{chainLabel}."
         }
       },
       "registry": {
@@ -3216,8 +3228,8 @@
       "complete": "Ваша вимога на суму %{amount} %{symbol} виконана."
     },
     "bridge": {
-      "processing": "Обробка...",
-      "complete": "Ваш міст на суму %{amountAndSymbol} готовий.",
+      "processing": "Ваш переказ з %{sellAmountAndSymbol}.%{sellChainShortName} на %{buyAmountAndSymbol}.%{buyChainShortName} обробляється.",
+      "complete": "Ваш переказ з %{sellAmountAndSymbol}.%{sellChainShortName} на %{buyAmountAndSymbol}.%{buyChainShortName} завершено.",
       "initiated": "Ваш міст від %{sellAmountAndSymbol} до %{buyAmountAndSymbol} було ініційовано.",
       "pendingWithdraw": "Ваш вивід %{amountAndSymbol} буде доступний %{timeText}.",
       "claimAvailable": "Ваш міст на суму %{amountAndSymbol} доступний для отримання.",

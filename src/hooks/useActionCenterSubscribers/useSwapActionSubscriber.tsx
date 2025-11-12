@@ -1,5 +1,5 @@
 import { usePrevious } from '@chakra-ui/react'
-import { baseChainId, ethChainId, fromAccountId } from '@shapeshiftoss/caip'
+import { ethChainId, fromAccountId } from '@shapeshiftoss/caip'
 import type { Swap } from '@shapeshiftoss/swapper'
 import {
   fetchSafeTransactionInfo,
@@ -20,7 +20,6 @@ import { MobileFeature, useMobileFeaturesCompatibility } from '../useMobileFeatu
 import { useModal } from '../useModal/useModal'
 import { useNotificationToast } from '../useNotificationToast'
 import { useWallet } from '../useWallet/useWallet'
-import { useBasePortfolioManagement } from './useFetchBasePortfolio'
 
 import { useActionCenterContext } from '@/components/Layout/Header/ActionCenter/ActionCenterContext'
 import { SwapNotification } from '@/components/Layout/Header/ActionCenter/components/Notifications/SwapNotification'
@@ -106,8 +105,6 @@ export const useSwapActionSubscriber = () => {
   const activeSwapId = useAppSelector(swapSlice.selectors.selectActiveSwapId)
   const previousIsDrawerOpen = usePrevious(isDrawerOpen)
   const tradeQuoteState = useAppSelector(tradeQuoteSlice.selectSlice)
-
-  const { fetchBasePortfolio, upsertBasePortfolio } = useBasePortfolioManagement()
 
   useEffect(() => {
     if (isDrawerOpen && !previousIsDrawerOpen) {
@@ -243,13 +240,6 @@ export const useSwapActionSubscriber = () => {
       })
 
       if (status === TxStatus.Confirmed) {
-        // TEMP HACK FOR BASE
-        if (swap.sellAsset.chainId === baseChainId || swap.buyAsset.chainId === baseChainId) {
-          fetchBasePortfolio()
-          upsertBasePortfolio({ accountId: swap.sellAccountId, assetId: swap.sellAsset.assetId })
-          upsertBasePortfolio({ accountId: swap.buyAccountId, assetId: swap.buyAsset.assetId })
-        }
-
         vibrate('heavy')
 
         dispatch(
@@ -299,11 +289,6 @@ export const useSwapActionSubscriber = () => {
       }
 
       if (status === TxStatus.Failed) {
-        // TEMP HACK FOR BASE
-        if (swap.sellAsset.chainId === baseChainId || swap.buyAsset.chainId === baseChainId) {
-          fetchBasePortfolio()
-        }
-
         dispatch(
           swapSlice.actions.upsertSwap({
             ...swap,
@@ -368,8 +353,6 @@ export const useSwapActionSubscriber = () => {
       handleHasSeenRatingModal,
       mobileFeaturesCompatibility,
       tradeQuoteState,
-      fetchBasePortfolio,
-      upsertBasePortfolio,
     ],
   )
 

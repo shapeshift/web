@@ -114,3 +114,9 @@ export const walletConnectV2ProviderConfig: EthereumProviderOptions = {
     [CHAIN_REFERENCE.BaseMainnet]: VITE_BASE_NODE_URL,
   },
 }
+
+export const walletConnectV2DirectProviderConfig: EthereumProviderOptions = {
+  ...walletConnectV2ProviderConfig,
+  showQrModal: false,
+  qrModalOptions: undefined,
+}

@@ -2,6 +2,8 @@ import { assertUnreachable } from '@shapeshiftoss/utils'
 
 import { arbitrumBridgeSwapper } from './swappers/ArbitrumBridgeSwapper/ArbitrumBridgeSwapper'
 import { arbitrumBridgeApi } from './swappers/ArbitrumBridgeSwapper/endpoints'
+import { bebopSwapper } from './swappers/BebopSwapper/BebopSwapper'
+import { bebopApi } from './swappers/BebopSwapper/endpoints'
 import { butterSwap } from './swappers/ButterSwap/ButterSwap'
 import { butterSwapApi } from './swappers/ButterSwap/endpoints'
 import { chainflipSwapper } from './swappers/ChainflipSwapper/ChainflipSwapper'
@@ -74,6 +76,10 @@ export const swappers: Record<SwapperName, (SwapperApi & Swapper) | undefined> =
     ...butterSwap,
     ...butterSwapApi,
   },
+  [SwapperName.Bebop]: {
+    ...bebopSwapper,
+    ...bebopApi,
+  },
   [SwapperName.Test]: undefined,
 }
 
@@ -93,6 +99,7 @@ export const getDefaultSlippageDecimalPercentageForSwapper = (
   if (swapperName === undefined) return DEFAULT_SLIPPAGE_DECIMAL_PERCENTAGE
   switch (swapperName) {
     case SwapperName.Zrx:
+    case SwapperName.Bebop:
     case SwapperName.Test:
       return DEFAULT_SLIPPAGE_DECIMAL_PERCENTAGE
     case SwapperName.CowSwap:

@@ -1,7 +1,7 @@
 import { createSlice } from '@reduxjs/toolkit'
 import { createApi } from '@reduxjs/toolkit/query/react'
 import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
-import { fromAccountId, isNft, thorchainChainId } from '@shapeshiftoss/caip'
+import { CHAIN_NAMESPACE, fromAccountId, fromChainId, thorchainChainId } from '@shapeshiftoss/caip'
 import type { ChainAdapter, thorchain, Transaction } from '@shapeshiftoss/chain-adapters'
 import type { PartialRecord, UtxoAccountType } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
@@ -15,7 +15,6 @@ import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSin
 import { deepUpsertArray } from '@/lib/utils'
 import { BASE_RTK_CREATE_API_CONFIG } from '@/state/apis/const'
 import type { State } from '@/state/apis/types'
-import { BLACKLISTED_COLLECTION_IDS, isSpammyNftText, isSpammyTokenText } from '@/state/blacklist'
 import type { Nominal } from '@/types/common'
 
 export type TxId = Nominal<string, 'TxId'>
@@ -80,30 +79,12 @@ export const initialState: TxHistory = {
   hydrationMeta: {},
 }
 
-const checkIsSpam = (tx: Tx): boolean => {
-  return tx.transfers.some(({ assetId, token }) => {
-    if (!token) return false
-
-    const { name, symbol } = token
-
-    if (isNft(assetId)) {
-      return (
-        [name, symbol].some(text => isSpammyNftText(text, true)) ||
-        BLACKLISTED_COLLECTION_IDS.includes(assetId)
-      )
-    } else {
-      return [name, symbol].some(isSpammyTokenText)
-    }
-  })
-}
-
 const updateOrInsertTxs = (txHistory: TxHistory, incomingTxs: Tx[], accountId: AccountId) => {
   const { txs, hydrationMeta } = txHistory
 
   let newTxAdded = false
   let minTxBlockTime = Infinity
   for (const tx of incomingTxs) {
-    if (checkIsSpam(tx)) continue
     if (tx.blockTime < minTxBlockTime) minTxBlockTime = tx.blockTime
 
     const txIndex = serializeTxIndex(accountId, tx.txid, tx.pubkey, tx.data)
@@ -195,17 +176,26 @@ export const txHistoryApi = createApi({
           return { error: { data, status: 400 } }
         }
 
+        const txsByAccountId = (getState() as State).txHistory.txs.byAccountIdAssetId
+
+        const hasExistingTxHistory = Object.values(txsByAccountId[accountId] ?? {}).some(
+          txIds => txIds && txIds.length > 0,
+        )
+
+        const pageSize =
+          !hasExistingTxHistory && fromChainId(chainId).chainNamespace === CHAIN_NAMESPACE.Evm
+            ? 100
+            : 10
+
         const fetch = async (getTxHistoryFns: ChainAdapter<ChainId>['getTxHistory'][]) => {
           for await (const getTxHistory of getTxHistoryFns) {
             try {
               let currentCursor = ''
 
               do {
-                const pageSize = 10
                 const requestCursor = currentCursor
 
-                const state = getState() as State
-                const txsById = state.txHistory.txs.byId
+                const txsById = (getState() as State).txHistory.txs.byId
 
                 // Passes the list of known (confirmed) Txids for the account to the adapter getHistory() fn, so we don't spam parseTx()
                 // which can be heavy in terms of parsing and of XHRs. If we already have a known confirmed Tx in the store, no need to re-parse it.
@@ -221,7 +211,7 @@ export const txHistoryApi = createApi({
                   }
                 })
 
-                const { cursor, transactions } = await getTxHistory({
+                const { cursor, transactions, txIds } = await getTxHistory({
                   cursor: requestCursor,
                   pubkey,
                   pageSize,
@@ -229,9 +219,7 @@ export const txHistoryApi = createApi({
                   knownTxIds,
                 })
 
-                const hasTx = transactions.some(
-                  tx => !!txsById[serializeTxIndex(accountId, tx.txid, tx.pubkey, tx.data)],
-                )
+                const hasTx = txIds.some(txid => knownTxIds.has(txid))
 
                 const results: TransactionsByAccountId = { [accountId]: transactions }
                 dispatch(txHistory.actions.upsertTxsByAccountId(results))

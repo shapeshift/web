@@ -91,6 +91,8 @@ interface ImportMetaEnv {
   readonly VITE_MTPELERIN_SELL_URL: string
   readonly VITE_MTPELERIN_REFERRAL_CODE: string
   readonly VITE_MTPELERIN_INTEGRATION_KEY: string
+  readonly VITE_BANXA_API_URL: string
+  readonly VITE_BANXA_API_KEY: string
   readonly VITE_ONRAMPER_WIDGET_URL: string
   readonly VITE_ONRAMPER_API_URL: string
   readonly VITE_ONRAMPER_API_KEY: string
@@ -116,6 +118,7 @@ interface ImportMetaEnv {
   readonly VITE_TENDERLY_ACCOUNT_SLUG: string
   readonly VITE_TENDERLY_PROJECT_SLUG: string
   readonly VITE_TENDERLY_API_KEY: string
+  readonly VITE_FEATURE_ADDRESS_BOOK: string
 
   // Unchained URLs and node URLs - present in all envs (prod, development, private)
   // even though they're not present in base env

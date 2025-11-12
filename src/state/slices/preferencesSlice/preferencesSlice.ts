@@ -44,6 +44,7 @@ export type FeatureFlags = {
   Chatwoot: boolean
   AdvancedSlippage: boolean
   WalletConnectV2: boolean
+  WcDirectConnection: boolean
   CustomSendNonce: boolean
   ThorchainLending: boolean
   ThorchainLendingBorrow: boolean
@@ -85,6 +86,7 @@ export type FeatureFlags = {
   ThorchainTcyActivity: boolean
   MayaSwap: boolean
   ButterSwap: boolean
+  BebopSwap: boolean
   LazyTxHistory: boolean
   RfoxFoxEcosystemPage: boolean
   LedgerReadOnly: boolean
@@ -92,6 +94,7 @@ export type FeatureFlags = {
   NewWalletManager: boolean
   SwapperFiatRamps: boolean
   Webservices: boolean
+  AddressBook: boolean
 }
 
 export type Flag = keyof FeatureFlags
@@ -169,6 +172,7 @@ const initialState: Preferences = {
     Chatwoot: getConfig().VITE_FEATURE_CHATWOOT,
     AdvancedSlippage: getConfig().VITE_FEATURE_ADVANCED_SLIPPAGE,
     WalletConnectV2: getConfig().VITE_FEATURE_WALLET_CONNECT_V2,
+    WcDirectConnection: getConfig().VITE_FEATURE_WC_DIRECT_CONNECTION,
     CustomSendNonce: getConfig().VITE_EXPERIMENTAL_CUSTOM_SEND_NONCE,
     ThorchainLending: getConfig().VITE_FEATURE_THORCHAIN_LENDING,
     ThorchainLendingBorrow: getConfig().VITE_FEATURE_THORCHAIN_LENDING_BORROW,
@@ -210,6 +214,7 @@ const initialState: Preferences = {
     ThorchainTcyActivity: getConfig().VITE_FEATURE_THORCHAIN_TCY_ACTIVITY,
     MayaSwap: getConfig().VITE_FEATURE_MAYA_SWAP,
     ButterSwap: getConfig().VITE_FEATURE_BUTTERSWAP,
+    BebopSwap: getConfig().VITE_FEATURE_BEBOP_SWAP,
     LazyTxHistory: getConfig().VITE_FEATURE_TX_HISTORY_BYE_BYE,
     RfoxFoxEcosystemPage: getConfig().VITE_FEATURE_RFOX_FOX_ECOSYSTEM_PAGE,
     LedgerReadOnly: getConfig().VITE_FEATURE_LEDGER_READ_ONLY,
@@ -217,6 +222,7 @@ const initialState: Preferences = {
     NewWalletManager: getConfig().VITE_FEATURE_NEW_WALLET_MANAGER,
     SwapperFiatRamps: getConfig().VITE_FEATURE_SWAPPER_FIAT_RAMPS,
     Webservices: getConfig().VITE_FEATURE_WEBSERVICES,
+    AddressBook: getConfig().VITE_FEATURE_ADDRESS_BOOK,
   },
   selectedLocale: simpleLocale(),
   hasWalletSeenTcyClaimAlert: {},

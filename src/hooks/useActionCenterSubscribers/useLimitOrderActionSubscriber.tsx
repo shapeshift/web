@@ -1,5 +1,4 @@
 import { usePrevious } from '@chakra-ui/react'
-import { baseChainId } from '@shapeshiftoss/caip'
 import { OrderStatus } from '@shapeshiftoss/types'
 import { bnOrZero, fromBaseUnit } from '@shapeshiftoss/utils'
 import { useEffect, useMemo } from 'react'
@@ -8,7 +7,6 @@ import { v4 as uuidv4 } from 'uuid'
 
 import { useLocaleFormatter } from '../useLocaleFormatter/useLocaleFormatter'
 import { useNotificationToast } from '../useNotificationToast'
-import { useBasePortfolioManagement } from './useFetchBasePortfolio'
 
 import { useActionCenterContext } from '@/components/Layout/Header/ActionCenter/ActionCenterContext'
 import { LimitOrderNotification } from '@/components/Layout/Header/ActionCenter/components/Notifications/LimitOrderNotification'
@@ -75,8 +73,6 @@ export const useLimitOrderActionSubscriber = () => {
   const limitPrice = useAppSelector(selectActiveQuoteLimitPrice)
 
   const actions = useAppSelector(selectLimitOrderActionsByWallet)
-
-  const { fetchBasePortfolio, upsertBasePortfolio } = useBasePortfolioManagement()
 
   useEffect(() => {
     if (isDrawerOpen && !previousIsDrawerOpen) {
@@ -175,6 +171,7 @@ export const useLimitOrderActionSubscriber = () => {
         dispatch(actionSlice.actions.upsertAction(updatedAction))
 
         toast({
+          id: updatedAction.limitOrderMetadata.limitOrderId,
           render: ({ onClose, ...props }) => {
             const handleClick = () => {
               onClose()
@@ -246,6 +243,8 @@ export const useLimitOrderActionSubscriber = () => {
 
         dispatch(actionSlice.actions.upsertAction(updatedAction))
 
+        if (toast.isActive(order.order.uid)) return
+
         toast({
           render: props => (
             <LimitOrderNotification
@@ -260,14 +259,6 @@ export const useLimitOrderActionSubscriber = () => {
       }
 
       if (order.order.status === OrderStatus.FULFILLED && action.status !== ActionStatus.Complete) {
-        // TEMP HACK FOR BASE
-        const { sellAsset, buyAsset, accountId } = action.limitOrderMetadata
-        if (sellAsset.chainId === baseChainId || buyAsset.chainId === baseChainId) {
-          fetchBasePortfolio()
-          upsertBasePortfolio({ accountId, assetId: sellAsset.assetId })
-          upsertBasePortfolio({ accountId, assetId: buyAsset.assetId })
-        }
-
         const updatedAction: LimitOrderAction = {
           ...action,
           limitOrderMetadata: {
@@ -290,6 +281,8 @@ export const useLimitOrderActionSubscriber = () => {
         }
 
         dispatch(actionSlice.actions.upsertAction(updatedAction))
+
+        if (toast.isActive(order.order.uid)) return
 
         toast({
           render: props => (
@@ -315,6 +308,8 @@ export const useLimitOrderActionSubscriber = () => {
 
         dispatch(actionSlice.actions.upsertAction(updatedAction))
 
+        if (toast.isActive(order.order.uid)) return
+
         // @TODO: replace title by the notification UI product prepared
         toast({
           render: props => (
@@ -336,6 +331,8 @@ export const useLimitOrderActionSubscriber = () => {
         }
 
         dispatch(actionSlice.actions.upsertAction(updatedAction))
+
+        if (toast.isActive(order.order.uid)) return
 
         // @TODO: replace title by the notification UI product prepared
         toast({
@@ -360,7 +357,5 @@ export const useLimitOrderActionSubscriber = () => {
     translate,
     actions,
     openActionCenter,
-    fetchBasePortfolio,
-    upsertBasePortfolio,
   ])
 }

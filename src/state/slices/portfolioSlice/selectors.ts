@@ -16,6 +16,7 @@ import pickBy from 'lodash/pickBy'
 import sum from 'lodash/sum'
 import toNumber from 'lodash/toNumber'
 import values from 'lodash/values'
+import { matchSorter } from 'match-sorter'
 import { createCachedSelector } from 're-reselect'
 import type { Row } from 'react-table'
 
@@ -45,7 +46,7 @@ import type {
   WalletId,
 } from './portfolioSliceCommon'
 import { AssetEquityType } from './portfolioSliceCommon'
-import { findAccountsByAssetId } from './utils'
+import { accountIdToLabel, findAccountsByAssetId } from './utils'
 
 import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
 import type { BigNumber, BN } from '@/lib/bignumber/bignumber'
@@ -63,6 +64,7 @@ import {
   selectAccountNumberParamFromFilter,
   selectAssetIdParamFromFilter,
   selectChainIdParamFromFilter,
+  selectSearchQueryFromFilter,
 } from '@/state/selectors'
 import { selectMarketDataUserCurrency } from '@/state/slices/marketDataSlice/selectors'
 import { selectUserStakingOpportunitiesById } from '@/state/slices/opportunitiesSlice/selectors/stakingSelectors'
@@ -1273,4 +1275,27 @@ export const selectUniqueEvmAccountNumbers = createSelector(
         Object.keys(accountIdsByAccountNumberAndChainId[accountNumber] ?? {}).some(isEvmChainId),
       )
       .sort((a, b) => a - b),
+)
+
+export const selectInternalAccountsBySearchQuery = createDeepEqualOutputSelector(
+  selectAccountIdsByChainIdFilter,
+  selectPortfolioAccountMetadata,
+  selectSearchQueryFromFilter,
+  (accountIds, accountMetadata, searchQuery): AccountId[] => {
+    if (!searchQuery) return accountIds
+
+    return matchSorter(accountIds, searchQuery, {
+      keys: [
+        { key: (accountId: AccountId) => fromAccountId(accountId).account },
+        { key: (accountId: AccountId) => accountIdToLabel(accountId) },
+        {
+          key: (accountId: AccountId) => {
+            const metadata = accountMetadata[accountId]
+            return metadata?.bip44Params?.accountNumber?.toString() ?? ''
+          },
+        },
+      ],
+      threshold: matchSorter.rankings.CONTAINS,
+    })
+  },
 )

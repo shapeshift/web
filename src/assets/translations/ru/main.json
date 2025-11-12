@@ -77,6 +77,7 @@
     "rename": "Переименовать",
     "forget": "Забыл?",
     "pending": "В ожидании",
+    "preview": "Предварительный просмотр",
     "incomplete": "Неполный",
     "available": "Доступен",
     "or": "или",
@@ -231,6 +232,9 @@
     "permit2Approval": "Permit2 Одобрение",
     "network": "Сеть",
     "feeEstimate": "Ориентировочная комиссия"
+  },
+  "accountSelector": {
+    "chooseAccount": "Выберите учетную запись"
   },
   "quickBuy": {
     "title": "Быстрая покупка %{assetOnChain}",
@@ -1427,6 +1431,7 @@
       }
     },
     "send": {
+      "confirmSend": "Подтвердить отправку",
       "consolidate": {
         "body": "В ShapeShift соблюдена конструкция безопасности %{asset} для каждой транзакции используется новый адрес. Чтобы соответствовать протоколу THORChain, который работает с одним адресом, мы объединяем ваши средства в один адрес.",
         "tooltip": "Отправляйте средства на один адрес для совместимости с THORChain.",
@@ -1435,8 +1440,8 @@
       "getFeesError": "Ошибка при получении комиссии",
       "broadcastingTransaction": "Мониторинг транзакции",
       "youHaveSent": "Вы успешно отправили %{amount} %{symbol}",
-      "tokenAddress": "На адрес",
-      "addressInput": "На адрес или ENS",
+      "toAddress": "На адрес",
+      "toAddressOrEns": "На адрес или ENS",
       "scanQrCode": "Отсканировать QR код",
       "qrCode": "QR Code",
       "permissionsButton": "Попробуйте еще раз",
@@ -1451,7 +1456,6 @@
         "qrDangerousEthUrl": "QR-коды, содержащие адрес контракта, не поддерживаются. Пожалуйста, вставьте адрес назначения вручную."
       },
       "confirm": {
-        "sendAsset": "Отправлено %{asset}",
         "send": "Отправить",
         "sendTo": "Отправить",
         "customNonce": "Пользовательский Nonce",
@@ -1461,7 +1465,8 @@
         "amount": "Сумма",
         "transactionFee": "Комиссия за транзакцию",
         "fees": "Комиссия %{feeType}",
-        "pendingConfirmation": "Ожидается подтверждение"
+        "pendingConfirmation": "Ожидается подтверждение",
+        "holdToSend": "Удерживайте, чтобы отправить"
       },
       "sendForm": {
         "optionalAssetMemo": "Необязательный %{assetSymbol} Memo",
@@ -1470,13 +1475,16 @@
         "memoExplainer": "Некоторые получатели %{assetSymbol} могут потребовать мемо для правильной обработки транзакции.",
         "sendAsset": "Отправить %{asset}",
         "sendTo": "отправить на",
+        "chain": "Сеть",
         "sendAmount": "Отправить сумму",
         "max": "Максимум",
         "transactionFee": "Комиссия за транзакцию",
         "slow": "Медленно",
         "average": "Средняя",
         "fast": "Быстро",
-        "enterAmount": "Введите сумму"
+        "enterAmount": "Введите сумму",
+        "scanQrCodeDescription": "Нажмите, чтобы отсканировать адрес",
+        "yourAddresses": "Ваши адреса"
       },
       "status": {
         "pendingBody": "Отправка %{amount} %{symbol}"
@@ -2524,6 +2532,10 @@
           "selectedAccounts": "Выбранные счета",
           "permissionMessage": "Пожалуйста, выберите хотя бы один счет для каждой цепочки.",
           "optionalPermissionMessage": "Следующие разрешения являются необязательными."
+        },
+        "noAccountsForChain": {
+          "title": "Сеть не поддерживается",
+          "description": "К этому dApp не подключена учетная запись %{chainLabel}."
         }
       },
       "registry": {
@@ -3216,8 +3228,8 @@
       "complete": "Ваше требование на %{amount} %{symbol} выполнено."
     },
     "bridge": {
-      "processing": "Обработка...",
-      "complete": "Ваш мост %{amountAndSymbol} готов.",
+      "processing": "Ваш перевод %{sellAmountAndSymbol}.%{sellChainShortName} в %{buyAmountAndSymbol}.%{buyChainShortName} обрабатывается.",
+      "complete": "Ваш перевод %{sellAmountAndSymbol}.%{sellChainShortName} до %{buyAmountAndSymbol}.%{buyChainShortName} завершен.",
       "initiated": "Ваш мост от %{sellAmountAndSymbol} до %{buyAmountAndSymbol} был инициирован.",
       "pendingWithdraw": "Ваш вывод %{amountAndSymbol} будет доступен %{timeText}.",
       "claimAvailable": "Ваш мост %{amountAndSymbol} доступен для получения.",

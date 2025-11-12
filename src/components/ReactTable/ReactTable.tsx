@@ -36,6 +36,7 @@ type ReactTableProps<T extends {}> = {
   renderSubComponent?: (row: Row<T>) => ReactNode
   renderEmptyComponent?: () => ReactNode
   isLoading?: boolean
+  showPagination?: boolean
   variant?: TableProps['variant']
   onPageChange?: (page: Row<T>[]) => void
 }
@@ -142,6 +143,7 @@ export const ReactTable = <T extends {}>({
   renderEmptyComponent,
   isLoading = false,
   variant = 'default',
+  showPagination = true,
   onPageChange,
 }: ReactTableProps<T>) => {
   const translate = useTranslate()
@@ -265,7 +267,7 @@ export const ReactTable = <T extends {}>({
           </Tr>
         </Tfoot>
       )}
-      {(canNextPage || canPreviousPage) && (
+      {showPagination && (canNextPage || canPreviousPage) && (
         <Tfoot>
           <Tr>
             <Td colSpan={visibleColumns.length} style={tdStyle2}>

@@ -87,7 +87,12 @@ const generateAssetData = async () => {
   const generatedAssetData = orderedAssetList.reduce<AssetsById>((acc, asset) => {
     const currentGeneratedAssetId = currentGeneratedAssetData[asset.assetId]
     // Ensures we don't overwrite existing relatedAssetIndex with the generated one, triggering a refetch
-    if (currentGeneratedAssetId?.relatedAssetKey !== undefined) {
+    // Only preserve actual AssetId values, not null (null means "checked but no related assets found")
+    // By not preserving null, we allow re-checking when upstream providers add new platforms
+    if (
+      currentGeneratedAssetId?.relatedAssetKey &&
+      currentGeneratedAssetId.relatedAssetKey !== null
+    ) {
       asset.relatedAssetKey = currentGeneratedAssetId.relatedAssetKey
     }
 

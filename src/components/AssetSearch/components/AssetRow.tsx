@@ -248,7 +248,8 @@ export const AssetRow: FC<AssetRowProps> = memo(
         isDisabled={!isSupported && disableUnsupported}
         _focus={focus}
         width='100%'
-        py={8}
+        height='auto'
+        p={4}
         {...props}
         {...longPressHandlers(asset)}
       >
@@ -261,6 +262,7 @@ export const AssetRow: FC<AssetRowProps> = memo(
               textOverflow='ellipsis'
               whiteSpace='nowrap'
               overflow='hidden'
+              width='100%'
             >
               {showChainName ? `${chainName} (${asset.symbol})` : asset.name}
             </Text>

@@ -1,5 +1,6 @@
 import type { ModalProps } from '@chakra-ui/react'
 import { formatJsonRpcError } from '@json-rpc-tools/utils'
+import type { WalletKitTypes } from '@reown/walletkit'
 import type { SessionTypes } from '@walletconnect/types'
 import { getSdkError } from '@walletconnect/utils'
 import type { Dispatch, FC } from 'react'
@@ -15,7 +16,10 @@ import { CosmosSignMessageConfirmationModal } from '@/plugins/walletConnectToDap
 import { EIP155SignMessageConfirmationModal } from '@/plugins/walletConnectToDapps/components/modals/EIP155SignMessageConfirmation'
 import { EIP155SignTypedDataConfirmation } from '@/plugins/walletConnectToDapps/components/modals/EIP155SignTypedDataConfirmation'
 import { EIP155TransactionConfirmation } from '@/plugins/walletConnectToDapps/components/modals/EIP155TransactionConfirmation'
+import { NoAccountsForChainModal } from '@/plugins/walletConnectToDapps/components/modals/NoAccountsForChainModal'
 import { SendTransactionConfirmation } from '@/plugins/walletConnectToDapps/components/modals/SendTransactionConfirmation'
+import { SessionAuthenticateConfirmation } from '@/plugins/walletConnectToDapps/components/modals/SessionAuthenticateConfirmation'
+import { SessionAuthRoutes } from '@/plugins/walletConnectToDapps/components/modals/SessionAuthRoutes'
 import { SessionProposalModal } from '@/plugins/walletConnectToDapps/components/modals/SessionProposal'
 import { SessionProposalRoutes } from '@/plugins/walletConnectToDapps/components/modals/SessionProposalRoutes'
 import { useWalletConnectState } from '@/plugins/walletConnectToDapps/hooks/useWalletConnectState'
@@ -35,8 +39,12 @@ import type {
 import { WalletConnectActionType, WalletConnectModal } from '@/plugins/walletConnectToDapps/types'
 import { approveCosmosRequest } from '@/plugins/walletConnectToDapps/utils/CosmosRequestHandlerUtil'
 import { approveEIP155Request } from '@/plugins/walletConnectToDapps/utils/EIP155RequestHandlerUtil'
+import { approveSessionAuthRequest } from '@/plugins/walletConnectToDapps/utils/SessionAuthRequestHandlerUtil'
+import { selectPortfolioAccountMetadata } from '@/state/slices/portfolioSlice/selectors'
+import { useAppSelector } from '@/state/store'
 
 const sessionProposalInitialEntries = [SessionProposalRoutes.Overview]
+const sessionAuthInitialEntries = [SessionAuthRoutes.Overview]
 
 type WalletConnectModalManagerProps = WalletConnectContextType
 
@@ -59,6 +67,12 @@ export type WalletConnectRequestModalProps<T> = {
   onReject(): Promise<void>
 }
 
+export type WalletConnectSessionAuthModalProps = {
+  state: Required<WalletConnectState>
+  onConfirm(customTransactionData?: CustomTransactionData): Promise<void>
+  onReject(): Promise<void>
+}
+
 const modalProps: Omit<ModalProps, 'children' | 'isOpen' | 'onClose'> = {
   size: 'md',
   scrollBehavior: 'inside',
@@ -75,6 +89,7 @@ export const WalletConnectModalManager: FC<WalletConnectModalManagerProps> = ({
   const { wallet, isConnected } = useWallet().state
   const sessionProposalRef = useRef<SessionProposalRef>(null)
   const { chainId, requestEvent, accountMetadata, accountId } = useWalletConnectState(state)
+  const portfolioAccountMetadata = useAppSelector(selectPortfolioAccountMetadata)
 
   const { activeModal, web3wallet } = state
 
@@ -147,17 +162,70 @@ export const WalletConnectModalManager: FC<WalletConnectModalManagerProps> = ({
     })
   }, [requestEvent, topic, web3wallet])
 
+  const handleConfirmSessionAuth = useCallback(
+    async (customTransactionData?: CustomTransactionData) => {
+      if (!state.modalData?.request || !web3wallet || !wallet) return
+
+      const sessionAuthRequest = state.modalData
+        .request as WalletKitTypes.EventArguments['session_authenticate']
+
+      const selectedAccountId = customTransactionData?.accountId || accountId
+      const selectedAccountMetadata = portfolioAccountMetadata[selectedAccountId ?? '']
+
+      const approvalResponse = await approveSessionAuthRequest({
+        wallet,
+        web3wallet,
+        sessionAuthRequest,
+        customTransactionData,
+        accountId,
+        accountMetadata: selectedAccountMetadata,
+      })
+
+      if (!approvalResponse?.session) return
+
+      dispatch({
+        type: WalletConnectActionType.ADD_SESSION,
+        payload: approvalResponse.session,
+      })
+
+      handleClose()
+    },
+    [
+      accountId,
+      dispatch,
+      handleClose,
+      portfolioAccountMetadata,
+      state.modalData,
+      wallet,
+      web3wallet,
+    ],
+  )
+
   const handleRejectRequestAndClose = useCallback(async () => {
     switch (activeModal) {
       case WalletConnectModal.SessionProposal:
         await sessionProposalRef.current?.handleReject()
         break
+      case WalletConnectModal.SessionAuthenticateConfirmation: {
+        if (!state.modalData?.request || !web3wallet) break
+
+        const sessionAuthRequest = state.modalData
+          .request as WalletKitTypes.EventArguments['session_authenticate']
+        await web3wallet.rejectSessionAuthenticate({
+          id: sessionAuthRequest.id,
+          reason: getSdkError('USER_REJECTED'),
+        })
+        break
+      }
       case WalletConnectModal.SignEIP155MessageConfirmation:
       case WalletConnectModal.SignEIP155TypedDataConfirmation:
       case WalletConnectModal.SignEIP155TransactionConfirmation:
       case WalletConnectModal.SendEIP155TransactionConfirmation:
       case WalletConnectModal.SendCosmosTransactionConfirmation:
         await handleRejectRequest()
+        break
+      case WalletConnectModal.NoAccountsForChain:
+        // No rejection needed, error already sent to dApp
         break
       case undefined:
         break
@@ -166,7 +234,7 @@ export const WalletConnectModalManager: FC<WalletConnectModalManagerProps> = ({
     }
 
     handleClose()
-  }, [activeModal, handleClose, handleRejectRequest])
+  }, [activeModal, handleClose, handleRejectRequest, state.modalData, web3wallet])
 
   const modalContent = useMemo(() => {
     if (!web3wallet || !activeModal || !isSessionProposalState(state)) return null
@@ -179,6 +247,16 @@ export const WalletConnectModalManager: FC<WalletConnectModalManagerProps> = ({
               dispatch={dispatch}
               state={state}
               ref={sessionProposalRef}
+            />
+          </MemoryRouter>
+        )
+      case WalletConnectModal.SessionAuthenticateConfirmation:
+        return (
+          <MemoryRouter initialEntries={sessionAuthInitialEntries}>
+            <SessionAuthenticateConfirmation
+              onConfirm={handleConfirmSessionAuth}
+              onReject={handleRejectRequestAndClose}
+              state={state}
             />
           </MemoryRouter>
         )
@@ -209,9 +287,9 @@ export const WalletConnectModalManager: FC<WalletConnectModalManagerProps> = ({
         const requestParams = state.modalData?.requestEvent?.params.request.params
         const transaction = Array.isArray(requestParams) ? requestParams[0] : undefined
 
-        if (!transaction) return null
+        if (!transaction || typeof transaction === 'string' || !('data' in transaction)) return null
 
-        const isNativeSend = typeof transaction !== 'string' && transaction.data === '0x'
+        const isNativeSend = transaction.data === '0x'
 
         if (isNativeSend)
           return (
@@ -247,6 +325,8 @@ export const WalletConnectModalManager: FC<WalletConnectModalManagerProps> = ({
             topic={topic}
           />
         )
+      case WalletConnectModal.NoAccountsForChain:
+        return <NoAccountsForChainModal onClose={handleClose} dispatch={dispatch} state={state} />
       default:
         assertUnreachable(activeModal)
     }
@@ -254,6 +334,7 @@ export const WalletConnectModalManager: FC<WalletConnectModalManagerProps> = ({
     activeModal,
     dispatch,
     handleClose,
+    handleConfirmSessionAuth,
     handleConfirmCosmosRequest,
     handleConfirmEIP155Request,
     handleRejectRequestAndClose,

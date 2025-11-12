@@ -2331,6 +2331,7 @@
     },
     "claimPending": "领取 %{amount} %{symbol} 中...",
     "claimStatus": {
+      "pendingSubtitle": "我们正在处理您领取的 %{amount} %{symbol}",
       "goBack": "返回",
       "successTitle": "领取成功",
       "successSubtitle": "您已成功领取 %{amount} TCY",

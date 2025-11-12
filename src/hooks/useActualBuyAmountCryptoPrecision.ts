@@ -12,13 +12,6 @@ export const useActualBuyAmountCryptoPrecision = (
 ): string | undefined => {
   const swap = useAppSelector(state => selectSwapById(state, { swapId: swapId ?? '' }))
 
-  console.log('[useActualBuyAmountCryptoPrecision] Called with:', {
-    swapId,
-    buyAccountId: swap?.buyAccountId,
-    buyTxHash: swap?.buyTxHash,
-    swapperName: swap?.swapperName,
-  })
-
   const tx = useAppSelector(state =>
     selectTxByFilter(state, {
       accountId: swap?.buyAccountId ?? '',
@@ -31,11 +24,6 @@ export const useActualBuyAmountCryptoPrecision = (
     }),
   )
 
-  console.log('[useActualBuyAmountCryptoPrecision] Found tx:', {
-    txId: tx?.txid,
-    transfersCount: tx?.transfers?.length,
-  })
-
   const actualBuyAmountCryptoPrecision = useMemo(() => {
     if (!tx?.transfers?.length || !swap?.buyAsset) return undefined
 
@@ -44,18 +32,10 @@ export const useActualBuyAmountCryptoPrecision = (
         transfer.type === TransferType.Receive && transfer.assetId === swap.buyAsset.assetId,
     )
 
-    console.log('[useActualBuyAmountCryptoPrecision] Receive transfer:', {
-      value: receiveTransfer?.value,
-      assetId: receiveTransfer?.assetId,
-      precision: swap.buyAsset.precision,
-    })
-
     return receiveTransfer?.value
       ? fromBaseUnit(receiveTransfer.value, swap.buyAsset.precision)
       : undefined
   }, [tx, swap])
-
-  console.log('[useActualBuyAmountCryptoPrecision] Returning:', actualBuyAmountCryptoPrecision)
 
   return actualBuyAmountCryptoPrecision
 }

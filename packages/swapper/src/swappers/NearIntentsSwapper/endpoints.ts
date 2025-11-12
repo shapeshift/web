@@ -198,22 +198,11 @@ export const nearIntentsApi: SwapperApi = {
         nearIntentsSpecific.depositAddress,
       )
 
-      console.log('[NEAR Intents] checkTradeStatus response:', {
-        status: statusResponse.status,
-        destinationTxHashes: statusResponse.swapDetails?.destinationChainTxHashes,
-        depositAddress: nearIntentsSpecific.depositAddress,
-      })
-
       const txStatus = mapNearIntentsStatus(statusResponse.status)
       const message = getNearIntentsStatusMessage(statusResponse.status)
 
       // Extract buyTxHash from destination chain transactions
       const buyTxHash = statusResponse.swapDetails?.destinationChainTxHashes?.[0]?.hash
-
-      console.log('[NEAR Intents] checkTradeStatus returning:', {
-        status: txStatus,
-        buyTxHash,
-      })
 
       return {
         status: txStatus,

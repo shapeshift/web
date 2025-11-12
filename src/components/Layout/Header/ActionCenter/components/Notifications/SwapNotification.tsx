@@ -38,14 +38,6 @@ export const SwapNotification = ({ handleClick, swapId, onClose }: SwapNotificat
 
   const actualBuyAmountCryptoPrecision = useActualBuyAmountCryptoPrecision(swapId)
 
-  console.log('[SwapNotification] Amount display:', {
-    swapId,
-    swapperName: swap?.swapperName,
-    actualBuyAmount: actualBuyAmountCryptoPrecision,
-    expectedBuyAmount: swap?.expectedBuyAmountCryptoPrecision,
-    displayingActual: !!actualBuyAmountCryptoPrecision,
-  })
-
   const swapAction = useAppSelector(state => selectSwapActionBySwapId(state, { swapId }))
   // For ArbitrumBridge swaps, look up the corresponding ArbitrumBridge action by withdrawTxHash
   const withdrawTxHash = useMemo(() => {

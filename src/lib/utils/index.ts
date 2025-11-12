@@ -24,7 +24,7 @@ export const trimWithEndEllipsis = (content?: string, trimmedContentLength?: num
 
   if (!trimmedContentLength) return content
 
-  if (content.length < trimmedContentLength) return content
+  if (content.length <= trimmedContentLength) return content
 
   return content.slice(0, trimmedContentLength).concat('...')
 }

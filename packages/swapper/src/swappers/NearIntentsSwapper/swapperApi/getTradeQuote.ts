@@ -114,18 +114,16 @@ export const getTradeQuote = async (
 
         case CHAIN_NAMESPACE.Utxo: {
           const sellAdapter = deps.assertGetUtxoChainAdapter(sellAsset.chainId)
-          const pubkey = 'xpub' in input ? input.xpub : undefined
+          const xpub = 'xpub' in input ? input.xpub : undefined
 
-          if (!pubkey) {
-            return {
-              networkFeeCryptoBaseUnit: undefined,
-            }
+          if (!xpub) {
+            throw new Error('xpub is required for UTXO fee estimation')
           }
 
           const feeData = await sellAdapter.getFeeData({
             to: depositAddress,
             value: sellAmount,
-            chainSpecific: { pubkey },
+            chainSpecific: { pubkey: xpub },
             sendMax: false,
           })
           return {

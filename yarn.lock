@@ -4680,6 +4680,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@defuse-protocol/one-click-sdk-typescript@npm:^0.1.1-0.2":
+  version: 0.1.10
+  resolution: "@defuse-protocol/one-click-sdk-typescript@npm:0.1.10"
+  dependencies:
+    axios: ^1.6.8
+    form-data: ^4.0.0
+  checksum: 909a0ec262f9fcb46b81b7f2e2504adfd2052e2f550a17f3342007e86304b30ccdddffbfa088b1c4ca7e791b06d1a7896643267597b9fa5ac98343023a8941d3
+  languageName: node
+  linkType: hard
+
 "@eivifj/dot@npm:^1.0.1":
   version: 1.0.3
   resolution: "@eivifj/dot@npm:1.0.3"
@@ -10699,6 +10709,7 @@ __metadata:
     "@commitlint/cli": ^15.0.0
     "@commitlint/config-conventional": ^15.0.0
     "@cowprotocol/app-data": ^2.3.0
+    "@defuse-protocol/one-click-sdk-typescript": ^0.1.1-0.2
     "@emotion/react": ^11.13.0
     "@emotion/styled": ^11.13.0
     "@formatjs/intl-getcanonicallocales": ^2.3.0
@@ -15525,7 +15536,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"axios@npm:^1.13.0":
+"axios@npm:^1.13.0, axios@npm:^1.6.8":
   version: 1.13.2
   resolution: "axios@npm:1.13.2"
   dependencies:

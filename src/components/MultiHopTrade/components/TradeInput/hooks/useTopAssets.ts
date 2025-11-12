@@ -94,21 +94,10 @@ export const useTopAssets = ({
   }, [selectedCategory, categoryQueryData, selectedChainId, assetsById])
 
   const assets = useMemo(() => {
-    const isLoading =
-      selectedCategory === MarketsCategories.OneClickDefi
-        ? isPortalsAssetsLoading
-        : isCategoryQueryDataLoading
-
     if (isLoading) return []
 
     return selectedCategory === MarketsCategories.OneClickDefi ? oneClickDefiAssets : categoryAssets
-  }, [
-    oneClickDefiAssets,
-    categoryAssets,
-    selectedCategory,
-    isPortalsAssetsLoading,
-    isCategoryQueryDataLoading,
-  ])
+  }, [isLoading, oneClickDefiAssets, categoryAssets, selectedCategory])
 
   return {
     assets,

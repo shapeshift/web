@@ -74,7 +74,7 @@ export const TopAssetCard = ({ asset, onClick }: TopAssetCardProps) => {
             value={marketData?.price}
           />
           <Icon
-            as={isPositive ? TriangleDownIcon : TriangleUpIcon}
+            as={isPositive ? TriangleUpIcon : TriangleDownIcon}
             lineHeight={1}
             boxSize={3}
             color={isPositive ? 'text.success' : 'text.error'}

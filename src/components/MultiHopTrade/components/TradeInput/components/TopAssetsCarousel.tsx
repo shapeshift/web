@@ -41,6 +41,13 @@ const cardVariants = {
   },
 }
 
+const slideStyle = {
+  display: 'flex',
+  alignItems: 'flex-start',
+  height: 'auto',
+  marginLeft: 'calc(0.5rem * -1)',
+}
+
 export const TopAssetsCarousel = () => {
   const dispatch = useAppDispatch()
   const [isSmallerThanMd] = useMediaQuery(`(max-width: ${breakpoints.md})`, { ssr: false })
@@ -165,12 +172,7 @@ export const TopAssetsCarousel = () => {
             <motion.div
               key={`carousel-${selectedCategory}-${selectedSort}-${selectedOrder}-${selectedChainId}-${assets.length}`}
               className='embla__container'
-              style={{
-                display: 'flex',
-                alignItems: 'flex-start',
-                height: 'auto',
-                marginLeft: 'calc(0.5rem * -1)',
-              }}
+              style={slideStyle}
               variants={containerVariants}
               initial='hidden'
               animate={isVisible ? 'visible' : 'hidden'}

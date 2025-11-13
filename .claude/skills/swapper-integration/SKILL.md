@@ -221,7 +221,133 @@ Create `packages/swapper/src/swappers/[SwapperName]Swapper/`
 
 **Refer to** `@examples.md` for code templates. **Copy patterns** from similar existing swappers.
 
-#### Step 3: Register the swapper
+#### Step 3: Add Swapper-Specific Metadata (ONLY if needed)
+
+**When is metadata needed?**
+- Deposit-to-address swappers (Chainflip, NEAR Intents) - need deposit address, swap ID for status polling
+- Order-based swappers (CowSwap) - need order ID for status tracking
+- Any swapper that requires tracking state between quote → execution → status polling
+
+**When is metadata NOT needed?**
+- Direct transaction swappers (Bebop, 0x, Portals) - transaction is built from quote, no async tracking needed
+- Same-chain aggregators where transaction hash is sufficient for status tracking
+- Most EVM-only swappers that return transaction data directly
+
+**If your swapper doesn't need async status polling or deposit addresses, skip this step!**
+
+**Three places to add metadata:**
+
+**a. Define types** (`packages/swapper/src/types.ts`):
+
+Add to `TradeQuoteStep` type:
+```typescript
+export type TradeQuoteStep = {
+  // ... existing fields
+  [swapperName]Specific?: {
+    depositAddress: string
+    swapId: number
+    // ... other swapper-specific fields
+  }
+}
+```
+
+Add to `SwapperSpecificMetadata` type (for swap storage):
+```typescript
+export type SwapperSpecificMetadata = {
+  chainflipSwapId: number | undefined
+  nearIntentsSpecific?: {
+    depositAddress: string
+    depositMemo?: string
+    timeEstimate: number
+    deadline: string
+  }
+  // Add your swapper's metadata here
+  [swapperName]Specific?: {
+    // ... fields needed for status polling
+  }
+  // ... other fields
+}
+```
+
+**b. Populate in quote** (`packages/swapper/src/swappers/[Swapper]/swapperApi/getTradeQuote.ts`):
+
+Store metadata in the TradeQuoteStep:
+```typescript
+const tradeQuote: TradeQuote = {
+  // ... other fields
+  steps: [{
+    // ... step fields
+    [swapperName]Specific: {
+      depositAddress: response.depositAddress,
+      swapId: response.id,
+      // ... other data needed later
+    }
+  }]
+}
+```
+
+**c. Extract into swap** (TWO places required!):
+
+**Place 1**: `src/components/MultiHopTrade/components/TradeConfirm/hooks/useTradeButtonProps.tsx`
+
+Add to metadata object around line 114-126:
+```typescript
+metadata: {
+  chainflipSwapId: firstStep?.chainflipSpecific?.chainflipSwapId,
+  nearIntentsSpecific: firstStep?.nearIntentsSpecific,
+  // Add your swapper's metadata extraction here:
+  [swapperName]Specific: firstStep?.[swapperName]Specific,
+  relayTransactionMetadata: firstStep?.relayTransactionMetadata,
+  stepIndex: currentHopIndex,
+  quoteId: activeQuote.id,
+  streamingSwapMetadata: { ... }
+}
+```
+
+**Place 2**: `src/lib/tradeExecution.ts` (CRITICAL - often forgotten!)
+
+Add to metadata object around line 156-161:
+```typescript
+metadata: {
+  ...swap.metadata,
+  chainflipSwapId: tradeQuote.steps[0]?.chainflipSpecific?.chainflipSwapId,
+  nearIntentsSpecific: tradeQuote.steps[0]?.nearIntentsSpecific,
+  // Add your swapper's metadata extraction here:
+  [swapperName]Specific: tradeQuote.steps[0]?.[swapperName]Specific,
+  relayTransactionMetadata: tradeQuote.steps[0]?.relayTransactionMetadata,
+  stepIndex,
+}
+```
+
+**Why both places?**
+- `useTradeButtonProps` creates the initial swap (before wallet signature)
+- `tradeExecution` updates the swap during execution (after wallet signature, with actual tradeQuote)
+- If you only add to one place, metadata will be missing!
+
+**d. Access in status check** (`packages/swapper/src/swappers/[Swapper]/endpoints.ts`):
+
+```typescript
+checkTradeStatus: async ({ config, swap }) => {
+  const { [swapperName]Specific } = swap?.metadata ?? {}
+
+  if (![swapperName]Specific?.swapId) {
+    throw new Error('swapId is required for status check')
+  }
+
+  // Use metadata to poll API
+  const status = await api.getStatus([swapperName]Specific.swapId)
+  // ...
+}
+```
+
+**Example: NEAR Intents metadata flow**
+```
+1. Quote: Store in step.nearIntentsSpecific.depositAddress
+2. Swap creation: Extract to swap.metadata.nearIntentsSpecific
+3. Status check: Read from swap.metadata.nearIntentsSpecific.depositAddress
+```
+
+#### Step 4: Register the swapper
 
 Update these files to register your new swapper:
 
@@ -234,12 +360,26 @@ Update these files to register your new swapper:
    - Export new swapper
 
 3. **`packages/swapper/src/types.ts`**
-   - Add transaction metadata type if needed
-   - Add API config fields
+   - Add API config fields (if not already done in metadata step)
 
 4. **CSP Headers** (if swapper calls external API):
-   - Add API domain to `headers/csps/index.ts`
-   - Create `headers/csps/defi/swappers/[SwapperName].ts` with CSP rules
+   - Create `headers/csps/defi/swappers/[SwapperName].ts`:
+     ```typescript
+     import type { Csp } from '../../../types'
+
+     export const csp: Csp = {
+       'connect-src': ['https://api.[swapper].com'],
+     }
+     ```
+   - Register in `headers/csps/index.ts`:
+     ```typescript
+     import { csp as [swapperName] } from './defi/swappers/[SwapperName]'
+
+     export const csps = [
+       // ... other csps
+       [swapperName],
+     ]
+     ```
 
 5. **UI Integration** (`src/`):
 
@@ -277,11 +417,14 @@ Update these files to register your new swapper:
 
    **d. Wire up feature flag:**
    - File: `src/state/helpers.ts`
-   - Add to `isCrossAccountTradeSupported` (if applicable)
-   - Add to `getEnabledSwappers`:
+   - Add to `isCrossAccountTradeSupported` function parameter and switch statement (if swapper supports cross-account)
+   - Add to `getEnabledSwappers` function:
      ```typescript
      export const getEnabledSwappers = (
-       { [SwapperName]Swap, ...otherFlags }: FeatureFlags,
+       {
+         [SwapperName]Swap,  // Add to destructured parameters
+         ...otherFlags
+       }: FeatureFlags,
        ...
      ): Record<SwapperName, boolean> => {
        return {
@@ -292,9 +435,15 @@ Update these files to register your new swapper:
      }
      ```
 
-   **e. Update test mocks (if applicable):**
+   **e. Update test mocks (REQUIRED):**
    - File: `src/test/mocks/store.ts`
-   - Add feature flag to mock state
+   - Add feature flag to mock featureFlags object:
+     ```typescript
+     featureFlags: {
+       // ... other flags
+       [SwapperName]Swap: false,
+     }
+     ```
 
 6. **Configuration**:
 

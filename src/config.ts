@@ -190,6 +190,8 @@ const validators = {
   VITE_FEATURE_BUTTERSWAP: bool({ default: false }),
   VITE_FEATURE_BEBOP_SWAP: bool({ default: false }),
   VITE_BEBOP_API_KEY: str(),
+  VITE_FEATURE_NEAR_INTENTS_SWAP: bool({ default: false }),
+  VITE_NEAR_INTENTS_API_KEY: str(),
   VITE_FEATURE_TX_HISTORY_BYE_BYE: bool({ default: false }),
   VITE_FEATURE_RFOX_FOX_ECOSYSTEM_PAGE: bool({ default: false }),
   VITE_FEATURE_LEDGER_READ_ONLY: bool({ default: false }),

@@ -240,18 +240,6 @@ const LedgerFailure = lazy(() =>
 const LedgerSuccess = lazy(() =>
   import('./Ledger/components/Success').then(({ LedgerSuccess }) => ({ default: LedgerSuccess })),
 )
-const TrezorChains = lazy(() =>
-  import('./Trezor/components/Chains').then(({ TrezorChains }) => ({ default: TrezorChains })),
-)
-const TrezorConnect = lazy(() =>
-  import('./Trezor/components/Connect').then(({ TrezorConnect }) => ({ default: TrezorConnect })),
-)
-const TrezorFailure = lazy(() =>
-  import('./Trezor/components/Failure').then(({ TrezorFailure }) => ({ default: TrezorFailure })),
-)
-const TrezorSuccess = lazy(() =>
-  import('./Trezor/components/Success').then(({ TrezorSuccess }) => ({ default: TrezorSuccess })),
-)
 const MetaMaskConnect = lazy(() =>
   import('./MetaMask/components/Connect').then(({ MetaMaskConnect }) => ({
     default: MetaMaskConnect,
@@ -459,12 +447,7 @@ export const SUPPORTED_WALLETS: SupportedWalletInfoByKeyManager = {
   },
   [KeyManager.Trezor]: {
     ...TrezorConfig,
-    routes: [
-      { path: '/trezor/connect', component: TrezorConnect },
-      { path: '/trezor/chains', component: TrezorChains },
-      { path: '/trezor/success', component: TrezorSuccess },
-      { path: '/trezor/failure', component: TrezorFailure },
-    ],
+    routes: [],
     connectedMenuComponent: TrezorMenu,
   },
   [KeyManager.WalletConnectV2]: {

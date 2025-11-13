@@ -1450,10 +1450,6 @@
         "confirmOnDevice": "Confirm on device",
         "addressMismatch": "Address mismatch. Please check you have the correct device connected and try again."
       },
-      "success": {
-        "header": "Trezor Connected",
-        "success": "You can now close this window."
-      },
       "errors": {
         "unknown": "An unexpected error occurred communicating with Trezor wallet"
       },
@@ -1461,16 +1457,7 @@
         "header": "Pair Trezor",
         "body": "Connect your Trezor device and click Pair",
         "button": "Pair"
-      },
-      "failure": {
-        "header": "Can't connect to Trezor",
-        "body": "We were not able to detect your Trezor, but you can connect in read only mode."
-      },
-      "readOnly": {
-        "button": "Connect as Read Only"
-      },
-      "connectWarning": "Before connecting a chain, make sure you are ready to confirm on your Trezor device.",
-      "signWarning": "Before signing, please confirm the transaction on your Trezor device."
+      }
     },
     "mipd": {
       "connect": {

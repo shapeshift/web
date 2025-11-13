@@ -21,7 +21,7 @@ import pull from 'lodash/pull'
 import { useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 
-import { availableTrezorAppAssetIds, availableTrezorAppChainIds } from '../constants'
+import { supportedTrezorAssetIds, supportedTrezorChainIds } from '../constants'
 
 import { AssetIcon } from '@/components/AssetIcon'
 import { RawText, Text } from '@/components/Text'
@@ -45,7 +45,7 @@ export const TrezorChains = () => {
   const walletChainIds = useAppSelector(selectWalletConnectedChainIds)
 
   const availableAssets = useMemo(
-    () => availableTrezorAppAssetIds.map(id => assets[id]).filter(isSome),
+    () => supportedTrezorAssetIds.map(id => assets[id]).filter(isSome),
     [assets],
   )
 
@@ -115,7 +115,7 @@ export const TrezorChains = () => {
         }, {})
 
         Object.entries(balanceByChainId).forEach(([chainId, balance]) => {
-          if (balance.eq(0)) pull(availableTrezorAppChainIds, chainId)
+          if (balance.eq(0)) pull(supportedTrezorChainIds, chainId)
         })
       } catch (e) {
         console.error(e)

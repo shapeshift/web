@@ -5,6 +5,7 @@ import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { supportsBTC } from '@shapeshiftoss/hdwallet-core'
 import { MetaMaskMultiChainHDWallet } from '@shapeshiftoss/hdwallet-metamask-multichain'
 import { PhantomHDWallet } from '@shapeshiftoss/hdwallet-phantom'
+import { isTrezor } from '@shapeshiftoss/hdwallet-trezor'
 import type { AccountMetadataById, UtxoChainId } from '@shapeshiftoss/types'
 import { UtxoAccountType } from '@shapeshiftoss/types'
 
@@ -20,6 +21,9 @@ const prefetchBatchedUtxoPublicKeys = async (
   accountTypes: UtxoAccountType[],
   deviceId: string,
 ): Promise<void> => {
+  // All wallets have getPublicKeys, but only Trezor benefits from batching (Ledger may call device N times)
+  if (!isTrezor(wallet)) return
+
   const adapter = assertGetUtxoChainAdapter(chainId)
 
   await queryClient.fetchQuery({

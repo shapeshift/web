@@ -5,6 +5,7 @@ import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import type { KeepKeyHDWallet } from '@shapeshiftoss/hdwallet-keepkey'
 import type { KeplrHDWallet } from '@shapeshiftoss/hdwallet-keplr'
 import type { NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
+import type { TrezorHDWallet } from '@shapeshiftoss/hdwallet-trezor'
 import type { WalletConnectV2HDWallet } from '@shapeshiftoss/hdwallet-walletconnectv2'
 import type { NestedArray } from '@shapeshiftoss/types'
 import { HistoryTimeframe, KnownChainIds } from '@shapeshiftoss/types'
@@ -39,6 +40,10 @@ export const isKeplrHDWallet = (wallet: HDWallet): wallet is KeplrHDWallet => {
 
 export const isNativeHDWallet = (wallet: HDWallet): wallet is NativeHDWallet => {
   return wallet.getVendor() === 'Native'
+}
+
+export const isTrezorHDWallet = (wallet: HDWallet): wallet is TrezorHDWallet => {
+  return wallet.getVendor() === 'Trezor'
 }
 
 export const isWalletConnectWallet = (wallet: HDWallet): wallet is WalletConnectV2HDWallet => {

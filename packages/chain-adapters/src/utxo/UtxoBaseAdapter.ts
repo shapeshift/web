@@ -631,6 +631,62 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
     }
   }
 
+  async getPublicKeys(
+    wallet: HDWallet,
+    accountNumbers: number[],
+    accountTypes: UtxoAccountType[],
+  ): Promise<Record<number, Record<UtxoAccountType, PublicKey>>> {
+    try {
+      await verifyLedgerAppOpen(this.chainId, wallet)
+
+      // Validate all account types are supported
+      accountTypes.forEach(accountType => this.assertIsAccountTypeSupported(accountType))
+
+      // Build requests for all combinations of accounts × script types
+      const requests = accountNumbers.flatMap(accountNumber =>
+        accountTypes.map(accountType => {
+          const bip44Params = this.getBip44Params({ accountNumber, accountType })
+          const path = toRootDerivationPath(bip44Params)
+
+          return {
+            coin: this.coinName,
+            addressNList: bip32ToAddressNList(path),
+            curve: 'secp256k1' as const,
+            scriptType: accountTypeToScriptType[accountType],
+            _accountNumber: accountNumber, // Track for mapping
+            _accountType: accountType,
+          }
+        }),
+      )
+
+      // Single call for all combinations (e.g., 5 accounts × 3 types = 15 xpubs in 1 popup)
+      const publicKeys = await wallet.getPublicKeys(requests)
+
+      // Map back to nested structure
+      const result: Record<number, Record<UtxoAccountType, PublicKey>> = {}
+
+      requests.forEach((request, i) => {
+        const pubKey = publicKeys[i]
+        if (!pubKey) return
+
+        const accountNumber = request._accountNumber
+        const accountType = request._accountType
+
+        if (!result[accountNumber]) result[accountNumber] = {} as Record<UtxoAccountType, PublicKey>
+
+        result[accountNumber][accountType] = {
+          xpub: convertXpubVersion(pubKey.xpub, accountType),
+        }
+      })
+
+      return result
+    } catch (err) {
+      return ErrorHandler(err, {
+        translation: 'chainAdapters.errors.getPublicKey',
+      })
+    }
+  }
+
   async getUtxos(input: GetUtxosInput): Promise<unchained.utxo.types.Utxo[]> {
     try {
       const utxos = await this.providers.http.getUtxos(input)

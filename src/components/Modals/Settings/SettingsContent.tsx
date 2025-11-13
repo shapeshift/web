@@ -8,7 +8,7 @@ import {
   useColorMode,
   useColorModeValue,
 } from '@chakra-ui/react'
-import type { FC } from 'react'
+import type { ChangeEvent, FC } from 'react'
 import { useCallback } from 'react'
 import { FaBroom, FaCoins, FaDollarSign, FaGreaterThanEqual, FaTrash } from 'react-icons/fa'
 import { IoDocumentTextOutline, IoLockClosed } from 'react-icons/io5'
@@ -57,13 +57,11 @@ export const SettingsContent: FC<SettingsContentProps> = ({ onClose }) => {
   const selectedCurrency = useAppSelector(preferences.selectors.selectSelectedCurrency)
   const selectedCurrencyFormat = useAppSelector(preferences.selectors.selectCurrencyFormat)
   const appDispatch = useAppDispatch()
-  const topAssetsCarouselVisible = useAppSelector(
-    preferences.selectors.selectShowTopAssetsCarousel,
-  )
+  const topAssetsCarouselVisible = useAppSelector(preferences.selectors.selectShowTopAssetsCarousel)
 
   const handleTopAssetsCarouselToggle = useCallback(
-    (checked: boolean) => {
-      appDispatch(preferences.actions.setShowTopAssetsCarousel(checked))
+    (e: ChangeEvent<HTMLInputElement>) => {
+      appDispatch(preferences.actions.setShowTopAssetsCarousel(e.target.checked))
     },
     [appDispatch],
   )
@@ -189,7 +187,7 @@ export const SettingsContent: FC<SettingsContentProps> = ({ onClose }) => {
       >
         <Switch
           isChecked={topAssetsCarouselVisible}
-          onChange={e => handleTopAssetsCarouselToggle(e.target.checked)}
+          onChange={handleTopAssetsCarouselToggle}
           pointerEvents='auto'
         />
       </SettingsListItem>

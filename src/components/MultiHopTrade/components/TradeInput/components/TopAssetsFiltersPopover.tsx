@@ -1,7 +1,11 @@
 import { CheckIcon } from '@chakra-ui/icons'
 import {
   Box,
+  Button,
+  ButtonGroup,
+  Divider,
   Flex,
+  HStack,
   Icon,
   IconButton,
   Menu,
@@ -13,20 +17,30 @@ import {
   PopoverBody,
   PopoverContent,
   PopoverTrigger,
+  Text as ChakraText,
+  VStack,
 } from '@chakra-ui/react'
 import { useCallback, useMemo } from 'react'
-import { TbAdjustmentsHorizontal } from 'react-icons/tb'
+import { TbAdjustmentsHorizontal, TbCategory, TbChevronDown } from 'react-icons/tb'
 import { useTranslate } from 'react-polyglot'
 
 import { OrderDirection } from '@/components/OrderDropdown/types'
 import type { SortOptionsKeys } from '@/components/SortDropdown/types'
-import { RawText, Text } from '@/components/Text'
+import { RawText } from '@/components/Text'
+import { useModal } from '@/hooks/useModal/useModal'
+import { useNotificationToast } from '@/hooks/useNotificationToast'
 import { MarketsCategories } from '@/pages/Markets/constants'
+import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
+import { useAppDispatch } from '@/state/store'
 
-const buttonHoverProps = { bg: 'transparent', color: 'text.base' }
 const settingsIcon = <TbAdjustmentsHorizontal />
-const checkedIcon = <Icon as={CheckIcon} color='blue.200' fontSize='20px' />
-const menuButtonHoverProps = { bg: 'background.surface.raised.hover' }
+const checkedIcon = <Icon as={CheckIcon} color='text.subtle' fontSize='16px' />
+const chevronDownIcon = <Icon as={TbChevronDown} color='text.subtle' fontSize='16px' />
+
+const popoverTriggerHoverStyles = {
+  bg: 'transparent',
+  color: 'text.base',
+}
 
 type CategoryMenuItemProps = {
   category: MarketsCategories
@@ -55,13 +69,46 @@ const CategoryMenuItem = ({
       onClick={onClick}
       fontSize='sm'
       iconPlacement='end'
-      icon={checkedIcon}
-      color={selectedCategory === category ? 'text.primary' : 'text.subtle'}
+      icon={selectedCategory === category ? checkedIcon : undefined}
+      color={selectedCategory === category ? 'text.base' : 'text.subtle'}
+      fontWeight={selectedCategory === category ? 'medium' : 'normal'}
     >
       {label}
     </MenuItemOption>
   )
 }
+
+const SectionHeader = ({ icon, children }: { icon: React.ElementType; children: string }) => (
+  <HStack spacing={2} mb={2}>
+    <Icon as={icon} color='text.subtle' fontSize='16px' />
+    <ChakraText
+      fontSize='xs'
+      fontWeight='semibold'
+      textTransform='uppercase'
+      letterSpacing='wider'
+      color='text.subtle'
+    >
+      {children}
+    </ChakraText>
+  </HStack>
+)
+
+const StyledMenuButton = ({ children }: { children: React.ReactNode }) => (
+  <MenuButton
+    as={Button}
+    rightIcon={chevronDownIcon}
+    width='100%'
+    borderRadius='md'
+    borderWidth={1}
+    borderColor='border.subtle'
+    size='sm'
+    fontWeight='normal'
+    justifyContent='space-between'
+    textAlign='left'
+  >
+    {children}
+  </MenuButton>
+)
 
 type TopAssetsFiltersPopoverProps = {
   isLoading: boolean
@@ -82,13 +129,15 @@ export const TopAssetsFiltersPopover = ({
   selectedOrder,
   selectedSort,
   categoryLabel,
-  orderLabel,
   sortOptions,
   handleCategoryChange,
   handleSortOptionClick,
   handleOrderChange,
 }: TopAssetsFiltersPopoverProps) => {
   const translate = useTranslate()
+  const toast = useNotificationToast()
+  const settings = useModal('settings')
+  const appDispatch = useAppDispatch()
 
   const handleAscendingOrderChange = useCallback(() => {
     handleOrderChange(OrderDirection.Ascending)
@@ -97,6 +146,19 @@ export const TopAssetsFiltersPopover = ({
   const handleDescendingOrderChange = useCallback(() => {
     handleOrderChange(OrderDirection.Descending)
   }, [handleOrderChange])
+
+  const handleHideCarousel = useCallback(() => {
+    appDispatch(preferences.actions.setShowTopAssetsCarousel(false))
+    toast({
+      title: translate('trade.topAssetsCarousel.hiddenTitle'),
+      description: translate('trade.topAssetsCarousel.hiddenDescription'),
+      status: 'info',
+      duration: 5000,
+      onClick: () => {
+        settings.open({})
+      },
+    })
+  }, [appDispatch, toast, translate, settings])
 
   return (
     <Flex
@@ -108,7 +170,7 @@ export const TopAssetsFiltersPopover = ({
       width='auto'
       aspectRatio='1/1'
     >
-      <Popover placement='top-end' closeOnBlur={true} returnFocusOnClose={false}>
+      <Popover placement='bottom-end' closeOnBlur={true} returnFocusOnClose={false}>
         <PopoverTrigger>
           <IconButton
             aria-label={translate('common.settings')}
@@ -116,36 +178,24 @@ export const TopAssetsFiltersPopover = ({
             size='md'
             fontSize='xl'
             variant='ghost'
+            bg='transparent'
             isLoading={isLoading}
-            _hover={buttonHoverProps}
-            _active={buttonHoverProps}
+            borderRadius='lg'
+            _hover={popoverTriggerHoverStyles}
           />
         </PopoverTrigger>
-        <PopoverContent zIndex={1001} width='280px'>
-          <PopoverBody p={4}>
-            <Flex flexDirection='column' gap={4}>
+        <PopoverContent zIndex={1001} width='320px' borderRadius='xl' boxShadow='xl'>
+          <PopoverBody p={5}>
+            <VStack spacing={5} align='stretch'>
               <Box>
-                <Text
-                  translation='common.list'
-                  mb={2}
-                  color='text.primary'
-                  fontWeight='bold'
-                  fontSize='sm'
-                />
+                <SectionHeader icon={TbCategory}>{translate('common.list')}</SectionHeader>
                 <Menu>
-                  <MenuButton
-                    as={Box}
-                    width='100%'
-                    px={3}
-                    py={2}
-                    bg='background.surface.raised.base'
-                    borderRadius='md'
-                    cursor='pointer'
-                    _hover={menuButtonHoverProps}
-                  >
-                    <RawText fontSize='sm'>{categoryLabel}</RawText>
-                  </MenuButton>
-                  <MenuList zIndex={1002}>
+                  <StyledMenuButton>
+                    <RawText fontSize='sm' color='text.base'>
+                      {categoryLabel}
+                    </RawText>
+                  </StyledMenuButton>
+                  <MenuList zIndex={1002} borderRadius='lg' boxShadow='lg'>
                     <MenuOptionGroup type='radio' value={selectedCategory}>
                       {Object.values(MarketsCategories).map(category => (
                         <CategoryMenuItem
@@ -163,29 +213,16 @@ export const TopAssetsFiltersPopover = ({
 
               {sortOptions && (
                 <Box>
-                  <Text
-                    translation='common.sortBy'
-                    mb={2}
-                    color='text.primary'
-                    fontWeight='bold'
-                    fontSize='sm'
-                  />
+                  <SectionHeader icon={TbAdjustmentsHorizontal}>
+                    {translate('common.sortBy')}
+                  </SectionHeader>
                   <Menu>
-                    <MenuButton
-                      as={Box}
-                      width='100%'
-                      px={3}
-                      py={2}
-                      bg='background.surface.raised.base'
-                      borderRadius='md'
-                      cursor='pointer'
-                      _hover={menuButtonHoverProps}
-                    >
-                      <RawText fontSize='sm'>
+                    <StyledMenuButton>
+                      <RawText fontSize='sm' color='text.base'>
                         {translate(`dashboard.portfolio.${selectedSort}`)}
                       </RawText>
-                    </MenuButton>
-                    <MenuList zIndex={1002}>
+                    </StyledMenuButton>
+                    <MenuList zIndex={1002} borderRadius='lg' boxShadow='lg'>
                       <MenuOptionGroup type='radio' value={selectedSort}>
                         {sortOptions.map(sortOption => (
                           <MenuItemOption
@@ -194,8 +231,9 @@ export const TopAssetsFiltersPopover = ({
                             onClick={handleSortOptionClick(sortOption)}
                             fontSize='sm'
                             iconPlacement='end'
-                            icon={checkedIcon}
-                            color={selectedSort === sortOption ? 'text.primary' : 'text.subtle'}
+                            icon={selectedSort === sortOption ? checkedIcon : undefined}
+                            color={selectedSort === sortOption ? 'text.base' : 'text.subtle'}
+                            fontWeight={selectedSort === sortOption ? 'medium' : 'normal'}
                           >
                             {translate(`dashboard.portfolio.${sortOption}`)}
                           </MenuItemOption>
@@ -207,61 +245,45 @@ export const TopAssetsFiltersPopover = ({
               )}
 
               <Box>
-                <Text
-                  translation='common.orderBy'
-                  mb={2}
-                  color='text.primary'
-                  fontWeight='bold'
-                  fontSize='sm'
-                />
-                <Menu>
-                  <MenuButton
-                    as={Box}
-                    width='100%'
-                    px={3}
-                    py={2}
-                    bg='background.surface.raised.base'
+                <SectionHeader icon={TbAdjustmentsHorizontal}>
+                  {translate('common.orderBy')}
+                </SectionHeader>
+                <ButtonGroup size='sm' isAttached variant='outline' width='100%'>
+                  <Button
+                    flex={1}
                     borderRadius='md'
-                    cursor='pointer'
-                    _hover={menuButtonHoverProps}
+                    borderColor='border.bold'
+                    onClick={handleDescendingOrderChange}
+                    isActive={selectedOrder === OrderDirection.Descending}
                   >
-                    <RawText fontSize='sm'>{orderLabel}</RawText>
-                  </MenuButton>
-                  <MenuList zIndex={1002}>
-                    <MenuOptionGroup type='radio' value={selectedOrder}>
-                      <MenuItemOption
-                        value={OrderDirection.Descending}
-                        onClick={handleDescendingOrderChange}
-                        fontSize='sm'
-                        iconPlacement='end'
-                        icon={checkedIcon}
-                        color={
-                          selectedOrder === OrderDirection.Descending
-                            ? 'text.primary'
-                            : 'text.subtle'
-                        }
-                      >
-                        {translate('common.descending')}
-                      </MenuItemOption>
-                      <MenuItemOption
-                        value={OrderDirection.Ascending}
-                        onClick={handleAscendingOrderChange}
-                        fontSize='sm'
-                        iconPlacement='end'
-                        icon={checkedIcon}
-                        color={
-                          selectedOrder === OrderDirection.Ascending
-                            ? 'text.primary'
-                            : 'text.subtle'
-                        }
-                      >
-                        {translate('common.ascending')}
-                      </MenuItemOption>
-                    </MenuOptionGroup>
-                  </MenuList>
-                </Menu>
+                    {translate('common.descending')}
+                  </Button>
+                  <Button
+                    flex={1}
+                    borderRadius='md'
+                    borderColor='border.bold'
+                    onClick={handleAscendingOrderChange}
+                    borderLeftWidth={0}
+                    isActive={selectedOrder === OrderDirection.Ascending}
+                  >
+                    {translate('common.ascending')}
+                  </Button>
+                </ButtonGroup>
               </Box>
-            </Flex>
+
+              <Divider borderColor='border.subtle' />
+
+              <Button
+                onClick={handleHideCarousel}
+                variant='ghost-filled'
+                size='sm'
+                colorScheme='red'
+                justifyContent='center'
+                fontWeight='normal'
+              >
+                {translate('trade.topAssetsCarousel.hide')}
+              </Button>
+            </VStack>
           </PopoverBody>
         </PopoverContent>
       </Popover>

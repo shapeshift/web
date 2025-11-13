@@ -12,6 +12,7 @@ import { TopAssetsFiltersPopover } from './TopAssetsFiltersPopover'
 
 import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from '@/lib/mixpanel/types'
+import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
 import { selectHasUserEnteredAmount } from '@/state/slices/tradeInputSlice/selectors'
 import { tradeInput } from '@/state/slices/tradeInputSlice/tradeInputSlice'
 import { useAppDispatch, useAppSelector } from '@/state/store'
@@ -52,10 +53,11 @@ export const TopAssetsCarousel = () => {
   const dispatch = useAppDispatch()
   const [isSmallerThanMd] = useMediaQuery(`(max-width: ${breakpoints.md})`, { ssr: false })
   const hasUserEnteredAmount = useAppSelector(selectHasUserEnteredAmount)
+  const topAssetsCarouselVisible = useAppSelector(preferences.selectors.selectShowTopAssetsCarousel)
 
   const shouldShow = useMemo(() => {
-    return !isSmallerThanMd && !hasUserEnteredAmount
-  }, [isSmallerThanMd, hasUserEnteredAmount])
+    return !isSmallerThanMd && !hasUserEnteredAmount && topAssetsCarouselVisible
+  }, [isSmallerThanMd, hasUserEnteredAmount, topAssetsCarouselVisible])
 
   const {
     selectedCategory,

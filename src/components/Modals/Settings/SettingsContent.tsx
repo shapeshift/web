@@ -57,6 +57,16 @@ export const SettingsContent: FC<SettingsContentProps> = ({ onClose }) => {
   const selectedCurrency = useAppSelector(preferences.selectors.selectSelectedCurrency)
   const selectedCurrencyFormat = useAppSelector(preferences.selectors.selectCurrencyFormat)
   const appDispatch = useAppDispatch()
+  const topAssetsCarouselVisible = useAppSelector(
+    preferences.selectors.selectShowTopAssetsCarousel,
+  )
+
+  const handleTopAssetsCarouselToggle = useCallback(
+    (checked: boolean) => {
+      appDispatch(preferences.actions.setShowTopAssetsCarousel(checked))
+    },
+    [appDispatch],
+  )
 
   const selectedPreferenceValueColor = useColorModeValue('blue.500', 'blue.200')
 
@@ -170,6 +180,18 @@ export const SettingsContent: FC<SettingsContentProps> = ({ onClose }) => {
         tooltipText='modals.settings.balanceThresholdTooltip'
       >
         <BalanceThresholdInput />
+      </SettingsListItem>
+      <Divider my={1} />
+      <SettingsListItem
+        label='modals.settings.showTopAssetsCarousel'
+        icon={faCoinsIcon}
+        tooltipText='modals.settings.showTopAssetsCarouselTooltip'
+      >
+        <Switch
+          isChecked={topAssetsCarouselVisible}
+          onChange={e => handleTopAssetsCarouselToggle(e.target.checked)}
+          pointerEvents='auto'
+        />
       </SettingsListItem>
       <Divider my={1} />
       <SettingsListItem

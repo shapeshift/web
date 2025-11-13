@@ -3,7 +3,7 @@ import type { SignTx, SignTypedDataInput } from '@shapeshiftoss/chain-adapters'
 import { ChainAdapterError, toAddressNList } from '@shapeshiftoss/chain-adapters'
 import type { ETHSignTypedData, SolanaSignTx } from '@shapeshiftoss/hdwallet-core'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
-import { isTrezor, isTrezor } from '@shapeshiftoss/hdwallet-trezor'
+import { isTrezor } from '@shapeshiftoss/hdwallet-trezor'
 import type { SupportedTradeQuoteStepIndex, TradeQuote } from '@shapeshiftoss/swapper'
 import {
   getHopByIndex,
@@ -423,7 +423,12 @@ export const useTradeExecution = (
         case CHAIN_NAMESPACE.Solana: {
           const adapter = assertGetSolanaChainAdapter(stepSellAssetChainId)
 
-          const from = await adapter.getAddress({ accountNumber, wallet })
+          const from = await adapter.getAddress({
+            accountNumber,
+            wallet,
+            pubKey:
+              wallet && isTrezor(wallet) ? fromAccountId(sellAssetAccountId).account : undefined,
+          })
 
           const output = await execution.execSolanaTransaction({
             swapperName,

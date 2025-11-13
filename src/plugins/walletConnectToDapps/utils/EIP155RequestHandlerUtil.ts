@@ -7,6 +7,8 @@ import { toAddressNList } from '@shapeshiftoss/chain-adapters'
 import type { ETHSignedTypedData, HDWallet } from '@shapeshiftoss/hdwallet-core'
 import type { KeepKeyHDWallet } from '@shapeshiftoss/hdwallet-keepkey'
 import type { NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
+import { isTrezor } from '@shapeshiftoss/hdwallet-trezor'
+import type { TrezorHDWallet } from '@shapeshiftoss/hdwallet-trezor'
 import type { AccountMetadata } from '@shapeshiftoss/types'
 import { getSdkError } from '@walletconnect/utils'
 
@@ -34,8 +36,8 @@ type ApproveEIP155RequestArgs = {
 
 function assertSupportsEthSignTypedData(
   wallet: HDWallet,
-): asserts wallet is KeepKeyHDWallet | NativeHDWallet {
-  if (!(wallet as KeepKeyHDWallet | NativeHDWallet).ethSignTypedData)
+): asserts wallet is KeepKeyHDWallet | NativeHDWallet | TrezorHDWallet {
+  if (!(wallet as KeepKeyHDWallet | NativeHDWallet | TrezorHDWallet).ethSignTypedData)
     throw new Error('approveEIP155Request: ethSignTypedData not supported')
 }
 
@@ -89,7 +91,11 @@ export const approveEIP155Request = async ({
       const didUserChangeNonce =
         maybeAdvancedParamsNonce && maybeAdvancedParamsNonce !== sendTransaction.nonce
       const fees = await getFeesForTx(sendTransaction, chainAdapter, accountId)
-      const senderAddress = await chainAdapter.getAddress({ accountNumber, wallet })
+      const senderAddress = await chainAdapter.getAddress({
+        accountNumber,
+        wallet,
+        pubKey: isTrezor(wallet) && accountId ? fromAccountId(accountId).account : undefined,
+      })
       const gasData = getGasData(customTransactionData, fees)
       const gasLimit = (() => {
         if (customTransactionData.gasLimit) return customTransactionData.gasLimit

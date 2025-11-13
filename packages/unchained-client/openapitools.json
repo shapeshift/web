@@ -58,7 +58,7 @@
         }
       },
       "cosmos": {
-        "inputSpec": "https://cdn.jsdelivr.net/gh/shapeshift/unchained@cosmos/go/coinstacks/cosmos/api/swagger.json",
+        "inputSpec": "#{cwd}/swagger/cosmos.swagger.json",
         "generatorName": "typescript-fetch",
         "output": "#{cwd}/src/generated/cosmos",
         "enablePostProcessFile": true,
@@ -123,7 +123,7 @@
         }
       },
       "polygon": {
-        "inputSpec": "https://cdn.jsdelivr.net/gh/shapeshift/unchained@develop/node/coinstacks/polygon/api/src/swagger.json",
+        "inputSpec": "#{cwd}/swagger/polygon.swagger.json",
         "generatorName": "typescript-fetch",
         "output": "#{cwd}/src/generated/polygon",
         "enablePostProcessFile": true,
@@ -188,7 +188,7 @@
         }
       },
       "solana": {
-        "inputSpec": "https://cdn.jsdelivr.net/gh/shapeshift/unchained@develop/node/coinstacks/solana/api/src/swagger.json",
+        "inputSpec": "#{cwd}/swagger/solana.swagger.json",
         "generatorName": "typescript-fetch",
         "output": "#{cwd}/src/generated/solana",
         "enablePostProcessFile": true,
@@ -201,7 +201,7 @@
         }
       },
       "thorchain": {
-        "inputSpec": "https://cdn.jsdelivr.net/gh/shapeshift/unchained@develop/go/coinstacks/thorchain/api/swagger.json",
+        "inputSpec": "#{cwd}/swagger/thorchain.swagger.json",
         "generatorName": "typescript-fetch",
         "output": "#{cwd}/src/generated/thorchain",
         "enablePostProcessFile": true,
@@ -214,7 +214,7 @@
         }
       },
       "thorchainV1": {
-        "inputSpec": "https://cdn.jsdelivr.net/gh/shapeshift/unchained@develop/go/coinstacks/thorchain-v1/api/swagger.json",
+        "inputSpec": "#{cwd}/swagger/thorchainV1.swagger.json",
         "generatorName": "typescript-fetch",
         "output": "#{cwd}/src/generated/thorchainV1",
         "enablePostProcessFile": true,
@@ -227,7 +227,7 @@
         }
       },
       "mayachain": {
-        "inputSpec": "https://cdn.jsdelivr.net/gh/shapeshift/unchained@refs/heads/mayachain/go/coinstacks/mayachain/api/swagger.json",
+        "inputSpec": "#{cwd}/swagger/mayachain.swagger.json",
         "generatorName": "typescript-fetch",
         "output": "#{cwd}/src/generated/mayachain",
         "enablePostProcessFile": true,

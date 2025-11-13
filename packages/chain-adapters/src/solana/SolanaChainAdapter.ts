@@ -304,7 +304,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SolanaMainnet> 
       const from = await this.getAddress(input)
       const txToSign = await this.buildSendApiTransaction({ ...input, from })
 
-      return { txToSign }
+      return { txToSign: { ...txToSign, ...(input.pubKey ? { pubKey: input.pubKey } : {}) } }
     } catch (err) {
       return ErrorHandler(err, {
         translation: 'chainAdapters.errors.buildTransaction',

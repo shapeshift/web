@@ -116,6 +116,7 @@ export const approveEIP155Request = async ({
         // https://docs.walletconnect.com/2.0/advanced/rpc-reference/ethereum-rpc#eth_sendtransaction
         gasLimit,
         ...gasData,
+        pubKey: isTrezor(wallet) && accountId ? fromAccountId(accountId).account : undefined,
       })
       const txToSign = {
         ...txToSignWithPossibleWrongNonce,

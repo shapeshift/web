@@ -70,19 +70,31 @@ export const deriveUtxoAccountIdsAndMetadata: DeriveAccountIdsAndMetadata = asyn
   const result = await (async () => {
     if (!supportsBTC(wallet)) return {}
 
-    // Prefetch batch of public keys for Trezor (accounts 0-4 × all script types)
-    // This reduces popups from 15 to 1 for 5 BTC accounts
     const deviceId = await wallet.getDeviceID().catch(() => undefined)
-    if (isTrezor(wallet) && deviceId && accountNumber < 5 && accountNumber === 0) {
-      // Only prefetch once when fetching account 0
+
+    // Dynamic batch prefetching for Trezor
+    // If account not in cache, prefetch its batch (e.g., account 5 → prefetch 5-9)
+    if (isTrezor(wallet) && deviceId && chainIds[0]) {
       const firstChainId = chainIds[0]
-      if (firstChainId) {
-        const adapter = assertGetUtxoChainAdapter(firstChainId)
-        const supportedAccountTypes = adapter.getSupportedAccountTypes()
+      const adapter = assertGetUtxoChainAdapter(firstChainId)
+      const supportedAccountTypes = adapter.getSupportedAccountTypes()
+
+      // Check if any script type for this account is not cached
+      const hasAnyUncached = supportedAccountTypes.some(
+        accountType => !getCachedBatchPublicKey(deviceId, firstChainId, accountNumber, accountType),
+      )
+
+      if (hasAnyUncached) {
+        // Calculate which batch this account belongs to
+        const BATCH_SIZE = 5
+        const batchStart = Math.floor(accountNumber / BATCH_SIZE) * BATCH_SIZE
+        const batchNumbers = Array.from({ length: BATCH_SIZE }, (_, i) => batchStart + i)
+
+        // Prefetch the batch that contains this account number
         await prefetchBatchedUtxoPublicKeys(
           wallet,
           firstChainId,
-          [0, 1, 2, 3, 4],
+          batchNumbers,
           supportedAccountTypes,
           deviceId,
         )

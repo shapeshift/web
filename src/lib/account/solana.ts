@@ -62,13 +62,21 @@ export const deriveSolanaAccountIdsAndMetadata: DeriveAccountIdsAndMetadata = as
 
   if (!supportsSolana(wallet)) return {}
 
-  // Prefetch batch of addresses for Trezor (accounts 0-4)
   const deviceId = await wallet.getDeviceID().catch(() => undefined)
-  if (isTrezor(wallet) && deviceId && accountNumber < 5 && accountNumber === 0) {
-    // Only prefetch once when fetching account 0
-    const firstChainId = chainIds[0]
-    if (firstChainId) {
-      await prefetchBatchedSolanaAddresses(wallet, firstChainId, [0, 1, 2, 3, 4], deviceId)
+
+  // Dynamic batch prefetching for Trezor
+  // If account not in cache, prefetch its batch (e.g., account 5 → prefetch 5-9)
+  if (isTrezor(wallet) && deviceId && chainIds[0]) {
+    const cachedAddress = getCachedBatchAddress(deviceId, chainIds[0], accountNumber)
+
+    if (!cachedAddress) {
+      // Calculate which batch this account belongs to
+      const BATCH_SIZE = 5
+      const batchStart = Math.floor(accountNumber / BATCH_SIZE) * BATCH_SIZE
+      const batchNumbers = Array.from({ length: BATCH_SIZE }, (_, i) => batchStart + i)
+
+      // Prefetch the batch that contains this account number
+      await prefetchBatchedSolanaAddresses(wallet, chainIds[0], batchNumbers, deviceId)
     }
   }
 

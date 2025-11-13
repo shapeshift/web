@@ -6,6 +6,7 @@ import type { WebUSBLedgerAdapter } from '@shapeshiftoss/hdwallet-ledger-webusb'
 import type { MetaMaskAdapter } from '@shapeshiftoss/hdwallet-metamask-multichain'
 import type { NativeAdapter } from '@shapeshiftoss/hdwallet-native'
 import type { PhantomAdapter } from '@shapeshiftoss/hdwallet-phantom'
+import type { TrezorAdapter } from '@shapeshiftoss/hdwallet-trezor-connect'
 import type { WalletConnectV2Adapter } from '@shapeshiftoss/hdwallet-walletconnectv2'
 
 import type { KeyManager } from './KeyManager'
@@ -16,6 +17,7 @@ export type AdaptersByKeyManager = {
   [KeyManager.KeepKey]: KkRestAdapter | typeof WebUSBKeepKeyAdapter
   [KeyManager.Ledger]: WebUSBLedgerAdapter
   [KeyManager.Keplr]: KeplrAdapter
+  [KeyManager.Trezor]: TrezorAdapter
   [KeyManager.WalletConnectV2]: WalletConnectV2Adapter
   [KeyManager.MetaMask]: MetaMaskAdapter
   [KeyManager.Phantom]: PhantomAdapter

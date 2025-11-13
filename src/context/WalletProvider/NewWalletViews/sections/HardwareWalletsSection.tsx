@@ -6,9 +6,11 @@ import { Text } from '@/components/Text'
 import { KeepKeyConfig } from '@/context/WalletProvider/KeepKey/config'
 import { KeyManager } from '@/context/WalletProvider/KeyManager'
 import { LedgerConfig } from '@/context/WalletProvider/Ledger/config'
+import { TrezorConfig } from '@/context/WalletProvider/Trezor/config'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 
 const LedgerIcon = LedgerConfig.icon
+const TrezorIcon = TrezorConfig.icon
 const KeepKeyIcon = KeepKeyConfig.icon
 
 type WalletOptionProps = {
@@ -64,6 +66,11 @@ export const HardwareWalletsSection = ({
     connect(KeyManager.Ledger, false)
   }, [connect, onWalletSelect])
 
+  const handleConnectTrezor = useCallback(() => {
+    onWalletSelect(KeyManager.Trezor, '/trezor/connect')
+    connect(KeyManager.Trezor, false)
+  }, [connect, onWalletSelect])
+
   const handleConnectKeepKey = useCallback(() => {
     onWalletSelect(KeyManager.KeepKey, '/keepkey/connect')
     connect(KeyManager.KeepKey, false)
@@ -83,6 +90,13 @@ export const HardwareWalletsSection = ({
         isDisabled={isLoading && selectedWalletId !== KeyManager.Ledger}
         icon={LedgerIcon}
         name={LedgerConfig.name}
+      />
+      <WalletOption
+        connect={handleConnectTrezor}
+        isSelected={selectedWalletId === KeyManager.Trezor}
+        isDisabled={isLoading && selectedWalletId !== KeyManager.Trezor}
+        icon={TrezorIcon}
+        name={TrezorConfig.name}
       />
       <WalletOption
         connect={handleConnectKeepKey}

@@ -6,7 +6,6 @@ import { ManageAccountsMenuItem } from '@/components/Layout/Header/NavBar/Manage
 import { WalletActions } from '@/context/WalletProvider/actions'
 import { SUPPORTED_WALLETS } from '@/context/WalletProvider/config'
 import { KeyManager } from '@/context/WalletProvider/KeyManager'
-import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 
 type TrezorMenuProps = {
@@ -16,8 +15,6 @@ type TrezorMenuProps = {
 export const TrezorMenu: React.FC<TrezorMenuProps> = ({ onClose }) => {
   const { dispatch } = useWallet()
   const translate = useTranslate()
-  const isAccountManagementEnabled = useFeatureFlag('AccountManagement')
-  const isTrezorAccountManagementEnabled = useFeatureFlag('AccountManagementTrezor')
 
   const handleChainsClick = useCallback(() => {
     const trezorRoutes = SUPPORTED_WALLETS[KeyManager.Trezor].routes
@@ -33,12 +30,9 @@ export const TrezorMenu: React.FC<TrezorMenuProps> = ({ onClose }) => {
   return (
     <>
       <ManageAccountsMenuItem onClose={onClose} />
-      {/* TODO: Remove the below menu item once the new flow is added, and before the feature flag is enabled */}
-      {(!isAccountManagementEnabled || !isTrezorAccountManagementEnabled) && (
-        <MenuItem justifyContent='space-between' onClick={handleChainsClick}>
-          {translate('walletProvider.trezor.chains.header')}
-        </MenuItem>
-      )}
+      <MenuItem justifyContent='space-between' onClick={handleChainsClick}>
+        {translate('walletProvider.trezor.chains.header')}
+      </MenuItem>
     </>
   )
 }

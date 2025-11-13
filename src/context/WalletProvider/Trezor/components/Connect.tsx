@@ -3,10 +3,10 @@ import { useNavigate } from 'react-router-dom'
 
 import { ConnectModal } from '../../components/ConnectModal'
 import { TrezorConfig } from '../config'
+
 import { WalletActions } from '@/context/WalletProvider/actions'
 import { KeyManager } from '@/context/WalletProvider/KeyManager'
 import { useLocalWallet } from '@/context/WalletProvider/local-wallet'
-import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 
 export const TrezorConnect = () => {
@@ -15,8 +15,6 @@ export const TrezorConnect = () => {
   const localWallet = useLocalWallet()
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const isAccountManagementEnabled = useFeatureFlag('AccountManagement')
-  const isTrezorAccountManagementEnabled = useFeatureFlag('AccountManagementTrezor')
 
   const setErrorLoading = useCallback((e: string | null) => {
     setError(e)
@@ -50,25 +48,13 @@ export const TrezorConnect = () => {
         })
         localWallet.setLocalWallet({ type: KeyManager.Trezor, deviceId })
 
-        if (isAccountManagementEnabled && isTrezorAccountManagementEnabled) {
-          walletDispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
-        } else {
-          navigate('/trezor/chains')
-        }
+        navigate('/trezor/chains')
       } catch (e: any) {
         console.error(e)
         setErrorLoading(e?.message || 'walletProvider.trezor.errors.unknown')
       }
     }
-  }, [
-    getAdapter,
-    navigate,
-    isAccountManagementEnabled,
-    isTrezorAccountManagementEnabled,
-    localWallet,
-    setErrorLoading,
-    walletDispatch,
-  ])
+  }, [getAdapter, navigate, localWallet, setErrorLoading, walletDispatch])
 
   return (
     <ConnectModal

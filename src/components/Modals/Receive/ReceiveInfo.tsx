@@ -109,7 +109,8 @@ export const ReceiveInfo = ({ asset, accountId, onBack }: ReceivePropsType) => {
         wallet,
         accountMetadata,
         pubKey:
-          walletType === KeyManager.Ledger && selectedAccountId
+          (walletType === KeyManager.Ledger || walletType === KeyManager.Trezor) &&
+          selectedAccountId
             ? fromAccountId(selectedAccountId as AccountId).account
             : undefined,
       })
@@ -145,12 +146,26 @@ export const ReceiveInfo = ({ asset, accountId, onBack }: ReceivePropsType) => {
       showOnDevice: true,
       accountType,
       accountNumber,
+      pubKey:
+        (walletType === KeyManager.Ledger || walletType === KeyManager.Trezor) &&
+        selectedAccountId
+          ? fromAccountId(selectedAccountId as AccountId).account
+          : undefined,
     })
 
     setVerified(
       Boolean(deviceAddress) && deviceAddress.toLowerCase() === receiveAddress.toLowerCase(),
     )
-  }, [accountType, asset.chainId, bip44Params, chainAdapter, receiveAddress, wallet])
+  }, [
+    accountType,
+    asset.chainId,
+    bip44Params,
+    chainAdapter,
+    receiveAddress,
+    selectedAccountId,
+    wallet,
+    walletType,
+  ])
 
   const translate = useTranslate()
   const toast = useNotificationToast()

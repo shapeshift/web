@@ -14,14 +14,20 @@ import type { DeriveAccountIdsAndMetadata } from './account'
 import { queryClient } from '@/context/QueryClientProvider/queryClient'
 import { assertGetUtxoChainAdapter } from '@/lib/utils/utxo'
 
-const prefetchBatchedUtxoPublicKeys = async (
-  wallet: HDWallet,
-  chainId: ChainId,
-  accountNumbers: number[],
-  accountTypes: UtxoAccountType[],
-  deviceId: string,
-): Promise<void> => {
-  // All wallets have getPublicKeys, but only Trezor benefits from batching (Ledger may call device N times)
+const prefetchBatchedUtxoPublicKeys = async ({
+  wallet,
+  chainId,
+  accountNumbers,
+  accountTypes,
+  deviceId,
+}: {
+  wallet: HDWallet
+  chainId: ChainId
+  accountNumbers: number[]
+  accountTypes: UtxoAccountType[]
+  deviceId: string
+}) => {
+  // All wallets have getPublicKeys, but only Trezor benefits from batching
   if (!isTrezor(wallet)) return
 
   const adapter = assertGetUtxoChainAdapter(chainId)
@@ -34,24 +40,28 @@ const prefetchBatchedUtxoPublicKeys = async (
   })
 }
 
-const getCachedBatchPublicKey = (
-  deviceId: string | undefined,
-  chainId: ChainId,
-  accountNumber: number,
-  accountType: UtxoAccountType,
-): { xpub: string } | undefined => {
+const getCachedBatchPublicKey = ({
+  deviceId,
+  chainId,
+  accountNumber,
+  accountType,
+}: {
+  deviceId: string | undefined
+  chainId: ChainId
+  accountNumber: number
+  accountType: UtxoAccountType
+}) => {
   if (!deviceId) return undefined
 
-  const queries = queryClient.getQueriesData({
+  const queries = queryClient.getQueriesData<
+    Record<number, Record<UtxoAccountType, { xpub: string }>>
+  >({
     queryKey: ['batch-utxo-pubkeys', deviceId, chainId],
   })
 
   for (const [_key, data] of queries) {
-    if (data && typeof data === 'object') {
-      const batch = data as Record<number, Record<UtxoAccountType, { xpub: string }>>
-      if (batch[accountNumber]?.[accountType]) {
-        return batch[accountNumber][accountType]
-      }
+    if (data?.[accountNumber]?.[accountType]) {
+      return data[accountNumber][accountType]
     }
   }
 
@@ -63,7 +73,7 @@ export const deriveUtxoAccountIdsAndMetadata: DeriveAccountIdsAndMetadata = asyn
   const result = await (async () => {
     if (!supportsBTC(wallet)) return {}
 
-    const deviceId = await wallet.getDeviceID().catch(() => undefined)
+    const deviceId = await wallet.getDeviceID()
 
     // Dynamic batch prefetching: if account not in cache, prefetch its batch (e.g., account 5 → prefetch 5-9)
     if (deviceId && chainIds[0]) {
@@ -72,7 +82,8 @@ export const deriveUtxoAccountIdsAndMetadata: DeriveAccountIdsAndMetadata = asyn
       const supportedAccountTypes = adapter.getSupportedAccountTypes()
 
       const hasAnyUncached = supportedAccountTypes.some(
-        accountType => !getCachedBatchPublicKey(deviceId, firstChainId, accountNumber, accountType),
+        accountType =>
+          !getCachedBatchPublicKey({ deviceId, chainId: firstChainId, accountNumber, accountType }),
       )
 
       if (hasAnyUncached) {
@@ -80,13 +91,13 @@ export const deriveUtxoAccountIdsAndMetadata: DeriveAccountIdsAndMetadata = asyn
         const batchStart = Math.floor(accountNumber / BATCH_SIZE) * BATCH_SIZE
         const batchNumbers = Array.from({ length: BATCH_SIZE }, (_, i) => batchStart + i)
 
-        await prefetchBatchedUtxoPublicKeys(
+        await prefetchBatchedUtxoPublicKeys({
           wallet,
-          firstChainId,
-          batchNumbers,
-          supportedAccountTypes,
+          chainId: firstChainId,
+          accountNumbers: batchNumbers,
+          accountTypes: supportedAccountTypes,
           deviceId,
-        )
+        })
       }
     }
 
@@ -106,7 +117,12 @@ export const deriveUtxoAccountIdsAndMetadata: DeriveAccountIdsAndMetadata = asyn
         supportedAccountTypes = [UtxoAccountType.SegwitNative]
       }
       for (const accountType of supportedAccountTypes) {
-        const cachedPubKey = getCachedBatchPublicKey(deviceId, chainId, accountNumber, accountType)
+        const cachedPubKey = getCachedBatchPublicKey({
+          deviceId,
+          chainId,
+          accountNumber,
+          accountType,
+        })
         const pubkey = cachedPubKey
           ? cachedPubKey.xpub
           : (await adapter.getPublicKey(wallet, accountNumber, accountType)).xpub

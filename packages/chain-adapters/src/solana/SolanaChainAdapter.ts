@@ -196,15 +196,19 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SolanaMainnet> 
         }))
 
         const addresses = await wallet.solanaGetAddresses(msgs)
-        return Object.fromEntries(accountNumbers.map((num, i) => [num, addresses[i]]))
+        return Object.fromEntries(
+          accountNumbers.map((accountNumber, i) => [accountNumber, addresses[i]]),
+        )
       }
 
       // Fallback for wallets without batch support
       const addresses = await Promise.all(
-        accountNumbers.map(num => this.getAddress({ accountNumber: num, wallet })),
+        accountNumbers.map(accountNumber => this.getAddress({ accountNumber, wallet })),
       )
 
-      return Object.fromEntries(accountNumbers.map((num, i) => [num, addresses[i]]))
+      return Object.fromEntries(
+        accountNumbers.map((accountNumber, i) => [accountNumber, addresses[i]]),
+      )
     } catch (err) {
       return ErrorHandler(err, {
         translation: 'chainAdapters.errors.getAddress',

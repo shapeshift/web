@@ -38,6 +38,7 @@ export const getAccountIdsWithActivityAndMetadata = async (
   wallet: HDWallet | null,
   isSnapInstalled: boolean,
 ) => {
+  console.log({ accountNumber, chainId, wallet })
   if (!wallet) return []
   const input = { accountNumber, chainIds: [chainId], wallet, isSnapInstalled }
   const accountIdsAndMetadata = await deriveAccountIdsAndMetadata(input)

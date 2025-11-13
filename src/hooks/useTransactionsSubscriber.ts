@@ -2,6 +2,7 @@ import type { AccountId } from '@shapeshiftoss/caip'
 import { ethChainId, foxAssetId, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import type { Transaction } from '@shapeshiftoss/chain-adapters'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
+import { isTrezor } from '@shapeshiftoss/hdwallet-trezor'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { useCallback, useEffect, useState } from 'react'
 import { useSelector } from 'react-redux'
@@ -156,7 +157,10 @@ export const useTransactionsSubscriber = () => {
             wallet,
             accountType,
             accountNumber,
-            pubKey: isLedger(wallet) && accountId ? fromAccountId(accountId).account : undefined,
+            pubKey:
+              (isLedger(wallet) || isTrezor(wallet)) && accountId
+                ? fromAccountId(accountId).account
+                : undefined,
           },
           msg => {
             const { getAccount } = portfolioApi.endpoints

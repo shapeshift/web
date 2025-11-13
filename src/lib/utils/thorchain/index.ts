@@ -10,6 +10,7 @@ import {
 } from '@shapeshiftoss/caip'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
+import { isTrezor } from '@shapeshiftoss/hdwallet-trezor'
 import type { MidgardActionsResponse, ThornodeStatusResponse } from '@shapeshiftoss/swapper'
 import { thorService } from '@shapeshiftoss/swapper'
 import type {
@@ -200,7 +201,10 @@ export const getThorchainFromAddress = async ({
       accountNumber: bip44Params.accountNumber,
       accountType,
       addressIndex: 0,
-      pubKey: isLedger(wallet) && accountId ? fromAccountId(accountId).account : undefined,
+      pubKey:
+        (isLedger(wallet) || isTrezor(wallet)) && accountId
+          ? fromAccountId(accountId).account
+          : undefined,
     })
     return firstReceiveAddress
   }
@@ -256,7 +260,10 @@ export const getThorfiUtxoFromAddresses = async ({
       accountNumber: bip44Params.accountNumber,
       accountType,
       addressIndex: 0,
-      pubKey: isLedger(wallet) && accountId ? fromAccountId(accountId).account : undefined,
+      pubKey:
+        (isLedger(wallet) || isTrezor(wallet)) && accountId
+          ? fromAccountId(accountId).account
+          : undefined,
     })
 
     return [firstReceiveAddress]

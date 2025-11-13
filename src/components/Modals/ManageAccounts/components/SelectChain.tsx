@@ -10,6 +10,7 @@ import { GlobalFilter } from '@/components/StakingVaults/GlobalFilter'
 import { RawText } from '@/components/Text'
 import { KeyManager } from '@/context/WalletProvider/KeyManager'
 import { availableLedgerChainIds } from '@/context/WalletProvider/Ledger/constants'
+import { supportedTrezorChainIds } from '@/context/WalletProvider/Trezor/constants'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { assertGetChainAdapter, chainIdToFeeAssetId } from '@/lib/utils'
 import { portfolio } from '@/state/slices/portfolioSlice/portfolioSlice'
@@ -64,9 +65,19 @@ export const SelectChain = ({ onSelectChainId }: SelectChainProps) => {
   const walletConnectedChainIds = useAppSelector(selectWalletConnectedChainIds)
   const walletSupportedChainIds = useAppSelector(portfolio.selectors.selectWalletSupportedChainIds)
 
+  console.log({ walletSupportedChainIds })
+
   const availableChainIds = useMemo(() => {
     const allAvailableChainIds =
-      connectedType === KeyManager.Ledger ? availableLedgerChainIds : walletSupportedChainIds
+      connectedType === KeyManager.Ledger
+        ? availableLedgerChainIds
+        : connectedType === KeyManager.Trezor
+          ? supportedTrezorChainIds
+          : walletSupportedChainIds
+
+    console.log('🔍 [SelectChain Debug]')
+    console.log('connectedType:', connectedType)
+    console.log('allAvailableChainIds:', allAvailableChainIds)
 
     return allAvailableChainIds.filter(chainId => !walletConnectedChainIds.includes(chainId))
   }, [connectedType, walletConnectedChainIds, walletSupportedChainIds])

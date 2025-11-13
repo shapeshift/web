@@ -1,8 +1,9 @@
-import { bchAssetId, CHAIN_NAMESPACE, fromChainId } from '@shapeshiftoss/caip'
+import { bchAssetId, CHAIN_NAMESPACE, fromAccountId, fromChainId } from '@shapeshiftoss/caip'
 import type { SignTx, SignTypedDataInput } from '@shapeshiftoss/chain-adapters'
 import { ChainAdapterError, toAddressNList } from '@shapeshiftoss/chain-adapters'
 import type { ETHSignTypedData, SolanaSignTx } from '@shapeshiftoss/hdwallet-core'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
+import { isTrezor, isTrezor } from '@shapeshiftoss/hdwallet-trezor'
 import type { SupportedTradeQuoteStepIndex, TradeQuote } from '@shapeshiftoss/swapper'
 import {
   getHopByIndex,
@@ -333,7 +334,12 @@ export const useTradeExecution = (
         case CHAIN_NAMESPACE.Evm: {
           const adapter = assertGetEvmChainAdapter(stepSellAssetChainId)
 
-          const from = await adapter.getAddress({ accountNumber, wallet })
+          const from = await adapter.getAddress({
+            accountNumber,
+            wallet,
+            pubKey:
+              wallet && isTrezor(wallet) ? fromAccountId(sellAssetAccountId).account : undefined,
+          })
           const supportsEIP1559 = supportsETH(wallet) && (await wallet.ethSupportsEIP1559())
 
           const output = await execution.execEvmTransaction({

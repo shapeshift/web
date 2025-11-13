@@ -639,10 +639,8 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
     try {
       await verifyLedgerAppOpen(this.chainId, wallet)
 
-      // Validate all account types are supported
       accountTypes.forEach(accountType => this.assertIsAccountTypeSupported(accountType))
 
-      // Build requests for all combinations of accounts × script types
       const requests = accountNumbers.flatMap(accountNumber =>
         accountTypes.map(accountType => {
           const bip44Params = this.getBip44Params({ accountNumber, accountType })
@@ -653,16 +651,14 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
             addressNList: bip32ToAddressNList(path),
             curve: 'secp256k1' as const,
             scriptType: accountTypeToScriptType[accountType],
-            _accountNumber: accountNumber, // Track for mapping
+            _accountNumber: accountNumber,
             _accountType: accountType,
           }
         }),
       )
 
-      // Single call for all combinations (e.g., 5 accounts × 3 types = 15 xpubs in 1 popup)
       const publicKeys = await wallet.getPublicKeys(requests)
 
-      // Map back to nested structure
       const result: Record<number, Record<UtxoAccountType, PublicKey>> = {}
 
       requests.forEach((request, i) => {

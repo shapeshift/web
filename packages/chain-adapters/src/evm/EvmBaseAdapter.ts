@@ -18,7 +18,6 @@ import {
   supportsOptimism,
   supportsPolygon,
 } from '@shapeshiftoss/hdwallet-core'
-import { isTrezor } from '@shapeshiftoss/hdwallet-trezor'
 import type { Bip44Params, EvmChainId, RootBip44Params } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import type * as unchained from '@shapeshiftoss/unchained-client'
@@ -575,9 +574,8 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
       this.assertSupportsChain(wallet)
       await verifyLedgerAppOpen(this.chainId, wallet)
 
-      // Check if wallet supports batch address derivation (Trezor only)
-      if (isTrezor(wallet) && wallet.ethGetAddresses) {
-        // Build batch request for all account numbers
+      // Check if wallet supports batch address derivation (Trezor currently, but any wallet could implement ethGetAddresses)
+      if (wallet.ethGetAddresses) {
         const msgs = accountNumbers.map(accountNumber => {
           const bip44Params = this.getBip44Params({ accountNumber })
           return {
@@ -586,14 +584,11 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
           }
         })
 
-        // Single popup for all accounts
         const addresses = await wallet.ethGetAddresses(msgs)
-
-        // Map to Record<accountNumber, address>
         return Object.fromEntries(accountNumbers.map((num, i) => [num, addresses[i]]))
       }
 
-      // Fallback: sequential calls for wallets without batch support
+      // Fallback for wallets without batch support
       const addresses = await Promise.all(
         accountNumbers.map(num => this.getAddress({ accountNumber: num, wallet })),
       )

@@ -2,7 +2,6 @@ import type { ChainId } from '@shapeshiftoss/caip'
 import { solanaChainId, toAccountId } from '@shapeshiftoss/caip'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { supportsSolana } from '@shapeshiftoss/hdwallet-core'
-import { isTrezor } from '@shapeshiftoss/hdwallet-trezor'
 import type { AccountMetadataById } from '@shapeshiftoss/types'
 
 import type { DeriveAccountIdsAndMetadata } from './account'
@@ -10,17 +9,13 @@ import type { DeriveAccountIdsAndMetadata } from './account'
 import { queryClient } from '@/context/QueryClientProvider/queryClient'
 import { assertGetSolanaChainAdapter } from '@/lib/utils/solana'
 
-/**
- * Prefetch batch of Solana addresses for Trezor wallets using react-query cache
- * Reduces popups by batching multiple account derivations into one
- */
 const prefetchBatchedSolanaAddresses = async (
   wallet: HDWallet,
   chainId: ChainId,
   accountNumbers: number[],
   deviceId: string,
 ): Promise<void> => {
-  if (!isTrezor(wallet)) return
+  if (!wallet.solanaGetAddresses) return
 
   const adapter = assertGetSolanaChainAdapter(chainId)
 
@@ -32,9 +27,6 @@ const prefetchBatchedSolanaAddresses = async (
   })
 }
 
-/**
- * Get cached batch address if available
- */
 const getCachedBatchAddress = (
   deviceId: string | undefined,
   chainId: ChainId,
@@ -42,7 +34,6 @@ const getCachedBatchAddress = (
 ): string | undefined => {
   if (!deviceId) return undefined
 
-  // Try to find a cached batch that includes this account number
   const queries = queryClient.getQueriesData({
     queryKey: ['batch-solana-addresses', deviceId, chainId],
   })
@@ -64,18 +55,15 @@ export const deriveSolanaAccountIdsAndMetadata: DeriveAccountIdsAndMetadata = as
 
   const deviceId = await wallet.getDeviceID().catch(() => undefined)
 
-  // Dynamic batch prefetching for Trezor
-  // If account not in cache, prefetch its batch (e.g., account 5 → prefetch 5-9)
-  if (isTrezor(wallet) && deviceId && chainIds[0]) {
+  // Dynamic batch prefetching: if account not in cache, prefetch its batch (e.g., account 5 → prefetch 5-9)
+  if (deviceId && wallet.solanaGetAddresses && chainIds[0]) {
     const cachedAddress = getCachedBatchAddress(deviceId, chainIds[0], accountNumber)
 
     if (!cachedAddress) {
-      // Calculate which batch this account belongs to
       const BATCH_SIZE = 5
       const batchStart = Math.floor(accountNumber / BATCH_SIZE) * BATCH_SIZE
       const batchNumbers = Array.from({ length: BATCH_SIZE }, (_, i) => batchStart + i)
 
-      // Prefetch the batch that contains this account number
       await prefetchBatchedSolanaAddresses(wallet, chainIds[0], batchNumbers, deviceId)
     }
   }
@@ -87,7 +75,6 @@ export const deriveSolanaAccountIdsAndMetadata: DeriveAccountIdsAndMetadata = as
     const adapter = assertGetSolanaChainAdapter(chainId)
     const bip44Params = adapter.getBip44Params({ accountNumber })
 
-    // Try to get from batched cache first (Trezor only)
     const cachedAddress = getCachedBatchAddress(deviceId, chainId, accountNumber)
     const address = cachedAddress || (await adapter.getAddress({ accountNumber, wallet }))
 

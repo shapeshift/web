@@ -5,7 +5,6 @@ import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { supportsBTC } from '@shapeshiftoss/hdwallet-core'
 import { MetaMaskMultiChainHDWallet } from '@shapeshiftoss/hdwallet-metamask-multichain'
 import { PhantomHDWallet } from '@shapeshiftoss/hdwallet-phantom'
-import { isTrezor } from '@shapeshiftoss/hdwallet-trezor'
 import type { AccountMetadataById, UtxoChainId } from '@shapeshiftoss/types'
 import { UtxoAccountType } from '@shapeshiftoss/types'
 
@@ -14,10 +13,6 @@ import type { DeriveAccountIdsAndMetadata } from './account'
 import { queryClient } from '@/context/QueryClientProvider/queryClient'
 import { assertGetUtxoChainAdapter } from '@/lib/utils/utxo'
 
-/**
- * Prefetch batch of UTXO public keys for Trezor wallets using react-query cache
- * Batches multiple accounts × script types into one popup
- */
 const prefetchBatchedUtxoPublicKeys = async (
   wallet: HDWallet,
   chainId: ChainId,
@@ -25,8 +20,6 @@ const prefetchBatchedUtxoPublicKeys = async (
   accountTypes: UtxoAccountType[],
   deviceId: string,
 ): Promise<void> => {
-  if (!isTrezor(wallet)) return
-
   const adapter = assertGetUtxoChainAdapter(chainId)
 
   await queryClient.fetchQuery({
@@ -37,9 +30,6 @@ const prefetchBatchedUtxoPublicKeys = async (
   })
 }
 
-/**
- * Get cached UTXO public key if available
- */
 const getCachedBatchPublicKey = (
   deviceId: string | undefined,
   chainId: ChainId,
@@ -48,7 +38,6 @@ const getCachedBatchPublicKey = (
 ): { xpub: string } | undefined => {
   if (!deviceId) return undefined
 
-  // Try to find a cached batch that includes this account + type
   const queries = queryClient.getQueriesData({
     queryKey: ['batch-utxo-pubkeys', deviceId, chainId],
   })
@@ -72,25 +61,21 @@ export const deriveUtxoAccountIdsAndMetadata: DeriveAccountIdsAndMetadata = asyn
 
     const deviceId = await wallet.getDeviceID().catch(() => undefined)
 
-    // Dynamic batch prefetching for Trezor
-    // If account not in cache, prefetch its batch (e.g., account 5 → prefetch 5-9)
-    if (isTrezor(wallet) && deviceId && chainIds[0]) {
+    // Dynamic batch prefetching: if account not in cache, prefetch its batch (e.g., account 5 → prefetch 5-9)
+    if (deviceId && chainIds[0]) {
       const firstChainId = chainIds[0]
       const adapter = assertGetUtxoChainAdapter(firstChainId)
       const supportedAccountTypes = adapter.getSupportedAccountTypes()
 
-      // Check if any script type for this account is not cached
       const hasAnyUncached = supportedAccountTypes.some(
         accountType => !getCachedBatchPublicKey(deviceId, firstChainId, accountNumber, accountType),
       )
 
       if (hasAnyUncached) {
-        // Calculate which batch this account belongs to
         const BATCH_SIZE = 5
         const batchStart = Math.floor(accountNumber / BATCH_SIZE) * BATCH_SIZE
         const batchNumbers = Array.from({ length: BATCH_SIZE }, (_, i) => batchStart + i)
 
-        // Prefetch the batch that contains this account number
         await prefetchBatchedUtxoPublicKeys(
           wallet,
           firstChainId,
@@ -117,7 +102,6 @@ export const deriveUtxoAccountIdsAndMetadata: DeriveAccountIdsAndMetadata = asyn
         supportedAccountTypes = [UtxoAccountType.SegwitNative]
       }
       for (const accountType of supportedAccountTypes) {
-        // Try to get from batched cache first (Trezor only)
         const cachedPubKey = getCachedBatchPublicKey(deviceId, chainId, accountNumber, accountType)
         const pubkey = cachedPubKey
           ? cachedPubKey.xpub

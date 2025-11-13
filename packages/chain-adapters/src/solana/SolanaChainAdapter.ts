@@ -14,7 +14,6 @@ import type {
   SolanaWallet,
 } from '@shapeshiftoss/hdwallet-core'
 import { supportsSolana } from '@shapeshiftoss/hdwallet-core'
-import { isTrezor } from '@shapeshiftoss/hdwallet-trezor'
 import type { Bip44Params, RootBip44Params } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import * as unchained from '@shapeshiftoss/unchained-client'
@@ -189,22 +188,18 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SolanaMainnet> 
 
       await verifyLedgerAppOpen(this.chainId, wallet)
 
-      // Check if wallet supports batch address derivation (Trezor only)
-      if (isTrezor(wallet) && wallet.solanaGetAddresses) {
-        // Build batch request for all account numbers
+      // Check if wallet supports batch address derivation (Trezor currently, but any wallet could implement solanaGetAddresses)
+      if (wallet.solanaGetAddresses) {
         const msgs = accountNumbers.map(accountNumber => ({
           addressNList: toAddressNList(this.getBip44Params({ accountNumber })),
           showDisplay: false,
         }))
 
-        // Single popup for all accounts
         const addresses = await wallet.solanaGetAddresses(msgs)
-
-        // Map to Record<accountNumber, address>
         return Object.fromEntries(accountNumbers.map((num, i) => [num, addresses[i]]))
       }
 
-      // Fallback: sequential calls for wallets without batch support
+      // Fallback for wallets without batch support
       const addresses = await Promise.all(
         accountNumbers.map(num => this.getAddress({ accountNumber: num, wallet })),
       )

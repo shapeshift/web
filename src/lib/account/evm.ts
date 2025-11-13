@@ -25,7 +25,6 @@ import {
   supportsPolygon,
 } from '@shapeshiftoss/hdwallet-core'
 import { MetaMaskMultiChainHDWallet } from '@shapeshiftoss/hdwallet-metamask-multichain'
-import { isTrezor } from '@shapeshiftoss/hdwallet-trezor'
 import type { AccountMetadataById } from '@shapeshiftoss/types'
 
 import type { DeriveAccountIdsAndMetadata } from './account'
@@ -35,17 +34,13 @@ import { fetchIsSmartContractAddressQuery } from '@/hooks/useIsSmartContractAddr
 import { canAddMetaMaskAccount } from '@/hooks/useIsSnapInstalled/useIsSnapInstalled'
 import { assertGetEvmChainAdapter } from '@/lib/utils/evm'
 
-/**
- * Prefetch batch of EVM addresses for Trezor wallets using react-query cache
- * Reduces popups by batching multiple account derivations into one
- */
 const prefetchBatchedEvmAddresses = async (
   wallet: HDWallet,
   chainId: ChainId,
   accountNumbers: number[],
   deviceId: string,
 ): Promise<void> => {
-  if (!isTrezor(wallet)) return
+  if (!wallet.ethGetAddresses) return
 
   const adapter = assertGetEvmChainAdapter(chainId)
 
@@ -57,9 +52,6 @@ const prefetchBatchedEvmAddresses = async (
   })
 }
 
-/**
- * Get cached batch addresses if available
- */
 const getCachedBatchAddress = (
   deviceId: string | undefined,
   chainId: ChainId,
@@ -67,7 +59,6 @@ const getCachedBatchAddress = (
 ): string | undefined => {
   if (!deviceId) return undefined
 
-  // Try to find a cached batch that includes this account number
   const queries = queryClient.getQueriesData({
     queryKey: ['batch-evm-addresses', deviceId, chainId],
   })
@@ -89,18 +80,15 @@ export const deriveEvmAccountIdsAndMetadata: DeriveAccountIdsAndMetadata = async
   const deviceId = await wallet.getDeviceID().catch(() => undefined)
   let address = ''
 
-  // Dynamic batch prefetching for Trezor
-  // If account not in cache, prefetch its batch (e.g., account 5 → prefetch 5-9)
-  if (isTrezor(wallet) && deviceId && chainIds[0]) {
+  // Dynamic batch prefetching: if account not in cache, prefetch its batch (e.g., account 5 → prefetch 5-9)
+  if (deviceId && wallet.ethGetAddresses && chainIds[0]) {
     const cachedAddress = getCachedBatchAddress(deviceId, chainIds[0], accountNumber)
 
     if (!cachedAddress) {
-      // Calculate which batch this account belongs to
       const BATCH_SIZE = 5
       const batchStart = Math.floor(accountNumber / BATCH_SIZE) * BATCH_SIZE
       const batchNumbers = Array.from({ length: BATCH_SIZE }, (_, i) => batchStart + i)
 
-      // Prefetch the batch that contains this account number
       await prefetchBatchedEvmAddresses(wallet, chainIds[0], batchNumbers, deviceId)
     }
   }
@@ -128,14 +116,8 @@ export const deriveEvmAccountIdsAndMetadata: DeriveAccountIdsAndMetadata = async
 
     // use address if we have it, there is no need to re-derive an address for every chainId since they all use the same derivation path
     if (!address) {
-      // Try to get from batched cache first (Trezor only)
       const cachedAddress = getCachedBatchAddress(deviceId, chainId, accountNumber)
-      if (cachedAddress) {
-        address = cachedAddress
-      } else {
-        // Fall back to single address derivation
-        address = await adapter.getAddress({ accountNumber, wallet })
-      }
+      address = cachedAddress || (await adapter.getAddress({ accountNumber, wallet }))
     }
     if (!address) continue
 

@@ -111,6 +111,7 @@ export const FiatCurrencies = ({ isDrawer = false }: MaybeDrawerProps) => {
           maxHeight='400'
           overflowY='auto'
           overflowX='hidden'
+          pb='calc(env(safe-area-inset-bottom) + var(--safe-area-inset-bottom))'
         >
           <Stack width='full' spacing={2} py={2}>
             {currencyButtons}

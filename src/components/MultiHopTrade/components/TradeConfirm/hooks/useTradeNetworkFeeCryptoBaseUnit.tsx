@@ -96,7 +96,11 @@ export const useTradeNetworkFeeCryptoBaseUnit = ({
               case CHAIN_NAMESPACE.Evm: {
                 if (!swapper.getEvmTransactionFees) throw Error('missing getEvmTransactionFees')
                 const adapter = assertGetEvmChainAdapter(stepSellAssetChainId)
-                const from = await adapter.getAddress({ accountNumber, wallet })
+                const from = await adapter.getAddress({
+                  accountNumber,
+                  wallet,
+                  pubKey: wallet && (isLedger(wallet) || isTrezor(wallet)) ? pubKey : undefined,
+                })
                 const supportsEIP1559 = supportsETH(wallet) && (await wallet.ethSupportsEIP1559())
 
                 const output = await swapper.getEvmTransactionFees({

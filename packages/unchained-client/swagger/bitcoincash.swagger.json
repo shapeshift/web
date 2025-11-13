@@ -1,0 +1,1023 @@
+{
+	"components": {
+		"examples": {},
+		"headers": {},
+		"parameters": {},
+		"requestBodies": {},
+		"responses": {},
+		"schemas": {
+			"BaseInfo": {
+				"description": "Contains base info about the running coinstack",
+				"properties": {
+					"network": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"network"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"Address": {
+				"description": "Contains info about an address associated with an extended public key",
+				"properties": {
+					"balance": {
+						"type": "string"
+					},
+					"pubkey": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"balance",
+					"pubkey"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"Account": {
+				"description": "Contains info about an address or extended public key account",
+				"properties": {
+					"balance": {
+						"type": "string"
+					},
+					"unconfirmedBalance": {
+						"type": "string"
+					},
+					"pubkey": {
+						"type": "string"
+					},
+					"addresses": {
+						"items": {
+							"$ref": "#/components/schemas/Address"
+						},
+						"type": "array",
+						"description": "List of associated addresses for an extended public key"
+					},
+					"nextReceiveAddressIndex": {
+						"type": "number",
+						"format": "double",
+						"description": "The next unused receive address index for an extended public key (change index 0)"
+					},
+					"nextChangeAddressIndex": {
+						"type": "number",
+						"format": "double",
+						"description": "The next unused change address index for an extended public key (change index 1)"
+					}
+				},
+				"required": [
+					"balance",
+					"unconfirmedBalance",
+					"pubkey"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"BadRequestError": {
+				"description": "Contains info about a 400 Bad Request response",
+				"properties": {
+					"error": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"error"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"ValidationError": {
+				"description": "Contains info about a 422 Validation Error response",
+				"properties": {
+					"message": {
+						"type": "string",
+						"enum": [
+							"Validation failed"
+						],
+						"nullable": false
+					},
+					"details": {
+						"properties": {},
+						"additionalProperties": {},
+						"type": "object"
+					}
+				},
+				"required": [
+					"message",
+					"details"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"InternalServerError": {
+				"description": "Contains info about a 500 Internal Server Error response",
+				"properties": {
+					"message": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"message"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"Vin": {
+				"description": "Contains info about a transaction input",
+				"properties": {
+					"txid": {
+						"type": "string"
+					},
+					"vout": {
+						"type": "string"
+					},
+					"sequence": {
+						"type": "number",
+						"format": "double"
+					},
+					"coinbase": {
+						"type": "string"
+					},
+					"scriptSig": {
+						"properties": {
+							"hex": {
+								"type": "string"
+							}
+						},
+						"type": "object"
+					},
+					"addresses": {
+						"items": {
+							"type": "string"
+						},
+						"type": "array"
+					},
+					"value": {
+						"type": "string"
+					}
+				},
+				"type": "object",
+				"additionalProperties": false
+			},
+			"Vout": {
+				"description": "Contains info about a transaction output",
+				"properties": {
+					"value": {
+						"type": "string"
+					},
+					"n": {
+						"type": "number",
+						"format": "double"
+					},
+					"opReturn": {
+						"type": "string"
+					},
+					"scriptPubKey": {
+						"properties": {
+							"hex": {
+								"type": "string"
+							}
+						},
+						"type": "object"
+					},
+					"addresses": {
+						"items": {
+							"type": "string"
+						},
+						"type": "array"
+					}
+				},
+				"required": [
+					"value",
+					"n",
+					"scriptPubKey"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"Tx": {
+				"description": "Contains info about a transaction",
+				"properties": {
+					"txid": {
+						"type": "string"
+					},
+					"blockHash": {
+						"type": "string"
+					},
+					"blockHeight": {
+						"type": "number",
+						"format": "double"
+					},
+					"timestamp": {
+						"type": "number",
+						"format": "double"
+					},
+					"vin": {
+						"items": {
+							"$ref": "#/components/schemas/Vin"
+						},
+						"type": "array"
+					},
+					"vout": {
+						"items": {
+							"$ref": "#/components/schemas/Vout"
+						},
+						"type": "array"
+					},
+					"confirmations": {
+						"type": "number",
+						"format": "double"
+					},
+					"value": {
+						"type": "string"
+					},
+					"fee": {
+						"type": "string"
+					},
+					"hex": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"txid",
+					"blockHeight",
+					"timestamp",
+					"vin",
+					"vout",
+					"confirmations",
+					"value",
+					"fee",
+					"hex"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"BaseTxHistory_Tx_": {
+				"description": "Contains paginated base transaction history details",
+				"properties": {
+					"cursor": {
+						"type": "string"
+					},
+					"pubkey": {
+						"type": "string"
+					},
+					"txs": {
+						"items": {
+							"$ref": "#/components/schemas/Tx"
+						},
+						"type": "array"
+					}
+				},
+				"required": [
+					"pubkey",
+					"txs"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"TxHistory": {
+				"$ref": "#/components/schemas/BaseTxHistory_Tx_",
+				"description": "Contains info about transaction history"
+			},
+			"Utxo": {
+				"description": "Contains info about an unspent transaction output",
+				"properties": {
+					"txid": {
+						"type": "string"
+					},
+					"vout": {
+						"type": "number",
+						"format": "double"
+					},
+					"value": {
+						"type": "string"
+					},
+					"height": {
+						"type": "number",
+						"format": "double"
+					},
+					"confirmations": {
+						"type": "number",
+						"format": "double"
+					},
+					"address": {
+						"type": "string"
+					},
+					"path": {
+						"type": "string"
+					},
+					"locktime": {
+						"type": "number",
+						"format": "double"
+					},
+					"coinbase": {
+						"type": "boolean"
+					}
+				},
+				"required": [
+					"txid",
+					"vout",
+					"value",
+					"confirmations"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"RawTx": {
+				"description": "Contains info about a transaction as returned from the node",
+				"properties": {
+					"txid": {
+						"type": "string"
+					},
+					"hash": {
+						"type": "string"
+					},
+					"version": {
+						"type": "number",
+						"format": "double"
+					},
+					"size": {
+						"type": "number",
+						"format": "double"
+					},
+					"vsize": {
+						"type": "number",
+						"format": "double"
+					},
+					"weight": {
+						"type": "number",
+						"format": "double"
+					},
+					"locktime": {
+						"type": "number",
+						"format": "double"
+					},
+					"vin": {
+						"items": {
+							"properties": {
+								"txinwitness": {
+									"type": "string"
+								},
+								"scriptSig": {
+									"properties": {
+										"hex": {
+											"type": "string"
+										},
+										"asm": {
+											"type": "string"
+										}
+									},
+									"required": [
+										"hex",
+										"asm"
+									],
+									"type": "object"
+								},
+								"coinbase": {
+									"type": "string"
+								},
+								"sequence": {
+									"type": "number",
+									"format": "double"
+								},
+								"vout": {
+									"type": "number",
+									"format": "double"
+								},
+								"txid": {
+									"type": "string"
+								}
+							},
+							"type": "object"
+						},
+						"type": "array"
+					},
+					"vout": {
+						"items": {
+							"properties": {
+								"scriptPubKey": {
+									"properties": {
+										"addresses": {
+											"items": {
+												"type": "string"
+											},
+											"type": "array"
+										},
+										"type": {
+											"type": "string"
+										},
+										"reqSigs": {
+											"type": "number",
+											"format": "double"
+										},
+										"hex": {
+											"type": "string"
+										},
+										"asm": {
+											"type": "string"
+										}
+									},
+									"required": [
+										"addresses",
+										"type",
+										"reqSigs",
+										"hex",
+										"asm"
+									],
+									"type": "object"
+								},
+								"n": {
+									"type": "number",
+									"format": "double"
+								},
+								"value": {
+									"anyOf": [
+										{
+											"type": "string"
+										},
+										{
+											"type": "number",
+											"format": "double"
+										}
+									]
+								}
+							},
+							"type": "object"
+						},
+						"type": "array"
+					},
+					"hex": {
+						"type": "string"
+					},
+					"blockhash": {
+						"type": "string"
+					},
+					"confirmations": {
+						"type": "number",
+						"format": "double"
+					},
+					"time": {
+						"type": "number",
+						"format": "double"
+					},
+					"blocktime": {
+						"type": "number",
+						"format": "double"
+					}
+				},
+				"required": [
+					"txid",
+					"hash",
+					"version",
+					"size",
+					"vsize",
+					"weight",
+					"locktime",
+					"vin",
+					"vout",
+					"hex",
+					"blockhash",
+					"confirmations",
+					"time",
+					"blocktime"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"SendTxBody": {
+				"description": "Contains the serialized raw transaction hex",
+				"properties": {
+					"hex": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"hex"
+				],
+				"type": "object",
+				"additionalProperties": false
+			},
+			"NetworkFee": {
+				"properties": {
+					"satsPerKiloByte": {
+						"type": "number",
+						"format": "double"
+					},
+					"blocksUntilConfirmation": {
+						"type": "number",
+						"format": "double"
+					}
+				},
+				"required": [
+					"satsPerKiloByte",
+					"blocksUntilConfirmation"
+				],
+				"type": "object",
+				"description": "Contains info about the network fee"
+			},
+			"NetworkFees": {
+				"description": "Contains info about current recommended network fees",
+				"properties": {
+					"fast": {
+						"$ref": "#/components/schemas/NetworkFee"
+					},
+					"average": {
+						"$ref": "#/components/schemas/NetworkFee"
+					},
+					"slow": {
+						"$ref": "#/components/schemas/NetworkFee"
+					}
+				},
+				"type": "object",
+				"additionalProperties": false
+			}
+		},
+		"securitySchemes": {}
+	},
+	"info": {
+		"title": "@shapeshiftoss/bitcoincash-api",
+		"version": "10.0.0",
+		"license": {
+			"name": "MIT"
+		},
+		"contact": {}
+	},
+	"openapi": "3.0.0",
+	"paths": {
+		"/api/v1/info": {
+			"get": {
+				"operationId": "GetInfo",
+				"responses": {
+					"200": {
+						"description": "coinstack info",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/BaseInfo"
+								}
+							}
+						}
+					}
+				},
+				"description": "Get information about the running coinstack",
+				"tags": [
+					"v1"
+				],
+				"security": [],
+				"parameters": []
+			}
+		},
+		"/api/v1/account/{pubkey}": {
+			"get": {
+				"operationId": "GetAccount",
+				"responses": {
+					"200": {
+						"description": "account details",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Account"
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "Bad Request",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/BadRequestError"
+								}
+							}
+						}
+					},
+					"422": {
+						"description": "Validation Error",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ValidationError"
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "Internal Server Error",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/InternalServerError"
+								}
+							}
+						}
+					}
+				},
+				"description": "Get account details by address or extended public key",
+				"tags": [
+					"v1"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"description": "account address or extended public key",
+						"in": "path",
+						"name": "pubkey",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
+		"/api/v1/account/{pubkey}/txs": {
+			"get": {
+				"operationId": "GetTxHistory",
+				"responses": {
+					"200": {
+						"description": "transaction history",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/TxHistory"
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "Bad Request",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/BadRequestError"
+								}
+							}
+						}
+					},
+					"422": {
+						"description": "Validation Error",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ValidationError"
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "Internal Server Error",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/InternalServerError"
+								}
+							}
+						}
+					}
+				},
+				"description": "Get transaction history by address or extended public key",
+				"tags": [
+					"v1"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"description": "account address or extended public key",
+						"in": "path",
+						"name": "pubkey",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"description": "the cursor returned in previous query (base64 encoded json object with a 'page' property)",
+						"in": "query",
+						"name": "cursor",
+						"required": false,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"description": "page size (10 by default)",
+						"in": "query",
+						"name": "pageSize",
+						"required": false,
+						"schema": {
+							"default": 10,
+							"format": "double",
+							"type": "number"
+						}
+					}
+				]
+			}
+		},
+		"/api/v1/account/{pubkey}/utxos": {
+			"get": {
+				"operationId": "GetUtxos",
+				"responses": {
+					"200": {
+						"description": "account utxos",
+						"content": {
+							"application/json": {
+								"schema": {
+									"items": {
+										"$ref": "#/components/schemas/Utxo"
+									},
+									"type": "array"
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "Bad Request",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/BadRequestError"
+								}
+							}
+						}
+					},
+					"422": {
+						"description": "Validation Error",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ValidationError"
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "Internal Server Error",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/InternalServerError"
+								}
+							}
+						}
+					}
+				},
+				"description": "Get all unspent transaction outputs for an address or extended public key",
+				"tags": [
+					"v1"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"description": "account address or extended public key",
+						"in": "path",
+						"name": "pubkey",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
+		"/api/v1/tx/{txid}": {
+			"get": {
+				"operationId": "GetTransaction",
+				"responses": {
+					"200": {
+						"description": "transaction payload",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Tx"
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "Bad Request",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/BadRequestError"
+								}
+							}
+						}
+					},
+					"422": {
+						"description": "Validation Error",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ValidationError"
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "Internal Server Error",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/InternalServerError"
+								}
+							}
+						}
+					}
+				},
+				"description": "Get transaction details",
+				"tags": [
+					"v1"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"description": "transaction hash",
+						"in": "path",
+						"name": "txid",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
+		"/api/v1/tx/{txid}/raw": {
+			"get": {
+				"operationId": "GetRawTransaction",
+				"responses": {
+					"200": {
+						"description": "transaction payload",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/RawTx"
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "Bad Request",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/BadRequestError"
+								}
+							}
+						}
+					},
+					"422": {
+						"description": "Validation Error",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ValidationError"
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "Internal Server Error",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/InternalServerError"
+								}
+							}
+						}
+					}
+				},
+				"description": "Get raw transaction details directly from the node",
+				"tags": [
+					"v1"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"description": "transaction hash",
+						"in": "path",
+						"name": "txid",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
+		"/api/v1/send": {
+			"post": {
+				"operationId": "SendTx",
+				"responses": {
+					"200": {
+						"description": "transaction id",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "string"
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "Bad Request",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/BadRequestError"
+								}
+							}
+						}
+					},
+					"422": {
+						"description": "Validation Error",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ValidationError"
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "Internal Server Error",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/InternalServerError"
+								}
+							}
+						}
+					}
+				},
+				"description": "Sends raw transaction to be broadcast to the node.",
+				"tags": [
+					"v1"
+				],
+				"security": [],
+				"parameters": [],
+				"requestBody": {
+					"description": "serialized raw transaction hex",
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/SendTxBody",
+								"description": "serialized raw transaction hex"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/v1/fees": {
+			"get": {
+				"operationId": "GetNetworkFees",
+				"responses": {
+					"200": {
+						"description": "current network fees",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/NetworkFees"
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "Bad Request",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/BadRequestError"
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "Internal Server Error",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/InternalServerError"
+								}
+							}
+						}
+					}
+				},
+				"description": "Get current recommended network fees to use in a transaction",
+				"tags": [
+					"v1"
+				],
+				"security": [],
+				"parameters": []
+			}
+		}
+	},
+	"servers": [
+		{
+			"url": "/"
+		}
+	]
+}

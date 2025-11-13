@@ -56,7 +56,10 @@ export const TrezorChains = () => {
     })
 
     const filtered = mappedAssets.filter(isSome)
-    console.log('availableAssets after filter:', filtered.map(a => a.symbol))
+    console.log(
+      'availableAssets after filter:',
+      filtered.map(a => a.symbol),
+    )
 
     return filtered
   }, [assets])

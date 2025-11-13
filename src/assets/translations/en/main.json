@@ -1446,13 +1446,6 @@
       "signWarning": "Before signing, make sure you have the %{chain} app open on your device."
     },
     "trezor": {
-      "chains": {
-        "header": "Import Trezor Accounts",
-        "body": "To see your balances for each chain, you'll need to connect each app.",
-        "availableChains": "Available Chains",
-        "added": "Added",
-        "connect": "Connect"
-      },
       "verify": {
         "confirmOnDevice": "Confirm on device",
         "addressMismatch": "Address mismatch. Please check you have the correct device connected and try again."

@@ -89,9 +89,7 @@ export const FiatForm: React.FC<FiatFormProps> = ({
             accountNumber,
             wallet,
             pubKey:
-              isLedger(wallet) || isTrezor(wallet)
-                ? fromAccountId(accountId).account
-                : undefined,
+              isLedger(wallet) || isTrezor(wallet) ? fromAccountId(accountId).account : undefined,
           }
           const { chainId } = fromAccountId(accountId)
           const maybeAdapter = getChainAdapterManager().get(chainId)

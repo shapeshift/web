@@ -37,12 +37,7 @@ export const useAddAccountsGuard = () => {
   useEffect(() => {
     if (!isConnected || !wallet || hasCheckedRef.current) return
 
-    if (
-      walletType !== KeyManager.Ledger &&
-      walletType !== KeyManager.GridPlus &&
-      walletType !== KeyManager.Trezor
-    )
-      return
+    if (walletType !== KeyManager.Ledger && walletType !== KeyManager.Trezor) return
 
     // Only open if we don't already have accounts connected
     const accountIds = Object.keys(portfolioAccounts)

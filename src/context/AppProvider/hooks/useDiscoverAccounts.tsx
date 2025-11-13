@@ -1,5 +1,6 @@
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import { MetaMaskMultiChainHDWallet } from '@shapeshiftoss/hdwallet-metamask-multichain'
+import { isTrezor } from '@shapeshiftoss/hdwallet-trezor'
 import type { AccountMetadataById } from '@shapeshiftoss/types'
 import { useQueries } from '@tanstack/react-query'
 import { useMemo } from 'react'
@@ -44,6 +45,7 @@ export const useDiscoverAccounts = () => {
           if (
             !wallet ||
             isLedger(wallet) ||
+            isTrezor(wallet) ||
             // Before connecting to MetaMask, isSnapInstalled is null then switch to false when the hook reacts, we would run the discovery 2 times
             (connectedRdns === METAMASK_RDNS && isSnapInstalled === null)
           ) {

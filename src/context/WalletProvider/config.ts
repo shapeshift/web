@@ -21,6 +21,7 @@ import { MetaMaskConfig } from './MetaMask/config'
 import { MobileConfig } from './MobileWallet/config'
 import { NativeConfig } from './NativeWallet/config'
 import { PhantomConfig } from './Phantom/config'
+import { TrezorConfig } from './Trezor/config'
 import { KeepKeyRoutes } from './routes'
 import { NativeWalletRoutes } from './types'
 import { WalletConnectV2Config } from './WalletConnectV2/config'
@@ -238,6 +239,18 @@ const LedgerFailure = lazy(() =>
 const LedgerSuccess = lazy(() =>
   import('./Ledger/components/Success').then(({ LedgerSuccess }) => ({ default: LedgerSuccess })),
 )
+const TrezorChains = lazy(() =>
+  import('./Trezor/components/Chains').then(({ TrezorChains }) => ({ default: TrezorChains })),
+)
+const TrezorConnect = lazy(() =>
+  import('./Trezor/components/Connect').then(({ TrezorConnect }) => ({ default: TrezorConnect })),
+)
+const TrezorFailure = lazy(() =>
+  import('./Trezor/components/Failure').then(({ TrezorFailure }) => ({ default: TrezorFailure })),
+)
+const TrezorSuccess = lazy(() =>
+  import('./Trezor/components/Success').then(({ TrezorSuccess }) => ({ default: TrezorSuccess })),
+)
 const MetaMaskConnect = lazy(() =>
   import('./MetaMask/components/Connect').then(({ MetaMaskConnect }) => ({
     default: MetaMaskConnect,
@@ -268,6 +281,11 @@ const MetaMaskMenu = lazy(() =>
 const LedgerMenu = lazy(() =>
   import('./Ledger/components/LedgerMenu').then(({ LedgerMenu }) => ({
     default: LedgerMenu,
+  })),
+)
+const TrezorMenu = lazy(() =>
+  import('./Trezor/components/TrezorMenu').then(({ TrezorMenu }) => ({
+    default: TrezorMenu,
   })),
 )
 
@@ -436,6 +454,16 @@ export const SUPPORTED_WALLETS: SupportedWalletInfoByKeyManager = {
       { path: '/ledger/failure', component: LedgerFailure },
     ],
     connectedMenuComponent: LedgerMenu,
+  },
+  [KeyManager.Trezor]: {
+    ...TrezorConfig,
+    routes: [
+      { path: '/trezor/connect', component: TrezorConnect },
+      { path: '/trezor/chains', component: TrezorChains },
+      { path: '/trezor/success', component: TrezorSuccess },
+      { path: '/trezor/failure', component: TrezorFailure },
+    ],
+    connectedMenuComponent: TrezorMenu,
   },
   [KeyManager.WalletConnectV2]: {
     ...WalletConnectV2Config,

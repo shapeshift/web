@@ -110,6 +110,8 @@
     "@shapeshiftoss/hdwallet-native": "v1.62.3",
     "@shapeshiftoss/hdwallet-native-vault": "v1.62.3",
     "@shapeshiftoss/hdwallet-phantom": "v1.62.3",
+    "@shapeshiftoss/hdwallet-trezor": "1.62.4-alpha.239",
+    "@shapeshiftoss/hdwallet-trezor-connect": "1.62.4-alpha.239",
     "@shapeshiftoss/hdwallet-walletconnectv2": "v1.62.3",
     "@shapeshiftoss/swapper": "workspace:^",
     "@shapeshiftoss/types": "workspace:^",

@@ -44,10 +44,22 @@ export const TrezorChains = () => {
 
   const walletChainIds = useAppSelector(selectWalletConnectedChainIds)
 
-  const availableAssets = useMemo(
-    () => supportedTrezorAssetIds.map(id => assets[id]).filter(isSome),
-    [assets],
-  )
+  const availableAssets = useMemo(() => {
+    console.log('🔍 [Trezor Chains Debug]')
+    console.log('supportedTrezorAssetIds:', supportedTrezorAssetIds)
+    console.log('assets object keys count:', Object.keys(assets).length)
+
+    const mappedAssets = supportedTrezorAssetIds.map(id => {
+      const asset = assets[id]
+      console.log(`Asset ${id}:`, asset ? `${asset.name} (${asset.symbol})` : 'UNDEFINED')
+      return asset
+    })
+
+    const filtered = mappedAssets.filter(isSome)
+    console.log('availableAssets after filter:', filtered.map(a => a.symbol))
+
+    return filtered
+  }, [assets])
 
   const [loadingChains, setLoadingChains] = useState<Record<ChainId, boolean>>({})
 

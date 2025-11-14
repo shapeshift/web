@@ -1,5 +1,5 @@
 import type { Token as ParserToken } from '../../../../types'
-import type { Token as ApiToken } from '../../types'
+import type { TokenDetails as ApiToken } from '../../types'
 
 export const usdcApiToken: ApiToken = {
   id: 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v',

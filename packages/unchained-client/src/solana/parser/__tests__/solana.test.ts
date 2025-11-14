@@ -2,7 +2,7 @@ import { solanaChainId, solAssetId } from '@shapeshiftoss/caip'
 import { beforeAll, describe, expect, it, vi } from 'vitest'
 
 import { TransferType, TxStatus } from '../../../types'
-import type { ParsedTx, Token } from '../../parser'
+import type { ParsedTx, TokenDetails } from '../../parser'
 import { V1Api } from '../../parser'
 import { TransactionParser } from '../index'
 import solSelfSend from './mockData/solSelfSend'
@@ -12,7 +12,7 @@ import tokenSelfSend from './mockData/tokenSelfSend'
 import tokenStandard from './mockData/tokenStandard'
 import tokenStandardWithCreate from './mockData/tokenStandardWithCreate'
 
-const getTokenMock = vi.fn<() => Token>()
+const getTokenMock = vi.fn<() => TokenDetails>()
 
 vi.mock('../../../generated/solana', async importActual => {
   const actual = await importActual<any>()

@@ -28,8 +28,6 @@ interface ImportMetaEnv {
   readonly VITE_FEATURE_THORCHAIN_LP: string
   readonly VITE_FEATURE_THORCHAIN_LP_DEPOSIT: string
   readonly VITE_FEATURE_THORCHAIN_LP_WITHDRAW: string
-  readonly VITE_FEATURE_ACCOUNT_MANAGEMENT: string
-  readonly VITE_FEATURE_ACCOUNT_MANAGEMENT_LEDGER: string
   readonly VITE_FEATURE_RFOX: string
   readonly VITE_FEATURE_RFOX_LP: string
   readonly VITE_FEATURE_ARBITRUM_BRIDGE: string

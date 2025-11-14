@@ -1,5 +1,5 @@
 import type { IconButtonProps } from '@chakra-ui/react'
-import type { EmblaOptionsType } from 'embla-carousel-react'
+import type { EmblaOptionsType } from 'embla-carousel'
 import type React from 'react'
 import type { JSX } from 'react'
 
@@ -15,7 +15,7 @@ export type CarouselProps = {
   autoPlay?: boolean
   isVisible?: boolean
   slideSize?: string
-  renderHeader?: (arg: CarouselHeaderProps) => JSX.Element
+  renderHeader?: (args: CarouselHeaderProps) => JSX.Element
 }
 
 export type ArrowProps = {

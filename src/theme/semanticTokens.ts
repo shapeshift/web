@@ -25,7 +25,7 @@ export const semanticTokens = {
           },
           hover: {
             default: 'gray.200',
-            _dark: 'darkNeutral.800',
+            _dark: 'darkNeutralAlpha.500',
           },
           pressed: {
             default: 'gray.300',

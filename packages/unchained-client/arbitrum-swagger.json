@@ -549,7 +549,9 @@
 				"description": "Construct a type with a set of properties K of type T"
 			},
 			"StakingDuration": {
-				"$ref": "#/components/schemas/Record_string.number_"
+				"properties": {},
+				"type": "object",
+				"description": "Mapping of staking contract addresses to their duration values in seconds"
 			}
 		},
 		"securitySchemes": {}

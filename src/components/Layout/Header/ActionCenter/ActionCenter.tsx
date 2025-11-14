@@ -56,7 +56,6 @@ const INCREASE_VIEWPORT_BY = {
 
 export const ActionCenter = memo(() => {
   'use no memo'
-  // stabilize actions array from selector, and remove setState from useMemo dependencies
   const { isDrawerOpen, openActionCenter, closeDrawer } = useActionCenterContext()
   const { modalContentProps, overlayProps, modalProps } = useModalRegistration({
     isOpen: isDrawerOpen,

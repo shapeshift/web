@@ -225,11 +225,7 @@ export const Position = () => {
 
     const positionAsset = opportunityType === AsymSide.Asset ? asset : runeAsset
     if (!positionAsset) return null
-    return (
-      <Text
-        translation={['common.asymmetric', { assetSymbol: positionAsset.symbol }]}
-      />
-    )
+    return <Text translation={['common.asymmetric', { assetSymbol: positionAsset.symbol }]} />
   }, [asset, opportunityId, runeAsset])
 
   const positionStatusTag = useMemo(() => {

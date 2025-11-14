@@ -24,7 +24,7 @@ export const AssetsGrid: React.FC<{
   showSparkline?: boolean
   showMarketCap?: boolean
 }> = ({ assetIds, selectedChainId, limit, isLoading, showSparkline, showMarketCap }) => {
-  "use no memo"
+  'use no memo'
   const navigate = useNavigate()
   const location = useLocation()
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })

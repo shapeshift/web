@@ -682,7 +682,6 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
 
           return (
             <GenericTransactionNotification
-              // eslint-disable-next-line react-memo/require-usememo
               handleClick={handleClick}
               actionId={txHash}
               onClose={onClose}
@@ -1190,7 +1189,6 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
               assetId={asset?.assetId}
               assetIcon={asset?.icon ?? ''}
               assetSymbol={asset?.symbol ?? ''}
-              // eslint-disable-next-line react-memo/require-usememo
               onAccountIdChange={(accountId: AccountId) => {
                 handleAccountIdChange(accountId, asset?.assetId)
               }}

@@ -95,7 +95,7 @@ export const TradeInput = ({
   tradeInputRef,
   onChangeTab,
 }: TradeInputProps) => {
-  "use no memo"
+  'use no memo'
   const {
     dispatch: walletDispatch,
     state: { isConnected, wallet },

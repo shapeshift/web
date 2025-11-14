@@ -261,7 +261,6 @@ export const Overview: React.FC<OverviewProps> = ({
               <FiatRampButton
                 key={rampId}
                 // this whole render method is already memoized
-                // eslint-disable-next-line react-memo/require-usememo
                 onClick={() => handlePopupClick({ rampId, address: passedAddress })}
                 accountFiatBalance={accountUserCurrencyBalance}
                 action={fiatRampAction}

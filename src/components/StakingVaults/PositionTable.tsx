@@ -49,7 +49,7 @@ export const PositionTable: React.FC<PositionTableProps> = ({
   searchQuery,
   forceCompactView = false,
 }) => {
-  "use no memo"
+  'use no memo'
   const translate = useTranslate()
   const assets = useAppSelector(selectAssetsSortedByMarketCap)
   const isAnyOpportunitiesApiQueriesPending = useAppSelector(

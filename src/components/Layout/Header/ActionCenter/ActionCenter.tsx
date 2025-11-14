@@ -55,8 +55,7 @@ const INCREASE_VIEWPORT_BY = {
 }
 
 export const ActionCenter = memo(() => {
-  "use no memo"
-  // TODO: Refactor to conform to Rules of React - fix dependency array issues in renderActionCard,
+  'use no memo'
   // stabilize actions array from selector, and remove setState from useMemo dependencies
   const { isDrawerOpen, openActionCenter, closeDrawer } = useActionCenterContext()
   const { modalContentProps, overlayProps, modalProps } = useModalRegistration({
@@ -188,7 +187,6 @@ export const ActionCenter = memo(() => {
         style={virtuosoStyle}
         overscan={200}
         increaseViewportBy={INCREASE_VIEWPORT_BY}
-        // eslint-disable-next-line react-memo/require-usememo
         computeItemKey={(_, action) => action.id}
         className='scroll-container'
       />

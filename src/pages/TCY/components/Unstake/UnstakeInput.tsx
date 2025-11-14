@@ -229,7 +229,6 @@ export const UnstakeInput: React.FC<TCYRouteProps & { currentAccount: CurrentAcc
           isAccountSelectionHidden
           formControlProps={formControlProps}
           rightComponent={ReadOnlyAsset}
-          // eslint-disable-next-line react-memo/require-usememo
           percentOptions={[]}
         >
           <Stack spacing={4} px={6} pb={4}>

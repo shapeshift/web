@@ -227,7 +227,6 @@ export const Position = () => {
     if (!positionAsset) return null
     return (
       <Text
-        // eslint-disable-next-line react-memo/require-usememo
         translation={['common.asymmetric', { assetSymbol: positionAsset.symbol }]}
       />
     )

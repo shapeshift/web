@@ -33,7 +33,7 @@ const emptyStyle = {}
 
 export const CategoryCard = memo(
   ({ category, title, maxAssets = 3, layout = 'vertical' }: CategoryCardProps) => {
-    "use no memo"
+    'use no memo'
     const navigate = useNavigate()
     const assetsById = useAppSelector(selectAssets)
     const assetTitleColor = useColorModeValue('black', 'white')

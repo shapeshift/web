@@ -171,7 +171,6 @@ export const ClaimConfirm = ({ accountId, assetId, amount, onBack }: ClaimConfir
 
           return (
             <GenericTransactionNotification
-              // eslint-disable-next-line react-memo/require-usememo
               handleClick={handleClick}
               actionId={txid}
               onClose={onClose}

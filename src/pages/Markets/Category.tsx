@@ -17,7 +17,7 @@ const containerPaddingX = { base: 4, xl: 0 }
 const ASSETS_LIMIT = 100
 
 export const Category: React.FC = () => {
-  "use no memo"
+  'use no memo'
   const params = useParams<{ category: MarketsCategories }>()
   const category = params.category as MarketsCategories
   const translate = useTranslate()

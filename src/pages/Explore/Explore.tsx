@@ -87,7 +87,7 @@ const carouselOptions = {
 }
 
 export const Explore = memo(() => {
-  "use no memo"
+  'use no memo'
   const translate = useTranslate()
   const navigate = useNavigate()
   const isRfoxFoxEcosystemPageEnabled = useFeatureFlag('RfoxFoxEcosystemPage')

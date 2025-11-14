@@ -144,12 +144,6 @@ export const useSimulateEvmTransaction = ({
     }
   }, [tenderlyGasEstimateQuery?.data, feeAsset, marketData])
 
-  console.log('in src/plugins/walletConnectToDapps/hooks/useSimulateEvmTransaction.ts for near', {
-    feeData: tenderlyGasEstimateQuery?.data?.feeData,
-    gasLimit: tenderlyGasEstimateQuery.data?.simulation?.transaction.gas_used.toString(),
-    fee,
-  })
-
   return {
     simulationQuery: tenderlySimulationQuery,
     gasEstimateQuery: tenderlyGasEstimateQuery,

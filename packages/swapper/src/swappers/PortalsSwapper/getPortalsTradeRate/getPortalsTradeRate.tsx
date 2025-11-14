@@ -194,15 +194,6 @@ export async function getPortalsTradeRate(
       gasLimit: tenderlySimulation.gasLimit.toString(),
     })
 
-    // Compare with Portals' original estimate
-    if (tx.gasLimit) {
-      const portalsNetworkFee = evm.calcNetworkFeeCryptoBaseUnit({
-        ...average,
-        supportsEIP1559: Boolean(input.supportsEIP1559),
-        gasLimit: tx.gasLimit,
-      })
-    }
-
     const tradeRate = {
       id: uuid(),
       quoteOrRate: 'rate' as const,

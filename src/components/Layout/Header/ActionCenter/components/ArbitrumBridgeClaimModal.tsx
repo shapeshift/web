@@ -23,7 +23,7 @@ import { useArbitrumClaimTx } from '@/components/MultiHopTrade/components/TradeI
 import { Row } from '@/components/Row/Row'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { fromBaseUnit, toBaseUnit } from '@/lib/math'
-import { firstFourLastFour } from '@/lib/utils'
+import { middleEllipsis } from '@/lib/utils'
 import { actionSlice } from '@/state/slices/actionSlice/actionSlice'
 import type { ArbitrumBridgeWithdrawAction } from '@/state/slices/actionSlice/types'
 import { ActionStatus } from '@/state/slices/actionSlice/types'
@@ -198,7 +198,7 @@ export const ArbitrumBridgeClaimModal = ({
               <Row fontSize='sm' fontWeight='medium'>
                 <Row.Label>{translate('bridge.claimReceiveAddress')}</Row.Label>
                 <Row.Value>
-                  {firstFourLastFour(
+                  {middleEllipsis(
                     fromAccountId(action.arbitrumBridgeMetadata.destinationAccountId).account,
                   )}
                 </Row.Value>

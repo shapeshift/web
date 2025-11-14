@@ -24,7 +24,11 @@ import { parseUrlDirect } from '@/lib/address/bip21'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { ConnectModal } from '@/plugins/walletConnectToDapps/components/modals/connect/Connect'
 import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
-import { selectAssetById, selectMarketDataByAssetIdUserCurrency } from '@/state/slices/selectors'
+import {
+  selectAssetById,
+  selectMarketDataByAssetIdUserCurrency,
+  selectPortfolioAccountIdsByAssetIdFilter,
+} from '@/state/slices/selectors'
 import { store, useAppSelector } from '@/state/store'
 import { breakpoints } from '@/theme/theme'
 
@@ -168,6 +172,21 @@ export const Form: React.FC<QrCodeFormProps> = ({ accountId }) => {
             )
           }
 
+          // Update accountId to match the scanned asset
+          if (maybeUrlResult.assetId && !accountId) {
+            // Get accounts for this asset to ensure we have a valid accountId
+            const state = store.getState()
+            const accountIds = selectPortfolioAccountIdsByAssetIdFilter(state, {
+              assetId: maybeUrlResult.assetId,
+            })
+            const detectedAccountId = accountIds[0]
+
+            // Only set accountId if one exists for this asset
+            if (detectedAccountId) {
+              methods.setValue(SendFormFields.AccountId, detectedAccountId)
+            }
+          }
+
           const { chainNamespace } = fromAssetId(maybeUrlResult.assetId)
           // i.e ERC-681 and Solana Pay for Solana, basically the exact same spec
           const supportsErc681 =
@@ -191,7 +210,7 @@ export const Form: React.FC<QrCodeFormProps> = ({ accountId }) => {
         }
       })()
     },
-    [methods, navigate],
+    [accountId, methods, navigate],
   )
 
   const selectAssetRouterElement = useMemo(

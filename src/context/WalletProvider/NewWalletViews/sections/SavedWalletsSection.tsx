@@ -1,12 +1,25 @@
-import { Box, Button, Flex, Icon, Stack, Text as CText, useColorModeValue } from '@chakra-ui/react'
+import {
+  Box,
+  Button,
+  Divider,
+  Flex,
+  Icon,
+  Stack,
+  Text as CText,
+  useColorModeValue,
+} from '@chakra-ui/react'
 import { useQuery } from '@tanstack/react-query'
-import { useCallback } from 'react'
+import { useCallback, useMemo } from 'react'
 import { FaPlus, FaWallet } from 'react-icons/fa'
+import { TbPlus } from 'react-icons/tb'
+import { useTranslate } from 'react-polyglot'
 import { useNavigate } from 'react-router-dom'
 
+import { Display } from '@/components/Display'
 import { FoxIcon } from '@/components/Icons/FoxIcon'
 import { Text } from '@/components/Text'
 import { WalletActions } from '@/context/WalletProvider/actions'
+import { WalletListButton } from '@/context/WalletProvider/components/WalletListButton'
 import { KeyManager } from '@/context/WalletProvider/KeyManager'
 import { useLocalWallet } from '@/context/WalletProvider/local-wallet'
 import { NativeConfig } from '@/context/WalletProvider/NativeWallet/config'
@@ -14,20 +27,25 @@ import { NativeWalletRoutes } from '@/context/WalletProvider/types'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { reactQueries } from '@/react-queries'
 
+const PlusIcon = <TbPlus />
+
 type VaultInfo = {
   id: string
   name: string
 }
 
-type WalletCardProps = {
+export type SavedWalletItemProps = {
+  onSelect: (wallet: VaultInfo) => void
   wallet: VaultInfo
-  onClick: (wallet: VaultInfo) => void
   isSelected: boolean
 }
 
-const WalletCard = ({ wallet, onClick, isSelected }: WalletCardProps) => {
-  const handleClick = useCallback(() => onClick(wallet), [onClick, wallet])
+const SavedWalletItem = ({ onSelect, isSelected, wallet }: SavedWalletItemProps) => {
   const bgColor = useColorModeValue('blackAlpha.100', 'whiteAlpha.100')
+
+  const handleSelect = useCallback(() => {
+    onSelect(wallet)
+  }, [onSelect, wallet])
 
   return (
     <Box
@@ -39,7 +57,7 @@ const WalletCard = ({ wallet, onClick, isSelected }: WalletCardProps) => {
       mr='-16px'
       py={2.5}
       borderRadius='md'
-      onClick={handleClick}
+      onClick={handleSelect}
       bg={isSelected ? bgColor : undefined}
     >
       <Flex alignItems='center' width='full'>
@@ -56,15 +74,39 @@ const WalletCard = ({ wallet, onClick, isSelected }: WalletCardProps) => {
   )
 }
 
+export const SavedWalletListButton = ({ onSelect, isSelected, wallet }: SavedWalletItemProps) => {
+  const walletIcon = useMemo(() => <FoxIcon />, [])
+
+  const handleSelect = useCallback(() => {
+    onSelect(wallet)
+  }, [onSelect, wallet])
+
+  return (
+    <WalletListButton
+      name={wallet.name}
+      icon={walletIcon}
+      onSelect={handleSelect}
+      isSelected={isSelected}
+    />
+  )
+}
+
+export type SavedWalletsSectionProps = {
+  selectedWalletId: string | null
+  onWalletSelect: (id: string, initialRoute: string) => void
+  renderItem?: React.ComponentType<SavedWalletItemProps>
+  showHeader?: boolean
+}
+
 export const SavedWalletsSection = ({
   selectedWalletId,
   onWalletSelect,
-}: {
-  selectedWalletId: string | null
-  onWalletSelect: (id: string, initialRoute: string) => void
-}) => {
+  renderItem: RenderItem = SavedWalletItem,
+  showHeader = true,
+}: SavedWalletsSectionProps) => {
   const navigate = useNavigate()
   const localWallet = useLocalWallet()
+  const translate = useTranslate()
   const { getAdapter, dispatch } = useWallet()
 
   const nativeVaultsQuery = useQuery({
@@ -134,40 +176,65 @@ export const SavedWalletsSection = ({
     navigate(NativeWalletRoutes.Connect)
   }, [navigate])
 
+  const walletItems = useMemo(() => {
+    return (nativeVaultsQuery.data ?? []).map(wallet => {
+      return (
+        <RenderItem
+          key={wallet.id}
+          onSelect={handleWalletSelect}
+          isSelected={selectedWalletId === wallet.id}
+          wallet={wallet}
+        />
+      )
+    })
+  }, [nativeVaultsQuery.data, handleWalletSelect, selectedWalletId, RenderItem])
+
   return (
     <>
-      <Text
-        fontSize='xl'
-        fontWeight='semibold'
-        translation='walletProvider.shapeShift.onboarding.shapeshiftNative'
-      />
-      <Stack spacing={2} my={6}>
-        {(nativeVaultsQuery.data ?? []).map(wallet => (
-          <WalletCard
-            key={wallet.id}
-            wallet={wallet}
-            onClick={handleWalletSelect}
-            isSelected={selectedWalletId === wallet.id}
-          />
-        ))}
-        <Box
-          as={Button}
-          variant='ghost'
-          whiteSpace='normal'
-          px={4}
-          ml='-16px'
-          mr='-16px'
-          py={2.5}
-          borderRadius='md'
-          onClick={handleAddNewWalletClick}
-        >
-          <Flex alignItems='center' width='full' color='gray.500'>
-            <Icon as={FaPlus} boxSize='12px' mr={3} />
-            <Box textAlign='left'>
-              <Text translation='walletProvider.shapeShift.onboarding.addNewWallet' />
+      {showHeader && (
+        <Text
+          fontSize='xl'
+          fontWeight='semibold'
+          translation='walletProvider.shapeShift.onboarding.shapeshiftNative'
+        />
+      )}
+      <Stack spacing={2} my={showHeader ? 6 : 0}>
+        {walletItems}
+
+        <Display>
+          <Display.Desktop>
+            <Box
+              as={Button}
+              variant='ghost'
+              whiteSpace='normal'
+              px={4}
+              ml='-16px'
+              mr='-16px'
+              py={2.5}
+              borderRadius='md'
+              onClick={handleAddNewWalletClick}
+            >
+              <Flex alignItems='center' width='full' color='gray.500'>
+                <Icon as={FaPlus} boxSize='12px' mr={3} />
+                <Box textAlign='left'>
+                  <Text translation='walletProvider.shapeShift.onboarding.addNewWallet' />
+                </Box>
+              </Flex>
             </Box>
-          </Flex>
-        </Box>
+          </Display.Desktop>
+          <Display.Mobile>
+            <>
+              <WalletListButton
+                onSelect={handleAddNewWalletClick}
+                isSelected={false}
+                isDisabled={false}
+                icon={PlusIcon}
+                name={translate('walletProvider.shapeShift.onboarding.shapeshiftNative')}
+              />
+              <Divider my={2} />
+            </>
+          </Display.Mobile>
+        </Display>
       </Stack>
     </>
   )

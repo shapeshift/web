@@ -20,6 +20,7 @@ import { selectEnabledWalletAccountIds } from '../common-selectors'
 import { selectPortfolioAccountMetadata } from '../portfolioSlice/selectors'
 import type { Tx, TxId, TxIdsByAccountIdAssetId } from './txHistorySlice'
 import { txHistory } from './txHistorySlice'
+import { isSpam } from './utils'
 
 import { getTimeFrameBounds, isSome } from '@/lib/utils'
 import type { ReduxState } from '@/state/reducer'
@@ -170,7 +171,9 @@ export const selectTxIdsByFilter = createCachedSelector(
     const flattened = values(maybeFilteredByAccountId)
       .flatMap(byAssetId => (assetIdFilter ? byAssetId?.[assetIdFilter] : values(byAssetId).flat()))
       .filter(isSome)
-    const uniqueIds = uniq(flattened)
+
+    const uniqueIds = uniq(flattened).filter(txId => !isSpam(txs[txId]))
+
     const maybeFilteredByParser = parserFilter
       ? uniqueIds.filter(txId => txs[txId].data?.parser === parserFilter)
       : uniqueIds

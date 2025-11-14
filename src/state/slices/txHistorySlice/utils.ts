@@ -1,6 +1,9 @@
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
+import { isNft } from '@shapeshiftoss/caip'
 
 import type { Tx } from './txHistorySlice'
+
+import { BLACKLISTED_COLLECTION_IDS, isSpammyNftText, isSpammyTokenText } from '@/state/blacklist'
 
 type TxIndex = string
 type TxDescriptor = {
@@ -90,4 +93,24 @@ export const deserializeTxIndex = (txIndex: TxIndex): TxDescriptor => {
   }
 
   return result
+}
+
+export const isSpam = (tx: Tx): boolean => {
+  // only mark receive transactions (no tx fee) as spam if detected as spam by moralis (any value transfers omitted)
+  if (!tx.transfers.length && !tx.fee) return true
+
+  return tx.transfers.some(({ assetId, token }) => {
+    if (!token) return false
+
+    const { name, symbol } = token
+
+    if (isNft(assetId)) {
+      return (
+        [name, symbol].some(text => isSpammyNftText(text, true)) ||
+        BLACKLISTED_COLLECTION_IDS.includes(assetId)
+      )
+    } else {
+      return [name, symbol].some(isSpammyTokenText)
+    }
+  })
 }

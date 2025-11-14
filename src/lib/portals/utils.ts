@@ -25,6 +25,7 @@ export const fetchPortalsTokens = async ({
   page = 0,
   accTokens = [],
   minApy,
+  maxApy,
   sortBy,
   sortDirection,
   totalLimit,
@@ -34,6 +35,7 @@ export const fetchPortalsTokens = async ({
   page?: number
   accTokens?: TokenInfo[]
   minApy?: string
+  maxApy?: string
   sortBy?:
     | 'key'
     | 'decimals'
@@ -74,6 +76,7 @@ export const fetchPortalsTokens = async ({
         sortBy,
         sortDirection,
         minApy,
+        maxApy,
         tags,
       },
       paramsSerializer: { indexes: null },
@@ -94,6 +97,7 @@ export const fetchPortalsTokens = async ({
         accTokens: newTokens,
         totalLimit,
         minApy,
+        maxApy,
         sortBy,
         sortDirection,
         tags,

@@ -18,10 +18,10 @@ import { useCallback, useMemo } from 'react'
 import { FaCreditCard, FaEllipsisH } from 'react-icons/fa'
 import { TbExternalLink, TbFlag, TbStar, TbStarFilled } from 'react-icons/tb'
 import { useTranslate } from 'react-polyglot'
-import { useNavigate } from 'react-router-dom'
 
 import { SwapIcon } from '@/components/Icons/SwapIcon'
 import { FiatRampAction } from '@/components/Modals/FiatRamps/FiatRampsCommon'
+import { useTradeNavigation } from '@/components/MultiHopTrade/hooks/useTradeNavigation'
 import { WalletActions } from '@/context/WalletProvider/actions'
 import { KeyManager } from '@/context/WalletProvider/KeyManager'
 import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
@@ -82,8 +82,8 @@ export const AssetActions: React.FC<AssetActionProps> = ({
   cryptoBalance,
   isMobile,
 }) => {
-  const navigate = useNavigate()
   const appDispatch = useAppDispatch()
+  const { navigateToTrade } = useTradeNavigation()
 
   const send = useModal('send')
   const receive = useModal('receive')
@@ -163,8 +163,8 @@ export const AssetActions: React.FC<AssetActionProps> = ({
 
   const handleTradeClick = useCallback(() => {
     vibrate('heavy')
-    navigate(`/trade/${assetId}`)
-  }, [assetId, navigate])
+    navigateToTrade(assetId)
+  }, [assetId, navigateToTrade])
 
   const handleMoreClick = useCallback(() => {
     vibrate('heavy')

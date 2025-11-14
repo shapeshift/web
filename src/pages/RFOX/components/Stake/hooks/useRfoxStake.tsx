@@ -6,7 +6,6 @@ import type { UseMutationResult, UseQueryResult } from '@tanstack/react-query'
 import { useMutation } from '@tanstack/react-query'
 import { useMemo, useState } from 'react'
 import type { UseFormReturn } from 'react-hook-form'
-import { useTranslate } from 'react-polyglot'
 import { encodeFunctionData, erc20Abi } from 'viem'
 
 import type { StakeInputValues } from '../types'
@@ -82,7 +81,6 @@ export const useRfoxStake = ({
   const [approvalTxHash, setApprovalTxHash] = useState<string>()
 
   const wallet = useWallet().state.wallet
-  const translate = useTranslate()
   const errors = useMemo(() => methods?.formState.errors, [methods?.formState.errors])
 
   const stakingAssetAccountNumberFilter = useMemo(() => {
@@ -368,11 +366,7 @@ export const useRfoxStake = ({
             amountCryptoPrecision,
             assetId: stakingAssetId,
             contractName: 'RFOX',
-            message: translate('actionCenter.approve.approvalTxPending', {
-              contractName: 'RFOX',
-              amountCryptoPrecision,
-              symbol: stakingAsset.symbol,
-            }),
+            message: 'actionCenter.approve.approvalTxPending',
           },
         }),
       )

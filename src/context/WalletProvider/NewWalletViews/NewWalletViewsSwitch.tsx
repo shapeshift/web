@@ -18,6 +18,7 @@ import { useTranslate } from 'react-polyglot'
 import { Route, Routes, useLocation, useNavigate } from 'react-router-dom'
 
 import type { KeyManager } from '../KeyManager'
+import { MobileWebSelect } from '../MobileWebSelect'
 import { NativeWalletRoutes } from '../types'
 import { RDNS_TO_FIRST_CLASS_KEYMANAGER } from './constants'
 import { GridPlusRoutes } from './routes/GridPlusRoutes'
@@ -29,7 +30,7 @@ import { WalletConnectV2Routes } from './routes/WalletConnectV2Routes'
 import { HardwareWalletsSection } from './sections/HardwareWalletsSection'
 import { InstalledWalletsSection } from './sections/InstalledWalletsSection'
 import { OthersSection } from './sections/OthersSection'
-import { SavedWalletsSection } from './sections/SavedWalletsSection'
+import { SavedWalletListButton, SavedWalletsSection } from './sections/SavedWalletsSection'
 import type { RightPanelContentProps } from './types'
 import { NativeIntro } from './wallets/native/NativeIntro'
 
@@ -38,6 +39,7 @@ import { useModalRegistration } from '@/context/ModalStackProvider'
 import { WalletActions } from '@/context/WalletProvider/actions'
 import { KeepKeyRoutes as KeepKeyRoutesEnum } from '@/context/WalletProvider/routes'
 import { useWallet } from '@/hooks/useWallet/useWallet'
+import { isMobile } from '@/lib/globals'
 import { reactQueries } from '@/react-queries'
 import { breakpoints } from '@/theme/theme'
 import { defaultSuspenseFallback } from '@/utils/makeSuspenseful'
@@ -248,8 +250,20 @@ export const NewWalletViewsSwitch = () => {
     }
   }, [queryClient])
 
-  const sections = useMemo(
-    () => (
+  const sections = useMemo(() => {
+    if (!isLargerThanMd && !isMobile) {
+      return (
+        <MobileWebSelect isOpen={modal} onClose={onClose}>
+          <SavedWalletsSection
+            selectedWalletId={selectedWalletId}
+            onWalletSelect={handleWalletSelect}
+            renderItem={SavedWalletListButton}
+            showHeader={false}
+          />
+        </MobileWebSelect>
+      )
+    }
+    return (
       <Box w={sectionsWidth} p={6} maxH='800px' overflowY='auto'>
         <SavedWalletsSection
           selectedWalletId={selectedWalletId}
@@ -274,9 +288,8 @@ export const NewWalletViewsSwitch = () => {
           onWalletSelect={handleWalletSelect}
         />
       </Box>
-    ),
-    [handleWalletSelect, isLoading, selectedWalletId],
-  )
+    )
+  }, [handleWalletSelect, isLargerThanMd, isLoading, modal, onClose, selectedWalletId])
 
   const bodyBgColor = useColorModeValue('gray.50', '#2b2f33')
   const buttonContainerBgColor = useColorModeValue('gray.100', 'whiteAlpha.100')

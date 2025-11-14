@@ -55,7 +55,7 @@ export const cosmosSdkOpportunityIdsResolver = async ({
         }
         if (isFulfilled(settledAccount)) return settledAccount.value
 
-        return undefined // This will never happen, a Promise is either rejected or fullfilled
+        return undefined // This will never happen, a Promise is either rejected or fulfilled
       })
       .filter(isSome),
   )

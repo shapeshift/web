@@ -150,14 +150,19 @@ export const portfolio = createSlice({
 
         // Handle account balances
         Object.entries(payload.accountBalances.byId).forEach(([accountId, payloadBalances]) => {
-          if (!draftState.accountBalances.byId[accountId]) {
-            draftState.accountBalances.byId[accountId] = {}
-          }
+          const existingBalances = draftState.accountBalances.byId[accountId] || {}
 
-          draftState.accountBalances.byId[accountId] = {
-            ...draftState.accountBalances.byId[accountId],
-            ...payloadBalances,
-          }
+          const allAssetIds = new Set([
+            ...Object.keys(existingBalances),
+            ...Object.keys(payloadBalances),
+          ])
+
+          const newBalances: Record<string, string> = {}
+          allAssetIds.forEach(assetId => {
+            newBalances[assetId] = payloadBalances[assetId] ?? '0'
+          })
+
+          draftState.accountBalances.byId[accountId] = newBalances
         })
 
         draftState.accountBalances.ids = Object.keys(draftState.accountBalances.byId)
@@ -260,7 +265,6 @@ export const portfolioApi = createApi({
               pubkey,
               state,
               portfolioAccounts,
-              dispatch,
             })
 
             // upsert placeholder assets

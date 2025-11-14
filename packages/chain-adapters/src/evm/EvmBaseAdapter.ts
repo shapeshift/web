@@ -21,7 +21,6 @@ import {
 import type { Bip44Params, EvmChainId, RootBip44Params } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import type * as unchained from '@shapeshiftoss/unchained-client'
-import { isSome } from '@shapeshiftoss/utils'
 import BigNumber from 'bignumber.js'
 import PQueue from 'p-queue'
 import { isAddress, toHex } from 'viem'
@@ -405,21 +404,18 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
     )
 
     const transactions = await Promise.all(
-      data.txs.map(tx => {
-        if (input.knownTxIds?.has(tx.txid)) {
-          return null
-        }
-
-        return requestQueue.add(() => this.parseTx(tx, input.pubkey))
-      }),
+      data.txs.reduce<Promise<Transaction>[]>((prev, tx) => {
+        if (input.knownTxIds?.has(tx.txid)) return prev
+        prev.push(requestQueue.add(() => this.parseTx(tx, input.pubkey)))
+        return prev
+      }, []),
     )
-
-    const filteredTxs = transactions.filter(isSome)
 
     return {
       cursor: data.cursor ?? '',
       pubkey: input.pubkey,
-      transactions: filteredTxs,
+      transactions,
+      txIds: data.txs.map(tx => tx.txid),
     }
   }
 

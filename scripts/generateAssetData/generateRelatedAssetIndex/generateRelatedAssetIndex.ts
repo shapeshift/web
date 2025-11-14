@@ -185,11 +185,26 @@ const processRelatedAssetIds = async (
   assetId: AssetId,
   assetData: Record<AssetId, PartialFields<Asset, 'relatedAssetKey'>>,
   relatedAssetIndex: Record<AssetId, AssetId[]>,
+  coingeckoPlatformsByAssetId: Record<AssetId, number>,
   throttle: () => Promise<void>,
 ): Promise<void> => {
   const existingRelatedAssetKey = assetData[assetId].relatedAssetKey
-  // We already have an existing relatedAssetKey, so we don't need to fetch it again
-  if (existingRelatedAssetKey !== undefined) return
+
+  if (existingRelatedAssetKey) {
+    return
+  }
+
+  // For assets with relatedAssetKey: null or undefined, check if CoinGecko now has multiple platforms
+  // This optimization skips expensive API calls for assets that only exist on one chain
+  if (existingRelatedAssetKey === null || existingRelatedAssetKey === undefined) {
+    const platformCount = coingeckoPlatformsByAssetId[assetId]
+    if (platformCount === undefined || platformCount <= 1) {
+      assetData[assetId].relatedAssetKey = null
+      // Still no related assets upstream, skip expensive API calls
+      await throttle()
+      return
+    }
+  }
 
   console.log(`Processing related assetIds for ${assetId}`)
 
@@ -262,13 +277,22 @@ const processRelatedAssetIds = async (
   const hasRelatedAssets = mergedRelatedAssetIds.length > 1
 
   if (hasRelatedAssets) {
-    // attach the relatedAssetKey for all related assets including the primary implementation
+    // Check if this exact group already exists in the index (can happen with parallel processing)
+    const existingGroup = relatedAssetIndex[relatedAssetKey]
+    const isAlreadyGrouped = existingGroup && existingGroup.includes(assetId)
+
+    if (!isAlreadyGrouped) {
+      // This is the first asset in this group to be processed, set up the group
+      relatedAssetIndex[relatedAssetKey] = mergedRelatedAssetIds
+    }
+
+    // Always ensure all assets in the group have the correct relatedAssetKey
+    // This handles both new groups and updates from parallel processing
     for (const relatedAssetId of mergedRelatedAssetIds) {
       if (assetData[relatedAssetId]) {
         assetData[relatedAssetId].relatedAssetKey = relatedAssetKey
       }
     }
-    relatedAssetIndex[relatedAssetKey] = mergedRelatedAssetIds
   } else {
     // If there are no related assets, set relatedAssetKey to null
     assetData[assetId].relatedAssetKey = null
@@ -288,6 +312,26 @@ export const generateRelatedAssetIndex = async () => {
 
   const { assetData: generatedAssetData, sortedAssetIds } = decodeAssetData(encodedAssetData)
   const relatedAssetIndex = decodeRelatedAssetIndex(encodedRelatedAssetIndex, sortedAssetIds)
+
+  const coingeckoData = await adapters.fetchCoingeckoData(adapters.coingeckoUrl)
+
+  const coingeckoPlatformsByAssetId = coingeckoData.reduce<Record<AssetId, number>>((acc, coin) => {
+    const supportedPlatforms = Object.entries(coin.platforms)
+      .map(([platform, address]) => {
+        try {
+          return coingeckoPlatformDetailsToMaybeAssetId([platform, address])
+        } catch {
+          return undefined
+        }
+      })
+      .filter(isSome)
+
+    for (const assetId of supportedPlatforms) {
+      acc[assetId] = supportedPlatforms.length
+    }
+
+    return acc
+  }, {})
 
   // Remove stale related asset data from the assetData where:
   // a) the primary related asset no longer exists in the dataset
@@ -324,7 +368,13 @@ export const generateRelatedAssetIndex = async () => {
     console.log(`Processing chunk: ${i} of ${chunks.length}`)
     await Promise.all(
       batch.map(async assetId => {
-        await processRelatedAssetIds(assetId, generatedAssetData, relatedAssetIndex, throttle)
+        await processRelatedAssetIds(
+          assetId,
+          generatedAssetData,
+          relatedAssetIndex,
+          coingeckoPlatformsByAssetId,
+          throttle,
+        )
         return
       }),
     )

@@ -4,7 +4,7 @@ import type { GetAddressInputBase } from '../types'
 
 export type Account = {
   /** Derived addresses and associated balances if account is xpub based (gap limit 20) */
-  addresses?: Address[]
+  addresses: Address[]
   /** Next unused change address index for current account if account is xpub based */
   nextChangeAddressIndex?: number
   /** Next unused receive address index for current account if account is xpub based */

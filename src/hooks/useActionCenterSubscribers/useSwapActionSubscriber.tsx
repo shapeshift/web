@@ -232,6 +232,7 @@ export const useSwapActionSubscriber = () => {
         maybeSafeTx,
         stepSource: status && status !== TxStatus.Unknown ? swap.source : undefined,
         maybeChainflipSwapId: `${swap.metadata.chainflipSwapId}`,
+        maybeNearIntentsDepositAddress: swap.metadata.nearIntentsSpecific?.depositAddress,
         ...(swap.swapperName === SwapperName.CowSwap ? { tradeId: txHash } : { txId: txHash }),
         ...(swap.metadata.relayerTxHash && {
           isRelayer: true,

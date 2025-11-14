@@ -5,8 +5,6 @@ import { useTranslate } from 'react-polyglot'
 import { Dialog } from '@/components/Modal/components/Dialog'
 import { DialogBody } from '@/components/Modal/components/DialogBody'
 import { useNotificationToast } from '@/hooks/useNotificationToast'
-import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
-import { MixPanelEvent } from '@/lib/mixpanel/types'
 import { ConnectContent } from '@/plugins/walletConnectToDapps/components/modals/connect/ConnectContent'
 import { useWalletConnectV2 } from '@/plugins/walletConnectToDapps/WalletConnectV2Provider'
 
@@ -27,10 +25,7 @@ const Connect = ({ initialUri, isOpen, onClose }: Props) => {
   const handleConnectV2 = useCallback(
     async (uri: string) => {
       try {
-        // We do not handle session_authenticate events, which assumes a SIWE payload, so we make it a session_proposal instead
-        const connectionResult = await pair?.({
-          uri: uri.replace('sessionAuthenticate', 'sessionProposal'),
-        })
+        const connectionResult = await pair?.({ uri })
         if (connectionResult) onClose()
       } catch (error: unknown) {
         console.debug(error)
@@ -49,7 +44,6 @@ const Connect = ({ initialUri, isOpen, onClose }: Props) => {
         }
 
         captureException(error)
-        getMixPanel()?.track(MixPanelEvent.Error, { error })
       }
     },
     [onClose, pair, toast, translate],

@@ -190,8 +190,8 @@ export async function getPortalsTradeQuote(
     const {
       context: {
         orderId,
-        minOutputAmount: buyAmountAfterFeesCryptoBaseUnit,
-        slippageTolerancePercentage,
+        outputAmount: buyAmountAfterFeesCryptoBaseUnit,
+        minOutputAmount,
         target: allowanceContract,
         feeAmount,
         gasLimit,
@@ -222,13 +222,19 @@ export async function getPortalsTradeQuote(
       gasLimit: bnOrZero(gasLimit).times(1).toFixed(),
     })
 
-    const slippageTolerancePercentageDecimal = bnOrZero(slippageTolerancePercentage)
-      .div(100)
+    // Don't use Portals' slippageTolerancePercentage field (it's what we requested, not what they applied)
+    // Instead, calculate the actual buffer Portals applied from the amounts
+    const actualBufferDecimal = bnOrZero(buyAmountAfterFeesCryptoBaseUnit)
+      .minus(minOutputAmount)
+      .div(buyAmountAfterFeesCryptoBaseUnit)
       .toString()
 
-    const buyAmountBeforeSlippageCryptoBaseUnit = bnOrZero(buyAmountAfterFeesCryptoBaseUnit)
-      .div(bn(1).minus(slippageTolerancePercentageDecimal ?? 0))
+    // Reverse the buffer to recover the expected output (minOutput / (1 - buffer) = output)
+    const buyAmountBeforeSlippageCryptoBaseUnit = bnOrZero(minOutputAmount)
+      .div(bn(1).minus(actualBufferDecimal))
       .toFixed(0)
+
+    const slippageTolerancePercentageDecimal = actualBufferDecimal
 
     const tradeQuote: TradeQuote = {
       id: orderId,

@@ -10,7 +10,7 @@ import { ActionStatusTag } from './ActionStatusTag'
 
 import { AssetIconWithBadge } from '@/components/AssetIconWithBadge'
 import { getTxLink } from '@/lib/getTxLink'
-import { firstFourLastFour } from '@/lib/utils'
+import { middleEllipsis } from '@/lib/utils'
 import type { GenericTransactionAction } from '@/state/slices/actionSlice/types'
 import { selectAssetById, selectFeeAssetByChainId } from '@/state/slices/assetsSlice/selectors'
 import { useAppSelector } from '@/state/store'
@@ -78,7 +78,7 @@ export const GenericTransactionActionCard = ({ action }: GenericTransactionActio
         ...action.transactionMetadata,
         amount: action.transactionMetadata.amountCryptoPrecision,
         symbol: asset?.symbol,
-        newAddress: firstFourLastFour(action.transactionMetadata.newAddress ?? ''),
+        newAddress: middleEllipsis(action.transactionMetadata.newAddress ?? ''),
       })}
       icon={icon}
       footer={footer}

@@ -143,6 +143,7 @@ export type TxHistoryResponse = {
   cursor: string
   pubkey: string
   transactions: Transaction[]
+  txIds: string[]
 }
 
 export type ChainSignTx = {

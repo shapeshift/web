@@ -1,10 +1,7 @@
-import type { InputProps } from '@chakra-ui/react'
 import {
   Box,
   Button,
-  FormControl,
   IconButton,
-  Input,
   Modal,
   ModalBody,
   ModalCloseButton,
@@ -13,75 +10,118 @@ import {
   ModalHeader,
   ModalOverlay,
 } from '@chakra-ui/react'
+import type { Asset } from '@shapeshiftoss/types'
 import { useCallback, useEffect, useMemo, useState } from 'react'
+import { FormProvider, useForm, useFormContext, useWatch } from 'react-hook-form'
 import { TbX } from 'react-icons/tb'
-import type { NumberFormatValues } from 'react-number-format'
-import NumberFormat from 'react-number-format'
 import { useTranslate } from 'react-polyglot'
 
+import { CryptoFiatInput } from '@/components/CryptoFiatInput/CryptoFiatInput'
 import { Display } from '@/components/Display'
 import { DialogBody } from '@/components/Modal/components/DialogBody'
 import { DialogFooter } from '@/components/Modal/components/DialogFooter'
 import { DialogHeader } from '@/components/Modal/components/DialogHeader'
 import { Text } from '@/components/Text'
 import { useModalRegistration } from '@/context/ModalStackProvider'
-import { useLocaleFormatter } from '@/hooks/useLocaleFormatter/useLocaleFormatter'
-import { allowedDecimalSeparators } from '@/state/slices/preferencesSlice/preferencesSlice'
+import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
+import { selectMarketDataByAssetIdUserCurrency } from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
+
+enum ReceiveAmountFormFields {
+  AmountCryptoPrecision = 'amountCryptoPrecision',
+  FiatAmount = 'fiatAmount',
+}
+
+type ReceiveAmountInput = {
+  [ReceiveAmountFormFields.AmountCryptoPrecision]: string
+  [ReceiveAmountFormFields.FiatAmount]: string
+}
+
+type AmountFieldName =
+  | ReceiveAmountFormFields.AmountCryptoPrecision
+  | ReceiveAmountFormFields.FiatAmount
 
 const closeIcon = <TbX />
 
 type ReceiveAmountContentProps = {
   onClose: () => void
-  symbol: string
+  asset: Asset
   currentAmount?: string
   onConfirm: (amount: string | undefined) => void
   isModal?: boolean
 }
 
-const AmountInput = (props: InputProps) => {
-  return (
-    <Input
-      size='lg'
-      fontSize='65px'
-      lineHeight='65px'
-      fontWeight='bold'
-      textAlign='center'
-      border='none'
-      borderRadius='lg'
-      type='number'
-      bg='transparent'
-      variant='unstyled'
-      color={props.value ? 'text.base' : 'text.subtle'}
-      {...props}
-    />
-  )
-}
-
 const ReceiveAmountContent = ({
   onClose,
-  symbol,
-  currentAmount,
+  asset,
   onConfirm,
+  currentAmount,
   isModal = false,
 }: ReceiveAmountContentProps) => {
-  const [amountInput, setAmountInput] = useState('')
+  const { control, setValue } = useFormContext<ReceiveAmountInput>()
+  const [fieldName, setFieldName] = useState<AmountFieldName>(
+    ReceiveAmountFormFields.AmountCryptoPrecision,
+  )
+  const { amountCryptoPrecision, fiatAmount } = useWatch({
+    control,
+  }) as ReceiveAmountInput
   const translate = useTranslate()
-  const {
-    number: { localeParts },
-  } = useLocaleFormatter()
+
+  const marketDataUserCurrency = useAppSelector(state =>
+    selectMarketDataByAssetIdUserCurrency(state, asset.assetId),
+  )
+  const price = useMemo(() => marketDataUserCurrency?.price ?? 0, [marketDataUserCurrency])
+  const isFiat = fieldName === ReceiveAmountFormFields.FiatAmount
+  const currentValue = isFiat ? fiatAmount : amountCryptoPrecision
 
   useEffect(() => {
-    setAmountInput(currentAmount ?? '')
-  }, [currentAmount])
+    const initialFiat = currentAmount && bnOrZero(currentAmount).times(bnOrZero(price)).toFixed()
+    setValue(ReceiveAmountFormFields.AmountCryptoPrecision, currentAmount ?? '')
+    setValue(ReceiveAmountFormFields.FiatAmount, initialFiat ?? '')
+  }, [currentAmount, setValue, price])
 
-  const handleValueChange = useCallback((values: NumberFormatValues) => {
-    setAmountInput(values.value)
-  }, [])
+  const toggleIsFiat = useCallback(() => {
+    setFieldName(
+      fieldName === ReceiveAmountFormFields.FiatAmount
+        ? ReceiveAmountFormFields.AmountCryptoPrecision
+        : ReceiveAmountFormFields.FiatAmount,
+    )
+  }, [fieldName])
+
+  const handleInputChange = useCallback(
+    (inputValue: string) => {
+      const otherField =
+        fieldName !== ReceiveAmountFormFields.FiatAmount
+          ? ReceiveAmountFormFields.FiatAmount
+          : ReceiveAmountFormFields.AmountCryptoPrecision
+
+      if (inputValue === '') {
+        setValue(otherField, '')
+        return
+      }
+
+      const cryptoAmount =
+        fieldName === ReceiveAmountFormFields.FiatAmount
+          ? bn(inputValue).div(bnOrZero(price))
+          : inputValue
+      const fiatAmount =
+        fieldName === ReceiveAmountFormFields.FiatAmount
+          ? inputValue
+          : bn(inputValue).times(bnOrZero(price))
+      const otherAmount =
+        fieldName === ReceiveAmountFormFields.FiatAmount
+          ? bnOrZero(cryptoAmount).toFixed()
+          : bnOrZero(fiatAmount).toFixed()
+
+      setValue(otherField, otherAmount)
+    },
+    [fieldName, price, setValue],
+  )
 
   const handleConfirm = useCallback(() => {
-    onConfirm(amountInput || undefined)
+    onConfirm(amountCryptoPrecision)
     onClose()
-  }, [amountInput, onConfirm, onClose])
+  }, [amountCryptoPrecision, onConfirm, onClose])
 
   const handleClear = useCallback(() => {
     onConfirm(undefined)
@@ -105,36 +145,25 @@ const ReceiveAmountContent = ({
             />
           </DialogHeader.Right>
         </DialogHeader>
-        <DialogBody>
+        <DialogBody height='100%' alignContent='center'>
           <Box flex={1} p={6} display='flex' flexDirection='column' justifyContent='center'>
-            <FormControl textAlign='center'>
-              <NumberFormat
-                customInput={AmountInput}
-                value={amountInput}
-                onValueChange={handleValueChange}
-                placeholder={`0 ${symbol.toUpperCase()}`}
-                data-test='receive-amount-input'
-                decimalSeparator={localeParts.decimal}
-                inputMode='decimal'
-                thousandSeparator={localeParts.group}
-                allowedDecimalSeparators={allowedDecimalSeparators}
-                autoFocus
-                size='lg'
-                fontSize='4xl'
-                fontWeight='bold'
-                textAlign='center'
-                variant='unstyled'
-                border='none'
-                suffix={` ${symbol.toUpperCase()}`}
-                isNumericString
-              />
-              <Text
-                fontSize='sm'
-                color='text.subtle'
-                mt={6}
-                translation={'modals.receive.amountNote'}
-              />
-            </FormControl>
+            <CryptoFiatInput
+              asset={asset}
+              handleInputChange={handleInputChange}
+              fieldName={fieldName}
+              toggleIsFiat={toggleIsFiat}
+              isFiat={isFiat}
+              control={control}
+              fiatAmount={fiatAmount}
+              cryptoAmount={amountCryptoPrecision}
+            />
+            <Text
+              textAlign='center'
+              fontSize='sm'
+              color='text.subtle'
+              mt={6}
+              translation={'modals.receive.amountNote'}
+            />
           </Box>
         </DialogBody>
         <DialogFooter>
@@ -151,7 +180,7 @@ const ReceiveAmountContent = ({
             flex={1}
             size='lg'
             onClick={handleConfirm}
-            isDisabled={!amountInput}
+            isDisabled={!bnOrZero(currentValue).gt(0)}
           >
             {translate('common.confirm')}
           </Button>
@@ -160,39 +189,38 @@ const ReceiveAmountContent = ({
       {isModal && (
         <Display.Desktop>
           <ModalHeader>
-            <Text translation={'modals.receive.setAmount'} />
+            <Text textAlign='center' translation={'modals.receive.setAmount'} fontSize='md' />
           </ModalHeader>
           <ModalCloseButton />
           <ModalBody>
-            <FormControl textAlign='center'>
-              <NumberFormat
-                customInput={Input}
-                value={amountInput}
-                onValueChange={handleValueChange}
-                placeholder={`0 ${symbol.toUpperCase()}`}
-                data-test='receive-amount-input'
-                decimalSeparator={localeParts.decimal}
-                thousandSeparator={localeParts.group}
-                allowedDecimalSeparators={allowedDecimalSeparators}
-                inputMode='decimal'
-                autoFocus
-                size='lg'
-                fontSize='xl'
-                fontWeight='semibold'
-                textAlign='center'
-                variant='flushed'
-                suffix={` ${symbol.toUpperCase()}`}
-                isNumericString
-              />
-              <Text
-                fontSize='sm'
-                color='text.subtle'
-                mt={2}
-                translation={'modals.receive.amountNote'}
-              />
-            </FormControl>
+            <CryptoFiatInput
+              asset={asset}
+              handleInputChange={handleInputChange}
+              fieldName={fieldName}
+              toggleIsFiat={toggleIsFiat}
+              isFiat={isFiat}
+              control={control}
+              fiatAmount={fiatAmount}
+              cryptoAmount={amountCryptoPrecision}
+            />
+            <Text
+              textAlign='center'
+              fontSize='sm'
+              color='text.subtle'
+              my={4}
+              translation={'modals.receive.amountNote'}
+            />
           </ModalBody>
-          <ModalFooter>
+          <ModalFooter
+            borderTop='1px solid'
+            borderColor='border.base'
+            borderRight='1px solid'
+            borderLeft='1px solid'
+            borderRightColor='border.base'
+            borderLeftColor='border.base'
+            borderTopRadius='20'
+            pt={4}
+          >
             <Button variant='ghost' mr={3} onClick={onClose}>
               {translate('common.cancel')}
             </Button>
@@ -201,7 +229,11 @@ const ReceiveAmountContent = ({
                 {translate('common.clear')}
               </Button>
             )}
-            <Button colorScheme='blue' onClick={handleConfirm} isDisabled={!amountInput}>
+            <Button
+              colorScheme='blue'
+              onClick={handleConfirm}
+              isDisabled={!bnOrZero(currentValue).gt(0)}
+            >
               {translate('common.confirm')}
             </Button>
           </ModalFooter>
@@ -213,7 +245,7 @@ const ReceiveAmountContent = ({
 
 type ReceiveAmountProps = {
   onClose: () => void
-  symbol: string
+  asset: Asset
   currentAmount?: string
   onConfirm: (amount: string | undefined) => void
   isModal?: boolean
@@ -221,9 +253,9 @@ type ReceiveAmountProps = {
 
 export const ReceiveAmount = ({
   onClose,
-  symbol,
-  currentAmount,
   onConfirm,
+  asset,
+  currentAmount,
   isModal = false,
 }: ReceiveAmountProps) => {
   const { modalProps, overlayProps, modalContentProps } = useModalRegistration({
@@ -231,17 +263,26 @@ export const ReceiveAmount = ({
     onClose,
   })
 
+  const methods = useForm<ReceiveAmountInput>({
+    defaultValues: {
+      fiatAmount: '',
+      amountCryptoPrecision: '',
+    },
+  })
+
   const content = useMemo(
     () => (
-      <ReceiveAmountContent
-        onClose={onClose}
-        symbol={symbol}
-        currentAmount={currentAmount}
-        onConfirm={onConfirm}
-        isModal={isModal}
-      />
+      <FormProvider {...methods}>
+        <ReceiveAmountContent
+          onClose={onClose}
+          asset={asset}
+          currentAmount={currentAmount}
+          onConfirm={onConfirm}
+          isModal={isModal}
+        />
+      </FormProvider>
     ),
-    [onClose, symbol, currentAmount, onConfirm, isModal],
+    [onClose, asset, onConfirm, isModal, currentAmount, methods],
   )
 
   if (isModal) {

@@ -21,8 +21,6 @@ import { QueryClientProvider } from '@/context/QueryClientProvider/QueryClientPr
 import { KeepKeyProvider } from '@/context/WalletProvider/KeepKeyProvider'
 import { WalletProvider } from '@/context/WalletProvider/WalletProvider'
 import { DefiManagerProvider } from '@/features/defi/contexts/DefiManagerProvider/DefiManagerProvider'
-import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
-import { MixPanelEvent } from '@/lib/mixpanel/types'
 import { wagmiConfig } from '@/lib/wagmi-config'
 import { ErrorPage } from '@/pages/ErrorPage/ErrorPage'
 import { SplashScreen } from '@/pages/SplashScreen/SplashScreen'
@@ -57,7 +55,6 @@ export function AppProviders({ children }: ProvidersProps) {
         },
         level: 'fatal',
       })
-      getMixPanel()?.track(MixPanelEvent.Error, { error, info })
     },
     [],
   )

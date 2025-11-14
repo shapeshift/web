@@ -14,7 +14,7 @@ import {
 import { DialogTitle } from '@/components/Modal/components/DialogTitle'
 import { RawText } from '@/components/Text'
 import { makeBlockiesUrl } from '@/lib/blockies/makeBlockiesUrl'
-import { firstFourLastFour } from '@/lib/utils'
+import { middleEllipsis } from '@/lib/utils'
 import {
   selectEvmAddressByAccountNumber,
   selectUniqueEvmAccountNumbers,
@@ -65,7 +65,7 @@ export const AccountSelection: FC<AccountSelectionProps> = ({
                   {translate('accounts.accountNumber', { accountNumber })}
                 </RawText>
                 <RawText fontSize='sm' color='gray.500'>
-                  {firstFourLastFour(address)}
+                  {middleEllipsis(address)}
                 </RawText>
               </VStack>
               <Radio value={accountNumber.toString()} />

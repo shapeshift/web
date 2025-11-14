@@ -225,9 +225,6 @@ export const ButtonStyle: ComponentStyleConfig = {
     'nav-link': {
       color: 'darkNeutral.400',
       height: '48px',
-      _active: {
-        transform: 'scale(0.9)',
-      },
       _hover: {
         bg: 'transparent',
         color: 'darkNeutral.400',
@@ -238,7 +235,6 @@ export const ButtonStyle: ComponentStyleConfig = {
         svg: {
           color: 'text.base',
         },
-        transform: 'scale(1)',
       },
     },
   },

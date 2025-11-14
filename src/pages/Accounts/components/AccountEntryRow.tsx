@@ -31,7 +31,6 @@ type AccountEntryRowProps = {
 const fontSizeProps = { base: 'sm', md: 'md' }
 const flexDisplayProps = { base: 'none', md: 'flex' }
 const cryptoDisplayProps = { base: 'block', md: 'none' }
-const titleMaxWidthProps = { base: '100%', md: 'auto' }
 
 export const AccountEntryRow: React.FC<AccountEntryRowProps> = ({
   accountId,
@@ -105,27 +104,39 @@ export const AccountEntryRow: React.FC<AccountEntryRowProps> = ({
         onClick={onClick}
         {...buttonProps}
       >
-        <Stack alignItems='flex-start' spacing={0} flex={1} minW={0}>
+        <Stack alignItems='flex-start' spacing={0} flex={1} minW={0} width='100%'>
           <RawText
             color='var(--chakra-colors-chakra-body-text)'
             textOverflow='ellipsis'
             overflow='hidden'
             whiteSpace='nowrap'
-            maxWidth={titleMaxWidthProps}
+            textAlign='left'
+            width='100%'
           >
             {title}
           </RawText>
           <RawText fontSize='sm' color='text.subtle'>
             {subtitle}
           </RawText>
+          <Flex
+            flex={1}
+            justifyContent='flex-end'
+            display={flexDisplayProps}
+            gap={2}
+            fontWeight='normal'
+            fontSize='sm'
+          >
+            <Amount.Crypto
+              value={cryptoBalance}
+              symbol={symbol ?? ''}
+              maximumFractionDigits={maximumFractionDigits}
+            />
+            {asset?.id && <RawText color='text.subtle'>{middleEllipsis(asset?.id)}</RawText>}
+          </Flex>
         </Stack>
-        <Flex flex={1} justifyContent='flex-end' display={flexDisplayProps} gap={2}>
-          <Amount.Crypto value={cryptoBalance} symbol={symbol ?? ''} />
-          {asset?.id && <RawText color='text.subtle'>{middleEllipsis(asset?.id)}</RawText>}
-        </Flex>
+
         <Flex
           className='account-entry-row__amounts'
-          flex={1}
           justifyContent='flex-end'
           alignItems='flex-end'
           direction='column'

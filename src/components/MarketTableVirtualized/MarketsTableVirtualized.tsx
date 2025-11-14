@@ -4,7 +4,6 @@ import type { Asset } from '@shapeshiftoss/types'
 import { noop } from 'lodash'
 import { memo, useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useNavigate } from 'react-router-dom'
 import type { Column, Row } from 'react-table'
 
 import { WatchAssetButton } from '../AssetHeader/WatchAssetButton'
@@ -16,6 +15,7 @@ import { VolumeCell } from './VolumeCell'
 
 import { AssetList } from '@/components/AssetSearch/components/AssetList'
 import { GroupedAssets } from '@/components/MarketTableVirtualized/GroupedAssets'
+import { useTradeNavigation } from '@/components/MultiHopTrade/hooks/useTradeNavigation'
 import { InfiniteTable } from '@/components/ReactTable/InfiniteTable'
 import { Text } from '@/components/Text'
 import { useFetchFiatAssetMarketData } from '@/state/apis/fiatRamps/hooks'
@@ -30,7 +30,7 @@ type MarketsTableVirtualizedProps = {
 export const MarketsTableVirtualized: React.FC<MarketsTableVirtualizedProps> = memo(
   ({ rows, onRowClick, onRowLongPress }) => {
     const translate = useTranslate()
-    const navigate = useNavigate()
+    const { navigateToTrade } = useTradeNavigation()
     const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
 
     const [visibleAssetIds, setVisibleAssetIds] = useState<Set<string>>(new Set())
@@ -47,9 +47,9 @@ export const MarketsTableVirtualized: React.FC<MarketsTableVirtualizedProps> = m
         e.stopPropagation()
         const assetId = e.currentTarget.getAttribute('data-asset-id')
         if (!assetId) return
-        navigate(`/trade/${assetId}`)
+        navigateToTrade(assetId)
       },
-      [navigate],
+      [navigateToTrade],
     )
 
     const tradeTranslation = useMemo(

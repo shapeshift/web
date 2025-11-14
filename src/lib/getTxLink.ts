@@ -41,6 +41,7 @@ type GetTxLink = GetTxBaseUrl &
     chainId: ChainId | undefined
     maybeSafeTx: SafeTxInfo | undefined
     maybeChainflipSwapId?: string | undefined
+    maybeNearIntentsDepositAddress?: string | undefined
     isRelayer?: boolean
     relayerExplorerTxLink?: string | undefined
   }
@@ -72,6 +73,8 @@ export const getTxBaseUrl = ({
       return mayachain.explorerTxLink
     case SwapperName.Relay:
       return 'https://relay.link/transaction/'
+    case SwapperName.NearIntents:
+      return 'https://explorer.near-intents.org/transactions/'
     case SwapperName.ButterSwap:
       return isRelayer && relayerExplorerTxLink
         ? `${relayerExplorerTxLink}tx/`
@@ -90,6 +93,7 @@ export const getTxLink = ({
   address,
   chainId,
   maybeChainflipSwapId,
+  maybeNearIntentsDepositAddress,
   isRelayer,
   relayerExplorerTxLink,
 }: GetTxLink): string => {
@@ -120,6 +124,10 @@ export const getTxLink = ({
       case CHAINFLIP_DCA_BOOST_SWAP_SOURCE:
         return maybeChainflipSwapId
           ? `${baseUrl}${maybeChainflipSwapId}`
+          : `${defaultExplorerBaseUrl}${id}`
+      case SwapperName.NearIntents:
+        return maybeNearIntentsDepositAddress
+          ? `${baseUrl}${maybeNearIntentsDepositAddress}`
           : `${defaultExplorerBaseUrl}${id}`
       default:
         return `${baseUrl}${id}`

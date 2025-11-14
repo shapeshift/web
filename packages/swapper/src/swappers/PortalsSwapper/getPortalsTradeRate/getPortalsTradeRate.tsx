@@ -1,6 +1,7 @@
 import type { ChainId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import type { EvmChainAdapter } from '@shapeshiftoss/chain-adapters'
+import { evm } from '@shapeshiftoss/chain-adapters'
 import type { KnownChainIds } from '@shapeshiftoss/types'
 import { bn, bnOrZero } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
@@ -111,7 +112,8 @@ export async function getPortalsTradeRate(
       swapperConfig,
     })
 
-    const buyAmountAfterFeesCryptoBaseUnit = quoteEstimateResponse.minOutputAmount
+    // Estimate has no protocol fees, so after-fees = expected output amount
+    const buyAmountAfterFeesCryptoBaseUnit = quoteEstimateResponse.outputAmount
 
     // Use the quote estimate endpoint to get a quote without a wallet
 
@@ -124,19 +126,28 @@ export async function getPortalsTradeRate(
 
     const allowanceContract = getPortalsRouterAddressByChainId(chainId)
 
-    const slippageTolerancePercentageDecimal = quoteEstimateResponse.context
-      .slippageTolerancePercentage
-      ? bn(quoteEstimateResponse.context.slippageTolerancePercentage).div(100).toString()
-      : undefined
+    // Don't use Portals' slippageTolerancePercentage field (it's a price indicator, not actual buffer)
+    // Instead, calculate the actual buffer Portals applied from the amounts
+    const actualBufferDecimal = bnOrZero(quoteEstimateResponse.outputAmount)
+      .minus(quoteEstimateResponse.minOutputAmount)
+      .div(quoteEstimateResponse.outputAmount)
+      .toString()
 
+    // Reverse the buffer to recover the expected output (minOutput / (1 - buffer) = output)
     const buyAmountBeforeSlippageCryptoBaseUnit = bnOrZero(quoteEstimateResponse.minOutputAmount)
-      .div(bn(1).minus(slippageTolerancePercentageDecimal ?? 0))
+      .div(bn(1).minus(actualBufferDecimal))
       .toFixed(0)
+
+    const slippageTolerancePercentageDecimal = actualBufferDecimal
 
     const gasLimit = quoteEstimateResponse.context.gasLimit
     const { average } = await adapter.getGasFeeData()
 
-    const networkFeeCryptoBaseUnit = bnOrZero(average.gasPrice).times(gasLimit).toFixed(0)
+    const networkFeeCryptoBaseUnit = evm.calcNetworkFeeCryptoBaseUnit({
+      ...average,
+      supportsEIP1559: Boolean(input.supportsEIP1559),
+      gasLimit: gasLimit.toString(),
+    })
 
     const tradeRate = {
       id: uuid(),

@@ -1,6 +1,6 @@
 {
   "name": "@shapeshiftoss/errors",
-  "version": "1.1.4",
+  "version": "1.1.5",
   "description": "Common set of typed errors",
   "repository": "https://github.com/shapeshift/web",
   "type": "module",

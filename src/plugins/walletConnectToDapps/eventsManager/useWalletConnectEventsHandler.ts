@@ -33,9 +33,17 @@ export const useWalletConnectEventsHandler = (
     [dispatch],
   )
 
-  const handleAuthRequest = useCallback(
-    (_request: WalletKitTypes.EventArguments['session_authenticate']) => {},
-    [],
+  const handleSessionAuthRequest = useCallback(
+    (request: WalletKitTypes.EventArguments['session_authenticate']) => {
+      dispatch({
+        type: WalletConnectActionType.SET_MODAL,
+        payload: {
+          modal: WalletConnectModal.SessionAuthenticateConfirmation,
+          data: { request },
+        },
+      })
+    },
+    [dispatch],
   )
 
   // Open request handling modal based on method that was used
@@ -157,5 +165,5 @@ export const useWalletConnectEventsHandler = (
     [dispatch, web3wallet],
   )
 
-  return { handleSessionProposal, handleAuthRequest, handleSessionRequest }
+  return { handleSessionProposal, handleSessionAuthRequest, handleSessionRequest }
 }

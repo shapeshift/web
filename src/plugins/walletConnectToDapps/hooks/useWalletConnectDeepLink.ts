@@ -88,9 +88,7 @@ export const useWalletConnectDeepLink = (state: WalletConnectState) => {
         if (!uri) return
 
         try {
-          // We do not handle session_authenticate events, so make it a session_proposal instead
-          const pairingUri = uri.replace('sessionAuthenticate', 'sessionProposal')
-          await state.pair?.({ uri: pairingUri })
+          await state.pair?.({ uri })
 
           // Successfully initiated pairing, navigate away
           if (!hasNavigatedRef.current) {

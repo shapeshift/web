@@ -98,15 +98,15 @@ export const PortalAssetRow: FC<PortalAssetRowProps> = memo(
         {...longPressHandlers(asset)}
         sx={longPressSx}
       >
-        <Flex gap={4} alignItems='center'>
+        <Flex gap={4} alignItems='center' flex={1} minWidth={0}>
           <AssetIcon assetId={asset.assetId} size='sm' showNetworkIcon={showNetworkIcon} />
-          <Box textAlign='left'>
+          <Box textAlign='left' flex={1} minWidth={0}>
             <Text
               lineHeight={1}
               textOverflow='ellipsis'
               whiteSpace='nowrap'
-              maxWidth='150px'
               overflow='hidden'
+              width='100%'
             >
               {asset.name}
             </Text>

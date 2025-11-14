@@ -6,8 +6,6 @@ import { useTranslate } from 'react-polyglot'
 
 import { ErrorFallback } from './ErrorFallback'
 
-import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
-import { MixPanelEvent } from '@/lib/mixpanel/types'
 import { captureExceptionWithContext } from '@/utils/sentry/helpers'
 
 type SuspenseErrorFallbackProps = {
@@ -57,11 +55,6 @@ export const SuspenseErrorBoundary: React.FC<SuspenseErrorBoundaryProps> = ({
         componentStack: info.componentStack,
       },
       level: 'error',
-    })
-    getMixPanel()?.track(MixPanelEvent.Error, {
-      error: error.message,
-      errorBoundary: 'suspense',
-      componentStack: info.componentStack,
     })
   }, [])
 

@@ -16,6 +16,7 @@ type Command =
   | 'reloadWebview'
   | 'requestStoreReview'
   | 'getAppVersion'
+  | 'getAppleSearchAdsAttribution'
 
 export type HapticLevel = 'light' | 'medium' | 'heavy' | 'soft' | 'rigid'
 
@@ -54,6 +55,9 @@ type Message =
   | {
       cmd: 'getAppVersion'
     }
+  | {
+      cmd: 'getAppleSearchAdsAttribution'
+    }
 
 export type MessageFromMobileApp = {
   id: number
@@ -64,6 +68,40 @@ export type MobileAppVersion = {
   version: string
   build: string
 }
+
+/**
+ * Apple Search Ads Attribution Data
+ * This is the response from Apple's AdServices Attribution API
+ * https://api-adservices.apple.com/api/v1/
+ */
+export type AppleSearchAdsAttributionData = {
+  attribution?: boolean // Whether attribution was found
+  orgId?: number
+  campaignId?: number
+  conversionType?: 'Download' | 'Redownload'
+  clickDate?: string // ISO 8601 format (requires ATT permission)
+  adGroupId?: number
+  countryOrRegion?: string
+  keywordId?: number
+  adId?: number
+  claimType?: 'Click' | 'View'
+}
+
+/**
+ * Response from mobile app when requesting Apple Search Ads attribution
+ * Can be either:
+ * 1. Full attribution data (if mobile app exchanges token with Apple)
+ * 2. Just the token (if web app needs to exchange it)
+ */
+export type AppleSearchAdsAttribution =
+  | {
+      type: 'data'
+      data: AppleSearchAdsAttributionData
+    }
+  | {
+      type: 'token'
+      token: string
+    }
 
 /**
  * Create a Promise that sends a message and waits for the matching response
@@ -207,4 +245,14 @@ export const requestStoreReview = (): Promise<boolean> => {
  */
 export const requestAppVersion = (): Promise<MobileAppVersion | undefined> => {
   return postMessage<MobileAppVersion>({ cmd: 'getAppVersion' })
+}
+
+/**
+ * Get Apple Search Ads attribution data from the mobile app.
+ *
+ * This should be called once on app initialization to retrieve the attribution
+ * data that the iOS app fetched from Apple's AdServices API.
+ */
+export const getAppleSearchAdsAttribution = (): Promise<AppleSearchAdsAttribution | undefined> => {
+  return postMessage<AppleSearchAdsAttribution>({ cmd: 'getAppleSearchAdsAttribution' })
 }

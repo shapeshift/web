@@ -4,11 +4,9 @@ import { bn, bnOrZero, contractAddressOrUndefined, isToken } from '@shapeshiftos
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import { v4 as uuid } from 'uuid'
-import type { Address, Hex } from 'viem'
 
 import { getDefaultSlippageDecimalPercentageForSwapper } from '../../../constants'
 import type {
-  GetEvmTradeQuoteInputBase,
   GetTradeRateInput,
   GetUtxoTradeRateInput,
   SwapErrorRight,
@@ -17,7 +15,6 @@ import type {
 } from '../../../types'
 import { SwapperName, TradeQuoteError } from '../../../types'
 import { makeSwapErrorRight } from '../../../utils'
-import { simulateWithStateOverrides } from '../../../utils/tenderly'
 import { isNativeEvmAsset } from '../../utils/helpers/helpers'
 import { DEFAULT_QUOTE_DEADLINE_MS, DEFAULT_SLIPPAGE_BPS } from '../constants'
 import type { QuoteResponse } from '../types'
@@ -86,45 +83,22 @@ export const getTradeRate = async (
       switch (chainNamespace) {
         case CHAIN_NAMESPACE.Evm: {
           try {
+            const sellAdapter = deps.assertGetEvmChainAdapter(sellAsset.chainId)
             const contractAddress = contractAddressOrUndefined(sellAsset.assetId)
             const data = evm.getErc20Data(depositAddress, sellAmount, contractAddress)
 
-            console.log({ sendAddress, data })
-            const simulationResult = await simulateWithStateOverrides(
-              {
-                chainId: Number(fromAssetId(sellAsset.assetId).chainReference),
-                // vitalik.eth - since we do state overrides anyway, that allows things to work even without a wallet connected
-                from: (sendAddress || '0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045') as Address,
-                to: (contractAddress ?? depositAddress) as Address,
-                data: (data || '0x') as Hex,
-                value: isNativeEvmAsset(sellAsset.assetId) ? sellAmount : '0',
-                sellAsset,
-                sellAmount,
+            const feeData = await sellAdapter.getFeeData({
+              to: contractAddress ?? depositAddress,
+              value: isNativeEvmAsset(sellAsset.assetId) ? sellAmount : '0',
+              chainSpecific: {
+                from: sendAddress || depositAddress,
+                contractAddress,
+                data: data || '0x',
               },
-              {
-                apiKey: deps.config.VITE_TENDERLY_API_KEY,
-                accountSlug: deps.config.VITE_TENDERLY_ACCOUNT_SLUG,
-                projectSlug: deps.config.VITE_TENDERLY_PROJECT_SLUG,
-              },
-            )
-
-            const sellAdapter = deps.assertGetEvmChainAdapter(sellAsset.chainId)
-            const { average } = await sellAdapter.getGasFeeData()
-
-            const networkFeeCryptoBaseUnit = evm.calcNetworkFeeCryptoBaseUnit({
-              ...average,
-              // supportsEIP1559 is false in GetEvmTradeRateInput but that's not necessarily true
-              // it's really like that for discriminated uion purposes, in reality, it *can* be true
-              supportsEIP1559: Boolean(
-                (input as unknown as GetEvmTradeQuoteInputBase).supportsEIP1559,
-              ),
-              gasLimit: simulationResult.gasLimit.toString(),
+              sendMax: false,
             })
-
-            return networkFeeCryptoBaseUnit
+            return feeData.fast.txFee
           } catch (error) {
-            // Worst case scenario, we shouldn't hide the quote, but let it fail with 0 fees at display time
-            console.error(error)
             return '0'
           }
         }
@@ -143,7 +117,7 @@ export const getTradeRate = async (
             chainSpecific: { pubkey },
             sendMax: false,
           })
-          return feeData.average.txFee
+          return feeData.fast.txFee
         }
 
         case CHAIN_NAMESPACE.Solana: {
@@ -175,7 +149,7 @@ export const getTradeRate = async (
               sendMax: false,
             })
 
-            const txFee = feeData.average.txFee
+            const txFee = feeData.fast.txFee
             const ataCreationCost = calculateAccountCreationCosts(instructions)
             return bn(txFee).plus(ataCreationCost).toString()
           } catch (error) {

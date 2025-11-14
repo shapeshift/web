@@ -1,6 +1,5 @@
 import { useColorMode, usePrevious } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
-import { fromAccountId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { useQueryClient } from '@tanstack/react-query'
 import { AnimatePresence } from 'framer-motion'
@@ -28,7 +27,7 @@ import { SharedTradeInput } from '@/components/MultiHopTrade/components/SharedTr
 import { SlideTransitionRoute } from '@/components/MultiHopTrade/components/SlideTransitionRoute'
 import type { CollapsibleQuoteListProps } from '@/components/MultiHopTrade/components/TradeInput/components/CollapsibleQuoteList'
 import { CollapsibleQuoteList } from '@/components/MultiHopTrade/components/TradeInput/components/CollapsibleQuoteList'
-import { getReceiveAddress } from '@/components/MultiHopTrade/hooks/useReceiveAddress'
+import { useReceiveAddress } from '@/components/MultiHopTrade/hooks/useReceiveAddress'
 import { TradeInputTab } from '@/components/MultiHopTrade/types'
 import { useDebounce } from '@/hooks/useDebounce/useDebounce'
 import { useModal } from '@/hooks/useModal/useModal'
@@ -91,7 +90,7 @@ const RampRoutes = memo(({ onChangeTab, direction }: RampRoutesProps) => {
   const dispatch = useAppDispatch()
   const navigate = useNavigate()
   const {
-    state: { isConnected, wallet },
+    state: { isConnected },
   } = useWallet()
 
   const sellAsset = useAppSelector(selectInputSellAsset)
@@ -131,9 +130,11 @@ const RampRoutes = memo(({ onChangeTab, direction }: RampRoutesProps) => {
     selectPortfolioAccountMetadataByAccountId(state, buyAccountFilter),
   )
 
-  const walletReceiveAddress = useMemo(() => {
-    return buyAccountId ? fromAccountId(buyAccountId).account : undefined
-  }, [buyAccountId])
+  const { walletReceiveAddress } = useReceiveAddress({
+    sellAccountId: undefined,
+    buyAccountId,
+    buyAsset,
+  })
 
   const RampQuotesComponent = useCallback(
     (props: QuotesComponentProps) => {
@@ -337,22 +338,12 @@ const RampRoutes = memo(({ onChangeTab, direction }: RampRoutesProps) => {
         ramp: ramp.id,
       }
 
-      const receiveAddress =
-        direction === FiatRampAction.Buy && buyAccountMetadata
-          ? await getReceiveAddress({
-              asset: direction === FiatRampAction.Buy ? buyAsset : sellAsset,
-              wallet,
-              accountMetadata: buyAccountMetadata,
-              pubKey: walletReceiveAddress,
-            })
-          : undefined
-
       getMixPanel()?.track(MixPanelEvent.FiatRamp, mpData)
       const url = await ramp.onSubmit({
         action: direction,
         assetId:
           direction === FiatRampAction.Buy ? buyAsset?.assetId ?? '' : sellAsset?.assetId ?? '',
-        address: manualReceiveAddress ?? receiveAddress ?? '',
+        address: manualReceiveAddress ?? walletReceiveAddress ?? '',
         fiatCurrency:
           direction === FiatRampAction.Buy ? sellFiatCurrency.code : buyFiatCurrency.code,
         fiatAmount: direction === FiatRampAction.Buy ? buyFiatAmount : selectedQuote?.amount ?? '0',
@@ -384,7 +375,6 @@ const RampRoutes = memo(({ onChangeTab, direction }: RampRoutesProps) => {
       buyAccountMetadata,
       buyAsset,
       sellAsset,
-      wallet,
     ],
   )
 

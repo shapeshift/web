@@ -201,20 +201,6 @@ export async function getPortalsTradeRate(
         supportsEIP1559: Boolean(input.supportsEIP1559),
         gasLimit: tx.gasLimit,
       })
-
-      console.log('[Portals Rate] Gas estimate comparison:', {
-        tenderlyGasLimit: tenderlySimulation.gasLimit.toString(),
-        portalsGasLimit: tx.gasLimit,
-        tenderlyNetworkFee: networkFeeCryptoBaseUnit,
-        portalsNetworkFee,
-        difference: bnOrZero(networkFeeCryptoBaseUnit).minus(portalsNetworkFee).toString(),
-        percentDiff:
-          bnOrZero(networkFeeCryptoBaseUnit)
-            .minus(portalsNetworkFee)
-            .div(portalsNetworkFee)
-            .times(100)
-            .toFixed(2) + '%',
-      })
     }
 
     const tradeRate = {

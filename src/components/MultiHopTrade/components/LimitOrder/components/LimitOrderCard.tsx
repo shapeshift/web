@@ -28,6 +28,17 @@ import {
 } from '@/state/slices/selectors'
 import { useSelectorWithArgs } from '@/state/store'
 
+const getAdaptivePrecision = (value: string | number): number => {
+  const absValue = bnOrZero(value).abs()
+
+  if (absValue.gte(10000)) return 2
+  if (absValue.gte(1000)) return 3
+  if (absValue.gte(100)) return 4
+  if (absValue.gte(10)) return 5
+
+  return 6
+}
+
 export type LimitOrderCardProps = {
   uid: string
   buyAmountCryptoBaseUnit: string
@@ -202,6 +213,23 @@ export const LimitOrderCard: FC<LimitOrderCardProps> = ({
     [executionPrice, toCrypto, buyAsset],
   )
 
+  const sellAmountPrecision = useMemo(
+    () => getAdaptivePrecision(sellAmountCryptoPrecision),
+    [sellAmountCryptoPrecision],
+  )
+
+  const buyAmountPrecision = useMemo(
+    () => getAdaptivePrecision(buyAmountCryptoPrecision),
+    [buyAmountCryptoPrecision],
+  )
+
+  const limitPricePrecision = useMemo(() => getAdaptivePrecision(limitPrice), [limitPrice])
+
+  const executionPricePrecision = useMemo(
+    () => getAdaptivePrecision(executionPrice),
+    [executionPrice],
+  )
+
   const tagColorScheme = useMemo(() => {
     switch (status) {
       case OrderStatus.OPEN:
@@ -284,7 +312,7 @@ export const LimitOrderCard: FC<LimitOrderCardProps> = ({
                 value={sellAmountCryptoPrecision}
                 symbol={sellAsset.symbol}
                 fontSize={fontSize}
-                maximumFractionDigits={6}
+                maximumFractionDigits={sellAmountPrecision}
               />
             </HoverTooltip>
             <HoverTooltip placement='top' label={buyAmountCryptoFormatted}>
@@ -292,7 +320,7 @@ export const LimitOrderCard: FC<LimitOrderCardProps> = ({
                 value={buyAmountCryptoPrecision}
                 symbol={buyAsset.symbol}
                 fontSize={fontSize}
-                maximumFractionDigits={6}
+                maximumFractionDigits={buyAmountPrecision}
               />
             </HoverTooltip>
           </Flex>
@@ -307,7 +335,7 @@ export const LimitOrderCard: FC<LimitOrderCardProps> = ({
               symbol={buyAsset.symbol}
               color={status === OrderStatus.FULFILLED ? 'text.subtle' : 'text.base'}
               fontSize={fontSize}
-              maximumFractionDigits={6}
+              maximumFractionDigits={limitPricePrecision}
             />
           </HoverTooltip>
           {status === OrderStatus.FULFILLED && (
@@ -317,7 +345,7 @@ export const LimitOrderCard: FC<LimitOrderCardProps> = ({
                 symbol={buyAsset.symbol}
                 fontSize={fontSize}
                 color='text.base'
-                maximumFractionDigits={6}
+                maximumFractionDigits={executionPricePrecision}
               />
             </HoverTooltip>
           )}

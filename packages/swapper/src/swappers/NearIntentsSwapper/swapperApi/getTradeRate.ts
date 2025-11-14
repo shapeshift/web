@@ -20,7 +20,7 @@ import { DEFAULT_QUOTE_DEADLINE_MS, DEFAULT_SLIPPAGE_BPS } from '../constants'
 import type { QuoteResponse } from '../types'
 import { QuoteRequest } from '../types'
 import { assetToNearIntentsAsset, calculateAccountCreationCosts } from '../utils/helpers/helpers'
-import { initializeOneClickService, OneClickService } from '../utils/oneClickService'
+import { ApiError, initializeOneClickService, OneClickService } from '../utils/oneClickService'
 
 export const getTradeRate = async (
   input: GetTradeRateInput,
@@ -68,7 +68,23 @@ export const getTradeRate = async (
       // TODO(gomes): appFees disabled - https://github.com/shapeshift/web/issues/11022
     }
 
-    const quoteResponse: QuoteResponse = await OneClickService.getQuote(quoteRequest)
+    const quoteResponse: QuoteResponse = await OneClickService.getQuote(quoteRequest).catch(
+      (error: unknown) => {
+        if (error instanceof ApiError) {
+          if (
+            error.body?.message === 'tokenIn is not valid' ||
+            error.body?.message === 'tokenOut is not valid'
+          ) {
+            throw new Error(
+              `Token not found in NEAR Intents: ${
+                error.body.message === 'tokenIn is not valid' ? sellAsset.assetId : buyAsset.assetId
+              }`,
+            )
+          }
+        }
+        throw error
+      },
+    )
 
     const { quote } = quoteResponse
 
@@ -196,6 +212,17 @@ export const getTradeRate = async (
 
     return Ok([tradeRate])
   } catch (error) {
+    // Check if this is an unsupported asset error
+    if (error instanceof Error && error.message.includes('Token not found in NEAR Intents')) {
+      return Err(
+        makeSwapErrorRight({
+          message: error.message,
+          code: TradeQuoteError.UnsupportedTradePair,
+          cause: error,
+        }),
+      )
+    }
+
     return Err(
       makeSwapErrorRight({
         message: error instanceof Error ? error.message : 'Unknown error getting NEAR Intents rate',

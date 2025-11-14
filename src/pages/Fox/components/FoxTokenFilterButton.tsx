@@ -59,7 +59,6 @@ export const FoxTokenFilterButton = ({
       variant={isSelected ? 'solid' : 'outline'}
       backgroundColor={isSelected ? buttonsBgColor : 'transparent'}
       color={isSelected ? 'gray.900' : buttonsColor}
-      // eslint-disable-next-line react-memo/require-usememo
       onClick={() => onFilterClick(filter)}
       leftIcon={filter.assetId ? networkIcon : undefined}
     >

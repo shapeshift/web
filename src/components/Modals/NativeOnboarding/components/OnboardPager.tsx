@@ -25,7 +25,6 @@ export const OnboardPager: React.FC = () => {
     return OnboardingRoutes.map(route => (
       <Circle
         // we need to pass an arg here, so we need an anonymous function wrapper
-        // eslint-disable-next-line react-memo/require-usememo
         onClick={() => handleGoToPage(route.path)}
         size='10px'
         bg={route.path === activeRoute ? 'blue.500' : pageColor}

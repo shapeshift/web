@@ -61,9 +61,7 @@ export const StarRating = memo(
             key={starIndex}
             boxSize={size}
             color={getStarColor(starIndex)}
-            // eslint-disable-next-line react-memo/require-usememo
             onClick={() => handleClick(starIndex)}
-            // eslint-disable-next-line react-memo/require-usememo
             onMouseEnter={() => handleMouseEnter(starIndex)}
             onMouseLeave={handleMouseLeave}
             {...starProps}

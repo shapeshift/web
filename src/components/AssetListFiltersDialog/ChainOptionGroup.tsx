@@ -35,7 +35,6 @@ export const ChainOptionGroup = ({
         <MenuItemOption
           key={chainId}
           value={chainId}
-          // eslint-disable-next-line react-memo/require-usememo
           onClick={() => handleChainChange(chainId)}
           fontSize='md'
           iconPlacement='end'
@@ -59,7 +58,6 @@ export const ChainOptionGroup = ({
         <MenuOptionGroup type='radio' value={selectedChainId}>
           <MenuItemOption
             value={'all'}
-            // eslint-disable-next-line react-memo/require-usememo
             onClick={() => handleChainChange('all')}
             fontSize='md'
             iconPlacement='end'

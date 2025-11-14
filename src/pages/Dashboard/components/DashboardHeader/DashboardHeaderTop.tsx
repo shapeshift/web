@@ -59,7 +59,6 @@ const qrCodeIcon = <QRCodeIcon />
 
 const mobileNetWorth = (
   // react-memo you're drunk, this is outside of component scope
-  // eslint-disable-next-line react-memo/require-usememo
   <Flex alignItems='center' flexDir={containerInnerFlexDir} gap={4} gridColumn={profileGridColumn}>
     <WalletBalanceChange showErroredAccounts={false} />
   </Flex>
@@ -67,7 +66,6 @@ const mobileNetWorth = (
 
 const desktopNetWorth = (
   // react-memo you're drunk, this is outside of component scope
-  // eslint-disable-next-line react-memo/require-usememo
   <Flex alignItems='center' flexDir={containerInnerFlexDir} gap={4} gridColumn={profileGridColumn}>
     <WalletBalance balanceFontSize={balanceFontSize} />
   </Flex>

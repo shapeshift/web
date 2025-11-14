@@ -150,7 +150,6 @@ export const YourPositions = () => {
                     {position.asym ? (
                       <Text
                         whiteSpace='nowrap'
-                        // eslint-disable-next-line react-memo/require-usememo
                         translation={[
                           'common.asymmetric',
                           { assetSymbol: position.asym.asset.symbol },
@@ -166,7 +165,6 @@ export const YourPositions = () => {
                     <Text
                       whiteSpace='nowrap'
                       color='text.subtle'
-                      // eslint-disable-next-line react-memo/require-usememo
                       translation={[
                         'common.asymmetric',
                         { assetSymbol: position.asym.asset.symbol },

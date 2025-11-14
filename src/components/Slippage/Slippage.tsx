@@ -44,7 +44,6 @@ export const Slippage = ({ onChange, value }: SlippageProps) => {
             flex={1}
             isActive={value === rate}
             // we need to pass an arg here, so we need an anonymous function wrapper
-            // eslint-disable-next-line react-memo/require-usememo
             onClick={() => onChange(rate)}
           >{`${rate}%`}</Button>
         ),

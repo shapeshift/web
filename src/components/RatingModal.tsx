@@ -226,7 +226,6 @@ export const RatingModal = () => {
             <Textarea
               placeholder={translate('common.letUsKnowHowWeCanImprove')}
               value={feedback}
-              // eslint-disable-next-line react-memo/require-usememo
               onChange={e => handleFeedbackChange(e.target.value)}
               size='lg'
               minH='120px'

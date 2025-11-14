@@ -148,7 +148,6 @@ export const WalletViewsSwitch = () => {
         const Component = route.component
         const routeElement = <Component />
         // This is already within a useMemo call, lint rule drunk
-        // eslint-disable-next-line react-memo/require-usememo
         return <Route key={route.path} path={route.path} element={routeElement} />
       })
   }, [modalType])

@@ -151,7 +151,6 @@ export const RFOXSimulator = ({ stakingAssetId }: RFOXSimulatorProps) => {
                   fontSize='md'
                   color='text.subtle'
                   // we need to pass a local scope arg here, so we need an anonymous function wrapper
-                  // eslint-disable-next-line react-memo/require-usememo
                   translation={[
                     'foxPage.rfox.totalSymbolBurn',
                     {

@@ -35,7 +35,6 @@ const Category = ({
     <MenuItemOption
       key={category}
       value={category}
-      // eslint-disable-next-line react-memo/require-usememo
       onClick={() => handleCategoryChange(category)}
       fontSize='md'
       iconPlacement='end'

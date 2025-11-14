@@ -194,7 +194,6 @@ export const useTradeExecution = (
 
               return (
                 <SwapNotification
-                  // eslint-disable-next-line react-memo/require-usememo
                   handleClick={handleClick}
                   swapId={swap.id}
                   onClose={onClose}

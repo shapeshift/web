@@ -247,7 +247,6 @@ export const InfiniteTable = <T extends {}>({
               color='text.subtle'
               textAlign={column.textAlign}
               display={column.display}
-              // eslint-disable-next-line react-memo/require-usememo
               _hover={{ color: column.canSort ? hoverColor : 'text.subtle' }}
             >
               <Flex justifyContent={column.justifyContent} alignItems={column.alignItems}>

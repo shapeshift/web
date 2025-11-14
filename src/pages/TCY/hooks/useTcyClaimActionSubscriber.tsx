@@ -57,7 +57,6 @@ export const useTcyClaimActionSubscriber = () => {
                 onClose()
               }
 
-              // eslint-disable-next-line react-memo/require-usememo
               return <TcyClaimSaversNotification handleClick={handleClick} onClose={onClose} />
             },
             id: TCY_TOAST_ID,

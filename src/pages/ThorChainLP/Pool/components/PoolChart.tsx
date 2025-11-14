@@ -129,7 +129,6 @@ export const PoolChart = ({ thorchainNotationAssetId }: PoolChartProps) => {
             return (
               <Button
                 key={interval}
-                // eslint-disable-next-line react-memo/require-usememo
                 onClick={() => setSelectedInterval(interval as ChartIntervalKey)}
                 variant={selectedInterval === interval ? 'solid' : 'outline'}
               >

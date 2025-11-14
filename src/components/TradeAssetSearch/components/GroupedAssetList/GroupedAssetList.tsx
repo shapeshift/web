@@ -91,7 +91,6 @@ export const GroupedAssetList = ({
         <AssetRow
           asset={asset}
           index={index}
-          // eslint-disable-next-line react-memo/require-usememo
           data={itemData}
           onImportClick={onImportClick}
           showRelatedAssets={activeChainId === 'All'}

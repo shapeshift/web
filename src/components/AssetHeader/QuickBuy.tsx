@@ -109,7 +109,6 @@ export const QuickBuy: React.FC<QuickBuyProps> = ({ assetId, onEditAmounts }) =>
                   <Button
                     rounded='full'
                     background={isSuccess ? 'green.500' : undefined}
-                    // eslint-disable-next-line react-memo/require-usememo
                     onClick={() => startPurchase(amount)}
                     flex={1}
                     isDisabled={isNotEnoughFunds}

@@ -17,7 +17,6 @@
     "jest",
     "prettier",
     "simple-import-sort",
-    "eslint-plugin-react-memo",
     "eslint-plugin-import"
   ],
   "parserOptions": {
@@ -97,7 +96,6 @@
     "react/jsx-handler-names": "error",
     "require-await": "error",
     "import/no-duplicates": "error",
-    "react-memo/require-usememo": "error",
     "@typescript-eslint/no-non-null-assertion": "error"
   },
   "overrides": [

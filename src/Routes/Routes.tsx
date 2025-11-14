@@ -54,7 +54,6 @@ const InnerRoutes = ({ appRoutesList }: { appRoutesList: React.ReactNode[] }) =>
       {/* Handle legacy /earn/* routes by redirecting to wallet/earn route. We don't expose these anymore, but users may have old bookmarks */}
       <Route path='/earn/*' element={walletEarnRedirect} />
       {/* Don't memoize me - this takes no props in, and this paranoia ensures that this lazy loads */}
-      {/* eslint-disable-next-line react-memo/require-usememo */}
       <Route path='*' element={<NotFound />} />
     </Routes>
   )
@@ -114,7 +113,6 @@ export const AppRoutes = memo(() => {
               key={'redirect-route'}
               path={route.path}
               // This is already within a useMemo call, lint rule drunk
-              // eslint-disable-next-line react-memo/require-usememo
               element={<Navigate to={to} replace />}
             />
           )
@@ -125,7 +123,6 @@ export const AppRoutes = memo(() => {
             key={'route'}
             path={route.path}
             // This is already within a useMemo call, lint rule drunk
-            // eslint-disable-next-line react-memo/require-usememo
             element={MainComponent ? <MainComponent /> : null}
           />
         )
@@ -138,12 +135,10 @@ export const AppRoutes = memo(() => {
   return (
     <Routes>
       {/* Don't memoize me - this takes no props in, and this paranoia ensures that this lazy loads */}
-      {/* eslint-disable-next-line react-memo/require-usememo */}
       <Route path='/connect-mobile-wallet' element={<MobileConnect />} />
       <Route
         path='/legal/terms-of-service'
         // Don't memoize me - this takes no props in, and this paranoia ensures that this lazy loads
-        // eslint-disable-next-line react-memo/require-usememo
         element={
           <Layout>
             <TermsOfService />
@@ -153,7 +148,6 @@ export const AppRoutes = memo(() => {
       <Route
         path='/legal/privacy-policy'
         // Don't memoize me - this takes no props in, and this paranoia ensures that this lazy loads
-        // eslint-disable-next-line react-memo/require-usememo
         element={
           <Layout>
             <PrivacyPolicy />
@@ -163,7 +157,6 @@ export const AppRoutes = memo(() => {
       <Route
         path='/flags'
         // Don't memoize me - this takes no props in, and this paranoia ensures that this lazy loads
-        // eslint-disable-next-line react-memo/require-usememo
         element={
           <Layout>
             <Flags />
@@ -173,7 +166,6 @@ export const AppRoutes = memo(() => {
       <Route
         path='/*'
         // Don't memoize me - this takes no props in, and this paranoia ensures that this lazy loads
-        // eslint-disable-next-line react-memo/require-usememo
         element={
           <Layout maxWidth='full' px='0'>
             <InnerRoutes appRoutesList={appRoutesList} />

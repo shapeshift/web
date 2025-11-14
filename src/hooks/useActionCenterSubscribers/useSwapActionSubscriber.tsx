@@ -265,7 +265,6 @@ export const useSwapActionSubscriber = () => {
 
             return (
               <SwapNotification
-                // eslint-disable-next-line react-memo/require-usememo
                 handleClick={handleClick}
                 swapId={swap.id}
                 status={status}
@@ -312,7 +311,6 @@ export const useSwapActionSubscriber = () => {
 
             return (
               <SwapNotification
-                // eslint-disable-next-line react-memo/require-usememo
                 handleClick={handleClick}
                 swapId={swap.id}
                 status={status}

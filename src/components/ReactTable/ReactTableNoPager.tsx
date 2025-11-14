@@ -101,7 +101,6 @@ export const ReactTableNoPager = <T extends {}>({
             key={row.id}
             tabIndex={row.index}
             // we need to pass an arg here, so we need an anonymous function wrapper
-            // eslint-disable-next-line react-memo/require-usememo
             onClick={() => onRowClick?.(row)}
             className={row.isExpanded ? 'expanded' : ''}
             {...(rowDataTestKey
@@ -162,7 +161,6 @@ export const ReactTableNoPager = <T extends {}>({
                   color='text.subtle'
                   textAlign={column.textAlign}
                   display={column.display}
-                  // eslint-disable-next-line react-memo/require-usememo
                   _hover={{ color: column.canSort ? hoverColor : 'text.subtle' }}
                 >
                   <Flex justifyContent={column.justifyContent} alignItems={column.alignItems}>

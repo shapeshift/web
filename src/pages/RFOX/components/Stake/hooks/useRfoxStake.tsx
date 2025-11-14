@@ -271,7 +271,6 @@ export const useRfoxStake = ({
 
           return (
             <GenericTransactionNotification
-              // eslint-disable-next-line react-memo/require-usememo
               handleClick={handleClick}
               actionId={txId}
               onClose={onClose}
@@ -383,7 +382,6 @@ export const useRfoxStake = ({
 
           return (
             <GenericTransactionNotification
-              // eslint-disable-next-line react-memo/require-usememo
               handleClick={handleClick}
               actionId={txId}
               onClose={onClose}

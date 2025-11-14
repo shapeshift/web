@@ -2,11 +2,12 @@ import type { ChainId } from '@shapeshiftoss/caip'
 import type { EvmChainAdapter } from '@shapeshiftoss/chain-adapters'
 import { evm } from '@shapeshiftoss/chain-adapters'
 import type { AssetsByIdPartial } from '@shapeshiftoss/types'
+import { bnOrZero } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import { v4 as uuid } from 'uuid'
 import type { Address } from 'viem'
-import { fromHex, isAddress } from 'viem'
+import { isAddress } from 'viem'
 
 import { getDefaultSlippageDecimalPercentageForSwapper } from '../../../constants'
 import type {
@@ -104,7 +105,7 @@ export async function getBebopTradeQuote(
     to: quote.tx.to,
     data: quote.tx.data,
     value: quote.tx.value,
-    gas: quote.tx.gas,
+    gas: quote.tx.gas?.toString(),
   }
 
   const rate = calculateRate({ buyAmount, sellAmount, buyAsset, sellAsset })
@@ -115,13 +116,12 @@ export async function getBebopTradeQuote(
 
   try {
     const adapter = assertGetEvmChainAdapter(chainId)
-    const { average } = await adapter.getGasFeeData()
+    const { fast } = await adapter.getGasFeeData()
 
-    // Convert gas limit from hex to decimal string (Bebop returns hex values)
-    const gasLimitFromQuote = quote.tx.gas ? fromHex(quote.tx.gas, 'bigint').toString() : '0'
+    const gasLimitFromQuote = bnOrZero(quote.tx.gas).toString()
 
     const networkFeeCryptoBaseUnit = evm.calcNetworkFeeCryptoBaseUnit({
-      ...average,
+      ...fast,
       supportsEIP1559: Boolean(supportsEIP1559),
       gasLimit: gasLimitFromQuote,
     })

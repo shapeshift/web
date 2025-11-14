@@ -1,6 +1,7 @@
 import type { ChainId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import type { EvmChainAdapter } from '@shapeshiftoss/chain-adapters'
+import { evm } from '@shapeshiftoss/chain-adapters'
 import type { KnownChainIds } from '@shapeshiftoss/types'
 import { bn, bnOrZero } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
@@ -142,7 +143,11 @@ export async function getPortalsTradeRate(
     const gasLimit = quoteEstimateResponse.context.gasLimit
     const { average } = await adapter.getGasFeeData()
 
-    const networkFeeCryptoBaseUnit = bnOrZero(average.gasPrice).times(gasLimit).toFixed(0)
+    const networkFeeCryptoBaseUnit = evm.calcNetworkFeeCryptoBaseUnit({
+      ...average,
+      supportsEIP1559: Boolean(input.supportsEIP1559),
+      gasLimit: gasLimit.toString(),
+    })
 
     const tradeRate = {
       id: uuid(),

@@ -83,7 +83,8 @@ export type BebopQuoteRoute = {
       from: Address
       data: Hex
       value: Hex
-      gas?: Hex
+      gas?: number
+      gasPrice?: number
     }
     partnerFee?: Record<Address, string>
     protocolFee?: Record<Address, string>

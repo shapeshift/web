@@ -1099,6 +1099,8 @@
       "qrCode": "QR Code",
       "addressBook": "Address Book",
       "noEntries": "No address found.",
+      "yourWallets": "Your Wallets",
+      "noInternalAccounts": "No accounts found.",
       "addNewAddress": "Add New Address",
       "addAddress": {
         "nameRequired": "Name is required",
@@ -1921,6 +1923,10 @@
         "noAccountsForChain": {
           "title": "Chain not supported",
           "description": "No %{chainLabel} account connected to this dApp."
+        },
+        "sessionAuth": {
+          "invalidRequest": "Invalid authentication request",
+          "formatError": "Error formatting authentication message"
         }
       }
     }

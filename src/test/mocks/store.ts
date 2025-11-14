@@ -160,6 +160,7 @@ export const mockStore: ReduxState = {
       MayaSwap: false,
       ButterSwap: false,
       BebopSwap: false,
+      NearIntentsSwap: false,
       LazyTxHistory: false,
       RfoxFoxEcosystemPage: false,
       QuickBuy: false,

@@ -1,16 +1,11 @@
-import type {
-  GetWalletNFTsResponseAdapter,
-  GetWalletTokenBalancesResponseAdapter,
-} from '@moralisweb3/common-evm-utils'
 import { EvmChain } from '@moralisweb3/common-evm-utils'
-import type { AccountId, AssetId } from '@shapeshiftoss/caip'
+import type { AssetId } from '@shapeshiftoss/caip'
 import {
   arbitrumChainId,
   avalancheChainId,
   baseChainId,
   bscChainId,
   ethChainId,
-  fromAccountId,
   fromAssetId,
   gnosisChainId,
   isNft,
@@ -39,50 +34,6 @@ export const CHAIN_ID_TO_MORALIS_CHAIN = {
   [gnosisChainId]: EvmChain.GNOSIS,
   [avalancheChainId]: EvmChain.AVALANCHE,
 }
-
-export type MoralisErc20Account = ReturnType<GetWalletTokenBalancesResponseAdapter['toJSON']>
-
-export type MoralisNftAccount = ReturnType<GetWalletNFTsResponseAdapter['toJSON']>
-
-export const getMoralisErc20Account =
-  (accountId: AccountId) => async (): Promise<MoralisErc20Account | null> => {
-    try {
-      const chain = CHAIN_ID_TO_MORALIS_CHAIN[fromAccountId(accountId).chainId]
-      if (!chain) return null
-
-      await startMoralis()
-
-      const balances = await Moralis.EvmApi.token.getWalletTokenBalances({
-        address: fromAccountId(accountId).account,
-        chain,
-      })
-
-      return balances.toJSON()
-    } catch (error) {
-      console.error('Error fetching Moralis ERC20 account data:', error)
-      return null
-    }
-  }
-
-export const getMoralisNftAccount =
-  (accountId: AccountId) => async (): Promise<MoralisNftAccount | null> => {
-    try {
-      const chain = CHAIN_ID_TO_MORALIS_CHAIN[fromAccountId(accountId).chainId]
-      if (!chain) return null
-
-      await startMoralis()
-
-      const balances = await Moralis.EvmApi.nft.getWalletNFTs({
-        address: fromAccountId(accountId).account,
-        chain,
-      })
-
-      return balances.toJSON()
-    } catch (error) {
-      console.error('Error fetching Moralis account data:', error)
-      return null
-    }
-  }
 
 export const moralisReportSpam = async (assetId: AssetId) => {
   try {

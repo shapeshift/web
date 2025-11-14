@@ -7,7 +7,7 @@ import { Amount } from '@/components/Amount/Amount'
 import { Text } from '@/components/Text'
 import type { TextPropTypes } from '@/components/Text/Text'
 import { StandardToast } from '@/components/Toast/StandardToast'
-import { firstFourLastFour } from '@/lib/utils'
+import { middleEllipsis } from '@/lib/utils'
 import {
   selectAssetById,
   selectWalletGenericTransactionActionsSorted,
@@ -65,7 +65,7 @@ export const GenericTransactionNotification = ({
         // Then override with computed/transformed values
         amount: action.transactionMetadata.amountCryptoPrecision, // Map to 'amount' for translation strings
         symbol: asset.symbol, // Symbol comes from asset, not metadata
-        newAddress: firstFourLastFour(action.transactionMetadata.newAddress ?? ''), // Formatted version
+        newAddress: middleEllipsis(action.transactionMetadata.newAddress ?? ''), // Formatted version
       },
     ] as [string, Record<string, string | number | undefined>]
   }, [action, asset])

@@ -14,7 +14,6 @@ import {
 import type { Bip44Params, RootBip44Params, UtxoChainId } from '@shapeshiftoss/types'
 import { KnownChainIds, UtxoAccountType } from '@shapeshiftoss/types'
 import type * as unchained from '@shapeshiftoss/unchained-client'
-import { isSome } from '@shapeshiftoss/utils'
 import WAValidator from 'multicoin-address-validator'
 import PQueue from 'p-queue'
 
@@ -513,21 +512,18 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
     )
 
     const transactions = await Promise.all(
-      data.txs.map(tx => {
-        if (input.knownTxIds?.has(tx.txid)) {
-          return null
-        }
-
-        return requestQueue.add(() => this.parseTx(tx, input.pubkey))
-      }),
+      data.txs.reduce<Promise<Transaction>[]>((prev, tx) => {
+        if (input.knownTxIds?.has(tx.txid)) return prev
+        prev.push(requestQueue.add(() => this.parseTx(tx, input.pubkey)))
+        return prev
+      }, []),
     )
-
-    const filteredTransactions = transactions.filter(isSome)
 
     return {
       cursor: data.cursor ?? '',
       pubkey: input.pubkey,
-      transactions: filteredTransactions,
+      transactions,
+      txIds: data.txs.map(tx => tx.txid),
     }
   }
 

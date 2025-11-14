@@ -128,7 +128,6 @@ export const mockStore: ReduxState = {
       ThorchainSwapLongtail: false,
       ThorchainSwapL1ToLongtail: false,
       AccountManagement: false,
-      AccountManagementLedger: false,
       RFOX: false,
       RFOX_LP: false,
       CustomTokenImport: false,

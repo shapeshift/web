@@ -150,7 +150,6 @@ const validators = {
   VITE_FEATURE_THORCHAINSWAP_L1_TO_LONGTAIL: bool({ default: false }),
   VITE_FEATURE_SHAPESHIFT_MOBILE_WALLET: bool({ default: false }),
   VITE_FEATURE_ACCOUNT_MANAGEMENT: bool({ default: false }),
-  VITE_FEATURE_ACCOUNT_MANAGEMENT_LEDGER: bool({ default: false }),
   VITE_FEATURE_RFOX: bool({ default: false }),
   VITE_FEATURE_RFOX_LP: bool({ default: false }),
   VITE_FEATURE_USDT_APPROVAL_RESET: bool({ default: false }),

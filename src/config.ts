@@ -200,6 +200,7 @@ const validators = {
   VITE_TENDERLY_ACCOUNT_SLUG: str(),
   VITE_TENDERLY_PROJECT_SLUG: str(),
   VITE_TENDERLY_API_KEY: str(),
+  VITE_FEATURE_WEBSERVICES: bool({ default: false }),
   VITE_FEATURE_ADDRESS_BOOK: bool({ default: false }),
 }
 

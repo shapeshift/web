@@ -173,6 +173,8 @@ interface ImportMetaEnv {
   readonly VITE_SOLANA_NODE_URL: string
   readonly VITE_THORCHAIN_MIDGARD_URL: string
   readonly VITE_MAYACHAIN_MIDGARD_URL: string
+  readonly VITE_SWAPS_SERVER_URL: string
+  readonly VITE_FEATURE_WEBSERVICES: string
 
   // Only present in *some* envs
   readonly VITE_MIXPANEL_TOKEN?: string

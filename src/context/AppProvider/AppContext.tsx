@@ -21,6 +21,7 @@ import { useMixpanelPortfolioTracking } from '@/hooks/useMixpanelPortfolioTracki
 import { useModal } from '@/hooks/useModal/useModal'
 import { useRouteAssetId } from '@/hooks/useRouteAssetId/useRouteAssetId'
 import { useTransactionsSubscriber } from '@/hooks/useTransactionsSubscriber'
+import { useUser } from '@/hooks/useUser/useUser'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { walletSupportsChain } from '@/hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { useGetFiatRampsQuery } from '@/state/apis/fiatRamps/fiatRamps'
@@ -73,6 +74,9 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   useSnapStatusHandler()
   // Handle Ledger device connection state and wallet disconnection
   useLedgerConnectionState()
+
+  // Initialize user system
+  useUser()
 
   useEffect(() => {
     const handleLedgerOpenApp = ({ chainId, reject }: LedgerOpenAppEventArgs) => {

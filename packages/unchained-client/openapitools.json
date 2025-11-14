@@ -149,7 +149,7 @@
         }
       },
       "arbitrum": {
-        "inputSpec": "https://raw.githubusercontent.com/shapeshift/unchained/2551305/node/coinstacks/arbitrum/api/src/swagger.json",
+        "inputSpec": "https://raw.githubusercontent.com/shapeshift/unchained/develop/node/coinstacks/arbitrum/api/src/swagger.json",
         "generatorName": "typescript-fetch",
         "output": "#{cwd}/src/generated/arbitrum",
         "enablePostProcessFile": true,

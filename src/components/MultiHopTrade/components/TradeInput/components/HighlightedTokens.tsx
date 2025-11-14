@@ -36,6 +36,7 @@ const emptyIcon = <RiExchangeFundsLine color='pink.200' />
 const HIGHLIGHTED_TOKENS_LIMIT = 10
 
 export const HighlightedTokens = () => {
+  "use no memo"
   const dispatch = useAppDispatch()
   const assetsById = useAppSelector(selectAssets)
   const [isCategoryDialogOpen, setIsCategoryDialogOpen] = useState(false)

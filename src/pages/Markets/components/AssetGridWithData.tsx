@@ -23,6 +23,7 @@ export const AssetGridWithData = ({
   orderBy?: OrderDirection
   sortBy?: SortOptionsKeys
 }) => {
+  "use no memo"
   const { ref, inView } = useInView()
   const dataQuery = CATEGORY_TO_QUERY_HOOK[category]
 

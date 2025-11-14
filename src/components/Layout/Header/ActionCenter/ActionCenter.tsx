@@ -55,6 +55,9 @@ const INCREASE_VIEWPORT_BY = {
 }
 
 export const ActionCenter = memo(() => {
+  "use no memo"
+  // TODO: Refactor to conform to Rules of React - fix dependency array issues in renderActionCard,
+  // stabilize actions array from selector, and remove setState from useMemo dependencies
   const { isDrawerOpen, openActionCenter, closeDrawer } = useActionCenterContext()
   const { modalContentProps, overlayProps, modalProps } = useModalRegistration({
     isOpen: isDrawerOpen,

@@ -84,6 +84,7 @@ const RowWrap = <T extends {}>({
   renderSubComponent?: (row: Row<T>) => React.ReactNode
   visibleColumns: ColumnInstance<T>[]
 }) => {
+  "use no memo"
   const handleClick = useCallback(() => {
     onRowClick?.(row)
   }, [onRowClick, row])
@@ -146,6 +147,7 @@ export const ReactTable = <T extends {}>({
   showPagination = true,
   onPageChange,
 }: ReactTableProps<T>) => {
+  "use no memo"
   const translate = useTranslate()
   const tableRef = useRef<HTMLTableElement | null>(null)
   const hoverColor = useColorModeValue('black', 'white')

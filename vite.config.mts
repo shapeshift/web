@@ -85,7 +85,7 @@ export default defineConfig(({ mode }) => {
             [
               'babel-plugin-react-compiler',
               {
-                compilationMode: 'annotation', // Enable opt-in mode with "use memo" directive
+                compilationMode: 'infer', // Auto-compile components following Rules of React
               },
             ],
           ],

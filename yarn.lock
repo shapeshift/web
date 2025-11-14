@@ -11051,7 +11051,6 @@ __metadata:
     eslint-plugin-import: ^2.31.0
     eslint-plugin-prettier: ^5.0.0
     eslint-plugin-react-hooks: 7.0.1
-    eslint-plugin-react-memo: ^0.0.3
     eslint-plugin-simple-import-sort: ^10.0.0
     eth-url-parser: ^1.0.4
     ethers: 6.11.1
@@ -20177,13 +20176,6 @@ __metadata:
   peerDependencies:
     eslint: ^3.0.0 || ^4.0.0 || ^5.0.0 || ^6.0.0 || ^7.0.0 || ^8.0.0-0
   checksum: 395c433610f59577cfcf3f2e42bcb130436c8a0b3777ac64f441d88c5275f4fcfc89094cedab270f2822daf29af1079151a7a6579a8e9ea8cee66540ba0384c4
-  languageName: node
-  linkType: hard
-
-"eslint-plugin-react-memo@npm:^0.0.3":
-  version: 0.0.3
-  resolution: "eslint-plugin-react-memo@npm:0.0.3"
-  checksum: fe144c34993ba1ca9fdaeee7a0eb85179b450d289891eb79ab73e25981b194e0951491bb4fe04814b176de57c7949db6c2f206390300b5b085837286692b990e
   languageName: node
   linkType: hard
 

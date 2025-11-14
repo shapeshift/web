@@ -3,6 +3,7 @@ import { evm } from '@shapeshiftoss/chain-adapters'
 import { bn, bnOrZero, contractAddressOrUndefined, isToken } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
+import type { Address, Hex } from 'viem'
 import { v4 as uuid } from 'uuid'
 
 import { getDefaultSlippageDecimalPercentageForSwapper } from '../../../constants'
@@ -15,6 +16,7 @@ import type {
 } from '../../../types'
 import { SwapperName, TradeQuoteError } from '../../../types'
 import { makeSwapErrorRight } from '../../../utils'
+import { simulateWithStateOverrides } from '../../../utils/tenderly'
 import { isNativeEvmAsset } from '../../utils/helpers/helpers'
 import { DEFAULT_QUOTE_DEADLINE_MS, DEFAULT_SLIPPAGE_BPS } from '../constants'
 import type { QuoteResponse } from '../types'
@@ -83,21 +85,45 @@ export const getTradeRate = async (
       switch (chainNamespace) {
         case CHAIN_NAMESPACE.Evm: {
           try {
-            const sellAdapter = deps.assertGetEvmChainAdapter(sellAsset.chainId)
             const contractAddress = contractAddressOrUndefined(sellAsset.assetId)
             const data = evm.getErc20Data(depositAddress, sellAmount, contractAddress)
 
-            const feeData = await sellAdapter.getFeeData({
-              to: contractAddress ?? depositAddress,
-              value: isNativeEvmAsset(sellAsset.assetId) ? sellAmount : '0',
-              chainSpecific: {
-                from: sendAddress || depositAddress,
-                contractAddress,
-                data: data || '0x',
+            // Use Tenderly simulation with state overrides for accurate gas estimation
+            // This works even when the user lacks sufficient balance
+            const chainIdNumber = Number(fromAssetId(sellAsset.assetId).chainReference)
+
+            const simulationResult = await simulateWithStateOverrides(
+              {
+                chainId: chainIdNumber,
+                from: (sendAddress || depositAddress) as Address,
+                to: (contractAddress ?? depositAddress) as Address,
+                data: (data || '0x') as Hex,
+                value: isNativeEvmAsset(sellAsset.assetId) ? sellAmount : '0',
+                sellAsset,
+                sellAmount,
               },
-              sendMax: false,
+              {
+                apiKey: deps.config.VITE_TENDERLY_API_KEY,
+                accountSlug: deps.config.VITE_TENDERLY_ACCOUNT_SLUG,
+                projectSlug: deps.config.VITE_TENDERLY_PROJECT_SLUG,
+              },
+            )
+
+            if (!simulationResult.success) {
+              return '0'
+            }
+
+            // Calculate network fee using the simulated gas limit
+            const sellAdapter = deps.assertGetEvmChainAdapter(sellAsset.chainId)
+            const { fast } = await sellAdapter.getGasFeeData()
+
+            const networkFeeCryptoBaseUnit = evm.calcNetworkFeeCryptoBaseUnit({
+              ...fast,
+              supportsEIP1559: true,
+              gasLimit: simulationResult.gasLimit.toString(),
             })
-            return feeData.fast.txFee
+
+            return networkFeeCryptoBaseUnit
           } catch (error) {
             return '0'
           }

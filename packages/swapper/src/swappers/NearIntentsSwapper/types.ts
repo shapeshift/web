@@ -11,14 +11,13 @@ export const nearIntentsSupportedChainIds = [
   KnownChainIds.ArbitrumMainnet,
   KnownChainIds.BaseMainnet,
   KnownChainIds.GnosisMainnet,
+  KnownChainIds.BnbSmartChainMainnet,
+  KnownChainIds.PolygonMainnet,
+  KnownChainIds.AvalancheMainnet,
+  KnownChainIds.OptimismMainnet,
   KnownChainIds.BitcoinMainnet,
   KnownChainIds.DogecoinMainnet,
   KnownChainIds.SolanaMainnet,
-  // TODO(gomes): NEP-245 support - https://github.com/shapeshift/web/issues/11020
-  // KnownChainIds.BnbSmartChainMainnet,
-  // KnownChainIds.PolygonMainnet,
-  // KnownChainIds.AvalancheMainnet,
-  // KnownChainIds.OptimismMainnet,
 ] as const
 
 export type NearIntentsSupportedChainId = (typeof nearIntentsSupportedChainIds)[number]
@@ -28,6 +27,10 @@ export const chainIdToNearIntentsChain: Record<NearIntentsSupportedChainId, stri
   [KnownChainIds.ArbitrumMainnet]: 'arb',
   [KnownChainIds.BaseMainnet]: 'base',
   [KnownChainIds.GnosisMainnet]: 'gnosis',
+  [KnownChainIds.BnbSmartChainMainnet]: 'bsc',
+  [KnownChainIds.PolygonMainnet]: 'pol',
+  [KnownChainIds.AvalancheMainnet]: 'avax',
+  [KnownChainIds.OptimismMainnet]: 'op',
   [KnownChainIds.BitcoinMainnet]: 'btc',
   [KnownChainIds.DogecoinMainnet]: 'doge',
   [KnownChainIds.SolanaMainnet]: 'sol',

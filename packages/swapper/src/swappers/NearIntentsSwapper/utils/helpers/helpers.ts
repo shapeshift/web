@@ -6,7 +6,7 @@ import { bnOrZero, isToken } from '@shapeshiftoss/utils'
 import type { TransactionInstruction } from '@solana/web3.js'
 import { zeroAddress } from 'viem'
 
-import type { GetExecutionStatusResponse } from '../../types'
+import type { GetExecutionStatusResponse, TokenResponse } from '../../types'
 import { chainIdToNearIntentsChain } from '../../types'
 import { OneClickService } from '../oneClickService'
 
@@ -39,6 +39,8 @@ export const getNearIntentsAsset = ({
   return `nep141:${nearNetwork}-${contractAddress.toLowerCase()}.omft.near`
 }
 
+const NEP245_CHAINS = ['bsc', 'pol', 'avax', 'op'] as const
+
 export const assetToNearIntentsAsset = async (asset: Asset): Promise<string> => {
   const nearNetwork =
     chainIdToNearIntentsChain[asset.chainId as keyof typeof chainIdToNearIntentsChain]
@@ -47,22 +49,34 @@ export const assetToNearIntentsAsset = async (asset: Asset): Promise<string> => 
     throw new Error(`Unsupported chain for NEAR Intents: ${asset.chainId}`)
   }
 
-  // Solana tokens need lookup from /v0/tokens
-  // Unlike other chains, Solana token IDs can't be generated from contract addresses
-  // because NEAR Intents uses their own internal token registry for Solana SPL tokens
-  if (asset.chainId === solanaChainId && isToken(asset.assetId)) {
+  // NEP-245 chains (BSC, Polygon, Avalanche, Optimism) and Solana require token lookup
+  // Asset IDs use hashed format that can't be generated from contract addresses
+  const requiresLookup =
+    NEP245_CHAINS.includes(nearNetwork as any) || asset.chainId === solanaChainId
+
+  if (requiresLookup) {
     const tokens = await OneClickService.getTokens()
-    const solanaAddress = fromAssetId(asset.assetId).assetReference
-    const match = tokens.find(t => t.blockchain === 'sol' && t.contractAddress === solanaAddress)
+    const contractAddress = isToken(asset.assetId)
+      ? fromAssetId(asset.assetId).assetReference.toLowerCase()
+      : null
+
+    const match = tokens.find((t: TokenResponse) => {
+      if (t.blockchain !== nearNetwork) return false
+      return contractAddress
+        ? t.contractAddress?.toLowerCase() === contractAddress
+        : !t.contractAddress
+    })
 
     if (!match) {
-      throw new Error(`Solana token not found in NEAR Intents: ${solanaAddress}`)
+      throw new Error(
+        `Token not found in NEAR Intents: ${asset.chainId} ${contractAddress || 'native'}`,
+      )
     }
 
     return match.assetId
   }
 
-  // For all other chains: use predictable NEP-141 format
+  // NEP-141 chains (ETH, ARB, BASE, GNOSIS, BTC, DOGE): use predictable format
   const contractAddress = isToken(asset.assetId)
     ? fromAssetId(asset.assetId).assetReference
     : zeroAddress

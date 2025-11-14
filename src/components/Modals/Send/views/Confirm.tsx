@@ -172,7 +172,7 @@ export const Confirm = ({ handleSubmit }: ConfirmProps) => {
           </CText>
           <InlineCopyButton value={to ?? ''}>
             <MiddleEllipsis
-              value={to ?? ''}
+              value={to?.replace('bitcoincash:', '') ?? ''}
               fontSize='sm'
               color='text.subtle'
               fontWeight='normal'
@@ -190,7 +190,7 @@ export const Confirm = ({ handleSubmit }: ConfirmProps) => {
           </CText>
           <InlineCopyButton value={to ?? ''}>
             <MiddleEllipsis
-              value={to ?? ''}
+              value={to?.replace('bitcoincash:', '') ?? ''}
               fontSize='sm'
               color='text.subtle'
               fontWeight='normal'
@@ -208,7 +208,7 @@ export const Confirm = ({ handleSubmit }: ConfirmProps) => {
           </CText>
           <InlineCopyButton value={to ?? ''}>
             <MiddleEllipsis
-              value={to ?? ''}
+              value={to?.replace('bitcoincash:', '') ?? ''}
               fontSize='sm'
               color='text.subtle'
               fontWeight='normal'

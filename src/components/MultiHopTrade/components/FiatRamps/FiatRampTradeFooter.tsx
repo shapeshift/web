@@ -1,6 +1,5 @@
 import type { CardFooterProps, FlexProps } from '@chakra-ui/react'
 import { CardFooter, Flex, useMediaQuery } from '@chakra-ui/react'
-import { fromAccountId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import noop from 'lodash/noop'
 import type { JSX } from 'react'
@@ -11,6 +10,7 @@ import { FiatRampAction } from '@/components/Modals/FiatRamps/FiatRampsCommon'
 import { RateGasRow } from '@/components/MultiHopTrade/components/RateGasRow'
 import { SharedRecipientAddress } from '@/components/MultiHopTrade/components/SharedTradeInput/SharedRecipientAddress'
 import { Protocol } from '@/components/MultiHopTrade/components/TradeInput/components/Protocol'
+import { useReceiveAddress } from '@/components/MultiHopTrade/hooks/useReceiveAddress'
 import { Text } from '@/components/Text'
 import { useDiscoverAccounts } from '@/context/AppProvider/hooks/useDiscoverAccounts'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
@@ -97,16 +97,18 @@ export const FiatRampTradeFooter = ({
   const sellFiatCurrency = useAppSelector(selectSellFiatCurrency)
   const buyFiatCurrency = useAppSelector(selectBuyFiatCurrency)
 
+  const { walletReceiveAddress, isLoading: isWalletReceiveAddressLoading } = useReceiveAddress({
+    sellAccountId: undefined,
+    buyAccountId,
+    buyAsset,
+  })
+
   const [isSmallerThanXl] = useMediaQuery(`(max-width: ${breakpoints.xl})`, { ssr: false })
 
   const selectedQuote = useMemo(
     () => (direction === FiatRampAction.Buy ? selectedBuyQuote : selectedSellQuote),
     [direction, selectedBuyQuote, selectedSellQuote],
   )
-
-  const walletReceiveAddress = useMemo(() => {
-    return buyAccountId ? fromAccountId(buyAccountId).account : undefined
-  }, [buyAccountId])
 
   const { isFetching: isDiscoveringAccounts } = useDiscoverAccounts()
 
@@ -227,7 +229,7 @@ export const FiatRampTradeFooter = ({
         {direction === FiatRampAction.Buy && buyAsset && (
           <SharedRecipientAddress
             buyAsset={buyAsset}
-            isWalletReceiveAddressLoading={false}
+            isWalletReceiveAddressLoading={isWalletReceiveAddressLoading}
             walletReceiveAddress={walletReceiveAddress}
             manualReceiveAddress={manualReceiveAddress}
             onCancel={handleCancel}

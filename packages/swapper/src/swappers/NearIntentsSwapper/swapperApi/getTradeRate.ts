@@ -3,8 +3,8 @@ import { evm } from '@shapeshiftoss/chain-adapters'
 import { bn, bnOrZero, contractAddressOrUndefined, isToken } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
-import type { Address, Hex } from 'viem'
 import { v4 as uuid } from 'uuid'
+import type { Address, Hex } from 'viem'
 
 import { getDefaultSlippageDecimalPercentageForSwapper } from '../../../constants'
 import type {

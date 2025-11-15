@@ -41,13 +41,11 @@ export const getNearIntentsAsset = ({
 
 const NEP245_CHAINS = ['bsc', 'pol', 'avax', 'op'] as const
 
-export const assetToNearIntentsAsset = async (asset: Asset): Promise<string> => {
+export const assetToNearIntentsAsset = async (asset: Asset): Promise<string | null> => {
   const nearNetwork =
     chainIdToNearIntentsChain[asset.chainId as keyof typeof chainIdToNearIntentsChain]
 
-  if (!nearNetwork) {
-    throw new Error(`Unsupported chain for NEAR Intents: ${asset.chainId}`)
-  }
+  if (!nearNetwork) return null
 
   // NEP-245 chains (BSC, Polygon, Avalanche, Optimism) and Solana require token lookup
   // Asset IDs use hashed format that can't be generated from contract addresses
@@ -67,11 +65,7 @@ export const assetToNearIntentsAsset = async (asset: Asset): Promise<string> => 
         : !t.contractAddress
     })
 
-    if (!match) {
-      throw new Error(
-        `Token not found in NEAR Intents: ${asset.chainId} ${contractAddress || 'native'}`,
-      )
-    }
+    if (!match) return null
 
     return match.assetId
   }

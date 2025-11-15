@@ -42,6 +42,15 @@ export const getTradeRate = async (
     const originAsset = await assetToNearIntentsAsset(sellAsset)
     const destinationAsset = await assetToNearIntentsAsset(buyAsset)
 
+    if (!(originAsset && destinationAsset)) {
+      return Err(
+        makeSwapErrorRight({
+          code: TradeQuoteError.UnsupportedTradePair,
+          message: 'Unsupported asset',
+        }),
+      )
+    }
+
     // Wallet connected: use actual addresses
     // No wallet: use "check-price" sentinel with INTENTS types
     const hasWallet = sendAddress !== undefined
@@ -68,23 +77,7 @@ export const getTradeRate = async (
       // TODO(gomes): appFees disabled - https://github.com/shapeshift/web/issues/11022
     }
 
-    const quoteResponse: QuoteResponse = await OneClickService.getQuote(quoteRequest).catch(
-      (error: unknown) => {
-        if (error instanceof ApiError) {
-          if (
-            error.body?.message === 'tokenIn is not valid' ||
-            error.body?.message === 'tokenOut is not valid'
-          ) {
-            throw new Error(
-              `Token not found in NEAR Intents: ${
-                error.body.message === 'tokenIn is not valid' ? sellAsset.assetId : buyAsset.assetId
-              }`,
-            )
-          }
-        }
-        throw error
-      },
-    )
+    const quoteResponse: QuoteResponse = await OneClickService.getQuote(quoteRequest)
 
     const { quote } = quoteResponse
 
@@ -212,13 +205,16 @@ export const getTradeRate = async (
 
     return Ok([tradeRate])
   } catch (error) {
-    // Check if this is an unsupported asset error
-    if (error instanceof Error && error.message.includes('Token not found in NEAR Intents')) {
+    // Check if this is an unsupported asset error from the API
+    if (
+      error instanceof ApiError &&
+      (error.body?.message === 'tokenIn is not valid' ||
+        error.body?.message === 'tokenOut is not valid')
+    ) {
       return Err(
         makeSwapErrorRight({
-          message: error.message,
           code: TradeQuoteError.UnsupportedTradePair,
-          cause: error,
+          message: 'Unsupported asset',
         }),
       )
     }

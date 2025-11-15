@@ -237,7 +237,6 @@ export const getTradeQuote = async (
   } catch (error) {
     console.error('[NEAR Intents] getTradeQuote error:', error)
 
-    // Check if this is an unsupported asset error from the API
     if (
       error instanceof ApiError &&
       (error.body?.message === 'tokenIn is not valid' ||

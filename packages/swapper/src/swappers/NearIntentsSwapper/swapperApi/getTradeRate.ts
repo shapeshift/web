@@ -205,7 +205,6 @@ export const getTradeRate = async (
 
     return Ok([tradeRate])
   } catch (error) {
-    // Check if this is an unsupported asset error from the API
     if (
       error instanceof ApiError &&
       (error.body?.message === 'tokenIn is not valid' ||

@@ -143,6 +143,7 @@ export type Preferences = {
     selectedChainId: ChainId | 'all'
   }
   hasSeenRatingModal: boolean
+  showTopAssetsCarousel: boolean
 }
 
 const initialState: Preferences = {
@@ -246,6 +247,7 @@ const initialState: Preferences = {
     selectedChainId: 'all',
   },
   hasSeenRatingModal: false,
+  showTopAssetsCarousel: true,
 }
 
 export const preferences = createSlice({
@@ -355,6 +357,9 @@ export const preferences = createSlice({
     setHasSeenRatingModal: create.reducer((state, _) => {
       state.hasSeenRatingModal = true
     }),
+    setShowTopAssetsCarousel: create.reducer((state, { payload }: { payload: boolean }) => {
+      state.showTopAssetsCarousel = payload
+    }),
     setQuickBuyPreferences: create.reducer((state, { payload }: { payload: number[] }) => {
       state.quickBuyAmounts = payload
     }),
@@ -376,6 +381,7 @@ export const preferences = createSlice({
     selectHasWalletSeenTcyClaimAlert: state => state.hasWalletSeenTcyClaimAlert,
     selectHighlightedTokensFilters: state => state.highlightedTokensFilters,
     selectHasSeenRatingModal: state => state.hasSeenRatingModal,
+    selectShowTopAssetsCarousel: state => state.showTopAssetsCarousel,
     selectQuickBuyAmounts: state => state.quickBuyAmounts,
   },
 })

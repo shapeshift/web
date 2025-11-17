@@ -169,6 +169,7 @@ export const mockStore: ReduxState = {
       LedgerReadOnly: false,
       AddressBook: false,
     },
+    showTopAssetsCarousel: true,
     quickBuyAmounts: [10, 50, 100],
     quoteDisplayOption: QuoteDisplayOption.Basic,
     selectedLocale: 'en',

@@ -23,7 +23,7 @@ import { getInputOutputRate, makeSwapErrorRight } from '../../../utils'
 import { simulateWithStateOverrides } from '../../../utils/tenderly'
 import { getTreasuryAddressFromChainId, isNativeEvmAsset } from '../../utils/helpers/helpers'
 import { chainIdToPortalsNetwork } from '../constants'
-import { fetchPortalsTradeOrder } from '../utils/fetchPortalsTradeOrder'
+import { fetchPortalsTradeEstimate, fetchPortalsTradeOrder } from '../utils/fetchPortalsTradeOrder'
 import { getPortalsRouterAddressByChainId, isSupportedChainId } from '../utils/helpers'
 
 export async function getPortalsTradeRate(
@@ -162,38 +162,52 @@ export async function getPortalsTradeRate(
 
     const slippageTolerancePercentageDecimal = actualBufferDecimal
 
-    // Use Tenderly simulation with state overrides
+    // Use Tenderly simulation with state overrides, fallback to estimate endpoint
     const chainIdNumber = Number(fromAssetId(sellAsset.assetId).chainReference)
 
-    const tenderlySimulation = await simulateWithStateOverrides(
-      {
-        chainId: chainIdNumber,
-        from: tx.from,
-        to: tx.to,
-        data: tx.data as Hex,
-        value: tx.value,
-        sellAsset,
-        spenderAddress: context.target as Address,
-      },
-      {
-        apiKey: swapperConfig.VITE_TENDERLY_API_KEY,
-        accountSlug: swapperConfig.VITE_TENDERLY_ACCOUNT_SLUG,
-        projectSlug: swapperConfig.VITE_TENDERLY_PROJECT_SLUG,
-      },
-    )
+    const gasLimit = await (async () => {
+      const tenderlySimulation = await simulateWithStateOverrides(
+        {
+          chainId: chainIdNumber,
+          from: tx.from,
+          to: tx.to,
+          data: tx.data as Hex,
+          value: tx.value,
+          sellAsset,
+          spenderAddress: context.target as Address,
+        },
+        {
+          apiKey: swapperConfig.VITE_TENDERLY_API_KEY,
+          accountSlug: swapperConfig.VITE_TENDERLY_ACCOUNT_SLUG,
+          projectSlug: swapperConfig.VITE_TENDERLY_PROJECT_SLUG,
+        },
+      )
 
-    if (!tenderlySimulation.success) {
-      throw new Error(`Tenderly simulation failed: ${tenderlySimulation.errorMessage}`)
-    }
+      if (tenderlySimulation.success) {
+        console.log('[Portals] Tenderly gasLimit:', tenderlySimulation.gasLimit.toString())
+        return tenderlySimulation.gasLimit.toString()
+      }
 
-    console.log('[Portals] Tenderly gasLimit:', tenderlySimulation.gasLimit.toString())
+      // Fallback to estimate endpoint (same as develop)
+      const quoteEstimateResponse = await fetchPortalsTradeEstimate({
+        inputToken,
+        outputToken,
+        inputAmount: sellAmountIncludingProtocolFeesCryptoBaseUnit,
+        slippageTolerancePercentage: userSlippageTolerancePercentageDecimalOrDefault,
+        partner: getTreasuryAddressFromChainId(chainId),
+        feePercentage: affiliateBpsPercentage,
+        swapperConfig,
+      })
+
+      return quoteEstimateResponse.context.gasLimit
+    })()
 
     const { average } = await adapter.getGasFeeData()
 
     const networkFeeCryptoBaseUnit = evm.calcNetworkFeeCryptoBaseUnit({
       ...average,
       supportsEIP1559: Boolean(supportsEIP1559),
-      gasLimit: tenderlySimulation.gasLimit.toString(),
+      gasLimit,
     })
 
     console.log('[Portals] Final network fee:', networkFeeCryptoBaseUnit)

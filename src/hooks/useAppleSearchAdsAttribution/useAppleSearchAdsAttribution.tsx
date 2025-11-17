@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 
-import { getAppleSearchAdsAttribution } from '@/context/WalletProvider/MobileWallet/mobileMessageHandlers'
+import { getAppleAttributionToken } from '@/context/WalletProvider/MobileWallet/mobileMessageHandlers'
 import { exchangeAppleSearchAdsToken } from '@/lib/appleSearchAds/exchangeToken'
 import { isMobile } from '@/lib/globals'
 import { trackAppleSearchAdsAttribution } from '@/lib/mixpanel/helpers'
@@ -39,8 +39,13 @@ export const useAppleSearchAdsAttribution = () => {
     const trackAttribution = async () => {
       try {
         // Request attribution data from the mobile app
-        const attribution = await getAppleSearchAdsAttribution()
+        const attribution = await getAppleAttributionToken()
 
+        alert(
+          JSON.stringify({
+            attribution,
+          }),
+        )
         // If we received a token, try to exchange it with Apple's API directly
         if (attribution?.type === 'token') {
           console.log('Attempting to exchange Apple Search Ads token from browser...')
@@ -71,6 +76,11 @@ export const useAppleSearchAdsAttribution = () => {
 
         setHasTracked(true)
       } catch (error) {
+        alert(
+          JSON.stringify({
+            error,
+          }),
+        )
         console.error('Failed to fetch Apple Search Ads attribution:', error)
       }
     }

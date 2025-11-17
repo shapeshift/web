@@ -56,7 +56,7 @@ type Message =
       cmd: 'getAppVersion'
     }
   | {
-      cmd: 'getAppleSearchAdsAttribution'
+      cmd: 'getAppleAttributionToken'
     }
 
 export type MessageFromMobileApp = {
@@ -253,6 +253,6 @@ export const requestAppVersion = (): Promise<MobileAppVersion | undefined> => {
  * This should be called once on app initialization to retrieve the attribution
  * data that the iOS app fetched from Apple's AdServices API.
  */
-export const getAppleSearchAdsAttribution = (): Promise<AppleSearchAdsAttribution | undefined> => {
-  return postMessage<AppleSearchAdsAttribution>({ cmd: 'getAppleSearchAdsAttribution' })
+export const getAppleAttributionToken = (): Promise<AppleSearchAdsAttribution | undefined> => {
+  return postMessage<AppleSearchAdsAttribution>({ cmd: 'getAppleAttributionToken' })
 }

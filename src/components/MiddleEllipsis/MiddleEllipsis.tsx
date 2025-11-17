@@ -1,7 +1,7 @@
 import type { FlexProps } from '@chakra-ui/react'
 import { Flex } from '@chakra-ui/react'
 
-import { firstFourLastFour } from '@/lib/utils'
+import { middleEllipsis } from '@/lib/utils'
 
 type MiddleEllipsisProps = {
   value: string
@@ -11,7 +11,7 @@ type MiddleEllipsisProps = {
 export const MiddleEllipsis = ({ value, shouldShorten = true, ...rest }: MiddleEllipsisProps) => {
   return (
     <Flex alignItems='center' whiteSpace='nowrap' {...rest}>
-      <span style={{ lineHeight: 1 }}>{shouldShorten ? firstFourLastFour(value) : value}</span>
+      <span style={{ lineHeight: 1 }}>{shouldShorten ? middleEllipsis(value) : value}</span>
     </Flex>
   )
 }

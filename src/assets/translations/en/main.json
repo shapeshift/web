@@ -191,7 +191,8 @@
     "approval": "Approval",
     "permit2Approval": "Permit2 Approval",
     "network": "Network",
-    "feeEstimate": "Fee Estimate"
+    "feeEstimate": "Fee Estimate",
+    "list": "List"
   },
   "accountSelector": {
     "chooseAccount": "Choose Account"
@@ -876,7 +877,12 @@
       "youGotMore": "You got %{cryptoUpside} more on this trade"
     },
     "networkFee": "Network Fee",
-    "feeExplainer": "Quote includes a %{feePercentage}% ShapeShift fee"
+    "feeExplainer": "Quote includes a %{feePercentage}% ShapeShift fee",
+    "topAssetsCarousel": {
+      "hide": "Hide",
+      "hiddenTitle": "Top Assets Carousel Hidden",
+      "hiddenDescription": "You can turn it back on in Settings"
+    }
   },
   "limitOrder": {
     "heading": "Limit",
@@ -1099,6 +1105,8 @@
       "qrCode": "QR Code",
       "addressBook": "Address Book",
       "noEntries": "No address found.",
+      "yourWallets": "Your Wallets",
+      "noInternalAccounts": "No accounts found.",
       "addNewAddress": "Add New Address",
       "addAddress": {
         "nameRequired": "Name is required",
@@ -1259,6 +1267,8 @@
       "language": "Language",
       "balanceThreshold": "Balance Threshold",
       "balanceThresholdTooltip": "On dashboard and charts, hide balances below this value",
+      "showTopAssetsCarousel": "Show Top Assets Carousel",
+      "showTopAssetsCarouselTooltip": "Show the top assets carousel at the bottom of the trade page",
       "currencies": {
         "CNY": "Chinese Yuan",
         "USD": "US Dollar",

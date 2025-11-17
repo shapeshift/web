@@ -30,6 +30,7 @@ import { csp as zeroX } from './defi/swappers/0x'
 import { csp as bebop } from './defi/swappers/Bebop'
 import { csp as butterSwap } from './defi/swappers/ButterSwap'
 import { csp as cowSwap } from './defi/swappers/CowSwap'
+import { csp as nearIntents } from './defi/swappers/NearIntents'
 import { csp as oneInch } from './defi/swappers/OneInch'
 import { csp as portals } from './defi/swappers/Portals'
 import { csp as thor } from './defi/swappers/Thor'
@@ -108,6 +109,7 @@ export const csps = [
   zeroX,
   bebop,
   cowSwap,
+  nearIntents,
   oneInch,
   portals,
   thor,

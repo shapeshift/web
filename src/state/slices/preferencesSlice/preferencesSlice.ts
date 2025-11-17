@@ -87,6 +87,7 @@ export type FeatureFlags = {
   MayaSwap: boolean
   ButterSwap: boolean
   BebopSwap: boolean
+  NearIntentsSwap: boolean
   LazyTxHistory: boolean
   RfoxFoxEcosystemPage: boolean
   LedgerReadOnly: boolean
@@ -143,6 +144,7 @@ export type Preferences = {
     selectedChainId: ChainId | 'all'
   }
   hasSeenRatingModal: boolean
+  showTopAssetsCarousel: boolean
 }
 
 const initialState: Preferences = {
@@ -215,6 +217,7 @@ const initialState: Preferences = {
     MayaSwap: getConfig().VITE_FEATURE_MAYA_SWAP,
     ButterSwap: getConfig().VITE_FEATURE_BUTTERSWAP,
     BebopSwap: getConfig().VITE_FEATURE_BEBOP_SWAP,
+    NearIntentsSwap: getConfig().VITE_FEATURE_NEAR_INTENTS_SWAP,
     LazyTxHistory: getConfig().VITE_FEATURE_TX_HISTORY_BYE_BYE,
     RfoxFoxEcosystemPage: getConfig().VITE_FEATURE_RFOX_FOX_ECOSYSTEM_PAGE,
     LedgerReadOnly: getConfig().VITE_FEATURE_LEDGER_READ_ONLY,
@@ -246,6 +249,7 @@ const initialState: Preferences = {
     selectedChainId: 'all',
   },
   hasSeenRatingModal: false,
+  showTopAssetsCarousel: true,
 }
 
 export const preferences = createSlice({
@@ -355,6 +359,9 @@ export const preferences = createSlice({
     setHasSeenRatingModal: create.reducer((state, _) => {
       state.hasSeenRatingModal = true
     }),
+    setShowTopAssetsCarousel: create.reducer((state, { payload }: { payload: boolean }) => {
+      state.showTopAssetsCarousel = payload
+    }),
     setQuickBuyPreferences: create.reducer((state, { payload }: { payload: number[] }) => {
       state.quickBuyAmounts = payload
     }),
@@ -376,6 +383,7 @@ export const preferences = createSlice({
     selectHasWalletSeenTcyClaimAlert: state => state.hasWalletSeenTcyClaimAlert,
     selectHighlightedTokensFilters: state => state.highlightedTokensFilters,
     selectHasSeenRatingModal: state => state.hasSeenRatingModal,
+    selectShowTopAssetsCarousel: state => state.showTopAssetsCarousel,
     selectQuickBuyAmounts: state => state.quickBuyAmounts,
   },
 })

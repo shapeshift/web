@@ -37,6 +37,7 @@ import { getConfig } from '@/config'
 import { queryClient } from '@/context/QueryClientProvider/queryClient'
 import { fetchIsSmartContractAddressQuery } from '@/hooks/useIsSmartContractAddress/useIsSmartContractAddress'
 import { poll } from '@/lib/poll/poll'
+import { getOrCreateUser } from '@/lib/user/api'
 import { selectCurrentSwap, selectWalletEnabledAccountIds } from '@/state/slices/selectors'
 import { swapSlice } from '@/state/slices/swapSlice/swapSlice'
 import { selectFirstHopSellAccountId } from '@/state/slices/tradeInputSlice/selectors'
@@ -167,34 +168,39 @@ export class TradeExecution {
       const isWebservicesEnabled = getConfig().VITE_FEATURE_WEBSERVICES
 
       if (isWebservicesEnabled) {
-        const enabledAccountIds = selectWalletEnabledAccountIds(store.getState())
-        const userData = queryClient.getQueryData<{ id: string }>(['user', enabledAccountIds])
-
-        queryClient.fetchQuery({
-          queryKey: ['createSwap', swap.id],
-          queryFn: () => {
-            return axios.post(`${import.meta.env.VITE_SWAPS_SERVER_URL}/swaps`, {
-              swapId: swap.id,
-              sellTxHash,
-              userId: userData?.id,
-              sellAsset: updatedSwap.sellAsset,
-              buyAsset: updatedSwap.buyAsset,
-              sellAmountCryptoBaseUnit: updatedSwap.sellAmountCryptoBaseUnit,
-              expectedBuyAmountCryptoBaseUnit: updatedSwap.expectedBuyAmountCryptoBaseUnit,
-              sellAmountCryptoPrecision: updatedSwap.sellAmountCryptoPrecision,
-              expectedBuyAmountCryptoPrecision: updatedSwap.expectedBuyAmountCryptoPrecision,
-              source: updatedSwap.source,
-              swapperName: updatedSwap.swapperName,
-              sellAccountId: accountId,
-              buyAccountId: accountId,
-              receiveAddress: updatedSwap.receiveAddress,
-              isStreaming: updatedSwap.isStreaming,
-              metadata: updatedSwap.metadata,
-            })
-          },
-          staleTime: 0,
-          gcTime: 0,
+        const walletEnabledAccountIds = selectWalletEnabledAccountIds(store.getState())
+        const userData = await queryClient.fetchQuery<{ id: string }>({
+          queryKey: ['user', walletEnabledAccountIds],
+          queryFn: () => getOrCreateUser({ accountIds: walletEnabledAccountIds }),
         })
+
+        if (userData) {
+          queryClient.fetchQuery({
+            queryKey: ['createSwap', swap.id],
+            queryFn: () => {
+              return axios.post(`${import.meta.env.VITE_SWAPS_SERVER_URL}/swaps`, {
+                swapId: swap.id,
+                sellTxHash,
+                userId: userData?.id,
+                sellAsset: updatedSwap.sellAsset,
+                buyAsset: updatedSwap.buyAsset,
+                sellAmountCryptoBaseUnit: updatedSwap.sellAmountCryptoBaseUnit,
+                expectedBuyAmountCryptoBaseUnit: updatedSwap.expectedBuyAmountCryptoBaseUnit,
+                sellAmountCryptoPrecision: updatedSwap.sellAmountCryptoPrecision,
+                expectedBuyAmountCryptoPrecision: updatedSwap.expectedBuyAmountCryptoPrecision,
+                source: updatedSwap.source,
+                swapperName: updatedSwap.swapperName,
+                sellAccountId: accountId,
+                buyAccountId: accountId,
+                receiveAddress: updatedSwap.receiveAddress,
+                isStreaming: updatedSwap.isStreaming,
+                metadata: updatedSwap.metadata,
+              })
+            },
+            staleTime: 0,
+            gcTime: 0,
+          })
+        }
       }
 
       const { cancelPolling } = poll({

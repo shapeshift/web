@@ -188,18 +188,17 @@ export async function getPortalsTradeRate(
         return tenderlySimulation.gasLimit.toString()
       }
 
-      // Fallback to estimate endpoint (same as develop)
+      // Fallback to estimate endpoint (i.e simulation with overrides failed, but Portals still able to do their magic here)
       const quoteEstimateResponse = await fetchPortalsTradeEstimate({
         inputToken,
         outputToken,
         inputAmount: sellAmountIncludingProtocolFeesCryptoBaseUnit,
         slippageTolerancePercentage: userSlippageTolerancePercentageDecimalOrDefault,
-        partner: getTreasuryAddressFromChainId(chainId),
         feePercentage: affiliateBpsPercentage,
         swapperConfig,
       })
 
-      return quoteEstimateResponse.context.gasLimit
+      return quoteEstimateResponse.context.gasLimit.toString()
     })()
 
     const { average } = await adapter.getGasFeeData()

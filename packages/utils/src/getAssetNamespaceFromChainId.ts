@@ -6,8 +6,6 @@ import { assertUnreachable } from './assertUnreachable'
 
 export const getAssetNamespaceFromChainId = (chainId: KnownChainIds): AssetNamespace => {
   switch (chainId) {
-    case KnownChainIds.BnbSmartChainMainnet:
-      return ASSET_NAMESPACE.bep20
     case KnownChainIds.SolanaMainnet:
       return ASSET_NAMESPACE.splToken
     case KnownChainIds.EthereumMainnet:
@@ -18,6 +16,7 @@ export const getAssetNamespaceFromChainId = (chainId: KnownChainIds): AssetNames
     case KnownChainIds.ArbitrumMainnet:
     case KnownChainIds.ArbitrumNovaMainnet:
     case KnownChainIds.BaseMainnet:
+    case KnownChainIds.BnbSmartChainMainnet:
       return ASSET_NAMESPACE.erc20
     case KnownChainIds.CosmosMainnet:
     case KnownChainIds.BitcoinMainnet:

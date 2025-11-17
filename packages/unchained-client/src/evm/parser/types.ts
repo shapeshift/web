@@ -3,7 +3,6 @@ import type { evm } from '@shapeshiftoss/common-api'
 import type * as mayachain from '../../parser/mayachain'
 import type * as thorchain from '../../parser/thorchain'
 import type { StandardTx } from '../../types'
-import type * as bep20 from '../bnbsmartchain/parser/bep20'
 import type * as cowswap from '../ethereum/parser/cowswap'
 import type * as foxy from '../ethereum/parser/foxy'
 import type * as uniV2 from '../ethereum/parser/uniV2'
@@ -16,7 +15,6 @@ import type * as zrx from '../parser/zrx'
 export type Tx = evm.Tx
 
 export type TxMetadata =
-  | bep20.TxMetadata
   | cowswap.TxMetadata
   | erc20.TxMetadata
   | foxy.TxMetadata

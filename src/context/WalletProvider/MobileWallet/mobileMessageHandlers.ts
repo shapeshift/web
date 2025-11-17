@@ -60,7 +60,7 @@ type Message =
     }
 
 export type MessageFromMobileApp = {
-  id: number
+  id: string
   result: unknown
 }
 
@@ -115,7 +115,7 @@ export type AppleSearchAdsAttribution =
  */
 const postMessage = <T>(msg: Message): Promise<T> => {
   return new Promise((resolve, reject) => {
-    const id = Date.now()
+    const id = `${Date.now()}-${msg.cmd}`
     try {
       const eventListener = (event: MessageEvent<MessageFromMobileApp>) => {
         if (event.data?.id === id) {

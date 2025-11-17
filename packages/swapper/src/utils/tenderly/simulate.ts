@@ -1,3 +1,5 @@
+import type { ChainId } from '@shapeshiftoss/caip'
+import { fromChainId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { contractAddressOrUndefined } from '@shapeshiftoss/utils'
 import axios from 'axios'
@@ -28,7 +30,7 @@ export type SimulationResult = {
 }
 
 export type SimulateTransactionParams = {
-  chainId: number
+  chainId: ChainId
   from: Address
   to: Address
   data: Hex
@@ -47,6 +49,7 @@ export const simulateWithStateOverrides = async (
     if (!isAddress(from)) throw new Error(`Invalid from address: ${from}`)
     if (!isAddress(to)) throw new Error(`Invalid to address: ${to}`)
 
+    const evmNetworkId = Number(fromChainId(chainId).chainReference)
     const spender = spenderAddress ?? to
 
     const stateOverrides = buildStateOverrides({
@@ -56,7 +59,7 @@ export const simulateWithStateOverrides = async (
     })
 
     const request: TenderlySimulationRequest = {
-      network_id: chainId.toString(),
+      network_id: evmNetworkId.toString(),
       from: from.toLowerCase() as Address,
       to: to.toLowerCase() as Address,
       input: data,

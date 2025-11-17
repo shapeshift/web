@@ -510,11 +510,9 @@ export async function getTrade<T extends 'quote' | 'rate'>({
 
       if (selectedItem?.data && isRelayQuoteEvmItemData(selectedItem.data)) {
         try {
-          const chainIdNumber = Number(fromChainId(sellAsset.chainId).chainReference)
-
           const tenderlySimulation = await simulateWithStateOverrides(
             {
-              chainId: chainIdNumber,
+              chainId: sellAsset.chainId,
               from: (sendAddress ?? zeroAddress) as Address,
               to: (selectedItem.data.to ?? '') as Address,
               data: (selectedItem.data.data ?? '0x') as Hex,

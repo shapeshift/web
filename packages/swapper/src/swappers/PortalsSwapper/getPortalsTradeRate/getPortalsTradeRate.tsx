@@ -162,13 +162,10 @@ export async function getPortalsTradeRate(
 
     const slippageTolerancePercentageDecimal = actualBufferDecimal
 
-    // Use Tenderly simulation with state overrides, fallback to estimate endpoint
-    const chainIdNumber = Number(fromAssetId(sellAsset.assetId).chainReference)
-
     const gasLimit = await (async () => {
       const tenderlySimulation = await simulateWithStateOverrides(
         {
-          chainId: chainIdNumber,
+          chainId: sellAsset.chainId,
           from: tx.from,
           to: tx.to,
           data: tx.data as Hex,

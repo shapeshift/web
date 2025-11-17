@@ -88,13 +88,9 @@ export const getTradeRate = async (
             const contractAddress = contractAddressOrUndefined(sellAsset.assetId)
             const data = evm.getErc20Data(depositAddress, sellAmount, contractAddress)
 
-            // Use Tenderly simulation with state overrides for accurate gas estimation
-            // This works even when the user lacks sufficient balance
-            const chainIdNumber = Number(fromAssetId(sellAsset.assetId).chainReference)
-
             const simulationResult = await simulateWithStateOverrides(
               {
-                chainId: chainIdNumber,
+                chainId: sellAsset.chainId,
                 from: (sendAddress || depositAddress) as Address,
                 to: (contractAddress ?? depositAddress) as Address,
                 data: (data || '0x') as Hex,

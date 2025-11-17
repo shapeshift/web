@@ -2,7 +2,7 @@ import type { Asset } from '@shapeshiftoss/types'
 import { contractAddressOrUndefined } from '@shapeshiftoss/utils'
 import axios from 'axios'
 import type { Address, Hex } from 'viem'
-import { isAddress, maxUint256, toHex } from 'viem'
+import { isAddress, maxUint256, parseEther, toHex } from 'viem'
 
 import { isNativeEvmAsset } from '../../swappers/utils/helpers/helpers'
 import {
@@ -34,7 +34,6 @@ export type SimulateTransactionParams = {
   data: Hex
   value?: string | bigint
   sellAsset: Asset
-  sellAmount: string | bigint
   spenderAddress?: Address
 }
 
@@ -42,16 +41,7 @@ export const simulateWithStateOverrides = async (
   params: SimulateTransactionParams,
   config: TenderlyConfig,
 ): Promise<SimulationResult> => {
-  const {
-    chainId,
-    from,
-    to,
-    data,
-    value,
-    sellAsset,
-    sellAmount: amountCryptoBaseUnit,
-    spenderAddress,
-  } = params
+  const { chainId, from, to, data, value, sellAsset, spenderAddress } = params
 
   try {
     if (!isAddress(from)) throw new Error(`Invalid from address: ${from}`)
@@ -63,7 +53,6 @@ export const simulateWithStateOverrides = async (
       from,
       spender,
       sellAsset,
-      amountCryptoBaseUnit,
     })
 
     const request: TenderlySimulationRequest = {
@@ -123,10 +112,10 @@ const buildStateOverrides = (params: {
   from: Address
   spender: Address
   sellAsset: Asset
-  amountCryptoBaseUnit: string | bigint
 }): TenderlyStateOverrides => {
   const { from, spender, sellAsset } = params
-  const nativeBalanceOverride = toHex(maxUint256 >> 10n)
+  // Large native balance for gas (1B is overkill but guarantees success on all chains)
+  const nativeBalanceOverride = toHex(parseEther('1000000000'))
   const isNative = isNativeEvmAsset(sellAsset.assetId)
 
   return isNative

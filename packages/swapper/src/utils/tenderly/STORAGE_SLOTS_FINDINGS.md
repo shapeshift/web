@@ -53,11 +53,21 @@ mapping(address => mapping(address => uint256)) allowed; // slot 10
 - **Consistent across ALL Circle native deployments** (Ethereum, Arbitrum, Polygon, Base, Optimism, Avalanche)
 - Bridged versions may vary (need verification)
 
-**Tether USDT**:
-```solidity
-mapping(address => uint256) balances;  // slot 2
-```
-- Uses standard allowance layout (slot 1)
+**Tether USDT** (Multiple patterns across chains):
+
+| Chain | Contract | Balance Slot | Allowance Slot | Pattern |
+|-------|----------|--------------|----------------|---------|
+| Ethereum | 0xdac17f958... | 2 | 5 | Native Tether (custom) |
+| Arbitrum | 0xfd086bc7c... | 51 | 52 | StandardArbERC20 (proxy + ERC20Upgradeable) |
+| Avalanche | 0x9702230a8... | 51 | 52 | StandardArbERC20 (proxy + ERC20Upgradeable) |
+| Optimism | 0x01bff4179... | 51 | 52 | **USDT0** (LayerZero OFT - [docs](https://docs.usdt0.to)) |
+| Optimism | 0x94b008aa0... | 0 | 1 | Standard Optimism bridge |
+| BSC | 0x55d398326... | 1 | 2 | BEP20 (Binance-Peg) |
+| Gnosis | 0x4ecaba587... | 3 | 4 | xDai bridge (custom) |
+| Polygon | 0xc2132d05d... | 0 | 1 | Standard ERC20 bridge |
+
+**Key Finding**: USDT has **SIX different storage patterns** across 8 deployments! Each bridge/deployment method uses a different layout.
+- Optimism has TWO USDT variants: standard bridge (slot 0) and USDT0 LayerZero (slot 51)
 - Separate blacklist mapping (not packed like USDC)
 
 ### 4. Alternative Detection Methods
@@ -112,31 +122,52 @@ mapping(address => uint256) balances;  // slot 2
 ### What We Built
 
 ```typescript
-// Curated mapping for top tokens
+// Explicit balance slot mapping for all USDT variants + USDC
 export const KNOWN_BALANCE_SLOTS: Record<string, number> = {
-  '0xdac17...': 2,  // USDT
+  '0xdac17...': 2,  // USDT Ethereum
+  '0xfd086b...': 51, // USDT Arbitrum
+  '0x970223...': 51, // USDT Avalanche
+  '0x55d398...': 1,  // USDT BSC
+  '0x4ecaba...': 3,  // USDT Gnosis
+  // Polygon & Optimism USDT use slot 0 (fallback)
   '0xa0b869...': 9,  // USDC Ethereum
   '0xaf88d0...': 9,  // USDC Arbitrum
   // ... all USDC deployments
 }
 
-// Infer allowance from balance slot
-export const getTokenAllowanceSlot = (tokenAddress: Address): number => {
-  const balanceSlot = getTokenBalanceSlot(tokenAddress)
-  return balanceSlot === 9 ? 10 : 1  // USDC pattern
+// Explicit allowance slot mapping for non-standard tokens
+export const KNOWN_ALLOWANCE_SLOTS: Record<string, number> = {
+  '0xdac17...': 5,  // USDT Ethereum
+  '0xfd086b...': 52, // USDT Arbitrum
+  '0x970223...': 52, // USDT Avalanche
+  '0x55d398...': 2,  // USDT BSC
+  '0x4ecaba...': 4,  // USDT Gnosis
+  // Polygon & Optimism USDT use slot 1 (fallback)
 }
 
-// Default fallback
+// Simple explicit-first approach
+export const getTokenAllowanceSlot = (tokenAddress: Address): number => {
+  const explicitSlot = KNOWN_ALLOWANCE_SLOTS[tokenAddress.toLowerCase()]
+  if (explicitSlot !== undefined) return explicitSlot
+
+  const balanceSlot = getTokenBalanceSlot(tokenAddress)
+  if (balanceSlot === 9) return 10  // USDC pattern
+  return 1  // Standard ERC20
+}
+
+// Default fallback to standard ERC20
 export const getTokenBalanceSlot = (tokenAddress: Address): number =>
-  KNOWN_BALANCE_SLOTS[tokenAddress.toLowerCase()] ?? 0  // Standard ERC20
+  KNOWN_BALANCE_SLOTS[tokenAddress.toLowerCase()] ?? 0
 ```
 
 ### Research Validation
 
 ✅ **Mapping strategy**: Matches industry consensus (bruteforce-then-cache)
 ✅ **Coverage**: 93-98% (top tokens + standard fallback)
-✅ **USDC slots**: Confirmed across all deployments (9/10)
-✅ **USDT slots**: Confirmed (balance=2, allowance=1)
+✅ **USDC slots**: Confirmed across all deployments (Circle native: 9/10, BSC BEP20: 1/2)
+✅ **USDT slots**: All 8 variants confirmed via Tenderly trace analysis
+  - Ethereum: 2/5 | Arbitrum: 51/52 | Avalanche: 51/52 | USDT0 Optimism: 51/52
+  - BSC: 1/2 | Gnosis: 3/4 | Polygon: 0/1 | Optimism std: 0/1
 ✅ **Blacklist handling**: Correctly clears bit 255 for USDC
 ✅ **Fallback strategy**: Graceful degradation on unknown tokens
 

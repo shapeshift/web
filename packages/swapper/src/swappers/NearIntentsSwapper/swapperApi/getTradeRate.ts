@@ -100,7 +100,6 @@ export const getTradeRate = async (
                 data: (data || '0x') as Hex,
                 value: isNativeEvmAsset(sellAsset.assetId) ? sellAmount : '0',
                 sellAsset,
-                sellAmount,
               },
               {
                 apiKey: deps.config.VITE_TENDERLY_API_KEY,
@@ -113,6 +112,8 @@ export const getTradeRate = async (
               return '0'
             }
 
+            console.log('[Near Intents] Tenderly gasLimit:', simulationResult.gasLimit.toString())
+
             // Calculate network fee using the simulated gas limit
             const sellAdapter = deps.assertGetEvmChainAdapter(sellAsset.chainId)
             const { average } = await sellAdapter.getGasFeeData()
@@ -124,6 +125,8 @@ export const getTradeRate = async (
               supportsEIP1559,
               gasLimit: simulationResult.gasLimit.toString(),
             })
+
+            console.log('[Near Intents] Final network fee:', networkFeeCryptoBaseUnit)
 
             return networkFeeCryptoBaseUnit
           } catch (error) {

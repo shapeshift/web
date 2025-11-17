@@ -173,7 +173,6 @@ export async function getPortalsTradeRate(
         data: tx.data as Hex,
         value: tx.value,
         sellAsset,
-        sellAmount: sellAmountIncludingProtocolFeesCryptoBaseUnit,
         spenderAddress: context.target as Address,
       },
       {
@@ -187,6 +186,8 @@ export async function getPortalsTradeRate(
       throw new Error(`Tenderly simulation failed: ${tenderlySimulation.errorMessage}`)
     }
 
+    console.log('[Portals] Tenderly gasLimit:', tenderlySimulation.gasLimit.toString())
+
     const { average } = await adapter.getGasFeeData()
 
     const networkFeeCryptoBaseUnit = evm.calcNetworkFeeCryptoBaseUnit({
@@ -194,6 +195,8 @@ export async function getPortalsTradeRate(
       supportsEIP1559: Boolean(supportsEIP1559),
       gasLimit: tenderlySimulation.gasLimit.toString(),
     })
+
+    console.log('[Portals] Final network fee:', networkFeeCryptoBaseUnit)
 
     const tradeRate = {
       id: uuid(),

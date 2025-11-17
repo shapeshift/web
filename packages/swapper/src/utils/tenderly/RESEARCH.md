@@ -59,19 +59,33 @@ Different tokens use different storage slots for balances and allowances:
 | Token | Chain | Slot | Notes |
 |-------|-------|------|-------|
 | Standard ERC20 | Any | 0 | ~70-80% of tokens |
-| USDT | Ethereum | 2 | Custom implementation |
-| USDC (native) | Ethereum | 9 | `balanceAndBlacklistStates` |
-| USDC (native) | Arbitrum | 9 | Same as Ethereum |
-| USDC.e (bridged) | Arbitrum | 9 | Same layout |
+| USDT | Ethereum | 2 | Native Tether (0xdac17f958...) |
+| USDT | Arbitrum | 51 | StandardArbERC20 proxy (0xfd086bc7c...) |
+| USDT | Avalanche | 51 | StandardArbERC20 proxy (0x9702230a8...) |
+| USDT0 | Optimism | 51 | LayerZero OFT (0x01bff4179... - docs.usdt0.to) |
+| USDT | Optimism | 0 | Standard bridge (0x94b008aa0...) |
+| USDT | BSC | 1 | BEP20 (0x55d398326...) |
+| USDT | Gnosis | 3 | xDai bridge (0x4ecaba587...) |
+| USDT | Polygon | 0 | Standard bridge (0xc2132d05d...) |
+| USDC (native) | Most chains | 9 | Circle FiatToken `balanceAndBlacklistStates` |
+| USDC | BSC | 1 | BEP20 (0x8ac76a51c...) |
 
 #### Allowance Slots
 
 | Token | Chain | Slot | Notes |
 |-------|-------|------|-------|
 | Standard ERC20 | Any | 1 | ~70-80% of tokens |
-| USDC (all chains) | Any | 10 | `allowed` mapping |
+| USDT | Ethereum | 5 | Native Tether (0xdac17f958...) |
+| USDT | Arbitrum | 52 | StandardArbERC20 proxy (0xfd086bc7c...) |
+| USDT | Avalanche | 52 | StandardArbERC20 proxy (0x9702230a8...) |
+| USDT0 | Optimism | 52 | LayerZero OFT (0x01bff4179...) |
+| USDT | Optimism | 1 | Standard bridge (0x94b008aa0...) |
+| USDT | BSC | 2 | BEP20 (0x55d398326...) |
+| USDT | Gnosis | 4 | xDai bridge (0x4ecaba587...) |
+| USDT | Polygon | 1 | Standard bridge (0xc2132d05d...) |
+| USDC (native) | Most chains | 10 | Circle FiatToken `allowed` mapping |
+| USDC | BSC | 2 | BEP20 (0x8ac76a51c...) |
 | DAI | Ethereum | 3 | Custom layout |
-| USDT | Ethereum | 5 | Custom layout |
 
 **USDC Special Case:**
 - Slot 9 stores `balanceAndBlacklistStates` (combined value)

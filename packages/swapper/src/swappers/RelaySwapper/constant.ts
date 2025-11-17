@@ -77,6 +77,7 @@ export const MAXIMUM_SUPPORTED_RELAY_STEPS = 2
 
 export const relayErrorCodeToTradeQuoteError: Record<RelayErrorCode, TradeQuoteError> = {
   [RelayErrorCode.AmountTooLow]: TradeQuoteError.SellAmountBelowMinimum,
+  [RelayErrorCode.ChainDisabled]: TradeQuoteError.TradingHalted,
   [RelayErrorCode.Erc20RouterAddressNotFound]: TradeQuoteError.UnsupportedTradePair,
   [RelayErrorCode.ExtraTransactionsNotSupported]: TradeQuoteError.UnsupportedTradePair,
   [RelayErrorCode.InsufficientFunds]: TradeQuoteError.SellAmountBelowTradeFee,

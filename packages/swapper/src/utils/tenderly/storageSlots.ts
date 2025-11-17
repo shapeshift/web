@@ -23,11 +23,31 @@ export const getAllowanceStorageSlot = (
 }
 
 // Most ERC20s: balance at slot 0, allowance at slot 1
-// USDT: balance at slot 2
+// USDT (native Tether - Ethereum): balance at slot 2, allowance at slot 5
+// USDT (proxy pattern - Arbitrum, Avalanche): balance at slot 51, allowance at slot 52
+// USDT0 (LayerZero OFT - Optimism): balance at slot 51, allowance at slot 52
+// USDT (BEP20 - BSC): balance at slot 1, allowance at slot 2
+// USDT (xDai bridge - Gnosis): balance at slot 3, allowance at slot 4
+// USDT (standard bridges - Polygon, Optimism standard bridge): balance at slot 0, allowance at slot 1
 // USDC (Circle native): balance at slot 9, allowance at slot 10
+// USDC (BEP20 - BSC): balance at slot 1, allowance at slot 2
 export const KNOWN_BALANCE_SLOTS: Record<string, number> = {
-  // USDT
+  // USDT - Native Tether deployment (custom slot 2)
   '0xdac17f958d2ee523a2206206994597c13d831ec7': 2, // USDT Ethereum
+
+  // USDT - Proxy pattern deployments (slot 51 - L2GatewayToken + ERC20Upgradeable + storage gaps)
+  '0xfd086bc7cd5c481dcc9c85ebe478a1c0b69fcbb9': 51, // USDT Arbitrum (StandardArbERC20)
+  '0x9702230a8ea53601f5cd2dc00fdbc13d4df4a8c7': 51, // USDT Avalanche (StandardArbERC20)
+  '0x01bff41798a0bcf287b996046ca68b395dbc1071': 51, // USDT0 Optimism (LayerZero OFT - https://docs.usdt0.to)
+
+  // USDT - BEP20 pattern (slot 1 - Binance-Peg token)
+  '0x55d398326f99059ff775485246999027b3197955': 1, // USDT BSC (confirmed)
+
+  // USDT - xDai bridge pattern (slot 3)
+  '0x4ecaba5870353805a9f068101a40e0f32ed605c6': 3, // USDT Gnosis (confirmed)
+
+  // USDT - Standard ERC20 deployments (slot 0)
+  // Polygon confirmed, Optimism bridged USDT (0x94b008aa...) also uses slot 0
 
   // USDC (Circle native deployments - all use slot 9)
   '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48': 9, // USDC Ethereum
@@ -36,14 +56,40 @@ export const KNOWN_BALANCE_SLOTS: Record<string, number> = {
   '0x3c499c542cef5e3811e1192ce70d8cc03d5c3359': 9, // USDC Polygon
   '0xaf88d065e77c8cc2239327c5edb3a432268e5831': 9, // USDC Arbitrum
   '0x833589fcd6edb6e08f4c7c32d4f71b54bda02913': 9, // USDC Base
+
+  // USDC (BEP20 pattern on BSC - slot 1)
+  '0x8ac76a51cc950d9822d68b83fe1ad97b32cd580d': 1, // USDC BSC (BEP20)
+} as const
+
+export const KNOWN_ALLOWANCE_SLOTS: Record<string, number> = {
+  // USDT allowance slots (explicit mapping for all non-standard implementations)
+  '0xdac17f958d2ee523a2206206994597c13d831ec7': 5, // USDT Ethereum (native Tether)
+  '0xfd086bc7cd5c481dcc9c85ebe478a1c0b69fcbb9': 52, // USDT Arbitrum (StandardArbERC20)
+  '0x9702230a8ea53601f5cd2dc00fdbc13d4df4a8c7': 52, // USDT Avalanche (StandardArbERC20)
+  '0x01bff41798a0bcf287b996046ca68b395dbc1071': 52, // USDT0 Optimism (LayerZero OFT)
+  '0x55d398326f99059ff775485246999027b3197955': 2, // USDT BSC (BEP20)
+  '0x4ecaba5870353805a9f068101a40e0f32ed605c6': 4, // USDT Gnosis (xDai bridge)
+  // Note: Polygon and Optimism standard bridged USDT (0x94b008aa...) use slot 1 (fallback)
+
+  // USDC allowance slots (BSC uses BEP20 pattern, not Circle FiatToken)
+  '0x8ac76a51cc950d9822d68b83fe1ad97b32cd580d': 2, // USDC BSC (BEP20)
+  // Note: All other USDC (Circle native) use slot 10 (handled by USDC pattern check)
 } as const
 
 export const getTokenBalanceSlot = (tokenAddress: Address): number =>
   KNOWN_BALANCE_SLOTS[tokenAddress.toLowerCase()] ?? 0
 
 export const getTokenAllowanceSlot = (tokenAddress: Address): number => {
+  // Check explicit allowance mapping first
+  const explicitSlot = KNOWN_ALLOWANCE_SLOTS[tokenAddress.toLowerCase()]
+  if (explicitSlot !== undefined) return explicitSlot
+
+  // USDC pattern: balance at 9, allowance at 10
   const balanceSlot = getTokenBalanceSlot(tokenAddress)
-  return balanceSlot === 9 ? 10 : 1 // USDC uses slot 10, standard ERC20s use slot 1
+  if (balanceSlot === 9) return 10
+
+  // Standard ERC20: allowance at slot 1
+  return 1
 }
 
 // USDC slot 9: bit 255 is blacklist flag, must keep cleared

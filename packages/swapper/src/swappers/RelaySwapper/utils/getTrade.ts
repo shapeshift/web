@@ -224,6 +224,14 @@ export async function getTrade<T extends 'quote' | 'rate'>({
         }),
       )
     }
+
+    // Fallback for unmapped error codes (shouldn't happen, but prevents crashes)
+    return Err(
+      makeSwapErrorRight({
+        message: relayError.message || 'Unknown Relay error',
+        code: TradeQuoteError.UnknownError,
+      }),
+    )
   }
 
   const { data: quote } = maybeQuote.unwrap()
@@ -512,7 +520,6 @@ export async function getTrade<T extends 'quote' | 'rate'>({
               data: (selectedItem.data.data ?? '0x') as Hex,
               value: selectedItem.data.value ?? '0',
               sellAsset,
-              sellAmount: sellAmountIncludingProtocolFeesCryptoBaseUnit,
             },
             {
               apiKey: deps.config.VITE_TENDERLY_API_KEY,
@@ -522,6 +529,8 @@ export async function getTrade<T extends 'quote' | 'rate'>({
           )
 
           if (tenderlySimulation.success) {
+            console.log('[Relay] Tenderly gasLimit:', tenderlySimulation.gasLimit.toString())
+
             // Use Tenderly's gas estimate instead of Relay's
             const adapter = deps.assertGetEvmChainAdapter(sellAsset.chainId)
             const { average } = await adapter.getGasFeeData()
@@ -534,13 +543,12 @@ export async function getTrade<T extends 'quote' | 'rate'>({
               gasLimit: tenderlySimulation.gasLimit.toString(),
             })
 
+            console.log('[Relay] Final network fee:', tenderlyNetworkFee)
+
             return tenderlyNetworkFee
           }
         } catch (error) {
-          console.error('[Relay] Tenderly simulation error:', {
-            error: error instanceof Error ? error.message : 'Unknown error',
-            sellAsset: sellAsset.assetId,
-          })
+          // Silently fall through to use Relay's gas estimate
         }
       }
     }

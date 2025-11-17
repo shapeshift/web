@@ -169,6 +169,7 @@ export type RelaySolanaInstruction = {
 
 export enum RelayErrorCode {
   AmountTooLow = 'AMOUNT_TOO_LOW',
+  ChainDisabled = 'CHAIN_DISABLED',
   Erc20RouterAddressNotFound = 'ERC20_ROUTER_ADDRESS_NOT_FOUND',
   ExtraTransactionsNotSupported = 'EXTRA_TXS_NOT_SUPPORTED',
   InsufficientFunds = 'INSUFFICIENT_FUNDS',

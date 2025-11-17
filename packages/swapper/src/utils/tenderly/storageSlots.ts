@@ -23,8 +23,8 @@ export const getAllowanceStorageSlot = (
 }
 
 // Most ERC20s: balance at slot 0, allowance at slot 1
+// StandardArbERC20 pattern (Arbitrum/Avalanche tokens): balance at slot 51, allowance at slot 52
 // USDT (native Tether - Ethereum): balance at slot 2, allowance at slot 5
-// USDT (proxy pattern - Arbitrum, Avalanche): balance at slot 51, allowance at slot 52
 // USDT0 (LayerZero OFT - Optimism): balance at slot 51, allowance at slot 52
 // USDT (BEP20 - BSC): balance at slot 1, allowance at slot 2
 // USDT (xDai bridge - Gnosis): balance at slot 3, allowance at slot 4
@@ -35,10 +35,12 @@ export const KNOWN_BALANCE_SLOTS: Record<string, number> = {
   // USDT - Native Tether deployment (custom slot 2)
   '0xdac17f958d2ee523a2206206994597c13d831ec7': 2, // USDT Ethereum
 
-  // USDT - Proxy pattern deployments (slot 51 - L2GatewayToken + ERC20Upgradeable + storage gaps)
-  '0xfd086bc7cd5c481dcc9c85ebe478a1c0b69fcbb9': 51, // USDT Arbitrum (StandardArbERC20)
-  '0x9702230a8ea53601f5cd2dc00fdbc13d4df4a8c7': 51, // USDT Avalanche (StandardArbERC20)
+  // StandardArbERC20 pattern deployments (slot 51 - L2GatewayToken + ERC20Upgradeable + storage gaps)
+  // Common pattern for Arbitrum native/bridged tokens
+  '0xfd086bc7cd5c481dcc9c85ebe478a1c0b69fcbb9': 51, // USDT Arbitrum
+  '0x9702230a8ea53601f5cd2dc00fdbc13d4df4a8c7': 51, // USDT Avalanche
   '0x01bff41798a0bcf287b996046ca68b395dbc1071': 51, // USDT0 Optimism (LayerZero OFT - https://docs.usdt0.to)
+  '0x912ce59144191c1204e64559fe8253a0e49e6548': 51, // ARB Arbitrum
 
   // USDT - BEP20 pattern (slot 1 - Binance-Peg token)
   '0x55d398326f99059ff775485246999027b3197955': 1, // USDT BSC (confirmed)

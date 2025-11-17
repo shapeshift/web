@@ -20,7 +20,7 @@ import { DEFAULT_QUOTE_DEADLINE_MS, DEFAULT_SLIPPAGE_BPS } from '../constants'
 import type { QuoteResponse } from '../types'
 import { QuoteRequest } from '../types'
 import { assetToNearIntentsAsset, calculateAccountCreationCosts } from '../utils/helpers/helpers'
-import { initializeOneClickService, OneClickService } from '../utils/oneClickService'
+import { ApiError, initializeOneClickService, OneClickService } from '../utils/oneClickService'
 
 export const getTradeQuote = async (
   input: CommonTradeQuoteInput,
@@ -71,6 +71,16 @@ export const getTradeQuote = async (
 
     const originAsset = await assetToNearIntentsAsset(sellAsset)
     const destinationAsset = await assetToNearIntentsAsset(buyAsset)
+
+    // This shouldn't be the case since we already got a rate and know these exist, but...
+    if (!(originAsset && destinationAsset)) {
+      return Err(
+        makeSwapErrorRight({
+          code: TradeQuoteError.UnsupportedTradePair,
+          message: 'Unsupported asset',
+        }),
+      )
+    }
 
     const quoteRequest: QuoteRequest = {
       dry: false,
@@ -226,6 +236,20 @@ export const getTradeQuote = async (
     return Ok([tradeQuote])
   } catch (error) {
     console.error('[NEAR Intents] getTradeQuote error:', error)
+
+    if (
+      error instanceof ApiError &&
+      (error.body?.message === 'tokenIn is not valid' ||
+        error.body?.message === 'tokenOut is not valid')
+    ) {
+      return Err(
+        makeSwapErrorRight({
+          code: TradeQuoteError.UnsupportedTradePair,
+          message: 'Unsupported asset',
+        }),
+      )
+    }
+
     return Err(
       makeSwapErrorRight({
         message:

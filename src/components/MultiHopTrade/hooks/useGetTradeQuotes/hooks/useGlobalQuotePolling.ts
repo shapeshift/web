@@ -13,7 +13,7 @@ import {
 } from '@/state/slices/tradeInputSlice/selectors'
 import { useAppDispatch, useAppSelector } from '@/state/store'
 
-export const TRADE_QUOTE_REFRESH_INTERVAL_MS = 20_000
+export const TRADE_QUOTE_REFRESH_INTERVAL_MS = 25_000
 
 export const useGlobalQuotePolling = () => {
   const sellAsset = useAppSelector(selectInputSellAsset)

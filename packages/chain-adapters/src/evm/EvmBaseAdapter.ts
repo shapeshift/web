@@ -370,26 +370,22 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
         chain: this.getType(),
         chainSpecific: {
           nonce: data.nonce,
-          tokens: data.tokens.map(token => {
-            // Hacky workaround to parse unchained-returned BSC tokens as bep-20
-            // We probably shouldn't need this as this seems to be a recent unchained change
-            const namespace =
-              this.chainId === bscChainId && token.type === 'ERC20'
-                ? ASSET_NAMESPACE.bep20
-                : getAssetNamespace(token.type)
-
-            return {
-              balance: token.balance,
-              assetId: toAssetId({
-                chainId: this.chainId,
-                assetNamespace: namespace,
-                assetReference: token.id ? `${token.contract}/${token.id}` : token.contract,
-              }),
-              name: token.name,
-              precision: token.decimals,
-              symbol: token.symbol,
-            }
-          }),
+          tokens: data.tokens.map(token => ({
+            balance: token.balance,
+            assetId: toAssetId({
+              chainId: this.chainId,
+              // Hacky workaround to parse unchained-returned BSC tokens as bep-20
+              // We probably shouldn't need this as this seems to be a recent unchained change
+              assetNamespace:
+                this.chainId === bscChainId && token.type === 'ERC20'
+                  ? ASSET_NAMESPACE.bep20
+                  : getAssetNamespace(token.type),
+              assetReference: token.id ? `${token.contract}/${token.id}` : token.contract,
+            }),
+            name: token.name,
+            precision: token.decimals,
+            symbol: token.symbol,
+          })),
         },
         pubkey,
       } as Account<T>

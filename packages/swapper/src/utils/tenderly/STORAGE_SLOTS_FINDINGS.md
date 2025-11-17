@@ -166,8 +166,8 @@ export const getTokenBalanceSlot = (tokenAddress: Address): number =>
 ✅ **Coverage**: 93-98% (top tokens + standard fallback)
 ✅ **USDC slots**: Confirmed across all deployments (Circle native: 9/10, BSC BEP20: 1/2)
 ✅ **USDT slots**: All 8 variants confirmed via Tenderly trace analysis
-  - Ethereum: 2/5 | Arbitrum: 51/52 | Avalanche: 51/52 | USDT0 Optimism: 51/52
-  - BSC: 1/2 | Gnosis: 3/4 | Polygon: 0/1 | Optimism std: 0/1
+- Ethereum: 2/5 | Arbitrum: 51/52 | Avalanche: 51/52 | USDT0 Optimism: 51/52
+- BSC: 1/2 | Gnosis: 3/4 | Polygon: 0/1 | Optimism std: 0/1
 ✅ **Blacklist handling**: Correctly clears bit 255 for USDC
 ✅ **Fallback strategy**: Graceful degradation on unknown tokens
 
@@ -179,18 +179,18 @@ No changes required. Our implementation is solid.
 
 ### Future Enhancements (Optional)
 
-**Phase 1: Expand Coverage (Low Effort, High Value)**
+#### Phase 1: Expand Coverage (Low Effort, High Value)
 Add top 20-50 tokens by volume:
 - WETH (Wrapped ETH) - likely standard slot 0/1
 - DAI, LINK, UNI, AAVE - likely standard
 - Check major DEX LP tokens
 
-**Phase 2: Enhanced Logging (Medium Effort)**
+#### Phase 2: Enhanced Logging (Medium Effort)
 - Log when using default slots vs known slots
 - Track simulation failures by token
 - Build telemetry to discover problematic tokens
 
-**Phase 3: slotseek Integration (High Effort)**
+#### Phase 3: slotseek Integration (High Effort)
 - Add slotseek as fallback for unknown tokens
 - Cache discovered slots
 - Monitor performance impact

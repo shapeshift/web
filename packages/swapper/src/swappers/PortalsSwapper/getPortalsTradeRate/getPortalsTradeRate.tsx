@@ -191,7 +191,6 @@ export async function getPortalsTradeRate(
         outputToken,
         inputAmount: sellAmountIncludingProtocolFeesCryptoBaseUnit,
         slippageTolerancePercentage: userSlippageTolerancePercentageDecimalOrDefault,
-        feePercentage: affiliateBpsPercentage,
         swapperConfig,
       })
 

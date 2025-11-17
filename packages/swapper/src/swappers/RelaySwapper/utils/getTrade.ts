@@ -524,11 +524,13 @@ export async function getTrade<T extends 'quote' | 'rate'>({
           if (tenderlySimulation.success) {
             // Use Tenderly's gas estimate instead of Relay's
             const adapter = deps.assertGetEvmChainAdapter(sellAsset.chainId)
-            const { fast } = await adapter.getGasFeeData()
+            const { average } = await adapter.getGasFeeData()
+
+            const supportsEIP1559 = 'maxFeePerGas' in average
 
             const tenderlyNetworkFee = evm.calcNetworkFeeCryptoBaseUnit({
-              ...fast,
-              supportsEIP1559: true,
+              ...average,
+              supportsEIP1559,
               gasLimit: tenderlySimulation.gasLimit.toString(),
             })
 

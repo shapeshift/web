@@ -75,7 +75,7 @@ Returns:
 {
   success: boolean
   gasUsed: bigint
-  gasLimit: bigint          // gasUsed * 1.1 (10% buffer)
+  gasLimit: bigint          // gasUsed (no buffer - Tenderly simulations are accurate)
   errorMessage?: string
 }
 ```
@@ -85,7 +85,7 @@ Returns:
 2. Build state overrides via `buildStateOverrides()`
 3. Call Tenderly API with overrides
 4. Parse response and extract gas_used
-5. Add 10% buffer and return
+5. Return simulation results (no buffer needed - Tenderly simulations are accurate)
 
 **`buildStateOverrides(params)`**
 

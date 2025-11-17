@@ -115,11 +115,13 @@ export const getTradeRate = async (
 
             // Calculate network fee using the simulated gas limit
             const sellAdapter = deps.assertGetEvmChainAdapter(sellAsset.chainId)
-            const { fast } = await sellAdapter.getGasFeeData()
+            const { average } = await sellAdapter.getGasFeeData()
+
+            const supportsEIP1559 = 'maxFeePerGas' in average
 
             const networkFeeCryptoBaseUnit = evm.calcNetworkFeeCryptoBaseUnit({
-              ...fast,
-              supportsEIP1559: true,
+              ...average,
+              supportsEIP1559,
               gasLimit: simulationResult.gasLimit.toString(),
             })
 

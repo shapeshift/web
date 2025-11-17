@@ -39,6 +39,7 @@ export async function getPortalsTradeRate(
     chainId,
     sellAmountIncludingProtocolFeesCryptoBaseUnit,
     receiveAddress,
+    supportsEIP1559,
   } = input
   const adapter = assertGetEvmChainAdapter(chainId)
 
@@ -190,7 +191,7 @@ export async function getPortalsTradeRate(
 
     const networkFeeCryptoBaseUnit = evm.calcNetworkFeeCryptoBaseUnit({
       ...average,
-      supportsEIP1559: Boolean(input.supportsEIP1559),
+      supportsEIP1559: Boolean(supportsEIP1559),
       gasLimit: tenderlySimulation.gasLimit.toString(),
     })
 

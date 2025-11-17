@@ -34,7 +34,7 @@ export const useAppleSearchAdsAttribution = () => {
     if (!isMobile) return
 
     // Only track once per user, ever
-    if (hasTracked) return
+    // if (hasTracked) return
 
     const trackAttribution = async () => {
       try {

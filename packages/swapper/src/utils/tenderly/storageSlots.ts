@@ -23,7 +23,8 @@ export const getAllowanceStorageSlot = (
 }
 
 // Most ERC20s: balance at slot 0, allowance at slot 1
-// Slot 51/52 pattern (various L2 implementations): balance at slot 51, allowance at slot 52
+// Slot 51/52 pattern (StandardArbERC20, some L2 implementations)
+// Slot 5/6 pattern (Wormhole bridge)
 // USDT (native Tether - Ethereum): balance at slot 2, allowance at slot 5
 // USDT (BEP20 - BSC): balance at slot 1, allowance at slot 2
 // USDT (xDai bridge - Gnosis): balance at slot 3, allowance at slot 4
@@ -39,6 +40,9 @@ export const KNOWN_BALANCE_SLOTS: Record<string, number> = {
   '0x912ce59144191c1204e64559fe8253a0e49e6548': 51, // ARB Arbitrum (StandardArbERC20)
   '0x9702230a8ea53601f5cd2dc00fdbc13d4df4a8c7': 51, // USDT Avalanche (TransparentProxy)
   '0x01bff41798a0bcf287b996046ca68b395dbc1071': 51, // USDT0 Optimism (LayerZero OFT - https://docs.usdt0.to)
+
+  // Wormhole bridge pattern (slot 5)
+  '0xca7dec8550f43a5e46e3dfb95801f64280e75b27': 5, // SWEAT Arbitrum (Wormhole bridge)
 
   // USDT - BEP20 pattern (slot 1 - Binance-Peg token)
   '0x55d398326f99059ff775485246999027b3197955': 1, // USDT BSC (confirmed)
@@ -70,6 +74,7 @@ export const KNOWN_ALLOWANCE_SLOTS: Record<string, number> = {
   '0x55d398326f99059ff775485246999027b3197955': 2, // USDT BSC (BEP20)
   '0x4ecaba5870353805a9f068101a40e0f32ed605c6': 4, // USDT Gnosis (xDai bridge)
   // Note: Polygon and Optimism standard bridged USDT (0x94b008aa...) use slot 1 (fallback)
+  // Note: SWEAT (slot 5) allowance auto-inferred to slot 6 via Wormhole pattern
 
   // USDC allowance slots (BSC uses BEP20 pattern, not Circle FiatToken)
   '0x8ac76a51cc950d9822d68b83fe1ad97b32cd580d': 2, // USDC BSC (BEP20)
@@ -84,9 +89,11 @@ export const getTokenAllowanceSlot = (tokenAddress: Address): number => {
   const explicitSlot = KNOWN_ALLOWANCE_SLOTS[tokenAddress.toLowerCase()]
   if (explicitSlot !== undefined) return explicitSlot
 
-  // USDC pattern: balance at 9, allowance at 10
+  // Infer allowance slot from balance slot for known patterns
   const balanceSlot = getTokenBalanceSlot(tokenAddress)
-  if (balanceSlot === 9) return 10
+  if (balanceSlot === 9) return 10 // USDC pattern
+  if (balanceSlot === 51) return 52 // StandardArbERC20 pattern
+  if (balanceSlot === 5) return 6 // Wormhole pattern
 
   // Standard ERC20: allowance at slot 1
   return 1

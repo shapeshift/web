@@ -88,22 +88,6 @@ export type AppleSearchAdsAttributionData = {
 }
 
 /**
- * Response from mobile app when requesting Apple Search Ads attribution
- * Can be either:
- * 1. Full attribution data (if mobile app exchanges token with Apple)
- * 2. Just the token (if web app needs to exchange it)
- */
-export type AppleSearchAdsAttribution =
-  | {
-      type: 'data'
-      data: AppleSearchAdsAttributionData
-    }
-  | {
-      type: 'token'
-      token: string
-    }
-
-/**
  * Create a Promise that sends a message and waits for the matching response
  *
  * This app uses `ReactNativeWebView.postMessage` to send a string to the mobile app
@@ -253,6 +237,6 @@ export const requestAppVersion = (): Promise<MobileAppVersion | undefined> => {
  * This should be called once on app initialization to retrieve the attribution
  * data that the iOS app fetched from Apple's AdServices API.
  */
-export const getAppleAttributionToken = (): Promise<AppleSearchAdsAttribution | undefined> => {
-  return postMessage<AppleSearchAdsAttribution>({ cmd: 'getAppleAttributionToken' })
+export const getAppleAttributionToken = (): Promise<string | undefined> => {
+  return postMessage<string>({ cmd: 'getAppleAttributionToken' })
 }

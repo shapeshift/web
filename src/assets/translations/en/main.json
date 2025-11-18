@@ -2479,10 +2479,12 @@
     "thorchainLp": {
       "pairAssets": "%{asset1} and %{asset2}",
       "withdraw": {
-        "processing": "Your withdraw of %{assetAmountsAndSymbols} from the %{poolName} pool is processing."
+        "processing": "Your withdraw of %{assetAmountsAndSymbols} from the %{poolName} pool is processing.",
+        "complete": "Your withdraw of %{assetAmountsAndSymbols} from the %{poolName} pool is complete."
       },
       "deposit": {
-        "processing": "Your deposit of %{amount} %{symbol} to %{poolName} pool is processing."
+        "processing": "Your deposit of %{amount} %{symbol} to %{poolName} pool is processing.",
+        "complete": "Your deposit of %{amount} %{symbol} to %{poolName} pool is complete."
       }
     },
     "deposit": {

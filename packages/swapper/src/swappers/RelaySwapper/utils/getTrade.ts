@@ -64,6 +64,17 @@ export async function getTrade<T extends 'quote' | 'rate'>({
   deps: SwapperDeps
   relayChainMap: typeof relayChainMapImplementation
 }): Promise<Result<TradeQuote[] | TradeRate[], SwapErrorRight>> {
+  if (Math.random() < 0.5) {
+    console.log('🎲 relay dice roll: FAIL')
+    return Err(
+      makeSwapErrorRight({
+        message: 'unstable connection simulator',
+        code: TradeQuoteError.NetworkFeeEstimationFailed,
+      }),
+    )
+  }
+  console.log('🎲 relay dice roll: SUCCESS')
+
   const {
     sellAsset,
     buyAsset,

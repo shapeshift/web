@@ -1,7 +1,7 @@
 import type { Tx } from '../../../../../generated/bnbsmartchain'
 import { mempoolMock } from './mempoolMock'
 
-const bep20Approve: Tx = {
+const erc20Approve: Tx = {
   txid: '0x75df3a69247731e8e4596ff7f03a3e0ec2cdbc0623eeceb165c3ffad3f3ec839',
   blockHash: '0x091b34962754244418133697658b48bcf8036a6e440af358a951f8dba00a6a16',
   blockHeight: 25865860,
@@ -21,6 +21,6 @@ const bep20Approve: Tx = {
 }
 
 export default {
-  tx: bep20Approve,
-  txMempool: mempoolMock(bep20Approve),
+  tx: erc20Approve,
+  txMempool: mempoolMock(erc20Approve),
 }

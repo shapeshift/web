@@ -25,10 +25,7 @@ export const zrxTokenToAssetId = (token: string, chainId: ChainId): AssetId => {
     if (!isDefaultAddress)
       return {
         assetReference: token,
-        assetNamespace:
-          chainId === KnownChainIds.BnbSmartChainMainnet
-            ? ASSET_NAMESPACE.bep20
-            : ASSET_NAMESPACE.erc20,
+        assetNamespace: ASSET_NAMESPACE.erc20,
       }
     switch (chainId as ZrxSupportedChainId) {
       case KnownChainIds.EthereumMainnet:

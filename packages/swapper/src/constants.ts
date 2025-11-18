@@ -14,6 +14,8 @@ import { jupiterApi } from './swappers/JupiterSwapper/endpoints'
 import { jupiterSwapper } from './swappers/JupiterSwapper/JupiterSwapper'
 import { mayachainApi } from './swappers/MayachainSwapper/endpoints'
 import { mayachainSwapper } from './swappers/MayachainSwapper/MayachainSwapper'
+import { nearIntentsApi } from './swappers/NearIntentsSwapper/endpoints'
+import { nearIntentsSwapper } from './swappers/NearIntentsSwapper/NearIntentsSwapper'
 import { portalsApi } from './swappers/PortalsSwapper/endpoints'
 import { portalsSwapper } from './swappers/PortalsSwapper/PortalsSwapper'
 import { relaySwapper } from './swappers/RelaySwapper'
@@ -80,12 +82,17 @@ export const swappers: Record<SwapperName, (SwapperApi & Swapper) | undefined> =
     ...bebopSwapper,
     ...bebopApi,
   },
+  [SwapperName.NearIntents]: {
+    ...nearIntentsSwapper,
+    ...nearIntentsApi,
+  },
   [SwapperName.Test]: undefined,
 }
 
 // Slippage defaults. Don't export these to ensure the getDefaultSlippageDecimalPercentageForSwapper helper function is used.
 const DEFAULT_SLIPPAGE_DECIMAL_PERCENTAGE = '0.002' // .2%
 const DEFAULT_COWSWAP_SLIPPAGE_DECIMAL_PERCENTAGE = '0.005' // .5%
+const DEFAULT_NEAR_INTENTS_SLIPPAGE_DECIMAL_PERCENTAGE = '0.005' // .5%
 const DEFAULT_PORTALS_SLIPPAGE_DECIMAL_PERCENTAGE = '0.025' // 2.5%
 const DEFAULT_THOR_SLIPPAGE_DECIMAL_PERCENTAGE = '0.01' // 1%
 const DEFAULT_MAYA_SLIPPAGE_DECIMAL_PERCENTAGE = '0.01' // 1%
@@ -120,6 +127,8 @@ export const getDefaultSlippageDecimalPercentageForSwapper = (
       throw new Error('Default slippage not supported by Relay')
     case SwapperName.ButterSwap:
       return DEFAULT_BUTTERSWAP_SLIPPAGE_DECIMAL_PERCENTAGE
+    case SwapperName.NearIntents:
+      return DEFAULT_NEAR_INTENTS_SLIPPAGE_DECIMAL_PERCENTAGE
     default:
       return assertUnreachable(swapperName)
   }

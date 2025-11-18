@@ -18,9 +18,10 @@ export const bebopApi: SwapperApi = {
 
     return tradeQuoteResult.map(tradeQuote => [tradeQuote])
   },
-  getTradeRate: async (input, { assetsById, config }) => {
+  getTradeRate: async (input, { assertGetEvmChainAdapter, assetsById, config }) => {
     const tradeRateResult = await getBebopTradeRate(
       input as GetEvmTradeRateInput,
+      assertGetEvmChainAdapter,
       assetsById,
       config.VITE_BEBOP_API_KEY,
     )

@@ -4818,6 +4818,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@defuse-protocol/one-click-sdk-typescript@npm:^0.1.1-0.2":
+  version: 0.1.10
+  resolution: "@defuse-protocol/one-click-sdk-typescript@npm:0.1.10"
+  dependencies:
+    axios: ^1.6.8
+    form-data: ^4.0.0
+  checksum: 909a0ec262f9fcb46b81b7f2e2504adfd2052e2f550a17f3342007e86304b30ccdddffbfa088b1c4ca7e791b06d1a7896643267597b9fa5ac98343023a8941d3
+  languageName: node
+  linkType: hard
+
 "@eivifj/dot@npm:^1.0.1":
   version: 1.0.3
   resolution: "@eivifj/dot@npm:1.0.3"
@@ -10857,6 +10867,7 @@ __metadata:
     "@commitlint/cli": ^15.0.0
     "@commitlint/config-conventional": ^15.0.0
     "@cowprotocol/app-data": ^2.3.0
+    "@defuse-protocol/one-click-sdk-typescript": ^0.1.1-0.2
     "@emotion/react": ^11.13.0
     "@emotion/styled": ^11.13.0
     "@formatjs/intl-getcanonicallocales": ^2.3.0
@@ -10952,7 +10963,7 @@ __metadata:
     "@walletconnect/web3-provider": ^1.8.0
     alchemy-sdk: ^3.4.1
     assert: ^2.0.0
-    axios: ^1.12.1
+    axios: ^1.13.0
     axios-cache-interceptor: ^1.5.3
     axios-retry: ^4.5.0
     bignumber.js: ^9.3.1
@@ -10970,9 +10981,10 @@ __metadata:
     dayjs: ^1.11.3
     dompurify: ^2.3.8
     dotenv: ^16.0.1
-    embla-carousel-auto-height: ^7.0.9
-    embla-carousel-autoplay: ^7.0.5
-    embla-carousel-react: ^7.0.5
+    embla-carousel-auto-height: ^8.6.0
+    embla-carousel-auto-scroll: ^8.6.0
+    embla-carousel-autoplay: ^8.6.0
+    embla-carousel-react: ^8.6.0
     envalid: ^7.3.1
     eslint: ^8.47.0
     eslint-config-prettier: ^9.0.0
@@ -15684,14 +15696,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"axios@npm:^1.12.1":
-  version: 1.12.2
-  resolution: "axios@npm:1.12.2"
+"axios@npm:^1.13.0, axios@npm:^1.6.8":
+  version: 1.13.2
+  resolution: "axios@npm:1.13.2"
   dependencies:
     follow-redirects: ^1.15.6
     form-data: ^4.0.4
     proxy-from-env: ^1.1.0
-  checksum: f0331594fe053a4bbff04104edb073973a3aabfad2e56b0aa18de82428aa63f6f0839ca3d837258ec739cb4528014121793b1649a21e5115ffb2bf8237eadca3
+  checksum: 057d0204d5930e2969f0bccb9f0752745b1524a36994667833195e7e1a82f245d660752ba8517b2dbea17e9e4ed0479f10b80c5fe45edd0b5a0df645c0060386
   languageName: node
   linkType: hard
 
@@ -19122,39 +19134,58 @@ __metadata:
   languageName: node
   linkType: hard
 
-"embla-carousel-auto-height@npm:^7.0.9":
-  version: 7.0.9
-  resolution: "embla-carousel-auto-height@npm:7.0.9"
+"embla-carousel-auto-height@npm:^8.6.0":
+  version: 8.6.0
+  resolution: "embla-carousel-auto-height@npm:8.6.0"
   peerDependencies:
-    embla-carousel: 7.0.9
-  checksum: 060a15734b9fb7ae0fd073f211e27d791461f59815774640f2ebc2697a3ec015701fa1e2a0e5b10496519724200275c91539fe72f6c7acf046ab250628925716
+    embla-carousel: 8.6.0
+  checksum: fd47bc2e32592e86342709091fb2d6cbbccbd00c341aab5a2acbf2ddfb6bc2eefa054ba1da0f9ebaddcc9304ff801c6cffd9ce1f618bbff44048b4123dcb1adf
   languageName: node
   linkType: hard
 
-"embla-carousel-autoplay@npm:^7.0.5":
-  version: 7.0.5
-  resolution: "embla-carousel-autoplay@npm:7.0.5"
+"embla-carousel-auto-scroll@npm:^8.6.0":
+  version: 8.6.0
+  resolution: "embla-carousel-auto-scroll@npm:8.6.0"
   peerDependencies:
-    embla-carousel: 7.0.5
-  checksum: 4a5c958b4dc4c5e7d01d6a24692c1591ce7d78d9b0c5e563f6c113b6e20b746ca85cf30f29afde51ea5947da644df56071c6f2dc6c81629aa066c3502ee52855
+    embla-carousel: 8.6.0
+  checksum: b843b513d0d40cf4dd3b7c079ef1b84414be8438d30d0d79b52c235fc9cb0c59952ef673db29d1a02094fe7dcbb3563ed8dea8095c9f5bef1fdb2a8b6cda27db
   languageName: node
   linkType: hard
 
-"embla-carousel-react@npm:^7.0.5":
-  version: 7.0.5
-  resolution: "embla-carousel-react@npm:7.0.5"
+"embla-carousel-autoplay@npm:^8.6.0":
+  version: 8.6.0
+  resolution: "embla-carousel-autoplay@npm:8.6.0"
+  peerDependencies:
+    embla-carousel: 8.6.0
+  checksum: acb312f7c6fc8bebf13046eb89c874684f69bd6630731720f7d6e45881dfc4c8464734dd2929b1cdca0765fe449c6de310ee3da86e0e01b04cf933bf1bbaf942
+  languageName: node
+  linkType: hard
+
+"embla-carousel-react@npm:^8.6.0":
+  version: 8.6.0
+  resolution: "embla-carousel-react@npm:8.6.0"
   dependencies:
-    embla-carousel: 7.0.5
+    embla-carousel: 8.6.0
+    embla-carousel-reactive-utils: 8.6.0
   peerDependencies:
-    react: ^16.8.0 || ^17.0.1 || ^18.0.0
-  checksum: 9d57f04b1fa22d3b8c5c82c4bf5b7522ec29a1888324cdfe3ec2b69c3440591c430ad741ee5d9e1fcb020bd0e567b61d7a5d599f36c711b4636468d2d8725b07
+    react: ^16.8.0 || ^17.0.1 || ^18.0.0 || ^19.0.0 || ^19.0.0-rc
+  checksum: 30622c3f6bc3de5b608ab3fd82f69ec2ad86e86657c4c9d780380cf159bf5dac0170adced74aecd117c521c06fa014fe71b5fa0ec7c293921fd1cb7dff460be3
   languageName: node
   linkType: hard
 
-"embla-carousel@npm:7.0.5":
-  version: 7.0.5
-  resolution: "embla-carousel@npm:7.0.5"
-  checksum: 59928624126f4537642c7391d8aacb617ff021e2bf290c2d54693feaa45a6aa04a08f213c98f76696dca67d1d3e681cba3c15bea279e7c336028019e5bdb39ef
+"embla-carousel-reactive-utils@npm:8.6.0":
+  version: 8.6.0
+  resolution: "embla-carousel-reactive-utils@npm:8.6.0"
+  peerDependencies:
+    embla-carousel: 8.6.0
+  checksum: d3663addcb10a5cfecac976987f27fd58f2142ef944da9cd56568120752a71cb04d731e9c396f2e426f43be730f02145a87b88747c6902e24544a6fca9fc0141
+  languageName: node
+  linkType: hard
+
+"embla-carousel@npm:8.6.0":
+  version: 8.6.0
+  resolution: "embla-carousel@npm:8.6.0"
+  checksum: d943d225d069a8cf0b876440297dda42107e5e69006387c6bce1163b027ac5e5beba67160db818a763c7c46f2103238a097953ac3f383362f8104535cd278de1
   languageName: node
   linkType: hard
 
@@ -24028,13 +24059,13 @@ __metadata:
   linkType: hard
 
 "js-yaml@npm:^4.1.0":
-  version: 4.1.0
-  resolution: "js-yaml@npm:4.1.0"
+  version: 4.1.1
+  resolution: "js-yaml@npm:4.1.1"
   dependencies:
     argparse: ^2.0.1
   bin:
     js-yaml: bin/js-yaml.js
-  checksum: c7830dfd456c3ef2c6e355cc5a92e6700ceafa1d14bba54497b34a99f0376cecbb3e9ac14d3e5849b426d5a5140709a66237a8c991c675431271c4ce5504151a
+  checksum: ea2339c6930fe048ec31b007b3c90be2714ab3e7defcc2c27ebf30c74fd940358f29070b4345af0019ef151875bf3bc3f8644bea1bab0372652b5044813ac02d
   languageName: node
   linkType: hard
 
@@ -25224,11 +25255,11 @@ __metadata:
   linkType: hard
 
 "min-document@npm:^2.19.0":
-  version: 2.19.0
-  resolution: "min-document@npm:2.19.0"
+  version: 2.19.1
+  resolution: "min-document@npm:2.19.1"
   dependencies:
     dom-walk: ^0.1.0
-  checksum: da6437562ea2228041542a2384528e74e22d1daa1a4ec439c165abf0b9d8a63e17e3b8a6dc6e0c731845e85301198730426932a0e813d23f932ca668340c9623
+  checksum: 8c49f61efa8b8cb9578d11ba626619519f474da9a6d98efb0e21e6fc222259f16514a1e0d1d301014ea14240b974f85381697107688d2c48873aa79a3c0a166c
   languageName: node
   linkType: hard
 

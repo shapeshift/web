@@ -134,7 +134,9 @@ export const AddressInput = ({
     if (!internalAccountId) return null
 
     if (isUtxoAccountId(internalAccountId)) {
-      return accountIdToLabel(internalAccountId)
+      return `${translate('accounts.accountNumber', { accountNumber })} - ${accountIdToLabel(
+        internalAccountId,
+      )}`
     }
 
     // Fallback to "Account" if accountNumber is not available yet
@@ -213,7 +215,11 @@ export const AddressInput = ({
               {vanityAddress}
             </CText>
             {resolvedAddress && (
-              <MiddleEllipsis fontSize='xs' color='text.subtle' value={resolvedAddress} />
+              <MiddleEllipsis
+                fontSize='xs'
+                color='text.subtle'
+                value={resolvedAddress.replace('bitcoincash:', '')}
+              />
             )}
           </VStack>
         </HStack>
@@ -292,7 +298,7 @@ export const AddressInput = ({
                   <MiddleEllipsis
                     fontSize='xs'
                     color='text.subtle'
-                    value={addressBookEntry.address}
+                    value={addressBookEntry.address.replace('bitcoincash:', '')}
                   />
                 </VStack>
               </HStack>
@@ -326,7 +332,11 @@ export const AddressInput = ({
                     {`${internalAccountLabel}${vanityAddress ? ` (${vanityAddress})` : ''}`}
                   </CText>
                   {resolvedAddress && (
-                    <MiddleEllipsis fontSize='xs' color='text.subtle' value={resolvedAddress} />
+                    <MiddleEllipsis
+                      fontSize='xs'
+                      color='text.subtle'
+                      value={resolvedAddress.replace('bitcoincash:', '')}
+                    />
                   )}
                 </VStack>
               </HStack>

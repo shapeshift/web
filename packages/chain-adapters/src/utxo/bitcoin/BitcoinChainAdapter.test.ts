@@ -258,6 +258,7 @@ describe('BitcoinChainAdapter', () => {
                 txid: tx.txid,
               },
             ],
+            txIds: [tx.txid],
           }
 
           const actual = await adapter.getTxHistory({ pubkey })
@@ -305,6 +306,7 @@ describe('BitcoinChainAdapter', () => {
                 txid: tx.txid,
               },
             ],
+            txIds: [tx.txid],
           }
 
           const actual = await adapter.getTxHistory({ pubkey })
@@ -356,6 +358,7 @@ describe('BitcoinChainAdapter', () => {
                 txid: tx.txid,
               },
             ],
+            txIds: [tx.txid],
           }
 
           const actual = await adapter.getTxHistory({ pubkey })
@@ -406,6 +409,7 @@ describe('BitcoinChainAdapter', () => {
                 txid: tx.txid,
               },
             ],
+            txIds: [tx.txid],
           }
 
           const actual = await adapter.getTxHistory({ pubkey })
@@ -449,6 +453,7 @@ describe('BitcoinChainAdapter', () => {
                 txid: tx.txid,
               },
             ],
+            txIds: [tx.txid],
           }
 
           const actual = await adapter.getTxHistory({ pubkey })
@@ -497,6 +502,7 @@ describe('BitcoinChainAdapter', () => {
                 txid: tx.txid,
               },
             ],
+            txIds: [tx.txid],
           }
 
           const actual = await adapter.getTxHistory({ pubkey })
@@ -553,6 +559,7 @@ describe('BitcoinChainAdapter', () => {
                 txid: tx.txid,
               },
             ],
+            txIds: [tx.txid],
           }
 
           const actual = await adapter.getTxHistory({ pubkey })
@@ -619,6 +626,7 @@ describe('BitcoinChainAdapter', () => {
                 txid: tx.txid,
               },
             ],
+            txIds: [tx.txid],
           }
 
           const actual = await adapter.getTxHistory({ pubkey })
@@ -671,6 +679,7 @@ describe('BitcoinChainAdapter', () => {
                 txid: tx.txid,
               },
             ],
+            txIds: [tx.txid],
           }
 
           const actual = await adapter.getTxHistory({ pubkey })
@@ -719,6 +728,7 @@ describe('BitcoinChainAdapter', () => {
                 txid: tx.txid,
               },
             ],
+            txIds: [tx.txid],
           }
 
           const actual = await adapter.getTxHistory({ pubkey })
@@ -770,6 +780,7 @@ describe('BitcoinChainAdapter', () => {
                 txid: tx.txid,
               },
             ],
+            txIds: [tx.txid],
           }
 
           const actual = await adapter.getTxHistory({ pubkey })
@@ -822,6 +833,7 @@ describe('BitcoinChainAdapter', () => {
                 txid: tx.txid,
               },
             ],
+            txIds: [tx.txid],
           }
 
           const actual = await adapter.getTxHistory({ pubkey })
@@ -868,6 +880,7 @@ describe('BitcoinChainAdapter', () => {
                 txid: tx.txid,
               },
             ],
+            txIds: [tx.txid],
           }
 
           const actual = await adapter.getTxHistory({ pubkey })
@@ -924,6 +937,7 @@ describe('BitcoinChainAdapter', () => {
                 txid: tx.txid,
               },
             ],
+            txIds: [tx.txid],
           }
 
           const actual = await adapter.getTxHistory({ pubkey })
@@ -986,6 +1000,7 @@ describe('BitcoinChainAdapter', () => {
                 txid: tx.txid,
               },
             ],
+            txIds: [tx.txid],
           }
 
           const actual = await adapter.getTxHistory({ pubkey })
@@ -1059,6 +1074,7 @@ describe('BitcoinChainAdapter', () => {
                 txid: tx.txid,
               },
             ],
+            txIds: [tx.txid],
           }
 
           const actual = await adapter.getTxHistory({ pubkey })

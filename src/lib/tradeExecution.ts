@@ -156,6 +156,7 @@ export class TradeExecution {
         metadata: {
           ...swap.metadata,
           chainflipSwapId: tradeQuote.steps[0]?.chainflipSpecific?.chainflipSwapId,
+          nearIntentsSpecific: tradeQuote.steps[0]?.nearIntentsSpecific,
           relayTransactionMetadata: tradeQuote.steps[0]?.relayTransactionMetadata,
           stepIndex,
         },

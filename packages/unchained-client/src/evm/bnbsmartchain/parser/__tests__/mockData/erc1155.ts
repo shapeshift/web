@@ -1,7 +1,7 @@
 import type { Tx } from '../../../index'
 import { mempoolMock } from './mempoolMock'
 
-const bep1155: Tx = {
+const erc1155: Tx = {
   txid: '0x2b63ef5aaf9292023be8936646de66bc389c1c984928a79c93a632e391e8c00e',
   blockHash: '0x3e0a62ba74234949370c2f7d85c15397fb2c61e34de6375227de9dff162e9e48',
   blockHeight: 28094651,
@@ -23,7 +23,7 @@ const bep1155: Tx = {
       decimals: 18,
       name: 'Nfterrium Nomad',
       symbol: 'NTMN',
-      type: 'BEP1155',
+      type: 'ERC1155',
       from: '0x606a712666DD5EeF29d2F0360874C8ED1E72A007',
       to: '0xD3106B990148CFED6D36eaC4E2066B9356dB423b',
       value: '1',
@@ -34,6 +34,6 @@ const bep1155: Tx = {
 }
 
 export default {
-  tx: bep1155,
-  txMempool: mempoolMock(bep1155),
+  tx: erc1155,
+  txMempool: mempoolMock(erc1155),
 }

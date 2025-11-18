@@ -23,7 +23,7 @@ export const tokenStandard: Tx = {
       decimals: 18,
       name: 'Tether USD',
       symbol: 'USDT',
-      type: 'BEP20',
+      type: 'ERC20',
       from: '0xc4178B5673633c15c3a2077A1D7f0fF1Be8a4a44',
       to: '0xC66bfff5C2ec26F60542bD3C862d7846F0783fdf',
       value: '200000000000000000000',

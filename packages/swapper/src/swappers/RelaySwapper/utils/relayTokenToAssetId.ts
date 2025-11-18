@@ -42,8 +42,6 @@ export const relayTokenToAssetId = (relayToken: RelayToken): AssetId => {
     if (!isNativeAsset) {
       const assetNamespace = (() => {
         switch (true) {
-          case CHAIN_REFERENCE.BnbSmartChainMainnet === chainReference:
-            return ASSET_NAMESPACE.bep20
           case isEvmChainId(chainId):
             return ASSET_NAMESPACE.erc20
           case CHAIN_REFERENCE.SolanaMainnet === chainReference:

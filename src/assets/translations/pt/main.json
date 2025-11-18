@@ -644,14 +644,6 @@
         "infinite": "Infinito ∞",
         "amountUnavailable": "Indisponível"
       },
-      "bep20": {
-        "approve": "Aprove",
-        "approveSymbol": "Aprovar %{symbol}",
-        "revoke": "Revogar",
-        "revokeSymbol": "Revogar %{symbol} a aprovação",
-        "infinite": "Infinito ∞",
-        "amountUnavailable": "Indisponível"
-      },
       "staking": {
         "delegate": "Delegar",
         "begin_unbonding": "Retirar delegação",

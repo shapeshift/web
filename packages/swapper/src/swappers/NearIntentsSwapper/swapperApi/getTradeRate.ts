@@ -20,7 +20,7 @@ import { DEFAULT_QUOTE_DEADLINE_MS, DEFAULT_SLIPPAGE_BPS } from '../constants'
 import type { QuoteResponse } from '../types'
 import { QuoteRequest } from '../types'
 import { assetToNearIntentsAsset, calculateAccountCreationCosts } from '../utils/helpers/helpers'
-import { initializeOneClickService, OneClickService } from '../utils/oneClickService'
+import { ApiError, initializeOneClickService, OneClickService } from '../utils/oneClickService'
 
 export const getTradeRate = async (
   input: GetTradeRateInput,
@@ -41,6 +41,15 @@ export const getTradeRate = async (
 
     const originAsset = await assetToNearIntentsAsset(sellAsset)
     const destinationAsset = await assetToNearIntentsAsset(buyAsset)
+
+    if (!(originAsset && destinationAsset)) {
+      return Err(
+        makeSwapErrorRight({
+          code: TradeQuoteError.UnsupportedTradePair,
+          message: 'Unsupported asset',
+        }),
+      )
+    }
 
     // Wallet connected: use actual addresses
     // No wallet: use "check-price" sentinel with INTENTS types
@@ -196,6 +205,19 @@ export const getTradeRate = async (
 
     return Ok([tradeRate])
   } catch (error) {
+    if (
+      error instanceof ApiError &&
+      (error.body?.message === 'tokenIn is not valid' ||
+        error.body?.message === 'tokenOut is not valid')
+    ) {
+      return Err(
+        makeSwapErrorRight({
+          code: TradeQuoteError.UnsupportedTradePair,
+          message: 'Unsupported asset',
+        }),
+      )
+    }
+
     return Err(
       makeSwapErrorRight({
         message: error instanceof Error ? error.message : 'Unknown error getting NEAR Intents rate',

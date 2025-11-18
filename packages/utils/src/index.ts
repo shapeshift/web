@@ -30,9 +30,6 @@ export const isToken = (assetId: AssetId) => {
     case ASSET_NAMESPACE.erc20:
     case ASSET_NAMESPACE.erc721:
     case ASSET_NAMESPACE.erc1155:
-    case ASSET_NAMESPACE.bep20:
-    case ASSET_NAMESPACE.bep721:
-    case ASSET_NAMESPACE.bep1155:
     case ASSET_NAMESPACE.splToken:
       return true
     default:

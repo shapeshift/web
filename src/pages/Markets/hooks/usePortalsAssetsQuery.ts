@@ -1,5 +1,5 @@
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
-import { ASSET_NAMESPACE, bscChainId, toAssetId } from '@shapeshiftoss/caip'
+import { ASSET_NAMESPACE, toAssetId } from '@shapeshiftoss/caip'
 import { skipToken, useQuery } from '@tanstack/react-query'
 
 import { OrderDirection } from '@/components/OrderDropdown/types'
@@ -76,7 +76,7 @@ export const usePortalsAssetsQuery = ({
 
           const assetId = toAssetId({
             chainId,
-            assetNamespace: chainId === bscChainId ? ASSET_NAMESPACE.bep20 : ASSET_NAMESPACE.erc20,
+            assetNamespace: ASSET_NAMESPACE.erc20,
             assetReference: token.address,
           })
           const feeAsset = selectFeeAssetById(store.getState(), assetId)

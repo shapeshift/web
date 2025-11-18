@@ -11,9 +11,6 @@ export const getAssetNamespace = (type: string): AssetNamespace => {
   if (type === 'ERC20') return 'erc20'
   if (type === 'ERC721') return 'erc721'
   if (type === 'ERC1155') return 'erc1155'
-  if (type === 'BEP20') return 'bep20'
-  if (type === 'BEP721') return 'bep721'
-  if (type === 'BEP1155') return 'bep1155'
   throw new Error(`Unknown asset namespace. type: ${type}`)
 }
 

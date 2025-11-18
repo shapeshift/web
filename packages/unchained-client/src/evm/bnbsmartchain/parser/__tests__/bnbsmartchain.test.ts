@@ -7,11 +7,11 @@ import { Dex, TradeType, TransferType, TxStatus } from '../../../../types'
 import type { ParsedTx } from '../../../parser'
 import { V1Api } from '../../index'
 import { TransactionParser } from '../index'
-import bep20Approve from './mockData/bep20Approve'
-import bep721 from './mockData/bep721'
-import bep1155 from './mockData/bep1155'
 import bnbSelfSend from './mockData/bnbSelfSend'
 import bnbStandard from './mockData/bnbStandard'
+import erc20Approve from './mockData/erc20Approve'
+import erc721 from './mockData/erc721'
+import erc1155 from './mockData/erc1155'
 import { busdToken, usdtToken } from './mockData/tokens'
 import tokenSelfSend from './mockData/tokenSelfSend'
 import tokenStandard from './mockData/tokenStandard'
@@ -198,7 +198,7 @@ describe('parseTx', () => {
               type: TransferType.Send,
               from: address,
               to: '0xC66bfff5C2ec26F60542bD3C862d7846F0783fdf',
-              assetId: 'eip155:56/bep20:0x55d398326f99059ff775485246999027b3197955',
+              assetId: 'eip155:56/erc20:0x55d398326f99059ff775485246999027b3197955',
               totalValue: '200000000000000000000',
               components: [{ value: '200000000000000000000' }],
               token: usdtToken,
@@ -249,7 +249,7 @@ describe('parseTx', () => {
               type: TransferType.Receive,
               from: '0xc4178B5673633c15c3a2077A1D7f0fF1Be8a4a44',
               to: address,
-              assetId: 'eip155:56/bep20:0x55d398326f99059ff775485246999027b3197955',
+              assetId: 'eip155:56/erc20:0x55d398326f99059ff775485246999027b3197955',
               totalValue: '200000000000000000000',
               components: [{ value: '200000000000000000000' }],
               token: usdtToken,
@@ -263,9 +263,9 @@ describe('parseTx', () => {
       })
     })
 
-    describe('bep721', () => {
+    describe('erc721', () => {
       it('should be able to parse mempool send', async () => {
-        const { txMempool } = bep721
+        const { txMempool } = erc721
         const address = '0xc86d6a700B82C62A14458858d17d0e6a3942f424'
 
         const expected: ParsedTx = {
@@ -285,7 +285,7 @@ describe('parseTx', () => {
       })
 
       it('should be able to parse send', async () => {
-        const { tx } = bep721
+        const { tx } = erc721
         const address = '0xc86d6a700B82C62A14458858d17d0e6a3942f424'
 
         const expected: ParsedTx = {
@@ -306,7 +306,7 @@ describe('parseTx', () => {
               type: TransferType.Send,
               to: '0x26bCA820c78DDe0349960457960e7b80548E37e3',
               from: address,
-              assetId: 'eip155:56/bep721:0xd7c79abeb8d8b21e7638a8aadfdcc1438d24b483/6201612',
+              assetId: 'eip155:56/erc721:0xd7c79abeb8d8b21e7638a8aadfdcc1438d24b483/6201612',
               totalValue: '1',
               components: [{ value: '1' }],
               id: '6201612',
@@ -326,7 +326,7 @@ describe('parseTx', () => {
       })
 
       it('should be able to parse mempool receive', async () => {
-        const { txMempool } = bep721
+        const { txMempool } = erc721
         const address = '0x26bCA820c78DDe0349960457960e7b80548E37e3'
 
         const expected: ParsedTx = {
@@ -346,7 +346,7 @@ describe('parseTx', () => {
       })
 
       it('should be able to parse receive', async () => {
-        const { tx } = bep721
+        const { tx } = erc721
         const address = '0x26bCA820c78DDe0349960457960e7b80548E37e3'
 
         const expected: ParsedTx = {
@@ -363,7 +363,7 @@ describe('parseTx', () => {
               type: TransferType.Receive,
               to: address,
               from: '0xc86d6a700B82C62A14458858d17d0e6a3942f424',
-              assetId: 'eip155:56/bep721:0xd7c79abeb8d8b21e7638a8aadfdcc1438d24b483/6201612',
+              assetId: 'eip155:56/erc721:0xd7c79abeb8d8b21e7638a8aadfdcc1438d24b483/6201612',
               totalValue: '1',
               components: [{ value: '1' }],
               id: '6201612',
@@ -383,9 +383,9 @@ describe('parseTx', () => {
       })
     })
 
-    describe('bep1155', () => {
+    describe('erc1155', () => {
       it('should be able to parse mempool send', async () => {
-        const { txMempool } = bep1155
+        const { txMempool } = erc1155
         const address = '0x606a712666DD5EeF29d2F0360874C8ED1E72A007'
 
         const expected: ParsedTx = {
@@ -405,7 +405,7 @@ describe('parseTx', () => {
       })
 
       it('should be able to parse send', async () => {
-        const { tx } = bep1155
+        const { tx } = erc1155
         const address = '0x606a712666DD5EeF29d2F0360874C8ED1E72A007'
 
         const expected: ParsedTx = {
@@ -426,7 +426,7 @@ describe('parseTx', () => {
               type: TransferType.Send,
               to: '0xD3106B990148CFED6D36eaC4E2066B9356dB423b',
               from: address,
-              assetId: 'eip155:56/bep1155:0xe4395bd1dae0687dcf6bfbafdaa8edb5a2065eef/550',
+              assetId: 'eip155:56/erc1155:0xe4395bd1dae0687dcf6bfbafdaa8edb5a2065eef/550',
               totalValue: '1',
               components: [{ value: '1' }],
               id: '550',
@@ -446,7 +446,7 @@ describe('parseTx', () => {
       })
 
       it('should be able to parse mempool receive', async () => {
-        const { txMempool } = bep1155
+        const { txMempool } = erc1155
         const address = '0xD3106B990148CFED6D36eaC4E2066B9356dB423b'
 
         const expected: ParsedTx = {
@@ -466,7 +466,7 @@ describe('parseTx', () => {
       })
 
       it('should be able to parse receive', async () => {
-        const { tx } = bep1155
+        const { tx } = erc1155
         const address = '0xD3106B990148CFED6D36eaC4E2066B9356dB423b'
 
         const expected: ParsedTx = {
@@ -483,7 +483,7 @@ describe('parseTx', () => {
               type: TransferType.Receive,
               to: address,
               from: '0x606a712666DD5EeF29d2F0360874C8ED1E72A007',
-              assetId: 'eip155:56/bep1155:0xe4395bd1dae0687dcf6bfbafdaa8edb5a2065eef/550',
+              assetId: 'eip155:56/erc1155:0xe4395bd1dae0687dcf6bfbafdaa8edb5a2065eef/550',
               totalValue: '1',
               components: [{ value: '1' }],
               id: '550',
@@ -626,7 +626,7 @@ describe('parseTx', () => {
             type: TransferType.Send,
             from: address,
             to: address,
-            assetId: 'eip155:56/bep20:0x55d398326f99059ff775485246999027b3197955',
+            assetId: 'eip155:56/erc20:0x55d398326f99059ff775485246999027b3197955',
             totalValue: '200000000000000000000',
             components: [{ value: '200000000000000000000' }],
             token: usdtToken,
@@ -635,7 +635,7 @@ describe('parseTx', () => {
             type: TransferType.Receive,
             from: address,
             to: address,
-            assetId: 'eip155:56/bep20:0x55d398326f99059ff775485246999027b3197955',
+            assetId: 'eip155:56/erc20:0x55d398326f99059ff775485246999027b3197955',
             totalValue: '200000000000000000000',
             components: [{ value: '200000000000000000000' }],
             token: usdtToken,
@@ -649,9 +649,9 @@ describe('parseTx', () => {
     })
   })
 
-  describe('bep20', () => {
+  describe('erc20', () => {
     it('should be able to parse approve mempool', async () => {
-      const { txMempool } = bep20Approve
+      const { txMempool } = erc20Approve
       const address = '0xeFcdFc962cf71Da4D147aA42A72C106d557Ae7Fe'
 
       const expected: ParsedTx = {
@@ -664,9 +664,9 @@ describe('parseTx', () => {
         status: TxStatus.Pending,
         transfers: [],
         data: {
-          assetId: 'eip155:56/bep20:0xbb4cdb9cbd36b01bd1cbaebf2de08d9173bc095c',
+          assetId: 'eip155:56/erc20:0xbb4cdb9cbd36b01bd1cbaebf2de08d9173bc095c',
           method: 'approve',
-          parser: 'bep20',
+          parser: 'erc20',
           value: '115792089237316195423570985008687907853269984665640564039457584007913129639935',
         },
       }
@@ -677,7 +677,7 @@ describe('parseTx', () => {
     })
 
     it('should be able to parse approve', async () => {
-      const { tx } = bep20Approve
+      const { tx } = erc20Approve
       const address = '0xeFcdFc962cf71Da4D147aA42A72C106d557Ae7Fe'
 
       const expected: ParsedTx = {
@@ -695,9 +695,9 @@ describe('parseTx', () => {
         },
         transfers: [],
         data: {
-          assetId: 'eip155:56/bep20:0xbb4cdb9cbd36b01bd1cbaebf2de08d9173bc095c',
+          assetId: 'eip155:56/erc20:0xbb4cdb9cbd36b01bd1cbaebf2de08d9173bc095c',
           method: 'approve',
-          parser: 'bep20',
+          parser: 'erc20',
           value: '115792089237316195423570985008687907853269984665640564039457584007913129639935',
         },
       }
@@ -724,7 +724,7 @@ describe('parseTx', () => {
       }
 
       const sellTransfer: Transfer = {
-        assetId: 'eip155:56/bep20:0xe9e7cea3dedca5984780bafc599bd69add087d56',
+        assetId: 'eip155:56/erc20:0xe9e7cea3dedca5984780bafc599bd69add087d56',
         components: [{ value: '1489033385864185057' }],
         from: address,
         to: '0x51e6D27FA57373d8d4C256231241053a70Cb1d93',
@@ -762,7 +762,7 @@ describe('parseTx', () => {
       const trade: Trade = { dexName: Dex.Zrx, type: TradeType.Trade }
 
       const buyTransfer: Transfer = {
-        assetId: 'eip155:56/bep20:0xe9e7cea3dedca5984780bafc599bd69add087d56',
+        assetId: 'eip155:56/erc20:0xe9e7cea3dedca5984780bafc599bd69add087d56',
         components: [{ value: '326087208829856917029' }],
         from: '0xdB6f1920A889355780aF7570773609Bd8Cb1f498',
         to: address,
@@ -809,7 +809,7 @@ describe('parseTx', () => {
       const trade: Trade = { dexName: Dex.Zrx, type: TradeType.Trade }
 
       const buyTransfer: Transfer = {
-        assetId: 'eip155:56/bep20:0xe9e7cea3dedca5984780bafc599bd69add087d56',
+        assetId: 'eip155:56/erc20:0xe9e7cea3dedca5984780bafc599bd69add087d56',
         components: [{ value: '1918012446944444331677' }],
         from: '0xdB6f1920A889355780aF7570773609Bd8Cb1f498',
         to: address,
@@ -819,7 +819,7 @@ describe('parseTx', () => {
       }
 
       const sellTransfer: Transfer = {
-        assetId: 'eip155:56/bep20:0x55d398326f99059ff775485246999027b3197955',
+        assetId: 'eip155:56/erc20:0x55d398326f99059ff775485246999027b3197955',
         components: [{ value: '1917821751000000000000' }],
         from: address,
         to: '0xdB6f1920A889355780aF7570773609Bd8Cb1f498',

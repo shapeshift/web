@@ -63,7 +63,7 @@ const COINCAP_CHAIN_MAP: Record<string, { chainId: ChainId; assetNamespace: Asse
   },
   [COINCAP_CHAIN_REFERENCE.BnbSmartChainMainnet]: {
     chainId: bscChainId,
-    assetNamespace: 'bep20',
+    assetNamespace: 'erc20',
   },
   [COINCAP_CHAIN_REFERENCE.SolanaMainnet]: {
     chainId: solanaChainId,

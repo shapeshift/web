@@ -105,7 +105,7 @@ export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
           const assetId = toAssetId({
             chainNamespace: CHAIN_NAMESPACE.Evm,
             chainReference: CHAIN_REFERENCE.BnbSmartChainMainnet,
-            assetNamespace: 'bep20',
+            assetNamespace: 'erc20',
             assetReference: platforms[CoingeckoAssetPlatform.BnbSmartChain],
           })
           prev[bscChainId][assetId] = id

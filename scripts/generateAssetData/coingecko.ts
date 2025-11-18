@@ -78,7 +78,7 @@ export async function getAssets(chainId: ChainId): Promise<Asset[]> {
         }
       case bscChainId:
         return {
-          assetNamespace: ASSET_NAMESPACE.bep20,
+          assetNamespace: ASSET_NAMESPACE.erc20,
           category: adapters.chainIdToCoingeckoAssetPlatform(chainId),
           explorer: bnbsmartchain.explorer,
           explorerAddressLink: bnbsmartchain.explorerAddressLink,

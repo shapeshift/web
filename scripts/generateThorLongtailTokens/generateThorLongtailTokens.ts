@@ -71,10 +71,9 @@ export const generateThorLongtailTokens = async () => {
   const avaxData = avaxResponse.data
   const bscData = bscResponse.data
 
-  const erc20Tokens = [...ethData.tokens, ...avaxData.tokens]
-  const bep20Tokens = bscData.tokens
+  const tokens = [...ethData.tokens, ...avaxData.tokens, ...bscData.tokens]
 
-  const erc20AssetIds = erc20Tokens
+  const assetIds = tokens
     .filter(token => VALID_CHAIN_IDS.eip155.includes(String(token.chainId) as ChainReference))
     .map(token => {
       try {
@@ -89,24 +88,6 @@ export const generateThorLongtailTokens = async () => {
       }
     })
     .filter(Boolean)
-
-  const bep20AssetIds = bep20Tokens
-    .filter(token => VALID_CHAIN_IDS.eip155.includes(String(token.chainId) as ChainReference))
-    .map(token => {
-      try {
-        return toAssetId({
-          chainNamespace: CHAIN_NAMESPACE.Evm,
-          chainReference: String(token.chainId) as ChainReference,
-          assetNamespace: ASSET_NAMESPACE.bep20,
-          assetReference: token.address,
-        })
-      } catch {
-        return undefined
-      }
-    })
-    .filter(Boolean)
-
-  const assetIds = [...erc20AssetIds, ...bep20AssetIds]
 
   await fs.promises.writeFile(
     path.join(__dirname, outputPath),

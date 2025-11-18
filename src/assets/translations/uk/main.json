@@ -644,14 +644,6 @@
         "infinite": "Нескінченно ∞",
         "amountUnavailable": "Недоступно"
       },
-      "bep20": {
-        "approve": "Схвалити",
-        "approveSymbol": "Схвалити %{symbol}",
-        "revoke": "Відкликати",
-        "revokeSymbol": "Відкликати дозвіл %{symbol} ",
-        "infinite": "Нескінченно ∞",
-        "amountUnavailable": "Недоступно"
-      },
       "staking": {
         "delegate": "Делегувати",
         "begin_unbonding": "Зняти делегування",

@@ -174,12 +174,6 @@ export class BaseTransactionParser<T extends Tx> {
               return ASSET_NAMESPACE.erc721
             case 'ERC1155':
               return ASSET_NAMESPACE.erc1155
-            case 'BEP20':
-              return ASSET_NAMESPACE.bep20
-            case 'BEP721':
-              return ASSET_NAMESPACE.bep721
-            case 'BEP1155':
-              return ASSET_NAMESPACE.bep1155
             default:
               return
           }

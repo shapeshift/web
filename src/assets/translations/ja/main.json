@@ -644,14 +644,6 @@
         "infinite": "∞",
         "amountUnavailable": "利用不可"
       },
-      "bep20": {
-        "approve": "承認する",
-        "approveSymbol": "%{symbol}を承認する",
-        "revoke": "取り消す",
-        "revokeSymbol": "%{symbol} の承認を取り消す",
-        "infinite": "∞",
-        "amountUnavailable": "利用不可"
-      },
       "staking": {
         "delegate": "委任",
         "begin_unbonding": "委任を解除",

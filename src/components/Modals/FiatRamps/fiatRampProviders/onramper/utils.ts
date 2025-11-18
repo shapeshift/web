@@ -179,8 +179,6 @@ export const findAssetIdByOnramperCrypto = (crypto: Crypto): AssetId | undefined
           return ASSET_NAMESPACE.slip44
         }
 
-        if (crypto.network === 'bsc') return ASSET_NAMESPACE.bep20
-
         if (crypto.chainId || isAddress(crypto.address)) return ASSET_NAMESPACE.erc20
       })()
 

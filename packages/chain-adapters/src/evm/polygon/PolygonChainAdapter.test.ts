@@ -473,7 +473,7 @@ describe('PolygonChainAdapter', () => {
       expect(args.providers.http.getAccount).toHaveBeenCalledTimes(1)
     })
 
-    it("should build a tx with value: '0' for BEP20 txs without sendMax", async () => {
+    it("should build a tx with value: '0' without sendMax", async () => {
       const httpProvider = {
         getAccount: vi
           .fn()

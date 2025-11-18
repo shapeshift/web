@@ -644,14 +644,6 @@
         "infinite": "Sonsuz ∞",
         "amountUnavailable": "Kullanım dışı"
       },
-      "bep20": {
-        "approve": "Onayla",
-        "approveSymbol": "Onayla %{symbol}",
-        "revoke": "İptal",
-        "revokeSymbol": "%{symbol} onayını iptal edin",
-        "infinite": "Sonsuz ∞",
-        "amountUnavailable": "Kullanılamıyor"
-      },
       "staking": {
         "delegate": "Yetki",
         "begin_unbonding": "Yetkiyi geri al",

@@ -182,6 +182,7 @@ const initialState: Preferences = {
     ThorchainLpDeposit: getConfig().VITE_FEATURE_THORCHAIN_LP_DEPOSIT,
     ThorchainLpWithdraw: getConfig().VITE_FEATURE_THORCHAIN_LP_WITHDRAW,
     LedgerWallet: getConfig().VITE_FEATURE_LEDGER_WALLET,
+    VultisigWallet: getConfig().VITE_FEATURE_VULTISIG_WALLET,
     ThorchainSwapLongtail: getConfig().VITE_FEATURE_THORCHAINSWAP_LONGTAIL,
     ThorchainSwapL1ToLongtail: getConfig().VITE_FEATURE_THORCHAINSWAP_L1_TO_LONGTAIL,
     AccountManagement: getConfig().VITE_FEATURE_ACCOUNT_MANAGEMENT,

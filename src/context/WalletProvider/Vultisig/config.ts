@@ -1,6 +1,6 @@
 import type { VultisigAdapter } from '@shapeshiftoss/hdwallet-vultisig'
 
-import { PhantomIcon } from '@/components/Icons/PhantomIcon'
+import { VultisigIcon } from '@/components/Icons/VultisigIcon'
 import type { SupportedWalletInfo } from '@/context/WalletProvider/config'
 
 type VultisigConfigType = Omit<SupportedWalletInfo<typeof VultisigAdapter>, 'routes'>
@@ -12,6 +12,6 @@ export const VultisigConfig: VultisigConfigType = {
     },
   ],
   supportsMobile: 'browser',
-  icon: PhantomIcon,
+  icon: VultisigIcon,
   name: 'Vultisig',
 }

@@ -94,7 +94,7 @@ export type FeatureFlags = {
   QuickBuy: boolean
   NewWalletManager: boolean
   SwapperFiatRamps: boolean
-  Webservices: boolean
+  WebServices: boolean
   AddressBook: boolean
 }
 
@@ -224,7 +224,7 @@ const initialState: Preferences = {
     QuickBuy: getConfig().VITE_FEATURE_QUICK_BUY,
     NewWalletManager: getConfig().VITE_FEATURE_NEW_WALLET_MANAGER,
     SwapperFiatRamps: getConfig().VITE_FEATURE_SWAPPER_FIAT_RAMPS,
-    Webservices: getConfig().VITE_FEATURE_WEBSERVICES,
+    WebServices: getConfig().VITE_FEATURE_NOTIFICATIONS_WEBSERVICES,
     AddressBook: getConfig().VITE_FEATURE_ADDRESS_BOOK,
   },
   selectedLocale: simpleLocale(),

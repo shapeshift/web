@@ -1,11 +1,11 @@
-import { useQuery } from '@tanstack/react-query'
+import { skipToken, useQuery } from '@tanstack/react-query'
 import { useMemo } from 'react'
 import { v4 as uuidv4 } from 'uuid'
 
 import { getExpoToken } from '@/context/WalletProvider/MobileWallet/mobileMessageHandlers'
 import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { isMobile } from '@/lib/globals'
-import { getOrCreateUser, registerDevice } from '@/lib/user/api'
+import { getOrCreateUser, getOrRegisterDevice } from '@/lib/user/api'
 import type { User } from '@/lib/user/types'
 import { DeviceType } from '@/lib/user/types'
 import { selectWalletEnabledAccountIds } from '@/state/slices/common-selectors'
@@ -24,7 +24,7 @@ type UseUserData = {
 
 export const useUser = (): UseUserData => {
   const walletEnabledAccountIds = useAppSelector(selectWalletEnabledAccountIds)
-  const isWebservicesEnabled = useFeatureFlag('Webservices')
+  const isWebServicesEnabled = useFeatureFlag('WebServices')
 
   const {
     data: mobileExpoToken,
@@ -32,8 +32,7 @@ export const useUser = (): UseUserData => {
     error: expoTokenError,
   } = useQuery({
     queryKey: ['expoToken'],
-    queryFn: getExpoToken,
-    enabled: isMobile && isWebservicesEnabled,
+    queryFn: isMobile && isWebServicesEnabled ? getExpoToken : skipToken,
     gcTime: Infinity,
     staleTime: Infinity,
   })
@@ -45,8 +44,10 @@ export const useUser = (): UseUserData => {
     refetch: refetchUser,
   } = useQuery({
     queryKey: ['user', walletEnabledAccountIds],
-    queryFn: () => getOrCreateUser({ accountIds: walletEnabledAccountIds }),
-    enabled: walletEnabledAccountIds.length > 0 && isWebservicesEnabled,
+    queryFn:
+      walletEnabledAccountIds.length > 0 && isWebServicesEnabled
+        ? () => getOrCreateUser({ accountIds: walletEnabledAccountIds })
+        : skipToken,
     staleTime: Infinity,
     gcTime: Infinity,
   })
@@ -58,34 +59,41 @@ export const useUser = (): UseUserData => {
     refetch: refetchDevice,
   } = useQuery({
     queryKey: ['device', userData?.id, mobileExpoToken],
-    queryFn: async () => {
-      if (!userData) {
-        throw new Error('User data is required to register device')
-      }
+    queryFn:
+      userData && (!isMobile || !isLoadingExpoToken) && isWebServicesEnabled
+        ? async () => {
+            const { deviceToken, deviceType } = (() => {
+              if (isMobile && mobileExpoToken) {
+                return {
+                  deviceToken: mobileExpoToken,
+                  deviceType: DeviceType.Mobile,
+                }
+              }
 
-      let deviceToken: string
-      let deviceType: DeviceType
+              const storedDeviceToken = localStorage.getItem('deviceToken')
+              const deviceToken = storedDeviceToken ?? uuidv4()
+              if (!storedDeviceToken) {
+                localStorage.setItem('deviceToken', deviceToken)
+              }
 
-      if (isMobile && mobileExpoToken) {
-        deviceToken = mobileExpoToken
-        deviceType = DeviceType.Mobile
-      } else {
-        deviceToken = uuidv4()
-        deviceType = DeviceType.Web
-      }
+              return {
+                deviceToken,
+                deviceType: DeviceType.Web,
+              }
+            })()
 
-      const response = await registerDevice({
-        userId: userData.id,
-        deviceToken,
-        deviceType,
-      })
+            const response = await getOrRegisterDevice({
+              userId: userData.id,
+              deviceToken,
+              deviceType,
+            })
 
-      return {
-        device: response.device,
-        expoToken: isMobile ? mobileExpoToken : null,
-      }
-    },
-    enabled: !!userData && (!isMobile || !isLoadingExpoToken) && isWebservicesEnabled,
+            return {
+              device: response.device,
+              expoToken: isMobile ? mobileExpoToken : null,
+            }
+          }
+        : skipToken,
     staleTime: Infinity,
     gcTime: Infinity,
   })

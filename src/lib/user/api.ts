@@ -68,7 +68,7 @@ export const getOrCreateUser = async (request: GetOrCreateUserRequest): Promise<
   }
 }
 
-export const registerDevice = async (
+export const getOrRegisterDevice = async (
   request: RegisterDeviceRequest,
 ): Promise<RegisterDeviceResponse> => {
   if (!USER_SERVER_URL) {
@@ -104,5 +104,4 @@ export const registerDevice = async (
   }
 }
 
-export { UserApiError }
-export type { UserError }
+export { UserApiError, UserError }

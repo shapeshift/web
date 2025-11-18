@@ -166,9 +166,9 @@ export class TradeExecution {
 
       store.dispatch(swapSlice.actions.upsertSwap(updatedSwap))
 
-      const isWebservicesEnabled = getConfig().VITE_FEATURE_WEBSERVICES
+      const isWebServicesEnabled = getConfig().VITE_FEATURE_NOTIFICATIONS_WEBSERVICES
 
-      if (isWebservicesEnabled) {
+      if (isWebServicesEnabled) {
         const walletEnabledAccountIds = selectWalletEnabledAccountIds(store.getState())
         const userData = await queryClient.fetchQuery<{ id: string }>({
           queryKey: ['user', walletEnabledAccountIds],

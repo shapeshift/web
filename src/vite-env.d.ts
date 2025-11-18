@@ -176,7 +176,7 @@ interface ImportMetaEnv {
   readonly VITE_SWAPS_SERVER_URL: string
   readonly VITE_NOTIFICATIONS_SERVER_URL: string
   readonly VITE_USER_SERVER_URL: string
-  readonly VITE_FEATURE_WEBSERVICES: string
+  readonly VITE_FEATURE_NOTIFICATIONS_WEBSERVICES: string
 
   // Only present in *some* envs
   readonly VITE_MIXPANEL_TOKEN?: string

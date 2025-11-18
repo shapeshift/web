@@ -200,7 +200,7 @@ const validators = {
   VITE_TENDERLY_ACCOUNT_SLUG: str(),
   VITE_TENDERLY_PROJECT_SLUG: str(),
   VITE_TENDERLY_API_KEY: str(),
-  VITE_FEATURE_WEBSERVICES: bool({ default: false }),
+  VITE_FEATURE_NOTIFICATIONS_WEBSERVICES: bool({ default: false }),
   VITE_USER_SERVER_URL: url({ default: '' }),
   VITE_SWAPS_SERVER_URL: url({ default: '' }),
   VITE_NOTIFICATIONS_SERVER_URL: url({ default: '' }),

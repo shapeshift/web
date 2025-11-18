@@ -1693,6 +1693,16 @@
         "description": "You've verified your Secret Recovery Phrase. Be sure to store it securely - this is the only way to recover your wallet.",
         "viewWallet": "View Wallet"
       }
+    },
+    "vultisig": {
+      "errors": {
+        "connectFailure": "Unable to connect Vultisig wallet"
+      },
+      "connect": {
+        "header": "Pair Vultisig",
+        "body": "Click Pair and login to Vultisig from the popup window",
+        "button": "Pair"
+      }
     }
   },
   "graph": {

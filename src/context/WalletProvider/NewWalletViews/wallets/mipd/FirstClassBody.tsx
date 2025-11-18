@@ -66,7 +66,8 @@ export const FirstClassBody = ({
       const deviceId = await wallet.getDeviceID()
       // Keplr unlock checks are borked
       // And Phantom initial window.phantom?.ethereum._metamask.isUnlocked() returns false despite being unlocked
-      const isLocked = [KeyManager.Keplr, KeyManager.Phantom].includes(keyManager)
+      // Vultisig has similar issues
+      const isLocked = [KeyManager.Keplr, KeyManager.Phantom, KeyManager.Vultisig].includes(keyManager)
         ? false
         : await wallet.isLocked()
 

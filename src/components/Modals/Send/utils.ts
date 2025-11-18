@@ -139,11 +139,14 @@ export const handleSend = async ({
   const { asset, chainId, accountMetadata, adapter } = prepareSendAdapter(sendInput)
   const supportedEvmChainIds = getSupportedEvmChainIds()
   const isMetaMaskDesktop = checkIsMetaMaskDesktop(wallet)
+  const isVultisig = (await wallet.getModel()) === 'Vultisig'
   if (
     fromChainId(asset.chainId).chainNamespace === CHAIN_NAMESPACE.CosmosSdk &&
     !wallet.supportsOfflineSigning() &&
     // MM only supports snap things... if the snap is installed
-    (!isMetaMaskDesktop || (isMetaMaskDesktop && !(await checkIsSnapInstalled())))
+    // Vultisig signs directly via extension
+    (!isMetaMaskDesktop || (isMetaMaskDesktop && !(await checkIsSnapInstalled()))) &&
+    !isVultisig
   ) {
     throw new Error(`unsupported wallet: ${await wallet.getModel()}`)
   }

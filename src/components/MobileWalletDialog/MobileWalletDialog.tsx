@@ -44,7 +44,7 @@ const MobileDialogRoutes = ({
     () => <CreateWalletRouter onClose={onClose} defaultRoute={defaultRoute} />,
     [defaultRoute, onClose],
   )
-  const mobileStart = useMemo(() => <MobileStart onClose={onClose} />, [onClose])
+  const mobileStart = useMemo(() => <MobileStart />, [])
 
   return (
     <AnimatePresence mode='wait' initial={false}>

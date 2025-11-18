@@ -116,4 +116,6 @@ export const trackAppleSearchAdsAttribution = (data: AppleSearchAdsAttributionDa
     ft_country: data.countryOrRegion,
     ft_conversion_type: data.conversionType,
   })
+
+  alert('Finished tracking')
 }

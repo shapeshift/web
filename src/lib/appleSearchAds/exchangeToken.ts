@@ -19,6 +19,7 @@ export async function exchangeAppleSearchAdsToken(
     }
 
     const data = await response.json()
+    alert(JSON.stringify({ data }))
     return data as AppleSearchAdsAttributionData
   } catch (error) {
     alert(JSON.stringify({ error }))

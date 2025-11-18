@@ -33,13 +33,13 @@ export const useAppleSearchAdsAttribution = () => {
   const attributionToken = useQuery({
     queryKey: ['apple-search-ads-attribution-token'],
     queryFn: () => getAppleAttributionToken(),
-    enabled: isMobile && !hasTracked,
+    // enabled: isMobile && !hasTracked,
   })
 
   const attributionData = useQuery({
     queryKey: ['apple-search-ads-attribution-data'],
     queryFn: () => exchangeAppleSearchAdsToken(attributionToken.data ?? ''),
-    enabled: Boolean(attributionToken.data) && !hasTracked,
+    // enabled: Boolean(attributionToken.data) && !hasTracked,
     retry: 3,
     retryDelay: 5000,
   })

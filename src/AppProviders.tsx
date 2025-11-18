@@ -7,6 +7,7 @@ import { HashRouter } from 'react-router-dom'
 import { PersistGate } from 'redux-persist/integration/react'
 import { WagmiProvider } from 'wagmi'
 
+import { WalletViewsRouter } from './context/WalletProvider/WalletViewsRouter'
 import { ScrollToTop } from './Routes/ScrollToTop'
 
 import { ChatwootWidget } from '@/components/ChatWoot'
@@ -83,7 +84,12 @@ export function AppProviders({ children }: ProvidersProps) {
                                       onError={handleError}
                                     >
                                       <AppProvider>
-                                        <DefiManagerProvider>{children}</DefiManagerProvider>
+                                        <DefiManagerProvider>
+                                          <>
+                                            {children}
+                                            <WalletViewsRouter />
+                                          </>
+                                        </DefiManagerProvider>
                                       </AppProvider>
                                     </ErrorBoundary>
                                   </ActionCenterProvider>

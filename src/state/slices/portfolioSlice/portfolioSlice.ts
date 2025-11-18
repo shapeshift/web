@@ -52,8 +52,6 @@ export const portfolio = createSlice({
         if (payload !== undefined) {
           const { walletId, walletName } = payload
 
-          getMixPanel()?.identify(walletId)
-
           state.connectedWallet = {
             id: walletId,
             name: walletName,

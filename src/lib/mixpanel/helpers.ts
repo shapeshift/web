@@ -76,14 +76,11 @@ export const trackOpportunityEvent = (
   mixpanel?.track(event, eventData)
 }
 
-export const trackAppleSearchAdsAttribution = (data: AppleSearchAdsAttributionData | undefined) => {
+export const trackAppleSearchAdsAttribution = (data: AppleSearchAdsAttributionData) => {
   const mixpanel = getMixPanel()
   if (!mixpanel) return
 
-  // Only track if attribution was found
-  if (!data) {
-    return
-  }
+  alert(JSON.stringify({ data }))
 
   // Extract keyword ID (use 'unknown' as fallback per requirements)
   const keywordId = data.keywordId?.toString() || 'unknown'
@@ -116,6 +113,4 @@ export const trackAppleSearchAdsAttribution = (data: AppleSearchAdsAttributionDa
     ft_country: data.countryOrRegion,
     ft_conversion_type: data.conversionType,
   })
-
-  alert('Finished tracking')
 }

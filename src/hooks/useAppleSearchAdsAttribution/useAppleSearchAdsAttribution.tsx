@@ -21,7 +21,6 @@ const ASA_TRACKED_KEY = 'shapeshift.asa.tracked'
  */
 export const useAppleSearchAdsAttribution = () => {
   const [hasTracked, setHasTracked] = useState(() => {
-    // Check if we've already tracked this user
     try {
       return localStorage.getItem(ASA_TRACKED_KEY) === 'true'
     } catch {
@@ -32,7 +31,7 @@ export const useAppleSearchAdsAttribution = () => {
   const { data: attributionData } = useQuery({
     queryKey: ['apple-search-ads-attribution-data'],
     queryFn: () => getAppleAttributionData(),
-    // enabled: isMobile && !hasTracked,
+    enabled: isMobile && !hasTracked,
   })
 
   useEffect(() => {

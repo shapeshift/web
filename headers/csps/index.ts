@@ -1,6 +1,5 @@
 import { csp as addressable } from './addressable'
 import { csp as alchemy } from './alchemy'
-import { csp as apple } from './apple'
 import { csp as trustwallet } from './assetService/trustwallet'
 import { csp as base } from './base'
 import { csp as chainflip } from './chainflip'
@@ -123,5 +122,4 @@ export const csps = [
   walletMigration,
   relay,
   discord,
-  apple,
 ]

@@ -2,7 +2,8 @@ import type { AssetId } from '@shapeshiftoss/caip'
 import type { Asset, AssetsByIdPartial } from '@shapeshiftoss/types'
 
 import { getMixPanel } from './mixPanelSingleton'
-import type { MixPanelEvent, TrackOpportunityProps } from './types'
+import type { TrackOpportunityProps } from './types'
+import { MixPanelEvent } from './types'
 
 import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
 import type { AppleSearchAdsAttributionData } from '@/lib/appleSearchAds/attributionData'
@@ -80,15 +81,13 @@ export const trackAppleSearchAdsAttribution = (data: AppleSearchAdsAttributionDa
   const mixpanel = getMixPanel()
   if (!mixpanel) return
 
-  alert(JSON.stringify({ data }))
-
   // Extract keyword ID (use 'unknown' as fallback per requirements)
   const keywordId = data.keywordId?.toString() || 'unknown'
 
   const keyword = 'unknown_keyword' // Apple API doesn't return keyword text
 
   // Track the event with all available campaign data
-  mixpanel.track('ad_attribution_received', {
+  mixpanel.track(MixPanelEvent.AdAttributionReceived, {
     ua_source: 'apple_search_ads',
     apple_keyword: keyword,
     apple_keyword_id: keywordId,

@@ -4,6 +4,7 @@ import type {
   MobileWalletInfo,
   MobileWalletInfoWithMnemonic,
 } from '@/context/WalletProvider/MobileWallet/types'
+import type { AppleSearchAdsAttributionData } from '@/lib/appleSearchAds/attributionData'
 
 type Command =
   | 'getWallet'
@@ -67,24 +68,6 @@ export type MessageFromMobileApp = {
 export type MobileAppVersion = {
   version: string
   build: string
-}
-
-/**
- * Apple Search Ads Attribution Data
- * This is the response from Apple's AdServices Attribution API
- * https://api-adservices.apple.com/api/v1/
- */
-export type AppleSearchAdsAttributionData = {
-  attribution?: boolean // Whether attribution was found
-  orgId?: number
-  campaignId?: number
-  conversionType?: 'Download' | 'Redownload'
-  clickDate?: string // ISO 8601 format (requires ATT permission)
-  adGroupId?: number
-  countryOrRegion?: string
-  keywordId?: number
-  adId?: number
-  claimType?: 'Click' | 'View'
 }
 
 /**

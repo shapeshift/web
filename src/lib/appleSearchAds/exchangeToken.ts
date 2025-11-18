@@ -1,6 +1,7 @@
 export async function exchangeAppleSearchAdsToken(
   token: string,
 ): Promise<AppleSearchAdsAttributionData | null> {
+  alert(JSON.stringify({ token }))
   if (!token) throw new Error('No Apple Search Ads attribution token provided')
 
   try {

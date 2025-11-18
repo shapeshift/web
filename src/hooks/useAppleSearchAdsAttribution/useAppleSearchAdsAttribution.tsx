@@ -38,7 +38,11 @@ export const useAppleSearchAdsAttribution = () => {
 
   const attributionData = useQuery({
     queryKey: ['apple-search-ads-attribution-data'],
-    queryFn: () => exchangeAppleSearchAdsToken(attributionToken.data ?? ''),
+    queryFn: () =>
+      exchangeAppleSearchAdsToken(
+        attributionToken.data ??
+          'Y0tTgibnQghE2QO44onAn+p2g1moohBlHq2LYm40CQYbI3XuZCo47wKG5cm2x5IkWdlVmNfWIQ2MgPrCeiRVz9myKzYM0s8GFAAAAVADAAABTAAAAIDyxHXma76dUqcblXeOAFU98BECbhvhHjd4lNnNrPIBxNufhAfVenVGjLm8sFGU4Umy3xQXxh0Ir86GykPqlbuVZ/Dycr7JGM+hKVb0kJ/WUzIpZCDjkrBpHeM00e1ndsIHhz/vbgsfZ5jT3GbLdQKinfp1Y0oqYFdV4flV5F5gbwAAABnCbfRG2XSHYudx1YnFGp8Q0pGZR3v7jHVCAAAAnwHOLVVFI4BR7DthY4tvu9hSl7jqXgAAAIYBALGYCyGp+kEtqoBTXClg4XdpHC35ZRjygmabja6rEohxCFI7KDdVh2o0N2VEUefEAgeiYhdStuGyT4hzpRzwFY360BNoJ473WkyiLDehKjlAObvNNF8Y53JmKSkKFnoEJYUFb0XDVasq9bstHPmUxuW55Oh3CfSqFC8KQ5/BBqKT/S7XKQAAAAAAAAABBEocAAA=',
+      ),
     // enabled: Boolean(attributionToken.data) && !hasTracked,
     retry: 3,
     retryDelay: 5000,

@@ -31,6 +31,7 @@ import { MobileWalletDialogRoutes } from '@/components/MobileWalletDialog/types'
 import { TradeRoutePaths } from '@/components/MultiHopTrade/types'
 import { SlideTransitionY } from '@/components/SlideTransitionY'
 import { RawText, Text } from '@/components/Text'
+import { WalletActions } from '@/context/WalletProvider/actions'
 import { listWallets } from '@/context/WalletProvider/MobileWallet/mobileMessageHandlers'
 import type { RevocableWallet } from '@/context/WalletProvider/MobileWallet/RevocableWallet'
 import { useModal } from '@/hooks/useModal/useModal'
@@ -84,6 +85,10 @@ export const MobileConnect = () => {
   const handleImport = useCallback(() => {
     mobileWalletDialog.open({ defaultRoute: MobileWalletDialogRoutes.Import })
   }, [mobileWalletDialog])
+
+  const handleConnect = useCallback(() => {
+    dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
+  }, [dispatch])
 
   const query = useQuery<{ returnUrl: string }>()
 
@@ -216,8 +221,8 @@ export const MobileConnect = () => {
             ) : (
               <>
                 <MobileWalletList onIsWaitingForRedirection={handleIsWaitingForRedirection} />
-                <Button size='lg-multiline' variant='outline' onClick={handleToggleWallets}>
-                  {translate('connectWalletPage.createOrImport')}
+                <Button size='lg-multiline' variant='outline' onClick={handleConnect}>
+                  {translate('connectWalletPage.connectNewWallet')}
                 </Button>
               </>
             )}
@@ -234,16 +239,17 @@ export const MobileConnect = () => {
       </motion.div>
     )
   }, [
-    error,
-    handleImport,
-    handleOpenCreateWallet,
-    handleToggleWallets,
     hideWallets,
     translate,
-    wallets,
+    handleOpenCreateWallet,
+    handleImport,
+    wallets.length,
+    handleToggleWallets,
     isWaitingForRedirection,
-    handleIsWaitingForRedirection,
     state.isLoadingLocalWallet,
+    handleIsWaitingForRedirection,
+    handleConnect,
+    error,
   ])
 
   return (

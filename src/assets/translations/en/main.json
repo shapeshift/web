@@ -328,7 +328,8 @@
     "viewSavedWallets": "View Saved Wallets",
     "footerOne": "By continuing, you agree to the",
     "terms": "Terms",
-    "privacyPolicy": "Privacy Policy"
+    "privacyPolicy": "Privacy Policy",
+    "connectNewWallet": "Connect New Wallet"
   },
   "connectWallet": {
     "menu": {

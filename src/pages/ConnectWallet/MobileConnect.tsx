@@ -82,10 +82,6 @@ export const MobileConnect = () => {
     mobileWalletDialog.open({ defaultRoute: MobileWalletDialogRoutes.Create })
   }, [mobileWalletDialog])
 
-  const handleImport = useCallback(() => {
-    mobileWalletDialog.open({ defaultRoute: MobileWalletDialogRoutes.Import })
-  }, [mobileWalletDialog])
-
   const handleConnect = useCallback(() => {
     dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
   }, [dispatch])
@@ -176,11 +172,11 @@ export const MobileConnect = () => {
             <BodyText>{translate('connectWalletPage.mobileWelcomeBody')}</BodyText>
           </Stack>
           <Stack maxWidth='80%' mx='auto' spacing={4} width='full'>
-            <Button colorScheme='blue' size='lg-multiline' onClick={handleOpenCreateWallet}>
-              {translate('connectWalletPage.createANewWallet')}
+            <Button colorScheme='blue' size='lg-multiline' onClick={handleConnect}>
+              {translate('connectWalletPage.alreadyHaveWallet')}
             </Button>
-            <Button variant='outline' size='lg-multiline' onClick={handleImport}>
-              {translate('connectWalletPage.importExisting')}
+            <Button variant='outline' size='lg-multiline' onClick={handleOpenCreateWallet}>
+              {translate('connectWalletPage.getANewWallet')}
             </Button>
 
             {!!wallets.length && (
@@ -242,7 +238,6 @@ export const MobileConnect = () => {
     hideWallets,
     translate,
     handleOpenCreateWallet,
-    handleImport,
     wallets.length,
     handleToggleWallets,
     isWaitingForRedirection,

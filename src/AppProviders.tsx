@@ -74,11 +74,11 @@ export function AppProviders({ children }: ProvidersProps) {
                       <ScrollToTop />
                       <BrowserRouterProvider>
                         <ModalStackProvider>
-                          <ModalProvider>
-                            <WalletProvider>
-                              <KeepKeyProvider>
-                                <WalletConnectV2Provider>
-                                  <ActionCenterProvider>
+                          <WalletProvider>
+                            <KeepKeyProvider>
+                              <WalletConnectV2Provider>
+                                <ActionCenterProvider>
+                                  <ModalProvider>
                                     <ErrorBoundary
                                       FallbackComponent={ErrorPage}
                                       onError={handleError}
@@ -92,11 +92,11 @@ export function AppProviders({ children }: ProvidersProps) {
                                         </DefiManagerProvider>
                                       </AppProvider>
                                     </ErrorBoundary>
-                                  </ActionCenterProvider>
-                                </WalletConnectV2Provider>
-                              </KeepKeyProvider>
-                            </WalletProvider>
-                          </ModalProvider>
+                                  </ModalProvider>
+                                </ActionCenterProvider>
+                              </WalletConnectV2Provider>
+                            </KeepKeyProvider>
+                          </WalletProvider>
                         </ModalStackProvider>
                       </BrowserRouterProvider>
                     </HashRouter>

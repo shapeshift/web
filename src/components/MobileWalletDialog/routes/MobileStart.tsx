@@ -15,11 +15,7 @@ import { Text } from '@/components/Text'
 
 const arrowForwardIcon = <ArrowForwardIcon />
 
-type MobileStartProps = {
-  onClose: () => void
-}
-
-export const MobileStart = ({ onClose: _onClose }: MobileStartProps) => {
+export const MobileStart = () => {
   const navigate = useNavigate()
   const translate = useTranslate()
 

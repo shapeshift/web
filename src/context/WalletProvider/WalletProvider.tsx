@@ -42,7 +42,6 @@ import {
 import { portfolio as portfolioSlice } from '@/state/slices/portfolioSlice/portfolioSlice'
 import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
 import { store } from '@/state/store'
-import { defaultSuspenseFallback } from '@/utils/makeSuspenseful'
 
 export type WalletInfo = {
   name: string

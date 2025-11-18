@@ -5,7 +5,7 @@ import { getMixPanel } from './mixPanelSingleton'
 import type { MixPanelEvent, TrackOpportunityProps } from './types'
 
 import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
-import type { AppleSearchAdsAttributionData } from '@/lib/appleSearchAds/exchangeToken'
+import type { AppleSearchAdsAttributionData } from '@/lib/appleSearchAds/attributionData'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 
 // Returns an altered path when necessary or null if the path should not be tracked for privacy

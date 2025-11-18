@@ -1,8 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { useEffect, useState } from 'react'
 
-import { getAppleAttributionToken } from '@/context/WalletProvider/MobileWallet/mobileMessageHandlers'
-import { exchangeAppleSearchAdsToken } from '@/lib/appleSearchAds/exchangeToken'
+import { getAppleAttributionData } from '@/context/WalletProvider/MobileWallet/mobileMessageHandlers'
 import { isMobile } from '@/lib/globals'
 import { trackAppleSearchAdsAttribution } from '@/lib/mixpanel/helpers'
 
@@ -30,32 +29,20 @@ export const useAppleSearchAdsAttribution = () => {
     }
   })
 
-  const attributionToken = useQuery({
-    queryKey: ['apple-search-ads-attribution-token'],
-    queryFn: () => getAppleAttributionToken(),
-    // enabled: isMobile && !hasTracked,
-  })
-
-  const attributionData = useQuery({
+  const { data: attributionData } = useQuery({
     queryKey: ['apple-search-ads-attribution-data'],
-    queryFn: () =>
-      exchangeAppleSearchAdsToken(
-        attributionToken.data ??
-          'Y0tTgibnQghE2QO44onAn+p2g1moohBlHq2LYm40CQYbI3XuZCo47wKG5cm2x5IkWdlVmNfWIQ2MgPrCeiRVz9myKzYM0s8GFAAAAVADAAABTAAAAIDyxHXma76dUqcblXeOAFU98BECbhvhHjd4lNnNrPIBxNufhAfVenVGjLm8sFGU4Umy3xQXxh0Ir86GykPqlbuVZ/Dycr7JGM+hKVb0kJ/WUzIpZCDjkrBpHeM00e1ndsIHhz/vbgsfZ5jT3GbLdQKinfp1Y0oqYFdV4flV5F5gbwAAABnCbfRG2XSHYudx1YnFGp8Q0pGZR3v7jHVCAAAAnwHOLVVFI4BR7DthY4tvu9hSl7jqXgAAAIYBALGYCyGp+kEtqoBTXClg4XdpHC35ZRjygmabja6rEohxCFI7KDdVh2o0N2VEUefEAgeiYhdStuGyT4hzpRzwFY360BNoJ473WkyiLDehKjlAObvNNF8Y53JmKSkKFnoEJYUFb0XDVasq9bstHPmUxuW55Oh3CfSqFC8KQ5/BBqKT/S7XKQAAAAAAAAABBEocAAA=',
-      ),
-    // enabled: Boolean(attributionToken.data) && !hasTracked,
-    retry: 3,
-    retryDelay: 5000,
+    queryFn: () => getAppleAttributionData(),
+    // enabled: isMobile && !hasTracked,
   })
 
   useEffect(() => {
     if (hasTracked) return
     if (!isMobile) return
 
-    if (attributionData.data) {
-      trackAppleSearchAdsAttribution(attributionData.data)
+    if (attributionData) {
+      trackAppleSearchAdsAttribution(attributionData)
       setHasTracked(true)
       localStorage.setItem(ASA_TRACKED_KEY, 'true')
     }
-  }, [attributionData.data, hasTracked, setHasTracked])
+  }, [attributionData, hasTracked, setHasTracked])
 }

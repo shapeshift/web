@@ -16,7 +16,7 @@ type Command =
   | 'reloadWebview'
   | 'requestStoreReview'
   | 'getAppVersion'
-  | 'getAppleSearchAdsAttribution'
+  | 'getAppleAttributionData'
 
 export type HapticLevel = 'light' | 'medium' | 'heavy' | 'soft' | 'rigid'
 
@@ -56,7 +56,7 @@ type Message =
       cmd: 'getAppVersion'
     }
   | {
-      cmd: 'getAppleAttributionToken'
+      cmd: 'getAppleAttributionData'
     }
 
 export type MessageFromMobileApp = {
@@ -237,6 +237,6 @@ export const requestAppVersion = (): Promise<MobileAppVersion | undefined> => {
  * This should be called once on app initialization to retrieve the attribution
  * data that the iOS app fetched from Apple's AdServices API.
  */
-export const getAppleAttributionToken = (): Promise<string | undefined> => {
-  return postMessage<string>({ cmd: 'getAppleAttributionToken' })
+export const getAppleAttributionData = (): Promise<AppleSearchAdsAttributionData | undefined> => {
+  return postMessage<AppleSearchAdsAttributionData>({ cmd: 'getAppleAttributionData' })
 }

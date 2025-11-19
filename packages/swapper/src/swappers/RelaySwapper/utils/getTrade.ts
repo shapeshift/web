@@ -527,8 +527,6 @@ export async function getTrade<T extends 'quote' | 'rate'>({
           )
 
           if (tenderlySimulation.success) {
-            console.log('[Relay] Tenderly gasLimit:', tenderlySimulation.gasLimit.toString())
-
             // Use Tenderly's gas estimate instead of Relay's
             const adapter = deps.assertGetEvmChainAdapter(sellAsset.chainId)
             const { average } = await adapter.getGasFeeData()
@@ -540,8 +538,6 @@ export async function getTrade<T extends 'quote' | 'rate'>({
               supportsEIP1559,
               gasLimit: tenderlySimulation.gasLimit.toString(),
             })
-
-            console.log('[Relay] Final network fee:', tenderlyNetworkFee)
 
             return tenderlyNetworkFee
           }

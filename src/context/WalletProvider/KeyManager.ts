@@ -8,4 +8,6 @@ export enum KeyManager {
   Keplr = 'keplr',
   WalletConnectV2 = 'walletconnectv2',
   Ledger = 'ledger',
+  Vultisig = 'vultisig',
+  GridPlus = 'gridplus',
 }

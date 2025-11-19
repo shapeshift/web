@@ -16,6 +16,7 @@
     "show": "Show",
     "done": "Done",
     "cancel": "Cancel",
+    "delete": "Delete",
     "close": "Close",
     "closed": "Closed",
     "loadMore": "Load More",
@@ -1404,6 +1405,59 @@
         "body": "Unable to connect Keplr wallet"
       }
     },
+    "gridplus": {
+      "list": {
+        "header": "Your GridPlus SafeCards",
+        "selectPrompt": "Select a SafeCard to reconnect or add a new one",
+        "empty": "No SafeCards connected yet",
+        "addFirst": "Connect Your First SafeCard",
+        "addNew": "Add New SafeCard",
+        "lastConnected": "Last connected: %{date}",
+        "connected": "Connected",
+        "connect": "Connect",
+        "editNameLabel": "Edit name",
+        "deleteLabel": "Delete",
+        "deleteTitle": "Delete SafeCard",
+        "deleteConfirm": "Delete \"%{name}\"? This will remove all associated portfolio data.",
+        "renamed": "SafeCard renamed",
+        "deleted": "SafeCard deleted",
+        "deletedDescription": "Portfolio data has been cleared",
+        "warning": "Each SafeCard maintains its own portfolio. Make sure to insert the correct SafeCard in your device before connecting."
+      },
+      "connect": {
+        "header": "Connect New SafeCard",
+        "safeCardName": "SafeCard Name",
+        "safeCardNamePlaceholder": "Enter a name for this SafeCard",
+        "safeCardNameHelper": "Give this SafeCard a memorable name (e.g., \"Main Wallet\", \"Trading\", \"DeFi\")",
+        "deviceId": "Device ID",
+        "deviceIdPlaceholder": "Enter your Lattice device ID",
+        "deviceIdHelper": "You can find your device ID in your Lattice settings under Device Info.",
+        "button": "Connect SafeCard",
+        "connecting": "Connecting...",
+        "backToList": "← Back to SafeCard List"
+      },
+      "pair": {
+        "header": "Pair GridPlus Lattice",
+        "pairingCode": "Pairing Code",
+        "pairingCodePlaceholder": "Enter 8-character code from Lattice",
+        "pairingCodeHelper": "Look at your Lattice screen for an 8-character pairing code.",
+        "button": "Complete Pairing",
+        "cancel": "← Cancel"
+      },
+      "name": {
+        "header": "Name Your SafeCard",
+        "label": "SafeCard Name",
+        "placeholder": "Enter a name for this SafeCard",
+        "helper": "Give this SafeCard a memorable name (e.g., \"Main Wallet\", \"Trading\", \"DeFi\")"
+      },
+      "errors": {
+        "deviceIdRequired": "Device ID is required",
+        "adapterNotAvailable": "GridPlus adapter not available",
+        "deviceNotConnected": "Device not connected. Call connectDevice first.",
+        "connectFailure": "Unable to connect GridPlus wallet",
+        "unknown": "An unexpected error occurred communicating with GridPlus wallet"
+      }
+    },
     "ledger": {
       "chains": {
         "header": "Import Ledger Accounts",
@@ -1693,6 +1747,16 @@
         "description": "You've verified your Secret Recovery Phrase. Be sure to store it securely - this is the only way to recover your wallet.",
         "viewWallet": "View Wallet"
       }
+    },
+    "vultisig": {
+      "errors": {
+        "connectFailure": "Unable to connect Vultisig wallet"
+      },
+      "connect": {
+        "header": "Pair Vultisig",
+        "body": "Click Pair and login to Vultisig from the popup window",
+        "button": "Pair"
+      }
     }
   },
   "graph": {
@@ -1753,7 +1817,6 @@
   },
   "accounts": {
     "accounts": "Accounts",
-    "addAccount": "Add Account",
     "accountNumber": "Account #%{accountNumber}",
     "accountChain": "Account Chain",
     "selectChain": "Select the chain you would like to create an account for.",

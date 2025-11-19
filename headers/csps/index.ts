@@ -55,6 +55,7 @@ import { csp as shapeshiftProxy } from './shapeshiftProxy'
 import { csp as snapshots } from './snapshots'
 import { csp as tenderly } from './tenderly'
 import { csp as coinbase } from './wallets/coinbase'
+import { csp as gridplus } from './wallets/gridplus'
 import { csp as keepkey } from './wallets/keepkey'
 import { csp as metamask } from './wallets/metamask'
 import { csp as walletConnect } from './wallets/walletConnect'
@@ -117,6 +118,7 @@ export const csps = [
   foxPage,
   walletConnectToDapps,
   coinbase,
+  gridplus,
   keepkey,
   metamask,
   walletConnect,

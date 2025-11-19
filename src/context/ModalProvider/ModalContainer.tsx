@@ -81,14 +81,6 @@ const MobileWelcomeModal = makeSuspenseful(
   ),
 )
 
-const AddAccountModal = makeSuspenseful(
-  lazy(() =>
-    import('@/pages/Accounts/AddAccountModal').then(({ AddAccountModal }) => ({
-      default: AddAccountModal,
-    })),
-  ),
-)
-
 const AssetSearchModal = makeSuspenseful(
   lazy(() =>
     import('@/components/Modals/AssetSearch/AssetSearchModal').then(({ AssetSearchModal }) => ({
@@ -249,7 +241,6 @@ export const MODALS: Modals = {
   keepKeyWipe: WipeModal,
   backupNativePassphrase: BackupPassphraseModal,
   mobileWelcomeModal: MobileWelcomeModal,
-  addAccount: AddAccountModal,
   assetSearch: AssetSearchModal,
   buyAssetSearch: BuyAssetSearchModal,
   sellAssetSearch: SellAssetSearchModal,

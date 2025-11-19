@@ -15,7 +15,7 @@ import type { TransactionInstruction } from '@solana/web3.js'
 import { PublicKey } from '@solana/web3.js'
 import axios from 'axios'
 import type { Address, Hex } from 'viem'
-import { zeroAddress } from 'viem'
+import { getAddress, zeroAddress } from 'viem'
 
 import type {
   SwapErrorRight,
@@ -513,8 +513,10 @@ export async function getTrade<T extends 'quote' | 'rate'>({
           const tenderlySimulation = await simulateWithStateOverrides(
             {
               chainId: sellAsset.chainId,
-              from: (sendAddress ?? zeroAddress) as Address,
-              to: (selectedItem.data.to ?? '') as Address,
+              // NOTE: zeroAddress is here purely for the purpose of satisfying the type sistem
+              // That should never happen
+              from: getAddress(sendAddress ?? zeroAddress),
+              to: getAddress(selectedItem.data.to ?? zeroAddress),
               data: (selectedItem.data.data ?? '0x') as Hex,
               value: selectedItem.data.value ?? '0',
               sellAsset,

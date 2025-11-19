@@ -5,6 +5,7 @@ import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import { v4 as uuid } from 'uuid'
 import type { Address, Hex } from 'viem'
+import { getAddress } from 'viem'
 
 import { getDefaultSlippageDecimalPercentageForSwapper } from '../../../constants'
 import type {
@@ -100,8 +101,8 @@ export const getTradeRate = async (
             const simulationResult = await simulateWithStateOverrides(
               {
                 chainId: sellAsset.chainId,
-                from: (sendAddress || depositAddress) as Address,
-                to: (contractAddress ?? depositAddress) as Address,
+                from: getAddress(sendAddress || depositAddress),
+                to: getAddress(contractAddress ?? depositAddress),
                 data: (data || '0x') as Hex,
                 value: isNativeEvmAsset(sellAsset.assetId) ? sellAmount : '0',
                 sellAsset,

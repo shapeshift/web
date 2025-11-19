@@ -8,7 +8,7 @@ import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import { v4 as uuid } from 'uuid'
 import type { Address, Hex } from 'viem'
-import { zeroAddress } from 'viem'
+import { getAddress, zeroAddress } from 'viem'
 
 import { getDefaultSlippageDecimalPercentageForSwapper } from '../../..'
 import type {
@@ -171,7 +171,7 @@ export async function getPortalsTradeRate(
           data: tx.data as Hex,
           value: tx.value,
           sellAsset,
-          spenderAddress: context.target as Address,
+          spenderAddress: getAddress(context.target),
         },
         {
           apiKey: swapperConfig.VITE_TENDERLY_API_KEY,

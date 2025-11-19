@@ -23,6 +23,9 @@ const buttonProps = {
   width: 'full',
 }
 
+const boxProps = { px: 0, my: 0 }
+const flexPaddingX = { base: 4, md: 0 }
+
 type TCYHeaderProps = {
   currentAccount: CurrentAccount
   onAccountNumberChange: (accountNumber: number) => void
@@ -56,16 +59,22 @@ export const TCYHeader = ({ currentAccount, onAccountNumberChange }: TCYHeaderPr
     if (accountIds.length <= 1) return null
 
     return (
-      <Flex alignItems='center' gap={2}>
-        <Text translation='common.activeAccount' fontWeight='medium' />
-
-        {currentAccountId && <InlineCopyButton value={fromAccountId(currentAccountId).account} />}
-        <AccountDropdown
-          defaultAccountId={currentAccountId}
-          assetId={thorchainAssetId}
-          onChange={handleChange}
-          buttonProps={buttonProps}
-        />
+      <Flex alignItems='center' gap={2} px={flexPaddingX}>
+        <Display.Desktop>
+          <Text translation='common.activeAccount' fontWeight='medium' />
+        </Display.Desktop>
+        <InlineCopyButton
+          isDisabled={!currentAccountId}
+          value={currentAccountId ? fromAccountId(currentAccountId).account : ''}
+        >
+          <AccountDropdown
+            defaultAccountId={currentAccountId}
+            assetId={thorchainAssetId}
+            onChange={handleChange}
+            buttonProps={buttonProps}
+            boxProps={boxProps}
+          />
+        </InlineCopyButton>
       </Flex>
     )
   }, [accountIds, handleChange, currentAccountId])
@@ -89,7 +98,9 @@ export const TCYHeader = ({ currentAccount, onAccountNumberChange }: TCYHeaderPr
           <PageHeader.Right>{activeAccountDropdown}</PageHeader.Right>
         </Display.Desktop>
       </PageHeader>
-      <Display.Mobile>{activeAccountDropdown}</Display.Mobile>
+      <Display.Mobile>
+        <Flex py={2}>{activeAccountDropdown}</Flex>
+      </Display.Mobile>
     </>
   )
 }

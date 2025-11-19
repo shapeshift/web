@@ -20,6 +20,7 @@ import { useTranslate } from 'react-polyglot'
 import { useGridPlusConnection } from '../hooks/useGridPlusConnection'
 import { SafeCardRow } from './SafeCardRow'
 
+import { useModalRegistration } from '@/context/ModalStackProvider'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { gridplusSlice } from '@/state/slices/gridplusSlice/gridplusSlice'
 import type { SafeCard } from '@/state/slices/gridplusSlice/types'
@@ -40,6 +41,15 @@ export const SafeCardList = () => {
   const dispatch = useAppDispatch()
   const toast = useToast()
   const { state: walletState } = useWallet()
+
+  const {
+    modalProps: alertModalProps,
+    overlayProps: alertOverlayProps,
+    modalContentProps: alertContentProps,
+  } = useModalRegistration({
+    isOpen,
+    onClose,
+  })
 
   const handleRenameBlur = useCallback(
     (e: React.FocusEvent<HTMLInputElement>) => {
@@ -218,9 +228,9 @@ export const SafeCardList = () => {
         <AlertIcon />
         <Text fontSize='sm'>{translate('walletProvider.gridplus.list.warning')}</Text>
       </Alert>
-      <AlertDialog isOpen={isOpen} leastDestructiveRef={cancelRef} onClose={onClose}>
-        <AlertDialogOverlay>
-          <AlertDialogContent>
+      <AlertDialog {...alertModalProps} leastDestructiveRef={cancelRef}>
+        <AlertDialogOverlay {...alertOverlayProps}>
+          <AlertDialogContent {...alertContentProps}>
             <AlertDialogHeader fontSize='lg' fontWeight='bold'>
               {translate('walletProvider.gridplus.list.deleteTitle')}
             </AlertDialogHeader>

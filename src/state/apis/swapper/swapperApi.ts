@@ -18,7 +18,7 @@ import type { ReduxState } from '@/state/reducer'
 import type { FeatureFlags } from '@/state/slices/preferencesSlice/preferencesSlice'
 import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
 
-export const BULK_FETCH_RATE_TIMEOUT_MS = 5000
+export const BULK_FETCH_RATE_TIMEOUT_MS = 10000
 
 export const swapperApi = createApi({
   ...BASE_RTK_CREATE_API_CONFIG,

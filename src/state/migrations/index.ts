@@ -18,6 +18,7 @@ export const clearTxHistoryMigrations = {
   4: clearTxHistory,
   5: clearTxHistory,
   6: clearTxHistory,
+  7: clearTxHistory,
 } as unknown as Omit<MigrationManifest, '_persist'>
 
 export const clearOpportunitiesMigrations = {
@@ -259,6 +260,10 @@ export const clearAssetsMigrations = {
   213: clearAssets,
   214: clearAssets,
   215: clearAssets,
+  216: clearAssets,
+  217: clearAssets,
+  218: clearAssets,
+  219: clearAssets,
 } as unknown as Omit<MigrationManifest, '_persist'>
 
 export const clearMarketDataMigrations = {

@@ -63,9 +63,8 @@ const getTokenStandardFromChainId = (chainId: ChainId): AssetNamespace | undefin
     case KnownChainIds.EthereumMainnet:
     case KnownChainIds.GnosisMainnet:
     case KnownChainIds.PolygonMainnet:
-      return ASSET_NAMESPACE.erc20
     case KnownChainIds.BnbSmartChainMainnet:
-      return ASSET_NAMESPACE.bep20
+      return ASSET_NAMESPACE.erc20
     default:
       return undefined
   }

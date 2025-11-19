@@ -94,6 +94,7 @@ export type FeatureFlags = {
   QuickBuy: boolean
   NewWalletManager: boolean
   SwapperFiatRamps: boolean
+  WebServices: boolean
   AddressBook: boolean
 }
 
@@ -143,6 +144,7 @@ export type Preferences = {
     selectedChainId: ChainId | 'all'
   }
   hasSeenRatingModal: boolean
+  showTopAssetsCarousel: boolean
 }
 
 const initialState: Preferences = {
@@ -222,6 +224,7 @@ const initialState: Preferences = {
     QuickBuy: getConfig().VITE_FEATURE_QUICK_BUY,
     NewWalletManager: getConfig().VITE_FEATURE_NEW_WALLET_MANAGER,
     SwapperFiatRamps: getConfig().VITE_FEATURE_SWAPPER_FIAT_RAMPS,
+    WebServices: getConfig().VITE_FEATURE_NOTIFICATIONS_WEBSERVICES,
     AddressBook: getConfig().VITE_FEATURE_ADDRESS_BOOK,
   },
   selectedLocale: simpleLocale(),
@@ -246,6 +249,7 @@ const initialState: Preferences = {
     selectedChainId: 'all',
   },
   hasSeenRatingModal: false,
+  showTopAssetsCarousel: true,
 }
 
 export const preferences = createSlice({
@@ -355,6 +359,9 @@ export const preferences = createSlice({
     setHasSeenRatingModal: create.reducer((state, _) => {
       state.hasSeenRatingModal = true
     }),
+    setShowTopAssetsCarousel: create.reducer((state, { payload }: { payload: boolean }) => {
+      state.showTopAssetsCarousel = payload
+    }),
     setQuickBuyPreferences: create.reducer((state, { payload }: { payload: number[] }) => {
       state.quickBuyAmounts = payload
     }),
@@ -376,6 +383,7 @@ export const preferences = createSlice({
     selectHasWalletSeenTcyClaimAlert: state => state.hasWalletSeenTcyClaimAlert,
     selectHighlightedTokensFilters: state => state.highlightedTokensFilters,
     selectHasSeenRatingModal: state => state.hasSeenRatingModal,
+    selectShowTopAssetsCarousel: state => state.showTopAssetsCarousel,
     selectQuickBuyAmounts: state => state.quickBuyAmounts,
   },
 })

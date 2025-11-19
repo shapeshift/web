@@ -191,7 +191,8 @@
     "approval": "Approval",
     "permit2Approval": "Permit2 Approval",
     "network": "Network",
-    "feeEstimate": "Fee Estimate"
+    "feeEstimate": "Fee Estimate",
+    "list": "List"
   },
   "accountSelector": {
     "chooseAccount": "Choose Account"
@@ -644,14 +645,6 @@
         "infinite": "Infinite ∞",
         "amountUnavailable": "Unavailable"
       },
-      "bep20": {
-        "approve": "Approve",
-        "approveSymbol": "Approve %{symbol}",
-        "revoke": "Revoke",
-        "revokeSymbol": "Revoke %{symbol} approval",
-        "infinite": "Infinite ∞",
-        "amountUnavailable": "Unavailable"
-      },
       "staking": {
         "delegate": "Delegate",
         "begin_unbonding": "Undelegate",
@@ -876,7 +869,12 @@
       "youGotMore": "You got %{cryptoUpside} more on this trade"
     },
     "networkFee": "Network Fee",
-    "feeExplainer": "Quote includes a %{feePercentage}% ShapeShift fee"
+    "feeExplainer": "Quote includes a %{feePercentage}% ShapeShift fee",
+    "topAssetsCarousel": {
+      "hide": "Hide",
+      "hiddenTitle": "Top Assets Carousel Hidden",
+      "hiddenDescription": "You can turn it back on in Settings"
+    }
   },
   "limitOrder": {
     "heading": "Limit",
@@ -1261,6 +1259,8 @@
       "language": "Language",
       "balanceThreshold": "Balance Threshold",
       "balanceThresholdTooltip": "On dashboard and charts, hide balances below this value",
+      "showTopAssetsCarousel": "Show Top Assets Carousel",
+      "showTopAssetsCarouselTooltip": "Show the top assets carousel at the bottom of the trade page",
       "currencies": {
         "CNY": "Chinese Yuan",
         "USD": "US Dollar",
@@ -2479,10 +2479,12 @@
     "thorchainLp": {
       "pairAssets": "%{asset1} and %{asset2}",
       "withdraw": {
-        "processing": "Your withdraw of %{assetAmountsAndSymbols} from the %{poolName} pool is processing."
+        "processing": "Your withdraw of %{assetAmountsAndSymbols} from the %{poolName} pool is processing.",
+        "complete": "Your withdraw of %{assetAmountsAndSymbols} from the %{poolName} pool is complete."
       },
       "deposit": {
-        "processing": "Your deposit of %{amount} %{symbol} to %{poolName} pool is processing."
+        "processing": "Your deposit of %{amount} %{symbol} to %{poolName} pool is processing.",
+        "complete": "Your deposit of %{amount} %{symbol} to %{poolName} pool is complete."
       }
     },
     "deposit": {

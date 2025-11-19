@@ -60,7 +60,6 @@ export const SavedWallets: React.FC<SavedWalletsProps> = ({ onClose }) => {
     settings.open({})
     onClose()
   }, [onClose, settings])
-  const isAccountManagementEnabled = useFeatureFlag('AccountManagement')
   const accountManagementPopover = useModal('manageAccounts')
   const mobileWalletDialog = useModal('mobileWalletDialog')
   const navigate = useNavigate()
@@ -135,18 +134,15 @@ export const SavedWallets: React.FC<SavedWalletsProps> = ({ onClose }) => {
         >
           {translate('connectWalletPage.importExisting')}
         </Button>
-
-        {isAccountManagementEnabled ? (
-          <Button
-            variant='ghost'
-            colorScheme='blue'
-            leftIcon={editIcon}
-            onClick={handleManageAccountsMenuItemClick}
-            justifyContent='flex-start'
-          >
-            {translate('accountManagement.menuTitle')}
-          </Button>
-        ) : null}
+        <Button
+          variant='ghost'
+          colorScheme='blue'
+          leftIcon={editIcon}
+          onClick={handleManageAccountsMenuItemClick}
+          justifyContent='flex-start'
+        >
+          {translate('accountManagement.menuTitle')}
+        </Button>
         <Button
           variant='ghost'
           colorScheme='blue'
@@ -172,7 +168,6 @@ export const SavedWallets: React.FC<SavedWalletsProps> = ({ onClose }) => {
     handleManageAccountsMenuItemClick,
     handleManageHiddenAssetsClick,
     handleBackupMenuItemClick,
-    isAccountManagementEnabled,
     translate,
     handleCreateClick,
   ])

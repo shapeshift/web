@@ -1756,7 +1756,6 @@
   },
   "accounts": {
     "accounts": "Accounts",
-    "addAccount": "Add Account",
     "accountNumber": "Account #%{accountNumber}",
     "accountChain": "Account Chain",
     "selectChain": "Select the chain you would like to create an account for.",

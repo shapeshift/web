@@ -645,14 +645,6 @@
         "infinite": "Infinite ∞",
         "amountUnavailable": "Unavailable"
       },
-      "bep20": {
-        "approve": "Approve",
-        "approveSymbol": "Approve %{symbol}",
-        "revoke": "Revoke",
-        "revokeSymbol": "Revoke %{symbol} approval",
-        "infinite": "Infinite ∞",
-        "amountUnavailable": "Unavailable"
-      },
       "staking": {
         "delegate": "Delegate",
         "begin_unbonding": "Undelegate",
@@ -2432,7 +2424,7 @@
       "switchChainFailed": "Failed to switch wallet chain. Try manually switching your wallet active chain to %{chain}.",
       "buildTransaction": "Failed to build transaction.",
       "signTransaction": "Failed to sign transaction.",
-      "blindSigningRequired": "Transaction requires blind signing. Please enable 'Blind signing' in your Ledger app settings and try again.",
+      "blindSigningRequired": "Transaction requires blind signing. Please enable Blind signing or Contract Data in your Ledger app settings and try again.",
       "signAndBroadcastTransaction": "Failed to sign and broadcast transaction.",
       "signMessage": "Failed to sign message.",
       "broadcastTransaction": "Failed to broadcast transaction.",
@@ -2487,10 +2479,12 @@
     "thorchainLp": {
       "pairAssets": "%{asset1} and %{asset2}",
       "withdraw": {
-        "processing": "Your withdraw of %{assetAmountsAndSymbols} from the %{poolName} pool is processing."
+        "processing": "Your withdraw of %{assetAmountsAndSymbols} from the %{poolName} pool is processing.",
+        "complete": "Your withdraw of %{assetAmountsAndSymbols} from the %{poolName} pool is complete."
       },
       "deposit": {
-        "processing": "Your deposit of %{amount} %{symbol} to %{poolName} pool is processing."
+        "processing": "Your deposit of %{amount} %{symbol} to %{poolName} pool is processing.",
+        "complete": "Your deposit of %{amount} %{symbol} to %{poolName} pool is complete."
       }
     },
     "deposit": {

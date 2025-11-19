@@ -644,14 +644,6 @@
         "infinite": "Бесконечность ∞",
         "amountUnavailable": "Недоступно"
       },
-      "bep20": {
-        "approve": "Утвердить",
-        "approveSymbol": "Утвердить %{symbol}",
-        "revoke": "Отозвать",
-        "revokeSymbol": "Отменить разрешение %{symbol} ",
-        "infinite": "Бесконечный ∞",
-        "amountUnavailable": "Недоступно"
-      },
       "staking": {
         "delegate": "Делегирование",
         "begin_unbonding": "Снять Делегирование",

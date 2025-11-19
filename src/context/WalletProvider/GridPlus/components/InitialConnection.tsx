@@ -39,38 +39,38 @@ export const InitialConnection = ({
 }: InitialConnectionProps) => {
   const translate = useTranslate()
 
-  const errorAlert = useMemo(
-    () =>
-      error && (
-        <Alert status='error'>
-          <AlertIcon />
-          {error}
-        </Alert>
-      ),
-    [error],
-  )
+  const errorAlert = useMemo(() => {
+    if (!error) return null
 
-  const deviceIdInput = useMemo(
-    () =>
-      !physicalDeviceId && (
-        <FormControl>
-          <FormLabel>{translate('walletProvider.gridplus.connect.deviceId')}</FormLabel>
-          <Input
-            placeholder={translate('walletProvider.gridplus.connect.deviceIdPlaceholder')}
-            value={deviceId}
-            onChange={onDeviceIdChange}
-            isDisabled={isLoading}
-            type='text'
-            autoComplete='off'
-            autoFocus
-          />
-          <FormHelperText>
-            {translate('walletProvider.gridplus.connect.deviceIdHelper')}
-          </FormHelperText>
-        </FormControl>
-      ),
-    [physicalDeviceId, deviceId, onDeviceIdChange, isLoading, translate],
-  )
+    return (
+      <Alert status='error'>
+        <AlertIcon />
+        {error}
+      </Alert>
+    )
+  }, [error])
+
+  const deviceIdInput = useMemo(() => {
+    if (physicalDeviceId) return null
+
+    return (
+      <FormControl>
+        <FormLabel>{translate('walletProvider.gridplus.connect.deviceId')}</FormLabel>
+        <Input
+          placeholder={translate('walletProvider.gridplus.connect.deviceIdPlaceholder')}
+          value={deviceId}
+          onChange={onDeviceIdChange}
+          isDisabled={isLoading}
+          type='text'
+          autoComplete='off'
+          autoFocus
+        />
+        <FormHelperText>
+          {translate('walletProvider.gridplus.connect.deviceIdHelper')}
+        </FormHelperText>
+      </FormControl>
+    )
+  }, [physicalDeviceId, deviceId, onDeviceIdChange, isLoading, translate])
 
   return (
     <>

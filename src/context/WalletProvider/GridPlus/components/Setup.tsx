@@ -44,44 +44,44 @@ export const Setup = ({
 
   const isSubmitDisabled = showPairingCode ? pairingCode.length !== 8 : false
 
-  const errorAlert = useMemo(
-    () =>
-      error && (
-        <Alert status='error'>
-          <AlertIcon />
-          {error}
-        </Alert>
-      ),
-    [error],
-  )
+  const errorAlert = useMemo(() => {
+    if (!error) return null
 
-  const pairingCodeSection = useMemo(
-    () =>
-      showPairingCode && (
-        <FormControl>
-          <FormLabel>{translate('walletProvider.gridplus.pair.pairingCode')}</FormLabel>
-          <HStack spacing={2}>
-            <PinInput
-              type='alphanumeric'
-              value={pairingCode}
-              onChange={onPairingCodeChange}
-              isDisabled={isLoading}
-              otp
-              placeholder='_'
-              autoFocus={showPairingCode}
-            >
-              {Array.from({ length: 8 }).map((_, i) => (
-                <PinInputField key={i} />
-              ))}
-            </PinInput>
-          </HStack>
-          <FormHelperText>
-            {translate('walletProvider.gridplus.pair.pairingCodeHelper')}
-          </FormHelperText>
-        </FormControl>
-      ),
-    [showPairingCode, pairingCode, onPairingCodeChange, isLoading, translate],
-  )
+    return (
+      <Alert status='error'>
+        <AlertIcon />
+        {error}
+      </Alert>
+    )
+  }, [error])
+
+  const pairingCodeSection = useMemo(() => {
+    if (!showPairingCode) return null
+
+    return (
+      <FormControl>
+        <FormLabel>{translate('walletProvider.gridplus.pair.pairingCode')}</FormLabel>
+        <HStack spacing={2}>
+          <PinInput
+            type='alphanumeric'
+            value={pairingCode}
+            onChange={onPairingCodeChange}
+            isDisabled={isLoading}
+            otp
+            placeholder='_'
+            autoFocus={showPairingCode}
+          >
+            {Array.from({ length: 8 }).map((_, i) => (
+              <PinInputField key={i} />
+            ))}
+          </PinInput>
+        </HStack>
+        <FormHelperText>
+          {translate('walletProvider.gridplus.pair.pairingCodeHelper')}
+        </FormHelperText>
+      </FormControl>
+    )
+  }, [showPairingCode, pairingCode, onPairingCodeChange, isLoading, translate])
 
   return (
     <>

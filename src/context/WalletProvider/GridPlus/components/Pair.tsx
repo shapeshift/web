@@ -37,16 +37,16 @@ export const Pair = ({
 }: PairProps) => {
   const translate = useTranslate()
 
-  const errorAlert = useMemo(
-    () =>
-      error && (
-        <Alert status='error'>
-          <AlertIcon />
-          {error}
-        </Alert>
-      ),
-    [error],
-  )
+  const errorAlert = useMemo(() => {
+    if (!error) return null
+
+    return (
+      <Alert status='error'>
+        <AlertIcon />
+        {error}
+      </Alert>
+    )
+  }, [error])
 
   return (
     <>

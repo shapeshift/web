@@ -89,11 +89,8 @@ export const swappers: Record<SwapperName, (SwapperApi & Swapper) | undefined> =
   [SwapperName.Test]: undefined,
 }
 
-// Exception to the "don't export" comment below. Exported as a fallback to not make getDefaultSlippageDecimalPercentageForSwapper crash
-// NOTE: While this is used in that util, it is *never* intended to be a default for throwing swappers, we will disregard those quotes
-export const DEFAULT_SLIPPAGE_DECIMAL_PERCENTAGE = '0.002' // .2%
-
 // Slippage defaults. Don't export these to ensure the getDefaultSlippageDecimalPercentageForSwapper helper function is used.
+const DEFAULT_SLIPPAGE_DECIMAL_PERCENTAGE = '0.002' // .2%
 const DEFAULT_COWSWAP_SLIPPAGE_DECIMAL_PERCENTAGE = '0.005' // .5%
 const DEFAULT_NEAR_INTENTS_SLIPPAGE_DECIMAL_PERCENTAGE = '0.005' // .5%
 const DEFAULT_PORTALS_SLIPPAGE_DECIMAL_PERCENTAGE = '0.025' // 2.5%

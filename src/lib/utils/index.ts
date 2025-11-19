@@ -2,6 +2,7 @@ import type { AssetId, ChainId, ChainNamespace } from '@shapeshiftoss/caip'
 import { fromChainId } from '@shapeshiftoss/caip'
 import type { ChainAdapter } from '@shapeshiftoss/chain-adapters'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
+import type { GridPlusHDWallet } from '@shapeshiftoss/hdwallet-gridplus'
 import type { KeepKeyHDWallet } from '@shapeshiftoss/hdwallet-keepkey'
 import type { KeplrHDWallet } from '@shapeshiftoss/hdwallet-keplr'
 import type { NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
@@ -24,7 +25,7 @@ export const trimWithEndEllipsis = (content?: string, trimmedContentLength?: num
 
   if (!trimmedContentLength) return content
 
-  if (content.length < trimmedContentLength) return content
+  if (content.length <= trimmedContentLength) return content
 
   return content.slice(0, trimmedContentLength).concat('...')
 }
@@ -39,6 +40,10 @@ export const isKeplrHDWallet = (wallet: HDWallet): wallet is KeplrHDWallet => {
 
 export const isNativeHDWallet = (wallet: HDWallet): wallet is NativeHDWallet => {
   return wallet.getVendor() === 'Native'
+}
+
+export const isGridPlusHDWallet = (wallet: HDWallet): wallet is GridPlusHDWallet => {
+  return wallet.getVendor() === 'GridPlus'
 }
 
 export const isWalletConnectWallet = (wallet: HDWallet): wallet is WalletConnectV2HDWallet => {

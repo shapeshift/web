@@ -21,7 +21,6 @@ export const ManageAccountsMenuItem: React.FC<ManageAccountsMenuItemProps> = ({
   onClick,
 }) => {
   const translate = useTranslate()
-  const isAccountManagementEnabled = useFeatureFlag('AccountManagement')
   const isLedgerReadOnlyEnabled = useFeatureFlag('LedgerReadOnly')
   const { state } = useWallet()
   const { wallet, connectedType } = state
@@ -38,7 +37,7 @@ export const ManageAccountsMenuItem: React.FC<ManageAccountsMenuItemProps> = ({
   return (
     <>
       {displayDivider && <MenuDivider />}
-      {isAccountManagementEnabled && !shouldHideAccountManagement && (
+      {!shouldHideAccountManagement && (
         <MenuItem icon={editIcon} onClick={onClick ?? handleManageAccountsMenuItemClick}>
           {translate('accountManagement.menuTitle')}
         </MenuItem>

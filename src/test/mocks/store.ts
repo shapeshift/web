@@ -168,6 +168,7 @@ export const mockStore: ReduxState = {
       NewWalletManager: false,
       SwapperFiatRamps: false,
       LedgerReadOnly: false,
+      WebServices: false,
       AddressBook: false,
     },
     showTopAssetsCarousel: true,

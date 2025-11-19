@@ -139,6 +139,7 @@ export type TradeAmountInputProps = {
   onToggleIsFiat?: (isInputtingFiatSellAmount: boolean) => void
   placeholder?: string
   activeQuote?: TradeQuote | TradeRate | undefined
+  inputContainerStyleOverride?: React.CSSProperties
 } & PropsWithChildren
 
 const defaultPercentOptions = [0.25, 0.5, 0.75, 1]
@@ -185,6 +186,7 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = memo(
     isFiat,
     activeQuote,
     onToggleIsFiat: handleIsInputtingFiatSellAmountChange,
+    inputContainerStyleOverride,
   }) => {
     const {
       number: { localeParts },
@@ -366,6 +368,11 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = memo(
 
     const handleOnMaxClick = useMemo(() => () => onMaxClick(Boolean(isFiat)), [isFiat, onMaxClick])
 
+    const containerStyle = useMemo(
+      () => inputContainerStyleOverride ?? inputContainerStyle,
+      [inputContainerStyleOverride],
+    )
+
     return (
       <FormControl
         borderWidth={1}
@@ -402,7 +409,7 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = memo(
             )}
           </Display.Desktop>
         </Flex>
-        <Flex sx={inputContainerStyle}>
+        <Flex sx={containerStyle}>
           {labelPostFix}
           <Stack
             direction='row'

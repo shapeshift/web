@@ -7,12 +7,12 @@ export const mipdStore = createStore()
 export const useMipdProviders = () => {
   const providers = useSyncExternalStore(mipdStore.subscribe, mipdStore.getProviders)
 
-  // Deduplicate by RDNS
   return useMemo(() => {
-    const seenRdns = new Set<string>()
-    return providers.filter((provider) => {
-      if (seenRdns.has(provider.info.rdns)) return false
-      seenRdns.add(provider.info.rdns)
+    return providers.filter(provider => {
+      // Filter out Vultisig hijacking Phantom, see https://github.com/shapeshift/web/issues/11134
+      if (provider.info.rdns === 'app.phantom' && provider.info.name === 'Vultisig') {
+        return false
+      }
       return true
     })
   }, [providers])

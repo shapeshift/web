@@ -7,7 +7,7 @@ import { bn, bnOrZero, convertBasisPointsToDecimalPercentage } from '@shapeshift
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import { v4 as uuid } from 'uuid'
-import type { Address, Hex } from 'viem'
+import type { Hex } from 'viem'
 import { getAddress, zeroAddress } from 'viem'
 
 import { getDefaultSlippageDecimalPercentageForSwapper } from '../../..'

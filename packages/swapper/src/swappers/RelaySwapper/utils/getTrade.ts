@@ -14,7 +14,7 @@ import { Err, Ok } from '@sniptt/monads'
 import type { TransactionInstruction } from '@solana/web3.js'
 import { PublicKey } from '@solana/web3.js'
 import axios from 'axios'
-import type { Address, Hex } from 'viem'
+import type { Hex } from 'viem'
 import { getAddress, zeroAddress } from 'viem'
 
 import type {

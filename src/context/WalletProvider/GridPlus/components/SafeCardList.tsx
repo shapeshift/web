@@ -7,23 +7,18 @@ import {
   AlertDialogHeader,
   AlertDialogOverlay,
   AlertIcon,
-  Box,
   Button,
-  ButtonGroup,
-  HStack,
-  IconButton,
-  Input,
   Text,
   useDisclosure,
   useToast,
   VStack,
 } from '@chakra-ui/react'
 import { useCallback, useMemo, useRef, useState } from 'react'
-import { FaWallet } from 'react-icons/fa'
-import { IoMdAdd, IoMdCreate, IoMdTrash } from 'react-icons/io'
+import { IoMdAdd } from 'react-icons/io'
 import { useTranslate } from 'react-polyglot'
 
 import { useGridPlusConnection } from '../hooks/useGridPlusConnection'
+import { SafeCardRow } from './SafeCardRow'
 
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { gridplusSlice } from '@/state/slices/gridplusSlice/gridplusSlice'
@@ -32,10 +27,6 @@ import { portfolio } from '@/state/slices/portfolioSlice/portfolioSlice'
 import { useAppDispatch } from '@/state/store'
 
 const AddIcon = <IoMdAdd />
-const CreateIcon = <IoMdCreate />
-const TrashIcon = <IoMdTrash />
-
-const hoverSx = { borderColor: 'border.focused' }
 
 export const SafeCardList = () => {
   const translate = useTranslate()
@@ -155,85 +146,22 @@ export const SafeCardList = () => {
 
   const cards = useMemo(
     () =>
-      sortedSafeCards.map(safeCard => {
-        const isActive =
-          walletState.isConnected && walletState.deviceId === `gridplus:${safeCard.id}`
-        const isConnecting = connectingCardId === safeCard.id
-
-        return (
-          <Box
-            key={safeCard.id}
-            p={4}
-            borderWidth={1}
-            borderRadius='lg'
-            borderColor='border.base'
-            _hover={hoverSx}
-            bg='background.surface.raised.base'
-          >
-            <HStack spacing={3}>
-              <Box color='text.subtle'>
-                <FaWallet size={20} />
-              </Box>
-
-              {editingId === safeCard.id ? (
-                <Input
-                  size='sm'
-                  value={editName}
-                  onChange={handleEditNameChange}
-                  data-id={safeCard.id}
-                  onBlur={handleRenameBlur}
-                  onKeyDown={handleRenameKeyDown}
-                  autoFocus
-                  flex={1}
-                />
-              ) : (
-                <VStack align='start' flex={1} spacing={0}>
-                  <Text fontWeight='medium'>{safeCard.name}</Text>
-                  {safeCard.lastConnectedAt && (
-                    <Text fontSize='xs' color='text.subtle'>
-                      {translate('walletProvider.gridplus.list.lastConnected', {
-                        date: new Date(safeCard.lastConnectedAt).toLocaleDateString(),
-                      })}
-                    </Text>
-                  )}
-                </VStack>
-              )}
-
-              <ButtonGroup size='sm'>
-                {editingId !== safeCard.id && (
-                  <IconButton
-                    icon={CreateIcon}
-                    aria-label={translate('walletProvider.gridplus.list.editNameLabel')}
-                    variant='ghost'
-                    data-id={safeCard.id}
-                    data-name={safeCard.name}
-                    onClick={handleEditClick}
-                  />
-                )}
-                <IconButton
-                  icon={TrashIcon}
-                  aria-label={translate('walletProvider.gridplus.list.deleteLabel')}
-                  variant='ghost'
-                  colorScheme='red'
-                  data-id={safeCard.id}
-                  onClick={handleDeleteClick}
-                />
-                <Button
-                  data-id={safeCard.id}
-                  onClick={handleSelectClick}
-                  colorScheme='blue'
-                  isDisabled={isActive || isConnecting}
-                  isLoading={isConnecting}
-                >
-                  {isActive
-                    ? translate('walletProvider.gridplus.list.connected')
-                    : translate('walletProvider.gridplus.list.connect')}
-                </Button>
-              </ButtonGroup>
-            </HStack>
-          </Box>
-        )
-      }),
+      sortedSafeCards.map(safeCard => (
+        <SafeCardRow
+          key={safeCard.id}
+          safeCard={safeCard}
+          isActive={walletState.isConnected && walletState.deviceId === `gridplus:${safeCard.id}`}
+          isConnecting={connectingCardId === safeCard.id}
+          isEditing={editingId === safeCard.id}
+          editName={editName}
+          onEditNameChange={handleEditNameChange}
+          onRenameBlur={handleRenameBlur}
+          onRenameKeyDown={handleRenameKeyDown}
+          onEditClick={handleEditClick}
+          onDeleteClick={handleDeleteClick}
+          onSelectClick={handleSelectClick}
+        />
+      )),
     [
       sortedSafeCards,
       walletState.isConnected,
@@ -247,7 +175,6 @@ export const SafeCardList = () => {
       handleEditClick,
       handleDeleteClick,
       handleSelectClick,
-      translate,
     ],
   )
 

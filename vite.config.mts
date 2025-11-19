@@ -122,6 +122,23 @@ export default defineConfig(({ mode }) => {
       port: 3000,
       headers,
       host: '0.0.0.0',
+      proxy: {
+        '/user-api': {
+          target: 'http://localhost:3002',
+          changeOrigin: true,
+          rewrite: path => path.replace(/^\/user-api/, ''),
+        },
+        '/swaps-api': {
+          target: 'http://localhost:3001',
+          changeOrigin: true,
+          rewrite: path => path.replace(/^\/swaps-api/, ''),
+        },
+        '/notifications-api': {
+          target: 'http://localhost:3003',
+          changeOrigin: true,
+          rewrite: path => path.replace(/^\/notifications-api/, ''),
+        },
+      },
     },
     preview: {
       port: 3000,

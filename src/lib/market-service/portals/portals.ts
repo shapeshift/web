@@ -1,5 +1,5 @@
 import type { ChainId } from '@shapeshiftoss/caip'
-import { ASSET_NAMESPACE, bscChainId, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
+import { ASSET_NAMESPACE, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
 import type {
   FindAllMarketArgs,
   HistoryData,
@@ -68,8 +68,7 @@ export class PortalsMarketService implements MarketService {
 
             const assetId = toAssetId({
               chainId: chainId as ChainId,
-              assetNamespace:
-                chainId === bscChainId ? ASSET_NAMESPACE.bep20 : ASSET_NAMESPACE.erc20,
+              assetNamespace: ASSET_NAMESPACE.erc20,
               assetReference: token.address,
             })
 

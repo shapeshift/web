@@ -644,14 +644,6 @@
         "infinite": "无限 ∞",
         "amountUnavailable": "不可用"
       },
-      "bep20": {
-        "approve": "授权",
-        "approveSymbol": "授权 %{symbol}",
-        "revoke": "撤销",
-        "revokeSymbol": "撤销 %{symbol} 的授权",
-        "infinite": "无限 ∞",
-        "amountUnavailable": "不可用"
-      },
       "staking": {
         "delegate": "委托",
         "begin_unbonding": "取消委托",

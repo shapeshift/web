@@ -1,4 +1,4 @@
-import { Box, Flex } from '@chakra-ui/react'
+import { Box, Flex, useMediaQuery } from '@chakra-ui/react'
 import { memo, useCallback, useMemo } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
@@ -9,10 +9,14 @@ import { Main } from '@/components/Layout/Main'
 import { SEO } from '@/components/Layout/Seo'
 import { FiatRampRoutePaths } from '@/components/MultiHopTrade/components/FiatRamps/types'
 import { LimitOrderRoutePaths } from '@/components/MultiHopTrade/components/LimitOrder/types'
+import { TopAssetsCarousel } from '@/components/MultiHopTrade/components/TradeInput/components/TopAssetsCarousel'
 import { MultiHopTrade } from '@/components/MultiHopTrade/MultiHopTrade'
 import { TradeInputTab, TradeRoutePaths } from '@/components/MultiHopTrade/types'
 import { blurBackgroundSx, gridOverlaySx } from '@/pages/Trade/constants'
 import { LIMIT_ORDER_ROUTE_ASSET_SPECIFIC, TRADE_ROUTE_ASSET_SPECIFIC } from '@/Routes/RoutesCommon'
+import { selectHasUserEnteredAmount } from '@/state/slices/tradeInputSlice/selectors'
+import { useAppSelector } from '@/state/store'
+import { breakpoints } from '@/theme/theme'
 
 const padding = { base: 0, md: 8 }
 const mainPaddingTop = { base: 0, md: '4.5rem' }
@@ -26,6 +30,8 @@ export const TradeTab = memo(() => {
   const location = useLocation()
   const methods = useForm({ mode: 'onChange' })
   const navigate = useNavigate()
+  const [isSmallerThanMd] = useMediaQuery(`(max-width: ${breakpoints.md})`, { ssr: false })
+  const hasUserEnteredAmount = useAppSelector(selectHasUserEnteredAmount)
 
   // Extract params directly from location.pathname using matchPath instead of useParams()
   // Somehow, the route below is overriden by /:chainId/:assetSubId/:nftId, so the wrong pattern matching would be used with useParams()
@@ -96,6 +102,14 @@ export const TradeTab = memo(() => {
     [handleChangeTab, defaultBuyAssetId, defaultSellAssetId],
   )
 
+  const shouldShowCarousel = useMemo(() => {
+    return !isSmallerThanMd && !hasUserEnteredAmount
+  }, [isSmallerThanMd, hasUserEnteredAmount])
+
+  const bottomPadding = useMemo(() => {
+    return shouldShowCarousel ? { base: 0, md: '180px' } : containerPaddingBottom
+  }, [shouldShowCarousel])
+
   return (
     <Main pt={mainPaddingTop} mt={mainMarginTop} px={0} display='flex' flex={1} width='full'>
       <Box
@@ -110,7 +124,7 @@ export const TradeTab = memo(() => {
         <Flex
           pt={containerPaddingTop}
           px={padding}
-          pb={containerPaddingBottom}
+          pb={bottomPadding}
           alignItems='flex-start'
           width='full'
           justifyContent='center'
@@ -124,6 +138,7 @@ export const TradeTab = memo(() => {
             </Routes>
           </FormProvider>
         </Flex>
+        <TopAssetsCarousel />
       </Box>
     </Main>
   )

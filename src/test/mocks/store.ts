@@ -128,8 +128,6 @@ export const mockStore: ReduxState = {
       VultisigWallet: false,
       ThorchainSwapLongtail: false,
       ThorchainSwapL1ToLongtail: false,
-      AccountManagement: false,
-      AccountManagementLedger: false,
       RFOX: false,
       RFOX_LP: false,
       CustomTokenImport: false,

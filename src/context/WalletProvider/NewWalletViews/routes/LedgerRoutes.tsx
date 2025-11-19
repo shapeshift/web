@@ -35,8 +35,6 @@ export const LedgerRoutes = () => {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [deviceCountError, setDeviceCountError] = useState<string | null>(null)
-  const isAccountManagementEnabled = useFeatureFlag('AccountManagement')
-  const isLedgerAccountManagementEnabled = useFeatureFlag('AccountManagementLedger')
   const isLedgerReadOnlyEnabled = useFeatureFlag('LedgerReadOnly')
 
   const {
@@ -107,26 +105,14 @@ export const LedgerRoutes = () => {
         })
         localWallet.setLocalWallet({ type: KeyManager.Ledger, deviceId })
 
-        // If account management is enabled, exit the WalletProvider context
-        if (isAccountManagementEnabled && isLedgerAccountManagementEnabled) {
-          walletDispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
-        } else {
-          walletDispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
-        }
+        walletDispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
       } catch (e: any) {
         console.error(e)
         setError(e?.message || 'walletProvider.ledger.errors.unknown')
       }
     }
     setIsLoading(false)
-  }, [
-    getAdapter,
-    handleCheckNumDevices,
-    isAccountManagementEnabled,
-    isLedgerAccountManagementEnabled,
-    localWallet,
-    walletDispatch,
-  ])
+  }, [getAdapter, handleCheckNumDevices, localWallet, walletDispatch])
 
   const handleClearCacheAndPair = useCallback(async () => {
     handleClearPortfolio()

@@ -1,5 +1,6 @@
 import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
+import { isGridPlus } from '@shapeshiftoss/hdwallet-gridplus'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import type { Asset } from '@shapeshiftoss/types'
 import { skipToken, useQuery } from '@tanstack/react-query'
@@ -96,12 +97,12 @@ export const useReceiveAddress = ({
             if (isUtxoAccountId(buyAccountId) && !buyAccountMetadata?.accountType)
               throw new Error(`Missing accountType for UTXO account ${buyAccountId}`)
 
-            const shouldFetchUnchainedAddress = Boolean(wallet && isLedger(wallet))
+            const skipDeviceDerivation = wallet && (isLedger(wallet) || isGridPlus(wallet))
             const walletReceiveAddress = await getReceiveAddress({
               asset: buyAsset,
               wallet,
               accountMetadata: buyAccountMetadata,
-              pubKey: shouldFetchUnchainedAddress ? fromAccountId(buyAccountId).account : undefined,
+              pubKey: skipDeviceDerivation ? fromAccountId(buyAccountId).account : undefined,
             })
 
             return walletReceiveAddress ?? null

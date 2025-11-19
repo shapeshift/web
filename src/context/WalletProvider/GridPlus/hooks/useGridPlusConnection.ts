@@ -48,7 +48,8 @@ export const useGridPlusConnection = () => {
   }, [pendingSafeCardUuid, appDispatch])
 
   const getAdapterWithKeyring = useCallback(async (): Promise<GridPlusAdapter> => {
-    const adapter = (await getAdapter(KeyManager.GridPlus)) as GridPlusAdapter | null
+    const adapter = await getAdapter(KeyManager.GridPlus)
+
     if (!adapter) {
       throw new Error(translate('walletProvider.gridplus.errors.adapterNotAvailable'))
     }

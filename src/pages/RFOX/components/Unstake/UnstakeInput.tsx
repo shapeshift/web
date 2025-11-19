@@ -50,6 +50,11 @@ const formControlProps = {
   paddingTop: 0,
 }
 
+const inputContainerStyleOverride = {
+  display: 'flex' as const,
+  flexDirection: 'column' as const,
+}
+
 const defaultFormValues = {
   amountFieldInput: '',
   amountCryptoPrecision: '',
@@ -425,6 +430,7 @@ export const UnstakeInput: React.FC<UnstakeRouteProps & UnstakeInputProps> = ({
             onToggleIsFiat={handleToggleIsFiat}
             percentOptions={percentOptions}
             showInputSkeleton={!isUserBalanceStakingBalanceOfCryptoBaseUnitSuccess}
+            inputContainerStyleOverride={inputContainerStyleOverride}
           />
 
           <Collapse in={hasEnteredValue}>

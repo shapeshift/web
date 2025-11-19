@@ -23,6 +23,8 @@ import { FaWallet } from 'react-icons/fa'
 import { IoMdAdd, IoMdCreate, IoMdTrash } from 'react-icons/io'
 import { useTranslate } from 'react-polyglot'
 
+import { useGridPlusConnection } from '../hooks/useGridPlusConnection'
+
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { gridplusSlice } from '@/state/slices/gridplusSlice/gridplusSlice'
 import type { SafeCard } from '@/state/slices/gridplusSlice/types'
@@ -35,22 +37,10 @@ const TrashIcon = <IoMdTrash />
 
 const hoverSx = { borderColor: 'border.focused' }
 
-type SafeCardListProps = {
-  safeCards: SafeCard[]
-  onSelectSafeCard: (id: string) => void
-  onAddNewSafeCard: () => void
-  connectingCardId?: string | null
-  error?: string | null
-}
-
-export const SafeCardList: React.FC<SafeCardListProps> = ({
-  safeCards,
-  onSelectSafeCard,
-  onAddNewSafeCard,
-  connectingCardId,
-  error,
-}) => {
+export const SafeCardList = () => {
   const translate = useTranslate()
+  const { safeCards, handleSelectSafeCard, handleAddNew, connectingCardId, error } =
+    useGridPlusConnection()
   const [editingId, setEditingId] = useState<string | null>(null)
   const [editName, setEditName] = useState('')
   const [safeCardToDelete, setSafeCardToDelete] = useState<SafeCard | null>(null)
@@ -121,10 +111,10 @@ export const SafeCardList: React.FC<SafeCardListProps> = ({
     (e: React.MouseEvent<HTMLButtonElement>) => {
       const id = e.currentTarget.dataset.id
       if (id) {
-        onSelectSafeCard(id)
+        handleSelectSafeCard(id)
       }
     },
-    [onSelectSafeCard],
+    [handleSelectSafeCard],
   )
 
   const handleDeleteConfirm = useCallback(() => {
@@ -265,7 +255,7 @@ export const SafeCardList: React.FC<SafeCardListProps> = ({
     return (
       <VStack spacing={4} py={8}>
         <Text color='text.subtle'>{translate('walletProvider.gridplus.list.empty')}</Text>
-        <Button leftIcon={AddIcon} onClick={onAddNewSafeCard} colorScheme='blue' size='lg'>
+        <Button leftIcon={AddIcon} onClick={handleAddNew} colorScheme='blue' size='lg'>
           {translate('walletProvider.gridplus.list.addFirst')}
         </Button>
       </VStack>
@@ -284,13 +274,7 @@ export const SafeCardList: React.FC<SafeCardListProps> = ({
         </Alert>
       )}
       {cards}
-      <Button
-        leftIcon={AddIcon}
-        onClick={onAddNewSafeCard}
-        variant='outline'
-        colorScheme='blue'
-        mt={2}
-      >
+      <Button leftIcon={AddIcon} onClick={handleAddNew} variant='outline' colorScheme='blue' mt={2}>
         {translate('walletProvider.gridplus.list.addNew')}
       </Button>
       <Alert status='info' borderRadius='md' mt={4}>

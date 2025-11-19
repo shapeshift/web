@@ -11,15 +11,12 @@ export const GridPlusConnect = () => {
     safeCards,
     physicalDeviceId,
     isAddingNew,
-    connectingCardId,
     deviceId,
     isLoading,
     error,
     handleDeviceIdChange,
     handleBackToList,
     handleConnect,
-    handleSelectSafeCard,
-    handleAddNew,
   } = useGridPlusConnection()
 
   const showSafeCardList = safeCards.length > 0 && !isAddingNew
@@ -29,13 +26,7 @@ export const GridPlusConnect = () => {
       <>
         <ModalHeader>{translate('walletProvider.gridplus.list.header')}</ModalHeader>
         <ModalBody>
-          <SafeCardList
-            safeCards={safeCards}
-            onSelectSafeCard={handleSelectSafeCard}
-            onAddNewSafeCard={handleAddNew}
-            connectingCardId={connectingCardId}
-            error={error}
-          />
+          <SafeCardList />
         </ModalBody>
       </>
     )

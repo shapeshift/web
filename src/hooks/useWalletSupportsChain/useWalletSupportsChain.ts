@@ -100,7 +100,9 @@ export const walletSupportsChain = ({
   connectedType,
 }: WalletSupportsChainArgs): boolean => {
   // If the user has no connected chain account ids, the user can't use it to interact with the chain
-  if (checkConnectedAccountIds !== false && !checkConnectedAccountIds.length) return false
+  if (checkConnectedAccountIds !== false && !checkConnectedAccountIds.length) {
+    return false
+  }
 
   // Handle Ledger read-only mode
   if (!wallet && connectedType === KeyManager.Ledger) {
@@ -108,7 +110,9 @@ export const walletSupportsChain = ({
     return checkConnectedAccountIds !== false && checkConnectedAccountIds.length > 0
   }
 
-  if (!wallet) return false
+  if (!wallet) {
+    return false
+  }
   // A wallet may have feature-capabilities for a chain, but not have runtime support for it
   // e.g MM without snaps installed
   const hasRuntimeSupport = checkWalletHasRuntimeSupport({

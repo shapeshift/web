@@ -1,5 +1,6 @@
 import type { KkRestAdapter } from '@keepkey/hdwallet-keepkey-rest'
 import type { CoinbaseAdapter } from '@shapeshiftoss/hdwallet-coinbase'
+import type { GridPlusAdapter } from '@shapeshiftoss/hdwallet-gridplus'
 import type { WebUSBKeepKeyAdapter } from '@shapeshiftoss/hdwallet-keepkey-webusb'
 import type { KeplrAdapter } from '@shapeshiftoss/hdwallet-keplr'
 import type { WebUSBLedgerAdapter } from '@shapeshiftoss/hdwallet-ledger-webusb'
@@ -22,6 +23,7 @@ export type AdaptersByKeyManager = {
   [KeyManager.Phantom]: PhantomAdapter
   [KeyManager.Coinbase]: CoinbaseAdapter
   [KeyManager.Vultisig]: VultisigAdapter
+  [KeyManager.GridPlus]: GridPlusAdapter
 }
 
 export enum NativeWalletRoutes {

@@ -19,6 +19,7 @@ interface ImportMetaEnv {
   readonly VITE_FEATURE_CHATWOOT: string
   readonly VITE_FEATURE_ADVANCED_SLIPPAGE: string
   readonly VITE_FEATURE_LEDGER_WALLET: string
+  readonly VITE_FEATURE_VULTISIG_WALLET: string
   readonly VITE_FEATURE_WALLET_CONNECT_V2: string
   readonly VITE_FEATURE_THORCHAIN_LENDING: string
   readonly VITE_FEATURE_THORCHAIN_LENDING_BORROW: string

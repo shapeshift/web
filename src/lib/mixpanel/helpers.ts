@@ -2,9 +2,11 @@ import type { AssetId } from '@shapeshiftoss/caip'
 import type { Asset, AssetsByIdPartial } from '@shapeshiftoss/types'
 
 import { getMixPanel } from './mixPanelSingleton'
-import type { MixPanelEvent, TrackOpportunityProps } from './types'
+import type { TrackOpportunityProps } from './types'
+import { MixPanelEvent } from './types'
 
 import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
+import type { AppleSearchAdsAttributionData } from '@/lib/appleSearchAds/attributionData'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 
 // Returns an altered path when necessary or null if the path should not be tracked for privacy
@@ -73,4 +75,41 @@ export const trackOpportunityEvent = (
     ...(element && { element }),
   }
   mixpanel?.track(event, eventData)
+}
+
+export const trackAppleSearchAdsAttribution = (data: AppleSearchAdsAttributionData) => {
+  const mixpanel = getMixPanel()
+  if (!mixpanel) return
+
+  // Extract keyword ID (use 'unknown' as fallback per requirements)
+  const keywordId = data.keywordId?.toString() || 'unknown'
+
+  const keyword = 'unknown_keyword' // Apple API doesn't return keyword text
+
+  // Track the event with all available campaign data
+  mixpanel.track(MixPanelEvent.AdAttributionReceived, {
+    ua_source: 'apple_search_ads',
+    apple_keyword: keyword,
+    apple_keyword_id: keywordId,
+    campaign_id: data.campaignId,
+    ad_group_id: data.adGroupId,
+    ad_id: data.adId,
+    org_id: data.orgId,
+    country: data.countryOrRegion,
+    conversion_type: data.conversionType,
+    claim_type: data.claimType,
+    ...(data.clickDate && { click_date: data.clickDate }),
+  })
+
+  // Set first-touch properties using set_once to ensure they persist after aliasing
+  mixpanel.people.set_once({
+    ft_source: 'apple_search_ads',
+    ft_apple_keyword: keyword,
+    ft_apple_keyword_id: keywordId,
+    ft_campaign_id: data.campaignId,
+    ft_ad_group_id: data.adGroupId,
+    ft_ad_id: data.adId,
+    ft_country: data.countryOrRegion,
+    ft_conversion_type: data.conversionType,
+  })
 }

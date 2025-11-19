@@ -52,12 +52,6 @@ export const portfolio = createSlice({
         if (payload !== undefined) {
           const { walletId, walletName } = payload
 
-          const data = { 'Wallet Id': walletId, 'Wallet Name': walletName }
-          // if we already have state.walletId, we're switching wallets, otherwise connecting
-          getMixPanel()?.track(
-            state.connectedWallet?.id ? MixPanelEvent.SwitchWallet : MixPanelEvent.ConnectWallet,
-            data,
-          )
           state.connectedWallet = {
             id: walletId,
             name: walletName,

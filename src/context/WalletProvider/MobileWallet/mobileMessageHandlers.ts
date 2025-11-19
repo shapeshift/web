@@ -4,6 +4,7 @@ import type {
   MobileWalletInfo,
   MobileWalletInfoWithMnemonic,
 } from '@/context/WalletProvider/MobileWallet/types'
+import type { AppleSearchAdsAttributionData } from '@/lib/appleSearchAds/attributionData'
 
 type Command =
   | 'getWallet'
@@ -17,6 +18,7 @@ type Command =
   | 'getExpoToken'
   | 'requestStoreReview'
   | 'getAppVersion'
+  | 'getAppleAttributionData'
 
 export type HapticLevel = 'light' | 'medium' | 'heavy' | 'soft' | 'rigid'
 
@@ -58,9 +60,12 @@ type Message =
   | {
       cmd: 'getAppVersion'
     }
+  | {
+      cmd: 'getAppleAttributionData'
+    }
 
 export type MessageFromMobileApp = {
-  id: number
+  id: string
   result: unknown
 }
 
@@ -81,7 +86,7 @@ export type MobileAppVersion = {
  */
 const postMessage = <T>(msg: Message): Promise<T> => {
   return new Promise((resolve, reject) => {
-    const id = Date.now()
+    const id = `${Date.now()}-${msg.cmd}`
     try {
       const eventListener = (event: MessageEvent<MessageFromMobileApp>) => {
         if (event.data?.id === id) {
@@ -215,4 +220,14 @@ export const requestStoreReview = (): Promise<boolean> => {
  */
 export const requestAppVersion = (): Promise<MobileAppVersion | undefined> => {
   return postMessage<MobileAppVersion>({ cmd: 'getAppVersion' })
+}
+
+/**
+ * Get Apple Search Ads attribution data from the mobile app.
+ *
+ * This should be called once on app initialization to retrieve the attribution
+ * data that the iOS app fetched from Apple's AdServices API.
+ */
+export const getAppleAttributionData = (): Promise<AppleSearchAdsAttributionData | undefined> => {
+  return postMessage<AppleSearchAdsAttributionData>({ cmd: 'getAppleAttributionData' })
 }

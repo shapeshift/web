@@ -37,6 +37,7 @@ export const Claim: React.FC<ClaimProps> = ({
   accountId,
   onAccountIdChange: handleAccountIdChange,
 }) => {
+  'use no memo'
   const navigate = useNavigate()
   const { query, location } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { assetNamespace, contractAddress, chainId, rewardId } = query

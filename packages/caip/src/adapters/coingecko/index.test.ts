@@ -118,7 +118,7 @@ describe('adapters:coingecko', () => {
       const atomOnBsc = toAssetId({
         chainNamespace: CHAIN_NAMESPACE.Evm,
         chainReference: CHAIN_REFERENCE.BnbSmartChainMainnet,
-        assetNamespace: 'bep20',
+        assetNamespace: 'erc20',
         assetReference: '0x0eb3a705fc54725037cc9e008bdede697f62f335',
       })
       expect(coingeckoToAssetIds('cosmos')).toEqual([atomOnBsc, atomOnCosmos])
@@ -185,7 +185,7 @@ describe('adapters:coingecko', () => {
       const usdcOnBscBridged = toAssetId({
         chainNamespace,
         chainReference: CHAIN_REFERENCE.BnbSmartChainMainnet,
-        assetNamespace: 'bep20',
+        assetNamespace: 'erc20',
         assetReference: '0x8ac76a51cc950d9822d68b83fe1ad97b32cd580d',
       })
       const usdcOnPolygonBridged = toAssetId({

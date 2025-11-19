@@ -12,6 +12,7 @@ import { snapshot, snapshotApi } from './apis/snapshot/snapshot'
 import { swapperApi } from './apis/swapper/swapperApi'
 import {
   clearActionMigrations,
+  clearAddressBookMigrations,
   clearAssetsMigrations,
   clearMarketDataMigrations,
   clearOpportunitiesMigrations,
@@ -23,6 +24,8 @@ import {
 } from './migrations'
 import { actionSlice } from './slices/actionSlice/actionSlice'
 import type { ActionState } from './slices/actionSlice/types'
+import type { AddressBookState } from './slices/addressBookSlice/addressBookSlice'
+import { addressBookSlice } from './slices/addressBookSlice/addressBookSlice'
 import type { AssetsState } from './slices/assetsSlice/assetsSlice'
 import { assetApi, assets } from './slices/assetsSlice/assetsSlice'
 import { limitOrderInput } from './slices/limitOrderInputSlice/limitOrderInputSlice'
@@ -64,6 +67,7 @@ export const slices = {
   snapshot,
   localWallet: localWalletSlice,
   gridplus: gridplusSlice,
+  addressBook: addressBookSlice,
 }
 
 const preferencesPersistConfig = {
@@ -146,6 +150,13 @@ const gridplusPersistConfig = {
   version: 0,
 }
 
+const addressBookPersistConfig = {
+  key: 'addressBook',
+  storage: localforage,
+  version: Math.max(...Object.keys(clearAddressBookMigrations).map(Number)),
+  migrate: createMigrate(clearAddressBookMigrations, { debug: false }),
+}
+
 export const sliceReducers = {
   assets: persistReducer<AssetsState>(assetsPersistConfig, assets.reducer),
   marketData: persistReducer<MarketDataState>(marketDataPersistConfig, marketData.reducer),
@@ -169,6 +180,7 @@ export const sliceReducers = {
   action: persistReducer<ActionState>(actionPersistConfig, actionSlice.reducer),
   swap: persistReducer<SwapState>(swapPersistConfig, swapSlice.reducer),
   gridplus: persistReducer<GridPlusState>(gridplusPersistConfig, gridplusSlice.reducer),
+  addressBook: persistReducer<AddressBookState>(addressBookPersistConfig, addressBookSlice.reducer),
 }
 
 export const apiSlices = {

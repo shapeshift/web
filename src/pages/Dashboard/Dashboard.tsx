@@ -2,34 +2,29 @@ import type { FlexProps } from '@chakra-ui/react'
 import { Flex, Tab, TabList, TabPanel, TabPanels, Tabs } from '@chakra-ui/react'
 import { memo, useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { Route, Routes, useLocation, useNavigate } from 'react-router-dom'
+import { Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom'
 
 import { WatchlistTable } from '../Home/WatchlistTable'
 import { DashboardHeader } from './components/DashboardHeader/DashboardHeader'
 import { EarnDashboard } from './EarnDashboard'
-import { WalletDashboard } from './WalletDashboard'
+import { Portfolio } from './Portfolio'
 
 import { Display } from '@/components/Display'
 import { Main } from '@/components/Layout/Main'
 import { SEO } from '@/components/Layout/Seo'
-import { RawText } from '@/components/Text'
 import { WalletActions } from '@/context/WalletProvider/actions'
 import { KeyManager } from '@/context/WalletProvider/KeyManager'
 import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { Accounts } from '@/pages/Accounts/Accounts'
-import { TransactionHistory } from '@/pages/TransactionHistory/TransactionHistory'
 import { selectWalletType } from '@/state/slices/localWalletSlice/selectors'
 import { useAppSelector } from '@/state/store'
 
-const mainPadding = { base: 0, md: 4 }
 const pageProps = { paddingTop: 0, pb: 0 }
 
-const walletDashboard = <WalletDashboard />
+const portfolio = <Portfolio />
 const earnDashboard = <EarnDashboard />
 const accounts = <Accounts />
-const transactionHistory = <TransactionHistory />
-const notFound = <RawText>Not found</RawText>
 const dashboardHeader = <DashboardHeader />
 
 const ScrollView = (props: FlexProps) => (
@@ -102,11 +97,11 @@ const MobileHome = memo(() => {
         <TabPanels>
           <TabPanel p={0} pt={2}>
             <Routes>
-              <Route path='' element={walletDashboard} />
+              <Route path='' element={portfolio} />
               <Route path='accounts/*' element={accounts} />
             </Routes>
           </TabPanel>
-          <TabPanel p={0} pt={2}>
+          <TabPanel px={2} pt={4}>
             <WatchlistTable />
           </TabPanel>
         </TabPanels>
@@ -137,20 +132,16 @@ export const Dashboard = memo(() => {
 
   const mobileHome = useMemo(() => <MobileHome />, [])
   const mobileEarn = useMemo(() => <ScrollView>{earnDashboard}</ScrollView>, [])
+  const desktopRedirect = useMemo(() => <Navigate to='/trade' replace />, [])
 
   return (
     <>
       <SEO title={translate('navBar.dashboard')} />
       <Display.Desktop>
-        <Main headerComponent={dashboardHeader} py={mainPadding}>
-          <Routes>
-            <Route path='*' element={walletDashboard} />
-            <Route path='earn' element={earnDashboard} />
-            <Route path='accounts/*' element={accounts} />
-            <Route path='activity' element={transactionHistory} />
-            <Route path='*' element={notFound} />
-          </Routes>
-        </Main>
+        {/* Desktop users are redirected to trade page */}
+        <Routes>
+          <Route path='*' element={desktopRedirect} />
+        </Routes>
       </Display.Desktop>
       <Display.Mobile>
         <ScrollView>

@@ -28,8 +28,6 @@ interface ImportMetaEnv {
   readonly VITE_FEATURE_THORCHAIN_LP: string
   readonly VITE_FEATURE_THORCHAIN_LP_DEPOSIT: string
   readonly VITE_FEATURE_THORCHAIN_LP_WITHDRAW: string
-  readonly VITE_FEATURE_ACCOUNT_MANAGEMENT: string
-  readonly VITE_FEATURE_ACCOUNT_MANAGEMENT_LEDGER: string
   readonly VITE_FEATURE_RFOX: string
   readonly VITE_FEATURE_RFOX_LP: string
   readonly VITE_FEATURE_ARBITRUM_BRIDGE: string
@@ -91,6 +89,8 @@ interface ImportMetaEnv {
   readonly VITE_MTPELERIN_SELL_URL: string
   readonly VITE_MTPELERIN_REFERRAL_CODE: string
   readonly VITE_MTPELERIN_INTEGRATION_KEY: string
+  readonly VITE_BANXA_API_URL: string
+  readonly VITE_BANXA_API_KEY: string
   readonly VITE_ONRAMPER_WIDGET_URL: string
   readonly VITE_ONRAMPER_API_URL: string
   readonly VITE_ONRAMPER_API_KEY: string
@@ -112,10 +112,13 @@ interface ImportMetaEnv {
   readonly VITE_ZRX_BASE_URL: string
   readonly VITE_CHAINFLIP_API_KEY: string
   readonly VITE_CHAINFLIP_API_URL: string
+  readonly VITE_NEAR_INTENTS_API_KEY: string
+  readonly VITE_FEATURE_NEAR_INTENTS_SWAP: string
   readonly VITE_RELAY_API_URL: string
   readonly VITE_TENDERLY_ACCOUNT_SLUG: string
   readonly VITE_TENDERLY_PROJECT_SLUG: string
   readonly VITE_TENDERLY_API_KEY: string
+  readonly VITE_FEATURE_ADDRESS_BOOK: string
 
   // Unchained URLs and node URLs - present in all envs (prod, development, private)
   // even though they're not present in base env
@@ -168,6 +171,10 @@ interface ImportMetaEnv {
   readonly VITE_SOLANA_NODE_URL: string
   readonly VITE_THORCHAIN_MIDGARD_URL: string
   readonly VITE_MAYACHAIN_MIDGARD_URL: string
+  readonly VITE_SWAPS_SERVER_URL: string
+  readonly VITE_NOTIFICATIONS_SERVER_URL: string
+  readonly VITE_USER_SERVER_URL: string
+  readonly VITE_FEATURE_NOTIFICATIONS_WEBSERVICES: string
 
   // Only present in *some* envs
   readonly VITE_MIXPANEL_TOKEN?: string

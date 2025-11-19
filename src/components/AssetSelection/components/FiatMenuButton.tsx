@@ -11,6 +11,7 @@ import { fiatCurrencyFlagUrlsByCode } from '@/lib/fiatCurrencies/fiatCurrencies'
 export type FiatMenuButtonProps = {
   selectedFiatCurrency: FiatCurrencyItem
   onClick?: () => void
+  onSelectFiat?: (fiat: FiatCurrencyItem) => void
   isDisabled?: boolean
   buttonProps?: ButtonProps
   isLoading?: boolean
@@ -19,6 +20,7 @@ export type FiatMenuButtonProps = {
 export const FiatMenuButton = ({
   selectedFiatCurrency,
   onClick,
+  onSelectFiat,
   isDisabled,
   buttonProps,
   isLoading,
@@ -34,8 +36,12 @@ export const FiatMenuButton = ({
   }, [selectedFiatCurrency])
 
   const handleAssetClick = useCallback(() => {
-    onClick?.()
-  }, [onClick])
+    if (onClick) {
+      onClick()
+      return
+    }
+    onSelectFiat?.(selectedFiatCurrency)
+  }, [onClick, onSelectFiat, selectedFiatCurrency])
 
   if (!selectedFiatCurrency || isLoading) return <AssetRowLoading {...buttonProps} />
 

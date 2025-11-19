@@ -36,7 +36,7 @@ import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { fromBaseUnit } from '@/lib/math'
-import { firstFourLastFour } from '@/lib/utils'
+import { middleEllipsis } from '@/lib/utils'
 import {
   assertGetEvmChainAdapter,
   buildAndBroadcast,
@@ -305,7 +305,7 @@ export const ClaimConfirm: FC<Pick<ClaimRouteProps, 'headerComponent'> & ClaimCo
             <TimelineItem>
               <CustomRow>
                 <Row.Label>{translate('RFOX.claimReceiveAddress')}</Row.Label>
-                <Row.Value>{firstFourLastFour(stakingAssetAccountAddress)}</Row.Value>
+                <Row.Value>{middleEllipsis(stakingAssetAccountAddress)}</Row.Value>
               </CustomRow>
             </TimelineItem>
             <TimelineItem>

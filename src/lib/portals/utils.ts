@@ -1,5 +1,5 @@
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
-import { ASSET_NAMESPACE, bscChainId, toAssetId } from '@shapeshiftoss/caip'
+import { ASSET_NAMESPACE, toAssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { isSome } from '@shapeshiftoss/utils'
 import axios from 'axios'
@@ -25,6 +25,7 @@ export const fetchPortalsTokens = async ({
   page = 0,
   accTokens = [],
   minApy,
+  maxApy,
   sortBy,
   sortDirection,
   totalLimit,
@@ -34,6 +35,7 @@ export const fetchPortalsTokens = async ({
   page?: number
   accTokens?: TokenInfo[]
   minApy?: string
+  maxApy?: string
   sortBy?:
     | 'key'
     | 'decimals'
@@ -74,6 +76,7 @@ export const fetchPortalsTokens = async ({
         sortBy,
         sortDirection,
         minApy,
+        maxApy,
         tags,
       },
       paramsSerializer: { indexes: null },
@@ -94,6 +97,7 @@ export const fetchPortalsTokens = async ({
         accTokens: newTokens,
         totalLimit,
         minApy,
+        maxApy,
         sortBy,
         sortDirection,
         tags,
@@ -130,7 +134,7 @@ export const portalTokenToAsset = ({
 }): Asset | undefined => {
   const assetId = toAssetId({
     chainId,
-    assetNamespace: chainId === bscChainId ? ASSET_NAMESPACE.bep20 : ASSET_NAMESPACE.erc20,
+    assetNamespace: ASSET_NAMESPACE.erc20,
     assetReference: token.address,
   })
   const asset = localAssetData[assetId]
@@ -163,7 +167,7 @@ export const portalTokenToAsset = ({
 
           const underlyingAssetId = toAssetId({
             chainId,
-            assetNamespace: chainId === bscChainId ? ASSET_NAMESPACE.bep20 : ASSET_NAMESPACE.erc20,
+            assetNamespace: ASSET_NAMESPACE.erc20,
             assetReference: token.tokens[i],
           })
           const underlyingAsset = localAssetData[underlyingAssetId]
@@ -187,7 +191,7 @@ export const portalTokenToAsset = ({
       token.tokens?.map(underlyingToken => {
         const assetId = toAssetId({
           chainId,
-          assetNamespace: chainId === bscChainId ? ASSET_NAMESPACE.bep20 : ASSET_NAMESPACE.erc20,
+          assetNamespace: ASSET_NAMESPACE.erc20,
           assetReference: underlyingToken,
         })
         const underlyingAsset = localAssetData[assetId]
@@ -296,7 +300,7 @@ export const fetchPortalsAccount = async (
     return data.balances.reduce<Record<AssetId, TokenInfo>>((acc, token) => {
       const assetId = toAssetId({
         chainId,
-        assetNamespace: chainId === bscChainId ? ASSET_NAMESPACE.bep20 : ASSET_NAMESPACE.erc20,
+        assetNamespace: ASSET_NAMESPACE.erc20,
         assetReference: token.address,
       })
       acc[assetId] = token

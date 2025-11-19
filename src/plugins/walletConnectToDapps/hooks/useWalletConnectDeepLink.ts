@@ -31,8 +31,33 @@ export const useWalletConnectDeepLink = (state: WalletConnectState) => {
     if (!pendingUriRef.current && !processingRef.current) {
       const params = new URLSearchParams(location.search)
       const encodedUri = params.get('uri')
+      const requestId = params.get('requestId')
+      const sessionTopic = params.get('sessionTopic')
+
+      // No-ops request-specific deep links (deep link ping of sorts) - this actually is a new tab, but would produce issues on mobile app
+      // These are used by dApps to direct users to specific pending requests
+      // We silently navigate away since those are no-op, and would otherwise produce a blank route under the (working) wc modal
+      if (!encodedUri && requestId && sessionTopic) {
+        // Navigate to /trade to avoid showing blank screen
+        navigate('/trade', { replace: true })
+        hasNavigatedRef.current = true
+        return
+      }
 
       if (!encodedUri) {
+        // Check if this is a spurious "wake-up" deep link (mobile pattern)
+        const activeSessions = state.web3wallet?.getActiveSessions()
+        const sessionCount = activeSessions ? Object.keys(activeSessions).length : 0
+
+        if (sessionCount > 0) {
+          // This is a spurious wake-up call (common mobile pattern)
+          // Navigate to /trade to avoid showing blank screen
+          navigate('/trade', { replace: true })
+          hasNavigatedRef.current = true
+          return
+        }
+
+        // No active sessions - this is a real error
         toast({
           title: 'Invalid WalletConnect Link',
           description: 'No URI parameter found in the link',
@@ -88,9 +113,7 @@ export const useWalletConnectDeepLink = (state: WalletConnectState) => {
         if (!uri) return
 
         try {
-          // We do not handle session_authenticate events, so make it a session_proposal instead
-          const pairingUri = uri.replace('sessionAuthenticate', 'sessionProposal')
-          await state.pair?.({ uri: pairingUri })
+          await state.pair?.({ uri })
 
           // Successfully initiated pairing, navigate away
           if (!hasNavigatedRef.current) {
@@ -99,7 +122,9 @@ export const useWalletConnectDeepLink = (state: WalletConnectState) => {
           }
         } catch (error) {
           // Handle pairing errors
-          if ((error as Error)?.message.includes('Pairing already exists')) {
+          const errorMessage = (error as Error)?.message || String(error)
+
+          if (errorMessage.includes('Pairing already exists')) {
             toast({
               title: 'Connection Error',
               description: 'This dApp connection already exists',
@@ -115,7 +140,6 @@ export const useWalletConnectDeepLink = (state: WalletConnectState) => {
               duration: 5000,
               isClosable: true,
             })
-            console.error('WalletConnect pairing error:', error)
           }
 
           if (!hasNavigatedRef.current) {

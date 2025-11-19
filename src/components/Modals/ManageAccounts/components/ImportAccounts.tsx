@@ -410,7 +410,7 @@ export const ImportAccounts = forwardRef<ImportAccountsRef, ImportAccountsProps>
             const { chainId, account: pubkey } = fromAccountId(accountId)
             const state = store.getState()
             const portfolioAccounts = { [pubkey]: account }
-            const assets = await makeAssets({ chainId, pubkey, state, portfolioAccounts, dispatch })
+            const assets = await makeAssets({ chainId, pubkey, state, portfolioAccounts })
             const assetIds = state.assets.ids
 
             // upsert placeholder assets

@@ -13,6 +13,7 @@ import type { PopupWindowModalProps } from '@/components/Modals/PopupWindowModal
 import type { QrCodeModalProps } from '@/components/Modals/QrCode/QrCode'
 import type { RateChangedModalProps } from '@/components/Modals/RateChanged/RateChanged'
 import type { ReceivePropsType } from '@/components/Modals/Receive/Receive'
+import type { AddressBookSaveModalProps } from '@/components/Modals/Send/AddressBookSaveModal'
 import type { SendModalProps } from '@/components/Modals/Send/Send'
 import type { SnapsModalProps } from '@/components/Modals/Snaps/Snaps'
 import type { TradeAssetSearchModalProps } from '@/components/Modals/TradeAssetSearch/TradeAssetSearchModal'
@@ -26,7 +27,6 @@ export type Modals = {
   keepKeyWipe: FC
   backupNativePassphrase: FC<BackupPassphraseModalProps>
   mobileWelcomeModal: FC
-  addAccount: FC
   assetSearch: FC<AssetSearchModalProps>
   buyAssetSearch: FC<AssetSearchModalProps>
   sellAssetSearch: FC<AssetSearchModalProps>
@@ -43,6 +43,7 @@ export type Modals = {
   assetActionsDrawer: FC<AssetActionsDrawerProps>
   rating: FC
   walletDrawer: FC
+  addressBookSave: FC<AddressBookSaveModalProps>
   manageHiddenAssets: FC
 }
 

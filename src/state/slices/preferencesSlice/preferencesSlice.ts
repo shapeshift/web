@@ -44,6 +44,7 @@ export type FeatureFlags = {
   Chatwoot: boolean
   AdvancedSlippage: boolean
   WalletConnectV2: boolean
+  WcDirectConnection: boolean
   CustomSendNonce: boolean
   ThorchainLending: boolean
   ThorchainLendingBorrow: boolean
@@ -55,8 +56,6 @@ export type FeatureFlags = {
   GridPlusWallet: boolean
   ThorchainSwapLongtail: boolean
   ThorchainSwapL1ToLongtail: boolean
-  AccountManagement: boolean
-  AccountManagementLedger: boolean
   RFOX: boolean
   RFOX_LP: boolean
   CustomTokenImport: boolean
@@ -86,12 +85,16 @@ export type FeatureFlags = {
   ThorchainTcyActivity: boolean
   MayaSwap: boolean
   ButterSwap: boolean
+  BebopSwap: boolean
+  NearIntentsSwap: boolean
   LazyTxHistory: boolean
   RfoxFoxEcosystemPage: boolean
   LedgerReadOnly: boolean
   QuickBuy: boolean
   NewWalletManager: boolean
   SwapperFiatRamps: boolean
+  WebServices: boolean
+  AddressBook: boolean
 }
 
 export type Flag = keyof FeatureFlags
@@ -140,6 +143,7 @@ export type Preferences = {
     selectedChainId: ChainId | 'all'
   }
   hasSeenRatingModal: boolean
+  showTopAssetsCarousel: boolean
 }
 
 const initialState: Preferences = {
@@ -169,6 +173,7 @@ const initialState: Preferences = {
     Chatwoot: getConfig().VITE_FEATURE_CHATWOOT,
     AdvancedSlippage: getConfig().VITE_FEATURE_ADVANCED_SLIPPAGE,
     WalletConnectV2: getConfig().VITE_FEATURE_WALLET_CONNECT_V2,
+    WcDirectConnection: getConfig().VITE_FEATURE_WC_DIRECT_CONNECTION,
     CustomSendNonce: getConfig().VITE_EXPERIMENTAL_CUSTOM_SEND_NONCE,
     ThorchainLending: getConfig().VITE_FEATURE_THORCHAIN_LENDING,
     ThorchainLendingBorrow: getConfig().VITE_FEATURE_THORCHAIN_LENDING_BORROW,
@@ -180,8 +185,6 @@ const initialState: Preferences = {
     GridPlusWallet: getConfig().VITE_FEATURE_GRIDPLUS_WALLET,
     ThorchainSwapLongtail: getConfig().VITE_FEATURE_THORCHAINSWAP_LONGTAIL,
     ThorchainSwapL1ToLongtail: getConfig().VITE_FEATURE_THORCHAINSWAP_L1_TO_LONGTAIL,
-    AccountManagement: getConfig().VITE_FEATURE_ACCOUNT_MANAGEMENT,
-    AccountManagementLedger: getConfig().VITE_FEATURE_ACCOUNT_MANAGEMENT_LEDGER,
     RFOX: getConfig().VITE_FEATURE_RFOX,
     RFOX_LP: getConfig().VITE_FEATURE_RFOX_LP,
     CustomTokenImport: getConfig().VITE_FEATURE_CUSTOM_TOKEN_IMPORT,
@@ -211,12 +214,16 @@ const initialState: Preferences = {
     ThorchainTcyActivity: getConfig().VITE_FEATURE_THORCHAIN_TCY_ACTIVITY,
     MayaSwap: getConfig().VITE_FEATURE_MAYA_SWAP,
     ButterSwap: getConfig().VITE_FEATURE_BUTTERSWAP,
+    BebopSwap: getConfig().VITE_FEATURE_BEBOP_SWAP,
+    NearIntentsSwap: getConfig().VITE_FEATURE_NEAR_INTENTS_SWAP,
     LazyTxHistory: getConfig().VITE_FEATURE_TX_HISTORY_BYE_BYE,
     RfoxFoxEcosystemPage: getConfig().VITE_FEATURE_RFOX_FOX_ECOSYSTEM_PAGE,
     LedgerReadOnly: getConfig().VITE_FEATURE_LEDGER_READ_ONLY,
     QuickBuy: getConfig().VITE_FEATURE_QUICK_BUY,
     NewWalletManager: getConfig().VITE_FEATURE_NEW_WALLET_MANAGER,
     SwapperFiatRamps: getConfig().VITE_FEATURE_SWAPPER_FIAT_RAMPS,
+    WebServices: getConfig().VITE_FEATURE_NOTIFICATIONS_WEBSERVICES,
+    AddressBook: getConfig().VITE_FEATURE_ADDRESS_BOOK,
   },
   selectedLocale: simpleLocale(),
   hasWalletSeenTcyClaimAlert: {},
@@ -240,6 +247,7 @@ const initialState: Preferences = {
     selectedChainId: 'all',
   },
   hasSeenRatingModal: false,
+  showTopAssetsCarousel: true,
 }
 
 export const preferences = createSlice({
@@ -349,6 +357,9 @@ export const preferences = createSlice({
     setHasSeenRatingModal: create.reducer((state, _) => {
       state.hasSeenRatingModal = true
     }),
+    setShowTopAssetsCarousel: create.reducer((state, { payload }: { payload: boolean }) => {
+      state.showTopAssetsCarousel = payload
+    }),
     setQuickBuyPreferences: create.reducer((state, { payload }: { payload: number[] }) => {
       state.quickBuyAmounts = payload
     }),
@@ -370,6 +381,7 @@ export const preferences = createSlice({
     selectHasWalletSeenTcyClaimAlert: state => state.hasWalletSeenTcyClaimAlert,
     selectHighlightedTokensFilters: state => state.highlightedTokensFilters,
     selectHasSeenRatingModal: state => state.hasSeenRatingModal,
+    selectShowTopAssetsCarousel: state => state.showTopAssetsCarousel,
     selectQuickBuyAmounts: state => state.quickBuyAmounts,
   },
 })

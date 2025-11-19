@@ -27,12 +27,15 @@ import { csp as idle } from './defi/idle'
 import { csp as mtpelerin } from './defi/mtpelerin'
 import { csp as safe } from './defi/safe'
 import { csp as zeroX } from './defi/swappers/0x'
+import { csp as bebop } from './defi/swappers/Bebop'
 import { csp as butterSwap } from './defi/swappers/ButterSwap'
 import { csp as cowSwap } from './defi/swappers/CowSwap'
+import { csp as nearIntents } from './defi/swappers/NearIntents'
 import { csp as oneInch } from './defi/swappers/OneInch'
 import { csp as portals } from './defi/swappers/Portals'
 import { csp as thor } from './defi/swappers/Thor'
 import { csp as discord } from './discord'
+import { csp as banxa } from './fiatRamps/banxa'
 import { csp as onRamper } from './fiatRamps/onRamper'
 import { csp as interFont } from './InterFont'
 import { csp as jupiter } from './jupiter'
@@ -44,6 +47,7 @@ import { csp as mixPanel } from './mixPanel'
 import { csp as moralis } from './moralis'
 import { csp as foxPage } from './plugins/foxPage'
 import { csp as walletConnectToDapps } from './plugins/walletConnectToDapps'
+import { csp as railway } from './railway'
 import { csp as relay } from './relay'
 import { csp as sentry } from './sentry'
 import { csp as shapeshiftGateway } from './shapeshiftGateway'
@@ -98,12 +102,15 @@ export const csps = [
   coincap,
   exchangeRates,
   onRamper,
+  banxa,
   foxy,
   idle,
   mtpelerin,
   safe,
   zeroX,
+  bebop,
   cowSwap,
+  nearIntents,
   oneInch,
   portals,
   thor,
@@ -117,5 +124,6 @@ export const csps = [
   walletConnect,
   walletMigration,
   relay,
+  railway,
   discord,
 ]

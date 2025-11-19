@@ -83,7 +83,7 @@ export const getUnstakingRequestsQueryFn = ({
           index,
           // composite ID to ensure uniqueness of unstaking requests, to be used for lookups
           // cooldownExpiry should be a unique enough index, since it's based on blockTime, and users are *not* going to be able to make
-          // two unstaking requests in in one block. But for the sake of paranoia, we make it a composite ID with index too
+          // two unstaking requests in one block. But for the sake of paranoia, we make it a composite ID with index too
           // Which itself *is* unique at any given time, though as users unstake/claim, it may change due to the inner workings of solidity, as
           // indexes can reorg
           id: `${index}-${result.cooldownExpiry}-${contractAddress}`,

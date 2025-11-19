@@ -81,14 +81,6 @@ const MobileWelcomeModal = makeSuspenseful(
   ),
 )
 
-const AddAccountModal = makeSuspenseful(
-  lazy(() =>
-    import('@/pages/Accounts/AddAccountModal').then(({ AddAccountModal }) => ({
-      default: AddAccountModal,
-    })),
-  ),
-)
-
 const AssetSearchModal = makeSuspenseful(
   lazy(() =>
     import('@/components/Modals/AssetSearch/AssetSearchModal').then(({ AssetSearchModal }) => ({
@@ -221,6 +213,14 @@ const WalletDrawer = makeSuspenseful(
   ),
 )
 
+const AddressBookSaveModal = makeSuspenseful(
+  lazy(() =>
+    import('@/components/Modals/Send/AddressBookSaveModal').then(({ AddressBookSaveModal }) => ({
+      default: AddressBookSaveModal,
+    })),
+  ),
+)
+
 const ManageHiddenAssetsModal = makeSuspenseful(
   lazy(() =>
     import('@/components/ManageHiddenAssets/ManageHiddenAssetsModal').then(
@@ -241,7 +241,6 @@ export const MODALS: Modals = {
   keepKeyWipe: WipeModal,
   backupNativePassphrase: BackupPassphraseModal,
   mobileWelcomeModal: MobileWelcomeModal,
-  addAccount: AddAccountModal,
   assetSearch: AssetSearchModal,
   buyAssetSearch: BuyAssetSearchModal,
   sellAssetSearch: SellAssetSearchModal,
@@ -258,6 +257,7 @@ export const MODALS: Modals = {
   assetActionsDrawer: AssetActionsDrawer,
   rating: RatingModal,
   walletDrawer: WalletDrawer,
+  addressBookSave: AddressBookSaveModal,
   manageHiddenAssets: ManageHiddenAssetsModal,
 } as const
 

@@ -47,7 +47,7 @@ import { useNotificationToast } from '@/hooks/useNotificationToast'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { generateReceiveQrText } from '@/lib/address/generateReceiveQrText'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
-import { firstFourLastFour } from '@/lib/utils'
+import { middleEllipsis } from '@/lib/utils'
 import { selectWalletType } from '@/state/slices/localWalletSlice/selectors'
 import {
   selectMarketDataByAssetIdUserCurrency,
@@ -166,7 +166,7 @@ export const ReceiveInfo = ({ asset, accountId, onBack }: ReceivePropsType) => {
       await navigator.clipboard.writeText(receiveAddress)
       toast({
         title: translate('modals.receive.copied', translatePayload),
-        description: firstFourLastFour(receiveAddress),
+        description: middleEllipsis(receiveAddress),
         duration: 2500,
       })
     } catch (e) {
@@ -249,7 +249,7 @@ export const ReceiveInfo = ({ asset, accountId, onBack }: ReceivePropsType) => {
     return (
       <ReceiveAmount
         onClose={handleSetAmountClose}
-        symbol={symbol}
+        asset={asset}
         currentAmount={receiveAmount}
         onConfirm={handleSetAmountConfirm}
       />
@@ -430,7 +430,7 @@ export const ReceiveInfo = ({ asset, accountId, onBack }: ReceivePropsType) => {
       {isAmountModalOpen && (
         <ReceiveAmount
           onClose={handleSetAmountClose}
-          symbol={symbol}
+          asset={asset}
           currentAmount={receiveAmount}
           onConfirm={handleSetAmountConfirm}
           isModal

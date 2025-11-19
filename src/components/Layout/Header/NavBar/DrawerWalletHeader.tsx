@@ -19,6 +19,7 @@ import { useNavigate } from 'react-router-dom'
 
 import { WalletImage } from './WalletImage'
 
+import { QRCodeIcon } from '@/components/Icons/QRCode'
 import { SUPPORTED_WALLETS } from '@/context/WalletProvider/config'
 import type { InitialState } from '@/context/WalletProvider/WalletProvider'
 import { useModal } from '@/hooks/useModal/useModal'
@@ -31,6 +32,7 @@ import { useAppSelector } from '@/state/store'
 const settingsIcon = <TbSettings />
 const dotsIcon = <Icon as={TbDots} />
 const eyeOffIcon = <Icon as={TbEyeOff} />
+const qrCodeIcon = <QRCodeIcon />
 
 type DrawerHeaderProps = {
   walletInfo: InitialState['walletInfo']
@@ -55,6 +57,7 @@ export const DrawerWalletHeader: FC<DrawerHeaderProps> = memo(
   }) => {
     const translate = useTranslate()
     const settings = useModal('settings')
+    const qrCode = useModal('qrCode')
     const navigate = useNavigate()
 
     const maybeRdns = useAppSelector(selectWalletRdns)
@@ -79,6 +82,10 @@ export const DrawerWalletHeader: FC<DrawerHeaderProps> = memo(
 
       settings.open({})
     }, [settings, onSettingsClick])
+
+    const handleQrCodeClick = useCallback(() => {
+      qrCode.open({})
+    }, [qrCode])
 
     const handleManageHiddenAssetsClick = useCallback(() => {
       navigate('/manage-hidden-assets')
@@ -106,6 +113,14 @@ export const DrawerWalletHeader: FC<DrawerHeaderProps> = memo(
           <Text fontWeight='medium'>{label}</Text>
         </Flex>
         <Flex gap={2}>
+          <IconButton
+            aria-label={translate('modals.send.qrCode')}
+            isRound
+            fontSize='lg'
+            icon={qrCodeIcon}
+            size='md'
+            onClick={handleQrCodeClick}
+          />
           <IconButton
             aria-label='Settings'
             isRound

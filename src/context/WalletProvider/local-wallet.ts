@@ -30,7 +30,6 @@ export const useLocalWallet = () => {
   const setLocalNativeWalletName = (name: string) => {
     dispatch(localWalletSlice.actions.setNativeWalletName(name))
   }
-
   const nativeLocalWalletName = useAppSelector(selectNativeWalletName)
   const localWalletType = useAppSelector(selectWalletType)
   const localWalletDeviceId = useAppSelector(selectWalletDeviceId)

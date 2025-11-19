@@ -37,12 +37,14 @@ export const connectAndPairDevice = async ({
       return null
     }
 
-    dispatch(
-      gridplusSlice.actions.setConnection({
-        physicalDeviceId: deviceId,
-        sessionId: newSessionId ?? undefined,
-      }),
-    )
+    if (newSessionId) {
+      dispatch(
+        gridplusSlice.actions.setConnection({
+          physicalDeviceId: deviceId,
+          sessionId: newSessionId,
+        }),
+      )
+    }
   }
 
   const wallet = await adapter.pairDevice(deviceId, undefined, undefined, sessionId ?? undefined)

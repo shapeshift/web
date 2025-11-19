@@ -58,7 +58,7 @@ export const GridPlusSetup = () => {
     async (e: React.FormEvent) => {
       e.preventDefault()
 
-      if (isLoading || !safeCardUuid) return
+      if (isLoading || !safeCardUuid || (needsPairing && pairingCode.length !== 8)) return
 
       setIsLoading(true)
       setError(null)

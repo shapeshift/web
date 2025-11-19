@@ -44,15 +44,19 @@ export const SafeCardList = () => {
   const handleRenameBlur = useCallback(
     (e: React.FocusEvent<HTMLInputElement>) => {
       const id = e.currentTarget.dataset.id
-      if (id && editName.trim()) {
+      const trimmedName = editName.trim()
+
+      if (id && trimmedName) {
         dispatch(
           gridplusSlice.actions.setSafeCardName({
             id,
-            name: editName.trim(),
+            name: trimmedName,
           }),
         )
-        setEditingId(null)
       }
+
+      setEditingId(null)
+      setEditName('')
     },
     [editName, dispatch],
   )
@@ -60,15 +64,21 @@ export const SafeCardList = () => {
   const handleRenameKeyDown = useCallback(
     (e: React.KeyboardEvent<HTMLInputElement>) => {
       const id = e.currentTarget.dataset.id
-      if (e.key === 'Enter' && id && editName.trim()) {
-        dispatch(
-          gridplusSlice.actions.setSafeCardName({
-            id,
-            name: editName.trim(),
-          }),
-        )
+      const trimmedName = editName.trim()
+
+      if (e.key === 'Enter') {
+        if (id && trimmedName) {
+          dispatch(
+            gridplusSlice.actions.setSafeCardName({
+              id,
+              name: trimmedName,
+            }),
+          )
+        }
         setEditingId(null)
+        setEditName('')
       }
+
       if (e.key === 'Escape') {
         setEditingId(null)
         setEditName('')

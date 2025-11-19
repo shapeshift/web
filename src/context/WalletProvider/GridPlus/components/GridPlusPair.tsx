@@ -1,4 +1,3 @@
-import type { GridPlusAdapter } from '@shapeshiftoss/hdwallet-gridplus'
 import { useCallback, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useLocation, useNavigate } from 'react-router-dom'
@@ -47,7 +46,7 @@ export const GridPlusPair = () => {
       setError(null)
 
       try {
-        const adapter = (await getAdapter(KeyManager.GridPlus)) as GridPlusAdapter | null
+        const adapter = await getAdapter(KeyManager.GridPlus)
         if (!adapter) {
           throw new Error(translate('walletProvider.gridplus.errors.adapterNotAvailable'))
         }

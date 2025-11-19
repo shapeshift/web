@@ -24,13 +24,13 @@ import { NativeConfig } from './NativeWallet/config'
 import { PhantomConfig } from './Phantom/config'
 import { KeepKeyRoutes } from './routes'
 import { NativeWalletRoutes } from './types'
+import { VultisigConfig } from './Vultisig/config'
 import { WalletConnectV2Config } from './WalletConnectV2/config'
 import type { EthereumProviderOptions } from './WalletConnectV2/constants'
 
 import { WalletConnectedRoutes } from '@/components/Layout/Header/NavBar/hooks/useMenuRoutes'
 import { getConfig } from '@/config'
 import { walletConnectV2ProviderConfig } from '@/context/WalletProvider/WalletConnectV2/config'
-import { VultisigConfig } from './Vultisig/config'
 
 export type WalletProviderRouteProps = _RouteProps & {
   component: React.LazyExoticComponent<any>

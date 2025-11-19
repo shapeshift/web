@@ -53,6 +53,7 @@ export type FeatureFlags = {
   ThorchainLpDeposit: boolean
   ThorchainLpWithdraw: boolean
   LedgerWallet: boolean
+  VultisigWallet: boolean
   ThorchainSwapLongtail: boolean
   ThorchainSwapL1ToLongtail: boolean
   AccountManagement: boolean

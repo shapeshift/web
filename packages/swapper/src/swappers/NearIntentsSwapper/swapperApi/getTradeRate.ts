@@ -117,8 +117,6 @@ export const getTradeRate = async (
               return '0'
             }
 
-            console.log('[Near Intents] Tenderly gasLimit:', simulationResult.gasLimit.toString())
-
             // Calculate network fee using the simulated gas limit
             const sellAdapter = deps.assertGetEvmChainAdapter(sellAsset.chainId)
             const { average } = await sellAdapter.getGasFeeData()
@@ -130,8 +128,6 @@ export const getTradeRate = async (
               supportsEIP1559,
               gasLimit: simulationResult.gasLimit.toString(),
             })
-
-            console.log('[Near Intents] Final network fee:', networkFeeCryptoBaseUnit)
 
             return networkFeeCryptoBaseUnit
           } catch (error) {

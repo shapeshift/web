@@ -181,7 +181,6 @@ export async function getPortalsTradeRate(
       )
 
       if (tenderlySimulation.success) {
-        console.log('[Portals] Tenderly gasLimit:', tenderlySimulation.gasLimit.toString())
         return tenderlySimulation.gasLimit.toString()
       }
 
@@ -204,8 +203,6 @@ export async function getPortalsTradeRate(
       supportsEIP1559: Boolean(supportsEIP1559),
       gasLimit,
     })
-
-    console.log('[Portals] Final network fee:', networkFeeCryptoBaseUnit)
 
     const tradeRate = {
       id: uuid(),

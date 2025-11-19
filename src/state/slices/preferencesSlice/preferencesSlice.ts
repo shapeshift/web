@@ -55,8 +55,6 @@ export type FeatureFlags = {
   LedgerWallet: boolean
   ThorchainSwapLongtail: boolean
   ThorchainSwapL1ToLongtail: boolean
-  AccountManagement: boolean
-  AccountManagementLedger: boolean
   RFOX: boolean
   RFOX_LP: boolean
   CustomTokenImport: boolean
@@ -185,8 +183,6 @@ const initialState: Preferences = {
     LedgerWallet: getConfig().VITE_FEATURE_LEDGER_WALLET,
     ThorchainSwapLongtail: getConfig().VITE_FEATURE_THORCHAINSWAP_LONGTAIL,
     ThorchainSwapL1ToLongtail: getConfig().VITE_FEATURE_THORCHAINSWAP_L1_TO_LONGTAIL,
-    AccountManagement: getConfig().VITE_FEATURE_ACCOUNT_MANAGEMENT,
-    AccountManagementLedger: getConfig().VITE_FEATURE_ACCOUNT_MANAGEMENT_LEDGER,
     RFOX: getConfig().VITE_FEATURE_RFOX,
     RFOX_LP: getConfig().VITE_FEATURE_RFOX_LP,
     CustomTokenImport: getConfig().VITE_FEATURE_CUSTOM_TOKEN_IMPORT,

@@ -153,20 +153,14 @@ export const useTransactionsSubscriber = () => {
 
       // subscribe to new transactions for all supported accounts
       try {
-        const skipDeviceDerivation = (isLedger(wallet) || isGridPlus(wallet)) && accountId
+        const skipDeviceDerivation =
+          (isLedger(wallet) || isGridPlus(wallet) || isTrezor(wallet)) && accountId
         return adapter?.subscribeTxs(
           {
             wallet,
             accountType,
             accountNumber,
-<<<<<<< HEAD
-            pubKey:
-              (isLedger(wallet) || isTrezor(wallet)) && accountId
-                ? fromAccountId(accountId).account
-                : undefined,
-=======
             pubKey: skipDeviceDerivation ? fromAccountId(accountId).account : undefined,
->>>>>>> origin/develop
           },
           msg => {
             const { getAccount } = portfolioApi.endpoints

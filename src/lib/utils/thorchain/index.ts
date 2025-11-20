@@ -197,20 +197,14 @@ export const getThorchainFromAddress = async ({
     // And re-throw if no adapter found. "Shouldn't happen but" yadi yadi yada you know the drill
     if (!chainAdapter) throw new Error(`No chain adapter found for chainId: ${chainId}`)
 
-    const skipDeviceDerivation = (isLedger(wallet) || isGridPlus(wallet)) && accountId
+    const skipDeviceDerivation =
+      (isLedger(wallet) || isGridPlus(wallet) || isTrezor(wallet)) && accountId
     const firstReceiveAddress = await chainAdapter.getAddress({
       wallet,
       accountNumber: bip44Params.accountNumber,
       accountType,
       addressIndex: 0,
-<<<<<<< HEAD
-      pubKey:
-        (isLedger(wallet) || isTrezor(wallet)) && accountId
-          ? fromAccountId(accountId).account
-          : undefined,
-=======
       pubKey: skipDeviceDerivation ? fromAccountId(accountId).account : undefined,
->>>>>>> origin/develop
     })
     return firstReceiveAddress
   }
@@ -261,20 +255,14 @@ export const getThorfiUtxoFromAddresses = async ({
 
     const { accountType, bip44Params } = accountMetadata
 
-    const skipDeviceDerivation = (isLedger(wallet) || isGridPlus(wallet)) && accountId
+    const skipDeviceDerivation =
+      (isLedger(wallet) || isGridPlus(wallet) || isTrezor(wallet)) && accountId
     const firstReceiveAddress = await chainAdapter.getAddress({
       wallet,
       accountNumber: bip44Params.accountNumber,
       accountType,
       addressIndex: 0,
-<<<<<<< HEAD
-      pubKey:
-        (isLedger(wallet) || isTrezor(wallet)) && accountId
-          ? fromAccountId(accountId).account
-          : undefined,
-=======
       pubKey: skipDeviceDerivation ? fromAccountId(accountId).account : undefined,
->>>>>>> origin/develop
     })
 
     return [firstReceiveAddress]

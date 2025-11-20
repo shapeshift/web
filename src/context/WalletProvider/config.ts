@@ -8,11 +8,8 @@ import type { WebUSBLedgerAdapter as LedgerAdapter } from '@shapeshiftoss/hdwall
 import type { MetaMaskAdapter } from '@shapeshiftoss/hdwallet-metamask-multichain'
 import type { NativeAdapter } from '@shapeshiftoss/hdwallet-native'
 import type { PhantomAdapter } from '@shapeshiftoss/hdwallet-phantom'
-<<<<<<< HEAD
 import type { TrezorAdapter } from '@shapeshiftoss/hdwallet-trezor-connect'
-=======
 import type { VultisigAdapter } from '@shapeshiftoss/hdwallet-vultisig'
->>>>>>> origin/develop
 import type { WalletConnectV2Adapter } from '@shapeshiftoss/hdwallet-walletconnectv2'
 import { lazy } from 'react'
 import type { RouteProps as _RouteProps } from 'react-router-dom'

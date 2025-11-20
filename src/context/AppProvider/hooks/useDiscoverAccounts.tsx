@@ -49,12 +49,7 @@ export const useDiscoverAccounts = () => {
 
           if (
             !wallet ||
-<<<<<<< HEAD
-            isLedger(wallet) ||
-            isTrezor(wallet) ||
-=======
             shouldSkipAutoDiscovery ||
->>>>>>> origin/develop
             // Before connecting to MetaMask, isSnapInstalled is null then switch to false when the hook reacts, we would run the discovery 2 times
             (connectedRdns === METAMASK_RDNS && isSnapInstalled === null)
           ) {

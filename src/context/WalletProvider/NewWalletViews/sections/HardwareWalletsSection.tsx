@@ -85,6 +85,7 @@ export const HardwareWalletsSection = ({
   }, [connect, onWalletSelect])
 
   const isGridPlusWalletEnabled = useFeatureFlag('GridPlusWallet')
+  const isTrezorWalletEnabled = useFeatureFlag('TrezorWallet')
 
   return (
     <Stack spacing={2} my={6}>
@@ -101,13 +102,15 @@ export const HardwareWalletsSection = ({
         icon={LedgerIcon}
         name={LedgerConfig.name}
       />
-      <WalletOption
-        connect={handleConnectTrezor}
-        isSelected={selectedWalletId === KeyManager.Trezor}
-        isDisabled={isLoading && selectedWalletId !== KeyManager.Trezor}
-        icon={TrezorIcon}
-        name={TrezorConfig.name}
-      />
+      {isTrezorWalletEnabled && (
+        <WalletOption
+          connect={handleConnectTrezor}
+          isSelected={selectedWalletId === KeyManager.Trezor}
+          isDisabled={isLoading && selectedWalletId !== KeyManager.Trezor}
+          icon={TrezorIcon}
+          name={TrezorConfig.name}
+        />
+      )}
       <WalletOption
         connect={handleConnectKeepKey}
         isSelected={selectedWalletId === KeyManager.KeepKey}

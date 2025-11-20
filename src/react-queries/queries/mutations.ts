@@ -11,6 +11,7 @@ export const mutations = createMutationKeys('mutations', {
     accountNumber,
     wallet,
     from,
+    pubKey,
   }: MaybeApproveInputWithWallet) => ({
     mutationKey: ['approve', { assetId, accountNumber, amountCryptoBaseUnit, spender }],
     mutationFn: (_: void) => {
@@ -28,6 +29,7 @@ export const mutations = createMutationKeys('mutations', {
         spender,
         wallet,
         from,
+        pubKey,
       })
     },
   }),

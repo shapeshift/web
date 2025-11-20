@@ -205,6 +205,8 @@ export const handleSend = async ({
       }
       const { accountNumber } = bip44Params
       const adapter = assertGetUtxoChainAdapter(chainId)
+      const utxoPubKey = isTrezor(wallet) ? fromAccountId(sendInput.accountId).account : undefined
+      console.log('UTXO buildSendTransaction pubKey:', { isTrezor: isTrezor(wallet), utxoPubKey })
       return adapter.buildSendTransaction({
         to,
         value,
@@ -217,6 +219,7 @@ export const handleSend = async ({
           opReturnData: memo,
         },
         sendMax: sendInput.sendMax,
+        pubKey: utxoPubKey,
       })
     }
 
@@ -367,15 +370,19 @@ export const maybeFetchChangeAddress = async ({
   try {
     const { chainId, accountMetadata, adapter } = prepareSendAdapter(sendInput)
 
-    // Only fetch for UTXO chains on Ledger wallets
-    if (!isUtxoChainId(chainId) || !isLedger(wallet)) return undefined
+    console.log('maybe fetch change addy')
+    // Only fetch for UTXO chains on Ledger/Trezor wallets
+    if (!isUtxoChainId(chainId) || !(isLedger(wallet) || isTrezor(wallet))) return undefined
+    console.log('fetching change addy')
 
     const changeAddress = await adapter.getAddress({
       accountNumber: accountMetadata.bip44Params.accountNumber,
       accountType: accountMetadata.accountType,
       wallet,
       isChange: true,
+      pubKey: isTrezor(wallet) ? fromAccountId(sendInput.accountId).account : undefined,
     })
+    console.log('fetched change addy:', changeAddress)
     return changeAddress
   } catch (error) {
     console.error('Failed to fetch change address:', error)

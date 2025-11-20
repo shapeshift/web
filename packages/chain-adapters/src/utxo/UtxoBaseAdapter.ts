@@ -658,6 +658,7 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
       )
 
       const publicKeys = await wallet.getPublicKeys(requests)
+      if (!publicKeys) return {}
 
       const result: Record<number, Record<UtxoAccountType, PublicKey>> = {}
 

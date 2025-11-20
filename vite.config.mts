@@ -173,6 +173,7 @@ export default defineConfig(({ mode }) => {
               if (id.includes('@walletconnect')) return '@walletconnect'
               if (id.includes('@keepkey/keepkey-sdk')) return '@keepkey'
               if (id.includes('bnb-javascript-sdk-nobroadcast')) return 'bnb-sdk'
+              if (id.includes('gridplus-sdk')) return 'gridplus-sdk'
 
               return null
             }
@@ -200,7 +201,7 @@ export default defineConfig(({ mode }) => {
         },
       },
       minify: mode === 'development' && !process.env.DEPLOY ? false : 'esbuild',
-      sourcemap: mode === 'development' && !process.env.DEPLOY ? 'inline' : false,
+      sourcemap: mode === 'development' && !process.env.DEPLOY ? 'inline' : true,
       outDir: 'build',
     },
   }

@@ -74,18 +74,18 @@ const AssetIdToBanxaTickerMap = {
   'eip155:1/erc20:0x0bc529c00c6401aef6d220be8c6ea1667f6ad93e': 'yfi',
   'eip155:1/erc20:0x7d1afa7b718fb893db30a3abc0cfc608aacfebb0': 'matic',
   'eip155:10/erc20:0x0b2c639c533813f4aa9d7837caf62653d097ff85': 'usdc',
-  'eip155:56/bep20:0x0e09fabb73bd3ade0a17ecc321fd13a19e81ce82': 'cake',
-  'eip155:56/bep20:0xf8a0bf9cf54bb92f17374d9e9a321e6a111a51bd': 'link',
-  'eip155:56/bep20:0x55d398326f99059ff775485246999027b3197955': 'usdt',
-  'eip155:56/bep20:0x8ac76a51cc950d9822d68b83fe1ad97b32cd580d': 'usdc',
-  'eip155:56/bep20:0x2170ed0880ac9a755fd29b2688956bd959f933f8': 'eth',
-  'eip155:56/bep20:0xfb6115445bff7b52feb98650c87f44907e58f802': 'aave',
-  'eip155:56/bep20:0x52ce071bd9b1c4b00a0b92d298c512478cad67e8': 'comp',
-  'eip155:56/bep20:0x7083609fce4d1d8dc0c979aab8c869ea2c873402': 'dot',
-  'eip155:56/bep20:0xcc42724c6683b7e57334c4e856f4c9965ed682bd': 'matic',
-  'eip155:56/bep20:0x1ce0c2827e2ef14d5c4f29a091d735a204794041': 'avax',
-  'eip155:56/bep20:0x947950bcc74888a40ffa2593c5798f11fc9124c4': 'sushi',
-  'eip155:56/bep20:0xbf5140a22578168fd562dccf235e5d43a02ce9b1': 'uni',
+  'eip155:56/erc20:0x0e09fabb73bd3ade0a17ecc321fd13a19e81ce82': 'cake',
+  'eip155:56/erc20:0xf8a0bf9cf54bb92f17374d9e9a321e6a111a51bd': 'link',
+  'eip155:56/erc20:0x55d398326f99059ff775485246999027b3197955': 'usdt',
+  'eip155:56/erc20:0x8ac76a51cc950d9822d68b83fe1ad97b32cd580d': 'usdc',
+  'eip155:56/erc20:0x2170ed0880ac9a755fd29b2688956bd959f933f8': 'eth',
+  'eip155:56/erc20:0xfb6115445bff7b52feb98650c87f44907e58f802': 'aave',
+  'eip155:56/erc20:0x52ce071bd9b1c4b00a0b92d298c512478cad67e8': 'comp',
+  'eip155:56/erc20:0x7083609fce4d1d8dc0c979aab8c869ea2c873402': 'dot',
+  'eip155:56/erc20:0xcc42724c6683b7e57334c4e856f4c9965ed682bd': 'matic',
+  'eip155:56/erc20:0x1ce0c2827e2ef14d5c4f29a091d735a204794041': 'avax',
+  'eip155:56/erc20:0x947950bcc74888a40ffa2593c5798f11fc9124c4': 'sushi',
+  'eip155:56/erc20:0xbf5140a22578168fd562dccf235e5d43a02ce9b1': 'uni',
   'eip155:137/erc20:0xc2132d05d31c914a87c6611c10748aeb04b58e8f': 'usdt',
   'eip155:137/erc20:0x3c499c542cef5e3811e1192ce70d8cc03d5c3359': 'usdc',
   'eip155:137/erc20:0x8f3cf7ad23cd3cadbd9735aff958023239c6a063': 'dai',
@@ -110,10 +110,10 @@ const BanxaSellAssetIds: AssetId[] = [
   ethAssetId,
   arbitrumAssetId,
   baseAssetId,
-  'eip155:56/bep20:0x2170ed0880ac9a755fd29b2688956bd959f933f8', // ETH on BSC
+  'eip155:56/erc20:0x2170ed0880ac9a755fd29b2688956bd959f933f8', // ETH on BSC
   optimismAssetId,
   // USDT (multiple chains)
-  'eip155:56/bep20:0x55d398326f99059ff775485246999027b3197955', // USDT on BSC
+  'eip155:56/erc20:0x55d398326f99059ff775485246999027b3197955', // USDT on BSC
   'eip155:1/erc20:0xdac17f958d2ee523a2206206994597c13d831ec7', // USDT on Ethereum
   'eip155:137/erc20:0xc2132d05d31c914a87c6611c10748aeb04b58e8f', // USDT on Polygon
   'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp/token:Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB', // USDT on Solana
@@ -121,7 +121,7 @@ const BanxaSellAssetIds: AssetId[] = [
   'eip155:42161/erc20:0xaf88d065e77c8cc2239327c5edb3a432268e5831', // USDC on Arbitrum
   'eip155:43114/erc20:0xb97ef9ef8734c71904d8002f8b6bc66dd9c48a6e', // USDC on Avalanche
   'eip155:8453/erc20:0x833589fcd6edb6e08f4c7c32d4f71b54bda02913', // USDC on Base
-  'eip155:56/bep20:0x8ac76a51cc950d9822d68b83fe1ad97b32cd580d', // USDC on BSC
+  'eip155:56/erc20:0x8ac76a51cc950d9822d68b83fe1ad97b32cd580d', // USDC on BSC
   'eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48', // USDC on Ethereum
   'eip155:137/erc20:0x3c499c542cef5e3811e1192ce70d8cc03d5c3359', // USDC on Polygon
   'eip155:10/erc20:0x0b2c639c533813f4aa9d7837caf62653d097ff85', // USDC on Optimism

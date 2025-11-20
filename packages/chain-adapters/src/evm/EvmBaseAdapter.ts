@@ -644,11 +644,11 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
 
   async buildCustomTx(input: BuildCustomTxInput): Promise<{ txToSign: SignTx<T> }> {
     try {
-      const { wallet, accountNumber } = input
+      const { wallet, accountNumber, pubKey } = input
 
       this.assertSupportsChain(wallet)
 
-      const from = await this.getAddress({ accountNumber, wallet })
+      const from = await this.getAddress({ accountNumber, wallet, pubKey })
       const txToSign = await this.buildCustomApiTx({ ...input, from })
 
       return { txToSign }

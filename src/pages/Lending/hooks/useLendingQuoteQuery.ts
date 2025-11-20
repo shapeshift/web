@@ -2,6 +2,7 @@ import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import { bnOrZero } from '@shapeshiftoss/chain-adapters'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
+import { isTrezor } from '@shapeshiftoss/hdwallet-trezor'
 import { assertAndProcessMemo } from '@shapeshiftoss/swapper'
 import type { MarketData } from '@shapeshiftoss/types'
 import { useQuery } from '@tanstack/react-query'
@@ -212,7 +213,8 @@ export const useLendingQuoteOpenQuery = ({
   const getBorrowAssetReceiveAddress = useCallback(() => {
     if (!wallet || !_borrowAccountId || !destinationAccountMetadata || !borrowAsset) return
 
-    const pubKey = isLedger(wallet) ? fromAccountId(_borrowAccountId).account : undefined
+    const pubKey =
+      isLedger(wallet) || isTrezor(wallet) ? fromAccountId(_borrowAccountId).account : undefined
 
     return getReceiveAddress({
       asset: borrowAsset,

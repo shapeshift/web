@@ -1,5 +1,6 @@
 import { fromAccountId } from '@shapeshiftoss/caip'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
+import { isTrezor } from '@shapeshiftoss/hdwallet-trezor'
 import type { GetTradeRateInput } from '@shapeshiftoss/swapper'
 import { bnOrZero } from '@shapeshiftoss/utils'
 import { useQuery } from '@tanstack/react-query'
@@ -94,7 +95,7 @@ export const useGetTradeRateInput = ({
       // Pass in the user's slippage preference if it's set, else let the swapper use its default
       slippageTolerancePercentageDecimal: userSlippageTolerancePercentageDecimal,
       pubKey:
-        wallet && isLedger(wallet) && sellAccountId
+        wallet && (isLedger(wallet) || isTrezor(wallet)) && sellAccountId
           ? fromAccountId(sellAccountId).account
           : undefined,
     }),

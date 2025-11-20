@@ -109,13 +109,10 @@ export const toAssetId: ToAssetId = (args: ToAssetIdArgs): AssetId => {
 
     switch (assetNamespace) {
       case 'erc20':
-      case 'bep20':
         assertContractAddress(assetReference)
         return assetReference.toLowerCase()
       case 'erc721':
       case 'erc1155':
-      case 'bep721':
-      case 'bep1155':
         // caip-22 (https://github.com/ChainAgnostic/CAIPs/blob/master/CAIPs/caip-22.md)
         // caip-29 (https://github.com/ChainAgnostic/CAIPs/blob/master/CAIPs/caip-29.md)
         const [address] = assetReference.split('/')
@@ -157,11 +154,8 @@ export const fromAssetId: FromAssetId = (assetId: string) => {
   const assetReferenceNormalized = (() => {
     switch (assetNamespace) {
       case 'erc20':
-      case 'bep20':
       case 'erc721':
       case 'erc1155':
-      case 'bep721':
-      case 'bep1155':
         return assetReference.toLowerCase()
       default:
         return assetReference
@@ -183,7 +177,7 @@ export const isNft = (assetId: AssetId): boolean => {
   const assetParts = assetId.substring(slashIdx + 1)
   const idx = assetParts.indexOf(':')
   const assetNamespace = assetParts.substring(0, idx)
-  return ['erc721', 'erc1155', 'bep721', 'bep1155'].includes(assetNamespace)
+  return ['erc721', 'erc1155'].includes(assetNamespace)
 }
 
 export const toCAIP19 = toAssetId

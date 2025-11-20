@@ -74,10 +74,10 @@ export const Carousel = ({
 
   const handleSlideClick = useCallback(
     (event: MouseEvent) => {
-      if (embla && embla.clickAllowed()) return
+      if (options.dragFree) return
       event.preventDefault()
     },
-    [embla],
+    [options.dragFree],
   )
 
   useEffect(() => {

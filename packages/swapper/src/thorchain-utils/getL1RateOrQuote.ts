@@ -127,25 +127,20 @@ export const getL1RateOrQuote = async <T extends ThorTradeRateOrQuote>(
 
   const maybeSwapQuote = await getQuote({ ...baseQuoteArgs, streaming: false }, deps)
 
-  if (maybeSwapQuote.isErr()) return Err(maybeSwapQuote.unwrapErr())
-  const swapQuote = maybeSwapQuote.unwrap()
-
   const maybeStreamingSwapQuote = await getQuote(
     { ...baseQuoteArgs, streaming: true, streamingInterval },
     deps,
   )
 
-  if (maybeStreamingSwapQuote?.isErr()) return Err(maybeStreamingSwapQuote.unwrapErr())
-  const streamingSwapQuote = maybeStreamingSwapQuote?.unwrap()
+  if (maybeSwapQuote.isErr() && maybeStreamingSwapQuote.isErr()) {
+    return Err(maybeSwapQuote.unwrapErr())
+  }
 
-  // recommended_min_amount_in should be the same value for both types of swaps
-  const recommendedMinimumCryptoBaseUnit = swapQuote.recommended_min_amount_in
-    ? convertPrecision({
-        value: swapQuote.recommended_min_amount_in,
-        inputExponent: sellAssetNativePrecision,
-        outputExponent: sellAsset.precision,
-      }).toFixed()
-    : '0'
+  const swapQuote = maybeSwapQuote.isOk() ? maybeSwapQuote.unwrap() : undefined
+
+  const streamingSwapQuote = maybeStreamingSwapQuote.isOk()
+    ? maybeStreamingSwapQuote.unwrap()
+    : undefined
 
   const getRouteValues = (
     quote: ThornodeQuoteResponseSuccess,
@@ -168,11 +163,22 @@ export const getL1RateOrQuote = async <T extends ThorTradeRateOrQuote>(
     }
   }
 
-  const perRouteValues = [getRouteValues(swapQuote, false)]
+  const perRouteValues: ThorTradeRoute[] = []
 
-  if (streamingSwapQuote) {
-    perRouteValues.push(getRouteValues(streamingSwapQuote, true))
-  }
+  if (swapQuote) perRouteValues.push(getRouteValues(swapQuote, false))
+  if (streamingSwapQuote) perRouteValues.push(getRouteValues(streamingSwapQuote, true))
+
+  const recommendedMinAmountIn =
+    swapQuote?.recommended_min_amount_in ?? streamingSwapQuote?.recommended_min_amount_in
+
+  // recommended_min_amount_in should be the same value for both types of swaps
+  const recommendedMinimumCryptoBaseUnit = recommendedMinAmountIn
+    ? convertPrecision({
+        value: recommendedMinAmountIn,
+        inputExponent: sellAssetNativePrecision,
+        outputExponent: sellAsset.precision,
+      }).toFixed()
+    : '0'
 
   const getRouteBuyAmountBeforeFeesCryptoBaseUnit = (quote: ThornodeQuoteResponseSuccess) => {
     const buyAmountBeforeFeesCryptoThorPrecision = bn(quote.expected_amount_out).plus(

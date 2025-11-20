@@ -3,11 +3,12 @@ import { fromAssetId } from '@shapeshiftoss/caip'
 import type { EvmChainAdapter } from '@shapeshiftoss/chain-adapters'
 import { evm } from '@shapeshiftoss/chain-adapters'
 import type { KnownChainIds } from '@shapeshiftoss/types'
-import { bn, bnOrZero } from '@shapeshiftoss/utils'
+import { bn, bnOrZero, convertBasisPointsToDecimalPercentage } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import { v4 as uuid } from 'uuid'
-import { zeroAddress } from 'viem'
+import type { Hex } from 'viem'
+import { getAddress, zeroAddress } from 'viem'
 
 import { getDefaultSlippageDecimalPercentageForSwapper } from '../../..'
 import type {
@@ -19,9 +20,10 @@ import type {
 } from '../../../types'
 import { SwapperName, TradeQuoteError } from '../../../types'
 import { getInputOutputRate, makeSwapErrorRight } from '../../../utils'
-import { isNativeEvmAsset } from '../../utils/helpers/helpers'
+import { simulateWithStateOverrides } from '../../../utils/tenderly'
+import { getTreasuryAddressFromChainId, isNativeEvmAsset } from '../../utils/helpers/helpers'
 import { chainIdToPortalsNetwork } from '../constants'
-import { fetchPortalsTradeEstimate } from '../utils/fetchPortalsTradeOrder'
+import { fetchPortalsTradeEstimate, fetchPortalsTradeOrder } from '../utils/fetchPortalsTradeOrder'
 import { getPortalsRouterAddressByChainId, isSupportedChainId } from '../utils/helpers'
 
 export async function getPortalsTradeRate(
@@ -37,6 +39,7 @@ export async function getPortalsTradeRate(
     chainId,
     sellAmountIncludingProtocolFeesCryptoBaseUnit,
     receiveAddress,
+    supportsEIP1559,
   } = input
   const adapter = assertGetEvmChainAdapter(chainId)
 
@@ -104,18 +107,37 @@ export async function getPortalsTradeRate(
           .times(100)
           .toNumber()
 
-    const quoteEstimateResponse = await fetchPortalsTradeEstimate({
+    // Calculate affiliate fee percentage (e.g., 55 bps = 0.55%)
+    const affiliateBpsPercentage = convertBasisPointsToDecimalPercentage(affiliateBps)
+      .times(100)
+      .toNumber()
+
+    // Dummy address for rates (no wallet connected yet)
+    // Using Vitalik's address as a realistic test address (same approach as Bebop)
+    const RATE_DUMMY_ADDRESS = '0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045'
+
+    // Use full quote endpoint (not estimate) to get transaction data for Tenderly simulation
+    // Skip validation since this is just a rate quote
+    const quoteResponse = await fetchPortalsTradeOrder({
+      sender: RATE_DUMMY_ADDRESS, // Dummy address for rates (no wallet yet)
       inputToken,
       outputToken,
       inputAmount: sellAmountIncludingProtocolFeesCryptoBaseUnit,
       slippageTolerancePercentage: userSlippageTolerancePercentageDecimalOrDefault,
+      partner: getTreasuryAddressFromChainId(chainId),
+      feePercentage: affiliateBpsPercentage,
+      validate: false, // Skip Portals' simulation validation
       swapperConfig,
     })
 
-    // Estimate has no protocol fees, so after-fees = expected output amount
-    const buyAmountAfterFeesCryptoBaseUnit = quoteEstimateResponse.outputAmount
+    if (!quoteResponse.tx) {
+      throw new Error('Portals quote response missing transaction data')
+    }
 
-    // Use the quote estimate endpoint to get a quote without a wallet
+    const { context, tx } = quoteResponse
+
+    // Use outputAmount from context, not estimate
+    const buyAmountAfterFeesCryptoBaseUnit = context.outputAmount
 
     const inputOutputRate = getInputOutputRate({
       sellAmountCryptoBaseUnit: input.sellAmountIncludingProtocolFeesCryptoBaseUnit,
@@ -128,25 +150,58 @@ export async function getPortalsTradeRate(
 
     // Don't use Portals' slippageTolerancePercentage field (it's a price indicator, not actual buffer)
     // Instead, calculate the actual buffer Portals applied from the amounts
-    const actualBufferDecimal = bnOrZero(quoteEstimateResponse.outputAmount)
-      .minus(quoteEstimateResponse.minOutputAmount)
-      .div(quoteEstimateResponse.outputAmount)
+    const actualBufferDecimal = bnOrZero(context.outputAmount)
+      .minus(context.minOutputAmount)
+      .div(context.outputAmount)
       .toString()
 
     // Reverse the buffer to recover the expected output (minOutput / (1 - buffer) = output)
-    const buyAmountBeforeSlippageCryptoBaseUnit = bnOrZero(quoteEstimateResponse.minOutputAmount)
+    const buyAmountBeforeSlippageCryptoBaseUnit = bnOrZero(context.minOutputAmount)
       .div(bn(1).minus(actualBufferDecimal))
       .toFixed(0)
 
     const slippageTolerancePercentageDecimal = actualBufferDecimal
 
-    const gasLimit = quoteEstimateResponse.context.gasLimit
+    const gasLimit = await (async () => {
+      const tenderlySimulation = await simulateWithStateOverrides(
+        {
+          chainId: sellAsset.chainId,
+          from: tx.from,
+          to: tx.to,
+          data: tx.data as Hex,
+          value: tx.value,
+          sellAsset,
+          spenderAddress: getAddress(context.target),
+        },
+        {
+          apiKey: swapperConfig.VITE_TENDERLY_API_KEY,
+          accountSlug: swapperConfig.VITE_TENDERLY_ACCOUNT_SLUG,
+          projectSlug: swapperConfig.VITE_TENDERLY_PROJECT_SLUG,
+        },
+      )
+
+      if (tenderlySimulation.success) {
+        return tenderlySimulation.gasLimit.toString()
+      }
+
+      // Fallback to estimate endpoint (i.e simulation with overrides failed, but Portals still able to do their magic here)
+      const quoteEstimateResponse = await fetchPortalsTradeEstimate({
+        inputToken,
+        outputToken,
+        inputAmount: sellAmountIncludingProtocolFeesCryptoBaseUnit,
+        slippageTolerancePercentage: userSlippageTolerancePercentageDecimalOrDefault,
+        swapperConfig,
+      })
+
+      return quoteEstimateResponse.context.gasLimit.toString()
+    })()
+
     const { average } = await adapter.getGasFeeData()
 
     const networkFeeCryptoBaseUnit = evm.calcNetworkFeeCryptoBaseUnit({
       ...average,
-      supportsEIP1559: Boolean(input.supportsEIP1559),
-      gasLimit: gasLimit.toString(),
+      supportsEIP1559: Boolean(supportsEIP1559),
+      gasLimit,
     })
 
     const tradeRate = {

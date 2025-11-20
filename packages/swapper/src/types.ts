@@ -62,6 +62,10 @@ export type SwapperConfig = {
   VITE_JUPITER_API_URL: string
   VITE_RELAY_API_URL: string
   VITE_BEBOP_API_KEY: string
+  VITE_NEAR_INTENTS_API_KEY: string
+  VITE_TENDERLY_API_KEY: string
+  VITE_TENDERLY_ACCOUNT_SLUG: string
+  VITE_TENDERLY_PROJECT_SLUG: string
 }
 
 export enum SwapperName {
@@ -77,6 +81,7 @@ export enum SwapperName {
   Relay = 'Relay',
   ButterSwap = 'ButterSwap',
   Bebop = 'Bebop',
+  NearIntents = 'NEAR Intents',
 }
 
 export type SwapSource = SwapperName | `${SwapperName} • ${string}`
@@ -316,6 +321,12 @@ export type TradeQuoteStep = {
     chainflipChunkIntervalBlocks?: number
     chainflipMaxBoostFee?: number
   }
+  nearIntentsSpecific?: {
+    depositAddress: string
+    depositMemo?: string
+    timeEstimate: number
+    deadline: string
+  }
   thorchainSpecific?: {
     maxStreamingQuantity?: number
   }
@@ -374,6 +385,12 @@ export type SwapExecutionMetadata = {
 
 export type SwapperSpecificMetadata = {
   chainflipSwapId: number | undefined
+  nearIntentsSpecific?: {
+    depositAddress: string
+    depositMemo?: string
+    timeEstimate: number
+    deadline: string
+  }
   relayTransactionMetadata: RelayTransactionMetadata | undefined
   relayerExplorerTxLink: string | undefined
   relayerTxHash: string | undefined

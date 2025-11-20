@@ -47,6 +47,8 @@ import { tradeInput } from './slices/tradeInputSlice/tradeInputSlice'
 import type { TxHistory } from './slices/txHistorySlice/txHistorySlice'
 import { txHistory, txHistoryApi } from './slices/txHistorySlice/txHistorySlice'
 
+import { gridplusSlice } from '@/state/slices/gridplusSlice/gridplusSlice'
+import type { GridPlusState } from '@/state/slices/gridplusSlice/types'
 import { tradeQuoteSlice } from '@/state/slices/tradeQuoteSlice/tradeQuoteSlice'
 import { tradeRampInput } from '@/state/slices/tradeRampInputSlice/tradeRampInputSlice'
 
@@ -64,6 +66,7 @@ export const slices = {
   limitOrder: limitOrderSlice,
   snapshot,
   localWallet: localWalletSlice,
+  gridplus: gridplusSlice,
   addressBook: addressBookSlice,
 }
 
@@ -141,6 +144,12 @@ const swapPersistConfig = {
   version: Math.max(...Object.keys(clearSwapsMigrations).map(Number)),
 }
 
+const gridplusPersistConfig = {
+  key: 'gridplus',
+  storage: localforage,
+  version: 0,
+}
+
 const addressBookPersistConfig = {
   key: 'addressBook',
   storage: localforage,
@@ -170,6 +179,7 @@ export const sliceReducers = {
   ),
   action: persistReducer<ActionState>(actionPersistConfig, actionSlice.reducer),
   swap: persistReducer<SwapState>(swapPersistConfig, swapSlice.reducer),
+  gridplus: persistReducer<GridPlusState>(gridplusPersistConfig, gridplusSlice.reducer),
   addressBook: persistReducer<AddressBookState>(addressBookPersistConfig, addressBookSlice.reducer),
 }
 

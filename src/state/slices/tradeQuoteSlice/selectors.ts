@@ -447,11 +447,16 @@ export const selectTradeSlippagePercentageDecimal: Selector<ReduxState, string> 
   selectQuoteSlippageTolerancePercentageDecimal,
   selectUserSlippagePercentageDecimal,
   (activeSwapperName, quoteSlippageTolerancePercentage, slippagePreferencePercentage) => {
-    return (
-      slippagePreferencePercentage ??
-      quoteSlippageTolerancePercentage ??
-      getDefaultSlippageDecimalPercentageForSwapper(activeSwapperName)
-    )
+    if (slippagePreferencePercentage) return slippagePreferencePercentage
+    if (quoteSlippageTolerancePercentage) return quoteSlippageTolerancePercentage
+
+    try {
+      return getDefaultSlippageDecimalPercentageForSwapper(activeSwapperName)
+    } catch {
+      // Auto-slippage swappers (Relay, Jupiter) throw when quote fails
+      // Return something to prevent crash
+      return '0'
+    }
   },
 )
 

@@ -6,6 +6,7 @@ import { supportsBTC } from '@shapeshiftoss/hdwallet-core'
 import { MetaMaskMultiChainHDWallet } from '@shapeshiftoss/hdwallet-metamask-multichain'
 import { PhantomHDWallet } from '@shapeshiftoss/hdwallet-phantom'
 import { isTrezor } from '@shapeshiftoss/hdwallet-trezor'
+import { VultisigHDWallet } from '@shapeshiftoss/hdwallet-vultisig'
 import type { AccountMetadataById, UtxoChainId } from '@shapeshiftoss/types'
 import { UtxoAccountType } from '@shapeshiftoss/types'
 
@@ -112,7 +113,7 @@ export const deriveUtxoAccountIdsAndMetadata: DeriveAccountIdsAndMetadata = asyn
         // MetaMask snaps adapter only supports legacy for BTC and LTC
         supportedAccountTypes = [UtxoAccountType.P2pkh]
       }
-      if (wallet instanceof PhantomHDWallet) {
+      if (wallet instanceof PhantomHDWallet || wallet instanceof VultisigHDWallet) {
         // Phantom supposedly supports more script types, but only supports Segwit Native (bech32 addresses) for now
         supportedAccountTypes = [UtxoAccountType.SegwitNative]
       }

@@ -400,7 +400,7 @@ export const makeAssets = async ({
 }): Promise<UpsertAssetsPayload | undefined> => {
   if (evmChainIds.includes(chainId as EvmChainId)) {
     const account = portfolioAccounts[pubkey] as Account<EvmChainId>
-    const assetNamespace = chainId === bscChainId ? ASSET_NAMESPACE.bep20 : ASSET_NAMESPACE.erc20
+    const assetNamespace = ASSET_NAMESPACE.erc20
 
     const maybePortalsAccounts = await queryClient.fetchQuery({
       queryFn: () => fetchPortalsAccount(chainId, pubkey),

@@ -1,3 +1,4 @@
+import { isGridPlus } from '@shapeshiftoss/hdwallet-gridplus'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import { MetaMaskMultiChainHDWallet } from '@shapeshiftoss/hdwallet-metamask-multichain'
 import { isTrezor } from '@shapeshiftoss/hdwallet-trezor'
@@ -22,6 +23,10 @@ export const useDiscoverAccounts = () => {
   const { supportedChains } = usePlugins()
   const connectedRdns = useAppSelector(selectWalletRdns)
 
+  const shouldSkipAutoDiscovery = useMemo(() => {
+    return wallet && (isLedger(wallet) || isGridPlus(wallet) || isTrezor(wallet))
+  }, [wallet])
+
   const supportedChainIds = useMemo(() => {
     return supportedChains.filter(chainId =>
       walletSupportsChain({ chainId, wallet, isSnapInstalled, checkConnectedAccountIds: false }),
@@ -44,15 +49,15 @@ export const useDiscoverAccounts = () => {
 
           if (
             !wallet ||
-            isLedger(wallet) ||
-            isTrezor(wallet) ||
+            shouldSkipAutoDiscovery ||
             // Before connecting to MetaMask, isSnapInstalled is null then switch to false when the hook reacts, we would run the discovery 2 times
             (connectedRdns === METAMASK_RDNS && isSnapInstalled === null)
           ) {
             return { accountMetadataByAccountId: {}, hasActivity: false }
           }
 
-          const walletId = await wallet.getDeviceID()
+          const connectedWalletId = portfolio.selectors.selectWalletId(store.getState())
+          const walletId = connectedWalletId ?? (await wallet.getDeviceID())
           const isMultiAccountWallet = wallet.supportsBip44Accounts()
           const currentPortfolio = portfolio.selectors.selectPortfolio(store.getState())
 
@@ -122,7 +127,15 @@ export const useDiscoverAccounts = () => {
         gcTime: Infinity,
         enabled: Boolean(wallet && deviceId),
       })),
-    [dispatch, isSnapInstalled, wallet, deviceId, supportedChainIds, connectedRdns],
+    [
+      dispatch,
+      isSnapInstalled,
+      wallet,
+      deviceId,
+      supportedChainIds,
+      connectedRdns,
+      shouldSkipAutoDiscovery,
+    ],
   )
 
   const accountsDiscoveryQueries = useQueries({

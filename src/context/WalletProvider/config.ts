@@ -1,6 +1,7 @@
 import type { ComponentWithAs, IconProps } from '@chakra-ui/react'
 import type { KkRestAdapter } from '@keepkey/hdwallet-keepkey-rest'
 import type { CoinbaseAdapter } from '@shapeshiftoss/hdwallet-coinbase'
+import type { GridPlusAdapter } from '@shapeshiftoss/hdwallet-gridplus'
 import type { WebUSBKeepKeyAdapter } from '@shapeshiftoss/hdwallet-keepkey-webusb'
 import type { KeplrAdapter } from '@shapeshiftoss/hdwallet-keplr'
 import type { WebUSBLedgerAdapter as LedgerAdapter } from '@shapeshiftoss/hdwallet-ledger-webusb'
@@ -8,11 +9,13 @@ import type { MetaMaskAdapter } from '@shapeshiftoss/hdwallet-metamask-multichai
 import type { NativeAdapter } from '@shapeshiftoss/hdwallet-native'
 import type { PhantomAdapter } from '@shapeshiftoss/hdwallet-phantom'
 import type { TrezorAdapter } from '@shapeshiftoss/hdwallet-trezor-connect'
+import type { VultisigAdapter } from '@shapeshiftoss/hdwallet-vultisig'
 import type { WalletConnectV2Adapter } from '@shapeshiftoss/hdwallet-walletconnectv2'
 import { lazy } from 'react'
 import type { RouteProps as _RouteProps } from 'react-router-dom'
 
 import { CoinbaseConfig } from './Coinbase/config'
+import { GridPlusConfig } from './GridPlus/config'
 import { KeepKeyConnectedMenuItems } from './KeepKey/components/KeepKeyMenu'
 import { KeepKeyConfig } from './KeepKey/config'
 import { KeplrConfig } from './Keplr/config'
@@ -25,6 +28,7 @@ import { PhantomConfig } from './Phantom/config'
 import { KeepKeyRoutes } from './routes'
 import { TrezorConfig } from './Trezor/config'
 import { NativeWalletRoutes } from './types'
+import { VultisigConfig } from './Vultisig/config'
 import { WalletConnectV2Config } from './WalletConnectV2/config'
 import type { EthereumProviderOptions } from './WalletConnectV2/constants'
 
@@ -39,6 +43,24 @@ export type WalletProviderRouteProps = _RouteProps & {
 const WalletConnectV2Connect = lazy(() =>
   import('./WalletConnectV2/components/Connect').then(({ WalletConnectV2Connect }) => ({
     default: WalletConnectV2Connect,
+  })),
+)
+
+const GridPlusConnect = lazy(() =>
+  import('./GridPlus/components/Connect').then(({ GridPlusConnect }) => ({
+    default: GridPlusConnect,
+  })),
+)
+
+const GridPlusPair = lazy(() =>
+  import('./GridPlus/components/GridPlusPair').then(({ GridPlusPair }) => ({
+    default: GridPlusPair,
+  })),
+)
+
+const GridPlusSetup = lazy(() =>
+  import('./GridPlus/components/GridPlusSetup').then(({ GridPlusSetup }) => ({
+    default: GridPlusSetup,
   })),
 )
 
@@ -262,6 +284,17 @@ const PhantomFailure = lazy(() =>
   })),
 )
 
+const VultisigConnect = lazy(() =>
+  import('./Vultisig/components/Connect').then(({ VultisigConnect }) => ({
+    default: VultisigConnect,
+  })),
+)
+const VultisigFailure = lazy(() =>
+  import('./Vultisig/components/Failure').then(({ VultisigFailure }) => ({
+    default: VultisigFailure,
+  })),
+)
+
 const MetaMaskMenu = lazy(() =>
   import('./MetaMask/components/MetaMaskMenu').then(({ MetaMaskMenu }) => ({
     default: MetaMaskMenu,
@@ -276,6 +309,13 @@ const TrezorMenu = lazy(() =>
   import('./Trezor/components/TrezorMenu').then(({ TrezorMenu }) => ({
     default: TrezorMenu,
   })),
+)
+const ManageAccountsMenuItem = lazy(() =>
+  import('@/components/Layout/Header/NavBar/ManageAccountsMenuItem').then(
+    ({ ManageAccountsMenuItem }) => ({
+      default: ManageAccountsMenuItem,
+    }),
+  ),
 )
 
 const MobileCreate = lazy(() =>
@@ -339,9 +379,11 @@ export type SupportedWalletInfoByKeyManager = {
   [KeyManager.Keplr]: SupportedWalletInfo<typeof KeplrAdapter>
   [KeyManager.Ledger]: SupportedWalletInfo<typeof LedgerAdapter>
   [KeyManager.Phantom]: SupportedWalletInfo<typeof PhantomAdapter>
+  [KeyManager.Vultisig]: SupportedWalletInfo<typeof VultisigAdapter>
   [KeyManager.MetaMask]: SupportedWalletInfo<typeof MetaMaskAdapter | typeof MetaMaskAdapter>
   [KeyManager.Trezor]: SupportedWalletInfo<typeof TrezorAdapter>
   [KeyManager.WalletConnectV2]: SupportedWalletInfo<typeof WalletConnectV2Adapter>
+  [KeyManager.GridPlus]: SupportedWalletInfo<typeof GridPlusAdapter>
 }
 
 export const SUPPORTED_WALLETS: SupportedWalletInfoByKeyManager = {
@@ -421,6 +463,13 @@ export const SUPPORTED_WALLETS: SupportedWalletInfoByKeyManager = {
       { path: '/phantom/failure', component: PhantomFailure },
     ],
   },
+  [KeyManager.Vultisig]: {
+    ...VultisigConfig,
+    routes: [
+      { path: '/vultisig/connect', component: VultisigConnect },
+      { path: '/vultisig/failure', component: VultisigFailure },
+    ],
+  },
   [KeyManager.Coinbase]: {
     ...CoinbaseConfig,
     routes: [
@@ -453,6 +502,15 @@ export const SUPPORTED_WALLETS: SupportedWalletInfoByKeyManager = {
   [KeyManager.WalletConnectV2]: {
     ...WalletConnectV2Config,
     routes: [{ path: '/walletconnectv2/connect', component: WalletConnectV2Connect }],
+  },
+  [KeyManager.GridPlus]: {
+    ...GridPlusConfig,
+    routes: [
+      { path: '/gridplus/connect', component: GridPlusConnect },
+      { path: '/gridplus/pair', component: GridPlusPair },
+      { path: '/gridplus/setup', component: GridPlusSetup },
+    ],
+    connectedMenuComponent: ManageAccountsMenuItem,
   },
 }
 

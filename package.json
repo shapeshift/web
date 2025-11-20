@@ -150,6 +150,7 @@
     "chakra-ui-steps": "^2.2.0",
     "crypto-browserify": "^3.12.0",
     "dayjs": "^1.11.3",
+    "detectincognitojs": "^1.6.2",
     "dompurify": "^2.3.8",
     "embla-carousel-auto-height": "^8.6.0",
     "embla-carousel-auto-scroll": "^8.6.0",

@@ -10,8 +10,9 @@ import {
   TransactionExecutionState,
 } from '@shapeshiftoss/swapper'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
-import { useQueries } from '@tanstack/react-query'
+import { useQueries, useQuery } from '@tanstack/react-query'
 import { uuidv4 } from '@walletconnect/utils'
+import { detectIncognito } from 'detectincognitojs'
 import { useCallback, useEffect, useMemo } from 'react'
 
 import { preferences } from '../../state/slices/preferencesSlice/preferencesSlice'
@@ -88,6 +89,18 @@ export const useSwapActionSubscriber = () => {
   const { open: openRatingModal } = useModal('rating')
   const mobileFeaturesCompatibility = useMobileFeaturesCompatibility()
   const confirmedTradeExecution = useAppSelector(selectConfirmedTradeExecution)
+
+  const { data: isIncognitoQueryData, isLoading: isIncognitoLoading } = useQuery({
+    queryKey: ['isIncognito'],
+    queryFn: () => detectIncognito(),
+    staleTime: Infinity,
+    gcTime: Infinity,
+  })
+
+  const isIncognito = useMemo(
+    () => isIncognitoQueryData?.isPrivate && !isIncognitoLoading,
+    [isIncognitoQueryData, isIncognitoLoading],
+  )
 
   const dispatch = useAppDispatch()
 
@@ -253,6 +266,15 @@ export const useSwapActionSubscriber = () => {
           }),
         )
 
+        if (
+          !hasSeenRatingModal &&
+          mobileFeaturesCompatibility[MobileFeature.RatingModal].isCompatible &&
+          !isIncognito
+        ) {
+          openRatingModal({})
+          handleHasSeenRatingModal()
+        }
+
         if (toast.isActive(swap.id)) return
 
         toast({
@@ -277,14 +299,6 @@ export const useSwapActionSubscriber = () => {
             )
           },
         })
-
-        if (
-          !hasSeenRatingModal &&
-          mobileFeaturesCompatibility[MobileFeature.RatingModal].isCompatible
-        ) {
-          openRatingModal({})
-          handleHasSeenRatingModal()
-        }
 
         return
       }
@@ -354,6 +368,7 @@ export const useSwapActionSubscriber = () => {
       handleHasSeenRatingModal,
       mobileFeaturesCompatibility,
       tradeQuoteState,
+      isIncognito,
     ],
   )
 

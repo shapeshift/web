@@ -9,7 +9,7 @@ globalThis.indexedDB = indexeddb
 
 // Redirect 'ethers' imports to 'ethers5' only for specific modules
 moduleAlias.addAlias('ethers', (fromPath: string) => {
-  const regex = /@shapeshiftoss\/hdwallet-(ledger|shapeshift-multichain)/
+  const regex = /@shapeshiftoss\/hdwallet-(trezor|ledger|shapeshift-multichain)/
   if (regex.test(fromPath)) return path.resolve(__dirname, '../node_modules/ethers5')
   return 'ethers'
 })

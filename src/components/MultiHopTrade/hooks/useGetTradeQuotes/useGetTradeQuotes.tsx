@@ -1,6 +1,7 @@
 import { skipToken as reduxSkipToken } from '@reduxjs/toolkit/query'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
+import { isTrezor } from '@shapeshiftoss/hdwallet-trezor'
 import type {
   GetTradeQuoteInput,
   GetTradeRateInput,
@@ -197,7 +198,7 @@ export const useGetTradeQuotes = () => {
           // Pass in the user's slippage preference if it's set, else let the swapper use its default
           slippageTolerancePercentageDecimal: userSlippageTolerancePercentageDecimal,
           pubKey:
-            wallet && isLedger(wallet) && sellAccountId
+            wallet && (isLedger(wallet) || isTrezor(wallet)) && sellAccountId
               ? fromAccountId(sellAccountId).account
               : undefined,
         })

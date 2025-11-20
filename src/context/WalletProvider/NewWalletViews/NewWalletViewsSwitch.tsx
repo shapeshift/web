@@ -26,6 +26,7 @@ import { KeepKeyRoutes } from './routes/KeepKeyRoutes'
 import { LedgerRoutes } from './routes/LedgerRoutes'
 import { MipdRoutes } from './routes/MipdRoutes'
 import { NativeRoutes } from './routes/NativeRoutes'
+import { TrezorRoutes } from './routes/TrezorRoutes'
 import { WalletConnectV2Routes } from './routes/WalletConnectV2Routes'
 import { HardwareWalletsSection } from './sections/HardwareWalletsSection'
 import { InstalledWalletsSection } from './sections/InstalledWalletsSection'
@@ -83,6 +84,7 @@ const RightPanelContent = ({ isLoading, setIsLoading, error, setError }: RightPa
   if (location.pathname.startsWith('/native')) return <NativeRoutes />
   if (location.pathname.startsWith('/walletconnectv2')) return <WalletConnectV2Routes />
   if (location.pathname.startsWith('/ledger')) return <LedgerRoutes />
+  if (location.pathname.startsWith('/trezor')) return <TrezorRoutes />
   if (location.pathname.startsWith('/keepkey')) return <KeepKeyRoutes />
   if (location.pathname.startsWith('/gridplus')) return <GridPlusRoutes />
 

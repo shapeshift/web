@@ -125,6 +125,7 @@ export const mockStore: ReduxState = {
       ThorchainLpDeposit: false,
       ThorchainLpWithdraw: false,
       LedgerWallet: false,
+      TrezorWallet: false,
       VultisigWallet: false,
       GridPlusWallet: false,
       ThorchainSwapLongtail: false,

@@ -67,8 +67,10 @@ const WalletSelectItem = ({
   const Icon = useMemo(() => <OptionIcon width='24px' height='auto' />, [OptionIcon])
 
   const isLedgerEnabled = useFeatureFlag('LedgerWallet')
+  const isTrezorEnabled = useFeatureFlag('TrezorWallet')
 
   if (walletType === KeyManager.Ledger && !isLedgerEnabled) return null
+  if (walletType === KeyManager.Trezor && !isTrezorEnabled) return null
 
   if (!isSupported) return null
 

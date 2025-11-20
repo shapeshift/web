@@ -98,8 +98,8 @@ export const useSwapActionSubscriber = () => {
   })
 
   const isIncognito = useMemo(
-    () => isIncognitoQueryData?.isPrivate && !isIncognitoLoading,
-    [isIncognitoQueryData, isIncognitoLoading],
+    () => isIncognitoQueryData?.isPrivate ?? false,
+    [isIncognitoQueryData],
   )
 
   const dispatch = useAppDispatch()
@@ -269,7 +269,8 @@ export const useSwapActionSubscriber = () => {
         if (
           !hasSeenRatingModal &&
           mobileFeaturesCompatibility[MobileFeature.RatingModal].isCompatible &&
-          !isIncognito
+          !isIncognito &&
+          !isIncognitoLoading
         ) {
           openRatingModal({})
           handleHasSeenRatingModal()

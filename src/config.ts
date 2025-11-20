@@ -95,6 +95,7 @@ const validators = {
   VITE_FEATURE_WALLET_CONNECT_TO_DAPPS: bool({ default: false }),
   VITE_FEATURE_WALLET_CONNECT_TO_DAPPS_V2: bool({ default: false }),
   VITE_FEATURE_LEDGER_WALLET: bool({ default: false }),
+  VITE_FEATURE_VULTISIG_WALLET: bool({ default: false }),
   VITE_FEATURE_GRIDPLUS_WALLET: bool({ default: false }),
   VITE_FEATURE_WALLET_CONNECT_V2: bool({ default: false }),
   VITE_FEATURE_WC_DIRECT_CONNECTION: bool({ default: false }),

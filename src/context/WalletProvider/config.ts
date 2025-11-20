@@ -8,6 +8,7 @@ import type { WebUSBLedgerAdapter as LedgerAdapter } from '@shapeshiftoss/hdwall
 import type { MetaMaskAdapter } from '@shapeshiftoss/hdwallet-metamask-multichain'
 import type { NativeAdapter } from '@shapeshiftoss/hdwallet-native'
 import type { PhantomAdapter } from '@shapeshiftoss/hdwallet-phantom'
+import type { VultisigAdapter } from '@shapeshiftoss/hdwallet-vultisig'
 import type { WalletConnectV2Adapter } from '@shapeshiftoss/hdwallet-walletconnectv2'
 import { lazy } from 'react'
 import type { RouteProps as _RouteProps } from 'react-router-dom'
@@ -25,6 +26,7 @@ import { NativeConfig } from './NativeWallet/config'
 import { PhantomConfig } from './Phantom/config'
 import { KeepKeyRoutes } from './routes'
 import { NativeWalletRoutes } from './types'
+import { VultisigConfig } from './Vultisig/config'
 import { WalletConnectV2Config } from './WalletConnectV2/config'
 import type { EthereumProviderOptions } from './WalletConnectV2/constants'
 
@@ -280,6 +282,17 @@ const PhantomFailure = lazy(() =>
   })),
 )
 
+const VultisigConnect = lazy(() =>
+  import('./Vultisig/components/Connect').then(({ VultisigConnect }) => ({
+    default: VultisigConnect,
+  })),
+)
+const VultisigFailure = lazy(() =>
+  import('./Vultisig/components/Failure').then(({ VultisigFailure }) => ({
+    default: VultisigFailure,
+  })),
+)
+
 const MetaMaskMenu = lazy(() =>
   import('./MetaMask/components/MetaMaskMenu').then(({ MetaMaskMenu }) => ({
     default: MetaMaskMenu,
@@ -359,6 +372,7 @@ export type SupportedWalletInfoByKeyManager = {
   [KeyManager.Keplr]: SupportedWalletInfo<typeof KeplrAdapter>
   [KeyManager.Ledger]: SupportedWalletInfo<typeof LedgerAdapter>
   [KeyManager.Phantom]: SupportedWalletInfo<typeof PhantomAdapter>
+  [KeyManager.Vultisig]: SupportedWalletInfo<typeof VultisigAdapter>
   [KeyManager.MetaMask]: SupportedWalletInfo<typeof MetaMaskAdapter | typeof MetaMaskAdapter>
   [KeyManager.WalletConnectV2]: SupportedWalletInfo<typeof WalletConnectV2Adapter>
   [KeyManager.GridPlus]: SupportedWalletInfo<typeof GridPlusAdapter>
@@ -439,6 +453,13 @@ export const SUPPORTED_WALLETS: SupportedWalletInfoByKeyManager = {
     routes: [
       { path: '/phantom/connect', component: PhantomConnect },
       { path: '/phantom/failure', component: PhantomFailure },
+    ],
+  },
+  [KeyManager.Vultisig]: {
+    ...VultisigConfig,
+    routes: [
+      { path: '/vultisig/connect', component: VultisigConnect },
+      { path: '/vultisig/failure', component: VultisigFailure },
     ],
   },
   [KeyManager.Coinbase]: {

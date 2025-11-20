@@ -45,7 +45,7 @@ const prefetchBatchedEvmAddresses = async ({
   accountNumbers: number[]
   deviceId: string
 }) => {
-  if (!wallet.ethGetAddresses) return
+  if (!supportsETH(wallet) || !wallet.ethGetAddresses) return
 
   const adapter = assertGetEvmChainAdapter(chainId)
 

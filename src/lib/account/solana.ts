@@ -20,7 +20,7 @@ const prefetchBatchedSolanaAddresses = async ({
   accountNumbers: number[]
   deviceId: string
 }) => {
-  if (!wallet.solanaGetAddresses) return
+  if (!supportsSolana(wallet) || !wallet.solanaGetAddresses) return
 
   const adapter = assertGetSolanaChainAdapter(chainId)
 

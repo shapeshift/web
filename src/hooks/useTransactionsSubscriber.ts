@@ -1,6 +1,7 @@
 import type { AccountId } from '@shapeshiftoss/caip'
 import { ethChainId, foxAssetId, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import type { Transaction } from '@shapeshiftoss/chain-adapters'
+import { isGridPlus } from '@shapeshiftoss/hdwallet-gridplus'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import { isTrezor } from '@shapeshiftoss/hdwallet-trezor'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
@@ -152,15 +153,20 @@ export const useTransactionsSubscriber = () => {
 
       // subscribe to new transactions for all supported accounts
       try {
+        const skipDeviceDerivation = (isLedger(wallet) || isGridPlus(wallet)) && accountId
         return adapter?.subscribeTxs(
           {
             wallet,
             accountType,
             accountNumber,
+<<<<<<< HEAD
             pubKey:
               (isLedger(wallet) || isTrezor(wallet)) && accountId
                 ? fromAccountId(accountId).account
                 : undefined,
+=======
+            pubKey: skipDeviceDerivation ? fromAccountId(accountId).account : undefined,
+>>>>>>> origin/develop
           },
           msg => {
             const { getAccount } = portfolioApi.endpoints

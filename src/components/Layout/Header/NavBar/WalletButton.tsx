@@ -14,6 +14,7 @@ import { RawText, Text } from '@/components/Text'
 import type { InitialState } from '@/context/WalletProvider/WalletProvider'
 import { useMipdProviders } from '@/lib/mipd'
 import { vibrate } from '@/lib/vibrate'
+import { gridplusSlice } from '@/state/slices/gridplusSlice/gridplusSlice'
 import { selectWalletRdns } from '@/state/slices/localWalletSlice/selectors'
 import { useAppSelector } from '@/state/store'
 
@@ -48,12 +49,22 @@ export const WalletButton: FC<WalletButtonProps> = ({
   })
 
   const maybeRdns = useAppSelector(selectWalletRdns)
+  const activeSafeCard = useAppSelector(gridplusSlice.selectors.selectActiveSafeCard)
 
   const mipdProviders = useMipdProviders()
   const maybeMipdProvider = useMemo(
     () => mipdProviders.find(provider => provider.info.rdns === maybeRdns),
     [mipdProviders, maybeRdns],
   )
+
+  // For GridPlus wallets, show "GridPlus - <SafeCardName>"
+  const walletDisplayName = useMemo(() => {
+    if (!walletInfo?.name) return ''
+    if (walletInfo.name === 'GridPlus' && activeSafeCard) {
+      return `GridPlus - ${activeSafeCard.name}`
+    }
+    return walletInfo.name
+  }, [walletInfo?.name, activeSafeCard])
 
   useEffect(() => {
     setWalletLabel('')
@@ -113,7 +124,7 @@ export const WalletButton: FC<WalletButtonProps> = ({
         {walletLabel ? (
           <MiddleEllipsis fontSize='sm' shouldShorten={shouldShorten} value={walletLabel} />
         ) : (
-          <RawText>{walletInfo?.name}</RawText>
+          <RawText>{walletDisplayName}</RawText>
         )}
       </Flex>
     </ButtonComp>

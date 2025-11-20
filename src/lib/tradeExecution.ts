@@ -25,6 +25,7 @@ import {
   TradeExecutionEvent,
 } from '@shapeshiftoss/swapper'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
+import axios from 'axios'
 import { EventEmitter } from 'node:events'
 
 import { assertGetCosmosSdkChainAdapter } from './utils/cosmosSdk'
@@ -36,7 +37,8 @@ import { getConfig } from '@/config'
 import { queryClient } from '@/context/QueryClientProvider/queryClient'
 import { fetchIsSmartContractAddressQuery } from '@/hooks/useIsSmartContractAddress/useIsSmartContractAddress'
 import { poll } from '@/lib/poll/poll'
-import { selectCurrentSwap } from '@/state/slices/selectors'
+import { getOrCreateUser } from '@/lib/user/api'
+import { selectCurrentSwap, selectWalletEnabledAccountIds } from '@/state/slices/selectors'
 import { swapSlice } from '@/state/slices/swapSlice/swapSlice'
 import { selectFirstHopSellAccountId } from '@/state/slices/tradeInputSlice/selectors'
 import { store } from '@/state/store'
@@ -156,12 +158,51 @@ export class TradeExecution {
         metadata: {
           ...swap.metadata,
           chainflipSwapId: tradeQuote.steps[0]?.chainflipSpecific?.chainflipSwapId,
+          nearIntentsSpecific: tradeQuote.steps[0]?.nearIntentsSpecific,
           relayTransactionMetadata: tradeQuote.steps[0]?.relayTransactionMetadata,
           stepIndex,
         },
       }
 
       store.dispatch(swapSlice.actions.upsertSwap(updatedSwap))
+
+      const isWebServicesEnabled = getConfig().VITE_FEATURE_NOTIFICATIONS_WEBSERVICES
+
+      if (isWebServicesEnabled) {
+        const walletEnabledAccountIds = selectWalletEnabledAccountIds(store.getState())
+        const userData = await queryClient.fetchQuery<{ id: string }>({
+          queryKey: ['user', walletEnabledAccountIds],
+          queryFn: () => getOrCreateUser({ accountIds: walletEnabledAccountIds }),
+        })
+
+        if (userData) {
+          queryClient.fetchQuery({
+            queryKey: ['createSwap', swap.id],
+            queryFn: () => {
+              return axios.post(`${import.meta.env.VITE_SWAPS_SERVER_URL}/swaps`, {
+                swapId: swap.id,
+                sellTxHash,
+                userId: userData?.id,
+                sellAsset: updatedSwap.sellAsset,
+                buyAsset: updatedSwap.buyAsset,
+                sellAmountCryptoBaseUnit: updatedSwap.sellAmountCryptoBaseUnit,
+                expectedBuyAmountCryptoBaseUnit: updatedSwap.expectedBuyAmountCryptoBaseUnit,
+                sellAmountCryptoPrecision: updatedSwap.sellAmountCryptoPrecision,
+                expectedBuyAmountCryptoPrecision: updatedSwap.expectedBuyAmountCryptoPrecision,
+                source: updatedSwap.source,
+                swapperName: updatedSwap.swapperName,
+                sellAccountId: accountId,
+                buyAccountId: accountId,
+                receiveAddress: updatedSwap.receiveAddress,
+                isStreaming: updatedSwap.isStreaming,
+                metadata: updatedSwap.metadata,
+              })
+            },
+            staleTime: 0,
+            gcTime: 0,
+          })
+        }
+      }
 
       const { cancelPolling } = poll({
         fn: async () => {

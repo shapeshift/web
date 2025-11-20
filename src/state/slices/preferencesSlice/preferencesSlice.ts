@@ -67,9 +67,6 @@ export type FeatureFlags = {
   RunePoolWithdraw: boolean
   Markets: boolean
   PhantomWallet: boolean
-  GridPlusWallet: boolean
-  VultisigWallet: boolean
-  TrezorWallet: boolean
   FoxPage: boolean
   FoxPageRFOX: boolean
   FoxPageFoxSection: boolean

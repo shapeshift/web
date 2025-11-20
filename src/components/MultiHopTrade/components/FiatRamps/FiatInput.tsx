@@ -1,8 +1,8 @@
 import type { InputProps } from '@chakra-ui/react'
 import { Box, Flex, Input, Skeleton, Text } from '@chakra-ui/react'
-import { useCallback, useMemo, useRef, useState } from 'react'
+import { useCallback, useMemo } from 'react'
 import type { NumberFormatValues } from 'react-number-format'
-import NumberFormat from 'react-number-format'
+import { NumericFormat, numericFormatter } from 'react-number-format'
 
 import { useLocaleFormatter } from '@/hooks/useLocaleFormatter/useLocaleFormatter'
 import type { FiatCurrencyItem } from '@/lib/fiatCurrencies/fiatCurrencies'
@@ -100,23 +100,32 @@ export const FiatInput: React.FC<FiatInputProps> = ({
     number: { localeParts },
   } = useLocaleFormatter()
 
-  const formattedValueLengthRef = useRef<number>(0)
-  const [formattedValueLength, setFormattedValueLength] = useState(0)
-
   const fiatSymbol = useMemo(() => {
     if (!showPrefix) return ''
     return selectedFiatCurrency.symbol
   }, [selectedFiatCurrency, showPrefix])
 
+  const formattedValueLength = useMemo(() => {
+    if (!amount) return 0
+
+    const formatted = numericFormatter(amount, {
+      prefix: fiatSymbol,
+      decimalSeparator: localeParts.decimal,
+      thousandSeparator: localeParts.group,
+      decimalScale: selectedFiatCurrency.decimal_digits,
+    })
+
+    return formatted.length
+  }, [
+    amount,
+    selectedFiatCurrency.decimal_digits,
+    fiatSymbol,
+    localeParts.decimal,
+    localeParts.group,
+  ])
+
   const handleAmountChange = useCallback(
     (values: NumberFormatValues) => {
-      // Update the formatted value length
-      const newLength = values.formattedValue?.length ?? 0
-      if (newLength !== formattedValueLengthRef.current) {
-        formattedValueLengthRef.current = newLength
-        setFormattedValueLength(newLength)
-      }
-
       if (onAmountChange) {
         onAmountChange(values.value)
       }
@@ -156,9 +165,9 @@ export const FiatInput: React.FC<FiatInputProps> = ({
           {isLoading ? (
             <Skeleton height='65px' width='100%' />
           ) : (
-            <NumberFormat
+            <NumericFormat
               customInput={AmountInput}
-              isNumericString={true}
+              valueIsNumericString={true}
               readOnly={isReadOnly}
               prefix={fiatSymbol}
               decimalSeparator={localeParts.decimal}

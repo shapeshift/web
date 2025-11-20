@@ -19,7 +19,7 @@ import React, { memo, useCallback, useMemo, useRef, useState } from 'react'
 import type { ControllerRenderProps, FieldError, RegisterOptions } from 'react-hook-form'
 import { Controller, useForm, useFormContext } from 'react-hook-form'
 import type { NumberFormatValues } from 'react-number-format'
-import NumberFormat from 'react-number-format'
+import { NumericFormat } from 'react-number-format'
 import { useTranslate } from 'react-polyglot'
 
 import { usePriceImpact } from '../hooks/quoteValidation/usePriceImpact'
@@ -271,10 +271,10 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = memo(
     const renderController: RenderController = useCallback(
       ({ field: { onChange } }) => {
         return (
-          <NumberFormat
+          <NumericFormat
             customInput={AmountInput}
             decimalScale={isFiat ? undefined : asset?.precision}
-            isNumericString={true}
+            valueIsNumericString={true}
             disabled={isReadOnly}
             _disabled={numberFormatDisabled}
             suffix={isFiat ? localeParts.postfix : ''}

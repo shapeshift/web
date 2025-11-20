@@ -4,6 +4,8 @@ import { bn, bnOrZero, contractAddressOrUndefined, isToken } from '@shapeshiftos
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import { v4 as uuid } from 'uuid'
+import type { Hex } from 'viem'
+import { getAddress } from 'viem'
 
 import { getDefaultSlippageDecimalPercentageForSwapper } from '../../../constants'
 import type {
@@ -15,6 +17,7 @@ import type {
 } from '../../../types'
 import { SwapperName, TradeQuoteError } from '../../../types'
 import { makeSwapErrorRight } from '../../../utils'
+import { simulateWithStateOverrides } from '../../../utils/tenderly'
 import { isNativeEvmAsset } from '../../utils/helpers/helpers'
 import { DEFAULT_QUOTE_DEADLINE_MS, DEFAULT_SLIPPAGE_BPS } from '../constants'
 import type { QuoteResponse } from '../types'
@@ -92,21 +95,42 @@ export const getTradeRate = async (
       switch (chainNamespace) {
         case CHAIN_NAMESPACE.Evm: {
           try {
-            const sellAdapter = deps.assertGetEvmChainAdapter(sellAsset.chainId)
             const contractAddress = contractAddressOrUndefined(sellAsset.assetId)
             const data = evm.getErc20Data(depositAddress, sellAmount, contractAddress)
 
-            const feeData = await sellAdapter.getFeeData({
-              to: contractAddress ?? depositAddress,
-              value: isNativeEvmAsset(sellAsset.assetId) ? sellAmount : '0',
-              chainSpecific: {
-                from: sendAddress || depositAddress,
-                contractAddress,
-                data: data || '0x',
+            const simulationResult = await simulateWithStateOverrides(
+              {
+                chainId: sellAsset.chainId,
+                from: getAddress(sendAddress || depositAddress),
+                to: getAddress(contractAddress ?? depositAddress),
+                data: (data || '0x') as Hex,
+                value: isNativeEvmAsset(sellAsset.assetId) ? sellAmount : '0',
+                sellAsset,
               },
-              sendMax: false,
+              {
+                apiKey: deps.config.VITE_TENDERLY_API_KEY,
+                accountSlug: deps.config.VITE_TENDERLY_ACCOUNT_SLUG,
+                projectSlug: deps.config.VITE_TENDERLY_PROJECT_SLUG,
+              },
+            )
+
+            if (!simulationResult.success) {
+              return '0'
+            }
+
+            // Calculate network fee using the simulated gas limit
+            const sellAdapter = deps.assertGetEvmChainAdapter(sellAsset.chainId)
+            const { average } = await sellAdapter.getGasFeeData()
+
+            const supportsEIP1559 = 'maxFeePerGas' in average
+
+            const networkFeeCryptoBaseUnit = evm.calcNetworkFeeCryptoBaseUnit({
+              ...average,
+              supportsEIP1559,
+              gasLimit: simulationResult.gasLimit.toString(),
             })
-            return feeData.fast.txFee
+
+            return networkFeeCryptoBaseUnit
           } catch (error) {
             return '0'
           }

@@ -211,7 +211,7 @@ export default defineConfig(({ mode }) => {
         },
       },
       minify: mode === 'development' && !process.env.DEPLOY ? false : 'esbuild',
-      sourcemap: mode === 'development' && !process.env.DEPLOY ? 'inline' : true,
+      sourcemap: mode === 'development' && !process.env.DEPLOY ? 'inline' : false,
       outDir: 'build',
     },
   }

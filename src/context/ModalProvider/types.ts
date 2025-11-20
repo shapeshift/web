@@ -27,7 +27,6 @@ export type Modals = {
   keepKeyWipe: FC
   backupNativePassphrase: FC<BackupPassphraseModalProps>
   mobileWelcomeModal: FC
-  addAccount: FC
   assetSearch: FC<AssetSearchModalProps>
   buyAssetSearch: FC<AssetSearchModalProps>
   sellAssetSearch: FC<AssetSearchModalProps>

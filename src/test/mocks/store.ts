@@ -125,10 +125,11 @@ export const mockStore: ReduxState = {
       ThorchainLpDeposit: false,
       ThorchainLpWithdraw: false,
       LedgerWallet: false,
+      TrezorWallet: false,
+      VultisigWallet: false,
+      GridPlusWallet: false,
       ThorchainSwapLongtail: false,
       ThorchainSwapL1ToLongtail: false,
-      AccountManagement: false,
-      AccountManagementLedger: false,
       RFOX: false,
       RFOX_LP: false,
       CustomTokenImport: false,
@@ -365,6 +366,21 @@ export const mockStore: ReduxState = {
     walletDeviceId: null,
     nativeWalletName: null,
     rdns: null,
+  },
+  gridplus: {
+    _persist: {
+      version: 0,
+      rehydrated: false,
+    },
+    connection: {
+      physicalDeviceId: null,
+      sessionId: null,
+    },
+    safecards: {
+      byId: {},
+      ids: [],
+      activeId: null,
+    },
   },
   addressBook: {
     _persist: {

@@ -1,6 +1,7 @@
 import { bchAssetId, CHAIN_NAMESPACE, fromAccountId, fromChainId } from '@shapeshiftoss/caip'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
+import { isTrezor } from '@shapeshiftoss/hdwallet-trezor'
 import type { SupportedTradeQuoteStepIndex } from '@shapeshiftoss/swapper'
 import {
   getHopByIndex,
@@ -95,7 +96,11 @@ export const useTradeNetworkFeeCryptoBaseUnit = ({
               case CHAIN_NAMESPACE.Evm: {
                 if (!swapper.getEvmTransactionFees) throw Error('missing getEvmTransactionFees')
                 const adapter = assertGetEvmChainAdapter(stepSellAssetChainId)
-                const from = await adapter.getAddress({ accountNumber, wallet })
+                const from = await adapter.getAddress({
+                  accountNumber,
+                  wallet,
+                  pubKey: wallet && (isLedger(wallet) || isTrezor(wallet)) ? pubKey : undefined,
+                })
                 const supportsEIP1559 = supportsETH(wallet) && (await wallet.ethSupportsEIP1559())
 
                 const output = await swapper.getEvmTransactionFees({
@@ -122,7 +127,7 @@ export const useTradeNetworkFeeCryptoBaseUnit = ({
                   accountNumber,
                   accountType,
                   wallet,
-                  ...(isLedger(wallet) ? { pubKey } : {}),
+                  ...(isLedger(wallet) || isTrezor(wallet) ? { pubKey } : {}),
                 })
                 const senderAddress =
                   stepSellAssetAssetId === bchAssetId
@@ -150,7 +155,7 @@ export const useTradeNetworkFeeCryptoBaseUnit = ({
                 const from = await adapter.getAddress({
                   accountNumber,
                   wallet,
-                  ...(isLedger(wallet) ? { pubKey } : {}),
+                  ...(isLedger(wallet) || isTrezor(wallet) ? { pubKey } : {}),
                 })
 
                 const output = await swapper.getCosmosSdkTransactionFees({
@@ -172,7 +177,7 @@ export const useTradeNetworkFeeCryptoBaseUnit = ({
                 const from = await adapter.getAddress({
                   accountNumber,
                   wallet,
-                  ...(isLedger(wallet) ? { pubKey } : {}),
+                  ...(isLedger(wallet) || isTrezor(wallet) ? { pubKey } : {}),
                 })
 
                 const output = await swapper.getSolanaTransactionFees({

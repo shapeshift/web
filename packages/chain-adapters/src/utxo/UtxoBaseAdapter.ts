@@ -391,11 +391,14 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
 
   async buildSendTransaction(input: BuildSendTxInput<T>): Promise<{ txToSign: SignTx<T> }> {
     try {
-      const { wallet, accountNumber, chainSpecific } = input
+      const { wallet, accountNumber, chainSpecific, pubKey } = input
 
       this.assertSupportsChain(wallet)
 
-      const { xpub } = await this.getPublicKey(wallet, accountNumber, chainSpecific.accountType)
+      const xpub = await (async () => {
+        if (pubKey) return pubKey
+        return (await this.getPublicKey(wallet, accountNumber, chainSpecific.accountType)).xpub
+      })()
       const txToSign = await this.buildSendApiTransaction({ ...input, xpub })
 
       return { txToSign }

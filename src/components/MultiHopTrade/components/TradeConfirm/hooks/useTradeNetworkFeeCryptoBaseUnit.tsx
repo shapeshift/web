@@ -122,7 +122,10 @@ export const useTradeNetworkFeeCryptoBaseUnit = ({
                 if (accountType === undefined) throw Error('Missing UTXO account type')
 
                 const adapter = assertGetUtxoChainAdapter(stepSellAssetChainId)
-                const { xpub } = await adapter.getPublicKey(wallet, accountNumber, accountType)
+                const xpub =
+                  wallet && isTrezor(wallet)
+                    ? fromAccountId(sellAssetAccountId).account
+                    : (await adapter.getPublicKey(wallet, accountNumber, accountType)).xpub
                 const _senderAddress = await adapter.getAddress({
                   accountNumber,
                   accountType,

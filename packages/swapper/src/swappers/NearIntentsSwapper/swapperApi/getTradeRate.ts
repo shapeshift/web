@@ -84,14 +84,12 @@ export const getTradeRate = async (
         : QuoteRequest.recipientType.INTENTS,
       deadline: new Date(Date.now() + DEFAULT_QUOTE_DEADLINE_MS).toISOString(),
       referral: 'shapeshift',
-      appFees: affiliateBps
-        ? [
-            {
-              recipient: DAO_TREASURY_NEAR,
-              fee: Number(affiliateBps),
-            },
-          ]
-        : undefined,
+      appFees: [
+        {
+          recipient: DAO_TREASURY_NEAR,
+          fee: Number(affiliateBps),
+        },
+      ],
     }
 
     const quoteResponse: QuoteResponse = await OneClickService.getQuote(quoteRequest)

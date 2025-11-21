@@ -14,6 +14,7 @@ import { MobileUserHeader } from './MobileUserHeader'
 
 import { Display } from '@/components/Display'
 import { GlobalSearchModal } from '@/components/Layout/Header/GlobalSearch/GlobalSearchModal'
+import { MobileWalletDialogRoutes } from '@/components/MobileWalletDialog/types'
 import { useModal } from '@/hooks/useModal/useModal'
 import { isMobile as isMobileApp } from '@/lib/globals'
 
@@ -171,7 +172,8 @@ export const DashboardHeader = memo(() => {
   }, [isOpen, onClose])
 
   const handleUserHeaderClick = useCallback(() => {
-    if (isMobileApp) return mobileWalletDialog.open({})
+    if (isMobileApp)
+      return mobileWalletDialog.open({ defaultRoute: MobileWalletDialogRoutes.Saved })
 
     onOpen()
   }, [mobileWalletDialog, onOpen])

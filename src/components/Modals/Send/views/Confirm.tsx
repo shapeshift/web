@@ -18,7 +18,6 @@ import {
 import { CHAIN_NAMESPACE, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import type { FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
-import { isTrezor } from '@shapeshiftoss/hdwallet-trezor'
 import type { ChangeEvent } from 'react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useFormContext, useWatch } from 'react-hook-form'
@@ -237,7 +236,7 @@ export const Confirm = ({ handleSubmit }: ConfirmProps) => {
         assetId &&
           fromAssetId(assetId).chainNamespace === CHAIN_NAMESPACE.Utxo &&
           wallet &&
-          (isLedger(wallet) || isTrezor(wallet)),
+          isLedger(wallet),
       ),
     [assetId, wallet],
   )

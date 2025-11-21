@@ -9,15 +9,7 @@ type DialogFooterProps = FlexProps
 export const DialogFooter: React.FC<DialogFooterProps> = props => {
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
   if (isMobile || !isLargerThanMd) {
-    return (
-      <Flex
-        px={4}
-        pb='calc(env(safe-area-inset-bottom) + 1rem + var(--safe-area-inset-bottom))'
-        alignItems='center'
-        mt='auto'
-        {...props}
-      />
-    )
+    return <Flex px={4} alignItems='center' mt='auto' {...props} />
   }
   return <ModalFooter {...props} />
 }

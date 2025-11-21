@@ -87,6 +87,7 @@ const DialogWindow: React.FC<DialogProps> = ({
         : 'calc(100% - env(safe-area-inset-top) - var(--safe-area-inset-top))',
       height: isFullScreen ? viewportHeight : height || '80vh',
       paddingTop: isFullScreen ? 'calc(env(safe-area-inset-top) + var(--safe-area-inset-top))' : 0,
+      paddingBottom: 'calc(env(safe-area-inset-bottom) + 1rem + var(--safe-area-inset-bottom))',
     }
   }, [height, isFullScreen, viewportHeight])
 

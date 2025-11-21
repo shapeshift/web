@@ -103,6 +103,7 @@ export const getTradeQuote = async (
       recipient: receiveAddress,
       recipientType: QuoteRequest.recipientType.DESTINATION_CHAIN,
       deadline: new Date(Date.now() + DEFAULT_QUOTE_DEADLINE_MS).toISOString(),
+      referral: 'shapeshift',
       appFees: affiliateBps
         ? [
             {

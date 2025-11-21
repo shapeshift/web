@@ -83,6 +83,7 @@ export const getTradeRate = async (
         ? QuoteRequest.recipientType.DESTINATION_CHAIN
         : QuoteRequest.recipientType.INTENTS,
       deadline: new Date(Date.now() + DEFAULT_QUOTE_DEADLINE_MS).toISOString(),
+      referral: 'shapeshift',
       appFees: affiliateBps
         ? [
             {

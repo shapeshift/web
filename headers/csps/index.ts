@@ -54,6 +54,7 @@ import { csp as shapeshiftGateway } from './shapeshiftGateway'
 import { csp as shapeshiftProxy } from './shapeshiftProxy'
 import { csp as snapshots } from './snapshots'
 import { csp as tenderly } from './tenderly'
+import { csp as trezor } from './trezor'
 import { csp as coinbase } from './wallets/coinbase'
 import { csp as gridplus } from './wallets/gridplus'
 import { csp as keepkey } from './wallets/keepkey'
@@ -73,6 +74,7 @@ export const csps = [
   interFont,
   jupiter,
   ledger,
+  trezor,
   mercle,
   mixPanel,
   sentry,

@@ -1,6 +1,7 @@
 import { isGridPlus } from '@shapeshiftoss/hdwallet-gridplus'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import { MetaMaskMultiChainHDWallet } from '@shapeshiftoss/hdwallet-metamask-multichain'
+import { isTrezor } from '@shapeshiftoss/hdwallet-trezor'
 import type { AccountMetadataById } from '@shapeshiftoss/types'
 import { useQueries } from '@tanstack/react-query'
 import { useMemo } from 'react'
@@ -23,7 +24,7 @@ export const useDiscoverAccounts = () => {
   const connectedRdns = useAppSelector(selectWalletRdns)
 
   const shouldSkipAutoDiscovery = useMemo(() => {
-    return wallet && (isLedger(wallet) || isGridPlus(wallet))
+    return wallet && (isLedger(wallet) || isGridPlus(wallet) || isTrezor(wallet))
   }, [wallet])
 
   const supportedChainIds = useMemo(() => {

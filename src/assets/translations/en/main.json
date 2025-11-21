@@ -1499,6 +1499,20 @@
       "connectWarning": "Before connecting a chain, make sure you have the app open on your device.",
       "signWarning": "Before signing, make sure you have the %{chain} app open on your device."
     },
+    "trezor": {
+      "verify": {
+        "confirmOnDevice": "Confirm on device",
+        "addressMismatch": "Address mismatch. Please check you have the correct device connected and try again."
+      },
+      "errors": {
+        "unknown": "An unexpected error occurred communicating with Trezor wallet"
+      },
+      "connect": {
+        "header": "Pair Trezor",
+        "body": "Connect your Trezor device and click Pair",
+        "button": "Pair"
+      }
+    },
     "mipd": {
       "connect": {
         "header": "Pair %{name}",

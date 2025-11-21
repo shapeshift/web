@@ -2,7 +2,12 @@ import { useMemo } from 'react'
 
 import { useKeepKeyVersions } from '@/context/WalletProvider/KeepKey/hooks/useKeepKeyVersions'
 import { useWallet } from '@/hooks/useWallet/useWallet'
-import { isGridPlusHDWallet, isKeepKeyHDWallet, isNativeHDWallet } from '@/lib/utils'
+import {
+  isGridPlusHDWallet,
+  isKeepKeyHDWallet,
+  isNativeHDWallet,
+  isTrezorHDWallet,
+} from '@/lib/utils'
 
 export const useIsWalletConnectToDappsSupportedWallet = () => {
   const {
@@ -21,6 +26,8 @@ export const useIsWalletConnectToDappsSupportedWallet = () => {
       case isKeepKeyHDWallet(wallet): {
         return isEIP712SupportedFirmwareVersion
       }
+      case isTrezorHDWallet(wallet):
+        return true
       default:
         return false
     }

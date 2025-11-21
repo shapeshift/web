@@ -181,6 +181,41 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SolanaMainnet> 
     }
   }
 
+  async getAddresses(wallet: HDWallet, accountNumbers: number[]): Promise<Record<number, string>> {
+    try {
+      if (!wallet) throw new Error('wallet is required')
+      this.assertSupportsChain(wallet)
+
+      await verifyLedgerAppOpen(this.chainId, wallet)
+
+      // Check if wallet supports batch address derivation (Trezor currently, but any wallet could implement solanaGetAddresses)
+      if (wallet.solanaGetAddresses) {
+        const msgs = accountNumbers.map(accountNumber => ({
+          addressNList: toAddressNList(this.getBip44Params({ accountNumber })),
+          showDisplay: false,
+        }))
+
+        const addresses = await wallet.solanaGetAddresses(msgs)
+        return Object.fromEntries(
+          accountNumbers.map((accountNumber, i) => [accountNumber, addresses[i]]),
+        )
+      }
+
+      // Fallback for wallets without batch support
+      const addresses = await Promise.all(
+        accountNumbers.map(accountNumber => this.getAddress({ accountNumber, wallet })),
+      )
+
+      return Object.fromEntries(
+        accountNumbers.map((accountNumber, i) => [accountNumber, addresses[i]]),
+      )
+    } catch (err) {
+      return ErrorHandler(err, {
+        translation: 'chainAdapters.errors.getAddress',
+      })
+    }
+  }
+
   async getAccount(pubkey: string): Promise<Account<KnownChainIds.SolanaMainnet>> {
     try {
       const data = await this.providers.http.getAccount({ pubkey })
@@ -304,7 +339,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SolanaMainnet> 
       const from = await this.getAddress(input)
       const txToSign = await this.buildSendApiTransaction({ ...input, from })
 
-      return { txToSign }
+      return { txToSign: { ...txToSign, ...(input.pubKey ? { pubKey: input.pubKey } : {}) } }
     } catch (err) {
       return ErrorHandler(err, {
         translation: 'chainAdapters.errors.buildTransaction',

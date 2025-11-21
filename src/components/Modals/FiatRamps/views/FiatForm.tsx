@@ -2,6 +2,7 @@ import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { ethAssetId, fromAccountId } from '@shapeshiftoss/caip'
 import { isGridPlus } from '@shapeshiftoss/hdwallet-gridplus'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
+import { isTrezor } from '@shapeshiftoss/hdwallet-trezor'
 import type { Asset, PartialRecord } from '@shapeshiftoss/types'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useSelector } from 'react-redux'
@@ -84,7 +85,7 @@ export const FiatForm: React.FC<FiatFormProps> = ({
           const accountMetadata = portfolioAccountMetadata[accountId]
           const { accountType, bip44Params } = accountMetadata
           const { accountNumber } = bip44Params
-          const skipDeviceDerivation = isLedger(wallet) || isGridPlus(wallet)
+          const skipDeviceDerivation = isLedger(wallet) || isGridPlus(wallet) || isTrezor(wallet)
           const payload = {
             accountType,
             accountNumber,

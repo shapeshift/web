@@ -7,6 +7,7 @@ import { toAddressNList } from '@shapeshiftoss/chain-adapters'
 import type { ETHSignedTypedData, HDWallet } from '@shapeshiftoss/hdwallet-core'
 import type { KeepKeyHDWallet } from '@shapeshiftoss/hdwallet-keepkey'
 import type { NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
+import { isTrezor } from '@shapeshiftoss/hdwallet-trezor'
 import type { AccountMetadata } from '@shapeshiftoss/types'
 import { getSdkError } from '@walletconnect/utils'
 
@@ -89,7 +90,11 @@ export const approveEIP155Request = async ({
       const didUserChangeNonce =
         maybeAdvancedParamsNonce && maybeAdvancedParamsNonce !== sendTransaction.nonce
       const fees = await getFeesForTx(sendTransaction, chainAdapter, accountId)
-      const senderAddress = await chainAdapter.getAddress({ accountNumber, wallet })
+      const senderAddress = await chainAdapter.getAddress({
+        accountNumber,
+        wallet,
+        pubKey: isTrezor(wallet) && accountId ? fromAccountId(accountId).account : undefined,
+      })
       const gasData = getGasData(customTransactionData, fees)
       const gasLimit = (() => {
         if (customTransactionData.gasLimit) return customTransactionData.gasLimit
@@ -110,6 +115,7 @@ export const approveEIP155Request = async ({
         // https://docs.walletconnect.com/2.0/advanced/rpc-reference/ethereum-rpc#eth_sendtransaction
         gasLimit,
         ...gasData,
+        pubKey: isTrezor(wallet) && accountId ? fromAccountId(accountId).account : undefined,
       })
       const txToSign = {
         ...txToSignWithPossibleWrongNonce,

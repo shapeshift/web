@@ -105,7 +105,9 @@ export const ReceiveInfo = ({ asset, accountId, onBack }: ReceivePropsType) => {
       if (!accountMetadata) return
       setIsAddressLoading(true)
       const skipDeviceDerivation =
-        (walletType === KeyManager.Ledger || walletType === KeyManager.GridPlus) &&
+        (walletType === KeyManager.Ledger ||
+          walletType === KeyManager.GridPlus ||
+          walletType === KeyManager.Trezor) &&
         selectedAccountId
       const selectedAccountAddress = await getReceiveAddress({
         asset,

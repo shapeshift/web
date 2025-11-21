@@ -50,6 +50,7 @@ const slideStyle = {
 }
 
 export const TopAssetsCarousel = () => {
+  'use no memo'
   const dispatch = useAppDispatch()
   const [isSmallerThanMd] = useMediaQuery(`(max-width: ${breakpoints.md})`, { ssr: false })
   const hasUserEnteredAmount = useAppSelector(selectHasUserEnteredAmount)

@@ -52,6 +52,7 @@ import { useAppDispatch, useAppSelector } from '@/state/store'
 type ConfirmProps = { accountId: AccountId | undefined } & StepComponentProps
 
 export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
+  'use no memo'
   const { state, dispatch } = useContext(WithdrawContext)
   const translate = useTranslate()
   const navigate = useNavigate()
@@ -169,7 +170,6 @@ export const Confirm: React.FC<ConfirmProps> = ({ accountId, onNext }) => {
 
           return (
             <GenericTransactionNotification
-              // eslint-disable-next-line react-memo/require-usememo
               handleClick={handleClick}
               actionId={txid}
               onClose={onClose}

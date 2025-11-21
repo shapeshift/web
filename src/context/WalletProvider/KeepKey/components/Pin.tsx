@@ -172,7 +172,6 @@ export const KeepKeyPin = ({
             size={'lg'}
             p={8}
             // we need to pass an arg here, so we need an anonymous function wrapper
-            // eslint-disable-next-line react-memo/require-usememo
             onClick={() => {
               handlePinPress(number)
               setIsPinEmpty(!pinFieldRef.current?.value)
@@ -192,7 +191,6 @@ export const KeepKeyPin = ({
         autoComplete='one-time-code'
         onKeyDown={handleKeyboardInput}
         // we need to pass an arg here, so we need an anonymous function wrapper
-        // eslint-disable-next-line react-memo/require-usememo
         onKeyUp={() => setIsPinEmpty(!pinFieldRef.current?.value)}
       />
       {error && (

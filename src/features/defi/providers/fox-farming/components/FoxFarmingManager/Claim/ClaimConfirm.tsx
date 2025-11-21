@@ -65,6 +65,7 @@ type ClaimConfirmProps = {
 }
 
 export const ClaimConfirm = ({ accountId, assetId, amount, onBack }: ClaimConfirmProps) => {
+  'use no memo'
   const [estimatedGas, setEstimatedGas] = useState<string>('0')
   const [loading, setLoading] = useState<boolean>(false)
   const [canClaim, setCanClaim] = useState<boolean>(false)
@@ -171,7 +172,6 @@ export const ClaimConfirm = ({ accountId, assetId, amount, onBack }: ClaimConfir
 
           return (
             <GenericTransactionNotification
-              // eslint-disable-next-line react-memo/require-usememo
               handleClick={handleClick}
               actionId={txid}
               onClose={onClose}

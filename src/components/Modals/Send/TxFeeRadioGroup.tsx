@@ -111,7 +111,6 @@ export const TxFeeRadioGroup = ({ fees }: TxFeeRadioGroupProps) => {
             width='full'
             height='auto'
             // we need to pass an arg here, so we need an anonymous function wrapper
-            // eslint-disable-next-line react-memo/require-usememo
             onClick={() => field.onChange(key)}
             isActive={activeFee === key}
           >

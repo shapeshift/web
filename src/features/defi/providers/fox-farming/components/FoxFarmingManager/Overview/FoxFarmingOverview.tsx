@@ -50,6 +50,7 @@ export const FoxFarmingOverview: React.FC<FoxFarmingOverviewProps> = ({
   accountId,
   onAccountIdChange: handleAccountIdChange,
 }) => {
+  'use no memo'
   const translate = useTranslate()
   const navigate = useNavigate()
 

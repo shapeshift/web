@@ -44,6 +44,7 @@ export const Stake: React.FC<TCYRouteProps & { currentAccount: CurrentAccount }>
   headerComponent,
   currentAccount,
 }) => {
+  'use no memo'
   const accountId = currentAccount.accountId ?? ''
 
   const methods = useForm<StakeFormValues>({

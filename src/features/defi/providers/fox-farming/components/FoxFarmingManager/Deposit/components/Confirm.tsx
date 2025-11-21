@@ -54,6 +54,7 @@ export const Confirm: React.FC<StepComponentProps & { accountId: AccountId | und
   accountId,
   onNext,
 }) => {
+  'use no memo'
   const { state, dispatch } = useContext(DepositContext)
   const translate = useTranslate()
   const navigate = useNavigate()
@@ -177,7 +178,6 @@ export const Confirm: React.FC<StepComponentProps & { accountId: AccountId | und
 
           return (
             <GenericTransactionNotification
-              // eslint-disable-next-line react-memo/require-usememo
               handleClick={handleClick}
               actionId={txid}
               onClose={onClose}

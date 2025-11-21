@@ -50,6 +50,7 @@ export const ExpiredWithdraw: React.FC<ExpiredWithdrawProps> = ({
   onAccountIdChange: handleAccountIdChange,
   onNext,
 }) => {
+  'use no memo'
   const { state, dispatch } = useContext(WithdrawContext)
   const navigate = useNavigate()
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()

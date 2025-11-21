@@ -62,7 +62,6 @@ export const Languages = ({ isDrawer = false }: MaybeDrawerProps) => {
           key={locale.key}
           variant='ghost'
           data-test={`locale-${locale.key}-button`}
-          // eslint-disable-next-line react-memo/require-usememo
           onClick={() => {
             dispatch(preferences.actions.setSelectedLocale({ locale: locale.key }))
           }}

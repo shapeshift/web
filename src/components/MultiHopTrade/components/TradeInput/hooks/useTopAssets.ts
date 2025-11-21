@@ -33,6 +33,7 @@ export const useTopAssets = ({
   selectedSort,
   selectedChainId,
 }: UseTopAssetsParams): UseTopAssetsReturn => {
+  'use no memo'
   const assetsById = useAppSelector(selectAssets)
   const rows = useRows({ limit: TOP_ASSETS_LIMIT })
 

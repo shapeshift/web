@@ -151,7 +151,6 @@ export const NativeTestPhrase = () => {
                       size='md'
                       colorScheme={testState.selectedWords[i] === word ? 'blue' : 'gray'}
                       // Can't memo this as it contains parameters
-                      // eslint-disable-next-line react-memo/require-usememo
                       onClick={() => handleSelect(i, index)}
                       px={4}
                       py={2}

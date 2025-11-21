@@ -81,6 +81,7 @@ export const useSendThorTx = ({
   memo: _memo,
   dustAmountCryptoBaseUnit: _dustAmountCryptoBaseUnit,
 }: UseSendThorTxProps) => {
+  'use no memo'
   const [txId, setTxId] = useState<string | null>(null)
   const [serializedTxIndex, setSerializedTxIndex] = useState<string | null>(null)
 

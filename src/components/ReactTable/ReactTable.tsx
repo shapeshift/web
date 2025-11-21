@@ -84,6 +84,7 @@ const RowWrap = <T extends {}>({
   renderSubComponent?: (row: Row<T>) => React.ReactNode
   visibleColumns: ColumnInstance<T>[]
 }) => {
+  'use no memo'
   const handleClick = useCallback(() => {
     onRowClick?.(row)
   }, [onRowClick, row])
@@ -146,6 +147,7 @@ export const ReactTable = <T extends {}>({
   showPagination = true,
   onPageChange,
 }: ReactTableProps<T>) => {
+  'use no memo'
   const translate = useTranslate()
   const tableRef = useRef<HTMLTableElement | null>(null)
   const hoverColor = useColorModeValue('black', 'white')
@@ -236,7 +238,6 @@ export const ReactTable = <T extends {}>({
                   textAlign={column.textAlign}
                   display={column.display}
                   // we need to pass an arg here, so we need an anonymous function wrapper
-                  // eslint-disable-next-line react-memo/require-usememo
                   _hover={{ color: column.canSort ? hoverColor : 'text.subtle' }}
                 >
                   <Flex justifyContent={column.justifyContent} alignItems={column.alignItems}>

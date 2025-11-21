@@ -178,7 +178,6 @@ export const NativeLoad = () => {
                   pl={4}
                   leftIcon={walletButtonLeftIcon}
                   // we need to pass a local scope arg here, so we need an anonymous function wrapper
-                  // eslint-disable-next-line react-memo/require-usememo
                   onClick={() => handleWalletSelect(wallet)}
                   data-test='native-saved-wallet-button'
                 >
@@ -198,7 +197,6 @@ export const NativeLoad = () => {
                       lineHeight='1.2'
                       color='text.subtle'
                       // we need to pass a local scope arg here, so we need an anonymous function wrapper
-                      // eslint-disable-next-line react-memo/require-usememo
                       translation={['common.created', { date: dayjs(wallet.createdAt).fromNow() }]}
                     />
                   </Box>
@@ -209,7 +207,6 @@ export const NativeLoad = () => {
                     variant='ghost'
                     icon={editIcon}
                     // we need to pass a local scope arg here, so we need an anonymous function wrapper
-                    // eslint-disable-next-line react-memo/require-usememo
                     onClick={() => handleRename(wallet)}
                   />
                   <IconButton
@@ -217,7 +214,6 @@ export const NativeLoad = () => {
                     variant='ghost'
                     icon={deleteIcon}
                     // we need to pass a local scope arg here, so we need an anonymous function wrapper
-                    // eslint-disable-next-line react-memo/require-usememo
                     onClick={() => handleDelete(wallet)}
                   />
                 </Box>

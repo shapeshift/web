@@ -317,7 +317,6 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
             }
             return (
               <GenericTransactionNotification
-                // eslint-disable-next-line react-memo/require-usememo
                 handleClick={handleClick}
                 actionId={action.id}
                 onClose={onClose}
@@ -532,7 +531,6 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
             }
             return (
               <GenericTransactionNotification
-                // eslint-disable-next-line react-memo/require-usememo
                 handleClick={handleClick}
                 actionId={_txId}
                 onClose={onClose}
@@ -591,7 +589,6 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
             }
             return (
               <GenericTransactionNotification
-                // eslint-disable-next-line react-memo/require-usememo
                 handleClick={handleClick}
                 actionId={_txId}
                 onClose={onClose}

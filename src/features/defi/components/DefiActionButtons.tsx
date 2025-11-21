@@ -51,7 +51,6 @@ export const DefiActionButtons: React.FC<DefiActionButtonProps> = ({ menu }) => 
           <Button
             width='full'
             // we need to pass an arg here, so we need an anonymous function wrapper
-            // eslint-disable-next-line react-memo/require-usememo
             onClick={() => handleClick(action)}
             leftIcon={icon}
             isDisabled={isDisabled}

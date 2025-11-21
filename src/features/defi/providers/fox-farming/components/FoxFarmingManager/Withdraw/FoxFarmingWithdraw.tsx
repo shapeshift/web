@@ -39,6 +39,7 @@ export const FoxFarmingWithdraw: React.FC<FoxFarmingWithdrawProps> = ({
   accountId,
   onAccountIdChange: handleAccountIdChange,
 }) => {
+  'use no memo'
   const [state, dispatch] = useReducer(reducer, initialState)
   const translate = useTranslate()
   const { query, location } = useBrowserRouter<DefiQueryParams, DefiParams>()

@@ -106,6 +106,7 @@ export const Withdraw: React.FC<WithdrawProps> = ({
   inputDefaultValue,
   inputChildren,
 }) => {
+  'use no memo'
   const translate = useTranslate()
   const {
     control,

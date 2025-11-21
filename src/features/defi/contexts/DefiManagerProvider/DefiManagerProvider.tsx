@@ -12,6 +12,7 @@ Cosmos modals are not part of this provider, those can be found under plugins/co
 Cosmos modals are opened via AllEarnOpportunities component (TODO : refactor the modals in order to use them in this file)
 */
 export const DefiManagerProvider = memo(({ children }: DefiManagerProviderProps) => {
+  'use no memo'
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { type, provider } = query
 

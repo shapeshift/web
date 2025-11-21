@@ -77,7 +77,6 @@ export function TokenRow<C extends FieldValues>({
           value={value}
           disabled={disabled}
           // this is already within a useCallback, we don't need to memo this
-          // eslint-disable-next-line react-memo/require-usememo
           onValueChange={e => {
             onChange(e.value)
             if (onInputChange && e.value !== value) onInputChange(e.value)

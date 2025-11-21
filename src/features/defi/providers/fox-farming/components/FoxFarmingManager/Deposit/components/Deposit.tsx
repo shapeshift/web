@@ -48,6 +48,7 @@ export const Deposit: React.FC<DepositProps> = ({
   onAccountIdChange: handleAccountIdChange,
   onNext,
 }) => {
+  'use no memo'
   const [lpTokenPrice, setLpTokenPrice] = useState<string | null>(null)
   const { state, dispatch } = useContext(DepositContext)
   const translate = useTranslate()

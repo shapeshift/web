@@ -40,7 +40,6 @@ export const MipdRoutes = ({
           key={keyManager}
           path={`/${keyManager.toLowerCase()}/connect`}
           // This is already within a useMemo call, lint rule drunk
-          // eslint-disable-next-line react-memo/require-usememo
           element={
             <FirstClassBody
               keyManager={keyManager}

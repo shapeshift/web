@@ -234,7 +234,6 @@ export const LimitOrderConfig = ({
           </Flex>
           <Text
             pl={7}
-            // eslint-disable-next-line react-memo/require-usememo
             translation={[
               'limitOrder.warnings.limitPriceIsPercentLowerThanMarket',
               {

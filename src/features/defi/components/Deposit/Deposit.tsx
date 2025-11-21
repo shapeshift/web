@@ -89,6 +89,7 @@ export const Deposit = ({
   rewardAsset,
   children,
 }: DepositProps) => {
+  'use no memo'
   const translate = useTranslate()
   const green = useColorModeValue('green.500', 'green.200')
 

@@ -193,7 +193,7 @@
     "react-icons": "^5.5.0",
     "react-intersection-observer": "^9.13.1",
     "react-multi-ref": "^1.0.1",
-    "react-number-format": "^4.9.3",
+    "react-number-format": "^5.4.4",
     "react-polyglot": "^0.7.2",
     "react-qrcode-logo": "^4.0.0",
     "react-redux": "^9.2.0",

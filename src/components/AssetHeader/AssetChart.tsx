@@ -13,7 +13,7 @@ import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import type { HistoryTimeframe } from '@shapeshiftoss/types'
 import type { Property } from 'csstype'
 import { useCallback, useMemo, useState } from 'react'
-import NumberFormat from 'react-number-format'
+import { NumericFormat } from 'react-number-format'
 import { useTranslate } from 'react-polyglot'
 
 import { AssetActions } from './AssetActions'
@@ -99,11 +99,11 @@ export const AssetChart = ({ accountId, assetId, isLoaded }: AssetChartProps) =>
         </Flex>
       )
     return (
-      <NumberFormat
+      <NumericFormat
         value={assetPrice}
         displayType={'text'}
         thousandSeparator={true}
-        isNumericString={true}
+        valueIsNumericString={true}
       />
     )
   }, [asset?.name, assetPrice, marketData, translate])

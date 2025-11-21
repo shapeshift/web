@@ -5,7 +5,7 @@ import type { Control, ControllerRenderProps, FieldValues, Path } from 'react-ho
 import { Controller } from 'react-hook-form'
 import { TbSwitchVertical } from 'react-icons/tb'
 import type { NumberFormatValues } from 'react-number-format'
-import NumberFormat from 'react-number-format'
+import { NumericFormat } from 'react-number-format'
 
 import { Amount } from '../Amount/Amount'
 
@@ -101,9 +101,9 @@ export const CryptoFiatInput = <T extends FieldValues = FieldValues>({
   const renderController = useCallback(
     ({ field: { onChange, value } }: { field: ControllerRenderProps<T, Path<T>> }) => {
       return (
-        <NumberFormat
+        <NumericFormat
           customInput={AmountInput}
-          isNumericString={true}
+          valueIsNumericString={true}
           decimalScale={isFiat ? localeParts.fraction : asset.precision}
           inputMode='decimal'
           thousandSeparator={localeParts.group}

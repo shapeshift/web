@@ -6,7 +6,7 @@ import type { PropsWithChildren } from 'react'
 import React, { useCallback, useMemo, useRef, useState } from 'react'
 import type { FieldError } from 'react-hook-form'
 import type { NumberFormatValues } from 'react-number-format'
-import NumberFormat from 'react-number-format'
+import { NumericFormat } from 'react-number-format'
 import { useTranslate } from 'react-polyglot'
 
 import { Balance } from './Balance'
@@ -182,10 +182,10 @@ export const AssetInput: React.FC<AssetInputProps> = ({
         </Button>
         <Stack spacing={0} flex={1} alignItems='flex-end'>
           <Skeleton isLoaded={!showInputSkeleton} width='full'>
-            <NumberFormat
+            <NumericFormat
               decimalScale={isFiat ? undefined : asset?.precision}
               customInput={CryptoInput}
-              isNumericString={true}
+              valueIsNumericString={true}
               disabled={isReadOnly}
               suffix={isFiat ? localeParts.postfix : ''}
               prefix={isFiat ? localeParts.prefix : ''}

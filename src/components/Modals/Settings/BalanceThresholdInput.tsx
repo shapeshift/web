@@ -3,7 +3,7 @@ import { Icon, Input, InputGroup, InputLeftElement, useColorModeValue } from '@c
 import { useCallback } from 'react'
 import { FaGreaterThanEqual } from 'react-icons/fa'
 import type { NumberFormatValues } from 'react-number-format'
-import NumberFormat from 'react-number-format'
+import { NumericFormat } from 'react-number-format'
 
 import { useLocaleFormatter } from '@/hooks/useLocaleFormatter/useLocaleFormatter'
 import {
@@ -44,13 +44,13 @@ export const BalanceThresholdInput = () => {
       <InputLeftElement fontSize='12px' height='100%' pointerEvents='none'>
         <Icon as={FaGreaterThanEqual} color={useColorModeValue('blue.500', 'blue.300')} />
       </InputLeftElement>
-      <NumberFormat
+      <NumericFormat
         inputMode='decimal'
         thousandSeparator={localeParts.group}
         decimalSeparator={localeParts.decimal}
         customInput={InputComponent}
         allowedDecimalSeparators={allowedDecimalSeparators}
-        isNumericString={true}
+        valueIsNumericString={true}
         value={balanceThresholdUserCurrency}
         prefix={localeParts.prefix}
         onValueChange={handleChange}

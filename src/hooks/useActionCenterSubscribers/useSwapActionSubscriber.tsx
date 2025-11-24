@@ -255,6 +255,15 @@ export const useSwapActionSubscriber = () => {
           }),
         )
 
+        if (
+          !hasSeenRatingModal &&
+          mobileFeaturesCompatibility[MobileFeature.RatingModal].isCompatible &&
+          isAppRatingEnabled
+        ) {
+          openRatingModal({})
+          handleHasSeenRatingModal()
+        }
+
         if (toast.isActive(swap.id)) return
 
         toast({
@@ -278,15 +287,6 @@ export const useSwapActionSubscriber = () => {
             )
           },
         })
-
-        if (
-          !hasSeenRatingModal &&
-          mobileFeaturesCompatibility[MobileFeature.RatingModal].isCompatible &&
-          isAppRatingEnabled
-        ) {
-          openRatingModal({})
-          handleHasSeenRatingModal()
-        }
 
         return
       }

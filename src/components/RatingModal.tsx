@@ -121,6 +121,14 @@ export const RatingModal = () => {
         close()
       }
 
+      // Remove me when we get back the feedback gathering feature on
+      toast({
+        title: translate('common.feedbackSubmitted'),
+        description: translate('common.thankYouForYourFeedback'),
+        status: 'success',
+      })
+      close()
+
       setRating(newRating)
     },
     [close, toast, translate, mixpanel],
@@ -130,54 +138,45 @@ export const RatingModal = () => {
     setFeedback(value)
   }, [])
 
-  const handleSubmit = useCallback(() => {
-    // We disabled that for now as we need a proxy to send the feedback to the Discord webhook
-    // using authentication so we ensure the feedback is coming from a legitimate user
-    // const stars = '⭐'.repeat(rating) + '☆'.repeat(5 - rating)
-    // const ratingText = getRatingText(rating)
-    // const color = getRatingColor(rating)
-    // const embed = {
-    //   title: `New User Feedback Received`,
-    //   description: `A user has provided feedback about their experience with ShapeShift.`,
-    //   color,
-    //   fields: [
-    //     {
-    //       name: '📊 Rating',
-    //       value: `${stars} (${rating}/5)\n**${ratingText}**`,
-    //       inline: true,
-    //     },
-    //     {
-    //       name: '📝 Feedback',
-    //       value: feedback,
-    //       inline: false,
-    //     },
-    //     {
-    //       name: '📱 Platform',
-    //       value: isMobile ? 'Mobile App' : 'Web App',
-    //       inline: true,
-    //     },
-    //     {
-    //       name: '🕒 Submitted',
-    //       value: `<t:${Math.floor(Date.now() / 1000)}:F>`,
-    //       inline: true,
-    //     },
-    //   ],
-    // }
-    // sendFeedback({
-    //   embeds: [embed],
-    //   username: 'ShapeShift Feedback Bot',
-    //   avatar_url: 'https://shapeshift.com/favicon.ico',
-    // })
-
-    // @TODO: remove that when we enable back the feature
-    toast({
-      title: translate('common.feedbackSubmitted'),
-      description: translate('common.thankYouForYourFeedback'),
-      status: 'success',
-      position: isMobile ? 'top' : 'bottom-right',
-    })
-    close()
-  }, [close, toast, translate])
+  // const handleSubmit = useCallback(() => {
+  // We disabled that for now as we need a proxy to send the feedback to the Discord webhook
+  // using authentication so we ensure the feedback is coming from a legitimate user
+  // const stars = '⭐'.repeat(rating) + '☆'.repeat(5 - rating)
+  // const ratingText = getRatingText(rating)
+  // const color = getRatingColor(rating)
+  // const embed = {
+  //   title: `New User Feedback Received`,
+  //   description: `A user has provided feedback about their experience with ShapeShift.`,
+  //   color,
+  //   fields: [
+  //     {
+  //       name: '📊 Rating',
+  //       value: `${stars} (${rating}/5)\n**${ratingText}**`,
+  //       inline: true,
+  //     },
+  //     {
+  //       name: '📝 Feedback',
+  //       value: feedback,
+  //       inline: false,
+  //     },
+  //     {
+  //       name: '📱 Platform',
+  //       value: isMobile ? 'Mobile App' : 'Web App',
+  //       inline: true,
+  //     },
+  //     {
+  //       name: '🕒 Submitted',
+  //       value: `<t:${Math.floor(Date.now() / 1000)}:F>`,
+  //       inline: true,
+  //     },
+  //   ],
+  // }
+  // sendFeedback({
+  //   embeds: [embed],
+  //   username: 'ShapeShift Feedback Bot',
+  //   avatar_url: 'https://shapeshift.com/favicon.ico',
+  // })
+  // }, [])
 
   const handleMaybeLater = useCallback(() => {
     close()
@@ -252,7 +251,6 @@ export const RatingModal = () => {
               colorScheme='blue'
               size='lg'
               width='full'
-              onClick={handleSubmit}
               isDisabled={isButtonDisabled}
               isLoading={isPending}
               mb={2}

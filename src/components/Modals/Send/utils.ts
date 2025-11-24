@@ -181,6 +181,7 @@ export const handleSend = async ({
       const contractAddress = contractAddressOrUndefined(asset.assetId)
       const { accountNumber } = bip44Params
       const adapter = assertGetEvmChainAdapter(chainId)
+      const pubKey = skipDeviceDerivation ? fromAccountId(sendInput.accountId).account : undefined
       return await adapter.buildSendTransaction({
         to,
         value,
@@ -194,6 +195,7 @@ export const handleSend = async ({
         },
         sendMax: sendInput.sendMax,
         customNonce: sendInput.customNonce,
+        pubKey,
       })
     }
 
@@ -207,9 +209,7 @@ export const handleSend = async ({
       }
       const { accountNumber } = bip44Params
       const adapter = assertGetUtxoChainAdapter(chainId)
-      const utxoPubKey = skipDeviceDerivation
-        ? fromAccountId(sendInput.accountId).account
-        : undefined
+      const pubKey = skipDeviceDerivation ? fromAccountId(sendInput.accountId).account : undefined
       return adapter.buildSendTransaction({
         to,
         value,
@@ -222,7 +222,7 @@ export const handleSend = async ({
           opReturnData: memo,
         },
         sendMax: sendInput.sendMax,
-        pubKey: utxoPubKey,
+        pubKey,
       })
     }
 

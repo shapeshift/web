@@ -8,7 +8,6 @@ import { CreateWalletRouter } from './routes/CreateWallet/CreateWalletRouter'
 import { DeleteWallet } from './routes/DeleteWallet/DeleteWallet'
 import { ImportRouter } from './routes/ImportWallet/ImportRouter'
 import { ManualBackup } from './routes/ManualBackup/ManualBackup'
-import { MobileStart } from './routes/MobileStart'
 import { RenameWallet } from './routes/RenameWallet'
 import { SavedWallets } from './routes/SavedWallets'
 import { MobileWalletDialogRoutes } from './types'
@@ -44,7 +43,6 @@ const MobileDialogRoutes = ({
     () => <CreateWalletRouter onClose={onClose} defaultRoute={defaultRoute} />,
     [defaultRoute, onClose],
   )
-  const mobileStart = useMemo(() => <MobileStart />, [])
 
   return (
     <AnimatePresence mode='wait' initial={false}>
@@ -55,7 +53,6 @@ const MobileDialogRoutes = ({
         <Route path={MobileWalletDialogRoutes.Rename}>{renameWallet}</Route>
         <Route path={MobileWalletDialogRoutes.Delete}>{deleteWallet}</Route>
         <Route path={MobileWalletDialogRoutes.Create}>{createWalletRouter}</Route>
-        <Route path={MobileWalletDialogRoutes.Start}>{mobileStart}</Route>
         <Route path='/'>{defaultRedirect(defaultRoute)}</Route>
       </Switch>
     </AnimatePresence>

@@ -133,8 +133,10 @@ export const DashboardHeaderTop = memo(() => {
 
   const handleTradeClick = useCallback(() => {
     vibrate('heavy')
+    if (assetId) return navigate(`/trade/${assetId}`)
+
     navigate(TradeRoutePaths.Input)
-  }, [navigate])
+  }, [assetId, navigate])
 
   const handleBuyClick = useCallback(() => {
     vibrate('heavy')

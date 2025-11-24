@@ -207,7 +207,9 @@ export const handleSend = async ({
       }
       const { accountNumber } = bip44Params
       const adapter = assertGetUtxoChainAdapter(chainId)
-      const utxoPubKey = skipDeviceDerivation ? fromAccountId(sendInput.accountId).account : undefined
+      const utxoPubKey = skipDeviceDerivation
+        ? fromAccountId(sendInput.accountId).account
+        : undefined
       return adapter.buildSendTransaction({
         to,
         value,

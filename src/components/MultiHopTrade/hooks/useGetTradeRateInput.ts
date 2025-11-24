@@ -84,10 +84,8 @@ export const useGetTradeRateInput = ({
   const pubKey = useMemo(() => {
     const skipDeviceDerivation =
       wallet && (isLedger(wallet) || isTrezor(wallet) || isGridPlus(wallet))
-    return skipDeviceDerivation && sellAccountId
-      ? fromAccountId(sellAccountId).account
-      : undefined
-  }, [sellAccountId, wallet])
+    return skipDeviceDerivation && sellAccountId ? fromAccountId(sellAccountId).account : undefined
+  }, [wallet, sellAccountId])
 
   const tradeInputQueryParams: GetTradeQuoteOrRateInputArgs = useMemo(
     () => ({

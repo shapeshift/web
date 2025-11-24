@@ -128,7 +128,10 @@ export const useFoxFarming = (
           to: contractAddress,
           value: '0',
           wallet,
-          pubKey: skipDeviceDerivation && farmingAccountId ? fromAccountId(farmingAccountId).account : undefined,
+          pubKey:
+            skipDeviceDerivation && farmingAccountId
+              ? fromAccountId(farmingAccountId).account
+              : undefined,
         })
 
         const txid = await buildAndBroadcast({
@@ -152,6 +155,7 @@ export const useFoxFarming = (
       adapter,
       contractAddress,
       farmingAccountId,
+      skipDeviceDerivation,
     ],
   )
 
@@ -309,7 +313,10 @@ export const useFoxFarming = (
       to: contractAddress,
       value: '0',
       wallet,
-      pubKey: skipDeviceDerivation && farmingAccountId ? fromAccountId(farmingAccountId).account : undefined,
+      pubKey:
+        skipDeviceDerivation && farmingAccountId
+          ? fromAccountId(farmingAccountId).account
+          : undefined,
     })
 
     const txid = await buildAndBroadcast({
@@ -328,6 +335,7 @@ export const useFoxFarming = (
     userAddress,
     wallet,
     farmingAccountId,
+    skipDeviceDerivation,
   ])
 
   const periodFinishQuery = useQuery({

@@ -3,6 +3,7 @@ import { CONTRACT_INTERACTION, evm } from '@shapeshiftoss/chain-adapters'
 import type { FoxEthStakingContractAddress } from '@shapeshiftoss/contracts'
 import { ETH_FOX_POOL_CONTRACT, getOrCreateContractByAddress } from '@shapeshiftoss/contracts'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
+import { isGridPlus } from '@shapeshiftoss/hdwallet-gridplus'
 import { isTrezor } from '@shapeshiftoss/hdwallet-trezor'
 import { useQuery } from '@tanstack/react-query'
 import { useCallback, useMemo } from 'react'
@@ -61,6 +62,8 @@ export const useFoxFarming = (
     () => (farmingAccountId ? getAddress(fromAccountId(farmingAccountId).account) : undefined),
     [farmingAccountId],
   )
+
+  const skipDeviceDerivation = wallet && (isTrezor(wallet) || isGridPlus(wallet))
 
   const stake = useCallback(
     async (lpAmount: string) => {
@@ -125,10 +128,7 @@ export const useFoxFarming = (
           to: contractAddress,
           value: '0',
           wallet,
-          pubKey:
-            isTrezor(wallet) && farmingAccountId
-              ? fromAccountId(farmingAccountId).account
-              : undefined,
+          pubKey: skipDeviceDerivation && farmingAccountId ? fromAccountId(farmingAccountId).account : undefined,
         })
 
         const txid = await buildAndBroadcast({
@@ -309,8 +309,7 @@ export const useFoxFarming = (
       to: contractAddress,
       value: '0',
       wallet,
-      pubKey:
-        isTrezor(wallet) && farmingAccountId ? fromAccountId(farmingAccountId).account : undefined,
+      pubKey: skipDeviceDerivation && farmingAccountId ? fromAccountId(farmingAccountId).account : undefined,
     })
 
     const txid = await buildAndBroadcast({

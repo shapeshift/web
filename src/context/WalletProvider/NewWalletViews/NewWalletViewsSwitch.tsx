@@ -30,6 +30,7 @@ import { TrezorRoutes } from './routes/TrezorRoutes'
 import { WalletConnectV2Routes } from './routes/WalletConnectV2Routes'
 import { HardwareWalletsSection } from './sections/HardwareWalletsSection'
 import { InstalledWalletsSection } from './sections/InstalledWalletsSection'
+import { MobileWalletListButton, MobileWalletsSection } from './sections/MobileWalletsSection'
 import { OthersSection } from './sections/OthersSection'
 import { SavedWalletListButton, SavedWalletsSection } from './sections/SavedWalletsSection'
 import type { RightPanelContentProps } from './types'
@@ -40,6 +41,7 @@ import { useModalRegistration } from '@/context/ModalStackProvider'
 import { WalletActions } from '@/context/WalletProvider/actions'
 import { KeepKeyRoutes as KeepKeyRoutesEnum } from '@/context/WalletProvider/routes'
 import { useWallet } from '@/hooks/useWallet/useWallet'
+import { isMobile } from '@/lib/globals'
 import { reactQueries } from '@/react-queries'
 import { breakpoints } from '@/theme/theme'
 import { defaultSuspenseFallback } from '@/utils/makeSuspenseful'
@@ -255,21 +257,37 @@ export const NewWalletViewsSwitch = () => {
     if (!isLargerThanMd) {
       return (
         <MobileWebSelect isOpen={modal} onClose={onClose}>
-          <SavedWalletsSection
-            selectedWalletId={selectedWalletId}
-            onWalletSelect={handleWalletSelect}
-            renderItem={SavedWalletListButton}
-            showHeader={false}
-          />
+          {isMobile ? (
+            <MobileWalletsSection
+              selectedWalletId={selectedWalletId}
+              onWalletSelect={handleWalletSelect}
+              renderItem={MobileWalletListButton}
+              showHeader={false}
+            />
+          ) : (
+            <SavedWalletsSection
+              selectedWalletId={selectedWalletId}
+              onWalletSelect={handleWalletSelect}
+              renderItem={SavedWalletListButton}
+              showHeader={false}
+            />
+          )}
         </MobileWebSelect>
       )
     }
     return (
       <Box w={sectionsWidth} p={6} maxH='800px' overflowY='auto'>
-        <SavedWalletsSection
-          selectedWalletId={selectedWalletId}
-          onWalletSelect={handleWalletSelect}
-        />
+        {isMobile ? (
+          <MobileWalletsSection
+            selectedWalletId={selectedWalletId}
+            onWalletSelect={handleWalletSelect}
+          />
+        ) : (
+          <SavedWalletsSection
+            selectedWalletId={selectedWalletId}
+            onWalletSelect={handleWalletSelect}
+          />
+        )}
         <Divider mb={2} />
         <Text translation='common.connectWallet' fontSize='xl' fontWeight='semibold' />
         <InstalledWalletsSection

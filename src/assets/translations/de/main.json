@@ -2414,7 +2414,6 @@
       "switchChainFailed": "Das Wechseln der Wallet Kette ist fehlgeschlagen. Versuchen Sie, die aktive Wallet Kette manuell auf %{chain} umzustellen.",
       "buildTransaction": "Die Transaktion konnte nicht erstellt werden.",
       "signTransaction": "Die Unterzeichnung der Transaktion ist fehlgeschlagen.",
-      "blindSigningRequired": "Für die Transaktion ist eine Blindsignatur erforderlich. Aktivieren Sie die Option „Blind signing“ in den Einstellungen Ihrer Ledger-App und versuchen Sie es erneut.",
       "signAndBroadcastTransaction": "Signieren und Senden der Transaktion fehlgeschlagen.",
       "signMessage": "Signieren der Nachricht fehlgeschlagen.",
       "broadcastTransaction": "Die Übertragung der Transaktion ist fehlgeschlagen.",

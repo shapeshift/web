@@ -2414,7 +2414,6 @@
       "switchChainFailed": "Échec du changement de la chaîne du porte-monnaie. Essayez de changer manuellement la chaîne active de votre porte-monnaie pour %{chain}.",
       "buildTransaction": "Échec de la création de la transaction.",
       "signTransaction": "Échec de la signature de la transaction.",
-      "blindSigningRequired": "La transaction nécessite une signature aveugle. Veuillez activer « Blind signing » dans les paramètres de votre app Ledger et réessayer.",
       "signAndBroadcastTransaction": "Échec de la signature et de la diffusion de la transaction.",
       "signMessage": "Échec de la signature du message.",
       "broadcastTransaction": "Échec de la diffusion de la transaction.",

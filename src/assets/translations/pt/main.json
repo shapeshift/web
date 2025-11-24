@@ -2414,7 +2414,6 @@
       "switchChainFailed": "Falha ao alternar a rede da carteira. Tente alternar manualmente a cadeia ativa da carteira para %{chain}.",
       "buildTransaction": "Falha ao construir transação.",
       "signTransaction": "Falha ao assinar a transação.",
-      "blindSigningRequired": "A transação requer blind signing. Ative a opção \"Blind signing\" nas configurações do seu aplicativo Ledger e tente novamente.",
       "signAndBroadcastTransaction": "Falha ao assinar e transmitir a transação.",
       "signMessage": "Falha ao assinar a mensagem.",
       "broadcastTransaction": "Falha ao transmitir a transação.",

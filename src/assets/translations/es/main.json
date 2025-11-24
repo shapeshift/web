@@ -2414,7 +2414,6 @@
       "switchChainFailed": "No se pudo cambiar cadena de billetera. Intente cambiar manualmente la cadena activa de su billetera a %{chain}.",
       "buildTransaction": "Error al crear la transacción.",
       "signTransaction": "No se pudo firmar la transacción.",
-      "blindSigningRequired": "La transacción requiere firma ciega. Activa 'Blind signing' en la configuración de tu app Ledger y vuelve a intentarlo.",
       "signAndBroadcastTransaction": "No se pudo firmar ni transmitir la transacción.",
       "signMessage": "No se pudo firmar el mensaje.",
       "broadcastTransaction": "No se pudo transmitir la transacción.",

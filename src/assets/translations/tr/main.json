@@ -2414,7 +2414,6 @@
       "switchChainFailed": "Cüzdan zinciri değiştirilemedi. Cüzdan etkin zincirinizi manuel olarak %{chain} olarak değiştirmeyi deneyin.",
       "buildTransaction": "İşlem oluşturulamadı.",
       "signTransaction": "İşlem imzalanamadı.",
-      "blindSigningRequired": "İşlem için gizli imzalama gerekiyor. Lütfen Ledger uygulama ayarlarınızda 'Blind Signing'i etkinleştirin ve tekrar deneyin.",
       "signAndBroadcastTransaction": "İşlem imzalanamadı ve yayınlanamadı.",
       "signMessage": "Mesaj imzalanamadı.",
       "broadcastTransaction": "İşlem yayınlanamadı.",

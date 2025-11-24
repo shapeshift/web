@@ -1,5 +1,6 @@
 import { bchAssetId, CHAIN_NAMESPACE, fromAccountId, fromChainId } from '@shapeshiftoss/caip'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
+import { isGridPlus } from '@shapeshiftoss/hdwallet-gridplus'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import { isTrezor } from '@shapeshiftoss/hdwallet-trezor'
 import type { SupportedTradeQuoteStepIndex } from '@shapeshiftoss/swapper'
@@ -91,6 +92,8 @@ export const useTradeNetworkFeeCryptoBaseUnit = ({
               fromChainId(stepSellAssetChainId)
 
             const pubKey = fromAccountId(sellAssetAccountId).account
+            const skipDeviceDerivation =
+              wallet && (isLedger(wallet) || isTrezor(wallet) || isGridPlus(wallet))
 
             switch (stepSellAssetChainNamespace) {
               case CHAIN_NAMESPACE.Evm: {
@@ -99,7 +102,7 @@ export const useTradeNetworkFeeCryptoBaseUnit = ({
                 const from = await adapter.getAddress({
                   accountNumber,
                   wallet,
-                  pubKey: wallet && (isLedger(wallet) || isTrezor(wallet)) ? pubKey : undefined,
+                  pubKey: skipDeviceDerivation ? pubKey : undefined,
                 })
                 const supportsEIP1559 = supportsETH(wallet) && (await wallet.ethSupportsEIP1559())
 
@@ -122,15 +125,14 @@ export const useTradeNetworkFeeCryptoBaseUnit = ({
                 if (accountType === undefined) throw Error('Missing UTXO account type')
 
                 const adapter = assertGetUtxoChainAdapter(stepSellAssetChainId)
-                const xpub =
-                  wallet && isTrezor(wallet)
-                    ? fromAccountId(sellAssetAccountId).account
-                    : (await adapter.getPublicKey(wallet, accountNumber, accountType)).xpub
+                const xpub = skipDeviceDerivation
+                  ? fromAccountId(sellAssetAccountId).account
+                  : (await adapter.getPublicKey(wallet, accountNumber, accountType)).xpub
                 const _senderAddress = await adapter.getAddress({
                   accountNumber,
                   accountType,
                   wallet,
-                  ...(isLedger(wallet) || isTrezor(wallet) ? { pubKey } : {}),
+                  ...(skipDeviceDerivation ? { pubKey } : {}),
                 })
                 const senderAddress =
                   stepSellAssetAssetId === bchAssetId
@@ -158,7 +160,7 @@ export const useTradeNetworkFeeCryptoBaseUnit = ({
                 const from = await adapter.getAddress({
                   accountNumber,
                   wallet,
-                  ...(isLedger(wallet) || isTrezor(wallet) ? { pubKey } : {}),
+                  ...(skipDeviceDerivation ? { pubKey } : {}),
                 })
 
                 const output = await swapper.getCosmosSdkTransactionFees({
@@ -180,7 +182,7 @@ export const useTradeNetworkFeeCryptoBaseUnit = ({
                 const from = await adapter.getAddress({
                   accountNumber,
                   wallet,
-                  ...(isLedger(wallet) || isTrezor(wallet) ? { pubKey } : {}),
+                  ...(skipDeviceDerivation ? { pubKey } : {}),
                 })
 
                 const output = await swapper.getSolanaTransactionFees({

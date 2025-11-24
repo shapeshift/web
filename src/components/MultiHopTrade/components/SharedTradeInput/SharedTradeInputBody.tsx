@@ -10,6 +10,7 @@ import { SellAssetInput } from '../TradeInput/components/SellAssetInput'
 
 import { TradeAssetSelect } from '@/components/AssetSelection/AssetSelection'
 import { FormDivider } from '@/components/FormDivider'
+import { useLocaleFormatter } from '@/hooks/useLocaleFormatter/useLocaleFormatter'
 import { useModal } from '@/hooks/useModal/useModal'
 import { breakpoints } from '@/theme/theme'
 
@@ -57,6 +58,17 @@ export const SharedTradeInputBody = ({
 }: SharedTradeInputBodyProps) => {
   const translate = useTranslate()
   const [isSmallerThanMd] = useMediaQuery(`(max-width: ${breakpoints.md})`, { ssr: false })
+  const {
+    number: { toFiat },
+  } = useLocaleFormatter()
+
+  const placeholder = useMemo(() => {
+    return isInputtingFiatSellAmount
+      ? toFiat(0, {
+          omitDecimalTrailingZeros: true,
+        })
+      : '0'
+  }, [isInputtingFiatSellAmount, toFiat])
 
   const sellAssetSearch = useModal('sellTradeAssetSearch')
 
@@ -128,7 +140,7 @@ export const SharedTradeInputBody = ({
           asset={sellAsset}
           isInputtingFiatSellAmount={isInputtingFiatSellAmount}
           isLoading={isLoading}
-          placeholder={isInputtingFiatSellAmount ? '$0' : '0'}
+          placeholder={isInputtingFiatSellAmount ? placeholder : '0'}
           label={translate('trade.payWith')}
           labelPostFix={sellTradeAssetSelect}
           percentOptions={percentOptions}

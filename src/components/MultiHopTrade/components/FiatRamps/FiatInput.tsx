@@ -173,9 +173,11 @@ export const FiatInput: React.FC<FiatInputProps> = ({
               decimalSeparator={localeParts.decimal}
               inputMode='decimal'
               thousandSeparator={localeParts.group}
-              decimalScale={selectedFiatCurrency.decimal_digits}
+              decimalScale={2}
+              fixedDecimalScale={false}
               placeholder={formattedPlaceholder}
-              value={amount}
+              allowNegative={false}
+              value={amount || undefined}
               formattedValueLength={formattedValueLength}
               onValueChange={handleAmountChange}
             />

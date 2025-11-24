@@ -213,7 +213,8 @@ export const createTradeInputBaseSelectors = <T extends TradeInputBaseState>(
     selectInputSellAssetUserCurrencyRate,
     (sellAmountCryptoPrecision, sellAssetUserCurrencyRate) => {
       if (!sellAssetUserCurrencyRate) return
-      return bn(sellAmountCryptoPrecision).times(sellAssetUserCurrencyRate).toFixed()
+      if (!sellAmountCryptoPrecision) return ''
+      return bn(sellAmountCryptoPrecision).times(sellAssetUserCurrencyRate).toString()
     },
   )
 

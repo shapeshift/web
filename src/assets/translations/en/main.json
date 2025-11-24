@@ -1156,6 +1156,9 @@
       "copyFailed": "Failed to copy %{symbol} receive address to clipboard",
       "copyFailedDescription": "Please copy the address manually",
       "setAmount": "Set Amount",
+      "verify": "Verify",
+      "verified": "Verified",
+      "notVerified": "Address Mismatch",
       "blockExplorer": "Explorer",
       "supportedNetworks": "Supported Networks",
       "amountNote": "Enter the amount you want to request. This will generate a QR code with the amount for easier payments."

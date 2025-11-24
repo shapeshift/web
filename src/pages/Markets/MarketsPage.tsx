@@ -10,6 +10,7 @@ const category = <Category />
 const redirect = <Navigate to='recommended' replace />
 
 export const MarketsPage = () => {
+  'use no memo'
   return (
     <Routes>
       <Route path='' element={redirect} />

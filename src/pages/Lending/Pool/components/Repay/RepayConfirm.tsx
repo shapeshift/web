@@ -395,7 +395,6 @@ export const RepayConfirm = ({
         <AlertDescription>
           <Text
             // eslint is drunk, this whole JSX expression is already memoized
-            // eslint-disable-next-line react-memo/require-usememo
             translation={['walletProvider.ledger.signWarning', { chain }]}
           />
         </AlertDescription>

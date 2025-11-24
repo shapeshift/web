@@ -14,6 +14,7 @@ const FormHeaderItems = [
 ]
 
 export const Widget = ({ currentAccount }: { currentAccount: CurrentAccount }) => {
+  'use no memo'
   const [stepIndex, setStepIndex] = useState(TCYTabIndex.Stake)
 
   const TabHeader = useMemo(() => {

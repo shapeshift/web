@@ -105,7 +105,6 @@ export const WithdrawCard = ({ asset, accountId: routeAccountId }: WithdrawCardP
               fontWeight='normal'
               lineHeight='shorter'
               // we need to pass an arg here, so we need an anonymous function wrapper
-              // eslint-disable-next-line react-memo/require-usememo
               translation={[
                 'defi.modals.cosmosOverview.availableDate',
                 { date: dayjs().to(dayjs.unix(completionTime)) },

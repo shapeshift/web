@@ -12,6 +12,7 @@ import { SEO } from '@/components/Layout/Seo'
 const ASSETS_LIMIT = 8
 
 export const Recommended: React.FC = () => {
+  'use no memo'
   const translate = useTranslate()
   const headerComponent = useMemo(() => <MarketsHeader />, [])
 

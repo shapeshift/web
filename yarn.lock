@@ -5872,6 +5872,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@ethereumjs/rlp@npm:5.0.2, @ethereumjs/rlp@npm:^5.0.2":
+  version: 5.0.2
+  resolution: "@ethereumjs/rlp@npm:5.0.2"
+  bin:
+    rlp: bin/rlp.cjs
+  checksum: b569061ddb1f4cf56a82f7a677c735ba37f9e94e2bbaf567404beb9e2da7aa1f595e72fc12a17c61f7aec67fd5448443efe542967c685a2fe0ffc435793dcbab
+  languageName: node
+  linkType: hard
+
 "@ethereumjs/rlp@npm:^10.1.0":
   version: 10.1.0
   resolution: "@ethereumjs/rlp@npm:10.1.0"
@@ -5887,15 +5896,6 @@ __metadata:
   bin:
     rlp: bin/rlp
   checksum: 30db19c78faa2b6ff27275ab767646929207bb207f903f09eb3e4c273ce2738b45f3c82169ddacd67468b4f063d8d96035f2bf36f02b6b7e4d928eefe2e3ecbc
-  languageName: node
-  linkType: hard
-
-"@ethereumjs/rlp@npm:^5.0.2":
-  version: 5.0.2
-  resolution: "@ethereumjs/rlp@npm:5.0.2"
-  bin:
-    rlp: bin/rlp.cjs
-  checksum: b569061ddb1f4cf56a82f7a677c735ba37f9e94e2bbaf567404beb9e2da7aa1f595e72fc12a17c61f7aec67fd5448443efe542967c685a2fe0ffc435793dcbab
   languageName: node
   linkType: hard
 
@@ -10827,15 +10827,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/hdwallet-coinbase@npm:1.62.9":
-  version: 1.62.9
-  resolution: "@shapeshiftoss/hdwallet-coinbase@npm:1.62.9"
+"@shapeshiftoss/hdwallet-coinbase@npm:1.62.10-gridplus-suggestions.4":
+  version: 1.62.10-gridplus-suggestions.4
+  resolution: "@shapeshiftoss/hdwallet-coinbase@npm:1.62.10-gridplus-suggestions.4"
   dependencies:
     "@coinbase/wallet-sdk": ^3.6.6
-    "@shapeshiftoss/hdwallet-core": 1.62.9
+    "@shapeshiftoss/hdwallet-core": 1.62.10-gridplus-suggestions.4
     eth-rpc-errors: ^4.0.3
     lodash: ^4.17.21
-  checksum: beae60ac0744caaf8e71da01943c575a13093bb320029876fed759d724be1910a71f941b681917fd6721464da85d26691af6589ac79d8083e81f221cbe71d274
+  checksum: da8294767e113bd5f4a2b4bb5f0c111785efc284938693e8e6f1811d15dc8f1cf00f2c000c5742e7d95efdf1ab23318e391e2a25a5605e7376eb71b79f8529ae
   languageName: node
   linkType: hard
 
@@ -10868,9 +10868,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/hdwallet-core@npm:1.62.3":
-  version: 1.62.3
-  resolution: "@shapeshiftoss/hdwallet-core@npm:1.62.3"
+"@shapeshiftoss/hdwallet-core@npm:1.62.10-gridplus-suggestions.4":
+  version: 1.62.10-gridplus-suggestions.4
+  resolution: "@shapeshiftoss/hdwallet-core@npm:1.62.10-gridplus-suggestions.4"
   dependencies:
     "@shapeshiftoss/bitcoinjs-lib": 7.0.0-shapeshift.0
     "@shapeshiftoss/proto-tx-builder": 0.10.0
@@ -10881,24 +10881,7 @@ __metadata:
     lodash: ^4.17.21
     rxjs: ^6.4.0
     type-assertions: ^1.1.0
-  checksum: 01af01bb5c2a929ad0cfdb782329954bad941c6b5f776e040be86882823588b771d5f9a256e8893dc28e6f45b883c646f759a27f7d9326949ad53816b233d707
-  languageName: node
-  linkType: hard
-
-"@shapeshiftoss/hdwallet-core@npm:1.62.9":
-  version: 1.62.9
-  resolution: "@shapeshiftoss/hdwallet-core@npm:1.62.9"
-  dependencies:
-    "@shapeshiftoss/bitcoinjs-lib": 7.0.0-shapeshift.0
-    "@shapeshiftoss/proto-tx-builder": 0.10.0
-    "@solana/web3.js": 1.95.8
-    eip-712: ^1.0.0
-    ethers: 5.7.2
-    eventemitter2: ^5.0.1
-    lodash: ^4.17.21
-    rxjs: ^6.4.0
-    type-assertions: ^1.1.0
-  checksum: a9059dd6edbce27ddb42889c05d6c552e6e7e5d55977f70f3455473a6316e718497eed4b96abbea85ca96cdd7eda8b31c5ea30159504117beb3dd6daae942432
+  checksum: ade9c6c2465cc4c9149e3152d92cd4cd8fd82b218c6935a56682f081cfab32ee1caf0fa69d8f149f20b6086b4ed17e7a671445cce446d53aad87ac728cb88cec
   languageName: node
   linkType: hard
 
@@ -10916,37 +10899,38 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/hdwallet-gridplus@npm:1.62.9":
-  version: 1.62.9
-  resolution: "@shapeshiftoss/hdwallet-gridplus@npm:1.62.9"
+"@shapeshiftoss/hdwallet-gridplus@npm:1.62.10-gridplus-suggestions.4":
+  version: 1.62.10-gridplus-suggestions.4
+  resolution: "@shapeshiftoss/hdwallet-gridplus@npm:1.62.10-gridplus-suggestions.4"
   dependencies:
     "@bitcoinerlab/secp256k1": ^1.1.1
     "@ethereumjs/common": 4.4.0
+    "@ethereumjs/rlp": 5.0.2
     "@ethereumjs/tx": 5.4.0
     "@metamask/eth-sig-util": ^7.0.0
-    "@shapeshiftoss/hdwallet-core": 1.62.3
+    "@shapeshiftoss/hdwallet-core": 1.62.10-gridplus-suggestions.4
     bech32: ^1.1.4
     bs58: ^5.0.0
     crypto-js: ^4.2.0
     gridplus-sdk: ^3.2.0
     lodash: ^4.17.21
-  checksum: b68dbeb212a37436694f3d1c030a97d3ed6f180c6d1bf0be1b62931e6e67700fdbd02d4fa48982c256b866b0083d647863f1ff7a8f493b915c1543992f3f6fcb
+  checksum: 68f311d962f3f5b12d67b1f8fd05051431d48d4c607185ad12bace19f1967946f99a87ef621bb0ac0f062b18d7a45e9c124220323d4878ee5aae0a8fdd722ca7
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/hdwallet-keepkey-webusb@npm:1.62.9":
-  version: 1.62.9
-  resolution: "@shapeshiftoss/hdwallet-keepkey-webusb@npm:1.62.9"
+"@shapeshiftoss/hdwallet-keepkey-webusb@npm:1.62.10-gridplus-suggestions.4":
+  version: 1.62.10-gridplus-suggestions.4
+  resolution: "@shapeshiftoss/hdwallet-keepkey-webusb@npm:1.62.10-gridplus-suggestions.4"
   dependencies:
-    "@shapeshiftoss/hdwallet-core": 1.62.9
-    "@shapeshiftoss/hdwallet-keepkey": 1.62.9
-  checksum: 2fac74150c3959d7bccc2c52fd7392f18c9d47e6af3e32c5ce003ff8c87e6ce96289766676066dde75613f5cb325d4bc5e485a564b8e374b68b33e53ecd794a3
+    "@shapeshiftoss/hdwallet-core": 1.62.10-gridplus-suggestions.4
+    "@shapeshiftoss/hdwallet-keepkey": 1.62.10-gridplus-suggestions.4
+  checksum: bb52a709e393dda5b646cb9d513c92b0ba441b0ce3ad332eb88d5ad9bc756f9835e8d1c280e87573da21a74bd22e627f6ad312faac3858ea18c9fb4a2abc3dab
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/hdwallet-keepkey@npm:1.62.9":
-  version: 1.62.9
-  resolution: "@shapeshiftoss/hdwallet-keepkey@npm:1.62.9"
+"@shapeshiftoss/hdwallet-keepkey@npm:1.62.10-gridplus-suggestions.4":
+  version: 1.62.10-gridplus-suggestions.4
+  resolution: "@shapeshiftoss/hdwallet-keepkey@npm:1.62.10-gridplus-suggestions.4"
   dependencies:
     "@bitcoinerlab/secp256k1": ^1.1.1
     "@ethereumjs/common": 3.2.0
@@ -10954,7 +10938,7 @@ __metadata:
     "@keepkey/device-protocol": 7.13.4
     "@metamask/eth-sig-util": ^7.0.0
     "@shapeshiftoss/bitcoinjs-lib": 7.0.0-shapeshift.0
-    "@shapeshiftoss/hdwallet-core": 1.62.9
+    "@shapeshiftoss/hdwallet-core": 1.62.10-gridplus-suggestions.4
     "@shapeshiftoss/proto-tx-builder": 0.10.0
     bignumber.js: ^9.0.1
     bnb-javascript-sdk-nobroadcast: 2.16.15
@@ -10965,44 +10949,44 @@ __metadata:
     lodash: ^4.17.21
     p-lazy: ^3.1.0
     semver: ^7.3.8
-  checksum: 9bfdc2178f4738e4f54d8aa77fc77692ec6869cb6b56c08f1af96a7d744bcac22ccca4cb83f5c5066ef9a97712e6ffeeb7f8b2205d39ffb1eacc32d7e50244e4
+  checksum: bb29a1741e0009272ee828c6e6afc9db738b146185d92773a195adb3ed875c2406abb1fcbbe6ab9a2c35e158c7f68b4b04e5a4596fd1c2cb09f40e7c93f2ffaf
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/hdwallet-keplr@npm:1.62.9":
-  version: 1.62.9
-  resolution: "@shapeshiftoss/hdwallet-keplr@npm:1.62.9"
+"@shapeshiftoss/hdwallet-keplr@npm:1.62.10-gridplus-suggestions.4":
+  version: 1.62.10-gridplus-suggestions.4
+  resolution: "@shapeshiftoss/hdwallet-keplr@npm:1.62.10-gridplus-suggestions.4"
   dependencies:
     "@cosmjs/amino": ^0.28.13
     "@cosmjs/stargate": ^0.28.13
     "@shapeshiftoss/caip": 8.15.0
-    "@shapeshiftoss/hdwallet-core": 1.62.9
+    "@shapeshiftoss/hdwallet-core": 1.62.10-gridplus-suggestions.4
     "@shapeshiftoss/proto-tx-builder": 0.10.0
     "@shapeshiftoss/types": 3.1.3
     base64-js: ^1.5.1
     lodash: ^4.17.21
-  checksum: 277e005b74642eb165b574efad6dd0857bbefcde7ca0a2035cf918b29cd5d0c694e855d7910f887447aeb4428c573c477803d74ebab7d683bcd8fe0f49013ba2
+  checksum: 5e448553335589e240e61a9bd89aeb21b0890374d94d5184c6474604a02e5cf586947e11beee7fbbef6aea1f1ec7fca8184a96528844687935309d5043addec5
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/hdwallet-ledger-webhid@npm:1.62.9":
-  version: 1.62.9
-  resolution: "@shapeshiftoss/hdwallet-ledger-webhid@npm:1.62.9"
+"@shapeshiftoss/hdwallet-ledger-webhid@npm:1.62.10-gridplus-suggestions.4":
+  version: 1.62.10-gridplus-suggestions.4
+  resolution: "@shapeshiftoss/hdwallet-ledger-webhid@npm:1.62.10-gridplus-suggestions.4"
   dependencies:
     "@ledgerhq/hw-app-btc": ^10.10.0
     "@ledgerhq/hw-app-eth": ^6.45.13
     "@ledgerhq/hw-transport": 6.31.8
     "@ledgerhq/hw-transport-webhid": ^6.30.4
-    "@shapeshiftoss/hdwallet-core": 1.62.9
-    "@shapeshiftoss/hdwallet-ledger": 1.62.9
+    "@shapeshiftoss/hdwallet-core": 1.62.10-gridplus-suggestions.4
+    "@shapeshiftoss/hdwallet-ledger": 1.62.10-gridplus-suggestions.4
     "@types/w3c-web-hid": ^1.0.2
-  checksum: 297b6b128efb78793a5c393e434f97a130655de5726491f0c4a6ab5505dc4b3bd5012fc8cf926b7f8391492635c04a708e0fc9f7b16043560eaa1d3b0efb40f7
+  checksum: ed6451e939cba591285b746c45a2f56616d0c31da9939d207463908b2fe5425e5b33a04617f49d2e28f7397f41487d95391088957263a4f7554989075fc37c8d
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/hdwallet-ledger-webusb@npm:1.62.9":
-  version: 1.62.9
-  resolution: "@shapeshiftoss/hdwallet-ledger-webusb@npm:1.62.9"
+"@shapeshiftoss/hdwallet-ledger-webusb@npm:1.62.10-gridplus-suggestions.4":
+  version: 1.62.10-gridplus-suggestions.4
+  resolution: "@shapeshiftoss/hdwallet-ledger-webusb@npm:1.62.10-gridplus-suggestions.4"
   dependencies:
     "@ledgerhq/hw-app-btc": ^10.10.0
     "@ledgerhq/hw-app-cosmos": ^6.32.4
@@ -11010,17 +10994,17 @@ __metadata:
     "@ledgerhq/hw-app-solana": ^7.5.1
     "@ledgerhq/hw-transport": 6.31.8
     "@ledgerhq/hw-transport-webusb": 6.29.8
-    "@shapeshiftoss/hdwallet-core": 1.62.9
-    "@shapeshiftoss/hdwallet-ledger": 1.62.9
+    "@shapeshiftoss/hdwallet-core": 1.62.10-gridplus-suggestions.4
+    "@shapeshiftoss/hdwallet-ledger": 1.62.10-gridplus-suggestions.4
     "@types/w3c-web-usb": ^1.0.4
     p-queue: ^7.4.1
-  checksum: f1c1f95834ffa99bdefc4b16b8f0ca24d3f49469dda683b112d6e1a3803017b1100aa70ce060ad21a9cb68a850490ca3edf83d6589274d1011581b5f79964a74
+  checksum: 65904562a35681bad8dcf5dc2e08aa5866a4e4cdd8b686c53327b03e30fb84f4efd8650319ca661f590c86dd79ba4f05b04468b8ca8904eeba23746ef21b7f4f
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/hdwallet-ledger@npm:1.62.9":
-  version: 1.62.9
-  resolution: "@shapeshiftoss/hdwallet-ledger@npm:1.62.9"
+"@shapeshiftoss/hdwallet-ledger@npm:1.62.10-gridplus-suggestions.4":
+  version: 1.62.10-gridplus-suggestions.4
+  resolution: "@shapeshiftoss/hdwallet-ledger@npm:1.62.10-gridplus-suggestions.4"
   dependencies:
     "@ethereumjs/common": 3.2.0
     "@ethereumjs/tx": 4.2.0
@@ -11032,7 +11016,7 @@ __metadata:
     "@ledgerhq/hw-transport": 6.31.8
     "@ledgerhq/logs": 6.13.0
     "@shapeshiftoss/bitcoinjs-lib": 7.0.0-shapeshift.0
-    "@shapeshiftoss/hdwallet-core": 1.62.9
+    "@shapeshiftoss/hdwallet-core": 1.62.10-gridplus-suggestions.4
     "@solana/web3.js": 1.95.8
     base64-js: ^1.5.1
     bchaddrjs: ^0.4.4
@@ -11042,33 +11026,33 @@ __metadata:
     ethereumjs-util: ^6.1.0
     ethers: 5.7.2
     lodash: ^4.17.21
-  checksum: 96be4ee04c769adaf2353a9eeea50a32c543b4117526b90d84e889efd0cda4ec911755d882d7a9b877b566ce6be9b97036b654de9a3df9b171561af5949c4e85
+  checksum: 5b6093b6794292736f3b7b54d9cec091adb8357aea5e8f9a8404d5f8167c4d233d5a8e6a2dab0cf91b108eb46dc78647b353d81580437397a6b30f9354ecaafe
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/hdwallet-metamask-multichain@npm:1.62.9":
-  version: 1.62.9
-  resolution: "@shapeshiftoss/hdwallet-metamask-multichain@npm:1.62.9"
+"@shapeshiftoss/hdwallet-metamask-multichain@npm:1.62.10-gridplus-suggestions.4":
+  version: 1.62.10-gridplus-suggestions.4
+  resolution: "@shapeshiftoss/hdwallet-metamask-multichain@npm:1.62.10-gridplus-suggestions.4"
   dependencies:
     "@metamask/detect-provider": ^1.2.0
     "@metamask/onboarding": ^1.0.1
     "@shapeshiftoss/common-api": ^9.3.0
-    "@shapeshiftoss/hdwallet-core": 1.62.9
+    "@shapeshiftoss/hdwallet-core": 1.62.10-gridplus-suggestions.4
     "@shapeshiftoss/metamask-snaps-adapter": ^1.0.12
     "@shapeshiftoss/metamask-snaps-types": ^1.0.12
     eth-rpc-errors: ^4.0.3
     lodash: ^4.17.21
     mipd: ^0.0.7
-  checksum: d5e709e7d7bb3cb187245075a514e98c9d9ffb6ed9bc4ee7fdb4e1c319944348a3717daaf2bdaeb1c3565356c4826d409f54f24cb232fa90f323b3c9e4b76b77
+  checksum: 02a45ab0cf9073c9fb2749f82a31a3ba8f69315d2d698f0f0715437d2babeb4b19dc72ff8b578a515ed26fa3e53df3b6413424af8f6de476101cf3f8220707c2
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/hdwallet-native-vault@npm:1.62.9":
-  version: 1.62.9
-  resolution: "@shapeshiftoss/hdwallet-native-vault@npm:1.62.9"
+"@shapeshiftoss/hdwallet-native-vault@npm:1.62.10-gridplus-suggestions.4":
+  version: 1.62.10-gridplus-suggestions.4
+  resolution: "@shapeshiftoss/hdwallet-native-vault@npm:1.62.10-gridplus-suggestions.4"
   dependencies:
     "@bitcoinerlab/secp256k1": ^1.1.1
-    "@shapeshiftoss/hdwallet-native": 1.62.9
+    "@shapeshiftoss/hdwallet-native": 1.62.10-gridplus-suggestions.4
     bip39: ^3.0.4
     hash-wasm: ^4.11.0
     idb-keyval: ^6.0.3
@@ -11076,18 +11060,18 @@ __metadata:
     p-lazy: ^3.1.0
     type-assertions: ^1.1.0
     uuid: ^8.3.2
-  checksum: 79c6e737cc9cf4b67f2b95fc74bb286f185aef01eeea77af33269f5aa687d53bbfcb9dd7f2ed1470b3c5f9fad3d5a5819b83482189106a3cdc4f1d134f773dec
+  checksum: 89c35b7f60b0b9ac28bb790de163db5193334a646c9f8d366b120dd5917e27b3bb62abeca7167d4a4566187177906d943c9aaef7a9bdef93f22c62580c6100d2
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/hdwallet-native@npm:1.62.9":
-  version: 1.62.9
-  resolution: "@shapeshiftoss/hdwallet-native@npm:1.62.9"
+"@shapeshiftoss/hdwallet-native@npm:1.62.10-gridplus-suggestions.4":
+  version: 1.62.10-gridplus-suggestions.4
+  resolution: "@shapeshiftoss/hdwallet-native@npm:1.62.10-gridplus-suggestions.4"
   dependencies:
     "@bitcoinerlab/secp256k1": ^1.1.1
     "@noble/curves": ^1.4.0
     "@shapeshiftoss/bitcoinjs-lib": 7.0.0-shapeshift.0
-    "@shapeshiftoss/hdwallet-core": 1.62.9
+    "@shapeshiftoss/hdwallet-core": 1.62.10-gridplus-suggestions.4
     "@shapeshiftoss/proto-tx-builder": 0.10.0
     "@zxing/text-encoding": ^0.9.0
     bchaddrjs: ^0.4.9
@@ -11108,7 +11092,7 @@ __metadata:
     p-lazy: ^3.1.0
     scrypt-js: ^3.0.1
     tendermint-tx-builder: 1.0.16
-  checksum: 2faee46d1679d2a263a6232c31a88217a0a99388d8571dce8427980ee0d79b6b69bbe40205d5df5576427499d2d6a8be8240159bbb43f98b5823df25e85eab1b
+  checksum: ea52aa8f85937e507e736c1deb7922892125b157633d7940769e9cd1b7e043f8fa72e4146a2398147ca66bc9c5897ee822adc46ac4a3ef217a53840d71ec305c
   languageName: node
   linkType: hard
 
@@ -11145,83 +11129,83 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/hdwallet-phantom@npm:1.62.9":
-  version: 1.62.9
-  resolution: "@shapeshiftoss/hdwallet-phantom@npm:1.62.9"
+"@shapeshiftoss/hdwallet-phantom@npm:1.62.10-gridplus-suggestions.4":
+  version: 1.62.10-gridplus-suggestions.4
+  resolution: "@shapeshiftoss/hdwallet-phantom@npm:1.62.10-gridplus-suggestions.4"
   dependencies:
     "@shapeshiftoss/bitcoinjs-lib": 7.0.0-shapeshift.0
-    "@shapeshiftoss/hdwallet-core": 1.62.9
+    "@shapeshiftoss/hdwallet-core": 1.62.10-gridplus-suggestions.4
     "@solana/web3.js": 1.95.8
     base64-js: ^1.5.1
     bitcoinjs-message: ^2.0.0
     ethers: 5.7.2
     lodash: ^4.17.21
-  checksum: d637c80879a17e745a7917a54534fbaf47cd07cf8aaf3096a85009a5d2837c58d8f2193fb4a5dac12ae42aead8094e63b1a77b1d8b339f6e133c69515af76330
+  checksum: 4a4cfcf58ce91438d0eb32dfcdb8d2f39126cf7ce789ed6ae009581330a1b7bd86253e16a71d765c4713de7a8762f4d087a6677ffef44dfb063b9d06ce4e2005
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/hdwallet-trezor-connect@npm:1.62.9":
-  version: 1.62.9
-  resolution: "@shapeshiftoss/hdwallet-trezor-connect@npm:1.62.9"
+"@shapeshiftoss/hdwallet-trezor-connect@npm:1.62.10-gridplus-suggestions.4":
+  version: 1.62.10-gridplus-suggestions.4
+  resolution: "@shapeshiftoss/hdwallet-trezor-connect@npm:1.62.10-gridplus-suggestions.4"
   dependencies:
-    "@shapeshiftoss/hdwallet-core": 1.62.9
-    "@shapeshiftoss/hdwallet-trezor": 1.62.9
+    "@shapeshiftoss/hdwallet-core": 1.62.10-gridplus-suggestions.4
+    "@shapeshiftoss/hdwallet-trezor": 1.62.10-gridplus-suggestions.4
     "@trezor/connect-web": ^9.6.4
-  checksum: a483c7d3eff386d349be820b43bb9cb088e8ff3612fad79dfa1acc375d8c0f029755bfb62d3d89ba091687731171c8f2ea16c2f282c6c4b612f8650296761da1
+  checksum: dd9d4deac3efb57a9ccf98a3992b469df90811f154387dc6571670466b8b44e0f961e98fea13273a577e6ae2426f62186f22e79ce23a023cea3ec7e0d79d09b3
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/hdwallet-trezor@npm:1.62.9":
-  version: 1.62.9
-  resolution: "@shapeshiftoss/hdwallet-trezor@npm:1.62.9"
+"@shapeshiftoss/hdwallet-trezor@npm:1.62.10-gridplus-suggestions.4":
+  version: 1.62.10-gridplus-suggestions.4
+  resolution: "@shapeshiftoss/hdwallet-trezor@npm:1.62.10-gridplus-suggestions.4"
   dependencies:
     "@ethereumjs/common": 3.2.0
     "@ethereumjs/tx": 4.2.0
-    "@shapeshiftoss/hdwallet-core": 1.62.9
+    "@shapeshiftoss/hdwallet-core": 1.62.10-gridplus-suggestions.4
     base64-js: ^1.5.1
     lodash: ^4.17.21
-  checksum: 8cbdb16a950f93c2ae72a0a6dcd76498afd84bab95fda514760a8996b582866e12bf6e7a80df86d243f3cbc910b1ab118b0fe7cbd1a88c66c36606ac0f990be2
+  checksum: 1fce2f5c7a9c5a532de822bb2126eae33c2d1af3d7f7981db40272217715104bcdaff88e77dcc25374ce2687afe631a5af553a655cff22ce92d789572520fc1b
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/hdwallet-vultisig@npm:1.62.9":
-  version: 1.62.9
-  resolution: "@shapeshiftoss/hdwallet-vultisig@npm:1.62.9"
+"@shapeshiftoss/hdwallet-vultisig@npm:1.62.10-gridplus-suggestions.4":
+  version: 1.62.10-gridplus-suggestions.4
+  resolution: "@shapeshiftoss/hdwallet-vultisig@npm:1.62.10-gridplus-suggestions.4"
   dependencies:
     "@cosmjs/amino": ^0.28.13
     "@cosmjs/stargate": ^0.28.13
     "@shapeshiftoss/bitcoinjs-lib": 7.0.0-shapeshift.0
-    "@shapeshiftoss/hdwallet-core": 1.62.9
+    "@shapeshiftoss/hdwallet-core": 1.62.10-gridplus-suggestions.4
     "@solana/web3.js": 1.95.8
     base64-js: ^1.5.1
     bitcoinjs-message: ^2.0.0
     ethers: 5.7.2
     lodash: ^4.17.21
-  checksum: bc47d46cf26e68cbeff40b7eb8bc681126a2a58b238bceedf317753e1c3b8bd899f4d34704bc78967e0a392b98d36024448239c4890e9125011cc27daf2fbb77
+  checksum: d318c19cac368af92480f59441068839d352353aebebbb446192a0fdad4750fc6851be82a37bf0c1c343481f6d8aa950f13467b273840ecfbee81f1d90fdad99
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/hdwallet-walletconnect@npm:1.62.9":
-  version: 1.62.9
-  resolution: "@shapeshiftoss/hdwallet-walletconnect@npm:1.62.9"
+"@shapeshiftoss/hdwallet-walletconnect@npm:1.62.10-gridplus-suggestions.4":
+  version: 1.62.10-gridplus-suggestions.4
+  resolution: "@shapeshiftoss/hdwallet-walletconnect@npm:1.62.10-gridplus-suggestions.4"
   dependencies:
-    "@shapeshiftoss/hdwallet-core": 1.62.9
+    "@shapeshiftoss/hdwallet-core": 1.62.10-gridplus-suggestions.4
     "@walletconnect/qrcode-modal": ^1.7.8
     "@walletconnect/web3-provider": ^1.7.8
     ethers: ^5.6.5
-  checksum: e3444d2927a87eed92330914288ac48c5475457f6ca1a460eb4468b1f78206be3bb51e50841706d13daa7c5dfb199b4e5630770ced07a4ca0c0664cf95bdc4f6
+  checksum: f49329ba6156ccea2c7bdaefe7c1c9db4279e7e84f19e6dff126441d7aa7d3cc0e90714feac0e88ee68734e78fa818b4e7d7974d848d3a474b4077a47dc76b16
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/hdwallet-walletconnectv2@npm:1.62.9":
-  version: 1.62.9
-  resolution: "@shapeshiftoss/hdwallet-walletconnectv2@npm:1.62.9"
+"@shapeshiftoss/hdwallet-walletconnectv2@npm:1.62.10-gridplus-suggestions.4":
+  version: 1.62.10-gridplus-suggestions.4
+  resolution: "@shapeshiftoss/hdwallet-walletconnectv2@npm:1.62.10-gridplus-suggestions.4"
   dependencies:
-    "@shapeshiftoss/hdwallet-core": 1.62.9
+    "@shapeshiftoss/hdwallet-core": 1.62.10-gridplus-suggestions.4
     "@walletconnect/ethereum-provider": ^2.20.2
     "@walletconnect/modal": ^2.6.2
     ethers: ^5.6.5
-  checksum: 2e592ca7e45ecc53bc9dcbe25fe1fcbc0fcedabda6af4b0e393a5e1d3a66007583e2cae05a30069f25cf1363796c299132b6f15944511e034b84b6fcfaf88d7e
+  checksum: 733dd06883b7a29a10f95044193038681a587e94e7c1092365ec04540a565c9283c5df267e45ec9578ae86889d0cd53ea19dcd75415d8e41304ecffcbbccf121
   languageName: node
   linkType: hard
 
@@ -11441,24 +11425,24 @@ __metadata:
     "@shapeshiftoss/chain-adapters": "workspace:^"
     "@shapeshiftoss/contracts": "workspace:^"
     "@shapeshiftoss/errors": "workspace:^"
-    "@shapeshiftoss/hdwallet-coinbase": 1.62.9
-    "@shapeshiftoss/hdwallet-core": 1.62.9
-    "@shapeshiftoss/hdwallet-gridplus": 1.62.9
-    "@shapeshiftoss/hdwallet-keepkey": 1.62.9
-    "@shapeshiftoss/hdwallet-keepkey-webusb": 1.62.9
-    "@shapeshiftoss/hdwallet-keplr": 1.62.9
-    "@shapeshiftoss/hdwallet-ledger": 1.62.9
-    "@shapeshiftoss/hdwallet-ledger-webhid": 1.62.9
-    "@shapeshiftoss/hdwallet-ledger-webusb": 1.62.9
-    "@shapeshiftoss/hdwallet-metamask-multichain": 1.62.9
-    "@shapeshiftoss/hdwallet-native": 1.62.9
-    "@shapeshiftoss/hdwallet-native-vault": 1.62.9
-    "@shapeshiftoss/hdwallet-phantom": 1.62.9
-    "@shapeshiftoss/hdwallet-trezor": 1.62.9
-    "@shapeshiftoss/hdwallet-trezor-connect": 1.62.9
-    "@shapeshiftoss/hdwallet-vultisig": 1.62.9
-    "@shapeshiftoss/hdwallet-walletconnect": 1.62.9
-    "@shapeshiftoss/hdwallet-walletconnectv2": 1.62.9
+    "@shapeshiftoss/hdwallet-coinbase": 1.62.10-gridplus-suggestions.4
+    "@shapeshiftoss/hdwallet-core": 1.62.10-gridplus-suggestions.4
+    "@shapeshiftoss/hdwallet-gridplus": 1.62.10-gridplus-suggestions.4
+    "@shapeshiftoss/hdwallet-keepkey": 1.62.10-gridplus-suggestions.4
+    "@shapeshiftoss/hdwallet-keepkey-webusb": 1.62.10-gridplus-suggestions.4
+    "@shapeshiftoss/hdwallet-keplr": 1.62.10-gridplus-suggestions.4
+    "@shapeshiftoss/hdwallet-ledger": 1.62.10-gridplus-suggestions.4
+    "@shapeshiftoss/hdwallet-ledger-webhid": 1.62.10-gridplus-suggestions.4
+    "@shapeshiftoss/hdwallet-ledger-webusb": 1.62.10-gridplus-suggestions.4
+    "@shapeshiftoss/hdwallet-metamask-multichain": 1.62.10-gridplus-suggestions.4
+    "@shapeshiftoss/hdwallet-native": 1.62.10-gridplus-suggestions.4
+    "@shapeshiftoss/hdwallet-native-vault": 1.62.10-gridplus-suggestions.4
+    "@shapeshiftoss/hdwallet-phantom": 1.62.10-gridplus-suggestions.4
+    "@shapeshiftoss/hdwallet-trezor": 1.62.10-gridplus-suggestions.4
+    "@shapeshiftoss/hdwallet-trezor-connect": 1.62.10-gridplus-suggestions.4
+    "@shapeshiftoss/hdwallet-vultisig": 1.62.10-gridplus-suggestions.4
+    "@shapeshiftoss/hdwallet-walletconnect": 1.62.10-gridplus-suggestions.4
+    "@shapeshiftoss/hdwallet-walletconnectv2": 1.62.10-gridplus-suggestions.4
     "@shapeshiftoss/swapper": "workspace:^"
     "@shapeshiftoss/types": "workspace:^"
     "@shapeshiftoss/unchained-client": "workspace:^"

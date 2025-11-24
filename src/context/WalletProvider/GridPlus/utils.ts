@@ -23,45 +23,25 @@ type ConnectAndPairDeviceParams = {
 export const connectAndPairDevice = async ({
   adapter,
   deviceId,
-  sessionId,
+  sessionId, // Note: sessionId parameter is no longer used by the adapter (kept for backward compatibility)
   dispatch,
 }: ConnectAndPairDeviceParams): Promise<GridPlusHDWallet | null> => {
-  if (!sessionId) {
-    const { isPaired, sessionId: newSessionId } = await adapter.connectDevice(
-      deviceId,
-      undefined,
-      undefined,
-    )
+  // Connect to device - returns wallet if already paired, undefined if needs pairing
+  const { wallet, sessionId: newSessionId } = await adapter.connectDevice(
+    deviceId,
+    '', // password - empty string is the default
+  )
 
-    if (!isPaired) {
-      return null
-    }
+  // Store sessionId for future reconnections
+  dispatch(
+    gridplusSlice.actions.setConnection({
+      physicalDeviceId: deviceId,
+      sessionId: newSessionId,
+    }),
+  )
 
-    if (newSessionId) {
-      dispatch(
-        gridplusSlice.actions.setConnection({
-          physicalDeviceId: deviceId,
-          sessionId: newSessionId,
-        }),
-      )
-    }
-  }
-
-  const wallet = await adapter.pairDevice(deviceId, undefined, undefined, sessionId ?? undefined)
-
-  if (!sessionId && wallet.getSessionId) {
-    const walletSessionId = wallet.getSessionId()
-    if (walletSessionId) {
-      dispatch(
-        gridplusSlice.actions.setConnection({
-          physicalDeviceId: deviceId,
-          sessionId: walletSessionId,
-        }),
-      )
-    }
-  }
-
-  return wallet
+  // Return wallet if paired, null if needs pairing (will show pairing UI)
+  return wallet ?? null
 }
 
 type PairConnectedDeviceParams = {
@@ -77,18 +57,16 @@ export const pairConnectedDevice = async ({
   pairingCode,
   dispatch,
 }: PairConnectedDeviceParams): Promise<GridPlusHDWallet> => {
-  const wallet = await adapter.pairConnectedDevice(deviceId, pairingCode)
+  const wallet = await adapter.pairDevice(pairingCode)
 
-  if (wallet.getSessionId) {
-    const walletSessionId = wallet.getSessionId()
-    if (walletSessionId) {
-      dispatch(
-        gridplusSlice.actions.setConnection({
-          physicalDeviceId: deviceId,
-          sessionId: walletSessionId,
-        }),
-      )
-    }
+  const walletSessionId = wallet.getSessionId?.()
+  if (walletSessionId) {
+    dispatch(
+      gridplusSlice.actions.setConnection({
+        physicalDeviceId: deviceId,
+        sessionId: walletSessionId,
+      }),
+    )
   }
 
   return wallet

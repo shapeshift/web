@@ -293,7 +293,6 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = memo(
                 : formattedCryptoAmount || undefined
             }
             // this is already within a useCallback, we don't need to memo this
-            // eslint-disable-next-line react-memo/require-usememo
             onValueChange={(values: NumberFormatValues) => {
               // Controller onChange
               onChange(values.value)

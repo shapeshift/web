@@ -41,6 +41,7 @@ type FoxFarmingApproveProps = {
 }
 
 export const Approve: React.FC<FoxFarmingApproveProps> = ({ accountId, onNext }) => {
+  'use no memo'
   const { poll } = usePoll()
   const { state, dispatch } = useContext(DepositContext)
   const wallet = useWallet().state.wallet

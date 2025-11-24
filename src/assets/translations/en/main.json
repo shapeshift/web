@@ -328,7 +328,10 @@
     "viewSavedWallets": "View Saved Wallets",
     "footerOne": "By continuing, you agree to the",
     "terms": "Terms",
-    "privacyPolicy": "Privacy Policy"
+    "privacyPolicy": "Privacy Policy",
+    "connectNewWallet": "Connect New Wallet",
+    "getANewWallet": "Get a New Wallet",
+    "alreadyHaveWallet": "I already have a Wallet"
   },
   "connectWallet": {
     "menu": {
@@ -1156,6 +1159,9 @@
       "copyFailed": "Failed to copy %{symbol} receive address to clipboard",
       "copyFailedDescription": "Please copy the address manually",
       "setAmount": "Set Amount",
+      "verify": "Verify",
+      "verified": "Verified",
+      "notVerified": "Address Mismatch",
       "blockExplorer": "Explorer",
       "supportedNetworks": "Supported Networks",
       "amountNote": "Enter the amount you want to request. This will generate a QR code with the amount for easier payments."

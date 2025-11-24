@@ -141,7 +141,6 @@ export const CreateBackupConfirm = () => {
                     bg={getActiveBackground(i, word).bg}
                     _hover={getActiveBackground(i, word)}
                     // We can't memo this as it contains parameters
-                    // eslint-disable-next-line react-memo/require-usememo
                     onClick={() => handleSelect(i, word)}
                     px={4}
                     py={2}

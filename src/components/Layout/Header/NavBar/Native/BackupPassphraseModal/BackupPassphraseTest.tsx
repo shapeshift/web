@@ -176,7 +176,6 @@ export const BackupPassphraseTest: React.FC<LocationState> = props => {
                         size='md'
                         colorScheme={testState.selectedWords[i] === word ? 'blue' : 'gray'}
                         // Can't use useCallback here because it has parameters
-                        // eslint-disable-next-line react-memo/require-usememo
                         onClick={() => handleSelect(i, index)}
                         px={4}
                         py={2}

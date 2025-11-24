@@ -5,7 +5,6 @@ import { WalletViewsSwitch } from './WalletViewsSwitch'
 
 import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { useWallet } from '@/hooks/useWallet/useWallet'
-import { isMobile as isMobileApp } from '@/lib/globals'
 
 export const WalletViewsRouter = () => {
   const isNewWalletFlowEnabled = useFeatureFlag('NewWalletFlow')
@@ -19,7 +18,7 @@ export const WalletViewsRouter = () => {
 
   return (
     <MemoryRouter initialIndex={0}>
-      {isNewWalletFlowEnabled && !isMobileApp ? <NewWalletViewsSwitch /> : <WalletViewsSwitch />}
+      {isNewWalletFlowEnabled ? <NewWalletViewsSwitch /> : <WalletViewsSwitch />}
     </MemoryRouter>
   )
 }

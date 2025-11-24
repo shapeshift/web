@@ -9,6 +9,7 @@ import { Route, Routes } from 'react-router-dom'
 import { Account } from './Account'
 
 import { AccountsListContent } from '@/components/Accounts/AccountsListContent'
+import { Display } from '@/components/Display'
 import { Main } from '@/components/Layout/Main'
 import { SEO } from '@/components/Layout/Seo'
 import { Text } from '@/components/Text'
@@ -90,12 +91,24 @@ export const Accounts = () => {
 
   const accountElement = useMemo(() => <Account />, [])
 
-  return (
-    <Main headerComponent={dashboardHeader} py={mainPadding}>
+  const routes = useMemo(
+    () => (
       <Routes>
         <Route path='/' element={accountsContentElement} />
         <Route path=':accountId/*' element={accountElement} />
       </Routes>
-    </Main>
+    ),
+    [accountElement, accountsContentElement],
+  )
+
+  return (
+    <>
+      <Display.Desktop>
+        <Main headerComponent={dashboardHeader} py={mainPadding}>
+          {routes}
+        </Main>
+      </Display.Desktop>
+      <Display.Mobile>{routes}</Display.Mobile>
+    </>
   )
 }

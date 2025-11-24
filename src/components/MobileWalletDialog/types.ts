@@ -1,5 +1,6 @@
 export enum MobileWalletDialogRoutes {
   Default = '/',
+  Start = '/start',
   Saved = '/saved',
   Rename = '/rename',
   Delete = '/delete',

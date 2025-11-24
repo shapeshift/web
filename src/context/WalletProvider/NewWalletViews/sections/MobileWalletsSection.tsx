@@ -193,8 +193,16 @@ export const MobileWalletsSection = ({
         }
 
         try {
-          if (!revoker?.mnemonic) throw new Error(`Mobile wallet not found: ${deviceId}`)
-          if (!revoker?.id) throw new Error(`Revoker ID not found: ${deviceId}`)
+          if (!revoker?.mnemonic) {
+            setError('walletProvider.shapeShift.load.error.pair')
+            setInitializingWalletId(null)
+            return
+          }
+          if (!revoker?.id) {
+            setError('walletProvider.shapeShift.load.error.pair')
+            setInitializingWalletId(null)
+            return
+          }
 
           const walletInstance = await adapter.pairDevice(revoker.id)
           await walletInstance?.loadDevice({ mnemonic: revoker.mnemonic })

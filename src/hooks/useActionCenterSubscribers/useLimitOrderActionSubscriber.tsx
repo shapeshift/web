@@ -180,7 +180,6 @@ export const useLimitOrderActionSubscriber = () => {
 
             return (
               <LimitOrderNotification
-                // eslint-disable-next-line react-memo/require-usememo
                 handleClick={handleClick}
                 cowSwapQuoteId={activeQuoteId}
                 onClose={onClose}

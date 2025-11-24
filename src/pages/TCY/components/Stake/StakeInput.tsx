@@ -60,6 +60,7 @@ export const StakeInput: React.FC<TCYRouteProps & { currentAccount: CurrentAccou
   headerComponent,
   currentAccount,
 }) => {
+  'use no memo'
   const translate = useTranslate()
   const navigate = useNavigate()
   const {

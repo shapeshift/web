@@ -168,7 +168,6 @@ export const useAllowanceApproval = ({
 
           return (
             <GenericTransactionNotification
-              // eslint-disable-next-line react-memo/require-usememo
               handleClick={handleClick}
               actionId={txHash}
               onClose={onClose}

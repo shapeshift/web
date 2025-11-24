@@ -133,7 +133,6 @@ export const CosmosLearnMore = ({ onClose }: LearnMoreProps) => {
                     <Box textAlign='left' key={i} mb='18px'>
                       <Text
                         // we need to pass a local scope arg here, so we need an anonymous function wrapper
-                        // eslint-disable-next-line react-memo/require-usememo
                         translation={[body, { assetName, unbondingDays }]}
                         color='text.subtle'
                         fontWeight='semibold'

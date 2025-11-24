@@ -1,6 +1,12 @@
 import { CHAIN_NAMESPACE, fromAssetId } from '@shapeshiftoss/caip'
 import { evm } from '@shapeshiftoss/chain-adapters'
-import { bn, bnOrZero, contractAddressOrUndefined, isToken } from '@shapeshiftoss/utils'
+import {
+  bn,
+  bnOrZero,
+  contractAddressOrUndefined,
+  DAO_TREASURY_NEAR,
+  isToken,
+} from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import { v4 as uuid } from 'uuid'
@@ -97,7 +103,13 @@ export const getTradeQuote = async (
       recipient: receiveAddress,
       recipientType: QuoteRequest.recipientType.DESTINATION_CHAIN,
       deadline: new Date(Date.now() + DEFAULT_QUOTE_DEADLINE_MS).toISOString(),
-      // TODO(gomes): appFees disabled - https://github.com/shapeshift/web/issues/11022
+      referral: 'shapeshift',
+      appFees: [
+        {
+          recipient: DAO_TREASURY_NEAR,
+          fee: Number(affiliateBps),
+        },
+      ],
     }
 
     const quoteResponse: QuoteResponse = await OneClickService.getQuote(quoteRequest)

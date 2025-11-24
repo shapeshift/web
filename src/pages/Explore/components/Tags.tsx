@@ -95,7 +95,6 @@ export const Tags = () => {
         return (
           <Button
             key={tag}
-            // eslint-disable-next-line react-memo/require-usememo
             ref={element => handleButtonRef(element, tag)}
             size='sm'
             variant='ghost'
@@ -113,7 +112,6 @@ export const Tags = () => {
             fontSize='sm'
             transition='all 0.2s'
             flexShrink={0}
-            // eslint-disable-next-line react-memo/require-usememo
             onClick={() => handleClick(tag)}
           >
             {translate(`explore.tags.${tag}`)}

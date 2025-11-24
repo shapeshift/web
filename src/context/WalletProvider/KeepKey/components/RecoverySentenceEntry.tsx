@@ -266,7 +266,6 @@ export const KeepKeyRecoverySentenceEntry = () => {
                     ref={inputFields[i]}
                     {...pinInputFieldProps}
                     // we need to pass an arg here, so we need an anonymous function wrapper
-                    // eslint-disable-next-line react-memo/require-usememo
                     onMouseDown={e => preventClickIfNotCurrentIndex(e, i)}
                   />
                 )

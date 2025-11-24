@@ -41,7 +41,6 @@ export const NativeOnboarding: FC<NativeOnboardingModalProps> = ({ browserNaviga
   const renderRoutes = useMemo(() => {
     return OnboardingRoutes.map(route => {
       const element = <route.component browserNavigate={browserNavigate} />
-      // eslint-disable-next-line react-memo/require-usememo
       return <Route key={route.path} path={route.path} element={element} />
     })
   }, [browserNavigate])

@@ -19,46 +19,46 @@ import { useNotificationToast } from '@/hooks/useNotificationToast'
 const FEEDBACK_DISCORD_CHANNEL_URI =
   'https://discord.com/api/webhooks/1405155259898265620/AvtQbvanqdqjjf-DFq0tn_qfwFUiwLxkF7YeUqWKf-tpuittEeStLgxPMXrbOaPtItWk'
 
-const getRatingColor = (rating: number): number => {
-  switch (rating) {
-    case 1:
-      return 0xff0000 // Red
-    case 2:
-      return 0xff6600 // Orange
-    case 3:
-      return 0xffcc00 // Yellow
-    case 4:
-      return 0x00cc00 // Light Green
-    case 5:
-      return 0x00ff00 // Green
-    default:
-      return 0x808080 // Gray
-  }
-}
+// const getRatingColor = (rating: number): number => {
+//   switch (rating) {
+//     case 1:
+//       return 0xff0000 // Red
+//     case 2:
+//       return 0xff6600 // Orange
+//     case 3:
+//       return 0xffcc00 // Yellow
+//     case 4:
+//       return 0x00cc00 // Light Green
+//     case 5:
+//       return 0x00ff00 // Green
+//     default:
+//       return 0x808080 // Gray
+//   }
+// }
 
-const getRatingText = (rating: number): string => {
-  switch (rating) {
-    case 1:
-      return 'Very Poor'
-    case 2:
-      return 'Poor'
-    case 3:
-      return 'Average'
-    case 4:
-      return 'Good'
-    case 5:
-      return 'Excellent'
-    default:
-      return 'Not Rated'
-  }
-}
+// const getRatingText = (rating: number): string => {
+//   switch (rating) {
+//     case 1:
+//       return 'Very Poor'
+//     case 2:
+//       return 'Poor'
+//     case 3:
+//       return 'Average'
+//     case 4:
+//       return 'Good'
+//     case 5:
+//       return 'Excellent'
+//     default:
+//       return 'Not Rated'
+//   }
+// }
 
 export const RatingModal = () => {
   const { isOpen, close } = useModal('rating')
   const [rating, setRating] = useState<number>(0)
   const [feedback, setFeedback] = useState<string>('')
   const translate = useTranslate()
-  const { sendFeedback, isPending, isSuccess } = useSendDiscordWebhook({
+  const { isPending, isSuccess } = useSendDiscordWebhook({
     uri: FEEDBACK_DISCORD_CHANNEL_URI,
   })
   const mixpanel = useMemo(() => getMixPanel(), [])
@@ -131,44 +131,53 @@ export const RatingModal = () => {
   }, [])
 
   const handleSubmit = useCallback(() => {
-    const stars = '⭐'.repeat(rating) + '☆'.repeat(5 - rating)
-    const ratingText = getRatingText(rating)
-    const color = getRatingColor(rating)
+    // We disabled that for now as we need a proxy to send the feedback to the Discord webhook
+    // using authentication so we ensure the feedback is coming from a legitimate user
+    // const stars = '⭐'.repeat(rating) + '☆'.repeat(5 - rating)
+    // const ratingText = getRatingText(rating)
+    // const color = getRatingColor(rating)
+    // const embed = {
+    //   title: `New User Feedback Received`,
+    //   description: `A user has provided feedback about their experience with ShapeShift.`,
+    //   color,
+    //   fields: [
+    //     {
+    //       name: '📊 Rating',
+    //       value: `${stars} (${rating}/5)\n**${ratingText}**`,
+    //       inline: true,
+    //     },
+    //     {
+    //       name: '📝 Feedback',
+    //       value: feedback,
+    //       inline: false,
+    //     },
+    //     {
+    //       name: '📱 Platform',
+    //       value: isMobile ? 'Mobile App' : 'Web App',
+    //       inline: true,
+    //     },
+    //     {
+    //       name: '🕒 Submitted',
+    //       value: `<t:${Math.floor(Date.now() / 1000)}:F>`,
+    //       inline: true,
+    //     },
+    //   ],
+    // }
+    // sendFeedback({
+    //   embeds: [embed],
+    //   username: 'ShapeShift Feedback Bot',
+    //   avatar_url: 'https://shapeshift.com/favicon.ico',
+    // })
 
-    const embed = {
-      title: `New User Feedback Received`,
-      description: `A user has provided feedback about their experience with ShapeShift.`,
-      color,
-      fields: [
-        {
-          name: '📊 Rating',
-          value: `${stars} (${rating}/5)\n**${ratingText}**`,
-          inline: true,
-        },
-        {
-          name: '📝 Feedback',
-          value: feedback,
-          inline: false,
-        },
-        {
-          name: '📱 Platform',
-          value: isMobile ? 'Mobile App' : 'Web App',
-          inline: true,
-        },
-        {
-          name: '🕒 Submitted',
-          value: `<t:${Math.floor(Date.now() / 1000)}:F>`,
-          inline: true,
-        },
-      ],
-    }
-
-    sendFeedback({
-      embeds: [embed],
-      username: 'ShapeShift Feedback Bot',
-      avatar_url: 'https://shapeshift.com/favicon.ico',
+    // @TODO: remove that when we enable back the feature
+    toast({
+      title: translate('common.feedbackSubmitted'),
+      description: translate('common.thankYouForYourFeedback'),
+      status: 'success',
+      position: isMobile ? 'top' : 'bottom-right',
     })
-  }, [rating, feedback, sendFeedback])
+    close()
+  }, [close, toast, translate])
 
   const handleMaybeLater = useCallback(() => {
     close()

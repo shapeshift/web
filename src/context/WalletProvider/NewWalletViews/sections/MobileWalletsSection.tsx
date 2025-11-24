@@ -10,8 +10,8 @@ import {
   Icon,
   Spinner,
   Stack,
-  Text as CText,
   useColorModeValue,
+  useMediaQuery,
 } from '@chakra-ui/react'
 import { useQuery } from '@tanstack/react-query'
 import { useCallback, useMemo, useState } from 'react'
@@ -22,7 +22,7 @@ import { useTranslate } from 'react-polyglot'
 import { Display } from '@/components/Display'
 import { FoxIcon } from '@/components/Icons/FoxIcon'
 import { MobileWalletDialogRoutes } from '@/components/MobileWalletDialog/types'
-import { Text } from '@/components/Text'
+import { RawText, Text } from '@/components/Text'
 import { WalletActions } from '@/context/WalletProvider/actions'
 import { WalletListButton } from '@/context/WalletProvider/components/WalletListButton'
 import { KeyManager } from '@/context/WalletProvider/KeyManager'
@@ -32,6 +32,7 @@ import { getWallet, listWallets } from '@/context/WalletProvider/MobileWallet/mo
 import type { RevocableWallet } from '@/context/WalletProvider/MobileWallet/RevocableWallet'
 import { useModal } from '@/hooks/useModal/useModal'
 import { useWallet } from '@/hooks/useWallet/useWallet'
+import { breakpoints } from '@/theme/theme'
 
 const PlusIcon = <TbPlus />
 
@@ -40,98 +41,12 @@ type VaultInfo = {
   label: string
 }
 
-export type MobileWalletItemProps = {
-  onSelect: (wallet: VaultInfo) => void
-  wallet: VaultInfo
-  isSelected: boolean
-  isInitializing?: boolean
-  isDisabled?: boolean
-}
-
-const MobileWalletItem = ({
-  onSelect,
-  isSelected,
-  wallet,
-  isInitializing,
-  isDisabled,
-}: MobileWalletItemProps) => {
-  const bgColor = useColorModeValue('blackAlpha.100', 'whiteAlpha.100')
-
-  const handleSelect = useCallback(() => {
-    if (isDisabled) return
-    onSelect(wallet)
-  }, [onSelect, wallet, isDisabled])
-
-  return (
-    <Box
-      as={Button}
-      variant='ghost'
-      whiteSpace='normal'
-      px={4}
-      ml='-16px'
-      mr='-16px'
-      py={2.5}
-      borderRadius='md'
-      onClick={handleSelect}
-      bg={isSelected ? bgColor : undefined}
-      isLoading={isInitializing}
-      isDisabled={isDisabled}
-      opacity={isDisabled ? 0.5 : 1}
-      cursor={isDisabled ? 'not-allowed' : 'pointer'}
-    >
-      <Flex alignItems='center' width='full'>
-        <FoxIcon boxSize='24px' mr={3}>
-          <FaWallet />
-        </FoxIcon>
-        <Box textAlign='left'>
-          <CText isTruncated maxW='200px'>
-            {wallet.label}
-          </CText>
-        </Box>
-      </Flex>
-    </Box>
-  )
-}
-
-export const MobileWalletListButton = ({
-  onSelect,
-  isSelected,
-  wallet,
-  isInitializing,
-  isDisabled,
-}: MobileWalletItemProps) => {
-  const walletIcon = useMemo(() => <FoxIcon />, [])
-
-  const handleSelect = useCallback(() => {
-    if (isDisabled) return
-    onSelect(wallet)
-  }, [onSelect, wallet, isDisabled])
-
-  return (
-    <WalletListButton
-      name={wallet.label}
-      icon={walletIcon}
-      onSelect={handleSelect}
-      isSelected={isSelected}
-      isDisabled={isDisabled}
-      isLoading={isInitializing}
-    />
-  )
-}
-
 export type MobileWalletsSectionProps = {
-  selectedWalletId: string | null
-  onWalletSelect: (id: string, initialRoute: string) => void
-  renderItem?: React.ComponentType<MobileWalletItemProps>
   showHeader?: boolean
 }
 
-export const MobileWalletsSection = ({
-  selectedWalletId: _selectedWalletId,
-  onWalletSelect: _onWalletSelect,
-  renderItem: RenderItem = MobileWalletItem,
-  showHeader = true,
-}: MobileWalletsSectionProps) => {
+export const MobileWalletsSection = ({ showHeader = true }: MobileWalletsSectionProps) => {
+  const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
   const mobileWalletDialog = useModal('mobileWalletDialog')
   const localWallet = useLocalWallet()
   const translate = useTranslate()
@@ -139,6 +54,8 @@ export const MobileWalletsSection = ({
   const { walletInfo } = state
   const [error, setError] = useState<string | null>(null)
   const [initializingWalletId, setInitializingWalletId] = useState<string | null>(null)
+  const bgColor = useColorModeValue('blackAlpha.100', 'whiteAlpha.100')
+  const walletIcon = useMemo(() => <FoxIcon />, [])
 
   const { isLoading, data: wallets } = useQuery({
     queryKey: ['listWallets'],
@@ -271,15 +188,56 @@ export const MobileWalletsSection = ({
       const isInitializing = initializingWalletId === wallet.id
       const isDisabled = initializingWalletId !== null && initializingWalletId !== wallet.id
 
+      const handleSelect = () => {
+        if (isDisabled) return
+        handleWalletSelect(wallet)
+      }
+
+      // Mobile/small viewport - use WalletListButton
+      if (!isLargerThanMd) {
+        return (
+          <WalletListButton
+            key={wallet.id}
+            name={wallet.label}
+            icon={walletIcon}
+            onSelect={handleSelect}
+            isSelected={isSelected}
+            isDisabled={isDisabled}
+            isLoading={isInitializing}
+          />
+        )
+      }
+
+      // Desktop/large viewport - use compact button
       return (
-        <RenderItem
+        <Box
           key={wallet.id}
-          onSelect={handleWalletSelect}
-          isSelected={isSelected}
-          wallet={wallet}
-          isInitializing={isInitializing}
+          as={Button}
+          variant='ghost'
+          whiteSpace='normal'
+          px={4}
+          ml='-16px'
+          mr='-16px'
+          py={2.5}
+          borderRadius='md'
+          onClick={handleSelect}
+          bg={isSelected ? bgColor : undefined}
+          isLoading={isInitializing}
           isDisabled={isDisabled}
-        />
+          opacity={isDisabled ? 0.5 : 1}
+          cursor={isDisabled ? 'not-allowed' : 'pointer'}
+        >
+          <Flex alignItems='center' width='full'>
+            <FoxIcon boxSize='24px' mr={3}>
+              <FaWallet />
+            </FoxIcon>
+            <Box textAlign='left'>
+              <RawText isTruncated maxW='200px'>
+                {wallet.label}
+              </RawText>
+            </Box>
+          </Flex>
+        </Box>
       )
     })
   }, [
@@ -287,11 +245,13 @@ export const MobileWalletsSection = ({
     handleWalletSelect,
     walletInfo?.deviceId,
     initializingWalletId,
-    RenderItem,
     isLoading,
     state.isLoadingLocalWallet,
     error,
     translate,
+    isLargerThanMd,
+    bgColor,
+    walletIcon,
   ])
 
   return (

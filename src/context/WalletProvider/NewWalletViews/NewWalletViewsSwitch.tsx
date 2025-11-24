@@ -30,7 +30,7 @@ import { TrezorRoutes } from './routes/TrezorRoutes'
 import { WalletConnectV2Routes } from './routes/WalletConnectV2Routes'
 import { HardwareWalletsSection } from './sections/HardwareWalletsSection'
 import { InstalledWalletsSection } from './sections/InstalledWalletsSection'
-import { MobileWalletListButton, MobileWalletsSection } from './sections/MobileWalletsSection'
+import { MobileWalletsSection } from './sections/MobileWalletsSection'
 import { OthersSection } from './sections/OthersSection'
 import { SavedWalletListButton, SavedWalletsSection } from './sections/SavedWalletsSection'
 import type { RightPanelContentProps } from './types'
@@ -258,12 +258,7 @@ export const NewWalletViewsSwitch = () => {
       return (
         <MobileWebSelect isOpen={modal} onClose={onClose}>
           {isMobile ? (
-            <MobileWalletsSection
-              selectedWalletId={selectedWalletId}
-              onWalletSelect={handleWalletSelect}
-              renderItem={MobileWalletListButton}
-              showHeader={false}
-            />
+            <MobileWalletsSection showHeader={false} />
           ) : (
             <SavedWalletsSection
               selectedWalletId={selectedWalletId}
@@ -278,10 +273,7 @@ export const NewWalletViewsSwitch = () => {
     return (
       <Box w={sectionsWidth} p={6} maxH='800px' overflowY='auto'>
         {isMobile ? (
-          <MobileWalletsSection
-            selectedWalletId={selectedWalletId}
-            onWalletSelect={handleWalletSelect}
-          />
+          <MobileWalletsSection />
         ) : (
           <SavedWalletsSection
             selectedWalletId={selectedWalletId}

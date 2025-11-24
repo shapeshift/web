@@ -85,6 +85,7 @@ export const useGetTradeRateInput = ({
     const skipDeviceDerivation =
       wallet && (isLedger(wallet) || isTrezor(wallet) || isGridPlus(wallet))
     return skipDeviceDerivation && sellAccountId ? fromAccountId(sellAccountId).account : undefined
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [wallet, sellAccountId])
 
   const tradeInputQueryParams: GetTradeQuoteOrRateInputArgs = useMemo(
@@ -108,7 +109,6 @@ export const useGetTradeRateInput = ({
       buyAsset,
       pubKey,
       receiveAddress,
-      sellAccountId,
       sellAccountMetadata?.accountType,
       sellAccountNumber,
       sellAmountCryptoPrecision,

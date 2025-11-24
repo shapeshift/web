@@ -184,7 +184,8 @@ export const useGetTradeQuotes = () => {
       if (sellAccountNumber === undefined) throw new Error('sellAccountNumber is required')
       if (!receiveAddress) throw new Error('receiveAddress is required')
 
-      const skipDeviceDerivation = wallet && (isLedger(wallet) || isTrezor(wallet) || isGridPlus(wallet))
+      const skipDeviceDerivation =
+        wallet && (isLedger(wallet) || isTrezor(wallet) || isGridPlus(wallet))
 
       const updatedTradeQuoteInput: GetTradeQuoteInput | GetTradeRateInput | undefined =
         await getTradeQuoteOrRateInput({
@@ -200,7 +201,10 @@ export const useGetTradeQuotes = () => {
           affiliateBps: DEFAULT_FEE_BPS,
           // Pass in the user's slippage preference if it's set, else let the swapper use its default
           slippageTolerancePercentageDecimal: userSlippageTolerancePercentageDecimal,
-          pubKey: skipDeviceDerivation && sellAccountId ? fromAccountId(sellAccountId).account : undefined,
+          pubKey:
+            skipDeviceDerivation && sellAccountId
+              ? fromAccountId(sellAccountId).account
+              : undefined,
         })
 
       return updatedTradeQuoteInput

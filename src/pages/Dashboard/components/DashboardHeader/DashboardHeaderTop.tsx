@@ -9,7 +9,6 @@ import { useTranslate } from 'react-polyglot'
 import { useNavigate } from 'react-router-dom'
 
 import { vibrate } from '../../../../lib/vibrate'
-import { WalletBalance } from './WalletBalance'
 
 import { Display } from '@/components/Display'
 import { QRCodeIcon } from '@/components/Icons/QRCode'
@@ -40,7 +39,6 @@ const containerInnerFlexDir: ResponsiveValue<Property.FlexDirection> = {
 }
 const profileGridColumn = { base: 2, md: 1 }
 const profileGridTemplate = { base: '1fr auto 1fr', md: '1fr 1fr' }
-const balanceFontSize = '4xl'
 
 const mobileButtonJustifyContent = { base: 'space-between', sm: 'center' }
 
@@ -61,13 +59,6 @@ const mobileNetWorth = (
   // react-memo you're drunk, this is outside of component scope
   <Flex alignItems='center' flexDir={containerInnerFlexDir} gap={4} gridColumn={profileGridColumn}>
     <WalletBalanceChange showErroredAccounts={false} />
-  </Flex>
-)
-
-const desktopNetWorth = (
-  // react-memo you're drunk, this is outside of component scope
-  <Flex alignItems='center' flexDir={containerInnerFlexDir} gap={4} gridColumn={profileGridColumn}>
-    <WalletBalance balanceFontSize={balanceFontSize} />
   </Flex>
 )
 
@@ -271,7 +262,6 @@ export const DashboardHeaderTop = memo(() => {
           justifyContent='space-between'
           gap={containerGap}
         >
-          {desktopNetWorth}
           <Flex
             gridColumn={3}
             gap={4}

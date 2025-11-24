@@ -4,7 +4,7 @@ import { MetaMaskMultiChainHDWallet } from '@shapeshiftoss/hdwallet-metamask-mul
 import { useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
-import { Route, Routes } from 'react-router-dom'
+import { Navigate, Route, Routes } from 'react-router-dom'
 
 import { Account } from './Account'
 
@@ -91,7 +91,7 @@ export const Accounts = () => {
 
   const accountElement = useMemo(() => <Account />, [])
 
-  const routes = useMemo(
+  const mobileRoutes = useMemo(
     () => (
       <Routes>
         <Route path='/' element={accountsContentElement} />
@@ -101,14 +101,24 @@ export const Accounts = () => {
     [accountElement, accountsContentElement],
   )
 
+  const desktopRoutes = useMemo(
+    () => (
+      <Routes>
+        <Route path='/' element={<Navigate to='/trade' replace />} />
+        <Route path=':accountId/*' element={accountElement} />
+      </Routes>
+    ),
+    [accountElement],
+  )
+
   return (
     <>
       <Display.Desktop>
         <Main headerComponent={dashboardHeader} py={mainPadding}>
-          {routes}
+          {desktopRoutes}
         </Main>
       </Display.Desktop>
-      <Display.Mobile>{routes}</Display.Mobile>
+      <Display.Mobile>{mobileRoutes}</Display.Mobile>
     </>
   )
 }

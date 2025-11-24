@@ -90,7 +90,7 @@ export const DashboardHeader = memo(() => {
       },
       {
         label: 'navBar.wallet',
-        path: '/wallet/accounts',
+        path: '/accounts',
         color: 'blue',
       },
       {

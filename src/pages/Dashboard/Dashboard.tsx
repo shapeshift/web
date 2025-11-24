@@ -138,9 +138,8 @@ export const Dashboard = memo(() => {
     <>
       <SEO title={translate('navBar.dashboard')} />
       <Display.Desktop>
-        {/* Desktop users are redirected to trade page if accessing a page other than accounts */}
+        {/* Desktop users are redirected to trade page */}
         <Routes>
-          <Route path='accounts/*' element={accounts} />
           <Route path='*' element={desktopRedirect} />
         </Routes>
       </Display.Desktop>

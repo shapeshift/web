@@ -9,16 +9,20 @@ import { Route, Routes } from 'react-router-dom'
 import { Account } from './Account'
 
 import { AccountsListContent } from '@/components/Accounts/AccountsListContent'
+import { Main } from '@/components/Layout/Main'
 import { SEO } from '@/components/Layout/Seo'
 import { Text } from '@/components/Text'
 import { useIsSnapInstalled } from '@/hooks/useIsSnapInstalled/useIsSnapInstalled'
 import { useModal } from '@/hooks/useModal/useModal'
 import { useWallet } from '@/hooks/useWallet/useWallet'
+import { DashboardHeader } from '@/pages/Dashboard/components/DashboardHeader/DashboardHeader'
 import { selectIsPortfolioLoading, selectWalletId } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
 const editIcon = <EditIcon />
 const pxProps = { base: 4, xl: 0 }
+const mainPadding = { base: 0, md: 4 }
+const dashboardHeader = <DashboardHeader />
 
 const AccountHeader = ({ isLoading }: { isLoading?: boolean }) => {
   const translate = useTranslate()
@@ -87,9 +91,11 @@ export const Accounts = () => {
   const accountElement = useMemo(() => <Account />, [])
 
   return (
-    <Routes>
-      <Route path='/' element={accountsContentElement} />
-      <Route path=':accountId/*' element={accountElement} />
-    </Routes>
+    <Main headerComponent={dashboardHeader} py={mainPadding}>
+      <Routes>
+        <Route path='/' element={accountsContentElement} />
+        <Route path=':accountId/*' element={accountElement} />
+      </Routes>
+    </Main>
   )
 }

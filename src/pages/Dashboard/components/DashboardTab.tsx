@@ -27,10 +27,10 @@ export const DashboardTab = forwardRef<DashboardTabProps, 'button'>(
     }, [navigate, path])
 
     const isActive = useMemo(() => {
-      // Handle special case for /wallet/accounts, since it has subroutes, and we can't use lazy/wildcard match on all
-      // since /walelt/accounts/* would also match /wallet (Overview)
-      if (path === '/wallet/accounts') {
-        const match = matchPath({ path: '/wallet/accounts/*', end: false }, location.pathname)
+      // Handle special case for /accounts, since it has subroutes, and we can't use lazy/wildcard match on all
+      // since /accounts/* would also match /wallet (Overview)
+      if (path === '/accounts') {
+        const match = matchPath({ path: '/accounts/*', end: false }, location.pathname)
         return !!match
       }
       const match = matchPath({ path, end: exact }, location.pathname)

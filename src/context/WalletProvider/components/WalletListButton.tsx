@@ -11,6 +11,7 @@ type WalletListButtonProps = {
   onSelect: () => void
   isSelected?: boolean
   isDisabled?: boolean
+  isLoading?: boolean
 }
 
 export const WalletListButton = ({
@@ -19,6 +20,7 @@ export const WalletListButton = ({
   onSelect,
   isSelected,
   isDisabled,
+  isLoading,
 }: WalletListButtonProps) => {
   return (
     <Button
@@ -32,6 +34,7 @@ export const WalletListButton = ({
       rightIcon={arrowForwardIcon}
       onClick={onSelect}
       isDisabled={isDisabled}
+      isLoading={isLoading}
       opacity={isSelected ? 1 : 0.7}
     >
       <HStack spacing={4}>

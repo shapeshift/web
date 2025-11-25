@@ -1,5 +1,6 @@
 import {
   Avatar,
+  Box,
   Button,
   Circle,
   Flex,
@@ -81,6 +82,11 @@ export const WalletConnectDirectRow = () => {
   const [loadingWallet, setLoadingWallet] = useState<WalletConnectWalletId | null>(null)
   const [wallets, setWallets] = useState<WalletConfig[]>([])
   const [isDetecting, setIsDetecting] = useState(isMobile)
+  const [debugInfo, setDebugInfo] = useState<{
+    detectedWallets: any[]
+    installedWallets: any[]
+    mappedWallets: WalletConfig[]
+  } | null>(null)
 
   const handleDirectConnect = useCallback(
     async (walletId: WalletConnectWalletId) => {
@@ -113,6 +119,13 @@ export const WalletConnectDirectRow = () => {
           .filter((wallet): wallet is WalletConfig => wallet !== undefined)
           .slice(0, 3)
 
+        // Store debug info
+        setDebugInfo({
+          detectedWallets,
+          installedWallets,
+          mappedWallets,
+        })
+
         setWallets(mappedWallets)
       } catch (error) {
         console.error('Failed to detect wallets:', error)
@@ -124,10 +137,6 @@ export const WalletConnectDirectRow = () => {
 
     detectWallets()
   }, [])
-
-  if (isMobile && !isDetecting && wallets.length === 0) {
-    return null
-  }
 
   if (isDetecting) {
     return (
@@ -150,15 +159,59 @@ export const WalletConnectDirectRow = () => {
   }
 
   return (
-    <Flex px={6} pt={6} justifyContent='space-between' gap={6}>
-      {wallets.map(wallet => (
-        <DirectWalletButton
-          key={wallet.id}
-          wallet={wallet}
-          isLoading={loadingWallet === wallet.id}
-          onConnect={handleDirectConnect}
-        />
-      ))}
-    </Flex>
+    <Box>
+      {/* Debug Information */}
+      {isMobile && debugInfo && (
+        <Box px={6} pt={4} pb={4} bg='yellow.100' borderRadius='md' mx={6} mb={4}>
+          <Text fontSize='xs' fontWeight='bold' mb={2}>
+            DEBUG: Wallet Detection
+          </Text>
+          <Box fontSize='xs' fontFamily='mono'>
+            <Text fontWeight='semibold'>
+              Detected Wallets ({debugInfo.detectedWallets.length}):
+            </Text>
+            <Box as='pre' fontSize='10px' overflow='auto' maxH='150px'>
+              {JSON.stringify(debugInfo.detectedWallets, null, 2)}
+            </Box>
+            <Text fontWeight='semibold' mt={2}>
+              Installed Wallets ({debugInfo.installedWallets.length}):
+            </Text>
+            <Box as='pre' fontSize='10px' overflow='auto' maxH='150px'>
+              {JSON.stringify(debugInfo.installedWallets, null, 2)}
+            </Box>
+            <Text fontWeight='semibold' mt={2}>
+              Mapped Wallets ({debugInfo.mappedWallets.length}):
+            </Text>
+            <Box as='pre' fontSize='10px' overflow='auto' maxH='150px'>
+              {JSON.stringify(
+                debugInfo.mappedWallets.map(w => ({ id: w.id, name: w.name })),
+                null,
+                2,
+              )}
+            </Box>
+          </Box>
+        </Box>
+      )}
+
+      {/* Wallet Buttons */}
+      {wallets.length > 0 ? (
+        <Flex px={6} pt={6} justifyContent='space-between' gap={6}>
+          {wallets.map(wallet => (
+            <DirectWalletButton
+              key={wallet.id}
+              wallet={wallet}
+              isLoading={loadingWallet === wallet.id}
+              onConnect={handleDirectConnect}
+            />
+          ))}
+        </Flex>
+      ) : (
+        <Box px={6} pt={6}>
+          <Text fontSize='sm' color='gray.500'>
+            No wallets detected. See debug info above for details.
+          </Text>
+        </Box>
+      )}
+    </Box>
   )
 }

@@ -5,9 +5,9 @@ import {
   AlertIcon,
   Button,
   Center,
+  Heading as CkHeading,
   Divider,
   Flex,
-  Heading as CkHeading,
   Image,
   Link,
   Spinner,
@@ -74,16 +74,17 @@ export const MobileConnect = () => {
   const hasWallet = Boolean(state.walletInfo?.deviceId)
   const navigate = useNavigate()
 
-  const mobileWalletDialog = useModal('mobileWalletDialog')
+  const { open: openMobileWalletDialog, isOpen: isMobileWalletDialogOpen } =
+    useModal('mobileWalletDialog')
   const [isWaitingForRedirection, setIsWaitingForRedirection] = useState<boolean>(false)
 
   const handleOpenCreateWallet = useCallback(() => {
-    mobileWalletDialog.open({ defaultRoute: MobileWalletDialogRoutes.Create })
-  }, [mobileWalletDialog])
+    openMobileWalletDialog({ defaultRoute: MobileWalletDialogRoutes.Create })
+  }, [openMobileWalletDialog])
 
   const handleImport = useCallback(() => {
-    mobileWalletDialog.open({ defaultRoute: MobileWalletDialogRoutes.Import })
-  }, [mobileWalletDialog])
+    openMobileWalletDialog({ defaultRoute: MobileWalletDialogRoutes.Import })
+  }, [openMobileWalletDialog])
 
   const query = useQuery<{ returnUrl: string }>()
 
@@ -151,6 +152,12 @@ export const MobileConnect = () => {
       setHideWallets(true) // If they have no wallets, show the default create or import
     }
   }, [isLoading, wallets.length])
+
+  useEffect(() => {
+    if (!isMobileWalletDialogOpen) {
+      setHideWallets(false)
+    }
+  }, [isMobileWalletDialogOpen])
 
   const handleIsWaitingForRedirection = useCallback((isWaitingForRedirection: boolean) => {
     setIsWaitingForRedirection(isWaitingForRedirection)

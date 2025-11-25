@@ -205,6 +205,8 @@ export const handleSend = async ({
       }
       const { accountNumber } = bip44Params
       const adapter = assertGetUtxoChainAdapter(chainId)
+      const utxoPubKey = isTrezor(wallet) ? fromAccountId(sendInput.accountId).account : undefined
+      console.log('UTXO buildSendTransaction pubKey:', { isTrezor: isTrezor(wallet), utxoPubKey })
       return adapter.buildSendTransaction({
         to,
         value,
@@ -217,6 +219,7 @@ export const handleSend = async ({
           opReturnData: memo,
         },
         sendMax: sendInput.sendMax,
+        pubKey: utxoPubKey,
       })
     }
 

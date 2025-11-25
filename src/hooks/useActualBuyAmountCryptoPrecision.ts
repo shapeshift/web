@@ -12,13 +12,6 @@ export const useActualBuyAmountCryptoPrecision = (
 ): string | undefined => {
   const swap = useAppSelector(state => selectSwapById(state, { swapId: swapId ?? '' }))
 
-  const actualBuyAmountCryptoPrecision = useMemo(() => {
-    if (swap?.actualBuyAmountCryptoBaseUnit && swap?.buyAsset) {
-      return fromBaseUnit(swap.actualBuyAmountCryptoBaseUnit, swap.buyAsset.precision)
-    }
-    return undefined
-  }, [swap?.actualBuyAmountCryptoBaseUnit, swap?.buyAsset])
-
   const tx = useAppSelector(state =>
     selectTxByFilter(state, {
       accountId: swap?.buyAccountId ?? '',
@@ -31,10 +24,12 @@ export const useActualBuyAmountCryptoPrecision = (
     }),
   )
 
-  const actualBuyAmountFromTxHistory = useMemo(() => {
-    if (!tx?.transfers?.length || !swap?.buyAsset) {
-      return undefined
+  const actualBuyAmountCryptoPrecision = useMemo(() => {
+    if (swap?.actualBuyAmountCryptoBaseUnit && swap?.buyAsset) {
+      return fromBaseUnit(swap.actualBuyAmountCryptoBaseUnit, swap.buyAsset.precision)
     }
+
+    if (!tx?.transfers?.length || !swap?.buyAsset) return undefined
 
     const receiveTransfer = tx.transfers.find(
       transfer =>
@@ -44,7 +39,7 @@ export const useActualBuyAmountCryptoPrecision = (
     return receiveTransfer?.value
       ? fromBaseUnit(receiveTransfer.value, swap.buyAsset.precision)
       : undefined
-  }, [tx, swap?.buyAsset])
+  }, [tx, swap])
 
-  return actualBuyAmountCryptoPrecision ?? actualBuyAmountFromTxHistory
+  return actualBuyAmountCryptoPrecision
 }

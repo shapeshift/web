@@ -159,7 +159,15 @@ export const WalletConnectDirectRow = () => {
     <Box>
       {/* Debug Information */}
       {isMobile && debugInfo && (
-        <Box px={6} pt={4} pb={4} bg='yellow.100' borderRadius='md' mx={6} mb={4}>
+        <Box
+          px={6}
+          pt={4}
+          pb={4}
+          bg='background.surface.raised.base'
+          borderRadius='md'
+          mx={6}
+          mb={4}
+        >
           <Text fontSize='xs' fontWeight='bold' mb={2}>
             DEBUG: Wallet Detection
           </Text>

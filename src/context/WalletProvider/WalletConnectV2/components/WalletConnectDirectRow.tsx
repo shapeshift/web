@@ -1,11 +1,22 @@
-import { Avatar, Button, Circle, Flex, Spinner, Text } from '@chakra-ui/react'
-import { useCallback, useMemo, useState } from 'react'
+import {
+  Avatar,
+  Button,
+  Circle,
+  Flex,
+  Skeleton,
+  SkeletonCircle,
+  Spinner,
+  Text,
+} from '@chakra-ui/react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 
+import { getDetectedWallets } from '../../MobileWallet/mobileMessageHandlers'
 import type { WalletConfig, WalletConnectWalletId } from '../constants'
 import { WALLET_CONFIGS } from '../constants'
 import { useDirectWalletConnect } from '../useDirectConnect'
 
 import { WalletConnectCurrentColorIcon } from '@/components/Icons/WalletConnectIcon'
+import { isMobile } from '@/lib/globals'
 
 const WalletConnectBadge = () => (
   <Circle size='16px' bg='#3B99FC'>
@@ -68,6 +79,8 @@ export const DirectWalletButton = ({ wallet, isLoading, onConnect }: DirectWalle
 export const WalletConnectDirectRow = () => {
   const { connect } = useDirectWalletConnect()
   const [loadingWallet, setLoadingWallet] = useState<WalletConnectWalletId | null>(null)
+  const [wallets, setWallets] = useState<WalletConfig[]>([])
+  const [isDetecting, setIsDetecting] = useState(isMobile)
 
   const handleDirectConnect = useCallback(
     async (walletId: WalletConnectWalletId) => {
@@ -84,9 +97,61 @@ export const WalletConnectDirectRow = () => {
     [connect],
   )
 
+  useEffect(() => {
+    const detectWallets = async () => {
+      if (!isMobile) {
+        setWallets(WALLET_CONFIGS.slice(0, 3))
+        setIsDetecting(false)
+        return
+      }
+
+      try {
+        const detectedWallets = await getDetectedWallets()
+        const installedWallets = detectedWallets.filter(wallet => wallet.isInstalled)
+        const mappedWallets = installedWallets
+          .map(wallet => WALLET_CONFIGS.find(w => w.id === wallet.schema))
+          .filter((wallet): wallet is WalletConfig => wallet !== undefined)
+          .slice(0, 3)
+
+        setWallets(mappedWallets)
+      } catch (error) {
+        console.error('Failed to detect wallets:', error)
+        setWallets(WALLET_CONFIGS.slice(0, 3))
+      } finally {
+        setIsDetecting(false)
+      }
+    }
+
+    detectWallets()
+  }, [])
+
+  if (isMobile && !isDetecting && wallets.length === 0) {
+    return null
+  }
+
+  if (isDetecting) {
+    return (
+      <Flex px={6} pt={6} justifyContent='space-between' gap={6}>
+        {[1, 2, 3].map(index => (
+          <Flex
+            key={index}
+            direction='column'
+            align='center'
+            justify='center'
+            width='full'
+            minH='120px'
+          >
+            <SkeletonCircle size='96px' />
+            <Skeleton height='20px' width='80px' mt={3} borderRadius='md' />
+          </Flex>
+        ))}
+      </Flex>
+    )
+  }
+
   return (
     <Flex px={6} pt={6} justifyContent='space-between' gap={6}>
-      {WALLET_CONFIGS.map(wallet => (
+      {wallets.map(wallet => (
         <DirectWalletButton
           key={wallet.id}
           wallet={wallet}

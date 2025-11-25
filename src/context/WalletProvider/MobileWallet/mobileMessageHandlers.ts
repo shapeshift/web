@@ -1,6 +1,7 @@
 import type { RevocableWallet } from '@/context/WalletProvider/MobileWallet/RevocableWallet'
 import { createRevocableWallet } from '@/context/WalletProvider/MobileWallet/RevocableWallet'
 import type {
+  DetectedWallet,
   MobileWalletInfo,
   MobileWalletInfoWithMnemonic,
 } from '@/context/WalletProvider/MobileWallet/types'
@@ -58,6 +59,9 @@ type Message =
   | {
       cmd: 'getAppVersion'
     }
+  | {
+      cmd: 'detectWallets'
+    }
 
 export type MessageFromMobileApp = {
   id: number
@@ -112,6 +116,13 @@ const postMessage = <T>(msg: Message): Promise<T> => {
  */
 export const showDeveloperModal = (): Promise<void> => {
   return postMessage({ cmd: 'showDeveloperModal', key: 'show' })
+}
+
+/*
+ * Get list of detected wallets from the mobile app
+ */
+export const getDetectedWallets = (): Promise<DetectedWallet[]> => {
+  return postMessage<DetectedWallet[]>({ cmd: 'detectWallets' })
 }
 
 /**

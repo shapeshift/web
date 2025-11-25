@@ -1,4 +1,4 @@
-import react from '@vitejs/plugin-react-swc'
+import react from '@vitejs/plugin-react'
 import * as fs from 'fs'
 import { CID } from 'multiformats/cid'
 import * as raw from 'multiformats/codecs/raw'
@@ -79,7 +79,18 @@ export default defineConfig(({ mode }) => {
         },
         protocolImports: true,
       }),
-      react(),
+      react({
+        babel: {
+          plugins: [
+            [
+              'babel-plugin-react-compiler',
+              {
+                compilationMode: 'infer', // Auto-compile components following Rules of React
+              },
+            ],
+          ],
+        },
+      }),
       tsconfigPaths(),
       checker({
         typescript: {
@@ -173,6 +184,7 @@ export default defineConfig(({ mode }) => {
               if (id.includes('@walletconnect')) return '@walletconnect'
               if (id.includes('@keepkey/keepkey-sdk')) return '@keepkey'
               if (id.includes('bnb-javascript-sdk-nobroadcast')) return 'bnb-sdk'
+              if (id.includes('gridplus-sdk')) return 'gridplus-sdk'
 
               return null
             }
@@ -200,7 +212,7 @@ export default defineConfig(({ mode }) => {
         },
       },
       minify: mode === 'development' && !process.env.DEPLOY ? false : 'esbuild',
-      sourcemap: mode === 'development' && !process.env.DEPLOY ? 'inline' : false,
+      sourcemap: mode === 'development' && !process.env.DEPLOY ? 'inline' : true,
       outDir: 'build',
     },
   }

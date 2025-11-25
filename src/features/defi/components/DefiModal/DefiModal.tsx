@@ -18,6 +18,7 @@ const modalMaxWidth = { base: 'full', md: '500px' }
  * Earn modal is linked to the router. When closed we return to the previous/background route
  */
 export const DefiModal: React.FC<EarnModalProps> = ({ children, isOpen = false }) => {
+  'use no memo'
   const navigate = useNavigate()
   const { location } = useBrowserRouter()
 

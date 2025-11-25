@@ -212,7 +212,6 @@ export const ChangeAddressConfirm: React.FC<
 
           return (
             <GenericTransactionNotification
-              // eslint-disable-next-line react-memo/require-usememo
               handleClick={handleClick}
               actionId={txId}
               onClose={onClose}

@@ -26,6 +26,7 @@ import { useActionCenterContext } from '@/components/Layout/Header/ActionCenter/
 import { SwapNotification } from '@/components/Layout/Header/ActionCenter/components/Notifications/SwapNotification'
 import { getConfig } from '@/config'
 import { queryClient } from '@/context/QueryClientProvider/queryClient'
+import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { getTxLink } from '@/lib/getTxLink'
 import { fetchTradeStatus, tradeStatusQueryKey } from '@/lib/tradeExecution'
 import { vibrate } from '@/lib/vibrate'
@@ -89,6 +90,7 @@ export const useSwapActionSubscriber = () => {
   const { open: openRatingModal } = useModal('rating')
   const mobileFeaturesCompatibility = useMobileFeaturesCompatibility()
   const confirmedTradeExecution = useAppSelector(selectConfirmedTradeExecution)
+  const isAppRatingEnabled = useFeatureFlag('AppRating')
 
   const { data: isIncognitoQueryData, isLoading: isIncognitoLoading } = useQuery({
     queryKey: ['isIncognito'],
@@ -270,7 +272,8 @@ export const useSwapActionSubscriber = () => {
           !hasSeenRatingModal &&
           mobileFeaturesCompatibility[MobileFeature.RatingModal].isCompatible &&
           !isIncognito &&
-          !isIncognitoLoading
+          !isIncognitoLoading &&
+          isAppRatingEnabled
         ) {
           openRatingModal({})
           handleHasSeenRatingModal()
@@ -288,7 +291,6 @@ export const useSwapActionSubscriber = () => {
 
             return (
               <SwapNotification
-                // eslint-disable-next-line react-memo/require-usememo
                 handleClick={handleClick}
                 swapId={swap.id}
                 status={status}
@@ -327,7 +329,6 @@ export const useSwapActionSubscriber = () => {
 
             return (
               <SwapNotification
-                // eslint-disable-next-line react-memo/require-usememo
                 handleClick={handleClick}
                 swapId={swap.id}
                 status={status}

@@ -16,7 +16,6 @@
     "show": "Show",
     "done": "Done",
     "cancel": "Cancel",
-    "delete": "Delete",
     "close": "Close",
     "closed": "Closed",
     "loadMore": "Load More",
@@ -1157,6 +1156,9 @@
       "copyFailed": "Failed to copy %{symbol} receive address to clipboard",
       "copyFailedDescription": "Please copy the address manually",
       "setAmount": "Set Amount",
+      "verify": "Verify",
+      "verified": "Verified",
+      "notVerified": "Address Mismatch",
       "blockExplorer": "Explorer",
       "supportedNetworks": "Supported Networks",
       "amountNote": "Enter the amount you want to request. This will generate a QR code with the amount for easier payments."
@@ -1326,6 +1328,11 @@
         "button": "Pair",
         "conflictingApp": "Could not find your KeepKey. Another application may be trying to connect with your KeepKey.",
         "downloadUpdaterApp": "Download updater app"
+      },
+      "pin": {
+        "header": "Enter Your PIN",
+        "body": "Use PIN layout shown on your device to find the location to press on the PIN pad.",
+        "button": "Unlock"
       },
       "settings": {
         "menuLabels": {
@@ -1989,7 +1996,8 @@
           "title": "Connect your wallet to a dApp via WalletConnect and trigger transactions",
           "linkPlaceholder": "QR code or connection link",
           "disclaimerBody": "ShapeShift cannot ensure the safety or security of third-party applications. By using WalletConnect, you assume full responsibility for any risks involved.",
-          "connect": "Connect"
+          "connect": "Connect",
+          "invalidUri": "Invalid URI"
         },
         "sessionProposal": {
           "unsupportedChain": "Unsupported chain namespace in session proposal.",

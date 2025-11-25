@@ -46,7 +46,6 @@ export const SortOptionGroup = ({
             <MenuItemOption
               key={sortOption.value}
               value={sortOption.value}
-              // eslint-disable-next-line react-memo/require-usememo
               onClick={() => handleSortChange(sortOption.value)}
               fontSize='md'
               iconPlacement='end'

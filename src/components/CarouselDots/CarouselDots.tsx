@@ -28,7 +28,6 @@ export const CarouselDots = ({
             i === activeIndex - 1 ? activeDotBackgroundColor : inactiveDotBackgroundColor
           }
           // we need to pass an arg here, so we need an anonymous function wrapper
-          // eslint-disable-next-line react-memo/require-usememo
           onClick={() => onClick?.(i + 1)}
         />
       ))}

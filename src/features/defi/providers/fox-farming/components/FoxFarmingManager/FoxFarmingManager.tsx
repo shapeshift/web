@@ -16,6 +16,7 @@ import { DefiAction } from '@/features/defi/contexts/DefiManagerProvider/DefiCom
 import { useBrowserRouter } from '@/hooks/useBrowserRouter/useBrowserRouter'
 
 const FoxFarmingManagerContent = () => {
+  'use no memo'
   const { query } = useBrowserRouter<DefiQueryParams, DefiParams>()
   const { modal } = query
   const { farmingAccountId, setFarmingAccountId: handleFarmingAccountIdChange } = useFoxEth()
@@ -69,8 +70,11 @@ const FoxFarmingManagerContent = () => {
   )
 }
 
-export const FoxFarmingManager = () => (
-  <FoxEthProvider>
-    <FoxFarmingManagerContent />
-  </FoxEthProvider>
-)
+export const FoxFarmingManager = () => {
+  'use no memo'
+  return (
+    <FoxEthProvider>
+      <FoxFarmingManagerContent />
+    </FoxEthProvider>
+  )
+}

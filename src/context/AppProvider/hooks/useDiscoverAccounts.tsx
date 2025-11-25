@@ -24,20 +24,7 @@ export const useDiscoverAccounts = () => {
   const connectedRdns = useAppSelector(selectWalletRdns)
 
   const shouldSkipAutoDiscovery = useMemo(() => {
-    const isGridPlusWallet = wallet && isGridPlus(wallet)
-    const isLedgerWallet = wallet && isLedger(wallet)
-    const isTrezorWallet = wallet && isTrezor(wallet)
-    const shouldSkip = wallet && (isLedgerWallet || isGridPlusWallet || isTrezorWallet)
-
-    console.log('[useDiscoverAccounts] shouldSkipAutoDiscovery check:', {
-      wallet: wallet?.constructor?.name,
-      isGridPlusWallet,
-      isLedgerWallet,
-      isTrezorWallet,
-      shouldSkip,
-    })
-
-    return shouldSkip
+    return wallet && (isLedger(wallet) || isGridPlus(wallet) || isTrezor(wallet))
   }, [wallet])
 
   const supportedChainIds = useMemo(() => {
@@ -60,24 +47,14 @@ export const useDiscoverAccounts = () => {
         queryFn: async () => {
           const isMetaMaskMultichainWallet = wallet instanceof MetaMaskMultiChainHDWallet
 
-          console.log('[useDiscoverAccounts] queryFn running for chainId:', chainId, {
-            wallet: wallet?.constructor?.name,
-            shouldSkipAutoDiscovery,
-            connectedRdns,
-            isSnapInstalled,
-          })
-
           if (
             !wallet ||
             shouldSkipAutoDiscovery ||
             // Before connecting to MetaMask, isSnapInstalled is null then switch to false when the hook reacts, we would run the discovery 2 times
             (connectedRdns === METAMASK_RDNS && isSnapInstalled === null)
           ) {
-            console.log('[useDiscoverAccounts] Skipping discovery - wallet or shouldSkip condition met')
             return { accountMetadataByAccountId: {}, hasActivity: false }
           }
-
-          console.log('[useDiscoverAccounts] Proceeding with account discovery for chainId:', chainId)
 
           const connectedWalletId = portfolio.selectors.selectWalletId(store.getState())
           const walletId = connectedWalletId ?? (await wallet.getDeviceID())

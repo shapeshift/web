@@ -657,49 +657,24 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
         }),
       )
 
-      console.log('[UtxoBaseAdapter.getPublicKeys] Calling wallet.getPublicKeys with requests:', requests);
-
       const publicKeys = await wallet.getPublicKeys(requests)
-
-      console.log('[UtxoBaseAdapter.getPublicKeys] Received publicKeys from wallet:', publicKeys);
-
       if (!publicKeys) return {}
 
       const result: Record<number, Record<UtxoAccountType, PublicKey>> = {}
 
       requests.forEach((request, i) => {
-        console.log(`[UtxoBaseAdapter.getPublicKeys] Processing response ${i}:`, {
-          request,
-          publicKey: publicKeys[i],
-        });
-
         const pubKey = publicKeys[i]
-        if (!pubKey) {
-          console.log(`[UtxoBaseAdapter.getPublicKeys] Response ${i} is null, skipping`);
-          return
-        }
+        if (!pubKey) return
 
         const accountNumber = request._accountNumber
         const accountType = request._accountType
 
-        console.log(`[UtxoBaseAdapter.getPublicKeys] Response ${i} converting xpub:`, {
-          accountNumber,
-          accountType,
-          xpubBefore: pubKey.xpub,
-        });
-
         if (!result[accountNumber]) result[accountNumber] = {} as Record<UtxoAccountType, PublicKey>
 
-        const convertedXpub = convertXpubVersion(pubKey.xpub, accountType);
-
-        console.log(`[UtxoBaseAdapter.getPublicKeys] Response ${i} xpub after conversion:`, convertedXpub);
-
         result[accountNumber][accountType] = {
-          xpub: convertedXpub,
+          xpub: convertXpubVersion(pubKey.xpub, accountType),
         }
       })
-
-      console.log('[UtxoBaseAdapter.getPublicKeys] Final result:', result);
 
       return result
     } catch (err) {

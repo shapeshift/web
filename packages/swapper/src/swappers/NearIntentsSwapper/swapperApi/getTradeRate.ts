@@ -22,7 +22,7 @@ import type {
   TradeRate,
 } from '../../../types'
 import { SwapperName, TradeQuoteError } from '../../../types'
-import { makeSwapErrorRight } from '../../../utils'
+import { getInputOutputRate, makeSwapErrorRight } from '../../../utils'
 import { simulateWithStateOverrides } from '../../../utils/tenderly'
 import { isNativeEvmAsset } from '../../utils/helpers/helpers'
 import { DEFAULT_QUOTE_DEADLINE_MS, DEFAULT_SLIPPAGE_BPS } from '../constants'
@@ -209,11 +209,18 @@ export const getTradeRate = async (
 
     const networkFeeCryptoBaseUnit = (await getFeeData()) || '0'
 
+    const rate = getInputOutputRate({
+      sellAmountCryptoBaseUnit: quote.amountIn,
+      buyAmountCryptoBaseUnit: quote.amountOut,
+      sellAsset,
+      buyAsset,
+    })
+
     const tradeRate: TradeRate = {
       id: uuid(),
       receiveAddress: receiveAddress ?? undefined,
       affiliateBps,
-      rate: bn(quote.amountOut).div(quote.amountIn).toString(),
+      rate,
       slippageTolerancePercentageDecimal:
         slippageTolerancePercentageDecimal ??
         getDefaultSlippageDecimalPercentageForSwapper(SwapperName.NearIntents),
@@ -230,7 +237,7 @@ export const getTradeRate = async (
             protocolFees: {},
             networkFeeCryptoBaseUnit,
           },
-          rate: bn(quote.amountOut).div(quote.amountIn).toString(),
+          rate,
           sellAmountIncludingProtocolFeesCryptoBaseUnit: quote.amountIn,
           sellAsset,
           source: SwapperName.NearIntents,

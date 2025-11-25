@@ -22,9 +22,3 @@ export type MobileWalletInfo = {
 }
 
 export type MobileWalletInfoWithMnemonic = MobileWalletInfo & { mnemonic: string }
-
-export type DetectedWallet = {
-  name: string
-  schema: string
-  isInstalled: boolean
-}

@@ -15,7 +15,7 @@ import {
   VStack,
 } from '@chakra-ui/react'
 import type { FC } from 'react'
-import { lazy, memo, Suspense, useCallback, useMemo, useState } from 'react'
+import { lazy, memo, Suspense, useCallback, useEffect, useMemo, useState } from 'react'
 import { flushSync } from 'react-dom'
 import { useTranslate } from 'react-polyglot'
 
@@ -117,18 +117,29 @@ const AccountTableSkeleton: FC = memo(() => (
 type DrawerWalletDashboardProps = {
   onClose: () => void
   onSettingsClick: () => void
+  isOpen: boolean
 }
 
 export const DrawerWalletDashboard: FC<DrawerWalletDashboardProps> = memo(
-  ({ onClose, onSettingsClick }) => {
+  ({ onClose, onSettingsClick, isOpen }) => {
     const translate = useTranslate()
     const send = useModal('send')
     const receive = useModal('receive')
 
     const [activeTabIndex, setActiveTabIndex] = useState(0)
-    const [loadedTabs, setLoadedTabs] = useState(new Set<number>([0]))
+    const [loadedTabs, setLoadedTabs] = useState(new Set<number>())
 
     const accountTableSkeletonFallback = useMemo(() => <AccountTableSkeleton />, [])
+
+    // Defer loading the first tab until drawer opens to improve initial opening performance
+    useEffect(() => {
+      if (isOpen) {
+        const timer = setTimeout(() => {
+          setLoadedTabs(prev => new Set([...prev, activeTabIndex]))
+        }, 500)
+        return () => clearTimeout(timer)
+      }
+    }, [isOpen, activeTabIndex])
 
     const {
       state: { isConnected, walletInfo, connectedType, isLocked },

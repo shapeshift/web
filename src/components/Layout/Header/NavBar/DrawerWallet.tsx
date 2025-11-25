@@ -15,9 +15,10 @@ const initialEntries = ['/', ...Object.values(SettingsRoutes)]
 
 type DrawerWalletInnerProps = {
   onClose: () => void
+  isOpen: boolean
 }
 
-export const DrawerWalletInner: FC<DrawerWalletInnerProps> = memo(({ onClose }) => {
+export const DrawerWalletInner: FC<DrawerWalletInnerProps> = memo(({ onClose, isOpen }) => {
   const navigate = useNavigate()
 
   const handleSettingsClick = useCallback(() => {
@@ -36,8 +37,14 @@ export const DrawerWalletInner: FC<DrawerWalletInnerProps> = memo(({ onClose }) 
   const manageHiddenAssetsElement = useMemo(() => <ManageHiddenAssetsContent />, [])
 
   const drawerWalletDashboardElement = useMemo(
-    () => <DrawerWalletDashboard onClose={onClose} onSettingsClick={handleSettingsClick} />,
-    [onClose, handleSettingsClick],
+    () => (
+      <DrawerWalletDashboard
+        isOpen={isOpen}
+        onClose={onClose}
+        onSettingsClick={handleSettingsClick}
+      />
+    ),
+    [onClose, handleSettingsClick, isOpen],
   )
 
   return (
@@ -61,7 +68,7 @@ export const DrawerWallet: FC = memo(() => {
       <DrawerOverlay {...overlayProps} />
       <DrawerContent width='full' maxWidth='512px' {...modalContentProps}>
         <MemoryRouter initialEntries={initialEntries} initialIndex={0}>
-          <DrawerWalletInner onClose={onClose} />
+          <DrawerWalletInner onClose={onClose} isOpen={isOpen} />
         </MemoryRouter>
       </DrawerContent>
     </Drawer>

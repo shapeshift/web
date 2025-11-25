@@ -84,7 +84,6 @@ export const WalletConnectDirectRow = () => {
   const [isDetecting, setIsDetecting] = useState(isMobile)
   const [debugInfo, setDebugInfo] = useState<{
     detectedWallets: any[]
-    installedWallets: any[]
     mappedWallets: WalletConfig[]
   } | null>(null)
 
@@ -113,8 +112,7 @@ export const WalletConnectDirectRow = () => {
 
       try {
         const detectedWallets = await getDetectedWallets()
-        const installedWallets = detectedWallets.filter(wallet => wallet.isInstalled)
-        const mappedWallets = installedWallets
+        const mappedWallets = detectedWallets
           .map(wallet => WALLET_CONFIGS.find(w => w.id === wallet.schema))
           .filter((wallet): wallet is WalletConfig => wallet !== undefined)
           .slice(0, 3)
@@ -122,7 +120,6 @@ export const WalletConnectDirectRow = () => {
         // Store debug info
         setDebugInfo({
           detectedWallets,
-          installedWallets,
           mappedWallets,
         })
 
@@ -168,16 +165,11 @@ export const WalletConnectDirectRow = () => {
           </Text>
           <Box fontSize='xs' fontFamily='mono'>
             <Text fontWeight='semibold'>
-              Detected Wallets ({debugInfo.detectedWallets.length}):
+              Detected Wallets ({debugInfo.detectedWallets.length}) - Already filtered for
+              isInstalled:
             </Text>
-            <Box as='pre' fontSize='10px' overflow='auto' maxH='150px'>
+            <Box as='pre' fontSize='10px' overflow='auto' maxH='200px'>
               {JSON.stringify(debugInfo.detectedWallets, null, 2)}
-            </Box>
-            <Text fontWeight='semibold' mt={2}>
-              Installed Wallets ({debugInfo.installedWallets.length}):
-            </Text>
-            <Box as='pre' fontSize='10px' overflow='auto' maxH='150px'>
-              {JSON.stringify(debugInfo.installedWallets, null, 2)}
             </Box>
             <Text fontWeight='semibold' mt={2}>
               Mapped Wallets ({debugInfo.mappedWallets.length}):

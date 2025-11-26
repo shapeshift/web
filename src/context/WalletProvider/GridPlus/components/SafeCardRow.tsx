@@ -80,13 +80,13 @@ export const SafeCardRow = memo(
             <VStack align='start' flex={1} spacing={0}>
               <HStack spacing={2}>
                 <Text fontWeight='medium'>{safeCard.name}</Text>
-                {safeCard.isExternal !== undefined && (
+                {safeCard.type && (
                   <Tag
                     size='sm'
-                    colorScheme={safeCard.isExternal ? 'blue' : 'green'}
+                    colorScheme={safeCard.type === 'internal' ? 'green' : 'blue'}
                     variant='subtle'
                   >
-                    {safeCard.isExternal ? 'SafeCard' : 'Internal'}
+                    {safeCard.type === 'internal' ? 'Internal' : 'SafeCard'}
                   </Tag>
                 )}
               </HStack>

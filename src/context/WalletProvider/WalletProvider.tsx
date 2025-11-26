@@ -843,19 +843,8 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
                   break
                 }
 
-                // Validate that the inserted card matches the expected walletUid
-                const validation = await (gridPlusWallet as GridPlusHDWallet).validateActiveWallet(
-                  safeCard.walletUid,
-                )
-
-                if (!validation.isValid) {
-                  console.error('[WalletProvider] Wrong SafeCard inserted on reconnection')
-                  disconnect()
-                  dispatch({ type: WalletActions.SET_LOCAL_WALLET_LOADING, payload: false })
-                  break
-                }
-
-                console.log('[WalletProvider] SafeCard validation passed on reconnection')
+                // Validate that the inserted card matches the expected walletUid (throws on mismatch)
+                await (gridPlusWallet as GridPlusHDWallet).validateActiveWallet(safeCard.walletUid)
 
                 // Set expected wallet UID for JIT validation before signing
                 if ((gridPlusWallet as GridPlusHDWallet).setExpectedWalletUid) {

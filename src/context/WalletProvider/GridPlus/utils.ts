@@ -16,57 +16,18 @@ type LocalWallet = ReturnType<typeof useLocalWallet>
 type ConnectAndPairDeviceParams = {
   adapter: GridPlusAdapter
   deviceId: string
-  sessionId: string | undefined
-  dispatch: AppDispatch
   expectedWalletUid?: string
 }
 
 export const connectAndPairDevice = async ({
   adapter,
   deviceId,
-  sessionId,
-  dispatch,
   expectedWalletUid,
 }: ConnectAndPairDeviceParams): Promise<GridPlusHDWallet | null> => {
-  if (!sessionId) {
-    const { isPaired, sessionId: newSessionId } = await adapter.connectDevice(
-      deviceId,
-      undefined,
-      undefined,
-    )
+  const wallet = await adapter.connectDevice(deviceId, undefined, expectedWalletUid)
 
-    if (!isPaired) {
-      return null
-    }
-
-    if (newSessionId) {
-      dispatch(
-        gridplusSlice.actions.setConnection({
-          physicalDeviceId: deviceId,
-          sessionId: newSessionId,
-        }),
-      )
-    }
-  }
-
-  const wallet = await adapter.pairDevice(
-    deviceId,
-    undefined,
-    undefined,
-    sessionId ?? undefined,
-    expectedWalletUid,
-  )
-
-  if (!sessionId && wallet.getSessionId) {
-    const walletSessionId = wallet.getSessionId()
-    if (walletSessionId) {
-      dispatch(
-        gridplusSlice.actions.setConnection({
-          physicalDeviceId: deviceId,
-          sessionId: walletSessionId,
-        }),
-      )
-    }
+  if (!wallet) {
+    return null
   }
 
   return wallet
@@ -76,34 +37,22 @@ type PairConnectedDeviceParams = {
   adapter: GridPlusAdapter
   deviceId: string
   pairingCode: string
-  dispatch: AppDispatch
 }
 
 export const pairConnectedDevice = async ({
   adapter,
   deviceId,
   pairingCode,
-  dispatch,
 }: PairConnectedDeviceParams): Promise<{
   wallet: GridPlusHDWallet
   walletUid: string
-  isExternal: boolean
+  type: 'external' | 'internal'
 }> => {
-  const { wallet, walletUid, isExternal } = await adapter.pairConnectedDevice(deviceId, pairingCode)
+  await adapter.connectDevice(deviceId)
 
-  if (wallet.getSessionId) {
-    const walletSessionId = wallet.getSessionId()
-    if (walletSessionId) {
-      dispatch(
-        gridplusSlice.actions.setConnection({
-          physicalDeviceId: deviceId,
-          sessionId: walletSessionId,
-        }),
-      )
-    }
-  }
+  const { wallet, walletUid, type } = await adapter.pairDevice(pairingCode)
 
-  return { wallet, walletUid, isExternal }
+  return { wallet, walletUid, type }
 }
 
 type FinalizeWalletSetupParams = {
@@ -114,7 +63,7 @@ type FinalizeWalletSetupParams = {
   navigate: NavigateFunction
   appDispatch: AppDispatch
   walletUid?: string
-  isExternal?: boolean
+  type?: 'external' | 'internal'
 }
 
 export const finalizeWalletSetup = async ({
@@ -125,22 +74,21 @@ export const finalizeWalletSetup = async ({
   navigate,
   appDispatch,
   walletUid,
-  isExternal,
+  type,
 }: FinalizeWalletSetupParams): Promise<void> => {
   const safeCardUuid = safeCardWalletId.replace('gridplus:', '')
 
   // If walletUid is missing, fetch it from the wallet
   let finalWalletUid = walletUid
-  let finalIsExternal = isExternal
+  let finalType = type
 
-  if (finalWalletUid === undefined || finalIsExternal === undefined) {
+  if (finalWalletUid === undefined || finalType === undefined) {
     try {
       const validation = await wallet.validateActiveWallet()
       finalWalletUid = validation.uid
-      finalIsExternal = validation.isExternal
-      console.log('[finalizeWalletSetup] Fetched missing wallet UID:', finalWalletUid)
+      finalType = validation.type
     } catch (error) {
-      console.error('[finalizeWalletSetup] Failed to fetch wallet UID:', error)
+      // Silently fail - validation not critical for setup
     }
   }
 
@@ -174,12 +122,12 @@ export const finalizeWalletSetup = async ({
   appDispatch(gridplusSlice.actions.setLastConnectedAt(safeCardUuid))
 
   // Always update the SafeCard's walletUid if we have it
-  if (finalWalletUid !== undefined && finalIsExternal !== undefined) {
+  if (finalWalletUid !== undefined && finalType !== undefined) {
     appDispatch(
       gridplusSlice.actions.updateSafeCardWalletUid({
         id: safeCardUuid,
         walletUid: finalWalletUid,
-        isExternal: finalIsExternal,
+        type: finalType,
       }),
     )
   }

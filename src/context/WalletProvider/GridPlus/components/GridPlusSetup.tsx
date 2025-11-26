@@ -22,7 +22,7 @@ type LocationState = {
   needsPairing?: boolean
   deviceId?: string
   walletUid?: string
-  isExternal?: boolean
+  type?: 'external' | 'internal'
 }
 
 export const GridPlusSetup = () => {
@@ -34,7 +34,6 @@ export const GridPlusSetup = () => {
   const appDispatch = useAppDispatch()
 
   const physicalDeviceId = useAppSelector(gridplusSlice.selectors.selectPhysicalDeviceId)
-  const sessionId = useAppSelector(gridplusSlice.selectors.selectSessionId)
 
   const state = location.state as LocationState | undefined
   const safeCardUuid = state?.safeCardUuid
@@ -67,9 +66,9 @@ export const GridPlusSetup = () => {
 
       try {
         let finalWallet = wallet
-        // Use walletUid and isExternal from state if available (from pairing flow)
+        // Use walletUid and type from state if available (from pairing flow)
         let walletUid: string | undefined = state?.walletUid
-        let isExternal: boolean | undefined = state?.isExternal
+        let type: 'external' | 'internal' | undefined = state?.type
 
         if (!finalWallet) {
           const adapter = await getAdapter(KeyManager.GridPlus)
@@ -86,11 +85,10 @@ export const GridPlusSetup = () => {
               adapter,
               deviceId,
               pairingCode,
-              dispatch: appDispatch,
             })
             finalWallet = result.wallet
             walletUid = result.walletUid
-            isExternal = result.isExternal
+            type = result.type
           } else {
             const connectionDeviceId = physicalDeviceId || deviceId || state?.deviceId
             if (!connectionDeviceId) {
@@ -100,8 +98,6 @@ export const GridPlusSetup = () => {
             const result = await connectAndPairDevice({
               adapter,
               deviceId: connectionDeviceId,
-              sessionId: sessionId ?? undefined,
-              dispatch: appDispatch,
             })
             finalWallet = result ?? undefined
           }
@@ -117,11 +113,10 @@ export const GridPlusSetup = () => {
 
         // If we don't have walletUid yet (e.g., when adding new SafeCard with existing wallet),
         // we need to fetch it from the wallet
-        if (walletUid === undefined || isExternal === undefined) {
+        if (walletUid === undefined || type === undefined) {
           const validation = await finalWallet.validateActiveWallet()
           walletUid = validation.uid
-          isExternal = validation.isExternal
-          console.log('[GridPlusSetup] Captured wallet UID for new SafeCard:', walletUid)
+          type = validation.type
         }
 
         const safeCardWalletId = state?.safeCardWalletId || `gridplus:${safeCardUuid}`
@@ -132,7 +127,7 @@ export const GridPlusSetup = () => {
             id: safeCardUuid,
             name: finalSafeCardName,
             walletUid,
-            isExternal,
+            type,
           }),
         )
 
@@ -183,9 +178,8 @@ export const GridPlusSetup = () => {
       state?.safeCardWalletId,
       state?.deviceId,
       state?.walletUid,
-      state?.isExternal,
+      state?.type,
       physicalDeviceId,
-      sessionId,
       translate,
       getAdapter,
       walletDispatch,

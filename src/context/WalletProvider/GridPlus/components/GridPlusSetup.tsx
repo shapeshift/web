@@ -115,6 +115,15 @@ export const GridPlusSetup = () => {
           throw new Error(translate('walletProvider.gridplus.errors.walletNotAvailable'))
         }
 
+        // If we don't have walletUid yet (e.g., when adding new SafeCard with existing wallet),
+        // we need to fetch it from the wallet
+        if (walletUid === undefined || isExternal === undefined) {
+          const validation = await finalWallet.validateActiveWallet()
+          walletUid = validation.uid
+          isExternal = validation.isExternal
+          console.log('[GridPlusSetup] Captured wallet UID for new SafeCard:', walletUid)
+        }
+
         const safeCardWalletId = state?.safeCardWalletId || `gridplus:${safeCardUuid}`
         const finalSafeCardName = safeCardName.trim() || defaultName
 

@@ -35,21 +35,17 @@ export const connectAndPairDevice = async ({
 
 type PairConnectedDeviceParams = {
   adapter: GridPlusAdapter
-  deviceId: string
   pairingCode: string
 }
 
 export const pairConnectedDevice = async ({
   adapter,
-  deviceId,
   pairingCode,
 }: PairConnectedDeviceParams): Promise<{
   wallet: GridPlusHDWallet
   activeWalletId: string
   type: 'external' | 'internal'
 }> => {
-  await adapter.connectDevice(deviceId)
-
   const { wallet, activeWalletId, type } = await adapter.pairDevice(pairingCode)
 
   return { wallet, activeWalletId, type }

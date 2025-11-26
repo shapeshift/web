@@ -83,7 +83,6 @@ export const GridPlusSetup = () => {
             }
             const result = await pairConnectedDevice({
               adapter,
-              deviceId,
               pairingCode,
             })
             finalWallet = result.wallet

@@ -10730,6 +10730,8 @@ __metadata:
 "@shapeshiftoss/caip@^8.15.0, @shapeshiftoss/caip@workspace:^, @shapeshiftoss/caip@workspace:packages/caip":
   version: 0.0.0-use.local
   resolution: "@shapeshiftoss/caip@workspace:packages/caip"
+  dependencies:
+    axios: ^1.13.0
   languageName: unknown
   linkType: soft
 
@@ -10747,16 +10749,24 @@ __metadata:
   resolution: "@shapeshiftoss/chain-adapters@workspace:packages/chain-adapters"
   dependencies:
     "@shapeshiftoss/caip": "workspace:^"
+    "@shapeshiftoss/hdwallet-core": 1.62.9
+    "@shapeshiftoss/hdwallet-ledger": 1.62.9
     "@shapeshiftoss/types": "workspace:^"
     "@shapeshiftoss/unchained-client": "workspace:^"
     "@shapeshiftoss/utils": "workspace:^"
     "@solana/spl-token": ^0.4.9
     "@solana/web3.js": ^1.98.0
     "@types/multicoin-address-validator": ^0.5.0
+    axios: ^1.13.0
     bech32: ^2.0.0
+    bignumber.js: ^9.3.1
+    bs58check: ^2.1.2
     coinselect: ^3.1.13
+    lodash: ^4.17.21
     multicoin-address-validator: ^0.5.12
+    node-polyglot: ^2.4.0
     p-queue: ^8.0.1
+    viem: ^2.10.9
   languageName: unknown
   linkType: soft
 
@@ -10780,6 +10790,11 @@ __metadata:
     "@shapeshiftoss/caip": "workspace:^"
     "@shapeshiftoss/types": "workspace:^"
     "@shapeshiftoss/utils": "workspace:^"
+    "@uniswap/sdk": ^3.0.3
+    ethers: 6.11.1
+    ethers5: "npm:ethers@5.7.2"
+    lodash: ^4.17.21
+    viem: ^2.10.9
   languageName: unknown
   linkType: soft
 
@@ -11339,11 +11354,37 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@shapeshiftoss/swapper@workspace:packages/swapper"
   dependencies:
+    "@arbitrum/sdk": ^4.0.1
     "@coral-xyz/anchor": 0.29.0
+    "@cowprotocol/app-data": ^2.3.0
+    "@defuse-protocol/one-click-sdk-typescript": ^0.1.1-0.2
+    "@jup-ag/api": ^6.0.30
+    "@shapeshiftoss/bitcoinjs-lib": 5.2.0-shapeshift.2
     "@shapeshiftoss/caip": "workspace:^"
     "@shapeshiftoss/chain-adapters": "workspace:^"
+    "@shapeshiftoss/contracts": "workspace:^"
+    "@shapeshiftoss/hdwallet-core": 1.62.9
     "@shapeshiftoss/types": "workspace:^"
+    "@shapeshiftoss/unchained-client": "workspace:^"
     "@shapeshiftoss/utils": "workspace:^"
+    "@sniptt/monads": ^0.5.10
+    "@solana/web3.js": ^1.98.0
+    "@uniswap/sdk-core": ^5.3.1
+    "@uniswap/v3-sdk": ^3.13.1
+    axios: ^1.13.0
+    axios-cache-interceptor: ^1.5.3
+    bignumber.js: ^9.3.1
+    eip-712: ^1.0.0
+    ethers: 6.11.1
+    ethers5: "npm:ethers@5.7.2"
+    lodash: ^4.17.21
+    mixpanel-browser: ^2.67.0
+    node-polyglot: ^2.4.0
+    pretty-ms: 7.0.1
+    qs: ^6.10.5
+    retry-axios: ^2.6.0
+    uuid: ^9.0.0
+    viem: ^2.10.9
   languageName: unknown
   linkType: soft
 
@@ -11351,7 +11392,10 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@shapeshiftoss/types@workspace:packages/types"
   dependencies:
+    "@cowprotocol/app-data": ^2.3.0
     "@shapeshiftoss/caip": "workspace:^"
+    ethers5: "npm:ethers@5.7.2"
+    viem: ^2.10.9
   languageName: unknown
   linkType: soft
 
@@ -11370,9 +11414,12 @@ __metadata:
     "@shapeshiftoss/caip": "workspace:^"
     "@shapeshiftoss/common-api": ^9.3.0
     "@shapeshiftoss/contracts": "workspace:^"
-    "@solana/spl-token": ^0.4.9
-    "@solana/web3.js": ^1.98.0
+    "@shapeshiftoss/utils": "workspace:^"
+    axios: ^1.13.0
+    bignumber.js: ^9.3.1
+    ethers: 6.11.1
     isomorphic-ws: ^4.0.1
+    viem: ^2.10.9
     ws: ^8.17.1
   languageName: unknown
   linkType: soft
@@ -11400,6 +11447,10 @@ __metadata:
   dependencies:
     "@shapeshiftoss/caip": "workspace:^"
     "@shapeshiftoss/types": "workspace:^"
+    "@sniptt/monads": ^0.5.10
+    bignumber.js: ^9.3.1
+    dayjs: ^1.11.3
+    lodash: ^4.17.21
   languageName: unknown
   linkType: soft
 

@@ -33,9 +33,12 @@
     "@shapeshiftoss/caip": "workspace:^",
     "@shapeshiftoss/common-api": "^9.3.0",
     "@shapeshiftoss/contracts": "workspace:^",
-    "@solana/spl-token": "^0.4.9",
-    "@solana/web3.js": "^1.98.0",
+    "@shapeshiftoss/utils": "workspace:^",
+    "axios": "^1.13.0",
+    "bignumber.js": "^9.3.1",
+    "ethers": "6.11.1",
     "isomorphic-ws": "^4.0.1",
+    "viem": "^2.10.9",
     "ws": "^8.17.1"
   },
   "devDependencies": {

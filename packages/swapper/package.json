@@ -30,10 +30,36 @@
     "postbuild:cjs": "echo '{\"type\": \"commonjs\"}' > dist/cjs/package.json"
   },
   "dependencies": {
+    "@arbitrum/sdk": "^4.0.1",
     "@coral-xyz/anchor": "0.29.0",
+    "@cowprotocol/app-data": "^2.3.0",
+    "@defuse-protocol/one-click-sdk-typescript": "^0.1.1-0.2",
+    "@jup-ag/api": "^6.0.30",
+    "@shapeshiftoss/bitcoinjs-lib": "5.2.0-shapeshift.2",
     "@shapeshiftoss/caip": "workspace:^",
     "@shapeshiftoss/chain-adapters": "workspace:^",
+    "@shapeshiftoss/contracts": "workspace:^",
+    "@shapeshiftoss/hdwallet-core": "1.62.9",
     "@shapeshiftoss/types": "workspace:^",
-    "@shapeshiftoss/utils": "workspace:^"
+    "@shapeshiftoss/unchained-client": "workspace:^",
+    "@shapeshiftoss/utils": "workspace:^",
+    "@sniptt/monads": "^0.5.10",
+    "@solana/web3.js": "^1.98.0",
+    "@uniswap/sdk-core": "^5.3.1",
+    "@uniswap/v3-sdk": "^3.13.1",
+    "axios": "^1.13.0",
+    "axios-cache-interceptor": "^1.5.3",
+    "bignumber.js": "^9.3.1",
+    "eip-712": "^1.0.0",
+    "ethers": "6.11.1",
+    "ethers5": "npm:ethers@5.7.2",
+    "lodash": "^4.17.21",
+    "mixpanel-browser": "^2.67.0",
+    "node-polyglot": "^2.4.0",
+    "pretty-ms": "7.0.1",
+    "qs": "^6.10.5",
+    "retry-axios": "^2.6.0",
+    "uuid": "^9.0.0",
+    "viem": "^2.10.9"
   }
 }

@@ -30,15 +30,23 @@
   },
   "dependencies": {
     "@shapeshiftoss/caip": "workspace:^",
+    "@shapeshiftoss/hdwallet-core": "1.62.9",
+    "@shapeshiftoss/hdwallet-ledger": "1.62.9",
     "@shapeshiftoss/types": "workspace:^",
     "@shapeshiftoss/unchained-client": "workspace:^",
     "@shapeshiftoss/utils": "workspace:^",
     "@solana/spl-token": "^0.4.9",
     "@solana/web3.js": "^1.98.0",
+    "axios": "^1.13.0",
     "bech32": "^2.0.0",
+    "bignumber.js": "^9.3.1",
+    "bs58check": "^2.1.2",
     "coinselect": "^3.1.13",
+    "lodash": "^4.17.21",
     "multicoin-address-validator": "^0.5.12",
-    "p-queue": "^8.0.1"
+    "node-polyglot": "^2.4.0",
+    "p-queue": "^8.0.1",
+    "viem": "^2.10.9"
   },
   "devDependencies": {
     "@types/multicoin-address-validator": "^0.5.0"

@@ -102,7 +102,7 @@
     "@shapeshiftoss/errors": "workspace:^",
     "@shapeshiftoss/hdwallet-coinbase": "1.62.10",
     "@shapeshiftoss/hdwallet-core": "1.62.12-gridplus-validation.4",
-    "@shapeshiftoss/hdwallet-gridplus": "1.62.12",
+    "@shapeshiftoss/hdwallet-gridplus": "1.62.13-gridplus-validation.2",
     "@shapeshiftoss/hdwallet-keepkey": "1.62.10",
     "@shapeshiftoss/hdwallet-keepkey-webusb": "1.62.10",
     "@shapeshiftoss/hdwallet-keplr": "1.62.10",

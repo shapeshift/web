@@ -117,7 +117,7 @@ type FinalizeWalletSetupParams = {
   isExternal?: boolean
 }
 
-export const finalizeWalletSetup = ({
+export const finalizeWalletSetup = async ({
   wallet,
   safeCardWalletId,
   walletDispatch,
@@ -126,8 +126,28 @@ export const finalizeWalletSetup = ({
   appDispatch,
   walletUid,
   isExternal,
-}: FinalizeWalletSetupParams): void => {
+}: FinalizeWalletSetupParams): Promise<void> => {
   const safeCardUuid = safeCardWalletId.replace('gridplus:', '')
+
+  // If walletUid is missing, fetch it from the wallet
+  let finalWalletUid = walletUid
+  let finalIsExternal = isExternal
+
+  if (finalWalletUid === undefined || finalIsExternal === undefined) {
+    try {
+      const validation = await wallet.validateActiveWallet()
+      finalWalletUid = validation.uid
+      finalIsExternal = validation.isExternal
+      console.log('[finalizeWalletSetup] Fetched missing wallet UID:', finalWalletUid)
+    } catch (error) {
+      console.error('[finalizeWalletSetup] Failed to fetch wallet UID:', error)
+    }
+  }
+
+  // Set expected wallet UID for JIT validation before signing
+  if (finalWalletUid && wallet.setExpectedWalletUid) {
+    wallet.setExpectedWalletUid(finalWalletUid)
+  }
 
   walletDispatch({
     type: WalletActions.SET_WALLET,
@@ -153,13 +173,13 @@ export const finalizeWalletSetup = ({
 
   appDispatch(gridplusSlice.actions.setLastConnectedAt(safeCardUuid))
 
-  // Update the SafeCard's walletUid if it was provided
-  if (walletUid !== undefined && isExternal !== undefined) {
+  // Always update the SafeCard's walletUid if we have it
+  if (finalWalletUid !== undefined && finalIsExternal !== undefined) {
     appDispatch(
       gridplusSlice.actions.updateSafeCardWalletUid({
         id: safeCardUuid,
-        walletUid,
-        isExternal,
+        walletUid: finalWalletUid,
+        isExternal: finalIsExternal,
       }),
     )
   }

@@ -135,8 +135,6 @@ export const useGridPlusConnection = () => {
       setError(null)
 
       try {
-        appDispatch(gridplusSlice.actions.setActiveSafeCard(id))
-
         // Get the SafeCard details to check for walletUid
         const safeCard = safeCards.find(card => card.id === id)
         const expectedWalletUid = safeCard?.walletUid
@@ -160,6 +158,9 @@ export const useGridPlusConnection = () => {
           })
           return
         }
+
+        // Only set active AFTER successful validation
+        appDispatch(gridplusSlice.actions.setActiveSafeCard(id))
 
         finalizeWalletSetup({
           wallet,

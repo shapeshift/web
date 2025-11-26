@@ -2,6 +2,7 @@ import type { ComponentWithAs, IconProps } from '@chakra-ui/react'
 import { useColorModeValue } from '@chakra-ui/react'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { Keyring } from '@shapeshiftoss/hdwallet-core'
+import type { GridPlusHDWallet } from '@shapeshiftoss/hdwallet-gridplus'
 import type { MetaMaskMultiChainHDWallet } from '@shapeshiftoss/hdwallet-metamask-multichain'
 import type { EthereumProvider as EthereumProviderType } from '@walletconnect/ethereum-provider/dist/types/EthereumProvider'
 import findIndex from 'lodash/findIndex'
@@ -828,6 +829,39 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
             if (gridPlusWallet) {
               const { name, icon } = SUPPORTED_WALLETS[KeyManager.GridPlus]
               try {
+                // Validate that the correct SafeCard is inserted before connecting
+                const safeCardUuid = localWalletDeviceId.replace('gridplus:', '')
+                const gridPlusState = store.getState().gridplus
+                const safeCard = gridPlusState.safecards.byId[safeCardUuid]
+
+                if (!safeCard?.walletUid) {
+                  console.error(
+                    '[WalletProvider] SafeCard missing walletUid - clear cache required',
+                  )
+                  disconnect()
+                  dispatch({ type: WalletActions.SET_LOCAL_WALLET_LOADING, payload: false })
+                  break
+                }
+
+                // Validate that the inserted card matches the expected walletUid
+                const validation = await (gridPlusWallet as GridPlusHDWallet).validateActiveWallet(
+                  safeCard.walletUid,
+                )
+
+                if (!validation.isValid) {
+                  console.error('[WalletProvider] Wrong SafeCard inserted on reconnection')
+                  disconnect()
+                  dispatch({ type: WalletActions.SET_LOCAL_WALLET_LOADING, payload: false })
+                  break
+                }
+
+                console.log('[WalletProvider] SafeCard validation passed on reconnection')
+
+                // Set expected wallet UID for JIT validation before signing
+                if ((gridPlusWallet as GridPlusHDWallet).setExpectedWalletUid) {
+                  ;(gridPlusWallet as GridPlusHDWallet).setExpectedWalletUid(safeCard.walletUid)
+                }
+
                 dispatch({
                   type: WalletActions.SET_WALLET,
                   payload: {
@@ -843,6 +877,7 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
                   payload: true,
                 })
               } catch (e) {
+                console.error('[WalletProvider] GridPlus reconnection validation failed:', e)
                 disconnect()
               }
             } else {

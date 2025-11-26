@@ -83,7 +83,6 @@ export const useRfoxRewardDistributionActionSubscriber = () => {
 
               return (
                 <RewardDistributionNotification
-                  // eslint-disable-next-line react-memo/require-usememo
                   handleClick={handleClick}
                   actionId={actionId}
                   distribution={distribution}
@@ -137,7 +136,6 @@ export const useRfoxRewardDistributionActionSubscriber = () => {
 
               return (
                 <RewardDistributionNotification
-                  // eslint-disable-next-line react-memo/require-usememo
                   handleClick={handleClick}
                   actionId={actionId}
                   distribution={distribution}

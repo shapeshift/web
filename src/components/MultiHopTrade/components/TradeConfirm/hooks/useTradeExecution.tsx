@@ -195,7 +195,6 @@ export const useTradeExecution = (
 
               return (
                 <SwapNotification
-                  // eslint-disable-next-line react-memo/require-usememo
                   handleClick={handleClick}
                   swapId={swap.id}
                   onClose={onClose}
@@ -293,7 +292,12 @@ export const useTradeExecution = (
 
       if (swapperName === SwapperName.CowSwap) {
         const adapter = assertGetEvmChainAdapter(stepSellAssetChainId)
-        const from = await adapter.getAddress({ accountNumber, wallet })
+        const from = await adapter.getAddress({
+          accountNumber,
+          wallet,
+          pubKey:
+            wallet && isTrezor(wallet) ? fromAccountId(sellAssetAccountId).account : undefined,
+        })
 
         const output = await execution.execEvmMessage({
           swapperName,
@@ -371,8 +375,17 @@ export const useTradeExecution = (
 
           const adapter = assertGetUtxoChainAdapter(stepSellAssetChainId)
 
-          const { xpub } = await adapter.getPublicKey(wallet, accountNumber, accountType)
-          const senderAddress = await adapter.getAddress({ accountNumber, accountType, wallet })
+          const xpub =
+            wallet && isTrezor(wallet)
+              ? fromAccountId(sellAssetAccountId).account
+              : (await adapter.getPublicKey(wallet, accountNumber, accountType)).xpub
+          const senderAddress = await adapter.getAddress({
+            accountNumber,
+            accountType,
+            wallet,
+            pubKey:
+              wallet && isTrezor(wallet) ? fromAccountId(sellAssetAccountId).account : undefined,
+          })
 
           const output = await execution.execUtxoTransaction({
             swapperName,

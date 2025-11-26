@@ -1,6 +1,12 @@
 import { CHAIN_NAMESPACE, fromAssetId } from '@shapeshiftoss/caip'
 import { evm } from '@shapeshiftoss/chain-adapters'
-import { bn, bnOrZero, contractAddressOrUndefined, isToken } from '@shapeshiftoss/utils'
+import {
+  bn,
+  bnOrZero,
+  contractAddressOrUndefined,
+  DAO_TREASURY_NEAR,
+  isToken,
+} from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import { v4 as uuid } from 'uuid'
@@ -14,7 +20,7 @@ import type {
   TradeQuote,
 } from '../../../types'
 import { SwapperName, TradeQuoteError } from '../../../types'
-import { makeSwapErrorRight } from '../../../utils'
+import { getInputOutputRate, makeSwapErrorRight } from '../../../utils'
 import { isNativeEvmAsset } from '../../utils/helpers/helpers'
 import { DEFAULT_QUOTE_DEADLINE_MS, DEFAULT_SLIPPAGE_BPS } from '../constants'
 import type { QuoteResponse } from '../types'
@@ -97,7 +103,13 @@ export const getTradeQuote = async (
       recipient: receiveAddress,
       recipientType: QuoteRequest.recipientType.DESTINATION_CHAIN,
       deadline: new Date(Date.now() + DEFAULT_QUOTE_DEADLINE_MS).toISOString(),
-      // TODO(gomes): appFees disabled - https://github.com/shapeshift/web/issues/11022
+      referral: 'shapeshift',
+      appFees: [
+        {
+          recipient: DAO_TREASURY_NEAR,
+          fee: Number(affiliateBps),
+        },
+      ],
     }
 
     const quoteResponse: QuoteResponse = await OneClickService.getQuote(quoteRequest)
@@ -196,11 +208,18 @@ export const getTradeQuote = async (
 
     const { networkFeeCryptoBaseUnit, chainSpecific } = await getFeeData()
 
+    const rate = getInputOutputRate({
+      sellAmountCryptoBaseUnit: quote.amountIn,
+      buyAmountCryptoBaseUnit: quote.amountOut,
+      sellAsset,
+      buyAsset,
+    })
+
     const tradeQuote: TradeQuote = {
       id: uuid(),
       receiveAddress,
       affiliateBps,
-      rate: bn(quote.amountOut).div(quote.amountIn).toString(),
+      rate,
       slippageTolerancePercentageDecimal:
         slippageTolerancePercentageDecimal ??
         getDefaultSlippageDecimalPercentageForSwapper(SwapperName.NearIntents),
@@ -218,7 +237,7 @@ export const getTradeQuote = async (
             networkFeeCryptoBaseUnit,
             ...(chainSpecific && { chainSpecific }),
           },
-          rate: bn(quote.amountOut).div(quote.amountIn).toString(),
+          rate,
           sellAmountIncludingProtocolFeesCryptoBaseUnit: quote.amountIn,
           sellAsset,
           source: SwapperName.NearIntents,

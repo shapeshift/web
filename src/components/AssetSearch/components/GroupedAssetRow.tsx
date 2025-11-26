@@ -127,9 +127,7 @@ export const GroupedAssetRow: FC<GroupedAssetRowProps> = ({
           index={0}
           showChainName
           borderRadius='none'
-          // eslint-disable-next-line react-memo/require-usememo
           _last={{ borderBottomRadius: 'lg' }}
-          // eslint-disable-next-line react-memo/require-usememo
           data={{
             assets: [relatedAsset],
             handleClick: handleAssetClick,

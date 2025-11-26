@@ -117,7 +117,6 @@ export const ClaimSelect: FC<ClaimRouteProps> = ({ headerComponent, setStepIndex
           status={status}
           cooldownPeriodHuman={cooldownPeriodHuman}
           index={unstakingRequest.index}
-          // eslint-disable-next-line react-memo/require-usememo
           onClaimClick={() => handleClaimClick(unstakingRequest.index)}
         />
       )

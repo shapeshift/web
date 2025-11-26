@@ -10,7 +10,7 @@ import type {
   Path,
 } from 'react-hook-form'
 import { Controller } from 'react-hook-form'
-import NumberFormat from 'react-number-format'
+import { NumericFormat } from 'react-number-format'
 import { useTranslate } from 'react-polyglot'
 
 import { useLocaleFormatter } from '@/hooks/useLocaleFormatter/useLocaleFormatter'
@@ -66,18 +66,17 @@ export function TokenRow<C extends FieldValues>({
   const renderController = useCallback(
     ({ field: { onChange, value } }: { field: ControllerRenderProps<C, Path<C>> }) => {
       return (
-        <NumberFormat
+        <NumericFormat
           decimalScale={isFiat ? undefined : asset?.precision}
           inputMode='decimal'
           thousandSeparator={localeParts.group}
           decimalSeparator={localeParts.decimal}
           allowedDecimalSeparators={allowedDecimalSeparators}
           customInput={CryptoInput}
-          isNumericString={true}
+          valueIsNumericString={true}
           value={value}
           disabled={disabled}
           // this is already within a useCallback, we don't need to memo this
-          // eslint-disable-next-line react-memo/require-usememo
           onValueChange={e => {
             onChange(e.value)
             if (onInputChange && e.value !== value) onInputChange(e.value)

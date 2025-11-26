@@ -55,32 +55,44 @@ export const SellAssetInput = memo(
     const { price: sellAssetUserCurrencyRate } =
       useAppSelector(state => selectMarketDataByFilter(state, { assetId: asset.assetId })) || {}
 
-    // sync local state with redux on mount only
+    // sync local state with redux, but don't override fiat when user is inputting fiat
     useEffect(() => {
       setRawSellAmountCryptoPrecision(sellAmountCryptoPrecision)
-      setRawSellAmountUserCurrency(sellAmountUserCurrency ?? '0')
-    }, [sellAmountCryptoPrecision, sellAmountUserCurrency])
+      // Only sync fiat from Redux when not inputting fiat to preserve user input
+      if (!isInputtingFiatSellAmount) {
+        setRawSellAmountUserCurrency(sellAmountUserCurrency ?? '')
+      }
+    }, [sellAmountCryptoPrecision, sellAmountUserCurrency, isInputtingFiatSellAmount])
 
     // sync redux with local state
     useEffect(() => {
-      onChangeSellAmountCryptoPrecision(
-        positiveOrZero(debouncedSellAmountCryptoPrecision).toString(),
-      )
+      const value = debouncedSellAmountCryptoPrecision
+        ? positiveOrZero(debouncedSellAmountCryptoPrecision).toString()
+        : ''
+      onChangeSellAmountCryptoPrecision(value)
     }, [debouncedSellAmountCryptoPrecision, dispatch, onChangeSellAmountCryptoPrecision])
 
     const handleSellAssetInputChange = useCallback(
       (value: string, isFiat: boolean | undefined) => {
         const isRateZero = bnOrZero(sellAssetUserCurrencyRate).isZero()
 
+        // If value is empty, set both amounts to empty string
+        if (!value) {
+          setRawSellAmountCryptoPrecision('')
+          setRawSellAmountUserCurrency('')
+          return
+        }
+
         // Avoid division by zero
         const sellAmountCryptoPrecision = isFiat
           ? isRateZero
-            ? '0'
-            : bnOrZero(value).div(bnOrZero(sellAssetUserCurrencyRate)).toFixed()
+            ? ''
+            : bnOrZero(value).div(bnOrZero(sellAssetUserCurrencyRate)).toString()
           : value
 
+        // When converting crypto to fiat, round to 2 decimals to avoid long decimal strings
         const sellAmountUserCurrency = !isFiat
-          ? bnOrZero(value).times(bnOrZero(sellAssetUserCurrencyRate)).toFixed()
+          ? bnOrZero(value).times(bnOrZero(sellAssetUserCurrencyRate)).decimalPlaces(2).toString()
           : value
 
         setRawSellAmountCryptoPrecision(sellAmountCryptoPrecision)
@@ -96,7 +108,7 @@ export const SellAssetInput = memo(
         assetSymbol={asset.symbol}
         assetIcon={asset.icon}
         cryptoAmount={rawSellAmountCryptoPrecision}
-        fiatAmount={rawSellAmountUserCurrency ?? '0'}
+        fiatAmount={rawSellAmountUserCurrency ?? ''}
         isFiat={isInputtingFiatSellAmount}
         onToggleIsFiat={onChangeIsInputtingFiatSellAmount}
         isSendMaxDisabled={false}

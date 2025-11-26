@@ -10827,15 +10827,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/hdwallet-coinbase@npm:1.62.13-gridplus-validation.12":
-  version: 1.62.13-gridplus-validation.12
-  resolution: "@shapeshiftoss/hdwallet-coinbase@npm:1.62.13-gridplus-validation.12"
+"@shapeshiftoss/hdwallet-coinbase@npm:1.62.13-gridplus-validation.13":
+  version: 1.62.13-gridplus-validation.13
+  resolution: "@shapeshiftoss/hdwallet-coinbase@npm:1.62.13-gridplus-validation.13"
   dependencies:
     "@coinbase/wallet-sdk": ^3.6.6
-    "@shapeshiftoss/hdwallet-core": ^1.62.13-gridplus-validation.12
+    "@shapeshiftoss/hdwallet-core": ^1.62.13-gridplus-validation.13
     eth-rpc-errors: ^4.0.3
     lodash: ^4.17.21
-  checksum: 2c676bca1892e825fcf6fa1fbdb8e859bb9703e4b620717840cb1efb6262851aa1ae27c0418492d73d132027c6fe3a03284b005bcea6f95a8ca579f6b01d7be6
+  checksum: 08c37938958e9255d5f41c8d7b45eb402a1dc760e710715795fe47e0114fefb246c86ee1827833a43a269da1770c8dbd246e7ce2253a43f3919ef39c492e772b
   languageName: node
   linkType: hard
 
@@ -10868,9 +10868,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/hdwallet-core@npm:1.62.13-gridplus-validation.12, @shapeshiftoss/hdwallet-core@npm:^1.62.13-gridplus-validation.12":
-  version: 1.62.13-gridplus-validation.12
-  resolution: "@shapeshiftoss/hdwallet-core@npm:1.62.13-gridplus-validation.12"
+"@shapeshiftoss/hdwallet-core@npm:1.62.13-gridplus-validation.13, @shapeshiftoss/hdwallet-core@npm:^1.62.13-gridplus-validation.13":
+  version: 1.62.13-gridplus-validation.13
+  resolution: "@shapeshiftoss/hdwallet-core@npm:1.62.13-gridplus-validation.13"
   dependencies:
     "@shapeshiftoss/bitcoinjs-lib": 7.0.0-shapeshift.0
     "@shapeshiftoss/proto-tx-builder": 0.10.0
@@ -10881,7 +10881,7 @@ __metadata:
     lodash: ^4.17.21
     rxjs: ^6.4.0
     type-assertions: ^1.1.0
-  checksum: 2eec5503dd5bd19057d4d12b3d2300d5cd789e2cf46fc1afac0ada21c6c4bddf2bf7c6526a330fc4e0a9f79ce8fc3505a87ee4e15121a167deda584ec56bbf8b
+  checksum: 18f52475b0ea8d44d9cb35a987b7703229c9da55b7121eab701150d85e0a07f609296349aaddfb08a49ae14921068b01823893b292bbd54942ed172935370fef
   languageName: node
   linkType: hard
 
@@ -10899,38 +10899,38 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/hdwallet-gridplus@npm:1.62.13-gridplus-validation.12":
-  version: 1.62.13-gridplus-validation.12
-  resolution: "@shapeshiftoss/hdwallet-gridplus@npm:1.62.13-gridplus-validation.12"
+"@shapeshiftoss/hdwallet-gridplus@npm:1.62.13-gridplus-validation.13":
+  version: 1.62.13-gridplus-validation.13
+  resolution: "@shapeshiftoss/hdwallet-gridplus@npm:1.62.13-gridplus-validation.13"
   dependencies:
     "@bitcoinerlab/secp256k1": ^1.1.1
     "@ethereumjs/common": 4.4.0
     "@ethereumjs/rlp": 5.0.2
     "@ethereumjs/tx": 5.4.0
     "@metamask/eth-sig-util": ^7.0.0
-    "@shapeshiftoss/hdwallet-core": ^1.62.13-gridplus-validation.12
+    "@shapeshiftoss/hdwallet-core": ^1.62.13-gridplus-validation.13
     bech32: ^1.1.4
     bs58: ^5.0.0
     crypto-js: ^4.2.0
     gridplus-sdk: ^3.2.0
     lodash: ^4.17.21
-  checksum: 39a2b1c126407090f8726cf6ff5f315fd93ba9b2d14dfa3e6f378be8344911a5e81056a6e3c49266ed134b8908d7b355e28baf451b2a46e343e345f5717131c5
+  checksum: d97e8e831161342ccbf602188459213c503912fbf02bc0aaa66f95b979c31272dc8e242ece584e1917f7a72a28556777d536582d534c71fc907972cd8cb1a6c1
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/hdwallet-keepkey-webusb@npm:1.62.13-gridplus-validation.12":
-  version: 1.62.13-gridplus-validation.12
-  resolution: "@shapeshiftoss/hdwallet-keepkey-webusb@npm:1.62.13-gridplus-validation.12"
+"@shapeshiftoss/hdwallet-keepkey-webusb@npm:1.62.13-gridplus-validation.13":
+  version: 1.62.13-gridplus-validation.13
+  resolution: "@shapeshiftoss/hdwallet-keepkey-webusb@npm:1.62.13-gridplus-validation.13"
   dependencies:
-    "@shapeshiftoss/hdwallet-core": ^1.62.13-gridplus-validation.12
-    "@shapeshiftoss/hdwallet-keepkey": ^1.62.13-gridplus-validation.12
-  checksum: 50cf4fd46460eb2e7c7116da01f8fef9da9ac9910341dd891107b08116496f2adca747be49bdb9e929ba9a66435517cf72f426ac233c497fa531674722829cb2
+    "@shapeshiftoss/hdwallet-core": ^1.62.13-gridplus-validation.13
+    "@shapeshiftoss/hdwallet-keepkey": ^1.62.13-gridplus-validation.13
+  checksum: e191bd9aac9f212f6bec2d3d34d25d95dc158c5c57e5411676cc7d6007e4def585af97cc777432bbdaf8b8bf42466d7faa573c41dd4f3a7a1e8efec34c661be1
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/hdwallet-keepkey@npm:1.62.13-gridplus-validation.12, @shapeshiftoss/hdwallet-keepkey@npm:^1.62.13-gridplus-validation.12":
-  version: 1.62.13-gridplus-validation.12
-  resolution: "@shapeshiftoss/hdwallet-keepkey@npm:1.62.13-gridplus-validation.12"
+"@shapeshiftoss/hdwallet-keepkey@npm:1.62.13-gridplus-validation.13, @shapeshiftoss/hdwallet-keepkey@npm:^1.62.13-gridplus-validation.13":
+  version: 1.62.13-gridplus-validation.13
+  resolution: "@shapeshiftoss/hdwallet-keepkey@npm:1.62.13-gridplus-validation.13"
   dependencies:
     "@bitcoinerlab/secp256k1": ^1.1.1
     "@ethereumjs/common": 3.2.0
@@ -10938,7 +10938,7 @@ __metadata:
     "@keepkey/device-protocol": 7.13.4
     "@metamask/eth-sig-util": ^7.0.0
     "@shapeshiftoss/bitcoinjs-lib": 7.0.0-shapeshift.0
-    "@shapeshiftoss/hdwallet-core": ^1.62.13-gridplus-validation.12
+    "@shapeshiftoss/hdwallet-core": ^1.62.13-gridplus-validation.13
     "@shapeshiftoss/proto-tx-builder": 0.10.0
     bignumber.js: ^9.0.1
     bnb-javascript-sdk-nobroadcast: 2.16.15
@@ -10949,44 +10949,44 @@ __metadata:
     lodash: ^4.17.21
     p-lazy: ^3.1.0
     semver: ^7.3.8
-  checksum: 50aa3821ea227931d6e83c07d9245d73b081ec199cd6ad57fca8ee252ebb7d8012a442a4b596f5f7804fc2d7707e9f8e6bb57e6d1317cca71ad3d74436fc3ae1
+  checksum: b382536aef8d35a8461ba506da406b2b275b8de390285cb71f13661f259d438c4f4e8bc63f9bf2339df15a3992738fb4edf9cc74b142ad13a4430ce3743944f2
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/hdwallet-keplr@npm:1.62.13-gridplus-validation.12":
-  version: 1.62.13-gridplus-validation.12
-  resolution: "@shapeshiftoss/hdwallet-keplr@npm:1.62.13-gridplus-validation.12"
+"@shapeshiftoss/hdwallet-keplr@npm:1.62.13-gridplus-validation.13":
+  version: 1.62.13-gridplus-validation.13
+  resolution: "@shapeshiftoss/hdwallet-keplr@npm:1.62.13-gridplus-validation.13"
   dependencies:
     "@cosmjs/amino": ^0.28.13
     "@cosmjs/stargate": ^0.28.13
     "@shapeshiftoss/caip": 8.15.0
-    "@shapeshiftoss/hdwallet-core": ^1.62.13-gridplus-validation.12
+    "@shapeshiftoss/hdwallet-core": ^1.62.13-gridplus-validation.13
     "@shapeshiftoss/proto-tx-builder": 0.10.0
     "@shapeshiftoss/types": 3.1.3
     base64-js: ^1.5.1
     lodash: ^4.17.21
-  checksum: a40ad8a27a6e6ecaf44cd94fab13c5a698106fb536c96bbbc569c99947e13fa748b4f1218973d4fc4a301cea74483b5c7e596661fc310794f809ac27288aac29
+  checksum: a5cf435f5b2099bf2574643d75780e54851439faef3e21c2de3d0a45e6cfcdf29a3c5fd316515346760215c07090ee9a9b6b289e21233d1b559e2df6b1980ff6
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/hdwallet-ledger-webhid@npm:1.62.13-gridplus-validation.12":
-  version: 1.62.13-gridplus-validation.12
-  resolution: "@shapeshiftoss/hdwallet-ledger-webhid@npm:1.62.13-gridplus-validation.12"
+"@shapeshiftoss/hdwallet-ledger-webhid@npm:1.62.13-gridplus-validation.13":
+  version: 1.62.13-gridplus-validation.13
+  resolution: "@shapeshiftoss/hdwallet-ledger-webhid@npm:1.62.13-gridplus-validation.13"
   dependencies:
     "@ledgerhq/hw-app-btc": ^10.10.0
     "@ledgerhq/hw-app-eth": ^6.45.13
     "@ledgerhq/hw-transport": 6.31.8
     "@ledgerhq/hw-transport-webhid": ^6.30.4
-    "@shapeshiftoss/hdwallet-core": ^1.62.13-gridplus-validation.12
-    "@shapeshiftoss/hdwallet-ledger": ^1.62.13-gridplus-validation.12
+    "@shapeshiftoss/hdwallet-core": ^1.62.13-gridplus-validation.13
+    "@shapeshiftoss/hdwallet-ledger": ^1.62.13-gridplus-validation.13
     "@types/w3c-web-hid": ^1.0.2
-  checksum: 6b6fde3cd49f025378d940a6bee361907f9fd35242e4110de6418720872b494dbfef3ab989cba83b5a86b19ad1419c0401a66828d24ac7d1e7968fc5a5de6868
+  checksum: aaa65c9fa468e40b1c0986db6893ab4b52f1fb755410fd77e266666734fb5bb42da585afc73b834484c18000259be6ac8ca8e821f4ae60f125a4d6f4b843f8e7
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/hdwallet-ledger-webusb@npm:1.62.13-gridplus-validation.12":
-  version: 1.62.13-gridplus-validation.12
-  resolution: "@shapeshiftoss/hdwallet-ledger-webusb@npm:1.62.13-gridplus-validation.12"
+"@shapeshiftoss/hdwallet-ledger-webusb@npm:1.62.13-gridplus-validation.13":
+  version: 1.62.13-gridplus-validation.13
+  resolution: "@shapeshiftoss/hdwallet-ledger-webusb@npm:1.62.13-gridplus-validation.13"
   dependencies:
     "@ledgerhq/hw-app-btc": ^10.10.0
     "@ledgerhq/hw-app-cosmos": ^6.32.4
@@ -10994,17 +10994,17 @@ __metadata:
     "@ledgerhq/hw-app-solana": ^7.5.1
     "@ledgerhq/hw-transport": 6.31.8
     "@ledgerhq/hw-transport-webusb": 6.29.8
-    "@shapeshiftoss/hdwallet-core": ^1.62.13-gridplus-validation.12
-    "@shapeshiftoss/hdwallet-ledger": ^1.62.13-gridplus-validation.12
+    "@shapeshiftoss/hdwallet-core": ^1.62.13-gridplus-validation.13
+    "@shapeshiftoss/hdwallet-ledger": ^1.62.13-gridplus-validation.13
     "@types/w3c-web-usb": ^1.0.4
     p-queue: ^7.4.1
-  checksum: 4d9743b27251b1702bcf4a2c93f34100323810ccf107755edc85db7f7dd83868a3e771a1febae08b5d5234ae558efc22b2dce980df96b0614de2ec18b0319ba5
+  checksum: 78f0bd4c04b2d3a627b03c67cbfc7025cbe5fd776272e4d80feaf77789ba4a4b81bdaf778969543fba671d9e26cc9c417aecac3430bc4983844babbb5f96cd3d
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/hdwallet-ledger@npm:1.62.13-gridplus-validation.12, @shapeshiftoss/hdwallet-ledger@npm:^1.62.13-gridplus-validation.12":
-  version: 1.62.13-gridplus-validation.12
-  resolution: "@shapeshiftoss/hdwallet-ledger@npm:1.62.13-gridplus-validation.12"
+"@shapeshiftoss/hdwallet-ledger@npm:1.62.13-gridplus-validation.13, @shapeshiftoss/hdwallet-ledger@npm:^1.62.13-gridplus-validation.13":
+  version: 1.62.13-gridplus-validation.13
+  resolution: "@shapeshiftoss/hdwallet-ledger@npm:1.62.13-gridplus-validation.13"
   dependencies:
     "@ethereumjs/common": 3.2.0
     "@ethereumjs/tx": 4.2.0
@@ -11016,7 +11016,7 @@ __metadata:
     "@ledgerhq/hw-transport": 6.31.8
     "@ledgerhq/logs": 6.13.0
     "@shapeshiftoss/bitcoinjs-lib": 7.0.0-shapeshift.0
-    "@shapeshiftoss/hdwallet-core": ^1.62.13-gridplus-validation.12
+    "@shapeshiftoss/hdwallet-core": ^1.62.13-gridplus-validation.13
     "@solana/web3.js": 1.95.8
     base64-js: ^1.5.1
     bchaddrjs: ^0.4.4
@@ -11026,33 +11026,33 @@ __metadata:
     ethereumjs-util: ^6.1.0
     ethers: 5.7.2
     lodash: ^4.17.21
-  checksum: 377b96957b51b08382b5e1de893587a898e5bcad67da32aa127bca1776709804a3f56f121411c6696873004e9e4a1ac4ce3ef635feb6d3eaccf7489b20801f3e
+  checksum: 05c4a9aadb56178715cb69860af2834d230ec8d7171c5fa11a2f75f07876ece214d94980aedc3f98831cfa6d0075d0a607970f648b00499560671176d707d0d2
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/hdwallet-metamask-multichain@npm:1.62.13-gridplus-validation.12":
-  version: 1.62.13-gridplus-validation.12
-  resolution: "@shapeshiftoss/hdwallet-metamask-multichain@npm:1.62.13-gridplus-validation.12"
+"@shapeshiftoss/hdwallet-metamask-multichain@npm:1.62.13-gridplus-validation.13":
+  version: 1.62.13-gridplus-validation.13
+  resolution: "@shapeshiftoss/hdwallet-metamask-multichain@npm:1.62.13-gridplus-validation.13"
   dependencies:
     "@metamask/detect-provider": ^1.2.0
     "@metamask/onboarding": ^1.0.1
     "@shapeshiftoss/common-api": ^9.3.0
-    "@shapeshiftoss/hdwallet-core": ^1.62.13-gridplus-validation.12
+    "@shapeshiftoss/hdwallet-core": ^1.62.13-gridplus-validation.13
     "@shapeshiftoss/metamask-snaps-adapter": ^1.0.12
     "@shapeshiftoss/metamask-snaps-types": ^1.0.12
     eth-rpc-errors: ^4.0.3
     lodash: ^4.17.21
     mipd: ^0.0.7
-  checksum: 0e6975c6866447e4364c6872405f4f94b8e0958df9cb270ef16eaec14f28da47273fa159937145b4efb92f3672786a6830f41b88d664c3548a383eae86113e38
+  checksum: 9c1a2763cb69584a96a8e9be2b6ccd80242a5855be006e479effd9fa7e4f5a8c7146255cb368fc3b6420ba793686a7f2db380e3ad3f3abd1d6b3f677b47e7107
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/hdwallet-native-vault@npm:1.62.13-gridplus-validation.12":
-  version: 1.62.13-gridplus-validation.12
-  resolution: "@shapeshiftoss/hdwallet-native-vault@npm:1.62.13-gridplus-validation.12"
+"@shapeshiftoss/hdwallet-native-vault@npm:1.62.13-gridplus-validation.13":
+  version: 1.62.13-gridplus-validation.13
+  resolution: "@shapeshiftoss/hdwallet-native-vault@npm:1.62.13-gridplus-validation.13"
   dependencies:
     "@bitcoinerlab/secp256k1": ^1.1.1
-    "@shapeshiftoss/hdwallet-native": ^1.62.13-gridplus-validation.12
+    "@shapeshiftoss/hdwallet-native": ^1.62.13-gridplus-validation.13
     bip39: ^3.0.4
     hash-wasm: ^4.11.0
     idb-keyval: ^6.0.3
@@ -11060,18 +11060,18 @@ __metadata:
     p-lazy: ^3.1.0
     type-assertions: ^1.1.0
     uuid: ^8.3.2
-  checksum: 4ecdab79eb66c2faf00cfa0a2c67db5b497589ddbbce7eda1e7cfdc479b6d463e5406701dc94d848f69882abbe4540911fca539cef5d1bea6b3f1b17c2fbb324
+  checksum: f0ed1a9b3041d73c60cc0b145cb52c95ba269b1b0c8968503c662c9b3641e995f92cd9acbd54a97baba79742b32c1b0acab794166af7982c11fe81ef5a4409a5
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/hdwallet-native@npm:1.62.13-gridplus-validation.12, @shapeshiftoss/hdwallet-native@npm:^1.62.13-gridplus-validation.12":
-  version: 1.62.13-gridplus-validation.12
-  resolution: "@shapeshiftoss/hdwallet-native@npm:1.62.13-gridplus-validation.12"
+"@shapeshiftoss/hdwallet-native@npm:1.62.13-gridplus-validation.13, @shapeshiftoss/hdwallet-native@npm:^1.62.13-gridplus-validation.13":
+  version: 1.62.13-gridplus-validation.13
+  resolution: "@shapeshiftoss/hdwallet-native@npm:1.62.13-gridplus-validation.13"
   dependencies:
     "@bitcoinerlab/secp256k1": ^1.1.1
     "@noble/curves": ^1.4.0
     "@shapeshiftoss/bitcoinjs-lib": 7.0.0-shapeshift.0
-    "@shapeshiftoss/hdwallet-core": ^1.62.13-gridplus-validation.12
+    "@shapeshiftoss/hdwallet-core": ^1.62.13-gridplus-validation.13
     "@shapeshiftoss/proto-tx-builder": 0.10.0
     "@zxing/text-encoding": ^0.9.0
     bchaddrjs: ^0.4.9
@@ -11092,7 +11092,7 @@ __metadata:
     p-lazy: ^3.1.0
     scrypt-js: ^3.0.1
     tendermint-tx-builder: 1.0.16
-  checksum: a989d67054dfc4f1af02f02231b15e68493f2bf3a106cd0074517449d2f35ec130a5d6d9caad0de7496a7566d1d01150de205d0d47550a81d34aefd039ba5624
+  checksum: a86e75f756fbf4791ec27c96379566dc30e80cbfb5cfd97f1fe4d047345e831e4acc66287cde84466df22a20b910a83b12d0aeafd3740307307e61fbc4087c15
   languageName: node
   linkType: hard
 
@@ -11129,83 +11129,83 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/hdwallet-phantom@npm:1.62.13-gridplus-validation.12":
-  version: 1.62.13-gridplus-validation.12
-  resolution: "@shapeshiftoss/hdwallet-phantom@npm:1.62.13-gridplus-validation.12"
+"@shapeshiftoss/hdwallet-phantom@npm:1.62.13-gridplus-validation.13":
+  version: 1.62.13-gridplus-validation.13
+  resolution: "@shapeshiftoss/hdwallet-phantom@npm:1.62.13-gridplus-validation.13"
   dependencies:
     "@shapeshiftoss/bitcoinjs-lib": 7.0.0-shapeshift.0
-    "@shapeshiftoss/hdwallet-core": ^1.62.13-gridplus-validation.12
+    "@shapeshiftoss/hdwallet-core": ^1.62.13-gridplus-validation.13
     "@solana/web3.js": 1.95.8
     base64-js: ^1.5.1
     bitcoinjs-message: ^2.0.0
     ethers: 5.7.2
     lodash: ^4.17.21
-  checksum: f226118397038680fc4205620b94b2660c7c3a3ed02ca70de5fb85b8fe560836d7036981a9150b6f5caec0267c3400718773f09df5e983eea639022dae456181
+  checksum: d72883716197e1c9ba04f3fb5f8eb139e3b9b6f810f11118b7b2f985cac697d2159ef0c651696b0d63f310e326c8b0adeda8e2921d1a6575b91bf138a3140080
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/hdwallet-trezor-connect@npm:1.62.13-gridplus-validation.12":
-  version: 1.62.13-gridplus-validation.12
-  resolution: "@shapeshiftoss/hdwallet-trezor-connect@npm:1.62.13-gridplus-validation.12"
+"@shapeshiftoss/hdwallet-trezor-connect@npm:1.62.13-gridplus-validation.13":
+  version: 1.62.13-gridplus-validation.13
+  resolution: "@shapeshiftoss/hdwallet-trezor-connect@npm:1.62.13-gridplus-validation.13"
   dependencies:
-    "@shapeshiftoss/hdwallet-core": ^1.62.13-gridplus-validation.12
-    "@shapeshiftoss/hdwallet-trezor": ^1.62.13-gridplus-validation.12
+    "@shapeshiftoss/hdwallet-core": ^1.62.13-gridplus-validation.13
+    "@shapeshiftoss/hdwallet-trezor": ^1.62.13-gridplus-validation.13
     "@trezor/connect-web": ^9.6.4
-  checksum: 19ad66a294a5840a30d134a9e4d43a56992dd9def61a05aa1c0b2c531c9b4201d83a75bcb65311f5ff675a039a33af3ae5b4929c86fa8ded527ea6a8641bcd3a
+  checksum: e79b0f98346707edbb7cd7cad31f6673bd62c49c8d5169f76551b7520b4de9cf01fa375efa32d585a4c9206f4476e2c9675ecc76707fc20c4e2d3376b2b34d14
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/hdwallet-trezor@npm:1.62.13-gridplus-validation.12, @shapeshiftoss/hdwallet-trezor@npm:^1.62.13-gridplus-validation.12":
-  version: 1.62.13-gridplus-validation.12
-  resolution: "@shapeshiftoss/hdwallet-trezor@npm:1.62.13-gridplus-validation.12"
+"@shapeshiftoss/hdwallet-trezor@npm:1.62.13-gridplus-validation.13, @shapeshiftoss/hdwallet-trezor@npm:^1.62.13-gridplus-validation.13":
+  version: 1.62.13-gridplus-validation.13
+  resolution: "@shapeshiftoss/hdwallet-trezor@npm:1.62.13-gridplus-validation.13"
   dependencies:
     "@ethereumjs/common": 3.2.0
     "@ethereumjs/tx": 4.2.0
-    "@shapeshiftoss/hdwallet-core": ^1.62.13-gridplus-validation.12
+    "@shapeshiftoss/hdwallet-core": ^1.62.13-gridplus-validation.13
     base64-js: ^1.5.1
     lodash: ^4.17.21
-  checksum: bcd357afb48dfe0d11de0952a112287e1625210f21f4a11845f3bd1c61155b33575bebcea3999532f600e2a373751f005c5594ea172557cacadb8ffe3d6e5f53
+  checksum: 91fbd0feed0d23c33ff266ec590bfe4b1db749db2cbb25d8798206d8c870f445c9020617aa596bddb7cdeab6ca3062b86d69e934b80b844f68e7dc7e092555b8
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/hdwallet-vultisig@npm:1.62.13-gridplus-validation.12":
-  version: 1.62.13-gridplus-validation.12
-  resolution: "@shapeshiftoss/hdwallet-vultisig@npm:1.62.13-gridplus-validation.12"
+"@shapeshiftoss/hdwallet-vultisig@npm:1.62.13-gridplus-validation.13":
+  version: 1.62.13-gridplus-validation.13
+  resolution: "@shapeshiftoss/hdwallet-vultisig@npm:1.62.13-gridplus-validation.13"
   dependencies:
     "@cosmjs/amino": ^0.28.13
     "@cosmjs/stargate": ^0.28.13
     "@shapeshiftoss/bitcoinjs-lib": 7.0.0-shapeshift.0
-    "@shapeshiftoss/hdwallet-core": ^1.62.13-gridplus-validation.12
+    "@shapeshiftoss/hdwallet-core": ^1.62.13-gridplus-validation.13
     "@solana/web3.js": 1.95.8
     base64-js: ^1.5.1
     bitcoinjs-message: ^2.0.0
     ethers: 5.7.2
     lodash: ^4.17.21
-  checksum: 5683b5e9b1728efa51a83f962c0653f5894fb6793c45a36b822c9f9bcab1280457ee73aed36cf70e536831472bb3bc86e2938830a2ff52ea3786d90e07eea213
+  checksum: 3026cdd6bdf0b49bd58a95ce883bf3edf92a8ae92d656f576b2f05c09de564f667e22c8a2f706591d6a08ba203715256bbd91ea36f8f84e50538bfe1338ae5db
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/hdwallet-walletconnect@npm:1.62.13-gridplus-validation.12":
-  version: 1.62.13-gridplus-validation.12
-  resolution: "@shapeshiftoss/hdwallet-walletconnect@npm:1.62.13-gridplus-validation.12"
+"@shapeshiftoss/hdwallet-walletconnect@npm:1.62.13-gridplus-validation.13":
+  version: 1.62.13-gridplus-validation.13
+  resolution: "@shapeshiftoss/hdwallet-walletconnect@npm:1.62.13-gridplus-validation.13"
   dependencies:
-    "@shapeshiftoss/hdwallet-core": ^1.62.13-gridplus-validation.12
+    "@shapeshiftoss/hdwallet-core": ^1.62.13-gridplus-validation.13
     "@walletconnect/qrcode-modal": ^1.7.8
     "@walletconnect/web3-provider": ^1.7.8
     ethers: ^5.6.5
-  checksum: e4d32391a70529e812c02df4ee247f0898308d812c31673fc08d881597d4b0ec338a1c65ab790fd6b3bf7acddba9c86590a8315eb743602569292832ee43a3a7
+  checksum: 0d1358d3a1fb776830a0d73d2f83609f0b7aaf13b63fb7f8fc04dc6f5d11553b91f5a2384729c0c2c8b640a01c46f10e2226b69055f36923a1c6bb1f4d615187
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/hdwallet-walletconnectv2@npm:1.62.13-gridplus-validation.12":
-  version: 1.62.13-gridplus-validation.12
-  resolution: "@shapeshiftoss/hdwallet-walletconnectv2@npm:1.62.13-gridplus-validation.12"
+"@shapeshiftoss/hdwallet-walletconnectv2@npm:1.62.13-gridplus-validation.13":
+  version: 1.62.13-gridplus-validation.13
+  resolution: "@shapeshiftoss/hdwallet-walletconnectv2@npm:1.62.13-gridplus-validation.13"
   dependencies:
-    "@shapeshiftoss/hdwallet-core": ^1.62.13-gridplus-validation.12
+    "@shapeshiftoss/hdwallet-core": ^1.62.13-gridplus-validation.13
     "@walletconnect/ethereum-provider": ^2.20.2
     "@walletconnect/modal": ^2.6.2
     ethers: ^5.6.5
-  checksum: 27106c9b17b7f3d471e113e078cd52462627609fe3f38004cd4d0c3cd55a80ccad6027d5096d67578856b824d3c91b8674118fc165ff1696aee0dd6a0db9e0e0
+  checksum: 70b5de4e8b048f96a1b3d7befb847dba06ab27ff2040f0a828b229e43317604cfd89ef096f153fe0e2ba4ac653585c5acb46771fd15f82fee1dbf300ca0a39c6
   languageName: node
   linkType: hard
 
@@ -11425,24 +11425,24 @@ __metadata:
     "@shapeshiftoss/chain-adapters": "workspace:^"
     "@shapeshiftoss/contracts": "workspace:^"
     "@shapeshiftoss/errors": "workspace:^"
-    "@shapeshiftoss/hdwallet-coinbase": 1.62.13-gridplus-validation.12
-    "@shapeshiftoss/hdwallet-core": 1.62.13-gridplus-validation.12
-    "@shapeshiftoss/hdwallet-gridplus": 1.62.13-gridplus-validation.12
-    "@shapeshiftoss/hdwallet-keepkey": 1.62.13-gridplus-validation.12
-    "@shapeshiftoss/hdwallet-keepkey-webusb": 1.62.13-gridplus-validation.12
-    "@shapeshiftoss/hdwallet-keplr": 1.62.13-gridplus-validation.12
-    "@shapeshiftoss/hdwallet-ledger": 1.62.13-gridplus-validation.12
-    "@shapeshiftoss/hdwallet-ledger-webhid": 1.62.13-gridplus-validation.12
-    "@shapeshiftoss/hdwallet-ledger-webusb": 1.62.13-gridplus-validation.12
-    "@shapeshiftoss/hdwallet-metamask-multichain": 1.62.13-gridplus-validation.12
-    "@shapeshiftoss/hdwallet-native": 1.62.13-gridplus-validation.12
-    "@shapeshiftoss/hdwallet-native-vault": 1.62.13-gridplus-validation.12
-    "@shapeshiftoss/hdwallet-phantom": 1.62.13-gridplus-validation.12
-    "@shapeshiftoss/hdwallet-trezor": 1.62.13-gridplus-validation.12
-    "@shapeshiftoss/hdwallet-trezor-connect": 1.62.13-gridplus-validation.12
-    "@shapeshiftoss/hdwallet-vultisig": 1.62.13-gridplus-validation.12
-    "@shapeshiftoss/hdwallet-walletconnect": 1.62.13-gridplus-validation.12
-    "@shapeshiftoss/hdwallet-walletconnectv2": 1.62.13-gridplus-validation.12
+    "@shapeshiftoss/hdwallet-coinbase": 1.62.13-gridplus-validation.13
+    "@shapeshiftoss/hdwallet-core": 1.62.13-gridplus-validation.13
+    "@shapeshiftoss/hdwallet-gridplus": 1.62.13-gridplus-validation.13
+    "@shapeshiftoss/hdwallet-keepkey": 1.62.13-gridplus-validation.13
+    "@shapeshiftoss/hdwallet-keepkey-webusb": 1.62.13-gridplus-validation.13
+    "@shapeshiftoss/hdwallet-keplr": 1.62.13-gridplus-validation.13
+    "@shapeshiftoss/hdwallet-ledger": 1.62.13-gridplus-validation.13
+    "@shapeshiftoss/hdwallet-ledger-webhid": 1.62.13-gridplus-validation.13
+    "@shapeshiftoss/hdwallet-ledger-webusb": 1.62.13-gridplus-validation.13
+    "@shapeshiftoss/hdwallet-metamask-multichain": 1.62.13-gridplus-validation.13
+    "@shapeshiftoss/hdwallet-native": 1.62.13-gridplus-validation.13
+    "@shapeshiftoss/hdwallet-native-vault": 1.62.13-gridplus-validation.13
+    "@shapeshiftoss/hdwallet-phantom": 1.62.13-gridplus-validation.13
+    "@shapeshiftoss/hdwallet-trezor": 1.62.13-gridplus-validation.13
+    "@shapeshiftoss/hdwallet-trezor-connect": 1.62.13-gridplus-validation.13
+    "@shapeshiftoss/hdwallet-vultisig": 1.62.13-gridplus-validation.13
+    "@shapeshiftoss/hdwallet-walletconnect": 1.62.13-gridplus-validation.13
+    "@shapeshiftoss/hdwallet-walletconnectv2": 1.62.13-gridplus-validation.13
     "@shapeshiftoss/swapper": "workspace:^"
     "@shapeshiftoss/types": "workspace:^"
     "@shapeshiftoss/unchained-client": "workspace:^"

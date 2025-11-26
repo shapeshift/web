@@ -97,6 +97,7 @@ export type FeatureFlags = {
   SwapperFiatRamps: boolean
   WebServices: boolean
   AddressBook: boolean
+  AppRating: boolean
 }
 
 export type Flag = keyof FeatureFlags
@@ -228,6 +229,7 @@ const initialState: Preferences = {
     SwapperFiatRamps: getConfig().VITE_FEATURE_SWAPPER_FIAT_RAMPS,
     WebServices: getConfig().VITE_FEATURE_NOTIFICATIONS_WEBSERVICES,
     AddressBook: getConfig().VITE_FEATURE_ADDRESS_BOOK,
+    AppRating: getConfig().VITE_FEATURE_APP_RATING,
   },
   selectedLocale: simpleLocale(),
   hasWalletSeenTcyClaimAlert: {},

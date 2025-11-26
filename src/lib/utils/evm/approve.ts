@@ -16,6 +16,7 @@ export const approve = async ({
   wallet,
   accountNumber,
   from,
+  pubKey,
 }: ApproveInputWithWallet) => {
   const { assetReference: to, chainId } = fromAssetId(assetId)
 
@@ -36,6 +37,7 @@ export const approve = async ({
     to,
     value: '0',
     wallet,
+    pubKey,
   })
 
   const txHash = await buildAndBroadcast({

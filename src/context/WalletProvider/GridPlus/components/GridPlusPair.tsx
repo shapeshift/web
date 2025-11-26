@@ -51,7 +51,7 @@ export const GridPlusPair = () => {
           throw new Error(translate('walletProvider.gridplus.errors.adapterNotAvailable'))
         }
 
-        const wallet = await pairConnectedDevice({
+        const { wallet, walletUid, isExternal } = await pairConnectedDevice({
           adapter,
           deviceId,
           pairingCode,
@@ -61,7 +61,13 @@ export const GridPlusPair = () => {
         appDispatch(gridplusSlice.actions.setActiveSafeCard(safeCardUuid))
 
         navigate('/gridplus/setup', {
-          state: { safeCardUuid, wallet, safeCardWalletId: `gridplus:${safeCardUuid}` },
+          state: {
+            safeCardUuid,
+            wallet,
+            safeCardWalletId: `gridplus:${safeCardUuid}`,
+            walletUid,
+            isExternal,
+          },
         })
       } catch (err) {
         setError((err as Error).message)

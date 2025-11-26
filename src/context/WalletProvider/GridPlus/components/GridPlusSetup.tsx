@@ -21,6 +21,8 @@ type LocationState = {
   defaultName?: string
   needsPairing?: boolean
   deviceId?: string
+  walletUid?: string
+  isExternal?: boolean
 }
 
 export const GridPlusSetup = () => {
@@ -65,8 +67,9 @@ export const GridPlusSetup = () => {
 
       try {
         let finalWallet = wallet
-        let walletUid: string | undefined
-        let isExternal: boolean | undefined
+        // Use walletUid and isExternal from state if available (from pairing flow)
+        let walletUid: string | undefined = state?.walletUid
+        let isExternal: boolean | undefined = state?.isExternal
 
         if (!finalWallet) {
           const adapter = await getAdapter(KeyManager.GridPlus)

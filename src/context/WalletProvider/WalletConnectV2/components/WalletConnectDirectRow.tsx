@@ -106,10 +106,9 @@ export const WalletConnectDirectRow = () => {
         setWallets(mappedWallets)
       } catch (error) {
         console.error('Failed to detect wallets:', error)
-        setWallets(WALLET_CONFIGS.slice(0, 3))
-      } finally {
-        setIsDetecting(false)
+        setWallets([])
       }
+      setIsDetecting(false)
     }
 
     detectWallets()

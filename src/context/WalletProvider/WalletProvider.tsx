@@ -843,12 +843,10 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
                   safeCard.activeWalletId,
                 )
 
-                if ((gridPlusWallet as GridPlusHDWallet).setExpectedActiveWalletId) {
-                  ;(gridPlusWallet as GridPlusHDWallet).setExpectedActiveWalletId(
-                    safeCard.activeWalletId,
-                    safeCard.type,
-                  )
-                }
+                (gridPlusWallet as GridPlusHDWallet).setExpectedActiveWalletId(
+                  safeCard.activeWalletId,
+                  safeCard.type,
+                )
 
                 dispatch({
                   type: WalletActions.SET_WALLET,

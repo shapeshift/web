@@ -102,6 +102,7 @@ export const gridplusSlice = createSlice({
         }>,
       ) => {
         if (!state.safecards.byId[action.payload.id]) return
+
         state.safecards.byId[action.payload.id].activeWalletId = action.payload.activeWalletId
         state.safecards.byId[action.payload.id].type = action.payload.type
       },

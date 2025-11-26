@@ -82,7 +82,9 @@ export const SafeCardRow = memo(
                 <Text fontWeight='medium'>{safeCard.name}</Text>
                 {safeCard.type && (
                   <Tag size='sm' colorScheme='blue' variant='subtle'>
-                    {safeCard.type === 'internal' ? 'Internal SafeCard' : 'SafeCard'}
+                    {safeCard.type === 'internal'
+                      ? translate('walletProvider.gridplus.list.internalSafeCardLabel')
+                      : translate('walletProvider.gridplus.list.safeCardLabel')}
                   </Tag>
                 )}
               </HStack>

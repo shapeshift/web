@@ -1429,7 +1429,9 @@
         "renamed": "SafeCard renamed",
         "deleted": "SafeCard deleted",
         "deletedDescription": "Portfolio data has been cleared",
-        "warning": "Each SafeCard maintains its own portfolio. Make sure to insert the correct SafeCard in your device before connecting."
+        "warning": "Each SafeCard maintains its own portfolio. Make sure to insert the correct SafeCard in your device before connecting.",
+        "safeCardLabel": "SafeCard",
+        "internalSafeCardLabel": "Internal SafeCard"
       },
       "connect": {
         "header": "Connect New SafeCard",

@@ -97,9 +97,9 @@ export const finalizeWalletSetup = async ({
     }
   }
 
-  // Set expected wallet UID for JIT validation before signing
+  // Set expected wallet UID and type for JIT validation before signing
   if (finalWalletUid && wallet.setExpectedActiveWalletId) {
-    wallet.setExpectedActiveWalletId(finalWalletUid)
+    wallet.setExpectedActiveWalletId(finalWalletUid, finalType)
   }
 
   walletDispatch({

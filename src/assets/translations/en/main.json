@@ -2523,7 +2523,8 @@
       "getUtxos": "Failed to get utxos.",
       "getValidator": "Failed to get validator.",
       "gridplus": {
-        "wrongSafeCard": "Wrong SafeCard inserted. Please insert the correct SafeCard and try again."
+        "wrongSafeCard": "Wrong SafeCard inserted. Please insert the correct SafeCard and try again.",
+        "removeSafeCard": "Remove inserted SafeCard to access internal GridPlus wallet."
       }
     }
   },

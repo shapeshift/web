@@ -848,10 +848,11 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
                   safeCard.activeWalletId,
                 )
 
-                // Set expected wallet UID for JIT validation before signing
+                // Set expected wallet UID and type for JIT validation before signing
                 if ((gridPlusWallet as GridPlusHDWallet).setExpectedActiveWalletId) {
                   ;(gridPlusWallet as GridPlusHDWallet).setExpectedActiveWalletId(
                     safeCard.activeWalletId,
+                    safeCard.type,
                   )
                 }
 

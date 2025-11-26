@@ -101,10 +101,9 @@ export const gridplusSlice = createSlice({
           type: 'external' | 'internal'
         }>,
       ) => {
-        if (state.safecards.byId[action.payload.id]) {
-          state.safecards.byId[action.payload.id].activeWalletId = action.payload.activeWalletId
-          state.safecards.byId[action.payload.id].type = action.payload.type
-        }
+        if (!state.safecards.byId[action.payload.id]) return
+        state.safecards.byId[action.payload.id].activeWalletId = action.payload.activeWalletId
+        state.safecards.byId[action.payload.id].type = action.payload.type
       },
     ),
 

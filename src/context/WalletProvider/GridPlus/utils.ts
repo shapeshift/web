@@ -87,24 +87,22 @@ export const finalizeWalletSetup = async ({
   appDispatch,
   activeWalletId,
   type,
-}: FinalizeWalletSetupParams): Promise<void> => {
+}: FinalizeWalletSetupParams) => {
   const safeCardUuid = safeCardWalletId.replace('gridplus:', '')
 
-  // If activeWalletId is missing, fetch it from the wallet
-  let finalWalletUid = activeWalletId
-  let finalType = type
+  const { finalWalletUid, finalType } = await (async () => {
+    if (activeWalletId !== undefined && type !== undefined) {
+      return { finalWalletUid: activeWalletId, finalType: type }
+    }
 
-  if (finalWalletUid === undefined || finalType === undefined) {
     try {
       const validation = await wallet.validateActiveWallet()
-      finalWalletUid = validation.activeWalletId
-      finalType = validation.type
+      return { finalWalletUid: validation.activeWalletId, finalType: validation.type }
     } catch (error) {
-      // Silently fail - validation not critical for setup
+      return { finalWalletUid: activeWalletId, finalType: type }
     }
-  }
+  })()
 
-  // Set expected wallet UID and type for JIT validation before signing
   if (finalWalletUid && wallet.setExpectedActiveWalletId) {
     wallet.setExpectedActiveWalletId(finalWalletUid, finalType)
   }
@@ -133,7 +131,6 @@ export const finalizeWalletSetup = async ({
 
   appDispatch(gridplusSlice.actions.setLastConnectedAt(safeCardUuid))
 
-  // Always update the SafeCard's activeWalletId if we have it
   if (finalWalletUid !== undefined && finalType !== undefined) {
     appDispatch(
       gridplusSlice.actions.updateSafeCardWalletUid({

@@ -18,16 +18,12 @@ export const GridPlusMenu = ({ onClose }: GridPlusMenuProps) => {
   const { dispatch } = useWallet()
 
   const handleSwitchSafeCard = useCallback(() => {
-    // Disconnect current wallet
     dispatch({ type: WalletActions.RESET_STATE })
-
-    // Open wallet modal to GridPlus connect screen
     dispatch({
       type: WalletActions.SET_INITIAL_ROUTE,
       payload: '/gridplus/connect',
     })
     dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
-
     onClose?.()
   }, [dispatch, onClose])
 

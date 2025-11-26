@@ -2521,7 +2521,10 @@
       "getFeeData": "Failed to estimate network fees.",
       "getPublicKey": "Failed to get public key from wallet.",
       "getUtxos": "Failed to get utxos.",
-      "getValidator": "Failed to get validator."
+      "getValidator": "Failed to get validator.",
+      "gridplus": {
+        "wrongSafeCard": "Wrong SafeCard inserted. Please insert the correct SafeCard and try again."
+      }
     }
   },
   "actionCenter": {

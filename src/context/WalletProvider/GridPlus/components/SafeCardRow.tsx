@@ -81,12 +81,8 @@ export const SafeCardRow = memo(
               <HStack spacing={2}>
                 <Text fontWeight='medium'>{safeCard.name}</Text>
                 {safeCard.type && (
-                  <Tag
-                    size='sm'
-                    colorScheme={safeCard.type === 'internal' ? 'green' : 'blue'}
-                    variant='subtle'
-                  >
-                    {safeCard.type === 'internal' ? 'Internal' : 'SafeCard'}
+                  <Tag size='sm' colorScheme='blue' variant='subtle'>
+                    {safeCard.type === 'internal' ? 'Internal SafeCard' : 'SafeCard'}
                   </Tag>
                 )}
               </HStack>

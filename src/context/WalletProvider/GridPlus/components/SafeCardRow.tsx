@@ -1,4 +1,14 @@
-import { Box, Button, ButtonGroup, HStack, IconButton, Input, Text, VStack } from '@chakra-ui/react'
+import {
+  Box,
+  Button,
+  ButtonGroup,
+  HStack,
+  IconButton,
+  Input,
+  Tag,
+  Text,
+  VStack,
+} from '@chakra-ui/react'
 import { memo } from 'react'
 import { FaWallet } from 'react-icons/fa'
 import { IoMdCreate, IoMdTrash } from 'react-icons/io'
@@ -68,7 +78,18 @@ export const SafeCardRow = memo(
             />
           ) : (
             <VStack align='start' flex={1} spacing={0}>
-              <Text fontWeight='medium'>{safeCard.name}</Text>
+              <HStack spacing={2}>
+                <Text fontWeight='medium'>{safeCard.name}</Text>
+                {safeCard.isExternal !== undefined && (
+                  <Tag
+                    size='sm'
+                    colorScheme={safeCard.isExternal ? 'blue' : 'green'}
+                    variant='subtle'
+                  >
+                    {safeCard.isExternal ? 'SafeCard' : 'Internal'}
+                  </Tag>
+                )}
+              </HStack>
               {safeCard.lastConnectedAt && (
                 <Text fontSize='xs' color='text.subtle'>
                   {translate('walletProvider.gridplus.list.lastConnected', {

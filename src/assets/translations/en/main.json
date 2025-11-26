@@ -1463,6 +1463,9 @@
         "deviceNotConnected": "Device not connected. Call connectDevice first.",
         "connectFailure": "Unable to connect GridPlus wallet",
         "unknown": "An unexpected error occurred communicating with GridPlus wallet"
+      },
+      "menu": {
+        "switchSafeCard": "Switch SafeCard"
       }
     },
     "ledger": {

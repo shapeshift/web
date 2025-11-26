@@ -182,6 +182,8 @@ export const GridPlusSetup = () => {
       defaultName,
       state?.safeCardWalletId,
       state?.deviceId,
+      state?.walletUid,
+      state?.isExternal,
       physicalDeviceId,
       sessionId,
       translate,

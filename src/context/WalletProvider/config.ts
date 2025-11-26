@@ -310,13 +310,6 @@ const TrezorMenu = lazy(() =>
     default: TrezorMenu,
   })),
 )
-const ManageAccountsMenuItem = lazy(() =>
-  import('@/components/Layout/Header/NavBar/ManageAccountsMenuItem').then(
-    ({ ManageAccountsMenuItem }) => ({
-      default: ManageAccountsMenuItem,
-    }),
-  ),
-)
 
 const MobileCreate = lazy(() =>
   import('./MobileWallet/components/MobileCreate').then(({ MobileCreate }) => ({
@@ -510,7 +503,11 @@ export const SUPPORTED_WALLETS: SupportedWalletInfoByKeyManager = {
       { path: '/gridplus/pair', component: GridPlusPair },
       { path: '/gridplus/setup', component: GridPlusSetup },
     ],
-    connectedMenuComponent: ManageAccountsMenuItem,
+    connectedMenuComponent: lazy(() =>
+      import('./GridPlus/components/GridPlusMenu').then(({ GridPlusMenu }) => ({
+        default: GridPlusMenu,
+      })),
+    ),
   },
 }
 

@@ -154,4 +154,10 @@ describe('trimWithEndEllipsis', () => {
     expect(trimWithEndEllipsis('abcdef', 191)).toEqual('abcdef')
     expect(trimWithEndEllipsis(LongFoxDescription, 191)).toEqual(ExpectedTrimmedFoxDescription)
   })
+
+  it('should not add ellipsis when content length equals max length', () => {
+    const exactly50Chars = 'BlackRock USD Institutional Digital Liquidity Fund'
+    expect(exactly50Chars.length).toEqual(50)
+    expect(trimWithEndEllipsis(exactly50Chars, 50)).toEqual(exactly50Chars)
+  })
 })

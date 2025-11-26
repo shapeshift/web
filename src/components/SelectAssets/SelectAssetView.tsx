@@ -32,7 +32,6 @@ export const SelectAssetView = ({
       <Route
         path={SelectAssetRoutes.Search}
         // This is already within a useMemo call, lint rule drunk
-        // eslint-disable-next-line react-memo/require-usememo
       >
         {<SelectAssets onBack={handleBack} onClick={onClick} />}
       </Route>

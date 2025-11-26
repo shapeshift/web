@@ -1,6 +1,12 @@
 import { CHAIN_NAMESPACE, fromAssetId } from '@shapeshiftoss/caip'
 import { evm } from '@shapeshiftoss/chain-adapters'
-import { bn, bnOrZero, contractAddressOrUndefined, isToken } from '@shapeshiftoss/utils'
+import {
+  bn,
+  bnOrZero,
+  contractAddressOrUndefined,
+  DAO_TREASURY_NEAR,
+  isToken,
+} from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 import { v4 as uuid } from 'uuid'
@@ -14,13 +20,13 @@ import type {
   TradeQuote,
 } from '../../../types'
 import { SwapperName, TradeQuoteError } from '../../../types'
-import { makeSwapErrorRight } from '../../../utils'
+import { getInputOutputRate, makeSwapErrorRight } from '../../../utils'
 import { isNativeEvmAsset } from '../../utils/helpers/helpers'
 import { DEFAULT_QUOTE_DEADLINE_MS, DEFAULT_SLIPPAGE_BPS } from '../constants'
 import type { QuoteResponse } from '../types'
 import { QuoteRequest } from '../types'
 import { assetToNearIntentsAsset, calculateAccountCreationCosts } from '../utils/helpers/helpers'
-import { initializeOneClickService, OneClickService } from '../utils/oneClickService'
+import { ApiError, initializeOneClickService, OneClickService } from '../utils/oneClickService'
 
 export const getTradeQuote = async (
   input: CommonTradeQuoteInput,
@@ -72,6 +78,16 @@ export const getTradeQuote = async (
     const originAsset = await assetToNearIntentsAsset(sellAsset)
     const destinationAsset = await assetToNearIntentsAsset(buyAsset)
 
+    // This shouldn't be the case since we already got a rate and know these exist, but...
+    if (!(originAsset && destinationAsset)) {
+      return Err(
+        makeSwapErrorRight({
+          code: TradeQuoteError.UnsupportedTradePair,
+          message: 'Unsupported asset',
+        }),
+      )
+    }
+
     const quoteRequest: QuoteRequest = {
       dry: false,
       swapType: QuoteRequest.swapType.EXACT_INPUT,
@@ -87,7 +103,13 @@ export const getTradeQuote = async (
       recipient: receiveAddress,
       recipientType: QuoteRequest.recipientType.DESTINATION_CHAIN,
       deadline: new Date(Date.now() + DEFAULT_QUOTE_DEADLINE_MS).toISOString(),
-      // TODO(gomes): appFees disabled - https://github.com/shapeshift/web/issues/11022
+      referral: 'shapeshift',
+      appFees: [
+        {
+          recipient: DAO_TREASURY_NEAR,
+          fee: Number(affiliateBps),
+        },
+      ],
     }
 
     const quoteResponse: QuoteResponse = await OneClickService.getQuote(quoteRequest)
@@ -186,11 +208,18 @@ export const getTradeQuote = async (
 
     const { networkFeeCryptoBaseUnit, chainSpecific } = await getFeeData()
 
+    const rate = getInputOutputRate({
+      sellAmountCryptoBaseUnit: quote.amountIn,
+      buyAmountCryptoBaseUnit: quote.amountOut,
+      sellAsset,
+      buyAsset,
+    })
+
     const tradeQuote: TradeQuote = {
       id: uuid(),
       receiveAddress,
       affiliateBps,
-      rate: bn(quote.amountOut).div(quote.amountIn).toString(),
+      rate,
       slippageTolerancePercentageDecimal:
         slippageTolerancePercentageDecimal ??
         getDefaultSlippageDecimalPercentageForSwapper(SwapperName.NearIntents),
@@ -208,7 +237,7 @@ export const getTradeQuote = async (
             networkFeeCryptoBaseUnit,
             ...(chainSpecific && { chainSpecific }),
           },
-          rate: bn(quote.amountOut).div(quote.amountIn).toString(),
+          rate,
           sellAmountIncludingProtocolFeesCryptoBaseUnit: quote.amountIn,
           sellAsset,
           source: SwapperName.NearIntents,
@@ -226,6 +255,20 @@ export const getTradeQuote = async (
     return Ok([tradeQuote])
   } catch (error) {
     console.error('[NEAR Intents] getTradeQuote error:', error)
+
+    if (
+      error instanceof ApiError &&
+      (error.body?.message === 'tokenIn is not valid' ||
+        error.body?.message === 'tokenOut is not valid')
+    ) {
+      return Err(
+        makeSwapErrorRight({
+          code: TradeQuoteError.UnsupportedTradePair,
+          message: 'Unsupported asset',
+        }),
+      )
+    }
+
     return Err(
       makeSwapErrorRight({
         message:

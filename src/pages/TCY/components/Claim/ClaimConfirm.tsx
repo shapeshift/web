@@ -259,7 +259,6 @@ export const ClaimConfirm = ({ claim, setClaimTxid }: ClaimConfirmProps) => {
           <HStack gap={4} mb={4} justifyContent='space-between'>
             <HelperTooltip label={translate('TCY.assetAddressInput.helperText')}>
               <FormLabel m={0} fontSize='sm'>
-                {/* eslint-disable-next-line react-memo/require-usememo */}
                 <Text translation={label} />
               </FormLabel>
             </HelperTooltip>

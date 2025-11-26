@@ -19,6 +19,7 @@ interface ImportMetaEnv {
   readonly VITE_FEATURE_CHATWOOT: string
   readonly VITE_FEATURE_ADVANCED_SLIPPAGE: string
   readonly VITE_FEATURE_LEDGER_WALLET: string
+  readonly VITE_FEATURE_VULTISIG_WALLET: string
   readonly VITE_FEATURE_WALLET_CONNECT_V2: string
   readonly VITE_FEATURE_THORCHAIN_LENDING: string
   readonly VITE_FEATURE_THORCHAIN_LENDING_BORROW: string
@@ -28,8 +29,6 @@ interface ImportMetaEnv {
   readonly VITE_FEATURE_THORCHAIN_LP: string
   readonly VITE_FEATURE_THORCHAIN_LP_DEPOSIT: string
   readonly VITE_FEATURE_THORCHAIN_LP_WITHDRAW: string
-  readonly VITE_FEATURE_ACCOUNT_MANAGEMENT: string
-  readonly VITE_FEATURE_ACCOUNT_MANAGEMENT_LEDGER: string
   readonly VITE_FEATURE_RFOX: string
   readonly VITE_FEATURE_RFOX_LP: string
   readonly VITE_FEATURE_ARBITRUM_BRIDGE: string
@@ -173,6 +172,10 @@ interface ImportMetaEnv {
   readonly VITE_SOLANA_NODE_URL: string
   readonly VITE_THORCHAIN_MIDGARD_URL: string
   readonly VITE_MAYACHAIN_MIDGARD_URL: string
+  readonly VITE_SWAPS_SERVER_URL: string
+  readonly VITE_NOTIFICATIONS_SERVER_URL: string
+  readonly VITE_USER_SERVER_URL: string
+  readonly VITE_FEATURE_NOTIFICATIONS_WEBSERVICES: string
 
   // Only present in *some* envs
   readonly VITE_MIXPANEL_TOKEN?: string

@@ -645,14 +645,6 @@
         "infinite": "Infinite ∞",
         "amountUnavailable": "Unavailable"
       },
-      "bep20": {
-        "approve": "Approve",
-        "approveSymbol": "Approve %{symbol}",
-        "revoke": "Revoke",
-        "revokeSymbol": "Revoke %{symbol} approval",
-        "infinite": "Infinite ∞",
-        "amountUnavailable": "Unavailable"
-      },
       "staking": {
         "delegate": "Delegate",
         "begin_unbonding": "Undelegate",
@@ -1164,6 +1156,9 @@
       "copyFailed": "Failed to copy %{symbol} receive address to clipboard",
       "copyFailedDescription": "Please copy the address manually",
       "setAmount": "Set Amount",
+      "verify": "Verify",
+      "verified": "Verified",
+      "notVerified": "Address Mismatch",
       "blockExplorer": "Explorer",
       "supportedNetworks": "Supported Networks",
       "amountNote": "Enter the amount you want to request. This will generate a QR code with the amount for easier payments."
@@ -1334,6 +1329,11 @@
         "conflictingApp": "Could not find your KeepKey. Another application may be trying to connect with your KeepKey.",
         "downloadUpdaterApp": "Download updater app"
       },
+      "pin": {
+        "header": "Enter Your PIN",
+        "body": "Use PIN layout shown on your device to find the location to press on the PIN pad.",
+        "button": "Unlock"
+      },
       "settings": {
         "menuLabels": {
           "bootloader": "Bootloader",
@@ -1412,6 +1412,59 @@
         "body": "Unable to connect Keplr wallet"
       }
     },
+    "gridplus": {
+      "list": {
+        "header": "Your GridPlus SafeCards",
+        "selectPrompt": "Select a SafeCard to reconnect or add a new one",
+        "empty": "No SafeCards connected yet",
+        "addFirst": "Connect Your First SafeCard",
+        "addNew": "Add New SafeCard",
+        "lastConnected": "Last connected: %{date}",
+        "connected": "Connected",
+        "connect": "Connect",
+        "editNameLabel": "Edit name",
+        "deleteLabel": "Delete",
+        "deleteTitle": "Delete SafeCard",
+        "deleteConfirm": "Delete \"%{name}\"? This will remove all associated portfolio data.",
+        "renamed": "SafeCard renamed",
+        "deleted": "SafeCard deleted",
+        "deletedDescription": "Portfolio data has been cleared",
+        "warning": "Each SafeCard maintains its own portfolio. Make sure to insert the correct SafeCard in your device before connecting."
+      },
+      "connect": {
+        "header": "Connect New SafeCard",
+        "safeCardName": "SafeCard Name",
+        "safeCardNamePlaceholder": "Enter a name for this SafeCard",
+        "safeCardNameHelper": "Give this SafeCard a memorable name (e.g., \"Main Wallet\", \"Trading\", \"DeFi\")",
+        "deviceId": "Device ID",
+        "deviceIdPlaceholder": "Enter your Lattice device ID",
+        "deviceIdHelper": "You can find your device ID in your Lattice settings under Device Info.",
+        "button": "Connect SafeCard",
+        "connecting": "Connecting...",
+        "backToList": "← Back to SafeCard List"
+      },
+      "pair": {
+        "header": "Pair GridPlus Lattice",
+        "pairingCode": "Pairing Code",
+        "pairingCodePlaceholder": "Enter 8-character code from Lattice",
+        "pairingCodeHelper": "Look at your Lattice screen for an 8-character pairing code.",
+        "button": "Complete Pairing",
+        "cancel": "← Cancel"
+      },
+      "name": {
+        "header": "Name Your SafeCard",
+        "label": "SafeCard Name",
+        "placeholder": "Enter a name for this SafeCard",
+        "helper": "Give this SafeCard a memorable name (e.g., \"Main Wallet\", \"Trading\", \"DeFi\")"
+      },
+      "errors": {
+        "deviceIdRequired": "Device ID is required",
+        "adapterNotAvailable": "GridPlus adapter not available",
+        "deviceNotConnected": "Device not connected. Call connectDevice first.",
+        "connectFailure": "Unable to connect GridPlus wallet",
+        "unknown": "An unexpected error occurred communicating with GridPlus wallet"
+      }
+    },
     "ledger": {
       "chains": {
         "header": "Import Ledger Accounts",
@@ -1452,6 +1505,20 @@
       "gettingChangeAddress": "Getting change address...",
       "connectWarning": "Before connecting a chain, make sure you have the app open on your device.",
       "signWarning": "Before signing, make sure you have the %{chain} app open on your device."
+    },
+    "trezor": {
+      "verify": {
+        "confirmOnDevice": "Confirm on device",
+        "addressMismatch": "Address mismatch. Please check you have the correct device connected and try again."
+      },
+      "errors": {
+        "unknown": "An unexpected error occurred communicating with Trezor wallet"
+      },
+      "connect": {
+        "header": "Pair Trezor",
+        "body": "Connect your Trezor device and click Pair",
+        "button": "Pair"
+      }
     },
     "mipd": {
       "connect": {
@@ -1701,6 +1768,16 @@
         "description": "You've verified your Secret Recovery Phrase. Be sure to store it securely - this is the only way to recover your wallet.",
         "viewWallet": "View Wallet"
       }
+    },
+    "vultisig": {
+      "errors": {
+        "connectFailure": "Unable to connect Vultisig wallet"
+      },
+      "connect": {
+        "header": "Pair Vultisig",
+        "body": "Click Pair and login to Vultisig from the popup window",
+        "button": "Pair"
+      }
     }
   },
   "graph": {
@@ -1761,7 +1838,6 @@
   },
   "accounts": {
     "accounts": "Accounts",
-    "addAccount": "Add Account",
     "accountNumber": "Account #%{accountNumber}",
     "accountChain": "Account Chain",
     "selectChain": "Select the chain you would like to create an account for.",
@@ -1920,7 +1996,8 @@
           "title": "Connect your wallet to a dApp via WalletConnect and trigger transactions",
           "linkPlaceholder": "QR code or connection link",
           "disclaimerBody": "ShapeShift cannot ensure the safety or security of third-party applications. By using WalletConnect, you assume full responsibility for any risks involved.",
-          "connect": "Connect"
+          "connect": "Connect",
+          "invalidUri": "Invalid URI"
         },
         "sessionProposal": {
           "unsupportedChain": "Unsupported chain namespace in session proposal.",
@@ -2432,7 +2509,7 @@
       "switchChainFailed": "Failed to switch wallet chain. Try manually switching your wallet active chain to %{chain}.",
       "buildTransaction": "Failed to build transaction.",
       "signTransaction": "Failed to sign transaction.",
-      "blindSigningRequired": "Transaction requires blind signing. Please enable 'Blind signing' in your Ledger app settings and try again.",
+      "blindSigningRequired": "Transaction requires blind signing. Please enable Blind signing or Contract Data in your Ledger app settings and try again.",
       "signAndBroadcastTransaction": "Failed to sign and broadcast transaction.",
       "signMessage": "Failed to sign message.",
       "broadcastTransaction": "Failed to broadcast transaction.",
@@ -2487,10 +2564,12 @@
     "thorchainLp": {
       "pairAssets": "%{asset1} and %{asset2}",
       "withdraw": {
-        "processing": "Your withdraw of %{assetAmountsAndSymbols} from the %{poolName} pool is processing."
+        "processing": "Your withdraw of %{assetAmountsAndSymbols} from the %{poolName} pool is processing.",
+        "complete": "Your withdraw of %{assetAmountsAndSymbols} from the %{poolName} pool is complete."
       },
       "deposit": {
-        "processing": "Your deposit of %{amount} %{symbol} to %{poolName} pool is processing."
+        "processing": "Your deposit of %{amount} %{symbol} to %{poolName} pool is processing.",
+        "complete": "Your deposit of %{amount} %{symbol} to %{poolName} pool is complete."
       }
     },
     "deposit": {

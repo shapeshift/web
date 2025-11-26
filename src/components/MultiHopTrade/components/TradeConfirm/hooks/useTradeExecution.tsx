@@ -1,8 +1,9 @@
-import { bchAssetId, CHAIN_NAMESPACE, fromChainId } from '@shapeshiftoss/caip'
+import { bchAssetId, CHAIN_NAMESPACE, fromAccountId, fromChainId } from '@shapeshiftoss/caip'
 import type { SignTx, SignTypedDataInput } from '@shapeshiftoss/chain-adapters'
 import { ChainAdapterError, toAddressNList } from '@shapeshiftoss/chain-adapters'
 import type { ETHSignTypedData, SolanaSignTx } from '@shapeshiftoss/hdwallet-core'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
+import { isTrezor } from '@shapeshiftoss/hdwallet-trezor'
 import type { SupportedTradeQuoteStepIndex, TradeQuote } from '@shapeshiftoss/swapper'
 import {
   getHopByIndex,
@@ -194,7 +195,6 @@ export const useTradeExecution = (
 
               return (
                 <SwapNotification
-                  // eslint-disable-next-line react-memo/require-usememo
                   handleClick={handleClick}
                   swapId={swap.id}
                   onClose={onClose}
@@ -292,7 +292,12 @@ export const useTradeExecution = (
 
       if (swapperName === SwapperName.CowSwap) {
         const adapter = assertGetEvmChainAdapter(stepSellAssetChainId)
-        const from = await adapter.getAddress({ accountNumber, wallet })
+        const from = await adapter.getAddress({
+          accountNumber,
+          wallet,
+          pubKey:
+            wallet && isTrezor(wallet) ? fromAccountId(sellAssetAccountId).account : undefined,
+        })
 
         const output = await execution.execEvmMessage({
           swapperName,
@@ -333,7 +338,12 @@ export const useTradeExecution = (
         case CHAIN_NAMESPACE.Evm: {
           const adapter = assertGetEvmChainAdapter(stepSellAssetChainId)
 
-          const from = await adapter.getAddress({ accountNumber, wallet })
+          const from = await adapter.getAddress({
+            accountNumber,
+            wallet,
+            pubKey:
+              wallet && isTrezor(wallet) ? fromAccountId(sellAssetAccountId).account : undefined,
+          })
           const supportsEIP1559 = supportsETH(wallet) && (await wallet.ethSupportsEIP1559())
 
           const output = await execution.execEvmTransaction({
@@ -365,8 +375,17 @@ export const useTradeExecution = (
 
           const adapter = assertGetUtxoChainAdapter(stepSellAssetChainId)
 
-          const { xpub } = await adapter.getPublicKey(wallet, accountNumber, accountType)
-          const senderAddress = await adapter.getAddress({ accountNumber, accountType, wallet })
+          const xpub =
+            wallet && isTrezor(wallet)
+              ? fromAccountId(sellAssetAccountId).account
+              : (await adapter.getPublicKey(wallet, accountNumber, accountType)).xpub
+          const senderAddress = await adapter.getAddress({
+            accountNumber,
+            accountType,
+            wallet,
+            pubKey:
+              wallet && isTrezor(wallet) ? fromAccountId(sellAssetAccountId).account : undefined,
+          })
 
           const output = await execution.execUtxoTransaction({
             swapperName,
@@ -417,7 +436,12 @@ export const useTradeExecution = (
         case CHAIN_NAMESPACE.Solana: {
           const adapter = assertGetSolanaChainAdapter(stepSellAssetChainId)
 
-          const from = await adapter.getAddress({ accountNumber, wallet })
+          const from = await adapter.getAddress({
+            accountNumber,
+            wallet,
+            pubKey:
+              wallet && isTrezor(wallet) ? fromAccountId(sellAssetAccountId).account : undefined,
+          })
 
           const output = await execution.execSolanaTransaction({
             swapperName,

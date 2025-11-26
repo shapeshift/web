@@ -1,11 +1,22 @@
 import type { EIP6963ProviderDetail } from 'mipd'
 import { createStore } from 'mipd'
-import { useSyncExternalStore } from 'react'
+import { useMemo, useSyncExternalStore } from 'react'
 
 export const mipdStore = createStore()
 
-export const useMipdProviders = () =>
-  useSyncExternalStore(mipdStore.subscribe, mipdStore.getProviders)
+export const useMipdProviders = () => {
+  const providers = useSyncExternalStore(mipdStore.subscribe, mipdStore.getProviders)
+
+  return useMemo(() => {
+    return providers.filter(provider => {
+      // Filter out Vultisig hijacking Phantom, see https://github.com/shapeshift/web/issues/11134
+      if (provider.info.rdns === 'app.phantom' && provider.info.name === 'Vultisig') {
+        return false
+      }
+      return true
+    })
+  }, [providers])
+}
 
 export const METAMASK_RDNS = 'io.metamask'
 

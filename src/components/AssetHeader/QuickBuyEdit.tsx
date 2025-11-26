@@ -2,7 +2,7 @@ import { Button, Divider, FormControl, Input, Stack, useColorModeValue } from '@
 import { positiveOrZero } from '@shapeshiftoss/utils'
 import { useCallback, useMemo, useState } from 'react'
 import type { NumberFormatValues } from 'react-number-format'
-import NumberFormat from 'react-number-format'
+import { NumericFormat } from 'react-number-format'
 import { useTranslate } from 'react-polyglot'
 
 import { useLocaleFormatter } from '@/hooks/useLocaleFormatter/useLocaleFormatter'
@@ -79,7 +79,7 @@ export const QuickBuyEdit: React.FC<Props> = ({ onCancel, onSave }) => {
       <Stack spacing={4} px={6}>
         {currentQuickBuyAmounts.map((amount, index) => (
           <FormControl key={index}>
-            <NumberFormat
+            <NumericFormat
               height={12}
               inputMode='decimal'
               thousandSeparator={localeParts.group}

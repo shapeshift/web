@@ -1,6 +1,6 @@
 import { btcChainId, fromChainId, solanaChainId } from '@shapeshiftoss/caip'
 import type { GetFeeDataInput } from '@shapeshiftoss/chain-adapters'
-import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
+import { evm, isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { UtxoChainId } from '@shapeshiftoss/types'
 import {
   bnOrZero,
@@ -14,7 +14,8 @@ import { Err, Ok } from '@sniptt/monads'
 import type { TransactionInstruction } from '@solana/web3.js'
 import { PublicKey } from '@solana/web3.js'
 import axios from 'axios'
-import { zeroAddress } from 'viem'
+import type { Hex } from 'viem'
+import { getAddress, zeroAddress } from 'viem'
 
 import type {
   SwapErrorRight,
@@ -26,6 +27,7 @@ import type {
 } from '../../../types'
 import { MixPanelEvent, SwapperName, TradeQuoteError } from '../../../types'
 import { getInputOutputRate, makeSwapErrorRight } from '../../../utils'
+import { simulateWithStateOverrides } from '../../../utils/tenderly'
 import { isNativeEvmAsset } from '../../utils/helpers/helpers'
 import type { chainIdToRelayChainId as relayChainMapImplementation } from '../constant'
 import { MAXIMUM_SUPPORTED_RELAY_STEPS, relayErrorCodeToTradeQuoteError } from '../constant'
@@ -222,6 +224,14 @@ export async function getTrade<T extends 'quote' | 'rate'>({
         }),
       )
     }
+
+    // Fallback for unmapped error codes (shouldn't happen, but prevents crashes)
+    return Err(
+      makeSwapErrorRight({
+        message: relayError.message || 'Unknown Relay error',
+        code: TradeQuoteError.UnknownError,
+      }),
+    )
   }
 
   const { data: quote } = maybeQuote.unwrap()
@@ -493,6 +503,53 @@ export async function getTrade<T extends 'quote' | 'rate'>({
       return feeData.fast.txFee
     }
 
+    // Use Tenderly simulation with state overrides for EVM chains
+    if (isEvmChainId(sellAsset.chainId)) {
+      const firstStep = swapSteps[0]
+      const selectedItem = firstStep?.items?.[0]
+
+      if (selectedItem?.data && isRelayQuoteEvmItemData(selectedItem.data)) {
+        try {
+          const tenderlySimulation = await simulateWithStateOverrides(
+            {
+              chainId: sellAsset.chainId,
+              // NOTE: zeroAddress is here purely for the purpose of satisfying the type sistem
+              // That should never happen
+              from: getAddress(sendAddress ?? zeroAddress),
+              to: getAddress(selectedItem.data.to ?? zeroAddress),
+              data: (selectedItem.data.data ?? '0x') as Hex,
+              value: selectedItem.data.value ?? '0',
+              sellAsset,
+            },
+            {
+              apiKey: deps.config.VITE_TENDERLY_API_KEY,
+              accountSlug: deps.config.VITE_TENDERLY_ACCOUNT_SLUG,
+              projectSlug: deps.config.VITE_TENDERLY_PROJECT_SLUG,
+            },
+          )
+
+          if (tenderlySimulation.success) {
+            // Use Tenderly's gas estimate instead of Relay's
+            const adapter = deps.assertGetEvmChainAdapter(sellAsset.chainId)
+            const { average } = await adapter.getGasFeeData()
+
+            const supportsEIP1559 = 'maxFeePerGas' in average
+
+            const tenderlyNetworkFee = evm.calcNetworkFeeCryptoBaseUnit({
+              ...average,
+              supportsEIP1559,
+              gasLimit: tenderlySimulation.gasLimit.toString(),
+            })
+
+            return tenderlyNetworkFee
+          }
+        } catch (error) {
+          // Silently fall through to use Relay's gas estimate
+        }
+      }
+    }
+
+    // Fallback to Relay's gas amount
     return quote.fees.gas.amount
   })()
 

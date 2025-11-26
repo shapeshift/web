@@ -19,7 +19,7 @@ import React, { memo, useCallback, useMemo, useRef, useState } from 'react'
 import type { ControllerRenderProps, FieldError, RegisterOptions } from 'react-hook-form'
 import { Controller, useForm, useFormContext } from 'react-hook-form'
 import type { NumberFormatValues } from 'react-number-format'
-import NumberFormat from 'react-number-format'
+import { NumericFormat } from 'react-number-format'
 import { useTranslate } from 'react-polyglot'
 
 import { usePriceImpact } from '../hooks/quoteValidation/usePriceImpact'
@@ -139,6 +139,7 @@ export type TradeAmountInputProps = {
   onToggleIsFiat?: (isInputtingFiatSellAmount: boolean) => void
   placeholder?: string
   activeQuote?: TradeQuote | TradeRate | undefined
+  inputContainerStyleOverride?: React.CSSProperties
 } & PropsWithChildren
 
 const defaultPercentOptions = [0.25, 0.5, 0.75, 1]
@@ -185,6 +186,7 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = memo(
     isFiat,
     activeQuote,
     onToggleIsFiat: handleIsInputtingFiatSellAmountChange,
+    inputContainerStyleOverride,
   }) => {
     const {
       number: { localeParts },
@@ -269,10 +271,10 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = memo(
     const renderController: RenderController = useCallback(
       ({ field: { onChange } }) => {
         return (
-          <NumberFormat
+          <NumericFormat
             customInput={AmountInput}
-            decimalScale={isFiat ? undefined : asset?.precision}
-            isNumericString={true}
+            decimalScale={isFiat ? localeParts.fraction : asset?.precision}
+            valueIsNumericString={true}
             disabled={isReadOnly}
             _disabled={numberFormatDisabled}
             suffix={isFiat ? localeParts.postfix : ''}
@@ -282,28 +284,42 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = memo(
             allowedDecimalSeparators={allowedDecimalSeparators}
             thousandSeparator={localeParts.group}
             placeholder={placeholder}
-            value={isFiat ? bnOrZero(fiatAmount).toFixed(2) : formattedCryptoAmount}
+            allowNegative={false}
+            value={
+              isFiat
+                ? fiatAmount && !bnOrZero(fiatAmount).isZero()
+                  ? fiatAmount
+                  : undefined
+                : formattedCryptoAmount || undefined
+            }
             // this is already within a useCallback, we don't need to memo this
-            // eslint-disable-next-line react-memo/require-usememo
             onValueChange={(values: NumberFormatValues) => {
               // Controller onChange
               onChange(values.value)
               handleValueChange(values)
 
               const value = values.value
+
+              // Treat "0" as empty to avoid showing "$0" when cleared
+              const isEffectivelyEmpty = !value || bnOrZero(value).isZero()
+
               if (isFiat) {
-                setValue('amountUserCurrency', value)
-                const _cryptoAmount = bnOrZero(value)
-                  .div(bnOrZero(assetMarketDataUserCurrency?.price))
-                  .toFixed()
+                setValue('amountUserCurrency', isEffectivelyEmpty ? '' : value)
+                const _cryptoAmount = isEffectivelyEmpty
+                  ? ''
+                  : bnOrZero(value)
+                      .div(bnOrZero(assetMarketDataUserCurrency?.price))
+                      .toString()
                 setValue('amountCryptoPrecision', _cryptoAmount)
               } else {
-                setValue('amountCryptoPrecision', value)
+                setValue('amountCryptoPrecision', isEffectivelyEmpty ? '' : value)
                 setValue(
                   'amountUserCurrency',
-                  bnOrZero(value)
-                    .times(bnOrZero(assetMarketDataUserCurrency?.price))
-                    .toFixed(),
+                  isEffectivelyEmpty
+                    ? ''
+                    : bnOrZero(value)
+                        .times(bnOrZero(assetMarketDataUserCurrency?.price))
+                        .toString(),
                 )
               }
             }}
@@ -329,6 +345,7 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = memo(
         localeParts.group,
         localeParts.postfix,
         localeParts.prefix,
+        localeParts.fraction,
         setValue,
       ],
     )
@@ -366,6 +383,11 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = memo(
 
     const handleOnMaxClick = useMemo(() => () => onMaxClick(Boolean(isFiat)), [isFiat, onMaxClick])
 
+    const containerStyle = useMemo(
+      () => inputContainerStyleOverride ?? inputContainerStyle,
+      [inputContainerStyleOverride],
+    )
+
     return (
       <FormControl
         borderWidth={1}
@@ -402,7 +424,7 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = memo(
             )}
           </Display.Desktop>
         </Flex>
-        <Flex sx={inputContainerStyle}>
+        <Flex sx={containerStyle}>
           {labelPostFix}
           <Stack
             direction='row'

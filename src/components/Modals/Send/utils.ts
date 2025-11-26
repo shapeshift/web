@@ -18,6 +18,7 @@ import { utxoChainIds } from '@shapeshiftoss/chain-adapters'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { supportsETH, supportsSolana } from '@shapeshiftoss/hdwallet-core'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
+import { isTrezor } from '@shapeshiftoss/hdwallet-trezor'
 import type { CosmosSdkChainId, EvmChainId, KnownChainIds, UtxoChainId } from '@shapeshiftoss/types'
 import { contractAddressOrUndefined } from '@shapeshiftoss/utils'
 
@@ -139,11 +140,14 @@ export const handleSend = async ({
   const { asset, chainId, accountMetadata, adapter } = prepareSendAdapter(sendInput)
   const supportedEvmChainIds = getSupportedEvmChainIds()
   const isMetaMaskDesktop = checkIsMetaMaskDesktop(wallet)
+  const isVultisig = (await wallet.getModel()) === 'Vultisig'
   if (
     fromChainId(asset.chainId).chainNamespace === CHAIN_NAMESPACE.CosmosSdk &&
     !wallet.supportsOfflineSigning() &&
     // MM only supports snap things... if the snap is installed
-    (!isMetaMaskDesktop || (isMetaMaskDesktop && !(await checkIsSnapInstalled())))
+    // Vultisig signs directly via extension
+    (!isMetaMaskDesktop || (isMetaMaskDesktop && !(await checkIsSnapInstalled()))) &&
+    !isVultisig
   ) {
     throw new Error(`unsupported wallet: ${await wallet.getModel()}`)
   }
@@ -201,6 +205,8 @@ export const handleSend = async ({
       }
       const { accountNumber } = bip44Params
       const adapter = assertGetUtxoChainAdapter(chainId)
+      const utxoPubKey = isTrezor(wallet) ? fromAccountId(sendInput.accountId).account : undefined
+      console.log('UTXO buildSendTransaction pubKey:', { isTrezor: isTrezor(wallet), utxoPubKey })
       return adapter.buildSendTransaction({
         to,
         value,
@@ -213,6 +219,7 @@ export const handleSend = async ({
           opReturnData: memo,
         },
         sendMax: sendInput.sendMax,
+        pubKey: utxoPubKey,
       })
     }
 
@@ -268,6 +275,10 @@ export const handleSend = async ({
         value,
         wallet,
         accountNumber: bip44Params.accountNumber,
+        pubKey:
+          isLedger(wallet) || isTrezor(wallet)
+            ? fromAccountId(sendInput.accountId).account
+            : undefined,
         chainSpecific:
           instructions.length <= 1
             ? {
@@ -292,6 +303,7 @@ export const handleSend = async ({
     accountNumber: accountMetadata.bip44Params.accountNumber,
     accountType: accountMetadata.accountType,
     wallet,
+    pubKey: isTrezor(wallet) ? fromAccountId(sendInput.accountId).account : undefined,
   })
 
   const broadcastTXID = await (async () => {

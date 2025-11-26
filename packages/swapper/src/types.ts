@@ -63,6 +63,9 @@ export type SwapperConfig = {
   VITE_RELAY_API_URL: string
   VITE_BEBOP_API_KEY: string
   VITE_NEAR_INTENTS_API_KEY: string
+  VITE_TENDERLY_API_KEY: string
+  VITE_TENDERLY_ACCOUNT_SLUG: string
+  VITE_TENDERLY_PROJECT_SLUG: string
 }
 
 export enum SwapperName {

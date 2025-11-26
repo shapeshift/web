@@ -391,11 +391,14 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
 
   async buildSendTransaction(input: BuildSendTxInput<T>): Promise<{ txToSign: SignTx<T> }> {
     try {
-      const { wallet, accountNumber, chainSpecific } = input
+      const { wallet, accountNumber, chainSpecific, pubKey } = input
 
       this.assertSupportsChain(wallet)
 
-      const { xpub } = await this.getPublicKey(wallet, accountNumber, chainSpecific.accountType)
+      const xpub = await (async () => {
+        if (pubKey) return pubKey
+        return (await this.getPublicKey(wallet, accountNumber, chainSpecific.accountType)).xpub
+      })()
       const txToSign = await this.buildSendApiTransaction({ ...input, xpub })
 
       return { txToSign }
@@ -624,6 +627,59 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
       }
 
       return publicKeys[0]
+    } catch (err) {
+      return ErrorHandler(err, {
+        translation: 'chainAdapters.errors.getPublicKey',
+      })
+    }
+  }
+
+  async getPublicKeys(
+    wallet: HDWallet,
+    accountNumbers: number[],
+    accountTypes: UtxoAccountType[],
+  ): Promise<Record<number, Record<UtxoAccountType, PublicKey>>> {
+    try {
+      await verifyLedgerAppOpen(this.chainId, wallet)
+
+      accountTypes.forEach(accountType => this.assertIsAccountTypeSupported(accountType))
+
+      const requests = accountNumbers.flatMap(accountNumber =>
+        accountTypes.map(accountType => {
+          const bip44Params = this.getBip44Params({ accountNumber, accountType })
+          const path = toRootDerivationPath(bip44Params)
+
+          return {
+            coin: this.coinName,
+            addressNList: bip32ToAddressNList(path),
+            curve: 'secp256k1' as const,
+            scriptType: accountTypeToScriptType[accountType],
+            _accountNumber: accountNumber,
+            _accountType: accountType,
+          }
+        }),
+      )
+
+      const publicKeys = await wallet.getPublicKeys(requests)
+      if (!publicKeys) return {}
+
+      const result: Record<number, Record<UtxoAccountType, PublicKey>> = {}
+
+      requests.forEach((request, i) => {
+        const pubKey = publicKeys[i]
+        if (!pubKey) return
+
+        const accountNumber = request._accountNumber
+        const accountType = request._accountType
+
+        if (!result[accountNumber]) result[accountNumber] = {} as Record<UtxoAccountType, PublicKey>
+
+        result[accountNumber][accountType] = {
+          xpub: convertXpubVersion(pubKey.xpub, accountType),
+        }
+      })
+
+      return result
     } catch (err) {
       return ErrorHandler(err, {
         translation: 'chainAdapters.errors.getPublicKey',

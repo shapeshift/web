@@ -15,7 +15,7 @@ import type { Asset } from '@shapeshiftoss/types'
 import { bnOrZero } from '@shapeshiftoss/utils'
 import { useCallback, useMemo, useRef, useState } from 'react'
 import type { NumberFormatValues } from 'react-number-format'
-import NumberFormat from 'react-number-format'
+import { NumericFormat } from 'react-number-format'
 import { useTranslate } from 'react-polyglot'
 
 import { AmountInput } from '../../TradeAmountInput'
@@ -234,7 +234,6 @@ export const LimitOrderConfig = ({
           </Flex>
           <Text
             pl={7}
-            // eslint-disable-next-line react-memo/require-usememo
             translation={[
               'limitOrder.warnings.limitPriceIsPercentLowerThanMarket',
               {
@@ -441,10 +440,10 @@ export const LimitOrderConfig = ({
       <HStack width='full' justify='space-between' alignItems='flex-start'>
         <Skeleton isLoaded={!isLoading} minHeight={6}>
           <Flex direction='column' width='full'>
-            <NumberFormat
+            <NumericFormat
               customInput={AmountInput}
               decimalScale={isInputtingFiatSellAmount ? 2 : priceAsset.precision}
-              isNumericString={true}
+              valueIsNumericString={true}
               textOverflow='ellipsis'
               decimalSeparator={localeParts.decimal}
               inputMode='decimal'

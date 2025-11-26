@@ -53,7 +53,6 @@ export const AssetListFiltersDialog = ({
           <MenuOptionGroup type='radio' value={selectedOrder}>
             <MenuItemOption
               value={OrderDirection.Descending}
-              // eslint-disable-next-line react-memo/require-usememo
               onClick={() => handleOrderChange(OrderDirection.Descending)}
               fontSize='md'
               iconPlacement='end'
@@ -65,7 +64,6 @@ export const AssetListFiltersDialog = ({
             </MenuItemOption>
             <MenuItemOption
               value={OrderDirection.Ascending}
-              // eslint-disable-next-line react-memo/require-usememo
               onClick={() => handleOrderChange(OrderDirection.Ascending)}
               fontSize='md'
               iconPlacement='end'

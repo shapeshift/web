@@ -567,6 +567,44 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
     }
   }
 
+  async getAddresses(wallet: HDWallet, accountNumbers: number[]): Promise<Record<number, string>> {
+    try {
+      if (!wallet) throw new Error('wallet is required')
+
+      this.assertSupportsChain(wallet)
+      await verifyLedgerAppOpen(this.chainId, wallet)
+
+      // Check if wallet supports batch address derivation (Trezor currently, but any wallet could implement ethGetAddresses)
+      if (wallet.ethGetAddresses) {
+        const msgs = accountNumbers.map(accountNumber => {
+          const bip44Params = this.getBip44Params({ accountNumber })
+          return {
+            addressNList: toAddressNList(bip44Params),
+            showDisplay: false,
+          }
+        })
+
+        const addresses = await wallet.ethGetAddresses(msgs)
+        return Object.fromEntries(
+          accountNumbers.map((accountNumber, i) => [accountNumber, addresses[i]]),
+        )
+      }
+
+      // Fallback for wallets without batch support
+      const addresses = await Promise.all(
+        accountNumbers.map(accountNumber => this.getAddress({ accountNumber, wallet })),
+      )
+
+      return Object.fromEntries(
+        accountNumbers.map((accountNumber, i) => [accountNumber, addresses[i]]),
+      )
+    } catch (err) {
+      return ErrorHandler(err, {
+        translation: 'chainAdapters.errors.getAddress',
+      })
+    }
+  }
+
   // eslint-disable-next-line require-await
   async validateAddress(address: string): Promise<ValidAddressResult> {
     const isValidAddress = isAddress(address)
@@ -644,11 +682,11 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
 
   async buildCustomTx(input: BuildCustomTxInput): Promise<{ txToSign: SignTx<T> }> {
     try {
-      const { wallet, accountNumber } = input
+      const { wallet, accountNumber, pubKey } = input
 
       this.assertSupportsChain(wallet)
 
-      const from = await this.getAddress({ accountNumber, wallet })
+      const from = await this.getAddress({ accountNumber, wallet, pubKey })
       const txToSign = await this.buildCustomApiTx({ ...input, from })
 
       return { txToSign }

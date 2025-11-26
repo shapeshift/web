@@ -12,7 +12,7 @@ import {
 import type { AssetId } from '@shapeshiftoss/caip'
 import { useCallback } from 'react'
 import type { NumberFormatValues } from 'react-number-format'
-import NumberFormat from 'react-number-format'
+import { NumericFormat } from 'react-number-format'
 
 import { Text } from '@/components/Text'
 import { useLocaleFormatter } from '@/hooks/useLocaleFormatter/useLocaleFormatter'
@@ -90,10 +90,10 @@ export const RFOXSliders: React.FC<RFOXSlidersProps> = ({
           <Text translation='foxPage.rfox.depositAmount' />
 
           <Box width={inputContainerWidth} sx={inputStyle}>
-            <NumberFormat
+            <NumericFormat
               decimalScale={2}
               customInput={Input}
-              isNumericString={true}
+              valueIsNumericString={true}
               inputMode='decimal'
               suffix={` ${stakingAsset?.symbol ?? ''}`}
               decimalSeparator={localeParts.decimal}
@@ -124,10 +124,10 @@ export const RFOXSliders: React.FC<RFOXSlidersProps> = ({
           <Text width='50%' translation='foxPage.rfox.shapeshiftRevenue' />
 
           <Box width={revenueInputContainerWidth} sx={inputStyle}>
-            <NumberFormat
+            <NumericFormat
               decimalScale={2}
               customInput={Input}
-              isNumericString={true}
+              valueIsNumericString={true}
               inputMode='decimal'
               suffix={localeParts.postfix ? '$' : ''}
               prefix={localeParts.prefix ? '$' : ''}

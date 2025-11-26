@@ -112,12 +112,28 @@ export const portfolio = createSlice({
     clearWalletPortfolioState: create.reducer((draftState, { payload }: { payload: string }) => {
       const walletId = payload
 
+      // Get all account IDs for this wallet before clearing
+      const accountIds = draftState.wallet.byId[walletId] ?? []
+
+      // Delete each account's metadata and balances
+      accountIds.forEach(accountId => {
+        delete draftState.accountMetadata.byId[accountId]
+        delete draftState.accountBalances.byId[accountId]
+        delete draftState.accounts.byId[accountId]
+      })
+
+      // Update the IDs arrays to remove deleted accounts
+      draftState.accountMetadata.ids = draftState.accountMetadata.ids.filter(
+        id => !accountIds.includes(id),
+      )
+      draftState.accountBalances.ids = draftState.accountBalances.ids.filter(
+        id => !accountIds.includes(id),
+      )
+      draftState.accounts.ids = draftState.accounts.ids.filter(id => !accountIds.includes(id))
+
+      // Clear the wallet mapping
       delete draftState.wallet.byId[walletId]
       draftState.wallet.ids = draftState.wallet.ids.filter(id => id !== walletId)
-      delete draftState.accountMetadata.byId[walletId]
-      draftState.accountMetadata.ids = draftState.accountMetadata.ids.filter(id => id !== walletId)
-      delete draftState.accountBalances.byId[walletId]
-      draftState.accountBalances.ids = draftState.accountBalances.ids.filter(id => id !== walletId)
       delete draftState.enabledAccountIds[walletId]
     }),
     upsertPortfolio: create.reducer(

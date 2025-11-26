@@ -173,7 +173,6 @@ export const KeepKeyRoutes = () => {
             <AlertDescription>
               <Text
                 // This is already memoized
-                // eslint-disable-next-line react-memo/require-usememo
                 translation={[
                   'walletProvider.keepKey.errors.updateAlert',
                   { version: latestFirmware },
@@ -223,7 +222,6 @@ export const KeepKeyRoutes = () => {
     () =>
       walletRoutes
         .filter(route => route.component !== undefined)
-        // eslint-disable-next-line react-memo/require-usememo
         .map(route => <Route key={route.path} path={route.path} element={<route.component />} />),
     [walletRoutes],
   )

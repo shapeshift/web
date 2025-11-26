@@ -2,7 +2,6 @@ import { Button } from '@chakra-ui/react'
 import TransportWebUSB from '@ledgerhq/hw-transport-webusb'
 import { useCallback, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useNavigate } from 'react-router-dom'
 
 import { ConnectModal } from '../../components/ConnectModal'
 import { LedgerConfig } from '../config'
@@ -11,14 +10,12 @@ import { LEDGER_DEVICE_ID } from '../constants'
 import { WalletActions } from '@/context/WalletProvider/actions'
 import { KeyManager } from '@/context/WalletProvider/KeyManager'
 import { useLocalWallet } from '@/context/WalletProvider/local-wallet'
-import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { portfolio, portfolioApi } from '@/state/slices/portfolioSlice/portfolioSlice'
 import { selectPortfolioHasWalletId } from '@/state/slices/selectors'
 import { useAppDispatch, useAppSelector } from '@/state/store'
 
 export const LedgerConnect = () => {
-  const navigate = useNavigate()
   const { dispatch: walletDispatch, getAdapter } = useWallet()
   const localWallet = useLocalWallet()
   const translate = useTranslate()
@@ -26,8 +23,6 @@ export const LedgerConnect = () => {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [deviceCountError, setDeviceCountError] = useState<string | null>(null)
-  const isAccountManagementEnabled = useFeatureFlag('AccountManagement')
-  const isLedgerAccountManagementEnabled = useFeatureFlag('AccountManagementLedger')
 
   const setErrorLoading = useCallback((e: string | null) => {
     setError(e)
@@ -97,13 +92,9 @@ export const LedgerConnect = () => {
         })
         localWallet.setLocalWallet({ type: KeyManager.Ledger, deviceId })
 
-        // If account management is enabled, exit the WalletProvider context, which doesn't have access to the ModalProvider
+        // Exit the WalletProvider context, which doesn't have access to the ModalProvider
         // The Account drawer will be opened further down the tree
-        if (isAccountManagementEnabled && isLedgerAccountManagementEnabled) {
-          walletDispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
-        } else {
-          navigate('/ledger/chains')
-        }
+        walletDispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
       } catch (e: any) {
         console.error(e)
         setErrorLoading(e?.message || 'walletProvider.ledger.errors.unknown')
@@ -113,16 +104,7 @@ export const LedgerConnect = () => {
     // Don't set isLoading to false to prevent UI glitching during pairing.
     // Loading state will be reset when the component is remounted
     // setIsLoading(false)
-  }, [
-    getAdapter,
-    handleCheckNumDevices,
-    navigate,
-    isAccountManagementEnabled,
-    isLedgerAccountManagementEnabled,
-    localWallet,
-    setErrorLoading,
-    walletDispatch,
-  ])
+  }, [getAdapter, handleCheckNumDevices, localWallet, setErrorLoading, walletDispatch])
 
   const handleClearPortfolio = useCallback(() => {
     dispatch(portfolio.actions.clear())

@@ -3,13 +3,18 @@ import { Box, Button, Flex, Stack, Text as CText, useColorModeValue } from '@cha
 import { useCallback } from 'react'
 
 import { Text } from '@/components/Text'
+import { GridPlusConfig } from '@/context/WalletProvider/GridPlus/config'
 import { KeepKeyConfig } from '@/context/WalletProvider/KeepKey/config'
 import { KeyManager } from '@/context/WalletProvider/KeyManager'
 import { LedgerConfig } from '@/context/WalletProvider/Ledger/config'
+import { TrezorConfig } from '@/context/WalletProvider/Trezor/config'
+import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 
 const LedgerIcon = LedgerConfig.icon
+const TrezorIcon = TrezorConfig.icon
 const KeepKeyIcon = KeepKeyConfig.icon
+const GridPlusIcon = GridPlusConfig.icon
 
 type WalletOptionProps = {
   connect: () => void
@@ -64,10 +69,23 @@ export const HardwareWalletsSection = ({
     connect(KeyManager.Ledger, false)
   }, [connect, onWalletSelect])
 
+  const handleConnectTrezor = useCallback(() => {
+    onWalletSelect(KeyManager.Trezor, '/trezor/connect')
+    connect(KeyManager.Trezor, false)
+  }, [connect, onWalletSelect])
+
   const handleConnectKeepKey = useCallback(() => {
     onWalletSelect(KeyManager.KeepKey, '/keepkey/connect')
     connect(KeyManager.KeepKey, false)
   }, [connect, onWalletSelect])
+
+  const handleConnectGridPlus = useCallback(() => {
+    onWalletSelect(KeyManager.GridPlus, '/gridplus/connect')
+    connect(KeyManager.GridPlus, false)
+  }, [connect, onWalletSelect])
+
+  const isGridPlusWalletEnabled = useFeatureFlag('GridPlusWallet')
+  const isTrezorWalletEnabled = useFeatureFlag('TrezorWallet')
 
   return (
     <Stack spacing={2} my={6}>
@@ -84,6 +102,15 @@ export const HardwareWalletsSection = ({
         icon={LedgerIcon}
         name={LedgerConfig.name}
       />
+      {isTrezorWalletEnabled && (
+        <WalletOption
+          connect={handleConnectTrezor}
+          isSelected={selectedWalletId === KeyManager.Trezor}
+          isDisabled={isLoading && selectedWalletId !== KeyManager.Trezor}
+          icon={TrezorIcon}
+          name={TrezorConfig.name}
+        />
+      )}
       <WalletOption
         connect={handleConnectKeepKey}
         isSelected={selectedWalletId === KeyManager.KeepKey}
@@ -91,6 +118,15 @@ export const HardwareWalletsSection = ({
         icon={KeepKeyIcon}
         name={KeepKeyConfig.name}
       />
+      {isGridPlusWalletEnabled && (
+        <WalletOption
+          connect={handleConnectGridPlus}
+          isSelected={selectedWalletId === KeyManager.GridPlus}
+          isDisabled={isLoading && selectedWalletId !== KeyManager.GridPlus}
+          icon={GridPlusIcon}
+          name={GridPlusConfig.name}
+        />
+      )}
     </Stack>
   )
 }

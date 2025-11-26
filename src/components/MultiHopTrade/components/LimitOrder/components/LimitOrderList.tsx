@@ -44,7 +44,12 @@ const textSelectedProps = {
 }
 
 const tabsMinHeight = {
-  base: 'calc(100vh - 60px - env(safe-area-inset-bottom) + var(--safe-area-inset-bottom))',
+  base: 'calc(100vh - var(--mobile-nav-offset) - env(safe-area-inset-top) - var(--safe-area-inset-top))',
+  md: 'auto',
+}
+
+const cardMinHeight = {
+  base: 'calc(100vh - var(--mobile-nav-offset) - env(safe-area-inset-top) - var(--safe-area-inset-top))',
   md: 'auto',
 }
 
@@ -83,6 +88,7 @@ const OpenLimitOrders: FC<{
   cardProps?: CardProps
   onCancelOrderClick: (order: OrderToCancel) => void
 }> = ({ cardProps, onCancelOrderClick }) => {
+  'use no memo'
   const { currentData: ordersResponse, isLoading } = useLimitOrdersQuery()
   const parentRef = useRef<HTMLDivElement>(null)
 
@@ -221,6 +227,7 @@ const OpenLimitOrders: FC<{
 const HistoricalLimitOrders: FC<{
   cardProps?: CardProps
 }> = ({ cardProps }) => {
+  'use no memo'
   const { currentData: ordersResponse, isLoading } = useLimitOrdersQuery()
   const parentRef = useRef<HTMLDivElement>(null)
   const headBackground = useColorModeValue('gray.50', '#181c1e')
@@ -351,7 +358,7 @@ export const LimitOrderList: FC<LimitOrderListProps> = ({ cardProps, onBack }) =
   }, [])
 
   return (
-    <Card {...cardstyles} {...cardProps}>
+    <Card {...cardstyles} minHeight={cardMinHeight} {...cardProps}>
       {onBack && (
         <CardHeader
           px={4}

@@ -16,6 +16,7 @@ import { useAppSelector } from '@/state/store'
 
 const containerPaddingTop = { base: 0, md: 8 }
 const accountDropdownButtonProps = { variant: 'solid', width: 'full' }
+const accountDropdownBoxProps = { px: 0, my: 0 }
 
 export const FoxHeader = () => {
   const translate = useTranslate()
@@ -66,17 +67,23 @@ export const FoxHeader = () => {
     if (accountIds.length <= 1) return null
 
     return (
-      <InlineCopyButton
-        isDisabled={!assetAccountId}
-        value={assetAccountId ? fromAccountId(assetAccountId).account : ''}
-      >
-        <AccountDropdown
-          defaultAccountId={assetAccountId}
-          assetId={assetId}
-          onChange={setAssetAccountId}
-          buttonProps={accountDropdownButtonProps}
-        />
-      </InlineCopyButton>
+      <Flex alignItems='center' gap={2}>
+        <Display.Desktop>
+          <Text translation='common.activeAccount' fontWeight='medium' />
+        </Display.Desktop>
+        <InlineCopyButton
+          isDisabled={!assetAccountId}
+          value={assetAccountId ? fromAccountId(assetAccountId).account : ''}
+        >
+          <AccountDropdown
+            defaultAccountId={assetAccountId}
+            assetId={assetId}
+            onChange={setAssetAccountId}
+            buttonProps={accountDropdownButtonProps}
+            boxProps={accountDropdownBoxProps}
+          />
+        </InlineCopyButton>
+      </Flex>
     )
   }, [accountIds.length, setAssetAccountId, assetAccountId, assetId])
 
@@ -92,9 +99,14 @@ export const FoxHeader = () => {
           </PageHeader.Middle>
         </PageHeader>
       </Display.Mobile>
-      <Stack mb={4}>
-        <Container pt={containerPaddingTop} pb={4}>
-          <Display.Desktop>
+      <Display.Mobile>
+        <Flex px={4} py={2}>
+          {activeAccountDropdown}
+        </Flex>
+      </Display.Mobile>
+      <Display.Desktop>
+        <Stack mb={4}>
+          <Container pt={containerPaddingTop} pb={4}>
             <Stack>
               <Flex alignItems='center' justifyContent='space-between'>
                 <Heading>{translate('foxPage.title')}</Heading>
@@ -116,9 +128,9 @@ export const FoxHeader = () => {
                 </Link>
               </HStack>
             </Stack>
-          </Display.Desktop>
-        </Container>
-      </Stack>
+          </Container>
+        </Stack>
+      </Display.Desktop>
     </>
   )
 }

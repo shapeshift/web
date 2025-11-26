@@ -1,4 +1,4 @@
-import react from '@vitejs/plugin-react-swc'
+import react from '@vitejs/plugin-react'
 import * as fs from 'fs'
 import { CID } from 'multiformats/cid'
 import * as raw from 'multiformats/codecs/raw'
@@ -79,7 +79,18 @@ export default defineConfig(({ mode }) => {
         },
         protocolImports: true,
       }),
-      react(),
+      react({
+        babel: {
+          plugins: [
+            [
+              'babel-plugin-react-compiler',
+              {
+                compilationMode: 'infer', // Auto-compile components following Rules of React
+              },
+            ],
+          ],
+        },
+      }),
       tsconfigPaths(),
       checker({
         typescript: {
@@ -111,6 +122,23 @@ export default defineConfig(({ mode }) => {
       port: 3000,
       headers,
       host: '0.0.0.0',
+      proxy: {
+        '/user-api': {
+          target: 'http://localhost:3002',
+          changeOrigin: true,
+          rewrite: path => path.replace(/^\/user-api/, ''),
+        },
+        '/swaps-api': {
+          target: 'http://localhost:3001',
+          changeOrigin: true,
+          rewrite: path => path.replace(/^\/swaps-api/, ''),
+        },
+        '/notifications-api': {
+          target: 'http://localhost:3003',
+          changeOrigin: true,
+          rewrite: path => path.replace(/^\/notifications-api/, ''),
+        },
+      },
     },
     preview: {
       port: 3000,
@@ -156,6 +184,7 @@ export default defineConfig(({ mode }) => {
               if (id.includes('@walletconnect')) return '@walletconnect'
               if (id.includes('@keepkey/keepkey-sdk')) return '@keepkey'
               if (id.includes('bnb-javascript-sdk-nobroadcast')) return 'bnb-sdk'
+              if (id.includes('gridplus-sdk')) return 'gridplus-sdk'
 
               return null
             }

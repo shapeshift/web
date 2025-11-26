@@ -70,7 +70,6 @@ export const MobileWalletsSection = ({ showHeader = true }: MobileWalletsSection
           return []
         }
         setError(null)
-        // Filter out wallets without id and map to VaultInfo type
         return vaults
           .filter((vault): vault is RevocableWallet & { id: string } => vault.id !== undefined)
           .map(vault => ({
@@ -78,7 +77,7 @@ export const MobileWalletsSection = ({ showHeader = true }: MobileWalletsSection
             label: vault.label ?? '',
           }))
       } catch (e) {
-        console.log(e)
+        console.error('Failed to fetch wallets:', e)
         setError('walletProvider.shapeShift.load.error.fetchingWallets')
         return []
       }

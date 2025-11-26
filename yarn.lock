@@ -10756,6 +10756,7 @@ __metadata:
     "@shapeshiftoss/utils": "workspace:^"
     "@solana/spl-token": ^0.4.9
     "@solana/web3.js": ^1.98.0
+    "@types/bs58check": ^2.1.0
     "@types/multicoin-address-validator": ^0.5.0
     axios: ^1.13.0
     bech32: ^2.0.0
@@ -11465,8 +11466,6 @@ __metadata:
     "@chakra-ui/tag": ^3.1.1
     "@commitlint/cli": ^15.0.0
     "@commitlint/config-conventional": ^15.0.0
-    "@cowprotocol/app-data": ^2.3.0
-    "@defuse-protocol/one-click-sdk-typescript": ^0.1.1-0.2
     "@emotion/react": ^11.13.0
     "@emotion/styled": ^11.13.0
     "@formatjs/intl-getcanonicallocales": ^2.3.0
@@ -11474,7 +11473,6 @@ __metadata:
     "@formatjs/intl-numberformat": ^8.10.3
     "@formatjs/intl-pluralrules": ^5.2.14
     "@json-rpc-tools/utils": ^1.7.6
-    "@jup-ag/api": ^6.0.30
     "@keepkey/hdwallet-keepkey-rest": 1.40.42
     "@keepkey/keepkey-sdk": 0.2.57
     "@keplr-wallet/types": ^0.12.21
@@ -11523,7 +11521,6 @@ __metadata:
     "@tanstack/react-virtual": ^3.11.2
     "@testing-library/react": ^13.3.0
     "@types/bip21": ^2.0.0
-    "@types/bs58check": ^2.1.0
     "@types/cli-progress": ^3.11.5
     "@types/d3-array": ^3.0.1
     "@types/dompurify": ^2.3.2
@@ -11550,9 +11547,6 @@ __metadata:
     "@types/semver": ^7.3.10
     "@types/ssri": ^7.1.1
     "@types/uuid": ^9.0.5
-    "@uniswap/sdk": ^3.0.3
-    "@uniswap/sdk-core": ^5.3.1
-    "@uniswap/v3-sdk": ^3.13.1
     "@visx/gradient": ^3.3.0
     "@visx/grid": ^3.5.0
     "@visx/responsive": ^3.10.2
@@ -11573,7 +11567,6 @@ __metadata:
     bignumber.js: ^9.3.1
     bip21: ^2.0.3
     bip39: ^3.0.4
-    bs58check: ^2.1.2
     buffer: ^6.0.3
     chakra-ui-steps: ^2.2.0
     chalk: 5.3.0
@@ -11598,7 +11591,6 @@ __metadata:
     eslint-plugin-simple-import-sort: ^10.0.0
     eth-url-parser: ^1.0.4
     ethers: 6.11.1
-    ethers5: "npm:ethers@5.7.2"
     eventemitter2: 5.0.1
     events: ^3.3.0
     fake-indexeddb: ^6.0.1

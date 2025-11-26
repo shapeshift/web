@@ -144,6 +144,7 @@ export const useGridPlusConnection = () => {
           adapter,
           deviceId: connectionDeviceId,
           expectedActiveWalletId: expectedWalletUid,
+          expectedType: safeCard?.type,
           dispatch: appDispatch,
         })
 

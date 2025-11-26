@@ -17,6 +17,7 @@ type ConnectAndPairDeviceParams = {
   adapter: GridPlusAdapter
   deviceId: string
   expectedActiveWalletId?: string
+  expectedType?: 'external' | 'internal'
   dispatch: AppDispatch
 }
 
@@ -24,9 +25,15 @@ export const connectAndPairDevice = async ({
   adapter,
   deviceId,
   expectedActiveWalletId,
+  expectedType,
   dispatch,
 }: ConnectAndPairDeviceParams): Promise<GridPlusHDWallet | null> => {
-  const wallet = await adapter.connectDevice(deviceId, undefined, expectedActiveWalletId)
+  const wallet = await adapter.connectDevice(
+    deviceId,
+    undefined,
+    expectedActiveWalletId,
+    expectedType,
+  )
 
   if (!wallet) {
     return null

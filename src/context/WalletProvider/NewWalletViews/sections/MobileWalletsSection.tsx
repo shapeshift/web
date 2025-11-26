@@ -45,7 +45,7 @@ export const MobileWalletsSection = ({ showHeader = true }: MobileWalletsSection
         />
       )}
       <Stack spacing={2} my={showHeader ? 6 : 0}>
-        <MobileWalletList buttonProps={buttonProps} avatarSize='lg' />
+        <MobileWalletList buttonProps={buttonProps} avatarSize='lg' isScrollable={false} />
 
         <WalletListButton
           onSelect={handleAddNewWalletClick}

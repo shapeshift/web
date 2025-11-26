@@ -22,6 +22,7 @@ type MobileWalletDialogProps = {
   isEditing?: boolean
   buttonProps?: ButtonProps
   avatarSize?: AvatarProps['size']
+  isScrollable?: boolean
   onErrorChange?: (error: string | null) => void
   onIsWaitingForRedirection?: (isWaitingForRedirection: boolean) => void
 }
@@ -32,6 +33,7 @@ export const MobileWalletList: React.FC<MobileWalletDialogProps> = ({
   onErrorChange,
   buttonProps,
   avatarSize = 'md',
+  isScrollable = true,
   onIsWaitingForRedirection,
 }) => {
   const { dispatch, getAdapter, state } = useWallet()
@@ -158,7 +160,10 @@ export const MobileWalletList: React.FC<MobileWalletDialogProps> = ({
             <AlertDescription>{translate(error)}</AlertDescription>
           </Alert>
         ) : null}
-        <Stack maxHeight='30vh' overflow='auto' px={4} mx={-4}>
+        <Stack
+          maxHeight={isScrollable ? '30vh' : 'full'}
+          overflow={isScrollable ? 'auto' : 'hidden'}
+        >
           {wallets?.map(wallet => {
             const isSelected = walletInfo?.deviceId === wallet.id
             const _hover = isSelected
@@ -192,6 +197,7 @@ export const MobileWalletList: React.FC<MobileWalletDialogProps> = ({
   }, [
     error,
     translate,
+    isScrollable,
     wallets,
     walletInfo?.deviceId,
     isEditing,

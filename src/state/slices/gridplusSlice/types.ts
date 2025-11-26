@@ -3,6 +3,18 @@ export type SafeCard = {
   name: string
   createdAt: number
   lastConnectedAt?: number
+  /**
+   * The actual wallet UID from the GridPlus device (hex string).
+   * This is the unique identifier for the wallet seed stored on the SafeCard or internal storage.
+   * Added in migration 27 - will be undefined for legacy SafeCards until re-paired.
+   */
+  walletUid?: string
+  /**
+   * Whether this is an external (SafeCard) or internal wallet.
+   * true = SafeCard, false = internal device wallet.
+   * Added in migration 27 - will be undefined for legacy SafeCards until re-paired.
+   */
+  isExternal?: boolean
 }
 
 export type GridPlusConnection = {

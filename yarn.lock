@@ -10885,6 +10885,23 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@shapeshiftoss/hdwallet-core@npm:1.62.12-gridplus-validation.4":
+  version: 1.62.12-gridplus-validation.4
+  resolution: "@shapeshiftoss/hdwallet-core@npm:1.62.12-gridplus-validation.4"
+  dependencies:
+    "@shapeshiftoss/bitcoinjs-lib": 7.0.0-shapeshift.0
+    "@shapeshiftoss/proto-tx-builder": 0.10.0
+    "@solana/web3.js": 1.95.8
+    eip-712: ^1.0.0
+    ethers: 5.7.2
+    eventemitter2: ^5.0.1
+    lodash: ^4.17.21
+    rxjs: ^6.4.0
+    type-assertions: ^1.1.0
+  checksum: 9514ad3da2666b183ea49fb01910ffe5a1a7bb42d791bc24ec8649a5c9597602614ff634e05094e7421fd76365af1ba03e1aa91e8faf5550c6962cb1316f141e
+  languageName: node
+  linkType: hard
+
 "@shapeshiftoss/hdwallet-core@npm:1.62.3":
   version: 1.62.3
   resolution: "@shapeshiftoss/hdwallet-core@npm:1.62.3"
@@ -10916,9 +10933,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/hdwallet-gridplus@npm:1.62.10":
-  version: 1.62.10
-  resolution: "@shapeshiftoss/hdwallet-gridplus@npm:1.62.10"
+"@shapeshiftoss/hdwallet-gridplus@npm:1.62.12":
+  version: 1.62.12
+  resolution: "@shapeshiftoss/hdwallet-gridplus@npm:1.62.12"
   dependencies:
     "@bitcoinerlab/secp256k1": ^1.1.1
     "@ethereumjs/common": 4.4.0
@@ -10930,7 +10947,7 @@ __metadata:
     crypto-js: ^4.2.0
     gridplus-sdk: ^3.2.0
     lodash: ^4.17.21
-  checksum: 3cc97a1fd43822e555f28315fcc834e2c43d35b50cfd2d206f71f46803fa1d55297a7a4de49cf1f91312248d0c4b5626ba667054e0a6fdd1a6fa253b6df43ce0
+  checksum: e9952555f0d8608dac360c2b69e493b331f4b15e2f33e30a08317fa9d5ab3ca91e71b8a4d6e65564b33042834e2dddd897c35c5ebabc72c088b08f12cc4c77f6
   languageName: node
   linkType: hard
 
@@ -11442,8 +11459,8 @@ __metadata:
     "@shapeshiftoss/contracts": "workspace:^"
     "@shapeshiftoss/errors": "workspace:^"
     "@shapeshiftoss/hdwallet-coinbase": 1.62.10
-    "@shapeshiftoss/hdwallet-core": 1.62.10
-    "@shapeshiftoss/hdwallet-gridplus": 1.62.10
+    "@shapeshiftoss/hdwallet-core": 1.62.12-gridplus-validation.4
+    "@shapeshiftoss/hdwallet-gridplus": 1.62.12
     "@shapeshiftoss/hdwallet-keepkey": 1.62.10
     "@shapeshiftoss/hdwallet-keepkey-webusb": 1.62.10
     "@shapeshiftoss/hdwallet-keplr": 1.62.10

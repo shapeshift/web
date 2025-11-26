@@ -18,6 +18,7 @@ type ConnectAndPairDeviceParams = {
   deviceId: string
   sessionId: string | undefined
   dispatch: AppDispatch
+  expectedWalletUid?: string
 }
 
 export const connectAndPairDevice = async ({
@@ -25,6 +26,7 @@ export const connectAndPairDevice = async ({
   deviceId,
   sessionId,
   dispatch,
+  expectedWalletUid,
 }: ConnectAndPairDeviceParams): Promise<GridPlusHDWallet | null> => {
   if (!sessionId) {
     const { isPaired, sessionId: newSessionId } = await adapter.connectDevice(
@@ -47,7 +49,13 @@ export const connectAndPairDevice = async ({
     }
   }
 
-  const wallet = await adapter.pairDevice(deviceId, undefined, undefined, sessionId ?? undefined)
+  const wallet = await adapter.pairDevice(
+    deviceId,
+    undefined,
+    undefined,
+    sessionId ?? undefined,
+    expectedWalletUid,
+  )
 
   if (!sessionId && wallet.getSessionId) {
     const walletSessionId = wallet.getSessionId()
@@ -76,8 +84,12 @@ export const pairConnectedDevice = async ({
   deviceId,
   pairingCode,
   dispatch,
-}: PairConnectedDeviceParams): Promise<GridPlusHDWallet> => {
-  const wallet = await adapter.pairConnectedDevice(deviceId, pairingCode)
+}: PairConnectedDeviceParams): Promise<{
+  wallet: GridPlusHDWallet
+  walletUid: string
+  isExternal: boolean
+}> => {
+  const { wallet, walletUid, isExternal } = await adapter.pairConnectedDevice(deviceId, pairingCode)
 
   if (wallet.getSessionId) {
     const walletSessionId = wallet.getSessionId()
@@ -91,7 +103,7 @@ export const pairConnectedDevice = async ({
     }
   }
 
-  return wallet
+  return { wallet, walletUid, isExternal }
 }
 
 type FinalizeWalletSetupParams = {
@@ -101,6 +113,8 @@ type FinalizeWalletSetupParams = {
   localWallet: LocalWallet
   navigate: NavigateFunction
   appDispatch: AppDispatch
+  walletUid?: string
+  isExternal?: boolean
 }
 
 export const finalizeWalletSetup = ({
@@ -110,6 +124,8 @@ export const finalizeWalletSetup = ({
   localWallet,
   navigate,
   appDispatch,
+  walletUid,
+  isExternal,
 }: FinalizeWalletSetupParams): void => {
   const safeCardUuid = safeCardWalletId.replace('gridplus:', '')
 
@@ -136,6 +152,17 @@ export const finalizeWalletSetup = ({
   })
 
   appDispatch(gridplusSlice.actions.setLastConnectedAt(safeCardUuid))
+
+  // Update the SafeCard's walletUid if it was provided
+  if (walletUid !== undefined && isExternal !== undefined) {
+    appDispatch(
+      gridplusSlice.actions.updateSafeCardWalletUid({
+        id: safeCardUuid,
+        walletUid,
+        isExternal,
+      }),
+    )
+  }
 
   walletDispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
   navigate('/')

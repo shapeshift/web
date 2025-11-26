@@ -137,6 +137,10 @@ export const useGridPlusConnection = () => {
       try {
         appDispatch(gridplusSlice.actions.setActiveSafeCard(id))
 
+        // Get the SafeCard details to check for walletUid
+        const safeCard = safeCards.find(card => card.id === id)
+        const expectedWalletUid = safeCard?.walletUid
+
         const safeCardWalletId = `gridplus:${id}`
         const connectionDeviceId = getConnectionDeviceId()
         const adapter = await getAdapterWithKeyring()
@@ -146,6 +150,7 @@ export const useGridPlusConnection = () => {
           deviceId: connectionDeviceId,
           sessionId: sessionId ?? undefined,
           dispatch: appDispatch,
+          expectedWalletUid,
         })
 
         if (!wallet) {
@@ -163,6 +168,8 @@ export const useGridPlusConnection = () => {
           localWallet,
           navigate,
           appDispatch,
+          walletUid: safeCard?.walletUid,
+          isExternal: safeCard?.isExternal,
         })
       } catch (e) {
         setConnectingCardId(null)
@@ -171,6 +178,7 @@ export const useGridPlusConnection = () => {
     },
     [
       appDispatch,
+      safeCards,
       getConnectionDeviceId,
       getAdapterWithKeyring,
       sessionId,

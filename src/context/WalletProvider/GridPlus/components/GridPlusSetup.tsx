@@ -65,6 +65,8 @@ export const GridPlusSetup = () => {
 
       try {
         let finalWallet = wallet
+        let walletUid: string | undefined
+        let isExternal: boolean | undefined
 
         if (!finalWallet) {
           const adapter = await getAdapter(KeyManager.GridPlus)
@@ -77,12 +79,15 @@ export const GridPlusSetup = () => {
             if (!deviceId) {
               throw new Error(translate('walletProvider.gridplus.errors.deviceIdRequired'))
             }
-            finalWallet = await pairConnectedDevice({
+            const result = await pairConnectedDevice({
               adapter,
               deviceId,
               pairingCode,
               dispatch: appDispatch,
             })
+            finalWallet = result.wallet
+            walletUid = result.walletUid
+            isExternal = result.isExternal
           } else {
             const connectionDeviceId = physicalDeviceId || deviceId || state?.deviceId
             if (!connectionDeviceId) {
@@ -114,6 +119,8 @@ export const GridPlusSetup = () => {
           gridplusSlice.actions.addSafeCard({
             id: safeCardUuid,
             name: finalSafeCardName,
+            walletUid,
+            isExternal,
           }),
         )
 

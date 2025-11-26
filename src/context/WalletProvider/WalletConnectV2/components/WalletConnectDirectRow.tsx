@@ -1,13 +1,4 @@
-import {
-  Avatar,
-  Button,
-  Circle,
-  Flex,
-  Skeleton,
-  SkeletonCircle,
-  Spinner,
-  Text,
-} from '@chakra-ui/react'
+import { Avatar, Button, Circle, Flex, Skeleton, Spinner, Text } from '@chakra-ui/react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 
 import { getDetectedWallets } from '../../MobileWallet/mobileMessageHandlers'
@@ -136,7 +127,7 @@ export const WalletConnectDirectRow = () => {
             width='full'
             minH='120px'
           >
-            <SkeletonCircle size='96px' />
+            <Skeleton borderRadius='lg' boxSize='96px' />
             <Skeleton height='20px' width='80px' mt={3} borderRadius='md' />
           </Flex>
         ))}
@@ -149,7 +140,7 @@ export const WalletConnectDirectRow = () => {
   }
 
   return (
-    <Flex px={6} pt={6} justifyContent='space-between' gap={6}>
+    <Flex px={6} pt={4} justifyContent='space-between' gap={6}>
       {wallets.map(wallet => (
         <DirectWalletButton
           key={wallet.id}

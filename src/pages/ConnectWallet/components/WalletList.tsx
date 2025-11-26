@@ -1,3 +1,4 @@
+import type { AvatarProps, ButtonProps } from '@chakra-ui/react'
 import { Alert, AlertDescription, AlertIcon, Center, Spinner, Stack } from '@chakra-ui/react'
 import { useQuery } from '@tanstack/react-query'
 import type { JSX } from 'react'
@@ -19,6 +20,8 @@ import { useWallet } from '@/hooks/useWallet/useWallet'
 type MobileWalletDialogProps = {
   footerComponent?: JSX.Element
   isEditing?: boolean
+  buttonProps?: ButtonProps
+  avatarSize?: AvatarProps['size']
   onErrorChange?: (error: string | null) => void
   onIsWaitingForRedirection?: (isWaitingForRedirection: boolean) => void
 }
@@ -27,6 +30,8 @@ export const MobileWalletList: React.FC<MobileWalletDialogProps> = ({
   footerComponent,
   isEditing,
   onErrorChange,
+  buttonProps,
+  avatarSize = 'md',
   onIsWaitingForRedirection,
 }) => {
   const { dispatch, getAdapter, state } = useWallet()
@@ -174,6 +179,8 @@ export const MobileWalletList: React.FC<MobileWalletDialogProps> = ({
                 isDisabled={isInitializingWallet && !isSelected}
                 onRename={handleRename}
                 onDelete={handleDelete}
+                buttonProps={buttonProps}
+                avatarSize={avatarSize}
                 _hover={_hover}
                 _active={_active}
               />
@@ -184,14 +191,16 @@ export const MobileWalletList: React.FC<MobileWalletDialogProps> = ({
     )
   }, [
     error,
-    handleDelete,
-    handleRename,
-    handleWalletSelect,
-    isEditing,
     translate,
-    walletInfo?.deviceId,
     wallets,
+    walletInfo?.deviceId,
+    isEditing,
+    handleWalletSelect,
     isInitializingWallet,
+    handleRename,
+    handleDelete,
+    buttonProps,
+    avatarSize,
   ])
 
   return isLoading || state.isLoadingLocalWallet ? (

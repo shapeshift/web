@@ -272,14 +272,10 @@ export const NewWalletViewsSwitch = () => {
     }
     return (
       <Box w={sectionsWidth} p={6} maxH='800px' overflowY='auto'>
-        {isMobile ? (
-          <MobileWalletsSection />
-        ) : (
-          <SavedWalletsSection
-            selectedWalletId={selectedWalletId}
-            onWalletSelect={handleWalletSelect}
-          />
-        )}
+        <SavedWalletsSection
+          selectedWalletId={selectedWalletId}
+          onWalletSelect={handleWalletSelect}
+        />
         <Divider mb={2} />
         <Text translation='common.connectWallet' fontSize='xl' fontWeight='semibold' />
         <InstalledWalletsSection

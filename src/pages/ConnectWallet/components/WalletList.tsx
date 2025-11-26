@@ -44,23 +44,19 @@ export const MobileWalletList: React.FC<MobileWalletDialogProps> = ({
   const translate = useTranslate()
   const [isInitializingWallet, setIsInitializingWallet] = useState<boolean>(false)
 
-  const { isLoading, data: wallets } = useQuery({
+  const {
+    isLoading,
+    data: wallets = [],
+    error: queryError,
+  } = useQuery({
     queryKey: ['listWallets'],
-    staleTime: 0,
-    gcTime: 0,
     refetchOnMount: true,
     queryFn: async () => {
-      try {
-        const vaults = await listWallets()
-        if (!vaults.length) {
-          setError('walletProvider.shapeShift.load.error.noWallet')
-        } else {
-          return vaults
-        }
-      } catch (e) {
-        console.log(e)
-        setError('walletProvider.shapeShift.load.error.fetchingWallets')
+      const vaults = await listWallets()
+      if (!vaults.length) {
+        throw new Error('walletProvider.shapeShift.load.error.noWallet')
       }
+      return vaults
     },
   })
 
@@ -146,6 +142,18 @@ export const MobileWalletList: React.FC<MobileWalletDialogProps> = ({
     },
     [navigate],
   )
+
+  useEffect(() => {
+    if (queryError) {
+      const errorMessage =
+        queryError instanceof Error
+          ? queryError.message
+          : 'walletProvider.shapeShift.load.error.fetchingWallets'
+      setError(errorMessage)
+    } else {
+      setError(null)
+    }
+  }, [queryError])
 
   useEffect(() => {
     onErrorChange?.(error)

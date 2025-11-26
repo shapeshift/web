@@ -21,7 +21,7 @@ type LocationState = {
   defaultName?: string
   needsPairing?: boolean
   deviceId?: string
-  walletUid?: string
+  activeWalletId?: string
   type?: 'external' | 'internal'
 }
 
@@ -66,8 +66,8 @@ export const GridPlusSetup = () => {
 
       try {
         let finalWallet = wallet
-        // Use walletUid and type from state if available (from pairing flow)
-        let walletUid: string | undefined = state?.walletUid
+        // Use activeWalletId and type from state if available (from pairing flow)
+        let activeWalletId: string | undefined = state?.activeWalletId
         let type: 'external' | 'internal' | undefined = state?.type
 
         if (!finalWallet) {
@@ -87,7 +87,7 @@ export const GridPlusSetup = () => {
               pairingCode,
             })
             finalWallet = result.wallet
-            walletUid = result.walletUid
+            activeWalletId = result.activeWalletId
             type = result.type
           } else {
             const connectionDeviceId = physicalDeviceId || deviceId || state?.deviceId
@@ -111,11 +111,11 @@ export const GridPlusSetup = () => {
           throw new Error(translate('walletProvider.gridplus.errors.walletNotAvailable'))
         }
 
-        // If we don't have walletUid yet (e.g., when adding new SafeCard with existing wallet),
+        // If we don't have activeWalletId yet (e.g., when adding new SafeCard with existing wallet),
         // we need to fetch it from the wallet
-        if (walletUid === undefined || type === undefined) {
+        if (activeWalletId === undefined || type === undefined) {
           const validation = await finalWallet.validateActiveWallet()
-          walletUid = validation.uid
+          activeWalletId = validation.activeWalletId
           type = validation.type
         }
 
@@ -126,7 +126,7 @@ export const GridPlusSetup = () => {
           gridplusSlice.actions.addSafeCard({
             id: safeCardUuid,
             name: finalSafeCardName,
-            walletUid,
+            activeWalletId,
             type,
           }),
         )
@@ -177,7 +177,7 @@ export const GridPlusSetup = () => {
       defaultName,
       state?.safeCardWalletId,
       state?.deviceId,
-      state?.walletUid,
+      state?.activeWalletId,
       state?.type,
       physicalDeviceId,
       translate,

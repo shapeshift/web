@@ -834,21 +834,25 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
                 const gridPlusState = store.getState().gridplus
                 const safeCard = gridPlusState.safecards.byId[safeCardUuid]
 
-                if (!safeCard?.walletUid) {
+                if (!safeCard?.activeWalletId) {
                   console.error(
-                    '[WalletProvider] SafeCard missing walletUid - clear cache required',
+                    '[WalletProvider] SafeCard missing activeWalletId - clear cache required',
                   )
                   disconnect()
                   dispatch({ type: WalletActions.SET_LOCAL_WALLET_LOADING, payload: false })
                   break
                 }
 
-                // Validate that the inserted card matches the expected walletUid (throws on mismatch)
-                await (gridPlusWallet as GridPlusHDWallet).validateActiveWallet(safeCard.walletUid)
+                // Validate that the inserted card matches the expected activeWalletId (throws on mismatch)
+                await (gridPlusWallet as GridPlusHDWallet).validateActiveWallet(
+                  safeCard.activeWalletId,
+                )
 
                 // Set expected wallet UID for JIT validation before signing
-                if ((gridPlusWallet as GridPlusHDWallet).setExpectedWalletUid) {
-                  ;(gridPlusWallet as GridPlusHDWallet).setExpectedWalletUid(safeCard.walletUid)
+                if ((gridPlusWallet as GridPlusHDWallet).setExpectedActiveWalletId) {
+                  ;(gridPlusWallet as GridPlusHDWallet).setExpectedActiveWalletId(
+                    safeCard.activeWalletId,
+                  )
                 }
 
                 dispatch({

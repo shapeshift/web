@@ -130,9 +130,9 @@ export const useGridPlusConnection = () => {
       setError(null)
 
       try {
-        // Get the SafeCard details to check for walletUid
+        // Get the SafeCard details to check for activeWalletId
         const safeCard = safeCards.find(card => card.id === id)
-        const expectedWalletUid = safeCard?.walletUid
+        const expectedWalletUid = safeCard?.activeWalletId
 
         const safeCardWalletId = `gridplus:${id}`
         const connectionDeviceId = getConnectionDeviceId()
@@ -162,7 +162,7 @@ export const useGridPlusConnection = () => {
           localWallet,
           navigate,
           appDispatch,
-          walletUid: safeCard?.walletUid,
+          activeWalletId: safeCard?.activeWalletId,
           type: safeCard?.type,
         })
       } catch (e) {

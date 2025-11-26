@@ -45,14 +45,14 @@ export const pairConnectedDevice = async ({
   pairingCode,
 }: PairConnectedDeviceParams): Promise<{
   wallet: GridPlusHDWallet
-  walletUid: string
+  activeWalletId: string
   type: 'external' | 'internal'
 }> => {
   await adapter.connectDevice(deviceId)
 
-  const { wallet, walletUid, type } = await adapter.pairDevice(pairingCode)
+  const { wallet, activeWalletId, type } = await adapter.pairDevice(pairingCode)
 
-  return { wallet, walletUid, type }
+  return { wallet, activeWalletId, type }
 }
 
 type FinalizeWalletSetupParams = {
@@ -62,7 +62,7 @@ type FinalizeWalletSetupParams = {
   localWallet: LocalWallet
   navigate: NavigateFunction
   appDispatch: AppDispatch
-  walletUid?: string
+  activeWalletId?: string
   type?: 'external' | 'internal'
 }
 
@@ -73,19 +73,19 @@ export const finalizeWalletSetup = async ({
   localWallet,
   navigate,
   appDispatch,
-  walletUid,
+  activeWalletId,
   type,
 }: FinalizeWalletSetupParams): Promise<void> => {
   const safeCardUuid = safeCardWalletId.replace('gridplus:', '')
 
-  // If walletUid is missing, fetch it from the wallet
-  let finalWalletUid = walletUid
+  // If activeWalletId is missing, fetch it from the wallet
+  let finalWalletUid = activeWalletId
   let finalType = type
 
   if (finalWalletUid === undefined || finalType === undefined) {
     try {
       const validation = await wallet.validateActiveWallet()
-      finalWalletUid = validation.uid
+      finalWalletUid = validation.activeWalletId
       finalType = validation.type
     } catch (error) {
       // Silently fail - validation not critical for setup
@@ -93,8 +93,8 @@ export const finalizeWalletSetup = async ({
   }
 
   // Set expected wallet UID for JIT validation before signing
-  if (finalWalletUid && wallet.setExpectedWalletUid) {
-    wallet.setExpectedWalletUid(finalWalletUid)
+  if (finalWalletUid && wallet.setExpectedActiveWalletId) {
+    wallet.setExpectedActiveWalletId(finalWalletUid)
   }
 
   walletDispatch({
@@ -121,12 +121,12 @@ export const finalizeWalletSetup = async ({
 
   appDispatch(gridplusSlice.actions.setLastConnectedAt(safeCardUuid))
 
-  // Always update the SafeCard's walletUid if we have it
+  // Always update the SafeCard's activeWalletId if we have it
   if (finalWalletUid !== undefined && finalType !== undefined) {
     appDispatch(
       gridplusSlice.actions.updateSafeCardWalletUid({
         id: safeCardUuid,
-        walletUid: finalWalletUid,
+        activeWalletId: finalWalletUid,
         type: finalType,
       }),
     )

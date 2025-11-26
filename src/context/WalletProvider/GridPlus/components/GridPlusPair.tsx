@@ -51,7 +51,7 @@ export const GridPlusPair = () => {
           throw new Error(translate('walletProvider.gridplus.errors.adapterNotAvailable'))
         }
 
-        const { wallet, walletUid, type } = await pairConnectedDevice({
+        const { wallet, activeWalletId, type } = await pairConnectedDevice({
           adapter,
           deviceId,
           pairingCode,
@@ -64,7 +64,7 @@ export const GridPlusPair = () => {
             safeCardUuid,
             wallet,
             safeCardWalletId: `gridplus:${safeCardUuid}`,
-            walletUid,
+            activeWalletId,
             type,
           },
         })

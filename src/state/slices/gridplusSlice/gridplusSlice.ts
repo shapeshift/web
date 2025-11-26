@@ -39,7 +39,7 @@ export const gridplusSlice = createSlice({
         action: PayloadAction<{
           id?: string
           name: string
-          walletUid?: string
+          activeWalletId?: string
           type?: 'external' | 'internal'
         }>,
       ) => {
@@ -48,7 +48,7 @@ export const gridplusSlice = createSlice({
           id,
           name: action.payload.name,
           createdAt: Date.now(),
-          walletUid: action.payload.walletUid,
+          activeWalletId: action.payload.activeWalletId,
           type: action.payload.type,
         }
         state.safecards.byId[id] = safeCard
@@ -97,12 +97,12 @@ export const gridplusSlice = createSlice({
         state,
         action: PayloadAction<{
           id: string
-          walletUid: string
+          activeWalletId: string
           type: 'external' | 'internal'
         }>,
       ) => {
         if (state.safecards.byId[action.payload.id]) {
-          state.safecards.byId[action.payload.id].walletUid = action.payload.walletUid
+          state.safecards.byId[action.payload.id].activeWalletId = action.payload.activeWalletId
           state.safecards.byId[action.payload.id].type = action.payload.type
         }
       },

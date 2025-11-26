@@ -3,7 +3,7 @@ export type SafeCard = {
   name: string
   createdAt: number
   lastConnectedAt?: number
-  walletUid?: string
+  activeWalletId?: string
   type?: 'external' | 'internal'
 }
 

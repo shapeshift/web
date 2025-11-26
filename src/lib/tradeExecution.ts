@@ -86,7 +86,14 @@ export const fetchTradeStatus = async ({
     fetchIsSmartContractAddressQuery,
   })
 
-  return { status, message, buyTxHash, relayerTxHash, relayerExplorerTxLink, actualBuyAmountCryptoBaseUnit }
+  return {
+    status,
+    message,
+    buyTxHash,
+    relayerTxHash,
+    relayerExplorerTxLink,
+    actualBuyAmountCryptoBaseUnit,
+  }
 }
 
 export class TradeExecution {

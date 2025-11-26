@@ -97,6 +97,7 @@ export const GridPlusSetup = () => {
             const result = await connectAndPairDevice({
               adapter,
               deviceId: connectionDeviceId,
+              dispatch: appDispatch,
             })
             finalWallet = result ?? undefined
           }

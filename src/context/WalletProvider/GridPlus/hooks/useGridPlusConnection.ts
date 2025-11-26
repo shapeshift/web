@@ -90,6 +90,7 @@ export const useGridPlusConnection = () => {
         const wallet = await connectAndPairDevice({
           adapter,
           deviceId: connectionDeviceId,
+          dispatch: appDispatch,
         })
 
         if (!wallet) {
@@ -119,6 +120,7 @@ export const useGridPlusConnection = () => {
       defaultSafeCardName,
       getConnectionDeviceId,
       getAdapterWithKeyring,
+      appDispatch,
       navigate,
       setErrorLoading,
     ],
@@ -141,7 +143,8 @@ export const useGridPlusConnection = () => {
         const wallet = await connectAndPairDevice({
           adapter,
           deviceId: connectionDeviceId,
-          expectedWalletUid,
+          expectedActiveWalletId: expectedWalletUid,
+          dispatch: appDispatch,
         })
 
         if (!wallet) {

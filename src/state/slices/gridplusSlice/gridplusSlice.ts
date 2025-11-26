@@ -25,7 +25,7 @@ export const gridplusSlice = createSlice({
         state,
         action: PayloadAction<{
           physicalDeviceId: string
-          sessionId: string
+          sessionId: string | null
         }>,
       ) => {
         state.connection.physicalDeviceId = action.payload.physicalDeviceId

@@ -16,19 +16,28 @@ type LocalWallet = ReturnType<typeof useLocalWallet>
 type ConnectAndPairDeviceParams = {
   adapter: GridPlusAdapter
   deviceId: string
-  expectedWalletUid?: string
+  expectedActiveWalletId?: string
+  dispatch: AppDispatch
 }
 
 export const connectAndPairDevice = async ({
   adapter,
   deviceId,
-  expectedWalletUid,
+  expectedActiveWalletId,
+  dispatch,
 }: ConnectAndPairDeviceParams): Promise<GridPlusHDWallet | null> => {
-  const wallet = await adapter.connectDevice(deviceId, undefined, expectedWalletUid)
+  const wallet = await adapter.connectDevice(deviceId, undefined, expectedActiveWalletId)
 
   if (!wallet) {
     return null
   }
+
+  dispatch(
+    gridplusSlice.actions.setConnection({
+      physicalDeviceId: deviceId,
+      sessionId: null,
+    }),
+  )
 
   return wallet
 }

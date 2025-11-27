@@ -751,13 +751,8 @@
     "slowSwapBody": "Bu takasın tamamlanması birkaç dakika sürebilir.",
     "thorSmartContractWalletUnsupported": "THORChain ağı şu anda akıllı sözleşme cüzdanlarını desteklemiyor.",
     "intoAssetSymbolBody": "Bu ticarete devam edebilirsiniz, ancak %{assetSymbol} almak için işlem geçmişi geçici olarak kullanılamıyor",
-    "recipientAddress": "Alıcı adresi",
     "changeAddress": "Adresi değiştir",
     "changeAddressExplainer": "UTXO tabanlı ağlar üzerinden kripto para gönderirken, işlemden kalan fonlar bu adrese geri gönderilir.",
-    "customRecipientAddress": "Özel alıcı adresi",
-    "customRecipientAddressDescription": "Bu takas için özel bir alıcı adresi girin",
-    "thisIsYourCustomRecipientAddress": "Bu sizin özel alıcı adresinizdir",
-    "enterCustomRecipientAddress": "Özel alıcı adresini girin",
     "receiveAtLeast": "En azdan al",
     "tooltip": {
       "continueSwapping": "Son detaylar için takasa devam edin",

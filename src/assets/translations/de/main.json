@@ -751,13 +751,8 @@
     "slowSwapBody": "Dieser Wechsel kann einige Minuten dauern.",
     "thorSmartContractWalletUnsupported": "Das THORChain-Netzwerk unterstützt derzeit keine Smart Contract Wallets.",
     "intoAssetSymbolBody": "Sie können mit diesem Handel fortfahren, aber der Transaktionsverlauf für den Erhalt von %{assetSymbol} ist vorübergehend nicht verfügbar",
-    "recipientAddress": "Empfängeradresse",
     "changeAddress": "Retourgeld Adresse",
     "changeAddressExplainer": "Beim Senden von Kryptowährungen über UTXO-basierte Netzwerke werden alle Restbeträge Ihrer Transaktion an diese Adresse zurückgesendet.",
-    "customRecipientAddress": "Benutzerdefinierte Empfängeradresse",
-    "customRecipientAddressDescription": "Geben Sie eine benutzerdefinierte Empfängeradresse für diesen Handel ein",
-    "thisIsYourCustomRecipientAddress": "Dies ist Ihre benutzerdefinierte Empfängeradresse",
-    "enterCustomRecipientAddress": "Geben Sie eine benutzerdefinierte Empfängeradresse ein",
     "receiveAtLeast": "Erhalten Sie zumindest",
     "tooltip": {
       "continueSwapping": "Weiter tauschen, um die letzten Details zu erfahren",

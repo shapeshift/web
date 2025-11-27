@@ -751,13 +751,8 @@
     "slowSwapBody": "Этот обмен может занять несколько минут.",
     "thorSmartContractWalletUnsupported": "В настоящее время сеть THORChain не поддерживает кошельки смарт-контрактов.",
     "intoAssetSymbolBody": "Вы можете продолжить эту сделку, но история операций по получению %{assetSymbol} временно недоступна",
-    "recipientAddress": "Адрес получателя",
     "changeAddress": "Изменить адрес",
     "changeAddressExplainer": "При отправке криптовалют в сетях на основе UTXO любые оставшиеся средства от вашей транзакции возвращаются вам на этот адрес.",
-    "customRecipientAddress": "Пользовательский адрес получателя",
-    "customRecipientAddressDescription": "Введите пользовательский адрес получателя для этой сделки",
-    "thisIsYourCustomRecipientAddress": "Это ваш пользовательский адрес получателя",
-    "enterCustomRecipientAddress": "Введите пользовательский адрес получателя",
     "receiveAtLeast": "Получите как минимум",
     "tooltip": {
       "continueSwapping": "Продолжайте обменивать для получения окончательных данных",

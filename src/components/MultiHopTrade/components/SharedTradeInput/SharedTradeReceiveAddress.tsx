@@ -42,15 +42,15 @@ const closeIcon = <CloseIcon />
 
 const iconButtonHoverSx = { bg: 'gray.600' }
 
-type ManualRecipientAddressLabelsProps = {
+type ManualReceiveAddressLabelsProps = {
   buyAsset: Asset
   manualAddressEntryDescription: string | undefined
 }
 
-const ManualRecipientAddressLabels = ({
+const ManualReceiveAddressLabels = ({
   buyAsset,
   manualAddressEntryDescription,
-}: ManualRecipientAddressLabelsProps) => {
+}: ManualReceiveAddressLabelsProps) => {
   const translate = useTranslate()
   const wallet = useWallet().state.wallet
   const { isSnapInstalled } = useIsSnapInstalled()
@@ -104,9 +104,9 @@ const ManualRecipientAddressLabels = ({
   )
 }
 
-type SharedRecipientAddressProps = {
+type SharedTradeReceiveAddressProps = {
   buyAsset: Asset
-  customRecipientAddressDescription?: string
+  customReceiveAddressDescription?: string
   isWalletReceiveAddressLoading: boolean
   manualAddressEntryDescription?: string
   manualReceiveAddress: string | undefined
@@ -121,9 +121,9 @@ type SharedRecipientAddressProps = {
   onSubmit: (address: string) => void
 }
 
-export const SharedRecipientAddress = ({
+export const SharedTradeReceiveAddress = ({
   buyAsset,
-  customRecipientAddressDescription,
+  customReceiveAddressDescription,
   isWalletReceiveAddressLoading,
   manualAddressEntryDescription,
   manualReceiveAddress,
@@ -136,7 +136,7 @@ export const SharedRecipientAddress = ({
   onIsValidChange,
   onReset,
   onSubmit,
-}: SharedRecipientAddressProps) => {
+}: SharedTradeReceiveAddressProps) => {
   const translate = useTranslate()
   const { sellAssetAccountId } = useAccountIds()
   const receiveAddress = manualReceiveAddress ?? walletReceiveAddress
@@ -176,8 +176,8 @@ export const SharedRecipientAddress = ({
 
   const isCustomRecipientAddress = Boolean(manualReceiveAddress)
   const recipientAddressTranslation: TextPropTypes['translation'] = isCustomRecipientAddress
-    ? 'trade.customRecipientAddress'
-    : 'trade.recipientAddress'
+    ? 'trade.customReceiveAddress'
+    : 'trade.receiveAddress'
 
   const rules = useMemo(
     () => ({
@@ -266,7 +266,7 @@ export const SharedRecipientAddress = ({
     return (
       <FormControl>
         {shouldForceDisplayManualAddressEntry && (
-          <ManualRecipientAddressLabels
+          <ManualReceiveAddressLabels
             buyAsset={buyAsset}
             manualAddressEntryDescription={manualAddressEntryDescription}
           />
@@ -274,7 +274,7 @@ export const SharedRecipientAddress = ({
         <InputGroup>
           <AddressInput
             rules={rules}
-            placeholder={translate('trade.enterCustomRecipientAddress')}
+            placeholder={translate('trade.enterCustomReceiveAddress')}
             pe={20}
           />
           <InputRightElement
@@ -311,9 +311,9 @@ export const SharedRecipientAddress = ({
   // The summary of the receive address (existing or custom)
   return (
     <>
-      {customRecipientAddressDescription && (
+      {customReceiveAddressDescription && (
         <Row alignItems='center' fontSize='sm' fontWeight='medium'>
-          <Row.Label>{customRecipientAddressDescription}</Row.Label>
+          <Row.Label>{customReceiveAddressDescription}</Row.Label>
         </Row>
       )}
       <Row alignItems='center' fontSize='sm' fontWeight='medium'>
@@ -322,7 +322,7 @@ export const SharedRecipientAddress = ({
         </Row.Label>
         <Row.Value whiteSpace='nowrap'>
           {isCustomRecipientAddress ? (
-            <Tooltip label={translate('trade.thisIsYourCustomRecipientAddress')} placement='top'>
+            <Tooltip label={translate('trade.thisIsYourCustomReceiveAddress')} placement='top'>
               <Tag size='md' colorScheme='blue'>
                 <TagLabel>{middleEllipsis(receiveAddress ?? '')}</TagLabel>
                 <TagCloseButton onClick={resetManualReceiveAddress} />
@@ -331,9 +331,9 @@ export const SharedRecipientAddress = ({
           ) : (
             <Stack direction='row' spacing={2} alignItems='center'>
               <RawText>{middleEllipsis(receiveAddress ?? '')}</RawText>
-              <Tooltip label={translate('trade.customRecipientAddressDescription')} placement='top'>
+              <Tooltip label={translate('trade.customReceiveAddressDescription')} placement='top'>
                 <IconButton
-                  aria-label='Edit recipient address'
+                  aria-label='Edit receive address'
                   icon={editIcon}
                   variant='ghost'
                   minWidth={0}

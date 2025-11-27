@@ -751,13 +751,8 @@
     "slowSwapBody": "该兑换可能需要几分钟才能完成。",
     "thorSmartContractWalletUnsupported": "THORChain 网络目前不支持智能合约钱包。",
     "intoAssetSymbolBody": "你可以继续进行此交易，但接收 %{assetSymbol} 的交易历史记录暂时不可用",
-    "recipientAddress": "接收者地址",
     "changeAddress": "退款地址",
     "changeAddressExplainer": "在基于 UTXO 的网络上发送加密货币时，交易中未使用的余额将会通过此地址返回给您。",
-    "customRecipientAddress": "自定义接收者地址",
-    "customRecipientAddressDescription": "输入此交易的自定义接收者地址",
-    "thisIsYourCustomRecipientAddress": "这是您的自定义接收者地址",
-    "enterCustomRecipientAddress": "输入自定义接收者地址",
     "receiveAtLeast": "至少收到",
     "tooltip": {
       "continueSwapping": "继续交换以查看最终详情",

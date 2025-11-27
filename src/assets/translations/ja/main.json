@@ -751,13 +751,8 @@
     "slowSwapBody": "このスワップが完了するまでに数分かかる場合があります。",
     "thorSmartContractWalletUnsupported": "THORChainネットワークは現在、スマートコントラクト ウォレットをサポートしていません。",
     "intoAssetSymbolBody": "この取引は続行できますが、%{assetSymbol} を受け取るための取引履歴は一時的に利用できなくなります",
-    "recipientAddress": "受信者のアドレス",
     "changeAddress": "アドレスを変更",
     "changeAddressExplainer": "UTXO ベースのネットワークで暗号通貨を送信すると、トランザクションで残った資金はこのアドレスに送り返されます。",
-    "customRecipientAddress": "カスタム受信者アドレス",
-    "customRecipientAddressDescription": "この取引のカスタム受信者アドレスを入力してください",
-    "thisIsYourCustomRecipientAddress": "これはカスタム受信者アドレスです",
-    "enterCustomRecipientAddress": "カスタム受信者アドレスを入力してください",
     "receiveAtLeast": "少なくとも受け取る",
     "tooltip": {
       "continueSwapping": "最終的な詳細について交換を続ける",

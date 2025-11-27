@@ -1441,6 +1441,7 @@
         "safeCardNameHelper": "Geben Sie dieser SafeCard einen einprägsamen Namen (z. B. „Haupt-Wallet“, „Trading“, „DeFi“).",
         "deviceId": "Geräte ID",
         "deviceIdPlaceholder": "Geben Sie Ihre Lattice Geräte ID ein",
+        "deviceIdHelper": "Die Geräte ID finden Sie in den Lattice Einstellungen unter „Device Info“.",
         "button": "Verbinde SafeCard",
         "connecting": "Verbinde...",
         "backToList": "← Zurück zur SafeCard Liste"

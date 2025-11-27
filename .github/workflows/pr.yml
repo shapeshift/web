@@ -32,9 +32,6 @@ jobs:
           key: ${{ runner.os }}-${{ hashFiles('**/yarn.lock') }}
           restore-keys: ${{ runner.os }}-${{ hashFiles('**/yarn.lock') }}
 
-      - name: Clear Yarn Cache
-        run: yarn cache clean
-
       - name: Yarn Install
         run: yarn install --immutable
 

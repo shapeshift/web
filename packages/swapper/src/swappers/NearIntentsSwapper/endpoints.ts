@@ -213,11 +213,13 @@ export const nearIntentsApi: SwapperApi = {
 
       // Extract buyTxHash from destination chain transactions
       const buyTxHash = statusResponse.swapDetails?.destinationChainTxHashes?.[0]?.hash
+      const actualBuyAmountCryptoBaseUnit = statusResponse.swapDetails?.amountOut
 
       return {
         status: txStatus,
         buyTxHash,
         message,
+        actualBuyAmountCryptoBaseUnit,
       }
     } catch (error) {
       return createDefaultStatusResponse(undefined)

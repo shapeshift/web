@@ -4,21 +4,26 @@ import { MetaMaskMultiChainHDWallet } from '@shapeshiftoss/hdwallet-metamask-mul
 import { useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
-import { Route, Routes } from 'react-router-dom'
+import { Navigate, Route, Routes } from 'react-router-dom'
 
 import { Account } from './Account'
 
 import { AccountsListContent } from '@/components/Accounts/AccountsListContent'
+import { Display } from '@/components/Display'
+import { Main } from '@/components/Layout/Main'
 import { SEO } from '@/components/Layout/Seo'
 import { Text } from '@/components/Text'
 import { useIsSnapInstalled } from '@/hooks/useIsSnapInstalled/useIsSnapInstalled'
 import { useModal } from '@/hooks/useModal/useModal'
 import { useWallet } from '@/hooks/useWallet/useWallet'
+import { DashboardHeader } from '@/pages/Dashboard/components/DashboardHeader/DashboardHeader'
 import { selectIsPortfolioLoading, selectWalletId } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
 const editIcon = <EditIcon />
 const pxProps = { base: 4, xl: 0 }
+const mainPadding = { base: 0, md: 4 }
+const dashboardHeader = <DashboardHeader />
 
 const AccountHeader = ({ isLoading }: { isLoading?: boolean }) => {
   const translate = useTranslate()
@@ -86,10 +91,34 @@ export const Accounts = () => {
 
   const accountElement = useMemo(() => <Account />, [])
 
+  const mobileRoutes = useMemo(
+    () => (
+      <Routes>
+        <Route path='/' element={accountsContentElement} />
+        <Route path=':accountId/*' element={accountElement} />
+      </Routes>
+    ),
+    [accountElement, accountsContentElement],
+  )
+
+  const desktopRoutes = useMemo(
+    () => (
+      <Routes>
+        <Route path='/' element={<Navigate to='/trade' replace />} />
+        <Route path=':accountId/*' element={accountElement} />
+      </Routes>
+    ),
+    [accountElement],
+  )
+
   return (
-    <Routes>
-      <Route path='/' element={accountsContentElement} />
-      <Route path=':accountId/*' element={accountElement} />
-    </Routes>
+    <>
+      <Display.Desktop>
+        <Main headerComponent={dashboardHeader} py={mainPadding}>
+          {desktopRoutes}
+        </Main>
+      </Display.Desktop>
+      <Display.Mobile>{mobileRoutes}</Display.Mobile>
+    </>
   )
 }

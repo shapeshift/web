@@ -1,11 +1,12 @@
 import { ExternalLinkIcon } from '@chakra-ui/icons'
 import { HStack, Icon, Link, Skeleton, Stack, Switch } from '@chakra-ui/react'
+import { mayachainChainId, thorchainChainId } from '@shapeshiftoss/caip'
 import { isGridPlus } from '@shapeshiftoss/hdwallet-gridplus'
 import { isKeepKey } from '@shapeshiftoss/hdwallet-keepkey'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import { isTrezor } from '@shapeshiftoss/hdwallet-trezor'
 import type { TradeQuoteStep } from '@shapeshiftoss/swapper'
-import { TransactionExecutionState } from '@shapeshiftoss/swapper'
+import { SwapperName, TransactionExecutionState } from '@shapeshiftoss/swapper'
 import type { FC } from 'react'
 import { useMemo } from 'react'
 import { TbArrowsSplit2 } from 'react-icons/tb'
@@ -120,8 +121,20 @@ export const TradeConfirmFooter: FC<TradeConfirmFooterProps> = ({
   const depositAddress = useMemo(() => {
     if (!isHardwareWallet) return undefined
 
-    console.log('[DepositAddress Debug] tradeQuoteStep:', tradeQuoteStep)
-    console.log('[DepositAddress Debug] source:', tradeQuoteStep.source)
+    const isThorchainOrMaya =
+      tradeQuoteStep.source === SwapperName.Thorchain ||
+      tradeQuoteStep.source === SwapperName.Mayachain ||
+      tradeQuoteStep.source?.startsWith(`${SwapperName.Thorchain} •`) ||
+      tradeQuoteStep.source?.startsWith(`${SwapperName.Mayachain} •`)
+
+    const isNativeChainDeposit =
+      tradeQuoteStep.sellAsset.chainId === thorchainChainId ||
+      tradeQuoteStep.sellAsset.chainId === mayachainChainId
+
+    if (isThorchainOrMaya) {
+      if (isNativeChainDeposit) return undefined
+      return hopExecutionMetadata?.swap?.inboundAddress
+    }
 
     return (
       tradeQuoteStep.chainflipSpecific?.chainflipDepositAddress ??
@@ -132,7 +145,7 @@ export const TradeConfirmFooter: FC<TradeConfirmFooterProps> = ({
       tradeQuoteStep.portalsTransactionMetadata?.to ??
       tradeQuoteStep.zrxTransactionMetadata?.to
     )
-  }, [isHardwareWallet, tradeQuoteStep])
+  }, [isHardwareWallet, tradeQuoteStep, hopExecutionMetadata?.swap?.inboundAddress])
 
   const {
     isLoading: isNetworkFeeCryptoBaseUnitLoading,

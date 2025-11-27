@@ -84,6 +84,10 @@ export const useFoxFarming = (
           to: contractAddress,
           value: '0',
           wallet,
+          pubKey:
+            isTrezor(wallet) && farmingAccountId
+              ? fromAccountId(farmingAccountId).account
+              : undefined,
         })
 
         const txid = await buildAndBroadcast({
@@ -106,6 +110,7 @@ export const useFoxFarming = (
       lpAsset.precision,
       adapter,
       contractAddress,
+      farmingAccountId,
     ],
   )
 

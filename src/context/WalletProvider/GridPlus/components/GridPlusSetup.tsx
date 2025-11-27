@@ -32,7 +32,6 @@ export const GridPlusSetup = () => {
   const appDispatch = useAppDispatch()
 
   const physicalDeviceId = useAppSelector(gridplusSlice.selectors.selectPhysicalDeviceId)
-  const sessionId = useAppSelector(gridplusSlice.selectors.selectSessionId)
 
   const state = location.state as LocationState | undefined
   const safeCardUuid = state?.safeCardUuid
@@ -92,7 +91,6 @@ export const GridPlusSetup = () => {
             const result = await connectAndPairDevice({
               adapter,
               deviceId: connectionDeviceId,
-              sessionId: sessionId ?? undefined,
               dispatch: appDispatch,
             })
             finalWallet = result ?? undefined
@@ -164,7 +162,6 @@ export const GridPlusSetup = () => {
       state?.safeCardWalletId,
       state?.deviceId,
       physicalDeviceId,
-      sessionId,
       translate,
       getAdapter,
       walletDispatch,

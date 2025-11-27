@@ -96,9 +96,7 @@ export const finalizeWalletSetup = async ({
     }
   })()
 
-  if (finalWalletUid && wallet.setExpectedActiveWalletId) {
-    wallet.setExpectedActiveWalletId(finalWalletUid, finalType)
-  }
+  if (finalWalletUid) wallet.setExpectedActiveWalletId(finalWalletUid, finalType)
 
   walletDispatch({
     type: WalletActions.SET_WALLET,

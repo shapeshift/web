@@ -66,7 +66,7 @@ jobs:
       - name: Yarn Install
         run: yarn install --immutable
       - name: Build Web
-        run: MODE=${{ env.BUILD_MODE }} DEPLOY=true yarn build:web
+        run: MODE=${{ env.BUILD_MODE }} DEPLOY=true VITE_VERSION=${{ env.COMMIT_SHORT_HASH }} yarn build:web
       # a poor mans extension of cloudflare/pages-action@1 https://github.com/cloudflare/pages-action/blob/main/src/index.ts
       # passing more params directly to wrangler to control commit hash and message
       # https://developers.cloudflare.com/workers/wrangler/commands/#publish-1

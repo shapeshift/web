@@ -118,7 +118,7 @@ export const TradeConfirmFooter: FC<TradeConfirmFooterProps> = ({
     )
   }, [wallet])
 
-  const depositAddress = useMemo(() => {
+  const maybeDepositAddress = useMemo(() => {
     if (!isHardwareWallet) return undefined
 
     const isThorchainOrMaya =
@@ -322,10 +322,10 @@ export const TradeConfirmFooter: FC<TradeConfirmFooterProps> = ({
             </Skeleton>
           </Row.Value>
         </Row>
-        {depositAddress && (
+        {maybeDepositAddress && (
           <DepositAddressRow
             explorerAddressLink={sellAsset?.explorerAddressLink ?? ''}
-            depositAddress={depositAddress}
+            depositAddress={maybeDepositAddress}
           />
         )}
         {maybeUtxoChangeAddress && (
@@ -368,7 +368,7 @@ export const TradeConfirmFooter: FC<TradeConfirmFooterProps> = ({
     maybeUtxoChangeAddress,
     translate,
     sellAsset?.explorerAddressLink,
-    depositAddress,
+    maybeDepositAddress,
   ])
 
   const tradeDetail = useMemo(() => {

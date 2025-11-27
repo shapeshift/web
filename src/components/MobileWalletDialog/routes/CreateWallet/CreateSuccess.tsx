@@ -1,6 +1,6 @@
 import { Button, Icon, Text, VStack } from '@chakra-ui/react'
 import { useQueryClient } from '@tanstack/react-query'
-import { useCallback, useEffect } from 'react'
+import { useCallback } from 'react'
 import { IoIosCheckmarkCircle } from 'react-icons/io'
 import { useTranslate } from 'react-polyglot'
 import type { Location } from 'react-router-dom'
@@ -103,12 +103,6 @@ export const CreateSuccess = ({ onClose }: CreateSuccessProps) => {
     onClose()
     appDispatch(setWelcomeModal({ show: true }))
   }, [onClose, appDispatch, setWelcomeModal, saveAndSelectWallet])
-
-  useEffect(() => {
-    return () => {
-      saveAndSelectWallet()
-    }
-  }, [])
 
   return (
     <SlideTransition>

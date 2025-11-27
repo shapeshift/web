@@ -25,6 +25,7 @@ import { useActionCenterContext } from '@/components/Layout/Header/ActionCenter/
 import { SwapNotification } from '@/components/Layout/Header/ActionCenter/components/Notifications/SwapNotification'
 import { getConfig } from '@/config'
 import { queryClient } from '@/context/QueryClientProvider/queryClient'
+import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { getTxLink } from '@/lib/getTxLink'
 import { fetchTradeStatus, tradeStatusQueryKey } from '@/lib/tradeExecution'
 import { vibrate } from '@/lib/vibrate'
@@ -88,6 +89,7 @@ export const useSwapActionSubscriber = () => {
   const { open: openRatingModal } = useModal('rating')
   const mobileFeaturesCompatibility = useMobileFeaturesCompatibility()
   const confirmedTradeExecution = useAppSelector(selectConfirmedTradeExecution)
+  const isAppRatingEnabled = useFeatureFlag('AppRating')
 
   const dispatch = useAppDispatch()
 
@@ -193,21 +195,22 @@ export const useSwapActionSubscriber = () => {
       if (!swap.sellTxHash) return
       if (!swap.receiveAddress) return
 
-      const { status, message, buyTxHash } = await queryClient.fetchQuery({
-        queryKey: tradeStatusQueryKey(swap.id, swap.sellTxHash),
-        queryFn: () =>
-          fetchTradeStatus({
-            swapper,
-            sellTxHash: swap.sellTxHash ?? '',
-            sellAssetChainId: swap.sellAsset.chainId,
-            address: swap.sellAccountId ? fromAccountId(swap.sellAccountId).account : undefined,
-            swap,
-            stepIndex: swap.metadata.stepIndex,
-            config: getConfig(),
-          }),
-        staleTime: 10000,
-        gcTime: 10000,
-      })
+      const { status, message, buyTxHash, actualBuyAmountCryptoBaseUnit } =
+        await queryClient.fetchQuery({
+          queryKey: tradeStatusQueryKey(swap.id, swap.sellTxHash),
+          queryFn: () =>
+            fetchTradeStatus({
+              swapper,
+              sellTxHash: swap.sellTxHash ?? '',
+              sellAssetChainId: swap.sellAsset.chainId,
+              address: swap.sellAccountId ? fromAccountId(swap.sellAccountId).account : undefined,
+              swap,
+              stepIndex: swap.metadata.stepIndex,
+              config: getConfig(),
+            }),
+          staleTime: 10000,
+          gcTime: 10000,
+        })
 
       const { chainId, account: address } = fromAccountId(swap.sellAccountId)
 
@@ -250,8 +253,18 @@ export const useSwapActionSubscriber = () => {
             statusMessage: message,
             buyTxHash,
             txLink,
+            actualBuyAmountCryptoBaseUnit,
           }),
         )
+
+        if (
+          !hasSeenRatingModal &&
+          mobileFeaturesCompatibility[MobileFeature.RatingModal].isCompatible &&
+          isAppRatingEnabled
+        ) {
+          openRatingModal({})
+          handleHasSeenRatingModal()
+        }
 
         if (toast.isActive(swap.id)) return
 
@@ -276,14 +289,6 @@ export const useSwapActionSubscriber = () => {
             )
           },
         })
-
-        if (
-          !hasSeenRatingModal &&
-          mobileFeaturesCompatibility[MobileFeature.RatingModal].isCompatible
-        ) {
-          openRatingModal({})
-          handleHasSeenRatingModal()
-        }
 
         return
       }

@@ -31,7 +31,6 @@ import { MobileWalletDialogRoutes } from '@/components/MobileWalletDialog/types'
 import { TradeRoutePaths } from '@/components/MultiHopTrade/types'
 import { SlideTransitionY } from '@/components/SlideTransitionY'
 import { RawText, Text } from '@/components/Text'
-import { WalletActions } from '@/context/WalletProvider/actions'
 import { listWallets } from '@/context/WalletProvider/MobileWallet/mobileMessageHandlers'
 import type { RevocableWallet } from '@/context/WalletProvider/MobileWallet/RevocableWallet'
 import { useModal } from '@/hooks/useModal/useModal'
@@ -82,9 +81,9 @@ export const MobileConnect = () => {
     mobileWalletDialog.open({ defaultRoute: MobileWalletDialogRoutes.Create })
   }, [mobileWalletDialog])
 
-  const handleConnect = useCallback(() => {
-    dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
-  }, [dispatch])
+  const handleImport = useCallback(() => {
+    mobileWalletDialog.open({ defaultRoute: MobileWalletDialogRoutes.Import })
+  }, [mobileWalletDialog])
 
   const query = useQuery<{ returnUrl: string }>()
 
@@ -172,11 +171,11 @@ export const MobileConnect = () => {
             <BodyText>{translate('connectWalletPage.mobileWelcomeBody')}</BodyText>
           </Stack>
           <Stack maxWidth='80%' mx='auto' spacing={4} width='full'>
-            <Button colorScheme='blue' size='lg-multiline' onClick={handleConnect}>
-              {translate('connectWalletPage.alreadyHaveWallet')}
+            <Button colorScheme='blue' size='lg-multiline' onClick={handleOpenCreateWallet}>
+              {translate('connectWalletPage.createANewWallet')}
             </Button>
-            <Button variant='outline' size='lg-multiline' onClick={handleOpenCreateWallet}>
-              {translate('connectWalletPage.getANewWallet')}
+            <Button variant='outline' size='lg-multiline' onClick={handleImport}>
+              {translate('connectWalletPage.importExisting')}
             </Button>
 
             {!!wallets.length && (
@@ -217,8 +216,8 @@ export const MobileConnect = () => {
             ) : (
               <>
                 <MobileWalletList onIsWaitingForRedirection={handleIsWaitingForRedirection} />
-                <Button size='lg-multiline' variant='outline' onClick={handleConnect}>
-                  {translate('connectWalletPage.connectNewWallet')}
+                <Button size='lg-multiline' variant='outline' onClick={handleToggleWallets}>
+                  {translate('connectWalletPage.createOrImport')}
                 </Button>
               </>
             )}
@@ -235,16 +234,16 @@ export const MobileConnect = () => {
       </motion.div>
     )
   }, [
+    error,
+    handleImport,
+    handleOpenCreateWallet,
+    handleToggleWallets,
     hideWallets,
     translate,
-    handleOpenCreateWallet,
-    wallets.length,
-    handleToggleWallets,
+    wallets,
     isWaitingForRedirection,
-    state.isLoadingLocalWallet,
     handleIsWaitingForRedirection,
-    handleConnect,
-    error,
+    state.isLoadingLocalWallet,
   ])
 
   return (

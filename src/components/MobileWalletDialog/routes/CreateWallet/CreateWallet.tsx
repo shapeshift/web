@@ -105,7 +105,7 @@ export const CreateWallet = ({
       </DialogHeader>
       <form onSubmit={handleSubmit(onSubmit)}>
         <DialogBody>
-          <VStack spacing={2} mb={6} alignItems='flex-start' width='full'>
+          <VStack spacing={2} mb={6} alignItems='flex-start'>
             <Box>
               <CText fontSize='2xl' fontWeight='bold' mb={0}>
                 {translate('walletProvider.create.header')}
@@ -114,7 +114,7 @@ export const CreateWallet = ({
                 {translate('walletProvider.create.subHeader')}
               </CText>
             </Box>
-            <Box width='full'>
+            <Box>
               <FormControl isInvalid={!!errors.label}>
                 <Input
                   size='lg'

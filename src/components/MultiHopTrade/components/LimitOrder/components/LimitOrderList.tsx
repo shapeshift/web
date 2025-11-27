@@ -44,7 +44,12 @@ const textSelectedProps = {
 }
 
 const tabsMinHeight = {
-  base: 'calc(100vh - 60px - env(safe-area-inset-bottom) + var(--safe-area-inset-bottom))',
+  base: 'calc(100vh - var(--mobile-nav-offset) - env(safe-area-inset-top) - var(--safe-area-inset-top))',
+  md: 'auto',
+}
+
+const cardMinHeight = {
+  base: 'calc(100vh - var(--mobile-nav-offset) - env(safe-area-inset-top) - var(--safe-area-inset-top))',
   md: 'auto',
 }
 
@@ -353,7 +358,7 @@ export const LimitOrderList: FC<LimitOrderListProps> = ({ cardProps, onBack }) =
   }, [])
 
   return (
-    <Card {...cardstyles} {...cardProps}>
+    <Card {...cardstyles} minHeight={cardMinHeight} {...cardProps}>
       {onBack && (
         <CardHeader
           px={4}

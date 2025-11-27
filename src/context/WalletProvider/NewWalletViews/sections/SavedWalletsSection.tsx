@@ -17,7 +17,6 @@ import { useNavigate } from 'react-router-dom'
 
 import { Display } from '@/components/Display'
 import { FoxIcon } from '@/components/Icons/FoxIcon'
-import { MobileWalletDialogRoutes } from '@/components/MobileWalletDialog/types'
 import { Text } from '@/components/Text'
 import { WalletActions } from '@/context/WalletProvider/actions'
 import { WalletListButton } from '@/context/WalletProvider/components/WalletListButton'
@@ -25,9 +24,7 @@ import { KeyManager } from '@/context/WalletProvider/KeyManager'
 import { useLocalWallet } from '@/context/WalletProvider/local-wallet'
 import { NativeConfig } from '@/context/WalletProvider/NativeWallet/config'
 import { NativeWalletRoutes } from '@/context/WalletProvider/types'
-import { useModal } from '@/hooks/useModal/useModal'
 import { useWallet } from '@/hooks/useWallet/useWallet'
-import { isMobile } from '@/lib/globals'
 import { reactQueries } from '@/react-queries'
 
 const PlusIcon = <TbPlus />
@@ -108,7 +105,6 @@ export const SavedWalletsSection = ({
   showHeader = true,
 }: SavedWalletsSectionProps) => {
   const navigate = useNavigate()
-  const mobileWalletDialog = useModal('mobileWalletDialog')
   const localWallet = useLocalWallet()
   const translate = useTranslate()
   const { getAdapter, dispatch } = useWallet()
@@ -177,13 +173,8 @@ export const SavedWalletsSection = ({
   )
 
   const handleAddNewWalletClick = useCallback(() => {
-    if (isMobile) {
-      dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
-      mobileWalletDialog.open({ defaultRoute: MobileWalletDialogRoutes.Start })
-    } else {
-      navigate(NativeWalletRoutes.Connect)
-    }
-  }, [dispatch, mobileWalletDialog, navigate])
+    navigate(NativeWalletRoutes.Connect)
+  }, [navigate])
 
   const walletItems = useMemo(() => {
     return (nativeVaultsQuery.data ?? []).map(wallet => {

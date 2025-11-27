@@ -121,18 +121,18 @@ export const TradeConfirmFooter: FC<TradeConfirmFooterProps> = ({
   const maybeDepositAddress = useMemo(() => {
     if (!isHardwareWallet) return undefined
 
-    const isThorchainOrMaya =
+    const isThorMayaSwapper =
       tradeQuoteStep.source === SwapperName.Thorchain ||
       tradeQuoteStep.source === SwapperName.Mayachain ||
       tradeQuoteStep.source?.startsWith(`${SwapperName.Thorchain} •`) ||
       tradeQuoteStep.source?.startsWith(`${SwapperName.Mayachain} •`)
 
-    const isNativeChainDeposit =
+    const isThorMayaSellAsset =
       tradeQuoteStep.sellAsset.chainId === thorchainChainId ||
       tradeQuoteStep.sellAsset.chainId === mayachainChainId
 
-    if (isThorchainOrMaya) {
-      if (isNativeChainDeposit) return undefined
+    if (isThorMayaSwapper) {
+      if (isThorMayaSellAsset) return undefined
       return hopExecutionMetadata?.swap?.inboundAddress
     }
 
@@ -293,10 +293,6 @@ export const TradeConfirmFooter: FC<TradeConfirmFooterProps> = ({
   const tradeExecutionStepSummary = useMemo(() => {
     return (
       <Stack spacing={4} px={6} width='full'>
-        <ReceiveAddressRow
-          explorerAddressLink={buyAsset.explorerAddressLink}
-          receiveAddress={receiveAddress ?? ''}
-        />
         <Row>
           <Row.Label>
             <Text translation='trade.transactionFee' />
@@ -322,6 +318,10 @@ export const TradeConfirmFooter: FC<TradeConfirmFooterProps> = ({
             </Skeleton>
           </Row.Value>
         </Row>
+        <ReceiveAddressRow
+          explorerAddressLink={buyAsset.explorerAddressLink}
+          receiveAddress={receiveAddress ?? ''}
+        />
         {maybeDepositAddress && (
           <DepositAddressRow
             explorerAddressLink={sellAsset?.explorerAddressLink ?? ''}

@@ -10827,7 +10827,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/hdwallet-coinbase@npm:^1.62.12":
+"@shapeshiftoss/hdwallet-coinbase@npm:1.62.12":
   version: 1.62.12
   resolution: "@shapeshiftoss/hdwallet-coinbase@npm:1.62.12"
   dependencies:
@@ -10868,7 +10868,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/hdwallet-core@npm:1.62.12, @shapeshiftoss/hdwallet-core@npm:^1.62.12":
+"@shapeshiftoss/hdwallet-core@npm:1.62.12":
   version: 1.62.12
   resolution: "@shapeshiftoss/hdwallet-core@npm:1.62.12"
   dependencies:
@@ -10899,7 +10899,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/hdwallet-gridplus@npm:^1.62.12":
+"@shapeshiftoss/hdwallet-gridplus@npm:1.62.12":
   version: 1.62.12
   resolution: "@shapeshiftoss/hdwallet-gridplus@npm:1.62.12"
   dependencies:
@@ -10918,7 +10918,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/hdwallet-keepkey-webusb@npm:^1.62.12":
+"@shapeshiftoss/hdwallet-keepkey-webusb@npm:1.62.12":
   version: 1.62.12
   resolution: "@shapeshiftoss/hdwallet-keepkey-webusb@npm:1.62.12"
   dependencies:
@@ -10928,7 +10928,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/hdwallet-keepkey@npm:1.62.12, @shapeshiftoss/hdwallet-keepkey@npm:^1.62.12":
+"@shapeshiftoss/hdwallet-keepkey@npm:1.62.12":
   version: 1.62.12
   resolution: "@shapeshiftoss/hdwallet-keepkey@npm:1.62.12"
   dependencies:
@@ -10953,7 +10953,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/hdwallet-keplr@npm:^1.62.12":
+"@shapeshiftoss/hdwallet-keplr@npm:1.62.12":
   version: 1.62.12
   resolution: "@shapeshiftoss/hdwallet-keplr@npm:1.62.12"
   dependencies:
@@ -10969,7 +10969,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/hdwallet-ledger-webhid@npm:^1.62.12":
+"@shapeshiftoss/hdwallet-ledger-webhid@npm:1.62.12":
   version: 1.62.12
   resolution: "@shapeshiftoss/hdwallet-ledger-webhid@npm:1.62.12"
   dependencies:
@@ -10984,7 +10984,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/hdwallet-ledger-webusb@npm:^1.62.12":
+"@shapeshiftoss/hdwallet-ledger-webusb@npm:1.62.12":
   version: 1.62.12
   resolution: "@shapeshiftoss/hdwallet-ledger-webusb@npm:1.62.12"
   dependencies:
@@ -11002,7 +11002,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/hdwallet-ledger@npm:1.62.12, @shapeshiftoss/hdwallet-ledger@npm:^1.62.12":
+"@shapeshiftoss/hdwallet-ledger@npm:1.62.12":
   version: 1.62.12
   resolution: "@shapeshiftoss/hdwallet-ledger@npm:1.62.12"
   dependencies:
@@ -11030,7 +11030,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/hdwallet-metamask-multichain@npm:^1.62.12":
+"@shapeshiftoss/hdwallet-metamask-multichain@npm:1.62.12":
   version: 1.62.12
   resolution: "@shapeshiftoss/hdwallet-metamask-multichain@npm:1.62.12"
   dependencies:
@@ -11047,7 +11047,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/hdwallet-native-vault@npm:^1.62.12":
+"@shapeshiftoss/hdwallet-native-vault@npm:1.62.12":
   version: 1.62.12
   resolution: "@shapeshiftoss/hdwallet-native-vault@npm:1.62.12"
   dependencies:
@@ -11064,7 +11064,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/hdwallet-native@npm:1.62.12, @shapeshiftoss/hdwallet-native@npm:^1.62.12":
+"@shapeshiftoss/hdwallet-native@npm:1.62.12":
   version: 1.62.12
   resolution: "@shapeshiftoss/hdwallet-native@npm:1.62.12"
   dependencies:
@@ -11129,7 +11129,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/hdwallet-phantom@npm:^1.62.12":
+"@shapeshiftoss/hdwallet-phantom@npm:1.62.12":
   version: 1.62.12
   resolution: "@shapeshiftoss/hdwallet-phantom@npm:1.62.12"
   dependencies:
@@ -11144,7 +11144,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/hdwallet-trezor-connect@npm:^1.62.12":
+"@shapeshiftoss/hdwallet-trezor-connect@npm:1.62.12":
   version: 1.62.12
   resolution: "@shapeshiftoss/hdwallet-trezor-connect@npm:1.62.12"
   dependencies:
@@ -11155,7 +11155,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/hdwallet-trezor@npm:1.62.12, @shapeshiftoss/hdwallet-trezor@npm:^1.62.12":
+"@shapeshiftoss/hdwallet-trezor@npm:1.62.12":
   version: 1.62.12
   resolution: "@shapeshiftoss/hdwallet-trezor@npm:1.62.12"
   dependencies:
@@ -11169,7 +11169,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/hdwallet-vultisig@npm:^1.62.12":
+"@shapeshiftoss/hdwallet-vultisig@npm:1.62.12":
   version: 1.62.12
   resolution: "@shapeshiftoss/hdwallet-vultisig@npm:1.62.12"
   dependencies:
@@ -11186,7 +11186,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/hdwallet-walletconnect@npm:^1.62.12":
+"@shapeshiftoss/hdwallet-walletconnect@npm:1.62.12":
   version: 1.62.12
   resolution: "@shapeshiftoss/hdwallet-walletconnect@npm:1.62.12"
   dependencies:
@@ -11198,7 +11198,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/hdwallet-walletconnectv2@npm:^1.62.12":
+"@shapeshiftoss/hdwallet-walletconnectv2@npm:1.62.12":
   version: 1.62.12
   resolution: "@shapeshiftoss/hdwallet-walletconnectv2@npm:1.62.12"
   dependencies:
@@ -11426,24 +11426,24 @@ __metadata:
     "@shapeshiftoss/chain-adapters": "workspace:^"
     "@shapeshiftoss/contracts": "workspace:^"
     "@shapeshiftoss/errors": "workspace:^"
-    "@shapeshiftoss/hdwallet-coinbase": ^1.62.12
-    "@shapeshiftoss/hdwallet-core": ^1.62.12
-    "@shapeshiftoss/hdwallet-gridplus": ^1.62.12
-    "@shapeshiftoss/hdwallet-keepkey": ^1.62.12
-    "@shapeshiftoss/hdwallet-keepkey-webusb": ^1.62.12
-    "@shapeshiftoss/hdwallet-keplr": ^1.62.12
-    "@shapeshiftoss/hdwallet-ledger": ^1.62.12
-    "@shapeshiftoss/hdwallet-ledger-webhid": ^1.62.12
-    "@shapeshiftoss/hdwallet-ledger-webusb": ^1.62.12
-    "@shapeshiftoss/hdwallet-metamask-multichain": ^1.62.12
-    "@shapeshiftoss/hdwallet-native": ^1.62.12
-    "@shapeshiftoss/hdwallet-native-vault": ^1.62.12
-    "@shapeshiftoss/hdwallet-phantom": ^1.62.12
-    "@shapeshiftoss/hdwallet-trezor": ^1.62.12
-    "@shapeshiftoss/hdwallet-trezor-connect": ^1.62.12
-    "@shapeshiftoss/hdwallet-vultisig": ^1.62.12
-    "@shapeshiftoss/hdwallet-walletconnect": ^1.62.12
-    "@shapeshiftoss/hdwallet-walletconnectv2": ^1.62.12
+    "@shapeshiftoss/hdwallet-coinbase": 1.62.12
+    "@shapeshiftoss/hdwallet-core": 1.62.12
+    "@shapeshiftoss/hdwallet-gridplus": 1.62.12
+    "@shapeshiftoss/hdwallet-keepkey": 1.62.12
+    "@shapeshiftoss/hdwallet-keepkey-webusb": 1.62.12
+    "@shapeshiftoss/hdwallet-keplr": 1.62.12
+    "@shapeshiftoss/hdwallet-ledger": 1.62.12
+    "@shapeshiftoss/hdwallet-ledger-webhid": 1.62.12
+    "@shapeshiftoss/hdwallet-ledger-webusb": 1.62.12
+    "@shapeshiftoss/hdwallet-metamask-multichain": 1.62.12
+    "@shapeshiftoss/hdwallet-native": 1.62.12
+    "@shapeshiftoss/hdwallet-native-vault": 1.62.12
+    "@shapeshiftoss/hdwallet-phantom": 1.62.12
+    "@shapeshiftoss/hdwallet-trezor": 1.62.12
+    "@shapeshiftoss/hdwallet-trezor-connect": 1.62.12
+    "@shapeshiftoss/hdwallet-vultisig": 1.62.12
+    "@shapeshiftoss/hdwallet-walletconnect": 1.62.12
+    "@shapeshiftoss/hdwallet-walletconnectv2": 1.62.12
     "@shapeshiftoss/swapper": "workspace:^"
     "@shapeshiftoss/types": "workspace:^"
     "@shapeshiftoss/unchained-client": "workspace:^"

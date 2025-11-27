@@ -268,17 +268,10 @@ export const VerifyAddresses = () => {
           setIsVerifying(type, false)
 
           // If we're verifying a UTXO sell asset, fetch the change address
-          console.log('[ChangeAddress Debug] type:', type)
-          console.log('[ChangeAddress Debug] chainNamespace:', chainNamespace)
-          console.log('[ChangeAddress Debug] sellAsset:', sellAsset)
-          console.log('[ChangeAddress Debug] CHAIN_NAMESPACE.Utxo:', CHAIN_NAMESPACE.Utxo)
-          console.log('[ChangeAddress Debug] Will fetch change address?', type === AddressVerificationType.Sell && chainNamespace === CHAIN_NAMESPACE.Utxo)
-
           if (type === AddressVerificationType.Sell && chainNamespace === CHAIN_NAMESPACE.Utxo) {
             setIsFetchingChangeAddress(true)
             setStatus(type, AddressVerificationStatus.Verified)
             try {
-              console.log('[ChangeAddress Debug] Fetching change address...')
               const changeAddress = await adapter.getAddress({
                 wallet,
                 showOnDevice: false,
@@ -286,7 +279,6 @@ export const VerifyAddresses = () => {
                 accountNumber: bip44Params.accountNumber,
                 isChange: true,
               })
-              console.log('[ChangeAddress Debug] Got change address:', changeAddress)
               dispatch(tradeInput.actions.setSellAssetUtxoChangeAddress(changeAddress))
             } catch (e) {
               console.error('Failed to fetch change address:', e)
@@ -294,7 +286,6 @@ export const VerifyAddresses = () => {
               setIsFetchingChangeAddress(false)
             }
           } else {
-            console.log('[ChangeAddress Debug] Skipping change address fetch (not UTXO sell)')
             setStatus(type, AddressVerificationStatus.Verified)
           }
         } else {

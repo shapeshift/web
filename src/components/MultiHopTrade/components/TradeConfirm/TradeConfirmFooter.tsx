@@ -275,7 +275,7 @@ export const TradeConfirmFooter: FC<TradeConfirmFooterProps> = ({
         </Row>
         <RecipientAddressRow
           explorerAddressLink={buyAsset.explorerAddressLink}
-          recipientAddress={receiveAddress ?? ''}
+          receiveAddress={receiveAddress ?? ''}
         />
         {maybeUtxoChangeAddress && (
           <Row>

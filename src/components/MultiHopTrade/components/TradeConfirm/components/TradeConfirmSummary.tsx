@@ -167,7 +167,7 @@ export const TradeConfirmSummary = () => {
         <Divider />
         <RecipientAddressRow
           explorerAddressLink={buyAsset.explorerAddressLink}
-          recipientAddress={receiveAddress ?? ''}
+          receiveAddress={receiveAddress ?? ''}
         />
       </Stack>
     </RateGasRow>

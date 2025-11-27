@@ -293,12 +293,6 @@ export const TradeConfirmFooter: FC<TradeConfirmFooterProps> = ({
   const tradeExecutionStepSummary = useMemo(() => {
     return (
       <Stack spacing={4} px={6} width='full'>
-        {depositAddress && (
-          <DepositAddressRow
-            explorerAddressLink={sellAsset?.explorerAddressLink ?? ''}
-            depositAddress={depositAddress}
-          />
-        )}
         <ReceiveAddressRow
           explorerAddressLink={buyAsset.explorerAddressLink}
           receiveAddress={receiveAddress ?? ''}
@@ -328,6 +322,12 @@ export const TradeConfirmFooter: FC<TradeConfirmFooterProps> = ({
             </Skeleton>
           </Row.Value>
         </Row>
+        {depositAddress && (
+          <DepositAddressRow
+            explorerAddressLink={sellAsset?.explorerAddressLink ?? ''}
+            depositAddress={depositAddress}
+          />
+        )}
         {maybeUtxoChangeAddress && (
           <Row>
             <Row.Label>

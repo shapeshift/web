@@ -102,6 +102,10 @@ export const TradeConfirmFooter: FC<TradeConfirmFooterProps> = ({
 
   const maybeUtxoChangeAddress = useAppSelector(selectSellAssetUtxoChangeAddress)
 
+  console.log('[ChangeAddress Debug TradeConfirmFooter] tradeQuoteStep.source:', tradeQuoteStep.source)
+  console.log('[ChangeAddress Debug TradeConfirmFooter] tradeQuoteStep.sellAsset:', tradeQuoteStep.sellAsset)
+  console.log('[ChangeAddress Debug TradeConfirmFooter] maybeUtxoChangeAddress:', maybeUtxoChangeAddress)
+
   const {
     isLoading: isNetworkFeeCryptoBaseUnitLoading,
     isRefetching: isNetworkFeeCryptoBaseUnitRefetching,

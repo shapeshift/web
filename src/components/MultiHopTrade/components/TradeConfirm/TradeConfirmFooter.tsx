@@ -122,12 +122,11 @@ export const TradeConfirmFooter: FC<TradeConfirmFooterProps> = ({
 
     console.log('[DepositAddress Debug] tradeQuoteStep:', tradeQuoteStep)
     console.log('[DepositAddress Debug] source:', tradeQuoteStep.source)
-    console.log('[DepositAddress Debug] allowanceContract:', tradeQuoteStep.allowanceContract)
-    console.log('[DepositAddress Debug] accountAddress:', tradeQuoteStep.accountAddress)
 
     return (
       tradeQuoteStep.chainflipSpecific?.chainflipDepositAddress ??
       tradeQuoteStep.nearIntentsSpecific?.depositAddress ??
+      tradeQuoteStep.relayTransactionMetadata?.to ??
       tradeQuoteStep.bebopTransactionMetadata?.to ??
       tradeQuoteStep.butterSwapTransactionMetadata?.to ??
       tradeQuoteStep.portalsTransactionMetadata?.to ??

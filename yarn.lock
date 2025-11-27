@@ -11579,7 +11579,7 @@ __metadata:
     react-icons: ^5.5.0
     react-intersection-observer: ^9.13.1
     react-multi-ref: ^1.0.1
-    react-number-format: ^4.9.3
+    react-number-format: ^5.4.4
     react-polyglot: ^0.7.2
     react-qrcode-logo: ^4.0.0
     react-redux: ^9.2.0
@@ -27635,9 +27635,9 @@ __metadata:
   linkType: hard
 
 "node-forge@npm:^1.3.1":
-  version: 1.3.1
-  resolution: "node-forge@npm:1.3.1"
-  checksum: 08fb072d3d670599c89a1704b3e9c649ff1b998256737f0e06fbd1a5bf41cae4457ccaee32d95052d80bbafd9ffe01284e078c8071f0267dc9744e51c5ed42a9
+  version: 1.3.2
+  resolution: "node-forge@npm:1.3.2"
+  checksum: b6f905b0fcc39a2d59598e12ca2c071bfd760e56a9163aab8da7f8d6622547f8db60cfb2aefc39277d5a13af32e58573674b38107a2d4df7c243e12794839546
   languageName: node
   linkType: hard
 
@@ -29644,15 +29644,13 @@ pvutils@latest:
   languageName: node
   linkType: hard
 
-"react-number-format@npm:^4.9.3":
-  version: 4.9.3
-  resolution: "react-number-format@npm:4.9.3"
-  dependencies:
-    prop-types: ^15.7.2
+"react-number-format@npm:^5.4.4":
+  version: 5.4.4
+  resolution: "react-number-format@npm:5.4.4"
   peerDependencies:
-    react: ^0.14 || ^15.0.0 || ^16.0.0 || ^17.0.0 || ^18.0.0
-    react-dom: ^0.14 || ^15.0.0 || ^16.0.0 || ^17.0.0 || ^18.0.0
-  checksum: 74460ee813284b78d37e4459891d63b49e3276e1e506ffe85057696b9b4793e0fc9b8a77222e50cdc4ecefddb764774a20d2cfc92dce26aed13316b3f2e3b9c9
+    react: ^0.14 || ^15.0.0 || ^16.0.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
+    react-dom: ^0.14 || ^15.0.0 || ^16.0.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
+  checksum: 680b0cb5a2ac7ac287bf10def8c73aa48c6c8a856c0c98db8002989bea0acb659ccc93c26c55da6d4a563940d146100d79f333ad93313d28156b1d8c0d9dad66
   languageName: node
   linkType: hard
 

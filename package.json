@@ -321,6 +321,7 @@
     "@types/react-dom": "^19.0.0",
     "readable-stream": "3.6.0",
     "react-polyglot@^0.7.2": "patch:react-polyglot@npm%3A0.7.2#./.yarn/patches/react-polyglot-npm-0.7.2-636f85156f.patch",
-    "gridplus-sdk/bs58check": "2.1.2"
+    "gridplus-sdk/bs58check": "2.1.2",
+    "@shapeshiftoss/hdwallet-gridplus": "1.62.12"
   }
 }

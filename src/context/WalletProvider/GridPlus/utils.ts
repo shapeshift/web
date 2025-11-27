@@ -84,7 +84,7 @@ export const finalizeWalletSetup = async ({
   const safeCardUuid = safeCardWalletId.replace('gridplus:', '')
 
   const { finalWalletUid, finalType } = await (async () => {
-    if (activeWalletId !== undefined && type !== undefined) {
+    if (activeWalletId && type) {
       return { finalWalletUid: activeWalletId, finalType: type }
     }
 
@@ -124,7 +124,7 @@ export const finalizeWalletSetup = async ({
 
   appDispatch(gridplusSlice.actions.setLastConnectedAt(safeCardUuid))
 
-  if (finalWalletUid !== undefined && finalType !== undefined) {
+  if (finalWalletUid && finalType) {
     appDispatch(
       gridplusSlice.actions.updateSafeCardWalletUid({
         id: safeCardUuid,

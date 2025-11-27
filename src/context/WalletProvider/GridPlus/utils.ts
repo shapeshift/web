@@ -84,9 +84,8 @@ export const finalizeWalletSetup = async ({
   const safeCardUuid = safeCardWalletId.replace('gridplus:', '')
 
   const { finalWalletUid, finalType } = await (async () => {
-    if (activeWalletId && type) {
+    if (activeWalletId && type)
       return { finalWalletUid: activeWalletId, finalType: type }
-    }
 
     try {
       const validation = await wallet.validateActiveWallet()

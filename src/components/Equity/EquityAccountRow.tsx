@@ -1,4 +1,4 @@
-import { Avatar, useMediaQuery } from '@chakra-ui/react'
+import { Avatar } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -15,7 +15,6 @@ import {
   selectPortfolioUserCurrencyBalanceByFilter,
 } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
-import { breakpoints } from '@/theme/theme'
 
 type EquityAccountRowProps = {
   accountId: AccountId
@@ -37,7 +36,6 @@ export const EquityAccountRow = ({
   const feeAssetId = accountIdToFeeAssetId(accountId)
   const rowAssetId = assetId ? assetId : feeAssetId
   const asset = useAppSelector(state => selectAssetById(state, rowAssetId ?? ''))
-  const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
 
   const filter = useMemo(() => ({ assetId: rowAssetId ?? '', accountId }), [rowAssetId, accountId])
   const accountNumber = useAppSelector(state => selectAccountNumberByAccountId(state, filter))
@@ -48,10 +46,8 @@ export const EquityAccountRow = ({
     selectPortfolioUserCurrencyBalanceByFilter(state, filter),
   )
 
-  const basePath = isLargerThanMd ? '/wallet/accounts' : '/accounts'
-
   const path = generatePath(
-    assetId ? `${basePath}/:accountId/:assetId` : `${basePath}/:accountId`,
+    assetId ? '/accounts/:accountId/:assetId' : '/accounts/:accountId',
     filter,
   )
 

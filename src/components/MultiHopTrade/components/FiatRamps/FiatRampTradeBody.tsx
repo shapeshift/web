@@ -12,6 +12,7 @@ import { TradeAssetSelect } from '@/components/AssetSelection/AssetSelection'
 import { FiatMenuButton } from '@/components/AssetSelection/components/FiatMenuButton'
 import { FormDivider } from '@/components/FormDivider'
 import { FiatRampAction } from '@/components/Modals/FiatRamps/FiatRampsCommon'
+import { useLocaleFormatter } from '@/hooks/useLocaleFormatter/useLocaleFormatter'
 import { useModal } from '@/hooks/useModal/useModal'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import type { FiatCurrencyItem } from '@/lib/fiatCurrencies/fiatCurrencies'
@@ -71,14 +72,25 @@ export const FiatRampTradeBody: React.FC<FiatRampTradeBodyProps> = ({
   isInputtingFiatSellAmount = false,
   sellAmountCryptoPrecision,
   buyAmountCryptoPrecision,
-  buyFiatAmount = '0',
-  sellFiatAmount = '0',
+  buyFiatAmount = '',
+  sellFiatAmount = '',
   isLoading = false,
 }) => {
   const [isSmallerThanMd] = useMediaQuery(`(max-width: ${breakpoints.md})`, { ssr: false })
+  const {
+    number: { localeParts, toFiat },
+  } = useLocaleFormatter()
   const buyAssetMarketData = useAppSelector(state =>
     selectMarketDataByAssetIdUserCurrency(state, buyAsset?.assetId ?? ''),
   )
+
+  const placeholder = useMemo(() => {
+    return isInputtingFiatSellAmount
+      ? toFiat(0, {
+          omitDecimalTrailingZeros: true,
+        })
+      : '0'
+  }, [isInputtingFiatSellAmount, toFiat])
   const sellAssetMarketData = useAppSelector(state =>
     selectMarketDataByAssetIdUserCurrency(state, sellAsset?.assetId ?? ''),
   )
@@ -92,16 +104,21 @@ export const FiatRampTradeBody: React.FC<FiatRampTradeBodyProps> = ({
   const buyAssetSearch = useModal('buyTradeAssetSearch')
 
   const buyAmountUserCurrency = useMemo(() => {
+    if (!buyAmountCryptoPrecision) return ''
     return bnOrZero(buyAmountCryptoPrecision)
       .times(buyAssetMarketData?.price ?? 0)
       .toString()
   }, [buyAmountCryptoPrecision, buyAssetMarketData])
 
   const sellAmountUserCurrency = useMemo(() => {
+    if (!sellAmountCryptoPrecision) return ''
+    if (bnOrZero(sellAmountCryptoPrecision).isZero()) return ''
+
     return bnOrZero(sellAmountCryptoPrecision)
       .times(sellAssetMarketData?.price ?? 0)
+      .decimalPlaces(localeParts.fraction)
       .toString()
-  }, [sellAmountCryptoPrecision, sellAssetMarketData])
+  }, [sellAmountCryptoPrecision, sellAssetMarketData, localeParts.fraction])
 
   const chainIdFilterPredicate = useCallback(() => true, [])
 
@@ -326,6 +343,7 @@ export const FiatRampTradeBody: React.FC<FiatRampTradeBodyProps> = ({
         showFiatSkeleton={false}
         formControlProps={formControlProps}
         label={translate('modals.ramp.sellAmount')}
+        placeholder={placeholder}
         onAccountIdChange={handleAccountIdChange}
       />
 

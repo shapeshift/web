@@ -3723,6 +3723,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@babel/runtime@npm:7.26.10":
+  version: 7.26.10
+  resolution: "@babel/runtime@npm:7.26.10"
+  dependencies:
+    regenerator-runtime: ^0.14.0
+  checksum: 22d2e0abb86e90de489ab16bb578db6fe2b63a88696db431198b24963749820c723f1982298cdbbea187f7b2b80fb4d98a514faf114ddb2fdc14a4b96277b955
+  languageName: node
+  linkType: hard
+
 "@babel/runtime@npm:^7.0.0, @babel/runtime@npm:^7.1.2, @babel/runtime@npm:^7.12.13, @babel/runtime@npm:^7.12.5, @babel/runtime@npm:^7.17.2, @babel/runtime@npm:^7.19.0, @babel/runtime@npm:^7.5.5, @babel/runtime@npm:^7.8.4":
   version: 7.20.7
   resolution: "@babel/runtime@npm:7.20.7"
@@ -11618,6 +11627,7 @@ __metadata:
     simple-git: ^3.16.0
     ssri: ^8.0.1
     styled-components: ^6.0.7
+    tronweb: ^6.1.0
     ts-prune: ^0.10.3
     tsc-esm-fix: ^3.1.2
     tsx: ^4.19.3
@@ -17054,6 +17064,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"axios@npm:1.12.2":
+  version: 1.12.2
+  resolution: "axios@npm:1.12.2"
+  dependencies:
+    follow-redirects: ^1.15.6
+    form-data: ^4.0.4
+    proxy-from-env: ^1.1.0
+  checksum: f0331594fe053a4bbff04104edb073973a3aabfad2e56b0aa18de82428aa63f6f0839ca3d837258ec739cb4528014121793b1649a21e5115ffb2bf8237eadca3
+  languageName: node
+  linkType: hard
+
 "axios@npm:^0.21.2":
   version: 0.21.4
   resolution: "axios@npm:0.21.4"
@@ -17496,6 +17517,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"bignumber.js@npm:9.1.2, bignumber.js@npm:^9.0.2, bignumber.js@npm:^9.1.2":
+  version: 9.1.2
+  resolution: "bignumber.js@npm:9.1.2"
+  checksum: 582c03af77ec9cb0ebd682a373ee6c66475db94a4325f92299621d544aa4bd45cb45fd60001610e94aef8ae98a0905fa538241d9638d4422d57abbeeac6fadaf
+  languageName: node
+  linkType: hard
+
 "bignumber.js@npm:^7.2.1":
   version: 7.2.1
   resolution: "bignumber.js@npm:7.2.1"
@@ -17507,13 +17535,6 @@ __metadata:
   version: 9.1.1
   resolution: "bignumber.js@npm:9.1.1"
   checksum: ad243b7e2f9120b112d670bb3d674128f0bd2ca1745b0a6c9df0433bd2c0252c43e6315d944c2ac07b4c639e7496b425e46842773cf89c6a2dcd4f31e5c4b11e
-  languageName: node
-  linkType: hard
-
-"bignumber.js@npm:^9.0.2, bignumber.js@npm:^9.1.2":
-  version: 9.1.2
-  resolution: "bignumber.js@npm:9.1.2"
-  checksum: 582c03af77ec9cb0ebd682a373ee6c66475db94a4325f92299621d544aa4bd45cb45fd60001610e94aef8ae98a0905fa538241d9638d4422d57abbeeac6fadaf
   languageName: node
   linkType: hard
 
@@ -22208,6 +22229,18 @@ __metadata:
   languageName: node
   linkType: hard
 
+"ethereum-cryptography@npm:2.2.1, ethereum-cryptography@npm:^2.2.1":
+  version: 2.2.1
+  resolution: "ethereum-cryptography@npm:2.2.1"
+  dependencies:
+    "@noble/curves": 1.4.2
+    "@noble/hashes": 1.4.0
+    "@scure/bip32": 1.4.0
+    "@scure/bip39": 1.3.0
+  checksum: 1466e4c417b315a6ac67f95088b769fafac8902b495aada3c6375d827e5a7882f9e0eea5f5451600d2250283d9198b8a3d4d996e374e07a80a324e29136f25c6
+  languageName: node
+  linkType: hard
+
 "ethereum-cryptography@npm:^0.1.3":
   version: 0.1.3
   resolution: "ethereum-cryptography@npm:0.1.3"
@@ -22240,18 +22273,6 @@ __metadata:
     "@scure/bip32": 1.3.1
     "@scure/bip39": 1.2.1
   checksum: 2e8f7b8cc90232ae838ab6a8167708e8362621404d26e79b5d9e762c7b53d699f7520aff358d9254de658fcd54d2d0af168ff909943259ed27dc4cef2736410c
-  languageName: node
-  linkType: hard
-
-"ethereum-cryptography@npm:^2.2.1":
-  version: 2.2.1
-  resolution: "ethereum-cryptography@npm:2.2.1"
-  dependencies:
-    "@noble/curves": 1.4.2
-    "@noble/hashes": 1.4.0
-    "@scure/bip32": 1.4.0
-    "@scure/bip39": 1.3.0
-  checksum: 1466e4c417b315a6ac67f95088b769fafac8902b495aada3c6375d827e5a7882f9e0eea5f5451600d2250283d9198b8a3d4d996e374e07a80a324e29136f25c6
   languageName: node
   linkType: hard
 
@@ -22461,6 +22482,21 @@ __metadata:
     tslib: 2.4.0
     ws: 8.5.0
   checksum: e8027c5071ad0370c61a1978f0602ab950d840c5923948f55e88b9808300e4e02e792bb793ea109ce7fa0e748f30a40a05f1202204a2b0402cdffbcb64a218e4
+  languageName: node
+  linkType: hard
+
+"ethers@npm:6.13.5":
+  version: 6.13.5
+  resolution: "ethers@npm:6.13.5"
+  dependencies:
+    "@adraffy/ens-normalize": 1.10.1
+    "@noble/curves": 1.2.0
+    "@noble/hashes": 1.3.2
+    "@types/node": 22.7.5
+    aes-js: 4.0.0-beta.5
+    tslib: 2.7.0
+    ws: 8.17.1
+  checksum: 25700f75c3854fb5043b72748c7a4198efd15d50b4e66d575e6287aab707e855d9aa5ba342fe3d4a4c7943c84a46bcf3702b0f1da1307a82c40e1d08e86078ba
   languageName: node
   linkType: hard
 
@@ -23674,6 +23710,13 @@ __metadata:
   version: 0.1.2
   resolution: "globrex@npm:0.1.2"
   checksum: adca162494a176ce9ecf4dd232f7b802956bb1966b37f60c15e49d2e7d961b66c60826366dc2649093cad5a0d69970cfa8875bd1695b5a1a2f33dcd2aa88da3c
+  languageName: node
+  linkType: hard
+
+"google-protobuf@npm:3.21.4":
+  version: 3.21.4
+  resolution: "google-protobuf@npm:3.21.4"
+  checksum: 048fa2cb579f5f88c977774b2ae36851807379d9329a6895fe3685df69ba6c927e2ff463d08d5eecd56becd9c65bca406f34f90e27984a3077e8629bb3a2a766
   languageName: node
   linkType: hard
 
@@ -31376,6 +31419,15 @@ pvutils@latest:
   languageName: node
   linkType: hard
 
+"semver@npm:7.7.1, semver@npm:^7.3.7, semver@npm:^7.6.0":
+  version: 7.7.1
+  resolution: "semver@npm:7.7.1"
+  bin:
+    semver: bin/semver.js
+  checksum: 586b825d36874007c9382d9e1ad8f93888d8670040add24a28e06a910aeebd673a2eb9e3bf169c6679d9245e66efb9057e0852e70d9daa6c27372aab1dda7104
+  languageName: node
+  linkType: hard
+
 "semver@npm:^6.1.1, semver@npm:^6.1.2, semver@npm:^6.3.0":
   version: 6.3.0
   resolution: "semver@npm:6.3.0"
@@ -31413,15 +31465,6 @@ pvutils@latest:
   bin:
     semver: bin/semver.js
   checksum: ba9c7cbbf2b7884696523450a61fee1a09930d888b7a8d7579025ad93d459b2d1949ee5bbfeb188b2be5f4ac163544c5e98491ad6152df34154feebc2cc337c1
-  languageName: node
-  linkType: hard
-
-"semver@npm:^7.3.7, semver@npm:^7.6.0":
-  version: 7.7.1
-  resolution: "semver@npm:7.7.1"
-  bin:
-    semver: bin/semver.js
-  checksum: 586b825d36874007c9382d9e1ad8f93888d8670040add24a28e06a910aeebd673a2eb9e3bf169c6679d9245e66efb9057e0852e70d9daa6c27372aab1dda7104
   languageName: node
   linkType: hard
 
@@ -32913,6 +32956,23 @@ pvutils@latest:
   languageName: node
   linkType: hard
 
+"tronweb@npm:^6.1.0":
+  version: 6.1.0
+  resolution: "tronweb@npm:6.1.0"
+  dependencies:
+    "@babel/runtime": 7.26.10
+    axios: 1.12.2
+    bignumber.js: 9.1.2
+    ethereum-cryptography: 2.2.1
+    ethers: 6.13.5
+    eventemitter3: 5.0.1
+    google-protobuf: 3.21.4
+    semver: 7.7.1
+    validator: 13.15.20
+  checksum: 7b4e90cb6b840f13d56f4270a3bdc5a6c76901176322cc17a78fb3273e5410ca2a49df635d66f097bc55af00ea6b9a68417afef58a98121fb1d515163db85aaf
+  languageName: node
+  linkType: hard
+
 "true-myth@npm:^4.1.0":
   version: 4.1.1
   resolution: "true-myth@npm:4.1.1"
@@ -34179,7 +34239,7 @@ pvutils@latest:
   languageName: node
   linkType: hard
 
-"validator@npm:^13.6.0":
+"validator@npm:13.15.20, validator@npm:^13.6.0":
   version: 13.15.20
   resolution: "validator@npm:13.15.20"
   checksum: e8e50470acbc65206fad8ac937cc692278201bb09558176a4100b90cbc7981c475eda69f49b91aee3ae04cff474c8478f672f9c641e4e0a38a9f47371e0fdfb2

@@ -16,6 +16,7 @@ import {
   polygonChainId,
   solanaChainId,
   thorchainChainId,
+  tronChainId,
 } from '@shapeshiftoss/caip'
 
 export const CHAIN_ID_TO_URN_SCHEME: Record<ChainId, string> = {
@@ -35,6 +36,7 @@ export const CHAIN_ID_TO_URN_SCHEME: Record<ChainId, string> = {
   [cosmosChainId]: 'cosmos',
   [mayachainChainId]: 'mayachain',
   [solanaChainId]: 'solana',
+  [tronChainId]: 'tron',
 }
 
 export const URN_SCHEME_TO_CHAIN_ID = Object.fromEntries(

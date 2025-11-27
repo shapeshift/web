@@ -14,6 +14,7 @@ import type {
   Swapper,
   SwapperApi,
   TradeExecutionEventMap,
+  TronTransactionExecutionInput,
   UtxoTransactionExecutionInput,
 } from '@shapeshiftoss/swapper'
 import {
@@ -31,6 +32,7 @@ import { EventEmitter } from 'node:events'
 import { assertGetCosmosSdkChainAdapter } from './utils/cosmosSdk'
 import { assertGetEvmChainAdapter } from './utils/evm'
 import { assertGetSolanaChainAdapter } from './utils/solana'
+import { assertGetTronChainAdapter } from './utils/tron'
 import { assertGetUtxoChainAdapter } from './utils/utxo'
 
 import { getConfig } from '@/config'
@@ -512,6 +514,57 @@ export class TradeExecution {
       })
 
       return await swapper.executeSolanaTransaction(unsignedTxResult, {
+        signAndBroadcastTransaction,
+      })
+    }
+
+    return await this._execWalletAgnostic(
+      {
+        swapperName,
+        tradeQuote,
+        stepIndex,
+        slippageTolerancePercentageDecimal,
+      },
+      buildSignBroadcast,
+    )
+  }
+
+  async execTronTransaction({
+    swapperName,
+    tradeQuote,
+    stepIndex,
+    slippageTolerancePercentageDecimal,
+    from,
+    signAndBroadcastTransaction,
+  }: TronTransactionExecutionInput) {
+    const buildSignBroadcast = async (
+      swapper: Swapper & SwapperApi,
+      {
+        tradeQuote,
+        chainId,
+        stepIndex,
+        slippageTolerancePercentageDecimal,
+        config,
+      }: CommonGetUnsignedTransactionArgs,
+    ) => {
+      if (!swapper.getUnsignedTronTransaction) {
+        throw Error('missing implementation for getUnsignedTronTransaction')
+      }
+      if (!swapper.executeTronTransaction) {
+        throw Error('missing implementation for executeTronTransaction')
+      }
+
+      const unsignedTxResult = await swapper.getUnsignedTronTransaction({
+        tradeQuote,
+        chainId,
+        stepIndex,
+        slippageTolerancePercentageDecimal,
+        from,
+        config,
+        assertGetTronChainAdapter,
+      })
+
+      return await swapper.executeTronTransaction(unsignedTxResult, {
         signAndBroadcastTransaction,
       })
     }

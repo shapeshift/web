@@ -1778,6 +1778,7 @@
       },
       "connect": {
         "header": "配对 Vultisig",
+        "body": "点击配对，然后在弹出的窗口中登录 Vultisig",
         "button": "配对"
       }
     }

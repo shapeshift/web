@@ -191,7 +191,8 @@
     "approval": "Onay",
     "permit2Approval": "Permit2 Onayı",
     "network": "Ağ",
-    "feeEstimate": "Ücret Tahmini"
+    "feeEstimate": "Ücret Tahmini",
+    "list": "Liste"
   },
   "accountSelector": {
     "chooseAccount": "Hesap Seç"
@@ -327,7 +328,10 @@
     "viewSavedWallets": "Kayıtlı Cüzdanları Görüntüle",
     "footerOne": "Devam ederek şunları kabul etmiş olursunuz:",
     "terms": "Şartlar",
-    "privacyPolicy": "Gizlilik Politikası"
+    "privacyPolicy": "Gizlilik Politikası",
+    "connectNewWallet": "Yeni Cüzdanı Bağla",
+    "getANewWallet": "Yeni Bir Cüzdan Alın",
+    "alreadyHaveWallet": "Zaten bir Cüzdanım var"
   },
   "connectWallet": {
     "menu": {
@@ -868,7 +872,12 @@
       "youGotMore": "Bu işlemde %{cryptoUpside} daha fazla kazandınız"
     },
     "networkFee": "Ağ Ücreti",
-    "feeExplainer": "Teklife %{feePercentage}% ShapeShift ücreti dahildir"
+    "feeExplainer": "Teklife %{feePercentage}% ShapeShift ücreti dahildir",
+    "topAssetsCarousel": {
+      "hide": "Gizle",
+      "hiddenTitle": "En İyi Varlıklar Döngüsü Gizli",
+      "hiddenDescription": "Ayarlar'dan tekrar açabilirsiniz"
+    }
   },
   "limitOrder": {
     "heading": "Limit",
@@ -1091,6 +1100,8 @@
       "qrCode": "QR Kod",
       "addressBook": "Adres Defteri",
       "noEntries": "Adres bulunamadı.",
+      "yourWallets": "Cüzdanlarınız",
+      "noInternalAccounts": "Hesap bulunamadı.",
       "addNewAddress": "Yeni Adres Ekle",
       "addAddress": {
         "nameRequired": "İsim gerekli",
@@ -1148,6 +1159,9 @@
       "copyFailed": "%{symbol} alım adresi panoya kopyalanamadı",
       "copyFailedDescription": "Lütfen adresi manuel olarak kopyalayın",
       "setAmount": "Miktarı Ayarla",
+      "verify": "Doğrula",
+      "verified": "Doğrulandı",
+      "notVerified": "Adres Uyuşmazlığı",
       "blockExplorer": "Tarayıcı",
       "supportedNetworks": "Desteklenen Ağlar",
       "amountNote": "Talep etmek istediğiniz tutarı girin. Bu, ödemeyi kolaylaştırmak için tutarın yazılı olduğu bir QR kodu oluşturacaktır."
@@ -1251,6 +1265,8 @@
       "language": "Dil",
       "balanceThreshold": "Bakiye Eşiği",
       "balanceThresholdTooltip": "Kontrol panelinde ve grafiklerde, bu değerin altındaki bakiyeleri gizleyin",
+      "showTopAssetsCarousel": "En İyi Varlıklar Döngüsünü Göster",
+      "showTopAssetsCarouselTooltip": "İşlem sayfasının alt kısmında en iyi varlıklar karuselini göster",
       "currencies": {
         "CNY": "Çin Yuanı",
         "USD": "ABD Doları (varsayılan)",
@@ -1315,6 +1331,11 @@
         "button": "Eşleştir",
         "conflictingApp": "KeepKey'iniz bulunamadı. Başka bir uygulama, KeepKey'inizle bağlantı kurmaya çalışıyor olabilir.",
         "downloadUpdaterApp": "Updater uygulamasını indirin"
+      },
+      "pin": {
+        "header": "PIN'inizi girin",
+        "body": "Cihazınızda gösterilen PIN düzenini kullanarak PIN tuşuna basılacak yeri bulun.",
+        "button": "Kilit aç"
       },
       "settings": {
         "menuLabels": {
@@ -1394,6 +1415,59 @@
         "body": "Keplr cüzdanına bağlanılamıyor"
       }
     },
+    "gridplus": {
+      "list": {
+        "header": "GridPlus SafeCard'larınız",
+        "selectPrompt": "Yeniden bağlanmak için bir SafeCard seçin veya yeni bir tane ekleyin",
+        "empty": "Henüz hiçbir SafeCard bağlanmadı",
+        "addFirst": "Önce SafeCard'ınızı Bağlayın",
+        "addNew": "Yeni SafeCard Ekle",
+        "lastConnected": "Son bağlantı: %{date}",
+        "connected": "Bağlandı",
+        "connect": "Bağla",
+        "editNameLabel": "Adı düzenle",
+        "deleteLabel": "Sil",
+        "deleteTitle": "SafeCard'ı Sil",
+        "deleteConfirm": "\"%{name}\" silinsin mi? Bu, ilişkili tüm portföy verilerini kaldıracaktır.",
+        "renamed": "SafeCard yeniden adlandırıldı",
+        "deleted": "SafeCard silindi",
+        "deletedDescription": "Portföy verileri temizlendi",
+        "warning": "Her SafeCard kendi portföyüne sahiptir. Bağlanmadan önce cihazınıza doğru SafeCard'ı taktığınızdan emin olun."
+      },
+      "connect": {
+        "header": "Yeni SafeCard'ı Bağla",
+        "safeCardName": "SafeCard Adı",
+        "safeCardNamePlaceholder": "Bu SafeCard için bir ad girin",
+        "safeCardNameHelper": "Bu SafeCard'a akılda kalıcı bir ad verin (örneğin, \"Ana Cüzdan\", \"Ticaret\", \"DeFi\")",
+        "deviceId": "Cihaz Kimliği",
+        "deviceIdPlaceholder": "Lattice cihaz kimliğinizi girin",
+        "deviceIdHelper": "Cihaz kimliğinizi Lattice ayarlarınızda Device Info altında bulabilirsiniz.",
+        "button": "SafeCard'ı Bağla",
+        "connecting": "Bağlanıyor...",
+        "backToList": "← SafeCard Listesine Geri Dön"
+      },
+      "pair": {
+        "header": "GridPlus Lattice Eşleştir",
+        "pairingCode": "Eşleştirme Kodu",
+        "pairingCodePlaceholder": "Lattice'den 8 karakterli kodu girin",
+        "pairingCodeHelper": "8 karakterli eşleştirme kodunu görmek için Lattice ekranınıza bakın.",
+        "button": "Eşleştirmeyi Tamamla",
+        "cancel": "← İptal"
+      },
+      "name": {
+        "header": "SafeCard'ınıza Ad Verin",
+        "label": "SafeCard Adı",
+        "placeholder": "Bu SafeCard için bir ad girin",
+        "helper": "Bu SafeCard'a akılda kalıcı bir ad verin (örneğin, \"Ana Cüzdan\", \"Ticaret\", \"DeFi\")"
+      },
+      "errors": {
+        "deviceIdRequired": "Cihaz kimliği gereklidir",
+        "adapterNotAvailable": "GridPlus adaptörü mevcut değil",
+        "deviceNotConnected": "Cihaz bağlı değil. Önce connectDevice'ı çağırın.",
+        "connectFailure": "GridPlus cüzdanına bağlanılamıyor",
+        "unknown": "GridPlus cüzdanıyla iletişim kurulurken beklenmeyen bir hata oluştu"
+      }
+    },
     "ledger": {
       "chains": {
         "header": "Ledger Hesaplarını İçe Aktar",
@@ -1434,6 +1508,20 @@
       "gettingChangeAddress": "Adres değişikliği alınıyor...",
       "connectWarning": "Bir zinciri bağlamadan önce uygulamanın cihazınızda açık olduğundan emin olun.",
       "signWarning": "İmzalamadan önce cihazınızda %{chain} uygulamasının açık olduğundan emin olun."
+    },
+    "trezor": {
+      "verify": {
+        "confirmOnDevice": "Cihazda onaylayın",
+        "addressMismatch": "Adres uyuşmuyor. Lütfen doğru cihazın bağlı olduğundan emin olun ve tekrar deneyin."
+      },
+      "errors": {
+        "unknown": "Trezor cüzdanıyla iletişim kurulurken beklenmeyen bir hata oluştu"
+      },
+      "connect": {
+        "header": "Trezor'u Eşleştir",
+        "body": "Trezor cihazınızı bağlayın ve Eşleştir'e tıklayın",
+        "button": "Eşleştir"
+      }
     },
     "mipd": {
       "connect": {
@@ -1683,6 +1771,16 @@
         "description": "Gizli Kurtarma Cümlenizi doğruladınız. Güvenli bir şekilde sakladığınızdan emin olun - bu, cüzdanınızı kurtarmanın tek yoludur.",
         "viewWallet": "Cüzdanı Görüntüle"
       }
+    },
+    "vultisig": {
+      "errors": {
+        "connectFailure": "Vultisig cüzdanına bağlanılamıyor"
+      },
+      "connect": {
+        "header": "Vultisig'i Eşleştir",
+        "body": "Eşleştir'e tıklayın ve açılan pencereden Vultisig'e giriş yapın",
+        "button": "Eşleştir"
+      }
     }
   },
   "graph": {
@@ -1743,7 +1841,6 @@
   },
   "accounts": {
     "accounts": "Hesaplar",
-    "addAccount": "Hesap Ekle",
     "accountNumber": "Hesap #%{accountNumber}",
     "accountChain": "Hesap Zinciri",
     "selectChain": "Hesap oluşturmak istediğiniz zinciri seçin.",
@@ -1902,7 +1999,8 @@
           "title": "Cüzdanınızı WalletConnect aracılığıyla bir dApp'e bağlayın ve işlemleri tetikleyin",
           "linkPlaceholder": "QR kod veya bağlantı link'i",
           "disclaimerBody": "ShapeShift, üçüncü taraf uygulamalarının güvenliğini veya emniyetini garanti edemez. WalletConnect'i kullanarak, dahil olan tüm risklerin tüm sorumluluğunu üstlenirsiniz.",
-          "connect": "Bağlan"
+          "connect": "Bağlan",
+          "invalidUri": "Geçersiz URI"
         },
         "sessionProposal": {
           "unsupportedChain": "Oturum teklifinde desteklenmeyen zincir ad alanı.",
@@ -2414,6 +2512,7 @@
       "switchChainFailed": "Cüzdan zinciri değiştirilemedi. Cüzdan etkin zincirinizi manuel olarak %{chain} olarak değiştirmeyi deneyin.",
       "buildTransaction": "İşlem oluşturulamadı.",
       "signTransaction": "İşlem imzalanamadı.",
+      "blindSigningRequired": "İşlem için gizli imzalama gerekiyor. Lütfen Ledger uygulama ayarlarınızda Blind Signing veya Contract Data'yi etkinleştirin ve tekrar deneyin.",
       "signAndBroadcastTransaction": "İşlem imzalanamadı ve yayınlanamadı.",
       "signMessage": "Mesaj imzalanamadı.",
       "broadcastTransaction": "İşlem yayınlanamadı.",
@@ -2468,10 +2567,12 @@
     "thorchainLp": {
       "pairAssets": "%{asset1} ve %{asset2}",
       "withdraw": {
-        "processing": "%{poolName} havuzundan %{assetAmountsAndSymbols} tutarındaki çekim işleminiz işleniyor."
+        "processing": "%{poolName} havuzundan %{assetAmountsAndSymbols} tutarındaki çekim işleminiz işleniyor.",
+        "complete": "%{poolName} havuzundan %{assetAmountsAndSymbols} tutarındaki çekim işleminiz tamamlandı."
       },
       "deposit": {
-        "processing": "%{poolName} havuzuna %{amount} %{symbol} tutarındaki yatırımınız işleniyor."
+        "processing": "%{poolName} havuzuna %{amount} %{symbol} tutarındaki yatırımınız işleniyor.",
+        "complete": "%{poolName} havuzuna %{amount} %{symbol} tutarındaki yatırımınız tamamlandı."
       }
     },
     "deposit": {

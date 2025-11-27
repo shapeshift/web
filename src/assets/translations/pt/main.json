@@ -191,7 +191,8 @@
     "approval": "Aprovação",
     "permit2Approval": "Aprovaçõa Permit2 ",
     "network": "Rede",
-    "feeEstimate": "Estimativa de Taxa"
+    "feeEstimate": "Estimativa de Taxa",
+    "list": "Lista"
   },
   "accountSelector": {
     "chooseAccount": "Escolha a Conta"
@@ -327,7 +328,10 @@
     "viewSavedWallets": "Ver carteiras salvas",
     "footerOne": "Ao continuar, você concorda com os",
     "terms": "Termos",
-    "privacyPolicy": "Política de Privacidade"
+    "privacyPolicy": "Política de Privacidade",
+    "connectNewWallet": "Conectar Nova Carteira",
+    "getANewWallet": "Pegue uma Nova Carteira",
+    "alreadyHaveWallet": "Já tenho uma nova carteira"
   },
   "connectWallet": {
     "menu": {
@@ -868,7 +872,12 @@
       "youGotMore": "Você ganhou %{cryptoUpside} a mais nesta negociação"
     },
     "networkFee": "Taxa de rede",
-    "feeExplainer": "A cotação inclui uma taxa de %{feePercentage}% da ShapeShift"
+    "feeExplainer": "A cotação inclui uma taxa de %{feePercentage}% da ShapeShift",
+    "topAssetsCarousel": {
+      "hide": "Esconder",
+      "hiddenTitle": "Carrossel de principais ativos oculto",
+      "hiddenDescription": "Você pode reativá-lo em Configurações."
+    }
   },
   "limitOrder": {
     "heading": "Limite",
@@ -1091,6 +1100,8 @@
       "qrCode": "QR Code",
       "addressBook": "Lista de Endereços",
       "noEntries": "Nenhum endereço encontrado",
+      "yourWallets": "Suas Carteiras",
+      "noInternalAccounts": "Nenhuma conta encontrada.",
       "addNewAddress": "Adicionar Novo Endereço",
       "addAddress": {
         "nameRequired": "Nome é necessário",
@@ -1148,6 +1159,9 @@
       "copyFailed": "Falha ao copiar o endereço %{symbol} para a área de transferência",
       "copyFailedDescription": "Copie o endereço manualmente",
       "setAmount": "Definir valor",
+      "verify": "Verificar",
+      "verified": "Verificado",
+      "notVerified": "Endereços divergentes",
       "blockExplorer": "Explorador de Blocos",
       "supportedNetworks": "Redes Suportadas",
       "amountNote": "Insira o valor que deseja solicitar. Isso gerará um QR code com o valor para facilitar os pagamentos."
@@ -1251,6 +1265,8 @@
       "language": "Idioma",
       "balanceThreshold": "Limite de saldo",
       "balanceThresholdTooltip": "Ocultar saldos abaixo deste valor",
+      "showTopAssetsCarousel": "Exibir carrossel de principais ativos",
+      "showTopAssetsCarouselTooltip": "Exibir o carrossel dos principais ativos na parte inferior da página de negociação.",
       "currencies": {
         "CNY": "Yuan chinês",
         "USD": "Dólar dos Estados Unidos (padrão)",
@@ -1315,6 +1331,11 @@
         "button": "Emparelhar",
         "conflictingApp": "Não foi possível encontrar sua KeepKey. Certifique-se de que seu dispositivo não esteja conectado em outro aplicativo .",
         "downloadUpdaterApp": "Baixar o app para atualizações."
+      },
+      "pin": {
+        "header": "Digite seu PIN",
+        "body": "Utilize o layout do PIN exibido no seu dispositivo para localizar o teclado numérico onde deve pressionar o PIN.",
+        "button": "Desbloquear"
       },
       "settings": {
         "menuLabels": {
@@ -1394,6 +1415,59 @@
         "body": "Não foi possível conectar sua carteira Keplr"
       }
     },
+    "gridplus": {
+      "list": {
+        "header": "Seu GridPlus SafeCards",
+        "selectPrompt": "Selecione um SafeCard para reconectar ou adicione um novo. ",
+        "empty": "Nenhum SafeCard conectado ainda",
+        "addFirst": "Conecte Seu Primeiro SafeCard",
+        "addNew": "Adicione um Novo SafeCard",
+        "lastConnected": "Última vez conectado: %{date}",
+        "connected": "Conectado",
+        "connect": "Conectar",
+        "editNameLabel": "Editar nome",
+        "deleteLabel": "Excluir",
+        "deleteTitle": "Excluir SafeCard",
+        "deleteConfirm": "Excluir \"%{name}\"? Isso removerá todas as informações do seu portfólio. ",
+        "renamed": "SafeCard renomeado",
+        "deleted": "SafeCard excluído",
+        "deletedDescription": "Os dados do portfólio foram apagados.",
+        "warning": "Cada SafeCard mantém seu próprio portfólio. Certifique-se de inserir o SafeCard correto em seu dispositivo antes de conectar."
+      },
+      "connect": {
+        "header": "Conectar novo SafeCard",
+        "safeCardName": "Nome do SafeCard",
+        "safeCardNamePlaceholder": "Insira um nome para este SafeCard",
+        "safeCardNameHelper": "Dê a este SafeCard um nome memorável (por exemplo, \"Carteira Principal\", \"Negociação\", \"DeFi\")",
+        "deviceId": "Device ID",
+        "deviceIdPlaceholder": "Insira seu Lattice device ID",
+        "deviceIdHelper": "Você pode encontrar o ID do seu dispositivo nas configurações do Lattice, em Device Info. ",
+        "button": "Conecte o SafeCard",
+        "connecting": "Conectando...",
+        "backToList": "← Voltar à lista de SafeCards"
+      },
+      "pair": {
+        "header": "Parear GridPlus Lattice",
+        "pairingCode": "Código de Emparelhamento",
+        "pairingCodePlaceholder": "Insira o código de 8 caracteres da Lattice.",
+        "pairingCodeHelper": "Consulte a tela do Lattice para obter um código de emparelhamento de 8 caracteres.",
+        "button": "Emparelhamento completo",
+        "cancel": "← Cancelar"
+      },
+      "name": {
+        "header": "Dê um nome ao seu SafeCard",
+        "label": "Nome do SafeCard",
+        "placeholder": "Insira um nome para este SafeCard",
+        "helper": "Dê a este SafeCard um nome memorável (por exemplo, \"Carteira Principal\", \"Negociação\", \"DeFi\")"
+      },
+      "errors": {
+        "deviceIdRequired": "É necessário o ID do dispositivo.",
+        "adapterNotAvailable": "Adaptador GridPlus não disponível",
+        "deviceNotConnected": "Dispositivo não conectado. Chame connectDevice primeiro.",
+        "connectFailure": "Não foi possível conectar a carteira GridPlus.",
+        "unknown": "Ocorreu um erro inesperado ao comunicar com a carteira GridPlus."
+      }
+    },
     "ledger": {
       "chains": {
         "header": "Importar contas da Ledger",
@@ -1434,6 +1508,20 @@
       "gettingChangeAddress": "Obtendo endereço de troco...",
       "connectWarning": "Antes de conectar uma rede, certifique-se de ter o aplicativo aberto no seu dispositivo.",
       "signWarning": "Antes de assinar, certifique-se de ter o aplicativo %{chain} aberto no seu dispositivo."
+    },
+    "trezor": {
+      "verify": {
+        "confirmOnDevice": "Confirme no dispositivo",
+        "addressMismatch": "Endereço incorreto. Verifique se o dispositivo conectado está correto e tente novamente."
+      },
+      "errors": {
+        "unknown": "Ocorreu um erro inesperado ao comunicar com a carteira Trezor."
+      },
+      "connect": {
+        "header": "Parear Trezor",
+        "body": "Conecte seu dispositivo Trezor e clique em Parear.",
+        "button": "Parear"
+      }
     },
     "mipd": {
       "connect": {
@@ -1683,6 +1771,16 @@
         "description": "Você verificou sua Frase Secreta de Recuperação. Guarde-a com segurança — esta é a única maneira de recuperar sua carteira.",
         "viewWallet": "Ver carteira"
       }
+    },
+    "vultisig": {
+      "errors": {
+        "connectFailure": "Não foi possível conectar à carteira Vultisig."
+      },
+      "connect": {
+        "header": "Parear Vultisig",
+        "body": "Clique em Parear e faça login no Vultisig a partir da janela pop-up.",
+        "button": "Parear"
+      }
     }
   },
   "graph": {
@@ -1743,7 +1841,6 @@
   },
   "accounts": {
     "accounts": "Contas",
-    "addAccount": "Adicionar uma conta",
     "accountNumber": "Conta #%{accountNumber}",
     "accountChain": "Conta na Rede",
     "selectChain": "Selecione a rede em que você deseja criar uma conta.",
@@ -1902,7 +1999,8 @@
           "title": "Conecte sua carteira a um dApp via WalletConnect e realize transações",
           "linkPlaceholder": "Código QR ou link para conectar-se",
           "disclaimerBody": "A ShapeShift não pode garantir a segurança ou proteção de aplicativos de terceiros. Ao usar o WalletConnect, você assume total responsabilidade por quaisquer riscos envolvidos.",
-          "connect": "Conectar"
+          "connect": "Conectar",
+          "invalidUri": "URI Inválida"
         },
         "sessionProposal": {
           "unsupportedChain": "Rede não suportada.",
@@ -2414,6 +2512,7 @@
       "switchChainFailed": "Falha ao alternar a rede da carteira. Tente alternar manualmente a cadeia ativa da carteira para %{chain}.",
       "buildTransaction": "Falha ao construir transação.",
       "signTransaction": "Falha ao assinar a transação.",
+      "blindSigningRequired": "Transação requer uma \"assinatura cega\". Por favor, habilite o \"Blind signing\" ou \"Contract Data\" nas configurações da sua Ledger e tente novamente. ",
       "signAndBroadcastTransaction": "Falha ao assinar e transmitir a transação.",
       "signMessage": "Falha ao assinar a mensagem.",
       "broadcastTransaction": "Falha ao transmitir a transação.",
@@ -2468,10 +2567,12 @@
     "thorchainLp": {
       "pairAssets": "%{asset1} e %{asset2}",
       "withdraw": {
-        "processing": "Seu saque de %{assetAmountsAndSymbols} do pool %{poolName} está sendo processado."
+        "processing": "Seu saque de %{assetAmountsAndSymbols} do pool %{poolName} está sendo processado.",
+        "complete": "Seu saque de %{assetAmountsAndSymbols} da pool %{poolName} foi concluído."
       },
       "deposit": {
-        "processing": "Seu depósito de %{amount} %{symbol} na pool %{poolName} está sendo processado."
+        "processing": "Seu depósito de %{amount} %{symbol} na pool %{poolName} está sendo processado.",
+        "complete": "Seu depósito de %{amount} %{symbol} na pool %{poolName} foi concluído."
       }
     },
     "deposit": {

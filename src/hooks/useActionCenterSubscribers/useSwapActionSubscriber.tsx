@@ -195,21 +195,22 @@ export const useSwapActionSubscriber = () => {
       if (!swap.sellTxHash) return
       if (!swap.receiveAddress) return
 
-      const { status, message, buyTxHash } = await queryClient.fetchQuery({
-        queryKey: tradeStatusQueryKey(swap.id, swap.sellTxHash),
-        queryFn: () =>
-          fetchTradeStatus({
-            swapper,
-            sellTxHash: swap.sellTxHash ?? '',
-            sellAssetChainId: swap.sellAsset.chainId,
-            address: swap.sellAccountId ? fromAccountId(swap.sellAccountId).account : undefined,
-            swap,
-            stepIndex: swap.metadata.stepIndex,
-            config: getConfig(),
-          }),
-        staleTime: 10000,
-        gcTime: 10000,
-      })
+      const { status, message, buyTxHash, actualBuyAmountCryptoBaseUnit } =
+        await queryClient.fetchQuery({
+          queryKey: tradeStatusQueryKey(swap.id, swap.sellTxHash),
+          queryFn: () =>
+            fetchTradeStatus({
+              swapper,
+              sellTxHash: swap.sellTxHash ?? '',
+              sellAssetChainId: swap.sellAsset.chainId,
+              address: swap.sellAccountId ? fromAccountId(swap.sellAccountId).account : undefined,
+              swap,
+              stepIndex: swap.metadata.stepIndex,
+              config: getConfig(),
+            }),
+          staleTime: 10000,
+          gcTime: 10000,
+        })
 
       const { chainId, account: address } = fromAccountId(swap.sellAccountId)
 
@@ -252,6 +253,7 @@ export const useSwapActionSubscriber = () => {
             statusMessage: message,
             buyTxHash,
             txLink,
+            actualBuyAmountCryptoBaseUnit,
           }),
         )
 

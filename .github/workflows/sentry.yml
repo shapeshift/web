@@ -34,10 +34,14 @@ jobs:
 
       - name: Extract Version
         id: version
+      - name: Extract Version
+        id: version
+        env:
+          PR_TITLE: ${{ github.event.pull_request.title }}
         run: |
           # Extract version from PR title (e.g., "chore: release v1.971.0" -> "1.971.0")
           # Or use the merge commit SHA if not a release PR
-          PR_TITLE="${{ github.event.pull_request.title }}"
+          if [[ "$PR_TITLE" =~ v([0-9]+\.[0-9]+\.[0-9]+) ]]; then
           if [[ "$PR_TITLE" =~ v([0-9]+\.[0-9]+\.[0-9]+) ]]; then
             VERSION="${BASH_REMATCH[1]}"
           else

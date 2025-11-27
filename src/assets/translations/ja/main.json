@@ -191,7 +191,8 @@
     "approval": "承認",
     "permit2Approval": "Permit2の承認",
     "network": "ネットワーク",
-    "feeEstimate": "料金見積もり"
+    "feeEstimate": "料金見積もり",
+    "list": "リスト"
   },
   "accountSelector": {
     "chooseAccount": "アカウントを選択"
@@ -327,7 +328,10 @@
     "viewSavedWallets": "保存されたウォレットを表示する",
     "footerOne": "続行すると、次の内容に同意したことになります",
     "terms": "利用規約",
-    "privacyPolicy": "プライバシーポリシー"
+    "privacyPolicy": "プライバシーポリシー",
+    "connectNewWallet": "新しいウォレットを接続する",
+    "getANewWallet": "新しいウォレットを入手する",
+    "alreadyHaveWallet": "すでにウォレットを持っています"
   },
   "connectWallet": {
     "menu": {
@@ -863,7 +867,12 @@
       "youGotMore": "この取引で %{cryptoUpside} 増加しました"
     },
     "networkFee": "ネットワーク料金",
-    "feeExplainer": "見積もりには%{feePercentage}%のShapeShift料金が含まれています"
+    "feeExplainer": "見積もりには%{feePercentage}%のShapeShift料金が含まれています",
+    "topAssetsCarousel": {
+      "hide": "非表示",
+      "hiddenTitle": "トップアセットカルーセル 非表示",
+      "hiddenDescription": "設定で再度オンにすることができます"
+    }
   },
   "limitOrder": {
     "heading": "制限",
@@ -1086,6 +1095,8 @@
       "qrCode": "QRコード",
       "addressBook": "アドレス帳",
       "noEntries": "アドレスが見つかりません。",
+      "yourWallets": "あなたのウォレット",
+      "noInternalAccounts": "アカウントが見つかりません。",
       "addNewAddress": "新しいアドレスを追加",
       "addAddress": {
         "nameRequired": "名前は必須です",
@@ -1143,6 +1154,9 @@
       "copyFailed": "%{symbol} 受信アドレスをクリップボードにコピーできませんでした",
       "copyFailedDescription": "アドレスを手動でコピーしてください",
       "setAmount": "設定金額",
+      "verify": "確認する",
+      "verified": "検証済み",
+      "notVerified": "アドレスの不一致",
       "blockExplorer": "エクスプローラー",
       "supportedNetworks": "サポートされているネットワーク",
       "amountNote": "ご希望の金額を入力してください。金額が記載されたQRコードが生成され、お支払いが簡単になります。"
@@ -1246,6 +1260,8 @@
       "language": "言語",
       "balanceThreshold": "残高閾値",
       "balanceThresholdTooltip": "ダッシュボードとチャートで、この値未満の残高を非表示にします",
+      "showTopAssetsCarousel": "トップアセットカルーセルを表示",
+      "showTopAssetsCarouselTooltip": "取引ページの下部にトップアセットカルーセルを表示する",
       "currencies": {
         "CNY": "中国人民元",
         "USD": "米ドル (デフォルト)",
@@ -1310,6 +1326,11 @@
         "button": "ペアリング",
         "conflictingApp": "KeepKeyが見つかりませんでした。別のアプリケーションがKeepKeyに接続しようとしている可能性があります。",
         "downloadUpdaterApp": "アップデートをダウンロード"
+      },
+      "pin": {
+        "header": "PINを入力してください",
+        "body": "デバイスに表示される PIN レイアウトを使用して、PIN パッド上で押す場所を見つけます。",
+        "button": "ロック解除"
       },
       "settings": {
         "menuLabels": {
@@ -1389,6 +1410,59 @@
         "body": "Keplrウォレットに接続できません"
       }
     },
+    "gridplus": {
+      "list": {
+        "header": "GridPlusセーフカード",
+        "selectPrompt": "再接続するセーフカードを選択するか、新しいセーフカードを追加してください",
+        "empty": "SafeCardはまだ接続されていません",
+        "addFirst": "最初のSafeCardを接続する",
+        "addNew": "新しいセーフカードを追加",
+        "lastConnected": "最終接続日: %{date}",
+        "connected": "接続",
+        "connect": "接続する",
+        "editNameLabel": "名前を編集",
+        "deleteLabel": "削除",
+        "deleteTitle": "SafeCardを削除",
+        "deleteConfirm": "「%{name}」を削除しますか？これにより、関連付けられているすべてのポートフォリオ データが削除されます。",
+        "renamed": "SafeCardの名前が変更されました",
+        "deleted": "セーフカードが削除されました",
+        "deletedDescription": "ポートフォリオデータが消去されました",
+        "warning": "各SafeCardは独自のポートフォリオを保持しています。接続する前に、正しいSafeCardをデバイスにセットしてください。"
+      },
+      "connect": {
+        "header": "新しいセーフカードを接続",
+        "safeCardName": "セーフカード名",
+        "safeCardNamePlaceholder": "このセーフカードの名前を入力してください",
+        "safeCardNameHelper": "このセーフカードに覚えやすい名前を付けます（例：「メインウォレット」、「トレーディング」、「DeFi」）",
+        "deviceId": "デバイスID",
+        "deviceIdPlaceholder": "LatticeデバイスIDを入力してください",
+        "deviceIdHelper": "デバイス ID は、Lattice 設定の「Device Info」で確認できます。",
+        "button": "セーフカードを接続する",
+        "connecting": "接続中...",
+        "backToList": "← SafeCardリストに戻る"
+      },
+      "pair": {
+        "header": "GridPlus Lattice をペアリング",
+        "pairingCode": "ペアリングコード",
+        "pairingCodePlaceholder": "Latticeからの8文字のコードを入力してください",
+        "pairingCodeHelper": "Latticeの8文字のコードを入力してください",
+        "button": "ペアリングを完了する",
+        "cancel": "← キャンセル"
+      },
+      "name": {
+        "header": "セーフカードに名前を付ける",
+        "label": "セーフカード名",
+        "placeholder": "このセーフカードの名前を入力してください",
+        "helper": "このセーフカードに覚えやすい名前を付けます（例：「メインウォレット」、「トレーディング」、「DeFi」）"
+      },
+      "errors": {
+        "deviceIdRequired": "デバイスIDが必要です",
+        "adapterNotAvailable": "GridPlusアダプタは利用できません",
+        "deviceNotConnected": "デバイスが接続されていません。まず connectDevice を呼び出してください。",
+        "connectFailure": "GridPlusウォレットに接続できません",
+        "unknown": "GridPlusウォレットとの通信中に予期しないエラーが発生しました"
+      }
+    },
     "ledger": {
       "chains": {
         "header": "Ledgerアカウントのインポート",
@@ -1429,6 +1503,20 @@
       "gettingChangeAddress": "住所変更を取得しています...",
       "connectWarning": "チェーンを接続する前に、デバイスでアプリが開いていることを確認してください。",
       "signWarning": "署名する前に、デバイスで %{chain} アプリが開いていることを確認してください。"
+    },
+    "trezor": {
+      "verify": {
+        "confirmOnDevice": "デバイスで確認",
+        "addressMismatch": "アドレスが一致しません。正しいデバイスが接続されていることを確認して、もう一度お試しください。"
+      },
+      "errors": {
+        "unknown": "Trezorウォレットとの通信中に予期しないエラーが発生しました"
+      },
+      "connect": {
+        "header": "ペアトレザー",
+        "body": "Trezorデバイスを接続し、「ペアリング」をクリックします",
+        "button": "接続c"
+      }
     },
     "mipd": {
       "connect": {
@@ -1678,6 +1766,16 @@
         "description": "シークレットリカバリーフレーズを確認しまし\nた。ウォレットを復元するには、このフレーズが唯一の方法なので、必ず安全に保管してください。",
         "viewWallet": "ウォレットを表示"
       }
+    },
+    "vultisig": {
+      "errors": {
+        "connectFailure": "Vultisigウォレットに接続できません"
+      },
+      "connect": {
+        "header": "ペア・ヴルティシグ",
+        "body": "ペアリングをクリックし、ポップアップウィンドウからVultisigにログインします。",
+        "button": "接続"
+      }
     }
   },
   "graph": {
@@ -1738,7 +1836,6 @@
   },
   "accounts": {
     "accounts": "アカウント",
-    "addAccount": "アカウントを追加する",
     "accountNumber": "アカウント #%{accountNumber}",
     "accountChain": "アカウントチェーン",
     "selectChain": "アカウントを作成したいチェーンを選択します。",
@@ -1897,7 +1994,8 @@
           "title": "WalletConnect経由でウォレットをdAppに接続し、トランザクションを始めます",
           "linkPlaceholder": "QRコードまたはリンク",
           "disclaimerBody": "ShapeShift はサードパーティ アプリケーションの安全性やセキュリティを保証することはできません。WalletConnect を使用することで、関連するあらゆるリスクについて全責任を負うことになります。",
-          "connect": "接続する"
+          "connect": "接続する",
+          "invalidUri": "無効なURI"
         },
         "sessionProposal": {
           "unsupportedChain": "セッション提案でサポートされていないチェーンネームスペース。",
@@ -2409,7 +2507,7 @@
       "switchChainFailed": "ウォレット チェーンの切り替えに失敗しました。ウォレットのアクティブ チェーンを手動で %{chain} に切り替えてみてください。",
       "buildTransaction": "トランザクションの構築に失敗しました。",
       "signTransaction": "トランザクションの署名に失敗しました。",
-      "blindSigningRequired": "取引にはブラインド署名が必要です。Ledgerアプリの設定で 'Blind signing' を有効にして、もう一度お試しください。",
+      "blindSigningRequired": "トランザクションにはブラインド署名が必要です。Ledgerアプリの設定で「Blind signing」または「Contract Data」を有効にして、もう一度お試しください。",
       "signAndBroadcastTransaction": "トランザクションの署名とブロードキャストに失敗しました。",
       "signMessage": "メッセージの署名に失敗しました。",
       "broadcastTransaction": "トランザクションのブロードキャストに失敗しました。",
@@ -2464,10 +2562,12 @@
     "thorchainLp": {
       "pairAssets": "%{asset1} と %{asset2}",
       "withdraw": {
-        "processing": "%{poolName} プールからの %{assetAmountsAndSymbols} の引き出しが処理中です。"
+        "processing": "%{poolName} プールからの %{assetAmountsAndSymbols} の引き出しが処理中です。",
+        "complete": "%{poolName} プールからの %{assetAmountsAndSymbols} の引き出しが完了しました。"
       },
       "deposit": {
-        "processing": "%{poolName} プールへの %{amount} %{symbol} の入金が処理中です。"
+        "processing": "%{poolName} プールへの %{amount} %{symbol} の入金が処理中です。",
+        "complete": "%{poolName} プールへの %{amount} %{symbol} の入金が完了しました。"
       }
     },
     "deposit": {

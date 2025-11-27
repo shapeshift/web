@@ -13,6 +13,7 @@ import {
 import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import { CONTRACT_INTERACTION } from '@shapeshiftoss/chain-adapters'
 import { RFOX_ABI } from '@shapeshiftoss/contracts'
+import { isTrezor } from '@shapeshiftoss/hdwallet-trezor'
 import { useMutation } from '@tanstack/react-query'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -170,6 +171,10 @@ export const ChangeAddressConfirm: React.FC<
         value: '0',
         to: getStakingContract(confirmedQuote.stakingAssetId),
         wallet,
+        pubKey:
+          isTrezor(wallet) && confirmedQuote.stakingAssetAccountId
+            ? fromAccountId(confirmedQuote.stakingAssetAccountId).account
+            : undefined,
       })
 
       const txId = await buildAndBroadcast({

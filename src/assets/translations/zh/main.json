@@ -191,7 +191,8 @@
     "approval": "批准",
     "permit2Approval": "Permit2 授权",
     "network": "网络",
-    "feeEstimate": "预计费用"
+    "feeEstimate": "预计费用",
+    "list": "列表"
   },
   "accountSelector": {
     "chooseAccount": "选择帐户"
@@ -327,7 +328,10 @@
     "viewSavedWallets": "查看已保存的钱包",
     "footerOne": "继续，即表示你同意",
     "terms": "条款",
-    "privacyPolicy": "隐私政策"
+    "privacyPolicy": "隐私政策",
+    "connectNewWallet": "连接新钱包",
+    "getANewWallet": "获取一个新钱包",
+    "alreadyHaveWallet": "我已经有一个钱包"
   },
   "connectWallet": {
     "menu": {
@@ -863,7 +867,12 @@
       "youGotMore": "您在本次交易中额外获得了 %{cryptoUpside}"
     },
     "networkFee": "网络费用",
-    "feeExplainer": "此报价包含 %{feePercentage}% ShapeShift 费用"
+    "feeExplainer": "此报价包含 %{feePercentage}% ShapeShift 费用",
+    "topAssetsCarousel": {
+      "hide": "隐藏",
+      "hiddenTitle": "热门资产轮播已隐藏",
+      "hiddenDescription": "您可以在设置中重新将其打开"
+    }
   },
   "limitOrder": {
     "heading": "限价",
@@ -1086,6 +1095,8 @@
       "qrCode": "二维码",
       "addressBook": "地址簿",
       "noEntries": "未找到地址。",
+      "yourWallets": "您的钱包",
+      "noInternalAccounts": "未找到帐户。",
       "addNewAddress": "添加新地址",
       "addAddress": {
         "nameRequired": "名称是必填项",
@@ -1143,6 +1154,9 @@
       "copyFailed": "无法将 %{symbol} 接收地址复制到剪贴板",
       "copyFailedDescription": "请手动复制地址",
       "setAmount": "设置金额",
+      "verify": "验证",
+      "verified": "已验证",
+      "notVerified": "地址不匹配",
       "blockExplorer": "探索",
       "supportedNetworks": "支持的网络",
       "amountNote": "输入您希望接收的数量。这将生成一个带有该数量的二维码，以便更轻松地进行收款。"
@@ -1246,6 +1260,8 @@
       "language": "语言",
       "balanceThreshold": "余额阈值",
       "balanceThresholdTooltip": "在仪表板和图表上，隐藏低于该值的余额",
+      "showTopAssetsCarousel": "显示热门资产轮播",
+      "showTopAssetsCarouselTooltip": "在交易页面底部显示热门资产轮播",
       "currencies": {
         "CNY": "人民币",
         "USD": "美元（默认）",
@@ -1310,6 +1326,11 @@
         "button": "配对",
         "conflictingApp": "找不到你的 KeepKey。另一个应用程序可能正在尝试与你的 KeepKey 连接。",
         "downloadUpdaterApp": "下载更新程序应用程序"
+      },
+      "pin": {
+        "header": "输入您的 PIN",
+        "body": "根据设备上显示的 PIN 布局，找到在 PIN 键盘上需要按下的位置。",
+        "button": "解锁"
       },
       "settings": {
         "menuLabels": {
@@ -1389,6 +1410,59 @@
         "body": "无法连接 Keplr 钱包"
       }
     },
+    "gridplus": {
+      "list": {
+        "header": "您的 GridPlus SafeCards",
+        "selectPrompt": "选择一张 SafeCard 以进行连接或添加一张新的",
+        "empty": "尚未连接任何 SafeCard",
+        "addFirst": "连接您的首张 SafeCard",
+        "addNew": "添加新的 SafeCard",
+        "lastConnected": "最后连接时间: %{date}",
+        "connected": "已连接",
+        "connect": "连接",
+        "editNameLabel": "编辑名称",
+        "deleteLabel": "删除",
+        "deleteTitle": "删除 SafeCard",
+        "deleteConfirm": "删除 \"%{name}\"? 这将移除所有相关的投资组合数据。",
+        "renamed": "SafeCard 已重命名 ",
+        "deleted": "SafeCard 已删除",
+        "deletedDescription": "投资组合数据已被清除",
+        "warning": "每张 SafeCard 都有自己独立的资产组合。在连接之前请确保将正确的 SafeCard 插入设备。"
+      },
+      "connect": {
+        "header": "连接新的 SafeCard",
+        "safeCardName": "SafeCard 名称",
+        "safeCardNamePlaceholder": "为这张 SafeCard 输入一个名称",
+        "safeCardNameHelper": "为这张 SafeCard 起个好记的名字 (例如 \"主钱包\"、\"交易\"、\"DeFi\")",
+        "deviceId": "设备 ID",
+        "deviceIdPlaceholder": "输入您的 Lattice 设备 ID",
+        "deviceIdHelper": "您可以在 Lattice 设置中的 Device Info 下找到您的设备 ID。",
+        "button": "连接 SafeCard",
+        "connecting": "连接中...",
+        "backToList": "← 回到 SafeCard 列表"
+      },
+      "pair": {
+        "header": "配对 GridPlus Lattice",
+        "pairingCode": "配对码",
+        "pairingCodePlaceholder": "输入 Lattice 提供的 8 位配对码",
+        "pairingCodeHelper": "在您的 Lattice 屏幕上查看 8 位配对码。",
+        "button": "完成配对",
+        "cancel": "← 取消"
+      },
+      "name": {
+        "header": "为您的 SafeCard 起个名字",
+        "label": "SafeCard 名称",
+        "placeholder": "为这张 SafeCard 输入一个名称",
+        "helper": "为这张 SafeCard 起个好记的名字 (例如 \"主钱包\"、\"交易\"、\"DeFi\")"
+      },
+      "errors": {
+        "deviceIdRequired": "设备 ID 是必填项",
+        "adapterNotAvailable": "GridPlus 适配器不可用",
+        "deviceNotConnected": "设备未连接。请先调用 connectDevice。",
+        "connectFailure": "无法连接到 GridPlus 钱包",
+        "unknown": "与 GridPlus 钱包通信时发生了意料之外的错误"
+      }
+    },
     "ledger": {
       "chains": {
         "header": "导入 Ledger 账户",
@@ -1429,6 +1503,20 @@
       "gettingChangeAddress": "正在获取退款地址...",
       "connectWarning": "在连接链之前，请确保您的设备上已打开该应用程序。",
       "signWarning": "在签名之前，请确保您的设备上已打开 %{chain} 应用程序。"
+    },
+    "trezor": {
+      "verify": {
+        "confirmOnDevice": "在设备上确认",
+        "addressMismatch": "地址不匹配。请确认您已连接正确的设备并重试。"
+      },
+      "errors": {
+        "unknown": "与 Trezor 钱包通信时发生了意料之外的错误"
+      },
+      "connect": {
+        "header": "配对 Trezor",
+        "body": "连接您的 Trezor 设备并点击配对",
+        "button": "配对"
+      }
     },
     "mipd": {
       "connect": {
@@ -1678,6 +1766,16 @@
         "description": "您已成功验证您的秘密恢复短语。请确保安全存储它——这是恢复您钱包的唯一方式。",
         "viewWallet": "查看钱包"
       }
+    },
+    "vultisig": {
+      "errors": {
+        "connectFailure": "无法连接到 Vultisig 钱包"
+      },
+      "connect": {
+        "header": "配对 Vultisig",
+        "body": "点击配对，然后在弹出的窗口中登录 Vultisig",
+        "button": "配对"
+      }
     }
   },
   "graph": {
@@ -1738,7 +1836,6 @@
   },
   "accounts": {
     "accounts": "帐户",
-    "addAccount": "添加帐户",
     "accountNumber": "帐户 #%{accountNumber}",
     "accountChain": "帐户链",
     "selectChain": "为您即将创建的帐户选择一条链。",
@@ -1897,7 +1994,8 @@
           "title": "通过 WalletConnect 将你的钱包连接到 dApp 并触发交易",
           "linkPlaceholder": "二维码或连接链接",
           "disclaimerBody": "ShapeShift 无法确保第三方应用程序的安全性。通过使用钱包连接，您对所涉及的任何风险承担全部责任。",
-          "connect": "连接"
+          "connect": "连接",
+          "invalidUri": "无效的 URI"
         },
         "sessionProposal": {
           "unsupportedChain": "会话提案中不支持链命名空间。",
@@ -2409,7 +2507,7 @@
       "switchChainFailed": "无法切换钱包链。请尝试手动将您钱包的活跃链切换为 %{chain}。",
       "buildTransaction": "无法建立交易。",
       "signTransaction": "签署交易失败。",
-      "blindSigningRequired": "交易需要盲签，请在您的 Ledger 应用设置中启用 'Blind signing' 并重试。",
+      "blindSigningRequired": "此交易需要盲签。 请在您的 Ledger 应用中启用 Blind signing 或 Contract Data 并重试。",
       "signAndBroadcastTransaction": "签署并广播交易失败。",
       "signMessage": "消息签名失败。",
       "broadcastTransaction": "广播交易失败。",
@@ -2464,10 +2562,12 @@
     "thorchainLp": {
       "pairAssets": "%{asset1} 和 %{asset2}",
       "withdraw": {
-        "processing": "您从 %{poolName} 池中提取 %{assetAmountsAndSymbols} 的操作正在进行中。"
+        "processing": "您从 %{poolName} 池中提取 %{assetAmountsAndSymbols} 的操作正在进行中。",
+        "complete": "您从 %{poolName} 流动性池中提现的 %{assetAmountsAndSymbols} 已完成。 "
       },
       "deposit": {
-        "processing": "您存入 %{poolName} 池的 %{amount} %{symbol} 正在处理中。"
+        "processing": "您存入 %{poolName} 池的 %{amount} %{symbol} 正在处理中。",
+        "complete": "您向 %{poolName} 流动性池中存入的 %{amount} %{symbol} 已完成。"
       }
     },
     "deposit": {

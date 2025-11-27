@@ -85,6 +85,7 @@ export const RatingModal = () => {
           status: 'success',
         })
         close()
+        return
       }
 
       // Remove me when we get back the feedback gathering feature on

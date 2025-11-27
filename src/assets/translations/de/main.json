@@ -191,7 +191,8 @@
     "approval": "Genehmigung",
     "permit2Approval": "Permit2 Genehmigung",
     "network": "Netzwerk",
-    "feeEstimate": "Voraussichtliche Gebühren"
+    "feeEstimate": "Voraussichtliche Gebühren",
+    "list": "Liste"
   },
   "accountSelector": {
     "chooseAccount": "Konto auswählen"
@@ -327,7 +328,10 @@
     "viewSavedWallets": "Gespeicherte Wallets anzeigen",
     "footerOne": "Fortfahren, gilt als Zustimmung zu den ",
     "terms": "Bedingungen",
-    "privacyPolicy": "Datenschutzrichtlinie"
+    "privacyPolicy": "Datenschutzrichtlinie",
+    "connectNewWallet": "Neue Wallet verbinden",
+    "getANewWallet": "Hol dir eine neue Wallet",
+    "alreadyHaveWallet": "Ich besitze bereits eine Wallet"
   },
   "connectWallet": {
     "menu": {
@@ -868,7 +872,12 @@
       "youGotMore": "Sie haben beim Handel %{cryptoUpside} mehr bekommen"
     },
     "networkFee": "Netzwerkgebühr",
-    "feeExplainer": "Das Angebot beinhaltet eine ShapeShift-Gebühr von %{feePercentage} %"
+    "feeExplainer": "Das Angebot beinhaltet eine ShapeShift-Gebühr von %{feePercentage} %",
+    "topAssetsCarousel": {
+      "hide": "Verbergen",
+      "hiddenTitle": "Top Assets Karussell ausgeblendet",
+      "hiddenDescription": "Sie können es in den Einstellungen wieder aktivieren"
+    }
   },
   "limitOrder": {
     "heading": "Limit",
@@ -1091,6 +1100,8 @@
       "qrCode": "QR Code",
       "addressBook": "Adressbuch",
       "noEntries": "Keine Adresse gefunden.",
+      "yourWallets": "Ihre Wallet",
+      "noInternalAccounts": "Keine Konten gefunden.",
       "addNewAddress": "Neue Adresse hinzufügen",
       "addAddress": {
         "nameRequired": "Name erforderlich",
@@ -1148,6 +1159,9 @@
       "copyFailed": "%{symbol} Empfangsadresse konnte nicht in die Zwischenablage kopiert werden",
       "copyFailedDescription": "Bitte kopieren Sie die Adresse manuell",
       "setAmount": "Betrag bestimmen",
+      "verify": "Bestätigen",
+      "verified": "Bestätigt",
+      "notVerified": "Adresskonflikt",
       "blockExplorer": "Explorer",
       "supportedNetworks": "Unterstützte Netzwerke",
       "amountNote": "Geben Sie den gewünschten Betrag ein. Dadurch wird ein QR-Code mit dem Betrag generiert, der die Zahlung vereinfacht."
@@ -1251,6 +1265,8 @@
       "language": "Sprache",
       "balanceThreshold": "Kontostand Schwellwert",
       "balanceThresholdTooltip": "auf Dashboard und Diagrammen Salden unterhalb dieses Werts ausblenden",
+      "showTopAssetsCarousel": "Top Assets Karussell anzeigen",
+      "showTopAssetsCarouselTooltip": "Zeigen Sie das Karussell der Top-Assets am unteren Rand der Handelsseite",
       "currencies": {
         "CNY": "Chinesische Yuan",
         "USD": "US-Dollar (Standard)",
@@ -1315,6 +1331,11 @@
         "button": "Koppeln",
         "conflictingApp": "Ihr KeepKey konnte nicht gefunden werden. Möglicherweise versucht eine andere Anwendung, sich mit Ihrem KeepKey zu verbinden.",
         "downloadUpdaterApp": "Lade update App"
+      },
+      "pin": {
+        "header": "Geben Sie Ihre PIN ein",
+        "body": "Nutzen Sie das auf Ihrem Gerät angezeigte PIN-Layout, um die Position zum Drücken auf dem PIN-Pad zu finden.",
+        "button": "Entsperren"
       },
       "settings": {
         "menuLabels": {
@@ -1394,6 +1415,59 @@
         "body": "Keplr Wallet kann nicht verbunden werden"
       }
     },
+    "gridplus": {
+      "list": {
+        "header": "Ihre GridPlus SafeCards",
+        "selectPrompt": "Wählen Sie eine SafeCard aus, um die Verbindung wiederherzustellen oder eine neue hinzuzufügen",
+        "empty": "Noch keine SafeCards verbunden",
+        "addFirst": "Verbinden Sie Ihre erste SafeCard",
+        "addNew": "Neue SafeCard hinzufügen",
+        "lastConnected": "Zuletzt verbunden: %{date}",
+        "connected": "Verbunden",
+        "connect": "Verbinden",
+        "editNameLabel": "Name bearbeiten",
+        "deleteLabel": "Löschen",
+        "deleteTitle": "SafeCard löschen",
+        "deleteConfirm": "\"%{name}\" löschen? Dadurch werden alle zugehörigen Portfoliodaten entfernt.",
+        "renamed": "SafeCard umbenannt",
+        "deleted": "SafeCard gelöscht",
+        "deletedDescription": "Die Portfoliodaten wurden gelöscht",
+        "warning": "Jede SafeCard verwaltet ihr eigenes Portfolio. Stellen Sie sicher, dass Sie die richtige SafeCard in Ihr Gerät einlegen, bevor Sie eine Verbindung herstellen."
+      },
+      "connect": {
+        "header": "Neue SafeCard verbinden",
+        "safeCardName": "SafeCard Name",
+        "safeCardNamePlaceholder": "Geben Sie einen Namen für diese SafeCard ein",
+        "safeCardNameHelper": "Geben Sie dieser SafeCard einen einprägsamen Namen (z. B. „Haupt-Wallet“, „Trading“, „DeFi“).",
+        "deviceId": "Geräte ID",
+        "deviceIdPlaceholder": "Geben Sie Ihre Lattice Geräte ID ein",
+        "deviceIdHelper": "Die Geräte ID finden Sie in den Lattice Einstellungen unter „Device Info“.",
+        "button": "Verbinde SafeCard",
+        "connecting": "Verbinde...",
+        "backToList": "← Zurück zur SafeCard Liste"
+      },
+      "pair": {
+        "header": "Kopple GridPlus Lattice",
+        "pairingCode": "Kopplungscode",
+        "pairingCodePlaceholder": "Geben Sie den 8-stelligen Code von Lattice ein",
+        "pairingCodeHelper": "Schauen Sie auf Ihrem Lattice Bildschirm nach einem 8-stelligen Kopplungscode.",
+        "button": "Vollständige Kopplung",
+        "cancel": "← Abbrechen"
+      },
+      "name": {
+        "header": "Benennen Sie Ihre SafeCard",
+        "label": "SafeCard Name",
+        "placeholder": "Geben Sie einen Namen für diese SafeCard ein",
+        "helper": "Geben Sie dieser SafeCard einen einprägsamen Namen (z. B. „Haupt-Wallet“, „Trading“, „DeFi“)."
+      },
+      "errors": {
+        "deviceIdRequired": "Geräte ID ist erforderlich",
+        "adapterNotAvailable": "GridPlus Adapter nicht verfügbar",
+        "deviceNotConnected": "Gerät nicht verbunden. Rufen Sie zuerst connectDevice auf.",
+        "connectFailure": "Verbindung zur GridPlus Wallet nicht möglich",
+        "unknown": "Bei der Kommunikation mit der GridPlus Wallet ist ein unerwarteter Fehler aufgetreten."
+      }
+    },
     "ledger": {
       "chains": {
         "header": "Ledger Konten importieren",
@@ -1434,6 +1508,20 @@
       "gettingChangeAddress": "Erhalte Retourgeld Adresse",
       "connectWarning": "Bevor Sie eine Kette verbinden, stellen Sie sicher, dass die App auf Ihrem Gerät geöffnet ist.",
       "signWarning": "Stellen Sie vor dem Signieren sicher, dass die %{chain} App auf Ihrem Gerät geöffnet ist."
+    },
+    "trezor": {
+      "verify": {
+        "confirmOnDevice": "Auf dem Gerät bestätigen",
+        "addressMismatch": "Adressfehler. Bitte prüfen Sie, ob das richtige Gerät angeschlossen ist und versuchen Sie es erneut."
+      },
+      "errors": {
+        "unknown": "Bei der Kommunikation mit der Trezor Wallet ist ein unerwarteter Fehler aufgetreten."
+      },
+      "connect": {
+        "header": "Kopple Trezor",
+        "body": "Verbinden Sie Ihr Trezor Gerät und klicken Sie auf „Koppeln“",
+        "button": "Koppeln"
+      }
     },
     "mipd": {
       "connect": {
@@ -1683,6 +1771,16 @@
         "description": "Sie haben Ihre geheime Wiederherstellungsphrase verifiziert. Bewahren Sie sie sicher auf – nur so können Sie Ihr Wallet wiederherstellen.",
         "viewWallet": "Wallet anzeigen"
       }
+    },
+    "vultisig": {
+      "errors": {
+        "connectFailure": "Verbindung zur Vultisig Wallet nicht möglich."
+      },
+      "connect": {
+        "header": "Kopple Vultisig",
+        "body": "Klicken Sie auf „Koppeln“ und melden Sie sich im Popup Fenster bei Vultisig an",
+        "button": "Koppeln"
+      }
     }
   },
   "graph": {
@@ -1743,7 +1841,6 @@
   },
   "accounts": {
     "accounts": "Konten",
-    "addAccount": "Konto hinzufügen",
     "accountNumber": "Konto #%{accountNumber}",
     "accountChain": "Konto Netzwerk",
     "selectChain": "Wählen Sie das Netzwerk aus, für das Sie ein Konto erstellen möchten.",
@@ -1902,7 +1999,8 @@
           "title": "Verbinden Sie Ihre Wallet über WalletConnect mit einer dApp und lösen Sie Transaktionen aus",
           "linkPlaceholder": "QR-Code oder Verbindungslink",
           "disclaimerBody": "ShapeShift kann die Sicherheit von Anwendungen Dritter nicht gewährleisten. Durch die Nutzung von WalletConnect übernehmen Sie die volle Verantwortung für alle damit verbundenen Risiken.",
-          "connect": "Verbinden"
+          "connect": "Verbinden",
+          "invalidUri": "Ungültige URI"
         },
         "sessionProposal": {
           "unsupportedChain": "Nicht unterstützter Kettenname im Session Versuch.",
@@ -2414,7 +2512,7 @@
       "switchChainFailed": "Das Wechseln der Wallet Kette ist fehlgeschlagen. Versuchen Sie, die aktive Wallet Kette manuell auf %{chain} umzustellen.",
       "buildTransaction": "Die Transaktion konnte nicht erstellt werden.",
       "signTransaction": "Die Unterzeichnung der Transaktion ist fehlgeschlagen.",
-      "blindSigningRequired": "Für die Transaktion ist eine Blindsignatur erforderlich. Aktivieren Sie die Option „Blind signing“ in den Einstellungen Ihrer Ledger-App und versuchen Sie es erneut.",
+      "blindSigningRequired": "Für diese Transaktion ist eine Blindsignatur erforderlich. Bitte aktivieren Sie Blind signing oder Contract Data in den Einstellungen Ihrer Ledger App und versuchen Sie es erneut.",
       "signAndBroadcastTransaction": "Signieren und Senden der Transaktion fehlgeschlagen.",
       "signMessage": "Signieren der Nachricht fehlgeschlagen.",
       "broadcastTransaction": "Die Übertragung der Transaktion ist fehlgeschlagen.",
@@ -2469,10 +2567,12 @@
     "thorchainLp": {
       "pairAssets": "%{asset1} und %{asset2}",
       "withdraw": {
-        "processing": "Ihre Auszahlung von %{assetAmountsAndSymbols} aus dem Pool %{poolName} wird verarbeitet."
+        "processing": "Ihre Auszahlung von %{assetAmountsAndSymbols} aus dem Pool %{poolName} wird verarbeitet.",
+        "complete": "Ihre Auszahlung von %{assetAmountsAndSymbols} aus dem %{poolName}-Pool ist abgeschlossen."
       },
       "deposit": {
-        "processing": "Ihre Einzahlung von %{amount} %{symbol} auf den Pool %{poolName} wird verarbeitet."
+        "processing": "Ihre Einzahlung von %{amount} %{symbol} auf den Pool %{poolName} wird verarbeitet.",
+        "complete": "Ihre Einzahlung von %{amount} %{symbol} auf den Pool %{poolName} wurde abgeschlossen."
       }
     },
     "deposit": {

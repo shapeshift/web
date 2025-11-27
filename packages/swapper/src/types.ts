@@ -445,6 +445,7 @@ export type Swap = {
   swapperName: SwapperName
   sellAmountCryptoBaseUnit: string
   expectedBuyAmountCryptoBaseUnit: string
+  actualBuyAmountCryptoBaseUnit?: string
   sellAmountCryptoPrecision: string
   expectedBuyAmountCryptoPrecision: string
   txLink?: string
@@ -604,6 +605,7 @@ export type TradeStatus = {
   relayerTxHash?: string | undefined
   relayerExplorerTxLink?: string | undefined
   message: string | [string, InterpolationOptions] | undefined
+  actualBuyAmountCryptoBaseUnit?: string
 }
 
 // a result containing all routes that were successfully generated, or an error in the case where

@@ -8,6 +8,7 @@ import {
   UNISWAP_V2_ROUTER_02_CONTRACT_MAINNET,
   WETH_TOKEN_CONTRACT,
 } from '@shapeshiftoss/contracts'
+import { isTrezor } from '@shapeshiftoss/hdwallet-trezor'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import isNumber from 'lodash/isNumber'
 import { useCallback, useMemo } from 'react'
@@ -215,6 +216,7 @@ export const useUniV2LiquidityPool = ({
           to: fromAssetId(uniswapV2Router02AssetId).assetReference,
           value: toBaseUnit(maybeEthAmount, weth.precision),
           wallet,
+          pubKey: isTrezor(wallet) && accountId ? fromAccountId(accountId).account : undefined,
         })
 
         const txid = await buildAndBroadcast({
@@ -239,6 +241,7 @@ export const useUniV2LiquidityPool = ({
       uniswapRouterContract,
       wallet,
       weth.precision,
+      accountId,
     ],
   )
 
@@ -340,12 +343,17 @@ export const useUniV2LiquidityPool = ({
           to: fromAssetId(uniswapV2Router02AssetId).assetReference,
           value: '0',
           wallet,
+          pubKey: isTrezor(wallet) && accountId ? fromAccountId(accountId).account : undefined,
         })
 
         const txid = await buildAndBroadcast({
           adapter,
           buildCustomTxInput,
-          receiverAddress: await adapter.getAddress({ accountNumber, wallet }),
+          receiverAddress: await adapter.getAddress({
+            accountNumber,
+            wallet,
+            pubKey: isTrezor(wallet) && accountId ? fromAccountId(accountId).account : undefined,
+          }),
         })
 
         return txid
@@ -363,6 +371,7 @@ export const useUniV2LiquidityPool = ({
       asset1ContractAddress,
       accountAddress,
       adapter,
+      accountId,
     ],
   )
 
@@ -624,12 +633,13 @@ export const useUniV2LiquidityPool = ({
           data,
           wallet,
           ...fees,
+          ...(isTrezor(wallet) && accountId && { pubKey: fromAccountId(accountId).account }),
         },
       })
 
       return txid
     },
-    [accountNumber, adapter, getApproveFees, skip, wallet],
+    [accountNumber, adapter, getApproveFees, skip, wallet, accountId],
   )
 
   return {

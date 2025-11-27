@@ -9,7 +9,7 @@ import { useNotificationToast } from '../useNotificationToast'
 import { useActionCenterContext } from '@/components/Layout/Header/ActionCenter/ActionCenterContext'
 import { GenericTransactionNotification } from '@/components/Layout/Header/ActionCenter/components/Notifications/GenericTransactionNotification'
 import { SECOND_CLASS_CHAINS } from '@/constants/chains'
-import { checkTronTransactionConfirmed } from '@/lib/utils/tron'
+import { getTronTransactionStatus } from '@/lib/utils/tron'
 import { actionSlice } from '@/state/slices/actionSlice/actionSlice'
 import { selectPendingWalletSendActions } from '@/state/slices/actionSlice/selectors'
 import { ActionStatus } from '@/state/slices/actionSlice/types'
@@ -104,7 +104,11 @@ export const useSendActionSubscriber = () => {
 
               switch (chainId) {
                 case KnownChainIds.TronMainnet:
-                  isConfirmed = await checkTronTransactionConfirmed(txHash)
+                  const txStatus = await getTronTransactionStatus(txHash)
+
+                  // The TX completed but might fail because runs out of energy, as for now we don't support failed sends lets consider it confirmed
+                  // @TODO: Implement failed sends for TRON or a way to check for gas balance before sending so it fails before even sending
+                  isConfirmed = txStatus === TxStatus.Confirmed || txStatus === TxStatus.Failed
                   break
                 default:
                   console.error(`Unsupported second-class chain: ${chainId}`)

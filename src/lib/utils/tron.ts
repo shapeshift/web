@@ -2,6 +2,7 @@ import type { ChainId } from '@shapeshiftoss/caip'
 import { tronChainId } from '@shapeshiftoss/caip'
 import type { tron } from '@shapeshiftoss/chain-adapters'
 import type { KnownChainIds } from '@shapeshiftoss/types'
+import { TxStatus } from 'packages/unchained-client/src/types'
 
 import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
 
@@ -20,7 +21,7 @@ export const assertGetTronChainAdapter = (chainId: ChainId | KnownChainIds): tro
   return adapter
 }
 
-export const checkTronTransactionConfirmed = async (txHash: string): Promise<boolean> => {
+export const getTronTransactionStatus = async (txHash: string): Promise<TxStatus> => {
   const adapter = assertGetTronChainAdapter(tronChainId)
   const rpcUrl = adapter.httpProvider.getRpcUrl()
 
@@ -32,9 +33,11 @@ export const checkTronTransactionConfirmed = async (txHash: string): Promise<boo
     }),
   })
 
-  if (!response.ok) return false
+  if (!response.ok) return TxStatus.Unknown
 
   const txData = await response.json()
 
-  return txData && Object.keys(txData).length > 0
+  if (txData.ret[0].contractRet === 'OUT_OF_ENERGY') return TxStatus.Failed
+
+  return TxStatus.Confirmed
 }

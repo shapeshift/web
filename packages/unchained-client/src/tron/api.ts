@@ -8,7 +8,7 @@ export interface TronApiConfig {
 
 export class TronApi {
   private readonly rpcUrl: string
-  private tronWeb: any = null
+  private tronWeb: TronWeb | null = null
   private requestQueue: Promise<void> = Promise.resolve()
   private readonly minRequestInterval = 1_500
 
@@ -191,8 +191,8 @@ export class TronApi {
     try {
       const tronWeb = await this.getTronWeb()
       const params = await tronWeb.trx.getChainParameters()
-      const bandwidthPrice = params.find((p: any) => p.key === 'getTransactionFee')?.value ?? 1000
-      const energyPrice = params.find((p: any) => p.key === 'getEnergyFee')?.value ?? 420
+      const bandwidthPrice = params.find(p => p.key === 'getTransactionFee')?.value ?? 1000
+      const energyPrice = params.find(p => p.key === 'getEnergyFee')?.value ?? 420
       return { bandwidthPrice, energyPrice }
     } catch (_err) {
       return { bandwidthPrice: 1000, energyPrice: 420 }

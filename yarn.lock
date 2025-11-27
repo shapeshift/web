@@ -10868,9 +10868,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/hdwallet-core@npm:1.62.12":
-  version: 1.62.12
-  resolution: "@shapeshiftoss/hdwallet-core@npm:1.62.12"
+"@shapeshiftoss/hdwallet-core@npm:1.62.11":
+  version: 1.62.11
+  resolution: "@shapeshiftoss/hdwallet-core@npm:1.62.11"
   dependencies:
     "@shapeshiftoss/bitcoinjs-lib": 7.0.0-shapeshift.0
     "@shapeshiftoss/proto-tx-builder": 0.10.0
@@ -10881,7 +10881,7 @@ __metadata:
     lodash: ^4.17.21
     rxjs: ^6.4.0
     type-assertions: ^1.1.0
-  checksum: 6ff0e42f4fc8a8432555391102c369d5174e576b3a15b0c028b7b7e031915f6ac00f8d1465196c4e463cdac5fe9feeef356c1e491ba226766c601e1ed583007f
+  checksum: 4a4482975d2afcb4f1608b98c64fff4a23f19b4982d8b2e5d0a17abab99c92fb182857ffc66fdf40340abcfa24a560026f5f9ccddfd151854e826f31ef43628a
   languageName: node
   linkType: hard
 
@@ -10916,22 +10916,22 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/hdwallet-gridplus@npm:1.62.12":
-  version: 1.62.12
-  resolution: "@shapeshiftoss/hdwallet-gridplus@npm:1.62.12"
+"@shapeshiftoss/hdwallet-gridplus@npm:1.62.11":
+  version: 1.62.11
+  resolution: "@shapeshiftoss/hdwallet-gridplus@npm:1.62.11"
   dependencies:
     "@bitcoinerlab/secp256k1": ^1.1.1
     "@ethereumjs/common": 4.4.0
     "@ethereumjs/rlp": 5.0.2
     "@ethereumjs/tx": 5.4.0
     "@metamask/eth-sig-util": ^7.0.0
-    "@shapeshiftoss/hdwallet-core": 1.62.12
+    "@shapeshiftoss/hdwallet-core": 1.62.11
     bech32: ^1.1.4
     bs58: ^5.0.0
     crypto-js: ^4.2.0
     gridplus-sdk: ^3.2.0
     lodash: ^4.17.21
-  checksum: e9952555f0d8608dac360c2b69e493b331f4b15e2f33e30a08317fa9d5ab3ca91e71b8a4d6e65564b33042834e2dddd897c35c5ebabc72c088b08f12cc4c77f6
+  checksum: 42d011a9ceab0ad9df7aa33e8da841f37d0186c800c53a1dd75debe11f455352ce1c7534aff06231f875a763d1ff0d48ef097271b3ce8abf116ec8767d410671
   languageName: node
   linkType: hard
 

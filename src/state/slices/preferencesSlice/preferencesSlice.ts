@@ -26,6 +26,7 @@ export type FeatureFlags = {
   Arbitrum: boolean
   ArbitrumNova: boolean
   Solana: boolean
+  Tron: boolean
   Base: boolean
   Mayachain: boolean
   ThorSwap: boolean
@@ -158,6 +159,7 @@ const initialState: Preferences = {
     Arbitrum: getConfig().VITE_FEATURE_ARBITRUM,
     ArbitrumNova: getConfig().VITE_FEATURE_ARBITRUM_NOVA,
     Solana: getConfig().VITE_FEATURE_SOLANA,
+    Tron: getConfig().VITE_FEATURE_TRON,
     Base: getConfig().VITE_FEATURE_BASE,
     Mayachain: getConfig().VITE_FEATURE_MAYACHAIN,
     ThorSwap: getConfig().VITE_FEATURE_THOR_SWAP,

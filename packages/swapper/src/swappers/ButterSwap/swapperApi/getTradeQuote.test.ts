@@ -38,6 +38,7 @@ describe('getTradeQuote', () => {
       assertGetUtxoChainAdapter: () => vi.fn() as any,
       assertGetCosmosSdkChainAdapter: () => vi.fn() as any,
       assertGetSolanaChainAdapter: () => vi.fn() as any,
+      assertGetTronChainAdapter: () => vi.fn() as any,
       config: {
         VITE_BUTTERSWAP_CLIENT_ID: 'test',
       } as any,

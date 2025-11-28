@@ -16,6 +16,7 @@ import optimism from '@/plugins/optimism'
 import polygon from '@/plugins/polygon'
 import solana from '@/plugins/solana'
 import thorchain from '@/plugins/thorchain'
+import tron from '@/plugins/tron'
 import walletConnectToDapps from '@/plugins/walletConnectToDapps'
 
 export const activePlugins = [
@@ -37,5 +38,6 @@ export const activePlugins = [
   polygon,
   solana,
   thorchain,
+  tron,
   walletConnectToDapps,
 ]

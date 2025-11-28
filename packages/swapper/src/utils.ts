@@ -10,6 +10,7 @@ import { Err, Ok } from '@sniptt/monads'
 import type { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios'
 import Axios from 'axios'
 import { setupCache } from 'axios-cache-interceptor'
+import type { TronSignTx } from 'packages/chain-adapters/src/tron/types'
 
 import { fetchSafeTransactionInfo } from './safe-utils'
 import type {
@@ -22,6 +23,7 @@ import type {
   TradeQuoteStep,
   TradeRate,
   TradeStatus,
+  TronTransactionExecutionProps,
 } from './types'
 import { TradeQuoteError } from './types'
 
@@ -173,6 +175,13 @@ export const executeEvmTransaction = (
 export const executeSolanaTransaction = (
   txToSign: SolanaSignTx,
   callbacks: SolanaTransactionExecutionProps,
+) => {
+  return callbacks.signAndBroadcastTransaction(txToSign)
+}
+
+export const executeTronTransaction = (
+  txToSign: TronSignTx,
+  callbacks: TronTransactionExecutionProps,
 ) => {
   return callbacks.signAndBroadcastTransaction(txToSign)
 }

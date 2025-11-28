@@ -440,6 +440,14 @@ export const getL1RateOrQuote = async <T extends ThorTradeRateOrQuote>(
         }),
       )
     }
+    case CHAIN_NAMESPACE.Tron: {
+      return Err(
+        makeSwapErrorRight({
+          message: 'Tron is not supported',
+          code: TradeQuoteError.UnsupportedTradePair,
+        }),
+      )
+    }
     default:
       return assertUnreachable(chainNamespace)
   }

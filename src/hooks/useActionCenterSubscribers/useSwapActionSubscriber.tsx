@@ -9,6 +9,7 @@ import {
   TRADE_STATUS_POLL_INTERVAL_MILLISECONDS,
   TransactionExecutionState,
 } from '@shapeshiftoss/swapper'
+import type { KnownChainIds } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { useQueries } from '@tanstack/react-query'
 import { uuidv4 } from '@walletconnect/utils'
@@ -24,6 +25,7 @@ import { useWallet } from '../useWallet/useWallet'
 import { useActionCenterContext } from '@/components/Layout/Header/ActionCenter/ActionCenterContext'
 import { SwapNotification } from '@/components/Layout/Header/ActionCenter/components/Notifications/SwapNotification'
 import { getConfig } from '@/config'
+import { SECOND_CLASS_CHAINS } from '@/constants/chains'
 import { queryClient } from '@/context/QueryClientProvider/queryClient'
 import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { getTxLink } from '@/lib/getTxLink'
@@ -35,6 +37,7 @@ import {
   selectSwapActionBySwapId,
 } from '@/state/slices/actionSlice/selectors'
 import { ActionStatus, ActionType, isSwapAction } from '@/state/slices/actionSlice/types'
+import { portfolioApi } from '@/state/slices/portfolioSlice/portfolioSlice'
 import { swapSlice } from '@/state/slices/swapSlice/swapSlice'
 import { selectConfirmedTradeExecution } from '@/state/slices/tradeQuoteSlice/selectors'
 import { tradeQuoteSlice } from '@/state/slices/tradeQuoteSlice/tradeQuoteSlice'
@@ -256,6 +259,34 @@ export const useSwapActionSubscriber = () => {
             actualBuyAmountCryptoBaseUnit,
           }),
         )
+
+        const { getAccount } = portfolioApi.endpoints
+
+        const sellChainId = fromAccountId(swap.sellAccountId).chainId
+        const isSellSecondClassChain = SECOND_CLASS_CHAINS.includes(sellChainId as KnownChainIds)
+
+        if (isSellSecondClassChain) {
+          dispatch(
+            getAccount.initiate(
+              { accountId: swap.sellAccountId, upsertOnFetch: true },
+              { forceRefetch: true },
+            ),
+          )
+        }
+
+        if (swap.buyAccountId && swap.buyAccountId !== swap.sellAccountId) {
+          const buyChainId = fromAccountId(swap.buyAccountId).chainId
+          const isBuySecondClassChain = SECOND_CLASS_CHAINS.includes(buyChainId as KnownChainIds)
+
+          if (isBuySecondClassChain) {
+            dispatch(
+              getAccount.initiate(
+                { accountId: swap.buyAccountId, upsertOnFetch: true },
+                { forceRefetch: true },
+              ),
+            )
+          }
+        }
 
         if (
           !hasSeenRatingModal &&

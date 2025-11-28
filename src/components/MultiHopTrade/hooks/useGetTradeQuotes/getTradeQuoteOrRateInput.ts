@@ -2,7 +2,13 @@ import { CHAIN_NAMESPACE, fromChainId } from '@shapeshiftoss/caip'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import type { GetTradeQuoteInput, GetTradeRateInput } from '@shapeshiftoss/swapper'
-import type { Asset, CosmosSdkChainId, EvmChainId, UtxoChainId } from '@shapeshiftoss/types'
+import type {
+  Asset,
+  CosmosSdkChainId,
+  EvmChainId,
+  TronChainId,
+  UtxoChainId,
+} from '@shapeshiftoss/types'
 import { UtxoAccountType } from '@shapeshiftoss/types'
 
 import { toBaseUnit } from '@/lib/math'
@@ -10,6 +16,7 @@ import { assertUnreachable } from '@/lib/utils'
 import { assertGetCosmosSdkChainAdapter } from '@/lib/utils/cosmosSdk'
 import { assertGetEvmChainAdapter } from '@/lib/utils/evm'
 import { assertGetSolanaChainAdapter } from '@/lib/utils/solana'
+import { assertGetTronChainAdapter } from '@/lib/utils/tron'
 import { assertGetUtxoChainAdapter } from '@/lib/utils/utxo'
 
 export type GetTradeQuoteOrRateInputArgs = {
@@ -179,6 +186,23 @@ export const getTradeQuoteOrRateInput = async ({
       return {
         ...tradeQuoteInputCommonArgs,
         chainId: sellAsset.chainId as CosmosSdkChainId,
+        sendAddress,
+      } as GetTradeQuoteInput
+    }
+    case CHAIN_NAMESPACE.Tron: {
+      const sellAssetChainAdapter = assertGetTronChainAdapter(sellAsset.chainId)
+      const sendAddress =
+        wallet && sellAccountNumber !== undefined
+          ? await sellAssetChainAdapter.getAddress({
+              accountNumber: sellAccountNumber,
+              wallet,
+              pubKey,
+            })
+          : undefined
+
+      return {
+        ...tradeQuoteInputCommonArgs,
+        chainId: sellAsset.chainId as TronChainId,
         sendAddress,
       } as GetTradeQuoteInput
     }

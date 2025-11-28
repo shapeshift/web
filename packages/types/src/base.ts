@@ -31,6 +31,7 @@ export enum KnownChainIds {
   ThorchainMainnet = 'cosmos:thorchain-1',
   MayachainMainnet = 'cosmos:mayachain-mainnet-v1',
   SolanaMainnet = 'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp',
+  TronMainnet = 'tron:0x2b6653dc',
 }
 
 export type EvmChainId =
@@ -56,6 +57,8 @@ export type UtxoChainId =
   | KnownChainIds.BitcoinCashMainnet
   | KnownChainIds.DogecoinMainnet
   | KnownChainIds.LitecoinMainnet
+
+export type TronChainId = KnownChainIds.TronMainnet
 
 export enum WithdrawType {
   DELAYED,

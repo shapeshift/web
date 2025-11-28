@@ -4,7 +4,6 @@ import { contractAddressOrUndefined } from '@shapeshiftoss/utils'
 
 import { getTronTransactionFees } from '../../tron-utils/getTronTransactionFees'
 import { getUnsignedTronTransaction } from '../../tron-utils/getUnsignedTronTransaction'
-import type { SwapperApi, TradeStatus, UtxoFeeData } from '../../types'
 import type {
   GetUnsignedSuiTransactionArgs,
   SwapperApi,

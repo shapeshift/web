@@ -33,8 +33,8 @@ import { EventEmitter } from 'node:events'
 import { assertGetCosmosSdkChainAdapter } from './utils/cosmosSdk'
 import { assertGetEvmChainAdapter } from './utils/evm'
 import { assertGetSolanaChainAdapter } from './utils/solana'
-import { assertGetTronChainAdapter } from './utils/tron'
 import { assertGetSuiChainAdapter } from './utils/sui'
+import { assertGetTronChainAdapter } from './utils/tron'
 import { assertGetUtxoChainAdapter } from './utils/utxo'
 
 import { getConfig } from '@/config'
@@ -553,7 +553,6 @@ export class TradeExecution {
   }
 
   async execTronTransaction({
-  async execSuiTransaction({
     swapperName,
     tradeQuote,
     stepIndex,
@@ -561,7 +560,6 @@ export class TradeExecution {
     from,
     signAndBroadcastTransaction,
   }: TronTransactionExecutionInput) {
-  }: SuiTransactionExecutionInput) {
     const buildSignBroadcast = async (
       swapper: Swapper & SwapperApi,
       {
@@ -580,6 +578,49 @@ export class TradeExecution {
       }
 
       const unsignedTxResult = await swapper.getUnsignedTronTransaction({
+        tradeQuote,
+        chainId,
+        stepIndex,
+        slippageTolerancePercentageDecimal,
+        from,
+        config,
+        assertGetTronChainAdapter,
+      })
+
+      return await swapper.executeTronTransaction(unsignedTxResult, {
+        signAndBroadcastTransaction,
+      })
+    }
+
+    return await this._execWalletAgnostic(
+      {
+        swapperName,
+        tradeQuote,
+        stepIndex,
+        slippageTolerancePercentageDecimal,
+      },
+      buildSignBroadcast,
+    )
+  }
+
+  async execSuiTransaction({
+    swapperName,
+    tradeQuote,
+    stepIndex,
+    slippageTolerancePercentageDecimal,
+    from,
+    signAndBroadcastTransaction,
+  }: SuiTransactionExecutionInput) {
+    const buildSignBroadcast = async (
+      swapper: Swapper & SwapperApi,
+      {
+        tradeQuote,
+        chainId,
+        stepIndex,
+        slippageTolerancePercentageDecimal,
+        config,
+      }: CommonGetUnsignedTransactionArgs,
+    ) => {
       if (!swapper.getUnsignedSuiTransaction) {
         throw Error('missing implementation for getUnsignedSuiTransaction')
       }
@@ -594,10 +635,6 @@ export class TradeExecution {
         slippageTolerancePercentageDecimal,
         from,
         config,
-        assertGetTronChainAdapter,
-      })
-
-      return await swapper.executeTronTransaction(unsignedTxResult, {
         assertGetSuiChainAdapter,
       })
 

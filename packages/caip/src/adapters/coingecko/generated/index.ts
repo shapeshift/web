@@ -36,6 +36,6 @@ export {
 	thorchain,
 	mayachain,
 	solana,
-	tron
+	tron,
 	sui
 }

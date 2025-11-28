@@ -219,6 +219,10 @@ export const getTradeQuote = async (
             to: depositAddress,
             value: sellAmount,
           })
+
+          return { networkFeeCryptoBaseUnit: feeData.fast.txFee }
+        }
+
         case CHAIN_NAMESPACE.Sui: {
           const sellAdapter = deps.assertGetSuiChainAdapter(sellAsset.chainId)
           const tokenId = isToken(sellAsset.assetId)

@@ -34,8 +34,8 @@ import { assertUnreachable } from '@/lib/utils'
 import { assertGetCosmosSdkChainAdapter } from '@/lib/utils/cosmosSdk'
 import { assertGetEvmChainAdapter, signAndBroadcast } from '@/lib/utils/evm'
 import { assertGetSolanaChainAdapter } from '@/lib/utils/solana'
-import { assertGetTronChainAdapter } from '@/lib/utils/tron'
 import { assertGetSuiChainAdapter } from '@/lib/utils/sui'
+import { assertGetTronChainAdapter } from '@/lib/utils/tron'
 import { assertGetUtxoChainAdapter } from '@/lib/utils/utxo'
 import {
   selectAssetById,
@@ -472,6 +472,27 @@ export const useTradeExecution = (
           const from = await adapter.getAddress({ accountNumber, wallet })
 
           const output = await execution.execTronTransaction({
+            swapperName,
+            tradeQuote,
+            stepIndex: hopIndex,
+            slippageTolerancePercentageDecimal,
+            from,
+            signAndBroadcastTransaction: async (txToSign: SignTx<TronChainId>) => {
+              const hex = await adapter.signTransaction({ txToSign, wallet })
+
+              const output = await adapter.broadcastTransaction({
+                senderAddress: from,
+                receiverAddress,
+                hex,
+              })
+
+              trackMixpanelEventOnExecute()
+              return output
+            },
+          })
+          cancelPollingRef.current = output?.cancelPolling
+          return
+        }
         case CHAIN_NAMESPACE.Sui: {
           const adapter = assertGetSuiChainAdapter(stepSellAssetChainId)
 
@@ -488,7 +509,6 @@ export const useTradeExecution = (
             stepIndex: hopIndex,
             slippageTolerancePercentageDecimal,
             from,
-            signAndBroadcastTransaction: async (txToSign: SignTx<TronChainId>) => {
             signAndBroadcastTransaction: async (txToSign: SuiSignTx) => {
               const hex = await adapter.signTransaction({ txToSign, wallet })
 

@@ -33,6 +33,8 @@ import {
   polygonChainId,
   solanaChainId,
   solAssetId,
+  suiAssetId,
+  suiChainId,
   thorchainChainId,
   tronAssetId,
   tronChainId,
@@ -214,6 +216,20 @@ export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
         }
       }
 
+      if (Object.keys(platforms).includes(CoingeckoAssetPlatform.Sui)) {
+        try {
+          const assetId = toAssetId({
+            chainNamespace: CHAIN_NAMESPACE.Sui,
+            chainReference: CHAIN_REFERENCE.SuiMainnet,
+            assetNamespace: 'coin',
+            assetReference: platforms[CoingeckoAssetPlatform.Sui],
+          })
+          prev[suiChainId][assetId] = id
+        } catch {
+          // unable to create assetId, skip token
+        }
+      }
+
       return prev
     },
     {
@@ -228,6 +244,7 @@ export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
       [baseChainId]: { [baseAssetId]: 'ethereum' },
       [solanaChainId]: { [solAssetId]: 'solana' },
       [tronChainId]: { [tronAssetId]: 'tron' },
+      [suiChainId]: { [suiAssetId]: 'sui' },
     },
   )
 

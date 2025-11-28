@@ -247,6 +247,26 @@ export const accountToPortfolio: AccountToPortfolio = ({ assetIds, portfolioAcco
       }
       case CHAIN_NAMESPACE.Tron: {
         const tronAccount = account as Account<KnownChainIds.TronMainnet>
+        const { chainId, assetId, pubkey } = account
+        const accountId = toAccountId({ chainId, account: pubkey })
+
+        portfolio.accounts.ids.push(accountId)
+        portfolio.accounts.byId[accountId] = { assetIds: [assetId], hasActivity }
+        portfolio.accountBalances.ids.push(accountId)
+        portfolio.accountBalances.byId[accountId] = { [assetId]: account.balance }
+
+        tronAccount.chainSpecific.tokens?.forEach(token => {
+          // don't update portfolio if asset is not in the store
+          if (!assetIds.includes(token.assetId)) return
+
+          if (bnOrZero(token.balance).gt(0)) portfolio.accounts.byId[accountId].hasActivity = true
+
+          portfolio.accounts.byId[accountId].assetIds.push(token.assetId)
+          portfolio.accountBalances.byId[accountId][token.assetId] = token.balance
+        })
+
+        break
+      }
       case CHAIN_NAMESPACE.Sui: {
         const suiAccount = account as Account<KnownChainIds.SuiMainnet>
         const { chainId, assetId, pubkey } = account
@@ -257,7 +277,6 @@ export const accountToPortfolio: AccountToPortfolio = ({ assetIds, portfolioAcco
         portfolio.accountBalances.ids.push(accountId)
         portfolio.accountBalances.byId[accountId] = { [assetId]: account.balance }
 
-        tronAccount.chainSpecific.tokens?.forEach(token => {
         suiAccount.chainSpecific.tokens?.forEach(token => {
           // don't update portfolio if asset is not in the store
           if (!assetIds.includes(token.assetId)) return
@@ -320,6 +339,9 @@ export const checkAccountHasActivity = (account: Account<ChainId>) => {
     }
     case CHAIN_NAMESPACE.Tron: {
       const hasActivity = bnOrZero(account.balance).gt(0)
+
+      return hasActivity
+    }
     case CHAIN_NAMESPACE.Sui: {
       const suiAccount = account as Account<KnownChainIds.SuiMainnet>
 
@@ -589,6 +611,20 @@ export const makeAssets = async ({
 
   if (chainId === tronChainId) {
     const account = portfolioAccounts[pubkey] as Account<KnownChainIds.TronMainnet>
+
+    return (account.chainSpecific.tokens ?? []).reduce<UpsertAssetsPayload>(
+      (prev, token) => {
+        if (state.assets.byId[token.assetId]) return prev
+
+        prev.byId[token.assetId] = makeAsset(state.assets.byId, { ...token })
+        prev.ids.push(token.assetId)
+
+        return prev
+      },
+      { byId: {}, ids: [] },
+    )
+  }
+
   if (chainId === suiChainId) {
     const account = portfolioAccounts[pubkey] as Account<KnownChainIds.SuiMainnet>
 

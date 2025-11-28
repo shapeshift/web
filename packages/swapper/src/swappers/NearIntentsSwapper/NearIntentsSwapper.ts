@@ -2,9 +2,9 @@ import type { Swapper } from '../../types'
 import {
   executeEvmTransaction,
   executeSolanaTransaction,
+  executeSuiTransaction,
   executeTronTransaction,
 } from '../../utils'
-import { executeEvmTransaction, executeSolanaTransaction, executeSuiTransaction } from '../../utils'
 
 export const nearIntentsSwapper: Swapper = {
   executeEvmTransaction,

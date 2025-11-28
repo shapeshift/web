@@ -33,6 +33,7 @@ import { assertGetChainAdapter } from '@/lib/utils'
 import { assertGetCosmosSdkChainAdapter } from '@/lib/utils/cosmosSdk'
 import { assertGetEvmChainAdapter, getSupportedEvmChainIds } from '@/lib/utils/evm'
 import { assertGetSolanaChainAdapter } from '@/lib/utils/solana'
+import { assertGetSuiChainAdapter } from '@/lib/utils/sui'
 import { assertGetUtxoChainAdapter, isUtxoChainId } from '@/lib/utils/utxo'
 import {
   selectAssetById,
@@ -130,6 +131,19 @@ export const estimateFees = async ({
       const getFeeDataInput: GetFeeDataInput<KnownChainIds.TronMainnet> = {
         to,
         value,
+        sendMax,
+      }
+      return adapter.getFeeData(getFeeDataInput)
+    }
+    case CHAIN_NAMESPACE.Sui: {
+      const adapter = assertGetSuiChainAdapter(asset.chainId)
+      const getFeeDataInput: GetFeeDataInput<KnownChainIds.SuiMainnet> = {
+        to,
+        value,
+        chainSpecific: {
+          from: account,
+          tokenId: contractAddress,
+        },
         sendMax,
       }
       return adapter.getFeeData(getFeeDataInput)
@@ -317,6 +331,30 @@ export const handleSend = async ({
           contractAddress,
         },
       } as BuildSendTxInput<KnownChainIds.TronMainnet>)
+    }
+
+    if (fromChainId(asset.chainId).chainNamespace === CHAIN_NAMESPACE.Sui) {
+      const { accountNumber } = bip44Params
+      const adapter = assertGetSuiChainAdapter(chainId)
+      const contractAddress = contractAddressOrUndefined(asset.assetId)
+      const fees = estimatedFees[feeType] as FeeData<KnownChainIds.SuiMainnet>
+
+      return adapter.buildSendTransaction({
+        to,
+        value,
+        wallet,
+        accountNumber,
+        pubKey:
+          isLedger(wallet) || isTrezor(wallet)
+            ? fromAccountId(sendInput.accountId).account
+            : undefined,
+        sendMax: sendInput.sendMax,
+        chainSpecific: {
+          tokenId: contractAddress,
+          gasBudget: fees.chainSpecific.gasBudget,
+          gasPrice: fees.chainSpecific.gasPrice,
+        },
+      } as BuildSendTxInput<KnownChainIds.SuiMainnet>)
     }
 
     throw new Error(`${chainId} not supported`)

@@ -224,6 +224,13 @@ export const getTradeRate = async (
               to: depositAddress,
               value: sellAmount,
             })
+
+            return feeData.fast.txFee
+          } catch (error) {
+            return '0'
+          }
+        }
+
         case CHAIN_NAMESPACE.Sui: {
           try {
             const sellAdapter = deps.assertGetSuiChainAdapter(sellAsset.chainId)

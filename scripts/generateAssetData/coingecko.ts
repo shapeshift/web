@@ -28,8 +28,8 @@ import {
   optimism,
   polygon,
   solana,
-  tron,
   sui,
+  tron,
 } from '@shapeshiftoss/utils'
 import axios from 'axios'
 
@@ -143,9 +143,10 @@ export async function getAssets(chainId: ChainId): Promise<Asset[]> {
           explorer: tron.explorer,
           explorerAddressLink: tron.explorerAddressLink,
           explorerTxLink: tron.explorerTxLink,
+        }
       case suiChainId:
         return {
-          assetNamespace: ASSET_NAMESPACE.slip44,
+          assetNamespace: ASSET_NAMESPACE.suiCoin,
           category: adapters.chainIdToCoingeckoAssetPlatform(chainId),
           explorer: sui.explorer,
           explorerAddressLink: sui.explorerAddressLink,

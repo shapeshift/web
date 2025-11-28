@@ -16,8 +16,8 @@ import { assertUnreachable } from '@/lib/utils'
 import { assertGetCosmosSdkChainAdapter } from '@/lib/utils/cosmosSdk'
 import { assertGetEvmChainAdapter } from '@/lib/utils/evm'
 import { assertGetSolanaChainAdapter } from '@/lib/utils/solana'
-import { assertGetTronChainAdapter } from '@/lib/utils/tron'
 import { assertGetSuiChainAdapter } from '@/lib/utils/sui'
+import { assertGetTronChainAdapter } from '@/lib/utils/tron'
 import { assertGetUtxoChainAdapter } from '@/lib/utils/utxo'
 
 export type GetTradeQuoteOrRateInputArgs = {
@@ -192,6 +192,22 @@ export const getTradeQuoteOrRateInput = async ({
     }
     case CHAIN_NAMESPACE.Tron: {
       const sellAssetChainAdapter = assertGetTronChainAdapter(sellAsset.chainId)
+
+      const sendAddress =
+        wallet && sellAccountNumber !== undefined
+          ? await sellAssetChainAdapter.getAddress({
+              accountNumber: sellAccountNumber,
+              wallet,
+              pubKey,
+            })
+          : undefined
+
+      return {
+        ...tradeQuoteInputCommonArgs,
+        chainId: sellAsset.chainId as TronChainId,
+        sendAddress,
+      } as GetTradeQuoteInput
+    }
     case CHAIN_NAMESPACE.Sui: {
       const sellAssetChainAdapter = assertGetSuiChainAdapter(sellAsset.chainId)
 
@@ -206,7 +222,6 @@ export const getTradeQuoteOrRateInput = async ({
 
       return {
         ...tradeQuoteInputCommonArgs,
-        chainId: sellAsset.chainId as TronChainId,
         chainId: sellAsset.chainId as CosmosSdkChainId,
         sendAddress,
       } as GetTradeQuoteInput

@@ -40,7 +40,6 @@ export const getNearIntentsAsset = ({
 }
 
 const NEP245_CHAINS = ['bsc', 'pol', 'avax', 'op', 'tron'] as const
-const NEP245_CHAINS = ['bsc', 'pol', 'avax', 'op'] as const
 const TOKEN_LOOKUP_CHAINS = ['sui'] as const
 
 export const assetToNearIntentsAsset = async (asset: Asset): Promise<string | null> => {

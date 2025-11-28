@@ -194,6 +194,9 @@ export const useTradeNetworkFeeCryptoBaseUnit = ({
                 })
                 return output
               }
+              case CHAIN_NAMESPACE.Tron: {
+                throw new Error('TRON trading is not yet supported')
+              }
               case CHAIN_NAMESPACE.Sui: {
                 throw new Error('SUI trading is not yet supported')
               }

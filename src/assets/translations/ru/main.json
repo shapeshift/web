@@ -191,7 +191,8 @@
     "approval": "Утверждение",
     "permit2Approval": "Permit2 Одобрение",
     "network": "Сеть",
-    "feeEstimate": "Ориентировочная комиссия"
+    "feeEstimate": "Ориентировочная комиссия",
+    "list": "Список"
   },
   "accountSelector": {
     "chooseAccount": "Выберите учетную запись"
@@ -327,7 +328,10 @@
     "viewSavedWallets": "Посмотреть сохраненные кошельки",
     "footerOne": "Продолжая, вы соглашаетесь с",
     "terms": "условиями",
-    "privacyPolicy": "Политики конфиденциальности"
+    "privacyPolicy": "Политики конфиденциальности",
+    "connectNewWallet": "Подключить новый кошелек",
+    "getANewWallet": "Получите новый кошелек",
+    "alreadyHaveWallet": "У меня уже есть кошелек"
   },
   "connectWallet": {
     "menu": {
@@ -868,7 +872,12 @@
       "youGotMore": "Вы получили %{cryptoUpside} больше на этой сделке"
     },
     "networkFee": "Сетевой сбор",
-    "feeExplainer": "Цена включает %{feePercentage}% за ShapeShift"
+    "feeExplainer": "Цена включает %{feePercentage}% за ShapeShift",
+    "topAssetsCarousel": {
+      "hide": "Скрыть",
+      "hiddenTitle": "Лучшие активы Карусель Скрыто",
+      "hiddenDescription": "Вы можете включить его снова в настройках."
+    }
   },
   "limitOrder": {
     "heading": "Ограничение",
@@ -1091,6 +1100,8 @@
       "qrCode": "QR Code",
       "addressBook": "Адресная книга",
       "noEntries": "Адрес не найден.",
+      "yourWallets": "Ваши кошельки",
+      "noInternalAccounts": "Счетов не найдено.",
       "addNewAddress": "Добавить новый адрес",
       "addAddress": {
         "nameRequired": "Имя обязательно",
@@ -1148,6 +1159,9 @@
       "copyFailed": "Не удалось скопировать адрес получения %{symbol} в буфер обмена",
       "copyFailedDescription": " Пожалуйста, скопируйте адрес вручную",
       "setAmount": " Установить сумму",
+      "verify": "Проверить",
+      "verified": "Проверено",
+      "notVerified": "Address MismatchНесоответствие адреса",
       "blockExplorer": "Обзор",
       "supportedNetworks": "Поддерживаемые сети",
       "amountNote": "Введите сумму, которую хотите запросить. Будет сгенерирован QR-код с указанием суммы для облегчения оплаты."
@@ -1251,6 +1265,8 @@
       "language": "Язык",
       "balanceThreshold": "Порог баланса",
       "balanceThresholdTooltip": "На информационной панели и графиках скрыть баланс ниже этого значения",
+      "showTopAssetsCarousel": "Показать карусель лучших активов",
+      "showTopAssetsCarouselTooltip": "Показать карусель с лучшими активами внизу страницы торговли",
       "currencies": {
         "CNY": "Китайский юань",
         "USD": "Доллар США (по умолчанию)",
@@ -1315,6 +1331,11 @@
         "button": "Подключить",
         "conflictingApp": "Не удалось найти ваш KeepKey. Возможно, другое приложение пытается подключиться к вашему KeepKey.",
         "downloadUpdaterApp": "Загрузите приложение для обновления"
+      },
+      "pin": {
+        "header": "Введите свой PIN-код",
+        "body": "Используйте схему расположения PIN-кода, отображенную на вашем устройстве, чтобы найти место, которое необходимо нажать на клавиатуре PIN-кода.",
+        "button": "Разблокировать"
       },
       "settings": {
         "menuLabels": {
@@ -1394,6 +1415,59 @@
         "body": "Невозможно подключить кошелек Keplr"
       }
     },
+    "gridplus": {
+      "list": {
+        "header": "Ваши карты GridPlus SafeCards",
+        "selectPrompt": "Выберите SafeCard для повторного подключения или добавьте новую",
+        "empty": "Пока не подключено ни одной SafeCard",
+        "addFirst": "Подключите свою первую SafeCard",
+        "addNew": "Добавить новую SafeCard",
+        "lastConnected": "Последнее подключение: %{date}",
+        "connected": "Подключено",
+        "connect": "Подключиться",
+        "editNameLabel": "Изменить имя",
+        "deleteLabel": "Удалить",
+        "deleteTitle": "Удалить SafeCard",
+        "deleteConfirm": "Удалить \"%{name}\"? Это приведет к удалению всех связанных данных портфолио.",
+        "renamed": "SafeCard переименована",
+        "deleted": "SafeCard удалена",
+        "deletedDescription": "Данные портфеля были очищены",
+        "warning": "Каждая карта SafeCard имеет свой собственный портфель. Перед подключением убедитесь, что в устройство вставлена правильная карта SafeCard."
+      },
+      "connect": {
+        "header": "Подключить новую SafeCard",
+        "safeCardName": "Название SafeCard",
+        "safeCardNamePlaceholder": "Введите имя для этой SafeCard",
+        "safeCardNameHelper": "Присвойте этой SafeCard запоминающееся имя (например, «Основной кошелек», «Торговля», «DeFi»).",
+        "deviceId": "ID устройства",
+        "deviceIdPlaceholder": "Введите ID вашего устройства Lattice",
+        "deviceIdHelper": "Вы можете найти ID своего устройства в настройках Lattice в разделе «Device info».",
+        "button": "Подключите SafeCard",
+        "connecting": "Подключение...",
+        "backToList": "← Вернуться к списку SafeCard"
+      },
+      "pair": {
+        "header": "Соединить GridPlus Lattice",
+        "pairingCode": "Код соединения",
+        "pairingCodePlaceholder": "Введите 8-значный код от Lattice",
+        "pairingCodeHelper": "Посмотрите на экран Lattice, где указан 8-значный код соединения.",
+        "button": "Полное соединение",
+        "cancel": "← Отмена"
+      },
+      "name": {
+        "header": "Назовите свою SafeCard",
+        "label": "Название SafeCard",
+        "placeholder": "Введите имя для этой SafeCard",
+        "helper": "Присвойте этой SafeCard запоминающееся имя (например, «Основной кошелек», «Торговля», «DeFi»)."
+      },
+      "errors": {
+        "deviceIdRequired": "Требуется ID устройства",
+        "adapterNotAvailable": "Адаптер GridPlus недоступен",
+        "deviceNotConnected": "Устройство не подключено. Сначала вызовите connectDevice.",
+        "connectFailure": "Невозможно подключиться к кошельку GridPlus",
+        "unknown": "Сталася несподівана помилка під час зв'язку з гаманцем GridPlus"
+      }
+    },
     "ledger": {
       "chains": {
         "header": "Импорт счетов Ledger",
@@ -1434,6 +1508,20 @@
       "gettingChangeAddress": "Получение адреса для получения сдачи...",
       "connectWarning": "Перед подключением сети убедитесь, что на устройстве открыто приложение.",
       "signWarning": "Перед подписанием убедитесь, что на вашем устройстве открыто приложение %{chain}."
+    },
+    "trezor": {
+      "verify": {
+        "confirmOnDevice": "Підтвердити на пристрої",
+        "addressMismatch": "Несоответствие адреса. Убедитесь, что подключено правильное устройство, и повторите попытку."
+      },
+      "errors": {
+        "unknown": "Произошла непредвиденная ошибка при взаимодействии с кошельком Trezor"
+      },
+      "connect": {
+        "header": "Соеденить Trezor",
+        "body": "Подключите устройство Trezor и нажмите «Соединить».",
+        "button": "Соеденить "
+      }
     },
     "mipd": {
       "connect": {
@@ -1683,6 +1771,16 @@
         "description": "Вы проверили свою секретную фразу восстановления. Храните ее в надежном месте - это единственный способ восстановить кошелек.",
         "viewWallet": "Посмотреть кошелек"
       }
+    },
+    "vultisig": {
+      "errors": {
+        "connectFailure": "Невозможно подключиться к кошельку Vultisig"
+      },
+      "connect": {
+        "header": "Соеденить  Vultisig",
+        "body": "Нажмите Соеденить  и войдите в Vultisig из всплывающего окна.",
+        "button": "Соеденить "
+      }
     }
   },
   "graph": {
@@ -1743,7 +1841,6 @@
   },
   "accounts": {
     "accounts": "Аккаунты",
-    "addAccount": "Добавить аккаунт",
     "accountNumber": "Аккаунт #%{accountNumber}",
     "accountChain": "Сеть акаунта",
     "selectChain": "Выберите сеть, для которой вы хотите создать учетную запись.",
@@ -1902,7 +1999,8 @@
           "title": "Подключите свой кошелек к dApp через WalletConnect и запускайте транзакции",
           "linkPlaceholder": "QR-код или ссылка для подключения",
           "disclaimerBody": "ShapeShift не может гарантировать безопасность и надежность приложений третьих лиц. Используя WalletConnect, вы берете на себя полную ответственность за любые риски.",
-          "connect": "Подключить"
+          "connect": "Подключить",
+          "invalidUri": "Недопустимый URI"
         },
         "sessionProposal": {
           "unsupportedChain": "Неподдерживаемое пространство имен цепочки в предложении сессии.",
@@ -2414,7 +2512,7 @@
       "switchChainFailed": "Не удалось переключить цепочку кошелька. Попробуйте вручную переключить активную цепочку вашего кошелька на %{chain}.",
       "buildTransaction": "Не удалось создать транзакцию.",
       "signTransaction": "Не удалось подписать транзакцию.",
-      "blindSigningRequired": "Для транзакции требуется слепая подпись. Включите функцию 'Blind signing' в настройках приложения Ledger и повторите попытку.",
+      "blindSigningRequired": "Для транзакции требуется слепая подпись. Включите функцию «Blind signing» (Слепая подпись) или «Contract Data» (Данные контракта) в настройках приложения Ledger и повторите попытку.",
       "signAndBroadcastTransaction": "Не удалось подписать и передать транзакцию.",
       "signMessage": "Не удалось подписать сообщение.",
       "broadcastTransaction": "Не удалось передать транзакцию.",
@@ -2469,10 +2567,12 @@
     "thorchainLp": {
       "pairAssets": "%{asset1} и %{asset2}",
       "withdraw": {
-        "processing": "Ваш вывод %{assetAmountsAndSymbols} из пула %{poolName} находится в процессе обработки."
+        "processing": "Ваш вывод %{assetAmountsAndSymbols} из пула %{poolName} находится в процессе обработки.",
+        "complete": "Ваш вывод %{assetAmountsAndSymbols} из пула %{poolName} завершен."
       },
       "deposit": {
-        "processing": "Ваш депозит в размере %{amount} %{symbol} в пул %{poolName} обрабатывается."
+        "processing": "Ваш депозит в размере %{amount} %{symbol} в пул %{poolName} обрабатывается.",
+        "complete": "Ваш депозит в размере %{amount} %{symbol} в пул %{poolName} завершен."
       }
     },
     "deposit": {

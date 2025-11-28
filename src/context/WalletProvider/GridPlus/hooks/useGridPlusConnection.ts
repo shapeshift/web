@@ -132,7 +132,8 @@ export const useGridPlusConnection = () => {
       setError(null)
 
       try {
-        appDispatch(gridplusSlice.actions.setActiveSafeCard(id))
+        const safeCard = safeCards.find(card => card.id === id)
+        const expectedWalletUid = safeCard?.activeWalletId
 
         const safeCardWalletId = `gridplus:${id}`
         const connectionDeviceId = getConnectionDeviceId()
@@ -141,6 +142,8 @@ export const useGridPlusConnection = () => {
         const wallet = await connectAndPairDevice({
           adapter,
           deviceId: connectionDeviceId,
+          expectedActiveWalletId: expectedWalletUid,
+          expectedType: safeCard?.type,
           dispatch: appDispatch,
         })
 
@@ -152,6 +155,8 @@ export const useGridPlusConnection = () => {
           return
         }
 
+        appDispatch(gridplusSlice.actions.setActiveSafeCard(id))
+
         finalizeWalletSetup({
           wallet,
           safeCardWalletId,
@@ -159,6 +164,8 @@ export const useGridPlusConnection = () => {
           localWallet,
           navigate,
           appDispatch,
+          activeWalletId: safeCard?.activeWalletId,
+          type: safeCard?.type,
         })
       } catch (e) {
         setConnectingCardId(null)
@@ -167,6 +174,7 @@ export const useGridPlusConnection = () => {
     },
     [
       appDispatch,
+      safeCards,
       getConnectionDeviceId,
       getAdapterWithKeyring,
       walletDispatch,

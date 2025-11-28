@@ -209,8 +209,8 @@ export class TronApi {
 
       const feeInSun = totalBytes * bandwidthPrice
       return String(feeInSun)
-    } catch (_err) {
-      throw new Error('Failed to estimate fees')
+    } catch (err) {
+      throw new Error(`Failed to estimate fees: ${err}`)
     }
   }
 

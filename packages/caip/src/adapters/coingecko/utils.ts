@@ -34,6 +34,8 @@ import {
   solanaChainId,
   solAssetId,
   thorchainChainId,
+  tronAssetId,
+  tronChainId,
 } from '../../constants'
 import {
   bitcoinAssetMap,
@@ -198,6 +200,20 @@ export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
         }
       }
 
+      if (Object.keys(platforms).includes(CoingeckoAssetPlatform.Tron)) {
+        try {
+          const assetId = toAssetId({
+            chainNamespace: CHAIN_NAMESPACE.Tron,
+            chainReference: CHAIN_REFERENCE.TronMainnet,
+            assetNamespace: 'trc20',
+            assetReference: platforms[CoingeckoAssetPlatform.Tron],
+          })
+          prev[tronChainId][assetId] = id
+        } catch {
+          // unable to create assetId, skip token
+        }
+      }
+
       return prev
     },
     {
@@ -211,6 +227,7 @@ export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
       [arbitrumNovaChainId]: { [arbitrumNovaAssetId]: 'ethereum' },
       [baseChainId]: { [baseAssetId]: 'ethereum' },
       [solanaChainId]: { [solAssetId]: 'solana' },
+      [tronChainId]: { [tronAssetId]: 'tron' },
     },
   )
 

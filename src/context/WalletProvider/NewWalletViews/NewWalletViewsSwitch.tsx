@@ -40,6 +40,7 @@ import { useModalRegistration } from '@/context/ModalStackProvider'
 import { WalletActions } from '@/context/WalletProvider/actions'
 import { KeepKeyRoutes as KeepKeyRoutesEnum } from '@/context/WalletProvider/routes'
 import { useWallet } from '@/hooks/useWallet/useWallet'
+import { isMobile } from '@/lib/globals'
 import { reactQueries } from '@/react-queries'
 import { breakpoints } from '@/theme/theme'
 import { defaultSuspenseFallback } from '@/utils/makeSuspenseful'
@@ -252,7 +253,7 @@ export const NewWalletViewsSwitch = () => {
   }, [queryClient])
 
   const sections = useMemo(() => {
-    if (!isLargerThanMd) {
+    if (!isLargerThanMd && !isMobile) {
       return (
         <MobileWebSelect isOpen={modal} onClose={onClose}>
           <SavedWalletsSection
@@ -313,7 +314,7 @@ export const NewWalletViewsSwitch = () => {
           <Box
             position='absolute'
             left={3}
-            top='calc(env(safe-area-inset-top) + 0.5rem)'
+            top={2}
             zIndex={1}
             bg={buttonContainerBgColor}
             borderRadius='2xl'

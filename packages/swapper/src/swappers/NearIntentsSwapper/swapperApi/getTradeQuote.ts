@@ -20,7 +20,7 @@ import type {
   TradeQuote,
 } from '../../../types'
 import { SwapperName, TradeQuoteError } from '../../../types'
-import { makeSwapErrorRight } from '../../../utils'
+import { getInputOutputRate, makeSwapErrorRight } from '../../../utils'
 import { isNativeEvmAsset } from '../../utils/helpers/helpers'
 import { DEFAULT_QUOTE_DEADLINE_MS, DEFAULT_SLIPPAGE_BPS } from '../constants'
 import type { QuoteResponse } from '../types'
@@ -78,12 +78,24 @@ export const getTradeQuote = async (
     const originAsset = await assetToNearIntentsAsset(sellAsset)
     const destinationAsset = await assetToNearIntentsAsset(buyAsset)
 
-    // This shouldn't be the case since we already got a rate and know these exist, but...
-    if (!(originAsset && destinationAsset)) {
+    if (!originAsset) {
       return Err(
         makeSwapErrorRight({
           code: TradeQuoteError.UnsupportedTradePair,
-          message: 'Unsupported asset',
+          message: `Asset ${sellAsset.symbol} on ${
+            sellAsset.networkName || sellAsset.chainId
+          } is not supported by NEAR Intents`,
+        }),
+      )
+    }
+
+    if (!destinationAsset) {
+      return Err(
+        makeSwapErrorRight({
+          code: TradeQuoteError.UnsupportedTradePair,
+          message: `Asset ${buyAsset.symbol} on ${
+            buyAsset.networkName || buyAsset.chainId
+          } is not supported by NEAR Intents`,
         }),
       )
     }
@@ -201,6 +213,15 @@ export const getTradeQuote = async (
           return { networkFeeCryptoBaseUnit: totalFee }
         }
 
+        case CHAIN_NAMESPACE.Tron: {
+          const sellAdapter = deps.assertGetTronChainAdapter(sellAsset.chainId)
+          const feeData = await sellAdapter.getFeeData({
+            to: depositAddress,
+            value: sellAmount,
+          })
+          return { networkFeeCryptoBaseUnit: feeData.fast.txFee }
+        }
+
         default:
           throw new Error(`Unsupported chain namespace: ${chainNamespace}`)
       }
@@ -208,11 +229,18 @@ export const getTradeQuote = async (
 
     const { networkFeeCryptoBaseUnit, chainSpecific } = await getFeeData()
 
+    const rate = getInputOutputRate({
+      sellAmountCryptoBaseUnit: quote.amountIn,
+      buyAmountCryptoBaseUnit: quote.amountOut,
+      sellAsset,
+      buyAsset,
+    })
+
     const tradeQuote: TradeQuote = {
       id: uuid(),
       receiveAddress,
       affiliateBps,
-      rate: bn(quote.amountOut).div(quote.amountIn).toString(),
+      rate,
       slippageTolerancePercentageDecimal:
         slippageTolerancePercentageDecimal ??
         getDefaultSlippageDecimalPercentageForSwapper(SwapperName.NearIntents),
@@ -230,7 +258,7 @@ export const getTradeQuote = async (
             networkFeeCryptoBaseUnit,
             ...(chainSpecific && { chainSpecific }),
           },
-          rate: bn(quote.amountOut).div(quote.amountIn).toString(),
+          rate,
           sellAmountIncludingProtocolFeesCryptoBaseUnit: quote.amountIn,
           sellAsset,
           source: SwapperName.NearIntents,

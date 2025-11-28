@@ -14,6 +14,8 @@ export const isLpDepositEnabled = ({
 }) => {
   if (!assetId) return undefined
 
+  if (mimir.PAUSELP) return false
+
   const pauseLpDepositMimirs = Object.fromEntries(
     Object.entries(mimir).filter(([k]) => k.startsWith('PAUSELPDEPOSIT-')),
   )
@@ -31,10 +33,32 @@ export const isLpDepositEnabled = ({
   return !isDisabled
 }
 
+export const isLpWithdrawEnabled = ({
+  mimir,
+  assetId,
+}: {
+  mimir: ThorchainMimir
+  assetId: AssetId | undefined
+}) => {
+  if (!assetId) return undefined
+
+  if (mimir.PAUSELP) return false
+
+  return true
+}
+
 export const useIsLpDepositEnabled = (assetId: AssetId | undefined) => {
   return useThorchainMimir({
     chainId: thorchainChainId,
     enabled: Boolean(assetId),
     select: mimir => isLpDepositEnabled({ mimir, assetId }),
+  })
+}
+
+export const useIsLpWithdrawEnabled = (assetId: AssetId | undefined) => {
+  return useThorchainMimir({
+    chainId: thorchainChainId,
+    enabled: Boolean(assetId),
+    select: mimir => isLpWithdrawEnabled({ mimir, assetId }),
   })
 }

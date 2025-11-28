@@ -26,6 +26,7 @@ export type FeatureFlags = {
   Arbitrum: boolean
   ArbitrumNova: boolean
   Solana: boolean
+  Tron: boolean
   Base: boolean
   Mayachain: boolean
   ThorSwap: boolean
@@ -97,6 +98,7 @@ export type FeatureFlags = {
   SwapperFiatRamps: boolean
   WebServices: boolean
   AddressBook: boolean
+  AppRating: boolean
 }
 
 export type Flag = keyof FeatureFlags
@@ -157,6 +159,7 @@ const initialState: Preferences = {
     Arbitrum: getConfig().VITE_FEATURE_ARBITRUM,
     ArbitrumNova: getConfig().VITE_FEATURE_ARBITRUM_NOVA,
     Solana: getConfig().VITE_FEATURE_SOLANA,
+    Tron: getConfig().VITE_FEATURE_TRON,
     Base: getConfig().VITE_FEATURE_BASE,
     Mayachain: getConfig().VITE_FEATURE_MAYACHAIN,
     ThorSwap: getConfig().VITE_FEATURE_THOR_SWAP,
@@ -228,6 +231,7 @@ const initialState: Preferences = {
     SwapperFiatRamps: getConfig().VITE_FEATURE_SWAPPER_FIAT_RAMPS,
     WebServices: getConfig().VITE_FEATURE_NOTIFICATIONS_WEBSERVICES,
     AddressBook: getConfig().VITE_FEATURE_ADDRESS_BOOK,
+    AppRating: getConfig().VITE_FEATURE_APP_RATING,
   },
   selectedLocale: simpleLocale(),
   hasWalletSeenTcyClaimAlert: {},

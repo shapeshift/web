@@ -2,6 +2,7 @@ import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { fromAccountId, fromAssetId, thorchainAssetId } from '@shapeshiftoss/caip'
 import type { FeeDataEstimate } from '@shapeshiftoss/chain-adapters'
 import { CONTRACT_INTERACTION, FeeDataKey } from '@shapeshiftoss/chain-adapters'
+import { isTrezor } from '@shapeshiftoss/hdwallet-trezor'
 import { assertAndProcessMemo, depositWithExpiry } from '@shapeshiftoss/swapper'
 import type { KnownChainIds } from '@shapeshiftoss/types'
 import { isToken } from '@shapeshiftoss/utils'
@@ -349,6 +350,7 @@ export const useSendThorTx = ({
               !isToken(asset.assetId) || shouldUseDustAmount ? amountOrDustCryptoBaseUnit : '0',
             to: inboundAddressData.router,
             wallet,
+            pubKey: isTrezor(wallet) && accountId ? fromAccountId(accountId).account : undefined,
           })
 
           const _txId = await buildAndBroadcast({

@@ -25,6 +25,10 @@ export const useActualBuyAmountCryptoPrecision = (
   )
 
   const actualBuyAmountCryptoPrecision = useMemo(() => {
+    if (swap?.actualBuyAmountCryptoBaseUnit && swap?.buyAsset) {
+      return fromBaseUnit(swap.actualBuyAmountCryptoBaseUnit, swap.buyAsset.precision)
+    }
+
     if (!tx?.transfers?.length || !swap?.buyAsset) return undefined
 
     const receiveTransfer = tx.transfers.find(

@@ -86,9 +86,9 @@ export const AccountEntryRow: React.FC<AccountEntryRowProps> = ({
     if (walletDrawer.isOpen) {
       walletDrawer.close()
     }
-    navigate(`/assets/${assetId}`)
+    navigate(`/accounts/${accountId}/${assetId}`)
     onClose?.()
-  }, [navigate, assetId, onClose, walletDrawer])
+  }, [navigate, accountId, assetId, onClose, walletDrawer])
 
   return (
     <ListItem>

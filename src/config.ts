@@ -59,6 +59,7 @@ const validators = {
   VITE_ARBITRUM_NOVA_NODE_URL: url(),
   VITE_BASE_NODE_URL: url(),
   VITE_SOLANA_NODE_URL: url(),
+  VITE_TRON_NODE_URL: url(),
   VITE_ALCHEMY_POLYGON_URL: url(),
   VITE_KEEPKEY_VERSIONS_URL: url(),
   VITE_KEEPKEY_LATEST_RELEASE_URL: url(),
@@ -82,6 +83,7 @@ const validators = {
   VITE_FEATURE_ARBITRUM: bool({ default: false }),
   VITE_FEATURE_ARBITRUM_NOVA: bool({ default: false }),
   VITE_FEATURE_SOLANA: bool({ default: false }),
+  VITE_FEATURE_TRON: bool({ default: false }),
   VITE_FEATURE_BASE: bool({ default: false }),
   VITE_FEATURE_MAYACHAIN: bool({ default: false }),
   VITE_FEATURE_ZRX_SWAP: bool({ default: false }),
@@ -206,6 +208,7 @@ const validators = {
   VITE_SWAPS_SERVER_URL: url({ default: '' }),
   VITE_NOTIFICATIONS_SERVER_URL: url({ default: '' }),
   VITE_FEATURE_ADDRESS_BOOK: bool({ default: false }),
+  VITE_FEATURE_APP_RATING: bool({ default: false }),
 }
 
 function reporter<T>({ errors }: envalid.ReporterOptions<T>) {

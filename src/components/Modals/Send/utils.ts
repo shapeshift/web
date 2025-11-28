@@ -126,6 +126,15 @@ export const estimateFees = async ({
       }
       return adapter.getFeeData(getFeeDataInput)
     }
+    case CHAIN_NAMESPACE.Tron: {
+      const adapter = assertGetChainAdapter(asset.chainId)
+      const getFeeDataInput: GetFeeDataInput<KnownChainIds.TronMainnet> = {
+        to,
+        value,
+        sendMax,
+      }
+      return adapter.getFeeData(getFeeDataInput)
+    }
     default:
       throw new Error(`${chainNamespace} not supported`)
   }
@@ -292,6 +301,22 @@ export const handleSend = async ({
       }
 
       return solanaAdapter.buildSendTransaction(input)
+    }
+
+    if (fromChainId(asset.chainId).chainNamespace === CHAIN_NAMESPACE.Tron) {
+      const { accountNumber } = bip44Params
+      const adapter = assertGetChainAdapter(chainId)
+      const contractAddress = contractAddressOrUndefined(asset.assetId)
+      return adapter.buildSendTransaction({
+        to,
+        value,
+        wallet,
+        accountNumber,
+        sendMax: sendInput.sendMax,
+        chainSpecific: {
+          contractAddress,
+        },
+      } as BuildSendTxInput<KnownChainIds.TronMainnet>)
     }
 
     throw new Error(`${chainId} not supported`)

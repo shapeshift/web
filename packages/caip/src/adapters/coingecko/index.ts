@@ -20,6 +20,7 @@ import {
   polygonChainId,
   solanaChainId,
   thorchainChainId,
+  tronChainId,
 } from '../../constants'
 import * as adapters from './generated'
 
@@ -40,6 +41,7 @@ export enum CoingeckoAssetPlatform {
   ArbitrumNova = 'arbitrum-nova',
   Base = 'base',
   Solana = 'solana',
+  Tron = 'tron',
 }
 
 type CoinGeckoId = string
@@ -115,6 +117,15 @@ export const chainIdToCoingeckoAssetPlatform = (chainId: ChainId): string => {
             `chainNamespace ${chainNamespace}, chainReference ${chainReference} not supported.`,
           )
       }
+    case CHAIN_NAMESPACE.Tron:
+      switch (chainReference) {
+        case CHAIN_REFERENCE.TronMainnet:
+          return CoingeckoAssetPlatform.Tron
+        default:
+          throw new Error(
+            `chainNamespace ${chainNamespace}, chainReference ${chainReference} not supported.`,
+          )
+      }
     // No valid asset platform: https://api.coingecko.com/api/v3/asset_platforms
     case CHAIN_NAMESPACE.Utxo:
     default:
@@ -152,6 +163,8 @@ export const coingeckoAssetPlatformToChainId = (
       return mayachainChainId
     case CoingeckoAssetPlatform.Solana:
       return solanaChainId
+    case CoingeckoAssetPlatform.Tron:
+      return tronChainId
     default:
       return undefined
   }

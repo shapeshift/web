@@ -20,6 +20,7 @@ import type PQueue from 'p-queue'
 import type * as cosmossdk from './cosmossdk/types'
 import type * as evm from './evm/types'
 import type * as solana from './solana/types'
+import type * as tron from './tron/types'
 import type * as utxo from './utxo/types'
 
 // this placeholder forces us to be explicit about transactions not transferring funds to humans
@@ -46,6 +47,7 @@ type ChainSpecificAccount<T> = ChainSpecific<
     [KnownChainIds.ThorchainMainnet]: cosmossdk.Account
     [KnownChainIds.MayachainMainnet]: cosmossdk.Account
     [KnownChainIds.SolanaMainnet]: solana.Account
+    [KnownChainIds.TronMainnet]: tron.Account
   }
 >
 
@@ -88,6 +90,7 @@ type ChainSpecificFeeData<T> = ChainSpecific<
     [KnownChainIds.ThorchainMainnet]: cosmossdk.FeeData
     [KnownChainIds.MayachainMainnet]: cosmossdk.FeeData
     [KnownChainIds.SolanaMainnet]: solana.FeeData
+    [KnownChainIds.TronMainnet]: tron.FeeData
   }
 >
 
@@ -164,6 +167,7 @@ export type ChainSignTx = {
   [KnownChainIds.ThorchainMainnet]: ThorchainSignTx
   [KnownChainIds.MayachainMainnet]: MayachainSignTx
   [KnownChainIds.SolanaMainnet]: SolanaSignTx
+  [KnownChainIds.TronMainnet]: tron.TronSignTx
 }
 
 export type SignTx<T extends ChainId> = T extends keyof ChainSignTx ? ChainSignTx[T] : never
@@ -209,6 +213,7 @@ export type ChainSpecificBuildTxData<T> = ChainSpecific<
     [KnownChainIds.ThorchainMainnet]: cosmossdk.BuildTxInput
     [KnownChainIds.MayachainMainnet]: cosmossdk.BuildTxInput
     [KnownChainIds.SolanaMainnet]: solana.BuildTxInput
+    [KnownChainIds.TronMainnet]: tron.BuildTxInput
   }
 >
 
@@ -366,6 +371,7 @@ export enum ChainAdapterDisplayName {
   Dogecoin = 'Dogecoin',
   Litecoin = 'Litecoin',
   Solana = 'Solana',
+  Tron = 'Tron',
 }
 
 export type BroadcastTransactionInput = {

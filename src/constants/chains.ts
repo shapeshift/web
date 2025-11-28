@@ -5,6 +5,8 @@ import { store } from '@/state/store'
 
 const enabledFlags = preferences.selectors.selectFeatureFlags(store.getState())
 
+export const SECOND_CLASS_CHAINS: readonly KnownChainIds[] = [KnownChainIds.TronMainnet]
+
 // returns known ChainIds as an array, excluding the ones that are currently flagged off
 export const knownChainIds = Object.values(KnownChainIds).filter(chainId => {
   if (chainId === KnownChainIds.ArbitrumNovaMainnet && !enabledFlags.ArbitrumNova) return false

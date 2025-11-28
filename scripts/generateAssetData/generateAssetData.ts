@@ -37,6 +37,7 @@ import * as optimism from './optimism'
 import { overrideAssets } from './overrides'
 import * as polygon from './polygon'
 import * as solana from './solana'
+import * as tronModule from './tron'
 import { filterOutBlacklistedAssets, getSortedAssetIds } from './utils'
 
 const generateAssetData = async () => {
@@ -50,6 +51,7 @@ const generateAssetData = async () => {
   const arbitrumNovaAssets = await arbitrumNova.getAssets()
   const baseAssets = await base.getAssets()
   const solanaAssets = await solana.getAssets()
+  const tronAssets = await tronModule.getAssets()
 
   // all assets, included assets to be blacklisted
   const unfilteredAssetData: Asset[] = [
@@ -73,6 +75,7 @@ const generateAssetData = async () => {
     ...arbitrumNovaAssets,
     ...baseAssets,
     ...solanaAssets,
+    ...tronAssets,
   ]
 
   // remove blacklisted assets

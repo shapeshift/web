@@ -2,6 +2,7 @@ import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId, fromAssetId, toAssetId } from '@shapeshiftoss/caip'
 import { CONTRACT_INTERACTION } from '@shapeshiftoss/chain-adapters'
 import { ContractType, getOrCreateContractByType } from '@shapeshiftoss/contracts'
+import { isTrezor } from '@shapeshiftoss/hdwallet-trezor'
 import { assetIdToThorPoolAssetId } from '@shapeshiftoss/swapper'
 import { isToken } from '@shapeshiftoss/utils'
 import { useCallback, useContext, useMemo } from 'react'
@@ -165,6 +166,7 @@ export const Approve: React.FC<ApproveProps> = ({ accountId, onNext, isReset }) 
         value: '0',
         to: fromAssetId(assetId).assetReference,
         wallet,
+        pubKey: isTrezor(wallet) && accountId ? fromAccountId(accountId).account : undefined,
       })
 
       await buildAndBroadcast({

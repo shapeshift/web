@@ -1,4 +1,5 @@
 import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
+import { isTrezor } from '@shapeshiftoss/hdwallet-trezor'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import type { UseQueryResult } from '@tanstack/react-query'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
@@ -93,6 +94,10 @@ export const useRfoxBridgeApproval = ({
       wallet: wallet ?? undefined,
       from: fromAccountId(confirmedQuote.sellAssetAccountId).account,
       accountNumber: sellAssetAccountNumber,
+      pubKey:
+        wallet && isTrezor(wallet) && confirmedQuote.sellAssetAccountId
+          ? fromAccountId(confirmedQuote.sellAssetAccountId).account
+          : undefined,
     }),
     onSuccess: (txHash: string) => {
       setApprovalTxHash(txHash)

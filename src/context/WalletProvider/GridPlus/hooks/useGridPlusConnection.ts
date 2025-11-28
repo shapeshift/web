@@ -21,7 +21,6 @@ export const useGridPlusConnection = () => {
 
   const safeCards = useAppSelector(gridplusSlice.selectors.selectSafeCards)
   const physicalDeviceId = useAppSelector(gridplusSlice.selectors.selectPhysicalDeviceId)
-  const sessionId = useAppSelector(gridplusSlice.selectors.selectSessionId)
 
   const [isAddingNew, setIsAddingNew] = useState(false)
   const [connectingCardId, setConnectingCardId] = useState<string | null>(null)
@@ -91,7 +90,6 @@ export const useGridPlusConnection = () => {
         const wallet = await connectAndPairDevice({
           adapter,
           deviceId: connectionDeviceId,
-          sessionId: sessionId ?? undefined,
           dispatch: appDispatch,
         })
 
@@ -122,7 +120,6 @@ export const useGridPlusConnection = () => {
       defaultSafeCardName,
       getConnectionDeviceId,
       getAdapterWithKeyring,
-      sessionId,
       appDispatch,
       navigate,
       setErrorLoading,
@@ -144,7 +141,6 @@ export const useGridPlusConnection = () => {
         const wallet = await connectAndPairDevice({
           adapter,
           deviceId: connectionDeviceId,
-          sessionId: sessionId ?? undefined,
           dispatch: appDispatch,
         })
 
@@ -173,7 +169,6 @@ export const useGridPlusConnection = () => {
       appDispatch,
       getConnectionDeviceId,
       getAdapterWithKeyring,
-      sessionId,
       walletDispatch,
       localWallet,
       navigate,

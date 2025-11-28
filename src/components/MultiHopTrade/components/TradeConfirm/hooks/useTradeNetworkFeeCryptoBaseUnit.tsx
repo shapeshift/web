@@ -18,6 +18,7 @@ import { assertUnreachable } from '@/lib/utils'
 import { assertGetCosmosSdkChainAdapter } from '@/lib/utils/cosmosSdk'
 import { assertGetEvmChainAdapter } from '@/lib/utils/evm'
 import { assertGetSolanaChainAdapter } from '@/lib/utils/solana'
+import { assertGetTronChainAdapter } from '@/lib/utils/tron'
 import { assertGetUtxoChainAdapter } from '@/lib/utils/utxo'
 import { selectPortfolioAccountMetadataByAccountId } from '@/state/slices/selectors'
 import {
@@ -191,6 +192,28 @@ export const useTradeNetworkFeeCryptoBaseUnit = ({
                   chainId: hop.sellAsset.chainId,
                   config: getConfig(),
                   assertGetSolanaChainAdapter,
+                })
+                return output
+              }
+              case CHAIN_NAMESPACE.Tron: {
+                if (!swapper.getTronTransactionFees)
+                  throw Error('missing getTronTransactionFees')
+
+                const adapter = assertGetTronChainAdapter(stepSellAssetChainId)
+                const from = await adapter.getAddress({
+                  accountNumber,
+                  wallet,
+                  ...(isLedger(wallet) || isTrezor(wallet) ? { pubKey } : {}),
+                })
+
+                const output = await swapper.getTronTransactionFees({
+                  tradeQuote,
+                  from,
+                  stepIndex: hopIndex,
+                  slippageTolerancePercentageDecimal,
+                  chainId: hop.sellAsset.chainId,
+                  config: getConfig(),
+                  assertGetTronChainAdapter,
                 })
                 return output
               }

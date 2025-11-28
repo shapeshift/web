@@ -20,6 +20,7 @@ import {
   optimism,
   polygon,
   solana,
+  sui,
   thorchain,
   tron,
 } from './baseAssets'
@@ -47,6 +48,8 @@ export const getBaseAsset = (chainId: ChainId): Readonly<Asset> => {
       return base
     case KnownChainIds.SolanaMainnet:
       return solana
+    case KnownChainIds.SuiMainnet:
+      return sui
     case KnownChainIds.BitcoinMainnet:
       return bitcoin
     case KnownChainIds.BitcoinCashMainnet:

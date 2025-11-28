@@ -17,6 +17,7 @@ import { assertGetCosmosSdkChainAdapter } from '@/lib/utils/cosmosSdk'
 import { assertGetEvmChainAdapter } from '@/lib/utils/evm'
 import { assertGetSolanaChainAdapter } from '@/lib/utils/solana'
 import { assertGetTronChainAdapter } from '@/lib/utils/tron'
+import { assertGetSuiChainAdapter } from '@/lib/utils/sui'
 import { assertGetUtxoChainAdapter } from '@/lib/utils/utxo'
 
 export type GetTradeQuoteOrRateInputArgs = {
@@ -191,6 +192,9 @@ export const getTradeQuoteOrRateInput = async ({
     }
     case CHAIN_NAMESPACE.Tron: {
       const sellAssetChainAdapter = assertGetTronChainAdapter(sellAsset.chainId)
+    case CHAIN_NAMESPACE.Sui: {
+      const sellAssetChainAdapter = assertGetSuiChainAdapter(sellAsset.chainId)
+
       const sendAddress =
         wallet && sellAccountNumber !== undefined
           ? await sellAssetChainAdapter.getAddress({
@@ -203,6 +207,7 @@ export const getTradeQuoteOrRateInput = async ({
       return {
         ...tradeQuoteInputCommonArgs,
         chainId: sellAsset.chainId as TronChainId,
+        chainId: sellAsset.chainId as CosmosSdkChainId,
         sendAddress,
       } as GetTradeQuoteInput
     }

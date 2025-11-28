@@ -38,6 +38,7 @@ import { overrideAssets } from './overrides'
 import * as polygon from './polygon'
 import * as solana from './solana'
 import * as tronModule from './tron'
+import * as sui from './sui'
 import { filterOutBlacklistedAssets, getSortedAssetIds } from './utils'
 
 const generateAssetData = async () => {
@@ -52,6 +53,7 @@ const generateAssetData = async () => {
   const baseAssets = await base.getAssets()
   const solanaAssets = await solana.getAssets()
   const tronAssets = await tronModule.getAssets()
+  const suiAssets = await sui.getAssets()
 
   // all assets, included assets to be blacklisted
   const unfilteredAssetData: Asset[] = [
@@ -76,6 +78,7 @@ const generateAssetData = async () => {
     ...baseAssets,
     ...solanaAssets,
     ...tronAssets,
+    ...suiAssets,
   ]
 
   // remove blacklisted assets

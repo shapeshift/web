@@ -1,5 +1,5 @@
 import { ASSOCIATED_PROGRAM_ID } from '@coral-xyz/anchor/dist/cjs/utils/token'
-import { fromAssetId, solanaChainId } from '@shapeshiftoss/caip'
+import { fromAssetId, solanaChainId, suiChainId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { bnOrZero, isToken } from '@shapeshiftoss/utils'
@@ -40,6 +40,8 @@ export const getNearIntentsAsset = ({
 }
 
 const NEP245_CHAINS = ['bsc', 'pol', 'avax', 'op', 'tron'] as const
+const NEP245_CHAINS = ['bsc', 'pol', 'avax', 'op'] as const
+const TOKEN_LOOKUP_CHAINS = ['sui'] as const
 
 export const assetToNearIntentsAsset = async (asset: Asset): Promise<string | null> => {
   const nearNetwork =
@@ -48,9 +50,13 @@ export const assetToNearIntentsAsset = async (asset: Asset): Promise<string | nu
   if (!nearNetwork) return null
 
   // NEP-245 chains (BSC, Polygon, Avalanche, Optimism, TRON) and Solana require token lookup
+  // NEP-245 chains (BSC, Polygon, Avalanche, Optimism), Solana, and SUI require token lookup
   // Asset IDs use hashed format that can't be generated from contract addresses
   const requiresLookup =
-    NEP245_CHAINS.includes(nearNetwork as any) || asset.chainId === solanaChainId
+    NEP245_CHAINS.includes(nearNetwork as any) ||
+    TOKEN_LOOKUP_CHAINS.includes(nearNetwork as any) ||
+    asset.chainId === solanaChainId ||
+    asset.chainId === suiChainId
 
   if (requiresLookup) {
     const tokens = await OneClickService.getTokens()

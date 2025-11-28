@@ -219,6 +219,22 @@ export const getTradeQuote = async (
             to: depositAddress,
             value: sellAmount,
           })
+        case CHAIN_NAMESPACE.Sui: {
+          const sellAdapter = deps.assertGetSuiChainAdapter(sellAsset.chainId)
+          const tokenId = isToken(sellAsset.assetId)
+            ? fromAssetId(sellAsset.assetId).assetReference
+            : undefined
+
+          const feeData = await sellAdapter.getFeeData({
+            to: depositAddress,
+            value: sellAmount,
+            chainSpecific: {
+              from,
+              tokenId,
+            },
+            sendMax: false,
+          })
+
           return { networkFeeCryptoBaseUnit: feeData.fast.txFee }
         }
 

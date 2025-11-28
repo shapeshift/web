@@ -91,6 +91,7 @@
     "@lukemorales/query-key-factory": "^1.3.4",
     "@metaplex-foundation/js": "^0.20.1",
     "@moralisweb3/common-evm-utils": "2.27.2",
+    "@mysten/sui": "^1.45.0",
     "@react-spring/web": "^9.7.4",
     "@reduxjs/toolkit": "^2.6.1",
     "@reown/walletkit": "^1.2.6",

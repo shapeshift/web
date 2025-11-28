@@ -9,6 +9,7 @@ import type {
   SellTxHashArgs,
   SolanaTransactionExecutionInput,
   StatusArgs,
+  SuiTransactionExecutionInput,
   SupportedTradeQuoteStepIndex,
   Swap,
   Swapper,
@@ -33,6 +34,7 @@ import { assertGetCosmosSdkChainAdapter } from './utils/cosmosSdk'
 import { assertGetEvmChainAdapter } from './utils/evm'
 import { assertGetSolanaChainAdapter } from './utils/solana'
 import { assertGetTronChainAdapter } from './utils/tron'
+import { assertGetSuiChainAdapter } from './utils/sui'
 import { assertGetUtxoChainAdapter } from './utils/utxo'
 
 import { getConfig } from '@/config'
@@ -85,6 +87,7 @@ export const fetchTradeStatus = async ({
     assertGetUtxoChainAdapter,
     assertGetCosmosSdkChainAdapter,
     assertGetSolanaChainAdapter,
+    assertGetSuiChainAdapter,
     fetchIsSmartContractAddressQuery,
   })
 
@@ -550,6 +553,7 @@ export class TradeExecution {
   }
 
   async execTronTransaction({
+  async execSuiTransaction({
     swapperName,
     tradeQuote,
     stepIndex,
@@ -557,6 +561,7 @@ export class TradeExecution {
     from,
     signAndBroadcastTransaction,
   }: TronTransactionExecutionInput) {
+  }: SuiTransactionExecutionInput) {
     const buildSignBroadcast = async (
       swapper: Swapper & SwapperApi,
       {
@@ -575,6 +580,14 @@ export class TradeExecution {
       }
 
       const unsignedTxResult = await swapper.getUnsignedTronTransaction({
+      if (!swapper.getUnsignedSuiTransaction) {
+        throw Error('missing implementation for getUnsignedSuiTransaction')
+      }
+      if (!swapper.executeSuiTransaction) {
+        throw Error('missing implementation for executeSuiTransaction')
+      }
+
+      const unsignedTxResult = await swapper.getUnsignedSuiTransaction({
         tradeQuote,
         chainId,
         stepIndex,
@@ -585,6 +598,10 @@ export class TradeExecution {
       })
 
       return await swapper.executeTronTransaction(unsignedTxResult, {
+        assertGetSuiChainAdapter,
+      })
+
+      return await swapper.executeSuiTransaction(unsignedTxResult, {
         signAndBroadcastTransaction,
       })
     }

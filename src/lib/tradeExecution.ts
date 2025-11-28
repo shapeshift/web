@@ -14,6 +14,7 @@ import type {
   Swapper,
   SwapperApi,
   TradeExecutionEventMap,
+  TronTransactionExecutionInput,
   UtxoTransactionExecutionInput,
 } from '@shapeshiftoss/swapper'
 import {
@@ -31,6 +32,7 @@ import { EventEmitter } from 'node:events'
 import { assertGetCosmosSdkChainAdapter } from './utils/cosmosSdk'
 import { assertGetEvmChainAdapter } from './utils/evm'
 import { assertGetSolanaChainAdapter } from './utils/solana'
+import { assertGetTronChainAdapter } from './utils/tron'
 import { assertGetUtxoChainAdapter } from './utils/utxo'
 
 import { getConfig } from '@/config'
@@ -65,22 +67,35 @@ export const fetchTradeStatus = async ({
   stepIndex: SupportedTradeQuoteStepIndex
   config: ReturnType<typeof getConfig>
 }) => {
-  const { status, message, buyTxHash, relayerTxHash, relayerExplorerTxLink } =
-    await swapper.checkTradeStatus({
-      txHash: sellTxHash,
-      chainId: sellAssetChainId,
-      address,
-      swap,
-      stepIndex,
-      config: getConfig(),
-      assertGetEvmChainAdapter,
-      assertGetUtxoChainAdapter,
-      assertGetCosmosSdkChainAdapter,
-      assertGetSolanaChainAdapter,
-      fetchIsSmartContractAddressQuery,
-    })
+  const {
+    status,
+    message,
+    buyTxHash,
+    relayerTxHash,
+    relayerExplorerTxLink,
+    actualBuyAmountCryptoBaseUnit,
+  } = await swapper.checkTradeStatus({
+    txHash: sellTxHash,
+    chainId: sellAssetChainId,
+    address,
+    swap,
+    stepIndex,
+    config: getConfig(),
+    assertGetEvmChainAdapter,
+    assertGetUtxoChainAdapter,
+    assertGetCosmosSdkChainAdapter,
+    assertGetSolanaChainAdapter,
+    fetchIsSmartContractAddressQuery,
+  })
 
-  return { status, message, buyTxHash, relayerTxHash, relayerExplorerTxLink }
+  return {
+    status,
+    message,
+    buyTxHash,
+    relayerTxHash,
+    relayerExplorerTxLink,
+    actualBuyAmountCryptoBaseUnit,
+  }
 }
 
 export class TradeExecution {
@@ -206,22 +221,28 @@ export class TradeExecution {
 
       const { cancelPolling } = poll({
         fn: async () => {
-          const { status, message, buyTxHash, relayerTxHash, relayerExplorerTxLink } =
-            await queryClient.fetchQuery({
-              queryKey: tradeStatusQueryKey(swap.id, updatedSwap.sellTxHash),
-              queryFn: () =>
-                fetchTradeStatus({
-                  swapper,
-                  sellTxHash: updatedSwap.sellTxHash,
-                  sellAssetChainId: updatedSwap.sellAsset.chainId,
-                  address: accountId ? fromAccountId(accountId).account : undefined,
-                  swap: updatedSwap,
-                  stepIndex,
-                  config: getConfig(),
-                }),
-              staleTime: this.pollInterval,
-              gcTime: this.pollInterval,
-            })
+          const {
+            status,
+            message,
+            buyTxHash,
+            relayerTxHash,
+            relayerExplorerTxLink,
+            actualBuyAmountCryptoBaseUnit,
+          } = await queryClient.fetchQuery({
+            queryKey: tradeStatusQueryKey(swap.id, updatedSwap.sellTxHash),
+            queryFn: () =>
+              fetchTradeStatus({
+                swapper,
+                sellTxHash: updatedSwap.sellTxHash,
+                sellAssetChainId: updatedSwap.sellAsset.chainId,
+                address: accountId ? fromAccountId(accountId).account : undefined,
+                swap: updatedSwap,
+                stepIndex,
+                config: getConfig(),
+              }),
+            staleTime: this.pollInterval,
+            gcTime: this.pollInterval,
+          })
 
           // Emit RelayerTxHash event when relayerTxHash becomes available
           if (
@@ -244,6 +265,7 @@ export class TradeExecution {
             message,
             buyTxHash,
             relayerTxHash,
+            actualBuyAmountCryptoBaseUnit,
           }
           this.emitter.emit(TradeExecutionEvent.Status, payload)
 
@@ -512,6 +534,57 @@ export class TradeExecution {
       })
 
       return await swapper.executeSolanaTransaction(unsignedTxResult, {
+        signAndBroadcastTransaction,
+      })
+    }
+
+    return await this._execWalletAgnostic(
+      {
+        swapperName,
+        tradeQuote,
+        stepIndex,
+        slippageTolerancePercentageDecimal,
+      },
+      buildSignBroadcast,
+    )
+  }
+
+  async execTronTransaction({
+    swapperName,
+    tradeQuote,
+    stepIndex,
+    slippageTolerancePercentageDecimal,
+    from,
+    signAndBroadcastTransaction,
+  }: TronTransactionExecutionInput) {
+    const buildSignBroadcast = async (
+      swapper: Swapper & SwapperApi,
+      {
+        tradeQuote,
+        chainId,
+        stepIndex,
+        slippageTolerancePercentageDecimal,
+        config,
+      }: CommonGetUnsignedTransactionArgs,
+    ) => {
+      if (!swapper.getUnsignedTronTransaction) {
+        throw Error('missing implementation for getUnsignedTronTransaction')
+      }
+      if (!swapper.executeTronTransaction) {
+        throw Error('missing implementation for executeTronTransaction')
+      }
+
+      const unsignedTxResult = await swapper.getUnsignedTronTransaction({
+        tradeQuote,
+        chainId,
+        stepIndex,
+        slippageTolerancePercentageDecimal,
+        from,
+        config,
+        assertGetTronChainAdapter,
+      })
+
+      return await swapper.executeTronTransaction(unsignedTxResult, {
         signAndBroadcastTransaction,
       })
     }

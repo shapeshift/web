@@ -54,6 +54,7 @@ import { assertUnreachable } from '@/lib/utils'
 import { fromThorBaseUnit, getThorchainFromAddress } from '@/lib/utils/thorchain'
 import { THOR_PRECISION } from '@/lib/utils/thorchain/constants'
 import { useIsChainHalted } from '@/lib/utils/thorchain/hooks/useIsChainHalted'
+import { useIsLpWithdrawEnabled } from '@/lib/utils/thorchain/hooks/useIsThorchainLpDepositEnabled'
 import { useSendThorTx } from '@/lib/utils/thorchain/hooks/useSendThorTx'
 import { estimateRemoveThorchainLiquidityPosition } from '@/lib/utils/thorchain/lp'
 import type { LpConfirmedWithdrawalQuote, UserLpDataPosition } from '@/lib/utils/thorchain/lp/types'
@@ -190,7 +191,8 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
     fromAssetId(assetId).chainId,
   )
 
-  const isThorchainLpWithdrawEnabled = useFeatureFlag('ThorchainLpWithdraw')
+  const isThorchainLpWithdrawFlagEnabled = useFeatureFlag('ThorchainLpWithdraw')
+  const { data: isThorchainLpWithdrawEnabledForPool } = useIsLpWithdrawEnabled(poolAsset?.assetId)
 
   const currentAccountIdByChainId = useMemo(() => {
     if (!poolAsset) return {}
@@ -965,7 +967,8 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
     if (isUnsupportedWithdraw) return translate('common.unsupportedNetwork')
     if (isChainHalted) return translate('common.chainHalted')
     if (isTradingActive === false) return translate('common.poolHalted')
-    if (!isThorchainLpWithdrawEnabled) return translate('common.poolDisabled')
+    if (!isThorchainLpWithdrawFlagEnabled) return translate('common.poolDisabled')
+    if (isThorchainLpWithdrawEnabledForPool === false) return translate('common.poolDisabled')
     if (position?.remainingLockupTime)
       return translate('defi.liquidityLocked', {
         time: formatSecondsToDuration(position.remainingLockupTime),
@@ -983,7 +986,8 @@ export const RemoveLiquidityInput: React.FC<RemoveLiquidityInputProps> = ({
   }, [
     hasEnoughPoolAssetFeeAssetBalanceForTx,
     hasEnoughRuneBalanceForTx,
-    isThorchainLpWithdrawEnabled,
+    isThorchainLpWithdrawFlagEnabled,
+    isThorchainLpWithdrawEnabledForPool,
     isTradingActive,
     isChainHalted,
     isUnsupportedWithdraw,

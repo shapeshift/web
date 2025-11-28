@@ -7,6 +7,7 @@ import {
   fromChainId,
   solanaChainId,
   toAssetId,
+  tronChainId,
 } from '@shapeshiftoss/caip'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 
@@ -14,6 +15,7 @@ import {
   DEFAULT_RELAY_EVM_TOKEN_ADDRESS,
   RELAY_BTC_TOKEN_ADDRESS,
   RELAY_SOLANA_TOKEN_ADDRESS,
+  RELAY_TRON_TOKEN_ADDRESS,
   relayChainIdToChainId,
 } from '../constant'
 import type { RelayToken } from './types'
@@ -35,6 +37,10 @@ export const relayTokenToAssetId = (relayToken: RelayToken): AssetId => {
       return relayToken.address === RELAY_SOLANA_TOKEN_ADDRESS
     }
 
+    if (chainId === tronChainId) {
+      return relayToken.address === RELAY_TRON_TOKEN_ADDRESS
+    }
+
     return false
   })()
 
@@ -46,6 +52,8 @@ export const relayTokenToAssetId = (relayToken: RelayToken): AssetId => {
             return ASSET_NAMESPACE.erc20
           case CHAIN_REFERENCE.SolanaMainnet === chainReference:
             return ASSET_NAMESPACE.splToken
+          case CHAIN_REFERENCE.TronMainnet === chainReference:
+            return ASSET_NAMESPACE.trc20
           default:
             throw Error(`chainReference '${chainReference}' not supported`)
         }
@@ -101,6 +109,11 @@ export const relayTokenToAssetId = (relayToken: RelayToken): AssetId => {
       case CHAIN_REFERENCE.SolanaMainnet:
         return {
           assetReference: ASSET_REFERENCE.Solana,
+          assetNamespace: ASSET_NAMESPACE.slip44,
+        }
+      case CHAIN_REFERENCE.TronMainnet:
+        return {
+          assetReference: ASSET_REFERENCE.Tron,
           assetNamespace: ASSET_NAMESPACE.slip44,
         }
       default:

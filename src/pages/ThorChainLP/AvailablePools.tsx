@@ -47,6 +47,9 @@ export const AvailablePools = () => {
   const { data: pools } = usePools()
   const translate = useTranslate()
 
+  const isThorchainLpDepositFlagEnabled = useFeatureFlag('ThorchainLpDeposit')
+  const isThorchainLpWithdrawFlagEnabled = useFeatureFlag('ThorchainLpWithdraw')
+
   const headerComponent = useMemo(() => <PoolsHeader />, [])
 
   // Partition pools by *akschually* available (not halted, staged, nor deposits disabled) and the rest
@@ -81,8 +84,10 @@ export const AvailablePools = () => {
         Cell: ({ row, value }: { value: string; row: RowProps }) => {
           const pool = row.original
 
-          const isThorchainLpDepositEnabled = useFeatureFlag('ThorchainLpDeposit')
-          const isThorchainLpWithdrawEnabled = useFeatureFlag('ThorchainLpWithdraw')
+          const isThorchainLpDepositEnabled =
+            isThorchainLpDepositFlagEnabled && pool.isLpDepositEnabled !== false
+          const isThorchainLpWithdrawEnabled =
+            isThorchainLpWithdrawFlagEnabled && pool.isLpWithdrawEnabled !== false
           const isThorchainLpInteractionDisabled =
             !isThorchainLpDepositEnabled && !isThorchainLpWithdrawEnabled
 
@@ -186,7 +191,7 @@ export const AvailablePools = () => {
         },
       },
     ],
-    [translate],
+    [translate, isThorchainLpDepositFlagEnabled, isThorchainLpWithdrawFlagEnabled],
   )
 
   const handlePoolClick = useCallback(

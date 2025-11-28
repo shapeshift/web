@@ -13,6 +13,7 @@ import {
   polygonChainId,
   solanaChainId,
   toAssetId,
+  tronChainId,
 } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import {
@@ -26,6 +27,7 @@ import {
   optimism,
   polygon,
   solana,
+  tron,
 } from '@shapeshiftoss/utils'
 import axios from 'axios'
 
@@ -131,6 +133,14 @@ export async function getAssets(chainId: ChainId): Promise<Asset[]> {
           explorer: solana.explorer,
           explorerAddressLink: solana.explorerAddressLink,
           explorerTxLink: solana.explorerTxLink,
+        }
+      case tronChainId:
+        return {
+          assetNamespace: ASSET_NAMESPACE.trc20,
+          category: adapters.chainIdToCoingeckoAssetPlatform(chainId),
+          explorer: tron.explorer,
+          explorerAddressLink: tron.explorerAddressLink,
+          explorerTxLink: tron.explorerTxLink,
         }
       default:
         throw new Error(`no coingecko token support for chainId: ${chainId}`)

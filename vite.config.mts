@@ -186,6 +186,7 @@ export default defineConfig(({ mode }) => {
               if (id.includes('bnb-javascript-sdk-nobroadcast')) return 'bnb-sdk'
               if (id.includes('gridplus-sdk')) return 'gridplus-sdk'
               if (id.includes('tronweb')) return 'tronweb'
+              if (id.includes('viem')) return 'viem'
 
               return null
             }

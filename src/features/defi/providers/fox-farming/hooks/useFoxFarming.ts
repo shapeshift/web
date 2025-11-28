@@ -3,6 +3,7 @@ import { CONTRACT_INTERACTION, evm } from '@shapeshiftoss/chain-adapters'
 import type { FoxEthStakingContractAddress } from '@shapeshiftoss/contracts'
 import { ETH_FOX_POOL_CONTRACT, getOrCreateContractByAddress } from '@shapeshiftoss/contracts'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
+import { isTrezor } from '@shapeshiftoss/hdwallet-trezor'
 import { useQuery } from '@tanstack/react-query'
 import { useCallback, useMemo } from 'react'
 import { encodeFunctionData, getAddress, maxUint256 } from 'viem'
@@ -80,6 +81,10 @@ export const useFoxFarming = (
           to: contractAddress,
           value: '0',
           wallet,
+          pubKey:
+            isTrezor(wallet) && farmingAccountId
+              ? fromAccountId(farmingAccountId).account
+              : undefined,
         })
 
         const txid = await buildAndBroadcast({
@@ -102,6 +107,7 @@ export const useFoxFarming = (
       lpAsset.precision,
       adapter,
       contractAddress,
+      farmingAccountId,
     ],
   )
 
@@ -124,12 +130,16 @@ export const useFoxFarming = (
           to: contractAddress,
           value: '0',
           wallet,
+          pubKey:
+            isTrezor(wallet) && farmingAccountId
+              ? fromAccountId(farmingAccountId).account
+              : undefined,
         })
 
         const txid = await buildAndBroadcast({
           adapter,
           buildCustomTxInput,
-          receiverAddress: await adapter.getAddress({ accountNumber, wallet }),
+          receiverAddress: CONTRACT_INTERACTION,
         })
 
         return txid
@@ -146,6 +156,7 @@ export const useFoxFarming = (
       lpAsset.precision,
       adapter,
       contractAddress,
+      farmingAccountId,
     ],
   )
 
@@ -303,16 +314,27 @@ export const useFoxFarming = (
       to: contractAddress,
       value: '0',
       wallet,
+      pubKey:
+        isTrezor(wallet) && farmingAccountId ? fromAccountId(farmingAccountId).account : undefined,
     })
 
     const txid = await buildAndBroadcast({
       adapter,
       buildCustomTxInput,
-      receiverAddress: await adapter.getAddress({ accountNumber, wallet }),
+      receiverAddress: CONTRACT_INTERACTION,
     })
 
     return txid
-  }, [accountNumber, adapter, contractAddress, foxFarmingContract.abi, skip, userAddress, wallet])
+  }, [
+    accountNumber,
+    adapter,
+    contractAddress,
+    foxFarmingContract.abi,
+    skip,
+    userAddress,
+    wallet,
+    farmingAccountId,
+  ])
 
   const periodFinishQuery = useQuery({
     queryKey: ['getPeriodFinish'],

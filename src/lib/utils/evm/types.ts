@@ -9,6 +9,7 @@ type ApproveInput = {
   amountCryptoBaseUnit: string
   accountNumber: number
   from: string
+  pubKey?: string
 }
 
 export type MaybeApproveInput = MaybeUndefinedFields<ApproveInput>

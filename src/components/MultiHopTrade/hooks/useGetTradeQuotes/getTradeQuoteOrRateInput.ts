@@ -192,7 +192,6 @@ export const getTradeQuoteOrRateInput = async ({
     }
     case CHAIN_NAMESPACE.Tron: {
       const sellAssetChainAdapter = assertGetTronChainAdapter(sellAsset.chainId)
-
       const sendAddress =
         wallet && sellAccountNumber !== undefined
           ? await sellAssetChainAdapter.getAddress({

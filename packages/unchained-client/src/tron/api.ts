@@ -82,8 +82,9 @@ export class TronApi {
           }
         })
       }
-    } catch (_err) {
+    } catch (err) {
       // TRC20 fetch failed, continue with just TRC10 tokens
+      console.error('Failed to fetch TRC20 tokens:', err)
     }
 
     return {
@@ -208,8 +209,8 @@ export class TronApi {
 
       const feeInSun = totalBytes * bandwidthPrice
       return String(feeInSun)
-    } catch (_err) {
-      throw new Error('Failed to estimate fees')
+    } catch (err) {
+      throw new Error(`Failed to estimate fees: ${err}`)
     }
   }
 

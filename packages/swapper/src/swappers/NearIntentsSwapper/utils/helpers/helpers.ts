@@ -48,7 +48,6 @@ export const assetToNearIntentsAsset = async (asset: Asset): Promise<string | nu
 
   if (!nearNetwork) return null
 
-  // NEP-245 chains (BSC, Polygon, Avalanche, Optimism, TRON) and Solana require token lookup
   // NEP-245 chains (BSC, Polygon, Avalanche, Optimism), Solana, and SUI require token lookup
   // Asset IDs use hashed format that can't be generated from contract addresses
   const requiresLookup =

@@ -2,9 +2,9 @@ import { KnownChainIds } from '@shapeshiftoss/types'
 
 export { QuoteRequest } from '@defuse-protocol/one-click-sdk-typescript'
 export type {
-  QuoteResponse,
   GetExecutionStatusResponse,
-  TokenResponse,
+  QuoteResponse,
+  TokenResponse
 } from '@defuse-protocol/one-click-sdk-typescript'
 export const nearIntentsSupportedChainIds = [
   KnownChainIds.EthereumMainnet,

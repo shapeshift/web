@@ -169,6 +169,12 @@ describe('adapters:coingecko', () => {
         assetNamespace: 'token',
         assetReference: 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v',
       })
+      const usdcOnTron = toAssetId({
+        chainNamespace: CHAIN_NAMESPACE.Tron,
+        chainReference: CHAIN_REFERENCE.TronMainnet,
+        assetNamespace: 'trc20',
+        assetReference: 'TEkxiTehnzSmSe2XqrBj4w32RUN966rdz8',
+      })
       expect(coingeckoToAssetIds('usd-coin')).toEqual([
         usdcOnEthereum,
         usdcOnAvalanche,
@@ -177,6 +183,7 @@ describe('adapters:coingecko', () => {
         usdcOnArbitrum,
         usdcOnBase,
         usdcOnSolana,
+        usdcOnTron,
       ])
     })
     it('can get AssetIds for bridged USD Coin on EVM Chains', () => {

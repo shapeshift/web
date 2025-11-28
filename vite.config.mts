@@ -185,6 +185,7 @@ export default defineConfig(({ mode }) => {
               if (id.includes('@keepkey/keepkey-sdk')) return '@keepkey'
               if (id.includes('bnb-javascript-sdk-nobroadcast')) return 'bnb-sdk'
               if (id.includes('gridplus-sdk')) return 'gridplus-sdk'
+              if (id.includes('tronweb')) return 'tronweb'
 
               return null
             }

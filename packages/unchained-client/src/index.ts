@@ -6,6 +6,7 @@ export * as evm from './evm'
 export * as utxo from './utxo'
 export * as cosmossdk from './cosmossdk'
 export * as solana from './solana'
+export * as tron from './tron'
 export * as common from './parser'
 
 export * as ethereum from './evm/ethereum'

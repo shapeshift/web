@@ -196,8 +196,7 @@ export const useTradeNetworkFeeCryptoBaseUnit = ({
                 return output
               }
               case CHAIN_NAMESPACE.Tron: {
-                if (!swapper.getTronTransactionFees)
-                  throw Error('missing getTronTransactionFees')
+                if (!swapper.getTronTransactionFees) throw Error('missing getTronTransactionFees')
 
                 const adapter = assertGetTronChainAdapter(stepSellAssetChainId)
                 const from = await adapter.getAddress({

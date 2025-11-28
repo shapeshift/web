@@ -103,13 +103,14 @@ export const useSendActionSubscriber = () => {
               let isConfirmed = false
 
               switch (chainId) {
-                case KnownChainIds.TronMainnet:
+                case KnownChainIds.TronMainnet: {
                   const txStatus = await getTronTransactionStatus(txHash)
 
                   // The TX completed but might fail because runs out of energy, as for now we don't support failed sends lets consider it confirmed
                   // @TODO: Implement failed sends for TRON or a way to check for gas balance before sending so it fails before even sending
                   isConfirmed = txStatus === TxStatus.Confirmed || txStatus === TxStatus.Failed
                   break
+                }
                 default:
                   console.error(`Unsupported second-class chain: ${chainId}`)
                   return

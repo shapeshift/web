@@ -2,12 +2,17 @@ import type { ChainId } from '@shapeshiftoss/caip'
 import { tronChainId } from '@shapeshiftoss/caip'
 import type { tron } from '@shapeshiftoss/chain-adapters'
 import type { KnownChainIds } from '@shapeshiftoss/types'
-import { TxStatus } from 'packages/unchained-client/src/types'
+import { TxStatus } from '@shapeshiftoss/unchained-client'
 
 import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
 
 export const isTronChainAdapter = (chainAdapter: unknown): chainAdapter is tron.ChainAdapter => {
-  return (chainAdapter as tron.ChainAdapter).getChainId() === tronChainId
+  if (!chainAdapter) return false
+
+  const maybeAdapter = chainAdapter as tron.ChainAdapter
+  if (typeof maybeAdapter.getChainId !== 'function') return false
+
+  return maybeAdapter.getChainId() === tronChainId
 }
 
 export const assertGetTronChainAdapter = (chainId: ChainId | KnownChainIds): tron.ChainAdapter => {
@@ -36,8 +41,10 @@ export const getTronTransactionStatus = async (txHash: string): Promise<TxStatus
   if (!response.ok) return TxStatus.Unknown
 
   const txData = await response.json()
+  const contractRet = txData?.ret?.[0]?.contractRet
 
-  if (txData.ret[0].contractRet === 'OUT_OF_ENERGY') return TxStatus.Failed
+  if (contractRet === 'OUT_OF_ENERGY') return TxStatus.Failed
+  if (!contractRet) return TxStatus.Unknown
 
   return TxStatus.Confirmed
 }

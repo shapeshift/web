@@ -82,8 +82,9 @@ export class TronApi {
           }
         })
       }
-    } catch (_err) {
+    } catch (err) {
       // TRC20 fetch failed, continue with just TRC10 tokens
+      console.error('Failed to fetch TRC20 tokens:', err)
     }
 
     return {

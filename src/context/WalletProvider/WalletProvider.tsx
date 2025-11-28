@@ -842,7 +842,6 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
                 await (gridPlusWallet as GridPlusHDWallet).validateActiveWallet(
                   safeCard.activeWalletId,
                 )
-
                 ;(gridPlusWallet as GridPlusHDWallet).setExpectedActiveWalletId(
                   safeCard.activeWalletId,
                   safeCard.type,

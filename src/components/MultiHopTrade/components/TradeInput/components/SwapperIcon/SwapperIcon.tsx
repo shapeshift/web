@@ -6,6 +6,7 @@ import ZrxIcon from './0x-icon.png'
 import ArbitrumBridgeIcon from './arbitrum-bridge-icon.png'
 import BebopIcon from './bebop-icon.png'
 import ButterSwapIcon from './butterswap.png'
+import CetusIcon from './cetus-icon.jpg'
 import ChainflipIcon from './chainflip-icon.png'
 import CowIcon from './cow-icon.png'
 import JupiterIcon from './jupiter-icon.svg'
@@ -51,6 +52,8 @@ export const SwapperIcon = ({
         return BebopIcon
       case SwapperName.NearIntents:
         return NearIntentsIcon
+      case SwapperName.Cetus:
+        return CetusIcon
       case SwapperName.Test:
         return ''
       default:

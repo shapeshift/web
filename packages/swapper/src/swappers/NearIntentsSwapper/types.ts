@@ -4,7 +4,7 @@ export { QuoteRequest } from '@defuse-protocol/one-click-sdk-typescript'
 export type {
   GetExecutionStatusResponse,
   QuoteResponse,
-  TokenResponse
+  TokenResponse,
 } from '@defuse-protocol/one-click-sdk-typescript'
 export const nearIntentsSupportedChainIds = [
   KnownChainIds.EthereumMainnet,

@@ -16,6 +16,7 @@ import {
   ethChainId,
   gnosisChainId,
   mayachainChainId,
+  monadChainId,
   optimismChainId,
   polygonChainId,
   solanaChainId,
@@ -40,6 +41,7 @@ export enum CoingeckoAssetPlatform {
   Arbitrum = 'arbitrum-one',
   ArbitrumNova = 'arbitrum-nova',
   Base = 'base',
+  Monad = 'monad',
   Solana = 'solana',
   Tron = 'tron',
 }
@@ -90,6 +92,8 @@ export const chainIdToCoingeckoAssetPlatform = (chainId: ChainId): string => {
           return CoingeckoAssetPlatform.ArbitrumNova
         case CHAIN_REFERENCE.BaseMainnet:
           return CoingeckoAssetPlatform.Base
+        case CHAIN_REFERENCE.MonadMainnet:
+          return CoingeckoAssetPlatform.Monad
         default:
           throw new Error(
             `chainNamespace ${chainNamespace}, chainReference ${chainReference} not supported.`,
@@ -155,6 +159,8 @@ export const coingeckoAssetPlatformToChainId = (
       return arbitrumNovaChainId
     case CoingeckoAssetPlatform.Base:
       return baseChainId
+    case CoingeckoAssetPlatform.Monad:
+      return monadChainId
     case CoingeckoAssetPlatform.Cosmos:
       return cosmosChainId
     case CoingeckoAssetPlatform.Thorchain:

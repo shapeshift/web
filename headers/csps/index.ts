@@ -16,6 +16,7 @@ import { csp as ethereum } from './chains/ethereum'
 import { csp as gnosis } from './chains/gnosis'
 import { csp as litecoin } from './chains/litecoin'
 import { csp as mayachain } from './chains/mayachain'
+import { csp as monad } from './chains/monad'
 import { csp as optimism } from './chains/optimism'
 import { csp as polygon } from './chains/polygon'
 import { csp as solana } from './chains/solana'
@@ -102,6 +103,7 @@ export const csps = [
   thorchain,
   tron,
   mayachain,
+  monad,
   trustwallet,
   coincap,
   exchangeRates,

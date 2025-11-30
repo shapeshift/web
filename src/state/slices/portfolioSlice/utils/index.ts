@@ -19,6 +19,7 @@ import {
   isNft,
   ltcChainId,
   mayachainChainId,
+  monadChainId,
   optimismChainId,
   polygonChainId,
   solanaChainId,
@@ -83,6 +84,7 @@ export const accountIdToLabel = (accountId: AccountId): string => {
     case arbitrumChainId:
     case arbitrumNovaChainId:
     case baseChainId:
+    case monadChainId:
     case thorchainChainId:
     case mayachainChainId:
     case cosmosChainId:

@@ -13,6 +13,7 @@ import {
   gnosisAssetId,
   ltcAssetId,
   mayachainAssetId,
+  monadAssetId,
   optimismAssetId,
   polygonAssetId,
   solAssetId,
@@ -62,6 +63,8 @@ export const chainIdToFeeAssetId = (_chainId: ChainId): AssetId => {
       return solAssetId
     case KnownChainIds.TronMainnet:
       return tronAssetId
+    case KnownChainIds.MonadMainnet:
+      return monadAssetId
     default:
       return assertUnreachable(chainId)
   }

@@ -9,6 +9,7 @@ import { useNotificationToast } from '../useNotificationToast'
 import { useActionCenterContext } from '@/components/Layout/Header/ActionCenter/ActionCenterContext'
 import { GenericTransactionNotification } from '@/components/Layout/Header/ActionCenter/components/Notifications/GenericTransactionNotification'
 import { SECOND_CLASS_CHAINS } from '@/constants/chains'
+import { getMonadTransactionStatus } from '@/lib/utils/monad'
 import { getSuiTransactionStatus } from '@/lib/utils/sui'
 import { getTronTransactionStatus } from '@/lib/utils/tron'
 import { actionSlice } from '@/state/slices/actionSlice/actionSlice'
@@ -116,6 +117,12 @@ export const useSendActionSubscriber = () => {
                   const suiTxStatus = await getSuiTransactionStatus(txHash)
                   isConfirmed =
                     suiTxStatus === TxStatus.Confirmed || suiTxStatus === TxStatus.Failed
+                  break
+                }
+                case KnownChainIds.MonadMainnet: {
+                  const monadTxStatus = await getMonadTransactionStatus(txHash)
+                  isConfirmed =
+                    monadTxStatus === TxStatus.Confirmed || monadTxStatus === TxStatus.Failed
                   break
                 }
                 default:

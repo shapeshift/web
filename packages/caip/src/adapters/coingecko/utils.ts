@@ -1,6 +1,7 @@
 import axios from 'axios'
 import fs from 'fs'
 
+import { CoingeckoAssetPlatform } from '.'
 import type { AssetId } from '../../assetId/assetId'
 import { toAssetId } from '../../assetId/assetId'
 import type { ChainId } from '../../chainId/chainId'
@@ -9,6 +10,7 @@ import {
   arbitrumChainId,
   arbitrumNovaAssetId,
   arbitrumNovaChainId,
+  ASSET_NAMESPACE,
   avalancheAssetId,
   avalancheChainId,
   baseAssetId,
@@ -48,7 +50,6 @@ import {
   mayachainAssetMap,
   thorchainAssetMap,
 } from '../../utils'
-import { CoingeckoAssetPlatform } from '.'
 
 export type CoingeckoCoin = {
   id: string
@@ -221,7 +222,7 @@ export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
           const assetId = toAssetId({
             chainNamespace: CHAIN_NAMESPACE.Sui,
             chainReference: CHAIN_REFERENCE.SuiMainnet,
-            assetNamespace: 'coin',
+            assetNamespace: ASSET_NAMESPACE.suiCoin,
             assetReference: platforms[CoingeckoAssetPlatform.Sui],
           })
           prev[suiChainId][assetId] = id

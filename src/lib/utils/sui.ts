@@ -7,6 +7,7 @@ import { TxStatus } from 'packages/unchained-client/src/types'
 import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
 
 export const isSuiChainAdapter = (chainAdapter: unknown): chainAdapter is sui.ChainAdapter => {
+  if (!chainAdapter || typeof chainAdapter !== 'object') return false
   return (chainAdapter as sui.ChainAdapter).getChainId() === suiChainId
 }
 

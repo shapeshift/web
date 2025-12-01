@@ -13,6 +13,7 @@ import {
   gnosisChainId,
   ltcChainId,
   mayachainChainId,
+  monadChainId,
   optimismChainId,
   polygonChainId,
   solanaChainId,
@@ -33,6 +34,7 @@ import {
   supportsETH,
   supportsGnosis,
   supportsMayachain,
+  supportsMonad,
   supportsOptimism,
   supportsPolygon,
   supportsSolana,
@@ -158,6 +160,8 @@ export const walletSupportsChain = ({
       return isArbitrumNovaEnabled && supportsArbitrumNova(wallet)
     case baseChainId:
       return supportsBase(wallet)
+    case monadChainId:
+      return supportsMonad(wallet)
     case cosmosChainId:
       return supportsCosmos(wallet)
     case thorchainChainId:

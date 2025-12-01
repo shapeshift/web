@@ -17,6 +17,7 @@ import {
   gnosis,
   litecoin,
   mayachain,
+  monad,
   optimism,
   polygon,
   solana,
@@ -66,6 +67,8 @@ export const getBaseAsset = (chainId: ChainId): Readonly<Asset> => {
       return mayachain
     case KnownChainIds.TronMainnet:
       return tron
+    case KnownChainIds.MonadMainnet:
+      return monad
     default:
       return assertUnreachable(knownChainId)
   }

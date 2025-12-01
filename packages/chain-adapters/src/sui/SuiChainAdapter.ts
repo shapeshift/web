@@ -1,7 +1,13 @@
 import { SuiClient } from '@mysten/sui/client'
 import { Transaction } from '@mysten/sui/transactions'
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
-import { ASSET_NAMESPACE, ASSET_REFERENCE, suiAssetId, suiChainId, toAssetId } from '@shapeshiftoss/caip'
+import {
+  ASSET_NAMESPACE,
+  ASSET_REFERENCE,
+  suiAssetId,
+  suiChainId,
+  toAssetId,
+} from '@shapeshiftoss/caip'
 import type { HDWallet, SuiWallet } from '@shapeshiftoss/hdwallet-core'
 import { supportsSui } from '@shapeshiftoss/hdwallet-core'
 import type { Bip44Params, RootBip44Params } from '@shapeshiftoss/types'
@@ -56,8 +62,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SuiMainnet> {
   }
 
   getName() {
-    const enumIndex = Object.values(ChainAdapterDisplayName).indexOf(ChainAdapterDisplayName.Sui)
-    return Object.keys(ChainAdapterDisplayName)[enumIndex]
+    return 'Sui'
   }
 
   getDisplayName() {
@@ -285,10 +290,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SuiMainnet> {
         // Select coins to cover the transfer amount
         // For simplicity, we'll use the SDK's built-in coin selection via tx.splitCoins
         // which handles merging and splitting automatically
-        const [coinToSend] = tx.splitCoins(
-          tx.object(coins.data[0].coinObjectId),
-          [value]
-        )
+        const [coinToSend] = tx.splitCoins(tx.object(coins.data[0].coinObjectId), [value])
         tx.transferObjects([coinToSend], to)
       } else {
         // Native SUI transfer
@@ -407,17 +409,12 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SuiMainnet> {
   async broadcastTransaction(input: BroadcastTransactionInput): Promise<string> {
     try {
       const { hex } = input
-      console.log('[SUI broadcastTransaction] hex:', hex)
       const parsed = JSON.parse(hex)
-      console.log('[SUI broadcastTransaction] parsed:', parsed)
 
       const txBytes = new Uint8Array(parsed.transactionBytes)
-      console.log('[SUI broadcastTransaction] txBytes length:', txBytes.length)
 
       const signatureHex = parsed.signature
       const publicKeyHex = parsed.publicKey
-      console.log('[SUI broadcastTransaction] signatureHex:', signatureHex)
-      console.log('[SUI broadcastTransaction] publicKeyHex:', publicKeyHex)
 
       // Convert hex strings to bytes
       const signatureBytes = Buffer.from(signatureHex, 'hex')
@@ -432,11 +429,9 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SuiMainnet> {
         publicKeyBytes,
       ])
       const signatureBase64 = formattedSignature.toString('base64')
-      console.log('[SUI broadcastTransaction] formattedSignature base64:', signatureBase64)
 
       // Convert transaction bytes to base64
       const transactionBlockBase64 = Buffer.from(txBytes).toString('base64')
-      console.log('[SUI broadcastTransaction] transactionBlockBase64:', transactionBlockBase64)
 
       const result = await this.client.executeTransactionBlock({
         transactionBlock: transactionBlockBase64,
@@ -448,7 +443,6 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SuiMainnet> {
         requestType: 'WaitForLocalExecution',
       })
 
-      console.log('[SUI broadcastTransaction] result:', result)
       return result.digest
     } catch (err) {
       console.error('[SUI broadcastTransaction] error:', err)

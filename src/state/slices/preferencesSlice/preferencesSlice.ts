@@ -30,6 +30,7 @@ export type FeatureFlags = {
   Sui: boolean
   Base: boolean
   Mayachain: boolean
+  Monad: boolean
   ThorSwap: boolean
   WalletConnectToDapps: boolean
   WalletConnectToDappsV2: boolean
@@ -165,6 +166,7 @@ const initialState: Preferences = {
     Sui: getConfig().VITE_FEATURE_SUI,
     Base: getConfig().VITE_FEATURE_BASE,
     Mayachain: getConfig().VITE_FEATURE_MAYACHAIN,
+    Monad: getConfig().VITE_FEATURE_MONAD,
     ThorSwap: getConfig().VITE_FEATURE_THOR_SWAP,
     WalletConnectToDappsV2: getConfig().VITE_FEATURE_WALLET_CONNECT_TO_DAPPS_V2,
     WalletConnectToDapps: getConfig().VITE_FEATURE_WALLET_CONNECT_TO_DAPPS,

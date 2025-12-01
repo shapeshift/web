@@ -11,6 +11,7 @@ export default function register(): Plugins {
       'suiChainAdapter',
       {
         name: 'suiChainAdapter',
+        featureFlag: ['Sui'],
         providers: {
           chainAdapters: [
             [

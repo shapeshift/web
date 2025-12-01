@@ -58,7 +58,7 @@ export type LimitOrderQuoteParams = {
   affiliateBps: string
   sellAccountAddress: Address | undefined
   sellAmountCryptoBaseUnit: string
-  recipientAddress: Address | undefined
+  receiveAddress: Address | undefined
 }
 
 export const limitOrderApi = createApi({
@@ -138,7 +138,7 @@ export const limitOrderApi = createApi({
           affiliateBps,
           sellAccountAddress,
           sellAmountCryptoBaseUnit,
-          recipientAddress,
+          receiveAddress,
         } = params
         const config = getConfig()
         const baseUrl = config.VITE_COWSWAP_BASE_URL
@@ -163,7 +163,7 @@ export const limitOrderApi = createApi({
           buyToken: !isNativeEvmAsset(buyAssetId)
             ? (fromAssetId(buyAssetId).assetReference as Address)
             : COW_SWAP_NATIVE_ASSET_MARKER_ADDRESS,
-          receiver: recipientAddress,
+          receiver: receiveAddress,
           sellTokenBalance: SellTokenSource.ERC20,
           from: sellAccountAddress ?? zeroAddress, // Zero address used to enable quotes without wallet connected
           priceQuality: PriceQuality.OPTIMAL,

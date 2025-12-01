@@ -71,6 +71,7 @@
   },
   "dependencies": {
     "@arbitrum/sdk": "^4.0.1",
+    "@cetusprotocol/cetus-sui-clmm-sdk": "5.4.0",
     "@chakra-ui/icons": "^2.2.4",
     "@chakra-ui/react": "^2.10.7",
     "@chakra-ui/system": "^2.6.2",

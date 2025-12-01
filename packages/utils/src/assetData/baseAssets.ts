@@ -303,6 +303,23 @@ export const base: Readonly<Asset> = Object.freeze({
   relatedAssetKey: 'eip155:1/slip44:60',
 })
 
+export const monad: Readonly<Asset> = Object.freeze({
+  assetId: caip.monadAssetId,
+  chainId: caip.monadChainId,
+  name: 'Monad',
+  networkName: 'Monad',
+  symbol: 'MON',
+  precision: 18,
+  color: '#3B82F6',
+  networkColor: '#3B82F6',
+  icon: 'https://assets.coingecko.com/coins/images/38927/standard/monad.png?1764042736',
+  networkIcon: 'https://assets.coingecko.com/coins/images/38927/standard/monad.png?1764042736',
+  explorer: 'https://monadvision.com',
+  explorerAddressLink: 'https://monadvision.com/address/',
+  explorerTxLink: 'https://monadvision.com/tx/',
+  relatedAssetKey: null,
+})
+
 export const solana: Readonly<Asset> = Object.freeze({
   assetId: caip.solAssetId,
   chainId: caip.solanaChainId,
@@ -332,5 +349,21 @@ export const tron: Readonly<Asset> = Object.freeze({
   explorer: 'https://tronscan.org',
   explorerAddressLink: 'https://tronscan.org/#/address/',
   explorerTxLink: 'https://tronscan.org/#/transaction/',
+  relatedAssetKey: null,
+})
+
+export const sui: Readonly<Asset> = Object.freeze({
+  assetId: caip.suiAssetId,
+  chainId: caip.suiChainId,
+  name: 'Sui',
+  networkName: 'Sui',
+  symbol: 'SUI',
+  precision: 9,
+  color: '#6fbcf0',
+  networkColor: '#6fbcf0',
+  icon: 'https://assets.coingecko.com/coins/images/26375/large/sui_asset.jpeg?1727791290',
+  explorer: 'https://suiscan.xyz/mainnet',
+  explorerAddressLink: 'https://suiscan.xyz/mainnet/account/',
+  explorerTxLink: 'https://suiscan.xyz/mainnet/tx/',
   relatedAssetKey: null,
 })

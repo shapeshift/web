@@ -11,6 +11,7 @@ import {
   bsc,
   gnosis,
   mainnet,
+  monad,
   optimism,
   polygon,
 } from 'viem/chains'
@@ -76,6 +77,11 @@ export const viemBaseClient = createPublicClient({
   ),
 }) as PublicClient
 
+export const viemMonadClient = createPublicClient({
+  chain: monad,
+  transport: fallback([process.env.VITE_MONAD_NODE_URL].filter(Boolean).map(url => http(url))),
+}) as PublicClient
+
 export const viemClientByChainId: Record<ChainId, PublicClient> = {
   [KnownChainIds.EthereumMainnet]: viemEthMainnetClient,
   [KnownChainIds.BnbSmartChainMainnet]: viemBscClient,
@@ -86,6 +92,7 @@ export const viemClientByChainId: Record<ChainId, PublicClient> = {
   [KnownChainIds.PolygonMainnet]: viemPolygonClient,
   [KnownChainIds.OptimismMainnet]: viemOptimismClient,
   [KnownChainIds.BaseMainnet]: viemBaseClient,
+  [KnownChainIds.MonadMainnet]: viemMonadClient,
 }
 
 export const viemNetworkIdByChainId: Record<ChainId, number> = {
@@ -98,6 +105,7 @@ export const viemNetworkIdByChainId: Record<ChainId, number> = {
   [KnownChainIds.PolygonMainnet]: polygon.id,
   [KnownChainIds.OptimismMainnet]: optimism.id,
   [KnownChainIds.BaseMainnet]: base.id,
+  [KnownChainIds.MonadMainnet]: monad.id,
 }
 
 export const viemClientByNetworkId: Record<number, PublicClient> = {
@@ -110,6 +118,7 @@ export const viemClientByNetworkId: Record<number, PublicClient> = {
   [polygon.id]: viemPolygonClient,
   [optimism.id]: viemOptimismClient,
   [base.id]: viemBaseClient,
+  [monad.id]: viemMonadClient,
 }
 
 export const assertGetViemClient = (chainId: ChainId): PublicClient => {

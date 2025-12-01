@@ -23,6 +23,7 @@ export enum KnownChainIds {
   ArbitrumMainnet = 'eip155:42161',
   ArbitrumNovaMainnet = 'eip155:42170',
   BaseMainnet = 'eip155:8453',
+  MonadMainnet = 'eip155:143',
   BitcoinMainnet = 'bip122:000000000019d6689c085ae165831e93',
   BitcoinCashMainnet = 'bip122:000000000000000000651ef99cb9fcbe',
   DogecoinMainnet = 'bip122:00000000001a91e3dace36e2be3bf030',
@@ -32,6 +33,7 @@ export enum KnownChainIds {
   MayachainMainnet = 'cosmos:mayachain-mainnet-v1',
   SolanaMainnet = 'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp',
   TronMainnet = 'tron:0x2b6653dc',
+  SuiMainnet = 'sui:35834a8a',
 }
 
 export type EvmChainId =
@@ -44,6 +46,7 @@ export type EvmChainId =
   | KnownChainIds.ArbitrumMainnet
   | KnownChainIds.ArbitrumNovaMainnet
   | KnownChainIds.BaseMainnet
+  | KnownChainIds.MonadMainnet
 
 export type CosmosSdkChainId =
   | KnownChainIds.CosmosMainnet
@@ -59,6 +62,8 @@ export type UtxoChainId =
   | KnownChainIds.LitecoinMainnet
 
 export type TronChainId = KnownChainIds.TronMainnet
+
+export type SuiChainId = KnownChainIds.SuiMainnet
 
 export enum WithdrawType {
   DELAYED,

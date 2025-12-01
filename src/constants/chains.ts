@@ -17,6 +17,7 @@ export const knownChainIds = Object.values(KnownChainIds).filter(chainId => {
   if (chainId === KnownChainIds.BaseMainnet && !enabledFlags.Base) return false
   if (chainId === KnownChainIds.SolanaMainnet && !enabledFlags.Solana) return false
   if (chainId === KnownChainIds.MayachainMainnet && !enabledFlags.Mayachain) return false
+  if (chainId === KnownChainIds.TronMainnet && !enabledFlags.Tron) return false
 
   return true
 })

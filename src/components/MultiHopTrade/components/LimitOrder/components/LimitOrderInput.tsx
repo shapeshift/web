@@ -20,7 +20,7 @@ import { SharedTradeInput } from '../../SharedTradeInput/SharedTradeInput'
 import { SharedTradeInputBody } from '../../SharedTradeInput/SharedTradeInputBody'
 import { SharedTradeInputFooter } from '../../SharedTradeInput/SharedTradeInputFooter/SharedTradeInputFooter'
 import { getCowSwapErrorTranslation, isCowSwapError } from '../helpers'
-import { useLimitOrderRecipientAddress } from '../hooks/useLimitOrderRecipientAddress'
+import { useLimitOrderReceiveAddress } from '../hooks/useLimitOrderReceiveAddress'
 import { LimitOrderRoutePaths } from '../types'
 import { CollapsibleLimitOrderList } from './CollapsibleLimitOrderList'
 import { LimitOrderBuyAsset } from './LimitOrderBuyAsset'
@@ -144,8 +144,8 @@ export const LimitOrderInput = ({
 
   const feeUsd = calculateFeeUsd({ inputAmountUsd: bnOrZero(inputSellAmountUsd) })
 
-  const { isRecipientAddressEntryActive, renderedRecipientAddress, recipientAddress } =
-    useLimitOrderRecipientAddress({
+  const { isReceiveAddressEntryActive, renderedReceiveAddress, receiveAddress } =
+    useLimitOrderReceiveAddress({
       buyAsset,
       buyAccountId,
       sellAccountId,
@@ -202,7 +202,7 @@ export const LimitOrderInput = ({
       affiliateBps: DEFAULT_FEE_BPS,
       sellAccountAddress,
       sellAmountCryptoBaseUnit,
-      recipientAddress,
+      receiveAddress,
     }
   }, [
     sellAmountCryptoBaseUnit,
@@ -210,7 +210,7 @@ export const LimitOrderInput = ({
     sellAsset.chainId,
     buyAsset.assetId,
     sellAccountAddress,
-    recipientAddress,
+    receiveAddress,
   ])
 
   // This fetches the quote only, not the limit order. The quote is used to determine the market
@@ -391,7 +391,7 @@ export const LimitOrderInput = ({
           quoteStatusTranslation: 'limitOrder.errors.nativeSellAssetNotSupported',
           isError: true,
         }
-      case !recipientAddress:
+      case !receiveAddress:
         return { quoteStatusTranslation: 'trade.errors.noReceiveAddress', isError: true }
       case isCowSwapError(quoteResponseError):
         return {
@@ -414,7 +414,7 @@ export const LimitOrderInput = ({
     isDiscoveringAccounts,
     isConnected,
     quoteResponseError,
-    recipientAddress,
+    receiveAddress,
     sellAccountId,
     sellAsset.assetId,
     sellAsset.chainId,
@@ -559,7 +559,7 @@ export const LimitOrderInput = ({
         shouldDisablePreviewButton={
           !hasUserEnteredAmount ||
           isError ||
-          isRecipientAddressEntryActive ||
+          isReceiveAddressEntryActive ||
           bnOrZero(marketPriceBuyAsset).isZero() ||
           bnOrZero(limitPrice.buyAssetDenomination).isZero()
         }
@@ -572,7 +572,7 @@ export const LimitOrderInput = ({
       >
         <>
           <LimitOrderFooter />
-          {renderedRecipientAddress}
+          {renderedReceiveAddress}
         </>
       </SharedTradeInputFooter>
     )
@@ -588,9 +588,9 @@ export const LimitOrderInput = ({
     limitPrice.buyAssetDenomination,
     marketPriceBuyAsset,
     sellAccountId,
-    isRecipientAddressEntryActive,
+    isReceiveAddressEntryActive,
     networkFeeUserCurrency,
-    renderedRecipientAddress,
+    renderedReceiveAddress,
     noExpand,
     isLimitOrderQuoteFetching,
   ])

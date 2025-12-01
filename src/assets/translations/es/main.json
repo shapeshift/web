@@ -755,13 +755,8 @@
     "slowSwapBody": "Este intercambio puede tardar unos minutos en completarse.",
     "thorSmartContractWalletUnsupported": "Actualmente, la red THORChain no admite carteras de contratos inteligentes.",
     "intoAssetSymbolBody": "Puede continuar con este comercio, pero el historial de transacciones para recibir %{assetSymbol} no está disponible temporalmente",
-    "recipientAddress": "Dirección del receptor",
     "changeAddress": "Cambiar dirección",
     "changeAddressExplainer": "Al enviar criptomonedas de redes basadas en UTXO, los fondos sobrantes se envían de vuelta a esta dirección.",
-    "customRecipientAddress": "Dirección de destinatario personalizada",
-    "customRecipientAddressDescription": "Ingrese una dirección de destinatario personalizada para la transacción",
-    "thisIsYourCustomRecipientAddress": "Esta es su dirección de destino personalizada",
-    "enterCustomRecipientAddress": "Ingrese la dirección del destinatario personalizado",
     "receiveAtLeast": "Recibe al menos",
     "tooltip": {
       "continueSwapping": "Continúe intercambiando para obtener detalles finales.",

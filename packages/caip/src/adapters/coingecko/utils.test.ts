@@ -172,6 +172,9 @@ describe('adapters:coingecko:utils', () => {
         'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp': {
           'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp/slip44:501': 'solana',
         },
+        'sui:35834a8a': {
+          'sui:35834a8a/slip44:784': 'sui',
+        },
         'tron:0x2b6653dc': {
           'tron:0x2b6653dc/slip44:195': 'tron',
         },

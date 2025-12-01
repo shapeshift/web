@@ -202,7 +202,7 @@ export const LimitOrderInput = ({
       affiliateBps: DEFAULT_FEE_BPS,
       sellAccountAddress,
       sellAmountCryptoBaseUnit,
-      recipientAddress: receiveAddress,
+      receiveAddress,
     }
   }, [
     sellAmountCryptoBaseUnit,

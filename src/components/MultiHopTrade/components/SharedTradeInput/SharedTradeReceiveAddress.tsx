@@ -150,7 +150,7 @@ export const SharedTradeReceiveAddress = ({
   const value = useWatch<SendInput, SendFormFields.Input>({ name: SendFormFields.Input })
   const debouncedValue = useDebounce(value, 500)
 
-  const [isRecipientAddressEditing, setIsRecipientAddressEditing] = useState(false)
+  const [isReceiveAddressEditing, setIsReceiveAddressEditing] = useState(false)
 
   // If we have a valid manual receive address, set it in the form
   useEffect(() => {
@@ -162,7 +162,7 @@ export const SharedTradeReceiveAddress = ({
   }, [onIsValidatingChange, isValidating])
 
   useEffect(() => {
-    if (!isRecipientAddressEditing) return
+    if (!isReceiveAddressEditing) return
 
     // minLength should catch this and make isValid false, but doesn't seem to on mount, even when manually triggering validation.
     if (!value?.length) {
@@ -172,10 +172,10 @@ export const SharedTradeReceiveAddress = ({
     // We only want to set this when editing. Failure to do so will catch the initial '' invalid value (because of the minLength: 1)
     // and prevent continuing with the trade, when there is no manual receive address
     onIsValidChange(isValid)
-  }, [isValid, onIsValidChange, isRecipientAddressEditing, value])
+  }, [isValid, onIsValidChange, isReceiveAddressEditing, value])
 
-  const isCustomRecipientAddress = Boolean(manualReceiveAddress)
-  const recipientAddressTranslation: TextPropTypes['translation'] = isCustomRecipientAddress
+  const isCustomReceiveAddress = Boolean(manualReceiveAddress)
+  const receiveAddressTranslation: TextPropTypes['translation'] = isCustomReceiveAddress
     ? 'trade.customReceiveAddress'
     : 'trade.receiveAddress'
 
@@ -211,21 +211,21 @@ export const SharedTradeReceiveAddress = ({
     [buyAssetAssetId, buyAssetChainId, onError],
   )
 
-  const handleEditRecipientAddressClick = useCallback(() => {
+  const handleEditReceiveAddressClick = useCallback(() => {
     onEdit()
-    setIsRecipientAddressEditing(true)
+    setIsReceiveAddressEditing(true)
   }, [onEdit])
 
   const handleCancelClick = useCallback(() => {
     onCancel()
-    setIsRecipientAddressEditing(false)
+    setIsReceiveAddressEditing(false)
     setFormValue(SendFormFields.Input, '')
   }, [onCancel, setFormValue])
 
   const resetManualReceiveAddress = useCallback(() => {
     onReset()
     // Reset the form value itself, to avoid the user going from
-    // custom recipient -> cleared custom recipient -> custom recipient where the previously set custom recipient
+    // custom receive address -> cleared custom receive address -> custom receive address where the previously set custom receive address
     // would be displayed, wrongly hinting this is the default wallet address
     setFormValue(SendFormFields.Input, '')
   }, [onReset, setFormValue])
@@ -249,7 +249,7 @@ export const SharedTradeReceiveAddress = ({
 
         if (isValidAddress) {
           onSubmit(debouncedValue)
-          setIsRecipientAddressEditing(false)
+          setIsReceiveAddressEditing(false)
         }
       } catch (error) {
         console.error('Error validating pasted address:', error)
@@ -262,7 +262,7 @@ export const SharedTradeReceiveAddress = ({
   }
 
   // The manual receive address input form
-  if (isRecipientAddressEditing || shouldForceDisplayManualAddressEntry) {
+  if (isReceiveAddressEditing || shouldForceDisplayManualAddressEntry) {
     return (
       <FormControl>
         {shouldForceDisplayManualAddressEntry && (
@@ -318,10 +318,10 @@ export const SharedTradeReceiveAddress = ({
       )}
       <Row alignItems='center' fontSize='sm' fontWeight='medium'>
         <Row.Label>
-          <Text translation={recipientAddressTranslation} />
+          <Text translation={receiveAddressTranslation} />
         </Row.Label>
         <Row.Value whiteSpace='nowrap'>
-          {isCustomRecipientAddress ? (
+          {isCustomReceiveAddress ? (
             <Tooltip label={translate('trade.thisIsYourCustomReceiveAddress')} placement='top'>
               <Tag size='md' colorScheme='blue'>
                 <TagLabel>{middleEllipsis(receiveAddress ?? '')}</TagLabel>
@@ -338,7 +338,7 @@ export const SharedTradeReceiveAddress = ({
                   variant='ghost'
                   minWidth={0}
                   top='-1px'
-                  onClick={handleEditRecipientAddressClick}
+                  onClick={handleEditReceiveAddressClick}
                 />
               </Tooltip>
             </Stack>

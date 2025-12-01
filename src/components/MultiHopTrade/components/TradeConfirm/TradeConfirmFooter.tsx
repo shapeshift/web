@@ -18,7 +18,7 @@ import { TradeFooterButton } from './TradeFooterButton'
 
 import { Amount } from '@/components/Amount/Amount'
 import { HelperTooltip } from '@/components/HelperTooltip/HelperTooltip'
-import { RecipientAddressRow } from '@/components/RecipientAddressRow'
+import { ReceiveAddressRow } from '@/components/ReceiveAddressRow'
 import { Row } from '@/components/Row/Row'
 import { RawText, Text } from '@/components/Text'
 import { TooltipWithTouch } from '@/components/TooltipWithTouch'
@@ -273,9 +273,9 @@ export const TradeConfirmFooter: FC<TradeConfirmFooterProps> = ({
             </Skeleton>
           </Row.Value>
         </Row>
-        <RecipientAddressRow
+        <ReceiveAddressRow
           explorerAddressLink={buyAsset.explorerAddressLink}
-          recipientAddress={receiveAddress ?? ''}
+          receiveAddress={receiveAddress ?? ''}
         />
         {maybeUtxoChangeAddress && (
           <Row>

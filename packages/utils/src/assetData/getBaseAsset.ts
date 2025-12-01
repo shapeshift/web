@@ -17,10 +17,13 @@ import {
   gnosis,
   litecoin,
   mayachain,
+  monad,
   optimism,
   polygon,
   solana,
+  sui,
   thorchain,
+  tron,
 } from './baseAssets'
 
 export const getBaseAsset = (chainId: ChainId): Readonly<Asset> => {
@@ -46,6 +49,8 @@ export const getBaseAsset = (chainId: ChainId): Readonly<Asset> => {
       return base
     case KnownChainIds.SolanaMainnet:
       return solana
+    case KnownChainIds.SuiMainnet:
+      return sui
     case KnownChainIds.BitcoinMainnet:
       return bitcoin
     case KnownChainIds.BitcoinCashMainnet:
@@ -60,6 +65,10 @@ export const getBaseAsset = (chainId: ChainId): Readonly<Asset> => {
       return thorchain
     case KnownChainIds.MayachainMainnet:
       return mayachain
+    case KnownChainIds.TronMainnet:
+      return tron
+    case KnownChainIds.MonadMainnet:
+      return monad
     default:
       return assertUnreachable(knownChainId)
   }

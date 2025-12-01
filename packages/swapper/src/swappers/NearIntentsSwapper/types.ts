@@ -2,8 +2,8 @@ import { KnownChainIds } from '@shapeshiftoss/types'
 
 export { QuoteRequest } from '@defuse-protocol/one-click-sdk-typescript'
 export type {
-  QuoteResponse,
   GetExecutionStatusResponse,
+  QuoteResponse,
   TokenResponse,
 } from '@defuse-protocol/one-click-sdk-typescript'
 export const nearIntentsSupportedChainIds = [
@@ -18,6 +18,8 @@ export const nearIntentsSupportedChainIds = [
   KnownChainIds.BitcoinMainnet,
   KnownChainIds.DogecoinMainnet,
   KnownChainIds.SolanaMainnet,
+  KnownChainIds.TronMainnet,
+  KnownChainIds.SuiMainnet,
 ] as const
 
 export type NearIntentsSupportedChainId = (typeof nearIntentsSupportedChainIds)[number]
@@ -34,4 +36,6 @@ export const chainIdToNearIntentsChain: Record<NearIntentsSupportedChainId, stri
   [KnownChainIds.BitcoinMainnet]: 'btc',
   [KnownChainIds.DogecoinMainnet]: 'doge',
   [KnownChainIds.SolanaMainnet]: 'sol',
+  [KnownChainIds.TronMainnet]: 'tron',
+  [KnownChainIds.SuiMainnet]: 'sui',
 }

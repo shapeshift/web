@@ -13,7 +13,7 @@ import { Amount } from '@/components/Amount/Amount'
 import { SwapperIcons } from '@/components/MultiHopTrade/components/SwapperIcons'
 import { parseAmountDisplayMeta } from '@/components/MultiHopTrade/helpers'
 import { usePriceImpact } from '@/components/MultiHopTrade/hooks/quoteValidation/usePriceImpact'
-import { RecipientAddressRow } from '@/components/RecipientAddressRow'
+import { ReceiveAddressRow } from '@/components/ReceiveAddressRow'
 import { Row } from '@/components/Row/Row'
 import { RawText, Text } from '@/components/Text'
 import { selectFeeAssetById } from '@/state/slices/selectors'
@@ -165,9 +165,9 @@ export const TradeConfirmSummary = () => {
         />
         <PriceImpact priceImpactPercentage={priceImpactPercentage} color={priceImpactColor} />
         <Divider />
-        <RecipientAddressRow
+        <ReceiveAddressRow
           explorerAddressLink={buyAsset.explorerAddressLink}
-          recipientAddress={receiveAddress ?? ''}
+          receiveAddress={receiveAddress ?? ''}
         />
       </Stack>
     </RateGasRow>

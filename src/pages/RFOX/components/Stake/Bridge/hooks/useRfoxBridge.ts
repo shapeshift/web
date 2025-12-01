@@ -29,6 +29,8 @@ import { assertGetChainAdapter } from '@/lib/utils'
 import { assertGetCosmosSdkChainAdapter } from '@/lib/utils/cosmosSdk'
 import { assertGetEvmChainAdapter, signAndBroadcast } from '@/lib/utils/evm'
 import { assertGetSolanaChainAdapter } from '@/lib/utils/solana'
+import { assertGetSuiChainAdapter } from '@/lib/utils/sui'
+import { assertGetTronChainAdapter } from '@/lib/utils/tron'
 import { assertGetUtxoChainAdapter } from '@/lib/utils/utxo'
 import { reactQueries } from '@/react-queries'
 import type { ArbitrumBridgeTradeQuoteInput } from '@/react-queries/queries/swapper'
@@ -175,6 +177,8 @@ export const useRfoxBridge = ({ confirmedQuote }: UseRfoxBridgeProps): UseRfoxBr
       assertGetUtxoChainAdapter,
       assertGetCosmosSdkChainAdapter,
       assertGetSolanaChainAdapter,
+      assertGetTronChainAdapter,
+      assertGetSuiChainAdapter,
       getEthersV5Provider,
       fetchIsSmartContractAddressQuery,
       viemClientByChainId,

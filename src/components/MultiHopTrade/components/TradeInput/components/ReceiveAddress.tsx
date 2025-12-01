@@ -1,23 +1,23 @@
 import { useCallback } from 'react'
 
-import { SharedRecipientAddress } from '../../SharedTradeInput/SharedRecipientAddress'
+import { SharedTradeReceiveAddress } from '../../SharedTradeInput/SharedTradeReceiveAddress'
 import { useTradeReceiveAddress } from '../hooks/useTradeReceiveAddress'
 
 import { selectInputBuyAsset } from '@/state/slices/tradeInputSlice/selectors'
 import { tradeInput } from '@/state/slices/tradeInputSlice/tradeInputSlice'
 import { useAppDispatch, useAppSelector } from '@/state/store'
 
-type RecipientAddressProps = {
+type ReceiveAddressProps = {
   shouldForceManualAddressEntry?: boolean
-  recipientAddressDescription?: string
+  receiveAddressDescription?: string
   manualAddressEntryDescription?: string
 }
 
-export const RecipientAddress = ({
+export const ReceiveAddress = ({
   shouldForceManualAddressEntry,
-  recipientAddressDescription,
+  receiveAddressDescription,
   manualAddressEntryDescription,
-}: RecipientAddressProps) => {
+}: ReceiveAddressProps) => {
   const dispatch = useAppDispatch()
 
   const {
@@ -72,9 +72,9 @@ export const RecipientAddress = ({
   )
 
   return (
-    <SharedRecipientAddress
+    <SharedTradeReceiveAddress
       buyAsset={buyAsset}
-      customRecipientAddressDescription={recipientAddressDescription}
+      customReceiveAddressDescription={receiveAddressDescription}
       isWalletReceiveAddressLoading={isWalletReceiveAddressLoading}
       manualAddressEntryDescription={manualAddressEntryDescription}
       manualReceiveAddress={manualReceiveAddress}

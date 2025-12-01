@@ -2,7 +2,7 @@ import type { Asset } from '@shapeshiftoss/types'
 import { useCallback, useMemo } from 'react'
 import type { Address } from 'viem'
 
-import { SharedRecipientAddress } from '../../SharedTradeInput/SharedRecipientAddress'
+import { SharedTradeReceiveAddress } from '../../SharedTradeInput/SharedTradeReceiveAddress'
 
 import { useIsManualReceiveAddressRequired } from '@/components/MultiHopTrade/hooks/useIsManualReceiveAddressRequired'
 import { useReceiveAddress } from '@/components/MultiHopTrade/hooks/useReceiveAddress'
@@ -16,17 +16,17 @@ import {
 } from '@/state/slices/limitOrderInputSlice/selectors'
 import { useAppSelector } from '@/state/store'
 
-type UseLimitOrderRecipientAddressProps = {
+type UseLimitOrderReceiveAddressProps = {
   buyAsset: Asset
   buyAccountId: string | undefined
   sellAccountId: string | undefined
 }
 
-export const useLimitOrderRecipientAddress = ({
+export const useLimitOrderReceiveAddress = ({
   buyAsset,
   buyAccountId,
   sellAccountId,
-}: UseLimitOrderRecipientAddressProps) => {
+}: UseLimitOrderReceiveAddressProps) => {
   const manualReceiveAddress = useAppSelector(selectManualReceiveAddress)
   const isManualReceiveAddressValid = useAppSelector(selectIsManualReceiveAddressValid)
   const isManualReceiveAddressEditing = useAppSelector(selectIsManualReceiveAddressEditing)
@@ -83,7 +83,7 @@ export const useLimitOrderRecipientAddress = ({
     isWalletReceiveAddressLoading,
   })
 
-  const isRecipientAddressEntryActive = useMemo(() => {
+  const isReceiveAddressEntryActive = useMemo(() => {
     return (
       isManualReceiveAddressRequired ||
       isManualReceiveAddressValidating ||
@@ -97,9 +97,9 @@ export const useLimitOrderRecipientAddress = ({
     isManualReceiveAddressValidating,
   ])
 
-  const renderedRecipientAddress = useMemo(() => {
+  const renderedReceiveAddress = useMemo(() => {
     return (
-      <SharedRecipientAddress
+      <SharedTradeReceiveAddress
         buyAsset={buyAsset}
         isWalletReceiveAddressLoading={isWalletReceiveAddressLoading}
         manualReceiveAddress={manualReceiveAddress}
@@ -128,8 +128,8 @@ export const useLimitOrderRecipientAddress = ({
   ])
 
   return {
-    isRecipientAddressEntryActive,
-    renderedRecipientAddress,
-    recipientAddress: (manualReceiveAddress ?? walletReceiveAddress) as Address | undefined,
+    isReceiveAddressEntryActive,
+    renderedReceiveAddress,
+    receiveAddress: (manualReceiveAddress ?? walletReceiveAddress) as Address | undefined,
   }
 }

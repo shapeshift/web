@@ -3,6 +3,8 @@ export type SafeCard = {
   name: string
   createdAt: number
   lastConnectedAt?: number
+  activeWalletId?: string
+  type?: 'external' | 'internal'
 }
 
 export type GridPlusConnection = {

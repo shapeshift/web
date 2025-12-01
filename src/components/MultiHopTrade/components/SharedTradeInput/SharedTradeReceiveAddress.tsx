@@ -42,15 +42,15 @@ const closeIcon = <CloseIcon />
 
 const iconButtonHoverSx = { bg: 'gray.600' }
 
-type ManualRecipientAddressLabelsProps = {
+type ManualReceiveAddressLabelsProps = {
   buyAsset: Asset
   manualAddressEntryDescription: string | undefined
 }
 
-const ManualRecipientAddressLabels = ({
+const ManualReceiveAddressLabels = ({
   buyAsset,
   manualAddressEntryDescription,
-}: ManualRecipientAddressLabelsProps) => {
+}: ManualReceiveAddressLabelsProps) => {
   const translate = useTranslate()
   const wallet = useWallet().state.wallet
   const { isSnapInstalled } = useIsSnapInstalled()
@@ -104,9 +104,9 @@ const ManualRecipientAddressLabels = ({
   )
 }
 
-type SharedRecipientAddressProps = {
+type SharedTradeReceiveAddressProps = {
   buyAsset: Asset
-  customRecipientAddressDescription?: string
+  customReceiveAddressDescription?: string
   isWalletReceiveAddressLoading: boolean
   manualAddressEntryDescription?: string
   manualReceiveAddress: string | undefined
@@ -121,9 +121,9 @@ type SharedRecipientAddressProps = {
   onSubmit: (address: string) => void
 }
 
-export const SharedRecipientAddress = ({
+export const SharedTradeReceiveAddress = ({
   buyAsset,
-  customRecipientAddressDescription,
+  customReceiveAddressDescription,
   isWalletReceiveAddressLoading,
   manualAddressEntryDescription,
   manualReceiveAddress,
@@ -136,7 +136,7 @@ export const SharedRecipientAddress = ({
   onIsValidChange,
   onReset,
   onSubmit,
-}: SharedRecipientAddressProps) => {
+}: SharedTradeReceiveAddressProps) => {
   const translate = useTranslate()
   const { sellAssetAccountId } = useAccountIds()
   const receiveAddress = manualReceiveAddress ?? walletReceiveAddress
@@ -150,7 +150,7 @@ export const SharedRecipientAddress = ({
   const value = useWatch<SendInput, SendFormFields.Input>({ name: SendFormFields.Input })
   const debouncedValue = useDebounce(value, 500)
 
-  const [isRecipientAddressEditing, setIsRecipientAddressEditing] = useState(false)
+  const [isReceiveAddressEditing, setIsReceiveAddressEditing] = useState(false)
 
   // If we have a valid manual receive address, set it in the form
   useEffect(() => {
@@ -162,7 +162,7 @@ export const SharedRecipientAddress = ({
   }, [onIsValidatingChange, isValidating])
 
   useEffect(() => {
-    if (!isRecipientAddressEditing) return
+    if (!isReceiveAddressEditing) return
 
     // minLength should catch this and make isValid false, but doesn't seem to on mount, even when manually triggering validation.
     if (!value?.length) {
@@ -172,12 +172,12 @@ export const SharedRecipientAddress = ({
     // We only want to set this when editing. Failure to do so will catch the initial '' invalid value (because of the minLength: 1)
     // and prevent continuing with the trade, when there is no manual receive address
     onIsValidChange(isValid)
-  }, [isValid, onIsValidChange, isRecipientAddressEditing, value])
+  }, [isValid, onIsValidChange, isReceiveAddressEditing, value])
 
-  const isCustomRecipientAddress = Boolean(manualReceiveAddress)
-  const recipientAddressTranslation: TextPropTypes['translation'] = isCustomRecipientAddress
-    ? 'trade.customRecipientAddress'
-    : 'trade.recipientAddress'
+  const isCustomReceiveAddress = Boolean(manualReceiveAddress)
+  const receiveAddressTranslation: TextPropTypes['translation'] = isCustomReceiveAddress
+    ? 'trade.customReceiveAddress'
+    : 'trade.receiveAddress'
 
   const rules = useMemo(
     () => ({
@@ -211,21 +211,21 @@ export const SharedRecipientAddress = ({
     [buyAssetAssetId, buyAssetChainId, onError],
   )
 
-  const handleEditRecipientAddressClick = useCallback(() => {
+  const handleEditReceiveAddressClick = useCallback(() => {
     onEdit()
-    setIsRecipientAddressEditing(true)
+    setIsReceiveAddressEditing(true)
   }, [onEdit])
 
   const handleCancelClick = useCallback(() => {
     onCancel()
-    setIsRecipientAddressEditing(false)
+    setIsReceiveAddressEditing(false)
     setFormValue(SendFormFields.Input, '')
   }, [onCancel, setFormValue])
 
   const resetManualReceiveAddress = useCallback(() => {
     onReset()
     // Reset the form value itself, to avoid the user going from
-    // custom recipient -> cleared custom recipient -> custom recipient where the previously set custom recipient
+    // custom receive address -> cleared custom receive address -> custom receive address where the previously set custom receive address
     // would be displayed, wrongly hinting this is the default wallet address
     setFormValue(SendFormFields.Input, '')
   }, [onReset, setFormValue])
@@ -249,7 +249,7 @@ export const SharedRecipientAddress = ({
 
         if (isValidAddress) {
           onSubmit(debouncedValue)
-          setIsRecipientAddressEditing(false)
+          setIsReceiveAddressEditing(false)
         }
       } catch (error) {
         console.error('Error validating pasted address:', error)
@@ -262,11 +262,11 @@ export const SharedRecipientAddress = ({
   }
 
   // The manual receive address input form
-  if (isRecipientAddressEditing || shouldForceDisplayManualAddressEntry) {
+  if (isReceiveAddressEditing || shouldForceDisplayManualAddressEntry) {
     return (
       <FormControl>
         {shouldForceDisplayManualAddressEntry && (
-          <ManualRecipientAddressLabels
+          <ManualReceiveAddressLabels
             buyAsset={buyAsset}
             manualAddressEntryDescription={manualAddressEntryDescription}
           />
@@ -274,7 +274,7 @@ export const SharedRecipientAddress = ({
         <InputGroup>
           <AddressInput
             rules={rules}
-            placeholder={translate('trade.enterCustomRecipientAddress')}
+            placeholder={translate('trade.enterCustomReceiveAddress')}
             pe={20}
           />
           <InputRightElement
@@ -311,18 +311,18 @@ export const SharedRecipientAddress = ({
   // The summary of the receive address (existing or custom)
   return (
     <>
-      {customRecipientAddressDescription && (
+      {customReceiveAddressDescription && (
         <Row alignItems='center' fontSize='sm' fontWeight='medium'>
-          <Row.Label>{customRecipientAddressDescription}</Row.Label>
+          <Row.Label>{customReceiveAddressDescription}</Row.Label>
         </Row>
       )}
       <Row alignItems='center' fontSize='sm' fontWeight='medium'>
         <Row.Label>
-          <Text translation={recipientAddressTranslation} />
+          <Text translation={receiveAddressTranslation} />
         </Row.Label>
         <Row.Value whiteSpace='nowrap'>
-          {isCustomRecipientAddress ? (
-            <Tooltip label={translate('trade.thisIsYourCustomRecipientAddress')} placement='top'>
+          {isCustomReceiveAddress ? (
+            <Tooltip label={translate('trade.thisIsYourCustomReceiveAddress')} placement='top'>
               <Tag size='md' colorScheme='blue'>
                 <TagLabel>{middleEllipsis(receiveAddress ?? '')}</TagLabel>
                 <TagCloseButton onClick={resetManualReceiveAddress} />
@@ -331,14 +331,14 @@ export const SharedRecipientAddress = ({
           ) : (
             <Stack direction='row' spacing={2} alignItems='center'>
               <RawText>{middleEllipsis(receiveAddress ?? '')}</RawText>
-              <Tooltip label={translate('trade.customRecipientAddressDescription')} placement='top'>
+              <Tooltip label={translate('trade.customReceiveAddressDescription')} placement='top'>
                 <IconButton
-                  aria-label='Edit recipient address'
+                  aria-label='Edit receive address'
                   icon={editIcon}
                   variant='ghost'
                   minWidth={0}
                   top='-1px'
-                  onClick={handleEditRecipientAddressClick}
+                  onClick={handleEditReceiveAddressClick}
                 />
               </Tooltip>
             </Stack>

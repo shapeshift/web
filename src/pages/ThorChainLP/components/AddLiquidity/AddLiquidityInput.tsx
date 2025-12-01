@@ -538,7 +538,10 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     })
   }, [poolAsset])
 
+  const isThorchainLpDepositFlagEnabled = useFeatureFlag('ThorchainLpDeposit')
   const { data: isThorchainLpDepositEnabledForPool } = useIsLpDepositEnabled(poolAsset?.assetId)
+  const isThorchainLpDepositEnabled =
+    isThorchainLpDepositFlagEnabled && isThorchainLpDepositEnabledForPool !== false
 
   const feeEstimationMemo = useMemo(() => {
     if (thorchainNotationPoolAssetId === undefined) return null
@@ -612,8 +615,6 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   })
 
   const { isChainHalted, isFetching: isChainHaltedFetching } = useIsChainHalted(poolAsset?.chainId)
-
-  const isThorchainLpDepositFlagEnabled = useFeatureFlag('ThorchainLpDeposit')
 
   const serializedApprovalTxIndex = useMemo(() => {
     if (!(approvalTxId && poolAssetAccountAddress && poolAssetAccountId)) return ''
@@ -1044,7 +1045,6 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     actualRuneDepositAmountCryptoPrecision,
     poolAsset,
     runeMarketData,
-    isThorchainLpDepositFlagEnabled,
   ])
 
   useEffect(() => {
@@ -1463,6 +1463,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     isConnected,
     isSmartContractAccountAddress,
     isThorchainLpDepositFlagEnabled,
+    isThorchainLpDepositEnabledForPool,
     isTradingActive,
     isChainHalted,
     notEnoughFeeAssetError,
@@ -1474,7 +1475,6 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     runeAsset,
     translate,
     walletSupportsOpportunity,
-    isThorchainLpDepositEnabledForPool,
     isStagedAsymDeposit,
   ])
 
@@ -1660,8 +1660,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
               disabledSymDepositAfterRune ||
               isTradingActive === false ||
               isChainHalted ||
-              !isThorchainLpDepositFlagEnabled ||
-              isThorchainLpDepositEnabledForPool === false ||
+              !isThorchainLpDepositEnabled ||
               !confirmedQuote ||
               !hasEnoughAssetBalance ||
               !hasEnoughRuneBalance ||

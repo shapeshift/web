@@ -13,10 +13,13 @@ import {
   gnosisAssetId,
   ltcAssetId,
   mayachainAssetId,
+  monadAssetId,
   optimismAssetId,
   polygonAssetId,
   solAssetId,
+  suiAssetId,
   thorchainAssetId,
+  tronAssetId,
 } from '@shapeshiftoss/caip'
 import { KnownChainIds } from '@shapeshiftoss/types'
 
@@ -59,6 +62,12 @@ export const chainIdToFeeAssetId = (_chainId: ChainId): AssetId => {
       return mayachainAssetId
     case KnownChainIds.SolanaMainnet:
       return solAssetId
+    case KnownChainIds.TronMainnet:
+      return tronAssetId
+    case KnownChainIds.SuiMainnet:
+      return suiAssetId
+    case KnownChainIds.MonadMainnet:
+      return monadAssetId
     default:
       return assertUnreachable(chainId)
   }

@@ -191,7 +191,8 @@
     "approval": "Aprobación",
     "permit2Approval": "Permiso para Aprobar",
     "network": "Red",
-    "feeEstimate": "Tarifa Estimada"
+    "feeEstimate": "Tarifa Estimada",
+    "list": "Lista"
   },
   "accountSelector": {
     "chooseAccount": "Elija Cuenta"
@@ -327,7 +328,10 @@
     "viewSavedWallets": "Ver Carteras Guardadas",
     "footerOne": "Al continuar, acepta las",
     "terms": "Términos",
-    "privacyPolicy": "Política de Privacidad"
+    "privacyPolicy": "Política de Privacidad",
+    "connectNewWallet": "Conectar Billetera Nueva",
+    "getANewWallet": "Obtener Billetera Nueva",
+    "alreadyHaveWallet": "Ya tengo una Billetera"
   },
   "connectWallet": {
     "menu": {
@@ -751,13 +755,8 @@
     "slowSwapBody": "Este intercambio puede tardar unos minutos en completarse.",
     "thorSmartContractWalletUnsupported": "Actualmente, la red THORChain no admite carteras de contratos inteligentes.",
     "intoAssetSymbolBody": "Puede continuar con este comercio, pero el historial de transacciones para recibir %{assetSymbol} no está disponible temporalmente",
-    "recipientAddress": "Dirección del receptor",
     "changeAddress": "Cambiar dirección",
     "changeAddressExplainer": "Al enviar criptomonedas de redes basadas en UTXO, los fondos sobrantes se envían de vuelta a esta dirección.",
-    "customRecipientAddress": "Dirección de destinatario personalizada",
-    "customRecipientAddressDescription": "Ingrese una dirección de destinatario personalizada para la transacción",
-    "thisIsYourCustomRecipientAddress": "Esta es su dirección de destino personalizada",
-    "enterCustomRecipientAddress": "Ingrese la dirección del destinatario personalizado",
     "receiveAtLeast": "Recibe al menos",
     "tooltip": {
       "continueSwapping": "Continúe intercambiando para obtener detalles finales.",
@@ -868,7 +867,12 @@
       "youGotMore": "Obtuviste %{cryptoUpside} más en este intercambio"
     },
     "networkFee": "Tarifa de Red",
-    "feeExplainer": "Cotización incluye una tarifa de ShapeShift del %{feePercentage}%"
+    "feeExplainer": "Cotización incluye una tarifa de ShapeShift del %{feePercentage}%",
+    "topAssetsCarousel": {
+      "hide": "Ocultar",
+      "hiddenTitle": "Carrusel de Activos Principales Oculto",
+      "hiddenDescription": "Puedes volver a activarlo en Configuración"
+    }
   },
   "limitOrder": {
     "heading": "Límite",
@@ -1091,6 +1095,8 @@
       "qrCode": "Código QR",
       "addressBook": "Libro de Direcciones",
       "noEntries": "Ninguna dirección encontrada.",
+      "yourWallets": "Tus Billeteras",
+      "noInternalAccounts": "No se encontraron cuentas.",
       "addNewAddress": "Agregar Nueva Dirección",
       "addAddress": {
         "nameRequired": "El nombre es obligatorio",
@@ -1148,6 +1154,9 @@
       "copyFailed": "Error al copiar %{symbol} dirección de recibo al portapapeles",
       "copyFailedDescription": "Copie la dirección manualmente.",
       "setAmount": "Fijar cantidad",
+      "verify": "Verificar",
+      "verified": "Verificado",
+      "notVerified": "Direcciones no Concuerdan",
       "blockExplorer": "Explorador",
       "supportedNetworks": "Redes Compatibles",
       "amountNote": "Introduce el importe que deseas solicitar. Se generará un código QR con el importe para facilitar los pagos."
@@ -1251,6 +1260,8 @@
       "language": "Idioma",
       "balanceThreshold": "Umbral de saldo",
       "balanceThresholdTooltip": "Ocultar saldos por debajo de este valor",
+      "showTopAssetsCarousel": "Mostrar el Carrusel de Activos Principales",
+      "showTopAssetsCarouselTooltip": "Mostrar el carrusel de activos principales en la parte inferior de la página de operaciones",
       "currencies": {
         "CNY": "Yuan Chino",
         "USD": "Dólar estadounidense (predeterminado)",
@@ -1315,6 +1326,11 @@
         "button": "Emparejar",
         "conflictingApp": "No se pudo encontrar su KeepKey. Es posible que otra aplicación esté intentando conectarse con su KeepKey.",
         "downloadUpdaterApp": "Descarga la aplicación de actualización"
+      },
+      "pin": {
+        "header": "Ingrese PIN",
+        "body": "Utilice el diseño de PIN en su dispositivo para encontrar la ubicación en el teclado PIN.",
+        "button": "Desbloquear"
       },
       "settings": {
         "menuLabels": {
@@ -1394,6 +1410,59 @@
         "body": "No se puede conectar la billetera Keplr"
       }
     },
+    "gridplus": {
+      "list": {
+        "header": "Sus SafeCards de GridPlus",
+        "selectPrompt": "Seleccione una SafeCard para reconectar o agregar una nueva",
+        "empty": "No hay SafeCard conectada",
+        "addFirst": "Conecte su Primera SafeCard",
+        "addNew": "Agregar Nueva SafeCard",
+        "lastConnected": "Última conexión: %{date}",
+        "connected": "Conectado",
+        "connect": "Conectar",
+        "editNameLabel": "Editar nombre",
+        "deleteLabel": "Eliminar",
+        "deleteTitle": "Eliminar SafeCard",
+        "deleteConfirm": "¿Eliminar \"%{name}\"? Esto eliminará todos los datos de la billetera asociada.",
+        "renamed": "SafeCard renombrada",
+        "deleted": "SafeCard eliminada",
+        "deletedDescription": "Los datos de la Billetera se han borrado",
+        "warning": "Cada SafeCard tiene su propia billetera. Asegúrese de insertar la SafeCard correcta en su dispositivo antes de conectarla."
+      },
+      "connect": {
+        "header": "Conectar nueva SafeCard",
+        "safeCardName": "Nombre de SafeCard",
+        "safeCardNamePlaceholder": "Introduzca un nombre para esta SafeCard",
+        "safeCardNameHelper": "Dale a esta SafeCard un nombre fácil de recordar (por ejemplo, \"Billetera Principal\", \"Trading\", \"DeFi\")",
+        "deviceId": "ID de Dispositivo",
+        "deviceIdPlaceholder": "Ingrese el ID de su dispositivo Lattice",
+        "deviceIdHelper": "Encuentra el ID de su dispositivo en la configuración de Lattice, en Device Info.",
+        "button": "Conectar SafeCard",
+        "connecting": "Conectando...",
+        "backToList": "← Volver a la lista de SafeCard"
+      },
+      "pair": {
+        "header": "Emparejar GridPlus Lattice",
+        "pairingCode": "Código de Emparejamiento",
+        "pairingCodePlaceholder": "Introduzca el código de 8 caracteres de Lattice",
+        "pairingCodeHelper": "Busque en la pantalla Lattice un código de emparejamiento de 8 caracteres.",
+        "button": "Emparejamiento Completo",
+        "cancel": "← Cancelar"
+      },
+      "name": {
+        "header": "Ponle Nombre a tu SafeCard",
+        "label": "Nombre de SafeCard",
+        "placeholder": "Introduzca un nombre para esta SafeCard",
+        "helper": "Dale a esta SafeCard un nombre fácil de recordar (por ejemplo, \"Billetera principal\", \"Trading\", \"DeFi\")"
+      },
+      "errors": {
+        "deviceIdRequired": "Se requiere ID de Dispositivo",
+        "adapterNotAvailable": "Adaptador GridPlus no disponible",
+        "deviceNotConnected": "Dispositivo no conectado. Llama a connectDevice.",
+        "connectFailure": "No se puede conectar la billetera GridPlus",
+        "unknown": "Se produjo un error inesperado al comunicarse con la billetera GridPlus"
+      }
+    },
     "ledger": {
       "chains": {
         "header": "Importar Cuentas Ledger",
@@ -1434,6 +1503,20 @@
       "gettingChangeAddress": "Obteniendo cambio de dirección...",
       "connectWarning": "Antes de conectar una cadena, asegúrese de tener la app abierta en su dispositivo.",
       "signWarning": "Antes de firmar, asegúrese de tener la app %{chain} abierta en su dispositivo."
+    },
+    "trezor": {
+      "verify": {
+        "confirmOnDevice": "Confirmar en dispositivo",
+        "addressMismatch": "La dirección no coincide. Comprueba que el dispositivo esté conectado correctamente y vuelve a intentarlo."
+      },
+      "errors": {
+        "unknown": "Se produjo un error inesperado al comunicarse con la billetera Trezor"
+      },
+      "connect": {
+        "header": "Emparejar Trezor",
+        "body": "Conecte su dispositivo Trezor y haga clic en Emparejar",
+        "button": "Emparejar"
+      }
     },
     "mipd": {
       "connect": {
@@ -1683,6 +1766,16 @@
         "description": "Has verificado tu Frase Secreta de Recuperación. Asegúrate guardarla de forma segura; es la única manera de recuperar tu billetera.",
         "viewWallet": "Ver Billetera"
       }
+    },
+    "vultisig": {
+      "errors": {
+        "connectFailure": "No se puede conectar la billetera Vultisig"
+      },
+      "connect": {
+        "header": "Emparejar Vultisig",
+        "body": "Haga clic en Emparejar e inicie sesión en Vultisig desde la ventana emergente",
+        "button": "Emparejar"
+      }
     }
   },
   "graph": {
@@ -1743,7 +1836,6 @@
   },
   "accounts": {
     "accounts": "Cuentas",
-    "addAccount": "Añadir Cuenta",
     "accountNumber": "Cuenta #%{accountNumber}",
     "accountChain": "Cadena de cuenta",
     "selectChain": "Seleccione la cadena para la que le gustaría crear una cuenta.",
@@ -1902,7 +1994,8 @@
           "title": "Conecte su billetera a una dApp a través de WalletConnect y active transacciones",
           "linkPlaceholder": "Código QR o enlace de conexión",
           "disclaimerBody": "ShapeShift no puede garantizar la seguridad en las apps de terceros. Al utilizar WalletConnect, usted asume total responsabilidad por los riesgos que esto implique.",
-          "connect": "Conectar"
+          "connect": "Conectar",
+          "invalidUri": "URI no válida"
         },
         "sessionProposal": {
           "unsupportedChain": "Cadena no admitida en la sesión propuesta.",
@@ -2414,7 +2507,7 @@
       "switchChainFailed": "No se pudo cambiar cadena de billetera. Intente cambiar manualmente la cadena activa de su billetera a %{chain}.",
       "buildTransaction": "Error al crear la transacción.",
       "signTransaction": "No se pudo firmar la transacción.",
-      "blindSigningRequired": "La transacción requiere firma ciega. Activa 'Blind signing' en la configuración de tu app Ledger y vuelve a intentarlo.",
+      "blindSigningRequired": "Transacción requiere firma ciega. Activa Blind Signing o Contract Data en la configuración de tu app Ledger y vuelve a intentarlo.",
       "signAndBroadcastTransaction": "No se pudo firmar ni transmitir la transacción.",
       "signMessage": "No se pudo firmar el mensaje.",
       "broadcastTransaction": "No se pudo transmitir la transacción.",
@@ -2469,10 +2562,12 @@
     "thorchainLp": {
       "pairAssets": "%{asset1} y %{asset2}",
       "withdraw": {
-        "processing": "Su retiro de %{assetAmountsAndSymbols} del pool %{poolName} se está procesando."
+        "processing": "Su retiro de %{assetAmountsAndSymbols} del pool %{poolName} se está procesando.",
+        "complete": "Su retiro de %{assetAmountsAndSymbols} de pool %{poolName} se ha completado."
       },
       "deposit": {
-        "processing": "Su depósito de %{amount} %{symbol} en el pool %{poolName} se está procesando."
+        "processing": "Su depósito de %{amount} %{symbol} en el pool %{poolName} se está procesando.",
+        "complete": "Su depósito de %{amount} %{symbol} al pool %{poolName} se ha completado."
       }
     },
     "deposit": {

@@ -6,11 +6,12 @@ import {
   btcChainId,
   ethChainId,
   gnosisChainId,
+  monadChainId,
   optimismChainId,
   polygonChainId,
   solanaChainId,
+  tronChainId,
 } from '@shapeshiftoss/caip'
-import { KnownChainIds } from '@shapeshiftoss/types'
 import invert from 'lodash/invert'
 import { zeroAddress } from 'viem'
 import {
@@ -20,25 +21,13 @@ import {
   bsc,
   gnosis,
   mainnet as ethereum,
+  monad,
   optimism,
   polygon,
 } from 'viem/chains'
 
 import { TradeQuoteError } from '../../types'
 import { RelayErrorCode } from './utils/types'
-
-export const relaySupportedChainIds = [
-  KnownChainIds.EthereumMainnet,
-  KnownChainIds.ArbitrumMainnet,
-  KnownChainIds.BaseMainnet,
-  KnownChainIds.OptimismMainnet,
-  KnownChainIds.PolygonMainnet,
-  KnownChainIds.GnosisMainnet,
-  KnownChainIds.AvalancheMainnet,
-  KnownChainIds.BitcoinMainnet,
-  KnownChainIds.SolanaMainnet,
-  KnownChainIds.BnbSmartChainMainnet,
-]
 
 export const chainIdToRelayChainId = {
   // https://docs.relay.link/resources/supported-chains
@@ -53,6 +42,8 @@ export const chainIdToRelayChainId = {
   [gnosisChainId]: gnosis.id,
   [avalancheChainId]: avalanche.id,
   [bscChainId]: bsc.id,
+  [tronChainId]: 728126428,
+  [monadChainId]: monad.id,
 }
 
 export enum RelayStatusMessage {
@@ -68,10 +59,12 @@ export const relayChainIdToChainId = invert(chainIdToRelayChainId)
 export const DEFAULT_RELAY_EVM_TOKEN_ADDRESS = zeroAddress
 export const RELAY_BTC_TOKEN_ADDRESS = 'bc1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqmql8k8'
 export const RELAY_SOLANA_TOKEN_ADDRESS = '11111111111111111111111111111111'
+export const RELAY_TRON_TOKEN_ADDRESS = 'T9yD14Nj9j7xAB4dbGeiX9h8unkKHxuWwb'
 
 export const DEFAULT_RELAY_EVM_USER_ADDRESS = '0x000000000000000000000000000000000000dead'
 export const DEFAULT_RELAY_BTC_USER_ADDRESS = 'bc1q4vxn43l44h30nkluqfxd9eckf45vr2awz38lwa'
 export const DEFAULT_RELAY_SOLANA_USER_ADDRESS = 'CbKGgVKLJFb8bBrf58DnAkdryX6ubewVytn7X957YwNr'
+export const DEFAULT_RELAY_TRON_USER_ADDRESS = 'TLsV52sRDL79HXGGm9yzwKibb6BeruhUzy'
 
 export const MAXIMUM_SUPPORTED_RELAY_STEPS = 2
 

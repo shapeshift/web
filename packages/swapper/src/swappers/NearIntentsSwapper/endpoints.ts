@@ -2,7 +2,14 @@ import { evm } from '@shapeshiftoss/chain-adapters'
 import type { EvmChainId } from '@shapeshiftoss/types'
 import { contractAddressOrUndefined } from '@shapeshiftoss/utils'
 
-import type { SwapperApi, TradeStatus, UtxoFeeData } from '../../types'
+import { getTronTransactionFees } from '../../tron-utils/getTronTransactionFees'
+import { getUnsignedTronTransaction } from '../../tron-utils/getUnsignedTronTransaction'
+import type {
+  GetUnsignedSuiTransactionArgs,
+  SwapperApi,
+  TradeStatus,
+  UtxoFeeData,
+} from '../../types'
 import {
   createDefaultStatusResponse,
   getExecutableTradeStep,
@@ -188,6 +195,56 @@ export const nearIntentsApi: SwapperApi = {
     return Promise.resolve(step.feeData.networkFeeCryptoBaseUnit)
   },
 
+  getUnsignedTronTransaction,
+  getTronTransactionFees,
+  getUnsignedSuiTransaction: async ({
+    stepIndex,
+    tradeQuote,
+    from,
+    assertGetSuiChainAdapter,
+  }: GetUnsignedSuiTransactionArgs) => {
+    if (!isExecutableTradeQuote(tradeQuote)) throw new Error('Unable to execute a trade rate quote')
+
+    const step = getExecutableTradeStep(tradeQuote, stepIndex)
+
+    const { accountNumber, sellAsset, nearIntentsSpecific } = step
+    if (!nearIntentsSpecific) throw new Error('nearIntentsSpecific is required')
+
+    const adapter = assertGetSuiChainAdapter(sellAsset.chainId)
+
+    const to = nearIntentsSpecific.depositAddress
+    const value = step.sellAmountIncludingProtocolFeesCryptoBaseUnit
+    const tokenId = contractAddressOrUndefined(sellAsset.assetId)
+
+    const { fast } = await adapter.getFeeData({
+      to,
+      value,
+      chainSpecific: { from, tokenId },
+    })
+
+    return adapter.buildSendApiTransaction({
+      to,
+      from,
+      value,
+      accountNumber,
+      chainSpecific: {
+        tokenId,
+        gasBudget: fast.chainSpecific.gasBudget,
+        gasPrice: fast.chainSpecific.gasPrice,
+      },
+    })
+  },
+
+  getSuiTransactionFees: ({ tradeQuote, stepIndex }: GetUnsignedSuiTransactionArgs) => {
+    if (!isExecutableTradeQuote(tradeQuote)) throw new Error('Unable to execute a trade rate quote')
+
+    const step = getExecutableTradeStep(tradeQuote, stepIndex)
+    if (!step.feeData.networkFeeCryptoBaseUnit) {
+      throw new Error('Missing network fee in quote')
+    }
+    return Promise.resolve(step.feeData.networkFeeCryptoBaseUnit)
+  },
+
   checkTradeStatus: async ({ config, swap }): Promise<TradeStatus> => {
     const { nearIntentsSpecific } = swap?.metadata ?? {}
 
@@ -208,11 +265,13 @@ export const nearIntentsApi: SwapperApi = {
 
       // Extract buyTxHash from destination chain transactions
       const buyTxHash = statusResponse.swapDetails?.destinationChainTxHashes?.[0]?.hash
+      const actualBuyAmountCryptoBaseUnit = statusResponse.swapDetails?.amountOut
 
       return {
         status: txStatus,
         buyTxHash,
         message,
+        actualBuyAmountCryptoBaseUnit,
       }
     } catch (error) {
       return createDefaultStatusResponse(undefined)

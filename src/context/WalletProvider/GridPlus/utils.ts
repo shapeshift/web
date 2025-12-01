@@ -16,82 +16,48 @@ type LocalWallet = ReturnType<typeof useLocalWallet>
 type ConnectAndPairDeviceParams = {
   adapter: GridPlusAdapter
   deviceId: string
-  sessionId: string | undefined
+  expectedActiveWalletId?: string
+  expectedType?: 'external' | 'internal'
   dispatch: AppDispatch
 }
 
 export const connectAndPairDevice = async ({
   adapter,
   deviceId,
-  sessionId,
+  expectedActiveWalletId,
+  expectedType,
   dispatch,
 }: ConnectAndPairDeviceParams): Promise<GridPlusHDWallet | null> => {
-  if (!sessionId) {
-    const { isPaired, sessionId: newSessionId } = await adapter.connectDevice(
-      deviceId,
-      undefined,
-      undefined,
-    )
+  dispatch(
+    gridplusSlice.actions.setConnection({
+      physicalDeviceId: deviceId,
+      sessionId: null,
+    }),
+  )
 
-    if (!isPaired) {
-      return null
-    }
+  const wallet = await adapter.connectDevice(deviceId, expectedActiveWalletId, expectedType)
 
-    if (newSessionId) {
-      dispatch(
-        gridplusSlice.actions.setConnection({
-          physicalDeviceId: deviceId,
-          sessionId: newSessionId,
-        }),
-      )
-    }
-  }
-
-  const wallet = await adapter.pairDevice(deviceId, undefined, undefined, sessionId ?? undefined)
-
-  if (!sessionId && wallet.getSessionId) {
-    const walletSessionId = wallet.getSessionId()
-    if (walletSessionId) {
-      dispatch(
-        gridplusSlice.actions.setConnection({
-          physicalDeviceId: deviceId,
-          sessionId: walletSessionId,
-        }),
-      )
-    }
-  }
+  if (!wallet) return null
 
   return wallet
 }
 
 type PairConnectedDeviceParams = {
   adapter: GridPlusAdapter
-  deviceId: string
   pairingCode: string
-  dispatch: AppDispatch
 }
 
 export const pairConnectedDevice = async ({
   adapter,
-  deviceId,
   pairingCode,
-  dispatch,
-}: PairConnectedDeviceParams): Promise<GridPlusHDWallet> => {
-  const wallet = await adapter.pairConnectedDevice(deviceId, pairingCode)
+}: PairConnectedDeviceParams): Promise<{
+  wallet: GridPlusHDWallet
+  activeWalletId: string
+  type: 'external' | 'internal'
+}> => {
+  const { wallet, activeWalletId, type } = await adapter.pairDevice(pairingCode)
 
-  if (wallet.getSessionId) {
-    const walletSessionId = wallet.getSessionId()
-    if (walletSessionId) {
-      dispatch(
-        gridplusSlice.actions.setConnection({
-          physicalDeviceId: deviceId,
-          sessionId: walletSessionId,
-        }),
-      )
-    }
-  }
-
-  return wallet
+  return { wallet, activeWalletId, type }
 }
 
 type FinalizeWalletSetupParams = {
@@ -101,17 +67,34 @@ type FinalizeWalletSetupParams = {
   localWallet: LocalWallet
   navigate: NavigateFunction
   appDispatch: AppDispatch
+  activeWalletId?: string
+  type?: 'external' | 'internal'
 }
 
-export const finalizeWalletSetup = ({
+export const finalizeWalletSetup = async ({
   wallet,
   safeCardWalletId,
   walletDispatch,
   localWallet,
   navigate,
   appDispatch,
-}: FinalizeWalletSetupParams): void => {
+  activeWalletId,
+  type,
+}: FinalizeWalletSetupParams) => {
   const safeCardUuid = safeCardWalletId.replace('gridplus:', '')
+
+  const { finalWalletUid, finalType } = await (async () => {
+    if (activeWalletId && type) return { finalWalletUid: activeWalletId, finalType: type }
+
+    try {
+      const validation = await wallet.validateActiveWallet()
+      return { finalWalletUid: validation.activeWalletId, finalType: validation.type }
+    } catch (error) {
+      return { finalWalletUid: activeWalletId, finalType: type }
+    }
+  })()
+
+  if (finalWalletUid) wallet.setExpectedActiveWalletId(finalWalletUid, finalType)
 
   walletDispatch({
     type: WalletActions.SET_WALLET,
@@ -136,6 +119,16 @@ export const finalizeWalletSetup = ({
   })
 
   appDispatch(gridplusSlice.actions.setLastConnectedAt(safeCardUuid))
+
+  if (finalWalletUid && finalType) {
+    appDispatch(
+      gridplusSlice.actions.updateSafeCardWalletUid({
+        id: safeCardUuid,
+        activeWalletId: finalWalletUid,
+        type: finalType,
+      }),
+    )
+  }
 
   walletDispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
   navigate('/')

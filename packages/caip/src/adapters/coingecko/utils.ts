@@ -9,6 +9,7 @@ import {
   arbitrumChainId,
   arbitrumNovaAssetId,
   arbitrumNovaChainId,
+  ASSET_NAMESPACE,
   avalancheAssetId,
   avalancheChainId,
   baseAssetId,
@@ -33,7 +34,11 @@ import {
   polygonChainId,
   solanaChainId,
   solAssetId,
+  suiAssetId,
+  suiChainId,
   thorchainChainId,
+  tronAssetId,
+  tronChainId,
 } from '../../constants'
 import {
   bitcoinAssetMap,
@@ -198,6 +203,34 @@ export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
         }
       }
 
+      if (Object.keys(platforms).includes(CoingeckoAssetPlatform.Tron)) {
+        try {
+          const assetId = toAssetId({
+            chainNamespace: CHAIN_NAMESPACE.Tron,
+            chainReference: CHAIN_REFERENCE.TronMainnet,
+            assetNamespace: 'trc20',
+            assetReference: platforms[CoingeckoAssetPlatform.Tron],
+          })
+          prev[tronChainId][assetId] = id
+        } catch {
+          // unable to create assetId, skip token
+        }
+      }
+
+      if (Object.keys(platforms).includes(CoingeckoAssetPlatform.Sui)) {
+        try {
+          const assetId = toAssetId({
+            chainNamespace: CHAIN_NAMESPACE.Sui,
+            chainReference: CHAIN_REFERENCE.SuiMainnet,
+            assetNamespace: ASSET_NAMESPACE.suiCoin,
+            assetReference: platforms[CoingeckoAssetPlatform.Sui],
+          })
+          prev[suiChainId][assetId] = id
+        } catch {
+          // unable to create assetId, skip token
+        }
+      }
+
       return prev
     },
     {
@@ -211,6 +244,8 @@ export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
       [arbitrumNovaChainId]: { [arbitrumNovaAssetId]: 'ethereum' },
       [baseChainId]: { [baseAssetId]: 'ethereum' },
       [solanaChainId]: { [solAssetId]: 'solana' },
+      [tronChainId]: { [tronAssetId]: 'tron' },
+      [suiChainId]: { [suiAssetId]: 'sui' },
     },
   )
 

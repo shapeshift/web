@@ -1,4 +1,4 @@
-import { btcChainId, fromChainId, solanaChainId } from '@shapeshiftoss/caip'
+import { btcChainId, fromChainId, solanaChainId, tronChainId } from '@shapeshiftoss/caip'
 import type { GetFeeDataInput } from '@shapeshiftoss/chain-adapters'
 import { evm, isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { UtxoChainId } from '@shapeshiftoss/types'
@@ -86,7 +86,8 @@ export async function getTrade<T extends 'quote' | 'rate'>({
   if (
     !isEvmChainId(sellAsset.chainId) &&
     sellAsset.chainId !== btcChainId &&
-    sellAsset.chainId !== solanaChainId
+    sellAsset.chainId !== solanaChainId &&
+    sellAsset.chainId !== tronChainId
   ) {
     return Err(
       makeSwapErrorRight({
@@ -99,7 +100,8 @@ export async function getTrade<T extends 'quote' | 'rate'>({
   if (
     !isEvmChainId(buyAsset.chainId) &&
     buyAsset.chainId !== btcChainId &&
-    buyAsset.chainId !== solanaChainId
+    buyAsset.chainId !== solanaChainId &&
+    buyAsset.chainId !== tronChainId
   ) {
     return Err(
       makeSwapErrorRight({
@@ -346,6 +348,10 @@ export async function getTrade<T extends 'quote' | 'rate'>({
     }
 
     if (sellAsset.chainId === solanaChainId) {
+      return sellAsset.assetId === appFeesAsset.assetId
+    }
+
+    if (sellAsset.chainId === tronChainId) {
       return sellAsset.assetId === appFeesAsset.assetId
     }
 

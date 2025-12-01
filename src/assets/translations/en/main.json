@@ -1430,7 +1430,9 @@
         "renamed": "SafeCard renamed",
         "deleted": "SafeCard deleted",
         "deletedDescription": "Portfolio data has been cleared",
-        "warning": "Each SafeCard maintains its own portfolio. Make sure to insert the correct SafeCard in your device before connecting."
+        "warning": "Each SafeCard maintains its own portfolio. Make sure to insert the correct SafeCard in your device before connecting.",
+        "safeCardLabel": "SafeCard",
+        "internalSafeCardLabel": "Internal SafeCard"
       },
       "connect": {
         "header": "Connect New SafeCard",
@@ -1464,6 +1466,9 @@
         "deviceNotConnected": "Device not connected. Call connectDevice first.",
         "connectFailure": "Unable to connect GridPlus wallet",
         "unknown": "An unexpected error occurred communicating with GridPlus wallet"
+      },
+      "menu": {
+        "switchSafeCard": "Switch SafeCard"
       }
     },
     "ledger": {
@@ -2519,7 +2524,11 @@
       "getFeeData": "Failed to estimate network fees.",
       "getPublicKey": "Failed to get public key from wallet.",
       "getUtxos": "Failed to get utxos.",
-      "getValidator": "Failed to get validator."
+      "getValidator": "Failed to get validator.",
+      "gridplus": {
+        "wrongSafeCard": "Wrong SafeCard inserted. Please insert the correct SafeCard and try again.",
+        "removeSafeCard": "Remove inserted SafeCard to access internal GridPlus wallet."
+      }
     }
   },
   "actionCenter": {

@@ -318,3 +318,19 @@ export const solana: Readonly<Asset> = Object.freeze({
   explorerTxLink: 'https://explorer.solana.com/tx/',
   relatedAssetKey: null,
 })
+
+export const tron: Readonly<Asset> = Object.freeze({
+  assetId: caip.tronAssetId,
+  chainId: caip.tronChainId,
+  name: 'Tron',
+  networkName: 'Tron',
+  symbol: 'TRX',
+  precision: 6,
+  color: '#FF0013',
+  networkColor: '#FF0013',
+  icon: 'https://rawcdn.githack.com/trustwallet/assets/b7a5f12d893fcf58e0eb1dd64478f076857b720b/blockchains/tron/info/logo.png',
+  explorer: 'https://tronscan.org',
+  explorerAddressLink: 'https://tronscan.org/#/address/',
+  explorerTxLink: 'https://tronscan.org/#/transaction/',
+  relatedAssetKey: null,
+})

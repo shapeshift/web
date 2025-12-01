@@ -1,4 +1,5 @@
 import { fromAccountId } from '@shapeshiftoss/caip'
+import { isGridPlus } from '@shapeshiftoss/hdwallet-gridplus'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import { isTrezor } from '@shapeshiftoss/hdwallet-trezor'
 import type { GetTradeRateInput } from '@shapeshiftoss/swapper'
@@ -80,6 +81,13 @@ export const useGetTradeRateInput = ({
 
   const affiliateBps = DEFAULT_FEE_BPS
 
+  const pubKey = useMemo(() => {
+    const skipDeviceDerivation =
+      wallet && (isLedger(wallet) || isTrezor(wallet) || isGridPlus(wallet))
+    return skipDeviceDerivation && sellAccountId ? fromAccountId(sellAccountId).account : undefined
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [wallet, sellAccountId])
+
   const tradeInputQueryParams: GetTradeQuoteOrRateInputArgs = useMemo(
     () => ({
       sellAsset,
@@ -94,16 +102,13 @@ export const useGetTradeRateInput = ({
       affiliateBps,
       // Pass in the user's slippage preference if it's set, else let the swapper use its default
       slippageTolerancePercentageDecimal: userSlippageTolerancePercentageDecimal,
-      pubKey:
-        wallet && (isLedger(wallet) || isTrezor(wallet)) && sellAccountId
-          ? fromAccountId(sellAccountId).account
-          : undefined,
+      pubKey,
     }),
     [
       affiliateBps,
       buyAsset,
+      pubKey,
       receiveAddress,
-      sellAccountId,
       sellAccountMetadata?.accountType,
       sellAccountNumber,
       sellAmountCryptoPrecision,

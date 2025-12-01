@@ -8,6 +8,8 @@ export const getAssetNamespaceFromChainId = (chainId: KnownChainIds): AssetNames
   switch (chainId) {
     case KnownChainIds.SolanaMainnet:
       return ASSET_NAMESPACE.splToken
+    case KnownChainIds.SuiMainnet:
+      return ASSET_NAMESPACE.slip44
     case KnownChainIds.EthereumMainnet:
     case KnownChainIds.AvalancheMainnet:
     case KnownChainIds.OptimismMainnet:

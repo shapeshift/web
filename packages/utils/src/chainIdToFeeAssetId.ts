@@ -17,6 +17,7 @@ import {
   optimismAssetId,
   polygonAssetId,
   solAssetId,
+  suiAssetId,
   thorchainAssetId,
   tronAssetId,
 } from '@shapeshiftoss/caip'
@@ -63,6 +64,8 @@ export const chainIdToFeeAssetId = (_chainId: ChainId): AssetId => {
       return solAssetId
     case KnownChainIds.TronMainnet:
       return tronAssetId
+    case KnownChainIds.SuiMainnet:
+      return suiAssetId
     case KnownChainIds.MonadMainnet:
       return monadAssetId
     default:

@@ -20,6 +20,7 @@ import { csp as monad } from './chains/monad'
 import { csp as optimism } from './chains/optimism'
 import { csp as polygon } from './chains/polygon'
 import { csp as solana } from './chains/solana'
+import { csp as sui } from './chains/sui'
 import { csp as thorchain } from './chains/thorchain'
 import { csp as tron } from './chains/tron'
 import { csp as chatwoot } from './chatwoot'
@@ -100,6 +101,7 @@ export const csps = [
   optimism,
   polygon,
   solana,
+  sui,
   thorchain,
   tron,
   mayachain,

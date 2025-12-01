@@ -97,8 +97,7 @@ export class ChainAdapter extends EvmBaseAdapter<KnownChainIds.MonadMainnet> {
   }
 
   getName() {
-    const enumIndex = Object.values(ChainAdapterDisplayName).indexOf(ChainAdapterDisplayName.Monad)
-    return Object.keys(ChainAdapterDisplayName)[enumIndex]
+    return 'Monad'
   }
 
   getType(): KnownChainIds.MonadMainnet {
@@ -329,7 +328,7 @@ export class ChainAdapter extends EvmBaseAdapter<KnownChainIds.MonadMainnet> {
           txFee: bnOrZero(slow.maxFeePerGas ?? slow.gasPrice)
             .times(gasLimitString)
             .toFixed(0),
-          chainSpecific: { gasLimit: gasLimitString, ...fast },
+          chainSpecific: { gasLimit: gasLimitString, ...slow },
         },
       }
     } catch (err) {

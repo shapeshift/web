@@ -6,26 +6,26 @@ import { Row } from '@/components/Row/Row'
 import { RawText, Text } from '@/components/Text'
 import { middleEllipsis } from '@/lib/utils'
 
-type RecipientAddressRowProps = {
+type ReceiveAddressRowProps = {
   explorerAddressLink: string
-  recipientAddress: string
+  receiveAddress: string
 }
 
-export const RecipientAddressRow = ({
+export const ReceiveAddressRow = ({
   explorerAddressLink,
-  recipientAddress,
-}: RecipientAddressRowProps) => {
+  receiveAddress,
+}: ReceiveAddressRowProps) => {
   const translate = useTranslate()
   return (
     <Row>
       <Row.Label>
-        <Text translation='trade.recipientAddress' />
+        <Text translation='trade.receiveAddress' />
       </Row.Label>
       <Row.Value>
         <HStack>
-          <RawText>{middleEllipsis(recipientAddress)}</RawText>
+          <RawText>{middleEllipsis(receiveAddress)}</RawText>
           <Link
-            href={`${explorerAddressLink}${recipientAddress}`}
+            href={`${explorerAddressLink}${receiveAddress}`}
             isExternal
             aria-label={translate('common.viewOnExplorer')}
           >

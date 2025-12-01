@@ -103,7 +103,7 @@ export const calculateSwapAmounts = async (
   const a2b = determineSwapDirection(pool, sellCoinType, buyCoinType)
 
   const decimalsA = pool.coinTypeA === sellCoinType ? sellAsset.precision : buyAsset.precision
-  const decimalsB = pool.coinTypeB === sellCoinType ? sellAsset.precision : buyAsset.precision
+  const decimalsB = pool.coinTypeA === sellCoinType ? buyAsset.precision : sellAsset.precision
 
   const preSwapParams = {
     pool,

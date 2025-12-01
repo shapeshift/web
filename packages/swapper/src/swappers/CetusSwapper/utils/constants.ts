@@ -8,5 +8,3 @@ export const isSupportedChainId = (
 ): chainId is (typeof SUPPORTED_SUI_CHAIN_IDS)[number] => {
   return SUPPORTED_SUI_CHAIN_IDS.includes(chainId)
 }
-
-export const DEFAULT_SLIPPAGE_TOLERANCE_PERCENTAGE = 0.5

@@ -83,7 +83,7 @@ export const cetusApi: SwapperApi = {
     const amountLimit = calculateAmountLimit(
       swapResult.estimatedAmountOut,
       tradeQuote.slippageTolerancePercentageDecimal,
-      false,
+      true,
     )
 
     const tx = await sdk.Swap.createSwapTransactionPayload({

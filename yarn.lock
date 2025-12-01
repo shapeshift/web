@@ -7231,6 +7231,18 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@ledgerhq/devices@npm:8.7.0":
+  version: 8.7.0
+  resolution: "@ledgerhq/devices@npm:8.7.0"
+  dependencies:
+    "@ledgerhq/errors": ^6.27.0
+    "@ledgerhq/logs": ^6.13.0
+    rxjs: ^7.8.1
+    semver: ^7.3.5
+  checksum: 780277445030bfa2124462df89b80e8b07a9111d4db9f59efe34f4363cb3fc76179a4735ee29a1dbef89edb683a84cc61e8801f6c1aa025726973456e2dbae26
+  languageName: node
+  linkType: hard
+
 "@ledgerhq/devices@npm:^8.4.2":
   version: 8.4.2
   resolution: "@ledgerhq/devices@npm:8.4.2"
@@ -7269,6 +7281,13 @@ __metadata:
   version: 6.26.0
   resolution: "@ledgerhq/errors@npm:6.26.0"
   checksum: 0ccd870d7bbeb5dfc58c767ee173d86e068039c6a86d8c717503575ac5a4425889aabfb8bf5072e91ab834ef4d29cd05c3adb8a4d862d766b465c21ba685a4e7
+  languageName: node
+  linkType: hard
+
+"@ledgerhq/errors@npm:^6.27.0":
+  version: 6.27.0
+  resolution: "@ledgerhq/errors@npm:6.27.0"
+  checksum: 7b65e20fbe37471de4e86a98cf9c4cb9591771d21c6b4c4e49783a388e1481006830dab677c8d90641bfdda79ff68db898f3cc9bac1bd01bed31ca9bd37c66fe
   languageName: node
   linkType: hard
 
@@ -7349,6 +7368,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@ledgerhq/hw-app-trx@npm:^6.31.9":
+  version: 6.31.9
+  resolution: "@ledgerhq/hw-app-trx@npm:6.31.9"
+  dependencies:
+    "@ledgerhq/hw-transport": 6.31.13
+  checksum: 90b9a91f98c425354d57b89bc164881cfc075c3a584de1820c92e5ff210eee376a48be94e335c9a5fd65b94309c4da52cfe6b7490c41a3707a982d552e8ac291
+  languageName: node
+  linkType: hard
+
 "@ledgerhq/hw-transport-mocker@npm:^6.29.12":
   version: 6.29.12
   resolution: "@ledgerhq/hw-transport-mocker@npm:6.29.12"
@@ -7393,6 +7421,18 @@ __metadata:
     "@ledgerhq/hw-transport": ^6.31.2
     "@ledgerhq/logs": ^6.12.0
   checksum: cac07618fe21147a3cb3069b1d5a4d92e2d0a1cb700ac5264802d20651381192bf7568a18f3fe3e013e77129ec0777d0f864698de64e3786fd1a19d89dcae840
+  languageName: node
+  linkType: hard
+
+"@ledgerhq/hw-transport@npm:6.31.13":
+  version: 6.31.13
+  resolution: "@ledgerhq/hw-transport@npm:6.31.13"
+  dependencies:
+    "@ledgerhq/devices": 8.7.0
+    "@ledgerhq/errors": ^6.27.0
+    "@ledgerhq/logs": ^6.13.0
+    events: ^3.3.0
+  checksum: eb9100b7cfc34153eb325a69240bc68b804508f6a54d1209686c28d4fda23737d1dce56ec184b613f5882ed9305139dce6f765e40292266d372f2196464baa59
   languageName: node
   linkType: hard
 
@@ -10836,15 +10876,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/hdwallet-coinbase@npm:1.62.16":
-  version: 1.62.16
-  resolution: "@shapeshiftoss/hdwallet-coinbase@npm:1.62.16"
+"@shapeshiftoss/hdwallet-coinbase@npm:1.62.18-tron-ledger.0":
+  version: 1.62.18-tron-ledger.0
+  resolution: "@shapeshiftoss/hdwallet-coinbase@npm:1.62.18-tron-ledger.0"
   dependencies:
     "@coinbase/wallet-sdk": ^3.6.6
-    "@shapeshiftoss/hdwallet-core": 1.62.16
+    "@shapeshiftoss/hdwallet-core": ^1.62.18-tron-ledger.0
     eth-rpc-errors: ^4.0.3
     lodash: ^4.17.21
-  checksum: b4710483fcdcade24e0c8af9f8b04267885a0c0fd7b0b1f1387e9530abec303f5ebc813b10340633aaee711ee0a5a721c328733654b56c6eaa906929c1465dd7
+  checksum: 50a79195e6fb6c53d01c5ecefebefcacb9ba2f3db1d616b08a548ad17565ab78cd0335add368323cd777c1f2c147f92671491382c5516b11bca5c38e36d1c017
   languageName: node
   linkType: hard
 
@@ -10877,9 +10917,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/hdwallet-core@npm:1.62.16":
-  version: 1.62.16
-  resolution: "@shapeshiftoss/hdwallet-core@npm:1.62.16"
+"@shapeshiftoss/hdwallet-core@npm:1.62.18-tron-ledger.0, @shapeshiftoss/hdwallet-core@npm:^1.62.18-tron-ledger.0":
+  version: 1.62.18-tron-ledger.0
+  resolution: "@shapeshiftoss/hdwallet-core@npm:1.62.18-tron-ledger.0"
   dependencies:
     "@shapeshiftoss/bitcoinjs-lib": 7.0.0-shapeshift.0
     "@shapeshiftoss/proto-tx-builder": 0.10.0
@@ -10890,7 +10930,7 @@ __metadata:
     lodash: ^4.17.21
     rxjs: ^6.4.0
     type-assertions: ^1.1.0
-  checksum: 04d68e1b4f282d3d4aa727ab40b3aa60c151ee7468a14456aa7a908ee015c9d653683741e79b33e3c2efafb2f580d5647c82987975bf0bec7359508c8165d748
+  checksum: 3de5aa7eb5dbf9d3204db98b9e039ac0e406314e7adb5766a6dc74a3a5d0d91e7e4c518dcce41730606730927a3209b0ed37dde89046cf2bdae33ba83ea6b7bc
   languageName: node
   linkType: hard
 
@@ -10908,38 +10948,38 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/hdwallet-gridplus@npm:1.62.16":
-  version: 1.62.16
-  resolution: "@shapeshiftoss/hdwallet-gridplus@npm:1.62.16"
+"@shapeshiftoss/hdwallet-gridplus@npm:1.62.18-tron-ledger.0":
+  version: 1.62.18-tron-ledger.0
+  resolution: "@shapeshiftoss/hdwallet-gridplus@npm:1.62.18-tron-ledger.0"
   dependencies:
     "@bitcoinerlab/secp256k1": ^1.1.1
     "@ethereumjs/common": 4.4.0
     "@ethereumjs/rlp": 5.0.2
     "@ethereumjs/tx": 5.4.0
     "@metamask/eth-sig-util": ^7.0.0
-    "@shapeshiftoss/hdwallet-core": 1.62.16
+    "@shapeshiftoss/hdwallet-core": ^1.62.18-tron-ledger.0
     bech32: ^1.1.4
     bs58: ^5.0.0
     crypto-js: ^4.2.0
     gridplus-sdk: ^3.2.0
     lodash: ^4.17.21
-  checksum: d4f1e0ef0c04a579e7bbf6e22f34727d43a07405e31f69296b697e198a182a06896cc17f1b19fe29f14aacf14ec8cf05e336f65abd797fc78a284429f3f24c6d
+  checksum: 141c11c304fd2649d2e85f8c7b4dc62a6e3fc0136f132cc05fc6422aeafa5a4f227c6f4bf9edcc1eb787b83dbfd8b137b446a69c0be950354f72b7a42d63d489
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/hdwallet-keepkey-webusb@npm:1.62.16":
-  version: 1.62.16
-  resolution: "@shapeshiftoss/hdwallet-keepkey-webusb@npm:1.62.16"
+"@shapeshiftoss/hdwallet-keepkey-webusb@npm:1.62.18-tron-ledger.0":
+  version: 1.62.18-tron-ledger.0
+  resolution: "@shapeshiftoss/hdwallet-keepkey-webusb@npm:1.62.18-tron-ledger.0"
   dependencies:
-    "@shapeshiftoss/hdwallet-core": 1.62.16
-    "@shapeshiftoss/hdwallet-keepkey": 1.62.16
-  checksum: 2d111ede7854d24f427dc908220a49f15e0bcec44294ee589775e899f56b51e20160f1d6fa197affd9a6393b4f8c051829804012d601cf10e3d57fe0d42615d1
+    "@shapeshiftoss/hdwallet-core": ^1.62.18-tron-ledger.0
+    "@shapeshiftoss/hdwallet-keepkey": ^1.62.18-tron-ledger.0
+  checksum: 8670279f1c70a4d476efe1925f40d9753e3cd823c27cf4bb550d127d681bac2f27670cc8cf6bf9cc39ee964ba592cf8539ed4df7995a1df7bc27763920fa4ab1
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/hdwallet-keepkey@npm:1.62.16":
-  version: 1.62.16
-  resolution: "@shapeshiftoss/hdwallet-keepkey@npm:1.62.16"
+"@shapeshiftoss/hdwallet-keepkey@npm:1.62.18-tron-ledger.0, @shapeshiftoss/hdwallet-keepkey@npm:^1.62.18-tron-ledger.0":
+  version: 1.62.18-tron-ledger.0
+  resolution: "@shapeshiftoss/hdwallet-keepkey@npm:1.62.18-tron-ledger.0"
   dependencies:
     "@bitcoinerlab/secp256k1": ^1.1.1
     "@ethereumjs/common": 3.2.0
@@ -10947,7 +10987,7 @@ __metadata:
     "@keepkey/device-protocol": 7.13.4
     "@metamask/eth-sig-util": ^7.0.0
     "@shapeshiftoss/bitcoinjs-lib": 7.0.0-shapeshift.0
-    "@shapeshiftoss/hdwallet-core": 1.62.16
+    "@shapeshiftoss/hdwallet-core": ^1.62.18-tron-ledger.0
     "@shapeshiftoss/proto-tx-builder": 0.10.0
     bignumber.js: ^9.0.1
     bnb-javascript-sdk-nobroadcast: 2.16.15
@@ -10958,44 +10998,44 @@ __metadata:
     lodash: ^4.17.21
     p-lazy: ^3.1.0
     semver: ^7.3.8
-  checksum: 62a9eebc5c3e5564c25b0cd360fd3e267a2cf52befe710cab45f05f518d34e9ba7b37b7f33d22f2037e26823de61a10c30cfbaa0999368d6511984bab56df2d5
+  checksum: 3634728cba26c81f3b97547fb14f748088a7f17cb1d7191b5700662055b2233fd961e3383f06a46d6fd633838d34340bce7ffabb3a8fb3436a2f5d631718715e
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/hdwallet-keplr@npm:1.62.16":
-  version: 1.62.16
-  resolution: "@shapeshiftoss/hdwallet-keplr@npm:1.62.16"
+"@shapeshiftoss/hdwallet-keplr@npm:1.62.18-tron-ledger.0":
+  version: 1.62.18-tron-ledger.0
+  resolution: "@shapeshiftoss/hdwallet-keplr@npm:1.62.18-tron-ledger.0"
   dependencies:
     "@cosmjs/amino": ^0.28.13
     "@cosmjs/stargate": ^0.28.13
     "@shapeshiftoss/caip": 8.15.0
-    "@shapeshiftoss/hdwallet-core": 1.62.16
+    "@shapeshiftoss/hdwallet-core": ^1.62.18-tron-ledger.0
     "@shapeshiftoss/proto-tx-builder": 0.10.0
     "@shapeshiftoss/types": 3.1.3
     base64-js: ^1.5.1
     lodash: ^4.17.21
-  checksum: 86c20620bdb6a55985d0ec62d4b06f834092fed649c36d57eb8322760bbb193ef4e2274e33a3979a7761a4950ee24835c82c51eb9a1c9b3c46dc7723648d1119
+  checksum: e56bfe8977197a13e458d59ebd2129b084304685ba5d2f02f217e259beec38f73c6c01bd50b43ffd8489d37146155cd87b6bbb54ae28f2af63b57c7b9b1676b4
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/hdwallet-ledger-webhid@npm:1.62.16":
-  version: 1.62.16
-  resolution: "@shapeshiftoss/hdwallet-ledger-webhid@npm:1.62.16"
+"@shapeshiftoss/hdwallet-ledger-webhid@npm:1.62.18-tron-ledger.0":
+  version: 1.62.18-tron-ledger.0
+  resolution: "@shapeshiftoss/hdwallet-ledger-webhid@npm:1.62.18-tron-ledger.0"
   dependencies:
     "@ledgerhq/hw-app-btc": ^10.10.0
     "@ledgerhq/hw-app-eth": ^6.45.13
     "@ledgerhq/hw-transport": 6.31.8
     "@ledgerhq/hw-transport-webhid": ^6.30.4
-    "@shapeshiftoss/hdwallet-core": 1.62.16
-    "@shapeshiftoss/hdwallet-ledger": 1.62.16
+    "@shapeshiftoss/hdwallet-core": ^1.62.18-tron-ledger.0
+    "@shapeshiftoss/hdwallet-ledger": ^1.62.18-tron-ledger.0
     "@types/w3c-web-hid": ^1.0.2
-  checksum: 8cb1d7f7271204fad2759ccfef6cef5609639af52f6fb0a646b4e21bc8beeb8e4078a1151f3dbbeee6fb525f14f456678c2d556df3defb232e43bfb066431315
+  checksum: 0c9ae7c306461056bb191dfc745a06e3b8f575dc459563433d0e27893e167332866be4524725122df1c710b69461a3d6ea3e9c30ff2af2f0ae356aa038279a56
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/hdwallet-ledger-webusb@npm:1.62.16":
-  version: 1.62.16
-  resolution: "@shapeshiftoss/hdwallet-ledger-webusb@npm:1.62.16"
+"@shapeshiftoss/hdwallet-ledger-webusb@npm:1.62.18-tron-ledger.0":
+  version: 1.62.18-tron-ledger.0
+  resolution: "@shapeshiftoss/hdwallet-ledger-webusb@npm:1.62.18-tron-ledger.0"
   dependencies:
     "@ledgerhq/hw-app-btc": ^10.10.0
     "@ledgerhq/hw-app-cosmos": ^6.32.4
@@ -11003,17 +11043,17 @@ __metadata:
     "@ledgerhq/hw-app-solana": ^7.5.1
     "@ledgerhq/hw-transport": 6.31.8
     "@ledgerhq/hw-transport-webusb": 6.29.8
-    "@shapeshiftoss/hdwallet-core": 1.62.16
-    "@shapeshiftoss/hdwallet-ledger": 1.62.16
+    "@shapeshiftoss/hdwallet-core": ^1.62.18-tron-ledger.0
+    "@shapeshiftoss/hdwallet-ledger": ^1.62.18-tron-ledger.0
     "@types/w3c-web-usb": ^1.0.4
     p-queue: ^7.4.1
-  checksum: 37592232a1d50ccead5a2649dd9afcb35a2b766fdccf2e3f275cad054ffed73f0d64ce760f60fc2c50e9571483f9cbba41ebe3f5dc871f45906262321a56e01b
+  checksum: 0062a0a4b3e4ab0c99580ca0d666176875e067dd1d345ba0a51c159d2c855ea1e65f66f6fab0a26c9b25782d728c087a40bd930f5fbb72f270031df6360d4ac2
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/hdwallet-ledger@npm:1.62.16":
-  version: 1.62.16
-  resolution: "@shapeshiftoss/hdwallet-ledger@npm:1.62.16"
+"@shapeshiftoss/hdwallet-ledger@npm:1.62.18-tron-ledger.0, @shapeshiftoss/hdwallet-ledger@npm:^1.62.18-tron-ledger.0":
+  version: 1.62.18-tron-ledger.0
+  resolution: "@shapeshiftoss/hdwallet-ledger@npm:1.62.18-tron-ledger.0"
   dependencies:
     "@ethereumjs/common": 3.2.0
     "@ethereumjs/tx": 4.2.0
@@ -11022,10 +11062,11 @@ __metadata:
     "@ledgerhq/hw-app-cosmos": ^6.32.4
     "@ledgerhq/hw-app-eth": ^6.45.13
     "@ledgerhq/hw-app-solana": ^7.5.1
+    "@ledgerhq/hw-app-trx": ^6.31.9
     "@ledgerhq/hw-transport": 6.31.8
     "@ledgerhq/logs": 6.13.0
     "@shapeshiftoss/bitcoinjs-lib": 7.0.0-shapeshift.0
-    "@shapeshiftoss/hdwallet-core": 1.62.16
+    "@shapeshiftoss/hdwallet-core": ^1.62.18-tron-ledger.0
     "@solana/web3.js": 1.95.8
     base64-js: ^1.5.1
     bchaddrjs: ^0.4.4
@@ -11035,33 +11076,33 @@ __metadata:
     ethereumjs-util: ^6.1.0
     ethers: 5.7.2
     lodash: ^4.17.21
-  checksum: 3d3f17523ca42824b0d6dd1f1d6b43bfd936330b0396e97b39a647060bcde41c52746453a8bac4f3c9d88b7bc5f72f0849f809f3b1e01ea6adc0788d56685e00
+  checksum: f38c980821bab707601ea80db4cd1160044405e035e965d00b44c91de6aa2f16d6c86e29a837d853f46595b1934e1789d33f2ef1f500aaca2fdee985284ac13c
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/hdwallet-metamask-multichain@npm:1.62.16":
-  version: 1.62.16
-  resolution: "@shapeshiftoss/hdwallet-metamask-multichain@npm:1.62.16"
+"@shapeshiftoss/hdwallet-metamask-multichain@npm:1.62.18-tron-ledger.0":
+  version: 1.62.18-tron-ledger.0
+  resolution: "@shapeshiftoss/hdwallet-metamask-multichain@npm:1.62.18-tron-ledger.0"
   dependencies:
     "@metamask/detect-provider": ^1.2.0
     "@metamask/onboarding": ^1.0.1
     "@shapeshiftoss/common-api": ^9.3.0
-    "@shapeshiftoss/hdwallet-core": 1.62.16
+    "@shapeshiftoss/hdwallet-core": ^1.62.18-tron-ledger.0
     "@shapeshiftoss/metamask-snaps-adapter": ^1.0.12
     "@shapeshiftoss/metamask-snaps-types": ^1.0.12
     eth-rpc-errors: ^4.0.3
     lodash: ^4.17.21
     mipd: ^0.0.7
-  checksum: 50e69497d8f22827f023def8d07261a48032a4b361ca71413f2dd2c25af1d76890da050462d0076f2c356e11cf7375a6586756ec883fb5ec6db1b653f0493983
+  checksum: 7b9e2f1307cd44d409d363e00a6d7950db2526f18e4f5f6ee8f6eab2bbfbd1ac554310cffcaedf97750f83c335ec0e2139c437bd8cc83c96f322581e876bda6e
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/hdwallet-native-vault@npm:1.62.16":
-  version: 1.62.16
-  resolution: "@shapeshiftoss/hdwallet-native-vault@npm:1.62.16"
+"@shapeshiftoss/hdwallet-native-vault@npm:1.62.18-tron-ledger.0":
+  version: 1.62.18-tron-ledger.0
+  resolution: "@shapeshiftoss/hdwallet-native-vault@npm:1.62.18-tron-ledger.0"
   dependencies:
     "@bitcoinerlab/secp256k1": ^1.1.1
-    "@shapeshiftoss/hdwallet-native": 1.62.16
+    "@shapeshiftoss/hdwallet-native": ^1.62.18-tron-ledger.0
     bip39: ^3.0.4
     hash-wasm: ^4.11.0
     idb-keyval: ^6.0.3
@@ -11069,18 +11110,18 @@ __metadata:
     p-lazy: ^3.1.0
     type-assertions: ^1.1.0
     uuid: ^8.3.2
-  checksum: ebc5693220eef47eac6b1cbccfdead3f4c810f9a93e2a32470c103d729baa4e3215badd4a5ae1e55f30edf6dd06e226c57b991fdd2eb2a13ee350d12d4535d36
+  checksum: cc25a004008ef6e6360e70917590f3e46d0afb79566c5d682a108c75f033eed745f2db3cf7ea3fd6e7c09705080593c6f9f7386b7750c6b368fea1065622cc7e
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/hdwallet-native@npm:1.62.16":
-  version: 1.62.16
-  resolution: "@shapeshiftoss/hdwallet-native@npm:1.62.16"
+"@shapeshiftoss/hdwallet-native@npm:1.62.18-tron-ledger.0, @shapeshiftoss/hdwallet-native@npm:^1.62.18-tron-ledger.0":
+  version: 1.62.18-tron-ledger.0
+  resolution: "@shapeshiftoss/hdwallet-native@npm:1.62.18-tron-ledger.0"
   dependencies:
     "@bitcoinerlab/secp256k1": ^1.1.1
     "@noble/curves": ^1.4.0
     "@shapeshiftoss/bitcoinjs-lib": 7.0.0-shapeshift.0
-    "@shapeshiftoss/hdwallet-core": 1.62.16
+    "@shapeshiftoss/hdwallet-core": ^1.62.18-tron-ledger.0
     "@shapeshiftoss/proto-tx-builder": 0.10.0
     "@zxing/text-encoding": ^0.9.0
     bchaddrjs: ^0.4.9
@@ -11101,7 +11142,7 @@ __metadata:
     p-lazy: ^3.1.0
     scrypt-js: ^3.0.1
     tendermint-tx-builder: 1.0.16
-  checksum: 9fe180b7669d4812c45a564ab96c3ef464d9fca93003130fa4a87541558b9c8172ccd51ecd909af047325e042d92ae5eb74b51b1c4b10c863bd21f19dd45dcd7
+  checksum: 761452ba94ea2ba882e704c1bb371e2793883460000e799c1fa68482155cf189acba80b65d83ae3c2dd68e3113333fbc5f0bfc326eb0506ac8c9ba63ad794590
   languageName: node
   linkType: hard
 
@@ -11138,84 +11179,84 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/hdwallet-phantom@npm:1.62.16":
-  version: 1.62.16
-  resolution: "@shapeshiftoss/hdwallet-phantom@npm:1.62.16"
+"@shapeshiftoss/hdwallet-phantom@npm:1.62.18-tron-ledger.0":
+  version: 1.62.18-tron-ledger.0
+  resolution: "@shapeshiftoss/hdwallet-phantom@npm:1.62.18-tron-ledger.0"
   dependencies:
     "@shapeshiftoss/bitcoinjs-lib": 7.0.0-shapeshift.0
-    "@shapeshiftoss/hdwallet-core": 1.62.16
+    "@shapeshiftoss/hdwallet-core": ^1.62.18-tron-ledger.0
     "@solana/web3.js": 1.95.8
     base64-js: ^1.5.1
     bitcoinjs-message: ^2.0.0
     ethers: 5.7.2
     lodash: ^4.17.21
-  checksum: f5c5b13ba008055c661c21190c5ea468f30d414461cfd7ec48658f1a95bde81fc386a856a1fdb074f88220e0403720611788310123c3d5ef0d8c233efa8fb6ff
+  checksum: fbf0c25bd62ff5f5071beb60185a35205dd6895381f2b99ede1ffaa7b479b86ab685e7432cc9ff21613321a2679183336653b7c113e91c81060ce5a0744cfb50
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/hdwallet-trezor-connect@npm:1.62.16":
-  version: 1.62.16
-  resolution: "@shapeshiftoss/hdwallet-trezor-connect@npm:1.62.16"
+"@shapeshiftoss/hdwallet-trezor-connect@npm:1.62.18-tron-ledger.0":
+  version: 1.62.18-tron-ledger.0
+  resolution: "@shapeshiftoss/hdwallet-trezor-connect@npm:1.62.18-tron-ledger.0"
   dependencies:
-    "@shapeshiftoss/hdwallet-core": 1.62.16
-    "@shapeshiftoss/hdwallet-trezor": 1.62.16
+    "@shapeshiftoss/hdwallet-core": ^1.62.18-tron-ledger.0
+    "@shapeshiftoss/hdwallet-trezor": ^1.62.18-tron-ledger.0
     "@trezor/connect-web": ^9.6.4
-  checksum: 0ded56bb0dd36d9fcd4dfd2ec99ae4d8f761b8ae1074d3c64aaeaba8019e3e8adee927da59a1c801867ac5790975420a80cbe2ddc9dcaf1820e200a82ccd96f8
+  checksum: d94a45d8ba2b16710bd67641015eb84cc49b995bc94aa910d6078ffbe719e852edf9d2731bb9ce129da112fdb835ca840eb0b1455dc34318fff33248759aa11c
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/hdwallet-trezor@npm:1.62.16":
-  version: 1.62.16
-  resolution: "@shapeshiftoss/hdwallet-trezor@npm:1.62.16"
+"@shapeshiftoss/hdwallet-trezor@npm:1.62.18-tron-ledger.0, @shapeshiftoss/hdwallet-trezor@npm:^1.62.18-tron-ledger.0":
+  version: 1.62.18-tron-ledger.0
+  resolution: "@shapeshiftoss/hdwallet-trezor@npm:1.62.18-tron-ledger.0"
   dependencies:
     "@ethereumjs/common": 3.2.0
     "@ethereumjs/tx": 4.2.0
-    "@shapeshiftoss/hdwallet-core": 1.62.16
+    "@shapeshiftoss/hdwallet-core": ^1.62.18-tron-ledger.0
     base64-js: ^1.5.1
     bchaddrjs: ^0.4.4
     lodash: ^4.17.21
-  checksum: 203f81e7b7db2ea0e5f8e0f7d4f1151668a4778f3960ed1158efaa478b297de559d774f5cbd13a88b7656264398c37295db63c66fae9d41f694ce39a74ef92fb
+  checksum: 4461180a37599d5d93363871fd619ccf0f637bd04e692154a919b8c35762af71c2377140e3907d75d998ee2afb4cf5fbcbb52bb56f61de606512dd078bd59c97
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/hdwallet-vultisig@npm:1.62.16":
-  version: 1.62.16
-  resolution: "@shapeshiftoss/hdwallet-vultisig@npm:1.62.16"
+"@shapeshiftoss/hdwallet-vultisig@npm:1.62.18-tron-ledger.0":
+  version: 1.62.18-tron-ledger.0
+  resolution: "@shapeshiftoss/hdwallet-vultisig@npm:1.62.18-tron-ledger.0"
   dependencies:
     "@cosmjs/amino": ^0.28.13
     "@cosmjs/stargate": ^0.28.13
     "@shapeshiftoss/bitcoinjs-lib": 7.0.0-shapeshift.0
-    "@shapeshiftoss/hdwallet-core": 1.62.16
+    "@shapeshiftoss/hdwallet-core": ^1.62.18-tron-ledger.0
     "@solana/web3.js": 1.95.8
     base64-js: ^1.5.1
     bitcoinjs-message: ^2.0.0
     ethers: 5.7.2
     lodash: ^4.17.21
-  checksum: 940c5ee9d8a77d732740e95450645ae1ecdf6c5c5f31f4fbdf84707ecd110986b00efca4aaba4bfc5e3106c96f9b657af42dcdc72c297c354070b18c8d7cc230
+  checksum: 0460da4dc29482075b466d46b249fc12d14ec46c1bded29da990d27d7095cd903aac15d11ed357c30e38eb2778a9626f8d601c3106dd5a03329d525618625718
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/hdwallet-walletconnect@npm:1.62.16":
-  version: 1.62.16
-  resolution: "@shapeshiftoss/hdwallet-walletconnect@npm:1.62.16"
+"@shapeshiftoss/hdwallet-walletconnect@npm:1.62.18-tron-ledger.0":
+  version: 1.62.18-tron-ledger.0
+  resolution: "@shapeshiftoss/hdwallet-walletconnect@npm:1.62.18-tron-ledger.0"
   dependencies:
-    "@shapeshiftoss/hdwallet-core": 1.62.16
+    "@shapeshiftoss/hdwallet-core": ^1.62.18-tron-ledger.0
     "@walletconnect/qrcode-modal": ^1.7.8
     "@walletconnect/web3-provider": ^1.7.8
     ethers: ^5.6.5
-  checksum: d838972a67187568962cfab5cae47c23a3d969a6e526027413d72cda821eb59887536537756b6207513e0f09f0745fdfc8d8756f5ef66fd3f64f7b349afdaf61
+  checksum: 5dd579767e8bd5deaf46c66741892898833eb02901a3ba6d75c4da5b8275de62ebaa4dd0793cad385c72925685174b7b2ea29fe7ce0ff6cc370af789d1797d79
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/hdwallet-walletconnectv2@npm:1.62.16":
-  version: 1.62.16
-  resolution: "@shapeshiftoss/hdwallet-walletconnectv2@npm:1.62.16"
+"@shapeshiftoss/hdwallet-walletconnectv2@npm:1.62.18-tron-ledger.0":
+  version: 1.62.18-tron-ledger.0
+  resolution: "@shapeshiftoss/hdwallet-walletconnectv2@npm:1.62.18-tron-ledger.0"
   dependencies:
-    "@shapeshiftoss/hdwallet-core": 1.62.16
+    "@shapeshiftoss/hdwallet-core": ^1.62.18-tron-ledger.0
     "@walletconnect/ethereum-provider": ^2.20.2
     "@walletconnect/modal": ^2.6.2
     ethers: ^5.6.5
-  checksum: a3a40af3d8f66a144f58e5a20ebca4693c2aba03efde2aa10ac9ce51fa9ee4d6009cefed91e06d48ee754dfd63dc0b339b950ad2dd4740b179c8e876128d8c3a
+  checksum: 454223a9b54f1fce9c1fd7ad2bf524fdb4dc652b6754aec91ff5408e822eccd4d0fab46f98a8845d8e0f5e81c532cab952a4690ee82ca8aa541bad4c909f642f
   languageName: node
   linkType: hard
 
@@ -11435,24 +11476,24 @@ __metadata:
     "@shapeshiftoss/chain-adapters": "workspace:^"
     "@shapeshiftoss/contracts": "workspace:^"
     "@shapeshiftoss/errors": "workspace:^"
-    "@shapeshiftoss/hdwallet-coinbase": 1.62.16
-    "@shapeshiftoss/hdwallet-core": 1.62.16
-    "@shapeshiftoss/hdwallet-gridplus": 1.62.16
-    "@shapeshiftoss/hdwallet-keepkey": 1.62.16
-    "@shapeshiftoss/hdwallet-keepkey-webusb": 1.62.16
-    "@shapeshiftoss/hdwallet-keplr": 1.62.16
-    "@shapeshiftoss/hdwallet-ledger": 1.62.16
-    "@shapeshiftoss/hdwallet-ledger-webhid": 1.62.16
-    "@shapeshiftoss/hdwallet-ledger-webusb": 1.62.16
-    "@shapeshiftoss/hdwallet-metamask-multichain": 1.62.16
-    "@shapeshiftoss/hdwallet-native": 1.62.16
-    "@shapeshiftoss/hdwallet-native-vault": 1.62.16
-    "@shapeshiftoss/hdwallet-phantom": 1.62.16
-    "@shapeshiftoss/hdwallet-trezor": 1.62.16
-    "@shapeshiftoss/hdwallet-trezor-connect": 1.62.16
-    "@shapeshiftoss/hdwallet-vultisig": 1.62.16
-    "@shapeshiftoss/hdwallet-walletconnect": 1.62.16
-    "@shapeshiftoss/hdwallet-walletconnectv2": 1.62.16
+    "@shapeshiftoss/hdwallet-coinbase": 1.62.18-tron-ledger.0
+    "@shapeshiftoss/hdwallet-core": 1.62.18-tron-ledger.0
+    "@shapeshiftoss/hdwallet-gridplus": 1.62.18-tron-ledger.0
+    "@shapeshiftoss/hdwallet-keepkey": 1.62.18-tron-ledger.0
+    "@shapeshiftoss/hdwallet-keepkey-webusb": 1.62.18-tron-ledger.0
+    "@shapeshiftoss/hdwallet-keplr": 1.62.18-tron-ledger.0
+    "@shapeshiftoss/hdwallet-ledger": 1.62.18-tron-ledger.0
+    "@shapeshiftoss/hdwallet-ledger-webhid": 1.62.18-tron-ledger.0
+    "@shapeshiftoss/hdwallet-ledger-webusb": 1.62.18-tron-ledger.0
+    "@shapeshiftoss/hdwallet-metamask-multichain": 1.62.18-tron-ledger.0
+    "@shapeshiftoss/hdwallet-native": 1.62.18-tron-ledger.0
+    "@shapeshiftoss/hdwallet-native-vault": 1.62.18-tron-ledger.0
+    "@shapeshiftoss/hdwallet-phantom": 1.62.18-tron-ledger.0
+    "@shapeshiftoss/hdwallet-trezor": 1.62.18-tron-ledger.0
+    "@shapeshiftoss/hdwallet-trezor-connect": 1.62.18-tron-ledger.0
+    "@shapeshiftoss/hdwallet-vultisig": 1.62.18-tron-ledger.0
+    "@shapeshiftoss/hdwallet-walletconnect": 1.62.18-tron-ledger.0
+    "@shapeshiftoss/hdwallet-walletconnectv2": 1.62.18-tron-ledger.0
     "@shapeshiftoss/swapper": "workspace:^"
     "@shapeshiftoss/types": "workspace:^"
     "@shapeshiftoss/unchained-client": "workspace:^"

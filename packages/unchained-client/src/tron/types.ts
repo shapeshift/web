@@ -28,6 +28,11 @@ export interface TronTx {
   signature?: string[]
 }
 
+type TRC20Token = {
+  key: string
+  value: number
+}
+
 export interface TronAccount {
   address: string
   balance: number
@@ -43,7 +48,7 @@ export interface TronAccount {
       frozen_balance?: number
     }
   }
-  assetV2?: Record<string, number>
+  assetV2?: TRC20Token[]
 }
 
 export interface TronBlock {

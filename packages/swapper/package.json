@@ -39,7 +39,7 @@
     "@shapeshiftoss/caip": "workspace:^",
     "@shapeshiftoss/chain-adapters": "workspace:^",
     "@shapeshiftoss/contracts": "workspace:^",
-    "@shapeshiftoss/hdwallet-core": "1.62.9",
+    "@shapeshiftoss/hdwallet-core": "1.62.18",
     "@shapeshiftoss/types": "workspace:^",
     "@shapeshiftoss/unchained-client": "workspace:^",
     "@shapeshiftoss/utils": "workspace:^",
@@ -60,7 +60,7 @@
     "qs": "^6.10.5",
     "retry-axios": "^2.6.0",
     "uuid": "^9.0.0",
-    "viem": "^2.10.9"
+    "viem": "^2.40.3"
   },
   "devDependencies": {
     "@types/lodash": "^4.14.178",

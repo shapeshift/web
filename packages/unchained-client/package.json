@@ -38,7 +38,7 @@
     "bignumber.js": "^9.3.1",
     "ethers": "6.11.1",
     "isomorphic-ws": "^4.0.1",
-    "viem": "^2.10.9",
+    "viem": "^2.40.3",
     "ws": "^8.17.1"
   },
   "devDependencies": {

@@ -287,9 +287,6 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SuiMainnet> {
           throw new Error(`No coins found for type ${tokenId}`)
         }
 
-        // Select coins to cover the transfer amount
-        // For simplicity, we'll use the SDK's built-in coin selection via tx.splitCoins
-        // which handles merging and splitting automatically
         const [coinToSend] = tx.splitCoins(tx.object(coins.data[0].coinObjectId), [value])
         tx.transferObjects([coinToSend], to)
       } else {

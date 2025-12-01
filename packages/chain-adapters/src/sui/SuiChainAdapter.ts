@@ -127,8 +127,6 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SuiMainnet> {
         return !isSuiNative && balance.totalBalance !== '0'
       })
 
-      console.log('[SUI getAccount] Found', nonZeroBalances.length, 'non-zero token balances')
-
       const tokens = await Promise.all(
         nonZeroBalances.map(async balance => {
           const symbol = balance.coinType.split('::').pop() ?? 'UNKNOWN'
@@ -152,52 +150,33 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SuiMainnet> {
 
           const normalizedCoinType = normalizeCoinType(balance.coinType)
 
-          // Generate assetId with normalized coinType
           const assetId = toAssetId({
             chainId: this.chainId,
             assetNamespace: ASSET_NAMESPACE.suiCoin,
             assetReference: normalizedCoinType,
           })
 
-          console.log('[SUI getAccount] Processing token:', {
-            coinType: balance.coinType,
-            normalizedCoinType,
-            balance: balance.totalBalance,
-            symbol,
-            generatedAssetId: assetId,
-          })
           try {
             const metadata = await this.client.getCoinMetadata({ coinType: balance.coinType })
 
             if (!metadata) {
-              console.warn(
-                `[SUI] No metadata found for coin type ${balance.coinType}, using fallback`,
-              )
-              const tokenData = {
+              return {
                 assetId,
                 balance: balance.totalBalance,
                 symbol,
                 name: balance.coinType,
                 precision: 0,
               }
-              console.log('[SUI getAccount] Returning fallback token:', tokenData)
-              return tokenData
             }
 
-            const tokenData = {
+            return {
               assetId,
               balance: balance.totalBalance,
               symbol: metadata.symbol ?? symbol,
               name: metadata.name ?? balance.coinType,
               precision: metadata.decimals ?? 0,
             }
-            console.log('[SUI getAccount] Returning token with metadata:', tokenData)
-            return tokenData
           } catch (err) {
-            console.warn(
-              `[SUI] Failed to fetch metadata for coin type ${balance.coinType}:`,
-              err instanceof Error ? err.message : 'Unknown error',
-            )
             return {
               assetId,
               balance: balance.totalBalance,

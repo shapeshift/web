@@ -38,7 +38,7 @@ export const getTradeQuote = async (
     return Err(
       makeSwapErrorRight({
         message: `accountNumber is required`,
-        code: TradeQuoteError.UnknownError,
+        code: TradeQuoteError.InternalError,
       }),
     )
   }
@@ -69,7 +69,7 @@ export const getTradeQuote = async (
     return Err(
       makeSwapErrorRight({
         message: `suiAsset is required`,
-        code: TradeQuoteError.UnknownError,
+        code: TradeQuoteError.InternalError,
       }),
     )
   }

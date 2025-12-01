@@ -9,6 +9,7 @@ import {
   bscChainId,
   ethChainId,
   gnosisChainId,
+  monadChainId,
   optimismChainId,
   polygonChainId,
   solanaChainId,
@@ -24,6 +25,7 @@ import {
   bnbsmartchain,
   ethereum,
   gnosis,
+  monad,
   optimism,
   polygon,
   solana,
@@ -125,6 +127,14 @@ export async function getAssets(chainId: ChainId): Promise<Asset[]> {
           explorer: base.explorer,
           explorerAddressLink: base.explorerAddressLink,
           explorerTxLink: base.explorerTxLink,
+        }
+      case monadChainId:
+        return {
+          assetNamespace: ASSET_NAMESPACE.erc20,
+          category: adapters.chainIdToCoingeckoAssetPlatform(chainId),
+          explorer: monad.explorer,
+          explorerAddressLink: monad.explorerAddressLink,
+          explorerTxLink: monad.explorerTxLink,
         }
       case solanaChainId:
         return {

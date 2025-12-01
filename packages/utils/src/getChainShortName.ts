@@ -40,6 +40,8 @@ export const getChainShortName = (chainId: KnownChainIds) => {
       return 'SOL'
     case KnownChainIds.TronMainnet:
       return 'TRX'
+    case KnownChainIds.MonadMainnet:
+      return 'MON'
     default: {
       assertUnreachable(chainId)
     }

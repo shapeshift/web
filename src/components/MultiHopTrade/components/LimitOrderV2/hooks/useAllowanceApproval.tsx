@@ -1,5 +1,6 @@
 import { fromAccountId } from '@shapeshiftoss/caip'
 import { assertGetViemClient } from '@shapeshiftoss/contracts'
+import { isGridPlus } from '@shapeshiftoss/hdwallet-gridplus'
 import { isTrezor } from '@shapeshiftoss/hdwallet-trezor'
 import { COW_SWAP_VAULT_RELAYER_ADDRESS, SwapperName } from '@shapeshiftoss/swapper'
 import { useMutation } from '@tanstack/react-query'
@@ -89,7 +90,7 @@ export const useAllowanceApproval = ({
   }, [activeQuote?.response.id, dispatch, isAllowanceApprovalRequired, isQueryEnabled])
 
   const pubKey = useMemo(() => {
-    const skipDeviceDerivation = wallet && isTrezor(wallet)
+    const skipDeviceDerivation = wallet && (isTrezor(wallet) || isGridPlus(wallet))
     if (!skipDeviceDerivation || !activeQuote?.params.accountId) return undefined
     return fromAccountId(activeQuote.params.accountId).account
   }, [wallet, activeQuote?.params.accountId])

@@ -9,10 +9,13 @@ import {
   bscChainId,
   ethChainId,
   gnosisChainId,
+  monadChainId,
   optimismChainId,
   polygonChainId,
   solanaChainId,
+  suiChainId,
   toAssetId,
+  tronChainId,
 } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import {
@@ -23,9 +26,12 @@ import {
   bnbsmartchain,
   ethereum,
   gnosis,
+  monad,
   optimism,
   polygon,
   solana,
+  sui,
+  tron,
 } from '@shapeshiftoss/utils'
 import axios from 'axios'
 
@@ -124,6 +130,14 @@ export async function getAssets(chainId: ChainId): Promise<Asset[]> {
           explorerAddressLink: base.explorerAddressLink,
           explorerTxLink: base.explorerTxLink,
         }
+      case monadChainId:
+        return {
+          assetNamespace: ASSET_NAMESPACE.erc20,
+          category: adapters.chainIdToCoingeckoAssetPlatform(chainId),
+          explorer: monad.explorer,
+          explorerAddressLink: monad.explorerAddressLink,
+          explorerTxLink: monad.explorerTxLink,
+        }
       case solanaChainId:
         return {
           assetNamespace: ASSET_NAMESPACE.splToken,
@@ -131,6 +145,22 @@ export async function getAssets(chainId: ChainId): Promise<Asset[]> {
           explorer: solana.explorer,
           explorerAddressLink: solana.explorerAddressLink,
           explorerTxLink: solana.explorerTxLink,
+        }
+      case tronChainId:
+        return {
+          assetNamespace: ASSET_NAMESPACE.trc20,
+          category: adapters.chainIdToCoingeckoAssetPlatform(chainId),
+          explorer: tron.explorer,
+          explorerAddressLink: tron.explorerAddressLink,
+          explorerTxLink: tron.explorerTxLink,
+        }
+      case suiChainId:
+        return {
+          assetNamespace: ASSET_NAMESPACE.suiCoin,
+          category: adapters.chainIdToCoingeckoAssetPlatform(chainId),
+          explorer: sui.explorer,
+          explorerAddressLink: sui.explorerAddressLink,
+          explorerTxLink: sui.explorerTxLink,
         }
       default:
         throw new Error(`no coingecko token support for chainId: ${chainId}`)

@@ -17,6 +17,7 @@ import type {
 import { utxoChainIds } from '@shapeshiftoss/chain-adapters'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { supportsETH, supportsSolana } from '@shapeshiftoss/hdwallet-core'
+import { isGridPlus } from '@shapeshiftoss/hdwallet-gridplus'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import { isTrezor } from '@shapeshiftoss/hdwallet-trezor'
 import type { CosmosSdkChainId, EvmChainId, KnownChainIds, UtxoChainId } from '@shapeshiftoss/types'
@@ -150,6 +151,7 @@ export const handleSend = async ({
   const supportedEvmChainIds = getSupportedEvmChainIds()
   const isMetaMaskDesktop = checkIsMetaMaskDesktop(wallet)
   const isVultisig = (await wallet.getModel()) === 'Vultisig'
+  const skipDeviceDerivation = isLedger(wallet) || isTrezor(wallet) || isGridPlus(wallet)
   if (
     fromChainId(asset.chainId).chainNamespace === CHAIN_NAMESPACE.CosmosSdk &&
     !wallet.supportsOfflineSigning() &&
@@ -188,6 +190,7 @@ export const handleSend = async ({
       const contractAddress = contractAddressOrUndefined(asset.assetId)
       const { accountNumber } = bip44Params
       const adapter = assertGetEvmChainAdapter(chainId)
+      const pubKey = skipDeviceDerivation ? fromAccountId(sendInput.accountId).account : undefined
       return await adapter.buildSendTransaction({
         to,
         value,
@@ -201,6 +204,7 @@ export const handleSend = async ({
         },
         sendMax: sendInput.sendMax,
         customNonce: sendInput.customNonce,
+        pubKey,
       })
     }
 
@@ -214,8 +218,7 @@ export const handleSend = async ({
       }
       const { accountNumber } = bip44Params
       const adapter = assertGetUtxoChainAdapter(chainId)
-      const utxoPubKey = isTrezor(wallet) ? fromAccountId(sendInput.accountId).account : undefined
-      console.log('UTXO buildSendTransaction pubKey:', { isTrezor: isTrezor(wallet), utxoPubKey })
+      const pubKey = skipDeviceDerivation ? fromAccountId(sendInput.accountId).account : undefined
       return adapter.buildSendTransaction({
         to,
         value,
@@ -228,7 +231,7 @@ export const handleSend = async ({
           opReturnData: memo,
         },
         sendMax: sendInput.sendMax,
-        pubKey: utxoPubKey,
+        pubKey,
       })
     }
 
@@ -284,10 +287,7 @@ export const handleSend = async ({
         value,
         wallet,
         accountNumber: bip44Params.accountNumber,
-        pubKey:
-          isLedger(wallet) || isTrezor(wallet)
-            ? fromAccountId(sendInput.accountId).account
-            : undefined,
+        pubKey: skipDeviceDerivation ? fromAccountId(sendInput.accountId).account : undefined,
         chainSpecific:
           instructions.length <= 1
             ? {
@@ -328,7 +328,7 @@ export const handleSend = async ({
     accountNumber: accountMetadata.bip44Params.accountNumber,
     accountType: accountMetadata.accountType,
     wallet,
-    pubKey: isTrezor(wallet) ? fromAccountId(sendInput.accountId).account : undefined,
+    pubKey: skipDeviceDerivation ? fromAccountId(sendInput.accountId).account : undefined,
   })
 
   const broadcastTXID = await (async () => {

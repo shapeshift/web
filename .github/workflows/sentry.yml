@@ -2,24 +2,55 @@ name: New Sentry Release
 on:
   pull_request:
     branches: [main]
+    types: [closed]
 
 jobs:
   release:
+    # Only run when PR is merged, not just closed
+    if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout release
-        uses: actions/checkout@v3
-        with: 
-          ref: release
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'yarn'
+
+      - name: Yarn Install
+        run: yarn install --immutable
+
+      - name: Extract Version
+        id: version
+        env:
+          PR_TITLE: ${{ github.event.pull_request.title }}
+        run: |
+          # Extract version from PR title (e.g., "chore: release v1.971.0" -> "1.971.0")
+          # Or use the merge commit SHA if not a release PR
+          if [[ "$PR_TITLE" =~ v([0-9]+\.[0-9]+\.[0-9]+) ]]; then
+            VERSION="${BASH_REMATCH[1]}"
+          else
+            VERSION="${{ github.event.pull_request.merge_commit_sha }}"
+            VERSION="${VERSION:0:7}"
+          fi
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Build Web
+        run: MODE=production DEPLOY=true VITE_VERSION=${{ steps.version.outputs.version }} yarn build:web
+
       - name: Sentry Release
-        uses: getsentry/action-release@v1.7.0
+        uses: getsentry/action-release@v3
         env:
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
           SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
           SENTRY_PROJECT: ${{ secrets.SENTRY_PROJECT }}
         with:
           environment: production
-          # uses the release PR title as a version
-          version: ${{ github.event.pull_request.title }}
+          # Must match SDK format: shapeshift-web@{version}
+          version: shapeshift-web@${{ steps.version.outputs.version }}
+          sourcemaps: ./build
           ignore_missing: true
-

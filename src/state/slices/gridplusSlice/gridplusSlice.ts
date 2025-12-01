@@ -25,7 +25,7 @@ export const gridplusSlice = createSlice({
         state,
         action: PayloadAction<{
           physicalDeviceId: string
-          sessionId: string
+          sessionId: string | null
         }>,
       ) => {
         state.connection.physicalDeviceId = action.payload.physicalDeviceId
@@ -39,6 +39,8 @@ export const gridplusSlice = createSlice({
         action: PayloadAction<{
           id?: string
           name: string
+          activeWalletId?: string
+          type?: 'external' | 'internal'
         }>,
       ) => {
         const id = action.payload.id || uuidv4()
@@ -46,6 +48,8 @@ export const gridplusSlice = createSlice({
           id,
           name: action.payload.name,
           createdAt: Date.now(),
+          activeWalletId: action.payload.activeWalletId,
+          type: action.payload.type,
         }
         state.safecards.byId[id] = safeCard
         state.safecards.ids.push(id)
@@ -85,6 +89,22 @@ export const gridplusSlice = createSlice({
         if (state.safecards.byId[action.payload.id]) {
           state.safecards.byId[action.payload.id].name = action.payload.name
         }
+      },
+    ),
+
+    updateSafeCardWalletUid: create.reducer(
+      (
+        state,
+        action: PayloadAction<{
+          id: string
+          activeWalletId: string
+          type: 'external' | 'internal'
+        }>,
+      ) => {
+        if (!state.safecards.byId[action.payload.id]) return
+
+        state.safecards.byId[action.payload.id].activeWalletId = action.payload.activeWalletId
+        state.safecards.byId[action.payload.id].type = action.payload.type
       },
     ),
 

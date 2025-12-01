@@ -8,7 +8,7 @@ import { useCallback, useMemo } from 'react'
 import { ButtonWalletPredicate } from '@/components/ButtonWalletPredicate/ButtonWalletPredicate'
 import { FiatRampAction } from '@/components/Modals/FiatRamps/FiatRampsCommon'
 import { RateGasRow } from '@/components/MultiHopTrade/components/RateGasRow'
-import { SharedRecipientAddress } from '@/components/MultiHopTrade/components/SharedTradeInput/SharedRecipientAddress'
+import { SharedTradeReceiveAddress } from '@/components/MultiHopTrade/components/SharedTradeInput/SharedTradeReceiveAddress'
 import { Protocol } from '@/components/MultiHopTrade/components/TradeInput/components/Protocol'
 import { useReceiveAddress } from '@/components/MultiHopTrade/hooks/useReceiveAddress'
 import { Text } from '@/components/Text'
@@ -227,7 +227,7 @@ export const FiatRampTradeFooter = ({
         width='full'
       >
         {direction === FiatRampAction.Buy && buyAsset && (
-          <SharedRecipientAddress
+          <SharedTradeReceiveAddress
             buyAsset={buyAsset}
             isWalletReceiveAddressLoading={isWalletReceiveAddressLoading}
             walletReceiveAddress={walletReceiveAddress}

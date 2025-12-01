@@ -9,6 +9,7 @@ import {
   mayachainAssetId,
   solAssetId,
   thorchainAssetId,
+  tronAssetId,
 } from '@shapeshiftoss/caip'
 import { uniq } from 'lodash'
 
@@ -32,6 +33,7 @@ export const availableLedgerAppAssetIds = [
   cosmosAssetId,
   solAssetId,
   mayachainAssetId,
+  tronAssetId,
 ]
 
 export const availableLedgerAppChainIds = availableLedgerAppAssetIds.map(

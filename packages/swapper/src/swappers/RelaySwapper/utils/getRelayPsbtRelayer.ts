@@ -13,7 +13,7 @@ export const getRelayPsbtRelayer = (psbtHex: string, sellAmountCryptoBaseUnit: s
       const address = bitcoin.address.fromOutputScript(script)
 
       // Assuming the destination address is the one with the exact amount of sellAmountCryptoBaseUnit
-      if (output.value === Number(sellAmountCryptoBaseUnit)) {
+      if (output.value === BigInt(sellAmountCryptoBaseUnit)) {
         return address
       }
     } catch (e) {

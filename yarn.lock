@@ -10757,7 +10757,9 @@ __metadata:
     "@solana/spl-token": ^0.4.9
     "@solana/web3.js": ^1.98.0
     "@types/bs58check": ^2.1.0
+    "@types/lodash": ^4.14.178
     "@types/multicoin-address-validator": ^0.5.0
+    "@types/node-polyglot": ^2.4.2
     axios: ^1.13.0
     bech32: ^2.0.0
     bignumber.js: ^9.3.1
@@ -10791,6 +10793,7 @@ __metadata:
     "@shapeshiftoss/caip": "workspace:^"
     "@shapeshiftoss/types": "workspace:^"
     "@shapeshiftoss/utils": "workspace:^"
+    "@types/lodash": ^4.14.178
     "@uniswap/sdk": ^3.0.3
     ethers: 6.11.1
     ethers5: "npm:ethers@5.7.2"
@@ -11360,7 +11363,7 @@ __metadata:
     "@cowprotocol/app-data": ^2.3.0
     "@defuse-protocol/one-click-sdk-typescript": ^0.1.1-0.2
     "@jup-ag/api": ^6.0.30
-    "@shapeshiftoss/bitcoinjs-lib": 5.2.0-shapeshift.2
+    "@shapeshiftoss/bitcoinjs-lib": 7.0.0-shapeshift.0
     "@shapeshiftoss/caip": "workspace:^"
     "@shapeshiftoss/chain-adapters": "workspace:^"
     "@shapeshiftoss/contracts": "workspace:^"
@@ -11370,6 +11373,11 @@ __metadata:
     "@shapeshiftoss/utils": "workspace:^"
     "@sniptt/monads": ^0.5.10
     "@solana/web3.js": ^1.98.0
+    "@types/lodash": ^4.14.178
+    "@types/mixpanel-browser": ^2.38.1
+    "@types/node-polyglot": ^2.4.2
+    "@types/qs": ^6.9.18
+    "@types/uuid": ^9.0.5
     "@uniswap/sdk-core": ^5.3.1
     "@uniswap/v3-sdk": ^3.13.1
     axios: ^1.13.0
@@ -11449,6 +11457,7 @@ __metadata:
     "@shapeshiftoss/caip": "workspace:^"
     "@shapeshiftoss/types": "workspace:^"
     "@sniptt/monads": ^0.5.10
+    "@types/lodash": ^4.14.178
     bignumber.js: ^9.3.1
     dayjs: ^1.11.3
     lodash: ^4.17.21

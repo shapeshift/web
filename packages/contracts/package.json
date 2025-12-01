@@ -38,5 +38,8 @@
     "ethers5": "npm:ethers@5.7.2",
     "lodash": "^4.17.21",
     "viem": "^2.10.9"
+  },
+  "devDependencies": {
+    "@types/lodash": "^4.14.178"
   }
 }

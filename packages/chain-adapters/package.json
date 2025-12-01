@@ -50,6 +50,8 @@
   },
   "devDependencies": {
     "@types/bs58check": "^2.1.0",
-    "@types/multicoin-address-validator": "^0.5.0"
+    "@types/lodash": "^4.14.178",
+    "@types/multicoin-address-validator": "^0.5.0",
+    "@types/node-polyglot": "^2.4.2"
   }
 }

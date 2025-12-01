@@ -35,7 +35,7 @@
     "@cowprotocol/app-data": "^2.3.0",
     "@defuse-protocol/one-click-sdk-typescript": "^0.1.1-0.2",
     "@jup-ag/api": "^6.0.30",
-    "@shapeshiftoss/bitcoinjs-lib": "5.2.0-shapeshift.2",
+    "@shapeshiftoss/bitcoinjs-lib": "7.0.0-shapeshift.0",
     "@shapeshiftoss/caip": "workspace:^",
     "@shapeshiftoss/chain-adapters": "workspace:^",
     "@shapeshiftoss/contracts": "workspace:^",
@@ -61,5 +61,12 @@
     "retry-axios": "^2.6.0",
     "uuid": "^9.0.0",
     "viem": "^2.10.9"
+  },
+  "devDependencies": {
+    "@types/lodash": "^4.14.178",
+    "@types/mixpanel-browser": "^2.38.1",
+    "@types/node-polyglot": "^2.4.2",
+    "@types/qs": "^6.9.18",
+    "@types/uuid": "^9.0.5"
   }
 }

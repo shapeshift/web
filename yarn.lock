@@ -4138,32 +4138,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@cetusprotocol/cetus-sui-clmm-sdk@npm:^5.1.9":
-  version: 5.4.0
-  resolution: "@cetusprotocol/cetus-sui-clmm-sdk@npm:5.4.0"
-  dependencies:
-    "@suchipi/femver": ^1.0.0
-    "@syntsugar/cc-graph": ^0.1.1
-    "@types/bn.js": ^5.1.1
-    axios: ^1.4.0
-    bn.js: ^5.2.1
-    cors: ^2.8.5
-    decimal.js: ^10.4.1
-    dotenv: ^16.4.7
-    isomorphic-fetch: ^3.0.0
-    js-base64: ^3.7.4
-    js-sha3: ^0.8.0
-    superstruct: ^1.0.3
-    tiny-invariant: ^1.1.0
-    tweetnacl: ^1.0.3
-    uuid: ^9.0.0
-  peerDependencies:
-    "@mysten/bcs": ">=0.8.1"
-    "@mysten/sui": ">=1.1.2"
-  checksum: 0348b30797e92efdc769afe014c148372b18a9a391d59746c2fd1847dff2f3e377b6217bfc0e3712074a5cb86199465f4ab66c46e23fea47fae2b7653bf23d6a
-  languageName: node
-  linkType: hard
-
 "@chakra-ui/anatomy@npm:2.2.2":
   version: 2.2.2
   resolution: "@chakra-ui/anatomy@npm:2.2.2"
@@ -11622,7 +11596,6 @@ __metadata:
   resolution: "@shapeshiftoss/web@workspace:."
   dependencies:
     "@arbitrum/sdk": ^4.0.1
-    "@cetusprotocol/cetus-sui-clmm-sdk": ^5.1.9
     "@chakra-ui/icons": ^2.2.4
     "@chakra-ui/react": ^2.10.7
     "@chakra-ui/system": ^2.6.2
@@ -13029,13 +13002,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@suchipi/femver@npm:^1.0.0":
-  version: 1.0.0
-  resolution: "@suchipi/femver@npm:1.0.0"
-  checksum: 9764b4aaf93c8b8d1fa0ba07288402cf49bfa0ea8adc0ec6eb866fe98db3d32ddf953bc0dee05e723ed7b417de8db74bace6879db6b014aade5a04a62a40d0c6
-  languageName: node
-  linkType: hard
-
 "@supercharge/promise-pool@npm:^3.0.0":
   version: 3.2.0
   resolution: "@supercharge/promise-pool@npm:3.2.0"
@@ -13049,16 +13015,6 @@ __metadata:
   dependencies:
     tslib: ^2.4.0
   checksum: 5d85e641d993264f38871bf53e7509da959cdff7646a40d876153291146b9d0aa701518546e5bfef18fa17c5944333bbeb66c2f0d7a570e8c5535d0937d76bd9
-  languageName: node
-  linkType: hard
-
-"@syntsugar/cc-graph@npm:^0.1.1":
-  version: 0.1.1
-  resolution: "@syntsugar/cc-graph@npm:0.1.1"
-  dependencies:
-    ss-queue: 1.0.x
-    ss-stack: 1.0.x
-  checksum: b4a5471a8b52667d89c244dadb50b7035a2f5a4fb09e598f344f0c00dc0b0586da7d8bc14909f202e228720c959200b6392e4ae06f096be0ccbc745dfde253d8
   languageName: node
   linkType: hard
 
@@ -13604,15 +13560,6 @@ __metadata:
   dependencies:
     "@types/node": "*"
   checksum: e50ed2dd3abe997e047caf90e0352c71e54fc388679735217978b4ceb7e336e51477791b715f49fd77195ac26dd296c7bad08a3be9750e235f9b2e1edb1b51c2
-  languageName: node
-  linkType: hard
-
-"@types/bn.js@npm:^5.1.1":
-  version: 5.2.0
-  resolution: "@types/bn.js@npm:5.2.0"
-  dependencies:
-    "@types/node": "*"
-  checksum: 38fb5512e51edd8386d560ac60d9489014cfcea41d8c383ec9070b176f8ea640189afc1b57fe8cbbe570dec8909d8e05fa129097f0dd4e2a34ebdd69cec4b790
   languageName: node
   linkType: hard
 
@@ -20266,13 +20213,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"decimal.js@npm:^10.4.1":
-  version: 10.6.0
-  resolution: "decimal.js@npm:10.6.0"
-  checksum: 9302b990cd6f4da1c7602200002e40e15d15660374432963421d3cd6d81cc6e27e0a488356b030fee64650947e32e78bdbea245d596dadfeeeb02e146d485999
-  languageName: node
-  linkType: hard
-
 "decode-uri-component@npm:^0.2.0, decode-uri-component@npm:^0.2.2":
   version: 0.2.2
   resolution: "decode-uri-component@npm:0.2.2"
@@ -20695,13 +20635,6 @@ __metadata:
   version: 16.0.1
   resolution: "dotenv@npm:16.0.1"
   checksum: f459ffce07b977b7f15d8cc4ee69cdff77d4dd8c5dc8c85d2d485ee84655352c2415f9dd09d42b5b5985ced3be186130871b34e2f3e2569ebc72fbc2e8096792
-  languageName: node
-  linkType: hard
-
-"dotenv@npm:^16.4.7":
-  version: 16.6.1
-  resolution: "dotenv@npm:16.6.1"
-  checksum: e8bd63c9a37f57934f7938a9cf35de698097fadf980cb6edb61d33b3e424ceccfe4d10f37130b904a973b9038627c2646a3365a904b4406514ea94d7f1816b69
   languageName: node
   linkType: hard
 
@@ -25718,16 +25651,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"isomorphic-fetch@npm:^3.0.0":
-  version: 3.0.0
-  resolution: "isomorphic-fetch@npm:3.0.0"
-  dependencies:
-    node-fetch: ^2.6.1
-    whatwg-fetch: ^3.4.1
-  checksum: e5ab79a56ce5af6ddd21265f59312ad9a4bc5a72cebc98b54797b42cb30441d5c5f8d17c5cd84a99e18101c8af6f90c081ecb8d12fd79e332be1778d58486d75
-  languageName: node
-  linkType: hard
-
 "isomorphic-timers-promises@npm:^1.0.1":
   version: 1.0.1
   resolution: "isomorphic-timers-promises@npm:1.0.1"
@@ -25946,7 +25869,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"js-base64@npm:^3.7.2, js-base64@npm:^3.7.4":
+"js-base64@npm:^3.7.2":
   version: 3.7.8
   resolution: "js-base64@npm:3.7.8"
   checksum: 891746b0f23aea7dd466c5ef2d349b093944a25eca6093c09b2cbb99bc47a94237c63b91623bbc203306b7c72aab5112e90378544bceef3fd0eb9ab86d7af496
@@ -32315,42 +32238,6 @@ pvutils@latest:
   version: 1.0.3
   resolution: "sprintf-js@npm:1.0.3"
   checksum: 19d79aec211f09b99ec3099b5b2ae2f6e9cdefe50bc91ac4c69144b6d3928a640bb6ae5b3def70c2e85a2c3d9f5ec2719921e3a59d3ca3ef4b2fd1a4656a0df3
-  languageName: node
-  linkType: hard
-
-"ss-comparator@npm:^1.0.0":
-  version: 1.0.1
-  resolution: "ss-comparator@npm:1.0.1"
-  dependencies:
-    ss-linked-list: ^1.1.2
-  checksum: 07c69268a6a04c9ee380642127b4abac5969507fa9df6e03ce51cc9b384091f5f36e0145b11eb0638877ca63625e12e20336ed751b2c556affb0bb53637520ce
-  languageName: node
-  linkType: hard
-
-"ss-linked-list@npm:^1.1.1, ss-linked-list@npm:^1.1.2":
-  version: 1.1.5
-  resolution: "ss-linked-list@npm:1.1.5"
-  dependencies:
-    ss-comparator: ^1.0.0
-  checksum: d3463a303c898dbcbe7ea6ed304a468d9ec3ba34138cfefe120ecc4ae5aa731d438179bde64f80be32bb662c31f65ce2b52983af1b24b7875fa380b806b118dc
-  languageName: node
-  linkType: hard
-
-"ss-queue@npm:1.0.x":
-  version: 1.0.5
-  resolution: "ss-queue@npm:1.0.5"
-  dependencies:
-    ss-linked-list: ^1.1.1
-  checksum: c14f857b8f674762e0289b68b79240e2c54e58bd2ce66e646016faab3910268cab7329c0c957c15fa3778540bc43262375e5cc577aab810fb46551fce21e1618
-  languageName: node
-  linkType: hard
-
-"ss-stack@npm:1.0.x":
-  version: 1.0.8
-  resolution: "ss-stack@npm:1.0.8"
-  dependencies:
-    ss-linked-list: ^1.1.2
-  checksum: 93a19ed6ce486e469a062741b93b9625fac40b43f013846bbf27293d2a7e2926bdb47ab0339f87480619d862b267d34259158897125819a87426b474db3f28fe
   languageName: node
   linkType: hard
 

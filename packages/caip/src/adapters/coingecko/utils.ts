@@ -1,7 +1,6 @@
 import axios from 'axios'
 import fs from 'fs'
 
-import { CoingeckoAssetPlatform } from '.'
 import type { AssetId } from '../../assetId/assetId'
 import { toAssetId } from '../../assetId/assetId'
 import type { ChainId } from '../../chainId/chainId'
@@ -50,6 +49,7 @@ import {
   mayachainAssetMap,
   thorchainAssetMap,
 } from '../../utils'
+import { CoingeckoAssetPlatform } from '.'
 
 export type CoingeckoCoin = {
   id: string

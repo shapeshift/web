@@ -56,12 +56,12 @@ export class TronApi {
 
     // Get TRC10 tokens from assetV2
     if (data.assetV2) {
-      for (const [key, value] of Object.entries(data.assetV2)) {
+      data.assetV2.forEach(token => {
         tokens.push({
-          contractAddress: key,
-          balance: String(value),
+          contractAddress: token.key,
+          balance: String(token.value),
         })
-      }
+      })
     }
 
     // Get TRC20 tokens from TronGrid API

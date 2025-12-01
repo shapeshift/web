@@ -124,6 +124,7 @@ export const ASSET_NAMESPACE = {
   slip44: 'slip44',
   splToken: 'token',
   trc20: 'trc20',
+  trc10: 'trc10',
   suiCoin: 'coin',
 } as const
 

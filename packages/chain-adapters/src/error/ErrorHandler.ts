@@ -32,6 +32,24 @@ export const ErrorHandler = async (err: unknown, metadata?: ErrorMetadata): Prom
     })
   }
 
+  if (
+    err instanceof Error &&
+    err.message.includes('Remove inserted SafeCard to access internal GridPlus wallet')
+  ) {
+    throw new ChainAdapterError(err, {
+      translation: 'chainAdapters.errors.gridplus.removeSafeCard',
+    })
+  }
+
+  if (
+    err instanceof Error &&
+    err.message.includes("Active SafeCard doesn't match expected SafeCard")
+  ) {
+    throw new ChainAdapterError(err, {
+      translation: 'chainAdapters.errors.gridplus.wrongSafeCard',
+    })
+  }
+
   if ((err as AxiosError).isAxiosError) {
     const response = JSON.stringify((err as AxiosError).response?.data)
     if (metadata) throw new ChainAdapterError(response, metadata)

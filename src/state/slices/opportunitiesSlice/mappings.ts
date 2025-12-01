@@ -185,6 +185,7 @@ export const CHAIN_ID_TO_SUPPORTED_DEFI_OPPORTUNITIES: Record<
   [KnownChainIds.ArbitrumNovaMainnet]: [],
   [KnownChainIds.BaseMainnet]: [],
   [KnownChainIds.SolanaMainnet]: [],
+  [KnownChainIds.TronMainnet]: [],
 }
 
 // Single opportunity metadata resolvers

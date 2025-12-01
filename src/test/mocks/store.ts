@@ -98,6 +98,7 @@ export const mockStore: ReduxState = {
       Arbitrum: false,
       ArbitrumNova: false,
       Solana: false,
+      Tron: false,
       ArbitrumBridge: false,
       Base: false,
       BnbSmartChain: false,

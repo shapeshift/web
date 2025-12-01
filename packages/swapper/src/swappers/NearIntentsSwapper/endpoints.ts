@@ -2,6 +2,8 @@ import { evm } from '@shapeshiftoss/chain-adapters'
 import type { EvmChainId } from '@shapeshiftoss/types'
 import { contractAddressOrUndefined } from '@shapeshiftoss/utils'
 
+import { getTronTransactionFees } from '../../tron-utils/getTronTransactionFees'
+import { getUnsignedTronTransaction } from '../../tron-utils/getUnsignedTronTransaction'
 import type { SwapperApi, TradeStatus, UtxoFeeData } from '../../types'
 import {
   createDefaultStatusResponse,
@@ -187,6 +189,9 @@ export const nearIntentsApi: SwapperApi = {
     }
     return Promise.resolve(step.feeData.networkFeeCryptoBaseUnit)
   },
+
+  getUnsignedTronTransaction,
+  getTronTransactionFees,
 
   checkTradeStatus: async ({ config, swap }): Promise<TradeStatus> => {
     const { nearIntentsSpecific } = swap?.metadata ?? {}

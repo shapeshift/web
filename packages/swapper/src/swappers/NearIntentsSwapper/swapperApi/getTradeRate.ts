@@ -51,11 +51,26 @@ export const getTradeRate = async (
     const originAsset = await assetToNearIntentsAsset(sellAsset)
     const destinationAsset = await assetToNearIntentsAsset(buyAsset)
 
-    if (!(originAsset && destinationAsset)) {
+    if (!originAsset) {
+      console.log('[NEAR] Returning error - originAsset not supported')
       return Err(
         makeSwapErrorRight({
           code: TradeQuoteError.UnsupportedTradePair,
-          message: 'Unsupported asset',
+          message: `Asset ${sellAsset.symbol} on ${
+            sellAsset.networkName || sellAsset.chainId
+          } is not supported by NEAR Intents`,
+        }),
+      )
+    }
+
+    if (!destinationAsset) {
+      console.log('[NEAR] Returning error - destinationAsset not supported')
+      return Err(
+        makeSwapErrorRight({
+          code: TradeQuoteError.UnsupportedTradePair,
+          message: `Asset ${buyAsset.symbol} on ${
+            buyAsset.networkName || buyAsset.chainId
+          } is not supported by NEAR Intents`,
         }),
       )
     }
@@ -197,6 +212,19 @@ export const getTradeRate = async (
             const txFee = feeData.fast.txFee
             const ataCreationCost = calculateAccountCreationCosts(instructions)
             return bn(txFee).plus(ataCreationCost).toString()
+          } catch (error) {
+            return '0'
+          }
+        }
+
+        case CHAIN_NAMESPACE.Tron: {
+          try {
+            const sellAdapter = deps.assertGetTronChainAdapter(sellAsset.chainId)
+            const feeData = await sellAdapter.getFeeData({
+              to: depositAddress,
+              value: sellAmount,
+            })
+            return feeData.fast.txFee
           } catch (error) {
             return '0'
           }

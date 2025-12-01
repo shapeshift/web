@@ -16,6 +16,7 @@ import {
   optimismChainId,
   polygonChainId,
   solanaChainId,
+  suiChainId,
   thorchainChainId,
   toAssetId,
 } from '@shapeshiftoss/caip'
@@ -204,6 +205,7 @@ export const getCoingeckoSupportedChainIds = () => {
     bchChainId,
     ltcChainId,
     solanaChainId,
+    suiChainId,
     dogeChainId,
     ...(getConfig().VITE_FEATURE_ARBITRUM_NOVA ? [arbitrumNovaChainId] : []),
   ]

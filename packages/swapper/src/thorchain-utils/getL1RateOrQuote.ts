@@ -448,6 +448,14 @@ export const getL1RateOrQuote = async <T extends ThorTradeRateOrQuote>(
         }),
       )
     }
+    case CHAIN_NAMESPACE.Sui: {
+      return Err(
+        makeSwapErrorRight({
+          message: 'SUI is not supported',
+          code: TradeQuoteError.UnsupportedTradePair,
+        }),
+      )
+    }
     default:
       return assertUnreachable(chainNamespace)
   }

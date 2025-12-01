@@ -351,3 +351,19 @@ export const tron: Readonly<Asset> = Object.freeze({
   explorerTxLink: 'https://tronscan.org/#/transaction/',
   relatedAssetKey: null,
 })
+
+export const sui: Readonly<Asset> = Object.freeze({
+  assetId: caip.suiAssetId,
+  chainId: caip.suiChainId,
+  name: 'Sui',
+  networkName: 'Sui',
+  symbol: 'SUI',
+  precision: 9,
+  color: '#6fbcf0',
+  networkColor: '#6fbcf0',
+  icon: 'https://assets.coingecko.com/coins/images/26375/large/sui_asset.jpeg?1727791290',
+  explorer: 'https://suiscan.xyz/mainnet',
+  explorerAddressLink: 'https://suiscan.xyz/mainnet/account/',
+  explorerTxLink: 'https://suiscan.xyz/mainnet/tx/',
+  relatedAssetKey: null,
+})

@@ -6,6 +6,7 @@ import type {
   HDWallet,
   MayachainSignTx,
   SolanaSignTx,
+  SuiSignTx,
   ThorchainSignTx,
 } from '@shapeshiftoss/hdwallet-core'
 import type {
@@ -20,6 +21,7 @@ import type PQueue from 'p-queue'
 import type * as cosmossdk from './cosmossdk/types'
 import type * as evm from './evm/types'
 import type * as solana from './solana/types'
+import type * as sui from './sui/types'
 import type * as tron from './tron/types'
 import type * as utxo from './utxo/types'
 
@@ -49,6 +51,7 @@ type ChainSpecificAccount<T> = ChainSpecific<
     [KnownChainIds.MayachainMainnet]: cosmossdk.Account
     [KnownChainIds.SolanaMainnet]: solana.Account
     [KnownChainIds.TronMainnet]: tron.Account
+    [KnownChainIds.SuiMainnet]: sui.Account
   }
 >
 
@@ -93,6 +96,7 @@ type ChainSpecificFeeData<T> = ChainSpecific<
     [KnownChainIds.MayachainMainnet]: cosmossdk.FeeData
     [KnownChainIds.SolanaMainnet]: solana.FeeData
     [KnownChainIds.TronMainnet]: tron.FeeData
+    [KnownChainIds.SuiMainnet]: sui.FeeData
   }
 >
 
@@ -171,6 +175,7 @@ export type ChainSignTx = {
   [KnownChainIds.MayachainMainnet]: MayachainSignTx
   [KnownChainIds.SolanaMainnet]: SolanaSignTx
   [KnownChainIds.TronMainnet]: tron.TronSignTx
+  [KnownChainIds.SuiMainnet]: SuiSignTx
 }
 
 export type SignTx<T extends ChainId> = T extends keyof ChainSignTx ? ChainSignTx[T] : never
@@ -218,6 +223,7 @@ export type ChainSpecificBuildTxData<T> = ChainSpecific<
     [KnownChainIds.MayachainMainnet]: cosmossdk.BuildTxInput
     [KnownChainIds.SolanaMainnet]: solana.BuildTxInput
     [KnownChainIds.TronMainnet]: tron.BuildTxInput
+    [KnownChainIds.SuiMainnet]: sui.BuildTxInput
   }
 >
 
@@ -313,6 +319,7 @@ type ChainSpecificGetFeeDataInput<T> = ChainSpecific<
     [KnownChainIds.DogecoinMainnet]: utxo.GetFeeDataInput
     [KnownChainIds.LitecoinMainnet]: utxo.GetFeeDataInput
     [KnownChainIds.SolanaMainnet]: solana.GetFeeDataInput
+    [KnownChainIds.SuiMainnet]: sui.GetFeeDataInput
   }
 >
 export type GetFeeDataInput<T extends ChainId> = {
@@ -378,6 +385,7 @@ export enum ChainAdapterDisplayName {
   Litecoin = 'Litecoin',
   Solana = 'Solana',
   Tron = 'Tron',
+  Sui = 'Sui',
 }
 
 export type BroadcastTransactionInput = {

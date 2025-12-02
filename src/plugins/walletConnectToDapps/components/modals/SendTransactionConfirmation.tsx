@@ -18,7 +18,7 @@ import type { WalletConnectRequestModalProps } from '@/plugins/walletConnectToDa
 export const SendTransactionConfirmation: FC<
   WalletConnectRequestModalProps<EthSendTransactionCallRequest>
 > = ({ onConfirm: handleConfirm, onReject: handleReject, state, topic }) => {
-  const { transaction, chainId, accountId } = useWalletConnectState(state)
+  const { transaction, chainId } = useWalletConnectState(state)
   const { showErrorToast } = useErrorToast()
 
   const form = useForm<CustomTransactionData>({
@@ -60,7 +60,7 @@ export const SendTransactionConfirmation: FC<
         formContext={form}
       >
         <SendTransactionContent transaction={transaction} chainId={chainId} />
-        <TransactionAdvancedParameters accountId={accountId} chainId={chainId} />
+        <TransactionAdvancedParameters />
       </WalletConnectSigningModal>
     </FormProvider>
   )

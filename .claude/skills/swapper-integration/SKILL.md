@@ -38,7 +38,7 @@ ShapeShift Web is a decentralized crypto exchange aggregator that supports multi
 **BEFORE asking the user for anything**, proactively research the swapper online:
 
 1. **Search for official documentation**:
-   ```
+   ```text
    Search: "[SwapperName] API documentation"
    Search: "[SwapperName] developer docs"
    Search: "[SwapperName] swagger api"
@@ -57,13 +57,13 @@ ShapeShift Web is a decentralized crypto exchange aggregator that supports multi
    - Example requests/responses
 
 4. **Research chain support**:
-   ```
+   ```text
    Search: "[SwapperName] supported chains"
    Search: "[SwapperName] which blockchains"
    ```
 
 5. **Find existing integrations**:
-   ```
+   ```text
    Search: "github [SwapperName] integration example"
    Search: "[SwapperName] typescript sdk"
    ```
@@ -218,7 +218,8 @@ packages/swapper/src/swappers/NearIntentsSwapper/
 
 #### Step 3: Review Common Patterns
 
-**Key Pattern: Monadic Error Handling**
+### Key Pattern: Monadic Error Handling
+
 ```typescript
 import { Err, Ok } from '@sniptt/monads'
 import { makeSwapErrorRight } from '../../../utils'
@@ -235,7 +236,8 @@ if (result.isErr()) {
 return Ok(result.unwrap())
 ```
 
-**Key Pattern: HTTP Service with Caching**
+### Key Pattern: HTTP Service with Caching
+
 ```typescript
 import { createCache, makeSwapperAxiosServiceMonadic } from '../../../utils'
 
@@ -253,7 +255,8 @@ const serviceBase = createCache(maxAge, cachedUrls, {
 export const xyzService = makeSwapperAxiosServiceMonadic(serviceBase)
 ```
 
-**Key Pattern: Rate Calculation**
+### Key Pattern: Rate Calculation
+
 ```typescript
 import { getInputOutputRate } from '../../../utils'
 
@@ -1176,30 +1179,32 @@ export const csps = [
 ]
 ```
 
-**4e. UI - Feature Flag**
+#### 4e. UI - Feature Flag
 
 Add to `src/state/slices/preferencesSlice/preferencesSlice.ts`:
 ```typescript
 export type FeatureFlags = {
   // ... existing
-  [SwapperName]Swap: boolean
+  BebopSwap: boolean  // Example: use PascalCase swapper name + "Swap" suffix
 }
 
 const initialState: Preferences = {
   featureFlags: {
     // ... existing
-    [SwapperName]Swap: getConfig().VITE_FEATURE_[SWAPPER]_SWAP
+    BebopSwap: getConfig().VITE_FEATURE_BEBOP_SWAP
   }
 }
 ```
 
-**4f. Wire Feature Flag** in `src/state/helpers.ts`
+#### 4f. Wire Feature Flag
+
+In `src/state/helpers.ts`:
 
 Add to `isCrossAccountTradeSupported` (if supported):
 ```typescript
 export const isCrossAccountTradeSupported = (swapperName: SwapperName): boolean => {
   switch (swapperName) {
-    case SwapperName.[SwapperName]:
+    case SwapperName.Bebop:  // Use enum value, not placeholder
       return true // or false if not supported
     // ...
   }
@@ -1210,30 +1215,35 @@ Add to `getEnabledSwappers`:
 ```typescript
 export const getEnabledSwappers = (
   {
-    [SwapperName]Swap, // ADD THIS
-    ...otherFlags
+    BebopSwap,  // ADD THIS - destructure the flag directly
+    // ... other existing flags like ChainflipSwap, ThorSwap, etc.
   }: FeatureFlags,
-  isCrossAccountTrade: boolean
+  isCrossAccountTrade: boolean,
+  isSolBuyAssetId: boolean
 ): Record<SwapperName, boolean> => {
   return {
     // ... existing
-    [SwapperName.[SwapperName]]:
-      [SwapperName]Swap &&
-      (!isCrossAccountTrade || isCrossAccountTradeSupported(SwapperName.[SwapperName]))
+    [SwapperName.Bebop]:
+      BebopSwap &&
+      (!isCrossAccountTrade || isCrossAccountTradeSupported(SwapperName.Bebop))
   }
 }
 ```
 
-**4g. Test Mocks** in `src/test/mocks/store.ts`
+#### 4g. Test Mocks
+
+In `src/test/mocks/store.ts`:
 
 ```typescript
 featureFlags: {
   // ... existing
-  [SwapperName]Swap: false
+  BebopSwap: false  // Use actual flag name, not placeholder
 }
 ```
 
-**4h. Swapper Icon** in UI
+#### 4h. Swapper Icon
+
+In UI:
 
 Add icon: `src/components/MultiHopTrade/components/TradeInput/components/SwapperIcon/[swapper]-icon.png`
 
@@ -1250,7 +1260,7 @@ const SwapperIcon = ({ swapperName }: Props) => {
 }
 ```
 
-**4i. Environment Variables**
+#### 4i. Environment Variables
 
 `.env` (production - both OFF):
 ```bash

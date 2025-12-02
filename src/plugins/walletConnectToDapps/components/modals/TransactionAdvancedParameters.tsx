@@ -16,7 +16,7 @@ import type { AccountId, ChainId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import type { EvmChainAdapter } from '@shapeshiftoss/chain-adapters'
 import { skipToken, useQuery } from '@tanstack/react-query'
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useFormContext } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 
@@ -57,14 +57,21 @@ export const TransactionAdvancedParameters = ({
             return account.chainSpecific.nonce
           }
         : skipToken,
-    staleTime: 30000, // 30 seconds
+    staleTime: 30000,
   })
 
   const formContext = useFormContext<ConfirmData>()
-  if (!formContext) return null
-  const { register, watch } = formContext
+  const { register, setValue, watch } = formContext ?? {}
 
-  const formNonce = watch('nonce')
+  const formNonce = watch?.('nonce')
+
+  useEffect(() => {
+    if (currentNonce !== undefined && !formNonce) {
+      setValue?.('nonce', currentNonce.toString())
+    }
+  }, [currentNonce, formNonce, setValue])
+
+  if (!formContext) return null
 
   return (
     <Card p={4} borderRadius='2xl' mt={4}>
@@ -115,16 +122,7 @@ export const TransactionAdvancedParameters = ({
               </FormLabel>
               <Skeleton isLoaded={!isLoadingNonce}>
                 <NumberInput borderColor={borderColor} mt={2}>
-                  <NumberInputField
-                    placeholder={
-                      !formNonce && currentNonce !== undefined
-                        ? currentNonce.toString()
-                        : translate(
-                            'plugins.walletConnectToDapps.modal.sendTransaction.advancedParameters.nonce.placeholder',
-                          )
-                    }
-                    {...register('nonce')}
-                  />
+                  <NumberInputField {...register('nonce')} />
                 </NumberInput>
               </Skeleton>
             </FormControl>

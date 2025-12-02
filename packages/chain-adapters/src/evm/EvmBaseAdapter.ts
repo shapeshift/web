@@ -78,6 +78,7 @@ export const evmChainIds = [
   KnownChainIds.ArbitrumNovaMainnet,
   KnownChainIds.BaseMainnet,
   KnownChainIds.MonadMainnet,
+  KnownChainIds.HyperEvmMainnet,
 ] as const
 
 export type EvmChainAdapter = EvmBaseAdapter<EvmChainId>
@@ -257,6 +258,11 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
         name: 'MON',
         symbol: 'MON',
         explorer: 'https://monadvision.com',
+      },
+      [KnownChainIds.HyperEvmMainnet]: {
+        name: 'HYPE',
+        symbol: 'HYPE',
+        explorer: 'https://hyperevmscan.io',
       },
     }[this.chainId]
 

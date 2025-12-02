@@ -1025,20 +1025,66 @@ const [chainLower]UsdcAssetId: AssetId = 'eip155:[CHAIN_ID]/erc20:[USDC_ADDRESS]
 
 **File**: `scripts/generateAssetData/[chainname]/index.ts`
 
-```typescript
-// Fetch chain assets from CoinGecko or other source
-// Generate asset data in required format
-// See tron/index.ts, sui/index.ts, monad/index.ts for examples
+Follow the pattern from monad/tron/sui:
 
-export const generate[Chain]AssetData = async (): Promise<Asset[]> => {
-  // Implementation
+```typescript
+import { [chainLower]ChainId } from '@shapeshiftoss/caip'
+import type { Asset } from '@shapeshiftoss/types'
+import { [chainLower], unfreeze } from '@shapeshiftoss/utils'
+
+import * as coingecko from '../coingecko'
+
+export const getAssets = async (): Promise<Asset[]> => {
+  const assets = await coingecko.getAssets([chainLower]ChainId)
+
+  return [...assets, unfreeze([chainLower])]
 }
 ```
 
 **Wire into generator**:
+
+1. **Import** in `scripts/generateAssetData/generateAssetData.ts`:
 ```typescript
-// In scripts/generateAssetData/generateAssetData.ts
-const [chainLower]Assets = await generate[Chain]AssetData()
+import * as [chainLower] from './[chainname]'
+```
+
+2. **Fetch assets** in the `generateAssetData()` function:
+```typescript
+const [chainLower]Assets = await [chainLower].getAssets()
+```
+
+3. **Add to unfilteredAssetData array**:
+```typescript
+  ...[chainLower]Assets,
+```
+
+**Add chain to CoinGecko script**:
+
+**File**: `scripts/generateAssetData/coingecko.ts`
+
+Import your chain:
+```typescript
+import {
+  // ... existing imports
+  [chainLower]ChainId,
+} from '@shapeshiftoss/caip'
+
+import {
+  // ... existing imports
+  [chainLower],
+} from '@shapeshiftoss/utils'
+```
+
+Add case in the switch statement (around line 133+):
+```typescript
+case [chainLower]ChainId:
+  return {
+    assetNamespace: ASSET_NAMESPACE.erc20, // or trc20, suiCoin, etc.
+    category: adapters.chainIdToCoingeckoAssetPlatform(chainId),
+    explorer: [chainLower].explorer,
+    explorerAddressLink: [chainLower].explorerAddressLink,
+    explorerTxLink: [chainLower].explorerTxLink,
+  }
 ```
 
 ### Step 5.3: Swapper Support Discovery & Integration
@@ -1117,16 +1163,83 @@ case CHAIN_REFERENCE.[ChainName]Mainnet:
 - https://docs.relay.link/resources/supported-chains
 - Verify chain ID and native token address
 
-### Step 5.4: Generate Assets
+### Step 5.4: Generate Assets (Step-by-Step Approach)
+
+**IMPORTANT**: Asset generation requires a Zerion API key for related asset indexing.
+
+**Ask user for Zerion API key** using `AskUserQuestion`:
+```
+Do you have a Zerion API key to run asset generation?
+
+Options:
+1. "Yes, here it is" → User provides key (NEVER store in VCS!)
+2. "No, skip for now" → Skip asset generation, user can run manually later
+
+Context: Asset generation fetches token metadata and requires a Zerion API key.
+The key is passed via environment variable and should NEVER be committed to VCS.
+```
+
+**Ask user how they want to run generation** using `AskUserQuestion`:
+```
+How do you want to run the asset generation pipeline?
+
+Options:
+1. "I'll run it myself" → Copy command to clipboard (echo | pbcopy), user runs it, better visibility of progress
+2. "Claude runs it" → Claude runs all steps in background. ⚠️ WARNING: May take 5-10 minutes with limited visibility. You'll see less progress output.
+
+Context: Asset generation has 5 steps (caip-adapters, color-map, asset-data, tradable-asset-map, thor-longtail).
+Running manually gives full visibility of progress (you'll see "chain_id: hyperevm" tokens being processed).
+Claude running it is hands-off but you won't see detailed progress, and it may appear stuck for several minutes while processing thousands of tokens.
+```
+
+**Run generation scripts ONE AT A TIME** (better visibility than `generate:all`):
 
 ```bash
-# In web repo
-yarn generate:asset-data
+# Step 1: Generate CoinGecko CAIP adapters (JSON mappings from our code)
+yarn generate:caip-adapters
+# ✓ Generates packages/caip/src/adapters/coingecko/generated/eip155_999/adapter.json
+# ✓ Takes ~10 seconds
 
-# Commit generated assets
-git add src/assets/generated/
-git commit -m "feat: add [chainname] asset generation"
+# Step 2: Generate color map (picks up new assets)
+yarn generate:color-map
+# ✓ Updates scripts/generateAssetData/color-map.json
+# ✓ Takes ~5 seconds
+
+# Step 3: Generate asset data (fetches tokens from CoinGecko)
+ZERION_API_KEY=<user-provided-key> yarn generate:asset-data
+# ✓ Fetches all HyperEVM ERC20 tokens from CoinGecko platform 'hyperevm'
+# ✓ Updates src/assets/generated/
+# ✓ Takes 2-5 minutes - YOU SHOULD SEE:
+#   - "Total Portals tokens fetched for ethereum: XXXX"
+#   - "Total Portals tokens fetched for base: XXXX"
+#   - "chain_id": "hyperevm" appearing in output (means HyperEVM tokens found!)
+#   - "Generated CoinGecko AssetId adapter data."
+#   - "Asset data generated successfully"
+
+# Step 4: Generate tradable asset map (for swapper support)
+yarn generate:tradable-asset-map
+# ✓ Generates src/lib/swapper/constants.ts mappings
+# ✓ Takes ~10 seconds
+
+# Step 5: Generate Thor longtail tokens (Thor-specific, optional for most chains)
+yarn generate:thor-longtail-tokens
+# ✓ Updates Thor longtail token list
+# ✓ Takes ~5 seconds
 ```
+
+**Why step-by-step is better than `generate:all`**:
+- ✅ See exactly which step is running
+- ✅ Catch errors immediately
+- ✅ See progress output (like "chain_id": "hyperevm" tokens being processed)
+- ✅ Can skip irrelevant steps (e.g., thor-longtail for non-Thor chains)
+
+**Commit generated assets**:
+```bash
+git add src/assets/generated/ packages/caip/src/adapters/coingecko/generated/ scripts/generateAssetData/color-map.json
+git commit -m "feat: generate [chainname] assets and mappings"
+```
+
+**⚠️ CRITICAL**: NEVER commit the Zerion API key. Only use it in the command line.
 
 ---
 
@@ -1385,6 +1498,44 @@ gh pr create --title "feat: implement [chainname]" \
 **Solution**: Add retry logic, use multiple RPC endpoints
 **Example**: Implement fallback RPC URLs
 
+### Gotcha 11: Missing CoinGecko Script Case
+
+**Problem**: `yarn generate:asset-data` fails with "no coingecko token support for chainId"
+**Solution**: Add your chain case to `scripts/generateAssetData/coingecko.ts`
+**Files to update**:
+- Import `[chainLower]ChainId` from caip
+- Import `[chainLower]` base asset from utils
+- Add case in switch statement with assetNamespace, category, explorer links
+**Example**: See HyperEVM case (line ~143) for pattern
+
+### Gotcha 12: Zerion API Key Required
+
+**Problem**: Asset generation fails with "Missing Zerion API key"
+**Solution**: Get key from user via `AskUserQuestion`, pass as env var
+**Command**: `ZERION_API_KEY=<key> yarn generate:all`
+**CRITICAL**: NEVER commit the Zerion API key to VCS!
+**Example**: Always pass key via command line only
+
+### Gotcha 13: AssetService Missing Feature Flag Filter
+
+**Problem**: Assets for your chain appear even when feature flag is disabled
+**Solution**: Add feature flag filter to AssetService
+**File**: `src/lib/asset-service/service/AssetService.ts`
+**Code**: `if (!config.VITE_FEATURE_[CHAIN] && asset.chainId === [chainLower]ChainId) return false`
+**Example**: See line ~53 for Monad/Tron/Sui pattern
+**Reference**: Fixed in PR #11241 (Monad) - was initially forgotten
+
+### Gotcha 14: Missing from evmChainIds Array (EVM Chains Only)
+
+**Problem**: TypeScript errors "Type 'KnownChainIds.[Chain]Mainnet' is not assignable to type EvmChainId"
+**Solution**: Add your chain to the `evmChainIds` array in EvmBaseAdapter
+**Files to update**:
+- `packages/chain-adapters/src/evm/EvmBaseAdapter.ts` (line ~70)
+- Add to `evmChainIds` array: `KnownChainIds.[Chain]Mainnet`
+- Add to `targetNetwork` object (line ~210): network name, symbol, explorer
+**Example**: HyperEVM added at lines 81 and 262-266
+**Why**: The array defines which chains are EVM-compatible for type checking
+
 ---
 
 ## Quick Reference: File Checklist
@@ -1439,11 +1590,13 @@ gh pr create --title "feat: implement [chainname]" \
 
 ### Web Files (Assets & CoinGecko)
 - [ ] `packages/caip/src/adapters/coingecko/index.ts` (add platform enum)
-- [ ] `packages/caip/src/adapters/coingecko/utils.ts` (add chainId mapping)
+- [ ] `packages/caip/src/adapters/coingecko/utils.ts` (add chainId mapping and native asset)
 - [ ] `packages/caip/src/adapters/coingecko/utils.test.ts` (add test)
 - [ ] `packages/caip/src/adapters/coingecko/index.test.ts` (add asset fixture)
-- [ ] `scripts/generateAssetData/[chainname]/index.ts`
-- [ ] `scripts/generateAssetData/generateAssetData.ts`
+- [ ] `scripts/generateAssetData/coingecko.ts` (add chain case for token fetching)
+- [ ] `scripts/generateAssetData/[chainname]/index.ts` (create asset generator)
+- [ ] `scripts/generateAssetData/generateAssetData.ts` (wire in generator)
+- [ ] `src/lib/asset-service/service/AssetService.ts` (add feature flag filter)
 
 ### Web Files (Swapper Integration)
 - [ ] `packages/swapper/src/swappers/RelaySwapper/constant.ts` (add chain mapping)

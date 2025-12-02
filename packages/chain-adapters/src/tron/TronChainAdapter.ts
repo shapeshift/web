@@ -184,15 +184,15 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TronMainnet> {
         chainSpecific: { contractAddress, memo } = {},
       } = input
 
+      // Create TronWeb instance once and reuse
+      const tronWeb = new TronWeb({
+        fullHost: this.rpcUrl,
+      })
+
       let txData
 
       if (contractAddress) {
-        // Use TronWeb to build TRC20 transfer transaction
-        const tronWeb = new TronWeb({
-          fullHost: this.rpcUrl,
-        })
-
-        // Build the TRC20 transfer transaction without signing/broadcasting
+        // Build TRC20 transfer transaction
         const parameter = [
           { type: 'address', value: to },
           { type: 'uint256', value },
@@ -233,11 +233,8 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TronMainnet> {
         txData = await response.json()
       }
 
-      // Add memo if provided
+      // Add memo if provided (addUpdateData should preserve fee_limit)
       if (memo) {
-        const tronWeb = new TronWeb({
-          fullHost: this.rpcUrl,
-        })
         txData = await tronWeb.transactionBuilder.addUpdateData(txData, memo, 'utf8')
       }
 

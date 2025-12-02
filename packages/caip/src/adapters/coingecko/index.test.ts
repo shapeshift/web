@@ -175,6 +175,19 @@ describe('adapters:coingecko', () => {
         assetNamespace: 'trc20',
         assetReference: 'TEkxiTehnzSmSe2XqrBj4w32RUN966rdz8',
       })
+      const usdcOnSui = toAssetId({
+        chainNamespace: CHAIN_NAMESPACE.Sui,
+        chainReference: CHAIN_REFERENCE.SuiMainnet,
+        assetNamespace: 'coin',
+        assetReference:
+          '0xdba34672e30cb065b1f93e3ab55318768fd6fef66c15942c9f7cb846e2f900e7::usdc::USDC',
+      })
+      const usdcOnMonad = toAssetId({
+        chainNamespace: CHAIN_NAMESPACE.Evm,
+        chainReference: CHAIN_REFERENCE.MonadMainnet,
+        assetNamespace: 'erc20',
+        assetReference: '0x754704bc059f8c67012fed69bc8a327a5aafb603',
+      })
       expect(coingeckoToAssetIds('usd-coin')).toEqual([
         usdcOnEthereum,
         usdcOnAvalanche,
@@ -182,7 +195,9 @@ describe('adapters:coingecko', () => {
         usdcOnPolygon,
         usdcOnArbitrum,
         usdcOnBase,
+        usdcOnMonad,
         usdcOnSolana,
+        usdcOnSui,
         usdcOnTron,
       ])
     })

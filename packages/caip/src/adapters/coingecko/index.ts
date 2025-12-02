@@ -16,9 +16,11 @@ import {
   ethChainId,
   gnosisChainId,
   mayachainChainId,
+  monadChainId,
   optimismChainId,
   polygonChainId,
   solanaChainId,
+  suiChainId,
   thorchainChainId,
   tronChainId,
 } from '../../constants'
@@ -40,8 +42,10 @@ export enum CoingeckoAssetPlatform {
   Arbitrum = 'arbitrum-one',
   ArbitrumNova = 'arbitrum-nova',
   Base = 'base',
+  Monad = 'monad',
   Solana = 'solana',
   Tron = 'tron',
+  Sui = 'sui',
 }
 
 type CoinGeckoId = string
@@ -90,6 +94,8 @@ export const chainIdToCoingeckoAssetPlatform = (chainId: ChainId): string => {
           return CoingeckoAssetPlatform.ArbitrumNova
         case CHAIN_REFERENCE.BaseMainnet:
           return CoingeckoAssetPlatform.Base
+        case CHAIN_REFERENCE.MonadMainnet:
+          return CoingeckoAssetPlatform.Monad
         default:
           throw new Error(
             `chainNamespace ${chainNamespace}, chainReference ${chainReference} not supported.`,
@@ -126,6 +132,15 @@ export const chainIdToCoingeckoAssetPlatform = (chainId: ChainId): string => {
             `chainNamespace ${chainNamespace}, chainReference ${chainReference} not supported.`,
           )
       }
+    case CHAIN_NAMESPACE.Sui:
+      switch (chainReference) {
+        case CHAIN_REFERENCE.SuiMainnet:
+          return CoingeckoAssetPlatform.Sui
+        default:
+          throw new Error(
+            `chainNamespace ${chainNamespace}, chainReference ${chainReference} not supported.`,
+          )
+      }
     // No valid asset platform: https://api.coingecko.com/api/v3/asset_platforms
     case CHAIN_NAMESPACE.Utxo:
     default:
@@ -155,6 +170,8 @@ export const coingeckoAssetPlatformToChainId = (
       return arbitrumNovaChainId
     case CoingeckoAssetPlatform.Base:
       return baseChainId
+    case CoingeckoAssetPlatform.Monad:
+      return monadChainId
     case CoingeckoAssetPlatform.Cosmos:
       return cosmosChainId
     case CoingeckoAssetPlatform.Thorchain:
@@ -165,6 +182,8 @@ export const coingeckoAssetPlatformToChainId = (
       return solanaChainId
     case CoingeckoAssetPlatform.Tron:
       return tronChainId
+    case CoingeckoAssetPlatform.Sui:
+      return suiChainId
     default:
       return undefined
   }

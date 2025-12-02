@@ -8,6 +8,7 @@ import {
   ethChainId,
   fromAccountId,
   gnosisChainId,
+  monadChainId,
   optimismChainId,
   polygonChainId,
   toAccountId,
@@ -21,6 +22,7 @@ import {
   supportsBSC,
   supportsETH,
   supportsGnosis,
+  supportsMonad,
   supportsOptimism,
   supportsPolygon,
 } from '@shapeshiftoss/hdwallet-core'
@@ -115,6 +117,7 @@ export const deriveEvmAccountIdsAndMetadata: DeriveAccountIdsAndMetadata = async
     if (chainId === arbitrumChainId && !supportsArbitrum(wallet)) continue
     if (chainId === arbitrumNovaChainId && !supportsArbitrumNova(wallet)) continue
     if (chainId === baseChainId && !supportsBase(wallet)) continue
+    if (chainId === monadChainId && !supportsMonad(wallet)) continue
     if (
       wallet instanceof MetaMaskMultiChainHDWallet &&
       !canAddMetaMaskAccount({ accountNumber, chainId, wallet, isSnapInstalled })

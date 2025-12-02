@@ -12,9 +12,11 @@ import gnosis from '@/plugins/gnosis'
 import litecoin from '@/plugins/litecoin'
 import mayachain from '@/plugins/mayachain'
 import mobile from '@/plugins/mobile'
+import monad from '@/plugins/monad'
 import optimism from '@/plugins/optimism'
 import polygon from '@/plugins/polygon'
 import solana from '@/plugins/solana'
+import sui from '@/plugins/sui'
 import thorchain from '@/plugins/thorchain'
 import tron from '@/plugins/tron'
 import walletConnectToDapps from '@/plugins/walletConnectToDapps'
@@ -34,9 +36,11 @@ export const activePlugins = [
   litecoin,
   mayachain,
   mobile,
+  monad,
   optimism,
   polygon,
   solana,
+  sui,
   thorchain,
   tron,
   walletConnectToDapps,

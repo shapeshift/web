@@ -19,6 +19,7 @@ export const isCrossAccountTradeSupported = (swapperName: SwapperName) => {
     case SwapperName.CowSwap:
     case SwapperName.ArbitrumBridge:
     case SwapperName.Portals:
+    case SwapperName.Cetus:
     case SwapperName.Test:
       // Technically supported for Arbitrum Bridge, but we disable it for the sake of simplicity for now
       return false
@@ -41,6 +42,7 @@ export const getEnabledSwappers = (
     ButterSwap,
     BebopSwap,
     NearIntentsSwap,
+    CetusSwap,
   }: FeatureFlags,
   isCrossAccountTrade: boolean,
   isSolBuyAssetId: boolean,
@@ -75,6 +77,8 @@ export const getEnabledSwappers = (
     [SwapperName.NearIntents]:
       NearIntentsSwap &&
       (!isCrossAccountTrade || isCrossAccountTradeSupported(SwapperName.NearIntents)),
+    [SwapperName.Cetus]:
+      CetusSwap && (!isCrossAccountTrade || isCrossAccountTradeSupported(SwapperName.Cetus)),
     [SwapperName.Test]: false,
   }
 }

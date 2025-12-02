@@ -26,6 +26,8 @@ export const rpcUrlByChainId = (chainId: EvmChainId): string => {
         return process.env.VITE_ARBITRUM_NOVA_NODE_URL
       case KnownChainIds.BaseMainnet:
         return process.env.VITE_BASE_NODE_URL
+      case KnownChainIds.MonadMainnet:
+        return process.env.VITE_MONAD_NODE_URL
       default:
         return assertUnreachable(chainId)
     }

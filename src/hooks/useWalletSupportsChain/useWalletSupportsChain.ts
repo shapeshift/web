@@ -17,6 +17,7 @@ import {
   optimismChainId,
   polygonChainId,
   solanaChainId,
+  suiChainId,
   thorchainChainId,
   tronChainId,
 } from '@shapeshiftoss/caip'
@@ -37,6 +38,7 @@ import {
   supportsOptimism,
   supportsPolygon,
   supportsSolana,
+  supportsSui,
   supportsThorchain,
   supportsTron,
 } from '@shapeshiftoss/hdwallet-core'
@@ -170,6 +172,8 @@ export const walletSupportsChain = ({
       return supportsSolana(wallet)
     case tronChainId:
       return supportsTron(wallet)
+    case suiChainId:
+      return supportsSui(wallet)
     default: {
       return false
     }

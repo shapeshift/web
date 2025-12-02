@@ -13,6 +13,7 @@ import {
   mayachainAssetId,
   polygonAssetId,
   solAssetId,
+  suiAssetId,
   thorchainAssetId,
   tronAssetId,
 } from '@shapeshiftoss/caip'
@@ -34,4 +35,5 @@ export const COINGECKO_NATIVE_ASSET_ID_TO_ASSET_ID: Partial<Record<string, Asset
   binanceCoin: bscAssetId,
   solana: solAssetId,
   tron: tronAssetId,
+  sui: suiAssetId,
 }

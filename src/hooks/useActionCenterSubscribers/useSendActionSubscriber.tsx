@@ -10,6 +10,7 @@ import { useActionCenterContext } from '@/components/Layout/Header/ActionCenter/
 import { GenericTransactionNotification } from '@/components/Layout/Header/ActionCenter/components/Notifications/GenericTransactionNotification'
 import { SECOND_CLASS_CHAINS } from '@/constants/chains'
 import { getMonadTransactionStatus } from '@/lib/utils/monad'
+import { getSuiTransactionStatus } from '@/lib/utils/sui'
 import { getTronTransactionStatus } from '@/lib/utils/tron'
 import { actionSlice } from '@/state/slices/actionSlice/actionSlice'
 import { selectPendingWalletSendActions } from '@/state/slices/actionSlice/selectors'
@@ -58,7 +59,6 @@ export const useSendActionSubscriber = () => {
 
       const isActive = toast.isActive(txHash)
 
-      // No double-toasty
       if (isActive) return
 
       toast({
@@ -113,9 +113,16 @@ export const useSendActionSubscriber = () => {
                   isConfirmed = txStatus === TxStatus.Confirmed || txStatus === TxStatus.Failed
                   break
                 }
+                case KnownChainIds.SuiMainnet: {
+                  const suiTxStatus = await getSuiTransactionStatus(txHash)
+                  isConfirmed =
+                    suiTxStatus === TxStatus.Confirmed || suiTxStatus === TxStatus.Failed
+                  break
+                }
                 case KnownChainIds.MonadMainnet: {
-                  const txStatus = await getMonadTransactionStatus(txHash)
-                  isConfirmed = txStatus === TxStatus.Confirmed || txStatus === TxStatus.Failed
+                  const monadTxStatus = await getMonadTransactionStatus(txHash)
+                  isConfirmed =
+                    monadTxStatus === TxStatus.Confirmed || monadTxStatus === TxStatus.Failed
                   break
                 }
                 default:

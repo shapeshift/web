@@ -186,6 +186,7 @@ export const CHAIN_ID_TO_SUPPORTED_DEFI_OPPORTUNITIES: Record<
   [KnownChainIds.BaseMainnet]: [],
   [KnownChainIds.SolanaMainnet]: [],
   [KnownChainIds.TronMainnet]: [],
+  [KnownChainIds.SuiMainnet]: [],
   [KnownChainIds.MonadMainnet]: [],
 }
 

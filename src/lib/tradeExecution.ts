@@ -9,6 +9,7 @@ import type {
   SellTxHashArgs,
   SolanaTransactionExecutionInput,
   StatusArgs,
+  SuiTransactionExecutionInput,
   SupportedTradeQuoteStepIndex,
   Swap,
   Swapper,
@@ -32,6 +33,7 @@ import { EventEmitter } from 'node:events'
 import { assertGetCosmosSdkChainAdapter } from './utils/cosmosSdk'
 import { assertGetEvmChainAdapter } from './utils/evm'
 import { assertGetSolanaChainAdapter } from './utils/solana'
+import { assertGetSuiChainAdapter } from './utils/sui'
 import { assertGetTronChainAdapter } from './utils/tron'
 import { assertGetUtxoChainAdapter } from './utils/utxo'
 
@@ -85,6 +87,7 @@ export const fetchTradeStatus = async ({
     assertGetUtxoChainAdapter,
     assertGetCosmosSdkChainAdapter,
     assertGetSolanaChainAdapter,
+    assertGetSuiChainAdapter,
     fetchIsSmartContractAddressQuery,
   })
 
@@ -585,6 +588,57 @@ export class TradeExecution {
       })
 
       return await swapper.executeTronTransaction(unsignedTxResult, {
+        signAndBroadcastTransaction,
+      })
+    }
+
+    return await this._execWalletAgnostic(
+      {
+        swapperName,
+        tradeQuote,
+        stepIndex,
+        slippageTolerancePercentageDecimal,
+      },
+      buildSignBroadcast,
+    )
+  }
+
+  async execSuiTransaction({
+    swapperName,
+    tradeQuote,
+    stepIndex,
+    slippageTolerancePercentageDecimal,
+    from,
+    signAndBroadcastTransaction,
+  }: SuiTransactionExecutionInput) {
+    const buildSignBroadcast = async (
+      swapper: Swapper & SwapperApi,
+      {
+        tradeQuote,
+        chainId,
+        stepIndex,
+        slippageTolerancePercentageDecimal,
+        config,
+      }: CommonGetUnsignedTransactionArgs,
+    ) => {
+      if (!swapper.getUnsignedSuiTransaction) {
+        throw Error('missing implementation for getUnsignedSuiTransaction')
+      }
+      if (!swapper.executeSuiTransaction) {
+        throw Error('missing implementation for executeSuiTransaction')
+      }
+
+      const unsignedTxResult = await swapper.getUnsignedSuiTransaction({
+        tradeQuote,
+        chainId,
+        stepIndex,
+        slippageTolerancePercentageDecimal,
+        from,
+        config,
+        assertGetSuiChainAdapter,
+      })
+
+      return await swapper.executeSuiTransaction(unsignedTxResult, {
         signAndBroadcastTransaction,
       })
     }

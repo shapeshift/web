@@ -5,6 +5,7 @@ export const btcAssetId: AssetId = 'bip122:000000000019d6689c085ae165831e93/slip
 export const bchAssetId: AssetId = 'bip122:000000000000000000651ef99cb9fcbe/slip44:145'
 export const dogeAssetId: AssetId = 'bip122:00000000001a91e3dace36e2be3bf030/slip44:3'
 export const ltcAssetId: AssetId = 'bip122:12a765e31ffd4059bada1e25190f6e98/slip44:2'
+export const zecAssetId: AssetId = 'bip122:00040fe8ec8471911baa1db1266ea15d/slip44:133'
 
 export const ethAssetId: AssetId = 'eip155:1/slip44:60'
 export const avalancheAssetId: AssetId = 'eip155:43114/slip44:60'
@@ -59,6 +60,7 @@ export const btcChainId: ChainId = 'bip122:000000000019d6689c085ae165831e93'
 export const bchChainId: ChainId = 'bip122:000000000000000000651ef99cb9fcbe'
 export const dogeChainId: ChainId = 'bip122:00000000001a91e3dace36e2be3bf030'
 export const ltcChainId: ChainId = 'bip122:12a765e31ffd4059bada1e25190f6e98'
+export const zecChainId: ChainId = 'bip122:00040fe8ec8471911baa1db1266ea15d'
 
 export const ethChainId: ChainId = 'eip155:1'
 export const avalancheChainId: ChainId = 'eip155:43114'
@@ -99,6 +101,7 @@ export const CHAIN_REFERENCE = {
   BitcoinCashMainnet: '000000000000000000651ef99cb9fcbe',
   DogecoinMainnet: '00000000001a91e3dace36e2be3bf030',
   LitecoinMainnet: '12a765e31ffd4059bada1e25190f6e98',
+  ZcashMainnet: '00040fe8ec8471911baa1db1266ea15d',
   CosmosHubMainnet: 'cosmoshub-4',
   ThorchainMainnet: 'thorchain-1',
   MayachainMainnet: 'mayachain-mainnet-v1',
@@ -133,6 +136,7 @@ export const ASSET_REFERENCE = {
   BitcoinCash: '145',
   Litecoin: '2',
   Dogecoin: '3',
+  Zcash: '133',
   Cosmos: '118',
   Thorchain: '931',
   Mayachain: '931',
@@ -158,6 +162,7 @@ export const VALID_CHAIN_IDS: ValidChainMap = Object.freeze({
     CHAIN_REFERENCE.BitcoinCashMainnet,
     CHAIN_REFERENCE.DogecoinMainnet,
     CHAIN_REFERENCE.LitecoinMainnet,
+    CHAIN_REFERENCE.ZcashMainnet,
   ],
   [CHAIN_NAMESPACE.Evm]: [
     CHAIN_REFERENCE.EthereumMainnet,
@@ -222,4 +227,5 @@ export const FEE_ASSET_IDS = [
   solAssetId,
   tronAssetId,
   suiAssetId,
+  zecAssetId,
 ]

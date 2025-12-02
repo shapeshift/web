@@ -23,6 +23,7 @@ import {
   polygonChainId,
   solanaChainId,
   thorchainChainId,
+  zecChainId,
 } from '../../constants'
 import {
   bitcoinAssetMap,
@@ -31,6 +32,7 @@ import {
   dogecoinAssetMap,
   litecoinAssetMap,
   thorchainAssetMap,
+  zcashAssetMap,
 } from '../../utils'
 
 const COINCAP_CHAIN_REFERENCE = { ...CHAIN_REFERENCE, SolanaMainnet: '101' }
@@ -90,6 +92,7 @@ const COINCAP_CHAIN_MAP: Record<string, { chainId: ChainId; assetNamespace: Asse
 export const writeFiles = async (data: Record<string, Record<string, string>>) => {
   const path = './src/adapters/coincap/generated/'
   const file = '/adapter.json'
+  console.log('here')
   const writeFile = async ([k, v]: [string, unknown]) =>
     await fs.promises.writeFile(`${path}${k}${file}`.replace(':', '_'), JSON.stringify(v))
   await Promise.all(Object.entries(data).map(writeFile))
@@ -190,6 +193,7 @@ export const parseData = (d: CoinCapCoin[]) => {
     [bchChainId]: bitcoinCashAssetMap,
     [dogeChainId]: dogecoinAssetMap,
     [ltcChainId]: litecoinAssetMap,
+    [zecChainId]: zcashAssetMap,
     [cosmosChainId]: cosmosAssetMap,
     [thorchainChainId]: thorchainAssetMap,
   }

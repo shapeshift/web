@@ -111,19 +111,6 @@ export const sunioApi: SwapperApi = {
     const isSellingNativeTrx = step.sellAsset.assetId === tronAssetId
     const callValue = isSellingNativeTrx ? Number(step.sellAmountIncludingProtocolFeesCryptoBaseUnit) : 0
 
-    console.log('[Sun.io TX] Transaction parameters:', JSON.stringify({
-      contract: SUNIO_SMART_ROUTER_CONTRACT,
-      functionSelector,
-      isSellingNativeTrx,
-      callValue,
-      feeLimit: 100_000_000,
-      from,
-      parameters: parameters.map(p => ({
-        type: p.type,
-        value: p.type.includes('address') ? '(addresses converted)' : p.value,
-      })),
-    }, null, 2))
-
     const options = {
       feeLimit: 100_000_000,
       callValue,
@@ -136,12 +123,6 @@ export const sunioApi: SwapperApi = {
       parameters,
       from,
     )
-
-    console.log('[Sun.io TX] TronWeb result:', JSON.stringify({
-      result: txData.result,
-      hasTransaction: !!txData.transaction,
-      txID: txData.transaction?.txID,
-    }, null, 2))
 
     if (!txData.result || !txData.result.result) {
       throw new Error('[Sun.io] Failed to build swap transaction')
@@ -178,13 +159,6 @@ export const sunioApi: SwapperApi = {
       bip44Params.isChange ? 1 : 0,
       bip44Params.addressIndex ?? 0,
     ]
-
-    console.log('[Sun.io TX] Final unsigned transaction:', JSON.stringify({
-      addressNList,
-      rawDataHexLength: rawDataHex.length,
-      transactionTxID: transaction.txID,
-      transactionOwnerAddress: transaction.raw_data?.contract?.[0]?.parameter?.value?.owner_address,
-    }, null, 2))
 
     return {
       addressNList,

@@ -474,12 +474,6 @@ export const useTradeExecution = (
           const adapter = assertGetTronChainAdapter(stepSellAssetChainId)
           const from = await adapter.getAddress({ accountNumber, wallet })
 
-          console.log('[TRON Wallet] Address from adapter.getAddress:', JSON.stringify({
-            from,
-            accountNumber,
-            walletId: (wallet as any).id,
-          }, null, 2))
-
           const output = await execution.execTronTransaction({
             swapperName,
             tradeQuote,
@@ -487,16 +481,7 @@ export const useTradeExecution = (
             slippageTolerancePercentageDecimal,
             from,
             signAndBroadcastTransaction: async (txToSign: SignTx<TronChainId>) => {
-              console.log('[TRON Wallet] About to sign transaction:', JSON.stringify({
-                from,
-                addressNList: txToSign.addressNList,
-                rawDataHexLength: txToSign.rawDataHex?.length,
-                transactionOwnerAddress: (txToSign as any).transaction?.raw_data?.contract?.[0]?.parameter?.value?.owner_address,
-              }, null, 2))
-
               const hex = await adapter.signTransaction({ txToSign, wallet })
-
-              console.log('[TRON Wallet] Signed transaction hex length:', hex.length)
 
               const output = await adapter.broadcastTransaction({
                 senderAddress: from,

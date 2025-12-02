@@ -22,15 +22,6 @@ export const getSunioTradeQuote = async (
   deps: SwapperDeps,
 ): Promise<Result<TradeQuote, SwapErrorRight>> => {
   try {
-    console.log('[Sun.io Quote] Input:', JSON.stringify({
-      sellAsset: { assetId: input.sellAsset.assetId, symbol: input.sellAsset.symbol },
-      buyAsset: { assetId: input.buyAsset.assetId, symbol: input.buyAsset.symbol },
-      sellAmount: input.sellAmountIncludingProtocolFeesCryptoBaseUnit,
-      receiveAddress: input.receiveAddress,
-      sendAddress: (input as any).sendAddress,
-      accountNumber: input.accountNumber,
-    }, null, 2))
-
     const {
       sellAsset,
       buyAsset,
@@ -87,8 +78,6 @@ export const getSunioTradeQuote = async (
 
     const quoteResponse = maybeQuoteResponse.unwrap()
 
-    console.log('[Sun.io Quote] API Response:', JSON.stringify(quoteResponse, null, 2))
-
     const bestRoute = quoteResponse.data[0]
 
     if (!bestRoute) {
@@ -126,13 +115,6 @@ export const getSunioTradeQuote = async (
       sellAsset,
       buyAsset,
     })
-
-    console.log('[Sun.io Quote] Calculated values:', JSON.stringify({
-      buyAmountCryptoBaseUnit,
-      protocolFeeCryptoBaseUnit,
-      networkFeeCryptoBaseUnit,
-      rate,
-    }, null, 2))
 
     const tradeQuote: TradeQuote = {
       id: crypto.randomUUID(),
@@ -174,17 +156,6 @@ export const getSunioTradeQuote = async (
       ],
       swapperName: SwapperName.Sunio,
     }
-
-    console.log('[Sun.io Quote] Final TradeQuote:', JSON.stringify({
-      id: tradeQuote.id,
-      rate: tradeQuote.rate,
-      receiveAddress: tradeQuote.receiveAddress,
-      steps: tradeQuote.steps.map(s => ({
-        accountNumber: s.accountNumber,
-        allowanceContract: s.allowanceContract,
-        metadata: s.sunioTransactionMetadata,
-      })),
-    }, null, 2))
 
     return Ok(tradeQuote)
   } catch (error) {

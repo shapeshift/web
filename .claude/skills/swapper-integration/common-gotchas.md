@@ -469,4 +469,97 @@ After implementation, verify:
 
 ---
 
+## 13. TRON-Specific: Human-Readable Amounts ⚠️
+
+**Problem**: TRON aggregator APIs (like Sun.io) return amounts in human-readable format, not base units.
+
+**Real Example** (Sun.io):
+```json
+{
+  "amountIn": "1.000000",      // Human-readable (1 USDT)
+  "amountOut": "1.071122"      // Human-readable (1.071122 USDC)
+}
+```
+
+**Solution**: Must multiply by `10^precision` to convert to crypto base units:
+```typescript
+const buyAmountCryptoBaseUnit = bn(route.amountOut)
+  .times(bn(10).pow(buyAsset.precision))
+  .toFixed(0)
+```
+
+**Affected Chains**: TRON swappers using aggregator APIs
+
+---
+
+## 14. TRON-Specific: Smart Contract Transaction Building ⚠️⚠️
+
+**Problem**: TRON swappers require calling smart contracts (not simple sends), which is different from deposit-to-address swappers.
+
+**Wrong Assumption**: Can use generic `getUnsignedTronTransaction` from tron-utils
+**Reality**: Generic util only handles simple TRC-20 sends, not smart contract calls
+
+**Solution**: Build custom TRON transaction using TronWeb:
+```typescript
+import { TronWeb } from 'tronweb'
+
+const tronWeb = new TronWeb({ fullHost: rpcUrl })
+
+const txData = await tronWeb.transactionBuilder.triggerSmartContract(
+  contractAddress,
+  functionSelector,
+  options,
+  parameters,
+  from
+)
+
+const rawDataHex = typeof txData.transaction.raw_data_hex === 'string'
+  ? txData.transaction.raw_data_hex
+  : (txData.transaction.raw_data_hex as Buffer).toString('hex')
+```
+
+**Affected Files**: `endpoints.ts` (custom `getUnsignedTronTransaction`)
+
+---
+
+## 15. TRON-Specific: Address Format (Not EVM!) ⚠️
+
+**Problem**: TRON addresses use Base58 encoding (start with 'T'), not EVM hex with checksum.
+
+**Wrong**: Using `getAddress()` from viem for TRON addresses
+**Right**: TRON addresses are already in correct format, no checksumming needed
+
+**Native TRX Address**: `T9yD14Nj9j7xAB4dbGeiX9h8unkKHxuWwb`
+
+**Solution**:
+```typescript
+export const assetIdToTronToken = (assetId: AssetId): string => {
+  if (isToken(assetId)) {
+    const { assetReference } = fromAssetId(assetId)
+    return assetReference // Already in Base58 format
+  }
+  return 'T9yD14Nj9j7xAB4dbGeiX9h8unkKHxuWwb' // Native TRX
+}
+```
+
+**Affected Files**: `utils/helpers/helpers.ts`
+
+---
+
+## 16. TRON-Specific: RPC URL Access ⚠️
+
+**Problem**: SwapperConfig doesn't have VITE_UNCHAINED_TRON_HTTP_URL
+
+**Solution**: Access RPC URL from TRON chain adapter instance:
+```typescript
+const adapter = assertGetTronChainAdapter(chainId)
+const rpcUrl = (adapter as any).rpcUrl
+```
+
+**Note**: This uses `as any` because rpcUrl is protected, but it's the only way to access it.
+
+**Affected Files**: `endpoints.ts` (getUnsignedTronTransaction)
+
+---
+
 **Remember**: Most bugs come from assumptions about API behavior. Always verify with actual API calls and responses!

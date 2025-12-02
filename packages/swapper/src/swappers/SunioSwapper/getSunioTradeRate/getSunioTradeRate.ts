@@ -5,7 +5,7 @@ import { Err, Ok } from '@sniptt/monads'
 
 import type { GetTradeRateInput, SwapErrorRight, SwapperDeps, TradeRate } from '../../../types'
 import { SwapperName, TradeQuoteError } from '../../../types'
-import { makeSwapErrorRight } from '../../../utils'
+import { getInputOutputRate, makeSwapErrorRight } from '../../../utils'
 import { DEFAULT_SLIPPAGE_PERCENTAGE, SUNIO_SMART_ROUTER_CONTRACT } from '../utils/constants'
 import { fetchSunioQuote } from '../utils/fetchFromSunio'
 import { isSupportedChainId } from '../utils/helpers/helpers'
@@ -82,11 +82,12 @@ export const getSunioTradeRate = async (
       .times(bn(10).pow(buyAsset.precision))
       .toFixed(0)
 
-    const rate = bn(buyAmountCryptoBaseUnit)
-      .div(sellAmountIncludingProtocolFeesCryptoBaseUnit)
-      .times(bn(10).pow(sellAsset.precision))
-      .div(bn(10).pow(buyAsset.precision))
-      .toFixed()
+    const rate = getInputOutputRate({
+      sellAmountCryptoBaseUnit: sellAmountIncludingProtocolFeesCryptoBaseUnit,
+      buyAmountCryptoBaseUnit,
+      sellAsset,
+      buyAsset,
+    })
 
     const tradeRate: TradeRate = {
       id: crypto.randomUUID(),

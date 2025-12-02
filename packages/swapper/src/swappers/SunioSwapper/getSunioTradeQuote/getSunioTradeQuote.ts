@@ -11,7 +11,7 @@ import type {
   TradeQuote,
 } from '../../../types'
 import { SwapperName, TradeQuoteError } from '../../../types'
-import { makeSwapErrorRight } from '../../../utils'
+import { getInputOutputRate, makeSwapErrorRight } from '../../../utils'
 import { DEFAULT_SLIPPAGE_PERCENTAGE, SUNIO_SMART_ROUTER_CONTRACT } from '../utils/constants'
 import { fetchSunioQuote } from '../utils/fetchFromSunio'
 import { isSupportedChainId } from '../utils/helpers/helpers'
@@ -109,11 +109,12 @@ export const getSunioTradeQuote = async (
 
     const buyAmountAfterFeesCryptoBaseUnit = buyAmountCryptoBaseUnit
 
-    const rate = bn(buyAmountCryptoBaseUnit)
-      .div(sellAmountIncludingProtocolFeesCryptoBaseUnit)
-      .times(bn(10).pow(sellAsset.precision))
-      .div(bn(10).pow(buyAsset.precision))
-      .toFixed()
+    const rate = getInputOutputRate({
+      sellAmountCryptoBaseUnit: sellAmountIncludingProtocolFeesCryptoBaseUnit,
+      buyAmountCryptoBaseUnit,
+      sellAsset,
+      buyAsset,
+    })
 
     const tradeQuote: TradeQuote = {
       id: crypto.randomUUID(),

@@ -138,6 +138,40 @@ AskUserQuestion({
 
 **IMPORTANT**: Study existing swappers BEFORE writing any code. This prevents reimplementing solved problems.
 
+**PROTIP: Use `node -e` for Quick Testing**
+
+When uncertain about how a library works (especially for blockchain SDKs like TronWeb, viem, @solana/web3.js):
+
+```bash
+# Test TronWeb address conversion
+node -e "
+const TronWeb = require('tronweb');
+const tw = new TronWeb({ fullHost: 'https://api.trongrid.io' });
+console.log('Base58:', 'TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t');
+console.log('Hex:', tw.address.toHex('TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t'));
+"
+
+# Test ethers/viem checksumming
+node -e "
+const { getAddress } = require('viem');
+console.log(getAddress('0x5daf465aaef...'));
+"
+
+# Test API response parsing
+node -e "
+const response = { buyAmount: '1000000', sellAmount: '500000' };
+console.log('Buy:', response.buyAmount);
+console.log('Sell:', response.sellAmount);
+"
+```
+
+**Use this when**:
+- Uncertain about library API behavior
+- Need to test address conversions
+- Want to verify JSON response structure
+- Testing mathematical calculations
+- Checking if a function exists on an object
+
 #### Step 1: Identify Swapper Category
 
 Based on API research, determine the swapper type:

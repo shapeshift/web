@@ -562,4 +562,73 @@ const rpcUrl = (adapter as any).rpcUrl
 
 ---
 
+## 17. TRON-Specific: Address Format for triggerSmartContract ⚠️⚠️
+
+**Problem**: triggerSmartContract requires addresses in **hex format**, not Base58.
+
+**Error**: `invalid address (argument="address", value="TRwyik9Fb6HNjNhThJP3KJv4MAr1o7mCVv", code=INVALID_ARGUMENT)`
+
+**Root Cause**: Even though TRON addresses are Base58, `triggerSmartContract` internally validates them as EVM addresses and needs hex format.
+
+**Solution**: Convert all addresses to hex using `tronWeb.address.toHex()`:
+```typescript
+const parameters = [
+  {
+    type: 'address[]',
+    value: routeParams.path.map(addr => tronWeb.address.toHex(addr))
+  },
+  {
+    type: 'tuple',
+    value: {
+      to: tronWeb.address.toHex(recipientBase58),
+      // ... other fields
+    }
+  }
+]
+
+const txData = await tronWeb.transactionBuilder.triggerSmartContract(
+  contractAddress,
+  functionSelector,
+  options,
+  parameters,
+  tronWeb.address.toHex(fromAddress)  // issuerAddress also needs hex
+)
+```
+
+**Test with `node -e`**:
+```bash
+node -e "
+const TronWeb = require('tronweb');
+const tw = new TronWeb({ fullHost: 'https://api.trongrid.io' });
+console.log(tw.address.toHex('TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t'));
+"
+```
+
+**Affected Files**: `endpoints.ts` (getUnsignedTronTransaction)
+
+---
+
+## 18. TRON-Specific: Immutable Array Parameters ⚠️
+
+**Problem**: TronWeb mutates parameter arrays internally, causing errors if arrays are frozen/immutable.
+
+**Error**: `Cannot assign to read only property '0' of object '[object Array]'`
+
+**Root Cause**: TronWeb's `encodeArgs` function mutates the arrays when converting addresses. If arrays come from API responses or const declarations, they may be frozen.
+
+**Solution**: Clone arrays before passing to TronWeb:
+```typescript
+const parameters = [
+  { type: 'address[]', value: [...addressArray].map(addr => tronWeb.address.toHex(addr)) },
+  { type: 'string[]', value: [...poolVersions] },
+  { type: 'uint256[]', value: [...versionLengths] },
+]
+```
+
+**Affected Files**: `endpoints.ts` (triggerSmartContract calls)
+
+---
+
 **Remember**: Most bugs come from assumptions about API behavior. Always verify with actual API calls and responses!
+
+**PROTIP**: Use `node -e` to quickly test library behavior, address conversions, and API parsing before writing full code!

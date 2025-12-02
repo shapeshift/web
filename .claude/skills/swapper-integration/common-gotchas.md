@@ -629,6 +629,98 @@ const parameters = [
 
 ---
 
+---
+
+## 19. TRON-Specific: TronWeb 6.x Tuple Address Bug ⚠️⚠️⚠️
+
+**Problem**: TronWeb 6.x doesn't convert TRON Base58 addresses to EVM format when they appear inside tuple parameters, causing ethers.js AbiCoder to reject them.
+
+**Error**: `invalid address (argument="address", value="TRwyik9Fb6HNjNhThJP3KJv4MAr1o7mCVv", code=INVALID_ARGUMENT, version=6.13.5)`
+
+**Root Cause**:
+- TronWeb 6.x uses ethers.js internally for ABI parameter encoding
+- It auto-converts addresses for `address` and `address[]` types: `TRwyik9...` → `41xxx...` → `0xxx...`
+- BUT it forgets to convert addresses inside tuples!
+- ethers.js AbiCoder expects EVM format (`0x...`), rejects TRON Base58 (`T...`)
+
+**Real Example** (Sun.io swapper):
+```typescript
+// ✗ FAILS
+{
+  type: 'tuple(uint256,uint256,address,uint256)',
+  value: ['100000', '95000', 'TRwyik9Fb6HNjNhThJP3KJv4MAr1o7mCVv', 1234567890]
+}
+// Error: invalid address
+
+// ✓ WORKS
+{
+  type: 'tuple(uint256,uint256,address,uint256)',
+  value: ['100000', '95000', '0xaf46828a4d975381e62bdb9f272388d97daf14b6', 1234567890]
+}
+```
+
+**Solution**: Manually convert TRON addresses in tuple values to EVM format:
+
+```typescript
+/**
+ * Converts TRON Base58 addresses to EVM hex format (0x-prefixed).
+ * Required for TronWeb 6.x tuple parameters containing addresses.
+ */
+const convertAddressesToEvmFormat = (value: unknown): unknown => {
+  if (Array.isArray(value)) {
+    return value.map(v => convertAddressesToEvmFormat(v))
+  }
+
+  if (typeof value === 'string' && value.startsWith('T') && TronWeb.isAddress(value)) {
+    const hex = TronWeb.address.toHex(value)  // TRwyik... → 41af46828a...
+    return hex.replace(/^41/, '0x')           // 41af... → 0xaf...
+  }
+
+  return value
+}
+
+// Apply to tuple values before passing to triggerSmartContract
+{
+  type: 'tuple(uint256,uint256,address,uint256)',
+  value: convertAddressesToEvmFormat([
+    amountIn,
+    amountOutMin,
+    recipientAddress,  // Will be converted if TRON Base58
+    deadline,
+  ])
+}
+```
+
+**Why EVM format for TRON?**: TronWeb uses ethers.js (Ethereum library) internally for ABI encoding. The conversion is only for parameter encoding - the actual TRON transaction still uses TRON addresses.
+
+**Test with `node -e`**:
+```bash
+node -e "
+const { TronWeb } = require('tronweb');
+const addr = 'TRwyik9Fb6HNjNhThJP3KJv4MAr1o7mCVv';
+const hex = TronWeb.address.toHex(addr);
+const evm = hex.replace(/^41/, '0x');
+console.log('TRON Base58:', addr);
+console.log('TRON Hex:', hex);
+console.log('EVM Format:', evm);
+// Output: EVM Format: 0xaf46828a4d975381e62bdb9f272388d97daf14b6
+"
+```
+
+**Affected Scenarios**:
+- Any TRON swapper using triggerSmartContract with tuple parameters
+- Smart contract functions with struct parameters containing addresses
+- Multi-parameter contract calls with addresses in complex types
+
+**NOT Affected**:
+- Simple `address` type parameters ✅ TronWeb handles
+- `address[]` array parameters ✅ TronWeb handles
+- TRC20 token transfers ✅ Use simple address type
+
+**Affected Files**: Any file calling `triggerSmartContract` with tuple/struct parameters
+
+---
+
 **Remember**: Most bugs come from assumptions about API behavior. Always verify with actual API calls and responses!
 
 **PROTIP**: Use `node -e` to quickly test library behavior, address conversions, and API parsing before writing full code!

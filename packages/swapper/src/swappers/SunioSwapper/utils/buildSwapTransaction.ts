@@ -3,6 +3,19 @@ import { TronWeb } from 'tronweb'
 import type { SunioRoute } from '../types'
 import { SUNIO_SMART_ROUTER_CONTRACT } from './constants'
 
+const convertAddressesToEvmFormat = (value: unknown): unknown => {
+  if (Array.isArray(value)) {
+    return value.map(v => convertAddressesToEvmFormat(v))
+  }
+
+  if (typeof value === 'string' && value.startsWith('T') && TronWeb.isAddress(value)) {
+    const hex = TronWeb.address.toHex(value)
+    return hex.replace(/^41/, '0x')
+  }
+
+  return value
+}
+
 export type BuildSwapTransactionArgs = {
   route: SunioRoute
   from: string
@@ -50,7 +63,12 @@ export const buildSunioSwapTransaction = async (args: BuildSwapTransactionArgs):
     { type: 'uint24[]', value: fees },
     {
       type: 'tuple(uint256,uint256,address,uint256)',
-      value: [swapData.amountIn, swapData.amountOutMin, swapData.recipient, swapData.deadline],
+      value: convertAddressesToEvmFormat([
+        swapData.amountIn,
+        swapData.amountOutMin,
+        swapData.recipient,
+        swapData.deadline,
+      ]),
     },
   ]
 

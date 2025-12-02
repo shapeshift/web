@@ -77,7 +77,7 @@ export const sunioApi: SwapperApi = {
     )
 
     const parameters = [
-      { type: 'address[]', value: routeParams.path.map(addr => tronWeb.address.toHex(addr)) },
+      { type: 'address[]', value: routeParams.path },
       { type: 'string[]', value: routeParams.poolVersion },
       { type: 'uint256[]', value: routeParams.versionLen },
       { type: 'uint24[]', value: routeParams.fees },
@@ -86,7 +86,7 @@ export const sunioApi: SwapperApi = {
         value: [
           routeParams.swapData.amountIn,
           routeParams.swapData.amountOutMin,
-          tronWeb.address.toHex(routeParams.swapData.recipient),
+          routeParams.swapData.recipient,
           routeParams.swapData.deadline,
         ],
       },
@@ -105,7 +105,7 @@ export const sunioApi: SwapperApi = {
       functionSelector,
       options,
       parameters,
-      tronWeb.address.toHex(from),
+      from,
     )
 
     if (!txData.result || !txData.result.result) {

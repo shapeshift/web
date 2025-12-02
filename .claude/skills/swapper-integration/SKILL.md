@@ -218,11 +218,6 @@ packages/swapper/src/swappers/NearIntentsSwapper/
 
 #### Step 3: Review Common Patterns
 
-**Read the reference documentation**:
-- `@reference.md` - Architecture, interfaces, universal patterns
-- `@common-gotchas.md` - Critical bugs (slippage format, checksumming, hex conversion)
-- `@examples.md` - Copy-paste templates
-
 **Key Pattern: Monadic Error Handling**
 ```typescript
 import { Err, Ok } from '@sniptt/monads'
@@ -1487,16 +1482,10 @@ Before considering integration complete:
 
 ---
 
-## Reference Files
-
-- `@reference.md` - Swapper architecture, interfaces, universal patterns
-- `@common-gotchas.md` - Critical bugs to avoid (READ THIS!)
-- `@examples.md` - Code templates and examples
-
 ## Need Help?
 
-1. Read similar swapper implementations
-2. Check `@common-gotchas.md` for your specific issue
+1. Read similar swapper implementations in packages/swapper/src/swappers/
+2. Review the gotchas and patterns documented throughout this skill
 3. Grep for similar patterns: `grep -r "pattern" packages/swapper/src/swappers/`
 4. Ask user for API behavior clarification
 5. Test with curl to verify API responses

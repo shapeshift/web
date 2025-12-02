@@ -237,9 +237,12 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TronMainnet> {
         txData = await response.json()
       }
 
-      // Add memo if provided (addUpdateData should preserve fee_limit)
+      // Add memo if provided
       if (memo) {
-        txData = await tronWeb.transactionBuilder.addUpdateData(txData, memo, 'utf8')
+        // txLocal: true preserves fee_limit (critical for TRC20 transactions)
+        txData = await tronWeb.transactionBuilder.addUpdateData(txData, memo, 'utf8', {
+          txLocal: true,
+        })
       }
 
       if (!txData.raw_data_hex) {

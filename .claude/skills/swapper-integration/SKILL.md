@@ -1282,7 +1282,7 @@ export const getConfig = (): Config => ({
 
 #### Step 5: Proactive Gotcha Review
 
-**BEFORE testing**, check for these critical bugs (from `@common-gotchas.md`):
+**BEFORE testing**, check for these critical bugs:
 
 1. **Slippage Format**: Verify API format (percentage, decimal, basis points)
 2. **Address Checksumming**: Use `getAddress()` from viem

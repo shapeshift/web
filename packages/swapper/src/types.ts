@@ -6,10 +6,11 @@ import type {
   EvmChainAdapter,
   SignTx,
   solana,
+  sui,
   tron,
   UtxoChainAdapter,
 } from '@shapeshiftoss/chain-adapters'
-import type { HDWallet, SolanaSignTx } from '@shapeshiftoss/hdwallet-core'
+import type { HDWallet, SolanaSignTx, SuiSignTx } from '@shapeshiftoss/hdwallet-core'
 import type {
   AccountMetadata,
   Asset,
@@ -84,6 +85,7 @@ export enum SwapperName {
   ButterSwap = 'ButterSwap',
   Bebop = 'Bebop',
   NearIntents = 'NEAR Intents',
+  Cetus = 'Cetus',
 }
 
 export type SwapSource = SwapperName | `${SwapperName} • ${string}`
@@ -144,6 +146,11 @@ export type SolanaFeeData = {
   priorityFee: string
 }
 
+export type SuiFeeData = {
+  gasBudget: string
+  gasPrice: string
+}
+
 export type AmountDisplayMeta = {
   amountCryptoBaseUnit: string
   asset: Partial<Asset> & Pick<Asset, 'symbol' | 'chainId' | 'precision'>
@@ -154,7 +161,7 @@ export type ProtocolFee = { requiresBalance: boolean } & AmountDisplayMeta
 export type QuoteFeeData = {
   networkFeeCryptoBaseUnit: string | undefined // fee paid to the network from the fee asset (undefined if unknown)
   protocolFees: PartialRecord<AssetId, ProtocolFee> | undefined // fee(s) paid to the protocol(s)
-  chainSpecific?: UtxoFeeData | CosmosSdkFeeData | SolanaFeeData
+  chainSpecific?: UtxoFeeData | CosmosSdkFeeData | SolanaFeeData | SuiFeeData
 }
 
 export type BuyAssetBySellIdInput = {
@@ -281,6 +288,9 @@ export type SolanaSwapperDeps = {
 export type TronSwapperDeps = {
   assertGetTronChainAdapter: (chainId: ChainId) => tron.ChainAdapter
 }
+export type SuiSwapperDeps = {
+  assertGetSuiChainAdapter: (chainId: ChainId) => sui.ChainAdapter
+}
 
 export type SwapperDeps = {
   assetsById: AssetsByIdPartial
@@ -291,7 +301,8 @@ export type SwapperDeps = {
   UtxoSwapperDeps &
   CosmosSdkSwapperDeps &
   SolanaSwapperDeps &
-  TronSwapperDeps
+  TronSwapperDeps &
+  SuiSwapperDeps
 
 export type TradeQuoteStep = {
   buyAmountBeforeFeesCryptoBaseUnit: string
@@ -535,10 +546,14 @@ export type SolanaTransactionExecutionProps = {
 export type TronTransactionExecutionProps = {
   signAndBroadcastTransaction: (txToSign: tron.TronSignTx) => Promise<string>
 }
+export type SuiTransactionExecutionProps = {
+  signAndBroadcastTransaction: (txToSign: SuiSignTx) => Promise<string>
+}
 
 type EvmAccountMetadata = { from: string }
 type SolanaAccountMetadata = { from: string }
 type TronAccountMetadata = { from: string }
+type SuiAccountMetadata = { from: string }
 type UtxoAccountMetadata = { senderAddress: string; xpub: string; accountType: UtxoAccountType }
 type CosmosSdkAccountMetadata = { from: string }
 
@@ -564,6 +579,9 @@ export type GetUnsignedSolanaTransactionArgs = CommonGetUnsignedTransactionArgs 
 export type GetUnsignedTronTransactionArgs = CommonGetUnsignedTransactionArgs &
   TronAccountMetadata &
   TronSwapperDeps
+export type GetUnsignedSuiTransactionArgs = CommonGetUnsignedTransactionArgs &
+  SuiAccountMetadata &
+  SuiSwapperDeps
 
 export type GetUnsignedEvmMessageArgs = CommonGetUnsignedTransactionArgs &
   EvmAccountMetadata &
@@ -598,7 +616,8 @@ export type CheckTradeStatusInput = {
 } & EvmSwapperDeps &
   UtxoSwapperDeps &
   CosmosSdkSwapperDeps &
-  SolanaSwapperDeps
+  SolanaSwapperDeps &
+  SuiSwapperDeps
 
 export type TradeStatus = {
   status: TxStatus
@@ -645,6 +664,10 @@ export type Swapper = {
     txToSign: tron.TronSignTx,
     callbacks: TronTransactionExecutionProps,
   ) => Promise<string>
+  executeSuiTransaction?: (
+    txToSign: SuiSignTx,
+    callbacks: SuiTransactionExecutionProps,
+  ) => Promise<string>
 }
 
 export type SwapperApi = {
@@ -664,9 +687,11 @@ export type SwapperApi = {
   ) => Promise<SignTx<CosmosSdkChainId>>
   getUnsignedSolanaTransaction?: (input: GetUnsignedSolanaTransactionArgs) => Promise<SolanaSignTx>
   getUnsignedTronTransaction?: (input: GetUnsignedTronTransactionArgs) => Promise<tron.TronSignTx>
+  getUnsignedSuiTransaction?: (input: GetUnsignedSuiTransactionArgs) => Promise<SuiSignTx>
 
   getEvmTransactionFees?: (input: GetUnsignedEvmTransactionArgs) => Promise<string>
   getSolanaTransactionFees?: (input: GetUnsignedSolanaTransactionArgs) => Promise<string>
+  getSuiTransactionFees?: (input: GetUnsignedSuiTransactionArgs) => Promise<string>
   getUtxoTransactionFees?: (input: GetUnsignedUtxoTransactionArgs) => Promise<string>
   getCosmosSdkTransactionFees?: (input: GetUnsignedCosmosSdkTransactionArgs) => Promise<string>
   getTronTransactionFees?: (input: GetUnsignedTronTransactionArgs) => Promise<string>
@@ -711,6 +736,9 @@ export type SolanaTransactionExecutionInput = CommonTradeExecutionInput &
 export type TronTransactionExecutionInput = CommonTradeExecutionInput &
   TronTransactionExecutionProps &
   TronAccountMetadata
+export type SuiTransactionExecutionInput = CommonTradeExecutionInput &
+  SuiTransactionExecutionProps &
+  SuiAccountMetadata
 
 export enum TradeExecutionEvent {
   SellTxHash = 'sellTxHash',

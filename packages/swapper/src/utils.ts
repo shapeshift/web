@@ -1,7 +1,7 @@
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
-import { solanaChainId } from '@shapeshiftoss/caip'
-import type { EvmChainAdapter, SignTx, solana } from '@shapeshiftoss/chain-adapters'
-import type { SolanaSignTx } from '@shapeshiftoss/hdwallet-core'
+import { solanaChainId, suiChainId } from '@shapeshiftoss/caip'
+import type { EvmChainAdapter, SignTx, solana, sui } from '@shapeshiftoss/chain-adapters'
+import type { SolanaSignTx, SuiSignTx } from '@shapeshiftoss/hdwallet-core'
 import type { Asset, EvmChainId } from '@shapeshiftoss/types'
 import { evm, TxStatus } from '@shapeshiftoss/unchained-client'
 import { bn, fromBaseUnit } from '@shapeshiftoss/utils'
@@ -17,6 +17,7 @@ import type {
   EvmTransactionExecutionProps,
   ExecutableTradeStep,
   SolanaTransactionExecutionProps,
+  SuiTransactionExecutionProps,
   SupportedTradeQuoteStepIndex,
   SwapErrorRight,
   TradeQuote,
@@ -186,6 +187,13 @@ export const executeTronTransaction = (
   return callbacks.signAndBroadcastTransaction(txToSign)
 }
 
+export const executeSuiTransaction = (
+  txToSign: SuiSignTx,
+  callbacks: SuiTransactionExecutionProps,
+) => {
+  return callbacks.signAndBroadcastTransaction(txToSign)
+}
+
 export const createDefaultStatusResponse = (buyTxHash?: string) => ({
   status: TxStatus.Unknown,
   buyTxHash,
@@ -330,6 +338,42 @@ export const checkSolanaSwapStatus = async ({
     const adapter = assertGetSolanaChainAdapter(solanaChainId)
     const tx = await adapter.httpProvider.getTransaction({ txid: txHash })
     const status = await adapter.getTxStatus(tx, address)
+
+    return {
+      status,
+      buyTxHash: txHash,
+      message: undefined,
+    }
+  } catch (e) {
+    console.error(e)
+    return createDefaultStatusResponse(txHash)
+  }
+}
+
+export const checkSuiSwapStatus = async ({
+  txHash,
+  address,
+  assertGetSuiChainAdapter,
+}: {
+  txHash: string
+  address: string | undefined
+  assertGetSuiChainAdapter: (chainId: ChainId) => sui.ChainAdapter
+}): Promise<TradeStatus> => {
+  try {
+    if (!address) throw new Error('Missing address')
+
+    const adapter = assertGetSuiChainAdapter(suiChainId)
+    const client = adapter.getSuiClient()
+
+    const txResponse = await client.getTransactionBlock({
+      digest: txHash,
+      options: {
+        showEffects: true,
+      },
+    })
+
+    const status =
+      txResponse.effects?.status?.status === 'success' ? TxStatus.Confirmed : TxStatus.Failed
 
     return {
       status,

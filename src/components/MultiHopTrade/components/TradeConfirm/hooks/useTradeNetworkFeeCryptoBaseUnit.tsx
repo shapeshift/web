@@ -19,6 +19,7 @@ import { assertUnreachable } from '@/lib/utils'
 import { assertGetCosmosSdkChainAdapter } from '@/lib/utils/cosmosSdk'
 import { assertGetEvmChainAdapter } from '@/lib/utils/evm'
 import { assertGetSolanaChainAdapter } from '@/lib/utils/solana'
+import { assertGetSuiChainAdapter } from '@/lib/utils/sui'
 import { assertGetTronChainAdapter } from '@/lib/utils/tron'
 import { assertGetUtxoChainAdapter } from '@/lib/utils/utxo'
 import { selectPortfolioAccountMetadataByAccountId } from '@/state/slices/selectors'
@@ -215,6 +216,27 @@ export const useTradeNetworkFeeCryptoBaseUnit = ({
                   chainId: hop.sellAsset.chainId,
                   config: getConfig(),
                   assertGetTronChainAdapter,
+                })
+                return output
+              }
+              case CHAIN_NAMESPACE.Sui: {
+                if (!swapper.getSuiTransactionFees) throw Error('missing getSuiTransactionFees')
+
+                const adapter = assertGetSuiChainAdapter(stepSellAssetChainId)
+                const from = await adapter.getAddress({
+                  accountNumber,
+                  wallet,
+                  ...(skipDeviceDerivation ? { pubKey } : {}),
+                })
+
+                const output = await swapper.getSuiTransactionFees({
+                  tradeQuote,
+                  from,
+                  stepIndex: hopIndex,
+                  slippageTolerancePercentageDecimal,
+                  chainId: hop.sellAsset.chainId,
+                  config: getConfig(),
+                  assertGetSuiChainAdapter,
                 })
                 return output
               }

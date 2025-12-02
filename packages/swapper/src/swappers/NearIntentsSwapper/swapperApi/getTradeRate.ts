@@ -22,7 +22,11 @@ import type {
   TradeRate,
 } from '../../../types'
 import { SwapperName, TradeQuoteError } from '../../../types'
-import { getInputOutputRate, makeSwapErrorRight } from '../../../utils'
+import {
+  createTradeAmountTooSmallErr,
+  getInputOutputRate,
+  makeSwapErrorRight,
+} from '../../../utils'
 import { simulateWithStateOverrides } from '../../../utils/tenderly'
 import { isNativeEvmAsset } from '../../utils/helpers/helpers'
 import { DEFAULT_QUOTE_DEADLINE_MS, DEFAULT_SLIPPAGE_BPS } from '../constants'
@@ -224,6 +228,34 @@ export const getTradeRate = async (
               to: depositAddress,
               value: sellAmount,
             })
+
+            return feeData.fast.txFee
+          } catch (error) {
+            return '0'
+          }
+        }
+
+        case CHAIN_NAMESPACE.Sui: {
+          try {
+            const sellAdapter = deps.assertGetSuiChainAdapter(sellAsset.chainId)
+            const tokenId = isToken(sellAsset.assetId)
+              ? fromAssetId(sellAsset.assetId).assetReference
+              : undefined
+
+            if (!sendAddress) {
+              return '0'
+            }
+
+            const feeData = await sellAdapter.getFeeData({
+              to: depositAddress,
+              value: sellAmount,
+              chainSpecific: {
+                from: sendAddress,
+                tokenId,
+              },
+              sendMax: false,
+            })
+
             return feeData.fast.txFee
           } catch (error) {
             return '0'
@@ -276,17 +308,31 @@ export const getTradeRate = async (
 
     return Ok([tradeRate])
   } catch (error) {
-    if (
-      error instanceof ApiError &&
-      (error.body?.message === 'tokenIn is not valid' ||
-        error.body?.message === 'tokenOut is not valid')
-    ) {
-      return Err(
-        makeSwapErrorRight({
-          code: TradeQuoteError.UnsupportedTradePair,
-          message: 'Unsupported asset',
-        }),
-      )
+    if (error instanceof ApiError) {
+      if (
+        error.body?.message === 'tokenIn is not valid' ||
+        error.body?.message === 'tokenOut is not valid'
+      ) {
+        return Err(
+          makeSwapErrorRight({
+            code: TradeQuoteError.UnsupportedTradePair,
+            message: 'Unsupported asset',
+          }),
+        )
+      }
+
+      if (error.body?.message?.includes('Amount is too low')) {
+        const match = error.body.message.match(/try at least (\d+)/)
+        if (match) {
+          const minAmountCryptoBaseUnit = match[1]
+          return Err(
+            createTradeAmountTooSmallErr({
+              minAmountCryptoBaseUnit,
+              assetId: sellAsset.assetId,
+            }),
+          )
+        }
+      }
     }
 
     return Err(

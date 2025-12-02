@@ -33,10 +33,12 @@ import { ASSET_DATA_PATH, RELATED_ASSET_INDEX_PATH } from './constants'
 import * as ethereum from './ethereum'
 import { generateRelatedAssetIndex } from './generateRelatedAssetIndex/generateRelatedAssetIndex'
 import * as gnosis from './gnosis'
+import * as monad from './monad'
 import * as optimism from './optimism'
 import { overrideAssets } from './overrides'
 import * as polygon from './polygon'
 import * as solana from './solana'
+import * as sui from './sui'
 import * as tronModule from './tron'
 import { filterOutBlacklistedAssets, getSortedAssetIds } from './utils'
 
@@ -50,8 +52,10 @@ const generateAssetData = async () => {
   const arbitrumAssets = await arbitrum.getAssets()
   const arbitrumNovaAssets = await arbitrumNova.getAssets()
   const baseAssets = await base.getAssets()
+  const monadAssets = await monad.getAssets()
   const solanaAssets = await solana.getAssets()
   const tronAssets = await tronModule.getAssets()
+  const suiAssets = await sui.getAssets()
 
   // all assets, included assets to be blacklisted
   const unfilteredAssetData: Asset[] = [
@@ -74,8 +78,10 @@ const generateAssetData = async () => {
     ...arbitrumAssets,
     ...arbitrumNovaAssets,
     ...baseAssets,
+    ...monadAssets,
     ...solanaAssets,
     ...tronAssets,
+    ...suiAssets,
   ]
 
   // remove blacklisted assets

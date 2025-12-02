@@ -6,6 +6,7 @@ import type {
   HDWallet,
   MayachainSignTx,
   SolanaSignTx,
+  SuiSignTx,
   ThorchainSignTx,
 } from '@shapeshiftoss/hdwallet-core'
 import type {
@@ -20,6 +21,7 @@ import type PQueue from 'p-queue'
 import type * as cosmossdk from './cosmossdk/types'
 import type * as evm from './evm/types'
 import type * as solana from './solana/types'
+import type * as sui from './sui/types'
 import type * as tron from './tron/types'
 import type * as utxo from './utxo/types'
 
@@ -39,6 +41,7 @@ type ChainSpecificAccount<T> = ChainSpecific<
     [KnownChainIds.ArbitrumMainnet]: evm.Account
     [KnownChainIds.ArbitrumNovaMainnet]: evm.Account
     [KnownChainIds.BaseMainnet]: evm.Account
+    [KnownChainIds.MonadMainnet]: evm.Account
     [KnownChainIds.BitcoinMainnet]: utxo.Account
     [KnownChainIds.BitcoinCashMainnet]: utxo.Account
     [KnownChainIds.DogecoinMainnet]: utxo.Account
@@ -48,6 +51,7 @@ type ChainSpecificAccount<T> = ChainSpecific<
     [KnownChainIds.MayachainMainnet]: cosmossdk.Account
     [KnownChainIds.SolanaMainnet]: solana.Account
     [KnownChainIds.TronMainnet]: tron.Account
+    [KnownChainIds.SuiMainnet]: sui.Account
   }
 >
 
@@ -82,6 +86,7 @@ type ChainSpecificFeeData<T> = ChainSpecific<
     [KnownChainIds.ArbitrumMainnet]: evm.FeeData
     [KnownChainIds.ArbitrumNovaMainnet]: evm.FeeData
     [KnownChainIds.BaseMainnet]: evm.FeeData
+    [KnownChainIds.MonadMainnet]: evm.FeeData
     [KnownChainIds.BitcoinMainnet]: utxo.FeeData
     [KnownChainIds.BitcoinCashMainnet]: utxo.FeeData
     [KnownChainIds.DogecoinMainnet]: utxo.FeeData
@@ -91,6 +96,7 @@ type ChainSpecificFeeData<T> = ChainSpecific<
     [KnownChainIds.MayachainMainnet]: cosmossdk.FeeData
     [KnownChainIds.SolanaMainnet]: solana.FeeData
     [KnownChainIds.TronMainnet]: tron.FeeData
+    [KnownChainIds.SuiMainnet]: sui.FeeData
   }
 >
 
@@ -159,6 +165,7 @@ export type ChainSignTx = {
   [KnownChainIds.ArbitrumMainnet]: ETHSignTx
   [KnownChainIds.ArbitrumNovaMainnet]: ETHSignTx
   [KnownChainIds.BaseMainnet]: ETHSignTx
+  [KnownChainIds.MonadMainnet]: ETHSignTx
   [KnownChainIds.BitcoinMainnet]: BTCSignTx
   [KnownChainIds.BitcoinCashMainnet]: BTCSignTx
   [KnownChainIds.DogecoinMainnet]: BTCSignTx
@@ -168,6 +175,7 @@ export type ChainSignTx = {
   [KnownChainIds.MayachainMainnet]: MayachainSignTx
   [KnownChainIds.SolanaMainnet]: SolanaSignTx
   [KnownChainIds.TronMainnet]: tron.TronSignTx
+  [KnownChainIds.SuiMainnet]: SuiSignTx
 }
 
 export type SignTx<T extends ChainId> = T extends keyof ChainSignTx ? ChainSignTx[T] : never
@@ -205,6 +213,7 @@ export type ChainSpecificBuildTxData<T> = ChainSpecific<
     [KnownChainIds.ArbitrumMainnet]: evm.BuildTxInput
     [KnownChainIds.ArbitrumNovaMainnet]: evm.BuildTxInput
     [KnownChainIds.BaseMainnet]: evm.BuildTxInput
+    [KnownChainIds.MonadMainnet]: evm.BuildTxInput
     [KnownChainIds.BitcoinMainnet]: utxo.BuildTxInput
     [KnownChainIds.BitcoinCashMainnet]: utxo.BuildTxInput
     [KnownChainIds.DogecoinMainnet]: utxo.BuildTxInput
@@ -214,6 +223,7 @@ export type ChainSpecificBuildTxData<T> = ChainSpecific<
     [KnownChainIds.MayachainMainnet]: cosmossdk.BuildTxInput
     [KnownChainIds.SolanaMainnet]: solana.BuildTxInput
     [KnownChainIds.TronMainnet]: tron.BuildTxInput
+    [KnownChainIds.SuiMainnet]: sui.BuildTxInput
   }
 >
 
@@ -303,11 +313,13 @@ type ChainSpecificGetFeeDataInput<T> = ChainSpecific<
     [KnownChainIds.ArbitrumMainnet]: evm.GetFeeDataInput
     [KnownChainIds.ArbitrumNovaMainnet]: evm.GetFeeDataInput
     [KnownChainIds.BaseMainnet]: evm.GetFeeDataInput
+    [KnownChainIds.MonadMainnet]: evm.GetFeeDataInput
     [KnownChainIds.BitcoinMainnet]: utxo.GetFeeDataInput
     [KnownChainIds.BitcoinCashMainnet]: utxo.GetFeeDataInput
     [KnownChainIds.DogecoinMainnet]: utxo.GetFeeDataInput
     [KnownChainIds.LitecoinMainnet]: utxo.GetFeeDataInput
     [KnownChainIds.SolanaMainnet]: solana.GetFeeDataInput
+    [KnownChainIds.SuiMainnet]: sui.GetFeeDataInput
   }
 >
 export type GetFeeDataInput<T extends ChainId> = {
@@ -365,6 +377,7 @@ export enum ChainAdapterDisplayName {
   Arbitrum = 'Arbitrum One',
   ArbitrumNova = 'Arbitrum Nova',
   Base = 'Base',
+  Monad = 'Monad',
   Cosmos = 'Cosmos',
   Bitcoin = 'Bitcoin',
   BitcoinCash = 'Bitcoin Cash',
@@ -372,6 +385,7 @@ export enum ChainAdapterDisplayName {
   Litecoin = 'Litecoin',
   Solana = 'Solana',
   Tron = 'Tron',
+  Sui = 'Sui',
 }
 
 export type BroadcastTransactionInput = {

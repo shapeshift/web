@@ -9,6 +9,8 @@ import { useNotificationToast } from '../useNotificationToast'
 import { useActionCenterContext } from '@/components/Layout/Header/ActionCenter/ActionCenterContext'
 import { GenericTransactionNotification } from '@/components/Layout/Header/ActionCenter/components/Notifications/GenericTransactionNotification'
 import { SECOND_CLASS_CHAINS } from '@/constants/chains'
+import { getMonadTransactionStatus } from '@/lib/utils/monad'
+import { getSuiTransactionStatus } from '@/lib/utils/sui'
 import { getTronTransactionStatus } from '@/lib/utils/tron'
 import { actionSlice } from '@/state/slices/actionSlice/actionSlice'
 import { selectPendingWalletSendActions } from '@/state/slices/actionSlice/selectors'
@@ -57,7 +59,6 @@ export const useSendActionSubscriber = () => {
 
       const isActive = toast.isActive(txHash)
 
-      // No double-toasty
       if (isActive) return
 
       toast({
@@ -110,6 +111,18 @@ export const useSendActionSubscriber = () => {
                   // The TX completed but might fail because runs out of energy, as for now we don't support failed sends lets consider it confirmed
                   // @TODO: Implement failed sends for TRON or a way to check for gas balance before sending so it fails before even sending
                   isConfirmed = txStatus === TxStatus.Confirmed || txStatus === TxStatus.Failed
+                  break
+                }
+                case KnownChainIds.SuiMainnet: {
+                  const suiTxStatus = await getSuiTransactionStatus(txHash)
+                  isConfirmed =
+                    suiTxStatus === TxStatus.Confirmed || suiTxStatus === TxStatus.Failed
+                  break
+                }
+                case KnownChainIds.MonadMainnet: {
+                  const monadTxStatus = await getMonadTransactionStatus(txHash)
+                  isConfirmed =
+                    monadTxStatus === TxStatus.Confirmed || monadTxStatus === TxStatus.Failed
                   break
                 }
                 default:

@@ -378,6 +378,7 @@ export enum ChainAdapterDisplayName {
   ArbitrumNova = 'Arbitrum Nova',
   Base = 'Base',
   Monad = 'Monad',
+  HyperEvm = 'HyperEVM',
   Cosmos = 'Cosmos',
   Bitcoin = 'Bitcoin',
   BitcoinCash = 'Bitcoin Cash',

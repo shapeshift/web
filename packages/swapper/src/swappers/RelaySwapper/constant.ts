@@ -6,6 +6,7 @@ import {
   btcChainId,
   ethChainId,
   gnosisChainId,
+  hyperEvmChainId,
   monadChainId,
   optimismChainId,
   polygonChainId,
@@ -44,6 +45,7 @@ export const chainIdToRelayChainId = {
   [bscChainId]: bsc.id,
   [tronChainId]: 728126428,
   [monadChainId]: monad.id,
+  [hyperEvmChainId]: 999, // HyperEVM - not in viem yet
 }
 
 export enum RelayStatusMessage {

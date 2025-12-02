@@ -11,6 +11,7 @@ import {
   dogeAssetId,
   ethAssetId,
   gnosisAssetId,
+  hyperEvmAssetId,
   ltcAssetId,
   mayachainAssetId,
   monadAssetId,
@@ -68,6 +69,8 @@ export const chainIdToFeeAssetId = (_chainId: ChainId): AssetId => {
       return suiAssetId
     case KnownChainIds.MonadMainnet:
       return monadAssetId
+    case KnownChainIds.HyperEvmMainnet:
+      return hyperEvmAssetId
     default:
       return assertUnreachable(chainId)
   }

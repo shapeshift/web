@@ -194,7 +194,29 @@ export const sunioApi: SwapperApi = {
 
   getTronTransactionFees,
 
-  checkTradeStatus: ({ txHash }) => {
-    return Promise.resolve(createDefaultStatusResponse(txHash))
+  checkTradeStatus: async ({ txHash, assertGetTronChainAdapter }) => {
+    try {
+      const adapter = assertGetTronChainAdapter(tronChainId)
+      const tx = await adapter.httpProvider.getTransaction({ txid: txHash })
+
+      if (!tx) {
+        return createDefaultStatusResponse(txHash)
+      }
+
+      const status = tx.ret?.[0]?.contractRet === 'SUCCESS'
+        ? ('Confirmed' as const)
+        : tx.ret?.[0]?.contractRet === 'REVERT'
+        ? ('Failed' as const)
+        : ('Pending' as const)
+
+      return {
+        status,
+        buyTxHash: txHash,
+        message: undefined,
+      }
+    } catch (error) {
+      console.error('[Sun.io] Error checking trade status:', error)
+      return createDefaultStatusResponse(txHash)
+    }
   },
 }

@@ -1,5 +1,6 @@
 import { tronAssetId, tronChainId } from '@shapeshiftoss/caip'
 import type { tron } from '@shapeshiftoss/chain-adapters'
+import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { TronWeb } from 'tronweb'
 
 import { getTronTransactionFees } from '../../tron-utils/getTronTransactionFees'
@@ -201,7 +202,7 @@ export const sunioApi: SwapperApi = {
 
       if (tx && tx.confirmations > 0) {
         return {
-          status: 'Confirmed' as const,
+          status: TxStatus.Confirmed,
           buyTxHash: txHash,
           message: undefined,
         }

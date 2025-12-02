@@ -224,8 +224,28 @@ After determining chain type (EVM or non-EVM), collect remaining details:
 
 ### Step 1.0: Choose Implementation Strategy
 
-**If EVM chain**: Skip to Step 1.2-EVM (much simpler!)
+**If EVM chain**: ⚡ **SKIP PHASE 1 ENTIRELY!** ⚡ EVM chains are auto-supported by all existing wallets. Jump to Phase 2 (Verdaccio) or Phase 3 (Web Integration).
 **If non-EVM chain**: Continue with Step 1.1 below
+
+### 🎉 EVM Chains: Zero HDWallet Work Required!
+
+For EVM-compatible chains (like Monad, HyperEVM, Base), you need **ZERO changes** to hdwallet:
+
+**Why?**
+- All EVM chains use the same Ethereum crypto (secp256k1, Keccak256)
+- Native wallet already supports any EVM chain
+- Ledger uses Ethereum app for all EVM chains
+- MetaMask, WalletConnect, etc. all auto-support EVM chains
+
+**What this means:**
+- ❌ No new interfaces to write
+- ❌ No crypto adapters needed
+- ❌ No wallet mixins required
+- ❌ No hdwallet version bumps needed
+- ❌ No Verdaccio publishing needed
+- ✅ Just add chain to Web and you're done!
+
+**Skip directly to Phase 3 (Web Chain Adapter)** if your chain is EVM-compatible.
 
 ### Step 1.1: Research HDWallet Patterns (Non-EVM Only)
 
@@ -1021,18 +1041,40 @@ export const generate[Chain]AssetData = async (): Promise<Asset[]> => {
 const [chainLower]Assets = await generate[Chain]AssetData()
 ```
 
-### Step 5.3: Swapper Integration
+### Step 5.3: Swapper Support Discovery & Integration
 
 **CRITICAL**: Add your chain to supported swappers so users can actually trade!
 
-Most chains are supported by **Relay Swapper**. Check which swappers support your chain:
-- **Relay**: Multi-chain DEX aggregator (most EVM + BTC, Solana, Tron)
-- **Thor/Maya**: Cross-chain swaps via THORChain/MAYAChain
-- **CowSwap**: EVM-only (Ethereum, Gnosis, Arbitrum)
-- **OneInch**: EVM-only
-- **Butter**: Select EVM chains
+#### Step 5.3a: Research Which Swappers Support Your Chain
 
-**For Relay Swapper** (most common):
+**Use `AskUserQuestion` to ask:**
+```
+Which swappers support [ChainName]?
+
+Options:
+1. "I know which swappers" → User provides list
+2. "Can you research it?" → Search swapper docs and supported chains lists
+3. "Just add Relay for now" → Start with Relay, add others later
+
+Context: Different swappers support different chains. We need to add your chain to each swapper that supports it.
+```
+
+**Search for swapper support:**
+1. **Relay**: Check https://docs.relay.link/resources/supported-chains
+2. **0x/Matcha**: Check https://0x.org/docs/introduction/0x-cheat-sheet
+3. **OneInch**: Check https://docs.1inch.io/docs/aggregation-protocol/introduction
+4. **CowSwap**: Check https://docs.cow.fi/cow-protocol/reference/contracts/deployments
+5. **Jupiter**: Solana-only
+6. **THORChain**: Check https://docs.thorchain.org/chain-clients/overview
+
+**Common patterns:**
+- Most EVM chains: Relay, 0x, possibly OneInch
+- Ethereum L2s: Relay, 0x, CowSwap, OneInch
+- Non-EVM: Relay (if supported), chain-specific DEXes
+
+#### Step 5.3b: Relay Swapper Integration (Most Common)
+
+**For Relay Swapper** (supports most chains):
 
 **File**: `packages/swapper/src/swappers/RelaySwapper/constant.ts`
 

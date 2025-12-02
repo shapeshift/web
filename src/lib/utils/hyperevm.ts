@@ -3,8 +3,6 @@ import type { EvmChainAdapter } from '@shapeshiftoss/chain-adapters'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { JsonRpcProvider } from 'ethers'
 
-import { assertUnreachable } from '.'
-
 export const isHyperEvmChainAdapter = (adapter: unknown): adapter is EvmChainAdapter => {
   if (!adapter) return false
 

@@ -25,6 +25,7 @@ export type Pool = MidgardPoolResponse & {
     isTradingActive?: boolean
     isTradingActiveLoading?: boolean
     isLpDepositEnabled?: boolean
+    isLpWithdrawEnabled?: boolean
   }
 
 export type PoolStats = {

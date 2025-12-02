@@ -1,5 +1,5 @@
 import { ASSOCIATED_PROGRAM_ID } from '@coral-xyz/anchor/dist/cjs/utils/token'
-import { fromAssetId, solanaChainId } from '@shapeshiftoss/caip'
+import { fromAssetId, solanaChainId, suiChainId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { bnOrZero, isToken } from '@shapeshiftoss/utils'
@@ -39,7 +39,8 @@ export const getNearIntentsAsset = ({
   return `nep141:${nearNetwork}-${contractAddress.toLowerCase()}.omft.near`
 }
 
-const NEP245_CHAINS = ['bsc', 'pol', 'avax', 'op'] as const
+const NEP245_CHAINS = ['bsc', 'pol', 'avax', 'op', 'tron'] as const
+const TOKEN_LOOKUP_CHAINS = ['sui'] as const
 
 export const assetToNearIntentsAsset = async (asset: Asset): Promise<string | null> => {
   const nearNetwork =
@@ -47,16 +48,20 @@ export const assetToNearIntentsAsset = async (asset: Asset): Promise<string | nu
 
   if (!nearNetwork) return null
 
-  // NEP-245 chains (BSC, Polygon, Avalanche, Optimism) and Solana require token lookup
+  // NEP-245 chains (BSC, Polygon, Avalanche, Optimism, TRON, SUI) and Solana require token lookup
   // Asset IDs use hashed format that can't be generated from contract addresses
   const requiresLookup =
-    NEP245_CHAINS.includes(nearNetwork as any) || asset.chainId === solanaChainId
+    NEP245_CHAINS.includes(nearNetwork as any) ||
+    TOKEN_LOOKUP_CHAINS.includes(nearNetwork as any) ||
+    asset.chainId === solanaChainId ||
+    asset.chainId === suiChainId
 
   if (requiresLookup) {
     const tokens = await OneClickService.getTokens()
-    const contractAddress = isToken(asset.assetId)
-      ? fromAssetId(asset.assetId).assetReference.toLowerCase()
-      : null
+
+    const { assetNamespace, assetReference } = fromAssetId(asset.assetId)
+    const isNativeAsset = assetNamespace === 'slip44'
+    const contractAddress = !isNativeAsset ? assetReference.toLowerCase() : null
 
     const match = tokens.find((t: TokenResponse) => {
       if (t.blockchain !== nearNetwork) return false
@@ -65,7 +70,9 @@ export const assetToNearIntentsAsset = async (asset: Asset): Promise<string | nu
         : !t.contractAddress
     })
 
-    if (!match) return null
+    if (!match) {
+      return null
+    }
 
     return match.assetId
   }

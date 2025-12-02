@@ -1,5 +1,6 @@
 import { bchAssetId, CHAIN_NAMESPACE, fromAccountId, fromChainId } from '@shapeshiftoss/caip'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
+import { isGridPlus } from '@shapeshiftoss/hdwallet-gridplus'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import { isTrezor } from '@shapeshiftoss/hdwallet-trezor'
 import type { SupportedTradeQuoteStepIndex } from '@shapeshiftoss/swapper'
@@ -18,6 +19,8 @@ import { assertUnreachable } from '@/lib/utils'
 import { assertGetCosmosSdkChainAdapter } from '@/lib/utils/cosmosSdk'
 import { assertGetEvmChainAdapter } from '@/lib/utils/evm'
 import { assertGetSolanaChainAdapter } from '@/lib/utils/solana'
+import { assertGetSuiChainAdapter } from '@/lib/utils/sui'
+import { assertGetTronChainAdapter } from '@/lib/utils/tron'
 import { assertGetUtxoChainAdapter } from '@/lib/utils/utxo'
 import { selectPortfolioAccountMetadataByAccountId } from '@/state/slices/selectors'
 import {
@@ -91,6 +94,8 @@ export const useTradeNetworkFeeCryptoBaseUnit = ({
               fromChainId(stepSellAssetChainId)
 
             const pubKey = fromAccountId(sellAssetAccountId).account
+            const skipDeviceDerivation =
+              wallet && (isLedger(wallet) || isTrezor(wallet) || isGridPlus(wallet))
 
             switch (stepSellAssetChainNamespace) {
               case CHAIN_NAMESPACE.Evm: {
@@ -99,7 +104,7 @@ export const useTradeNetworkFeeCryptoBaseUnit = ({
                 const from = await adapter.getAddress({
                   accountNumber,
                   wallet,
-                  pubKey: wallet && (isLedger(wallet) || isTrezor(wallet)) ? pubKey : undefined,
+                  pubKey: skipDeviceDerivation ? pubKey : undefined,
                 })
                 const supportsEIP1559 = supportsETH(wallet) && (await wallet.ethSupportsEIP1559())
 
@@ -122,12 +127,14 @@ export const useTradeNetworkFeeCryptoBaseUnit = ({
                 if (accountType === undefined) throw Error('Missing UTXO account type')
 
                 const adapter = assertGetUtxoChainAdapter(stepSellAssetChainId)
-                const { xpub } = await adapter.getPublicKey(wallet, accountNumber, accountType)
+                const xpub = skipDeviceDerivation
+                  ? fromAccountId(sellAssetAccountId).account
+                  : (await adapter.getPublicKey(wallet, accountNumber, accountType)).xpub
                 const _senderAddress = await adapter.getAddress({
                   accountNumber,
                   accountType,
                   wallet,
-                  ...(isLedger(wallet) || isTrezor(wallet) ? { pubKey } : {}),
+                  ...(skipDeviceDerivation ? { pubKey } : {}),
                 })
                 const senderAddress =
                   stepSellAssetAssetId === bchAssetId
@@ -155,7 +162,7 @@ export const useTradeNetworkFeeCryptoBaseUnit = ({
                 const from = await adapter.getAddress({
                   accountNumber,
                   wallet,
-                  ...(isLedger(wallet) || isTrezor(wallet) ? { pubKey } : {}),
+                  ...(skipDeviceDerivation ? { pubKey } : {}),
                 })
 
                 const output = await swapper.getCosmosSdkTransactionFees({
@@ -177,7 +184,7 @@ export const useTradeNetworkFeeCryptoBaseUnit = ({
                 const from = await adapter.getAddress({
                   accountNumber,
                   wallet,
-                  ...(isLedger(wallet) || isTrezor(wallet) ? { pubKey } : {}),
+                  ...(skipDeviceDerivation ? { pubKey } : {}),
                 })
 
                 const output = await swapper.getSolanaTransactionFees({
@@ -188,6 +195,48 @@ export const useTradeNetworkFeeCryptoBaseUnit = ({
                   chainId: hop.sellAsset.chainId,
                   config: getConfig(),
                   assertGetSolanaChainAdapter,
+                })
+                return output
+              }
+              case CHAIN_NAMESPACE.Tron: {
+                if (!swapper.getTronTransactionFees) throw Error('missing getTronTransactionFees')
+
+                const adapter = assertGetTronChainAdapter(stepSellAssetChainId)
+                const from = await adapter.getAddress({
+                  accountNumber,
+                  wallet,
+                  ...(isLedger(wallet) || isTrezor(wallet) ? { pubKey } : {}),
+                })
+
+                const output = await swapper.getTronTransactionFees({
+                  tradeQuote,
+                  from,
+                  stepIndex: hopIndex,
+                  slippageTolerancePercentageDecimal,
+                  chainId: hop.sellAsset.chainId,
+                  config: getConfig(),
+                  assertGetTronChainAdapter,
+                })
+                return output
+              }
+              case CHAIN_NAMESPACE.Sui: {
+                if (!swapper.getSuiTransactionFees) throw Error('missing getSuiTransactionFees')
+
+                const adapter = assertGetSuiChainAdapter(stepSellAssetChainId)
+                const from = await adapter.getAddress({
+                  accountNumber,
+                  wallet,
+                  ...(skipDeviceDerivation ? { pubKey } : {}),
+                })
+
+                const output = await swapper.getSuiTransactionFees({
+                  tradeQuote,
+                  from,
+                  stepIndex: hopIndex,
+                  slippageTolerancePercentageDecimal,
+                  chainId: hop.sellAsset.chainId,
+                  config: getConfig(),
+                  assertGetSuiChainAdapter,
                 })
                 return output
               }

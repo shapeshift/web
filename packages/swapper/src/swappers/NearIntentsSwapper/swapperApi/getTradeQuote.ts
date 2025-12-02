@@ -78,12 +78,24 @@ export const getTradeQuote = async (
     const originAsset = await assetToNearIntentsAsset(sellAsset)
     const destinationAsset = await assetToNearIntentsAsset(buyAsset)
 
-    // This shouldn't be the case since we already got a rate and know these exist, but...
-    if (!(originAsset && destinationAsset)) {
+    if (!originAsset) {
       return Err(
         makeSwapErrorRight({
           code: TradeQuoteError.UnsupportedTradePair,
-          message: 'Unsupported asset',
+          message: `Asset ${sellAsset.symbol} on ${
+            sellAsset.networkName || sellAsset.chainId
+          } is not supported by NEAR Intents`,
+        }),
+      )
+    }
+
+    if (!destinationAsset) {
+      return Err(
+        makeSwapErrorRight({
+          code: TradeQuoteError.UnsupportedTradePair,
+          message: `Asset ${buyAsset.symbol} on ${
+            buyAsset.networkName || buyAsset.chainId
+          } is not supported by NEAR Intents`,
         }),
       )
     }
@@ -199,6 +211,35 @@ export const getTradeQuote = async (
           const totalFee = bn(txFee).plus(ataCreationCost).toString()
 
           return { networkFeeCryptoBaseUnit: totalFee }
+        }
+
+        case CHAIN_NAMESPACE.Tron: {
+          const sellAdapter = deps.assertGetTronChainAdapter(sellAsset.chainId)
+          const feeData = await sellAdapter.getFeeData({
+            to: depositAddress,
+            value: sellAmount,
+          })
+
+          return { networkFeeCryptoBaseUnit: feeData.fast.txFee }
+        }
+
+        case CHAIN_NAMESPACE.Sui: {
+          const sellAdapter = deps.assertGetSuiChainAdapter(sellAsset.chainId)
+          const tokenId = isToken(sellAsset.assetId)
+            ? fromAssetId(sellAsset.assetId).assetReference
+            : undefined
+
+          const feeData = await sellAdapter.getFeeData({
+            to: depositAddress,
+            value: sellAmount,
+            chainSpecific: {
+              from,
+              tokenId,
+            },
+            sendMax: false,
+          })
+
+          return { networkFeeCryptoBaseUnit: feeData.fast.txFee }
         }
 
         default:

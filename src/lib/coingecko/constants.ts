@@ -13,7 +13,9 @@ import {
   mayachainAssetId,
   polygonAssetId,
   solAssetId,
+  suiAssetId,
   thorchainAssetId,
+  tronAssetId,
 } from '@shapeshiftoss/caip'
 
 export const COINGECKO_NATIVE_ASSET_ID_TO_ASSET_ID: Partial<Record<string, AssetId>> = {
@@ -32,4 +34,6 @@ export const COINGECKO_NATIVE_ASSET_ID_TO_ASSET_ID: Partial<Record<string, Asset
   // This isn't a mistake - the network and id are different in the case of BSC
   binanceCoin: bscAssetId,
   solana: solAssetId,
+  tron: tronAssetId,
+  sui: suiAssetId,
 }

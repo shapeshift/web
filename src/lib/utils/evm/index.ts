@@ -43,6 +43,7 @@ type CreateBuildCustomTxInputArgs = {
   data: string
   value: string
   wallet: HDWallet
+  pubKey?: string
 }
 
 type GetErc20AllowanceArgs = {
@@ -90,7 +91,8 @@ export const createBuildCustomTxInput = async (
   args: CreateBuildCustomTxInputArgs,
 ): Promise<evm.BuildCustomTxInput> => {
   const fees = await getFeesWithWalletEIP1559Support(args)
-  return { ...args, ...fees }
+  const { pubKey, ...rest } = args
+  return { ...rest, ...fees, ...(pubKey && { pubKey }) }
 }
 
 export const buildAndBroadcast = async ({

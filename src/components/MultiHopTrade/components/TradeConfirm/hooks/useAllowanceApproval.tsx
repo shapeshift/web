@@ -1,5 +1,7 @@
 import { fromAccountId } from '@shapeshiftoss/caip'
 import { assertGetViemClient } from '@shapeshiftoss/contracts'
+import { isGridPlus } from '@shapeshiftoss/hdwallet-gridplus'
+import { isTrezor } from '@shapeshiftoss/hdwallet-trezor'
 import type { TradeQuote, TradeQuoteStep } from '@shapeshiftoss/swapper'
 import { useMutation } from '@tanstack/react-query'
 import { useEffect, useMemo } from 'react'
@@ -77,6 +79,12 @@ export const useAllowanceApproval = (
     [tradeQuoteStep.sellAmountIncludingProtocolFeesCryptoBaseUnit, allowanceType],
   )
 
+  const pubKey = useMemo(() => {
+    const skipDeviceDerivation = wallet && (isTrezor(wallet) || isGridPlus(wallet))
+    if (!skipDeviceDerivation || !sellAssetAccountId) return undefined
+    return fromAccountId(sellAssetAccountId).account
+  }, [wallet, sellAssetAccountId])
+
   const approveMutation = useMutation({
     ...reactQueries.mutations.approve({
       accountNumber: tradeQuoteStep.accountNumber,
@@ -85,6 +93,7 @@ export const useAllowanceApproval = (
       spender: tradeQuoteStep.allowanceContract,
       from: sellAssetAccountId ? fromAccountId(sellAssetAccountId).account : undefined,
       wallet,
+      pubKey,
     }),
     onMutate() {
       dispatch(

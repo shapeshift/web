@@ -219,8 +219,8 @@ const RampRoutes = memo(({ onChangeTab, direction }: RampRoutesProps) => {
       // Avoid division by zero
       const sellAmountCryptoPrecision = isInputtingFiatSellAmount
         ? isRateZero
-          ? '0'
-          : bnOrZero(value).div(bnOrZero(sellAssetUserCurrencyRate)).toFixed()
+          ? ''
+          : bnOrZero(value).div(bnOrZero(sellAssetUserCurrencyRate)).toString()
         : value
 
       dispatch(tradeRampInput.actions.setSellAmountCryptoPrecision(sellAmountCryptoPrecision))

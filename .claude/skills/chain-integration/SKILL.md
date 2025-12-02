@@ -1,0 +1,1343 @@
+---
+name: chain-integration
+description: Integrate a new blockchain as a second-class citizen in ShapeShift Web and HDWallet. Covers everything from HDWallet native/Ledger support to Web chain adapter, asset generation, feature flags, and local testing via Verdaccio. Activates when user wants to add basic support for a new blockchain.
+allowed-tools: Read, Write, Edit, Grep, Glob, Bash
+---
+
+# Chain Integration Skill
+
+You are helping integrate a new blockchain as a **second-class citizen** into ShapeShift Web and HDWallet. This means basic support (native asset send/receive, account derivation, swaps to/from the chain) using the "poor man's" approach similar to Monad, Tron, and Sui - public RPC, no microservices, minimal features.
+
+## When This Skill Activates
+
+Use this skill when the user wants to:
+- "Add support for [ChainName]"
+- "Integrate [ChainName] as second-class citizen"
+- "Implement basic [ChainName] support"
+- "Add [ChainName] with native wallet only"
+
+## Critical Understanding
+
+### Second-Class Citizen Pattern
+Recent examples: **Monad** (EVM), **Tron** (UTXO-like), **Sui** (non-EVM)
+
+**What it includes:**
+- ✅ Native asset sends/receives
+- ✅ Account derivation (Native wallet required, Ledger optional)
+- ✅ Swap to/from the chain
+- ✅ Poor man's balance updates (public RPC polling)
+- ✅ Poor man's tx status (RPC polling with eth_getTransactionReceipt or equivalent)
+- ✅ Feature flag gating
+
+**What it DOESN'T include:**
+- ❌ Full transaction history (no microservices)
+- ❌ First-class Unchained API support
+- ❌ Advanced features (staking, DeFi, etc.)
+- ❌ All wallet support (usually just Native initially)
+
+### Development Flow
+
+**ALWAYS follow this order:**
+
+1. **HDWallet Native Support** (hdwallet repo)
+2. **Local Verdaccio Publishing** (test hdwallet changes in web)
+3. **Web Basic Support** (web repo - poor man's chain adapter)
+4. **Web Plugin & Integration** (web repo - wire everything up)
+5. **Ledger Support** (hdwallet repo - if chain is supported by Ledger)
+6. **Clean Commits** (revert verdaccio bumps before PR)
+
+## Phase 0: Deep Research & Information Gathering
+
+**CRITICAL**: This phase determines the entire integration strategy. Take time to research thoroughly.
+
+### Step 0.1: Initial Chain Discovery
+
+**First, search for basic chain information:**
+
+1. **Search for official chain website and docs**
+   - Use WebSearch to find: "[ChainName] blockchain official website"
+   - Look for: developer docs, whitepaper, GitHub repos
+
+2. **Determine chain architecture**
+   - **CRITICAL QUESTION**: Is this an EVM-compatible chain?
+   - Search: "[ChainName] EVM compatible"
+   - Look for keywords: "Ethereum Virtual Machine", "Solidity", "EVM-compatible", "Ethereum fork"
+   - Check if they mention Metamask compatibility
+
+3. **Find RPC endpoints**
+   - Search: "[ChainName] public RPC endpoint"
+   - Check official docs for RPC URLs
+   - Look for ChainList entry: https://chainlist.org
+   - Check: https://github.com/arddluma/awesome-list-rpc-nodes-providers
+
+**Why this matters:**
+- **EVM chains** (like Monad): 90% less code! Just add to EVM chains list. Auto-supported by all EVM wallets.
+- **Non-EVM chains** (like Tron, Sui): Need full custom implementation with crypto adapters.
+
+### Step 0.2: Interactive Information Gathering
+
+**Use the `AskUserQuestion` tool with the Claude inquiry UI to gather information.**
+
+**Question 1 - Chain Architecture** (MOST IMPORTANT):
+```
+Does the user know if this is an EVM-compatible chain?
+
+Options:
+1. "Yes, it's EVM-compatible" → Proceed with EVM integration path (much simpler!)
+2. "No, it's a custom blockchain" → Proceed with non-EVM integration path
+3. "Not sure - can you research it?" → Perform web research (search for EVM compatibility indicators)
+
+Context: EVM-compatible chains like Monad require minimal code changes (just add to supported chains list). Non-EVM chains like Tron/Sui require full custom crypto adapters.
+```
+
+**Question 2 - RPC Endpoint**:
+```
+Do you have a public RPC endpoint URL?
+
+Options:
+1. "Yes, here's the URL: [input]" → Use provided URL
+2. "No, can you find one?" → Search ChainList.org, official docs, and GitHub for public RPC
+3. "Need both HTTP and WebSocket" → Search for both endpoint types
+
+Context: We need a reliable public RPC for the poor man's chain adapter. WebSocket is optional but nice for real-time updates.
+```
+
+**Question 3 - SLIP44 Coin Type**:
+```
+Do you know the SLIP44 coin type (BIP44 derivation path)?
+
+Options:
+1. "Yes, it's [number]" → Use provided coin type
+2. "No, can you look it up?" → Search SLIP44 registry: https://github.com/satoshilabs/slips/blob/master/slip-0044.md
+3. "Use the same as Ethereum (60)" → Common for EVM chains
+
+Context: This determines the BIP44 derivation path: m/44'/[TYPE]'/0'/0/0
+```
+
+### Step 0.3: Structured Information Collection
+
+After determining chain type (EVM or non-EVM), collect remaining details:
+
+**Use `AskUserQuestion` to ask:**
+
+**For ALL chains:**
+
+1. **Chain Basic Info**
+   - Chain name (exact capitalization, e.g., "Monad", "Tron", "Sui")
+   - SLIP44 coin type (from Step 0.2 above)
+   - Chain ID (numeric or string, e.g., "1" for Ethereum, "monad-1", etc.)
+
+2. **Documentation Links**
+   - Official website URL
+   - Developer documentation URL
+   - Block explorer URL
+   - GitHub repository (if available)
+
+3. **Asset Information**
+   - Native asset symbol (e.g., MON, TRX, SUI)
+   - Native asset name (e.g., "Monad", "Tron", "Sui")
+   - Decimals/precision (usually 18 for EVM, varies for others)
+   - CoinGecko ID (search: "coingecko [chainname]" or ask user)
+
+**For EVM chains only:**
+
+4. **EVM-Specific Info**
+   - Network/Chain ID (numeric, e.g., 41454 for Monad)
+   - Token standard: ERC20 (always)
+   - Block explorer API (etherscan-like)?
+   - Any non-standard behavior vs Ethereum?
+
+**For non-EVM chains only:**
+
+5. **Chain Architecture Details**
+   - Transaction structure/format (link to docs)
+   - Signing algorithm (secp256k1, ed25519, etc.)
+   - Address format (base58, bech32, hex, etc.)
+   - Official SDK (npm package name if available)
+   - Token standard name (e.g., "TRC20", "SUI Coin", "SPL")
+
+6. **Ledger Hardware Wallet Support**
+   - Search: "Ledger [ChainName] support"
+   - Check: https://www.ledger.com/supported-crypto-assets
+   - Ask user: "Does Ledger support [ChainName]?"
+   - If yes, note the Ledger app name
+
+**Action**: Don't proceed until you have:
+- ✅ Confirmed EVM vs non-EVM architecture
+- ✅ At least one working RPC endpoint
+- ✅ SLIP44 coin type
+- ✅ Official documentation links
+- ✅ Basic asset information (symbol, name, decimals)
+
+**Pro Tips:**
+- For EVM chains: Integration is 10x easier. You mostly just add constants.
+- For non-EVM: Budget extra time for crypto adapter implementation.
+- Missing RPC? Check ChainList.org, official Discord, or GitHub repos.
+- Missing SLIP44? Check if it's in SLIP-0044 registry or propose one.
+- Can't find CoinGecko ID? Search their API or website directly.
+
+---
+
+## Integration Path Decision
+
+**Based on Phase 0 research, choose your path:**
+
+### Path A: EVM Chain Integration (SIMPLE)
+**Examples**: Monad, Base, Arbitrum, Optimism
+
+**Characteristics:**
+- ✅ Uses Ethereum Virtual Machine
+- ✅ Solidity smart contracts
+- ✅ ERC20 token standard
+- ✅ Web3/ethers.js compatible
+- ✅ Auto-supported by MetaMask, Ledger Ethereum app
+
+**What you'll do:**
+1. HDWallet: Just add chain ID to EVM chains list (~10 lines of code)
+2. Web: Extend EvmBaseAdapter (~100 lines)
+3. Everything else: Add constants and config
+
+**Time estimate**: 2-4 hours for basic integration
+
+### Path B: Non-EVM Chain Integration (COMPLEX)
+**Examples**: Tron, Sui, Cosmos, Solana
+
+**Characteristics:**
+- ❌ Custom virtual machine (not EVM)
+- ❌ Custom smart contract language
+- ❌ Custom token standard
+- ❌ Custom transaction format
+- ❌ Requires chain-specific crypto implementation
+
+**What you'll do:**
+1. HDWallet: Implement full chain module with crypto adapters (~500-1000 lines)
+2. Web: Implement full IChainAdapter interface (~500-1000 lines)
+3. Everything else: Add constants and config
+
+**Time estimate**: 1-2 days for basic integration
+
+---
+
+## Phase 1: HDWallet Native Support
+
+**Working Directory**: `/Users/alexandre.gomes/Sites/shapeshiftHdWallet`
+
+### Step 1.0: Choose Implementation Strategy
+
+**If EVM chain**: Skip to Step 1.2-EVM (much simpler!)
+**If non-EVM chain**: Continue with Step 1.1 below
+
+### Step 1.1: Research HDWallet Patterns (Non-EVM Only)
+
+Examine existing implementations to understand patterns:
+
+**For non-EVM chains** (like Tron, Sui):
+```bash
+# In hdwallet repo
+cat packages/hdwallet-core/src/tron.ts
+cat packages/hdwallet-native/src/tron.ts
+cat packages/hdwallet-native/src/crypto/isolation/adapters/tron.ts
+```
+
+Key pattern: Need new core interfaces, native implementation, and crypto adapters for signing.
+
+### Step 1.2-EVM: EVM Chain Implementation (SIMPLE PATH)
+
+**For EVM chains only** (like Monad):
+
+**File**: `packages/hdwallet-core/src/ethereum.ts`
+Add your chain to supported EVM chains:
+
+```typescript
+// Find the list of supported chain IDs and add yours
+export const SUPPORTED_EVM_CHAINS = [
+  1,      // Ethereum
+  10,     // Optimism
+  // ... other chains
+  41454,  // Add your chain ID here (example: Monad)
+]
+```
+
+**File**: `packages/hdwallet-core/src/utils.ts`
+Register SLIP44 if not using Ethereum's (60):
+
+```typescript
+// If your chain uses a different SLIP44 than Ethereum
+{ slip44: YOUR_SLIP44, symbol: 'SYMBOL', name: 'ChainName' }
+```
+
+**That's it for hdwallet!** EVM chains don't need crypto adapters. Skip to Step 1.6 (Version Bump).
+
+### Step 1.2-NonEVM: Non-EVM Core Interfaces (COMPLEX PATH)
+
+**File**: `packages/hdwallet-core/src/[chainname].ts`
+
+Create core TypeScript interfaces following the pattern:
+
+```typescript
+import { addressNListToBIP32, slip44ByCoin } from "./utils";
+import { BIP32Path, HDWallet, HDWalletInfo, PathDescription } from "./wallet";
+
+export interface [Chain]GetAddress {
+  addressNList: BIP32Path;
+  showDisplay?: boolean;
+  pubKey?: string;
+}
+
+export interface [Chain]SignTx {
+  addressNList: BIP32Path;
+  // Chain-specific tx data fields
+  rawDataHex?: string; // or other fields
+}
+
+export interface [Chain]SignedTx {
+  serialized: string;
+  signature: string;
+}
+
+export interface [Chain]TxSignature {
+  signature: string;
+}
+
+export interface [Chain]GetAccountPaths {
+  accountIdx: number;
+}
+
+export interface [Chain]AccountPath {
+  addressNList: BIP32Path;
+}
+
+export interface [Chain]WalletInfo extends HDWalletInfo {
+  readonly _supports[Chain]Info: boolean;
+  [chainLower]GetAccountPaths(msg: [Chain]GetAccountPaths): Array<[Chain]AccountPath>;
+  [chainLower]NextAccountPath(msg: [Chain]AccountPath): [Chain]AccountPath | undefined;
+}
+
+export interface [Chain]Wallet extends [Chain]WalletInfo, HDWallet {
+  readonly _supports[Chain]: boolean;
+  [chainLower]GetAddress(msg: [Chain]GetAddress): Promise<string | null>;
+  [chainLower]SignTx(msg: [Chain]SignTx): Promise<[Chain]SignedTx | null>;
+}
+
+export function [chainLower]DescribePath(path: BIP32Path): PathDescription {
+  const pathStr = addressNListToBIP32(path);
+  const unknown: PathDescription = {
+    verbose: pathStr,
+    coin: "[ChainName]",
+    isKnown: false,
+  };
+
+  if (path.length != 5) return unknown;
+  if (path[0] != 0x80000000 + 44) return unknown;
+  if (path[1] != 0x80000000 + slip44ByCoin("[ChainName]")) return unknown;
+  if ((path[2] & 0x80000000) >>> 0 !== 0x80000000) return unknown;
+  if (path[3] !== 0) return unknown;
+  if (path[4] !== 0) return unknown;
+
+  const index = path[2] & 0x7fffffff;
+  return {
+    verbose: `[ChainName] Account #${index}`,
+    accountIdx: index,
+    wholeAccount: true,
+    coin: "[ChainName]",
+    isKnown: true,
+  };
+}
+
+// Standard BIP44 derivation: m/44'/SLIP44'/<account>'/0/0
+export function [chainLower]GetAccountPaths(msg: [Chain]GetAccountPaths): Array<[Chain]AccountPath> {
+  const slip44 = slip44ByCoin("[ChainName]");
+  return [{ addressNList: [0x80000000 + 44, 0x80000000 + slip44, 0x80000000 + msg.accountIdx, 0, 0] }];
+}
+```
+
+**Export from core**:
+```typescript
+// In packages/hdwallet-core/src/index.ts
+export * from './[chainname]'
+```
+
+**Register SLIP44**:
+```typescript
+// In packages/hdwallet-core/src/utils.ts
+// Add to slip44Table
+{ slip44: SLIP44, symbol: '[SYMBOL]', name: '[ChainName]' }
+```
+
+### Step 1.3: Implement Native Wallet Support
+
+**File**: `packages/hdwallet-native/src/[chainname].ts`
+
+```typescript
+import * as core from "@shapeshiftoss/hdwallet-core";
+import { Isolation } from "./crypto";
+import { [Chain]Adapter } from "./crypto/isolation/adapters/[chainname]";
+import { NativeHDWalletBase } from "./native";
+
+export function MixinNative[Chain]WalletInfo<TBase extends core.Constructor<core.HDWalletInfo>>(Base: TBase) {
+  return class MixinNative[Chain]WalletInfo extends Base implements core.[Chain]WalletInfo {
+    readonly _supports[Chain]Info = true;
+
+    [chainLower]GetAccountPaths(msg: core.[Chain]GetAccountPaths): Array<core.[Chain]AccountPath> {
+      return core.[chainLower]GetAccountPaths(msg);
+    }
+
+    [chainLower]NextAccountPath(msg: core.[Chain]AccountPath): core.[Chain]AccountPath | undefined {
+      throw new Error("Method not implemented");
+    }
+  };
+}
+
+export function MixinNative[Chain]Wallet<TBase extends core.Constructor<NativeHDWalletBase>>(Base: TBase) {
+  return class MixinNative[Chain]Wallet extends Base {
+    readonly _supports[Chain] = true;
+
+    [chainLower]Adapter: [Chain]Adapter | undefined;
+
+    async [chainLower]InitializeWallet(masterKey: Isolation.Core.BIP32.Node): Promise<void> {
+      const nodeAdapter = await Isolation.Adapters.BIP32.create(masterKey);
+      this.[chainLower]Adapter = new [Chain]Adapter(nodeAdapter);
+    }
+
+    [chainLower]Wipe() {
+      this.[chainLower]Adapter = undefined;
+    }
+
+    async [chainLower]GetAddress(msg: core.[Chain]GetAddress): Promise<string | null> {
+      return this.needsMnemonic(!!this.[chainLower]Adapter, () => {
+        return this.[chainLower]Adapter!.getAddress(msg.addressNList);
+      });
+    }
+
+    async [chainLower]SignTx(msg: core.[Chain]SignTx): Promise<core.[Chain]SignedTx | null> {
+      return this.needsMnemonic(!!this.[chainLower]Adapter, async () => {
+        const address = await this.[chainLower]GetAddress({
+          addressNList: msg.addressNList,
+          showDisplay: false,
+        });
+
+        if (!address) throw new Error("Failed to get [ChainName] address");
+
+        const signature = await this.[chainLower]Adapter!.signTransaction(
+          msg.rawDataHex,
+          msg.addressNList
+        );
+
+        return {
+          serialized: msg.rawDataHex + signature,
+          signature,
+        };
+      });
+    }
+  };
+}
+```
+
+**Integrate into NativeHDWallet**:
+```typescript
+// In packages/hdwallet-native/src/native.ts
+// Add mixin to class hierarchy
+// Add initialization in initialize() method
+// Add wipe in wipe() method
+```
+
+### Step 1.4: Create Crypto Adapter (Non-EVM only)
+
+**File**: `packages/hdwallet-native/src/crypto/isolation/adapters/[chainname].ts`
+
+Implement chain-specific cryptography:
+- Address generation algorithm
+- Transaction signing
+- Any chain-specific encoding
+
+Reference: See `tron.ts` adapter for a complete example
+
+**Export adapter**:
+```typescript
+// In packages/hdwallet-native/src/crypto/isolation/adapters/index.ts
+export * from './[chainname]'
+```
+
+### Step 1.5: Update Core Wallet Interface
+
+**File**: `packages/hdwallet-core/src/wallet.ts`
+
+Add support check function:
+```typescript
+export function supports[Chain](wallet: HDWallet): wallet is [Chain]Wallet {
+  return !!(wallet as any)._supports[Chain]
+}
+```
+
+### Step 1.6: Version Bump & Test
+
+```bash
+# In hdwallet repo
+cd packages/hdwallet-core
+npm version patch
+
+cd ../hdwallet-native
+npm version patch
+
+# Run lerna to sync versions
+npx lerna version patch --no-git-tag-version --yes
+
+# Build to verify
+yarn build
+```
+
+---
+
+## Phase 2: Local Verdaccio Testing
+
+**Purpose**: Test hdwallet changes in web locally before publishing to npm.
+
+### Step 2.1: Start Verdaccio
+
+```bash
+# Terminal 1 - Start local npm registry
+npx verdaccio
+```
+
+### Step 2.2: Configure npm for Local Registry
+
+```bash
+# Set registry to localhost
+npm set registry http://localhost:4873
+yarn config set registry http://localhost:4873
+```
+
+### Step 2.3: Publish HDWallet Packages
+
+```bash
+# In hdwallet repo root
+yarn lerna publish --registry http://localhost:4873 --no-git-tag-version --no-push --force-publish --yes
+```
+
+**Commit this separately** (will revert later):
+```bash
+git add -A
+git commit -m "chore: bump hdwallet versions for local testing"
+```
+
+### Step 2.4: Update Web Dependencies
+
+```bash
+# In web repo
+cd /Users/alexandre.gomes/Sites/shapeshiftWeb
+
+# Update hdwallet packages
+yarn up @shapeshiftoss/hdwallet-core@latest
+yarn up @shapeshiftoss/hdwallet-native@latest
+# ... update other hdwallet packages as needed
+```
+
+**Commit this separately** (will revert later):
+```bash
+git add package.json yarn.lock
+git commit -m "chore: bump hdwallet deps for local testing"
+```
+
+### Step 2.5: Verify Installation
+
+```bash
+# In web repo
+yarn why @shapeshiftoss/hdwallet-core
+yarn why @shapeshiftoss/hdwallet-native
+
+# Should show local verdaccio versions
+```
+
+---
+
+## Phase 3: Web Chain Adapter (Poor Man's Approach)
+
+**Working Directory**: `/Users/alexandre.gomes/Sites/shapeshiftWeb`
+
+### Step 3.1: Add Chain Constants
+
+**File**: `packages/caip/src/constants.ts`
+
+```typescript
+// Add chain ID constant
+export const [chainLower]ChainId = '[caip19-format]' as const // e.g., 'eip155:1', 'tron:0x2b6653dc', etc.
+
+// Add asset ID constant
+export const [chainLower]AssetId = '[caip19-format]' as AssetId
+
+// Add asset reference constant
+export const ASSET_REFERENCE = {
+  // ...
+  [ChainName]: 'slip44:COINTYPE',
+}
+
+// Add to KnownChainIds enum
+export enum KnownChainIds {
+  // ...
+  [ChainName]Mainnet = '[caip2-chain-id]',
+}
+
+// Add to asset namespace if needed (non-EVM chains)
+export const ASSET_NAMESPACE = {
+  // ...
+  [tokenStandard]: '[namespace]', // e.g., trc20, suiCoin
+}
+```
+
+**File**: `packages/types/src/base.ts`
+
+```typescript
+// Add to KnownChainIds enum (duplicate but required)
+export enum KnownChainIds {
+  // ...
+  [ChainName]Mainnet = '[caip2-chain-id]',
+}
+```
+
+**File**: `src/constants/chains.ts`
+
+```typescript
+// Add to second-class chains array
+export const SECOND_CLASS_CHAINS = [
+  // ...
+  KnownChainIds.[ChainName]Mainnet,
+]
+
+// Add to feature-flag gated chains
+```
+
+### Step 3.2: Create Chain Adapter
+
+**Directory**: `packages/chain-adapters/src/[adaptertype]/[chainname]/`
+
+**For EVM chains**: Extend `EvmBaseAdapter` (see Monad example)
+**For non-EVM**: Implement `IChainAdapter` interface (see Sui/Tron examples)
+
+**Key Methods to Implement:**
+- `getAccount()` - Get balances (native + tokens)
+- `getAddress()` - Derive address from wallet
+- `getFeeData()` - Estimate transaction fees
+- `broadcastTransaction()` - Submit signed tx to network
+- `buildSendApiTransaction()` - Build unsigned tx
+- `signTransaction()` - Sign with wallet
+- `parseTx()` - Parse transaction (can stub out)
+- `getTxHistory()` - Get tx history (stub out - return empty)
+
+**Poor Man's Patterns:**
+1. **No Unchained**: Use public RPC directly (ethers.js, @mysten/sui, tronweb, etc.)
+2. **No TX History**: Stub out `getTxHistory()` to return empty array
+3. **Multicall for Tokens**: Batch token balance calls where possible
+4. **Direct RPC Polling**: Use `eth_getTransactionReceipt` or equivalent for tx status
+
+**File**: `packages/chain-adapters/src/[adaptertype]/[chainname]/[ChainName]ChainAdapter.ts`
+
+See `MonadChainAdapter.ts` (EVM) or `SuiChainAdapter.ts` (non-EVM) for complete examples.
+
+**Export**:
+```typescript
+// In packages/chain-adapters/src/[adaptertype]/[chainname]/index.ts
+export * from './[ChainName]ChainAdapter'
+export * from './types'
+
+// In packages/chain-adapters/src/[adaptertype]/index.ts
+export * as [chainLower] from './[chainname]'
+
+// In packages/chain-adapters/src/index.ts
+export * from './[adaptertype]'
+```
+
+### Step 3.3: Add Utility Functions
+
+**File**: `packages/utils/src/getAssetNamespaceFromChainId.ts`
+
+```typescript
+case [chainLower]ChainId:
+  return ASSET_NAMESPACE.[tokenStandard]
+```
+
+**File**: `packages/utils/src/getChainShortName.ts`
+
+```typescript
+case KnownChainIds.[ChainName]Mainnet:
+  return '[SHORT]'
+```
+
+**File**: `packages/utils/src/getNativeFeeAssetReference.ts`
+
+```typescript
+case KnownChainIds.[ChainName]Mainnet:
+  return ASSET_REFERENCE.[ChainName]
+```
+
+**File**: `packages/utils/src/chainIdToFeeAssetId.ts`
+
+```typescript
+[chainLower]ChainId: [chainLower]AssetId,
+```
+
+**File**: `packages/utils/src/assetData/baseAssets.ts`
+
+```typescript
+// Add base asset
+export const [chainLower]BaseAsset: Asset = {
+  assetId: [chainLower]AssetId,
+  chainId: [chainLower]ChainId,
+  name: '[ChainName]',
+  symbol: '[SYMBOL]',
+  precision: [DECIMALS],
+  icon: '[iconUrl]',
+  explorer: '[explorerUrl]',
+  // ... other fields
+}
+```
+
+**File**: `packages/utils/src/assetData/getBaseAsset.ts`
+
+```typescript
+case [chainLower]ChainId:
+  return [chainLower]BaseAsset
+```
+
+### Step 3.4: Create Chain Utils (Transaction Status)
+
+**File**: `src/lib/utils/[chainname].ts`
+
+```typescript
+import { [chainLower]ChainId } from '@shapeshiftoss/caip'
+import type { ChainAdapter } from '@shapeshiftoss/chain-adapters'
+import { assertUnreachable } from '@/lib/utils'
+import type { TxStatus } from '@/state/slices/txHistorySlice/txHistorySlice'
+
+export const is[Chain]ChainAdapter = (adapter: unknown): adapter is [ChainAdapter] => {
+  return (adapter as ChainAdapter).getChainId() === [chainLower]ChainId
+}
+
+export const assertGet[Chain]ChainAdapter = (
+  adapter: ChainAdapter,
+): asserts adapter is [ChainAdapter] => {
+  if (!is[Chain]ChainAdapter(adapter)) {
+    throw new Error('[ChainName] adapter required')
+  }
+}
+
+// Implement getTxStatus using chain-specific RPC calls
+export const get[Chain]TransactionStatus = async (
+  txHash: string,
+  adapter: [ChainAdapter],
+): Promise<TxStatus> => {
+  // Use chain client to check transaction status
+  // Return 'confirmed', 'failed', or 'unknown'
+  // See monad.ts / sui.ts for examples
+}
+```
+
+### Step 3.5: Wire Up Transaction Status Polling
+
+**File**: `src/hooks/useActionCenterSubscribers/useSendActionSubscriber.tsx`
+
+Add case for your chain:
+```typescript
+case KnownChainIds.[ChainName]Mainnet:
+  txStatus = await get[Chain]TransactionStatus(txHash, adapter)
+  break
+```
+
+### Step 3.6: Add Account Derivation
+
+**File**: `src/lib/account/[chainname].ts`
+
+```typescript
+import { [chainLower]ChainId, toAccountId } from '@shapeshiftoss/caip'
+import type { AccountMetadata, AccountMetadataByAccountId } from '@shapeshiftoss/types'
+import { KnownChainIds } from '@shapeshiftoss/types'
+import { assertGet[Chain]ChainAdapter, is[Chain]ChainAdapter } from '@/lib/utils/[chainname]'
+
+export const derive[Chain]AccountIdsAndMetadata = async (
+  args: // standard args
+): Promise<AccountMetadataByAccountId> => {
+  const { accountNumber, chainIds, wallet } = args
+
+  const adapter = adapterManager.get([chainLower]ChainId)
+  if (!adapter) throw new Error('[ChainName] adapter not available')
+  assertGet[Chain]ChainAdapter(adapter)
+
+  const address = await adapter.getAddress({
+    wallet,
+    accountNumber,
+  })
+
+  const accountId = toAccountId({ chainId: [chainLower]ChainId, account: address })
+  const account = await adapter.getAccount(address)
+
+  const metadata: AccountMetadata = {
+    accountType: 'native',
+    bip44Params: adapter.getBip44Params({ accountNumber }),
+  }
+
+  return {
+    [accountId]: metadata,
+  }
+}
+```
+
+**Wire into account dispatcher**:
+```typescript
+// In src/lib/account/account.ts
+case KnownChainIds.[ChainName]Mainnet:
+  return derive[Chain]AccountIdsAndMetadata(args)
+```
+
+### Step 3.7: Add Wallet Support Detection
+
+**File**: `src/hooks/useWalletSupportsChain/useWalletSupportsChain.ts`
+
+```typescript
+// Add to switch statement
+case KnownChainIds.[ChainName]Mainnet:
+  return supports[Chain](wallet) // from hdwallet-core
+```
+
+---
+
+## Phase 4: Web Plugin & Feature Flags
+
+### Step 4.1: Create Plugin
+
+**File**: `src/plugins/[chainname]/index.tsx`
+
+```typescript
+import { [chainLower]ChainId } from '@shapeshiftoss/caip'
+import { [chainLower] } from '@shapeshiftoss/chain-adapters'
+import { KnownChainIds } from '@shapeshiftoss/types'
+import { getConfig } from '@/config'
+import type { Plugins } from '@/plugins/types'
+
+export default function register(): Plugins {
+  return [
+    [
+      '[chainLower]ChainAdapter',
+      {
+        name: '[chainLower]ChainAdapter',
+        featureFlag: ['[ChainName]'],
+        providers: {
+          chainAdapters: [
+            [
+              KnownChainIds.[ChainName]Mainnet,
+              () => {
+                return new [chainLower].ChainAdapter({
+                  rpcUrl: getConfig().VITE_[CHAIN]_NODE_URL,
+                  // Add other config as needed
+                })
+              },
+            ],
+          ],
+        },
+      },
+    ],
+  ]
+}
+```
+
+**Register plugin**:
+```typescript
+// In src/plugins/activePlugins.ts
+import [chainLower] from './[chainname]'
+
+export const activePlugins = [
+  // ...
+  [chainLower],
+]
+```
+
+**Gate in provider**:
+```typescript
+// In src/context/PluginProvider/PluginProvider.tsx
+// Add feature flag check for your chain
+```
+
+### Step 4.2: Environment Variables
+
+**File**: `.env`
+
+```bash
+VITE_[CHAIN]_NODE_URL=[default-public-rpc]
+VITE_FEATURE_[CHAIN]=false
+```
+
+**File**: `.env.development`
+
+```bash
+VITE_[CHAIN]_NODE_URL=[dev-rpc]
+VITE_FEATURE_[CHAIN]=true
+```
+
+**File**: `.env.production`
+
+```bash
+VITE_[CHAIN]_NODE_URL=[prod-rpc]
+VITE_FEATURE_[CHAIN]=false
+```
+
+### Step 4.3: Config Validation
+
+**File**: `src/config.ts`
+
+```typescript
+const validators = {
+  // ...
+  VITE_[CHAIN]_NODE_URL: url(),
+  VITE_FEATURE_[CHAIN]: bool({ default: false }),
+}
+```
+
+### Step 4.4: Feature Flag State
+
+**File**: `src/state/slices/preferencesSlice/preferencesSlice.ts`
+
+```typescript
+export type FeatureFlags = {
+  // ...
+  [ChainName]: boolean
+}
+
+const initialState: PreferencesState = {
+  featureFlags: {
+    // ...
+    [ChainName]: getConfig().VITE_FEATURE_[CHAIN],
+  },
+}
+```
+
+**Add to test mocks**:
+```typescript
+// In src/test/mocks/store.ts
+featureFlags: {
+  // ...
+  [ChainName]: false,
+}
+```
+
+### Step 4.5: CSP Headers
+
+**File**: `headers/csps/chains/[chainname].ts`
+
+```typescript
+const [chainLower]: Csp = {
+  'connect-src': [env.VITE_[CHAIN]_NODE_URL],
+}
+
+export default [chainLower]
+```
+
+**Register CSP**:
+```typescript
+// In headers/csps/index.ts
+import [chainLower] from './chains/[chainname]'
+
+export default [
+  // ...
+  [chainLower],
+]
+```
+
+---
+
+## Phase 5: Asset Generation
+
+### Step 5.1: CoinGecko Integration
+
+**File**: `packages/caip/src/adapters/coingecko/index.ts`
+
+```typescript
+// Add platform constant
+export const COINGECKO_NATIVE_ASSET_PLATFORM = {
+  // ...
+  [ChainName]: '[coingecko-platform-id]',
+}
+
+// Add to platform map
+```
+
+**File**: `packages/caip/src/adapters/coingecko/utils.ts`
+
+```typescript
+// Add chain ID to platform mapping
+case [chainLower]ChainId:
+  return COINGECKO_NATIVE_ASSET_PLATFORM.[ChainName]
+```
+
+### Step 5.2: Create Asset Generator
+
+**File**: `scripts/generateAssetData/[chainname]/index.ts`
+
+```typescript
+// Fetch chain assets from CoinGecko or other source
+// Generate asset data in required format
+// See tron/index.ts, sui/index.ts, monad/index.ts for examples
+
+export const generate[Chain]AssetData = async (): Promise<Asset[]> => {
+  // Implementation
+}
+```
+
+**Wire into generator**:
+```typescript
+// In scripts/generateAssetData/generateAssetData.ts
+const [chainLower]Assets = await generate[Chain]AssetData()
+```
+
+### Step 5.3: Generate Assets
+
+```bash
+# In web repo
+yarn generate:asset-data
+
+# Commit generated assets
+git add src/assets/generated/
+git commit -m "feat: add [chainname] asset generation"
+```
+
+---
+
+## Phase 6: Ledger Support (Optional)
+
+**Only if chain is supported by Ledger hardware**
+
+### Step 6.1: Check Ledger Support
+
+1. Visit https://www.ledger.com/supported-crypto-assets
+2. Search for your chain
+3. Note the Ledger app name
+
+**For EVM chains**: Automatically supported via Ethereum app
+**For non-EVM**: Needs chain-specific Ledger app
+
+### Step 6.2: Add Ledger Support in HDWallet
+
+**File**: `packages/hdwallet-ledger/src/ledger.ts`
+
+Add chain support following existing patterns.
+
+**For EVM**: Just add to supported chains list
+**For non-EVM**: Implement chain-specific Ledger transport
+
+### Step 6.3: Add to Web Ledger Constants
+
+**File**: `src/context/WalletProvider/Ledger/constants.ts`
+
+```typescript
+import { [chainLower]AssetId } from '@shapeshiftoss/caip'
+
+export const availableLedgerAppAssetIds = [
+  // ...
+  [chainLower]AssetId,
+]
+```
+
+### Step 6.4: Test Ledger Integration
+
+1. Connect Ledger device
+2. Open chain-specific app
+3. Test address derivation
+4. Test transaction signing
+
+---
+
+## Phase 7: Testing & Validation
+
+### Step 7.1: Type Check
+
+```bash
+# In web repo
+yarn type-check
+
+# Fix any TypeScript errors
+```
+
+### Step 7.2: Lint
+
+```bash
+yarn lint --fix
+```
+
+### Step 7.3: Build
+
+```bash
+yarn build
+
+# Verify no build errors
+# Check bundle size didn't explode
+```
+
+### Step 7.4: Manual Testing Checklist
+
+- [ ] Connect native wallet
+- [ ] Derive account address
+- [ ] View account balance
+- [ ] Send native asset
+- [ ] View transaction status
+- [ ] Check balance updates after send
+- [ ] Test swap TO chain from another chain
+- [ ] Test swap FROM chain to another chain
+- [ ] Verify error handling (insufficient balance, network errors, etc.)
+
+If Ledger supported:
+- [ ] Connect Ledger
+- [ ] Open chain app
+- [ ] Derive address
+- [ ] Sign transaction
+- [ ] Broadcast transaction
+
+---
+
+## Phase 8: Clean Up & Commit
+
+### Step 8.1: Revert Verdaccio Commits
+
+```bash
+# In web repo
+git log --oneline | head -20  # Find commit hashes
+
+# Revert the hdwallet bump commit
+git revert [commit-hash] --no-edit
+
+# Verify web is clean
+git status
+```
+
+```bash
+# In hdwallet repo
+git log --oneline | head -10
+
+# Revert the version bump commit
+git revert [commit-hash] --no-edit
+
+# Verify hdwallet is clean
+git status
+```
+
+### Step 8.2: Restore npm Registry
+
+```bash
+npm set registry https://registry.npmjs.org
+yarn config set registry https://registry.yarnpkg.com
+```
+
+### Step 8.3: Create Feature Commits
+
+**In HDWallet repo**:
+
+```bash
+# Commit native support
+git add packages/hdwallet-core packages/hdwallet-native
+git commit -m "feat: support [chainname] with native wallet
+
+- Add [ChainName] core interfaces (GetAddress, SignTx, Wallet)
+- Implement Native[Chain]Wallet mixin
+- Add [chain] crypto adapter for address derivation and signing
+- Register SLIP44 coin type [COINTYPE]
+- Follow BIP44 derivation path: m/44'/[COINTYPE]'/0'/0/0"
+```
+
+If Ledger:
+```bash
+# Commit ledger support separately
+git add packages/hdwallet-ledger
+git commit -m "feat: add ledger support for [chainname]"
+```
+
+**In Web repo**:
+
+```bash
+# Commit web integration
+git add -A
+git commit -m "feat: implement [chainname]
+
+- Add [ChainName] chain adapter with poor man's RPC
+- Support native asset sends/receives
+- Add account derivation
+- Add feature flag VITE_FEATURE_[CHAIN]
+- Add asset generation for [chain] from CoinGecko
+- Wire transaction status polling
+- Add [chain] plugin with feature flag gating
+- Update hdwallet dependencies to include [chain] support
+
+Behind feature flag for now."
+```
+
+### Step 8.4: Open PRs
+
+**HDWallet PR**:
+```bash
+# In hdwallet repo
+git push origin HEAD
+
+# Open PR to main
+gh pr create --title "feat: support [chainname] with native wallet" \
+  --body "Adds [ChainName] support to hdwallet-core and hdwallet-native..."
+```
+
+**Web PR**:
+```bash
+# In web repo
+git push origin HEAD
+
+# Open PR to develop
+gh pr create --title "feat: implement [chainname]" \
+  --body "Adds basic [ChainName] support as second-class citizen..."
+```
+
+---
+
+## Phase 9: Common Gotchas & Troubleshooting
+
+### Gotcha 1: Token Precision Issues
+
+**Problem**: Token balances display incorrectly
+**Solution**: Verify decimals/precision match chain metadata
+**Example**: Tron TRC20 tokens hardcoded precision caused display issues (#11222)
+
+### Gotcha 2: Address Validation
+
+**Problem**: Invalid addresses accepted or valid ones rejected
+**Solution**: Use chain-specific validation (checksumming for EVM, base58 for Tron, etc.)
+**Example**: Tron address parsing issues (#11229)
+
+### Gotcha 3: Transaction Broadcasting
+
+**Problem**: Signed transactions fail to broadcast
+**Solution**: Check serialization format matches chain expectations
+**Example**: Ensure proper hex encoding, network byte for Tron, etc.
+
+### Gotcha 4: Bundle Size
+
+**Problem**: Build size explodes after adding chain SDK
+**Solution**: Extract large dependencies to separate chunk
+**Example**: Sui SDK needed code splitting (#11238 comments)
+
+### Gotcha 5: Minimum Trade Amounts
+
+**Problem**: Small swaps fail without clear error
+**Solution**: Add minimum amount validation in swapper
+**Example**: Tron tokens need minimum amounts (#11253)
+
+### Gotcha 6: Token Grouping
+
+**Problem**: Tokens don't group with related assets in UI
+**Solution**: Check asset namespace and ID generation
+**Example**: Tron/Sui tokens grouping issues (#11252)
+
+### Gotcha 7: Ledger App Mismatch
+
+**Problem**: Ledger transactions fail with unclear error
+**Solution**: Verify correct Ledger app is mapped
+**Example**: Use Ethereum app for EVM chains, not chain-specific app
+
+### Gotcha 8: Feature Flag Not Working
+
+**Problem**: Chain doesn't appear even with flag enabled
+**Solution**: Check ALL places flags are checked:
+- Plugin registration (featureFlag array)
+- PluginProvider gating
+- Asset service filtering
+- Constants array (SECOND_CLASS_CHAINS)
+
+### Gotcha 9: Balance Updates
+
+**Problem**: Balances don't update after transactions
+**Solution**: Implement polling in tx status subscriber
+**Example**: Add chain case in useSendActionSubscriber
+
+### Gotcha 10: RPC Rate Limiting
+
+**Problem**: Requests fail intermittently
+**Solution**: Add retry logic, use multiple RPC endpoints
+**Example**: Implement fallback RPC URLs
+
+---
+
+## Quick Reference: File Checklist
+
+### HDWallet Files (Required)
+- [ ] `packages/hdwallet-core/src/[chainname].ts`
+- [ ] `packages/hdwallet-core/src/index.ts` (export)
+- [ ] `packages/hdwallet-core/src/utils.ts` (SLIP44)
+- [ ] `packages/hdwallet-core/src/wallet.ts` (support function)
+- [ ] `packages/hdwallet-native/src/[chainname].ts`
+- [ ] `packages/hdwallet-native/src/native.ts` (integrate mixin)
+- [ ] `packages/hdwallet-native/src/crypto/isolation/adapters/[chainname].ts` (if non-EVM)
+
+### HDWallet Files (Optional - Ledger)
+- [ ] `packages/hdwallet-ledger/src/ledger.ts`
+
+### Web Files (Core)
+- [ ] `packages/caip/src/constants.ts`
+- [ ] `packages/types/src/base.ts`
+- [ ] `src/constants/chains.ts`
+- [ ] `packages/chain-adapters/src/[type]/[chainname]/[ChainName]ChainAdapter.ts`
+- [ ] `packages/chain-adapters/src/[type]/[chainname]/types.ts`
+- [ ] `packages/chain-adapters/src/[type]/[chainname]/index.ts`
+- [ ] `src/lib/utils/[chainname].ts`
+- [ ] `src/lib/account/[chainname].ts`
+- [ ] `src/lib/account/account.ts` (wire into dispatcher)
+
+### Web Files (Integration)
+- [ ] `src/plugins/[chainname]/index.tsx`
+- [ ] `src/plugins/activePlugins.ts`
+- [ ] `src/context/PluginProvider/PluginProvider.tsx`
+- [ ] `src/hooks/useWalletSupportsChain/useWalletSupportsChain.ts`
+- [ ] `src/hooks/useActionCenterSubscribers/useSendActionSubscriber.tsx`
+
+### Web Files (Config)
+- [ ] `.env`
+- [ ] `.env.development`
+- [ ] `.env.production`
+- [ ] `src/config.ts`
+- [ ] `src/state/slices/preferencesSlice/preferencesSlice.ts`
+- [ ] `src/test/mocks/store.ts`
+- [ ] `headers/csps/chains/[chainname].ts`
+- [ ] `headers/csps/index.ts`
+
+### Web Files (Utilities)
+- [ ] `packages/utils/src/getAssetNamespaceFromChainId.ts`
+- [ ] `packages/utils/src/getChainShortName.ts`
+- [ ] `packages/utils/src/getNativeFeeAssetReference.ts`
+- [ ] `packages/utils/src/chainIdToFeeAssetId.ts`
+- [ ] `packages/utils/src/assetData/baseAssets.ts`
+- [ ] `packages/utils/src/assetData/getBaseAsset.ts`
+
+### Web Files (Assets)
+- [ ] `packages/caip/src/adapters/coingecko/index.ts`
+- [ ] `packages/caip/src/adapters/coingecko/utils.ts`
+- [ ] `scripts/generateAssetData/[chainname]/index.ts`
+- [ ] `scripts/generateAssetData/generateAssetData.ts`
+
+### Web Files (Ledger - Optional)
+- [ ] `src/context/WalletProvider/Ledger/constants.ts`
+
+---
+
+## Summary
+
+This skill covers the COMPLETE process for adding a new blockchain as a second-class citizen:
+
+1. ✅ HDWallet native support
+2. ✅ Local Verdaccio testing workflow
+3. ✅ Web poor man's chain adapter
+4. ✅ Feature flags and configuration
+5. ✅ Asset generation
+6. ✅ Transaction status polling
+7. ✅ Ledger support (optional)
+8. ✅ Testing and validation
+9. ✅ Clean commit workflow
+
+**Key Principles:**
+- Always start with HDWallet native
+- Test locally with Verdaccio before publishing
+- Keep verdaccio bumps in separate revertable commits
+- Follow existing patterns (Monad for EVM, Tron/Sui for non-EVM)
+- Poor man's approach: public RPC, no microservices, minimal features
+- Feature flag everything
+- Clean, focused commits
+
+**Remember**: Second-class citizen = basic support only. No fancy features, no microservices, just enough to send/receive and swap.

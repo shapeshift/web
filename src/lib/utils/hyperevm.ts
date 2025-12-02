@@ -1,21 +1,17 @@
 import { hyperEvmChainId } from '@shapeshiftoss/caip'
-import type { ChainAdapter } from '@shapeshiftoss/chain-adapters'
+import type { EvmChainAdapter } from '@shapeshiftoss/chain-adapters'
+import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { JsonRpcProvider } from 'ethers'
 
 import { assertUnreachable } from '.'
 
-import type { TxStatus } from '@/state/slices/txHistorySlice/txHistorySlice'
+export const isHyperEvmChainAdapter = (adapter: unknown): adapter is EvmChainAdapter => {
+  if (!adapter) return false
 
-export const isHyperEvmChainAdapter = (adapter: unknown): adapter is ChainAdapter => {
-  return (adapter as ChainAdapter).getChainId() === hyperEvmChainId
-}
+  const maybeAdapter = adapter as EvmChainAdapter
+  if (typeof maybeAdapter.getChainId !== 'function') return false
 
-export const assertGetHyperEvmChainAdapter = (
-  adapter: ChainAdapter,
-): asserts adapter is ChainAdapter => {
-  if (!isHyperEvmChainAdapter(adapter)) {
-    throw new Error('HyperEVM adapter required')
-  }
+  return maybeAdapter.getChainId() === hyperEvmChainId
 }
 
 export const getHyperEvmTransactionStatus = async (
@@ -29,21 +25,21 @@ export const getHyperEvmTransactionStatus = async (
 
     const receipt = await provider.getTransactionReceipt(txHash)
 
-    if (!receipt) return 'unknown'
+    if (!receipt) return TxStatus.Unknown
 
     switch (receipt.status) {
       case 1:
-        return 'confirmed'
+        return TxStatus.Confirmed
       case 0:
-        return 'failed'
+        return TxStatus.Failed
       case null:
       case undefined:
-        return 'unknown'
+        return TxStatus.Unknown
       default:
-        assertUnreachable(receipt.status)
+        return TxStatus.Unknown
     }
   } catch (error) {
     console.error('[HyperEVM] Error getting transaction status:', error)
-    return 'unknown'
+    return TxStatus.Unknown
   }
 }

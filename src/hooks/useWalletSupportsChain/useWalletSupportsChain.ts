@@ -13,6 +13,7 @@ import {
   gnosisChainId,
   ltcChainId,
   mayachainChainId,
+  hyperEvmChainId,
   monadChainId,
   optimismChainId,
   polygonChainId,
@@ -162,6 +163,8 @@ export const walletSupportsChain = ({
       return supportsBase(wallet)
     case monadChainId:
       return supportsMonad(wallet)
+    case hyperEvmChainId:
+      return supportsETH(wallet)
     case cosmosChainId:
       return supportsCosmos(wallet)
     case thorchainChainId:

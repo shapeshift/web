@@ -1536,6 +1536,29 @@ gh pr create --title "feat: implement [chainname]" \
 **Example**: HyperEVM added at lines 81 and 262-266
 **Why**: The array defines which chains are EVM-compatible for type checking
 
+### Gotcha 15: Missing ChainSpecific Type Mappings (ALL Chains - 4 Places!)
+
+**Problem**: TypeScript errors like:
+- "Property 'chainSpecific' does not exist on type 'Account<T>'"
+- "Property 'chainSpecific' does not exist on type 'BuildSendApiTxInput<T>'"
+- "Property 'chainSpecific' does not exist on type 'GetFeeDataInput<T>'"
+
+**Solution**: Add your chain to FOUR type mapping objects in chain-adapters/src/types.ts
+
+**File**: `packages/chain-adapters/src/types.ts`
+
+**ALL FOUR mappings required**:
+1. ~Line 45: `ChainSpecificAccount` → `[KnownChainIds.[Chain]Mainnet]: evm.Account`
+2. ~Line 91: `ChainSpecificFeeData` → `[KnownChainIds.[Chain]Mainnet]: evm.FeeData`
+3. ~Line 219: `ChainSpecificBuildTxInput` → `[KnownChainIds.[Chain]Mainnet]: evm.BuildTxInput`
+4. ~Line 320: `ChainSpecificGetFeeDataInput` → `[KnownChainIds.[Chain]Mainnet]: evm.GetFeeDataInput`
+
+**Example**: HyperEVM added at lines 45, 91, 219, 320
+
+**Why**: TypeScript uses these to determine chain-specific data structures
+
+**CRITICAL**: Missing even ONE of these causes cryptic type errors! All 4 are required for ALL chains (EVM and non-EVM).
+
 ---
 
 ## Quick Reference: File Checklist

@@ -176,7 +176,13 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TronMainnet> {
     input: BuildSendApiTxInput<KnownChainIds.TronMainnet>,
   ): Promise<TronSignTx> {
     try {
-      const { from, accountNumber, to, value, chainSpecific: { contractAddress } = {} } = input
+      const {
+        from,
+        accountNumber,
+        to,
+        value,
+        chainSpecific: { contractAddress, memo } = {},
+      } = input
 
       let txData
 
@@ -225,6 +231,14 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TronMainnet> {
         })
 
         txData = await response.json()
+      }
+
+      // Add memo if provided
+      if (memo) {
+        const tronWeb = new TronWeb({
+          fullHost: this.rpcUrl,
+        })
+        txData = await tronWeb.transactionBuilder.addUpdateData(txData, memo, 'utf8')
       }
 
       if (!txData.raw_data_hex) {

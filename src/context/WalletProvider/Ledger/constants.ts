@@ -8,6 +8,7 @@ import {
   ltcAssetId,
   mayachainAssetId,
   solAssetId,
+  suiAssetId,
   thorchainAssetId,
   tronAssetId,
 } from '@shapeshiftoss/caip'
@@ -32,6 +33,7 @@ export const availableLedgerAppAssetIds = [
   thorchainAssetId,
   cosmosAssetId,
   solAssetId,
+  suiAssetId,
   mayachainAssetId,
   tronAssetId,
 ]

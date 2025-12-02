@@ -944,26 +944,61 @@ export default [
 
 ## Phase 5: Asset Generation
 
-### Step 5.1: CoinGecko Integration
+### Step 5.1: CoinGecko Adapter Integration
+
+**CRITICAL**: This step is required for asset discovery and pricing! See PR #11257 for Monad example.
 
 **File**: `packages/caip/src/adapters/coingecko/index.ts`
 
-```typescript
-// Add platform constant
-export const COINGECKO_NATIVE_ASSET_PLATFORM = {
-  // ...
-  [ChainName]: '[coingecko-platform-id]',
-}
+Add your chain to the CoingeckoAssetPlatform enum and import the chain ID:
 
-// Add to platform map
+```typescript
+// Add import at top
+import {
+  // ... existing imports
+  [chainLower]ChainId,
+} from '../../constants'
+
+// Add platform constant
+export enum CoingeckoAssetPlatform {
+  // ... existing platforms
+  [ChainName] = '[coingecko-platform-id]', // e.g., 'hyperliquid' for HyperEVM
+}
 ```
 
 **File**: `packages/caip/src/adapters/coingecko/utils.ts`
 
+Add chain ID to platform mapping in the `chainIdToCoingeckoAssetPlatform` function:
+
 ```typescript
-// Add chain ID to platform mapping
-case [chainLower]ChainId:
-  return COINGECKO_NATIVE_ASSET_PLATFORM.[ChainName]
+// For EVM chains, add to the EVM switch statement
+case CHAIN_REFERENCE.[ChainName]Mainnet:
+  return CoingeckoAssetPlatform.[ChainName]
+
+// For non-EVM chains, add separate case in outer switch
+```
+
+**File**: `packages/caip/src/adapters/coingecko/utils.test.ts`
+
+Add test case for your chain:
+
+```typescript
+it('returns correct platform for [ChainName]', () => {
+  expect(chainIdToCoingeckoAssetPlatform([chainLower]ChainId)).toEqual(
+    CoingeckoAssetPlatform.[ChainName]
+  )
+})
+```
+
+**File**: `packages/caip/src/adapters/coingecko/index.test.ts`
+
+Add test asset for your chain:
+
+```typescript
+// Add example asset from your chain to test fixtures
+const [chainLower]UsdcAssetId: AssetId = 'eip155:[CHAIN_ID]/erc20:[USDC_ADDRESS]'
+
+// Update test expectations to include your chain's asset
 ```
 
 ### Step 5.2: Create Asset Generator
@@ -986,7 +1021,61 @@ export const generate[Chain]AssetData = async (): Promise<Asset[]> => {
 const [chainLower]Assets = await generate[Chain]AssetData()
 ```
 
-### Step 5.3: Generate Assets
+### Step 5.3: Swapper Integration
+
+**CRITICAL**: Add your chain to supported swappers so users can actually trade!
+
+Most chains are supported by **Relay Swapper**. Check which swappers support your chain:
+- **Relay**: Multi-chain DEX aggregator (most EVM + BTC, Solana, Tron)
+- **Thor/Maya**: Cross-chain swaps via THORChain/MAYAChain
+- **CowSwap**: EVM-only (Ethereum, Gnosis, Arbitrum)
+- **OneInch**: EVM-only
+- **Butter**: Select EVM chains
+
+**For Relay Swapper** (most common):
+
+**File**: `packages/swapper/src/swappers/RelaySwapper/constant.ts`
+
+Add your chain to the Relay chain ID mapping:
+
+```typescript
+import {
+  // ... existing imports
+  [chainLower]ChainId,
+} from '@shapeshiftoss/caip'
+
+// Add to viem chain imports if EVM
+import {
+  // ... existing chains
+  [chainLower], // e.g., hyperliquid from viem/chains
+} from 'viem/chains'
+
+export const chainIdToRelayChainId = {
+  // ... existing mappings
+  [[chainLower]ChainId]: [chainLower].id, // For EVM chains using viem
+  // OR
+  [[chainLower]ChainId]: [RELAY_CHAIN_ID], // For non-EVM (get from Relay docs)
+}
+```
+
+**File**: `packages/swapper/src/swappers/RelaySwapper/utils/relayTokenToAssetId.ts`
+
+Add native asset case in the `relayTokenToAssetId` function:
+
+```typescript
+// Add to the switch statement for native assets (around line 100+)
+case CHAIN_REFERENCE.[ChainName]Mainnet:
+  return {
+    assetReference: ASSET_REFERENCE.[ChainName],
+    assetNamespace: ASSET_NAMESPACE.slip44,
+  }
+```
+
+**Check Relay docs** for your chain:
+- https://docs.relay.link/resources/supported-chains
+- Verify chain ID and native token address
+
+### Step 5.4: Generate Assets
 
 ```bash
 # In web repo
@@ -1306,11 +1395,18 @@ gh pr create --title "feat: implement [chainname]" \
 - [ ] `packages/utils/src/assetData/baseAssets.ts`
 - [ ] `packages/utils/src/assetData/getBaseAsset.ts`
 
-### Web Files (Assets)
-- [ ] `packages/caip/src/adapters/coingecko/index.ts`
-- [ ] `packages/caip/src/adapters/coingecko/utils.ts`
+### Web Files (Assets & CoinGecko)
+- [ ] `packages/caip/src/adapters/coingecko/index.ts` (add platform enum)
+- [ ] `packages/caip/src/adapters/coingecko/utils.ts` (add chainId mapping)
+- [ ] `packages/caip/src/adapters/coingecko/utils.test.ts` (add test)
+- [ ] `packages/caip/src/adapters/coingecko/index.test.ts` (add asset fixture)
 - [ ] `scripts/generateAssetData/[chainname]/index.ts`
 - [ ] `scripts/generateAssetData/generateAssetData.ts`
+
+### Web Files (Swapper Integration)
+- [ ] `packages/swapper/src/swappers/RelaySwapper/constant.ts` (add chain mapping)
+- [ ] `packages/swapper/src/swappers/RelaySwapper/utils/relayTokenToAssetId.ts` (add native asset case)
+- [ ] Other swappers as needed (CowSwap, OneInch, etc.)
 
 ### Web Files (Ledger - Optional)
 - [ ] `src/context/WalletProvider/Ledger/constants.ts`

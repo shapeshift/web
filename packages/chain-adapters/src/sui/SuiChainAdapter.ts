@@ -87,7 +87,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SuiMainnet> {
       ...ChainAdapter.rootBip44Params,
       accountNumber,
       isChange: false,
-      addressIndex: undefined,
+      addressIndex: 0,
     }
   }
 

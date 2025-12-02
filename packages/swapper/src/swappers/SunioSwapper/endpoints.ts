@@ -3,6 +3,8 @@ import type { tron } from '@shapeshiftoss/chain-adapters'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { TronWeb } from 'tronweb'
 
+import { toAddressNList } from '@shapeshiftoss/chain-adapters'
+
 import { getTronTransactionFees } from '../../tron-utils/getTronTransactionFees'
 import type {
   CommonTradeQuoteInput,
@@ -151,14 +153,7 @@ export const sunioApi: SwapperApi = {
     }
     const bip44Params = adapter.getBip44Params({ accountNumber })
 
-    const HARDENED = 0x80000000
-    const addressNList = [
-      bip44Params.purpose + HARDENED,
-      bip44Params.coinType + HARDENED,
-      bip44Params.accountNumber + HARDENED,
-      bip44Params.isChange ? 1 : 0,
-      bip44Params.addressIndex ?? 0,
-    ]
+    const addressNList = toAddressNList(bip44Params)
 
     return {
       addressNList,

@@ -61,7 +61,16 @@ export const sunioApi: SwapperApi = {
       throw new Error('[Sun.io] Missing transaction metadata in quote')
     }
 
+    console.log('[Sun.io] Building transaction with metadata:', {
+      route: sunioMetadata.route,
+      sellAmount: step.sellAmountIncludingProtocolFeesCryptoBaseUnit,
+      buyAmount: step.buyAmountAfterFeesCryptoBaseUnit,
+      from,
+      slippage: slippageTolerancePercentageDecimal,
+    })
+
     const rpcUrl = (adapter as any).rpcUrl
+    console.log('[Sun.io] Using TRON RPC:', rpcUrl)
 
     const tronWeb = new TronWeb({
       fullHost: rpcUrl,
@@ -74,6 +83,8 @@ export const sunioApi: SwapperApi = {
       from,
       slippageTolerancePercentageDecimal,
     )
+
+    console.log('[Sun.io] Route parameters:', routeParams)
 
     const parameters = [
       { type: 'address[]', value: routeParams.path },
@@ -91,8 +102,14 @@ export const sunioApi: SwapperApi = {
       },
     ]
 
+    console.log('[Sun.io] TronWeb parameters:', JSON.stringify(parameters, null, 2))
+
     const functionSelector =
       'swapExactInput(address[],string[],uint256[],uint24[],(uint256,uint256,address,uint256))'
+
+    console.log('[Sun.io] Function selector:', functionSelector)
+    console.log('[Sun.io] Contract:', SUNIO_SMART_ROUTER_CONTRACT)
+    console.log('[Sun.io] From address:', from)
 
     const options = {
       feeLimit: 100_000_000,
@@ -106,6 +123,11 @@ export const sunioApi: SwapperApi = {
       parameters,
       from,
     )
+
+    console.log('[Sun.io] Transaction built successfully:', {
+      result: txData.result,
+      hasTransaction: !!txData.transaction,
+    })
 
     if (!txData.result || !txData.result.result) {
       throw new Error('[Sun.io] Failed to build swap transaction')

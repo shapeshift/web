@@ -1,4 +1,5 @@
 import type { tron } from '@shapeshiftoss/chain-adapters'
+import { contractAddressOrUndefined } from '@shapeshiftoss/utils'
 
 import type { GetUnsignedTronTransactionArgs, SwapperName } from '../../types'
 import { getExecutableTradeStep, isExecutableTradeQuote } from '../../utils'
@@ -29,9 +30,7 @@ export const getUnsignedTronTransaction = async (
   const adapter = assertGetTronChainAdapter(sellAsset.chainId)
 
   // For TRC20 tokens, extract contract address
-  const contractAddress = sellAsset.assetId.includes('/trc20:')
-    ? sellAsset.assetId.split('/trc20:')[1]
-    : undefined
+  const contractAddress = contractAddressOrUndefined(sellAsset.assetId)
 
   return adapter.buildSendApiTransaction({
     to: vault,

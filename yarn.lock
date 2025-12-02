@@ -11748,6 +11748,7 @@ __metadata:
     cors: ^2.8.5
     crypto-browserify: ^3.12.0
     dayjs: ^1.11.3
+    detectincognitojs: 1.6.2
     dompurify: ^2.3.8
     dotenv: ^16.0.1
     embla-carousel-auto-height: ^8.6.0
@@ -20530,6 +20531,13 @@ __metadata:
   version: 1.1.0
   resolution: "detect-node-es@npm:1.1.0"
   checksum: e46307d7264644975b71c104b9f028ed1d3d34b83a15b8a22373640ce5ea630e5640b1078b8ea15f202b54641da71e4aa7597093bd4b91f113db520a26a37449
+  languageName: node
+  linkType: hard
+
+"detectincognitojs@npm:1.6.2":
+  version: 1.6.2
+  resolution: "detectincognitojs@npm:1.6.2"
+  checksum: 181e684ea2ca06c2a39b047b95590d10ef4c8b03e48a3c016f205adaf2fb9d9f60dea5c1d8277628778797cfca8a62c8e2cbfcbd350c786961eb612b3f73da87
   languageName: node
   linkType: hard
 

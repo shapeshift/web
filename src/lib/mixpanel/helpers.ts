@@ -12,7 +12,7 @@ import { bnOrZero } from '@/lib/bignumber/bignumber'
 // Returns an altered path when necessary or null if the path should not be tracked for privacy
 export const mapMixpanelPathname = (pathname: string, assets: AssetsByIdPartial): string | null => {
   switch (true) {
-    case pathname.startsWith('/wallet/accounts/'): {
+    case pathname.startsWith('/accounts/'): {
       return null
     }
     case pathname.startsWith('/assets/'): {

@@ -2,6 +2,7 @@ import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { fromAccountId, fromAssetId, toAccountId } from '@shapeshiftoss/caip'
 import { CONTRACT_INTERACTION } from '@shapeshiftoss/chain-adapters'
 import { RFOX_ABI } from '@shapeshiftoss/contracts'
+import { isTrezor } from '@shapeshiftoss/hdwallet-trezor'
 import type { UseMutationResult, UseQueryResult } from '@tanstack/react-query'
 import { useMutation } from '@tanstack/react-query'
 import { useMemo } from 'react'
@@ -162,6 +163,10 @@ export const useRfoxUnstake = ({
         value: '0',
         to: getStakingContract(stakingAssetId),
         wallet,
+        pubKey:
+          isTrezor(wallet) && stakingAssetAccountId
+            ? fromAccountId(stakingAssetAccountId).account
+            : undefined,
       })
 
       const txId = await buildAndBroadcast({

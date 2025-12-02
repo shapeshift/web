@@ -3,6 +3,7 @@ import { CONTRACT_INTERACTION, evm } from '@shapeshiftoss/chain-adapters'
 import type { FoxEthStakingContractAddress } from '@shapeshiftoss/contracts'
 import { ETH_FOX_POOL_CONTRACT, getOrCreateContractByAddress } from '@shapeshiftoss/contracts'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
+import { isGridPlus } from '@shapeshiftoss/hdwallet-gridplus'
 import { isTrezor } from '@shapeshiftoss/hdwallet-trezor'
 import { useQuery } from '@tanstack/react-query'
 import { useCallback, useMemo } from 'react'
@@ -62,6 +63,8 @@ export const useFoxFarming = (
     [farmingAccountId],
   )
 
+  const skipDeviceDerivation = wallet && (isTrezor(wallet) || isGridPlus(wallet))
+
   const stake = useCallback(
     async (lpAmount: string) => {
       try {
@@ -81,6 +84,10 @@ export const useFoxFarming = (
           to: contractAddress,
           value: '0',
           wallet,
+          pubKey:
+            isTrezor(wallet) && farmingAccountId
+              ? fromAccountId(farmingAccountId).account
+              : undefined,
         })
 
         const txid = await buildAndBroadcast({
@@ -103,6 +110,7 @@ export const useFoxFarming = (
       lpAsset.precision,
       adapter,
       contractAddress,
+      farmingAccountId,
     ],
   )
 
@@ -126,7 +134,7 @@ export const useFoxFarming = (
           value: '0',
           wallet,
           pubKey:
-            isTrezor(wallet) && farmingAccountId
+            skipDeviceDerivation && farmingAccountId
               ? fromAccountId(farmingAccountId).account
               : undefined,
         })
@@ -152,6 +160,7 @@ export const useFoxFarming = (
       adapter,
       contractAddress,
       farmingAccountId,
+      skipDeviceDerivation,
     ],
   )
 
@@ -310,7 +319,9 @@ export const useFoxFarming = (
       value: '0',
       wallet,
       pubKey:
-        isTrezor(wallet) && farmingAccountId ? fromAccountId(farmingAccountId).account : undefined,
+        skipDeviceDerivation && farmingAccountId
+          ? fromAccountId(farmingAccountId).account
+          : undefined,
     })
 
     const txid = await buildAndBroadcast({
@@ -329,6 +340,7 @@ export const useFoxFarming = (
     userAddress,
     wallet,
     farmingAccountId,
+    skipDeviceDerivation,
   ])
 
   const periodFinishQuery = useQuery({

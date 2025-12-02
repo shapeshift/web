@@ -1,8 +1,9 @@
 import { bchAssetId, CHAIN_NAMESPACE, fromAccountId, fromChainId } from '@shapeshiftoss/caip'
 import type { SignTx, SignTypedDataInput } from '@shapeshiftoss/chain-adapters'
 import { ChainAdapterError, toAddressNList } from '@shapeshiftoss/chain-adapters'
-import type { ETHSignTypedData, SolanaSignTx } from '@shapeshiftoss/hdwallet-core'
+import type { ETHSignTypedData, SolanaSignTx, SuiSignTx } from '@shapeshiftoss/hdwallet-core'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
+import { isGridPlus } from '@shapeshiftoss/hdwallet-gridplus'
 import { isTrezor } from '@shapeshiftoss/hdwallet-trezor'
 import type { SupportedTradeQuoteStepIndex, TradeQuote } from '@shapeshiftoss/swapper'
 import {
@@ -12,7 +13,7 @@ import {
   SwapperName,
   TradeExecutionEvent,
 } from '@shapeshiftoss/swapper'
-import type { CosmosSdkChainId, EvmChainId, UtxoChainId } from '@shapeshiftoss/types'
+import type { CosmosSdkChainId, EvmChainId, TronChainId, UtxoChainId } from '@shapeshiftoss/types'
 import type { TypedData } from 'eip-712'
 import camelCase from 'lodash/camelCase'
 import { useCallback, useEffect, useMemo, useRef } from 'react'
@@ -34,6 +35,8 @@ import { assertUnreachable } from '@/lib/utils'
 import { assertGetCosmosSdkChainAdapter } from '@/lib/utils/cosmosSdk'
 import { assertGetEvmChainAdapter, signAndBroadcast } from '@/lib/utils/evm'
 import { assertGetSolanaChainAdapter } from '@/lib/utils/solana'
+import { assertGetSuiChainAdapter } from '@/lib/utils/sui'
+import { assertGetTronChainAdapter } from '@/lib/utils/tron'
 import { assertGetUtxoChainAdapter } from '@/lib/utils/utxo'
 import {
   selectAssetById,
@@ -290,13 +293,15 @@ export const useTradeExecution = (
 
       if (!isExecutableTradeQuote(tradeQuote)) throw new Error('Unable to execute trade')
 
+      const skipDeviceDerivation = wallet && (isTrezor(wallet) || isGridPlus(wallet))
+      const pubKey = fromAccountId(sellAssetAccountId).account
+
       if (swapperName === SwapperName.CowSwap) {
         const adapter = assertGetEvmChainAdapter(stepSellAssetChainId)
         const from = await adapter.getAddress({
           accountNumber,
           wallet,
-          pubKey:
-            wallet && isTrezor(wallet) ? fromAccountId(sellAssetAccountId).account : undefined,
+          pubKey: skipDeviceDerivation ? pubKey : undefined,
         })
 
         const output = await execution.execEvmMessage({
@@ -341,8 +346,7 @@ export const useTradeExecution = (
           const from = await adapter.getAddress({
             accountNumber,
             wallet,
-            pubKey:
-              wallet && isTrezor(wallet) ? fromAccountId(sellAssetAccountId).account : undefined,
+            pubKey: skipDeviceDerivation ? pubKey : undefined,
           })
           const supportsEIP1559 = supportsETH(wallet) && (await wallet.ethSupportsEIP1559())
 
@@ -375,16 +379,14 @@ export const useTradeExecution = (
 
           const adapter = assertGetUtxoChainAdapter(stepSellAssetChainId)
 
-          const xpub =
-            wallet && isTrezor(wallet)
-              ? fromAccountId(sellAssetAccountId).account
-              : (await adapter.getPublicKey(wallet, accountNumber, accountType)).xpub
+          const xpub = skipDeviceDerivation
+            ? pubKey
+            : (await adapter.getPublicKey(wallet, accountNumber, accountType)).xpub
           const senderAddress = await adapter.getAddress({
             accountNumber,
             accountType,
             wallet,
-            pubKey:
-              wallet && isTrezor(wallet) ? fromAccountId(sellAssetAccountId).account : undefined,
+            pubKey: skipDeviceDerivation ? pubKey : undefined,
           })
 
           const output = await execution.execUtxoTransaction({
@@ -409,7 +411,11 @@ export const useTradeExecution = (
         case CHAIN_NAMESPACE.CosmosSdk: {
           const adapter = assertGetCosmosSdkChainAdapter(stepSellAssetChainId)
 
-          const from = await adapter.getAddress({ accountNumber, wallet })
+          const from = await adapter.getAddress({
+            accountNumber,
+            wallet,
+            pubKey: skipDeviceDerivation ? pubKey : undefined,
+          })
 
           const output = await execution.execCosmosSdkTransaction({
             swapperName,
@@ -439,8 +445,7 @@ export const useTradeExecution = (
           const from = await adapter.getAddress({
             accountNumber,
             wallet,
-            pubKey:
-              wallet && isTrezor(wallet) ? fromAccountId(sellAssetAccountId).account : undefined,
+            pubKey: skipDeviceDerivation ? pubKey : undefined,
           })
 
           const output = await execution.execSolanaTransaction({
@@ -450,6 +455,64 @@ export const useTradeExecution = (
             slippageTolerancePercentageDecimal,
             from,
             signAndBroadcastTransaction: async (txToSign: SolanaSignTx) => {
+              const hex = await adapter.signTransaction({ txToSign, wallet })
+
+              const output = await adapter.broadcastTransaction({
+                senderAddress: from,
+                receiverAddress,
+                hex,
+              })
+
+              trackMixpanelEventOnExecute()
+              return output
+            },
+          })
+          cancelPollingRef.current = output?.cancelPolling
+          return
+        }
+        case CHAIN_NAMESPACE.Tron: {
+          const adapter = assertGetTronChainAdapter(stepSellAssetChainId)
+          const from = await adapter.getAddress({ accountNumber, wallet })
+
+          const output = await execution.execTronTransaction({
+            swapperName,
+            tradeQuote,
+            stepIndex: hopIndex,
+            slippageTolerancePercentageDecimal,
+            from,
+            signAndBroadcastTransaction: async (txToSign: SignTx<TronChainId>) => {
+              const hex = await adapter.signTransaction({ txToSign, wallet })
+
+              const output = await adapter.broadcastTransaction({
+                senderAddress: from,
+                receiverAddress,
+                hex,
+              })
+
+              trackMixpanelEventOnExecute()
+              return output
+            },
+          })
+          cancelPollingRef.current = output?.cancelPolling
+          return
+        }
+        case CHAIN_NAMESPACE.Sui: {
+          const adapter = assertGetSuiChainAdapter(stepSellAssetChainId)
+
+          const from = await adapter.getAddress({
+            accountNumber,
+            wallet,
+            pubKey:
+              wallet && isTrezor(wallet) ? fromAccountId(sellAssetAccountId).account : undefined,
+          })
+
+          const output = await execution.execSuiTransaction({
+            swapperName,
+            tradeQuote,
+            stepIndex: hopIndex,
+            slippageTolerancePercentageDecimal,
+            from,
+            signAndBroadcastTransaction: async (txToSign: SuiSignTx) => {
               const hex = await adapter.signTransaction({ txToSign, wallet })
 
               const output = await adapter.broadcastTransaction({

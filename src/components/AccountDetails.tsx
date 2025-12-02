@@ -5,20 +5,18 @@ import { useMemo } from 'react'
 
 import { AccountAssets } from './AccountAssets/AccountAssets'
 import { AssetAccounts } from './AssetAccounts/AssetAccounts'
+import { AssetHeader } from './AssetHeader/AssetHeader'
 import { Main } from './Layout/Main'
 import { RelatedAssets } from './RelatedAssets/RelatedAssets'
 import { EarnOpportunities } from './StakingVaults/EarnOpportunities'
 
 import { AssetTransactionHistory } from '@/components/TransactionHistory/AssetTransactionHistory'
 import { isUtxoAccountId } from '@/lib/utils/utxo'
-import { AccountBalance } from '@/pages/Accounts/AccountToken/AccountBalance'
 import { StandaloneTrade } from '@/pages/Trade/StandaloneTrade'
-import type { Route } from '@/Routes/helpers'
 
 type AccountDetailsProps = {
   assetId: AssetId
   accountId?: AccountId
-  route?: Route
 }
 
 const flexMaxWidth = { base: 'full', xl: 'md' }
@@ -28,11 +26,15 @@ export const AccountDetails = ({ assetId, accountId }: AccountDetailsProps) => {
   // When the asset is ETH, we want to use the built-in default buy asset (FOX)
   const defaultBuyAssetId = useMemo(() => (assetId === ethAssetId ? undefined : assetId), [assetId])
 
+  const assetHeader = useMemo(
+    () => <AssetHeader assetId={assetId} accountId={accountId} />,
+    [assetId, accountId],
+  )
+
   if (!accountId || !assetId) return null
   return (
-    <Main width='full' alignItems='flex-start' mx='auto'>
+    <Main headerComponent={assetHeader} width='full' alignItems='flex-start' mx='auto' isSubPage>
       <Stack spacing={4} flex='1 1 0%' width='full'>
-        <AccountBalance assetId={assetId} accountId={accountId} />
         {accountId && <AccountAssets assetId={assetId} accountId={accountId} />}
         <RelatedAssets assetId={assetId} />
         <AssetAccounts assetId={assetId} accountId={isUtxoAccountId(accountId) ? '' : accountId} />

@@ -6,9 +6,11 @@ import type {
   EvmChainAdapter,
   SignTx,
   solana,
+  sui,
+  tron,
   UtxoChainAdapter,
 } from '@shapeshiftoss/chain-adapters'
-import type { HDWallet, SolanaSignTx } from '@shapeshiftoss/hdwallet-core'
+import type { HDWallet, SolanaSignTx, SuiSignTx } from '@shapeshiftoss/hdwallet-core'
 import type {
   AccountMetadata,
   Asset,
@@ -18,6 +20,7 @@ import type {
   KnownChainIds,
   OrderQuoteResponse,
   PartialRecord,
+  TronChainId,
   UtxoAccountType,
   UtxoChainId,
 } from '@shapeshiftoss/types'
@@ -26,8 +29,8 @@ import type { Result } from '@sniptt/monads'
 import type { TransactionInstruction } from '@solana/web3.js'
 import type { TypedData } from 'eip-712'
 import type { Mixpanel } from 'mixpanel-browser'
-import type { InterpolationOptions } from 'node-polyglot'
 import type Polyglot from 'node-polyglot'
+import type { InterpolationOptions } from 'node-polyglot'
 import type { Address, Hex } from 'viem'
 
 import type { CowMessageToSign } from './swappers/CowSwapper/types'
@@ -82,6 +85,7 @@ export enum SwapperName {
   ButterSwap = 'ButterSwap',
   Bebop = 'Bebop',
   NearIntents = 'NEAR Intents',
+  Cetus = 'Cetus',
 }
 
 export type SwapSource = SwapperName | `${SwapperName} • ${string}`
@@ -142,6 +146,11 @@ export type SolanaFeeData = {
   priorityFee: string
 }
 
+export type SuiFeeData = {
+  gasBudget: string
+  gasPrice: string
+}
+
 export type AmountDisplayMeta = {
   amountCryptoBaseUnit: string
   asset: Partial<Asset> & Pick<Asset, 'symbol' | 'chainId' | 'precision'>
@@ -152,7 +161,7 @@ export type ProtocolFee = { requiresBalance: boolean } & AmountDisplayMeta
 export type QuoteFeeData = {
   networkFeeCryptoBaseUnit: string | undefined // fee paid to the network from the fee asset (undefined if unknown)
   protocolFees: PartialRecord<AssetId, ProtocolFee> | undefined // fee(s) paid to the protocol(s)
-  chainSpecific?: UtxoFeeData | CosmosSdkFeeData | SolanaFeeData
+  chainSpecific?: UtxoFeeData | CosmosSdkFeeData | SolanaFeeData | SuiFeeData
 }
 
 export type BuyAssetBySellIdInput = {
@@ -207,8 +216,20 @@ export type GetCosmosSdkTradeQuoteInput = CommonTradeInput & {
   chainId: CosmosSdkChainId
 }
 
+export type GetTronTradeQuoteInputBase = CommonTradeInput & {
+  chainId: TronChainId
+}
+
+export type GetTronTradeQuoteInput = CommonTradeInput & {
+  chainId: TronChainId
+}
+
 export type GetCosmosSdkTradeRateInput = CommonTradeRateInput & {
   chainId: CosmosSdkChainId
+}
+
+export type GetTronTradeRateInput = CommonTradeRateInput & {
+  chainId: TronChainId
 }
 
 type GetUtxoTradeQuoteWithWallet = CommonTradeQuoteInput & {
@@ -233,16 +254,19 @@ export type GetTradeQuoteInput =
   | GetUtxoTradeQuoteInput
   | GetEvmTradeQuoteInput
   | GetCosmosSdkTradeQuoteInput
+  | GetTronTradeQuoteInput
 
 export type GetTradeRateInput =
   | GetEvmTradeRateInput
   | GetCosmosSdkTradeRateInput
   | GetUtxoTradeRateInput
+  | GetTronTradeRateInput
 
 export type GetTradeQuoteInputWithWallet =
   | GetUtxoTradeQuoteWithWallet
   | GetEvmTradeQuoteInputBase
   | GetCosmosSdkTradeQuoteInputBase
+  | GetTronTradeQuoteInputBase
 
 export type EvmSwapperDeps = {
   assertGetEvmChainAdapter: (chainId: ChainId) => EvmChainAdapter
@@ -261,6 +285,13 @@ export type SolanaSwapperDeps = {
   assertGetSolanaChainAdapter: (chainId: ChainId) => solana.ChainAdapter
 }
 
+export type TronSwapperDeps = {
+  assertGetTronChainAdapter: (chainId: ChainId) => tron.ChainAdapter
+}
+export type SuiSwapperDeps = {
+  assertGetSuiChainAdapter: (chainId: ChainId) => sui.ChainAdapter
+}
+
 export type SwapperDeps = {
   assetsById: AssetsByIdPartial
   config: SwapperConfig
@@ -269,7 +300,9 @@ export type SwapperDeps = {
 } & EvmSwapperDeps &
   UtxoSwapperDeps &
   CosmosSdkSwapperDeps &
-  SolanaSwapperDeps
+  SolanaSwapperDeps &
+  TronSwapperDeps &
+  SuiSwapperDeps
 
 export type TradeQuoteStep = {
   buyAmountBeforeFeesCryptoBaseUnit: string
@@ -423,6 +456,7 @@ export type Swap = {
   swapperName: SwapperName
   sellAmountCryptoBaseUnit: string
   expectedBuyAmountCryptoBaseUnit: string
+  actualBuyAmountCryptoBaseUnit?: string
   sellAmountCryptoPrecision: string
   expectedBuyAmountCryptoPrecision: string
   txLink?: string
@@ -508,8 +542,17 @@ export type SolanaTransactionExecutionProps = {
   signAndBroadcastTransaction: (txToSign: SolanaSignTx) => Promise<string>
 }
 
+export type TronTransactionExecutionProps = {
+  signAndBroadcastTransaction: (txToSign: tron.TronSignTx) => Promise<string>
+}
+export type SuiTransactionExecutionProps = {
+  signAndBroadcastTransaction: (txToSign: SuiSignTx) => Promise<string>
+}
+
 type EvmAccountMetadata = { from: string }
 type SolanaAccountMetadata = { from: string }
+type TronAccountMetadata = { from: string }
+type SuiAccountMetadata = { from: string }
 type UtxoAccountMetadata = { senderAddress: string; xpub: string; accountType: UtxoAccountType }
 type CosmosSdkAccountMetadata = { from: string }
 
@@ -531,6 +574,13 @@ export type GetUnsignedEvmTransactionArgs = CommonGetUnsignedTransactionArgs &
 export type GetUnsignedSolanaTransactionArgs = CommonGetUnsignedTransactionArgs &
   SolanaAccountMetadata &
   SolanaSwapperDeps
+
+export type GetUnsignedTronTransactionArgs = CommonGetUnsignedTransactionArgs &
+  TronAccountMetadata &
+  TronSwapperDeps
+export type GetUnsignedSuiTransactionArgs = CommonGetUnsignedTransactionArgs &
+  SuiAccountMetadata &
+  SuiSwapperDeps
 
 export type GetUnsignedEvmMessageArgs = CommonGetUnsignedTransactionArgs &
   EvmAccountMetadata &
@@ -565,7 +615,8 @@ export type CheckTradeStatusInput = {
 } & EvmSwapperDeps &
   UtxoSwapperDeps &
   CosmosSdkSwapperDeps &
-  SolanaSwapperDeps
+  SolanaSwapperDeps &
+  SuiSwapperDeps
 
 export type TradeStatus = {
   status: TxStatus
@@ -573,6 +624,7 @@ export type TradeStatus = {
   relayerTxHash?: string | undefined
   relayerExplorerTxLink?: string | undefined
   message: string | [string, InterpolationOptions] | undefined
+  actualBuyAmountCryptoBaseUnit?: string
 }
 
 // a result containing all routes that were successfully generated, or an error in the case where
@@ -607,6 +659,14 @@ export type Swapper = {
     txToSign: SolanaSignTx,
     callbacks: SolanaTransactionExecutionProps,
   ) => Promise<string>
+  executeTronTransaction?: (
+    txToSign: tron.TronSignTx,
+    callbacks: TronTransactionExecutionProps,
+  ) => Promise<string>
+  executeSuiTransaction?: (
+    txToSign: SuiSignTx,
+    callbacks: SuiTransactionExecutionProps,
+  ) => Promise<string>
 }
 
 export type SwapperApi = {
@@ -625,11 +685,15 @@ export type SwapperApi = {
     input: GetUnsignedCosmosSdkTransactionArgs,
   ) => Promise<SignTx<CosmosSdkChainId>>
   getUnsignedSolanaTransaction?: (input: GetUnsignedSolanaTransactionArgs) => Promise<SolanaSignTx>
+  getUnsignedTronTransaction?: (input: GetUnsignedTronTransactionArgs) => Promise<tron.TronSignTx>
+  getUnsignedSuiTransaction?: (input: GetUnsignedSuiTransactionArgs) => Promise<SuiSignTx>
 
   getEvmTransactionFees?: (input: GetUnsignedEvmTransactionArgs) => Promise<string>
   getSolanaTransactionFees?: (input: GetUnsignedSolanaTransactionArgs) => Promise<string>
+  getSuiTransactionFees?: (input: GetUnsignedSuiTransactionArgs) => Promise<string>
   getUtxoTransactionFees?: (input: GetUnsignedUtxoTransactionArgs) => Promise<string>
   getCosmosSdkTransactionFees?: (input: GetUnsignedCosmosSdkTransactionArgs) => Promise<string>
+  getTronTransactionFees?: (input: GetUnsignedTronTransactionArgs) => Promise<string>
 }
 
 export type QuoteResult = Result<TradeQuote[], SwapErrorRight> & {
@@ -667,6 +731,13 @@ export type CosmosSdkTransactionExecutionInput = CommonTradeExecutionInput &
 export type SolanaTransactionExecutionInput = CommonTradeExecutionInput &
   SolanaTransactionExecutionProps &
   SolanaAccountMetadata
+
+export type TronTransactionExecutionInput = CommonTradeExecutionInput &
+  TronTransactionExecutionProps &
+  TronAccountMetadata
+export type SuiTransactionExecutionInput = CommonTradeExecutionInput &
+  SuiTransactionExecutionProps &
+  SuiAccountMetadata
 
 export enum TradeExecutionEvent {
   SellTxHash = 'sellTxHash',

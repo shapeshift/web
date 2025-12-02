@@ -13,10 +13,13 @@ import {
   gnosisChainId,
   ltcChainId,
   mayachainChainId,
+  monadChainId,
   optimismChainId,
   polygonChainId,
   solanaChainId,
+  suiChainId,
   thorchainChainId,
+  tronChainId,
 } from '@shapeshiftoss/caip'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
@@ -31,10 +34,13 @@ import {
   supportsETH,
   supportsGnosis,
   supportsMayachain,
+  supportsMonad,
   supportsOptimism,
   supportsPolygon,
   supportsSolana,
+  supportsSui,
   supportsThorchain,
+  supportsTron,
 } from '@shapeshiftoss/hdwallet-core'
 import { isMetaMask } from '@shapeshiftoss/hdwallet-metamask-multichain'
 import { PhantomHDWallet } from '@shapeshiftoss/hdwallet-phantom'
@@ -154,6 +160,8 @@ export const walletSupportsChain = ({
       return isArbitrumNovaEnabled && supportsArbitrumNova(wallet)
     case baseChainId:
       return supportsBase(wallet)
+    case monadChainId:
+      return supportsMonad(wallet)
     case cosmosChainId:
       return supportsCosmos(wallet)
     case thorchainChainId:
@@ -162,6 +170,10 @@ export const walletSupportsChain = ({
       return supportsMayachain(wallet)
     case solanaChainId:
       return supportsSolana(wallet)
+    case tronChainId:
+      return supportsTron(wallet)
+    case suiChainId:
+      return supportsSui(wallet)
     default: {
       return false
     }

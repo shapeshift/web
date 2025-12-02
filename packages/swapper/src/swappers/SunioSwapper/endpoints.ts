@@ -80,10 +80,10 @@ export const sunioApi: SwapperApi = {
 
     const txData = await contract.methods
       .swapExactInput(
-        routeParams.path,
-        routeParams.poolVersion,
-        routeParams.versionLen,
-        routeParams.fees,
+        [...routeParams.path],
+        [...routeParams.poolVersion],
+        [...routeParams.versionLen],
+        [...routeParams.fees],
         [
           routeParams.swapData.amountIn,
           routeParams.swapData.amountOutMin,

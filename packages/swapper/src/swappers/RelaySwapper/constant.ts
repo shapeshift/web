@@ -21,6 +21,7 @@ import {
   base,
   bsc,
   gnosis,
+  hyperEvm,
   mainnet as ethereum,
   monad,
   optimism,
@@ -45,7 +46,7 @@ export const chainIdToRelayChainId = {
   [bscChainId]: bsc.id,
   [tronChainId]: 728126428,
   [monadChainId]: monad.id,
-  [hyperEvmChainId]: 999, // HyperEVM - added to viem 2.40.1+ but we define custom chain
+  [hyperEvmChainId]: hyperEvm.id, // HyperEVM - available in viem 2.40.1+
 }
 
 export enum RelayStatusMessage {

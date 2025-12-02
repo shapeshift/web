@@ -2,7 +2,7 @@ import type { ChainId } from '@shapeshiftoss/caip'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import assert from 'assert'
 import type { PublicClient } from 'viem'
-import { createPublicClient, defineChain, fallback, http } from 'viem'
+import { createPublicClient, fallback, http } from 'viem'
 import {
   arbitrum,
   arbitrumNova,
@@ -10,30 +10,12 @@ import {
   base,
   bsc,
   gnosis,
+  hyperEvm,
   mainnet,
   monad,
   optimism,
   polygon,
 } from 'viem/chains'
-
-// HyperEVM is not in viem yet, so we define it manually
-export const hyperevm = defineChain({
-  id: 999,
-  name: 'HyperEVM',
-  nativeCurrency: {
-    decimals: 18,
-    name: 'HYPE',
-    symbol: 'HYPE',
-  },
-  rpcUrls: {
-    default: {
-      http: ['https://rpc.hyperliquid.xyz/evm'],
-    },
-  },
-  blockExplorers: {
-    default: { name: 'HyperEVMScan', url: 'https://hyperevmscan.io' },
-  },
-})
 
 export const viemEthMainnetClient = createPublicClient({
   chain: mainnet,
@@ -102,7 +84,7 @@ export const viemMonadClient = createPublicClient({
 }) as PublicClient
 
 export const viemHyperEvmClient = createPublicClient({
-  chain: hyperevm,
+  chain: hyperEvm,
   transport: fallback([process.env.VITE_HYPEREVM_NODE_URL].filter(Boolean).map(url => http(url))),
 }) as PublicClient
 
@@ -131,7 +113,7 @@ export const viemNetworkIdByChainId: Record<ChainId, number> = {
   [KnownChainIds.OptimismMainnet]: optimism.id,
   [KnownChainIds.BaseMainnet]: base.id,
   [KnownChainIds.MonadMainnet]: monad.id,
-  [KnownChainIds.HyperEvmMainnet]: hyperevm.id,
+  [KnownChainIds.HyperEvmMainnet]: hyperEvm.id,
 }
 
 export const viemClientByNetworkId: Record<number, PublicClient> = {
@@ -145,7 +127,7 @@ export const viemClientByNetworkId: Record<number, PublicClient> = {
   [optimism.id]: viemOptimismClient,
   [base.id]: viemBaseClient,
   [monad.id]: viemMonadClient,
-  [hyperevm.id]: viemHyperEvmClient,
+  [hyperEvm.id]: viemHyperEvmClient,
 }
 
 export const assertGetViemClient = (chainId: ChainId): PublicClient => {

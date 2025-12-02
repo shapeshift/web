@@ -292,6 +292,61 @@ Register SLIP44 if not using Ethereum's (60):
 
 **That's it for hdwallet!** EVM chains don't need crypto adapters. Skip to Step 1.6 (Version Bump).
 
+### Step 1.2-EVM: EVM Chain HDWallet Support (MINIMAL WORK - ~30 minutes)
+
+**For EVM chains only** (like Monad, HyperEVM). Follow these PRs as reference:
+- **Monad hdwallet**: https://github.com/shapeshift/hdwallet/pull/753
+- **HyperEVM hdwallet**: https://github.com/shapeshift/hdwallet/pull/756
+
+**File**: `packages/hdwallet-core/src/ethereum.ts`
+
+Add your chain's support flag to the ETHWalletInfo interface:
+
+```typescript
+export interface ETHWalletInfo extends HDWalletInfo {
+  // ... existing flags
+  readonly _supportsMonad: boolean;
+  readonly _supportsHyperEvm: boolean;  // ADD THIS
+  // ...
+}
+```
+
+**File**: `packages/hdwallet-core/src/wallet.ts`
+
+Add support function after `supportsMonad`:
+
+```typescript
+export function supportsMonad(wallet: HDWallet): wallet is ETHWallet {
+  return isObject(wallet) && (wallet as any)._supportsMonad;
+}
+
+export function supports[ChainName](wallet: HDWallet): wallet is ETHWallet {
+  return isObject(wallet) && (wallet as any)._supports[ChainName];
+}
+```
+
+**Set flags on ALL wallet implementations** (~14 files):
+
+Set `readonly _supports[ChainName] = false` on:
+- packages/hdwallet-coinbase/src/coinbase.ts
+- packages/hdwallet-gridplus/src/gridplus.ts
+- packages/hdwallet-keepkey/src/keepkey.ts
+- packages/hdwallet-ledger/src/ledger.ts
+- packages/hdwallet-metamask-multichain/src/shapeshift-multichain.ts
+- packages/hdwallet-phantom/src/phantom.ts
+- packages/hdwallet-portis/src/portis.ts
+- packages/hdwallet-trezor/src/trezor.ts
+- packages/hdwallet-vultisig/src/vultisig.ts
+- packages/hdwallet-walletconnect/src/walletconnect.ts
+- packages/hdwallet-walletconnectV2/src/walletconnectV2.ts
+
+**Set `readonly _supports[ChainName] = true` for Native**:
+- packages/hdwallet-native/src/ethereum.ts
+
+**Then**: Skip to Step 1.6 (Version Bump)
+
+---
+
 ### Step 1.2-NonEVM: Non-EVM Core Interfaces (COMPLEX PATH)
 
 **File**: `packages/hdwallet-core/src/[chainname].ts`

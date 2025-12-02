@@ -445,9 +445,9 @@ export const getL1RateOrQuote = async <T extends ThorTradeRateOrQuote>(
         perRouteValues.map((route): Promise<T> => {
           const memo = getMemo(route)
 
-          // For rate quotes, we can't calculate fees without wallet info
-          // Using a conservative estimate
-          const networkFeeCryptoBaseUnit = '10000000' // 10 TRX
+          // For rate quotes (no wallet), we can't calculate fees
+          // Actual fees will be calculated in getTronTransactionFees when executing
+          const networkFeeCryptoBaseUnit = undefined
 
           return Promise.resolve(
             makeThorTradeRateOrQuote<ThorUtxoOrCosmosTradeRateOrQuote>({

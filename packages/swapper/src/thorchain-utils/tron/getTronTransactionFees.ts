@@ -6,11 +6,25 @@ import { getExecutableTradeStep, isExecutableTradeQuote } from '../../utils'
 import type { ThorTradeQuote } from '../types'
 import { getThorTxData } from './getThorTxData'
 
+const getChainPrices = async (
+  rpcUrl: string,
+): Promise<{ bandwidthPrice: number; energyPrice: number }> => {
+  try {
+    const tronWeb = new TronWeb({ fullHost: rpcUrl })
+    const params = await tronWeb.trx.getChainParameters()
+    const bandwidthPrice = params.find(p => p.key === 'getTransactionFee')?.value ?? 1000
+    const energyPrice = params.find(p => p.key === 'getEnergyFee')?.value ?? 420
+    return { bandwidthPrice, energyPrice }
+  } catch (_err) {
+    return { bandwidthPrice: 1000, energyPrice: 420 }
+  }
+}
+
 export const getTronTransactionFees = async (
   args: GetUnsignedTronTransactionArgs,
   swapperName: SwapperName,
 ): Promise<string> => {
-  const { tradeQuote, stepIndex, assertGetTronChainAdapter, config } = args
+  const { tradeQuote, stepIndex, config } = args
 
   if (!isExecutableTradeQuote(tradeQuote)) throw new Error('Unable to execute a trade rate quote')
 
@@ -22,24 +36,35 @@ export const getTronTransactionFees = async (
 
   const { vault } = await getThorTxData({ sellAsset, config, swapperName })
 
-  const adapter = assertGetTronChainAdapter(sellAsset.chainId)
   const contractAddress = contractAddressOrUndefined(sellAsset.assetId)
+  const rpcUrl = config.VITE_TRON_NODE_URL
 
   try {
+    const tronWeb = new TronWeb({ fullHost: rpcUrl })
+
     if (contractAddress) {
-      // TRC20 transfer - estimate energy cost from unchained-client
-      const feeEstimate = await adapter.providers.http.estimateTRC20TransferFee({
+      // TRC20 transfer - estimate energy cost
+      const { energyPrice } = await getChainPrices(rpcUrl)
+
+      const result = await tronWeb.transactionBuilder.triggerConstantContract(
         contractAddress,
-        from: vault, // Use vault as placeholder for estimation
-        to: vault,
-        amount: sellAmountIncludingProtocolFeesCryptoBaseUnit,
-      })
-      return feeEstimate
+        'transfer(address,uint256)',
+        {},
+        [
+          { type: 'address', value: vault },
+          { type: 'uint256', value: sellAmountIncludingProtocolFeesCryptoBaseUnit },
+        ],
+        vault,
+      )
+
+      const energyUsed = result.energy_used ?? 65000 // Conservative default for TRC20 transfer
+      const feeInSun = energyUsed * energyPrice
+
+      return String(feeInSun)
     } else {
       // TRX transfer with memo - build transaction to get accurate size
-      const tronWeb = new TronWeb({ fullHost: adapter.providers.http.getRpcUrl() })
+      const { bandwidthPrice } = await getChainPrices(rpcUrl)
 
-      // Build transaction
       let tx = await tronWeb.transactionBuilder.sendTrx(
         vault,
         Number(sellAmountIncludingProtocolFeesCryptoBaseUnit),
@@ -47,15 +72,15 @@ export const getTronTransactionFees = async (
       )
 
       // Add memo to get accurate size with memo overhead
-      tx = await tronWeb.transactionBuilder.addUpdateData(tx, memo, 'utf8')
+      const txWithMemo = await tronWeb.transactionBuilder.addUpdateData(tx, memo, 'utf8')
 
-      // Serialize and estimate bandwidth-based fee
-      const serializedTx = tronWeb.utils.transaction.txJsonToPb(tx).serializeBinary()
-      const feeEstimate = await adapter.providers.http.estimateFees({
-        estimateFeesBody: { serializedTx: Buffer.from(serializedTx).toString('hex') },
-      })
+      // Calculate bandwidth fee from transaction size
+      const rawDataBytes = txWithMemo.raw_data_hex ? txWithMemo.raw_data_hex.length / 2 : 268
+      const signatureBytes = 65
+      const totalBytes = rawDataBytes + signatureBytes
 
-      return feeEstimate
+      const feeInSun = totalBytes * bandwidthPrice
+      return String(feeInSun)
     }
   } catch (err) {
     // Fallback to conservative estimate if fee estimation fails

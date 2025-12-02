@@ -76,26 +76,37 @@ export const sunioApi: SwapperApi = {
       slippageTolerancePercentageDecimal,
     )
 
-    const contract = await tronWeb.contract(SUNSWAP_ROUTER_ABI, SUNIO_SMART_ROUTER_CONTRACT)
+    const parameters = [
+      { type: 'address[]', value: routeParams.path.map(addr => tronWeb.address.toHex(addr)) },
+      { type: 'string[]', value: routeParams.poolVersion },
+      { type: 'uint256[]', value: routeParams.versionLen },
+      { type: 'uint24[]', value: routeParams.fees },
+      {
+        type: 'tuple',
+        value: {
+          amountIn: routeParams.swapData.amountIn,
+          amountOutMin: routeParams.swapData.amountOutMin,
+          to: tronWeb.address.toHex(routeParams.swapData.recipient),
+          deadline: routeParams.swapData.deadline,
+        },
+      },
+    ]
 
-    const txData = await contract.methods
-      .swapExactInput(
-        [...routeParams.path],
-        [...routeParams.poolVersion],
-        [...routeParams.versionLen],
-        [...routeParams.fees],
-        [
-          routeParams.swapData.amountIn,
-          routeParams.swapData.amountOutMin,
-          routeParams.swapData.recipient,
-          routeParams.swapData.deadline,
-        ],
-      )
-      ._build({
-        feeLimit: 100_000_000,
-        callValue: 0,
-        from,
-      })
+    const functionSelector =
+      'swapExactInput(address[],string[],uint256[],uint24[],(uint256,uint256,address,uint256))'
+
+    const options = {
+      feeLimit: 100_000_000,
+      callValue: 0,
+    }
+
+    const txData = await tronWeb.transactionBuilder.triggerSmartContract(
+      SUNIO_SMART_ROUTER_CONTRACT,
+      functionSelector,
+      options,
+      parameters,
+      tronWeb.address.toHex(from),
+    )
 
     if (!txData.result || !txData.result.result) {
       throw new Error('[Sun.io] Failed to build swap transaction')

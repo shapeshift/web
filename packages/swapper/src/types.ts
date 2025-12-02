@@ -86,6 +86,7 @@ export enum SwapperName {
   Bebop = 'Bebop',
   NearIntents = 'NEAR Intents',
   Cetus = 'Cetus',
+  Sunio = 'Sun.io',
 }
 
 export type SwapSource = SwapperName | `${SwapperName} • ${string}`
@@ -369,6 +370,21 @@ export type TradeQuoteStep = {
     data: string
     value: Hex
     gasLimit: string
+  }
+  sunioTransactionMetadata?: {
+    route: {
+      amountIn: string
+      amountOut: string
+      inUsd: string
+      outUsd: string
+      impact: string
+      fee: string
+      tokens: string[]
+      symbols: string[]
+      poolFees: string[]
+      poolVersions: string[]
+      stepAmountsOut: string[]
+    }
   }
 }
 

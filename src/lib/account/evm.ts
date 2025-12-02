@@ -110,6 +110,7 @@ export const deriveEvmAccountIdsAndMetadata: DeriveAccountIdsAndMetadata = async
 
   const result: AccountMetadataById = {}
   for (const chainId of chainIds) {
+    console.log('[EVM Account Derivation] Processing chainId:', chainId)
     if (chainId === ethChainId && !supportsETH(wallet)) continue
     if (chainId === avalancheChainId && !supportsAvalanche(wallet)) continue
     if (chainId === optimismChainId && !supportsOptimism(wallet)) continue
@@ -119,8 +120,15 @@ export const deriveEvmAccountIdsAndMetadata: DeriveAccountIdsAndMetadata = async
     if (chainId === arbitrumChainId && !supportsArbitrum(wallet)) continue
     if (chainId === arbitrumNovaChainId && !supportsArbitrumNova(wallet)) continue
     if (chainId === baseChainId && !supportsBase(wallet)) continue
-    if (chainId === monadChainId && !supportsMonad(wallet)) continue
-    if (chainId === hyperEvmChainId && !supportsHyperEvm(wallet)) continue
+    if (chainId === monadChainId && !supportsMonad(wallet)) {
+      console.log('[EVM Account Derivation] Skipping Monad - wallet does not support')
+      continue
+    }
+    if (chainId === hyperEvmChainId && !supportsHyperEvm(wallet)) {
+      console.log('[EVM Account Derivation] Skipping HyperEVM - wallet does not support')
+      continue
+    }
+    console.log('[EVM Account Derivation] Deriving account for chainId:', chainId)
     if (
       wallet instanceof MetaMaskMultiChainHDWallet &&
       !canAddMetaMaskAccount({ accountNumber, chainId, wallet, isSnapInstalled })

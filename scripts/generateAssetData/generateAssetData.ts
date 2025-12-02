@@ -33,6 +33,7 @@ import { ASSET_DATA_PATH, RELATED_ASSET_INDEX_PATH } from './constants'
 import * as ethereum from './ethereum'
 import { generateRelatedAssetIndex } from './generateRelatedAssetIndex/generateRelatedAssetIndex'
 import * as gnosis from './gnosis'
+import * as hyperevm from './hyperevm'
 import * as monad from './monad'
 import * as optimism from './optimism'
 import { overrideAssets } from './overrides'
@@ -53,6 +54,7 @@ const generateAssetData = async () => {
   const arbitrumNovaAssets = await arbitrumNova.getAssets()
   const baseAssets = await base.getAssets()
   const monadAssets = await monad.getAssets()
+  const hyperevmAssets = await hyperevm.getAssets()
   const solanaAssets = await solana.getAssets()
   const tronAssets = await tronModule.getAssets()
   const suiAssets = await sui.getAssets()
@@ -79,6 +81,7 @@ const generateAssetData = async () => {
     ...arbitrumNovaAssets,
     ...baseAssets,
     ...monadAssets,
+    ...hyperevmAssets,
     ...solanaAssets,
     ...tronAssets,
     ...suiAssets,

@@ -44,7 +44,7 @@ export enum CoingeckoAssetPlatform {
   ArbitrumNova = 'arbitrum-nova',
   Base = 'base',
   Monad = 'monad',
-  HyperEvm = 'hyperliquid',
+  HyperEvm = 'hyperevm',
   Solana = 'solana',
   Tron = 'tron',
   Sui = 'sui',

@@ -204,12 +204,7 @@ export const sunioApi: SwapperApi = {
         return createDefaultStatusResponse(txHash)
       }
 
-      const status =
-        tx.ret?.[0]?.contractRet === 'SUCCESS'
-          ? TxStatus.Confirmed
-          : tx.ret?.[0]?.contractRet === 'REVERT'
-          ? TxStatus.Failed
-          : TxStatus.Pending
+      const status = tx.status
 
       return {
         status,

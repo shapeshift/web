@@ -632,6 +632,7 @@ export type CheckTradeStatusInput = {
   UtxoSwapperDeps &
   CosmosSdkSwapperDeps &
   SolanaSwapperDeps &
+  TronSwapperDeps &
   SuiSwapperDeps
 
 export type TradeStatus = {

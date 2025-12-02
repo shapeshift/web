@@ -82,13 +82,13 @@ export const sunioApi: SwapperApi = {
       { type: 'uint256[]', value: routeParams.versionLen },
       { type: 'uint24[]', value: routeParams.fees },
       {
-        type: 'tuple',
-        value: {
-          amountIn: routeParams.swapData.amountIn,
-          amountOutMin: routeParams.swapData.amountOutMin,
-          to: tronWeb.address.toHex(routeParams.swapData.recipient),
-          deadline: routeParams.swapData.deadline,
-        },
+        type: 'tuple(uint256,uint256,address,uint256)',
+        value: [
+          routeParams.swapData.amountIn,
+          routeParams.swapData.amountOutMin,
+          tronWeb.address.toHex(routeParams.swapData.recipient),
+          routeParams.swapData.deadline,
+        ],
       },
     ]
 

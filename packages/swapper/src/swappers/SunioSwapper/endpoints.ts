@@ -172,17 +172,34 @@ export const sunioApi: SwapperApi = {
   checkTradeStatus: async ({ txHash, assertGetTronChainAdapter }) => {
     try {
       const adapter = assertGetTronChainAdapter(tronChainId)
-      const tx = await adapter.httpProvider.getTransaction({ txid: txHash })
+      const rpcUrl = (adapter as any).rpcUrl
 
-      if (tx && tx.confirmations > 0) {
-        return {
-          status: TxStatus.Confirmed,
-          buyTxHash: txHash,
-          message: undefined,
-        }
+      const response = await fetch(`${rpcUrl}/wallet/gettransactionbyid`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ value: txHash, visible: true }),
+      })
+
+      if (!response.ok) {
+        return createDefaultStatusResponse(txHash)
       }
 
-      return createDefaultStatusResponse(txHash)
+      const tx = await response.json()
+
+      if (!tx || !tx.txID) {
+        return createDefaultStatusResponse(txHash)
+      }
+
+      const contractRet = tx.ret?.[0]?.contractRet
+
+      const status =
+        contractRet === 'SUCCESS' ? TxStatus.Confirmed : contractRet === 'REVERT' ? TxStatus.Failed : TxStatus.Pending
+
+      return {
+        status,
+        buyTxHash: txHash,
+        message: undefined,
+      }
     } catch (error) {
       console.error('[Sun.io] Error checking trade status:', error)
       return createDefaultStatusResponse(txHash)

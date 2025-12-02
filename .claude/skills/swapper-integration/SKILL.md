@@ -169,9 +169,6 @@ Pick 2-3 similar swappers and read their implementations:
 #### Step 4: Read supporting documentation
 
 Consult the skill's reference materials:
-- `@reference.md` - General swapper architecture and patterns
-- `@common-gotchas.md` - Critical bugs to avoid
-- `@examples.md` - Code templates
 
 ---
 
@@ -202,7 +199,6 @@ Create `packages/swapper/src/swappers/[SwapperName]Swapper/`
         └── helpers.ts
 ```
 
-**Check** `@examples.md` for structure templates.
 
 #### Step 2: Implement core files
 
@@ -219,7 +215,6 @@ Create `packages/swapper/src/swappers/[SwapperName]Swapper/`
 9. **`[SwapperName]Swapper.ts`**: Main swapper class
 10. **`index.ts`**: Exports
 
-**Refer to** `@examples.md` for code templates. **Copy patterns** from similar existing swappers.
 
 #### Step 3: Add Swapper-Specific Metadata (ONLY if needed)
 
@@ -479,7 +474,6 @@ Update these files to register your new swapper:
 
 #### Step 4: Check common gotchas
 
-**Before testing**, review `@common-gotchas.md` to avoid known bugs:
 - Slippage format issues
 - Address checksumming
 - Hex value conversion
@@ -516,7 +510,6 @@ yarn build:swapper
 - [ ] UI shows swapper correctly
 - [ ] Feature flag toggles swapper on/off
 
-See `@reference.md` for detailed testing strategies.
 
 ---
 
@@ -556,14 +549,10 @@ Integration is complete when:
 
 ## Reference Files
 
-- `@reference.md` - Swapper architecture and patterns
-- `@examples.md` - Code templates
-- `@common-gotchas.md` - Critical bugs to avoid
 
 ## Need Help?
 
 If stuck:
 1. Read similar swapper implementations
-2. Check `@common-gotchas.md` for your specific issue
 3. Grep for similar patterns in existing swappers
 4. Ask user for clarification on API behavior

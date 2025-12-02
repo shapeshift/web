@@ -1,7 +1,13 @@
 import { SuiClient } from '@mysten/sui/client'
 import { Transaction } from '@mysten/sui/transactions'
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
-import { ASSET_REFERENCE, suiAssetId, suiChainId } from '@shapeshiftoss/caip'
+import {
+  ASSET_NAMESPACE,
+  ASSET_REFERENCE,
+  suiAssetId,
+  suiChainId,
+  toAssetId,
+} from '@shapeshiftoss/caip'
 import type { HDWallet, SuiWallet } from '@shapeshiftoss/hdwallet-core'
 import { supportsSui } from '@shapeshiftoss/hdwallet-core'
 import type { Bip44Params, RootBip44Params } from '@shapeshiftoss/types'
@@ -111,15 +117,84 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SuiMainnet> {
 
   async getAccount(pubkey: string): Promise<Account<KnownChainIds.SuiMainnet>> {
     try {
-      const balance = await this.client.getBalance({ owner: pubkey })
+      const [nativeBalance, allBalances] = await Promise.all([
+        this.client.getBalance({ owner: pubkey }),
+        this.client.getAllBalances({ owner: pubkey }),
+      ])
+
+      const nonZeroBalances = allBalances.filter(balance => {
+        const isSuiNative = balance.coinType === '0x2::sui::SUI'
+        return !isSuiNative && balance.totalBalance !== '0'
+      })
+
+      const tokens = await Promise.all(
+        nonZeroBalances.map(async balance => {
+          const symbol = balance.coinType.split('::').pop() ?? 'UNKNOWN'
+
+          // Normalize coinType to ensure proper format with leading zeros
+          // SUI addresses should be 66 chars (0x + 64 hex chars)
+          const normalizeCoinType = (coinType: string): string => {
+            const parts = coinType.split('::')
+            if (parts.length < 2) return coinType
+
+            const address = parts[0]
+            if (!address.startsWith('0x')) return coinType
+
+            // Pad address to 66 characters (0x + 64 hex digits)
+            const hexPart = address.slice(2)
+            const paddedHex = hexPart.padStart(64, '0')
+            parts[0] = `0x${paddedHex}`
+
+            return parts.join('::')
+          }
+
+          const normalizedCoinType = normalizeCoinType(balance.coinType)
+
+          const assetId = toAssetId({
+            chainId: this.chainId,
+            assetNamespace: ASSET_NAMESPACE.suiCoin,
+            assetReference: normalizedCoinType,
+          })
+
+          try {
+            const metadata = await this.client.getCoinMetadata({ coinType: balance.coinType })
+
+            if (!metadata) {
+              return {
+                assetId,
+                balance: balance.totalBalance,
+                symbol,
+                name: balance.coinType,
+                precision: 0,
+              }
+            }
+
+            return {
+              assetId,
+              balance: balance.totalBalance,
+              symbol: metadata.symbol ?? symbol,
+              name: metadata.name ?? balance.coinType,
+              precision: metadata.decimals ?? 0,
+            }
+          } catch (err) {
+            return {
+              assetId,
+              balance: balance.totalBalance,
+              symbol,
+              name: balance.coinType,
+              precision: 0,
+            }
+          }
+        }),
+      )
 
       return {
-        balance: balance.totalBalance,
+        balance: nativeBalance.totalBalance,
         chainId: this.chainId,
         assetId: this.assetId,
         chain: this.getType(),
         chainSpecific: {
-          tokens: [],
+          tokens,
         },
         pubkey,
       }
@@ -172,17 +247,27 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SuiMainnet> {
       tx.setSender(from)
 
       if (gasBudget) {
-        tx.setGasBudget(BigInt(gasBudget))
+        tx.setGasBudget(Number(gasBudget))
       }
 
       if (gasPrice) {
-        tx.setGasPrice(BigInt(gasPrice))
+        tx.setGasPrice(Number(gasPrice))
       }
 
       if (tokenId) {
-        // Token transfer transaction
-        const [coin] = tx.splitCoins(tx.object(tokenId), [value])
-        tx.transferObjects([coin], to)
+        // Token transfer transaction - tokenId is the coin type (e.g., 0x...::module::Type)
+        // We need to get coin objects of this type owned by the sender
+        const coins = await this.client.getCoins({
+          owner: from,
+          coinType: tokenId,
+        })
+
+        if (!coins.data || coins.data.length === 0) {
+          throw new Error(`No coins found for type ${tokenId}`)
+        }
+
+        const [coinToSend] = tx.splitCoins(tx.object(coins.data[0].coinObjectId), [value])
+        tx.transferObjects([coinToSend], to)
       } else {
         // Native SUI transfer
         const [coin] = tx.splitCoins(tx.gas, [value])
@@ -350,12 +435,45 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SuiMainnet> {
       const { to, value, chainSpecific } = input
       const { from, tokenId } = chainSpecific
 
+      const gasPrice = await this.client.getReferenceGasPrice()
+
+      if (tokenId && tokenId.startsWith('0x') && tokenId.includes('::')) {
+        const estimatedGas = 50_000_000n
+        const gasBudget = ((estimatedGas * 120n) / 100n).toString()
+        const txFee = estimatedGas.toString()
+
+        return {
+          fast: {
+            txFee,
+            chainSpecific: { gasBudget, gasPrice: gasPrice.toString() },
+          },
+          average: {
+            txFee,
+            chainSpecific: { gasBudget, gasPrice: gasPrice.toString() },
+          },
+          slow: {
+            txFee,
+            chainSpecific: { gasBudget, gasPrice: gasPrice.toString() },
+          },
+        }
+      }
+
       const tx = new Transaction()
 
       tx.setSender(from)
 
       if (tokenId) {
-        const [coin] = tx.splitCoins(tx.object(tokenId), [value])
+        // Token transfer - get coin objects for this token type
+        const coins = await this.client.getCoins({
+          owner: from,
+          coinType: tokenId,
+        })
+
+        if (!coins.data || coins.data.length === 0) {
+          throw new Error(`No coins found for type ${tokenId}`)
+        }
+
+        const [coin] = tx.splitCoins(tx.object(coins.data[0].coinObjectId), [value])
         tx.transferObjects([coin], to)
       } else {
         const [coin] = tx.splitCoins(tx.gas, [value])
@@ -367,8 +485,6 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SuiMainnet> {
       const dryRunResult = await this.client.dryRunTransactionBlock({
         transactionBlock: transactionBytes,
       })
-
-      const gasPrice = await this.client.getReferenceGasPrice()
 
       const computationCost = BigInt(dryRunResult.effects.gasUsed.computationCost)
       const storageCost = BigInt(dryRunResult.effects.gasUsed.storageCost)

@@ -59,7 +59,6 @@ export const useSendActionSubscriber = () => {
 
       const isActive = toast.isActive(txHash)
 
-      // No double-toasty
       if (isActive) return
 
       toast({

@@ -14,6 +14,7 @@ import {
 } from '@shapeshiftoss/caip'
 import { uniq } from 'lodash'
 
+import { getConfig } from '@/config'
 import { getSupportedEvmChainIds } from '@/lib/utils/evm'
 
 export const LEDGER_DEVICE_ID = '0001'
@@ -33,9 +34,9 @@ export const availableLedgerAppAssetIds = [
   thorchainAssetId,
   cosmosAssetId,
   solAssetId,
-  suiAssetId,
+  ...(getConfig().VITE_FEATURE_SUI ? [suiAssetId] : []),
   mayachainAssetId,
-  tronAssetId,
+  ...(getConfig().VITE_FEATURE_TRON ? [tronAssetId] : []),
 ]
 
 export const availableLedgerAppChainIds = availableLedgerAppAssetIds.map(

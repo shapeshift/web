@@ -45,7 +45,7 @@ export const chainIdToRelayChainId = {
   [bscChainId]: bsc.id,
   [tronChainId]: 728126428,
   [monadChainId]: monad.id,
-  [hyperEvmChainId]: 999, // HyperEVM - not in viem yet
+  [hyperEvmChainId]: 999, // HyperEVM - added to viem 2.40.1+ but we define custom chain
 }
 
 export enum RelayStatusMessage {

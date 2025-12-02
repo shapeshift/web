@@ -164,11 +164,8 @@ export const walletSupportsChain = ({
       return supportsBase(wallet)
     case monadChainId:
       return supportsMonad(wallet)
-    case hyperEvmChainId: {
-      const supported = supportsHyperEvm(wallet)
-      console.log('[HyperEVM] Wallet supports HyperEVM:', supported, 'wallet:', wallet?.constructor?.name)
-      return supported
-    }
+    case hyperEvmChainId:
+      return supportsHyperEvm(wallet)
     case cosmosChainId:
       return supportsCosmos(wallet)
     case thorchainChainId:

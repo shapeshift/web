@@ -224,28 +224,32 @@ After determining chain type (EVM or non-EVM), collect remaining details:
 
 ### Step 1.0: Choose Implementation Strategy
 
-**If EVM chain**: ⚡ **SKIP PHASE 1 ENTIRELY!** ⚡ EVM chains are auto-supported by all existing wallets. Jump to Phase 2 (Verdaccio) or Phase 3 (Web Integration).
-**If non-EVM chain**: Continue with Step 1.1 below
+**If EVM chain**: Continue with Step 1.2-EVM below (MINIMAL hdwallet work - ~30 minutes)
+**If non-EVM chain**: Continue with Step 1.1 below (COMPLEX - 1-2 days)
 
-### 🎉 EVM Chains: Zero HDWallet Work Required!
+### ⚡ EVM Chains: Minimal HDWallet Work Required
 
-For EVM-compatible chains (like Monad, HyperEVM, Base), you need **ZERO changes** to hdwallet:
+For EVM-compatible chains (like Monad, HyperEVM, Base), you need **MINIMAL changes** to hdwallet:
 
-**Why?**
-- All EVM chains use the same Ethereum crypto (secp256k1, Keccak256)
-- Native wallet already supports any EVM chain
-- Ledger uses Ethereum app for all EVM chains
-- MetaMask, WalletConnect, etc. all auto-support EVM chains
+**What EVM chains DON'T need:**
+- ❌ No new core interfaces (TronWallet, SuiWallet, etc.)
+- ❌ No crypto adapters (address derivation, signing)
+- ❌ No wallet mixins
+- ✅ Use existing Ethereum crypto (secp256k1, Keccak256)
 
-**What this means:**
-- ❌ No new interfaces to write
-- ❌ No crypto adapters needed
-- ❌ No wallet mixins required
-- ❌ No hdwallet version bumps needed
-- ❌ No Verdaccio publishing needed
-- ✅ Just add chain to Web and you're done!
+**What EVM chains DO need:**
+- ✅ Wallet support flags (`_supportsChainName: boolean`)
+- ✅ Support function (`supportsChainName()`)
+- ✅ Set flags on all wallet implementations (~14 files)
+- ✅ Version bump and Verdaccio publish
 
-**Skip directly to Phase 3 (Web Chain Adapter)** if your chain is EVM-compatible.
+**Why?** Each wallet type (Native, Ledger, MetaMask, etc.) needs to explicitly declare support for the chain, even though the crypto is identical. This enables wallet-specific gating in the UI.
+
+**Reference PRs:**
+- Monad hdwallet: https://github.com/shapeshift/hdwallet/pull/753
+- HyperEVM hdwallet: https://github.com/shapeshift/hdwallet/pull/756
+
+**Time estimate**: 30 minutes for hdwallet + Verdaccio (vs 1-2 days for non-EVM)
 
 ### Step 1.1: Research HDWallet Patterns (Non-EVM Only)
 

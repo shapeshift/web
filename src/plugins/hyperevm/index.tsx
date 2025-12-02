@@ -7,7 +7,6 @@ import { getAssetService } from '@/lib/asset-service'
 import type { Plugins } from '@/plugins/types'
 
 export default function register(): Plugins {
-  console.log('[HyperEVM Plugin] Registering HyperEVM plugin')
   return [
     [
       'hyperevmChainAdapter',
@@ -19,7 +18,6 @@ export default function register(): Plugins {
             [
               KnownChainIds.HyperEvmMainnet,
               () => {
-                console.log('[HyperEVM Plugin] Creating HyperEVM chain adapter')
                 // Get all HyperEVM ERC20 tokens from asset service
                 const assetService = getAssetService()
                 const knownTokens = assetService.assets
@@ -34,8 +32,6 @@ export default function register(): Plugins {
                     name: asset.name,
                     precision: asset.precision,
                   }))
-
-                console.log('[HyperEVM Plugin] Found', knownTokens.length, 'HyperEVM tokens')
 
                 return new hyperevm.ChainAdapter({
                   rpcUrl: getConfig().VITE_HYPEREVM_NODE_URL,

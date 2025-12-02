@@ -20,7 +20,11 @@ import type {
   TradeQuote,
 } from '../../../types'
 import { SwapperName, TradeQuoteError } from '../../../types'
-import { getInputOutputRate, makeSwapErrorRight } from '../../../utils'
+import {
+  createTradeAmountTooSmallErr,
+  getInputOutputRate,
+  makeSwapErrorRight,
+} from '../../../utils'
 import { isNativeEvmAsset } from '../../utils/helpers/helpers'
 import { DEFAULT_QUOTE_DEADLINE_MS, DEFAULT_SLIPPAGE_BPS } from '../constants'
 import type { QuoteResponse } from '../types'
@@ -297,17 +301,31 @@ export const getTradeQuote = async (
   } catch (error) {
     console.error('[NEAR Intents] getTradeQuote error:', error)
 
-    if (
-      error instanceof ApiError &&
-      (error.body?.message === 'tokenIn is not valid' ||
-        error.body?.message === 'tokenOut is not valid')
-    ) {
-      return Err(
-        makeSwapErrorRight({
-          code: TradeQuoteError.UnsupportedTradePair,
-          message: 'Unsupported asset',
-        }),
-      )
+    if (error instanceof ApiError) {
+      if (
+        error.body?.message === 'tokenIn is not valid' ||
+        error.body?.message === 'tokenOut is not valid'
+      ) {
+        return Err(
+          makeSwapErrorRight({
+            code: TradeQuoteError.UnsupportedTradePair,
+            message: 'Unsupported asset',
+          }),
+        )
+      }
+
+      if (error.body?.message?.includes('Amount is too low')) {
+        const match = error.body.message.match(/try at least (\d+)/)
+        if (match) {
+          const minAmountCryptoBaseUnit = match[1]
+          return Err(
+            createTradeAmountTooSmallErr({
+              minAmountCryptoBaseUnit,
+              assetId: sellAsset.assetId,
+            }),
+          )
+        }
+      }
     }
 
     return Err(

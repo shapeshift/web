@@ -30,6 +30,8 @@ import {
   hyperEvmChainId,
   ltcChainId,
   mayachainChainId,
+  monadAssetId,
+  monadChainId,
   optimismAssetId,
   optimismChainId,
   polygonAssetId,
@@ -247,6 +249,20 @@ export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
         }
       }
 
+      if (Object.keys(platforms).includes(CoingeckoAssetPlatform.Monad)) {
+        try {
+          const assetId = toAssetId({
+            chainNamespace: CHAIN_NAMESPACE.Evm,
+            chainReference: CHAIN_REFERENCE.MonadMainnet,
+            assetNamespace: 'erc20',
+            assetReference: platforms[CoingeckoAssetPlatform.Monad],
+          })
+          prev[monadChainId][assetId] = id
+        } catch {
+          // unable to create assetId, skip token
+        }
+      }
+
       return prev
     },
     {
@@ -260,6 +276,7 @@ export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
       [arbitrumNovaChainId]: { [arbitrumNovaAssetId]: 'ethereum' },
       [baseChainId]: { [baseAssetId]: 'ethereum' },
       [hyperEvmChainId]: { [hyperEvmAssetId]: 'hyperliquid' },
+      [monadChainId]: { [monadAssetId]: 'monad' },
       [solanaChainId]: { [solAssetId]: 'solana' },
       [tronChainId]: { [tronAssetId]: 'tron' },
       [suiChainId]: { [suiAssetId]: 'sui' },

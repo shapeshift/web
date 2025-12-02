@@ -1,12 +1,12 @@
 ---
 name: swapper-integration
-description: Integrate new DEX aggregators, swappers, or bridge protocols (like Bebop, Portals, Jupiter, 0x, 1inch, etc.) into ShapeShift Web. Activates when user wants to add, integrate, or implement support for a new swapper. Guides through research, implementation, and testing following established patterns.
-allowed-tools: Read, Write, Edit, Grep, Glob, Bash(yarn test:*), Bash(yarn lint:*), Bash(yarn type-check), Bash(yarn build:*)
+description: Integrate new DEX aggregators, swappers, or bridge protocols (like Bebop, Portals, Jupiter, 0x, 1inch, etc.) into ShapeShift Web. Activates when user wants to add, integrate, or implement support for a new swapper. Guides through research, implementation, and testing following established patterns. (project)
+allowed-tools: Read, Write, Edit, Grep, Glob, WebFetch, WebSearch, Bash(yarn test:*), Bash(yarn lint:*), Bash(yarn type-check), Bash(yarn build:*), Bash(gh pr:*), AskUserQuestion
 ---
 
 # Swapper Integration Skill
 
-You are helping integrate a new DEX aggregator, swapper, or bridge into ShapeShift Web. This skill guides you through the complete process from research to testing.
+You are an expert at integrating DEX aggregators, swappers, and bridge protocols into ShapeShift Web. This skill guides you through the complete process from API research to production-ready implementation.
 
 ## When This Skill Activates
 
@@ -15,175 +15,274 @@ Use this skill when the user wants to:
 - "Add support for [Protocol]"
 - "Implement [DEX] integration"
 - "Add [Aggregator] as a swapper"
+- "Integrate [new swapper]"
 
 ## Overview
 
-ShapeShift Web supports multiple swap aggregators through a unified swapper interface located in `packages/swapper/src/swappers/`. Each swapper follows consistent patterns, but has variations based on its type (EVM, Solana, cross-chain, gasless, etc.).
+ShapeShift Web is a decentralized crypto exchange aggregator that supports multiple swap providers through a unified interface. Each swapper implements standardized TypeScript interfaces (`Swapper` and `SwapperApi`) but has variations based on blockchain type (EVM, UTXO, Solana, Sui, Tron) and swapper model (direct transaction, deposit-to-address, gasless order-based).
 
-**Your task**: Research existing swappers to understand patterns, then adapt them for the new integration.
+**Core Architecture**:
+- **Location**: `packages/swapper/src/swappers/`
+- **Interfaces**: `Swapper` (execution) + `SwapperApi` (quotes/rates/status)
+- **Types**: Strongly typed with chain-specific adaptations
+- **Feature Flags**: All swappers behind runtime flags for gradual rollout
+
+**Your Role**: Research → Implement → Test → Document, following battle-tested patterns from 13+ existing swapper integrations.
+
+---
 
 ## Workflow
 
-### Phase 1: Information Gathering
+### Phase 0: Pre-Research (Use WebFetch / WebSearch)
 
-Before starting implementation, collect ALL required information from the user.
+**BEFORE asking the user for anything**, proactively research the swapper online:
 
-**Use the `AskUserQuestion` tool to interactively gather this information with structured prompts.**
+1. **Search for official documentation**:
+   ```
+   Search: "[SwapperName] API documentation"
+   Search: "[SwapperName] developer docs"
+   Search: "[SwapperName] swagger api"
+   ```
 
-**Ask the user for:**
+2. **Find their website and look for**:
+   - API docs link
+   - Developer portal
+   - GitHub repos with examples
+   - Public API endpoints
+   - Known integrations
 
-1. **API Documentation**
-   - Link to official API documentation (main docs)
-   - Link to Swagger/OpenAPI specification (separate link, if available)
-   - API base URL
-   - Authentication method (API key? signature? none?)
-   - **If API key needed**: Obtain production API key to add to `.env.base`
-   - Rate limiting details
-
-2. **Supported Networks**
-   - Which blockchains (Ethereum, Polygon, Arbitrum, Solana, etc.)?
-   - Any network-specific limitations?
-   - Chain naming convention (e.g., "ethereum" vs "1" vs "mainnet")
-
-3. **API Behavior**
-   - **CRITICAL**: How does slippage work? (percentage like 1=1%? decimal like 0.01=1%? basis points like 100=1%?)
-   - Does it require checksummed addresses?
-   - How are native tokens handled? (special marker address? omit field?)
-   - Minimum/maximum trade amounts?
-   - Quote expiration time?
-
-4. **Brand Assets**
-   - Official swapper name (exact capitalization)
-   - Logo/icon file or link (PNG preferred, 128x128 or larger)
-   - Brand colors (optional)
-
-5. **Reference Materials** (helpful but optional)
-   - Example integrations on GitHub
-   - Sample curl requests + responses from their dApp
-   - Known quirks or gotchas
-   - Community/support contact
-
-**Action**: Stop and gather this information before proceeding. Missing details cause bugs later.
-
----
-
-### Phase 2: Research & Understanding
-
-**IMPORTANT**: Don't guess at implementation details. Research thoroughly before coding.
-
-#### Step 0: Study the API Documentation
-
-**Before looking at code**, understand the swapper's API:
-
-1. **Read the official docs** (link from Phase 1)
-   - How does the API work?
-   - What endpoints are available?
-   - What's the request/response format?
-   - Any special requirements or quirks?
-
-2. **Study the Swagger/OpenAPI spec** (if available)
-   - Exact request parameters
-   - Response schema
-   - Error formats
+3. **Fetch their API docs** using `WebFetch`:
+   - Main documentation page
+   - Swagger/OpenAPI spec (if available)
    - Example requests/responses
 
-3. **Key things to verify**:
-   - How is slippage formatted in requests?
-   - Are addresses checksummed in examples?
-   - How are native tokens represented?
-   - What does a successful quote response look like?
-   - What error responses can occur?
+4. **Research chain support**:
+   ```
+   Search: "[SwapperName] supported chains"
+   Search: "[SwapperName] which blockchains"
+   ```
 
-**Try making a test curl request** if possible to see real responses.
+5. **Find existing integrations**:
+   ```
+   Search: "github [SwapperName] integration example"
+   Search: "[SwapperName] typescript sdk"
+   ```
 
-#### Step 1: Explore Existing Swappers
-
-Now that you understand the API, see how existing swappers work:
-
-#### Step 1: Explore the swappers directory
-
-```bash
-# List all existing swappers
-ls packages/swapper/src/swappers/
-```
-
-You'll see swappers like:
-- BebopSwapper
-- ZrxSwapper
-- CowSwapper
-- PortalsSwapper
-- JupiterSwapper
-- ThorchainSwapper
-- And others...
-
-#### Step 2: Identify similar swappers
-
-Based on what you gathered in Phase 1, determine which swapper type yours is:
-
-**EVM Single-Hop** (most common):
-- Same-chain swaps only
-- Standard transaction signing
-- Examples: BebopSwapper, ZrxSwapper, PortalsSwapper
-
-**Gasless / Order-Based**:
-- Sign message instead of transaction
-- No gas fees
-- Examples: CowSwapper
-
-**Solana-Only**:
-- Solana ecosystem
-- Different execution model
-- Examples: JupiterSwapper
-
-**Cross-Chain / Multi-Hop**:
-- Bridge or cross-chain swaps
-- May have multiple steps
-- Examples: ThorchainSwapper, ChainflipSwapper
-
-**Bridge-Specific**:
-- Focus on bridging, not swapping
-- Examples: ArbitrumBridgeSwapper, RelaySwapper
-
-#### Step 3: Study similar swappers
-
-Pick 2-3 similar swappers and read their implementations:
-
-```
-# Example: If building an EVM aggregator, study these:
-@packages/swapper/src/swappers/BebopSwapper/BebopSwapper.ts
-@packages/swapper/src/swappers/BebopSwapper/endpoints.ts
-@packages/swapper/src/swappers/BebopSwapper/types.ts
-@packages/swapper/src/swappers/BebopSwapper/INTEGRATION.md
-
-@packages/swapper/src/swappers/ZrxSwapper/ZrxSwapper.ts
-@packages/swapper/src/swappers/PortalsSwapper/PortalsSwapper.ts
-```
-
-**Pay attention to:**
-- File structure
-- How they call their APIs
-- How they handle errors
-- How they calculate rates and fees
-- Special handling (checksumming, hex conversion, etc.)
-
-#### Step 4: Read supporting documentation
-
-Consult the skill's reference materials:
-- `@reference.md` - General swapper architecture and patterns
-- `@common-gotchas.md` - Critical bugs to avoid
-- `@examples.md` - Code templates
+**Then**, compile what you found and ask the user ONLY for what you couldn't find or need confirmation on.
 
 ---
 
-### Phase 3: Implementation
+### Phase 1: Information Gathering
 
-Follow the pattern established by similar swappers. Don't reinvent the wheel.
+**Use the `AskUserQuestion` tool to gather missing information with structured prompts.**
 
-#### Step 1: Create directory structure
+Based on your Phase 0 research, ask the user for:
 
-Create `packages/swapper/src/swappers/[SwapperName]Swapper/`
+1. **API Access** (if needed):
+   - API key for production (or staging)
+   - Any authentication requirements you found
+   - Confirmation of API endpoints you discovered
 
-**For most EVM swappers**, create:
+2. **Chain Support Confirmation**:
+   - Verify the chains you found are correct
+   - Ask about any limitations or special requirements per chain
+   - Confirm chain naming convention (ethereum vs 1 vs mainnet)
+
+3. **Critical API Behaviors** (if not clear from docs):
+   - **Slippage format**: percentage (1=1%), decimal (0.01=1%), or basis points (100=1%)?
+   - **Address format**: checksummed required?
+   - **Native token handling**: marker address? which one?
+   - Min/max trade amounts?
+   - Quote expiration time?
+
+4. **Brand Assets**:
+   - Confirm official name and capitalization
+   - Request logo/icon (128x128+ PNG preferred)
+
+5. **Known Issues**:
+   - Any quirks they're aware of?
+   - Previous integration attempts or examples?
+
+**Example Multi-Question Prompt**:
+```typescript
+AskUserQuestion({
+  questions: [
+    {
+      question: "Do we have an API key for [Swapper]?",
+      header: "API Key",
+      multiSelect: false,
+      options: [
+        { label: "Yes, I have it", description: "I'll provide the API key" },
+        { label: "No, but we can get one", description: "I'll obtain an API key" },
+        { label: "No API key needed", description: "API is public/unauthenticated" }
+      ]
+    },
+    {
+      question: "Which chains should we support initially?",
+      header: "Chain Support",
+      multiSelect: true,
+      options: [
+        { label: "Ethereum", description: "Ethereum mainnet" },
+        { label: "Polygon", description: "Polygon PoS" },
+        { label: "Arbitrum", description: "Arbitrum One" },
+        { label: "All supported chains", description: "Enable all chains the API supports" }
+      ]
+    }
+  ]
+})
+```
+
+---
+
+### Phase 2: Deep Research & Pattern Analysis
+
+**IMPORTANT**: Study existing swappers BEFORE writing any code. This prevents reimplementing solved problems.
+
+#### Step 1: Identify Swapper Category
+
+Based on API research, determine the swapper type:
+
+**EVM Direct Transaction** (Most Common):
+- Characteristics: Single EVM chain, returns transaction data, user signs & broadcasts
+- Examples: Bebop, 0x, Portals
+- Key Files: `bebopTransactionMetadata`, `zrxTransactionMetadata`, `portalsTransactionMetadata`
+- **Choose this if**: API returns `{to, data, value, gas}` transaction object
+
+**Deposit-to-Address (Cross-Chain/Async)**:
+- Characteristics: User sends to deposit address, swapper handles execution asynchronously
+- Examples: Chainflip, NEAR Intents, THORChain
+- Key Files: Uses `[swapper]Specific` metadata with `depositAddress`
+- **Choose this if**: API returns deposit address and swap ID for tracking
+
+**Gasless Order-Based**:
+- Characteristics: Sign message not transaction, relayer executes, no gas
+- Examples: CowSwap
+- Key Files: Uses `cowswapQuoteResponse`, custom `executeEvmMessage`
+- **Choose this if**: Uses EIP-712 message signing + order submission
+
+**Solana-Only**:
+- Characteristics: Solana transaction with instructions and ALTs
+- Examples: Jupiter
+- Key Files: `jupiterQuoteResponse`, `solanaTransactionMetadata`
+- **Choose this if**: Solana ecosystem only
+
+**Chain-Specific (Sui/Tron/etc.)**:
+- Characteristics: Custom transaction format for specific blockchain
+- Examples: Cetus (Sui)
+- Key Files: Chain-specific adapters and transaction metadata
+- **Choose this if**: Non-EVM, non-Solana blockchain with custom SDK
+
+#### Step 2: Study 2-3 Similar Swappers IN DEPTH
+
+**Read these files for your chosen swapper type**:
+
+```bash
+# For EVM Direct Transaction (e.g., Bebop):
+packages/swapper/src/swappers/BebopSwapper/
+├── BebopSwapper.ts                # Swapper interface (usually just executeEvmTransaction)
+├── endpoints.ts                   # SwapperApi implementation
+├── types.ts                       # API request/response types
+├── getBebopTradeQuote/
+│   └── getBebopTradeQuote.ts     # Quote logic (WITH fee estimation)
+├── getBebopTradeRate/
+│   └── getBebopTradeRate.ts      # Rate logic (withOUT wallet, may use dummy address)
+└── utils/
+    ├── constants.ts               # Supported chains, native marker, defaults
+    ├── bebopService.ts            # HTTP client with cache + API key injection
+    ├── fetchFromBebop.ts          # API wrappers (fetchQuote, fetchPrice)
+    └── helpers/
+        └── helpers.ts             # Validation, rate calc, address helpers
+```
+
+**Read these files for deposit-to-address (e.g., NEAR Intents)**:
+```bash
+packages/swapper/src/swappers/NearIntentsSwapper/
+├── endpoints.ts                   # checkTradeStatus uses depositAddress from metadata
+├── swapperApi/
+│   ├── getTradeQuote.ts          # Stores depositAddress in nearIntentsSpecific
+│   └── getTradeRate.ts
+└── utils/
+    ├── oneClickService.ts         # OneClick SDK initialization
+    └── helpers/
+        └── helpers.ts             # Asset mapping, status translation
+```
+
+**Critical things to note while reading**:
+1. How do they call the API? (HTTP service pattern? SDK? Direct axios?)
+2. How do they handle errors? (Monadic `Result<T, SwapErrorRight>` pattern)
+3. How do they calculate rates? (`getInputOutputRate` util vs custom)
+4. What metadata do they store in `TradeQuoteStep`?
+5. How do they validate inputs? (Supported chains? Asset compatibility?)
+6. How do they handle native tokens? (Marker address vs special field)
+7. How do they convert API responses to our types?
+
+#### Step 3: Review Common Patterns
+
+**Read the reference documentation**:
+- `@reference.md` - Architecture, interfaces, universal patterns
+- `@common-gotchas.md` - Critical bugs (slippage format, checksumming, hex conversion)
+- `@examples.md` - Copy-paste templates
+
+**Key Pattern: Monadic Error Handling**
+```typescript
+import { Err, Ok } from '@sniptt/monads'
+import { makeSwapErrorRight } from '../../../utils'
+
+// ALWAYS return Result<T, SwapErrorRight>, NEVER throw
+const result = await someOperation()
+if (result.isErr()) {
+  return Err(makeSwapErrorRight({
+    message: 'What went wrong',
+    code: TradeQuoteError.QueryFailed,
+    details: { context: 'here' }
+  }))
+}
+return Ok(result.unwrap())
+```
+
+**Key Pattern: HTTP Service with Caching**
+```typescript
+import { createCache, makeSwapperAxiosServiceMonadic } from '../../../utils'
+
+const maxAge = 5 * 1000 // 5 seconds
+const cachedUrls = ['/quote', '/price'] // which endpoints to cache
+
+const serviceBase = createCache(maxAge, cachedUrls, {
+  timeout: 10000,
+  headers: {
+    'Accept': 'application/json',
+    'x-api-key': config.VITE_XYZ_API_KEY
+  }
+})
+
+export const xyzService = makeSwapperAxiosServiceMonadic(serviceBase)
+```
+
+**Key Pattern: Rate Calculation**
+```typescript
+import { getInputOutputRate } from '../../../utils'
+
+const rate = getInputOutputRate({
+  sellAmountCryptoBaseUnit,
+  buyAmountCryptoBaseUnit,
+  sellAsset,
+  buyAsset
+})
+```
+
+---
+
+### Phase 3: Implementation (Step by Step)
+
+Follow this EXACT order to avoid rework:
+
+#### Step 1: Create Directory Structure
+
+```bash
+mkdir -p packages/swapper/src/swappers/[SwapperName]Swapper/{get[SwapperName]TradeQuote,get[SwapperName]TradeRate,utils/helpers}
+```
+
+**Standard structure** (EVM swappers):
 ```
 [SwapperName]Swapper/
 ├── index.ts
@@ -202,368 +301,1206 @@ Create `packages/swapper/src/swappers/[SwapperName]Swapper/`
         └── helpers.ts
 ```
 
-**Check** `@examples.md` for structure templates.
+#### Step 2: Implement Files in Order
 
-#### Step 2: Implement core files
+**2a. `types.ts` - API TypeScript Types**
 
-**Order** (follow this sequence):
+Define types EXACTLY matching the API response (log actual API responses to verify!):
 
-1. **`types.ts`**: Define TypeScript interfaces based on API responses
-2. **`utils/constants.ts`**: Supported chains, default slippage, native token markers
-3. **`utils/helpers/helpers.ts`**: Helper functions (validation, rate calculation)
-4. **`utils/[swapperName]Service.ts`**: HTTP service wrapper
-5. **`utils/fetchFrom[SwapperName].ts`**: API fetch functions
-6. **`get[SwapperName]TradeQuote.ts`**: Quote logic
-7. **`get[SwapperName]TradeRate.ts`**: Rate logic
-8. **`endpoints.ts`**: Wire up SwapperApi interface
-9. **`[SwapperName]Swapper.ts`**: Main swapper class
-10. **`index.ts`**: Exports
+```typescript
+import type { Address, Hex } from 'viem'
 
-**Refer to** `@examples.md` for code templates. **Copy patterns** from similar existing swappers.
+// Request types
+export type [Swapper]QuoteRequest = {
+  sellToken: Address
+  buyToken: Address
+  sellAmount: string
+  slippage: number  // NOTE: document what format! (percentage, decimal, basis points)
+  takerAddress: Address
+  receiverAddress?: Address
+  chainId: number
+}
 
-#### Step 3: Add Swapper-Specific Metadata (ONLY if needed)
+// Response types (match API exactly!)
+export type [Swapper]QuoteResponse = {
+  // Copy structure from actual API response
+  buyAmount: string
+  sellAmount: string
+  transaction: {
+    to: Address
+    data: Hex
+    value: Hex
+    gas?: Hex
+  }
+  // ... rest of response
+}
 
-**When is metadata needed?**
-- Deposit-to-address swappers (Chainflip, NEAR Intents) - need deposit address, swap ID for status polling
-- Order-based swappers (CowSwap) - need order ID for status tracking
-- Any swapper that requires tracking state between quote → execution → status polling
+// Constants
+export const [SWAPPER]_SUPPORTED_CHAIN_IDS: Record<number, string> = {
+  1: 'ethereum',
+  137: 'polygon',
+  42161: 'arbitrum',
+  // ...
+}
+```
 
-**When is metadata NOT needed?**
-- Direct transaction swappers (Bebop, 0x, Portals) - transaction is built from quote, no async tracking needed
-- Same-chain aggregators where transaction hash is sufficient for status tracking
-- Most EVM-only swappers that return transaction data directly
+**2b. `utils/constants.ts` - Configuration**
 
-**If your swapper doesn't need async status polling or deposit addresses, skip this step!**
+```typescript
+import type { AssetId, ChainId } from '@shapeshiftoss/caip'
+import { ethChainId, polygonChainId, arbitrumChainId } from '@shapeshiftoss/caip'
+import type { Address } from 'viem'
 
-**Three places to add metadata:**
+export const SUPPORTED_CHAIN_IDS = [
+  ethChainId,
+  polygonChainId,
+  arbitrumChainId,
+] as const
 
-**a. Define types** (`packages/swapper/src/types.ts`):
+export type [Swapper]SupportedChainId = (typeof SUPPORTED_CHAIN_IDS)[number]
 
-Add to `TradeQuoteStep` type:
+// Native token marker (if API uses one)
+export const NATIVE_TOKEN_MARKER = '0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE' as Address
+
+// Dummy address for rates (when no wallet connected)
+export const DUMMY_ADDRESS = '0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045' as Address
+
+// Default slippage if none provided
+export const DEFAULT_SLIPPAGE_PERCENTAGE = '0.5' // 0.5%
+```
+
+**2c. `utils/helpers/helpers.ts` - Helper Functions**
+
+```typescript
+import { fromAssetId, type AssetId } from '@shapeshiftoss/caip'
+import { isToken } from '@shapeshiftoss/utils'
+import { getAddress, type Address } from 'viem'
+import { NATIVE_TOKEN_MARKER, SUPPORTED_CHAIN_IDS } from '../constants'
+
+// Check if chain is supported
+export const isSupportedChainId = (chainId: string): boolean => {
+  return SUPPORTED_CHAIN_IDS.includes(chainId as any)
+}
+
+// Convert assetId to token address (with native token handling)
+export const assetIdToToken = (assetId: AssetId): Address => {
+  if (!isToken(assetId)) {
+    return NATIVE_TOKEN_MARKER // Native token (ETH, MATIC, etc.)
+  }
+  const { assetReference } = fromAssetId(assetId)
+  return getAddress(assetReference) // Checksum ERC20 address
+}
+
+// Convert ShapeShift chainId to API chain identifier
+export const chainIdToChainRef = (chainId: string): string => {
+  switch (chainId) {
+    case ethChainId:
+      return 'ethereum' // or '1' or 'mainnet' depending on API
+    case polygonChainId:
+      return 'polygon'
+    // ...
+    default:
+      throw new Error(`Unsupported chainId: ${chainId}`)
+  }
+}
+
+// Calculate rate from amounts
+import { getInputOutputRate } from '../../../../utils'
+export { getInputOutputRate } // Re-export for use in quote/rate files
+```
+
+**2d. `utils/[swapperName]Service.ts` - HTTP Service**
+
+```typescript
+import { createCache, makeSwapperAxiosServiceMonadic } from '../../../utils'
+import type { SwapperConfig } from '../../../types'
+
+// Cache for 5 seconds (adjust based on API)
+const maxAge = 5 * 1000
+
+// Which endpoints to cache (usually /quote and /price)
+const cachedUrls = ['/quote', '/price']
+
+export const [swapperName]ServiceFactory = (config: SwapperConfig) => {
+  const axiosConfig = {
+    timeout: 10000,
+    headers: {
+      'Accept': 'application/json',
+      'Content-Type': 'application/json',
+      ...(config.VITE_[SWAPPER]_API_KEY && {
+        'x-api-key': config.VITE_[SWAPPER]_API_KEY
+      })
+    }
+  }
+
+  const serviceBase = createCache(maxAge, cachedUrls, axiosConfig)
+  return makeSwapperAxiosServiceMonadic(serviceBase)
+}
+
+export type [Swapper]Service = ReturnType<typeof [swapperName]ServiceFactory>
+```
+
+**2e. `utils/fetchFrom[SwapperName].ts` - API Wrappers**
+
+```typescript
+import { type AssetId } from '@shapeshiftoss/caip'
+import { bn } from '@shapeshiftoss/utils'
+import { Err, Ok, type Result } from '@sniptt/monads'
+import { getAddress, type Address } from 'viem'
+import { makeSwapErrorRight } from '../../../utils'
+import { TradeQuoteError, type SwapErrorRight } from '../../../types'
+import type { [Swapper]Service } from './[swapperName]Service'
+import type { [Swapper]QuoteRequest, [Swapper]QuoteResponse } from '../types'
+import { assetIdToToken, chainIdToChainRef } from './helpers/helpers'
+
+// Base URL for API
+const BASE_URL = 'https://api.[swapper].com'
+
+export type FetchQuoteParams = {
+  sellAssetId: AssetId
+  buyAssetId: AssetId
+  sellAmountCryptoBaseUnit: string
+  chainId: string
+  takerAddress: string
+  receiverAddress: string
+  slippageTolerancePercentageDecimal: string
+  affiliateBps: string
+}
+
+export const fetchQuote = async (
+  params: FetchQuoteParams,
+  service: [Swapper]Service
+): Promise<Result<[Swapper]QuoteResponse, SwapErrorRight>> => {
+  try {
+    const {
+      sellAssetId,
+      buyAssetId,
+      sellAmountCryptoBaseUnit,
+      chainId,
+      takerAddress,
+      receiverAddress,
+      slippageTolerancePercentageDecimal,
+      affiliateBps
+    } = params
+
+    // Convert to API format
+    const sellToken = assetIdToToken(sellAssetId)
+    const buyToken = assetIdToToken(buyAssetId)
+    const chainRef = chainIdToChainRef(chainId)
+
+    // CRITICAL: Convert slippage to API format
+    // ShapeShift format: 0.005 = 0.5%
+    // Check API docs for their format!
+    const slippagePercentage = bn(slippageTolerancePercentageDecimal)
+      .times(100) // If API expects 0.5 for 0.5%
+      .toNumber()
+
+    // Checksum addresses (CRITICAL for many APIs)
+    const checksummedTakerAddress = getAddress(takerAddress)
+    const checksummedReceiverAddress = getAddress(receiverAddress)
+
+    const requestBody: [Swapper]QuoteRequest = {
+      sellToken,
+      buyToken,
+      sellAmount: sellAmountCryptoBaseUnit,
+      slippage: slippagePercentage,
+      takerAddress: checksummedTakerAddress,
+      receiverAddress: checksummedReceiverAddress,
+      chainId: chainRef,
+      // Add affiliate if supported
+      ...(affiliateBps !== '0' && { affiliateBps })
+    }
+
+    const maybeResponse = await service.post<[Swapper]QuoteResponse>(
+      `${BASE_URL}/quote`,
+      requestBody
+    )
+
+    if (maybeResponse.isErr()) {
+      return Err(maybeResponse.unwrapErr())
+    }
+
+    const { data: response } = maybeResponse.unwrap()
+
+    // Validate response has required fields
+    if (!response.buyAmount || !response.transaction) {
+      return Err(
+        makeSwapErrorRight({
+          message: 'Invalid response from API',
+          code: TradeQuoteError.InvalidResponse,
+          details: { response }
+        })
+      )
+    }
+
+    return Ok(response)
+  } catch (error) {
+    return Err(
+      makeSwapErrorRight({
+        message: 'Failed to fetch quote',
+        code: TradeQuoteError.QueryFailed,
+        cause: error
+      })
+    )
+  }
+}
+
+// For rates (no wallet needed)
+export type FetchPriceParams = Omit<FetchQuoteParams, 'takerAddress' | 'receiverAddress'> & {
+  receiveAddress: string | undefined
+}
+
+export const fetchPrice = async (
+  params: FetchPriceParams,
+  service: [Swapper]Service
+): Promise<Result<[Swapper]QuoteResponse, SwapErrorRight>> => {
+  // Use dummy address if no wallet connected
+  const address = params.receiveAddress
+    ? getAddress(params.receiveAddress)
+    : DUMMY_ADDRESS
+
+  // IMPORTANT: Use same affiliate for both quote and rate to avoid delta!
+  return fetchQuote(
+    {
+      ...params,
+      takerAddress: address,
+      receiverAddress: address
+    },
+    service
+  )
+}
+```
+
+**2f. `get[SwapperName]TradeQuote/get[SwapperName]TradeQuote.ts` - Quote Logic**
+
+This is the MEAT of the implementation. It must:
+1. Validate inputs (chain support, asset compatibility)
+2. Fetch quote from API
+3. Estimate network fees using chain adapter
+4. Build complete TradeQuote object with all required fields
+5. Handle errors monadic-ally
+
+```typescript
+import { type AssetId } from '@shapeshiftoss/caip'
+import { bn } from '@shapeshiftoss/utils'
+import { Err, Ok, type Result } from '@sniptt/monads'
+import { makeSwapErrorRight } from '../../../utils'
+import {
+  type CommonTradeQuoteInput,
+  type GetEvmTradeQuoteInput,
+  type SwapErrorRight,
+  type SwapperDeps,
+  type TradeQuote,
+  TradeQuoteError
+} from '../../../types'
+import { fetchQuote } from '../utils/fetchFromBebop'
+import { [swapperName]ServiceFactory } from '../utils/[swapperName]Service'
+import {
+  getInputOutputRate,
+  isSupportedChainId
+} from '../utils/helpers/helpers'
+import { DUMMY_ADDRESS } from '../utils/constants'
+
+export const get[SwapperName]TradeQuote = async (
+  input: GetEvmTradeQuoteInput | CommonTradeQuoteInput,
+  deps: SwapperDeps
+): Promise<Result<TradeQuote, SwapErrorRight>> => {
+  try {
+    const {
+      sellAsset,
+      buyAsset,
+      sellAmountIncludingProtocolFeesCryptoBaseUnit,
+      sendAddress,
+      receiveAddress,
+      accountNumber,
+      affiliateBps,
+      slippageTolerancePercentageDecimal
+    } = input
+
+    const { config, assertGetEvmChainAdapter } = deps
+
+    // Validation: Check chain support
+    if (!isSupportedChainId(sellAsset.chainId)) {
+      return Err(
+        makeSwapErrorRight({
+          message: `[${SwapperName.[SwapperName]}] Unsupported chainId: ${sellAsset.chainId}`,
+          code: TradeQuoteError.UnsupportedChain,
+          details: { chainId: sellAsset.chainId }
+        })
+      )
+    }
+
+    // Validation: Must be same chain
+    if (sellAsset.chainId !== buyAsset.chainId) {
+      return Err(
+        makeSwapErrorRight({
+          message: `[${SwapperName.[SwapperName]}] Cross-chain not supported`,
+          code: TradeQuoteError.CrossChainNotSupported
+        })
+      )
+    }
+
+    // Validation: Prevent executable quotes with dummy address
+    const takerAddress = sendAddress ?? receiveAddress
+    if (takerAddress === DUMMY_ADDRESS) {
+      return Err(
+        makeSwapErrorRight({
+          message: 'Cannot execute trade with dummy address',
+          code: TradeQuoteError.UnknownError
+        })
+      )
+    }
+
+    // Fetch quote from API
+    const service = [swapperName]ServiceFactory(config)
+    const maybeQuoteResponse = await fetchQuote(
+      {
+        sellAssetId: sellAsset.assetId,
+        buyAssetId: buyAsset.assetId,
+        sellAmountCryptoBaseUnit: sellAmountIncludingProtocolFeesCryptoBaseUnit,
+        chainId: sellAsset.chainId,
+        takerAddress,
+        receiverAddress: receiveAddress,
+        slippageTolerancePercentageDecimal:
+          slippageTolerancePercentageDecimal ?? DEFAULT_SLIPPAGE_PERCENTAGE,
+        affiliateBps
+      },
+      service
+    )
+
+    if (maybeQuoteResponse.isErr()) {
+      return Err(maybeQuoteResponse.unwrapErr())
+    }
+
+    const quoteResponse = maybeQuoteResponse.unwrap()
+
+    // Get chain adapter for fee estimation
+    const adapter = assertGetEvmChainAdapter(sellAsset.chainId)
+
+    // Estimate network fees
+    const { average: { gasPrice } } = await adapter.getGasFeeData()
+
+    const networkFeeCryptoBaseUnit = bn(quoteResponse.transaction.gas ?? '0')
+      .times(gasPrice)
+      .toFixed(0)
+
+    // Calculate rate
+    const rate = getInputOutputRate({
+      sellAmountCryptoBaseUnit: sellAmountIncludingProtocolFeesCryptoBaseUnit,
+      buyAmountCryptoBaseUnit: quoteResponse.buyAmount,
+      sellAsset,
+      buyAsset
+    })
+
+    // Build TradeQuote
+    const tradeQuote: TradeQuote = {
+      id: crypto.randomUUID(),
+      quoteOrRate: 'quote',
+      rate,
+      slippageTolerancePercentageDecimal,
+      receiveAddress,
+      affiliateBps,
+      steps: [
+        {
+          buyAmountBeforeFeesCryptoBaseUnit: quoteResponse.buyAmount,
+          buyAmountAfterFeesCryptoBaseUnit: quoteResponse.buyAmount, // or minus protocol fees
+          sellAmountIncludingProtocolFeesCryptoBaseUnit,
+          feeData: {
+            networkFeeCryptoBaseUnit,
+            protocolFees: {}, // or add protocol fees if any
+          },
+          rate,
+          source: SwapperName.[SwapperName],
+          buyAsset,
+          sellAsset,
+          accountNumber,
+          allowanceContract: isNativeEvmAsset(sellAsset.assetId)
+            ? undefined
+            : quoteResponse.approvalTarget, // or constant approval contract
+          estimatedExecutionTimeMs: undefined, // or from API
+          // Store transaction metadata
+          [swapperName]TransactionMetadata: {
+            to: quoteResponse.transaction.to,
+            data: quoteResponse.transaction.data,
+            value: quoteResponse.transaction.value,
+            gas: quoteResponse.transaction.gas
+          }
+        }
+      ],
+      swapperName: SwapperName.[SwapperName]
+    }
+
+    return Ok(tradeQuote)
+  } catch (error) {
+    return Err(
+      makeSwapErrorRight({
+        message: 'Failed to get trade quote',
+        code: TradeQuoteError.UnknownError,
+        cause: error
+      })
+    )
+  }
+}
+```
+
+**2g. `get[SwapperName]TradeRate/get[SwapperName]TradeRate.ts` - Rate Logic**
+
+Similar to quote but:
+- No wallet address required (use dummy or undefined)
+- accountNumber is undefined
+- May skip network fee estimation (or use cached/estimated)
+
+```typescript
+import { Err, Ok, type Result } from '@sniptt/monads'
+import { makeSwapErrorRight } from '../../../utils'
+import {
+  type GetTradeRateInput,
+  type SwapErrorRight,
+  type SwapperDeps,
+  type TradeRate,
+  TradeQuoteError
+} from '../../../types'
+import { fetchPrice } from '../utils/fetchFromBebop'
+import { [swapperName]ServiceFactory } from '../utils/[swapperName]Service'
+import { getInputOutputRate, isSupportedChainId } from '../utils/helpers/helpers'
+import { DEFAULT_SLIPPAGE_PERCENTAGE } from '../utils/constants'
+
+export const get[SwapperName]TradeRate = async (
+  input: GetTradeRateInput,
+  deps: SwapperDeps
+): Promise<Result<TradeRate, SwapErrorRight>> => {
+  try {
+    const {
+      sellAsset,
+      buyAsset,
+      sellAmountIncludingProtocolFeesCryptoBaseUnit,
+      receiveAddress,
+      affiliateBps,
+      slippageTolerancePercentageDecimal
+    } = input
+
+    const { config } = deps
+
+    // Same validation as quote
+    if (!isSupportedChainId(sellAsset.chainId)) {
+      return Err(
+        makeSwapErrorRight({
+          message: `[${SwapperName.[SwapperName]}] Unsupported chainId: ${sellAsset.chainId}`,
+          code: TradeQuoteError.UnsupportedChain
+        })
+      )
+    }
+
+    if (sellAsset.chainId !== buyAsset.chainId) {
+      return Err(
+        makeSwapErrorRight({
+          message: `[${SwapperName.[SwapperName]}] Cross-chain not supported`,
+          code: TradeQuoteError.CrossChainNotSupported
+        })
+      )
+    }
+
+    // Fetch rate (uses dummy address if no receiveAddress)
+    const service = [swapperName]ServiceFactory(config)
+    const maybeRateResponse = await fetchPrice(
+      {
+        sellAssetId: sellAsset.assetId,
+        buyAssetId: buyAsset.assetId,
+        sellAmountCryptoBaseUnit: sellAmountIncludingProtocolFeesCryptoBaseUnit,
+        chainId: sellAsset.chainId,
+        receiveAddress,
+        slippageTolerancePercentageDecimal:
+          slippageTolerancePercentageDecimal ?? DEFAULT_SLIPPAGE_PERCENTAGE,
+        affiliateBps
+      },
+      service
+    )
+
+    if (maybeRateResponse.isErr()) {
+      return Err(maybeRateResponse.unwrapErr())
+    }
+
+    const rateResponse = maybeRateResponse.unwrap()
+
+    // Calculate rate
+    const rate = getInputOutputRate({
+      sellAmountCryptoBaseUnit: sellAmountIncludingProtocolFeesCryptoBaseUnit,
+      buyAmountCryptoBaseUnit: rateResponse.buyAmount,
+      sellAsset,
+      buyAsset
+    })
+
+    // Build TradeRate (similar to quote but accountNumber = undefined)
+    const tradeRate: TradeRate = {
+      id: crypto.randomUUID(),
+      quoteOrRate: 'rate',
+      rate,
+      slippageTolerancePercentageDecimal,
+      receiveAddress,
+      affiliateBps,
+      steps: [
+        {
+          buyAmountBeforeFeesCryptoBaseUnit: rateResponse.buyAmount,
+          buyAmountAfterFeesCryptoBaseUnit: rateResponse.buyAmount,
+          sellAmountIncludingProtocolFeesCryptoBaseUnit,
+          feeData: {
+            networkFeeCryptoBaseUnit: undefined, // Unknown for rate
+            protocolFees: {}
+          },
+          rate,
+          source: SwapperName.[SwapperName],
+          buyAsset,
+          sellAsset,
+          accountNumber: undefined, // CRITICAL: Must be undefined for rate
+          allowanceContract: isNativeEvmAsset(sellAsset.assetId)
+            ? undefined
+            : rateResponse.approvalTarget,
+          estimatedExecutionTimeMs: undefined
+        }
+      ],
+      swapperName: SwapperName.[SwapperName]
+    }
+
+    return Ok(tradeRate)
+  } catch (error) {
+    return Err(
+      makeSwapErrorRight({
+        message: 'Failed to get trade rate',
+        code: TradeQuoteError.UnknownError,
+        cause: error
+      })
+    )
+  }
+}
+```
+
+**2h. `endpoints.ts` - SwapperApi Implementation**
+
+```typescript
+import { isNativeEvmAsset } from '@shapeshiftoss/utils'
+import { bn } from '@shapeshiftoss/utils'
+import { fromHex, type Hex } from 'viem'
+import { checkEvmSwapStatus } from '../../utils'
+import type {
+  CommonTradeQuoteInput,
+  GetEvmTradeQuoteInput,
+  GetTradeRateInput,
+  GetUnsignedEvmTransactionArgs,
+  SwapperApi,
+  SwapperDeps,
+  TradeQuote,
+  TradeRate,
+  TradeQuoteResult,
+  TradeRateResult
+} from '../../types'
+import { get[SwapperName]TradeQuote } from './get[SwapperName]TradeQuote/get[SwapperName]TradeQuote'
+import { get[SwapperName]TradeRate } from './get[SwapperName]TradeRate/get[SwapperName]TradeRate'
+
+export const [swapperName]Api: SwapperApi = {
+  getTradeQuote: async (
+    input: GetEvmTradeQuoteInput | CommonTradeQuoteInput,
+    deps: SwapperDeps
+  ): Promise<TradeQuoteResult> => {
+    const maybeTradeQuote = await get[SwapperName]TradeQuote(input, deps)
+    return maybeTradeQuote.map(quote => [quote])
+  },
+
+  getTradeRate: async (
+    input: GetTradeRateInput,
+    deps: SwapperDeps
+  ): Promise<TradeRateResult> => {
+    const maybeTradeRate = await get[SwapperName]TradeRate(input, deps)
+    return maybeTradeRate.map(rate => [rate])
+  },
+
+  getUnsignedEvmTransaction: async (
+    args: GetUnsignedEvmTransactionArgs
+  ) => {
+    const {
+      tradeQuote,
+      chainId,
+      from,
+      stepIndex,
+      assertGetEvmChainAdapter
+    } = args
+
+    const step = tradeQuote.steps[stepIndex]
+    const metadata = step.[swapperName]TransactionMetadata
+
+    if (!metadata) {
+      throw new Error('Missing transaction metadata')
+    }
+
+    const adapter = assertGetEvmChainAdapter(chainId)
+
+    // Convert hex values to decimal strings (CRITICAL!)
+    const value = metadata.value
+      ? fromHex(metadata.value as Hex, 'bigint').toString()
+      : '0'
+
+    const gasLimit = metadata.gas
+      ? fromHex(metadata.gas as Hex, 'bigint').toString()
+      : undefined
+
+    // Build EVM transaction
+    return {
+      chainId: Number(fromChainId(chainId).chainReference),
+      to: metadata.to,
+      from,
+      data: metadata.data,
+      value,
+      gasLimit, // or use adapter.getFeeData() if not provided
+    }
+  },
+
+  getEvmTransactionFees: async (args: GetUnsignedEvmTransactionArgs) => {
+    const { tradeQuote, chainId, assertGetEvmChainAdapter, stepIndex } = args
+
+    const step = tradeQuote.steps[stepIndex]
+    const adapter = assertGetEvmChainAdapter(chainId)
+
+    // Get current gas price
+    const { average: { gasPrice } } = await adapter.getGasFeeData()
+
+    // Use API gas estimate or node estimate
+    const metadata = step.[swapperName]TransactionMetadata
+    const apiGasEstimate = metadata?.gas
+      ? fromHex(metadata.gas as Hex, 'bigint').toString()
+      : '0'
+
+    // Take max of API and node estimates (with buffer)
+    const networkFeeCryptoBaseUnit = bn
+      .max(step.feeData.networkFeeCryptoBaseUnit ?? '0', apiGasEstimate)
+      .times(1.15) // 15% buffer
+      .toFixed(0)
+
+    return networkFeeCryptoBaseUnit
+  },
+
+  checkTradeStatus: checkEvmSwapStatus // Standard EVM status check
+}
+```
+
+**2i. `[SwapperName]Swapper.ts` - Swapper Interface**
+
+For most EVM swappers, this is simple:
+
+```typescript
+import { executeEvmTransaction } from '../utils'
+import type { Swapper } from '../../types'
+
+export const [swapperName]Swapper: Swapper = {
+  executeEvmTransaction
+}
+```
+
+For deposit-to-address or custom execution, implement custom logic here.
+
+**2j. `index.ts` - Exports**
+
+```typescript
+export { [swapperName]Api } from './endpoints'
+export { [swapperName]Swapper } from './[SwapperName]Swapper'
+export * from './types'
+export * from './utils/constants'
+```
+
+#### Step 3: Add Swapper-Specific Metadata (ONLY if needed!)
+
+**Skip this step if your swapper is a direct transaction swapper** (like Bebop, 0x, Portals).
+
+**Implement this step if**:
+- Swapper uses deposit-to-address model (Chainflip, NEAR Intents)
+- Need to track order IDs or swap IDs between quote and execution
+- Status polling requires data beyond transaction hash
+
+**Three places to modify**:
+
+**a. `packages/swapper/src/types.ts` - Add to TradeQuoteStep**:
 ```typescript
 export type TradeQuoteStep = {
   // ... existing fields
   [swapperName]Specific?: {
     depositAddress: string
-    swapId: number
-    // ... other swapper-specific fields
+    swapId: string | number
+    memo?: string
+    deadline?: string
+    // ... other tracking fields
   }
 }
 ```
 
-Add to `SwapperSpecificMetadata` type (for swap storage):
+**b. `packages/swapper/src/types.ts` - Add to SwapperSpecificMetadata**:
 ```typescript
 export type SwapperSpecificMetadata = {
   chainflipSwapId: number | undefined
-  nearIntentsSpecific?: {
-    depositAddress: string
-    depositMemo?: string
-    timeEstimate: number
-    deadline: string
-  }
-  // Add your swapper's metadata here
+  nearIntentsSpecific?: { ... }
+  // Add your swapper:
   [swapperName]Specific?: {
-    // ... fields needed for status polling
+    depositAddress: string
+    swapId: string | number
+    memo?: string
+    deadline?: string
   }
-  // ... other fields
+  relayTransactionMetadata: RelayTransactionMetadata | undefined
+  // ...
 }
 ```
 
-**b. Populate in quote** (`packages/swapper/src/swappers/[Swapper]/swapperApi/getTradeQuote.ts`):
-
-Store metadata in the TradeQuoteStep:
+**c. Populate in quote** (`get[SwapperName]TradeQuote.ts`):
 ```typescript
 const tradeQuote: TradeQuote = {
-  // ... other fields
+  // ...
   steps: [{
-    // ... step fields
+    // ...
     [swapperName]Specific: {
-      depositAddress: response.depositAddress,
-      swapId: response.id,
-      // ... other data needed later
+      depositAddress: quoteResponse.depositAddress,
+      swapId: quoteResponse.id,
+      memo: quoteResponse.memo,
+      deadline: quoteResponse.deadline
     }
   }]
 }
 ```
 
-**c. Extract into swap** (TWO places required!):
+**d. Extract into swap** (TWO places - BOTH required!):
 
 **Place 1**: `src/components/MultiHopTrade/components/TradeConfirm/hooks/useTradeButtonProps.tsx`
-
-Add to metadata object around line 114-126:
 ```typescript
+// Around line 114-126
 metadata: {
   chainflipSwapId: firstStep?.chainflipSpecific?.chainflipSwapId,
   nearIntentsSpecific: firstStep?.nearIntentsSpecific,
-  // Add your swapper's metadata extraction here:
-  [swapperName]Specific: firstStep?.[swapperName]Specific,
+  [swapperName]Specific: firstStep?.[swapperName]Specific, // ADD THIS
   relayTransactionMetadata: firstStep?.relayTransactionMetadata,
-  stepIndex: currentHopIndex,
-  quoteId: activeQuote.id,
-  streamingSwapMetadata: { ... }
-}
-```
-
-**Place 2**: `src/lib/tradeExecution.ts` (CRITICAL - often forgotten!)
-
-Add to metadata object around line 156-161:
-```typescript
-metadata: {
-  ...swap.metadata,
-  chainflipSwapId: tradeQuote.steps[0]?.chainflipSpecific?.chainflipSwapId,
-  nearIntentsSpecific: tradeQuote.steps[0]?.nearIntentsSpecific,
-  // Add your swapper's metadata extraction here:
-  [swapperName]Specific: tradeQuote.steps[0]?.[swapperName]Specific,
-  relayTransactionMetadata: tradeQuote.steps[0]?.relayTransactionMetadata,
-  stepIndex,
-}
-```
-
-**Why both places?**
-- `useTradeButtonProps` creates the initial swap (before wallet signature)
-- `tradeExecution` updates the swap during execution (after wallet signature, with actual tradeQuote)
-- If you only add to one place, metadata will be missing!
-
-**d. Access in status check** (`packages/swapper/src/swappers/[Swapper]/endpoints.ts`):
-
-```typescript
-checkTradeStatus: async ({ config, swap }) => {
-  const { [swapperName]Specific } = swap?.metadata ?? {}
-
-  if (![swapperName]Specific?.swapId) {
-    throw new Error('swapId is required for status check')
-  }
-
-  // Use metadata to poll API
-  const status = await api.getStatus([swapperName]Specific.swapId)
   // ...
 }
 ```
 
-**Example: NEAR Intents metadata flow**
+**Place 2**: `src/lib/tradeExecution.ts`
+```typescript
+// Around line 156-161
+metadata: {
+  ...swap.metadata,
+  chainflipSwapId: tradeQuote.steps[0]?.chainflipSpecific?.chainflipSwapId,
+  nearIntentsSpecific: tradeQuote.steps[0]?.nearIntentsSpecific,
+  [swapperName]Specific: tradeQuote.steps[0]?.[swapperName]Specific, // ADD THIS
+  relayTransactionMetadata: tradeQuote.steps[0]?.relayTransactionMetadata,
+  // ...
+}
 ```
-1. Quote: Store in step.nearIntentsSpecific.depositAddress
-2. Swap creation: Extract to swap.metadata.nearIntentsSpecific
-3. Status check: Read from swap.metadata.nearIntentsSpecific.depositAddress
+
+**e. Use in status check** (`endpoints.ts`):
+```typescript
+checkTradeStatus: async ({ swap, config }) => {
+  const { [swapperName]Specific } = swap?.metadata ?? {}
+
+  if (![swapperName]Specific?.depositAddress) {
+    throw new Error('Missing depositAddress in swap metadata')
+  }
+
+  // Poll API using metadata
+  const status = await pollSwapStatus(
+    [swapperName]Specific.depositAddress,
+    [swapperName]Specific.swapId,
+    config
+  )
+
+  return {
+    status: mapApiStatusToTxStatus(status.state),
+    buyTxHash: status.outputTxHash,
+    message: status.message
+  }
+}
 ```
 
-#### Step 4: Register the swapper
+#### Step 4: Register the Swapper
 
-Update these files to register your new swapper:
+**4a. `packages/swapper/src/types.ts` - Add Config Fields**
 
-1. **`packages/swapper/src/constants.ts`**
-   - Add to `SwapperName` enum
-   - Add to `swappers` record
-   - Add default slippage
+```typescript
+export type SwapperConfig = {
+  // ... existing fields
+  VITE_[SWAPPER]_API_KEY: string
+  VITE_[SWAPPER]_BASE_URL?: string // if configurable
+}
+```
 
-2. **`packages/swapper/src/index.ts`**
-   - Export new swapper
+**4b. `packages/swapper/src/constants.ts` - Register Swapper**
 
-3. **`packages/swapper/src/types.ts`**
-   - Add API config fields (if not already done in metadata step)
+```typescript
+export enum SwapperName {
+  // ... existing
+  [SwapperName] = '[Display Name]',
+}
 
-4. **CSP Headers** (if swapper calls external API):
-   - Create `headers/csps/defi/swappers/[SwapperName].ts`:
-     ```typescript
-     import type { Csp } from '../../../types'
+export const swappers: Record<SwapperName, { swapper: Swapper; swapperApi: SwapperApi }> = {
+  // ... existing
+  [SwapperName.[SwapperName]]: {
+    swapper: [swapperName]Swapper,
+    swapperApi: [swapperName]Api
+  }
+}
 
-     export const csp: Csp = {
-       'connect-src': ['https://api.[swapper].com'],
-     }
-     ```
-   - Register in `headers/csps/index.ts`:
-     ```typescript
-     import { csp as [swapperName] } from './defi/swappers/[SwapperName]'
+export const DEFAULT_SLIPPAGE_DECIMAL_PERCENTAGE_BY_SWAPPER: Record<
+  SwapperName,
+  string | undefined
+> = {
+  // ... existing
+  [SwapperName.[SwapperName]]: '0.005', // 0.5%
+}
+```
 
-     export const csps = [
-       // ... other csps
-       [swapperName],
-     ]
-     ```
+**4c. `packages/swapper/src/index.ts` - Export**
 
-5. **UI Integration** (`src/`):
+```typescript
+export { [swapperName]Api, [swapperName]Swapper } from './swappers/[SwapperName]Swapper'
+```
 
-   **a. Add swapper icon:**
-   - Place icon file at: `src/components/MultiHopTrade/components/TradeInput/components/SwapperIcon/[swapper]-icon.png`
-   - Recommended: 128x128 PNG with transparent background
+**4d. CSP Headers** (if swapper calls external API)
 
-   **b. Update SwapperIcon component:**
-   - File: `src/components/MultiHopTrade/components/TradeInput/components/SwapperIcon/SwapperIcon.tsx`
-   - Import icon: `import [swapperName]Icon from './[swapper]-icon.png'`
-   - Add case to switch statement:
-     ```typescript
-     case SwapperName.[SwapperName]:
-       return <Image src={[swapperName]Icon} />
-     ```
+Create `headers/csps/defi/swappers/[SwapperName].ts`:
+```typescript
+import type { Csp } from '../../../types'
 
-   **c. Add feature flag (REQUIRED):**
-   - File: `src/state/slices/preferencesSlice/preferencesSlice.ts`
-   - Add to `FeatureFlags` type:
-     ```typescript
-     export type FeatureFlags = {
-       // ...
-       [SwapperName]Swap: boolean
-     }
-     ```
-   - Add to initial state:
-     ```typescript
-     const initialState: Preferences = {
-       featureFlags: {
-         // ...
-         [SwapperName]Swap: getConfig().VITE_FEATURE_[SWAPPER]_SWAP,
-       }
-     }
-     ```
+export const csp: Csp = {
+  'connect-src': [
+    'https://api.[swapper].com',
+    'https://api.[swapper].io', // add all API domains
+  ]
+}
+```
 
-   **d. Wire up feature flag:**
-   - File: `src/state/helpers.ts`
-   - Add to `isCrossAccountTradeSupported` function parameter and switch statement (if swapper supports cross-account)
-   - Add to `getEnabledSwappers` function:
-     ```typescript
-     export const getEnabledSwappers = (
-       {
-         [SwapperName]Swap,  // Add to destructured parameters
-         ...otherFlags
-       }: FeatureFlags,
-       ...
-     ): Record<SwapperName, boolean> => {
-       return {
-         // ...
-         [SwapperName.[SwapperName]]:
-           [SwapperName]Swap && (!isCrossAccountTrade || isCrossAccountTradeSupported(SwapperName.[SwapperName])),
-       }
-     }
-     ```
+Register in `headers/csps/index.ts`:
+```typescript
+import { csp as [swapperName] } from './defi/swappers/[SwapperName]'
 
-   **e. Update test mocks (REQUIRED):**
-   - File: `src/test/mocks/store.ts`
-   - Add feature flag to mock featureFlags object:
-     ```typescript
-     featureFlags: {
-       // ... other flags
-       [SwapperName]Swap: false,
-     }
-     ```
+export const csps = [
+  // ... other csps
+  [swapperName],
+]
+```
 
-6. **Configuration**:
+**4e. UI - Feature Flag**
 
-   **Environment variables** - Follow naming conventions (e.g., Bebop):
+Add to `src/state/slices/preferencesSlice/preferencesSlice.ts`:
+```typescript
+export type FeatureFlags = {
+  // ... existing
+  [SwapperName]Swap: boolean
+}
 
-   **`.env`** (base/production - both API key and feature flag OFF):
-   ```bash
-   # Bebop
-   VITE_BEBOP_API_KEY=
-   VITE_FEATURE_BEBOP_SWAP=false
-   ```
+const initialState: Preferences = {
+  featureFlags: {
+    // ... existing
+    [SwapperName]Swap: getConfig().VITE_FEATURE_[SWAPPER]_SWAP
+  }
+}
+```
 
-   **`.env.development`** (development - feature flag ON):
-   ```bash
-   # Bebop
-   VITE_BEBOP_API_KEY=your-dev-api-key-here
-   VITE_FEATURE_BEBOP_SWAP=true
-   ```
+**4f. Wire Feature Flag** in `src/state/helpers.ts`
 
-   **Naming pattern**:
-   - API key: `VITE_[SWAPPER]_API_KEY` (in both `.env` and `.env.development`)
-   - Feature flag: `VITE_FEATURE_[SWAPPER]_SWAP` (`.env` = false, `.env.development` = true)
-   - Other config: `VITE_[SWAPPER]_BASE_URL` (if needed, both files)
-   - **Config file** (`src/config.ts`):
-     ```typescript
-     export const getConfig = (): Config => ({
-       // ...
-       VITE_[SWAPPER]_API_KEY: import.meta.env.VITE_[SWAPPER]_API_KEY || '',
-       VITE_[SWAPPER]_BASE_URL: import.meta.env.VITE_[SWAPPER]_BASE_URL || '',
-       VITE_FEATURE_[SWAPPER]_SWAP: parseBoolean(import.meta.env.VITE_FEATURE_[SWAPPER]_SWAP),
-     })
-     ```
+Add to `isCrossAccountTradeSupported` (if supported):
+```typescript
+export const isCrossAccountTradeSupported = (swapperName: SwapperName): boolean => {
+  switch (swapperName) {
+    case SwapperName.[SwapperName]:
+      return true // or false if not supported
+    // ...
+  }
+}
+```
 
-#### Step 4: Check common gotchas
+Add to `getEnabledSwappers`:
+```typescript
+export const getEnabledSwappers = (
+  {
+    [SwapperName]Swap, // ADD THIS
+    ...otherFlags
+  }: FeatureFlags,
+  isCrossAccountTrade: boolean
+): Record<SwapperName, boolean> => {
+  return {
+    // ... existing
+    [SwapperName.[SwapperName]]:
+      [SwapperName]Swap &&
+      (!isCrossAccountTrade || isCrossAccountTradeSupported(SwapperName.[SwapperName]))
+  }
+}
+```
 
-**Before testing**, review `@common-gotchas.md` to avoid known bugs:
-- Slippage format issues
-- Address checksumming
-- Hex value conversion
-- Response parsing errors
-- Rate vs quote affiliate fee deltas
+**4g. Test Mocks** in `src/test/mocks/store.ts`
 
-**Fix these proactively!**
+```typescript
+featureFlags: {
+  // ... existing
+  [SwapperName]Swap: false
+}
+```
+
+**4h. Swapper Icon** in UI
+
+Add icon: `src/components/MultiHopTrade/components/TradeInput/components/SwapperIcon/[swapper]-icon.png`
+
+Update `SwapperIcon.tsx`:
+```typescript
+import [swapperName]Icon from './[swapper]-icon.png'
+
+const SwapperIcon = ({ swapperName }: Props) => {
+  switch (swapperName) {
+    // ... existing
+    case SwapperName.[SwapperName]:
+      return <Image src={[swapperName]Icon} />
+  }
+}
+```
+
+**4i. Environment Variables**
+
+`.env` (production - both OFF):
+```bash
+# [Swapper Name]
+VITE_[SWAPPER]_API_KEY=
+VITE_FEATURE_[SWAPPER]_SWAP=false
+```
+
+`.env.development` (development - flag ON):
+```bash
+# [Swapper Name]
+VITE_[SWAPPER]_API_KEY=your-dev-api-key-here
+VITE_FEATURE_[SWAPPER]_SWAP=true
+```
+
+Add to `src/config.ts`:
+```typescript
+export const getConfig = (): Config => ({
+  // ... existing
+  VITE_[SWAPPER]_API_KEY: import.meta.env.VITE_[SWAPPER]_API_KEY || '',
+  VITE_FEATURE_[SWAPPER]_SWAP: parseBoolean(import.meta.env.VITE_FEATURE_[SWAPPER]_SWAP)
+})
+```
+
+#### Step 5: Proactive Gotcha Review
+
+**BEFORE testing**, check for these critical bugs (from `@common-gotchas.md`):
+
+1. **Slippage Format**: Verify API format (percentage, decimal, basis points)
+2. **Address Checksumming**: Use `getAddress()` from viem
+3. **Hex Conversion**: Use `fromHex()` for `tx.value`, `tx.gas`, `tx.gasPrice`
+4. **Response Parsing**: Log actual API response, verify structure matches types
+5. **Affiliate Fees**: Pass same `affiliateBps` to BOTH quote and rate endpoints
+6. **Native Token Marker**: Verify marker address matches API requirements
+7. **Gas Estimation**: Take max of API and node estimates, add buffer
+8. **Dummy Address**: Block executable quotes with dummy address
+9. **Error Handling**: Don't reject quote if some routes fail (e.g., dual routing)
+10. **Type Safety**: Use `Address` and `Hex` types from viem, not strings
 
 ---
 
 ### Phase 4: Testing & Validation
 
-Run validation commands:
+**4a. Automated Checks**
 
 ```bash
-# Type checking
+# Type checking (MUST pass)
 yarn type-check
 
-# Linting
+# Linting (MUST pass)
 yarn lint
 
-# Build
+# Build swapper package (MUST pass)
 yarn build:swapper
+
+# Build web (SHOULD pass, may have unrelated errors)
+yarn build:web
 ```
 
-**All must pass** before manual testing.
+Fix ALL type errors and lint errors before manual testing.
 
-**Manual testing checklist**:
-- [ ] Can fetch quotes successfully
-- [ ] Rates display correctly
+**4b. Manual Testing Checklist**
+
+- [ ] Can fetch quotes for supported chain
+- [ ] Rates display without wallet connected
 - [ ] Approval flow works (if needed)
-- [ ] Transaction execution completes
-- [ ] Error handling works (bad chain, insufficient liquidity, etc.)
-- [ ] UI shows swapper correctly
+- [ ] Can execute swap and transaction succeeds
+- [ ] Native token swaps work (ETH→USDC, USDC→ETH)
+- [ ] Wrapped token swaps work (WETH→USDC)
+- [ ] Error handling works (unsupported chain, insufficient liquidity)
+- [ ] UI shows swapper icon correctly
 - [ ] Feature flag toggles swapper on/off
+- [ ] Cross-account trades work (if supported)
+- [ ] Rate vs quote delta < 0.1%
 
-See `@reference.md` for detailed testing strategies.
+**4c. Edge Cases**
+
+- [ ] Very small amounts (near minimum)
+- [ ] Very large amounts (near maximum)
+- [ ] High slippage scenarios
+- [ ] Low liquidity pairs
+- [ ] Gas price spikes
+- [ ] API timeouts/errors
 
 ---
 
 ### Phase 5: Documentation
 
-Create `packages/swapper/src/swappers/[SwapperName]Swapper/INTEGRATION.md`
+Create `packages/swapper/src/swappers/[SwapperName]Swapper/INTEGRATION.md`:
 
-Document:
-1. API overview (URLs, auth, chains)
-2. Key implementation details
-3. Critical quirks or gotchas
-4. Sample requests/responses
-5. Testing notes
+```markdown
+# [Swapper Name] Integration
 
-**Use BebopSwapper's INTEGRATION.md as a template.**
+## Overview
+- **Website**: https://[swapper].com
+- **API Docs**: https://docs.[swapper].com
+- **Supported Chains**: Ethereum, Polygon, Arbitrum, ...
+- **Type**: EVM Direct Transaction / Deposit-to-Address / Gasless
+
+## API Details
+- **Base URL**: `https://api.[swapper].com`
+- **Authentication**: API key in `x-api-key` header
+- **Rate Limiting**: X requests per second
+- **Endpoints**:
+  - `POST /quote` - Get executable quote
+  - `GET /price` - Get rate without wallet
+
+## Implementation Notes
+
+### Slippage Format
+API expects **percentage** (1 = 1%). ShapeShift internal format is decimal (0.01 = 1%), so we multiply by 100.
+
+### Address Format
+API requires **EIP-55 checksummed** addresses. We use `getAddress()` from viem.
+
+### Native Token Handling
+API uses marker address `0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE` for native tokens (ETH, MATIC, etc.).
+
+### Response Format
+```json
+{
+  "buyAmount": "1000000",
+  "sellAmount": "500000000",
+  "transaction": {
+    "to": "0x...",
+    "data": "0x...",
+    "value": "0x0",
+    "gas": "0x5208"
+  }
+}
+```
+
+### Gotchas
+1. Gas estimates are in **hex**, must convert to decimal with `fromHex()`
+2. Affiliate fees must be passed to BOTH `/quote` and `/price` to avoid rate delta
+3. Some routes may fail (dual routing), this is normal - use `bestPrice` route
+
+## Testing Notes
+- Use USDC/USDT pairs for testing (high liquidity)
+- Test both native (ETH) and ERC20 swaps
+- Verify slippage is applied correctly (check on-chain vs quoted amount)
+
+## Known Issues
+- None currently
+
+## References
+- [API Docs](https://docs.[swapper].com)
+- [Example Integration](https://github.com/example/integration)
+```
 
 ---
 
-## Key Principles
+## Critical Success Factors
 
-1. **Research, don't guess**: Study existing swappers before coding
-2. **Copy patterns**: Don't reinvent - adapt what works
-3. **Read gotchas**: Avoid bugs others already fixed
-4. **Test thoroughly**: Type check, lint, build, manual test
-5. **Document quirks**: Help future maintainers
+1. **Research First**: Understand API thoroughly BEFORE coding
+2. **Copy Patterns**: Adapt proven patterns from similar swappers
+3. **Type Safety**: Use strict TypeScript types, avoid `any`
+4. **Monadic Errors**: ALWAYS return `Result<T, SwapErrorRight>`, never throw
+5. **Test Gotchas**: Proactively fix known bugs (slippage, checksumming, hex conversion)
+6. **Feature Flag**: Always behind flag for gradual rollout
+7. **Documentation**: Write INTEGRATION.md with quirks and gotchas
 
-## Success Criteria
+## Completion Checklist
 
-Integration is complete when:
+Before considering integration complete:
 
-✅ All validation commands pass (type-check, lint, build)
-✅ Swapper appears in UI when feature flag is enabled
-✅ Can successfully fetch quotes and execute trades
-✅ Error cases handled gracefully
-✅ Integration documentation written
-✅ Code follows patterns from similar swappers
+**Code Quality**:
+- [ ] All type checks pass (`yarn type-check`)
+- [ ] All lint checks pass (`yarn lint`)
+- [ ] Build succeeds (`yarn build:swapper`)
+- [ ] No `any` types used
+- [ ] All errors handled monadically
+
+**Functionality**:
+- [ ] Can fetch quotes successfully
+- [ ] Can fetch rates without wallet
+- [ ] Approval flow works (if needed)
+- [ ] Transaction execution succeeds
+- [ ] Status polling works (if applicable)
+- [ ] Native token swaps work
+- [ ] Error cases handled gracefully
+
+**Integration**:
+- [ ] Registered in constants.ts
+- [ ] Exported from index.ts
+- [ ] CSP headers added
+- [ ] Feature flag implemented
+- [ ] Test mocks updated
+- [ ] Swapper icon added to UI
+- [ ] Environment variables configured
+
+**Documentation**:
+- [ ] INTEGRATION.md created
+- [ ] API quirks documented
+- [ ] Known issues listed
+- [ ] Testing notes included
+
+**Testing**:
+- [ ] Manual testing completed
+- [ ] Rate vs quote delta verified (< 0.1%)
+- [ ] Cross-account trades tested (if supported)
+- [ ] Edge cases tested (min/max amounts, errors)
+
+## Common Errors & Solutions
+
+**"Taker address not checksummed"**
+→ Use `getAddress(address)` from viem before sending to API
+
+**"Number '0x...' is not a valid decimal"**
+→ Convert hex to decimal: `fromHex(value as Hex, 'bigint').toString()`
+
+**"Sell amount lower than fee"**
+→ Check response parsing, likely accessing wrong field structure
+
+**Large rate vs quote delta**
+→ Pass same `affiliateBps` to both `/quote` and `/price` endpoints
+
+**"$0 showing in UI"**
+→ Response parsing bug, log actual response and verify structure
+
+**"Transaction fails with slippage exceeded"**
+→ Wrong slippage format sent to API (check docs for percentage/decimal/bps)
+
+**Type error: "Property 'xyz' does not exist on type"**
+→ Define proper TypeScript types matching actual API response
+
+**"Cannot read property 'chainId' of undefined"**
+→ Check null safety, add optional chaining or validation
+
+---
 
 ## Reference Files
 
-- `@reference.md` - Swapper architecture and patterns
-- `@examples.md` - Code templates
-- `@common-gotchas.md` - Critical bugs to avoid
+- `@reference.md` - Swapper architecture, interfaces, universal patterns
+- `@common-gotchas.md` - Critical bugs to avoid (READ THIS!)
+- `@examples.md` - Code templates and examples
 
 ## Need Help?
 
-If stuck:
 1. Read similar swapper implementations
 2. Check `@common-gotchas.md` for your specific issue
-3. Grep for similar patterns in existing swappers
-4. Ask user for clarification on API behavior
+3. Grep for similar patterns: `grep -r "pattern" packages/swapper/src/swappers/`
+4. Ask user for API behavior clarification
+5. Test with curl to verify API responses
+
+---
+
+**Remember**: Most bugs come from assumptions about API behavior. ALWAYS verify with actual API calls and log responses!

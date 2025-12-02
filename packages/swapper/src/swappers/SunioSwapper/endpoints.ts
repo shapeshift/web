@@ -169,10 +169,11 @@ export const sunioApi: SwapperApi = {
     }
     const bip44Params = adapter.getBip44Params({ accountNumber })
 
+    const HARDENED = 0x80000000
     const addressNList = [
-      bip44Params.purpose,
-      bip44Params.coinType,
-      bip44Params.accountNumber,
+      bip44Params.purpose + HARDENED,
+      bip44Params.coinType + HARDENED,
+      bip44Params.accountNumber + HARDENED,
       bip44Params.isChange ? 1 : 0,
       bip44Params.addressIndex ?? 0,
     ]

@@ -1,4 +1,4 @@
-import { tronChainId } from '@shapeshiftoss/caip'
+import { tronAssetId, tronChainId } from '@shapeshiftoss/caip'
 import type { tron } from '@shapeshiftoss/chain-adapters'
 import { TronWeb } from 'tronweb'
 
@@ -107,9 +107,12 @@ export const sunioApi: SwapperApi = {
     const functionSelector =
       'swapExactInput(address[],string[],uint256[],uint24[],(uint256,uint256,address,uint256))'
 
+    const isSellingNativeTrx = step.sellAsset.assetId === tronAssetId
+    const callValue = isSellingNativeTrx ? Number(step.sellAmountIncludingProtocolFeesCryptoBaseUnit) : 0
+
     const options = {
       feeLimit: 100_000_000,
-      callValue: 0,
+      callValue,
     }
 
     const txData = await tronWeb.transactionBuilder.triggerSmartContract(

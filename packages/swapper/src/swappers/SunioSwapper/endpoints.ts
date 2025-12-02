@@ -76,6 +76,8 @@ export const sunioApi: SwapperApi = {
       fullHost: rpcUrl,
     })
 
+    tronWeb.setAddress(from)
+
     const routeParams = buildSwapRouteParameters(
       sunioMetadata.route,
       step.sellAmountIncludingProtocolFeesCryptoBaseUnit,

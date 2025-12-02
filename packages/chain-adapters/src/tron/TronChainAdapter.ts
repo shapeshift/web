@@ -200,12 +200,8 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TronMainnet> {
 
         const functionSelector = 'transfer(address,uint256)'
 
-        // FeeLimit needs to cover:
-        // - Energy for TRC20 transfer: ~65k-130k units × 420 SUN = ~27-54 TRX
-        // - Bandwidth for transaction + memo: ~345-500 bytes × 1000 SUN = ~0.35-0.5 TRX
-        // Using 150 TRX to ensure sufficient coverage with memo
         const options = {
-          feeLimit: memo ? 150_000_000 : 100_000_000, // 150 TRX with memo, 100 TRX without
+          feeLimit: 100_000_000, // 100 TRX standard limit
           callValue: 0,
         }
 

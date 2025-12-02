@@ -34,6 +34,7 @@ import {
   supportsCosmos,
   supportsETH,
   supportsGnosis,
+  supportsHyperEvm,
   supportsMayachain,
   supportsMonad,
   supportsOptimism,

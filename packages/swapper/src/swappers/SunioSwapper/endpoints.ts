@@ -1,6 +1,5 @@
 import { tronAssetId, tronChainId } from '@shapeshiftoss/caip'
 import type { tron } from '@shapeshiftoss/chain-adapters'
-import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { TronWeb } from 'tronweb'
 
 import { getTronTransactionFees } from '../../tron-utils/getTronTransactionFees'
@@ -200,17 +199,15 @@ export const sunioApi: SwapperApi = {
       const adapter = assertGetTronChainAdapter(tronChainId)
       const tx = await adapter.httpProvider.getTransaction({ txid: txHash })
 
-      if (!tx) {
-        return createDefaultStatusResponse(txHash)
+      if (tx && tx.confirmations > 0) {
+        return {
+          status: 'Confirmed' as const,
+          buyTxHash: txHash,
+          message: undefined,
+        }
       }
 
-      const status = tx.status
-
-      return {
-        status,
-        buyTxHash: txHash,
-        message: undefined,
-      }
+      return createDefaultStatusResponse(txHash)
     } catch (error) {
       console.error('[Sun.io] Error checking trade status:', error)
       return createDefaultStatusResponse(txHash)

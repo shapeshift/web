@@ -11046,7 +11046,7 @@ __metadata:
   dependencies:
     "@mysten/sui": 1.45.0
     "@shapeshiftoss/caip": "workspace:^"
-    "@shapeshiftoss/hdwallet-core": 1.62.21
+    "@shapeshiftoss/hdwallet-core": 1.62.21-plasma.2
     "@shapeshiftoss/hdwallet-ledger": 1.62.21
     "@shapeshiftoss/types": "workspace:^"
     "@shapeshiftoss/unchained-client": "workspace:^"
@@ -11198,6 +11198,23 @@ __metadata:
     rxjs: ^6.4.0
     type-assertions: ^1.1.0
   checksum: 11073cf4d5b3de1fa89fefb816c04172734f0cc15e5e6431942a57e1f36c5632deace1ad55e92fde1ea3ab5c21f39aba7ef38e5ad9268fabd42be16a7057eb1c
+  languageName: node
+  linkType: hard
+
+"@shapeshiftoss/hdwallet-core@npm:1.62.21-plasma.2":
+  version: 1.62.21-plasma.2
+  resolution: "@shapeshiftoss/hdwallet-core@npm:1.62.21-plasma.2"
+  dependencies:
+    "@shapeshiftoss/bitcoinjs-lib": 7.0.0-shapeshift.0
+    "@shapeshiftoss/proto-tx-builder": 0.10.0
+    "@solana/web3.js": 1.95.8
+    eip-712: ^1.0.0
+    ethers: 5.7.2
+    eventemitter2: ^5.0.1
+    lodash: ^4.17.21
+    rxjs: ^6.4.0
+    type-assertions: ^1.1.0
+  checksum: 6dc7d5043026f754c6cdffe5554826f0952b6197b798797fa56ae296c99fb83f33fb7cd9352fe141fbf5945d8c042dd6adac73375beae0ed9851ee19a0f1b0c2
   languageName: node
   linkType: hard
 
@@ -11651,7 +11668,7 @@ __metadata:
     "@shapeshiftoss/caip": "workspace:^"
     "@shapeshiftoss/chain-adapters": "workspace:^"
     "@shapeshiftoss/contracts": "workspace:^"
-    "@shapeshiftoss/hdwallet-core": 1.62.21
+    "@shapeshiftoss/hdwallet-core": 1.62.21-plasma.2
     "@shapeshiftoss/types": "workspace:^"
     "@shapeshiftoss/unchained-client": "workspace:^"
     "@shapeshiftoss/utils": "workspace:^"

@@ -17,6 +17,7 @@ import {
   supportsGnosis,
   supportsMonad,
   supportsOptimism,
+  supportsPlasma,
   supportsPolygon,
 } from '@shapeshiftoss/hdwallet-core'
 import type { Bip44Params, EvmChainId, RootBip44Params } from '@shapeshiftoss/types'
@@ -177,6 +178,8 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
           return supportsBase(wallet)
         case Number(fromChainId(KnownChainIds.MonadMainnet).chainReference):
           return supportsMonad(wallet)
+        case Number(fromChainId(KnownChainIds.PlasmaMainnet).chainReference):
+          return supportsPlasma(wallet)
         default:
           return false
       }

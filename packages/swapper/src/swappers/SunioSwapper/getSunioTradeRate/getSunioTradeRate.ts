@@ -21,6 +21,7 @@ export const getSunioTradeRate = async (
       buyAsset,
       sellAmountIncludingProtocolFeesCryptoBaseUnit,
       receiveAddress,
+      accountNumber,
       affiliateBps,
       slippageTolerancePercentageDecimal,
     } = input
@@ -110,7 +111,7 @@ export const getSunioTradeRate = async (
           source: SwapperName.Sunio,
           buyAsset,
           sellAsset,
-          accountNumber: undefined,
+          accountNumber,
           allowanceContract: SUNIO_SMART_ROUTER_CONTRACT,
           estimatedExecutionTimeMs: undefined,
         },

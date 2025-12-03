@@ -1,7 +1,12 @@
 import { ExternalLinkIcon } from '@chakra-ui/icons'
 import { HStack, Icon, Link, Skeleton, Stack, Switch } from '@chakra-ui/react'
+import { mayachainChainId, thorchainChainId } from '@shapeshiftoss/caip'
+import { isGridPlus } from '@shapeshiftoss/hdwallet-gridplus'
+import { isKeepKey } from '@shapeshiftoss/hdwallet-keepkey'
+import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
+import { isTrezor } from '@shapeshiftoss/hdwallet-trezor'
 import type { TradeQuoteStep } from '@shapeshiftoss/swapper'
-import { TransactionExecutionState } from '@shapeshiftoss/swapper'
+import { SwapperName, TransactionExecutionState } from '@shapeshiftoss/swapper'
 import type { FC } from 'react'
 import { useMemo } from 'react'
 import { TbArrowsSplit2 } from 'react-icons/tb'
@@ -17,12 +22,14 @@ import { useTradeNetworkFeeCryptoBaseUnit } from './hooks/useTradeNetworkFeeCryp
 import { TradeFooterButton } from './TradeFooterButton'
 
 import { Amount } from '@/components/Amount/Amount'
+import { DepositAddressRow } from '@/components/DepositAddressRow'
 import { HelperTooltip } from '@/components/HelperTooltip/HelperTooltip'
 import { ReceiveAddressRow } from '@/components/ReceiveAddressRow'
 import { Row } from '@/components/Row/Row'
 import { RawText, Text } from '@/components/Text'
 import { TooltipWithTouch } from '@/components/TooltipWithTouch'
 import { useToggle } from '@/hooks/useToggle/useToggle'
+import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { fromBaseUnit } from '@/lib/math'
 import { middleEllipsis } from '@/lib/utils'
@@ -52,6 +59,9 @@ export const TradeConfirmFooter: FC<TradeConfirmFooterProps> = ({
 }) => {
   const [isExactAllowance, toggleIsExactAllowance] = useToggle(true)
   const translate = useTranslate()
+  const {
+    state: { wallet },
+  } = useWallet()
   const { currentTradeStep } = useStepperSteps()
   const currentHopIndex = useCurrentHopIndex()
   const quoteNetworkFeeCryptoBaseUnit = tradeQuoteStep.feeData.networkFeeCryptoBaseUnit
@@ -101,6 +111,41 @@ export const TradeConfirmFooter: FC<TradeConfirmFooterProps> = ({
   )
 
   const maybeUtxoChangeAddress = useAppSelector(selectSellAssetUtxoChangeAddress)
+
+  const isHardwareWallet = useMemo(() => {
+    return (
+      wallet && (isLedger(wallet) || isGridPlus(wallet) || isTrezor(wallet) || isKeepKey(wallet))
+    )
+  }, [wallet])
+
+  const maybeDepositAddress = useMemo(() => {
+    if (!isHardwareWallet) return undefined
+
+    const isThorMayaSwapper =
+      tradeQuoteStep.source === SwapperName.Thorchain ||
+      tradeQuoteStep.source === SwapperName.Mayachain ||
+      tradeQuoteStep.source?.startsWith(`${SwapperName.Thorchain} •`) ||
+      tradeQuoteStep.source?.startsWith(`${SwapperName.Mayachain} •`)
+
+    const isThorMayaSellAsset =
+      tradeQuoteStep.sellAsset.chainId === thorchainChainId ||
+      tradeQuoteStep.sellAsset.chainId === mayachainChainId
+
+    if (isThorMayaSwapper) {
+      if (isThorMayaSellAsset) return undefined
+      return hopExecutionMetadata?.swap?.inboundAddress
+    }
+
+    return (
+      tradeQuoteStep.chainflipSpecific?.chainflipDepositAddress ??
+      tradeQuoteStep.nearIntentsSpecific?.depositAddress ??
+      tradeQuoteStep.relayTransactionMetadata?.to ??
+      tradeQuoteStep.bebopTransactionMetadata?.to ??
+      tradeQuoteStep.butterSwapTransactionMetadata?.to ??
+      tradeQuoteStep.portalsTransactionMetadata?.to ??
+      tradeQuoteStep.zrxTransactionMetadata?.to
+    )
+  }, [isHardwareWallet, tradeQuoteStep, hopExecutionMetadata?.swap?.inboundAddress])
 
   const {
     isLoading: isNetworkFeeCryptoBaseUnitLoading,
@@ -277,6 +322,12 @@ export const TradeConfirmFooter: FC<TradeConfirmFooterProps> = ({
           explorerAddressLink={buyAsset.explorerAddressLink}
           receiveAddress={receiveAddress ?? ''}
         />
+        {maybeDepositAddress && (
+          <DepositAddressRow
+            explorerAddressLink={sellAsset?.explorerAddressLink ?? ''}
+            depositAddress={maybeDepositAddress}
+          />
+        )}
         {maybeUtxoChangeAddress && (
           <Row>
             <Row.Label>
@@ -317,6 +368,7 @@ export const TradeConfirmFooter: FC<TradeConfirmFooterProps> = ({
     maybeUtxoChangeAddress,
     translate,
     sellAsset?.explorerAddressLink,
+    maybeDepositAddress,
   ])
 
   const tradeDetail = useMemo(() => {

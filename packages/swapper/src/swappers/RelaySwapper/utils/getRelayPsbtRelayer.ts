@@ -2,7 +2,7 @@ import * as bitcoin from '@shapeshiftoss/bitcoinjs-lib'
 
 export const getRelayPsbtRelayer = (psbtHex: string, sellAmountCryptoBaseUnit: string) => {
   const psbtBuffer = Buffer.from(psbtHex, 'hex')
-  const psbt = bitcoin.Psbt.fromBuffer(new Uint8Array(psbtBuffer))
+  const psbt = bitcoin.Psbt.fromBuffer(psbtBuffer)
 
   const outputs = psbt.txOutputs
   for (let i = 0; i < outputs.length; i++) {

@@ -129,7 +129,8 @@ export const useAllowanceApproval = (
         while (!confirmed && attempts < maxAttempts) {
           try {
             // Try walletsolidity first (confirmed txs), fallback to wallet (recent txs)
-            const endpoint = attempts < 20 ? '/wallet/gettransactionbyid' : '/walletsolidity/gettransactionbyid'
+            const endpoint =
+              attempts < 20 ? '/wallet/gettransactionbyid' : '/walletsolidity/gettransactionbyid'
             const response = await fetch(`${rpcUrl}${endpoint}`, {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
@@ -161,8 +162,8 @@ export const useAllowanceApproval = (
         }
 
         if (!confirmed) {
-          console.warn('[TRON] Transaction confirmation timeout, but transaction may still succeed')
           // Don't throw - approval might have succeeded even if we couldn't confirm
+          // Transaction polling timed out but the approval likely succeeded on-chain
         }
       } else {
         // Handle EVM transaction confirmation

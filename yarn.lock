@@ -11122,53 +11122,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/hdwallet-core@latest":
-  version: 1.27.0
-  resolution: "@shapeshiftoss/hdwallet-core@npm:1.27.0"
-  dependencies:
-    eventemitter2: ^5.0.1
-    lodash: ^4.17.21
-    rxjs: ^6.4.0
-    type-assertions: ^1.1.0
-  checksum: 41b50e08cf7f506db8603553085e4f92cc4d9519b2faf369c07f23c01d1edb69f2dc705b27114fbd771f22eacbadedfb25321cb4189bb775390b7e6d229f10af
-  languageName: node
-  linkType: hard
-
-"@shapeshiftoss/hdwallet-core@npm:1.62.21":
-  version: 1.62.21
-  resolution: "@shapeshiftoss/hdwallet-core@npm:1.62.21"
-  dependencies:
-    "@shapeshiftoss/bitcoinjs-lib": 7.0.0-shapeshift.0
-    "@shapeshiftoss/proto-tx-builder": 0.10.0
-    "@solana/web3.js": 1.95.8
-    eip-712: ^1.0.0
-    ethers: 5.7.2
-    eventemitter2: ^5.0.1
-    lodash: ^4.17.21
-    rxjs: ^6.4.0
-    type-assertions: ^1.1.0
-  checksum: 11073cf4d5b3de1fa89fefb816c04172734f0cc15e5e6431942a57e1f36c5632deace1ad55e92fde1ea3ab5c21f39aba7ef38e5ad9268fabd42be16a7057eb1c
-  languageName: node
-  linkType: hard
-
-"@shapeshiftoss/hdwallet-core@npm:1.62.22-plasma.0":
-  version: 1.62.22-plasma.0
-  resolution: "@shapeshiftoss/hdwallet-core@npm:1.62.22-plasma.0"
-  dependencies:
-    "@shapeshiftoss/bitcoinjs-lib": 7.0.0-shapeshift.0
-    "@shapeshiftoss/proto-tx-builder": 0.10.0
-    "@solana/web3.js": 1.95.8
-    eip-712: ^1.0.0
-    ethers: 5.7.2
-    eventemitter2: ^5.0.1
-    lodash: ^4.17.21
-    rxjs: ^6.4.0
-    type-assertions: ^1.1.0
-  checksum: f804d7f317ee1362b7bf7b0f73a2bbf2081d67c41040efb78da15ca02857eeb5574307013439c01a0c95bbb75e48a2924185013905e593565867f3f952af45bd
-  languageName: node
-  linkType: hard
-
-"@shapeshiftoss/hdwallet-core@npm:1.62.23-plasma.1, @shapeshiftoss/hdwallet-core@npm:^1.62.23-plasma.1":
+"@shapeshiftoss/hdwallet-core@npm:1.62.23-plasma.1":
   version: 1.62.23-plasma.1
   resolution: "@shapeshiftoss/hdwallet-core@npm:1.62.23-plasma.1"
   dependencies:
@@ -11182,20 +11136,6 @@ __metadata:
     rxjs: ^6.4.0
     type-assertions: ^1.1.0
   checksum: 1cbdd70a59e34824f845eaf8f94327b6eac94c3728231333b66bf40b3de56ef204175ef51d965fe5f2ab6db71eb183e5bcd0471fd231a4176184c4b04d05e03b
-  languageName: node
-  linkType: hard
-
-"@shapeshiftoss/hdwallet-core@npm:^1.55.1":
-  version: 1.55.1
-  resolution: "@shapeshiftoss/hdwallet-core@npm:1.55.1"
-  dependencies:
-    "@shapeshiftoss/proto-tx-builder": ^0.8.0
-    eip-712: ^1.0.0
-    eventemitter2: ^5.0.1
-    lodash: ^4.17.21
-    rxjs: ^6.4.0
-    type-assertions: ^1.1.0
-  checksum: 8b100097dfc6a5661f1ee7e2bceb91e196813f9aee174cdc7313507017d0ecc4d80476b415d1e6791313b946a3fc8e8329eb939b91cdb57070b7d9e3e8847568
   languageName: node
   linkType: hard
 
@@ -11599,23 +11539,6 @@ __metadata:
     google-protobuf: ^3.17.0
     osmojs: ^0.37.0
   checksum: 4ebfb1821b6ddca2f29f9a2c55efb00d932398fd1ea607d1e8272cd50d2fd57ce4cb60d228234ad8b3e4a99c6bd858cff7de97ee0e1c9c927d458e25b6c7caf4
-  languageName: node
-  linkType: hard
-
-"@shapeshiftoss/proto-tx-builder@npm:^0.8.0":
-  version: 0.8.0
-  resolution: "@shapeshiftoss/proto-tx-builder@npm:0.8.0"
-  dependencies:
-    "@cosmjs/amino": ^0.29.4
-    "@cosmjs/crypto": 0.29.4
-    "@cosmjs/encoding": ^0.29.4
-    "@cosmjs/proto-signing": ^0.29.4
-    "@cosmjs/stargate": ^0.29.4
-    bn.js: ^5.2.1
-    cosmjs-types: ^0.5.1
-    google-protobuf: ^3.17.0
-    osmojs: ^0.37.0
-  checksum: bd67df2db2ad74b3f809a211f04d26971a580f45621f6fe22a04a9362f9a2c5d3bcdb3fc9f6bd5995f63734b25c9df8ccc819951e993a80c9ebfc1762d26b418
   languageName: node
   linkType: hard
 

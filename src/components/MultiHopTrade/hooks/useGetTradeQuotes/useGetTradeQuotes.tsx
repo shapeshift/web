@@ -146,10 +146,9 @@ export const useGetTradeQuotes = () => {
         (!permit2?.isRequired && hopExecutionMetadata?.state === HopExecutionState.AwaitingSwap)
       )
 
-    const shouldFetch = (
+    const shouldFetch =
       hopExecutionMetadata?.state === HopExecutionState.AwaitingSwap &&
       hopExecutionMetadata?.swap?.state === TransactionExecutionState.AwaitingConfirmation
-    )
 
     console.log('[APPROVE DEBUG] isFetchStep check:', {
       swapperName,

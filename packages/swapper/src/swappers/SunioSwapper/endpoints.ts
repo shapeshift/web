@@ -1,9 +1,8 @@
 import { tronAssetId, tronChainId } from '@shapeshiftoss/caip'
 import type { tron } from '@shapeshiftoss/chain-adapters'
+import { toAddressNList } from '@shapeshiftoss/chain-adapters'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { TronWeb } from 'tronweb'
-
-import { toAddressNList } from '@shapeshiftoss/chain-adapters'
 
 import { getTronTransactionFees } from '../../tron-utils/getTronTransactionFees'
 import type {
@@ -111,7 +110,9 @@ export const sunioApi: SwapperApi = {
       'swapExactInput(address[],string[],uint256[],uint24[],(uint256,uint256,address,uint256))'
 
     const isSellingNativeTrx = step.sellAsset.assetId === tronAssetId
-    const callValue = isSellingNativeTrx ? Number(step.sellAmountIncludingProtocolFeesCryptoBaseUnit) : 0
+    const callValue = isSellingNativeTrx
+      ? Number(step.sellAmountIncludingProtocolFeesCryptoBaseUnit)
+      : 0
 
     const options = {
       feeLimit: 100_000_000,
@@ -188,7 +189,11 @@ export const sunioApi: SwapperApi = {
       const contractRet = tx.ret?.[0]?.contractRet
 
       const status =
-        contractRet === 'SUCCESS' ? TxStatus.Confirmed : contractRet === 'REVERT' ? TxStatus.Failed : TxStatus.Pending
+        contractRet === 'SUCCESS'
+          ? TxStatus.Confirmed
+          : contractRet === 'REVERT'
+          ? TxStatus.Failed
+          : TxStatus.Pending
 
       return {
         status,

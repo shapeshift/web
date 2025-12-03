@@ -1,11 +1,12 @@
 import type { AssetId } from '@shapeshiftoss/caip'
-import { fromAssetId } from '@shapeshiftoss/caip'
+import { fromAssetId, tronChainId } from '@shapeshiftoss/caip'
+import { useQuery } from '@tanstack/react-query'
 import { useMemo } from 'react'
 import { maxUint256 } from 'viem'
 
 import { useEvmFees } from './useEvmFees'
 
-import { assertUnreachable } from '@/lib/utils'
+import { assertGetTronChainAdapter, assertUnreachable } from '@/lib/utils'
 import { getApproveContractData } from '@/lib/utils/evm'
 
 export enum AllowanceType {
@@ -53,20 +54,48 @@ export const useApprovalFees = ({
     })
   }, [allowanceType, amountCryptoBaseUnit, chainId, enabled, spender, to])
 
+  // For TRON, estimate approval fees directly
+  const tronFeesResult = useQuery({
+    queryKey: ['tronApprovalFees', assetId, spender, from],
+    queryFn: async () => {
+      if (!assetId || !to || !from || !chainId) {
+        throw new Error('Missing required parameters for TRON fee estimation')
+      }
+
+      const adapter = assertGetTronChainAdapter(chainId)
+
+      // Estimate fees for approval transaction
+      const feeData = await adapter.getFeeData({
+        to,
+        value: '0',
+        sendMax: false,
+      })
+
+      return {
+        networkFeeCryptoBaseUnit: feeData.fast.txFee,
+      }
+    },
+    enabled: Boolean(enabled && chainId === tronChainId && assetId && to && from),
+    refetchInterval: isRefetchEnabled ? 15_000 : false,
+  })
+
   const evmFeesResult = useEvmFees({
     to,
     from,
     value: '0',
     chainId,
     data: approveContractData,
-    enabled: Boolean(enabled),
+    enabled: Boolean(enabled && chainId !== tronChainId),
     refetchIntervalInBackground: isRefetchEnabled ? true : false,
     refetchInterval: isRefetchEnabled ? 15_000 : false,
   })
 
+  // Return unified interface - TRON or EVM fees
+  const feesResult = chainId === tronChainId ? tronFeesResult : evmFeesResult
+
   return {
     approveContractData,
-    evmFeesResult,
+    evmFeesResult: feesResult,
   }
 }
 

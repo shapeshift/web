@@ -1,4 +1,4 @@
-import { fromAccountId } from '@shapeshiftoss/caip'
+import { fromAccountId, tronChainId } from '@shapeshiftoss/caip'
 import { assertGetViemClient } from '@shapeshiftoss/contracts'
 import { isGridPlus } from '@shapeshiftoss/hdwallet-gridplus'
 import { isTrezor } from '@shapeshiftoss/hdwallet-trezor'
@@ -114,8 +114,54 @@ export const useAllowanceApproval = (
 
       if (!tradeQuoteStep?.sellAsset || !sellAssetAccountId) return
 
-      const publicClient = assertGetViemClient(tradeQuoteStep.sellAsset.chainId)
-      await publicClient.waitForTransactionReceipt({ hash: txHash as Hash })
+      // Handle TRON transaction confirmation
+      if (tradeQuoteStep.sellAsset.chainId === tronChainId) {
+        const adapter = await import('@/lib/utils').then(m =>
+          m.assertGetTronChainAdapter(tronChainId),
+        )
+        const rpcUrl = adapter.httpProvider.getRpcUrl()
+
+        // Poll for transaction confirmation (TRON doesn't have waitForTransactionReceipt)
+        let confirmed = false
+        let attempts = 0
+        const maxAttempts = 30 // 30 seconds max
+
+        while (!confirmed && attempts < maxAttempts) {
+          try {
+            // Use walletsolidity endpoint for confirmed transactions
+            const response = await fetch(`${rpcUrl}/walletsolidity/gettransactionbyid`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ value: txHash }),
+            })
+
+            const tx = await response.json()
+            const contractRet = tx?.ret?.[0]?.contractRet
+
+            if (contractRet === 'SUCCESS') {
+              confirmed = true
+            } else if (contractRet === 'REVERT' || contractRet === 'OUT_OF_ENERGY') {
+              throw new Error(`Transaction failed: ${contractRet}`)
+            }
+            // If no contractRet yet, continue polling
+          } catch (err) {
+            // Continue polling on errors
+          }
+
+          if (!confirmed) {
+            await new Promise(resolve => setTimeout(resolve, 1000))
+            attempts++
+          }
+        }
+
+        if (!confirmed) {
+          throw new Error('Transaction confirmation timeout')
+        }
+      } else {
+        // Handle EVM transaction confirmation
+        const publicClient = assertGetViemClient(tradeQuoteStep.sellAsset.chainId)
+        await publicClient.waitForTransactionReceipt({ hash: txHash as Hash })
+      }
 
       dispatch(
         tradeQuoteSlice.actions.setAllowanceApprovalTxComplete({

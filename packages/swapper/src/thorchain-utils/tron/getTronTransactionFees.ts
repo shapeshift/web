@@ -67,7 +67,7 @@ export const getTronTransactionFees = async (
 
       let tx = await tronWeb.transactionBuilder.sendTrx(
         vault,
-        sellAmountIncludingProtocolFeesCryptoBaseUnit,
+        Number(sellAmountIncludingProtocolFeesCryptoBaseUnit),
         from,
       )
 

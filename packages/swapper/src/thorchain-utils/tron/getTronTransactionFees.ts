@@ -24,7 +24,7 @@ export const getTronTransactionFees = async (
   args: GetUnsignedTronTransactionArgs,
   swapperName: SwapperName,
 ): Promise<string> => {
-  const { tradeQuote, stepIndex, config } = args
+  const { tradeQuote, stepIndex, config, from } = args
 
   if (!isExecutableTradeQuote(tradeQuote)) throw new Error('Unable to execute a trade rate quote')
 
@@ -54,7 +54,7 @@ export const getTronTransactionFees = async (
           { type: 'address', value: vault },
           { type: 'uint256', value: sellAmountIncludingProtocolFeesCryptoBaseUnit },
         ],
-        vault,
+        from,
       )
 
       const energyUsed = result.energy_used ?? 65000 // Conservative default for TRC20 transfer
@@ -67,8 +67,8 @@ export const getTronTransactionFees = async (
 
       let tx = await tronWeb.transactionBuilder.sendTrx(
         vault,
-        Number(sellAmountIncludingProtocolFeesCryptoBaseUnit),
-        vault,
+        sellAmountIncludingProtocolFeesCryptoBaseUnit,
+        from,
       )
 
       // Add memo to get accurate size with memo overhead

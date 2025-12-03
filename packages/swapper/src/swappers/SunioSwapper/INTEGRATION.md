@@ -67,7 +67,7 @@ Sun.io operates **exclusively on TRON blockchain** for TRC-20 token swaps.
 ### Transaction Building
 Unlike EVM swappers, Sun.io requires building TRON smart contract transactions:
 1. API returns routing information (tokens, pool versions, fees)
-2. Build `swapExactInput` call to smart router contract `TQAvWQpT9H916GckwWDJNhYZvQMkuRL7PN`
+2. Build `swapExactInput` call to smart router contract `TCFNp179Lg46D16zKoumd4Poa2WFFdtqYj`
 3. Use TronWeb's `triggerSmartContract` to construct unsigned transaction
 4. Sign and broadcast via TRON chain adapter
 

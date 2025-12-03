@@ -76,7 +76,7 @@ export const sunioApi: SwapperApi = {
       throw new Error('[Sun.io] Missing transaction metadata in quote')
     }
 
-    const rpcUrl = (adapter as any).rpcUrl
+    const rpcUrl = adapter.httpProvider.getRpcUrl()
 
     const tronWeb = new TronWeb({
       fullHost: rpcUrl,
@@ -168,7 +168,7 @@ export const sunioApi: SwapperApi = {
   checkTradeStatus: async ({ txHash, assertGetTronChainAdapter }) => {
     try {
       const adapter = assertGetTronChainAdapter(tronChainId)
-      const rpcUrl = (adapter as any).rpcUrl
+      const rpcUrl = adapter.httpProvider.getRpcUrl()
 
       const response = await fetch(`${rpcUrl}/wallet/gettransactionbyid`, {
         method: 'POST',

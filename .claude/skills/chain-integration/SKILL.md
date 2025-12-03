@@ -1299,12 +1299,15 @@ gh pr create --title "feat: implement [chainname]" \
 ### Web Files (Core)
 - [ ] `packages/caip/src/constants.ts`
 - [ ] `packages/types/src/base.ts`
+- [ ] `packages/chain-adapters/src/types.ts` (add to ChainSpecificFeeData)
+- [ ] `packages/chain-adapters/src/evm/EvmBaseAdapter.ts` (for EVM: add to evmChainIds array and targetNetwork object)
 - [ ] `src/constants/chains.ts`
 - [ ] `packages/chain-adapters/src/[type]/[chainname]/[ChainName]ChainAdapter.ts`
 - [ ] `packages/chain-adapters/src/[type]/[chainname]/types.ts`
 - [ ] `packages/chain-adapters/src/[type]/[chainname]/index.ts`
+- [ ] `packages/chain-adapters/src/[type]/index.ts` (export the chain adapter)
 - [ ] `src/lib/utils/[chainname].ts`
-- [ ] `src/lib/account/[chainname].ts`
+- [ ] `src/lib/account/[chainname].ts` (or add to existing file like evm.ts)
 - [ ] `src/lib/account/account.ts` (wire into dispatcher)
 
 ### Web Files (Integration)
@@ -1331,6 +1334,8 @@ gh pr create --title "feat: implement [chainname]" \
 - [ ] `packages/utils/src/chainIdToFeeAssetId.ts`
 - [ ] `packages/utils/src/assetData/baseAssets.ts`
 - [ ] `packages/utils/src/assetData/getBaseAsset.ts`
+- [ ] `packages/contracts/src/viemClient.ts` (for EVM chains)
+- [ ] `packages/contracts/src/ethersProviderSingleton.ts` (for EVM chains)
 
 ### Web Files (Assets)
 - [ ] `packages/caip/src/adapters/coingecko/index.ts`

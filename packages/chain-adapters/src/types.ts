@@ -217,6 +217,7 @@ export type ChainSpecificBuildTxData<T> = ChainSpecific<
     [KnownChainIds.ArbitrumNovaMainnet]: evm.BuildTxInput
     [KnownChainIds.BaseMainnet]: evm.BuildTxInput
     [KnownChainIds.MonadMainnet]: evm.BuildTxInput
+    [KnownChainIds.PlasmaMainnet]: evm.BuildTxInput
     [KnownChainIds.BitcoinMainnet]: utxo.BuildTxInput
     [KnownChainIds.BitcoinCashMainnet]: utxo.BuildTxInput
     [KnownChainIds.DogecoinMainnet]: utxo.BuildTxInput

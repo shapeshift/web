@@ -8,27 +8,70 @@ import {
   FormLabel,
   NumberInput,
   NumberInputField,
+  Skeleton,
   useColorModeValue,
   VStack,
 } from '@chakra-ui/react'
-import { useCallback, useMemo, useState } from 'react'
+import type { AccountId, ChainId } from '@shapeshiftoss/caip'
+import { fromAccountId } from '@shapeshiftoss/caip'
+import type { EvmChainAdapter } from '@shapeshiftoss/chain-adapters'
+import { skipToken, useQuery } from '@tanstack/react-query'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useFormContext } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 
 import { HelperTooltip } from '@/components/HelperTooltip/HelperTooltip'
 import { RawText, Text } from '@/components/Text'
+import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
 import type { ConfirmData } from '@/plugins/walletConnectToDapps/types'
 
-export const TransactionAdvancedParameters = () => {
+type TransactionAdvancedParametersProps = {
+  accountId: AccountId | undefined
+  chainId: ChainId | undefined
+}
+
+export const TransactionAdvancedParameters = ({
+  accountId,
+  chainId,
+}: TransactionAdvancedParametersProps) => {
   const translate = useTranslate()
   const borderColor = useColorModeValue('gray.100', 'gray.750')
   const [isExpanded, setIsExpanded] = useState(false)
   const hoverStyle = useMemo(() => ({ bg: 'transparent' }), [])
   const handleToggle = useCallback(() => setIsExpanded(!isExpanded), [isExpanded])
 
+  const address = useMemo(() => {
+    if (!accountId) return undefined
+    return fromAccountId(accountId).account
+  }, [accountId])
+
+  const { data: currentNonce, isLoading: isLoadingNonce } = useQuery({
+    queryKey: ['currentNonce', chainId, address],
+    queryFn:
+      chainId && address
+        ? async () => {
+            const chainAdapterManager = getChainAdapterManager()
+            const adapter = chainAdapterManager.get(chainId) as EvmChainAdapter
+            if (!adapter) throw new Error(`No adapter found for chainId: ${chainId}`)
+            const account = await adapter.getAccount(address)
+            return account.chainSpecific.nonce
+          }
+        : skipToken,
+    staleTime: 30000,
+  })
+
   const formContext = useFormContext<ConfirmData>()
+  const { register, setValue, watch } = formContext ?? {}
+
+  const formNonce = watch?.('nonce')
+
+  useEffect(() => {
+    if (currentNonce !== undefined && !formNonce) {
+      setValue?.('nonce', currentNonce.toString())
+    }
+  }, [currentNonce, formNonce, setValue])
+
   if (!formContext) return null
-  const { register } = formContext
 
   return (
     <Card p={4} borderRadius='2xl' mt={4}>
@@ -77,14 +120,11 @@ export const TransactionAdvancedParameters = () => {
                   )}
                 />
               </FormLabel>
-              <NumberInput borderColor={borderColor} mt={2}>
-                <NumberInputField
-                  placeholder={translate(
-                    'plugins.walletConnectToDapps.modal.sendTransaction.advancedParameters.nonce.placeholder',
-                  )}
-                  {...register('nonce')}
-                />
-              </NumberInput>
+              <Skeleton isLoaded={!isLoadingNonce}>
+                <NumberInput borderColor={borderColor} mt={2}>
+                  <NumberInputField {...register('nonce')} />
+                </NumberInput>
+              </Skeleton>
             </FormControl>
 
             <FormControl>

@@ -227,6 +227,7 @@ export const getTradeRate = async (
             const feeData = await sellAdapter.getFeeData({
               to: depositAddress,
               value: sellAmount,
+              chainSpecific: {},
             })
 
             return feeData.fast.txFee

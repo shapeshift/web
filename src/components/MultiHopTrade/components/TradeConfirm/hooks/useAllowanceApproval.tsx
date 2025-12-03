@@ -124,28 +124,34 @@ export const useAllowanceApproval = (
         // Poll for transaction confirmation (TRON doesn't have waitForTransactionReceipt)
         let confirmed = false
         let attempts = 0
-        const maxAttempts = 30 // 30 seconds max
+        const maxAttempts = 60 // 60 seconds max (TRON can be slow)
 
         while (!confirmed && attempts < maxAttempts) {
           try {
-            // Use walletsolidity endpoint for confirmed transactions
-            const response = await fetch(`${rpcUrl}/walletsolidity/gettransactionbyid`, {
+            // Try walletsolidity first (confirmed txs), fallback to wallet (recent txs)
+            const endpoint = attempts < 20 ? '/wallet/gettransactionbyid' : '/walletsolidity/gettransactionbyid'
+            const response = await fetch(`${rpcUrl}${endpoint}`, {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ value: txHash }),
             })
 
-            const tx = await response.json()
-            const contractRet = tx?.ret?.[0]?.contractRet
+            if (response.ok) {
+              const tx = await response.json()
+              const contractRet = tx?.ret?.[0]?.contractRet
 
-            if (contractRet === 'SUCCESS') {
-              confirmed = true
-            } else if (contractRet === 'REVERT' || contractRet === 'OUT_OF_ENERGY') {
-              throw new Error(`Transaction failed: ${contractRet}`)
+              if (contractRet === 'SUCCESS') {
+                confirmed = true
+              } else if (contractRet === 'REVERT' || contractRet === 'OUT_OF_ENERGY') {
+                throw new Error(`Transaction failed: ${contractRet}`)
+              }
+              // If no contractRet yet, continue polling
             }
-            // If no contractRet yet, continue polling
           } catch (err) {
-            // Continue polling on errors
+            // Continue polling on errors unless it's a failure
+            if (err instanceof Error && err.message.includes('Transaction failed')) {
+              throw err
+            }
           }
 
           if (!confirmed) {
@@ -155,7 +161,8 @@ export const useAllowanceApproval = (
         }
 
         if (!confirmed) {
-          throw new Error('Transaction confirmation timeout')
+          console.warn('[TRON] Transaction confirmation timeout, but transaction may still succeed')
+          // Don't throw - approval might have succeeded even if we couldn't confirm
         }
       } else {
         // Handle EVM transaction confirmation

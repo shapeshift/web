@@ -82,11 +82,17 @@ export const approveTron = async ({
     throw new Error('Failed to sign TRON approval transaction')
   }
 
-  // Broadcast - signedTx.serialized is a JSON string
+  // Build the transaction object for broadcast
+  // signedTx.serialized is the raw hex, signature is separate
+  const broadcastTx = {
+    ...transaction,
+    signature: [signedTx.signature],
+  }
+
   const broadcastResponse = await fetch(`${rpcUrl}/wallet/broadcasttransaction`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: signedTx.serialized,
+    body: JSON.stringify(broadcastTx),
   })
 
   if (!broadcastResponse.ok) {

@@ -146,18 +146,10 @@ export const useGetTradeQuotes = () => {
         (!permit2?.isRequired && hopExecutionMetadata?.state === HopExecutionState.AwaitingSwap)
       )
 
-    const shouldFetch =
+    return (
       hopExecutionMetadata?.state === HopExecutionState.AwaitingSwap &&
       hopExecutionMetadata?.swap?.state === TransactionExecutionState.AwaitingConfirmation
-
-    console.log('[APPROVE DEBUG] isFetchStep check:', {
-      swapperName,
-      shouldFetch,
-      hopState: hopExecutionMetadata?.state,
-      swapState: hopExecutionMetadata?.swap?.state,
-    })
-
-    return shouldFetch
+    )
   }, [
     hopExecutionMetadata?.permit2,
     hopExecutionMetadata?.state,
@@ -166,7 +158,7 @@ export const useGetTradeQuotes = () => {
   ])
 
   const shouldFetchTradeQuotes = useMemo(() => {
-    const should = Boolean(
+    return Boolean(
       hasFocus &&
         // Only fetch quote if the current "quote" is a rate (which we have gotten from input step)
         activeTrade &&
@@ -177,19 +169,6 @@ export const useGetTradeQuotes = () => {
         sellAccountMetadata &&
         receiveAddress,
     )
-
-    console.log('[APPROVE DEBUG] shouldFetchTradeQuotes:', {
-      should,
-      hasFocus,
-      hasActiveTrade: !!activeTrade,
-      isExecutableQuote: activeTrade && isExecutableTradeQuote(activeTrade),
-      isFetchStep,
-      hasSellAccountId: !!sellAccountId,
-      hasSellAccountMetadata: !!sellAccountMetadata,
-      hasReceiveAddress: !!receiveAddress,
-    })
-
-    return should
   }, [hasFocus, activeTrade, isFetchStep, sellAccountId, sellAccountMetadata, receiveAddress])
 
   const queryFnOrSkip = useMemo(() => {

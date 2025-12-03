@@ -553,12 +553,12 @@ export const assetIdToTronToken = (assetId: AssetId): string => {
 **Solution**: Access RPC URL from TRON chain adapter instance:
 ```typescript
 const adapter = assertGetTronChainAdapter(chainId)
-const rpcUrl = (adapter as any).rpcUrl
+const rpcUrl = adapter.httpProvider.getRpcUrl()
 ```
 
-**Note**: This uses `as any` because rpcUrl is protected, but it's the only way to access it.
+**Note**: Use `httpProvider.getRpcUrl()` for type-safe access (matches pattern in src/lib/utils/tron.ts).
 
-**Affected Files**: `endpoints.ts` (getUnsignedTronTransaction)
+**Affected Files**: `endpoints.ts` (getUnsignedTronTransaction), approval utilities
 
 ---
 

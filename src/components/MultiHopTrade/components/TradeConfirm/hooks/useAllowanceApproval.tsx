@@ -128,7 +128,7 @@ export const useAllowanceApproval = (
 
         while (!confirmed && attempts < maxAttempts) {
           try {
-            // Try walletsolidity first (confirmed txs), fallback to wallet (recent txs)
+            // Try wallet first (recent txs), then walletsolidity (confirmed txs)
             const endpoint =
               attempts < 20 ? '/wallet/gettransactionbyid' : '/walletsolidity/gettransactionbyid'
             const response = await fetch(`${rpcUrl}${endpoint}`, {

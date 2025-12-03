@@ -101,9 +101,10 @@ export const approveTron = async ({
 
   const result = await broadcastResponse.json()
 
-  if (!result.result && !result.txid) {
+  const txid = result.txid ?? transaction.txID
+  if (!result.result && !txid) {
     throw new Error(`TRON approval broadcast failed: ${JSON.stringify(result)}`)
   }
 
-  return result.txid
+  return txid
 }

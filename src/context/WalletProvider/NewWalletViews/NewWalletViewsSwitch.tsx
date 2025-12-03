@@ -30,6 +30,7 @@ import { TrezorRoutes } from './routes/TrezorRoutes'
 import { WalletConnectV2Routes } from './routes/WalletConnectV2Routes'
 import { HardwareWalletsSection } from './sections/HardwareWalletsSection'
 import { InstalledWalletsSection } from './sections/InstalledWalletsSection'
+import { MobileWalletsSection } from './sections/MobileWalletsSection'
 import { OthersSection } from './sections/OthersSection'
 import { SavedWalletListButton, SavedWalletsSection } from './sections/SavedWalletsSection'
 import type { RightPanelContentProps } from './types'
@@ -253,15 +254,19 @@ export const NewWalletViewsSwitch = () => {
   }, [queryClient])
 
   const sections = useMemo(() => {
-    if (!isLargerThanMd && !isMobile) {
+    if (!isLargerThanMd) {
       return (
         <MobileWebSelect isOpen={modal} onClose={onClose}>
-          <SavedWalletsSection
-            selectedWalletId={selectedWalletId}
-            onWalletSelect={handleWalletSelect}
-            renderItem={SavedWalletListButton}
-            showHeader={false}
-          />
+          {isMobile ? (
+            <MobileWalletsSection showHeader={false} />
+          ) : (
+            <SavedWalletsSection
+              selectedWalletId={selectedWalletId}
+              onWalletSelect={handleWalletSelect}
+              renderItem={SavedWalletListButton}
+              showHeader={false}
+            />
+          )}
         </MobileWebSelect>
       )
     }
@@ -314,7 +319,7 @@ export const NewWalletViewsSwitch = () => {
           <Box
             position='absolute'
             left={3}
-            top={2}
+            top='calc(env(safe-area-inset-top) + 0.5rem)'
             zIndex={1}
             bg={buttonContainerBgColor}
             borderRadius='2xl'

@@ -17,6 +17,7 @@ type Command =
   | 'getExpoToken'
   | 'requestStoreReview'
   | 'getAppVersion'
+  | 'console'
 
 export type HapticLevel = 'light' | 'medium' | 'heavy' | 'soft' | 'rigid'
 
@@ -58,6 +59,12 @@ type Message =
   | {
       cmd: 'getAppVersion'
     }
+  | {
+      cmd: 'detectWallets'
+    }
+  | {
+      cmd: 'console'
+    }
 
 export type MessageFromMobileApp = {
   id: number
@@ -67,6 +74,11 @@ export type MessageFromMobileApp = {
 export type MobileAppVersion = {
   version: string
   build: string
+}
+
+export type MobileConsoleParams = {
+  fn: 'log' | 'warn' | 'error'
+  data: string
 }
 
 /**
@@ -112,6 +124,13 @@ const postMessage = <T>(msg: Message): Promise<T> => {
  */
 export const showDeveloperModal = (): Promise<void> => {
   return postMessage({ cmd: 'showDeveloperModal', key: 'show' })
+}
+
+/*
+ * Get list of detected wallets from the mobile app
+ */
+export const getDetectedWallets = (): Promise<string[]> => {
+  return postMessage<string[]>({ cmd: 'detectWallets' })
 }
 
 /**
@@ -215,4 +234,8 @@ export const requestStoreReview = (): Promise<boolean> => {
  */
 export const requestAppVersion = (): Promise<MobileAppVersion | undefined> => {
   return postMessage<MobileAppVersion>({ cmd: 'getAppVersion' })
+}
+
+export const sendMobileConsole = (params: MobileConsoleParams): Promise<void> => {
+  return postMessage<void>({ cmd: 'console', ...params })
 }

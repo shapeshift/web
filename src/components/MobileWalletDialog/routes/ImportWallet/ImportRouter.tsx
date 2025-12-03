@@ -52,10 +52,11 @@ const ImportRoutes = ({
 
 export const ImportRouter = (props: ImportRouterProps) => {
   const navigate = useNavigate()
+  const { defaultRoute } = props
 
   const handleRedirectToHome = useCallback(() => {
-    navigate(MobileWalletDialogRoutes.Saved)
-  }, [navigate])
+    navigate(defaultRoute || MobileWalletDialogRoutes.Start)
+  }, [navigate, defaultRoute])
 
   return (
     <SlideTransition>

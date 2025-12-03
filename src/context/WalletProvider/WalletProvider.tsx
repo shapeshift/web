@@ -8,7 +8,7 @@ import type { EthereumProvider as EthereumProviderType } from '@walletconnect/et
 import findIndex from 'lodash/findIndex'
 import omit from 'lodash/omit'
 import type { JSX } from 'react'
-import React, { Suspense, useCallback, useEffect, useMemo, useReducer } from 'react'
+import React, { useCallback, useEffect, useMemo, useReducer } from 'react'
 
 import type { ActionTypes } from './actions'
 import { WalletActions } from './actions'
@@ -25,7 +25,6 @@ import { NativeWalletRoutes } from './types'
 import { useEip1993EventHandler } from './useEip1993EventHandler'
 import type { IWalletContext } from './WalletContext'
 import { WalletContext } from './WalletContext'
-import { WalletViewsRouter } from './WalletViewsRouter'
 
 import type { Entropy } from '@/context/WalletProvider/KeepKey/components/RecoverySettings'
 import { VALID_ENTROPY } from '@/context/WalletProvider/KeepKey/components/RecoverySettings'
@@ -44,7 +43,6 @@ import {
 import { portfolio as portfolioSlice } from '@/state/slices/portfolioSlice/portfolioSlice'
 import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
 import { store } from '@/state/store'
-import { defaultSuspenseFallback } from '@/utils/makeSuspenseful'
 
 export type WalletInfo = {
   name: string
@@ -1009,12 +1007,5 @@ export const WalletProvider = ({ children }: { children: React.ReactNode }): JSX
     [state, getAdapter, connect, create, importWallet, disconnect, load, setDeviceState],
   )
 
-  return (
-    <WalletContext.Provider value={value}>
-      {children}
-      <Suspense fallback={defaultSuspenseFallback}>
-        <WalletViewsRouter />
-      </Suspense>
-    </WalletContext.Provider>
-  )
+  return <WalletContext.Provider value={value}>{children}</WalletContext.Provider>
 }

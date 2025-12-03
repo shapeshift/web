@@ -1,4 +1,4 @@
-import { contractAddressOrUndefined } from '@shapeshiftoss/utils'
+import { bnOrZero, contractAddressOrUndefined } from '@shapeshiftoss/utils'
 import { TronWeb } from 'tronweb'
 
 import type { GetUnsignedTronTransactionArgs, SwapperName } from '../../types'
@@ -67,7 +67,7 @@ export const getTronTransactionFees = async (
 
       let tx = await tronWeb.transactionBuilder.sendTrx(
         vault,
-        Number(sellAmountIncludingProtocolFeesCryptoBaseUnit),
+        bnOrZero(sellAmountIncludingProtocolFeesCryptoBaseUnit).toNumber(),
         from,
       )
 

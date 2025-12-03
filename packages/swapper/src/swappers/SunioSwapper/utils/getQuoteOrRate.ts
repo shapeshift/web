@@ -107,6 +107,15 @@ export async function getQuoteOrRate(
     let networkFeeCryptoBaseUnit: string | undefined = undefined
 
     if (isQuote) {
+      if (!receiveAddress) {
+        return Err(
+          makeSwapErrorRight({
+            message: '[Sun.io] receiveAddress is required for quotes',
+            code: TradeQuoteError.InternalError,
+          }),
+        )
+      }
+
       const adapter = assertGetTronChainAdapter(sellAsset.chainId)
       const feeData = await adapter.getFeeData({
         to: receiveAddress,

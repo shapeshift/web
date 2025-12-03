@@ -43,6 +43,9 @@ export const useApprovalFees = ({
   const approveContractData = useMemo(() => {
     if (!amountCryptoBaseUnit || !spender || !to || !chainId || !enabled) return
 
+    // Only generate contract data for EVM chains (TRON doesn't use this)
+    if (chainId === tronChainId) return undefined
+
     return getApproveContractData({
       approvalAmountCryptoBaseUnit: getApprovalAmountCryptoBaseUnit(
         amountCryptoBaseUnit,

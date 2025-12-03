@@ -359,6 +359,14 @@ export const useTradeExecution = (
             supportsEIP1559,
             permit2Signature: permit2.permit2Signature,
             signAndBroadcastTransaction: async (txToSign: SignTx<EvmChainId>) => {
+              dispatch(
+                tradeQuoteSlice.actions.setSwapInboundAddress({
+                  hopIndex,
+                  inboundAddress: txToSign.to,
+                  id: confirmedTradeId,
+                }),
+              )
+
               const output = await signAndBroadcast({
                 adapter,
                 txToSign,
@@ -398,6 +406,17 @@ export const useTradeExecution = (
             senderAddress,
             accountType,
             signAndBroadcastTransaction: async (txToSign: SignTx<UtxoChainId>) => {
+              const inboundAddress = txToSign.outputs?.[0]?.address
+              if (inboundAddress) {
+                dispatch(
+                  tradeQuoteSlice.actions.setSwapInboundAddress({
+                    hopIndex,
+                    inboundAddress,
+                    id: confirmedTradeId,
+                  }),
+                )
+              }
+
               const signedTx = await adapter.signTransaction({ txToSign, wallet })
               const output = await adapter.broadcastTransaction({ hex: signedTx })
 
@@ -424,6 +443,17 @@ export const useTradeExecution = (
             slippageTolerancePercentageDecimal,
             from,
             signAndBroadcastTransaction: async (txToSign: SignTx<CosmosSdkChainId>) => {
+              const inboundAddress = txToSign.tx?.msg?.[0]?.value?.to_address
+              if (inboundAddress && typeof inboundAddress === 'string') {
+                dispatch(
+                  tradeQuoteSlice.actions.setSwapInboundAddress({
+                    hopIndex,
+                    inboundAddress,
+                    id: confirmedTradeId,
+                  }),
+                )
+              }
+
               const hex = await adapter.signTransaction({ txToSign, wallet })
 
               const output = await adapter.broadcastTransaction({

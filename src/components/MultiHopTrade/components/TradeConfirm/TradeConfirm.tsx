@@ -40,8 +40,16 @@ export const TradeConfirm = ({ isCompact }: { isCompact: boolean | undefined }) 
   const tradeQuoteLastHop = useAppSelector(selectLastHop)
   useTrackTradeQuotes()
   const tradeQuoteStep = useMemo(() => {
-    return currentHopIndex === 0 ? tradeQuoteFirstHop : tradeQuoteLastHop
-  }, [currentHopIndex, tradeQuoteFirstHop, tradeQuoteLastHop])
+    const step = currentHopIndex === 0 ? tradeQuoteFirstHop : tradeQuoteLastHop
+    console.log('[APPROVE DEBUG] tradeQuoteStep:', {
+      hopIndex: currentHopIndex,
+      accountNumber: step?.accountNumber,
+      quoteOrRate: activeQuote?.quoteOrRate,
+      sellAsset: step?.sellAsset.symbol,
+      hasAllowanceContract: !!step?.allowanceContract,
+    })
+    return step
+  }, [currentHopIndex, tradeQuoteFirstHop, tradeQuoteLastHop, activeQuote])
 
   const confirmedTradeExecutionState = useAppSelector(selectConfirmedTradeExecutionState)
   const prevIsConnected = usePrevious(isConnected)

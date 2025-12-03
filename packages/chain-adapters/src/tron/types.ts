@@ -22,6 +22,7 @@ export type BuildTxInput = {
 }
 
 export type GetFeeDataInput = {
+  from?: string
   contractAddress?: string
   memo?: string
 }

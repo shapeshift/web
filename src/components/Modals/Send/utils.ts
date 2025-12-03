@@ -134,6 +134,7 @@ export const estimateFees = async ({
         value,
         sendMax,
         chainSpecific: {
+          from,
           contractAddress,
           memo,
         },

@@ -359,7 +359,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TronMainnet> {
     input: GetFeeDataInput<KnownChainIds.TronMainnet>,
   ): Promise<FeeDataEstimate<KnownChainIds.TronMainnet>> {
     try {
-      const { to, value, chainSpecific: { contractAddress, memo } = {} } = input
+      const { to, value, chainSpecific: { from, contractAddress, memo } = {} } = input
 
       // Get live network prices from chain parameters
       const tronWeb = new TronWeb({ fullHost: this.rpcUrl })
@@ -373,10 +373,11 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TronMainnet> {
       if (contractAddress) {
         // TRC20: Estimate energy using existing method
         try {
-          // Use actual recipient address for accurate SSTORE calculation
+          // Use sender address if available, otherwise use recipient for estimation
+          const estimationFrom = from || to
           const energyEstimate = await this.providers.http.estimateTRC20TransferFee({
             contractAddress,
-            from: to, // Use recipient as 'from' for estimation purposes
+            from: estimationFrom,
             to,
             amount: value,
           })

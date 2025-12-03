@@ -12,6 +12,7 @@ export default function register(): Plugins {
       'zcashChainAdapter',
       {
         name: 'zcashChainAdapter',
+        featureFlag: ['Zcash'],
         providers: {
           chainAdapters: [
             [

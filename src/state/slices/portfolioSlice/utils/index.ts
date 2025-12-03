@@ -28,6 +28,7 @@ import {
   toAccountId,
   toAssetId,
   tronChainId,
+  zecChainId,
 } from '@shapeshiftoss/caip'
 import type { Account } from '@shapeshiftoss/chain-adapters'
 import { evmChainIds } from '@shapeshiftoss/chain-adapters'
@@ -112,6 +113,8 @@ export const accountIdToLabel = (accountId: AccountId): string => {
       if (pubkey.startsWith('Mtub')) return 'Segwit'
       if (pubkey.startsWith('zpub')) return 'Segwit Native'
       return ''
+    case zecChainId:
+      return 'Zcash'
     default: {
       return ''
     }
@@ -385,6 +388,8 @@ export const isAssetSupportedByWallet = (assetId: AssetId, wallet: HDWallet): bo
     case dogeChainId:
       return supportsBTC(wallet) && !(wallet instanceof PhantomHDWallet)
     case bchChainId:
+      return supportsBTC(wallet) && !(wallet instanceof PhantomHDWallet)
+    case zecChainId:
       return supportsBTC(wallet) && !(wallet instanceof PhantomHDWallet)
     case cosmosChainId:
       return supportsCosmos(wallet)

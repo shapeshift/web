@@ -13,7 +13,8 @@ export const SUNIO_SMART_ROUTER_CONTRACT = 'TCFNp179Lg46D16zKoumd4Poa2WFFdtqYj' 
 
 export const DEFAULT_SLIPPAGE_PERCENTAGE = '0.005'
 
-export const SUNIO_DEX_TYPES = 'PSM,CURVE,CURVE_COMBINATION,WTRX,SUNSWAP_V1,SUNSWAP_V2,SUNSWAP_V3' as const
+export const SUNIO_DEX_TYPES =
+  'PSM,CURVE,CURVE_COMBINATION,WTRX,SUNSWAP_V1,SUNSWAP_V2,SUNSWAP_V3' as const
 
 // Native TRX token address (used when assetId is not a TRC-20 token)
 export const SUNIO_TRON_NATIVE_ADDRESS = 'T9yD14Nj9j7xAB4dbGeiX9h8unkKHxuWwb' as const

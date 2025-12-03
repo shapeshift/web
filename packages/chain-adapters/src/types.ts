@@ -88,6 +88,7 @@ type ChainSpecificFeeData<T> = ChainSpecific<
     [KnownChainIds.ArbitrumNovaMainnet]: evm.FeeData
     [KnownChainIds.BaseMainnet]: evm.FeeData
     [KnownChainIds.MonadMainnet]: evm.FeeData
+    [KnownChainIds.PlasmaMainnet]: evm.FeeData
     [KnownChainIds.BitcoinMainnet]: utxo.FeeData
     [KnownChainIds.BitcoinCashMainnet]: utxo.FeeData
     [KnownChainIds.DogecoinMainnet]: utxo.FeeData

@@ -78,6 +78,7 @@ export const evmChainIds = [
   KnownChainIds.ArbitrumNovaMainnet,
   KnownChainIds.BaseMainnet,
   KnownChainIds.MonadMainnet,
+  KnownChainIds.PlasmaMainnet,
 ] as const
 
 export type EvmChainAdapter = EvmBaseAdapter<EvmChainId>
@@ -257,6 +258,11 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
         name: 'MON',
         symbol: 'MON',
         explorer: 'https://monadvision.com',
+      },
+      [KnownChainIds.PlasmaMainnet]: {
+        name: 'Plasma',
+        symbol: 'XPL',
+        explorer: 'https://plasmascan.to',
       },
     }[this.chainId]
 

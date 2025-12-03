@@ -42,6 +42,7 @@ type ChainSpecificAccount<T> = ChainSpecific<
     [KnownChainIds.ArbitrumNovaMainnet]: evm.Account
     [KnownChainIds.BaseMainnet]: evm.Account
     [KnownChainIds.MonadMainnet]: evm.Account
+    [KnownChainIds.PlasmaMainnet]: evm.Account
     [KnownChainIds.BitcoinMainnet]: utxo.Account
     [KnownChainIds.BitcoinCashMainnet]: utxo.Account
     [KnownChainIds.DogecoinMainnet]: utxo.Account
@@ -378,6 +379,7 @@ export enum ChainAdapterDisplayName {
   ArbitrumNova = 'Arbitrum Nova',
   Base = 'Base',
   Monad = 'Monad',
+  Plasma = 'Plasma',
   Cosmos = 'Cosmos',
   Bitcoin = 'Bitcoin',
   BitcoinCash = 'Bitcoin Cash',

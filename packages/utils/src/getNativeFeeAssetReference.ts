@@ -42,6 +42,8 @@ export const getNativeFeeAssetReference = (
             return ASSET_REFERENCE.Base
           case CHAIN_REFERENCE.MonadMainnet:
             return ASSET_REFERENCE.Monad
+          case CHAIN_REFERENCE.PlasmaMainnet:
+            return ASSET_REFERENCE.Plasma
           default:
             throw new Error(`Chain namespace ${chainNamespace} on ${chainReference} not supported.`)
         }

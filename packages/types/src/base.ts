@@ -24,6 +24,7 @@ export enum KnownChainIds {
   ArbitrumNovaMainnet = 'eip155:42170',
   BaseMainnet = 'eip155:8453',
   MonadMainnet = 'eip155:143',
+  PlasmaMainnet = 'eip155:9745',
   BitcoinMainnet = 'bip122:000000000019d6689c085ae165831e93',
   BitcoinCashMainnet = 'bip122:000000000000000000651ef99cb9fcbe',
   DogecoinMainnet = 'bip122:00000000001a91e3dace36e2be3bf030',
@@ -47,6 +48,7 @@ export type EvmChainId =
   | KnownChainIds.ArbitrumNovaMainnet
   | KnownChainIds.BaseMainnet
   | KnownChainIds.MonadMainnet
+  | KnownChainIds.PlasmaMainnet
 
 export type CosmosSdkChainId =
   | KnownChainIds.CosmosMainnet

@@ -35,6 +35,7 @@ import { generateRelatedAssetIndex } from './generateRelatedAssetIndex/generateR
 import * as gnosis from './gnosis'
 import * as monad from './monad'
 import * as optimism from './optimism'
+import * as plasma from './plasma'
 import { overrideAssets } from './overrides'
 import * as polygon from './polygon'
 import * as solana from './solana'
@@ -53,6 +54,7 @@ const generateAssetData = async () => {
   const arbitrumNovaAssets = await arbitrumNova.getAssets()
   const baseAssets = await base.getAssets()
   const monadAssets = await monad.getAssets()
+  const plasmaAssets = await plasma.getAssets()
   const solanaAssets = await solana.getAssets()
   const tronAssets = await tronModule.getAssets()
   const suiAssets = await sui.getAssets()
@@ -79,6 +81,7 @@ const generateAssetData = async () => {
     ...arbitrumNovaAssets,
     ...baseAssets,
     ...monadAssets,
+    ...plasmaAssets,
     ...solanaAssets,
     ...tronAssets,
     ...suiAssets,

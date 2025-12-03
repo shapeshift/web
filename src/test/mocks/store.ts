@@ -105,6 +105,7 @@ export const mockStore: ReduxState = {
       BnbSmartChain: false,
       Mayachain: false,
       Monad: false,
+      Plasma: false,
       ZrxSwap: false,
       ThorSwap: false,
       Cowswap: false,

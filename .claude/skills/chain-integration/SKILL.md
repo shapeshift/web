@@ -966,6 +966,32 @@ case [chainLower]ChainId:
   return COINGECKO_NATIVE_ASSET_PLATFORM.[ChainName]
 ```
 
+**File**: `scripts/generateAssetData/coingecko.ts`
+
+```typescript
+// Import the chain ID
+import {
+  // ...
+  [chainLower]ChainId,
+} from '@shapeshiftoss/caip'
+
+// Import the base asset
+import {
+  // ...
+  [chainLower],
+} from '@shapeshiftoss/utils'
+
+// Add case in the switch statement
+case [chainLower]ChainId:
+  return {
+    assetNamespace: ASSET_NAMESPACE.erc20, // or splToken, trc20, etc.
+    category: adapters.chainIdToCoingeckoAssetPlatform(chainId),
+    explorer: [chainLower].explorer,
+    explorerAddressLink: [chainLower].explorerAddressLink,
+    explorerTxLink: [chainLower].explorerTxLink,
+  }
+```
+
 ### Step 5.2: Create Asset Generator
 
 **File**: `scripts/generateAssetData/[chainname]/index.ts`
@@ -1309,6 +1335,7 @@ gh pr create --title "feat: implement [chainname]" \
 ### Web Files (Assets)
 - [ ] `packages/caip/src/adapters/coingecko/index.ts`
 - [ ] `packages/caip/src/adapters/coingecko/utils.ts`
+- [ ] `scripts/generateAssetData/coingecko.ts`
 - [ ] `scripts/generateAssetData/[chainname]/index.ts`
 - [ ] `scripts/generateAssetData/generateAssetData.ts`
 

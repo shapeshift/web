@@ -330,7 +330,8 @@ export const plasma: Readonly<Asset> = Object.freeze({
   color: '#8B5CF6',
   networkColor: '#8B5CF6',
   icon: 'https://assets.coingecko.com/coins/images/44164/standard/PLASMA_LOGO.png?1748245064',
-  networkIcon: 'https://assets.coingecko.com/coins/images/44164/standard/PLASMA_LOGO.png?1748245064',
+  networkIcon:
+    'https://assets.coingecko.com/coins/images/44164/standard/PLASMA_LOGO.png?1748245064',
   explorer: 'https://plasmascan.to',
   explorerAddressLink: 'https://plasmascan.to/address/',
   explorerTxLink: 'https://plasmascan.to/tx/',

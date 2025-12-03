@@ -161,11 +161,6 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
 
         const hasEnoughNativeTokenForGas = nativeAssetBalance.minus(estimatedFees.fast.txFee).gte(0)
 
-        console.log({
-          hasEnoughNativeTokenForGas,
-          nativeAssetBalance: nativeAssetBalance.toFixed(),
-          estimatedFees,
-        })
         // The worst case scenario - user cannot ever cover the gas fees - regardless of whether this is a token send or not
         if (!hasEnoughNativeTokenForGas) {
           setValue(SendFormFields.AmountFieldError, [
@@ -201,8 +196,6 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
 
         return estimatedFees
       } catch (e: unknown) {
-        console.debug(e)
-
         if (e instanceof ChainAdapterError) {
           throw new Error(translate(e.metadata.translation, e.metadata.options))
         }

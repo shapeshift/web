@@ -382,6 +382,16 @@ export const tradeQuoteSlice = createSlice({
         state.tradeExecution[id][hopKey][allowanceKey].txHash = txHash
       },
     ),
+    setSwapInboundAddress: create.reducer(
+      (
+        state,
+        action: PayloadAction<{ hopIndex: number; inboundAddress: string; id: TradeQuote['id'] }>,
+      ) => {
+        const { hopIndex, inboundAddress } = action.payload
+        const key = hopIndex === 0 ? HopKey.FirstHop : HopKey.SecondHop
+        state.tradeExecution[action.payload.id][key].swap.inboundAddress = inboundAddress
+      },
+    ),
     setSwapSellTxHash: create.reducer(
       (
         state,

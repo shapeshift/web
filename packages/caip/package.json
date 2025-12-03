@@ -1,6 +1,6 @@
 {
   "name": "@shapeshiftoss/caip",
-  "version": "8.16.3",
+  "version": "8.16.4",
   "description": "CAIP Implementation",
   "repository": "https://github.com/shapeshift/web",
   "license": "MIT",
@@ -31,5 +31,8 @@
     "postbuild": "yarn postbuild:esm && yarn postbuild:cjs",
     "postbuild:esm": "yarn run -T tsc-esm-fix --target=dist/esm --ext=.js",
     "postbuild:cjs": "echo '{\"type\": \"commonjs\"}' > dist/cjs/package.json"
+  },
+  "dependencies": {
+    "axios": "^1.13.0"
   }
 }

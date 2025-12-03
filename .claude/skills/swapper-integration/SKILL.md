@@ -38,7 +38,7 @@ ShapeShift Web is a decentralized crypto exchange aggregator that supports multi
 **BEFORE asking the user for anything**, proactively research the swapper online:
 
 1. **Search for official documentation**:
-   ```
+   ```text
    Search: "[SwapperName] API documentation"
    Search: "[SwapperName] developer docs"
    Search: "[SwapperName] swagger api"
@@ -57,13 +57,13 @@ ShapeShift Web is a decentralized crypto exchange aggregator that supports multi
    - Example requests/responses
 
 4. **Research chain support**:
-   ```
+   ```text
    Search: "[SwapperName] supported chains"
    Search: "[SwapperName] which blockchains"
    ```
 
 5. **Find existing integrations**:
-   ```
+   ```text
    Search: "github [SwapperName] integration example"
    Search: "[SwapperName] typescript sdk"
    ```
@@ -137,40 +137,6 @@ AskUserQuestion({
 ### Phase 2: Deep Research & Pattern Analysis
 
 **IMPORTANT**: Study existing swappers BEFORE writing any code. This prevents reimplementing solved problems.
-
-**PROTIP: Use `node -e` for Quick Testing**
-
-When uncertain about how a library works (especially for blockchain SDKs like TronWeb, viem, @solana/web3.js):
-
-```bash
-# Test TronWeb address conversion
-node -e "
-const TronWeb = require('tronweb');
-const tw = new TronWeb({ fullHost: 'https://api.trongrid.io' });
-console.log('Base58:', 'TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t');
-console.log('Hex:', tw.address.toHex('TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t'));
-"
-
-# Test ethers/viem checksumming
-node -e "
-const { getAddress } = require('viem');
-console.log(getAddress('0x5daf465aaef...'));
-"
-
-# Test API response parsing
-node -e "
-const response = { buyAmount: '1000000', sellAmount: '500000' };
-console.log('Buy:', response.buyAmount);
-console.log('Sell:', response.sellAmount);
-"
-```
-
-**Use this when**:
-- Uncertain about library API behavior
-- Need to test address conversions
-- Want to verify JSON response structure
-- Testing mathematical calculations
-- Checking if a function exists on an object
 
 #### Step 1: Identify Swapper Category
 
@@ -252,12 +218,8 @@ packages/swapper/src/swappers/NearIntentsSwapper/
 
 #### Step 3: Review Common Patterns
 
-**Read the reference documentation**:
-- `@reference.md` - Architecture, interfaces, universal patterns
-- `@common-gotchas.md` - Critical bugs (slippage format, checksumming, hex conversion)
-- `@examples.md` - Copy-paste templates
+### Key Pattern: Monadic Error Handling
 
-**Key Pattern: Monadic Error Handling**
 ```typescript
 import { Err, Ok } from '@sniptt/monads'
 import { makeSwapErrorRight } from '../../../utils'
@@ -274,7 +236,8 @@ if (result.isErr()) {
 return Ok(result.unwrap())
 ```
 
-**Key Pattern: HTTP Service with Caching**
+### Key Pattern: HTTP Service with Caching
+
 ```typescript
 import { createCache, makeSwapperAxiosServiceMonadic } from '../../../utils'
 
@@ -292,7 +255,8 @@ const serviceBase = createCache(maxAge, cachedUrls, {
 export const xyzService = makeSwapperAxiosServiceMonadic(serviceBase)
 ```
 
-**Key Pattern: Rate Calculation**
+### Key Pattern: Rate Calculation
+
 ```typescript
 import { getInputOutputRate } from '../../../utils'
 
@@ -1215,30 +1179,32 @@ export const csps = [
 ]
 ```
 
-**4e. UI - Feature Flag**
+#### 4e. UI - Feature Flag
 
 Add to `src/state/slices/preferencesSlice/preferencesSlice.ts`:
 ```typescript
 export type FeatureFlags = {
   // ... existing
-  [SwapperName]Swap: boolean
+  BebopSwap: boolean  // Example: use PascalCase swapper name + "Swap" suffix
 }
 
 const initialState: Preferences = {
   featureFlags: {
     // ... existing
-    [SwapperName]Swap: getConfig().VITE_FEATURE_[SWAPPER]_SWAP
+    BebopSwap: getConfig().VITE_FEATURE_BEBOP_SWAP
   }
 }
 ```
 
-**4f. Wire Feature Flag** in `src/state/helpers.ts`
+#### 4f. Wire Feature Flag
+
+In `src/state/helpers.ts`:
 
 Add to `isCrossAccountTradeSupported` (if supported):
 ```typescript
 export const isCrossAccountTradeSupported = (swapperName: SwapperName): boolean => {
   switch (swapperName) {
-    case SwapperName.[SwapperName]:
+    case SwapperName.Bebop:  // Use enum value, not placeholder
       return true // or false if not supported
     // ...
   }
@@ -1249,30 +1215,35 @@ Add to `getEnabledSwappers`:
 ```typescript
 export const getEnabledSwappers = (
   {
-    [SwapperName]Swap, // ADD THIS
-    ...otherFlags
+    BebopSwap,  // ADD THIS - destructure the flag directly
+    // ... other existing flags like ChainflipSwap, ThorSwap, etc.
   }: FeatureFlags,
-  isCrossAccountTrade: boolean
+  isCrossAccountTrade: boolean,
+  isSolBuyAssetId: boolean
 ): Record<SwapperName, boolean> => {
   return {
     // ... existing
-    [SwapperName.[SwapperName]]:
-      [SwapperName]Swap &&
-      (!isCrossAccountTrade || isCrossAccountTradeSupported(SwapperName.[SwapperName]))
+    [SwapperName.Bebop]:
+      BebopSwap &&
+      (!isCrossAccountTrade || isCrossAccountTradeSupported(SwapperName.Bebop))
   }
 }
 ```
 
-**4g. Test Mocks** in `src/test/mocks/store.ts`
+#### 4g. Test Mocks
+
+In `src/test/mocks/store.ts`:
 
 ```typescript
 featureFlags: {
   // ... existing
-  [SwapperName]Swap: false
+  BebopSwap: false  // Use actual flag name, not placeholder
 }
 ```
 
-**4h. Swapper Icon** in UI
+#### 4h. Swapper Icon
+
+In UI:
 
 Add icon: `src/components/MultiHopTrade/components/TradeInput/components/SwapperIcon/[swapper]-icon.png`
 
@@ -1289,7 +1260,7 @@ const SwapperIcon = ({ swapperName }: Props) => {
 }
 ```
 
-**4i. Environment Variables**
+#### 4i. Environment Variables
 
 `.env` (production - both OFF):
 ```bash
@@ -1316,7 +1287,7 @@ export const getConfig = (): Config => ({
 
 #### Step 5: Proactive Gotcha Review
 
-**BEFORE testing**, check for these critical bugs (from `@common-gotchas.md`):
+**BEFORE testing**, check for these critical bugs:
 
 1. **Slippage Format**: Verify API format (percentage, decimal, basis points)
 2. **Address Checksumming**: Use `getAddress()` from viem
@@ -1521,16 +1492,10 @@ Before considering integration complete:
 
 ---
 
-## Reference Files
-
-- `@reference.md` - Swapper architecture, interfaces, universal patterns
-- `@common-gotchas.md` - Critical bugs to avoid (READ THIS!)
-- `@examples.md` - Code templates and examples
-
 ## Need Help?
 
-1. Read similar swapper implementations
-2. Check `@common-gotchas.md` for your specific issue
+1. Read similar swapper implementations in packages/swapper/src/swappers/
+2. Review the gotchas and patterns documented throughout this skill
 3. Grep for similar patterns: `grep -r "pattern" packages/swapper/src/swappers/`
 4. Ask user for API behavior clarification
 5. Test with curl to verify API responses

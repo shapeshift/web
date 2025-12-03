@@ -500,8 +500,7 @@ export const getL1RateOrQuote = async <T extends ThorTradeRateOrQuote>(
               }
 
               networkFeeCryptoBaseUnit = String(totalFee)
-            } catch (err) {
-              console.warn('Failed to estimate TRON fees for rate:', err)
+            } catch {
               // Leave as undefined if estimation fails
             }
           }

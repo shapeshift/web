@@ -168,21 +168,9 @@ export const sunioApi: SwapperApi = {
   checkTradeStatus: async ({ txHash, assertGetTronChainAdapter }) => {
     try {
       const adapter = assertGetTronChainAdapter(tronChainId)
-      const rpcUrl = adapter.httpProvider.getRpcUrl()
+      const tx = await adapter.httpProvider.getTransaction({ txid: txHash })
 
-      const response = await fetch(`${rpcUrl}/wallet/gettransactionbyid`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ value: txHash, visible: true }),
-      })
-
-      if (!response.ok) {
-        return createDefaultStatusResponse(txHash)
-      }
-
-      const tx = await response.json()
-
-      if (!tx || !tx.txID) {
+      if (!tx) {
         return createDefaultStatusResponse(txHash)
       }
 

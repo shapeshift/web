@@ -14,7 +14,7 @@ const after = {
   top: 0,
   width: '100%',
   height: '100vh',
-  backgroundImage: `url(${isFirefox ? OrbsStatic : Orbs})`,
+  backgroundImage: `url(${OrbsStatic})`,
   backgroundSize: 'cover',
   backgroundPosition: 'center center',
 }

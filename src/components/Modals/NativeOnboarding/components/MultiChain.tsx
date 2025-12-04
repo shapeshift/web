@@ -1,6 +1,6 @@
 import { Center, Flex, Image } from '@chakra-ui/react'
 
-import MultiChainIcon from '../multi-chain.svg'
+import MultiChainIcon from '../multi-chain.svg?url'
 
 import { SlideTransition } from '@/components/SlideTransition'
 import { Text } from '@/components/Text'

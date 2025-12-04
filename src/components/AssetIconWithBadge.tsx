@@ -16,7 +16,7 @@ import {
   topClipPath,
 } from './AssetIcon'
 
-import FlipShadow from '@/assets/flip-shadow.svg'
+import FlipShadow from '@/assets/flip-shadow.svg?url'
 import type { Transfer } from '@/hooks/useTxDetails/useTxDetails'
 import { selectAssetById } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'

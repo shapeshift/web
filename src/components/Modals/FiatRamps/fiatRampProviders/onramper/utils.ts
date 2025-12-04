@@ -13,7 +13,7 @@ import type {
   OnRamperGatewaysResponse,
 } from './types'
 
-import OnRamperLogo from '@/assets/onramper-logo.svg'
+import OnRamperLogo from '@/assets/onramper-logo.svg?url'
 import { getConfig } from '@/config'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 

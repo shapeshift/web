@@ -127,6 +127,16 @@ export class TronApi {
 
     const tx = await response.json()
 
+    console.log('==================== TRON getTransaction DEBUG ====================')
+    console.log('txid:', params.txid)
+    console.log('Full response:', JSON.stringify(tx, null, 2))
+    console.log('tx.txID:', tx.txID)
+    console.log('tx.blockNumber:', tx.blockNumber)
+    console.log('tx.blockTimeStamp:', tx.blockTimeStamp)
+    console.log('tx.ret:', JSON.stringify(tx.ret, null, 2))
+    console.log('tx.raw_data:', JSON.stringify(tx.raw_data, null, 2))
+    console.log('===================================================================')
+
     if (!tx || !tx.txID) {
       return null
     }

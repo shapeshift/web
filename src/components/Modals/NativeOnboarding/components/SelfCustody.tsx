@@ -1,6 +1,6 @@
 import { Center, Flex, Image } from '@chakra-ui/react'
 
-import SelfCustodyIcon from '../self-custody.svg'
+import SelfCustodyIcon from '../self-custody.svg?url'
 
 import { SlideTransition } from '@/components/SlideTransition'
 import { Text } from '@/components/Text'

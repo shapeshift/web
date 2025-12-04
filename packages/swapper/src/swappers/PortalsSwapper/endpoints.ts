@@ -161,8 +161,9 @@ export const portalsApi: SwapperApi = {
           buyTxHash: squidStatus.destinationTxHash,
           relayerExplorerTxLink: getSquidTrackingLink(
             txHash,
-            swap.sellAsset.chainId,
-            swap.buyAsset.chainId,
+            squidStatus,
+            swap.sellAsset.explorerTxLink,
+            swap.buyAsset.explorerTxLink,
           ),
           message: squidTxStatus === TxStatus.Pending ? 'Cross-chain swap in progress' : undefined,
         }

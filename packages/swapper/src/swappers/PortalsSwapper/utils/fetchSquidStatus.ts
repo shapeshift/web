@@ -97,10 +97,13 @@ export const fetchSquidBridgeStatus = async (
 
 export const getSquidTrackingLink = (
   sourceTxHash: string,
-  sourceChainId: ChainId,
-  destinationChainId: ChainId,
+  squidStatus: SquidBridgeStatus,
+  sellAssetExplorerTxLink: string,
+  buyAssetExplorerTxLink: string,
 ): string => {
-  const fromChain = fromChainId(sourceChainId).chainReference
-  const toChain = fromChainId(destinationChainId).chainReference
-  return `https://v2.api.squidrouter.com/v2/status?transactionId=${sourceTxHash}&fromChainId=${fromChain}&toChainId=${toChain}`
+  if (squidStatus.status === 'confirmed' && squidStatus.destinationTxHash) {
+    return `${buyAssetExplorerTxLink}${squidStatus.destinationTxHash}`
+  }
+
+  return `${sellAssetExplorerTxLink}${sourceTxHash}`
 }

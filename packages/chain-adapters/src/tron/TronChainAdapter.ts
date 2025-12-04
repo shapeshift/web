@@ -355,6 +355,11 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TronMainnet> {
     }
   }
 
+  // TODO: CRITICAL - Fix fee estimation for TRC20 tokens
+  // Current implementation returns FIXED 0.268 TRX for all transactions
+  // Reality: TRC20 transfers cost 6-15 TRX (energy + bandwidth + memo)
+  // This causes UI to show wrong fees and transactions to fail on-chain
+  // See TRON_FEE_ESTIMATION_ISSUES.md for detailed analysis and fix
   async getFeeData(
     input: GetFeeDataInput<KnownChainIds.TronMainnet>,
   ): Promise<FeeDataEstimate<KnownChainIds.TronMainnet>> {

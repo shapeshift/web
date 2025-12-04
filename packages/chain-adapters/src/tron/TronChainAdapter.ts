@@ -532,7 +532,35 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TronMainnet> {
         }
       }
 
-      const totalFee = energyFee + bandwidthFee
+      // Check if recipient address needs activation (1 TRX cost)
+      let accountActivationFee = 0
+      try {
+        const recipientInfoResponse = await fetch(`${this.rpcUrl}/wallet/getaccount`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            address: to,
+            visible: true,
+          }),
+        })
+        const recipientInfo = await recipientInfoResponse.json()
+        const recipientExists = recipientInfo && Object.keys(recipientInfo).length > 1
+
+        // If recipient doesn't exist, add 1 TRX activation fee
+        if (!recipientExists && !contractAddress) {
+          accountActivationFee = 1_000_000 // 1 TRX = 1,000,000 sun
+          console.log('[TronChainAdapter] Recipient needs activation:', JSON.stringify({
+            recipientAddress: to,
+            activationCost: accountActivationFee,
+            activationCostTRX: '1.000000',
+          }, null, 2))
+        }
+      } catch (err) {
+        console.error('[TronChainAdapter] Failed to check recipient account:', err)
+        // Don't fail on this check - continue with 0 activation fee
+      }
+
+      const totalFee = energyFee + bandwidthFee + accountActivationFee
 
       // Calculate bandwidth for display
       const estimatedBandwidth = String(Math.ceil(bandwidthFee / bandwidthPrice))
@@ -540,6 +568,8 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TronMainnet> {
       console.log('[TronChainAdapter] getFeeData result:', JSON.stringify({
         energyFee,
         bandwidthFee,
+        accountActivationFee,
+        accountActivationFeeTRX: (accountActivationFee / 1_000_000).toFixed(1),
         totalFee,
         estimatedBandwidth,
         isNativeTRX: !contractAddress,

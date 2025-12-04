@@ -34,7 +34,7 @@ export type AxelarscanBridgeStatus = {
 
 export const fetchAxelarscanBridgeStatus = async (
   sourceTxHash: string,
-): Promise<Result<AxelarscanBridgeStatus, SwapErrorRight>> => {
+): Promise<Result<AxelarscanBridgeStatus | undefined, SwapErrorRight>> => {
   try {
     const response = await fetch(`https://api.axelarscan.io/gmp/searchGMP?txHash=${sourceTxHash}`)
 
@@ -49,9 +49,7 @@ export const fetchAxelarscanBridgeStatus = async (
     const data: AxelarscanResponse = await response.json()
 
     if (!data.data || data.data.length === 0) {
-      return Ok({
-        status: 'pending' as const,
-      })
+      return Ok(undefined)
     }
 
     const bridgeData = data.data[0]

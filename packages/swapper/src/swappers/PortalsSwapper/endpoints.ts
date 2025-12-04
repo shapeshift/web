@@ -135,7 +135,7 @@ export const portalsApi: SwapperApi = {
 
     const axelarscanResult = await fetchAxelarscanBridgeStatus(txHash)
 
-    if (axelarscanResult.isErr() && swap) {
+    if ((axelarscanResult.isErr() || !axelarscanResult.unwrap()) && swap) {
       const squidResult = await fetchSquidBridgeStatus(
         txHash,
         swap.sellAsset.chainId,
@@ -177,6 +177,13 @@ export const portalsApi: SwapperApi = {
     }
 
     const bridgeStatus = axelarscanResult.unwrap()
+    if (!bridgeStatus) {
+      return {
+        status: TxStatus.Pending,
+        buyTxHash: undefined,
+        message: 'Cross-chain swap in progress',
+      }
+    }
 
     const txStatus = (() => {
       switch (bridgeStatus.status) {

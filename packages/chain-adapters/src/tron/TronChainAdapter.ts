@@ -418,16 +418,15 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TronMainnet> {
 
           bandwidthFee = totalBytes * bandwidthPrice
         } catch (err) {
-          // Fallback bandwidth estimate
-          const baseBytes = memo ? 231 : 198
-          bandwidthFee = baseBytes * bandwidthPrice
+          // Fallback bandwidth estimate: Base tx + memo bytes
+          const baseBytes = 198
+          const memoBytes = memo ? Buffer.from(memo, 'utf8').length : 0
+          const totalBytes = baseBytes + memoBytes
+          bandwidthFee = totalBytes * bandwidthPrice
         }
       }
 
-      // Add 1 TRX memo fee when memo present (network parameter #68)
-      const memoFee = memo ? 1_000_000 : 0
-
-      const totalFee = energyFee + bandwidthFee + memoFee
+      const totalFee = energyFee + bandwidthFee
 
       // Calculate bandwidth for display
       const estimatedBandwidth = String(Math.ceil(bandwidthFee / bandwidthPrice))

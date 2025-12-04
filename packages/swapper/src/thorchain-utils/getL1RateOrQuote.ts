@@ -489,14 +489,13 @@ export const getL1RateOrQuote = async <T extends ThorTradeRateOrQuote>(
                   totalFee = 13_000_000 // 13 TRX worst case
                 }
               } else {
-                // TRX transfer bandwidth
-                const baseBandwidth = 198 * bandwidthPrice
-                totalFee = baseBandwidth
-              }
-
-              // Add memo fee if memo will be present
-              if (route.quote.memo) {
-                totalFee += 1_000_000 // 1 TRX memo fee
+                // TRX transfer bandwidth: Base tx + memo bytes
+                const baseBytes = 198
+                const memoBytes = route.quote.memo
+                  ? Buffer.from(route.quote.memo, 'utf8').length
+                  : 0
+                const totalBandwidth = baseBytes + memoBytes
+                totalFee = totalBandwidth * bandwidthPrice
               }
 
               networkFeeCryptoBaseUnit = String(totalFee)

@@ -1,5 +1,5 @@
 import { tronChainId } from '@shapeshiftoss/caip'
-import { bn } from '@shapeshiftoss/utils'
+import { bn, contractAddressOrUndefined } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 
@@ -118,9 +118,13 @@ export async function getQuoteOrRate(
 
       const adapter = assertGetTronChainAdapter(sellAsset.chainId)
       const feeData = await adapter.getFeeData({
-        to: receiveAddress,
+        to: SUNIO_SMART_ROUTER_CONTRACT,
         value: '0',
         sendMax: false,
+        chainSpecific: {
+          from: receiveAddress,
+          contractAddress: contractAddressOrUndefined(sellAsset.assetId),
+        },
       })
       networkFeeCryptoBaseUnit = feeData.fast.txFee
     }

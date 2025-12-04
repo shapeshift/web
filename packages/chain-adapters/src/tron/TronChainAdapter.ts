@@ -184,14 +184,14 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TronMainnet> {
         chainSpecific: { contractAddress, memo } = {},
       } = input
 
-      console.log('[TronChainAdapter] buildSendApiTransaction input:', {
+      console.log('[TronChainAdapter] buildSendApiTransaction input:', JSON.stringify({
         from,
         to,
         value,
         contractAddress,
         memo,
         isNativeTRX: !contractAddress,
-      })
+      }, null, 2))
 
       // Create TronWeb instance once and reuse
       const tronWeb = new TronWeb({
@@ -239,7 +239,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TronMainnet> {
         })
         const accountInfo = await accountInfoResponse.json()
 
-        console.log('[TronChainAdapter] Account balance check:', {
+        console.log('[TronChainAdapter] Account balance check:', JSON.stringify({
           address: from,
           balance: accountInfo.balance,
           balanceTRX: accountInfo.balance ? (accountInfo.balance / 1_000_000).toFixed(6) : '0',
@@ -249,7 +249,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TronMainnet> {
           attemptingSend: value,
           attemptingSendTRX: (Number(value) / 1_000_000).toFixed(6),
           hasEnough: accountInfo.balance >= Number(value),
-        })
+        }, null, 2))
 
         const requestBody = {
           owner_address: from,
@@ -258,7 +258,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TronMainnet> {
           visible: true,
         }
 
-        console.log('[TronChainAdapter] /wallet/createtransaction request:', requestBody)
+        console.log('[TronChainAdapter] /wallet/createtransaction request:', JSON.stringify(requestBody, null, 2))
 
         const response = await fetch(`${this.rpcUrl}/wallet/createtransaction`, {
           method: 'POST',
@@ -268,11 +268,11 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TronMainnet> {
 
         txData = await response.json()
 
-        console.log('[TronChainAdapter] /wallet/createtransaction response:', {
+        console.log('[TronChainAdapter] /wallet/createtransaction response:', JSON.stringify({
           hasError: !!txData.Error,
           error: txData.Error,
           hasRawDataHex: !!txData.raw_data_hex,
-        })
+        }, null, 2))
 
         if (txData.Error) {
           throw new Error(`TronGrid API error: ${txData.Error}`)
@@ -412,14 +412,14 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TronMainnet> {
     try {
       const { to, value, chainSpecific: { from, contractAddress, memo } = {} } = input
 
-      console.log('[TronChainAdapter] getFeeData input:', {
+      console.log('[TronChainAdapter] getFeeData input:', JSON.stringify({
         to,
         value,
         from,
         contractAddress,
         memo,
         isNativeTRX: !contractAddress,
-      })
+      }, null, 2))
 
       // Get live network prices from chain parameters
       const tronWeb = new TronWeb({ fullHost: this.rpcUrl })
@@ -427,10 +427,10 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TronMainnet> {
       const bandwidthPrice = params.find(p => p.key === 'getTransactionFee')?.value ?? 1000
       const energyPrice = params.find(p => p.key === 'getEnergyFee')?.value ?? 100
 
-      console.log('[TronChainAdapter] Chain parameters:', {
+      console.log('[TronChainAdapter] Chain parameters:', JSON.stringify({
         bandwidthPrice,
         energyPrice,
-      })
+      }, null, 2))
 
       let energyFee = 0
       let bandwidthFee = 0
@@ -491,13 +491,13 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TronMainnet> {
       // Calculate bandwidth for display
       const estimatedBandwidth = String(Math.ceil(bandwidthFee / bandwidthPrice))
 
-      console.log('[TronChainAdapter] getFeeData result:', {
+      console.log('[TronChainAdapter] getFeeData result:', JSON.stringify({
         energyFee,
         bandwidthFee,
         totalFee,
         estimatedBandwidth,
         isNativeTRX: !contractAddress,
-      })
+      }, null, 2))
 
       return {
         fast: {

@@ -220,6 +220,13 @@ export const getTradeQuote = async (
         case CHAIN_NAMESPACE.Tron: {
           const sellAdapter = deps.assertGetTronChainAdapter(sellAsset.chainId)
           const contractAddress = contractAddressOrUndefined(sellAsset.assetId)
+          console.log('[NEAR Intents] TRON getFeeData input:', {
+            to: depositAddress,
+            value: sellAmount,
+            from: sendAddress,
+            contractAddress,
+            isNativeTRX: !contractAddress,
+          })
           const feeData = await sellAdapter.getFeeData({
             to: depositAddress,
             value: sellAmount,
@@ -227,6 +234,10 @@ export const getTradeQuote = async (
               from: sendAddress,
               contractAddress,
             },
+          })
+          console.log('[NEAR Intents] TRON getFeeData result:', {
+            networkFee: feeData.fast.txFee,
+            bandwidth: feeData.fast.chainSpecific?.bandwidth,
           })
 
           return { networkFeeCryptoBaseUnit: feeData.fast.txFee }
@@ -301,6 +312,16 @@ export const getTradeQuote = async (
         },
       ],
     }
+
+    console.log('[NEAR Intents] Final trade quote:', {
+      sellAmount: quote.amountIn,
+      buyAmount: quote.amountOut,
+      networkFee: networkFeeCryptoBaseUnit,
+      depositAddress: quote.depositAddress,
+      depositMemo: quote.depositMemo,
+      sellAssetId: sellAsset.assetId,
+      chainNamespace,
+    })
 
     return Ok([tradeQuote])
   } catch (error) {

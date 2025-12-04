@@ -184,6 +184,15 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TronMainnet> {
         chainSpecific: { contractAddress, memo } = {},
       } = input
 
+      console.log('[TronChainAdapter] buildSendApiTransaction input:', {
+        from,
+        to,
+        value,
+        contractAddress,
+        memo,
+        isNativeTRX: !contractAddress,
+      })
+
       // Create TronWeb instance once and reuse
       const tronWeb = new TronWeb({
         fullHost: this.rpcUrl,
@@ -219,18 +228,32 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TronMainnet> {
 
         txData = txData.transaction
       } else {
+        const requestBody = {
+          owner_address: from,
+          to_address: to,
+          amount: Number(value),
+          visible: true,
+        }
+
+        console.log('[TronChainAdapter] /wallet/createtransaction request:', requestBody)
+
         const response = await fetch(`${this.rpcUrl}/wallet/createtransaction`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            owner_address: from,
-            to_address: to,
-            amount: Number(value),
-            visible: true,
-          }),
+          body: JSON.stringify(requestBody),
         })
 
         txData = await response.json()
+
+        console.log('[TronChainAdapter] /wallet/createtransaction response:', {
+          hasError: !!txData.Error,
+          error: txData.Error,
+          hasRawDataHex: !!txData.raw_data_hex,
+        })
+
+        if (txData.Error) {
+          throw new Error(`TronGrid API error: ${txData.Error}`)
+        }
       }
 
       // Add memo if provided
@@ -366,11 +389,25 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TronMainnet> {
     try {
       const { to, value, chainSpecific: { from, contractAddress, memo } = {} } = input
 
+      console.log('[TronChainAdapter] getFeeData input:', {
+        to,
+        value,
+        from,
+        contractAddress,
+        memo,
+        isNativeTRX: !contractAddress,
+      })
+
       // Get live network prices from chain parameters
       const tronWeb = new TronWeb({ fullHost: this.rpcUrl })
       const params = await tronWeb.trx.getChainParameters()
       const bandwidthPrice = params.find(p => p.key === 'getTransactionFee')?.value ?? 1000
       const energyPrice = params.find(p => p.key === 'getEnergyFee')?.value ?? 100
+
+      console.log('[TronChainAdapter] Chain parameters:', {
+        bandwidthPrice,
+        energyPrice,
+      })
 
       let energyFee = 0
       let bandwidthFee = 0
@@ -431,6 +468,14 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TronMainnet> {
       // Calculate bandwidth for display
       const estimatedBandwidth = String(Math.ceil(bandwidthFee / bandwidthPrice))
 
+      console.log('[TronChainAdapter] getFeeData result:', {
+        energyFee,
+        bandwidthFee,
+        totalFee,
+        estimatedBandwidth,
+        isNativeTRX: !contractAddress,
+      })
+
       return {
         fast: {
           txFee: String(totalFee),
@@ -446,6 +491,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TronMainnet> {
         },
       }
     } catch (err) {
+      console.error('[TronChainAdapter] getFeeData error:', err)
       return ErrorHandler(err, {
         translation: 'chainAdapters.errors.getFeeData',
       })

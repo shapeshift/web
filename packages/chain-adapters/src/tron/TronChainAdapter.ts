@@ -239,16 +239,35 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TronMainnet> {
         })
         const accountInfo = await accountInfoResponse.json()
 
+        // Also check recipient address to see if it needs activation
+        const recipientInfoResponse = await fetch(`${this.rpcUrl}/wallet/getaccount`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            address: to,
+            visible: true,
+          }),
+        })
+        const recipientInfo = await recipientInfoResponse.json()
+        const recipientExists = recipientInfo && Object.keys(recipientInfo).length > 1
+        const accountActivationCost = recipientExists ? 0 : 1_000_000 // 1 TRX for new accounts
+
         console.log('[TronChainAdapter] Account balance check:', JSON.stringify({
-          address: from,
-          balance: accountInfo.balance,
-          balanceTRX: accountInfo.balance ? (accountInfo.balance / 1_000_000).toFixed(6) : '0',
-          frozenBalance: accountInfo.frozen?.[0]?.frozen_balance || 0,
-          freeNetUsed: accountInfo.free_net_used || 0,
-          freeNetLimit: accountInfo.free_net_limit || 0,
+          senderAddress: from,
+          senderBalance: accountInfo.balance,
+          senderBalanceTRX: accountInfo.balance ? (accountInfo.balance / 1_000_000).toFixed(6) : '0',
+          senderFrozenBalance: accountInfo.frozen?.[0]?.frozen_balance || 0,
+          senderFreeNetUsed: accountInfo.free_net_used || 0,
+          senderFreeNetLimit: accountInfo.free_net_limit || 0,
+          recipientAddress: to,
+          recipientExists,
+          recipientActivationCost: accountActivationCost,
+          recipientActivationCostTRX: (accountActivationCost / 1_000_000).toFixed(1),
           attemptingSend: value,
           attemptingSendTRX: (Number(value) / 1_000_000).toFixed(6),
-          hasEnough: accountInfo.balance >= Number(value),
+          totalCostWithActivation: Number(value) + accountActivationCost,
+          totalCostWithActivationTRX: ((Number(value) + accountActivationCost) / 1_000_000).toFixed(6),
+          senderHasEnoughWithActivation: accountInfo.balance >= (Number(value) + accountActivationCost),
         }, null, 2))
 
         const requestBody = {

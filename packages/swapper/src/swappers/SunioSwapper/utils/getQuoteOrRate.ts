@@ -140,7 +140,7 @@ export async function getQuoteOrRate(
             const energyFee = energyUsed * energyPrice // No multiplier - contract provides energy
 
             // Estimate bandwidth for contract call (much larger than simple transfer)
-            const bandwidthFee = 950 * bandwidthPrice // ~950 bytes for contract call
+            const bandwidthFee = 1100 * bandwidthPrice // ~1100 bytes for contract call (with safety buffer)
 
             // Check if recipient needs activation
             let accountActivationFee = 0
@@ -167,9 +167,9 @@ export async function getQuoteOrRate(
               .plus(accountActivationFee)
               .toFixed(0)
           } catch (estimationError) {
-            // Fallback estimate: ~2k energy + ~950 bytes bandwidth
+            // Fallback estimate: ~2k energy + ~1100 bytes bandwidth
             const fallbackEnergyFee = 2000 * energyPrice
-            const fallbackBandwidthFee = 950 * bandwidthPrice
+            const fallbackBandwidthFee = 1100 * bandwidthPrice
             networkFeeCryptoBaseUnit = bn(fallbackEnergyFee).plus(fallbackBandwidthFee).toFixed(0)
           }
         } else {
@@ -177,7 +177,7 @@ export async function getQuoteOrRate(
           // Same as TRX: contract owner provides most energy, user pays ~2k
           // Sun.io provides ~217k energy, user pays ~2k
           const energyFee = 2000 * energyPrice
-          const bandwidthFee = 950 * bandwidthPrice
+          const bandwidthFee = 1100 * bandwidthPrice
 
           networkFeeCryptoBaseUnit = bn(energyFee).plus(bandwidthFee).toFixed(0)
         }

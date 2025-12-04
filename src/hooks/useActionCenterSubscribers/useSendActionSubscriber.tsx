@@ -9,6 +9,7 @@ import { useNotificationToast } from '../useNotificationToast'
 import { useActionCenterContext } from '@/components/Layout/Header/ActionCenter/ActionCenterContext'
 import { GenericTransactionNotification } from '@/components/Layout/Header/ActionCenter/components/Notifications/GenericTransactionNotification'
 import { SECOND_CLASS_CHAINS } from '@/constants/chains'
+import { getHyperEvmTransactionStatus } from '@/lib/utils/hyperevm'
 import { getMonadTransactionStatus } from '@/lib/utils/monad'
 import { getSuiTransactionStatus } from '@/lib/utils/sui'
 import { getTronTransactionStatus } from '@/lib/utils/tron'
@@ -123,6 +124,15 @@ export const useSendActionSubscriber = () => {
                   const monadTxStatus = await getMonadTransactionStatus(txHash)
                   isConfirmed =
                     monadTxStatus === TxStatus.Confirmed || monadTxStatus === TxStatus.Failed
+                  break
+                }
+                case KnownChainIds.HyperEvmMainnet: {
+                  const hyperEvmTxStatus = await getHyperEvmTransactionStatus(
+                    txHash,
+                    'https://rpc.hyperliquid.xyz/evm',
+                  )
+                  isConfirmed =
+                    hyperEvmTxStatus === TxStatus.Confirmed || hyperEvmTxStatus === TxStatus.Failed
                   break
                 }
                 default:

@@ -224,8 +224,32 @@ After determining chain type (EVM or non-EVM), collect remaining details:
 
 ### Step 1.0: Choose Implementation Strategy
 
-**If EVM chain**: Skip to Step 1.2-EVM (much simpler!)
-**If non-EVM chain**: Continue with Step 1.1 below
+**If EVM chain**: Continue with Step 1.2-EVM below (MINIMAL hdwallet work - ~30 minutes)
+**If non-EVM chain**: Continue with Step 1.1 below (COMPLEX - 1-2 days)
+
+### ⚡ EVM Chains: Minimal HDWallet Work Required
+
+For EVM-compatible chains (like Monad, HyperEVM, Base), you need **MINIMAL changes** to hdwallet:
+
+**What EVM chains DON'T need:**
+- ❌ No new core interfaces (TronWallet, SuiWallet, etc.)
+- ❌ No crypto adapters (address derivation, signing)
+- ❌ No wallet mixins
+- ✅ Use existing Ethereum crypto (secp256k1, Keccak256)
+
+**What EVM chains DO need:**
+- ✅ Wallet support flags (`_supportsChainName: boolean`)
+- ✅ Support function (`supportsChainName()`)
+- ✅ Set flags on all wallet implementations (~14 files)
+- ✅ Version bump and Verdaccio publish
+
+**Why?** Each wallet type (Native, Ledger, MetaMask, etc.) needs to explicitly declare support for the chain, even though the crypto is identical. This enables wallet-specific gating in the UI.
+
+**Reference PRs:**
+- Monad hdwallet: https://github.com/shapeshift/hdwallet/pull/753
+- HyperEVM hdwallet: https://github.com/shapeshift/hdwallet/pull/756
+
+**Time estimate**: 30 minutes for hdwallet + Verdaccio (vs 1-2 days for non-EVM)
 
 ### Step 1.1: Research HDWallet Patterns (Non-EVM Only)
 
@@ -267,6 +291,61 @@ Register SLIP44 if not using Ethereum's (60):
 ```
 
 **That's it for hdwallet!** EVM chains don't need crypto adapters. Skip to Step 1.6 (Version Bump).
+
+### Step 1.2-EVM: EVM Chain HDWallet Support (MINIMAL WORK - ~30 minutes)
+
+**For EVM chains only** (like Monad, HyperEVM). Follow these PRs as reference:
+- **Monad hdwallet**: https://github.com/shapeshift/hdwallet/pull/753
+- **HyperEVM hdwallet**: https://github.com/shapeshift/hdwallet/pull/756
+
+**File**: `packages/hdwallet-core/src/ethereum.ts`
+
+Add your chain's support flag to the ETHWalletInfo interface:
+
+```typescript
+export interface ETHWalletInfo extends HDWalletInfo {
+  // ... existing flags
+  readonly _supportsMonad: boolean;
+  readonly _supportsHyperEvm: boolean;  // ADD THIS
+  // ...
+}
+```
+
+**File**: `packages/hdwallet-core/src/wallet.ts`
+
+Add support function after `supportsMonad`:
+
+```typescript
+export function supportsMonad(wallet: HDWallet): wallet is ETHWallet {
+  return isObject(wallet) && (wallet as any)._supportsMonad;
+}
+
+export function supports[ChainName](wallet: HDWallet): wallet is ETHWallet {
+  return isObject(wallet) && (wallet as any)._supports[ChainName];
+}
+```
+
+**Set flags on ALL wallet implementations** (~14 files):
+
+Set `readonly _supports[ChainName] = false` on:
+- packages/hdwallet-coinbase/src/coinbase.ts
+- packages/hdwallet-gridplus/src/gridplus.ts
+- packages/hdwallet-keepkey/src/keepkey.ts
+- packages/hdwallet-ledger/src/ledger.ts
+- packages/hdwallet-metamask-multichain/src/shapeshift-multichain.ts
+- packages/hdwallet-phantom/src/phantom.ts
+- packages/hdwallet-portis/src/portis.ts
+- packages/hdwallet-trezor/src/trezor.ts
+- packages/hdwallet-vultisig/src/vultisig.ts
+- packages/hdwallet-walletconnect/src/walletconnect.ts
+- packages/hdwallet-walletconnectV2/src/walletconnectV2.ts
+
+**Set `readonly _supports[ChainName] = true` for Native**:
+- packages/hdwallet-native/src/ethereum.ts
+
+**Then**: Skip to Step 1.6 (Version Bump)
+
+---
 
 ### Step 1.2-NonEVM: Non-EVM Core Interfaces (COMPLEX PATH)
 
@@ -944,58 +1023,282 @@ export default [
 
 ## Phase 5: Asset Generation
 
-### Step 5.1: CoinGecko Integration
+### Step 5.1: CoinGecko Adapter Integration
+
+**CRITICAL**: This step is required for asset discovery and pricing! See PR #11257 for Monad example.
 
 **File**: `packages/caip/src/adapters/coingecko/index.ts`
 
-```typescript
-// Add platform constant
-export const COINGECKO_NATIVE_ASSET_PLATFORM = {
-  // ...
-  [ChainName]: '[coingecko-platform-id]',
-}
+Add your chain to the CoingeckoAssetPlatform enum and import the chain ID:
 
-// Add to platform map
+```typescript
+// Add import at top
+import {
+  // ... existing imports
+  [chainLower]ChainId,
+} from '../../constants'
+
+// Add platform constant
+export enum CoingeckoAssetPlatform {
+  // ... existing platforms
+  [ChainName] = '[coingecko-platform-id]', // e.g., 'hyperliquid' for HyperEVM
+}
 ```
 
 **File**: `packages/caip/src/adapters/coingecko/utils.ts`
 
+Add chain ID to platform mapping in the `chainIdToCoingeckoAssetPlatform` function:
+
 ```typescript
-// Add chain ID to platform mapping
-case [chainLower]ChainId:
-  return COINGECKO_NATIVE_ASSET_PLATFORM.[ChainName]
+// For EVM chains, add to the EVM switch statement
+case CHAIN_REFERENCE.[ChainName]Mainnet:
+  return CoingeckoAssetPlatform.[ChainName]
+
+// For non-EVM chains, add separate case in outer switch
+```
+
+**File**: `packages/caip/src/adapters/coingecko/utils.test.ts`
+
+Add test case for your chain:
+
+```typescript
+it('returns correct platform for [ChainName]', () => {
+  expect(chainIdToCoingeckoAssetPlatform([chainLower]ChainId)).toEqual(
+    CoingeckoAssetPlatform.[ChainName]
+  )
+})
+```
+
+**File**: `packages/caip/src/adapters/coingecko/index.test.ts`
+
+Add test asset for your chain:
+
+```typescript
+// Add example asset from your chain to test fixtures
+const [chainLower]UsdcAssetId: AssetId = 'eip155:[CHAIN_ID]/erc20:[USDC_ADDRESS]'
+
+// Update test expectations to include your chain's asset
 ```
 
 ### Step 5.2: Create Asset Generator
 
 **File**: `scripts/generateAssetData/[chainname]/index.ts`
 
-```typescript
-// Fetch chain assets from CoinGecko or other source
-// Generate asset data in required format
-// See tron/index.ts, sui/index.ts, monad/index.ts for examples
+Follow the pattern from monad/tron/sui:
 
-export const generate[Chain]AssetData = async (): Promise<Asset[]> => {
-  // Implementation
+```typescript
+import { [chainLower]ChainId } from '@shapeshiftoss/caip'
+import type { Asset } from '@shapeshiftoss/types'
+import { [chainLower], unfreeze } from '@shapeshiftoss/utils'
+
+import * as coingecko from '../coingecko'
+
+export const getAssets = async (): Promise<Asset[]> => {
+  const assets = await coingecko.getAssets([chainLower]ChainId)
+
+  return [...assets, unfreeze([chainLower])]
 }
 ```
 
 **Wire into generator**:
+
+1. **Import** in `scripts/generateAssetData/generateAssetData.ts`:
 ```typescript
-// In scripts/generateAssetData/generateAssetData.ts
-const [chainLower]Assets = await generate[Chain]AssetData()
+import * as [chainLower] from './[chainname]'
 ```
 
-### Step 5.3: Generate Assets
+2. **Fetch assets** in the `generateAssetData()` function:
+```typescript
+const [chainLower]Assets = await [chainLower].getAssets()
+```
+
+3. **Add to unfilteredAssetData array**:
+```typescript
+  ...[chainLower]Assets,
+```
+
+**Add chain to CoinGecko script**:
+
+**File**: `scripts/generateAssetData/coingecko.ts`
+
+Import your chain:
+```typescript
+import {
+  // ... existing imports
+  [chainLower]ChainId,
+} from '@shapeshiftoss/caip'
+
+import {
+  // ... existing imports
+  [chainLower],
+} from '@shapeshiftoss/utils'
+```
+
+Add case in the switch statement (around line 133+):
+```typescript
+case [chainLower]ChainId:
+  return {
+    assetNamespace: ASSET_NAMESPACE.erc20, // or trc20, suiCoin, etc.
+    category: adapters.chainIdToCoingeckoAssetPlatform(chainId),
+    explorer: [chainLower].explorer,
+    explorerAddressLink: [chainLower].explorerAddressLink,
+    explorerTxLink: [chainLower].explorerTxLink,
+  }
+```
+
+### Step 5.3: Swapper Support Discovery & Integration
+
+**CRITICAL**: Add your chain to supported swappers so users can actually trade!
+
+#### Step 5.3a: Research Which Swappers Support Your Chain
+
+**Use `AskUserQuestion` to ask:**
+```
+Which swappers support [ChainName]?
+
+Options:
+1. "I know which swappers" → User provides list
+2. "Can you research it?" → Search swapper docs and supported chains lists
+3. "Just add Relay for now" → Start with Relay, add others later
+
+Context: Different swappers support different chains. We need to add your chain to each swapper that supports it.
+```
+
+**Search for swapper support:**
+1. **Relay**: Check https://docs.relay.link/resources/supported-chains
+2. **0x/Matcha**: Check https://0x.org/docs/introduction/0x-cheat-sheet
+3. **OneInch**: Check https://docs.1inch.io/docs/aggregation-protocol/introduction
+4. **CowSwap**: Check https://docs.cow.fi/cow-protocol/reference/contracts/deployments
+5. **Jupiter**: Solana-only
+6. **THORChain**: Check https://docs.thorchain.org/chain-clients/overview
+
+**Common patterns:**
+- Most EVM chains: Relay, 0x, possibly OneInch
+- Ethereum L2s: Relay, 0x, CowSwap, OneInch
+- Non-EVM: Relay (if supported), chain-specific DEXes
+
+#### Step 5.3b: Relay Swapper Integration (Most Common)
+
+**For Relay Swapper** (supports most chains):
+
+**File**: `packages/swapper/src/swappers/RelaySwapper/constant.ts`
+
+Add your chain to the Relay chain ID mapping:
+
+```typescript
+import {
+  // ... existing imports
+  [chainLower]ChainId,
+} from '@shapeshiftoss/caip'
+
+// Add to viem chain imports if EVM
+import {
+  // ... existing chains
+  [chainLower], // e.g., hyperliquid from viem/chains
+} from 'viem/chains'
+
+export const chainIdToRelayChainId = {
+  // ... existing mappings
+  [[chainLower]ChainId]: [chainLower].id, // For EVM chains using viem
+  // OR
+  [[chainLower]ChainId]: [RELAY_CHAIN_ID], // For non-EVM (get from Relay docs)
+}
+```
+
+**File**: `packages/swapper/src/swappers/RelaySwapper/utils/relayTokenToAssetId.ts`
+
+Add native asset case in the `relayTokenToAssetId` function:
+
+```typescript
+// Add to the switch statement for native assets (around line 100+)
+case CHAIN_REFERENCE.[ChainName]Mainnet:
+  return {
+    assetReference: ASSET_REFERENCE.[ChainName],
+    assetNamespace: ASSET_NAMESPACE.slip44,
+  }
+```
+
+**Check Relay docs** for your chain:
+- https://docs.relay.link/resources/supported-chains
+- Verify chain ID and native token address
+
+### Step 5.4: Generate Assets (Step-by-Step Approach)
+
+**IMPORTANT**: Asset generation requires a Zerion API key for related asset indexing.
+
+**Ask user for Zerion API key** using `AskUserQuestion`:
+```
+Do you have a Zerion API key to run asset generation?
+
+Options:
+1. "Yes, here it is" → User provides key (NEVER store in VCS!)
+2. "No, skip for now" → Skip asset generation, user can run manually later
+
+Context: Asset generation fetches token metadata and requires a Zerion API key.
+The key is passed via environment variable and should NEVER be committed to VCS.
+```
+
+**Ask user how they want to run generation** using `AskUserQuestion`:
+```
+How do you want to run the asset generation pipeline?
+
+Options:
+1. "I'll run it myself" → Copy command to clipboard (echo | pbcopy), user runs it, better visibility of progress
+2. "Claude runs it" → Claude runs all steps in background. ⚠️ WARNING: May take 5-10 minutes with limited visibility. You'll see less progress output.
+
+Context: Asset generation has 5 steps (caip-adapters, color-map, asset-data, tradable-asset-map, thor-longtail).
+Running manually gives full visibility of progress (you'll see "chain_id: hyperevm" tokens being processed).
+Claude running it is hands-off but you won't see detailed progress, and it may appear stuck for several minutes while processing thousands of tokens.
+```
+
+**Run generation scripts ONE AT A TIME** (better visibility than `generate:all`):
 
 ```bash
-# In web repo
-yarn generate:asset-data
+# Step 1: Generate CoinGecko CAIP adapters (JSON mappings from our code)
+yarn generate:caip-adapters
+# ✓ Generates packages/caip/src/adapters/coingecko/generated/eip155_999/adapter.json
+# ✓ Takes ~10 seconds
 
-# Commit generated assets
-git add src/assets/generated/
-git commit -m "feat: add [chainname] asset generation"
+# Step 2: Generate color map (picks up new assets)
+yarn generate:color-map
+# ✓ Updates scripts/generateAssetData/color-map.json
+# ✓ Takes ~5 seconds
+
+# Step 3: Generate asset data (fetches tokens from CoinGecko)
+ZERION_API_KEY=<user-provided-key> yarn generate:asset-data
+# ✓ Fetches all HyperEVM ERC20 tokens from CoinGecko platform 'hyperevm'
+# ✓ Updates src/assets/generated/
+# ✓ Takes 2-5 minutes - YOU SHOULD SEE:
+#   - "Total Portals tokens fetched for ethereum: XXXX"
+#   - "Total Portals tokens fetched for base: XXXX"
+#   - "chain_id": "hyperevm" appearing in output (means HyperEVM tokens found!)
+#   - "Generated CoinGecko AssetId adapter data."
+#   - "Asset data generated successfully"
+
+# Step 4: Generate tradable asset map (for swapper support)
+yarn generate:tradable-asset-map
+# ✓ Generates src/lib/swapper/constants.ts mappings
+# ✓ Takes ~10 seconds
+
+# Step 5: Generate Thor longtail tokens (Thor-specific, optional for most chains)
+yarn generate:thor-longtail-tokens
+# ✓ Updates Thor longtail token list
+# ✓ Takes ~5 seconds
 ```
+
+**Why step-by-step is better than `generate:all`**:
+- ✅ See exactly which step is running
+- ✅ Catch errors immediately
+- ✅ See progress output (like "chain_id": "hyperevm" tokens being processed)
+- ✅ Can skip irrelevant steps (e.g., thor-longtail for non-Thor chains)
+
+**Commit generated assets**:
+```bash
+git add src/assets/generated/ packages/caip/src/adapters/coingecko/generated/ scripts/generateAssetData/color-map.json
+git commit -m "feat: generate [chainname] assets and mappings"
+```
+
+**⚠️ CRITICAL**: NEVER commit the Zerion API key. Only use it in the command line.
 
 ---
 
@@ -1254,6 +1557,67 @@ gh pr create --title "feat: implement [chainname]" \
 **Solution**: Add retry logic, use multiple RPC endpoints
 **Example**: Implement fallback RPC URLs
 
+### Gotcha 11: Missing CoinGecko Script Case
+
+**Problem**: `yarn generate:asset-data` fails with "no coingecko token support for chainId"
+**Solution**: Add your chain case to `scripts/generateAssetData/coingecko.ts`
+**Files to update**:
+- Import `[chainLower]ChainId` from caip
+- Import `[chainLower]` base asset from utils
+- Add case in switch statement with assetNamespace, category, explorer links
+**Example**: See HyperEVM case (line ~143) for pattern
+
+### Gotcha 12: Zerion API Key Required
+
+**Problem**: Asset generation fails with "Missing Zerion API key"
+**Solution**: Get key from user via `AskUserQuestion`, pass as env var
+**Command**: `ZERION_API_KEY=<key> yarn generate:all`
+**CRITICAL**: NEVER commit the Zerion API key to VCS!
+**Example**: Always pass key via command line only
+
+### Gotcha 13: AssetService Missing Feature Flag Filter
+
+**Problem**: Assets for your chain appear even when feature flag is disabled
+**Solution**: Add feature flag filter to AssetService
+**File**: `src/lib/asset-service/service/AssetService.ts`
+**Code**: `if (!config.VITE_FEATURE_[CHAIN] && asset.chainId === [chainLower]ChainId) return false`
+**Example**: See line ~53 for Monad/Tron/Sui pattern
+**Reference**: Fixed in PR #11241 (Monad) - was initially forgotten
+
+### Gotcha 14: Missing from evmChainIds Array (EVM Chains Only)
+
+**Problem**: TypeScript errors "Type 'KnownChainIds.[Chain]Mainnet' is not assignable to type EvmChainId"
+**Solution**: Add your chain to the `evmChainIds` array in EvmBaseAdapter
+**Files to update**:
+- `packages/chain-adapters/src/evm/EvmBaseAdapter.ts` (line ~70)
+- Add to `evmChainIds` array: `KnownChainIds.[Chain]Mainnet`
+- Add to `targetNetwork` object (line ~210): network name, symbol, explorer
+**Example**: HyperEVM added at lines 81 and 262-266
+**Why**: The array defines which chains are EVM-compatible for type checking
+
+### Gotcha 15: Missing ChainSpecific Type Mappings (ALL Chains - 4 Places!)
+
+**Problem**: TypeScript errors like:
+- "Property 'chainSpecific' does not exist on type 'Account<T>'"
+- "Property 'chainSpecific' does not exist on type 'BuildSendApiTxInput<T>'"
+- "Property 'chainSpecific' does not exist on type 'GetFeeDataInput<T>'"
+
+**Solution**: Add your chain to FOUR type mapping objects in chain-adapters/src/types.ts
+
+**File**: `packages/chain-adapters/src/types.ts`
+
+**ALL FOUR mappings required**:
+1. ~Line 45: `ChainSpecificAccount` → `[KnownChainIds.[Chain]Mainnet]: evm.Account`
+2. ~Line 91: `ChainSpecificFeeData` → `[KnownChainIds.[Chain]Mainnet]: evm.FeeData`
+3. ~Line 219: `ChainSpecificBuildTxInput` → `[KnownChainIds.[Chain]Mainnet]: evm.BuildTxInput`
+4. ~Line 320: `ChainSpecificGetFeeDataInput` → `[KnownChainIds.[Chain]Mainnet]: evm.GetFeeDataInput`
+
+**Example**: HyperEVM added at lines 45, 91, 219, 320
+
+**Why**: TypeScript uses these to determine chain-specific data structures
+
+**CRITICAL**: Missing even ONE of these causes cryptic type errors! All 4 are required for ALL chains (EVM and non-EVM).
+
 ---
 
 ## Quick Reference: File Checklist
@@ -1306,11 +1670,20 @@ gh pr create --title "feat: implement [chainname]" \
 - [ ] `packages/utils/src/assetData/baseAssets.ts`
 - [ ] `packages/utils/src/assetData/getBaseAsset.ts`
 
-### Web Files (Assets)
-- [ ] `packages/caip/src/adapters/coingecko/index.ts`
-- [ ] `packages/caip/src/adapters/coingecko/utils.ts`
-- [ ] `scripts/generateAssetData/[chainname]/index.ts`
-- [ ] `scripts/generateAssetData/generateAssetData.ts`
+### Web Files (Assets & CoinGecko)
+- [ ] `packages/caip/src/adapters/coingecko/index.ts` (add platform enum)
+- [ ] `packages/caip/src/adapters/coingecko/utils.ts` (add chainId mapping and native asset)
+- [ ] `packages/caip/src/adapters/coingecko/utils.test.ts` (add test)
+- [ ] `packages/caip/src/adapters/coingecko/index.test.ts` (add asset fixture)
+- [ ] `scripts/generateAssetData/coingecko.ts` (add chain case for token fetching)
+- [ ] `scripts/generateAssetData/[chainname]/index.ts` (create asset generator)
+- [ ] `scripts/generateAssetData/generateAssetData.ts` (wire in generator)
+- [ ] `src/lib/asset-service/service/AssetService.ts` (add feature flag filter)
+
+### Web Files (Swapper Integration)
+- [ ] `packages/swapper/src/swappers/RelaySwapper/constant.ts` (add chain mapping)
+- [ ] `packages/swapper/src/swappers/RelaySwapper/utils/relayTokenToAssetId.ts` (add native asset case)
+- [ ] Other swappers as needed (CowSwap, OneInch, etc.)
 
 ### Web Files (Ledger - Optional)
 - [ ] `src/context/WalletProvider/Ledger/constants.ts`

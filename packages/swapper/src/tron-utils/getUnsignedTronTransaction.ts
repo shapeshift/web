@@ -25,17 +25,6 @@ export const getUnsignedTronTransaction = ({
   // Extract contract address for TRC20 tokens
   const contractAddress = contractAddressOrUndefined(sellAsset.assetId)
 
-  console.log('[TRON Utils] getUnsignedTronTransaction buildSendApiTransaction input:', JSON.stringify({
-    to,
-    from,
-    value,
-    accountNumber,
-    contractAddress,
-    isNativeTRX: !contractAddress,
-    networkFee: step.feeData.networkFeeCryptoBaseUnit,
-    swapperName: tradeQuote.swapperName,
-  }, null, 2))
-
   return adapter.buildSendApiTransaction({
     to,
     from,

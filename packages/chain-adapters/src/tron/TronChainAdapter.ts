@@ -184,15 +184,6 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TronMainnet> {
         chainSpecific: { contractAddress, memo } = {},
       } = input
 
-      console.log('[TronChainAdapter] buildSendApiTransaction input:', JSON.stringify({
-        from,
-        to,
-        value,
-        contractAddress,
-        memo,
-        isNativeTRX: !contractAddress,
-      }, null, 2))
-
       // Create TronWeb instance once and reuse
       const tronWeb = new TronWeb({
         fullHost: this.rpcUrl,
@@ -228,56 +219,12 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TronMainnet> {
 
         txData = txData.transaction
       } else {
-        // Check actual account balance before building transaction
-        const accountInfoResponse = await fetch(`${this.rpcUrl}/wallet/getaccount`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            address: from,
-            visible: true,
-          }),
-        })
-        const accountInfo = await accountInfoResponse.json()
-
-        // Also check recipient address to see if it needs activation
-        const recipientInfoResponse = await fetch(`${this.rpcUrl}/wallet/getaccount`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            address: to,
-            visible: true,
-          }),
-        })
-        const recipientInfo = await recipientInfoResponse.json()
-        const recipientExists = recipientInfo && Object.keys(recipientInfo).length > 1
-        const accountActivationCost = recipientExists ? 0 : 1_000_000 // 1 TRX for new accounts
-
-        console.log('[TronChainAdapter] Account balance check:', JSON.stringify({
-          senderAddress: from,
-          senderBalance: accountInfo.balance,
-          senderBalanceTRX: accountInfo.balance ? (accountInfo.balance / 1_000_000).toFixed(6) : '0',
-          senderFrozenBalance: accountInfo.frozen?.[0]?.frozen_balance || 0,
-          senderFreeNetUsed: accountInfo.free_net_used || 0,
-          senderFreeNetLimit: accountInfo.free_net_limit || 0,
-          recipientAddress: to,
-          recipientExists,
-          recipientActivationCost: accountActivationCost,
-          recipientActivationCostTRX: (accountActivationCost / 1_000_000).toFixed(1),
-          attemptingSend: value,
-          attemptingSendTRX: (Number(value) / 1_000_000).toFixed(6),
-          totalCostWithActivation: Number(value) + accountActivationCost,
-          totalCostWithActivationTRX: ((Number(value) + accountActivationCost) / 1_000_000).toFixed(6),
-          senderHasEnoughWithActivation: accountInfo.balance >= (Number(value) + accountActivationCost),
-        }, null, 2))
-
         const requestBody = {
           owner_address: from,
           to_address: to,
           amount: Number(value),
           visible: true,
         }
-
-        console.log('[TronChainAdapter] /wallet/createtransaction request:', JSON.stringify(requestBody, null, 2))
 
         const response = await fetch(`${this.rpcUrl}/wallet/createtransaction`, {
           method: 'POST',
@@ -286,25 +233,6 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TronMainnet> {
         })
 
         txData = await response.json()
-
-        // Calculate actual transaction size if successful
-        let actualBandwidth = 0
-        if (txData.raw_data_hex) {
-          const rawDataBytes = txData.raw_data_hex.length / 2
-          const signatureBytes = 65
-          actualBandwidth = Math.ceil(rawDataBytes + signatureBytes)
-        }
-
-        console.log('[TronChainAdapter] /wallet/createtransaction response:', JSON.stringify({
-          hasError: !!txData.Error,
-          error: txData.Error,
-          hasRawDataHex: !!txData.raw_data_hex,
-          actualBandwidthBytes: actualBandwidth,
-          actualBandwidthCost: actualBandwidth * 1000,
-          actualBandwidthCostTRX: (actualBandwidth * 1000 / 1_000_000).toFixed(6),
-          estimatedWas: 198,
-          difference: actualBandwidth - 198,
-        }, null, 2))
 
         if (txData.Error) {
           throw new Error(`TronGrid API error: ${txData.Error}`)
@@ -444,25 +372,11 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TronMainnet> {
     try {
       const { to, value, chainSpecific: { from, contractAddress, memo } = {} } = input
 
-      console.log('[TronChainAdapter] getFeeData input:', JSON.stringify({
-        to,
-        value,
-        from,
-        contractAddress,
-        memo,
-        isNativeTRX: !contractAddress,
-      }, null, 2))
-
       // Get live network prices from chain parameters
       const tronWeb = new TronWeb({ fullHost: this.rpcUrl })
       const params = await tronWeb.trx.getChainParameters()
       const bandwidthPrice = params.find(p => p.key === 'getTransactionFee')?.value ?? 1000
       const energyPrice = params.find(p => p.key === 'getEnergyFee')?.value ?? 100
-
-      console.log('[TronChainAdapter] Chain parameters:', JSON.stringify({
-        bandwidthPrice,
-        energyPrice,
-      }, null, 2))
 
       let energyFee = 0
       let bandwidthFee = 0
@@ -494,11 +408,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TronMainnet> {
         try {
           // Use actual sender if available, otherwise use recipient for estimation
           const estimationFrom = from || to
-          const baseTx = await tronWeb.transactionBuilder.sendTrx(
-            to,
-            Number(value),
-            estimationFrom,
-          )
+          const baseTx = await tronWeb.transactionBuilder.sendTrx(to, Number(value), estimationFrom)
 
           // Add memo if provided to get accurate size
           const finalTx = memo
@@ -511,19 +421,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TronMainnet> {
           const totalBytes = rawDataBytes + signatureBytes
 
           bandwidthFee = totalBytes * bandwidthPrice
-
-          console.log('[TronChainAdapter] Bandwidth calculation:', JSON.stringify({
-            rawDataBytes,
-            signatureBytes,
-            totalBytes,
-            bandwidthPrice,
-            bandwidthFee,
-            usedFrom: estimationFrom,
-            actualFrom: from,
-            to,
-          }, null, 2))
         } catch (err) {
-          console.error('[TronChainAdapter] Bandwidth estimation fallback:', err)
           // Fallback bandwidth estimate: Base tx + memo bytes
           const baseBytes = 198
           const memoBytes = memo ? Buffer.from(memo, 'utf8').length : 0
@@ -549,14 +447,8 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TronMainnet> {
         // If recipient doesn't exist, add 1 TRX activation fee
         if (!recipientExists && !contractAddress) {
           accountActivationFee = 1_000_000 // 1 TRX = 1,000,000 sun
-          console.log('[TronChainAdapter] Recipient needs activation:', JSON.stringify({
-            recipientAddress: to,
-            activationCost: accountActivationFee,
-            activationCostTRX: '1.000000',
-          }, null, 2))
         }
       } catch (err) {
-        console.error('[TronChainAdapter] Failed to check recipient account:', err)
         // Don't fail on this check - continue with 0 activation fee
       }
 
@@ -564,16 +456,6 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TronMainnet> {
 
       // Calculate bandwidth for display
       const estimatedBandwidth = String(Math.ceil(bandwidthFee / bandwidthPrice))
-
-      console.log('[TronChainAdapter] getFeeData result:', JSON.stringify({
-        energyFee,
-        bandwidthFee,
-        accountActivationFee,
-        accountActivationFeeTRX: (accountActivationFee / 1_000_000).toFixed(1),
-        totalFee,
-        estimatedBandwidth,
-        isNativeTRX: !contractAddress,
-      }, null, 2))
 
       return {
         fast: {
@@ -590,7 +472,6 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TronMainnet> {
         },
       }
     } catch (err) {
-      console.error('[TronChainAdapter] getFeeData error:', err)
       return ErrorHandler(err, {
         translation: 'chainAdapters.errors.getFeeData',
       })

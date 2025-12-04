@@ -134,56 +134,11 @@ export async function getQuoteOrRate(
           const bandwidthPrice = params.find(p => p.key === 'getTransactionFee')?.value ?? 1000
           const energyPrice = params.find(p => p.key === 'getEnergyFee')?.value ?? 100
 
-          // Build swap parameters to estimate energy
-          const convertAddressesToEvmFormat = (value: unknown): unknown => {
-            if (Array.isArray(value)) {
-              return value.map(v => convertAddressesToEvmFormat(v))
-            }
-            if (typeof value === 'string' && value.startsWith('T') && TronWeb.isAddress(value)) {
-              const hex = TronWeb.address.toHex(value)
-              return hex.replace(/^41/, '0x')
-            }
-            return value
-          }
-
-          const swapData = {
-            amountIn: sellAmountIncludingProtocolFeesCryptoBaseUnit,
-            amountOutMin: bn(bestRoute.amountOut)
-              .times(0.99)
-              .times(bn(10).pow(buyAsset.precision))
-              .toFixed(0),
-            recipient: receiveAddress,
-            deadline: Math.floor(Date.now() / 1000) + 60 * 20,
-          }
-
-          const parameters = [
-            { type: 'address[]', value: bestRoute.tokens },
-            { type: 'string[]', value: bestRoute.poolVersions },
-            { type: 'uint256[]', value: Array(bestRoute.poolVersions.length).fill(2) },
-            { type: 'uint24[]', value: bestRoute.poolFees.map(fee => Number(fee)) },
-            {
-              type: 'tuple(uint256,uint256,address,uint256)',
-              value: convertAddressesToEvmFormat([
-                swapData.amountIn,
-                swapData.amountOutMin,
-                swapData.recipient,
-                swapData.deadline,
-              ]),
-            },
-          ]
-
           try {
-            // Estimate energy using triggerConstantContract
-            const result = await tronWeb.transactionBuilder.triggerConstantContract(
-              SUNIO_SMART_ROUTER_CONTRACT,
-              'swapExactInput(address[],string[],uint256[],uint24[],(uint256,uint256,address,uint256))',
-              {},
-              parameters,
-              receiveAddress,
-            )
-
-            const energyUsed = result.energy_used ?? 120000
-            const energyFee = Math.ceil(energyUsed * energyPrice * 1.5) // 1.5x safety margin
+            // Sun.io contract owner provides most energy (~117k), users only pay ~2k
+            // Use fixed 2k energy estimate instead of querying (which returns total 120k)
+            const energyUsed = 2000 // User pays ~2k energy, contract covers the rest
+            const energyFee = energyUsed * energyPrice // No multiplier - contract provides energy
 
             // Estimate bandwidth for contract call (much larger than simple transfer)
             const bandwidthFee = 950 * bandwidthPrice // ~950 bytes for contract call
@@ -210,9 +165,8 @@ export async function getQuoteOrRate(
 
             networkFeeCryptoBaseUnit = String(energyFee + bandwidthFee + accountActivationFee)
           } catch (estimationError) {
-            // Fallback to conservative estimate if contract estimation fails
-            // Based on actual observed costs: ~120k energy + ~950 bytes bandwidth
-            const fallbackEnergyFee = 120000 * energyPrice * 1.5
+            // Fallback estimate: ~2k energy + ~950 bytes bandwidth
+            const fallbackEnergyFee = 2000 * energyPrice
             const fallbackBandwidthFee = 950 * bandwidthPrice
             networkFeeCryptoBaseUnit = String(fallbackEnergyFee + fallbackBandwidthFee)
           }

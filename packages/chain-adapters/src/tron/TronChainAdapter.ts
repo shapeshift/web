@@ -228,6 +228,29 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TronMainnet> {
 
         txData = txData.transaction
       } else {
+        // Check actual account balance before building transaction
+        const accountInfoResponse = await fetch(`${this.rpcUrl}/wallet/getaccount`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            address: from,
+            visible: true,
+          }),
+        })
+        const accountInfo = await accountInfoResponse.json()
+
+        console.log('[TronChainAdapter] Account balance check:', {
+          address: from,
+          balance: accountInfo.balance,
+          balanceTRX: accountInfo.balance ? (accountInfo.balance / 1_000_000).toFixed(6) : '0',
+          frozenBalance: accountInfo.frozen?.[0]?.frozen_balance || 0,
+          freeNetUsed: accountInfo.free_net_used || 0,
+          freeNetLimit: accountInfo.free_net_limit || 0,
+          attemptingSend: value,
+          attemptingSendTRX: (Number(value) / 1_000_000).toFixed(6),
+          hasEnough: accountInfo.balance >= Number(value),
+        })
+
         const requestBody = {
           owner_address: from,
           to_address: to,

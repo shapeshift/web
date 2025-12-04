@@ -1,4 +1,4 @@
-import { suiAssetId, suiChainId } from '@shapeshiftoss/caip'
+import { suiChainId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { sui, unfreeze } from '@shapeshiftoss/utils'
 import uniqBy from 'lodash/uniqBy'

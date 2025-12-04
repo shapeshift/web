@@ -24,6 +24,7 @@ export const getLedgerAppName = (chainId: ChainId | KnownChainIds | undefined) =
     case KnownChainIds.GnosisMainnet:
     case KnownChainIds.MonadMainnet:
     case KnownChainIds.OptimismMainnet:
+    case KnownChainIds.PlasmaMainnet:
     case KnownChainIds.PolygonMainnet:
       return 'Ethereum'
     case KnownChainIds.BitcoinCashMainnet:
@@ -76,6 +77,8 @@ const getCoin = (chainId: ChainId | KnownChainIds) => {
       return 'Base'
     case KnownChainIds.MonadMainnet:
       return 'Monad'
+    case KnownChainIds.PlasmaMainnet:
+      return 'Plasma'
     case KnownChainIds.ThorchainMainnet:
       return 'Rune'
     case KnownChainIds.MayachainMainnet:

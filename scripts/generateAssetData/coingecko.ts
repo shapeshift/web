@@ -11,6 +11,7 @@ import {
   gnosisChainId,
   monadChainId,
   optimismChainId,
+  plasmaChainId,
   polygonChainId,
   solanaChainId,
   suiChainId,
@@ -28,6 +29,7 @@ import {
   gnosis,
   monad,
   optimism,
+  plasma,
   polygon,
   solana,
   sui,
@@ -137,6 +139,14 @@ export async function getAssets(chainId: ChainId): Promise<Asset[]> {
           explorer: monad.explorer,
           explorerAddressLink: monad.explorerAddressLink,
           explorerTxLink: monad.explorerTxLink,
+        }
+      case plasmaChainId:
+        return {
+          assetNamespace: ASSET_NAMESPACE.erc20,
+          category: adapters.chainIdToCoingeckoAssetPlatform(chainId),
+          explorer: plasma.explorer,
+          explorerAddressLink: plasma.explorerAddressLink,
+          explorerTxLink: plasma.explorerTxLink,
         }
       case solanaChainId:
         return {

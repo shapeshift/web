@@ -755,6 +755,8 @@
     "receiveAddress": "Receive address",
     "changeAddress": "Change address",
     "changeAddressExplainer": "When sending cryptocurrencies on UTXO-based networks, any leftover funds from your transaction are sent back to you at this address.",
+    "depositAddress": "Deposit address",
+    "depositAddressExplainer": "This is the protocol address where your funds will be sent for processing. Your hardware wallet will display this address for verification.",
     "customReceiveAddress": "Custom receive address",
     "customReceiveAddressDescription": "Enter a custom receive address for this trade",
     "thisIsYourCustomReceiveAddress": "This is your custom receive address",

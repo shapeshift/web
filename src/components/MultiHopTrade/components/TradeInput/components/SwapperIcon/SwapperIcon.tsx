@@ -14,6 +14,7 @@ import MayachainIcon from './maya_logo.png'
 import NearIntentsIcon from './near-intents-icon.png'
 import PortalsIcon from './portals-icon.png'
 import RelayIcon from './relay-icon.svg?url'
+import SunioIcon from './sunio-icon.png'
 import THORChainIcon from './thorchain-icon.png'
 
 import { LazyLoadAvatar } from '@/components/LazyLoadAvatar'
@@ -54,6 +55,8 @@ export const SwapperIcon = ({
         return NearIntentsIcon
       case SwapperName.Cetus:
         return CetusIcon
+      case SwapperName.Sunio:
+        return SunioIcon
       case SwapperName.Test:
         return ''
       default:

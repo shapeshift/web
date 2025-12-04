@@ -1,4 +1,5 @@
 import type { ChainId } from '@shapeshiftoss/caip'
+import { fromChainId } from '@shapeshiftoss/caip'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 
@@ -33,18 +34,14 @@ export type SquidBridgeStatus = {
   destinationTxHash?: string
 }
 
-const chainIdToSquidChainId = (chainId: ChainId): string => {
-  return chainId.replace('eip155:', '')
-}
-
 export const fetchSquidBridgeStatus = async (
   sourceTxHash: string,
-  fromChainId: ChainId,
-  toChainId: ChainId,
+  sourceChainId: ChainId,
+  destinationChainId: ChainId,
 ): Promise<Result<SquidBridgeStatus, SwapErrorRight>> => {
   try {
-    const fromChain = chainIdToSquidChainId(fromChainId)
-    const toChain = chainIdToSquidChainId(toChainId)
+    const fromChain = fromChainId(sourceChainId).chainReference
+    const toChain = fromChainId(destinationChainId).chainReference
 
     const url = new URL('https://v2.api.squidrouter.com/v2/status')
     url.searchParams.set('transactionId', sourceTxHash)
@@ -100,10 +97,10 @@ export const fetchSquidBridgeStatus = async (
 
 export const getSquidTrackingLink = (
   sourceTxHash: string,
-  fromChainId: ChainId,
-  toChainId: ChainId,
+  sourceChainId: ChainId,
+  destinationChainId: ChainId,
 ): string => {
-  const fromChain = chainIdToSquidChainId(fromChainId)
-  const toChain = chainIdToSquidChainId(toChainId)
+  const fromChain = fromChainId(sourceChainId).chainReference
+  const toChain = fromChainId(destinationChainId).chainReference
   return `https://v2.api.squidrouter.com/v2/status?transactionId=${sourceTxHash}&fromChainId=${fromChain}&toChainId=${toChain}`
 }

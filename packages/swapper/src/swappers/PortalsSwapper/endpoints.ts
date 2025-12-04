@@ -18,8 +18,6 @@ import {
 } from './utils/fetchAxelarscanStatus'
 import { fetchSquidBridgeStatus, getSquidTrackingLink } from './utils/fetchSquidStatus'
 
-const SPOKE_CONTRACT_ADDRESS = '0xfe91aAA1012B47499CfE8758874F2D2c52B22cD8'
-
 export const portalsApi: SwapperApi = {
   getTradeQuote: async (input, { config, assertGetEvmChainAdapter }) => {
     const tradeQuoteResult = await getPortalsTradeQuote(
@@ -135,60 +133,41 @@ export const portalsApi: SwapperApi = {
       return sourceTxStatus
     }
 
-    const portalsMetadata = swap?.steps?.[0]?.portalsTransactionMetadata
-    const usedSpokeContract =
-      portalsMetadata?.to?.toLowerCase() === SPOKE_CONTRACT_ADDRESS.toLowerCase()
+    const axelarscanResult = await fetchAxelarscanBridgeStatus(txHash)
 
-    if (usedSpokeContract && swap) {
+    if (axelarscanResult.isErr() && swap) {
       const squidResult = await fetchSquidBridgeStatus(
         txHash,
         swap.sellAsset.chainId,
         swap.buyAsset.chainId,
       )
 
-      if (squidResult.isErr()) {
+      if (squidResult.isOk()) {
+        const squidStatus = squidResult.unwrap()
+        const squidTxStatus = (() => {
+          switch (squidStatus.status) {
+            case 'confirmed':
+              return TxStatus.Confirmed
+            case 'failed':
+              return TxStatus.Failed
+            case 'pending':
+            default:
+              return TxStatus.Pending
+          }
+        })()
+
         return {
-          status: TxStatus.Pending,
-          buyTxHash: undefined,
+          status: squidTxStatus,
+          buyTxHash: squidStatus.destinationTxHash,
           relayerExplorerTxLink: getSquidTrackingLink(
             txHash,
             swap.sellAsset.chainId,
             swap.buyAsset.chainId,
           ),
-          message: 'Checking cross-chain status via Squid',
+          message: squidTxStatus === TxStatus.Pending ? 'Cross-chain swap in progress' : undefined,
         }
       }
 
-      const squidStatus = squidResult.unwrap()
-
-      const squidTxStatus = (() => {
-        switch (squidStatus.status) {
-          case 'confirmed':
-            return TxStatus.Confirmed
-          case 'failed':
-            return TxStatus.Failed
-          case 'pending':
-          default:
-            return TxStatus.Pending
-        }
-      })()
-
-      return {
-        status: squidTxStatus,
-        buyTxHash: squidStatus.destinationTxHash,
-        relayerExplorerTxLink: getSquidTrackingLink(
-          txHash,
-          swap.sellAsset.chainId,
-          swap.buyAsset.chainId,
-        ),
-        message:
-          squidTxStatus === TxStatus.Pending ? 'Cross-chain swap in progress' : undefined,
-      }
-    }
-
-    const axelarscanResult = await fetchAxelarscanBridgeStatus(txHash)
-
-    if (axelarscanResult.isErr()) {
       return {
         status: TxStatus.Pending,
         buyTxHash: undefined,

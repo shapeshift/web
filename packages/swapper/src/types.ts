@@ -414,6 +414,7 @@ export type SwapExecutionMetadata = {
   buyTxHash?: string
   streamingSwap?: StreamingSwapMetadata
   message?: string | [string, InterpolationOptions]
+  inboundAddress?: string
 }
 
 export type SwapperSpecificMetadata = {

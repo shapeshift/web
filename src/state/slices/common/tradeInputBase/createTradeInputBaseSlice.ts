@@ -53,6 +53,9 @@ const getBaseReducers = <T extends TradeInputBaseState>(initialState: T) => ({
     }
 
     state.manualReceiveAddress = undefined
+    if ('sellAssetUtxoChangeAddress' in state) {
+      state.sellAssetUtxoChangeAddress = undefined
+    }
     state.sellAsset = action.payload
   },
   setSellAccountId: (state: Draft<T>, action: PayloadAction<AccountId | undefined>) => {
@@ -112,6 +115,9 @@ const getBaseReducers = <T extends TradeInputBaseState>(initialState: T) => ({
     state.selectedBuyAssetChainId = selectedSellAssetChainId
 
     state.manualReceiveAddress = undefined
+    if ('sellAssetUtxoChangeAddress' in state) {
+      state.sellAssetUtxoChangeAddress = undefined
+    }
   },
   setManualReceiveAddress: (state: Draft<T>, action: PayloadAction<string | undefined>) => {
     state.manualReceiveAddress = action.payload

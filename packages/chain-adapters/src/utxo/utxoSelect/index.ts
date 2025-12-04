@@ -110,22 +110,24 @@ const coinSelectZcash = (
     const totalIn = utxos.reduce((sum, { value }) => sum + value, 0)
     const remainder = totalIn - feeWithoutChange
 
-    if (remainder <= 0) return { fee: 0 }
+    if (remainder <= 0) return { fee: feeWithoutChange }
 
     const outputs: Output[] = [{ address: input.to, value: remainder }, ...extraOutput]
 
     return { inputs: utxos, outputs, fee: feeWithoutChange }
   }
 
-  let totalIn = 0
   const inputs: SanitizedUTXO[] = []
+
+  let totalIn = 0
+  let feeWithChange = 0
 
   for (const utxo of [...utxos].sort((a, b) => b.value - a.value)) {
     inputs.push(utxo)
     totalIn += utxo.value
 
     const numOutputs = 2 + (input.opReturnData ? 1 : 0)
-    const feeWithChange = calculateZip317Fee(inputs.length, numOutputs)
+    feeWithChange = calculateZip317Fee(inputs.length, numOutputs)
 
     if (totalIn >= Number(input.value) + feeWithChange) {
       const remainder = totalIn - Number(input.value) - feeWithChange
@@ -140,5 +142,5 @@ const coinSelectZcash = (
     }
   }
 
-  return { fee: 0 }
+  return { fee: feeWithChange }
 }

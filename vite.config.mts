@@ -187,6 +187,9 @@ export default defineConfig(({ mode }) => {
               if (id.includes('gridplus-sdk')) return 'gridplus-sdk'
               if (id.includes('tronweb')) return 'tronweb'
               if (id.includes('viem')) return 'viem'
+              if (id.includes('@cetusprotocol')) return '@cetusprotocol'
+              if (id.includes('@mysten')) return '@mysten'
+              if (id.includes('@shapeshiftoss/hdwallet-vultisig')) return 'hdwallet-vultisig'
 
               return null
             }

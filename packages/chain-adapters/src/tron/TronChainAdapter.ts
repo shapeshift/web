@@ -268,10 +268,23 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TronMainnet> {
 
         txData = await response.json()
 
+        // Calculate actual transaction size if successful
+        let actualBandwidth = 0
+        if (txData.raw_data_hex) {
+          const rawDataBytes = txData.raw_data_hex.length / 2
+          const signatureBytes = 65
+          actualBandwidth = Math.ceil(rawDataBytes + signatureBytes)
+        }
+
         console.log('[TronChainAdapter] /wallet/createtransaction response:', JSON.stringify({
           hasError: !!txData.Error,
           error: txData.Error,
           hasRawDataHex: !!txData.raw_data_hex,
+          actualBandwidthBytes: actualBandwidth,
+          actualBandwidthCost: actualBandwidth * 1000,
+          actualBandwidthCostTRX: (actualBandwidth * 1000 / 1_000_000).toFixed(6),
+          estimatedWas: 198,
+          difference: actualBandwidth - 198,
         }, null, 2))
 
         if (txData.Error) {
@@ -460,10 +473,12 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TronMainnet> {
       } else {
         // TRX transfer: Build actual transaction to get precise bandwidth
         try {
+          // Use actual sender if available, otherwise use recipient for estimation
+          const estimationFrom = from || to
           const baseTx = await tronWeb.transactionBuilder.sendTrx(
             to,
             Number(value),
-            to, // Use recipient as sender for estimation
+            estimationFrom,
           )
 
           // Add memo if provided to get accurate size
@@ -477,7 +492,19 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TronMainnet> {
           const totalBytes = rawDataBytes + signatureBytes
 
           bandwidthFee = totalBytes * bandwidthPrice
+
+          console.log('[TronChainAdapter] Bandwidth calculation:', JSON.stringify({
+            rawDataBytes,
+            signatureBytes,
+            totalBytes,
+            bandwidthPrice,
+            bandwidthFee,
+            usedFrom: estimationFrom,
+            actualFrom: from,
+            to,
+          }, null, 2))
         } catch (err) {
+          console.error('[TronChainAdapter] Bandwidth estimation fallback:', err)
           // Fallback bandwidth estimate: Base tx + memo bytes
           const baseBytes = 198
           const memoBytes = memo ? Buffer.from(memo, 'utf8').length : 0

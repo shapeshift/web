@@ -176,17 +176,23 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TronMainnet> {
     input: BuildSendApiTxInput<KnownChainIds.TronMainnet>,
   ): Promise<TronSignTx> {
     try {
-      const { from, accountNumber, to, value, chainSpecific: { contractAddress } = {} } = input
+      const {
+        from,
+        accountNumber,
+        to,
+        value,
+        chainSpecific: { contractAddress, memo } = {},
+      } = input
+
+      // Create TronWeb instance once and reuse
+      const tronWeb = new TronWeb({
+        fullHost: this.rpcUrl,
+      })
 
       let txData
 
       if (contractAddress) {
-        // Use TronWeb to build TRC20 transfer transaction
-        const tronWeb = new TronWeb({
-          fullHost: this.rpcUrl,
-        })
-
-        // Build the TRC20 transfer transaction without signing/broadcasting
+        // Build TRC20 transfer transaction
         const parameter = [
           { type: 'address', value: to },
           { type: 'uint256', value },
@@ -195,7 +201,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TronMainnet> {
         const functionSelector = 'transfer(address,uint256)'
 
         const options = {
-          feeLimit: 100_000_000, // 100 TRX
+          feeLimit: 100_000_000, // 100 TRX standard limit
           callValue: 0,
         }
 
@@ -225,6 +231,11 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TronMainnet> {
         })
 
         txData = await response.json()
+      }
+
+      // Add memo if provided
+      if (memo) {
+        txData = await tronWeb.transactionBuilder.addUpdateData(txData, memo, 'utf8')
       }
 
       if (!txData.raw_data_hex) {
@@ -344,10 +355,19 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TronMainnet> {
     }
   }
 
+  // TODO: CRITICAL - Fix fee estimation for TRC20 tokens
+  // Current implementation returns FIXED 0.268 TRX for all transactions
+  // Reality: TRC20 transfers cost 6-15 TRX (energy + bandwidth + memo)
+  // This causes UI to show wrong fees and transactions to fail on-chain
+  // See TRON_FEE_ESTIMATION_ISSUES.md for detailed analysis and fix
   async getFeeData(
     _input: GetFeeDataInput<KnownChainIds.TronMainnet>,
   ): Promise<FeeDataEstimate<KnownChainIds.TronMainnet>> {
     try {
+      // TODO: Use _input.chainSpecific.contractAddress to detect TRC20
+      // TODO: Call estimateTRC20TransferFee() for TRC20 tokens
+      // TODO: Build actual transaction with memo to get accurate bandwidth
+      // TODO: Add 1 TRX memo fee if _input.chainSpecific.memo present
       const { fast, average, slow, estimatedBandwidth } =
         await this.providers.http.getPriorityFees()
 

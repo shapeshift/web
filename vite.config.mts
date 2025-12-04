@@ -189,6 +189,7 @@ export default defineConfig(({ mode }) => {
               if (id.includes('viem')) return 'viem'
               if (id.includes('@cetusprotocol')) return '@cetusprotocol'
               if (id.includes('@mysten')) return '@mysten'
+              if (id.includes('@shapeshiftoss/hdwallet-vultisig')) return 'hdwallet-vultisig'
 
               return null
             }

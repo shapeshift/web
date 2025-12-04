@@ -4,7 +4,7 @@ import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import type { NavigateFunction } from 'react-router-dom'
 
-import EasyToUseIcon from '../easy-to-use.svg?url'
+import EasyToUseIcon from '../easy-to-use.svg'
 
 import { SlideTransition } from '@/components/SlideTransition'
 import { Text } from '@/components/Text'

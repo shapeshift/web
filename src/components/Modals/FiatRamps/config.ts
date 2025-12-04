@@ -18,9 +18,9 @@ import { SUPPORTED_ONRAMPER_FIAT_CURRENCIES } from './fiatRampProviders/onramper
 import type { CreateUrlProps } from './types'
 
 import banxaLogo from '@/assets/banxa.png'
-import CoinbaseLogo from '@/assets/coinbase-logo.svg?url'
+import CoinbaseLogo from '@/assets/coinbase-logo.svg'
 import MtPelerinLogo from '@/assets/mtpelerin.png'
-import OnRamperLogo from '@/assets/onramper-logo.svg?url'
+import OnRamperLogo from '@/assets/onramper-logo.svg'
 import { getBanxaQuote } from '@/components/Modals/FiatRamps/fiatRampProviders/banxa/utils'
 import { getOnramperQuote } from '@/components/Modals/FiatRamps/fiatRampProviders/onramper/utils'
 import type { CommonFiatCurrencies, FiatCurrencyItem } from '@/lib/fiatCurrencies/fiatCurrencies'

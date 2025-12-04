@@ -21,9 +21,9 @@ import { generatePath, matchPath, useNavigate } from 'react-router-dom'
 
 import { MobileWalletList } from './components/WalletList'
 
-import BlueFox from '@/assets/blue-fox.svg?url'
-import GreenFox from '@/assets/green-fox.svg?url'
-import OrangeFox from '@/assets/orange-fox.svg?url'
+import BlueFox from '@/assets/blue-fox.svg'
+import GreenFox from '@/assets/green-fox.svg'
+import OrangeFox from '@/assets/orange-fox.svg'
 import { CircularProgress } from '@/components/CircularProgress/CircularProgress'
 import { FadeTransition } from '@/components/FadeTransition'
 import { LanguageSelector } from '@/components/LanguageSelector'

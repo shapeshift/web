@@ -103,30 +103,44 @@ export async function getQuoteOrRate(
 
     const isQuote = input.quoteOrRate === 'quote'
 
-    // Fetch network fees only for quotes
+    // For quotes, receiveAddress is required
+    if (isQuote && !receiveAddress) {
+      return Err(
+        makeSwapErrorRight({
+          message: '[Sun.io] receiveAddress is required for quotes',
+          code: TradeQuoteError.InternalError,
+        }),
+      )
+    }
+
+    // Fetch network fees for both quotes and rates (when wallet connected)
     let networkFeeCryptoBaseUnit: string | undefined = undefined
 
-    if (isQuote) {
-      if (!receiveAddress) {
-        return Err(
-          makeSwapErrorRight({
-            message: '[Sun.io] receiveAddress is required for quotes',
-            code: TradeQuoteError.InternalError,
-          }),
-        )
-      }
+    // Estimate fees when we have an address to estimate from
+    if (receiveAddress) {
+      try {
+        const adapter = assertGetTronChainAdapter(sellAsset.chainId)
+        const contractAddress = contractAddressOrUndefined(sellAsset.assetId)
 
-      const adapter = assertGetTronChainAdapter(sellAsset.chainId)
-      const feeData = await adapter.getFeeData({
-        to: SUNIO_SMART_ROUTER_CONTRACT,
-        value: '0',
-        sendMax: false,
-        chainSpecific: {
-          from: receiveAddress,
-          contractAddress: contractAddressOrUndefined(sellAsset.assetId),
-        },
-      })
-      networkFeeCryptoBaseUnit = feeData.fast.txFee
+        const feeData = await adapter.getFeeData({
+          to: SUNIO_SMART_ROUTER_CONTRACT,
+          value: contractAddress ? '0' : sellAmountIncludingProtocolFeesCryptoBaseUnit,
+          sendMax: false,
+          chainSpecific: {
+            from: receiveAddress,
+            contractAddress,
+          },
+        })
+        networkFeeCryptoBaseUnit = feeData.fast.txFee
+      } catch (error) {
+        // For rates, fall back to '0' on estimation failure
+        // For quotes, let it error (required for accurate swap)
+        if (!isQuote) {
+          networkFeeCryptoBaseUnit = '0'
+        } else {
+          throw error
+        }
+      }
     }
 
     const buyAmountCryptoBaseUnit = bn(bestRoute.amountOut)

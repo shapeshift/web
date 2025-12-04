@@ -145,6 +145,7 @@ export const useGetTradeQuotes = () => {
           permit2?.state === TransactionExecutionState.AwaitingConfirmation) ||
         (!permit2?.isRequired && hopExecutionMetadata?.state === HopExecutionState.AwaitingSwap)
       )
+
     return (
       hopExecutionMetadata?.state === HopExecutionState.AwaitingSwap &&
       hopExecutionMetadata?.swap?.state === TransactionExecutionState.AwaitingConfirmation

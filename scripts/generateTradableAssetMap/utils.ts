@@ -14,6 +14,7 @@ import {
   ltcChainId,
   thorchainChainId,
   toAssetId,
+  tronChainId,
 } from '@shapeshiftoss/caip'
 import type { ThornodePoolResponse } from '@shapeshiftoss/swapper'
 import { KnownChainIds } from '@shapeshiftoss/types'
@@ -34,6 +35,7 @@ enum Chain {
   GAIA = 'GAIA',
   LTC = 'LTC',
   THOR = 'THOR',
+  TRON = 'TRON',
 }
 
 const chainToChainId: Record<Chain, ChainId> = {
@@ -49,6 +51,7 @@ const chainToChainId: Record<Chain, ChainId> = {
   [Chain.GAIA]: cosmosChainId,
   [Chain.LTC]: ltcChainId,
   [Chain.THOR]: thorchainChainId,
+  [Chain.TRON]: tronChainId,
 }
 
 const getFeeAssetFromChain = (chain: Chain): AssetId => {
@@ -65,6 +68,8 @@ const getTokenStandardFromChainId = (chainId: ChainId): AssetNamespace | undefin
     case KnownChainIds.PolygonMainnet:
     case KnownChainIds.BnbSmartChainMainnet:
       return ASSET_NAMESPACE.erc20
+    case KnownChainIds.TronMainnet:
+      return ASSET_NAMESPACE.trc20
     default:
       return undefined
   }

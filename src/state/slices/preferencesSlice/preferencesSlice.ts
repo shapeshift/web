@@ -93,6 +93,7 @@ export type FeatureFlags = {
   BebopSwap: boolean
   NearIntentsSwap: boolean
   CetusSwap: boolean
+  SunioSwap: boolean
   LazyTxHistory: boolean
   RfoxFoxEcosystemPage: boolean
   LedgerReadOnly: boolean
@@ -229,6 +230,7 @@ const initialState: Preferences = {
     BebopSwap: getConfig().VITE_FEATURE_BEBOP_SWAP,
     NearIntentsSwap: getConfig().VITE_FEATURE_NEAR_INTENTS_SWAP,
     CetusSwap: getConfig().VITE_FEATURE_CETUS_SWAP,
+    SunioSwap: getConfig().VITE_FEATURE_SUNIO_SWAP,
     LazyTxHistory: getConfig().VITE_FEATURE_TX_HISTORY_BYE_BYE,
     RfoxFoxEcosystemPage: getConfig().VITE_FEATURE_RFOX_FOX_ECOSYSTEM_PAGE,
     LedgerReadOnly: getConfig().VITE_FEATURE_LEDGER_READ_ONLY,

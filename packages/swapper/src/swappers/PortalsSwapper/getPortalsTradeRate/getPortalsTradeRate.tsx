@@ -66,27 +66,30 @@ export async function getPortalsTradeRate(
     )
   }
 
-  if (sellAssetChainId !== buyAssetChainId) {
-    return Err(
-      makeSwapErrorRight({
-        message: `cross-chain not supported - both assets must be on chainId ${sellAsset.chainId}`,
-        code: TradeQuoteError.CrossChainNotSupported,
-        details: { buyAsset, sellAsset },
-      }),
-    )
-  }
+  const isCrossChain = sellAssetChainId !== buyAssetChainId
 
   try {
     if (!isSupportedChainId(chainId)) throw new Error(`Unsupported chainId ${sellAsset.chainId}`)
 
-    const portalsNetwork = chainIdToPortalsNetwork[chainId as KnownChainIds]
+    const sellPortalsNetwork = chainIdToPortalsNetwork[sellAssetChainId as KnownChainIds]
+    const buyPortalsNetwork = chainIdToPortalsNetwork[buyAssetChainId as KnownChainIds]
 
-    if (!portalsNetwork) {
+    if (!sellPortalsNetwork) {
       return Err(
         makeSwapErrorRight({
           message: `unsupported ChainId`,
           code: TradeQuoteError.UnsupportedChain,
-          details: { chainId: input.chainId },
+          details: { chainId: sellAssetChainId },
+        }),
+      )
+    }
+
+    if (!buyPortalsNetwork) {
+      return Err(
+        makeSwapErrorRight({
+          message: `unsupported ChainId`,
+          code: TradeQuoteError.UnsupportedChain,
+          details: { chainId: buyAssetChainId },
         }),
       )
     }
@@ -98,8 +101,8 @@ export async function getPortalsTradeRate(
       ? zeroAddress
       : fromAssetId(buyAsset.assetId).assetReference
 
-    const inputToken = `${portalsNetwork}:${sellAssetAddress}`
-    const outputToken = `${portalsNetwork}:${buyAssetAddress}`
+    const inputToken = `${sellPortalsNetwork}:${sellAssetAddress}`
+    const outputToken = `${buyPortalsNetwork}:${buyAssetAddress}`
 
     const userSlippageTolerancePercentageDecimalOrDefault = input.slippageTolerancePercentageDecimal
       ? bnOrZero(input.slippageTolerancePercentageDecimal).times(100).toNumber()
@@ -215,8 +218,7 @@ export async function getPortalsTradeRate(
       swapperName: SwapperName.Portals,
       steps: [
         {
-          // Assume instant execution since this is a same-chain AMM Tx which will happen within the same block
-          estimatedExecutionTimeMs: 0,
+          estimatedExecutionTimeMs: isCrossChain ? 300000 : 0,
           allowanceContract,
           accountNumber,
           rate: inputOutputRate,

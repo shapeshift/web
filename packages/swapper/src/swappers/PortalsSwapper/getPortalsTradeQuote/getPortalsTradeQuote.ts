@@ -67,15 +67,7 @@ export async function getPortalsTradeQuote(
     )
   }
 
-  if (sellAssetChainId !== buyAssetChainId) {
-    return Err(
-      makeSwapErrorRight({
-        message: `cross-chain not supported - both assets must be on chainId ${sellAsset.chainId}`,
-        code: TradeQuoteError.CrossChainNotSupported,
-        details: { buyAsset, sellAsset },
-      }),
-    )
-  }
+  const isCrossChain = sellAssetChainId !== buyAssetChainId
 
   // Not a decimal percentage, just a good ol' percentage e.g 1 for 1%
   const affiliateBpsPercentage = convertBasisPointsToDecimalPercentage(affiliateBps)
@@ -90,14 +82,25 @@ export async function getPortalsTradeQuote(
 
   if (!sendAddress) return Err(makeSwapErrorRight({ message: 'missing sendAddress' }))
 
-  const portalsNetwork = chainIdToPortalsNetwork[chainId as KnownChainIds]
+  const sellPortalsNetwork = chainIdToPortalsNetwork[sellAssetChainId as KnownChainIds]
+  const buyPortalsNetwork = chainIdToPortalsNetwork[buyAssetChainId as KnownChainIds]
 
-  if (!portalsNetwork) {
+  if (!sellPortalsNetwork) {
     return Err(
       makeSwapErrorRight({
         message: `unsupported ChainId`,
         code: TradeQuoteError.UnsupportedChain,
-        details: { chainId: input.chainId },
+        details: { chainId: sellAssetChainId },
+      }),
+    )
+  }
+
+  if (!buyPortalsNetwork) {
+    return Err(
+      makeSwapErrorRight({
+        message: `unsupported ChainId`,
+        code: TradeQuoteError.UnsupportedChain,
+        details: { chainId: buyAssetChainId },
       }),
     )
   }
@@ -109,8 +112,8 @@ export async function getPortalsTradeQuote(
     ? zeroAddress
     : fromAssetId(buyAsset.assetId).assetReference
 
-  const inputToken = `${portalsNetwork}:${sellAssetAddress}`
-  const outputToken = `${portalsNetwork}:${buyAssetAddress}`
+  const inputToken = `${sellPortalsNetwork}:${sellAssetAddress}`
+  const outputToken = `${buyPortalsNetwork}:${buyAssetAddress}`
 
   try {
     const maybePortalsTradeOrderResponse = await fetchPortalsTradeOrder({
@@ -266,9 +269,17 @@ export async function getPortalsTradeQuote(
             },
           },
           source: SwapperName.Portals,
-          // Assume instant execution since this is a same-chain AMM Tx which will happen within the same block
-          estimatedExecutionTimeMs: 0,
-          portalsTransactionMetadata: tx,
+          estimatedExecutionTimeMs: isCrossChain ? 300000 : 0,
+          portalsTransactionMetadata: {
+            ...tx,
+            isCrossChain,
+            buyAssetChainId: isCrossChain ? buyAssetChainId : undefined,
+            expiry: portalsTradeOrderResponse.context.expiry
+              ? Number(portalsTradeOrderResponse.context.expiry)
+              : undefined,
+            steps: portalsTradeOrderResponse.context.steps,
+            route: portalsTradeOrderResponse.context.route,
+          },
         },
       ] as SingleHopTradeQuoteSteps,
     }

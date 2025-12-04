@@ -1,6 +1,11 @@
+import type { AssetId } from '@shapeshiftoss/caip'
+import { zecAssetId } from '@shapeshiftoss/caip'
 import type * as unchained from '@shapeshiftoss/unchained-client'
 import coinSelect from 'coinselect'
 import split from 'coinselect/split'
+
+const ZCASH_MARGINAL_FEE = 5000
+const ZCASH_GRACE_ACTIONS = 2
 
 export type UTXOSelectInput = {
   utxos: unchained.bitcoin.Utxo[]
@@ -10,6 +15,7 @@ export type UTXOSelectInput = {
   satoshiPerByte: string
   opReturnData?: string
   sendMax: boolean
+  assetId: AssetId
 }
 
 type SanitizedUTXO = Omit<unchained.bitcoin.Utxo, 'value'> & { value: number }
@@ -33,7 +39,7 @@ export const utxoSelect = (input: UTXOSelectInput) => {
     // If input contains a `from` param, the intent is to only keep the UTXOs from that address
     // so we can ensure the send address is the one we want
     // This doesn't do any further checks, so error-handling should be done by the caller e.g `buildSendTransaction` callsites
-    if (!input.from || (input.from && utxo.address === input.from)) {
+    if (!input.from || utxo.address === input.from) {
       acc.push(sanitizedUtxo)
     }
     return acc
@@ -46,7 +52,7 @@ export const utxoSelect = (input: UTXOSelectInput) => {
     const opReturnOpCode = Buffer.from('6a', 'hex')
     const opReturnDataLength = Buffer.from(numberToHex(opReturnData.length), 'hex')
 
-    const output = {
+    const output: Output = {
       value: 0,
       script: Buffer.concat([opReturnOpCode, opReturnDataLength, opReturnData]).toString('utf-8'),
     }
@@ -55,13 +61,17 @@ export const utxoSelect = (input: UTXOSelectInput) => {
   })()
 
   const result = (() => {
+    if (input.assetId === zecAssetId) {
+      return coinSelectZcash(input, utxos, extraOutput)
+    }
+
     if (input.sendMax) {
       const outputs = [{ address: input.to }, ...extraOutput]
-      return split<unchained.bitcoin.Utxo>(utxos, outputs, Number(input.satoshiPerByte))
+      return split<SanitizedUTXO>(utxos, outputs, Number(input.satoshiPerByte))
     }
 
     const outputs = [{ value: Number(input.value), address: input.to }, ...extraOutput]
-    return coinSelect<unchained.bitcoin.Utxo>(utxos, outputs, Number(input.satoshiPerByte))
+    return coinSelect<SanitizedUTXO>(utxos, outputs, Number(input.satoshiPerByte))
   })()
 
   // Finds the change output index (if present), so we can replace it with the from address in case from is provided
@@ -78,4 +88,57 @@ export const utxoSelect = (input: UTXOSelectInput) => {
   }
 
   return { ...result, outputs: result.outputs?.filter(o => !o.script) }
+}
+
+const calculateZip317Fee = (numInputs: number, numOutputs: number): number => {
+  const logicalActions = Math.max(numInputs, numOutputs)
+  return ZCASH_MARGINAL_FEE * Math.max(ZCASH_GRACE_ACTIONS, logicalActions)
+}
+
+const coinSelectZcash = (
+  input: UTXOSelectInput,
+  utxos: SanitizedUTXO[],
+  extraOutput: Output[],
+): CoinSelectResult<
+  Omit<SanitizedUTXO, 'value'> & {
+    value: number
+  }
+> => {
+  if (input.sendMax) {
+    const numOutputs = 1 + (input.opReturnData ? 1 : 0)
+    const feeWithoutChange = calculateZip317Fee(utxos.length, numOutputs)
+    const totalIn = utxos.reduce((sum, { value }) => sum + value, 0)
+    const remainder = totalIn - feeWithoutChange
+
+    if (remainder <= 0) return { fee: 0 }
+
+    const outputs: Output[] = [{ address: input.to, value: remainder }, ...extraOutput]
+
+    return { inputs: utxos, outputs, fee: feeWithoutChange }
+  }
+
+  let totalIn = 0
+  const inputs: SanitizedUTXO[] = []
+
+  for (const utxo of [...utxos].sort((a, b) => b.value - a.value)) {
+    inputs.push(utxo)
+    totalIn += utxo.value
+
+    const numOutputs = 2 + (input.opReturnData ? 1 : 0)
+    const feeWithChange = calculateZip317Fee(inputs.length, numOutputs)
+
+    if (totalIn >= Number(input.value) + feeWithChange) {
+      const remainder = totalIn - Number(input.value) - feeWithChange
+
+      const outputs: Output[] = [
+        { address: input.to, value: Number(input.value) },
+        { value: remainder },
+        ...extraOutput,
+      ]
+
+      return { inputs, outputs, fee: feeWithChange }
+    }
+  }
+
+  return { fee: 0 }
 }

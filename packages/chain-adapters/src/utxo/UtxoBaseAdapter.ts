@@ -302,6 +302,7 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
         sendMax,
         value,
         opReturnData,
+        assetId: this.assetId,
       })
 
       if (!coinSelectResult?.inputs || !coinSelectResult?.outputs) {
@@ -439,7 +440,15 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
 
       const utxos = await this.providers.http.getUtxos({ pubkey })
 
-      const utxoSelectInput = { from, to, value, opReturnData, utxos, sendMax }
+      const utxoSelectInput = {
+        from,
+        to,
+        value,
+        opReturnData,
+        utxos,
+        sendMax,
+        assetId: this.assetId,
+      }
 
       // We have to round because coinselect library uses sats per byte which cant be decimals
       const fastPerByte = String(Math.round(data.fast.satsPerKiloByte / 1000))

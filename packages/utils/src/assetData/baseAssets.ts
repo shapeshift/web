@@ -330,7 +330,8 @@ export const hyperevm: Readonly<Asset> = Object.freeze({
   color: '#000000',
   networkColor: '#000000',
   icon: 'https://assets.coingecko.com/coins/images/50882/standard/hyperliquid.jpg?1729431300',
-  networkIcon: 'https://assets.coingecko.com/coins/images/50882/standard/hyperliquid.jpg?1729431300',
+  networkIcon:
+    'https://assets.coingecko.com/coins/images/50882/standard/hyperliquid.jpg?1729431300',
   explorer: 'https://hyperevmscan.io',
   explorerAddressLink: 'https://hyperevmscan.io/address/',
   explorerTxLink: 'https://hyperevmscan.io/tx/',

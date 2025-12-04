@@ -6,6 +6,7 @@ import { getConfig } from '@/config'
 import { getAssetService } from '@/lib/asset-service'
 import type { Plugins } from '@/plugins/types'
 
+// eslint-disable-next-line import/no-default-export
 export default function register(): Plugins {
   return [
     [

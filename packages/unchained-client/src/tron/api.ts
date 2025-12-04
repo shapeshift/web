@@ -115,41 +115,49 @@ export class TronApi {
   async getTransaction(params: { txid: string }): Promise<TronTx | null> {
     await this.throttle()
 
-    const response = await fetch(`${this.rpcUrl}/wallet/gettransactionbyid`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ value: params.txid, visible: true }),
-    })
+    const [txResponse, infoResponse] = await Promise.all([
+      fetch(`${this.rpcUrl}/wallet/gettransactionbyid`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ value: params.txid, visible: true }),
+      }),
+      fetch(`${this.rpcUrl}/wallet/gettransactioninfobyid`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ value: params.txid, visible: true }),
+      }),
+    ])
 
-    if (!response.ok) {
+    if (!txResponse.ok) {
       return null
     }
 
-    const tx = await response.json()
-
-    console.log('==================== TRON getTransaction DEBUG ====================')
-    console.log('txid:', params.txid)
-    console.log('Full response:', JSON.stringify(tx, null, 2))
-    console.log('tx.txID:', tx.txID)
-    console.log('tx.blockNumber:', tx.blockNumber)
-    console.log('tx.blockTimeStamp:', tx.blockTimeStamp)
-    console.log('tx.ret:', JSON.stringify(tx.ret, null, 2))
-    console.log('tx.raw_data:', JSON.stringify(tx.raw_data, null, 2))
-    console.log('===================================================================')
+    const tx = await txResponse.json()
 
     if (!tx || !tx.txID) {
       return null
+    }
+
+    let blockNumber = 0
+    let blockTimeStamp = 0
+    let fee = '0'
+
+    if (infoResponse.ok) {
+      const info = await infoResponse.json()
+      blockNumber = info.blockNumber || 0
+      blockTimeStamp = info.blockTimeStamp || 0
+      fee = info.fee ? String(info.fee) : '0'
     }
 
     return {
       ...tx,
       txid: tx.txID,
       blockHash: '',
-      blockHeight: 0,
-      timestamp: 0,
-      confirmations: 0,
+      blockHeight: blockNumber,
+      timestamp: blockTimeStamp,
+      confirmations: blockNumber > 0 ? 1 : 0,
       value: '0',
-      fee: '0',
+      fee,
     }
   }
 

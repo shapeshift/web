@@ -121,17 +121,114 @@ export async function getQuoteOrRate(
       try {
         const adapter = assertGetTronChainAdapter(sellAsset.chainId)
         const contractAddress = contractAddressOrUndefined(sellAsset.assetId)
+        const isSellingNativeTrx = !contractAddress
 
-        const feeData = await adapter.getFeeData({
-          to: SUNIO_SMART_ROUTER_CONTRACT,
-          value: contractAddress ? '0' : sellAmountIncludingProtocolFeesCryptoBaseUnit,
-          sendMax: false,
-          chainSpecific: {
-            from: receiveAddress,
-            contractAddress,
-          },
-        })
-        networkFeeCryptoBaseUnit = feeData.fast.txFee
+        // For native TRX swaps, Sun.io uses a contract call with value
+        // We need to estimate energy for the swap contract, not just bandwidth
+        if (isSellingNativeTrx) {
+          const { TronWeb } = await import('tronweb')
+          const tronWeb = new TronWeb({ fullHost: deps.config.VITE_TRON_NODE_URL })
+
+          // Get chain parameters for pricing
+          const params = await tronWeb.trx.getChainParameters()
+          const bandwidthPrice = params.find(p => p.key === 'getTransactionFee')?.value ?? 1000
+          const energyPrice = params.find(p => p.key === 'getEnergyFee')?.value ?? 100
+
+          // Build swap parameters to estimate energy
+          const convertAddressesToEvmFormat = (value: unknown): unknown => {
+            if (Array.isArray(value)) {
+              return value.map(v => convertAddressesToEvmFormat(v))
+            }
+            if (typeof value === 'string' && value.startsWith('T') && TronWeb.isAddress(value)) {
+              const hex = TronWeb.address.toHex(value)
+              return hex.replace(/^41/, '0x')
+            }
+            return value
+          }
+
+          const swapData = {
+            amountIn: sellAmountIncludingProtocolFeesCryptoBaseUnit,
+            amountOutMin: bn(bestRoute.amountOut)
+              .times(0.99)
+              .times(bn(10).pow(buyAsset.precision))
+              .toFixed(0),
+            recipient: receiveAddress,
+            deadline: Math.floor(Date.now() / 1000) + 60 * 20,
+          }
+
+          const parameters = [
+            { type: 'address[]', value: bestRoute.tokens },
+            { type: 'string[]', value: bestRoute.poolVersions },
+            { type: 'uint256[]', value: Array(bestRoute.poolVersions.length).fill(2) },
+            { type: 'uint24[]', value: bestRoute.poolFees.map(fee => Number(fee)) },
+            {
+              type: 'tuple(uint256,uint256,address,uint256)',
+              value: convertAddressesToEvmFormat([
+                swapData.amountIn,
+                swapData.amountOutMin,
+                swapData.recipient,
+                swapData.deadline,
+              ]),
+            },
+          ]
+
+          try {
+            // Estimate energy using triggerConstantContract
+            const result = await tronWeb.transactionBuilder.triggerConstantContract(
+              SUNIO_SMART_ROUTER_CONTRACT,
+              'swapExactInput(address[],string[],uint256[],uint24[],(uint256,uint256,address,uint256))',
+              {},
+              parameters,
+              receiveAddress,
+            )
+
+            const energyUsed = result.energy_used ?? 120000
+            const energyFee = Math.ceil(energyUsed * energyPrice * 1.5) // 1.5x safety margin
+
+            // Estimate bandwidth for contract call (much larger than simple transfer)
+            const bandwidthFee = 950 * bandwidthPrice // ~950 bytes for contract call
+
+            // Check if recipient needs activation
+            let accountActivationFee = 0
+            try {
+              const recipientInfoResponse = await fetch(
+                `${deps.config.VITE_TRON_NODE_URL}/wallet/getaccount`,
+                {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ address: receiveAddress, visible: true }),
+                },
+              )
+              const recipientInfo = await recipientInfoResponse.json()
+              const recipientExists = recipientInfo && Object.keys(recipientInfo).length > 1
+              if (!recipientExists) {
+                accountActivationFee = 1_000_000 // 1 TRX
+              }
+            } catch {
+              // Ignore activation check errors
+            }
+
+            networkFeeCryptoBaseUnit = String(energyFee + bandwidthFee + accountActivationFee)
+          } catch (estimationError) {
+            // Fallback to conservative estimate if contract estimation fails
+            // Based on actual observed costs: ~120k energy + ~950 bytes bandwidth
+            const fallbackEnergyFee = 120000 * energyPrice * 1.5
+            const fallbackBandwidthFee = 950 * bandwidthPrice
+            networkFeeCryptoBaseUnit = String(fallbackEnergyFee + fallbackBandwidthFee)
+          }
+        } else {
+          // For TRC-20, use standard getFeeData
+          const feeData = await adapter.getFeeData({
+            to: SUNIO_SMART_ROUTER_CONTRACT,
+            value: '0',
+            sendMax: false,
+            chainSpecific: {
+              from: receiveAddress,
+              contractAddress,
+            },
+          })
+          networkFeeCryptoBaseUnit = feeData.fast.txFee
+        }
       } catch (error) {
         // For rates, fall back to '0' on estimation failure
         // For quotes, let it error (required for accurate swap)

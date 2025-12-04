@@ -1,6 +1,6 @@
 import { createQueryKeys } from '@lukemorales/query-key-factory'
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
-import { fromAssetId } from '@shapeshiftoss/caip'
+import { fromAssetId, tronChainId } from '@shapeshiftoss/caip'
 import { evmChainIds } from '@shapeshiftoss/chain-adapters'
 import type { EvmChainId } from '@shapeshiftoss/types'
 import type { Result } from '@sniptt/monads'
@@ -12,6 +12,7 @@ import type { PartialFields } from '@/lib/types'
 import { assertGetChainAdapter } from '@/lib/utils'
 import type { GetFeesWithWalletEip1559SupportArgs } from '@/lib/utils/evm'
 import { getErc20Allowance } from '@/lib/utils/evm'
+import { getTrc20Allowance } from '@/lib/utils/tron/getAllowance'
 
 export const common = createQueryKeys('common', {
   allowanceCryptoBaseUnit: (
@@ -32,9 +33,6 @@ export const common = createQueryKeys('common', {
       if (spender === '0x0') {
         return Err(GetAllowanceErr.ZeroAddress)
       }
-      if (!evmChainIds.includes(chainId as EvmChainId)) {
-        return Err(GetAllowanceErr.NotEVMChain)
-      }
 
       // Asserts and makes the query error (i.e isError) if this errors - *not* a monadic error
       const adapter = assertGetChainAdapter(chainId)
@@ -42,6 +40,23 @@ export const common = createQueryKeys('common', {
       // No approval needed for selling a fee asset
       if (assetId === adapter.getFeeAssetId()) {
         return Err(GetAllowanceErr.IsFeeAsset)
+      }
+
+      // Handle TRON chain
+      if (chainId === tronChainId) {
+        const allowanceOnChainCryptoBaseUnit = await getTrc20Allowance({
+          address: assetReference,
+          spender,
+          from,
+          chainId,
+        })
+
+        return Ok(allowanceOnChainCryptoBaseUnit)
+      }
+
+      // Handle EVM chains
+      if (!evmChainIds.includes(chainId as EvmChainId)) {
+        return Err(GetAllowanceErr.NotEVMChain)
       }
 
       const allowanceOnChainCryptoBaseUnit = await getErc20Allowance({

@@ -2,6 +2,7 @@ import { tronChainId } from '@shapeshiftoss/caip'
 import { bn, contractAddressOrUndefined } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
+import { TronWeb } from 'tronweb'
 
 import type {
   CommonTradeQuoteInput,
@@ -44,7 +45,7 @@ export async function getQuoteOrRate(
       slippageTolerancePercentageDecimal,
     } = input
 
-    const { assertGetTronChainAdapter } = deps
+    const { assertGetTronChainAdapter: _assertGetTronChainAdapter } = deps
 
     if (!isSupportedChainId(sellAsset.chainId)) {
       return Err(
@@ -103,30 +104,98 @@ export async function getQuoteOrRate(
 
     const isQuote = input.quoteOrRate === 'quote'
 
-    // Fetch network fees only for quotes
+    // For quotes, receiveAddress is required
+    if (isQuote && !receiveAddress) {
+      return Err(
+        makeSwapErrorRight({
+          message: '[Sun.io] receiveAddress is required for quotes',
+          code: TradeQuoteError.InternalError,
+        }),
+      )
+    }
+
+    // Fetch network fees for both quotes and rates (when wallet connected)
     let networkFeeCryptoBaseUnit: string | undefined = undefined
 
-    if (isQuote) {
-      if (!receiveAddress) {
-        return Err(
-          makeSwapErrorRight({
-            message: '[Sun.io] receiveAddress is required for quotes',
-            code: TradeQuoteError.InternalError,
-          }),
-        )
-      }
+    // Estimate fees when we have an address to estimate from
+    if (receiveAddress) {
+      try {
+        const contractAddress = contractAddressOrUndefined(sellAsset.assetId)
+        const isSellingNativeTrx = !contractAddress
 
-      const adapter = assertGetTronChainAdapter(sellAsset.chainId)
-      const feeData = await adapter.getFeeData({
-        to: SUNIO_SMART_ROUTER_CONTRACT,
-        value: '0',
-        sendMax: false,
-        chainSpecific: {
-          from: receiveAddress,
-          contractAddress: contractAddressOrUndefined(sellAsset.assetId),
-        },
-      })
-      networkFeeCryptoBaseUnit = feeData.fast.txFee
+        const tronWeb = new TronWeb({ fullHost: deps.config.VITE_TRON_NODE_URL })
+
+        // Get chain parameters for pricing
+        const params = await tronWeb.trx.getChainParameters()
+        const bandwidthPrice = params.find(p => p.key === 'getTransactionFee')?.value ?? 1000
+        const energyPrice = params.find(p => p.key === 'getEnergyFee')?.value ?? 100
+
+        // Check if recipient needs activation (applies to all swaps)
+        let accountActivationFee = 0
+        try {
+          const recipientInfoResponse = await fetch(
+            `${deps.config.VITE_TRON_NODE_URL}/wallet/getaccount`,
+            {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ address: receiveAddress, visible: true }),
+            },
+          )
+          const recipientInfo = await recipientInfoResponse.json()
+          const recipientExists = recipientInfo && Object.keys(recipientInfo).length > 1
+          if (!recipientExists) {
+            accountActivationFee = 1_000_000 // 1 TRX
+          }
+        } catch {
+          // Ignore activation check errors
+        }
+
+        // For native TRX swaps, Sun.io uses a contract call with value
+        // We need to estimate energy for the swap contract, not just bandwidth
+        if (isSellingNativeTrx) {
+          try {
+            // Sun.io contract owner provides most energy (~117k), users only pay ~2k
+            // Use fixed 2k energy estimate instead of querying (which returns total 120k)
+            const energyUsed = 2000 // User pays ~2k energy, contract covers the rest
+            const energyFee = energyUsed * energyPrice // No multiplier - contract provides energy
+
+            // Estimate bandwidth for contract call (much larger than simple transfer)
+            const bandwidthFee = 1100 * bandwidthPrice // ~1100 bytes for contract call (with safety buffer)
+
+            networkFeeCryptoBaseUnit = bn(energyFee)
+              .plus(bandwidthFee)
+              .plus(accountActivationFee)
+              .toFixed(0)
+          } catch (estimationError) {
+            // Fallback estimate: ~2k energy + ~1100 bytes bandwidth + activation fee
+            const fallbackEnergyFee = 2000 * energyPrice
+            const fallbackBandwidthFee = 1100 * bandwidthPrice
+            networkFeeCryptoBaseUnit = bn(fallbackEnergyFee)
+              .plus(fallbackBandwidthFee)
+              .plus(accountActivationFee)
+              .toFixed(0)
+          }
+        } else {
+          // For TRC-20 swaps through Sun.io router
+          // Same as TRX: contract owner provides most energy, user pays ~2k
+          // Sun.io provides ~217k energy, user pays ~2k
+          const energyFee = 2000 * energyPrice
+          const bandwidthFee = 1100 * bandwidthPrice
+
+          networkFeeCryptoBaseUnit = bn(energyFee)
+            .plus(bandwidthFee)
+            .plus(accountActivationFee)
+            .toFixed(0)
+        }
+      } catch (error) {
+        // For rates, fall back to '0' on estimation failure
+        // For quotes, let it error (required for accurate swap)
+        if (!isQuote) {
+          networkFeeCryptoBaseUnit = '0'
+        } else {
+          throw error
+        }
+      }
     }
 
     const buyAmountCryptoBaseUnit = bn(bestRoute.amountOut)

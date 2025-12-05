@@ -21,6 +21,12 @@ export type BuildTxInput = {
   memo?: string
 }
 
+export type GetFeeDataInput = {
+  from?: string
+  contractAddress?: string
+  memo?: string
+}
+
 export interface TronUnsignedTx {
   txID: string
   raw_data: {

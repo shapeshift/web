@@ -26,6 +26,10 @@ export interface TronTx {
   raw_data_hex: string
   txID: string
   signature?: string[]
+  ret?: {
+    contractRet?: 'SUCCESS' | 'REVERT' | string
+    fee?: number
+  }[]
 }
 
 type TRC20Token = {

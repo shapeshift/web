@@ -222,6 +222,7 @@ export const getTradeQuote = async (
           const feeData = await sellAdapter.getFeeData({
             to: depositAddress,
             value: sellAmount,
+            chainSpecific: {},
           })
 
           return { networkFeeCryptoBaseUnit: feeData.fast.txFee }

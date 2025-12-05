@@ -5,6 +5,7 @@ import {
   assertUnreachable,
   bn,
   bnOrZero,
+  contractAddressOrUndefined,
   convertDecimalPercentageToBasisPoints,
   convertPrecision,
   fromBaseUnit,
@@ -14,6 +15,7 @@ import {
 } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
+import { TronWeb } from 'tronweb'
 import { v4 as uuid } from 'uuid'
 
 import { getDefaultSlippageDecimalPercentageForSwapper } from '../index'
@@ -41,6 +43,7 @@ import {
   getNativePrecision,
   getSwapSource,
 } from './index'
+import * as tron from './tron'
 import type {
   ThorEvmTradeQuote,
   ThorEvmTradeRate,
@@ -442,12 +445,65 @@ export const getL1RateOrQuote = async <T extends ThorTradeRateOrQuote>(
     }
     case CHAIN_NAMESPACE.Tron: {
       const maybeRoutes = await Promise.allSettled(
-        perRouteValues.map((route): Promise<T> => {
+        perRouteValues.map(async (route): Promise<T> => {
           const memo = getMemo(route)
+          let networkFeeCryptoBaseUnit: string | undefined = undefined
 
-          // For rate quotes (no wallet), we can't calculate fees
-          // Actual fees will be calculated in getTronTransactionFees when executing
-          const networkFeeCryptoBaseUnit = undefined
+          // Calculate fees for rates when we have a receive address (wallet connected)
+          if (input.quoteOrRate === 'rate' && input.receiveAddress) {
+            try {
+              const { sellAsset, sellAmountIncludingProtocolFeesCryptoBaseUnit } = input
+              const contractAddress = contractAddressOrUndefined(sellAsset.assetId)
+
+              // Get vault address
+              const { vault } = await tron.getThorTxData({ sellAsset, config, swapperName })
+
+              // Estimate fees using the receive address for accurate energy calculation
+              const tronWeb = new TronWeb({ fullHost: deps.config.VITE_TRON_NODE_URL })
+              const params = await tronWeb.trx.getChainParameters()
+              const bandwidthPrice = params.find(p => p.key === 'getTransactionFee')?.value ?? 1000
+              const energyPrice = params.find(p => p.key === 'getEnergyFee')?.value ?? 100
+
+              let totalFee = 0
+
+              if (contractAddress) {
+                // TRC20: Estimate energy with actual recipient
+                try {
+                  const result = await tronWeb.transactionBuilder.triggerConstantContract(
+                    contractAddress,
+                    'transfer(address,uint256)',
+                    {},
+                    [
+                      { type: 'address', value: vault }, // Use vault as recipient
+                      { type: 'uint256', value: sellAmountIncludingProtocolFeesCryptoBaseUnit },
+                    ],
+                    input.receiveAddress, // Use user's address as sender for estimation
+                  )
+
+                  const energyUsed = result.energy_used ?? 65000
+                  const energyFee = energyUsed * energyPrice * 1.5 // 1.5x safety margin
+                  const bandwidthFee = 276 * bandwidthPrice // TRC20 bandwidth
+                  totalFee = Math.ceil(energyFee + bandwidthFee)
+                } catch {
+                  // Fallback: Conservative estimate
+                  totalFee = 13_000_000 // 13 TRX worst case
+                }
+              } else {
+                // TRX transfer bandwidth: Base tx + memo bytes
+                const baseBytes = 198
+                const memoBytes = route.quote.memo
+                  ? Buffer.from(route.quote.memo, 'utf8').length
+                  : 0
+                const totalBandwidth = baseBytes + memoBytes
+                totalFee = totalBandwidth * bandwidthPrice
+              }
+
+              networkFeeCryptoBaseUnit = String(totalFee)
+            } catch {
+              // Leave as undefined if estimation fails
+            }
+          }
+          // For quotes, fees will be calculated in getTronTransactionFees when executing
 
           return Promise.resolve(
             makeThorTradeRateOrQuote<ThorUtxoOrCosmosTradeRateOrQuote>({

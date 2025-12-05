@@ -18,6 +18,7 @@ export type FeeData = {
 
 export type BuildTxInput = {
   contractAddress?: string
+  memo?: string
 }
 
 export interface TronUnsignedTx {

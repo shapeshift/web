@@ -36,6 +36,7 @@ import { csp as cowSwap } from './defi/swappers/CowSwap'
 import { csp as nearIntents } from './defi/swappers/NearIntents'
 import { csp as oneInch } from './defi/swappers/OneInch'
 import { csp as portals } from './defi/swappers/Portals'
+import { csp as sunio } from './defi/swappers/Sunio'
 import { csp as thor } from './defi/swappers/Thor'
 import { csp as discord } from './discord'
 import { csp as banxa } from './fiatRamps/banxa'
@@ -121,6 +122,7 @@ export const csps = [
   nearIntents,
   oneInch,
   portals,
+  sunio,
   thor,
   butterSwap,
   foxPage,

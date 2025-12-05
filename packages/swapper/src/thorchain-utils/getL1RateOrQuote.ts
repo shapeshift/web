@@ -441,12 +441,40 @@ export const getL1RateOrQuote = async <T extends ThorTradeRateOrQuote>(
       )
     }
     case CHAIN_NAMESPACE.Tron: {
-      return Err(
-        makeSwapErrorRight({
-          message: 'Tron is not supported',
-          code: TradeQuoteError.UnsupportedTradePair,
+      const maybeRoutes = await Promise.allSettled(
+        perRouteValues.map((route): Promise<T> => {
+          const memo = getMemo(route)
+
+          // For rate quotes (no wallet), we can't calculate fees
+          // Actual fees will be calculated in getTronTransactionFees when executing
+          const networkFeeCryptoBaseUnit = undefined
+
+          return Promise.resolve(
+            makeThorTradeRateOrQuote<ThorUtxoOrCosmosTradeRateOrQuote>({
+              route,
+              allowanceContract: '0x0', // not applicable to TRON
+              memo,
+              feeData: {
+                networkFeeCryptoBaseUnit,
+                protocolFees: getProtocolFees(route.quote),
+              },
+            }),
+          )
         }),
       )
+
+      const routes = maybeRoutes.filter(isFulfilled).map(maybeRoute => maybeRoute.value)
+
+      if (!routes.length)
+        return Err(
+          makeSwapErrorRight({
+            message: 'Unable to create any routes',
+            code: TradeQuoteError.UnsupportedTradePair,
+            cause: maybeRoutes.filter(isRejected).map(maybeRoute => maybeRoute.reason),
+          }),
+        )
+
+      return Ok(routes)
     }
     case CHAIN_NAMESPACE.Sui: {
       return Err(

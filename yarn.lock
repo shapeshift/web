@@ -11047,7 +11047,7 @@ __metadata:
     "@mysten/sui": 1.45.0
     "@shapeshiftoss/caip": "workspace:^"
     "@shapeshiftoss/hdwallet-core": 1.62.22
-    "@shapeshiftoss/hdwallet-ledger": 1.62.21
+    "@shapeshiftoss/hdwallet-ledger": 1.62.22
     "@shapeshiftoss/types": "workspace:^"
     "@shapeshiftoss/unchained-client": "workspace:^"
     "@shapeshiftoss/utils": "workspace:^"
@@ -11184,23 +11184,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/hdwallet-core@npm:1.62.21":
-  version: 1.62.21
-  resolution: "@shapeshiftoss/hdwallet-core@npm:1.62.21"
-  dependencies:
-    "@shapeshiftoss/bitcoinjs-lib": 7.0.0-shapeshift.0
-    "@shapeshiftoss/proto-tx-builder": 0.10.0
-    "@solana/web3.js": 1.95.8
-    eip-712: ^1.0.0
-    ethers: 5.7.2
-    eventemitter2: ^5.0.1
-    lodash: ^4.17.21
-    rxjs: ^6.4.0
-    type-assertions: ^1.1.0
-  checksum: 11073cf4d5b3de1fa89fefb816c04172734f0cc15e5e6431942a57e1f36c5632deace1ad55e92fde1ea3ab5c21f39aba7ef38e5ad9268fabd42be16a7057eb1c
-  languageName: node
-  linkType: hard
-
 "@shapeshiftoss/hdwallet-core@npm:1.62.22":
   version: 1.62.22
   resolution: "@shapeshiftoss/hdwallet-core@npm:1.62.22"
@@ -11332,36 +11315,6 @@ __metadata:
     "@types/w3c-web-usb": ^1.0.4
     p-queue: ^7.4.1
   checksum: b82a4949ec7f1e91ae9997f14de9f00826fb8cd724ab5f4e7406be07425a5a471a58c507b6911db0deefa3d547f3765bbd1eb517bb6b45fd133656baf3e89c56
-  languageName: node
-  linkType: hard
-
-"@shapeshiftoss/hdwallet-ledger@npm:1.62.21":
-  version: 1.62.21
-  resolution: "@shapeshiftoss/hdwallet-ledger@npm:1.62.21"
-  dependencies:
-    "@ethereumjs/common": 3.2.0
-    "@ethereumjs/tx": 4.2.0
-    "@ledgerhq/device-core": ^0.5.4
-    "@ledgerhq/hw-app-btc": ^10.10.0
-    "@ledgerhq/hw-app-cosmos": ^6.32.4
-    "@ledgerhq/hw-app-eth": ^6.45.13
-    "@ledgerhq/hw-app-solana": ^7.5.1
-    "@ledgerhq/hw-app-trx": ^6.31.9
-    "@ledgerhq/hw-transport": 6.31.8
-    "@ledgerhq/logs": 6.13.0
-    "@mysten/ledgerjs-hw-app-sui": ^0.7.0
-    "@shapeshiftoss/bitcoinjs-lib": 7.0.0-shapeshift.0
-    "@shapeshiftoss/hdwallet-core": 1.62.21
-    "@solana/web3.js": 1.95.8
-    base64-js: ^1.5.1
-    bchaddrjs: ^0.4.4
-    bitcoinjs-message: ^2.0.0
-    bs58check: 2.1.2
-    ethereumjs-tx: 1.3.7
-    ethereumjs-util: ^6.1.0
-    ethers: 5.7.2
-    lodash: ^4.17.21
-  checksum: c5995b9b0dda5bedb7e0fba4ef57a4a964e4e354cd1cb20d474e3d0790f3037dab1aedc3ad0ee13a0fa2e10ee3076e3906cf2c840286ab45a75fd18fe49ff810
   languageName: node
   linkType: hard
 

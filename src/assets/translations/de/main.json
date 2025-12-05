@@ -828,7 +828,6 @@
     "or": "oder",
     "onChainName": "auf %{chainName}",
     "unknownGas": "(unbekannt)",
-    "receiveAddress": "Empfangsadresse ",
     "receiveAddressDescription": "Keine %{chainName} Adresse aus verbundener Wallet gefunden. Bitte Adresse manuell eingeben",
     "disableThorTaprootReceive": "Wir haben festgestellt, dass Sie an eine Taproot-Bitcoin-Adresse senden. Aufgrund von THORChain-Einschränkungen wird der Empfang von BTC an eine Taproot-Adresse derzeit nicht unterstützt. Bitte geben Sie eine andere Adresse ein.",
     "toContinue": " weiter zu machen.",

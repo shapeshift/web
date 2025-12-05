@@ -828,7 +828,6 @@
     "or": "или",
     "onChainName": "на %{chainName}",
     "unknownGas": "(неизвестно)",
-    "receiveAddress": "Адрес получателя",
     "receiveAddressDescription": "Не найден адрес %{chainName} из подключенного кошелька. Введите адрес вручную",
     "disableThorTaprootReceive": "Мы обнаружили, что вы отправляете на taproot Bitcoin-адрес. В связи с ограничениями THORChain получение BTC на taproot-адрес в настоящее время не поддерживается. Пожалуйста, введите другой адрес.",
     "toContinue": "для продолжения.",

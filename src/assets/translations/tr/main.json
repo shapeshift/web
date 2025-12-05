@@ -828,7 +828,6 @@
     "or": "veya",
     "onChainName": "%{chainName} üzerinde",
     "unknownGas": "(Bilinmeyen)",
-    "receiveAddress": "Alıcı Adresi",
     "receiveAddressDescription": "Bağlı cüzdandan %{chainName} adresi bulunamadı. Adresi manuel olarak girin",
     "disableThorTaprootReceive": "Taproot Bitcoin adresine gönderdiğinizi tespit ettik. THORChain sınırlamaları nedeniyle, BTC'yi taproot adresine almak şu anda desteklenmiyor. Lütfen başka bir adres girin.",
     "toContinue": "devam edin.",

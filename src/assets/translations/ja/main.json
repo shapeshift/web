@@ -828,7 +828,6 @@
     "or": "または",
     "onChainName": "%{chainName} で",
     "unknownGas": "(unknown)",
-    "receiveAddress": "受信アドレス",
     "receiveAddressDescription": "接続されたウォレットから %{chainName} アドレスが見つかりません。アドレスを手動で入力してください",
     "disableThorTaprootReceive": "タップルート Bitcoin アドレスに送信しようとしていることが検出されました。THORChain の制限により、タップルートアドレスへの BTC の受信は現在サポートされていません。別のアドレスを入力してください。",
     "toContinue": "続ける。",

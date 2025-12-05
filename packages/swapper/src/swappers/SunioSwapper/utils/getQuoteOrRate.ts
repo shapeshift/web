@@ -130,6 +130,26 @@ export async function getQuoteOrRate(
         const bandwidthPrice = params.find(p => p.key === 'getTransactionFee')?.value ?? 1000
         const energyPrice = params.find(p => p.key === 'getEnergyFee')?.value ?? 100
 
+        // Check if recipient needs activation (applies to all swaps)
+        let accountActivationFee = 0
+        try {
+          const recipientInfoResponse = await fetch(
+            `${deps.config.VITE_TRON_NODE_URL}/wallet/getaccount`,
+            {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ address: receiveAddress, visible: true }),
+            },
+          )
+          const recipientInfo = await recipientInfoResponse.json()
+          const recipientExists = recipientInfo && Object.keys(recipientInfo).length > 1
+          if (!recipientExists) {
+            accountActivationFee = 1_000_000 // 1 TRX
+          }
+        } catch {
+          // Ignore activation check errors
+        }
+
         // For native TRX swaps, Sun.io uses a contract call with value
         // We need to estimate energy for the swap contract, not just bandwidth
         if (isSellingNativeTrx) {
@@ -142,35 +162,18 @@ export async function getQuoteOrRate(
             // Estimate bandwidth for contract call (much larger than simple transfer)
             const bandwidthFee = 1100 * bandwidthPrice // ~1100 bytes for contract call (with safety buffer)
 
-            // Check if recipient needs activation
-            let accountActivationFee = 0
-            try {
-              const recipientInfoResponse = await fetch(
-                `${deps.config.VITE_TRON_NODE_URL}/wallet/getaccount`,
-                {
-                  method: 'POST',
-                  headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify({ address: receiveAddress, visible: true }),
-                },
-              )
-              const recipientInfo = await recipientInfoResponse.json()
-              const recipientExists = recipientInfo && Object.keys(recipientInfo).length > 1
-              if (!recipientExists) {
-                accountActivationFee = 1_000_000 // 1 TRX
-              }
-            } catch {
-              // Ignore activation check errors
-            }
-
             networkFeeCryptoBaseUnit = bn(energyFee)
               .plus(bandwidthFee)
               .plus(accountActivationFee)
               .toFixed(0)
           } catch (estimationError) {
-            // Fallback estimate: ~2k energy + ~1100 bytes bandwidth
+            // Fallback estimate: ~2k energy + ~1100 bytes bandwidth + activation fee
             const fallbackEnergyFee = 2000 * energyPrice
             const fallbackBandwidthFee = 1100 * bandwidthPrice
-            networkFeeCryptoBaseUnit = bn(fallbackEnergyFee).plus(fallbackBandwidthFee).toFixed(0)
+            networkFeeCryptoBaseUnit = bn(fallbackEnergyFee)
+              .plus(fallbackBandwidthFee)
+              .plus(accountActivationFee)
+              .toFixed(0)
           }
         } else {
           // For TRC-20 swaps through Sun.io router
@@ -179,7 +182,10 @@ export async function getQuoteOrRate(
           const energyFee = 2000 * energyPrice
           const bandwidthFee = 1100 * bandwidthPrice
 
-          networkFeeCryptoBaseUnit = bn(energyFee).plus(bandwidthFee).toFixed(0)
+          networkFeeCryptoBaseUnit = bn(energyFee)
+            .plus(bandwidthFee)
+            .plus(accountActivationFee)
+            .toFixed(0)
         }
       } catch (error) {
         // For rates, fall back to '0' on estimation failure

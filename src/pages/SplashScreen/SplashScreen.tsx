@@ -1,5 +1,7 @@
 import { Center, Circle, Spinner } from '@chakra-ui/react'
+import { isFirefox } from 'react-device-detect'
 
+import Orbs from '@/assets/orbs.svg'
 import OrbsStatic from '@/assets/orbs-static.png'
 import { FoxIcon } from '@/components/Icons/FoxIcon'
 import { Page } from '@/components/Layout/Page'
@@ -12,7 +14,7 @@ const after = {
   top: 0,
   width: '100%',
   height: '100vh',
-  backgroundImage: `url(${OrbsStatic})`,
+  backgroundImage: `url(${isFirefox ? OrbsStatic : Orbs})`,
   backgroundSize: 'cover',
   backgroundPosition: 'center center',
 }

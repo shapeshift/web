@@ -219,9 +219,14 @@ export const getTradeQuote = async (
 
         case CHAIN_NAMESPACE.Tron: {
           const sellAdapter = deps.assertGetTronChainAdapter(sellAsset.chainId)
+          const contractAddress = contractAddressOrUndefined(sellAsset.assetId)
           const feeData = await sellAdapter.getFeeData({
             to: depositAddress,
             value: sellAmount,
+            chainSpecific: {
+              from: sendAddress,
+              contractAddress,
+            },
           })
 
           return { networkFeeCryptoBaseUnit: feeData.fast.txFee }

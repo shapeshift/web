@@ -1,8 +1,11 @@
+import type { AssetId } from '@shapeshiftoss/caip'
+import { fromAssetId } from '@shapeshiftoss/caip'
 import { SwapperName } from '@shapeshiftoss/swapper'
 
 import type { FeatureFlags } from './slices/preferencesSlice/preferencesSlice'
 
 import { assertUnreachable } from '@/lib/utils'
+import { isUtxoChainId } from '@/lib/utils/utxo'
 
 export const isCrossAccountTradeSupported = (swapperName: SwapperName) => {
   switch (swapperName) {
@@ -48,10 +51,17 @@ export const getEnabledSwappers = (
   }: FeatureFlags,
   isCrossAccountTrade: boolean,
   isSolBuyAssetId: boolean,
+  walletName?: string,
+  sellAssetId?: AssetId,
 ): Record<SwapperName, boolean> => {
+  const isGridPlusUtxoSell =
+    walletName === 'GridPlus' && sellAssetId && isUtxoChainId(fromAssetId(sellAssetId).chainId)
+
   return {
     [SwapperName.Thorchain]:
-      ThorSwap && (!isCrossAccountTrade || isCrossAccountTradeSupported(SwapperName.Thorchain)),
+      ThorSwap &&
+      (!isCrossAccountTrade || isCrossAccountTradeSupported(SwapperName.Thorchain)) &&
+      !isGridPlusUtxoSell,
     [SwapperName.Zrx]:
       ZrxSwap && (!isCrossAccountTrade || isCrossAccountTradeSupported(SwapperName.Zrx)),
     [SwapperName.CowSwap]:
@@ -69,7 +79,9 @@ export const getEnabledSwappers = (
       (!isCrossAccountTrade ||
         (isCrossAccountTradeSupported(SwapperName.Jupiter) && !isSolBuyAssetId)),
     [SwapperName.Relay]:
-      RelaySwapper && (!isCrossAccountTrade || isCrossAccountTradeSupported(SwapperName.Relay)),
+      RelaySwapper &&
+      (!isCrossAccountTrade || isCrossAccountTradeSupported(SwapperName.Relay)) &&
+      !isGridPlusUtxoSell,
     [SwapperName.Mayachain]:
       MayaSwap && (!isCrossAccountTrade || isCrossAccountTradeSupported(SwapperName.Mayachain)),
     [SwapperName.ButterSwap]:

@@ -115,31 +115,49 @@ export class TronApi {
   async getTransaction(params: { txid: string }): Promise<TronTx | null> {
     await this.throttle()
 
-    const response = await fetch(`${this.rpcUrl}/wallet/gettransactionbyid`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ value: params.txid, visible: true }),
-    })
+    const [txResponse, infoResponse] = await Promise.all([
+      fetch(`${this.rpcUrl}/wallet/gettransactionbyid`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ value: params.txid, visible: true }),
+      }),
+      fetch(`${this.rpcUrl}/wallet/gettransactioninfobyid`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ value: params.txid, visible: true }),
+      }),
+    ])
 
-    if (!response.ok) {
+    if (!txResponse.ok) {
       return null
     }
 
-    const tx = await response.json()
+    const tx = await txResponse.json()
 
     if (!tx || !tx.txID) {
       return null
+    }
+
+    let blockNumber = 0
+    let blockTimeStamp = 0
+    let fee = '0'
+
+    if (infoResponse.ok) {
+      const info = await infoResponse.json()
+      blockNumber = info.blockNumber || 0
+      blockTimeStamp = info.blockTimeStamp || 0
+      fee = info.fee ? String(info.fee) : '0'
     }
 
     return {
       ...tx,
       txid: tx.txID,
       blockHash: '',
-      blockHeight: 0,
-      timestamp: 0,
-      confirmations: 0,
+      blockHeight: blockNumber,
+      timestamp: blockTimeStamp,
+      confirmations: blockNumber > 0 ? 1 : 0,
       value: '0',
-      fee: '0',
+      fee,
     }
   }
 
@@ -240,7 +258,8 @@ export class TronApi {
 
       return String(feeInSun)
     } catch (_err) {
-      return '31000000'
+      // Fallback: Worst case 130k energy at current 100 sun/energy
+      return '13000000' // 13 TRX (more realistic than 31 TRX)
     }
   }
 

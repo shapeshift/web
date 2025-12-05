@@ -35,6 +35,7 @@ export * from './getPoolDetails'
 
 export * as cosmossdk from './cosmossdk'
 export * as evm from './evm'
+export * as tron from './tron'
 export * as utxo from './utxo'
 
 export const getChainIdBySwapper = (swapperName: SwapperName) => {

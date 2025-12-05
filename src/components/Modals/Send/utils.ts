@@ -133,6 +133,11 @@ export const estimateFees = async ({
         to,
         value,
         sendMax,
+        chainSpecific: {
+          from,
+          contractAddress,
+          memo,
+        },
       }
       return adapter.getFeeData(getFeeDataInput)
     }

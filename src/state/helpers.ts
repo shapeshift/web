@@ -23,6 +23,7 @@ export const isCrossAccountTradeSupported = (swapperName: SwapperName) => {
     case SwapperName.ArbitrumBridge:
     case SwapperName.Portals:
     case SwapperName.Cetus:
+    case SwapperName.Sunio:
     case SwapperName.Test:
       // Technically supported for Arbitrum Bridge, but we disable it for the sake of simplicity for now
       return false
@@ -46,6 +47,7 @@ export const getEnabledSwappers = (
     BebopSwap,
     NearIntentsSwap,
     CetusSwap,
+    SunioSwap,
   }: FeatureFlags,
   isCrossAccountTrade: boolean,
   isSolBuyAssetId: boolean,
@@ -91,6 +93,8 @@ export const getEnabledSwappers = (
       (!isCrossAccountTrade || isCrossAccountTradeSupported(SwapperName.NearIntents)),
     [SwapperName.Cetus]:
       CetusSwap && (!isCrossAccountTrade || isCrossAccountTradeSupported(SwapperName.Cetus)),
+    [SwapperName.Sunio]:
+      SunioSwap && (!isCrossAccountTrade || isCrossAccountTradeSupported(SwapperName.Sunio)),
     [SwapperName.Test]: false,
   }
 }

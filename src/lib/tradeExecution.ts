@@ -87,6 +87,7 @@ export const fetchTradeStatus = async ({
     assertGetUtxoChainAdapter,
     assertGetCosmosSdkChainAdapter,
     assertGetSolanaChainAdapter,
+    assertGetTronChainAdapter,
     assertGetSuiChainAdapter,
     fetchIsSmartContractAddressQuery,
   })

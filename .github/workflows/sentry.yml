@@ -6,8 +6,8 @@ on:
 
 jobs:
   release:
-    # Only run when PR is merged, not just closed
-    if: github.event.pull_request.merged == true
+    # Only run for merged release PRs (title contains version like "chore: release v1.977.0")
+    if: github.event.pull_request.merged == true && contains(github.event.pull_request.title, 'release v')
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -30,12 +30,18 @@ jobs:
           PR_TITLE: ${{ github.event.pull_request.title }}
         run: |
           # Extract version from PR title (e.g., "chore: release v1.971.0" -> "1.971.0")
-          # Or use the merge commit SHA if not a release PR
+          # Fallback to git tag for consistency with deployed version
           if [[ "$PR_TITLE" =~ v([0-9]+\.[0-9]+\.[0-9]+) ]]; then
             VERSION="${BASH_REMATCH[1]}"
           else
-            VERSION="${{ github.event.pull_request.merge_commit_sha }}"
-            VERSION="${VERSION:0:7}"
+            # Use git tag to match deployed version
+            TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
+            if [[ "$TAG" =~ ^v([0-9]+\.[0-9]+\.[0-9]+)$ ]]; then
+              VERSION="${BASH_REMATCH[1]}"
+            else
+              VERSION="${{ github.event.pull_request.merge_commit_sha }}"
+              VERSION="${VERSION:0:7}"
+            fi
           fi
           echo "version=$VERSION" >> $GITHUB_OUTPUT
 

@@ -11026,6 +11026,8 @@ __metadata:
 "@shapeshiftoss/caip@^8.15.0, @shapeshiftoss/caip@workspace:^, @shapeshiftoss/caip@workspace:packages/caip":
   version: 0.0.0-use.local
   resolution: "@shapeshiftoss/caip@workspace:packages/caip"
+  dependencies:
+    axios: ^1.13.0
   languageName: unknown
   linkType: soft
 
@@ -11044,16 +11046,27 @@ __metadata:
   dependencies:
     "@mysten/sui": 1.45.0
     "@shapeshiftoss/caip": "workspace:^"
+    "@shapeshiftoss/hdwallet-core": 1.62.21
+    "@shapeshiftoss/hdwallet-ledger": 1.62.21
     "@shapeshiftoss/types": "workspace:^"
     "@shapeshiftoss/unchained-client": "workspace:^"
     "@shapeshiftoss/utils": "workspace:^"
     "@solana/spl-token": ^0.4.9
     "@solana/web3.js": ^1.98.0
+    "@types/bs58check": ^2.1.0
+    "@types/lodash": ^4.14.178
     "@types/multicoin-address-validator": ^0.5.0
+    "@types/node-polyglot": ^2.4.2
+    axios: ^1.13.0
     bech32: ^2.0.0
+    bignumber.js: ^9.3.1
+    bs58check: ^2.1.2
     coinselect: ^3.1.13
+    lodash: ^4.17.21
     multicoin-address-validator: ^0.5.12
+    node-polyglot: ^2.4.0
     p-queue: ^8.0.1
+    viem: ^2.40.3
   languageName: unknown
   linkType: soft
 
@@ -11077,6 +11090,12 @@ __metadata:
     "@shapeshiftoss/caip": "workspace:^"
     "@shapeshiftoss/types": "workspace:^"
     "@shapeshiftoss/utils": "workspace:^"
+    "@types/lodash": ^4.14.178
+    "@uniswap/sdk": ^3.0.3
+    ethers: 6.11.1
+    ethers5: "npm:ethers@5.7.2"
+    lodash: ^4.17.21
+    viem: ^2.40.3
   languageName: unknown
   linkType: soft
 
@@ -11623,11 +11642,42 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@shapeshiftoss/swapper@workspace:packages/swapper"
   dependencies:
+    "@arbitrum/sdk": ^4.0.1
     "@coral-xyz/anchor": 0.29.0
+    "@cowprotocol/app-data": ^2.3.0
+    "@defuse-protocol/one-click-sdk-typescript": ^0.1.1-0.2
+    "@jup-ag/api": ^6.0.30
+    "@shapeshiftoss/bitcoinjs-lib": 7.0.0-shapeshift.0
     "@shapeshiftoss/caip": "workspace:^"
     "@shapeshiftoss/chain-adapters": "workspace:^"
+    "@shapeshiftoss/contracts": "workspace:^"
+    "@shapeshiftoss/hdwallet-core": 1.62.21
     "@shapeshiftoss/types": "workspace:^"
+    "@shapeshiftoss/unchained-client": "workspace:^"
     "@shapeshiftoss/utils": "workspace:^"
+    "@sniptt/monads": ^0.5.10
+    "@solana/web3.js": ^1.98.0
+    "@types/lodash": ^4.14.178
+    "@types/mixpanel-browser": ^2.38.1
+    "@types/node-polyglot": ^2.4.2
+    "@types/qs": ^6.9.18
+    "@types/uuid": ^9.0.5
+    "@uniswap/sdk-core": ^5.3.1
+    "@uniswap/v3-sdk": ^3.13.1
+    axios: ^1.13.0
+    axios-cache-interceptor: ^1.5.3
+    bignumber.js: ^9.3.1
+    eip-712: ^1.0.0
+    ethers: 6.11.1
+    ethers5: "npm:ethers@5.7.2"
+    lodash: ^4.17.21
+    mixpanel-browser: ^2.67.0
+    node-polyglot: ^2.4.0
+    pretty-ms: 7.0.1
+    qs: ^6.10.5
+    retry-axios: ^2.6.0
+    uuid: ^9.0.0
+    viem: ^2.40.3
   languageName: unknown
   linkType: soft
 
@@ -11635,7 +11685,10 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@shapeshiftoss/types@workspace:packages/types"
   dependencies:
+    "@cowprotocol/app-data": ^2.3.0
     "@shapeshiftoss/caip": "workspace:^"
+    ethers5: "npm:ethers@5.7.2"
+    viem: ^2.40.3
   languageName: unknown
   linkType: soft
 
@@ -11654,9 +11707,12 @@ __metadata:
     "@shapeshiftoss/caip": "workspace:^"
     "@shapeshiftoss/common-api": ^9.3.0
     "@shapeshiftoss/contracts": "workspace:^"
-    "@solana/spl-token": ^0.4.9
-    "@solana/web3.js": ^1.98.0
+    "@shapeshiftoss/utils": "workspace:^"
+    axios: ^1.13.0
+    bignumber.js: ^9.3.1
+    ethers: 6.11.1
     isomorphic-ws: ^4.0.1
+    viem: ^2.40.3
     ws: ^8.17.1
   languageName: unknown
   linkType: soft
@@ -11684,6 +11740,11 @@ __metadata:
   dependencies:
     "@shapeshiftoss/caip": "workspace:^"
     "@shapeshiftoss/types": "workspace:^"
+    "@sniptt/monads": ^0.5.10
+    "@types/lodash": ^4.14.178
+    bignumber.js: ^9.3.1
+    dayjs: ^1.11.3
+    lodash: ^4.17.21
   languageName: unknown
   linkType: soft
 
@@ -11699,8 +11760,6 @@ __metadata:
     "@chakra-ui/tag": ^3.1.1
     "@commitlint/cli": ^15.0.0
     "@commitlint/config-conventional": ^15.0.0
-    "@cowprotocol/app-data": ^2.3.0
-    "@defuse-protocol/one-click-sdk-typescript": ^0.1.1-0.2
     "@emotion/react": ^11.13.0
     "@emotion/styled": ^11.13.0
     "@formatjs/intl-getcanonicallocales": ^2.3.0
@@ -11708,7 +11767,6 @@ __metadata:
     "@formatjs/intl-numberformat": ^8.10.3
     "@formatjs/intl-pluralrules": ^5.2.14
     "@json-rpc-tools/utils": ^1.7.6
-    "@jup-ag/api": ^6.0.30
     "@keepkey/hdwallet-keepkey-rest": 1.40.42
     "@keepkey/keepkey-sdk": 0.2.57
     "@keplr-wallet/types": ^0.12.21
@@ -11758,7 +11816,6 @@ __metadata:
     "@tanstack/react-virtual": ^3.11.2
     "@testing-library/react": ^13.3.0
     "@types/bip21": ^2.0.0
-    "@types/bs58check": ^2.1.0
     "@types/cli-progress": ^3.11.5
     "@types/d3-array": ^3.0.1
     "@types/dompurify": ^2.3.2
@@ -11785,9 +11842,6 @@ __metadata:
     "@types/semver": ^7.3.10
     "@types/ssri": ^7.1.1
     "@types/uuid": ^9.0.5
-    "@uniswap/sdk": ^3.0.3
-    "@uniswap/sdk-core": ^5.3.1
-    "@uniswap/v3-sdk": ^3.13.1
     "@visx/gradient": ^3.3.0
     "@visx/grid": ^3.5.0
     "@visx/responsive": ^3.10.2
@@ -11808,7 +11862,6 @@ __metadata:
     bignumber.js: ^9.3.1
     bip21: ^2.0.3
     bip39: ^3.0.4
-    bs58check: ^2.1.2
     buffer: ^6.0.3
     chakra-ui-steps: ^2.2.0
     chalk: 5.3.0
@@ -11834,7 +11887,6 @@ __metadata:
     eslint-plugin-simple-import-sort: ^10.0.0
     eth-url-parser: ^1.0.4
     ethers: 6.11.1
-    ethers5: "npm:ethers@5.7.2"
     eventemitter2: 5.0.1
     events: ^3.3.0
     fake-indexeddb: ^6.0.1
@@ -26407,7 +26459,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"jwa@npm:^2.0.0":
+"jwa@npm:^2.0.1":
   version: 2.0.1
   resolution: "jwa@npm:2.0.1"
   dependencies:
@@ -26419,12 +26471,12 @@ __metadata:
   linkType: hard
 
 "jws@npm:^4.0.0":
-  version: 4.0.0
-  resolution: "jws@npm:4.0.0"
+  version: 4.0.1
+  resolution: "jws@npm:4.0.1"
   dependencies:
-    jwa: ^2.0.0
+    jwa: ^2.0.1
     safe-buffer: ^5.0.1
-  checksum: d68d07aa6d1b8cb35c363a9bd2b48f15064d342a5d9dc18a250dbbce8dc06bd7e4792516c50baa16b8d14f61167c19e851fd7f66b59ecc68b7f6a013759765f7
+  checksum: c33a060b2cce1e0e49f85054a49a951f9d52a9e2ae732d720f0fc51843c9ac07a68aacd8e9d086ef4c7c4437d42978b698b57a3e7c9bc4a91c0b74276ea85a9a
   languageName: node
   linkType: hard
 
@@ -34846,7 +34898,7 @@ pvutils@latest:
   languageName: node
   linkType: hard
 
-"viem@npm:2.40.3":
+"viem@npm:2.40.3, viem@npm:^2.40.3":
   version: 2.40.3
   resolution: "viem@npm:2.40.3"
   dependencies:

@@ -1,5 +1,4 @@
-import type { ActionsResponse } from 'packages/unchained-client/src/parser/mayachain'
-
+import type { ActionsResponse } from '../../../../../parser/mayachain'
 import type { Tx } from '../../../../types'
 
 const tx: Tx = {

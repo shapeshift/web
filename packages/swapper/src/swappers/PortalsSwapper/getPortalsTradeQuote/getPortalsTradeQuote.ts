@@ -193,7 +193,7 @@ export async function getPortalsTradeQuote(
     const {
       context: {
         orderId,
-        outputAmount: buyAmountAfterFeesCryptoBaseUnit,
+        outputAmount,
         minOutputAmount,
         target: allowanceContract,
         feeAmount,
@@ -202,6 +202,8 @@ export async function getPortalsTradeQuote(
       },
       tx,
     } = portalsTradeOrderResponse
+
+    const buyAmountAfterFeesCryptoBaseUnit = isCrossChain ? minOutputAmount : outputAmount
 
     const protocolFeeAsset = feeToken === inputToken ? sellAsset : buyAsset
 

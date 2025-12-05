@@ -139,8 +139,9 @@ export async function getPortalsTradeRate(
 
     const { context, tx } = quoteResponse
 
-    // Use outputAmount from context, not estimate
-    const buyAmountAfterFeesCryptoBaseUnit = context.outputAmount
+    const buyAmountAfterFeesCryptoBaseUnit = isCrossChain
+      ? context.minOutputAmount
+      : context.outputAmount
 
     const inputOutputRate = getInputOutputRate({
       sellAmountCryptoBaseUnit: input.sellAmountIncludingProtocolFeesCryptoBaseUnit,

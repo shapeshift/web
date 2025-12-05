@@ -52,6 +52,7 @@ type PortalsTradeOrderResponse = {
     route: string[]
     routeHash: string
     steps: string[]
+    expiry?: string
     gasLimit?: string
     feeToken?: string
     feeAmount?: string

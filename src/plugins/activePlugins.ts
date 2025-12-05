@@ -20,6 +20,7 @@ import sui from '@/plugins/sui'
 import thorchain from '@/plugins/thorchain'
 import tron from '@/plugins/tron'
 import walletConnectToDapps from '@/plugins/walletConnectToDapps'
+import zcash from '@/plugins/zcash'
 
 export const activePlugins = [
   arbitrum,
@@ -44,4 +45,5 @@ export const activePlugins = [
   thorchain,
   tron,
   walletConnectToDapps,
+  zcash,
 ]

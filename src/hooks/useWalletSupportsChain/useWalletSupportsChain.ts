@@ -20,6 +20,7 @@ import {
   suiChainId,
   thorchainChainId,
   tronChainId,
+  zecChainId,
 } from '@shapeshiftoss/caip'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
@@ -141,6 +142,8 @@ export const walletSupportsChain = ({
     case dogeChainId:
       return supportsBTC(wallet) && !(wallet instanceof PhantomHDWallet)
     case ltcChainId:
+      return supportsBTC(wallet) && !(wallet instanceof PhantomHDWallet)
+    case zecChainId:
       return supportsBTC(wallet) && !(wallet instanceof PhantomHDWallet)
     case ethChainId:
       return supportsETH(wallet)

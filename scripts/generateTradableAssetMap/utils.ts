@@ -15,6 +15,7 @@ import {
   thorchainChainId,
   toAssetId,
   tronChainId,
+  zecChainId,
 } from '@shapeshiftoss/caip'
 import type { ThornodePoolResponse } from '@shapeshiftoss/swapper'
 import { KnownChainIds } from '@shapeshiftoss/types'
@@ -36,6 +37,7 @@ enum Chain {
   LTC = 'LTC',
   THOR = 'THOR',
   TRON = 'TRON',
+  ZEC = 'ZEC'
 }
 
 const chainToChainId: Record<Chain, ChainId> = {
@@ -52,6 +54,7 @@ const chainToChainId: Record<Chain, ChainId> = {
   [Chain.LTC]: ltcChainId,
   [Chain.THOR]: thorchainChainId,
   [Chain.TRON]: tronChainId,
+  [Chain.ZEC]: zecChainId,
 }
 
 const getFeeAssetFromChain = (chain: Chain): AssetId => {

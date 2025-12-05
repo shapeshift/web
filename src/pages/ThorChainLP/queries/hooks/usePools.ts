@@ -115,7 +115,11 @@ export const usePools = () => {
       const assetId = thorPoolAssetIdToAssetId(pool.asset)
       if (!assetId) return acc
 
-      const inboundAddressesResponse = selectInboundAddressData(inboundAddressesData ?? [], assetId)
+      const inboundAddressesResponse = selectInboundAddressData(
+        inboundAddressesData ?? [],
+        assetId,
+        SwapperName.Thorchain,
+      )
 
       const isTradingActive = selectIsTradingActive({
         assetId,

@@ -16,7 +16,7 @@ import {
 } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
-import { assertAndProcessMemo } from '@shapeshiftoss/swapper'
+import { assertAndProcessMemo, SwapperName } from '@shapeshiftoss/swapper'
 import type { Asset } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { useQuery } from '@tanstack/react-query'
@@ -131,7 +131,7 @@ export const RepayInput = ({
   const { data: inboundAddressData, isLoading: isInboundAddressLoading } = useQuery({
     ...reactQueries.thornode.inboundAddresses(),
     staleTime: 60_000,
-    select: data => selectInboundAddressData(data, repaymentAsset?.assetId),
+    select: data => selectInboundAddressData(data, repaymentAsset?.assetId, SwapperName.Thorchain),
     enabled: !!repaymentAsset?.assetId,
   })
 

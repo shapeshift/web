@@ -3,7 +3,7 @@ import { fromAccountId, fromAssetId, thorchainAssetId } from '@shapeshiftoss/cai
 import type { FeeDataEstimate } from '@shapeshiftoss/chain-adapters'
 import { CONTRACT_INTERACTION, FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import { isTrezor } from '@shapeshiftoss/hdwallet-trezor'
-import { assertAndProcessMemo, depositWithExpiry } from '@shapeshiftoss/swapper'
+import { assertAndProcessMemo, depositWithExpiry, SwapperName } from '@shapeshiftoss/swapper'
 import type { KnownChainIds } from '@shapeshiftoss/types'
 import { isToken } from '@shapeshiftoss/utils'
 import { useQuery } from '@tanstack/react-query'
@@ -127,7 +127,7 @@ export const useSendThorTx = ({
   const { data: inboundAddressData } = useQuery({
     ...reactQueries.thornode.inboundAddresses(),
     staleTime: 60_000,
-    select: data => selectInboundAddressData(data, assetId),
+    select: data => selectInboundAddressData(data, assetId, SwapperName.Thorchain),
     enabled: Boolean(assetId && assetId !== thorchainAssetId),
   })
 

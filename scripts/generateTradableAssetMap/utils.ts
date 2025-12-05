@@ -37,7 +37,7 @@ enum Chain {
   LTC = 'LTC',
   THOR = 'THOR',
   TRON = 'TRON',
-  ZEC = 'ZEC'
+  ZEC = 'ZEC',
 }
 
 const chainToChainId: Record<Chain, ChainId> = {

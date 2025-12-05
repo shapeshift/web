@@ -6,6 +6,9 @@ import split from 'coinselect/split'
 
 const ZCASH_MARGINAL_FEE = 5000
 const ZCASH_GRACE_ACTIONS = 2
+const ZCASH_P2PKH_STANDARD_INPUT_SIZE = 150
+const ZCASH_P2PKH_STANDARD_OUTPUT_SIZE = 34
+const TX_OUTPUT_BASE = 9
 
 export type UTXOSelectInput = {
   utxos: unchained.bitcoin.Utxo[]
@@ -90,8 +93,11 @@ export const utxoSelect = (input: UTXOSelectInput) => {
   return { ...result, outputs: result.outputs?.filter(o => !o.script) }
 }
 
-const calculateZip317Fee = (numInputs: number, numOutputs: number): number => {
-  const logicalActions = Math.max(numInputs, numOutputs)
+// https://zips.z.cash/zip-0317
+const calculateZip317Fee = (txInTotalSize: number, txOutTotalSize: number): number => {
+  const inputActions = Math.ceil(txInTotalSize / ZCASH_P2PKH_STANDARD_INPUT_SIZE)
+  const outputActions = Math.ceil(txOutTotalSize / ZCASH_P2PKH_STANDARD_OUTPUT_SIZE)
+  const logicalActions = Math.max(inputActions, outputActions)
   return ZCASH_MARGINAL_FEE * Math.max(ZCASH_GRACE_ACTIONS, logicalActions)
 }
 
@@ -104,9 +110,16 @@ const coinSelectZcash = (
     value: number
   }
 > => {
+  const opReturnOutputSize = extraOutput[0]?.script
+    ? TX_OUTPUT_BASE + extraOutput[0].script.length
+    : 0
+
   if (input.sendMax) {
-    const numOutputs = 1 + (input.opReturnData ? 1 : 0)
-    const feeWithoutChange = calculateZip317Fee(utxos.length, numOutputs)
+    const txInTotalSize = utxos.length * ZCASH_P2PKH_STANDARD_INPUT_SIZE
+    const txOutTotalSize = ZCASH_P2PKH_STANDARD_OUTPUT_SIZE + opReturnOutputSize
+
+    const feeWithoutChange = calculateZip317Fee(txInTotalSize, txOutTotalSize)
+
     const totalIn = utxos.reduce((sum, { value }) => sum + value, 0)
     const remainder = totalIn - feeWithoutChange
 
@@ -126,8 +139,10 @@ const coinSelectZcash = (
     inputs.push(utxo)
     totalIn += utxo.value
 
-    const numOutputs = 2 + (input.opReturnData ? 1 : 0)
-    feeWithChange = calculateZip317Fee(inputs.length, numOutputs)
+    const txInTotalSize = inputs.length * ZCASH_P2PKH_STANDARD_INPUT_SIZE
+    const txOutTotalSize = 2 * ZCASH_P2PKH_STANDARD_OUTPUT_SIZE + opReturnOutputSize
+
+    feeWithChange = calculateZip317Fee(txInTotalSize, txOutTotalSize)
 
     if (totalIn >= Number(input.value) + feeWithChange) {
       const remainder = totalIn - Number(input.value) - feeWithChange

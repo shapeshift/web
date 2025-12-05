@@ -176,7 +176,15 @@ export default defineConfig(({ mode }) => {
               if (id.match(/(dayjs|lodash|@formatjs)/)) return 'utils'
               if (id.match(/(@redux|@tanstack)/)) return 'state'
               if (id.match(/(@metaplex-foundation|@solana)/)) return 'solana'
-              if (id.match(/(@sentry|mixpanel|@moralisweb3)/)) return 'sdk'
+              if (id.match(/(@sentry|mixpanel|@moralisweb3|moralis)/)) return 'sdk'
+              if (id.match(/(embla-carousel)/)) return 'carousel'
+              if (id.includes('lightweight-charts')) return 'charts'
+              if (id.includes('html5-qrcode')) return 'qr-scanner'
+              if (id.includes('react-scan')) return 'react-scan'
+              if (id.includes('styled-components')) return 'styled-components'
+              if (id.includes('protobufjs')) return 'protobuf'
+              if (id.includes('date-fns')) return 'date-fns'
+              if (id.includes('@ledgerhq')) return 'ledger'
               if (id.includes('cosmjs-types')) return 'cosmjs-types'
               if (id.includes('osmojs')) return 'osmojs'
               if (id.includes('@arbitrum')) return '@arbitrum'
@@ -187,15 +195,23 @@ export default defineConfig(({ mode }) => {
               if (id.includes('gridplus-sdk')) return 'gridplus-sdk'
               if (id.includes('tronweb')) return 'tronweb'
               if (id.includes('viem')) return 'viem'
-              if (id.includes('@cetusprotocol')) return '@cetusprotocol'
               if (id.includes('@mysten')) return '@mysten'
-              if (id.includes('@shapeshiftoss/hdwallet-vultisig')) return 'hdwallet-vultisig'
+              if (id.includes('valibot')) return 'valibot'
+              if (id.includes('@0noco/graphqllsp')) return 'graphqllsp'
+
+              // Those chunks should be imported last as they heavily rely on other chunks and default order doesnt work
+              if (id.includes('@cetusprotocol')) return 'z-@cetusprotocol'
+              if (id.includes('graphql')) return 'z-graphql'
 
               return null
             }
 
             if (id.includes('assets/translations')) return 'translations'
             if (id.includes('packages/unchained-client')) return 'unchained-client'
+            if (id.includes('localAssetData')) return 'local-asset-data'
+
+            // This chunk should be imported last as it heavily relies on other chunks and default order doesnt work
+            if (id.includes('packages/chain-adapters')) return 'z-chain-adapters'
 
             return null
           },

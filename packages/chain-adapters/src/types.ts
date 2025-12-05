@@ -320,6 +320,7 @@ type ChainSpecificGetFeeDataInput<T> = ChainSpecific<
     [KnownChainIds.LitecoinMainnet]: utxo.GetFeeDataInput
     [KnownChainIds.SolanaMainnet]: solana.GetFeeDataInput
     [KnownChainIds.SuiMainnet]: sui.GetFeeDataInput
+    [KnownChainIds.TronMainnet]: tron.GetFeeDataInput
   }
 >
 export type GetFeeDataInput<T extends ChainId> = {

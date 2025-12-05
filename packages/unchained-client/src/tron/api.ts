@@ -258,7 +258,8 @@ export class TronApi {
 
       return String(feeInSun)
     } catch (_err) {
-      return '31000000'
+      // Fallback: Worst case 130k energy at current 100 sun/energy
+      return '13000000' // 13 TRX (more realistic than 31 TRX)
     }
   }
 

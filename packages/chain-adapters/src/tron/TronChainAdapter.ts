@@ -219,18 +219,24 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TronMainnet> {
 
         txData = txData.transaction
       } else {
+        const requestBody = {
+          owner_address: from,
+          to_address: to,
+          amount: Number(value),
+          visible: true,
+        }
+
         const response = await fetch(`${this.rpcUrl}/wallet/createtransaction`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            owner_address: from,
-            to_address: to,
-            amount: Number(value),
-            visible: true,
-          }),
+          body: JSON.stringify(requestBody),
         })
 
         txData = await response.json()
+
+        if (txData.Error) {
+          throw new Error(`TronGrid API error: ${txData.Error}`)
+        }
       }
 
       // Add memo if provided
@@ -400,11 +406,9 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TronMainnet> {
       } else {
         // TRX transfer: Build actual transaction to get precise bandwidth
         try {
-          const baseTx = await tronWeb.transactionBuilder.sendTrx(
-            to,
-            Number(value),
-            to, // Use recipient as sender for estimation
-          )
+          // Use actual sender if available, otherwise use recipient for estimation
+          const estimationFrom = from || to
+          const baseTx = await tronWeb.transactionBuilder.sendTrx(to, Number(value), estimationFrom)
 
           // Add memo if provided to get accurate size
           const finalTx = memo
@@ -426,7 +430,29 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TronMainnet> {
         }
       }
 
-      const totalFee = energyFee + bandwidthFee
+      // Check if recipient address needs activation (1 TRX cost)
+      let accountActivationFee = 0
+      try {
+        const recipientInfoResponse = await fetch(`${this.rpcUrl}/wallet/getaccount`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            address: to,
+            visible: true,
+          }),
+        })
+        const recipientInfo = await recipientInfoResponse.json()
+        const recipientExists = recipientInfo && Object.keys(recipientInfo).length > 1
+
+        // If recipient doesn't exist, add 1 TRX activation fee
+        if (!recipientExists && !contractAddress) {
+          accountActivationFee = 1_000_000 // 1 TRX = 1,000,000 sun
+        }
+      } catch (err) {
+        // Don't fail on this check - continue with 0 activation fee
+      }
+
+      const totalFee = energyFee + bandwidthFee + accountActivationFee
 
       // Calculate bandwidth for display
       const estimatedBandwidth = String(Math.ceil(bandwidthFee / bandwidthPrice))

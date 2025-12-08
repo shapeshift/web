@@ -158,21 +158,33 @@ export const Pool = () => {
   const addIcon = useMemo(() => <FaPlus />, [])
   const swapIcon = useMemo(() => <SwapIcon />, [])
 
-  if (!poolAssetId) return null
-
-  return (
-    <Main headerComponent={headerComponent} isSubPage>
-      {isLpChainHaltedForPool === true ? (
+  const maybePoolDisabledAlert = useMemo(() => {
+    // Chain-level LP halt takes precedence
+    if (isLpChainHaltedForPool === true)
+      return (
         <Alert status='error' variant='subtle' mb={4}>
           <AlertIcon />
-          <AlertDescription>{translate('common.disabled')}</AlertDescription>
+          <AlertDescription>{translate('common.poolDisabled')}</AlertDescription>
         </Alert>
-      ) : isThorchainLpDepositEnabledForPool === false && !isLpChainHaltedForPool ? (
+      )
+
+    // Pool-specific deposit pause
+    if (isThorchainLpDepositEnabledForPool === false)
+      return (
         <Alert status='error' variant='subtle' mb={4}>
           <AlertIcon />
           <AlertDescription>{translate('pools.depositsDisabled')}</AlertDescription>
         </Alert>
-      ) : null}
+      )
+
+    return null
+  }, [isLpChainHaltedForPool, isThorchainLpDepositEnabledForPool, translate])
+
+  if (!poolAssetId) return null
+
+  return (
+    <Main headerComponent={headerComponent} isSubPage>
+      {maybePoolDisabledAlert}
       <Flex gap={4} flexDir={flexDirPool}>
         <Stack gap={6} flex={1}>
           <Flex

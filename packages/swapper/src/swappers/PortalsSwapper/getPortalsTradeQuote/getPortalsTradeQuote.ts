@@ -26,7 +26,7 @@ import { getInputOutputRate, makeSwapErrorRight } from '../../../utils'
 import { getTreasuryAddressFromChainId, isNativeEvmAsset } from '../../utils/helpers/helpers'
 import { chainIdToPortalsNetwork } from '../constants'
 import { fetchPortalsTradeOrder, PortalsError } from '../utils/fetchPortalsTradeOrder'
-import { isSupportedChainId } from '../utils/helpers'
+import { getPortalsRouterAddressByChainId, isSupportedChainId } from '../utils/helpers'
 
 export async function getPortalsTradeQuote(
   input: GetEvmTradeQuoteInputBase,
@@ -191,17 +191,11 @@ export async function getPortalsTradeQuote(
     const portalsTradeOrderResponse = maybePortalsTradeOrderResponse.unwrap()
 
     const {
-      context: {
-        orderId,
-        outputAmount,
-        minOutputAmount,
-        target: allowanceContract,
-        feeAmount,
-        gasLimit,
-        feeToken,
-      },
+      context: { orderId, outputAmount, minOutputAmount, target, feeAmount, gasLimit, feeToken },
       tx,
     } = portalsTradeOrderResponse
+
+    const allowanceContract = isCrossChain ? target : getPortalsRouterAddressByChainId(chainId)
 
     const buyAmountAfterFeesCryptoBaseUnit = isCrossChain ? minOutputAmount : outputAmount
 

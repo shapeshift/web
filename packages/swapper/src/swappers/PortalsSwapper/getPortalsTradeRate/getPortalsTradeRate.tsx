@@ -150,7 +150,9 @@ export async function getPortalsTradeRate(
       buyAsset,
     })
 
-    const allowanceContract = getPortalsRouterAddressByChainId(chainId)
+    const allowanceContract = isCrossChain
+      ? context.target
+      : getPortalsRouterAddressByChainId(chainId)
 
     // Don't use Portals' slippageTolerancePercentage field (it's a price indicator, not actual buffer)
     // Instead, calculate the actual buffer Portals applied from the amounts

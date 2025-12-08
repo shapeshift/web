@@ -1,8 +1,10 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import { ASSET_REFERENCE, monadAssetId } from '@shapeshiftoss/caip'
+import { MULTICALL3_CONTRACT } from '@shapeshiftoss/contracts'
 import type { RootBip44Params } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { Contract, Interface, JsonRpcProvider } from 'ethers'
+import { multicall3Abi } from 'viem'
 
 import { ErrorHandler } from '../../error/ErrorHandler'
 import type {
@@ -24,13 +26,6 @@ import type { GasFeeDataEstimate } from '../types'
 
 const SUPPORTED_CHAIN_IDS = [KnownChainIds.MonadMainnet]
 const DEFAULT_CHAIN_ID = KnownChainIds.MonadMainnet
-
-// Multicall3 contract on Monad
-const MULTICALL3_ADDRESS = '0xcA11bde05977b3631167028862bE2a173976CA11'
-
-const MULTICALL3_ABI = [
-  'function aggregate3(tuple(address target, bool allowFailure, bytes callData)[] calls) view returns (tuple(bool success, bytes returnData)[])',
-]
 
 const ERC20_ABI = ['function balanceOf(address) view returns (uint256)']
 
@@ -89,7 +84,7 @@ export class ChainAdapter extends EvmBaseAdapter<KnownChainIds.MonadMainnet> {
       staticNetwork: true,
     })
 
-    this.multicall = new Contract(MULTICALL3_ADDRESS, MULTICALL3_ABI, this.provider)
+    this.multicall = new Contract(MULTICALL3_CONTRACT, multicall3Abi, this.provider)
     this.erc20Interface = new Interface(ERC20_ABI)
     this.knownTokens = args.knownTokens ?? []
   }

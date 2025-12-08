@@ -26,15 +26,15 @@ const SUPPORTED_CHAIN_IDS = [KnownChainIds.MonadMainnet]
 const DEFAULT_CHAIN_ID = KnownChainIds.MonadMainnet
 
 // Multicall3 contract on Monad
-const MULTICALL3_ADDRESS = '0xd1b797d92d87b688193a2b976efc8d577d204343'
+const MULTICALL3_ADDRESS = '0xcA11bde05977b3631167028862bE2a173976CA11'
 
 const MULTICALL3_ABI = [
-  'function aggregate3(tuple(address target, bool allowFailure, bytes callData)[] calls) returns (tuple(bool success, bytes returnData)[])',
+  'function aggregate3(tuple(address target, bool allowFailure, bytes callData)[] calls) view returns (tuple(bool success, bytes returnData)[])',
 ]
 
 const ERC20_ABI = ['function balanceOf(address) view returns (uint256)']
 
-const BATCH_SIZE = 500 // Process 500 tokens per multicall
+const BATCH_SIZE = 500 // Process 20 tokens per multicall to avoid gas/RPC limits
 
 export type TokenInfo = {
   assetId: AssetId
@@ -64,6 +64,8 @@ export class ChainAdapter extends EvmBaseAdapter<KnownChainIds.MonadMainnet> {
   protected multicall: Contract
   protected erc20Interface: Interface
   protected knownTokens: TokenInfo[]
+  private requestQueue: Promise<void> = Promise.resolve()
+  private readonly minRequestInterval = 50
 
   constructor(args: ChainAdapterArgs) {
     // Create a dummy parser - we won't use it since we don't support tx history
@@ -92,6 +94,16 @@ export class ChainAdapter extends EvmBaseAdapter<KnownChainIds.MonadMainnet> {
     this.knownTokens = args.knownTokens ?? []
   }
 
+  private async throttle(): Promise<void> {
+    // Queue the request and wait for all previous requests to complete
+    const currentRequest = this.requestQueue.then(async () => {
+      await new Promise(resolve => setTimeout(resolve, this.minRequestInterval))
+    })
+
+    this.requestQueue = currentRequest
+    await currentRequest
+  }
+
   getDisplayName() {
     return ChainAdapterDisplayName.Monad
   }
@@ -110,6 +122,8 @@ export class ChainAdapter extends EvmBaseAdapter<KnownChainIds.MonadMainnet> {
 
   async getAccount(pubkey: string): Promise<Account<KnownChainIds.MonadMainnet>> {
     try {
+      await this.throttle()
+
       const [balance, nonce] = await Promise.all([
         this.provider.getBalance(pubkey),
         this.provider.getTransactionCount(pubkey),
@@ -200,6 +214,8 @@ export class ChainAdapter extends EvmBaseAdapter<KnownChainIds.MonadMainnet> {
       precision: number
     }[]
   > {
+    await this.throttle()
+
     // Build multicall calls array
     const calls = tokens.map(token => ({
       target: token.contractAddress,
@@ -251,6 +267,8 @@ export class ChainAdapter extends EvmBaseAdapter<KnownChainIds.MonadMainnet> {
     const results = await Promise.all(
       tokens.map(async token => {
         try {
+          await this.throttle()
+
           const contract = new Contract(token.contractAddress, ERC20_ABI, this.provider)
 
           const balance = await contract.balanceOf(pubkey)
@@ -273,6 +291,8 @@ export class ChainAdapter extends EvmBaseAdapter<KnownChainIds.MonadMainnet> {
 
   async getGasFeeData(): Promise<GasFeeDataEstimate> {
     try {
+      await this.throttle()
+
       const feeData = await this.provider.getFeeData()
 
       const gasPrice = feeData.gasPrice?.toString() ?? '0'
@@ -298,6 +318,8 @@ export class ChainAdapter extends EvmBaseAdapter<KnownChainIds.MonadMainnet> {
     input: GetFeeDataInput<KnownChainIds.MonadMainnet>,
   ): Promise<FeeDataEstimate<KnownChainIds.MonadMainnet>> {
     try {
+      await this.throttle()
+
       const estimateGasBody = this.buildEstimateGasBody(input)
 
       const gasLimit = await this.provider.estimateGas({
@@ -346,6 +368,8 @@ export class ChainAdapter extends EvmBaseAdapter<KnownChainIds.MonadMainnet> {
         assertAddressNotSanctioned(senderAddress),
         receiverAddress !== CONTRACT_INTERACTION && assertAddressNotSanctioned(receiverAddress),
       ])
+
+      await this.throttle()
 
       const txResponse = await this.provider.broadcastTransaction(hex)
       return txResponse.hash

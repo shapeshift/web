@@ -50,6 +50,7 @@ import {
   supportsSui,
   supportsThorchain,
 } from '@shapeshiftoss/hdwallet-core'
+import { GridPlusHDWallet } from '@shapeshiftoss/hdwallet-gridplus'
 import { PhantomHDWallet } from '@shapeshiftoss/hdwallet-phantom'
 import type { Asset, EvmChainId, KnownChainIds, UtxoChainId } from '@shapeshiftoss/types'
 import type { MinimalAsset } from '@shapeshiftoss/utils'
@@ -384,13 +385,29 @@ export const isAssetSupportedByWallet = (assetId: AssetId, wallet: HDWallet): bo
     case btcChainId:
       return supportsBTC(wallet)
     case ltcChainId:
-      return supportsBTC(wallet) && !(wallet instanceof PhantomHDWallet)
+      return (
+        supportsBTC(wallet) &&
+        !(wallet instanceof PhantomHDWallet) &&
+        !(wallet instanceof GridPlusHDWallet)
+      )
     case dogeChainId:
-      return supportsBTC(wallet) && !(wallet instanceof PhantomHDWallet)
+      return (
+        supportsBTC(wallet) &&
+        !(wallet instanceof PhantomHDWallet) &&
+        !(wallet instanceof GridPlusHDWallet)
+      )
     case bchChainId:
-      return supportsBTC(wallet) && !(wallet instanceof PhantomHDWallet)
+      return (
+        supportsBTC(wallet) &&
+        !(wallet instanceof PhantomHDWallet) &&
+        !(wallet instanceof GridPlusHDWallet)
+      )
     case zecChainId:
-      return supportsBTC(wallet) && !(wallet instanceof PhantomHDWallet)
+      return (
+        supportsBTC(wallet) &&
+        !(wallet instanceof PhantomHDWallet) &&
+        !(wallet instanceof GridPlusHDWallet)
+      )
     case cosmosChainId:
       return supportsCosmos(wallet)
     case thorchainChainId:

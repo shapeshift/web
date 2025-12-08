@@ -62,7 +62,7 @@ export async function getPortalsTradeQuote(
       makeSwapErrorRight({
         message: `unsupported chainId`,
         code: TradeQuoteError.UnsupportedChain,
-        details: { chainId: sellAsset.chainId },
+        details: { chainId: buyAsset.chainId },
       }),
     )
   }

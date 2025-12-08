@@ -46,6 +46,7 @@ type ChainSpecificAccount<T> = ChainSpecific<
     [KnownChainIds.BitcoinCashMainnet]: utxo.Account
     [KnownChainIds.DogecoinMainnet]: utxo.Account
     [KnownChainIds.LitecoinMainnet]: utxo.Account
+    [KnownChainIds.ZcashMainnet]: utxo.Account
     [KnownChainIds.CosmosMainnet]: cosmossdk.Account
     [KnownChainIds.ThorchainMainnet]: cosmossdk.Account
     [KnownChainIds.MayachainMainnet]: cosmossdk.Account
@@ -91,6 +92,7 @@ type ChainSpecificFeeData<T> = ChainSpecific<
     [KnownChainIds.BitcoinCashMainnet]: utxo.FeeData
     [KnownChainIds.DogecoinMainnet]: utxo.FeeData
     [KnownChainIds.LitecoinMainnet]: utxo.FeeData
+    [KnownChainIds.ZcashMainnet]: utxo.FeeData
     [KnownChainIds.CosmosMainnet]: cosmossdk.FeeData
     [KnownChainIds.ThorchainMainnet]: cosmossdk.FeeData
     [KnownChainIds.MayachainMainnet]: cosmossdk.FeeData
@@ -170,6 +172,7 @@ export type ChainSignTx = {
   [KnownChainIds.BitcoinCashMainnet]: BTCSignTx
   [KnownChainIds.DogecoinMainnet]: BTCSignTx
   [KnownChainIds.LitecoinMainnet]: BTCSignTx
+  [KnownChainIds.ZcashMainnet]: BTCSignTx
   [KnownChainIds.CosmosMainnet]: CosmosSignTx
   [KnownChainIds.ThorchainMainnet]: ThorchainSignTx
   [KnownChainIds.MayachainMainnet]: MayachainSignTx
@@ -218,6 +221,7 @@ export type ChainSpecificBuildTxData<T> = ChainSpecific<
     [KnownChainIds.BitcoinCashMainnet]: utxo.BuildTxInput
     [KnownChainIds.DogecoinMainnet]: utxo.BuildTxInput
     [KnownChainIds.LitecoinMainnet]: utxo.BuildTxInput
+    [KnownChainIds.ZcashMainnet]: utxo.BuildTxInput
     [KnownChainIds.CosmosMainnet]: cosmossdk.BuildTxInput
     [KnownChainIds.ThorchainMainnet]: cosmossdk.BuildTxInput
     [KnownChainIds.MayachainMainnet]: cosmossdk.BuildTxInput
@@ -318,6 +322,7 @@ type ChainSpecificGetFeeDataInput<T> = ChainSpecific<
     [KnownChainIds.BitcoinCashMainnet]: utxo.GetFeeDataInput
     [KnownChainIds.DogecoinMainnet]: utxo.GetFeeDataInput
     [KnownChainIds.LitecoinMainnet]: utxo.GetFeeDataInput
+    [KnownChainIds.ZcashMainnet]: utxo.GetFeeDataInput
     [KnownChainIds.SolanaMainnet]: solana.GetFeeDataInput
     [KnownChainIds.SuiMainnet]: sui.GetFeeDataInput
     [KnownChainIds.TronMainnet]: tron.GetFeeDataInput
@@ -384,6 +389,7 @@ export enum ChainAdapterDisplayName {
   BitcoinCash = 'Bitcoin Cash',
   Dogecoin = 'Dogecoin',
   Litecoin = 'Litecoin',
+  Zcash = 'Zcash',
   Solana = 'Solana',
   Tron = 'Tron',
   Sui = 'Sui',

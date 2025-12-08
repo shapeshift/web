@@ -12,5 +12,6 @@ import base from './eip155_8453/adapter.json'
 import arbitrum from './eip155_42161/adapter.json'
 import avalache from './eip155_43114/adapter.json'
 import solana from './solana_5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp/adapter.json'
+import zcash from './bip122_00040fe8ec8471911baa1db1266ea15d/adapter.json'
 
-export { bitcoin, bitcoincash, dogecoin, litecoin, ethereum, cosmos, thorchain, optimism, bnb, polygon, base, arbitrum, avalache, solana }
+export { bitcoin, bitcoincash, dogecoin, litecoin, ethereum, cosmos, thorchain, optimism, bnb, polygon, base, arbitrum, avalache, solana, zcash }

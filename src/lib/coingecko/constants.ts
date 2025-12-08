@@ -16,6 +16,7 @@ import {
   suiAssetId,
   thorchainAssetId,
   tronAssetId,
+  zecAssetId,
 } from '@shapeshiftoss/caip'
 
 export const COINGECKO_NATIVE_ASSET_ID_TO_ASSET_ID: Partial<Record<string, AssetId>> = {
@@ -36,4 +37,5 @@ export const COINGECKO_NATIVE_ASSET_ID_TO_ASSET_ID: Partial<Record<string, Asset
   solana: solAssetId,
   tron: tronAssetId,
   sui: suiAssetId,
+  zcash: zecAssetId,
 }

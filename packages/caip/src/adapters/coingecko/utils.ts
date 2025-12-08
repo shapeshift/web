@@ -41,6 +41,7 @@ import {
   thorchainChainId,
   tronAssetId,
   tronChainId,
+  zecChainId,
 } from '../../constants'
 import {
   bitcoinAssetMap,
@@ -50,6 +51,7 @@ import {
   litecoinAssetMap,
   mayachainAssetMap,
   thorchainAssetMap,
+  zcashAssetMap,
 } from '../../utils'
 import { CoingeckoAssetPlatform } from '.'
 
@@ -272,6 +274,7 @@ export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
     [bchChainId]: bitcoinCashAssetMap,
     [dogeChainId]: dogecoinAssetMap,
     [ltcChainId]: litecoinAssetMap,
+    [zecChainId]: zcashAssetMap,
     [cosmosChainId]: cosmosAssetMap,
     [thorchainChainId]: thorchainAssetMap,
     [mayachainChainId]: mayachainAssetMap,

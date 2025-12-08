@@ -213,6 +213,9 @@ export const simulateTransaction = async ({
 
     const isEIP1559 = feeData && feeData.maxFeePerGas && feeData.maxPriorityFeePerGas
 
+    // Only pass gas for Monad chain, as Tenderly returns unrealistic gas estimates for Monad
+    const maybeGas = chainId === monadChainId ? gas : undefined
+
     // i.e no gas fields altogether when we're just after simulation - let Tenderly do its magic,
     // since we're only concerned about asset changes and calldata decoding
     const gasInput = (() => {
@@ -223,12 +226,12 @@ export const simulateTransaction = async ({
             max_fee_per_gas: feeData.maxFeePerGas,
             max_priority_fee_per_gas: feeData.maxPriorityFeePerGas,
             // For monad, we need to pass the gas limit to Tenderly as tenderly return crazy gas
-            gas: chainId === monadChainId ? gas : undefined,
+            gas: maybeGas,
           }
         : {
             gas_price: feeData.gasPrice,
             // For monad, we need to pass the gas limit to Tenderly as tenderly return crazy gas
-            gas: chainId === monadChainId ? gas : undefined,
+            gas: maybeGas,
           }
     })()
 
@@ -237,7 +240,7 @@ export const simulateTransaction = async ({
       from,
       to,
       input: inputData,
-      gas,
+      gas: maybeGas,
       value,
       ...gasInput,
     }

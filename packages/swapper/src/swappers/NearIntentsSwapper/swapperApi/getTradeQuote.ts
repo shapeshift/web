@@ -148,6 +148,7 @@ export const getTradeQuote = async (
           const sellAdapter = deps.assertGetEvmChainAdapter(sellAsset.chainId)
           const contractAddress = contractAddressOrUndefined(sellAsset.assetId)
           const data = evm.getErc20Data(depositAddress, sellAmount, contractAddress)
+
           const feeData = await sellAdapter.getFeeData({
             to: contractAddress ?? depositAddress,
             value: isNativeEvmAsset(sellAsset.assetId) ? sellAmount : '0',

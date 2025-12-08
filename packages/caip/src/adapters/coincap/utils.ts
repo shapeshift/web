@@ -23,6 +23,7 @@ import {
   polygonChainId,
   solanaChainId,
   thorchainChainId,
+  zecChainId,
 } from '../../constants'
 import {
   bitcoinAssetMap,
@@ -31,6 +32,7 @@ import {
   dogecoinAssetMap,
   litecoinAssetMap,
   thorchainAssetMap,
+  zcashAssetMap,
 } from '../../utils'
 
 const COINCAP_CHAIN_REFERENCE = { ...CHAIN_REFERENCE, SolanaMainnet: '101' }
@@ -190,6 +192,7 @@ export const parseData = (d: CoinCapCoin[]) => {
     [bchChainId]: bitcoinCashAssetMap,
     [dogeChainId]: dogecoinAssetMap,
     [ltcChainId]: litecoinAssetMap,
+    [zecChainId]: zcashAssetMap,
     [cosmosChainId]: cosmosAssetMap,
     [thorchainChainId]: thorchainAssetMap,
   }

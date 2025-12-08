@@ -123,8 +123,21 @@ export type RelayQuoteSolanaItemData = {
   addressLookupTableAddresses: string[]
 }
 
+export type RelayQuoteTronItemData = {
+  type?: string
+  parameter?: {
+    owner_address?: string
+    contract_address?: string
+    data?: string
+  }
+}
+
 export type RelayQuoteItem = {
-  data?: RelayQuoteEvmItemData | RelayQuoteUtxoItemData | RelayQuoteSolanaItemData
+  data?:
+    | RelayQuoteEvmItemData
+    | RelayQuoteUtxoItemData
+    | RelayQuoteSolanaItemData
+    | RelayQuoteTronItemData
 }
 
 export type RelayQuoteStep = {
@@ -140,21 +153,43 @@ export type RelayQuote = {
 }
 
 export const isRelayQuoteUtxoItemData = (
-  item: RelayQuoteUtxoItemData | RelayQuoteEvmItemData | RelayQuoteSolanaItemData,
+  item:
+    | RelayQuoteUtxoItemData
+    | RelayQuoteEvmItemData
+    | RelayQuoteSolanaItemData
+    | RelayQuoteTronItemData,
 ): item is RelayQuoteUtxoItemData => {
   return 'psbt' in item
 }
 
 export const isRelayQuoteEvmItemData = (
-  item: RelayQuoteUtxoItemData | RelayQuoteEvmItemData | RelayQuoteSolanaItemData,
+  item:
+    | RelayQuoteUtxoItemData
+    | RelayQuoteEvmItemData
+    | RelayQuoteSolanaItemData
+    | RelayQuoteTronItemData,
 ): item is RelayQuoteEvmItemData => {
   return 'to' in item && 'data' in item && 'value' in item
 }
 
 export const isRelayQuoteSolanaItemData = (
-  item: RelayQuoteUtxoItemData | RelayQuoteEvmItemData | RelayQuoteSolanaItemData,
+  item:
+    | RelayQuoteUtxoItemData
+    | RelayQuoteEvmItemData
+    | RelayQuoteSolanaItemData
+    | RelayQuoteTronItemData,
 ): item is RelayQuoteSolanaItemData => {
   return 'instructions' in item
+}
+
+export const isRelayQuoteTronItemData = (
+  item:
+    | RelayQuoteUtxoItemData
+    | RelayQuoteEvmItemData
+    | RelayQuoteSolanaItemData
+    | RelayQuoteTronItemData,
+): item is RelayQuoteTronItemData => {
+  return 'type' in item && 'parameter' in item
 }
 
 export type RelaySolanaInstruction = {

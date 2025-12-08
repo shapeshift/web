@@ -17,6 +17,7 @@ import {
   solanaChainId,
   thorchainChainId,
   tronChainId,
+  zecChainId,
 } from '@shapeshiftoss/caip'
 
 export const CHAIN_ID_TO_URN_SCHEME: Record<ChainId, string> = {
@@ -32,6 +33,7 @@ export const CHAIN_ID_TO_URN_SCHEME: Record<ChainId, string> = {
   [bchChainId]: 'bitcoincash',
   [dogeChainId]: 'doge',
   [ltcChainId]: 'litecoin',
+  [zecChainId]: 'zcash',
   [thorchainChainId]: 'thorchain',
   [cosmosChainId]: 'cosmos',
   [mayachainChainId]: 'mayachain',

@@ -19,6 +19,7 @@ import {
   suiChainId,
   thorchainChainId,
   toAssetId,
+  zecChainId,
 } from '@shapeshiftoss/caip'
 import type { KnownChainIds } from '@shapeshiftoss/types'
 import { getAssetNamespaceFromChainId } from '@shapeshiftoss/utils'
@@ -207,6 +208,7 @@ export const getCoingeckoSupportedChainIds = () => {
     solanaChainId,
     suiChainId,
     dogeChainId,
+    zecChainId,
     ...(getConfig().VITE_FEATURE_ARBITRUM_NOVA ? [arbitrumNovaChainId] : []),
   ]
 }

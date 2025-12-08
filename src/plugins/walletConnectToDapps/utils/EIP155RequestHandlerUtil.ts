@@ -135,9 +135,10 @@ export const approveEIP155Request = async ({
 
       const txToSign = {
         ...txToSignWithPossibleWrongNonce,
-        nonce: didUserManuallyChangeNonce
-          ? maybeAdvancedParamsNonce
-          : txToSignWithPossibleWrongNonce.nonce,
+        nonce:
+          didUserManuallyChangeNonce && maybeAdvancedParamsNonce
+            ? maybeAdvancedParamsNonce
+            : txToSignWithPossibleWrongNonce.nonce,
       }
       const signedTx = await chainAdapter.signTransaction({
         txToSign,

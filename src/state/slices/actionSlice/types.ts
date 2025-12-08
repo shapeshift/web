@@ -105,7 +105,7 @@ type ActionGenericTransactionMetadata = {
   queryId?: GenericTransactionQueryId
   message: string
   accountId: AccountId
-  involvedAccountIds?: AccountId[]
+  accountIdsToRefetch?: AccountId[]
   txHash: string
   chainId: ChainId
   assetId: AssetId

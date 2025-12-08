@@ -169,10 +169,10 @@ export const Form: React.FC<SendFormProps> = ({ initialAssetId, input = '', acco
         return selectInternalAccountIdByAddress(store.getState(), internalAccountIdFilter)
       })()
 
-      const involvedAccountIds = [formAccountId]
+      const accountIdsToRefetch = [formAccountId]
 
       if (internalReceiveAccountId) {
-        involvedAccountIds.push(internalReceiveAccountId)
+        accountIdsToRefetch.push(internalReceiveAccountId)
       }
 
       dispatch(
@@ -184,7 +184,7 @@ export const Form: React.FC<SendFormProps> = ({ initialAssetId, input = '', acco
             txHash,
             chainId: fromAccountId(formAccountId).chainId,
             accountId: formAccountId,
-            involvedAccountIds,
+            accountIdsToRefetch,
             assetId,
             amountCryptoPrecision: formAmountCryptoPrecision,
             message: 'modals.send.status.pendingBody',

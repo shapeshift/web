@@ -34,7 +34,7 @@ export const useSendActionSubscriber = () => {
 
   const completeAction = useCallback(
     (action: ReturnType<typeof selectPendingWalletSendActions>[number]) => {
-      const { txHash, accountId, involvedAccountIds } = action.transactionMetadata
+      const { txHash, accountId, accountIdsToRefetch } = action.transactionMetadata
 
       dispatch(
         actionSlice.actions.upsertAction({
@@ -53,9 +53,9 @@ export const useSendActionSubscriber = () => {
 
       if (isSecondClassChain) {
         const { getAccount } = portfolioApi.endpoints
-        const accountIdsToRefresh = involvedAccountIds ?? [accountId]
+        const accountIdsToRefreshList = accountIdsToRefetch ?? [accountId]
 
-        accountIdsToRefresh.forEach(accountIdToRefresh => {
+        accountIdsToRefreshList.forEach(accountIdToRefresh => {
           dispatch(
             getAccount.initiate(
               { accountId: accountIdToRefresh, upsertOnFetch: true },

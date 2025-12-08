@@ -58,7 +58,7 @@ export const GenericTransactionNotification = ({
     // Destructure to exclude non-serializable fields from the spread
     const {
       confirmedQuote: _confirmedQuote,
-      involvedAccountIds: _involvedAccountIds,
+      accountIdsToRefetch: _accountIdsToRefetch,
       ...serializableMetadata
     } = action.transactionMetadata
     return [

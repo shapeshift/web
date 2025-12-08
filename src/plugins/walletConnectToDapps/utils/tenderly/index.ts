@@ -1,5 +1,5 @@
 import type { ChainId } from '@shapeshiftoss/caip'
-import { fromChainId } from '@shapeshiftoss/caip'
+import { fromChainId, monadChainId } from '@shapeshiftoss/caip'
 import type * as adapters from '@shapeshiftoss/chain-adapters'
 import axios from 'axios'
 import type { Address } from 'viem'
@@ -194,6 +194,7 @@ export const simulateTransaction = async ({
   chainId,
   from,
   to,
+  gas,
   data: inputData,
   value,
   feeData,
@@ -201,6 +202,7 @@ export const simulateTransaction = async ({
   chainId: ChainId
   from: string
   to: string
+  gas?: number
   data: string
   value?: string
   feeData?: adapters.evm.GasFeeData
@@ -211,6 +213,9 @@ export const simulateTransaction = async ({
 
     const isEIP1559 = feeData && feeData.maxFeePerGas && feeData.maxPriorityFeePerGas
 
+    // Only pass gas for Monad chain, as Tenderly returns unrealistic gas estimates for Monad
+    const maybeGas = chainId === monadChainId ? gas : undefined
+
     // i.e no gas fields altogether when we're just after simulation - let Tenderly do its magic,
     // since we're only concerned about asset changes and calldata decoding
     const gasInput = (() => {
@@ -220,9 +225,13 @@ export const simulateTransaction = async ({
         ? {
             max_fee_per_gas: feeData.maxFeePerGas,
             max_priority_fee_per_gas: feeData.maxPriorityFeePerGas,
+            // For monad, we need to pass the gas limit to Tenderly as tenderly return crazy gas
+            gas: maybeGas,
           }
         : {
             gas_price: feeData.gasPrice,
+            // For monad, we need to pass the gas limit to Tenderly as tenderly return crazy gas
+            gas: maybeGas,
           }
     })()
 
@@ -231,6 +240,7 @@ export const simulateTransaction = async ({
       from,
       to,
       input: inputData,
+      gas: maybeGas,
       value,
       ...gasInput,
     }

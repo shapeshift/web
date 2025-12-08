@@ -369,16 +369,42 @@ export const checkSuiSwapStatus = async ({
       digest: txHash,
       options: {
         showEffects: true,
+        showBalanceChanges: true,
       },
     })
 
     const status =
       txResponse.effects?.status?.status === 'success' ? TxStatus.Confirmed : TxStatus.Failed
 
+    // Extract actual buy amount from balance changes
+    let actualBuyAmountCryptoBaseUnit: string | undefined
+
+    if (txResponse.balanceChanges) {
+      // Balance changes show the net effect on the user's balances
+      // Positive amounts are received, negative are sent
+      const receivedChanges = txResponse.balanceChanges.filter(change => {
+        // The owner field is a discriminated union - check for AddressOwner variant
+        const ownerAddress =
+          'AddressOwner' in change.owner
+            ? change.owner.AddressOwner
+            : 'ObjectOwner' in change.owner
+            ? change.owner.ObjectOwner
+            : null
+
+        return ownerAddress === address && Number(change.amount) > 0
+      })
+
+      if (receivedChanges.length > 0) {
+        // For swaps, we expect exactly one positive balance change (the buy asset)
+        actualBuyAmountCryptoBaseUnit = receivedChanges[0].amount
+      }
+    }
+
     return {
       status,
       buyTxHash: txHash,
       message: undefined,
+      actualBuyAmountCryptoBaseUnit,
     }
   } catch (e) {
     console.error(e)

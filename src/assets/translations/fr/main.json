@@ -108,7 +108,7 @@
     "searchAsset": "Rechercher un actif",
     "searchNameOrAddress": "Rechercher par nom ou adresse",
     "enterAmount": "Entrer le montant",
-    "enterAddress": "Entrer une adresse",
+    "enterAddress": "Entrez une adresse",
     "pageNotFound": "La page que vous recherchez est introuvable",
     "creditCard": "Carte de crédit",
     "bankTransfer": "Virement bancaire",
@@ -328,10 +328,7 @@
     "viewSavedWallets": "Voir les porte-monnaie enregistrés",
     "footerOne": "En continuant, vous acceptez les",
     "terms": "Conditions",
-    "privacyPolicy": "Politique de confidentialité",
-    "connectNewWallet": "Connecter un nouveau porte-monnaie",
-    "getANewWallet": "Créer un nouveau porte-monnaie",
-    "alreadyHaveWallet": "J'ai déjà un porte-monnaie"
+    "privacyPolicy": "Politique de confidentialité"
   },
   "connectWallet": {
     "menu": {
@@ -755,8 +752,15 @@
     "slowSwapBody": "Cet échange peut prendre quelques minutes pour se terminer.",
     "thorSmartContractWalletUnsupported": "Le réseau THORChain ne prend actuellement pas en charge les porte-monnaie pour contrats intelligents.",
     "intoAssetSymbolBody": "Vous pouvez procéder à cet échange, mais l'historique des transactions de réception en %{assetSymbol} est temporairement indisponible",
+    "receiveAddress": "Adresse de réception",
     "changeAddress": "Adresse de change",
     "changeAddressExplainer": "Lors de l'envoi de cryptomonnaies sur les réseaux basés sur UTXO, tous les fonds restants de votre transaction vous sont renvoyés à cette adresse.",
+    "depositAddress": "Adresse de dépôt",
+    "depositAddressExplainer": "Il s'agit de l'adresse du protocole où vos fonds seront envoyés pour traitement. Votre porte-monnaie matériel affichera cette adresse pour vérification.",
+    "customReceiveAddress": "Adresse de réception personnalisée",
+    "customReceiveAddressDescription": "Entrez une adresse de réception personnalisée pour cette transaction.",
+    "thisIsYourCustomReceiveAddress": "Il s'agit de votre adresse de réception personnalisée",
+    "enterCustomReceiveAddress": "Entrez une adresse de réception personnalisée",
     "receiveAtLeast": "Recevez au moins",
     "tooltip": {
       "continueSwapping": "Continuer l'échange pour les détails finaux",
@@ -1370,7 +1374,7 @@
           }
         },
         "placeholders": {
-          "label": "Saisir une étiquette d'appareil"
+          "label": "Entrez une étiquette d'appareil"
         },
         "actions": {
           "update": "Mettre à jour %{setting}",
@@ -1426,7 +1430,9 @@
         "renamed": "SafeCard renommée",
         "deleted": "SafeCard supprimée",
         "deletedDescription": "Les données de portfolio ont été effacées.",
-        "warning": "Chaque SafeCard gère son propre portfolio. Assurez-vous d'insérer la SafeCard appropriée dans votre appareil avant de le connecter."
+        "warning": "Chaque SafeCard gère son propre portfolio. Assurez-vous d'insérer la SafeCard appropriée dans votre appareil avant de le connecter.",
+        "safeCardLabel": "SafeCard",
+        "internalSafeCardLabel": "SafeCard interne"
       },
       "connect": {
         "header": "Connecter une nouvelle SafeCard",
@@ -1434,7 +1440,7 @@
         "safeCardNamePlaceholder": "Entrez un nom pour cette SafeCard",
         "safeCardNameHelper": "Donnez à cette SafeCard un nom mémorable (par exemple, « Porte-monnaie principal », « Trading », « DeFi »)",
         "deviceId": "ID de l'appareil",
-        "deviceIdPlaceholder": "Saisissez l'ID de l'appareil Lattice",
+        "deviceIdPlaceholder": "Entrez l'ID de l'appareil Lattice",
         "deviceIdHelper": "Vous trouverez l'ID de votre appareil dans les paramètres Lattice, sous \"Device Info\".",
         "button": "Connecter la SafeCard",
         "connecting": "Connexion...",
@@ -1460,6 +1466,9 @@
         "deviceNotConnected": "Appareil non connecté. Veuillez d'abord appeler connectDevice.",
         "connectFailure": "Impossible de connecter le porte-monnaie GridPlus",
         "unknown": "Une erreur inattendue s'est produite lors de la communication avec le porte-monnaie GridPlus"
+      },
+      "menu": {
+        "switchSafeCard": "Changer de SafeCard"
       }
     },
     "ledger": {
@@ -2515,7 +2524,11 @@
       "getFeeData": "Échec de l'estimation des frais de réseau.",
       "getPublicKey": "Échec de l'obtention de la clé publique du porte-monnaie.",
       "getUtxos": "Échec de l'obtention des UTXO.",
-      "getValidator": "Échec de l'obtention du validateur."
+      "getValidator": "Échec de l'obtention du validateur.",
+      "gridplus": {
+        "wrongSafeCard": "SafeCard incorrecte insérée. Veuillez insérer la SafeCard correcte et réessayer.",
+        "removeSafeCard": "Retirez la carte SafeCard insérée pour accéder au porte-monnaie interne GridPlus."
+      }
     }
   },
   "actionCenter": {

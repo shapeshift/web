@@ -43,6 +43,7 @@ import {
   supportsThorchain,
   supportsTron,
 } from '@shapeshiftoss/hdwallet-core'
+import { GridPlusHDWallet } from '@shapeshiftoss/hdwallet-gridplus'
 import { isMetaMask } from '@shapeshiftoss/hdwallet-metamask-multichain'
 import { PhantomHDWallet } from '@shapeshiftoss/hdwallet-phantom'
 import { useMemo } from 'react'
@@ -138,13 +139,29 @@ export const walletSupportsChain = ({
     case btcChainId:
       return supportsBTC(wallet)
     case bchChainId:
-      return supportsBTC(wallet) && !(wallet instanceof PhantomHDWallet)
+      return (
+        supportsBTC(wallet) &&
+        !(wallet instanceof PhantomHDWallet) &&
+        !(wallet instanceof GridPlusHDWallet)
+      )
     case dogeChainId:
-      return supportsBTC(wallet) && !(wallet instanceof PhantomHDWallet)
+      return (
+        supportsBTC(wallet) &&
+        !(wallet instanceof PhantomHDWallet) &&
+        !(wallet instanceof GridPlusHDWallet)
+      )
     case ltcChainId:
-      return supportsBTC(wallet) && !(wallet instanceof PhantomHDWallet)
+      return (
+        supportsBTC(wallet) &&
+        !(wallet instanceof PhantomHDWallet) &&
+        !(wallet instanceof GridPlusHDWallet)
+      )
     case zecChainId:
-      return supportsBTC(wallet) && !(wallet instanceof PhantomHDWallet)
+      return (
+        supportsBTC(wallet) &&
+        !(wallet instanceof PhantomHDWallet) &&
+        !(wallet instanceof GridPlusHDWallet)
+      )
     case ethChainId:
       return supportsETH(wallet)
     case avalancheChainId:

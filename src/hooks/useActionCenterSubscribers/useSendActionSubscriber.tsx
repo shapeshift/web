@@ -55,10 +55,6 @@ export const useSendActionSubscriber = () => {
         const { getAccount } = portfolioApi.endpoints
         const accountIdsToRefresh = involvedAccountIds ?? [accountId]
 
-        console.log({
-          accountIdsToRefresh,
-        })
-
         accountIdsToRefresh.forEach(accountIdToRefresh => {
           dispatch(
             getAccount.initiate(

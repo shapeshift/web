@@ -8,8 +8,9 @@ import type { TradeQuoteOrRateRequest } from './types'
 import { getEnabledSwappers } from '@/state/helpers'
 import type { ReduxState } from '@/state/reducer'
 import { createDeepEqualOutputSelector } from '@/state/selector-utils'
+import { selectWalletName } from '@/state/slices/common-selectors'
 import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
-import { selectInputBuyAsset } from '@/state/slices/tradeInputSlice/selectors'
+import { selectInputBuyAsset, selectInputSellAsset } from '@/state/slices/tradeInputSlice/selectors'
 
 const selectSwapperApiQueries = (state: ReduxState) => state.swapperApi.queries
 
@@ -42,8 +43,10 @@ export const selectIsTradeQuoteApiQueryPending = createDeepEqualOutputSelector(
   selectSwapperApiQueries,
   preferences.selectors.selectFeatureFlags,
   selectInputBuyAsset,
+  selectInputSellAsset,
+  selectWalletName,
   selectIsBatchTradeRateQueryLoading,
-  (queries, featureFlags, buyAsset, isBatchTradeRateQueryLoading) => {
+  (queries, featureFlags, buyAsset, sellAsset, walletName, isBatchTradeRateQueryLoading) => {
     if (isBatchTradeRateQueryLoading) {
       const isSolBuyAssetId = buyAsset.assetId === solAssetId
 
@@ -51,7 +54,13 @@ export const selectIsTradeQuoteApiQueryPending = createDeepEqualOutputSelector(
       const isCrossAccountTrade = false
 
       // If we're doing a bulk request then everything that's enabled is loading
-      return getEnabledSwappers(featureFlags, isCrossAccountTrade, isSolBuyAssetId)
+      return getEnabledSwappers(
+        featureFlags,
+        isCrossAccountTrade,
+        isSolBuyAssetId,
+        walletName,
+        sellAsset.assetId,
+      )
     }
 
     const isLoadingBySwapperName: PartialRecord<SwapperName, boolean> = {}

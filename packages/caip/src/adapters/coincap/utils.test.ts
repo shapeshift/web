@@ -142,6 +142,9 @@ describe('adapters:coincap:utils', () => {
         'bip122:12a765e31ffd4059bada1e25190f6e98': {
           'bip122:12a765e31ffd4059bada1e25190f6e98/slip44:2': 'litecoin',
         },
+        'bip122:00040fe8ec8471911baa1db1266ea15d': {
+          'bip122:00040fe8ec8471911baa1db1266ea15d/slip44:133': 'zcash',
+        },
         'cosmos:cosmoshub-4': {
           'cosmos:cosmoshub-4/slip44:118': 'cosmos',
         },

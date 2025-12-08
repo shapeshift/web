@@ -69,9 +69,13 @@ export const useApprovalFees = ({
 
       // Estimate fees for approval transaction
       const feeData = await adapter.getFeeData({
-        to,
+        to: spender,
         value: '0',
         sendMax: false,
+        chainSpecific: {
+          from,
+          contractAddress: to,
+        },
       })
 
       return {

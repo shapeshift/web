@@ -69,19 +69,26 @@ export const findBestPool = async (
     return undefined
   }
 
-  const poolWithLiquidity = pools.find(pool => {
-    const hasLiquidity = pool.liquidity && bnOrZero(pool.liquidity).gt(0)
-    return hasLiquidity
-  })
+  // Filter pools with liquidity and sort by liquidity (highest first)
+  const poolsWithLiquidity = pools
+    .filter(pool => pool.liquidity && bnOrZero(pool.liquidity).gt(0))
+    .sort((a, b) => {
+      const liquidityA = bnOrZero(a.liquidity)
+      const liquidityB = bnOrZero(b.liquidity)
+      // Sort descending (b - a)
+      return liquidityB.minus(liquidityA).toNumber()
+    })
 
-  if (!poolWithLiquidity) {
+  if (poolsWithLiquidity.length === 0) {
     console.warn('[Cetus] No pools with liquidity found for', sellCoinType, buyCoinType, {
       totalPools: pools.length,
       pools: pools.map(p => ({ id: p.poolAddress, liquidity: p.liquidity })),
     })
+    return undefined
   }
 
-  return poolWithLiquidity
+  // Return the pool with highest liquidity
+  return poolsWithLiquidity[0]
 }
 
 export type CalculateSwapResult = {

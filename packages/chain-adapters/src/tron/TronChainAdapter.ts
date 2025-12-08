@@ -219,18 +219,24 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TronMainnet> {
 
         txData = txData.transaction
       } else {
+        const requestBody = {
+          owner_address: from,
+          to_address: to,
+          amount: Number(value),
+          visible: true,
+        }
+
         const response = await fetch(`${this.rpcUrl}/wallet/createtransaction`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            owner_address: from,
-            to_address: to,
-            amount: Number(value),
-            visible: true,
-          }),
+          body: JSON.stringify(requestBody),
         })
 
         txData = await response.json()
+
+        if (txData.Error) {
+          throw new Error(`TronGrid API error: ${txData.Error}`)
+        }
       }
 
       // Add memo if provided
@@ -361,27 +367,107 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TronMainnet> {
   // This causes UI to show wrong fees and transactions to fail on-chain
   // See TRON_FEE_ESTIMATION_ISSUES.md for detailed analysis and fix
   async getFeeData(
-    _input: GetFeeDataInput<KnownChainIds.TronMainnet>,
+    input: GetFeeDataInput<KnownChainIds.TronMainnet>,
   ): Promise<FeeDataEstimate<KnownChainIds.TronMainnet>> {
     try {
-      // TODO: Use _input.chainSpecific.contractAddress to detect TRC20
-      // TODO: Call estimateTRC20TransferFee() for TRC20 tokens
-      // TODO: Build actual transaction with memo to get accurate bandwidth
-      // TODO: Add 1 TRX memo fee if _input.chainSpecific.memo present
-      const { fast, average, slow, estimatedBandwidth } =
-        await this.providers.http.getPriorityFees()
+      const { to, value, chainSpecific: { from, contractAddress, memo } = {} } = input
+
+      // Get live network prices from chain parameters
+      const tronWeb = new TronWeb({ fullHost: this.rpcUrl })
+      const params = await tronWeb.trx.getChainParameters()
+      const bandwidthPrice = params.find(p => p.key === 'getTransactionFee')?.value ?? 1000
+      const energyPrice = params.find(p => p.key === 'getEnergyFee')?.value ?? 100
+
+      let energyFee = 0
+      let bandwidthFee = 0
+
+      if (contractAddress) {
+        // TRC20: Estimate energy using existing method
+        try {
+          // Use sender address if available, otherwise use recipient for estimation
+          const estimationFrom = from || to
+          const energyEstimate = await this.providers.http.estimateTRC20TransferFee({
+            contractAddress,
+            from: estimationFrom,
+            to,
+            amount: value,
+          })
+          energyFee = Number(energyEstimate)
+
+          // Apply 1.5x safety margin for dynamic energy spikes
+          energyFee = Math.ceil(energyFee * 1.5)
+        } catch (err) {
+          // Fallback: Conservative estimate for new address (130k energy)
+          energyFee = 130000 * energyPrice
+        }
+
+        // TRC20 transfers use ~276 bytes bandwidth
+        bandwidthFee = 276 * bandwidthPrice
+      } else {
+        // TRX transfer: Build actual transaction to get precise bandwidth
+        try {
+          // Use actual sender if available, otherwise use recipient for estimation
+          const estimationFrom = from || to
+          const baseTx = await tronWeb.transactionBuilder.sendTrx(to, Number(value), estimationFrom)
+
+          // Add memo if provided to get accurate size
+          const finalTx = memo
+            ? await tronWeb.transactionBuilder.addUpdateData(baseTx, memo, 'utf8')
+            : baseTx
+
+          // Calculate bandwidth from actual transaction size
+          const rawDataBytes = finalTx.raw_data_hex ? finalTx.raw_data_hex.length / 2 : 133
+          const signatureBytes = 65
+          const totalBytes = rawDataBytes + signatureBytes
+
+          bandwidthFee = totalBytes * bandwidthPrice
+        } catch (err) {
+          // Fallback bandwidth estimate: Base tx + memo bytes
+          const baseBytes = 198
+          const memoBytes = memo ? Buffer.from(memo, 'utf8').length : 0
+          const totalBytes = baseBytes + memoBytes
+          bandwidthFee = totalBytes * bandwidthPrice
+        }
+      }
+
+      // Check if recipient address needs activation (1 TRX cost)
+      let accountActivationFee = 0
+      try {
+        const recipientInfoResponse = await fetch(`${this.rpcUrl}/wallet/getaccount`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            address: to,
+            visible: true,
+          }),
+        })
+        const recipientInfo = await recipientInfoResponse.json()
+        const recipientExists = recipientInfo && Object.keys(recipientInfo).length > 1
+
+        // If recipient doesn't exist, add 1 TRX activation fee
+        if (!recipientExists && !contractAddress) {
+          accountActivationFee = 1_000_000 // 1 TRX = 1,000,000 sun
+        }
+      } catch (err) {
+        // Don't fail on this check - continue with 0 activation fee
+      }
+
+      const totalFee = energyFee + bandwidthFee + accountActivationFee
+
+      // Calculate bandwidth for display
+      const estimatedBandwidth = String(Math.ceil(bandwidthFee / bandwidthPrice))
 
       return {
         fast: {
-          txFee: fast,
+          txFee: String(totalFee),
           chainSpecific: { bandwidth: estimatedBandwidth },
         },
         average: {
-          txFee: average,
+          txFee: String(totalFee),
           chainSpecific: { bandwidth: estimatedBandwidth },
         },
         slow: {
-          txFee: slow,
+          txFee: String(totalFee),
           chainSpecific: { bandwidth: estimatedBandwidth },
         },
       }

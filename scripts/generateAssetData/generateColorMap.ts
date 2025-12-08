@@ -11,6 +11,7 @@ import {
   mayachain,
   thorchain,
   unfreeze,
+  zcash,
 } from '@shapeshiftoss/utils'
 import fs from 'fs'
 import orderBy from 'lodash/orderBy'
@@ -46,6 +47,7 @@ const generateColorMap = async () => {
     unfreeze(bitcoincash),
     unfreeze(dogecoin),
     unfreeze(litecoin),
+    unfreeze(zcash),
     unfreeze(atom),
     unfreeze(thorchain),
     unfreeze(mayachain),

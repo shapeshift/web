@@ -23,6 +23,7 @@ import { csp as solana } from './chains/solana'
 import { csp as sui } from './chains/sui'
 import { csp as thorchain } from './chains/thorchain'
 import { csp as tron } from './chains/tron'
+import { csp as zcash } from './chains/zcash'
 import { csp as chatwoot } from './chatwoot'
 import { csp as customTokenImport } from './customTokenImport'
 import { csp as foxy } from './defi/foxy'
@@ -105,6 +106,7 @@ export const csps = [
   sui,
   thorchain,
   tron,
+  zcash,
   mayachain,
   monad,
   trustwallet,

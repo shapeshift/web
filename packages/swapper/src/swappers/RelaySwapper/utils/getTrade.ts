@@ -39,6 +39,7 @@ import {
   isRelayError,
   isRelayQuoteEvmItemData,
   isRelayQuoteSolanaItemData,
+  isRelayQuoteTronItemData,
   isRelayQuoteUtxoItemData,
 } from '../utils/types'
 import { fetchRelayTrade } from './fetchRelayTrade'
@@ -621,6 +622,17 @@ export async function getTrade<T extends 'quote' | 'rate'>({
           },
           relayTransactionMetadata: {
             relayId: quote.steps[0].requestId,
+          },
+        }
+      }
+
+      if (isRelayQuoteTronItemData(selectedItem.data)) {
+        return {
+          allowanceContract: '',
+          solanaTransactionMetadata: undefined,
+          relayTransactionMetadata: {
+            relayId: quote.steps[0].requestId,
+            to: selectedItem.data?.parameter?.contract_address,
           },
         }
       }

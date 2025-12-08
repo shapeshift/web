@@ -80,7 +80,10 @@ import { MixPanelEvent } from '@/lib/mixpanel/types'
 import { assertUnreachable, chainIdToChainDisplayName, isNonEmptyString, isSome } from '@/lib/utils'
 import { THOR_PRECISION } from '@/lib/utils/thorchain/constants'
 import { useIsChainHalted } from '@/lib/utils/thorchain/hooks/useIsChainHalted'
-import { useIsLpDepositEnabled } from '@/lib/utils/thorchain/hooks/useIsThorchainLpDepositEnabled'
+import {
+  useIsLpChainHalted,
+  useIsLpDepositEnabled,
+} from '@/lib/utils/thorchain/hooks/useIsThorchainLpDepositEnabled'
 import { useSendThorTx } from '@/lib/utils/thorchain/hooks/useSendThorTx'
 import { useThorchainFromAddress } from '@/lib/utils/thorchain/hooks/useThorchainFromAddress'
 import { useThorchainMimirTimes } from '@/lib/utils/thorchain/hooks/useThorchainMimirTimes'
@@ -539,6 +542,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
   }, [poolAsset])
 
   const isThorchainLpDepositFlagEnabled = useFeatureFlag('ThorchainLpDeposit')
+  const { data: isLpChainHaltedForPool } = useIsLpChainHalted(poolAsset?.assetId)
   const { data: isThorchainLpDepositEnabledForPool } = useIsLpDepositEnabled(poolAsset?.assetId)
   const isThorchainLpDepositEnabled =
     isThorchainLpDepositFlagEnabled && isThorchainLpDepositEnabledForPool !== false
@@ -1441,7 +1445,9 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     if (isTradingActive === false) return translate('common.poolHalted')
     if (!walletSupportsOpportunity) return translate('common.unsupportedNetwork')
     if (!isThorchainLpDepositFlagEnabled) return translate('common.poolDisabled')
-    if (isThorchainLpDepositEnabledForPool === false) return translate('pools.depositsDisabled')
+    if (isLpChainHaltedForPool === true) return translate('common.poolDisabled')
+    if (isThorchainLpDepositEnabledForPool === false && !isLpChainHaltedForPool)
+      return translate('pools.depositsDisabled')
     if (isSmartContractAccountAddress === true)
       return translate('trade.errors.smartContractWalletNotSupported')
     if (poolAsset && notEnoughPoolAssetError) return translate('common.insufficientFunds')
@@ -1463,6 +1469,7 @@ export const AddLiquidityInput: React.FC<AddLiquidityInputProps> = ({
     isConnected,
     isSmartContractAccountAddress,
     isThorchainLpDepositFlagEnabled,
+    isLpChainHaltedForPool,
     isThorchainLpDepositEnabledForPool,
     isTradingActive,
     isChainHalted,

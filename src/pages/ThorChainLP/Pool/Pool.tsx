@@ -37,7 +37,10 @@ import { PageBackButton, PageHeader } from '@/components/Layout/Header/PageHeade
 import { Main } from '@/components/Layout/Main'
 import { TradeRoutePaths } from '@/components/MultiHopTrade/types'
 import { fromThorBaseUnit } from '@/lib/utils/thorchain'
-import { useIsLpDepositEnabled } from '@/lib/utils/thorchain/hooks/useIsThorchainLpDepositEnabled'
+import {
+  useIsLpChainHalted,
+  useIsLpDepositEnabled,
+} from '@/lib/utils/thorchain/hooks/useIsThorchainLpDepositEnabled'
 import { useIsTradingActive } from '@/react-queries/hooks/useIsTradingActive'
 
 type MatchParams = {
@@ -113,6 +116,7 @@ export const Pool = () => {
 
   if (!assetId) throw new Error(`assetId not found for poolAssetId ${poolAssetId}`)
 
+  const { data: isLpChainHaltedForPool } = useIsLpChainHalted(assetId)
   const { data: isThorchainLpDepositEnabledForPool } = useIsLpDepositEnabled(assetId)
 
   const { data: pool } = usePool(poolAssetId)
@@ -158,7 +162,12 @@ export const Pool = () => {
 
   return (
     <Main headerComponent={headerComponent} isSubPage>
-      {isThorchainLpDepositEnabledForPool === false ? (
+      {isLpChainHaltedForPool === true ? (
+        <Alert status='error' variant='subtle' mb={4}>
+          <AlertIcon />
+          <AlertDescription>{translate('common.disabled')}</AlertDescription>
+        </Alert>
+      ) : isThorchainLpDepositEnabledForPool === false && !isLpChainHaltedForPool ? (
         <Alert status='error' variant='subtle' mb={4}>
           <AlertIcon />
           <AlertDescription>{translate('pools.depositsDisabled')}</AlertDescription>

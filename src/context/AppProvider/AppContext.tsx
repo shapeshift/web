@@ -11,6 +11,7 @@ import { useDiscoverAccounts } from './hooks/useDiscoverAccounts'
 import { usePortfolioFetch } from './hooks/usePortfolioFetch'
 import { useSnapStatusHandler } from './hooks/useSnapStatusHandler'
 
+import { PullToRefreshWrapper } from '@/components/PullToRefresh/PullToRefreshWrapper'
 import { DEFAULT_HISTORY_TIMEFRAME } from '@/constants/Config'
 import { LanguageTypeEnum } from '@/constants/LanguageTypeEnum'
 import { usePlugins } from '@/context/PluginProvider/PluginProvider'
@@ -248,5 +249,5 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
 
   // If the assets aren't loaded, then the app isn't ready to render
   // This fixes issues with refreshes on pages that expect assets to already exist
-  return <>{Boolean(assetIds.length) && children}</>
+  return <>{Boolean(assetIds.length) && <PullToRefreshWrapper>{children}</PullToRefreshWrapper>}</>
 }

@@ -2639,5 +2639,10 @@
         "description": "Your reward of %{amountAndSymbol} is complete."
       }
     }
+  },
+  "pullToRefresh": {
+    "pullToRefresh": "Pull to refresh",
+    "releaseToRefresh": "Release to refresh",
+    "refreshing": "Refreshing..."
   }
 }

@@ -9,6 +9,7 @@ import {
   arbitrumChainId,
   arbitrumNovaAssetId,
   arbitrumNovaChainId,
+  ASSET_NAMESPACE,
   avalancheAssetId,
   avalancheChainId,
   baseAssetId,
@@ -27,13 +28,20 @@ import {
   gnosisChainId,
   ltcChainId,
   mayachainChainId,
+  monadAssetId,
+  monadChainId,
   optimismAssetId,
   optimismChainId,
   polygonAssetId,
   polygonChainId,
   solanaChainId,
   solAssetId,
+  suiAssetId,
+  suiChainId,
   thorchainChainId,
+  tronAssetId,
+  tronChainId,
+  zecChainId,
 } from '../../constants'
 import {
   bitcoinAssetMap,
@@ -43,6 +51,7 @@ import {
   litecoinAssetMap,
   mayachainAssetMap,
   thorchainAssetMap,
+  zcashAssetMap,
 } from '../../utils'
 import { CoingeckoAssetPlatform } from '.'
 
@@ -198,6 +207,48 @@ export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
         }
       }
 
+      if (Object.keys(platforms).includes(CoingeckoAssetPlatform.Tron)) {
+        try {
+          const assetId = toAssetId({
+            chainNamespace: CHAIN_NAMESPACE.Tron,
+            chainReference: CHAIN_REFERENCE.TronMainnet,
+            assetNamespace: 'trc20',
+            assetReference: platforms[CoingeckoAssetPlatform.Tron],
+          })
+          prev[tronChainId][assetId] = id
+        } catch {
+          // unable to create assetId, skip token
+        }
+      }
+
+      if (Object.keys(platforms).includes(CoingeckoAssetPlatform.Sui)) {
+        try {
+          const assetId = toAssetId({
+            chainNamespace: CHAIN_NAMESPACE.Sui,
+            chainReference: CHAIN_REFERENCE.SuiMainnet,
+            assetNamespace: ASSET_NAMESPACE.suiCoin,
+            assetReference: platforms[CoingeckoAssetPlatform.Sui],
+          })
+          prev[suiChainId][assetId] = id
+        } catch {
+          // unable to create assetId, skip token
+        }
+      }
+
+      if (Object.keys(platforms).includes(CoingeckoAssetPlatform.Monad)) {
+        try {
+          const assetId = toAssetId({
+            chainNamespace: CHAIN_NAMESPACE.Evm,
+            chainReference: CHAIN_REFERENCE.MonadMainnet,
+            assetNamespace: 'erc20',
+            assetReference: platforms[CoingeckoAssetPlatform.Monad],
+          })
+          prev[monadChainId][assetId] = id
+        } catch {
+          // unable to create assetId, skip token
+        }
+      }
+
       return prev
     },
     {
@@ -210,7 +261,10 @@ export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
       [arbitrumChainId]: { [arbitrumAssetId]: 'ethereum' },
       [arbitrumNovaChainId]: { [arbitrumNovaAssetId]: 'ethereum' },
       [baseChainId]: { [baseAssetId]: 'ethereum' },
+      [monadChainId]: { [monadAssetId]: 'monad' },
       [solanaChainId]: { [solAssetId]: 'solana' },
+      [tronChainId]: { [tronAssetId]: 'tron' },
+      [suiChainId]: { [suiAssetId]: 'sui' },
     },
   )
 
@@ -220,6 +274,7 @@ export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
     [bchChainId]: bitcoinCashAssetMap,
     [dogeChainId]: dogecoinAssetMap,
     [ltcChainId]: litecoinAssetMap,
+    [zecChainId]: zcashAssetMap,
     [cosmosChainId]: cosmosAssetMap,
     [thorchainChainId]: thorchainAssetMap,
     [mayachainChainId]: mayachainAssetMap,

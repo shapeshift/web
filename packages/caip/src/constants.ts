@@ -5,6 +5,7 @@ export const btcAssetId: AssetId = 'bip122:000000000019d6689c085ae165831e93/slip
 export const bchAssetId: AssetId = 'bip122:000000000000000000651ef99cb9fcbe/slip44:145'
 export const dogeAssetId: AssetId = 'bip122:00000000001a91e3dace36e2be3bf030/slip44:3'
 export const ltcAssetId: AssetId = 'bip122:12a765e31ffd4059bada1e25190f6e98/slip44:2'
+export const zecAssetId: AssetId = 'bip122:00040fe8ec8471911baa1db1266ea15d/slip44:133'
 
 export const ethAssetId: AssetId = 'eip155:1/slip44:60'
 export const avalancheAssetId: AssetId = 'eip155:43114/slip44:60'
@@ -15,9 +16,12 @@ export const gnosisAssetId: AssetId = 'eip155:100/slip44:60'
 export const arbitrumAssetId: AssetId = 'eip155:42161/slip44:60'
 export const arbitrumNovaAssetId: AssetId = 'eip155:42170/slip44:60'
 export const baseAssetId: AssetId = 'eip155:8453/slip44:60'
+export const monadAssetId: AssetId = 'eip155:143/slip44:60'
 export const solAssetId: AssetId = 'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp/slip44:501'
 export const wrappedSolAssetId: AssetId =
   'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp/token:So11111111111111111111111111111111111111112'
+export const tronAssetId: AssetId = 'tron:0x2b6653dc/slip44:195'
+export const suiAssetId: AssetId = 'sui:35834a8a/slip44:784'
 export const uniV2EthFoxArbitrumAssetId: AssetId =
   'eip155:42161/erc20:0x5f6ce0ca13b87bd738519545d3e018e70e339c24'
 
@@ -56,6 +60,7 @@ export const btcChainId: ChainId = 'bip122:000000000019d6689c085ae165831e93'
 export const bchChainId: ChainId = 'bip122:000000000000000000651ef99cb9fcbe'
 export const dogeChainId: ChainId = 'bip122:00000000001a91e3dace36e2be3bf030'
 export const ltcChainId: ChainId = 'bip122:12a765e31ffd4059bada1e25190f6e98'
+export const zecChainId: ChainId = 'bip122:00040fe8ec8471911baa1db1266ea15d'
 
 export const ethChainId: ChainId = 'eip155:1'
 export const avalancheChainId: ChainId = 'eip155:43114'
@@ -66,6 +71,7 @@ export const gnosisChainId: ChainId = 'eip155:100'
 export const arbitrumChainId: ChainId = 'eip155:42161'
 export const arbitrumNovaChainId: ChainId = 'eip155:42170'
 export const baseChainId: ChainId = 'eip155:8453'
+export const monadChainId: ChainId = 'eip155:143'
 
 export const cosmosChainId: ChainId = 'cosmos:cosmoshub-4'
 export const thorchainChainId: ChainId = 'cosmos:thorchain-1'
@@ -73,12 +79,16 @@ export const mayachainChainId: ChainId = 'cosmos:mayachain-mainnet-v1'
 export const binanceChainId: ChainId = 'cosmos:binance-chain-tigris'
 
 export const solanaChainId: ChainId = 'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp'
+export const tronChainId: ChainId = 'tron:0x2b6653dc'
+export const suiChainId: ChainId = 'sui:35834a8a'
 
 export const CHAIN_NAMESPACE = {
   Evm: 'eip155',
   Utxo: 'bip122',
   CosmosSdk: 'cosmos',
   Solana: 'solana',
+  Tron: 'tron',
+  Sui: 'sui',
 } as const
 
 type ValidChainMap = {
@@ -91,6 +101,7 @@ export const CHAIN_REFERENCE = {
   BitcoinCashMainnet: '000000000000000000651ef99cb9fcbe',
   DogecoinMainnet: '00000000001a91e3dace36e2be3bf030',
   LitecoinMainnet: '12a765e31ffd4059bada1e25190f6e98',
+  ZcashMainnet: '00040fe8ec8471911baa1db1266ea15d',
   CosmosHubMainnet: 'cosmoshub-4',
   ThorchainMainnet: 'thorchain-1',
   MayachainMainnet: 'mayachain-mainnet-v1',
@@ -103,7 +114,10 @@ export const CHAIN_REFERENCE = {
   ArbitrumMainnet: '42161', // https://chainlist.org/chain/42161
   ArbitrumNovaMainnet: '42170', // https://chainlist.org/chain/42170
   BaseMainnet: '8453', // https://chainlist.org/chain/8453
+  MonadMainnet: '143', // https://docs.monad.xyz/developer-essentials/network-information
   SolanaMainnet: '5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp', // https://namespaces.chainagnostic.org/solana/caip2
+  TronMainnet: '0x2b6653dc', // https://developers.tron.network/docs/networks
+  SuiMainnet: '35834a8a', // First 8 chars of SUI mainnet genesis hash
 } as const
 
 export const ASSET_NAMESPACE = {
@@ -112,6 +126,9 @@ export const ASSET_NAMESPACE = {
   erc1155: 'erc1155',
   slip44: 'slip44',
   splToken: 'token',
+  trc20: 'trc20',
+  trc10: 'trc10',
+  suiCoin: 'coin',
 } as const
 
 export const ASSET_REFERENCE = {
@@ -119,6 +136,7 @@ export const ASSET_REFERENCE = {
   BitcoinCash: '145',
   Litecoin: '2',
   Dogecoin: '3',
+  Zcash: '133',
   Cosmos: '118',
   Thorchain: '931',
   Mayachain: '931',
@@ -132,7 +150,10 @@ export const ASSET_REFERENCE = {
   Arbitrum: '60', // evm chain which uses ethereum derivation path as common practice
   ArbitrumNova: '60', // evm chain which uses ethereum derivation path as common practice
   Base: '60', // evm chain which uses ethereum derivation path as common practice
+  Monad: '60', // evm chain which uses ethereum derivation path as common practice
   Solana: '501',
+  Tron: '195',
+  Sui: '784',
 } as const
 
 export const VALID_CHAIN_IDS: ValidChainMap = Object.freeze({
@@ -141,6 +162,7 @@ export const VALID_CHAIN_IDS: ValidChainMap = Object.freeze({
     CHAIN_REFERENCE.BitcoinCashMainnet,
     CHAIN_REFERENCE.DogecoinMainnet,
     CHAIN_REFERENCE.LitecoinMainnet,
+    CHAIN_REFERENCE.ZcashMainnet,
   ],
   [CHAIN_NAMESPACE.Evm]: [
     CHAIN_REFERENCE.EthereumMainnet,
@@ -152,6 +174,7 @@ export const VALID_CHAIN_IDS: ValidChainMap = Object.freeze({
     CHAIN_REFERENCE.ArbitrumMainnet,
     CHAIN_REFERENCE.ArbitrumNovaMainnet,
     CHAIN_REFERENCE.BaseMainnet,
+    CHAIN_REFERENCE.MonadMainnet,
   ],
   [CHAIN_NAMESPACE.CosmosSdk]: [
     CHAIN_REFERENCE.CosmosHubMainnet,
@@ -160,6 +183,8 @@ export const VALID_CHAIN_IDS: ValidChainMap = Object.freeze({
     CHAIN_REFERENCE.BinanceMainnet,
   ],
   [CHAIN_NAMESPACE.Solana]: [CHAIN_REFERENCE.SolanaMainnet],
+  [CHAIN_NAMESPACE.Tron]: [CHAIN_REFERENCE.TronMainnet],
+  [CHAIN_NAMESPACE.Sui]: [CHAIN_REFERENCE.SuiMainnet],
 })
 
 type ValidAssetNamespace = {
@@ -176,6 +201,8 @@ export const VALID_ASSET_NAMESPACE: ValidAssetNamespace = Object.freeze({
   ],
   [CHAIN_NAMESPACE.CosmosSdk]: [ASSET_NAMESPACE.slip44],
   [CHAIN_NAMESPACE.Solana]: [ASSET_NAMESPACE.splToken, ASSET_NAMESPACE.slip44],
+  [CHAIN_NAMESPACE.Tron]: [ASSET_NAMESPACE.slip44, ASSET_NAMESPACE.trc20],
+  [CHAIN_NAMESPACE.Sui]: [ASSET_NAMESPACE.slip44, ASSET_NAMESPACE.suiCoin],
 })
 
 // We should prob change this once we add more chains
@@ -196,5 +223,9 @@ export const FEE_ASSET_IDS = [
   arbitrumAssetId,
   arbitrumNovaAssetId,
   baseAssetId,
+  monadAssetId,
   solAssetId,
+  tronAssetId,
+  suiAssetId,
+  zecAssetId,
 ]

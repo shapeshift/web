@@ -74,6 +74,11 @@ export const UserMenu: React.FC<{ onClick?: () => void }> = memo(({ onClick }) =
     onClick && onClick()
     dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
   }, [dispatch, onClick])
+
+  const handleDisconnect = useCallback(() => {
+    disconnect()
+    onClick && onClick()
+  }, [disconnect, onClick])
   return (
     <ButtonGroup width='full'>
       <Box>
@@ -97,7 +102,7 @@ export const UserMenu: React.FC<{ onClick?: () => void }> = memo(({ onClick }) =
               <WalletConnected
                 isConnected={isConnected}
                 walletInfo={maybeMipdProvider?.info || walletInfo}
-                onDisconnect={disconnect}
+                onDisconnect={handleDisconnect}
                 onSwitchProvider={handleConnect}
                 connectedType={connectedType}
                 onClose={onClick}

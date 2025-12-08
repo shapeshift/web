@@ -77,10 +77,10 @@ Requirements:
   - Requires [Docker Desktop](https://docs.docker.com/get-docker/)
 - [GitHub Personal Access Token](https://docs.github.com/en/actions/security-guides/automatic-token-authentication) - via GitHub Settings
 
-Example command to test Cypress GitHub action:
+Example command to test a GitHub action locally:
 ```sh
 # run from project root
-act -s GITHUB_TOKEN=$GITHUB_TOKEN -j test-chrome --reuse
+act -s GITHUB_TOKEN=$GITHUB_TOKEN -j <job-name> --reuse
 ```
 
 **NOTE:** there are two parameters set in the project's root `.actrc` file.

@@ -20,7 +20,11 @@ import type {
   TradeQuote,
 } from '../../../types'
 import { SwapperName, TradeQuoteError } from '../../../types'
-import { getInputOutputRate, makeSwapErrorRight } from '../../../utils'
+import {
+  createTradeAmountTooSmallErr,
+  getInputOutputRate,
+  makeSwapErrorRight,
+} from '../../../utils'
 import { isNativeEvmAsset } from '../../utils/helpers/helpers'
 import { DEFAULT_QUOTE_DEADLINE_MS, DEFAULT_SLIPPAGE_BPS } from '../constants'
 import type { QuoteResponse } from '../types'
@@ -78,12 +82,24 @@ export const getTradeQuote = async (
     const originAsset = await assetToNearIntentsAsset(sellAsset)
     const destinationAsset = await assetToNearIntentsAsset(buyAsset)
 
-    // This shouldn't be the case since we already got a rate and know these exist, but...
-    if (!(originAsset && destinationAsset)) {
+    if (!originAsset) {
       return Err(
         makeSwapErrorRight({
           code: TradeQuoteError.UnsupportedTradePair,
-          message: 'Unsupported asset',
+          message: `Asset ${sellAsset.symbol} on ${
+            sellAsset.networkName || sellAsset.chainId
+          } is not supported by NEAR Intents`,
+        }),
+      )
+    }
+
+    if (!destinationAsset) {
+      return Err(
+        makeSwapErrorRight({
+          code: TradeQuoteError.UnsupportedTradePair,
+          message: `Asset ${buyAsset.symbol} on ${
+            buyAsset.networkName || buyAsset.chainId
+          } is not supported by NEAR Intents`,
         }),
       )
     }
@@ -201,6 +217,40 @@ export const getTradeQuote = async (
           return { networkFeeCryptoBaseUnit: totalFee }
         }
 
+        case CHAIN_NAMESPACE.Tron: {
+          const sellAdapter = deps.assertGetTronChainAdapter(sellAsset.chainId)
+          const contractAddress = contractAddressOrUndefined(sellAsset.assetId)
+          const feeData = await sellAdapter.getFeeData({
+            to: depositAddress,
+            value: sellAmount,
+            chainSpecific: {
+              from: sendAddress,
+              contractAddress,
+            },
+          })
+
+          return { networkFeeCryptoBaseUnit: feeData.fast.txFee }
+        }
+
+        case CHAIN_NAMESPACE.Sui: {
+          const sellAdapter = deps.assertGetSuiChainAdapter(sellAsset.chainId)
+          const tokenId = isToken(sellAsset.assetId)
+            ? fromAssetId(sellAsset.assetId).assetReference
+            : undefined
+
+          const feeData = await sellAdapter.getFeeData({
+            to: depositAddress,
+            value: sellAmount,
+            chainSpecific: {
+              from,
+              tokenId,
+            },
+            sendMax: false,
+          })
+
+          return { networkFeeCryptoBaseUnit: feeData.fast.txFee }
+        }
+
         default:
           throw new Error(`Unsupported chain namespace: ${chainNamespace}`)
       }
@@ -256,17 +306,31 @@ export const getTradeQuote = async (
   } catch (error) {
     console.error('[NEAR Intents] getTradeQuote error:', error)
 
-    if (
-      error instanceof ApiError &&
-      (error.body?.message === 'tokenIn is not valid' ||
-        error.body?.message === 'tokenOut is not valid')
-    ) {
-      return Err(
-        makeSwapErrorRight({
-          code: TradeQuoteError.UnsupportedTradePair,
-          message: 'Unsupported asset',
-        }),
-      )
+    if (error instanceof ApiError) {
+      if (
+        error.body?.message === 'tokenIn is not valid' ||
+        error.body?.message === 'tokenOut is not valid'
+      ) {
+        return Err(
+          makeSwapErrorRight({
+            code: TradeQuoteError.UnsupportedTradePair,
+            message: 'Unsupported asset',
+          }),
+        )
+      }
+
+      if (error.body?.message?.includes('Amount is too low')) {
+        const match = error.body.message.match(/try at least (\d+)/)
+        if (match) {
+          const minAmountCryptoBaseUnit = match[1]
+          return Err(
+            createTradeAmountTooSmallErr({
+              minAmountCryptoBaseUnit,
+              assetId: sellAsset.assetId,
+            }),
+          )
+        }
+      }
     }
 
     return Err(

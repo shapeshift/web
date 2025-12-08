@@ -17,6 +17,8 @@ export const getNativeFeeAssetReference = (
             return ASSET_REFERENCE.Dogecoin
           case CHAIN_REFERENCE.LitecoinMainnet:
             return ASSET_REFERENCE.Litecoin
+          case CHAIN_REFERENCE.ZcashMainnet:
+            return ASSET_REFERENCE.Zcash
           default:
             throw new Error(`Chain namespace ${chainNamespace} on ${chainReference} not supported.`)
         }
@@ -40,6 +42,8 @@ export const getNativeFeeAssetReference = (
             return ASSET_REFERENCE.ArbitrumNova
           case CHAIN_REFERENCE.BaseMainnet:
             return ASSET_REFERENCE.Base
+          case CHAIN_REFERENCE.MonadMainnet:
+            return ASSET_REFERENCE.Monad
           default:
             throw new Error(`Chain namespace ${chainNamespace} on ${chainReference} not supported.`)
         }
@@ -58,6 +62,20 @@ export const getNativeFeeAssetReference = (
         switch (chainReference) {
           case CHAIN_REFERENCE.SolanaMainnet:
             return ASSET_REFERENCE.Solana
+          default:
+            throw new Error(`Chain namespace ${chainNamespace} on ${chainReference} not supported.`)
+        }
+      case CHAIN_NAMESPACE.Tron:
+        switch (chainReference) {
+          case CHAIN_REFERENCE.TronMainnet:
+            return ASSET_REFERENCE.Tron
+          default:
+            throw new Error(`Chain namespace ${chainNamespace} on ${chainReference} not supported.`)
+        }
+      case CHAIN_NAMESPACE.Sui:
+        switch (chainReference) {
+          case CHAIN_REFERENCE.SuiMainnet:
+            return ASSET_REFERENCE.Sui
           default:
             throw new Error(`Chain namespace ${chainNamespace} on ${chainReference} not supported.`)
         }

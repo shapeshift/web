@@ -6,6 +6,8 @@ import { bebopSwapper } from './swappers/BebopSwapper/BebopSwapper'
 import { bebopApi } from './swappers/BebopSwapper/endpoints'
 import { butterSwap } from './swappers/ButterSwap/ButterSwap'
 import { butterSwapApi } from './swappers/ButterSwap/endpoints'
+import { cetusSwapper } from './swappers/CetusSwapper/CetusSwapper'
+import { cetusApi } from './swappers/CetusSwapper/endpoints'
 import { chainflipSwapper } from './swappers/ChainflipSwapper/ChainflipSwapper'
 import { chainflipApi } from './swappers/ChainflipSwapper/endpoints'
 import { cowSwapper } from './swappers/CowSwapper/CowSwapper'
@@ -20,6 +22,8 @@ import { portalsApi } from './swappers/PortalsSwapper/endpoints'
 import { portalsSwapper } from './swappers/PortalsSwapper/PortalsSwapper'
 import { relaySwapper } from './swappers/RelaySwapper'
 import { relayApi } from './swappers/RelaySwapper/endpoints'
+import { sunioApi } from './swappers/SunioSwapper/endpoints'
+import { sunioSwapper } from './swappers/SunioSwapper/SunioSwapper'
 import { thorchainApi } from './swappers/ThorchainSwapper/endpoints'
 import { thorchainSwapper } from './swappers/ThorchainSwapper/ThorchainSwapper'
 import { zrxApi } from './swappers/ZrxSwapper/endpoints'
@@ -86,6 +90,14 @@ export const swappers: Record<SwapperName, (SwapperApi & Swapper) | undefined> =
     ...nearIntentsSwapper,
     ...nearIntentsApi,
   },
+  [SwapperName.Cetus]: {
+    ...cetusSwapper,
+    ...cetusApi,
+  },
+  [SwapperName.Sunio]: {
+    ...sunioSwapper,
+    ...sunioApi,
+  },
   [SwapperName.Test]: undefined,
 }
 
@@ -99,6 +111,8 @@ const DEFAULT_MAYA_SLIPPAGE_DECIMAL_PERCENTAGE = '0.01' // 1%
 const DEFAULT_ARBITRUM_BRIDGE_SLIPPAGE_DECIMAL_PERCENTAGE = '0' // no slippage for Arbitrum Bridge, so no slippage tolerance
 const DEFAULT_CHAINFLIP_SLIPPAGE_DECIMAL_PERCENTAGE = '0.02' // 2%
 const DEFAULT_BUTTERSWAP_SLIPPAGE_DECIMAL_PERCENTAGE = '0.015' // 1.5%
+const DEFAULT_CETUS_SLIPPAGE_DECIMAL_PERCENTAGE = '0.005' // .5%
+const DEFAULT_SUNIO_SLIPPAGE_DECIMAL_PERCENTAGE = '0.005' // .5%
 
 export const getDefaultSlippageDecimalPercentageForSwapper = (
   swapperName: SwapperName | undefined,
@@ -129,6 +143,10 @@ export const getDefaultSlippageDecimalPercentageForSwapper = (
       return DEFAULT_BUTTERSWAP_SLIPPAGE_DECIMAL_PERCENTAGE
     case SwapperName.NearIntents:
       return DEFAULT_NEAR_INTENTS_SLIPPAGE_DECIMAL_PERCENTAGE
+    case SwapperName.Cetus:
+      return DEFAULT_CETUS_SLIPPAGE_DECIMAL_PERCENTAGE
+    case SwapperName.Sunio:
+      return DEFAULT_SUNIO_SLIPPAGE_DECIMAL_PERCENTAGE
     default:
       return assertUnreachable(swapperName)
   }

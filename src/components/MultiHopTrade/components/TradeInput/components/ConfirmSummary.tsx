@@ -14,7 +14,7 @@ import { getQuoteRequestErrorTranslation } from '../getQuoteRequestErrorTranslat
 import { useTradeReceiveAddress } from '../hooks/useTradeReceiveAddress'
 import { MaxSlippage } from './MaxSlippage'
 import { Protocol } from './Protocol'
-import { RecipientAddress } from './RecipientAddress'
+import { ReceiveAddress } from './ReceiveAddress'
 
 import { SwapperIcons } from '@/components/MultiHopTrade/components/SwapperIcons'
 import { parseAmountDisplayMeta } from '@/components/MultiHopTrade/helpers'
@@ -381,9 +381,9 @@ export const ConfirmSummary = ({
             icon={swapperIcon}
           />
         )}
-        <RecipientAddress
+        <ReceiveAddress
           shouldForceManualAddressEntry={shouldDisableThorNativeSmartContractReceive}
-          recipientAddressDescription={
+          receiveAddressDescription={
             shouldDisableThorTaprootReceiveAddress
               ? translate('trade.disableThorTaprootReceive')
               : undefined

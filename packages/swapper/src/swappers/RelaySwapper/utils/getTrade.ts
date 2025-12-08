@@ -1,4 +1,10 @@
-import { btcChainId, fromChainId, solanaChainId } from '@shapeshiftoss/caip'
+import {
+  btcChainId,
+  fromChainId,
+  monadChainId,
+  solanaChainId,
+  tronChainId,
+} from '@shapeshiftoss/caip'
 import type { GetFeeDataInput } from '@shapeshiftoss/chain-adapters'
 import { evm, isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { UtxoChainId } from '@shapeshiftoss/types'
@@ -39,6 +45,7 @@ import {
   isRelayError,
   isRelayQuoteEvmItemData,
   isRelayQuoteSolanaItemData,
+  isRelayQuoteTronItemData,
   isRelayQuoteUtxoItemData,
 } from '../utils/types'
 import { fetchRelayTrade } from './fetchRelayTrade'
@@ -86,7 +93,8 @@ export async function getTrade<T extends 'quote' | 'rate'>({
   if (
     !isEvmChainId(sellAsset.chainId) &&
     sellAsset.chainId !== btcChainId &&
-    sellAsset.chainId !== solanaChainId
+    sellAsset.chainId !== solanaChainId &&
+    sellAsset.chainId !== tronChainId
   ) {
     return Err(
       makeSwapErrorRight({
@@ -99,7 +107,8 @@ export async function getTrade<T extends 'quote' | 'rate'>({
   if (
     !isEvmChainId(buyAsset.chainId) &&
     buyAsset.chainId !== btcChainId &&
-    buyAsset.chainId !== solanaChainId
+    buyAsset.chainId !== solanaChainId &&
+    buyAsset.chainId !== tronChainId
   ) {
     return Err(
       makeSwapErrorRight({
@@ -349,6 +358,10 @@ export async function getTrade<T extends 'quote' | 'rate'>({
       return sellAsset.assetId === appFeesAsset.assetId
     }
 
+    if (sellAsset.chainId === tronChainId) {
+      return sellAsset.assetId === appFeesAsset.assetId
+    }
+
     return false
   })()
 
@@ -520,6 +533,11 @@ export async function getTrade<T extends 'quote' | 'rate'>({
               data: (selectedItem.data.data ?? '0x') as Hex,
               value: selectedItem.data.value ?? '0',
               sellAsset,
+              // Pass Relay's gas limit to Tenderly for Monad as tenderly return crazy gas
+              gas:
+                selectedItem.data.gas && sellAsset.chainId === monadChainId
+                  ? Number(selectedItem.data.gas)
+                  : undefined,
             },
             {
               apiKey: deps.config.VITE_TENDERLY_API_KEY,
@@ -615,6 +633,17 @@ export async function getTrade<T extends 'quote' | 'rate'>({
           },
           relayTransactionMetadata: {
             relayId: quote.steps[0].requestId,
+          },
+        }
+      }
+
+      if (isRelayQuoteTronItemData(selectedItem.data)) {
+        return {
+          allowanceContract: '',
+          solanaTransactionMetadata: undefined,
+          relayTransactionMetadata: {
+            relayId: quote.steps[0].requestId,
+            to: selectedItem.data?.parameter?.contract_address,
           },
         }
       }

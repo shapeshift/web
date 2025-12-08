@@ -16,10 +16,14 @@ import { csp as ethereum } from './chains/ethereum'
 import { csp as gnosis } from './chains/gnosis'
 import { csp as litecoin } from './chains/litecoin'
 import { csp as mayachain } from './chains/mayachain'
+import { csp as monad } from './chains/monad'
 import { csp as optimism } from './chains/optimism'
 import { csp as polygon } from './chains/polygon'
 import { csp as solana } from './chains/solana'
+import { csp as sui } from './chains/sui'
 import { csp as thorchain } from './chains/thorchain'
+import { csp as tron } from './chains/tron'
+import { csp as zcash } from './chains/zcash'
 import { csp as chatwoot } from './chatwoot'
 import { csp as customTokenImport } from './customTokenImport'
 import { csp as foxy } from './defi/foxy'
@@ -33,6 +37,7 @@ import { csp as cowSwap } from './defi/swappers/CowSwap'
 import { csp as nearIntents } from './defi/swappers/NearIntents'
 import { csp as oneInch } from './defi/swappers/OneInch'
 import { csp as portals } from './defi/swappers/Portals'
+import { csp as sunio } from './defi/swappers/Sunio'
 import { csp as thor } from './defi/swappers/Thor'
 import { csp as discord } from './discord'
 import { csp as banxa } from './fiatRamps/banxa'
@@ -98,8 +103,12 @@ export const csps = [
   optimism,
   polygon,
   solana,
+  sui,
   thorchain,
+  tron,
+  zcash,
   mayachain,
+  monad,
   trustwallet,
   coincap,
   exchangeRates,
@@ -115,6 +124,7 @@ export const csps = [
   nearIntents,
   oneInch,
   portals,
+  sunio,
   thor,
   butterSwap,
   foxPage,

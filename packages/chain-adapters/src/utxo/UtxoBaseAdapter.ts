@@ -60,6 +60,7 @@ export const utxoChainIds = [
   KnownChainIds.BitcoinCashMainnet,
   KnownChainIds.DogecoinMainnet,
   KnownChainIds.LitecoinMainnet,
+  KnownChainIds.ZcashMainnet,
 ] as const
 
 export type UtxoChainAdapter = UtxoBaseAdapter<UtxoChainId>
@@ -73,6 +74,7 @@ export interface ChainAdapterArgs {
       | unchained.bitcoincash.V1Api
       | unchained.dogecoin.V1Api
       | unchained.litecoin.V1Api
+      | unchained.zcash.V1Api
     ws: unchained.ws.Client<unchained.utxo.types.Tx>
   }
   thorMidgardUrl: string
@@ -101,6 +103,7 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
       | unchained.bitcoincash.V1Api
       | unchained.dogecoin.V1Api
       | unchained.litecoin.V1Api
+      | unchained.zcash.V1Api
     ws: unchained.ws.Client<unchained.utxo.types.Tx>
   }
 
@@ -299,6 +302,7 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
         sendMax,
         value,
         opReturnData,
+        assetId: this.assetId,
       })
 
       if (!coinSelectResult?.inputs || !coinSelectResult?.outputs) {
@@ -436,7 +440,15 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
 
       const utxos = await this.providers.http.getUtxos({ pubkey })
 
-      const utxoSelectInput = { from, to, value, opReturnData, utxos, sendMax }
+      const utxoSelectInput = {
+        from,
+        to,
+        value,
+        opReturnData,
+        utxos,
+        sendMax,
+        assetId: this.assetId,
+      }
 
       // We have to round because coinselect library uses sats per byte which cant be decimals
       const fastPerByte = String(Math.round(data.fast.satsPerKiloByte / 1000))
@@ -781,7 +793,8 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
     | unchained.utxo.bitcoin.V1Api
     | unchained.utxo.bitcoincash.V1Api
     | unchained.utxo.dogecoin.V1Api
-    | unchained.utxo.litecoin.V1Api {
+    | unchained.utxo.litecoin.V1Api
+    | unchained.utxo.zcash.V1Api {
     return this.providers.http
   }
 

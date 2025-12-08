@@ -1,5 +1,6 @@
 import { skipToken as reduxSkipToken } from '@reduxjs/toolkit/query'
 import { fromAccountId } from '@shapeshiftoss/caip'
+import { isGridPlus } from '@shapeshiftoss/hdwallet-gridplus'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import { isTrezor } from '@shapeshiftoss/hdwallet-trezor'
 import type {
@@ -144,6 +145,7 @@ export const useGetTradeQuotes = () => {
           permit2?.state === TransactionExecutionState.AwaitingConfirmation) ||
         (!permit2?.isRequired && hopExecutionMetadata?.state === HopExecutionState.AwaitingSwap)
       )
+
     return (
       hopExecutionMetadata?.state === HopExecutionState.AwaitingSwap &&
       hopExecutionMetadata?.swap?.state === TransactionExecutionState.AwaitingConfirmation
@@ -183,6 +185,9 @@ export const useGetTradeQuotes = () => {
       if (sellAccountNumber === undefined) throw new Error('sellAccountNumber is required')
       if (!receiveAddress) throw new Error('receiveAddress is required')
 
+      const skipDeviceDerivation =
+        wallet && (isLedger(wallet) || isTrezor(wallet) || isGridPlus(wallet))
+
       const updatedTradeQuoteInput: GetTradeQuoteInput | GetTradeRateInput | undefined =
         await getTradeQuoteOrRateInput({
           sellAsset,
@@ -198,7 +203,7 @@ export const useGetTradeQuotes = () => {
           // Pass in the user's slippage preference if it's set, else let the swapper use its default
           slippageTolerancePercentageDecimal: userSlippageTolerancePercentageDecimal,
           pubKey:
-            wallet && (isLedger(wallet) || isTrezor(wallet)) && sellAccountId
+            skipDeviceDerivation && sellAccountId
               ? fromAccountId(sellAccountId).account
               : undefined,
         })

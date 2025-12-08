@@ -22,6 +22,7 @@ export const getLedgerAppName = (chainId: ChainId | KnownChainIds | undefined) =
     case KnownChainIds.BnbSmartChainMainnet:
     case KnownChainIds.EthereumMainnet:
     case KnownChainIds.GnosisMainnet:
+    case KnownChainIds.MonadMainnet:
     case KnownChainIds.OptimismMainnet:
     case KnownChainIds.PolygonMainnet:
       return 'Ethereum'
@@ -35,6 +36,8 @@ export const getLedgerAppName = (chainId: ChainId | KnownChainIds | undefined) =
       return 'Dogecoin'
     case KnownChainIds.LitecoinMainnet:
       return 'Litecoin'
+    case KnownChainIds.ZcashMainnet:
+      return 'Zcash'
     case KnownChainIds.SolanaMainnet:
       return 'Solana'
     case KnownChainIds.ThorchainMainnet:
@@ -55,6 +58,8 @@ const getCoin = (chainId: ChainId | KnownChainIds) => {
       return 'BitcoinCash'
     case KnownChainIds.LitecoinMainnet:
       return 'Litecoin'
+    case KnownChainIds.ZcashMainnet:
+      return 'Zcash'
     case KnownChainIds.EthereumMainnet:
       return 'Ethereum'
     case KnownChainIds.AvalancheMainnet:
@@ -73,6 +78,8 @@ const getCoin = (chainId: ChainId | KnownChainIds) => {
       return 'ArbitrumNova'
     case KnownChainIds.BaseMainnet:
       return 'Base'
+    case KnownChainIds.MonadMainnet:
+      return 'Monad'
     case KnownChainIds.ThorchainMainnet:
       return 'Rune'
     case KnownChainIds.MayachainMainnet:

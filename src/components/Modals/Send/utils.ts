@@ -17,6 +17,7 @@ import type {
 import { utxoChainIds } from '@shapeshiftoss/chain-adapters'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { supportsETH, supportsSolana } from '@shapeshiftoss/hdwallet-core'
+import { isGridPlus } from '@shapeshiftoss/hdwallet-gridplus'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import { isTrezor } from '@shapeshiftoss/hdwallet-trezor'
 import type { CosmosSdkChainId, EvmChainId, KnownChainIds, UtxoChainId } from '@shapeshiftoss/types'
@@ -33,6 +34,7 @@ import { assertGetChainAdapter } from '@/lib/utils'
 import { assertGetCosmosSdkChainAdapter } from '@/lib/utils/cosmosSdk'
 import { assertGetEvmChainAdapter, getSupportedEvmChainIds } from '@/lib/utils/evm'
 import { assertGetSolanaChainAdapter } from '@/lib/utils/solana'
+import { assertGetSuiChainAdapter } from '@/lib/utils/sui'
 import { assertGetUtxoChainAdapter, isUtxoChainId } from '@/lib/utils/utxo'
 import {
   selectAssetById,
@@ -46,7 +48,7 @@ export type EstimateFeesInput = {
   // Optional hex-encoded calldata
   // for ERC-20s, use me in place of `data`
   memo?: string
-  from?: string
+  utxoFrom?: string
   to: string
   sendMax: boolean
   accountId: AccountId
@@ -56,7 +58,7 @@ export type EstimateFeesInput = {
 export const estimateFees = async ({
   amountCryptoPrecision,
   assetId,
-  from,
+  utxoFrom,
   memo,
   to,
   sendMax,
@@ -98,7 +100,7 @@ export const estimateFees = async ({
       const getFeeDataInput: GetFeeDataInput<UtxoChainId> = {
         to,
         value,
-        chainSpecific: { from, pubkey: account },
+        chainSpecific: { from: utxoFrom, pubkey: account },
         sendMax,
       }
       return adapter.getFeeData(getFeeDataInput)
@@ -125,6 +127,33 @@ export const estimateFees = async ({
       }
       return adapter.getFeeData(getFeeDataInput)
     }
+    case CHAIN_NAMESPACE.Tron: {
+      const adapter = assertGetChainAdapter(asset.chainId)
+      const getFeeDataInput: GetFeeDataInput<KnownChainIds.TronMainnet> = {
+        to,
+        value,
+        sendMax,
+        chainSpecific: {
+          from: account,
+          contractAddress,
+          memo,
+        },
+      }
+      return adapter.getFeeData(getFeeDataInput)
+    }
+    case CHAIN_NAMESPACE.Sui: {
+      const adapter = assertGetSuiChainAdapter(asset.chainId)
+      const getFeeDataInput: GetFeeDataInput<KnownChainIds.SuiMainnet> = {
+        to,
+        value,
+        chainSpecific: {
+          from: account,
+          tokenId: contractAddress,
+        },
+        sendMax,
+      }
+      return adapter.getFeeData(getFeeDataInput)
+    }
     default:
       throw new Error(`${chainNamespace} not supported`)
   }
@@ -141,6 +170,7 @@ export const handleSend = async ({
   const supportedEvmChainIds = getSupportedEvmChainIds()
   const isMetaMaskDesktop = checkIsMetaMaskDesktop(wallet)
   const isVultisig = (await wallet.getModel()) === 'Vultisig'
+  const skipDeviceDerivation = isLedger(wallet) || isTrezor(wallet) || isGridPlus(wallet)
   if (
     fromChainId(asset.chainId).chainNamespace === CHAIN_NAMESPACE.CosmosSdk &&
     !wallet.supportsOfflineSigning() &&
@@ -179,6 +209,7 @@ export const handleSend = async ({
       const contractAddress = contractAddressOrUndefined(asset.assetId)
       const { accountNumber } = bip44Params
       const adapter = assertGetEvmChainAdapter(chainId)
+      const pubKey = skipDeviceDerivation ? fromAccountId(sendInput.accountId).account : undefined
       return await adapter.buildSendTransaction({
         to,
         value,
@@ -192,6 +223,7 @@ export const handleSend = async ({
         },
         sendMax: sendInput.sendMax,
         customNonce: sendInput.customNonce,
+        pubKey,
       })
     }
 
@@ -205,8 +237,7 @@ export const handleSend = async ({
       }
       const { accountNumber } = bip44Params
       const adapter = assertGetUtxoChainAdapter(chainId)
-      const utxoPubKey = isTrezor(wallet) ? fromAccountId(sendInput.accountId).account : undefined
-      console.log('UTXO buildSendTransaction pubKey:', { isTrezor: isTrezor(wallet), utxoPubKey })
+      const pubKey = skipDeviceDerivation ? fromAccountId(sendInput.accountId).account : undefined
       return adapter.buildSendTransaction({
         to,
         value,
@@ -219,7 +250,7 @@ export const handleSend = async ({
           opReturnData: memo,
         },
         sendMax: sendInput.sendMax,
-        pubKey: utxoPubKey,
+        pubKey,
       })
     }
 
@@ -275,10 +306,7 @@ export const handleSend = async ({
         value,
         wallet,
         accountNumber: bip44Params.accountNumber,
-        pubKey:
-          isLedger(wallet) || isTrezor(wallet)
-            ? fromAccountId(sendInput.accountId).account
-            : undefined,
+        pubKey: skipDeviceDerivation ? fromAccountId(sendInput.accountId).account : undefined,
         chainSpecific:
           instructions.length <= 1
             ? {
@@ -294,6 +322,46 @@ export const handleSend = async ({
       return solanaAdapter.buildSendTransaction(input)
     }
 
+    if (fromChainId(asset.chainId).chainNamespace === CHAIN_NAMESPACE.Tron) {
+      const { accountNumber } = bip44Params
+      const adapter = assertGetChainAdapter(chainId)
+      const contractAddress = contractAddressOrUndefined(asset.assetId)
+      return adapter.buildSendTransaction({
+        to,
+        value,
+        wallet,
+        accountNumber,
+        sendMax: sendInput.sendMax,
+        chainSpecific: {
+          contractAddress,
+        },
+      } as BuildSendTxInput<KnownChainIds.TronMainnet>)
+    }
+
+    if (fromChainId(asset.chainId).chainNamespace === CHAIN_NAMESPACE.Sui) {
+      const { accountNumber } = bip44Params
+      const adapter = assertGetSuiChainAdapter(chainId)
+      const contractAddress = contractAddressOrUndefined(asset.assetId)
+      const fees = estimatedFees[feeType] as FeeData<KnownChainIds.SuiMainnet>
+
+      return adapter.buildSendTransaction({
+        to,
+        value,
+        wallet,
+        accountNumber,
+        pubKey:
+          isLedger(wallet) || isTrezor(wallet)
+            ? fromAccountId(sendInput.accountId).account
+            : undefined,
+        sendMax: sendInput.sendMax,
+        chainSpecific: {
+          tokenId: contractAddress,
+          gasBudget: fees.chainSpecific.gasBudget,
+          gasPrice: fees.chainSpecific.gasPrice,
+        },
+      } as BuildSendTxInput<KnownChainIds.SuiMainnet>)
+    }
+
     throw new Error(`${chainId} not supported`)
   })()
 
@@ -303,7 +371,7 @@ export const handleSend = async ({
     accountNumber: accountMetadata.bip44Params.accountNumber,
     accountType: accountMetadata.accountType,
     wallet,
-    pubKey: isTrezor(wallet) ? fromAccountId(sendInput.accountId).account : undefined,
+    pubKey: skipDeviceDerivation ? fromAccountId(sendInput.accountId).account : undefined,
   })
 
   const broadcastTXID = await (async () => {

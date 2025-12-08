@@ -2,6 +2,7 @@ import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { fromAccountId, fromAssetId, thorchainAssetId } from '@shapeshiftoss/caip'
 import type { FeeDataEstimate } from '@shapeshiftoss/chain-adapters'
 import { CONTRACT_INTERACTION, FeeDataKey } from '@shapeshiftoss/chain-adapters'
+import { isTrezor } from '@shapeshiftoss/hdwallet-trezor'
 import { assertAndProcessMemo, depositWithExpiry } from '@shapeshiftoss/swapper'
 import type { KnownChainIds } from '@shapeshiftoss/types'
 import { isToken } from '@shapeshiftoss/utils'
@@ -13,6 +14,7 @@ import { getAddress, zeroAddress } from 'viem'
 import { fromThorBaseUnit, getThorchainMsgDepositCoin, getThorchainTransactionType } from '..'
 
 import type { SendInput } from '@/components/Modals/Send/Form'
+import type { EstimateFeesInput } from '@/components/Modals/Send/utils'
 import { estimateFees, handleSend } from '@/components/Modals/Send/utils'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
@@ -185,11 +187,11 @@ export const useSendThorTx = ({
     transactionType,
   ])
 
-  const estimateFeesArgs = useMemo(() => {
+  const estimateFeesArgs = useMemo(():
+    | (EstimateFeesInput & { feeAssetId: AssetId })
+    | undefined => {
     if (!accountId || !asset || !assetId || !feeAsset || !memo || !transactionType || !wallet)
       return
-
-    const { account } = fromAccountId(accountId)
 
     switch (transactionType) {
       case 'MsgDeposit': {
@@ -216,7 +218,6 @@ export const useSendThorTx = ({
           assetId: shouldUseDustAmount ? feeAsset.assetId : asset.assetId,
           feeAssetId: feeAsset.assetId,
           to: inboundAddressData.router,
-          from: account,
           sendMax: false,
           memo: depositWithExpiryInputData,
           accountId,
@@ -234,7 +235,7 @@ export const useSendThorTx = ({
           assetId,
           feeAssetId: feeAsset.assetId,
           to: inboundAddressData.address,
-          from: fromAddress,
+          utxoFrom: fromAddress,
           sendMax: false,
           memo,
           accountId,
@@ -349,6 +350,7 @@ export const useSendThorTx = ({
               !isToken(asset.assetId) || shouldUseDustAmount ? amountOrDustCryptoBaseUnit : '0',
             to: inboundAddressData.router,
             wallet,
+            pubKey: isTrezor(wallet) && accountId ? fromAccountId(accountId).account : undefined,
           })
 
           const _txId = await buildAndBroadcast({

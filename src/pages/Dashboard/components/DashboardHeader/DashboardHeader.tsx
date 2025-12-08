@@ -1,12 +1,7 @@
-import type { ResponsiveValue } from '@chakra-ui/react'
-import { Container, Flex, Stack, useColorModeValue, useDisclosure } from '@chakra-ui/react'
-import type { Property } from 'csstype'
+import { Container, Stack, useDisclosure } from '@chakra-ui/react'
 import { useScroll } from 'framer-motion'
-import type { JSX } from 'react'
-import { memo, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
-import { useLocation } from 'react-router-dom'
+import { memo, useCallback, useEffect, useLayoutEffect, useMemo, useState } from 'react'
 
-import { DashboardTab } from '../DashboardTab'
 import { DashboardDrawer } from './DashboardDrawer'
 import { DashboardHeaderTop } from './DashboardHeaderTop'
 import { DashboardHeaderWrapper } from './DashboardHeaderWrapper'
@@ -28,27 +23,7 @@ const borderBottomWidth = { base: 0, md: 1 }
 // If we set this to 0, the transparent background will cause some weird flickering when scrolling back to 0 or opening the drawer
 const TRIGGER_BACKGROUND_HEIGHT_Y = 2
 
-export type TabItem = {
-  label: string
-  path: string
-  color: string
-  exact?: boolean
-  rightElement?: JSX.Element
-  hide?: boolean
-}
-
-const flexDirTabs: ResponsiveValue<Property.FlexDirection> = { base: 'column', md: 'row' }
-const navCss = {
-  '&::-webkit-scrollbar': {
-    display: 'none',
-  },
-}
-
 export const DashboardHeader = memo(() => {
-  const location = useLocation()
-  const activeRef = useRef<HTMLButtonElement | null>(null)
-  const containerRef = useRef<HTMLDivElement | null>(null)
-
   const mobileWalletDialog = useModal('mobileWalletDialog')
   const qrCode = useModal('qrCode')
 
@@ -71,79 +46,6 @@ export const DashboardHeader = memo(() => {
   } = useDisclosure()
 
   const { isOpen, onClose, onOpen } = useDisclosure()
-
-  const borderColor = useColorModeValue('gray.100', 'whiteAlpha.200')
-
-  useEffect(() => {
-    if (activeRef.current) {
-      activeRef.current.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' })
-    }
-  }, [location])
-
-  const NavItems: TabItem[] = useMemo(() => {
-    return [
-      {
-        label: 'common.overview',
-        path: '/wallet',
-        color: 'blue',
-        exact: true,
-      },
-      {
-        label: 'navBar.wallet',
-        path: '/wallet/accounts',
-        color: 'blue',
-      },
-      {
-        label: 'navBar.defi',
-        path: '/wallet/earn',
-        color: 'purple',
-      },
-      {
-        label: 'common.activity',
-        path: '/wallet/activity',
-        color: 'blue',
-      },
-    ]
-  }, [])
-
-  const renderNavItems = useMemo(() => {
-    return NavItems.filter(item => !item.hide).map(navItem => (
-      <DashboardTab
-        key={navItem.label}
-        label={navItem.label}
-        path={navItem.path}
-        ref={location.pathname === navItem.path ? activeRef : null}
-        color={navItem.color}
-        rightElement={navItem.rightElement}
-        exact={navItem.exact}
-      />
-    ))
-  }, [NavItems, location.pathname])
-
-  const tabs = useMemo(() => {
-    return (
-      <Flex
-        flexDir={flexDirTabs}
-        borderBottomWidth={0}
-        borderColor={borderColor}
-        marginBottom='-1px'
-        gap={8}
-        position='sticky'
-        top='72px'
-      >
-        <Container
-          ref={containerRef}
-          className='navbar-scroller'
-          display='flex'
-          gap={8}
-          overflowY='auto'
-          css={navCss}
-        >
-          {renderNavItems}
-        </Container>
-      </Flex>
-    )
-  }, [borderColor, renderNavItems])
 
   useLayoutEffect(() => {
     const body = document.body
@@ -214,7 +116,6 @@ export const DashboardHeader = memo(() => {
           mt={marginTop}
         >
           <DashboardHeaderTop />
-          <Display.Desktop>{tabs}</Display.Desktop>
         </Stack>
       </DashboardHeaderWrapper>
     </>

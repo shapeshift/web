@@ -303,6 +303,23 @@ export const base: Readonly<Asset> = Object.freeze({
   relatedAssetKey: 'eip155:1/slip44:60',
 })
 
+export const monad: Readonly<Asset> = Object.freeze({
+  assetId: caip.monadAssetId,
+  chainId: caip.monadChainId,
+  name: 'Monad',
+  networkName: 'Monad',
+  symbol: 'MON',
+  precision: 18,
+  color: '#3B82F6',
+  networkColor: '#3B82F6',
+  icon: 'https://assets.coingecko.com/coins/images/38927/standard/monad.png?1764042736',
+  networkIcon: 'https://assets.coingecko.com/coins/images/38927/standard/monad.png?1764042736',
+  explorer: 'https://monadvision.com',
+  explorerAddressLink: 'https://monadvision.com/address/',
+  explorerTxLink: 'https://monadvision.com/tx/',
+  relatedAssetKey: null,
+})
+
 export const solana: Readonly<Asset> = Object.freeze({
   assetId: caip.solAssetId,
   chainId: caip.solanaChainId,
@@ -316,5 +333,53 @@ export const solana: Readonly<Asset> = Object.freeze({
   explorer: 'https://explorer.solana.com',
   explorerAddressLink: 'https://explorer.solana.com/address/',
   explorerTxLink: 'https://explorer.solana.com/tx/',
+  relatedAssetKey: null,
+})
+
+export const tron: Readonly<Asset> = Object.freeze({
+  assetId: caip.tronAssetId,
+  chainId: caip.tronChainId,
+  name: 'Tron',
+  networkName: 'Tron',
+  symbol: 'TRX',
+  precision: 6,
+  color: '#FF0013',
+  networkColor: '#FF0013',
+  icon: 'https://rawcdn.githack.com/trustwallet/assets/b7a5f12d893fcf58e0eb1dd64478f076857b720b/blockchains/tron/info/logo.png',
+  explorer: 'https://tronscan.org',
+  explorerAddressLink: 'https://tronscan.org/#/address/',
+  explorerTxLink: 'https://tronscan.org/#/transaction/',
+  relatedAssetKey: null,
+})
+
+export const sui: Readonly<Asset> = Object.freeze({
+  assetId: caip.suiAssetId,
+  chainId: caip.suiChainId,
+  name: 'Sui',
+  networkName: 'Sui',
+  symbol: 'SUI',
+  precision: 9,
+  color: '#6fbcf0',
+  networkColor: '#6fbcf0',
+  icon: 'https://assets.coingecko.com/coins/images/26375/large/sui_asset.jpeg?1727791290',
+  explorer: 'https://suiscan.xyz/mainnet',
+  explorerAddressLink: 'https://suiscan.xyz/mainnet/account/',
+  explorerTxLink: 'https://suiscan.xyz/mainnet/tx/',
+  relatedAssetKey: null,
+})
+
+export const zcash: Readonly<Asset> = Object.freeze({
+  assetId: caip.zecAssetId,
+  chainId: caip.zecChainId,
+  name: 'Zcash',
+  networkName: 'Zcash',
+  symbol: 'ZEC',
+  precision: 8,
+  color: '#f4b728',
+  networkColor: '#f4b728',
+  icon: 'https://rawcdn.githack.com/trustwallet/assets/fb59e296f64fe3df5afdf8148e88603851b613ae/blockchains/zcash/info/logo.png',
+  explorer: 'https://blockchair.com',
+  explorerAddressLink: 'https://blockchair.com/zcash/address/',
+  explorerTxLink: 'https://blockchair.com/zcash/transaction/',
   relatedAssetKey: null,
 })

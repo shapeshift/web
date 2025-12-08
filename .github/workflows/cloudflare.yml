@@ -20,7 +20,10 @@ jobs:
     name: Build
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
+        with:
+          # Fetch all history and tags for version extraction via git describe
+          fetch-depth: 0
       - name: Setup Environment (PR)
         if: ${{ github.event_name == 'pull_request' }}
         # github actions run in the context of a special magical merge commit between the head of the PR
@@ -38,6 +41,17 @@ jobs:
         run: |
           echo "COMMIT_SHORT_HASH=`echo ${GITHUB_SHA} | cut -c1-7`" >> ${GITHUB_ENV}
           echo "CURRENT_BRANCH_NAME=${{ github.ref_name }}" >> ${GITHUB_ENV}
+      - name: Extract Version
+        run: |
+          # Get version from the closest git tag (e.g., "v1.977.0" -> "1.977.0")
+          # Tags are created by release-please when PRs are merged to main
+          # Fallback to commit hash if no tags exist
+          TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
+          if [[ "$TAG" =~ ^v([0-9]+\.[0-9]+\.[0-9]+)$ ]]; then
+            echo "version=${BASH_REMATCH[1]}" >> ${GITHUB_ENV}
+          else
+            echo "version=${{ env.COMMIT_SHORT_HASH }}" >> ${GITHUB_ENV}
+          fi
       - name: Determine Build Mode
         run: |
           if [[ "${{ github.ref_name }}" == "main" || "${{ github.ref_name }}" == "release" || "${{ github.head_ref }}" == "main" || "${{ github.head_ref }}" == "release" ]]; then
@@ -51,22 +65,20 @@ jobs:
         env: { CONTENT : "${{ toJson(github) }}" }
         run: "echo $CONTENT"
       - name: Setup Node
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version-file: '.nvmrc'
           cache: 'yarn'
-      - name: Cache
-        uses: actions/cache@v3
+      - name: Cache node_modules
+        uses: actions/cache@v4
         with:
-          path: |
-            node_modules
-            ~/.cache/Cypress
-          key: ${{ runner.os }}-${{ hashFiles('**/yarn.lock') }}
-          restore-keys: ${{ runner.os }}-${{ hashFiles('**/yarn.lock') }}
+          path: node_modules
+          key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: ${{ runner.os }}-node-
       - name: Yarn Install
         run: yarn install --immutable
       - name: Build Web
-        run: MODE=${{ env.BUILD_MODE }} DEPLOY=true yarn build:web
+        run: MODE=${{ env.BUILD_MODE }} DEPLOY=true VITE_VERSION=${{ env.version }} yarn build:web
       # a poor mans extension of cloudflare/pages-action@1 https://github.com/cloudflare/pages-action/blob/main/src/index.ts
       # passing more params directly to wrangler to control commit hash and message
       # https://developers.cloudflare.com/workers/wrangler/commands/#publish-1

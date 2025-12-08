@@ -755,13 +755,15 @@
     "slowSwapBody": "This swap may take a few minutes to complete.",
     "thorSmartContractWalletUnsupported": "The THORChain network currently does not support smart contract wallets.",
     "intoAssetSymbolBody": "You can proceed with this trade, but transaction history for receiving %{assetSymbol} is temporarily unavailable",
-    "recipientAddress": "Recipient address",
+    "receiveAddress": "Receive address",
     "changeAddress": "Change address",
     "changeAddressExplainer": "When sending cryptocurrencies on UTXO-based networks, any leftover funds from your transaction are sent back to you at this address.",
-    "customRecipientAddress": "Custom recipient address",
-    "customRecipientAddressDescription": "Enter a custom recipient address for this trade",
-    "thisIsYourCustomRecipientAddress": "This is your custom recipient address",
-    "enterCustomRecipientAddress": "Enter custom recipient address",
+    "depositAddress": "Deposit address",
+    "depositAddressExplainer": "This is the protocol address where your funds will be sent for processing. Your hardware wallet will display this address for verification.",
+    "customReceiveAddress": "Custom receive address",
+    "customReceiveAddressDescription": "Enter a custom receive address for this trade",
+    "thisIsYourCustomReceiveAddress": "This is your custom receive address",
+    "enterCustomReceiveAddress": "Enter custom receive address",
     "receiveAtLeast": "Receive at least",
     "tooltip": {
       "continueSwapping": "Continue swapping for final details",
@@ -833,7 +835,6 @@
     "or": "or",
     "onChainName": "on %{chainName}",
     "unknownGas": "(unknown)",
-    "receiveAddress": "Receive Address",
     "receiveAddressDescription": "No %{chainName} address found from connected wallet. Manually enter an address",
     "disableThorTaprootReceive": "We've detected that you're sending to a taproot Bitcoin address. Due to THORChain limitations, receiving BTC to a taproot address is not currently supported. Please enter another address.",
     "toContinue": "to continue.",
@@ -1432,7 +1433,9 @@
         "renamed": "SafeCard renamed",
         "deleted": "SafeCard deleted",
         "deletedDescription": "Portfolio data has been cleared",
-        "warning": "Each SafeCard maintains its own portfolio. Make sure to insert the correct SafeCard in your device before connecting."
+        "warning": "Each SafeCard maintains its own portfolio. Make sure to insert the correct SafeCard in your device before connecting.",
+        "safeCardLabel": "SafeCard",
+        "internalSafeCardLabel": "Internal SafeCard"
       },
       "connect": {
         "header": "Connect New SafeCard",
@@ -1466,6 +1469,9 @@
         "deviceNotConnected": "Device not connected. Call connectDevice first.",
         "connectFailure": "Unable to connect GridPlus wallet",
         "unknown": "An unexpected error occurred communicating with GridPlus wallet"
+      },
+      "menu": {
+        "switchSafeCard": "Switch SafeCard"
       }
     },
     "ledger": {
@@ -2521,7 +2527,11 @@
       "getFeeData": "Failed to estimate network fees.",
       "getPublicKey": "Failed to get public key from wallet.",
       "getUtxos": "Failed to get utxos.",
-      "getValidator": "Failed to get validator."
+      "getValidator": "Failed to get validator.",
+      "gridplus": {
+        "wrongSafeCard": "Wrong SafeCard inserted. Please insert the correct SafeCard and try again.",
+        "removeSafeCard": "Remove inserted SafeCard to access internal GridPlus wallet."
+      }
     }
   },
   "actionCenter": {

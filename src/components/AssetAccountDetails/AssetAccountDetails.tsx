@@ -19,7 +19,6 @@ import { SpamWarningBanner } from './components/SpamWarningBanner'
 import { AssetTransactionHistory } from '@/components/TransactionHistory/AssetTransactionHistory'
 import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
 import { StandaloneTrade } from '@/pages/Trade/StandaloneTrade'
-import type { Route } from '@/Routes/helpers'
 import { selectIsSpamMarkedByAssetId } from '@/state/slices/preferencesSlice/selectors'
 import { selectMarketDataByAssetIdUserCurrency } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
@@ -27,7 +26,6 @@ import { useAppSelector } from '@/state/store'
 type AssetDetailsProps = {
   assetId: AssetId
   accountId?: AccountId
-  route?: Route
 }
 
 const direction: StackDirection = { base: 'column', xl: 'row' }

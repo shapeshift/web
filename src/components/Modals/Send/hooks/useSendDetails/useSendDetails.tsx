@@ -193,8 +193,6 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
 
         return estimatedFees
       } catch (e: unknown) {
-        console.debug(e)
-
         if (e instanceof ChainAdapterError) {
           throw new Error(translate(e.metadata.translation, e.metadata.options))
         }

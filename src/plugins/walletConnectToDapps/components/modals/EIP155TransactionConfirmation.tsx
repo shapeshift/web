@@ -18,7 +18,7 @@ import type { WalletConnectRequestModalProps } from '@/plugins/walletConnectToDa
 export const EIP155TransactionConfirmation: FC<
   WalletConnectRequestModalProps<EthSignTransactionCallRequest>
 > = ({ onConfirm: handleConfirm, onReject: handleReject, state, topic }) => {
-  const { transaction, chainId } = useWalletConnectState(state)
+  const { transaction, chainId, accountId } = useWalletConnectState(state)
   const { showErrorToast } = useErrorToast()
 
   const form = useForm<CustomTransactionData>({
@@ -59,7 +59,7 @@ export const EIP155TransactionConfirmation: FC<
         formContext={form}
       >
         <TransactionContent transaction={transaction} chainId={chainId} />
-        <TransactionAdvancedParameters />
+        <TransactionAdvancedParameters accountId={accountId} chainId={chainId} />
       </WalletConnectSigningModal>
     </FormProvider>
   )

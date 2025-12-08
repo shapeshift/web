@@ -4,6 +4,7 @@ import type {
   MobileWalletInfo,
   MobileWalletInfoWithMnemonic,
 } from '@/context/WalletProvider/MobileWallet/types'
+import type { AppleSearchAdsAttributionData } from '@/lib/appleSearchAds/attributionData'
 
 type Command =
   | 'getWallet'
@@ -17,7 +18,7 @@ type Command =
   | 'getExpoToken'
   | 'requestStoreReview'
   | 'getAppVersion'
-  | 'console'
+  | 'getAppleAttributionData'
 
 export type HapticLevel = 'light' | 'medium' | 'heavy' | 'soft' | 'rigid'
 
@@ -60,14 +61,11 @@ type Message =
       cmd: 'getAppVersion'
     }
   | {
-      cmd: 'detectWallets'
-    }
-  | {
-      cmd: 'console'
+      cmd: 'getAppleAttributionData'
     }
 
 export type MessageFromMobileApp = {
-  id: number
+  id: string
   result: unknown
 }
 
@@ -93,7 +91,7 @@ export type MobileConsoleParams = {
  */
 const postMessage = <T>(msg: Message): Promise<T> => {
   return new Promise((resolve, reject) => {
-    const id = Date.now()
+    const id = `${Date.now()}-${msg.cmd}`
     try {
       const eventListener = (event: MessageEvent<MessageFromMobileApp>) => {
         if (event.data?.id === id) {
@@ -236,6 +234,12 @@ export const requestAppVersion = (): Promise<MobileAppVersion | undefined> => {
   return postMessage<MobileAppVersion>({ cmd: 'getAppVersion' })
 }
 
-export const sendMobileConsole = (params: MobileConsoleParams): Promise<void> => {
-  return postMessage<void>({ cmd: 'console', ...params })
+/**
+ * Get Apple Search Ads attribution data from the mobile app.
+ *
+ * This should be called once on app initialization to retrieve the attribution
+ * data that the iOS app fetched from Apple's AdServices API.
+ */
+export const getAppleAttributionData = (): Promise<AppleSearchAdsAttributionData | undefined> => {
+  return postMessage<AppleSearchAdsAttributionData>({ cmd: 'getAppleAttributionData' })
 }

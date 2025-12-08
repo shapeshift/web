@@ -13,6 +13,7 @@ import {
 import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
 import { CONTRACT_INTERACTION } from '@shapeshiftoss/chain-adapters'
 import { RFOX_ABI } from '@shapeshiftoss/contracts'
+import { isTrezor } from '@shapeshiftoss/hdwallet-trezor'
 import { useMutation } from '@tanstack/react-query'
 import type { FC } from 'react'
 import { useCallback, useEffect, useMemo } from 'react'
@@ -171,6 +172,10 @@ export const ClaimConfirm: FC<Pick<ClaimRouteProps, 'headerComponent'> & ClaimCo
         value: '0',
         to: getStakingContract(selectedUnstakingRequest.stakingAssetId),
         wallet,
+        pubKey:
+          isTrezor(wallet) && selectedUnstakingRequest.stakingAssetAccountId
+            ? fromAccountId(selectedUnstakingRequest.stakingAssetAccountId).account
+            : undefined,
       })
 
       const txId = await buildAndBroadcast({

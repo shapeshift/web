@@ -46,6 +46,7 @@ export const useSimulateEvmTransaction = ({
       transaction?.from,
       transaction?.to,
       transaction?.data,
+      transaction?.gas,
       transaction?.value,
     ],
     queryFn: transaction
@@ -54,6 +55,7 @@ export const useSimulateEvmTransaction = ({
             chainId,
             from: transaction.from,
             to: transaction.to,
+            gas: Number(transaction.gas),
             data: transaction.data,
             value: transaction.value,
           })
@@ -71,6 +73,7 @@ export const useSimulateEvmTransaction = ({
       chainId,
       transaction?.from,
       transaction?.to,
+      transaction?.gas,
       transaction?.data,
       transaction?.value,
       speed,
@@ -87,6 +90,7 @@ export const useSimulateEvmTransaction = ({
             chainId,
             from: transaction.from,
             to: transaction.to,
+            gas: Number(transaction.gas),
             data: transaction.data,
             value: transaction.value,
             feeData,

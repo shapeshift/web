@@ -5,6 +5,7 @@ import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import type { GridPlusHDWallet } from '@shapeshiftoss/hdwallet-gridplus'
 import type { KeepKeyHDWallet } from '@shapeshiftoss/hdwallet-keepkey'
 import type { KeplrHDWallet } from '@shapeshiftoss/hdwallet-keplr'
+import type { LedgerHDWallet } from '@shapeshiftoss/hdwallet-ledger'
 import type { NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
 import type { TrezorHDWallet } from '@shapeshiftoss/hdwallet-trezor'
 import type { WalletConnectV2HDWallet } from '@shapeshiftoss/hdwallet-walletconnectv2'
@@ -49,6 +50,10 @@ export const isTrezorHDWallet = (wallet: HDWallet): wallet is TrezorHDWallet => 
 
 export const isGridPlusHDWallet = (wallet: HDWallet): wallet is GridPlusHDWallet => {
   return wallet.getVendor() === 'GridPlus'
+}
+
+export const isLedgerHDWallet = (wallet: HDWallet): wallet is LedgerHDWallet => {
+  return wallet.getVendor() === 'Ledger'
 }
 
 export const isWalletConnectWallet = (wallet: HDWallet): wallet is WalletConnectV2HDWallet => {
@@ -283,3 +288,5 @@ export function assertIsKnownChainId(chainId: ChainId): asserts chainId is Known
     throw Error(`Unknown ChainId${chainId}`)
   }
 }
+
+export * from './tron'

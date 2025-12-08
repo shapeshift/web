@@ -384,10 +384,11 @@ export const checkSuiSwapStatus = async ({
       // Positive amounts are received, negative are sent
       const receivedChanges = txResponse.balanceChanges.filter(change => {
         // The owner field is a discriminated union - check for AddressOwner variant
+        // Handle both object and string cases
         const ownerAddress =
-          'AddressOwner' in change.owner
+          change.owner && typeof change.owner === 'object' && 'AddressOwner' in change.owner
             ? change.owner.AddressOwner
-            : 'ObjectOwner' in change.owner
+            : change.owner && typeof change.owner === 'object' && 'ObjectOwner' in change.owner
             ? change.owner.ObjectOwner
             : null
 

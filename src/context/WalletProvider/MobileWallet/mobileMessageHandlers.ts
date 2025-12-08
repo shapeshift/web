@@ -63,6 +63,12 @@ type Message =
   | {
       cmd: 'getAppleAttributionData'
     }
+  | {
+      cmd: 'detectWallets'
+    }
+  | {
+      cmd: 'console'
+    }
 
 export type MessageFromMobileApp = {
   id: string
@@ -242,4 +248,11 @@ export const requestAppVersion = (): Promise<MobileAppVersion | undefined> => {
  */
 export const getAppleAttributionData = (): Promise<AppleSearchAdsAttributionData | undefined> => {
   return postMessage<AppleSearchAdsAttributionData>({ cmd: 'getAppleAttributionData' })
+}
+
+/**
+ * Log a message to the mobile app console.
+ */
+export const sendMobileConsole = (params: MobileConsoleParams): Promise<void> => {
+  return postMessage<void>({ cmd: 'console', ...params })
 }

@@ -56,7 +56,11 @@ export const GenericTransactionNotification = ({
   const translationArgs = useMemo(() => {
     if (!action || !asset) return undefined
     // Destructure to exclude non-serializable fields from the spread
-    const { confirmedQuote: _confirmedQuote, ...serializableMetadata } = action.transactionMetadata
+    const {
+      confirmedQuote: _confirmedQuote,
+      involvedAccountIds: _involvedAccountIds,
+      ...serializableMetadata
+    } = action.transactionMetadata
     return [
       action.transactionMetadata.message,
       {

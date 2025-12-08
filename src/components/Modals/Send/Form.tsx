@@ -1,5 +1,5 @@
 import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
-import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
+import { CHAIN_NAMESPACE, fromAccountId, fromAssetId, toAccountId } from '@shapeshiftoss/caip'
 import type { FeeDataEstimate } from '@shapeshiftoss/chain-adapters'
 import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import { AnimatePresence } from 'framer-motion'
@@ -35,6 +35,7 @@ import {
   ActionType,
   GenericTransactionDisplayType,
 } from '@/state/slices/actionSlice/types'
+import { selectInternalAccountIdByAddress } from '@/state/slices/addressBookSlice/selectors'
 import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
 import {
   selectFirstAccountIdByChainId,
@@ -153,6 +154,27 @@ export const Form: React.FC<SendFormProps> = ({ initialAssetId, input = '', acco
       mixpanel?.track(MixPanelEvent.SendBroadcast)
       methods.setValue(SendFormFields.TxHash, txHash)
 
+      const internalAccountIdFilter = {
+        accountAddress: data.to,
+        chainId: fromAccountId(formAccountId).chainId,
+      }
+
+      const { chainNamespace } = fromAccountId(formAccountId)
+
+      const internalReceiveAccountId = (() => {
+        if (chainNamespace === CHAIN_NAMESPACE.Evm) {
+          return toAccountId({ chainId: fromAccountId(formAccountId).chainId, account: data.to })
+        }
+
+        return selectInternalAccountIdByAddress(store.getState(), internalAccountIdFilter)
+      })()
+
+      const involvedAccountIds = [formAccountId]
+
+      if (internalReceiveAccountId) {
+        involvedAccountIds.push(internalReceiveAccountId)
+      }
+
       dispatch(
         actionSlice.actions.upsertAction({
           id: txHash,
@@ -162,6 +184,7 @@ export const Form: React.FC<SendFormProps> = ({ initialAssetId, input = '', acco
             txHash,
             chainId: fromAccountId(formAccountId).chainId,
             accountId: formAccountId,
+            involvedAccountIds,
             assetId,
             amountCryptoPrecision: formAmountCryptoPrecision,
             message: 'modals.send.status.pendingBody',

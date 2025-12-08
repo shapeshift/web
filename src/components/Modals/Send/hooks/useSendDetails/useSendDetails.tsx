@@ -1,5 +1,5 @@
 import type { ChainId } from '@shapeshiftoss/caip'
-import { fromAccountId, solAssetId } from '@shapeshiftoss/caip'
+import { solAssetId } from '@shapeshiftoss/caip'
 import type { FeeDataEstimate } from '@shapeshiftoss/chain-adapters'
 import { ChainAdapterError, solana } from '@shapeshiftoss/chain-adapters'
 import { contractAddressOrUndefined } from '@shapeshiftoss/utils'
@@ -108,12 +108,9 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
       if (!accountId) throw new Error('No accountId found')
       if (!wallet) throw new Error('No wallet connected')
 
-      const { account: from } = fromAccountId(accountId)
-
       return estimateFees({
         amountCryptoPrecision,
         assetId,
-        from,
         to,
         sendMax,
         accountId,

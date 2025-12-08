@@ -8,6 +8,7 @@ import type { KeplrHDWallet } from '@shapeshiftoss/hdwallet-keplr'
 import type { LedgerHDWallet } from '@shapeshiftoss/hdwallet-ledger'
 import type { NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
 import type { TrezorHDWallet } from '@shapeshiftoss/hdwallet-trezor'
+import type { VultisigHDWallet } from '@shapeshiftoss/hdwallet-vultisig'
 import type { WalletConnectV2HDWallet } from '@shapeshiftoss/hdwallet-walletconnectv2'
 import type { NestedArray } from '@shapeshiftoss/types'
 import { HistoryTimeframe, KnownChainIds } from '@shapeshiftoss/types'
@@ -58,6 +59,10 @@ export const isLedgerHDWallet = (wallet: HDWallet): wallet is LedgerHDWallet => 
 
 export const isWalletConnectWallet = (wallet: HDWallet): wallet is WalletConnectV2HDWallet => {
   return wallet.getVendor() === 'WalletConnectV2'
+}
+
+export const isVultisigHDWallet = (wallet: HDWallet): wallet is VultisigHDWallet => {
+  return wallet.getVendor() === 'Vultisig'
 }
 
 // we don't want utils to mutate by default, so spreading here is ok

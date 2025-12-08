@@ -8,6 +8,7 @@ import {
   isLedgerHDWallet,
   isNativeHDWallet,
   isTrezorHDWallet,
+  isVultisigHDWallet,
 } from '@/lib/utils'
 
 export const useIsWalletConnectToDappsSupportedWallet = () => {
@@ -25,6 +26,7 @@ export const useIsWalletConnectToDappsSupportedWallet = () => {
       case isGridPlusHDWallet(wallet):
       case isLedgerHDWallet(wallet):
       case isTrezorHDWallet(wallet):
+      case isVultisigHDWallet(wallet):
         return true
       case isKeepKeyHDWallet(wallet): {
         return isEIP712SupportedFirmwareVersion

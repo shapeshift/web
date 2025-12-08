@@ -17,6 +17,7 @@ type Command =
   | 'getExpoToken'
   | 'requestStoreReview'
   | 'getAppVersion'
+  | 'console'
 
 export type HapticLevel = 'light' | 'medium' | 'heavy' | 'soft' | 'rigid'
 
@@ -61,6 +62,9 @@ type Message =
   | {
       cmd: 'detectWallets'
     }
+  | {
+      cmd: 'console'
+    }
 
 export type MessageFromMobileApp = {
   id: number
@@ -70,6 +74,11 @@ export type MessageFromMobileApp = {
 export type MobileAppVersion = {
   version: string
   build: string
+}
+
+export type MobileConsoleParams = {
+  fn: 'log' | 'warn' | 'error'
+  data: string
 }
 
 /**
@@ -225,4 +234,8 @@ export const requestStoreReview = (): Promise<boolean> => {
  */
 export const requestAppVersion = (): Promise<MobileAppVersion | undefined> => {
   return postMessage<MobileAppVersion>({ cmd: 'getAppVersion' })
+}
+
+export const sendMobileConsole = (params: MobileConsoleParams): Promise<void> => {
+  return postMessage<void>({ cmd: 'console', ...params })
 }

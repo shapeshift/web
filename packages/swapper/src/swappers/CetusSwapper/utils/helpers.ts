@@ -1,16 +1,33 @@
-import type { CetusClmmSDK, Pool } from '@cetusprotocol/cetus-sui-clmm-sdk'
+import type { RouterDataV3 } from '@cetusprotocol/aggregator-sdk'
+import { AggregatorClient, Env } from '@cetusprotocol/aggregator-sdk'
+import { SuiClient } from '@cetusprotocol/aggregator-sdk/node_modules/@mysten/sui/client'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { bn, bnOrZero } from '@shapeshiftoss/utils'
 
-let sdkInstance: CetusClmmSDK | undefined
+let suiClientInstance: SuiClient | undefined
+let aggregatorClientInstance: AggregatorClient | undefined
+let currentRpcUrl: string | undefined
 
-export const getCetusSDK = async (): Promise<CetusClmmSDK> => {
-  if (!sdkInstance) {
-    const { initMainnetSDK } = await import('@cetusprotocol/cetus-sui-clmm-sdk')
-    sdkInstance = initMainnetSDK()
+export const getAggregatorClient = (rpcUrl: string): AggregatorClient => {
+  if (!aggregatorClientInstance || !suiClientInstance || currentRpcUrl !== rpcUrl) {
+    suiClientInstance = new SuiClient({ url: rpcUrl })
+    aggregatorClientInstance = new AggregatorClient({
+      client: suiClientInstance,
+      env: Env.Mainnet,
+      signer: '0x0',
+    })
+    currentRpcUrl = rpcUrl
   }
-  return sdkInstance
+  return aggregatorClientInstance
+}
+
+export const getSuiClient = (rpcUrl: string): SuiClient => {
+  if (!suiClientInstance || currentRpcUrl !== rpcUrl) {
+    suiClientInstance = new SuiClient({ url: rpcUrl })
+    currentRpcUrl = rpcUrl
+  }
+  return suiClientInstance
 }
 
 export const getCoinType = (asset: Asset): string => {
@@ -23,20 +40,6 @@ export const getCoinType = (asset: Asset): string => {
 
   // For other tokens, the assetReference should be the full coin type
   return assetReference
-}
-
-export const determineSwapDirection = (
-  pool: Pool,
-  sellCoinType: string,
-  buyCoinType: string,
-): boolean => {
-  if (pool.coinTypeA === sellCoinType && pool.coinTypeB === buyCoinType) {
-    return true
-  }
-  if (pool.coinTypeA === buyCoinType && pool.coinTypeB === sellCoinType) {
-    return false
-  }
-  throw new Error('Pool does not match the swap pair')
 }
 
 export const calculateAmountLimit = (
@@ -58,85 +61,33 @@ export const calculateAmountLimit = (
   return bnOrZero(estimatedAmount).times(maxSlippageFactor).toFixed(0)
 }
 
-export const findBestPool = async (
-  sdk: CetusClmmSDK,
+export const findBestRoute = async (
+  client: AggregatorClient,
   sellCoinType: string,
   buyCoinType: string,
-): Promise<Pool | undefined> => {
-  const pools = await sdk.Pool.getPoolByCoins([sellCoinType, buyCoinType])
-
-  if (!pools || pools.length === 0) {
-    return undefined
-  }
-
-  // Filter pools with liquidity and sort by liquidity (highest first)
-  const poolsWithLiquidity = pools
-    .filter(pool => pool.liquidity && bnOrZero(pool.liquidity).gt(0))
-    .sort((a, b) => {
-      const liquidityA = bnOrZero(a.liquidity)
-      const liquidityB = bnOrZero(b.liquidity)
-      // Sort descending (b - a)
-      return liquidityB.minus(liquidityA).toNumber()
-    })
-
-  if (poolsWithLiquidity.length === 0) {
-    console.warn('[Cetus] No pools with liquidity found for', sellCoinType, buyCoinType, {
-      totalPools: pools.length,
-      pools: pools.map(p => ({ id: p.poolAddress, liquidity: p.liquidity })),
-    })
-    return undefined
-  }
-
-  // Return the pool with highest liquidity
-  return poolsWithLiquidity[0]
-}
-
-export type CalculateSwapResult = {
-  estimatedAmountOut: string
-  estimatedAmountIn: string
-  estimatedFeeAmount: string
-}
-
-export const calculateSwapAmounts = async (
-  sdk: CetusClmmSDK,
-  pool: Pool,
-  sellAsset: Asset,
-  buyAsset: Asset,
-  sellAmount: string,
-): Promise<CalculateSwapResult | undefined> => {
-  const sellCoinType = getCoinType(sellAsset)
-  const buyCoinType = getCoinType(buyAsset)
-
-  const a2b = determineSwapDirection(pool, sellCoinType, buyCoinType)
-
-  const decimalsA = pool.coinTypeA === sellCoinType ? sellAsset.precision : buyAsset.precision
-  const decimalsB = pool.coinTypeA === sellCoinType ? buyAsset.precision : sellAsset.precision
-
-  const preSwapParams = {
-    pool,
-    currentSqrtPrice: pool.current_sqrt_price,
-    coinTypeA: pool.coinTypeA,
-    coinTypeB: pool.coinTypeB,
-    decimalsA,
-    decimalsB,
-    a2b,
+  sellAmountCryptoBaseUnit: string,
+): Promise<RouterDataV3 | undefined> => {
+  const routerData = await client.findRouters({
+    from: sellCoinType,
+    target: buyCoinType,
+    amount: sellAmountCryptoBaseUnit,
     byAmountIn: true,
-    amount: sellAmount,
-  }
+  })
 
-  const preSwapResult = await sdk.Swap.preswap(preSwapParams)
-
-  if (!preSwapResult) {
+  if (!routerData) {
+    console.warn('[Cetus Aggregator] No route found for', sellCoinType, buyCoinType)
     return undefined
   }
 
-  if (preSwapResult.estimatedAmountOut === '0' || preSwapResult.estimatedAmountOut === '') {
+  if (routerData.insufficientLiquidity) {
+    console.warn('[Cetus Aggregator] Insufficient liquidity for', sellCoinType, buyCoinType)
     return undefined
   }
 
-  return {
-    estimatedAmountOut: preSwapResult.estimatedAmountOut,
-    estimatedAmountIn: preSwapResult.estimatedAmountIn,
-    estimatedFeeAmount: preSwapResult.estimatedFeeAmount,
+  if (routerData.error) {
+    console.warn('[Cetus Aggregator] Error finding route:', routerData.error)
+    return undefined
   }
+
+  return routerData
 }

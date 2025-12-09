@@ -1,3 +1,4 @@
+import { Transaction } from '@cetusprotocol/aggregator-sdk/node_modules/@mysten/sui/transactions'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import type { Result } from '@sniptt/monads'
 
@@ -15,14 +16,7 @@ import type {
 import { checkSuiSwapStatus, getExecutableTradeStep, isExecutableTradeQuote } from '../../utils'
 import { getTradeQuote } from './swapperApi/getTradeQuote'
 import { getTradeRate } from './swapperApi/getTradeRate'
-import {
-  calculateAmountLimit,
-  calculateSwapAmounts,
-  determineSwapDirection,
-  findBestPool,
-  getCetusSDK,
-  getCoinType,
-} from './utils/helpers'
+import { findBestRoute, getAggregatorClient, getCoinType, getSuiClient } from './utils/helpers'
 
 export const cetusApi: SwapperApi = {
   getTradeQuote: (
@@ -44,6 +38,7 @@ export const cetusApi: SwapperApi = {
     tradeQuote,
     from,
     assertGetSuiChainAdapter,
+    config,
   }: GetUnsignedSuiTransactionArgs) => {
     if (!isExecutableTradeQuote(tradeQuote)) throw new Error('Unable to execute a trade rate quote')
 
@@ -53,50 +48,41 @@ export const cetusApi: SwapperApi = {
       step
 
     const adapter = assertGetSuiChainAdapter(sellAsset.chainId)
-    const sdk = await getCetusSDK()
-
-    sdk.senderAddress = from
+    const rpcUrl = config.VITE_SUI_NODE_URL
+    const client = getAggregatorClient(rpcUrl)
+    const suiClient = getSuiClient(rpcUrl)
 
     const sellCoinType = getCoinType(sellAsset)
     const buyCoinType = getCoinType(buyAsset)
 
-    const pool = await findBestPool(sdk, sellCoinType, buyCoinType)
-
-    if (!pool) {
-      throw new Error(`No liquidity pool found for ${sellAsset.symbol}/${buyAsset.symbol}`)
-    }
-
-    const swapResult = await calculateSwapAmounts(
-      sdk,
-      pool,
-      sellAsset,
-      buyAsset,
+    const routerData = await findBestRoute(
+      client,
+      sellCoinType,
+      buyCoinType,
       sellAmountIncludingProtocolFeesCryptoBaseUnit,
     )
 
-    if (!swapResult) {
-      throw new Error(`Failed to calculate swap for ${sellAsset.symbol}/${buyAsset.symbol}`)
+    if (!routerData) {
+      throw new Error(`No route found for ${sellAsset.symbol}/${buyAsset.symbol}`)
     }
 
-    const a2b = determineSwapDirection(pool, sellCoinType, buyCoinType)
+    const slippage =
+      tradeQuote.slippageTolerancePercentageDecimal !== undefined
+        ? parseFloat(tradeQuote.slippageTolerancePercentageDecimal)
+        : 0.01
 
-    const amountLimit = calculateAmountLimit(
-      swapResult.estimatedAmountOut,
-      tradeQuote.slippageTolerancePercentageDecimal,
-      true,
-    )
+    const txb = new Transaction()
 
-    const tx = await sdk.Swap.createSwapTransactionPayload({
-      pool_id: pool.poolAddress,
-      coinTypeA: pool.coinTypeA,
-      coinTypeB: pool.coinTypeB,
-      a2b,
-      by_amount_in: true,
-      amount: sellAmountIncludingProtocolFeesCryptoBaseUnit,
-      amount_limit: amountLimit,
+    txb.setSender(from)
+
+    await client.fastRouterSwap({
+      router: routerData,
+      slippage,
+      txb,
+      refreshAllCoins: true,
     })
 
-    const transactionBytes = await tx.build({ client: adapter.getSuiClient() })
+    const transactionBytes = await txb.build({ client: suiClient })
 
     const intentMessage = new Uint8Array(3 + transactionBytes.length)
     intentMessage[0] = 0

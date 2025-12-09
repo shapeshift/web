@@ -46,6 +46,7 @@ import {
 import { GridPlusHDWallet } from '@shapeshiftoss/hdwallet-gridplus'
 import { isMetaMask } from '@shapeshiftoss/hdwallet-metamask-multichain'
 import { PhantomHDWallet } from '@shapeshiftoss/hdwallet-phantom'
+import { VultisigHDWallet } from '@shapeshiftoss/hdwallet-vultisig'
 import { useMemo } from 'react'
 
 import { KeyManager } from '@/context/WalletProvider/KeyManager'
@@ -188,7 +189,7 @@ export const walletSupportsChain = ({
     case mayachainChainId:
       return supportsMayachain(wallet)
     case solanaChainId:
-      return supportsSolana(wallet)
+      return supportsSolana(wallet) && !(wallet instanceof VultisigHDWallet)
     case tronChainId:
       return supportsTron(wallet)
     case suiChainId:

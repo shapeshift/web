@@ -42,25 +42,6 @@ export const getCoinType = (asset: Asset): string => {
   return assetReference
 }
 
-export const calculateAmountLimit = (
-  estimatedAmount: string,
-  slippageTolerancePercentageDecimal: string | undefined,
-  isBuyAmount: boolean,
-): string => {
-  if (!slippageTolerancePercentageDecimal) {
-    return estimatedAmount
-  }
-
-  const slippageFactor = bn(1).minus(slippageTolerancePercentageDecimal)
-
-  if (isBuyAmount) {
-    return bnOrZero(estimatedAmount).times(slippageFactor).toFixed(0)
-  }
-
-  const maxSlippageFactor = bn(1).plus(slippageTolerancePercentageDecimal)
-  return bnOrZero(estimatedAmount).times(maxSlippageFactor).toFixed(0)
-}
-
 export const findBestRoute = async (
   client: AggregatorClient,
   sellCoinType: string,

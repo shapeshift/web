@@ -385,6 +385,13 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
         opReturnData,
       } as SignTx<T>
 
+      console.log(`[${this.coinName} Adapter] buildSendApiTransaction result:`, JSON.stringify({
+        coin: this.coinName,
+        inputsCount: signTxInputs.length,
+        outputsCount: signTxOutputs.length,
+        opReturnData,
+      }, null, 2))
+
       return txToSign
     } catch (err) {
       return ErrorHandler(err, {

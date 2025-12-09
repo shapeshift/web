@@ -24,6 +24,7 @@ export type Pool = MidgardPoolResponse & {
 } & Partial<VolumeStats> & {
     isTradingActive?: boolean
     isTradingActiveLoading?: boolean
+    isLpChainHalted?: boolean
     isLpDepositEnabled?: boolean
     isLpWithdrawEnabled?: boolean
   }

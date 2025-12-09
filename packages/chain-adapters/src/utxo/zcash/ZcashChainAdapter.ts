@@ -5,6 +5,7 @@ import { KnownChainIds, UtxoAccountType } from '@shapeshiftoss/types'
 import * as unchained from '@shapeshiftoss/unchained-client'
 
 import { ChainAdapterDisplayName } from '../../types'
+import type { BroadcastTransactionInput } from '../../types'
 import type { ChainAdapterArgs as BaseChainAdapterArgs } from '../UtxoBaseAdapter'
 import { UtxoBaseAdapter } from '../UtxoBaseAdapter'
 
@@ -56,5 +57,36 @@ export class ChainAdapter extends UtxoBaseAdapter<KnownChainIds.ZcashMainnet> {
 
   getFeeAssetId(): AssetId {
     return this.assetId
+  }
+
+  async broadcastTransaction({ hex }: Pick<BroadcastTransactionInput, 'hex'>): Promise<string> {
+    console.log('[Zcash Adapter] Broadcasting via Blockchair monkey-patch:', {
+      hexLength: hex.length,
+      hexSample: hex.substring(0, 64),
+    })
+
+    try {
+      const response = await fetch('https://api.blockchair.com/zcash/push/transaction', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ data: hex }),
+      })
+
+      const result = await response.json()
+      console.log('[Zcash Adapter] Blockchair response:', result)
+
+      if (result.context.code !== 200) {
+        const errorMsg = result.context.error || 'Transaction broadcast failed'
+        console.error('[Zcash Adapter] Blockchair error:', errorMsg)
+        throw new Error(errorMsg)
+      }
+
+      const txHash = result.data?.transaction_hash
+      console.log('[Zcash Adapter] Broadcast successful, txHash:', txHash)
+      return txHash || ''
+    } catch (err) {
+      console.error('[Zcash Adapter] Blockchair broadcast failed:', err)
+      throw err
+    }
   }
 }

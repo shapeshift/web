@@ -97,60 +97,46 @@ export const verifyLedgerAppOpen = async (chainId: ChainId | KnownChainIds, wall
   const coin = getCoin(chainId)
   const appName = getLedgerAppName(chainId)
 
-  console.log(`[Ledger App Gate] Verifying ${appName} app for chain ${chainId}, coin: ${coin}`)
-
   if (!isLedger(wallet)) return
 
   const isAppOpen = async () => {
     try {
-      console.log(`[Ledger App Gate] Checking if ${coin} app is open...`)
       await wallet.validateCurrentApp(coin)
-      console.log(`[Ledger App Gate] ✅ ${coin} app is open`)
       return true
     } catch (err) {
-      console.log(`[Ledger App Gate] ❌ ${coin} app NOT open:`, err)
       return false
     }
   }
 
   const appAlreadyOpen = await isAppOpen()
-  console.log(`[Ledger App Gate] App already open: ${appAlreadyOpen}`)
   if (appAlreadyOpen) return
 
   let intervalId: NodeJS.Timeout | undefined
   let attempts = 0
 
   try {
-    console.log(`[Ledger App Gate] Waiting for ${appName} app to open...`)
-
     await new Promise<void>((resolve, reject) => {
       // emit event to trigger modal open
       const args: LedgerOpenAppEventArgs = { chainId, reject }
-      console.log(`[Ledger App Gate] Emitting LedgerOpenApp event`)
       emitter.emit('LedgerOpenApp', args)
 
       // prompt user to open app on device
-      console.log(`[Ledger App Gate] Calling wallet.openApp("${appName}")`)
       wallet.openApp(appName)
 
       intervalId = setInterval(async () => {
         attempts++
-        console.log(`[Ledger App Gate] Check attempt ${attempts}...`)
 
         if (!(await isAppOpen())) {
-          console.log(`[Ledger App Gate] App still not open (attempt ${attempts})`)
           return
         }
 
         // emit event to trigger modal close
-        console.log(`[Ledger App Gate] ✅ App opened! Emitting LedgerAppOpened event`)
         emitter.emit('LedgerAppOpened')
         clearInterval(intervalId)
         resolve()
       }, 1000)
     })
   } catch (err) {
-    console.log(`[Ledger App Gate] Error or cancelled:`, err)
     clearInterval(intervalId)
     throw new ChainAdapterError('Ledger app open cancelled', {
       translation: 'chainAdapters.errors.ledgerAppOpenCancelled',

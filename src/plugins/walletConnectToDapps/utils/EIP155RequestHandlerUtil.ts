@@ -87,8 +87,6 @@ export const approveEIP155Request = async ({
       const maybeAdvancedParamsNonce = customTransactionData.nonce
         ? convertNumberToHex(customTransactionData.nonce)
         : null
-      const didUserChangeNonce =
-        maybeAdvancedParamsNonce && maybeAdvancedParamsNonce !== sendTransaction.nonce
       const fees = await getFeesForTx(sendTransaction, chainAdapter, accountId)
       const senderAddress = await chainAdapter.getAddress({
         accountNumber,
@@ -117,9 +115,30 @@ export const approveEIP155Request = async ({
         ...gasData,
         pubKey: isTrezor(wallet) && accountId ? fromAccountId(accountId).account : undefined,
       })
+
+      // Determine which nonce to use:
+      // 1. If dApp provided a nonce and user's form nonce differs from it, user manually changed it
+      // 2. If dApp didn't provide a nonce, check if user's nonce differs from what chain adapter fetched
+      // 3. Otherwise use the fresh nonce from buildCustomTx
+      const didUserManuallyChangeNonce = (() => {
+        if (!maybeAdvancedParamsNonce) return false
+
+        // If dApp provided a nonce, check if user changed it from that
+        if (sendTransaction.nonce) {
+          return maybeAdvancedParamsNonce !== sendTransaction.nonce
+        }
+
+        // If no dApp nonce, check if user's nonce differs from the fresh chain nonce
+        // This prevents using stale cached values
+        return maybeAdvancedParamsNonce !== txToSignWithPossibleWrongNonce.nonce
+      })()
+
       const txToSign = {
         ...txToSignWithPossibleWrongNonce,
-        nonce: didUserChangeNonce ? maybeAdvancedParamsNonce : txToSignWithPossibleWrongNonce.nonce,
+        nonce:
+          didUserManuallyChangeNonce && maybeAdvancedParamsNonce
+            ? maybeAdvancedParamsNonce
+            : txToSignWithPossibleWrongNonce.nonce,
       }
       const signedTx = await chainAdapter.signTransaction({
         txToSign,
@@ -130,6 +149,7 @@ export const approveEIP155Request = async ({
         receiverAddress: txToSign.to,
         hex: signedTx,
       })
+
       return formatJsonRpcResult(id, txHash)
     }
 

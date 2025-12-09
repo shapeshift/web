@@ -9,6 +9,7 @@ import {
   usePrevious,
 } from '@chakra-ui/react'
 import { useIsFetching } from '@tanstack/react-query'
+import { motion, useMotionValue, useTransform, animate } from 'framer-motion'
 import type { ReactNode } from 'react'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { FiRefreshCw } from 'react-icons/fi'
@@ -25,14 +26,13 @@ type PullToRefreshWrapperProps = {
   children: ReactNode
 }
 
+const MotionBox = motion(Box)
+
 export const PullToRefreshWrapper: React.FC<PullToRefreshWrapperProps> = ({ children }) => {
   const translate = useTranslate()
   const [isMobile] = useMediaQuery('(max-width: 768px)')
-  const [showIndicator, setShowIndicator] = useState(false)
-  const [pullProgress, setPullProgress] = useState(0)
   const enabledWalletAccountIds = useAppSelector(selectEnabledWalletAccountIds)
 
-  // Track if portfolio queries are fetching
   const getAccountFetching = useIsFetching({ queryKey: ['getAccount'] })
   const portalsAccountFetching = useIsFetching({ queryKey: ['portalsAccount'] })
   const portalsPlatformsFetching = useIsFetching({ queryKey: ['portalsPlatforms'] })
@@ -46,46 +46,47 @@ export const PullToRefreshWrapper: React.FC<PullToRefreshWrapperProps> = ({ chil
   const previousIsFetching = usePrevious(isFetching)
 
   const isLazyTxHistoryEnabled = useFeatureFlag('LazyTxHistory')
-
-  const startY = useRef<number>(0)
-  const endY = useRef<number>(0)
-  const startTime = useRef<number>(0)
-  const maxPullDistance = useRef<number>(0)
-  const startScrollTop = useRef<number>(0)
-  const isAtTopOnStart = useRef<boolean>(false)
-  const hasPulledDown = useRef<boolean>(false)
+  const isManualRefresh = useRef<boolean>(false)
 
   const bgColor = useColorModeValue('gray.50', 'background.surface.base')
   const progressColor = useColorModeValue('blue.500', 'blue.400')
   const textColor = useColorModeValue('gray.700', 'gray.200')
   const dispatch = useAppDispatch()
 
+  // Framer Motion values
+  const y = useMotionValue(0)
+  const pullProgress = useTransform(y, [0, 200], [0, 1])
+  const opacity = useTransform(y, [0, 50], [0, 1])
+
   useEffect(() => {
     if (previousIsFetching && !isFetching) {
-      setShowIndicator(false)
-      setPullProgress(0)
+      isManualRefresh.current = false
+      animate(y, 0, { type: 'spring', stiffness: 300, damping: 30 })
     }
-  }, [previousIsFetching, isFetching])
+  }, [previousIsFetching, isFetching, y])
+
+  const [pullProgressValue, setPullProgressValue] = useState(0)
+  useEffect(() => {
+    const unsubscribe = pullProgress.on('change', v => setPullProgressValue(v))
+    return unsubscribe
+  }, [pullProgress])
 
   const displayText = useMemo(() => {
-    if (isFetching) return translate('pullToRefresh.refreshing')
-    if (pullProgress >= 1) return translate('pullToRefresh.releaseToRefresh')
-    if (pullProgress > 0.3) return translate('pullToRefresh.pullToRefresh')
+    if (isFetching && isManualRefresh.current) return translate('pullToRefresh.refreshing')
+    if (pullProgressValue >= 1) return translate('pullToRefresh.releaseToRefresh')
+    if (pullProgressValue > 0.3) return translate('pullToRefresh.pullToRefresh')
     return ''
-  }, [isFetching, pullProgress, translate])
+  }, [isFetching, pullProgressValue, translate])
 
   const iconRotation = useMemo(() => {
-    return isFetching ? 'none' : `rotate(${pullProgress * 360}deg)`
-  }, [isFetching, pullProgress])
+    return isFetching && isManualRefresh.current ? 0 : pullProgressValue * 360
+  }, [isFetching, pullProgressValue])
 
-  const indicatorTransform = useMemo(() => {
-    if (isFetching) return 'translateY(0)'
-    if (pullProgress === 0) return 'translateY(-100%)'
-    const translateAmount = Math.max(pullProgress * 100 - 100, -100)
-    return `translateY(${translateAmount}%)`
-  }, [isFetching, pullProgress])
 
   const onRefresh = useCallback(() => {
+    isManualRefresh.current = true
+    animate(y, 130, { type: 'spring', stiffness: 300, damping: 30 })
+
     dispatch(portfolioApi.util.resetApiState())
     dispatch(txHistoryApi.util.resetApiState())
 
@@ -100,186 +101,98 @@ export const PullToRefreshWrapper: React.FC<PullToRefreshWrapperProps> = ({ chil
     enabledWalletAccountIds.forEach(requestedAccountId => {
       dispatch(getAllTxHistory.initiate(requestedAccountId))
     })
-  }, [dispatch, enabledWalletAccountIds, isLazyTxHistoryEnabled])
+  }, [dispatch, enabledWalletAccountIds, isLazyTxHistoryEnabled, y])
 
-  useEffect(() => {
-    if (!isMobile) return
-    if (isFetching) return
+  const handleDragEnd = useCallback((_event: any, info: any) => {
+    const shouldRefresh = info.offset.y > 200
 
-    const handleTouchStart = (e: TouchEvent) => {
-      if (isFetching) return
-
-      const scrollTop = window.pageYOffset || document.documentElement.scrollTop
-      startScrollTop.current = scrollTop
-      isAtTopOnStart.current = scrollTop === 0
-
-      if (isAtTopOnStart.current) {
-        startY.current = e.touches[0].clientY
-        endY.current = startY.current
-        startTime.current = Date.now()
-        maxPullDistance.current = 0
-        hasPulledDown.current = false
-      }
+    if (shouldRefresh) {
+      onRefresh()
+    } else {
+      animate(y, 0, { type: 'spring', stiffness: 300, damping: 30 })
     }
-
-    const handleTouchMove = (e: TouchEvent) => {
-      if (!isAtTopOnStart.current || isFetching) return
-
-      const currentScrollTop = window.pageYOffset || document.documentElement.scrollTop
-      const currentY = e.touches[0].clientY
-      endY.current = currentY
-      const distance = currentY - startY.current
-
-      // Track the maximum pull distance
-      if (distance > maxPullDistance.current) {
-        maxPullDistance.current = distance
-      }
-
-      // Track if user actually pulled down (not just touched)
-      if (distance > 30) {
-        hasPulledDown.current = true
-      }
-
-      // Calculate pull progress (0 to 1) - requires 200px to reach 100%
-      const progress = Math.min(Math.max(distance / 200, 0), 1)
-      setPullProgress(progress)
-
-      // Show indicator if pulling down at top of page
-      if (currentScrollTop === 0 && distance > 10 && startScrollTop.current === 0) {
-        setShowIndicator(true)
-      } else {
-        setShowIndicator(false)
-        setPullProgress(0)
-      }
-    }
-
-    const handleTouchEnd = async () => {
-      if (!isAtTopOnStart.current) {
-        setPullProgress(0)
-        setTimeout(() => setShowIndicator(false), 200)
-        return
-      }
-
-      const currentScrollTop = window.pageYOffset || document.documentElement.scrollTop
-      const distance = endY.current - startY.current
-      const touchDuration = Date.now() - startTime.current
-
-      // Calculate pull velocity (px/ms)
-      const velocity = touchDuration > 0 ? distance / touchDuration : 0
-
-      // Safety checks to prevent accidental refresh:
-      // 1. Must be at the top (scrollTop is 0)
-      // 2. Must have pulled down more than 200px
-      // 3. Must have actually pulled down (not just tapped)
-      // 4. Touch must have lasted at least 200ms (prevent quick swipes)
-      // 5. Velocity must be reasonable (not too fast = likely a scroll)
-      const shouldRefresh =
-        currentScrollTop === 0 &&
-        distance > 200 &&
-        hasPulledDown.current &&
-        touchDuration >= 250 &&
-        velocity < 2 && // Slower than 2px/ms
-        !isFetching
-
-      if (shouldRefresh) {
-        setShowIndicator(true)
-        setPullProgress(1)
-
-        try {
-          await onRefresh()
-        } finally {
-          setTimeout(() => {
-            setPullProgress(0)
-            setTimeout(() => setShowIndicator(false), 300)
-          }, 300)
-        }
-      } else {
-        setPullProgress(0)
-        setTimeout(() => setShowIndicator(false), 200)
-      }
-
-      isAtTopOnStart.current = false
-      hasPulledDown.current = false
-    }
-
-    // Use passive listeners to not interfere with scrolling
-    document.addEventListener('touchstart', handleTouchStart, { passive: true })
-    document.addEventListener('touchmove', handleTouchMove, { passive: true })
-    document.addEventListener('touchend', handleTouchEnd, { passive: true })
-
-    return () => {
-      document.removeEventListener('touchstart', handleTouchStart)
-      document.removeEventListener('touchmove', handleTouchMove)
-      document.removeEventListener('touchend', handleTouchEnd)
-    }
-  }, [isMobile, isFetching, onRefresh])
+  }, [onRefresh, y])
 
   if (!isMobile) {
     return <>{children}</>
   }
 
+  const showRefreshIndicator = pullProgressValue > 0 || (isFetching && isManualRefresh.current)
+
   return (
     <>
-      {(showIndicator || isFetching) && (
-        <Box position='fixed' top='0' left='0' right='0' zIndex={9999} pointerEvents='none'>
-          <Box
-            paddingTop='calc(env(safe-area-inset-top) + var(--safe-area-inset-top))'
-            bg={bgColor}
-            transform={indicatorTransform}
-            transition={
-              isFetching
-                ? 'transform 0.3s ease-out'
-                : pullProgress === 0
-                ? 'transform 0.2s ease-in'
-                : 'transform 0.05s linear'
-            }
-            boxShadow='0px 10px 10px 0px rgba(0, 0, 0, 0.2)'
-          >
-            <Flex direction='column' align='center' justify='center' py={4} px={4} gap={2}>
-              <Box>
-                {isFetching ? (
-                  <Spinner size='sm' color={progressColor} thickness='2px' speed='0.8s' />
-                ) : (
-                  <Box
-                    as={FiRefreshCw}
-                    fontSize='24px'
-                    color={progressColor}
-                    style={{ transform: iconRotation }}
-                    transition='transform 0.1s ease-out'
-                  />
-                )}
-              </Box>
+      {/* Drag handle area at top of screen */}
+      <MotionBox
+        position='fixed'
+        top={0}
+        left={0}
+        right={0}
+        height='50px'
+        zIndex={9999}
+        drag='y'
+        dragConstraints={{ top: 0, bottom: 0 }}
+        dragElastic={{ top: 0.3, bottom: 0 }}
+        onDragEnd={handleDragEnd}
+        style={{ y, touchAction: 'pan-y' }}
+      />
 
-              <Box
-                width='100%'
-                maxWidth='200px'
-                height='3px'
-                bg='whiteAlpha.200'
-                borderRadius='full'
-                mt={2}
-              >
-                {!isFetching && (
-                  <Box
-                    height='100%'
-                    bg={progressColor}
-                    borderRadius='full'
-                    width={`${pullProgress * 100}%`}
-                    transition='none'
-                    boxShadow={pullProgress >= 1 ? `0 0 8px ${progressColor}` : 'none'}
-                  />
-                )}
-                {isFetching && <Progress isIndeterminate={true} size='xs' colorScheme={'blue'} />}
-              </Box>
-
-              {displayText && (
-                <Text fontSize='sm' fontWeight='medium' color={textColor}>
-                  {displayText}
-                </Text>
+      {/* Pull indicator */}
+      {showRefreshIndicator && (
+        <MotionBox
+          position='fixed'
+          top='-130px'
+          left={0}
+          right={0}
+          height='130px'
+          bg={bgColor}
+          display='flex'
+          alignItems='flex-end'
+          justifyContent='center'
+          paddingTop='calc(env(safe-area-inset-top) + var(--safe-area-inset-top))'
+          paddingBottom='10px'
+          zIndex={9998}
+          pointerEvents='none'
+          style={{ y, opacity }}
+        >
+          <Flex direction='column' align='center' justify='center' gap={2}>
+            <Box>
+              {isFetching && isManualRefresh.current ? (
+                <Spinner size='sm' color={progressColor} thickness='2px' speed='0.8s' />
+              ) : (
+                <Box
+                  as={FiRefreshCw}
+                  fontSize='24px'
+                  color={progressColor}
+                  style={{ transform: `rotate(${iconRotation}deg)` }}
+                />
               )}
-            </Flex>
-          </Box>
-        </Box>
+            </Box>
+
+            <Box width='100%' maxWidth='200px' height='3px' bg='whiteAlpha.200' borderRadius='full'>
+              {!(isFetching && isManualRefresh.current) && (
+                <Box
+                  height='100%'
+                  bg={progressColor}
+                  borderRadius='full'
+                  width={`${pullProgressValue * 100}%`}
+                  transition='none'
+                  boxShadow={pullProgressValue >= 1 ? `0 0 8px ${progressColor}` : 'none'}
+                />
+              )}
+              {isFetching && isManualRefresh.current && (
+                <Progress isIndeterminate={true} size='xs' colorScheme={'blue'} />
+              )}
+            </Box>
+
+            {displayText && (
+              <Text fontSize='sm' fontWeight='medium' color={textColor}>
+                {displayText}
+              </Text>
+            )}
+          </Flex>
+        </MotionBox>
       )}
+
       {children}
     </>
   )

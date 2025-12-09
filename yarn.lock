@@ -11897,6 +11897,7 @@ __metadata:
     tsx: ^4.19.3
     typescript: ^5.2.2
     use-long-press: ^3.3.0
+    use-pull-to-refresh: ^2.4.1
     uuid: ^9.0.0
     vaul: ^1.1.2
     viem: 2.40.3
@@ -34483,6 +34484,15 @@ pvutils@latest:
   peerDependencies:
     react: ">=16.8.0"
   checksum: f0066c1a0348e67f6f8619a23be50533395350c530f82f02d25287d216972048132d026f465cad5442571447fe8b02738948dadcebbde01a5a070801f5af0656
+  languageName: node
+  linkType: hard
+
+"use-pull-to-refresh@npm:^2.4.1":
+  version: 2.4.1
+  resolution: "use-pull-to-refresh@npm:2.4.1"
+  peerDependencies:
+    react: 18.x || 19.x
+  checksum: 969a01730656f9423dfc71d472032ba0aa7e0f3ab1e6ca483435f085659858ef0b1705d1f3646cd935f165d8cd0510d24ec0141b0e112a3df6475c0bb4adc3a1
   languageName: node
   linkType: hard
 

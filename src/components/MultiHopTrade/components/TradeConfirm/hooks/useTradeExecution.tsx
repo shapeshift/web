@@ -227,23 +227,56 @@ export const useTradeExecution = (
           )
         },
       )
-      execution.on(TradeExecutionEvent.Status, ({ buyTxHash, message }) => {
-        dispatch(
-          tradeQuoteSlice.actions.setSwapTxMessage({ hopIndex, message, id: confirmedTradeId }),
-        )
+      execution.on(
+        TradeExecutionEvent.Status,
+        ({ buyTxHash, message, actualBuyAmountCryptoBaseUnit }) => {
+          dispatch(
+            tradeQuoteSlice.actions.setSwapTxMessage({ hopIndex, message, id: confirmedTradeId }),
+          )
+          if (buyTxHash) {
+            txHashReceived = true
+            dispatch(
+              tradeQuoteSlice.actions.setSwapBuyTxHash({
+                hopIndex,
+                buyTxHash,
+                id: confirmedTradeId,
+              }),
+            )
+          }
+
+          // Update the swap with the actual buy amount if available
+          if (actualBuyAmountCryptoBaseUnit && activeSwapId) {
+            const currentSwap = swapsById[activeSwapId]
+            if (currentSwap) {
+              dispatch(
+                swapSlice.actions.upsertSwap({
+                  ...currentSwap,
+                  actualBuyAmountCryptoBaseUnit,
+                }),
+              )
+            }
+          }
+        },
+      )
+      execution.on(TradeExecutionEvent.Success, ({ buyTxHash, actualBuyAmountCryptoBaseUnit }) => {
         if (buyTxHash) {
           txHashReceived = true
           dispatch(
             tradeQuoteSlice.actions.setSwapBuyTxHash({ hopIndex, buyTxHash, id: confirmedTradeId }),
           )
         }
-      })
-      execution.on(TradeExecutionEvent.Success, ({ buyTxHash }) => {
-        if (buyTxHash) {
-          txHashReceived = true
-          dispatch(
-            tradeQuoteSlice.actions.setSwapBuyTxHash({ hopIndex, buyTxHash, id: confirmedTradeId }),
-          )
+
+        // Update the swap with the actual buy amount if available
+        if (actualBuyAmountCryptoBaseUnit && activeSwapId) {
+          const currentSwap = swapsById[activeSwapId]
+          if (currentSwap) {
+            dispatch(
+              swapSlice.actions.upsertSwap({
+                ...currentSwap,
+                actualBuyAmountCryptoBaseUnit,
+              }),
+            )
+          }
         }
 
         if (!txHashReceived) {

@@ -119,6 +119,10 @@ export const GridPlusSetup = () => {
           type = validation.type
         }
 
+        if (activeWalletId && type) {
+          finalWallet.setExpectedActiveWalletId(activeWalletId, type)
+        }
+
         const safeCardWalletId = state?.safeCardWalletId || `gridplus:${safeCardUuid}`
         const finalSafeCardName = safeCardName.trim() || defaultName
 

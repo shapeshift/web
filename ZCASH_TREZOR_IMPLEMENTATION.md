@@ -75,11 +75,33 @@ const res = await transport.call("signTransaction", {
 
 ### shapeshiftWeb Changes
 
-**Status:** ✅ Already complete on `feat_zcash_trezor_support` branch
+**Status:** ❌ Not yet implemented
 
-**Files modified:**
-- `src/hooks/useWalletSupportsChain/useWalletSupportsChain.ts` - Allow Trezor for Zcash
-- `src/state/slices/portfolioSlice/utils/index.ts` - Allow Trezor for Zcash
+**Current state:** [PR #11327](https://github.com/shapeshift/web/pull/11327) restricted Zcash to native wallet only, preventing Trezor (and other wallets) from accessing Zcash.
+
+**Required changes (straightforward):**
+
+**File 1:** `src/hooks/useWalletSupportsChain/useWalletSupportsChain.ts` (line ~161)
+```typescript
+case zecChainId:
+  // Change from:
+  return supportsBTC(wallet) && isNativeHDWallet(wallet)
+
+  // To:
+  return supportsBTC(wallet) && (isNativeHDWallet(wallet) || isTrezorHDWallet(wallet))
+```
+
+**File 2:** `src/state/slices/portfolioSlice/utils/index.ts` (line ~405)
+```typescript
+case zecChainId:
+  // Change from:
+  return supportsBTC(wallet) && isNativeHDWallet(wallet)
+
+  // To:
+  return supportsBTC(wallet) && (isNativeHDWallet(wallet) || isTrezorHDWallet(wallet))
+```
+
+**Note:** `isTrezorHDWallet` helper already exists in `@/lib/utils`
 
 ## Testing Strategy
 
@@ -136,8 +158,8 @@ Without these fields, the Zcash node rejects transactions as invalid.
 - [ ] Publish new hdwallet version
 
 ### shapeshiftWeb
-- [x] Update useWalletSupportsChain to allow Trezor for Zcash
-- [x] Update portfolioSlice utils to allow Trezor for Zcash
+- [ ] Update useWalletSupportsChain to allow Trezor for Zcash
+- [ ] Update portfolioSlice utils to allow Trezor for Zcash
 - [ ] Bump hdwallet dependencies to new version
 - [ ] Test end-to-end with Trezor device
 - [ ] Merge PR

@@ -46,12 +46,14 @@ import {
 import { GridPlusHDWallet } from '@shapeshiftoss/hdwallet-gridplus'
 import { isMetaMask } from '@shapeshiftoss/hdwallet-metamask-multichain'
 import { PhantomHDWallet } from '@shapeshiftoss/hdwallet-phantom'
+import { VultisigHDWallet } from '@shapeshiftoss/hdwallet-vultisig'
 import { useMemo } from 'react'
 
 import { KeyManager } from '@/context/WalletProvider/KeyManager'
 import { useIsSnapInstalled } from '@/hooks/useIsSnapInstalled/useIsSnapInstalled'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { METAMASK_RDNS } from '@/lib/mipd'
+import { isNativeHDWallet } from '@/lib/utils'
 import { selectAccountIdsByChainIdFilter } from '@/state/slices/portfolioSlice/selectors'
 import { selectFeatureFlag } from '@/state/slices/selectors'
 import { store, useAppSelector } from '@/state/store'
@@ -157,11 +159,9 @@ export const walletSupportsChain = ({
         !(wallet instanceof GridPlusHDWallet)
       )
     case zecChainId:
-      return (
-        supportsBTC(wallet) &&
-        !(wallet instanceof PhantomHDWallet) &&
-        !(wallet instanceof GridPlusHDWallet)
-      )
+      // Only native wallet supports ZCash for now
+      // TODO(gomes): include more as more wallets supported for ZCash
+      return supportsBTC(wallet) && isNativeHDWallet(wallet)
     case ethChainId:
       return supportsETH(wallet)
     case avalancheChainId:
@@ -189,7 +189,7 @@ export const walletSupportsChain = ({
     case mayachainChainId:
       return supportsMayachain(wallet)
     case solanaChainId:
-      return supportsSolana(wallet)
+      return supportsSolana(wallet) && !(wallet instanceof VultisigHDWallet)
     case tronChainId:
       return supportsTron(wallet)
     case suiChainId:

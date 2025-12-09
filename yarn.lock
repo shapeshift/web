@@ -7442,16 +7442,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@ledgerhq/cryptoassets-evm-signatures@npm:^13.7.1":
-  version: 13.7.1
-  resolution: "@ledgerhq/cryptoassets-evm-signatures@npm:13.7.1"
-  dependencies:
-    "@ledgerhq/live-env": ^2.21.0
-    axios: 1.12.2
-  checksum: 2216c1888f5ce493aa762b734cfb0cb1a9b2f8ef39e230cda9b059a7789b2aedc28fb4ff9e30ecea03c5278172b96f6fa544455d12779785092ab45f1b8c20bb
-  languageName: node
-  linkType: hard
-
 "@ledgerhq/device-core@npm:0.6.9":
   version: 0.6.9
   resolution: "@ledgerhq/device-core@npm:0.6.9"
@@ -7468,15 +7458,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@ledgerhq/devices@npm:8.4.8":
-  version: 8.4.8
-  resolution: "@ledgerhq/devices@npm:8.4.8"
+"@ledgerhq/devices@npm:8.5.1":
+  version: 8.5.1
+  resolution: "@ledgerhq/devices@npm:8.5.1"
   dependencies:
-    "@ledgerhq/errors": ^6.23.0
+    "@ledgerhq/errors": ^6.25.0
     "@ledgerhq/logs": ^6.13.0
     rxjs: ^7.8.1
     semver: ^7.3.5
-  checksum: 9df37a14b3c75dd500fd2d361720be5b0d0fd816522fc0514a19f7ef6a4ecbb333ed3209674a8c34dfcbdde2073b5a75073934c5bf30799a4e9276809b03e7f4
+  checksum: ce066b5f4bf7ebab0e40bf5e96a87d61137d3d497548f6061ed81975a91a19873cf5056d924ce5454b6c4a967df000834ae8358cc2b4c6b8f8aa6470cb8d3a5c
   languageName: node
   linkType: hard
 
@@ -7504,7 +7494,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@ledgerhq/domain-service@npm:^1.4.1, @ledgerhq/domain-service@npm:^1.4.2":
+"@ledgerhq/domain-service@npm:^1.4.2":
   version: 1.4.2
   resolution: "@ledgerhq/domain-service@npm:1.4.2"
   dependencies:
@@ -7526,7 +7516,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@ledgerhq/errors@npm:^6.23.0, @ledgerhq/errors@npm:^6.27.0":
+"@ledgerhq/errors@npm:^6.25.0, @ledgerhq/errors@npm:^6.27.0":
   version: 6.27.0
   resolution: "@ledgerhq/errors@npm:6.27.0"
   checksum: 7b65e20fbe37471de4e86a98cf9c4cb9591771d21c6b4c4e49783a388e1481006830dab677c8d90641bfdda79ff68db898f3cc9bac1bd01bed31ca9bd37c66fe
@@ -7540,7 +7530,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@ledgerhq/evm-tools@npm:^1.8.1, @ledgerhq/evm-tools@npm:^1.8.2":
+"@ledgerhq/evm-tools@npm:^1.8.2":
   version: 1.8.2
   resolution: "@ledgerhq/evm-tools@npm:1.8.2"
   dependencies:
@@ -7572,7 +7562,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@ledgerhq/hw-app-cosmos@npm:6.32.9, @ledgerhq/hw-app-cosmos@npm:^6.32.4":
+"@ledgerhq/hw-app-cosmos@npm:6.32.9":
   version: 6.32.9
   resolution: "@ledgerhq/hw-app-cosmos@npm:6.32.9"
   dependencies:
@@ -7604,29 +7594,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@ledgerhq/hw-app-eth@npm:^6.45.13":
-  version: 6.47.1
-  resolution: "@ledgerhq/hw-app-eth@npm:6.47.1"
-  dependencies:
-    "@ethersproject/abi": ^5.7.0
-    "@ethersproject/rlp": ^5.7.0
-    "@ethersproject/transactions": ^5.7.0
-    "@ledgerhq/cryptoassets-evm-signatures": ^13.7.1
-    "@ledgerhq/domain-service": ^1.4.1
-    "@ledgerhq/errors": ^6.27.0
-    "@ledgerhq/evm-tools": ^1.8.1
-    "@ledgerhq/hw-transport": 6.31.13
-    "@ledgerhq/hw-transport-mocker": ^6.29.13
-    "@ledgerhq/logs": ^6.13.0
-    "@ledgerhq/types-live": ^6.89.0
-    axios: 1.12.2
-    bignumber.js: ^9.1.2
-    semver: ^7.3.5
-  checksum: 1d3271c1be9028fad13d88ddea5613b39931713fd849022ef464fa712e37f5b87f24ee5b5574484b0abd5fbc45d5b09ec1e2dcf0bdf26eba74e8aa58261f2045
-  languageName: node
-  linkType: hard
-
-"@ledgerhq/hw-app-solana@npm:7.6.0, @ledgerhq/hw-app-solana@npm:^7.5.1":
+"@ledgerhq/hw-app-solana@npm:7.6.0":
   version: 7.6.0
   resolution: "@ledgerhq/hw-app-solana@npm:7.6.0"
   dependencies:
@@ -7666,27 +7634,27 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@ledgerhq/hw-transport-webhid@npm:^6.30.4":
-  version: 6.30.9
-  resolution: "@ledgerhq/hw-transport-webhid@npm:6.30.9"
+"@ledgerhq/hw-transport-webhid@npm:6.30.6":
+  version: 6.30.6
+  resolution: "@ledgerhq/hw-transport-webhid@npm:6.30.6"
+  dependencies:
+    "@ledgerhq/devices": 8.5.1
+    "@ledgerhq/errors": ^6.25.0
+    "@ledgerhq/hw-transport": ^6.31.10
+    "@ledgerhq/logs": ^6.13.0
+  checksum: a7548586d94e299626353b78f30d323f47758f57563389bdafd76ab6eab4c892b959380f4ce0a1bda54459551dc799f4c81feaf868740f777c097e2bcfda632c
+  languageName: node
+  linkType: hard
+
+"@ledgerhq/hw-transport-webusb@npm:6.29.13":
+  version: 6.29.13
+  resolution: "@ledgerhq/hw-transport-webusb@npm:6.29.13"
   dependencies:
     "@ledgerhq/devices": 8.7.0
     "@ledgerhq/errors": ^6.27.0
     "@ledgerhq/hw-transport": 6.31.13
     "@ledgerhq/logs": ^6.13.0
-  checksum: b8d5de6d27d8e4f538890653f14e4d950f13f809dd43556c2d454c4f4a985ec3579f6e9c56cd8b154b3abd6ba1fb481ec3a47b30dcef0f974793b3b5a1e3a791
-  languageName: node
-  linkType: hard
-
-"@ledgerhq/hw-transport-webusb@npm:6.29.8":
-  version: 6.29.8
-  resolution: "@ledgerhq/hw-transport-webusb@npm:6.29.8"
-  dependencies:
-    "@ledgerhq/devices": 8.4.8
-    "@ledgerhq/errors": ^6.23.0
-    "@ledgerhq/hw-transport": ^6.31.8
-    "@ledgerhq/logs": ^6.13.0
-  checksum: 81c08c21ade614bee0a7ee9c5ebf5342beeffe2490d63d6cc257ecc0f92f794dc4429df14e0f721861afe99cbf26b7063f257ed0186a0691d9340f4b4064f35b
+  checksum: fa17e4140c3921b8f00dabc21b0527106ae08d94053bece162b230eeb804c76427e40d39407657ae820c3d5e53fd123ca49eca9edacfac772f9d0a6324e3c65e
   languageName: node
   linkType: hard
 
@@ -7702,7 +7670,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@ledgerhq/hw-transport@npm:6.31.13, @ledgerhq/hw-transport@npm:^6.31.10, @ledgerhq/hw-transport@npm:^6.31.8":
+"@ledgerhq/hw-transport@npm:6.31.13, @ledgerhq/hw-transport@npm:^6.31.10":
   version: 6.31.13
   resolution: "@ledgerhq/hw-transport@npm:6.31.13"
   dependencies:
@@ -7711,18 +7679,6 @@ __metadata:
     "@ledgerhq/logs": ^6.13.0
     events: ^3.3.0
   checksum: eb9100b7cfc34153eb325a69240bc68b804508f6a54d1209686c28d4fda23737d1dce56ec184b613f5882ed9305139dce6f765e40292266d372f2196464baa59
-  languageName: node
-  linkType: hard
-
-"@ledgerhq/hw-transport@npm:6.31.8":
-  version: 6.31.8
-  resolution: "@ledgerhq/hw-transport@npm:6.31.8"
-  dependencies:
-    "@ledgerhq/devices": 8.4.8
-    "@ledgerhq/errors": ^6.23.0
-    "@ledgerhq/logs": ^6.13.0
-    events: ^3.3.0
-  checksum: 9b85939d657c42f61d73d20959ded1c197a9ffb8bb84bc3b0d806a14014cabc5c7c16441ce7c8a04ef44004be31672ee25678ea43844e911a79ba85f44a44c4a
   languageName: node
   linkType: hard
 
@@ -7853,7 +7809,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@ledgerhq/types-live@npm:^6.89.0, @ledgerhq/types-live@npm:^6.90.0":
+"@ledgerhq/types-live@npm:^6.90.0":
   version: 6.90.0
   resolution: "@ledgerhq/types-live@npm:6.90.0"
   dependencies:
@@ -11257,8 +11213,8 @@ __metadata:
   dependencies:
     "@mysten/sui": 1.45.0
     "@shapeshiftoss/caip": "workspace:^"
-    "@shapeshiftoss/hdwallet-core": 1.62.24-ledger-zcash.25
-    "@shapeshiftoss/hdwallet-ledger": 1.62.24-ledger-zcash.25
+    "@shapeshiftoss/hdwallet-core": 1.62.26-ledger-zcash.0
+    "@shapeshiftoss/hdwallet-ledger": 1.62.26-ledger-zcash.0
     "@shapeshiftoss/types": "workspace:^"
     "@shapeshiftoss/unchained-client": "workspace:^"
     "@shapeshiftoss/utils": "workspace:^"
@@ -11351,25 +11307,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/hdwallet-core@npm:1.62.24-ledger-zcash.25":
-  version: 1.62.24-ledger-zcash.25
-  resolution: "@shapeshiftoss/hdwallet-core@npm:1.62.24-ledger-zcash.25"
-  dependencies:
-    "@shapeshiftoss/bitcoinjs-lib": 7.0.0-shapeshift.2
-    "@shapeshiftoss/proto-tx-builder": 0.10.0
-    "@solana/web3.js": 1.95.8
-    bs58check: ^4.0.0
-    eip-712: ^1.0.0
-    ethers: 5.7.2
-    eventemitter2: ^5.0.1
-    lodash: ^4.17.21
-    rxjs: ^6.4.0
-    type-assertions: ^1.1.0
-  checksum: 75bb4aeb77372c1df08053e3725b3aba7b496316b40fde138765a22052789c1fa9d4a9112c5dcb201daf61f3fec648a558854f78ec300093ab843d1bb8ee611f
-  languageName: node
-  linkType: hard
-
-"@shapeshiftoss/hdwallet-core@npm:1.62.25, @shapeshiftoss/hdwallet-core@npm:^1.55.1, @shapeshiftoss/hdwallet-core@npm:^1.58.0, @shapeshiftoss/hdwallet-core@npm:^1.62.24-ledger-zcash.25":
+"@shapeshiftoss/hdwallet-core@npm:1.62.25, @shapeshiftoss/hdwallet-core@npm:^1.55.1, @shapeshiftoss/hdwallet-core@npm:^1.58.0":
   version: 1.62.25
   resolution: "@shapeshiftoss/hdwallet-core@npm:1.62.25"
   dependencies:
@@ -11384,6 +11322,24 @@ __metadata:
     rxjs: ^6.4.0
     type-assertions: ^1.1.0
   checksum: be0a8da2f9f4494133b687c3c7e1470d8ac086d44b2e57748c6ac4bbb6dfbd076784ad36a081d9d001336fa0612d7744eef2567d9faaca746b1d9a91c97507df
+  languageName: node
+  linkType: hard
+
+"@shapeshiftoss/hdwallet-core@npm:1.62.26-ledger-zcash.0, @shapeshiftoss/hdwallet-core@npm:^1.62.26-ledger-zcash.0":
+  version: 1.62.26-ledger-zcash.0
+  resolution: "@shapeshiftoss/hdwallet-core@npm:1.62.26-ledger-zcash.0"
+  dependencies:
+    "@shapeshiftoss/bitcoinjs-lib": 7.0.0-shapeshift.2
+    "@shapeshiftoss/proto-tx-builder": 0.10.0
+    "@solana/web3.js": 1.95.8
+    bs58check: ^4.0.0
+    eip-712: ^1.0.0
+    ethers: 5.7.2
+    eventemitter2: ^5.0.1
+    lodash: ^4.17.21
+    rxjs: ^6.4.0
+    type-assertions: ^1.1.0
+  checksum: 4094fd83ccd371119523307333bd0e7a19bbf1c1ec505a3beed46b8ea6022f20169a88e826ba7a93f315faff56085ec18ef8f530c11f1290b89c2764200d4f69
   languageName: node
   linkType: hard
 
@@ -11476,42 +11432,42 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/hdwallet-ledger-webhid@npm:1.62.25":
-  version: 1.62.25
-  resolution: "@shapeshiftoss/hdwallet-ledger-webhid@npm:1.62.25"
+"@shapeshiftoss/hdwallet-ledger-webhid@npm:1.62.26-ledger-zcash.0":
+  version: 1.62.26-ledger-zcash.0
+  resolution: "@shapeshiftoss/hdwallet-ledger-webhid@npm:1.62.26-ledger-zcash.0"
   dependencies:
-    "@ledgerhq/hw-app-btc": ^10.10.0
-    "@ledgerhq/hw-app-eth": ^6.45.13
-    "@ledgerhq/hw-transport": 6.31.8
-    "@ledgerhq/hw-transport-webhid": ^6.30.4
-    "@shapeshiftoss/hdwallet-core": 1.62.25
-    "@shapeshiftoss/hdwallet-ledger": 1.62.25
+    "@ledgerhq/hw-app-btc": 10.13.0
+    "@ledgerhq/hw-app-eth": 7.0.0
+    "@ledgerhq/hw-transport": 6.31.13
+    "@ledgerhq/hw-transport-webhid": 6.30.6
+    "@shapeshiftoss/hdwallet-core": ^1.62.26-ledger-zcash.0
+    "@shapeshiftoss/hdwallet-ledger": ^1.62.26-ledger-zcash.0
     "@types/w3c-web-hid": ^1.0.2
-  checksum: fba39a8604909ae2b7a44411c6d3e00ee377520f017098d9dd92d995a548d97af438c9b983848f74c0711db3a80d5bc79929e4108a958c4967b2bf33b9e06470
+  checksum: 1365013048b0aa753710f51c188c2ee4250203690f8fdd7b4ca5a652a4651188fbfb613283c78cccad80908a10ad49f1d528567c3da4aa7f79bfe0b9056f5da6
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/hdwallet-ledger-webusb@npm:1.62.25":
-  version: 1.62.25
-  resolution: "@shapeshiftoss/hdwallet-ledger-webusb@npm:1.62.25"
+"@shapeshiftoss/hdwallet-ledger-webusb@npm:1.62.26-ledger-zcash.0":
+  version: 1.62.26-ledger-zcash.0
+  resolution: "@shapeshiftoss/hdwallet-ledger-webusb@npm:1.62.26-ledger-zcash.0"
   dependencies:
-    "@ledgerhq/hw-app-btc": ^10.10.0
-    "@ledgerhq/hw-app-cosmos": ^6.32.4
-    "@ledgerhq/hw-app-eth": ^6.45.13
-    "@ledgerhq/hw-app-solana": ^7.5.1
-    "@ledgerhq/hw-transport": 6.31.8
-    "@ledgerhq/hw-transport-webusb": 6.29.8
-    "@shapeshiftoss/hdwallet-core": 1.62.25
-    "@shapeshiftoss/hdwallet-ledger": 1.62.25
+    "@ledgerhq/hw-app-btc": 10.13.0
+    "@ledgerhq/hw-app-cosmos": 6.32.9
+    "@ledgerhq/hw-app-eth": 7.0.0
+    "@ledgerhq/hw-app-solana": 7.6.0
+    "@ledgerhq/hw-transport": 6.31.13
+    "@ledgerhq/hw-transport-webusb": 6.29.13
+    "@shapeshiftoss/hdwallet-core": ^1.62.26-ledger-zcash.0
+    "@shapeshiftoss/hdwallet-ledger": ^1.62.26-ledger-zcash.0
     "@types/w3c-web-usb": ^1.0.4
     p-queue: ^7.4.1
-  checksum: b857ff4af4aafcae1c6a8f65d3c84aec0268b88b5d86308abd280867d5e992fb1fd564d26014aebac3fe5cc34070d7ad10c23cc4f821c1b9c8c371c98a684285
+  checksum: 648769b675acd370427cd1d1a95c75bb74b1333171a0a2a8e8c8ec47b97a6087042fad15203b7e568b6ffad081cc7dfabf61b1e4a29edfd3a0d0abeba1c74d23
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/hdwallet-ledger@npm:1.62.24-ledger-zcash.25":
-  version: 1.62.24-ledger-zcash.25
-  resolution: "@shapeshiftoss/hdwallet-ledger@npm:1.62.24-ledger-zcash.25"
+"@shapeshiftoss/hdwallet-ledger@npm:1.62.26-ledger-zcash.0":
+  version: 1.62.26-ledger-zcash.0
+  resolution: "@shapeshiftoss/hdwallet-ledger@npm:1.62.26-ledger-zcash.0"
   dependencies:
     "@bitgo/utxo-lib": ^11.18.0
     "@ethereumjs/common": 3.2.0
@@ -11526,7 +11482,7 @@ __metadata:
     "@ledgerhq/logs": 6.13.0
     "@mysten/ledgerjs-hw-app-sui": ^0.7.0
     "@shapeshiftoss/bitcoinjs-lib": 7.0.0-shapeshift.2
-    "@shapeshiftoss/hdwallet-core": ^1.62.24-ledger-zcash.25
+    "@shapeshiftoss/hdwallet-core": ^1.62.26-ledger-zcash.0
     "@solana/web3.js": 1.95.8
     base64-js: ^1.5.1
     bchaddrjs: ^0.4.4
@@ -11536,7 +11492,7 @@ __metadata:
     ethereumjs-util: ^6.1.0
     ethers: 5.7.2
     lodash: ^4.17.21
-  checksum: 90d636946a6c960542f181b43f4db27ba29294c0ef2ff59718ad75e8582f9fd4f89e45e667a23e509b38239fe7ec5b58f9a32a77367d2ca92eed04ab9eb6105a
+  checksum: dd01a8bca68128fc187bafaa57123f6665cde14a1ad5c4192e607b601e3b9974f1f2879265c5461f4367b3020631054f46fd5d482bed73f616617b9c282216e2
   languageName: node
   linkType: hard
 
@@ -11934,9 +11890,9 @@ __metadata:
     "@shapeshiftoss/hdwallet-keepkey": 1.62.25
     "@shapeshiftoss/hdwallet-keepkey-webusb": 1.62.25
     "@shapeshiftoss/hdwallet-keplr": 1.62.25
-    "@shapeshiftoss/hdwallet-ledger": 1.62.25
-    "@shapeshiftoss/hdwallet-ledger-webhid": 1.62.25
-    "@shapeshiftoss/hdwallet-ledger-webusb": 1.62.25
+    "@shapeshiftoss/hdwallet-ledger": 1.62.26-ledger-zcash.0
+    "@shapeshiftoss/hdwallet-ledger-webhid": 1.62.26-ledger-zcash.0
+    "@shapeshiftoss/hdwallet-ledger-webusb": 1.62.26-ledger-zcash.0
     "@shapeshiftoss/hdwallet-metamask-multichain": 1.62.25
     "@shapeshiftoss/hdwallet-native": 1.62.25
     "@shapeshiftoss/hdwallet-native-vault": 1.62.25

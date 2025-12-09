@@ -1,5 +1,6 @@
 import { Transaction } from '@cetusprotocol/aggregator-sdk/node_modules/@mysten/sui/transactions'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
+import { bnOrZero } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 
 import type {
@@ -68,7 +69,7 @@ export const cetusApi: SwapperApi = {
 
     const slippage =
       tradeQuote.slippageTolerancePercentageDecimal !== undefined
-        ? parseFloat(tradeQuote.slippageTolerancePercentageDecimal)
+        ? bnOrZero(tradeQuote.slippageTolerancePercentageDecimal).toNumber()
         : 0.01
 
     const txb = new Transaction()

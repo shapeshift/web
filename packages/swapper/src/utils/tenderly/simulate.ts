@@ -37,13 +37,14 @@ export type SimulateTransactionParams = {
   value?: string | bigint
   sellAsset: Asset
   spenderAddress?: Address
+  gas?: number
 }
 
 export const simulateWithStateOverrides = async (
   params: SimulateTransactionParams,
   config: TenderlyConfig,
 ): Promise<SimulationResult> => {
-  const { chainId, from, to, data, value, sellAsset, spenderAddress } = params
+  const { chainId, from, to, data, value, sellAsset, spenderAddress, gas } = params
 
   try {
     if (!isAddress(from)) throw new Error(`Invalid from address: ${from}`)
@@ -63,6 +64,7 @@ export const simulateWithStateOverrides = async (
       from: from.toLowerCase() as Address,
       to: to.toLowerCase() as Address,
       input: data,
+      gas,
       value: value ? toHex(BigInt(value)) : '0x0',
       save: false,
       state_objects: stateOverrides,

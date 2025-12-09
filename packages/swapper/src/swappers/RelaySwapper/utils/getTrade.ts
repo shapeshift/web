@@ -1,4 +1,10 @@
-import { btcChainId, fromChainId, solanaChainId, tronChainId } from '@shapeshiftoss/caip'
+import {
+  btcChainId,
+  fromChainId,
+  monadChainId,
+  solanaChainId,
+  tronChainId,
+} from '@shapeshiftoss/caip'
 import type { GetFeeDataInput } from '@shapeshiftoss/chain-adapters'
 import { evm, isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { UtxoChainId } from '@shapeshiftoss/types'
@@ -527,6 +533,11 @@ export async function getTrade<T extends 'quote' | 'rate'>({
               data: (selectedItem.data.data ?? '0x') as Hex,
               value: selectedItem.data.value ?? '0',
               sellAsset,
+              // Pass Relay's gas limit to Tenderly for Monad as tenderly return crazy gas
+              gas:
+                selectedItem.data.gas && sellAsset.chainId === monadChainId
+                  ? Number(selectedItem.data.gas)
+                  : undefined,
             },
             {
               apiKey: deps.config.VITE_TENDERLY_API_KEY,

@@ -126,3 +126,8 @@ export const UNI_V2_FOX_STAKING_REWARDS_CONTRACTS = [
 // Permit2 is deployed here across all chains.
 // https://0x.org/docs/introduction/0x-cheat-sheet#permit2-contract
 export const PERMIT2_CONTRACT = '0x000000000022D473030F116dDEE9F6B43aC78BA3'
+
+// Multicall3 is deployed at the same address across all EVM chains
+// See: https://www.multicall3.com/deployments
+// GitHub: https://github.com/mds1/multicall3
+export const MULTICALL3_CONTRACT = '0xcA11bde05977b3631167028862bE2a173976CA11'

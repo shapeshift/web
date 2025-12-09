@@ -37,7 +37,10 @@ import { PageBackButton, PageHeader } from '@/components/Layout/Header/PageHeade
 import { Main } from '@/components/Layout/Main'
 import { TradeRoutePaths } from '@/components/MultiHopTrade/types'
 import { fromThorBaseUnit } from '@/lib/utils/thorchain'
-import { useIsLpDepositEnabled } from '@/lib/utils/thorchain/hooks/useIsThorchainLpDepositEnabled'
+import {
+  useIsLpChainHalted,
+  useIsLpDepositEnabled,
+} from '@/lib/utils/thorchain/hooks/useIsThorchainLpDepositEnabled'
 import { useIsTradingActive } from '@/react-queries/hooks/useIsTradingActive'
 
 type MatchParams = {
@@ -113,6 +116,7 @@ export const Pool = () => {
 
   if (!assetId) throw new Error(`assetId not found for poolAssetId ${poolAssetId}`)
 
+  const { data: isLpChainHaltedForPool } = useIsLpChainHalted(assetId)
   const { data: isThorchainLpDepositEnabledForPool } = useIsLpDepositEnabled(assetId)
 
   const { data: pool } = usePool(poolAssetId)
@@ -154,16 +158,33 @@ export const Pool = () => {
   const addIcon = useMemo(() => <FaPlus />, [])
   const swapIcon = useMemo(() => <SwapIcon />, [])
 
-  if (!poolAssetId) return null
+  const maybePoolDisabledAlert = useMemo(() => {
+    // Chain-level LP halt takes precedence
+    if (isLpChainHaltedForPool === true)
+      return (
+        <Alert status='error' variant='subtle' mb={4}>
+          <AlertIcon />
+          <AlertDescription>{translate('common.poolDisabled')}</AlertDescription>
+        </Alert>
+      )
 
-  return (
-    <Main headerComponent={headerComponent} isSubPage>
-      {isThorchainLpDepositEnabledForPool === false ? (
+    // Pool-specific deposit pause
+    if (isThorchainLpDepositEnabledForPool === false)
+      return (
         <Alert status='error' variant='subtle' mb={4}>
           <AlertIcon />
           <AlertDescription>{translate('pools.depositsDisabled')}</AlertDescription>
         </Alert>
-      ) : null}
+      )
+
+    return null
+  }, [isLpChainHaltedForPool, isThorchainLpDepositEnabledForPool, translate])
+
+  if (!poolAssetId) return null
+
+  return (
+    <Main headerComponent={headerComponent} isSubPage>
+      {maybePoolDisabledAlert}
       <Flex gap={4} flexDir={flexDirPool}>
         <Stack gap={6} flex={1}>
           <Flex

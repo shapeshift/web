@@ -43,10 +43,12 @@ type ChainSpecificAccount<T> = ChainSpecific<
     [KnownChainIds.BaseMainnet]: evm.Account
     [KnownChainIds.MonadMainnet]: evm.Account
     [KnownChainIds.HyperEvmMainnet]: evm.Account
+    [KnownChainIds.PlasmaMainnet]: evm.Account
     [KnownChainIds.BitcoinMainnet]: utxo.Account
     [KnownChainIds.BitcoinCashMainnet]: utxo.Account
     [KnownChainIds.DogecoinMainnet]: utxo.Account
     [KnownChainIds.LitecoinMainnet]: utxo.Account
+    [KnownChainIds.ZcashMainnet]: utxo.Account
     [KnownChainIds.CosmosMainnet]: cosmossdk.Account
     [KnownChainIds.ThorchainMainnet]: cosmossdk.Account
     [KnownChainIds.MayachainMainnet]: cosmossdk.Account
@@ -89,10 +91,12 @@ type ChainSpecificFeeData<T> = ChainSpecific<
     [KnownChainIds.BaseMainnet]: evm.FeeData
     [KnownChainIds.MonadMainnet]: evm.FeeData
     [KnownChainIds.HyperEvmMainnet]: evm.FeeData
+    [KnownChainIds.PlasmaMainnet]: evm.FeeData
     [KnownChainIds.BitcoinMainnet]: utxo.FeeData
     [KnownChainIds.BitcoinCashMainnet]: utxo.FeeData
     [KnownChainIds.DogecoinMainnet]: utxo.FeeData
     [KnownChainIds.LitecoinMainnet]: utxo.FeeData
+    [KnownChainIds.ZcashMainnet]: utxo.FeeData
     [KnownChainIds.CosmosMainnet]: cosmossdk.FeeData
     [KnownChainIds.ThorchainMainnet]: cosmossdk.FeeData
     [KnownChainIds.MayachainMainnet]: cosmossdk.FeeData
@@ -168,10 +172,12 @@ export type ChainSignTx = {
   [KnownChainIds.ArbitrumNovaMainnet]: ETHSignTx
   [KnownChainIds.BaseMainnet]: ETHSignTx
   [KnownChainIds.MonadMainnet]: ETHSignTx
+  [KnownChainIds.PlasmaMainnet]: ETHSignTx
   [KnownChainIds.BitcoinMainnet]: BTCSignTx
   [KnownChainIds.BitcoinCashMainnet]: BTCSignTx
   [KnownChainIds.DogecoinMainnet]: BTCSignTx
   [KnownChainIds.LitecoinMainnet]: BTCSignTx
+  [KnownChainIds.ZcashMainnet]: BTCSignTx
   [KnownChainIds.CosmosMainnet]: CosmosSignTx
   [KnownChainIds.ThorchainMainnet]: ThorchainSignTx
   [KnownChainIds.MayachainMainnet]: MayachainSignTx
@@ -217,10 +223,12 @@ export type ChainSpecificBuildTxData<T> = ChainSpecific<
     [KnownChainIds.BaseMainnet]: evm.BuildTxInput
     [KnownChainIds.MonadMainnet]: evm.BuildTxInput
     [KnownChainIds.HyperEvmMainnet]: evm.BuildTxInput
+    [KnownChainIds.PlasmaMainnet]: evm.BuildTxInput
     [KnownChainIds.BitcoinMainnet]: utxo.BuildTxInput
     [KnownChainIds.BitcoinCashMainnet]: utxo.BuildTxInput
     [KnownChainIds.DogecoinMainnet]: utxo.BuildTxInput
     [KnownChainIds.LitecoinMainnet]: utxo.BuildTxInput
+    [KnownChainIds.ZcashMainnet]: utxo.BuildTxInput
     [KnownChainIds.CosmosMainnet]: cosmossdk.BuildTxInput
     [KnownChainIds.ThorchainMainnet]: cosmossdk.BuildTxInput
     [KnownChainIds.MayachainMainnet]: cosmossdk.BuildTxInput
@@ -318,12 +326,15 @@ type ChainSpecificGetFeeDataInput<T> = ChainSpecific<
     [KnownChainIds.BaseMainnet]: evm.GetFeeDataInput
     [KnownChainIds.MonadMainnet]: evm.GetFeeDataInput
     [KnownChainIds.HyperEvmMainnet]: evm.GetFeeDataInput
+    [KnownChainIds.PlasmaMainnet]: evm.GetFeeDataInput
     [KnownChainIds.BitcoinMainnet]: utxo.GetFeeDataInput
     [KnownChainIds.BitcoinCashMainnet]: utxo.GetFeeDataInput
     [KnownChainIds.DogecoinMainnet]: utxo.GetFeeDataInput
     [KnownChainIds.LitecoinMainnet]: utxo.GetFeeDataInput
+    [KnownChainIds.ZcashMainnet]: utxo.GetFeeDataInput
     [KnownChainIds.SolanaMainnet]: solana.GetFeeDataInput
     [KnownChainIds.SuiMainnet]: sui.GetFeeDataInput
+    [KnownChainIds.TronMainnet]: tron.GetFeeDataInput
   }
 >
 export type GetFeeDataInput<T extends ChainId> = {
@@ -382,12 +393,13 @@ export enum ChainAdapterDisplayName {
   ArbitrumNova = 'Arbitrum Nova',
   Base = 'Base',
   Monad = 'Monad',
-  HyperEvm = 'HyperEVM',
+  Plasma = 'Plasma',
   Cosmos = 'Cosmos',
   Bitcoin = 'Bitcoin',
   BitcoinCash = 'Bitcoin Cash',
   Dogecoin = 'Dogecoin',
   Litecoin = 'Litecoin',
+  Zcash = 'Zcash',
   Solana = 'Solana',
   Tron = 'Tron',
   Sui = 'Sui',

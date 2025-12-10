@@ -9,8 +9,8 @@ import { useNotificationToast } from '../useNotificationToast'
 import { useActionCenterContext } from '@/components/Layout/Header/ActionCenter/ActionCenterContext'
 import { GenericTransactionNotification } from '@/components/Layout/Header/ActionCenter/components/Notifications/GenericTransactionNotification'
 import { SECOND_CLASS_CHAINS } from '@/constants/chains'
-import { getHyperEvmTransactionStatus } from '@/lib/utils/hyperevm'
 import { getMonadTransactionStatus } from '@/lib/utils/monad'
+import { getPlasmaTransactionStatus } from '@/lib/utils/plasma'
 import { getSuiTransactionStatus } from '@/lib/utils/sui'
 import { getTronTransactionStatus } from '@/lib/utils/tron'
 import { actionSlice } from '@/state/slices/actionSlice/actionSlice'
@@ -35,7 +35,7 @@ export const useSendActionSubscriber = () => {
 
   const completeAction = useCallback(
     (action: ReturnType<typeof selectPendingWalletSendActions>[number]) => {
-      const { txHash, accountId } = action.transactionMetadata
+      const { txHash, accountId, accountIdsToRefetch } = action.transactionMetadata
 
       dispatch(
         actionSlice.actions.upsertAction({
@@ -54,8 +54,16 @@ export const useSendActionSubscriber = () => {
 
       if (isSecondClassChain) {
         const { getAccount } = portfolioApi.endpoints
+        const accountIdsToRefreshList = accountIdsToRefetch ?? [accountId]
 
-        dispatch(getAccount.initiate({ accountId, upsertOnFetch: true }, { forceRefetch: true }))
+        accountIdsToRefreshList.forEach(accountIdToRefresh => {
+          dispatch(
+            getAccount.initiate(
+              { accountId: accountIdToRefresh, upsertOnFetch: true },
+              { forceRefetch: true },
+            ),
+          )
+        })
       }
 
       const isActive = toast.isActive(txHash)
@@ -126,13 +134,10 @@ export const useSendActionSubscriber = () => {
                     monadTxStatus === TxStatus.Confirmed || monadTxStatus === TxStatus.Failed
                   break
                 }
-                case KnownChainIds.HyperEvmMainnet: {
-                  const hyperEvmTxStatus = await getHyperEvmTransactionStatus(
-                    txHash,
-                    'https://rpc.hyperliquid.xyz/evm',
-                  )
+                case KnownChainIds.PlasmaMainnet: {
+                  const plasmaTxStatus = await getPlasmaTransactionStatus(txHash)
                   isConfirmed =
-                    hyperEvmTxStatus === TxStatus.Confirmed || hyperEvmTxStatus === TxStatus.Failed
+                    plasmaTxStatus === TxStatus.Confirmed || plasmaTxStatus === TxStatus.Failed
                   break
                 }
                 default:

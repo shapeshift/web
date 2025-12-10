@@ -11,16 +11,17 @@ import {
   dogeChainId,
   ethChainId,
   gnosisChainId,
-  hyperEvmChainId,
   ltcChainId,
   mayachainChainId,
   monadChainId,
   optimismChainId,
+  plasmaChainId,
   polygonChainId,
   solanaChainId,
   suiChainId,
   thorchainChainId,
   tronChainId,
+  zecChainId,
 } from '@shapeshiftoss/caip'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
@@ -34,24 +35,27 @@ import {
   supportsCosmos,
   supportsETH,
   supportsGnosis,
-  supportsHyperEvm,
   supportsMayachain,
   supportsMonad,
   supportsOptimism,
+  supportsPlasma,
   supportsPolygon,
   supportsSolana,
   supportsSui,
   supportsThorchain,
   supportsTron,
 } from '@shapeshiftoss/hdwallet-core'
+import { GridPlusHDWallet } from '@shapeshiftoss/hdwallet-gridplus'
 import { isMetaMask } from '@shapeshiftoss/hdwallet-metamask-multichain'
 import { PhantomHDWallet } from '@shapeshiftoss/hdwallet-phantom'
+import { VultisigHDWallet } from '@shapeshiftoss/hdwallet-vultisig'
 import { useMemo } from 'react'
 
 import { KeyManager } from '@/context/WalletProvider/KeyManager'
 import { useIsSnapInstalled } from '@/hooks/useIsSnapInstalled/useIsSnapInstalled'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { METAMASK_RDNS } from '@/lib/mipd'
+import { isLedgerHDWallet, isNativeHDWallet, isTrezorHDWallet } from '@/lib/utils'
 import { selectAccountIdsByChainIdFilter } from '@/state/slices/portfolioSlice/selectors'
 import { selectFeatureFlag } from '@/state/slices/selectors'
 import { store, useAppSelector } from '@/state/store'
@@ -139,11 +143,28 @@ export const walletSupportsChain = ({
     case btcChainId:
       return supportsBTC(wallet)
     case bchChainId:
-      return supportsBTC(wallet) && !(wallet instanceof PhantomHDWallet)
+      return (
+        supportsBTC(wallet) &&
+        !(wallet instanceof PhantomHDWallet) &&
+        !(wallet instanceof GridPlusHDWallet)
+      )
     case dogeChainId:
-      return supportsBTC(wallet) && !(wallet instanceof PhantomHDWallet)
+      return (
+        supportsBTC(wallet) &&
+        !(wallet instanceof PhantomHDWallet) &&
+        !(wallet instanceof GridPlusHDWallet)
+      )
     case ltcChainId:
-      return supportsBTC(wallet) && !(wallet instanceof PhantomHDWallet)
+      return (
+        supportsBTC(wallet) &&
+        !(wallet instanceof PhantomHDWallet) &&
+        !(wallet instanceof GridPlusHDWallet)
+      )
+    case zecChainId:
+      return (
+        supportsBTC(wallet) &&
+        (isNativeHDWallet(wallet) || isLedgerHDWallet(wallet) || isTrezorHDWallet(wallet))
+      )
     case ethChainId:
       return supportsETH(wallet)
     case avalancheChainId:
@@ -164,8 +185,8 @@ export const walletSupportsChain = ({
       return supportsBase(wallet)
     case monadChainId:
       return supportsMonad(wallet)
-    case hyperEvmChainId:
-      return supportsHyperEvm(wallet)
+    case plasmaChainId:
+      return supportsPlasma(wallet)
     case cosmosChainId:
       return supportsCosmos(wallet)
     case thorchainChainId:
@@ -173,7 +194,7 @@ export const walletSupportsChain = ({
     case mayachainChainId:
       return supportsMayachain(wallet)
     case solanaChainId:
-      return supportsSolana(wallet)
+      return supportsSolana(wallet) && !(wallet instanceof VultisigHDWallet)
     case tronChainId:
       return supportsTron(wallet)
     case suiChainId:

@@ -9,6 +9,7 @@ import {
   hyperEvmChainId,
   monadChainId,
   optimismChainId,
+  plasmaChainId,
   polygonChainId,
   solanaChainId,
   tronChainId,
@@ -25,6 +26,7 @@ import {
   mainnet as ethereum,
   monad,
   optimism,
+  plasma,
   polygon,
 } from 'viem/chains'
 
@@ -46,7 +48,8 @@ export const chainIdToRelayChainId = {
   [bscChainId]: bsc.id,
   [tronChainId]: 728126428,
   [monadChainId]: monad.id,
-  [hyperEvmChainId]: hyperEvm.id, // HyperEVM - available in viem 2.40.1+
+  [hyperEvmChainId]: hyperEvm.id,
+  [plasmaChainId]: plasma.id,
 }
 
 export enum RelayStatusMessage {

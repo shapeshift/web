@@ -32,6 +32,8 @@ export type FeatureFlags = {
   Mayachain: boolean
   Monad: boolean
   HyperEvm: boolean
+  Plasma: boolean
+  Zcash: boolean
   ThorSwap: boolean
   WalletConnectToDapps: boolean
   WalletConnectToDappsV2: boolean
@@ -94,6 +96,7 @@ export type FeatureFlags = {
   BebopSwap: boolean
   NearIntentsSwap: boolean
   CetusSwap: boolean
+  SunioSwap: boolean
   LazyTxHistory: boolean
   RfoxFoxEcosystemPage: boolean
   LedgerReadOnly: boolean
@@ -169,6 +172,8 @@ const initialState: Preferences = {
     Mayachain: getConfig().VITE_FEATURE_MAYACHAIN,
     Monad: getConfig().VITE_FEATURE_MONAD,
     HyperEvm: getConfig().VITE_FEATURE_HYPEREVM,
+    Plasma: getConfig().VITE_FEATURE_PLASMA,
+    Zcash: getConfig().VITE_FEATURE_ZCASH,
     ThorSwap: getConfig().VITE_FEATURE_THOR_SWAP,
     WalletConnectToDappsV2: getConfig().VITE_FEATURE_WALLET_CONNECT_TO_DAPPS_V2,
     WalletConnectToDapps: getConfig().VITE_FEATURE_WALLET_CONNECT_TO_DAPPS,
@@ -231,6 +236,7 @@ const initialState: Preferences = {
     BebopSwap: getConfig().VITE_FEATURE_BEBOP_SWAP,
     NearIntentsSwap: getConfig().VITE_FEATURE_NEAR_INTENTS_SWAP,
     CetusSwap: getConfig().VITE_FEATURE_CETUS_SWAP,
+    SunioSwap: getConfig().VITE_FEATURE_SUNIO_SWAP,
     LazyTxHistory: getConfig().VITE_FEATURE_TX_HISTORY_BYE_BYE,
     RfoxFoxEcosystemPage: getConfig().VITE_FEATURE_RFOX_FOX_ECOSYSTEM_PAGE,
     LedgerReadOnly: getConfig().VITE_FEATURE_LEDGER_READ_ONLY,

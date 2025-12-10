@@ -19,6 +19,7 @@ import {
   tcy,
   thorchain,
   unfreeze,
+  zcash,
 } from '@shapeshiftoss/utils'
 import fs from 'fs'
 import merge from 'lodash/merge'
@@ -37,6 +38,7 @@ import * as hyperevm from './hyperevm'
 import * as monad from './monad'
 import * as optimism from './optimism'
 import { overrideAssets } from './overrides'
+import * as plasma from './plasma'
 import * as polygon from './polygon'
 import * as solana from './solana'
 import * as sui from './sui'
@@ -55,6 +57,7 @@ const generateAssetData = async () => {
   const baseAssets = await base.getAssets()
   const monadAssets = await monad.getAssets()
   const hyperevmAssets = await hyperevm.getAssets()
+  const plasmaAssets = await plasma.getAssets()
   const solanaAssets = await solana.getAssets()
   const tronAssets = await tronModule.getAssets()
   const suiAssets = await sui.getAssets()
@@ -65,6 +68,7 @@ const generateAssetData = async () => {
     unfreeze(bitcoincash),
     unfreeze(dogecoin),
     unfreeze(litecoin),
+    unfreeze(zcash),
     unfreeze(atom),
     unfreeze(thorchain),
     unfreeze(tcy),
@@ -82,6 +86,7 @@ const generateAssetData = async () => {
     ...baseAssets,
     ...monadAssets,
     ...hyperevmAssets,
+    ...plasmaAssets,
     ...solanaAssets,
     ...tronAssets,
     ...suiAssets,

@@ -328,10 +328,7 @@
     "viewSavedWallets": "Gespeicherte Wallets anzeigen",
     "footerOne": "Fortfahren, gilt als Zustimmung zu den ",
     "terms": "Bedingungen",
-    "privacyPolicy": "Datenschutzrichtlinie",
-    "connectNewWallet": "Neue Wallet verbinden",
-    "getANewWallet": "Hol dir eine neue Wallet",
-    "alreadyHaveWallet": "Ich besitze bereits eine Wallet"
+    "privacyPolicy": "Datenschutzrichtlinie"
   },
   "connectWallet": {
     "menu": {
@@ -755,8 +752,15 @@
     "slowSwapBody": "Dieser Wechsel kann einige Minuten dauern.",
     "thorSmartContractWalletUnsupported": "Das THORChain-Netzwerk unterstützt derzeit keine Smart Contract Wallets.",
     "intoAssetSymbolBody": "Sie können mit diesem Handel fortfahren, aber der Transaktionsverlauf für den Erhalt von %{assetSymbol} ist vorübergehend nicht verfügbar",
+    "receiveAddress": "Empfangsadresse",
     "changeAddress": "Retourgeld Adresse",
     "changeAddressExplainer": "Beim Senden von Kryptowährungen über UTXO-basierte Netzwerke werden alle Restbeträge Ihrer Transaktion an diese Adresse zurückgesendet.",
+    "depositAddress": "Einzahlungsadresse",
+    "depositAddressExplainer": "Dies ist die Protokolladresse, an die Ihre Werte zur Verarbeitung gesendet werden. Ihre Hardware Wallet zeigt diese Adresse zur Überprüfung an.",
+    "customReceiveAddress": "Benutzerdefinierte Empfangsadresse",
+    "customReceiveAddressDescription": "Geben Sie eine benutzerdefinierte Empfangsadresse für diesen Handel ein",
+    "thisIsYourCustomReceiveAddress": "Dies ist Ihre benutzerdefinierte Empfangsadresse",
+    "enterCustomReceiveAddress": "Geben Sie eine benutzerdefinierte Empfangsadresse ein",
     "receiveAtLeast": "Erhalten Sie zumindest",
     "tooltip": {
       "continueSwapping": "Weiter tauschen, um die letzten Details zu erfahren",
@@ -1426,7 +1430,9 @@
         "renamed": "SafeCard umbenannt",
         "deleted": "SafeCard gelöscht",
         "deletedDescription": "Die Portfoliodaten wurden gelöscht",
-        "warning": "Jede SafeCard verwaltet ihr eigenes Portfolio. Stellen Sie sicher, dass Sie die richtige SafeCard in Ihr Gerät einlegen, bevor Sie eine Verbindung herstellen."
+        "warning": "Jede SafeCard verwaltet ihr eigenes Portfolio. Stellen Sie sicher, dass Sie die richtige SafeCard in Ihr Gerät einlegen, bevor Sie eine Verbindung herstellen.",
+        "safeCardLabel": "SafeCard",
+        "internalSafeCardLabel": "Interne SafeCard"
       },
       "connect": {
         "header": "Neue SafeCard verbinden",
@@ -1460,6 +1466,9 @@
         "deviceNotConnected": "Gerät nicht verbunden. Rufen Sie zuerst connectDevice auf.",
         "connectFailure": "Verbindung zur GridPlus Wallet nicht möglich",
         "unknown": "Bei der Kommunikation mit der GridPlus Wallet ist ein unerwarteter Fehler aufgetreten."
+      },
+      "menu": {
+        "switchSafeCard": "Wechsle SafeCard"
       }
     },
     "ledger": {
@@ -2515,7 +2524,11 @@
       "getFeeData": "Die Netzwerkgebühren konnten nicht geschätzt werden.",
       "getPublicKey": "Der öffentliche Schlüssel konnte nicht aus der Wallet abgerufen werden.",
       "getUtxos": "Utxos konnten nicht abgerufen werden.",
-      "getValidator": "Der Validierer konnte nicht abgerufen werden."
+      "getValidator": "Der Validierer konnte nicht abgerufen werden.",
+      "gridplus": {
+        "wrongSafeCard": "Die falsche SafeCard wurde eingelegt. Bitte legen Sie die richtige SafeCard ein und versuchen Sie es erneut.",
+        "removeSafeCard": "Um auf die interne GridPlus Wallet zuzugreifen, entfernen Sie die eingelegte SafeCard."
+      }
     }
   },
   "actionCenter": {

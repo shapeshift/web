@@ -328,10 +328,7 @@
     "viewSavedWallets": "Kayıtlı Cüzdanları Görüntüle",
     "footerOne": "Devam ederek şunları kabul etmiş olursunuz:",
     "terms": "Şartlar",
-    "privacyPolicy": "Gizlilik Politikası",
-    "connectNewWallet": "Yeni Cüzdanı Bağla",
-    "getANewWallet": "Yeni Bir Cüzdan Alın",
-    "alreadyHaveWallet": "Zaten bir Cüzdanım var"
+    "privacyPolicy": "Gizlilik Politikası"
   },
   "connectWallet": {
     "menu": {
@@ -755,8 +752,15 @@
     "slowSwapBody": "Bu takasın tamamlanması birkaç dakika sürebilir.",
     "thorSmartContractWalletUnsupported": "THORChain ağı şu anda akıllı sözleşme cüzdanlarını desteklemiyor.",
     "intoAssetSymbolBody": "Bu ticarete devam edebilirsiniz, ancak %{assetSymbol} almak için işlem geçmişi geçici olarak kullanılamıyor",
+    "receiveAddress": "Çekim Adresi",
     "changeAddress": "Adresi değiştir",
     "changeAddressExplainer": "UTXO tabanlı ağlar üzerinden kripto para gönderirken, işlemden kalan fonlar bu adrese geri gönderilir.",
+    "depositAddress": "Para yatırma adresi",
+    "depositAddressExplainer": "Bu, paranızın işleme alınmak üzere gönderileceği protokol adresidir. Donanım cüzdanınız doğrulama için bu adresi gösterecektir.",
+    "customReceiveAddress": "Özel alıcı adresi",
+    "customReceiveAddressDescription": "Bu işlem için özel bir çekme adresi girin",
+    "thisIsYourCustomReceiveAddress": "Bu sizin özel çekme adresinizdir",
+    "enterCustomReceiveAddress": "Özel çekme adresini girin",
     "receiveAtLeast": "En azdan al",
     "tooltip": {
       "continueSwapping": "Son detaylar için takasa devam edin",
@@ -1426,7 +1430,9 @@
         "renamed": "SafeCard yeniden adlandırıldı",
         "deleted": "SafeCard silindi",
         "deletedDescription": "Portföy verileri temizlendi",
-        "warning": "Her SafeCard kendi portföyüne sahiptir. Bağlanmadan önce cihazınıza doğru SafeCard'ı taktığınızdan emin olun."
+        "warning": "Her SafeCard kendi portföyüne sahiptir. Bağlanmadan önce cihazınıza doğru SafeCard'ı taktığınızdan emin olun.",
+        "safeCardLabel": "SafeCard",
+        "internalSafeCardLabel": "Dahili SafeCard"
       },
       "connect": {
         "header": "Yeni SafeCard'ı Bağla",
@@ -1460,6 +1466,9 @@
         "deviceNotConnected": "Cihaz bağlı değil. Önce connectDevice'ı çağırın.",
         "connectFailure": "GridPlus cüzdanına bağlanılamıyor",
         "unknown": "GridPlus cüzdanıyla iletişim kurulurken beklenmeyen bir hata oluştu"
+      },
+      "menu": {
+        "switchSafeCard": "SafeCard'ı Değiştir"
       }
     },
     "ledger": {
@@ -2515,7 +2524,11 @@
       "getFeeData": "Ağ ücretlerinin tahmin edilmesi başarısız oldu.",
       "getPublicKey": "Cüzdandan genel anahtar alınamadı.",
       "getUtxos": "Utxos alınamadı.",
-      "getValidator": "Doğrulayıcı alınamadı."
+      "getValidator": "Doğrulayıcı alınamadı.",
+      "gridplus": {
+        "wrongSafeCard": "Yanlış SafeCard takıldı. Lütfen doğru SafeCard'ı takıp tekrar deneyin.",
+        "removeSafeCard": "Dahili GridPlus cüzdanına erişmek için takılı SafeCard'ı çıkarın."
+      }
     }
   },
   "actionCenter": {

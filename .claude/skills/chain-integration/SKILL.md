@@ -626,8 +626,18 @@ export const SECOND_CLASS_CHAINS = [
 **Poor Man's Patterns:**
 1. **No Unchained**: Use public RPC directly (ethers.js, @mysten/sui, tronweb, etc.)
 2. **No TX History**: Stub out `getTxHistory()` to return empty array
-3. **Multicall for Tokens**: Batch token balance calls where possible
-4. **Direct RPC Polling**: Use `eth_getTransactionReceipt` or equivalent for tx status
+3. **Multicall for Tokens (EVM chains)**:
+   - Import `MULTICALL3_CONTRACT` from `@shapeshiftoss/contracts` (standard address: 0xcA11bde05977b3631167028862bE2a173976CA11)
+   - Import `multicall3Abi` from `viem` instead of defining inline
+   - Use `Contract` from ethers with these imports
+   - Batch token balance calls in chunks (e.g., 500 tokens per call)
+   - Fall back to individual calls if multicall fails
+4. **Rate Limiting with PQueue**:
+   - Import `PQueue` from `p-queue` for throttling RPC requests
+   - Initialize with: `new PQueue({ intervalCap: 1, interval: 50, concurrency: 1 })`
+   - Wrap ALL provider calls in `this.requestQueue.add(() => ...)`
+   - This prevents rate limiting issues with public RPCs
+5. **Direct RPC Polling**: Use `eth_getTransactionReceipt` or equivalent for tx status
 
 **File**: `packages/chain-adapters/src/[adaptertype]/[chainname]/[ChainName]ChainAdapter.ts`
 
@@ -1353,9 +1363,29 @@ gh pr create --title "feat: implement [chainname]" \
 
 ### Gotcha 10: RPC Rate Limiting
 
-**Problem**: Requests fail intermittently
-**Solution**: Add retry logic, use multiple RPC endpoints
-**Example**: Implement fallback RPC URLs
+**Problem**: Requests fail intermittently with 429 errors or connection issues
+**Solution**: Implement request throttling with PQueue
+**Implementation**:
+```typescript
+// In your ChainAdapter constructor:
+import PQueue from 'p-queue'
+
+private requestQueue: PQueue
+
+constructor(args: ChainAdapterArgs) {
+  // ... other initialization
+  this.requestQueue = new PQueue({
+    intervalCap: 1,    // 1 request per interval
+    interval: 50,      // 50ms between requests
+    concurrency: 1,    // 1 concurrent request at a time
+  })
+}
+
+// Wrap ALL provider calls:
+const balance = await this.requestQueue.add(() => this.provider.getBalance(address))
+const gasLimit = await this.requestQueue.add(() => this.provider.estimateGas(tx))
+```
+**Example**: See MonadChainAdapter.ts for complete implementation
 
 ### Gotcha 11: Missing assertSupportsChain Case (EVM Chains)
 

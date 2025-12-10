@@ -1,8 +1,11 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import { ASSET_REFERENCE, plasmaAssetId } from '@shapeshiftoss/caip'
+import { MULTICALL3_CONTRACT } from '@shapeshiftoss/contracts'
 import type { RootBip44Params } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { Contract, Interface, JsonRpcProvider } from 'ethers'
+import PQueue from 'p-queue'
+import { multicall3Abi } from 'viem'
 
 import { ErrorHandler } from '../../error/ErrorHandler'
 import type {
@@ -25,16 +28,9 @@ import type { GasFeeDataEstimate } from '../types'
 const SUPPORTED_CHAIN_IDS = [KnownChainIds.PlasmaMainnet]
 const DEFAULT_CHAIN_ID = KnownChainIds.PlasmaMainnet
 
-// Multicall3 contract address (standard address on most EVM chains)
-const MULTICALL3_ADDRESS = '0xcA11bde05977b3631167028862bE2a173976CA11'
-
-const MULTICALL3_ABI = [
-  'function aggregate3(tuple(address target, bool allowFailure, bytes callData)[] calls) returns (tuple(bool success, bytes returnData)[])',
-]
-
 const ERC20_ABI = ['function balanceOf(address) view returns (uint256)']
 
-const BATCH_SIZE = 500 // Process 500 tokens per multicall
+const BATCH_SIZE = 500 // Process 500 tokens per multicall to avoid gas/RPC limits
 
 export type TokenInfo = {
   assetId: AssetId
@@ -64,6 +60,7 @@ export class ChainAdapter extends EvmBaseAdapter<KnownChainIds.PlasmaMainnet> {
   protected multicall: Contract
   protected erc20Interface: Interface
   protected knownTokens: TokenInfo[]
+  private requestQueue: PQueue
 
   constructor(args: ChainAdapterArgs) {
     const dummyParser = {
@@ -86,9 +83,14 @@ export class ChainAdapter extends EvmBaseAdapter<KnownChainIds.PlasmaMainnet> {
       staticNetwork: true,
     })
 
-    this.multicall = new Contract(MULTICALL3_ADDRESS, MULTICALL3_ABI, this.provider)
+    this.multicall = new Contract(MULTICALL3_CONTRACT, multicall3Abi, this.provider)
     this.erc20Interface = new Interface(ERC20_ABI)
     this.knownTokens = args.knownTokens ?? []
+    this.requestQueue = new PQueue({
+      intervalCap: 1,
+      interval: 50,
+      concurrency: 1,
+    })
   }
 
   getDisplayName() {
@@ -110,8 +112,8 @@ export class ChainAdapter extends EvmBaseAdapter<KnownChainIds.PlasmaMainnet> {
   async getAccount(pubkey: string): Promise<Account<KnownChainIds.PlasmaMainnet>> {
     try {
       const [balance, nonce] = await Promise.all([
-        this.provider.getBalance(pubkey),
-        this.provider.getTransactionCount(pubkey),
+        this.requestQueue.add(() => this.provider.getBalance(pubkey)),
+        this.requestQueue.add(() => this.provider.getTransactionCount(pubkey)),
       ])
 
       const knownTokens = await this.getKnownPlasmaTokens()
@@ -200,7 +202,7 @@ export class ChainAdapter extends EvmBaseAdapter<KnownChainIds.PlasmaMainnet> {
       callData: this.erc20Interface.encodeFunctionData('balanceOf', [pubkey]),
     }))
 
-    const results = await this.multicall.aggregate3(calls)
+    const results = await this.requestQueue.add(() => this.multicall.aggregate3(calls))
 
     return tokens
       .map((token, i) => {
@@ -244,7 +246,7 @@ export class ChainAdapter extends EvmBaseAdapter<KnownChainIds.PlasmaMainnet> {
         try {
           const contract = new Contract(token.contractAddress, ERC20_ABI, this.provider)
 
-          const balance = await contract.balanceOf(pubkey)
+          const balance = await this.requestQueue.add(() => contract.balanceOf(pubkey))
 
           return {
             assetId: token.assetId,
@@ -264,7 +266,7 @@ export class ChainAdapter extends EvmBaseAdapter<KnownChainIds.PlasmaMainnet> {
 
   async getGasFeeData(): Promise<GasFeeDataEstimate> {
     try {
-      const feeData = await this.provider.getFeeData()
+      const feeData = await this.requestQueue.add(() => this.provider.getFeeData())
 
       const gasPrice = feeData.gasPrice?.toString() ?? '0'
       const maxFeePerGas = feeData.maxFeePerGas?.toString()
@@ -291,12 +293,14 @@ export class ChainAdapter extends EvmBaseAdapter<KnownChainIds.PlasmaMainnet> {
     try {
       const estimateGasBody = this.buildEstimateGasBody(input)
 
-      const gasLimit = await this.provider.estimateGas({
-        from: estimateGasBody.from,
-        to: estimateGasBody.to,
-        value: estimateGasBody.value ? BigInt(estimateGasBody.value) : undefined,
-        data: estimateGasBody.data,
-      })
+      const gasLimit = await this.requestQueue.add(() =>
+        this.provider.estimateGas({
+          from: estimateGasBody.from,
+          to: estimateGasBody.to,
+          value: estimateGasBody.value ? BigInt(estimateGasBody.value) : undefined,
+          data: estimateGasBody.data,
+        }),
+      )
 
       const { fast, average, slow } = await this.getGasFeeData()
 
@@ -338,7 +342,7 @@ export class ChainAdapter extends EvmBaseAdapter<KnownChainIds.PlasmaMainnet> {
         receiverAddress !== CONTRACT_INTERACTION && assertAddressNotSanctioned(receiverAddress),
       ])
 
-      const txResponse = await this.provider.broadcastTransaction(hex)
+      const txResponse = await this.requestQueue.add(() => this.provider.broadcastTransaction(hex))
       return txResponse.hash
     } catch (err) {
       return ErrorHandler(err, {

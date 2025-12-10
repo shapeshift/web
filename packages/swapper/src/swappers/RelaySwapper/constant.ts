@@ -8,6 +8,7 @@ import {
   gnosisChainId,
   monadChainId,
   optimismChainId,
+  plasmaChainId,
   polygonChainId,
   solanaChainId,
   tronChainId,
@@ -23,6 +24,7 @@ import {
   mainnet as ethereum,
   monad,
   optimism,
+  plasma,
   polygon,
 } from 'viem/chains'
 
@@ -44,6 +46,7 @@ export const chainIdToRelayChainId = {
   [bscChainId]: bsc.id,
   [tronChainId]: 728126428,
   [monadChainId]: monad.id,
+  [plasmaChainId]: plasma.id,
 }
 
 export enum RelayStatusMessage {

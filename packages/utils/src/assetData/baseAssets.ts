@@ -320,6 +320,24 @@ export const monad: Readonly<Asset> = Object.freeze({
   relatedAssetKey: null,
 })
 
+export const plasma: Readonly<Asset> = Object.freeze({
+  assetId: caip.plasmaAssetId,
+  chainId: caip.plasmaChainId,
+  name: 'Plasma',
+  networkName: 'Plasma',
+  symbol: 'XPL',
+  precision: 18,
+  color: '#8B5CF6',
+  networkColor: '#8B5CF6',
+  icon: 'https://assets.coingecko.com/coins/images/66489/standard/Plasma-symbol-green-1.png?1755142558',
+  networkIcon:
+    'https://assets.coingecko.com/asset_platforms/images/32256/small/plasma.jpg?1758000963',
+  explorer: 'https://plasmascan.to',
+  explorerAddressLink: 'https://plasmascan.to/address/',
+  explorerTxLink: 'https://plasmascan.to/tx/',
+  relatedAssetKey: null,
+})
+
 export const solana: Readonly<Asset> = Object.freeze({
   assetId: caip.solAssetId,
   chainId: caip.solanaChainId,

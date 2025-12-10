@@ -626,8 +626,18 @@ export const SECOND_CLASS_CHAINS = [
 **Poor Man's Patterns:**
 1. **No Unchained**: Use public RPC directly (ethers.js, @mysten/sui, tronweb, etc.)
 2. **No TX History**: Stub out `getTxHistory()` to return empty array
-3. **Multicall for Tokens**: Batch token balance calls where possible
-4. **Direct RPC Polling**: Use `eth_getTransactionReceipt` or equivalent for tx status
+3. **Multicall for Tokens (EVM chains)**:
+   - Import `MULTICALL3_CONTRACT` from `@shapeshiftoss/contracts` (standard address: 0xcA11bde05977b3631167028862bE2a173976CA11)
+   - Import `multicall3Abi` from `viem` instead of defining inline
+   - Use `Contract` from ethers with these imports
+   - Batch token balance calls in chunks (e.g., 500 tokens per call)
+   - Fall back to individual calls if multicall fails
+4. **Rate Limiting with PQueue**:
+   - Import `PQueue` from `p-queue` for throttling RPC requests
+   - Initialize with: `new PQueue({ intervalCap: 1, interval: 50, concurrency: 1 })`
+   - Wrap ALL provider calls in `this.requestQueue.add(() => ...)`
+   - This prevents rate limiting issues with public RPCs
+5. **Direct RPC Polling**: Use `eth_getTransactionReceipt` or equivalent for tx status
 
 **File**: `packages/chain-adapters/src/[adaptertype]/[chainname]/[ChainName]ChainAdapter.ts`
 
@@ -966,6 +976,32 @@ case [chainLower]ChainId:
   return COINGECKO_NATIVE_ASSET_PLATFORM.[ChainName]
 ```
 
+**File**: `scripts/generateAssetData/coingecko.ts`
+
+```typescript
+// Import the chain ID
+import {
+  // ...
+  [chainLower]ChainId,
+} from '@shapeshiftoss/caip'
+
+// Import the base asset
+import {
+  // ...
+  [chainLower],
+} from '@shapeshiftoss/utils'
+
+// Add case in the switch statement
+case [chainLower]ChainId:
+  return {
+    assetNamespace: ASSET_NAMESPACE.erc20, // or splToken, trc20, etc.
+    category: adapters.chainIdToCoingeckoAssetPlatform(chainId),
+    explorer: [chainLower].explorer,
+    explorerAddressLink: [chainLower].explorerAddressLink,
+    explorerTxLink: [chainLower].explorerTxLink,
+  }
+```
+
 ### Step 5.2: Create Asset Generator
 
 **File**: `scripts/generateAssetData/[chainname]/index.ts`
@@ -996,6 +1032,83 @@ yarn generate:asset-data
 git add src/assets/generated/
 git commit -m "feat: add [chainname] asset generation"
 ```
+
+### Step 5.4: Research & Add Swapper Support
+
+**IMPORTANT**: After assets are generated, check which swappers support your new chain!
+
+#### Step 5.4a: Ask User About Swapper Support
+
+Use `AskUserQuestion` to determine swapper support:
+
+```
+Which swappers support [ChainName]?
+
+Options:
+1. "I know which swappers support it" → User provides list
+2. "Research it for me" → AI will search swapper docs
+3. "Skip for now" → Can add swapper support later
+
+Context: Different DEX aggregators support different chains. We need to add your chain to each swapper that supports it so users can trade.
+```
+
+#### Step 5.4b: Research Common Swapper Support (if needed)
+
+If user chooses "Research it for me", check these sources:
+
+**Relay** (most common, supports most chains):
+- Docs: https://docs.relay.link/resources/supported-chains
+- Usually supports: Ethereum, Base, Arbitrum, Optimism, Polygon, Avalanche, BSC, Gnosis, and many new EVM chains
+- Check if your chain's viem chain definition exists (e.g., `plasma` from 'viem/chains')
+
+**Other swappers to check**:
+- **0x/Matcha**: https://0x.org/docs/introduction/0x-cheat-sheet
+- **CowSwap**: https://docs.cow.fi/cow-protocol/reference/contracts/deployments
+- **Jupiter**: Solana-only
+- **THORChain**: Check https://docs.thorchain.org/chain-clients/overview
+- **ChainFlip**: Check supported chains in their docs
+
+#### Step 5.4c: Add Relay Swapper Support (Most Common)
+
+If Relay supports your chain:
+
+**File**: `packages/swapper/src/swappers/RelaySwapper/constant.ts`
+
+```typescript
+// 1. Add imports
+import {
+  // ... existing imports
+  plasmaChainId,
+} from '@shapeshiftoss/caip'
+
+import {
+  // ... existing chains
+  plasma,  // Check if viem/chains exports your chain
+} from 'viem/chains'
+
+// 2. Add to chainIdToRelayChainId mapping
+export const chainIdToRelayChainId = {
+  // ... existing mappings
+  [plasmaChainId]: plasma.id,  // Uses viem chain ID
+}
+```
+
+**File**: `packages/swapper/src/swappers/RelaySwapper/utils/relayTokenToAssetId.ts`
+
+```typescript
+// Add native asset case in switch statement (around line 124):
+case CHAIN_REFERENCE.PlasmaMainnet:
+  return {
+    assetReference: ASSET_REFERENCE.Plasma,
+    assetNamespace: ASSET_NAMESPACE.slip44,
+  }
+```
+
+#### Step 5.4d: Add Other Swapper Support (As Needed)
+
+Follow similar patterns for other swappers (CowSwap, 0x, etc.) - see `swapper-integration` skill for detailed guidance.
+
+**Reference**: Plasma added to Relay swapper for swap support
 
 ---
 
@@ -1250,9 +1363,179 @@ gh pr create --title "feat: implement [chainname]" \
 
 ### Gotcha 10: RPC Rate Limiting
 
-**Problem**: Requests fail intermittently
-**Solution**: Add retry logic, use multiple RPC endpoints
-**Example**: Implement fallback RPC URLs
+**Problem**: Requests fail intermittently with 429 errors or connection issues
+**Solution**: Implement request throttling with PQueue
+**Implementation**:
+```typescript
+// In your ChainAdapter constructor:
+import PQueue from 'p-queue'
+
+private requestQueue: PQueue
+
+constructor(args: ChainAdapterArgs) {
+  // ... other initialization
+  this.requestQueue = new PQueue({
+    intervalCap: 1,    // 1 request per interval
+    interval: 50,      // 50ms between requests
+    concurrency: 1,    // 1 concurrent request at a time
+  })
+}
+
+// Wrap ALL provider calls:
+const balance = await this.requestQueue.add(() => this.provider.getBalance(address))
+const gasLimit = await this.requestQueue.add(() => this.provider.estimateGas(tx))
+```
+**Example**: See MonadChainAdapter.ts for complete implementation
+
+### Gotcha 11: Missing assertSupportsChain Case (EVM Chains)
+
+**Problem**: Runtime error "wallet does not support: [ChainName]" even though hdwallet has `_supportsChainName = true` and `supportsChainName()` function
+**Solution**: Add chain case to `assertSupportsChain` switch statement in EvmBaseAdapter
+**File**: `packages/chain-adapters/src/evm/EvmBaseAdapter.ts`
+**Code**:
+```typescript
+// Add to imports at top:
+import {
+  // ... existing imports
+  supportsPlasma,
+} from '@shapeshiftoss/hdwallet-core'
+
+// Add to switch statement in assertSupportsChain method (around line 180):
+case Number(fromChainId(KnownChainIds.PlasmaMainnet).chainReference):
+  return supportsPlasma(wallet)
+```
+**Example**: Line ~181 in EvmBaseAdapter.ts
+**Why**: The assertSupportsChain method is called during address derivation and must explicitly check each chain, even though the wallet's `_supportsChainName` flag is true
+**Reference**: Fixed for Plasma after encountering this error at runtime
+
+### Gotcha 12: Missing Ledger App Gate Entries (ALL Chains - CRITICAL!)
+
+**Problem**: Runtime error "Unsupported chainId: eip155:XXXX" thrown from `verifyLedgerAppOpen()` during address derivation, even though wallet supports the chain
+**Solution**: Add chain to BOTH `getLedgerAppName()` and `getCoin()` switch statements in ledgerAppGate.ts
+**File**: `packages/chain-adapters/src/utils/ledgerAppGate.ts`
+
+**Code for EVM chains**:
+```typescript
+// 1. Add to getLedgerAppName (around line 27) - groups EVM chains together:
+export const getLedgerAppName = (chainId: ChainId | KnownChainIds | undefined) => {
+  switch (chainId as KnownChainIds) {
+    case KnownChainIds.ArbitrumMainnet:
+    case KnownChainIds.AvalancheMainnet:
+    // ... other EVM chains
+    case KnownChainIds.PlasmaMainnet:  // ADD THIS
+    case KnownChainIds.PolygonMainnet:
+      return 'Ethereum'  // All EVM chains use Ethereum app
+
+// 2. Add to getCoin (around line 80) - needs unique entry:
+const getCoin = (chainId: ChainId | KnownChainIds) => {
+  switch (chainId as KnownChainIds) {
+    // ... other chains
+    case KnownChainIds.PlasmaMainnet:
+      return 'Plasma'  // ADD THIS with chain-specific name
+    // ...
+    default:
+      throw Error(`Unsupported chainId: ${chainId}`)  // This is what throws the error!
+```
+
+**Code for non-EVM chains**: Add separate case with appropriate Ledger app name
+
+**Why**: The `verifyLedgerAppOpen()` function is called in `getAddress()`, `signTransaction()`, and `signMessage()` methods. Even for non-Ledger wallets, it calls `getCoin()` which throws if the chain is missing from the switch statement.
+
+**Example**: Plasma was missing from both functions, causing "Unsupported chainId: eip155:9745" error during NativeHDWallet address derivation
+
+**CRITICAL**: This affects ALL wallet types (Native, MetaMask, WalletConnect, etc.), not just Ledger! The error is very misleading - it says "Unsupported chainId" but the real issue is missing switch cases.
+
+**Reference**: Fixed for Plasma after extensive debugging - this was the root cause preventing chain from appearing in UI
+
+### Gotcha 13: Portals API Unsupported Chains Causing Account Removal
+
+**Problem**: Accounts appear briefly in UI then disappear. Error "Unsupported chainId: eip155:XXXX" from `fetchPortalsAccount` causes portfolio slice to fail, removing the account from state
+**Solution**: Change Portals utils to gracefully skip unsupported chains instead of throwing errors
+**File**: `src/lib/portals/utils.ts`
+
+**Code**:
+```typescript
+// In fetchPortalsAccount function (around line 290):
+export const fetchPortalsAccount = async (
+  chainId: ChainId,
+  owner: string,
+): Promise<Record<AssetId, TokenInfo>> => {
+  const network = CHAIN_ID_TO_PORTALS_NETWORK[chainId]
+
+  // OLD (throws and breaks everything):
+  // if (!network) throw new Error(`Unsupported chainId: ${chainId}`)
+
+  // NEW (gracefully skips):
+  if (!network) {
+    console.log(`[Portals] Chain ${chainId} not supported by Portals, skipping`)
+    return {}
+  }
+  // ... rest of function
+}
+
+// In fetchPortalsTokens function (around line 58):
+// OLD:
+// if (typeof networks === 'object') {
+//   networks.forEach((network, i) => {
+//     if (!network) throw new Error(`Unsupported chainId: ${chainIds?.[i]}`)
+//   })
+// }
+
+// NEW - just filter out undefined:
+const supportedNetworks = typeof networks === 'object' ? networks.filter(isSome) : undefined
+```
+
+**Why**: Portals is a third-party pricing/balance service that doesn't support all chains. When it throws an error, the entire portfolio slice query fails, which causes accounts to be removed from Redux state even though they were successfully derived.
+
+**Example**: Plasma accounts were being created successfully but immediately removed because Portals threw on the unsupported chainId
+
+**Important**: Don't add unsupported chains to `CHAIN_ID_TO_PORTALS_NETWORK` - let the code gracefully skip them
+
+**Reference**: Fixed for Plasma - accounts now persist even though Portals doesn't support the chain
+
+### Gotcha 14: Missing accountIdToLabel Case - Account Selection Broken in Swapper
+
+**Problem**: Accounts don't appear in swapper account dropdown. No account selection available when trying to swap FROM or TO the chain. Balance may show in header but input field shows 0.
+**Solution**: Add chain to accountIdToLabel switch statement and imports
+**File**: `src/state/slices/portfolioSlice/utils/index.ts`
+
+**Code**:
+```typescript
+// 1. Add to imports (around line 24):
+import {
+  // ... existing imports
+  plasmaChainId,
+} from '@shapeshiftoss/caip'
+
+// 2. Add to accountIdToLabel switch statement (around line 91):
+export const accountIdToLabel = (accountId: AccountId): string => {
+  const { chainId, account: pubkey } = fromAccountId(accountId)
+  switch (chainId) {
+    case avalancheChainId:
+    case optimismChainId:
+    case ethChainId:
+    // ... other EVM chains
+    case monadChainId:
+    case plasmaChainId:  // ADD THIS after monadChainId
+    case thorchainChainId:
+    // ... other chains
+      return middleEllipsis(pubkey)
+    // ... rest of cases
+  }
+}
+```
+
+**Why**: The `accountIdToLabel` function is used by AccountDropdown and other components to render account labels. Without the chain case, it returns an empty string or undefined, which causes the dropdown to not render (`if (!accountLabel) return null` in AccountDropdown.tsx).
+
+**Example**: Plasma accounts were created and had balances, but couldn't be selected in the swapper because the dropdown component failed to render
+
+**Symptoms**:
+- Balance shows in header (e.g., "Balance: 0.04386814 ETH")
+- Input field shows 0
+- No account dropdown appears
+- Chain works everywhere else (receive, view balance)
+
+**Reference**: Fixed for Plasma - account selection now works in swapper after adding to accountIdToLabel
 
 ---
 
@@ -1273,13 +1556,18 @@ gh pr create --title "feat: implement [chainname]" \
 ### Web Files (Core)
 - [ ] `packages/caip/src/constants.ts`
 - [ ] `packages/types/src/base.ts`
+- [ ] `packages/chain-adapters/src/types.ts` (add to ChainSpecificFeeData)
+- [ ] `packages/chain-adapters/src/evm/EvmBaseAdapter.ts` (for EVM: add to evmChainIds array, targetNetwork object, assertSupportsChain switch, and imports)
+- [ ] `packages/chain-adapters/src/utils/ledgerAppGate.ts` (**CRITICAL**: add to BOTH getLedgerAppName AND getCoin switch statements - see Gotcha 12)
 - [ ] `src/constants/chains.ts`
 - [ ] `packages/chain-adapters/src/[type]/[chainname]/[ChainName]ChainAdapter.ts`
 - [ ] `packages/chain-adapters/src/[type]/[chainname]/types.ts`
 - [ ] `packages/chain-adapters/src/[type]/[chainname]/index.ts`
+- [ ] `packages/chain-adapters/src/[type]/index.ts` (export the chain adapter)
 - [ ] `src/lib/utils/[chainname].ts`
-- [ ] `src/lib/account/[chainname].ts`
+- [ ] `src/lib/account/[chainname].ts` (or add to existing file like evm.ts)
 - [ ] `src/lib/account/account.ts` (wire into dispatcher)
+- [ ] `src/state/slices/portfolioSlice/utils/index.ts` (**CRITICAL**: add chainId import and case to accountIdToLabel switch - see Gotcha 14)
 
 ### Web Files (Integration)
 - [ ] `src/plugins/[chainname]/index.tsx`
@@ -1305,10 +1593,13 @@ gh pr create --title "feat: implement [chainname]" \
 - [ ] `packages/utils/src/chainIdToFeeAssetId.ts`
 - [ ] `packages/utils/src/assetData/baseAssets.ts`
 - [ ] `packages/utils/src/assetData/getBaseAsset.ts`
+- [ ] `packages/contracts/src/viemClient.ts` (for EVM chains)
+- [ ] `packages/contracts/src/ethersProviderSingleton.ts` (for EVM chains)
 
 ### Web Files (Assets)
 - [ ] `packages/caip/src/adapters/coingecko/index.ts`
 - [ ] `packages/caip/src/adapters/coingecko/utils.ts`
+- [ ] `scripts/generateAssetData/coingecko.ts`
 - [ ] `scripts/generateAssetData/[chainname]/index.ts`
 - [ ] `scripts/generateAssetData/generateAssetData.ts`
 

@@ -18,6 +18,7 @@ import { csp as litecoin } from './chains/litecoin'
 import { csp as mayachain } from './chains/mayachain'
 import { csp as monad } from './chains/monad'
 import { csp as optimism } from './chains/optimism'
+import { csp as plasma } from './chains/plasma'
 import { csp as polygon } from './chains/polygon'
 import { csp as solana } from './chains/solana'
 import { csp as sui } from './chains/sui'
@@ -109,6 +110,7 @@ export const csps = [
   zcash,
   mayachain,
   monad,
+  plasma,
   trustwallet,
   coincap,
   exchangeRates,

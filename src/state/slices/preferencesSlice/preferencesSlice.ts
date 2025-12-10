@@ -31,6 +31,7 @@ export type FeatureFlags = {
   Base: boolean
   Mayachain: boolean
   Monad: boolean
+  Plasma: boolean
   Zcash: boolean
   ThorSwap: boolean
   WalletConnectToDapps: boolean
@@ -169,6 +170,7 @@ const initialState: Preferences = {
     Base: getConfig().VITE_FEATURE_BASE,
     Mayachain: getConfig().VITE_FEATURE_MAYACHAIN,
     Monad: getConfig().VITE_FEATURE_MONAD,
+    Plasma: getConfig().VITE_FEATURE_PLASMA,
     Zcash: getConfig().VITE_FEATURE_ZCASH,
     ThorSwap: getConfig().VITE_FEATURE_THOR_SWAP,
     WalletConnectToDappsV2: getConfig().VITE_FEATURE_WALLET_CONNECT_TO_DAPPS_V2,

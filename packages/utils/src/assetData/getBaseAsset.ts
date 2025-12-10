@@ -19,6 +19,7 @@ import {
   mayachain,
   monad,
   optimism,
+  plasma,
   polygon,
   solana,
   sui,
@@ -70,6 +71,8 @@ export const getBaseAsset = (chainId: ChainId): Readonly<Asset> => {
       return tron
     case KnownChainIds.MonadMainnet:
       return monad
+    case KnownChainIds.PlasmaMainnet:
+      return plasma
     case KnownChainIds.ZcashMainnet:
       return zcash
     default:

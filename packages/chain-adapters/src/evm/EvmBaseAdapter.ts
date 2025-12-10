@@ -17,6 +17,7 @@ import {
   supportsGnosis,
   supportsMonad,
   supportsOptimism,
+  supportsPlasma,
   supportsPolygon,
 } from '@shapeshiftoss/hdwallet-core'
 import type { Bip44Params, EvmChainId, RootBip44Params } from '@shapeshiftoss/types'
@@ -78,6 +79,7 @@ export const evmChainIds = [
   KnownChainIds.ArbitrumNovaMainnet,
   KnownChainIds.BaseMainnet,
   KnownChainIds.MonadMainnet,
+  KnownChainIds.PlasmaMainnet,
 ] as const
 
 export type EvmChainAdapter = EvmBaseAdapter<EvmChainId>
@@ -176,6 +178,8 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
           return supportsBase(wallet)
         case Number(fromChainId(KnownChainIds.MonadMainnet).chainReference):
           return supportsMonad(wallet)
+        case Number(fromChainId(KnownChainIds.PlasmaMainnet).chainReference):
+          return supportsPlasma(wallet)
         default:
           return false
       }
@@ -257,6 +261,11 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
         name: 'MON',
         symbol: 'MON',
         explorer: 'https://monadvision.com',
+      },
+      [KnownChainIds.PlasmaMainnet]: {
+        name: 'Plasma',
+        symbol: 'XPL',
+        explorer: 'https://plasmascan.to',
       },
     }[this.chainId]
 

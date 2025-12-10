@@ -11241,37 +11241,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/hdwallet-core@latest":
-  version: 1.27.0
-  resolution: "@shapeshiftoss/hdwallet-core@npm:1.27.0"
-  dependencies:
-    eventemitter2: ^5.0.1
-    lodash: ^4.17.21
-    rxjs: ^6.4.0
-    type-assertions: ^1.1.0
-  checksum: 41b50e08cf7f506db8603553085e4f92cc4d9519b2faf369c07f23c01d1edb69f2dc705b27114fbd771f22eacbadedfb25321cb4189bb775390b7e6d229f10af
-  languageName: node
-  linkType: hard
-
-"@shapeshiftoss/hdwallet-core@npm:1.62.24":
-  version: 1.62.24
-  resolution: "@shapeshiftoss/hdwallet-core@npm:1.62.24"
-  dependencies:
-    "@shapeshiftoss/bitcoinjs-lib": 7.0.0-shapeshift.2
-    "@shapeshiftoss/proto-tx-builder": 0.10.0
-    "@solana/web3.js": 1.95.8
-    bs58check: ^4.0.0
-    eip-712: ^1.0.0
-    ethers: 5.7.2
-    eventemitter2: ^5.0.1
-    lodash: ^4.17.21
-    rxjs: ^6.4.0
-    type-assertions: ^1.1.0
-  checksum: a500147d38bd5ce4833f1e15722e76672a610de2a70c5775971ec397acd2685de0a8f4bbe7f34d553b5a2e1b3e014c6164f735538fe477420b9535829a51555e
-  languageName: node
-  linkType: hard
-
-"@shapeshiftoss/hdwallet-core@npm:1.62.28":
+"@shapeshiftoss/hdwallet-core@npm:1.62.28, @shapeshiftoss/hdwallet-core@npm:^1.55.1":
   version: 1.62.28
   resolution: "@shapeshiftoss/hdwallet-core@npm:1.62.28"
   dependencies:
@@ -11289,17 +11259,21 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/hdwallet-core@npm:^1.55.1":
-  version: 1.55.1
-  resolution: "@shapeshiftoss/hdwallet-core@npm:1.55.1"
+"@shapeshiftoss/hdwallet-core@npm:latest":
+  version: 1.62.27
+  resolution: "@shapeshiftoss/hdwallet-core@npm:1.62.27"
   dependencies:
-    "@shapeshiftoss/proto-tx-builder": ^0.8.0
+    "@shapeshiftoss/bitcoinjs-lib": 7.0.0-shapeshift.2
+    "@shapeshiftoss/proto-tx-builder": 0.10.0
+    "@solana/web3.js": 1.95.8
+    bs58check: ^4.0.0
     eip-712: ^1.0.0
+    ethers: 5.7.2
     eventemitter2: ^5.0.1
     lodash: ^4.17.21
     rxjs: ^6.4.0
     type-assertions: ^1.1.0
-  checksum: 8b100097dfc6a5661f1ee7e2bceb91e196813f9aee174cdc7313507017d0ecc4d80476b415d1e6791313b946a3fc8e8329eb939b91cdb57070b7d9e3e8847568
+  checksum: a896dd71cf120b55789e0524d8c06ae8f32614f4672e79039b495d153681cb707c1085333330f1d5e8a737afaacb81531a5f23c6f7b709401cbb880dfe93c3e1
   languageName: node
   linkType: hard
 
@@ -11474,7 +11448,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/hdwallet-native@npm:1.62.28":
+"@shapeshiftoss/hdwallet-native@npm:1.62.28, @shapeshiftoss/hdwallet-native@npm:^1.55.1":
   version: 1.62.28
   resolution: "@shapeshiftoss/hdwallet-native@npm:1.62.28"
   dependencies:
@@ -11504,39 +11478,6 @@ __metadata:
     scrypt-js: ^3.0.1
     tendermint-tx-builder: 1.0.16
   checksum: e1652dc643f9e5eb59ea54f0283fc0ae19b1aa714d383331cfb0eae3e745b1fbc769dfff2659ab2efc0ec53563216c86c1e85a6f30376af7127a2540b88cbbec
-  languageName: node
-  linkType: hard
-
-"@shapeshiftoss/hdwallet-native@npm:^1.55.1":
-  version: 1.62.24
-  resolution: "@shapeshiftoss/hdwallet-native@npm:1.62.24"
-  dependencies:
-    "@bitcoinerlab/secp256k1": ^1.1.1
-    "@noble/curves": ^1.4.0
-    "@shapeshiftoss/bitcoinjs-lib": 7.0.0-shapeshift.2
-    "@shapeshiftoss/hdwallet-core": 1.62.24
-    "@shapeshiftoss/proto-tx-builder": 0.10.0
-    "@zxing/text-encoding": ^0.9.0
-    bchaddrjs: ^0.4.9
-    bech32: ^1.1.4
-    bignumber.js: ^9.0.1
-    bip32: ^2.0.5
-    bip39: ^3.0.2
-    bnb-javascript-sdk-nobroadcast: 2.16.15
-    bs58check: ^4.0.0
-    crypto-js: ^4.0.0
-    ecpair: ^3.0.0-rc.0
-    eip-712: ^1.0.0
-    ethers: 5.7.2
-    eventemitter2: ^5.0.1
-    funtypes: ^3.0.1
-    hash-wasm: ^4.11.0
-    lodash: ^4.17.21
-    node-fetch: ^2.6.1
-    p-lazy: ^3.1.0
-    scrypt-js: ^3.0.1
-    tendermint-tx-builder: 1.0.16
-  checksum: 134b329a624854a6bba6baa4c6ea2e53b85ecd83f1150c064b54e04d553e0a49f8297ca26be99f4ef436306a99cf9aa5397fe0b5111ce8fc211f09759f2f6533
   languageName: node
   linkType: hard
 
@@ -11711,23 +11652,6 @@ __metadata:
     google-protobuf: ^3.17.0
     osmojs: ^0.37.0
   checksum: 4ebfb1821b6ddca2f29f9a2c55efb00d932398fd1ea607d1e8272cd50d2fd57ce4cb60d228234ad8b3e4a99c6bd858cff7de97ee0e1c9c927d458e25b6c7caf4
-  languageName: node
-  linkType: hard
-
-"@shapeshiftoss/proto-tx-builder@npm:^0.8.0":
-  version: 0.8.0
-  resolution: "@shapeshiftoss/proto-tx-builder@npm:0.8.0"
-  dependencies:
-    "@cosmjs/amino": ^0.29.4
-    "@cosmjs/crypto": 0.29.4
-    "@cosmjs/encoding": ^0.29.4
-    "@cosmjs/proto-signing": ^0.29.4
-    "@cosmjs/stargate": ^0.29.4
-    bn.js: ^5.2.1
-    cosmjs-types: ^0.5.1
-    google-protobuf: ^3.17.0
-    osmojs: ^0.37.0
-  checksum: bd67df2db2ad74b3f809a211f04d26971a580f45621f6fe22a04a9362f9a2c5d3bcdb3fc9f6bd5995f63734b25c9df8ccc819951e993a80c9ebfc1762d26b418
   languageName: node
   linkType: hard
 

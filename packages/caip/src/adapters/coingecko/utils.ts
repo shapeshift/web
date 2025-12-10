@@ -32,6 +32,8 @@ import {
   monadChainId,
   optimismAssetId,
   optimismChainId,
+  plasmaAssetId,
+  plasmaChainId,
   polygonAssetId,
   polygonChainId,
   solanaChainId,
@@ -249,6 +251,20 @@ export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
         }
       }
 
+      if (Object.keys(platforms).includes(CoingeckoAssetPlatform.Plasma)) {
+        try {
+          const assetId = toAssetId({
+            chainNamespace: CHAIN_NAMESPACE.Evm,
+            chainReference: CHAIN_REFERENCE.PlasmaMainnet,
+            assetNamespace: 'erc20',
+            assetReference: platforms[CoingeckoAssetPlatform.Plasma],
+          })
+          prev[plasmaChainId][assetId] = id
+        } catch {
+          // unable to create assetId, skip token
+        }
+      }
+
       return prev
     },
     {
@@ -262,6 +278,7 @@ export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
       [arbitrumNovaChainId]: { [arbitrumNovaAssetId]: 'ethereum' },
       [baseChainId]: { [baseAssetId]: 'ethereum' },
       [monadChainId]: { [monadAssetId]: 'monad' },
+      [plasmaChainId]: { [plasmaAssetId]: 'plasma' },
       [solanaChainId]: { [solAssetId]: 'solana' },
       [tronChainId]: { [tronAssetId]: 'tron' },
       [suiChainId]: { [suiAssetId]: 'sui' },

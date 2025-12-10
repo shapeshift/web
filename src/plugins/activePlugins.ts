@@ -14,6 +14,7 @@ import mayachain from '@/plugins/mayachain'
 import mobile from '@/plugins/mobile'
 import monad from '@/plugins/monad'
 import optimism from '@/plugins/optimism'
+import plasma from '@/plugins/plasma'
 import polygon from '@/plugins/polygon'
 import solana from '@/plugins/solana'
 import sui from '@/plugins/sui'
@@ -39,6 +40,7 @@ export const activePlugins = [
   mobile,
   monad,
   optimism,
+  plasma,
   polygon,
   solana,
   sui,

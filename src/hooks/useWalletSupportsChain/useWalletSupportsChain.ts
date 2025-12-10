@@ -15,6 +15,7 @@ import {
   mayachainChainId,
   monadChainId,
   optimismChainId,
+  plasmaChainId,
   polygonChainId,
   solanaChainId,
   suiChainId,
@@ -37,6 +38,7 @@ import {
   supportsMayachain,
   supportsMonad,
   supportsOptimism,
+  supportsPlasma,
   supportsPolygon,
   supportsSolana,
   supportsSui,
@@ -183,6 +185,8 @@ export const walletSupportsChain = ({
       return supportsBase(wallet)
     case monadChainId:
       return supportsMonad(wallet)
+    case plasmaChainId:
+      return supportsPlasma(wallet)
     case cosmosChainId:
       return supportsCosmos(wallet)
     case thorchainChainId:

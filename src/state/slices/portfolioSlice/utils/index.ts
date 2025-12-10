@@ -21,6 +21,7 @@ import {
   mayachainChainId,
   monadChainId,
   optimismChainId,
+  plasmaChainId,
   polygonChainId,
   solanaChainId,
   suiChainId,
@@ -89,6 +90,7 @@ export const accountIdToLabel = (accountId: AccountId): string => {
     case arbitrumNovaChainId:
     case baseChainId:
     case monadChainId:
+    case plasmaChainId:
     case thorchainChainId:
     case mayachainChainId:
     case cosmosChainId:

@@ -1300,6 +1300,83 @@ git commit -m "feat: generate [chainname] assets and mappings"
 
 **⚠️ CRITICAL**: NEVER commit the Zerion API key. Only use it in the command line.
 
+### Step 5.4: Research & Add Swapper Support
+
+**IMPORTANT**: After assets are generated, check which swappers support your new chain!
+
+#### Step 5.4a: Ask User About Swapper Support
+
+Use `AskUserQuestion` to determine swapper support:
+
+```
+Which swappers support [ChainName]?
+
+Options:
+1. "I know which swappers support it" → User provides list
+2. "Research it for me" → AI will search swapper docs
+3. "Skip for now" → Can add swapper support later
+
+Context: Different DEX aggregators support different chains. We need to add your chain to each swapper that supports it so users can trade.
+```
+
+#### Step 5.4b: Research Common Swapper Support (if needed)
+
+If user chooses "Research it for me", check these sources:
+
+**Relay** (most common, supports most chains):
+- Docs: https://docs.relay.link/resources/supported-chains
+- Usually supports: Ethereum, Base, Arbitrum, Optimism, Polygon, Avalanche, BSC, Gnosis, and many new EVM chains
+- Check if your chain's viem chain definition exists (e.g., `plasma` from 'viem/chains')
+
+**Other swappers to check**:
+- **0x/Matcha**: https://0x.org/docs/introduction/0x-cheat-sheet
+- **CowSwap**: https://docs.cow.fi/cow-protocol/reference/contracts/deployments
+- **Jupiter**: Solana-only
+- **THORChain**: Check https://docs.thorchain.org/chain-clients/overview
+- **ChainFlip**: Check supported chains in their docs
+
+#### Step 5.4c: Add Relay Swapper Support (Most Common)
+
+If Relay supports your chain:
+
+**File**: `packages/swapper/src/swappers/RelaySwapper/constant.ts`
+
+```typescript
+// 1. Add imports
+import {
+  // ... existing imports
+  plasmaChainId,
+} from '@shapeshiftoss/caip'
+
+import {
+  // ... existing chains
+  plasma,  // Check if viem/chains exports your chain
+} from 'viem/chains'
+
+// 2. Add to chainIdToRelayChainId mapping
+export const chainIdToRelayChainId = {
+  // ... existing mappings
+  [plasmaChainId]: plasma.id,  // Uses viem chain ID
+}
+```
+
+**File**: `packages/swapper/src/swappers/RelaySwapper/utils/relayTokenToAssetId.ts`
+
+```typescript
+// Add native asset case in switch statement (around line 124):
+case CHAIN_REFERENCE.PlasmaMainnet:
+  return {
+    assetReference: ASSET_REFERENCE.Plasma,
+    assetNamespace: ASSET_NAMESPACE.slip44,
+  }
+```
+
+#### Step 5.4d: Add Other Swapper Support (As Needed)
+
+Follow similar patterns for other swappers (CowSwap, 0x, etc.) - see `swapper-integration` skill for detailed guidance.
+
+**Reference**: Plasma added to Relay swapper for swap support
+
 ---
 
 ## Phase 6: Ledger Support (Optional)

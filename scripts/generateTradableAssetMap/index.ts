@@ -61,7 +61,7 @@ export const generateTradableAssetMap = async (
 }
 
 generateTradableAssetMap(
-  'https://daemon.thorchain.shapeshift.com/lcd/thorchain/pools',
+  'https://api.thorchain.shapeshift.com/lcd/thorchain/pools',
   [
     ['THOR.RUNE', thorchainAssetId],
     ['THOR.TCY', tcyAssetId],
@@ -75,7 +75,7 @@ generateTradableAssetMap(
   .catch(err => console.info(err))
 
 generateTradableAssetMap(
-  'https://daemon.mayachain.shapeshift.com/lcd/mayachain/pools',
+  'https://api.mayachain.shapeshift.com/lcd/mayachain/pools',
   [['MAYA.CACAO', mayachainAssetId]],
   'MayachainSwapper',
 )

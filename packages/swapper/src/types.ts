@@ -44,6 +44,7 @@ export type SwapperConfig = {
   VITE_UNCHAINED_COSMOS_HTTP_URL: string
   VITE_THORCHAIN_NODE_URL: string
   VITE_MAYACHAIN_NODE_URL: string
+  VITE_TRON_NODE_URL: string
   VITE_FEATURE_THORCHAINSWAP_LONGTAIL: boolean
   VITE_FEATURE_THORCHAINSWAP_L1_TO_LONGTAIL: boolean
   VITE_THORCHAIN_MIDGARD_URL: string
@@ -69,6 +70,7 @@ export type SwapperConfig = {
   VITE_TENDERLY_API_KEY: string
   VITE_TENDERLY_ACCOUNT_SLUG: string
   VITE_TENDERLY_PROJECT_SLUG: string
+  VITE_SUI_NODE_URL: string
 }
 
 export enum SwapperName {
@@ -86,6 +88,7 @@ export enum SwapperName {
   Bebop = 'Bebop',
   NearIntents = 'NEAR Intents',
   Cetus = 'Cetus',
+  Sunio = 'Sun.io',
 }
 
 export type SwapSource = SwapperName | `${SwapperName} • ${string}`
@@ -334,6 +337,11 @@ export type TradeQuoteStep = {
     data: string
     value: string
     gasLimit: string
+    isCrossChain?: boolean
+    buyAssetChainId?: ChainId
+    expiry?: number
+    steps?: string[]
+    route?: string[]
   }
   bebopTransactionMetadata?: {
     to: Address
@@ -369,6 +377,21 @@ export type TradeQuoteStep = {
     data: string
     value: Hex
     gasLimit: string
+  }
+  sunioTransactionMetadata?: {
+    route: {
+      amountIn: string
+      amountOut: string
+      inUsd: string
+      outUsd: string
+      impact: string
+      fee: string
+      tokens: string[]
+      symbols: string[]
+      poolFees: string[]
+      poolVersions: string[]
+      stepAmountsOut: string[]
+    }
   }
 }
 
@@ -617,6 +640,7 @@ export type CheckTradeStatusInput = {
   UtxoSwapperDeps &
   CosmosSdkSwapperDeps &
   SolanaSwapperDeps &
+  TronSwapperDeps &
   SuiSwapperDeps
 
 export type TradeStatus = {

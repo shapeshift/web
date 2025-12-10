@@ -46,6 +46,10 @@ export const getChainShortName = (chainId: KnownChainIds) => {
       return 'MON'
     case KnownChainIds.HyperEvmMainnet:
       return 'HYPE'
+    case KnownChainIds.PlasmaMainnet:
+      return 'XPL'
+    case KnownChainIds.ZcashMainnet:
+      return 'ZEC'
     default: {
       assertUnreachable(chainId)
     }

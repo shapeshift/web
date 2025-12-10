@@ -255,6 +255,34 @@ const serviceBase = createCache(maxAge, cachedUrls, {
 export const xyzService = makeSwapperAxiosServiceMonadic(serviceBase)
 ```
 
+### Key Pattern: Rate Limiting and Throttling
+
+For chain adapters and swappers that directly interact with RPC endpoints or APIs:
+
+```typescript
+import PQueue from 'p-queue'
+
+// In constructor or module scope:
+private requestQueue: PQueue = new PQueue({
+  intervalCap: 1,    // 1 request per interval
+  interval: 50,      // 50ms between requests
+  concurrency: 1,    // 1 concurrent request at a time
+})
+
+// Wrap all external API/RPC calls:
+const quote = await this.requestQueue.add(() =>
+  swapperService.get('/quote', { params })
+)
+
+// For provider calls in chain adapters:
+const balance = await this.requestQueue.add(() =>
+  this.provider.getBalance(address)
+)
+```
+
+**When to use**: Any swapper or chain adapter making direct RPC/API calls (especially public endpoints)
+**Example implementations**: MonadChainAdapter, PlasmaChainAdapter
+
 ### Key Pattern: Rate Calculation
 
 ```typescript

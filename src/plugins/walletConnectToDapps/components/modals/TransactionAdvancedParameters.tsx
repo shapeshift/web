@@ -57,7 +57,9 @@ export const TransactionAdvancedParameters = ({
             return account.chainSpecific.nonce
           }
         : skipToken,
-    staleTime: 30000,
+    // Always refetch on mount to get the latest nonce
+    staleTime: 0,
+    refetchOnMount: 'always',
   })
 
   const formContext = useFormContext<ConfirmData>()

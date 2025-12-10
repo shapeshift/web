@@ -5,6 +5,7 @@ export const btcAssetId: AssetId = 'bip122:000000000019d6689c085ae165831e93/slip
 export const bchAssetId: AssetId = 'bip122:000000000000000000651ef99cb9fcbe/slip44:145'
 export const dogeAssetId: AssetId = 'bip122:00000000001a91e3dace36e2be3bf030/slip44:3'
 export const ltcAssetId: AssetId = 'bip122:12a765e31ffd4059bada1e25190f6e98/slip44:2'
+export const zecAssetId: AssetId = 'bip122:00040fe8ec8471911baa1db1266ea15d/slip44:133'
 
 export const ethAssetId: AssetId = 'eip155:1/slip44:60'
 export const avalancheAssetId: AssetId = 'eip155:43114/slip44:60'
@@ -17,6 +18,7 @@ export const arbitrumNovaAssetId: AssetId = 'eip155:42170/slip44:60'
 export const baseAssetId: AssetId = 'eip155:8453/slip44:60'
 export const monadAssetId: AssetId = 'eip155:143/slip44:60'
 export const hyperEvmAssetId: AssetId = 'eip155:999/slip44:60'
+export const plasmaAssetId: AssetId = 'eip155:9745/slip44:60'
 export const solAssetId: AssetId = 'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp/slip44:501'
 export const wrappedSolAssetId: AssetId =
   'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp/token:So11111111111111111111111111111111111111112'
@@ -60,6 +62,7 @@ export const btcChainId: ChainId = 'bip122:000000000019d6689c085ae165831e93'
 export const bchChainId: ChainId = 'bip122:000000000000000000651ef99cb9fcbe'
 export const dogeChainId: ChainId = 'bip122:00000000001a91e3dace36e2be3bf030'
 export const ltcChainId: ChainId = 'bip122:12a765e31ffd4059bada1e25190f6e98'
+export const zecChainId: ChainId = 'bip122:00040fe8ec8471911baa1db1266ea15d'
 
 export const ethChainId: ChainId = 'eip155:1'
 export const avalancheChainId: ChainId = 'eip155:43114'
@@ -72,6 +75,7 @@ export const arbitrumNovaChainId: ChainId = 'eip155:42170'
 export const baseChainId: ChainId = 'eip155:8453'
 export const monadChainId: ChainId = 'eip155:143'
 export const hyperEvmChainId: ChainId = 'eip155:999'
+export const plasmaChainId: ChainId = 'eip155:9745'
 
 export const cosmosChainId: ChainId = 'cosmos:cosmoshub-4'
 export const thorchainChainId: ChainId = 'cosmos:thorchain-1'
@@ -101,6 +105,7 @@ export const CHAIN_REFERENCE = {
   BitcoinCashMainnet: '000000000000000000651ef99cb9fcbe',
   DogecoinMainnet: '00000000001a91e3dace36e2be3bf030',
   LitecoinMainnet: '12a765e31ffd4059bada1e25190f6e98',
+  ZcashMainnet: '00040fe8ec8471911baa1db1266ea15d',
   CosmosHubMainnet: 'cosmoshub-4',
   ThorchainMainnet: 'thorchain-1',
   MayachainMainnet: 'mayachain-mainnet-v1',
@@ -115,6 +120,7 @@ export const CHAIN_REFERENCE = {
   BaseMainnet: '8453', // https://chainlist.org/chain/8453
   MonadMainnet: '143', // https://docs.monad.xyz/developer-essentials/network-information
   HyperEvmMainnet: '999', // https://chainlist.org/chain/999
+  PlasmaMainnet: '9745', // https://chainlist.org/chain/9745
   SolanaMainnet: '5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp', // https://namespaces.chainagnostic.org/solana/caip2
   TronMainnet: '0x2b6653dc', // https://developers.tron.network/docs/networks
   SuiMainnet: '35834a8a', // First 8 chars of SUI mainnet genesis hash
@@ -136,6 +142,7 @@ export const ASSET_REFERENCE = {
   BitcoinCash: '145',
   Litecoin: '2',
   Dogecoin: '3',
+  Zcash: '133',
   Cosmos: '118',
   Thorchain: '931',
   Mayachain: '931',
@@ -151,6 +158,7 @@ export const ASSET_REFERENCE = {
   Base: '60', // evm chain which uses ethereum derivation path as common practice
   Monad: '60', // evm chain which uses ethereum derivation path as common practice
   HyperEvm: '60', // evm chain which uses ethereum derivation path as common practice
+  Plasma: '60', // evm chain which uses ethereum derivation path as common practice
   Solana: '501',
   Tron: '195',
   Sui: '784',
@@ -162,6 +170,7 @@ export const VALID_CHAIN_IDS: ValidChainMap = Object.freeze({
     CHAIN_REFERENCE.BitcoinCashMainnet,
     CHAIN_REFERENCE.DogecoinMainnet,
     CHAIN_REFERENCE.LitecoinMainnet,
+    CHAIN_REFERENCE.ZcashMainnet,
   ],
   [CHAIN_NAMESPACE.Evm]: [
     CHAIN_REFERENCE.EthereumMainnet,
@@ -175,6 +184,7 @@ export const VALID_CHAIN_IDS: ValidChainMap = Object.freeze({
     CHAIN_REFERENCE.BaseMainnet,
     CHAIN_REFERENCE.MonadMainnet,
     CHAIN_REFERENCE.HyperEvmMainnet,
+    CHAIN_REFERENCE.PlasmaMainnet,
   ],
   [CHAIN_NAMESPACE.CosmosSdk]: [
     CHAIN_REFERENCE.CosmosHubMainnet,
@@ -227,4 +237,5 @@ export const FEE_ASSET_IDS = [
   solAssetId,
   tronAssetId,
   suiAssetId,
+  zecAssetId,
 ]

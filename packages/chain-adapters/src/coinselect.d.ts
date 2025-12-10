@@ -20,7 +20,7 @@ declare module 'coinselect' {
     utxos: Utxo[],
     outputs: Output[],
     feeRate: number,
-  ): CoinSelectResult<Omit<T, 'value'> & { value: number }>
+  ): CoinSelectResult<T>
 
   export = coinSelect
 }
@@ -30,7 +30,7 @@ declare module 'coinselect/split' {
     utxos: Utxo[],
     outputs: Output[],
     feeRate: number,
-  ): CoinSelectResult<Omit<T, 'value'> & { value: number }>
+  ): CoinSelectResult<T>
 
   export = split
 }

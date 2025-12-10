@@ -60,6 +60,7 @@ export const utxoChainIds = [
   KnownChainIds.BitcoinCashMainnet,
   KnownChainIds.DogecoinMainnet,
   KnownChainIds.LitecoinMainnet,
+  KnownChainIds.ZcashMainnet,
 ] as const
 
 export type UtxoChainAdapter = UtxoBaseAdapter<UtxoChainId>
@@ -73,6 +74,7 @@ export interface ChainAdapterArgs {
       | unchained.bitcoincash.V1Api
       | unchained.dogecoin.V1Api
       | unchained.litecoin.V1Api
+      | unchained.zcash.V1Api
     ws: unchained.ws.Client<unchained.utxo.types.Tx>
   }
   thorMidgardUrl: string
@@ -101,6 +103,7 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
       | unchained.bitcoincash.V1Api
       | unchained.dogecoin.V1Api
       | unchained.litecoin.V1Api
+      | unchained.zcash.V1Api
     ws: unchained.ws.Client<unchained.utxo.types.Tx>
   }
 
@@ -299,6 +302,7 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
         sendMax,
         value,
         opReturnData,
+        assetId: this.assetId,
       })
 
       if (!coinSelectResult?.inputs || !coinSelectResult?.outputs) {
@@ -336,7 +340,23 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
 
       const signTxInputs: BTCSignTxInput[] = []
       for (const input of inputs) {
-        const data = await this.providers.http.getTransaction({ txid: input.txid })
+        const data = await (async () => {
+          try {
+            return await this.providers.http.getTransaction({ txid: input.txid })
+          } catch (error) {
+            if (this.chainId === KnownChainIds.ZcashMainnet) {
+              const response = await fetch(
+                `https://api.blockchair.com/zcash/raw/transaction/${input.txid}`,
+              )
+              const data = await response.json()
+              if (!response.ok || data.error) {
+                throw new Error(`Blockchair API error: ${data.error || response.statusText}`)
+              }
+              return { hex: data.data[input.txid].raw_transaction }
+            }
+            throw error
+          }
+        })()
 
         signTxInputs.push({
           // UTXO inputs are not guaranteed to have paths.
@@ -351,6 +371,10 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
           vout: input.vout,
           txid: input.txid,
           hex: data.hex,
+          // For Zcash, we need to pass the blockHeight and txid of each input transaction
+          // so Ledger can add them to the PSBT and determine the correct consensus branch ID
+          ...(this.coinName === 'Zcash' &&
+            'blockHeight' in data && { blockHeight: data.blockHeight }),
         })
       }
 
@@ -436,7 +460,15 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
 
       const utxos = await this.providers.http.getUtxos({ pubkey })
 
-      const utxoSelectInput = { from, to, value, opReturnData, utxos, sendMax }
+      const utxoSelectInput = {
+        from,
+        to,
+        value,
+        opReturnData,
+        utxos,
+        sendMax,
+        assetId: this.assetId,
+      }
 
       // We have to round because coinselect library uses sats per byte which cant be decimals
       const fastPerByte = String(Math.round(data.fast.satsPerKiloByte / 1000))
@@ -532,7 +564,25 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
 
   async broadcastTransaction({ hex }: Pick<BroadcastTransactionInput, 'hex'>): Promise<string> {
     try {
-      const txHash = await this.providers.http.sendTx({ sendTxBody: { hex } })
+      const txHash = await (async () => {
+        try {
+          return await this.providers.http.sendTx({ sendTxBody: { hex } })
+        } catch (error) {
+          if (this.chainId === KnownChainIds.ZcashMainnet) {
+            const response = await fetch('https://api.blockchair.com/zcash/push/transaction', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ data: hex }),
+            })
+            const data = await response.json()
+            if (!response.ok || data.error) {
+              throw new Error(`Blockchair API error: ${data.error || response.statusText}`)
+            }
+            return data.data.transaction_hash
+          }
+          throw error
+        }
+      })()
 
       return txHash
     } catch (err) {
@@ -781,7 +831,8 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
     | unchained.utxo.bitcoin.V1Api
     | unchained.utxo.bitcoincash.V1Api
     | unchained.utxo.dogecoin.V1Api
-    | unchained.utxo.litecoin.V1Api {
+    | unchained.utxo.litecoin.V1Api
+    | unchained.utxo.zcash.V1Api {
     return this.providers.http
   }
 

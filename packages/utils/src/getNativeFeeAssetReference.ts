@@ -17,6 +17,8 @@ export const getNativeFeeAssetReference = (
             return ASSET_REFERENCE.Dogecoin
           case CHAIN_REFERENCE.LitecoinMainnet:
             return ASSET_REFERENCE.Litecoin
+          case CHAIN_REFERENCE.ZcashMainnet:
+            return ASSET_REFERENCE.Zcash
           default:
             throw new Error(`Chain namespace ${chainNamespace} on ${chainReference} not supported.`)
         }
@@ -44,6 +46,8 @@ export const getNativeFeeAssetReference = (
             return ASSET_REFERENCE.Monad
           case CHAIN_REFERENCE.HyperEvmMainnet:
             return ASSET_REFERENCE.HyperEvm
+          case CHAIN_REFERENCE.PlasmaMainnet:
+            return ASSET_REFERENCE.Plasma
           default:
             throw new Error(`Chain namespace ${chainNamespace} on ${chainReference} not supported.`)
         }

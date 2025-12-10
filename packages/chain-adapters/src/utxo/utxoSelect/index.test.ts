@@ -1,3 +1,4 @@
+import { btcAssetId } from '@shapeshiftoss/caip'
 import { describe, expect, it } from 'vitest'
 
 import { utxoSelect } from './'
@@ -28,6 +29,7 @@ const utxoSelectInputStandard = {
   to: 'bc1qppzsgs9pt63cx9x994wf4e3qrpta0nm6htk9v4',
   satoshiPerByte: '1',
   value: '400',
+  assetId: btcAssetId,
 }
 
 const utxoSelectInputAdditionalUtxo = {
@@ -46,6 +48,7 @@ const utxoSelectInputAdditionalUtxo = {
   to: 'bc1qppzsgs9pt63cx9x994wf4e3qrpta0nm6htk9v4',
   satoshiPerByte: '1',
   value: '1000',
+  assetId: btcAssetId,
 }
 
 const utxoSelectInputOpReturn = {

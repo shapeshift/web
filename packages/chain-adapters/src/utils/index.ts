@@ -28,6 +28,8 @@ export const chainIdToChainLabel = (chainId: ChainId): string => {
           return 'dogecoin'
         case CHAIN_REFERENCE.LitecoinMainnet:
           return 'litecoin'
+        case CHAIN_REFERENCE.ZcashMainnet:
+          return 'zcash'
         default:
           throw new Error(
             `chainReference: ${chainReference}, not supported for chainNamespace: ${chainNamespace}`,

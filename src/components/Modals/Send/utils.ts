@@ -48,7 +48,7 @@ export type EstimateFeesInput = {
   // Optional hex-encoded calldata
   // for ERC-20s, use me in place of `data`
   memo?: string
-  from?: string
+  utxoFrom?: string
   to: string
   sendMax: boolean
   accountId: AccountId
@@ -58,7 +58,7 @@ export type EstimateFeesInput = {
 export const estimateFees = async ({
   amountCryptoPrecision,
   assetId,
-  from,
+  utxoFrom,
   memo,
   to,
   sendMax,
@@ -100,7 +100,7 @@ export const estimateFees = async ({
       const getFeeDataInput: GetFeeDataInput<UtxoChainId> = {
         to,
         value,
-        chainSpecific: { from, pubkey: account },
+        chainSpecific: { from: utxoFrom, pubkey: account },
         sendMax,
       }
       return adapter.getFeeData(getFeeDataInput)
@@ -133,6 +133,11 @@ export const estimateFees = async ({
         to,
         value,
         sendMax,
+        chainSpecific: {
+          from: account,
+          contractAddress,
+          memo,
+        },
       }
       return adapter.getFeeData(getFeeDataInput)
     }

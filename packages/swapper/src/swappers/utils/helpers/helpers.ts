@@ -7,7 +7,9 @@ import {
   ethAssetId,
   fromAssetId,
   gnosisAssetId,
+  monadAssetId,
   optimismAssetId,
+  plasmaAssetId,
   polygonAssetId,
 } from '@shapeshiftoss/caip'
 import { KnownChainIds } from '@shapeshiftoss/types'
@@ -45,6 +47,10 @@ export const isNativeEvmAsset = (assetId: AssetId): boolean => {
       return assetId === arbitrumAssetId
     case KnownChainIds.BaseMainnet:
       return assetId === baseAssetId
+    case KnownChainIds.MonadMainnet:
+      return assetId === monadAssetId
+    case KnownChainIds.PlasmaMainnet:
+      return assetId === plasmaAssetId
     default:
       return false
   }

@@ -45,6 +45,7 @@ export enum CoingeckoAssetPlatform {
   Base = 'base',
   Monad = 'monad',
   HyperEvm = 'hyperevm',
+  Plasma = 'plasma',
   Solana = 'solana',
   Tron = 'tron',
   Sui = 'sui',

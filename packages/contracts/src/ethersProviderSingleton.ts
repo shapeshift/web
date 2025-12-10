@@ -30,6 +30,8 @@ export const rpcUrlByChainId = (chainId: EvmChainId): string => {
         return process.env.VITE_MONAD_NODE_URL
       case KnownChainIds.HyperEvmMainnet:
         return process.env.VITE_HYPEREVM_NODE_URL
+      case KnownChainIds.PlasmaMainnet:
+        return process.env.VITE_PLASMA_NODE_URL
       default:
         return assertUnreachable(chainId)
     }

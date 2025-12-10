@@ -328,10 +328,7 @@
     "viewSavedWallets": "保存されたウォレットを表示する",
     "footerOne": "続行すると、次の内容に同意したことになります",
     "terms": "利用規約",
-    "privacyPolicy": "プライバシーポリシー",
-    "connectNewWallet": "新しいウォレットを接続する",
-    "getANewWallet": "新しいウォレットを入手する",
-    "alreadyHaveWallet": "すでにウォレットを持っています"
+    "privacyPolicy": "プライバシーポリシー"
   },
   "connectWallet": {
     "menu": {
@@ -755,8 +752,15 @@
     "slowSwapBody": "このスワップが完了するまでに数分かかる場合があります。",
     "thorSmartContractWalletUnsupported": "THORChainネットワークは現在、スマートコントラクト ウォレットをサポートしていません。",
     "intoAssetSymbolBody": "この取引は続行できますが、%{assetSymbol} を受け取るための取引履歴は一時的に利用できなくなります",
+    "receiveAddress": "受取アドレス",
     "changeAddress": "アドレスを変更",
     "changeAddressExplainer": "UTXO ベースのネットワークで暗号通貨を送信すると、トランザクションで残った資金はこのアドレスに送り返されます。",
+    "depositAddress": "入金先アドレス",
+    "depositAddressExplainer": "これは、資金が処理のために送金されるプロトコルアドレスです。ハードウェアウォレットには、確認のためにこのアドレスが表示されます。",
+    "customReceiveAddress": "カスタム受信アドレス",
+    "customReceiveAddressDescription": "この取引のカスタム受信アドレスを入力してください",
+    "thisIsYourCustomReceiveAddress": "これはあなたのカスタム受信アドレスです",
+    "enterCustomReceiveAddress": "カスタム受信アドレスを入力",
     "receiveAtLeast": "少なくとも受け取る",
     "tooltip": {
       "continueSwapping": "最終的な詳細について交換を続ける",
@@ -1426,7 +1430,9 @@
         "renamed": "SafeCardの名前が変更されました",
         "deleted": "セーフカードが削除されました",
         "deletedDescription": "ポートフォリオデータが消去されました",
-        "warning": "各SafeCardは独自のポートフォリオを保持しています。接続する前に、正しいSafeCardをデバイスにセットしてください。"
+        "warning": "各SafeCardは独自のポートフォリオを保持しています。接続する前に、正しいSafeCardをデバイスにセットしてください。",
+        "safeCardLabel": "SafeCard",
+        "internalSafeCardLabel": "SafeCard内部"
       },
       "connect": {
         "header": "新しいセーフカードを接続",
@@ -1460,6 +1466,9 @@
         "deviceNotConnected": "デバイスが接続されていません。まず connectDevice を呼び出してください。",
         "connectFailure": "GridPlusウォレットに接続できません",
         "unknown": "GridPlusウォレットとの通信中に予期しないエラーが発生しました"
+      },
+      "menu": {
+        "switchSafeCard": "SafeCardをスイッチする"
       }
     },
     "ledger": {
@@ -2515,7 +2524,11 @@
       "getFeeData": "ネットワーク料金の見積りに失敗しました。",
       "getPublicKey": "ウォレットから公開鍵を取得できませんでした。",
       "getUtxos": "utxos を取得できませんでした。",
-      "getValidator": "バリデータを取得できませんでした。"
+      "getValidator": "バリデータを取得できませんでした。",
+      "gridplus": {
+        "wrongSafeCard": "間違ったSafeCardが挿入されました。正しいSafeCardを挿入して、もう一度お試しください。",
+        "removeSafeCard": "挿入された SafeCard を取り外して、内部の GridPlus ウォレットにアクセスします。"
+      }
     }
   },
   "actionCenter": {

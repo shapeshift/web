@@ -340,7 +340,23 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
 
       const signTxInputs: BTCSignTxInput[] = []
       for (const input of inputs) {
-        const data = await this.providers.http.getTransaction({ txid: input.txid })
+        const data = await (async () => {
+          try {
+            return await this.providers.http.getTransaction({ txid: input.txid })
+          } catch (error) {
+            if (this.chainId === KnownChainIds.ZcashMainnet) {
+              const response = await fetch(
+                `https://api.blockchair.com/zcash/raw/transaction/${input.txid}`,
+              )
+              const data = await response.json()
+              if (!response.ok || data.error) {
+                throw new Error(`Blockchair API error: ${data.error || response.statusText}`)
+              }
+              return { hex: data.data[input.txid].raw_transaction }
+            }
+            throw error
+          }
+        })()
 
         signTxInputs.push({
           // UTXO inputs are not guaranteed to have paths.
@@ -544,7 +560,25 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
 
   async broadcastTransaction({ hex }: Pick<BroadcastTransactionInput, 'hex'>): Promise<string> {
     try {
-      const txHash = await this.providers.http.sendTx({ sendTxBody: { hex } })
+      const txHash = await (async () => {
+        try {
+          return await this.providers.http.sendTx({ sendTxBody: { hex } })
+        } catch (error) {
+          if (this.chainId === KnownChainIds.ZcashMainnet) {
+            const response = await fetch('https://api.blockchair.com/zcash/push/transaction', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ data: hex }),
+            })
+            const data = await response.json()
+            if (!response.ok || data.error) {
+              throw new Error(`Blockchair API error: ${data.error || response.statusText}`)
+            }
+            return data.data.transaction_hash
+          }
+          throw error
+        }
+      })()
 
       return txHash
     } catch (err) {

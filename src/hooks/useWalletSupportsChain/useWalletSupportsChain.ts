@@ -53,7 +53,7 @@ import { KeyManager } from '@/context/WalletProvider/KeyManager'
 import { useIsSnapInstalled } from '@/hooks/useIsSnapInstalled/useIsSnapInstalled'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { METAMASK_RDNS } from '@/lib/mipd'
-import { isLedgerHDWallet, isNativeHDWallet } from '@/lib/utils'
+import { isLedgerHDWallet, isNativeHDWallet, isTrezorHDWallet } from '@/lib/utils'
 import { selectAccountIdsByChainIdFilter } from '@/state/slices/portfolioSlice/selectors'
 import { selectFeatureFlag } from '@/state/slices/selectors'
 import { store, useAppSelector } from '@/state/store'
@@ -159,7 +159,7 @@ export const walletSupportsChain = ({
         !(wallet instanceof GridPlusHDWallet)
       )
     case zecChainId:
-      return supportsBTC(wallet) && (isNativeHDWallet(wallet) || isLedgerHDWallet(wallet))
+      return supportsBTC(wallet) && (isNativeHDWallet(wallet) || isLedgerHDWallet(wallet) || isTrezorHDWallet(wallet))
     case ethChainId:
       return supportsETH(wallet)
     case avalancheChainId:

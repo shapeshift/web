@@ -14,6 +14,7 @@ import { getAddress, zeroAddress } from 'viem'
 import { fromThorBaseUnit, getThorchainMsgDepositCoin, getThorchainTransactionType } from '..'
 
 import type { SendInput } from '@/components/Modals/Send/Form'
+import type { EstimateFeesInput } from '@/components/Modals/Send/utils'
 import { estimateFees, handleSend } from '@/components/Modals/Send/utils'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
@@ -186,11 +187,11 @@ export const useSendThorTx = ({
     transactionType,
   ])
 
-  const estimateFeesArgs = useMemo(() => {
+  const estimateFeesArgs = useMemo(():
+    | (EstimateFeesInput & { feeAssetId: AssetId })
+    | undefined => {
     if (!accountId || !asset || !assetId || !feeAsset || !memo || !transactionType || !wallet)
       return
-
-    const { account } = fromAccountId(accountId)
 
     switch (transactionType) {
       case 'MsgDeposit': {
@@ -217,7 +218,6 @@ export const useSendThorTx = ({
           assetId: shouldUseDustAmount ? feeAsset.assetId : asset.assetId,
           feeAssetId: feeAsset.assetId,
           to: inboundAddressData.router,
-          from: account,
           sendMax: false,
           memo: depositWithExpiryInputData,
           accountId,
@@ -235,7 +235,7 @@ export const useSendThorTx = ({
           assetId,
           feeAssetId: feeAsset.assetId,
           to: inboundAddressData.address,
-          from: fromAddress,
+          utxoFrom: fromAddress,
           sendMax: false,
           memo,
           accountId,

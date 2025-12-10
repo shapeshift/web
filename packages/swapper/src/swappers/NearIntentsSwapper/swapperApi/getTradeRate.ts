@@ -1,4 +1,4 @@
-import { CHAIN_NAMESPACE, fromAssetId } from '@shapeshiftoss/caip'
+import { CHAIN_NAMESPACE, fromAssetId, monadChainId } from '@shapeshiftoss/caip'
 import { evm } from '@shapeshiftoss/chain-adapters'
 import {
   bn,
@@ -125,10 +125,32 @@ export const getTradeRate = async (
     const getFeeData = async (): Promise<string | undefined> => {
       switch (chainNamespace) {
         case CHAIN_NAMESPACE.Evm: {
-          try {
-            const contractAddress = contractAddressOrUndefined(sellAsset.assetId)
-            const data = evm.getErc20Data(depositAddress, sellAmount, contractAddress)
+          const sellAdapter = deps.assertGetEvmChainAdapter(sellAsset.chainId)
+          const contractAddress = contractAddressOrUndefined(sellAsset.assetId)
+          const data = evm.getErc20Data(depositAddress, sellAmount, contractAddress)
 
+          // For Monad, skip Tenderly and use adapter's getFeeData directly
+          if (sellAsset.chainId === monadChainId) {
+            try {
+              const feeData = await sellAdapter.getFeeData({
+                to: contractAddress ?? depositAddress,
+                value: isNativeEvmAsset(sellAsset.assetId) ? sellAmount : '0',
+                chainSpecific: {
+                  from: sendAddress || depositAddress,
+                  contractAddress,
+                  data: data || '0x',
+                },
+                sendMax: false,
+              })
+              return feeData.fast.txFee
+            } catch (error) {
+              console.error('Failed to estimate fees for Monad Near Intents:', error)
+              return '0'
+            }
+          }
+
+          // For other EVM chains, use Tenderly simulation
+          try {
             const simulationResult = await simulateWithStateOverrides(
               {
                 chainId: sellAsset.chainId,
@@ -150,11 +172,8 @@ export const getTradeRate = async (
             }
 
             // Calculate network fee using the simulated gas limit
-            const sellAdapter = deps.assertGetEvmChainAdapter(sellAsset.chainId)
             const { average } = await sellAdapter.getGasFeeData()
-
             const supportsEIP1559 = 'maxFeePerGas' in average
-
             const networkFeeCryptoBaseUnit = evm.calcNetworkFeeCryptoBaseUnit({
               ...average,
               supportsEIP1559,
@@ -224,9 +243,14 @@ export const getTradeRate = async (
         case CHAIN_NAMESPACE.Tron: {
           try {
             const sellAdapter = deps.assertGetTronChainAdapter(sellAsset.chainId)
+            const contractAddress = contractAddressOrUndefined(sellAsset.assetId)
             const feeData = await sellAdapter.getFeeData({
               to: depositAddress,
               value: sellAmount,
+              chainSpecific: {
+                from: sendAddress,
+                contractAddress,
+              },
             })
 
             return feeData.fast.txFee

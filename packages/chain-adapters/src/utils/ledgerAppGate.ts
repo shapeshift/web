@@ -37,6 +37,8 @@ export const getLedgerAppName = (chainId: ChainId | KnownChainIds | undefined) =
       return 'Dogecoin'
     case KnownChainIds.LitecoinMainnet:
       return 'Litecoin'
+    case KnownChainIds.ZcashMainnet:
+      return 'Zcash'
     case KnownChainIds.SolanaMainnet:
       return 'Solana'
     case KnownChainIds.ThorchainMainnet:
@@ -57,6 +59,8 @@ const getCoin = (chainId: ChainId | KnownChainIds) => {
       return 'BitcoinCash'
     case KnownChainIds.LitecoinMainnet:
       return 'Litecoin'
+    case KnownChainIds.ZcashMainnet:
+      return 'Zcash'
     case KnownChainIds.EthereumMainnet:
       return 'Ethereum'
     case KnownChainIds.AvalancheMainnet:

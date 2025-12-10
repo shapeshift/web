@@ -25,6 +25,7 @@ import {
   sui,
   thorchain,
   tron,
+  zcash,
 } from './baseAssets'
 
 export const getBaseAsset = (chainId: ChainId): Readonly<Asset> => {
@@ -72,6 +73,8 @@ export const getBaseAsset = (chainId: ChainId): Readonly<Asset> => {
       return monad
     case KnownChainIds.PlasmaMainnet:
       return plasma
+    case KnownChainIds.ZcashMainnet:
+      return zcash
     default:
       return assertUnreachable(knownChainId)
   }

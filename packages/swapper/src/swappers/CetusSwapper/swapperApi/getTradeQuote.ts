@@ -1,22 +1,13 @@
-import type { AssetId } from '@shapeshiftoss/caip'
-import { suiAssetId } from '@shapeshiftoss/caip'
 import type { GetFeeDataInput } from '@shapeshiftoss/chain-adapters'
 import type { KnownChainIds } from '@shapeshiftoss/types'
 import type { Result } from '@sniptt/monads'
-import { Err, Ok } from '@sniptt/monads'
+import { Err } from '@sniptt/monads'
 import { v4 as uuid } from 'uuid'
 
-import type {
-  CommonTradeQuoteInput,
-  ProtocolFee,
-  SwapErrorRight,
-  SwapperDeps,
-  TradeQuote,
-} from '../../../types'
+import type { CommonTradeQuoteInput, SwapErrorRight, SwapperDeps, TradeQuote } from '../../../types'
 import { SwapperName, TradeQuoteError } from '../../../types'
-import { getInputOutputRate, makeSwapErrorRight } from '../../../utils'
-import { isSupportedChainId } from '../utils/constants'
-import { calculateSwapAmounts, findBestPool, getCetusSDK, getCoinType } from '../utils/helpers'
+import { makeSwapErrorRight } from '../../../utils'
+import { getCetusTradeData } from './getCetusTradeData'
 
 export const getTradeQuote = async (
   input: CommonTradeQuoteInput,
@@ -32,8 +23,6 @@ export const getTradeQuote = async (
     slippageTolerancePercentageDecimal,
   } = input
 
-  const { assetsById } = deps
-
   if (accountNumber === undefined) {
     return Err(
       makeSwapErrorRight({
@@ -43,93 +32,38 @@ export const getTradeQuote = async (
     )
   }
 
-  if (!isSupportedChainId(sellAsset.chainId)) {
-    return Err(
-      makeSwapErrorRight({
-        message: `unsupported chainId`,
-        code: TradeQuoteError.UnsupportedChain,
-        details: { chainId: sellAsset.chainId },
-      }),
-    )
-  }
-
-  if (!isSupportedChainId(buyAsset.chainId)) {
-    return Err(
-      makeSwapErrorRight({
-        message: `unsupported chainId`,
-        code: TradeQuoteError.UnsupportedChain,
-        details: { chainId: buyAsset.chainId },
-      }),
-    )
-  }
-
-  const suiAsset = assetsById[suiAssetId]
-
-  if (!suiAsset) {
-    return Err(
-      makeSwapErrorRight({
-        message: `suiAsset is required`,
-        code: TradeQuoteError.InternalError,
-      }),
-    )
-  }
-
-  try {
-    const sdk = await getCetusSDK()
-
-    const sellCoinType = getCoinType(sellAsset)
-    const buyCoinType = getCoinType(buyAsset)
-
-    const pool = await findBestPool(sdk, sellCoinType, buyCoinType)
-
-    if (!pool) {
-      return Err(
-        makeSwapErrorRight({
-          message: `No liquidity pool found for ${sellAsset.symbol}/${buyAsset.symbol}`,
-          code: TradeQuoteError.NoRouteFound,
-        }),
-      )
-    }
-
-    const swapResult = await calculateSwapAmounts(sdk, pool, sellAsset, buyAsset, sellAmount)
-
-    if (!swapResult) {
-      return Err(
-        makeSwapErrorRight({
-          message: `Failed to calculate swap for ${sellAsset.symbol}/${buyAsset.symbol}`,
-          code: TradeQuoteError.QueryFailed,
-        }),
-      )
-    }
-
-    const buyAmountAfterFeesCryptoBaseUnit = swapResult.estimatedAmountOut
-
-    const rate = getInputOutputRate({
-      sellAmountCryptoBaseUnit: sellAmount,
-      buyAmountCryptoBaseUnit: buyAmountAfterFeesCryptoBaseUnit,
+  const tradeDataResult = await getCetusTradeData(
+    {
       sellAsset,
       buyAsset,
-    })
+      receiveAddress,
+      sellAmountIncludingProtocolFeesCryptoBaseUnit: sellAmount,
+    },
+    deps,
+  )
 
-    const adapter = deps.assertGetSuiChainAdapter(sellAsset.chainId)
+  if (tradeDataResult.isErr()) return Err(tradeDataResult.unwrapErr())
 
-    const dummyAddress = '0x0000000000000000000000000000000000000000000000000000000000000000'
-    const addressForFeeEstimate = receiveAddress ?? dummyAddress
+  const {
+    buyAmountAfterFeesCryptoBaseUnit,
+    rate,
+    addressForFeeEstimate,
+    sellCoinType,
+    protocolFees,
+    adapter,
+  } = tradeDataResult.unwrap()
 
+  try {
     const getFeeDataInput: GetFeeDataInput<KnownChainIds.SuiMainnet> = {
       to: addressForFeeEstimate,
       value: sellAmount,
       chainSpecific: {
         from: addressForFeeEstimate,
-        tokenId: getCoinType(sellAsset),
+        tokenId: sellCoinType,
       },
     }
 
     const feeData = await adapter.getFeeData(getFeeDataInput)
-
-    const protocolFees: Record<AssetId, ProtocolFee> = {}
-
-    const quotes: TradeQuote[] = []
 
     const tradeQuote: TradeQuote = {
       id: uuid(),
@@ -163,9 +97,7 @@ export const getTradeQuote = async (
       ],
     }
 
-    quotes.push(tradeQuote)
-
-    return Ok(quotes)
+    return tradeDataResult.map(() => [tradeQuote])
   } catch (error) {
     console.error(error)
     return Err(

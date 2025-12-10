@@ -29,6 +29,7 @@ export enum KnownChainIds {
   BitcoinCashMainnet = 'bip122:000000000000000000651ef99cb9fcbe',
   DogecoinMainnet = 'bip122:00000000001a91e3dace36e2be3bf030',
   LitecoinMainnet = 'bip122:12a765e31ffd4059bada1e25190f6e98',
+  ZcashMainnet = 'bip122:00040fe8ec8471911baa1db1266ea15d',
   CosmosMainnet = 'cosmos:cosmoshub-4',
   ThorchainMainnet = 'cosmos:thorchain-1',
   MayachainMainnet = 'cosmos:mayachain-mainnet-v1',
@@ -62,6 +63,7 @@ export type UtxoChainId =
   | KnownChainIds.BitcoinCashMainnet
   | KnownChainIds.DogecoinMainnet
   | KnownChainIds.LitecoinMainnet
+  | KnownChainIds.ZcashMainnet
 
 export type TronChainId = KnownChainIds.TronMainnet
 

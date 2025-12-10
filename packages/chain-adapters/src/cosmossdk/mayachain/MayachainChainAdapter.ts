@@ -26,7 +26,7 @@ import { CosmosSdkBaseAdapter, Denoms } from '../CosmosSdkBaseAdapter'
 import type { MayachainMsgDeposit, MayachainMsgSend } from '../types'
 import { MayachainMessageType } from '../types'
 
-// static automatic native fee as defined by: https://daemon.mayachain.shapeshift.com/lcd/mayachain/constants
+// static automatic native fee as defined by: https://api.mayachain.shapeshift.com/lcd/mayachain/constants
 export const NATIVE_FEE = '2000000000'
 
 const SUPPORTED_CHAIN_IDS = [KnownChainIds.MayachainMainnet]

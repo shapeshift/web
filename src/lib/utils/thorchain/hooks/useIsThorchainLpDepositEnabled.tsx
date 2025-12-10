@@ -5,6 +5,31 @@ import { assetIdToThorPoolAssetId } from '@shapeshiftoss/swapper'
 import type { ThorchainMimir } from '../types'
 import { useThorchainMimir } from './useThorchainMimir'
 
+// Check if LP is disabled at the chain level (global or chain-specific PAUSELP)
+export const isLpChainHalted = ({
+  mimir,
+  assetId,
+}: {
+  mimir: ThorchainMimir
+  assetId: AssetId | undefined
+}) => {
+  if (!assetId) return undefined
+
+  // Check global PAUSELP
+  if (mimir.PAUSELP) return true
+
+  const thorchainAssetId = assetIdToThorPoolAssetId({ assetId })
+  const chainThorNotation = thorchainAssetId?.split('.')[0] // Extract chain: 'ETH', 'AVAX', 'BTC', etc
+
+  // Check chain-specific PAUSELP (e.g., PAUSELPETH, PAUSELPAVAX)
+  if (chainThorNotation) {
+    const pauseLpChainKey = `PAUSELP${chainThorNotation}` as keyof ThorchainMimir
+    if (mimir[pauseLpChainKey]) return true
+  }
+
+  return false
+}
+
 export const isLpDepositEnabled = ({
   mimir,
   assetId,
@@ -16,10 +41,18 @@ export const isLpDepositEnabled = ({
 
   if (mimir.PAUSELP) return false
 
+  const thorchainAssetId = assetIdToThorPoolAssetId({ assetId })
+  const chainThorNotation = thorchainAssetId?.split('.')[0] // Extract chain: 'ETH', 'AVAX', 'BTC', etc
+
+  // Check chain-specific PAUSELP (e.g., PAUSELPETH, PAUSELPAVAX)
+  if (chainThorNotation) {
+    const pauseLpChainKey = `PAUSELP${chainThorNotation}` as keyof ThorchainMimir
+    if (mimir[pauseLpChainKey]) return false
+  }
+
   const pauseLpDepositMimirs = Object.fromEntries(
     Object.entries(mimir).filter(([k]) => k.startsWith('PAUSELPDEPOSIT-')),
   )
-  const thorchainAssetId = assetIdToThorPoolAssetId({ assetId })
 
   const isDisabled = Object.entries(pauseLpDepositMimirs).some(([k, v]) => {
     // PAUSELPDEPOSIT- mimirs don't use the usual dot notation
@@ -44,7 +77,24 @@ export const isLpWithdrawEnabled = ({
 
   if (mimir.PAUSELP) return false
 
+  const thorchainAssetId = assetIdToThorPoolAssetId({ assetId })
+  const chainThorNotation = thorchainAssetId?.split('.')[0] // Extract chain: 'ETH', 'AVAX', 'BTC', etc
+
+  // Check chain-specific PAUSELP (e.g., PAUSELPETH, PAUSELPAVAX)
+  if (chainThorNotation) {
+    const pauseLpChainKey = `PAUSELP${chainThorNotation}` as keyof ThorchainMimir
+    if (mimir[pauseLpChainKey]) return false
+  }
+
   return true
+}
+
+export const useIsLpChainHalted = (assetId: AssetId | undefined) => {
+  return useThorchainMimir({
+    chainId: thorchainChainId,
+    enabled: Boolean(assetId),
+    select: mimir => isLpChainHalted({ mimir, assetId }),
+  })
 }
 
 export const useIsLpDepositEnabled = (assetId: AssetId | undefined) => {

@@ -35,7 +35,7 @@ export const useSendActionSubscriber = () => {
 
   const completeAction = useCallback(
     (action: ReturnType<typeof selectPendingWalletSendActions>[number]) => {
-      const { txHash, accountId } = action.transactionMetadata
+      const { txHash, accountId, accountIdsToRefetch } = action.transactionMetadata
 
       dispatch(
         actionSlice.actions.upsertAction({
@@ -54,8 +54,16 @@ export const useSendActionSubscriber = () => {
 
       if (isSecondClassChain) {
         const { getAccount } = portfolioApi.endpoints
+        const accountIdsToRefreshList = accountIdsToRefetch ?? [accountId]
 
-        dispatch(getAccount.initiate({ accountId, upsertOnFetch: true }, { forceRefetch: true }))
+        accountIdsToRefreshList.forEach(accountIdToRefresh => {
+          dispatch(
+            getAccount.initiate(
+              { accountId: accountIdToRefresh, upsertOnFetch: true },
+              { forceRefetch: true },
+            ),
+          )
+        })
       }
 
       const isActive = toast.isActive(txHash)

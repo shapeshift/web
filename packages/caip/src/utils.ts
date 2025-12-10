@@ -35,6 +35,7 @@ export const bitcoinAssetMap = { [constants.btcAssetId]: 'bitcoin' }
 export const bitcoinCashAssetMap = { [constants.bchAssetId]: 'bitcoin-cash' }
 export const dogecoinAssetMap = { [constants.dogeAssetId]: 'dogecoin' }
 export const litecoinAssetMap = { [constants.ltcAssetId]: 'litecoin' }
+export const zcashAssetMap = { [constants.zecAssetId]: 'zcash' }
 export const cosmosAssetMap = { [constants.cosmosAssetId]: 'cosmos' }
 export const thorchainAssetMap = { [constants.thorchainAssetId]: 'thorchain' }
 export const mayachainAssetMap = { [constants.mayachainAssetId]: 'cacao' }

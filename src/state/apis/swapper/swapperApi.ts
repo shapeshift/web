@@ -15,10 +15,11 @@ import {
 import type { ApiQuote, TradeQuoteOrRateRequest } from '@/state/apis/swapper/types'
 import { getEnabledSwappers } from '@/state/helpers'
 import type { ReduxState } from '@/state/reducer'
+import { selectWalletName } from '@/state/slices/common-selectors'
 import type { FeatureFlags } from '@/state/slices/preferencesSlice/preferencesSlice'
 import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
 
-export const BULK_FETCH_RATE_TIMEOUT_MS = 10000
+export const BULK_FETCH_RATE_TIMEOUT_MS = 15000
 
 export const swapperApi = createApi({
   ...BASE_RTK_CREATE_API_CONFIG,
@@ -45,10 +46,13 @@ export const swapperApi = createApi({
           Boolean(sendAddress && receiveAddress) &&
           sendAddress?.toLowerCase() !== receiveAddress?.toLowerCase()
         const featureFlags: FeatureFlags = preferences.selectors.selectFeatureFlags(state)
+        const walletName = selectWalletName(state)
         const isSwapperEnabled = getEnabledSwappers(
           featureFlags,
           isCrossAccountTrade,
           isSolBuyAssetId,
+          walletName,
+          sellAsset.assetId,
         )[swapperName]
 
         if (!isSwapperEnabled) return { data: {} }
@@ -135,10 +139,13 @@ export const swapperApi = createApi({
         const isCrossAccountTrade = false
 
         const featureFlags: FeatureFlags = preferences.selectors.selectFeatureFlags(state)
+        const walletName = selectWalletName(state)
         const enabledSwappers = getEnabledSwappers(
           featureFlags,
           isCrossAccountTrade,
           isSolBuyAssetId,
+          walletName,
+          sellAsset.assetId,
         )
 
         const enabledSwapperNames = (Object.keys(enabledSwappers) as SwapperName[]).filter(

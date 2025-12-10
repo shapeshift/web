@@ -19,6 +19,7 @@ import {
   tcy,
   thorchain,
   unfreeze,
+  zcash,
 } from '@shapeshiftoss/utils'
 import fs from 'fs'
 import merge from 'lodash/merge'
@@ -65,6 +66,7 @@ const generateAssetData = async () => {
     unfreeze(bitcoincash),
     unfreeze(dogecoin),
     unfreeze(litecoin),
+    unfreeze(zcash),
     unfreeze(atom),
     unfreeze(thorchain),
     unfreeze(tcy),

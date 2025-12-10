@@ -288,3 +288,5 @@ export function assertIsKnownChainId(chainId: ChainId): asserts chainId is Known
     throw Error(`Unknown ChainId${chainId}`)
   }
 }
+
+export * from './tron'

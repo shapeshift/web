@@ -10,6 +10,7 @@ interface ImportMetaEnv {
   readonly VITE_FEATURE_BASE: string
   readonly VITE_FEATURE_MAYACHAIN: string
   readonly VITE_FEATURE_OPTIMISM: string
+  readonly VITE_FEATURE_ZCASH: string
   readonly VITE_FEATURE_MIXPANEL: string
   readonly VITE_ENABLE_ADDRESSABLE: string
   readonly VITE_FEATURE_SAVERS_VAULTS: string
@@ -159,6 +160,8 @@ interface ImportMetaEnv {
   readonly VITE_UNCHAINED_MAYACHAIN_WS_URL: string
   readonly VITE_UNCHAINED_SOLANA_HTTP_URL: string
   readonly VITE_UNCHAINED_SOLANA_WS_URL: string
+  readonly VITE_UNCHAINED_ZCASH_HTTP_URL: string
+  readonly VITE_UNCHAINED_ZCASH_WS_URL: string
   readonly VITE_ETHEREUM_NODE_URL: string
   readonly VITE_AVALANCHE_NODE_URL: string
   readonly VITE_OPTIMISM_NODE_URL: string

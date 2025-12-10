@@ -90,7 +90,7 @@ export class ChainAdapter extends UtxoBaseAdapter<KnownChainIds.DogecoinMainnet>
 
     const utxos = await this.providers.http.getUtxos({ pubkey })
 
-    const utxoSelectInput = { from, to, value, opReturnData, utxos, sendMax }
+    const utxoSelectInput = { from, to, value, opReturnData, utxos, sendMax, assetId: this.assetId }
 
     // We have to round because coinselect library uses sats per byte which cant be decimals
     const fastPerByte = String(Math.round(fast.satsPerKiloByte / 1000))

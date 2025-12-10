@@ -385,3 +385,19 @@ export const sui: Readonly<Asset> = Object.freeze({
   explorerTxLink: 'https://suiscan.xyz/mainnet/tx/',
   relatedAssetKey: null,
 })
+
+export const zcash: Readonly<Asset> = Object.freeze({
+  assetId: caip.zecAssetId,
+  chainId: caip.zecChainId,
+  name: 'Zcash',
+  networkName: 'Zcash',
+  symbol: 'ZEC',
+  precision: 8,
+  color: '#f4b728',
+  networkColor: '#f4b728',
+  icon: 'https://rawcdn.githack.com/trustwallet/assets/fb59e296f64fe3df5afdf8148e88603851b613ae/blockchains/zcash/info/logo.png',
+  explorer: 'https://blockchair.com',
+  explorerAddressLink: 'https://blockchair.com/zcash/address/',
+  explorerTxLink: 'https://blockchair.com/zcash/transaction/',
+  relatedAssetKey: null,
+})

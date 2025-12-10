@@ -21,6 +21,7 @@ import {
   suiAssetId,
   thorchainAssetId,
   tronAssetId,
+  zecAssetId,
 } from '@shapeshiftoss/caip'
 import { KnownChainIds } from '@shapeshiftoss/types'
 
@@ -71,6 +72,8 @@ export const chainIdToFeeAssetId = (_chainId: ChainId): AssetId => {
       return monadAssetId
     case KnownChainIds.PlasmaMainnet:
       return plasmaAssetId
+    case KnownChainIds.ZcashMainnet:
+      return zecAssetId
     default:
       return assertUnreachable(chainId)
   }

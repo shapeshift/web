@@ -13,6 +13,7 @@ import {
   solanaChainId,
   suiChainId,
   tronChainId,
+  zecChainId,
 } from '@shapeshiftoss/caip'
 import type { Asset, AssetsById } from '@shapeshiftoss/types'
 import axios from 'axios'
@@ -50,6 +51,7 @@ class _AssetService {
       if (!config.VITE_FEATURE_TRON && asset.chainId === tronChainId) return false
       if (!config.VITE_FEATURE_MONAD && asset.chainId === monadChainId) return false
       if (!config.VITE_FEATURE_MAYACHAIN && asset.chainId === mayachainChainId) return false
+      if (!config.VITE_FEATURE_ZCASH && asset.chainId === zecChainId) return false
       return true
     })
 

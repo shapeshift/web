@@ -19,6 +19,7 @@ import {
   mayachainChainId,
   monadChainId,
   optimismChainId,
+  plasmaChainId,
   polygonChainId,
   solanaChainId,
   suiChainId,
@@ -101,6 +102,8 @@ export const chainIdToCoingeckoAssetPlatform = (chainId: ChainId): string => {
           return CoingeckoAssetPlatform.Monad
         case CHAIN_REFERENCE.HyperEvmMainnet:
           return CoingeckoAssetPlatform.HyperEvm
+        case CHAIN_REFERENCE.PlasmaMainnet:
+          return CoingeckoAssetPlatform.Plasma
         default:
           throw new Error(
             `chainNamespace ${chainNamespace}, chainReference ${chainReference} not supported.`,
@@ -179,6 +182,8 @@ export const coingeckoAssetPlatformToChainId = (
       return monadChainId
     case CoingeckoAssetPlatform.HyperEvm:
       return hyperEvmChainId
+    case CoingeckoAssetPlatform.Plasma:
+      return plasmaChainId
     case CoingeckoAssetPlatform.Cosmos:
       return cosmosChainId
     case CoingeckoAssetPlatform.Thorchain:

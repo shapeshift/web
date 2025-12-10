@@ -3,6 +3,7 @@ import { ASSET_REFERENCE, hyperEvmAssetId } from '@shapeshiftoss/caip'
 import type { RootBip44Params } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { Contract, Interface, JsonRpcProvider } from 'ethers'
+import PQueue from 'p-queue'
 
 import { ErrorHandler } from '../../error/ErrorHandler'
 import type {
@@ -64,6 +65,7 @@ export class ChainAdapter extends EvmBaseAdapter<KnownChainIds.HyperEvmMainnet> 
   protected multicall: Contract
   protected erc20Interface: Interface
   protected knownTokens: TokenInfo[]
+  private requestQueue: PQueue
 
   constructor(args: ChainAdapterArgs) {
     // Create a dummy parser - we won't use it since we don't support tx history
@@ -90,6 +92,11 @@ export class ChainAdapter extends EvmBaseAdapter<KnownChainIds.HyperEvmMainnet> 
     this.multicall = new Contract(MULTICALL3_ADDRESS, MULTICALL3_ABI, this.provider)
     this.erc20Interface = new Interface(ERC20_ABI)
     this.knownTokens = args.knownTokens ?? []
+    this.requestQueue = new PQueue({
+      intervalCap: 1,
+      interval: 50,
+      concurrency: 1,
+    })
   }
 
   getDisplayName() {
@@ -111,8 +118,8 @@ export class ChainAdapter extends EvmBaseAdapter<KnownChainIds.HyperEvmMainnet> 
   async getAccount(pubkey: string): Promise<Account<KnownChainIds.HyperEvmMainnet>> {
     try {
       const [balance, nonce] = await Promise.all([
-        this.provider.getBalance(pubkey),
-        this.provider.getTransactionCount(pubkey),
+        this.requestQueue.add(() => this.provider.getBalance(pubkey)),
+        this.requestQueue.add(() => this.provider.getTransactionCount(pubkey)),
       ])
 
       // Get known tokens from asset service for HyperEVM
@@ -208,7 +215,7 @@ export class ChainAdapter extends EvmBaseAdapter<KnownChainIds.HyperEvmMainnet> 
     }))
 
     // Execute multicall
-    const results = await this.multicall.aggregate3(calls)
+    const results = await this.requestQueue.add(() => this.multicall.aggregate3(calls))
 
     // Decode results
     return tokens
@@ -253,7 +260,7 @@ export class ChainAdapter extends EvmBaseAdapter<KnownChainIds.HyperEvmMainnet> 
         try {
           const contract = new Contract(token.contractAddress, ERC20_ABI, this.provider)
 
-          const balance = await contract.balanceOf(pubkey)
+          const balance = await this.requestQueue.add(() => contract.balanceOf(pubkey))
 
           return {
             assetId: token.assetId,
@@ -273,7 +280,7 @@ export class ChainAdapter extends EvmBaseAdapter<KnownChainIds.HyperEvmMainnet> 
 
   async getGasFeeData(): Promise<GasFeeDataEstimate> {
     try {
-      const feeData = await this.provider.getFeeData()
+      const feeData = await this.requestQueue.add(() => this.provider.getFeeData())
 
       const gasPrice = feeData.gasPrice?.toString() ?? '0'
       const maxFeePerGas = feeData.maxFeePerGas?.toString()
@@ -300,12 +307,14 @@ export class ChainAdapter extends EvmBaseAdapter<KnownChainIds.HyperEvmMainnet> 
     try {
       const estimateGasBody = this.buildEstimateGasBody(input)
 
-      const gasLimit = await this.provider.estimateGas({
-        from: estimateGasBody.from,
-        to: estimateGasBody.to,
-        value: estimateGasBody.value ? BigInt(estimateGasBody.value) : undefined,
-        data: estimateGasBody.data,
-      })
+      const gasLimit = await this.requestQueue.add(() =>
+        this.provider.estimateGas({
+          from: estimateGasBody.from,
+          to: estimateGasBody.to,
+          value: estimateGasBody.value ? BigInt(estimateGasBody.value) : undefined,
+          data: estimateGasBody.data,
+        }),
+      )
 
       const { fast, average, slow } = await this.getGasFeeData()
 

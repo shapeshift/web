@@ -93,7 +93,12 @@ export const AvailablePools = () => {
 
           const statusContent = useMemo(() => {
             switch (true) {
-              case pool.isLpDepositEnabled === false:
+              case pool.isLpChainHalted === true:
+                return {
+                  color: 'red.500',
+                  element: <Text translation='common.disabled' />,
+                }
+              case pool.isLpDepositEnabled === false && !pool.isLpChainHalted:
                 return {
                   color: 'red.500',
                   element: <Text translation='pools.depositsDisabled' />,
@@ -128,6 +133,7 @@ export const AvailablePools = () => {
             isThorchainLpInteractionDisabled,
             pool.annualPercentageRate,
             pool.status,
+            pool.isLpChainHalted,
             pool.isLpDepositEnabled,
             pool.isTradingActive,
           ])

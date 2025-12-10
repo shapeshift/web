@@ -70,6 +70,7 @@ export type SwapperConfig = {
   VITE_TENDERLY_API_KEY: string
   VITE_TENDERLY_ACCOUNT_SLUG: string
   VITE_TENDERLY_PROJECT_SLUG: string
+  VITE_SUI_NODE_URL: string
 }
 
 export enum SwapperName {
@@ -336,6 +337,11 @@ export type TradeQuoteStep = {
     data: string
     value: string
     gasLimit: string
+    isCrossChain?: boolean
+    buyAssetChainId?: ChainId
+    expiry?: number
+    steps?: string[]
+    route?: string[]
   }
   bebopTransactionMetadata?: {
     to: Address

@@ -25,6 +25,8 @@ import { getSunioTradeRate } from './getSunioTradeRate/getSunioTradeRate'
 import { buildSwapRouteParameters } from './utils/buildSwapRouteParameters'
 import { SUNIO_SMART_ROUTER_CONTRACT } from './utils/constants'
 
+const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
+
 const convertAddressesToEvmFormat = (value: unknown): unknown => {
   if (Array.isArray(value)) {
     return value.map(v => convertAddressesToEvmFormat(v))
@@ -167,6 +169,9 @@ export const sunioApi: SwapperApi = {
 
   checkTradeStatus: async ({ txHash, assertGetTronChainAdapter }) => {
     try {
+      // Wait for TronGrid indexing to avoid false "REVERT"
+      await sleep(2000)
+
       const adapter = assertGetTronChainAdapter(tronChainId)
       const tx = await adapter.httpProvider.getTransaction({ txid: txHash })
 

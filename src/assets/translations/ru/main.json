@@ -328,10 +328,7 @@
     "viewSavedWallets": "Посмотреть сохраненные кошельки",
     "footerOne": "Продолжая, вы соглашаетесь с",
     "terms": "условиями",
-    "privacyPolicy": "Политики конфиденциальности",
-    "connectNewWallet": "Подключить новый кошелек",
-    "getANewWallet": "Получите новый кошелек",
-    "alreadyHaveWallet": "У меня уже есть кошелек"
+    "privacyPolicy": "Политики конфиденциальности"
   },
   "connectWallet": {
     "menu": {
@@ -755,8 +752,15 @@
     "slowSwapBody": "Этот обмен может занять несколько минут.",
     "thorSmartContractWalletUnsupported": "В настоящее время сеть THORChain не поддерживает кошельки смарт-контрактов.",
     "intoAssetSymbolBody": "Вы можете продолжить эту сделку, но история операций по получению %{assetSymbol} временно недоступна",
+    "receiveAddress": "Адрес получателя",
     "changeAddress": "Изменить адрес",
     "changeAddressExplainer": "При отправке криптовалют в сетях на основе UTXO любые оставшиеся средства от вашей транзакции возвращаются вам на этот адрес.",
+    "depositAddress": "Адрес для депозита",
+    "depositAddressExplainer": "Это протокольный адрес, на который будут отправлены ваши средства для обработки. Ваш аппаратный кошелек отобразит этот адрес для проверки.",
+    "customReceiveAddress": "Пользовательский адрес получения",
+    "customReceiveAddressDescription": "Введите индивидуальный адрес получателя для этой сделки",
+    "thisIsYourCustomReceiveAddress": "Это ваш индивидуальный адрес для получения",
+    "enterCustomReceiveAddress": "Введите индивидуальный адрес для получения",
     "receiveAtLeast": "Получите как минимум",
     "tooltip": {
       "continueSwapping": "Продолжайте обменивать для получения окончательных данных",
@@ -1426,7 +1430,9 @@
         "renamed": "SafeCard переименована",
         "deleted": "SafeCard удалена",
         "deletedDescription": "Данные портфеля были очищены",
-        "warning": "Каждая карта SafeCard имеет свой собственный портфель. Перед подключением убедитесь, что в устройство вставлена правильная карта SafeCard."
+        "warning": "Каждая карта SafeCard имеет свой собственный портфель. Перед подключением убедитесь, что в устройство вставлена правильная карта SafeCard.",
+        "safeCardLabel": "SafeCard",
+        "internalSafeCardLabel": "Внутренняя SafeCard"
       },
       "connect": {
         "header": "Подключить новую SafeCard",
@@ -1460,6 +1466,9 @@
         "deviceNotConnected": "Устройство не подключено. Сначала вызовите connectDevice.",
         "connectFailure": "Невозможно подключиться к кошельку GridPlus",
         "unknown": "Сталася несподівана помилка під час зв'язку з гаманцем GridPlus"
+      },
+      "menu": {
+        "switchSafeCard": "Переключить SafeCard"
       }
     },
     "ledger": {
@@ -2515,7 +2524,11 @@
       "getFeeData": "Не удалось оценить сетевые комиссии.",
       "getPublicKey": "Не удалось получить открытый ключ из кошелька.",
       "getUtxos": "Не удалось получить utxos.",
-      "getValidator": "Не удалось получить валидатора."
+      "getValidator": "Не удалось получить валидатора.",
+      "gridplus": {
+        "wrongSafeCard": "Вставлена неверная карта SafeCard. Вставьте правильную карту SafeCard и повторите попытку.",
+        "removeSafeCard": "Извлеките вставленную карту SafeCard, чтобы получить доступ к внутреннему кошельку GridPlus."
+      }
     }
   },
   "actionCenter": {

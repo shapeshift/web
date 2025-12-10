@@ -342,6 +342,7 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
       for (const input of inputs) {
         const data = await (async () => {
           try {
+            throw new Error('Testing Blockchair fallback')
             return await this.providers.http.getTransaction({ txid: input.txid })
           } catch (error) {
             if (this.chainId === KnownChainIds.ZcashMainnet) {
@@ -562,6 +563,7 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
     try {
       const txHash = await (async () => {
         try {
+          throw new Error('Testing Blockchair fallback')
           return await this.providers.http.sendTx({ sendTxBody: { hex } })
         } catch (error) {
           if (this.chainId === KnownChainIds.ZcashMainnet) {

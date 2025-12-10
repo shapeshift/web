@@ -175,6 +175,9 @@ describe('adapters:coingecko:utils', () => {
         'eip155:143': {
           'eip155:143/slip44:60': 'monad',
         },
+        'eip155:9745': {
+          'eip155:9745/slip44:60': 'plasma',
+        },
         'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp': {
           'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp/slip44:501': 'solana',
         },

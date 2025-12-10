@@ -8,7 +8,6 @@ import {
   gnosisChainId,
   monadChainId,
   optimismChainId,
-  plasmaChainId,
   polygonChainId,
 } from '@shapeshiftoss/caip'
 import invert from 'lodash/invert'
@@ -23,7 +22,6 @@ export const CHAIN_ID_TO_PORTALS_NETWORK: Partial<Record<ChainId, string>> = {
   [gnosisChainId]: 'gnosis',
   [baseChainId]: 'base',
   [monadChainId]: 'monad',
-  [plasmaChainId]: 'plasma',
 }
 
 export const PORTALS_NETWORK_TO_CHAIN_ID: Partial<Record<string, ChainId>> = invert(

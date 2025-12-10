@@ -373,7 +373,8 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
           hex: data.hex,
           // For Zcash, we need to pass the blockHeight and txid of each input transaction
           // so Ledger can add them to the PSBT and determine the correct consensus branch ID
-          ...(this.coinName === 'Zcash' && data.blockHeight && { blockHeight: data.blockHeight }),
+          ...(this.coinName === 'Zcash' &&
+            'blockHeight' in data && { blockHeight: data.blockHeight }),
         })
       }
 

@@ -68,6 +68,8 @@ type Message =
     }
   | {
       cmd: 'console'
+      fn: 'log' | 'warn' | 'error'
+      data: string
     }
 
 export type MessageFromMobileApp = {

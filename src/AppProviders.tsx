@@ -1,5 +1,5 @@
 import { ChakraProvider, ColorModeScript, createLocalStorageManager } from '@chakra-ui/react'
-import React, { useCallback } from 'react'
+import React, { Suspense, useCallback } from 'react'
 import { ErrorBoundary } from 'react-error-boundary'
 import { HelmetProvider } from 'react-helmet-async'
 import { Provider as ReduxProvider } from 'react-redux'
@@ -28,6 +28,7 @@ import { SplashScreen } from '@/pages/SplashScreen/SplashScreen'
 import { WalletConnectV2Provider } from '@/plugins/walletConnectToDapps/WalletConnectV2Provider'
 import { persistor, store } from '@/state/store'
 import { theme } from '@/theme/theme'
+import { defaultSuspenseFallback } from '@/utils/makeSuspenseful'
 import { captureExceptionWithContext } from '@/utils/sentry/helpers'
 
 type ProvidersProps = {
@@ -85,10 +86,10 @@ export function AppProviders({ children }: ProvidersProps) {
                                     >
                                       <AppProvider>
                                         <DefiManagerProvider>
-                                          <>
-                                            {children}
+                                          {children}
+                                          <Suspense fallback={defaultSuspenseFallback}>
                                             <WalletViewsRouter />
-                                          </>
+                                          </Suspense>
                                         </DefiManagerProvider>
                                       </AppProvider>
                                     </ErrorBoundary>

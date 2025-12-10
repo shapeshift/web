@@ -7,7 +7,7 @@ import { WALLET_CONFIGS } from '../constants'
 import { useDirectWalletConnect } from '../useDirectConnect'
 
 import { WalletConnectCurrentColorIcon } from '@/components/Icons/WalletConnectIcon'
-import { isMobile } from '@/lib/globals'
+import { isMobile as isMobileApp } from '@/lib/globals'
 
 const WalletConnectBadge = () => (
   <Circle size='16px' bg='#3B99FC'>
@@ -71,7 +71,7 @@ export const WalletConnectDirectRow = () => {
   const { connect } = useDirectWalletConnect()
   const [loadingWallet, setLoadingWallet] = useState<WalletConnectWalletId | null>(null)
   const [wallets, setWallets] = useState<WalletConfig[]>([])
-  const [isDetecting, setIsDetecting] = useState(isMobile)
+  const [isDetecting, setIsDetecting] = useState(isMobileApp)
 
   const handleDirectConnect = useCallback(
     async (walletId: WalletConnectWalletId) => {
@@ -90,7 +90,7 @@ export const WalletConnectDirectRow = () => {
 
   useEffect(() => {
     const detectWallets = async () => {
-      if (!isMobile) {
+      if (!isMobileApp) {
         setWallets(WALLET_CONFIGS.slice(0, 3))
         setIsDetecting(false)
         return

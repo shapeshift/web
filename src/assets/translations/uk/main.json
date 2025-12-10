@@ -328,10 +328,7 @@
     "viewSavedWallets": "Переглянути збережені гаманці",
     "footerOne": "Продовжуючи, ви погоджуєтеся з",
     "terms": "Умовами",
-    "privacyPolicy": "Політики конфіденційності",
-    "connectNewWallet": "Підключити новий гаманець",
-    "getANewWallet": "Отримайте новий гаманець",
-    "alreadyHaveWallet": "У мене вже є гаманець"
+    "privacyPolicy": "Політики конфіденційності"
   },
   "connectWallet": {
     "menu": {
@@ -755,8 +752,15 @@
     "slowSwapBody": "Цей обмін може зайняти кілька хвилин.",
     "thorSmartContractWalletUnsupported": "Наразі мережа THORchain не підтримує гаманці смарт-контрактів.",
     "intoAssetSymbolBody": "Ви можете продовжити цю угоду, але історія транзакцій по отриманню %{assetSymbol} тимчасово недоступна",
+    "receiveAddress": "Адреса для отримання",
     "changeAddress": "Змінити адресу",
     "changeAddressExplainer": "При відправленні криптовалют у мережах на основі UTXO будь-які залишки коштів від вашої транзакції повертаються вам на цю адресу.",
+    "depositAddress": "Адреса депозиту",
+    "depositAddressExplainer": "Це протокольна адреса, на яку будуть відправлені ваші кошти для обробки. Ваш апаратний гаманець відобразить цю адресу для перевірки.",
+    "customReceiveAddress": "Адреса для отримання клейму",
+    "customReceiveAddressDescription": "Введіть індивідуальну адресу для отримання цієї угоди",
+    "thisIsYourCustomReceiveAddress": "Це ваша індивідуальна адреса для отримання повідомлень",
+    "enterCustomReceiveAddress": "Введіть адресу для отримання",
     "receiveAtLeast": "Отримаєте щонайменше",
     "tooltip": {
       "continueSwapping": "Продовжуйте обмін для отримання фінальних деталей",
@@ -1426,7 +1430,9 @@
         "renamed": "SafeCard перейменовано",
         "deleted": "SafeCard видалено",
         "deletedDescription": "Дані портфоліо були очищені",
-        "warning": "Кожна SafeCard має власний портфель. Перед підключенням переконайтеся, що ви вставили в пристрій правильну SafeCard."
+        "warning": "Кожна SafeCard має власний портфель. Перед підключенням переконайтеся, що ви вставили в пристрій правильну SafeCard.",
+        "safeCardLabel": "SafeCard",
+        "internalSafeCardLabel": "Внутрішня SafeCard"
       },
       "connect": {
         "header": "Підключити нову SafeCard",
@@ -1460,6 +1466,9 @@
         "deviceNotConnected": "Пристрій не підключено. Спочатку нажміть connectDevice.",
         "connectFailure": "Неможливо підключитися до гаманця GridPlus",
         "unknown": "Сталася несподівана помилка під час зв'язку з гаманцем GridPlus"
+      },
+      "menu": {
+        "switchSafeCard": "Переключити SafeCard"
       }
     },
     "ledger": {
@@ -2515,7 +2524,11 @@
       "getFeeData": "Не вдалося оцінити мережеві комісії.",
       "getPublicKey": "Не вдалося отримати публічний ключ від гаманця.",
       "getUtxos": "Не вдалося дістати utxos.",
-      "getValidator": "Не вдалося отримати валідатора."
+      "getValidator": "Не вдалося отримати валідатора.",
+      "gridplus": {
+        "wrongSafeCard": "Вставлено неправильну картку SafeCard. Вставте правильну картку SafeCard і спробуйте ще раз.",
+        "removeSafeCard": "Вийміть вставлену картку SafeCard, щоб отримати доступ до внутрішнього гаманця GridPlus."
+      }
     }
   },
   "actionCenter": {

@@ -2,7 +2,6 @@ import type { AssetId } from '@shapeshiftoss/caip'
 import { ASSET_REFERENCE, monadAssetId } from '@shapeshiftoss/caip'
 import type { RootBip44Params } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
-// @ts-ignore fml that'll do for now
 import { Contract, Interface, JsonRpcProvider } from 'ethers'
 
 import { ErrorHandler } from '../../error/ErrorHandler'

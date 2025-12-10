@@ -4,8 +4,8 @@ import type { RootBip44Params } from '@shapeshiftoss/types'
 import { KnownChainIds, UtxoAccountType } from '@shapeshiftoss/types'
 import * as unchained from '@shapeshiftoss/unchained-client'
 
-import { ChainAdapterDisplayName } from '../../types'
 import type { BroadcastTransactionInput } from '../../types'
+import { ChainAdapterDisplayName } from '../../types'
 import type { ChainAdapterArgs as BaseChainAdapterArgs } from '../UtxoBaseAdapter'
 import { UtxoBaseAdapter } from '../UtxoBaseAdapter'
 

@@ -103,16 +103,14 @@ export const verifyLedgerAppOpen = async (chainId: ChainId | KnownChainIds, wall
     try {
       await wallet.validateCurrentApp(coin)
       return true
-    } catch (err) {
+    } catch {
       return false
     }
   }
 
-  const appAlreadyOpen = await isAppOpen()
-  if (appAlreadyOpen) return
+  if (await isAppOpen()) return
 
   let intervalId: NodeJS.Timeout | undefined
-  let attempts = 0
 
   try {
     await new Promise<void>((resolve, reject) => {
@@ -124,11 +122,7 @@ export const verifyLedgerAppOpen = async (chainId: ChainId | KnownChainIds, wall
       wallet.openApp(appName)
 
       intervalId = setInterval(async () => {
-        attempts++
-
-        if (!(await isAppOpen())) {
-          return
-        }
+        if (!(await isAppOpen())) return
 
         // emit event to trigger modal close
         emitter.emit('LedgerAppOpened')
@@ -136,7 +130,7 @@ export const verifyLedgerAppOpen = async (chainId: ChainId | KnownChainIds, wall
         resolve()
       }, 1000)
     })
-  } catch (err) {
+  } catch {
     clearInterval(intervalId)
     throw new ChainAdapterError('Ledger app open cancelled', {
       translation: 'chainAdapters.errors.ledgerAppOpenCancelled',

@@ -292,12 +292,7 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
 
       this.assertIsAccountTypeSupported(accountType)
 
-      console.log(`[${this.coinName} Adapter] buildSendApiTransaction - fetching UTXOs for xpub:`, xpub)
-      console.log(`[${this.coinName} Adapter] chainSpecific.from (UTXO filter):`, from)
-
       const utxos = await this.providers.http.getUtxos({ pubkey: xpub })
-
-      console.log(`[${this.coinName} Adapter] Fetched ${utxos.length} UTXOs:`, JSON.stringify(utxos, null, 2))
 
       const coinSelectResult = utxoSelect({
         utxos,
@@ -309,13 +304,6 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
         opReturnData,
         assetId: this.assetId,
       })
-
-      console.log(`[${this.coinName} Adapter] coinSelect result:`, JSON.stringify({
-        inputsCount: coinSelectResult?.inputs?.length,
-        inputs: coinSelectResult?.inputs,
-        outputsCount: coinSelectResult?.outputs?.length,
-        fee: coinSelectResult?.fee,
-      }, null, 2))
 
       if (!coinSelectResult?.inputs || !coinSelectResult?.outputs) {
         throw new Error('error selecting utxos')
@@ -352,16 +340,7 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
 
       const signTxInputs: BTCSignTxInput[] = []
       for (const input of inputs) {
-        console.log(`[${this.coinName} Adapter] Fetching transaction hex for input:`, {
-          txid: input.txid,
-          vout: input.vout,
-          value: input.value,
-        })
-
         const data = await this.providers.http.getTransaction({ txid: input.txid })
-
-        console.log(`[${this.coinName} Adapter] Got transaction hex, length:`, data.hex?.length || 0)
-        console.log(`[${this.coinName} Adapter] Transaction blockHeight:`, data.blockHeight)
 
         signTxInputs.push({
           // UTXO inputs are not guaranteed to have paths.
@@ -408,13 +387,6 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
         outputs: signTxOutputs,
         opReturnData,
       } as SignTx<T>
-
-      console.log(`[${this.coinName} Adapter] buildSendApiTransaction result:`, JSON.stringify({
-        coin: this.coinName,
-        inputsCount: signTxInputs.length,
-        outputsCount: signTxOutputs.length,
-        opReturnData,
-      }, null, 2))
 
       return txToSign
     } catch (err) {

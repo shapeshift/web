@@ -1319,9 +1319,9 @@
       "errors": {
         "unknown": "Une erreur inattendue s'est produite lors de la communication avec votre KeepKey",
         "updateAlert": "Le firmware %{version} ou ultérieur est requis pour utiliser votre KeepKey avec ce client. Veuillez mettre à jour votre appareil.",
-        "pinCancelled": "La saisie du NIP a été annulée",
-        "pinInvalid": "Le NIP que vous avez saisi n'est pas valide",
-        "pinMismatch": "Les deux NIP que vous avez saisis ne correspondent pas"
+        "pinCancelled": "La saisie du PIN a été annulée",
+        "pinInvalid": "Le PIN que vous avez saisi n'est pas valide",
+        "pinMismatch": "Les deux PIN que vous avez saisis ne correspondent pas"
       },
       "connect": {
         "header": "Appairer votre KeepKey",
@@ -1331,15 +1331,15 @@
         "downloadUpdaterApp": "Télécharger l'app de mise à jour"
       },
       "pin": {
-        "header": "Entrez votre code NIP",
-        "body": "Utilisez la disposition du NIP indiquée sur votre appareil pour trouver l'emplacement sur lequel appuyer sur le clavier NIP.",
+        "header": "Entrez votre code PIN",
+        "body": "Utilisez la disposition du PIN indiquée sur votre appareil pour trouver l'emplacement sur lequel appuyer sur le clavier PIN.",
         "button": "Déverrouiller"
       },
       "settings": {
         "menuLabels": {
           "bootloader": "Chargeur d'amorçage",
           "firmware": "Micrologiciel",
-          "pin": "NIP",
+          "pin": "PIN",
           "advanced": "Avancé",
           "deviceTimeout": "Délai de mise en veille de l'appareil",
           "passphrase": "Phrase de sécurité",
@@ -1357,7 +1357,7 @@
           "passphrase": "Phrase de sécurité"
         },
         "descriptions": {
-          "pin": "Le NIP est une combinaison de 9 chiffres maximum que vous sélectionnez après avoir initialisé votre KeepKey. Un NIP protège votre appareil contre toute utilisation non autorisée au cas où votre KeepKey tomberait entre de mauvaises mains.",
+          "pin": "Le PIN est une combinaison de 9 chiffres maximum que vous sélectionnez après avoir initialisé votre KeepKey. Un PIN protège votre appareil contre toute utilisation non autorisée au cas où votre KeepKey tomberait entre de mauvaises mains.",
           "passphrase": "Activer la possibilité d'avoir plusieurs porte-monnaie, accessibles en utilisant une phrase de sécurité unique pour chaque porte-monnaie.",
           "label": "L'étiquetage de chacun des appareils vous permet de les distinguer facilement les uns des autres.",
           "timeout": "Votre appareil se met en veille après 10 minutes d'inactivité par défaut. Cependant, vous pouvez changer ceci.",

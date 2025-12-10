@@ -11,6 +11,7 @@ import {
   suiAssetId,
   thorchainAssetId,
   tronAssetId,
+  zecAssetId,
 } from '@shapeshiftoss/caip'
 import { uniq } from 'lodash'
 
@@ -30,6 +31,7 @@ export const availableLedgerAppAssetIds = [
   dogeAssetId,
   bchAssetId,
   ltcAssetId,
+  ...(getConfig().VITE_FEATURE_ZCASH ? [zecAssetId] : []),
   ethAssetId,
   thorchainAssetId,
   cosmosAssetId,

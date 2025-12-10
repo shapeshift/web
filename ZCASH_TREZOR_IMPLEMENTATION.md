@@ -2,23 +2,36 @@
 
 ## Current Issue
 
-When attempting to broadcast Zcash transactions using Trezor hardware wallet, the transaction fails with:
+~~When attempting to broadcast Zcash transactions using Trezor hardware wallet, the transaction fails with consensus branch validation.~~ ✅ FIXED
 
+**New Issue:** When building Zcash send transactions, the unchained API fails with:
 ```
-TypeError: Failed to execute 'json' on 'Response': body stream already read
-POST 500 {"code":-25,"message":"failed to validate tx: WtxId(\"private\"), error: transaction did not pass consensus validation: transaction uses an incorrect consensus branch id"}
+Transaction not found (AmountToBigInt: failed to convert)
 ```
 
-**Status:** Native wallet works ✅ | Trezor wallet fails ❌
+This happens when calling `this.providers.http.getTransaction({ txid: input.txid })` in `UtxoBaseAdapter.ts:343`.
 
-## Root Cause
+**Status:** Native wallet works ✅ | Trezor wallet works ✅ (with Blockchair workaround)
 
-The Trezor hdwallet implementation does not pass Zcash-specific transaction parameters to Trezor Connect:
+## Root Causes
 
-**Missing parameters:**
+### 1. Missing Trezor Parameters ✅ FIXED
+
+The Trezor hdwallet implementation did not pass Zcash-specific transaction parameters to Trezor Connect:
+
+**Missing parameters (now added):**
 - `version` - Transaction version (4 or 5)
 - `versionGroupId` - Version-specific group ID (0x892f2085 for v4, 0x26a7270a for v5)
 - `branchId` - Consensus branch ID (0x4dec4df0 for NU6.1)
+
+### 2. Unchained API Bug ⚠️ WORKAROUND
+
+The unchained Zcash backend has a bug parsing certain Zcash transactions. When calling `/api/v1/tx/{txid}`, it returns:
+```
+{"error":"Transaction not found (AmountToBigInt: failed to convert ..."}
+```
+
+However, the same transaction can be successfully fetched from Blockchair API.
 
 **Why native works:**
 
@@ -42,9 +55,11 @@ if (coin.toLowerCase() === "zcash") {
 
 ## Implementation Plan
 
-### hdwallet-trezor Changes
+### hdwallet-trezor Changes ✅ COMPLETE
 
 **File:** `packages/hdwallet-trezor/src/bitcoin.ts`
+
+**Status:** Implemented and committed
 
 **Step 1: Add constants**
 ```typescript
@@ -73,11 +88,12 @@ const res = await transport.call("signTransaction", {
 });
 ```
 
-### shapeshiftWeb Changes
+### shapeshiftWeb Changes ✅ COMPLETE
 
-**Status:** ❌ Not yet implemented
+**Status:** Implemented and committed
 
-**Current state:** [PR #11327](https://github.com/shapeshift/web/pull/11327) restricted Zcash to native wallet only, preventing Trezor (and other wallets) from accessing Zcash.
+**1. Wallet Support Changes** ✅
+[PR #11327](https://github.com/shapeshift/web/pull/11327) previously restricted Zcash to native wallet only. This has been fixed.
 
 **Required changes (straightforward):**
 
@@ -102,6 +118,50 @@ case zecChainId:
 ```
 
 **Note:** `isTrezorHDWallet` helper already exists in `@/lib/utils`
+
+**2. Blockchair API Workaround** ✅
+
+To work around the unchained API bug, we've monkey-patched `getTransaction` in `ZcashChainAdapter`:
+
+**File:** `packages/chain-adapters/src/utxo/zcash/ZcashChainAdapter.ts`
+
+```typescript
+constructor(args: ChainAdapterArgs) {
+  super({ /* ... */ })
+
+  // Monkey-patch getTransaction to use Blockchair as fallback
+  const originalGetTransaction = this.providers.http.getTransaction.bind(this.providers.http)
+  this.providers.http.getTransaction = async ({ txid }) => {
+    try {
+      return await originalGetTransaction({ txid })
+    } catch (error) {
+      // Fallback to Blockchair API
+      const response = await fetch(`https://api.blockchair.com/zcash/raw/transaction/${txid}`)
+      const data = await response.json()
+      if (!response.ok || data.error) {
+        throw new Error(`Blockchair API error: ${data.error || response.statusText}`)
+      }
+      return {
+        hex: data.data[txid].raw_transaction,
+      }
+    }
+  }
+}
+```
+
+**File:** `headers/csps/chains/zcash.ts` - Added Blockchair to CSP
+
+```typescript
+export const csp: Csp = {
+  'connect-src': [
+    env.VITE_UNCHAINED_ZCASH_HTTP_URL,
+    env.VITE_UNCHAINED_ZCASH_WS_URL,
+    'https://api.blockchair.com',
+  ],
+}
+```
+
+This is a temporary workaround until the unchained API bug is fixed upstream.
 
 ## Testing Strategy
 
@@ -150,17 +210,19 @@ Without these fields, the Zcash node rejects transactions as invalid.
 ## Implementation Checklist
 
 ### hdwallet
-- [ ] Add ZCASH_VERSION_GROUP_ID constant to hdwallet-trezor
-- [ ] Add ZCASH_CONSENSUS_BRANCH_ID constant to hdwallet-trezor
-- [ ] Update btcSignTx to pass Zcash parameters to Trezor Connect
-- [ ] Test locally via verdaccio pipeline
+- [x] Add ZCASH_VERSION_GROUP_ID constant to hdwallet-trezor
+- [x] Add ZCASH_CONSENSUS_BRANCH_ID constant to hdwallet-trezor
+- [x] Update btcSignTx to pass Zcash parameters to Trezor Connect
+- [x] Test locally via verdaccio pipeline
 - [ ] Create PR to hdwallet repo
 - [ ] Publish new hdwallet version
 
 ### shapeshiftWeb
-- [ ] Update useWalletSupportsChain to allow Trezor for Zcash
-- [ ] Update portfolioSlice utils to allow Trezor for Zcash
-- [ ] Bump hdwallet dependencies to new version
+- [x] Update useWalletSupportsChain to allow Trezor for Zcash
+- [x] Update portfolioSlice utils to allow Trezor for Zcash
+- [x] Add Blockchair API workaround for transaction fetching
+- [x] Add Blockchair to CSP configuration
+- [x] Bump hdwallet dependencies to new version (1.62.26-zcash-trezor.0)
 - [ ] Test end-to-end with Trezor device
 - [ ] Merge PR
 

@@ -1613,28 +1613,53 @@ gh pr create --title "feat: implement [chainname]" \
 **Solution**: Verify correct Ledger app is mapped
 **Example**: Use Ethereum app for EVM chains, not chain-specific app
 
-### Gotcha 8: Feature Flag Not Working
+### Gotcha 8: Missing walletSupportsChain Case (CRITICAL - BLOCKS ACCOUNT DISCOVERY!)
+
+**Problem**: Assets appear but no accounts are derived/discovered for the chain
+**Symptoms**:
+- Chain adapter is registered
+- Assets show up in asset list
+- But wallet shows no accounts for the chain
+- Logs show account derivation never runs for chainId
+**Root Cause**: Missing case in `walletSupportsChain()` switch statement
+**Solution**: Add your chain to the switch statement in `src/hooks/useWalletSupportsChain/useWalletSupportsChain.ts`:
+```typescript
+// 1. Import chain ID
+import { [chainLower]ChainId } from '@shapeshiftoss/caip'
+
+// 2. Import support function from hdwallet-core
+import { supports[ChainName] } from '@shapeshiftoss/hdwallet-core'
+
+// 3. Add to switch statement (around line 186+)
+case [chainLower]ChainId:
+  return supports[ChainName](wallet)
+```
+**Example**: HyperEVM was missing this - caused account discovery to skip it entirely
+**Why it matters**: `useDiscoverAccounts` filters chains using `walletSupportsChain()`. If it returns false, the chain is never passed to `deriveAccountIdsAndMetadata()` → no accounts!
+**Reference**: Same issue as Plasma PR #11361 but for wallet support instead of feature flag
+
+### Gotcha 9: Feature Flag Not Working
 
 **Problem**: Chain doesn't appear even with flag enabled
 **Solution**: Check ALL places flags are checked:
 - Plugin registration (featureFlag array)
-- PluginProvider gating
+- PluginProvider gating (add chainId filter)
 - Asset service filtering
 - Constants array (SECOND_CLASS_CHAINS)
 
-### Gotcha 9: Balance Updates
+### Gotcha 10: Balance Updates
 
 **Problem**: Balances don't update after transactions
 **Solution**: Implement polling in tx status subscriber
 **Example**: Add chain case in useSendActionSubscriber
 
-### Gotcha 10: RPC Rate Limiting
+### Gotcha 11: RPC Rate Limiting
 
 **Problem**: Requests fail intermittently
 **Solution**: Add retry logic, use multiple RPC endpoints
 **Example**: Implement fallback RPC URLs
 
-### Gotcha 11: Missing CoinGecko Script Case
+### Gotcha 12: Missing CoinGecko Script Case
 
 **Problem**: `yarn generate:asset-data` fails with "no coingecko token support for chainId"
 **Solution**: Add your chain case to `scripts/generateAssetData/coingecko.ts`
@@ -1644,7 +1669,7 @@ gh pr create --title "feat: implement [chainname]" \
 - Add case in switch statement with assetNamespace, category, explorer links
 **Example**: See HyperEVM case (line ~143) for pattern
 
-### Gotcha 12: Zerion API Key Required
+### Gotcha 13: Zerion API Key Required
 
 **Problem**: Asset generation fails with "Missing Zerion API key"
 **Solution**: Get key from user via `AskUserQuestion`, pass as env var
@@ -1652,7 +1677,7 @@ gh pr create --title "feat: implement [chainname]" \
 **CRITICAL**: NEVER commit the Zerion API key to VCS!
 **Example**: Always pass key via command line only
 
-### Gotcha 13: AssetService Missing Feature Flag Filter
+### Gotcha 14: AssetService Missing Feature Flag Filter
 
 **Problem**: Assets for your chain appear even when feature flag is disabled
 **Solution**: Add feature flag filter to AssetService
@@ -1661,7 +1686,7 @@ gh pr create --title "feat: implement [chainname]" \
 **Example**: See line ~53 for Monad/Tron/Sui pattern
 **Reference**: Fixed in PR #11241 (Monad) - was initially forgotten
 
-### Gotcha 14: Missing from evmChainIds Array (EVM Chains Only)
+### Gotcha 15: Missing from evmChainIds Array (EVM Chains Only)
 
 **Problem**: TypeScript errors "Type 'KnownChainIds.[Chain]Mainnet' is not assignable to type EvmChainId"
 **Solution**: Add your chain to the `evmChainIds` array in EvmBaseAdapter
@@ -1672,7 +1697,7 @@ gh pr create --title "feat: implement [chainname]" \
 **Example**: HyperEVM added at lines 81 and 262-266
 **Why**: The array defines which chains are EVM-compatible for type checking
 
-### Gotcha 15: Missing ChainSpecific Type Mappings (ALL Chains - 4 Places!)
+### Gotcha 16: Missing ChainSpecific Type Mappings (ALL Chains - 4 Places!)
 
 **Problem**: TypeScript errors like:
 - "Property 'chainSpecific' does not exist on type 'Account<T>'"

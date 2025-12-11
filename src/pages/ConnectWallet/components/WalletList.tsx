@@ -1,3 +1,4 @@
+import type { AvatarProps, ButtonProps } from '@chakra-ui/react'
 import { Alert, AlertDescription, AlertIcon, Center, Spinner, Stack } from '@chakra-ui/react'
 import { useQuery } from '@tanstack/react-query'
 import type { JSX } from 'react'
@@ -19,6 +20,9 @@ import { useWallet } from '@/hooks/useWallet/useWallet'
 type MobileWalletDialogProps = {
   footerComponent?: JSX.Element
   isEditing?: boolean
+  buttonProps?: ButtonProps
+  avatarSize?: AvatarProps['size']
+  isScrollable?: boolean
   onErrorChange?: (error: string | null) => void
   onIsWaitingForRedirection?: (isWaitingForRedirection: boolean) => void
 }
@@ -27,6 +31,9 @@ export const MobileWalletList: React.FC<MobileWalletDialogProps> = ({
   footerComponent,
   isEditing,
   onErrorChange,
+  buttonProps,
+  avatarSize = 'md',
+  isScrollable = true,
   onIsWaitingForRedirection,
 }) => {
   const { dispatch, getAdapter, state } = useWallet()
@@ -37,23 +44,19 @@ export const MobileWalletList: React.FC<MobileWalletDialogProps> = ({
   const translate = useTranslate()
   const [isInitializingWallet, setIsInitializingWallet] = useState<boolean>(false)
 
-  const { isLoading, data: wallets } = useQuery({
+  const {
+    isLoading,
+    data: wallets = [],
+    error: queryError,
+  } = useQuery({
     queryKey: ['listWallets'],
-    staleTime: 0,
-    gcTime: 0,
     refetchOnMount: true,
     queryFn: async () => {
-      try {
-        const vaults = await listWallets()
-        if (!vaults.length) {
-          setError('walletProvider.shapeShift.load.error.noWallet')
-        } else {
-          return vaults
-        }
-      } catch (e) {
-        console.log(e)
-        setError('walletProvider.shapeShift.load.error.fetchingWallets')
+      const vaults = await listWallets()
+      if (!vaults.length) {
+        throw new Error('walletProvider.shapeShift.load.error.noWallet')
       }
+      return vaults
     },
   })
 
@@ -141,6 +144,18 @@ export const MobileWalletList: React.FC<MobileWalletDialogProps> = ({
   )
 
   useEffect(() => {
+    if (queryError) {
+      const errorMessage =
+        queryError instanceof Error
+          ? queryError.message
+          : 'walletProvider.shapeShift.load.error.fetchingWallets'
+      setError(errorMessage)
+    } else {
+      setError(null)
+    }
+  }, [queryError])
+
+  useEffect(() => {
     onErrorChange?.(error)
   }, [error, onErrorChange])
 
@@ -153,7 +168,10 @@ export const MobileWalletList: React.FC<MobileWalletDialogProps> = ({
             <AlertDescription>{translate(error)}</AlertDescription>
           </Alert>
         ) : null}
-        <Stack maxHeight='30vh' overflow='auto' px={4} mx={-4}>
+        <Stack
+          maxHeight={isScrollable ? '30vh' : 'full'}
+          overflow={isScrollable ? 'auto' : 'hidden'}
+        >
           {wallets?.map(wallet => {
             const isSelected = walletInfo?.deviceId === wallet.id
             const _hover = isSelected
@@ -174,6 +192,8 @@ export const MobileWalletList: React.FC<MobileWalletDialogProps> = ({
                 isDisabled={isInitializingWallet && !isSelected}
                 onRename={handleRename}
                 onDelete={handleDelete}
+                buttonProps={buttonProps}
+                avatarSize={avatarSize}
                 _hover={_hover}
                 _active={_active}
               />
@@ -184,14 +204,17 @@ export const MobileWalletList: React.FC<MobileWalletDialogProps> = ({
     )
   }, [
     error,
-    handleDelete,
-    handleRename,
-    handleWalletSelect,
-    isEditing,
     translate,
-    walletInfo?.deviceId,
+    isScrollable,
     wallets,
+    walletInfo?.deviceId,
+    isEditing,
+    handleWalletSelect,
     isInitializingWallet,
+    handleRename,
+    handleDelete,
+    buttonProps,
+    avatarSize,
   ])
 
   return isLoading || state.isLoadingLocalWallet ? (

@@ -118,6 +118,7 @@ export const PluginProvider = ({ children }: PluginProviderProps): JSX.Element =
       if (!featureFlags.Mayachain && chainId === KnownChainIds.MayachainMainnet) return false
       if (!featureFlags.Monad && chainId === KnownChainIds.MonadMainnet) return false
       if (!featureFlags.HyperEvm && chainId === KnownChainIds.HyperEvmMainnet) return false
+      if (!featureFlags.Plasma && chainId === KnownChainIds.PlasmaMainnet) return false
       if (!featureFlags.BnbSmartChain && chainId === KnownChainIds.BnbSmartChainMainnet)
         return false
       if (!featureFlags.Tron && chainId === KnownChainIds.TronMainnet) return false

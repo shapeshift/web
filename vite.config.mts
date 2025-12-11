@@ -184,7 +184,8 @@ export default defineConfig(({ mode }) => {
               if (id.includes('styled-components')) return 'styled-components'
               if (id.includes('protobufjs')) return 'protobuf'
               if (id.includes('date-fns')) return 'date-fns'
-              if (id.includes('@ledgerhq')) return 'ledger'
+              // Group ledger with its crypto dependencies to avoid circular chunk deps
+              if (id.match(/(@ledgerhq|@noble|@scure|@bitgo)/)) return 'ledger'
               if (id.includes('cosmjs-types')) return 'cosmjs-types'
               if (id.includes('osmojs')) return 'osmojs'
               if (id.includes('@arbitrum')) return '@arbitrum'

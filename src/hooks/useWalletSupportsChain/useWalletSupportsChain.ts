@@ -140,6 +140,9 @@ export const walletSupportsChain = ({
   if (!hasRuntimeSupport) return false
 
   const isArbitrumNovaEnabled = selectFeatureFlag(store.getState(), 'ArbitrumNova')
+  const isHyperEvmEnabled = selectFeatureFlag(store.getState(), 'HyperEvm')
+  const isMonadEnabled = selectFeatureFlag(store.getState(), 'Monad')
+  const isPlasmaEnabled = selectFeatureFlag(store.getState(), 'Plasma')
 
   switch (chainId) {
     case btcChainId:
@@ -186,11 +189,11 @@ export const walletSupportsChain = ({
     case baseChainId:
       return supportsBase(wallet)
     case monadChainId:
-      return supportsMonad(wallet)
+      return isMonadEnabled && supportsMonad(wallet)
     case hyperEvmChainId:
-      return supportsHyperEvm(wallet)
+      return isHyperEvmEnabled && supportsHyperEvm(wallet)
     case plasmaChainId:
-      return supportsPlasma(wallet)
+      return isPlasmaEnabled && supportsPlasma(wallet)
     case cosmosChainId:
       return supportsCosmos(wallet)
     case thorchainChainId:

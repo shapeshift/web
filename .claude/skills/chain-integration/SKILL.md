@@ -325,20 +325,20 @@ export function supports[ChainName](wallet: HDWallet): wallet is ETHWallet {
 }
 ```
 
-**Set flags on ALL wallet implementations** (~14 files):
+**Set flags on ALL wallet implementations** (~12 files):
 
 Set `readonly _supports[ChainName] = false` on:
 - packages/hdwallet-coinbase/src/coinbase.ts
 - packages/hdwallet-gridplus/src/gridplus.ts
 - packages/hdwallet-keepkey/src/keepkey.ts
+- packages/hdwallet-keplr/src/keplr.ts
 - packages/hdwallet-ledger/src/ledger.ts
 - packages/hdwallet-metamask-multichain/src/shapeshift-multichain.ts
 - packages/hdwallet-phantom/src/phantom.ts
-- packages/hdwallet-portis/src/portis.ts
 - packages/hdwallet-trezor/src/trezor.ts
 - packages/hdwallet-vultisig/src/vultisig.ts
 - packages/hdwallet-walletconnect/src/walletconnect.ts
-- packages/hdwallet-walletconnectV2/src/walletconnectV2.ts
+- packages/hdwallet-walletconnectv2/src/walletconnectv2.ts
 
 **Set `readonly _supports[ChainName] = true` for Native**:
 - packages/hdwallet-native/src/ethereum.ts

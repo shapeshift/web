@@ -370,6 +370,7 @@ export const plasma: Readonly<Asset> = Object.freeze({
   explorerAddressLink: 'https://plasmascan.to/address/',
   explorerTxLink: 'https://plasmascan.to/tx/',
   relatedAssetKey: null,
+  coingeckoId: 'plasma',
 })
 
 export const solana: Readonly<Asset> = Object.freeze({

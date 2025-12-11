@@ -188,6 +188,12 @@ describe('adapters:coingecko', () => {
         assetNamespace: 'erc20',
         assetReference: '0x754704bc059f8c67012fed69bc8a327a5aafb603',
       })
+      const usdcOnHyperEvm = toAssetId({
+        chainNamespace: CHAIN_NAMESPACE.Evm,
+        chainReference: CHAIN_REFERENCE.HyperEvmMainnet,
+        assetNamespace: 'erc20',
+        assetReference: '0xb88339cb7199b77e23db6e890353e22632ba630f',
+      })
       expect(coingeckoToAssetIds('usd-coin')).toEqual([
         usdcOnEthereum,
         usdcOnAvalanche,
@@ -196,6 +202,7 @@ describe('adapters:coingecko', () => {
         usdcOnArbitrum,
         usdcOnBase,
         usdcOnMonad,
+        usdcOnHyperEvm,
         usdcOnSolana,
         usdcOnSui,
         usdcOnTron,

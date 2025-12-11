@@ -51,8 +51,16 @@ export class ZerionMarketService implements MarketService {
     if (!isToken(assetId)) return undefined
 
     const url = `${this.baseUrl}/fungibles/${assetReference}`
-    const { data: res } = await axios.get<ZerionFungibles>(url)
-    return res.data.attributes.market_data
+    try {
+      const { data: res } = await axios.get<ZerionFungibles>(url)
+      return res.data.attributes.market_data
+    } catch (error) {
+      // Silently handle 404s - token not found in Zerion's database is expected for many tokens
+      if (Axios.isAxiosError(error) && error.response?.status === 404) {
+        return undefined
+      }
+      throw error
+    }
   }
 
   getZerionPriceHistory = async ({

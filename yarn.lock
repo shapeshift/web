@@ -4090,6 +4090,59 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@bitgo/blake2b-wasm@npm:^3.2.3":
+  version: 3.2.3
+  resolution: "@bitgo/blake2b-wasm@npm:3.2.3"
+  dependencies:
+    nanoassert: ^1.0.0
+  checksum: f398ea78559486095bfa898fd4fd5d0a8f022ffbcd31732854cec9118967f695a009339a3b4bf2cef62a2a38b8d93d4781769b3516b15fb3b11a4f12177a1f21
+  languageName: node
+  linkType: hard
+
+"@bitgo/blake2b@npm:^3.2.4":
+  version: 3.2.4
+  resolution: "@bitgo/blake2b@npm:3.2.4"
+  dependencies:
+    "@bitgo/blake2b-wasm": ^3.2.3
+    nanoassert: ^2.0.0
+  checksum: 6ee6575873eb4af42de387dd698bac835a739eee6aefe642606a978bf79f75be7abb0a619bdbf2789dfa1cf2ef36083a4e3bf23ff5c8f701a04222c5304bbae4
+  languageName: node
+  linkType: hard
+
+"@bitgo/secp256k1@npm:^1.7.0":
+  version: 1.7.0
+  resolution: "@bitgo/secp256k1@npm:1.7.0"
+  dependencies:
+    "@brandonblack/musig": ^0.0.1-alpha.0
+    "@noble/secp256k1": 1.6.3
+    bip32: ^3.0.1
+    create-hash: ^1.2.0
+    create-hmac: ^1.1.7
+    ecpair: "npm:@bitgo/ecpair@2.1.0-rc.0"
+  checksum: 3cca08733c2228887111a1486430deaa5bd619bfc2defb0ef28c2f26d33b95f30604ce306c386a1efa0c097ee35212bb401bbee06db4c59e03149b658f7244a9
+  languageName: node
+  linkType: hard
+
+"@bitgo/utxo-lib@npm:^11.18.0":
+  version: 11.18.0
+  resolution: "@bitgo/utxo-lib@npm:11.18.0"
+  dependencies:
+    "@bitgo/blake2b": ^3.2.4
+    "@bitgo/secp256k1": ^1.7.0
+    "@brandonblack/musig": ^0.0.1-alpha.0
+    bech32: ^2.0.0
+    bip174: "npm:@bitgo-forks/bip174@3.1.0-master.4"
+    bitcoin-ops: ^1.3.0
+    bitcoinjs-lib: "npm:@bitgo-forks/bitcoinjs-lib@7.1.0-master.11"
+    bs58check: ^2.1.2
+    cashaddress: ^1.1.0
+    fastpriorityqueue: ^0.7.1
+    typeforce: ^1.11.3
+    varuint-bitcoin: ^1.1.2
+  checksum: 4641a6dc8a342a828ec3a3dff420e79fd4ddf5ea47051cc66844155038323451ebe1b5e145289cd36e64eca70bbec0f35703be8461f3dca6d1ac7cce028210f3
+  languageName: node
+  linkType: hard
+
 "@bithighlander/bitcoin-cash-js-lib@npm:5.2.1":
   version: 5.2.1
   resolution: "@bithighlander/bitcoin-cash-js-lib@npm:5.2.1"
@@ -4135,6 +4188,13 @@ __metadata:
     varuint-bitcoin: ^1.0.4
     wif: ^2.0.1
   checksum: 282dfc1d26eb3b0d521eed4ea17d0dd398bf67331b6e6bd75363f56502fe662bbf267ebab0b2d470e136ddd2d1840940657a5fe43571f8790dd8bac9b4d9cbc7
+  languageName: node
+  linkType: hard
+
+"@brandonblack/musig@npm:^0.0.1-alpha.0":
+  version: 0.0.1-alpha.1
+  resolution: "@brandonblack/musig@npm:0.0.1-alpha.1"
+  checksum: 3e116b30716481bf3d28d2a229bf9d93b3c6753f8c3d833c573db167656f135bfcb76d3c63a8c9c44d9cec6d6cafe56c420b4e647a9307ce69a31eb51ca11724
   languageName: node
   linkType: hard
 
@@ -9345,6 +9405,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@noble/secp256k1@npm:1.6.3":
+  version: 1.6.3
+  resolution: "@noble/secp256k1@npm:1.6.3"
+  checksum: 16eb3242533e645deb64444c771515f66bdc2ee0759894efd42fdeed4ab226ed29827aaaf6caa27d3d95b831452fd4246aa1007cd688aa462ad48fc084ab76e6
+  languageName: node
+  linkType: hard
+
 "@noble/secp256k1@npm:^1.5.5, @noble/secp256k1@npm:^1.7.1":
   version: 1.7.1
   resolution: "@noble/secp256k1@npm:1.7.1"
@@ -11098,8 +11165,8 @@ __metadata:
   dependencies:
     "@mysten/sui": 1.45.0
     "@shapeshiftoss/caip": "workspace:^"
-    "@shapeshiftoss/hdwallet-core": 1.62.29-bitgo-removal.3
-    "@shapeshiftoss/hdwallet-ledger": 1.62.29-bitgo-removal.3
+    "@shapeshiftoss/hdwallet-core": 1.62.28
+    "@shapeshiftoss/hdwallet-ledger": 1.62.28
     "@shapeshiftoss/types": "workspace:^"
     "@shapeshiftoss/unchained-client": "workspace:^"
     "@shapeshiftoss/utils": "workspace:^"
@@ -11162,15 +11229,15 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@shapeshiftoss/hdwallet-coinbase@npm:1.62.29-bitgo-removal.3":
-  version: 1.62.29-bitgo-removal.3
-  resolution: "@shapeshiftoss/hdwallet-coinbase@npm:1.62.29-bitgo-removal.3"
+"@shapeshiftoss/hdwallet-coinbase@npm:1.62.28":
+  version: 1.62.28
+  resolution: "@shapeshiftoss/hdwallet-coinbase@npm:1.62.28"
   dependencies:
     "@coinbase/wallet-sdk": ^3.6.6
-    "@shapeshiftoss/hdwallet-core": ^1.62.29-bitgo-removal.3
+    "@shapeshiftoss/hdwallet-core": 1.62.28
     eth-rpc-errors: ^4.0.3
     lodash: ^4.17.21
-  checksum: 95d0144ec872d8720e01d2a2de9b173f280d8bad98c2e484329f2a6db0907b44edd79766b3483b1f674e388e350b3481eacb4396d4e5f77e6dc0298e2c597e6d
+  checksum: ab3c60fbd7f74316ca65a0d0c78c6118690be58244de5603b461fda88e8060b7568fed4a47069d7fb087fe529c8b986259cc501d4904c8d9f6155410e990b7e2
   languageName: node
   linkType: hard
 
@@ -11192,24 +11259,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/hdwallet-core@npm:1.62.29-bitgo-removal.3, @shapeshiftoss/hdwallet-core@npm:^1.62.29-bitgo-removal.3":
-  version: 1.62.29-bitgo-removal.3
-  resolution: "@shapeshiftoss/hdwallet-core@npm:1.62.29-bitgo-removal.3"
-  dependencies:
-    "@shapeshiftoss/bitcoinjs-lib": 7.0.0-shapeshift.2
-    "@shapeshiftoss/proto-tx-builder": 0.10.0
-    "@solana/web3.js": 1.95.8
-    bs58check: ^4.0.0
-    eip-712: ^1.0.0
-    ethers: 5.7.2
-    eventemitter2: ^5.0.1
-    lodash: ^4.17.21
-    rxjs: ^6.4.0
-    type-assertions: ^1.1.0
-  checksum: 8079d30b81b1df27ed157b573d2a3166892bb6ab2fa20a5604c504a8c5c846a9f61e92bcc7be12091dbd4ed280c15e4b4ad54751e7e3b71522904aef0d21f228
-  languageName: node
-  linkType: hard
-
 "@shapeshiftoss/hdwallet-core@npm:latest":
   version: 1.62.27
   resolution: "@shapeshiftoss/hdwallet-core@npm:1.62.27"
@@ -11228,39 +11277,39 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/hdwallet-gridplus@npm:1.62.29-bitgo-removal.3":
-  version: 1.62.29-bitgo-removal.3
-  resolution: "@shapeshiftoss/hdwallet-gridplus@npm:1.62.29-bitgo-removal.3"
+"@shapeshiftoss/hdwallet-gridplus@npm:1.62.28":
+  version: 1.62.28
+  resolution: "@shapeshiftoss/hdwallet-gridplus@npm:1.62.28"
   dependencies:
     "@bitcoinerlab/secp256k1": ^1.1.1
     "@ethereumjs/common": 4.4.0
     "@ethereumjs/rlp": 5.0.2
     "@ethereumjs/tx": 5.4.0
     "@metamask/eth-sig-util": ^7.0.0
-    "@shapeshiftoss/hdwallet-core": ^1.62.29-bitgo-removal.3
+    "@shapeshiftoss/hdwallet-core": 1.62.28
     bech32: ^1.1.4
     bs58: ^5.0.0
     bs58check: ^4.0.0
     crypto-js: ^4.2.0
     gridplus-sdk: ^3.2.0
     lodash: ^4.17.21
-  checksum: ebb60da6cc18bc3f7e8a88fe4e44511972126c357ab38721c16558b3b8c55671aff5f590c41e9fa1c0dde0e68d054a6e1dcf505875d3a35d60bdc97a8b857c85
+  checksum: 6384ec1426915df4b4f559a58113519f858afa407ead15e9d003f5793cf34322fd78116b571650bcc50346d84aaaa069f6b7186a32ee687714ac2ba170701a5e
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/hdwallet-keepkey-webusb@npm:1.62.29-bitgo-removal.3":
-  version: 1.62.29-bitgo-removal.3
-  resolution: "@shapeshiftoss/hdwallet-keepkey-webusb@npm:1.62.29-bitgo-removal.3"
+"@shapeshiftoss/hdwallet-keepkey-webusb@npm:1.62.28":
+  version: 1.62.28
+  resolution: "@shapeshiftoss/hdwallet-keepkey-webusb@npm:1.62.28"
   dependencies:
-    "@shapeshiftoss/hdwallet-core": ^1.62.29-bitgo-removal.3
-    "@shapeshiftoss/hdwallet-keepkey": ^1.62.29-bitgo-removal.3
-  checksum: ec211b9c419fb79fb73e8d26df9e727bbc2f2c287ba89e84635128068ad2a447cf797738af3222864f6a48e485d9d9b52d834d984ed808ef22dfa9463451338b
+    "@shapeshiftoss/hdwallet-core": 1.62.28
+    "@shapeshiftoss/hdwallet-keepkey": 1.62.28
+  checksum: 82e7230c4eb2302b5071445dc9efffdb47182cc66c9d19a3b5c232052cce1ad01e3fc97945e84b9ff02284f00fd65c2622c2e01918519de42591f460a9f557c7
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/hdwallet-keepkey@npm:1.62.29-bitgo-removal.3, @shapeshiftoss/hdwallet-keepkey@npm:^1.62.29-bitgo-removal.3":
-  version: 1.62.29-bitgo-removal.3
-  resolution: "@shapeshiftoss/hdwallet-keepkey@npm:1.62.29-bitgo-removal.3"
+"@shapeshiftoss/hdwallet-keepkey@npm:1.62.28":
+  version: 1.62.28
+  resolution: "@shapeshiftoss/hdwallet-keepkey@npm:1.62.28"
   dependencies:
     "@bitcoinerlab/secp256k1": ^1.1.1
     "@ethereumjs/common": 3.2.0
@@ -11268,7 +11317,7 @@ __metadata:
     "@keepkey/device-protocol": 7.13.4
     "@metamask/eth-sig-util": ^7.0.0
     "@shapeshiftoss/bitcoinjs-lib": 7.0.0-shapeshift.2
-    "@shapeshiftoss/hdwallet-core": ^1.62.29-bitgo-removal.3
+    "@shapeshiftoss/hdwallet-core": 1.62.28
     "@shapeshiftoss/proto-tx-builder": 0.10.0
     bignumber.js: ^9.0.1
     bnb-javascript-sdk-nobroadcast: 2.16.15
@@ -11281,44 +11330,44 @@ __metadata:
     lodash: ^4.17.21
     p-lazy: ^3.1.0
     semver: ^7.3.8
-  checksum: a8c8b86eeee847778da7656eccb70d009e7e0da2111b6a235971482ffdef833e59ca89158149bfa4138a4cc9d4502dc88799fed68b840d4a300ce44b756b19d8
+  checksum: 88f737e8e53df0659e2bfded6198536623bd6798204c058915c57f28e36e36033d4d93050d3ec6196719d477615df8e4d259d5805801ddcee62372818b0135ca
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/hdwallet-keplr@npm:1.62.29-bitgo-removal.3":
-  version: 1.62.29-bitgo-removal.3
-  resolution: "@shapeshiftoss/hdwallet-keplr@npm:1.62.29-bitgo-removal.3"
+"@shapeshiftoss/hdwallet-keplr@npm:1.62.28":
+  version: 1.62.28
+  resolution: "@shapeshiftoss/hdwallet-keplr@npm:1.62.28"
   dependencies:
     "@cosmjs/amino": ^0.28.13
     "@cosmjs/stargate": ^0.28.13
     "@shapeshiftoss/caip": 8.15.0
-    "@shapeshiftoss/hdwallet-core": ^1.62.29-bitgo-removal.3
+    "@shapeshiftoss/hdwallet-core": 1.62.28
     "@shapeshiftoss/proto-tx-builder": 0.10.0
     "@shapeshiftoss/types": 3.1.3
     base64-js: ^1.5.1
     lodash: ^4.17.21
-  checksum: c1636951a95af8260da37e1a0a66bff391c1bc3f24aaa9a621788a8dd5ff4ee7c0523e4f061bb57388e1c4fd0ad479d2da591781865f21293355e1012d001a70
+  checksum: 06404a7ce0f0f152564209b1f965d53d51e5296b445f33357b1d72f9362a287c7c7a4223b7a092b7bf6e1aa99a660df800d00686510d2b382159999b913c63c2
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/hdwallet-ledger-webhid@npm:1.62.29-bitgo-removal.3":
-  version: 1.62.29-bitgo-removal.3
-  resolution: "@shapeshiftoss/hdwallet-ledger-webhid@npm:1.62.29-bitgo-removal.3"
+"@shapeshiftoss/hdwallet-ledger-webhid@npm:1.62.28":
+  version: 1.62.28
+  resolution: "@shapeshiftoss/hdwallet-ledger-webhid@npm:1.62.28"
   dependencies:
     "@ledgerhq/hw-app-btc": 10.13.0
     "@ledgerhq/hw-app-eth": 7.0.0
     "@ledgerhq/hw-transport": 6.31.13
     "@ledgerhq/hw-transport-webhid": 6.30.6
-    "@shapeshiftoss/hdwallet-core": ^1.62.29-bitgo-removal.3
-    "@shapeshiftoss/hdwallet-ledger": ^1.62.29-bitgo-removal.3
+    "@shapeshiftoss/hdwallet-core": 1.62.28
+    "@shapeshiftoss/hdwallet-ledger": 1.62.28
     "@types/w3c-web-hid": ^1.0.2
-  checksum: b21dd12857e51ce9a8700e6bca348c0d6ee0b931415872ad938e6381cd3b5f994c2f8cc09f14f0dd9cd772dd613452f4f69f2bf8fdde9efa918ec5d6d7e5cc7e
+  checksum: 888af25fd11ed7e56a9f6be997d0c542945428e271c8f21a5aa9f9df366829f72306fb4f46ed55a9f5c0510906df8c99da1367209e327be8fc566052998fad2d
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/hdwallet-ledger-webusb@npm:1.62.29-bitgo-removal.3":
-  version: 1.62.29-bitgo-removal.3
-  resolution: "@shapeshiftoss/hdwallet-ledger-webusb@npm:1.62.29-bitgo-removal.3"
+"@shapeshiftoss/hdwallet-ledger-webusb@npm:1.62.28":
+  version: 1.62.28
+  resolution: "@shapeshiftoss/hdwallet-ledger-webusb@npm:1.62.28"
   dependencies:
     "@ledgerhq/hw-app-btc": 10.13.0
     "@ledgerhq/hw-app-cosmos": 6.32.9
@@ -11326,18 +11375,19 @@ __metadata:
     "@ledgerhq/hw-app-solana": 7.6.0
     "@ledgerhq/hw-transport": 6.31.13
     "@ledgerhq/hw-transport-webusb": 6.29.13
-    "@shapeshiftoss/hdwallet-core": ^1.62.29-bitgo-removal.3
-    "@shapeshiftoss/hdwallet-ledger": ^1.62.29-bitgo-removal.3
+    "@shapeshiftoss/hdwallet-core": 1.62.28
+    "@shapeshiftoss/hdwallet-ledger": 1.62.28
     "@types/w3c-web-usb": ^1.0.4
     p-queue: ^7.4.1
-  checksum: 742cc386b594be5373dcd5cc23438ffabfbbe1812bc4afd3cf5c5338c1e9c071a259f76d4f14f3bf5e556e52f1dfc31fb64d894354f4ac489c52b639b8e0c264
+  checksum: 7cc44a99f84c0f83784afb612148cbcb5544160afc6166ac7f03ddb04520670d9bfaae1cdb7c68d1761d4c9b7c7ab5e7e22e23097094d7a56835fd0299b4a03a
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/hdwallet-ledger@npm:1.62.29-bitgo-removal.3, @shapeshiftoss/hdwallet-ledger@npm:^1.62.29-bitgo-removal.3":
-  version: 1.62.29-bitgo-removal.3
-  resolution: "@shapeshiftoss/hdwallet-ledger@npm:1.62.29-bitgo-removal.3"
+"@shapeshiftoss/hdwallet-ledger@npm:1.62.28":
+  version: 1.62.28
+  resolution: "@shapeshiftoss/hdwallet-ledger@npm:1.62.28"
   dependencies:
+    "@bitgo/utxo-lib": ^11.18.0
     "@ethereumjs/common": 3.2.0
     "@ethereumjs/tx": 4.2.0
     "@ledgerhq/device-core": 0.6.9
@@ -11350,7 +11400,7 @@ __metadata:
     "@ledgerhq/logs": 6.13.0
     "@mysten/ledgerjs-hw-app-sui": ^0.7.0
     "@shapeshiftoss/bitcoinjs-lib": 7.0.0-shapeshift.2
-    "@shapeshiftoss/hdwallet-core": ^1.62.29-bitgo-removal.3
+    "@shapeshiftoss/hdwallet-core": 1.62.28
     "@solana/web3.js": 1.95.8
     base64-js: ^1.5.1
     bchaddrjs: ^0.4.4
@@ -11360,33 +11410,33 @@ __metadata:
     ethereumjs-util: ^6.1.0
     ethers: 5.7.2
     lodash: ^4.17.21
-  checksum: d22424b224ba6f51761d4fc9ed21747ef16405704c3354c729672d7a437bf5eacd968016700926c166697b7aadea87c6ca9e4ecf74d6cc3405ee7fa11f6f5ca5
+  checksum: 482e26ba4a2f94b6b1c7a2ec3fb47a2e75a49a199e462eb8ebbe784fcd791f3237b2a0bf4d473ccb07a27b4baffe22f3f5cb080449e92826a53fb668f7108591
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/hdwallet-metamask-multichain@npm:1.62.29-bitgo-removal.3":
-  version: 1.62.29-bitgo-removal.3
-  resolution: "@shapeshiftoss/hdwallet-metamask-multichain@npm:1.62.29-bitgo-removal.3"
+"@shapeshiftoss/hdwallet-metamask-multichain@npm:1.62.28":
+  version: 1.62.28
+  resolution: "@shapeshiftoss/hdwallet-metamask-multichain@npm:1.62.28"
   dependencies:
     "@metamask/detect-provider": ^1.2.0
     "@metamask/onboarding": ^1.0.1
     "@shapeshiftoss/common-api": ^9.3.0
-    "@shapeshiftoss/hdwallet-core": ^1.62.29-bitgo-removal.3
+    "@shapeshiftoss/hdwallet-core": 1.62.28
     "@shapeshiftoss/metamask-snaps-adapter": ^1.0.12
     "@shapeshiftoss/metamask-snaps-types": ^1.0.12
     eth-rpc-errors: ^4.0.3
     lodash: ^4.17.21
     mipd: ^0.0.7
-  checksum: fd034276833b992d496dfd0044e2948941937b0c6efff959385d1ff220102b3aab471d33e2c160c800264e8ba1f740595faf16a8f5ef6d2ced97b8388f53648e
+  checksum: 86ac33b6265d4cf35c90879a98ace320f1e2e10adc5561dfdc3a3580ee082c1c3537c8b5ca4341d3b5828e77b0cac7c03e49fd2dbd70bf6cdd4f451001f3438e
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/hdwallet-native-vault@npm:1.62.29-bitgo-removal.3":
-  version: 1.62.29-bitgo-removal.3
-  resolution: "@shapeshiftoss/hdwallet-native-vault@npm:1.62.29-bitgo-removal.3"
+"@shapeshiftoss/hdwallet-native-vault@npm:1.62.28":
+  version: 1.62.28
+  resolution: "@shapeshiftoss/hdwallet-native-vault@npm:1.62.28"
   dependencies:
     "@bitcoinerlab/secp256k1": ^1.1.1
-    "@shapeshiftoss/hdwallet-native": ^1.62.29-bitgo-removal.3
+    "@shapeshiftoss/hdwallet-native": 1.62.28
     bip39: ^3.0.4
     hash-wasm: ^4.11.0
     idb-keyval: ^6.0.3
@@ -11394,44 +11444,11 @@ __metadata:
     p-lazy: ^3.1.0
     type-assertions: ^1.1.0
     uuid: ^8.3.2
-  checksum: 3082bf4147b12a3eee61afa2c0c6eb0a5e1d05df0f35bdef7d28adb4c1b416aa1edd6a362483f0faf707fc1ab3c00cff1718730d1b2abe1d2ab216ccd3640778
+  checksum: 8cfe8d66a7270f7e1c119be118ffec148ad1249eebf288f4715a6acd37a4a6324aedbfe14614937c4d542f3a9c7c5b13f51ceec21d644d852811c97424272a63
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/hdwallet-native@npm:1.62.29-bitgo-removal.3, @shapeshiftoss/hdwallet-native@npm:^1.62.29-bitgo-removal.3":
-  version: 1.62.29-bitgo-removal.3
-  resolution: "@shapeshiftoss/hdwallet-native@npm:1.62.29-bitgo-removal.3"
-  dependencies:
-    "@bitcoinerlab/secp256k1": ^1.1.1
-    "@noble/curves": ^1.4.0
-    "@shapeshiftoss/bitcoinjs-lib": 7.0.0-shapeshift.2
-    "@shapeshiftoss/hdwallet-core": ^1.62.29-bitgo-removal.3
-    "@shapeshiftoss/proto-tx-builder": 0.10.0
-    "@zxing/text-encoding": ^0.9.0
-    bchaddrjs: ^0.4.9
-    bech32: ^1.1.4
-    bignumber.js: ^9.0.1
-    bip32: ^2.0.5
-    bip39: ^3.0.2
-    bnb-javascript-sdk-nobroadcast: 2.16.15
-    bs58check: ^4.0.0
-    crypto-js: ^4.0.0
-    ecpair: ^3.0.0-rc.0
-    eip-712: ^1.0.0
-    ethers: 5.7.2
-    eventemitter2: ^5.0.1
-    funtypes: ^3.0.1
-    hash-wasm: ^4.11.0
-    lodash: ^4.17.21
-    node-fetch: ^2.6.1
-    p-lazy: ^3.1.0
-    scrypt-js: ^3.0.1
-    tendermint-tx-builder: 1.0.16
-  checksum: d5b8d76cf7170964c69a2d489fef0f8b00ab79135b2709664a2333715fffe5f21cff7415486e225185a11b3a57fb2d211e2cea96c3958e47a7a872948287cbd1
-  languageName: node
-  linkType: hard
-
-"@shapeshiftoss/hdwallet-native@npm:^1.55.1":
+"@shapeshiftoss/hdwallet-native@npm:1.62.28, @shapeshiftoss/hdwallet-native@npm:^1.55.1":
   version: 1.62.28
   resolution: "@shapeshiftoss/hdwallet-native@npm:1.62.28"
   dependencies:
@@ -11464,84 +11481,84 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/hdwallet-phantom@npm:1.62.29-bitgo-removal.3":
-  version: 1.62.29-bitgo-removal.3
-  resolution: "@shapeshiftoss/hdwallet-phantom@npm:1.62.29-bitgo-removal.3"
+"@shapeshiftoss/hdwallet-phantom@npm:1.62.28":
+  version: 1.62.28
+  resolution: "@shapeshiftoss/hdwallet-phantom@npm:1.62.28"
   dependencies:
     "@shapeshiftoss/bitcoinjs-lib": 7.0.0-shapeshift.2
-    "@shapeshiftoss/hdwallet-core": ^1.62.29-bitgo-removal.3
+    "@shapeshiftoss/hdwallet-core": 1.62.28
     "@solana/web3.js": 1.95.8
     base64-js: ^1.5.1
     bitcoinjs-message: ^2.0.0
     ethers: 5.7.2
     lodash: ^4.17.21
-  checksum: d97c32bc7c048f84f5ffc4a8d50e4d9023f4a56825a3325c053a3ab37cd6e6528be31f7355aa0c1bae165829cab05eec9733ec6931ec35ce5b5919aaf7b2b646
+  checksum: 3ec6856d8a7432720c4891ee1e65f5e63c85e9c4f57c230b4d98961cb3c4870eaf6bb9ee8c26f5e9645d5a66121770ac64a8723d51101e67b2ecb211926aeff1
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/hdwallet-trezor-connect@npm:1.62.29-bitgo-removal.3":
-  version: 1.62.29-bitgo-removal.3
-  resolution: "@shapeshiftoss/hdwallet-trezor-connect@npm:1.62.29-bitgo-removal.3"
+"@shapeshiftoss/hdwallet-trezor-connect@npm:1.62.28":
+  version: 1.62.28
+  resolution: "@shapeshiftoss/hdwallet-trezor-connect@npm:1.62.28"
   dependencies:
-    "@shapeshiftoss/hdwallet-core": ^1.62.29-bitgo-removal.3
-    "@shapeshiftoss/hdwallet-trezor": ^1.62.29-bitgo-removal.3
+    "@shapeshiftoss/hdwallet-core": 1.62.28
+    "@shapeshiftoss/hdwallet-trezor": 1.62.28
     "@trezor/connect-web": ^9.6.4
-  checksum: c4e9c6ae4014a30d4c1b15892078f3ecb3dcf7d2fa694e1b7c5d3f2ca2e7dd3543ffe21d39d01d1768514757d1a427f225c201d01aba179dbf5cc591b2259de9
+  checksum: 61f19a8022494dadf0fedef4746df077eefd36b3d4a66b8b7df34c00dcd41eaf59aab38093c6a0e6648d640582ef86f0b1a09f315cf5a62541669c6c238fc883
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/hdwallet-trezor@npm:1.62.29-bitgo-removal.3, @shapeshiftoss/hdwallet-trezor@npm:^1.62.29-bitgo-removal.3":
-  version: 1.62.29-bitgo-removal.3
-  resolution: "@shapeshiftoss/hdwallet-trezor@npm:1.62.29-bitgo-removal.3"
+"@shapeshiftoss/hdwallet-trezor@npm:1.62.28":
+  version: 1.62.28
+  resolution: "@shapeshiftoss/hdwallet-trezor@npm:1.62.28"
   dependencies:
     "@ethereumjs/common": 3.2.0
     "@ethereumjs/tx": 4.2.0
-    "@shapeshiftoss/hdwallet-core": ^1.62.29-bitgo-removal.3
+    "@shapeshiftoss/hdwallet-core": 1.62.28
     base64-js: ^1.5.1
     bchaddrjs: ^0.4.4
     lodash: ^4.17.21
-  checksum: 5d27abe7795c1529f33dcd5b5d82ca193370aafc66de03c55f81e5bd63bb7495e10692274261ded41c11658f6a8f115943628db787d8f5f19e06099dcc7d38e1
+  checksum: 37dd03d15a5797c10012f48be8823c97fa960ca29a2b9583f3c2c37a1fec2a07db882ab5e81cb65a753cf2730576320a18def7bd513439e3f05868adeec7ebad
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/hdwallet-vultisig@npm:1.62.29-bitgo-removal.3":
-  version: 1.62.29-bitgo-removal.3
-  resolution: "@shapeshiftoss/hdwallet-vultisig@npm:1.62.29-bitgo-removal.3"
+"@shapeshiftoss/hdwallet-vultisig@npm:1.62.28":
+  version: 1.62.28
+  resolution: "@shapeshiftoss/hdwallet-vultisig@npm:1.62.28"
   dependencies:
     "@cosmjs/amino": ^0.28.13
     "@cosmjs/stargate": ^0.28.13
     "@shapeshiftoss/bitcoinjs-lib": 7.0.0-shapeshift.2
-    "@shapeshiftoss/hdwallet-core": ^1.62.29-bitgo-removal.3
+    "@shapeshiftoss/hdwallet-core": 1.62.28
     "@solana/web3.js": 1.95.8
     base64-js: ^1.5.1
     bitcoinjs-message: ^2.0.0
     ethers: 5.7.2
     lodash: ^4.17.21
-  checksum: 302cc6a1e6fe8374e0662d11281b97882ca53b681190821088a54543d77b34092f30b84a78a5a9cdfa16a70ba49e627d459b87973d7b6ffd104e7cda7ada9683
+  checksum: 432abd8391e05196b39fac712dbb55cd3a378db6e20990ee440271d1c99a18559f648dcbffb4d27ffbbb1c7364ba46f1e6f9aed19a439273c74bf4e931c933ba
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/hdwallet-walletconnect@npm:1.62.29-bitgo-removal.3":
-  version: 1.62.29-bitgo-removal.3
-  resolution: "@shapeshiftoss/hdwallet-walletconnect@npm:1.62.29-bitgo-removal.3"
+"@shapeshiftoss/hdwallet-walletconnect@npm:1.62.28":
+  version: 1.62.28
+  resolution: "@shapeshiftoss/hdwallet-walletconnect@npm:1.62.28"
   dependencies:
-    "@shapeshiftoss/hdwallet-core": ^1.62.29-bitgo-removal.3
+    "@shapeshiftoss/hdwallet-core": 1.62.28
     "@walletconnect/qrcode-modal": ^1.7.8
     "@walletconnect/web3-provider": ^1.7.8
     ethers: ^5.6.5
-  checksum: 455512aee2e556fba1e9a83079b47a858946e4295f7d137e1aa4d2bd960c7ba8f8f2b131e84a43f360993ea7a797639e3c7f89c8a87b0e33d9984e07cb4cf58b
+  checksum: 17887250cfa16adb96cf42740e8d954fc8ad8ebcae99f6231576f012bf81cc94d6f607bf0df879af3114cbf7d398219d48148d4f864825738784ae239b283590
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/hdwallet-walletconnectv2@npm:1.62.29-bitgo-removal.3":
-  version: 1.62.29-bitgo-removal.3
-  resolution: "@shapeshiftoss/hdwallet-walletconnectv2@npm:1.62.29-bitgo-removal.3"
+"@shapeshiftoss/hdwallet-walletconnectv2@npm:1.62.28":
+  version: 1.62.28
+  resolution: "@shapeshiftoss/hdwallet-walletconnectv2@npm:1.62.28"
   dependencies:
-    "@shapeshiftoss/hdwallet-core": ^1.62.29-bitgo-removal.3
+    "@shapeshiftoss/hdwallet-core": 1.62.28
     "@walletconnect/ethereum-provider": ^2.20.2
     "@walletconnect/modal": ^2.6.2
     ethers: ^5.6.5
-  checksum: a45fb5bb0c23c05433e0bc9adf219dc0ee89b99f34029b15e7f6ba6130174a3d7beec3274158d49fe6695eb2ee61dbc802d2bccab327e848b10ab45740c26d23
+  checksum: 3186286ae05a340d224750b4409a6ac5fde9de5604c907659a1048704f2c89d7104da0a137cf421f2d700b516963097952d1cca591d72f05f1a1659ff2448a8d
   languageName: node
   linkType: hard
 
@@ -11651,7 +11668,7 @@ __metadata:
     "@shapeshiftoss/caip": "workspace:^"
     "@shapeshiftoss/chain-adapters": "workspace:^"
     "@shapeshiftoss/contracts": "workspace:^"
-    "@shapeshiftoss/hdwallet-core": 1.62.29-bitgo-removal.3
+    "@shapeshiftoss/hdwallet-core": 1.62.28
     "@shapeshiftoss/types": "workspace:^"
     "@shapeshiftoss/unchained-client": "workspace:^"
     "@shapeshiftoss/utils": "workspace:^"
@@ -11786,24 +11803,24 @@ __metadata:
     "@shapeshiftoss/chain-adapters": "workspace:^"
     "@shapeshiftoss/contracts": "workspace:^"
     "@shapeshiftoss/errors": "workspace:^"
-    "@shapeshiftoss/hdwallet-coinbase": 1.62.29-bitgo-removal.3
-    "@shapeshiftoss/hdwallet-core": 1.62.29-bitgo-removal.3
-    "@shapeshiftoss/hdwallet-gridplus": 1.62.29-bitgo-removal.3
-    "@shapeshiftoss/hdwallet-keepkey": 1.62.29-bitgo-removal.3
-    "@shapeshiftoss/hdwallet-keepkey-webusb": 1.62.29-bitgo-removal.3
-    "@shapeshiftoss/hdwallet-keplr": 1.62.29-bitgo-removal.3
-    "@shapeshiftoss/hdwallet-ledger": 1.62.29-bitgo-removal.3
-    "@shapeshiftoss/hdwallet-ledger-webhid": 1.62.29-bitgo-removal.3
-    "@shapeshiftoss/hdwallet-ledger-webusb": 1.62.29-bitgo-removal.3
-    "@shapeshiftoss/hdwallet-metamask-multichain": 1.62.29-bitgo-removal.3
-    "@shapeshiftoss/hdwallet-native": 1.62.29-bitgo-removal.3
-    "@shapeshiftoss/hdwallet-native-vault": 1.62.29-bitgo-removal.3
-    "@shapeshiftoss/hdwallet-phantom": 1.62.29-bitgo-removal.3
-    "@shapeshiftoss/hdwallet-trezor": 1.62.29-bitgo-removal.3
-    "@shapeshiftoss/hdwallet-trezor-connect": 1.62.29-bitgo-removal.3
-    "@shapeshiftoss/hdwallet-vultisig": 1.62.29-bitgo-removal.3
-    "@shapeshiftoss/hdwallet-walletconnect": 1.62.29-bitgo-removal.3
-    "@shapeshiftoss/hdwallet-walletconnectv2": 1.62.29-bitgo-removal.3
+    "@shapeshiftoss/hdwallet-coinbase": 1.62.28
+    "@shapeshiftoss/hdwallet-core": 1.62.28
+    "@shapeshiftoss/hdwallet-gridplus": 1.62.28
+    "@shapeshiftoss/hdwallet-keepkey": 1.62.28
+    "@shapeshiftoss/hdwallet-keepkey-webusb": 1.62.28
+    "@shapeshiftoss/hdwallet-keplr": 1.62.28
+    "@shapeshiftoss/hdwallet-ledger": 1.62.28
+    "@shapeshiftoss/hdwallet-ledger-webhid": 1.62.28
+    "@shapeshiftoss/hdwallet-ledger-webusb": 1.62.28
+    "@shapeshiftoss/hdwallet-metamask-multichain": 1.62.28
+    "@shapeshiftoss/hdwallet-native": 1.62.28
+    "@shapeshiftoss/hdwallet-native-vault": 1.62.28
+    "@shapeshiftoss/hdwallet-phantom": 1.62.28
+    "@shapeshiftoss/hdwallet-trezor": 1.62.28
+    "@shapeshiftoss/hdwallet-trezor-connect": 1.62.28
+    "@shapeshiftoss/hdwallet-vultisig": 1.62.28
+    "@shapeshiftoss/hdwallet-walletconnect": 1.62.28
+    "@shapeshiftoss/hdwallet-walletconnectv2": 1.62.28
     "@shapeshiftoss/swapper": "workspace:^"
     "@shapeshiftoss/types": "workspace:^"
     "@shapeshiftoss/unchained-client": "workspace:^"
@@ -17950,6 +17967,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"bip174@npm:@bitgo-forks/bip174@3.1.0-master.4":
+  version: 3.1.0-master.4
+  resolution: "@bitgo-forks/bip174@npm:3.1.0-master.4"
+  checksum: 23d8c613cd04368698fa4e8e5bc146a006d5c8d88c24dbe5cddcf793e055d9d86544598bc8617b05a6b44954bc337bc193462d580846814df29f8e09d9cbc955
+  languageName: node
+  linkType: hard
+
 "bip174@npm:^2.0.1":
   version: 2.0.1
   resolution: "bip174@npm:2.0.1"
@@ -18005,6 +18029,20 @@ __metadata:
     typeforce: ^1.11.5
     wif: ^2.0.6
   checksum: 1c654a93836d8ed0bf5aa18a9b7b8dc3fe65e6a607a736d2acdb7927276c03db4bf8068324b9907e362759f9307d8b2b61c2547c282a2bc5198305f5654ed554
+  languageName: node
+  linkType: hard
+
+"bip32@npm:^3.0.1":
+  version: 3.1.0
+  resolution: "bip32@npm:3.1.0"
+  dependencies:
+    bs58check: ^2.1.1
+    create-hash: ^1.2.0
+    create-hmac: ^1.1.7
+    ripemd160: ^2.0.2
+    typeforce: ^1.11.5
+    wif: ^2.0.6
+  checksum: 55bdc5dcae6cf83c000262cee9df912fe3012eeb000ff7cff72547e52442b7a779e93e7a19affbaa105d22f8d95299f8964edb2912f11a2bdd7b31433a7b5bad
   languageName: node
   linkType: hard
 
@@ -18107,6 +18145,24 @@ __metadata:
   version: 1.1.9
   resolution: "bitcoincash-regex@npm:1.1.9"
   checksum: b4f33db377b7e30fbfa042487ea4c635e5fa30966e67aad68a466968164b2da828081f57b40e48d54109a9fd524da403660a6d29a2165132001d44a63951270b
+  languageName: node
+  linkType: hard
+
+"bitcoinjs-lib@npm:@bitgo-forks/bitcoinjs-lib@7.1.0-master.11":
+  version: 7.1.0-master.11
+  resolution: "@bitgo-forks/bitcoinjs-lib@npm:7.1.0-master.11"
+  dependencies:
+    bech32: ^2.0.0
+    bip174: "npm:@bitgo-forks/bip174@3.1.0-master.4"
+    bs58check: ^2.1.2
+    create-hash: ^1.1.0
+    fastpriorityqueue: ^0.7.1
+    json5: ^2.2.3
+    ripemd160: ^2.0.2
+    typeforce: ^1.11.3
+    varuint-bitcoin: ^1.1.2
+    wif: ^2.0.1
+  checksum: f7760c687fe0705cd3bdd45431742fc871995ea451f669061196eb2b1a5500dcede841597e7a6f909b8ee0bbd42e284fd9a0ce997a1ca82c8e73d57300cfa359
   languageName: node
   linkType: hard
 
@@ -18890,6 +18946,15 @@ __metadata:
   version: 0.12.0
   resolution: "caseless@npm:0.12.0"
   checksum: b43bd4c440aa1e8ee6baefee8063b4850fd0d7b378f6aabc796c9ec8cb26d27fb30b46885350777d9bd079c5256c0e1329ad0dc7c2817e0bb466810ebb353751
+  languageName: node
+  linkType: hard
+
+"cashaddress@npm:^1.1.0":
+  version: 1.1.0
+  resolution: "cashaddress@npm:1.1.0"
+  dependencies:
+    bigi: ^1.4.2
+  checksum: 29d5c6e58502a6641cc9aba07822b328af5a26d9d1d8c3243cc13d1f06a781dbdbbff38d0ab0be46d9ca80664d7de7e0bfb782c6170a1a8b9574fb2b1cc42a9d
   languageName: node
   linkType: hard
 
@@ -20957,6 +21022,17 @@ __metadata:
     futoin-hkdf: ^1.5.3
     secp256k1: ^5.0.0
   checksum: 2d6e1624c4b2110ab4c76a684d0f458774c702f9711859404a52ede1b2dea67f61e8fc258a0867c2090e5b1110ca3201ea2876f5ac0e2dd57ef1bcfb358d3004
+  languageName: node
+  linkType: hard
+
+"ecpair@npm:@bitgo/ecpair@2.1.0-rc.0":
+  version: 2.1.0-rc.0
+  resolution: "@bitgo/ecpair@npm:2.1.0-rc.0"
+  dependencies:
+    randombytes: ^2.1.0
+    typeforce: ^1.18.0
+    wif: ^2.0.6
+  checksum: 6884491e472ea1e2947f194363b723b88348487b8031512eb8657b9d6d58390586e66adf536707dd5950384442dab96ca059a7afc6f0d3cd975a1c66d0f6aa56
   languageName: node
   linkType: hard
 
@@ -23290,6 +23366,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"fastpriorityqueue@npm:^0.7.1":
+  version: 0.7.5
+  resolution: "fastpriorityqueue@npm:0.7.5"
+  checksum: 1a586d09814c2eebd2c29d85d503ecc016203843c8a93d95e0924a26809da2e35ea14e4ca2f4a138a52ec2faaee9077bb79939cfd0466f7cfcef40dcdd1ffe8a
+  languageName: node
+  linkType: hard
+
 "fastq@npm:^1.6.0":
   version: 1.13.0
   resolution: "fastq@npm:1.13.0"
@@ -24514,6 +24597,18 @@ __metadata:
     readable-stream: ^3.6.0
     safe-buffer: ^5.2.0
   checksum: 26b7e97ac3de13cb23fc3145e7e3450b0530274a9562144fc2bf5c1e2983afd0e09ed7cc3b20974ba66039fad316db463da80eb452e7373e780cbee9a0d2f2dc
+  languageName: node
+  linkType: hard
+
+"hash-base@npm:^3.1.2":
+  version: 3.1.2
+  resolution: "hash-base@npm:3.1.2"
+  dependencies:
+    inherits: ^2.0.4
+    readable-stream: ^2.3.8
+    safe-buffer: ^5.2.1
+    to-buffer: ^1.2.1
+  checksum: ca7c548098ca2aa3616f8ddb0406c9cadd0fbc35868d885200692b13a3b6d5b30e2b55ab808ff6000c69f11b3c26fd98e5955b1484d79a59fbd07d1d6b65ca4b
   languageName: node
   linkType: hard
 
@@ -27936,6 +28031,20 @@ __metadata:
   languageName: node
   linkType: hard
 
+"nanoassert@npm:^1.0.0":
+  version: 1.1.0
+  resolution: "nanoassert@npm:1.1.0"
+  checksum: f360fe639db8edc422de9f5a8a7d384ba9c11e9c6fac149f7ad3b0a94e4ec9d5aa44ce55b3e4c7682658efad792604fc96c336b0e80a3590744104ba58af80c7
+  languageName: node
+  linkType: hard
+
+"nanoassert@npm:^2.0.0":
+  version: 2.0.0
+  resolution: "nanoassert@npm:2.0.0"
+  checksum: b1d366f9524405f3337192d32dda6ac0b02374e4d0550c9aad33480caf2eb3c84c06f18f41f4c5404c14f6fc1ae6b84692b4375166dcb9f2d04a2ea9b9bccba0
+  languageName: node
+  linkType: hard
+
 "nanoid@npm:^3.1.31, nanoid@npm:^3.3.6":
   version: 3.3.6
   resolution: "nanoid@npm:3.3.6"
@@ -31293,6 +31402,16 @@ pvutils@latest:
   languageName: node
   linkType: hard
 
+"ripemd160@npm:^2.0.2":
+  version: 2.0.3
+  resolution: "ripemd160@npm:2.0.3"
+  dependencies:
+    hash-base: ^3.1.2
+    inherits: ^2.0.4
+  checksum: da25591f15d3f03d3a26cabc8255634ee9e0ae89fc053846e6b3975bbdbae6941baeb539dba30e0aaec9a726c7442149de064e13c2510332e119e50beaf3314d
+  languageName: node
+  linkType: hard
+
 "ripple-address-codec@npm:^5.0.0":
   version: 5.0.0
   resolution: "ripple-address-codec@npm:5.0.0"
@@ -33431,6 +33550,17 @@ pvutils@latest:
   languageName: node
   linkType: hard
 
+"to-buffer@npm:^1.2.1":
+  version: 1.2.2
+  resolution: "to-buffer@npm:1.2.2"
+  dependencies:
+    isarray: ^2.0.5
+    safe-buffer: ^5.2.1
+    typed-array-buffer: ^1.0.3
+  checksum: b0cd2417989a9f3d47273301e8cec2c9798b19a117822424686f385f3ec0239d2defd5fd9f8e76cda0b21e2a2f5de65a58e806506bf4c296c31750c5efd3ae4b
+  languageName: node
+  linkType: hard
+
 "to-fast-properties@npm:^2.0.0":
   version: 2.0.0
   resolution: "to-fast-properties@npm:2.0.0"
@@ -34891,7 +35021,7 @@ pvutils@latest:
   languageName: node
   linkType: hard
 
-"varuint-bitcoin@npm:1.1.2, varuint-bitcoin@npm:^1.0.1, varuint-bitcoin@npm:^1.0.4":
+"varuint-bitcoin@npm:1.1.2, varuint-bitcoin@npm:^1.0.1, varuint-bitcoin@npm:^1.0.4, varuint-bitcoin@npm:^1.1.2":
   version: 1.1.2
   resolution: "varuint-bitcoin@npm:1.1.2"
   dependencies:

@@ -39,7 +39,7 @@
     "@shapeshiftoss/caip": "workspace:^",
     "@shapeshiftoss/chain-adapters": "workspace:^",
     "@shapeshiftoss/contracts": "workspace:^",
-    "@shapeshiftoss/hdwallet-core": "1.62.25",
+    "@shapeshiftoss/hdwallet-core": "1.62.28",
     "@shapeshiftoss/types": "workspace:^",
     "@shapeshiftoss/unchained-client": "workspace:^",
     "@shapeshiftoss/utils": "workspace:^",

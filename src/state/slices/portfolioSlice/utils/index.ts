@@ -21,6 +21,7 @@ import {
   mayachainChainId,
   monadChainId,
   optimismChainId,
+  plasmaChainId,
   polygonChainId,
   solanaChainId,
   suiChainId,
@@ -70,7 +71,7 @@ import { queryClient } from '@/context/QueryClientProvider/queryClient'
 import type { BigNumber } from '@/lib/bignumber/bignumber'
 import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
 import { fetchPortalsAccount, fetchPortalsPlatforms, maybeTokenImage } from '@/lib/portals/utils'
-import { assertUnreachable, isNativeHDWallet, middleEllipsis } from '@/lib/utils'
+import { assertUnreachable, isNativeHDWallet, isTrezorHDWallet, middleEllipsis } from '@/lib/utils'
 import { isSpammyNftText, isSpammyTokenText } from '@/state/blacklist'
 import type { ReduxState } from '@/state/reducer'
 import type { UpsertAssetsPayload } from '@/state/slices/assetsSlice/assetsSlice'
@@ -89,6 +90,7 @@ export const accountIdToLabel = (accountId: AccountId): string => {
     case arbitrumNovaChainId:
     case baseChainId:
     case monadChainId:
+    case plasmaChainId:
     case thorchainChainId:
     case mayachainChainId:
     case cosmosChainId:
@@ -403,9 +405,7 @@ export const isAssetSupportedByWallet = (assetId: AssetId, wallet: HDWallet): bo
         !(wallet instanceof GridPlusHDWallet)
       )
     case zecChainId:
-      // Only native wallet supports ZCash for now
-      // TODO(gomes): include more as more wallets supported for ZCash
-      return supportsBTC(wallet) && isNativeHDWallet(wallet)
+      return supportsBTC(wallet) && (isNativeHDWallet(wallet) || isTrezorHDWallet(wallet))
     case cosmosChainId:
       return supportsCosmos(wallet)
     case thorchainChainId:

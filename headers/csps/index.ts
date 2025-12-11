@@ -14,10 +14,12 @@ import { csp as cosmos } from './chains/cosmos'
 import { csp as dogecoin } from './chains/dogecoin'
 import { csp as ethereum } from './chains/ethereum'
 import { csp as gnosis } from './chains/gnosis'
+import { csp as hyperevm } from './chains/hyperevm'
 import { csp as litecoin } from './chains/litecoin'
 import { csp as mayachain } from './chains/mayachain'
 import { csp as monad } from './chains/monad'
 import { csp as optimism } from './chains/optimism'
+import { csp as plasma } from './chains/plasma'
 import { csp as polygon } from './chains/polygon'
 import { csp as solana } from './chains/solana'
 import { csp as sui } from './chains/sui'
@@ -99,6 +101,7 @@ export const csps = [
   dogecoin,
   ethereum,
   gnosis,
+  hyperevm,
   litecoin,
   optimism,
   polygon,
@@ -109,6 +112,7 @@ export const csps = [
   zcash,
   mayachain,
   monad,
+  plasma,
   trustwallet,
   coincap,
   exchangeRates,

@@ -39,6 +39,25 @@ In the hdwallet repo (`../shapeshiftHdWallet`, or whichever is the path for hdwa
 In the ShapeShift web repo (Current repo clause is being ran from):
 - `yarn up '@shapeshiftoss/hdwallet-*@<version>'`
 
+### 4. Verify all hdwallet references were updated
+After running `yarn up`, verify that ALL package.json files with hdwallet dependencies were updated:
+- Root `package.json`
+- `packages/chain-adapters/package.json`
+- `packages/swapper/package.json`
+
+**Verification commands:**
+```bash
+grep "@shapeshiftoss/hdwallet-" package.json | head -20
+grep "@shapeshiftoss/hdwallet-" packages/chain-adapters/package.json
+grep "@shapeshiftoss/hdwallet-" packages/swapper/package.json
+```
+
+**If any packages were NOT updated:**
+Simply edit the files directly and replace the old version with the new version:
+- Edit `packages/chain-adapters/package.json`
+- Edit `packages/swapper/package.json`
+- Find/replace old hdwallet version with new version
+
 ## Important Notes
 
 - Assumes user ran Claude from web repo with `--add-dir ../shapeshiftHdWallet` (or their hdwallet dir)

@@ -1,6 +1,6 @@
 import { TimeIcon } from '@chakra-ui/icons'
 import { lazy } from 'react'
-import { FaCreditCard, FaFlag } from 'react-icons/fa'
+import { FaCreditCard, FaFlag, FaUsers } from 'react-icons/fa'
 import { RiExchangeFundsLine } from 'react-icons/ri'
 import { TbGraph } from 'react-icons/tb'
 
@@ -140,6 +140,16 @@ const WalletConnectDeepLink = makeSuspenseful(
   true,
 )
 
+const Referral = makeSuspenseful(
+  lazy(() =>
+    import('@/pages/Referral/Referral').then(({ Referral }) => ({
+      default: Referral,
+    })),
+  ),
+  {},
+  true,
+)
+
 /**
  * WARNING: whenever routes that contain user addresses are edited here, we need
  * to make sure that we update the tests in lib/mixpanel/helpers.test.ts and
@@ -229,6 +239,15 @@ export const routes: Route[] = [
     disable: !getConfig().VITE_FEATURE_MARKETS,
   },
   {
+    path: '/referral',
+    label: 'navBar.referral',
+    icon: <FaUsers />,
+    main: Referral,
+    category: RouteCategory.Featured,
+    mobileNav: false,
+    priority: 4,
+  },
+  {
     path: '/ramp/*',
     label: 'navBar.buyCrypto',
     shortLabel: 'navBar.buyCryptoShort',
@@ -236,7 +255,7 @@ export const routes: Route[] = [
     main: Ramp,
     category: RouteCategory.Featured,
     mobileNav: false,
-    priority: 4,
+    priority: 5,
     routes: [
       {
         path: `trade/*`,

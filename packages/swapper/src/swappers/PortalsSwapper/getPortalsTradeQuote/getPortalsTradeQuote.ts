@@ -268,6 +268,7 @@ export async function getPortalsTradeQuote(
           estimatedExecutionTimeMs: isCrossChain ? 300000 : 0,
           portalsTransactionMetadata: {
             ...tx,
+            orderId: portalsTradeOrderResponse.context.orderId,
             isCrossChain,
             buyAssetChainId: isCrossChain ? buyAssetChainId : undefined,
             expiry: portalsTradeOrderResponse.context.expiry

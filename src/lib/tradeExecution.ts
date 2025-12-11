@@ -179,6 +179,10 @@ export class TradeExecution {
           chainflipSwapId: tradeQuote.steps[0]?.chainflipSpecific?.chainflipSwapId,
           nearIntentsSpecific: tradeQuote.steps[0]?.nearIntentsSpecific,
           relayTransactionMetadata: tradeQuote.steps[0]?.relayTransactionMetadata,
+          cowswapQuoteSpecific: tradeQuote.steps[0]?.cowswapQuoteResponse,
+          portalsTransactionMetadata: tradeQuote.steps[0]?.portalsTransactionMetadata,
+          zrxTransactionMetadata: tradeQuote.steps[0]?.zrxTransactionMetadata,
+          bebopTransactionMetadata: tradeQuote.steps[0]?.bebopTransactionMetadata,
           stepIndex,
         },
       }

@@ -11,6 +11,7 @@
     "and": "and",
     "balance": "Balance",
     "next": "Next",
+    "actions": "Actions",
     "edit": "Edit",
     "error": "Error",
     "show": "Show",
@@ -512,7 +513,8 @@
     "foxEcosystem": "FOX Ecosystem",
     "markets": "Markets",
     "tokens": "Tokens",
-    "swap": "Swap"
+    "swap": "Swap",
+    "referral": "Referral"
   },
   "shapeShiftMenu": {
     "products": "Products",
@@ -2122,6 +2124,30 @@
       "emptyTitle": "The Land of Zero Loans!",
       "emptyBody": "It appears you don't have any loans at the moment. Is this financial zen or just a break before your next big lending adventure? Either way, enjoy the calm!"
     }
+  },
+  "referral": {
+    "description": "Earn rewards by referring friends to ShapeShift",
+    "totalReferrals": "Total Referrals",
+    "activeCodes": "Active Codes",
+    "feesCollected": "Fees Collected",
+    "currentMonth": "Current Month",
+    "yourReferralLink": "Your Referral Link",
+    "noCodeYet": "Create a referral code to get your link",
+    "createNewCode": "Create New Referral Code",
+    "enterCodeOrLeaveEmpty": "Enter a custom code or leave empty for random",
+    "random": "Random",
+    "create": "Create",
+    "yourCodes": "Your Referral Codes",
+    "code": "Code",
+    "usages": "Usages",
+    "status": "Status",
+    "createdAt": "Created",
+    "active": "Active",
+    "inactive": "Inactive",
+    "noCodes": "You don't have any referral codes yet. Create your first one above!",
+    "codeCreated": "Referral Code Created",
+    "codeCreatedDescription": "Your referral code %{code} has been created successfully",
+    "createCodeFailed": "Failed to create referral code. Please try again."
   },
   "chart": {
     "interval": {

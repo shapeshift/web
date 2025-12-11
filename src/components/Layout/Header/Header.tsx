@@ -1,6 +1,7 @@
-import { Box, Divider, Flex, HStack, useMediaQuery } from '@chakra-ui/react'
+import { Box, Button, Divider, Flex, HStack, useMediaQuery } from '@chakra-ui/react'
 import { useScroll } from 'framer-motion'
 import { lazy, memo, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { FaUsers } from 'react-icons/fa'
 import {
   TbArrowRight,
   TbBuildingBank,
@@ -12,7 +13,8 @@ import {
   TbStack,
 } from 'react-icons/tb'
 import { useSelector } from 'react-redux'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation, Link as ReactRouterLink } from 'react-router-dom'
+import { useTranslate } from 'react-polyglot'
 
 import { ActionCenter } from './ActionCenter/ActionCenter'
 import { DegradedStateBanner } from './DegradedStateBanner'
@@ -72,10 +74,14 @@ const earnSubMenuItems = [
   { label: 'navBar.lending', path: '/lending', icon: TbBuildingBank },
 ]
 
+const menuButtonHoverSx = { bg: 'background.surface.elevated' }
+const menuButtonActiveSx = { bg: 'transparent' }
+
 export const Header = memo(() => {
   const isDegradedState = useSelector(selectPortfolioDegradedState)
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`)
-
+  const location = useLocation()
+  const translate = useTranslate()
   const navigate = useNavigate()
   const {
     state: { isConnected, walletInfo },
@@ -170,6 +176,25 @@ export const Header = memo(() => {
                 defaultPath='/assets'
               />
               <NavigationDropdown label='defi.earn' items={earnSubMenuItems} defaultPath='/tcy' />
+              <Button
+                as={ReactRouterLink}
+                to='/referral'
+                variant='ghost'
+                fontWeight='medium'
+                px={3}
+                py={2}
+                borderRadius='md'
+                _hover={menuButtonHoverSx}
+                _active={menuButtonActiveSx}
+                aria-current={location.pathname.startsWith('/referral') ? 'page' : undefined}
+              >
+                <Box
+                  fontSize='md'
+                  color={location.pathname.startsWith('/referral') ? 'text.base' : 'text.subtle'}
+                >
+                  {translate('navBar.referral')}
+                </Box>
+              </Button>
             </HStack>
           </HStack>
 

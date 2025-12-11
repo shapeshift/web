@@ -30,6 +30,7 @@ export type User = {
 
 export type GetOrCreateUserRequest = {
   accountIds: string[]
+  referralCode?: string
 }
 
 export type RegisterDeviceRequest = {

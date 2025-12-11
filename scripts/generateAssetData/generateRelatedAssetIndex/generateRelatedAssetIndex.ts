@@ -352,7 +352,8 @@ export const generateRelatedAssetIndex = async () => {
     const primaryRelatedAsset = generatedAssetData[relatedAssetKey]
 
     // Clear Plasma usdt0 related asset key - Coingecko has corrupt data for this token
-    const isPlasmaUsdt0 = relatedAssetKey === 'eip155:9745/erc20:0xb8ce59fc3717ada4c02eadf9682a9e934f625ebb'
+    const isPlasmaUsdt0 =
+      relatedAssetKey === 'eip155:9745/erc20:0xb8ce59fc3717ada4c02eadf9682a9e934f625ebb'
 
     // remove relatedAssetKey from the existing data to ensure the related assets get updated
     if (primaryRelatedAsset === undefined || isPlasmaUsdt0) {

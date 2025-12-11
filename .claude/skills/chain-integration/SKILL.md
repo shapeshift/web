@@ -1041,7 +1041,7 @@ import {
 // Add platform constant
 export enum CoingeckoAssetPlatform {
   // ... existing platforms
-  [ChainName] = '[coingecko-platform-id]', // e.g., 'hyperliquid' for HyperEVM
+  [ChainName] = '[coingecko-platform-id]', // e.g., 'hyperevm' for HyperEVM
 }
 ```
 

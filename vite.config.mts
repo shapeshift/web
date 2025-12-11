@@ -171,9 +171,6 @@ export default defineConfig(({ mode }) => {
         output: {
           manualChunks: id => {
             if (id.includes('node_modules')) {
-              // @noble and @scure are crypto primitives used by many packages (ledger, viem, solana, etc.)
-              // They must be in a single chunk that loads first to avoid circular dependency initialization issues
-              if (id.match(/(@noble|@scure)/)) return 'noble'
               if (id.match(/(framer-motion|@visx|@coral-xyz)/)) return 'ui'
               if (id.match(/(react-icons|@react-spring|react-datepicker|react-dom)/)) return 'react'
               if (id.match(/(dayjs|lodash|@formatjs)/)) return 'utils'
@@ -187,7 +184,8 @@ export default defineConfig(({ mode }) => {
               if (id.includes('styled-components')) return 'styled-components'
               if (id.includes('protobufjs')) return 'protobuf'
               if (id.includes('date-fns')) return 'date-fns'
-              if (id.includes('@ledgerhq')) return 'ledger'
+              // Group ledger with its crypto dependencies to avoid circular chunk deps
+              if (id.match(/(@ledgerhq|@noble|@scure|@bitgo)/)) return 'ledger'
               if (id.includes('cosmjs-types')) return 'cosmjs-types'
               if (id.includes('osmojs')) return 'osmojs'
               if (id.includes('@arbitrum')) return '@arbitrum'
@@ -211,7 +209,6 @@ export default defineConfig(({ mode }) => {
 
             if (id.includes('assets/translations')) return 'translations'
             if (id.includes('packages/unchained-client')) return 'unchained-client'
-            if (id.includes('packages/caip')) return 'caip'
             if (id.includes('localAssetData')) return 'local-asset-data'
 
             // This chunk should be imported last as it heavily relies on other chunks and default order doesnt work

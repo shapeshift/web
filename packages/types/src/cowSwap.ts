@@ -320,6 +320,7 @@ export enum CowNetwork {
   Base = 'base',
   Avalanche = 'avalanche',
   Polygon = 'polygon',
+  Bnb = 'bnb',
 }
 
 export type CowChainId =

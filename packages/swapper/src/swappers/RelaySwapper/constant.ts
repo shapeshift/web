@@ -6,6 +6,7 @@ import {
   btcChainId,
   ethChainId,
   gnosisChainId,
+  hyperEvmChainId,
   monadChainId,
   optimismChainId,
   plasmaChainId,
@@ -21,6 +22,7 @@ import {
   base,
   bsc,
   gnosis,
+  hyperEvm,
   mainnet as ethereum,
   monad,
   optimism,
@@ -46,6 +48,7 @@ export const chainIdToRelayChainId = {
   [bscChainId]: bsc.id,
   [tronChainId]: 728126428,
   [monadChainId]: monad.id,
+  [hyperEvmChainId]: hyperEvm.id,
   [plasmaChainId]: plasma.id,
 }
 

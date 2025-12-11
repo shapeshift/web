@@ -211,6 +211,7 @@ export default defineConfig(({ mode }) => {
 
             if (id.includes('assets/translations')) return 'translations'
             if (id.includes('packages/unchained-client')) return 'unchained-client'
+            if (id.includes('packages/caip')) return 'caip'
             if (id.includes('localAssetData')) return 'local-asset-data'
 
             // This chunk should be imported last as it heavily relies on other chunks and default order doesnt work

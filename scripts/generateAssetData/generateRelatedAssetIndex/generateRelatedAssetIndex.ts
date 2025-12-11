@@ -343,6 +343,7 @@ export const generateRelatedAssetIndex = async () => {
 
   // Remove stale related asset data from the assetData where:
   // a) the primary related asset no longer exists in the dataset
+  // b) the related asset key is Plasma usdt0 (corrupt Coingecko data)
   Object.values(generatedAssetData).forEach(asset => {
     const relatedAssetKey = asset.relatedAssetKey
 
@@ -350,8 +351,11 @@ export const generateRelatedAssetIndex = async () => {
 
     const primaryRelatedAsset = generatedAssetData[relatedAssetKey]
 
+    // Clear Plasma usdt0 related asset key - Coingecko has corrupt data for this token
+    const isPlasmaUsdt0 = relatedAssetKey === 'eip155:9745/erc20:0xb8ce59fc3717ada4c02eadf9682a9e934f625ebb'
+
     // remove relatedAssetKey from the existing data to ensure the related assets get updated
-    if (primaryRelatedAsset === undefined) {
+    if (primaryRelatedAsset === undefined || isPlasmaUsdt0) {
       delete relatedAssetIndex[relatedAssetKey]
       delete asset.relatedAssetKey
     }

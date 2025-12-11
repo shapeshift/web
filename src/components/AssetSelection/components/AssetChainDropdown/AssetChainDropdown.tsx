@@ -127,8 +127,14 @@ export const AssetChainDropdown: React.FC<AssetChainDropdownProps> = memo(
 
     const renderedChains = useMemo(() => {
       if (!assetId) return null
+      const isUsdt = assetId.toLowerCase().includes('usdt') || assetId.toLowerCase().includes('0xdac17f958d2ee523a2206206994597c13d831ec7')
+      if (isUsdt) {
+        console.log('[AssetChainDropdown] USDT Rendering chains for assetId:', assetId)
+        console.log('[AssetChainDropdown] USDT filteredRelatedAssetIds:', JSON.stringify(filteredRelatedAssetIds))
+      }
       return filteredRelatedAssetIds.map(relatedAssetId => {
         const { chainId } = fromAssetId(relatedAssetId)
+        if (isUsdt) console.log('[AssetChainDropdown] USDT Processing relatedAssetId:', relatedAssetId, 'chainId:', chainId)
         const chainDisplayName = assertGetChainAdapter(chainId).getDisplayName()
         const isChainIdDisabled = !isAssetChainIdConnected(relatedAssetId)
         const isChainIdUnsupported = !isAssetChainIdSupported(relatedAssetId)

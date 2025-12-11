@@ -246,8 +246,8 @@ For EVM-compatible chains (like Monad, HyperEVM, Base), you need **MINIMAL chang
 **Why?** Each wallet type (Native, Ledger, MetaMask, etc.) needs to explicitly declare support for the chain, even though the crypto is identical. This enables wallet-specific gating in the UI.
 
 **Reference PRs:**
-- Monad hdwallet: https://github.com/shapeshift/hdwallet/pull/753
-- HyperEVM hdwallet: https://github.com/shapeshift/hdwallet/pull/756
+- Monad hdwallet: <https://github.com/shapeshift/hdwallet/pull/753>
+- HyperEVM hdwallet: <https://github.com/shapeshift/hdwallet/pull/756>
 
 **Time estimate**: 30 minutes for hdwallet + Verdaccio (vs 1-2 days for non-EVM)
 
@@ -295,8 +295,8 @@ Register SLIP44 if not using Ethereum's (60):
 ### Step 1.2-EVM: EVM Chain HDWallet Support (MINIMAL WORK - ~30 minutes)
 
 **For EVM chains only** (like Monad, HyperEVM). Follow these PRs as reference:
-- **Monad hdwallet**: https://github.com/shapeshift/hdwallet/pull/753
-- **HyperEVM hdwallet**: https://github.com/shapeshift/hdwallet/pull/756
+- **Monad hdwallet**: <https://github.com/shapeshift/hdwallet/pull/753>
+- **HyperEVM hdwallet**: <https://github.com/shapeshift/hdwallet/pull/756>
 
 **File**: `packages/hdwallet-core/src/ethereum.ts`
 
@@ -1153,24 +1153,23 @@ case [chainLower]ChainId:
 #### Step 5.3a: Research Which Swappers Support Your Chain
 
 **Use `AskUserQuestion` to ask:**
-```
-Which swappers support [ChainName]?
 
-Options:
+**Question**: Which swappers support [ChainName]?
+
+**Options**:
 1. "I know which swappers" → User provides list
 2. "Can you research it?" → Search swapper docs and supported chains lists
 3. "Just add Relay for now" → Start with Relay, add others later
 
-Context: Different swappers support different chains. We need to add your chain to each swapper that supports it.
-```
+**Context**: Different swappers support different chains. We need to add your chain to each swapper that supports it.
 
 **Search for swapper support:**
-1. **Relay**: Check https://docs.relay.link/resources/supported-chains
-2. **0x/Matcha**: Check https://0x.org/docs/introduction/0x-cheat-sheet
-3. **OneInch**: Check https://docs.1inch.io/docs/aggregation-protocol/introduction
-4. **CowSwap**: Check https://docs.cow.fi/cow-protocol/reference/contracts/deployments
+1. **Relay**: Check <https://docs.relay.link/resources/supported-chains>
+2. **0x/Matcha**: Check <https://0x.org/docs/introduction/0x-cheat-sheet>
+3. **OneInch**: Check <https://docs.1inch.io/docs/aggregation-protocol/introduction>
+4. **CowSwap**: Check <https://docs.cow.fi/cow-protocol/reference/contracts/deployments>
 5. **Jupiter**: Solana-only
-6. **THORChain**: Check https://docs.thorchain.org/chain-clients/overview
+6. **THORChain**: Check <https://docs.thorchain.org/chain-clients/overview>
 
 **Common patterns:**
 - Most EVM chains: Relay, 0x, possibly OneInch
@@ -1184,7 +1183,7 @@ Context: Different swappers support different chains. We need to add your chain 
 **IMPORTANT - Check viem chain definitions first:**
 
 1. **Search viem's chain definitions**: Check if your chain exists in viem:
-   - Browse: https://github.com/wevm/viem/tree/main/src/chains/definitions
+   - Browse: <https://github.com/wevm/viem/tree/main/src/chains/definitions>
    - Look for `[chainname].ts` file (e.g., `hyperEvm.ts` for HyperEVM)
    - Note the exact export name (may differ from chain name, e.g., `hyperEvm` not `hyperliquid`)
 
@@ -1240,7 +1239,7 @@ case CHAIN_REFERENCE.[ChainName]Mainnet:
 ```
 
 **Check Relay docs** for your chain:
-- https://docs.relay.link/resources/supported-chains
+- <https://docs.relay.link/resources/supported-chains>
 - Verify chain ID and native token address
 
 ### Step 5.4: Generate Assets (Step-by-Step Approach)
@@ -1248,29 +1247,27 @@ case CHAIN_REFERENCE.[ChainName]Mainnet:
 **IMPORTANT**: Asset generation requires a Zerion API key for related asset indexing.
 
 **Ask user for Zerion API key** using `AskUserQuestion`:
-```
-Do you have a Zerion API key to run asset generation?
 
-Options:
+**Question**: Do you have a Zerion API key to run asset generation?
+
+**Options**:
 1. "Yes, here it is" → User provides key (NEVER store in VCS!)
 2. "No, skip for now" → Skip asset generation, user can run manually later
 
-Context: Asset generation fetches token metadata and requires a Zerion API key.
+**Context**: Asset generation fetches token metadata and requires a Zerion API key.
 The key is passed via environment variable and should NEVER be committed to VCS.
-```
 
 **Ask user how they want to run generation** using `AskUserQuestion`:
-```
-How do you want to run the asset generation pipeline?
 
-Options:
+**Question**: How do you want to run the asset generation pipeline?
+
+**Options**:
 1. "I'll run it myself" → Copy command to clipboard (echo | pbcopy), user runs it, better visibility of progress
 2. "Claude runs it" → Claude runs all steps in background. ⚠️ WARNING: May take 5-10 minutes with limited visibility. You'll see less progress output.
 
-Context: Asset generation has 5 steps (caip-adapters, color-map, asset-data, tradable-asset-map, thor-longtail).
+**Context**: Asset generation has 5 steps (caip-adapters, color-map, asset-data, tradable-asset-map, thor-longtail).
 Running manually gives full visibility of progress (you'll see "chain_id: hyperevm" tokens being processed).
 Claude running it is hands-off but you won't see detailed progress, and it may appear stuck for several minutes while processing thousands of tokens.
-```
 
 **Run generation scripts ONE AT A TIME** (better visibility than `generate:all`):
 

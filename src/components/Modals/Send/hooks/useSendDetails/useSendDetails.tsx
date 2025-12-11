@@ -312,7 +312,8 @@ export const useSendDetails = (): UseSendDetailsReturnType => {
   ])
 
   const isTransitioning = useMemo(
-    () => !sendMax && queryKey[1].amountCryptoPrecision !== amountCryptoPrecision,
+    () =>
+      !sendMax && !bnOrZero(queryKey[1].amountCryptoPrecision).eq(bnOrZero(amountCryptoPrecision)),
     [amountCryptoPrecision, queryKey, sendMax],
   )
 

@@ -173,7 +173,7 @@ export default defineConfig(({ mode }) => {
             if (id.includes('node_modules')) {
               // @noble and @scure are crypto primitives used by many packages (ledger, viem, solana, etc.)
               // They must be in a single chunk that loads first to avoid circular dependency initialization issues
-              if (id.match(/(@noble|@scure)/)) return 'crypto'
+              if (id.match(/(@noble|@scure)/)) return 'noble'
               if (id.match(/(framer-motion|@visx|@coral-xyz)/)) return 'ui'
               if (id.match(/(react-icons|@react-spring|react-datepicker|react-dom)/)) return 'react'
               if (id.match(/(dayjs|lodash|@formatjs)/)) return 'utils'

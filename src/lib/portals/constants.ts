@@ -6,6 +6,7 @@ import {
   bscChainId,
   ethChainId,
   gnosisChainId,
+  hyperEvmChainId,
   monadChainId,
   optimismChainId,
   polygonChainId,
@@ -22,6 +23,7 @@ export const CHAIN_ID_TO_PORTALS_NETWORK: Partial<Record<ChainId, string>> = {
   [gnosisChainId]: 'gnosis',
   [baseChainId]: 'base',
   [monadChainId]: 'monad',
+  [hyperEvmChainId]: 'hyperevm',
 }
 
 export const PORTALS_NETWORK_TO_CHAIN_ID: Partial<Record<string, ChainId>> = invert(

@@ -15,6 +15,7 @@ import {
   cosmosChainId,
   ethChainId,
   gnosisChainId,
+  hyperEvmChainId,
   mayachainChainId,
   monadChainId,
   optimismChainId,
@@ -44,6 +45,7 @@ export enum CoingeckoAssetPlatform {
   ArbitrumNova = 'arbitrum-nova',
   Base = 'base',
   Monad = 'monad',
+  HyperEvm = 'hyperevm',
   Plasma = 'plasma',
   Solana = 'solana',
   Tron = 'tron',
@@ -98,6 +100,8 @@ export const chainIdToCoingeckoAssetPlatform = (chainId: ChainId): string => {
           return CoingeckoAssetPlatform.Base
         case CHAIN_REFERENCE.MonadMainnet:
           return CoingeckoAssetPlatform.Monad
+        case CHAIN_REFERENCE.HyperEvmMainnet:
+          return CoingeckoAssetPlatform.HyperEvm
         case CHAIN_REFERENCE.PlasmaMainnet:
           return CoingeckoAssetPlatform.Plasma
         default:
@@ -176,6 +180,8 @@ export const coingeckoAssetPlatformToChainId = (
       return baseChainId
     case CoingeckoAssetPlatform.Monad:
       return monadChainId
+    case CoingeckoAssetPlatform.HyperEvm:
+      return hyperEvmChainId
     case CoingeckoAssetPlatform.Plasma:
       return plasmaChainId
     case CoingeckoAssetPlatform.Cosmos:

@@ -9,6 +9,7 @@ export const SECOND_CLASS_CHAINS: readonly KnownChainIds[] = [
   KnownChainIds.TronMainnet,
   KnownChainIds.SuiMainnet,
   KnownChainIds.MonadMainnet,
+  KnownChainIds.HyperEvmMainnet,
   KnownChainIds.PlasmaMainnet,
 ]
 
@@ -25,6 +26,7 @@ export const knownChainIds = Object.values(KnownChainIds).filter(chainId => {
   if (chainId === KnownChainIds.MayachainMainnet && !enabledFlags.Mayachain) return false
   if (chainId === KnownChainIds.TronMainnet && !enabledFlags.Tron) return false
   if (chainId === KnownChainIds.MonadMainnet && !enabledFlags.Monad) return false
+  if (chainId === KnownChainIds.HyperEvmMainnet && !enabledFlags.HyperEvm) return false
   if (chainId === KnownChainIds.PlasmaMainnet && !enabledFlags.Plasma) return false
   if (chainId === KnownChainIds.ZcashMainnet && !enabledFlags.Zcash) return false
 

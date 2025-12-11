@@ -161,7 +161,6 @@ export const findAssetIdByOnramperCrypto = (crypto: Crypto): AssetId | undefined
     try {
       const chainId = getChainIdFromOnramperNetwork(crypto.network)
       if (!chainId) {
-        console.warn(`Unsupported network: ${crypto.network}`)
         return undefined
       }
 

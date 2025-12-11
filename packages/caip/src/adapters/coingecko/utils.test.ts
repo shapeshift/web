@@ -175,6 +175,9 @@ describe('adapters:coingecko:utils', () => {
         'eip155:143': {
           'eip155:143/slip44:60': 'monad',
         },
+        'eip155:999': {
+          'eip155:999/slip44:60': 'hyperliquid',
+        },
         'eip155:9745': {
           'eip155:9745/slip44:60': 'plasma',
         },

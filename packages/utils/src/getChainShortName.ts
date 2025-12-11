@@ -44,6 +44,8 @@ export const getChainShortName = (chainId: KnownChainIds) => {
       return 'SUI'
     case KnownChainIds.MonadMainnet:
       return 'MON'
+    case KnownChainIds.HyperEvmMainnet:
+      return 'HYPE'
     case KnownChainIds.PlasmaMainnet:
       return 'XPL'
     case KnownChainIds.ZcashMainnet:

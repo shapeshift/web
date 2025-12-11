@@ -1,3 +1,15 @@
+import ArgentWalletIcon from '@/assets/argent.webp'
+import CoinbaseWalletIcon from '@/assets/coinbase-wallet.webp'
+import ExodusWalletIcon from '@/assets/exodus.webp'
+import ImTokenWalletIcon from '@/assets/imtoken.webp'
+import LedgerLiveWalletIcon from '@/assets/ledger-live.webp'
+import OmniWalletIcon from '@/assets/omni.webp'
+import OntoWalletIcon from '@/assets/onto.webp'
+import PhantomWalletIcon from '@/assets/phantom.png'
+import RainbowWalletIcon from '@/assets/rainbow.webp'
+import SafeWalletIcon from '@/assets/safe.webp'
+import SpotWalletIcon from '@/assets/spot.webp'
+import TokenPocketWalletIcon from '@/assets/token-pocket.webp'
 import TrustWalletIcon from '@/assets/trust-wallet.png'
 import ZerionWalletIcon from '@/assets/zerion-wallet.png'
 import { MetaMaskIcon } from '@/components/Icons/MetaMaskIcon'
@@ -162,7 +174,22 @@ export type EthereumProviderOptions = {
   storageOptions?: KeyValueStorageOptions
 } & ChainsProps
 
-export type WalletConnectWalletId = 'metamask' | 'trust' | 'zerion'
+export type WalletConnectWalletId =
+  | 'metamask'
+  | 'trust'
+  | 'zerion'
+  | 'rainbow'
+  | 'ledgerlive'
+  | 'cbwallet'
+  | 'phantom'
+  | 'argent'
+  | 'imtoken'
+  | 'spot'
+  | 'omni'
+  | 'onto'
+  | 'safe'
+  | 'tokenpocket'
+  | 'exodus'
 
 type WalletConfigBase = {
   id: WalletConnectWalletId
@@ -190,5 +217,65 @@ export const WALLET_CONFIGS: WalletConfig[] = [
     id: 'zerion',
     name: 'Zerion',
     imageUrl: ZerionWalletIcon,
+  },
+  {
+    id: 'rainbow',
+    name: 'Rainbow',
+    imageUrl: RainbowWalletIcon,
+  },
+  {
+    id: 'ledgerlive',
+    name: 'Ledger Live',
+    imageUrl: LedgerLiveWalletIcon,
+  },
+  {
+    id: 'cbwallet',
+    name: 'Coinbase Wallet',
+    imageUrl: CoinbaseWalletIcon,
+  },
+  {
+    id: 'phantom',
+    name: 'Phantom',
+    imageUrl: PhantomWalletIcon,
+  },
+  {
+    id: 'argent',
+    name: 'Argent',
+    imageUrl: ArgentWalletIcon,
+  },
+  {
+    id: 'imtoken',
+    name: 'imToken',
+    imageUrl: ImTokenWalletIcon,
+  },
+  {
+    id: 'spot',
+    name: 'Spot',
+    imageUrl: SpotWalletIcon,
+  },
+  {
+    id: 'omni',
+    name: 'Omni',
+    imageUrl: OmniWalletIcon,
+  },
+  {
+    id: 'onto',
+    name: 'ONTO',
+    imageUrl: OntoWalletIcon,
+  },
+  {
+    id: 'safe',
+    name: 'Safe',
+    imageUrl: SafeWalletIcon,
+  },
+  {
+    id: 'tokenpocket',
+    name: 'TokenPocket',
+    imageUrl: TokenPocketWalletIcon,
+  },
+  {
+    id: 'exodus',
+    name: 'Exodus',
+    imageUrl: ExodusWalletIcon,
   },
 ]

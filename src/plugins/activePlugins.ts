@@ -9,6 +9,7 @@ import cosmos from '@/plugins/cosmos'
 import dogecoin from '@/plugins/dogecoin'
 import ethereum from '@/plugins/ethereum'
 import gnosis from '@/plugins/gnosis'
+import hyperevm from '@/plugins/hyperevm'
 import litecoin from '@/plugins/litecoin'
 import mayachain from '@/plugins/mayachain'
 import mobile from '@/plugins/mobile'
@@ -35,6 +36,7 @@ export const activePlugins = [
   dogecoin,
   ethereum,
   gnosis,
+  hyperevm,
   litecoin,
   mayachain,
   mobile,

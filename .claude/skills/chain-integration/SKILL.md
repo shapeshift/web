@@ -1181,6 +1181,27 @@ Context: Different swappers support different chains. We need to add your chain 
 
 **For Relay Swapper** (supports most chains):
 
+**IMPORTANT - Check viem chain definitions first:**
+
+1. **Search viem's chain definitions**: Check if your chain exists in viem:
+   - Browse: https://github.com/wevm/viem/tree/main/src/chains/definitions
+   - Look for `[chainname].ts` file (e.g., `hyperEvm.ts` for HyperEVM)
+   - Note the exact export name (may differ from chain name, e.g., `hyperEvm` not `hyperliquid`)
+
+2. **Update viem if needed**: For new/recent chains, update viem to latest version first:
+   ```bash
+   # Check current version
+   yarn why viem
+
+   # Update to latest pinned version
+   yarn up viem@latest
+
+   # Rebuild packages
+   yarn build:packages
+   ```
+
+3. **Only define manually if unavailable**: If the chain doesn't exist in viem, use `defineChain()` pattern (see viem docs)
+
 **File**: `packages/swapper/src/swappers/RelaySwapper/constant.ts`
 
 Add your chain to the Relay chain ID mapping:
@@ -1191,10 +1212,10 @@ import {
   [chainLower]ChainId,
 } from '@shapeshiftoss/caip'
 
-// Add to viem chain imports if EVM
+// Add to viem chain imports if EVM (check viem/chains for exact export name!)
 import {
   // ... existing chains
-  [chainLower], // e.g., hyperliquid from viem/chains
+  [chainLower], // e.g., hyperEvm from viem/chains (note: hyperEvm not hyperliquid!)
 } from 'viem/chains'
 
 export const chainIdToRelayChainId = {

@@ -188,6 +188,14 @@ const processRelatedAssetIds = async (
   coingeckoPlatformsByAssetId: Record<AssetId, number>,
   throttle: () => Promise<void>,
 ): Promise<void> => {
+  // Skip related asset generation for Plasma usdt0 - Coingecko has corrupt data claiming
+  // it shares the same Arbitrum/Polygon contracts as real USDT, which corrupts groupings
+  if (assetId === 'eip155:9745/erc20:0xb8ce59fc3717ada4c02eadf9682a9e934f625ebb') {
+    assetData[assetId].relatedAssetKey = null
+    await throttle()
+    return
+  }
+
   const existingRelatedAssetKey = assetData[assetId].relatedAssetKey
 
   if (existingRelatedAssetKey) {

@@ -384,9 +384,30 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SolanaMainnet> 
       if (!wallet) throw new Error('wallet is required')
       this.assertSupportsChain(wallet)
 
+      console.log('[SolanaChainAdapter] Calling wallet.solanaSendTx with:', JSON.stringify({
+        hasInstructions: !!txToSign.instructions,
+        instructionsCount: txToSign.instructions?.length,
+        hasAddressLookupTableAccountInfos: !!txToSign.addressLookupTableAccountInfos,
+        addressLookupTableAccountInfosCount: txToSign.addressLookupTableAccountInfos?.length,
+        addressLookupTableAccountInfos: txToSign.addressLookupTableAccountInfos?.map(info => ({
+          key: info.key,
+          hasData: !!info.data,
+          dataType: typeof info.data,
+          isBuffer: Buffer.isBuffer(info.data),
+          dataConstructor: info.data?.constructor?.name,
+        })),
+        computeUnitLimit: txToSign.computeUnitLimit,
+        computeUnitPrice: txToSign.computeUnitPrice,
+        blockHash: txToSign.blockHash,
+      }))
+
       const tx = await wallet.solanaSendTx?.(txToSign)
 
       if (!tx) throw new Error('error signing & broadcasting tx')
+
+      console.log('[SolanaChainAdapter] Transaction signed and broadcast:', JSON.stringify({
+        signature: tx.signature,
+      }))
 
       return tx.signature
     } catch (err) {
@@ -407,7 +428,19 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SolanaMainnet> 
         receiverAddress !== CONTRACT_INTERACTION && assertAddressNotSanctioned(receiverAddress),
       ])
 
+      console.log('[SolanaChainAdapter] Broadcasting transaction:', JSON.stringify({
+        hexLength: hex.length,
+        hexPreview: hex.substring(0, 100) + '...',
+        senderAddress,
+        receiverAddress,
+      }))
+
       const txHash = await this.providers.http.sendTx({ sendTxBody: { hex } })
+
+      console.log('[SolanaChainAdapter] Broadcast result:', JSON.stringify({
+        txHash,
+        txHashLength: txHash?.length,
+      }))
 
       return txHash
     } catch (err) {

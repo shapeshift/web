@@ -342,6 +342,7 @@ export type TradeQuoteStep = {
     expiry?: number
     steps?: string[]
     route?: string[]
+    orderId?: string
   }
   bebopTransactionMetadata?: {
     to: Address
@@ -448,6 +449,7 @@ export type SwapperSpecificMetadata = {
     timeEstimate: number
     deadline: string
   }
+  cowswapQuoteSpecific?: OrderQuoteResponse
   relayTransactionMetadata: RelayTransactionMetadata | undefined
   relayerExplorerTxLink: string | undefined
   relayerTxHash: string | undefined

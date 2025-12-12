@@ -1,3 +1,4 @@
+import { Box } from '@chakra-ui/react'
 import { lazy } from 'react'
 import { useTranslate } from 'react-polyglot'
 
@@ -9,6 +10,8 @@ import { FoxToken } from './components/FoxToken'
 
 import { Main } from '@/components/Layout/Main'
 import { SEO } from '@/components/Layout/Seo'
+import { ReferralDashboard } from '@/components/Referral'
+import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { FoxPageProvider } from '@/pages/Fox/hooks/useFoxPageContext'
 import { makeSuspenseful } from '@/utils/makeSuspenseful'
 
@@ -27,11 +30,17 @@ const RFOXSection = makeSuspenseful(
 
 export const FoxEcosystemPage = () => {
   const translate = useTranslate()
+  const isReferralEnabled = useFeatureFlag('Referral')
 
   return (
     <FoxPageProvider>
       <SEO title={translate('navBar.foxEcosystem')} />
       <Main headerComponent={headerComponent} isSubPage>
+        {isReferralEnabled && (
+          <Box mb={16}>
+            <ReferralDashboard />
+          </Box>
+        )}
         <RFOXProvider>
           <RFOXSection />
         </RFOXProvider>

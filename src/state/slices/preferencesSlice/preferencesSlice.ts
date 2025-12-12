@@ -106,6 +106,7 @@ export type FeatureFlags = {
   WebServices: boolean
   AddressBook: boolean
   AppRating: boolean
+  Referral: boolean
 }
 
 export type Flag = keyof FeatureFlags
@@ -246,6 +247,7 @@ const initialState: Preferences = {
     WebServices: getConfig().VITE_FEATURE_NOTIFICATIONS_WEBSERVICES,
     AddressBook: getConfig().VITE_FEATURE_ADDRESS_BOOK,
     AppRating: getConfig().VITE_FEATURE_APP_RATING,
+    Referral: getConfig().VITE_FEATURE_REFERRAL,
   },
   selectedLocale: simpleLocale(),
   hasWalletSeenTcyClaimAlert: {},

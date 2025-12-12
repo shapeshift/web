@@ -327,21 +327,32 @@ export function supports[ChainName](wallet: HDWallet): wallet is ETHWallet {
 
 **Set flags on ALL wallet implementations** (~12 files):
 
+**For second-class EVM chains (HyperEVM, Monad, Plasma):**
+
+Set `readonly _supports[ChainName] = true` on:
+- packages/hdwallet-native/src/ethereum.ts
+- packages/hdwallet-metamask-multichain/src/shapeshift-multichain.ts (uses standard EVM cryptography)
+
 Set `readonly _supports[ChainName] = false` on:
 - packages/hdwallet-coinbase/src/coinbase.ts
 - packages/hdwallet-gridplus/src/gridplus.ts
 - packages/hdwallet-keepkey/src/keepkey.ts
 - packages/hdwallet-keplr/src/keplr.ts
-- packages/hdwallet-ledger/src/ledger.ts
-- packages/hdwallet-metamask-multichain/src/shapeshift-multichain.ts
+- packages/hdwallet-ledger/src/ledger.ts (see note below)
 - packages/hdwallet-phantom/src/phantom.ts
-- packages/hdwallet-trezor/src/trezor.ts
+- packages/hdwallet-trezor/src/trezor.ts (see note below)
 - packages/hdwallet-vultisig/src/vultisig.ts
 - packages/hdwallet-walletconnect/src/walletconnect.ts
 - packages/hdwallet-walletconnectv2/src/walletconnectv2.ts
 
-**Set `readonly _supports[ChainName] = true` for Native**:
-- packages/hdwallet-native/src/ethereum.ts
+**Note**: Ledger and Trezor use their Ethereum app and technically support all EVM chains. However, they are set to `false` initially for second-class chains to limit testing scope. They can be enabled later if desired.
+
+**For non-EVM chains:**
+
+Set `readonly _supports[ChainName] = true` for Native only:
+- packages/hdwallet-native/src/ethereum.ts (or appropriate chain file)
+
+Set `readonly _supports[ChainName] = false` on all other wallet types listed above.
 
 **Then**: Skip to Step 1.6 (Version Bump)
 

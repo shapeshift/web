@@ -5,6 +5,7 @@ import { KnownChainIds } from '@shapeshiftoss/types'
 import { EventEmitter } from 'node:events'
 
 import { ChainAdapterError } from '../error/ErrorHandler'
+import { isEvmChainId } from '../evm/EvmBaseAdapter'
 
 export const emitter = new EventEmitter()
 
@@ -14,20 +15,10 @@ export type LedgerOpenAppEventArgs = {
 }
 
 export const getLedgerAppName = (chainId: ChainId | KnownChainIds | undefined) => {
+  // All EVM chains use the Ethereum Ledger app
+  if (chainId && isEvmChainId(chainId)) return 'Ethereum'
+
   switch (chainId as KnownChainIds) {
-    case KnownChainIds.ArbitrumMainnet:
-    case KnownChainIds.AvalancheMainnet:
-    case KnownChainIds.ArbitrumNovaMainnet:
-    case KnownChainIds.BaseMainnet:
-    case KnownChainIds.BnbSmartChainMainnet:
-    case KnownChainIds.EthereumMainnet:
-    case KnownChainIds.GnosisMainnet:
-    case KnownChainIds.MonadMainnet:
-    case KnownChainIds.HyperEvmMainnet:
-    case KnownChainIds.OptimismMainnet:
-    case KnownChainIds.PlasmaMainnet:
-    case KnownChainIds.PolygonMainnet:
-      return 'Ethereum'
     case KnownChainIds.BitcoinCashMainnet:
       return 'Bitcoin Cash'
     case KnownChainIds.BitcoinMainnet:
@@ -51,6 +42,9 @@ export const getLedgerAppName = (chainId: ChainId | KnownChainIds | undefined) =
 }
 
 const getCoin = (chainId: ChainId | KnownChainIds) => {
+  // All EVM chains use the Ethereum Ledger app
+  if (isEvmChainId(chainId)) return 'Ethereum'
+
   switch (chainId as KnownChainIds) {
     case KnownChainIds.BitcoinMainnet:
       return 'Bitcoin'
@@ -62,19 +56,6 @@ const getCoin = (chainId: ChainId | KnownChainIds) => {
       return 'Litecoin'
     case KnownChainIds.ZcashMainnet:
       return 'Zcash'
-    case KnownChainIds.EthereumMainnet:
-    case KnownChainIds.AvalancheMainnet:
-    case KnownChainIds.OptimismMainnet:
-    case KnownChainIds.BnbSmartChainMainnet:
-    case KnownChainIds.PolygonMainnet:
-    case KnownChainIds.GnosisMainnet:
-    case KnownChainIds.ArbitrumMainnet:
-    case KnownChainIds.ArbitrumNovaMainnet:
-    case KnownChainIds.BaseMainnet:
-    case KnownChainIds.MonadMainnet:
-    case KnownChainIds.HyperEvmMainnet:
-    case KnownChainIds.PlasmaMainnet:
-      return 'Ethereum'
     case KnownChainIds.ThorchainMainnet:
       return 'Rune'
     case KnownChainIds.MayachainMainnet:

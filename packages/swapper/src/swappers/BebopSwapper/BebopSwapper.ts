@@ -1,6 +1,7 @@
 import type { Swapper } from '../../types'
-import { executeEvmTransaction } from '../../utils'
+import { executeEvmTransaction, executeSolanaTransaction } from '../../utils'
 
 export const bebopSwapper: Swapper = {
   executeEvmTransaction,
+  executeSolanaTransaction,
 }

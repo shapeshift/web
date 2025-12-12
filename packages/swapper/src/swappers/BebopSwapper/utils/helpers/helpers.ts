@@ -1,6 +1,7 @@
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
-import { fromAssetId } from '@shapeshiftoss/caip'
+import { fromAssetId, solAssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
+import { KnownChainIds } from '@shapeshiftoss/types'
 import { bn, convertPrecision, isToken } from '@shapeshiftoss/utils'
 import { Err, Ok } from '@sniptt/monads'
 import { getAddress } from 'viem'
@@ -81,4 +82,16 @@ export const calculateRate = ({
   })
     .dividedBy(bn(sellAmount))
     .toFixed()
+}
+
+export const isSolanaChainId = (chainId: ChainId): boolean => {
+  return chainId === KnownChainIds.SolanaMainnet
+}
+
+export const assetIdToBebopSolanaToken = (assetId: AssetId): string => {
+  if (assetId === solAssetId) {
+    return 'So11111111111111111111111111111111111111112'
+  }
+  const { assetReference } = fromAssetId(assetId)
+  return assetReference
 }

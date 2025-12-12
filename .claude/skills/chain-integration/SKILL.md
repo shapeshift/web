@@ -333,6 +333,7 @@ Set `readonly _supports[ChainName] = true` on:
 - packages/hdwallet-native/src/ethereum.ts
 - packages/hdwallet-metamask-multichain/src/shapeshift-multichain.ts (uses standard EVM cryptography)
 - packages/hdwallet-ledger/src/ledger.ts (uses Ethereum app, supports all EVM chains)
+- packages/hdwallet-trezor/src/trezor.ts (uses Ethereum app, supports all EVM chains)
 
 Set `readonly _supports[ChainName] = false` on:
 - packages/hdwallet-coinbase/src/coinbase.ts
@@ -340,12 +341,9 @@ Set `readonly _supports[ChainName] = false` on:
 - packages/hdwallet-keepkey/src/keepkey.ts
 - packages/hdwallet-keplr/src/keplr.ts
 - packages/hdwallet-phantom/src/phantom.ts
-- packages/hdwallet-trezor/src/trezor.ts (see note below)
 - packages/hdwallet-vultisig/src/vultisig.ts
 - packages/hdwallet-walletconnect/src/walletconnect.ts
 - packages/hdwallet-walletconnectv2/src/walletconnectv2.ts
-
-**Note**: Trezor uses their Ethereum app and technically supports all EVM chains. However, it is set to `false` initially for second-class chains to limit testing scope. It can be enabled later if desired.
 
 **For non-EVM chains:**
 

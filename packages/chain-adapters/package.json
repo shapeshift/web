@@ -31,8 +31,8 @@
   "dependencies": {
     "@mysten/sui": "1.45.0",
     "@shapeshiftoss/caip": "workspace:^",
-    "@shapeshiftoss/hdwallet-core": "1.62.29-second-class-mm.0",
-    "@shapeshiftoss/hdwallet-ledger": "1.62.29-second-class-mm.0",
+    "@shapeshiftoss/hdwallet-core": "1.62.29-second-class-mm.1",
+    "@shapeshiftoss/hdwallet-ledger": "1.62.29-second-class-mm.1",
     "@shapeshiftoss/types": "workspace:^",
     "@shapeshiftoss/unchained-client": "workspace:^",
     "@shapeshiftoss/utils": "workspace:^",

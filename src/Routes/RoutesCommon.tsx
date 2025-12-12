@@ -236,7 +236,7 @@ export const routes: Route[] = [
     main: Ramp,
     category: RouteCategory.Featured,
     mobileNav: false,
-    priority: 5,
+    priority: 4,
     routes: [
       {
         path: `trade/*`,

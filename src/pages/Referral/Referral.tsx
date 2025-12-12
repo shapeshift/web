@@ -1,6 +1,7 @@
 import {
   Alert,
   AlertIcon,
+  Badge,
   Box,
   Button,
   Card,
@@ -9,27 +10,18 @@ import {
   Flex,
   Heading,
   HStack,
+  Icon,
   IconButton,
   Input,
-  InputGroup,
-  InputRightElement,
   Skeleton,
   Stack,
-  Stat,
-  StatLabel,
-  StatNumber,
-  Table,
-  Tbody,
-  Td,
   Text,
-  Th,
-  Thead,
-  Tr,
-  useClipboard,
+  useColorModeValue,
   useToast,
 } from '@chakra-ui/react'
 import { useCallback, useMemo, useState } from 'react'
-import { FaCopy, FaPlus } from 'react-icons/fa'
+import { FaCopy, FaPlus, FaUser } from 'react-icons/fa'
+import { FaXTwitter } from 'react-icons/fa6'
 import { useTranslate } from 'react-polyglot'
 
 import { Main } from '@/components/Layout/Main'
@@ -58,24 +50,16 @@ const generateRandomCode = () => {
 export const Referral = () => {
   const translate = useTranslate()
   const toast = useToast()
-  const { referralStats, isLoadingReferralStats, error, createCode, isCreatingCode } =
-    useReferral()
+  const { referralStats, isLoadingReferralStats, error, createCode, isCreatingCode } = useReferral()
+  const activeTabBg = useColorModeValue('background.surface.raised.base', 'white')
+  const activeTabColor = useColorModeValue('white', 'black')
 
   const [newCodeInput, setNewCodeInput] = useState('')
 
-  // Get the default/first referral code
   const defaultCode = useMemo(() => {
     if (!referralStats?.referralCodes.length) return null
     return referralStats.referralCodes.find(code => code.isActive) || referralStats.referralCodes[0]
   }, [referralStats])
-
-  // Construct referral link
-  const referralLink = useMemo(() => {
-    if (!defaultCode) return ''
-    return `${window.location.origin}/#/?ref=${defaultCode.code}`
-  }, [defaultCode])
-
-  const { onCopy, hasCopied } = useClipboard(referralLink)
 
   const handleCreateCode = useCallback(async () => {
     const code = newCodeInput.trim() || generateRandomCode()
@@ -105,6 +89,30 @@ export const Referral = () => {
     setNewCodeInput(generateRandomCode())
   }, [])
 
+  const [activeTab, setActiveTab] = useState<'referrals' | 'leaderboard' | 'codes'>('referrals')
+
+  const handleShareOnX = useCallback((code: string) => {
+    const shareUrl = `${window.location.origin}/#/?ref=${code}`
+    const text = `Join me on ShapeShift using my referral code ${code}!`
+    const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(
+      text,
+    )}&url=${encodeURIComponent(shareUrl)}`
+    window.open(twitterUrl, '_blank', 'noopener,noreferrer')
+  }, [])
+
+  const handleCopyCode = useCallback(
+    (code: string) => {
+      const shareUrl = `${window.location.origin}/#/?ref=${code}`
+      navigator.clipboard.writeText(shareUrl)
+      toast({
+        title: translate('common.copied'),
+        status: 'success',
+        duration: 2000,
+      })
+    },
+    [toast, translate],
+  )
+
   if (error) {
     return (
       <Main headerComponent={<ReferralHeader />}>
@@ -118,195 +126,385 @@ export const Referral = () => {
 
   return (
     <Main headerComponent={<ReferralHeader />}>
-      <Stack spacing={6}>
-        {/* Stats Cards */}
+      <Stack spacing={8}>
         <Flex gap={4} flexWrap='wrap'>
-          <Card flex='1' minWidth='200px'>
-            <CardBody>
-              <Stat>
-                <StatLabel>{translate('referral.totalReferrals')}</StatLabel>
-                {isLoadingReferralStats ? (
-                  <Skeleton height='40px' />
-                ) : (
-                  <StatNumber>{referralStats?.totalReferrals ?? 0}</StatNumber>
+          <Card
+            color='white'
+            borderRadius='2xl'
+            overflow='hidden'
+            width='50%'
+            borderTop='1px solid'
+            borderColor='gray.700'
+          >
+            <CardBody px={6} py={4} display='flex' alignItems='center'>
+              <Flex alignItems='center' justifyContent='space-between' width='full'>
+                <Flex flexDirection='column' gap={0}>
+                  <Text fontSize='md' opacity={0.7} mb={1}>
+                    {translate('referral.yourReferralCode')}
+                  </Text>
+                  <Heading size='xl' fontWeight='bold' letterSpacing='wide'>
+                    {isLoadingReferralStats ? (
+                      <Skeleton height='40px' width='120px' />
+                    ) : defaultCode ? (
+                      defaultCode.code
+                    ) : (
+                      'N/A'
+                    )}
+                  </Heading>
+                </Flex>
+                {defaultCode && (
+                  <Flex alignItems='center' gap={2}>
+                    <IconButton
+                      aria-label='Share on X'
+                      icon={<FaXTwitter />}
+                      size='md'
+                      colorScheme='whiteAlpha'
+                      borderRadius='100%'
+                      bg='whiteAlpha.200'
+                      onClick={() => handleShareOnX(defaultCode.code)}
+                    />
+                    <IconButton
+                      aria-label='Copy link'
+                      icon={<FaCopy />}
+                      size='md'
+                      colorScheme='whiteAlpha'
+                      bg='whiteAlpha.200'
+                      borderRadius='100%'
+                      onClick={() => handleCopyCode(defaultCode.code)}
+                    />
+                  </Flex>
                 )}
-              </Stat>
+              </Flex>
             </CardBody>
           </Card>
 
-          <Card flex='1' minWidth='200px'>
-            <CardBody>
-              <Stat>
-                <StatLabel>{translate('referral.activeCodes')}</StatLabel>
+          <Card
+            flex='1'
+            minW='200px'
+            bg='background.surface.raised.base'
+            borderRadius='xl'
+            borderTop='1px solid'
+            borderColor='gray.700'
+          >
+            <CardBody textAlign='center' py={6}>
+              <Heading size='lg' fontWeight='bold' mb={2}>
                 {isLoadingReferralStats ? (
-                  <Skeleton height='40px' />
+                  <Skeleton height='40px' width='100px' mx='auto' />
                 ) : (
-                  <StatNumber>{referralStats?.activeCodesCount ?? 0}</StatNumber>
+                  `$${referralStats?.totalReferrerCommissionUsd ?? '0.00'}`
                 )}
-              </Stat>
+              </Heading>
+              <Text fontSize='md' color='text.subtle'>
+                {translate('referral.currentRewards')}
+              </Text>
             </CardBody>
           </Card>
 
-          <Card flex='1' minWidth='200px'>
-            <CardBody>
-              <Stat>
-                <StatLabel>{translate('referral.feesCollected')}</StatLabel>
+          <Card
+            flex='1'
+            minW='200px'
+            bg='background.surface.raised.base'
+            borderRadius='xl'
+            borderTop='1px solid'
+            borderColor='gray.700'
+          >
+            <CardBody textAlign='center' py={6}>
+              <Heading size='lg' fontWeight='bold' mb={2}>
                 {isLoadingReferralStats ? (
-                  <Skeleton height='40px' />
+                  <Skeleton height='40px' width='100px' mx='auto' />
                 ) : (
-                  <StatNumber>
-                    ${referralStats?.totalReferrerCommissionUsd ?? '0.00'}
-                  </StatNumber>
+                  `$${referralStats?.totalFeesCollectedUsd ?? '0.00'}`
                 )}
-                <Text fontSize='xs' color='text.subtle' mt={1}>
-                  {translate('referral.currentMonth')}
-                </Text>
-              </Stat>
+              </Heading>
+              <Text fontSize='md' color='text.subtle'>
+                {translate('referral.totalRewards')}
+              </Text>
+            </CardBody>
+          </Card>
+
+          <Card
+            flex='1'
+            minW='200px'
+            bg='background.surface.raised.base'
+            borderRadius='xl'
+            borderTop='1px solid'
+            borderColor='gray.700'
+          >
+            <CardBody textAlign='center' py={6}>
+              <HStack spacing={2} justify='center' mb={2}>
+                <Icon as={FaUser} boxSize={5} color='text.subtle' />
+                <Heading size='lg' fontWeight='bold'>
+                  {isLoadingReferralStats ? (
+                    <Skeleton height='40px' width='60px' />
+                  ) : (
+                    referralStats?.totalReferrals ?? 0
+                  )}
+                </Heading>
+              </HStack>
+              <Text fontSize='md' color='text.subtle'>
+                {translate('referral.totalReferred')}
+              </Text>
             </CardBody>
           </Card>
         </Flex>
 
-        {/* Referral Link */}
-        <Card>
-          <CardHeader>
-            <Heading size='md'>{translate('referral.yourReferralLink')}</Heading>
-          </CardHeader>
-          <CardBody>
-            <InputGroup size='lg'>
-              <Input
-                value={referralLink}
-                isReadOnly
-                placeholder={translate('referral.noCodeYet')}
-                pr='4.5rem'
-              />
-              <InputRightElement width='4.5rem'>
-                <Button
-                  h='1.75rem'
-                  size='sm'
-                  onClick={onCopy}
-                  isDisabled={!referralLink}
-                  colorScheme={hasCopied ? 'green' : 'blue'}
-                >
-                  {hasCopied ? translate('common.copied') : translate('common.copy')}
-                </Button>
-              </InputRightElement>
-            </InputGroup>
-          </CardBody>
-        </Card>
+        <HStack spacing={3}>
+          <Button
+            onClick={() => setActiveTab('referrals')}
+            colorScheme={activeTab === 'referrals' ? 'whiteAlpha' : 'gray'}
+            bg={activeTab === 'referrals' ? activeTabBg : 'background.surface.raised.base'}
+            color={activeTab === 'referrals' ? activeTabColor : 'text.subtle'}
+            borderRadius='full'
+            border='1px solid'
+            borderColor='gray.700'
+            px={4}
+            _hover={{
+              bg: activeTab === 'referrals' ? activeTabBg : 'whiteAlpha.100',
+            }}
+          >
+            {translate('referral.referrals')}
+          </Button>
+          <Button
+            onClick={() => setActiveTab('codes')}
+            colorScheme={activeTab === 'codes' ? 'whiteAlpha' : 'gray'}
+            bg={activeTab === 'codes' ? activeTabBg : 'background.surface.raised.base'}
+            color={activeTab === 'codes' ? activeTabColor : 'text.subtle'}
+            border='1px solid'
+            borderColor='gray.700'
+            borderRadius='full'
+            px={4}
+            _hover={{
+              bg: activeTab === 'codes' ? activeTabBg : 'whiteAlpha.100',
+            }}
+          >
+            {translate('referral.codes')}
+          </Button>
 
-        {/* Create New Code */}
-        <Card>
-          <CardHeader>
-            <Heading size='md'>{translate('referral.createNewCode')}</Heading>
-          </CardHeader>
-          <CardBody>
-            <Stack spacing={4}>
-              <HStack>
-                <Input
-                  value={newCodeInput}
-                  onChange={e => setNewCodeInput(e.target.value.toUpperCase())}
-                  placeholder={translate('referral.enterCodeOrLeaveEmpty')}
-                  maxLength={20}
-                />
-                <Button
-                  onClick={handleGenerateRandom}
-                  leftIcon={<FaPlus />}
-                  variant='outline'
-                  flexShrink={0}
-                >
-                  {translate('referral.random')}
-                </Button>
-                <Button
-                  onClick={handleCreateCode}
-                  colorScheme='blue'
-                  isLoading={isCreatingCode}
-                  flexShrink={0}
-                >
-                  {translate('referral.create')}
-                </Button>
-              </HStack>
-            </Stack>
-          </CardBody>
-        </Card>
+          <Button
+            isDisabled
+            colorScheme='gray'
+            border='1px solid'
+            borderColor='gray.700'
+            bg='transparent'
+            color='text.subtle'
+            borderRadius='full'
+            px={4}
+            cursor='not-allowed'
+          >
+            <HStack spacing={2}>
+              <Text>{translate('referral.dashboard')}</Text>
+              <Badge colorScheme='blue' fontSize='xs' borderRadius='full'>
+                Coming Soon
+              </Badge>
+            </HStack>
+          </Button>
+        </HStack>
 
-        {/* Referral Codes Table */}
-        <Card>
-          <CardHeader>
-            <Heading size='md'>{translate('referral.yourCodes')}</Heading>
-          </CardHeader>
-          <CardBody>
+        {activeTab === 'referrals' && (
+          <Stack spacing={3}>
             {isLoadingReferralStats ? (
-              <Stack spacing={4}>
-                <Skeleton height='40px' />
-                <Skeleton height='40px' />
-                <Skeleton height='40px' />
+              <Stack spacing={3}>
+                <Skeleton height='60px' borderRadius='xl' />
+                <Skeleton height='60px' borderRadius='xl' />
+                <Skeleton height='60px' borderRadius='xl' />
               </Stack>
             ) : referralStats?.referralCodes.length ? (
-              <Box overflowX='auto'>
-                <Table variant='simple'>
-                  <Thead>
-                    <Tr>
-                      <Th>{translate('referral.code')}</Th>
-                      <Th isNumeric>{translate('referral.usages')}</Th>
-                      <Th>{translate('referral.status')}</Th>
-                      <Th>{translate('referral.createdAt')}</Th>
-                      <Th>{translate('common.actions')}</Th>
-                    </Tr>
-                  </Thead>
-                  <Tbody>
-                    {referralStats.referralCodes.map(code => (
-                      <Tr key={code.code}>
-                        <Td fontWeight='bold'>{code.code}</Td>
-                        <Td isNumeric>
+              <>
+                <Flex px={6} py={3} color='text.subtle' fontSize='sm'>
+                  <Box flex='1'>{translate('referral.address')}</Box>
+                  <Box width='150px' textAlign='right'>
+                    {translate('referral.referrals')}
+                  </Box>
+                  <Box width='150px' textAlign='right'>
+                    {translate('referral.volume')}
+                  </Box>
+                  <Box width='120px' />
+                </Flex>
+
+                {referralStats.referralCodes.map(code => (
+                  <Card key={code.code} bg='background.surface.raised.base' borderRadius='xl'>
+                    <CardBody py={4} px={6}>
+                      <Flex align='center'>
+                        <Box flex='1' fontWeight='bold'>
+                          {code.code}
+                        </Box>
+                        <Box width='150px' textAlign='right'>
                           {code.usageCount}
-                          {code.maxUses ? ` / ${code.maxUses}` : ''}
-                        </Td>
-                        <Td>
-                          <Text
-                            color={code.isActive ? 'green.500' : 'gray.500'}
-                            fontWeight='medium'
-                          >
-                            {code.isActive
-                              ? translate('referral.active')
-                              : translate('referral.inactive')}
-                          </Text>
-                        </Td>
-                        <Td>
-                          {new Date(code.createdAt).toLocaleDateString(undefined, {
-                            year: 'numeric',
-                            month: 'short',
-                            day: 'numeric',
-                          })}
-                        </Td>
-                        <Td>
-                          <IconButton
-                            aria-label='Copy referral link'
-                            icon={<FaCopy />}
-                            size='sm'
-                            onClick={() => {
-                              navigator.clipboard.writeText(
-                                `${window.location.origin}/#/?ref=${code.code}`,
-                              )
-                              toast({
-                                title: translate('common.copied'),
-                                status: 'success',
-                                duration: 2000,
-                              })
-                            }}
-                          />
-                        </Td>
-                      </Tr>
-                    ))}
-                  </Tbody>
-                </Table>
-              </Box>
+                        </Box>
+                        <Box width='150px' textAlign='right'>
+                          ${code.swapVolumeUsd || '0.00'}
+                        </Box>
+                        <Box width='120px'>
+                          <HStack spacing={2} justify='flex-end'>
+                            <IconButton
+                              aria-label='Share on X'
+                              icon={<FaXTwitter />}
+                              size='sm'
+                              colorScheme='twitter'
+                              variant='ghost'
+                              onClick={() => handleShareOnX(code.code)}
+                            />
+                            <IconButton
+                              aria-label='Copy link'
+                              icon={<FaCopy />}
+                              size='sm'
+                              variant='ghost'
+                              onClick={() => handleCopyCode(code.code)}
+                            />
+                          </HStack>
+                        </Box>
+                      </Flex>
+                    </CardBody>
+                  </Card>
+                ))}
+              </>
             ) : (
-              <Text color='text.subtle' textAlign='center' py={8}>
-                {translate('referral.noCodes')}
-              </Text>
+              <Card bg='blackAlpha.300' borderRadius='xl'>
+                <CardBody>
+                  <Text color='text.subtle' textAlign='center' py={8}>
+                    {translate('referral.noCodes')}
+                  </Text>
+                </CardBody>
+              </Card>
             )}
-          </CardBody>
-        </Card>
+          </Stack>
+        )}
+
+        {activeTab === 'codes' && (
+          <Stack spacing={6}>
+            <Card
+              bg='background.surface.raised.base'
+              borderRadius='xl'
+              borderTop='1px solid'
+              borderColor='gray.700'
+              py={2}
+            >
+              <CardHeader>
+                <Heading size='md'>{translate('referral.createNewCode')}</Heading>
+              </CardHeader>
+              <CardBody>
+                <HStack>
+                  <Input
+                    value={newCodeInput}
+                    onChange={e => setNewCodeInput(e.target.value.toUpperCase())}
+                    placeholder={translate('referral.enterCodeOrLeaveEmpty')}
+                    maxLength={20}
+                    bg='background.surface.raised.base'
+                    border='none'
+                  />
+                  <Button
+                    onClick={handleGenerateRandom}
+                    leftIcon={<FaPlus />}
+                    variant='outline'
+                    flexShrink={0}
+                    borderRadius='full'
+                    border='1px solid'
+                    borderColor='gray.700'
+                    backgroundColor='background.surface.raised.base'
+                  >
+                    {translate('referral.random')}
+                  </Button>
+                  <Button
+                    onClick={handleCreateCode}
+                    colorScheme='blue'
+                    isLoading={isCreatingCode}
+                    flexShrink={0}
+                    borderRadius='full'
+                  >
+                    {translate('referral.create')}
+                  </Button>
+                </HStack>
+              </CardBody>
+            </Card>
+
+            <Stack spacing={3}>
+              {isLoadingReferralStats ? (
+                <Stack spacing={3}>
+                  <Skeleton height='60px' borderRadius='xl' />
+                  <Skeleton height='60px' borderRadius='xl' />
+                  <Skeleton height='60px' borderRadius='xl' />
+                </Stack>
+              ) : referralStats?.referralCodes.length ? (
+                <>
+                  <Flex py={3} px={1} color='text.subtle' fontSize='md'>
+                    <Box flex='1'>{translate('referral.code')}</Box>
+                    <Box width='120px' textAlign='right'>
+                      {translate('referral.usages')}
+                    </Box>
+                    <Box width='100px' textAlign='center'>
+                      {translate('referral.status')}
+                    </Box>
+                    <Box width='150px' textAlign='center'>
+                      {translate('referral.createdAt')}
+                    </Box>
+                    <Box width='120px' />
+                  </Flex>
+
+                  {referralStats.referralCodes.map(code => (
+                    <Card key={code.code} bg='background.surface.raised.base' borderRadius='xl'>
+                      <CardBody py={4} px={6}>
+                        <Flex align='center'>
+                          <Box flex='1' fontWeight='bold'>
+                            {code.code}
+                          </Box>
+                          <Box width='120px' textAlign='right'>
+                            {code.usageCount}
+                            {code.maxUses ? ` / ${code.maxUses}` : ''}
+                          </Box>
+                          <Box width='100px' textAlign='center'>
+                            <Text
+                              color={code.isActive ? 'green.500' : 'gray.500'}
+                              fontWeight='medium'
+                              fontSize='sm'
+                            >
+                              {code.isActive
+                                ? translate('referral.active')
+                                : translate('referral.inactive')}
+                            </Text>
+                          </Box>
+                          <Box width='150px' textAlign='center' fontSize='sm'>
+                            {new Date(code.createdAt).toLocaleDateString(undefined, {
+                              year: 'numeric',
+                              month: 'short',
+                              day: 'numeric',
+                            })}
+                          </Box>
+                          <Box width='120px'>
+                            <HStack spacing={2} justify='flex-end'>
+                              <IconButton
+                                aria-label='Share on X'
+                                icon={<FaXTwitter />}
+                                size='sm'
+                                colorScheme='twitter'
+                                variant='ghost'
+                                onClick={() => handleShareOnX(code.code)}
+                              />
+                              <IconButton
+                                aria-label='Copy link'
+                                icon={<FaCopy />}
+                                size='sm'
+                                variant='ghost'
+                                onClick={() => handleCopyCode(code.code)}
+                              />
+                            </HStack>
+                          </Box>
+                        </Flex>
+                      </CardBody>
+                    </Card>
+                  ))}
+                </>
+              ) : (
+                <Card bg='blackAlpha.300' borderRadius='xl'>
+                  <CardBody>
+                    <Text color='text.subtle' textAlign='center' py={8}>
+                      {translate('referral.noCodes')}
+                    </Text>
+                  </CardBody>
+                </Card>
+              )}
+            </Stack>
+          </Stack>
+        )}
       </Stack>
     </Main>
   )

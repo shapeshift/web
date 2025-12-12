@@ -222,6 +222,7 @@ const validators = {
   VITE_NOTIFICATIONS_SERVER_URL: url({ default: '' }),
   VITE_FEATURE_ADDRESS_BOOK: bool({ default: false }),
   VITE_FEATURE_APP_RATING: bool({ default: false }),
+  VITE_FEATURE_REFERRAL: bool({ default: false }),
 }
 
 function reporter<T>({ errors }: envalid.ReporterOptions<T>) {

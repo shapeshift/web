@@ -1,4 +1,5 @@
-import axios, { type AxiosError } from 'axios'
+import type { AxiosError } from 'axios'
+import axios from 'axios'
 
 import type {
   CreateReferralCodeRequest,
@@ -41,7 +42,9 @@ export const getReferralStatsByOwner = async (
     if (endDate) params.append('endDate', endDate.toISOString())
 
     const response = await axios.get<ReferralStats>(
-      `${USER_SERVER_URL}/referrals/stats/${ownerAddress}${params.toString() ? `?${params.toString()}` : ''}`,
+      `${USER_SERVER_URL}/referrals/stats/${ownerAddress}${
+        params.toString() ? `?${params.toString()}` : ''
+      }`,
       {
         timeout: 10000,
         headers: { 'Content-Type': 'application/json' },

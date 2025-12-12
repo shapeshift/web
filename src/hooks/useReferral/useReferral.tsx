@@ -1,12 +1,12 @@
 import { skipToken, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useMemo } from 'react'
 
-import type { CreateReferralCodeRequest, ReferralStats } from '@/lib/referral/types'
-import { useAppSelector } from '@/state/store'
-
 import { createReferralCode, getReferralStatsByOwner } from '../../lib/referral/api'
 import { selectWalletEnabledAccountIds } from '../../state/slices/common-selectors'
 import { useFeatureFlag } from '../useFeatureFlag/useFeatureFlag'
+
+import type { CreateReferralCodeRequest, ReferralStats } from '@/lib/referral/types'
+import { useAppSelector } from '@/state/store'
 
 export type UseReferralData = {
   referralStats: ReferralStats | null
@@ -42,18 +42,16 @@ export const useReferral = (): UseReferralData => {
     isLoading: isLoadingReferralStats,
     error,
     refetch: refetchReferralStats,
-  } = useQuery({
+  } = useQuery<ReferralStats, Error>({
     queryKey: ['referralStats', ownerAddress, startDate, endDate],
     queryFn:
       ownerAddress && isWebServicesEnabled
         ? () => getReferralStatsByOwner(ownerAddress, startDate, endDate)
         : skipToken,
-    staleTime: 60000, // 1 minute
-    gcTime: 300000, // 5 minutes
   })
 
   const { mutateAsync: createCodeMutation, isPending: isCreatingCode } = useMutation({
-    mutationFn: async (request: Omit<CreateReferralCodeRequest, 'ownerAddress'>) => {
+    mutationFn: (request: Omit<CreateReferralCodeRequest, 'ownerAddress'>) => {
       if (!ownerAddress) throw new Error('Wallet not connected')
       return createReferralCode({ ...request, ownerAddress })
     },
@@ -68,7 +66,9 @@ export const useReferral = (): UseReferralData => {
     isLoadingReferralStats,
     error: error ?? null,
     refetchReferralStats,
-    createCode: createCodeMutation,
+    createCode: async (request: Omit<CreateReferralCodeRequest, 'ownerAddress'>) => {
+      await createCodeMutation(request)
+    },
     isCreatingCode,
   }
 }

@@ -1,7 +1,6 @@
 import { Box, Button, Divider, Flex, HStack, useMediaQuery } from '@chakra-ui/react'
 import { useScroll } from 'framer-motion'
 import { lazy, memo, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { FaUsers } from 'react-icons/fa'
 import {
   TbArrowRight,
   TbBuildingBank,
@@ -12,9 +11,9 @@ import {
   TbRefresh,
   TbStack,
 } from 'react-icons/tb'
-import { useSelector } from 'react-redux'
-import { useNavigate, useLocation, Link as ReactRouterLink } from 'react-router-dom'
 import { useTranslate } from 'react-polyglot'
+import { useSelector } from 'react-redux'
+import { Link as ReactRouterLink, useLocation, useNavigate } from 'react-router-dom'
 
 import { ActionCenter } from './ActionCenter/ActionCenter'
 import { DegradedStateBanner } from './DegradedStateBanner'
@@ -117,6 +116,7 @@ export const Header = memo(() => {
   const isWalletConnectToDappsV2Enabled = useFeatureFlag('WalletConnectToDappsV2')
   const isActionCenterEnabled = useFeatureFlag('ActionCenter')
   const isNewWalletManagerEnabled = useFeatureFlag('NewWalletManager')
+  const isReferralEnabled = useFeatureFlag('Referral')
   const { degradedChainIds } = useDiscoverAccounts()
 
   const hasWallet = Boolean(walletInfo?.deviceId)
@@ -176,25 +176,29 @@ export const Header = memo(() => {
                 defaultPath='/assets'
               />
               <NavigationDropdown label='defi.earn' items={earnSubMenuItems} defaultPath='/tcy' />
-              <Button
-                as={ReactRouterLink}
-                to='/referral'
-                variant='ghost'
-                fontWeight='medium'
-                px={3}
-                py={2}
-                borderRadius='md'
-                _hover={menuButtonHoverSx}
-                _active={menuButtonActiveSx}
-                aria-current={location.pathname.startsWith('/referral') ? 'page' : undefined}
-              >
-                <Box
-                  fontSize='md'
-                  color={location.pathname.startsWith('/referral') ? 'text.base' : 'text.subtle'}
+              {isReferralEnabled && (
+                <Button
+                  as={ReactRouterLink}
+                  to='/fox-ecosystem'
+                  variant='ghost'
+                  fontWeight='medium'
+                  px={3}
+                  py={2}
+                  borderRadius='md'
+                  _hover={menuButtonHoverSx}
+                  _active={menuButtonActiveSx}
+                  aria-current={location.pathname.startsWith('/fox-ecosystem') ? 'page' : undefined}
                 >
-                  {translate('navBar.referral')}
-                </Box>
-              </Button>
+                  <Box
+                    fontSize='md'
+                    color={
+                      location.pathname.startsWith('/fox-ecosystem') ? 'text.base' : 'text.subtle'
+                    }
+                  >
+                    {translate('navBar.referral')}
+                  </Box>
+                </Button>
+              )}
             </HStack>
           </HStack>
 

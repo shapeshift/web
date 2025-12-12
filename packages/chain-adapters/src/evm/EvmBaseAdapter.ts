@@ -15,6 +15,7 @@ import {
   supportsBSC,
   supportsETH,
   supportsGnosis,
+  supportsHyperEvm,
   supportsMonad,
   supportsOptimism,
   supportsPlasma,
@@ -79,6 +80,7 @@ export const evmChainIds = [
   KnownChainIds.ArbitrumNovaMainnet,
   KnownChainIds.BaseMainnet,
   KnownChainIds.MonadMainnet,
+  KnownChainIds.HyperEvmMainnet,
   KnownChainIds.PlasmaMainnet,
 ] as const
 
@@ -178,6 +180,8 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
           return supportsBase(wallet)
         case Number(fromChainId(KnownChainIds.MonadMainnet).chainReference):
           return supportsMonad(wallet)
+        case Number(fromChainId(KnownChainIds.HyperEvmMainnet).chainReference):
+          return supportsHyperEvm(wallet)
         case Number(fromChainId(KnownChainIds.PlasmaMainnet).chainReference):
           return supportsPlasma(wallet)
         default:
@@ -261,6 +265,11 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
         name: 'MON',
         symbol: 'MON',
         explorer: 'https://monadvision.com',
+      },
+      [KnownChainIds.HyperEvmMainnet]: {
+        name: 'HYPE',
+        symbol: 'HYPE',
+        explorer: 'https://hyperevmscan.io',
       },
       [KnownChainIds.PlasmaMainnet]: {
         name: 'Plasma',

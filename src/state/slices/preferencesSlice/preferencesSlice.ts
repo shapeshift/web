@@ -31,6 +31,7 @@ export type FeatureFlags = {
   Base: boolean
   Mayachain: boolean
   Monad: boolean
+  HyperEvm: boolean
   Plasma: boolean
   Zcash: boolean
   ThorSwap: boolean
@@ -171,6 +172,7 @@ const initialState: Preferences = {
     Base: getConfig().VITE_FEATURE_BASE,
     Mayachain: getConfig().VITE_FEATURE_MAYACHAIN,
     Monad: getConfig().VITE_FEATURE_MONAD,
+    HyperEvm: getConfig().VITE_FEATURE_HYPEREVM,
     Plasma: getConfig().VITE_FEATURE_PLASMA,
     Zcash: getConfig().VITE_FEATURE_ZCASH,
     ThorSwap: getConfig().VITE_FEATURE_THOR_SWAP,

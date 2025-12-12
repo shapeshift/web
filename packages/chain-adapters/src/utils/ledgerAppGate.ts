@@ -63,29 +63,18 @@ const getCoin = (chainId: ChainId | KnownChainIds) => {
     case KnownChainIds.ZcashMainnet:
       return 'Zcash'
     case KnownChainIds.EthereumMainnet:
-      return 'Ethereum'
     case KnownChainIds.AvalancheMainnet:
-      return 'Avalanche'
     case KnownChainIds.OptimismMainnet:
-      return 'Optimism'
     case KnownChainIds.BnbSmartChainMainnet:
-      return 'BnbSmartChain'
     case KnownChainIds.PolygonMainnet:
-      return 'Polygon'
     case KnownChainIds.GnosisMainnet:
-      return 'Gnosis'
     case KnownChainIds.ArbitrumMainnet:
-      return 'Arbitrum'
     case KnownChainIds.ArbitrumNovaMainnet:
-      return 'ArbitrumNova'
     case KnownChainIds.BaseMainnet:
-      return 'Base'
     case KnownChainIds.MonadMainnet:
-      return 'Monad'
     case KnownChainIds.HyperEvmMainnet:
-      return 'HyperEVM'
     case KnownChainIds.PlasmaMainnet:
-      return 'Plasma'
+      return 'Ethereum'
     case KnownChainIds.ThorchainMainnet:
       return 'Rune'
     case KnownChainIds.MayachainMainnet:

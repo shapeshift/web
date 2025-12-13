@@ -4,7 +4,7 @@ import { memo } from 'react'
 export const AccountTableSkeleton = memo(() => {
   return (
     <Stack spacing={4}>
-      {Array.from({ length: 5 }).map((_, i) => (
+      {Array.from({ length: 4 }).map((_, i) => (
         <Flex
           key={i}
           p={4}

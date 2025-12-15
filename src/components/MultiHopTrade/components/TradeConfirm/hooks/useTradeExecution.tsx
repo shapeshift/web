@@ -539,46 +539,26 @@ export const useTradeExecution = (
                 // Get the message bytes (this is Bebop's tx.messageBytes)
                 const messageBytes = transaction.message.serialize()
 
-                // Try to use solanaSignMessage if available (Phantom with new implementation)
-                if (wallet.solanaSignMessage) {
-                  const addressNList = toAddressNList(adapter.getBip44Params({ accountNumber }))
-                  const signatureBase64 = await wallet.solanaSignMessage({
-                    addressNList,
-                    message: messageBytes,
-                  })
+                // TODO(gomes): if we actually open this, clean me up
+                // Use the new hdwallet method for signing prebuilt transactions
+                if ((wallet as any).solanaSignRawTransaction) {
+                  const signatureBase64 = await (wallet as any).solanaSignRawTransaction(message)
 
                   if (!signatureBase64) {
-                    throw new Error('Failed to get signature from wallet.solanaSignMessage')
+                    throw new Error('Failed to sign transaction')
                   }
 
-                  const signature = new Uint8Array(Buffer.from(signatureBase64, 'base64'))
+                  const userSignature = new Uint8Array(Buffer.from(signatureBase64, 'base64'))
 
-                  console.log('[Bebop Solana] Message signed:', {
-                    signatureLength: signature.length,
-                    method: 'solanaSignMessage',
-                  })
-
-                  trackMixpanelEventOnExecute()
-                  return signature
-                }
-
-                // Fallback: Use adapter.signTransaction (Native wallet)
-                if ((wallet as any).adapter?.signTransaction) {
-                  const addressNList = toAddressNList(adapter.getBip44Params({ accountNumber }))
-                  const signedTx = await (wallet as any).adapter.signTransaction(transaction, addressNList)
-
-                  const userSignature = signedTx.signatures[0]
-
-                  console.log('[Bebop Solana] Transaction signed:', {
+                  console.log('[Bebop Solana] Transaction signed via solanaSignRawTransaction:', {
                     signatureLength: userSignature.length,
-                    method: 'adapter.signTransaction',
                   })
 
                   trackMixpanelEventOnExecute()
                   return userSignature
                 }
 
-                throw new Error('Wallet does not support message or transaction signing for Bebop Solana')
+                throw new Error('Wallet does not support solanaSignRawTransaction for Bebop Solana')
               },
             })
 

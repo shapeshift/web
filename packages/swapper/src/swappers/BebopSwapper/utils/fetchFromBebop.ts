@@ -183,7 +183,7 @@ export const fetchBebopSolanaQuote = async ({
       slippage: slippagePercentage.toString(),
       approval_type: 'Standard',
       skip_validation: 'false',
-      gasless: 'false',
+      gasless: 'true',
       source: 'shapeshift',
     })
 
@@ -232,8 +232,8 @@ export const fetchBebopSolanaQuote = async ({
       priceImpact: response.data.priceImpact,
     }))
 
-    if (response.data.status !== 'QUOTE_INDIC_ROUTE') {
-      console.warn('[Bebop Solana Fetch] Expected QUOTE_INDIC_ROUTE for gasless=false, got:', response.data.status)
+    if (response.data.status !== 'QUOTE_SUCCESS') {
+      console.warn('[Bebop Solana Fetch] Expected QUOTE_SUCCESS for gasless=true, got:', response.data.status)
     }
 
     if (!response.data.solana_tx) {

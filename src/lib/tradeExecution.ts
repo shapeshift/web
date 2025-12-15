@@ -7,6 +7,8 @@ import type {
   EvmTransactionExecutionInput,
   RelayerTxDetailsArgs,
   SellTxHashArgs,
+  SolanaMessageExecutionInput,
+  SolanaPresignedTxExecutionInput,
   SolanaTransactionExecutionInput,
   StatusArgs,
   SuiTransactionExecutionInput,
@@ -502,6 +504,78 @@ export class TradeExecution {
     )
   }
 
+  async execSolanaPresignedTx({
+    swapperName,
+    tradeQuote,
+    stepIndex,
+    slippageTolerancePercentageDecimal,
+    from,
+    signAndBroadcastPresignedTx,
+  }: SolanaPresignedTxExecutionInput) {
+    console.log('[tradeExecution execSolanaPresignedTx] Starting presigned Solana flow:', JSON.stringify({
+      swapperName,
+      stepIndex,
+      from,
+    }))
+
+    const buildSignBroadcast = async (
+      swapper: Swapper & SwapperApi,
+      {
+        tradeQuote,
+        chainId,
+        stepIndex,
+        slippageTolerancePercentageDecimal,
+        config,
+      }: CommonGetUnsignedTransactionArgs,
+    ) => {
+      console.log('[tradeExecution buildSignBroadcast] Checking swapper methods:', JSON.stringify({
+        hasGetUnsignedSolanaPresignedTx: !!swapper.getUnsignedSolanaPresignedTx,
+        hasExecuteSolanaPresignedTx: !!swapper.executeSolanaPresignedTx,
+      }))
+
+      if (!swapper.getUnsignedSolanaPresignedTx) {
+        throw Error('missing implementation for getUnsignedSolanaPresignedTx')
+      }
+      if (!swapper.executeSolanaPresignedTx) {
+        throw Error('missing implementation for executeSolanaPresignedTx')
+      }
+
+      const presignedTx = await swapper.getUnsignedSolanaPresignedTx({
+        tradeQuote,
+        chainId,
+        stepIndex,
+        slippageTolerancePercentageDecimal,
+        from,
+        config,
+        assertGetSolanaChainAdapter,
+      })
+
+      console.log('[tradeExecution buildSignBroadcast] Got presigned tx:', JSON.stringify({
+        serializedTxLength: presignedTx.serializedTx.length,
+      }))
+
+      const result = await swapper.executeSolanaPresignedTx(presignedTx, {
+        signAndBroadcastPresignedTx,
+      })
+
+      console.log('[tradeExecution buildSignBroadcast] Execution result:', JSON.stringify({
+        txHash: result,
+      }))
+
+      return result
+    }
+
+    return await this._execWalletAgnostic(
+      {
+        swapperName,
+        tradeQuote,
+        stepIndex,
+        slippageTolerancePercentageDecimal,
+      },
+      buildSignBroadcast,
+    )
+  }
+
   async execSolanaTransaction({
     swapperName,
     tradeQuote,
@@ -540,6 +614,61 @@ export class TradeExecution {
       return await swapper.executeSolanaTransaction(unsignedTxResult, {
         signAndBroadcastTransaction,
       })
+    }
+
+    return await this._execWalletAgnostic(
+      {
+        swapperName,
+        tradeQuote,
+        stepIndex,
+        slippageTolerancePercentageDecimal,
+      },
+      buildSignBroadcast,
+    )
+  }
+
+  async execSolanaMessage({
+    swapperName,
+    tradeQuote,
+    stepIndex,
+    slippageTolerancePercentageDecimal,
+    from,
+    signMessage,
+  }: SolanaMessageExecutionInput) {
+    const buildSignBroadcast = async (
+      swapper: Swapper & SwapperApi,
+      {
+        tradeQuote,
+        chainId,
+        stepIndex,
+        slippageTolerancePercentageDecimal,
+        config,
+      }: CommonGetUnsignedTransactionArgs,
+    ) => {
+      if (!swapper.getUnsignedSolanaMessage) {
+        throw Error('missing implementation for getUnsignedSolanaMessage')
+      }
+      if (!swapper.executeSolanaMessage) {
+        throw Error('missing implementation for executeSolanaMessage')
+      }
+
+      const messageResult = await swapper.getUnsignedSolanaMessage({
+        tradeQuote,
+        chainId,
+        stepIndex,
+        slippageTolerancePercentageDecimal,
+        from,
+        config,
+        assertGetSolanaChainAdapter,
+      })
+
+      // Get the API key from config for Bebop
+      const apiKey = config.VITE_BEBOP_API_KEY
+      if (!apiKey) {
+        throw Error('Bebop API key is required for Solana message execution')
+      }
+
+      return await swapper.executeSolanaMessage(messageResult, { signMessage }, apiKey)
     }
 
     return await this._execWalletAgnostic(

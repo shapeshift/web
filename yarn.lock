@@ -11683,6 +11683,7 @@ __metadata:
     "@uniswap/v3-sdk": ^3.13.1
     axios: ^1.13.0
     axios-cache-interceptor: ^1.5.3
+    base-x: ^5.0.0
     bignumber.js: ^9.3.1
     eip-712: ^1.0.0
     ethers: 6.11.1
@@ -11834,6 +11835,7 @@ __metadata:
     "@tanstack/react-virtual": ^3.11.2
     "@testing-library/react": ^13.3.0
     "@types/bip21": ^2.0.0
+    "@types/bs58": ^5.0.0
     "@types/cli-progress": ^3.11.5
     "@types/d3-array": ^3.0.1
     "@types/dompurify": ^2.3.2
@@ -13754,6 +13756,15 @@ __metadata:
   dependencies:
     "@types/node": "*"
   checksum: 38fb5512e51edd8386d560ac60d9489014cfcea41d8c383ec9070b176f8ea640189afc1b57fe8cbbe570dec8909d8e05fa129097f0dd4e2a34ebdd69cec4b790
+  languageName: node
+  linkType: hard
+
+"@types/bs58@npm:^5.0.0":
+  version: 5.0.0
+  resolution: "@types/bs58@npm:5.0.0"
+  dependencies:
+    bs58: "*"
+  checksum: 5b33ed60d8fe5541cfe6263f3e15e1a705c299f6831712b063cb7f0ad5bf1bbbf6db13b88c16b470c84f20b631b8bdd939414101a6a903ad1231b88d62d987b4
   languageName: node
   linkType: hard
 
@@ -18570,21 +18581,21 @@ __metadata:
   languageName: node
   linkType: hard
 
+"bs58@npm:*, bs58@npm:6.0.0, bs58@npm:^6.0.0":
+  version: 6.0.0
+  resolution: "bs58@npm:6.0.0"
+  dependencies:
+    base-x: ^5.0.0
+  checksum: 820334f9513bba6195136dfc9dfbd1f5aded6c7864639f3ee7b63c2d9d6f9f2813b9949b1f6beb9c161237be2a461097444c2ff587c8c3b824fe18878fa22448
+  languageName: node
+  linkType: hard
+
 "bs58@npm:5.0.0, bs58@npm:^5.0.0":
   version: 5.0.0
   resolution: "bs58@npm:5.0.0"
   dependencies:
     base-x: ^4.0.0
   checksum: 2475cb0684e07077521aac718e604a13e0f891d58cff923d437a2f7e9e28703ab39fce9f84c7c703ab369815a675f11e3bd394d38643bfe8969fbe42e6833d45
-  languageName: node
-  linkType: hard
-
-"bs58@npm:6.0.0, bs58@npm:^6.0.0":
-  version: 6.0.0
-  resolution: "bs58@npm:6.0.0"
-  dependencies:
-    base-x: ^5.0.0
-  checksum: 820334f9513bba6195136dfc9dfbd1f5aded6c7864639f3ee7b63c2d9d6f9f2813b9949b1f6beb9c161237be2a461097444c2ff587c8c3b824fe18878fa22448
   languageName: node
   linkType: hard
 

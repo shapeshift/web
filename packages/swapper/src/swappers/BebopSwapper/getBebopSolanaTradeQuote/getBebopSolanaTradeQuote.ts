@@ -160,10 +160,8 @@ export async function getBebopSolanaTradeQuote(
         buyAmountAfterFeesCryptoBaseUnit: buyTokenData.amount,
         sellAmountIncludingProtocolFeesCryptoBaseUnit: sellTokenData.amount,
         source: SwapperName.Bebop,
-        solanaTransactionMetadata: {
-          addressLookupTableAddresses: addressLookupTableAccountKeys,
-          instructions,
-        },
+        bebopSolanaSerializedTx: bebopQuoteResponse.solana_tx,
+        bebopQuoteId: bebopQuoteResponse.quoteId,
       },
     ] as SingleHopTradeQuoteSteps,
   }

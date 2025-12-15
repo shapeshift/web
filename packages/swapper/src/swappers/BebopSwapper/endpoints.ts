@@ -21,6 +21,7 @@ import { getBebopSolanaTradeRate } from './getBebopSolanaTradeRate/getBebopSolan
 import { getBebopTradeQuote } from './getBebopTradeQuote/getBebopTradeQuote'
 import { getBebopTradeRate } from './getBebopTradeRate/getBebopTradeRate'
 import { getUnsignedBebopSolanaTransaction } from './getUnsignedBebopSolanaTransaction'
+import { getUnsignedSolanaMessage } from './getUnsignedSolanaMessage'
 import { isSolanaChainId } from './utils/helpers/helpers'
 
 export const bebopApi: SwapperApi = {
@@ -124,6 +125,7 @@ export const bebopApi: SwapperApi = {
     return feeData.networkFeeCryptoBaseUnit
   },
   getUnsignedSolanaTransaction: getUnsignedBebopSolanaTransaction,
+  getUnsignedSolanaMessage,
   getSolanaTransactionFees,
   checkTradeStatus: input => {
     const { chainId } = input

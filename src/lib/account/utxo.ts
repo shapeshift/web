@@ -72,6 +72,9 @@ const getCachedBatchPublicKey = ({
 export const deriveUtxoAccountIdsAndMetadata: DeriveAccountIdsAndMetadata = async args => {
   const { accountNumber, chainIds, wallet } = args
   const result = await (async () => {
+    // Phantom reports supportsBTC but we disable UTXO chains to prevent rate limiting
+    if (wallet instanceof PhantomHDWallet) return {}
+
     if (!supportsBTC(wallet)) return {}
 
     const deviceId = await wallet.getDeviceID()

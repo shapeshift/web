@@ -31,6 +31,7 @@ import {
   supportsPolygon,
 } from '@shapeshiftoss/hdwallet-core'
 import { MetaMaskMultiChainHDWallet } from '@shapeshiftoss/hdwallet-metamask-multichain'
+import { isPhantom } from '@shapeshiftoss/hdwallet-phantom'
 import type { AccountMetadataById } from '@shapeshiftoss/types'
 
 import type { DeriveAccountIdsAndMetadata } from './account'
@@ -87,6 +88,9 @@ const getCachedBatchAddress = ({
 
 export const deriveEvmAccountIdsAndMetadata: DeriveAccountIdsAndMetadata = async args => {
   const { accountNumber, chainIds, wallet, isSnapInstalled } = args
+  // Phantom reports supportsETH but we disable EVM chains to prevent rate limiting
+  if (isPhantom(wallet)) return {}
+
   if (!supportsETH(wallet)) return {}
 
   const deviceId = await wallet.getDeviceID()

@@ -49,7 +49,7 @@ import {
 } from '@shapeshiftoss/hdwallet-core'
 import { GridPlusHDWallet } from '@shapeshiftoss/hdwallet-gridplus'
 import { isMetaMask } from '@shapeshiftoss/hdwallet-metamask-multichain'
-import { PhantomHDWallet } from '@shapeshiftoss/hdwallet-phantom'
+import { isPhantom, PhantomHDWallet } from '@shapeshiftoss/hdwallet-phantom'
 import { VultisigHDWallet } from '@shapeshiftoss/hdwallet-vultisig'
 import { useMemo } from 'react'
 
@@ -78,6 +78,9 @@ const checkWalletHasRuntimeSupport = ({
   if (!wallet && connectedType === KeyManager.Ledger) return true
 
   if (!wallet) return false
+
+  // temp disable evm chains for phantom as it rate-limits Phantom. yet that's a thing.
+  if (isEvmChainId(chainId) && isPhantom(wallet)) return false
 
   // Non-EVM ChainIds are only supported with the MM multichain snap installed
   if (
@@ -146,70 +149,98 @@ export const walletSupportsChain = ({
 
   switch (chainId) {
     case btcChainId:
+      // temp disable evm/BTC chains for phantom as it rate-limits Phantom. yet that's a thing.
+      if (wallet instanceof PhantomHDWallet) return false
       return supportsBTC(wallet)
     case bchChainId:
+      // temp disable evm/BTC chains for phantom as it rate-limits Phantom. yet that's a thing.
+      if (wallet instanceof PhantomHDWallet) return false
       return (
         supportsBTC(wallet) &&
         !(wallet instanceof PhantomHDWallet) &&
         !(wallet instanceof GridPlusHDWallet)
       )
     case dogeChainId:
+      // temp disable evm/BTC chains for phantom as it rate-limits Phantom. yet that's a thing.
+      if (wallet instanceof PhantomHDWallet) return false
       return (
         supportsBTC(wallet) &&
         !(wallet instanceof PhantomHDWallet) &&
         !(wallet instanceof GridPlusHDWallet)
       )
     case ltcChainId:
+      // temp disable evm/BTC chains for phantom as it rate-limits Phantom. yet that's a thing.
+      if (wallet instanceof PhantomHDWallet) return false
       return (
         supportsBTC(wallet) &&
         !(wallet instanceof PhantomHDWallet) &&
         !(wallet instanceof GridPlusHDWallet)
       )
     case zecChainId:
+      // temp disable evm/BTC chains for phantom as it rate-limits Phantom. yet that's a thing.
+      if (wallet instanceof PhantomHDWallet) return false
       return (
         supportsBTC(wallet) &&
         (isNativeHDWallet(wallet) || isLedgerHDWallet(wallet) || isTrezorHDWallet(wallet))
       )
     case ethChainId:
+      // temp disable evm chains for phantom as it rate-limits Phantom. yet that's a thing.
+      if (isPhantom(wallet)) return false
       return supportsETH(wallet)
     case avalancheChainId:
-      return supportsAvalanche(wallet) && !(wallet instanceof PhantomHDWallet)
+      // temp disable evm chains for phantom as it rate-limits Phantom. yet that's a thing.
+      if (isPhantom(wallet)) return false
+      return supportsAvalanche(wallet)
     case optimismChainId:
-      return supportsOptimism(wallet) && !(wallet instanceof PhantomHDWallet)
+      // temp disable evm chains for phantom as it rate-limits Phantom. yet that's a thing.
+      if (isPhantom(wallet)) return false
+      return supportsOptimism(wallet)
     case bscChainId:
-      return supportsBSC(wallet) && !(wallet instanceof PhantomHDWallet)
+      // temp disable evm chains for phantom as it rate-limits Phantom. yet that's a thing.
+      if (isPhantom(wallet)) return false
+      return supportsBSC(wallet)
     case polygonChainId:
+      // temp disable evm chains for phantom as it rate-limits Phantom. yet that's a thing.
+      if (isPhantom(wallet)) return false
       return supportsPolygon(wallet)
     case gnosisChainId:
+      // temp disable evm chains for phantom as it rate-limits Phantom. yet that's a thing.
+      if (isPhantom(wallet)) return false
       return supportsGnosis(wallet)
     case arbitrumChainId:
-      return supportsArbitrum(wallet) && !(wallet instanceof PhantomHDWallet)
+      // temp disable evm chains for phantom as it rate-limits Phantom. yet that's a thing.
+      if (isPhantom(wallet)) return false
+      return supportsArbitrum(wallet)
     case arbitrumNovaChainId:
-      return (
-        isArbitrumNovaEnabled &&
-        supportsArbitrumNova(wallet) &&
-        !(wallet instanceof PhantomHDWallet)
-      )
+      // temp disable evm chains for phantom as it rate-limits Phantom. yet that's a thing.
+      if (isPhantom(wallet)) return false
+      return isArbitrumNovaEnabled && supportsArbitrumNova(wallet)
     case baseChainId:
+      // temp disable evm chains for phantom as it rate-limits Phantom. yet that's a thing.
+      if (isPhantom(wallet)) return false
       return supportsBase(wallet)
     case monadChainId:
+      // temp disable evm chains for phantom as it rate-limits Phantom. yet that's a thing.
+      if (isPhantom(wallet)) return false
       return isMonadEnabled && supportsMonad(wallet)
     case hyperEvmChainId:
+      // temp disable evm chains for phantom as it rate-limits Phantom. yet that's a thing.
+      if (isPhantom(wallet)) return false
       return isHyperEvmEnabled && supportsHyperEvm(wallet)
     case plasmaChainId:
-      return isPlasmaEnabled && supportsPlasma(wallet) && !(wallet instanceof PhantomHDWallet)
+      return isPlasmaEnabled && supportsPlasma(wallet)
     case cosmosChainId:
-      return supportsCosmos(wallet) && !(wallet instanceof PhantomHDWallet)
+      return supportsCosmos(wallet)
     case thorchainChainId:
-      return supportsThorchain(wallet) && !(wallet instanceof PhantomHDWallet)
+      return supportsThorchain(wallet)
     case mayachainChainId:
-      return supportsMayachain(wallet) && !(wallet instanceof PhantomHDWallet)
+      return supportsMayachain(wallet)
     case solanaChainId:
       return supportsSolana(wallet) && !(wallet instanceof VultisigHDWallet)
     case tronChainId:
-      return supportsTron(wallet) && !(wallet instanceof PhantomHDWallet)
+      return supportsTron(wallet)
     case suiChainId:
-      return supportsSui(wallet) && !(wallet instanceof PhantomHDWallet)
+      return supportsSui(wallet)
     default: {
       return false
     }

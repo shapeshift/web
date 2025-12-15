@@ -289,7 +289,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SuiMainnet> {
       return {
         addressNList: toAddressNList(this.getBip44Params({ accountNumber })),
         intentMessageBytes: intentMessage,
-        transactionJson, // Add JSON format for Phantom
+        transactionJson,
       }
     } catch (err) {
       return ErrorHandler(err, {

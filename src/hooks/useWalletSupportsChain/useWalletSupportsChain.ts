@@ -148,31 +148,24 @@ export const walletSupportsChain = ({
     case btcChainId:
       return supportsBTC(wallet)
     case bchChainId:
-      // temp disable evm/BTC chains for phantom as it rate-limits Phantom. yet that's a thing.
-      if (wallet instanceof PhantomHDWallet) return false
       return (
         supportsBTC(wallet) &&
         !(wallet instanceof PhantomHDWallet) &&
         !(wallet instanceof GridPlusHDWallet)
       )
     case dogeChainId:
-      // temp disable evm/BTC chains for phantom as it rate-limits Phantom. yet that's a thing.
-      if (wallet instanceof PhantomHDWallet) return false
       return (
         supportsBTC(wallet) &&
         !(wallet instanceof PhantomHDWallet) &&
         !(wallet instanceof GridPlusHDWallet)
       )
     case ltcChainId:
-      // temp disable evm/BTC chains for phantom as it rate-limits Phantom. yet that's a thing.
-      if (wallet instanceof PhantomHDWallet) return false
       return (
         supportsBTC(wallet) &&
         !(wallet instanceof PhantomHDWallet) &&
         !(wallet instanceof GridPlusHDWallet)
       )
     case zecChainId:
-      // temp disable evm/BTC chains for phantom as it rate-limits Phantom. yet that's a thing.
       if (wallet instanceof PhantomHDWallet) return false
       return (
         supportsBTC(wallet) &&
@@ -181,40 +174,30 @@ export const walletSupportsChain = ({
     case ethChainId:
       return supportsETH(wallet)
     case avalancheChainId:
-      // Phantom doesn't support Avalanche
       if (isPhantom(wallet)) return false
       return supportsAvalanche(wallet)
     case optimismChainId:
-      // Phantom doesn't support Optimism
       if (isPhantom(wallet)) return false
       return supportsOptimism(wallet)
     case bscChainId:
-      // Phantom doesn't support BSC
       if (isPhantom(wallet)) return false
       return supportsBSC(wallet)
     case polygonChainId:
-      // Phantom supports Polygon
       return supportsPolygon(wallet)
     case gnosisChainId:
-      // Phantom doesn't support Gnosis
       if (isPhantom(wallet)) return false
       return supportsGnosis(wallet)
     case arbitrumChainId:
-      // Phantom doesn't support Arbitrum
       if (isPhantom(wallet)) return false
       return supportsArbitrum(wallet)
     case arbitrumNovaChainId:
-      // Phantom doesn't support Arbitrum Nova
       if (isPhantom(wallet)) return false
       return isArbitrumNovaEnabled && supportsArbitrumNova(wallet)
     case baseChainId:
-      // Phantom supports Base
       return supportsBase(wallet)
     case monadChainId:
-      // Phantom supports Monad
       return isMonadEnabled && supportsMonad(wallet)
     case hyperEvmChainId:
-      // Phantom supports HyperEVM
       return isHyperEvmEnabled && supportsHyperEvm(wallet)
     case plasmaChainId:
       return isPlasmaEnabled && supportsPlasma(wallet)

@@ -274,12 +274,10 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SuiMainnet> {
         tx.transferObjects([coin], to)
       }
 
-      // Generate JSON format for Phantom
       const transactionJson = await tx.toJSON()
 
       const transactionBytes = await tx.build({ client: this.client })
 
-      // Build intent message: intent scope (0) + version (0) + app id (0) + tx bytes
       const intentMessage = new Uint8Array(3 + transactionBytes.length)
       intentMessage[0] = 0 // TransactionData intent scope
       intentMessage[1] = 0 // Version

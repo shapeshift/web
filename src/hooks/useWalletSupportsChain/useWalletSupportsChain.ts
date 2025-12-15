@@ -49,7 +49,7 @@ import {
 } from '@shapeshiftoss/hdwallet-core'
 import { GridPlusHDWallet } from '@shapeshiftoss/hdwallet-gridplus'
 import { isMetaMask } from '@shapeshiftoss/hdwallet-metamask-multichain'
-import { isPhantom, PhantomHDWallet } from '@shapeshiftoss/hdwallet-phantom'
+import { PhantomHDWallet } from '@shapeshiftoss/hdwallet-phantom'
 import { VultisigHDWallet } from '@shapeshiftoss/hdwallet-vultisig'
 import { useMemo } from 'react'
 
@@ -173,24 +173,18 @@ export const walletSupportsChain = ({
     case ethChainId:
       return supportsETH(wallet)
     case avalancheChainId:
-      if (isPhantom(wallet)) return false
       return supportsAvalanche(wallet)
     case optimismChainId:
-      if (isPhantom(wallet)) return false
       return supportsOptimism(wallet)
     case bscChainId:
-      if (isPhantom(wallet)) return false
       return supportsBSC(wallet)
     case polygonChainId:
       return supportsPolygon(wallet)
     case gnosisChainId:
-      if (isPhantom(wallet)) return false
       return supportsGnosis(wallet)
     case arbitrumChainId:
-      if (isPhantom(wallet)) return false
       return supportsArbitrum(wallet)
     case arbitrumNovaChainId:
-      if (isPhantom(wallet)) return false
       return isArbitrumNovaEnabled && supportsArbitrumNova(wallet)
     case baseChainId:
       return supportsBase(wallet)

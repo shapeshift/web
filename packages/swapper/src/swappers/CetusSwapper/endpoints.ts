@@ -83,7 +83,7 @@ export const cetusApi: SwapperApi = {
       refreshAllCoins: true,
     })
 
-    const transactionJson = await txb.toJSON()
+    const transactionJson = await txb.toJSON({ client: suiClient })
     const transactionBytes = await txb.build({ client: suiClient })
 
     const intentMessage = new Uint8Array(3 + transactionBytes.length)

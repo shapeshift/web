@@ -79,9 +79,6 @@ const checkWalletHasRuntimeSupport = ({
 
   if (!wallet) return false
 
-  // temp disable evm chains for phantom as it rate-limits Phantom. yet that's a thing.
-  if (isEvmChainId(chainId) && isPhantom(wallet)) return false
-
   // Non-EVM ChainIds are only supported with the MM multichain snap installed
   if (
     isMetaMask(wallet) &&
@@ -149,8 +146,6 @@ export const walletSupportsChain = ({
 
   switch (chainId) {
     case btcChainId:
-      // temp disable evm/BTC chains for phantom as it rate-limits Phantom. yet that's a thing.
-      if (wallet instanceof PhantomHDWallet) return false
       return supportsBTC(wallet)
     case bchChainId:
       // temp disable evm/BTC chains for phantom as it rate-limits Phantom. yet that's a thing.
@@ -184,48 +179,42 @@ export const walletSupportsChain = ({
         (isNativeHDWallet(wallet) || isLedgerHDWallet(wallet) || isTrezorHDWallet(wallet))
       )
     case ethChainId:
-      // temp disable evm chains for phantom as it rate-limits Phantom. yet that's a thing.
-      if (isPhantom(wallet)) return false
       return supportsETH(wallet)
     case avalancheChainId:
-      // temp disable evm chains for phantom as it rate-limits Phantom. yet that's a thing.
+      // Phantom doesn't support Avalanche
       if (isPhantom(wallet)) return false
       return supportsAvalanche(wallet)
     case optimismChainId:
-      // temp disable evm chains for phantom as it rate-limits Phantom. yet that's a thing.
+      // Phantom doesn't support Optimism
       if (isPhantom(wallet)) return false
       return supportsOptimism(wallet)
     case bscChainId:
-      // temp disable evm chains for phantom as it rate-limits Phantom. yet that's a thing.
+      // Phantom doesn't support BSC
       if (isPhantom(wallet)) return false
       return supportsBSC(wallet)
     case polygonChainId:
-      // temp disable evm chains for phantom as it rate-limits Phantom. yet that's a thing.
-      if (isPhantom(wallet)) return false
+      // Phantom supports Polygon
       return supportsPolygon(wallet)
     case gnosisChainId:
-      // temp disable evm chains for phantom as it rate-limits Phantom. yet that's a thing.
+      // Phantom doesn't support Gnosis
       if (isPhantom(wallet)) return false
       return supportsGnosis(wallet)
     case arbitrumChainId:
-      // temp disable evm chains for phantom as it rate-limits Phantom. yet that's a thing.
+      // Phantom doesn't support Arbitrum
       if (isPhantom(wallet)) return false
       return supportsArbitrum(wallet)
     case arbitrumNovaChainId:
-      // temp disable evm chains for phantom as it rate-limits Phantom. yet that's a thing.
+      // Phantom doesn't support Arbitrum Nova
       if (isPhantom(wallet)) return false
       return isArbitrumNovaEnabled && supportsArbitrumNova(wallet)
     case baseChainId:
-      // temp disable evm chains for phantom as it rate-limits Phantom. yet that's a thing.
-      if (isPhantom(wallet)) return false
+      // Phantom supports Base
       return supportsBase(wallet)
     case monadChainId:
-      // temp disable evm chains for phantom as it rate-limits Phantom. yet that's a thing.
-      if (isPhantom(wallet)) return false
+      // Phantom supports Monad
       return isMonadEnabled && supportsMonad(wallet)
     case hyperEvmChainId:
-      // temp disable evm chains for phantom as it rate-limits Phantom. yet that's a thing.
-      if (isPhantom(wallet)) return false
+      // Phantom supports HyperEVM
       return isHyperEvmEnabled && supportsHyperEvm(wallet)
     case plasmaChainId:
       return isPlasmaEnabled && supportsPlasma(wallet)

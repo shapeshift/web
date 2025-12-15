@@ -29,6 +29,7 @@ import { TradeRoutePaths } from '@/components/MultiHopTrade/types'
 import { useErrorToast } from '@/hooks/useErrorToast/useErrorToast'
 import { useNotificationToast } from '@/hooks/useNotificationToast'
 import { useWallet } from '@/hooks/useWallet/useWallet'
+import { HypeLabEvent, trackHypeLabEvent } from '@/lib/hypelab/hypelabSingleton'
 import { MixPanelEvent } from '@/lib/mixpanel/types'
 import { TradeExecution } from '@/lib/tradeExecution'
 import { assertUnreachable } from '@/lib/utils'
@@ -169,6 +170,9 @@ export const useTradeExecution = (
         const event =
           hopIndex === 0 ? MixPanelEvent.TradeConfirm : MixPanelEvent.TradeConfirmSecondHop
         trackMixpanelEvent(event, eventDataSnapshot)
+        if (hopIndex === 0) {
+          trackHypeLabEvent(HypeLabEvent.TradeConfirm)
+        }
       }
 
       const execution = new TradeExecution()
@@ -311,6 +315,7 @@ export const useTradeExecution = (
         const isLastHop = hopIndex === tradeQuote.steps.length - 1
         if (isLastHop && !hasMixpanelSuccessOrFailFiredRef.current) {
           trackMixpanelEvent(MixPanelEvent.TradeSuccess, eventDataSnapshot)
+          trackHypeLabEvent(HypeLabEvent.TradeSuccess)
           hasMixpanelSuccessOrFailFiredRef.current = true
         }
 

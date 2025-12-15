@@ -166,7 +166,6 @@ export const walletSupportsChain = ({
         !(wallet instanceof GridPlusHDWallet)
       )
     case zecChainId:
-      if (wallet instanceof PhantomHDWallet) return false
       return (
         supportsBTC(wallet) &&
         (isNativeHDWallet(wallet) || isLedgerHDWallet(wallet) || isTrezorHDWallet(wallet))

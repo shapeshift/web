@@ -173,19 +173,23 @@ export const walletSupportsChain = ({
     case ethChainId:
       return supportsETH(wallet)
     case avalancheChainId:
-      return supportsAvalanche(wallet)
+      return supportsAvalanche(wallet) && !(wallet instanceof PhantomHDWallet)
     case optimismChainId:
-      return supportsOptimism(wallet)
+      return supportsOptimism(wallet) && !(wallet instanceof PhantomHDWallet)
     case bscChainId:
-      return supportsBSC(wallet)
+      return supportsBSC(wallet) && !(wallet instanceof PhantomHDWallet)
     case polygonChainId:
       return supportsPolygon(wallet)
     case gnosisChainId:
       return supportsGnosis(wallet)
     case arbitrumChainId:
-      return supportsArbitrum(wallet)
+      return supportsArbitrum(wallet) && !(wallet instanceof PhantomHDWallet)
     case arbitrumNovaChainId:
-      return isArbitrumNovaEnabled && supportsArbitrumNova(wallet)
+      return (
+        isArbitrumNovaEnabled &&
+        supportsArbitrumNova(wallet) &&
+        !(wallet instanceof PhantomHDWallet)
+      )
     case baseChainId:
       return supportsBase(wallet)
     case monadChainId:
@@ -193,19 +197,19 @@ export const walletSupportsChain = ({
     case hyperEvmChainId:
       return isHyperEvmEnabled && supportsHyperEvm(wallet)
     case plasmaChainId:
-      return isPlasmaEnabled && supportsPlasma(wallet)
+      return isPlasmaEnabled && supportsPlasma(wallet) && !(wallet instanceof PhantomHDWallet)
     case cosmosChainId:
-      return supportsCosmos(wallet)
+      return supportsCosmos(wallet) && !(wallet instanceof PhantomHDWallet)
     case thorchainChainId:
-      return supportsThorchain(wallet)
+      return supportsThorchain(wallet) && !(wallet instanceof PhantomHDWallet)
     case mayachainChainId:
-      return supportsMayachain(wallet)
+      return supportsMayachain(wallet) && !(wallet instanceof PhantomHDWallet)
     case solanaChainId:
       return supportsSolana(wallet) && !(wallet instanceof VultisigHDWallet)
     case tronChainId:
-      return supportsTron(wallet)
+      return supportsTron(wallet) && !(wallet instanceof PhantomHDWallet)
     case suiChainId:
-      return supportsSui(wallet)
+      return supportsSui(wallet) && !(wallet instanceof PhantomHDWallet)
     default: {
       return false
     }

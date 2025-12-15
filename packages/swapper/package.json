@@ -39,7 +39,7 @@
     "@shapeshiftoss/caip": "workspace:^",
     "@shapeshiftoss/chain-adapters": "workspace:^",
     "@shapeshiftoss/contracts": "workspace:^",
-    "@shapeshiftoss/hdwallet-core": "1.62.29-bebop-solana-msg.2",
+    "@shapeshiftoss/hdwallet-core": "1.62.29-bebop-solana-msg.4",
     "@shapeshiftoss/types": "workspace:^",
     "@shapeshiftoss/unchained-client": "workspace:^",
     "@shapeshiftoss/utils": "workspace:^",

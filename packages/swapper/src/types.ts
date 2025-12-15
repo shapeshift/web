@@ -349,6 +349,8 @@ export type TradeQuoteStep = {
     value: Hex
     gas?: string
   }
+  bebopSolanaSerializedTx?: string
+  bebopQuoteId?: string
   jupiterQuoteResponse?: QuoteResponse
   solanaTransactionMetadata?: {
     addressLookupTableAddresses: string[]
@@ -566,6 +568,23 @@ export type SolanaTransactionExecutionProps = {
   signAndBroadcastTransaction: (txToSign: SolanaSignTx) => Promise<string>
 }
 
+export type SolanaPresignedTx = {
+  serializedTx: string
+}
+
+export type SolanaPresignedTxExecutionProps = {
+  signAndBroadcastPresignedTx: (presignedTx: SolanaPresignedTx) => Promise<string>
+}
+
+export type SolanaMessageToSign = {
+  messageToSign: string
+  quoteId?: string
+}
+
+export type SolanaMessageExecutionProps = {
+  signMessage: (message: string) => Promise<Uint8Array>
+}
+
 export type TronTransactionExecutionProps = {
   signAndBroadcastTransaction: (txToSign: tron.TronSignTx) => Promise<string>
 }
@@ -599,6 +618,10 @@ export type GetUnsignedSolanaTransactionArgs = CommonGetUnsignedTransactionArgs 
   SolanaAccountMetadata &
   SolanaSwapperDeps
 
+export type GetUnsignedSolanaPresignedTxArgs = CommonGetUnsignedTransactionArgs &
+  SolanaAccountMetadata &
+  SolanaSwapperDeps
+
 export type GetUnsignedTronTransactionArgs = CommonGetUnsignedTransactionArgs &
   TronAccountMetadata &
   TronSwapperDeps
@@ -609,6 +632,11 @@ export type GetUnsignedSuiTransactionArgs = CommonGetUnsignedTransactionArgs &
 export type GetUnsignedEvmMessageArgs = CommonGetUnsignedTransactionArgs &
   EvmAccountMetadata &
   Omit<EvmSwapperDeps, 'fetchIsSmartContractAddressQuery'>
+
+export type GetUnsignedSolanaMessageArgs = CommonGetUnsignedTransactionArgs &
+  SolanaAccountMetadata &
+  SolanaSwapperDeps
+
 export type GetUnsignedUtxoTransactionArgs = CommonGetUnsignedTransactionArgs &
   UtxoAccountMetadata &
   UtxoSwapperDeps
@@ -684,6 +712,15 @@ export type Swapper = {
     txToSign: SolanaSignTx,
     callbacks: SolanaTransactionExecutionProps,
   ) => Promise<string>
+  executeSolanaPresignedTx?: (
+    presignedTx: SolanaPresignedTx,
+    callbacks: SolanaPresignedTxExecutionProps,
+  ) => Promise<string>
+  executeSolanaMessage?: (
+    messageData: SolanaMessageToSign,
+    callbacks: SolanaMessageExecutionProps,
+    apiKey: string,
+  ) => Promise<string>
   executeTronTransaction?: (
     txToSign: tron.TronSignTx,
     callbacks: TronTransactionExecutionProps,
@@ -710,6 +747,8 @@ export type SwapperApi = {
     input: GetUnsignedCosmosSdkTransactionArgs,
   ) => Promise<SignTx<CosmosSdkChainId>>
   getUnsignedSolanaTransaction?: (input: GetUnsignedSolanaTransactionArgs) => Promise<SolanaSignTx>
+  getUnsignedSolanaPresignedTx?: (input: GetUnsignedSolanaPresignedTxArgs) => Promise<SolanaPresignedTx>
+  getUnsignedSolanaMessage?: (input: GetUnsignedSolanaMessageArgs) => Promise<SolanaMessageToSign>
   getUnsignedTronTransaction?: (input: GetUnsignedTronTransactionArgs) => Promise<tron.TronSignTx>
   getUnsignedSuiTransaction?: (input: GetUnsignedSuiTransactionArgs) => Promise<SuiSignTx>
 
@@ -755,6 +794,14 @@ export type CosmosSdkTransactionExecutionInput = CommonTradeExecutionInput &
 
 export type SolanaTransactionExecutionInput = CommonTradeExecutionInput &
   SolanaTransactionExecutionProps &
+  SolanaAccountMetadata
+
+export type SolanaPresignedTxExecutionInput = CommonTradeExecutionInput &
+  SolanaPresignedTxExecutionProps &
+  SolanaAccountMetadata
+
+export type SolanaMessageExecutionInput = CommonTradeExecutionInput &
+  SolanaMessageExecutionProps &
   SolanaAccountMetadata
 
 export type TronTransactionExecutionInput = CommonTradeExecutionInput &

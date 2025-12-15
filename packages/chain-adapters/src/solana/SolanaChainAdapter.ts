@@ -368,6 +368,77 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SolanaMainnet> 
     }
   }
 
+  async signAndBroadcastPrebuiltTransaction({
+    serializedTx,
+    wallet,
+    accountNumber,
+    senderAddress,
+    receiverAddress,
+  }: {
+    serializedTx: string
+    wallet: HDWallet
+    accountNumber: number
+    senderAddress: string
+    receiverAddress?: string
+  }): Promise<string> {
+    try {
+      await Promise.all([
+        assertAddressNotSanctioned(senderAddress),
+        receiverAddress !== CONTRACT_INTERACTION &&
+          receiverAddress &&
+          assertAddressNotSanctioned(receiverAddress),
+      ])
+
+      if (!wallet) throw new Error('wallet is required')
+      this.assertSupportsChain(wallet)
+
+      const bebopTx = VersionedTransaction.deserialize(Buffer.from(serializedTx, 'base64'))
+
+      console.log('[SolanaChainAdapter] Bebop tx before blockhash update:', JSON.stringify({
+        numRequiredSignatures: bebopTx.message.header.numRequiredSignatures,
+        originalBlockhash: bebopTx.message.recentBlockhash,
+        preExistingSignatures: bebopTx.signatures.map((sig, i) => ({
+          slot: i,
+          isEmpty: sig.every(b => b === 0),
+          first10Bytes: Array.from(sig.slice(0, 10)),
+        })),
+      }))
+
+      const { blockhash } = await this.connection.getLatestBlockhash()
+      bebopTx.message.recentBlockhash = blockhash
+
+      console.log('[SolanaChainAdapter] Updated blockhash:', JSON.stringify({
+        newBlockhash: blockhash,
+        signaturesAfterBlockhashUpdate: bebopTx.signatures.map((sig, i) => ({
+          slot: i,
+          isEmpty: sig.every(b => b === 0),
+        })),
+      }))
+
+      if ((wallet as any).adapter?.signTransaction) {
+        const addressNList = toAddressNList(this.getBip44Params({ accountNumber }))
+        const signedTx = await (wallet as any).adapter.signTransaction(bebopTx, addressNList)
+
+        console.log('[SolanaChainAdapter] Signed with Native wallet adapter:', JSON.stringify({
+          totalSignatures: signedTx.signatures.filter((sig: Uint8Array) => !sig.every(b => b === 0)).length,
+        }))
+
+        const serialized = Buffer.from(signedTx.serialize()).toString('base64')
+        const txHash = await this.providers.http.sendTx({ sendTxBody: { hex: serialized } })
+
+        console.log('[SolanaChainAdapter] Pre-built tx broadcast:', JSON.stringify({ txHash }))
+
+        return txHash
+      }
+
+      throw new Error('Pre-built transaction signing only supported for Native wallet')
+    } catch (err) {
+      return ErrorHandler(err, {
+        translation: 'chainAdapters.errors.signAndBroadcastTransaction',
+      })
+    }
+  }
+
   async signAndBroadcastTransaction({
     senderAddress,
     receiverAddress,
@@ -384,9 +455,30 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SolanaMainnet> 
       if (!wallet) throw new Error('wallet is required')
       this.assertSupportsChain(wallet)
 
+      console.log('[SolanaChainAdapter] Calling wallet.solanaSendTx with:', JSON.stringify({
+        hasInstructions: !!txToSign.instructions,
+        instructionsCount: txToSign.instructions?.length,
+        hasAddressLookupTableAccountInfos: !!txToSign.addressLookupTableAccountInfos,
+        addressLookupTableAccountInfosCount: txToSign.addressLookupTableAccountInfos?.length,
+        addressLookupTableAccountInfos: txToSign.addressLookupTableAccountInfos?.map(info => ({
+          key: info.key,
+          hasData: !!info.data,
+          dataType: typeof info.data,
+          isBuffer: Buffer.isBuffer(info.data),
+          dataConstructor: info.data?.constructor?.name,
+        })),
+        computeUnitLimit: txToSign.computeUnitLimit,
+        computeUnitPrice: txToSign.computeUnitPrice,
+        blockHash: txToSign.blockHash,
+      }))
+
       const tx = await wallet.solanaSendTx?.(txToSign)
 
       if (!tx) throw new Error('error signing & broadcasting tx')
+
+      console.log('[SolanaChainAdapter] Transaction signed and broadcast:', JSON.stringify({
+        signature: tx.signature,
+      }))
 
       return tx.signature
     } catch (err) {
@@ -407,7 +499,19 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SolanaMainnet> 
         receiverAddress !== CONTRACT_INTERACTION && assertAddressNotSanctioned(receiverAddress),
       ])
 
+      console.log('[SolanaChainAdapter] Broadcasting transaction:', JSON.stringify({
+        hexLength: hex.length,
+        hexPreview: hex.substring(0, 100) + '...',
+        senderAddress,
+        receiverAddress,
+      }))
+
       const txHash = await this.providers.http.sendTx({ sendTxBody: { hex } })
+
+      console.log('[SolanaChainAdapter] Broadcast result:', JSON.stringify({
+        txHash,
+        txHashLength: txHash?.length,
+      }))
 
       return txHash
     } catch (err) {

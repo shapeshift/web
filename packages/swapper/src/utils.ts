@@ -173,11 +173,32 @@ export const executeEvmTransaction = (
   return callbacks.signAndBroadcastTransaction(txToSign)
 }
 
-export const executeSolanaTransaction = (
+export const executeSolanaTransaction = async (
   txToSign: SolanaSignTx,
   callbacks: SolanaTransactionExecutionProps,
 ) => {
-  return callbacks.signAndBroadcastTransaction(txToSign)
+  console.log('[Swapper executeSolanaTransaction] Transaction to sign:', JSON.stringify({
+    hasInstructions: !!txToSign.instructions,
+    instructionsCount: txToSign.instructions?.length,
+    hasAddressLookupTableAccountInfos: !!txToSign.addressLookupTableAccountInfos,
+    addressLookupTableAccountInfosCount: txToSign.addressLookupTableAccountInfos?.length,
+    computeUnitLimit: txToSign.computeUnitLimit,
+    computeUnitPrice: txToSign.computeUnitPrice,
+    blockHash: txToSign.blockHash,
+    to: txToSign.to,
+    addressNList: txToSign.addressNList,
+  }))
+
+  console.log('[Swapper executeSolanaTransaction] Full txToSign:', JSON.stringify(txToSign, null, 2))
+
+  const txHash = await callbacks.signAndBroadcastTransaction(txToSign)
+
+  console.log('[Swapper executeSolanaTransaction] Transaction broadcasted:', JSON.stringify({
+    txHash,
+    txHashLength: txHash?.length,
+  }))
+
+  return txHash
 }
 
 export const executeTronTransaction = (

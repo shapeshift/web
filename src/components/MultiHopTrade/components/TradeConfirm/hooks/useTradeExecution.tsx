@@ -511,6 +511,61 @@ export const useTradeExecution = (
             pubKey: skipDeviceDerivation ? pubKey : undefined,
           })
 
+          const step = tradeQuote.steps[hopIndex]
+          const bebopSolanaSerializedTx = (step as any)?.bebopSolanaSerializedTx
+
+          console.log('[useTradeExecution Solana] Checking for Bebop message flow:', JSON.stringify({
+            hasBebopSolanaSerializedTx: !!bebopSolanaSerializedTx,
+            swapperName,
+            isBebop: swapperName === SwapperName.Bebop,
+            willUseBebopMessageFlow: !!bebopSolanaSerializedTx && swapperName === SwapperName.Bebop,
+          }))
+
+          if (bebopSolanaSerializedTx && swapperName === SwapperName.Bebop) {
+            console.log('[useTradeExecution] USING BEBOP SOLANA MESSAGE FLOW')
+
+            const output = await execution.execSolanaMessage({
+              swapperName,
+              tradeQuote,
+              stepIndex: hopIndex,
+              slippageTolerancePercentageDecimal,
+              from,
+              signMessage: async (message: string) => {
+                // Following Bebop's example: signBytes(privateKey, tx.messageBytes)
+                const { VersionedTransaction } = await import('@solana/web3.js')
+                const txBytes = Buffer.from(message, 'base64')
+                const transaction = VersionedTransaction.deserialize(txBytes)
+
+                // Get the message bytes (this is Bebop's tx.messageBytes)
+                const messageBytes = transaction.message.serialize()
+
+                // TODO(gomes): if we actually open this, clean me up
+                // Use the new hdwallet method for signing prebuilt transactions
+                if ((wallet as any).solanaSignRawTransaction) {
+                  const signatureBase64 = await (wallet as any).solanaSignRawTransaction(message)
+
+                  if (!signatureBase64) {
+                    throw new Error('Failed to sign transaction')
+                  }
+
+                  const userSignature = new Uint8Array(Buffer.from(signatureBase64, 'base64'))
+
+                  console.log('[Bebop Solana] Transaction signed via solanaSignRawTransaction:', {
+                    signatureLength: userSignature.length,
+                  })
+
+                  trackMixpanelEventOnExecute()
+                  return userSignature
+                }
+
+                throw new Error('Wallet does not support solanaSignRawTransaction for Bebop Solana')
+              },
+            })
+
+            cancelPollingRef.current = output?.cancelPolling
+            return
+          }
+
           const output = await execution.execSolanaTransaction({
             swapperName,
             tradeQuote,

@@ -1,29 +1,66 @@
 import { evm } from '@shapeshiftoss/chain-adapters'
+import type { KnownChainIds } from '@shapeshiftoss/types'
 import BigNumber from 'bignumber.js'
 import { fromHex } from 'viem'
 
-import type { GetEvmTradeQuoteInputBase, GetEvmTradeRateInput, SwapperApi } from '../../types'
-import { checkEvmSwapStatus, getExecutableTradeStep, isExecutableTradeQuote } from '../../utils'
+import { getSolanaTransactionFees } from '../../solana-utils/getSolanaTransactionFees'
+import type {
+  CommonTradeQuoteInput,
+  GetEvmTradeQuoteInputBase,
+  GetEvmTradeRateInput,
+  SwapperApi,
+} from '../../types'
+import {
+  checkEvmSwapStatus,
+  checkSolanaSwapStatus,
+  getExecutableTradeStep,
+  isExecutableTradeQuote,
+} from '../../utils'
+import { getBebopSolanaTradeQuote } from './getBebopSolanaTradeQuote/getBebopSolanaTradeQuote'
+import { getBebopSolanaTradeRate } from './getBebopSolanaTradeRate/getBebopSolanaTradeRate'
 import { getBebopTradeQuote } from './getBebopTradeQuote/getBebopTradeQuote'
 import { getBebopTradeRate } from './getBebopTradeRate/getBebopTradeRate'
+import { getUnsignedBebopSolanaTransaction } from './getUnsignedBebopSolanaTransaction'
+import { getUnsignedSolanaMessage } from './getUnsignedSolanaMessage'
+import { isSolanaChainId } from './utils/helpers/helpers'
 
 export const bebopApi: SwapperApi = {
-  getTradeQuote: async (input, { assertGetEvmChainAdapter, assetsById, config }) => {
+  getTradeQuote: async (input, deps) => {
+    if (isSolanaChainId(input.sellAsset.chainId)) {
+      const tradeQuoteResult = await getBebopSolanaTradeQuote(
+        input as CommonTradeQuoteInput & { chainId: KnownChainIds.SolanaMainnet },
+        deps.assertGetSolanaChainAdapter,
+        deps.assetsById,
+        deps.config.VITE_BEBOP_API_KEY,
+      )
+      return tradeQuoteResult.map(tradeQuote => [tradeQuote])
+    }
+
     const tradeQuoteResult = await getBebopTradeQuote(
       input as GetEvmTradeQuoteInputBase,
-      assertGetEvmChainAdapter,
-      assetsById,
-      config.VITE_BEBOP_API_KEY,
+      deps.assertGetEvmChainAdapter,
+      deps.assetsById,
+      deps.config.VITE_BEBOP_API_KEY,
     )
 
     return tradeQuoteResult.map(tradeQuote => [tradeQuote])
   },
-  getTradeRate: async (input, { assertGetEvmChainAdapter, assetsById, config }) => {
+  getTradeRate: async (input, deps) => {
+    if (isSolanaChainId(input.sellAsset.chainId)) {
+      const tradeRateResult = await getBebopSolanaTradeRate(
+        input,
+        deps.assertGetSolanaChainAdapter,
+        deps.assetsById,
+        deps.config.VITE_BEBOP_API_KEY,
+      )
+      return tradeRateResult.map(tradeRate => [tradeRate])
+    }
+
     const tradeRateResult = await getBebopTradeRate(
       input as GetEvmTradeRateInput,
-      assertGetEvmChainAdapter,
-      assetsById,
-      config.VITE_BEBOP_API_KEY,
+      deps.assertGetEvmChainAdapter,
+      deps.assetsById,
+      deps.config.VITE_BEBOP_API_KEY,
     )
 
     return tradeRateResult.map(tradeRate => [tradeRate])
@@ -87,5 +124,11 @@ export const bebopApi: SwapperApi = {
 
     return feeData.networkFeeCryptoBaseUnit
   },
-  checkTradeStatus: checkEvmSwapStatus,
+  getUnsignedSolanaTransaction: getUnsignedBebopSolanaTransaction,
+  getUnsignedSolanaMessage,
+  getSolanaTransactionFees,
+  checkTradeStatus: input => {
+    const { chainId } = input
+    return isSolanaChainId(chainId) ? checkSolanaSwapStatus(input) : checkEvmSwapStatus(input)
+  },
 }

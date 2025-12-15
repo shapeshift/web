@@ -531,39 +531,54 @@ export const useTradeExecution = (
               slippageTolerancePercentageDecimal,
               from,
               signMessage: async (message: string) => {
-                // Following Bebop's example exactly:
-                // 1. Decode transaction to get messageBytes
+                // Following Bebop's example: signBytes(privateKey, tx.messageBytes)
                 const { VersionedTransaction } = await import('@solana/web3.js')
                 const txBytes = Buffer.from(message, 'base64')
                 const transaction = VersionedTransaction.deserialize(txBytes)
 
-                // Get the message bytes (this is what Bebop's tx.messageBytes is)
+                // Get the message bytes (this is Bebop's tx.messageBytes)
                 const messageBytes = transaction.message.serialize()
 
-                // 2. Sign the message bytes
-                // We need to sign these raw bytes, not the full transaction
-                // The wallet adapter's signTransaction actually does this internally
+                // Try to use solanaSignMessage if available (Phantom with new implementation)
+                if (wallet.solanaSignMessage) {
+                  const addressNList = toAddressNList(adapter.getBip44Params({ accountNumber }))
+                  const signatureBase64 = await wallet.solanaSignMessage({
+                    addressNList,
+                    message: messageBytes,
+                  })
+
+                  if (!signatureBase64) {
+                    throw new Error('Failed to get signature from wallet.solanaSignMessage')
+                  }
+
+                  const signature = new Uint8Array(Buffer.from(signatureBase64, 'base64'))
+
+                  console.log('[Bebop Solana] Message signed:', {
+                    signatureLength: signature.length,
+                    method: 'solanaSignMessage',
+                  })
+
+                  trackMixpanelEventOnExecute()
+                  return signature
+                }
+
+                // Fallback: Use adapter.signTransaction (Native wallet)
                 if ((wallet as any).adapter?.signTransaction) {
-                  // When we pass the transaction to signTransaction, it:
-                  // 1. Extracts message bytes
-                  // 2. Signs them
-                  // 3. Attaches signature to transaction
                   const addressNList = toAddressNList(adapter.getBip44Params({ accountNumber }))
                   const signedTx = await (wallet as any).adapter.signTransaction(transaction, addressNList)
 
-                  // Extract just the signature (this is what Bebop needs)
                   const userSignature = signedTx.signatures[0]
 
-                  console.log('[Bebop Solana] Signature obtained:', {
+                  console.log('[Bebop Solana] Transaction signed:', {
                     signatureLength: userSignature.length,
-                    isUint8Array: userSignature instanceof Uint8Array,
+                    method: 'adapter.signTransaction',
                   })
 
                   trackMixpanelEventOnExecute()
                   return userSignature
-                } else {
-                  throw new Error('Wallet does not support transaction signing for Bebop Solana')
                 }
+
+                throw new Error('Wallet does not support message or transaction signing for Bebop Solana')
               },
             })
 

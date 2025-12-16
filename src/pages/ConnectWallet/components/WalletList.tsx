@@ -50,6 +50,9 @@ export const MobileWalletList: React.FC<MobileWalletDialogProps> = ({
     error: queryError,
   } = useQuery({
     queryKey: ['listWallets'],
+    staleTime: 0,
+    gcTime: 0,
+    retry: false,
     refetchOnMount: true,
     queryFn: async () => {
       const vaults = await listWallets()

@@ -1,4 +1,4 @@
-import { Box, Divider, Flex, HStack, useMediaQuery } from '@chakra-ui/react'
+import { Box, Divider, Flex, HStack, Link, Text, useMediaQuery } from '@chakra-ui/react'
 import { useScroll } from 'framer-motion'
 import { lazy, memo, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import {
@@ -11,8 +11,9 @@ import {
   TbRefresh,
   TbStack,
 } from 'react-icons/tb'
+import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
-import { useNavigate } from 'react-router-dom'
+import { Link as ReactRouterLink, useNavigate } from 'react-router-dom'
 
 import { ActionCenter } from './ActionCenter/ActionCenter'
 import { DegradedStateBanner } from './DegradedStateBanner'
@@ -74,6 +75,7 @@ const earnSubMenuItems = [
 
 export const Header = memo(() => {
   const isDegradedState = useSelector(selectPortfolioDegradedState)
+  const translate = useTranslate()
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`)
 
   const navigate = useNavigate()
@@ -111,6 +113,7 @@ export const Header = memo(() => {
   const isWalletConnectToDappsV2Enabled = useFeatureFlag('WalletConnectToDappsV2')
   const isActionCenterEnabled = useFeatureFlag('ActionCenter')
   const isNewWalletManagerEnabled = useFeatureFlag('NewWalletManager')
+  const isRfoxFoxEcosystemPageEnabled = useFeatureFlag('RfoxFoxEcosystemPage')
   const { degradedChainIds } = useDiscoverAccounts()
 
   const hasWallet = Boolean(walletInfo?.deviceId)
@@ -170,6 +173,15 @@ export const Header = memo(() => {
                 defaultPath='/assets'
               />
               <NavigationDropdown label='defi.earn' items={earnSubMenuItems} defaultPath='/tcy' />
+              <Link
+                as={ReactRouterLink}
+                to={isRfoxFoxEcosystemPageEnabled ? '/fox-ecosystem' : '/fox'}
+                fontWeight='medium'
+                color='text.subtle'
+                _hover={{ color: 'text.base', textDecoration: 'none' }}
+              >
+                <Text>{translate('navBar.ecosystem')}</Text>
+              </Link>
             </HStack>
           </HStack>
 

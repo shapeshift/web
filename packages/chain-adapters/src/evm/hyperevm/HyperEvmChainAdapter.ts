@@ -351,7 +351,7 @@ export class ChainAdapter extends EvmBaseAdapter<KnownChainIds.HyperEvmMainnet> 
         receiverAddress !== CONTRACT_INTERACTION && assertAddressNotSanctioned(receiverAddress),
       ])
 
-      const txResponse = await this.provider.broadcastTransaction(hex)
+      const txResponse = await this.requestQueue.add(() => this.provider.broadcastTransaction(hex))
       return txResponse.hash
     } catch (err) {
       return ErrorHandler(err, {

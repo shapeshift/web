@@ -1,13 +1,13 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import { ASSET_NAMESPACE, ASSET_REFERENCE, hyperEvmAssetId, toAssetId } from '@shapeshiftoss/caip'
 import type { evm } from '@shapeshiftoss/common-api'
-import { MULTICALL3_CONTRACT } from '@shapeshiftoss/contracts'
+import { MULTICALL3_CONTRACT, viemClientByChainId } from '@shapeshiftoss/contracts'
 import type { RootBip44Params } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { TransferType, TxStatus } from '@shapeshiftoss/unchained-client'
-import { Contract, getAddress, Interface, JsonRpcProvider } from 'ethers'
+import { Contract, Interface, JsonRpcProvider } from 'ethers'
 import PQueue from 'p-queue'
-import { erc20Abi, multicall3Abi, parseEventLogs } from 'viem'
+import { erc20Abi, getAddress, isAddressEqual, multicall3Abi, parseEventLogs } from 'viem'
 
 import { ErrorHandler } from '../../error/ErrorHandler'
 import type {
@@ -384,12 +384,14 @@ export class ChainAdapter extends EvmBaseAdapter<KnownChainIds.HyperEvmMainnet> 
   }
 
   async parseTx(tx: unknown, pubkey: string): Promise<Transaction> {
-    const txHash = tx as string
+    const txHash = tx as `0x${string}`
+    const viemClient = viemClientByChainId[KnownChainIds.HyperEvmMainnet]
 
     try {
-      const [transaction, receipt] = await Promise.all([
-        this.requestQueue.add(() => this.provider.getTransaction(txHash)),
-        this.requestQueue.add(() => this.provider.getTransactionReceipt(txHash)),
+      const [transaction, receipt, block] = await Promise.all([
+        viemClient.getTransaction({ hash: txHash }),
+        viemClient.getTransactionReceipt({ hash: txHash }),
+        viemClient.getBlock({ blockHash: txHash }).catch(() => null),
       ])
 
       if (!transaction || !receipt) {
@@ -398,7 +400,7 @@ export class ChainAdapter extends EvmBaseAdapter<KnownChainIds.HyperEvmMainnet> 
 
       const transferLogs = parseEventLogs({
         abi: erc20Abi,
-        logs: receipt.logs as any,
+        logs: receipt.logs,
         eventName: 'Transfer',
       })
 
@@ -416,44 +418,36 @@ export class ChainAdapter extends EvmBaseAdapter<KnownChainIds.HyperEvmMainnet> 
             name: tokenInfo.name,
             symbol: tokenInfo.symbol,
             type: 'ERC20' as const,
-            from: getAddress(log.args.from ?? '0x0'),
-            to: getAddress(log.args.to ?? '0x0'),
-            value: log.args.value?.toString() ?? '0',
+            from: getAddress(log.args.from),
+            to: getAddress(log.args.to),
+            value: log.args.value.toString(),
           }
         })
         .filter((t): t is NonNullable<typeof t> => t !== null)
 
-      let timestamp = 0
-      if (transaction.blockNumber) {
-        const blockNumber = transaction.blockNumber
-        const block = await this.requestQueue.add(() => this.provider.getBlock(blockNumber))
-        timestamp = block?.timestamp ?? 0
-      }
-
-      const confirmationsCount =
-        typeof receipt.confirmations === 'function'
-          ? await receipt.confirmations()
-          : receipt.confirmations ?? 0
-
-      const gasPrice = transaction.gasPrice ?? transaction.maxFeePerGas ?? 0n
+      const timestamp = block?.timestamp ? Number(block.timestamp) : 0
+      const blockNumber = receipt.blockNumber ? Number(receipt.blockNumber) : 0
+      const currentBlockNumber = await viemClient.getBlockNumber()
+      const confirmationsCount = blockNumber > 0 ? Number(currentBlockNumber) - blockNumber + 1 : 0
 
       const unchainedTx: evm.Tx = {
         txid: transaction.hash,
-        blockHash: transaction.blockHash ?? '',
-        blockHeight: transaction.blockNumber ?? 0,
+        blockHash: receipt.blockHash ?? '',
+        blockHeight: blockNumber,
         timestamp,
         confirmations: confirmationsCount,
-        status: receipt.status === 1 ? 1 : 0,
+        status: receipt.status === 'success' ? 1 : 0,
         from: getAddress(transaction.from),
-        to: getAddress(transaction.to ?? ''),
+        to: getAddress(transaction.to ?? '0x0'),
         value: transaction.value.toString(),
-        fee: (BigInt(receipt.gasUsed) * BigInt(gasPrice)).toString(),
-        gasLimit: transaction.gasLimit.toString(),
+        fee: bnOrZero(receipt.gasUsed.toString())
+          .times(receipt.effectiveGasPrice.toString())
+          .toFixed(0),
+        gasLimit: transaction.gas.toString(),
         gasUsed: receipt.gasUsed.toString(),
-        gasPrice: gasPrice.toString(),
-        inputData: transaction.data,
+        gasPrice: receipt.effectiveGasPrice.toString(),
+        inputData: transaction.input,
         tokenTransfers,
-        internalTxs: [],
       }
 
       return this.parse(unchainedTx, pubkey)
@@ -464,87 +458,83 @@ export class ChainAdapter extends EvmBaseAdapter<KnownChainIds.HyperEvmMainnet> 
 
   private parse(tx: evm.Tx, pubkey: string): Transaction {
     const address = getAddress(pubkey)
+    const isFromAddress = isAddressEqual(address, getAddress(tx.from))
+    const isToAddress = isAddressEqual(address, getAddress(tx.to))
 
-    const parsedTx: Transaction = {
+    const nativeTransfers = []
+    if (isFromAddress && bnOrZero(tx.value).gt(0)) {
+      nativeTransfers.push({
+        assetId: this.assetId,
+        from: [tx.from],
+        to: [tx.to],
+        type: TransferType.Send,
+        value: tx.value,
+      })
+    }
+
+    if (isToAddress && bnOrZero(tx.value).gt(0)) {
+      nativeTransfers.push({
+        assetId: this.assetId,
+        from: [tx.from],
+        to: [tx.to],
+        type: TransferType.Receive,
+        value: tx.value,
+      })
+    }
+
+    const tokenTransfers =
+      tx.tokenTransfers?.flatMap(transfer => {
+        const assetId = toAssetId({
+          chainId: this.chainId,
+          assetNamespace: ASSET_NAMESPACE.erc20,
+          assetReference: transfer.contract,
+        })
+
+        const token = {
+          contract: transfer.contract,
+          decimals: transfer.decimals,
+          name: transfer.name,
+          symbol: transfer.symbol,
+        }
+
+        const transfers = []
+
+        if (isAddressEqual(address, getAddress(transfer.from))) {
+          transfers.push({
+            assetId,
+            from: [transfer.from],
+            to: [transfer.to],
+            type: TransferType.Send,
+            value: transfer.value,
+            token,
+          })
+        }
+
+        if (isAddressEqual(address, getAddress(transfer.to))) {
+          transfers.push({
+            assetId,
+            from: [transfer.from],
+            to: [transfer.to],
+            type: TransferType.Receive,
+            value: transfer.value,
+            token,
+          })
+        }
+
+        return transfers
+      }) ?? []
+
+    return {
       blockHash: tx.blockHash,
       blockHeight: tx.blockHeight,
       blockTime: tx.timestamp,
       chainId: this.chainId,
       confirmations: tx.confirmations,
       status: tx.status === 1 ? TxStatus.Confirmed : TxStatus.Failed,
-      transfers: [],
+      transfers: [...nativeTransfers, ...tokenTransfers],
       txid: tx.txid,
       pubkey,
+      ...(isFromAddress && { fee: { assetId: this.assetId, value: tx.fee } }),
     }
-
-    if (address === tx.from) {
-      const sendValue = BigInt(tx.value)
-      if (sendValue > 0) {
-        parsedTx.transfers.push({
-          assetId: this.assetId,
-          from: [tx.from],
-          to: [tx.to],
-          type: TransferType.Send,
-          value: tx.value,
-        })
-      }
-
-      const fees = BigInt(tx.fee)
-      if (fees > 0) {
-        parsedTx.fee = { assetId: this.assetId, value: tx.fee }
-      }
-    }
-
-    if (address === tx.to) {
-      const receiveValue = BigInt(tx.value)
-      if (receiveValue > 0) {
-        parsedTx.transfers.push({
-          assetId: this.assetId,
-          from: [tx.from],
-          to: [tx.to],
-          type: TransferType.Receive,
-          value: tx.value,
-        })
-      }
-    }
-
-    tx.tokenTransfers?.forEach(transfer => {
-      const assetId = toAssetId({
-        chainId: this.chainId,
-        assetNamespace: ASSET_NAMESPACE.erc20,
-        assetReference: transfer.contract,
-      })
-
-      const token = {
-        contract: transfer.contract,
-        decimals: transfer.decimals,
-        name: transfer.name,
-        symbol: transfer.symbol,
-      }
-
-      if (address === transfer.from) {
-        parsedTx.transfers.push({
-          assetId,
-          from: [transfer.from],
-          to: [transfer.to],
-          type: TransferType.Send,
-          value: transfer.value,
-          token,
-        })
-      }
-
-      if (address === transfer.to) {
-        parsedTx.transfers.push({
-          assetId,
-          from: [transfer.from],
-          to: [transfer.to],
-          type: TransferType.Receive,
-          value: transfer.value,
-          token,
-        })
-      }
-    })
-
-    return parsedTx
   }
 }

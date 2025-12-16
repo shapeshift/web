@@ -513,6 +513,7 @@
     "rFOX": "rFOX",
     "tcy": "TCY",
     "foxEcosystem": "FOX Ecosystem",
+    "ecosystem": "Ecosystem",
     "markets": "Markets",
     "tokens": "Tokens",
     "swap": "Swap"
@@ -526,6 +527,10 @@
     "foxToken": {
       "title": "FOX Token",
       "subtitle": "Our Governance Token"
+    },
+    "agent": {
+      "title": "Agent",
+      "subtitle": "Chat to your wallet"
     },
     "classic": {
       "title": "Classic",

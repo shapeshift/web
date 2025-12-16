@@ -29,6 +29,7 @@ import type {
 } from '../types'
 import { ChainAdapterDisplayName, CONTRACT_INTERACTION, ValidAddressResultType } from '../types'
 import { toAddressNList } from '../utils'
+import { verifyLedgerAppOpen } from '../utils/ledgerAppGate'
 import { assertAddressNotSanctioned } from '../utils/validateAddress'
 import type { TronSignTx, TronUnsignedTx } from './types'
 
@@ -114,6 +115,8 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TronMainnet> {
 
       if (!wallet) throw new Error('wallet is required')
       this.assertSupportsChain(wallet)
+
+      await verifyLedgerAppOpen(this.chainId, wallet)
 
       const address = await wallet.tronGetAddress({
         addressNList: toAddressNList(this.getBip44Params({ accountNumber })),

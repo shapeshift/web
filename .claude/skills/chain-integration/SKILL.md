@@ -327,21 +327,30 @@ export function supports[ChainName](wallet: HDWallet): wallet is ETHWallet {
 
 **Set flags on ALL wallet implementations** (~12 files):
 
+**For second-class EVM chains (HyperEVM, Monad, Plasma):**
+
+Set `readonly _supports[ChainName] = true` on:
+- packages/hdwallet-native/src/ethereum.ts
+- packages/hdwallet-metamask-multichain/src/shapeshift-multichain.ts (uses standard EVM cryptography)
+- packages/hdwallet-ledger/src/ledger.ts (uses Ethereum app, supports all EVM chains)
+- packages/hdwallet-trezor/src/trezor.ts (uses Ethereum app, supports all EVM chains)
+- packages/hdwallet-walletconnectv2/src/walletconnectv2.ts (chain-agnostic, supports all EVM chains)
+
 Set `readonly _supports[ChainName] = false` on:
 - packages/hdwallet-coinbase/src/coinbase.ts
 - packages/hdwallet-gridplus/src/gridplus.ts
 - packages/hdwallet-keepkey/src/keepkey.ts
 - packages/hdwallet-keplr/src/keplr.ts
-- packages/hdwallet-ledger/src/ledger.ts
-- packages/hdwallet-metamask-multichain/src/shapeshift-multichain.ts
 - packages/hdwallet-phantom/src/phantom.ts
-- packages/hdwallet-trezor/src/trezor.ts
 - packages/hdwallet-vultisig/src/vultisig.ts
-- packages/hdwallet-walletconnect/src/walletconnect.ts
-- packages/hdwallet-walletconnectv2/src/walletconnectv2.ts
+- packages/hdwallet-walletconnect/src/walletconnect.ts (deprecated, use V2)
 
-**Set `readonly _supports[ChainName] = true` for Native**:
-- packages/hdwallet-native/src/ethereum.ts
+**For non-EVM chains:**
+
+Set `readonly _supports[ChainName] = true` for Native only:
+- packages/hdwallet-native/src/ethereum.ts (or appropriate chain file)
+
+Set `readonly _supports[ChainName] = false` on all other wallet types listed above.
 
 **Then**: Skip to Step 1.6 (Version Bump)
 
@@ -1395,6 +1404,45 @@ Follow similar patterns for other swappers (CowSwap, 0x, etc.) - see `swapper-in
 
 **Reference**: Plasma added to Relay swapper for swap support
 
+### Step 5.5: Add Native Asset to Popular Assets
+
+**CRITICAL**: Second-class citizen chains are not in CoinGecko's top 100 by market cap, so they won't appear in the popular assets list by default. This causes the native asset to be missing when users filter by that chain.
+
+**File**: `src/components/TradeAssetSearch/hooks/useGetPopularAssetsQuery.tsx`
+
+```typescript
+// Add import at the top
+import {
+  hyperEvmAssetId,
+  mayachainAssetId,
+  monadAssetId,
+  plasmaAssetId,  // example for Plasma
+  [chainLower]AssetId,  // Add your chain's asset ID
+  thorchainAssetId,
+  tronAssetId,
+  suiAssetId,
+} from '@shapeshiftoss/caip'
+
+// Add to the queryFn, after the mayachain check (around line 37)
+// add second-class citizen chains to popular assets for discoverability
+if (enabledFlags.HyperEvm) assetIds.push(hyperEvmAssetId)
+if (enabledFlags.Monad) assetIds.push(monadAssetId)
+if (enabledFlags.Plasma) assetIds.push(plasmaAssetId)
+if (enabledFlags.[ChainName]) assetIds.push([chainLower]AssetId)  // Add your chain
+if (enabledFlags.Tron) assetIds.push(tronAssetId)
+if (enabledFlags.Sui) assetIds.push(suiAssetId)
+```
+
+**Why this is needed:**
+- Popular assets are fetched from CoinGecko's top 100 by market cap
+- New/small chains aren't in the top 100
+- Without this, when filtering by your chain, only tokens appear (via relatedAssetIds)
+- The native asset won't show up, which is confusing for users
+- Example: Searching "monad" in MetaMask (doesn't support Monad) shows Monad tokens but not MON itself
+
+**Reference PRs:**
+- See how Monad, Tron, Sui, Plasma, and HyperEVM were added in the same PR
+
 ---
 
 ## Phase 6: Ledger Support (Optional)
@@ -1737,6 +1785,33 @@ case [chainLower]ChainId:
 **Why**: TypeScript uses these to determine chain-specific data structures
 
 **CRITICAL**: Missing even ONE of these causes cryptic type errors! All 4 are required for ALL chains (EVM and non-EVM).
+
+### Gotcha 17: Missing accountIdToLabel Case (BLOCKS ADDRESS DISPLAY!)
+
+**Problem**: Addresses don't display in:
+- Account import UI (shows blank address in table)
+- Send flow "from" address row (shows empty from address)
+- Account dropdowns throughout the app
+
+**Root Cause**: Missing chainId case in `accountIdToLabel()` function
+**File**: `src/state/slices/portfolioSlice/utils/index.ts` (around line 80-125)
+
+**Solution**:
+1. Add chainId import: `import { [chainLower]ChainId } from '@shapeshiftoss/caip'`
+2. Add case to switch statement: `case [chainLower]ChainId:`
+3. Place it with other EVM chains (before thorchainChainId)
+
+**Example**:
+```typescript
+case baseChainId:
+case hyperEvmChainId:  // ← ADD THIS
+case monadChainId:
+case plasmaChainId:
+```
+
+**Why**: This function converts accountId to human-readable label. Without the case, it hits the `default` and returns `''` (empty string), causing blank addresses everywhere in the UI.
+
+**Note**: This affects ALL wallet types (Native, Ledger, Trezor, MetaMask), not just one wallet.
 
 ---
 

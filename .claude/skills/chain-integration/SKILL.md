@@ -698,8 +698,85 @@ export const SECOND_CLASS_CHAINS = [
 
 **Directory**: `packages/chain-adapters/src/[adaptertype]/[chainname]/`
 
-**For EVM chains**: Extend `EvmBaseAdapter` (see Monad example)
-**For non-EVM**: Implement `IChainAdapter` interface (see Sui/Tron examples)
+#### **For EVM Chains** (SIMPLE!)
+
+Extend `SecondClassEvmAdapter` - you only need ~50 lines!
+
+**File**: `packages/chain-adapters/src/evm/[chainname]/[ChainName]ChainAdapter.ts`
+
+```typescript
+import { ASSET_REFERENCE, [chainLower]AssetId } from '@shapeshiftoss/caip'
+import type { AssetId } from '@shapeshiftoss/caip'
+import type { RootBip44Params } from '@shapeshiftoss/types'
+import { KnownChainIds } from '@shapeshiftoss/types'
+
+import { ChainAdapterDisplayName } from '../../types'
+import { SecondClassEvmAdapter } from '../SecondClassEvmAdapter'
+import type { TokenInfo } from '../SecondClassEvmAdapter'
+
+const SUPPORTED_CHAIN_IDS = [KnownChainIds.[ChainName]Mainnet]
+const DEFAULT_CHAIN_ID = KnownChainIds.[ChainName]Mainnet
+
+export type ChainAdapterArgs = {
+  rpcUrl: string
+  knownTokens?: TokenInfo[]
+}
+
+export const is[ChainName]ChainAdapter = (adapter: unknown): adapter is ChainAdapter => {
+  return (adapter as ChainAdapter).getType() === KnownChainIds.[ChainName]Mainnet
+}
+
+export class ChainAdapter extends SecondClassEvmAdapter<KnownChainIds.[ChainName]Mainnet> {
+  public static readonly rootBip44Params: RootBip44Params = {
+    purpose: 44,
+    coinType: Number(ASSET_REFERENCE.[ChainName]),
+    accountNumber: 0,
+  }
+
+  constructor(args: ChainAdapterArgs) {
+    super({
+      assetId: [chainLower]AssetId,
+      chainId: DEFAULT_CHAIN_ID,
+      rootBip44Params: ChainAdapter.rootBip44Params,
+      supportedChainIds: SUPPORTED_CHAIN_IDS,
+      rpcUrl: args.rpcUrl,
+      knownTokens: args.knownTokens ?? [],
+    })
+  }
+
+  getDisplayName() {
+    return ChainAdapterDisplayName.[ChainName]
+  }
+
+  getName() {
+    return '[ChainName]'
+  }
+
+  getType(): KnownChainIds.[ChainName]Mainnet {
+    return KnownChainIds.[ChainName]Mainnet
+  }
+
+  getFeeAssetId(): AssetId {
+    return this.assetId
+  }
+}
+
+export type { TokenInfo }
+```
+
+**That's it!** SecondClassEvmAdapter automatically provides:
+- ✅ Account balance fetching (native + ERC-20 tokens via multicall)
+- ✅ Fee estimation
+- ✅ Transaction broadcasting
+- ✅ Transaction parsing with ERC-20 event decoding (for execution price)
+- ✅ Rate limiting via PQueue
+- ✅ Multicall batching for token balances
+
+Just follow the pattern from HyperEVM, Monad, or Plasma adapters.
+
+#### **For Non-EVM Chains** (COMPLEX)
+
+Implement `IChainAdapter` interface - requires custom crypto adapters and ~500-1000 lines.
 
 **Key Methods to Implement:**
 - `getAccount()` - Get balances (native + tokens)
@@ -712,14 +789,13 @@ export const SECOND_CLASS_CHAINS = [
 - `getTxHistory()` - Get tx history (stub out - return empty)
 
 **Poor Man's Patterns:**
-1. **No Unchained**: Use public RPC directly (ethers.js, @mysten/sui, tronweb, etc.)
+1. **No Unchained**: Use public RPC directly (@mysten/sui, tronweb, etc.)
 2. **No TX History**: Stub out `getTxHistory()` to return empty array
-3. **Multicall for Tokens**: Batch token balance calls where possible
-4. **Direct RPC Polling**: Use `eth_getTransactionReceipt` or equivalent for tx status
+3. **Direct RPC Polling**: Use chain-specific RPC for tx status
 
-**File**: `packages/chain-adapters/src/[adaptertype]/[chainname]/[ChainName]ChainAdapter.ts`
+**File**: `packages/chain-adapters/src/[chainname]/[ChainName]ChainAdapter.ts`
 
-See `MonadChainAdapter.ts` (EVM) or `SuiChainAdapter.ts` (non-EVM) for complete examples.
+See `SuiChainAdapter.ts` or `TronChainAdapter.ts` for complete examples.
 
 **Export**:
 ```typescript

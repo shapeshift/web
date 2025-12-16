@@ -1,5 +1,13 @@
 import type { ChainId } from '@shapeshiftoss/caip'
-import { mayachainAssetId, thorchainAssetId } from '@shapeshiftoss/caip'
+import {
+  hyperEvmAssetId,
+  mayachainAssetId,
+  monadAssetId,
+  plasmaAssetId,
+  suiAssetId,
+  thorchainAssetId,
+  tronAssetId,
+} from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { useQuery } from '@tanstack/react-query'
 
@@ -24,6 +32,13 @@ export const queryFn = async () => {
   // add thorchain and mayachain to popular assets for discoverability on wallets without existing balances
   assetIds.push(thorchainAssetId)
   if (enabledFlags.Mayachain) assetIds.push(mayachainAssetId)
+
+  // add second-class citizen chains to popular assets for discoverability
+  if (enabledFlags.HyperEvm) assetIds.push(hyperEvmAssetId)
+  if (enabledFlags.Monad) assetIds.push(monadAssetId)
+  if (enabledFlags.Plasma) assetIds.push(plasmaAssetId)
+  if (enabledFlags.Tron) assetIds.push(tronAssetId)
+  if (enabledFlags.Sui) assetIds.push(suiAssetId)
 
   for (const assetId of assetIds) {
     const asset = primaryAssets[assetId]

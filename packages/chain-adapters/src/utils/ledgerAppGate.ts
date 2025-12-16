@@ -33,6 +33,8 @@ export const getLedgerAppName = (chainId: ChainId | KnownChainIds | undefined) =
       return 'Zcash'
     case KnownChainIds.SolanaMainnet:
       return 'Solana'
+    case KnownChainIds.SuiMainnet:
+      return 'Sui'
     case KnownChainIds.ThorchainMainnet:
     case KnownChainIds.MayachainMainnet:
       return 'THORChain'
@@ -66,6 +68,8 @@ const getCoin = (chainId: ChainId | KnownChainIds) => {
       return 'Atom'
     case KnownChainIds.SolanaMainnet:
       return 'Solana'
+    case KnownChainIds.SuiMainnet:
+      return 'Sui'
     case KnownChainIds.TronMainnet:
       return 'Tron'
     default:

@@ -1404,6 +1404,45 @@ Follow similar patterns for other swappers (CowSwap, 0x, etc.) - see `swapper-in
 
 **Reference**: Plasma added to Relay swapper for swap support
 
+### Step 5.5: Add Native Asset to Popular Assets
+
+**CRITICAL**: Second-class citizen chains are not in CoinGecko's top 100 by market cap, so they won't appear in the popular assets list by default. This causes the native asset to be missing when users filter by that chain.
+
+**File**: `src/components/TradeAssetSearch/hooks/useGetPopularAssetsQuery.tsx`
+
+```typescript
+// Add import at the top
+import {
+  hyperEvmAssetId,
+  mayachainAssetId,
+  monadAssetId,
+  plasmaAssetId,  // example for Plasma
+  [chainLower]AssetId,  // Add your chain's asset ID
+  thorchainAssetId,
+  tronAssetId,
+  suiAssetId,
+} from '@shapeshiftoss/caip'
+
+// Add to the queryFn, after the mayachain check (around line 37)
+// add second-class citizen chains to popular assets for discoverability
+if (enabledFlags.HyperEvm) assetIds.push(hyperEvmAssetId)
+if (enabledFlags.Monad) assetIds.push(monadAssetId)
+if (enabledFlags.Plasma) assetIds.push(plasmaAssetId)
+if (enabledFlags.[ChainName]) assetIds.push([chainLower]AssetId)  // Add your chain
+if (enabledFlags.Tron) assetIds.push(tronAssetId)
+if (enabledFlags.Sui) assetIds.push(suiAssetId)
+```
+
+**Why this is needed:**
+- Popular assets are fetched from CoinGecko's top 100 by market cap
+- New/small chains aren't in the top 100
+- Without this, when filtering by your chain, only tokens appear (via relatedAssetIds)
+- The native asset won't show up, which is confusing for users
+- Example: Searching "monad" in MetaMask (doesn't support Monad) shows Monad tokens but not MON itself
+
+**Reference PRs:**
+- See how Monad, Tron, Sui, Plasma, and HyperEVM were added in the same PR
+
 ---
 
 ## Phase 6: Ledger Support (Optional)

@@ -349,15 +349,18 @@ export abstract class SecondClassEvmAdapter<T extends EvmChainId> extends EvmBas
     }
 
     try {
-      const [transaction, receipt, block] = await Promise.all([
+      const [transaction, receipt] = await Promise.all([
         viemClient.getTransaction({ hash }),
         viemClient.getTransactionReceipt({ hash }),
-        viemClient.getBlock({ blockHash: hash }).catch(() => null),
       ])
 
       if (!transaction || !receipt) {
         throw new Error(`Transaction not found: ${hash}`)
       }
+
+      const block = receipt.blockHash
+        ? await viemClient.getBlock({ blockHash: receipt.blockHash }).catch(() => null)
+        : null
 
       const transferLogs = parseEventLogs({
         abi: erc20Abi,

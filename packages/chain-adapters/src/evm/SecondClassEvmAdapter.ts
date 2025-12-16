@@ -340,8 +340,8 @@ export abstract class SecondClassEvmAdapter<T extends EvmChainId> extends EvmBas
     })
   }
 
-  async parseTx(tx: unknown, pubkey: string): Promise<Transaction> {
-    const txHash = tx as Hex
+  async parseTx(txHash: unknown, pubkey: string): Promise<Transaction> {
+    const hash = txHash as Hex
     const viemClient = viemClientByChainId[this.chainId]
 
     if (!viemClient) {
@@ -350,13 +350,13 @@ export abstract class SecondClassEvmAdapter<T extends EvmChainId> extends EvmBas
 
     try {
       const [transaction, receipt, block] = await Promise.all([
-        viemClient.getTransaction({ hash: txHash }),
-        viemClient.getTransactionReceipt({ hash: txHash }),
-        viemClient.getBlock({ blockHash: txHash }).catch(() => null),
+        viemClient.getTransaction({ hash }),
+        viemClient.getTransactionReceipt({ hash }),
+        viemClient.getBlock({ blockHash: hash }).catch(() => null),
       ])
 
       if (!transaction || !receipt) {
-        throw new Error(`Transaction not found: ${txHash}`)
+        throw new Error(`Transaction not found: ${hash}`)
       }
 
       const transferLogs = parseEventLogs({

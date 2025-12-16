@@ -22,7 +22,7 @@ import type {
   TxHistoryResponse,
 } from '../../types'
 import { ChainAdapterDisplayName, CONTRACT_INTERACTION } from '../../types'
-import { bnOrZero } from '../../utils/bignumber'
+import { bn, bnOrZero } from '../../utils/bignumber'
 import { assertAddressNotSanctioned } from '../../utils/validateAddress'
 import { EvmBaseAdapter } from '../EvmBaseAdapter'
 import type { GasFeeDataEstimate } from '../types'
@@ -467,7 +467,7 @@ export class ChainAdapter extends EvmBaseAdapter<KnownChainIds.HyperEvmMainnet> 
     const status = tx.status === 1 ? TxStatus.Confirmed : TxStatus.Failed
 
     const nativeTransfers = []
-    if (isSend && bnOrZero(tx.value).gt(0)) {
+    if (isSend && bn(tx.value).gt(0)) {
       nativeTransfers.push({
         assetId: this.assetId,
         from: [tx.from],
@@ -477,7 +477,7 @@ export class ChainAdapter extends EvmBaseAdapter<KnownChainIds.HyperEvmMainnet> 
       })
     }
 
-    if (isReceive && bnOrZero(tx.value).gt(0)) {
+    if (isReceive && bn(tx.value).gt(0)) {
       nativeTransfers.push({
         assetId: this.assetId,
         from: [tx.from],

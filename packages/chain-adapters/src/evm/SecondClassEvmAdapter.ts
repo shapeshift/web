@@ -6,6 +6,7 @@ import type { EvmChainId, RootBip44Params } from '@shapeshiftoss/types'
 import { TransferType, TxStatus } from '@shapeshiftoss/unchained-client'
 import { Contract, Interface, JsonRpcProvider } from 'ethers'
 import PQueue from 'p-queue'
+import type { Hex } from 'viem'
 import { erc20Abi, getAddress, isAddressEqual, multicall3Abi, parseEventLogs } from 'viem'
 
 import { ErrorHandler } from '../error/ErrorHandler'
@@ -340,7 +341,7 @@ export abstract class SecondClassEvmAdapter<T extends EvmChainId> extends EvmBas
   }
 
   async parseTx(tx: unknown, pubkey: string): Promise<Transaction> {
-    const txHash = getAddress(tx as string)
+    const txHash = tx as Hex
     const viemClient = viemClientByChainId[this.chainId]
 
     if (!viemClient) {

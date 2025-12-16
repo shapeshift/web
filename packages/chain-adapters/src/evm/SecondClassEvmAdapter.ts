@@ -1,4 +1,4 @@
-import type { AssetId } from '@shapeshiftoss/caip'
+import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import { ASSET_NAMESPACE, toAssetId } from '@shapeshiftoss/caip'
 import type { evm } from '@shapeshiftoss/common-api'
 import { MULTICALL3_CONTRACT, viemClientByChainId } from '@shapeshiftoss/contracts'
@@ -41,7 +41,7 @@ export type SecondClassEvmAdapterArgs<T extends EvmChainId> = {
   assetId: AssetId
   chainId: T
   rootBip44Params: RootBip44Params
-  supportedChainIds: EvmChainId[]
+  supportedChainIds: ChainId[]
   rpcUrl: string
   knownTokens: TokenInfo[]
 }
@@ -340,7 +340,7 @@ export abstract class SecondClassEvmAdapter<T extends EvmChainId> extends EvmBas
   }
 
   async parseTx(tx: unknown, pubkey: string): Promise<Transaction> {
-    const txHash = tx as `0x${string}`
+    const txHash = getAddress(tx as string)
     const viemClient = viemClientByChainId[this.chainId]
 
     if (!viemClient) {

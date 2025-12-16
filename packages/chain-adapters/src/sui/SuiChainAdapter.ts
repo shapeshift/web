@@ -437,27 +437,6 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SuiMainnet> {
 
       const gasPrice = await this.client.getReferenceGasPrice()
 
-      if (tokenId && tokenId.startsWith('0x') && tokenId.includes('::')) {
-        const estimatedGas = 50_000_000n
-        const gasBudget = ((estimatedGas * 120n) / 100n).toString()
-        const txFee = estimatedGas.toString()
-
-        return {
-          fast: {
-            txFee,
-            chainSpecific: { gasBudget, gasPrice: gasPrice.toString() },
-          },
-          average: {
-            txFee,
-            chainSpecific: { gasBudget, gasPrice: gasPrice.toString() },
-          },
-          slow: {
-            txFee,
-            chainSpecific: { gasBudget, gasPrice: gasPrice.toString() },
-          },
-        }
-      }
-
       const tx = new Transaction()
 
       tx.setSender(from)

@@ -12,6 +12,8 @@ import arbitrum from './eip155_42161/adapter.json'
 import arbitrumNova from './eip155_42170/adapter.json'
 import base from './eip155_8453/adapter.json'
 import monad from './eip155_143/adapter.json'
+import hyperevm from './eip155_999/adapter.json'
+import plasma from './eip155_9745/adapter.json'
 import cosmos from './cosmos_cosmoshub-4/adapter.json'
 import thorchain from './cosmos_thorchain-1/adapter.json'
 import mayachain from './cosmos_mayachain-mainnet-v1/adapter.json'
@@ -35,6 +37,8 @@ export {
 	arbitrumNova,
 	base,
 	monad,
+	hyperevm,
+	plasma,
 	cosmos,
 	thorchain,
 	mayachain,

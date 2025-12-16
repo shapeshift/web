@@ -11,10 +11,12 @@ import {
   dogeChainId,
   ethChainId,
   gnosisChainId,
+  hyperEvmChainId,
   ltcChainId,
   mayachainChainId,
   monadChainId,
   optimismChainId,
+  plasmaChainId,
   polygonChainId,
   solanaChainId,
   suiChainId,
@@ -34,9 +36,11 @@ import {
   supportsCosmos,
   supportsETH,
   supportsGnosis,
+  supportsHyperEvm,
   supportsMayachain,
   supportsMonad,
   supportsOptimism,
+  supportsPlasma,
   supportsPolygon,
   supportsSolana,
   supportsSui,
@@ -53,7 +57,7 @@ import { KeyManager } from '@/context/WalletProvider/KeyManager'
 import { useIsSnapInstalled } from '@/hooks/useIsSnapInstalled/useIsSnapInstalled'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { METAMASK_RDNS } from '@/lib/mipd'
-import { isNativeHDWallet } from '@/lib/utils'
+import { isLedgerHDWallet, isNativeHDWallet, isTrezorHDWallet } from '@/lib/utils'
 import { selectAccountIdsByChainIdFilter } from '@/state/slices/portfolioSlice/selectors'
 import { selectFeatureFlag } from '@/state/slices/selectors'
 import { store, useAppSelector } from '@/state/store'
@@ -136,6 +140,9 @@ export const walletSupportsChain = ({
   if (!hasRuntimeSupport) return false
 
   const isArbitrumNovaEnabled = selectFeatureFlag(store.getState(), 'ArbitrumNova')
+  const isHyperEvmEnabled = selectFeatureFlag(store.getState(), 'HyperEvm')
+  const isMonadEnabled = selectFeatureFlag(store.getState(), 'Monad')
+  const isPlasmaEnabled = selectFeatureFlag(store.getState(), 'Plasma')
 
   switch (chainId) {
     case btcChainId:
@@ -159,9 +166,10 @@ export const walletSupportsChain = ({
         !(wallet instanceof GridPlusHDWallet)
       )
     case zecChainId:
-      // Only native wallet supports ZCash for now
-      // TODO(gomes): include more as more wallets supported for ZCash
-      return supportsBTC(wallet) && isNativeHDWallet(wallet)
+      return (
+        supportsBTC(wallet) &&
+        (isNativeHDWallet(wallet) || isLedgerHDWallet(wallet) || isTrezorHDWallet(wallet))
+      )
     case ethChainId:
       return supportsETH(wallet)
     case avalancheChainId:
@@ -181,7 +189,11 @@ export const walletSupportsChain = ({
     case baseChainId:
       return supportsBase(wallet)
     case monadChainId:
-      return supportsMonad(wallet)
+      return isMonadEnabled && supportsMonad(wallet)
+    case hyperEvmChainId:
+      return isHyperEvmEnabled && supportsHyperEvm(wallet)
+    case plasmaChainId:
+      return isPlasmaEnabled && supportsPlasma(wallet)
     case cosmosChainId:
       return supportsCosmos(wallet)
     case thorchainChainId:

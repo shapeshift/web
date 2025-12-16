@@ -55,12 +55,7 @@ export const fetchPortalsTokens = async ({
 }): Promise<TokenInfo[]> => {
   const networks = chainIds?.map(chainId => CHAIN_ID_TO_PORTALS_NETWORK[chainId])
 
-  if (typeof networks === 'object') {
-    networks.forEach((network, i) => {
-      if (!network) throw new Error(`Unsupported chainId: ${chainIds?.[i]}`)
-    })
-  }
-
+  // Filter out unsupported chains instead of throwing
   const supportedNetworks = typeof networks === 'object' ? networks.filter(isSome) : undefined
 
   try {
@@ -287,7 +282,11 @@ export const fetchPortalsAccount = async (
 ): Promise<Record<AssetId, TokenInfo>> => {
   const network = CHAIN_ID_TO_PORTALS_NETWORK[chainId]
 
-  if (!network) throw new Error(`Unsupported chainId: ${chainId}`)
+  // Return empty object for chains not supported by Portals instead of throwing
+  if (!network) {
+    console.log(`[Portals] Chain ${chainId} not supported by Portals, skipping`)
+    return {}
+  }
 
   try {
     const { data } = await axios.get<GetBalancesResponse>(`${PORTALS_BASE_URL}/v2/account`, {

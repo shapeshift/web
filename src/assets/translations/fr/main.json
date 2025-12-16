@@ -107,8 +107,8 @@
     "search": "Rehercher",
     "searchAsset": "Rechercher un actif",
     "searchNameOrAddress": "Rechercher par nom ou adresse",
-    "enterAmount": "Entrer le montant",
-    "enterAddress": "Entrer une adresse",
+    "enterAmount": "Entrez le montant",
+    "enterAddress": "Entrez une adresse",
     "pageNotFound": "La page que vous recherchez est introuvable",
     "creditCard": "Carte de crédit",
     "bankTransfer": "Virement bancaire",
@@ -191,7 +191,8 @@
     "approval": "Autorisation",
     "permit2Approval": "Autorisation Permit2",
     "network": "Réseau",
-    "feeEstimate": "Estimation des frais"
+    "feeEstimate": "Estimation des frais",
+    "list": "Liste"
   },
   "accountSelector": {
     "chooseAccount": "Choisir un compte"
@@ -751,8 +752,15 @@
     "slowSwapBody": "Cet échange peut prendre quelques minutes pour se terminer.",
     "thorSmartContractWalletUnsupported": "Le réseau THORChain ne prend actuellement pas en charge les porte-monnaie pour contrats intelligents.",
     "intoAssetSymbolBody": "Vous pouvez procéder à cet échange, mais l'historique des transactions de réception en %{assetSymbol} est temporairement indisponible",
+    "receiveAddress": "Adresse de réception",
     "changeAddress": "Adresse de change",
     "changeAddressExplainer": "Lors de l'envoi de cryptomonnaies sur les réseaux basés sur UTXO, tous les fonds restants de votre transaction vous sont renvoyés à cette adresse.",
+    "depositAddress": "Adresse de dépôt",
+    "depositAddressExplainer": "Il s'agit de l'adresse du protocole où vos fonds seront envoyés pour traitement. Votre porte-monnaie matériel affichera cette adresse pour vérification.",
+    "customReceiveAddress": "Adresse de réception personnalisée",
+    "customReceiveAddressDescription": "Entrez une adresse de réception personnalisée pour cette transaction.",
+    "thisIsYourCustomReceiveAddress": "Il s'agit de votre adresse de réception personnalisée",
+    "enterCustomReceiveAddress": "Entrez une adresse de réception personnalisée",
     "receiveAtLeast": "Recevez au moins",
     "tooltip": {
       "continueSwapping": "Continuer l'échange pour les détails finaux",
@@ -824,9 +832,8 @@
     "or": "ou",
     "onChainName": "sur %{chainName}",
     "unknownGas": "(inconnu)",
-    "receiveAddress": "Adresse de réception",
-    "receiveAddressDescription": "Aucune adresse %{chainName} trouvée dans le porte-monnaie connecté. Saisissez manuellement une adresse",
-    "disableThorTaprootReceive": "Nous avons détecté que vous envoyez vers une adresse Bitcoin Taproot. En raison des limitations de THORChain, la réception de BTC vers une adresse Taproot n'est actuellement pas prise en charge. Veuillez saisir une autre adresse.",
+    "receiveAddressDescription": "Aucune adresse %{chainName} trouvée dans le porte-monnaie connecté. Entez manuellement une adresse",
+    "disableThorTaprootReceive": "Nous avons détecté que vous envoyez vers une adresse Bitcoin Taproot. En raison des limitations de THORChain, la réception de BTC vers une adresse Taproot n'est actuellement pas prise en charge. Veuillez entrer une autre adresse.",
     "toContinue": "pour continuer.",
     "enableMetaMaskSnap": "utilisez le Snap MultiChain",
     "connectChain": "connectez %{chainName}",
@@ -863,7 +870,12 @@
       "youGotMore": "Vous avez obtenu %{cryptoUpside} en plus sur cette échange"
     },
     "networkFee": "Frais de réseau",
-    "feeExplainer": "Le devis comprend des frais ShapeShift de %{feePercentage}%"
+    "feeExplainer": "Le devis comprend des frais ShapeShift de %{feePercentage}%",
+    "topAssetsCarousel": {
+      "hide": "Cacher",
+      "hiddenTitle": "Carrousel des meilleurs actifs caché",
+      "hiddenDescription": "Vous pouvez le réactiver dans les Paramètres"
+    }
   },
   "limitOrder": {
     "heading": "Limite",
@@ -960,7 +972,7 @@
     },
     "keepKey": {
       "passphrase": {
-        "header": "Entrer votre phrase de sécurité",
+        "header": "Entrez votre phrase de sécurité",
         "body": "Après avoir envoyé votre phrase de sécurité, utilisez le bouton sur votre KeepKey pour l'approuver",
         "button": "Envoyer la phrase de sécurité"
       },
@@ -1006,7 +1018,7 @@
       },
       "recoveryInvalid": {
         "header": "La phrase de récupération est invalide",
-        "body": "La phrase de récupération que vous avez saisie est invalide.",
+        "body": "La phrase de récupération que vous avez entrée est invalide.",
         "button": "Réessayer"
       },
       "downloadUpdater": {
@@ -1021,11 +1033,11 @@
     },
     "shapeShift": {
       "password": {
-        "header": "Entrer votre mot de passe",
+        "header": "Entrez votre mot de passe",
         "walletName": "Surnom du porte-monnaie (facultatif)",
         "walletNameRequired": "Surnom du porte-monnaie (requis)",
-        "body": "Entrer votre mot de passe pour décrypter votre porte-monnaie.",
-        "placeholder": "Entrer le mot de passe",
+        "body": "Entrez votre mot de passe pour décrypter votre porte-monnaie.",
+        "placeholder": "Entrez le mot de passe",
         "error": {
           "invalid": "Mot de passe invalide",
           "required": "Le mot de passe est requis",
@@ -1086,6 +1098,8 @@
       "qrCode": "QR Code",
       "addressBook": "Carnet d'adresses",
       "noEntries": "Aucune adresse trouvée.",
+      "yourWallets": "Vos porte-monnaie",
+      "noInternalAccounts": "Aucun compte trouvé.",
       "addNewAddress": "Ajouter une nouvelle adresse",
       "addAddress": {
         "nameRequired": "Le nom est requis.",
@@ -1123,7 +1137,7 @@
         "slow": "Lent",
         "average": "Moyen",
         "fast": "Rapide",
-        "enterAmount": "Entrer un montant",
+        "enterAmount": "Entrez un montant",
         "scanQrCode": "Scanner un code QR",
         "scanQrCodeDescription": "Appuyez pour scanner une adresse",
         "yourAddresses": "Vos adresses",
@@ -1143,9 +1157,12 @@
       "copyFailed": "Échec de la copie de l'adresse de réception %{symbol} dans le presse-papiers",
       "copyFailedDescription": "Veuillez copier l'adresse manuellement",
       "setAmount": "Définir le montant",
+      "verify": "Vérifier",
+      "verified": "Vérifié",
+      "notVerified": "Adresses différentes",
       "blockExplorer": "Explorateur",
       "supportedNetworks": "Réseaux pris en charge",
-      "amountNote": "Saisissez le montant souhaité. Un QR code contenant le montant sera généré pour faciliter les paiements."
+      "amountNote": "Entrez le montant souhaité. Un QR code contenant le montant sera généré pour faciliter les paiements."
     },
     "deposit": {
       "amountToDeposit": "Montant à déposer",
@@ -1246,6 +1263,8 @@
       "language": "Langue",
       "balanceThreshold": "Seuil de solde",
       "balanceThresholdTooltip": "Sur le tableau de bord et les graphiques, masquer les soldes en dessous de cette valeur",
+      "showTopAssetsCarousel": "Afficher le carrousel des meilleurs actifs",
+      "showTopAssetsCarouselTooltip": "Afficher le carrousel des meilleurs actifs en bas de la page Échanger",
       "currencies": {
         "CNY": "Yuan chinois",
         "USD": "Dollar américain (par défaut)",
@@ -1300,9 +1319,9 @@
       "errors": {
         "unknown": "Une erreur inattendue s'est produite lors de la communication avec votre KeepKey",
         "updateAlert": "Le firmware %{version} ou ultérieur est requis pour utiliser votre KeepKey avec ce client. Veuillez mettre à jour votre appareil.",
-        "pinCancelled": "La saisie du NIP a été annulée",
-        "pinInvalid": "Le NIP que vous avez saisi n'est pas valide",
-        "pinMismatch": "Les deux NIP que vous avez saisis ne correspondent pas"
+        "pinCancelled": "La saisie du PIN a été annulée",
+        "pinInvalid": "Le PIN que vous avez saisi n'est pas valide",
+        "pinMismatch": "Les deux PIN que vous avez saisis ne correspondent pas"
       },
       "connect": {
         "header": "Appairer votre KeepKey",
@@ -1311,11 +1330,16 @@
         "conflictingApp": "Impossible de trouver votre KeepKey. Une autre application essaie peut-être de se connecter à votre KeepKey.",
         "downloadUpdaterApp": "Télécharger l'app de mise à jour"
       },
+      "pin": {
+        "header": "Entrez votre code PIN",
+        "body": "Utilisez la disposition du PIN indiquée sur votre appareil pour trouver l'emplacement sur lequel appuyer sur le clavier PIN.",
+        "button": "Déverrouiller"
+      },
       "settings": {
         "menuLabels": {
           "bootloader": "Chargeur d'amorçage",
           "firmware": "Micrologiciel",
-          "pin": "NIP",
+          "pin": "PIN",
           "advanced": "Avancé",
           "deviceTimeout": "Délai de mise en veille de l'appareil",
           "passphrase": "Phrase de sécurité",
@@ -1333,7 +1357,7 @@
           "passphrase": "Phrase de sécurité"
         },
         "descriptions": {
-          "pin": "Le NIP est une combinaison de 9 chiffres maximum que vous sélectionnez après avoir initialisé votre KeepKey. Un NIP protège votre appareil contre toute utilisation non autorisée au cas où votre KeepKey tomberait entre de mauvaises mains.",
+          "pin": "Le PIN est une combinaison de 9 chiffres maximum que vous sélectionnez après avoir initialisé votre KeepKey. Un PIN protège votre appareil contre toute utilisation non autorisée au cas où votre KeepKey tomberait entre de mauvaises mains.",
           "passphrase": "Activer la possibilité d'avoir plusieurs porte-monnaie, accessibles en utilisant une phrase de sécurité unique pour chaque porte-monnaie.",
           "label": "L'étiquetage de chacun des appareils vous permet de les distinguer facilement les uns des autres.",
           "timeout": "Votre appareil se met en veille après 10 minutes d'inactivité par défaut. Cependant, vous pouvez changer ceci.",
@@ -1350,7 +1374,7 @@
           }
         },
         "placeholders": {
-          "label": "Saisir une étiquette d'appareil"
+          "label": "Entrez une étiquette d'appareil"
         },
         "actions": {
           "update": "Mettre à jour %{setting}",
@@ -1387,6 +1411,64 @@
       },
       "failure": {
         "body": "Impossible de se connecter au porte-monnaie Keplr"
+      }
+    },
+    "gridplus": {
+      "list": {
+        "header": "Vos SafeCards GridPlus",
+        "selectPrompt": "Sélectionnez une SafeCard pour vous reconnecter ou en ajouter une nouvelle",
+        "empty": "Aucune SafeCard connectée pour le moment",
+        "addFirst": "Connectez votre première SafeCard",
+        "addNew": "Ajouter une nouvelle SafeCard",
+        "lastConnected": "Dernière connexion : %{date}",
+        "connected": "Connecté",
+        "connect": "Connecter",
+        "editNameLabel": "Modifier le nom",
+        "deleteLabel": "Supprimer",
+        "deleteTitle": "Supprimer la SafeCard",
+        "deleteConfirm": "Supprimer « %{name} » ? Cela supprimera toutes les données de portfolio associées.",
+        "renamed": "SafeCard renommée",
+        "deleted": "SafeCard supprimée",
+        "deletedDescription": "Les données de portfolio ont été effacées.",
+        "warning": "Chaque SafeCard gère son propre portfolio. Assurez-vous d'insérer la SafeCard appropriée dans votre appareil avant de le connecter.",
+        "safeCardLabel": "SafeCard",
+        "internalSafeCardLabel": "SafeCard interne"
+      },
+      "connect": {
+        "header": "Connecter une nouvelle SafeCard",
+        "safeCardName": "Nom de la SafeCard",
+        "safeCardNamePlaceholder": "Entrez un nom pour cette SafeCard",
+        "safeCardNameHelper": "Donnez à cette SafeCard un nom mémorable (par exemple, « Porte-monnaie principal », « Trading », « DeFi »)",
+        "deviceId": "ID de l'appareil",
+        "deviceIdPlaceholder": "Entrez l'ID de l'appareil Lattice",
+        "deviceIdHelper": "Vous trouverez l'ID de votre appareil dans les paramètres Lattice, sous \"Device Info\".",
+        "button": "Connecter la SafeCard",
+        "connecting": "Connexion...",
+        "backToList": "← Retour à la liste des SafeCard"
+      },
+      "pair": {
+        "header": "Appairer le Lattice GridPlus",
+        "pairingCode": "Code d'appairage",
+        "pairingCodePlaceholder": "Entrez le code à 8 caractères du Lattice",
+        "pairingCodeHelper": "Consultez l'écran de votre Lattice pour obtenir un code d'appairage de 8 caractères.",
+        "button": "Terminer l’appairage",
+        "cancel": "← Annuler"
+      },
+      "name": {
+        "header": "Nommez votre SafeCard",
+        "label": "Nom de la SafeCard",
+        "placeholder": "Entrez un nom pour cette SafeCard",
+        "helper": "Donnez à cette SafeCard un nom mémorable (par exemple, « Porte-monnaie principal », « Trading », « DeFi »)"
+      },
+      "errors": {
+        "deviceIdRequired": "L'ID de l'appareil est requis.",
+        "adapterNotAvailable": "Adaptateur GridPlus non disponible",
+        "deviceNotConnected": "Appareil non connecté. Veuillez d'abord appeler connectDevice.",
+        "connectFailure": "Impossible de connecter le porte-monnaie GridPlus",
+        "unknown": "Une erreur inattendue s'est produite lors de la communication avec le porte-monnaie GridPlus"
+      },
+      "menu": {
+        "switchSafeCard": "Changer de SafeCard"
       }
     },
     "ledger": {
@@ -1429,6 +1511,20 @@
       "gettingChangeAddress": "Obtention de l'adresse de change...",
       "connectWarning": "Avant de connecter une chaîne, assurez-vous que l'app est ouverte sur votre appareil.",
       "signWarning": "Avant de signer, assurez-vous que l'app %{chain} est ouverte sur votre appareil."
+    },
+    "trezor": {
+      "verify": {
+        "confirmOnDevice": "Confirmez sur l'appareil",
+        "addressMismatch": "Adresse incorrecte. Veuillez vérifier que le bon appareil est connecté et réessayer."
+      },
+      "errors": {
+        "unknown": "Une erreur inattendue s'est produite lors de la communication avec le porte-monnaie Trezor"
+      },
+      "connect": {
+        "header": "Appairer Trezor",
+        "body": "Connectez votre appareil Trezor et cliquez sur « Appairer »",
+        "button": "Appairer"
+      }
     },
     "mipd": {
       "connect": {
@@ -1538,7 +1634,7 @@
         "keystoreHeader": "Importer votre porte-monnaie Keystore",
         "body": "Entrez ou collez votre Phrase de Récupération Secrète en minuscules, sans virgule, ni chiffre et avec un seul espace entre chaque mot.",
         "button": "Suivant",
-        "secretRecoveryPhraseError": "Saisissez votre Phrase de Récupération Secrète en laissant un seul espace entre les mots. Omettez les virgules, les retours à la ligne ou tout autre caractère supplémentaire.",
+        "secretRecoveryPhraseError": "Entrez votre Phrase de Récupération Secrète en laissant un seul espace entre les mots. Omettez les virgules, les retours à la ligne ou tout autre caractère supplémentaire.",
         "secretRecoveryPhraseRequired": "La Phrase de Récupération Secrète est requise",
         "secretRecoveryPhraseTooShort": "La Phrase de Récupération Secrète est trop courte",
         "dragAndDrop": "Glisser-déposer ou Choisir un fichier",
@@ -1548,7 +1644,7 @@
       },
       "password": {
         "header": "Créer un nouveau mot de passe",
-        "body": "Saisissez un mot de passe fort pour crypter votre porte-monnaie importé. C'est ainsi que vous accéderez à votre porte-monnaie.",
+        "body": "Entrez un mot de passe fort pour crypter votre porte-monnaie importé. C'est ainsi que vous accéderez à votre porte-monnaie.",
         "warning": "Remarque : si vous oubliez votre mot de passe, ShapeShift ne peut pas vous aider à le récupérer.",
         "button": "Suivant",
         "connect": "Se connecter à un autre porte-monnaie"
@@ -1678,6 +1774,16 @@
         "description": "Vous avez vérifié votre phrase secrète de récupération. Conservez-la précieusement : c'est le seul moyen de récupérer votre porte-monnaie.",
         "viewWallet": "Voir le porte-monnaie"
       }
+    },
+    "vultisig": {
+      "errors": {
+        "connectFailure": "Impossible de connecter le porte-monnaie Vultisig"
+      },
+      "connect": {
+        "header": "Appairer Vultisig",
+        "body": "Cliquez sur « Appairer » et connectez-vous à Vultisig depuis la fenêtre popup",
+        "button": "Appairer"
+      }
     }
   },
   "graph": {
@@ -1738,7 +1844,6 @@
   },
   "accounts": {
     "accounts": "Comptes",
-    "addAccount": "Ajouter un compte",
     "accountNumber": "Compte #%{accountNumber}",
     "accountChain": "Chaîne du compte",
     "selectChain": "Sélectionnez la chaîne pour laquelle vous souhaitez créer un compte.",
@@ -1897,7 +2002,8 @@
           "title": "Connecter votre porte-monnaie à une dApp via WalletConnect et déclencher des transactions",
           "linkPlaceholder": "Code QR ou lien de connexion",
           "disclaimerBody": "ShapeShift ne peut pas garantir la sécurité des applications tierces. En utilisant WalletConnect, vous assumez l'entière responsabilité des risques encourus.",
-          "connect": "Connecter"
+          "connect": "Connecter",
+          "invalidUri": "URI invalide"
         },
         "sessionProposal": {
           "unsupportedChain": "Espace de noms de chaîne non pris en charge dans la proposition de session.",
@@ -2409,7 +2515,7 @@
       "switchChainFailed": "Échec du changement de la chaîne du porte-monnaie. Essayez de changer manuellement la chaîne active de votre porte-monnaie pour %{chain}.",
       "buildTransaction": "Échec de la création de la transaction.",
       "signTransaction": "Échec de la signature de la transaction.",
-      "blindSigningRequired": "La transaction nécessite une signature aveugle. Veuillez activer « Blind signing » dans les paramètres de votre app Ledger et réessayer.",
+      "blindSigningRequired": "Cette transaction nécessite une signature à l'aveugle. Veuillez activer « Blind signing » ou « Contract Data » dans les paramètres de votre app Ledger et réessayer.",
       "signAndBroadcastTransaction": "Échec de la signature et de la diffusion de la transaction.",
       "signMessage": "Échec de la signature du message.",
       "broadcastTransaction": "Échec de la diffusion de la transaction.",
@@ -2418,7 +2524,11 @@
       "getFeeData": "Échec de l'estimation des frais de réseau.",
       "getPublicKey": "Échec de l'obtention de la clé publique du porte-monnaie.",
       "getUtxos": "Échec de l'obtention des UTXO.",
-      "getValidator": "Échec de l'obtention du validateur."
+      "getValidator": "Échec de l'obtention du validateur.",
+      "gridplus": {
+        "wrongSafeCard": "SafeCard incorrecte insérée. Veuillez insérer la SafeCard correcte et réessayer.",
+        "removeSafeCard": "Retirez la carte SafeCard insérée pour accéder au porte-monnaie interne GridPlus."
+      }
     }
   },
   "actionCenter": {
@@ -2464,10 +2574,12 @@
     "thorchainLp": {
       "pairAssets": "%{asset1} et %{asset2}",
       "withdraw": {
-        "processing": "Votre retrait de %{assetAmountsAndSymbols} du pool %{poolName} est en cours de traitement."
+        "processing": "Votre retrait de %{assetAmountsAndSymbols} du pool %{poolName} est en cours de traitement.",
+        "complete": "Votre retrait de %{assetAmountsAndSymbols} du pool %{poolName} est terminé."
       },
       "deposit": {
-        "processing": "Votre dépôt de %{amount} %{symbol} dans le pool %{poolName} est en cours de traitement."
+        "processing": "Votre dépôt de %{amount} %{symbol} dans le pool %{poolName} est en cours de traitement.",
+        "complete": "Votre dépôt de %{amount} %{symbol} dans le pool %{poolName} est terminé."
       }
     },
     "deposit": {

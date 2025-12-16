@@ -63,6 +63,14 @@ type Message =
   | {
       cmd: 'getAppleAttributionData'
     }
+  | {
+      cmd: 'detectWallets'
+    }
+  | {
+      cmd: 'console'
+      fn: 'log' | 'warn' | 'error'
+      data: string
+    }
 
 export type MessageFromMobileApp = {
   id: string
@@ -72,6 +80,11 @@ export type MessageFromMobileApp = {
 export type MobileAppVersion = {
   version: string
   build: string
+}
+
+export type MobileConsoleParams = {
+  fn: 'log' | 'warn' | 'error'
+  data: string
 }
 
 /**
@@ -117,6 +130,13 @@ const postMessage = <T>(msg: Message): Promise<T> => {
  */
 export const showDeveloperModal = (): Promise<void> => {
   return postMessage({ cmd: 'showDeveloperModal', key: 'show' })
+}
+
+/*
+ * Get list of detected wallets from the mobile app
+ */
+export const getDetectedWallets = (): Promise<string[]> => {
+  return postMessage<string[]>({ cmd: 'detectWallets' })
 }
 
 /**
@@ -230,4 +250,11 @@ export const requestAppVersion = (): Promise<MobileAppVersion | undefined> => {
  */
 export const getAppleAttributionData = (): Promise<AppleSearchAdsAttributionData | undefined> => {
   return postMessage<AppleSearchAdsAttributionData>({ cmd: 'getAppleAttributionData' })
+}
+
+/**
+ * Log a message to the mobile app console.
+ */
+export const sendMobileConsole = (params: MobileConsoleParams): Promise<void> => {
+  return postMessage<void>({ cmd: 'console', ...params })
 }

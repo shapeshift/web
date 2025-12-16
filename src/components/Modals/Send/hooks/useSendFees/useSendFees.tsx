@@ -23,7 +23,7 @@ export const useSendFees = () => {
     state: { wallet },
   } = useWallet()
   const marketDataUserCurrency = useAppSelector(state =>
-    selectMarketDataByAssetIdUserCurrency(state, assetId ?? ''),
+    selectMarketDataByAssetIdUserCurrency(state, feeAsset?.assetId ?? ''),
   )
 
   const price = useMemo(() => marketDataUserCurrency?.price ?? 0, [marketDataUserCurrency])

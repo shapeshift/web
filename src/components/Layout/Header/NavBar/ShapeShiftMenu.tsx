@@ -17,7 +17,7 @@ import {
 import { useMemo } from 'react'
 import { FaDiscord, FaGithub } from 'react-icons/fa'
 import { FiSmartphone } from 'react-icons/fi'
-import { RiTwitterXLine } from 'react-icons/ri'
+import { RiRobot2Line, RiTwitterXLine } from 'react-icons/ri'
 import { useTranslate } from 'react-polyglot'
 import { Link as RouterLink } from 'react-router-dom'
 
@@ -196,10 +196,11 @@ export const ShapeShiftMenu = () => {
                   isExternal
                 />
                 <ProductItem
-                  icon={FoxIcon}
-                  title={translate('shapeShiftMenu.foxToken.title')}
-                  subtitle={translate('shapeShiftMenu.foxToken.subtitle')}
-                  href='/fox-ecosystem'
+                  icon={RiRobot2Line}
+                  title={translate('shapeShiftMenu.agent.title')}
+                  subtitle={translate('shapeShiftMenu.agent.subtitle')}
+                  href='https://agent.shapeshift.com'
+                  isExternal
                 />
                 <ProductItem
                   icon={OGIcon}

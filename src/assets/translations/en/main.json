@@ -328,7 +328,10 @@
     "viewSavedWallets": "View Saved Wallets",
     "footerOne": "By continuing, you agree to the",
     "terms": "Terms",
-    "privacyPolicy": "Privacy Policy"
+    "privacyPolicy": "Privacy Policy",
+    "connectNewWallet": "Connect New Wallet",
+    "getANewWallet": "Get a New Wallet",
+    "alreadyHaveWallet": "I already have a Wallet"
   },
   "connectWallet": {
     "menu": {
@@ -510,6 +513,7 @@
     "rFOX": "rFOX",
     "tcy": "TCY",
     "foxEcosystem": "FOX Ecosystem",
+    "ecosystem": "Ecosystem",
     "markets": "Markets",
     "tokens": "Tokens",
     "swap": "Swap"
@@ -523,6 +527,10 @@
     "foxToken": {
       "title": "FOX Token",
       "subtitle": "Our Governance Token"
+    },
+    "agent": {
+      "title": "Agent",
+      "subtitle": "Chat to your wallet"
     },
     "classic": {
       "title": "Classic",

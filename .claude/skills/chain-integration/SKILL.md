@@ -327,21 +327,30 @@ export function supports[ChainName](wallet: HDWallet): wallet is ETHWallet {
 
 **Set flags on ALL wallet implementations** (~12 files):
 
+**For second-class EVM chains (HyperEVM, Monad, Plasma):**
+
+Set `readonly _supports[ChainName] = true` on:
+- packages/hdwallet-native/src/ethereum.ts
+- packages/hdwallet-metamask-multichain/src/shapeshift-multichain.ts (uses standard EVM cryptography)
+- packages/hdwallet-ledger/src/ledger.ts (uses Ethereum app, supports all EVM chains)
+- packages/hdwallet-trezor/src/trezor.ts (uses Ethereum app, supports all EVM chains)
+- packages/hdwallet-walletconnectv2/src/walletconnectv2.ts (chain-agnostic, supports all EVM chains)
+
 Set `readonly _supports[ChainName] = false` on:
 - packages/hdwallet-coinbase/src/coinbase.ts
 - packages/hdwallet-gridplus/src/gridplus.ts
 - packages/hdwallet-keepkey/src/keepkey.ts
 - packages/hdwallet-keplr/src/keplr.ts
-- packages/hdwallet-ledger/src/ledger.ts
-- packages/hdwallet-metamask-multichain/src/shapeshift-multichain.ts
 - packages/hdwallet-phantom/src/phantom.ts
-- packages/hdwallet-trezor/src/trezor.ts
 - packages/hdwallet-vultisig/src/vultisig.ts
-- packages/hdwallet-walletconnect/src/walletconnect.ts
-- packages/hdwallet-walletconnectv2/src/walletconnectv2.ts
+- packages/hdwallet-walletconnect/src/walletconnect.ts (deprecated, use V2)
 
-**Set `readonly _supports[ChainName] = true` for Native**:
-- packages/hdwallet-native/src/ethereum.ts
+**For non-EVM chains:**
+
+Set `readonly _supports[ChainName] = true` for Native only:
+- packages/hdwallet-native/src/ethereum.ts (or appropriate chain file)
+
+Set `readonly _supports[ChainName] = false` on all other wallet types listed above.
 
 **Then**: Skip to Step 1.6 (Version Bump)
 
@@ -689,8 +698,85 @@ export const SECOND_CLASS_CHAINS = [
 
 **Directory**: `packages/chain-adapters/src/[adaptertype]/[chainname]/`
 
-**For EVM chains**: Extend `EvmBaseAdapter` (see Monad example)
-**For non-EVM**: Implement `IChainAdapter` interface (see Sui/Tron examples)
+#### **For EVM Chains** (SIMPLE!)
+
+Extend `SecondClassEvmAdapter` - you only need ~50 lines!
+
+**File**: `packages/chain-adapters/src/evm/[chainname]/[ChainName]ChainAdapter.ts`
+
+```typescript
+import { ASSET_REFERENCE, [chainLower]AssetId } from '@shapeshiftoss/caip'
+import type { AssetId } from '@shapeshiftoss/caip'
+import type { RootBip44Params } from '@shapeshiftoss/types'
+import { KnownChainIds } from '@shapeshiftoss/types'
+
+import { ChainAdapterDisplayName } from '../../types'
+import { SecondClassEvmAdapter } from '../SecondClassEvmAdapter'
+import type { TokenInfo } from '../SecondClassEvmAdapter'
+
+const SUPPORTED_CHAIN_IDS = [KnownChainIds.[ChainName]Mainnet]
+const DEFAULT_CHAIN_ID = KnownChainIds.[ChainName]Mainnet
+
+export type ChainAdapterArgs = {
+  rpcUrl: string
+  knownTokens?: TokenInfo[]
+}
+
+export const is[ChainName]ChainAdapter = (adapter: unknown): adapter is ChainAdapter => {
+  return (adapter as ChainAdapter).getType() === KnownChainIds.[ChainName]Mainnet
+}
+
+export class ChainAdapter extends SecondClassEvmAdapter<KnownChainIds.[ChainName]Mainnet> {
+  public static readonly rootBip44Params: RootBip44Params = {
+    purpose: 44,
+    coinType: Number(ASSET_REFERENCE.[ChainName]),
+    accountNumber: 0,
+  }
+
+  constructor(args: ChainAdapterArgs) {
+    super({
+      assetId: [chainLower]AssetId,
+      chainId: DEFAULT_CHAIN_ID,
+      rootBip44Params: ChainAdapter.rootBip44Params,
+      supportedChainIds: SUPPORTED_CHAIN_IDS,
+      rpcUrl: args.rpcUrl,
+      knownTokens: args.knownTokens ?? [],
+    })
+  }
+
+  getDisplayName() {
+    return ChainAdapterDisplayName.[ChainName]
+  }
+
+  getName() {
+    return '[ChainName]'
+  }
+
+  getType(): KnownChainIds.[ChainName]Mainnet {
+    return KnownChainIds.[ChainName]Mainnet
+  }
+
+  getFeeAssetId(): AssetId {
+    return this.assetId
+  }
+}
+
+export type { TokenInfo }
+```
+
+**That's it!** SecondClassEvmAdapter automatically provides:
+- ✅ Account balance fetching (native + ERC-20 tokens via multicall)
+- ✅ Fee estimation
+- ✅ Transaction broadcasting
+- ✅ Transaction parsing with ERC-20 event decoding (for execution price)
+- ✅ Rate limiting via PQueue
+- ✅ Multicall batching for token balances
+
+Just follow the pattern from HyperEVM, Monad, or Plasma adapters.
+
+#### **For Non-EVM Chains** (COMPLEX)
+
+Implement `IChainAdapter` interface - requires custom crypto adapters and ~500-1000 lines.
 
 **Key Methods to Implement:**
 - `getAccount()` - Get balances (native + tokens)
@@ -703,14 +789,13 @@ export const SECOND_CLASS_CHAINS = [
 - `getTxHistory()` - Get tx history (stub out - return empty)
 
 **Poor Man's Patterns:**
-1. **No Unchained**: Use public RPC directly (ethers.js, @mysten/sui, tronweb, etc.)
+1. **No Unchained**: Use public RPC directly (@mysten/sui, tronweb, etc.)
 2. **No TX History**: Stub out `getTxHistory()` to return empty array
-3. **Multicall for Tokens**: Batch token balance calls where possible
-4. **Direct RPC Polling**: Use `eth_getTransactionReceipt` or equivalent for tx status
+3. **Direct RPC Polling**: Use chain-specific RPC for tx status
 
-**File**: `packages/chain-adapters/src/[adaptertype]/[chainname]/[ChainName]ChainAdapter.ts`
+**File**: `packages/chain-adapters/src/[chainname]/[ChainName]ChainAdapter.ts`
 
-See `MonadChainAdapter.ts` (EVM) or `SuiChainAdapter.ts` (non-EVM) for complete examples.
+See `SuiChainAdapter.ts` or `TronChainAdapter.ts` for complete examples.
 
 **Export**:
 ```typescript
@@ -1395,6 +1480,45 @@ Follow similar patterns for other swappers (CowSwap, 0x, etc.) - see `swapper-in
 
 **Reference**: Plasma added to Relay swapper for swap support
 
+### Step 5.5: Add Native Asset to Popular Assets
+
+**CRITICAL**: Second-class citizen chains are not in CoinGecko's top 100 by market cap, so they won't appear in the popular assets list by default. This causes the native asset to be missing when users filter by that chain.
+
+**File**: `src/components/TradeAssetSearch/hooks/useGetPopularAssetsQuery.tsx`
+
+```typescript
+// Add import at the top
+import {
+  hyperEvmAssetId,
+  mayachainAssetId,
+  monadAssetId,
+  plasmaAssetId,  // example for Plasma
+  [chainLower]AssetId,  // Add your chain's asset ID
+  thorchainAssetId,
+  tronAssetId,
+  suiAssetId,
+} from '@shapeshiftoss/caip'
+
+// Add to the queryFn, after the mayachain check (around line 37)
+// add second-class citizen chains to popular assets for discoverability
+if (enabledFlags.HyperEvm) assetIds.push(hyperEvmAssetId)
+if (enabledFlags.Monad) assetIds.push(monadAssetId)
+if (enabledFlags.Plasma) assetIds.push(plasmaAssetId)
+if (enabledFlags.[ChainName]) assetIds.push([chainLower]AssetId)  // Add your chain
+if (enabledFlags.Tron) assetIds.push(tronAssetId)
+if (enabledFlags.Sui) assetIds.push(suiAssetId)
+```
+
+**Why this is needed:**
+- Popular assets are fetched from CoinGecko's top 100 by market cap
+- New/small chains aren't in the top 100
+- Without this, when filtering by your chain, only tokens appear (via relatedAssetIds)
+- The native asset won't show up, which is confusing for users
+- Example: Searching "monad" in MetaMask (doesn't support Monad) shows Monad tokens but not MON itself
+
+**Reference PRs:**
+- See how Monad, Tron, Sui, Plasma, and HyperEVM were added in the same PR
+
 ---
 
 ## Phase 6: Ledger Support (Optional)
@@ -1737,6 +1861,33 @@ case [chainLower]ChainId:
 **Why**: TypeScript uses these to determine chain-specific data structures
 
 **CRITICAL**: Missing even ONE of these causes cryptic type errors! All 4 are required for ALL chains (EVM and non-EVM).
+
+### Gotcha 17: Missing accountIdToLabel Case (BLOCKS ADDRESS DISPLAY!)
+
+**Problem**: Addresses don't display in:
+- Account import UI (shows blank address in table)
+- Send flow "from" address row (shows empty from address)
+- Account dropdowns throughout the app
+
+**Root Cause**: Missing chainId case in `accountIdToLabel()` function
+**File**: `src/state/slices/portfolioSlice/utils/index.ts` (around line 80-125)
+
+**Solution**:
+1. Add chainId import: `import { [chainLower]ChainId } from '@shapeshiftoss/caip'`
+2. Add case to switch statement: `case [chainLower]ChainId:`
+3. Place it with other EVM chains (before thorchainChainId)
+
+**Example**:
+```typescript
+case baseChainId:
+case hyperEvmChainId:  // ← ADD THIS
+case monadChainId:
+case plasmaChainId:
+```
+
+**Why**: This function converts accountId to human-readable label. Without the case, it hits the `default` and returns `''` (empty string), causing blank addresses everywhere in the UI.
+
+**Note**: This affects ALL wallet types (Native, Ledger, Trezor, MetaMask), not just one wallet.
 
 ---
 

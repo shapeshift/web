@@ -344,20 +344,11 @@ export abstract class SecondClassEvmAdapter<T extends EvmChainId> extends EvmBas
     const hash = txHash as Hex
     const viemClient = viemClientByChainId[this.chainId]
 
-    console.log('[SecondClassAdapter] parseTx called:', {
-      hash,
-      pubkey,
-      chainId: this.chainId,
-      chainName: this.getName(),
-      hasViemClient: !!viemClient,
-    })
-
     if (!viemClient) {
       throw new Error(`No viem client found for chainId: ${this.chainId}`)
     }
 
     try {
-      console.log('[SecondClassAdapter] Fetching transaction from RPC')
       const [transaction, receipt, block] = await Promise.all([
         viemClient.getTransaction({ hash }),
         viemClient.getTransactionReceipt({ hash }),
@@ -365,34 +356,13 @@ export abstract class SecondClassEvmAdapter<T extends EvmChainId> extends EvmBas
       ])
 
       if (!transaction || !receipt) {
-        console.error('[SecondClassAdapter] Transaction not found:', { hash })
         throw new Error(`Transaction not found: ${hash}`)
       }
-
-      console.log('[SecondClassAdapter] Transaction fetched:', {
-        hash: transaction.hash,
-        from: transaction.from,
-        to: transaction.to,
-        value: transaction.value.toString(),
-        blockNumber: receipt.blockNumber,
-        status: receipt.status,
-        logsCount: receipt.logs.length,
-      })
 
       const transferLogs = parseEventLogs({
         abi: erc20Abi,
         logs: receipt.logs,
         eventName: 'Transfer',
-      })
-
-      console.log('[SecondClassAdapter] Transfer events parsed:', {
-        transferLogsCount: transferLogs.length,
-        events: transferLogs.map(log => ({
-          contract: log.address,
-          from: log.args.from,
-          to: log.args.to,
-          value: log.args.value.toString(),
-        })),
       })
 
       const tokenTransfers: evm.TokenTransfer[] = transferLogs
@@ -401,24 +371,7 @@ export abstract class SecondClassEvmAdapter<T extends EvmChainId> extends EvmBas
             t => getAddress(t.contractAddress) === getAddress(log.address),
           )
 
-          if (!tokenInfo) {
-            console.log('[SecondClassAdapter] Token not in knownTokens:', {
-              contractAddress: log.address,
-              from: log.args.from,
-              to: log.args.to,
-              value: log.args.value.toString(),
-            })
-            return null
-          }
-
-          console.log('[SecondClassAdapter] Token matched:', {
-            contractAddress: log.address,
-            symbol: tokenInfo.symbol,
-            name: tokenInfo.name,
-            from: log.args.from,
-            to: log.args.to,
-            value: log.args.value.toString(),
-          })
+          if (!tokenInfo) return null
 
           return {
             contract: getAddress(log.address),
@@ -432,17 +385,6 @@ export abstract class SecondClassEvmAdapter<T extends EvmChainId> extends EvmBas
           }
         })
         .filter((t): t is NonNullable<typeof t> => t !== null)
-
-      console.log('[SecondClassAdapter] Token transfers built:', {
-        count: tokenTransfers.length,
-        transfers: tokenTransfers.map(t => ({
-          contract: t.contract,
-          symbol: t.symbol,
-          from: t.from,
-          to: t.to,
-          value: t.value,
-        })),
-      })
 
       const timestamp = block?.timestamp ? Number(block.timestamp) : 0
       const blockNumber = receipt.blockNumber ? Number(receipt.blockNumber) : 0
@@ -471,26 +413,8 @@ export abstract class SecondClassEvmAdapter<T extends EvmChainId> extends EvmBas
         tokenTransfers,
       }
 
-      const result = this.parse(parsedTx, pubkey)
-
-      console.log('[SecondClassAdapter] parseTx complete:', {
-        txid: result.txid,
-        transfersCount: result.transfers.length,
-        transfers: result.transfers.map(t => ({
-          type: t.type,
-          assetId: t.assetId,
-          value: t.value,
-          token: t.token?.symbol,
-        })),
-      })
-
-      return result
+      return this.parse(parsedTx, pubkey)
     } catch (error) {
-      console.error('[SecondClassAdapter] parseTx failed:', {
-        hash,
-        error,
-        errorMessage: error instanceof Error ? error.message : String(error),
-      })
       throw new Error(`Failed to parse transaction: ${error}`)
     }
   }

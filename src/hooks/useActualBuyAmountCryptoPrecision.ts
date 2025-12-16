@@ -31,85 +31,24 @@ export const useActualBuyAmountCryptoPrecision = (
   const { data: secondClassChainActualBuyAmount } = useQuery({
     queryKey: ['secondClassChainExecutionPrice', swap?.buyTxHash, swap?.buyAsset?.chainId],
     queryFn: async () => {
-      console.log('[SecondClassExecution] Query starting:', {
-        buyTxHash: swap?.buyTxHash,
-        sellTxHash: swap?.sellTxHash,
-        buyAssetChainId: swap?.buyAsset?.chainId,
-        sellAssetChainId: swap?.sellAsset?.chainId,
-        buyAssetId: swap?.buyAsset?.assetId,
-        buyAccountId: swap?.buyAccountId,
-        sellAccountId: swap?.sellAccountId,
-      })
-
-      if (!swap?.buyTxHash || !swap?.buyAsset || !swap?.buyAccountId) {
-        console.log('[SecondClassExecution] Missing required data, returning undefined')
-        return undefined
-      }
+      if (!swap?.buyTxHash || !swap?.buyAsset || !swap?.buyAccountId) return undefined
 
       try {
         const chainAdapterManager = getChainAdapterManager()
         const adapter = chainAdapterManager.get(swap.buyAsset.chainId)
 
-        console.log('[SecondClassExecution] Adapter retrieved:', {
-          chainId: swap.buyAsset.chainId,
-          adapterType: adapter?.constructor.name,
-          hasAdapter: !!adapter,
-        })
-
-        if (!adapter) {
-          console.log('[SecondClassExecution] No adapter found for chain')
-          return undefined
-        }
+        if (!adapter) return undefined
 
         const { account: address } = fromAccountId(swap.buyAccountId)
-        console.log('[SecondClassExecution] Parsing transaction:', {
-          txHash: swap.buyTxHash,
-          address,
-          accountId: swap.buyAccountId,
-        })
-
         const parsedTx = await adapter.parseTx(swap.buyTxHash, address)
-
-        console.log('[SecondClassExecution] Transaction parsed:', {
-          txid: parsedTx.txid,
-          transfersCount: parsedTx.transfers.length,
-          transfers: parsedTx.transfers.map(t => ({
-            type: t.type,
-            assetId: t.assetId,
-            value: t.value,
-            token: t.token?.symbol,
-          })),
-        })
 
         const receiveTransfer = parsedTx.transfers.find(
           transfer =>
             transfer.type === TransferType.Receive && transfer.assetId === swap.buyAsset.assetId,
         )
 
-        console.log('[SecondClassExecution] Transfer search result:', {
-          found: !!receiveTransfer,
-          receiveTransfer: receiveTransfer
-            ? {
-                type: receiveTransfer.type,
-                assetId: receiveTransfer.assetId,
-                value: receiveTransfer.value,
-                token: receiveTransfer.token?.symbol,
-              }
-            : null,
-          searchCriteria: {
-            expectedType: TransferType.Receive,
-            expectedAssetId: swap.buyAsset.assetId,
-          },
-          allAssetIds: parsedTx.transfers.map(t => t.assetId),
-        })
-
         return receiveTransfer?.value
       } catch (error) {
-        console.error('[SecondClassExecution] Error during query:', {
-          error,
-          buyTxHash: swap?.buyTxHash,
-          buyAssetChainId: swap?.buyAsset?.chainId,
-        })
         return undefined
       }
     },

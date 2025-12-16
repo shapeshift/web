@@ -429,20 +429,22 @@ export class ChainAdapter extends EvmBaseAdapter<KnownChainIds.HyperEvmMainnet> 
       const blockNumber = receipt.blockNumber ? Number(receipt.blockNumber) : 0
       const currentBlockNumber = await viemClient.getBlockNumber()
       const confirmationsCount = blockNumber > 0 ? Number(currentBlockNumber) - blockNumber + 1 : 0
+      const status = receipt.status === 'success' ? 1 : 0
+      const fee = bnOrZero(receipt.gasUsed.toString())
+        .times(receipt.effectiveGasPrice.toString())
+        .toFixed(0)
 
-      const unchainedTx: evm.Tx = {
+      const parsedTx: evm.Tx = {
         txid: transaction.hash,
         blockHash: receipt.blockHash ?? '',
         blockHeight: blockNumber,
         timestamp,
         confirmations: confirmationsCount,
-        status: receipt.status === 'success' ? 1 : 0,
+        status,
         from: getAddress(transaction.from),
         to: getAddress(transaction.to ?? '0x0'),
         value: transaction.value.toString(),
-        fee: bnOrZero(receipt.gasUsed.toString())
-          .times(receipt.effectiveGasPrice.toString())
-          .toFixed(0),
+        fee,
         gasLimit: transaction.gas.toString(),
         gasUsed: receipt.gasUsed.toString(),
         gasPrice: receipt.effectiveGasPrice.toString(),
@@ -450,7 +452,7 @@ export class ChainAdapter extends EvmBaseAdapter<KnownChainIds.HyperEvmMainnet> 
         tokenTransfers,
       }
 
-      return this.parse(unchainedTx, pubkey)
+      return this.parse(parsedTx, pubkey)
     } catch (error) {
       throw new Error(`Failed to parse transaction: ${error}`)
     }
@@ -458,11 +460,14 @@ export class ChainAdapter extends EvmBaseAdapter<KnownChainIds.HyperEvmMainnet> 
 
   private parse(tx: evm.Tx, pubkey: string): Transaction {
     const address = getAddress(pubkey)
-    const isFromAddress = isAddressEqual(address, getAddress(tx.from))
-    const isToAddress = isAddressEqual(address, getAddress(tx.to))
+    const txFrom = getAddress(tx.from)
+    const txTo = getAddress(tx.to)
+    const isSend = isAddressEqual(address, txFrom)
+    const isReceive = isAddressEqual(address, txTo)
+    const status = tx.status === 1 ? TxStatus.Confirmed : TxStatus.Failed
 
     const nativeTransfers = []
-    if (isFromAddress && bnOrZero(tx.value).gt(0)) {
+    if (isSend && bnOrZero(tx.value).gt(0)) {
       nativeTransfers.push({
         assetId: this.assetId,
         from: [tx.from],
@@ -472,7 +477,7 @@ export class ChainAdapter extends EvmBaseAdapter<KnownChainIds.HyperEvmMainnet> 
       })
     }
 
-    if (isToAddress && bnOrZero(tx.value).gt(0)) {
+    if (isReceive && bnOrZero(tx.value).gt(0)) {
       nativeTransfers.push({
         assetId: this.assetId,
         from: [tx.from],
@@ -484,6 +489,8 @@ export class ChainAdapter extends EvmBaseAdapter<KnownChainIds.HyperEvmMainnet> 
 
     const tokenTransfers =
       tx.tokenTransfers?.flatMap(transfer => {
+        const transferFrom = getAddress(transfer.from)
+        const transferTo = getAddress(transfer.to)
         const assetId = toAssetId({
           chainId: this.chainId,
           assetNamespace: ASSET_NAMESPACE.erc20,
@@ -499,7 +506,7 @@ export class ChainAdapter extends EvmBaseAdapter<KnownChainIds.HyperEvmMainnet> 
 
         const transfers = []
 
-        if (isAddressEqual(address, getAddress(transfer.from))) {
+        if (isAddressEqual(address, transferFrom)) {
           transfers.push({
             assetId,
             from: [transfer.from],
@@ -510,7 +517,7 @@ export class ChainAdapter extends EvmBaseAdapter<KnownChainIds.HyperEvmMainnet> 
           })
         }
 
-        if (isAddressEqual(address, getAddress(transfer.to))) {
+        if (isAddressEqual(address, transferTo)) {
           transfers.push({
             assetId,
             from: [transfer.from],
@@ -530,11 +537,11 @@ export class ChainAdapter extends EvmBaseAdapter<KnownChainIds.HyperEvmMainnet> 
       blockTime: tx.timestamp,
       chainId: this.chainId,
       confirmations: tx.confirmations,
-      status: tx.status === 1 ? TxStatus.Confirmed : TxStatus.Failed,
+      status,
       transfers: [...nativeTransfers, ...tokenTransfers],
       txid: tx.txid,
       pubkey,
-      ...(isFromAddress && { fee: { assetId: this.assetId, value: tx.fee } }),
+      ...(isSend && { fee: { assetId: this.assetId, value: tx.fee } }),
     }
   }
 }

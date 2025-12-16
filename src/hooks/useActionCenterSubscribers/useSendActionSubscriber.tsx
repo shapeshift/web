@@ -10,6 +10,7 @@ import { useActionCenterContext } from '@/components/Layout/Header/ActionCenter/
 import { GenericTransactionNotification } from '@/components/Layout/Header/ActionCenter/components/Notifications/GenericTransactionNotification'
 import { SECOND_CLASS_CHAINS } from '@/constants/chains'
 import { getMonadTransactionStatus } from '@/lib/utils/monad'
+import { getPlasmaTransactionStatus } from '@/lib/utils/plasma'
 import { getSuiTransactionStatus } from '@/lib/utils/sui'
 import { getTronTransactionStatus } from '@/lib/utils/tron'
 import { actionSlice } from '@/state/slices/actionSlice/actionSlice'
@@ -131,6 +132,12 @@ export const useSendActionSubscriber = () => {
                   const monadTxStatus = await getMonadTransactionStatus(txHash)
                   isConfirmed =
                     monadTxStatus === TxStatus.Confirmed || monadTxStatus === TxStatus.Failed
+                  break
+                }
+                case KnownChainIds.PlasmaMainnet: {
+                  const plasmaTxStatus = await getPlasmaTransactionStatus(txHash)
+                  isConfirmed =
+                    plasmaTxStatus === TxStatus.Confirmed || plasmaTxStatus === TxStatus.Failed
                   break
                 }
                 default:

@@ -79,6 +79,22 @@ export const litecoin: Readonly<Asset> = Object.freeze({
   relatedAssetKey: null,
 })
 
+export const zcash: Readonly<Asset> = Object.freeze({
+  assetId: caip.zecAssetId,
+  chainId: caip.zecChainId,
+  name: 'Zcash',
+  networkName: 'Zcash',
+  symbol: 'ZEC',
+  precision: 8,
+  color: '#f4b728',
+  networkColor: '#f4b728',
+  icon: 'https://rawcdn.githack.com/trustwallet/assets/fb59e296f64fe3df5afdf8148e88603851b613ae/blockchains/zcash/info/logo.png',
+  explorer: 'https://blockchair.com',
+  explorerAddressLink: 'https://blockchair.com/zcash/address/',
+  explorerTxLink: 'https://blockchair.com/zcash/transaction/',
+  relatedAssetKey: null,
+})
+
 export const atom: Readonly<Asset> = Object.freeze({
   assetId: caip.cosmosAssetId,
   chainId: caip.cosmosChainId,
@@ -320,6 +336,42 @@ export const monad: Readonly<Asset> = Object.freeze({
   relatedAssetKey: null,
 })
 
+export const hyperevm: Readonly<Asset> = Object.freeze({
+  assetId: caip.hyperEvmAssetId,
+  chainId: caip.hyperEvmChainId,
+  name: 'HyperEVM',
+  networkName: 'HyperEVM',
+  symbol: 'HYPE',
+  precision: 18,
+  color: '#000000',
+  networkColor: '#000000',
+  icon: 'https://assets.coingecko.com/coins/images/50882/standard/hyperliquid.jpg?1729431300',
+  networkIcon:
+    'https://assets.coingecko.com/coins/images/50882/standard/hyperliquid.jpg?1729431300',
+  explorer: 'https://hyperevmscan.io',
+  explorerAddressLink: 'https://hyperevmscan.io/address/',
+  explorerTxLink: 'https://hyperevmscan.io/tx/',
+  relatedAssetKey: null,
+})
+
+export const plasma: Readonly<Asset> = Object.freeze({
+  assetId: caip.plasmaAssetId,
+  chainId: caip.plasmaChainId,
+  name: 'Plasma',
+  networkName: 'Plasma',
+  symbol: 'XPL',
+  precision: 18,
+  color: '#8B5CF6',
+  networkColor: '#8B5CF6',
+  icon: 'https://assets.coingecko.com/coins/images/66489/standard/Plasma-symbol-green-1.png?1755142558',
+  networkIcon:
+    'https://assets.coingecko.com/asset_platforms/images/32256/small/plasma.jpg?1758000963',
+  explorer: 'https://plasmascan.to',
+  explorerAddressLink: 'https://plasmascan.to/address/',
+  explorerTxLink: 'https://plasmascan.to/tx/',
+  relatedAssetKey: null,
+})
+
 export const solana: Readonly<Asset> = Object.freeze({
   assetId: caip.solAssetId,
   chainId: caip.solanaChainId,
@@ -365,21 +417,5 @@ export const sui: Readonly<Asset> = Object.freeze({
   explorer: 'https://suiscan.xyz/mainnet',
   explorerAddressLink: 'https://suiscan.xyz/mainnet/account/',
   explorerTxLink: 'https://suiscan.xyz/mainnet/tx/',
-  relatedAssetKey: null,
-})
-
-export const zcash: Readonly<Asset> = Object.freeze({
-  assetId: caip.zecAssetId,
-  chainId: caip.zecChainId,
-  name: 'Zcash',
-  networkName: 'Zcash',
-  symbol: 'ZEC',
-  precision: 8,
-  color: '#f4b728',
-  networkColor: '#f4b728',
-  icon: 'https://rawcdn.githack.com/trustwallet/assets/fb59e296f64fe3df5afdf8148e88603851b613ae/blockchains/zcash/info/logo.png',
-  explorer: 'https://blockchair.com',
-  explorerAddressLink: 'https://blockchair.com/zcash/address/',
-  explorerTxLink: 'https://blockchair.com/zcash/transaction/',
   relatedAssetKey: null,
 })

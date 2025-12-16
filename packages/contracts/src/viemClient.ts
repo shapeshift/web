@@ -10,9 +10,11 @@ import {
   base,
   bsc,
   gnosis,
+  hyperEvm,
   mainnet,
   monad,
   optimism,
+  plasma,
   polygon,
 } from 'viem/chains'
 
@@ -82,6 +84,16 @@ export const viemMonadClient = createPublicClient({
   transport: fallback([process.env.VITE_MONAD_NODE_URL].filter(Boolean).map(url => http(url))),
 }) as PublicClient
 
+export const viemHyperEvmClient = createPublicClient({
+  chain: hyperEvm,
+  transport: fallback([process.env.VITE_HYPEREVM_NODE_URL].filter(Boolean).map(url => http(url))),
+}) as PublicClient
+
+export const viemPlasmaClient = createPublicClient({
+  chain: plasma,
+  transport: fallback([process.env.VITE_PLASMA_NODE_URL].filter(Boolean).map(url => http(url))),
+}) as PublicClient
+
 export const viemClientByChainId: Record<ChainId, PublicClient> = {
   [KnownChainIds.EthereumMainnet]: viemEthMainnetClient,
   [KnownChainIds.BnbSmartChainMainnet]: viemBscClient,
@@ -93,6 +105,8 @@ export const viemClientByChainId: Record<ChainId, PublicClient> = {
   [KnownChainIds.OptimismMainnet]: viemOptimismClient,
   [KnownChainIds.BaseMainnet]: viemBaseClient,
   [KnownChainIds.MonadMainnet]: viemMonadClient,
+  [KnownChainIds.HyperEvmMainnet]: viemHyperEvmClient,
+  [KnownChainIds.PlasmaMainnet]: viemPlasmaClient,
 }
 
 export const viemNetworkIdByChainId: Record<ChainId, number> = {
@@ -106,6 +120,8 @@ export const viemNetworkIdByChainId: Record<ChainId, number> = {
   [KnownChainIds.OptimismMainnet]: optimism.id,
   [KnownChainIds.BaseMainnet]: base.id,
   [KnownChainIds.MonadMainnet]: monad.id,
+  [KnownChainIds.HyperEvmMainnet]: hyperEvm.id,
+  [KnownChainIds.PlasmaMainnet]: plasma.id,
 }
 
 export const viemClientByNetworkId: Record<number, PublicClient> = {
@@ -119,6 +135,8 @@ export const viemClientByNetworkId: Record<number, PublicClient> = {
   [optimism.id]: viemOptimismClient,
   [base.id]: viemBaseClient,
   [monad.id]: viemMonadClient,
+  [hyperEvm.id]: viemHyperEvmClient,
+  [plasma.id]: viemPlasmaClient,
 }
 
 export const assertGetViemClient = (chainId: ChainId): PublicClient => {

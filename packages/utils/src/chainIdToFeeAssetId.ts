@@ -11,10 +11,12 @@ import {
   dogeAssetId,
   ethAssetId,
   gnosisAssetId,
+  hyperEvmAssetId,
   ltcAssetId,
   mayachainAssetId,
   monadAssetId,
   optimismAssetId,
+  plasmaAssetId,
   polygonAssetId,
   solAssetId,
   suiAssetId,
@@ -69,6 +71,10 @@ export const chainIdToFeeAssetId = (_chainId: ChainId): AssetId => {
       return suiAssetId
     case KnownChainIds.MonadMainnet:
       return monadAssetId
+    case KnownChainIds.HyperEvmMainnet:
+      return hyperEvmAssetId
+    case KnownChainIds.PlasmaMainnet:
+      return plasmaAssetId
     case KnownChainIds.ZcashMainnet:
       return zecAssetId
     default:

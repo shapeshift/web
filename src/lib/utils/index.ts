@@ -277,8 +277,8 @@ export const getStableTimestamp = (intervalMinutes: number) => {
 export const chainIdToFeeAssetId = (chainId: ChainId): AssetId | undefined =>
   getChainAdapterManager().get(chainId)?.getFeeAssetId()
 
-export const chainIdToChainDisplayName = (chainId: ChainId): AssetId =>
-  assertGetChainAdapter(chainId).getDisplayName()
+export const chainIdToChainDisplayName = (chainId: ChainId): string =>
+  getChainAdapterManager().get(chainId)?.getDisplayName() ?? ''
 
 export const isKnownChainId = (chainId: ChainId): chainId is KnownChainIds =>
   Object.values(KnownChainIds).includes(chainId as KnownChainIds)

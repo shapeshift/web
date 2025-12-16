@@ -328,10 +328,7 @@
     "viewSavedWallets": "Ver Carteras Guardadas",
     "footerOne": "Al continuar, acepta las",
     "terms": "Términos",
-    "privacyPolicy": "Política de Privacidad",
-    "connectNewWallet": "Conectar Billetera Nueva",
-    "getANewWallet": "Obtener Billetera Nueva",
-    "alreadyHaveWallet": "Ya tengo una Billetera"
+    "privacyPolicy": "Política de Privacidad"
   },
   "connectWallet": {
     "menu": {
@@ -755,8 +752,15 @@
     "slowSwapBody": "Este intercambio puede tardar unos minutos en completarse.",
     "thorSmartContractWalletUnsupported": "Actualmente, la red THORChain no admite carteras de contratos inteligentes.",
     "intoAssetSymbolBody": "Puede continuar con este comercio, pero el historial de transacciones para recibir %{assetSymbol} no está disponible temporalmente",
+    "receiveAddress": "Dirección de recepción",
     "changeAddress": "Cambiar dirección",
     "changeAddressExplainer": "Al enviar criptomonedas de redes basadas en UTXO, los fondos sobrantes se envían de vuelta a esta dirección.",
+    "depositAddress": "Dirección de depósito",
+    "depositAddressExplainer": "Dirección de protocolo donde se enviarán tus fondos para su procesamiento. Tu billetera física mostrará esta dirección para verificación.",
+    "customReceiveAddress": "Dirección de recepción personalizada",
+    "customReceiveAddressDescription": "Introduzca dirección personalizada para este intercambio",
+    "thisIsYourCustomReceiveAddress": "Esta es tu dirección de recepción personalizada",
+    "enterCustomReceiveAddress": "Introduzca dirección de recepción personalizada",
     "receiveAtLeast": "Recibe al menos",
     "tooltip": {
       "continueSwapping": "Continúe intercambiando para obtener detalles finales.",
@@ -828,7 +832,6 @@
     "or": "o",
     "onChainName": "en %{chainName}",
     "unknownGas": "(desconocido)",
-    "receiveAddress": "Dirección de recepción",
     "receiveAddressDescription": "No se encontró ninguna dirección %{chainName} en la billetera conectada. Ingrese manualmente una dirección",
     "disableThorTaprootReceive": "Hemos detectado que envias a dirección taproot Bitcoin. Debido a las limitaciones THORChain, actualmente no se admite la recepción de BTC a una dirección taproot. Ingresa otra dirección.",
     "toContinue": "para continuar.",
@@ -1427,7 +1430,9 @@
         "renamed": "SafeCard renombrada",
         "deleted": "SafeCard eliminada",
         "deletedDescription": "Los datos de la Billetera se han borrado",
-        "warning": "Cada SafeCard tiene su propia billetera. Asegúrese de insertar la SafeCard correcta en su dispositivo antes de conectarla."
+        "warning": "Cada SafeCard tiene su propia billetera. Asegúrese de insertar la SafeCard correcta en su dispositivo antes de conectarla.",
+        "safeCardLabel": "SafeCard",
+        "internalSafeCardLabel": "SafeCard interna"
       },
       "connect": {
         "header": "Conectar nueva SafeCard",
@@ -1461,6 +1466,9 @@
         "deviceNotConnected": "Dispositivo no conectado. Llama a connectDevice.",
         "connectFailure": "No se puede conectar la billetera GridPlus",
         "unknown": "Se produjo un error inesperado al comunicarse con la billetera GridPlus"
+      },
+      "menu": {
+        "switchSafeCard": "Cambiar SafeCard"
       }
     },
     "ledger": {
@@ -2516,7 +2524,11 @@
       "getFeeData": "No se pudieron estimar las tarifas de red.",
       "getPublicKey": "No se pudo obtener la clave pública de billetera.",
       "getUtxos": "No se pudieron obtener utxos.",
-      "getValidator": "No se pudo obtener validador."
+      "getValidator": "No se pudo obtener validador.",
+      "gridplus": {
+        "wrongSafeCard": "SafeCard incorrecta. Inserte SafeCard correcta y vuelva a intentarlo.",
+        "removeSafeCard": "Retire SafeCard insertada para acceder a billetera interna GridPlus."
+      }
     }
   },
   "actionCenter": {

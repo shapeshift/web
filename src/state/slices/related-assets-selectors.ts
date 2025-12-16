@@ -41,10 +41,17 @@ export const selectRelatedAssetIdsInclusive = createCachedSelector(
     const relatedAssetKey = asset.relatedAssetKey
     if (!relatedAssetKey) return [asset.assetId]
 
+    const chainAdapterManager = getChainAdapterManager()
+
     const relatedAssetIdsInclusiveWithDuplicates = [relatedAssetKey]
       .concat(relatedAssetIndex[relatedAssetKey] ?? [])
       // Filter out assetIds that are not in the assets store
       .filter(assetId => assets?.[assetId])
+      // Filter out assetIds for chains without registered adapters (e.g. chains behind disabled feature flags)
+      .filter(assetId => {
+        const { chainId } = fromAssetId(assetId)
+        return chainAdapterManager.has(chainId)
+      })
 
     // `asset.assetId` may be the same as `relatedAssetKey`, so dedupe
     const relatedAssetIdsInclusive = Array.from(

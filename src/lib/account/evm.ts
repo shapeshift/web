@@ -8,8 +8,10 @@ import {
   ethChainId,
   fromAccountId,
   gnosisChainId,
+  hyperEvmChainId,
   monadChainId,
   optimismChainId,
+  plasmaChainId,
   polygonChainId,
   toAccountId,
 } from '@shapeshiftoss/caip'
@@ -22,8 +24,10 @@ import {
   supportsBSC,
   supportsETH,
   supportsGnosis,
+  supportsHyperEvm,
   supportsMonad,
   supportsOptimism,
+  supportsPlasma,
   supportsPolygon,
 } from '@shapeshiftoss/hdwallet-core'
 import { MetaMaskMultiChainHDWallet } from '@shapeshiftoss/hdwallet-metamask-multichain'
@@ -117,7 +121,9 @@ export const deriveEvmAccountIdsAndMetadata: DeriveAccountIdsAndMetadata = async
     if (chainId === arbitrumChainId && !supportsArbitrum(wallet)) continue
     if (chainId === arbitrumNovaChainId && !supportsArbitrumNova(wallet)) continue
     if (chainId === baseChainId && !supportsBase(wallet)) continue
+    if (chainId === hyperEvmChainId && !supportsHyperEvm(wallet)) continue
     if (chainId === monadChainId && !supportsMonad(wallet)) continue
+    if (chainId === plasmaChainId && !supportsPlasma(wallet)) continue
     if (
       wallet instanceof MetaMaskMultiChainHDWallet &&
       !canAddMetaMaskAccount({ accountNumber, chainId, wallet, isSnapInstalled })

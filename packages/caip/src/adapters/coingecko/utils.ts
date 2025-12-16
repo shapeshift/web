@@ -26,12 +26,16 @@ import {
   ethChainId,
   gnosisAssetId,
   gnosisChainId,
+  hyperEvmAssetId,
+  hyperEvmChainId,
   ltcChainId,
   mayachainChainId,
   monadAssetId,
   monadChainId,
   optimismAssetId,
   optimismChainId,
+  plasmaAssetId,
+  plasmaChainId,
   polygonAssetId,
   polygonChainId,
   solanaChainId,
@@ -193,6 +197,20 @@ export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
         }
       }
 
+      if (Object.keys(platforms).includes(CoingeckoAssetPlatform.HyperEvm)) {
+        try {
+          const assetId = toAssetId({
+            chainNamespace: CHAIN_NAMESPACE.Evm,
+            chainReference: CHAIN_REFERENCE.HyperEvmMainnet,
+            assetNamespace: 'erc20',
+            assetReference: platforms[CoingeckoAssetPlatform.HyperEvm],
+          })
+          prev[hyperEvmChainId][assetId] = id
+        } catch {
+          // unable to create assetId, skip token
+        }
+      }
+
       if (Object.keys(platforms).includes(CoingeckoAssetPlatform.Solana)) {
         try {
           const assetId = toAssetId({
@@ -249,6 +267,20 @@ export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
         }
       }
 
+      if (Object.keys(platforms).includes(CoingeckoAssetPlatform.Plasma)) {
+        try {
+          const assetId = toAssetId({
+            chainNamespace: CHAIN_NAMESPACE.Evm,
+            chainReference: CHAIN_REFERENCE.PlasmaMainnet,
+            assetNamespace: 'erc20',
+            assetReference: platforms[CoingeckoAssetPlatform.Plasma],
+          })
+          prev[plasmaChainId][assetId] = id
+        } catch {
+          // unable to create assetId, skip token
+        }
+      }
+
       return prev
     },
     {
@@ -261,7 +293,9 @@ export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
       [arbitrumChainId]: { [arbitrumAssetId]: 'ethereum' },
       [arbitrumNovaChainId]: { [arbitrumNovaAssetId]: 'ethereum' },
       [baseChainId]: { [baseAssetId]: 'ethereum' },
+      [hyperEvmChainId]: { [hyperEvmAssetId]: 'hyperliquid' },
       [monadChainId]: { [monadAssetId]: 'monad' },
+      [plasmaChainId]: { [plasmaAssetId]: 'plasma' },
       [solanaChainId]: { [solAssetId]: 'solana' },
       [tronChainId]: { [tronAssetId]: 'tron' },
       [suiChainId]: { [suiAssetId]: 'sui' },

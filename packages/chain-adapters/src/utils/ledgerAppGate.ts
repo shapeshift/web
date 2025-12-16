@@ -5,6 +5,7 @@ import { KnownChainIds } from '@shapeshiftoss/types'
 import { EventEmitter } from 'node:events'
 
 import { ChainAdapterError } from '../error/ErrorHandler'
+import { isEvmChainId } from '../evm/EvmBaseAdapter'
 
 export const emitter = new EventEmitter()
 
@@ -14,18 +15,10 @@ export type LedgerOpenAppEventArgs = {
 }
 
 export const getLedgerAppName = (chainId: ChainId | KnownChainIds | undefined) => {
+  // All EVM chains use the Ethereum Ledger app
+  if (chainId && isEvmChainId(chainId)) return 'Ethereum'
+
   switch (chainId as KnownChainIds) {
-    case KnownChainIds.ArbitrumMainnet:
-    case KnownChainIds.AvalancheMainnet:
-    case KnownChainIds.ArbitrumNovaMainnet:
-    case KnownChainIds.BaseMainnet:
-    case KnownChainIds.BnbSmartChainMainnet:
-    case KnownChainIds.EthereumMainnet:
-    case KnownChainIds.GnosisMainnet:
-    case KnownChainIds.MonadMainnet:
-    case KnownChainIds.OptimismMainnet:
-    case KnownChainIds.PolygonMainnet:
-      return 'Ethereum'
     case KnownChainIds.BitcoinCashMainnet:
       return 'Bitcoin Cash'
     case KnownChainIds.BitcoinMainnet:
@@ -40,15 +33,22 @@ export const getLedgerAppName = (chainId: ChainId | KnownChainIds | undefined) =
       return 'Zcash'
     case KnownChainIds.SolanaMainnet:
       return 'Solana'
+    case KnownChainIds.SuiMainnet:
+      return 'Sui'
     case KnownChainIds.ThorchainMainnet:
     case KnownChainIds.MayachainMainnet:
       return 'THORChain'
+    case KnownChainIds.TronMainnet:
+      return 'Tron'
     default:
       throw Error(`Unsupported chainId: ${chainId}`)
   }
 }
 
 const getCoin = (chainId: ChainId | KnownChainIds) => {
+  // All EVM chains use the Ethereum Ledger app
+  if (isEvmChainId(chainId)) return 'Ethereum'
+
   switch (chainId as KnownChainIds) {
     case KnownChainIds.BitcoinMainnet:
       return 'Bitcoin'
@@ -60,26 +60,6 @@ const getCoin = (chainId: ChainId | KnownChainIds) => {
       return 'Litecoin'
     case KnownChainIds.ZcashMainnet:
       return 'Zcash'
-    case KnownChainIds.EthereumMainnet:
-      return 'Ethereum'
-    case KnownChainIds.AvalancheMainnet:
-      return 'Avalanche'
-    case KnownChainIds.OptimismMainnet:
-      return 'Optimism'
-    case KnownChainIds.BnbSmartChainMainnet:
-      return 'BnbSmartChain'
-    case KnownChainIds.PolygonMainnet:
-      return 'Polygon'
-    case KnownChainIds.GnosisMainnet:
-      return 'Gnosis'
-    case KnownChainIds.ArbitrumMainnet:
-      return 'Arbitrum'
-    case KnownChainIds.ArbitrumNovaMainnet:
-      return 'ArbitrumNova'
-    case KnownChainIds.BaseMainnet:
-      return 'Base'
-    case KnownChainIds.MonadMainnet:
-      return 'Monad'
     case KnownChainIds.ThorchainMainnet:
       return 'Rune'
     case KnownChainIds.MayachainMainnet:
@@ -88,6 +68,10 @@ const getCoin = (chainId: ChainId | KnownChainIds) => {
       return 'Atom'
     case KnownChainIds.SolanaMainnet:
       return 'Solana'
+    case KnownChainIds.SuiMainnet:
+      return 'Sui'
+    case KnownChainIds.TronMainnet:
+      return 'Tron'
     default:
       throw Error(`Unsupported chainId: ${chainId}`)
   }

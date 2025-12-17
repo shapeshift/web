@@ -17,9 +17,9 @@ import { findBestRoute, getAggregatorClient, getCoinType } from '../utils/helper
 // See: https://cetus-1.gitbook.io/cetus-developer-docs/developer/cetus-aggregator/features-available
 // Docs: "Some providers, such as Headalpmm and Metastable, rely on Pyth oracle prices"
 const PYTH_DEPENDENT_PROVIDERS = [
-  'HAEDALPMM',      // Haedal PMM (explicitly mentioned in docs)
-  'HAEDALHMMV2',    // Haedal HMM V2 (variant of HAEDALPMM)
-  'METASTABLE',     // Metastable pools (explicitly mentioned in docs)
+  'HAEDALPMM', // Haedal PMM (explicitly mentioned in docs)
+  'HAEDALHMMV2', // Haedal HMM V2 (variant of HAEDALPMM)
+  'METASTABLE', // Metastable pools (explicitly mentioned in docs)
 ]
 
 type CetusTradeDataInput = {

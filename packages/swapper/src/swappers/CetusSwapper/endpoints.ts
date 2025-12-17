@@ -1,5 +1,5 @@
-import { Transaction } from '@cetusprotocol/aggregator-sdk/node_modules/@mysten/sui/transactions'
 import { getProvidersExcluding } from '@cetusprotocol/aggregator-sdk'
+import { Transaction } from '@cetusprotocol/aggregator-sdk/node_modules/@mysten/sui/transactions'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { bnOrZero } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
@@ -27,9 +27,9 @@ import { findBestRoute, getAggregatorClient, getCoinType, getSuiClient } from '.
 // See: https://cetus-1.gitbook.io/cetus-developer-docs/developer/cetus-aggregator/features-available
 // Docs: "Some providers, such as Headalpmm and Metastable, rely on Pyth oracle prices"
 const PYTH_DEPENDENT_PROVIDERS = [
-  'HAEDALPMM',      // Haedal PMM (explicitly mentioned in docs)
-  'HAEDALHMMV2',    // Haedal HMM V2 (variant of HAEDALPMM)
-  'METASTABLE',     // Metastable pools (explicitly mentioned in docs)
+  'HAEDALPMM', // Haedal PMM (explicitly mentioned in docs)
+  'HAEDALHMMV2', // Haedal HMM V2 (variant of HAEDALPMM)
+  'METASTABLE', // Metastable pools (explicitly mentioned in docs)
 ]
 
 export const cetusApi: SwapperApi = {

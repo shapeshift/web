@@ -6,8 +6,13 @@ import {
   bscChainId,
   ethChainId,
   gnosisChainId,
+  monadChainId,
   optimismChainId,
+  plasmaChainId,
   polygonChainId,
+  solanaChainId,
+  suiChainId,
+  tronChainId,
 } from '@shapeshiftoss/caip'
 
 export const ZERION_CHAINS = [
@@ -20,10 +25,14 @@ export const ZERION_CHAINS = [
   'arbitrum',
   'xdai',
   'base',
+  'solana',
+  'tron',
+  'monad',
+  'sui',
+  'plasma',
   // not yet
   // 'aurora',
   // 'fantom',
-  // 'solana',
 ] as const
 
 export type ZerionChainId = (typeof ZERION_CHAINS)[number]
@@ -37,6 +46,11 @@ export const ZERION_CHAINS_MAP: Record<ZerionChainId, ChainId> = {
   arbitrum: arbitrumChainId,
   xdai: gnosisChainId,
   base: baseChainId,
+  solana: solanaChainId,
+  tron: tronChainId,
+  monad: monadChainId,
+  sui: suiChainId,
+  plasma: plasmaChainId,
 }
 
 export const zerionChainIdToChainId = (chainId: ZerionChainId): ChainId | undefined =>

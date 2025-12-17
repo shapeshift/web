@@ -698,43 +698,43 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TronMainnet> {
 
         if (!internalTx.callValueInfo || internalTx.callValueInfo.length === 0) continue
 
-        const callInfo = internalTx.callValueInfo[0]
+        for (const callInfo of internalTx.callValueInfo) {
+          if (callInfo.tokenId) continue
 
-        if (callInfo.tokenId) continue
+          if (!callInfo.callValue || callInfo.callValue === 0) continue
 
-        if (!callInfo.callValue || callInfo.callValue === 0) continue
+          const { caller_address, transferTo_address } = internalTx
 
-        const { caller_address, transferTo_address } = internalTx
+          if (!caller_address || !transferTo_address) continue
 
-        if (!caller_address || !transferTo_address) continue
+          if (caller_address === transferTo_address) continue
 
-        if (caller_address === transferTo_address) continue
+          const value = String(callInfo.callValue)
 
-        const value = String(callInfo.callValue)
+          const isSend = caller_address === pubkey
+          const isReceive = transferTo_address === pubkey
 
-        const isSend = caller_address === pubkey
-        const isReceive = transferTo_address === pubkey
+          if (!isSend && !isReceive) continue
 
-        if (!isSend && !isReceive) continue
+          if (isSend) {
+            transfers.push({
+              assetId: this.assetId,
+              from: [caller_address],
+              to: [transferTo_address],
+              type: TransferType.Send,
+              value,
+            })
+          }
 
-        if (isSend) {
-          transfers.push({
-            assetId: this.assetId,
-            from: [caller_address],
-            to: [transferTo_address],
-            type: TransferType.Send,
-            value,
-          })
-        }
-
-        if (isReceive) {
-          transfers.push({
-            assetId: this.assetId,
-            from: [caller_address],
-            to: [transferTo_address],
-            type: TransferType.Receive,
-            value,
-          })
+          if (isReceive) {
+            transfers.push({
+              assetId: this.assetId,
+              from: [caller_address],
+              to: [transferTo_address],
+              type: TransferType.Receive,
+              value,
+            })
+          }
         }
       } catch (error) {
         continue

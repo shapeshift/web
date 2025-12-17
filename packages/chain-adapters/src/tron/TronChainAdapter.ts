@@ -4,7 +4,8 @@ import type { HDWallet, TronWallet } from '@shapeshiftoss/hdwallet-core'
 import { supportsTron } from '@shapeshiftoss/hdwallet-core'
 import type { Bip44Params, RootBip44Params } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
-import * as unchained from '@shapeshiftoss/unchained-client'
+import type * as unchained from '@shapeshiftoss/unchained-client'
+import { TransferType, TxStatus } from '@shapeshiftoss/unchained-client'
 import { TronWeb } from 'tronweb'
 
 import type { ChainAdapter as IChainAdapter } from '../api'
@@ -55,16 +56,10 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TronMainnet> {
   }
 
   protected readonly rpcUrl: string
-  protected parser: unchained.tron.TransactionParser
 
   constructor(args: ChainAdapterArgs) {
     this.providers = args.providers
     this.rpcUrl = args.rpcUrl
-
-    this.parser = new unchained.tron.TransactionParser({
-      assetId: this.assetId,
-      chainId: this.chainId,
-    })
   }
 
   private assertSupportsChain(wallet: HDWallet): asserts wallet is TronWallet {
@@ -513,20 +508,240 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TronMainnet> {
     return
   }
 
-  async parseTx(tx: unchained.tron.TronTx, pubkey: string): Promise<Transaction> {
-    const { address: _, ...parsedTx } = await this.parser.parse(tx, pubkey)
+  private parse(tx: unchained.tron.TronTx, pubkey: string): Transaction {
+    const status = tx.confirmations && tx.confirmations > 0 ? TxStatus.Confirmed : TxStatus.Pending
+
+    const nativeTransfers: {
+      assetId: AssetId
+      from: string[]
+      to: string[]
+      type: TransferType
+      value: string
+    }[] = []
+
+    if (tx.raw_data?.contract) {
+      for (const contract of tx.raw_data.contract) {
+        if (contract.type === 'TransferContract') {
+          const { owner_address, to_address, amount } = contract.parameter.value
+
+          if (!owner_address || !to_address) continue
+
+          const value = String(amount || 0)
+
+          if (owner_address === pubkey) {
+            nativeTransfers.push({
+              assetId: this.assetId,
+              from: [owner_address],
+              to: [to_address],
+              type: TransferType.Send,
+              value,
+            })
+          }
+
+          if (to_address === pubkey) {
+            nativeTransfers.push({
+              assetId: this.assetId,
+              from: [owner_address],
+              to: [to_address],
+              type: TransferType.Receive,
+              value,
+            })
+          }
+        }
+      }
+    }
+
+    const isSend = nativeTransfers.some(transfer => transfer.type === TransferType.Send)
 
     return {
-      ...parsedTx,
+      blockHash: tx.blockHash || '',
+      blockHeight: tx.blockHeight || 0,
+      blockTime: tx.timestamp ? Math.floor(tx.timestamp / 1000) : 0,
+      chainId: this.chainId,
+      confirmations: tx.confirmations || 0,
+      status,
+      transfers: nativeTransfers,
+      txid: tx.txid,
       pubkey,
-      transfers: parsedTx.transfers.map(transfer => ({
-        assetId: transfer.assetId,
-        from: [transfer.from],
-        to: [transfer.to],
-        type: transfer.type,
-        value: transfer.totalValue,
-      })),
+      ...(isSend && { fee: { assetId: this.assetId, value: tx.fee || '0' } }),
     }
+  }
+
+  async parseTx(txHashOrTx: unknown, pubkey: string): Promise<Transaction> {
+    try {
+      let tx: unchained.tron.TronTx
+
+      if (typeof txHashOrTx === 'string') {
+        const fetchedTx = await this.providers.http.getTransaction({ txid: txHashOrTx })
+        if (!fetchedTx) {
+          throw new Error(`Transaction not found: ${txHashOrTx}`)
+        }
+        tx = fetchedTx
+      } else {
+        tx = txHashOrTx as unchained.tron.TronTx
+      }
+
+      const parsedTx = this.parse(tx, pubkey)
+
+      const trc20Transfers = this.parseTRC20Transfers(tx, pubkey)
+      const internalTrxTransfers = this.parseInternalTrxTransfers(tx, pubkey)
+
+      return {
+        ...parsedTx,
+        transfers: [...parsedTx.transfers, ...trc20Transfers, ...internalTrxTransfers],
+      }
+    } catch (error) {
+      throw new Error(`Failed to parse transaction: ${error}`)
+    }
+  }
+
+  private parseTRC20Transfers(
+    tx: unchained.tron.TronTx,
+    pubkey: string,
+  ): {
+    assetId: string
+    from: string[]
+    to: string[]
+    type: TransferType
+    value: string
+  }[] {
+    if (!tx.log || tx.log.length === 0) return []
+
+    if (tx.ret?.[0]?.contractRet !== 'SUCCESS') return []
+
+    const transfers: {
+      assetId: string
+      from: string[]
+      to: string[]
+      type: TransferType
+      value: string
+    }[] = []
+
+    const TRANSFER_EVENT_SIGNATURE =
+      'ddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef'
+    const ZERO_ADDRESS = 'T9yD14Nj9j7xAB4dbGeiX9h8unkKHxuWwb'
+    const tronWeb = new TronWeb({ fullHost: this.rpcUrl })
+
+    for (const log of tx.log) {
+      try {
+        if (!log.topics || log.topics.length !== 3) continue
+        if (log.topics[0] !== TRANSFER_EVENT_SIGNATURE) continue
+        if (!log.data || log.data.length !== 64) continue
+
+        const fromAddress = tronWeb.address.fromHex('41' + log.topics[1].slice(-40))
+        const toAddress = tronWeb.address.fromHex('41' + log.topics[2].slice(-40))
+
+        if (fromAddress === ZERO_ADDRESS || toAddress === ZERO_ADDRESS) continue
+
+        if (fromAddress === toAddress) continue
+
+        const isSend = fromAddress === pubkey
+        const isReceive = toAddress === pubkey
+
+        if (!isSend && !isReceive) continue
+
+        const value = BigInt('0x' + log.data).toString()
+        const contractAddress = log.address
+
+        if (isSend) {
+          transfers.push({
+            assetId: `${this.chainId}/trc20:${contractAddress}`,
+            from: [fromAddress],
+            to: [toAddress],
+            type: TransferType.Send,
+            value,
+          })
+        }
+
+        if (isReceive) {
+          transfers.push({
+            assetId: `${this.chainId}/trc20:${contractAddress}`,
+            from: [fromAddress],
+            to: [toAddress],
+            type: TransferType.Receive,
+            value,
+          })
+        }
+      } catch (error) {
+        continue
+      }
+    }
+
+    return transfers
+  }
+
+  private parseInternalTrxTransfers(
+    tx: unchained.tron.TronTx,
+    pubkey: string,
+  ): {
+    assetId: AssetId
+    from: string[]
+    to: string[]
+    type: TransferType
+    value: string
+  }[] {
+    if (!tx.internal_transactions || tx.internal_transactions.length === 0) return []
+
+    if (tx.ret?.[0]?.contractRet !== 'SUCCESS') return []
+
+    const transfers: {
+      assetId: AssetId
+      from: string[]
+      to: string[]
+      type: TransferType
+      value: string
+    }[] = []
+
+    for (const internalTx of tx.internal_transactions) {
+      try {
+        if (internalTx.rejected === true) continue
+
+        if (!internalTx.callValueInfo || internalTx.callValueInfo.length === 0) continue
+
+        const callInfo = internalTx.callValueInfo[0]
+
+        if (callInfo.tokenId) continue
+
+        if (!callInfo.callValue || callInfo.callValue === 0) continue
+
+        const { caller_address, transferTo_address } = internalTx
+
+        if (!caller_address || !transferTo_address) continue
+
+        if (caller_address === transferTo_address) continue
+
+        const value = String(callInfo.callValue)
+
+        const isSend = caller_address === pubkey
+        const isReceive = transferTo_address === pubkey
+
+        if (!isSend && !isReceive) continue
+
+        if (isSend) {
+          transfers.push({
+            assetId: this.assetId,
+            from: [caller_address],
+            to: [transferTo_address],
+            type: TransferType.Send,
+            value,
+          })
+        }
+
+        if (isReceive) {
+          transfers.push({
+            assetId: this.assetId,
+            from: [caller_address],
+            to: [transferTo_address],
+            type: TransferType.Receive,
+            value,
+          })
+        }
+      } catch (error) {
+        continue
+      }
+    }
+
+    return transfers
   }
 
   get httpProvider(): unchained.tron.TronApi {

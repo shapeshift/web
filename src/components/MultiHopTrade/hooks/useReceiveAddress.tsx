@@ -52,7 +52,7 @@ export const useReceiveAddress = ({
     selectPortfolioAccountMetadataByAccountId(state, buyAccountMetadataFilter),
   )
 
-  const isHardwareWallet =
+  const skipDeviceDerivation =
     walletType === KeyManager.Ledger ||
     walletType === KeyManager.Trezor ||
     walletType === KeyManager.GridPlus
@@ -65,12 +65,12 @@ export const useReceiveAddress = ({
       return true
     }
 
-    if (!wallet && !isHardwareWallet) {
+    if (!wallet && !skipDeviceDerivation) {
       return true
     }
 
     return false
-  }, [buyAsset, wallet, isHardwareWallet])
+  }, [buyAsset, wallet, skipDeviceDerivation])
 
   const { data: walletReceiveAddress, isLoading } = useQuery<string | null>({
     queryKey: [
@@ -88,14 +88,14 @@ export const useReceiveAddress = ({
       buyAsset &&
       buyAccountId &&
       buyAccountMetadata &&
-      (wallet || isHardwareWallet)
+      (wallet || skipDeviceDerivation)
         ? async () => {
             // Already partially covered in isInitializing, but TypeScript lyfe mang.
             if (!buyAsset || !buyAccountId || !buyAccountMetadata) {
               return null
             }
 
-            if (!wallet && !isHardwareWallet) {
+            if (!wallet && !skipDeviceDerivation) {
               return null
             }
 
@@ -115,7 +115,6 @@ export const useReceiveAddress = ({
             if (isUtxoAccountId(buyAccountId) && !buyAccountMetadata?.accountType)
               throw new Error(`Missing accountType for UTXO account ${buyAccountId}`)
 
-            const skipDeviceDerivation = isHardwareWallet
             const walletReceiveAddress = await getReceiveAddress({
               asset: buyAsset,
               wallet,

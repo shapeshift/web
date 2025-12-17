@@ -1,12 +1,14 @@
-import type { GetFeeDataInput } from '@shapeshiftoss/chain-adapters'
-import type { KnownChainIds } from '@shapeshiftoss/types'
+import { Transaction } from '@cetusprotocol/aggregator-sdk/node_modules/@mysten/sui/transactions'
+import { bnOrZero } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err } from '@sniptt/monads'
 import { v4 as uuid } from 'uuid'
 
+import { getDefaultSlippageDecimalPercentageForSwapper } from '../../../constants'
 import type { CommonTradeQuoteInput, SwapErrorRight, SwapperDeps, TradeQuote } from '../../../types'
 import { SwapperName, TradeQuoteError } from '../../../types'
 import { makeSwapErrorRight } from '../../../utils'
+import { getAggregatorClient, getSuiClient } from '../utils/helpers'
 import { getCetusTradeData } from './getCetusTradeData'
 
 export const getTradeQuote = async (
@@ -48,22 +50,48 @@ export const getTradeQuote = async (
     buyAmountAfterFeesCryptoBaseUnit,
     rate,
     addressForFeeEstimate,
-    sellCoinType,
+    routerData,
     protocolFees,
-    adapter,
+    rpcUrl,
   } = tradeDataResult.unwrap()
 
   try {
-    const getFeeDataInput: GetFeeDataInput<KnownChainIds.SuiMainnet> = {
-      to: addressForFeeEstimate,
-      value: sellAmount,
-      chainSpecific: {
-        from: addressForFeeEstimate,
-        tokenId: sellCoinType,
-      },
-    }
+    // Build the actual Cetus swap transaction to get accurate gas estimation
+    const client = getAggregatorClient(rpcUrl)
+    const suiClient = getSuiClient(rpcUrl)
 
-    const feeData = await adapter.getFeeData(getFeeDataInput)
+    const slippage = bnOrZero(
+      slippageTolerancePercentageDecimal ??
+        getDefaultSlippageDecimalPercentageForSwapper(SwapperName.Cetus),
+    ).toNumber()
+
+    const txb = new Transaction()
+    txb.setSender(addressForFeeEstimate)
+
+    await client.fastRouterSwap({
+      router: routerData,
+      slippage,
+      txb,
+      refreshAllCoins: true,
+    })
+
+    const transactionBytes = await txb.build({ client: suiClient })
+
+    const dryRunResult = await suiClient.dryRunTransactionBlock({
+      transactionBlock: transactionBytes,
+    })
+
+    const computationCost = BigInt(dryRunResult.effects.gasUsed.computationCost)
+    const storageCost = BigInt(dryRunResult.effects.gasUsed.storageCost)
+    const storageRebate = BigInt(dryRunResult.effects.gasUsed.storageRebate)
+
+    const netStorageCost = storageCost > storageRebate ? storageCost - storageRebate : 0n
+    const estimatedGas = computationCost + netStorageCost
+
+    const txFee = estimatedGas.toString()
+    const gasBudget = ((estimatedGas * 120n) / 100n).toString()
+
+    const gasPrice = await suiClient.getReferenceGasPrice()
 
     const tradeQuote: TradeQuote = {
       id: uuid(),
@@ -81,10 +109,10 @@ export const getTradeQuote = async (
           sellAmountIncludingProtocolFeesCryptoBaseUnit: sellAmount,
           feeData: {
             protocolFees,
-            networkFeeCryptoBaseUnit: feeData.fast.txFee,
+            networkFeeCryptoBaseUnit: txFee,
             chainSpecific: {
-              gasBudget: feeData.fast.chainSpecific.gasBudget,
-              gasPrice: feeData.fast.chainSpecific.gasPrice,
+              gasBudget,
+              gasPrice: gasPrice.toString(),
             },
           },
           rate,

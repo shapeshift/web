@@ -1,5 +1,5 @@
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
-import { ASSET_NAMESPACE, toAssetId } from '@shapeshiftoss/caip'
+import { ASSET_NAMESPACE, monadChainId, toAssetId } from '@shapeshiftoss/caip'
 import type { evm } from '@shapeshiftoss/common-api'
 import { MULTICALL3_CONTRACT, viemClientByChainId } from '@shapeshiftoss/contracts'
 import type { EvmChainId, RootBip44Params } from '@shapeshiftoss/types'
@@ -340,6 +340,46 @@ export abstract class SecondClassEvmAdapter<T extends EvmChainId> extends EvmBas
     })
   }
 
+  private async fetchInternalTransactions(
+    txHash: string,
+  ): Promise<Array<{ from: string; to: string; value: string }>> {
+    if (this.chainId === monadChainId) {
+      return []
+    }
+
+    try {
+      const trace = await this.requestQueue.add(() =>
+        this.provider.send('debug_traceTransaction', [txHash, { tracer: 'callTracer' }]),
+      )
+
+      const internalTxs: Array<{ from: string; to: string; value: string }> = []
+
+      const extractCalls = (call: any) => {
+        if (call.value && call.value !== '0x0' && call.value !== '0x') {
+          internalTxs.push({
+            from: call.from,
+            to: call.to,
+            value: BigInt(call.value).toString(),
+          })
+        }
+
+        if (call.calls && Array.isArray(call.calls)) {
+          for (const subcall of call.calls) {
+            extractCalls(subcall)
+          }
+        }
+      }
+
+      if (trace) {
+        extractCalls(trace)
+      }
+
+      return internalTxs
+    } catch (error) {
+      return []
+    }
+  }
+
   async parseTx(txHash: unknown, pubkey: string): Promise<Transaction> {
     const hash = txHash as Hex
     const viemClient = viemClientByChainId[this.chainId]
@@ -349,9 +389,10 @@ export abstract class SecondClassEvmAdapter<T extends EvmChainId> extends EvmBas
     }
 
     try {
-      const [transaction, receipt] = await Promise.all([
+      const [transaction, receipt, internalTxs] = await Promise.all([
         viemClient.getTransaction({ hash }),
         viemClient.getTransactionReceipt({ hash }),
+        this.fetchInternalTransactions(hash),
       ])
 
       if (!transaction || !receipt) {
@@ -414,6 +455,7 @@ export abstract class SecondClassEvmAdapter<T extends EvmChainId> extends EvmBas
         gasPrice: receipt.effectiveGasPrice.toString(),
         inputData: transaction.input,
         tokenTransfers,
+        internalTxs: internalTxs.length > 0 ? internalTxs : undefined,
       }
 
       return this.parse(parsedTx, pubkey)
@@ -449,6 +491,35 @@ export abstract class SecondClassEvmAdapter<T extends EvmChainId> extends EvmBas
         type: TransferType.Receive,
         value: tx.value,
       })
+    }
+
+    if (tx.internalTxs) {
+      for (const internalTx of tx.internalTxs) {
+        if (bn(internalTx.value).lte(0)) continue
+
+        const internalFrom = getAddress(internalTx.from)
+        const internalTo = getAddress(internalTx.to)
+
+        if (isAddressEqual(address, internalFrom)) {
+          nativeTransfers.push({
+            assetId: this.assetId,
+            from: [internalTx.from],
+            to: [internalTx.to],
+            type: TransferType.Send,
+            value: internalTx.value,
+          })
+        }
+
+        if (isAddressEqual(address, internalTo)) {
+          nativeTransfers.push({
+            assetId: this.assetId,
+            from: [internalTx.from],
+            to: [internalTx.to],
+            type: TransferType.Receive,
+            value: internalTx.value,
+          })
+        }
+      }
     }
 
     const tokenTransfers =

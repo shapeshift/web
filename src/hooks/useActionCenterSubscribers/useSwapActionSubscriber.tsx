@@ -27,6 +27,7 @@ import { useActionCenterContext } from '@/components/Layout/Header/ActionCenter/
 import { SwapNotification } from '@/components/Layout/Header/ActionCenter/components/Notifications/SwapNotification'
 import { getConfig } from '@/config'
 import { SECOND_CLASS_CHAINS } from '@/constants/chains'
+import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
 import { queryClient } from '@/context/QueryClientProvider/queryClient'
 import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { getTxLink } from '@/lib/getTxLink'
@@ -42,6 +43,7 @@ import { portfolioApi } from '@/state/slices/portfolioSlice/portfolioSlice'
 import { swapSlice } from '@/state/slices/swapSlice/swapSlice'
 import { selectConfirmedTradeExecution } from '@/state/slices/tradeQuoteSlice/selectors'
 import { tradeQuoteSlice } from '@/state/slices/tradeQuoteSlice/tradeQuoteSlice'
+import { txHistory } from '@/state/slices/txHistorySlice/txHistorySlice'
 import { store, useAppDispatch, useAppSelector } from '@/state/store'
 
 const swapStatusToActionStatus = {
@@ -273,10 +275,52 @@ export const useSwapActionSubscriber = () => {
           }),
         )
 
-        const { getAccount } = portfolioApi.endpoints
-
+        // Parse and upsert Txs for second-class chains
         const sellChainId = fromAccountId(swap.sellAccountId).chainId
         const isSellSecondClassChain = SECOND_CLASS_CHAINS.includes(sellChainId as KnownChainIds)
+
+        if (isSellSecondClassChain && swap.sellTxHash) {
+          try {
+            const adapter = getChainAdapterManager().get(sellChainId)
+            const { account: sellAddress } = fromAccountId(swap.sellAccountId)
+            if (adapter?.parseTx) {
+              const parsedSellTx = await adapter.parseTx(swap.sellTxHash, sellAddress)
+              dispatch(
+                txHistory.actions.onMessage({
+                  message: parsedSellTx,
+                  accountId: swap.sellAccountId,
+                }),
+              )
+            }
+          } catch (error) {
+            console.error('Failed to parse and upsert sell Tx:', error)
+          }
+        }
+
+        if (buyTxHash && swap.buyAccountId) {
+          const buyChainId = fromAccountId(swap.buyAccountId).chainId
+          const isBuySecondClassChain = SECOND_CLASS_CHAINS.includes(buyChainId as KnownChainIds)
+
+          if (isBuySecondClassChain) {
+            try {
+              const adapter = getChainAdapterManager().get(buyChainId)
+              const { account: buyAddress } = fromAccountId(swap.buyAccountId)
+              if (adapter?.parseTx) {
+                const parsedBuyTx = await adapter.parseTx(buyTxHash, buyAddress)
+                dispatch(
+                  txHistory.actions.onMessage({
+                    message: parsedBuyTx,
+                    accountId: swap.buyAccountId,
+                  }),
+                )
+              }
+            } catch (error) {
+              console.error('Failed to parse and upsert buy Tx:', error)
+            }
+          }
+        }
+
+        const { getAccount } = portfolioApi.endpoints
 
         if (isSellSecondClassChain) {
           dispatch(

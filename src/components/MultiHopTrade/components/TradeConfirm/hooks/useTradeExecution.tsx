@@ -4,6 +4,7 @@ import { ChainAdapterError, toAddressNList } from '@shapeshiftoss/chain-adapters
 import type { ETHSignTypedData, SolanaSignTx, SuiSignTx } from '@shapeshiftoss/hdwallet-core'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { isGridPlus } from '@shapeshiftoss/hdwallet-gridplus'
+import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import { isTrezor } from '@shapeshiftoss/hdwallet-trezor'
 import type { SupportedTradeQuoteStepIndex, TradeQuote } from '@shapeshiftoss/swapper'
 import {
@@ -541,6 +542,10 @@ export const useTradeExecution = (
         case CHAIN_NAMESPACE.Tron: {
           const adapter = assertGetTronChainAdapter(stepSellAssetChainId)
           const from = await adapter.getAddress({ accountNumber, wallet })
+
+          if (isLedger(wallet) && (swapperName === SwapperName.Thorchain || swapperName === SwapperName.Mayachain)) {
+            throw new Error(translate('trade.errors.ledgerTronMemoNotSupported'))
+          }
 
           const output = await execution.execTronTransaction({
             swapperName,

@@ -482,6 +482,15 @@ const txWithData = addTxData({ memo, transaction })
 **TRX Swaps:** 2-3 TRX liquid balance required
 **Not Enforced:** Adapter doesn't check balance before broadcasting
 
+### 4. Ledger Hardware Wallet Incompatibility
+
+**Issue:** TRON transactions with memos fail on Ledger devices with error `0x6a8b`
+**Root Cause:** Ledger TRON app cannot parse transactions with `raw_data.data` field
+**Impact:** THORChain and MAYAChain swaps are blocked for Ledger users
+**Workaround:** Use NearIntents, Sun.io, or a different wallet (Native, MetaMask, etc.)
+**Status:** Detection implemented with user-friendly error message
+**Details:** See `LEDGER_LIMITATION.md` for full technical analysis
+
 ## File Changes Summary
 
 ### Modified (8 files)

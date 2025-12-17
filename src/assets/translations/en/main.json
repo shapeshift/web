@@ -835,7 +835,8 @@
       "slippageToleranceExceeded": "Slippage tolerance exceeded.",
       "underMinimumAmount": "One or more of the assets in this trade are below the minimum amount required for this trade.",
       "consumedMoreFees": "The transaction did revert because the fees consumed by this trade were higher than expected.",
-      "swapperTimeout": "Request timed out."
+      "swapperTimeout": "Request timed out.",
+      "ledgerTronMemoNotSupported": "TRON transactions with memos are not supported on Ledger devices. Please use a different wallet or choose a swapper that doesn't require memos (like NEAR Intents or Sun.io)."
     },
     "or": "or",
     "onChainName": "on %{chainName}",

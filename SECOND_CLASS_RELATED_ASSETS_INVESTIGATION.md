@@ -536,3 +536,74 @@ Next session should run the generation and find out! 🚀
 **End of Investigation Document**
 
 *This document should be sufficient for another Claude session to pick up where we left off and complete the implementation.*
+
+---
+
+## Update: Changes Applied from feat_regenerate_asset_data
+
+**Date**: December 17, 2025
+**Commit**: `57b857cd6b`
+
+The asset data files from `feat_regenerate_asset_data` have been applied to this branch for comparison purposes.
+
+**Files changed:**
+- `scripts/generateAssetData/color-map.json`
+- `src/lib/asset-service/service/encodedAssetData.json`
+- `src/lib/asset-service/service/encodedRelatedAssetIndex.json`
+
+**Color Map Changes:**
+- ➕ Added 22 new color entries
+- ➖ Removed 19 existing color entries  
+- ➖ Removed 1 slip44 entry: `"eip155:43114/slip44:60": "#EC4343"`
+
+**What Changed in Asset Data:**
+- Total diff: 144 insertions, 108 deletions
+- Unable to easily see what changed in encoded JSON (compressed format)
+- Need to decode and compare to understand related asset grouping changes
+
+**Status:** ⚠️ APPLIED BUT NOT VALIDATED
+
+**Next Steps:**
+1. Decode both `encodedRelatedAssetIndex.json` files (develop vs this branch)
+2. Count related asset groups per chain
+3. Verify if second-class chains now have groupings
+4. If yes: validate correctness, create tests
+5. If no: discard and run fresh generation from develop
+
+**Verification Script Needed:**
+```typescript
+// scripts/validateRelatedAssets.ts
+import fs from 'fs'
+import { decodeRelatedAssetIndex, decodeAssetData } from '@shapeshiftoss/utils'
+
+const encodedData = JSON.parse(fs.readFileSync('encodedAssetData.json', 'utf8'))
+const encodedIndex = JSON.parse(fs.readFileSync('encodedRelatedAssetIndex.json', 'utf8'))
+
+const { sortedAssetIds } = decodeAssetData(encodedData)
+const relatedIndex = decodeRelatedAssetIndex(encodedIndex, sortedAssetIds)
+
+// Count groups per chain
+const groupsByChain: Record<string, number> = {}
+Object.entries(relatedIndex).forEach(([primaryAssetId, relatedIds]) => {
+  const chainId = primaryAssetId.split('/')[0]
+  groupsByChain[chainId] = (groupsByChain[chainId] || 0) + 1
+})
+
+console.table(groupsByChain)
+
+// Check specific second-class chain assets
+const secondClassChains = ['eip155:999', 'eip155:143', 'eip155:9745', 'sui:35834a8a', 'tron:0x2b6653dc']
+secondClassChains.forEach(chainPrefix => {
+  const chainGroups = Object.entries(relatedIndex).filter(([k]) => k.startsWith(chainPrefix))
+  console.log(`\n${chainPrefix}: ${chainGroups.length} related asset groups`)
+  if (chainGroups.length > 0) {
+    console.log('Sample:', chainGroups.slice(0, 3))
+  }
+})
+```
+
+Run with: `ts-node scripts/validateRelatedAssets.ts`
+
+---
+
+**End of Update**

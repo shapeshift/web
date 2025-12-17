@@ -543,6 +543,9 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SuiMainnet> {
         BigInt(gasUsed.storageRebate)
       const fee = totalGasCost.toString()
 
+      const transactionSender = txResponse.transaction?.data.sender ?? ''
+      const isUserTransactionInitiator = transactionSender.toLowerCase() === pubkey.toLowerCase()
+
       const transfers: Array<{
         assetId: AssetId
         from: string[]
@@ -592,9 +595,9 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SuiMainnet> {
           const isNativeSui = normalizedCoinType === '0x0000000000000000000000000000000000000000000000000000000000000002::sui::SUI'
 
           const assetId = isNativeSui
-            ? this.assetId
+            ? suiAssetId
             : toAssetId({
-                chainId: this.chainId,
+                chainId: suiChainId,
                 assetNamespace: ASSET_NAMESPACE.suiCoin,
                 assetReference: normalizedCoinType,
               })
@@ -621,13 +624,10 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SuiMainnet> {
             }
           }
 
-          const sender = txResponse.transaction?.data.sender ?? ''
-          const isPubkeySender = sender.toLowerCase() === pubkey.toLowerCase()
-
           if (isReceive && ownerAddress.toLowerCase() === pubkey.toLowerCase()) {
             transfers.push({
               assetId,
-              from: isPubkeySender ? [sender] : [sender || ownerAddress],
+              from: [transactionSender || ownerAddress],
               to: [ownerAddress],
               type: TransferType.Receive,
               value: absoluteAmount.toString(),
@@ -636,11 +636,10 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SuiMainnet> {
           }
 
           if (!isReceive && ownerAddress.toLowerCase() === pubkey.toLowerCase()) {
-            const recipient = isPubkeySender ? ownerAddress : sender
             transfers.push({
               assetId,
               from: [ownerAddress],
-              to: [recipient],
+              to: isUserTransactionInitiator ? [transactionSender] : [ownerAddress],
               type: TransferType.Send,
               value: absoluteAmount.toString(),
               ...(token && { token }),
@@ -649,20 +648,17 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SuiMainnet> {
         }
       }
 
-      const isSender =
-        txResponse.transaction?.data.sender.toLowerCase() === pubkey.toLowerCase()
-
       return {
         blockHash: txResponse.digest,
         blockHeight,
         blockTime,
-        chainId: this.chainId,
+        chainId: suiChainId,
         confirmations: 1,
         status,
         transfers,
         txid: digest,
         pubkey,
-        ...(isSender && { fee: { assetId: this.assetId, value: fee } }),
+        ...(isUserTransactionInitiator && { fee: { assetId: suiAssetId, value: fee } }),
       }
     } catch (error) {
       throw new Error(`Failed to parse SUI transaction: ${error}`)

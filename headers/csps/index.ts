@@ -1,4 +1,3 @@
-import { csp as addressable } from './addressable'
 import { csp as alchemy } from './alchemy'
 import { csp as trustwallet } from './assetService/trustwallet'
 import { csp as base } from './base'
@@ -44,6 +43,7 @@ import { csp as thor } from './defi/swappers/Thor'
 import { csp as discord } from './discord'
 import { csp as banxa } from './fiatRamps/banxa'
 import { csp as onRamper } from './fiatRamps/onRamper'
+import { csp as hypelab } from './hypelab'
 import { csp as interFont } from './InterFont'
 import { csp as jupiter } from './jupiter'
 import { csp as ledger } from './ledger'
@@ -72,7 +72,7 @@ import { csp as webflow } from './webflow'
 
 export const csps = [
   base,
-  addressable,
+  hypelab,
   alchemy,
   moralis,
   chainflip,

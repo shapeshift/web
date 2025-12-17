@@ -1,5 +1,5 @@
 import '@/lib/polyfills'
-import '@/pixels/addressable'
+import '@/pixels/hypelab'
 
 import {
   breadcrumbsIntegration,

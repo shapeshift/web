@@ -128,10 +128,6 @@ const getZerionRelatedAssetIds = async (
   const validationResult = zerionFungiblesSchema.parse(res)
   const firstEntry = validationResult.data[0]
 
-  console.log({
-    firstEntry,
-  })
-
   if (firstEntry === undefined) return
 
   const implementations = firstEntry.attributes.implementations

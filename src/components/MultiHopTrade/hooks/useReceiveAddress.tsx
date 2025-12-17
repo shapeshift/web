@@ -52,7 +52,7 @@ export const useReceiveAddress = ({
     selectPortfolioAccountMetadataByAccountId(state, buyAccountMetadataFilter),
   )
 
-  const shouldSkipDeviceDerivation =
+  const isHardwareWallet =
     walletType === KeyManager.Ledger ||
     walletType === KeyManager.Trezor ||
     walletType === KeyManager.GridPlus
@@ -65,12 +65,12 @@ export const useReceiveAddress = ({
       return true
     }
 
-    if (!wallet && !shouldSkipDeviceDerivation) {
+    if (!wallet && !isHardwareWallet) {
       return true
     }
 
     return false
-  }, [buyAsset, wallet, shouldSkipDeviceDerivation])
+  }, [buyAsset, wallet, isHardwareWallet])
 
   const { data: walletReceiveAddress, isLoading } = useQuery<string | null>({
     queryKey: [
@@ -88,14 +88,14 @@ export const useReceiveAddress = ({
       buyAsset &&
       buyAccountId &&
       buyAccountMetadata &&
-      (wallet || shouldSkipDeviceDerivation)
+      (wallet || isHardwareWallet)
         ? async () => {
             // Already partially covered in isInitializing, but TypeScript lyfe mang.
             if (!buyAsset || !buyAccountId || !buyAccountMetadata) {
               return null
             }
 
-            if (!wallet && !shouldSkipDeviceDerivation) {
+            if (!wallet && !isHardwareWallet) {
               return null
             }
 
@@ -115,11 +115,12 @@ export const useReceiveAddress = ({
             if (isUtxoAccountId(buyAccountId) && !buyAccountMetadata?.accountType)
               throw new Error(`Missing accountType for UTXO account ${buyAccountId}`)
 
+            const skipDeviceDerivation = isHardwareWallet
             const walletReceiveAddress = await getReceiveAddress({
               asset: buyAsset,
               wallet,
               accountMetadata: buyAccountMetadata,
-              pubKey: shouldSkipDeviceDerivation ? fromAccountId(buyAccountId).account : undefined,
+              pubKey: skipDeviceDerivation ? fromAccountId(buyAccountId).account : undefined,
             })
 
             return walletReceiveAddress ?? null

@@ -1,5 +1,5 @@
 import { SuiClient } from '@mysten/sui/client'
-import { Transaction } from '@mysten/sui/transactions'
+import { Transaction as SuiTransaction } from '@mysten/sui/transactions'
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import {
   ASSET_NAMESPACE,
@@ -12,6 +12,7 @@ import type { HDWallet, SuiWallet } from '@shapeshiftoss/hdwallet-core'
 import { supportsSui } from '@shapeshiftoss/hdwallet-core'
 import type { Bip44Params, RootBip44Params } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
+import { TransferType, TxStatus } from '@shapeshiftoss/unchained-client'
 
 import type { ChainAdapter as IChainAdapter } from '../api'
 import { ChainAdapterError, ErrorHandler } from '../error/ErrorHandler'
@@ -27,6 +28,7 @@ import type {
   SignAndBroadcastTransactionInput,
   SignTx,
   SignTxInput,
+  Transaction,
   ValidAddressResult,
 } from '../types'
 import { ChainAdapterDisplayName, ValidAddressResultType } from '../types'
@@ -242,7 +244,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SuiMainnet> {
       const { from, accountNumber, to, value, chainSpecific } = input
       const { tokenId, gasBudget, gasPrice } = chainSpecific
 
-      const tx = new Transaction()
+      const tx = new SuiTransaction()
 
       tx.setSender(from)
 
@@ -439,7 +441,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SuiMainnet> {
 
       const gasPrice = await this.client.getReferenceGasPrice()
 
-      const tx = new Transaction()
+      const tx = new SuiTransaction()
 
       tx.setSender(from)
 
@@ -512,7 +514,158 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SuiMainnet> {
     return
   }
 
-  parseTx(): Promise<never> {
-    throw new Error('SUI transaction parsing not yet implemented')
+  async parseTx(txHash: unknown, pubkey: string): Promise<Transaction> {
+    try {
+      const digest = txHash as string
+
+      const txResponse = await this.client.getTransactionBlock({
+        digest,
+        options: {
+          showEffects: true,
+          showBalanceChanges: true,
+          showEvents: true,
+          showInput: true,
+        },
+      })
+
+      if (!txResponse.effects) {
+        throw new Error(`Transaction effects not found for ${digest}`)
+      }
+
+      const status = txResponse.effects.status.status === 'success' ? TxStatus.Confirmed : TxStatus.Failed
+      const blockHeight = Number(txResponse.checkpoint ?? 0)
+      const blockTime = Number(txResponse.timestampMs ?? 0) / 1000
+
+      const gasUsed = txResponse.effects.gasUsed
+      const totalGasCost =
+        BigInt(gasUsed.computationCost) +
+        BigInt(gasUsed.storageCost) -
+        BigInt(gasUsed.storageRebate)
+      const fee = totalGasCost.toString()
+
+      const transfers: Array<{
+        assetId: AssetId
+        from: string[]
+        to: string[]
+        type: TransferType
+        value: string
+        token?: {
+          contract: string
+          decimals: number
+          name: string
+          symbol: string
+        }
+      }> = []
+
+      if (txResponse.balanceChanges) {
+        for (const change of txResponse.balanceChanges) {
+          const ownerAddress =
+            change.owner && typeof change.owner === 'object' && 'AddressOwner' in change.owner
+              ? change.owner.AddressOwner
+              : change.owner && typeof change.owner === 'object' && 'ObjectOwner' in change.owner
+                ? change.owner.ObjectOwner
+                : null
+
+          if (!ownerAddress) continue
+
+          const amount = BigInt(change.amount)
+          if (amount === 0n) continue
+
+          const isReceive = amount > 0
+          const absoluteAmount = isReceive ? amount : -amount
+
+          const normalizeCoinType = (coinType: string): string => {
+            const parts = coinType.split('::')
+            if (parts.length < 2) return coinType
+
+            const address = parts[0]
+            if (!address.startsWith('0x')) return coinType
+
+            const hexPart = address.slice(2)
+            const paddedHex = hexPart.padStart(64, '0')
+            parts[0] = `0x${paddedHex}`
+
+            return parts.join('::')
+          }
+
+          const normalizedCoinType = normalizeCoinType(change.coinType)
+          const isNativeSui = normalizedCoinType === '0x0000000000000000000000000000000000000000000000000000000000000002::sui::SUI'
+
+          const assetId = isNativeSui
+            ? this.assetId
+            : toAssetId({
+                chainId: this.chainId,
+                assetNamespace: ASSET_NAMESPACE.suiCoin,
+                assetReference: normalizedCoinType,
+              })
+
+          let token: { contract: string; decimals: number; name: string; symbol: string } | undefined
+          if (!isNativeSui) {
+            try {
+              const metadata = await this.client.getCoinMetadata({ coinType: change.coinType })
+              if (metadata) {
+                token = {
+                  contract: normalizedCoinType,
+                  decimals: metadata.decimals ?? 0,
+                  name: metadata.name ?? change.coinType,
+                  symbol: metadata.symbol ?? change.coinType.split('::').pop() ?? 'UNKNOWN',
+                }
+              }
+            } catch {
+              token = {
+                contract: normalizedCoinType,
+                decimals: 0,
+                name: change.coinType,
+                symbol: change.coinType.split('::').pop() ?? 'UNKNOWN',
+              }
+            }
+          }
+
+          const sender = txResponse.transaction?.data.sender ?? ''
+          const isPubkeySender = sender.toLowerCase() === pubkey.toLowerCase()
+
+          if (isReceive && ownerAddress.toLowerCase() === pubkey.toLowerCase()) {
+            transfers.push({
+              assetId,
+              from: isPubkeySender ? [sender] : [sender || ownerAddress],
+              to: [ownerAddress],
+              type: TransferType.Receive,
+              value: absoluteAmount.toString(),
+              ...(token && { token }),
+            })
+          }
+
+          if (!isReceive && ownerAddress.toLowerCase() === pubkey.toLowerCase()) {
+            const recipient = isPubkeySender ? ownerAddress : sender
+            transfers.push({
+              assetId,
+              from: [ownerAddress],
+              to: [recipient],
+              type: TransferType.Send,
+              value: absoluteAmount.toString(),
+              ...(token && { token }),
+            })
+          }
+        }
+      }
+
+      const isSender =
+        txResponse.transaction?.data.sender.toLowerCase() === pubkey.toLowerCase()
+
+      return {
+        blockHash: txResponse.digest,
+        blockHeight,
+        blockTime,
+        chainId: this.chainId,
+        confirmations: 1,
+        status,
+        transfers,
+        txid: digest,
+        pubkey,
+        ...(isSender && { fee: { assetId: this.assetId, value: fee } }),
+      }
+    } catch (error) {
+      throw new Error(`Failed to parse SUI transaction: ${error}`)
+    }
   }
 }

@@ -1,16 +1,15 @@
 import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
-import { isGridPlus } from '@shapeshiftoss/hdwallet-gridplus'
-import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
-import { isTrezor } from '@shapeshiftoss/hdwallet-trezor'
 import type { Asset } from '@shapeshiftoss/types'
 import { skipToken, useQuery } from '@tanstack/react-query'
 import { useMemo } from 'react'
 
 import type { GetReceiveAddressArgs } from '@/components/MultiHopTrade/types'
 import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
+import { KeyManager } from '@/context/WalletProvider/KeyManager'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { isUtxoAccountId } from '@/lib/utils/utxo'
+import { selectWalletType } from '@/state/slices/localWalletSlice/selectors'
 import { selectPortfolioAccountMetadataByAccountId } from '@/state/slices/portfolioSlice/selectors'
 import { useAppSelector } from '@/state/store'
 
@@ -24,7 +23,7 @@ export const getReceiveAddress = async ({
   const { accountType, bip44Params } = accountMetadata
   const chainAdapter = getChainAdapterManager().get(chainId)
   if (!chainAdapter) return
-  if (!(wallet || pubKey)) return
+  if (!pubKey && !wallet) return
 
   const { accountNumber } = bip44Params
 
@@ -47,21 +46,28 @@ export const useReceiveAddress = ({
   buyAsset: Asset | undefined
 }) => {
   const { wallet } = useWallet().state
+  const walletType = useAppSelector(selectWalletType)
   const buyAccountMetadataFilter = useMemo(() => ({ accountId: buyAccountId }), [buyAccountId])
   const buyAccountMetadata = useAppSelector(state =>
     selectPortfolioAccountMetadataByAccountId(state, buyAccountMetadataFilter),
   )
 
-  // This flag is used to skip the query below and treat missing input as `isLoading` to prevent UI
-  // flashing during state changes. Any of the conditions below returning true should be treated as
-  // "we're not yet ready to determine if a wallet receive address is available"
+  const shouldSkipDeviceDerivation =
+    walletType === KeyManager.Ledger ||
+    walletType === KeyManager.Trezor ||
+    walletType === KeyManager.GridPlus
+
   const isInitializing = useMemo(() => {
-    if (!buyAsset || !wallet) {
+    if (!buyAsset) {
+      return true
+    }
+
+    if (!wallet && !shouldSkipDeviceDerivation) {
       return true
     }
 
     return false
-  }, [buyAsset, wallet])
+  }, [buyAsset, wallet, shouldSkipDeviceDerivation])
 
   const { data: walletReceiveAddress, isLoading } = useQuery<string | null>({
     queryKey: [
@@ -75,10 +81,17 @@ export const useReceiveAddress = ({
       buyAccountId,
     ],
     queryFn:
-      !isInitializing && buyAsset && wallet && buyAccountId && buyAccountMetadata
+      !isInitializing &&
+      buyAsset &&
+      buyAccountId &&
+      buyAccountMetadata &&
+      (wallet || shouldSkipDeviceDerivation)
         ? async () => {
-            // Already partially covered in isInitializing, but TypeScript lyfe mang.
-            if (!buyAsset || !wallet || !buyAccountId || !buyAccountMetadata) {
+            if (!buyAsset || !buyAccountId || !buyAccountMetadata) {
+              return null
+            }
+
+            if (!wallet && !shouldSkipDeviceDerivation) {
               return null
             }
 
@@ -98,13 +111,11 @@ export const useReceiveAddress = ({
             if (isUtxoAccountId(buyAccountId) && !buyAccountMetadata?.accountType)
               throw new Error(`Missing accountType for UTXO account ${buyAccountId}`)
 
-            const skipDeviceDerivation =
-              wallet && (isLedger(wallet) || isGridPlus(wallet) || isTrezor(wallet))
             const walletReceiveAddress = await getReceiveAddress({
               asset: buyAsset,
               wallet,
               accountMetadata: buyAccountMetadata,
-              pubKey: skipDeviceDerivation ? fromAccountId(buyAccountId).account : undefined,
+              pubKey: shouldSkipDeviceDerivation ? fromAccountId(buyAccountId).account : undefined,
             })
 
             return walletReceiveAddress ?? null

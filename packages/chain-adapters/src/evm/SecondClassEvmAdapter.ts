@@ -1,5 +1,5 @@
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
-import { ASSET_NAMESPACE, monadChainId, toAssetId } from '@shapeshiftoss/caip'
+import { ASSET_NAMESPACE, hyperEvmChainId, toAssetId } from '@shapeshiftoss/caip'
 import type { evm } from '@shapeshiftoss/common-api'
 import { MULTICALL3_CONTRACT, viemClientByChainId } from '@shapeshiftoss/contracts'
 import type { EvmChainId, RootBip44Params } from '@shapeshiftoss/types'
@@ -342,8 +342,8 @@ export abstract class SecondClassEvmAdapter<T extends EvmChainId> extends EvmBas
 
   private async fetchInternalTransactions(
     txHash: string,
-  ): Promise<Array<{ from: string; to: string; value: string }>> {
-    if (this.chainId === monadChainId) {
+  ): Promise<{ from: string; to: string; value: string }[]> {
+    if (this.chainId === hyperEvmChainId) {
       return []
     }
 
@@ -352,7 +352,7 @@ export abstract class SecondClassEvmAdapter<T extends EvmChainId> extends EvmBas
         this.provider.send('debug_traceTransaction', [txHash, { tracer: 'callTracer' }]),
       )
 
-      const internalTxs: Array<{ from: string; to: string; value: string }> = []
+      const internalTxs: { from: string; to: string; value: string }[] = []
 
       const extractCalls = (call: any) => {
         if (call.value && call.value !== '0x0' && call.value !== '0x') {

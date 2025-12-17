@@ -79,6 +79,8 @@ export const getTradeRate = async (
       )
     }
 
+    // Wallet connected: use actual addresses
+    // No wallet: use "check-price" sentinel with INTENTS types
     const hasWallet = sendAddress !== undefined
 
     const quoteRequest: QuoteRequest = {

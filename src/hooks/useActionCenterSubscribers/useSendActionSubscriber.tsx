@@ -144,7 +144,10 @@ export const useSendActionSubscriber = () => {
                 }
                 case KnownChainIds.HyperEvmMainnet: {
                   const hyperEvmNodeUrl = getConfig().VITE_HYPEREVM_NODE_URL
-                  const hyperEvmTxStatus = await getHyperEvmTransactionStatus(txHash, hyperEvmNodeUrl)
+                  const hyperEvmTxStatus = await getHyperEvmTransactionStatus(
+                    txHash,
+                    hyperEvmNodeUrl,
+                  )
                   isConfirmed =
                     hyperEvmTxStatus === TxStatus.Confirmed || hyperEvmTxStatus === TxStatus.Failed
                   break

@@ -57,6 +57,9 @@ export const useReceiveAddress = ({
     walletType === KeyManager.Trezor ||
     walletType === KeyManager.GridPlus
 
+  // This flag is used to skip the query below and treat missing input as `isLoading` to prevent UI
+  // flashing during state changes. Any of the conditions below returning true should be treated as
+  // "we're not yet ready to determine if a wallet receive address is available"
   const isInitializing = useMemo(() => {
     if (!buyAsset) {
       return true
@@ -87,6 +90,7 @@ export const useReceiveAddress = ({
       buyAccountMetadata &&
       (wallet || shouldSkipDeviceDerivation)
         ? async () => {
+            // Already partially covered in isInitializing, but TypeScript lyfe mang.
             if (!buyAsset || !buyAccountId || !buyAccountMetadata) {
               return null
             }

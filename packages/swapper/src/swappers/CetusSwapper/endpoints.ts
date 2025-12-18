@@ -1,3 +1,4 @@
+import { getProvidersExcluding } from '@cetusprotocol/aggregator-sdk'
 import { Transaction } from '@cetusprotocol/aggregator-sdk/node_modules/@mysten/sui/transactions'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { bnOrZero } from '@shapeshiftoss/utils'
@@ -19,6 +20,7 @@ import { SwapperName } from '../../types'
 import { checkSuiSwapStatus, getExecutableTradeStep, isExecutableTradeQuote } from '../../utils'
 import { getTradeQuote } from './swapperApi/getTradeQuote'
 import { getTradeRate } from './swapperApi/getTradeRate'
+import { PYTH_DEPENDENT_PROVIDERS } from './utils/constants'
 import { findBestRoute, getAggregatorClient, getCoinType, getSuiClient } from './utils/helpers'
 
 export const cetusApi: SwapperApi = {
@@ -58,11 +60,15 @@ export const cetusApi: SwapperApi = {
     const sellCoinType = getCoinType(sellAsset)
     const buyCoinType = getCoinType(buyAsset)
 
+    // Exclude Pyth-dependent providers to avoid oracle failures
+    const providersWithoutPyth = getProvidersExcluding(PYTH_DEPENDENT_PROVIDERS)
+
     const routerData = await findBestRoute(
       client,
       sellCoinType,
       buyCoinType,
       sellAmountIncludingProtocolFeesCryptoBaseUnit,
+      providersWithoutPyth,
     )
 
     if (!routerData) {

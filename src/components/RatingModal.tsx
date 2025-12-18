@@ -1,11 +1,12 @@
 import { Box, Button, Flex, ModalCloseButton, Textarea } from '@chakra-ui/react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
+import { isMobile } from 'react-device-detect'
 import { useTranslate } from 'react-polyglot'
 
 import { requestStoreReview } from '../context/WalletProvider/MobileWallet/mobileMessageHandlers'
 import { useModal } from '../hooks/useModal/useModal'
 import { useSendDiscordWebhook } from '../hooks/useSendDiscordWebhook'
-import { isMobile } from '../lib/globals'
+import { isMobile as isMobileApp } from '../lib/globals'
 import { getMixPanel } from '../lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from '../lib/mixpanel/types'
 import { captureExceptionWithContext } from '../utils/sentry/helpers'
@@ -38,10 +39,10 @@ export const RatingModal = () => {
       if (newRating === 5) {
         // Track 5-star rating in MixPanel
         mixpanel?.track(MixPanelEvent.FiveStarRating, {
-          platform: isMobile ? 'Mobile App' : 'Web App',
+          platform: isMobileApp ? 'Mobile App' : 'Web App',
         })
 
-        if (isMobile) {
+        if (isMobileApp) {
           try {
             const hasSentReview = await requestStoreReview()
 
@@ -115,7 +116,7 @@ export const RatingModal = () => {
         title: translate('common.feedbackSubmitted'),
         description: translate('common.thankYouForYourFeedback'),
         status: 'success',
-        position: isMobile ? 'top' : 'bottom-right',
+        position: isMobileApp ? 'top' : 'bottom-right',
       })
       close()
     }
@@ -165,7 +166,7 @@ export const RatingModal = () => {
               size='lg'
               minH='120px'
               resize='vertical'
-              bg={isMobile ? 'background.surface.base.default' : undefined}
+              bg={isMobileApp ? 'background.surface.base.default' : undefined}
               borderColor='border.base'
             />
           </Box>

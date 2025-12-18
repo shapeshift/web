@@ -33,7 +33,7 @@ import type {
   ValidAddressResult,
 } from '../types'
 import { ChainAdapterDisplayName, ValidAddressResultType } from '../types'
-import { toAddressNList } from '../utils'
+import { toAddressNList, verifyLedgerAppOpen } from '../utils'
 
 export interface ChainAdapterArgs {
   rpcUrl: string
@@ -102,6 +102,8 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SuiMainnet> {
 
       if (!wallet) throw new Error('wallet is required')
       this.assertSupportsChain(wallet)
+
+      await verifyLedgerAppOpen(this.chainId, wallet)
 
       const address = await wallet.suiGetAddress({
         addressNList: toAddressNList(this.getBip44Params({ accountNumber })),
@@ -323,6 +325,8 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SuiMainnet> {
       if (!wallet) throw new Error('wallet is required')
       this.assertSupportsChain(wallet)
 
+      await verifyLedgerAppOpen(this.chainId, wallet)
+
       const signedTx = await wallet.suiSignTx(txToSign)
 
       if (!signedTx?.signature || !signedTx?.publicKey) {
@@ -351,6 +355,8 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SuiMainnet> {
 
       if (!wallet) throw new Error('wallet is required')
       this.assertSupportsChain(wallet)
+
+      await verifyLedgerAppOpen(this.chainId, wallet)
 
       const signedTx = await wallet.suiSignTx(txToSign)
 

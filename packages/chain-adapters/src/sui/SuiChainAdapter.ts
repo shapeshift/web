@@ -449,7 +449,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SuiMainnet> {
 
       tx.setSender(from)
 
-      if (tokenId) {
+      if (tokenId && tokenId !== '0x2::sui::SUI') {
         // Token transfer - get coin objects for this token type
         const coins = await this.client.getCoins({
           owner: from,

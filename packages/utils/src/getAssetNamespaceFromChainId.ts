@@ -9,7 +9,9 @@ export const getAssetNamespaceFromChainId = (chainId: KnownChainIds): AssetNames
     case KnownChainIds.SolanaMainnet:
       return ASSET_NAMESPACE.splToken
     case KnownChainIds.SuiMainnet:
-      return ASSET_NAMESPACE.slip44
+      return ASSET_NAMESPACE.suiCoin
+    case KnownChainIds.TronMainnet:
+      return ASSET_NAMESPACE.trc20
     case KnownChainIds.EthereumMainnet:
     case KnownChainIds.AvalancheMainnet:
     case KnownChainIds.OptimismMainnet:
@@ -31,7 +33,6 @@ export const getAssetNamespaceFromChainId = (chainId: KnownChainIds): AssetNames
     case KnownChainIds.ZcashMainnet:
     case KnownChainIds.ThorchainMainnet:
     case KnownChainIds.MayachainMainnet:
-    case KnownChainIds.TronMainnet:
       throw Error(`Unhandled case '${chainId}'`)
     default:
       return assertUnreachable(chainId)

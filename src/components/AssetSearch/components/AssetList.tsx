@@ -29,7 +29,7 @@ export type AssetData = {
 
 type AssetListProps = AssetData & ListProps
 
-export const INCREASE_VIEWPORT_BY = { top: 300, bottom: 100 } as const
+export const INCREASE_VIEWPORT_BY = { top: Infinity, bottom: 500 } as const
 
 export const AssetList: FC<AssetListProps> = ({
   assets,

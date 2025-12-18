@@ -352,7 +352,10 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
               if (!response.ok || data.error) {
                 throw new Error(`Blockchair API error: ${data.error || response.statusText}`)
               }
-              return { hex: data.data[input.txid].raw_transaction }
+              return {
+                hex: data.data[input.txid].raw_transaction,
+                blockHeight: data.context.state,
+              }
             }
             throw error
           }

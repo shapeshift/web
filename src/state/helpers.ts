@@ -1,6 +1,7 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import { SwapperName } from '@shapeshiftoss/swapper'
+import { KnownChainIds } from '@shapeshiftoss/types'
 
 import type { FeatureFlags } from './slices/preferencesSlice/preferencesSlice'
 
@@ -57,6 +58,11 @@ export const getEnabledSwappers = (
   const isGridPlusUtxoSell =
     walletName === 'GridPlus' && sellAssetId && isUtxoChainId(fromAssetId(sellAssetId).chainId)
 
+  const isLedgerTronSell =
+    walletName === 'Ledger' &&
+    sellAssetId &&
+    fromAssetId(sellAssetId).chainId === KnownChainIds.TronMainnet
+
   return {
     [SwapperName.Thorchain]:
       ThorSwap &&
@@ -94,7 +100,9 @@ export const getEnabledSwappers = (
     [SwapperName.Cetus]:
       CetusSwap && (!isCrossAccountTrade || isCrossAccountTradeSupported(SwapperName.Cetus)),
     [SwapperName.Sunio]:
-      SunioSwap && (!isCrossAccountTrade || isCrossAccountTradeSupported(SwapperName.Sunio)),
+      SunioSwap &&
+      (!isCrossAccountTrade || isCrossAccountTradeSupported(SwapperName.Sunio)) &&
+      !isLedgerTronSell,
     [SwapperName.Test]: false,
   }
 }

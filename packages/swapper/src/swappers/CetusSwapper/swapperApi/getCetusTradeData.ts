@@ -1,3 +1,4 @@
+import type { RouterDataV3 } from '@cetusprotocol/aggregator-sdk'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { suiAssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
@@ -22,8 +23,11 @@ type CetusTradeData = {
   rate: string
   addressForFeeEstimate: string
   sellCoinType: string
+  buyCoinType: string
+  routerData: RouterDataV3
   protocolFees: Record<AssetId, ProtocolFee>
   adapter: ReturnType<SwapperDeps['assertGetSuiChainAdapter']>
+  rpcUrl: string
 }
 
 export const getCetusTradeData = async (
@@ -109,8 +113,11 @@ export const getCetusTradeData = async (
       rate,
       addressForFeeEstimate,
       sellCoinType,
+      buyCoinType,
+      routerData,
       protocolFees,
       adapter,
+      rpcUrl,
     })
   } catch (error) {
     return Err(

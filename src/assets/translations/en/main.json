@@ -2524,6 +2524,7 @@
       "buildTransaction": "Failed to build transaction.",
       "signTransaction": "Failed to sign transaction.",
       "blindSigningRequired": "Transaction requires blind signing. Please enable Blind signing or Contract Data in your Ledger app settings and try again.",
+      "ledgerTronAllowDataDisabled": "Please enable Transactions Data in your Ledger TRON app settings and try again.",
       "signAndBroadcastTransaction": "Failed to sign and broadcast transaction.",
       "signMessage": "Failed to sign message.",
       "broadcastTransaction": "Failed to broadcast transaction.",

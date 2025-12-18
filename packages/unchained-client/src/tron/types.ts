@@ -1,3 +1,21 @@
+export interface TronTxLog {
+  address: string
+  topics: string[]
+  data: string
+}
+
+export interface TronInternalTransaction {
+  hash: string
+  caller_address: string
+  transferTo_address: string
+  callValueInfo: {
+    callValue?: number
+    tokenId?: string
+  }[]
+  note: string
+  rejected?: boolean
+}
+
 export interface TronTx {
   txid: string
   blockHash: string
@@ -30,6 +48,8 @@ export interface TronTx {
     contractRet?: 'SUCCESS' | 'REVERT' | string
     fee?: number
   }[]
+  log?: TronTxLog[]
+  internal_transactions?: TronInternalTransaction[]
 }
 
 type TRC20Token = {

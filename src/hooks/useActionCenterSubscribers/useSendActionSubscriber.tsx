@@ -8,7 +8,9 @@ import { useNotificationToast } from '../useNotificationToast'
 
 import { useActionCenterContext } from '@/components/Layout/Header/ActionCenter/ActionCenterContext'
 import { GenericTransactionNotification } from '@/components/Layout/Header/ActionCenter/components/Notifications/GenericTransactionNotification'
+import { getConfig } from '@/config'
 import { SECOND_CLASS_CHAINS } from '@/constants/chains'
+import { getHyperEvmTransactionStatus } from '@/lib/utils/hyperevm'
 import { getMonadTransactionStatus } from '@/lib/utils/monad'
 import { getPlasmaTransactionStatus } from '@/lib/utils/plasma'
 import { getSuiTransactionStatus } from '@/lib/utils/sui'
@@ -138,6 +140,16 @@ export const useSendActionSubscriber = () => {
                   const plasmaTxStatus = await getPlasmaTransactionStatus(txHash)
                   isConfirmed =
                     plasmaTxStatus === TxStatus.Confirmed || plasmaTxStatus === TxStatus.Failed
+                  break
+                }
+                case KnownChainIds.HyperEvmMainnet: {
+                  const hyperEvmNodeUrl = getConfig().VITE_HYPEREVM_NODE_URL
+                  const hyperEvmTxStatus = await getHyperEvmTransactionStatus(
+                    txHash,
+                    hyperEvmNodeUrl,
+                  )
+                  isConfirmed =
+                    hyperEvmTxStatus === TxStatus.Confirmed || hyperEvmTxStatus === TxStatus.Failed
                   break
                 }
                 default:

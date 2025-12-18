@@ -141,12 +141,23 @@ export class TronApi {
     let blockNumber = 0
     let blockTimeStamp = 0
     let fee = '0'
+    let log: { address: string; topics: string[]; data: string }[] = []
+    let internal_transactions: {
+      hash: string
+      caller_address: string
+      transferTo_address: string
+      callValueInfo: { callValue?: number; tokenId?: string }[]
+      note: string
+      rejected?: boolean
+    }[] = []
 
     if (infoResponse.ok) {
       const info = await infoResponse.json()
       blockNumber = info.blockNumber || 0
       blockTimeStamp = info.blockTimeStamp || 0
       fee = info.fee ? String(info.fee) : '0'
+      log = info.log || []
+      internal_transactions = info.internal_transactions || []
     }
 
     return {
@@ -158,6 +169,8 @@ export class TronApi {
       confirmations: blockNumber > 0 ? 1 : 0,
       value: '0',
       fee,
+      log,
+      internal_transactions,
     }
   }
 

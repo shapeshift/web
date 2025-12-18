@@ -45,12 +45,16 @@ import {
   supportsCosmos,
   supportsETH,
   supportsGnosis,
+  supportsHyperEvm,
   supportsMayachain,
+  supportsMonad,
   supportsOptimism,
+  supportsPlasma,
   supportsPolygon,
   supportsSolana,
   supportsSui,
   supportsThorchain,
+  supportsTron,
 } from '@shapeshiftoss/hdwallet-core'
 import { GridPlusHDWallet } from '@shapeshiftoss/hdwallet-gridplus'
 import { PhantomHDWallet } from '@shapeshiftoss/hdwallet-phantom'
@@ -418,6 +422,14 @@ export const isAssetSupportedByWallet = (assetId: AssetId, wallet: HDWallet): bo
       return supportsSolana(wallet)
     case suiChainId:
       return supportsSui(wallet)
+    case monadChainId:
+      return supportsMonad(wallet)
+    case hyperEvmChainId:
+      return supportsHyperEvm(wallet)
+    case plasmaChainId:
+      return supportsPlasma(wallet)
+    case tronChainId:
+      return supportsTron(wallet)
     default:
       return false
   }

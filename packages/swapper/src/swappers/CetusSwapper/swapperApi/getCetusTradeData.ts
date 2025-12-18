@@ -9,7 +9,7 @@ import { Err, Ok } from '@sniptt/monads'
 import type { ProtocolFee, SwapErrorRight, SwapperDeps } from '../../../types'
 import { TradeQuoteError } from '../../../types'
 import { getInputOutputRate, makeSwapErrorRight } from '../../../utils'
-import { isSupportedChainId } from '../utils/constants'
+import { isSupportedChainId, PYTH_DEPENDENT_PROVIDERS } from '../utils/constants'
 import { findBestRoute, getAggregatorClient, getCoinType } from '../utils/helpers'
 
 // DEX providers that require Pyth oracle price feeds for transaction construction

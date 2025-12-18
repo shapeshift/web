@@ -20,6 +20,7 @@ import { SwapperName } from '../../types'
 import { checkSuiSwapStatus, getExecutableTradeStep, isExecutableTradeQuote } from '../../utils'
 import { getTradeQuote } from './swapperApi/getTradeQuote'
 import { getTradeRate } from './swapperApi/getTradeRate'
+import { PYTH_DEPENDENT_PROVIDERS } from './utils/constants'
 import { findBestRoute, getAggregatorClient, getCoinType, getSuiClient } from './utils/helpers'
 
 // DEX providers that require Pyth oracle price feeds for transaction construction

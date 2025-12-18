@@ -10,6 +10,7 @@ import { useActionCenterContext } from '@/components/Layout/Header/ActionCenter/
 import { GenericTransactionNotification } from '@/components/Layout/Header/ActionCenter/components/Notifications/GenericTransactionNotification'
 import { getConfig } from '@/config'
 import { SECOND_CLASS_CHAINS } from '@/constants/chains'
+import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
 import { getHyperEvmTransactionStatus } from '@/lib/utils/hyperevm'
 import { getMonadTransactionStatus } from '@/lib/utils/monad'
 import { getPlasmaTransactionStatus } from '@/lib/utils/plasma'
@@ -20,6 +21,7 @@ import { selectPendingWalletSendActions } from '@/state/slices/actionSlice/selec
 import { ActionStatus } from '@/state/slices/actionSlice/types'
 import { portfolioApi } from '@/state/slices/portfolioSlice/portfolioSlice'
 import { selectTxs } from '@/state/slices/selectors'
+import { txHistory } from '@/state/slices/txHistorySlice/txHistorySlice'
 import { serializeTxIndex } from '@/state/slices/txHistorySlice/utils'
 import { useAppDispatch, useAppSelector } from '@/state/store'
 
@@ -158,6 +160,23 @@ export const useSendActionSubscriber = () => {
               }
 
               if (isConfirmed) {
+                // Parse and upsert Tx for second-class chains
+                try {
+                  const adapter = getChainAdapterManager().get(chainId)
+                  if (adapter?.parseTx) {
+                    const parsedTx = await adapter.parseTx(txHash, accountAddress)
+                    dispatch(
+                      txHistory.actions.onMessage({
+                        message: parsedTx,
+                        accountId,
+                      }),
+                    )
+                  }
+                } catch (error) {
+                  // Silent fail - Tx just won't show in history
+                  console.error('Failed to parse and upsert Tx:', error)
+                }
+
                 completeAction(action)
 
                 const intervalId = pollingIntervalsRef.current.get(pollingKey)
@@ -185,7 +204,7 @@ export const useSendActionSubscriber = () => {
 
       completeAction(action)
     })
-  }, [txs, pendingSendActions, completeAction])
+  }, [txs, pendingSendActions, completeAction, dispatch])
 
   useEffect(() => {
     const intervals = pollingIntervalsRef.current

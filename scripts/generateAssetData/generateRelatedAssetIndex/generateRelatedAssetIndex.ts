@@ -11,7 +11,6 @@ import {
   fromAssetId,
   optimismAssetId,
 } from '@shapeshiftoss/caip'
-import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { Asset } from '@shapeshiftoss/types'
 import {
   createThrottle,
@@ -92,6 +91,8 @@ const chunkArray = <T>(array: T[], chunkSize: number) => {
   return result
 }
 
+const PLASMA_USDT0_ASSET_ID = 'eip155:9745/erc20:0xb8ce59fc3717ada4c02eadf9682a9e934f625ebb'
+
 const getZerionRelatedAssetIds = async (
   assetId: AssetId,
   assetData: Record<AssetId, PartialFields<Asset, 'relatedAssetKey'>>,
@@ -106,9 +107,9 @@ const getZerionRelatedAssetIds = async (
     },
   }
 
-  const { chainId, assetReference } = fromAssetId(assetId)
+  const { assetReference } = fromAssetId(assetId)
 
-  if (!isEvmChainId(chainId) || FEE_ASSET_IDS.includes(assetId)) return
+  if (FEE_ASSET_IDS.includes(assetId)) return
 
   const filter = { params: { 'filter[implementation_address]': assetReference } }
   const url = '/fungibles'
@@ -131,11 +132,14 @@ const getZerionRelatedAssetIds = async (
 
   const implementations = firstEntry.attributes.implementations
 
-  // Use all assetIds actually present in the dataset
+  // Use all assetIds actually present in the dataset, excluding Plasma USDT0 (corrupt CoinGecko data)
   const allRelatedAssetIds = implementations
     ?.map(zerionImplementationToMaybeAssetId)
     .filter(isSome)
-    .filter(relatedAssetId => assetData[relatedAssetId] !== undefined)
+    .filter(relatedAssetId => {
+      return assetData[relatedAssetId] !== undefined
+    })
+    .filter(relatedAssetId => relatedAssetId !== PLASMA_USDT0_ASSET_ID)
 
   if (!allRelatedAssetIds || allRelatedAssetIds.length <= 1) {
     return
@@ -161,11 +165,12 @@ const getCoingeckoRelatedAssetIds = async (
 
   const platforms = data.platforms
 
-  // Use all assetIds actually present in the dataset
+  // Use all assetIds actually present in the dataset, excluding Plasma USDT0 (corrupt CoinGecko data)
   const allRelatedAssetIds = Object.entries(platforms)
     ?.map(coingeckoPlatformDetailsToMaybeAssetId)
     .filter(isSome)
     .filter(relatedAssetId => assetData[relatedAssetId] !== undefined)
+    .filter(relatedAssetId => relatedAssetId !== PLASMA_USDT0_ASSET_ID)
 
   if (allRelatedAssetIds.length <= 1) {
     return
@@ -185,12 +190,11 @@ const processRelatedAssetIds = async (
   assetId: AssetId,
   assetData: Record<AssetId, PartialFields<Asset, 'relatedAssetKey'>>,
   relatedAssetIndex: Record<AssetId, AssetId[]>,
-  coingeckoPlatformsByAssetId: Record<AssetId, number>,
   throttle: () => Promise<void>,
 ): Promise<void> => {
   // Skip related asset generation for Plasma usdt0 - Coingecko has corrupt data claiming
   // it shares the same Arbitrum/Polygon contracts as real USDT, which corrupts groupings
-  if (assetId === 'eip155:9745/erc20:0xb8ce59fc3717ada4c02eadf9682a9e934f625ebb') {
+  if (assetId === PLASMA_USDT0_ASSET_ID) {
     assetData[assetId].relatedAssetKey = null
     await throttle()
     return
@@ -200,18 +204,6 @@ const processRelatedAssetIds = async (
 
   if (existingRelatedAssetKey) {
     return
-  }
-
-  // For assets with relatedAssetKey: null or undefined, check if CoinGecko now has multiple platforms
-  // This optimization skips expensive API calls for assets that only exist on one chain
-  if (existingRelatedAssetKey === null || existingRelatedAssetKey === undefined) {
-    const platformCount = coingeckoPlatformsByAssetId[assetId]
-    if (platformCount === undefined || platformCount <= 1) {
-      assetData[assetId].relatedAssetKey = null
-      // Still no related assets upstream, skip expensive API calls
-      await throttle()
-      return
-    }
   }
 
   console.log(`Processing related assetIds for ${assetId}`)
@@ -225,7 +217,7 @@ const processRelatedAssetIds = async (
         )
         assetData[assetId].relatedAssetKey = key
       }
-      return // Else, early return as this asset is already processed
+      return // Early return - asset already processed and grouped
     }
   }
 
@@ -264,14 +256,29 @@ const processRelatedAssetIds = async (
     relatedAssetIds: [],
   }
 
-  const relatedAssetKey =
+  let relatedAssetKey =
     manualRelatedAssetsResult?.relatedAssetKey ||
     zerionRelatedAssetsResult?.relatedAssetKey ||
     coingeckoRelatedAssetsResult?.relatedAssetKey ||
     assetId
 
+  // If the relatedAssetKey itself points to another key, follow the chain to find the actual key
+  // This handles the case where Tron WETH -> ETH WETH, but ETH WETH -> Arbitrum WETH
+  const relatedAssetKeyData = assetData[relatedAssetKey]?.relatedAssetKey
+  if (relatedAssetKeyData) {
+    relatedAssetKey = relatedAssetKeyData
+  }
+
+  // If the relatedAssetKey is Plasma USDT0, reject this entire grouping
+  if (relatedAssetKey === PLASMA_USDT0_ASSET_ID) {
+    assetData[assetId].relatedAssetKey = null
+    await throttle()
+    return
+  }
+
   const zerionRelatedAssetIds = zerionRelatedAssetsResult?.relatedAssetIds ?? []
   const coingeckoRelatedAssetIds = coingeckoRelatedAssetsResult?.relatedAssetIds ?? []
+
   const mergedRelatedAssetIds = Array.from(
     new Set([
       ...manualRelatedAssetIds,
@@ -279,7 +286,7 @@ const processRelatedAssetIds = async (
       ...coingeckoRelatedAssetIds,
       assetId,
     ]),
-  )
+  ).filter(id => id !== PLASMA_USDT0_ASSET_ID) // Filter out Plasma USDT0 from final merged array
 
   // Has zerion-provided related assets, or manually added ones
   const hasRelatedAssets = mergedRelatedAssetIds.length > 1
@@ -290,13 +297,17 @@ const processRelatedAssetIds = async (
     const isAlreadyGrouped = existingGroup && existingGroup.includes(assetId)
 
     if (!isAlreadyGrouped) {
-      // This is the first asset in this group to be processed, set up the group
-      relatedAssetIndex[relatedAssetKey] = mergedRelatedAssetIds
+      // Merge with existing group instead of replacing it
+      const currentGroup = relatedAssetIndex[relatedAssetKey] || []
+      relatedAssetIndex[relatedAssetKey] = Array.from(
+        new Set([...currentGroup, ...mergedRelatedAssetIds]),
+      )
     }
 
     // Always ensure all assets in the group have the correct relatedAssetKey
     // This handles both new groups and updates from parallel processing
-    for (const relatedAssetId of mergedRelatedAssetIds) {
+    const allAssetsInGroup = relatedAssetIndex[relatedAssetKey]
+    for (const relatedAssetId of allAssetsInGroup) {
       if (assetData[relatedAssetId]) {
         assetData[relatedAssetId].relatedAssetKey = relatedAssetKey
       }
@@ -320,26 +331,6 @@ export const generateRelatedAssetIndex = async () => {
 
   const { assetData: generatedAssetData, sortedAssetIds } = decodeAssetData(encodedAssetData)
   const relatedAssetIndex = decodeRelatedAssetIndex(encodedRelatedAssetIndex, sortedAssetIds)
-
-  const coingeckoData = await adapters.fetchCoingeckoData(adapters.coingeckoUrl)
-
-  const coingeckoPlatformsByAssetId = coingeckoData.reduce<Record<AssetId, number>>((acc, coin) => {
-    const supportedPlatforms = Object.entries(coin.platforms)
-      .map(([platform, address]) => {
-        try {
-          return coingeckoPlatformDetailsToMaybeAssetId([platform, address])
-        } catch {
-          return undefined
-        }
-      })
-      .filter(isSome)
-
-    for (const assetId of supportedPlatforms) {
-      acc[assetId] = supportedPlatforms.length
-    }
-
-    return acc
-  }, {})
 
   // Remove stale related asset data from the assetData where:
   // a) the primary related asset no longer exists in the dataset
@@ -376,18 +367,13 @@ export const generateRelatedAssetIndex = async () => {
     drainPerInterval: 25, // Adjusted drain rate to replenish at a sustainable pace
     intervalMs: 2000,
   })
+
   const chunks = chunkArray(Object.keys(generatedAssetData), BATCH_SIZE)
   for (const [i, batch] of chunks.entries()) {
     console.log(`Processing chunk: ${i} of ${chunks.length}`)
     await Promise.all(
       batch.map(async assetId => {
-        await processRelatedAssetIds(
-          assetId,
-          generatedAssetData,
-          relatedAssetIndex,
-          coingeckoPlatformsByAssetId,
-          throttle,
-        )
+        await processRelatedAssetIds(assetId, generatedAssetData, relatedAssetIndex, throttle)
         return
       }),
     )

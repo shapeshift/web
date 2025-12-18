@@ -23,7 +23,7 @@ export const getReceiveAddress = async ({
   const { accountType, bip44Params } = accountMetadata
   const chainAdapter = getChainAdapterManager().get(chainId)
   if (!chainAdapter) return
-  if (!pubKey && !wallet) return
+  if (!(wallet || pubKey)) return
 
   const { accountNumber } = bip44Params
 

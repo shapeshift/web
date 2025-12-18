@@ -59,3 +59,26 @@ export type TenderlyConfig = {
   accountSlug: string
   projectSlug: string
 }
+
+export type TenderlyInternalTransaction = {
+  from: Address
+  to: Address
+  value: string
+}
+
+export type TenderlyTransactionResponse = {
+  transaction: {
+    hash: string
+    block_number: number
+    from: Address
+    to: Address
+    input: string
+    value: string
+    gas: number
+    gas_used: number
+    gas_price: string
+    status: boolean
+    error_message?: string
+    internal_transactions?: TenderlyInternalTransaction[]
+  }
+}

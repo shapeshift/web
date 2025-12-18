@@ -202,6 +202,9 @@ export const AccountDropdown: FC<AccountDropdownProps> = memo(
 
     const translate = useTranslate()
     const asset = useAppSelector((s: ReduxState) => selectAssetById(s, assetId))
+
+    if (!asset) throw new Error(`AccountDropdown: no asset found for assetId ${assetId}!`)
+
     const accountMetadata = useSelector(selectPortfolioAccountMetadata)
     const highestUserCurrencyBalanceAccountId = useAppSelector(state =>
       selectHighestUserCurrencyBalanceAccountByAssetId(state, { assetId }),

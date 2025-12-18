@@ -63,7 +63,9 @@ export const AccountTable = memo(({ forceCompactView = false }: AccountTableProp
   const isConnected = isWalletConnected || isLedgerReadOnly
 
   const loading = useSelector(selectIsPortfolioLoading)
-  const rowData = useSelector(selectPrimaryPortfolioAccountRowsSortedByBalance)
+  const rowData = useSelector((state: any) =>
+    isConnected ? selectPrimaryPortfolioAccountRowsSortedByBalance(state) : [],
+  )
   const assets = useSelector(selectAssets)
   const receive = useModal('receive')
   const assetActionsDrawer = useModal('assetActionsDrawer')
@@ -280,18 +282,10 @@ export const AccountTable = memo(({ forceCompactView = false }: AccountTableProp
     return rowData.map(row => assets[row.assetId]).filter(isSome)
   }, [rowData, assets])
 
-  const filteredData = useMemo(() => {
-    return isConnected ? data : []
-  }, [isConnected, data])
-
-  const filteredAccountsAssets = useMemo(() => {
-    return isConnected ? accountsAssets : []
-  }, [isConnected, accountsAssets])
-
   if (!isLargerThanMd || forceCompactView) {
     return (
       <AssetList
-        assets={filteredAccountsAssets}
+        assets={accountsAssets}
         handleClick={handleAssetClick}
         handleLongPress={handleAssetLongPress}
         height={
@@ -311,7 +305,7 @@ export const AccountTable = memo(({ forceCompactView = false }: AccountTableProp
   return (
     <InfiniteTable
       columns={columns}
-      data={filteredData}
+      data={data}
       onRowClick={handlePrimaryRowClick}
       onRowLongPress={handleRowLongPress}
       displayHeaders={showHeaders}

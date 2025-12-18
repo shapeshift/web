@@ -131,10 +131,9 @@ export const TCY = () => {
       <TCYHeader
         currentAccount={currentAccount}
         onAccountNumberChange={handleAccountNumberChange}
-        isConnected={isConnected}
       />
     ),
-    [currentAccount, handleAccountNumberChange, isConnected],
+    [currentAccount, handleAccountNumberChange],
   )
 
   const isTcyWidgetEnabled = useFeatureFlag('ThorchainTcyWidget')

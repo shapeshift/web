@@ -11,13 +11,17 @@ import { TCYHeader } from './components/TCYHeader'
 import { Widget } from './components/Widget'
 import { useTcyStaker } from './queries/useTcyStaker'
 
+import { ButtonWalletPredicate } from '@/components/ButtonWalletPredicate/ButtonWalletPredicate'
 import { Main } from '@/components/Layout/Main'
+import { ResultsEmpty } from '@/components/ResultsEmpty'
+import { KeyManager } from '@/context/WalletProvider/KeyManager'
 import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { useLocalStorage } from '@/hooks/useLocalStorage/useLocalStorage'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { fromBaseUnit } from '@/lib/math'
 import { THOR_PRECISION } from '@/lib/utils/thorchain/constants'
+import { selectWalletType } from '@/state/slices/localWalletSlice/selectors'
 import { marketApi } from '@/state/slices/marketDataSlice/marketDataSlice'
 import type { WalletId } from '@/state/slices/portfolioSlice/portfolioSliceCommon'
 import {
@@ -42,8 +46,13 @@ export const TCY = () => {
   const [userSelectedAccountNumber, setUserSelectedAccountNumber] = useState<number | undefined>()
 
   const {
-    state: { walletInfo },
+    state: { walletInfo, isConnected: isWalletConnected },
   } = useWallet()
+
+  const walletType = useAppSelector(selectWalletType)
+  const isLedgerReadOnlyEnabled = useFeatureFlag('LedgerReadOnly')
+  const isLedgerReadOnly = isLedgerReadOnlyEnabled && walletType === KeyManager.Ledger
+  const isConnected = isWalletConnected || isLedgerReadOnly
 
   const [walletIdToDefaultTcyAccountId, setWalletIdToDefaultTcyAccountId] = useLocalStorage<
     Record<WalletId, AccountId>
@@ -138,16 +147,23 @@ export const TCY = () => {
 
   return (
     <Main pb={mainPaddingBottom} headerComponent={tcyHeader} px={4} isSubPage>
-      <Stack alignItems='flex-start' spacing={4} mx='auto' direction={direction}>
-        <Stack spacing={4} flex='1 1 0%' width='full'>
-          <Overview currentAccount={currentAccount} />
-          <Claim currentAccount={currentAccount} />
-          {isTcyActivityEnabled && <Activity currentAccount={currentAccount} />}
+      {!isConnected ? (
+        <ResultsEmpty
+          title={<ButtonWalletPredicate isValidWallet />}
+          body={['common.connectWalletToGetStartedWith', { feature: 'TCY' }]}
+        />
+      ) : (
+        <Stack alignItems='flex-start' spacing={4} mx='auto' direction={direction}>
+          <Stack spacing={4} flex='1 1 0%' width='full'>
+            <Overview currentAccount={currentAccount} />
+            <Claim currentAccount={currentAccount} />
+            {isTcyActivityEnabled && <Activity currentAccount={currentAccount} />}
+          </Stack>
+          <Stack flex={1} width='full' maxWidth={maxWidth} spacing={4}>
+            {isTcyWidgetEnabled && <Widget currentAccount={currentAccount} />}
+          </Stack>
         </Stack>
-        <Stack flex={1} width='full' maxWidth={maxWidth} spacing={4}>
-          {isTcyWidgetEnabled && <Widget currentAccount={currentAccount} />}
-        </Stack>
-      </Stack>
+      )}
     </Main>
   )
 }

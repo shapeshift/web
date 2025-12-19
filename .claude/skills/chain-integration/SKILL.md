@@ -1367,6 +1367,8 @@ case CHAIN_REFERENCE.[ChainName]Mainnet:
   }
 ```
 
+**IMPORTANT**: Make sure ALL chains that are in the `chainIdToRelayChainId` mapping in `constant.ts` have a corresponding case in the switch statement in `relayTokenToAssetId.ts`. Missing cases will cause runtime errors like `chainId 'XX' not supported`.
+
 **Check Relay docs** for your chain:
 - <https://docs.relay.link/resources/supported-chains>
 - Verify chain ID and native token address

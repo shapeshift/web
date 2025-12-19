@@ -33,7 +33,7 @@ import { SwapperName, TradeQuoteError } from './types'
 import { makeSwapErrorRight } from './utils'
 
 export const QUOTE_TIMEOUT_MS = 60_000
-export const TRADE_STATUS_POLL_INTERVAL_MILLISECONDS = 10_000
+export const TRADE_STATUS_POLL_INTERVAL_MILLISECONDS = 5_000
 
 export const QUOTE_TIMEOUT_ERROR = makeSwapErrorRight({
   code: TradeQuoteError.Timeout,

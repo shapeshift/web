@@ -6,10 +6,14 @@ import { useTranslate } from 'react-polyglot'
 
 import { Amount } from '@/components/Amount/Amount'
 import { TooltipWithTouch } from '@/components/TooltipWithTouch'
+import { KeyManager } from '@/context/WalletProvider/KeyManager'
 import { useBalanceChartData } from '@/hooks/useBalanceChartData/useBalanceChartData'
+import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
+import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bn } from '@/lib/bignumber/bignumber'
 import { calculateFiatChange, calculatePercentChange } from '@/lib/charts'
 import { ErroredTxHistoryAccounts } from '@/pages/Dashboard/components/ErroredTxHistoryAccounts'
+import { selectWalletType } from '@/state/slices/localWalletSlice/selectors'
 import {
   selectIsPortfolioLoading,
   selectPortfolioTotalUserCurrencyBalance,
@@ -23,6 +27,14 @@ type WalletBalanceChangeProps = {
 export const WalletBalanceChange = memo(
   ({ showErroredAccounts = true, ...flexProps }: WalletBalanceChangeProps) => {
     const translate = useTranslate()
+    const {
+      state: { isConnected: isWalletConnected },
+    } = useWallet()
+    const walletType = useAppSelector(selectWalletType)
+    const isLedgerReadOnlyEnabled = useFeatureFlag('LedgerReadOnly')
+    const isLedgerReadOnly = isLedgerReadOnlyEnabled && walletType === KeyManager.Ledger
+    const isConnected = isWalletConnected || isLedgerReadOnly
+
     const portfolioTotalUserCurrencyBalance = useAppSelector(
       selectPortfolioTotalUserCurrencyBalance,
     )
@@ -46,21 +58,25 @@ export const WalletBalanceChange = memo(
       return `${percentChange.toFixed(1)}%`
     }, [percentChange])
 
+    // Use '0' balance when not connected to prevent phantom stale data
+    const displayBalance = isConnected ? portfolioTotalUserCurrencyBalance : '0'
+    const displayFiatChange = isConnected ? fiatChange : 0
+
     return (
       <Flex flexDir='column' justifyContent='center' alignItems='center' {...flexProps}>
         <Flex>
           <Heading as='h2' fontSize='4xl' lineHeight='1' mr={2}>
             <Skeleton isLoaded={isLoaded}>
-              <Amount.Fiat value={portfolioTotalUserCurrencyBalance} />
+              <Amount.Fiat value={displayBalance} />
             </Skeleton>
           </Heading>
           {showErroredAccounts && <ErroredTxHistoryAccounts />}
         </Flex>
-        {bn(percentChange).isFinite() && (
+        {isConnected && bn(percentChange).isFinite() && (
           <Skeleton mt={2} isLoaded={isChangeLoaded}>
             <TooltipWithTouch label={translate('defi.walletBalanceChange24Hr')}>
               <Flex gap={1} fontSize='md' color={color} fontWeight='medium'>
-                <Amount.Fiat value={fiatChange} /> ({formattedPercentChange})
+                <Amount.Fiat value={displayFiatChange} /> ({formattedPercentChange})
               </Flex>
             </TooltipWithTouch>
           </Skeleton>

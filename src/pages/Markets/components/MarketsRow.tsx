@@ -13,7 +13,6 @@ import {
   useMediaQuery,
 } from '@chakra-ui/react'
 import type { ChainId } from '@shapeshiftoss/caip'
-import { KnownChainIds } from '@shapeshiftoss/types'
 import { useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Link, useNavigate, useParams } from 'react-router-dom'
@@ -23,12 +22,11 @@ import { sortOptionsByCategory } from '../constants'
 import type { RowProps } from '../hooks/useRows'
 
 import { ChainDropdown } from '@/components/ChainDropdown/ChainDropdown'
+import { knownChainIds } from '@/constants/chains'
 import { OrderDropdown } from '@/components/OrderDropdown/OrderDropdown'
 import { OrderDirection } from '@/components/OrderDropdown/types'
 import { SortDropdown } from '@/components/SortDropdown/SortDropdown'
 import { SortOptionsKeys } from '@/components/SortDropdown/types'
-import { selectFeatureFlag } from '@/state/slices/selectors'
-import { useAppSelector } from '@/state/store'
 import { breakpoints } from '@/theme/theme'
 
 const chevronDownIcon = <ChevronDownIcon />
@@ -79,18 +77,13 @@ export const MarketsRow: React.FC<MarketsRowProps> = ({
   const [selectedSort, setSelectedSort] = useState<SortOptionsKeys>(
     (params.category && sortOptionsByCategory[params.category]?.[0]) ?? SortOptionsKeys.Volume,
   )
-  const isArbitrumNovaEnabled = useAppSelector(state => selectFeatureFlag(state, 'ArbitrumNova'))
   const [isSmallerThanLg] = useMediaQuery(`(max-width: ${breakpoints.lg})`)
 
   const chainIds = useMemo(() => {
-    if (!supportedChainIds)
-      return Object.values(KnownChainIds).filter(chainId => {
-        if (!isArbitrumNovaEnabled && chainId === KnownChainIds.ArbitrumNovaMainnet) return false
-        return true
-      })
+    if (!supportedChainIds) return knownChainIds
 
     return supportedChainIds
-  }, [isArbitrumNovaEnabled, supportedChainIds])
+  }, [supportedChainIds])
 
   const Title = useMemo(() => {
     if (!title) return null

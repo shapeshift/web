@@ -30,7 +30,9 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import { Amount } from '@/components/Amount/Amount'
 import { RFOXIcon } from '@/components/Icons/RFOX'
 import { Text } from '@/components/Text'
+import { KeyManager } from '@/context/WalletProvider/KeyManager'
 import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
+import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { fromBaseUnit } from '@/lib/math'
 import { formatSecondsToDuration } from '@/lib/utils/time'
@@ -52,6 +54,7 @@ import { useRFOXContext } from '@/pages/RFOX/hooks/useRfoxContext'
 import { useStakingInfoQuery } from '@/pages/RFOX/hooks/useStakingInfoQuery'
 import { useTimeInPoolQuery } from '@/pages/RFOX/hooks/useTimeInPoolQuery'
 import type { AbiStakingInfo } from '@/pages/RFOX/types'
+import { selectWalletType } from '@/state/slices/localWalletSlice/selectors'
 import { marketApi } from '@/state/slices/marketDataSlice/marketDataSlice'
 import {
   selectAccountIdByAccountNumberAndChainId,
@@ -112,6 +115,14 @@ export const RFOXSection = () => {
   const selectedUnstakingRequest = location.state?.selectedUnstakingRequest as
     | UnstakingRequest
     | undefined
+
+  const {
+    state: { isConnected: isWalletConnected },
+  } = useWallet()
+  const walletType = useAppSelector(selectWalletType)
+  const isLedgerReadOnlyEnabled = useFeatureFlag('LedgerReadOnly')
+  const isLedgerReadOnly = isLedgerReadOnlyEnabled && walletType === KeyManager.Ledger
+  const isConnected = isWalletConnected || isLedgerReadOnly
 
   const [stakingAssetId, setStakingAssetId] = useState(foxOnArbitrumOneAssetId)
   const [isStakeModalOpen, setIsStakeModalOpen] = useState(false)
@@ -204,13 +215,14 @@ export const RFOXSection = () => {
   })
 
   const stakingBalanceUserCurrency = useMemo(() => {
+    if (!isConnected) return '0'
     if (!stakingAssetMarketData?.price) return '0'
     if (!stakingBalanceCryptoPrecisionQuery.data) return '0'
 
     return bnOrZero(stakingBalanceCryptoPrecisionQuery.data)
       .times(bnOrZero(stakingAssetMarketData.price))
       .toFixed(2)
-  }, [stakingBalanceCryptoPrecisionQuery.data, stakingAssetMarketData?.price])
+  }, [isConnected, stakingBalanceCryptoPrecisionQuery.data, stakingAssetMarketData?.price])
 
   const currentEpochMetadataQuery = useCurrentEpochMetadataQuery()
 
@@ -221,18 +233,19 @@ export const RFOXSection = () => {
   })
 
   const currentEpochRewardsCryptoPrecision = useMemo(
-    () => fromBaseUnit(currentEpochRewardsQuery.data?.toString(), runeAsset?.precision ?? 0),
-    [currentEpochRewardsQuery.data, runeAsset?.precision],
+    () => isConnected ? fromBaseUnit(currentEpochRewardsQuery.data?.toString(), runeAsset?.precision ?? 0) : '0',
+    [isConnected, currentEpochRewardsQuery.data, runeAsset?.precision],
   )
 
   const currentEpochRewardsUserCurrency = useMemo(() => {
+    if (!isConnected) return '0'
     if (!runeMarketData?.price) return '0'
     if (!currentEpochRewardsCryptoPrecision) return '0'
 
     return bnOrZero(currentEpochRewardsCryptoPrecision)
       .times(bnOrZero(runeMarketData.price))
       .toFixed(2)
-  }, [currentEpochRewardsCryptoPrecision, runeMarketData?.price])
+  }, [isConnected, currentEpochRewardsCryptoPrecision, runeMarketData?.price])
 
   const lifetimeRewardsQuery = useLifetimeRewardsQuery({
     stakingAssetId,
@@ -240,16 +253,17 @@ export const RFOXSection = () => {
   })
 
   const lifetimeRewardsCryptoPrecision = useMemo(
-    () => fromBaseUnit(lifetimeRewardsQuery.data?.toString(), runeAsset?.precision ?? 0),
-    [lifetimeRewardsQuery.data, runeAsset?.precision],
+    () => isConnected ? fromBaseUnit(lifetimeRewardsQuery.data?.toString(), runeAsset?.precision ?? 0) : '0',
+    [isConnected, lifetimeRewardsQuery.data, runeAsset?.precision],
   )
 
   const lifetimeRewardsUserCurrency = useMemo(() => {
+    if (!isConnected) return '0'
     if (!runeMarketData?.price) return '0'
     if (!lifetimeRewardsCryptoPrecision) return '0'
 
     return bnOrZero(lifetimeRewardsCryptoPrecision).times(bnOrZero(runeMarketData.price)).toFixed(2)
-  }, [lifetimeRewardsCryptoPrecision, runeMarketData?.price])
+  }, [isConnected, lifetimeRewardsCryptoPrecision, runeMarketData?.price])
 
   const {
     data: timeInPoolHuman,
@@ -261,6 +275,10 @@ export const RFOXSection = () => {
     select: timeInPoolSeconds =>
       timeInPoolSeconds === 0n ? 'N/A' : formatSecondsToDuration(Number(timeInPoolSeconds)),
   })
+
+  // Derived values that respect isConnected to prevent phantom balances
+  const displayStakingBalanceCryptoPrecision = isConnected ? stakingBalanceCryptoPrecisionQuery.data : '0'
+  const displayTimeInPoolHuman = isConnected ? (timeInPoolHuman ?? 'N/A') : 'N/A'
 
   const handleSelectAssetId = useCallback((filter: Filter) => {
     setStakingAssetId(filter.assetId ?? foxOnArbitrumOneAssetId)
@@ -405,7 +423,7 @@ export const RFOXSection = () => {
               <Skeleton isLoaded={!stakingBalanceCryptoPrecisionQuery.isLoading}>
                 <Amount.Crypto
                   fontSize='2xl'
-                  value={stakingBalanceCryptoPrecisionQuery.data}
+                  value={displayStakingBalanceCryptoPrecision}
                   symbol={stakingAsset.symbol ?? ''}
                 />
               </Skeleton>
@@ -441,7 +459,7 @@ export const RFOXSection = () => {
               mb={1}
             />
             <Skeleton isLoaded={!Boolean(isTimeInPoolLoading)}>
-              <CText fontSize='2xl'>{timeInPoolHuman ?? 'N/A'}</CText>
+              <CText fontSize='2xl'>{displayTimeInPoolHuman}</CText>
             </Skeleton>
           </Stack>
         </SimpleGrid>

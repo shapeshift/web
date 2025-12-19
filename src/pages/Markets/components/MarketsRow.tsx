@@ -22,11 +22,11 @@ import { sortOptionsByCategory } from '../constants'
 import type { RowProps } from '../hooks/useRows'
 
 import { ChainDropdown } from '@/components/ChainDropdown/ChainDropdown'
-import { knownChainIds } from '@/constants/chains'
 import { OrderDropdown } from '@/components/OrderDropdown/OrderDropdown'
 import { OrderDirection } from '@/components/OrderDropdown/types'
 import { SortDropdown } from '@/components/SortDropdown/SortDropdown'
 import { SortOptionsKeys } from '@/components/SortDropdown/types'
+import { knownChainIds } from '@/constants/chains'
 import { breakpoints } from '@/theme/theme'
 
 const chevronDownIcon = <ChevronDownIcon />

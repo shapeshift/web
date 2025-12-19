@@ -4,7 +4,11 @@ import React, { memo, useCallback, useMemo } from 'react'
 
 import type { TradeAmountInputProps } from '@/components/MultiHopTrade/components/TradeAmountInput'
 import { TradeAmountInput } from '@/components/MultiHopTrade/components/TradeAmountInput'
+import { KeyManager } from '@/context/WalletProvider/KeyManager'
+import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
+import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
+import { selectWalletType } from '@/state/slices/localWalletSlice/selectors'
 import {
   selectMarketDataByAssetIdUserCurrency,
   selectPortfolioCryptoPrecisionBalanceByFilter,
@@ -35,6 +39,14 @@ type AssetInputLoadedProps = Omit<TradeAmountInputProps, 'onMaxClick'> & {
 
 const AssetInputWithAsset: React.FC<AssetInputLoadedProps> = memo(props => {
   const { assetId, accountId } = props
+  const {
+    state: { isConnected: isWalletConnected },
+  } = useWallet()
+  const walletType = useAppSelector(selectWalletType)
+  const isLedgerReadOnlyEnabled = useFeatureFlag('LedgerReadOnly')
+  const isLedgerReadOnly = isLedgerReadOnlyEnabled && walletType === KeyManager.Ledger
+  const isConnected = isWalletConnected || isLedgerReadOnly
+
   const marketData = useAppSelector(state => selectMarketDataByAssetIdUserCurrency(state, assetId))
 
   const filter = useMemo(
@@ -45,7 +57,7 @@ const AssetInputWithAsset: React.FC<AssetInputLoadedProps> = memo(props => {
     [accountId, assetId],
   )
   const balance = useAppSelector(state =>
-    selectPortfolioCryptoPrecisionBalanceByFilter(state, filter),
+    isConnected ? selectPortfolioCryptoPrecisionBalanceByFilter(state, filter) : '0',
   )
   const fiatBalance = bnOrZero(balance)
     .times(bnOrZero(marketData?.price))

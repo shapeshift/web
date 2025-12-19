@@ -30,7 +30,9 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import { Amount } from '@/components/Amount/Amount'
 import { RFOXIcon } from '@/components/Icons/RFOX'
 import { Text } from '@/components/Text'
+import { KeyManager } from '@/context/WalletProvider/KeyManager'
 import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
+import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { fromBaseUnit } from '@/lib/math'
 import { formatSecondsToDuration } from '@/lib/utils/time'
@@ -52,6 +54,7 @@ import { useRFOXContext } from '@/pages/RFOX/hooks/useRfoxContext'
 import { useStakingInfoQuery } from '@/pages/RFOX/hooks/useStakingInfoQuery'
 import { useTimeInPoolQuery } from '@/pages/RFOX/hooks/useTimeInPoolQuery'
 import type { AbiStakingInfo } from '@/pages/RFOX/types'
+import { selectWalletType } from '@/state/slices/localWalletSlice/selectors'
 import { marketApi } from '@/state/slices/marketDataSlice/marketDataSlice'
 import {
   selectAccountIdByAccountNumberAndChainId,
@@ -100,6 +103,14 @@ const rfoxIconStyles = {
 }
 
 export const RFOXSection = () => {
+  const {
+    state: { isConnected: isWalletConnected },
+  } = useWallet()
+  const walletType = useAppSelector(selectWalletType)
+  const isLedgerReadOnlyEnabled = useFeatureFlag('LedgerReadOnly')
+  const isLedgerReadOnly = isLedgerReadOnlyEnabled && walletType === KeyManager.Ledger
+  const isConnected = isWalletConnected || isLedgerReadOnly
+
   const translate = useTranslate()
   const navigate = useNavigate()
   const isRFOXEnabled = useFeatureFlag('FoxPageRFOX')
@@ -199,7 +210,7 @@ export const RFOXSection = () => {
 
   const stakingBalanceCryptoPrecisionQuery = useStakingInfoQuery({
     stakingAssetId,
-    accountId: stakingAssetAccountId,
+    accountId: isConnected ? stakingAssetAccountId : undefined,
     select: selectStakingBalanceCryptoPrecision,
   })
 
@@ -216,7 +227,7 @@ export const RFOXSection = () => {
 
   const currentEpochRewardsQuery = useCurrentEpochRewardsQuery({
     stakingAssetId,
-    stakingAssetAccountId,
+    stakingAssetAccountId: isConnected ? stakingAssetAccountId : undefined,
     currentEpochMetadata: currentEpochMetadataQuery.data,
   })
 
@@ -236,7 +247,7 @@ export const RFOXSection = () => {
 
   const lifetimeRewardsQuery = useLifetimeRewardsQuery({
     stakingAssetId,
-    stakingAssetAccountId,
+    stakingAssetAccountId: isConnected ? stakingAssetAccountId : undefined,
   })
 
   const lifetimeRewardsCryptoPrecision = useMemo(
@@ -257,7 +268,7 @@ export const RFOXSection = () => {
     isFetching: isTimeInPoolFetching,
   } = useTimeInPoolQuery({
     stakingAssetId,
-    stakingAssetAccountId,
+    stakingAssetAccountId: isConnected ? stakingAssetAccountId : undefined,
     select: timeInPoolSeconds =>
       timeInPoolSeconds === 0n ? 'N/A' : formatSecondsToDuration(Number(timeInPoolSeconds)),
   })

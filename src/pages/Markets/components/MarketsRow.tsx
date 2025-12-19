@@ -13,6 +13,7 @@ import {
   useMediaQuery,
 } from '@chakra-ui/react'
 import type { ChainId } from '@shapeshiftoss/caip'
+import { KnownChainIds } from '@shapeshiftoss/types'
 import { useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Link, useNavigate, useParams } from 'react-router-dom'
@@ -26,7 +27,8 @@ import { OrderDropdown } from '@/components/OrderDropdown/OrderDropdown'
 import { OrderDirection } from '@/components/OrderDropdown/types'
 import { SortDropdown } from '@/components/SortDropdown/SortDropdown'
 import { SortOptionsKeys } from '@/components/SortDropdown/types'
-import { knownChainIds } from '@/constants/chains'
+import { selectFeatureFlag } from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 import { breakpoints } from '@/theme/theme'
 
 const chevronDownIcon = <ChevronDownIcon />
@@ -77,13 +79,23 @@ export const MarketsRow: React.FC<MarketsRowProps> = ({
   const [selectedSort, setSelectedSort] = useState<SortOptionsKeys>(
     (params.category && sortOptionsByCategory[params.category]?.[0]) ?? SortOptionsKeys.Volume,
   )
+  const isArbitrumNovaEnabled = useAppSelector(state => selectFeatureFlag(state, 'ArbitrumNova'))
+  const isSuiEnabled = useAppSelector(state => selectFeatureFlag(state, 'Sui'))
+  const isPlasmaEnabled = useAppSelector(state => selectFeatureFlag(state, 'Plasma'))
+  const isHyperEvmEnabled = useAppSelector(state => selectFeatureFlag(state, 'HyperEvm'))
   const [isSmallerThanLg] = useMediaQuery(`(max-width: ${breakpoints.lg})`)
 
   const chainIds = useMemo(() => {
-    if (!supportedChainIds) return knownChainIds
+    const baseChainIds = supportedChainIds ?? Object.values(KnownChainIds)
 
-    return supportedChainIds
-  }, [supportedChainIds])
+    return baseChainIds.filter(chainId => {
+      if (!isArbitrumNovaEnabled && chainId === KnownChainIds.ArbitrumNovaMainnet) return false
+      if (!isSuiEnabled && chainId === KnownChainIds.SuiMainnet) return false
+      if (!isPlasmaEnabled && chainId === KnownChainIds.PlasmaMainnet) return false
+      if (!isHyperEvmEnabled && chainId === KnownChainIds.HyperEvmMainnet) return false
+      return true
+    })
+  }, [supportedChainIds, isArbitrumNovaEnabled, isSuiEnabled, isPlasmaEnabled, isHyperEvmEnabled])
 
   const Title = useMemo(() => {
     if (!title) return null

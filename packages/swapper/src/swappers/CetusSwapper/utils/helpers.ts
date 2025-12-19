@@ -46,12 +46,14 @@ export const findBestRoute = async (
   sellCoinType: string,
   buyCoinType: string,
   sellAmountCryptoBaseUnit: string,
+  providers?: string[],
 ): Promise<RouterDataV3 | undefined> => {
   const routerData = await client.findRouters({
     from: sellCoinType,
     target: buyCoinType,
     amount: sellAmountCryptoBaseUnit,
     byAmountIn: true,
+    ...(providers && { providers }),
   })
 
   if (!routerData) {

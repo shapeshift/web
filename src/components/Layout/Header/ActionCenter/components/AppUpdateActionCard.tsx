@@ -6,7 +6,7 @@ import { useTranslate } from 'react-polyglot'
 
 import { ActionCard } from './ActionCard'
 
-import UpdateIcon from '@/assets/update-icon.svg?url'
+import UpdateIcon from '@/assets/update-icon.svg'
 import { Text } from '@/components/Text/Text'
 import { formatSmartDate } from '@/lib/utils/time'
 import type { AppUpdateAction } from '@/state/slices/actionSlice/types'

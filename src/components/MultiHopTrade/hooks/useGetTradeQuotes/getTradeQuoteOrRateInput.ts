@@ -11,6 +11,7 @@ import type {
 } from '@shapeshiftoss/types'
 import { UtxoAccountType } from '@shapeshiftoss/types'
 
+import { KeyManager } from '@/context/WalletProvider/KeyManager'
 import { toBaseUnit } from '@/lib/math'
 import { assertUnreachable } from '@/lib/utils'
 import { assertGetCosmosSdkChainAdapter } from '@/lib/utils/cosmosSdk'
@@ -19,6 +20,8 @@ import { assertGetSolanaChainAdapter } from '@/lib/utils/solana'
 import { assertGetSuiChainAdapter } from '@/lib/utils/sui'
 import { assertGetTronChainAdapter } from '@/lib/utils/tron'
 import { assertGetUtxoChainAdapter } from '@/lib/utils/utxo'
+import { selectWalletType } from '@/state/slices/localWalletSlice/selectors'
+import { store } from '@/state/store'
 
 export type GetTradeQuoteOrRateInputArgs = {
   sellAsset: Asset
@@ -192,11 +195,18 @@ export const getTradeQuoteOrRateInput = async ({
     }
     case CHAIN_NAMESPACE.Tron: {
       const sellAssetChainAdapter = assertGetTronChainAdapter(sellAsset.chainId)
+      const walletType = selectWalletType(store.getState())
+      const shouldSkipDeviceDerivation =
+        !wallet &&
+        (walletType === KeyManager.Ledger ||
+          walletType === KeyManager.Trezor ||
+          walletType === KeyManager.GridPlus)
+
       const sendAddress =
-        wallet && sellAccountNumber !== undefined
+        (wallet || shouldSkipDeviceDerivation) && sellAccountNumber !== undefined
           ? await sellAssetChainAdapter.getAddress({
               accountNumber: sellAccountNumber,
-              wallet,
+              wallet: wallet ?? null,
               pubKey,
             })
           : undefined

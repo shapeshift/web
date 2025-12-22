@@ -78,10 +78,7 @@ export const useGetTradeRateInput = ({
 
   const sellAccountNumber = sellAccountMetadata?.bip44Params?.accountNumber
 
-  const affiliateBps = useMemo(
-    () => getAffiliateBps(sellAsset, buyAsset),
-    [sellAsset, buyAsset],
-  )
+  const affiliateBps = useMemo(() => getAffiliateBps(sellAsset, buyAsset), [sellAsset, buyAsset])
 
   const walletType = useAppSelector(selectWalletType)
 

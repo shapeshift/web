@@ -15,21 +15,17 @@ export const calculateFeeUsd = ({ inputAmountUsd }: CalculateFeeUsdArgs): BigNum
   return feeUsd
 }
 
-export const getAffiliateBps = (sellAsset: Asset, buyAsset: Asset): string => {
+const isRelatedAssetSwap = (sellAsset: Asset, buyAsset: Asset): boolean => {
   const sellAssetKey = sellAsset.relatedAssetKey
   const buyAssetKey = buyAsset.relatedAssetKey
 
-  // Both assets have the same relatedAssetKey - they're in the same asset group
-  if (sellAssetKey && buyAssetKey && sellAssetKey === buyAssetKey) {
-    return '0'
-  }
+  return (
+    (sellAssetKey && buyAssetKey && sellAssetKey === buyAssetKey) ||
+    sellAssetKey === buyAsset.assetId ||
+    buyAssetKey === sellAsset.assetId
+  )
+}
 
-  // One of them IS the relatedAssetKey of the other
-  // e.g., sellAsset is ETH (assetId = 'eip155:1/slip44:60')
-  // and buyAsset is Arb ETH (relatedAssetKey = 'eip155:1/slip44:60')
-  if (sellAssetKey === buyAsset.assetId || buyAssetKey === sellAsset.assetId) {
-    return '0'
-  }
-
-  return DEFAULT_FEE_BPS
+export const getAffiliateBps = (sellAsset: Asset, buyAsset: Asset): string => {
+  return isRelatedAssetSwap(sellAsset, buyAsset) ? '0' : DEFAULT_FEE_BPS
 }

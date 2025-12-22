@@ -65,21 +65,30 @@ export const getTradeRate = async (
       refreshAllCoins: true,
     })
 
-    const transactionBytes = await txb.build({ client: suiClient })
+    const txFee = await (async () => {
+      try {
+        const transactionBytes = await txb.build({ client: suiClient })
 
-    const dryRunResult = await suiClient.dryRunTransactionBlock({
-      transactionBlock: transactionBytes,
-    })
+        const dryRunResult = await suiClient.dryRunTransactionBlock({
+          transactionBlock: transactionBytes,
+        })
 
-    const computationCost = BigInt(dryRunResult.effects.gasUsed.computationCost)
-    const storageCost = BigInt(dryRunResult.effects.gasUsed.storageCost)
-    const storageRebate = BigInt(dryRunResult.effects.gasUsed.storageRebate)
+        const computationCost = BigInt(dryRunResult.effects.gasUsed.computationCost)
+        const storageCost = BigInt(dryRunResult.effects.gasUsed.storageCost)
+        const storageRebate = BigInt(dryRunResult.effects.gasUsed.storageRebate)
 
-    const netStorageCost = storageCost > storageRebate ? storageCost - storageRebate : 0n
+        const netStorageCost = storageCost > storageRebate ? storageCost - storageRebate : 0n
 
-    const estimatedGas = computationCost + netStorageCost
+        const estimatedGas = computationCost + netStorageCost
 
-    const txFee = estimatedGas.toString()
+        return estimatedGas.toString()
+      } catch (error) {
+        if (error instanceof Error && error.message.includes('Not enough coins of type')) {
+          return undefined
+        }
+        throw error
+      }
+    })()
 
     const tradeRate: TradeRate = {
       id: uuid(),

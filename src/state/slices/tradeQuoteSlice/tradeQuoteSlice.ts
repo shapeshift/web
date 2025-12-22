@@ -53,26 +53,9 @@ export const tradeQuoteSlice = createSlice({
     ),
     setActiveQuote: create.reducer((state, action: PayloadAction<ApiQuote | undefined>) => {
       if (action.payload === undefined) {
-        console.log('[📋 QUOTE UPDATE] Active quote cleared:', new Date().toISOString())
         state.activeQuoteMeta = undefined
       } else {
-        const { swapperName, id, quote } = action.payload
-        const lastStep = quote && 'steps' in quote ? quote.steps[quote.steps.length - 1] : undefined
-        console.log(
-          '[📋 QUOTE UPDATE] New active quote:',
-          JSON.stringify(
-            {
-              quoteId: id,
-              swapperName,
-              buyAmountAfterFeesCryptoBaseUnit: lastStep?.buyAmountAfterFeesCryptoBaseUnit,
-              buyAssetSymbol: lastStep?.buyAsset?.symbol,
-              hasQuote: !!quote,
-              timestamp: new Date().toISOString(),
-            },
-            null,
-            2,
-          ),
-        )
+        const { swapperName, id } = action.payload
         state.activeQuoteMeta = {
           swapperName,
           identifier: id,

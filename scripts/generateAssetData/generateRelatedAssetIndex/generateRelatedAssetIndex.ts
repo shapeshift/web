@@ -48,8 +48,6 @@ axiosRetry(axiosInstance, { retries: 5, retryDelay: axiosRetry.exponentialDelay 
 const ZERION_API_KEY = process.env.ZERION_API_KEY
 if (!ZERION_API_KEY) throw new Error('Missing Zerion API key - see readme for instructions')
 
-const FULL_REGEN = process.env.FULL_REGEN === 'true'
-
 const manualRelatedAssetIndex: Record<AssetId, AssetId[]> = {
   [ethAssetId]: [optimismAssetId, arbitrumAssetId, arbitrumNovaAssetId, baseAssetId],
   [foxAssetId]: [foxOnArbitrumOneAssetId],
@@ -192,7 +190,7 @@ const processRelatedAssetIds = async (
 ): Promise<void> => {
   const existingRelatedAssetKey = assetData[assetId].relatedAssetKey
 
-  if (!FULL_REGEN && existingRelatedAssetKey) {
+  if (existingRelatedAssetKey) {
     return
   }
 
@@ -346,9 +344,7 @@ export const generateRelatedAssetIndex = async () => {
   )
 
   const { assetData: generatedAssetData, sortedAssetIds } = decodeAssetData(encodedAssetData)
-  const relatedAssetIndex = FULL_REGEN
-    ? {}
-    : decodeRelatedAssetIndex(encodedRelatedAssetIndex, sortedAssetIds)
+  const relatedAssetIndex = decodeRelatedAssetIndex(encodedRelatedAssetIndex, sortedAssetIds)
 
   // Remove stale related asset data from the assetData where the primary related asset no longer exists
   Object.values(generatedAssetData).forEach(asset => {

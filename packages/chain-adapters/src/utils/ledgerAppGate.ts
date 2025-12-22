@@ -102,9 +102,6 @@ export const verifyLedgerAppOpen = async (chainId: ChainId | KnownChainIds, wall
       const args: LedgerOpenAppEventArgs = { chainId, reject }
       emitter.emit('LedgerOpenApp', args)
 
-      // prompt user to open app on device
-      const openAppPromise = wallet.openApp(appName)
-
       // start polling for app open status after openApp completes to avoid concurrent USB requests
       const startPolling = () => {
         intervalId = setInterval(async () => {
@@ -117,13 +114,11 @@ export const verifyLedgerAppOpen = async (chainId: ChainId | KnownChainIds, wall
         }, 1000)
       }
 
-      // wait for openApp to complete before starting to poll
-      openAppPromise?.then(() => startPolling()).catch(() => startPolling())
-
-      // fallback: start polling immediately if openApp doesn't return a promise
-      if (!openAppPromise) {
-        startPolling()
-      }
+      // prompt user to open app on device, then start polling
+      // Promise.resolve normalizes both promise and non-promise return values
+      Promise.resolve(wallet.openApp(appName))
+        .then(() => startPolling())
+        .catch(() => startPolling())
     })
   } catch {
     clearInterval(intervalId)

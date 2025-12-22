@@ -1,5 +1,6 @@
+import type { SuiTransactionBlockResponse } from '@mysten/sui/client'
 import { SuiClient } from '@mysten/sui/client'
-import { Transaction } from '@mysten/sui/transactions'
+import { Transaction as SuiTransaction } from '@mysten/sui/transactions'
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import {
   ASSET_NAMESPACE,
@@ -12,6 +13,7 @@ import type { HDWallet, SuiWallet } from '@shapeshiftoss/hdwallet-core'
 import { supportsSui } from '@shapeshiftoss/hdwallet-core'
 import type { Bip44Params, RootBip44Params } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
+import { TransferType, TxStatus } from '@shapeshiftoss/unchained-client'
 
 import type { ChainAdapter as IChainAdapter } from '../api'
 import { ChainAdapterError, ErrorHandler } from '../error/ErrorHandler'
@@ -27,6 +29,7 @@ import type {
   SignAndBroadcastTransactionInput,
   SignTx,
   SignTxInput,
+  Transaction,
   ValidAddressResult,
 } from '../types'
 import { ChainAdapterDisplayName, ValidAddressResultType } from '../types'
@@ -244,7 +247,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SuiMainnet> {
       const { from, accountNumber, to, value, chainSpecific } = input
       const { tokenId, gasBudget, gasPrice } = chainSpecific
 
-      const tx = new Transaction()
+      const tx = new SuiTransaction()
 
       tx.setSender(from)
 
@@ -445,7 +448,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SuiMainnet> {
 
       const gasPrice = await this.client.getReferenceGasPrice()
 
-      const tx = new Transaction()
+      const tx = new SuiTransaction()
 
       tx.setSender(from)
 
@@ -518,7 +521,102 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SuiMainnet> {
     return
   }
 
-  parseTx(): Promise<never> {
-    throw new Error('SUI transaction parsing not yet implemented')
+  async parseTx(txHashOrTx: unknown, pubkey: string): Promise<Transaction> {
+    try {
+      // Fetch full transaction data if only txHash was provided
+      const tx =
+        typeof txHashOrTx === 'string'
+          ? await this.client.getTransactionBlock({
+              digest: txHashOrTx,
+              options: {
+                showInput: true,
+                showEffects: true,
+                showBalanceChanges: true,
+              },
+            })
+          : (txHashOrTx as SuiTransactionBlockResponse)
+
+      const sender = tx.transaction?.data.sender ?? ''
+
+      const txid = tx.digest
+      const blockHeight = Number(tx.checkpoint ?? 0)
+      const blockTime = tx.timestampMs ? Math.floor(Number(tx.timestampMs) / 1000) : 0
+
+      const latestCheckpoint = await this.client.getLatestCheckpointSequenceNumber()
+      const confirmations = tx.checkpoint ? Number(latestCheckpoint) - Number(tx.checkpoint) + 1 : 0
+
+      const status =
+        tx.effects?.status.status === 'success'
+          ? TxStatus.Confirmed
+          : tx.effects?.status.status === 'failure'
+          ? TxStatus.Failed
+          : TxStatus.Unknown
+
+      const gasUsed = tx.effects?.gasUsed
+      const fee = gasUsed
+        ? {
+            assetId: this.assetId,
+            value: (
+              BigInt(gasUsed.computationCost) +
+              BigInt(gasUsed.storageCost) -
+              BigInt(gasUsed.storageRebate)
+            ).toString(),
+          }
+        : undefined
+
+      const balanceChanges = tx.balanceChanges ?? []
+
+      const transfers = balanceChanges.map(change => {
+        let ownerAddress: string | null = null
+        if (typeof change.owner === 'object' && 'AddressOwner' in change.owner) {
+          ownerAddress = change.owner.AddressOwner
+        }
+
+        const assetId =
+          change.coinType === '0x2::sui::SUI'
+            ? this.assetId
+            : toAssetId({
+                chainId: this.chainId,
+                assetNamespace: ASSET_NAMESPACE.suiCoin,
+                assetReference: change.coinType,
+              })
+
+        const amount = BigInt(change.amount)
+        const isReceive = amount > 0n
+        const isSend = amount < 0n
+
+        const transferType =
+          ownerAddress === pubkey
+            ? isReceive
+              ? TransferType.Receive
+              : TransferType.Send
+            : TransferType.Contract
+
+        return {
+          assetId,
+          from: isSend ? [sender] : ownerAddress ? [ownerAddress] : [sender],
+          to: isReceive ? [ownerAddress ?? sender] : [sender],
+          type: transferType,
+          value: amount < 0n ? (-amount).toString() : amount.toString(),
+        }
+      })
+
+      return {
+        txid,
+        blockHeight,
+        blockTime,
+        blockHash: undefined,
+        chainId: this.chainId,
+        confirmations,
+        status,
+        fee,
+        transfers,
+        pubkey,
+      }
+    } catch (err) {
+      return ErrorHandler(err, {
+        translation: 'chainAdapters.errors.parseTx',
+      })
+    }
   }
 }

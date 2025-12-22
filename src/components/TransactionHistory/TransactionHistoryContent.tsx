@@ -2,12 +2,16 @@ import { Flex, Stack } from '@chakra-ui/react'
 import { memo, useCallback, useMemo, useRef } from 'react'
 
 import { TransactionHistoryList } from '@/components/TransactionHistory/TransactionHistoryList'
+import { KeyManager } from '@/context/WalletProvider/KeyManager'
+import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
+import { useWallet } from '@/hooks/useWallet/useWallet'
 import { isSome } from '@/lib/utils'
 import { DownloadButton } from '@/pages/TransactionHistory/DownloadButton'
 import { useFilters } from '@/pages/TransactionHistory/hooks/useFilters'
 import { useSearch } from '@/pages/TransactionHistory/hooks/useSearch'
 import { TransactionHistoryFilter } from '@/pages/TransactionHistory/TransactionHistoryFilter'
 import { TransactionHistorySearch } from '@/pages/TransactionHistory/TransactionHistorySearch'
+import { selectWalletType } from '@/state/slices/localWalletSlice/selectors'
 import { selectTxIdsBasedOnSearchTermAndFilters } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
@@ -17,6 +21,14 @@ type TransactionHistoryContentProps = {
 
 export const TransactionHistoryContent = memo(
   ({ isCompact = false }: TransactionHistoryContentProps) => {
+    const {
+      state: { isConnected: isWalletConnected },
+    } = useWallet()
+    const walletType = useAppSelector(selectWalletType)
+    const isLedgerReadOnlyEnabled = useFeatureFlag('LedgerReadOnly')
+    const isLedgerReadOnly = isLedgerReadOnlyEnabled && walletType === KeyManager.Ledger
+    const isConnected = isWalletConnected || isLedgerReadOnly
+
     const inputRef = useRef<HTMLInputElement | null>(null)
     const { searchTerm, matchingAssets, handleInputChange } = useSearch()
     const { filters, setFilters, resetFilters } = useFilters()
@@ -31,7 +43,7 @@ export const TransactionHistoryContent = memo(
     )
 
     const txIds = useAppSelector(state =>
-      selectTxIdsBasedOnSearchTermAndFilters(state, selectorFilters),
+      isConnected ? selectTxIdsBasedOnSearchTermAndFilters(state, selectorFilters) : [],
     )
 
     const handleReset = useCallback(() => {

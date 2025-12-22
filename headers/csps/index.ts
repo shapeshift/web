@@ -21,6 +21,7 @@ import { csp as optimism } from './chains/optimism'
 import { csp as plasma } from './chains/plasma'
 import { csp as polygon } from './chains/polygon'
 import { csp as solana } from './chains/solana'
+import { csp as starknet } from './chains/starknet'
 import { csp as sui } from './chains/sui'
 import { csp as thorchain } from './chains/thorchain'
 import { csp as tron } from './chains/tron'
@@ -106,6 +107,7 @@ export const csps = [
   optimism,
   polygon,
   solana,
+  starknet,
   sui,
   thorchain,
   tron,

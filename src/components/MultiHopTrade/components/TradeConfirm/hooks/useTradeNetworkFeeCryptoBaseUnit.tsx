@@ -240,6 +240,9 @@ export const useTradeNetworkFeeCryptoBaseUnit = ({
                 })
                 return output
               }
+              case CHAIN_NAMESPACE.Starknet: {
+                throw new Error('Starknet swaps are not yet supported')
+              }
               default:
                 assertUnreachable(stepSellAssetChainNamespace)
             }

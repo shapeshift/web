@@ -235,6 +235,9 @@ export const getTradeQuoteOrRateInput = async ({
         sendAddress,
       } as GetTradeQuoteInput
     }
+    case CHAIN_NAMESPACE.Starknet: {
+      throw new Error('Starknet swaps are not yet supported')
+    }
     default:
       assertUnreachable(chainNamespace)
   }

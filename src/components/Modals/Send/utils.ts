@@ -34,6 +34,7 @@ import { assertGetChainAdapter } from '@/lib/utils'
 import { assertGetCosmosSdkChainAdapter } from '@/lib/utils/cosmosSdk'
 import { assertGetEvmChainAdapter, getSupportedEvmChainIds } from '@/lib/utils/evm'
 import { assertGetSolanaChainAdapter } from '@/lib/utils/solana'
+import { assertGetStarknetChainAdapter } from '@/lib/utils/starknet'
 import { assertGetSuiChainAdapter } from '@/lib/utils/sui'
 import { assertGetUtxoChainAdapter, isUtxoChainId } from '@/lib/utils/utxo'
 import {
@@ -153,6 +154,10 @@ export const estimateFees = async ({
         sendMax,
       }
       return adapter.getFeeData(getFeeDataInput)
+    }
+    case CHAIN_NAMESPACE.Starknet: {
+      const adapter = assertGetStarknetChainAdapter(asset.chainId)
+      return adapter.getFeeData()
     }
     default:
       throw new Error(`${chainNamespace} not supported`)
@@ -360,6 +365,29 @@ export const handleSend = async ({
           gasPrice: fees.chainSpecific.gasPrice,
         },
       } as BuildSendTxInput<KnownChainIds.SuiMainnet>)
+    }
+
+    if (fromChainId(asset.chainId).chainNamespace === CHAIN_NAMESPACE.Starknet) {
+      const { accountNumber } = bip44Params
+      const adapter = assertGetStarknetChainAdapter(chainId)
+      const contractAddress = contractAddressOrUndefined(asset.assetId)
+      const fees = estimatedFees[feeType] as FeeData<KnownChainIds.StarknetMainnet>
+
+      return adapter.buildSendTransaction({
+        to,
+        value,
+        wallet,
+        accountNumber,
+        pubKey:
+          isLedger(wallet) || isTrezor(wallet)
+            ? fromAccountId(sendInput.accountId).account
+            : undefined,
+        sendMax: sendInput.sendMax,
+        chainSpecific: {
+          tokenContractAddress: contractAddress,
+          maxFee: fees.chainSpecific.maxFee,
+        },
+      } as BuildSendTxInput<KnownChainIds.StarknetMainnet>)
     }
 
     throw new Error(`${chainId} not supported`)

@@ -27,12 +27,14 @@ import { useFoxPageContext } from '../hooks/useFoxPageContext'
 import { Amount } from '@/components/Amount/Amount'
 import { Text } from '@/components/Text'
 import { WalletActions } from '@/context/WalletProvider/actions'
+import { KeyManager } from '@/context/WalletProvider/KeyManager'
 import { DefiAction } from '@/features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useFoxFarming } from '@/features/defi/providers/fox-farming/hooks/useFoxFarming'
 import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { fromBaseUnit } from '@/lib/math'
+import { selectWalletType } from '@/state/slices/localWalletSlice/selectors'
 import { marketApi } from '@/state/slices/marketDataSlice/marketDataSlice'
 import { foxEthLpAssetId } from '@/state/slices/opportunitiesSlice/constants'
 import { opportunitiesApi } from '@/state/slices/opportunitiesSlice/opportunitiesApiSlice'
@@ -78,9 +80,13 @@ export const FoxFarming = () => {
   const location = useLocation()
   const appDispatch = useAppDispatch()
   const {
-    state: { isConnected },
+    state: { isConnected: isWalletConnected },
     dispatch,
   } = useWallet()
+  const walletType = useAppSelector(selectWalletType)
+  const isLedgerReadOnlyEnabled = useFeatureFlag('LedgerReadOnly')
+  const isLedgerReadOnly = isLedgerReadOnlyEnabled && walletType === KeyManager.Ledger
+  const isConnected = isWalletConnected || isLedgerReadOnly
   const queryClient = useQueryClient()
 
   const handleWalletModalOpen = useCallback(
@@ -188,7 +194,7 @@ export const FoxFarming = () => {
   const { isLoading: isOpportunityDataLoading, isFetching: isOpportunityDataFetching } = useQuery({
     queryKey: ['fetchOpportunityData', assetAccountId],
     queryFn: fetchOpportunityData,
-    enabled: Boolean(foxEthMarketData?.price !== '0'),
+    enabled: Boolean(foxEthMarketData?.price !== '0' && isConnected),
   })
 
   const isOpportunityLoading = useMemo(
@@ -260,6 +266,7 @@ export const FoxFarming = () => {
   }, [userStakingOpportunity, handleClick])
 
   const rewardsCryptoAmount = useMemo(() => {
+    if (!isConnected) return '0'
     if (!opportunity) return
     if (!rewardAsset) return
     if (!userStakingOpportunity) return '0'
@@ -268,9 +275,10 @@ export const FoxFarming = () => {
       userStakingOpportunity.rewardsCryptoBaseUnit?.amounts[0],
       rewardAsset?.precision ?? 0,
     )
-  }, [opportunity, userStakingOpportunity, rewardAsset])
+  }, [isConnected, opportunity, userStakingOpportunity, rewardAsset])
 
   const totalStakingValue = useMemo(() => {
+    if (!isConnected) return '0'
     if (!opportunity) return
     if (!userStakingOpportunity) return '0'
 
@@ -278,7 +286,7 @@ export const FoxFarming = () => {
       userStakingOpportunity?.stakedAmountCryptoBaseUnit,
       underlyingAsset?.precision ?? 0,
     )
-  }, [opportunity, userStakingOpportunity, underlyingAsset?.precision])
+  }, [isConnected, opportunity, userStakingOpportunity, underlyingAsset?.precision])
 
   const apy = useMemo(() => {
     if (!opportunity) return

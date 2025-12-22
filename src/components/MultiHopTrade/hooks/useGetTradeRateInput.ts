@@ -1,7 +1,4 @@
 import { fromAccountId } from '@shapeshiftoss/caip'
-import { isGridPlus } from '@shapeshiftoss/hdwallet-gridplus'
-import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
-import { isTrezor } from '@shapeshiftoss/hdwallet-trezor'
 import type { GetTradeRateInput } from '@shapeshiftoss/swapper'
 import { bnOrZero } from '@shapeshiftoss/utils'
 import { useQuery } from '@tanstack/react-query'
@@ -11,9 +8,11 @@ import { useTradeReceiveAddress } from '../components/TradeInput/hooks/useTradeR
 import type { GetTradeQuoteOrRateInputArgs } from './useGetTradeQuotes/getTradeQuoteOrRateInput'
 import { getTradeQuoteOrRateInput } from './useGetTradeQuotes/getTradeQuoteOrRateInput'
 
+import { KeyManager } from '@/context/WalletProvider/KeyManager'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { useWalletSupportsChain } from '@/hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { DEFAULT_FEE_BPS } from '@/lib/fees/constant'
+import { selectWalletType } from '@/state/slices/localWalletSlice/selectors'
 import { selectPortfolioAccountMetadataByAccountId } from '@/state/slices/selectors'
 import {
   selectFirstHopSellAccountId,
@@ -81,12 +80,19 @@ export const useGetTradeRateInput = ({
 
   const affiliateBps = DEFAULT_FEE_BPS
 
+  const walletType = useAppSelector(selectWalletType)
+
   const pubKey = useMemo(() => {
-    const skipDeviceDerivation =
-      wallet && (isLedger(wallet) || isTrezor(wallet) || isGridPlus(wallet))
-    return skipDeviceDerivation && sellAccountId ? fromAccountId(sellAccountId).account : undefined
+    const shouldSkipDeviceDerivation =
+      walletType === KeyManager.Ledger ||
+      walletType === KeyManager.Trezor ||
+      walletType === KeyManager.GridPlus
+
+    return shouldSkipDeviceDerivation && sellAccountId
+      ? fromAccountId(sellAccountId).account
+      : undefined
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [wallet, sellAccountId])
+  }, [walletType, sellAccountId])
 
   const tradeInputQueryParams: GetTradeQuoteOrRateInputArgs = useMemo(
     () => ({

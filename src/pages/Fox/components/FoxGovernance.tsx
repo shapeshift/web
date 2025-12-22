@@ -24,12 +24,15 @@ import { FoxGovernanceProposal } from './FoxGovernanceProposal'
 import { Amount } from '@/components/Amount/Amount'
 import { Text } from '@/components/Text'
 import type { TextPropTypes } from '@/components/Text/Text'
+import { KeyManager } from '@/context/WalletProvider/KeyManager'
 import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
+import { useWallet } from '@/hooks/useWallet/useWallet'
 import {
   selectIsSnapshotApiQueriesPending,
   selectVotingPowerOrZero,
 } from '@/state/apis/snapshot/selectors'
 import { snapshotApi, useGetProposalsQuery } from '@/state/apis/snapshot/snapshot'
+import { selectWalletType } from '@/state/slices/localWalletSlice/selectors'
 import { selectAssetById, selectWalletAccountIds } from '@/state/slices/selectors'
 import { useAppDispatch, useAppSelector } from '@/state/store'
 
@@ -53,6 +56,14 @@ const widthMdAuto = { base: 'full', md: 'auto' }
 const tabListPaddingLeft = { base: 6, md: 0 }
 
 export const FoxGovernance = () => {
+  const {
+    state: { isConnected: isWalletConnected },
+  } = useWallet()
+  const walletType = useAppSelector(selectWalletType)
+  const isLedgerReadOnlyEnabled = useFeatureFlag('LedgerReadOnly')
+  const isLedgerReadOnly = isLedgerReadOnlyEnabled && walletType === KeyManager.Ledger
+  const isConnected = isWalletConnected || isLedgerReadOnly
+
   const translate = useTranslate()
   const isFoxGovernanceEnabled = useFeatureFlag('FoxPageGovernance')
   const dispatch = useAppDispatch()
@@ -64,7 +75,7 @@ export const FoxGovernance = () => {
 
   const foxEthAsset = useAppSelector(state => selectAssetById(state, foxAssetId))
 
-  const votingPower = useAppSelector(selectVotingPowerOrZero)
+  const votingPower = useAppSelector(state => (isConnected ? selectVotingPowerOrZero(state) : '0'))
   const isVotingPowerQueriesPending = useAppSelector(selectIsSnapshotApiQueriesPending)
 
   useEffect(() => {

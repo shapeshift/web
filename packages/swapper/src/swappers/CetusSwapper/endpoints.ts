@@ -1,8 +1,10 @@
+import { getProvidersExcluding } from '@cetusprotocol/aggregator-sdk'
 import { Transaction } from '@cetusprotocol/aggregator-sdk/node_modules/@mysten/sui/transactions'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { bnOrZero } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 
+import { getDefaultSlippageDecimalPercentageForSwapper } from '../../constants'
 import type {
   CommonTradeQuoteInput,
   GetTradeRateInput,
@@ -14,9 +16,11 @@ import type {
   TradeRate,
   TradeStatus,
 } from '../../types'
+import { SwapperName } from '../../types'
 import { checkSuiSwapStatus, getExecutableTradeStep, isExecutableTradeQuote } from '../../utils'
 import { getTradeQuote } from './swapperApi/getTradeQuote'
 import { getTradeRate } from './swapperApi/getTradeRate'
+import { PYTH_DEPENDENT_PROVIDERS } from './utils/constants'
 import { findBestRoute, getAggregatorClient, getCoinType, getSuiClient } from './utils/helpers'
 
 export const cetusApi: SwapperApi = {
@@ -56,21 +60,25 @@ export const cetusApi: SwapperApi = {
     const sellCoinType = getCoinType(sellAsset)
     const buyCoinType = getCoinType(buyAsset)
 
+    // Exclude Pyth-dependent providers to avoid oracle failures
+    const providersWithoutPyth = getProvidersExcluding(PYTH_DEPENDENT_PROVIDERS)
+
     const routerData = await findBestRoute(
       client,
       sellCoinType,
       buyCoinType,
       sellAmountIncludingProtocolFeesCryptoBaseUnit,
+      providersWithoutPyth,
     )
 
     if (!routerData) {
       throw new Error(`No route found for ${sellAsset.symbol}/${buyAsset.symbol}`)
     }
 
-    const slippage =
-      tradeQuote.slippageTolerancePercentageDecimal !== undefined
-        ? bnOrZero(tradeQuote.slippageTolerancePercentageDecimal).toNumber()
-        : 0.01
+    const slippage = bnOrZero(
+      tradeQuote.slippageTolerancePercentageDecimal ??
+        getDefaultSlippageDecimalPercentageForSwapper(SwapperName.Cetus),
+    ).toNumber()
 
     const txb = new Transaction()
 

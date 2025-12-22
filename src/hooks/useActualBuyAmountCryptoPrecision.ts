@@ -63,25 +63,70 @@ export const useActualBuyAmountCryptoPrecision = (
   })
 
   const actualBuyAmountCryptoPrecision = useMemo(() => {
-    if (swap?.actualBuyAmountCryptoBaseUnit && swap?.buyAsset) {
-      return fromBaseUnit(swap.actualBuyAmountCryptoBaseUnit, swap.buyAsset.precision)
-    }
-
-    if (secondClassChainActualBuyAmount && swap?.buyAsset) {
-      return fromBaseUnit(secondClassChainActualBuyAmount, swap.buyAsset.precision)
-    }
-
-    if (!tx?.transfers?.length || !swap?.buyAsset) return undefined
-
-    const receiveTransfer = tx.transfers.find(
-      transfer =>
-        transfer.type === TransferType.Receive && transfer.assetId === swap.buyAsset.assetId,
+    console.log(
+      '[🎯 Amount Resolution] Starting:',
+      JSON.stringify(
+        {
+          swapId,
+          fromSwap: swap?.actualBuyAmountCryptoBaseUnit,
+          fromSecondClass: secondClassChainActualBuyAmount,
+          fromTxHistory: tx?.transfers?.find(
+            t => t.type === TransferType.Receive && t.assetId === swap?.buyAsset.assetId,
+          )?.value,
+          hasTx: !!tx,
+          hasSwap: !!swap,
+        },
+        null,
+        2,
+      ),
     )
 
-    return receiveTransfer?.value
-      ? fromBaseUnit(receiveTransfer.value, swap.buyAsset.precision)
-      : undefined
-  }, [tx, swap, secondClassChainActualBuyAmount])
+    let actualBuyAmountCryptoPrecision: string | undefined = undefined
+    let source = 'undefined'
+
+    if (swap?.actualBuyAmountCryptoBaseUnit && swap?.buyAsset) {
+      actualBuyAmountCryptoPrecision = fromBaseUnit(
+        swap.actualBuyAmountCryptoBaseUnit,
+        swap.buyAsset.precision,
+      )
+      source = 'swap.actualBuyAmountCryptoBaseUnit'
+    } else if (secondClassChainActualBuyAmount && swap?.buyAsset) {
+      actualBuyAmountCryptoPrecision = fromBaseUnit(
+        secondClassChainActualBuyAmount,
+        swap.buyAsset.precision,
+      )
+      source = 'secondClassChainActualBuyAmount'
+    } else if (tx?.transfers?.length && swap?.buyAsset) {
+      const receiveTransfer = tx.transfers.find(
+        transfer =>
+          transfer.type === TransferType.Receive && transfer.assetId === swap.buyAsset.assetId,
+      )
+
+      if (receiveTransfer?.value) {
+        actualBuyAmountCryptoPrecision = fromBaseUnit(
+          receiveTransfer.value,
+          swap.buyAsset.precision,
+        )
+        source = 'txHistory'
+      }
+    }
+
+    console.log(
+      '[🎯 Amount Resolution] Resolved:',
+      JSON.stringify(
+        {
+          swapId,
+          resolved: actualBuyAmountCryptoPrecision,
+          source,
+          timestamp: new Date().toISOString(),
+        },
+        null,
+        2,
+      ),
+    )
+
+    return actualBuyAmountCryptoPrecision
+  }, [tx, swap, secondClassChainActualBuyAmount, swapId])
 
   return actualBuyAmountCryptoPrecision
 }

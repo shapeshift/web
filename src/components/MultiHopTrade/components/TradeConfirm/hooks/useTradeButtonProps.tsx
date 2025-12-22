@@ -90,6 +90,25 @@ export const useTradeButtonProps = ({
     const firstStep = activeQuote.steps[0]
     const lastStep = activeQuote.steps[activeQuote.steps.length - 1]
 
+    console.log(
+      '[🎯 CONFIRM CLICKED] Active quote:',
+      JSON.stringify(
+        {
+          quoteId: activeQuote.id,
+          buyAmountAfterFeesCryptoBaseUnit: lastStep.buyAmountAfterFeesCryptoBaseUnit,
+          buyAmountAfterFeesCryptoPrecision: fromBaseUnit(
+            lastStep.buyAmountAfterFeesCryptoBaseUnit,
+            lastStep.buyAsset.precision,
+          ),
+          buyAssetSymbol: lastStep.buyAsset.symbol,
+          sellAssetSymbol: firstStep.sellAsset.symbol,
+          timestamp: new Date().toISOString(),
+        },
+        null,
+        2,
+      ),
+    )
+
     const swap: Swap = {
       id: uuid(),
       createdAt: Date.now(),
@@ -128,6 +147,25 @@ export const useTradeButtonProps = ({
       isStreaming: activeQuote.isStreaming,
       status: SwapStatus.Idle,
     }
+
+    console.log(
+      '[💎 Swap Created] From quote:',
+      JSON.stringify(
+        {
+          swapId: swap.id,
+          expectedBuyAmountCryptoBaseUnit: swap.expectedBuyAmountCryptoBaseUnit,
+          expectedBuyAmountCryptoPrecision: swap.expectedBuyAmountCryptoPrecision,
+          actualBuyAmountCryptoBaseUnit: swap.actualBuyAmountCryptoBaseUnit,
+          hasActual: !!swap.actualBuyAmountCryptoBaseUnit,
+          sellAmountCryptoPrecision: swap.sellAmountCryptoPrecision,
+          buyAssetSymbol: swap.buyAsset.symbol,
+          sellAssetSymbol: swap.sellAsset.symbol,
+          timestamp: new Date().toISOString(),
+        },
+        null,
+        2,
+      ),
+    )
 
     dispatch(swapSlice.actions.upsertSwap(swap))
     dispatch(swapSlice.actions.setActiveSwapId(swap.id))

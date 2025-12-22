@@ -188,6 +188,21 @@ export const useTradeExecution = (
 
         const swap = activeSwapId ? swapsById[activeSwapId] : undefined
         if (swap) {
+          console.log(
+            '[🔔 Initial Notification] SellTxHash received:',
+            JSON.stringify(
+              {
+                swapId: swap.id,
+                expectedBuyAmountCryptoPrecision: swap.expectedBuyAmountCryptoPrecision,
+                actualBuyAmountCryptoBaseUnit: swap.actualBuyAmountCryptoBaseUnit,
+                hasActual: !!swap.actualBuyAmountCryptoBaseUnit,
+                timestamp: new Date().toISOString(),
+              },
+              null,
+              2,
+            ),
+          )
+
           // No double-toasty
           if (toast.isActive(swap.id)) return
 
@@ -252,6 +267,20 @@ export const useTradeExecution = (
           if (actualBuyAmountCryptoBaseUnit && activeSwapId) {
             const currentSwap = swapsById[activeSwapId]
             if (currentSwap) {
+              console.log(
+                '[💰 Actual Amount Update] Status event:',
+                JSON.stringify(
+                  {
+                    swapId: activeSwapId,
+                    actualBuyAmountCryptoBaseUnit,
+                    currentSwapHadActual: !!currentSwap?.actualBuyAmountCryptoBaseUnit,
+                    timestamp: new Date().toISOString(),
+                  },
+                  null,
+                  2,
+                ),
+              )
+
               dispatch(
                 swapSlice.actions.upsertSwap({
                   ...currentSwap,
@@ -274,6 +303,20 @@ export const useTradeExecution = (
         if (actualBuyAmountCryptoBaseUnit && activeSwapId) {
           const currentSwap = swapsById[activeSwapId]
           if (currentSwap) {
+            console.log(
+              '[✅ Actual Amount Update] Success event:',
+              JSON.stringify(
+                {
+                  swapId: activeSwapId,
+                  actualBuyAmountCryptoBaseUnit,
+                  currentSwapHadActual: !!currentSwap?.actualBuyAmountCryptoBaseUnit,
+                  timestamp: new Date().toISOString(),
+                },
+                null,
+                2,
+              ),
+            )
+
             dispatch(
               swapSlice.actions.upsertSwap({
                 ...currentSwap,

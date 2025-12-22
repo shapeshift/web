@@ -26,11 +26,14 @@ import { useHasFocus } from '@/hooks/useHasFocus'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { useWalletSupportsChain } from '@/hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { DEFAULT_FEE_BPS } from '@/lib/fees/constant'
+import { fromBaseUnit } from '@/lib/math'
 import { swapperApi } from '@/state/apis/swapper/swapperApi'
 import {
   selectPortfolioAccountMetadataByAccountId,
   selectUsdRateByAssetId,
+  selectWalletSwapsById,
 } from '@/state/slices/selectors'
+import { swapSlice } from '@/state/slices/swapSlice/swapSlice'
 import {
   selectFirstHopSellAccountId,
   selectInputBuyAsset,
@@ -64,6 +67,8 @@ export const useGetTradeQuotes = () => {
     undefined,
   )
   const confirmedTradeExecution = useAppSelector(selectConfirmedTradeExecution)
+  const swapsById = useAppSelector(selectWalletSwapsById)
+  const activeSwapId = useAppSelector(swapSlice.selectors.selectActiveSwapId)
 
   useEffect(
     () => {
@@ -274,6 +279,35 @@ export const useGetTradeQuotes = () => {
     const quoteData = queryStateMeta.data[identifier]
     if (!quoteData?.quote) return
 
+    let previousBuyAmount: string | undefined
+    let newBuyAmount: string | undefined
+
+    if (activeTrade && 'steps' in activeTrade && activeTrade.steps.length > 0) {
+      const lastStep = activeTrade.steps[activeTrade.steps.length - 1]
+      previousBuyAmount = lastStep.buyAmountAfterFeesCryptoBaseUnit
+    }
+
+    if (quoteData.quote && 'steps' in quoteData.quote && quoteData.quote.steps.length > 0) {
+      const lastStep = quoteData.quote.steps[quoteData.quote.steps.length - 1]
+      newBuyAmount = lastStep.buyAmountAfterFeesCryptoBaseUnit
+    }
+
+    console.log(
+      '[⚡ TRADE QUOTE UPGRADE] Rate → Quote:',
+      JSON.stringify(
+        {
+          previousQuoteId: activeTrade?.id,
+          previousWasExecutable: activeTrade ? isExecutableTradeQuote(activeTrade) : false,
+          previousBuyAmount,
+          newQuoteId: quoteData.quote.id,
+          newBuyAmount,
+          timestamp: new Date().toISOString(),
+        },
+        null,
+        2,
+      ),
+    )
+
     // Set the execution metadata to that of the previous rate so we can take over
     dispatch(
       tradeQuoteSlice.actions.setTradeExecutionMetadata({
@@ -284,7 +318,52 @@ export const useGetTradeQuotes = () => {
     // Set as both confirmed *and* active
     dispatch(tradeQuoteSlice.actions.setActiveQuote(quoteData))
     dispatch(tradeQuoteSlice.actions.setConfirmedQuote(quoteData.quote))
-  }, [activeTrade, activeQuoteMeta, dispatch, queryStateMeta.data, confirmedTradeExecution])
+
+    // Update the swap object with the new expected buy amount from the final quote
+    // This ensures the notification shows the correct amount that the user saw on the confirm screen
+    if (
+      activeSwapId &&
+      quoteData.quote &&
+      'steps' in quoteData.quote &&
+      quoteData.quote.steps.length > 0
+    ) {
+      const lastStep = quoteData.quote.steps[quoteData.quote.steps.length - 1]
+      const activeSwap = swapsById[activeSwapId]
+      if (activeSwap && lastStep) {
+        console.log(
+          '[🔄 SWAP UPDATE] Updating swap with final quote amount:',
+          JSON.stringify(
+            {
+              swapId: activeSwapId,
+              previousExpectedBuyAmount: activeSwap.expectedBuyAmountCryptoBaseUnit,
+              newExpectedBuyAmount: lastStep.buyAmountAfterFeesCryptoBaseUnit,
+              timestamp: new Date().toISOString(),
+            },
+            null,
+            2,
+          ),
+        )
+        dispatch(
+          swapSlice.actions.upsertSwap({
+            ...activeSwap,
+            expectedBuyAmountCryptoBaseUnit: lastStep.buyAmountAfterFeesCryptoBaseUnit,
+            expectedBuyAmountCryptoPrecision: fromBaseUnit(
+              lastStep.buyAmountAfterFeesCryptoBaseUnit,
+              lastStep.buyAsset.precision,
+            ),
+          }),
+        )
+      }
+    }
+  }, [
+    activeTrade,
+    activeQuoteMeta,
+    dispatch,
+    queryStateMeta.data,
+    confirmedTradeExecution,
+    swapsById,
+    activeSwapId,
+  ])
 
   return queryStateMeta
 }

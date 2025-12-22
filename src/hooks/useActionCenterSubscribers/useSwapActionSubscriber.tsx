@@ -10,7 +10,7 @@ import {
   TransactionExecutionState,
 } from '@shapeshiftoss/swapper'
 import type { KnownChainIds } from '@shapeshiftoss/types'
-import { TxStatus } from '@shapeshiftoss/unchained-client'
+import { TransferType, TxStatus } from '@shapeshiftoss/unchained-client'
 import { useQueries, useQuery } from '@tanstack/react-query'
 import { uuidv4 } from '@walletconnect/utils'
 import { detectIncognito } from 'detectincognitojs'
@@ -230,6 +230,22 @@ export const useSwapActionSubscriber = () => {
           gcTime: 10000,
         })
 
+      console.log(
+        '[🔍 Trade Status Fetch]:',
+        JSON.stringify(
+          {
+            swapId: swap.id,
+            status,
+            message,
+            actualBuyAmountCryptoBaseUnit,
+            hasActual: !!actualBuyAmountCryptoBaseUnit,
+            timestamp: new Date().toISOString(),
+          },
+          null,
+          2,
+        ),
+      )
+
       const { chainId, account: address } = fromAccountId(swap.sellAccountId)
 
       const txHash = swap.metadata.relayerTxHash ?? buyTxHash ?? swap.sellTxHash
@@ -264,18 +280,28 @@ export const useSwapActionSubscriber = () => {
       if (status === TxStatus.Confirmed) {
         vibrate('heavy')
 
-        dispatch(
-          swapSlice.actions.upsertSwap({
-            ...swap,
-            status: SwapStatus.Success,
-            statusMessage: message,
-            buyTxHash,
-            txLink,
-            actualBuyAmountCryptoBaseUnit,
-          }),
+        console.log(
+          '[🔧 DEBUG] Status Confirmed:',
+          JSON.stringify(
+            {
+              swapId: swap.id,
+              status,
+              buyTxHash,
+              sellTxHash: swap.sellTxHash,
+              buyAccountId: swap.buyAccountId,
+              sellAccountId: swap.sellAccountId,
+              actualBuyAmountCryptoBaseUnit,
+              timestamp: new Date().toISOString(),
+            },
+            null,
+            2,
+          ),
         )
 
-        // Parse and upsert Txs for second-class chains
+        // Parse and upsert Txs for second-class chains BEFORE marking swap complete
+        // so we can extract the actual buy amount from the parsed tx
+        let finalActualBuyAmount = actualBuyAmountCryptoBaseUnit
+
         const sellChainId = fromAccountId(swap.sellAccountId).chainId
         const isSellSecondClassChain = SECOND_CLASS_CHAINS.includes(sellChainId as KnownChainIds)
 
@@ -301,12 +327,53 @@ export const useSwapActionSubscriber = () => {
           const buyChainId = fromAccountId(swap.buyAccountId).chainId
           const isBuySecondClassChain = SECOND_CLASS_CHAINS.includes(buyChainId as KnownChainIds)
 
+          console.log(
+            '[🔧 DEBUG] Buy tx check:',
+            JSON.stringify(
+              {
+                swapId: swap.id,
+                buyTxHash,
+                buyAccountId: swap.buyAccountId,
+                buyChainId,
+                isBuySecondClassChain,
+                timestamp: new Date().toISOString(),
+              },
+              null,
+              2,
+            ),
+          )
+
           if (isBuySecondClassChain) {
             try {
               const adapter = getChainAdapterManager().get(buyChainId)
               const { account: buyAddress } = fromAccountId(swap.buyAccountId)
               if (adapter?.parseTx) {
                 const parsedBuyTx = await adapter.parseTx(buyTxHash, buyAddress)
+
+                // Extract actual buy amount from parsed tx for second-class chains
+                const receiveTransfer = parsedBuyTx.transfers.find(
+                  transfer =>
+                    transfer.type === TransferType.Receive &&
+                    transfer.assetId === swap.buyAsset.assetId,
+                )
+                if (receiveTransfer?.value) {
+                  finalActualBuyAmount = receiveTransfer.value
+                }
+
+                console.log(
+                  '[🔧 DEBUG] Extracted from parsed tx:',
+                  JSON.stringify(
+                    {
+                      swapId: swap.id,
+                      receiveTransferValue: receiveTransfer?.value,
+                      finalActualBuyAmount,
+                      timestamp: new Date().toISOString(),
+                    },
+                    null,
+                    2,
+                  ),
+                )
+
                 dispatch(
                   txHistory.actions.onMessage({
                     message: parsedBuyTx,
@@ -319,6 +386,32 @@ export const useSwapActionSubscriber = () => {
             }
           }
         }
+
+        // Now mark swap complete with the actual buy amount (from swapper or parsed tx)
+        console.log(
+          '[🔧 DEBUG] Updating swap with:',
+          JSON.stringify(
+            {
+              swapId: swap.id,
+              finalActualBuyAmount,
+              willHaveActual: !!finalActualBuyAmount,
+              timestamp: new Date().toISOString(),
+            },
+            null,
+            2,
+          ),
+        )
+
+        dispatch(
+          swapSlice.actions.upsertSwap({
+            ...swap,
+            status: SwapStatus.Success,
+            statusMessage: message,
+            buyTxHash,
+            txLink,
+            actualBuyAmountCryptoBaseUnit: finalActualBuyAmount,
+          }),
+        )
 
         const { getAccount } = portfolioApi.endpoints
 
@@ -355,6 +448,21 @@ export const useSwapActionSubscriber = () => {
           openRatingModal({})
           handleHasSeenRatingModal()
         }
+
+        console.log(
+          '[🎉 Success Notification]:',
+          JSON.stringify(
+            {
+              swapId: swap.id,
+              actualBuyAmountCryptoBaseUnit: swap.actualBuyAmountCryptoBaseUnit,
+              expectedBuyAmountCryptoPrecision: swap.expectedBuyAmountCryptoPrecision,
+              willUseActual: !!swap.actualBuyAmountCryptoBaseUnit,
+              timestamp: new Date().toISOString(),
+            },
+            null,
+            2,
+          ),
+        )
 
         if (toast.isActive(swap.id)) return
 

@@ -45,6 +45,8 @@ import * as sui from './sui'
 import * as tronModule from './tron'
 import { filterOutBlacklistedAssets, getSortedAssetIds } from './utils'
 
+const FULL_REGEN = process.env.FULL_REGEN === 'true'
+
 const generateAssetData = async () => {
   const ethAssets = await ethereum.getAssets()
   const avalancheAssets = await avalanche.getAssets()
@@ -107,6 +109,7 @@ const generateAssetData = async () => {
     // Only preserve actual AssetId values, not null (null means "checked but no related assets found")
     // By not preserving null, we allow re-checking when upstream providers add new platforms
     if (
+      !FULL_REGEN &&
       currentGeneratedAssetId?.relatedAssetKey &&
       currentGeneratedAssetId.relatedAssetKey !== null
     ) {

@@ -48,6 +48,8 @@ axiosRetry(axiosInstance, { retries: 5, retryDelay: axiosRetry.exponentialDelay 
 const ZERION_API_KEY = process.env.ZERION_API_KEY
 if (!ZERION_API_KEY) throw new Error('Missing Zerion API key - see readme for instructions')
 
+const FULL_REGEN = process.env.FULL_REGEN === 'true'
+
 const manualRelatedAssetIndex: Record<AssetId, AssetId[]> = {
   [ethAssetId]: [optimismAssetId, arbitrumAssetId, arbitrumNovaAssetId, baseAssetId],
   [foxAssetId]: [foxOnArbitrumOneAssetId],
@@ -91,8 +93,6 @@ const chunkArray = <T>(array: T[], chunkSize: number) => {
   return result
 }
 
-const PLASMA_USDT0_ASSET_ID = 'eip155:9745/erc20:0xb8ce59fc3717ada4c02eadf9682a9e934f625ebb'
-
 const getZerionRelatedAssetIds = async (
   assetId: AssetId,
   assetData: Record<AssetId, PartialFields<Asset, 'relatedAssetKey'>>,
@@ -132,14 +132,13 @@ const getZerionRelatedAssetIds = async (
 
   const implementations = firstEntry.attributes.implementations
 
-  // Use all assetIds actually present in the dataset, excluding Plasma USDT0 (corrupt CoinGecko data)
+  // Use all assetIds actually present in the dataset
   const allRelatedAssetIds = implementations
     ?.map(zerionImplementationToMaybeAssetId)
     .filter(isSome)
     .filter(relatedAssetId => {
       return assetData[relatedAssetId] !== undefined
     })
-    .filter(relatedAssetId => relatedAssetId !== PLASMA_USDT0_ASSET_ID)
 
   if (!allRelatedAssetIds || allRelatedAssetIds.length <= 1) {
     return
@@ -165,12 +164,11 @@ const getCoingeckoRelatedAssetIds = async (
 
   const platforms = data.platforms
 
-  // Use all assetIds actually present in the dataset, excluding Plasma USDT0 (corrupt CoinGecko data)
+  // Use all assetIds actually present in the dataset
   const allRelatedAssetIds = Object.entries(platforms)
     ?.map(coingeckoPlatformDetailsToMaybeAssetId)
     .filter(isSome)
     .filter(relatedAssetId => assetData[relatedAssetId] !== undefined)
-    .filter(relatedAssetId => relatedAssetId !== PLASMA_USDT0_ASSET_ID)
 
   if (allRelatedAssetIds.length <= 1) {
     return
@@ -192,17 +190,9 @@ const processRelatedAssetIds = async (
   relatedAssetIndex: Record<AssetId, AssetId[]>,
   throttle: () => Promise<void>,
 ): Promise<void> => {
-  // Skip related asset generation for Plasma usdt0 - Coingecko has corrupt data claiming
-  // it shares the same Arbitrum/Polygon contracts as real USDT, which corrupts groupings
-  if (assetId === PLASMA_USDT0_ASSET_ID) {
-    assetData[assetId].relatedAssetKey = null
-    await throttle()
-    return
-  }
-
   const existingRelatedAssetKey = assetData[assetId].relatedAssetKey
 
-  if (existingRelatedAssetKey) {
+  if (!FULL_REGEN && existingRelatedAssetKey) {
     return
   }
 
@@ -269,13 +259,6 @@ const processRelatedAssetIds = async (
     relatedAssetKey = relatedAssetKeyData
   }
 
-  // If the relatedAssetKey is Plasma USDT0, reject this entire grouping
-  if (relatedAssetKey === PLASMA_USDT0_ASSET_ID) {
-    assetData[assetId].relatedAssetKey = null
-    await throttle()
-    return
-  }
-
   const zerionRelatedAssetIds = zerionRelatedAssetsResult?.relatedAssetIds ?? []
   const coingeckoRelatedAssetIds = coingeckoRelatedAssetsResult?.relatedAssetIds ?? []
 
@@ -286,10 +269,43 @@ const processRelatedAssetIds = async (
       ...coingeckoRelatedAssetIds,
       assetId,
     ]),
-  ).filter(id => id !== PLASMA_USDT0_ASSET_ID) // Filter out Plasma USDT0 from final merged array
+  )
+    // Filter to prevent USDT <-> USDT0 cross-contamination
+    // Allows bridged variants (BSC-USD, USDTE, AXLUSDT) while preventing USDT from claiming USDT0
+    .filter(candidateAssetId => {
+      const candidate = assetData[candidateAssetId]
+      const current = assetData[assetId]
+
+      // Detect USDT0 by symbol or name
+      const currentIsUsdt0 = current?.symbol?.includes('USDT0') || current?.name === 'USDT0'
+      const candidateIsUsdt0 = candidate?.symbol?.includes('USDT0') || candidate?.name === 'USDT0'
+
+      // Must both be USDT0 or both NOT be USDT0
+      return currentIsUsdt0 === candidateIsUsdt0
+    })
+
+  // First-come-first-served conflict detection
+  // Filters out assets already claimed by a different group to prevent cross-contamination
+  const cleanedRelatedAssetIds = mergedRelatedAssetIds.filter(candidateAssetId => {
+    const existingKey = assetData[candidateAssetId]?.relatedAssetKey
+
+    // Asset has no group yet, or is already in the current group - OK to include
+    if (!existingKey || existingKey === relatedAssetKey) {
+      return true
+    }
+
+    // Asset already belongs to a different group - reject to prevent stealing
+    console.warn(
+      `[Related Asset Conflict] Asset ${candidateAssetId} already belongs to group ${existingKey}, ` +
+        `refusing to add to ${relatedAssetKey}. ` +
+        `This asset was claimed by a higher market cap token that processed first. ` +
+        `Upstream data provider (CoinGecko/Zerion) may have data quality issues.`,
+    )
+    return false
+  })
 
   // Has zerion-provided related assets, or manually added ones
-  const hasRelatedAssets = mergedRelatedAssetIds.length > 1
+  const hasRelatedAssets = cleanedRelatedAssetIds.length > 1
 
   if (hasRelatedAssets) {
     // Check if this exact group already exists in the index (can happen with parallel processing)
@@ -300,7 +316,7 @@ const processRelatedAssetIds = async (
       // Merge with existing group instead of replacing it
       const currentGroup = relatedAssetIndex[relatedAssetKey] || []
       relatedAssetIndex[relatedAssetKey] = Array.from(
-        new Set([...currentGroup, ...mergedRelatedAssetIds]),
+        new Set([...currentGroup, ...cleanedRelatedAssetIds]),
       )
     }
 
@@ -330,11 +346,11 @@ export const generateRelatedAssetIndex = async () => {
   )
 
   const { assetData: generatedAssetData, sortedAssetIds } = decodeAssetData(encodedAssetData)
-  const relatedAssetIndex = decodeRelatedAssetIndex(encodedRelatedAssetIndex, sortedAssetIds)
+  const relatedAssetIndex = FULL_REGEN
+    ? {}
+    : decodeRelatedAssetIndex(encodedRelatedAssetIndex, sortedAssetIds)
 
-  // Remove stale related asset data from the assetData where:
-  // a) the primary related asset no longer exists in the dataset
-  // b) the related asset key is Plasma usdt0 (corrupt Coingecko data)
+  // Remove stale related asset data from the assetData where the primary related asset no longer exists
   Object.values(generatedAssetData).forEach(asset => {
     const relatedAssetKey = asset.relatedAssetKey
 
@@ -342,12 +358,8 @@ export const generateRelatedAssetIndex = async () => {
 
     const primaryRelatedAsset = generatedAssetData[relatedAssetKey]
 
-    // Clear Plasma usdt0 related asset key - Coingecko has corrupt data for this token
-    const isPlasmaUsdt0 =
-      relatedAssetKey === 'eip155:9745/erc20:0xb8ce59fc3717ada4c02eadf9682a9e934f625ebb'
-
     // remove relatedAssetKey from the existing data to ensure the related assets get updated
-    if (primaryRelatedAsset === undefined || isPlasmaUsdt0) {
+    if (primaryRelatedAsset === undefined) {
       delete relatedAssetIndex[relatedAssetKey]
       delete asset.relatedAssetKey
     }

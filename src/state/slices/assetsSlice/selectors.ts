@@ -42,9 +42,15 @@ export const selectAssets = createDeepEqualOutputSelector(
 )
 
 export const selectPrimaryAssets = createCachedSelector(assets.selectors.selectAssetsById, byId => {
+  console.log('[selectPrimaryAssets] Called with byId keys:', Object.keys(byId).length)
   const chainAdapterManager = getChainAdapterManager()
-  return Object.values(byId).reduce<AssetsById>((acc, asset) => {
-    if (!asset || !asset.isPrimary) return acc
+  const result = Object.values(byId).reduce<AssetsById>((acc, asset) => {
+    if (!asset) return acc
+
+    if (!asset.isPrimary) {
+      console.log('[selectPrimaryAssets] Asset missing isPrimary:', asset.assetId)
+      return acc
+    }
 
     // Filter out assets from chains without loaded adapters (feature flags off)
     if (!chainAdapterManager.get(asset.chainId)) return acc
@@ -52,6 +58,8 @@ export const selectPrimaryAssets = createCachedSelector(assets.selectors.selectA
     acc[asset.assetId] = asset
     return acc
   }, {})
+  console.log('[selectPrimaryAssets] Returning:', Object.keys(result).length, 'primary assets')
+  return result
 })(() => 'primaryAssets')
 
 export const selectAssetIds = createDeepEqualOutputSelector(

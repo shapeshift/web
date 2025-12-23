@@ -1,4 +1,5 @@
 import { btcAssetId, ethAssetId, foxAssetId, usdcAssetId } from '@shapeshiftoss/caip'
+import { getBaseAsset } from '@shapeshiftoss/utils'
 import React, { useEffect, useState } from 'react'
 
 import { getAssetService } from '@/lib/asset-service'
@@ -20,10 +21,27 @@ export const AssetLoader = ({ children }: { children: React.ReactNode }) => {
         // Initialize asset service (fetches and decodes asset data)
         const service = await getAssetService()
 
-        // Populate Redux with loaded assets
+        // Enrich assets with chain-level data (networkName, explorer URLs)
+        const enrichedAssetsById = Object.fromEntries(
+          Object.entries(service.assetsById).map(([assetId, asset]) => {
+            const baseAsset = getBaseAsset(asset.chainId)
+            return [
+              assetId,
+              {
+                ...asset,
+                networkName: baseAsset.networkName,
+                explorer: baseAsset.explorer,
+                explorerAddressLink: baseAsset.explorerAddressLink,
+                explorerTxLink: baseAsset.explorerTxLink,
+              },
+            ]
+          }),
+        )
+
+        // Populate Redux with enriched assets
         dispatch(
           assets.actions.upsertAssets({
-            byId: service.assetsById,
+            byId: enrichedAssetsById,
             ids: service.assetIds,
           }),
         )

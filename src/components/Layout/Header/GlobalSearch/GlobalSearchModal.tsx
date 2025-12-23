@@ -50,6 +50,12 @@ export const GlobalSearchModal = memo(
     const results = useAppSelector(state => selectAssetsBySearchQuery(state, searchFilter))
     const assetResults = results
     const resultsCount = results.length
+
+    console.log('[GlobalSearchModal] Search results:', {
+      searchQuery,
+      resultsCount,
+      filterLimit: searchFilter.limit,
+    })
     const isMac = useMemo(() => /Mac/.test(navigator.userAgent), [])
     const handleClose = useCallback(() => {
       setSearchQuery('')

@@ -50,10 +50,10 @@ class _AssetService {
         // Node.js environment (generation scripts)
         const fs = await import('fs')
         const path = await import('path')
-        const assetDataPath = path.join(process.cwd(), 'public/generated/encodedAssetData.json')
+        const assetDataPath = path.join(process.cwd(), 'public/generated/generatedAssetData.json')
         const relatedAssetIndexPath = path.join(
           process.cwd(),
-          'public/generated/encodedRelatedAssetIndex.json',
+          'public/generated/relatedAssetIndex.json',
         )
         return Promise.all([
           JSON.parse(fs.readFileSync(assetDataPath, 'utf8')),
@@ -62,8 +62,8 @@ class _AssetService {
       } else {
         // Browser environment
         return Promise.all([
-          fetch('/generated/encodedAssetData.json').then(r => r.json()),
-          fetch('/generated/encodedRelatedAssetIndex.json').then(r => r.json()),
+          fetch('/generated/generatedAssetData.json').then(r => r.json()),
+          fetch('/generated/relatedAssetIndex.json').then(r => r.json()),
         ])
       }
     })()

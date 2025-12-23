@@ -52,7 +52,7 @@ export const assets = createSlice({
         return
       }
 
-      state.byId = Object.assign({}, state.byId, action.payload.byId) // upsert
+      Object.assign(state.byId, action.payload.byId)
       // Note this preserves the original sorting while removing duplicates.
       state.ids = Array.from(new Set(state.ids.concat(action.payload.ids)))
     }),

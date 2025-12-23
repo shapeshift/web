@@ -64,15 +64,15 @@ export function AppProviders({ children }: ProvidersProps) {
   return (
     <HelmetProvider>
       <ReduxProvider store={store}>
-        <AssetLoader>
-          <WagmiProvider config={wagmiConfig}>
-            <QueryClientProvider>
-              <PluginProvider>
-                <ColorModeScript storageKey='ss-theme' />
-                <ChatwootWidget />
-                <I18nProvider>
-                  <ChakraProvider theme={theme} colorModeManager={manager} cssVarsRoot='body'>
-                    <PersistGate loading={splashScreen} persistor={persistor}>
+        <WagmiProvider config={wagmiConfig}>
+          <QueryClientProvider>
+            <PersistGate loading={splashScreen} persistor={persistor}>
+              <AssetLoader>
+                <PluginProvider>
+                  <ColorModeScript storageKey='ss-theme' />
+                  <ChatwootWidget />
+                  <I18nProvider>
+                    <ChakraProvider theme={theme} colorModeManager={manager} cssVarsRoot='body'>
                       <HashRouter basename='/'>
                         <ScrollToTop />
                         <BrowserRouterProvider>
@@ -103,13 +103,13 @@ export function AppProviders({ children }: ProvidersProps) {
                           </ModalStackProvider>
                         </BrowserRouterProvider>
                       </HashRouter>
-                    </PersistGate>
-                  </ChakraProvider>
-                </I18nProvider>
-              </PluginProvider>
-            </QueryClientProvider>
-          </WagmiProvider>
-        </AssetLoader>
+                    </ChakraProvider>
+                  </I18nProvider>
+                </PluginProvider>
+              </AssetLoader>
+            </PersistGate>
+          </QueryClientProvider>
+        </WagmiProvider>
       </ReduxProvider>
     </HelmetProvider>
   )

@@ -87,7 +87,7 @@ class _AssetService {
     const localAssetData = assetDataJson.byId
     const sortedAssetIds = assetDataJson.ids
 
-    // Compute isPrimary and isChainSpecific for each asset (was done by decodeAssetData before)
+    // Compute isPrimary and isChainSpecific for each asset
     Object.values(localAssetData).forEach(asset => {
       if (asset) {
         const assetTyped = asset as Asset

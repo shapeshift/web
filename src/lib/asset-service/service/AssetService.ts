@@ -60,10 +60,21 @@ class _AssetService {
           JSON.parse(fs.readFileSync(relatedAssetIndexPath, 'utf8')),
         ])
       } else {
-        // Browser environment
+        // Browser environment - fetch with cache-busting hash
+        const manifest = await (async () => {
+          try {
+            return await fetch('/generated/asset-manifest.json').then(r => r.json())
+          } catch {
+            console.warn('asset-manifest.json not found, using timestamp for cache busting')
+            return { assetData: Date.now().toString(), relatedAssetIndex: Date.now().toString() }
+          }
+        })()
+
         return Promise.all([
-          fetch('/generated/generatedAssetData.json').then(r => r.json()),
-          fetch('/generated/relatedAssetIndex.json').then(r => r.json()),
+          fetch(`/generated/generatedAssetData.json?v=${manifest.assetData}`).then(r => r.json()),
+          fetch(`/generated/relatedAssetIndex.json?v=${manifest.relatedAssetIndex}`).then(r =>
+            r.json(),
+          ),
         ])
       }
     })()

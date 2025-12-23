@@ -17,9 +17,11 @@ import {
   unfreeze,
   zcash,
 } from '@shapeshiftoss/utils'
+import crypto from 'crypto'
 import fs from 'fs'
 import merge from 'lodash/merge'
 import orderBy from 'lodash/orderBy'
+import path from 'path'
 
 import * as arbitrum from './arbitrum'
 import * as arbitrumNova from './arbitrumNova'
@@ -178,6 +180,30 @@ const writeRelatedAssetIndex = (relatedAssetIndex: Record<AssetId, AssetId[]>) =
   fs.writeFileSync(RELATED_ASSET_INDEX_PATH, JSON.stringify(filteredOutputData, null, 2))
 }
 
+const generateManifest = async () => {
+  const assetDataHash = crypto
+    .createHash('sha256')
+    .update(await fs.promises.readFile(ASSET_DATA_PATH, 'utf8'))
+    .digest('hex')
+    .slice(0, 8)
+
+  const relatedAssetIndexHash = crypto
+    .createHash('sha256')
+    .update(await fs.promises.readFile(RELATED_ASSET_INDEX_PATH, 'utf8'))
+    .digest('hex')
+    .slice(0, 8)
+
+  const manifest = {
+    assetData: assetDataHash,
+    relatedAssetIndex: relatedAssetIndexHash,
+  }
+
+  const manifestPath = path.join(GENERATED_DIR, 'asset-manifest.json')
+  await fs.promises.writeFile(manifestPath, JSON.stringify(manifest, null, 2))
+
+  console.info('Generated asset-manifest.json with content hashes')
+}
+
 const main = async () => {
   try {
     // Read the original related asset index
@@ -191,6 +217,9 @@ const main = async () => {
 
     // Generate the new related asset index
     await generateRelatedAssetIndex()
+
+    // Generate manifest with content hashes for cache busting
+    await generateManifest()
 
     console.info('Assets and related assets data generated.')
 

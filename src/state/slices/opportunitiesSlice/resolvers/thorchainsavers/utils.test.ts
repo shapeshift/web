@@ -14,7 +14,12 @@ const mocks = vi.hoisted(() => ({
 vi.stubGlobal(
   'fetch',
   vi.fn((url: string) => {
-    if (url.includes('encodedAssetData.json')) {
+    if (url.includes('asset-manifest.json')) {
+      return Promise.resolve({
+        json: () => Promise.resolve({ assetData: 'test', relatedAssetIndex: 'test' }),
+      } as Response)
+    }
+    if (url.includes('generatedAssetData.json')) {
       return Promise.resolve({
         json: () =>
           Promise.resolve({
@@ -25,7 +30,7 @@ vi.stubGlobal(
           }),
       } as Response)
     }
-    if (url.includes('encodedRelatedAssetIndex.json')) {
+    if (url.includes('relatedAssetIndex.json')) {
       return Promise.resolve({
         json: () => Promise.resolve({}),
       } as Response)

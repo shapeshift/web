@@ -91,7 +91,14 @@ export const useAssetSearchWorker = ({
 
   // Update worker with new assets
   useEffect(() => {
+    console.log('[useAssetSearchWorker] Assets changed:', {
+      assetsLength: assets.length,
+      primaryAssetsLength: primaryAssets.length,
+      hasWorker: !!workerRef.current,
+    })
+
     if (workerRef.current && primaryAssets.length && assets.length) {
+      console.log('[useAssetSearchWorker] Sending assets to worker')
       workerRef.current.postMessage({
         type: 'updateAssets',
         payload: { assets },
@@ -104,6 +111,7 @@ export const useAssetSearchWorker = ({
       })
       setWorkerSearchState(prev => ({ ...prev, workerState: 'ready' }))
     } else {
+      console.log('[useAssetSearchWorker] Not ready - waiting for assets')
       setWorkerSearchState(prev => ({ ...prev, workerState: 'initializing' }))
     }
   }, [assets, primaryAssets])

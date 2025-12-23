@@ -42,23 +42,36 @@ export const selectAssets = createDeepEqualOutputSelector(
 )
 
 export const selectPrimaryAssets = createCachedSelector(assets.selectors.selectAssetsById, byId => {
-  console.log('[selectPrimaryAssets] Called with byId keys:', Object.keys(byId).length)
+  const allAssets = Object.values(byId)
   const chainAdapterManager = getChainAdapterManager()
-  const result = Object.values(byId).reduce<AssetsById>((acc, asset) => {
+  let missingIsPrimaryCount = 0
+  let filteredByChainCount = 0
+
+  const result = allAssets.reduce<AssetsById>((acc, asset) => {
     if (!asset) return acc
 
     if (!asset.isPrimary) {
-      console.log('[selectPrimaryAssets] Asset missing isPrimary:', asset.assetId)
+      missingIsPrimaryCount++
       return acc
     }
 
     // Filter out assets from chains without loaded adapters (feature flags off)
-    if (!chainAdapterManager.get(asset.chainId)) return acc
+    if (!chainAdapterManager.get(asset.chainId)) {
+      filteredByChainCount++
+      return acc
+    }
 
     acc[asset.assetId] = asset
     return acc
   }, {})
-  console.log('[selectPrimaryAssets] Returning:', Object.keys(result).length, 'primary assets')
+
+  console.log('[selectPrimaryAssets]', {
+    totalAssets: allAssets.length,
+    missingIsPrimary: missingIsPrimaryCount,
+    filteredByChain: filteredByChainCount,
+    primaryAssets: Object.keys(result).length,
+  })
+
   return result
 })(() => 'primaryAssets')
 

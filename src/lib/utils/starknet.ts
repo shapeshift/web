@@ -9,12 +9,8 @@ import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSin
 export const isStarknetChainAdapter = (
   chainAdapter: unknown,
 ): chainAdapter is starknet.ChainAdapter => {
-  if (!chainAdapter) return false
-
-  const maybeAdapter = chainAdapter as starknet.ChainAdapter
-  if (typeof maybeAdapter.getChainId !== 'function') return false
-
-  return maybeAdapter.getChainId() === starknetChainId
+  if (!chainAdapter || typeof chainAdapter !== 'object') return false
+  return (chainAdapter as starknet.ChainAdapter).getChainId() === starknetChainId
 }
 
 export const assertGetStarknetChainAdapter = (
@@ -36,18 +32,15 @@ export const getStarknetTransactionStatus = async (
 ): Promise<TxStatus> => {
   try {
     const provider = adapter.getStarknetProvider()
-    const receipt = (await provider.getTransactionReceipt(txHash)) as any
 
-    switch (receipt.execution_status) {
-      case 'SUCCEEDED':
-        return TxStatus.Confirmed
-      case 'REVERTED':
-        return TxStatus.Failed
-      default:
-        return TxStatus.Unknown
-    }
-  } catch (err) {
-    console.error(`[Starknet] Error getting transaction status for ${txHash}:`, err)
+    const receipt: any = await provider.getTransactionReceipt(txHash)
+
+    if (receipt.execution_status === 'SUCCEEDED') return TxStatus.Confirmed
+    if (receipt.execution_status === 'REVERTED') return TxStatus.Failed
+
+    return TxStatus.Unknown
+  } catch (error) {
+    console.error('Error getting Starknet transaction status:', error)
     return TxStatus.Unknown
   }
 }

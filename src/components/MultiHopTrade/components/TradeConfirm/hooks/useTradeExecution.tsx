@@ -1,7 +1,12 @@
 import { bchAssetId, CHAIN_NAMESPACE, fromAccountId, fromChainId } from '@shapeshiftoss/caip'
 import type { SignTx, SignTypedDataInput } from '@shapeshiftoss/chain-adapters'
 import { ChainAdapterError, toAddressNList } from '@shapeshiftoss/chain-adapters'
-import type { ETHSignTypedData, SolanaSignTx, SuiSignTx } from '@shapeshiftoss/hdwallet-core'
+import type {
+  ETHSignTypedData,
+  SolanaSignTx,
+  StarknetSignTx,
+  SuiSignTx,
+} from '@shapeshiftoss/hdwallet-core'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { isGridPlus } from '@shapeshiftoss/hdwallet-gridplus'
 import { isTrezor } from '@shapeshiftoss/hdwallet-trezor'
@@ -36,6 +41,7 @@ import { assertUnreachable } from '@/lib/utils'
 import { assertGetCosmosSdkChainAdapter } from '@/lib/utils/cosmosSdk'
 import { assertGetEvmChainAdapter, signAndBroadcast } from '@/lib/utils/evm'
 import { assertGetSolanaChainAdapter } from '@/lib/utils/solana'
+import { assertGetStarknetChainAdapter } from '@/lib/utils/starknet'
 import { assertGetSuiChainAdapter } from '@/lib/utils/sui'
 import { assertGetTronChainAdapter } from '@/lib/utils/tron'
 import { assertGetUtxoChainAdapter } from '@/lib/utils/utxo'
@@ -597,7 +603,35 @@ export const useTradeExecution = (
           return
         }
         case CHAIN_NAMESPACE.Starknet: {
-          throw new Error('Starknet swaps are not yet supported')
+          const adapter = assertGetStarknetChainAdapter(stepSellAssetChainId)
+
+          const from = await adapter.getAddress({
+            accountNumber,
+            wallet,
+            pubKey: skipDeviceDerivation ? pubKey : undefined,
+          })
+
+          const output = await execution.execStarknetTransaction({
+            swapperName,
+            tradeQuote,
+            stepIndex: hopIndex,
+            slippageTolerancePercentageDecimal,
+            from,
+            signAndBroadcastTransaction: async (txToSign: StarknetSignTx) => {
+              const hex = await adapter.signTransaction({ txToSign, wallet })
+
+              const output = await adapter.broadcastTransaction({
+                senderAddress: from,
+                receiverAddress,
+                hex,
+              })
+
+              trackMixpanelEventOnExecute()
+              return output
+            },
+          })
+          cancelPollingRef.current = output?.cancelPolling
+          return
         }
         default:
           assertUnreachable(stepSellAssetChainNamespace)

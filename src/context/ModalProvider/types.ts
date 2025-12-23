@@ -6,6 +6,7 @@ import type { AssetActionsDrawerProps } from '@/components/AssetHeader/AssetActi
 import type { BackupPassphraseModalProps } from '@/components/Layout/Header/NavBar/Native/BackupPassphraseModal/BackupPassphraseModal'
 import type { MobileWalletDialogProps } from '@/components/MobileWalletDialog/MobileWalletDialog'
 import type { AssetSearchModalProps } from '@/components/Modals/AssetSearch/AssetSearchModal'
+import type { DeployStarknetAccountModalProps } from '@/components/Modals/DeployStarknetAccount/DeployStarknetAccountModal'
 import type { FiatRampsModalProps } from '@/components/Modals/FiatRamps/FiatRampsModal'
 import type { LedgerOpenAppModalProps } from '@/components/Modals/LedgerOpenApp/LedgerOpenAppModal'
 import type { NativeOnboardingModalProps } from '@/components/Modals/NativeOnboarding/NativeOnboarding'
@@ -38,6 +39,7 @@ export type Modals = {
   snaps: FC<SnapsModalProps>
   manageAccounts: FC
   ledgerOpenApp: FC<LedgerOpenAppModalProps>
+  deployStarknetAccount: FC<DeployStarknetAccountModalProps>
   rateChanged: FC<RateChangedModalProps>
   mobileWalletDialog: FC<MobileWalletDialogProps>
   assetActionsDrawer: FC<AssetActionsDrawerProps>

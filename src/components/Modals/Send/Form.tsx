@@ -1,5 +1,11 @@
 import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
-import { CHAIN_NAMESPACE, fromAccountId, fromAssetId, toAccountId } from '@shapeshiftoss/caip'
+import {
+  CHAIN_NAMESPACE,
+  fromAccountId,
+  fromAssetId,
+  starknetChainId,
+  toAccountId,
+} from '@shapeshiftoss/caip'
 import type { FeeDataEstimate } from '@shapeshiftoss/chain-adapters'
 import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import { AnimatePresence } from 'framer-motion'
@@ -21,6 +27,7 @@ import { SendAmountDetails } from '@/components/Modals/Send/views/SendAmountDeta
 import { QrCodeScanner } from '@/components/QrCodeScanner/QrCodeScanner'
 import { SelectAssetRouter } from '@/components/SelectAssets/SelectAssetRouter'
 import { SlideTransition } from '@/components/SlideTransition'
+import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
 import { useModal } from '@/hooks/useModal/useModal'
 import { useNotificationToast } from '@/hooks/useNotificationToast'
 import { useWallet } from '@/hooks/useWallet/useWallet'
@@ -41,6 +48,7 @@ import {
   selectFirstAccountIdByChainId,
   selectMarketDataByAssetIdUserCurrency,
   selectPortfolioAccountIdsByAssetIdFilter,
+  selectPortfolioAccountMetadataByAccountId,
 } from '@/state/slices/selectors'
 import { store, useAppDispatch, useAppSelector } from '@/state/store'
 
@@ -82,6 +90,7 @@ export const Form: React.FC<SendFormProps> = ({ initialAssetId, input = '', acco
   const { isDrawerOpen, openActionCenter } = useActionCenterContext()
   const send = useModal('send')
   const qrCode = useModal('qrCode')
+  const deployStarknetAccount = useModal('deployStarknetAccount')
   const dispatch = useAppDispatch()
   const toast = useNotificationToast({ duration: isDrawerOpen ? 5000 : null })
   const navigate = useNavigate()
@@ -139,21 +148,19 @@ export const Form: React.FC<SendFormProps> = ({ initialAssetId, input = '', acco
     qrCode.close()
   }, [qrCode, send])
 
-  const handleSubmit = useCallback(
+  const executeSend = useCallback(
     async (data: SendInput) => {
-      if (!wallet) return
-
-      // Get change address if this is UTXO
-      const changeAddress = await maybeFetchChangeAddress({ sendInput: data, wallet })
-      if (changeAddress) {
-        methods.setValue(SendFormFields.ChangeAddress, changeAddress)
-      }
-
       const txHash = await handleFormSend(data, false)
-      if (!txHash) return
+      if (!txHash) return null
       mixpanel?.track(MixPanelEvent.SendBroadcast)
       methods.setValue(SendFormFields.TxHash, txHash)
+      return txHash
+    },
+    [handleFormSend, methods, mixpanel],
+  )
 
+  const completeSendFlow = useCallback(
+    (txHash: string, data: SendInput) => {
       const internalAccountIdFilter = {
         accountAddress: data.to,
         chainId: fromAccountId(formAccountId).chainId,
@@ -219,10 +226,6 @@ export const Form: React.FC<SendFormProps> = ({ initialAssetId, input = '', acco
       handleClose()
     },
     [
-      wallet,
-      methods,
-      handleFormSend,
-      mixpanel,
       assetId,
       dispatch,
       formAccountId,
@@ -232,6 +235,113 @@ export const Form: React.FC<SendFormProps> = ({ initialAssetId, input = '', acco
       openActionCenter,
       toast,
     ],
+  )
+
+  const handleSubmit = useCallback(
+    async (data: SendInput) => {
+      if (!wallet) return
+
+      // Get change address if this is UTXO
+      const changeAddress = await maybeFetchChangeAddress({ sendInput: data, wallet })
+      if (changeAddress) {
+        methods.setValue(SendFormFields.ChangeAddress, changeAddress)
+      }
+
+      const { chainId } = fromAccountId(formAccountId)
+      if (chainId === starknetChainId) {
+        console.log('Checking Starknet account deployment...')
+        const chainAdapterManager = getChainAdapterManager()
+        const adapter = chainAdapterManager.get(chainId)
+        console.log(
+          'Adapter:',
+          adapter,
+          'has isAccountDeployed:',
+          'isAccountDeployed' in (adapter || {}),
+        )
+        if (adapter && 'isAccountDeployed' in adapter) {
+          const fromAddress = fromAccountId(formAccountId).account
+          console.log('Checking if address is deployed:', fromAddress)
+          const isDeployed = await (adapter as any).isAccountDeployed(fromAddress)
+          console.log('Account deployed:', isDeployed)
+          if (!isDeployed) {
+            console.log('Opening deployment modal...')
+            deployStarknetAccount.open({
+              onConfirm: async () => {
+                try {
+                  const feeData = await adapter.getFeeData({})
+                  const maxFee = (feeData as any).fast.chainSpecific.maxFee
+
+                  const accountMetadata = selectPortfolioAccountMetadataByAccountId(
+                    store.getState(),
+                    {
+                      accountId: formAccountId,
+                    },
+                  )
+                  const accountNumber = accountMetadata?.bip44Params.accountNumber ?? 0
+
+                  const deployTxHash = await (adapter as any).deployAccount({
+                    accountNumber,
+                    wallet,
+                    maxFee,
+                  })
+
+                  if (!deployTxHash) {
+                    toast({
+                      status: 'error',
+                      title: 'Failed to deploy account',
+                      description: 'Could not deploy Starknet account',
+                    })
+                    return
+                  }
+
+                  toast({
+                    status: 'info',
+                    title: 'Deploying account...',
+                    description: 'Waiting for account deployment to be confirmed',
+                    duration: null,
+                  })
+
+                  const starknetProvider = (adapter as any).getStarknetProvider()
+                  await starknetProvider.waitForTransaction(deployTxHash, {
+                    retryInterval: 2000,
+                    successStates: ['ACCEPTED_ON_L2', 'ACCEPTED_ON_L1'],
+                  })
+
+                  toast({
+                    status: 'success',
+                    title: 'Account deployed',
+                    description: 'Your Starknet account has been deployed successfully',
+                    duration: 3000,
+                  })
+
+                  // Wait a moment for the nonce to update before proceeding with send
+                  await new Promise(resolve => setTimeout(resolve, 2000))
+
+                  const txHash = await executeSend(data)
+                  if (!txHash) return
+                  completeSendFlow(txHash, data)
+                } catch (error) {
+                  console.error('Failed to deploy Starknet account:', error)
+                  toast({
+                    status: 'error',
+                    title: 'Deployment failed',
+                    description: error instanceof Error ? error.message : 'Unknown error',
+                  })
+                }
+              },
+              onCancel: () => {},
+            })
+            return
+          }
+        }
+      }
+
+      const txHash = await executeSend(data)
+      if (!txHash) return
+
+      completeSendFlow(txHash, data)
+    },
+    [wallet, methods, formAccountId, deployStarknetAccount, executeSend, completeSendFlow, toast],
   )
 
   const handleAssetSelect = useCallback(

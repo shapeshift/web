@@ -245,6 +245,49 @@ export const nearIntentsApi: SwapperApi = {
     return Promise.resolve(step.feeData.networkFeeCryptoBaseUnit)
   },
 
+  getUnsignedStarknetTransaction: async ({
+    stepIndex,
+    tradeQuote,
+    from,
+    assertGetStarknetChainAdapter,
+  }) => {
+    if (!isExecutableTradeQuote(tradeQuote)) throw new Error('Unable to execute a trade rate quote')
+
+    const step = getExecutableTradeStep(tradeQuote, stepIndex)
+
+    const { accountNumber, sellAsset, nearIntentsSpecific } = step
+    if (!nearIntentsSpecific) throw new Error('nearIntentsSpecific is required')
+
+    const adapter = assertGetStarknetChainAdapter(sellAsset.chainId)
+
+    const to = nearIntentsSpecific.depositAddress
+    const value = step.sellAmountIncludingProtocolFeesCryptoBaseUnit
+    const tokenContractAddress = contractAddressOrUndefined(sellAsset.assetId)
+
+    const { fast } = await adapter.getFeeData()
+
+    return adapter.buildSendApiTransaction({
+      from,
+      to,
+      value,
+      accountNumber,
+      chainSpecific: {
+        tokenContractAddress,
+        maxFee: fast.chainSpecific.maxFee,
+      },
+    })
+  },
+
+  getStarknetTransactionFees: ({ tradeQuote, stepIndex }) => {
+    if (!isExecutableTradeQuote(tradeQuote)) throw new Error('Unable to execute a trade rate quote')
+
+    const step = getExecutableTradeStep(tradeQuote, stepIndex)
+    if (!step.feeData.networkFeeCryptoBaseUnit) {
+      throw new Error('Missing network fee in quote')
+    }
+    return Promise.resolve(step.feeData.networkFeeCryptoBaseUnit)
+  },
+
   checkTradeStatus: async ({ config, swap }): Promise<TradeStatus> => {
     const { nearIntentsSpecific } = swap?.metadata ?? {}
 

@@ -16,7 +16,7 @@ const starknetBaseAsset: Asset = {
   symbol: 'STRK',
   precision: 18,
   color: '#EC796B',
-  icon: 'https://static.debank.com/image/project/logo_url/starknet/559a9c47e1e9a9ff0ebcc5bf81c5c0b4.png',
+  icon: 'https://assets.coingecko.com/coins/images/26433/standard/starknet.png?1696525507',
   explorer: 'https://starkscan.co',
   explorerAddressLink: 'https://starkscan.co/contract/',
   explorerTxLink: 'https://starkscan.co/tx/',

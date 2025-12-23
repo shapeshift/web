@@ -49,6 +49,7 @@ import { csp as interFont } from './InterFont'
 import { csp as jupiter } from './jupiter'
 import { csp as ledger } from './ledger'
 import { csp as coincap } from './marketService/coincap'
+import { csp as coingecko } from './marketService/coingecko'
 import { csp as exchangeRates } from './marketService/exchangeRates'
 import { csp as mercle } from './mercle'
 import { csp as mixPanel } from './mixPanel'
@@ -117,6 +118,7 @@ export const csps = [
   plasma,
   trustwallet,
   coincap,
+  coingecko,
   exchangeRates,
   onRamper,
   banxa,

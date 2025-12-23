@@ -6,11 +6,17 @@ import type {
   EvmChainAdapter,
   SignTx,
   solana,
+  starknet,
   sui,
   tron,
   UtxoChainAdapter,
 } from '@shapeshiftoss/chain-adapters'
-import type { HDWallet, SolanaSignTx, SuiSignTx } from '@shapeshiftoss/hdwallet-core'
+import type {
+  HDWallet,
+  SolanaSignTx,
+  StarknetSignTx,
+  SuiSignTx,
+} from '@shapeshiftoss/hdwallet-core'
 import type {
   AccountMetadata,
   Asset,
@@ -295,6 +301,10 @@ export type SuiSwapperDeps = {
   assertGetSuiChainAdapter: (chainId: ChainId) => sui.ChainAdapter
 }
 
+export type StarknetSwapperDeps = {
+  assertGetStarknetChainAdapter: (chainId: ChainId) => starknet.ChainAdapter
+}
+
 export type SwapperDeps = {
   assetsById: AssetsByIdPartial
   config: SwapperConfig
@@ -305,7 +315,8 @@ export type SwapperDeps = {
   CosmosSdkSwapperDeps &
   SolanaSwapperDeps &
   TronSwapperDeps &
-  SuiSwapperDeps
+  SuiSwapperDeps &
+  StarknetSwapperDeps
 
 export type TradeQuoteStep = {
   buyAmountBeforeFeesCryptoBaseUnit: string
@@ -573,10 +584,15 @@ export type SuiTransactionExecutionProps = {
   signAndBroadcastTransaction: (txToSign: SuiSignTx) => Promise<string>
 }
 
+export type StarknetTransactionExecutionProps = {
+  signAndBroadcastTransaction: (txToSign: StarknetSignTx) => Promise<string>
+}
+
 type EvmAccountMetadata = { from: string }
 type SolanaAccountMetadata = { from: string }
 type TronAccountMetadata = { from: string }
 type SuiAccountMetadata = { from: string }
+type StarknetAccountMetadata = { from: string }
 type UtxoAccountMetadata = { senderAddress: string; xpub: string; accountType: UtxoAccountType }
 type CosmosSdkAccountMetadata = { from: string }
 
@@ -605,6 +621,9 @@ export type GetUnsignedTronTransactionArgs = CommonGetUnsignedTransactionArgs &
 export type GetUnsignedSuiTransactionArgs = CommonGetUnsignedTransactionArgs &
   SuiAccountMetadata &
   SuiSwapperDeps
+export type GetUnsignedStarknetTransactionArgs = CommonGetUnsignedTransactionArgs &
+  StarknetAccountMetadata &
+  StarknetSwapperDeps
 
 export type GetUnsignedEvmMessageArgs = CommonGetUnsignedTransactionArgs &
   EvmAccountMetadata &
@@ -641,7 +660,8 @@ export type CheckTradeStatusInput = {
   CosmosSdkSwapperDeps &
   SolanaSwapperDeps &
   TronSwapperDeps &
-  SuiSwapperDeps
+  SuiSwapperDeps &
+  StarknetSwapperDeps
 
 export type TradeStatus = {
   status: TxStatus
@@ -692,6 +712,10 @@ export type Swapper = {
     txToSign: SuiSignTx,
     callbacks: SuiTransactionExecutionProps,
   ) => Promise<string>
+  executeStarknetTransaction?: (
+    txToSign: StarknetSignTx,
+    callbacks: StarknetTransactionExecutionProps,
+  ) => Promise<string>
 }
 
 export type SwapperApi = {
@@ -712,6 +736,9 @@ export type SwapperApi = {
   getUnsignedSolanaTransaction?: (input: GetUnsignedSolanaTransactionArgs) => Promise<SolanaSignTx>
   getUnsignedTronTransaction?: (input: GetUnsignedTronTransactionArgs) => Promise<tron.TronSignTx>
   getUnsignedSuiTransaction?: (input: GetUnsignedSuiTransactionArgs) => Promise<SuiSignTx>
+  getUnsignedStarknetTransaction?: (
+    input: GetUnsignedStarknetTransactionArgs,
+  ) => Promise<StarknetSignTx>
 
   getEvmTransactionFees?: (input: GetUnsignedEvmTransactionArgs) => Promise<string>
   getSolanaTransactionFees?: (input: GetUnsignedSolanaTransactionArgs) => Promise<string>
@@ -719,6 +746,7 @@ export type SwapperApi = {
   getUtxoTransactionFees?: (input: GetUnsignedUtxoTransactionArgs) => Promise<string>
   getCosmosSdkTransactionFees?: (input: GetUnsignedCosmosSdkTransactionArgs) => Promise<string>
   getTronTransactionFees?: (input: GetUnsignedTronTransactionArgs) => Promise<string>
+  getStarknetTransactionFees?: (input: GetUnsignedStarknetTransactionArgs) => Promise<string>
 }
 
 export type QuoteResult = Result<TradeQuote[], SwapErrorRight> & {
@@ -763,6 +791,10 @@ export type TronTransactionExecutionInput = CommonTradeExecutionInput &
 export type SuiTransactionExecutionInput = CommonTradeExecutionInput &
   SuiTransactionExecutionProps &
   SuiAccountMetadata
+
+export type StarknetTransactionExecutionInput = CommonTradeExecutionInput &
+  StarknetTransactionExecutionProps &
+  StarknetAccountMetadata
 
 export enum TradeExecutionEvent {
   SellTxHash = 'sellTxHash',

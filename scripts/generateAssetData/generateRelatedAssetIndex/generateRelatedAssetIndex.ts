@@ -34,6 +34,7 @@ import {
 import { zerionFungiblesSchema } from './validators/fungible'
 
 import type { CoingeckoAssetDetails } from '@/lib/coingecko/types'
+import type { CoinGeckoMarketCap } from '@/lib/market-service/coingecko/coingecko-types'
 import type { PartialFields } from '@/lib/types'
 
 // NOTE: this must call the zerion api directly rather than our proxy because of rate limiting requirements
@@ -48,9 +49,23 @@ axiosRetry(axiosInstance, { retries: 5, retryDelay: axiosRetry.exponentialDelay 
 const ZERION_API_KEY = process.env.ZERION_API_KEY
 if (!ZERION_API_KEY) throw new Error('Missing Zerion API key - see readme for instructions')
 
+const REGEN_ALL = process.env.REGEN_ALL === 'true'
+
 const manualRelatedAssetIndex: Record<AssetId, AssetId[]> = {
   [ethAssetId]: [optimismAssetId, arbitrumAssetId, arbitrumNovaAssetId, baseAssetId],
   [foxAssetId]: [foxOnArbitrumOneAssetId],
+}
+
+// Category → Canonical Asset mapping for bridged tokens
+// Maps CoinGecko bridged categories to their Ethereum canonical tokens
+// Note: bridged-usdt includes USDT0 variants - they will be grouped together with ETH USDT as primary
+const BRIDGED_CATEGORY_MAPPINGS: Record<string, AssetId> = {
+  'bridged-usdc': 'eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48', // ETH USDC
+  'bridged-usdt': 'eip155:1/erc20:0xdac17f958d2ee523a2206206994597c13d831ec7', // ETH USDT (includes USDT0)
+  'bridged-weth': 'eip155:1/erc20:0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2', // ETH WETH
+  'bridged-wbtc': 'eip155:1/erc20:0x2260fac5e5542a773aa44fbcfedf7c193bc2c599', // ETH WBTC
+  'bridged-dai': 'eip155:1/erc20:0x6b175474e89094c44da98b954eedeac495271d0f', // ETH DAI
+  'bridged-wsteth': 'eip155:1/erc20:0x7f39c581f595b53c5cb19bd0b3f8da6c935e2ca0', // ETH wstETH
 }
 
 export const getManualRelatedAssetIds = (
@@ -81,6 +96,30 @@ export const getManualRelatedAssetIds = (
 
 const isSome = <T>(option: T | null | undefined): option is T =>
   !isUndefined(option) && !isNull(option)
+
+// Pre-fetch bridged category mappings
+// Returns mapping of category → array of coin IDs in that category
+const fetchBridgedCategoryMappings = async (): Promise<Record<string, string[]>> => {
+  const categoryToCoinIds: Record<string, string[]> = {}
+
+  for (const category of Object.keys(BRIDGED_CATEGORY_MAPPINGS)) {
+    const { data } = await axiosInstance.get<CoinGeckoMarketCap[]>(
+      `${coingeckoBaseUrl}/coins/markets`,
+      {
+        params: {
+          category,
+          vs_currency: 'usd',
+          per_page: 250,
+          page: 1,
+        },
+      },
+    )
+
+    categoryToCoinIds[category] = data.map(coin => coin.id)
+  }
+
+  return categoryToCoinIds
+}
 
 const chunkArray = <T>(array: T[], chunkSize: number) => {
   const result = []
@@ -151,6 +190,7 @@ const getZerionRelatedAssetIds = async (
 const getCoingeckoRelatedAssetIds = async (
   assetId: AssetId,
   assetData: Record<AssetId, PartialFields<Asset, 'relatedAssetKey'>>,
+  categoryToCoinIds: Record<string, string[]>,
 ): Promise<{ relatedAssetIds: AssetId[]; relatedAssetKey: AssetId } | undefined> => {
   if (!isToken(assetId)) return
   // Yes, this means effectively the same but double wrap never hurts
@@ -161,14 +201,57 @@ const getCoingeckoRelatedAssetIds = async (
   const { data } = await axios.get<CoingeckoAssetDetails>(`${coingeckoBaseUrl}/coins/${coinUri}`)
 
   const platforms = data.platforms
+  const coinId = data.id
 
   // Use all assetIds actually present in the dataset
-  const allRelatedAssetIds = Object.entries(platforms)
+  let allRelatedAssetIds = Object.entries(platforms)
     ?.map(coingeckoPlatformDetailsToMaybeAssetId)
     .filter(isSome)
     .filter(relatedAssetId => assetData[relatedAssetId] !== undefined)
 
+  // Determine canonical asset in THREE ways:
+  let bridgedCanonical: AssetId | undefined
+
+  // 1. Check if THIS asset is an Ethereum canonical (e.g., processing ETH USDT itself)
+  const ethereumCanonicals = Object.values(BRIDGED_CATEGORY_MAPPINGS)
+  if (ethereumCanonicals.includes(assetId)) {
+    bridgedCanonical = assetId
+  }
+
+  // 2. Check if this coin is in a bridged category (catches bridged variants with unique coin IDs)
+  if (!bridgedCanonical) {
+    for (const [category, coinIds] of Object.entries(categoryToCoinIds)) {
+      if (coinIds.includes(coinId)) {
+        bridgedCanonical = BRIDGED_CATEGORY_MAPPINGS[category]
+        break
+      }
+    }
+  }
+
+  // 3. Check if platforms list contains an Ethereum canonical (catches shared coin IDs like USDC/USDT)
+  // CoinGecko uses the same coin ID for native USDC/USDT across multiple chains
+  if (!bridgedCanonical) {
+    for (const canonical of ethereumCanonicals) {
+      if (allRelatedAssetIds.includes(canonical)) {
+        bridgedCanonical = canonical
+        break
+      }
+    }
+  }
+
+  // Add canonical FIRST to ensure it becomes the primary (relatedAssetKey)
+  // This fixes the first-come-first-served issue where non-canonical assets became primaries
+  if (bridgedCanonical && assetData[bridgedCanonical]) {
+    allRelatedAssetIds.unshift(bridgedCanonical)
+    // Remove duplicates while preserving order
+    allRelatedAssetIds = Array.from(new Set(allRelatedAssetIds))
+  }
+
   if (allRelatedAssetIds.length <= 1) {
+    // Still return canonical even if no other assets yet (fixes Zerion override for WBTC/WETH/WSTETH)
+    if (bridgedCanonical) {
+      return { relatedAssetIds: [], relatedAssetKey: bridgedCanonical }
+    }
     return
   }
 
@@ -186,30 +269,37 @@ const processRelatedAssetIds = async (
   assetId: AssetId,
   assetData: Record<AssetId, PartialFields<Asset, 'relatedAssetKey'>>,
   relatedAssetIndex: Record<AssetId, AssetId[]>,
+  categoryToCoinIds: Record<string, string[]>,
   throttle: () => Promise<void>,
 ): Promise<void> => {
   const existingRelatedAssetKey = assetData[assetId].relatedAssetKey
 
-  if (existingRelatedAssetKey) {
+  if (!REGEN_ALL && existingRelatedAssetKey) {
     return
   }
 
   console.log(`Processing related assetIds for ${assetId}`)
 
   // Check if this asset is already in the relatedAssetIndex
-  for (const [key, relatedAssets] of Object.entries(relatedAssetIndex)) {
-    if (relatedAssets.includes(assetId)) {
-      if (existingRelatedAssetKey !== key) {
-        console.log(
-          `Updating relatedAssetKey for ${assetId} from ${existingRelatedAssetKey} to ${key}`,
-        )
-        assetData[assetId].relatedAssetKey = key
+  if (!REGEN_ALL) {
+    for (const [key, relatedAssets] of Object.entries(relatedAssetIndex)) {
+      if (relatedAssets.includes(assetId)) {
+        if (existingRelatedAssetKey !== key) {
+          console.log(
+            `Updating relatedAssetKey for ${assetId} from ${existingRelatedAssetKey} to ${key}`,
+          )
+          assetData[assetId].relatedAssetKey = key
+        }
+        return // Early return - asset already processed and grouped
       }
-      return // Early return - asset already processed and grouped
     }
   }
 
-  const coingeckoRelatedAssetsResult = await getCoingeckoRelatedAssetIds(assetId, assetData)
+  const coingeckoRelatedAssetsResult = await getCoingeckoRelatedAssetIds(
+    assetId,
+    assetData,
+    categoryToCoinIds,
+  )
     .then(result => {
       happyCount++
       return result
@@ -244,10 +334,19 @@ const processRelatedAssetIds = async (
     relatedAssetIds: [],
   }
 
+  // Prioritize CoinGecko if it detected an Ethereum canonical (via our three-way check)
+  // This prevents Zerion from overriding our canonical detection
+  const ethereumCanonicals = Object.values(BRIDGED_CATEGORY_MAPPINGS)
+  const coingeckoDetectedCanonical =
+    coingeckoRelatedAssetsResult?.relatedAssetKey &&
+    ethereumCanonicals.includes(coingeckoRelatedAssetsResult.relatedAssetKey)
+
   let relatedAssetKey =
     manualRelatedAssetsResult?.relatedAssetKey ||
-    zerionRelatedAssetsResult?.relatedAssetKey ||
-    coingeckoRelatedAssetsResult?.relatedAssetKey ||
+    (coingeckoDetectedCanonical
+      ? coingeckoRelatedAssetsResult?.relatedAssetKey
+      : zerionRelatedAssetsResult?.relatedAssetKey ||
+          coingeckoRelatedAssetsResult?.relatedAssetKey) ||
     assetId
 
   // If the relatedAssetKey itself points to another key, follow the chain to find the actual key
@@ -268,19 +367,6 @@ const processRelatedAssetIds = async (
       assetId,
     ]),
   )
-    // Filter to prevent USDT <-> USDT0 cross-contamination
-    // Allows bridged variants (BSC-USD, USDTE, AXLUSDT) while preventing USDT from claiming USDT0
-    .filter(candidateAssetId => {
-      const candidate = assetData[candidateAssetId]
-      const current = assetData[assetId]
-
-      // Detect USDT0 by symbol or name
-      const currentIsUsdt0 = current?.symbol?.includes('USDT0') || current?.name === 'USDT0'
-      const candidateIsUsdt0 = candidate?.symbol?.includes('USDT0') || candidate?.name === 'USDT0'
-
-      // Must both be USDT0 or both NOT be USDT0
-      return currentIsUsdt0 === candidateIsUsdt0
-    })
 
   // First-come-first-served conflict detection
   // Filters out assets already claimed by a different group to prevent cross-contamination
@@ -344,7 +430,9 @@ export const generateRelatedAssetIndex = async () => {
   )
 
   const { assetData: generatedAssetData, sortedAssetIds } = decodeAssetData(encodedAssetData)
-  const relatedAssetIndex = decodeRelatedAssetIndex(encodedRelatedAssetIndex, sortedAssetIds)
+  const relatedAssetIndex = REGEN_ALL
+    ? {}
+    : decodeRelatedAssetIndex(encodedRelatedAssetIndex, sortedAssetIds)
 
   // Remove stale related asset data from the assetData where the primary related asset no longer exists
   Object.values(generatedAssetData).forEach(asset => {
@@ -369,6 +457,8 @@ export const generateRelatedAssetIndex = async () => {
     )
   })
 
+  const categoryToCoinIds = await fetchBridgedCategoryMappings()
+
   const { throttle, clear: clearThrottleInterval } = createThrottle({
     capacity: 50, // Reduced initial capacity to allow for a burst but not too high
     costPerReq: 1, // Keeping the cost per request as 1 for simplicity
@@ -381,7 +471,13 @@ export const generateRelatedAssetIndex = async () => {
     console.log(`Processing chunk: ${i} of ${chunks.length}`)
     await Promise.all(
       batch.map(async assetId => {
-        await processRelatedAssetIds(assetId, generatedAssetData, relatedAssetIndex, throttle)
+        await processRelatedAssetIds(
+          assetId,
+          generatedAssetData,
+          relatedAssetIndex,
+          categoryToCoinIds,
+          throttle,
+        )
         return
       }),
     )

@@ -21,7 +21,6 @@ import axios from 'axios'
 import Polyglot from 'node-polyglot'
 
 import { descriptions } from './descriptions'
-import { localAssetData, relatedAssetIndex, sortedAssetIds } from './localAssetData'
 
 import { getConfig } from '@/config'
 
@@ -33,12 +32,49 @@ class _AssetService {
   readonly relatedAssetIndex: Record<AssetId, AssetId[]>
   readonly assetIds: AssetId[]
   readonly assets: Asset[]
+  private initialized = false
 
   constructor() {
+    // Initialize with empty state (populated by init())
+    this.assetsById = {}
+    this.relatedAssetIndex = {}
+    this.assetIds = []
+    this.assets = []
+  }
+
+  async init(): Promise<void> {
+    if (this.initialized) return // Already initialized
+
+    const [assetDataJson, relatedAssetIndex] = await (async () => {
+      if (typeof window === 'undefined') {
+        // Node.js environment (generation scripts)
+        const fs = await import('fs')
+        const path = await import('path')
+        const assetDataPath = path.join(process.cwd(), 'public/generated/encodedAssetData.json')
+        const relatedAssetIndexPath = path.join(
+          process.cwd(),
+          'public/generated/encodedRelatedAssetIndex.json',
+        )
+        return Promise.all([
+          JSON.parse(fs.readFileSync(assetDataPath, 'utf8')),
+          JSON.parse(fs.readFileSync(relatedAssetIndexPath, 'utf8')),
+        ])
+      } else {
+        // Browser environment
+        return Promise.all([
+          fetch('/generated/encodedAssetData.json').then(r => r.json()),
+          fetch('/generated/encodedRelatedAssetIndex.json').then(r => r.json()),
+        ])
+      }
+    })()
+
+    const localAssetData = assetDataJson.byId
+    const sortedAssetIds = assetDataJson.ids
+
     const config = getConfig()
 
     // Filter asset data while preserving sorting
-    this.assetIds = sortedAssetIds.filter(assetId => {
+    const filteredAssetIds = sortedAssetIds.filter((assetId: AssetId) => {
       const asset = localAssetData[assetId]
       if (!config.VITE_FEATURE_OPTIMISM && asset.chainId === optimismChainId) return false
       if (!config.VITE_FEATURE_BNBSMARTCHAIN && asset.chainId === bscChainId) return false
@@ -57,15 +93,15 @@ class _AssetService {
       return true
     })
 
-    // Preserve sorting
-    this.assets = this.assetIds.map(assetId => localAssetData[assetId])
-
-    // Minimize compute (within reason lol) while creating object from the filtered data
-    this.assetsById = Object.fromEntries(
-      this.assetIds.map(assetId => [assetId, localAssetData[assetId]]),
+    // Assign to readonly properties (cast to mutable temporarily)
+    ;(this as any).assetIds = filteredAssetIds
+    ;(this as any).assets = filteredAssetIds.map((assetId: AssetId) => localAssetData[assetId])
+    ;(this as any).assetsById = Object.fromEntries(
+      filteredAssetIds.map((assetId: AssetId) => [assetId, localAssetData[assetId]]),
     )
+    ;(this as any).relatedAssetIndex = relatedAssetIndex
 
-    this.relatedAssetIndex = relatedAssetIndex
+    this.initialized = true
   }
 
   getRelatedAssetIds(assetId: AssetId): AssetId[] {
@@ -113,9 +149,18 @@ export type AssetService = _AssetService
 // Don't export me, access me through the getter
 let _assetService: AssetService | undefined = undefined
 
-export const getAssetService = (): AssetService => {
+export const getAssetService = async (): Promise<AssetService> => {
   if (!_assetService) {
     _assetService = new _AssetService()
+    await _assetService.init()
+  }
+  return _assetService
+}
+
+// For places that need synchronous access AFTER initialization
+export const getAssetServiceSync = (): AssetService => {
+  if (!_assetService) {
+    throw new Error('AssetService not initialized - call getAssetService() first')
   }
   return _assetService
 }

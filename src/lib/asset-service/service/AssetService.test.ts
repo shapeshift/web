@@ -1,15 +1,41 @@
-import type { Asset } from '@shapeshiftoss/types'
 import type { AxiosInstance } from 'axios'
 import axios from 'axios'
-import { describe, expect, it, vi } from 'vitest'
+import { beforeAll, describe, expect, it, vi } from 'vitest'
 
 import { getAssetService } from './AssetService'
 import { descriptions } from './descriptions'
+
+import { ethereum as EthAsset } from '@/test/mocks/assets'
 
 const mocks = vi.hoisted(() => ({
   get: vi.fn(),
   post: vi.fn(),
 }))
+
+beforeAll(() => {
+  vi.stubGlobal(
+    'fetch',
+    vi.fn((url: string) => {
+      if (url.includes('encodedAssetData.json')) {
+        return Promise.resolve({
+          json: () =>
+            Promise.resolve({
+              byId: {
+                [EthAsset.assetId]: EthAsset,
+              },
+              ids: [EthAsset.assetId],
+            }),
+        } as Response)
+      }
+      if (url.includes('encodedRelatedAssetIndex.json')) {
+        return Promise.resolve({
+          json: () => Promise.resolve({}),
+        } as Response)
+      }
+      return Promise.reject(new Error('Not found'))
+    }),
+  )
+})
 
 vi.mock('axios', () => {
   const mockAxios = {
@@ -27,20 +53,6 @@ vi.mock('axios', () => {
 })
 
 const mockedAxios = vi.mocked<AxiosInstance>(axios)
-
-const EthAsset: Asset = {
-  assetId: 'eip155:1/slip44:60',
-  chainId: 'eip155:1',
-  symbol: 'ETH',
-  name: 'Ethereum',
-  precision: 18,
-  color: '#FFFFFF',
-  icon: 'https://rawcdn.githack.com/trustwallet/assets/32e51d582a890b3dd3135fe3ee7c20c2fd699a6d/blockchains/ethereum/info/logo.png',
-  explorer: 'https://etherscan.io/',
-  explorerTxLink: 'https://etherscan.io/tx/',
-  explorerAddressLink: 'https://etherscan.io/address/',
-  relatedAssetKey: null,
-}
 
 vi.mock('./descriptions', () => ({
   descriptions: {
@@ -71,19 +83,10 @@ vi.mock('./descriptions', () => ({
   },
 }))
 
-vi.mock('./generatedAssetData.json', () => ({
-  default: {
-    'eip155:1/slip44:60': {
-      assetId: 'eip155:1/slip44:60',
-      chainId: 'eip155:1',
-    },
-  },
-}))
-
 describe('AssetService', () => {
   describe('description', () => {
     it('should return the overridden description if it exists - english default', async () => {
-      const assetService = getAssetService()
+      const assetService = await getAssetService()
 
       await expect(assetService.description(EthAsset.assetId)).resolves.toEqual({
         description: 'overridden en description',
@@ -92,7 +95,7 @@ describe('AssetService', () => {
     })
 
     it('should return the overridden description if it exists - locale', async () => {
-      const assetService = getAssetService()
+      const assetService = await getAssetService()
 
       await expect(assetService.description(EthAsset.assetId, 'es')).resolves.toEqual({
         description: 'overridden es description',
@@ -105,7 +108,7 @@ describe('AssetService', () => {
       const assetDescriptions = descriptions[locale]
       delete assetDescriptions[EthAsset.assetId]
 
-      const assetService = getAssetService()
+      const assetService = await getAssetService()
       const description = { en: 'a blue fox' }
       vi.mocked(mockedAxios.get).mockResolvedValue({ data: { description } })
       await expect(assetService.description(EthAsset.assetId)).resolves.toEqual({
@@ -118,7 +121,7 @@ describe('AssetService', () => {
       const assetDescriptions = descriptions[locale]
       delete assetDescriptions[EthAsset.assetId]
 
-      const assetService = getAssetService()
+      const assetService = await getAssetService()
       const description = { en: 'a blue fox', es: '¿Qué dice el zorro?' }
       vi.mocked(mockedAxios.get).mockResolvedValue({ data: { description } })
       await expect(assetService.description(EthAsset.assetId, locale)).resolves.toEqual({
@@ -127,7 +130,7 @@ describe('AssetService', () => {
     })
 
     it('should throw if not found', async () => {
-      const assetService = getAssetService()
+      const assetService = await getAssetService()
       vi.mocked(mockedAxios.get).mockRejectedValue({ data: null })
       const tokenData: Asset = {
         assetId: 'eip155:1/erc20:0x1da00b6fc705f2ce4c25d7e7add25a3cc045e54a',

@@ -3,7 +3,7 @@ import { monad } from '@shapeshiftoss/chain-adapters'
 import { KnownChainIds } from '@shapeshiftoss/types'
 
 import { getConfig } from '@/config'
-import { getAssetService } from '@/lib/asset-service'
+import { getAssetServiceSync } from '@/lib/asset-service'
 import type { Plugins } from '@/plugins/types'
 
 // eslint-disable-next-line import/no-default-export
@@ -20,7 +20,7 @@ export default function register(): Plugins {
               KnownChainIds.MonadMainnet,
               () => {
                 // Get all Monad ERC20 tokens from asset service
-                const assetService = getAssetService()
+                const assetService = getAssetServiceSync()
                 const knownTokens = assetService.assets
                   .filter(asset => {
                     const { chainId, assetNamespace } = fromAssetId(asset.assetId)

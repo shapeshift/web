@@ -4,12 +4,8 @@ import { createApi } from '@reduxjs/toolkit/query/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import type { Asset, AssetsByIdPartial, PartialRecord } from '@shapeshiftoss/types'
 
-import { getAssetService } from '@/lib/asset-service'
+import { getAssetServiceSync } from '@/lib/asset-service'
 import { BASE_RTK_CREATE_API_CONFIG } from '@/state/apis/const'
-
-// do not export this, views get data from selectors
-// or directly from the store outside react components
-const service = getAssetService()
 
 export type AssetsState = {
   byId: AssetsByIdPartial
@@ -17,10 +13,11 @@ export type AssetsState = {
   relatedAssetIndex: PartialRecord<AssetId, AssetId[]>
 }
 
+// Initialize with empty state - will be populated after AssetService init
 export const initialState: AssetsState = {
-  byId: service.assetsById,
-  ids: service.assetIds,
-  relatedAssetIndex: service.relatedAssetIndex,
+  byId: {},
+  ids: [],
+  relatedAssetIndex: {},
 }
 
 export const defaultAsset: Asset = {
@@ -65,6 +62,11 @@ export const assets = createSlice({
       // Note this preserves the original sorting while removing duplicates.
       state.ids = Array.from(new Set(state.ids.concat(assetId)))
     }),
+    setRelatedAssetIndex: create.reducer(
+      (state, action: PayloadAction<PartialRecord<AssetId, AssetId[]>>) => {
+        state.relatedAssetIndex = action.payload
+      },
+    ),
   }),
 })
 
@@ -86,6 +88,7 @@ export const assetApi = createApi({
         const originalAsset = byIdOriginal[assetId]
 
         try {
+          const service = getAssetServiceSync()
           const { description, isTrusted } = await service.description(assetId, selectedLocale)
           const byId = {
             [assetId]: originalAsset && Object.assign(originalAsset, { description, isTrusted }),

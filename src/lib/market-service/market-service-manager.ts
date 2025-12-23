@@ -18,7 +18,7 @@ import { ThorchainAssetsMarketService } from './thorchainAssets/thorchainAssets'
 import { ZerionMarketService } from './zerion/zerion'
 
 import type { AssetService } from '@/lib/asset-service'
-import { getAssetService } from '@/lib/asset-service'
+import { getAssetServiceSync } from '@/lib/asset-service'
 
 export type ProviderUrls = {
   jsonRpcProviderUrl: string
@@ -50,7 +50,7 @@ export class MarketServiceManager {
       // TODO: Debank market provider
     ]
 
-    this.assetService = getAssetService()
+    this.assetService = getAssetServiceSync()
   }
 
   async findAll(args: FindAllMarketArgs): Promise<MarketCapResult> {

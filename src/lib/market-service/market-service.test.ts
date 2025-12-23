@@ -1,7 +1,7 @@
 import { btcAssetId, ethAssetId } from '@shapeshiftoss/caip'
 import { HistoryTimeframe } from '@shapeshiftoss/types'
 import { ethers } from 'ethers'
-import { describe, expect, it, vi } from 'vitest'
+import { beforeAll, describe, expect, it, vi } from 'vitest'
 
 import { CoinGeckoMarketService } from './coingecko/coingecko'
 import {
@@ -12,6 +12,33 @@ import {
 import { mockFoxyMarketData, mockFoxyPriceHistoryData } from './foxy/foxyMockData'
 import { MarketServiceManager } from './market-service-manager'
 import { mockTcyMarketData, mockTcyPriceHistoryData } from './tcy/tcyMockData'
+
+import { getAssetService } from '@/lib/asset-service'
+import { bitcoin as btcAsset, ethereum as ethAsset } from '@/test/mocks/assets'
+
+vi.stubGlobal(
+  'fetch',
+  vi.fn((url: string) => {
+    if (url.includes('encodedAssetData.json')) {
+      return Promise.resolve({
+        json: () =>
+          Promise.resolve({
+            byId: {
+              [btcAssetId]: btcAsset,
+              [ethAssetId]: ethAsset,
+            },
+            ids: [btcAssetId, ethAssetId],
+          }),
+      } as Response)
+    }
+    if (url.includes('encodedRelatedAssetIndex.json')) {
+      return Promise.resolve({
+        json: () => Promise.resolve({}),
+      } as Response)
+    }
+    return Promise.reject(new Error('Not found'))
+  }),
+)
 
 const mockCoingeckoFindAll = vi.fn().mockImplementation(() => mockCGFindAllData)
 const mockCoingeckoFindByAssetId = vi.fn().mockImplementation(() => mockCGFindByAssetIdData)
@@ -115,6 +142,10 @@ describe('market service', () => {
       unchainedEthereumHttpUrl: '',
     },
   }
+
+  beforeAll(async () => {
+    await getAssetService()
+  })
 
   describe('findAll', () => {
     it('can return from first market service and skip the next', async () => {

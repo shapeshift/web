@@ -25,13 +25,51 @@ import {
   thorchainChainId,
   toAssetId,
 } from '@shapeshiftoss/caip'
-import { describe, expect, it, vi } from 'vitest'
+import { beforeAll, describe, expect, it, vi } from 'vitest'
 
 import { parseUrlDirect } from './bip21'
 import { EMPTY_ADDRESS_ERROR } from './constants'
 
+import { getAssetService } from '@/lib/asset-service'
+import { assets } from '@/state/slices/assetsSlice/assetsSlice'
+import { store } from '@/state/store'
 import { usdcAssetId } from '@/test/mocks/accounts'
+import { ethereum as ethAsset, usdc as usdcAsset } from '@/test/mocks/assets'
 import { mockChainAdapters } from '@/test/mocks/portfolio'
+
+vi.stubGlobal(
+  'fetch',
+  vi.fn((url: string) => {
+    if (url.includes('encodedAssetData.json')) {
+      return Promise.resolve({
+        json: () =>
+          Promise.resolve({
+            byId: {
+              [ethAssetId]: ethAsset,
+              [usdcAssetId]: usdcAsset,
+            },
+            ids: [ethAssetId, usdcAssetId],
+          }),
+      } as Response)
+    }
+    if (url.includes('encodedRelatedAssetIndex.json')) {
+      return Promise.resolve({
+        json: () => Promise.resolve({}),
+      } as Response)
+    }
+    return Promise.reject(new Error('Not found'))
+  }),
+)
+
+beforeAll(async () => {
+  const service = await getAssetService()
+  store.dispatch(
+    assets.actions.upsertAssets({
+      byId: service.assetsById,
+      ids: service.assetIds,
+    }),
+  )
+})
 
 vi.mock('@/context/PluginProvider/chainAdapterSingleton', () => ({
   getChainAdapterManager: () => mockChainAdapters,

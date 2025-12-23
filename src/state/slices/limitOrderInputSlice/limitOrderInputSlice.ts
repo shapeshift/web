@@ -1,5 +1,4 @@
 import type { PayloadAction } from '@reduxjs/toolkit'
-import { foxAssetId, usdcAssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { assertUnreachable, bn, bnOrZero } from '@shapeshiftoss/utils'
 import pick from 'lodash/pick'
@@ -12,8 +11,6 @@ import type {
 import { createTradeInputBaseSlice } from '../common/tradeInputBase/createTradeInputBaseSlice'
 import { ExpiryOption, LimitPriceMode, PriceDirection } from './constants'
 import { getOppositePriceDirection } from './helpers'
-
-import { localAssetData } from '@/lib/asset-service'
 
 export type LimitPriceByDirection = {
   [PriceDirection.BuyAssetDenomination]: string
@@ -28,8 +25,8 @@ export type LimitOrderInputState = {
 } & TradeInputBaseState
 
 const initialState: LimitOrderInputState = {
-  buyAsset: localAssetData[foxAssetId] ?? defaultAsset,
-  sellAsset: localAssetData[usdcAssetId] ?? defaultAsset,
+  buyAsset: defaultAsset, // Will be updated once assets are loaded
+  sellAsset: defaultAsset, // Will be updated once assets are loaded
   sellAccountId: undefined,
   buyAccountId: undefined,
   sellAmountCryptoPrecision: '0',

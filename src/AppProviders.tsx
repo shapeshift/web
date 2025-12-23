@@ -10,6 +10,7 @@ import { WagmiProvider } from 'wagmi'
 import { WalletViewsRouter } from './context/WalletProvider/WalletViewsRouter'
 import { ScrollToTop } from './Routes/ScrollToTop'
 
+import { AssetLoader } from '@/components/AssetLoader'
 import { ChatwootWidget } from '@/components/ChatWoot'
 import { ActionCenterProvider } from '@/components/Layout/Header/ActionCenter/ActionCenterContext'
 import { AppProvider } from '@/context/AppProvider/AppContext'
@@ -63,50 +64,52 @@ export function AppProviders({ children }: ProvidersProps) {
   return (
     <HelmetProvider>
       <ReduxProvider store={store}>
-        <WagmiProvider config={wagmiConfig}>
-          <QueryClientProvider>
-            <PluginProvider>
-              <ColorModeScript storageKey='ss-theme' />
-              <ChatwootWidget />
-              <I18nProvider>
-                <ChakraProvider theme={theme} colorModeManager={manager} cssVarsRoot='body'>
-                  <PersistGate loading={splashScreen} persistor={persistor}>
-                    <HashRouter basename='/'>
-                      <ScrollToTop />
-                      <BrowserRouterProvider>
-                        <ModalStackProvider>
-                          <WalletProvider>
-                            <KeepKeyProvider>
-                              <WalletConnectV2Provider>
-                                <ActionCenterProvider>
-                                  <ModalProvider>
-                                    <ErrorBoundary
-                                      FallbackComponent={ErrorPage}
-                                      onError={handleError}
-                                    >
-                                      <AppProvider>
-                                        <DefiManagerProvider>
-                                          {children}
-                                          <Suspense fallback={defaultSuspenseFallback}>
-                                            <WalletViewsRouter />
-                                          </Suspense>
-                                        </DefiManagerProvider>
-                                      </AppProvider>
-                                    </ErrorBoundary>
-                                  </ModalProvider>
-                                </ActionCenterProvider>
-                              </WalletConnectV2Provider>
-                            </KeepKeyProvider>
-                          </WalletProvider>
-                        </ModalStackProvider>
-                      </BrowserRouterProvider>
-                    </HashRouter>
-                  </PersistGate>
-                </ChakraProvider>
-              </I18nProvider>
-            </PluginProvider>
-          </QueryClientProvider>
-        </WagmiProvider>
+        <AssetLoader>
+          <WagmiProvider config={wagmiConfig}>
+            <QueryClientProvider>
+              <PluginProvider>
+                <ColorModeScript storageKey='ss-theme' />
+                <ChatwootWidget />
+                <I18nProvider>
+                  <ChakraProvider theme={theme} colorModeManager={manager} cssVarsRoot='body'>
+                    <PersistGate loading={splashScreen} persistor={persistor}>
+                      <HashRouter basename='/'>
+                        <ScrollToTop />
+                        <BrowserRouterProvider>
+                          <ModalStackProvider>
+                            <WalletProvider>
+                              <KeepKeyProvider>
+                                <WalletConnectV2Provider>
+                                  <ActionCenterProvider>
+                                    <ModalProvider>
+                                      <ErrorBoundary
+                                        FallbackComponent={ErrorPage}
+                                        onError={handleError}
+                                      >
+                                        <AppProvider>
+                                          <DefiManagerProvider>
+                                            {children}
+                                            <Suspense fallback={defaultSuspenseFallback}>
+                                              <WalletViewsRouter />
+                                            </Suspense>
+                                          </DefiManagerProvider>
+                                        </AppProvider>
+                                      </ErrorBoundary>
+                                    </ModalProvider>
+                                  </ActionCenterProvider>
+                                </WalletConnectV2Provider>
+                              </KeepKeyProvider>
+                            </WalletProvider>
+                          </ModalStackProvider>
+                        </BrowserRouterProvider>
+                      </HashRouter>
+                    </PersistGate>
+                  </ChakraProvider>
+                </I18nProvider>
+              </PluginProvider>
+            </QueryClientProvider>
+          </WagmiProvider>
+        </AssetLoader>
       </ReduxProvider>
     </HelmetProvider>
   )

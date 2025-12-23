@@ -41,6 +41,11 @@ export const useAssetSearchWorker = ({
     selectAssetsSortedByMarketCapUserCurrencyBalanceCryptoPrecisionAndName,
   )
 
+  console.log('[useAssetSearchWorker] Rendered with:', {
+    primaryAssetsLength: primaryAssets.length,
+    assetsLength: assets.length,
+  })
+
   const workerRef = useRef<Worker | null>(null)
   const requestIdRef = useRef(0)
   const [searchString, setSearchString] = useState('')

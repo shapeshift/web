@@ -71,6 +71,16 @@ class _AssetService {
     const localAssetData = assetDataJson.byId
     const sortedAssetIds = assetDataJson.ids
 
+    // Compute isPrimary and isChainSpecific for each asset (was done by decodeAssetData before)
+    Object.values(localAssetData).forEach(asset => {
+      if (asset) {
+        const assetTyped = asset as Asset
+        assetTyped.isPrimary =
+          assetTyped.relatedAssetKey === null || assetTyped.relatedAssetKey === assetTyped.assetId
+        assetTyped.isChainSpecific = assetTyped.relatedAssetKey === null
+      }
+    })
+
     const config = getConfig()
 
     // Filter asset data while preserving sorting

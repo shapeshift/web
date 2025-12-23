@@ -28,18 +28,23 @@ type DescriptionData = Readonly<{ description: string; isTrusted?: boolean }>
 
 // Don't export me, access me through the getter because instantiation is extremely expensive
 class _AssetService {
-  readonly assetsById: AssetsById
-  readonly relatedAssetIndex: Record<AssetId, AssetId[]>
-  readonly assetIds: AssetId[]
-  readonly assets: Asset[]
+  private _assetsById: AssetsById = {}
+  private _relatedAssetIndex: Record<AssetId, AssetId[]> = {}
+  private _assetIds: AssetId[] = []
+  private _assets: Asset[] = []
   private initialized = false
 
-  constructor() {
-    // Initialize with empty state (populated by init())
-    this.assetsById = {}
-    this.relatedAssetIndex = {}
-    this.assetIds = []
-    this.assets = []
+  get assetsById() {
+    return this._assetsById
+  }
+  get relatedAssetIndex() {
+    return this._relatedAssetIndex
+  }
+  get assetIds() {
+    return this._assetIds
+  }
+  get assets() {
+    return this._assets
   }
 
   async init(): Promise<void> {
@@ -114,13 +119,13 @@ class _AssetService {
       return true
     })
 
-    // Assign to readonly properties (cast to mutable temporarily)
-    ;(this as any).assetIds = filteredAssetIds
-    ;(this as any).assets = filteredAssetIds.map((assetId: AssetId) => localAssetData[assetId])
-    ;(this as any).assetsById = Object.fromEntries(
+    // Assign to private properties
+    this._assetIds = filteredAssetIds
+    this._assets = filteredAssetIds.map((assetId: AssetId) => localAssetData[assetId])
+    this._assetsById = Object.fromEntries(
       filteredAssetIds.map((assetId: AssetId) => [assetId, localAssetData[assetId]]),
     )
-    ;(this as any).relatedAssetIndex = relatedAssetIndex
+    this._relatedAssetIndex = relatedAssetIndex
 
     this.initialized = true
   }

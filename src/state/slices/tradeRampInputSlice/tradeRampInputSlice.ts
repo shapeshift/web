@@ -34,8 +34,8 @@ export type TradeRampInputState = {
 }
 
 const initialState: TradeRampInputState = {
-  buyAsset: defaultAsset, // Will be updated once assets are loaded
-  sellAsset: defaultAsset, // Will be updated once assets are loaded
+  buyAsset: defaultAsset,
+  sellAsset: defaultAsset,
   buyFiatCurrency: fiatCurrencyItemsByCode[FiatCurrencyTypeEnum.USD],
   sellFiatCurrency: fiatCurrencyItemsByCode[FiatCurrencyTypeEnum.USD],
   sellAccountId: undefined,

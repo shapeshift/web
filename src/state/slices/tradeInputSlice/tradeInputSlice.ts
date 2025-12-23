@@ -13,8 +13,8 @@ export type TradeInputState = {
 } & TradeInputBaseState
 
 const initialState: TradeInputState = {
-  buyAsset: defaultAsset, // Will be updated once assets are loaded
-  sellAsset: defaultAsset, // Will be updated once assets are loaded
+  buyAsset: defaultAsset,
+  sellAsset: defaultAsset,
   sellAccountId: undefined,
   buyAccountId: undefined,
   sellAmountCryptoPrecision: '0',

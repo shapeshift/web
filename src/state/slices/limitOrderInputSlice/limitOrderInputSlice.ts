@@ -25,8 +25,8 @@ export type LimitOrderInputState = {
 } & TradeInputBaseState
 
 const initialState: LimitOrderInputState = {
-  buyAsset: defaultAsset, // Will be updated once assets are loaded
-  sellAsset: defaultAsset, // Will be updated once assets are loaded
+  buyAsset: defaultAsset,
+  sellAsset: defaultAsset,
   sellAccountId: undefined,
   buyAccountId: undefined,
   sellAmountCryptoPrecision: '0',

@@ -212,7 +212,7 @@ const main = async () => {
     // Generate the new assetData and sortedAssetIds
     await generateAssetData()
 
-    // Write the related asset index (no re-encoding needed for readable format)
+    // Write the related asset index
     writeRelatedAssetIndex(originalRelatedAssetIndex)
 
     // Generate the new related asset index

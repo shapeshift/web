@@ -25,7 +25,7 @@ import { getTradeQuoteOrRateInput } from '@/components/MultiHopTrade/hooks/useGe
 import { useHasFocus } from '@/hooks/useHasFocus'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { useWalletSupportsChain } from '@/hooks/useWalletSupportsChain/useWalletSupportsChain'
-import { DEFAULT_FEE_BPS } from '@/lib/fees/constant'
+import { getAffiliateBps } from '@/lib/fees/utils'
 import { fromBaseUnit } from '@/lib/math'
 import { swapperApi } from '@/state/apis/swapper/swapperApi'
 import {
@@ -204,7 +204,7 @@ export const useGetTradeQuotes = () => {
           receiveAddress,
           sellAmountBeforeFeesCryptoPrecision: sellAmountCryptoPrecision,
           allowMultiHop: true,
-          affiliateBps: DEFAULT_FEE_BPS,
+          affiliateBps: getAffiliateBps(sellAsset, buyAsset),
           // Pass in the user's slippage preference if it's set, else let the swapper use its default
           slippageTolerancePercentageDecimal: userSlippageTolerancePercentageDecimal,
           pubKey:

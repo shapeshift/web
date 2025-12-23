@@ -346,7 +346,7 @@ const processRelatedAssetIds = async (
     (coingeckoDetectedCanonical
       ? coingeckoRelatedAssetsResult?.relatedAssetKey
       : zerionRelatedAssetsResult?.relatedAssetKey ||
-          coingeckoRelatedAssetsResult?.relatedAssetKey) ||
+        coingeckoRelatedAssetsResult?.relatedAssetKey) ||
     assetId
 
   // If the relatedAssetKey itself points to another key, follow the chain to find the actual key

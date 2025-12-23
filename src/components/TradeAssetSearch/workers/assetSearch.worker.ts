@@ -50,29 +50,19 @@ const handleSearch = (msg: AssetSearchWorkerInboundMessage & { type: 'search' })
 // eslint-disable-next-line no-restricted-globals
 self.onmessage = (event: MessageEvent<AssetSearchWorkerInboundMessage>) => {
   const data = event.data
-  console.log('[Worker] Received message:', data.type)
-
   switch (data.type) {
     case 'updatePrimaryAssets': {
       PRIMARY_ASSETS = data.payload.assets
-      console.log('[Worker] Updated PRIMARY_ASSETS:', PRIMARY_ASSETS.length)
       break
     }
     case 'updateAssets': {
       ASSETS = data.payload.assets
-      console.log('[Worker] Updated ASSETS:', ASSETS.length)
       break
     }
     case 'search': {
       try {
-        console.log('[Worker] Handling search:', {
-          searchString: data.payload.searchString,
-          totalAssets: ASSETS.length,
-          totalPrimaryAssets: PRIMARY_ASSETS.length,
-        })
         handleSearch(data)
-      } catch (err) {
-        console.error('[Worker] Search error:', err)
+      } catch {
         postMessage({
           type: 'searchResult',
           requestId: data.requestId,

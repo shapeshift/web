@@ -519,18 +519,7 @@ export const selectAssetsBySearchQuery = createCachedSelector(
   selectSearchQueryFromFilter,
   selectLimitParamFromFilter,
   (primaryAssets, allAssets, marketDataUsd, searchQuery, limit): Asset[] => {
-    console.log('[selectAssetsBySearchQuery]', {
-      primaryAssetsLength: primaryAssets.length,
-      allAssetsLength: allAssets.length,
-      searchQuery,
-      limit,
-    })
-
-    if (!searchQuery) {
-      const result = primaryAssets.slice(0, limit)
-      console.log('[selectAssetsBySearchQuery] No query, returning primary assets:', result.length)
-      return result
-    }
+    if (!searchQuery) return primaryAssets.slice(0, limit)
 
     // Contract address searches need all assets to find related variants
     // Name/symbol searches use primaries to avoid duplicates
@@ -550,13 +539,7 @@ export const selectAssetsBySearchQuery = createCachedSelector(
       ],
     })
 
-    const result = limit ? matchedAssets.slice(0, limit) : matchedAssets
-    console.log('[selectAssetsBySearchQuery] Search completed:', {
-      filteredCount: filteredAssets.length,
-      matchedCount: matchedAssets.length,
-      resultCount: result.length,
-    })
-    return result
+    return limit ? matchedAssets.slice(0, limit) : matchedAssets
   },
 )((_state: ReduxState, filter) => filter?.searchQuery ?? 'assetsBySearchQuery')
 

@@ -20,13 +20,6 @@ export const AssetLoader = ({ children }: { children: React.ReactNode }) => {
         // Initialize asset service (fetches and decodes asset data)
         const service = await getAssetService()
 
-        console.log('[AssetLoader] Service initialized:', {
-          totalAssets: service.assetIds.length,
-          sampleAssetIds: service.assetIds.slice(0, 3),
-          hasAssetsById: !!service.assetsById,
-          byIdKeys: Object.keys(service.assetsById).length,
-        })
-
         // Populate Redux with loaded assets
         dispatch(
           assets.actions.upsertAssets({
@@ -35,12 +28,8 @@ export const AssetLoader = ({ children }: { children: React.ReactNode }) => {
           }),
         )
 
-        console.log('[AssetLoader] Dispatched upsertAssets')
-
         // Set relatedAssetIndex
         dispatch(assets.actions.setRelatedAssetIndex(service.relatedAssetIndex))
-
-        console.log('[AssetLoader] Dispatched setRelatedAssetIndex')
 
         // Initialize trade slices with proper buy/sell assets
         const btcAsset = service.assetsById[btcAssetId]

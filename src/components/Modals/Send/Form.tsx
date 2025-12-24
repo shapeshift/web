@@ -250,22 +250,12 @@ export const Form: React.FC<SendFormProps> = ({ initialAssetId, input = '', acco
 
       const { chainId } = fromAccountId(formAccountId)
       if (chainId === starknetChainId) {
-        console.log('Checking Starknet account deployment...')
         const chainAdapterManager = getChainAdapterManager()
         const adapter = chainAdapterManager.get(chainId)
-        console.log(
-          'Adapter:',
-          adapter,
-          'has isAccountDeployed:',
-          'isAccountDeployed' in (adapter || {}),
-        )
         if (isStarknetChainAdapter(adapter)) {
           const fromAddress = fromAccountId(formAccountId).account
-          console.log('Checking if address is deployed:', fromAddress)
           const isDeployed = await adapter.isAccountDeployed(fromAddress)
-          console.log('Account deployed:', isDeployed)
           if (!isDeployed) {
-            console.log('Opening deployment modal...')
             deployStarknetAccount.open({
               onConfirm: async () => {
                 try {

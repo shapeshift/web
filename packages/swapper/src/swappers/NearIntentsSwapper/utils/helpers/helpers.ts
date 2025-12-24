@@ -75,19 +75,6 @@ export const assetToNearIntentsAsset = async (asset: Asset): Promise<string | nu
     const isNativeAsset = assetNamespace === 'slip44'
     const contractAddress = !isNativeAsset ? assetReference.toLowerCase() : null
 
-    console.log('[NEAR Intents] Looking up asset:', {
-      assetId: asset.assetId,
-      symbol: asset.symbol,
-      nearNetwork,
-      assetNamespace,
-      assetReference,
-      contractAddress,
-      isNativeAsset,
-      totalTokens: tokens.length,
-      starknetTokens: tokens.filter((t: TokenResponse) => String(t.blockchain) === 'starknet')
-        .length,
-    })
-
     const match = tokens.find((t: TokenResponse) => {
       if (typeof t.blockchain !== 'string' || t.blockchain !== nearNetwork) return false
       return contractAddress

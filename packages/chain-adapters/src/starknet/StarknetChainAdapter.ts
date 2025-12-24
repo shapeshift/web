@@ -210,7 +210,6 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.StarknetMainnet
         // If the account is not deployed yet, balance queries will fail
         // This is expected - return 0 balance
         // The user can still receive funds to their counterfactual address
-        console.debug('Failed to fetch Starknet STRK balance (account may not be deployed):', error)
       }
 
       const tokens: {
@@ -262,24 +261,19 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.StarknetMainnet
       // If not deployed, this will return error
       const response = await this.provider.fetch('starknet_getNonce', ['latest', address])
       const result: RpcJsonResponse<StarknetNonceResult> = await response.json()
-      console.log('isAccountDeployed (getNonce) result for', address, ':', result)
 
       // If we get an error, account is not deployed
       if (result.error) {
         // Error code 20 = CONTRACT_NOT_FOUND means not deployed
         if (result.error.code === 20) {
-          console.log('Account not deployed (contract not found)')
           return false
         }
-        console.log('isAccountDeployed RPC error:', result.error)
         return false
       }
 
       // If we got a nonce, account is deployed
-      console.log('Account is deployed, nonce:', result.result)
       return true
     } catch (error) {
-      console.log('isAccountDeployed error for', address, ':', error)
       return false
     }
   }
@@ -294,7 +288,6 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.StarknetMainnet
     maxFee: string
   }): Promise<string> {
     try {
-      console.log('=== deployAccount called with:', input)
       const { accountNumber, wallet } = input
 
       this.assertSupportsChain(wallet)
@@ -321,15 +314,6 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.StarknetMainnet
       const version = '0x3' as const // Use v3 for Lava RPC
       const nonce = '0x0'
 
-      console.log('=== DEPLOY ACCOUNT DEBUG ===')
-      console.log('Address from wallet:', address)
-      console.log('Public key:', publicKey)
-      console.log('Salt (raw):', salt)
-      console.log('Constructor calldata (compiled):', constructorCalldata)
-      console.log('Class hash:', OPENZEPPELIN_ACCOUNT_CLASS_HASH)
-      console.log('Chain ID:', chainIdHex)
-      console.log('Nonce:', nonce)
-
       // Verify address calculation matches wallet
       const constructorCalldataForAddress = CallData.compile([publicKey])
       const computedAddress = hash.calculateContractAddressFromHash(
@@ -338,8 +322,6 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.StarknetMainnet
         constructorCalldataForAddress,
         0, // deployer_address
       )
-      console.log('Computed address (should match):', computedAddress)
-      console.log('Addresses match:', address === computedAddress)
 
       // Format calldata - keep as-is from CallData.compile
       const formattedCalldata = constructorCalldata.map((data: string) => {
@@ -352,7 +334,6 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.StarknetMainnet
       const formattedSalt = salt.startsWith('0x') ? salt : `0x${salt}`
 
       // Estimate fees
-      console.log('Estimating fees for v3 deployment...')
       const estimateTx = {
         type: 'DEPLOY_ACCOUNT',
         version,
@@ -437,9 +418,6 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.StarknetMainnet
         paymasterData: [],
       })
 
-      console.log('=== V3 DEPLOY_ACCOUNT HASH ===')
-      console.log('Transaction hash (starknet.js):', txHash)
-
       const signatureResult = await wallet.starknetSignTx({
         addressNList: toAddressNList(this.getBip44Params({ accountNumber })),
         txHash, // Already in hex format from calculateDeployAccountTransactionHash
@@ -456,9 +434,6 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.StarknetMainnet
         }
         return sig
       })
-
-      console.log('Original signature:', signatureResult.signature)
-      console.log('Formatted signature:', formattedSignature)
 
       // Convert bigint resource bounds to hex strings for RPC
       const deployAccountTx = {
@@ -488,8 +463,6 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.StarknetMainnet
         nonce_data_availability_mode: 'L1', // RPC expects "L1" or "L2"
         fee_data_availability_mode: 'L1',
       }
-
-      console.log('Sending deploy account transaction:', JSON.stringify(deployAccountTx, null, 2))
 
       const response = await this.provider.fetch('starknet_addDeployAccountTransaction', [
         deployAccountTx,
@@ -573,14 +546,15 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.StarknetMainnet
             return data.toString()
           })
 
-          let nonce = '0x0'
-          try {
-            const nonceResponse = await this.provider.fetch('starknet_getNonce', ['pending', from])
-            const nonceResult: RpcJsonResponse<StarknetNonceResult> = await nonceResponse.json()
-            nonce = nonceResult.result ?? '0x0'
-          } catch (error) {
-            console.log('Exception fetching nonce for fee estimation:', error)
+          const nonceResponse = await this.provider.fetch('starknet_getNonce', ['pending', from])
+          const nonceResult: RpcJsonResponse<StarknetNonceResult> = await nonceResponse.json()
+          if (nonceResult.error) {
+            throw new Error(`Failed to fetch nonce: ${nonceResult.error.message}`)
           }
+          if (!nonceResult.result) {
+            throw new Error('Nonce result is missing')
+          }
+          const nonce = nonceResult.result
 
           const estimateTx = {
             type: 'INVOKE',
@@ -658,22 +632,18 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.StarknetMainnet
       }
 
       // Get account nonce using RPC directly
-      let nonce = '0x0'
-      try {
-        const nonceResponse = await this.provider.fetch('starknet_getNonce', ['pending', from])
-        const nonceResult: RpcJsonResponse<StarknetNonceResult> = await nonceResponse.json()
+      const nonceResponse = await this.provider.fetch('starknet_getNonce', ['pending', from])
+      const nonceResult: RpcJsonResponse<StarknetNonceResult> = await nonceResponse.json()
 
-        if (nonceResult.error) {
-          console.log('Error fetching nonce for', from, ':', nonceResult.error)
-          nonce = '0x0'
-        } else {
-          nonce = nonceResult.result ?? '0x0'
-          console.log('Fetched nonce for', from, ':', nonce)
-        }
-      } catch (error) {
-        console.log('Exception fetching nonce for', from, ', using 0x0:', error)
-        nonce = '0x0'
+      if (nonceResult.error) {
+        throw new Error(`Failed to fetch nonce: ${nonceResult.error.message}`)
       }
+
+      if (!nonceResult.result) {
+        throw new Error('Nonce result is missing')
+      }
+
+      const nonce = nonceResult.result
 
       const chainIdHex = await this.provider.getChainId()
       const version = '0x3' as const // Use v3 for Lava RPC
@@ -1109,7 +1079,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.StarknetMainnet
           }
         }
       } catch (blockError) {
-        console.debug('Could not fetch block timestamp:', blockError)
+        // Ignore block timestamp fetch errors
       }
 
       let transfers: StarknetTransfer[] = []
@@ -1179,7 +1149,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.StarknetMainnet
           }
         }
       } catch (txError) {
-        console.debug('Could not fetch transaction details:', txError)
+        // Ignore transaction details fetch errors
       }
 
       return {

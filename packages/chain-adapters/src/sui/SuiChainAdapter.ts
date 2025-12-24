@@ -524,10 +524,11 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SuiMainnet> {
   private parseProgrammableTransactionBlock(tx: SuiTransactionBlockResponse): {
     transferAmount: string | undefined
     recipient: string | undefined
+    coinType: string | undefined
   } {
     const ptb = tx.transaction?.data.transaction
     if (ptb?.kind !== 'ProgrammableTransaction') {
-      return { transferAmount: undefined, recipient: undefined }
+      return { transferAmount: undefined, recipient: undefined, coinType: undefined }
     }
 
     const inputs = ptb.inputs ?? []
@@ -535,16 +536,25 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SuiMainnet> {
 
     let transferAmount: string | undefined
     let recipient: string | undefined
+    let coinObjectId: string | undefined
 
     for (const command of commands) {
       if ('SplitCoins' in command) {
-        const [_coinSource, amounts] = command.SplitCoins
+        const [coinSource, amounts] = command.SplitCoins
         const firstAmount = amounts?.[0]
         if (!firstAmount || !('Input' in firstAmount)) continue
 
         const amountInput = inputs[firstAmount.Input]
         if (amountInput?.type === 'pure' && amountInput.valueType === 'u64') {
           transferAmount = amountInput.value
+        }
+
+        // For token transfers, coin source is an object input
+        if (typeof coinSource === 'object' && 'Input' in coinSource) {
+          const coinInput = inputs[coinSource.Input]
+          if (coinInput?.type === 'object') {
+            coinObjectId = coinInput.objectId
+          }
         }
       }
 
@@ -559,7 +569,26 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SuiMainnet> {
       }
     }
 
-    return { transferAmount, recipient }
+    // Extract coin type from objectChanges if we have a coin object ID
+    const coinType = (() => {
+      if (!coinObjectId) return undefined
+
+      const objectChange = tx.objectChanges?.find(
+        change => 'objectId' in change && change.objectId === coinObjectId,
+      )
+
+      if (!objectChange || !('objectType' in objectChange)) return undefined
+
+      const match = objectChange.objectType.match(/0x2::coin::Coin<(.+)>/)
+      return match?.[1]
+    })()
+
+    console.log(
+      `[SuiChainAdapter.parseTx] PTB parsing:`,
+      JSON.stringify({ transferAmount, recipient, coinObjectId, coinType }),
+    )
+
+    return { transferAmount, recipient, coinType }
   }
 
   async parseTx(txHashOrTx: unknown, pubkey: string): Promise<Transaction> {
@@ -607,13 +636,11 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SuiMainnet> {
             ).toString(),
           }
 
-      const { transferAmount: ptbTransferAmount, recipient: ptbRecipient } =
-        this.parseProgrammableTransactionBlock(tx)
-
-      console.log(
-        `[SuiChainAdapter.parseTx] PTB parsing result:`,
-        JSON.stringify({ txid, ptbTransferAmount, ptbRecipient }),
-      )
+      const {
+        transferAmount: ptbTransferAmount,
+        recipient: ptbRecipient,
+        coinType: ptbCoinType,
+      } = this.parseProgrammableTransactionBlock(tx)
 
       const balanceChanges = tx.balanceChanges ?? []
 
@@ -685,17 +712,31 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SuiMainnet> {
         const isSender = sender === pubkey
         const isRecipient = ptbRecipient === pubkey
 
+        // Determine the correct assetId (native SUI or token)
+        const assetId = !ptbCoinType
+          ? this.assetId
+          : toAssetId({
+              chainId: this.chainId,
+              assetNamespace: ASSET_NAMESPACE.suiCoin,
+              assetReference: ptbCoinType,
+            })
+
+        console.log(
+          `[SuiChainAdapter.parseTx] Creating PTB transfers:`,
+          JSON.stringify({ ptbCoinType, assetId, isSelfSend, isSender, isRecipient }),
+        )
+
         if (isSelfSend && isSender) {
           return [
             {
-              assetId: this.assetId,
+              assetId,
               from: [sender],
               to: [ptbRecipient],
               type: TransferType.Send,
               value: ptbTransferAmount,
             },
             {
-              assetId: this.assetId,
+              assetId,
               from: [sender],
               to: [ptbRecipient],
               type: TransferType.Receive,
@@ -707,7 +748,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SuiMainnet> {
         if (isSender) {
           return [
             {
-              assetId: this.assetId,
+              assetId,
               from: [sender],
               to: [ptbRecipient],
               type: TransferType.Send,
@@ -719,7 +760,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SuiMainnet> {
         if (isRecipient) {
           return [
             {
-              assetId: this.assetId,
+              assetId,
               from: [sender],
               to: [ptbRecipient],
               type: TransferType.Receive,

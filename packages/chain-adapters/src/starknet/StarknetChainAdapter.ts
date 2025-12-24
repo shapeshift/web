@@ -314,15 +314,6 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.StarknetMainnet
       const version = '0x3' as const // Use v3 for Lava RPC
       const nonce = '0x0'
 
-      // Verify address calculation matches wallet
-      const constructorCalldataForAddress = CallData.compile([publicKey])
-      const computedAddress = hash.calculateContractAddressFromHash(
-        publicKey, // salt
-        OPENZEPPELIN_ACCOUNT_CLASS_HASH,
-        constructorCalldataForAddress,
-        0, // deployer_address
-      )
-
       // Format calldata - keep as-is from CallData.compile
       const formattedCalldata = constructorCalldata.map((data: string) => {
         if (!data.startsWith('0x')) {
@@ -1165,22 +1156,9 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.StarknetMainnet
         pubkey,
       }
     } catch (err) {
-      // Log error but don't throw - return unknown status instead
-      console.error('Error parsing Starknet transaction:', err)
-      const txHash =
-        typeof txHashOrTx === 'string' ? txHashOrTx : txHashOrTx.transaction_hash ?? 'unknown'
-
-      return {
-        txid: txHash,
-        blockHeight: -1,
-        blockTime: 0,
-        blockHash: '',
-        chainId: this.chainId,
-        confirmations: 0,
-        status: TxStatus.Unknown,
-        transfers: [],
-        pubkey,
-      }
+      return ErrorHandler(err, {
+        translation: 'chainAdapters.errors.parseTx',
+      })
     }
   }
 }

@@ -202,10 +202,7 @@ export const useSendActionSubscriber = () => {
                 case KnownChainIds.StarknetMainnet: {
                   const adapter = getChainAdapterManager().get(chainId)
                   if (isStarknetChainAdapter(adapter)) {
-                    const starknetTxStatus = await getStarknetTransactionStatus(
-                      txHash,
-                      adapter,
-                    )
+                    const starknetTxStatus = await getStarknetTransactionStatus(txHash, adapter)
 
                     // Handle failed transactions
                     if (starknetTxStatus === TxStatus.Failed) {

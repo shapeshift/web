@@ -545,14 +545,20 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SuiMainnet> {
 
         const amountInput = inputs[firstAmount.Input]
         if (amountInput?.type === 'pure' && amountInput.valueType === 'u64') {
-          transferAmount = amountInput.value as string
+          const value = amountInput.value
+          if (typeof value === 'string') {
+            transferAmount = value
+          }
         }
 
         // For token transfers, coin source is an object input
         if (typeof coinSource === 'object' && 'Input' in coinSource) {
           const coinInput = inputs[coinSource.Input]
           if (coinInput?.type === 'object') {
-            coinObjectId = coinInput.objectId as string
+            const objectId = coinInput.objectId
+            if (typeof objectId === 'string') {
+              coinObjectId = objectId
+            }
           }
         }
       }
@@ -564,7 +570,10 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SuiMainnet> {
 
         const recipientInput = inputs[recipientArg.Input]
         if (recipientInput?.type === 'pure' && recipientInput.valueType === 'address') {
-          recipient = recipientInput.value as string
+          const value = recipientInput.value
+          if (typeof value === 'string') {
+            recipient = value
+          }
         }
       }
     }
@@ -682,8 +691,14 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SuiMainnet> {
           ? ptbTransferAmount
           : (amount < 0n ? -amount : amount).toString()
 
-        const from = isSend ? [sender] : ownerAddress ? [ownerAddress] : [sender]
-        const to = isReceive ? [ownerAddress ?? sender] : [sender]
+        // ownerAddress is who owns the balance after the transaction
+        // For Send: from = sender, to = recipient (from PTB if available, else ownerAddress)
+        // For Receive: from = sender, to = ownerAddress (recipient)
+        const from = [sender]
+        const to = (() => {
+          if (isReceive) return [ownerAddress ?? sender]
+          return ptbRecipient ? [ptbRecipient] : [sender]
+        })()
 
         return { assetId, from, to, type: transferType, value: transferValue }
       })

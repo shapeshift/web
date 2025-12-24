@@ -190,6 +190,7 @@ export const useSendActionSubscriber = () => {
                     }),
                   )
                 } catch (error) {
+                  // Silent fail - Tx just won't show in history
                   console.error('Failed to parse and upsert Tx:', error)
                 }
 

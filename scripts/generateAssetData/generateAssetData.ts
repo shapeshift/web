@@ -64,7 +64,6 @@ const generateAssetData = async () => {
   const tronAssets = await tronModule.getAssets()
   const suiAssets = await sui.getAssets()
 
-  // all assets, included assets to be blacklisted
   const unfilteredAssetData: Asset[] = [
     unfreeze(bitcoin),
     unfreeze(bitcoincash),
@@ -73,10 +72,9 @@ const generateAssetData = async () => {
     unfreeze(zcash),
     unfreeze(atom),
     unfreeze(thorchain),
-    unfreeze(tcy),
-    unfreeze(ruji),
     unfreeze(mayachain),
-    unfreeze(maya),
+    unfreeze(ruji),
+    unfreeze(tcy),
     ...ethAssets,
     ...avalancheAssets,
     ...optimismAssets,
@@ -101,6 +99,7 @@ const generateAssetData = async () => {
   // deterministic order so diffs are readable
   const orderedAssetList = orderBy(filteredAssetData, 'assetId')
 
+  // read existing asset data for preserving relatedAssetKey
   const encodedAssetData = JSON.parse(await fs.promises.readFile(ASSET_DATA_PATH, 'utf8'))
   const { assetData: currentGeneratedAssetData } = decodeAssetData(encodedAssetData)
 

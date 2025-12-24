@@ -31,8 +31,8 @@
   "dependencies": {
     "@mysten/sui": "1.45.0",
     "@shapeshiftoss/caip": "workspace:^",
-    "@shapeshiftoss/hdwallet-core": "1.62.32-starknet.2",
-    "@shapeshiftoss/hdwallet-ledger": "1.62.32-starknet.2",
+    "@shapeshiftoss/hdwallet-core": "1.62.33-starknet.12",
+    "@shapeshiftoss/hdwallet-ledger": "1.62.33-starknet.12",
     "@shapeshiftoss/types": "workspace:^",
     "@shapeshiftoss/unchained-client": "workspace:^",
     "@shapeshiftoss/utils": "workspace:^",

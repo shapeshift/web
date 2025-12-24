@@ -161,19 +161,35 @@ export const useSendActionSubscriber = () => {
 
               if (isConfirmed) {
                 // Parse and upsert Tx for second-class chains
+                const { accountIdsToRefetch } = action.transactionMetadata
+                const accountIdsToUpsert = accountIdsToRefetch ?? [accountId]
+
                 try {
                   const adapter = getChainAdapterManager().get(chainId)
-                  if (adapter?.parseTx) {
-                    const parsedTx = await adapter.parseTx(txHash, accountAddress)
-                    dispatch(
-                      txHistory.actions.onMessage({
-                        message: parsedTx,
-                        accountId,
-                      }),
-                    )
+                  if (!adapter?.parseTx) {
+                    completeAction(action)
+                    const intervalId = pollingIntervalsRef.current.get(pollingKey)
+                    if (intervalId) {
+                      clearInterval(intervalId)
+                      pollingIntervalsRef.current.delete(pollingKey)
+                    }
+                    return
                   }
+
+                  // Parse and upsert for all involved accounts (sender + recipient if held)
+                  await Promise.all(
+                    accountIdsToUpsert.map(async accountIdToUpsert => {
+                      const address = fromAccountId(accountIdToUpsert).account
+                      const parsedTx = await adapter.parseTx(txHash, address)
+                      dispatch(
+                        txHistory.actions.onMessage({
+                          message: parsedTx,
+                          accountId: accountIdToUpsert,
+                        }),
+                      )
+                    }),
+                  )
                 } catch (error) {
-                  // Silent fail - Tx just won't show in history
                   console.error('Failed to parse and upsert Tx:', error)
                 }
 

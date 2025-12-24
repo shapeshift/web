@@ -87,4 +87,128 @@ act -s GITHUB_TOKEN=$GITHUB_TOKEN -j <job-name> --reuse
 
 Two important flags that can be passed to the `act` command:
 - `--reuse` - persist state across runs
-- `--rm` - remove container on failure 
+- `--rm` - remove container on failure
+
+## Swapper Integration Testing
+
+For PRs related to swapper integrations, swapper behavior changes, or quote aggregation, **actual swap execution testing is required** to ensure production readiness.
+
+### When Swap Execution Testing is Required
+
+Execute actual swaps when the PR involves:
+
+1. **New Swapper Integration**: Adding support for a new DEX aggregator, bridge, or swapper
+   - Examples: Integrating Bebop, Portals, Jupiter, 0x, 1inch, Relay, Cetus, etc.
+
+2. **Swapper Behavior Changes**: Modifying existing swapper logic
+   - Fee calculation changes
+   - Quote fetching modifications
+   - Route optimization updates
+   - Slippage tolerance adjustments
+
+3. **Chain Adapter Modifications**: Changes to chain adapters affecting swap flows
+   - New chain support for swaps
+   - Gas estimation changes
+   - Transaction building modifications
+
+4. **Quote Aggregation Changes**: Updates to how quotes are fetched, sorted, or presented
+   - Multi-swapper aggregation logic
+   - Quote filtering/sorting algorithms
+   - Rate calculation modifications
+
+### Testing Requirements
+
+#### Minimum Testing Scope
+
+For each swapper-related PR, execute **at least 2 successful swaps**:
+
+1. **Primary swap direction**: Test the main use case
+   - Example: ETH → USDC on the new swapper
+
+2. **Secondary swap direction**: Test reverse or alternative route
+   - Example: USDC → ETH or ETH → BTC
+
+#### Comprehensive Testing Checklist
+
+- [ ] **Quote Accuracy**: Verify quoted rates match executed rates (within acceptable slippage)
+- [ ] **Balance Updates**: Confirm source and destination balances update correctly post-swap
+- [ ] **Fee Estimation**: Validate transaction fees match estimates
+- [ ] **Transaction Completion**: Ensure swaps complete successfully with proper notifications
+- [ ] **Error Handling**: Test edge cases (insufficient balance, no routes, etc.)
+- [ ] **Multi-chain Support**: For cross-chain swappers, test bridge functionality
+- [ ] **Price Impact**: Verify price impact calculations are accurate
+- [ ] **Slippage Tolerance**: Test swaps near slippage limits
+
+### Testing Methodology
+
+#### Local Development Testing
+
+```bash
+# 1. Start local development environment
+yarn dev
+
+# 2. Use browser automation (Playwright) or manual testing
+# Connect wallet and execute test swaps
+
+# 3. Document results in PR comment
+```
+
+#### Required Test Documentation
+
+Include the following in your PR:
+
+```markdown
+## Swap Execution Test Results
+
+### Test 1: [Asset A] → [Asset B]
+
+**Setup**:
+- Direction: [Asset A] → [Asset B]
+- Amount: [amount]
+- Protocol: [swapper name]
+
+**Pre-Swap Balances**:
+- [Asset A]: [balance]
+- [Asset B]: [balance]
+
+**Quote Details**:
+- Expected output: [amount]
+- Exchange rate: [rate]
+- Fee: [fee]
+- Price impact: [%]
+
+**Execution**: ✅ Success / ❌ Failed
+- Transaction hash: [hash]
+- Block explorer: [link]
+
+**Post-Swap Balances**:
+- [Asset A]: [balance] (change: [delta])
+- [Asset B]: [balance] (change: [delta])
+
+**Verification**:
+- ✅/❌ Quote accuracy
+- ✅/❌ Balance updates
+- ✅/❌ Fee estimation
+- ✅/❌ Transaction notification
+
+**Notes**: [any observations]
+```
+
+### Testing Best Practices
+
+1. **Use Testnet When Possible**: Prefer testnets for initial validation, but include at least 1 mainnet swap for production verification
+2. **Document Edge Cases**: Note any limitations, directional liquidity issues, or unsupported routes
+3. **Test Multiple Amounts**: Small, medium, and large swaps may have different behaviors
+4. **Monitor Console Errors**: Document any errors or warnings during swap execution
+5. **Verify UI/UX**: Ensure loading states, notifications, and error messages display correctly
+
+### Example Test Reports
+
+See `.playwright-mcp/swap-execution-test-report.md` for comprehensive testing examples.
+
+### Automated Testing (Future)
+
+While manual swap execution is currently required, we aim to automate this with:
+- Playwright end-to-end tests
+- Mock swapper responses for unit tests
+- Testnet automation for CI/CD pipelines

@@ -588,22 +588,6 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TronMainnet> {
       const trc20Transfers = this.parseTRC20Transfers(tx, pubkey)
       const internalTrxTransfers = this.parseInternalTrxTransfers(tx, pubkey, txInitiator)
 
-      console.log('[TRON_FINAL] Combined transfers:', JSON.stringify({
-        txid: tx.txid,
-        pubkey,
-        nativeTransferCount: parsedTx.transfers.length,
-        trc20TransferCount: trc20Transfers.length,
-        internalTransferCount: internalTrxTransfers.length,
-        totalTransferCount: parsedTx.transfers.length + trc20Transfers.length + internalTrxTransfers.length,
-        allTransfers: [...parsedTx.transfers, ...trc20Transfers, ...internalTrxTransfers].map(t => ({
-          type: t.type,
-          assetId: t.assetId,
-          from: t.from,
-          to: t.to,
-          value: t.value,
-        })),
-      }, null, 2))
-
       return {
         ...parsedTx,
         transfers: [...parsedTx.transfers, ...trc20Transfers, ...internalTrxTransfers],
@@ -623,14 +607,6 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TronMainnet> {
     type: TransferType
     value: string
   }[] {
-    console.log('[TRON_TRC20] Entry check:', JSON.stringify({
-      txid: tx.txid,
-      hasLogs: !!tx.log,
-      logCount: tx.log?.length || 0,
-      contractRet: tx.ret?.[0]?.contractRet,
-      willProcess: tx.log && tx.log.length > 0 && tx.ret?.[0]?.contractRet === 'SUCCESS',
-    }, null, 2))
-
     if (!tx.log || tx.log.length === 0) return []
 
     if (tx.ret?.[0]?.contractRet !== 'SUCCESS') return []
@@ -649,13 +625,6 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TronMainnet> {
     const tronWeb = new TronWeb({ fullHost: this.rpcUrl })
 
     for (const log of tx.log) {
-      console.log('[TRON_TRC20] Processing log:', JSON.stringify({
-        address: log.address,
-        topics: log.topics,
-        data: log.data,
-        dataLength: log.data?.length,
-      }, null, 2))
-
       try {
         if (!log.topics || log.topics.length !== 3) continue
         if (log.topics[0] !== TRANSFER_EVENT_SIGNATURE) continue
@@ -675,17 +644,6 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TronMainnet> {
 
         const value = BigInt('0x' + log.data).toString()
         const contractAddress = log.address
-
-        console.log('[TRON_TRC20] Parsed transfer:', JSON.stringify({
-          fromAddress,
-          toAddress,
-          pubkey,
-          isSend,
-          isReceive,
-          value,
-          contractAddress,
-          assetId: `${this.chainId}/trc20:${contractAddress}`,
-        }, null, 2))
 
         if (isSend) {
           transfers.push({
@@ -725,15 +683,6 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TronMainnet> {
     type: TransferType
     value: string
   }[] {
-    console.log('[TRON_INTERNAL] Entry check:', JSON.stringify({
-      txid: tx.txid,
-      hasInternalTx: !!tx.internal_transactions,
-      count: tx.internal_transactions?.length || 0,
-      contractRet: tx.ret?.[0]?.contractRet,
-      txInitiator,
-      willProcess: tx.internal_transactions && tx.internal_transactions.length > 0 && tx.ret?.[0]?.contractRet === 'SUCCESS',
-    }, null, 2))
-
     if (!tx.internal_transactions || tx.internal_transactions.length === 0) return []
 
     if (tx.ret?.[0]?.contractRet !== 'SUCCESS') return []

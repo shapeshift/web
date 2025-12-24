@@ -160,18 +160,6 @@ export class TronApi {
       internal_transactions = info.internal_transactions || []
     }
 
-    console.log('[TRON_RPC] Transaction fetched:', JSON.stringify({
-      txID: tx.txID,
-      blockNumber,
-      contractCount: tx.raw_data?.contract?.length || 0,
-      contractTypes: tx.raw_data?.contract?.map(c => c.type) || [],
-      logCount: log.length,
-      internalTxCount: internal_transactions.length,
-      contractRet: tx.ret?.[0]?.contractRet,
-      rawLog: log,
-      rawInternalTransactions: internal_transactions,
-    }, null, 2))
-
     return {
       ...tx,
       txid: tx.txID,

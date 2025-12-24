@@ -1,7 +1,6 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import type { KnownChainIds } from '@shapeshiftoss/types'
 
-import type { SignTx, TransferType } from '../types'
 import type * as types from '../types'
 
 export type Account = {
@@ -69,7 +68,7 @@ export type StarknetTxDetails = {
   chainId: string
 }
 
-export type SignTxWithDetails = SignTx<KnownChainIds.StarknetMainnet> & {
+export type SignTxWithDetails = types.SignTx<KnownChainIds.StarknetMainnet> & {
   _txDetails: StarknetTxDetails
 }
 
@@ -91,6 +90,6 @@ export type StarknetTransfer = {
   assetId: AssetId
   from: string[]
   to: string[]
-  type: TransferType
+  type: types.TransferType
   value: string
 }

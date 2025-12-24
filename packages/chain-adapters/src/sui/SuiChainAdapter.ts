@@ -521,9 +521,49 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SuiMainnet> {
     return
   }
 
+  private parseProgrammableTransactionBlock(tx: SuiTransactionBlockResponse): {
+    transferAmount: string | undefined
+    recipient: string | undefined
+  } {
+    const ptb = tx.transaction?.data.transaction
+    if (ptb?.kind !== 'ProgrammableTransaction') {
+      return { transferAmount: undefined, recipient: undefined }
+    }
+
+    const inputs = ptb.inputs ?? []
+    const commands = ptb.transactions ?? []
+
+    let transferAmount: string | undefined
+    let recipient: string | undefined
+
+    for (const command of commands) {
+      if ('SplitCoins' in command) {
+        const [_coinSource, amounts] = command.SplitCoins
+        const firstAmount = amounts?.[0]
+        if (!firstAmount || !('Input' in firstAmount)) continue
+
+        const amountInput = inputs[firstAmount.Input]
+        if (amountInput?.type === 'pure' && amountInput.valueType === 'u64') {
+          transferAmount = amountInput.value
+        }
+      }
+
+      if ('TransferObjects' in command) {
+        const [_objects, recipientArg] = command.TransferObjects
+        if (!recipientArg || !('Input' in recipientArg)) continue
+
+        const recipientInput = inputs[recipientArg.Input]
+        if (recipientInput?.type === 'pure' && recipientInput.valueType === 'address') {
+          recipient = recipientInput.value
+        }
+      }
+    }
+
+    return { transferAmount, recipient }
+  }
+
   async parseTx(txHashOrTx: unknown, pubkey: string): Promise<Transaction> {
     try {
-      // Fetch full transaction data if only txHash was provided
       const tx =
         typeof txHashOrTx === 'string'
           ? await this.client.getTransactionBlock({
@@ -532,12 +572,12 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SuiMainnet> {
                 showInput: true,
                 showEffects: true,
                 showBalanceChanges: true,
+                showObjectChanges: true,
               },
             })
           : (txHashOrTx as SuiTransactionBlockResponse)
 
       const sender = tx.transaction?.data.sender ?? ''
-
       const txid = tx.digest
       const blockHeight = Number(tx.checkpoint ?? 0)
       const blockTime = tx.timestampMs ? Math.floor(Number(tx.timestampMs) / 1000) : 0
@@ -545,16 +585,17 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SuiMainnet> {
       const latestCheckpoint = await this.client.getLatestCheckpointSequenceNumber()
       const confirmations = tx.checkpoint ? Number(latestCheckpoint) - Number(tx.checkpoint) + 1 : 0
 
-      const status =
-        tx.effects?.status.status === 'success'
-          ? TxStatus.Confirmed
-          : tx.effects?.status.status === 'failure'
-          ? TxStatus.Failed
-          : TxStatus.Unknown
+      const status = (() => {
+        const txStatus = tx.effects?.status.status
+        if (txStatus === 'success') return TxStatus.Confirmed
+        if (txStatus === 'failure') return TxStatus.Failed
+        return TxStatus.Unknown
+      })()
 
       const gasUsed = tx.effects?.gasUsed
-      const fee = gasUsed
-        ? {
+      const fee = !gasUsed
+        ? undefined
+        : {
             assetId: this.assetId,
             value: (
               BigInt(gasUsed.computationCost) +
@@ -562,15 +603,30 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SuiMainnet> {
               BigInt(gasUsed.storageRebate)
             ).toString(),
           }
-        : undefined
+
+      const { transferAmount: ptbTransferAmount, recipient: ptbRecipient } =
+        this.parseProgrammableTransactionBlock(tx)
 
       const balanceChanges = tx.balanceChanges ?? []
 
-      const transfers = balanceChanges.map(change => {
-        let ownerAddress: string | null = null
-        if (typeof change.owner === 'object' && 'AddressOwner' in change.owner) {
-          ownerAddress = change.owner.AddressOwner
-        }
+      // Filter out balance changes that only represent gas fees
+      const actualTransferChanges = balanceChanges.filter(change => {
+        if (!fee || change.coinType !== '0x2::sui::SUI') return true
+
+        const changeAmount = BigInt(change.amount)
+        const absoluteChange = changeAmount < 0n ? -changeAmount : changeAmount
+        const feeAmount = BigInt(fee.value)
+
+        return absoluteChange !== feeAmount
+      })
+
+      const transfersFromBalanceChanges = actualTransferChanges.map(change => {
+        const ownerAddress = (() => {
+          if (typeof change.owner === 'object' && 'AddressOwner' in change.owner) {
+            return change.owner.AddressOwner
+          }
+          return null
+        })()
 
         const assetId =
           change.coinType === '0x2::sui::SUI'
@@ -585,21 +641,80 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SuiMainnet> {
         const isReceive = amount > 0n
         const isSend = amount < 0n
 
-        const transferType =
-          ownerAddress === pubkey
-            ? isReceive
-              ? TransferType.Receive
-              : TransferType.Send
-            : TransferType.Contract
+        const transferType = (() => {
+          if (ownerAddress !== pubkey) return TransferType.Contract
+          return isReceive ? TransferType.Receive : TransferType.Send
+        })()
 
-        return {
-          assetId,
-          from: isSend ? [sender] : ownerAddress ? [ownerAddress] : [sender],
-          to: isReceive ? [ownerAddress ?? sender] : [sender],
-          type: transferType,
-          value: amount < 0n ? (-amount).toString() : amount.toString(),
-        }
+        // For Send transfers of native SUI, use PTB amount to exclude gas
+        const shouldUsePtbAmount =
+          isSend && ptbTransferAmount && change.coinType === '0x2::sui::SUI'
+        const transferValue = shouldUsePtbAmount
+          ? ptbTransferAmount
+          : (amount < 0n ? -amount : amount).toString()
+
+        const from = isSend ? [sender] : ownerAddress ? [ownerAddress] : [sender]
+        const to = isReceive ? [ownerAddress ?? sender] : [sender]
+
+        return { assetId, from, to, type: transferType, value: transferValue }
       })
+
+      // For self-sends where balance changes were filtered out, use PTB data
+      const transfersFromPtb = (() => {
+        if (actualTransferChanges.length > 0) return []
+        if (!ptbTransferAmount || !ptbRecipient) return []
+
+        const isSelfSend = sender === ptbRecipient
+        const isSender = sender === pubkey
+        const isRecipient = ptbRecipient === pubkey
+
+        if (isSelfSend && isSender) {
+          return [
+            {
+              assetId: this.assetId,
+              from: [sender],
+              to: [ptbRecipient],
+              type: TransferType.Send,
+              value: ptbTransferAmount,
+            },
+            {
+              assetId: this.assetId,
+              from: [sender],
+              to: [ptbRecipient],
+              type: TransferType.Receive,
+              value: ptbTransferAmount,
+            },
+          ]
+        }
+
+        if (isSender) {
+          return [
+            {
+              assetId: this.assetId,
+              from: [sender],
+              to: [ptbRecipient],
+              type: TransferType.Send,
+              value: ptbTransferAmount,
+            },
+          ]
+        }
+
+        if (isRecipient) {
+          return [
+            {
+              assetId: this.assetId,
+              from: [sender],
+              to: [ptbRecipient],
+              type: TransferType.Receive,
+              value: ptbTransferAmount,
+            },
+          ]
+        }
+
+        return []
+      })()
+
+      const transfers = [...transfersFromBalanceChanges, ...transfersFromPtb]
 
       return {
         txid,

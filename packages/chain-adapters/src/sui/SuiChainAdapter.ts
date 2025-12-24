@@ -541,29 +541,30 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SuiMainnet> {
       if ('SplitCoins' in command) {
         const [coinSource, amounts] = command.SplitCoins
         const firstAmount = amounts?.[0]
-        if (!firstAmount || !('Input' in firstAmount)) continue
+        if (!firstAmount || typeof firstAmount !== 'object' || !('Input' in firstAmount)) continue
 
         const amountInput = inputs[firstAmount.Input]
         if (amountInput?.type === 'pure' && amountInput.valueType === 'u64') {
-          transferAmount = amountInput.value
+          transferAmount = amountInput.value as string
         }
 
         // For token transfers, coin source is an object input
         if (typeof coinSource === 'object' && 'Input' in coinSource) {
           const coinInput = inputs[coinSource.Input]
           if (coinInput?.type === 'object') {
-            coinObjectId = coinInput.objectId
+            coinObjectId = coinInput.objectId as string
           }
         }
       }
 
       if ('TransferObjects' in command) {
         const [_objects, recipientArg] = command.TransferObjects
-        if (!recipientArg || !('Input' in recipientArg)) continue
+        if (!recipientArg || typeof recipientArg !== 'object' || !('Input' in recipientArg))
+          continue
 
         const recipientInput = inputs[recipientArg.Input]
         if (recipientInput?.type === 'pure' && recipientInput.valueType === 'address') {
-          recipient = recipientInput.value
+          recipient = recipientInput.value as string
         }
       }
     }

@@ -11,7 +11,7 @@ import { getTradeQuoteOrRateInput } from './useGetTradeQuotes/getTradeQuoteOrRat
 import { KeyManager } from '@/context/WalletProvider/KeyManager'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { useWalletSupportsChain } from '@/hooks/useWalletSupportsChain/useWalletSupportsChain'
-import { DEFAULT_FEE_BPS } from '@/lib/fees/constant'
+import { getAffiliateBps } from '@/lib/fees/utils'
 import { selectWalletType } from '@/state/slices/localWalletSlice/selectors'
 import { selectPortfolioAccountMetadataByAccountId } from '@/state/slices/selectors'
 import {
@@ -78,7 +78,7 @@ export const useGetTradeRateInput = ({
 
   const sellAccountNumber = sellAccountMetadata?.bip44Params?.accountNumber
 
-  const affiliateBps = DEFAULT_FEE_BPS
+  const affiliateBps = useMemo(() => getAffiliateBps(sellAsset, buyAsset), [sellAsset, buyAsset])
 
   const walletType = useAppSelector(selectWalletType)
 

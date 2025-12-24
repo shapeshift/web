@@ -102,17 +102,23 @@ export const verifyLedgerAppOpen = async (chainId: ChainId | KnownChainIds, wall
       const args: LedgerOpenAppEventArgs = { chainId, reject }
       emitter.emit('LedgerOpenApp', args)
 
-      // prompt user to open app on device
-      wallet.openApp(appName)
+      // start polling for app open status after openApp completes to avoid concurrent USB requests
+      const startPolling = () => {
+        intervalId = setInterval(async () => {
+          if (!(await isAppOpen())) return
 
-      intervalId = setInterval(async () => {
-        if (!(await isAppOpen())) return
+          // emit event to trigger modal close
+          emitter.emit('LedgerAppOpened')
+          clearInterval(intervalId)
+          resolve()
+        }, 1000)
+      }
 
-        // emit event to trigger modal close
-        emitter.emit('LedgerAppOpened')
-        clearInterval(intervalId)
-        resolve()
-      }, 1000)
+      // prompt user to open app on device, then start polling
+      // Promise.resolve normalizes both promise and non-promise return values
+      Promise.resolve(wallet.openApp(appName))
+        .then(() => startPolling())
+        .catch(() => startPolling())
     })
   } catch {
     clearInterval(intervalId)

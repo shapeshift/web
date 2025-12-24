@@ -135,25 +135,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SuiMainnet> {
       const tokens = await Promise.all(
         nonZeroBalances.map(async balance => {
           const symbol = balance.coinType.split('::').pop() ?? 'UNKNOWN'
-
-          // Normalize coinType to ensure proper format with leading zeros
-          // SUI addresses should be 66 chars (0x + 64 hex chars)
-          const normalizeCoinType = (coinType: string): string => {
-            const parts = coinType.split('::')
-            if (parts.length < 2) return coinType
-
-            const address = parts[0]
-            if (!address.startsWith('0x')) return coinType
-
-            // Pad address to 66 characters (0x + 64 hex digits)
-            const hexPart = address.slice(2)
-            const paddedHex = hexPart.padStart(64, '0')
-            parts[0] = `0x${paddedHex}`
-
-            return parts.join('::')
-          }
-
-          const normalizedCoinType = normalizeCoinType(balance.coinType)
+          const normalizedCoinType = this.normalizeCoinType(balance.coinType)
 
           const assetId = toAssetId({
             chainId: this.chainId,
@@ -521,6 +503,23 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SuiMainnet> {
     return
   }
 
+  // Normalize SUI coin type to ensure consistent AssetId generation
+  // SUI addresses should be 66 characters (0x + 64 hex chars) with leading zeros
+  // Example: 0x2::sui::SUI stays the same, but 0xdba3::usdc::USDC becomes 0x0000...0dba3::usdc::USDC
+  private normalizeCoinType(coinType: string): string {
+    const parts = coinType.split('::')
+    if (parts.length < 2) return coinType
+
+    const address = parts[0]
+    if (!address.startsWith('0x')) return coinType
+
+    const hexPart = address.slice(2)
+    const paddedHex = hexPart.padStart(64, '0')
+    parts[0] = `0x${paddedHex}`
+
+    return parts.join('::')
+  }
+
   private parseProgrammableTransactionBlock(tx: SuiTransactionBlockResponse): {
     transferAmount: string | undefined
     recipient: string | undefined
@@ -580,7 +579,9 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SuiMainnet> {
       if (!objectChange || !('objectType' in objectChange)) return undefined
 
       const match = objectChange.objectType.match(/0x2::coin::Coin<(.+)>/)
-      return match?.[1]
+      const extractedCoinType = match?.[1]
+
+      return extractedCoinType ? this.normalizeCoinType(extractedCoinType) : undefined
     })()
 
     return { transferAmount, recipient, coinType }
@@ -661,7 +662,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SuiMainnet> {
             : toAssetId({
                 chainId: this.chainId,
                 assetNamespace: ASSET_NAMESPACE.suiCoin,
-                assetReference: change.coinType,
+                assetReference: this.normalizeCoinType(change.coinType),
               })
 
         const amount = BigInt(change.amount)

@@ -578,6 +578,9 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SuiMainnet> {
           : (txHashOrTx as SuiTransactionBlockResponse)
 
       const sender = tx.transaction?.data.sender ?? ''
+
+      console.log(`[SuiChainAdapter.parseTx] FULL NODE RESPONSE:`, JSON.stringify(tx, null, 2))
+
       const txid = tx.digest
       const blockHeight = Number(tx.checkpoint ?? 0)
       const blockTime = tx.timestampMs ? Math.floor(Number(tx.timestampMs) / 1000) : 0
@@ -607,7 +610,21 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SuiMainnet> {
       const { transferAmount: ptbTransferAmount, recipient: ptbRecipient } =
         this.parseProgrammableTransactionBlock(tx)
 
+      console.log(
+        `[SuiChainAdapter.parseTx] PTB parsing result:`,
+        JSON.stringify({ txid, ptbTransferAmount, ptbRecipient }),
+      )
+
       const balanceChanges = tx.balanceChanges ?? []
+
+      console.log(
+        `[SuiChainAdapter.parseTx] Balance changes:`,
+        JSON.stringify({
+          txid,
+          balanceChangesCount: balanceChanges.length,
+          balanceChanges,
+        }),
+      )
 
       // Filter out balance changes that only represent gas fees
       const actualTransferChanges = balanceChanges.filter(change => {
@@ -715,6 +732,22 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SuiMainnet> {
       })()
 
       const transfers = [...transfersFromBalanceChanges, ...transfersFromPtb]
+
+      console.log(
+        `[SuiChainAdapter.parseTx] FINAL:`,
+        JSON.stringify({
+          txid,
+          feeValue: fee?.value,
+          transfersFromBalanceChanges: transfersFromBalanceChanges.length,
+          transfersFromPtb: transfersFromPtb.length,
+          totalTransfers: transfers.length,
+          transfers: transfers.map(t => ({
+            type: t.type,
+            assetId: t.assetId,
+            value: t.value,
+          })),
+        }),
+      )
 
       return {
         txid,

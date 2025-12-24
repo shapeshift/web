@@ -36,6 +36,7 @@ import { parseUrlDirect } from '@/lib/address/bip21'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from '@/lib/mixpanel/types'
+import { isStarknetChainAdapter } from '@/lib/utils/starknet'
 import { actionSlice } from '@/state/slices/actionSlice/actionSlice'
 import {
   ActionStatus,
@@ -258,18 +259,18 @@ export const Form: React.FC<SendFormProps> = ({ initialAssetId, input = '', acco
           'has isAccountDeployed:',
           'isAccountDeployed' in (adapter || {}),
         )
-        if (adapter && 'isAccountDeployed' in adapter) {
+        if (isStarknetChainAdapter(adapter)) {
           const fromAddress = fromAccountId(formAccountId).account
           console.log('Checking if address is deployed:', fromAddress)
-          const isDeployed = await (adapter as any).isAccountDeployed(fromAddress)
+          const isDeployed = await adapter.isAccountDeployed(fromAddress)
           console.log('Account deployed:', isDeployed)
           if (!isDeployed) {
             console.log('Opening deployment modal...')
             deployStarknetAccount.open({
               onConfirm: async () => {
                 try {
-                  const feeData = await adapter.getFeeData({})
-                  const maxFee = (feeData as any).fast.chainSpecific.maxFee
+                  const feeData = await adapter.getFeeData()
+                  const maxFee = feeData.fast.chainSpecific.maxFee
 
                   const accountMetadata = selectPortfolioAccountMetadataByAccountId(
                     store.getState(),
@@ -279,7 +280,7 @@ export const Form: React.FC<SendFormProps> = ({ initialAssetId, input = '', acco
                   )
                   const accountNumber = accountMetadata?.bip44Params.accountNumber ?? 0
 
-                  const deployTxHash = await (adapter as any).deployAccount({
+                  const deployTxHash = await adapter.deployAccount({
                     accountNumber,
                     wallet,
                     maxFee,
@@ -301,7 +302,7 @@ export const Form: React.FC<SendFormProps> = ({ initialAssetId, input = '', acco
                     duration: null,
                   })
 
-                  const starknetProvider = (adapter as any).getStarknetProvider()
+                  const starknetProvider = adapter.getStarknetProvider()
                   await starknetProvider.waitForTransaction(deployTxHash, {
                     retryInterval: 2000,
                     successStates: ['ACCEPTED_ON_L2', 'ACCEPTED_ON_L1'],

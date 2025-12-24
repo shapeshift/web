@@ -32,6 +32,7 @@ import { useNotificationToast } from '@/hooks/useNotificationToast'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { assertUnreachable } from '@/lib/utils'
+import { isStarknetChainAdapter } from '@/lib/utils/starknet'
 import { selectPortfolioAccountMetadataByAccountId, selectSwapById } from '@/state/slices/selectors'
 import { swapSlice } from '@/state/slices/swapSlice/swapSlice'
 import { selectFirstHopSellAccountId } from '@/state/slices/tradeInputSlice/selectors'
@@ -159,19 +160,19 @@ export const TradeFooterButton: FC<TradeFooterButtonProps> = ({
         if (chainId === starknetChainId) {
           const chainAdapterManager = getChainAdapterManager()
           const adapter = chainAdapterManager.get(chainId)
-          if (adapter && 'isAccountDeployed' in adapter) {
+          if (isStarknetChainAdapter(adapter)) {
             const fromAddress = fromAccountId(sellAccountId).account
-            const isDeployed = await (adapter as any).isAccountDeployed(fromAddress)
+            const isDeployed = await adapter.isAccountDeployed(fromAddress)
             if (!isDeployed) {
               deployStarknetAccount.open({
                 onConfirm: async () => {
                   try {
-                    const feeData = await adapter.getFeeData({})
-                    const maxFee = (feeData as any).fast.chainSpecific.maxFee
+                    const feeData = await adapter.getFeeData()
+                    const maxFee = feeData.fast.chainSpecific.maxFee
 
                     const accountNumber = accountMetadata?.bip44Params.accountNumber ?? 0
 
-                    const deployTxHash = await (adapter as any).deployAccount({
+                    const deployTxHash = await adapter.deployAccount({
                       accountNumber,
                       wallet,
                       maxFee,
@@ -193,7 +194,7 @@ export const TradeFooterButton: FC<TradeFooterButtonProps> = ({
                       duration: null,
                     })
 
-                    const starknetProvider = (adapter as any).getStarknetProvider()
+                    const starknetProvider = adapter.getStarknetProvider()
                     await starknetProvider.waitForTransaction(deployTxHash, {
                       retryInterval: 2000,
                       successStates: ['ACCEPTED_ON_L2', 'ACCEPTED_ON_L1'],

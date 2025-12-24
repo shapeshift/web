@@ -14,7 +14,7 @@ import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSin
 import { getHyperEvmTransactionStatus } from '@/lib/utils/hyperevm'
 import { getMonadTransactionStatus } from '@/lib/utils/monad'
 import { getPlasmaTransactionStatus } from '@/lib/utils/plasma'
-import { getStarknetTransactionStatus } from '@/lib/utils/starknet'
+import { getStarknetTransactionStatus, isStarknetChainAdapter } from '@/lib/utils/starknet'
 import { getSuiTransactionStatus } from '@/lib/utils/sui'
 import { getTronTransactionStatus } from '@/lib/utils/tron'
 import { actionSlice } from '@/state/slices/actionSlice/actionSlice'
@@ -201,11 +201,10 @@ export const useSendActionSubscriber = () => {
                 }
                 case KnownChainIds.StarknetMainnet: {
                   const adapter = getChainAdapterManager().get(chainId)
-                  if (adapter) {
-                    const starknetAdapter = adapter as any
+                  if (isStarknetChainAdapter(adapter)) {
                     const starknetTxStatus = await getStarknetTransactionStatus(
                       txHash,
-                      starknetAdapter,
+                      adapter,
                     )
 
                     // Handle failed transactions

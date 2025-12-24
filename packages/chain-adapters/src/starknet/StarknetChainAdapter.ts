@@ -26,6 +26,18 @@ import type {
 } from '../types'
 import { ChainAdapterDisplayName, ValidAddressResultType } from '../types'
 import { toAddressNList } from '../utils'
+import type {
+  RpcJsonResponse,
+  SignTxWithDetails,
+  StarknetBlockResult,
+  StarknetFeeEstimate,
+  StarknetNonceResult,
+  StarknetReceipt,
+  StarknetTransfer,
+  StarknetTxDetails,
+  StarknetTxHashResult,
+  TxHashOrObject,
+} from './types'
 
 export interface ChainAdapterArgs {
   rpcUrl: string
@@ -37,73 +49,6 @@ const STRK_TOKEN_ADDRESS = '0x04718f5a0fc34cc1af16a1cdee98ffb20c31f5cd61d6ab0720
 // OpenZeppelin account contract class hash - same as used in hdwallet
 const OPENZEPPELIN_ACCOUNT_CLASS_HASH =
   '0x05b4b537eaa2399e3aa99c4e2e0208ebd6c71bc1467938cd52c798c601e43564'
-
-// RPC Response types
-type RpcJsonResponse<T = unknown> = {
-  result?: T
-  error?: {
-    code: number
-    message: string
-  }
-}
-
-type StarknetNonceResult = string
-
-type StarknetFeeEstimate = {
-  l1_gas_consumed?: string
-  l1_gas_price?: string
-  l2_gas_consumed?: string
-  l2_gas_price?: string
-  l1_data_gas_consumed?: string
-  l1_data_gas_price?: string
-}
-
-type StarknetBlockResult = {
-  timestamp?: number
-}
-
-type StarknetTxHashResult = {
-  transaction_hash: string
-}
-
-type StarknetTxDetails = {
-  fromAddress: string
-  calldata: string[]
-  nonce: string
-  version: string
-  resourceBounds: {
-    l1_gas: { max_amount: bigint; max_price_per_unit: bigint }
-    l2_gas: { max_amount: bigint; max_price_per_unit: bigint }
-    l1_data_gas: { max_amount: bigint; max_price_per_unit: bigint }
-  }
-  chainId: string
-}
-
-type SignTxWithDetails = SignTx<KnownChainIds.StarknetMainnet> & {
-  _txDetails: StarknetTxDetails
-}
-
-type TxHashOrObject = string | { transaction_hash: string }
-
-type StarknetReceipt = {
-  block_number?: string | number
-  block_hash?: string
-  execution_status?: string
-  actual_fee?: { amount: string } | string | number
-  events?: {
-    keys: string[]
-    data: string[]
-    from_address: string
-  }[]
-}
-
-type StarknetTransfer = {
-  assetId: AssetId
-  from: string[]
-  to: string[]
-  type: TransferType
-  value: string
-}
 
 export class ChainAdapter implements IChainAdapter<KnownChainIds.StarknetMainnet> {
   static readonly rootBip44Params: RootBip44Params = {
@@ -514,11 +459,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.StarknetMainnet
           const dummyCall: Call = {
             contractAddress: tokenContractAddress,
             entrypoint: 'transfer',
-            calldata: [
-              normalizedTo,
-              dummyUint256.low.toString(),
-              dummyUint256.high.toString(),
-            ],
+            calldata: [normalizedTo, dummyUint256.low.toString(), dummyUint256.high.toString()],
           }
 
           const dummyCalldataArray = Array.isArray(dummyCall.calldata) ? dummyCall.calldata : []
@@ -537,15 +478,17 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.StarknetMainnet
             return data.toString()
           })
 
-          const nonceResponse = await this.provider.fetch('starknet_getNonce', ['pending', from])
-          const nonceResult: RpcJsonResponse<StarknetNonceResult> = await nonceResponse.json()
-          if (nonceResult.error) {
-            throw new Error(`Failed to fetch nonce: ${nonceResult.error.message}`)
+          // For fee estimation, use 0x0 nonce if account not deployed (will fail but gives estimate)
+          let nonce = '0x0'
+          try {
+            const nonceResponse = await this.provider.fetch('starknet_getNonce', ['pending', from])
+            const nonceResult: RpcJsonResponse<StarknetNonceResult> = await nonceResponse.json()
+            if (nonceResult.result) {
+              nonce = nonceResult.result
+            }
+          } catch {
+            // Account likely not deployed, use 0x0 for fee estimation
           }
-          if (!nonceResult.result) {
-            throw new Error('Nonce result is missing')
-          }
-          const nonce = nonceResult.result
 
           const estimateTx = {
             type: 'INVOKE',
@@ -622,19 +565,25 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.StarknetMainnet
         calldata: [normalizedTo, uint256Value.low.toString(), uint256Value.high.toString()],
       }
 
-      // Get account nonce using RPC directly
-      const nonceResponse = await this.provider.fetch('starknet_getNonce', ['pending', from])
-      const nonceResult: RpcJsonResponse<StarknetNonceResult> = await nonceResponse.json()
+      // Check if account is deployed first, use 0x0 nonce if not deployed
+      const isDeployed = await this.isAccountDeployed(from)
+      let nonce = '0x0'
 
-      if (nonceResult.error) {
-        throw new Error(`Failed to fetch nonce: ${nonceResult.error.message}`)
+      if (isDeployed) {
+        // Get account nonce using RPC directly
+        const nonceResponse = await this.provider.fetch('starknet_getNonce', ['pending', from])
+        const nonceResult: RpcJsonResponse<StarknetNonceResult> = await nonceResponse.json()
+
+        if (nonceResult.error) {
+          throw new Error(`Failed to fetch nonce: ${nonceResult.error.message}`)
+        }
+
+        if (!nonceResult.result) {
+          throw new Error('Nonce result is missing')
+        }
+
+        nonce = nonceResult.result
       }
-
-      if (!nonceResult.result) {
-        throw new Error('Nonce result is missing')
-      }
-
-      const nonce = nonceResult.result
 
       const chainIdHex = await this.provider.getChainId()
       const version = '0x3' as const // Use v3 for Lava RPC
@@ -1134,7 +1083,10 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.StarknetMainnet
                   })
                 }
               } catch (parseError) {
-                console.error('[StarknetChainAdapter.parseTx] Error parsing transfer event:', parseError)
+                console.error(
+                  '[StarknetChainAdapter.parseTx] Error parsing transfer event:',
+                  parseError,
+                )
               }
             }
           }

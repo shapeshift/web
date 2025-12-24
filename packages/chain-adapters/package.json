@@ -31,8 +31,8 @@
   "dependencies": {
     "@mysten/sui": "1.45.0",
     "@shapeshiftoss/caip": "workspace:^",
-    "@shapeshiftoss/hdwallet-core": "1.62.33-starknet.14",
-    "@shapeshiftoss/hdwallet-ledger": "1.62.33-starknet.14",
+    "@shapeshiftoss/hdwallet-core": "1.62.33",
+    "@shapeshiftoss/hdwallet-ledger": "1.62.33",
     "@shapeshiftoss/types": "workspace:^",
     "@shapeshiftoss/unchained-client": "workspace:^",
     "@shapeshiftoss/utils": "workspace:^",
@@ -47,7 +47,6 @@
     "multicoin-address-validator": "^0.5.12",
     "node-polyglot": "^2.4.0",
     "p-queue": "^8.0.1",
-    "starknet": "^9.3.0",
     "viem": "^2.40.3"
   },
   "devDependencies": {

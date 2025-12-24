@@ -20,6 +20,8 @@ import { getAssetServiceSync } from '@/lib/asset-service'
 
 const PORTALS_BASE_URL = getConfig().VITE_PORTALS_BASE_URL
 
+const getLocalAssetData = () => getAssetServiceSync().assetsById
+
 export const fetchPortalsTokens = async ({
   chainIds,
   page = 0,
@@ -132,7 +134,7 @@ export const portalTokenToAsset = ({
     assetNamespace: ASSET_NAMESPACE.erc20,
     assetReference: token.address,
   })
-  const asset = getAssetServiceSync().assetsById[assetId]
+  const asset = getLocalAssetData()[assetId]
 
   const explorerData = {
     explorer: nativeAsset.explorer,
@@ -165,7 +167,7 @@ export const portalTokenToAsset = ({
             assetNamespace: ASSET_NAMESPACE.erc20,
             assetReference: token.tokens[i],
           })
-          const underlyingAsset = getAssetServiceSync().assetsById[underlyingAssetId]
+          const underlyingAsset = getLocalAssetData()[underlyingAssetId]
           // Prioritise our own flavour of icons for that asset if available, else use upstream if present
           return underlyingAsset?.icon || maybeTokenImage(underlyingAssetsImage)
         }),
@@ -189,7 +191,7 @@ export const portalTokenToAsset = ({
           assetNamespace: ASSET_NAMESPACE.erc20,
           assetReference: underlyingToken,
         })
-        const underlyingAsset = getAssetServiceSync().assetsById[assetId]
+        const underlyingAsset = getLocalAssetData()[assetId]
         if (!underlyingAsset) return undefined
 
         // This doesn't generalize, but this'll do, this is only a visual hack to display native asset instead of wrapped

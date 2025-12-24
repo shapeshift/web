@@ -13,36 +13,6 @@ const mocks = vi.hoisted(() => ({
   post: vi.fn(),
 }))
 
-beforeAll(() => {
-  vi.stubGlobal(
-    'fetch',
-    vi.fn((url: string) => {
-      if (url.includes('asset-manifest.json')) {
-        return Promise.resolve({
-          json: () => Promise.resolve({ assetData: 'test', relatedAssetIndex: 'test' }),
-        } as Response)
-      }
-      if (url.includes('generatedAssetData.json')) {
-        return Promise.resolve({
-          json: () =>
-            Promise.resolve({
-              byId: {
-                [EthAsset.assetId]: EthAsset,
-              },
-              ids: [EthAsset.assetId],
-            }),
-        } as Response)
-      }
-      if (url.includes('relatedAssetIndex.json')) {
-        return Promise.resolve({
-          json: () => Promise.resolve({}),
-        } as Response)
-      }
-      return Promise.reject(new Error('Not found'))
-    }),
-  )
-})
-
 vi.mock('axios', () => {
   const mockAxios = {
     default: {

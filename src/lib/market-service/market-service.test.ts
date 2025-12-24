@@ -14,36 +14,6 @@ import { MarketServiceManager } from './market-service-manager'
 import { mockTcyMarketData, mockTcyPriceHistoryData } from './tcy/tcyMockData'
 
 import { getAssetService } from '@/lib/asset-service'
-import { bitcoin as btcAsset, ethereum as ethAsset } from '@/test/mocks/assets'
-
-vi.stubGlobal(
-  'fetch',
-  vi.fn((url: string) => {
-    if (url.includes('asset-manifest.json')) {
-      return Promise.resolve({
-        json: () => Promise.resolve({ assetData: 'test', relatedAssetIndex: 'test' }),
-      } as Response)
-    }
-    if (url.includes('generatedAssetData.json')) {
-      return Promise.resolve({
-        json: () =>
-          Promise.resolve({
-            byId: {
-              [btcAssetId]: btcAsset,
-              [ethAssetId]: ethAsset,
-            },
-            ids: [btcAssetId, ethAssetId],
-          }),
-      } as Response)
-    }
-    if (url.includes('relatedAssetIndex.json')) {
-      return Promise.resolve({
-        json: () => Promise.resolve({}),
-      } as Response)
-    }
-    return Promise.reject(new Error('Not found'))
-  }),
-)
 
 const mockCoingeckoFindAll = vi.fn().mockImplementation(() => mockCGFindAllData)
 const mockCoingeckoFindByAssetId = vi.fn().mockImplementation(() => mockCGFindByAssetIdData)

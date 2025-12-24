@@ -4,40 +4,11 @@ import { describe, expect, it, vi } from 'vitest'
 import { getMaybeThorchainSaversDepositQuote } from './utils'
 
 import { getAssetService } from '@/lib/asset-service'
-import { bitcoin as btcAsset } from '@/test/mocks/assets'
 
 const mocks = vi.hoisted(() => ({
   get: vi.fn(),
   post: vi.fn(),
 }))
-
-vi.stubGlobal(
-  'fetch',
-  vi.fn((url: string) => {
-    if (url.includes('asset-manifest.json')) {
-      return Promise.resolve({
-        json: () => Promise.resolve({ assetData: 'test', relatedAssetIndex: 'test' }),
-      } as Response)
-    }
-    if (url.includes('generatedAssetData.json')) {
-      return Promise.resolve({
-        json: () =>
-          Promise.resolve({
-            byId: {
-              [btcAssetId]: btcAsset,
-            },
-            ids: [btcAssetId],
-          }),
-      } as Response)
-    }
-    if (url.includes('relatedAssetIndex.json')) {
-      return Promise.resolve({
-        json: () => Promise.resolve({}),
-      } as Response)
-    }
-    return Promise.reject(new Error('Not found'))
-  }),
-)
 
 vi.mock('axios', () => {
   const mockAxios = {
@@ -104,7 +75,7 @@ describe('resolvers/thorchainSavers/utils', () => {
       )
 
       const assetService = await getAssetService()
-      const btcAssetMock = assetService.assetsById[btcAssetId]
+      const btcAssetMock = assetService.assetsById[btcAssetId]!
       const maybeSaversQuote = await getMaybeThorchainSaversDepositQuote({
         asset: btcAssetMock,
         amountCryptoBaseUnit: '10000000',
@@ -123,7 +94,7 @@ describe('resolvers/thorchainSavers/utils', () => {
       )
 
       const assetService = await getAssetService()
-      const btcAssetMock = assetService.assetsById[btcAssetId]
+      const btcAssetMock = assetService.assetsById[btcAssetId]!
       expect(
         (
           await getMaybeThorchainSaversDepositQuote({

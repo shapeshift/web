@@ -34,37 +34,7 @@ import { getAssetService } from '@/lib/asset-service'
 import { assets } from '@/state/slices/assetsSlice/assetsSlice'
 import { store } from '@/state/store'
 import { usdcAssetId } from '@/test/mocks/accounts'
-import { ethereum as ethAsset, usdc as usdcAsset } from '@/test/mocks/assets'
 import { mockChainAdapters } from '@/test/mocks/portfolio'
-
-vi.stubGlobal(
-  'fetch',
-  vi.fn((url: string) => {
-    if (url.includes('asset-manifest.json')) {
-      return Promise.resolve({
-        json: () => Promise.resolve({ assetData: 'test', relatedAssetIndex: 'test' }),
-      } as Response)
-    }
-    if (url.includes('generatedAssetData.json')) {
-      return Promise.resolve({
-        json: () =>
-          Promise.resolve({
-            byId: {
-              [ethAssetId]: ethAsset,
-              [usdcAssetId]: usdcAsset,
-            },
-            ids: [ethAssetId, usdcAssetId],
-          }),
-      } as Response)
-    }
-    if (url.includes('relatedAssetIndex.json')) {
-      return Promise.resolve({
-        json: () => Promise.resolve({}),
-      } as Response)
-    }
-    return Promise.reject(new Error('Not found'))
-  }),
-)
 
 beforeAll(async () => {
   const service = await getAssetService()

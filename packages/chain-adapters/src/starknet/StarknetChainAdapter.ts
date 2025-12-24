@@ -162,37 +162,25 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.StarknetMainnet
 
   async getAddress(input: GetAddressInput): Promise<string> {
     try {
-      console.log('[StarknetChainAdapter.getAddress] Input:', JSON.stringify(input))
       const { accountNumber, pubKey, wallet, showOnDevice = false } = input
 
-      if (pubKey) {
-        console.log('[StarknetChainAdapter.getAddress] Using provided pubKey:', pubKey)
-        return pubKey
-      }
+      if (pubKey) return pubKey
 
       if (!wallet) throw new Error('wallet is required')
       this.assertSupportsChain(wallet)
-      console.log('[StarknetChainAdapter.getAddress] Wallet supports chain')
 
       // TODO: Re-enable once Starknet is added to verifyLedgerAppOpen
       // await verifyLedgerAppOpen(this.chainId, wallet)
 
-      const bip44Params = this.getBip44Params({ accountNumber })
-      const addressNList = toAddressNList(bip44Params)
-      console.log('[StarknetChainAdapter.getAddress] BIP44 params:', JSON.stringify(bip44Params))
-      console.log('[StarknetChainAdapter.getAddress] Address N List:', JSON.stringify(addressNList))
-
       const address = await wallet.starknetGetAddress({
-        addressNList,
+        addressNList: toAddressNList(this.getBip44Params({ accountNumber })),
         showDisplay: showOnDevice,
       })
-      console.log('[StarknetChainAdapter.getAddress] Address from wallet:', address)
 
       if (!address) throw new Error('error getting address from wallet')
 
       return address
     } catch (err) {
-      console.error('[StarknetChainAdapter.getAddress] Error:', err)
       return ErrorHandler(err, {
         translation: 'chainAdapters.errors.getAddress',
       })
@@ -1034,14 +1022,12 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.StarknetMainnet
   async parseTx(txHashOrTx: TxHashOrObject, pubkey: string): Promise<Transaction> {
     try {
       const txHash = typeof txHashOrTx === 'string' ? txHashOrTx : txHashOrTx.transaction_hash
-      console.log('[StarknetChainAdapter.parseTx] Parsing tx:', txHash, 'for pubkey:', pubkey)
 
       // Use direct RPC call with error handling instead of getTransactionReceipt
       // This prevents throwing errors for pending transactions
       let receipt: StarknetReceipt | null = null
       try {
         receipt = (await this.provider.getTransactionReceipt(txHash)) as StarknetReceipt
-        console.log('[StarknetChainAdapter.parseTx] Receipt:', JSON.stringify(receipt, null, 2))
       } catch (receiptError: unknown) {
         // If transaction is not found or still pending, return a pending transaction
         const errorMessage =
@@ -1130,16 +1116,11 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.StarknetMainnet
       try {
         // Parse transfer events from receipt
         if (receipt.events && Array.isArray(receipt.events)) {
-          console.log('[StarknetChainAdapter.parseTx] Found', receipt.events.length, 'events')
-          // Look for Transfer events (Transfer selector: 0x99cd8bde557814842a3121e8ddfd433a539b8c9f14bf31ebf108d12e6196e9)
           const transferSelector = hash.getSelectorFromName('Transfer')
-          console.log('[StarknetChainAdapter.parseTx] Transfer selector:', transferSelector)
 
           for (const event of receipt.events) {
-            console.log('[StarknetChainAdapter.parseTx] Event:', JSON.stringify(event))
             // Check if this is a Transfer event
             if (event.keys && event.keys[0] === transferSelector) {
-              console.log('[StarknetChainAdapter.parseTx] Found Transfer event!')
               try {
                 // Starknet Transfer event structure:
                 // keys: [selector]
@@ -1150,31 +1131,20 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.StarknetMainnet
                 const amountHigh = event.data[3] ? BigInt(event.data[3]) : BigInt(0)
                 const amount = amountLow + (amountHigh << BigInt(128))
 
-                console.log('[StarknetChainAdapter.parseTx] Parsed transfer:', {
-                  from: fromAddress,
-                  to: toAddress,
-                  amount: amount.toString(),
-                  tokenAddress: event.from_address,
-                })
-
                 // Determine asset ID from the event contract address
                 const tokenAddress = event.from_address
                 // Normalize addresses for comparison (Starknet addresses may have inconsistent padding)
-                const normalizedTokenAddress = tokenAddress.toLowerCase()
-                const normalizedStrkAddress = STRK_TOKEN_ADDRESS.toLowerCase()
+                const normalizedTokenAddress = validateAndParseAddress(tokenAddress)
+                const normalizedStrkAddress = validateAndParseAddress(STRK_TOKEN_ADDRESS)
 
                 const assetId =
                   normalizedTokenAddress === normalizedStrkAddress
                     ? this.assetId
                     : toAssetId({
                         chainId: this.chainId,
-                        assetNamespace: 'erc20',
+                        assetNamespace: 'token',
                         assetReference: tokenAddress,
                       })
-
-                console.log('[StarknetChainAdapter.parseTx] Token address:', tokenAddress)
-                console.log('[StarknetChainAdapter.parseTx] Is STRK token:', normalizedTokenAddress === normalizedStrkAddress)
-                console.log('[StarknetChainAdapter.parseTx] Asset ID:', assetId)
 
                 // Normalize addresses for comparison (handles padding inconsistencies)
                 const normalizedFrom = validateAndParseAddress(fromAddress)
@@ -1183,28 +1153,24 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.StarknetMainnet
 
                 // Add send transfer if user is sender
                 if (normalizedFrom === normalizedPubkey) {
-                  const sendTransfer = {
+                  transfers.push({
                     assetId,
                     from: [fromAddress],
                     to: [toAddress],
                     type: TransferType.Send,
                     value: amount.toString(),
-                  }
-                  console.log('[StarknetChainAdapter.parseTx] Adding Send transfer:', JSON.stringify(sendTransfer))
-                  transfers.push(sendTransfer)
+                  })
                 }
 
                 // Add receive transfer if user is recipient
                 if (normalizedTo === normalizedPubkey) {
-                  const receiveTransfer = {
+                  transfers.push({
                     assetId,
                     from: [fromAddress],
                     to: [toAddress],
                     type: TransferType.Receive,
                     value: amount.toString(),
-                  }
-                  console.log('[StarknetChainAdapter.parseTx] Adding Receive transfer:', JSON.stringify(receiveTransfer))
-                  transfers.push(receiveTransfer)
+                  })
                 }
               } catch (parseError) {
                 console.error('[StarknetChainAdapter.parseTx] Error parsing transfer event:', parseError)
@@ -1215,8 +1181,6 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.StarknetMainnet
       } catch (txError) {
         console.debug('Could not fetch transaction details:', txError)
       }
-
-      console.log('[StarknetChainAdapter.parseTx] Final transfers:', JSON.stringify(transfers))
 
       return {
         txid: txHash,

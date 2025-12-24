@@ -128,6 +128,11 @@ For each swapper-related PR, execute **at least 2 successful swaps**:
 2. **Secondary swap direction**: Test reverse or alternative route
    - Example: USDC → ETH or ETH → BTC
 
+3. **Cross-chain swap (if applicable)**: Test bridge/cross-chain functionality
+   - Example: USDC on Arbitrum → New Chain (Plasma, SUI, HyperEVM, Monad, etc.)
+   - Example: ETH on Ethereum → Asset on new chain
+   - Verify cross-chain route aggregation and bridge selection
+
 #### Comprehensive Testing Checklist
 
 - [ ] **Quote Accuracy**: Verify quoted rates match executed rates (within acceptable slippage)
@@ -138,6 +143,12 @@ For each swapper-related PR, execute **at least 2 successful swaps**:
 - [ ] **Multi-chain Support**: For cross-chain swappers, test bridge functionality
 - [ ] **Price Impact**: Verify price impact calculations are accurate
 - [ ] **Slippage Tolerance**: Test swaps near slippage limits
+- [ ] **Transaction History Parsing**: Verify TX history displays correctly for new chains/swappers
+  - Navigate to asset page and verify TX appears in history
+  - Click on TX row to open details drawer
+  - Verify all TX details are correct (amount, fee, timestamp, addresses, status)
+  - Check that TX type is correctly identified (swap, send, receive, etc.)
+- [ ] **Cross-chain TX Tracking**: For bridge swaps, verify both source and destination TX appear
 
 ### Testing Methodology
 

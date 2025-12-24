@@ -34,7 +34,6 @@ import type {
   StarknetNonceResult,
   StarknetReceipt,
   StarknetTransfer,
-  StarknetTxDetails,
   StarknetTxHashResult,
   TxHashOrObject,
 } from './types'

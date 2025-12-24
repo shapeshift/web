@@ -53,5 +53,12 @@ export const getAssets = async (): Promise<Asset[]> => {
     modifiedAssets = modifiedAssets.concat(newModifiedTokens)
   }
 
-  return [starknetBaseAsset, ...modifiedAssets]
+  // Filter out native STRK token from CoinGecko to avoid duplicates
+  // CoinGecko includes STRK as starknet:SN_MAIN/token:0x04718...
+  // But we manually define it as starknetBaseAsset with slip44:9004
+  // This matches the Sui pattern for deduplicating native assets
+  const nativeStrkTokenPattern = /^starknet:SN_MAIN\/token:0x0*4718f5a0fc34cc1af16a1cdee98ffb20c31f5cd61d6ab07201858f4287c938d$/i
+  const tokensOnly = modifiedAssets.filter(asset => !nativeStrkTokenPattern.test(asset.assetId))
+
+  return [starknetBaseAsset, ...tokensOnly]
 }

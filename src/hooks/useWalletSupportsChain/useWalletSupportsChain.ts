@@ -19,6 +19,7 @@ import {
   plasmaChainId,
   polygonChainId,
   solanaChainId,
+  starknetChainId,
   suiChainId,
   thorchainChainId,
   tronChainId,
@@ -43,6 +44,7 @@ import {
   supportsPlasma,
   supportsPolygon,
   supportsSolana,
+  supportsStarknet,
   supportsSui,
   supportsThorchain,
   supportsTron,
@@ -143,6 +145,7 @@ export const walletSupportsChain = ({
   const isHyperEvmEnabled = selectFeatureFlag(store.getState(), 'HyperEvm')
   const isMonadEnabled = selectFeatureFlag(store.getState(), 'Monad')
   const isPlasmaEnabled = selectFeatureFlag(store.getState(), 'Plasma')
+  const isStarknetEnabled = selectFeatureFlag(store.getState(), 'Starknet')
 
   switch (chainId) {
     case btcChainId:
@@ -206,6 +209,8 @@ export const walletSupportsChain = ({
       return supportsTron(wallet)
     case suiChainId:
       return supportsSui(wallet)
+    case starknetChainId:
+      return isStarknetEnabled && supportsStarknet(wallet)
     default: {
       return false
     }

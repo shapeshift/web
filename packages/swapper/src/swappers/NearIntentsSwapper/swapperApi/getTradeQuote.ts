@@ -251,6 +251,14 @@ export const getTradeQuote = async (
           return { networkFeeCryptoBaseUnit: feeData.fast.txFee }
         }
 
+        case CHAIN_NAMESPACE.Starknet: {
+          const sellAdapter = deps.assertGetStarknetChainAdapter(sellAsset.chainId)
+
+          const feeData = await sellAdapter.getFeeData()
+
+          return { networkFeeCryptoBaseUnit: feeData.fast.txFee }
+        }
+
         default:
           throw new Error(`Unsupported chain namespace: ${chainNamespace}`)
       }

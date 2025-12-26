@@ -419,3 +419,19 @@ export const sui: Readonly<Asset> = Object.freeze({
   explorerTxLink: 'https://suiscan.xyz/mainnet/tx/',
   relatedAssetKey: null,
 })
+
+export const starknet: Readonly<Asset> = Object.freeze({
+  assetId: caip.starknetAssetId,
+  chainId: caip.starknetChainId,
+  name: 'Starknet',
+  networkName: 'Starknet',
+  symbol: 'STRK',
+  precision: 18,
+  color: '#EC796B',
+  networkColor: '#EC796B',
+  icon: 'https://assets.coingecko.com/coins/images/26433/large/starknet.png',
+  explorer: 'https://starkscan.co',
+  explorerAddressLink: 'https://starkscan.co/contract/',
+  explorerTxLink: 'https://starkscan.co/tx/',
+  relatedAssetKey: null,
+})

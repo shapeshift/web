@@ -19,6 +19,7 @@ import { assertGetChainAdapter } from '@/lib/utils'
 import { assertGetCosmosSdkChainAdapter } from '@/lib/utils/cosmosSdk'
 import { assertGetEvmChainAdapter } from '@/lib/utils/evm'
 import { assertGetSolanaChainAdapter } from '@/lib/utils/solana'
+import { assertGetStarknetChainAdapter } from '@/lib/utils/starknet'
 import { assertGetSuiChainAdapter } from '@/lib/utils/sui'
 import { thorchainBlockTimeMs } from '@/lib/utils/thorchain/constants'
 import { assertGetTronChainAdapter } from '@/lib/utils/tron'
@@ -52,6 +53,7 @@ export const createSwapperDeps = (state: ReduxState): SwapperDeps => ({
   assertGetSolanaChainAdapter,
   assertGetTronChainAdapter,
   assertGetSuiChainAdapter,
+  assertGetStarknetChainAdapter,
   fetchIsSmartContractAddressQuery,
   config: getConfig(),
   mixPanel: getMixPanel(),

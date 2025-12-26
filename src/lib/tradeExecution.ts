@@ -8,6 +8,7 @@ import type {
   RelayerTxDetailsArgs,
   SellTxHashArgs,
   SolanaTransactionExecutionInput,
+  StarknetTransactionExecutionInput,
   StatusArgs,
   SuiTransactionExecutionInput,
   SupportedTradeQuoteStepIndex,
@@ -33,6 +34,7 @@ import { EventEmitter } from 'node:events'
 import { assertGetCosmosSdkChainAdapter } from './utils/cosmosSdk'
 import { assertGetEvmChainAdapter } from './utils/evm'
 import { assertGetSolanaChainAdapter } from './utils/solana'
+import { assertGetStarknetChainAdapter } from './utils/starknet'
 import { assertGetSuiChainAdapter } from './utils/sui'
 import { assertGetTronChainAdapter } from './utils/tron'
 import { assertGetUtxoChainAdapter } from './utils/utxo'
@@ -89,6 +91,7 @@ export const fetchTradeStatus = async ({
     assertGetSolanaChainAdapter,
     assertGetTronChainAdapter,
     assertGetSuiChainAdapter,
+    assertGetStarknetChainAdapter,
     fetchIsSmartContractAddressQuery,
   })
 
@@ -640,6 +643,57 @@ export class TradeExecution {
       })
 
       return await swapper.executeSuiTransaction(unsignedTxResult, {
+        signAndBroadcastTransaction,
+      })
+    }
+
+    return await this._execWalletAgnostic(
+      {
+        swapperName,
+        tradeQuote,
+        stepIndex,
+        slippageTolerancePercentageDecimal,
+      },
+      buildSignBroadcast,
+    )
+  }
+
+  async execStarknetTransaction({
+    swapperName,
+    tradeQuote,
+    stepIndex,
+    slippageTolerancePercentageDecimal,
+    from,
+    signAndBroadcastTransaction,
+  }: StarknetTransactionExecutionInput) {
+    const buildSignBroadcast = async (
+      swapper: Swapper & SwapperApi,
+      {
+        tradeQuote,
+        chainId,
+        stepIndex,
+        slippageTolerancePercentageDecimal,
+        config,
+      }: CommonGetUnsignedTransactionArgs,
+    ) => {
+      if (!swapper.getUnsignedStarknetTransaction) {
+        throw Error('missing implementation for getUnsignedStarknetTransaction')
+      }
+      if (!swapper.executeStarknetTransaction) {
+        throw Error('missing implementation for executeStarknetTransaction')
+      }
+
+      const unsignedTxResult = await swapper.getUnsignedStarknetTransaction({
+        tradeQuote,
+        chainId,
+        stepIndex,
+        slippageTolerancePercentageDecimal,
+        from,
+        config,
+        assertGetStarknetChainAdapter,
+      })
+
+      return await swapper.executeStarknetTransaction(unsignedTxResult, {
         signAndBroadcastTransaction,
       })
     }

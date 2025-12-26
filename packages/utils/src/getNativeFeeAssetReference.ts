@@ -83,6 +83,13 @@ export const getNativeFeeAssetReference = (
           default:
             throw new Error(`Chain namespace ${chainNamespace} on ${chainReference} not supported.`)
         }
+      case CHAIN_NAMESPACE.Near:
+        switch (chainReference) {
+          case CHAIN_REFERENCE.NearMainnet:
+            return ASSET_REFERENCE.Near
+          default:
+            throw new Error(`Chain namespace ${chainNamespace} on ${chainReference} not supported.`)
+        }
       default:
         throw new Error(`Chain namespace ${chainNamespace} on ${chainReference} not supported.`)
     }

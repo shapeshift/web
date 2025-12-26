@@ -1,9 +1,17 @@
+import { KeyType, PublicKey } from '@near-js/crypto'
+import {
+  actionCreators,
+  createTransaction,
+  Signature,
+  SignedTransaction,
+} from '@near-js/transactions'
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import { ASSET_REFERENCE, nearAssetId, nearChainId } from '@shapeshiftoss/caip'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import type { Bip44Params, RootBip44Params } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
-import { TxStatus } from '@shapeshiftoss/unchained-client'
+import { TransferType, TxStatus } from '@shapeshiftoss/unchained-client'
+import bs58 from 'bs58check'
 
 import type { ChainAdapter as IChainAdapter } from '../api'
 import { ChainAdapterError, ErrorHandler } from '../error/ErrorHandler'
@@ -94,6 +102,41 @@ interface NearBroadcastResult {
       tokens_burnt: string
     }
   }
+}
+
+interface NearFullTxResult {
+  status: { SuccessValue?: string; Failure?: unknown }
+  transaction: {
+    hash: string
+    signer_id: string
+    receiver_id: string
+    actions: Array<
+      | { Transfer: { deposit: string } }
+      | { FunctionCall: { method_name: string; args: string; deposit: string } }
+      | { Delegate: unknown }
+      | { CreateAccount: unknown }
+      | { DeployContract: unknown }
+      | { Stake: unknown }
+      | { AddKey: unknown }
+      | { DeleteKey: unknown }
+      | { DeleteAccount: unknown }
+    >
+    public_key: string
+  }
+  transaction_outcome: {
+    block_hash: string
+    outcome: {
+      tokens_burnt: string
+      receipt_ids: string[]
+    }
+  }
+  receipts_outcome: Array<{
+    id: string
+    outcome: {
+      tokens_burnt: string
+      logs: string[]
+    }
+  }>
 }
 
 export class ChainAdapter implements IChainAdapter<KnownChainIds.NearMainnet> {
@@ -218,7 +261,6 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.NearMainnet> {
         pubkey,
       }
     } catch (err) {
-      // Account doesn't exist yet - return zero balance
       const errorMessage = err instanceof Error ? err.message : String(err)
       if (
         errorMessage.includes('does not exist') ||
@@ -245,8 +287,6 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.NearMainnet> {
 
   validateAddress(address: string): Promise<ValidAddressResult> {
     try {
-      // NEAR implicit accounts are 64 character hex strings (lowercase)
-      // Named accounts contain letters, numbers, underscores, and periods
       const isImplicitAccount = /^[0-9a-f]{64}$/.test(address)
       const isNamedAccount = /^[a-z0-9._-]+$/.test(address) && address.length <= 64
 
@@ -270,42 +310,42 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.NearMainnet> {
     try {
       const { from, accountNumber, to, value } = input
 
+      // Convert hex public key to bytes
+      const pubKeyBytes = Buffer.from(from, 'hex')
+      const publicKey = new PublicKey({ keyType: KeyType.ED25519, data: pubKeyBytes })
+
       // Get current nonce from access key
+      const pubKeyBase58 = bs58.encode(pubKeyBytes)
       const accessKeyResult = await this.rpcCall<NearAccessKeyResult>('query', {
         request_type: 'view_access_key',
         finality: 'final',
         account_id: from,
-        public_key: `ed25519:${this.hexToBase58(from)}`,
+        public_key: `ed25519:${pubKeyBase58}`,
       })
 
-      const nonce = accessKeyResult.nonce + 1
+      const nonce = BigInt(accessKeyResult.nonce + 1)
 
       // Get latest block hash for transaction
       const statusResult = await this.rpcCall<{ sync_info: { latest_block_hash: string } }>(
         'status',
         [],
       )
-      const blockHash = statusResult.sync_info.latest_block_hash
+      const blockHashBase58 = statusResult.sync_info.latest_block_hash
+      const blockHash = bs58.decode(blockHashBase58)
 
-      // Build transaction data
-      // Note: Full Borsh serialization is handled by the wallet/hdwallet
-      const txData = {
-        signerId: from,
-        publicKey: from,
-        nonce,
-        receiverId: to,
-        blockHash,
-        actions: [
-          {
-            type: 'Transfer',
-            amount: value,
-          },
-        ],
-      }
+      // Build transfer action
+      const actions = [actionCreators.transfer(BigInt(value))]
+
+      // Create transaction using @near-js/transactions
+      const transaction = createTransaction(from, publicKey, to, nonce, actions, blockHash)
+
+      // Borsh-encode the transaction
+      const txBytes = transaction.encode()
 
       return {
         addressNList: toAddressNList(this.getBip44Params({ accountNumber })),
-        txData,
+        transaction,
+        txBytes,
       }
     } catch (err) {
       return ErrorHandler(err, {
@@ -336,23 +376,42 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.NearMainnet> {
       if (!wallet) throw new Error('wallet is required')
       this.assertSupportsChain(wallet)
 
-      // The txData contains the transaction info
-      // HDWallet will serialize with Borsh and sign
+      // Pass Borsh-encoded transaction bytes to hdwallet for signing
       const signedTx = await wallet.nearSignTx({
         addressNList: txToSign.addressNList,
-        txBytes: new Uint8Array(), // Placeholder - actual implementation in hdwallet
+        txBytes: txToSign.txBytes,
       })
 
       if (!signedTx?.signature || !signedTx?.publicKey) {
         throw new Error('error signing tx - missing signature or publicKey')
       }
 
-      // Return signed transaction data for broadcasting
-      return JSON.stringify({
-        ...txToSign.txData,
-        signature: signedTx.signature,
-        publicKey: signedTx.publicKey,
+      // Convert hex signature to bytes (64 bytes for Ed25519)
+      const signatureBytes = Buffer.from(signedTx.signature, 'hex')
+
+      // Create ED25519Signature for NEAR
+      class ED25519Signature {
+        keyType = KeyType.ED25519
+        data: Uint8Array
+        constructor(data: Uint8Array) {
+          this.data = data
+        }
+      }
+
+      // Build Signature wrapper
+      const signature = new Signature(new ED25519Signature(signatureBytes))
+
+      // Build SignedTransaction
+      const signedTransaction = new SignedTransaction({
+        transaction: txToSign.transaction,
+        signature,
       })
+
+      // Borsh-encode the signed transaction and return as base64
+      const signedTxBytes = signedTransaction.encode()
+      const signedTxBase64 = Buffer.from(signedTxBytes).toString('base64')
+
+      return signedTxBase64
     } catch (err) {
       return ErrorHandler(err, {
         translation: 'chainAdapters.errors.signTransaction',
@@ -366,8 +425,12 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.NearMainnet> {
     signTxInput,
   }: SignAndBroadcastTransactionInput<KnownChainIds.NearMainnet>): Promise<string> {
     try {
-      const signedTx = await this.signTransaction(signTxInput as SignTxInput<NearSignTx>)
-      return await this.broadcastTransaction({ hex: signedTx, senderAddress, receiverAddress })
+      const signedTxBase64 = await this.signTransaction(signTxInput as SignTxInput<NearSignTx>)
+      return await this.broadcastTransaction({
+        hex: signedTxBase64,
+        senderAddress,
+        receiverAddress,
+      })
     } catch (err) {
       return ErrorHandler(err, {
         translation: 'chainAdapters.errors.signAndBroadcastTransaction',
@@ -377,13 +440,11 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.NearMainnet> {
 
   async broadcastTransaction(input: BroadcastTransactionInput): Promise<string> {
     try {
-      const { hex } = input
-      const txData = JSON.parse(hex)
+      const { hex: signedTxBase64 } = input
 
-      // NEAR expects base64-encoded signed transaction
-      // For now, we'll use the async broadcast
+      // NEAR RPC expects base64-encoded signed transaction
       const result = await this.rpcCall<NearBroadcastResult>('broadcast_tx_commit', [
-        txData.signedTxBase64,
+        signedTxBase64,
       ])
 
       return result.transaction.hash
@@ -401,13 +462,12 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.NearMainnet> {
     try {
       const gasPriceResult = await this.rpcCall<NearGasPriceResult>('gas_price', [null])
 
-      const gasPrice = gasPriceResult.gas_price // in yoctoNEAR
+      const gasPrice = gasPriceResult.gas_price
 
       // Typical transfer uses ~2.5 TGas (2.5e12 gas units)
-      const estimatedGas = 2_500_000_000_000n // 2.5 TGas
+      const estimatedGas = 2_500_000_000_000n
       const gasPriceBigInt = BigInt(gasPrice)
 
-      // Fee = gas * gasPrice
       const txFee = (estimatedGas * gasPriceBigInt).toString()
 
       return {
@@ -463,19 +523,79 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.NearMainnet> {
 
   async parseTx(txHash: string, pubkey: string): Promise<Transaction> {
     try {
-      // For second-class citizen, we return minimal tx info
-      const status = await this.getTransactionStatus(txHash)
+      const result = await this.rpcCall<NearFullTxResult>('tx', [txHash, 'dontcare'])
+
+      const status = (() => {
+        if (result.status.SuccessValue !== undefined) return TxStatus.Confirmed
+        if (result.status.Failure) return TxStatus.Failed
+        return TxStatus.Pending
+      })()
+
+      const tx = result.transaction
+      const sender = tx.signer_id
+      const receiver = tx.receiver_id
+      const blockHash = result.transaction_outcome.block_hash
+
+      const totalTokensBurnt =
+        BigInt(result.transaction_outcome.outcome.tokens_burnt) +
+        result.receipts_outcome.reduce(
+          (sum, receipt) => sum + BigInt(receipt.outcome.tokens_burnt),
+          0n,
+        )
+
+      const fee = {
+        assetId: this.assetId,
+        value: totalTokensBurnt.toString(),
+      }
+
+      const transfers: {
+        assetId: string
+        from: string[]
+        to: string[]
+        type: TransferType
+        value: string
+      }[] = []
+
+      for (const action of tx.actions) {
+        if ('Transfer' in action) {
+          const deposit = action.Transfer.deposit
+          const isSend = sender === pubkey
+          const isReceive = receiver === pubkey
+
+          if (isSend) {
+            transfers.push({
+              assetId: this.assetId,
+              from: [sender],
+              to: [receiver],
+              type: TransferType.Send,
+              value: deposit,
+            })
+          }
+          if (isReceive) {
+            transfers.push({
+              assetId: this.assetId,
+              from: [sender],
+              to: [receiver],
+              type: TransferType.Receive,
+              value: deposit,
+            })
+          }
+        }
+      }
+
+      const nep141Transfers = this.parseNep141Transfers(result, pubkey)
+      transfers.push(...nep141Transfers)
 
       return {
         txid: txHash,
         blockHeight: 0,
         blockTime: Math.floor(Date.now() / 1000),
-        blockHash: undefined,
+        blockHash,
         chainId: this.chainId,
         confirmations: status === TxStatus.Confirmed ? 1 : 0,
         status,
-        fee: undefined,
-        transfers: [],
+        fee,
+        transfers,
         pubkey,
       }
     } catch (err) {
@@ -485,12 +605,86 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.NearMainnet> {
     }
   }
 
-  // Helper to convert hex to base58 for NEAR public key format
-  private hexToBase58(hex: string): string {
-    // NEAR public keys are in format ed25519:<base58>
-    // For implicit accounts, the address IS the hex of the public key
-    // We need to convert back to base58 for the access key lookup
-    // This is a simplified implementation - full base58 encoding needed
-    return hex // Placeholder - actual implementation would do base58 encoding
+  private parseNep141Transfers(
+    result: NearFullTxResult,
+    pubkey: string,
+  ): {
+    assetId: string
+    from: string[]
+    to: string[]
+    type: TransferType
+    value: string
+  }[] {
+    const transfers: {
+      assetId: string
+      from: string[]
+      to: string[]
+      type: TransferType
+      value: string
+    }[] = []
+
+    let tokenContractId = result.transaction.receiver_id
+    for (const action of result.transaction.actions) {
+      if ('FunctionCall' in action) {
+        const method = action.FunctionCall.method_name
+        if (method === 'ft_transfer' || method === 'ft_transfer_call') {
+          break
+        }
+      }
+      if ('Delegate' in action) {
+        const delegateAction = action.Delegate as {
+          delegate_action?: { receiver_id?: string; actions?: unknown[] }
+        }
+        if (delegateAction.delegate_action?.receiver_id) {
+          tokenContractId = delegateAction.delegate_action.receiver_id
+        }
+      }
+    }
+
+    for (const receipt of result.receipts_outcome) {
+      for (const log of receipt.outcome.logs) {
+        if (!log.startsWith('EVENT_JSON:')) continue
+
+        try {
+          const eventJson = JSON.parse(log.slice('EVENT_JSON:'.length))
+          if (eventJson.standard !== 'nep141') continue
+          if (eventJson.event !== 'ft_transfer') continue
+
+          for (const data of eventJson.data || []) {
+            const from = data.old_owner_id
+            const to = data.new_owner_id
+            const amount = data.amount
+
+            if (!from || !to || !amount) continue
+
+            const isSend = from === pubkey
+            const isReceive = to === pubkey
+
+            if (isSend) {
+              transfers.push({
+                assetId: `${this.chainId}/nep141:${tokenContractId}`,
+                from: [from],
+                to: [to],
+                type: TransferType.Send,
+                value: amount,
+              })
+            }
+            if (isReceive) {
+              transfers.push({
+                assetId: `${this.chainId}/nep141:${tokenContractId}`,
+                from: [from],
+                to: [to],
+                type: TransferType.Receive,
+                value: amount,
+              })
+            }
+          }
+        } catch {
+          continue
+        }
+      }
+    }
+
+    return transfers
   }
 }

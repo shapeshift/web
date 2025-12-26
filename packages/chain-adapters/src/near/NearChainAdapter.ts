@@ -56,11 +56,12 @@ interface NearRpcResponse<T> {
   result?: T
   error?: {
     name: string
-    cause: {
+    cause?: {
       name: string
       info?: Record<string, unknown>
     }
     message?: string
+    data?: string
   }
 }
 
@@ -178,7 +179,9 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.NearMainnet> {
     const data = (await response.json()) as NearRpcResponse<T>
 
     if (data.error) {
-      throw new Error(data.error.message ?? data.error.name ?? 'NEAR RPC error')
+      const errorDetail =
+        data.error.data ?? data.error.cause?.name ?? data.error.message ?? data.error.name
+      throw new Error(typeof errorDetail === 'string' ? errorDetail : 'NEAR RPC error')
     }
 
     if (data.result === undefined) {

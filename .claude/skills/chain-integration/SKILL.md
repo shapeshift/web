@@ -1935,6 +1935,33 @@ case plasmaChainId:
 
 **Note**: This affects ALL wallet types (Native, Ledger, Trezor, MetaMask), not just one wallet.
 
+### Gotcha 18: Missing getNativeFeeAssetReference Case (RUNTIME CRASH!)
+
+**Problem**: App crashes with error:
+```
+Error: Chain namespace [chain] on mainnet not supported.
+    at getNativeFeeAssetReference.ts:XX:XX
+```
+
+**Root Cause**: Missing chainNamespace case in `getNativeFeeAssetReference()` function
+**File**: `packages/utils/src/getNativeFeeAssetReference.ts`
+
+**Solution**:
+Add case to the switch statement:
+```typescript
+case CHAIN_NAMESPACE.[ChainName]:
+  switch (chainReference) {
+    case CHAIN_REFERENCE.[ChainName]Mainnet:
+      return ASSET_REFERENCE.[ChainName]
+    default:
+      throw new Error(`Chain namespace ${chainNamespace} on ${chainReference} not supported.`)
+  }
+```
+
+**Why**: This function maps chainId to the native fee asset reference. Without it, any selector that needs the fee asset for your chain will throw and crash the app.
+
+**Note**: This is called early in the app initialization, so it will crash immediately when the app tries to load accounts for your chain.
+
 ---
 
 ## Quick Reference: File Checklist

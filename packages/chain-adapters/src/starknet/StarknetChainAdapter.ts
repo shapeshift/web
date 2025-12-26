@@ -348,7 +348,16 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.StarknetMainnet
         nonce,
         nonceDataAvailabilityMode: 0, // L1 = 0
         feeDataAvailabilityMode: 0, // L1 = 0
-        resourceBounds,
+        resourceBounds: {
+          l1_gas: {
+            max_amount: num.toHex(resourceBounds.l1_gas.max_amount),
+            max_price_per_unit: num.toHex(resourceBounds.l1_gas.max_price_per_unit),
+          },
+          l2_gas: {
+            max_amount: num.toHex(resourceBounds.l2_gas.max_amount),
+            max_price_per_unit: num.toHex(resourceBounds.l2_gas.max_price_per_unit),
+          },
+        },
         tip: '0x0',
         paymasterData: [],
       })
@@ -682,7 +691,16 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.StarknetMainnet
         nonce,
         nonceDataAvailabilityMode: 0, // L1 = 0
         feeDataAvailabilityMode: 0, // L1 = 0
-        resourceBounds,
+        resourceBounds: {
+          l1_gas: {
+            max_amount: num.toHex(resourceBounds.l1_gas.max_amount),
+            max_price_per_unit: num.toHex(resourceBounds.l1_gas.max_price_per_unit),
+          },
+          l2_gas: {
+            max_amount: num.toHex(resourceBounds.l2_gas.max_amount),
+            max_price_per_unit: num.toHex(resourceBounds.l2_gas.max_price_per_unit),
+          },
+        },
         tip: '0x0',
         paymasterData: [],
         accountDeploymentData: [],

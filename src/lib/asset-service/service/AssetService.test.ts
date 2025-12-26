@@ -3,10 +3,14 @@ import type { AxiosInstance } from 'axios'
 import axios from 'axios'
 import { beforeAll, describe, expect, it, vi } from 'vitest'
 
-import { getAssetService } from './AssetService'
+import { getAssetService, initAssetService } from './AssetService'
 import { descriptions } from './descriptions'
 
 import { ethereum as EthAsset } from '@/test/mocks/assets'
+
+beforeAll(async () => {
+  await initAssetService()
+})
 
 const mocks = vi.hoisted(() => ({
   get: vi.fn(),
@@ -62,7 +66,7 @@ vi.mock('./descriptions', () => ({
 describe('AssetService', () => {
   describe('description', () => {
     it('should return the overridden description if it exists - english default', async () => {
-      const assetService = await getAssetService()
+      const assetService = getAssetService()
 
       await expect(assetService.description(EthAsset.assetId)).resolves.toEqual({
         description: 'overridden en description',
@@ -71,7 +75,7 @@ describe('AssetService', () => {
     })
 
     it('should return the overridden description if it exists - locale', async () => {
-      const assetService = await getAssetService()
+      const assetService = getAssetService()
 
       await expect(assetService.description(EthAsset.assetId, 'es')).resolves.toEqual({
         description: 'overridden es description',
@@ -84,7 +88,7 @@ describe('AssetService', () => {
       const assetDescriptions = descriptions[locale]
       delete assetDescriptions[EthAsset.assetId]
 
-      const assetService = await getAssetService()
+      const assetService = getAssetService()
       const description = { en: 'a blue fox' }
       vi.mocked(mockedAxios.get).mockResolvedValue({ data: { description } })
       await expect(assetService.description(EthAsset.assetId)).resolves.toEqual({
@@ -97,7 +101,7 @@ describe('AssetService', () => {
       const assetDescriptions = descriptions[locale]
       delete assetDescriptions[EthAsset.assetId]
 
-      const assetService = await getAssetService()
+      const assetService = getAssetService()
       const description = { en: 'a blue fox', es: '¿Qué dice el zorro?' }
       vi.mocked(mockedAxios.get).mockResolvedValue({ data: { description } })
       await expect(assetService.description(EthAsset.assetId, locale)).resolves.toEqual({
@@ -106,7 +110,7 @@ describe('AssetService', () => {
     })
 
     it('should throw if not found', async () => {
-      const assetService = await getAssetService()
+      const assetService = getAssetService()
       vi.mocked(mockedAxios.get).mockRejectedValue({ data: null })
       const tokenData: Asset = {
         assetId: 'eip155:1/erc20:0x1da00b6fc705f2ce4c25d7e7add25a3cc045e54a',

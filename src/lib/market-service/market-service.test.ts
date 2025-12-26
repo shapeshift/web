@@ -13,7 +13,7 @@ import { mockFoxyMarketData, mockFoxyPriceHistoryData } from './foxy/foxyMockDat
 import { MarketServiceManager } from './market-service-manager'
 import { mockTcyMarketData, mockTcyPriceHistoryData } from './tcy/tcyMockData'
 
-import { getAssetService } from '@/lib/asset-service'
+import { initAssetService } from '@/lib/asset-service'
 
 const mockCoingeckoFindAll = vi.fn().mockImplementation(() => mockCGFindAllData)
 const mockCoingeckoFindByAssetId = vi.fn().mockImplementation(() => mockCGFindByAssetIdData)
@@ -119,7 +119,7 @@ describe('market service', () => {
   }
 
   beforeAll(async () => {
-    await getAssetService()
+    await initAssetService()
   })
 
   describe('findAll', () => {

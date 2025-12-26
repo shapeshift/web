@@ -3,7 +3,7 @@ import { plasma } from '@shapeshiftoss/chain-adapters'
 import { KnownChainIds } from '@shapeshiftoss/types'
 
 import { getConfig } from '@/config'
-import { getAssetServiceSync } from '@/lib/asset-service'
+import { getAssetService } from '@/lib/asset-service'
 import type { Plugins } from '@/plugins/types'
 
 // eslint-disable-next-line import/no-default-export
@@ -19,7 +19,7 @@ export default function register(): Plugins {
             [
               KnownChainIds.PlasmaMainnet,
               () => {
-                const assetService = getAssetServiceSync()
+                const assetService = getAssetService()
                 const knownTokens = assetService.assets
                   .filter(asset => {
                     const { chainId, assetNamespace } = fromAssetId(asset.assetId)

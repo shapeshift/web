@@ -16,11 +16,11 @@ import type {
 
 import { getConfig } from '@/config'
 import { queryClient } from '@/context/QueryClientProvider/queryClient'
-import { getAssetServiceSync } from '@/lib/asset-service'
+import { getAssetService } from '@/lib/asset-service'
 
 const PORTALS_BASE_URL = getConfig().VITE_PORTALS_BASE_URL
 
-const getLocalAssetData = () => getAssetServiceSync().assetsById
+const getLocalAssetData = () => getAssetService().assetsById
 
 export const fetchPortalsTokens = async ({
   chainIds,
@@ -221,7 +221,7 @@ export const portalTokenToAsset = ({
 
   return {
     ...explorerData,
-    color: getAssetServiceSync().assetsById[assetId]?.color ?? '#FFFFFF',
+    color: getAssetService().assetsById[assetId]?.color ?? '#FFFFFF',
     // This looks weird but we need this - l.165 check above nulls the type safety of this object, so we cast it back
     ...(iconOrIcons as { icon: string } | { icons: string[]; icon: undefined }),
     name,

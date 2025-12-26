@@ -4,8 +4,10 @@ import { createApi } from '@reduxjs/toolkit/query/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import type { Asset, AssetsByIdPartial, PartialRecord } from '@shapeshiftoss/types'
 
-import { getAssetServiceSync } from '@/lib/asset-service'
+import { getAssetService } from '@/lib/asset-service'
 import { BASE_RTK_CREATE_API_CONFIG } from '@/state/apis/const'
+
+const service = getAssetService()
 
 export type AssetsState = {
   byId: AssetsByIdPartial
@@ -13,11 +15,10 @@ export type AssetsState = {
   relatedAssetIndex: PartialRecord<AssetId, AssetId[]>
 }
 
-// Initialize with empty state - will be populated after AssetService init
 export const initialState: AssetsState = {
-  byId: {},
-  ids: [],
-  relatedAssetIndex: {},
+  byId: service.assetsById,
+  ids: service.assetIds,
+  relatedAssetIndex: service.relatedAssetIndex,
 }
 
 export const defaultAsset: Asset = {
@@ -88,7 +89,7 @@ export const assetApi = createApi({
         const originalAsset = byIdOriginal[assetId]
 
         try {
-          const service = getAssetServiceSync()
+          const service = getAssetService()
           const { description, isTrusted } = await service.description(assetId, selectedLocale)
           const byId = {
             [assetId]: originalAsset && Object.assign(originalAsset, { description, isTrusted }),

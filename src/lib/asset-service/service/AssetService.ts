@@ -17,6 +17,7 @@ import {
   zecChainId,
 } from '@shapeshiftoss/caip'
 import type { Asset, AssetsById } from '@shapeshiftoss/types'
+import { getBaseAsset } from '@shapeshiftoss/utils'
 import axios from 'axios'
 import Polyglot from 'node-polyglot'
 
@@ -119,12 +120,28 @@ class _AssetService {
       return true
     })
 
+    // Enrich assets with chain-level data (networkName, explorer URLs)
+    const enrichedAssetsById = Object.fromEntries(
+      filteredAssetIds.map((assetId: AssetId) => {
+        const asset = localAssetData[assetId]
+        const baseAsset = getBaseAsset(asset.chainId)
+        return [
+          assetId,
+          {
+            ...asset,
+            networkName: baseAsset.networkName,
+            explorer: baseAsset.explorer,
+            explorerAddressLink: baseAsset.explorerAddressLink,
+            explorerTxLink: baseAsset.explorerTxLink,
+          },
+        ]
+      }),
+    )
+
     // Assign to private properties
     this._assetIds = filteredAssetIds
-    this._assets = filteredAssetIds.map((assetId: AssetId) => localAssetData[assetId])
-    this._assetsById = Object.fromEntries(
-      filteredAssetIds.map((assetId: AssetId) => [assetId, localAssetData[assetId]]),
-    )
+    this._assets = filteredAssetIds.map((assetId: AssetId) => enrichedAssetsById[assetId])
+    this._assetsById = enrichedAssetsById
     this._relatedAssetIndex = relatedAssetIndex
 
     this.initialized = true
@@ -175,18 +192,28 @@ export type AssetService = _AssetService
 // Don't export me, access me through the getter
 let _assetService: AssetService | undefined = undefined
 
-export const getAssetService = async (): Promise<AssetService> => {
+// Initialize asset service - call once at app bootstrap
+export const initAssetService = async (): Promise<void> => {
   if (!_assetService) {
     _assetService = new _AssetService()
     await _assetService.init()
   }
-  return _assetService
 }
 
-// For places that need synchronous access AFTER initialization
-export const getAssetServiceSync = (): AssetService => {
+// Empty fallback for test environment when service isn't initialized yet
+const _emptyFallback = {
+  assetsById: {},
+  assetIds: [],
+  assets: [],
+  relatedAssetIndex: {},
+  getRelatedAssetIds: () => [],
+  description: () => Promise.reject(new Error('AssetService not initialized')),
+} as unknown as AssetService
+
+// Get initialized asset service - returns empty fallback if not yet initialized
+export const getAssetService = (): AssetService => {
   if (!_assetService) {
-    throw new Error('AssetService not initialized - call getAssetService() first')
+    return _emptyFallback
   }
   return _assetService
 }

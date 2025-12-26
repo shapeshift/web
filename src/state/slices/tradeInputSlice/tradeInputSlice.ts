@@ -1,4 +1,5 @@
 import type { PayloadAction } from '@reduxjs/toolkit'
+import { btcAssetId, ethAssetId } from '@shapeshiftoss/caip'
 
 import { defaultAsset } from '../assetsSlice/assetsSlice'
 import type {
@@ -7,14 +8,18 @@ import type {
 } from '../common/tradeInputBase/createTradeInputBaseSlice'
 import { createTradeInputBaseSlice } from '../common/tradeInputBase/createTradeInputBaseSlice'
 
+import { getAssetService } from '@/lib/asset-service'
+
+const service = getAssetService()
+
 export type TradeInputState = {
   slippagePreferencePercentage: string | undefined
   sellAssetUtxoChangeAddress: string | undefined
 } & TradeInputBaseState
 
 const initialState: TradeInputState = {
-  buyAsset: defaultAsset,
-  sellAsset: defaultAsset,
+  buyAsset: service.assetsById[btcAssetId] ?? defaultAsset,
+  sellAsset: service.assetsById[ethAssetId] ?? defaultAsset,
   sellAccountId: undefined,
   buyAccountId: undefined,
   sellAmountCryptoPrecision: '0',

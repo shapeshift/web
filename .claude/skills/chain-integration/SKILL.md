@@ -1962,6 +1962,42 @@ case CHAIN_NAMESPACE.[ChainName]:
 
 **Note**: This is called early in the app initialization, so it will crash immediately when the app tries to load accounts for your chain.
 
+### Gotcha 19: Missing accountToPortfolio Case (ACCOUNT NOT VISIBLE!)
+
+**Problem**: Account discovery succeeds (getAccount returns valid data) but account doesn't appear in the UI anywhere.
+
+**Root Cause**: Missing or placeholder implementation in `accountToPortfolio()` function
+**File**: `src/state/slices/portfolioSlice/utils/index.ts`
+
+**Symptom**: You can verify getAccount is returning correct data with console.log, but the account just doesn't show up in the portfolio UI.
+
+**Solution**:
+Find the switch statement for `chainNamespace` and implement your chain's case:
+```typescript
+case CHAIN_NAMESPACE.[ChainName]: {
+  const chainAccount = account as Account<KnownChainIds.[ChainName]Mainnet>
+  const { chainId, assetId, pubkey } = account
+  const accountId = toAccountId({ chainId, account: pubkey })
+
+  portfolio.accounts.ids.push(accountId)
+  portfolio.accounts.byId[accountId] = { assetIds: [assetId], hasActivity }
+  portfolio.accountBalances.ids.push(accountId)
+  portfolio.accountBalances.byId[accountId] = { [assetId]: account.balance }
+
+  // Add token support if applicable
+  chainAccount.chainSpecific.tokens?.forEach(token => {
+    if (!assetIds.includes(token.assetId)) return
+    if (bnOrZero(token.balance).gt(0)) portfolio.accounts.byId[accountId].hasActivity = true
+    portfolio.accounts.byId[accountId].assetIds.push(token.assetId)
+    portfolio.accountBalances.byId[accountId][token.assetId] = token.balance
+  })
+
+  break
+}
+```
+
+**Why**: This function converts chain adapter account data into the Redux portfolio state structure. Without it, the account data is fetched but never stored, making the account invisible.
+
 ---
 
 ## Quick Reference: File Checklist

@@ -3,6 +3,7 @@ import {
   hyperEvmAssetId,
   mayachainAssetId,
   monadAssetId,
+  nearAssetId,
   plasmaAssetId,
   suiAssetId,
   thorchainAssetId,
@@ -36,6 +37,7 @@ export const queryFn = async () => {
   // add second-class citizen chains to popular assets for discoverability
   if (enabledFlags.HyperEvm) assetIds.push(hyperEvmAssetId)
   if (enabledFlags.Monad) assetIds.push(monadAssetId)
+  if (enabledFlags.Near) assetIds.push(nearAssetId)
   if (enabledFlags.Plasma) assetIds.push(plasmaAssetId)
   if (enabledFlags.Tron) assetIds.push(tronAssetId)
   if (enabledFlags.Sui) assetIds.push(suiAssetId)

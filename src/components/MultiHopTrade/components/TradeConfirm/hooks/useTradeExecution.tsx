@@ -596,6 +596,9 @@ export const useTradeExecution = (
           cancelPollingRef.current = output?.cancelPolling
           return
         }
+        case CHAIN_NAMESPACE.Near: {
+          throw new Error('NEAR chain namespace not yet supported for trade execution')
+        }
         default:
           assertUnreachable(stepSellAssetChainNamespace)
       }

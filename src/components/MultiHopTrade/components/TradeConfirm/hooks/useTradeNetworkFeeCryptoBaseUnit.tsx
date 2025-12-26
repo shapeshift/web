@@ -240,6 +240,9 @@ export const useTradeNetworkFeeCryptoBaseUnit = ({
                 })
                 return output
               }
+              case CHAIN_NAMESPACE.Near: {
+                throw new Error('NEAR chain namespace not yet supported for network fee estimation')
+              }
               default:
                 assertUnreachable(stepSellAssetChainNamespace)
             }

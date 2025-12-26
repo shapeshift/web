@@ -23,6 +23,7 @@ import type * as evm from './evm/types'
 import type * as solana from './solana/types'
 import type * as sui from './sui/types'
 import type * as tron from './tron/types'
+import type * as near from './near/types'
 import type * as utxo from './utxo/types'
 
 // this placeholder forces us to be explicit about transactions not transferring funds to humans
@@ -55,6 +56,7 @@ type ChainSpecificAccount<T> = ChainSpecific<
     [KnownChainIds.SolanaMainnet]: solana.Account
     [KnownChainIds.TronMainnet]: tron.Account
     [KnownChainIds.SuiMainnet]: sui.Account
+    [KnownChainIds.NearMainnet]: near.Account
   }
 >
 
@@ -103,6 +105,7 @@ type ChainSpecificFeeData<T> = ChainSpecific<
     [KnownChainIds.SolanaMainnet]: solana.FeeData
     [KnownChainIds.TronMainnet]: tron.FeeData
     [KnownChainIds.SuiMainnet]: sui.FeeData
+    [KnownChainIds.NearMainnet]: near.FeeData
   }
 >
 
@@ -184,6 +187,7 @@ export type ChainSignTx = {
   [KnownChainIds.SolanaMainnet]: SolanaSignTx
   [KnownChainIds.TronMainnet]: tron.TronSignTx
   [KnownChainIds.SuiMainnet]: SuiSignTx
+  [KnownChainIds.NearMainnet]: near.NearSignTx
 }
 
 export type SignTx<T extends ChainId> = T extends keyof ChainSignTx ? ChainSignTx[T] : never
@@ -235,6 +239,7 @@ export type ChainSpecificBuildTxData<T> = ChainSpecific<
     [KnownChainIds.SolanaMainnet]: solana.BuildTxInput
     [KnownChainIds.TronMainnet]: tron.BuildTxInput
     [KnownChainIds.SuiMainnet]: sui.BuildTxInput
+    [KnownChainIds.NearMainnet]: near.BuildTxInput
   }
 >
 
@@ -335,6 +340,7 @@ type ChainSpecificGetFeeDataInput<T> = ChainSpecific<
     [KnownChainIds.SolanaMainnet]: solana.GetFeeDataInput
     [KnownChainIds.SuiMainnet]: sui.GetFeeDataInput
     [KnownChainIds.TronMainnet]: tron.GetFeeDataInput
+    [KnownChainIds.NearMainnet]: near.GetFeeDataInput
   }
 >
 export type GetFeeDataInput<T extends ChainId> = {
@@ -404,6 +410,7 @@ export enum ChainAdapterDisplayName {
   Solana = 'Solana',
   Tron = 'Tron',
   Sui = 'Sui',
+  Near = 'NEAR',
 }
 
 export type BroadcastTransactionInput = {

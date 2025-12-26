@@ -21,6 +21,7 @@ import {
   ltcChainId,
   mayachainChainId,
   monadChainId,
+  nearChainId,
   optimismChainId,
   plasmaChainId,
   polygonChainId,
@@ -56,6 +57,8 @@ import {
   supportsThorchain,
   supportsTron,
 } from '@shapeshiftoss/hdwallet-core'
+
+import { supportsNear } from '@/lib/utils/near'
 import { GridPlusHDWallet } from '@shapeshiftoss/hdwallet-gridplus'
 import { PhantomHDWallet } from '@shapeshiftoss/hdwallet-phantom'
 import type { Asset, EvmChainId, KnownChainIds, UtxoChainId } from '@shapeshiftoss/types'
@@ -103,6 +106,7 @@ export const accountIdToLabel = (accountId: AccountId): string => {
     case solanaChainId:
     case tronChainId:
     case suiChainId:
+    case nearChainId:
       return middleEllipsis(pubkey)
     case btcChainId:
       // TODO(0xdef1cafe): translations
@@ -303,6 +307,10 @@ export const accountToPortfolio: AccountToPortfolio = ({ assetIds, portfolioAcco
 
         break
       }
+      case CHAIN_NAMESPACE.Near: {
+        // NEAR support not yet implemented
+        break
+      }
       default:
         assertUnreachable(chainNamespace)
     }
@@ -361,6 +369,11 @@ export const checkAccountHasActivity = (account: Account<ChainId>) => {
 
       const hasActivity = bnOrZero(suiAccount.balance).gt(0)
 
+      return hasActivity
+    }
+    case CHAIN_NAMESPACE.Near: {
+      const nearAccount = account as Account<KnownChainIds.NearMainnet>
+      const hasActivity = bnOrZero(nearAccount.balance).gt(0)
       return hasActivity
     }
     default:
@@ -430,6 +443,8 @@ export const isAssetSupportedByWallet = (assetId: AssetId, wallet: HDWallet): bo
       return supportsPlasma(wallet)
     case tronChainId:
       return supportsTron(wallet)
+    case nearChainId:
+      return supportsNear(wallet)
     default:
       return false
   }

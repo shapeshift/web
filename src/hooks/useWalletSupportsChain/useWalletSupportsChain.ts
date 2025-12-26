@@ -15,6 +15,7 @@ import {
   ltcChainId,
   mayachainChainId,
   monadChainId,
+  nearChainId,
   optimismChainId,
   plasmaChainId,
   polygonChainId,
@@ -47,6 +48,8 @@ import {
   supportsThorchain,
   supportsTron,
 } from '@shapeshiftoss/hdwallet-core'
+
+import { supportsNear } from '@/lib/utils/near'
 import { GridPlusHDWallet } from '@shapeshiftoss/hdwallet-gridplus'
 import { isMetaMask } from '@shapeshiftoss/hdwallet-metamask-multichain'
 import { PhantomHDWallet } from '@shapeshiftoss/hdwallet-phantom'
@@ -142,6 +145,7 @@ export const walletSupportsChain = ({
   const isArbitrumNovaEnabled = selectFeatureFlag(store.getState(), 'ArbitrumNova')
   const isHyperEvmEnabled = selectFeatureFlag(store.getState(), 'HyperEvm')
   const isMonadEnabled = selectFeatureFlag(store.getState(), 'Monad')
+  const isNearEnabled = selectFeatureFlag(store.getState(), 'Near')
   const isPlasmaEnabled = selectFeatureFlag(store.getState(), 'Plasma')
 
   switch (chainId) {
@@ -206,6 +210,8 @@ export const walletSupportsChain = ({
       return supportsTron(wallet)
     case suiChainId:
       return supportsSui(wallet)
+    case nearChainId:
+      return isNearEnabled && supportsNear(wallet)
     default: {
       return false
     }

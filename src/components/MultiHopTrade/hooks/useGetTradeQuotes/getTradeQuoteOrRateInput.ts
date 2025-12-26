@@ -235,6 +235,9 @@ export const getTradeQuoteOrRateInput = async ({
         sendAddress,
       } as GetTradeQuoteInput
     }
+    case CHAIN_NAMESPACE.Near: {
+      throw new Error('NEAR chain namespace not yet supported for trade quotes')
+    }
     default:
       assertUnreachable(chainNamespace)
   }

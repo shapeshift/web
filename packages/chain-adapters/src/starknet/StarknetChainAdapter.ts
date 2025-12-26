@@ -336,8 +336,6 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.StarknetMainnet
         },
       }
 
-      // Use starknet.js built-in v3 hash calculation
-      // This ensures we match exactly what the RPC expects
       const hashInputs = {
         contractAddress: address,
         classHash: OPENZEPPELIN_ACCOUNT_CLASS_HASH,
@@ -366,6 +364,9 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.StarknetMainnet
         paymasterData: [],
       }
 
+      // Use starknet.js calculateDeployAccountTransactionHash which internally uses hashFeeFieldV3B3
+      // This includes l1_data_gas in the fee hash (required since starknet.js v9)
+      // See: https://github.com/starknet-io/starknet.js/blob/v9.3.0/src/utils/hash/transactionHash/v3.ts#L63-L68
       const txHash = hash.calculateDeployAccountTransactionHash(hashInputs)
 
       const signatureResult = await wallet.starknetSignTx({
@@ -688,7 +689,6 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.StarknetMainnet
         },
       }
 
-      // Use starknet.js built-in v3 hash calculation for INVOKE
       const invokeHashInputs = {
         senderAddress: from,
         version,
@@ -716,6 +716,9 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.StarknetMainnet
         accountDeploymentData: [],
       }
 
+      // Use starknet.js calculateInvokeTransactionHash which internally uses hashFeeFieldV3B3
+      // This includes l1_data_gas in the fee hash (required since starknet.js v9)
+      // See: https://github.com/starknet-io/starknet.js/blob/v9.3.0/src/utils/hash/transactionHash/v3.ts#L63-L68
       const txHash = hash.calculateInvokeTransactionHash(invokeHashInputs)
 
       // Return both the hash for signing and the full transaction details for broadcasting

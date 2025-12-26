@@ -500,6 +500,14 @@ export abstract class SecondClassEvmAdapter<T extends EvmChainId> extends EvmBas
         const internalFrom = getAddress(internalTx.from)
         const internalTo = getAddress(internalTx.to)
 
+        // Skip internal transactions that duplicate the native transaction
+        if (
+          isAddressEqual(internalFrom, txFrom) &&
+          isAddressEqual(internalTo, txTo) &&
+          internalTx.value === tx.value
+        )
+          continue
+
         if (isAddressEqual(address, internalFrom)) {
           nativeTransfers.push({
             assetId: this.assetId,

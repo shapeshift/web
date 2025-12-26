@@ -4,6 +4,7 @@ import type {
   ChainAdapter,
   CosmosSdkChainAdapter,
   EvmChainAdapter,
+  near,
   SignTx,
   solana,
   sui,
@@ -295,6 +296,10 @@ export type SuiSwapperDeps = {
   assertGetSuiChainAdapter: (chainId: ChainId) => sui.ChainAdapter
 }
 
+export type NearSwapperDeps = {
+  assertGetNearChainAdapter: (chainId: ChainId) => near.ChainAdapter
+}
+
 export type SwapperDeps = {
   assetsById: AssetsByIdPartial
   config: SwapperConfig
@@ -305,7 +310,8 @@ export type SwapperDeps = {
   CosmosSdkSwapperDeps &
   SolanaSwapperDeps &
   TronSwapperDeps &
-  SuiSwapperDeps
+  SuiSwapperDeps &
+  NearSwapperDeps
 
 export type TradeQuoteStep = {
   buyAmountBeforeFeesCryptoBaseUnit: string

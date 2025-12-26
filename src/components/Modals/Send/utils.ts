@@ -33,6 +33,7 @@ import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
 import { assertGetChainAdapter } from '@/lib/utils'
 import { assertGetCosmosSdkChainAdapter } from '@/lib/utils/cosmosSdk'
 import { assertGetEvmChainAdapter, getSupportedEvmChainIds } from '@/lib/utils/evm'
+import { assertGetNearChainAdapter } from '@/lib/utils/near'
 import { assertGetSolanaChainAdapter } from '@/lib/utils/solana'
 import { assertGetSuiChainAdapter } from '@/lib/utils/sui'
 import { assertGetUtxoChainAdapter, isUtxoChainId } from '@/lib/utils/utxo'
@@ -150,6 +151,16 @@ export const estimateFees = async ({
           from: account,
           tokenId: contractAddress,
         },
+        sendMax,
+      }
+      return adapter.getFeeData(getFeeDataInput)
+    }
+    case CHAIN_NAMESPACE.Near: {
+      const adapter = assertGetNearChainAdapter(asset.chainId)
+      const getFeeDataInput: GetFeeDataInput<KnownChainIds.NearMainnet> = {
+        to,
+        value,
+        chainSpecific: { from: account },
         sendMax,
       }
       return adapter.getFeeData(getFeeDataInput)
@@ -360,6 +371,24 @@ export const handleSend = async ({
           gasPrice: fees.chainSpecific.gasPrice,
         },
       } as BuildSendTxInput<KnownChainIds.SuiMainnet>)
+    }
+
+    if (fromChainId(asset.chainId).chainNamespace === CHAIN_NAMESPACE.Near) {
+      const { accountNumber } = bip44Params
+      const adapter = assertGetNearChainAdapter(chainId)
+      const fees = estimatedFees[feeType] as FeeData<KnownChainIds.NearMainnet>
+
+      return adapter.buildSendTransaction({
+        to,
+        value,
+        wallet,
+        accountNumber,
+        pubKey: fromAccountId(sendInput.accountId).account,
+        sendMax: sendInput.sendMax,
+        chainSpecific: {
+          gasPrice: fees.chainSpecific.gasPrice,
+        },
+      } as BuildSendTxInput<KnownChainIds.NearMainnet>)
     }
 
     throw new Error(`${chainId} not supported`)

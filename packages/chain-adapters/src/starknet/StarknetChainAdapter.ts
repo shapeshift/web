@@ -338,7 +338,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.StarknetMainnet
 
       // Use starknet.js built-in v3 hash calculation
       // This ensures we match exactly what the RPC expects
-      const txHash = hash.calculateDeployAccountTransactionHash({
+      const hashInputs = {
         contractAddress: address,
         classHash: OPENZEPPELIN_ACCOUNT_CLASS_HASH,
         compiledConstructorCalldata: formattedCalldata,
@@ -346,21 +346,27 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.StarknetMainnet
         version,
         chainId: chainIdHex,
         nonce,
-        nonceDataAvailabilityMode: 0, // L1 = 0
-        feeDataAvailabilityMode: 0, // L1 = 0
+        nonceDataAvailabilityMode: 0 as const, // L1
+        feeDataAvailabilityMode: 0 as const, // L1
         resourceBounds: {
           l1_gas: {
-            max_amount: num.toHex(resourceBounds.l1_gas.max_amount),
-            max_price_per_unit: num.toHex(resourceBounds.l1_gas.max_price_per_unit),
+            max_amount: resourceBounds.l1_gas.max_amount,
+            max_price_per_unit: resourceBounds.l1_gas.max_price_per_unit,
           },
           l2_gas: {
-            max_amount: num.toHex(resourceBounds.l2_gas.max_amount),
-            max_price_per_unit: num.toHex(resourceBounds.l2_gas.max_price_per_unit),
+            max_amount: resourceBounds.l2_gas.max_amount,
+            max_price_per_unit: resourceBounds.l2_gas.max_price_per_unit,
+          },
+          l1_data_gas: {
+            max_amount: resourceBounds.l1_data_gas.max_amount,
+            max_price_per_unit: resourceBounds.l1_data_gas.max_price_per_unit,
           },
         },
         tip: '0x0',
         paymasterData: [],
-      })
+      }
+
+      const txHash = hash.calculateDeployAccountTransactionHash(hashInputs)
 
       const signatureResult = await wallet.starknetSignTx({
         addressNList: toAddressNList(this.getBip44Params({ accountNumber })),
@@ -683,28 +689,34 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.StarknetMainnet
       }
 
       // Use starknet.js built-in v3 hash calculation for INVOKE
-      const txHash = hash.calculateInvokeTransactionHash({
+      const invokeHashInputs = {
         senderAddress: from,
         version,
         compiledCalldata: formattedCalldata,
         chainId: chainIdHex,
         nonce,
-        nonceDataAvailabilityMode: 0, // L1 = 0
-        feeDataAvailabilityMode: 0, // L1 = 0
+        nonceDataAvailabilityMode: 0 as const, // L1
+        feeDataAvailabilityMode: 0 as const, // L1
         resourceBounds: {
           l1_gas: {
-            max_amount: num.toHex(resourceBounds.l1_gas.max_amount),
-            max_price_per_unit: num.toHex(resourceBounds.l1_gas.max_price_per_unit),
+            max_amount: resourceBounds.l1_gas.max_amount,
+            max_price_per_unit: resourceBounds.l1_gas.max_price_per_unit,
           },
           l2_gas: {
-            max_amount: num.toHex(resourceBounds.l2_gas.max_amount),
-            max_price_per_unit: num.toHex(resourceBounds.l2_gas.max_price_per_unit),
+            max_amount: resourceBounds.l2_gas.max_amount,
+            max_price_per_unit: resourceBounds.l2_gas.max_price_per_unit,
+          },
+          l1_data_gas: {
+            max_amount: resourceBounds.l1_data_gas.max_amount,
+            max_price_per_unit: resourceBounds.l1_data_gas.max_price_per_unit,
           },
         },
         tip: '0x0',
         paymasterData: [],
         accountDeploymentData: [],
-      })
+      }
+
+      const txHash = hash.calculateInvokeTransactionHash(invokeHashInputs)
 
       // Return both the hash for signing and the full transaction details for broadcasting
       return {

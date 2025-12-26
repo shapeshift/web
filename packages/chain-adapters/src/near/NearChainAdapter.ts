@@ -11,7 +11,7 @@ import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import type { Bip44Params, RootBip44Params } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { TransferType, TxStatus } from '@shapeshiftoss/unchained-client'
-import bs58 from 'bs58check'
+import bs58 from 'bs58'
 
 import type { ChainAdapter as IChainAdapter } from '../api'
 import { ChainAdapterError, ErrorHandler } from '../error/ErrorHandler'
@@ -31,7 +31,6 @@ import type {
 } from '../types'
 import { ChainAdapterDisplayName, ValidAddressResultType } from '../types'
 import { toAddressNList } from '../utils'
-
 import type { NearSignTx } from './types'
 
 interface NearWallet extends HDWallet {
@@ -111,7 +110,7 @@ interface NearFullTxResult {
     hash: string
     signer_id: string
     receiver_id: string
-    actions: Array<
+    actions: (
       | { Transfer: { deposit: string } }
       | { FunctionCall: { method_name: string; args: string; deposit: string } }
       | { Delegate: unknown }
@@ -121,7 +120,7 @@ interface NearFullTxResult {
       | { AddKey: unknown }
       | { DeleteKey: unknown }
       | { DeleteAccount: unknown }
-    >
+    )[]
     public_key: string
   }
   transaction_outcome: {
@@ -131,13 +130,13 @@ interface NearFullTxResult {
       receipt_ids: string[]
     }
   }
-  receipts_outcome: Array<{
+  receipts_outcome: {
     id: string
     outcome: {
       tokens_burnt: string
       logs: string[]
     }
-  }>
+  }[]
 }
 
 export class ChainAdapter implements IChainAdapter<KnownChainIds.NearMainnet> {
@@ -265,10 +264,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.NearMainnet> {
       }
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : String(err)
-      if (
-        errorMessage.includes('does not exist') ||
-        errorMessage.includes('UNKNOWN_ACCOUNT')
-      ) {
+      if (errorMessage.includes('does not exist') || errorMessage.includes('UNKNOWN_ACCOUNT')) {
         return {
           balance: '0',
           chainId: this.chainId,
@@ -313,12 +309,12 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.NearMainnet> {
     try {
       const { from, accountNumber, to, value } = input
 
-      // Convert hex public key to bytes
+      // Convert hex public key to bytes and create PublicKey using standard NEAR format
       const pubKeyBytes = Buffer.from(from, 'hex')
-      const publicKey = new PublicKey({ keyType: KeyType.ED25519, data: pubKeyBytes })
+      const pubKeyBase58 = bs58.encode(pubKeyBytes)
+      const publicKey = PublicKey.fromString(`ed25519:${pubKeyBase58}`)
 
       // Get current nonce from access key
-      const pubKeyBase58 = bs58.encode(pubKeyBytes)
       const accessKeyResult = await this.rpcCall<NearAccessKeyResult>('query', {
         request_type: 'view_access_key',
         finality: 'final',

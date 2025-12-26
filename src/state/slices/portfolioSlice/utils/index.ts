@@ -308,7 +308,24 @@ export const accountToPortfolio: AccountToPortfolio = ({ assetIds, portfolioAcco
         break
       }
       case CHAIN_NAMESPACE.Near: {
-        // NEAR support not yet implemented
+        const nearAccount = account as Account<KnownChainIds.NearMainnet>
+        const { chainId, assetId, pubkey } = account
+        const accountId = toAccountId({ chainId, account: pubkey })
+
+        portfolio.accounts.ids.push(accountId)
+        portfolio.accounts.byId[accountId] = { assetIds: [assetId], hasActivity }
+        portfolio.accountBalances.ids.push(accountId)
+        portfolio.accountBalances.byId[accountId] = { [assetId]: account.balance }
+
+        nearAccount.chainSpecific.tokens?.forEach(token => {
+          if (!assetIds.includes(token.assetId)) return
+
+          if (bnOrZero(token.balance).gt(0)) portfolio.accounts.byId[accountId].hasActivity = true
+
+          portfolio.accounts.byId[accountId].assetIds.push(token.assetId)
+          portfolio.accountBalances.byId[accountId][token.assetId] = token.balance
+        })
+
         break
       }
       default:

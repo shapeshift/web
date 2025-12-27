@@ -54,7 +54,7 @@ import {
   selectTradeSlippagePercentageDecimal,
 } from '@/state/slices/tradeQuoteSlice/selectors'
 import { tradeQuoteSlice } from '@/state/slices/tradeQuoteSlice/tradeQuoteSlice'
-import { useAppDispatch, useAppSelector } from '@/state/store'
+import { store, useAppDispatch, useAppSelector } from '@/state/store'
 
 export const useTradeExecution = (
   hopIndex: SupportedTradeQuoteStepIndex,
@@ -249,15 +249,21 @@ export const useTradeExecution = (
           }
 
           // Update the swap with the actual buy amount if available
-          if (actualBuyAmountCryptoBaseUnit && activeSwapId) {
-            const currentSwap = swapsById[activeSwapId]
-            if (currentSwap) {
-              dispatch(
-                swapSlice.actions.upsertSwap({
-                  ...currentSwap,
-                  actualBuyAmountCryptoBaseUnit,
-                }),
-              )
+          // Read fresh state to avoid stale closure - swapsById captured at render time may have outdated status
+          if (actualBuyAmountCryptoBaseUnit) {
+            const freshActiveSwapId = swapSlice.selectors.selectActiveSwapId(store.getState())
+            if (freshActiveSwapId) {
+              const currentSwap = swapSlice.selectors.selectSwapsById(store.getState())[
+                freshActiveSwapId
+              ]
+              if (currentSwap) {
+                dispatch(
+                  swapSlice.actions.upsertSwap({
+                    ...currentSwap,
+                    actualBuyAmountCryptoBaseUnit,
+                  }),
+                )
+              }
             }
           }
         },
@@ -271,15 +277,21 @@ export const useTradeExecution = (
         }
 
         // Update the swap with the actual buy amount if available
-        if (actualBuyAmountCryptoBaseUnit && activeSwapId) {
-          const currentSwap = swapsById[activeSwapId]
-          if (currentSwap) {
-            dispatch(
-              swapSlice.actions.upsertSwap({
-                ...currentSwap,
-                actualBuyAmountCryptoBaseUnit,
-              }),
-            )
+        // Read fresh state to avoid stale closure - swapsById captured at render time may have outdated status
+        if (actualBuyAmountCryptoBaseUnit) {
+          const freshActiveSwapId = swapSlice.selectors.selectActiveSwapId(store.getState())
+          if (freshActiveSwapId) {
+            const currentSwap = swapSlice.selectors.selectSwapsById(store.getState())[
+              freshActiveSwapId
+            ]
+            if (currentSwap) {
+              dispatch(
+                swapSlice.actions.upsertSwap({
+                  ...currentSwap,
+                  actualBuyAmountCryptoBaseUnit,
+                }),
+              )
+            }
           }
         }
 

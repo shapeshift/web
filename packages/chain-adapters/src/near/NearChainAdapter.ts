@@ -36,7 +36,7 @@ import type {
   ValidAddressResult,
 } from '../types'
 import { ChainAdapterDisplayName, ValidAddressResultType } from '../types'
-import { toAddressNList } from '../utils'
+import { toAddressNList, verifyLedgerAppOpen } from '../utils'
 import type { NearSignTx } from './types'
 
 interface NearWallet extends HDWallet {
@@ -256,6 +256,8 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.NearMainnet> {
       if (!wallet) throw new Error('wallet is required')
       this.assertSupportsChain(wallet)
 
+      await verifyLedgerAppOpen(this.chainId, wallet)
+
       const address = await wallet.nearGetAddress({
         addressNList: toAddressNList(this.getBip44Params({ accountNumber })),
         showDisplay: showOnDevice,
@@ -440,6 +442,8 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.NearMainnet> {
 
       if (!wallet) throw new Error('wallet is required')
       this.assertSupportsChain(wallet)
+
+      await verifyLedgerAppOpen(this.chainId, wallet)
 
       // Pass Borsh-encoded transaction bytes to hdwallet for signing
       const signedTx = await wallet.nearSignTx({

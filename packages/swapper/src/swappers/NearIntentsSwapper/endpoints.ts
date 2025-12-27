@@ -269,6 +269,7 @@ export const nearIntentsApi: SwapperApi = {
       from,
       value,
       accountNumber,
+      chainSpecific: {},
     })
   },
 

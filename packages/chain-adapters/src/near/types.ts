@@ -3,14 +3,21 @@ import type { BIP32Path } from '@shapeshiftoss/hdwallet-core'
 
 import type * as types from '../types'
 
-export type Account = {
-  tokens?: Token[]
+export type FastNearToken = {
+  balance: string
+  contract_id: string
+  last_update_block_height: number | null
 }
 
-export type Token = types.AssetBalance & {
-  symbol: string
-  name: string
-  precision: number
+export type FastNearFtResponse = {
+  account_id: string
+  tokens: FastNearToken[]
+}
+
+// Token metadata (symbol, name, precision) comes from the app's asset database
+// FastNEAR API only returns balance and contract_id
+export type Account = {
+  tokens?: types.AssetBalance[]
 }
 
 export type BuildTxInput = {

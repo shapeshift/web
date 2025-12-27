@@ -379,23 +379,6 @@ export const handleSend = async ({
       const fees = estimatedFees[feeType] as FeeData<KnownChainIds.NearMainnet>
       const contractAddress = contractAddressOrUndefined(asset.assetId)
 
-      console.log('[NEAR Send] assetId:', asset.assetId)
-      console.log('[NEAR Send] contractAddress:', contractAddress)
-      console.log(
-        '[NEAR Send] buildSendTransaction input:',
-        JSON.stringify({
-          to,
-          value,
-          accountNumber,
-          pubKey: fromAccountId(sendInput.accountId).account,
-          sendMax: sendInput.sendMax,
-          chainSpecific: {
-            gasPrice: fees.chainSpecific.gasPrice,
-            contractAddress,
-          },
-        }),
-      )
-
       return adapter.buildSendTransaction({
         to,
         value,

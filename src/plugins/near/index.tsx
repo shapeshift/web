@@ -24,7 +24,10 @@ export default function register(): Plugins {
                   config.VITE_NEAR_NODE_URL_FALLBACK_2,
                 ].filter(Boolean)
 
-                return new near.ChainAdapter({ rpcUrls })
+                return new near.ChainAdapter({
+                  rpcUrls,
+                  fastNearApiUrl: config.VITE_FASTNEAR_API_URL,
+                })
               },
             ],
           ],

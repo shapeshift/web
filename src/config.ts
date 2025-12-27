@@ -71,6 +71,7 @@ const validators = {
   VITE_NEAR_NODE_URL: url(),
   VITE_NEAR_NODE_URL_FALLBACK_1: url({ default: '' }),
   VITE_NEAR_NODE_URL_FALLBACK_2: url({ default: '' }),
+  VITE_FASTNEAR_API_URL: url(),
   VITE_ALCHEMY_POLYGON_URL: url(),
   VITE_KEEPKEY_VERSIONS_URL: url(),
   VITE_KEEPKEY_LATEST_RELEASE_URL: url(),

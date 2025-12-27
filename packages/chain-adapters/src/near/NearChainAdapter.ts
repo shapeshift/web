@@ -15,7 +15,7 @@ import {
   nearChainId,
   toAssetId,
 } from '@shapeshiftoss/caip'
-import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
+import type { HDWallet, NearWallet } from '@shapeshiftoss/hdwallet-core'
 import type { Bip44Params, RootBip44Params } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { TransferType, TxStatus } from '@shapeshiftoss/unchained-client'
@@ -24,6 +24,7 @@ import type { ChainAdapter as IChainAdapter } from '../api'
 import { ChainAdapterError, ErrorHandler } from '../error/ErrorHandler'
 import type {
   Account,
+  AssetBalance,
   BroadcastTransactionInput,
   BuildSendApiTxInput,
   BuildSendTxInput,
@@ -38,36 +39,18 @@ import type {
 } from '../types'
 import { ChainAdapterDisplayName, ValidAddressResultType } from '../types'
 import { toAddressNList, verifyLedgerAppOpen } from '../utils'
-import type { NearSignTx } from './types'
-
-interface NearWallet extends HDWallet {
-  nearGetAddress(params: { addressNList: number[]; showDisplay?: boolean }): Promise<string | null>
-  nearSignTx(params: {
-    addressNList: number[]
-    txBytes: Uint8Array
-  }): Promise<{ signature: string; publicKey: string } | null>
-}
-
-interface FastNearToken {
-  balance: string
-  contract_id: string
-  last_update_block_height: number | null
-}
-
-interface FastNearFtResponse {
-  account_id: string
-  tokens: FastNearToken[]
-}
+import type { FastNearFtResponse, NearSignTx } from './types'
 
 const supportsNear = (wallet: HDWallet): wallet is NearWallet => {
   return '_supportsNear' in wallet && (wallet as any)._supportsNear === true
 }
 
-export interface ChainAdapterArgs {
+export type ChainAdapterArgs = {
   rpcUrls: string[]
+  fastNearApiUrl: string
 }
 
-interface NearAccountResult {
+type NearAccountResult = {
   amount: string
   block_hash: string
   block_height: number
@@ -77,14 +60,14 @@ interface NearAccountResult {
   storage_usage: number
 }
 
-interface NearAccessKeyResult {
+type NearAccessKeyResult = {
   block_hash: string
   block_height: number
   nonce: number
   permission: string | { FunctionCall: unknown }
 }
 
-interface NearFullTxResult {
+type NearFullTxResult = {
   status: { SuccessValue?: string; Failure?: unknown }
   transaction: {
     hash: string
@@ -119,8 +102,6 @@ interface NearFullTxResult {
   }[]
 }
 
-const FASTNEAR_API_URL = 'https://api.fastnear.com/v1'
-
 export class ChainAdapter implements IChainAdapter<KnownChainIds.NearMainnet> {
   static readonly rootBip44Params: RootBip44Params = {
     purpose: 44,
@@ -132,6 +113,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.NearMainnet> {
   protected readonly assetId = nearAssetId
   private readonly provider: FailoverRpcProvider
   private readonly singleProvider: JsonRpcProvider
+  private readonly fastNearApiUrl: string
 
   constructor(args: ChainAdapterArgs) {
     if (args.rpcUrls.length === 0) {
@@ -141,6 +123,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.NearMainnet> {
     const providers = args.rpcUrls.map(url => new JsonRpcProvider({ url }))
     this.singleProvider = providers[0]
     this.provider = new FailoverRpcProvider(providers)
+    this.fastNearApiUrl = args.fastNearApiUrl
   }
 
   private assertSupportsChain(wallet: HDWallet): asserts wallet is NearWallet {
@@ -208,23 +191,17 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.NearMainnet> {
     }
   }
 
-  private async fetchTokenBalances(accountId: string): Promise<
-    {
-      assetId: AssetId
-      balance: string
-    }[]
-  > {
+  private async fetchTokenBalances(accountId: string): Promise<AssetBalance[]> {
     try {
-      const response = await fetch(`${FASTNEAR_API_URL}/account/${accountId}/ft`)
+      const response = await fetch(`${this.fastNearApiUrl}/account/${accountId}/ft`)
       if (!response.ok) {
         console.warn(`Failed to fetch NEAR token balances: ${response.status}`)
         return []
       }
 
       const data = (await response.json()) as FastNearFtResponse
-      const tokens = data.tokens ?? []
 
-      return tokens
+      return (data.tokens ?? [])
         .filter(token => token.balance && token.balance !== '0')
         .map(token => ({
           assetId: toAssetId({
@@ -266,24 +243,21 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.NearMainnet> {
       }
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : String(err)
-
-      // Handle non-existent accounts (implicit accounts that haven't received funds yet)
-      if (
+      const isNonExistentAccount =
         errorMessage.includes("doesn't exist") ||
         errorMessage.includes('does not exist') ||
         errorMessage.includes('UNKNOWN_ACCOUNT')
-      ) {
+
+      // Handle non-existent accounts (implicit accounts that haven't received funds yet)
+      if (isNonExistentAccount)
         return {
           balance: '0',
           chainId: this.chainId,
           assetId: this.assetId,
           chain: this.getType(),
-          chainSpecific: {
-            tokens: [],
-          },
+          chainSpecific: { tokens: [] },
           pubkey,
         }
-      }
 
       return ErrorHandler(err, {
         translation: 'chainAdapters.errors.getAccount',
@@ -293,18 +267,23 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.NearMainnet> {
   }
 
   validateAddress(address: string): Promise<ValidAddressResult> {
-    try {
-      const isImplicitAccount = /^[0-9a-f]{64}$/.test(address)
-      const isNamedAccount = /^[a-z0-9._-]+$/.test(address) && address.length <= 64
+    const valid = { valid: true, result: ValidAddressResultType.Valid } as const
+    const invalid = { valid: false, result: ValidAddressResultType.Invalid } as const
 
-      if (isImplicitAccount || isNamedAccount) {
-        return Promise.resolve({ valid: true, result: ValidAddressResultType.Valid })
-      }
+    // NEAR-implicit accounts: 64 lowercase hex characters
+    if (/^[0-9a-f]{64}$/.test(address)) return Promise.resolve(valid)
 
-      return Promise.resolve({ valid: false, result: ValidAddressResultType.Invalid })
-    } catch {
-      return Promise.resolve({ valid: false, result: ValidAddressResultType.Invalid })
+    // ETH-implicit accounts: 0x + 40 hex characters
+    if (/^0x[0-9a-f]{40}$/i.test(address)) return Promise.resolve(valid)
+
+    // Named accounts: 2-64 chars, alphanumeric with .-_ separators
+    // Cannot start/end with separators, no consecutive separators
+    if (address.length >= 2 && address.length <= 64) {
+      const namedAccountRegex = /^(([a-z\d]+[-_])*[a-z\d]+\.)*([a-z\d]+[-_])*[a-z\d]+$/
+      if (namedAccountRegex.test(address)) return Promise.resolve(valid)
     }
+
+    return Promise.resolve(invalid)
   }
 
   getTxHistory(): Promise<never> {
@@ -615,6 +594,12 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.NearMainnet> {
       const receiver = tx.receiver_id
       const blockHash = result.transaction_outcome.block_hash
 
+      // Fetch block details for accurate height and timestamp
+      const blockResult = await this.provider.block({ blockId: blockHash })
+      const blockHeight = blockResult.header.height
+      // NEAR timestamps are in nanoseconds
+      const blockTime = Math.floor(blockResult.header.timestamp / 1_000_000_000)
+
       const totalTokensBurnt =
         BigInt(result.transaction_outcome.outcome.tokens_burnt) +
         result.receipts_outcome.reduce(
@@ -667,8 +652,8 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.NearMainnet> {
 
       return {
         txid: txHash,
-        blockHeight: 0,
-        blockTime: Math.floor(Date.now() / 1000),
+        blockHeight,
+        blockTime,
         blockHash,
         chainId: this.chainId,
         confirmations: status === TxStatus.Confirmed ? 1 : 0,

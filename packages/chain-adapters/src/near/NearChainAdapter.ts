@@ -273,7 +273,18 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.NearMainnet> {
       }
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : String(err)
-      if (errorMessage.includes('does not exist') || errorMessage.includes('UNKNOWN_ACCOUNT')) {
+      const errorType = (err as { type?: string }).type
+
+      // Handle non-existent accounts (implicit accounts that haven't received funds yet)
+      // FailoverRpcProvider wraps errors: when all providers fail with "account doesn't exist",
+      // it throws "Exceeded N providers" with type "RetriesExceeded" - original error is lost
+      if (
+        errorMessage.includes("doesn't exist") ||
+        errorMessage.includes('does not exist') ||
+        errorMessage.includes('UNKNOWN_ACCOUNT') ||
+        errorMessage.includes('Exceeded') ||
+        errorType === 'RetriesExceeded'
+      ) {
         return {
           balance: '0',
           chainId: this.chainId,

@@ -33,6 +33,7 @@ export const isToken = (assetId: AssetId) => {
     case ASSET_NAMESPACE.splToken:
     case ASSET_NAMESPACE.trc20:
     case ASSET_NAMESPACE.suiCoin:
+    case ASSET_NAMESPACE.nep141:
       return true
     default:
       return false

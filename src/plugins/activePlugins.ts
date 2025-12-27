@@ -14,6 +14,7 @@ import litecoin from '@/plugins/litecoin'
 import mayachain from '@/plugins/mayachain'
 import mobile from '@/plugins/mobile'
 import monad from '@/plugins/monad'
+import near from '@/plugins/near'
 import optimism from '@/plugins/optimism'
 import plasma from '@/plugins/plasma'
 import polygon from '@/plugins/polygon'
@@ -41,6 +42,7 @@ export const activePlugins = [
   mayachain,
   mobile,
   monad,
+  near,
   optimism,
   plasma,
   polygon,

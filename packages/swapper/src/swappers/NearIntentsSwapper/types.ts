@@ -22,6 +22,7 @@ export const nearIntentsSupportedChainIds = [
   KnownChainIds.TronMainnet,
   KnownChainIds.SuiMainnet,
   KnownChainIds.MonadMainnet,
+  KnownChainIds.NearMainnet,
 ] as const
 
 export type NearIntentsSupportedChainId = (typeof nearIntentsSupportedChainIds)[number]
@@ -42,4 +43,5 @@ export const chainIdToNearIntentsChain: Record<NearIntentsSupportedChainId, stri
   [KnownChainIds.TronMainnet]: 'tron',
   [KnownChainIds.SuiMainnet]: 'sui',
   [KnownChainIds.MonadMainnet]: 'monad',
+  [KnownChainIds.NearMainnet]: 'near',
 }

@@ -18,6 +18,7 @@ import { useWallet } from '@/hooks/useWallet/useWallet'
 import { assertUnreachable } from '@/lib/utils'
 import { assertGetCosmosSdkChainAdapter } from '@/lib/utils/cosmosSdk'
 import { assertGetEvmChainAdapter } from '@/lib/utils/evm'
+import { assertGetNearChainAdapter } from '@/lib/utils/near'
 import { assertGetSolanaChainAdapter } from '@/lib/utils/solana'
 import { assertGetSuiChainAdapter } from '@/lib/utils/sui'
 import { assertGetTronChainAdapter } from '@/lib/utils/tron'
@@ -241,7 +242,25 @@ export const useTradeNetworkFeeCryptoBaseUnit = ({
                 return output
               }
               case CHAIN_NAMESPACE.Near: {
-                throw new Error('NEAR chain namespace not yet supported for network fee estimation')
+                if (!swapper.getNearTransactionFees) throw Error('missing getNearTransactionFees')
+
+                const adapter = assertGetNearChainAdapter(stepSellAssetChainId)
+                const from = await adapter.getAddress({
+                  accountNumber,
+                  wallet,
+                  ...(skipDeviceDerivation ? { pubKey } : {}),
+                })
+
+                const output = await swapper.getNearTransactionFees({
+                  tradeQuote,
+                  from,
+                  stepIndex: hopIndex,
+                  slippageTolerancePercentageDecimal,
+                  chainId: hop.sellAsset.chainId,
+                  config: getConfig(),
+                  assertGetNearChainAdapter,
+                })
+                return output
               }
               default:
                 assertUnreachable(stepSellAssetChainNamespace)

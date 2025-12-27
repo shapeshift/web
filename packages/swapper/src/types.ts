@@ -583,6 +583,7 @@ type EvmAccountMetadata = { from: string }
 type SolanaAccountMetadata = { from: string }
 type TronAccountMetadata = { from: string }
 type SuiAccountMetadata = { from: string }
+type NearAccountMetadata = { from: string }
 type UtxoAccountMetadata = { senderAddress: string; xpub: string; accountType: UtxoAccountType }
 type CosmosSdkAccountMetadata = { from: string }
 
@@ -611,6 +612,10 @@ export type GetUnsignedTronTransactionArgs = CommonGetUnsignedTransactionArgs &
 export type GetUnsignedSuiTransactionArgs = CommonGetUnsignedTransactionArgs &
   SuiAccountMetadata &
   SuiSwapperDeps
+
+export type GetUnsignedNearTransactionArgs = CommonGetUnsignedTransactionArgs &
+  NearAccountMetadata &
+  NearSwapperDeps
 
 export type GetUnsignedEvmMessageArgs = CommonGetUnsignedTransactionArgs &
   EvmAccountMetadata &
@@ -725,6 +730,7 @@ export type SwapperApi = {
   getUtxoTransactionFees?: (input: GetUnsignedUtxoTransactionArgs) => Promise<string>
   getCosmosSdkTransactionFees?: (input: GetUnsignedCosmosSdkTransactionArgs) => Promise<string>
   getTronTransactionFees?: (input: GetUnsignedTronTransactionArgs) => Promise<string>
+  getNearTransactionFees?: (input: GetUnsignedNearTransactionArgs) => Promise<string>
 }
 
 export type QuoteResult = Result<TradeQuote[], SwapErrorRight> & {

@@ -20,10 +20,10 @@ import type PQueue from 'p-queue'
 
 import type * as cosmossdk from './cosmossdk/types'
 import type * as evm from './evm/types'
+import type * as near from './near/types'
 import type * as solana from './solana/types'
 import type * as sui from './sui/types'
 import type * as tron from './tron/types'
-import type * as near from './near/types'
 import type * as utxo from './utxo/types'
 
 // this placeholder forces us to be explicit about transactions not transferring funds to humans

@@ -6,6 +6,7 @@ import type {
   Asset,
   CosmosSdkChainId,
   EvmChainId,
+  NearChainId,
   TronChainId,
   UtxoChainId,
 } from '@shapeshiftoss/types'
@@ -16,6 +17,7 @@ import { toBaseUnit } from '@/lib/math'
 import { assertUnreachable } from '@/lib/utils'
 import { assertGetCosmosSdkChainAdapter } from '@/lib/utils/cosmosSdk'
 import { assertGetEvmChainAdapter } from '@/lib/utils/evm'
+import { assertGetNearChainAdapter } from '@/lib/utils/near'
 import { assertGetSolanaChainAdapter } from '@/lib/utils/solana'
 import { assertGetSuiChainAdapter } from '@/lib/utils/sui'
 import { assertGetTronChainAdapter } from '@/lib/utils/tron'
@@ -236,7 +238,22 @@ export const getTradeQuoteOrRateInput = async ({
       } as GetTradeQuoteInput
     }
     case CHAIN_NAMESPACE.Near: {
-      throw new Error('NEAR chain namespace not yet supported for trade quotes')
+      const sellAssetChainAdapter = assertGetNearChainAdapter(sellAsset.chainId)
+
+      const sendAddress =
+        wallet && sellAccountNumber !== undefined
+          ? await sellAssetChainAdapter.getAddress({
+              accountNumber: sellAccountNumber,
+              wallet,
+              pubKey,
+            })
+          : undefined
+
+      return {
+        ...tradeQuoteInputCommonArgs,
+        chainId: sellAsset.chainId as NearChainId,
+        sendAddress,
+      } as GetTradeQuoteInput
     }
     default:
       assertUnreachable(chainNamespace)

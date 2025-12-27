@@ -10,6 +10,6 @@ export const csp: Csp = {
     env.VITE_NEAR_NODE_URL,
     env.VITE_NEAR_NODE_URL_FALLBACK_1,
     env.VITE_NEAR_NODE_URL_FALLBACK_2,
-    env.VITE_NEARBLOCKS_API_URL,
+    'https://api.fastnear.com',
   ].filter(Boolean),
 }

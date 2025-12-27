@@ -48,23 +48,15 @@ interface NearWallet extends HDWallet {
   }): Promise<{ signature: string; publicKey: string } | null>
 }
 
-interface NearBlocksFtMeta {
-  name: string
-  symbol: string
-  decimals: number
-  icon: string | null
-  reference: string | null
-  price: string | null
+interface FastNearToken {
+  balance: string
+  contract_id: string
+  last_update_block_height: number | null
 }
 
-interface NearBlocksFtBalance {
-  contract: string
-  amount: string
-  ft_meta: NearBlocksFtMeta
-}
-
-interface NearBlocksInventoryResponse {
-  fts: NearBlocksFtBalance[]
+interface FastNearFtResponse {
+  account_id: string
+  tokens: FastNearToken[]
 }
 
 const supportsNear = (wallet: HDWallet): wallet is NearWallet => {
@@ -127,7 +119,7 @@ interface NearFullTxResult {
   }[]
 }
 
-const NEARBLOCKS_API_URL = 'https://api.nearblocks.io/v1'
+const FASTNEAR_API_URL = 'https://api.fastnear.com/v1'
 
 export class ChainAdapter implements IChainAdapter<KnownChainIds.NearMainnet> {
   static readonly rootBip44Params: RootBip44Params = {
@@ -139,6 +131,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.NearMainnet> {
   protected readonly chainId = nearChainId
   protected readonly assetId = nearAssetId
   private readonly provider: FailoverRpcProvider
+  private readonly singleProvider: JsonRpcProvider
 
   constructor(args: ChainAdapterArgs) {
     if (args.rpcUrls.length === 0) {
@@ -146,6 +139,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.NearMainnet> {
     }
     // FailoverRpcProvider automatically switches between RPC providers on failure
     const providers = args.rpcUrls.map(url => new JsonRpcProvider({ url }))
+    this.singleProvider = providers[0]
     this.provider = new FailoverRpcProvider(providers)
   }
 
@@ -218,32 +212,28 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.NearMainnet> {
     {
       assetId: AssetId
       balance: string
-      name: string
-      precision: number
-      symbol: string
     }[]
   > {
     try {
-      const response = await fetch(`${NEARBLOCKS_API_URL}/account/${accountId}/inventory`)
+      const response = await fetch(`${FASTNEAR_API_URL}/account/${accountId}/ft`)
       if (!response.ok) {
         console.warn(`Failed to fetch NEAR token balances: ${response.status}`)
         return []
       }
 
-      const data = (await response.json()) as { inventory: NearBlocksInventoryResponse }
-      const fts = data.inventory?.fts ?? []
+      const data = (await response.json()) as FastNearFtResponse
+      const tokens = data.tokens ?? []
 
-      return fts.map(ft => ({
-        assetId: toAssetId({
-          chainId: this.chainId,
-          assetNamespace: ASSET_NAMESPACE.nep141,
-          assetReference: ft.contract,
-        }),
-        balance: ft.amount,
-        name: ft.ft_meta.name,
-        precision: ft.ft_meta.decimals,
-        symbol: ft.ft_meta.symbol,
-      }))
+      return tokens
+        .filter(token => token.balance && token.balance !== '0')
+        .map(token => ({
+          assetId: toAssetId({
+            chainId: this.chainId,
+            assetNamespace: ASSET_NAMESPACE.nep141,
+            assetReference: token.contract_id,
+          }),
+          balance: token.balance,
+        }))
     } catch (err) {
       console.warn('Failed to fetch NEAR token balances:', err)
       return []
@@ -252,8 +242,11 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.NearMainnet> {
 
   async getAccount(pubkey: string): Promise<Account<KnownChainIds.NearMainnet>> {
     try {
+      // Use singleProvider directly for account queries to get the original error message
+      // FailoverRpcProvider would retry all providers for "account doesn't exist" errors
+      // then throw a generic "Exceeded N providers" error, losing the original message
       const [accountResult, tokens] = await Promise.all([
-        this.provider.query<NearAccountResult>({
+        this.singleProvider.query<NearAccountResult>({
           request_type: 'view_account',
           finality: 'final',
           account_id: pubkey,
@@ -273,17 +266,12 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.NearMainnet> {
       }
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : String(err)
-      const errorType = (err as { type?: string }).type
 
       // Handle non-existent accounts (implicit accounts that haven't received funds yet)
-      // FailoverRpcProvider wraps errors: when all providers fail with "account doesn't exist",
-      // it throws "Exceeded N providers" with type "RetriesExceeded" - original error is lost
       if (
         errorMessage.includes("doesn't exist") ||
         errorMessage.includes('does not exist') ||
-        errorMessage.includes('UNKNOWN_ACCOUNT') ||
-        errorMessage.includes('Exceeded') ||
-        errorType === 'RetriesExceeded'
+        errorMessage.includes('UNKNOWN_ACCOUNT')
       ) {
         return {
           balance: '0',
@@ -552,7 +540,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.NearMainnet> {
 
       // For token transfers, add storage deposit amount (may be refunded)
       const storageDeposit = isTokenTransfer ? BigInt('1250000000000000000000') : 0n
-      const txFee = ((estimatedGas * gasPriceBigInt) + storageDeposit).toString()
+      const txFee = (estimatedGas * gasPriceBigInt + storageDeposit).toString()
 
       return {
         fast: {

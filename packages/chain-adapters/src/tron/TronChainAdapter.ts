@@ -583,8 +583,10 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TronMainnet> {
 
       const parsedTx = this.parse(tx, pubkey)
 
+      const txInitiator = tx.raw_data?.contract?.[0]?.parameter?.value?.owner_address
+
       const trc20Transfers = this.parseTRC20Transfers(tx, pubkey)
-      const internalTrxTransfers = this.parseInternalTrxTransfers(tx, pubkey)
+      const internalTrxTransfers = this.parseInternalTrxTransfers(tx, pubkey, txInitiator)
 
       return {
         ...parsedTx,
@@ -673,6 +675,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TronMainnet> {
   private parseInternalTrxTransfers(
     tx: unchained.tron.TronTx,
     pubkey: string,
+    txInitiator?: string,
   ): {
     assetId: AssetId
     from: string[]
@@ -711,12 +714,11 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TronMainnet> {
 
           const value = String(callInfo.callValue)
 
-          const isSend = caller_address === pubkey
-          const isReceive = transferTo_address === pubkey
+          const isDirectSend = caller_address === pubkey
+          const isDirectReceive = transferTo_address === pubkey
+          const isInitiatedByUser = txInitiator === pubkey && caller_address !== pubkey
 
-          if (!isSend && !isReceive) continue
-
-          if (isSend) {
+          if (isDirectSend) {
             transfers.push({
               assetId: this.assetId,
               from: [caller_address],
@@ -724,9 +726,17 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TronMainnet> {
               type: TransferType.Send,
               value,
             })
+          } else if (isInitiatedByUser) {
+            transfers.push({
+              assetId: this.assetId,
+              from: [txInitiator],
+              to: [transferTo_address],
+              type: TransferType.Send,
+              value,
+            })
           }
 
-          if (isReceive) {
+          if (isDirectReceive) {
             transfers.push({
               assetId: this.assetId,
               from: [caller_address],

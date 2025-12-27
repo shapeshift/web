@@ -42,7 +42,7 @@ export const queryFn = async () => {
   if (enabledFlags.Tron) assetIds.push(tronAssetId)
   if (enabledFlags.Sui) assetIds.push(suiAssetId)
 
-  for (const assetId of assetIds) {
+  for (const assetId of [...new Set(assetIds)]) {
     const asset = primaryAssets[assetId]
     const relatedAssetIds = selectRelatedAssetIds(store.getState(), { assetId })
     if (!asset) continue

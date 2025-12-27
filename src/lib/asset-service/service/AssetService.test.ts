@@ -1,10 +1,16 @@
 import type { Asset } from '@shapeshiftoss/types'
 import type { AxiosInstance } from 'axios'
 import axios from 'axios'
-import { describe, expect, it, vi } from 'vitest'
+import { beforeAll, describe, expect, it, vi } from 'vitest'
 
-import { getAssetService } from './AssetService'
+import { getAssetService, initAssetService } from './AssetService'
 import { descriptions } from './descriptions'
+
+import { ethereum as EthAsset } from '@/test/mocks/assets'
+
+beforeAll(async () => {
+  await initAssetService()
+})
 
 const mocks = vi.hoisted(() => ({
   get: vi.fn(),
@@ -27,20 +33,6 @@ vi.mock('axios', () => {
 })
 
 const mockedAxios = vi.mocked<AxiosInstance>(axios)
-
-const EthAsset: Asset = {
-  assetId: 'eip155:1/slip44:60',
-  chainId: 'eip155:1',
-  symbol: 'ETH',
-  name: 'Ethereum',
-  precision: 18,
-  color: '#FFFFFF',
-  icon: 'https://rawcdn.githack.com/trustwallet/assets/32e51d582a890b3dd3135fe3ee7c20c2fd699a6d/blockchains/ethereum/info/logo.png',
-  explorer: 'https://etherscan.io/',
-  explorerTxLink: 'https://etherscan.io/tx/',
-  explorerAddressLink: 'https://etherscan.io/address/',
-  relatedAssetKey: null,
-}
 
 vi.mock('./descriptions', () => ({
   descriptions: {
@@ -67,15 +59,6 @@ vi.mock('./descriptions', () => ({
     },
     zh: {
       'eip155:1/slip44:60': 'overridden zh description',
-    },
-  },
-}))
-
-vi.mock('./generatedAssetData.json', () => ({
-  default: {
-    'eip155:1/slip44:60': {
-      assetId: 'eip155:1/slip44:60',
-      chainId: 'eip155:1',
     },
   },
 }))

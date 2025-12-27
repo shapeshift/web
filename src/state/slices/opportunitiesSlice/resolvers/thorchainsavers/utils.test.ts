@@ -1,9 +1,9 @@
 import { btcAssetId } from '@shapeshiftoss/caip'
-import { describe, expect, it, vi } from 'vitest'
+import { beforeAll, describe, expect, it, vi } from 'vitest'
 
 import { getMaybeThorchainSaversDepositQuote } from './utils'
 
-import { getAssetService } from '@/lib/asset-service'
+import { getAssetService, initAssetService } from '@/lib/asset-service'
 
 const mocks = vi.hoisted(() => ({
   get: vi.fn(),
@@ -33,6 +33,10 @@ vi.mock('axios-cache-interceptor', () => {
     setupCache: vi.fn(axios => axios),
     buildMemoryStorage: vi.fn(),
   }
+})
+
+beforeAll(async () => {
+  await initAssetService()
 })
 
 const btcQuoteResponse = {
@@ -74,7 +78,9 @@ describe('resolvers/thorchainSavers/utils', () => {
         }),
       )
 
-      const btcAssetMock = getAssetService().assetsById[btcAssetId]
+      const assetService = getAssetService()
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      const btcAssetMock = assetService.assetsById[btcAssetId]!
       const maybeSaversQuote = await getMaybeThorchainSaversDepositQuote({
         asset: btcAssetMock,
         amountCryptoBaseUnit: '10000000',
@@ -92,7 +98,9 @@ describe('resolvers/thorchainSavers/utils', () => {
         }),
       )
 
-      const btcAssetMock = getAssetService().assetsById[btcAssetId]
+      const assetService = getAssetService()
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      const btcAssetMock = assetService.assetsById[btcAssetId]!
       expect(
         (
           await getMaybeThorchainSaversDepositQuote({

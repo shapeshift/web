@@ -22,7 +22,7 @@ const after = {
 export const SplashScreen = () => {
   return (
     <Page>
-      <Center flexDir='column' height='100vh' backgroundImage={colors.altBg} px={6} _after={after}>
+      <Center flexDir='column' height='100vh' background={colors.altBg} px={6} _after={after}>
         <Circle size='100px' mb={6}>
           <FoxIcon boxSize='100%' color='white' />
         </Circle>

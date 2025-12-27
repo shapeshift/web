@@ -7,8 +7,6 @@ import type { Asset, AssetsByIdPartial, PartialRecord } from '@shapeshiftoss/typ
 import { getAssetService } from '@/lib/asset-service'
 import { BASE_RTK_CREATE_API_CONFIG } from '@/state/apis/const'
 
-// do not export this, views get data from selectors
-// or directly from the store outside react components
 const service = getAssetService()
 
 export type AssetsState = {
@@ -55,7 +53,7 @@ export const assets = createSlice({
         return
       }
 
-      state.byId = Object.assign({}, state.byId, action.payload.byId) // upsert
+      Object.assign(state.byId, action.payload.byId)
       // Note this preserves the original sorting while removing duplicates.
       state.ids = Array.from(new Set(state.ids.concat(action.payload.ids)))
     }),
@@ -65,6 +63,11 @@ export const assets = createSlice({
       // Note this preserves the original sorting while removing duplicates.
       state.ids = Array.from(new Set(state.ids.concat(assetId)))
     }),
+    setRelatedAssetIndex: create.reducer(
+      (state, action: PayloadAction<PartialRecord<AssetId, AssetId[]>>) => {
+        state.relatedAssetIndex = action.payload
+      },
+    ),
   }),
 })
 
@@ -86,6 +89,7 @@ export const assetApi = createApi({
         const originalAsset = byIdOriginal[assetId]
 
         try {
+          const service = getAssetService()
           const { description, isTrusted } = await service.description(assetId, selectedLocale)
           const byId = {
             [assetId]: originalAsset && Object.assign(originalAsset, { description, isTrusted }),

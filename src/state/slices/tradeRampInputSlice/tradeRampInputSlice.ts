@@ -9,7 +9,7 @@ import { createTradeInputBaseSlice } from '../common/tradeInputBase/createTradeI
 
 import type { RampQuote } from '@/components/Modals/FiatRamps/config'
 import { FiatCurrencyTypeEnum } from '@/constants/FiatCurrencyTypeEnum'
-import { localAssetData } from '@/lib/asset-service'
+import { getAssetService } from '@/lib/asset-service'
 import type { FiatCurrencyItem } from '@/lib/fiatCurrencies/fiatCurrencies'
 import { fiatCurrencyItemsByCode } from '@/lib/fiatCurrencies/fiatCurrencies'
 
@@ -35,9 +35,11 @@ export type TradeRampInputState = {
   selectedSellFiatRampQuote: RampQuote | null
 }
 
+const service = getAssetService()
+
 const initialState: TradeRampInputState = {
-  buyAsset: localAssetData[btcAssetId] ?? defaultAsset,
-  sellAsset: localAssetData[ethAssetId] ?? defaultAsset,
+  buyAsset: service.assetsById[btcAssetId] ?? defaultAsset,
+  sellAsset: service.assetsById[ethAssetId] ?? defaultAsset,
   buyFiatCurrency: fiatCurrencyItemsByCode[FiatCurrencyTypeEnum.USD],
   sellFiatCurrency: fiatCurrencyItemsByCode[FiatCurrencyTypeEnum.USD],
   sellAccountId: undefined,

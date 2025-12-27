@@ -12,14 +12,7 @@ import {
   optimismAssetId,
 } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
-import {
-  createThrottle,
-  decodeAssetData,
-  decodeRelatedAssetIndex,
-  encodeAssetData,
-  encodeRelatedAssetIndex,
-  isToken,
-} from '@shapeshiftoss/utils'
+import { createThrottle, isToken } from '@shapeshiftoss/utils'
 import axios from 'axios'
 import axiosRetry from 'axios-retry'
 import fs from 'fs'
@@ -424,15 +417,14 @@ const processRelatedAssetIds = async (
 export const generateRelatedAssetIndex = async () => {
   console.log('generateRelatedAssetIndex() starting')
 
-  const encodedAssetData = JSON.parse(await fs.promises.readFile(ASSET_DATA_PATH, 'utf8'))
-  const encodedRelatedAssetIndex = JSON.parse(
+  const assetDataJson = JSON.parse(await fs.promises.readFile(ASSET_DATA_PATH, 'utf8'))
+  const relatedAssetIndexJson = JSON.parse(
     await fs.promises.readFile(RELATED_ASSET_INDEX_PATH, 'utf8'),
   )
 
-  const { assetData: generatedAssetData, sortedAssetIds } = decodeAssetData(encodedAssetData)
-  const relatedAssetIndex = REGEN_ALL
-    ? {}
-    : decodeRelatedAssetIndex(encodedRelatedAssetIndex, sortedAssetIds)
+  const generatedAssetData: Record<AssetId, Asset> = assetDataJson.byId || {}
+  const sortedAssetIds: AssetId[] = assetDataJson.ids || []
+  const relatedAssetIndex: Record<AssetId, AssetId[]> = REGEN_ALL ? {} : relatedAssetIndexJson
 
   // Remove stale related asset data from the assetData where the primary related asset no longer exists
   Object.values(generatedAssetData).forEach(asset => {
@@ -485,11 +477,11 @@ export const generateRelatedAssetIndex = async () => {
 
   clearThrottleInterval()
 
-  const reEncodedRelatedAssetIndex = encodeRelatedAssetIndex(relatedAssetIndex, sortedAssetIds)
-  const reEncodedAssetData = encodeAssetData(sortedAssetIds, generatedAssetData)
-
-  await fs.promises.writeFile(ASSET_DATA_PATH, JSON.stringify(reEncodedAssetData))
-  await fs.promises.writeFile(RELATED_ASSET_INDEX_PATH, JSON.stringify(reEncodedRelatedAssetIndex))
+  await fs.promises.writeFile(
+    ASSET_DATA_PATH,
+    JSON.stringify({ byId: generatedAssetData, ids: sortedAssetIds }, null, 2),
+  )
+  await fs.promises.writeFile(RELATED_ASSET_INDEX_PATH, JSON.stringify(relatedAssetIndex, null, 2))
 
   console.info(`generateRelatedAssetIndex() done. Successes: ${happyCount}, Failures: ${sadCount}`)
   return

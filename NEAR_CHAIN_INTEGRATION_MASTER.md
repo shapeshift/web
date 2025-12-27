@@ -6,6 +6,7 @@ This document serves as the master reference for the complete NEAR Protocol inte
 
 ### Crew Structure
 - **Master Agent (Chief)**: Coordinates all work, writes master documentation, performs final sanity checks
+- **Native Agent**: Implements base NEAR support in hdwallet-native (key derivation, signing, address generation)
 - **Ledger Agent**: Implements NEAR support for Ledger hardware wallets (hdwallet + web)
 - **Trezor Agent**: Implements NEAR support for Trezor hardware wallets (hdwallet + web)
 - **Research Agents**: Explore docs, specs, and external resources as needed

@@ -1,4 +1,5 @@
 import { KeyType, PublicKey } from '@near-js/crypto'
+import { FailoverRpcProvider, JsonRpcProvider } from '@near-js/providers'
 import {
   actionCreators,
   createTransaction,
@@ -71,22 +72,7 @@ const supportsNear = (wallet: HDWallet): wallet is NearWallet => {
 }
 
 export interface ChainAdapterArgs {
-  rpcUrl: string
-}
-
-interface NearRpcResponse<T> {
-  jsonrpc: string
-  id: string
-  result?: T
-  error?: {
-    name: string
-    cause?: {
-      name: string
-      info?: Record<string, unknown>
-    }
-    message?: string
-    data?: string
-  }
+  rpcUrls: string[]
 }
 
 interface NearAccountResult {
@@ -99,34 +85,11 @@ interface NearAccountResult {
   storage_usage: number
 }
 
-interface NearGasPriceResult {
-  gas_price: string
-}
-
 interface NearAccessKeyResult {
   block_hash: string
   block_height: number
   nonce: number
   permission: string | { FunctionCall: unknown }
-}
-
-interface NearBroadcastResult {
-  status: {
-    SuccessValue?: string
-    Failure?: unknown
-  }
-  transaction: {
-    hash: string
-    signer_id: string
-    receiver_id: string
-  }
-  transaction_outcome: {
-    block_hash: string
-    outcome: {
-      gas_burnt: number
-      tokens_burnt: string
-    }
-  }
 }
 
 interface NearFullTxResult {
@@ -175,10 +138,15 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.NearMainnet> {
 
   protected readonly chainId = nearChainId
   protected readonly assetId = nearAssetId
-  protected readonly rpcUrl: string
+  private readonly provider: FailoverRpcProvider
 
   constructor(args: ChainAdapterArgs) {
-    this.rpcUrl = args.rpcUrl
+    if (args.rpcUrls.length === 0) {
+      throw new Error('NearChainAdapter requires at least one RPC URL')
+    }
+    // FailoverRpcProvider automatically switches between RPC providers on failure
+    const providers = args.rpcUrls.map(url => new JsonRpcProvider({ url }))
+    this.provider = new FailoverRpcProvider(providers)
   }
 
   private assertSupportsChain(wallet: HDWallet): asserts wallet is NearWallet {
@@ -188,33 +156,6 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.NearMainnet> {
         options: { chain: this.getDisplayName() },
       })
     }
-  }
-
-  private async rpcCall<T>(method: string, params: unknown): Promise<T> {
-    const response = await fetch(this.rpcUrl, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        jsonrpc: '2.0',
-        id: Date.now().toString(),
-        method,
-        params,
-      }),
-    })
-
-    const data = (await response.json()) as NearRpcResponse<T>
-
-    if (data.error) {
-      const errorDetail =
-        data.error.data ?? data.error.cause?.name ?? data.error.message ?? data.error.name
-      throw new Error(typeof errorDetail === 'string' ? errorDetail : 'NEAR RPC error')
-    }
-
-    if (data.result === undefined) {
-      throw new Error('NEAR RPC returned no result')
-    }
-
-    return data.result
   }
 
   getName() {
@@ -312,7 +253,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.NearMainnet> {
   async getAccount(pubkey: string): Promise<Account<KnownChainIds.NearMainnet>> {
     try {
       const [accountResult, tokens] = await Promise.all([
-        this.rpcCall<NearAccountResult>('query', {
+        this.provider.query<NearAccountResult>({
           request_type: 'view_account',
           finality: 'final',
           account_id: pubkey,
@@ -375,7 +316,9 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.NearMainnet> {
     input: BuildSendApiTxInput<KnownChainIds.NearMainnet>,
   ): Promise<NearSignTx> {
     try {
-      const { from, accountNumber, to, value } = input
+      const { from, accountNumber, to, value, chainSpecific } = input
+      const contractAddress = chainSpecific?.contractAddress
+      const memo = chainSpecific?.memo
 
       // Convert hex public key to bytes and create PublicKey using standard NEAR format
       const pubKeyBytes = Buffer.from(from, 'hex')
@@ -383,7 +326,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.NearMainnet> {
       const publicKey = PublicKey.fromString(`ed25519:${pubKeyBase58}`)
 
       // Get current nonce from access key
-      const accessKeyResult = await this.rpcCall<NearAccessKeyResult>('query', {
+      const accessKeyResult = await this.provider.query<NearAccessKeyResult>({
         request_type: 'view_access_key',
         finality: 'final',
         account_id: from,
@@ -393,18 +336,58 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.NearMainnet> {
       const nonce = BigInt(accessKeyResult.nonce + 1)
 
       // Get latest block hash for transaction
-      const statusResult = await this.rpcCall<{ sync_info: { latest_block_hash: string } }>(
-        'status',
-        [],
-      )
+      const statusResult = await this.provider.status()
       const blockHashBase58 = statusResult.sync_info.latest_block_hash
       const blockHash = baseDecode(blockHashBase58)
 
-      // Build transfer action
-      const actions = [actionCreators.transfer(BigInt(value))]
+      // Build action based on transfer type
+      const isTokenTransfer = !!contractAddress
+
+      // Constants for NEP-141 token transfers
+      const STORAGE_DEPOSIT_AMOUNT = BigInt('1250000000000000000000') // 0.00125 NEAR for storage
+      const FT_TRANSFER_GAS = BigInt(30_000_000_000_000) // 30 TGas
+      const STORAGE_DEPOSIT_GAS = BigInt(30_000_000_000_000) // 30 TGas
+      const ONE_YOCTO = BigInt(1)
+
+      const actions = isTokenTransfer
+        ? [
+            // Action 1: Register recipient with storage_deposit
+            // If already registered, the deposit is refunded to sender
+            actionCreators.functionCall(
+              'storage_deposit',
+              {
+                account_id: to,
+                registration_only: true, // Only pay for registration, refund excess
+              },
+              STORAGE_DEPOSIT_GAS,
+              STORAGE_DEPOSIT_AMOUNT,
+            ),
+            // Action 2: NEP-141 ft_transfer
+            actionCreators.functionCall(
+              'ft_transfer',
+              {
+                receiver_id: to,
+                amount: value,
+                ...(memo ? { memo } : {}),
+              },
+              FT_TRANSFER_GAS,
+              ONE_YOCTO, // 1 yoctoNEAR deposit required for ft_transfer
+            ),
+          ]
+        : [actionCreators.transfer(BigInt(value))]
+
+      // For token transfers, the receiver is the contract; for native, it's the recipient
+      const transactionReceiver = isTokenTransfer ? contractAddress : to
 
       // Create transaction using @near-js/transactions
-      const transaction = createTransaction(from, publicKey, to, nonce, actions, blockHash)
+      const transaction = createTransaction(
+        from,
+        publicKey,
+        transactionReceiver,
+        nonce,
+        actions,
+        blockHash,
+      )
 
       // Borsh-encode the transaction
       const txBytes = transaction.encode()
@@ -511,10 +494,24 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.NearMainnet> {
     try {
       const { hex: signedTxBase64 } = input
 
-      // NEAR RPC expects base64-encoded signed transaction
-      const result = await this.rpcCall<NearBroadcastResult>('broadcast_tx_commit', [
-        signedTxBase64,
-      ])
+      // Decode base64 to SignedTransaction for the provider
+      const signedTxBytes = Buffer.from(signedTxBase64, 'base64')
+      const signedTransaction = SignedTransaction.decode(signedTxBytes)
+
+      // sendTransaction waits for the transaction to be included (broadcast_tx_commit)
+      const result = await this.provider.sendTransaction(signedTransaction)
+
+      // Check for failures - status can be object (FinalExecutionStatus) or string (FinalExecutionStatusBasic)
+      const status = result.status
+      const isFailure =
+        status === 'Failure' ||
+        (typeof status === 'object' && status !== null && 'Failure' in status)
+
+      if (isFailure) {
+        const failureInfo = typeof status === 'object' ? status : { status }
+        console.error('[NEAR broadcastTransaction] Transaction failed:', failureInfo)
+        throw new Error(`Transaction failed: ${JSON.stringify(failureInfo)}`)
+      }
 
       return result.transaction.hash
     } catch (err) {
@@ -526,18 +523,25 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.NearMainnet> {
   }
 
   async getFeeData(
-    _input: GetFeeDataInput<KnownChainIds.NearMainnet>,
+    input: GetFeeDataInput<KnownChainIds.NearMainnet>,
   ): Promise<FeeDataEstimate<KnownChainIds.NearMainnet>> {
     try {
-      const gasPriceResult = await this.rpcCall<NearGasPriceResult>('gas_price', [null])
+      const gasPriceResult = await this.provider.gasPrice(null)
 
       const gasPrice = gasPriceResult.gas_price
 
-      // Typical transfer uses ~2.5 TGas (2.5e12 gas units)
-      const estimatedGas = 2_500_000_000_000n
+      // TODO(gomes): actual gas estimates from RPC simulation
+      // Token transfers include storage_deposit (30 TGas) + ft_transfer (30 TGas) = 60 TGas
+      // Plus 0.00125 NEAR for storage deposit (refunded if recipient already registered)
+      const isTokenTransfer = !!input.chainSpecific?.contractAddress
+      const estimatedGas = isTokenTransfer
+        ? 60_000_000_000_000n // 60 TGas for storage_deposit + ft_transfer batch
+        : 2_500_000_000_000n // 2.5 TGas for native transfers
       const gasPriceBigInt = BigInt(gasPrice)
 
-      const txFee = (estimatedGas * gasPriceBigInt).toString()
+      // For token transfers, add storage deposit amount (may be refunded)
+      const storageDeposit = isTokenTransfer ? BigInt('1250000000000000000000') : 0n
+      const txFee = ((estimatedGas * gasPriceBigInt) + storageDeposit).toString()
 
       return {
         fast: {
@@ -572,18 +576,20 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.NearMainnet> {
     return
   }
 
-  async getTransactionStatus(txHash: string): Promise<TxStatus> {
+  // I swear I didn't invent this, even NEAR docs use 'dontcare': https://docs.near.org/api/rpc/transactions
+  async getTransactionStatus(txHash: string, accountId = 'dontcare'): Promise<TxStatus> {
     try {
-      const result = await this.rpcCall<{
-        status: { SuccessValue?: string; Failure?: unknown }
-      }>('tx', [txHash, 'dontcare'])
+      const result = await this.provider.txStatus(txHash, accountId, 'FINAL')
+      const status = result.status
 
-      if (result.status.SuccessValue !== undefined) {
-        return TxStatus.Confirmed
-      }
-      if (result.status.Failure) {
+      // status can be object (FinalExecutionStatus) or string (FinalExecutionStatusBasic)
+      if (typeof status === 'object' && status !== null) {
+        if ('SuccessValue' in status) return TxStatus.Confirmed
+        if ('Failure' in status) return TxStatus.Failed
+      } else if (status === 'Failure') {
         return TxStatus.Failed
       }
+
       return TxStatus.Pending
     } catch {
       return TxStatus.Unknown
@@ -592,7 +598,12 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.NearMainnet> {
 
   async parseTx(txHash: string, pubkey: string): Promise<Transaction> {
     try {
-      const result = await this.rpcCall<NearFullTxResult>('tx', [txHash, 'dontcare'])
+      // Use pubkey as sender account ID for tx lookup (or 'dontcare' if not available)
+      const result = (await this.provider.txStatus(
+        txHash,
+        pubkey || 'dontcare',
+        'FINAL',
+      )) as unknown as NearFullTxResult
 
       const status = (() => {
         if (result.status.SuccessValue !== undefined) return TxStatus.Confirmed

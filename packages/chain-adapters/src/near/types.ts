@@ -15,10 +15,13 @@ export type Token = types.AssetBalance & {
 
 export type BuildTxInput = {
   gasPrice?: string
+  contractAddress?: string // NEP-141 token contract ID for token transfers
+  memo?: string // Optional memo for token transfers
 }
 
 export type GetFeeDataInput = {
   from: string
+  contractAddress?: string // NEP-141 token contract - affects gas estimate
 }
 
 export type FeeData = {

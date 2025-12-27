@@ -17,9 +17,14 @@ export default function register(): Plugins {
             [
               KnownChainIds.NearMainnet,
               () => {
-                return new near.ChainAdapter({
-                  rpcUrl: getConfig().VITE_NEAR_NODE_URL,
-                })
+                const config = getConfig()
+                const rpcUrls = [
+                  config.VITE_NEAR_NODE_URL,
+                  config.VITE_NEAR_NODE_URL_FALLBACK_1,
+                  config.VITE_NEAR_NODE_URL_FALLBACK_2,
+                ].filter(Boolean)
+
+                return new near.ChainAdapter({ rpcUrls })
               },
             ],
           ],

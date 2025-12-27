@@ -315,13 +315,25 @@ const supportsNear = (wallet: HDWallet) => {
 - Added token balance fetching via Nearblocks API
 - Fixed coingecko test for USDC on NEAR
 
-### Session 4 (Current)
+### Session 4
 - Implemented Ledger NEAR support (hdwallet-ledger + web integration)
 - Implemented Trezor NEAR support (hdwallet-trezor + web integration)
 - Added hw-app-near dependency
 - Created master documentation
 
+### Session 5
+- Fixed CSP for nearblocks API (removed `/v1` path from env var, CSP needs origin only)
+- Token balance fetching now works with proper CSP
+
+### Session 6 (Current)
+- **Fixed NEP-141 token sends** - was always building native Transfer, now uses ft_transfer
+- Added `contractAddress` and `memo` to NEAR BuildTxInput types
+- Updated `buildSendApiTransaction` to use `actionCreators.functionCall('ft_transfer', ...)` for tokens
+- Updated `getFeeData` to estimate 30 TGas for token transfers (vs 2.5 TGas for native)
+- Updated Send modal to pass `contractAddress` to chain adapter
+- Added parseTx guidance to chain-integration skill
+
 ---
 
-*Last Updated: Session 4*
-*Status: Hardware wallet implementation complete, pending final verification*
+*Last Updated: Session 6*
+*Status: NEP-141 token sends now work correctly*

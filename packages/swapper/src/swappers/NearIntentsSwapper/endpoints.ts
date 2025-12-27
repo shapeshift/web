@@ -263,13 +263,14 @@ export const nearIntentsApi: SwapperApi = {
 
     const to = nearIntentsSpecific.depositAddress
     const value = step.sellAmountIncludingProtocolFeesCryptoBaseUnit
+    const contractAddress = contractAddressOrUndefined(sellAsset.assetId)
 
     return await adapter.buildSendApiTransaction({
       to,
       from,
       value,
       accountNumber,
-      chainSpecific: {},
+      chainSpecific: { contractAddress },
     })
   },
 

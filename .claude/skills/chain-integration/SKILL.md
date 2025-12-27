@@ -2211,6 +2211,47 @@ console.log('[Send] contractAddress:', contractAddressOrUndefined(asset.assetId)
 
 ---
 
+### Gotcha 22: Ledger "TypeError: coin" Error (Missing translateCoinAndMethod case)
+
+**Problem**:
+- Ledger connection works for other chains
+- But new chain throws `TypeError: coin` when deriving address
+- Error trace shows `translateCoinAndMethod` hitting `default: throw new TypeError("coin")`
+
+**Root Cause**: For non-EVM chains, `translateCoinAndMethod` in Ledger WebHID/WebUSB transport needs a case for the new coin type.
+
+**Files to update**:
+1. `packages/hdwallet-ledger-webhid/src/transport.ts`
+2. `packages/hdwallet-ledger-webusb/src/transport.ts`
+
+**Solution**: Add import and case for the new chain's Ledger app:
+
+```typescript
+// 1. Add import at top
+import Near from "@ledgerhq/hw-app-near";
+
+// 2. Add case in translateCoinAndMethod switch
+case "Near": {
+  const near = new Near(transport as Transport);
+  const methodInstance = near[method as LedgerTransportMethodName<"Near">].bind(near);
+  return methodInstance as LedgerTransportMethod<T, U>;
+}
+```
+
+**Prerequisites**:
+- `@ledgerhq/hw-app-[chainname]` must exist as npm package
+- Chain must be in `LedgerTransportCoinType` union in `packages/hdwallet-ledger/src/transport.ts`
+
+**EVM chains**: Not affected - they use the Ethereum app via `case "Eth"`.
+
+**Checklist for new non-EVM Ledger chain**:
+- [ ] Add to `LedgerTransportCoinType` in `hdwallet-ledger/src/transport.ts`
+- [ ] Add to `LedgerTransportMethodMap` type mapping in same file
+- [ ] Add import + case in `hdwallet-ledger-webhid/src/transport.ts`
+- [ ] Add import + case in `hdwallet-ledger-webusb/src/transport.ts`
+
+---
+
 ## Quick Reference: File Checklist
 
 ### HDWallet Files (Required)

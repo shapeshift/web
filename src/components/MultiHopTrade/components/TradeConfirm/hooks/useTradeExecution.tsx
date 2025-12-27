@@ -253,7 +253,9 @@ export const useTradeExecution = (
           if (actualBuyAmountCryptoBaseUnit) {
             const freshActiveSwapId = swapSlice.selectors.selectActiveSwapId(store.getState())
             if (freshActiveSwapId) {
-              const currentSwap = swapSlice.selectors.selectSwapsById(store.getState())[freshActiveSwapId]
+              const currentSwap = swapSlice.selectors.selectSwapsById(store.getState())[
+                freshActiveSwapId
+              ]
               if (currentSwap) {
                 dispatch(
                   swapSlice.actions.upsertSwap({
@@ -279,7 +281,9 @@ export const useTradeExecution = (
         if (actualBuyAmountCryptoBaseUnit) {
           const freshActiveSwapId = swapSlice.selectors.selectActiveSwapId(store.getState())
           if (freshActiveSwapId) {
-            const currentSwap = swapSlice.selectors.selectSwapsById(store.getState())[freshActiveSwapId]
+            const currentSwap = swapSlice.selectors.selectSwapsById(store.getState())[
+              freshActiveSwapId
+            ]
             if (currentSwap) {
               dispatch(
                 swapSlice.actions.upsertSwap({

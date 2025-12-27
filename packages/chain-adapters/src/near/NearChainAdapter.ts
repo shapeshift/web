@@ -5,13 +5,19 @@ import {
   Signature,
   SignedTransaction,
 } from '@near-js/transactions'
+import { baseDecode, baseEncode } from '@near-js/utils'
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
-import { ASSET_REFERENCE, nearAssetId, nearChainId } from '@shapeshiftoss/caip'
+import {
+  ASSET_NAMESPACE,
+  ASSET_REFERENCE,
+  nearAssetId,
+  nearChainId,
+  toAssetId,
+} from '@shapeshiftoss/caip'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import type { Bip44Params, RootBip44Params } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { TransferType, TxStatus } from '@shapeshiftoss/unchained-client'
-import bs58 from 'bs58'
 
 import type { ChainAdapter as IChainAdapter } from '../api'
 import { ChainAdapterError, ErrorHandler } from '../error/ErrorHandler'
@@ -39,6 +45,25 @@ interface NearWallet extends HDWallet {
     addressNList: number[]
     txBytes: Uint8Array
   }): Promise<{ signature: string; publicKey: string } | null>
+}
+
+interface NearBlocksFtMeta {
+  name: string
+  symbol: string
+  decimals: number
+  icon: string | null
+  reference: string | null
+  price: string | null
+}
+
+interface NearBlocksFtBalance {
+  contract: string
+  amount: string
+  ft_meta: NearBlocksFtMeta
+}
+
+interface NearBlocksInventoryResponse {
+  fts: NearBlocksFtBalance[]
 }
 
 const supportsNear = (wallet: HDWallet): wallet is NearWallet => {
@@ -138,6 +163,8 @@ interface NearFullTxResult {
     }
   }[]
 }
+
+const NEARBLOCKS_API_URL = 'https://api.nearblocks.io/v1'
 
 export class ChainAdapter implements IChainAdapter<KnownChainIds.NearMainnet> {
   static readonly rootBip44Params: RootBip44Params = {
@@ -244,13 +271,52 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.NearMainnet> {
     }
   }
 
+  private async fetchTokenBalances(accountId: string): Promise<
+    {
+      assetId: AssetId
+      balance: string
+      name: string
+      precision: number
+      symbol: string
+    }[]
+  > {
+    try {
+      const response = await fetch(`${NEARBLOCKS_API_URL}/account/${accountId}/inventory`)
+      if (!response.ok) {
+        console.warn(`Failed to fetch NEAR token balances: ${response.status}`)
+        return []
+      }
+
+      const data = (await response.json()) as { inventory: NearBlocksInventoryResponse }
+      const fts = data.inventory?.fts ?? []
+
+      return fts.map(ft => ({
+        assetId: toAssetId({
+          chainId: this.chainId,
+          assetNamespace: ASSET_NAMESPACE.nep141,
+          assetReference: ft.contract,
+        }),
+        balance: ft.amount,
+        name: ft.ft_meta.name,
+        precision: ft.ft_meta.decimals,
+        symbol: ft.ft_meta.symbol,
+      }))
+    } catch (err) {
+      console.warn('Failed to fetch NEAR token balances:', err)
+      return []
+    }
+  }
+
   async getAccount(pubkey: string): Promise<Account<KnownChainIds.NearMainnet>> {
     try {
-      const accountResult = await this.rpcCall<NearAccountResult>('query', {
-        request_type: 'view_account',
-        finality: 'final',
-        account_id: pubkey,
-      })
+      const [accountResult, tokens] = await Promise.all([
+        this.rpcCall<NearAccountResult>('query', {
+          request_type: 'view_account',
+          finality: 'final',
+          account_id: pubkey,
+        }),
+        this.fetchTokenBalances(pubkey),
+      ])
 
       return {
         balance: accountResult.amount,
@@ -258,7 +324,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.NearMainnet> {
         assetId: this.assetId,
         chain: this.getType(),
         chainSpecific: {
-          tokens: [],
+          tokens,
         },
         pubkey,
       }
@@ -311,7 +377,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.NearMainnet> {
 
       // Convert hex public key to bytes and create PublicKey using standard NEAR format
       const pubKeyBytes = Buffer.from(from, 'hex')
-      const pubKeyBase58 = bs58.encode(pubKeyBytes)
+      const pubKeyBase58 = baseEncode(pubKeyBytes)
       const publicKey = PublicKey.fromString(`ed25519:${pubKeyBase58}`)
 
       // Get current nonce from access key
@@ -330,7 +396,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.NearMainnet> {
         [],
       )
       const blockHashBase58 = statusResult.sync_info.latest_block_hash
-      const blockHash = bs58.decode(blockHashBase58)
+      const blockHash = baseDecode(blockHashBase58)
 
       // Build transfer action
       const actions = [actionCreators.transfer(BigInt(value))]

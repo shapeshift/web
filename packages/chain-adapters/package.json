@@ -32,6 +32,7 @@
     "@mysten/sui": "1.45.0",
     "@near-js/crypto": "^2.5.1",
     "@near-js/transactions": "^2.5.1",
+    "@near-js/utils": "^2.5.1",
     "@shapeshiftoss/caip": "workspace:^",
     "@shapeshiftoss/hdwallet-core": "1.62.35-near-chain.1",
     "@shapeshiftoss/hdwallet-ledger": "1.62.35-near-chain.1",

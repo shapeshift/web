@@ -21,6 +21,7 @@ import solana from './solana_5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp/adapter.json'
 import sui from './sui_35834a8a/adapter.json'
 import tron from './tron_0x2b6653dc/adapter.json'
 import zcash from './bip122_00040fe8ec8471911baa1db1266ea15d/adapter.json'
+import near from './near_mainnet/adapter.json'
 
 export {
 	bitcoin,
@@ -45,5 +46,6 @@ export {
 	solana,
 	sui,
 	tron,
-	zcash
+	zcash,
+	near
 }

@@ -5,6 +5,7 @@ import type {
   CosmosSdkTransactionExecutionInput,
   EvmMessageExecutionInput,
   EvmTransactionExecutionInput,
+  NearTransactionExecutionInput,
   RelayerTxDetailsArgs,
   SellTxHashArgs,
   SolanaTransactionExecutionInput,
@@ -32,6 +33,7 @@ import { EventEmitter } from 'node:events'
 
 import { assertGetCosmosSdkChainAdapter } from './utils/cosmosSdk'
 import { assertGetEvmChainAdapter } from './utils/evm'
+import { assertGetNearChainAdapter } from './utils/near'
 import { assertGetSolanaChainAdapter } from './utils/solana'
 import { assertGetSuiChainAdapter } from './utils/sui'
 import { assertGetTronChainAdapter } from './utils/tron'
@@ -89,6 +91,7 @@ export const fetchTradeStatus = async ({
     assertGetSolanaChainAdapter,
     assertGetTronChainAdapter,
     assertGetSuiChainAdapter,
+    assertGetNearChainAdapter,
     fetchIsSmartContractAddressQuery,
   })
 
@@ -640,6 +643,57 @@ export class TradeExecution {
       })
 
       return await swapper.executeSuiTransaction(unsignedTxResult, {
+        signAndBroadcastTransaction,
+      })
+    }
+
+    return await this._execWalletAgnostic(
+      {
+        swapperName,
+        tradeQuote,
+        stepIndex,
+        slippageTolerancePercentageDecimal,
+      },
+      buildSignBroadcast,
+    )
+  }
+
+  async execNearTransaction({
+    swapperName,
+    tradeQuote,
+    stepIndex,
+    slippageTolerancePercentageDecimal,
+    from,
+    signAndBroadcastTransaction,
+  }: NearTransactionExecutionInput) {
+    const buildSignBroadcast = async (
+      swapper: Swapper & SwapperApi,
+      {
+        tradeQuote,
+        chainId,
+        stepIndex,
+        slippageTolerancePercentageDecimal,
+        config,
+      }: CommonGetUnsignedTransactionArgs,
+    ) => {
+      if (!swapper.getUnsignedNearTransaction) {
+        throw Error('missing implementation for getUnsignedNearTransaction')
+      }
+      if (!swapper.executeNearTransaction) {
+        throw Error('missing implementation for executeNearTransaction')
+      }
+
+      const unsignedTxResult = await swapper.getUnsignedNearTransaction({
+        tradeQuote,
+        chainId,
+        stepIndex,
+        slippageTolerancePercentageDecimal,
+        from,
+        config,
+        assertGetNearChainAdapter,
+      })
+
+      return await swapper.executeNearTransaction(unsignedTxResult, {
         signAndBroadcastTransaction,
       })
     }

@@ -16,6 +16,7 @@ import { accountToPortfolio, haveSameElements, makeAssets } from './utils'
 import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
 import { queryClient } from '@/context/QueryClientProvider/queryClient'
 import { fetchIsSmartContractAddressQuery } from '@/hooks/useIsSmartContractAddress/useIsSmartContractAddress'
+import { HypeLabEvent, trackHypeLabEvent } from '@/lib/hypelab/hypelabSingleton'
 import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from '@/lib/mixpanel/types'
 import { accountManagement } from '@/react-queries/queries/accountManagement'
@@ -54,10 +55,14 @@ export const portfolio = createSlice({
 
           const data = { 'Wallet Id': walletId, 'Wallet Name': walletName }
           // if we already have state.walletId, we're switching wallets, otherwise connecting
+          const isNewConnect = !state.connectedWallet?.id
           getMixPanel()?.track(
-            state.connectedWallet?.id ? MixPanelEvent.SwitchWallet : MixPanelEvent.ConnectWallet,
+            isNewConnect ? MixPanelEvent.ConnectWallet : MixPanelEvent.SwitchWallet,
             data,
           )
+          if (isNewConnect) {
+            trackHypeLabEvent(HypeLabEvent.WalletConnected)
+          }
           state.connectedWallet = {
             id: walletId,
             name: walletName,

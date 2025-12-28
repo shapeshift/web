@@ -88,11 +88,16 @@ export const GroupedAssetRow: FC<GroupedAssetRowProps> = ({
   )
 
   const networksIcons = useMemo(() => {
-    return relatedAssetIds.map((assetId, index) => {
-      const feeAsset = selectFeeAssetByChainId(store.getState(), fromAssetId(assetId).chainId)
+    // Deduplicate by chainId to show each chain only once
+    const uniqueChainIds = Array.from(
+      new Set(relatedAssetIds.map(assetId => fromAssetId(assetId).chainId)),
+    )
+
+    return uniqueChainIds.map((chainId, index) => {
+      const feeAsset = selectFeeAssetByChainId(store.getState(), chainId)
       return (
         <Box
-          key={feeAsset?.chainId}
+          key={chainId}
           borderRadius='full'
           display='flex'
           alignItems='center'
@@ -101,7 +106,7 @@ export const GroupedAssetRow: FC<GroupedAssetRowProps> = ({
           boxSize='16px'
           color='white'
           fontWeight='bold'
-          zIndex={relatedAssetIds.length - index} // Higher z-index for earlier items
+          zIndex={uniqueChainIds.length - index} // Higher z-index for earlier items
           ml={index > 0 ? -1.5 : 0}
           border='1px solid'
           borderColor='background.surface.overlay.base'

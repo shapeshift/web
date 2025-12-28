@@ -29,6 +29,7 @@ import { TradeRoutePaths } from '@/components/MultiHopTrade/types'
 import { useErrorToast } from '@/hooks/useErrorToast/useErrorToast'
 import { useNotificationToast } from '@/hooks/useNotificationToast'
 import { useWallet } from '@/hooks/useWallet/useWallet'
+import { HypeLabEvent, trackHypeLabEvent } from '@/lib/hypelab/hypelabSingleton'
 import { MixPanelEvent } from '@/lib/mixpanel/types'
 import { TradeExecution } from '@/lib/tradeExecution'
 import { assertUnreachable } from '@/lib/utils'
@@ -53,7 +54,7 @@ import {
   selectTradeSlippagePercentageDecimal,
 } from '@/state/slices/tradeQuoteSlice/selectors'
 import { tradeQuoteSlice } from '@/state/slices/tradeQuoteSlice/tradeQuoteSlice'
-import { useAppDispatch, useAppSelector } from '@/state/store'
+import { store, useAppDispatch, useAppSelector } from '@/state/store'
 
 export const useTradeExecution = (
   hopIndex: SupportedTradeQuoteStepIndex,
@@ -169,6 +170,9 @@ export const useTradeExecution = (
         const event =
           hopIndex === 0 ? MixPanelEvent.TradeConfirm : MixPanelEvent.TradeConfirmSecondHop
         trackMixpanelEvent(event, eventDataSnapshot)
+        if (hopIndex === 0) {
+          trackHypeLabEvent(HypeLabEvent.TradeConfirm)
+        }
       }
 
       const execution = new TradeExecution()
@@ -245,15 +249,21 @@ export const useTradeExecution = (
           }
 
           // Update the swap with the actual buy amount if available
-          if (actualBuyAmountCryptoBaseUnit && activeSwapId) {
-            const currentSwap = swapsById[activeSwapId]
-            if (currentSwap) {
-              dispatch(
-                swapSlice.actions.upsertSwap({
-                  ...currentSwap,
-                  actualBuyAmountCryptoBaseUnit,
-                }),
-              )
+          // Read fresh state to avoid stale closure - swapsById captured at render time may have outdated status
+          if (actualBuyAmountCryptoBaseUnit) {
+            const freshActiveSwapId = swapSlice.selectors.selectActiveSwapId(store.getState())
+            if (freshActiveSwapId) {
+              const currentSwap = swapSlice.selectors.selectSwapsById(store.getState())[
+                freshActiveSwapId
+              ]
+              if (currentSwap) {
+                dispatch(
+                  swapSlice.actions.upsertSwap({
+                    ...currentSwap,
+                    actualBuyAmountCryptoBaseUnit,
+                  }),
+                )
+              }
             }
           }
         },
@@ -267,15 +277,21 @@ export const useTradeExecution = (
         }
 
         // Update the swap with the actual buy amount if available
-        if (actualBuyAmountCryptoBaseUnit && activeSwapId) {
-          const currentSwap = swapsById[activeSwapId]
-          if (currentSwap) {
-            dispatch(
-              swapSlice.actions.upsertSwap({
-                ...currentSwap,
-                actualBuyAmountCryptoBaseUnit,
-              }),
-            )
+        // Read fresh state to avoid stale closure - swapsById captured at render time may have outdated status
+        if (actualBuyAmountCryptoBaseUnit) {
+          const freshActiveSwapId = swapSlice.selectors.selectActiveSwapId(store.getState())
+          if (freshActiveSwapId) {
+            const currentSwap = swapSlice.selectors.selectSwapsById(store.getState())[
+              freshActiveSwapId
+            ]
+            if (currentSwap) {
+              dispatch(
+                swapSlice.actions.upsertSwap({
+                  ...currentSwap,
+                  actualBuyAmountCryptoBaseUnit,
+                }),
+              )
+            }
           }
         }
 
@@ -311,6 +327,7 @@ export const useTradeExecution = (
         const isLastHop = hopIndex === tradeQuote.steps.length - 1
         if (isLastHop && !hasMixpanelSuccessOrFailFiredRef.current) {
           trackMixpanelEvent(MixPanelEvent.TradeSuccess, eventDataSnapshot)
+          trackHypeLabEvent(HypeLabEvent.TradeSuccess)
           hasMixpanelSuccessOrFailFiredRef.current = true
         }
 

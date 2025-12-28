@@ -17,9 +17,11 @@ import {
 import type {
   TenderlyConfig,
   TenderlyErrorResponse,
+  TenderlyInternalTransaction,
   TenderlySimulationRequest,
   TenderlySimulationResponse,
   TenderlyStateOverrides,
+  TenderlyTransactionResponse,
 } from './types'
 
 export type SimulationResult = {
@@ -110,6 +112,34 @@ export const simulateWithStateOverrides = async (
       gasLimit: 0n,
       errorMessage: error instanceof Error ? error.message : 'Unknown simulation error',
     }
+  }
+}
+
+export const fetchInternalTransactions = async (
+  params: {
+    chainId: ChainId
+    txHash: string
+  },
+  config: TenderlyConfig,
+): Promise<TenderlyInternalTransaction[]> => {
+  const { chainId, txHash } = params
+
+  try {
+    const evmNetworkId = Number(fromChainId(chainId).chainReference)
+
+    const url = `https://api.tenderly.co/api/v1/account/${config.accountSlug}/project/${config.projectSlug}/transactions/by-hash/${evmNetworkId}/${txHash}`
+
+    const response = await axios.get<TenderlyTransactionResponse>(url, {
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Access-Key': config.apiKey,
+      },
+      timeout: 10000,
+    })
+
+    return response.data.transaction.internal_transactions ?? []
+  } catch (error) {
+    return []
   }
 }
 

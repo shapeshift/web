@@ -25,12 +25,15 @@ import { getTradeQuoteOrRateInput } from '@/components/MultiHopTrade/hooks/useGe
 import { useHasFocus } from '@/hooks/useHasFocus'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { useWalletSupportsChain } from '@/hooks/useWalletSupportsChain/useWalletSupportsChain'
-import { DEFAULT_FEE_BPS } from '@/lib/fees/constant'
+import { getAffiliateBps } from '@/lib/fees/utils'
+import { fromBaseUnit } from '@/lib/math'
 import { swapperApi } from '@/state/apis/swapper/swapperApi'
 import {
   selectPortfolioAccountMetadataByAccountId,
   selectUsdRateByAssetId,
+  selectWalletSwapsById,
 } from '@/state/slices/selectors'
+import { swapSlice } from '@/state/slices/swapSlice/swapSlice'
 import {
   selectFirstHopSellAccountId,
   selectInputBuyAsset,
@@ -64,6 +67,8 @@ export const useGetTradeQuotes = () => {
     undefined,
   )
   const confirmedTradeExecution = useAppSelector(selectConfirmedTradeExecution)
+  const swapsById = useAppSelector(selectWalletSwapsById)
+  const activeSwapId = useAppSelector(swapSlice.selectors.selectActiveSwapId)
 
   useEffect(
     () => {
@@ -199,7 +204,7 @@ export const useGetTradeQuotes = () => {
           receiveAddress,
           sellAmountBeforeFeesCryptoPrecision: sellAmountCryptoPrecision,
           allowMultiHop: true,
-          affiliateBps: DEFAULT_FEE_BPS,
+          affiliateBps: getAffiliateBps(sellAsset, buyAsset),
           // Pass in the user's slippage preference if it's set, else let the swapper use its default
           slippageTolerancePercentageDecimal: userSlippageTolerancePercentageDecimal,
           pubKey:
@@ -284,7 +289,32 @@ export const useGetTradeQuotes = () => {
     // Set as both confirmed *and* active
     dispatch(tradeQuoteSlice.actions.setActiveQuote(quoteData))
     dispatch(tradeQuoteSlice.actions.setConfirmedQuote(quoteData.quote))
-  }, [activeTrade, activeQuoteMeta, dispatch, queryStateMeta.data, confirmedTradeExecution])
+
+    if (!activeSwapId || !('steps' in quoteData.quote)) return
+
+    const lastStep = quoteData.quote.steps[quoteData.quote.steps.length - 1]
+    const activeSwap = swapsById[activeSwapId]
+    if (!activeSwap) return
+
+    dispatch(
+      swapSlice.actions.upsertSwap({
+        ...activeSwap,
+        expectedBuyAmountCryptoBaseUnit: lastStep.buyAmountAfterFeesCryptoBaseUnit,
+        expectedBuyAmountCryptoPrecision: fromBaseUnit(
+          lastStep.buyAmountAfterFeesCryptoBaseUnit,
+          lastStep.buyAsset.precision,
+        ),
+      }),
+    )
+  }, [
+    activeTrade,
+    activeQuoteMeta,
+    dispatch,
+    queryStateMeta.data,
+    confirmedTradeExecution,
+    swapsById,
+    activeSwapId,
+  ])
 
   return queryStateMeta
 }

@@ -11,6 +11,10 @@ import { Display } from '@/components/Display'
 import { InlineCopyButton } from '@/components/InlineCopyButton'
 import { PageBackButton, PageHeader } from '@/components/Layout/Header/PageHeader'
 import { Text } from '@/components/Text'
+import { KeyManager } from '@/context/WalletProvider/KeyManager'
+import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
+import { useWallet } from '@/hooks/useWallet/useWallet'
+import { selectWalletType } from '@/state/slices/localWalletSlice/selectors'
 import { selectPortfolioAccountIdsByAssetIdFilter } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
@@ -19,6 +23,14 @@ const accountDropdownButtonProps = { variant: 'solid', width: 'full' }
 const accountDropdownBoxProps = { px: 0, my: 0 }
 
 export const FoxHeader = () => {
+  const {
+    state: { isConnected: isWalletConnected },
+  } = useWallet()
+  const walletType = useAppSelector(selectWalletType)
+  const isLedgerReadOnlyEnabled = useFeatureFlag('LedgerReadOnly')
+  const isLedgerReadOnly = isLedgerReadOnlyEnabled && walletType === KeyManager.Ledger
+  const isConnected = isWalletConnected || isLedgerReadOnly
+
   const translate = useTranslate()
   const { assetId, setAssetAccountId, assetAccountId } = useFoxPageContext()
   const accountIdsFilter = useMemo(() => ({ assetId }), [assetId])
@@ -64,6 +76,7 @@ export const FoxHeader = () => {
   )
 
   const activeAccountDropdown = useMemo(() => {
+    if (!isConnected) return null
     if (accountIds.length <= 1) return null
 
     return (
@@ -85,7 +98,7 @@ export const FoxHeader = () => {
         </InlineCopyButton>
       </Flex>
     )
-  }, [accountIds.length, setAssetAccountId, assetAccountId, assetId])
+  }, [isConnected, accountIds.length, setAssetAccountId, assetAccountId, assetId])
 
   return (
     <>

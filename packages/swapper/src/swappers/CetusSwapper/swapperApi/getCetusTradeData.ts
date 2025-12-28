@@ -1,3 +1,5 @@
+import type { RouterDataV3 } from '@cetusprotocol/aggregator-sdk'
+import { getProvidersExcluding } from '@cetusprotocol/aggregator-sdk'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { suiAssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
@@ -7,7 +9,7 @@ import { Err, Ok } from '@sniptt/monads'
 import type { ProtocolFee, SwapErrorRight, SwapperDeps } from '../../../types'
 import { TradeQuoteError } from '../../../types'
 import { getInputOutputRate, makeSwapErrorRight } from '../../../utils'
-import { isSupportedChainId } from '../utils/constants'
+import { isSupportedChainId, PYTH_DEPENDENT_PROVIDERS } from '../utils/constants'
 import { findBestRoute, getAggregatorClient, getCoinType } from '../utils/helpers'
 
 type CetusTradeDataInput = {
@@ -22,8 +24,11 @@ type CetusTradeData = {
   rate: string
   addressForFeeEstimate: string
   sellCoinType: string
+  buyCoinType: string
+  routerData: RouterDataV3
   protocolFees: Record<AssetId, ProtocolFee>
   adapter: ReturnType<SwapperDeps['assertGetSuiChainAdapter']>
+  rpcUrl: string
 }
 
 export const getCetusTradeData = async (
@@ -74,11 +79,15 @@ export const getCetusTradeData = async (
     const sellCoinType = getCoinType(sellAsset)
     const buyCoinType = getCoinType(buyAsset)
 
+    // Exclude Pyth-dependent providers to avoid oracle failures
+    const providersWithoutPyth = getProvidersExcluding(PYTH_DEPENDENT_PROVIDERS)
+
     const routerData = await findBestRoute(
       client,
       sellCoinType,
       buyCoinType,
       sellAmountIncludingProtocolFeesCryptoBaseUnit,
+      providersWithoutPyth,
     )
 
     if (!routerData) {
@@ -109,8 +118,11 @@ export const getCetusTradeData = async (
       rate,
       addressForFeeEstimate,
       sellCoinType,
+      buyCoinType,
+      routerData,
       protocolFees,
       adapter,
+      rpcUrl,
     })
   } catch (error) {
     return Err(

@@ -1,10 +1,14 @@
+import { Transaction } from '@cetusprotocol/aggregator-sdk/node_modules/@mysten/sui/transactions'
+import { bnOrZero } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err } from '@sniptt/monads'
 import { v4 as uuid } from 'uuid'
 
+import { getDefaultSlippageDecimalPercentageForSwapper } from '../../../constants'
 import type { GetTradeRateInput, SwapErrorRight, SwapperDeps, TradeRate } from '../../../types'
 import { SwapperName, TradeQuoteError } from '../../../types'
 import { makeSwapErrorRight } from '../../../utils'
+import { getAggregatorClient, getSuiClient } from '../utils/helpers'
 import { getCetusTradeData } from './getCetusTradeData'
 
 export const getTradeRate = async (
@@ -36,20 +40,55 @@ export const getTradeRate = async (
     buyAmountAfterFeesCryptoBaseUnit,
     rate,
     addressForFeeEstimate,
-    sellCoinType,
+    routerData,
     protocolFees,
-    adapter,
+    rpcUrl,
   } = tradeDataResult.unwrap()
 
   try {
-    const { fast: feeDataFast } = await adapter.getFeeData({
-      to: addressForFeeEstimate,
-      value: sellAmount,
-      chainSpecific: {
-        from: addressForFeeEstimate,
-        tokenId: sellCoinType,
-      },
+    // Build the actual Cetus swap transaction to get accurate gas estimation
+    const client = getAggregatorClient(rpcUrl)
+    const suiClient = getSuiClient(rpcUrl)
+
+    const slippage = bnOrZero(
+      slippageTolerancePercentageDecimal ??
+        getDefaultSlippageDecimalPercentageForSwapper(SwapperName.Cetus),
+    ).toNumber()
+
+    const txb = new Transaction()
+    txb.setSender(addressForFeeEstimate)
+
+    await client.fastRouterSwap({
+      router: routerData,
+      slippage,
+      txb,
+      refreshAllCoins: true,
     })
+
+    const txFee = await (async () => {
+      try {
+        const transactionBytes = await txb.build({ client: suiClient })
+
+        const dryRunResult = await suiClient.dryRunTransactionBlock({
+          transactionBlock: transactionBytes,
+        })
+
+        const computationCost = BigInt(dryRunResult.effects.gasUsed.computationCost)
+        const storageCost = BigInt(dryRunResult.effects.gasUsed.storageCost)
+        const storageRebate = BigInt(dryRunResult.effects.gasUsed.storageRebate)
+
+        const netStorageCost = storageCost > storageRebate ? storageCost - storageRebate : 0n
+
+        const estimatedGas = computationCost + netStorageCost
+
+        return estimatedGas.toString()
+      } catch (error) {
+        if (error instanceof Error && error.message.includes('Not enough coins of type')) {
+          return undefined
+        }
+        throw error
+      }
+    })()
 
     const tradeRate: TradeRate = {
       id: uuid(),
@@ -67,7 +106,7 @@ export const getTradeRate = async (
           sellAmountIncludingProtocolFeesCryptoBaseUnit: sellAmount,
           feeData: {
             protocolFees,
-            networkFeeCryptoBaseUnit: feeDataFast.txFee,
+            networkFeeCryptoBaseUnit: txFee,
           },
           rate,
           source: SwapperName.Cetus,

@@ -101,6 +101,11 @@ export const relayTokenToAssetId = (relayToken: RelayToken): AssetId => {
           assetReference: ASSET_REFERENCE.Base,
           assetNamespace: ASSET_NAMESPACE.slip44,
         }
+      case CHAIN_REFERENCE.BnbSmartChainMainnet:
+        return {
+          assetReference: ASSET_REFERENCE.BnbSmartChain,
+          assetNamespace: ASSET_NAMESPACE.slip44,
+        }
       case CHAIN_REFERENCE.BitcoinMainnet:
         return {
           assetReference: ASSET_REFERENCE.Bitcoin,

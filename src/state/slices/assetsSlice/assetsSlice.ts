@@ -58,6 +58,23 @@ export const assets = createSlice({
       state.byId = Object.assign({}, state.byId, action.payload.byId) // upsert
       // Note this preserves the original sorting while removing duplicates.
       state.ids = Array.from(new Set(state.ids.concat(action.payload.ids)))
+
+      // [PERF SPIKE] Assets upsert monitor - track redundant ids array
+      if (import.meta.env.DEV) {
+        const byIdCount = Object.keys(state.byId).length
+        const idsCount = state.ids.length
+        console.log(
+          '[ASSETS_UPSERT]',
+          JSON.stringify({
+            upsertedCount: Object.keys(action.payload.byId).length,
+            totalByIdCount: byIdCount,
+            totalIdsCount: idsCount,
+            idsRedundant: byIdCount === idsCount,
+            idsArrayByteSize: JSON.stringify(state.ids).length,
+            relatedAssetIndexSize: Object.keys(state.relatedAssetIndex).length,
+          }),
+        )
+      }
     }),
     upsertAsset: create.reducer((state, action: PayloadAction<Asset>) => {
       const { assetId } = action.payload

@@ -465,6 +465,24 @@ export const tradeQuoteSlice = createSlice({
 
         // Keep all quotes in their sorted order, regardless of errors
         state.tradeQuoteDisplayCache = allQuotes
+
+        // [PERF SPIKE] Trade quote cache monitor
+        if (import.meta.env.DEV) {
+          const tradeQuotesCount = Object.values(state.tradeQuotes).reduce(
+            (sum, quotes) => sum + Object.keys(quotes).length,
+            0,
+          )
+          console.log(
+            '[QUOTE_CACHE]',
+            JSON.stringify({
+              displayCacheLength: state.tradeQuoteDisplayCache.length,
+              tradeQuotesCount,
+              executionStatesCount: Object.keys(state.tradeExecution).length,
+              staleQuotesCount: staleQuotes.length,
+              freshQuotesCount: sortedQuotes.length,
+            }),
+          )
+        }
       },
     ),
     setHopProgress: create.reducer(

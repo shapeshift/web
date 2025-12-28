@@ -141,47 +141,6 @@ export const persistor = persistStore(store)
 // dev QoL to access the store in the console
 if (window && getConfig().VITE_REDUX_WINDOW) window.store = store
 
-// [PERF SPIKE] Store size monitor - tracks state size on significant changes
-if (import.meta.env.DEV) {
-  let lastLoggedSize = 0
-  let actionCount = 0
-  store.subscribe(() => {
-    actionCount++
-    // Only measure every 10 actions to reduce overhead
-    if (actionCount % 10 !== 0) return
-
-    const state = store.getState()
-    const size = JSON.stringify(state).length
-    // Log when size changes by more than 100KB
-    if (Math.abs(size - lastLoggedSize) > 100_000) {
-      const sliceSizes = {
-        assets: JSON.stringify(state.assets).length,
-        portfolio: JSON.stringify(state.portfolio).length,
-        marketData: JSON.stringify(state.marketData).length,
-        opportunities: JSON.stringify(state.opportunities).length,
-        txHistory: JSON.stringify(state.txHistory).length,
-        tradeQuote: JSON.stringify(state.tradeQuote).length,
-        preferences: JSON.stringify(state.preferences).length,
-      }
-      console.log(
-        '[REDUX_SIZE]',
-        JSON.stringify(
-          {
-            totalMB: (size / 1024 / 1024).toFixed(2),
-            sliceMB: Object.fromEntries(
-              Object.entries(sliceSizes).map(([k, v]) => [k, (v / 1024 / 1024).toFixed(2)]),
-            ),
-            actionCount,
-          },
-          null,
-          2,
-        ),
-      )
-      lastLoggedSize = size
-    }
-  })
-}
-
 export const useAppSelector: TypedUseSelectorHook<ReduxState> = useSelector
 export const useSelectorWithArgs = <Args extends unknown[], TSelected>(
   selector: (state: ReduxState, ...args: Args) => TSelected,

@@ -39,6 +39,7 @@ import { fetchPortalsAccount } from '@/lib/portals/utils'
 import { isUtxoAccountId } from '@/lib/utils/utxo'
 import { accountManagement } from '@/react-queries/queries/accountManagement'
 import { assets as assetSlice } from '@/state/slices/assetsSlice/assetsSlice'
+import { selectAssetIds } from '@/state/slices/assetsSlice/selectors'
 import { portfolio } from '@/state/slices/portfolioSlice/portfolioSlice'
 import type { Portfolio } from '@/state/slices/portfolioSlice/portfolioSliceCommon'
 import {
@@ -411,7 +412,7 @@ export const ImportAccounts = forwardRef<ImportAccountsRef, ImportAccountsProps>
             const state = store.getState()
             const portfolioAccounts = { [pubkey]: account }
             const assets = await makeAssets({ chainId, pubkey, state, portfolioAccounts })
-            const assetIds = state.assets.ids
+            const assetIds = selectAssetIds(state)
 
             // upsert placeholder assets
             if (assets) dispatch(assetSlice.actions.upsertAssets(assets))

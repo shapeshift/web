@@ -88,27 +88,6 @@ export const marketData = createSlice({
           },
           {},
         )
-
-        // [PERF SPIKE] Market data growth monitor
-        if (import.meta.env.DEV) {
-          const priceHistorySize = Object.keys(state.crypto.priceHistory).reduce(
-            (sum, timeframe) => {
-              const tfData = state.crypto.priceHistory[timeframe as HistoryTimeframe]
-              return sum + (tfData ? Object.keys(tfData).length : 0)
-            },
-            0,
-          )
-          console.log(
-            '[MARKET_DATA]',
-            JSON.stringify({
-              cryptoByIdCount: Object.keys(state.crypto.byId).length,
-              cryptoIdsCount: state.crypto.ids.length,
-              idsRedundant: Object.keys(state.crypto.byId).length === state.crypto.ids.length,
-              priceHistoryAssetCount: priceHistorySize,
-              upsertedCount: Object.keys(payload).length,
-            }),
-          )
-        }
       },
 
       // Use the `prepareAutoBatched` utility to automatically

@@ -3,7 +3,6 @@ import { fromAssetId } from '@shapeshiftoss/caip'
 import orderBy from 'lodash/orderBy'
 import createCachedSelector from 're-reselect'
 
-import { assets } from './assetsSlice/assetsSlice'
 import { selectAssetByFilter, selectAssets } from './assetsSlice/selectors'
 import {
   selectPortfolioUserCurrencyBalances,
@@ -12,6 +11,7 @@ import {
 import { preferences } from './preferencesSlice/preferencesSlice'
 
 import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
+import { getAssetService } from '@/lib/asset-service'
 import type { ReduxState } from '@/state/reducer'
 import { selectOnlyConnectedChainsParamFromFilter } from '@/state/selectors'
 
@@ -23,25 +23,18 @@ import { selectOnlyConnectedChainsParamFromFilter } from '@/state/selectors'
  * Excludes assetIds that are marked as spam.
  */
 export const selectRelatedAssetIdsInclusive = createCachedSelector(
-  assets.selectors.selectRelatedAssetIndex,
   selectAssetByFilter,
   selectWalletConnectedChainIds,
   selectOnlyConnectedChainsParamFromFilter,
   selectAssets,
   preferences.selectors.selectSpamMarkedAssetIds,
-  (
-    relatedAssetIndex,
-    asset,
-    walletConnectedChainIds,
-    onlyConnectedChains,
-    assets,
-    spamMarkedAssetIds,
-  ): AssetId[] => {
+  (asset, walletConnectedChainIds, onlyConnectedChains, assets, spamMarkedAssetIds): AssetId[] => {
     if (!asset) return []
     const relatedAssetKey = asset.relatedAssetKey
     if (!relatedAssetKey) return [asset.assetId]
 
     const chainAdapterManager = getChainAdapterManager()
+    const relatedAssetIndex = getAssetService().relatedAssetIndex
 
     const relatedAssetIdsInclusiveWithDuplicates = [relatedAssetKey]
       .concat(relatedAssetIndex[relatedAssetKey] ?? [])

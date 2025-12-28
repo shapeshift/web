@@ -123,6 +123,7 @@ const assetsPersistConfig = {
   storage: localforage,
   version: Math.max(...Object.keys(clearAssetsMigrations).map(Number)),
   migrate: createMigrate(clearAssetsMigrations, { debug: false }),
+  blacklist: ['initialized'] as (keyof AssetsState)[],
 }
 
 const limitOrderApiPersistConfig = {

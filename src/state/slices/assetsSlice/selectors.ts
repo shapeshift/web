@@ -27,16 +27,17 @@ let _cachedByIdRef: AssetsById | null = null
  */
 const selectMergedAssetsById = createSelector(
   assets.selectors.selectAssetsById,
-  (reduxAssets): AssetsById => {
+  assets.selectors.selectInitialized,
+  (reduxAssets, _initialized): AssetsById => {
     const staticAssets = getAssetService().assetsById
-    // If AssetService isn't initialized yet, fall back to Redux
+    // If AssetService isn't initialized yet, fall back to Redux (empty)
     if (Object.keys(staticAssets).length === 0) {
       return reduxAssets as AssetsById
     }
     // Runtime assets override static (for upserted descriptions, etc.)
     // Only create new object if there are runtime assets to merge
-    if (Object.keys(reduxAssets).length === Object.keys(staticAssets).length) {
-      return reduxAssets as AssetsById
+    if (Object.keys(reduxAssets).length === 0) {
+      return staticAssets
     }
     return { ...staticAssets, ...reduxAssets } as AssetsById
   },

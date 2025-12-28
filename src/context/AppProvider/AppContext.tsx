@@ -83,20 +83,16 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   // Initialize user system
   useUser()
 
-  // Initialize asset service and populate Redux with assets
+  // Initialize asset service - selectors read from AssetService directly
+  // Redux only stores runtime-discovered assets (NFTs, portfolio discoveries)
   useQuery({
     queryKey: ['assetService'],
     queryFn: async () => {
       await initAssetService()
       const service = getAssetService()
 
-      dispatch(
-        assets.actions.upsertAssets({
-          byId: service.assetsById,
-          ids: service.assetIds,
-        }),
-      )
-      dispatch(assets.actions.setRelatedAssetIndex(service.relatedAssetIndex))
+      // Signal that AssetService is ready - triggers selector re-computation
+      dispatch(assets.actions.setInitialized())
 
       const btcAsset = service.assetsById[btcAssetId]
       const ethAsset = service.assetsById[ethAssetId]

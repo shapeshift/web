@@ -2,25 +2,21 @@ import type { PayloadAction } from '@reduxjs/toolkit'
 import { createSlice } from '@reduxjs/toolkit'
 import { createApi } from '@reduxjs/toolkit/query/react'
 import type { AssetId } from '@shapeshiftoss/caip'
-import type { Asset, AssetsByIdPartial, PartialRecord } from '@shapeshiftoss/types'
+import type { Asset, AssetsByIdPartial } from '@shapeshiftoss/types'
 
 import { getAssetService } from '@/lib/asset-service'
 import { BASE_RTK_CREATE_API_CONFIG } from '@/state/apis/const'
 
-// do not export this, views get data from selectors
-// or directly from the store outside react components
-const service = getAssetService()
-
 export type AssetsState = {
   byId: AssetsByIdPartial
   ids: AssetId[]
-  relatedAssetIndex: PartialRecord<AssetId, AssetId[]>
+  initialized: boolean
 }
 
 export const initialState: AssetsState = {
-  byId: service.assetsById,
-  ids: service.assetIds,
-  relatedAssetIndex: service.relatedAssetIndex,
+  byId: {},
+  ids: [],
+  initialized: false,
 }
 
 export const defaultAsset: Asset = {
@@ -37,7 +33,7 @@ export const defaultAsset: Asset = {
   relatedAssetKey: null,
 }
 
-export type UpsertAssetsPayload = Omit<AssetsState, 'relatedAssetIndex'>
+export type UpsertAssetsPayload = Omit<AssetsState, 'initialized'>
 
 export const assets = createSlice({
   name: 'assets',
@@ -45,7 +41,7 @@ export const assets = createSlice({
   selectors: {
     selectAssetsById: state => state.byId,
     selectAssetIds: state => state.ids,
-    selectRelatedAssetIndex: state => state.relatedAssetIndex,
+    selectInitialized: state => state.initialized,
   },
   reducers: create => ({
     clear: create.reducer(() => initialState),
@@ -58,23 +54,6 @@ export const assets = createSlice({
       state.byId = Object.assign({}, state.byId, action.payload.byId) // upsert
       // Note this preserves the original sorting while removing duplicates.
       state.ids = Array.from(new Set(state.ids.concat(action.payload.ids)))
-
-      // [PERF SPIKE] Assets upsert monitor - track redundant ids array
-      if (import.meta.env.DEV) {
-        const byIdCount = Object.keys(state.byId).length
-        const idsCount = state.ids.length
-        console.log(
-          '[ASSETS_UPSERT]',
-          JSON.stringify({
-            upsertedCount: Object.keys(action.payload.byId).length,
-            totalByIdCount: byIdCount,
-            totalIdsCount: idsCount,
-            idsRedundant: byIdCount === idsCount,
-            idsArrayByteSize: JSON.stringify(state.ids).length,
-            relatedAssetIndexSize: Object.keys(state.relatedAssetIndex).length,
-          }),
-        )
-      }
     }),
     upsertAsset: create.reducer((state, action: PayloadAction<Asset>) => {
       const { assetId } = action.payload
@@ -82,11 +61,9 @@ export const assets = createSlice({
       // Note this preserves the original sorting while removing duplicates.
       state.ids = Array.from(new Set(state.ids.concat(assetId)))
     }),
-    setRelatedAssetIndex: create.reducer(
-      (state, action: PayloadAction<PartialRecord<AssetId, AssetId[]>>) => {
-        state.relatedAssetIndex = action.payload
-      },
-    ),
+    setInitialized: create.reducer(state => {
+      state.initialized = true
+    }),
   }),
 })
 

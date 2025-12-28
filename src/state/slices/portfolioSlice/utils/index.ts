@@ -80,6 +80,7 @@ import { assertUnreachable, isNativeHDWallet, isTrezorHDWallet, middleEllipsis }
 import { isSpammyNftText, isSpammyTokenText } from '@/state/blacklist'
 import type { ReduxState } from '@/state/reducer'
 import type { UpsertAssetsPayload } from '@/state/slices/assetsSlice/assetsSlice'
+import { selectAssets } from '@/state/slices/assetsSlice/selectors'
 
 // note - this isn't a selector, just a pure utility function
 export const accountIdToLabel = (accountId: AccountId): string => {
@@ -497,6 +498,7 @@ export const makeAssets = async ({
   state: ReduxState
   portfolioAccounts: Record<string, Account<KnownChainIds>>
 }): Promise<UpsertAssetsPayload | undefined> => {
+  const assetsById = selectAssets(state)
   if (evmChainIds.includes(chainId as EvmChainId)) {
     const account = portfolioAccounts[pubkey] as Account<EvmChainId>
     const assetNamespace = ASSET_NAMESPACE.erc20
@@ -525,7 +527,7 @@ export const makeAssets = async ({
           return isSpammyTokenText(text)
         })
 
-        if (state.assets.byId[token.assetId] || isSpam) return prev
+        if (assetsById[token.assetId] || isSpam) return prev
 
         const minimalAsset: MinimalAsset = token
 
@@ -546,7 +548,7 @@ export const makeAssets = async ({
             const assetSymbols =
               maybePortalsAsset.tokens?.map(token => {
                 const assetId = toAssetId({ chainId, assetNamespace, assetReference: token })
-                const asset = state.assets.byId[assetId]
+                const asset = assetsById[assetId]
 
                 if (!asset) return undefined
 
@@ -578,7 +580,7 @@ export const makeAssets = async ({
           const { icon, icons } = ((): Pick<Asset, 'icon' | 'icons'> => {
             // There are no underlying tokens' images, return asset icon if it exists
             if (!assetImages?.length) {
-              return { icon: state.assets.byId[token.assetId]?.icon }
+              return { icon: assetsById[token.assetId]?.icon }
             }
 
             if (assetImages.length === 1) {
@@ -596,7 +598,7 @@ export const makeAssets = async ({
                   if (!token) return maybeTokenImage(image) || ''
 
                   const assetId = toAssetId({ chainId, assetNamespace, assetReference: token })
-                  const asset = state.assets.byId[assetId]
+                  const asset = assetsById[assetId]
 
                   // Prioritise our own flavour of icons for that asset if available, else use upstream if present
                   return asset?.icon || maybeTokenImage(image) || ''
@@ -614,7 +616,7 @@ export const makeAssets = async ({
           minimalAsset.icons = icons
         }
 
-        const asset = makeAsset(state.assets.byId, minimalAsset)
+        const asset = makeAsset(assetsById, minimalAsset)
 
         // Tokens without a precision are an obvious spam
         if (!asset.precision && !isNft(asset.assetId)) {
@@ -634,9 +636,9 @@ export const makeAssets = async ({
 
     return (account.chainSpecific.tokens ?? []).reduce<UpsertAssetsPayload>(
       (prev, token) => {
-        if (state.assets.byId[token.assetId]) return prev
+        if (assetsById[token.assetId]) return prev
 
-        prev.byId[token.assetId] = makeAsset(state.assets.byId, { ...token })
+        prev.byId[token.assetId] = makeAsset(assetsById, { ...token })
         prev.ids.push(token.assetId)
 
         return prev
@@ -650,9 +652,9 @@ export const makeAssets = async ({
 
     return (account.chainSpecific.tokens ?? []).reduce<UpsertAssetsPayload>(
       (prev, token) => {
-        if (state.assets.byId[token.assetId]) return prev
+        if (assetsById[token.assetId]) return prev
 
-        prev.byId[token.assetId] = makeAsset(state.assets.byId, { ...token })
+        prev.byId[token.assetId] = makeAsset(assetsById, { ...token })
         prev.ids.push(token.assetId)
 
         return prev
@@ -666,9 +668,9 @@ export const makeAssets = async ({
 
     return (account.chainSpecific.tokens ?? []).reduce<UpsertAssetsPayload>(
       (prev, token) => {
-        if (state.assets.byId[token.assetId]) return prev
+        if (assetsById[token.assetId]) return prev
 
-        prev.byId[token.assetId] = makeAsset(state.assets.byId, { ...token })
+        prev.byId[token.assetId] = makeAsset(assetsById, { ...token })
         prev.ids.push(token.assetId)
 
         return prev

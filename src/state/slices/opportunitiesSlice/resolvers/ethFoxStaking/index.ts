@@ -31,7 +31,7 @@ import { makeTotalLpApr, rewardRatePerToken } from './utils'
 
 import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
 import { toBaseUnit } from '@/lib/math'
-import type { AssetsState } from '@/state/slices/assetsSlice/assetsSlice'
+import { selectAssetById } from '@/state/slices/assetsSlice/selectors'
 import { selectMarketDataByAssetIdUserCurrency } from '@/state/slices/marketDataSlice/selectors'
 
 export const ethFoxStakingMetadataResolver = async ({
@@ -43,8 +43,8 @@ export const ethFoxStakingMetadataResolver = async ({
 }> => {
   const { getState } = reduxApi
   const state: any = getState() // ReduxState causes circular dependency
-  const assets: AssetsState = state.assets
-  const lpAssetPrecision = assets.byId[foxEthLpAssetId]?.precision ?? 0
+  const lpAsset = selectAssetById(state, foxEthLpAssetId)
+  const lpAssetPrecision = lpAsset?.precision ?? 0
   const lpTokenMarketData = selectMarketDataByAssetIdUserCurrency(state, foxEthLpAssetId)
   const lpTokenPrice = lpTokenMarketData?.price
 
@@ -110,8 +110,14 @@ export const ethFoxStakingMetadataResolver = async ({
         underlyingAssetId: foxEthLpAssetId,
         underlyingAssetIds: foxEthPair,
         underlyingAssetRatiosBaseUnit: [
-          toBaseUnit(ethPoolRatio.toString(), assets.byId[foxEthPair[0]]?.precision ?? 0),
-          toBaseUnit(foxPoolRatio.toString(), assets.byId[foxEthPair[1]]?.precision ?? 0),
+          toBaseUnit(
+            ethPoolRatio.toString(),
+            selectAssetById(state, foxEthPair[0])?.precision ?? 0,
+          ),
+          toBaseUnit(
+            foxPoolRatio.toString(),
+            selectAssetById(state, foxEthPair[1])?.precision ?? 0,
+          ),
         ] as const,
         expired,
         name: 'Fox Farming',

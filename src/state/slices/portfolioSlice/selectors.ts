@@ -926,8 +926,6 @@ export const selectGroupedAssetsWithBalances = createCachedSelector(
     spamMarkedAssetIds,
     primaryAssetId,
   ): GroupedAssetBalance | null => {
-    // [PERF SPIKE] Selector performance monitor
-    const startTime = import.meta.env.DEV ? performance.now() : 0
     const spamAssetIdsSet = new Set(spamMarkedAssetIds)
     // Pre-compute Map for O(1) lookups instead of O(n) find() calls
     const accountRowsByAssetId = new Map(accountRows.map(row => [row.assetId, row]))
@@ -1005,21 +1003,6 @@ export const selectGroupedAssetsWithBalances = createCachedSelector(
         cryptoAmount: totalCryptoBalance,
       },
       relatedAssets,
-    }
-
-    // [PERF SPIKE] Log slow selector executions (>5ms)
-    if (import.meta.env.DEV) {
-      const duration = performance.now() - startTime
-      if (duration > 5) {
-        console.log(
-          '[SELECTOR_PERF] selectGroupedAssetsWithBalances',
-          JSON.stringify({
-            durationMs: duration.toFixed(2),
-            accountRowsCount: accountRows.length,
-            relatedAssetsCount: relatedAssets.length,
-          }),
-        )
-      }
     }
 
     return result

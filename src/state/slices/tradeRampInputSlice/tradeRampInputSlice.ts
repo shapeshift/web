@@ -35,11 +35,11 @@ export type TradeRampInputState = {
   selectedSellFiatRampQuote: RampQuote | null
 }
 
-const service = getAssetService()
+const localAssetData = getAssetService().assetsById
 
 const initialState: TradeRampInputState = {
-  buyAsset: service.assetsById[btcAssetId] ?? defaultAsset,
-  sellAsset: service.assetsById[ethAssetId] ?? defaultAsset,
+  buyAsset: localAssetData[btcAssetId] ?? defaultAsset,
+  sellAsset: localAssetData[ethAssetId] ?? defaultAsset,
   buyFiatCurrency: fiatCurrencyItemsByCode[FiatCurrencyTypeEnum.USD],
   sellFiatCurrency: fiatCurrencyItemsByCode[FiatCurrencyTypeEnum.USD],
   sellAccountId: undefined,

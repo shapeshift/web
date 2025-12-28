@@ -10,7 +10,7 @@ import { createTradeInputBaseSlice } from '../common/tradeInputBase/createTradeI
 
 import { getAssetService } from '@/lib/asset-service'
 
-const service = getAssetService()
+const localAssetData = getAssetService().assetsById
 
 export type TradeInputState = {
   slippagePreferencePercentage: string | undefined
@@ -18,8 +18,8 @@ export type TradeInputState = {
 } & TradeInputBaseState
 
 const initialState: TradeInputState = {
-  buyAsset: service.assetsById[btcAssetId] ?? defaultAsset,
-  sellAsset: service.assetsById[ethAssetId] ?? defaultAsset,
+  buyAsset: localAssetData[btcAssetId] ?? defaultAsset,
+  sellAsset: localAssetData[ethAssetId] ?? defaultAsset,
   sellAccountId: undefined,
   buyAccountId: undefined,
   sellAmountCryptoPrecision: '0',

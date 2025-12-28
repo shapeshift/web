@@ -27,11 +27,11 @@ export type LimitOrderInputState = {
   expiry: ExpiryOption
 } & TradeInputBaseState
 
-const service = getAssetService()
+const localAssetData = getAssetService().assetsById
 
 const initialState: LimitOrderInputState = {
-  buyAsset: service.assetsById[foxAssetId] ?? defaultAsset,
-  sellAsset: service.assetsById[usdcAssetId] ?? defaultAsset,
+  buyAsset: localAssetData[foxAssetId] ?? defaultAsset,
+  sellAsset: localAssetData[usdcAssetId] ?? defaultAsset,
   sellAccountId: undefined,
   buyAccountId: undefined,
   sellAmountCryptoPrecision: '0',

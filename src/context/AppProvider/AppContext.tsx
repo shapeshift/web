@@ -84,7 +84,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   useUser()
 
   // Initialize asset service and populate Redux with assets
-  useQuery({
+  const { isError: isAssetServiceError } = useQuery({
     queryKey: ['assetService'],
     queryFn: async () => {
       await initAssetService()
@@ -119,6 +119,20 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     staleTime: Infinity,
     gcTime: Infinity,
   })
+
+  // Show error toast if asset loading fails
+  useEffect(() => {
+    if (isAssetServiceError) {
+      toast({
+        position: 'top-right',
+        title: translate('common.somethingWentWrong'),
+        description: translate('common.somethingWentWrongBody'),
+        status: 'error',
+        duration: null,
+        isClosable: true,
+      })
+    }
+  }, [isAssetServiceError, toast, translate])
 
   useEffect(() => {
     const handleLedgerOpenApp = ({ chainId, reject }: LedgerOpenAppEventArgs) => {

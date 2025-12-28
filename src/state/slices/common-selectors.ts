@@ -95,12 +95,8 @@ export const selectAccountIdsWithoutEvms = createDeepEqualOutputSelector(
 export const selectWalletConnectedChainIds = createDeepEqualOutputSelector(
   selectEnabledWalletAccountIds,
   accountIds => {
-    const chainIds = accountIds.reduce<ChainId[]>((acc, accountId) => {
-      const { chainId } = fromAccountId(accountId)
-      if (!acc.includes(chainId)) acc.push(chainId)
-      return acc
-    }, [])
-    return chainIds
+    // Use Set for O(1) deduplication instead of O(n) includes()
+    return Array.from(new Set(accountIds.map(accountId => fromAccountId(accountId).chainId)))
   },
 )
 

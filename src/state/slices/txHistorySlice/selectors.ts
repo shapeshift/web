@@ -121,8 +121,10 @@ export const selectArbitrumWithdrawTxs = createSelector(
       .flatMap(data => values(data).flat())
       .filter(isSome)
 
+    // Pre-compute index map for O(1) lookups instead of O(n) indexOf in sort
+    const txIdIndexMap = new Map(txIds.map((id, idx) => [id, idx]))
     const sortedArbitrumTxIds = uniq(arbitrumTxIds).sort(
-      (a, b) => txIds.indexOf(a) - txIds.indexOf(b),
+      (a, b) => (txIdIndexMap.get(a) ?? Infinity) - (txIdIndexMap.get(b) ?? Infinity),
     )
 
     return sortedArbitrumTxIds.reduce<Tx[]>((prev, txid) => {
@@ -207,7 +209,11 @@ export const selectTxIdsByFilter = createCachedSelector(
     const maybeUniqueIdsByStatus = txStatusFilter
       ? maybeFilteredByTxHash.filter(txId => txs[txId].status === txStatusFilter)
       : maybeFilteredByTxHash
-    const sortedIds = maybeUniqueIdsByStatus.sort((a, b) => txIds.indexOf(a) - txIds.indexOf(b))
+    // Pre-compute index map for O(1) lookups instead of O(n) indexOf in sort
+    const txIdIndexMap = new Map(txIds.map((id, idx) => [id, idx]))
+    const sortedIds = maybeUniqueIdsByStatus.sort(
+      (a, b) => (txIdIndexMap.get(a) ?? Infinity) - (txIdIndexMap.get(b) ?? Infinity),
+    )
     return sortedIds
   },
 )((_state: ReduxState, filter) =>

@@ -354,7 +354,6 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
               }
               return {
                 hex: data.data[input.txid].raw_transaction,
-                blockHeight: data.context.state,
               }
             }
             throw error
@@ -375,9 +374,12 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
           txid: input.txid,
           hex: data.hex,
           // For Zcash, we need to pass the blockHeight and txid of each input transaction
-          // so Ledger can add them to the PSBT and determine the correct consensus branch ID
+          // so Ledger can add them to the PSBT and determine the correct consensus branch ID.
+          // Only pass blockHeight if it's a valid positive number (mempool txs have blockHeight: -1)
           ...(this.coinName === 'Zcash' &&
-            'blockHeight' in data && { blockHeight: data.blockHeight }),
+            'blockHeight' in data &&
+            typeof data.blockHeight === 'number' &&
+            data.blockHeight > 0 && { blockHeight: data.blockHeight }),
         })
       }
 

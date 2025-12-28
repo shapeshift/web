@@ -961,6 +961,50 @@ case KnownChainIds.[ChainName]Mainnet:
   return supports[Chain](wallet) // from hdwallet-core
 ```
 
+### Step 3.8: Add Asset Support Detection (CRITICAL!)
+
+**IMPORTANT**: This was missing for recent chains (Tron, SUI, Monad, HyperEVM, Plasma) and caused assets not to show up properly!
+
+**File**: `src/state/slices/portfolioSlice/utils/index.ts`
+
+Add your chain to the `isAssetSupportedByWallet` function around line 367:
+
+```typescript
+// 1. Import your chain ID at the top
+import {
+  // ... existing imports
+  [chainLower]ChainId,
+} from '@shapeshiftoss/caip'
+
+// 2. Import the support function from hdwallet-core
+import {
+  // ... existing imports
+  supports[ChainName],
+} from '@shapeshiftoss/hdwallet-core'
+
+// 3. Add case to the switch statement in isAssetSupportedByWallet
+export const isAssetSupportedByWallet = (assetId: AssetId, wallet: HDWallet): boolean => {
+  if (!assetId) return false
+  const { chainId } = fromAssetId(assetId)
+  switch (chainId) {
+    // ... existing cases
+    case [chainLower]ChainId:
+      return supports[ChainName](wallet)
+    // ... rest of cases
+    default:
+      return false
+  }
+}
+```
+
+**Why this matters**: This function determines if a wallet can use a particular asset. Without it, assets for your chain won't appear in wallet UIs even if everything else is configured correctly!
+
+**Example**: For HyperEVM, add:
+```typescript
+case hyperEvmChainId:
+  return supportsHyperEvm(wallet)
+```
+
 ---
 
 ## Phase 4: Web Plugin & Feature Flags
@@ -1322,6 +1366,8 @@ case CHAIN_REFERENCE.[ChainName]Mainnet:
     assetNamespace: ASSET_NAMESPACE.slip44,
   }
 ```
+
+**IMPORTANT**: Make sure ALL chains that are in the `chainIdToRelayChainId` mapping in `constant.ts` have a corresponding case in the switch statement in `relayTokenToAssetId.ts`. Missing cases will cause runtime errors like `chainId 'XX' not supported`.
 
 **Check Relay docs** for your chain:
 - <https://docs.relay.link/resources/supported-chains>
@@ -1922,6 +1968,7 @@ case plasmaChainId:
 - [ ] `src/context/PluginProvider/PluginProvider.tsx`
 - [ ] `src/hooks/useWalletSupportsChain/useWalletSupportsChain.ts`
 - [ ] `src/hooks/useActionCenterSubscribers/useSendActionSubscriber.tsx`
+- [ ] `src/state/slices/portfolioSlice/utils/index.ts` (isAssetSupportedByWallet function)
 
 ### Web Files (Config)
 - [ ] `.env`

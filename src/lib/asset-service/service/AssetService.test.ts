@@ -1,6 +1,4 @@
 import type { Asset } from '@shapeshiftoss/types'
-import type { AxiosInstance } from 'axios'
-import axios from 'axios'
 import { beforeAll, describe, expect, it, vi } from 'vitest'
 
 import { getAssetService, initAssetService } from './AssetService'
@@ -8,31 +6,80 @@ import { descriptions } from './descriptions'
 
 import { ethereum as EthAsset } from '@/test/mocks/assets'
 
-beforeAll(async () => {
-  await initAssetService()
-})
-
 const mocks = vi.hoisted(() => ({
   get: vi.fn(),
   post: vi.fn(),
 }))
 
-vi.mock('axios', () => {
-  const mockAxios = {
-    default: {
-      create: vi.fn(() => ({
-        get: mocks.get,
-        post: mocks.post,
-      })),
+// Hoisted mock data so it's available in vi.mock factory
+const mockData = vi.hoisted(() => ({
+  assetData: {
+    byId: {
+      'bip122:000000000019d6689c085ae165831e93/slip44:0': {
+        assetId: 'bip122:000000000019d6689c085ae165831e93/slip44:0',
+        chainId: 'bip122:000000000019d6689c085ae165831e93',
+        symbol: 'BTC',
+        name: 'Bitcoin',
+        precision: 8,
+        color: '#FF9800',
+        icon: 'https://rawcdn.githack.com/trustwallet/assets/master/blockchains/bitcoin/info/logo.png',
+        relatedAssetKey: null,
+      },
+      'eip155:1/slip44:60': {
+        assetId: 'eip155:1/slip44:60',
+        chainId: 'eip155:1',
+        symbol: 'ETH',
+        name: 'Ethereum',
+        precision: 18,
+        color: '#FFFFFF',
+        icon: 'https://rawcdn.githack.com/trustwallet/assets/32e51d582a890b3dd3135fe3ee7c20c2fd699a6d/blockchains/ethereum/info/logo.png',
+        relatedAssetKey: null,
+      },
+      'eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48': {
+        assetId: 'eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
+        chainId: 'eip155:1',
+        symbol: 'USDC',
+        name: 'USD Coin',
+        precision: 6,
+        color: '#2775CA',
+        icon: 'https://rawcdn.githack.com/trustwallet/assets/master/blockchains/ethereum/assets/0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48/logo.png',
+        relatedAssetKey: null,
+      },
     },
+    ids: [
+      'bip122:000000000019d6689c085ae165831e93/slip44:0',
+      'eip155:1/slip44:60',
+      'eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
+    ],
+  },
+  relatedAssetIndex: {},
+}))
+
+vi.mock('axios', () => {
+  const mockGet = (url: string) => {
+    if (url.includes('asset-manifest.json')) {
+      return Promise.resolve({ data: { assetData: 'test', relatedAssetIndex: 'test' } })
+    }
+    if (url.includes('generatedAssetData.json')) {
+      return Promise.resolve({ data: mockData.assetData })
+    }
+    if (url.includes('relatedAssetIndex.json')) {
+      return Promise.resolve({ data: mockData.relatedAssetIndex })
+    }
+    // Fall through to the mocked get for other URLs (like coingecko)
+    return mocks.get(url)
   }
 
   return {
-    default: mockAxios.default.create(),
+    default: {
+      get: mockGet,
+    },
   }
 })
 
-const mockedAxios = vi.mocked<AxiosInstance>(axios)
+beforeAll(async () => {
+  await initAssetService()
+})
 
 vi.mock('./descriptions', () => ({
   descriptions: {
@@ -90,7 +137,7 @@ describe('AssetService', () => {
 
       const assetService = getAssetService()
       const description = { en: 'a blue fox' }
-      vi.mocked(mockedAxios.get).mockResolvedValue({ data: { description } })
+      mocks.get.mockResolvedValue({ data: { description } })
       await expect(assetService.description(EthAsset.assetId)).resolves.toEqual({
         description: description.en,
       })
@@ -103,7 +150,7 @@ describe('AssetService', () => {
 
       const assetService = getAssetService()
       const description = { en: 'a blue fox', es: '¿Qué dice el zorro?' }
-      vi.mocked(mockedAxios.get).mockResolvedValue({ data: { description } })
+      mocks.get.mockResolvedValue({ data: { description } })
       await expect(assetService.description(EthAsset.assetId, locale)).resolves.toEqual({
         description: description.es,
       })
@@ -111,7 +158,7 @@ describe('AssetService', () => {
 
     it('should throw if not found', async () => {
       const assetService = getAssetService()
-      vi.mocked(mockedAxios.get).mockRejectedValue({ data: null })
+      mocks.get.mockRejectedValue({ data: null })
       const tokenData: Asset = {
         assetId: 'eip155:1/erc20:0x1da00b6fc705f2ce4c25d7e7add25a3cc045e54a',
         chainId: 'eip155:1',

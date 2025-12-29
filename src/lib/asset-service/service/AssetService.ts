@@ -69,19 +69,22 @@ class _AssetService {
         // Browser environment - fetch with cache-busting hash
         const manifest = await (async () => {
           try {
-            return await fetch('/generated/asset-manifest.json').then(r => r.json())
+            const { data } = await axios.get<{ assetData: string; relatedAssetIndex: string }>(
+              '/generated/asset-manifest.json',
+            )
+            return data
           } catch {
             console.warn('asset-manifest.json not found, using timestamp for cache busting')
             return { assetData: Date.now().toString(), relatedAssetIndex: Date.now().toString() }
           }
         })()
 
-        return Promise.all([
-          fetch(`/generated/generatedAssetData.json?v=${manifest.assetData}`).then(r => r.json()),
-          fetch(`/generated/relatedAssetIndex.json?v=${manifest.relatedAssetIndex}`).then(r =>
-            r.json(),
-          ),
+        const [{ data: assetData }, { data: relatedData }] = await Promise.all([
+          axios.get(`/generated/generatedAssetData.json?v=${manifest.assetData}`),
+          axios.get(`/generated/relatedAssetIndex.json?v=${manifest.relatedAssetIndex}`),
         ])
+
+        return [assetData, relatedData]
       }
     })()
 

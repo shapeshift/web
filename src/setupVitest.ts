@@ -90,23 +90,22 @@ vi.mock('@shapeshiftoss/hdwallet-ledger', () => ({
 // Global axios mock for AssetService - can be overridden by individual test files
 vi.mock('axios', async importOriginal => {
   const actual = await importOriginal<typeof axios>()
+  const mockGet = vi.fn((url: string) => {
+    if (url.includes('asset-manifest.json')) {
+      return Promise.resolve({ data: { assetData: 'test', relatedAssetIndex: 'test' } })
+    }
+    if (url.includes('generatedAssetData.json')) {
+      return Promise.resolve({ data: hoistedMockData.assetData })
+    }
+    if (url.includes('relatedAssetIndex.json')) {
+      return Promise.resolve({ data: hoistedMockData.relatedAssetIndex })
+    }
+    // Return empty for other URLs - tests should mock their own responses
+    return Promise.resolve({ data: {} })
+  })
+
   return {
     ...actual,
-    default: {
-      ...actual,
-      get: vi.fn((url: string) => {
-        if (url.includes('asset-manifest.json')) {
-          return Promise.resolve({ data: { assetData: 'test', relatedAssetIndex: 'test' } })
-        }
-        if (url.includes('generatedAssetData.json')) {
-          return Promise.resolve({ data: hoistedMockData.assetData })
-        }
-        if (url.includes('relatedAssetIndex.json')) {
-          return Promise.resolve({ data: hoistedMockData.relatedAssetIndex })
-        }
-        // Return empty for other URLs - tests should mock their own responses
-        return Promise.resolve({ data: {} })
-      }),
-    },
+    default: Object.assign({}, actual, { get: mockGet }),
   }
 })

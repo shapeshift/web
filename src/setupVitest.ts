@@ -89,7 +89,7 @@ vi.mock('@shapeshiftoss/hdwallet-ledger', () => ({
 
 // Global axios mock for AssetService - can be overridden by individual test files
 vi.mock('axios', async importOriginal => {
-  const actual = await importOriginal<typeof axios>()
+  const actual = (await importOriginal()) as { default: typeof axios }
   const mockGet = vi.fn((url: string) => {
     if (url.includes('asset-manifest.json')) {
       return Promise.resolve({ data: { assetData: 'test', relatedAssetIndex: 'test' } })
@@ -106,6 +106,6 @@ vi.mock('axios', async importOriginal => {
 
   return {
     ...actual,
-    default: Object.assign({}, actual, { get: mockGet }),
+    default: Object.assign({}, actual.default, { get: mockGet }),
   }
 })

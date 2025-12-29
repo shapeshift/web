@@ -15,6 +15,10 @@ import { toAddressNList } from '../../utils'
 import type { ChainAdapterArgs } from '../EvmBaseAdapter'
 import * as optimism from './OptimismChainAdapter'
 
+vi.mock('../../utils/validateAddress', () => ({
+  assertAddressNotSanctioned: vi.fn(),
+}))
+
 const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000'
 const EOA_ADDRESS = '0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045'
 

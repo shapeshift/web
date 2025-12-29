@@ -1893,8 +1893,11 @@
     "deployAccount": {
       "title": "Deploy Starknet Account",
       "description": "Starknet uses smart contract accounts that need to be deployed before use.",
+      "sendDescription": "You'll need to deploy the account first to be able to send",
+      "swapDescription": "Starknet uses smart contract accounts. You'll need to deploy your account first before you can swap.",
       "explanation": "This is a one-time setup that will initialize your account on Starknet. A small fee will be deducted from your balance.",
-      "deployButton": "Deploy Account"
+      "deployButton": "Deploy Account",
+      "deploying": "Deploying Account..."
     }
   },
   "transactionHistory": {

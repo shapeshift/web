@@ -1,11 +1,5 @@
 import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
-import {
-  CHAIN_NAMESPACE,
-  fromAccountId,
-  fromAssetId,
-  starknetChainId,
-  toAccountId,
-} from '@shapeshiftoss/caip'
+import { CHAIN_NAMESPACE, fromAccountId, fromAssetId, toAccountId } from '@shapeshiftoss/caip'
 import type { FeeDataEstimate } from '@shapeshiftoss/chain-adapters'
 import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import { AnimatePresence } from 'framer-motion'
@@ -27,7 +21,6 @@ import { SendAmountDetails } from '@/components/Modals/Send/views/SendAmountDeta
 import { QrCodeScanner } from '@/components/QrCodeScanner/QrCodeScanner'
 import { SelectAssetRouter } from '@/components/SelectAssets/SelectAssetRouter'
 import { SlideTransition } from '@/components/SlideTransition'
-import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
 import { useModal } from '@/hooks/useModal/useModal'
 import { useNotificationToast } from '@/hooks/useNotificationToast'
 import { useWallet } from '@/hooks/useWallet/useWallet'
@@ -36,7 +29,6 @@ import { parseUrlDirect } from '@/lib/address/bip21'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from '@/lib/mixpanel/types'
-import { isStarknetChainAdapter } from '@/lib/utils/starknet'
 import { actionSlice } from '@/state/slices/actionSlice/actionSlice'
 import {
   ActionStatus,
@@ -49,7 +41,6 @@ import {
   selectFirstAccountIdByChainId,
   selectMarketDataByAssetIdUserCurrency,
   selectPortfolioAccountIdsByAssetIdFilter,
-  selectPortfolioAccountMetadataByAccountId,
 } from '@/state/slices/selectors'
 import { store, useAppDispatch, useAppSelector } from '@/state/store'
 
@@ -91,7 +82,6 @@ export const Form: React.FC<SendFormProps> = ({ initialAssetId, input = '', acco
   const { isDrawerOpen, openActionCenter } = useActionCenterContext()
   const send = useModal('send')
   const qrCode = useModal('qrCode')
-  const deployStarknetAccount = useModal('deployStarknetAccount')
   const dispatch = useAppDispatch()
   const toast = useNotificationToast({ duration: isDrawerOpen ? 5000 : null })
   const navigate = useNavigate()
@@ -248,91 +238,12 @@ export const Form: React.FC<SendFormProps> = ({ initialAssetId, input = '', acco
         methods.setValue(SendFormFields.ChangeAddress, changeAddress)
       }
 
-      const { chainId } = fromAccountId(formAccountId)
-      if (chainId === starknetChainId) {
-        const chainAdapterManager = getChainAdapterManager()
-        const adapter = chainAdapterManager.get(chainId)
-        if (isStarknetChainAdapter(adapter)) {
-          const fromAddress = fromAccountId(formAccountId).account
-          const isDeployed = await adapter.isAccountDeployed(fromAddress)
-          if (!isDeployed) {
-            deployStarknetAccount.open({
-              onConfirm: async () => {
-                try {
-                  const feeData = await adapter.getFeeData()
-                  const maxFee = feeData.fast.chainSpecific.maxFee
-
-                  const accountMetadata = selectPortfolioAccountMetadataByAccountId(
-                    store.getState(),
-                    {
-                      accountId: formAccountId,
-                    },
-                  )
-                  const accountNumber = accountMetadata?.bip44Params.accountNumber ?? 0
-
-                  const deployTxHash = await adapter.deployAccount({
-                    accountNumber,
-                    wallet,
-                    maxFee,
-                  })
-
-                  if (!deployTxHash) {
-                    toast({
-                      status: 'error',
-                      title: 'Failed to deploy account',
-                      description: 'Could not deploy Starknet account',
-                    })
-                    return
-                  }
-
-                  toast({
-                    status: 'info',
-                    title: 'Deploying account...',
-                    description: 'Waiting for account deployment to be confirmed',
-                    duration: null,
-                  })
-
-                  const starknetProvider = adapter.getStarknetProvider()
-                  await starknetProvider.waitForTransaction(deployTxHash, {
-                    retryInterval: 2000,
-                    successStates: ['ACCEPTED_ON_L2', 'ACCEPTED_ON_L1'],
-                  })
-
-                  toast({
-                    status: 'success',
-                    title: 'Account deployed',
-                    description: 'Your Starknet account has been deployed successfully',
-                    duration: 3000,
-                  })
-
-                  // Wait a moment for the nonce to update before proceeding with send
-                  await new Promise(resolve => setTimeout(resolve, 2000))
-
-                  const txHash = await executeSend(data)
-                  if (!txHash) return
-                  completeSendFlow(txHash, data)
-                } catch (error) {
-                  console.error('Failed to deploy Starknet account:', error)
-                  toast({
-                    status: 'error',
-                    title: 'Deployment failed',
-                    description: error instanceof Error ? error.message : 'Unknown error',
-                  })
-                }
-              },
-              onCancel: () => {},
-            })
-            return
-          }
-        }
-      }
-
       const txHash = await executeSend(data)
       if (!txHash) return
 
       completeSendFlow(txHash, data)
     },
-    [wallet, methods, formAccountId, deployStarknetAccount, executeSend, completeSendFlow, toast],
+    [wallet, methods, executeSend, completeSendFlow],
   )
 
   const handleAssetSelect = useCallback(

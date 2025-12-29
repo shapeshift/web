@@ -11,6 +11,7 @@ import {
 import { fromAccountId, starknetChainId } from '@shapeshiftoss/caip'
 import type { SupportedTradeQuoteStepIndex, TradeQuoteStep } from '@shapeshiftoss/swapper'
 import { SwapperName } from '@shapeshiftoss/swapper'
+import { useMutation } from '@tanstack/react-query'
 import type { FC, JSX } from 'react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -27,7 +28,7 @@ import { chainSupportsTxHistory } from '@/components/MultiHopTrade/utils'
 import { RawText, Text } from '@/components/Text'
 import type { TextPropTypes } from '@/components/Text/Text'
 import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
-import { useModal } from '@/hooks/useModal/useModal'
+import { useIsStarknetAccountDeployed } from '@/hooks/useIsStarknetAccountDeployed/useIsStarknetAccountDeployed'
 import { useNotificationToast } from '@/hooks/useNotificationToast'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
@@ -66,7 +67,6 @@ export const TradeFooterButton: FC<TradeFooterButtonProps> = ({
 }) => {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [shouldShowWarningAcknowledgement, setShouldShowWarningAcknowledgement] = useState(false)
-  const deployStarknetAccount = useModal('deployStarknetAccount')
   const toast = useNotificationToast()
   const {
     state: { wallet },
@@ -87,6 +87,58 @@ export const TradeFooterButton: FC<TradeFooterButtonProps> = ({
   const accountMetadata = useAppSelector(state =>
     selectPortfolioAccountMetadataByAccountId(state, accountMetadataFilter),
   )
+  const {
+    data: isStarknetAccountDeployed,
+    isLoading: isCheckingDeployment,
+    refetch: refetchDeploymentStatus,
+  } = useIsStarknetAccountDeployed(sellAccountId)
+
+  const deployAccountMutation = useMutation({
+    mutationFn: async () => {
+      if (!sellAccountId || !wallet) throw new Error('Missing account or wallet')
+
+      const { chainId } = fromAccountId(sellAccountId)
+      if (chainId !== starknetChainId) throw new Error('Not a Starknet account')
+
+      const chainAdapterManager = getChainAdapterManager()
+      const adapter = chainAdapterManager.get(chainId)
+      if (!isStarknetChainAdapter(adapter)) throw new Error('Invalid chain adapter')
+
+      const feeData = await adapter.getFeeData()
+      const maxFee = feeData.fast.chainSpecific.maxFee
+
+      const accountNumber = accountMetadata?.bip44Params.accountNumber ?? 0
+
+      const deployTxHash = await adapter.deployAccount({
+        accountNumber,
+        wallet,
+        maxFee,
+      })
+
+      if (!deployTxHash) {
+        throw new Error('Could not deploy Starknet account')
+      }
+
+      const starknetProvider = adapter.getStarknetProvider()
+      await starknetProvider.waitForTransaction(deployTxHash, {
+        retryInterval: 2000,
+        successStates: ['ACCEPTED_ON_L2', 'ACCEPTED_ON_L1'],
+      })
+
+      return deployTxHash
+    },
+    onSuccess: () => {
+      refetchDeploymentStatus()
+    },
+    onError: (error: Error) => {
+      console.error('Failed to deploy Starknet account:', error)
+      toast({
+        status: 'error',
+        title: 'Deployment failed',
+        description: error.message,
+      })
+    },
+  })
   const { priceImpactPercentage } = usePriceImpact(activeQuote)
   const isModeratePriceImpact = priceImpactPercentage?.gte(ALLOWED_PRICE_IMPACT_PERCENTAGE_MEDIUM)
 
@@ -120,6 +172,15 @@ export const TradeFooterButton: FC<TradeFooterButtonProps> = ({
 
   const translation: TextPropTypes['translation'] | undefined = useMemo(() => {
     if (!confirmedTradeExecutionState) return undefined
+
+    const isInitializingOrPreviewing =
+      confirmedTradeExecutionState === TradeExecutionState.Initializing ||
+      confirmedTradeExecutionState === TradeExecutionState.Previewing
+
+    if (isInitializingOrPreviewing && isStarknetAccountDeployed === false) {
+      return 'starknet.deployAccount.deployButton'
+    }
+
     switch (confirmedTradeExecutionState) {
       case TradeExecutionState.Initializing:
       case TradeExecutionState.Previewing:
@@ -131,7 +192,7 @@ export const TradeFooterButton: FC<TradeFooterButtonProps> = ({
       default:
         assertUnreachable(confirmedTradeExecutionState)
     }
-  }, [confirmedTradeExecutionState, tradeButtonProps?.buttonText])
+  }, [confirmedTradeExecutionState, tradeButtonProps?.buttonText, isStarknetAccountDeployed])
 
   const networkFeeToTradeRatioPercentage = useMemo(
     () =>
@@ -154,104 +215,36 @@ export const TradeFooterButton: FC<TradeFooterButtonProps> = ({
   const handleSubmit = useCallback(async () => {
     try {
       setIsSubmitting(true)
-
-      if (sellAccountId && wallet) {
-        const { chainId } = fromAccountId(sellAccountId)
-        if (chainId === starknetChainId) {
-          const chainAdapterManager = getChainAdapterManager()
-          const adapter = chainAdapterManager.get(chainId)
-          if (isStarknetChainAdapter(adapter)) {
-            const fromAddress = fromAccountId(sellAccountId).account
-            const isDeployed = await adapter.isAccountDeployed(fromAddress)
-            if (!isDeployed) {
-              deployStarknetAccount.open({
-                onConfirm: async () => {
-                  try {
-                    const feeData = await adapter.getFeeData()
-                    const maxFee = feeData.fast.chainSpecific.maxFee
-
-                    const accountNumber = accountMetadata?.bip44Params.accountNumber ?? 0
-
-                    const deployTxHash = await adapter.deployAccount({
-                      accountNumber,
-                      wallet,
-                      maxFee,
-                    })
-
-                    if (!deployTxHash) {
-                      toast({
-                        status: 'error',
-                        title: 'Failed to deploy account',
-                        description: 'Could not deploy Starknet account',
-                      })
-                      return
-                    }
-
-                    toast({
-                      status: 'info',
-                      title: 'Deploying account...',
-                      description: 'Waiting for account deployment to be confirmed',
-                      duration: null,
-                    })
-
-                    const starknetProvider = adapter.getStarknetProvider()
-                    await starknetProvider.waitForTransaction(deployTxHash, {
-                      retryInterval: 2000,
-                      successStates: ['ACCEPTED_ON_L2', 'ACCEPTED_ON_L1'],
-                    })
-
-                    toast({
-                      status: 'success',
-                      title: 'Account deployed',
-                      description: 'Your Starknet account has been deployed successfully',
-                      duration: 3000,
-                    })
-
-                    // Wait a moment for the nonce to update before proceeding with swap
-                    await new Promise(resolve => setTimeout(resolve, 2000))
-
-                    await executeTradeSubmit()
-                  } catch (error) {
-                    console.error('Failed to deploy Starknet account:', error)
-                    toast({
-                      status: 'error',
-                      title: 'Deployment failed',
-                      description: error instanceof Error ? error.message : 'Unknown error',
-                    })
-                  }
-                },
-                onCancel: () => {},
-              })
-              return
-            }
-          }
-        }
-      }
-
       await executeTradeSubmit()
     } finally {
       setIsSubmitting(false)
     }
-  }, [
-    executeTradeSubmit,
-    sellAccountId,
-    wallet,
-    deployStarknetAccount,
-    toast,
-    accountMetadata?.bip44Params.accountNumber,
-  ])
+  }, [executeTradeSubmit])
 
   const handleClick = useCallback(() => {
     const isInitializingOrPreviewing =
       confirmedTradeExecutionState === TradeExecutionState.Initializing ||
       confirmedTradeExecutionState === TradeExecutionState.Previewing
+
+    // Check if we need to deploy Starknet account first
+    if (isInitializingOrPreviewing && isStarknetAccountDeployed === false) {
+      deployAccountMutation.mutate()
+      return
+    }
+
     // Only show the warning acknowledgement if the user is previewing the trade
     if (isModeratePriceImpact && isInitializingOrPreviewing) {
       setShouldShowWarningAcknowledgement(true)
     } else {
       handleSubmit()
     }
-  }, [isModeratePriceImpact, handleSubmit, confirmedTradeExecutionState])
+  }, [
+    isModeratePriceImpact,
+    handleSubmit,
+    confirmedTradeExecutionState,
+    isStarknetAccountDeployed,
+    deployAccountMutation,
+  ])
 
   // Ratio of the fiat value of the gas fee to the fiat value of the trade value express in percentage
   const isFeeRatioOverThreshold = useMemo(() => {
@@ -330,6 +323,8 @@ export const TradeFooterButton: FC<TradeFooterButtonProps> = ({
 
     return (
       isSubmitting ||
+      deployAccountMutation.isPending ||
+      isCheckingDeployment ||
       confirmedTradeExecutionState === TradeExecutionState.Initializing ||
       tradeButtonProps?.isLoading ||
       isLoading ||
@@ -343,6 +338,8 @@ export const TradeFooterButton: FC<TradeFooterButtonProps> = ({
     )
   }, [
     isSubmitting,
+    deployAccountMutation.isPending,
+    isCheckingDeployment,
     confirmedTradeExecutionState,
     tradeButtonProps?.isLoading,
     isLoading,
@@ -368,6 +365,16 @@ export const TradeFooterButton: FC<TradeFooterButtonProps> = ({
         {[TradeExecutionState.Initializing, TradeExecutionState.Previewing].includes(
           confirmedTradeExecutionState,
         ) && tradeWarnings}
+        {isStarknetAccountDeployed === false && (
+          <Alert status='warning' borderRadius='lg' mb={3}>
+            <AlertIcon />
+            <Stack spacing={0}>
+              <AlertDescription lineHeight='short'>
+                <Text translation='starknet.deployAccount.swapDescription' />
+              </AlertDescription>
+            </Stack>
+          </Alert>
+        )}
         {activeQuoteError && (
           <Alert status='warning' size='sm'>
             <AlertIcon />
@@ -394,7 +401,14 @@ export const TradeFooterButton: FC<TradeFooterButtonProps> = ({
           width='full'
           onClick={handleClick}
           isLoading={isButtonLoading}
-          isDisabled={tradeButtonProps.isDisabled || !!activeQuoteError}
+          isDisabled={
+            tradeButtonProps.isDisabled || !!activeQuoteError || deployAccountMutation.isPending
+          }
+          loadingText={
+            deployAccountMutation.isPending
+              ? translate('starknet.deployAccount.deploying')
+              : undefined
+          }
         >
           <Text translation={translation} />
         </Button>

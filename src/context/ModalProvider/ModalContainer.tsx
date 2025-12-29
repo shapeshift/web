@@ -181,16 +181,6 @@ const LedgerOpenAppModal = makeSuspenseful(
   ),
 )
 
-const DeployStarknetAccountModal = makeSuspenseful(
-  lazy(() =>
-    import('@/components/Modals/DeployStarknetAccount/DeployStarknetAccountModal').then(
-      ({ DeployStarknetAccountModal }) => ({
-        default: DeployStarknetAccountModal,
-      }),
-    ),
-  ),
-)
-
 const MobileWalletDialogModal = makeSuspenseful(
   lazy(() =>
     import('@/components/MobileWalletDialog/MobileWalletDialog').then(({ MobileWalletDialog }) => ({
@@ -261,7 +251,6 @@ export const MODALS: Modals = {
   snaps: Snaps,
   // Important: Order matters here -This modal must be mounted before the ManageAccountsModal so it can be opened
   ledgerOpenApp: LedgerOpenAppModal,
-  deployStarknetAccount: DeployStarknetAccountModal,
   manageAccounts: ManageAccountsModal,
   rateChanged: RateChangedModal,
   mobileWalletDialog: MobileWalletDialogModal,

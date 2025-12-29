@@ -1,5 +1,6 @@
 import {
   Alert,
+  AlertDescription,
   AlertIcon,
   Box,
   Button,
@@ -13,7 +14,14 @@ import {
   Tooltip,
   VStack,
 } from '@chakra-ui/react'
-import { CHAIN_NAMESPACE, ethChainId, fromAssetId } from '@shapeshiftoss/caip'
+import {
+  CHAIN_NAMESPACE,
+  ethChainId,
+  fromAccountId,
+  fromAssetId,
+  starknetChainId,
+} from '@shapeshiftoss/caip'
+import { useMutation } from '@tanstack/react-query'
 import get from 'lodash/get'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import type { ControllerRenderProps, FieldValues } from 'react-hook-form'
@@ -38,9 +46,16 @@ import { SendMaxButton } from '@/components/Modals/Send/SendMaxButton/SendMaxBut
 import { SlideTransition } from '@/components/SlideTransition'
 import { Text } from '@/components/Text/Text'
 import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
+import { useIsStarknetAccountDeployed } from '@/hooks/useIsStarknetAccountDeployed/useIsStarknetAccountDeployed'
+import { useNotificationToast } from '@/hooks/useNotificationToast'
+import { useWallet } from '@/hooks/useWallet/useWallet'
 import { parseAddressInputWithChainId } from '@/lib/address/address'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
-import { selectAssetById } from '@/state/slices/selectors'
+import { isStarknetChainAdapter } from '@/lib/utils/starknet'
+import {
+  selectAssetById,
+  selectPortfolioAccountMetadataByAccountId,
+} from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
 const accountDropdownBoxProps = { px: 0, my: 0 }
@@ -66,6 +81,10 @@ export const SendAmountDetails = () => {
   const navigate = useNavigate()
   const location = useLocation()
   const translate = useTranslate()
+  const toast = useNotificationToast()
+  const {
+    state: { wallet },
+  } = useWallet()
 
   const [isValidating, setIsValidating] = useState(false)
 
@@ -85,6 +104,62 @@ export const SendAmountDetails = () => {
   }) as Partial<SendInput>
 
   const asset = useAppSelector(state => selectAssetById(state, assetId ?? ''))
+  const accountMetadataFilter = useMemo(() => ({ accountId: accountId ?? '' }), [accountId])
+  const accountMetadata = useAppSelector(state =>
+    selectPortfolioAccountMetadataByAccountId(state, accountMetadataFilter),
+  )
+  const {
+    data: isStarknetAccountDeployed,
+    isLoading: isCheckingDeployment,
+    refetch: refetchDeploymentStatus,
+  } = useIsStarknetAccountDeployed(accountId)
+
+  const deployAccountMutation = useMutation({
+    mutationFn: async () => {
+      if (!accountId || !wallet) throw new Error('Missing account or wallet')
+
+      const { chainId } = fromAccountId(accountId)
+      if (chainId !== starknetChainId) throw new Error('Not a Starknet account')
+
+      const chainAdapterManager = getChainAdapterManager()
+      const adapter = chainAdapterManager.get(chainId)
+      if (!isStarknetChainAdapter(adapter)) throw new Error('Invalid chain adapter')
+
+      const feeData = await adapter.getFeeData()
+      const maxFee = feeData.fast.chainSpecific.maxFee
+
+      const accountNumber = accountMetadata?.bip44Params.accountNumber ?? 0
+
+      const deployTxHash = await adapter.deployAccount({
+        accountNumber,
+        wallet,
+        maxFee,
+      })
+
+      if (!deployTxHash) {
+        throw new Error('Could not deploy Starknet account')
+      }
+
+      const starknetProvider = adapter.getStarknetProvider()
+      await starknetProvider.waitForTransaction(deployTxHash, {
+        retryInterval: 2000,
+        successStates: ['ACCEPTED_ON_L2', 'ACCEPTED_ON_L1'],
+      })
+
+      return deployTxHash
+    },
+    onSuccess: () => {
+      refetchDeploymentStatus()
+    },
+    onError: (error: Error) => {
+      console.error('Failed to deploy Starknet account:', error)
+      toast({
+        status: 'error',
+        title: 'Deployment failed',
+        description: error.message,
+      })
+    },
+  })
 
   const { balancesLoading, fieldName, handleSendMax, handleInputChange, isLoading, toggleIsFiat } =
     useSendDetails()
@@ -104,7 +179,17 @@ export const SendAmountDetails = () => {
     }
   }, [input, setValue])
 
-  const handleNextClick = useCallback(() => navigate(SendRoutes.Confirm), [navigate])
+  const handleNextClick = useCallback(() => {
+    if (accountId) {
+      const { chainId } = fromAccountId(accountId)
+      if (chainId === starknetChainId && isStarknetAccountDeployed === false) {
+        deployAccountMutation.mutate()
+        return
+      }
+    }
+    navigate(SendRoutes.Confirm)
+  }, [accountId, isStarknetAccountDeployed, deployAccountMutation, navigate])
+
   const handleBackClick = useCallback(
     () => navigate(isFromQrCode ? SendRoutes.Scan : SendRoutes.Address),
     [navigate, isFromQrCode],
@@ -308,6 +393,14 @@ export const SendAmountDetails = () => {
               <Text translation={noAccountsOnChainTranslation} fontSize='sm' />
             </Alert>
           )}
+          {isStarknetAccountDeployed === false && (
+            <Alert status='warning' borderRadius='lg' mb={3}>
+              <AlertIcon />
+              <AlertDescription>
+                <Text translation='starknet.deployAccount.sendDescription' />
+              </AlertDescription>
+            </Alert>
+          )}
           {!hasNoAccountForAsset && (
             <Flex alignItems='center' justifyContent='space-between' mb={4}>
               <Flex alignItems='center'>
@@ -341,11 +434,26 @@ export const SendAmountDetails = () => {
               !to ||
               !input ||
               addressError ||
-              hasNoAccountForAsset
+              hasNoAccountForAsset ||
+              isCheckingDeployment ||
+              deployAccountMutation.isPending
             }
-            isLoading={isLoading || isValidating}
+            isLoading={
+              isLoading || isValidating || isCheckingDeployment || deployAccountMutation.isPending
+            }
+            loadingText={
+              deployAccountMutation.isPending
+                ? translate('starknet.deployAccount.deploying')
+                : undefined
+            }
           >
-            {translate(Boolean(addressError) ? addressError : 'common.preview')}
+            {translate(
+              Boolean(addressError)
+                ? addressError
+                : isStarknetAccountDeployed === false
+                ? 'starknet.deployAccount.deployButton'
+                : 'common.preview',
+            )}
           </Button>
         </Stack>
       </DialogFooter>

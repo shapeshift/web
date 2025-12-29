@@ -12,9 +12,11 @@ import { getConfig } from '@/config'
 import { SECOND_CLASS_CHAINS } from '@/constants/chains'
 import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
 import { getHyperEvmTransactionStatus } from '@/lib/utils/hyperevm'
+import { getMayachainTransactionStatus } from '@/lib/utils/mayachain'
 import { getMonadTransactionStatus } from '@/lib/utils/monad'
 import { getPlasmaTransactionStatus } from '@/lib/utils/plasma'
 import { getSuiTransactionStatus } from '@/lib/utils/sui'
+import { getThorchainSendTransactionStatus } from '@/lib/utils/thorchain'
 import { getTronTransactionStatus } from '@/lib/utils/tron'
 import { actionSlice } from '@/state/slices/actionSlice/actionSlice'
 import { selectPendingWalletSendActions } from '@/state/slices/actionSlice/selectors'
@@ -152,6 +154,18 @@ export const useSendActionSubscriber = () => {
                   )
                   isConfirmed =
                     hyperEvmTxStatus === TxStatus.Confirmed || hyperEvmTxStatus === TxStatus.Failed
+                  break
+                }
+                case KnownChainIds.ThorchainMainnet: {
+                  const thorTxStatus = await getThorchainSendTransactionStatus(txHash)
+                  isConfirmed =
+                    thorTxStatus === TxStatus.Confirmed || thorTxStatus === TxStatus.Failed
+                  break
+                }
+                case KnownChainIds.MayachainMainnet: {
+                  const mayaTxStatus = await getMayachainTransactionStatus(txHash)
+                  isConfirmed =
+                    mayaTxStatus === TxStatus.Confirmed || mayaTxStatus === TxStatus.Failed
                   break
                 }
                 default:

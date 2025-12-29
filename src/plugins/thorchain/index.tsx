@@ -1,6 +1,5 @@
 import { thorchain } from '@shapeshiftoss/chain-adapters'
 import { KnownChainIds } from '@shapeshiftoss/types'
-import * as unchained from '@shapeshiftoss/unchained-client'
 
 import { getConfig } from '@/config'
 import type { Plugins } from '@/plugins/types'
@@ -17,28 +16,10 @@ export default function register(): Plugins {
             [
               KnownChainIds.ThorchainMainnet,
               () => {
-                const http = new unchained.thorchain.V1Api(
-                  new unchained.thorchain.Configuration({
-                    basePath: getConfig().VITE_UNCHAINED_THORCHAIN_HTTP_URL,
-                  }),
-                )
-
-                const httpV1 = new unchained.thorchainV1.V1Api(
-                  new unchained.thorchainV1.Configuration({
-                    basePath: getConfig().VITE_UNCHAINED_THORCHAIN_V1_HTTP_URL,
-                  }),
-                )
-
-                const ws = new unchained.ws.Client<unchained.cosmossdk.Tx>(
-                  getConfig().VITE_UNCHAINED_THORCHAIN_WS_URL,
-                )
-
-                return new thorchain.ChainAdapter({
-                  providers: { http, ws },
-                  coinName: 'Thorchain',
+                return new thorchain.SecondClassThorchainAdapter({
+                  nodeUrl: getConfig().VITE_THORCHAIN_NODE_URL,
                   thorMidgardUrl: getConfig().VITE_THORCHAIN_MIDGARD_URL,
                   mayaMidgardUrl: getConfig().VITE_MAYACHAIN_MIDGARD_URL,
-                  httpV1,
                 })
               },
             ],

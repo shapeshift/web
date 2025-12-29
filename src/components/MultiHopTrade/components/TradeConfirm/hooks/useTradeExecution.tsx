@@ -101,9 +101,6 @@ export const useTradeExecution = (
   )
   const swapperName = useAppSelector(selectActiveSwapperName)
   const tradeQuote = useAppSelector(selectActiveQuote)
-  const activeSwapId = useAppSelector(swapSlice.selectors.selectActiveSwapId)
-  const swapsById = useAppSelector(swapSlice.selectors.selectSwapsById)
-  const isQuickBuy = useAppSelector(selectIsQuickBuy)
 
   // This is ugly, but we need to use refs to get around the fact that the
   // poll fn effectively creates a closure and will hold stale variables forever
@@ -186,7 +183,10 @@ export const useTradeExecution = (
         )
         dispatch(tradeInput.actions.setSellAmountCryptoPrecision('0'))
 
-        const swap = activeSwapId ? swapsById[activeSwapId] : undefined
+        // Read fresh state to avoid stale closure - activeSwapId/swapsById captured at render time may be outdated
+        const freshActiveSwapId = swapSlice.selectors.selectActiveSwapId(store.getState())
+        const freshSwapsById = swapSlice.selectors.selectSwapsById(store.getState())
+        const swap = freshActiveSwapId ? freshSwapsById[freshActiveSwapId] : undefined
         if (swap) {
           // No double-toasty
           if (toast.isActive(swap.id)) return
@@ -213,7 +213,9 @@ export const useTradeExecution = (
         }
 
         // Don't navigate away during QuickBuy - let the QuickBuy component handle the success state
-        if (!isQuickBuy) {
+        // Read fresh state to avoid stale closure
+        const freshIsQuickBuy = selectIsQuickBuy(store.getState())
+        if (!freshIsQuickBuy) {
           navigate(TradeRoutePaths.Input)
         }
       })
@@ -627,12 +629,9 @@ export const useTradeExecution = (
     supportedBuyAsset,
     slippageTolerancePercentageDecimal,
     permit2.permit2Signature,
-    activeSwapId,
     navigate,
     openActionCenter,
-    swapsById,
     toast,
-    isQuickBuy,
   ])
 
   return executeTrade

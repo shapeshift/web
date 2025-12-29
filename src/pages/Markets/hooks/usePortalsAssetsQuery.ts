@@ -10,7 +10,7 @@ import { fetchPortalsPlatforms, fetchPortalsTokens, portalTokenToAsset } from '@
 import { assets as assetsSlice } from '@/state/slices/assetsSlice/assetsSlice'
 import { marketApi } from '@/state/slices/marketDataSlice/marketDataSlice'
 import { selectAssets, selectFeeAssetById } from '@/state/slices/selectors'
-import { store, useAppDispatch, useAppSelector } from '@/state/store'
+import { store, useAppDispatch } from '@/state/store'
 
 export type PortalsAssets = {
   byId: Record<AssetId, TokenInfo>
@@ -36,7 +36,6 @@ export const usePortalsAssetsQuery = ({
   tags?: string[]
 }) => {
   const dispatch = useAppDispatch()
-  const assets = useAppSelector(selectAssets)
 
   const { data: portalsPlatformsData } = useQuery({
     queryKey: ['portalsPlatforms'],
@@ -68,6 +67,9 @@ export const usePortalsAssetsQuery = ({
     select: tokens => {
       if (!portalsPlatformsData) return
       if (!enabled) return
+
+      // Get fresh assets from store to avoid stale closures in react-query select callbacks
+      const assets = selectAssets(store.getState())
 
       return tokens.reduce<PortalsAssets>(
         (acc, token) => {

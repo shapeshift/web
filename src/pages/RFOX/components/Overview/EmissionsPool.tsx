@@ -29,27 +29,34 @@ export const EmissionsPool: React.FC<EmissionsPoolProps> = ({ stakingAssetId }) 
 
   const currentEpochMetadataQuery = useCurrentEpochMetadataQuery()
 
-  const affiliateRevenueQuery = useAffiliateRevenueQuery<string>({
+  const affiliateRevenueQuery = useAffiliateRevenueQuery({
     startTimestamp: currentEpochMetadataQuery.data?.epochStartTimestamp,
     endTimestamp: currentEpochMetadataQuery.data?.epochEndTimestamp,
-    select: (totalRevenue: bigint) => {
-      return bn(fromBaseUnit(totalRevenue.toString(), runeAsset?.precision ?? 0))
-        .times(bnOrZero(runeAssetMarketData?.price))
-        .toFixed(2)
-    },
   })
 
   const emissionsPoolUserCurrency = useMemo(() => {
     if (!affiliateRevenueQuery.data) return
     if (!currentEpochMetadataQuery.data) return
 
+    const affiliateRevenueUserCurrency = bn(
+      fromBaseUnit(affiliateRevenueQuery.data.toString(), runeAsset?.precision ?? 0),
+    )
+      .times(bnOrZero(runeAssetMarketData?.price))
+      .toFixed(2)
+
     const distributionRate =
       currentEpochMetadataQuery.data.distributionRateByStakingContract[
         getStakingContract(stakingAssetId)
       ]
 
-    return bn(affiliateRevenueQuery.data).times(distributionRate).toFixed(2)
-  }, [affiliateRevenueQuery, currentEpochMetadataQuery, stakingAssetId])
+    return bn(affiliateRevenueUserCurrency).times(distributionRate).toFixed(2)
+  }, [
+    affiliateRevenueQuery.data,
+    currentEpochMetadataQuery.data,
+    runeAsset?.precision,
+    runeAssetMarketData?.price,
+    stakingAssetId,
+  ])
 
   return (
     <StatItem

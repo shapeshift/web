@@ -1,5 +1,6 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import { bn, bnOrZero } from '@shapeshiftoss/chain-adapters'
+import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 
 import { StatItem } from './StatItem'
@@ -21,21 +22,21 @@ export const TotalStaked: React.FC<TotalStakedProps> = ({ stakingAssetId }) => {
     selectMarketDataByAssetIdUserCurrency(state, stakingAssetId),
   )
 
-  const totalStakedUserCurrencyQuery = useTotalStakedQuery<string>({
-    stakingAssetId,
-    select: (totalStaked: bigint) => {
-      return bn(fromBaseUnit(totalStaked.toString(), stakingAsset?.precision ?? 0))
-        .times(bnOrZero(stakingAssetMarketData?.price))
-        .toFixed(2)
-    },
-  })
+  const totalStakedQuery = useTotalStakedQuery({ stakingAssetId })
+
+  const totalStakedUserCurrency = useMemo(() => {
+    if (!totalStakedQuery.data) return
+    return bn(fromBaseUnit(totalStakedQuery.data.toString(), stakingAsset?.precision ?? 0))
+      .times(bnOrZero(stakingAssetMarketData?.price))
+      .toFixed(2)
+  }, [totalStakedQuery.data, stakingAsset?.precision, stakingAssetMarketData?.price])
 
   return (
     <StatItem
       description={translate('RFOX.totalStaked', { symbol: stakingAsset?.symbol })}
       helperDescription={translate('RFOX.totalStakedHelper', { symbol: stakingAsset?.symbol })}
-      amountUserCurrency={totalStakedUserCurrencyQuery.data}
-      isLoading={totalStakedUserCurrencyQuery.isLoading}
+      amountUserCurrency={totalStakedUserCurrency}
+      isLoading={totalStakedQuery.isLoading}
     />
   )
 }

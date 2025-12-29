@@ -20,8 +20,6 @@ import { getAssetService } from '@/lib/asset-service'
 
 const PORTALS_BASE_URL = getConfig().VITE_PORTALS_BASE_URL
 
-const localAssetData = getAssetService().assetsById
-
 export const fetchPortalsTokens = async ({
   chainIds,
   page = 0,
@@ -129,12 +127,13 @@ export const portalTokenToAsset = ({
   chainId: ChainId
   nativeAsset: Asset
 }): Asset | undefined => {
+  const assetsById = getAssetService().assetsById
   const assetId = toAssetId({
     chainId,
     assetNamespace: ASSET_NAMESPACE.erc20,
     assetReference: token.address,
   })
-  const asset = localAssetData[assetId]
+  const asset = assetsById[assetId]
 
   const explorerData = {
     explorer: nativeAsset.explorer,
@@ -167,7 +166,7 @@ export const portalTokenToAsset = ({
             assetNamespace: ASSET_NAMESPACE.erc20,
             assetReference: token.tokens[i],
           })
-          const underlyingAsset = localAssetData[underlyingAssetId]
+          const underlyingAsset = assetsById[underlyingAssetId]
           // Prioritise our own flavour of icons for that asset if available, else use upstream if present
           return underlyingAsset?.icon || maybeTokenImage(underlyingAssetsImage)
         }),
@@ -191,7 +190,7 @@ export const portalTokenToAsset = ({
           assetNamespace: ASSET_NAMESPACE.erc20,
           assetReference: underlyingToken,
         })
-        const underlyingAsset = localAssetData[assetId]
+        const underlyingAsset = assetsById[assetId]
         if (!underlyingAsset) return undefined
 
         // This doesn't generalize, but this'll do, this is only a visual hack to display native asset instead of wrapped
@@ -221,7 +220,7 @@ export const portalTokenToAsset = ({
 
   return {
     ...explorerData,
-    color: localAssetData[assetId]?.color ?? '#FFFFFF',
+    color: assetsById[assetId]?.color ?? '#FFFFFF',
     // This looks weird but we need this - l.165 check above nulls the type safety of this object, so we cast it back
     ...(iconOrIcons as { icon: string } | { icons: string[]; icon: undefined }),
     name,

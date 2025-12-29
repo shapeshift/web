@@ -20,7 +20,7 @@ import {
   selectEnabledWalletAccountIds,
   selectWalletId,
 } from '@/state/slices/selectors'
-import { useAppSelector } from '@/state/store'
+import { store, useAppSelector } from '@/state/store'
 
 type GetPositionArgs = {
   pool: ThornodePoolResponse
@@ -139,7 +139,6 @@ export const useUserLpData = ({
   accountId,
 }: UseUserLpDataProps): UseQueryResult<UserLpDataPosition[] | null> => {
   const queryClient = useQueryClient()
-  const assets = useAppSelector(selectAssets)
   const assetAccountIds = useAppSelector(state => selectAccountIdsByAssetId(state, { assetId }))
   const thorchainAccountIds = useAppSelector(state =>
     selectAccountIdsByAssetId(state, { assetId: thorchainAssetId }),
@@ -147,13 +146,6 @@ export const useUserLpData = ({
   const accountIds = [...(accountId ? [accountId] : assetAccountIds), ...thorchainAccountIds]
   const walletAccountIds = useAppSelector(selectEnabledWalletAccountIds)
   const currentWalletId = useAppSelector(selectWalletId)
-
-  const poolAssetMarketData = useAppSelector(state =>
-    selectMarketDataByAssetIdUserCurrency(state, assetId),
-  )
-  const runeMarketData = useAppSelector(state =>
-    selectMarketDataByAssetIdUserCurrency(state, thorchainAssetId),
-  )
 
   const { data: thorchainMimirTimes, isSuccess: isThorchainMimirTimesSuccess } =
     useThorchainMimirTimes()
@@ -189,6 +181,12 @@ export const useUserLpData = ({
     select: (positions: Position[] | undefined) => {
       if (!pool) return null
       if (!thorchainMimirTimes) return null
+
+      // Get fresh state from store to avoid stale closures in react-query select callbacks
+      const state = store.getState()
+      const assets = selectAssets(state)
+      const poolAssetMarketData = selectMarketDataByAssetIdUserCurrency(state, assetId)
+      const runeMarketData = selectMarketDataByAssetIdUserCurrency(state, thorchainAssetId)
 
       return (positions ?? [])
         .map(position =>

@@ -9,6 +9,7 @@ import uniq from 'lodash/uniq'
 import { PURGE } from 'redux-persist'
 
 import { assets as assetSlice } from '../assetsSlice/assetsSlice'
+import { selectAssetIds } from '../assetsSlice/selectors'
 import type { Portfolio, WalletId } from './portfolioSliceCommon'
 import { initialState } from './portfolioSliceCommon'
 import { accountToPortfolio, haveSameElements, makeAssets } from './utils'
@@ -239,7 +240,7 @@ export const portfolioApi = createApi({
         dispatch(portfolio.actions.setIsPortfolioGetAccountLoading({ accountId, isLoading: true }))
         if (!accountId) return { data: cloneDeep(initialState) }
         const state: ReduxState = getState() as any
-        const assetIds = state.assets.ids
+        const assetIds = selectAssetIds(state)
         const chainAdapters = getChainAdapterManager()
         const { chainId, account: pubkey } = fromAccountId(accountId)
         try {

@@ -205,13 +205,6 @@ export const useLendingQuoteCloseQuery = ({
     selectPortfolioAccountMetadataByAccountId(state, collateralAccountMetadataFilter),
   )
   const repaymentAsset = useAppSelector(state => selectAssetById(state, repaymentAssetId))
-  const repaymentAssetMarketData = useAppSelector(state =>
-    selectMarketDataByAssetIdUserCurrency(state, repaymentAssetId),
-  )
-
-  const collateralAssetMarketData = useAppSelector(state =>
-    selectMarketDataByAssetIdUserCurrency(state, collateralAssetId),
-  )
 
   const query = useQuery({
     // Go stale instantly, and clear garbage collect instantly, as we absolutely want to have the freshest data
@@ -237,14 +230,27 @@ export const useLendingQuoteCloseQuery = ({
     // Failed queries go stale and don't honor "staleTime", which meaans failed queries would trigger a THOR daemon fetch from all consumers
     // vs. the failed query being considered fresh
     retry: false,
-    select: data =>
-      selectLendingCloseQueryData({
+    select: data => {
+      // Get fresh state from store to avoid stale closures in react-query select callbacks
+      const state = store.getState()
+      const freshCollateralAssetMarketData = selectMarketDataByAssetIdUserCurrency(
+        state,
+        collateralAssetId,
+      )
+      const freshRepaymentAssetMarketData = selectMarketDataByAssetIdUserCurrency(
+        state,
+        repaymentAssetId,
+      )
+      const freshRepaymentAsset = selectAssetById(state, repaymentAssetId)
+
+      return selectLendingCloseQueryData({
         data,
-        collateralAssetMarketData,
-        repaymentAssetMarketData,
+        collateralAssetMarketData: freshCollateralAssetMarketData,
+        repaymentAssetMarketData: freshRepaymentAssetMarketData,
         repaymentPercent,
-        repaymentAsset,
-      }),
+        repaymentAsset: freshRepaymentAsset,
+      })
+    },
     // Do not refetch if consumers explicitly set enabled to false
     refetchIntervalInBackground: Boolean(enabled),
     refetchInterval: 20_000,

@@ -25,10 +25,6 @@ export const usePoolDataQuery = ({ poolAssetId }: { poolAssetId: string }) => {
     [poolAssetId],
   )
 
-  const poolAssetMarketData = useAppSelector(state =>
-    selectMarketDataByAssetIdUserCurrency(state, poolAssetId),
-  )
-
   const { isTradingActive } = useIsTradingActive({
     assetId: poolAssetId,
     swapperName: SwapperName.Thorchain,
@@ -59,6 +55,11 @@ export const usePoolDataQuery = ({ poolAssetId }: { poolAssetId: string }) => {
     },
     select: data => {
       const { positions, poolInfo } = data
+
+      // Get fresh state from store to avoid stale closures in react-query select callbacks
+      const state = store.getState()
+      const poolAssetMarketData = selectMarketDataByAssetIdUserCurrency(state, poolAssetId)
+
       // returns actual derived data, or zero's out fields in case there is no active position
       const totalBorrowers = positions?.length ?? 0
 
@@ -77,7 +78,7 @@ export const usePoolDataQuery = ({ poolAssetId }: { poolAssetId: string }) => {
 
       const totalCollateralCryptoPrecision = fromThorBaseUnit(totalCollateral).toString()
       const totalDebtUSD = fromThorBaseUnit(totalDebt).toString()
-      const userCurrencyToUsdRate = selectUserCurrencyToUsdRate(store.getState())
+      const userCurrencyToUsdRate = selectUserCurrencyToUsdRate(state)
       const totalDebtUserCurrency = bnOrZero(totalDebtUSD).times(userCurrencyToUsdRate).toString()
 
       const collateralizationRatioPercent = bnOrZero(poolInfo.loan_cr).div(100)

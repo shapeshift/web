@@ -206,9 +206,6 @@ export const useLendingQuoteOpenQuery = ({
   )
 
   const borrowAsset = useAppSelector(state => selectAssetById(state, _borrowAssetId))
-  const borrowAssetMarketData = useAppSelector(state =>
-    selectMarketDataByAssetIdUserCurrency(state, _borrowAssetId),
-  )
 
   const getBorrowAssetReceiveAddress = useCallback(() => {
     if (!wallet || !_borrowAccountId || !destinationAccountMetadata || !borrowAsset) return
@@ -257,12 +254,21 @@ export const useLendingQuoteOpenQuery = ({
       if (position.isErr()) throw new Error(position.unwrapErr())
       return position.unwrap()
     },
-    select: data =>
-      selectLendingQuoteQuery({
+    select: data => {
+      // Get fresh state from store to avoid stale closures in react-query select callbacks
+      const state = store.getState()
+      const freshCollateralAssetMarketData = selectMarketDataByAssetIdUserCurrency(
+        state,
+        collateralAssetId,
+      )
+      const freshBorrowAssetMarketData = selectMarketDataByAssetIdUserCurrency(state, borrowAssetId)
+
+      return selectLendingQuoteQuery({
         data,
-        collateralAssetMarketData,
-        borrowAssetMarketData,
-      }),
+        collateralAssetMarketData: freshCollateralAssetMarketData,
+        borrowAssetMarketData: freshBorrowAssetMarketData,
+      })
+    },
     // This avoids retrying errored queries - i.e smaller amounts will error with "failed to simulate swap: fail swap, not enough fee"
     // Failed queries go stale and don't honor "staleTime", which means smaller amounts would trigger a THOR daemon fetch from all consumers (3 currently)
     // vs. the failed query being considered fresh

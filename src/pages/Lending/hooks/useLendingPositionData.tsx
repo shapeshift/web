@@ -9,7 +9,7 @@ import {
   selectMarketDataByAssetIdUserCurrency,
   selectUserCurrencyToUsdRate,
 } from '@/state/slices/marketDataSlice/selectors'
-import { store, useAppSelector } from '@/state/store'
+import { store } from '@/state/store'
 
 type UseLendingPositionDataProps = {
   accountId: AccountId | null
@@ -29,9 +29,6 @@ export const thorchainLendingPositionQueryFn = async ({
 export const useLendingPositionData = ({ accountId, assetId }: UseLendingPositionDataProps) => {
   const lendingPositionQueryKey: [string, { accountId: AccountId | null; assetId: AssetId }] =
     useMemo(() => ['thorchainLendingPosition', { accountId, assetId }], [accountId, assetId])
-  const poolAssetMarketData = useAppSelector(state =>
-    selectMarketDataByAssetIdUserCurrency(state, assetId),
-  )
 
   const lendingPositionData = useQuery({
     // This is on purpose. We want lending position data to be cached forever
@@ -45,6 +42,10 @@ export const useLendingPositionData = ({ accountId, assetId }: UseLendingPositio
       return position
     },
     select: data => {
+      // Get fresh state from store to avoid stale closures in react-query select callbacks
+      const state = store.getState()
+      const poolAssetMarketData = selectMarketDataByAssetIdUserCurrency(state, assetId)
+
       // returns actual derived data, or zero's out fields in case there is no active position
       const collateralBalanceCryptoPrecision = fromThorBaseUnit(data?.collateral_current).toString()
 
@@ -52,7 +53,7 @@ export const useLendingPositionData = ({ accountId, assetId }: UseLendingPositio
         .times(bnOrZero(poolAssetMarketData?.price))
         .toString()
 
-      const userCurrencyToUsdRate = selectUserCurrencyToUsdRate(store.getState())
+      const userCurrencyToUsdRate = selectUserCurrencyToUsdRate(state)
       const debtBalanceFiatUserCurrency = fromThorBaseUnit(data?.debt_current)
         .times(bnOrZero(userCurrencyToUsdRate))
         .toString()
@@ -64,7 +65,7 @@ export const useLendingPositionData = ({ accountId, assetId }: UseLendingPositio
         address: data?.owner,
       }
     },
-    enabled: Boolean(accountId && assetId && poolAssetMarketData?.price !== '0'),
+    enabled: Boolean(accountId && assetId),
   })
 
   return lendingPositionData

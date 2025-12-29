@@ -20,7 +20,7 @@ import {
   selectPortfolioAccounts,
   selectWalletId,
 } from '@/state/slices/selectors'
-import { useAppSelector } from '@/state/store'
+import { store, useAppSelector } from '@/state/store'
 
 type UseAllUserLpDataReturn = {
   assetId: AssetId
@@ -29,13 +29,8 @@ type UseAllUserLpDataReturn = {
 
 export const useAllUserLpData = (): UseQueryResult<UseAllUserLpDataReturn | null>[] => {
   const queryClient = useQueryClient()
-  const assets = useAppSelector(selectAssets)
   const portfolioAccounts = useAppSelector(selectPortfolioAccounts)
   const runeAccountIds = findAccountsByAssetId(portfolioAccounts, thorchainAssetId)
-  const marketDataUserCurrency = useAppSelector(selectMarketDataUserCurrency)
-  const runeMarketDataUserCurrency = useAppSelector(state =>
-    selectMarketDataByAssetIdUserCurrency(state, thorchainAssetId),
-  )
   const walletAccountIds = useAppSelector(selectEnabledWalletAccountIds)
   const currentWalletId = useAppSelector(selectWalletId)
 
@@ -81,6 +76,15 @@ export const useAllUserLpData = (): UseQueryResult<UseAllUserLpDataReturn | null
               .filter(isSome)
           },
           select: (positions: Position[] | undefined) => {
+            // Get fresh state from store to avoid stale closures in react-query select callbacks
+            const state = store.getState()
+            const assets = selectAssets(state)
+            const marketDataUserCurrency = selectMarketDataUserCurrency(state)
+            const runeMarketDataUserCurrency = selectMarketDataByAssetIdUserCurrency(
+              state,
+              thorchainAssetId,
+            )
+
             return {
               assetId,
               positions: (positions ?? [])
@@ -102,16 +106,13 @@ export const useAllUserLpData = (): UseQueryResult<UseAllUserLpDataReturn | null
       })
       .filter(isSome)
   }, [
-    assets,
     currentWalletId,
     isSuccess,
     isThorchainMimirTimesSuccess,
-    marketDataUserCurrency,
     pools,
     portfolioAccounts,
     queryClient,
     runeAccountIds,
-    runeMarketDataUserCurrency?.price,
     thorchainMimirTimes,
     walletAccountIds,
   ])

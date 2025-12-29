@@ -1,5 +1,5 @@
 import { fromAssetId } from '@shapeshiftoss/caip'
-import type { AssetsByIdPartial, MarketData } from '@shapeshiftoss/types'
+import type { MarketData } from '@shapeshiftoss/types'
 import { bnOrZero, makeAsset } from '@shapeshiftoss/utils'
 import { skipToken, useQuery } from '@tanstack/react-query'
 
@@ -24,14 +24,13 @@ import {
   selectMarketDataByAssetIdUserCurrency,
 } from '@/state/slices/selectors'
 import type { AppDispatch } from '@/state/store'
-import { store, useAppDispatch, useAppSelector } from '@/state/store'
+import { store, useAppDispatch } from '@/state/store'
 
-const selectCoingeckoAssets = (
-  data: CoingeckoAsset[],
-  dispatch: AppDispatch,
-  assets: AssetsByIdPartial,
-) => {
+const selectCoingeckoAssets = (data: CoingeckoAsset[], dispatch: AppDispatch) => {
   if (!data) return
+
+  // Get fresh assets from store to avoid stale closures in react-query select callbacks
+  const assets = selectAssets(store.getState())
 
   return data.reduce<CoingeckoList>(
     (acc, topMover, i) => {
@@ -116,11 +115,10 @@ const selectCoingeckoAssets = (
 export const selectCoingeckoAssetIdsSortedAndOrdered = (
   data: CoingeckoAsset[],
   dispatch: AppDispatch,
-  assets: AssetsByIdPartial,
   sortBy?: SortOptionsKeys,
   orderBy?: OrderDirection,
 ) => {
-  const coingeckoAssets = selectCoingeckoAssets(data, dispatch, assets)
+  const coingeckoAssets = selectCoingeckoAssets(data, dispatch)
 
   if (!coingeckoAssets) return coingeckoAssets
   if (!sortBy) return coingeckoAssets
@@ -158,16 +156,16 @@ export const useTopMoversQuery = ({
   orderBy?: OrderDirection
 }) => {
   const dispatch = useAppDispatch()
-  const assets = useAppSelector(selectAssets)
 
   const topMoversQuery = useQuery({
     queryKey: ['coinGeckoTopMovers', orderBy, sortBy],
     queryFn: enabled ? getCoingeckoTopMovers : skipToken,
     staleTime: Infinity,
-    select: data =>
-      enabled
-        ? selectCoingeckoAssetIdsSortedAndOrdered(data, dispatch, assets, sortBy, orderBy)
-        : undefined,
+    select: data => {
+      return enabled
+        ? selectCoingeckoAssetIdsSortedAndOrdered(data, dispatch, sortBy, orderBy)
+        : undefined
+    },
   })
 
   return topMoversQuery
@@ -183,16 +181,16 @@ export const useTrendingQuery = ({
   orderBy?: OrderDirection
 }) => {
   const dispatch = useAppDispatch()
-  const assets = useAppSelector(selectAssets)
 
   const trendingQuery = useQuery({
     queryKey: ['coinGeckoTrending', orderBy, sortBy],
     queryFn: enabled ? getCoingeckoTrending : skipToken,
     staleTime: Infinity,
-    select: data =>
-      enabled
-        ? selectCoingeckoAssetIdsSortedAndOrdered(data, dispatch, assets, sortBy, orderBy)
-        : undefined,
+    select: data => {
+      return enabled
+        ? selectCoingeckoAssetIdsSortedAndOrdered(data, dispatch, sortBy, orderBy)
+        : undefined
+    },
   })
 
   return trendingQuery
@@ -208,16 +206,16 @@ export const useRecentlyAddedQuery = ({
   orderBy?: OrderDirection
 }) => {
   const dispatch = useAppDispatch()
-  const assets = useAppSelector(selectAssets)
 
   const recentlyAddedQuery = useQuery({
     queryKey: ['coinGeckoRecentlyAdded', orderBy, sortBy],
     queryFn: enabled ? getCoingeckoRecentlyAdded : skipToken,
     staleTime: Infinity,
-    select: data =>
-      enabled
-        ? selectCoingeckoAssetIdsSortedAndOrdered(data, dispatch, assets, sortBy, orderBy)
-        : undefined,
+    select: data => {
+      return enabled
+        ? selectCoingeckoAssetIdsSortedAndOrdered(data, dispatch, sortBy, orderBy)
+        : undefined
+    },
   })
 
   return recentlyAddedQuery
@@ -237,7 +235,6 @@ export const useMarketsQuery = ({
   limit?: number
 }) => {
   const dispatch = useAppDispatch()
-  const assets = useAppSelector(selectAssets)
 
   const prefixOrderBy = (() => {
     switch (sortBy) {
@@ -267,7 +264,9 @@ export const useMarketsQuery = ({
     queryKey: ['coinGeckoMarkets', order, page, limit],
     queryFn: enabled ? () => getCoingeckoMarkets(order, page, limit) : skipToken,
     staleTime: Infinity,
-    select: data => (enabled ? selectCoingeckoAssets(data, dispatch, assets) : undefined),
+    select: data => {
+      return enabled ? selectCoingeckoAssets(data, dispatch) : undefined
+    },
   })
 
   return recentlyAddedQuery

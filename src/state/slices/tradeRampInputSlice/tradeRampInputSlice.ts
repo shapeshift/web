@@ -1,6 +1,5 @@
 import type { PayloadAction } from '@reduxjs/toolkit'
 import type { AccountId, ChainId } from '@shapeshiftoss/caip'
-import { btcAssetId, ethAssetId } from '@shapeshiftoss/caip'
 import type { Asset } from 'packages/types'
 
 import { defaultAsset } from '../assetsSlice/assetsSlice'
@@ -9,7 +8,6 @@ import { createTradeInputBaseSlice } from '../common/tradeInputBase/createTradeI
 
 import type { RampQuote } from '@/components/Modals/FiatRamps/config'
 import { FiatCurrencyTypeEnum } from '@/constants/FiatCurrencyTypeEnum'
-import { getAssetService } from '@/lib/asset-service'
 import type { FiatCurrencyItem } from '@/lib/fiatCurrencies/fiatCurrencies'
 import { fiatCurrencyItemsByCode } from '@/lib/fiatCurrencies/fiatCurrencies'
 
@@ -35,11 +33,9 @@ export type TradeRampInputState = {
   selectedSellFiatRampQuote: RampQuote | null
 }
 
-const localAssetData = getAssetService().assetsById
-
 const initialState: TradeRampInputState = {
-  buyAsset: localAssetData[btcAssetId] ?? defaultAsset,
-  sellAsset: localAssetData[ethAssetId] ?? defaultAsset,
+  buyAsset: defaultAsset,
+  sellAsset: defaultAsset,
   buyFiatCurrency: fiatCurrencyItemsByCode[FiatCurrencyTypeEnum.USD],
   sellFiatCurrency: fiatCurrencyItemsByCode[FiatCurrencyTypeEnum.USD],
   sellAccountId: undefined,

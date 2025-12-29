@@ -3,7 +3,7 @@ import type { AssetId } from '@shapeshiftoss/caip'
 import { btcAssetId, ethAssetId, foxAssetId, usdcAssetId } from '@shapeshiftoss/caip'
 import type { LedgerOpenAppEventArgs } from '@shapeshiftoss/chain-adapters'
 import { emitter } from '@shapeshiftoss/chain-adapters'
-import { useQueries, useQuery } from '@tanstack/react-query'
+import { useQueries, useQuery, useQueryClient } from '@tanstack/react-query'
 import difference from 'lodash/difference'
 import React, { useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -62,6 +62,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   const toast = useToast()
   const translate = useTranslate()
   const dispatch = useAppDispatch()
+  const queryClient = useQueryClient()
   const { supportedChains } = usePlugins()
   const { isLoadingLocalWallet, modal, wallet, isConnected } = useWallet().state
   const assetIds = useAppSelector(selectAssetIds)
@@ -93,6 +94,28 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
 
       // Signal that AssetService is ready - triggers selector re-computation
       dispatch(assets.actions.setInitialized())
+
+      // Invalidate all asset-dependent queries to force re-selection with fresh assets
+      // This centralizes the "assets initialized" reactivity in one place instead of
+      // spreading assetsInitialized checks across all query hooks
+      void queryClient.invalidateQueries({
+        predicate: query => {
+          const key = query.queryKey[0]
+          return (
+            typeof key === 'string' &&
+            (key.startsWith('coinGecko') ||
+              key.startsWith('portals') ||
+              key.startsWith('thorchainLp') ||
+              key.startsWith('lending') ||
+              key.startsWith('affiliateRevenue') ||
+              key.startsWith('getPopularAssets') ||
+              key.startsWith('estimatedFees') ||
+              key.startsWith('isSweepNeeded') ||
+              key.startsWith('poolData') ||
+              key.startsWith('evmFees'))
+          )
+        },
+      })
 
       const btcAsset = service.assetsById[btcAssetId]
       const ethAsset = service.assetsById[ethAssetId]

@@ -422,8 +422,16 @@ export const generateRelatedAssetIndex = async () => {
     await fs.promises.readFile(RELATED_ASSET_INDEX_PATH, 'utf8'),
   )
 
-  const generatedAssetData: Record<AssetId, Asset> = assetDataJson.byId || {}
-  const sortedAssetIds: AssetId[] = assetDataJson.ids || []
+  if (!assetDataJson.byId || !assetDataJson.ids) {
+    throw new Error(
+      `Invalid asset data structure: expected { byId, ids } but got ${JSON.stringify(
+        Object.keys(assetDataJson),
+      )}`,
+    )
+  }
+
+  const generatedAssetData: Record<AssetId, Asset> = assetDataJson.byId
+  const sortedAssetIds: AssetId[] = assetDataJson.ids
   const relatedAssetIndex: Record<AssetId, AssetId[]> = REGEN_ALL ? {} : relatedAssetIndexJson
 
   // Remove stale related asset data from the assetData where the primary related asset no longer exists

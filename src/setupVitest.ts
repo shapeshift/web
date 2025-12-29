@@ -93,7 +93,7 @@ vi.mock('axios', async importOriginal => {
   return {
     ...actual,
     default: {
-      ...actual.default,
+      ...actual,
       get: vi.fn((url: string) => {
         if (url.includes('asset-manifest.json')) {
           return Promise.resolve({ data: { assetData: 'test', relatedAssetIndex: 'test' } })

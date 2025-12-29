@@ -52,6 +52,7 @@ const getCoinDetails = async (
   all: CoingeckoAsset[],
 ) => {
   const assets = selectAssets(store.getState())
+  const assetCount = Object.keys(assets).length
 
   try {
     // First, try to get asset IDs using the adapter
@@ -64,10 +65,13 @@ const getCoinDetails = async (
       if (existingAsset) {
         // We already have this asset, create CoingeckoAsset without details
         // The existing asset in Redux store already has all the necessary data
+        console.log('[getCoinDetails] Found existing asset:', marketCap.id, '→', existingAsset, 'Assets count:', assetCount)
         all[i] = {
           assetId: existingAsset,
         }
         return
+      } else {
+        console.log('[getCoinDetails] Asset IDs found but no primary match:', marketCap.id, assetIds, 'Assets count:', assetCount)
       }
     }
 

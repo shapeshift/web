@@ -19,6 +19,11 @@ type AssetCardProps = {
 
 export const AssetCard: React.FC<AssetCardProps> = ({ assetId, showMarketCap, onClick }) => {
   const asset = useAppSelector(state => selectAssetById(state, assetId))
+
+  // Debug: log when asset is not found
+  if (!asset) {
+    console.warn('[AssetCard] Asset not found:', assetId)
+  }
   const marketData = useAppSelector(state => selectMarketDataByAssetIdUserCurrency(state, assetId))
   const changePercent24Hr = marketData?.changePercent24Hr
   const translate = useTranslate()

@@ -32,6 +32,10 @@ const selectCoingeckoAssets = (data: CoingeckoAsset[], dispatch: AppDispatch) =>
   // Get fresh assets from store to avoid stale closures in react-query select callbacks
   const assets = selectAssets(store.getState())
 
+  // Debug: log assets state
+  const assetCount = Object.keys(assets).length
+  console.log('[selectCoingeckoAssets] Assets count:', assetCount, 'Data length:', data.length)
+
   return data.reduce<CoingeckoList>(
     (acc, topMover, i) => {
       const assetId = topMover.assetId
@@ -51,7 +55,10 @@ const selectCoingeckoAssets = (data: CoingeckoAsset[], dispatch: AppDispatch) =>
 
       const precision =
         topMover.details.detail_platforms[topMover.details.asset_platform_id]?.decimal_place
-      if (!feeAsset) return acc
+      if (!feeAsset) {
+        console.warn('[selectCoingeckoAssets] Filtering out asset - no feeAsset:', assetId)
+        return acc
+      }
 
       const asset = makeAsset(assets, {
         assetId,

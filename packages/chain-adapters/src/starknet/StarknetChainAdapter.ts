@@ -904,20 +904,77 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.StarknetMainnet
 
   async getFeeData(): Promise<FeeDataEstimate<KnownChainIds.StarknetMainnet>> {
     try {
-      const blockResponse = await this.provider.fetch('starknet_getBlockWithTxHashes', ['latest'])
-      const blockResult: RpcJsonResponse<{ l1_gas_price?: { price_in_wei: string } }> =
-        await blockResponse.json()
+      const dummyAddress = '0x1'
+      const minimalAmount = {
+        low: '0x1',
+        high: '0x0',
+      }
 
-      const l1GasPriceWei = blockResult.result?.l1_gas_price?.price_in_wei
-        ? BigInt(blockResult.result.l1_gas_price.price_in_wei)
+      const dummyCalldata = [
+        '1',
+        STRK_TOKEN_ADDRESS,
+        hash.getSelectorFromName('transfer'),
+        '3',
+        dummyAddress,
+        minimalAmount.low,
+        minimalAmount.high,
+      ]
+
+      const formattedCalldata = dummyCalldata.map(data => {
+        if (typeof data === 'string' && !data.startsWith('0x')) {
+          return num.toHex(data)
+        }
+        return data.toString()
+      })
+
+      const estimateTx = {
+        type: 'INVOKE',
+        version: '0x3',
+        sender_address: dummyAddress,
+        calldata: formattedCalldata,
+        signature: [],
+        nonce: '0x0',
+        resource_bounds: {
+          l1_gas: { max_amount: '0x186a0', max_price_per_unit: '0x5f5e100' },
+          l2_gas: { max_amount: '0x0', max_price_per_unit: '0x0' },
+          l1_data_gas: { max_amount: '0x186a0', max_price_per_unit: '0x1' },
+        },
+        tip: '0x0',
+        paymaster_data: [],
+        account_deployment_data: [],
+        nonce_data_availability_mode: 'L1',
+        fee_data_availability_mode: 'L1',
+      }
+
+      const estimateResponse = await this.provider.fetch('starknet_estimateFee', [
+        [estimateTx],
+        ['SKIP_VALIDATE'],
+        'latest',
+      ])
+      const estimateResult: RpcJsonResponse<StarknetFeeEstimate[]> = await estimateResponse.json()
+
+      const feeEstimate = estimateResult.result?.[0]
+      const l1GasConsumed = feeEstimate?.l1_gas_consumed
+        ? BigInt(feeEstimate.l1_gas_consumed)
+        : BigInt('0x186a0')
+      const l1GasPrice = feeEstimate?.l1_gas_price
+        ? BigInt(feeEstimate.l1_gas_price)
         : BigInt('0x5f5e100')
-
-      const typicalL1GasConsumed = BigInt('0x186a0')
-      const typicalL1DataGasConsumed = BigInt('0x186a0')
-      const l1DataGasPrice = BigInt('0x1')
+      const l2GasConsumed = feeEstimate?.l2_gas_consumed
+        ? BigInt(feeEstimate.l2_gas_consumed)
+        : BigInt('0x0')
+      const l2GasPrice = feeEstimate?.l2_gas_price
+        ? BigInt(feeEstimate.l2_gas_price)
+        : BigInt('0x0')
+      const l1DataGasConsumed = feeEstimate?.l1_data_gas_consumed
+        ? BigInt(feeEstimate.l1_data_gas_consumed)
+        : BigInt('0x186a0')
+      const l1DataGasPrice = feeEstimate?.l1_data_gas_price
+        ? BigInt(feeEstimate.l1_data_gas_price)
+        : BigInt('0x1')
 
       const estimatedTotalFee =
-        typicalL1GasConsumed * l1GasPriceWei + typicalL1DataGasConsumed * l1DataGasPrice
+        l1GasConsumed * l1GasPrice + l2GasConsumed * l2GasPrice + l1DataGasConsumed * l1DataGasPrice
 
       const slowFee = ((estimatedTotalFee * BigInt(80)) / BigInt(100)).toString()
       const slowMaxFee = ((estimatedTotalFee * BigInt(100)) / BigInt(100)).toString()

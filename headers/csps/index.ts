@@ -33,6 +33,7 @@ import { csp as idle } from './defi/idle'
 import { csp as mtpelerin } from './defi/mtpelerin'
 import { csp as safe } from './defi/safe'
 import { csp as zeroX } from './defi/swappers/0x'
+import { csp as avnu } from './defi/swappers/Avnu'
 import { csp as bebop } from './defi/swappers/Bebop'
 import { csp as butterSwap } from './defi/swappers/ButterSwap'
 import { csp as cowSwap } from './defi/swappers/CowSwap'
@@ -127,6 +128,7 @@ export const csps = [
   mtpelerin,
   safe,
   zeroX,
+  avnu,
   bebop,
   cowSwap,
   nearIntents,

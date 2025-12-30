@@ -39,6 +39,7 @@ import { overrideAssets } from './overrides'
 import * as plasma from './plasma'
 import * as polygon from './polygon'
 import * as solana from './solana'
+import * as starknet from './starknet'
 import * as sui from './sui'
 import * as tronModule from './tron'
 import { filterOutBlacklistedAssets, getSortedAssetIds } from './utils'
@@ -68,6 +69,7 @@ const generateAssetData = async () => {
   const hyperevmAssets = await hyperevm.getAssets()
   const plasmaAssets = await plasma.getAssets()
   const solanaAssets = await solana.getAssets()
+  const starknetAssets = await starknet.getAssets()
   const tronAssets = await tronModule.getAssets()
   const suiAssets = await sui.getAssets()
 
@@ -97,6 +99,7 @@ const generateAssetData = async () => {
     ...hyperevmAssets,
     ...plasmaAssets,
     ...solanaAssets,
+    ...starknetAssets,
     ...tronAssets,
     ...suiAssets,
   ]

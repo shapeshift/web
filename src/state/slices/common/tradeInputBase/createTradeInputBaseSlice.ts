@@ -21,7 +21,12 @@ export interface TradeInputBaseState {
 }
 
 const getBaseReducers = <T extends TradeInputBaseState>(initialState: T) => ({
-  clear: () => initialState,
+  clear: (state: Draft<T>) => {
+    const { buyAsset, sellAsset } = state
+    Object.assign(state, initialState)
+    state.buyAsset = buyAsset
+    state.sellAsset = sellAsset
+  },
   setBuyAsset: (state: Draft<T>, action: PayloadAction<Asset>) => {
     const asset = action.payload
     if (asset.assetId === state.buyAsset.assetId) return

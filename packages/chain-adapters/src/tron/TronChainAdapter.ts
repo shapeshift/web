@@ -6,6 +6,7 @@ import type { Bip44Params, RootBip44Params } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import type * as unchained from '@shapeshiftoss/unchained-client'
 import { TransferType, TxStatus } from '@shapeshiftoss/unchained-client'
+import PQueue from 'p-queue'
 import { TronWeb } from 'tronweb'
 
 import type { ChainAdapter as IChainAdapter } from '../api'
@@ -56,10 +57,16 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TronMainnet> {
   }
 
   protected readonly rpcUrl: string
+  private requestQueue: PQueue
 
   constructor(args: ChainAdapterArgs) {
     this.providers = args.providers
     this.rpcUrl = args.rpcUrl
+    this.requestQueue = new PQueue({
+      intervalCap: 1,
+      interval: 400,
+      concurrency: 1,
+    })
   }
 
   private assertSupportsChain(wallet: HDWallet): asserts wallet is TronWallet {
@@ -187,7 +194,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TronMainnet> {
         fullHost: this.rpcUrl,
       })
 
-      let txData
+      let txData: TronUnsignedTx
 
       if (contractAddress) {
         // Build TRC20 transfer transaction
@@ -203,19 +210,21 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TronMainnet> {
           callValue: 0,
         }
 
-        txData = await tronWeb.transactionBuilder.triggerSmartContract(
-          contractAddress,
-          functionSelector,
-          options,
-          parameter,
-          from,
+        const result = await this.requestQueue.add(() =>
+          tronWeb.transactionBuilder.triggerSmartContract(
+            contractAddress,
+            functionSelector,
+            options,
+            parameter,
+            from,
+          ),
         )
 
-        if (!txData.result || !txData.result.result) {
+        if (!result.result || !result.result.result) {
           throw new Error('Failed to build TRC20 transaction')
         }
 
-        txData = txData.transaction
+        txData = result.transaction
       } else {
         const requestBody = {
           owner_address: from,
@@ -224,37 +233,44 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TronMainnet> {
           visible: true,
         }
 
-        const response = await fetch(`${this.rpcUrl}/wallet/createtransaction`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(requestBody),
-        })
+        const response = await this.requestQueue.add(() =>
+          fetch(`${this.rpcUrl}/wallet/createtransaction`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(requestBody),
+          }),
+        )
 
-        txData = await response.json()
+        const responseData = await response.json()
 
-        if (txData.Error) {
-          throw new Error(`TronGrid API error: ${txData.Error}`)
+        if (responseData.Error) {
+          throw new Error(`TronGrid API error: ${responseData.Error}`)
         }
+
+        txData = responseData as TronUnsignedTx
       }
 
       // Add memo if provided
       if (memo) {
-        txData = await tronWeb.transactionBuilder.addUpdateData(txData, memo, 'utf8')
+        txData = (await this.requestQueue.add(() =>
+          tronWeb.transactionBuilder.addUpdateData(txData as any, memo, 'utf8'),
+        )) as TronUnsignedTx
       }
 
       if (!txData.raw_data_hex) {
         throw new Error('Failed to create transaction')
       }
 
+      const rawDataHexValue: any = txData.raw_data_hex
       const rawDataHex =
-        typeof txData.raw_data_hex === 'string'
-          ? txData.raw_data_hex
-          : Buffer.isBuffer(txData.raw_data_hex)
-          ? txData.raw_data_hex.toString('hex')
-          : Array.isArray(txData.raw_data_hex)
-          ? Buffer.from(txData.raw_data_hex).toString('hex')
+        typeof rawDataHexValue === 'string'
+          ? rawDataHexValue
+          : Buffer.isBuffer(rawDataHexValue)
+          ? rawDataHexValue.toString('hex')
+          : Array.isArray(rawDataHexValue)
+          ? Buffer.from(rawDataHexValue).toString('hex')
           : (() => {
-              throw new Error(`Unexpected raw_data_hex type: ${typeof txData.raw_data_hex}`)
+              throw new Error(`Unexpected raw_data_hex type: ${typeof rawDataHexValue}`)
             })()
 
       if (!/^[0-9a-fA-F]+$/.test(rawDataHex)) {
@@ -372,7 +388,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TronMainnet> {
 
       // Get live network prices from chain parameters
       const tronWeb = new TronWeb({ fullHost: this.rpcUrl })
-      const params = await tronWeb.trx.getChainParameters()
+      const params = await this.requestQueue.add(() => tronWeb.trx.getChainParameters())
       const bandwidthPrice = params.find(p => p.key === 'getTransactionFee')?.value ?? 1000
       const energyPrice = params.find(p => p.key === 'getEnergyFee')?.value ?? 100
 
@@ -406,11 +422,15 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TronMainnet> {
         try {
           // Use actual sender if available, otherwise use recipient for estimation
           const estimationFrom = from || to
-          const baseTx = await tronWeb.transactionBuilder.sendTrx(to, Number(value), estimationFrom)
+          const baseTx = await this.requestQueue.add(() =>
+            tronWeb.transactionBuilder.sendTrx(to, Number(value), estimationFrom),
+          )
 
           // Add memo if provided to get accurate size
           const finalTx = memo
-            ? await tronWeb.transactionBuilder.addUpdateData(baseTx, memo, 'utf8')
+            ? await this.requestQueue.add(() =>
+                tronWeb.transactionBuilder.addUpdateData(baseTx, memo, 'utf8'),
+              )
             : baseTx
 
           // Calculate bandwidth from actual transaction size
@@ -431,14 +451,16 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TronMainnet> {
       // Check if recipient address needs activation (1 TRX cost)
       let accountActivationFee = 0
       try {
-        const recipientInfoResponse = await fetch(`${this.rpcUrl}/wallet/getaccount`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            address: to,
-            visible: true,
+        const recipientInfoResponse = await this.requestQueue.add(() =>
+          fetch(`${this.rpcUrl}/wallet/getaccount`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              address: to,
+              visible: true,
+            }),
           }),
-        })
+        )
         const recipientInfo = await recipientInfoResponse.json()
         const recipientExists = recipientInfo && Object.keys(recipientInfo).length > 1
 

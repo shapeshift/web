@@ -19,24 +19,25 @@ export default function register(): Plugins {
             [
               KnownChainIds.HyperEvmMainnet,
               () => {
-                // Get all HyperEVM ERC20 tokens from asset service
-                const assetService = getAssetService()
-                const knownTokens = assetService.assets
-                  .filter(asset => {
-                    const { chainId, assetNamespace } = fromAssetId(asset.assetId)
-                    return chainId === hyperEvmChainId && assetNamespace === 'erc20'
-                  })
-                  .map(asset => ({
-                    assetId: asset.assetId,
-                    contractAddress: fromAssetId(asset.assetId).assetReference,
-                    symbol: asset.symbol,
-                    name: asset.name,
-                    precision: asset.precision,
-                  }))
+                const getKnownTokens = () => {
+                  const assetService = getAssetService()
+                  return assetService.assets
+                    .filter(asset => {
+                      const { chainId, assetNamespace } = fromAssetId(asset.assetId)
+                      return chainId === hyperEvmChainId && assetNamespace === 'erc20'
+                    })
+                    .map(asset => ({
+                      assetId: asset.assetId,
+                      contractAddress: fromAssetId(asset.assetId).assetReference,
+                      symbol: asset.symbol,
+                      name: asset.name,
+                      precision: asset.precision,
+                    }))
+                }
 
                 return new hyperevm.ChainAdapter({
                   rpcUrl: getConfig().VITE_HYPEREVM_NODE_URL,
-                  knownTokens,
+                  getKnownTokens,
                 })
               },
             ],

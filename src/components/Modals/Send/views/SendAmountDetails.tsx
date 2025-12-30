@@ -155,7 +155,7 @@ export const SendAmountDetails = () => {
       console.error('Failed to deploy Starknet account:', error)
       toast({
         status: 'error',
-        title: 'Deployment failed',
+        title: translate('starknet.deployAccount.deployFailed'),
         description: error.message,
       })
     },

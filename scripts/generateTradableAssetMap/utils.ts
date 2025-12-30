@@ -67,7 +67,6 @@ const getTokenStandardFromChainId = (chainId: ChainId): AssetNamespace | undefin
     case KnownChainIds.GnosisMainnet:
     case KnownChainIds.PolygonMainnet:
     case KnownChainIds.BnbSmartChainMainnet:
-    case KnownChainIds.StarknetMainnet:
       return ASSET_NAMESPACE.erc20
     case KnownChainIds.TronMainnet:
       return ASSET_NAMESPACE.trc20

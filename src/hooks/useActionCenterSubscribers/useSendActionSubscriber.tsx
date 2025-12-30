@@ -12,9 +12,11 @@ import { getConfig } from '@/config'
 import { SECOND_CLASS_CHAINS } from '@/constants/chains'
 import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
 import { getHyperEvmTransactionStatus } from '@/lib/utils/hyperevm'
+import { getMayachainTransactionStatus } from '@/lib/utils/mayachain'
 import { getMonadTransactionStatus } from '@/lib/utils/monad'
 import { getPlasmaTransactionStatus } from '@/lib/utils/plasma'
 import { getSuiTransactionStatus } from '@/lib/utils/sui'
+import { getThorchainSendTransactionStatus } from '@/lib/utils/thorchain'
 import { getTronTransactionStatus } from '@/lib/utils/tron'
 import { actionSlice } from '@/state/slices/actionSlice/actionSlice'
 import { selectPendingWalletSendActions } from '@/state/slices/actionSlice/selectors'
@@ -154,6 +156,18 @@ export const useSendActionSubscriber = () => {
                     hyperEvmTxStatus === TxStatus.Confirmed || hyperEvmTxStatus === TxStatus.Failed
                   break
                 }
+                case KnownChainIds.ThorchainMainnet: {
+                  const thorTxStatus = await getThorchainSendTransactionStatus(txHash)
+                  isConfirmed =
+                    thorTxStatus === TxStatus.Confirmed || thorTxStatus === TxStatus.Failed
+                  break
+                }
+                case KnownChainIds.MayachainMainnet: {
+                  const mayaTxStatus = await getMayachainTransactionStatus(txHash)
+                  isConfirmed =
+                    mayaTxStatus === TxStatus.Confirmed || mayaTxStatus === TxStatus.Failed
+                  break
+                }
                 default:
                   console.error(`Unsupported second-class chain: ${chainId}`)
                   return
@@ -161,17 +175,34 @@ export const useSendActionSubscriber = () => {
 
               if (isConfirmed) {
                 // Parse and upsert Tx for second-class chains
+                const { accountIdsToRefetch } = action.transactionMetadata
+                const accountIdsToUpsert = accountIdsToRefetch ?? [accountId]
+
                 try {
                   const adapter = getChainAdapterManager().get(chainId)
-                  if (adapter?.parseTx) {
-                    const parsedTx = await adapter.parseTx(txHash, accountAddress)
-                    dispatch(
-                      txHistory.actions.onMessage({
-                        message: parsedTx,
-                        accountId,
-                      }),
-                    )
+                  if (!adapter?.parseTx) {
+                    completeAction(action)
+                    const intervalId = pollingIntervalsRef.current.get(pollingKey)
+                    if (intervalId) {
+                      clearInterval(intervalId)
+                      pollingIntervalsRef.current.delete(pollingKey)
+                    }
+                    return
                   }
+
+                  // Parse and upsert for all involved accounts (sender + recipient if held)
+                  await Promise.all(
+                    accountIdsToUpsert.map(async accountIdToUpsert => {
+                      const address = fromAccountId(accountIdToUpsert).account
+                      const parsedTx = await adapter.parseTx(txHash, address)
+                      dispatch(
+                        txHistory.actions.onMessage({
+                          message: parsedTx,
+                          accountId: accountIdToUpsert,
+                        }),
+                      )
+                    }),
+                  )
                 } catch (error) {
                   // Silent fail - Tx just won't show in history
                   console.error('Failed to parse and upsert Tx:', error)

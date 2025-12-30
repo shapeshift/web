@@ -99,7 +99,12 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
       emitter.off('LedgerOpenApp', handleLedgerOpenApp)
       emitter.off('LedgerAppOpened', handleLedgerAppOpened)
     }
-  })
+    // Empty deps array intentional - event listeners are global via EventEmitter.
+    // They should register once on AppProvider mount and remain stable throughout app lifecycle.
+    // The handlers capture closeModal/openModal but these are stable functions from ModalProvider.
+    // Re-registering listeners on every render was causing the Ledger app gate flakiness (issue #11492).
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   // track anonymous portfolio
   useMixpanelPortfolioTracking()

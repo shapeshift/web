@@ -65,6 +65,11 @@ export const assets = createSlice({
       // Note this preserves the original sorting while removing duplicates.
       state.ids = Array.from(new Set(state.ids.concat(assetId)))
     }),
+    setRelatedAssetIndex: create.reducer(
+      (state, action: PayloadAction<PartialRecord<AssetId, AssetId[]>>) => {
+        state.relatedAssetIndex = action.payload
+      },
+    ),
   }),
 })
 
@@ -86,6 +91,7 @@ export const assetApi = createApi({
         const originalAsset = byIdOriginal[assetId]
 
         try {
+          const service = getAssetService()
           const { description, isTrusted } = await service.description(assetId, selectedLocale)
           const byId = {
             [assetId]: originalAsset && Object.assign(originalAsset, { description, isTrusted }),

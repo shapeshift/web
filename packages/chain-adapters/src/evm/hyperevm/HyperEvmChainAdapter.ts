@@ -12,7 +12,7 @@ const DEFAULT_CHAIN_ID = KnownChainIds.HyperEvmMainnet
 
 export type ChainAdapterArgs = {
   rpcUrl: string
-  knownTokens?: TokenInfo[]
+  getKnownTokens: () => TokenInfo[]
 }
 
 export const isHyperEvmChainAdapter = (adapter: unknown): adapter is ChainAdapter => {
@@ -33,7 +33,7 @@ export class ChainAdapter extends SecondClassEvmAdapter<KnownChainIds.HyperEvmMa
       rootBip44Params: ChainAdapter.rootBip44Params,
       supportedChainIds: SUPPORTED_CHAIN_IDS,
       rpcUrl: args.rpcUrl,
-      knownTokens: args.knownTokens ?? [],
+      getKnownTokens: args.getKnownTokens,
     })
   }
 

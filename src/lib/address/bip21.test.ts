@@ -25,13 +25,27 @@ import {
   thorchainChainId,
   toAssetId,
 } from '@shapeshiftoss/caip'
-import { describe, expect, it, vi } from 'vitest'
+import { beforeAll, describe, expect, it, vi } from 'vitest'
 
 import { parseUrlDirect } from './bip21'
 import { EMPTY_ADDRESS_ERROR } from './constants'
 
+import { getAssetService, initAssetService } from '@/lib/asset-service'
+import { assets } from '@/state/slices/assetsSlice/assetsSlice'
+import { store } from '@/state/store'
 import { usdcAssetId } from '@/test/mocks/accounts'
 import { mockChainAdapters } from '@/test/mocks/portfolio'
+
+beforeAll(async () => {
+  await initAssetService()
+  const service = getAssetService()
+  store.dispatch(
+    assets.actions.upsertAssets({
+      byId: service.assetsById,
+      ids: service.assetIds,
+    }),
+  )
+})
 
 vi.mock('@/context/PluginProvider/chainAdapterSingleton', () => ({
   getChainAdapterManager: () => mockChainAdapters,

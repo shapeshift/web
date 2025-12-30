@@ -1,13 +1,41 @@
 import { btcAssetId } from '@shapeshiftoss/caip'
-import { beforeAll, describe, expect, it, vi } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 
 import { getMaybeThorchainSaversDepositQuote } from './utils'
 
-import { getAssetService, initAssetService } from '@/lib/asset-service'
+import { getAssetService } from '@/lib/asset-service'
 
-const mocks = vi.hoisted(() => ({
-  get: vi.fn(),
-  post: vi.fn(),
+const mocks = vi.hoisted(() => {
+  const BTC_ASSET_ID = 'bip122:000000000019d6689c085ae165831e93/slip44:0'
+  const BTC_CHAIN_ID = 'bip122:000000000019d6689c085ae165831e93'
+
+  return {
+    get: vi.fn(),
+    post: vi.fn(),
+    mockBtcAsset: {
+      assetId: BTC_ASSET_ID,
+      chainId: BTC_CHAIN_ID,
+      symbol: 'BTC',
+      name: 'Bitcoin',
+      precision: 8,
+      color: '#FF9800',
+      icon: 'https://assets.coincap.io/assets/icons/btc@2x.png',
+      explorer: 'https://live.blockcypher.com',
+      explorerTxLink: 'https://live.blockcypher.com/btc/tx/',
+      explorerAddressLink: 'https://live.blockcypher.com/btc/address/',
+      relatedAssetKey: null,
+    },
+    BTC_ASSET_ID,
+  }
+})
+
+vi.mock('@/lib/asset-service', () => ({
+  getAssetService: () => ({
+    assetsById: {
+      [mocks.BTC_ASSET_ID]: mocks.mockBtcAsset,
+    },
+  }),
+  initAssetService: vi.fn(),
 }))
 
 vi.mock('axios', () => {
@@ -33,10 +61,6 @@ vi.mock('axios-cache-interceptor', () => {
     setupCache: vi.fn(axios => axios),
     buildMemoryStorage: vi.fn(),
   }
-})
-
-beforeAll(async () => {
-  await initAssetService()
 })
 
 const btcQuoteResponse = {

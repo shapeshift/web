@@ -157,11 +157,13 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.NearMainnet> {
 
   getBip44Params({ accountNumber }: GetBip44ParamsInput): Bip44Params {
     if (accountNumber < 0) throw new Error('accountNumber must be >= 0')
+    // NEAR uses 3-level derivation path: m/44'/397'/0'
+    // Set isChange and addressIndex to undefined to create 3-level path
     return {
       ...ChainAdapter.rootBip44Params,
       accountNumber,
-      isChange: false,
-      addressIndex: 0,
+      isChange: undefined,
+      addressIndex: undefined,
     }
   }
 

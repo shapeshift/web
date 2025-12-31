@@ -7,6 +7,7 @@ import { useQueries, useQuery } from '@tanstack/react-query'
 import difference from 'lodash/difference'
 import React, { useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
+import { matchPath, useLocation } from 'react-router-dom'
 
 import { useDiscoverAccounts } from './hooks/useDiscoverAccounts'
 import { usePortfolioFetch } from './hooks/usePortfolioFetch'
@@ -26,6 +27,7 @@ import { useUser } from '@/hooks/useUser/useUser'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { walletSupportsChain } from '@/hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { getAssetService, initAssetService } from '@/lib/asset-service'
+import { LIMIT_ORDER_ROUTE_ASSET_SPECIFIC, TRADE_ROUTE_ASSET_SPECIFIC } from '@/Routes/RoutesCommon'
 import { useGetFiatRampsQuery } from '@/state/apis/fiatRamps/fiatRamps'
 import { assets } from '@/state/slices/assetsSlice/assetsSlice'
 import { limitOrderInput } from '@/state/slices/limitOrderInputSlice/limitOrderInputSlice'
@@ -72,6 +74,18 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   const routeAssetId = useRouteAssetId()
   const { isSnapInstalled } = useIsSnapInstalled()
   const { close: closeModal, open: openModal } = useModal('ledgerOpenApp')
+  const location = useLocation()
+
+  // Check if current URL is a trade/limit route with asset params - if so, let the component handle initialization
+  const hasTradeRouteParams = useMemo(() => {
+    const tradeMatch = matchPath({ path: TRADE_ROUTE_ASSET_SPECIFIC, end: true }, location.pathname)
+    if (tradeMatch?.params?.chainId) return true
+    const limitMatch = matchPath(
+      { path: LIMIT_ORDER_ROUTE_ASSET_SPECIFIC, end: true },
+      location.pathname,
+    )
+    return Boolean(limitMatch?.params?.chainId)
+  }, [location.pathname])
 
   // Previously <TransactionsProvider />
   useTransactionsSubscriber()
@@ -101,15 +115,21 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
       const btcAsset = service.assetsById[btcAssetId]
       const ethAsset = service.assetsById[ethAssetId]
       if (btcAsset && ethAsset) {
-        dispatch(tradeInput.actions.setBuyAsset(btcAsset))
-        dispatch(tradeInput.actions.setSellAsset(ethAsset))
+        // Only set tradeInput defaults if NOT on a trade route with URL params
+        // When URL has params, MultiHopTrade will handle initialization from URL
+        if (!hasTradeRouteParams) {
+          dispatch(tradeInput.actions.setBuyAsset(btcAsset))
+          dispatch(tradeInput.actions.setSellAsset(ethAsset))
+        }
         dispatch(tradeRampInput.actions.setBuyAsset(btcAsset))
         dispatch(tradeRampInput.actions.setSellAsset(ethAsset))
       }
 
       const foxAsset = service.assetsById[foxAssetId]
       const usdcAsset = service.assetsById[usdcAssetId]
-      if (foxAsset && usdcAsset) {
+      // Only set limitOrderInput defaults if NOT on a limit route with URL params
+      // When URL has params, LimitOrder component will handle initialization from URL
+      if (foxAsset && usdcAsset && !hasTradeRouteParams) {
         dispatch(limitOrderInput.actions.setBuyAsset(foxAsset))
         dispatch(limitOrderInput.actions.setSellAsset(usdcAsset))
       }

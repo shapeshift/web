@@ -98,7 +98,9 @@ export const LimitOrderInput = ({
   const navigate = useNavigate()
   const { handleSubmit } = useFormContext()
   const { showErrorToast } = useErrorToast()
-  const [isSmallerThanXl] = useMediaQuery(`(max-width: ${breakpoints.xl})`, { ssr: false })
+  const [isSmallerThanXl] = useMediaQuery(`(max-width: ${breakpoints.xl})`, {
+    ssr: false,
+  })
 
   const sellAsset = useAppSelector(selectInputSellAsset)
   const buyAsset = useAppSelector(selectInputBuyAsset)
@@ -142,7 +144,9 @@ export const LimitOrderInput = ({
 
   const priceDirection = useAppSelector(selectLimitPriceDirection)
 
-  const feeUsd = calculateFeeUsd({ inputAmountUsd: bnOrZero(inputSellAmountUsd) })
+  const feeUsd = calculateFeeUsd({
+    inputAmountUsd: bnOrZero(inputSellAmountUsd),
+  })
 
   const { isReceiveAddressEntryActive, renderedReceiveAddress, receiveAddress } =
     useLimitOrderReceiveAddress({
@@ -378,21 +382,33 @@ export const LimitOrderInput = ({
   const { quoteStatusTranslation, isError } = useMemo(() => {
     switch (true) {
       case isDiscoveringAccounts && !(sellAccountId || buyAccountId):
-        return { quoteStatusTranslation: 'common.accountsLoading', isError: false }
+        return {
+          quoteStatusTranslation: 'common.accountsLoading',
+          isError: false,
+        }
       case !shouldShowTradeQuoteOrAwaitInput:
       case !hasUserEnteredAmount:
         return { quoteStatusTranslation: 'trade.previewTrade', isError: false }
       case bnOrZero(sellAssetBalanceCryptoBaseUnit).isZero():
-        return { quoteStatusTranslation: 'limitOrder.errors.zeroFunds', isError: true }
+        return {
+          quoteStatusTranslation: 'limitOrder.errors.zeroFunds',
+          isError: true,
+        }
       case sellAsset.chainId !== buyAsset.chainId:
-        return { quoteStatusTranslation: 'trade.errors.quoteCrossChainNotSupported', isError: true }
+        return {
+          quoteStatusTranslation: 'trade.errors.quoteCrossChainNotSupported',
+          isError: true,
+        }
       case isNativeEvmAsset(sellAsset.assetId):
         return {
           quoteStatusTranslation: 'limitOrder.errors.nativeSellAssetNotSupported',
           isError: true,
         }
       case !receiveAddress:
-        return { quoteStatusTranslation: 'trade.errors.noReceiveAddress', isError: true }
+        return {
+          quoteStatusTranslation: 'trade.errors.noReceiveAddress',
+          isError: true,
+        }
       case isCowSwapError(quoteResponseError):
         return {
           quoteStatusTranslation: getCowSwapErrorTranslation(quoteResponseError as CowSwapError),
@@ -400,10 +416,16 @@ export const LimitOrderInput = ({
         }
       case quoteResponseError !== undefined:
         // Catch-all of non-cowswap quote errors
-        return { quoteStatusTranslation: 'trade.errors.quoteError', isError: true }
+        return {
+          quoteStatusTranslation: 'trade.errors.quoteError',
+          isError: true,
+        }
       case !isConnected:
         // We got a happy path quote, but we're not connected
-        return { quoteStatusTranslation: 'common.connectWallet', isError: false }
+        return {
+          quoteStatusTranslation: 'common.connectWallet',
+          isError: false,
+        }
       default:
         return { quoteStatusTranslation: 'trade.previewTrade', isError: false }
     }

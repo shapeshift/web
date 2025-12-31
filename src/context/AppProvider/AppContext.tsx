@@ -5,7 +5,7 @@ import type { LedgerOpenAppEventArgs } from '@shapeshiftoss/chain-adapters'
 import { emitter } from '@shapeshiftoss/chain-adapters'
 import { useQueries, useQuery } from '@tanstack/react-query'
 import difference from 'lodash/difference'
-import React, { useEffect, useMemo } from 'react'
+import React, { useEffect, useMemo, useRef } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { matchPath, useLocation } from 'react-router-dom'
 
@@ -31,6 +31,7 @@ import { LIMIT_ORDER_ROUTE_ASSET_SPECIFIC, TRADE_ROUTE_ASSET_SPECIFIC } from '@/
 import { useGetFiatRampsQuery } from '@/state/apis/fiatRamps/fiatRamps'
 import { assets } from '@/state/slices/assetsSlice/assetsSlice'
 import { limitOrderInput } from '@/state/slices/limitOrderInputSlice/limitOrderInputSlice'
+import { selectInputBuyAsset as selectLimitOrderInputBuyAsset } from '@/state/slices/limitOrderInputSlice/selectors'
 import {
   marketApi,
   useFindAllMarketDataQuery,
@@ -44,6 +45,7 @@ import {
   selectPortfolioLoadingStatus,
   selectWalletId,
 } from '@/state/slices/selectors'
+import { selectInputBuyAsset as selectTradeInputBuyAsset } from '@/state/slices/tradeInputSlice/selectors'
 import { tradeInput } from '@/state/slices/tradeInputSlice/tradeInputSlice'
 import { tradeRampInput } from '@/state/slices/tradeRampInputSlice/tradeRampInputSlice'
 import { useAppDispatch, useAppSelector } from '@/state/store'
@@ -112,27 +114,9 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
       )
       dispatch(assets.actions.setRelatedAssetIndex(service.relatedAssetIndex))
 
-      const btcAsset = service.assetsById[btcAssetId]
-      const ethAsset = service.assetsById[ethAssetId]
-      if (btcAsset && ethAsset) {
-        // Only set tradeInput defaults if NOT on a trade route with URL params
-        // When URL has params, MultiHopTrade will handle initialization from URL
-        if (!hasTradeRouteParams) {
-          dispatch(tradeInput.actions.setBuyAsset(btcAsset))
-          dispatch(tradeInput.actions.setSellAsset(ethAsset))
-        }
-        dispatch(tradeRampInput.actions.setBuyAsset(btcAsset))
-        dispatch(tradeRampInput.actions.setSellAsset(ethAsset))
-      }
-
-      const foxAsset = service.assetsById[foxAssetId]
-      const usdcAsset = service.assetsById[usdcAssetId]
-      // Only set limitOrderInput defaults if NOT on a limit route with URL params
-      // When URL has params, LimitOrder component will handle initialization from URL
-      if (foxAsset && usdcAsset && !hasTradeRouteParams) {
-        dispatch(limitOrderInput.actions.setBuyAsset(foxAsset))
-        dispatch(limitOrderInput.actions.setSellAsset(usdcAsset))
-      }
+      // Note: Trade input defaults are now set in a useEffect below, not here.
+      // This is because assets may be persisted from a previous session, and we need
+      // to set defaults even when queryFn doesn't run (due to React Query caching).
 
       return null
     },
@@ -153,6 +137,46 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
       })
     }
   }, [isAssetServiceError, toast, translate])
+
+  // Get assets from Redux (may be persisted from previous session)
+  const assetsById = useAppSelector(assets.selectors.selectAssetsById)
+
+  // Check if trade inputs have been initialized with real assets (not defaultAsset)
+  const tradeInputBuyAsset = useAppSelector(selectTradeInputBuyAsset)
+  const limitOrderInputBuyAsset = useAppSelector(selectLimitOrderInputBuyAsset)
+
+  // Track whether we've set defaults for each input (only set once per app lifecycle)
+  const hasSetTradeDefaults = useRef(false)
+  const hasSetLimitDefaults = useRef(false)
+
+  // Set trade/limit defaults when assets are available and inputs are not yet initialized
+  // This handles the case where assets are persisted but trade inputs are not
+  // Only runs ONCE per input type - refs ensure we don't reset on navigation
+  useEffect(() => {
+    if (Object.keys(assetsById).length === 0) return
+
+    const btcAsset = assetsById[btcAssetId]
+    const ethAsset = assetsById[ethAssetId]
+
+    // Only set tradeInput defaults once, and only if not already initialized
+    if (!hasSetTradeDefaults.current && btcAsset && ethAsset && !tradeInputBuyAsset.assetId) {
+      dispatch(tradeInput.actions.setBuyAsset(btcAsset))
+      dispatch(tradeInput.actions.setSellAsset(ethAsset))
+      dispatch(tradeRampInput.actions.setBuyAsset(btcAsset))
+      dispatch(tradeRampInput.actions.setSellAsset(ethAsset))
+      hasSetTradeDefaults.current = true
+    }
+
+    const foxAsset = assetsById[foxAssetId]
+    const usdcAsset = assetsById[usdcAssetId]
+
+    // Only set limitOrderInput defaults once, and only if not already initialized
+    if (!hasSetLimitDefaults.current && foxAsset && usdcAsset && !limitOrderInputBuyAsset.assetId) {
+      dispatch(limitOrderInput.actions.setBuyAsset(foxAsset))
+      dispatch(limitOrderInput.actions.setSellAsset(usdcAsset))
+      hasSetLimitDefaults.current = true
+    }
+  }, [assetsById, dispatch, tradeInputBuyAsset.assetId, limitOrderInputBuyAsset.assetId])
 
   useEffect(() => {
     const handleLedgerOpenApp = ({ chainId, reject }: LedgerOpenAppEventArgs) => {
@@ -328,6 +352,9 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   }, [dispatch, routeAssetId])
 
   // If the assets aren't loaded, then the app isn't ready to render
-  // This fixes issues with refreshes on pages that expect assets to already exist
-  return <>{Boolean(assetIds.length) && children}</>
+  // Also wait for trade inputs to be initialized (unless we're on a route with URL params, where the component handles it)
+  const areTradeInputsInitialized =
+    Boolean(tradeInputBuyAsset.assetId) && Boolean(limitOrderInputBuyAsset.assetId)
+  const isReady = Boolean(assetIds.length) && (hasTradeRouteParams || areTradeInputsInitialized)
+  return <>{isReady && children}</>
 }

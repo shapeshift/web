@@ -140,8 +140,6 @@ export const getTradeRate = async (
 
     return Ok([tradeRate])
   } catch (error) {
-    console.error('[AVNU] getTradeRate error:', error)
-
     return Err(
       makeSwapErrorRight({
         message: error instanceof Error ? error.message : 'Unknown error getting AVNU rate',

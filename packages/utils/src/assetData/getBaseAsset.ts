@@ -23,6 +23,7 @@ import {
   plasma,
   polygon,
   solana,
+  starknet,
   sui,
   thorchain,
   tron,
@@ -54,6 +55,8 @@ export const getBaseAsset = (chainId: ChainId): Readonly<Asset> => {
       return solana
     case KnownChainIds.SuiMainnet:
       return sui
+    case KnownChainIds.StarknetMainnet:
+      return starknet
     case KnownChainIds.BitcoinMainnet:
       return bitcoin
     case KnownChainIds.BitcoinCashMainnet:

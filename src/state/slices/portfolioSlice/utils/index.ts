@@ -25,6 +25,7 @@ import {
   plasmaChainId,
   polygonChainId,
   solanaChainId,
+  starknetChainId,
   suiChainId,
   thorchainChainId,
   toAccountId,
@@ -52,6 +53,7 @@ import {
   supportsPlasma,
   supportsPolygon,
   supportsSolana,
+  supportsStarknet,
   supportsSui,
   supportsThorchain,
   supportsTron,
@@ -101,6 +103,7 @@ export const accountIdToLabel = (accountId: AccountId): string => {
     case mayachainChainId:
     case cosmosChainId:
     case solanaChainId:
+    case starknetChainId:
     case tronChainId:
     case suiChainId:
       return middleEllipsis(pubkey)
@@ -303,6 +306,28 @@ export const accountToPortfolio: AccountToPortfolio = ({ assetIds, portfolioAcco
 
         break
       }
+      case CHAIN_NAMESPACE.Starknet: {
+        const starknetAccount = account as Account<KnownChainIds.StarknetMainnet>
+        const { chainId, assetId, pubkey } = account
+        const accountId = toAccountId({ chainId, account: pubkey })
+
+        portfolio.accounts.ids.push(accountId)
+        portfolio.accounts.byId[accountId] = { assetIds: [assetId], hasActivity }
+        portfolio.accountBalances.ids.push(accountId)
+        portfolio.accountBalances.byId[accountId] = { [assetId]: account.balance }
+
+        starknetAccount.chainSpecific.tokens?.forEach(token => {
+          // don't update portfolio if asset is not in the store
+          if (!assetIds.includes(token.assetId)) return
+
+          if (bnOrZero(token.balance).gt(0)) portfolio.accounts.byId[accountId].hasActivity = true
+
+          portfolio.accounts.byId[accountId].assetIds.push(token.assetId)
+          portfolio.accountBalances.byId[accountId][token.assetId] = token.balance
+        })
+
+        break
+      }
       default:
         assertUnreachable(chainNamespace)
     }
@@ -360,6 +385,13 @@ export const checkAccountHasActivity = (account: Account<ChainId>) => {
       const suiAccount = account as Account<KnownChainIds.SuiMainnet>
 
       const hasActivity = bnOrZero(suiAccount.balance).gt(0)
+
+      return hasActivity
+    }
+    case CHAIN_NAMESPACE.Starknet: {
+      const starknetAccount = account as Account<KnownChainIds.StarknetMainnet>
+
+      const hasActivity = bnOrZero(starknetAccount.balance).gt(0)
 
       return hasActivity
     }
@@ -422,6 +454,8 @@ export const isAssetSupportedByWallet = (assetId: AssetId, wallet: HDWallet): bo
       return supportsSolana(wallet)
     case suiChainId:
       return supportsSui(wallet)
+    case starknetChainId:
+      return supportsStarknet(wallet)
     case monadChainId:
       return supportsMonad(wallet)
     case hyperEvmChainId:
@@ -663,6 +697,22 @@ export const makeAssets = async ({
 
   if (chainId === suiChainId) {
     const account = portfolioAccounts[pubkey] as Account<KnownChainIds.SuiMainnet>
+
+    return (account.chainSpecific.tokens ?? []).reduce<UpsertAssetsPayload>(
+      (prev, token) => {
+        if (state.assets.byId[token.assetId]) return prev
+
+        prev.byId[token.assetId] = makeAsset(state.assets.byId, { ...token })
+        prev.ids.push(token.assetId)
+
+        return prev
+      },
+      { byId: {}, ids: [] },
+    )
+  }
+
+  if (chainId === starknetChainId) {
+    const account = portfolioAccounts[pubkey] as Account<KnownChainIds.StarknetMainnet>
 
     return (account.chainSpecific.tokens ?? []).reduce<UpsertAssetsPayload>(
       (prev, token) => {

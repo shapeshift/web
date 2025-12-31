@@ -17,6 +17,7 @@ import { assertUnreachable } from '@/lib/utils'
 import { assertGetCosmosSdkChainAdapter } from '@/lib/utils/cosmosSdk'
 import { assertGetEvmChainAdapter } from '@/lib/utils/evm'
 import { assertGetSolanaChainAdapter } from '@/lib/utils/solana'
+import { assertGetStarknetChainAdapter } from '@/lib/utils/starknet'
 import { assertGetSuiChainAdapter } from '@/lib/utils/sui'
 import { assertGetTronChainAdapter } from '@/lib/utils/tron'
 import { assertGetUtxoChainAdapter } from '@/lib/utils/utxo'
@@ -232,6 +233,24 @@ export const getTradeQuoteOrRateInput = async ({
       return {
         ...tradeQuoteInputCommonArgs,
         chainId: sellAsset.chainId as CosmosSdkChainId,
+        sendAddress,
+      } as GetTradeQuoteInput
+    }
+    case CHAIN_NAMESPACE.Starknet: {
+      const sellAssetChainAdapter = assertGetStarknetChainAdapter(sellAsset.chainId)
+
+      const sendAddress =
+        wallet && sellAccountNumber !== undefined
+          ? await sellAssetChainAdapter.getAddress({
+              accountNumber: sellAccountNumber,
+              wallet,
+              pubKey,
+            })
+          : undefined
+
+      return {
+        ...tradeQuoteInputCommonArgs,
+        chainId: sellAsset.chainId,
         sendAddress,
       } as GetTradeQuoteInput
     }

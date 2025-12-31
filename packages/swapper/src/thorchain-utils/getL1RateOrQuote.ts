@@ -540,6 +540,14 @@ export const getL1RateOrQuote = async <T extends ThorTradeRateOrQuote>(
         }),
       )
     }
+    case CHAIN_NAMESPACE.Starknet: {
+      return Err(
+        makeSwapErrorRight({
+          message: 'Starknet is not supported',
+          code: TradeQuoteError.UnsupportedTradePair,
+        }),
+      )
+    }
     default:
       return assertUnreachable(chainNamespace)
   }

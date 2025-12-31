@@ -4,6 +4,7 @@ import {
   mayachainAssetId,
   monadAssetId,
   plasmaAssetId,
+  starknetAssetId,
   suiAssetId,
   thorchainAssetId,
   tronAssetId,
@@ -37,6 +38,7 @@ export const queryFn = async () => {
   if (enabledFlags.HyperEvm) assetIds.push(hyperEvmAssetId)
   if (enabledFlags.Monad) assetIds.push(monadAssetId)
   if (enabledFlags.Plasma) assetIds.push(plasmaAssetId)
+  if (enabledFlags.Starknet) assetIds.push(starknetAssetId)
   if (enabledFlags.Tron) assetIds.push(tronAssetId)
   if (enabledFlags.Sui) assetIds.push(suiAssetId)
 

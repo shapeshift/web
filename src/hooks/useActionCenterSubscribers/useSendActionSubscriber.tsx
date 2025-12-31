@@ -15,6 +15,7 @@ import { getHyperEvmTransactionStatus } from '@/lib/utils/hyperevm'
 import { getMayachainTransactionStatus } from '@/lib/utils/mayachain'
 import { getMonadTransactionStatus } from '@/lib/utils/monad'
 import { getPlasmaTransactionStatus } from '@/lib/utils/plasma'
+import { getStarknetTransactionStatus, isStarknetChainAdapter } from '@/lib/utils/starknet'
 import { getSuiTransactionStatus } from '@/lib/utils/sui'
 import { getThorchainSendTransactionStatus } from '@/lib/utils/thorchain'
 import { getTronTransactionStatus } from '@/lib/utils/tron'
@@ -100,6 +101,50 @@ export const useSendActionSubscriber = () => {
     [dispatch, toast, isDrawerOpen, openActionCenter],
   )
 
+  const failAction = useCallback(
+    (action: ReturnType<typeof selectPendingWalletSendActions>[number]) => {
+      const { txHash } = action.transactionMetadata
+
+      dispatch(
+        actionSlice.actions.upsertAction({
+          ...action,
+          status: ActionStatus.Failed,
+          updatedAt: Date.now(),
+          transactionMetadata: {
+            ...action.transactionMetadata,
+            message: 'modals.send.sendFailed',
+          },
+        }),
+      )
+
+      const isActive = toast.isActive(txHash)
+
+      if (isActive) return
+
+      toast({
+        id: txHash,
+        duration: isDrawerOpen ? 5000 : null,
+        status: 'error',
+        render: ({ onClose, ...props }) => {
+          const handleClick = () => {
+            onClose()
+            openActionCenter()
+          }
+
+          return (
+            <GenericTransactionNotification
+              handleClick={handleClick}
+              actionId={txHash}
+              onClose={onClose}
+              {...props}
+            />
+          )
+        },
+      })
+    },
+    [dispatch, toast, isDrawerOpen, openActionCenter],
+  )
+
   useEffect(() => {
     pendingSendActions.forEach(action => {
       const { accountId, txHash } = action.transactionMetadata
@@ -154,6 +199,42 @@ export const useSendActionSubscriber = () => {
                   )
                   isConfirmed =
                     hyperEvmTxStatus === TxStatus.Confirmed || hyperEvmTxStatus === TxStatus.Failed
+                  break
+                }
+                case KnownChainIds.StarknetMainnet: {
+                  const adapter = getChainAdapterManager().get(chainId)
+                  if (isStarknetChainAdapter(adapter)) {
+                    const starknetTxStatus = await getStarknetTransactionStatus(txHash, adapter)
+
+                    // Handle failed transactions
+                    if (starknetTxStatus === TxStatus.Failed) {
+                      // Parse and upsert Tx for transaction history
+                      try {
+                        if (adapter?.parseTx) {
+                          const parsedTx = await adapter.parseTx(txHash, accountAddress)
+                          dispatch(
+                            txHistory.actions.onMessage({
+                              message: parsedTx,
+                              accountId,
+                            }),
+                          )
+                        }
+                      } catch (error) {
+                        console.error('Failed to parse failed Starknet Tx:', error)
+                      }
+
+                      failAction(action)
+
+                      const intervalId = pollingIntervalsRef.current.get(pollingKey)
+                      if (intervalId) {
+                        clearInterval(intervalId)
+                        pollingIntervalsRef.current.delete(pollingKey)
+                      }
+                      return
+                    }
+
+                    isConfirmed = starknetTxStatus === TxStatus.Confirmed
+                  }
                   break
                 }
                 case KnownChainIds.ThorchainMainnet: {
@@ -235,7 +316,7 @@ export const useSendActionSubscriber = () => {
 
       completeAction(action)
     })
-  }, [txs, pendingSendActions, completeAction, dispatch])
+  }, [txs, pendingSendActions, completeAction, failAction, dispatch])
 
   useEffect(() => {
     const intervals = pollingIntervalsRef.current

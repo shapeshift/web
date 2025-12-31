@@ -106,7 +106,16 @@ export const getTradeQuote = async (
     const buyAmountAfterFeesCryptoBaseUnit = bestQuote.buyAmount.toString()
 
     const sellAdapter = deps.assertGetStarknetChainAdapter(sellAsset.chainId)
-    const feeData = await sellAdapter.getFeeData()
+
+    const feeData = await sellAdapter.getFeeData({
+      to: receiveAddress,
+      value: sellAmount,
+      chainSpecific: {
+        from: sendAddress,
+        tokenContractAddress: sellTokenAddress,
+      },
+      sendMax: false,
+    })
 
     const rate = getInputOutputRate({
       sellAmountCryptoBaseUnit: sellAmount,
@@ -164,8 +173,6 @@ export const getTradeQuote = async (
 
     return Ok([tradeQuote])
   } catch (error) {
-    console.error('[AVNU] getTradeQuote error:', error)
-
     return Err(
       makeSwapErrorRight({
         message: error instanceof Error ? error.message : 'Unknown error getting AVNU quote',

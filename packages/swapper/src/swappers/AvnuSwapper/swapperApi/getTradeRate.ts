@@ -76,7 +76,17 @@ export const getTradeRate = async (
     const buyAmountAfterFeesCryptoBaseUnit = bestQuote.buyAmount.toString()
 
     const sellAdapter = deps.assertGetStarknetChainAdapter(sellAsset.chainId)
-    const feeData = await sellAdapter.getFeeData()
+
+    // For rate quotes, use receiveAddress as a dummy from/to for fee estimation
+    const feeData = await sellAdapter.getFeeData({
+      to: receiveAddress ?? '',
+      value: sellAmount,
+      chainSpecific: {
+        from: receiveAddress ?? '',
+        tokenContractAddress: sellTokenAddress,
+      },
+      sendMax: false,
+    })
 
     const rate = getInputOutputRate({
       sellAmountCryptoBaseUnit: sellAmount,

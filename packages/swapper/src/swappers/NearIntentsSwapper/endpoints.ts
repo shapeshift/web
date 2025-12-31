@@ -264,7 +264,15 @@ export const nearIntentsApi: SwapperApi = {
     const value = step.sellAmountIncludingProtocolFeesCryptoBaseUnit
     const tokenContractAddress = contractAddressOrUndefined(sellAsset.assetId)
 
-    const { fast } = await adapter.getFeeData()
+    const { fast } = await adapter.getFeeData({
+      to,
+      value,
+      chainSpecific: {
+        from,
+        tokenContractAddress,
+      },
+      sendMax: false,
+    })
 
     return adapter.buildSendApiTransaction({
       from,

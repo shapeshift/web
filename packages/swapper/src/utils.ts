@@ -1,6 +1,6 @@
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
-import { solanaChainId, suiChainId } from '@shapeshiftoss/caip'
-import type { EvmChainAdapter, SignTx, solana, sui } from '@shapeshiftoss/chain-adapters'
+import { solanaChainId, starknetChainId, suiChainId } from '@shapeshiftoss/caip'
+import type { EvmChainAdapter, SignTx, solana, starknet, sui } from '@shapeshiftoss/chain-adapters'
 import type { SolanaSignTx, StarknetSignTx, SuiSignTx } from '@shapeshiftoss/hdwallet-core'
 import type { Asset, EvmChainId } from '@shapeshiftoss/types'
 import { evm, TxStatus } from '@shapeshiftoss/unchained-client'
@@ -414,6 +414,37 @@ export const checkSuiSwapStatus = async ({
       buyTxHash: txHash,
       message: undefined,
       actualBuyAmountCryptoBaseUnit,
+    }
+  } catch (e) {
+    console.error(e)
+    return createDefaultStatusResponse(txHash)
+  }
+}
+
+export const checkStarknetSwapStatus = async ({
+  txHash,
+  assertGetStarknetChainAdapter,
+}: {
+  txHash: string
+  assertGetStarknetChainAdapter: (chainId: ChainId) => starknet.ChainAdapter
+}): Promise<TradeStatus> => {
+  try {
+    const adapter = assertGetStarknetChainAdapter(starknetChainId)
+    const provider = adapter.getStarknetProvider()
+
+    const receipt: any = await provider.getTransactionReceipt(txHash)
+
+    const status =
+      receipt.execution_status === 'SUCCEEDED'
+        ? TxStatus.Confirmed
+        : receipt.execution_status === 'REVERTED'
+        ? TxStatus.Failed
+        : TxStatus.Pending
+
+    return {
+      status,
+      buyTxHash: txHash,
+      message: undefined,
     }
   } catch (e) {
     console.error(e)

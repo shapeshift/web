@@ -40,6 +40,8 @@ import {
   polygonChainId,
   solanaChainId,
   solAssetId,
+  starknetAssetId,
+  starknetChainId,
   suiAssetId,
   suiChainId,
   thorchainChainId,
@@ -281,6 +283,20 @@ export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
         }
       }
 
+      if (Object.keys(platforms).includes(CoingeckoAssetPlatform.Starknet)) {
+        try {
+          const assetId = toAssetId({
+            chainNamespace: CHAIN_NAMESPACE.Starknet,
+            chainReference: CHAIN_REFERENCE.StarknetMainnet,
+            assetNamespace: ASSET_NAMESPACE.starknetToken,
+            assetReference: platforms[CoingeckoAssetPlatform.Starknet],
+          })
+          prev[starknetChainId][assetId] = id
+        } catch {
+          // unable to create assetId, skip token
+        }
+      }
+
       return prev
     },
     {
@@ -297,6 +313,7 @@ export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
       [monadChainId]: { [monadAssetId]: 'monad' },
       [plasmaChainId]: { [plasmaAssetId]: 'plasma' },
       [solanaChainId]: { [solAssetId]: 'solana' },
+      [starknetChainId]: { [starknetAssetId]: 'starknet' },
       [tronChainId]: { [tronAssetId]: 'tron' },
       [suiChainId]: { [suiAssetId]: 'sui' },
     },

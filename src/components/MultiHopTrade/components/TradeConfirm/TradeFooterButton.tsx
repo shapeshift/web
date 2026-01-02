@@ -104,7 +104,17 @@ export const TradeFooterButton: FC<TradeFooterButtonProps> = ({
       const adapter = chainAdapterManager.get(chainId)
       if (!isStarknetChainAdapter(adapter)) throw new Error('Invalid chain adapter')
 
-      const feeData = await adapter.getFeeData()
+      const { account } = fromAccountId(sellAccountId)
+
+      const feeData = await adapter.getFeeData({
+        to: account, // Deploying to the account itself
+        value: '0', // No token transfer during deployment
+        chainSpecific: {
+          from: account,
+          tokenContractAddress: undefined,
+        },
+        sendMax: false,
+      })
       const maxFee = feeData.fast.chainSpecific.maxFee
 
       const accountNumber = accountMetadata?.bip44Params.accountNumber ?? 0

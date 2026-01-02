@@ -5,6 +5,7 @@ import { supportsStarknet } from '@shapeshiftoss/hdwallet-core'
 import type { Bip44Params, RootBip44Params } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { TransferType, TxStatus } from '@shapeshiftoss/unchained-client'
+import PQueue from 'p-queue'
 import type { Call } from 'starknet'
 import { CallData, hash, num, RpcProvider, validateAndParseAddress } from 'starknet'
 
@@ -18,6 +19,7 @@ import type {
   FeeDataEstimate,
   GetAddressInput,
   GetBip44ParamsInput,
+  GetFeeDataInput,
   SignAndBroadcastTransactionInput,
   SignTx,
   SignTxInput,
@@ -38,8 +40,17 @@ import type {
   TxHashOrObject,
 } from './types'
 
+export type TokenInfo = {
+  assetId: AssetId
+  contractAddress: string
+  symbol: string
+  name: string
+  precision: number
+}
+
 export interface ChainAdapterArgs {
   rpcUrl: string
+  getKnownTokens?: () => TokenInfo[]
 }
 
 // STRK token contract address on Starknet mainnet (native gas token)
@@ -60,9 +71,28 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.StarknetMainnet
   protected readonly assetId = starknetAssetId
 
   protected provider: RpcProvider
+  protected batchedProvider: RpcProvider
+  protected getKnownTokens: () => TokenInfo[]
+  private requestQueue: PQueue
 
   constructor(args: ChainAdapterArgs) {
+    // Main provider - NO batching for single RPC calls (getChainId, getTransactionReceipt, etc.)
+    // IMPORTANT: Do NOT enable automatic batch mode (batch: 0) as it breaks single RPC calls
+    // by making starknet.js expect batched array responses
     this.provider = new RpcProvider({ nodeUrl: args.rpcUrl })
+
+    // Batched provider - ONLY for parallel balance queries in getAccount()
+    // batch: 0 enables automatic batching for concurrent callContract calls
+    this.batchedProvider = new RpcProvider({ nodeUrl: args.rpcUrl, batch: 0 })
+
+    // Default to empty token list if not provided - avoids race condition with asset service initialization
+    this.getKnownTokens = args.getKnownTokens ?? (() => [])
+    // Rate limit batch requests to avoid overwhelming the RPC endpoint
+    this.requestQueue = new PQueue({
+      intervalCap: 1,
+      interval: 100, // 1 batch request every 100ms
+      concurrency: 1,
+    })
   }
 
   private assertSupportsChain(wallet: HDWallet): asserts wallet is StarknetWallet {
@@ -133,36 +163,96 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.StarknetMainnet
 
   async getAccount(pubkey: string): Promise<Account<KnownChainIds.StarknetMainnet>> {
     try {
-      let nativeBalance = '0'
+      // Normalize the address to ensure consistent format
+      const normalizedAddress = validateAndParseAddress(pubkey)
 
-      // Fetch STRK balance (native gas token)
-      try {
-        const callResult: string[] = await this.provider.callContract({
-          contractAddress: STRK_TOKEN_ADDRESS,
-          entrypoint: 'balanceOf',
-          calldata: [pubkey],
-        })
+      // Get known tokens at runtime - avoids race condition with asset service initialization
+      const knownTokens = this.getKnownTokens()
 
-        if (callResult && Array.isArray(callResult)) {
-          // Balance is returned as Uint256 (low, high)
-          const low = BigInt(callResult[0] ?? '0x0')
-          const high = BigInt(callResult[1] ?? '0x0')
-          const balance = low + (high << BigInt(128))
-          nativeBalance = balance.toString()
-        }
-      } catch (error) {
-        // If the account is not deployed yet, balance queries will fail
-        // This is expected - return 0 balance
-        // The user can still receive funds to their counterfactual address
+      // Prepare balance queries for STRK + all known tokens
+      const allTokenAddresses = [STRK_TOKEN_ADDRESS, ...knownTokens.map(t => t.contractAddress)]
+
+      // Process balance queries in batches to avoid timeout issues
+      // Batch size of 50 provides good balance between performance and reliability
+      const BATCH_SIZE = 50
+      const results: string[][] = []
+
+      for (let i = 0; i < allTokenAddresses.length; i += BATCH_SIZE) {
+        const batch = allTokenAddresses.slice(i, i + BATCH_SIZE)
+        // Wrap the entire batch in a single queue operation
+        // The batchedProvider (with batch: 0) will automatically batch all concurrent callContract calls
+        // into a single JSON-RPC request, avoiding RPC spamming
+        const batchResults = await this.requestQueue.add(() =>
+          Promise.all(
+            batch.map(tokenAddress => {
+              const calldata = [normalizedAddress]
+              return this.batchedProvider
+                .callContract({
+                  contractAddress: tokenAddress,
+                  entrypoint: 'balanceOf',
+                  calldata,
+                })
+                .catch(() => {
+                  // Return zero balance if call fails (e.g., account not deployed, token doesn't exist)
+                  return ['0x0', '0x0']
+                })
+            }),
+          ),
+        )
+        results.push(...batchResults)
       }
 
+      // Parse balances from results
+      const tokenBalances: Map<string, { balance: string; info?: TokenInfo }> = new Map()
+
+      results.forEach((result, idx) => {
+        if (result && Array.isArray(result)) {
+          // Balance is returned as Uint256 (low, high)
+          const low = BigInt(result[0] ?? '0x0')
+          const high = BigInt(result[1] ?? '0x0')
+          const balance = low + (high << BigInt(128))
+
+          const tokenAddress = allTokenAddresses[idx]
+
+          if (balance > BigInt(0)) {
+            // Find token info if it's not STRK (STRK is first, so idx > 0 means it's from knownTokens)
+            const tokenInfo = idx > 0 ? knownTokens[idx - 1] : undefined
+            tokenBalances.set(tokenAddress, { balance: balance.toString(), info: tokenInfo })
+          }
+        }
+      })
+
+      // Extract native STRK balance
+      const nativeBalance = tokenBalances.get(STRK_TOKEN_ADDRESS)?.balance ?? '0'
+      tokenBalances.delete(STRK_TOKEN_ADDRESS) // Remove STRK from tokens list as it's the native balance
+
+      // Build tokens array for non-zero balances (excluding STRK)
       const tokens: {
         assetId: AssetId
         balance: string
         symbol: string
         name: string
         precision: number
-      }[] = []
+      }[] = Array.from(tokenBalances.values()).map(({ balance, info }) => {
+        if (info) {
+          // Use info from asset service
+          return {
+            assetId: info.assetId,
+            balance,
+            symbol: info.symbol,
+            name: info.name,
+            precision: info.precision,
+          }
+        }
+        // Fallback for unknown tokens (shouldn't happen with getKnownTokens, but defensive)
+        return {
+          assetId: '' as AssetId,
+          balance,
+          symbol: '',
+          name: '',
+          precision: 18,
+        }
+      })
 
       return {
         balance: nativeBalance,
@@ -170,7 +260,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.StarknetMainnet
         assetId: this.assetId,
         chain: this.getType(),
         chainSpecific: {
-          tokens,
+          tokens: tokens.filter(t => t.assetId !== ''), // Filter out any malformed tokens
         },
         pubkey,
       }
@@ -209,9 +299,6 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.StarknetMainnet
       // If we get an error, account is not deployed
       if (result.error) {
         // Error code 20 = CONTRACT_NOT_FOUND means not deployed
-        if (result.error.code === 20) {
-          return false
-        }
         return false
       }
 
@@ -443,6 +530,15 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.StarknetMainnet
       const { from, to, value, chainSpecific, sendMax } = input
       let { tokenContractAddress } = chainSpecific
 
+      // Check if account is deployed first - must happen before ANY fee estimation
+      const isDeployed = await this.isAccountDeployed(from)
+
+      if (!isDeployed) {
+        throw new Error(
+          'Account is not deployed on Starknet. Please deploy your account before sending transactions.',
+        )
+      }
+
       // On Starknet, STRK is the native gas token but it's an ERC-20
       // If no token address is specified, use STRK token address
       if (!tokenContractAddress) {
@@ -493,17 +589,10 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.StarknetMainnet
             return data.toString()
           })
 
-          // For fee estimation, use 0x0 nonce if account not deployed (will fail but gives estimate)
-          let nonce = '0x0'
-          try {
-            const nonceResponse = await this.provider.fetch('starknet_getNonce', ['pending', from])
-            const nonceResult: RpcJsonResponse<StarknetNonceResult> = await nonceResponse.json()
-            if (nonceResult.result) {
-              nonce = nonceResult.result
-            }
-          } catch {
-            // Account likely not deployed, use 0x0 for fee estimation
-          }
+          // Get nonce for fee estimation (account is already confirmed deployed)
+          const nonceResponse = await this.provider.fetch('starknet_getNonce', ['pending', from])
+          const nonceResult: RpcJsonResponse<StarknetNonceResult> = await nonceResponse.json()
+          const nonce = nonceResult.result || '0x0'
 
           const estimateTx = {
             type: 'INVOKE',
@@ -580,25 +669,19 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.StarknetMainnet
         calldata: [normalizedTo, uint256Value.low.toString(), uint256Value.high.toString()],
       }
 
-      // Check if account is deployed first, use 0x0 nonce if not deployed
-      const isDeployed = await this.isAccountDeployed(from)
-      let nonce = '0x0'
+      // Get account nonce using RPC directly (account is already confirmed deployed at this point)
+      const nonceResponse = await this.provider.fetch('starknet_getNonce', ['pending', from])
+      const nonceResult: RpcJsonResponse<StarknetNonceResult> = await nonceResponse.json()
 
-      if (isDeployed) {
-        // Get account nonce using RPC directly
-        const nonceResponse = await this.provider.fetch('starknet_getNonce', ['pending', from])
-        const nonceResult: RpcJsonResponse<StarknetNonceResult> = await nonceResponse.json()
-
-        if (nonceResult.error) {
-          throw new Error(`Failed to fetch nonce: ${nonceResult.error.message}`)
-        }
-
-        if (!nonceResult.result) {
-          throw new Error('Nonce result is missing')
-        }
-
-        nonce = nonceResult.result
+      if (nonceResult.error) {
+        throw new Error(`Failed to fetch nonce: ${nonceResult.error.message}`)
       }
+
+      if (!nonceResult.result) {
+        throw new Error('Nonce result is missing')
+      }
+
+      const nonce = nonceResult.result
 
       const chainIdHex = await this.provider.getChainId()
       const version = '0x3' as const // Use v3 for Lava RPC
@@ -902,38 +985,76 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.StarknetMainnet
     }
   }
 
-  async getFeeData(): Promise<FeeDataEstimate<KnownChainIds.StarknetMainnet>> {
+  async getFeeData(
+    input: GetFeeDataInput<KnownChainIds.StarknetMainnet>,
+  ): Promise<FeeDataEstimate<KnownChainIds.StarknetMainnet>> {
     try {
-      const dummyAddress = '0x1'
-      const minimalAmount = {
-        low: '0x1',
-        high: '0x0',
+      const { to, value, chainSpecific } = input
+      let { from, tokenContractAddress } = chainSpecific
+
+      // Validate required parameters
+      if (!from) {
+        throw new Error('from address is required in chainSpecific')
+      }
+      if (!to) {
+        throw new Error('to address is required')
+      }
+      if (!value) {
+        throw new Error('value is required')
       }
 
-      const dummyCalldata = [
-        '1',
-        STRK_TOKEN_ADDRESS,
-        hash.getSelectorFromName('transfer'),
-        '3',
-        dummyAddress,
-        minimalAmount.low,
-        minimalAmount.high,
+      // On Starknet, STRK is the native gas token but it's an ERC-20
+      // If no token address is specified, use STRK token address
+      if (!tokenContractAddress) {
+        tokenContractAddress = STRK_TOKEN_ADDRESS
+      }
+
+      // Validate and normalize addresses
+      const normalizedTo = validateAndParseAddress(to)
+
+      // Build the transfer call
+      const uint256Value = {
+        low: BigInt(value) & BigInt('0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF'),
+        high: BigInt(value) >> BigInt(128),
+      }
+
+      const call: Call = {
+        contractAddress: tokenContractAddress,
+        entrypoint: 'transfer',
+        calldata: [normalizedTo, uint256Value.low.toString(), uint256Value.high.toString()],
+      }
+
+      // Build the invoke transaction calldata for fee estimation
+      const calldataArray = Array.isArray(call.calldata) ? call.calldata : []
+      const fullCalldata = [
+        '1', // call array length
+        call.contractAddress,
+        hash.getSelectorFromName(call.entrypoint),
+        calldataArray.length.toString(),
+        ...calldataArray,
       ]
 
-      const formattedCalldata = dummyCalldata.map(data => {
+      // Format calldata for RPC
+      const formattedCalldata = fullCalldata.map(data => {
         if (typeof data === 'string' && !data.startsWith('0x')) {
           return num.toHex(data)
         }
         return data.toString()
       })
 
+      // Get nonce for fee estimation
+      const nonceResponse = await this.provider.fetch('starknet_getNonce', ['pending', from])
+      const nonceResult: RpcJsonResponse<StarknetNonceResult> = await nonceResponse.json()
+      const nonce = nonceResult.result || '0x0'
+
+      // Build estimate transaction
       const estimateTx = {
         type: 'INVOKE',
         version: '0x3',
-        sender_address: dummyAddress,
+        sender_address: from,
         calldata: formattedCalldata,
         signature: [],
-        nonce: '0x0',
+        nonce,
         resource_bounds: {
           l1_gas: { max_amount: '0x186a0', max_price_per_unit: '0x5f5e100' },
           l2_gas: { max_amount: '0x0', max_price_per_unit: '0x0' },
@@ -946,6 +1067,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.StarknetMainnet
         fee_data_availability_mode: 'L1',
       }
 
+      // Estimate fees via RPC
       const estimateResponse = await this.provider.fetch('starknet_estimateFee', [
         [estimateTx],
         ['SKIP_VALIDATE'],
@@ -953,49 +1075,74 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.StarknetMainnet
       ])
       const estimateResult: RpcJsonResponse<StarknetFeeEstimate[]> = await estimateResponse.json()
 
+      if (estimateResult.error) {
+        throw new Error(`Fee estimation failed: ${estimateResult.error.message}`)
+      }
+
       const feeEstimate = estimateResult.result?.[0]
-      const l1GasConsumed = feeEstimate?.l1_gas_consumed
+      if (!feeEstimate) {
+        throw new Error('Fee estimation failed: no estimate returned')
+      }
+
+      // Parse fee components from RPC response
+      const l1GasConsumed = feeEstimate.l1_gas_consumed
         ? BigInt(feeEstimate.l1_gas_consumed)
         : BigInt('0x186a0')
-      const l1GasPrice = feeEstimate?.l1_gas_price
+      const l1GasPrice = feeEstimate.l1_gas_price
         ? BigInt(feeEstimate.l1_gas_price)
         : BigInt('0x5f5e100')
-      const l2GasConsumed = feeEstimate?.l2_gas_consumed
+      const l2GasConsumed = feeEstimate.l2_gas_consumed
         ? BigInt(feeEstimate.l2_gas_consumed)
         : BigInt('0x0')
-      const l2GasPrice = feeEstimate?.l2_gas_price
-        ? BigInt(feeEstimate.l2_gas_price)
-        : BigInt('0x0')
-      const l1DataGasConsumed = feeEstimate?.l1_data_gas_consumed
+      const l2GasPrice = feeEstimate.l2_gas_price ? BigInt(feeEstimate.l2_gas_price) : BigInt('0x0')
+      const l1DataGasConsumed = feeEstimate.l1_data_gas_consumed
         ? BigInt(feeEstimate.l1_data_gas_consumed)
         : BigInt('0x186a0')
-      const l1DataGasPrice = feeEstimate?.l1_data_gas_price
+      const l1DataGasPrice = feeEstimate.l1_data_gas_price
         ? BigInt(feeEstimate.l1_data_gas_price)
         : BigInt('0x1')
 
-      const estimatedTotalFee =
+      // Calculate base fee from RPC estimate
+      const baseFee =
         l1GasConsumed * l1GasPrice + l2GasConsumed * l2GasPrice + l1DataGasConsumed * l1DataGasPrice
 
-      const slowFee = ((estimatedTotalFee * BigInt(80)) / BigInt(100)).toString()
-      const slowMaxFee = ((estimatedTotalFee * BigInt(100)) / BigInt(100)).toString()
+      // Calculate max fees for each tier with buffer
+      // Slow: 1.5x gas amount, 1.2x gas price = 1.8x total
+      const slowMaxFee = (
+        ((l1GasConsumed * BigInt(150)) / BigInt(100)) * ((l1GasPrice * BigInt(120)) / BigInt(100)) +
+        ((l2GasConsumed * BigInt(150)) / BigInt(100)) * ((l2GasPrice * BigInt(120)) / BigInt(100)) +
+        ((l1DataGasConsumed * BigInt(150)) / BigInt(100)) *
+          ((l1DataGasPrice * BigInt(120)) / BigInt(100))
+      ).toString()
 
-      const averageFee = ((estimatedTotalFee * BigInt(100)) / BigInt(100)).toString()
-      const averageMaxFee = ((estimatedTotalFee * BigInt(120)) / BigInt(100)).toString()
+      // Average: 3x gas amount, 1.5x gas price = 4.5x total
+      const averageMaxFee = (
+        ((l1GasConsumed * BigInt(300)) / BigInt(100)) * ((l1GasPrice * BigInt(150)) / BigInt(100)) +
+        ((l2GasConsumed * BigInt(300)) / BigInt(100)) * ((l2GasPrice * BigInt(150)) / BigInt(100)) +
+        ((l1DataGasConsumed * BigInt(300)) / BigInt(100)) *
+          ((l1DataGasPrice * BigInt(150)) / BigInt(100))
+      ).toString()
 
-      const fastFee = ((estimatedTotalFee * BigInt(120)) / BigInt(100)).toString()
-      const fastMaxFee = ((estimatedTotalFee * BigInt(150)) / BigInt(100)).toString()
+      // Fast: 5x gas amount, 2x gas price = 10x total
+      const fastMaxFee = (
+        ((l1GasConsumed * BigInt(500)) / BigInt(100)) * ((l1GasPrice * BigInt(200)) / BigInt(100)) +
+        ((l2GasConsumed * BigInt(500)) / BigInt(100)) * ((l2GasPrice * BigInt(200)) / BigInt(100)) +
+        ((l1DataGasConsumed * BigInt(500)) / BigInt(100)) *
+          ((l1DataGasPrice * BigInt(200)) / BigInt(100))
+      ).toString()
 
+      // Return fee tiers based on RPC estimates
       return {
         slow: {
-          txFee: slowFee,
+          txFee: ((baseFee * BigInt(180)) / BigInt(100)).toString(),
           chainSpecific: { maxFee: slowMaxFee },
         },
         average: {
-          txFee: averageFee,
+          txFee: ((baseFee * BigInt(450)) / BigInt(100)).toString(),
           chainSpecific: { maxFee: averageMaxFee },
         },
         fast: {
-          txFee: fastFee,
+          txFee: ((baseFee * BigInt(1000)) / BigInt(100)).toString(),
           chainSpecific: { maxFee: fastMaxFee },
         },
       }

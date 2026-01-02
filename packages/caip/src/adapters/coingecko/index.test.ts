@@ -1,11 +1,5 @@
 import { describe, expect, it } from 'vitest'
 
-import {
-  assetIdToCoingecko,
-  chainIdToCoingeckoAssetPlatform,
-  CoingeckoAssetPlatform,
-  coingeckoToAssetIds,
-} from '.'
 import { toAssetId } from '../../assetId/assetId'
 import {
   ASSET_REFERENCE,
@@ -15,6 +9,12 @@ import {
   ethChainId,
   foxOnArbitrumOneAssetId,
 } from '../../constants'
+import {
+  assetIdToCoingecko,
+  chainIdToCoingeckoAssetPlatform,
+  CoingeckoAssetPlatform,
+  coingeckoToAssetIds,
+} from '.'
 
 describe('adapters:coingecko', () => {
   describe('coingeckoToAssetIds', () => {

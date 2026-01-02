@@ -80,6 +80,58 @@ Only ask the user when:
 - Continue through remaining tasks even if some fail
 - Only report when the ENTIRE scope is finished
 
+### Orchestration with Subagents
+
+**IMPORTANT**: For PR testing and complex multi-feature validation, use subagents for execution while you orchestrate:
+
+**When to Use Subagents**:
+- Testing release PRs with multiple features
+- Comprehensive feature validation across multiple areas
+- Long-running test sessions that may hit context limits
+- Complex testing requiring specialized expertise (frontend, backend, security, etc.)
+
+**Orchestration Pattern**:
+1. Parse the full testing scope from user request
+2. Break down into logical testing domains (e.g., swaps, sends, UI, performance)
+3. Launch specialized subagents for each domain using Task tool
+4. Monitor subagent progress and results
+5. Aggregate findings into comprehensive report
+6. Post final report when all subagents complete
+
+**Benefits**:
+- Parallel test execution for faster results
+- Specialized expertise per domain (frontend, security, performance)
+- Better context management (each subagent has fresh context)
+- Clearer separation of concerns
+- Easier to debug individual test domains
+
+**Example Orchestration**:
+```
+User Request: "Test release v1.993.0 (PR #11548) - includes Tron fixes, asset regeneration,
+HyperEVM toggle, Thor/Maya fixes"
+
+Orchestration:
+1. Launch subagent for Tron testing (Tron TX parsing, throttling)
+2. Launch subagent for asset generation verification (all chains)
+3. Launch subagent for HyperEVM testing (swaps, sends, flag toggle)
+4. Launch subagent for Thor/Maya testing (chain functionality)
+5. Monitor all subagents for completion
+6. Aggregate results from all subagents
+7. Create comprehensive test report
+8. Post to PR #11548
+```
+
+**Subagent Task Prompts Should Include**:
+- Clear scope of what to test
+- Success criteria
+- How to report findings (format)
+- Any specific edge cases to check
+- Whether to execute transactions or just verify quotes
+
+**Direct Execution vs Orchestration**:
+- **Direct Execution**: Simple single-feature tests, quick validations, scenario bank updates
+- **Orchestration**: Release testing, multi-PR validation, comprehensive feature testing
+
 ## Anti-Patterns to Avoid
 
 ### 🚫 Asking Permission for Obvious Next Steps
@@ -388,73 +440,115 @@ You are successful when:
 
 ## Example: Autonomous Testing Session
 
+### Example 1: Direct Execution (Single Feature)
+
 **User Request**:
-> "Test the new HyperEVM integration - verify asset generation, test swaps (native and ERC20), test sends, update the report, and post to PR #11548"
+> "Test the new swap slippage UI - verify it displays correctly, test manual entry, test auto-slippage"
 
-**Correct Autonomous Execution**:
+**Correct Direct Execution**:
 
-1. **Parse scope** (internal, not reported):
-   - Task 1: Verify asset generation includes HyperEVM
-   - Task 2: Test HyperEVM native token swap
-   - Task 3: Test HyperEVM ERC20 token swap
-   - Task 4: Test HyperEVM send transaction
-   - Task 5: Update test report with findings
-   - Task 6: Post complete report to PR #11548
+1. Parse scope: UI display, manual entry, auto-slippage (3 related tests)
+2. Execute all tests using browser MCP directly
+3. Document findings continuously
+4. Report once at completion
 
-2. **Execute silently** using TodoWrite for tracking:
+✅ Use direct execution for focused, single-feature testing.
+
+### Example 2: Orchestration (Release PR Testing)
+
+**User Request**:
+> "Test release v1.993.0 (PR #11548) - includes Tron TX parsing fixes, asset regeneration, HyperEVM toggle, Thor/Maya chain fixes, and Ledger Zcash support"
+
+**Correct Orchestration Approach**:
+
+1. **Parse scope and create orchestration plan**:
+   - Domain 1: Tron testing (TX parsing, throttling)
+   - Domain 2: Asset generation (multi-chain verification)
+   - Domain 3: HyperEVM testing (swaps, sends, flag toggle)
+   - Domain 4: Thor/Maya testing (chain functionality)
+   - Domain 5: Ledger Zcash (if hardware wallet available)
+
+2. **Launch subagents in parallel** using Task tool:
    ```
-   [in_progress] Verify asset generation includes HyperEVM
-   → Navigate to /trade, open asset selector, verify HyperEVM assets visible
-   → ✅ PASSED - Mark completed
+   [Launching subagent 1: Tron Testing]
+   Prompt: "Test Tron TX parsing fixes and throttler in release v1.993.0.
+   Execute at least 2 Tron transactions (TRX and TRC20), verify TX history
+   parsing is correct, verify throttling prevents rate limit errors.
+   Report: Pass/fail status, transaction hashes, any issues found."
 
-   [in_progress] Test HyperEVM native token swap
-   → Select HYPE, enter amount, select USDC, get quote, attempt swap
-   → ❌ FAILED - Gas limit exceeded error
-   → Document error details, take screenshot, mark completed (with failure)
+   [Launching subagent 2: Asset Generation]
+   Prompt: "Verify asset generation is working correctly across all chains.
+   Check trade page asset selector includes assets from: Ethereum, Solana,
+   Tron, HyperEVM, Bitcoin, Cosmos, Thor, Maya, Arbitrum, etc.
+   Report: List of chains verified, any missing assets."
 
-   [in_progress] Test HyperEVM ERC20 token swap
-   → Select USDC, attempt swap to another token
-   → ❌ FAILED - Same gas limit issue
-   → Document, mark completed
+   [Launching subagent 3: HyperEVM Testing]
+   Prompt: "Test HyperEVM integration comprehensively. Test: feature flag
+   toggle (/flags route), native HYPE swaps, ERC20 swaps (USDC), send
+   transactions for both. Execute actual transactions.
+   Report: Detailed results for each test, gas usage, any errors."
 
-   [in_progress] Test HyperEVM send transaction
-   → Navigate to HYPE asset, initiate send, complete transaction
-   → ✅ PASSED - Transaction successful
-   → Document success details, mark completed
-
-   [in_progress] Update test report with findings
-   → Update report with all 4 test results, detailed error analysis, recommendations
-   → Mark completed
-
-   [in_progress] Post report to PR #11548
-   → Use gh pr comment to post complete report
-   → Mark completed
+   [Launching subagent 4: Thor/Maya Testing]
+   Prompt: "Test Thor and Maya chain functionality after recent fixes.
+   Verify chains load, assets display, can initiate swaps (quotes only).
+   Report: Chain status, any UI/functionality issues."
    ```
 
-3. **Report once** (only after ALL tasks complete):
+3. **Monitor subagent completion** using TodoWrite:
    ```
-   ✅ Testing complete for HyperEVM integration (PR #11548)
-
-   Results:
-   - ✅ Asset generation: PASSED
-   - ❌ Native token swap: FAILED (gas limit exceeded)
-   - ❌ ERC20 token swap: FAILED (gas limit exceeded)
-   - ✅ Send transaction: PASSED
-
-   Critical finding: HyperEVM swaps fail due to block gas limit lower than
-   Relay's transaction requirements (~4M gas needed vs lower limit).
-
-   Report posted to PR #11548. Recommendation: Keep HyperEVM feature flag
-   disabled until gas limit issue resolved.
+   [completed] Subagent 1 (Tron): ✅ All tests passed
+   [completed] Subagent 2 (Asset Gen): ✅ All chains verified
+   [completed] Subagent 3 (HyperEVM): ⚠️ Sends passed, swaps failed (gas limit)
+   [completed] Subagent 4 (Thor/Maya): ✅ Functionality confirmed
+   [skipped] Subagent 5 (Ledger Zcash): No hardware wallet available
    ```
+
+4. **Aggregate findings** into comprehensive report:
+   - Compile results from all subagents
+   - Identify critical issues (HyperEVM swap failure)
+   - Calculate overall confidence level
+   - Generate recommendations
+
+5. **Post final report** to PR #11548 once all subagents complete
+
+**Output**:
+```
+✅ Release v1.993.0 Testing Complete (PR #11548)
+
+**Test Coverage**: 4 of 5 domains tested (Ledger Zcash skipped - no hardware)
+**Overall Confidence**: 80% - RECOMMEND MERGE WITH HYPEREVM CAVEAT
+
+Results by Domain:
+- ✅ Tron Testing: PASSED (TX parsing accurate, throttling working)
+- ✅ Asset Generation: PASSED (all chains verified)
+- ⚠️ HyperEVM Testing: PARTIAL (sends work, swaps fail - gas limit issue)
+- ✅ Thor/Maya Testing: PASSED (chain functionality confirmed)
+
+Critical Finding: HyperEVM swaps blocked due to gas limit - flag defaults OFF
+
+Recommendation: MERGE - HyperEVM issue doesn't block release since flag is disabled
+```
+
+✅ Use orchestration for multi-domain release testing.
 
 **What NOT to do** (requires babysitting):
+
+Direct Execution Anti-Patterns:
 ```
-❌ "I've verified asset generation works. Should I proceed with swap testing?"
-❌ "The swap failed with a gas error. What should I do?"
-❌ "I've completed 3 of 4 tests. Here are the results so far..."
-❌ "Which token pairs should I test?"
+❌ "I've verified asset generation works. Should I proceed with HyperEVM testing?"
+❌ "The HyperEVM swap failed with a gas error. What should I do next?"
+❌ "I've completed 3 of 5 PRs. Here are the results so far..."
+❌ "Which token pairs should I test for HyperEVM?"
 ❌ "Should I take screenshots of the failures?"
+```
+
+Orchestration Anti-Patterns:
+```
+❌ "I've launched 2 subagents. Should I wait for them to finish before launching more?"
+❌ "Subagent 1 reported a failure. Should I continue with the other subagents?"
+❌ "The Tron subagent finished. Here's what it found..." (without waiting for others)
+❌ Testing everything directly instead of using subagents for a multi-PR release
+❌ Launching subagents sequentially instead of in parallel
 ```
 
 ---

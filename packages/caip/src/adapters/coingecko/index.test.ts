@@ -1,5 +1,11 @@
 import { describe, expect, it } from 'vitest'
 
+import {
+  assetIdToCoingecko,
+  chainIdToCoingeckoAssetPlatform,
+  CoingeckoAssetPlatform,
+  coingeckoToAssetIds,
+} from '.'
 import { toAssetId } from '../../assetId/assetId'
 import {
   ASSET_REFERENCE,
@@ -9,12 +15,6 @@ import {
   ethChainId,
   foxOnArbitrumOneAssetId,
 } from '../../constants'
-import {
-  assetIdToCoingecko,
-  chainIdToCoingeckoAssetPlatform,
-  CoingeckoAssetPlatform,
-  coingeckoToAssetIds,
-} from '.'
 
 describe('adapters:coingecko', () => {
   describe('coingeckoToAssetIds', () => {
@@ -194,6 +194,12 @@ describe('adapters:coingecko', () => {
         assetNamespace: 'erc20',
         assetReference: '0xb88339cb7199b77e23db6e890353e22632ba630f',
       })
+      const usdcOnStarknet = toAssetId({
+        chainNamespace: CHAIN_NAMESPACE.Starknet,
+        chainReference: CHAIN_REFERENCE.StarknetMainnet,
+        assetNamespace: 'token',
+        assetReference: '0x33068f6539f8e6e6b131e6b2b814e6c34a5224bc66947c47dab9dfee93b35fb',
+      })
       expect(coingeckoToAssetIds('usd-coin')).toEqual([
         usdcOnEthereum,
         usdcOnAvalanche,
@@ -204,6 +210,7 @@ describe('adapters:coingecko', () => {
         usdcOnMonad,
         usdcOnHyperEvm,
         usdcOnSolana,
+        usdcOnStarknet,
         usdcOnSui,
         usdcOnTron,
       ])

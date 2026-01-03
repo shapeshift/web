@@ -368,11 +368,7 @@ export const getL1RateOrQuote = async <T extends ThorTradeRateOrQuote>(
         perRouteValues.map(async (route): Promise<T> => {
           const memo = getMemo(route)
 
-          const { vault } = await utxo.getThorTxData({
-            sellAsset,
-            config,
-            swapperName,
-          })
+          const { vault } = await utxo.getThorTxData({ sellAsset, config, swapperName })
 
           const feeData = await (async (): Promise<QuoteFeeData> => {
             const protocolFees = getProtocolFees(route.quote)
@@ -460,16 +456,10 @@ export const getL1RateOrQuote = async <T extends ThorTradeRateOrQuote>(
               const contractAddress = contractAddressOrUndefined(sellAsset.assetId)
 
               // Get vault address
-              const { vault } = await tron.getThorTxData({
-                sellAsset,
-                config,
-                swapperName,
-              })
+              const { vault } = await tron.getThorTxData({ sellAsset, config, swapperName })
 
               // Estimate fees using the receive address for accurate energy calculation
-              const tronWeb = new TronWeb({
-                fullHost: deps.config.VITE_TRON_NODE_URL,
-              })
+              const tronWeb = new TronWeb({ fullHost: deps.config.VITE_TRON_NODE_URL })
               const params = await tronWeb.trx.getChainParameters()
               const bandwidthPrice = params.find(p => p.key === 'getTransactionFee')?.value ?? 1000
               const energyPrice = params.find(p => p.key === 'getEnergyFee')?.value ?? 100
@@ -485,10 +475,7 @@ export const getL1RateOrQuote = async <T extends ThorTradeRateOrQuote>(
                     {},
                     [
                       { type: 'address', value: vault }, // Use vault as recipient
-                      {
-                        type: 'uint256',
-                        value: sellAmountIncludingProtocolFeesCryptoBaseUnit,
-                      },
+                      { type: 'uint256', value: sellAmountIncludingProtocolFeesCryptoBaseUnit },
                     ],
                     input.receiveAddress, // Use user's address as sender for estimation
                   )

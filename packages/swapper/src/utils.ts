@@ -256,9 +256,7 @@ export const checkSafeTransactionStatus = async ({
   // Transaction executed on-chain
   if (isExecutedSafeTx) {
     const adapter = assertGetEvmChainAdapter(chainId)
-    const tx = await adapter.httpProvider.getTransaction({
-      txid: transaction.transactionHash,
-    })
+    const tx = await adapter.httpProvider.getTransaction({ txid: transaction.transactionHash })
     const status = evm.getTxStatus(tx)
 
     return {

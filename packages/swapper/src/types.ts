@@ -428,12 +428,8 @@ export type TradeQuoteStep = {
   }
 }
 
-export type TradeRateStep = Omit<TradeQuoteStep, 'accountNumber'> & {
-  accountNumber: undefined
-}
-export type ExecutableTradeStep = Omit<TradeQuoteStep, 'accountNumber'> & {
-  accountNumber: number
-}
+export type TradeRateStep = Omit<TradeQuoteStep, 'accountNumber'> & { accountNumber: undefined }
+export type ExecutableTradeStep = Omit<TradeQuoteStep, 'accountNumber'> & { accountNumber: number }
 
 type TradeQuoteBase = {
   id: string
@@ -623,11 +619,7 @@ type TronAccountMetadata = { from: string }
 type SuiAccountMetadata = { from: string }
 type NearAccountMetadata = { from: string }
 type StarknetAccountMetadata = { from: string }
-type UtxoAccountMetadata = {
-  senderAddress: string
-  xpub: string
-  accountType: UtxoAccountType
-}
+type UtxoAccountMetadata = { senderAddress: string; xpub: string; accountType: UtxoAccountType }
 type CosmosSdkAccountMetadata = { from: string }
 
 export type CommonGetUnsignedTransactionArgs = {
@@ -655,13 +647,12 @@ export type GetUnsignedTronTransactionArgs = CommonGetUnsignedTransactionArgs &
 export type GetUnsignedSuiTransactionArgs = CommonGetUnsignedTransactionArgs &
   SuiAccountMetadata &
   SuiSwapperDeps
-export type GetUnsignedStarknetTransactionArgs = CommonGetUnsignedTransactionArgs &
-  StarknetAccountMetadata &
-  StarknetSwapperDeps
-
 export type GetUnsignedNearTransactionArgs = CommonGetUnsignedTransactionArgs &
   NearAccountMetadata &
   NearSwapperDeps
+export type GetUnsignedStarknetTransactionArgs = CommonGetUnsignedTransactionArgs &
+  StarknetAccountMetadata &
+  StarknetSwapperDeps
 
 export type GetUnsignedEvmMessageArgs = CommonGetUnsignedTransactionArgs &
   EvmAccountMetadata &
@@ -812,10 +803,7 @@ export type CommonTradeExecutionInput = {
 
 export type EvmTransactionExecutionInput = CommonTradeExecutionInput &
   EvmTransactionExecutionProps &
-  EvmAccountMetadata & {
-    supportsEIP1559: boolean
-    permit2Signature: string | undefined
-  }
+  EvmAccountMetadata & { supportsEIP1559: boolean; permit2Signature: string | undefined }
 
 export type EvmMessageExecutionInput = CommonTradeExecutionInput &
   EvmMessageExecutionProps &
@@ -856,10 +844,7 @@ export enum TradeExecutionEvent {
   Error = 'error',
 }
 
-export type SellTxHashArgs = {
-  stepIndex: SupportedTradeQuoteStepIndex
-  sellTxHash: string
-}
+export type SellTxHashArgs = { stepIndex: SupportedTradeQuoteStepIndex; sellTxHash: string }
 export type RelayerTxDetailsArgs = {
   stepIndex: SupportedTradeQuoteStepIndex
   relayerTxHash: string

@@ -65,7 +65,10 @@ export const useSendActionSubscriber = () => {
         const accountIdsToRefreshList = accountIdsToRefetch ?? [accountId]
 
         dispatch(
-          getAccountsBatch.initiate({ accountIds: accountIdsToRefreshList }, { forceRefetch: true }),
+          getAccountsBatch.initiate(
+            { accountIds: accountIdsToRefreshList },
+            { forceRefetch: true },
+          ),
         )
       }
 

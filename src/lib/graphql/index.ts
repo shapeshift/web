@@ -1,7 +1,17 @@
 export { getGraphQLClient } from './client'
 export { fetchMarketDataGraphQL } from './marketData'
 export { useGraphQLMarketData, useGraphQLMarketDataQuery } from './useGraphQLMarketData'
-export { fetchAccountsGraphQL, fetchAccountsBatched, type GraphQLAccount } from './accountData'
+export {
+  fetchAccountsGraphQL,
+  fetchAccountsBatched,
+  type GraphQLAccount,
+  type GraphQLTokenBalance,
+  type GraphQLUtxoAddress,
+  type GraphQLEvmData,
+  type GraphQLUtxoData,
+  type GraphQLCosmosData,
+  type GraphQLSolanaData,
+} from './accountData'
 export {
   fetchTransactionsGraphQL,
   fetchTransactionsByAccount,

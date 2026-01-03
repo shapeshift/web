@@ -2,23 +2,27 @@
 
 ## Executive Summary
 
-The current GraphQL POC branch has implemented a multi-layer architecture with DataLoader batching at both client and server. After deep analysis, the architecture is **more complete than initially assessed**, but there are still gaps preventing optimal batching for scattered `getAccount` calls.
+The current GraphQL POC branch has implemented a multi-layer architecture with DataLoader batching at both client and server. After **deep analysis including HAR data**, the architecture has been significantly improved, but **critical issues remain**.
 
-**Key Finding**: The client-side DataLoader with 16ms batching window EXISTS and IS wired up, but **HAR analysis confirms batching is NOT working** - 97% of requests contain only 1 account despite having DataLoader infrastructure in place.
+**Key Finding**: HAR analysis showed 97% of requests (203/208) contained only 1 account. The root cause has been identified as the **ManageAccounts modal's table row rendering pattern**, NOT the main portfolio fetch paths which have been fixed.
 
-**Root Cause**: Dynamic imports in `accountManagement.ts` add async overhead that exceeds the 16ms batching window, causing each request to miss the batch.
+**Root Causes Identified**:
+1. `ImportAccounts.tsx` - Each table row independently fetches via `useQuery` with `refetchOnMount: 'always'`
+2. Dynamic imports in `accountManagement.ts` add async overhead exceeding 16ms DataLoader window
+3. Server-side: No Unchained API batching - each account makes individual HTTP call
 
 ---
 
 ## Table of Contents
 
 1. [Current Architecture](#current-architecture)
-2. [What's Actually Working](#whats-actually-working)
-3. [Remaining Issues](#remaining-issues)
-4. [Batching Flow Analysis](#batching-flow-analysis)
-5. [Solution Options](#solution-options)
-6. [Recommendations](#recommendations)
-7. [Testing & Verification](#testing--verification)
+2. [What's Working Well](#whats-working-well) (UPDATED)
+3. [Evidence from HAR Analysis](#-evidence-from-har-analysis)
+4. [Root Cause Analysis](#-root-cause-analysis) (NEW)
+5. [Remaining Issues](#remaining-issues)
+6. [Solution Options](#solution-options)
+7. [Recommendations](#recommendations)
+8. [Testing & Verification](#testing--verification)
 
 ---
 
@@ -32,44 +36,43 @@ The current GraphQL POC branch has implemented a multi-layer architecture with D
 ├─────────────────────────────────────────────────────────────────────────────┤
 │                                                                              │
 │   ┌─────────────────────────────────────────────────────────────────────┐   │
-│   │                    BATCH PATH (usePortfolioFetch)                    │   │
+│   │                    BATCH PATH (WORKING WELL) ✅                      │   │
 │   │                                                                       │   │
-│   │   usePortfolioFetch ───► getAccountsBatch.initiate()                 │   │
-│   │                                    │                                  │   │
-│   │                                    ▼                                  │   │
-│   │                          fetchAccountsGraphQL()                       │   │
-│   │                                    │                                  │   │
-│   │                                    ▼                                  │   │
-│   │                       Client DataLoader (16ms)  ◄─────────────┐      │   │
-│   │                                    │                          │      │   │
-│   │                                    ▼                          │      │   │
-│   │                          GraphQL HTTP Request                 │      │   │
-│   │                                    │                          │      │   │
-│   │                                    ▼                          │      │   │
-│   │                       Server DataLoader (per-request)         │      │   │
-│   │                                    │                          │      │   │
-│   │                                    ▼                          │      │   │
-│   │                          Unchained (by chain)                 │      │   │
+│   │   usePortfolioFetch ─────────┐                                       │   │
+│   │   Chains.tsx ─────────────────┼──► getAccountsBatch.initiate()       │   │
+│   │   DegradedStateBanner ────────┤              │                       │   │
+│   │   useSendActionSubscriber ────┤              ▼                       │   │
+│   │   useSwapActionSubscriber ────┤    fetchAccountsGraphQL(all)         │   │
+│   │   useTransactionsSubscriber ──┘              │                       │   │
+│   │     (debounced 1000ms)                       ▼                       │   │
+│   │                                   Client DataLoader (16ms)           │   │
+│   │                                              │                       │   │
+│   │                                              ▼                       │   │
+│   │                                   GraphQL HTTP Request               │   │
+│   │                                   (77 accounts in HAR)               │   │
 │   └─────────────────────────────────────────────────────────────────────┘   │
 │                                                                              │
 │   ┌─────────────────────────────────────────────────────────────────────┐   │
-│   │                  INDIVIDUAL PATH (scattered callsites)               │   │
+│   │                  INDIVIDUAL PATH (THE PROBLEM) ❌                    │   │
 │   │                                                                       │   │
-│   │   Chains.tsx ────────┐                                               │   │
-│   │   useTransactionsSub ─┼──► getAccount.initiate()                     │   │
-│   │   DegradedStateBanner ┤              │                               │   │
-│   │   useSendAction ──────┤              ▼                               │   │
-│   │   useSwapAction ──────┘    accountManagement.getAccount()            │   │
-│   │                                      │                               │   │
-│   │                                      ▼                               │   │
-│   │                           getGraphQLAccountData()                    │   │
-│   │                                      │                               │   │
-│   │                                      ▼                               │   │
-│   │                          fetchAccountsGraphQL([single])              │   │
-│   │                                      │                               │   │
-│   │                                      ▼                               │   │
-│   │                       Client DataLoader (16ms) ───────────────┘      │   │
-│   │                         (SAME SINGLETON!)                            │   │
+│   │   ImportAccounts.tsx ──────┐                                         │   │
+│   │     (each table row)        │                                         │   │
+│   │                             ├──► useQuery(accountManagement.getAccount)│   │
+│   │   ManageAccounts/helpers ──┤              │                          │   │
+│   │     (fallback path)         │              ▼                          │   │
+│   │                             │    await import('@/state/store')       │   │
+│   │                             │    await import('@/state/.../selectors')│   │
+│   │                             │    await import('@/lib/graphql')        │   │
+│   │                             │              │                          │   │
+│   │                             │              ▼                          │   │
+│   │                             │    fetchAccountsGraphQL([single])       │   │
+│   │                             │              │                          │   │
+│   │                             │              ▼                          │   │
+│   │                             │    DataLoader (16ms window EXPIRED!)   │   │
+│   │                             │              │                          │   │
+│   │                             │              ▼                          │   │
+│   │                             │    Individual GraphQL Request           │   │
+│   │                             │    (203 requests in HAR!)               │   │
 │   └─────────────────────────────────────────────────────────────────────┘   │
 │                                                                              │
 └─────────────────────────────────────────────────────────────────────────────┘
@@ -80,92 +83,54 @@ The current GraphQL POC branch has implemented a multi-layer architecture with D
 | Layer | Component | Location | Status |
 |-------|-----------|----------|--------|
 | **Client** | GraphQL Client | `src/lib/graphql/client.ts` | ✅ Singleton |
-| **Client** | Account DataLoader | `src/lib/graphql/accountData.ts` | ✅ Singleton, 16ms window |
+| **Client** | Account DataLoader | `src/lib/graphql/accountData.ts` | ✅ 16ms window |
 | **Client** | `fetchAccountsGraphQL` | `src/lib/graphql/accountData.ts` | ✅ Uses DataLoader |
-| **Client** | React Query wrapper | `src/react-queries/queries/accountManagement.ts` | ✅ Calls fetchAccountsGraphQL |
-| **RTK Query** | `getAccount` | `src/state/slices/portfolioSlice/portfolioSlice.ts` | ✅ Uses accountManagement |
-| **RTK Query** | `getAccountsBatch` | `src/state/slices/portfolioSlice/portfolioSlice.ts` | ✅ Direct GraphQL |
-| **Server** | Account DataLoader | `packages/graphql-server/src/loaders/accountLoader.ts` | ✅ Per-request, groups by chain |
-| **Server** | Unchained Integration | `packages/graphql-server/src/unchained/` | ✅ Real API calls |
+| **Client** | `getAccountsBatch` | `portfolioSlice.ts` | ✅ Batches correctly |
+| **Client** | `getAccount` | `portfolioSlice.ts` | ⚠️ Individual calls |
+| **Client** | `accountManagement` | `accountManagement.ts` | ❌ Dynamic imports! |
+| **Server** | Account DataLoader | `packages/graphql-server/src/loaders/accountLoader.ts` | ✅ Groups by chain |
+| **Server** | Unchained Integration | `packages/graphql-server/src/unchained/` | ❌ No batch API |
 
 ---
 
-## What's Actually Working
+## What's Working Well
 
-### 1. Feature Flags ✅
+### ✅ Main Portfolio Fetch Paths - ALL USE BATCH!
 
-```typescript
-// src/state/slices/preferencesSlice/preferencesSlice.ts
-GraphQLMarketData: boolean   // Market data via GraphQL
-GraphQLAccountData: boolean  // Account data via GraphQL  
-GraphQLCoingeckoData: boolean // CoinGecko endpoints via GraphQL
-```
+**Recent fixes have converted all major callsites to use `getAccountsBatch`:**
 
-### 2. Batch Endpoint Path ✅
+| Callsite | Method | Batching |
+|----------|--------|----------|
+| `usePortfolioFetch.tsx` | `getAccountsBatch` | ✅ All accounts in 1 request |
+| `Chains.tsx` (Ledger) | `getAccountsBatch` | ✅ All derived accounts |
+| `DegradedStateBanner.tsx` | `getAccountsBatch` | ✅ All errored accounts |
+| `useSendActionSubscriber.tsx` | `getAccountsBatch` | ✅ Accounts to refresh |
+| `useSwapActionSubscriber.tsx` | `getAccountsBatch` | ✅ Sell + buy accounts |
+| `useTransactionsSubscriber.ts` | `getAccountsBatch` | ✅ Debounced 1000ms! |
 
-When `GraphQLAccountData` is enabled:
-```typescript
-// usePortfolioFetch.tsx
-if (isGraphQLAccountDataEnabled) {
-  dispatch(
-    portfolioApi.endpoints.getAccountsBatch.initiate({ accountIds: enabledWalletAccountIds }),
-  )
-}
-```
-
-This correctly uses GraphQL batching for initial portfolio load.
-
-### 3. Individual Calls DO Use GraphQL ✅
+### ✅ Transaction Subscriber - Best Optimized
 
 ```typescript
-// accountManagement.ts
-export const accountManagement = createQueryKeys('accountManagement', {
-  getAccount: (accountId: AccountId) => ({
-    queryFn: async () => {
-      const { isEnabled, account: graphqlAccount } = await getGraphQLAccountData(accountId)
-      if (isEnabled && graphqlAccount) {
-        return graphQLAccountToChainAdapterAccount(graphqlAccount, chainId)
-      }
-      // Fallback to chain adapter
-      return adapter.getAccount(pubkey)
-    },
-  }),
-})
+// useTransactionsSubscriber.ts - EXCELLENT PATTERN
+const ACCOUNT_REFRESH_DEBOUNCE_MS = 1000
+
+const queueAccountRefresh = useCallback((accountId: AccountId) => {
+  pendingAccountRefreshes.current.add(accountId)  // Accumulate in Set
+  
+  if (debounceTimer.current) clearTimeout(debounceTimer.current)
+  
+  debounceTimer.current = setTimeout(flushAccountRefreshes, ACCOUNT_REFRESH_DEBOUNCE_MS)
+}, [flushAccountRefreshes])
+
+const flushAccountRefreshes = useCallback(() => {
+  const accountIds = Array.from(pendingAccountRefreshes.current)
+  pendingAccountRefreshes.current.clear()
+  
+  dispatch(getAccountsBatch.initiate({ accountIds }, { forceRefetch: true }))
+}, [dispatch])
 ```
 
-### 4. Client DataLoader EXISTS ✅
-
-```typescript
-// accountData.ts
-const BATCH_WINDOW_MS = 16
-
-function getAccountLoader() {
-  if (!accountLoader) {
-    accountLoader = new DataLoader(batchGetAccounts, {
-      cache: true,
-      maxBatchSize: 100,
-      batchScheduleFn: callback => setTimeout(callback, BATCH_WINDOW_MS),
-    })
-  }
-  return accountLoader
-}
-```
-
-### 5. Server DataLoader Works ✅
-
-```typescript
-// server.ts - creates per-request loaders
-context: () => Promise.resolve({
-  loaders: {
-    accounts: createAccountLoader(),  // Fresh per request
-  },
-}),
-
-// accountLoader.ts - groups by chain
-function groupByChainId(accountIds) {
-  // Groups accounts to minimize Unchained calls
-}
-```
+**Impact**: 10 TX events in 1s → 1 batched request (10x reduction)
 
 ---
 
@@ -173,20 +138,20 @@ function groupByChainId(accountIds) {
 
 ### HAR File Analysis Results
 
-Analysis of `graphql.har` (real production traffic capture) reveals **critical batching failure**:
+Analysis of `graphql.har` (real traffic capture) reveals **batching works for main paths, fails for ManageAccounts modal**:
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
 │                    REQUEST DISTRIBUTION                          │
 ├─────────────────────────────────────────────────────────────────┤
-│  Batch Size    │  Request Count  │  Percentage                  │
+│  Batch Size    │  Request Count  │  Source                      │
 ├────────────────┼─────────────────┼──────────────────────────────┤
-│  1 account(s)  │  203 requests   │  97.6%  ← PROBLEM!           │
-│  2 account(s)  │  1 request      │  0.5%                        │
-│  4 account(s)  │  1 request      │  0.5%                        │
-│  7 account(s)  │  1 request      │  0.5%                        │
-│  15 account(s) │  1 request      │  0.5%                        │
-│  77 account(s) │  1 request      │  0.5%                        │
+│  77 account(s) │  1 request      │  ✅ getAccountsBatch         │
+│  15 account(s) │  1 request      │  ✅ getAccountsBatch         │
+│  7 account(s)  │  1 request      │  ✅ getAccountsBatch         │
+│  4 account(s)  │  1 request      │  ✅ getAccountsBatch         │
+│  2 account(s)  │  1 request      │  ✅ getAccountsBatch         │
+│  1 account(s)  │  203 requests   │  ❌ ImportAccounts rows!     │
 ├────────────────┼─────────────────┼──────────────────────────────┤
 │  TOTAL         │  208 requests   │                              │
 └─────────────────────────────────────────────────────────────────┘
@@ -194,401 +159,198 @@ Analysis of `graphql.har` (real production traffic capture) reveals **critical b
 
 ### Interpretation
 
-- **97% of requests are single-account** despite DataLoader being configured with 16ms batching window
-- Only **1 request with 77 accounts** - this is the initial `getAccountsBatch` from `usePortfolioFetch`
-- The few batched requests (2, 4, 7, 15 accounts) are likely from synchronous loops in `Chains.tsx` or `DegradedStateBanner.tsx`
-- **203 requests should have been ~1-5 batched requests** if DataLoader was working correctly
+- **Batched requests (5 total, 105 accounts)**: From `getAccountsBatch` - working correctly!
+- **Single-account requests (203)**: From `ImportAccounts.tsx` table row rendering
 
-### Root Cause Confirmed
+---
 
-The dynamic imports in `accountManagement.ts` create async overhead:
+## 🔴 Root Cause Analysis
+
+### Primary Cause: ImportAccounts Table Row Rendering
+
+**File**: `src/components/Modals/ManageAccounts/components/ImportAccounts.tsx`
 
 ```typescript
-// accountManagement.ts - THE PROBLEM
-const getGraphQLAccountData = async (accountId) => {
-  const { store } = await import('@/state/store')           // Async import 1 (~1-5ms)
-  const { selectFeatureFlag } = await import('@/state/...')  // Async import 2 (~1-5ms)
-  const { fetchAccountsGraphQL } = await import('@/lib/...')  // Async import 3 (~1-5ms)
-  
-  // By now, 16ms window has likely expired for other requests
-  const accounts = await fetchAccountsGraphQL([accountId])
-  return { isEnabled: true, account: accounts[accountId] }
+// Lines 93-100 - EACH TABLE ROW DOES THIS!
+const TableRowAccount = ({ accountId }) => {
+  const { data: account } = useQuery({
+    ...accountManagement.getAccount(accountId),
+    staleTime: Infinity,
+    gcTime: Infinity,
+    refetchOnMount: 'always',  // ← REFETCHES EVERY MOUNT!
+  })
+  // ...
 }
 ```
 
-**Timeline of failure:**
+**Why batching fails**:
+1. Each row is a separate React component
+2. React renders rows asynchronously (not all in same tick)
+3. Each row's `useQuery` triggers `accountManagement.getAccount()`
+4. Dynamic imports add 3-15ms async overhead per call
+5. By the time request reaches DataLoader, 16ms window has expired
+6. Each row becomes its own batch of 1
+
+**Timing breakdown**:
 ```
-T=0ms:    Request 1 starts → begins async imports
-T=1ms:    Request 2 starts → begins async imports
-T=2ms:    Request 3 starts → begins async imports
+T=0ms:    Row 1 mounts → useQuery → accountManagement.getAccount()
+T=0ms:    Row 2 mounts → useQuery → accountManagement.getAccount()
 ...
-T=5ms:    Request 1 finishes imports → calls DataLoader.load()
-          → DataLoader schedules batch for T=21ms
-T=8ms:    Request 2 finishes imports → calls DataLoader.load()
-          → Added to batch (still within window)
-T=10ms:   Request 3 finishes imports → calls DataLoader.load()
-          → Added to batch (still within window)
-
-BUT in reality with async import timing variance:
-
-T=0ms:    Request 1 starts → begins async imports
-T=0ms:    Request 2 starts → begins async imports (parallel)
-T=5ms:    Request 1 finishes imports → calls DataLoader.load()
-          → DataLoader schedules batch for T=21ms
-T=21ms:   DataLoader executes batch with ONLY Request 1
-T=22ms:   Request 2 finishes imports (variance!) → calls DataLoader.load()
-          → DataLoader schedules NEW batch for T=38ms
-...       (Each request in its own batch due to timing variance)
+T=5ms:    Row 1 finishes dynamic imports → DataLoader.load()
+          → Schedules batch for T=21ms
+T=21ms:   BATCH EXECUTES WITH ONLY ROW 1!
+T=22ms:   Row 2 finishes imports → DataLoader.load()
+          → Schedules NEW batch for T=38ms
+...       (Each row in its own batch)
 ```
 
-### Impact Assessment
+### Secondary Cause: ManageAccounts Helpers Fallback
 
-| Metric | Expected (with batching) | Actual (HAR data) | Impact |
-|--------|--------------------------|-------------------|--------|
-| HTTP requests | ~10-20 | 208 | **10-20x more requests** |
-| Latency per account | ~50ms (batched) | ~200ms (individual) | **4x slower** |
-| Server load | Low | High | **Unnecessary strain** |
-| Network overhead | Minimal | Significant | **Wasted bandwidth** |
+**File**: `src/components/Modals/ManageAccounts/helpers.ts`
+
+```typescript
+// Lines 82-94 - Legacy fallback when GraphQL fails
+return Promise.all(
+  Object.entries(accountIdsAndMetadata).map(async ([accountId]) => {
+    const account = await queryClient.fetchQuery({
+      ...accountManagement.getAccount(accountId),  // ← Individual calls!
+      staleTime: Infinity,
+      gcTime: Infinity,
+    })
+    // ...
+  }),
+)
+```
+
+### Tertiary Cause: Server-Side No Unchained Batching
+
+**File**: `packages/graphql-server/src/loaders/accountLoader.ts`
+
+```typescript
+// Each account makes individual HTTP call to Unchained
+const results = await Promise.all(
+  accounts.map(({ accountId, pubkey }) =>
+    limit(async () => {
+      const data = await api.getAccount({ pubkey })  // ← Individual HTTP!
+      // ...
+    }),
+  ),
+)
+```
+
+**Impact**: Even with GraphQL batching, server makes N HTTP calls for N accounts.
 
 ---
 
 ## Remaining Issues
 
-### 🔴 Issue 1: Dynamic Import Timing (CONFIRMED ROOT CAUSE)
+### 🔴 Issue 1: ImportAccounts Row Rendering (CRITICAL)
 
-**Problem**: The async imports in `getGraphQLAccountData` break batching. **HAR analysis confirms this.**
+**Problem**: Each table row independently fetches account via `useQuery`.
+
+**Impact**: 97% of GraphQL requests are single-account due to this pattern.
+
+**Severity**: **CRITICAL** - Main source of unbatched requests
+
+---
+
+### 🔴 Issue 2: Dynamic Imports in accountManagement (CRITICAL)
+
+**Problem**: 3 async imports before reaching DataLoader:
 
 ```typescript
-// accountManagement.ts
 const getGraphQLAccountData = async (accountId) => {
-  const { store } = await import('@/state/store')           // Async import 1
-  const { selectFeatureFlag } = await import('@/state/slices/preferencesSlice/selectors')  // Async import 2
-  const { fetchAccountsGraphQL } = await import('@/lib/graphql')  // Async import 3
-  
-  const accounts = await fetchAccountsGraphQL([accountId])
-  return { isEnabled: true, account: accounts[accountId] }
+  const { store } = await import('@/state/store')           // ~1-5ms
+  const { selectFeatureFlag } = await import('@/state/...')  // ~1-5ms
+  const { fetchAccountsGraphQL } = await import('@/lib/...')  // ~1-5ms
+  // Total: 3-15ms overhead per call
 }
 ```
 
-**Impact**: Each `getAccount` call goes through 3 async imports before reaching the DataLoader. By the time it gets there, the 16ms window from earlier calls has expired.
-
-**Severity**: **CRITICAL** - HAR evidence shows 97% of requests are unbatched due to this issue
+**Severity**: **CRITICAL** - Causes 16ms batch window to expire
 
 ---
 
-### 🟡 Issue 2: Promise Isolation
+### 🟡 Issue 3: Server-Side No Unchained Batching
 
-**Problem**: Each `getAccount.initiate()` call creates its own promise chain. The DataLoader batches the underlying requests, but RTK Query still sees them as separate queries.
+**Problem**: Each account fetched individually from Unchained API.
 
-```typescript
-// Chains.tsx
-const accountPromises = accountIds.map(accountId =>
-  dispatch(getAccount.initiate({ accountId }, opts)),
-)
-```
+**Impact**: 100 accounts = 100 HTTP requests to Unchained (with pLimit(5) concurrency)
 
-**Impact**: Even if DataLoader batches, each promise resolves with the same batched data. This works, but RTK Query cache is per-query.
-
-**Severity**: Low - Works correctly, just suboptimal caching
+**Severity**: Medium - Server load, but not client-visible
 
 ---
 
-### 🟡 Issue 3: Singleton DataLoader Cache
+### 🟡 Issue 4: DataLoader Cache Not Cleared on forceRefetch
 
-**Problem**: The client-side DataLoader is a singleton with caching enabled:
+**Problem**: `forceRefetch: true` doesn't clear DataLoader cache.
 
-```typescript
-accountLoader = new DataLoader(batchGetAccounts, {
-  cache: true,  // Cached for lifetime of loader (app lifetime)
-})
-```
-
-**Impact**: 
-- Stale data if account changes
-- `forceRefetch: true` doesn't clear DataLoader cache
-- Need to call `clearAccountLoaderCache()` manually
-
-**Severity**: Medium - Could cause stale data issues
-
----
-
-### 🟡 Issue 4: forceRefetch Not Handled
-
-**Problem**: Scattered callsites use `forceRefetch: true`:
-
-```typescript
-dispatch(
-  getAccount.initiate({ accountId, upsertOnFetch: true }, { forceRefetch: true }),
-)
-```
-
-But the DataLoader cache is not cleared, so it returns cached data.
-
-**Severity**: Medium-High - Refresh operations may return stale data
-
----
-
-### 🟡 Issue 5: No Tests
-
-**Problem**: Zero test coverage for GraphQL server.
-
-**Severity**: Medium - Reliability concerns
-
----
-
-## Batching Flow Analysis
-
-### Scenario: Ledger Discovery (10 accounts)
-
-**Expected Flow (what we hoped):**
-```
-T=0ms:   Chains.tsx calls getAccount.initiate(account1)
-T=0ms:   Chains.tsx calls getAccount.initiate(account2)
-...
-T=0ms:   Chains.tsx calls getAccount.initiate(account10)
-
-T=5ms:   All calls reach DataLoader within 16ms window
-         → All 10 in pending batch
-
-T=21ms:  DataLoader executes batch
-         → Single GraphQL request with 10 accountIds
-```
-
-**Actual Flow (HAR-confirmed failure):**
-```
-T=0ms:   Request 1 starts → await import('@/state/store')
-T=0ms:   Request 2 starts → await import('@/state/store')
-...
-T=0ms:   Request 10 starts → await import('@/state/store')
-
-T=5ms:   Request 1 finishes imports → DataLoader.load()
-         → Schedules batch for T=21ms
-
-T=21ms:  BATCH EXECUTES WITH ONLY 1-2 ACCOUNTS!
-         (Other requests still awaiting imports due to event loop timing)
-
-T=22ms:  Request 2 finishes imports → DataLoader.load()
-         → Schedules NEW batch for T=38ms
-
-T=38ms:  Second batch executes with 1 account
-
-... (continues for all 10 requests, each in separate batch)
-```
-
-**HAR Evidence**: 203 out of 208 requests had only 1 account. ❌
-
-### Scenario: TX Subscription (1 account at a time)
-
-**Current Flow:**
-```
-T=0ms:    New TX arrives for account1
-T=0ms:    useTransactionsSubscriber calls getAccount.initiate(account1)
-T=5ms:    Reaches DataLoader.load(account1)
-T=21ms:   DataLoader executes (only 1 account)
-
-T=100ms:  Another TX arrives for account2
-T=100ms:  getAccount.initiate(account2)
-T=105ms:  Reaches DataLoader.load(account2)
-T=121ms:  DataLoader executes (only 1 account)
-```
-
-**Result**: No batching - TXs arrive too far apart. This is expected. ⚠️
+**Severity**: Medium - Stale data possible
 
 ---
 
 ## Solution Options
 
-### Option 1: Fix forceRefetch Cache Clearing
+### Option 1: Fix ImportAccounts with Batch Fetching ⭐ HIGHEST PRIORITY
 
-**Problem**: `forceRefetch: true` doesn't clear DataLoader cache.
+**Problem**: Each row fetches independently.
 
-**Solution**: Clear DataLoader cache when forceRefetch is used.
-
-```typescript
-// accountManagement.ts
-const getGraphQLAccountData = async (
-  accountId: AccountId,
-  forceRefetch = false,
-): Promise<{ isEnabled: boolean; account: GraphQLAccount | null }> => {
-  const { store } = await import('@/state/store')
-  const { selectFeatureFlag } = await import('@/state/slices/preferencesSlice/selectors')
-  const isEnabled = selectFeatureFlag(store.getState(), 'GraphQLAccountData')
-
-  if (!isEnabled) {
-    return { isEnabled: false, account: null }
-  }
-
-  const { fetchAccountsGraphQL, clearAccountLoaderCache } = await import('@/lib/graphql')
-  
-  // Clear cache if force refresh requested
-  if (forceRefetch) {
-    clearAccountLoaderCache()
-  }
-  
-  const accounts = await fetchAccountsGraphQL([accountId])
-  return { isEnabled: true, account: accounts[accountId] ?? null }
-}
-```
-
-**Effort**: Low (2-4 hours)
-**Risk**: Low
-
----
-
-### Option 2: Move Imports to Module Level
-
-**Problem**: Dynamic imports add latency.
-
-**Solution**: Import at module level (with lazy loading wrapper if needed).
+**Solution**: Lift data fetching to parent, pass down as props.
 
 ```typescript
-// accountManagement.ts
-import { store } from '@/state/store'
-import { selectFeatureFlag } from '@/state/slices/preferencesSlice/selectors'
-import { fetchAccountsGraphQL } from '@/lib/graphql'
-
-const getGraphQLAccountData = async (accountId: AccountId) => {
-  const isEnabled = selectFeatureFlag(store.getState(), 'GraphQLAccountData')
-  if (!isEnabled) return { isEnabled: false, account: null }
-  
-  const accounts = await fetchAccountsGraphQL([accountId])
-  return { isEnabled: true, account: accounts[accountId] ?? null }
-}
-```
-
-**Effort**: Low (1-2 hours)
-**Risk**: Low - May cause circular dependency issues, check imports carefully
-
----
-
-### Option 3: Increase Batch Window
-
-**Problem**: 16ms may not be enough for async operations.
-
-**Solution**: Increase to 50ms for more aggressive batching.
-
-```typescript
-// accountData.ts
-const BATCH_WINDOW_MS = 50 // ~3 frames at 60fps
-```
-
-**Trade-off**: Adds 34ms latency to all requests.
-
-**Effort**: Trivial (5 minutes)
-**Risk**: Low - May feel slower
-
----
-
-### Option 4: Add Explicit Batching Queue
-
-**Problem**: Want explicit control over batching.
-
-**Solution**: Add a queue function that components can use.
-
-```typescript
-// src/hooks/useAccountRefetch.ts
-const pendingAccountIds = new Set<AccountId>()
-let flushTimer: NodeJS.Timeout | null = null
-let resolvers: Map<AccountId, { resolve: Function, reject: Function }> = new Map()
-
-export const queueAccountRefetch = (
-  accountId: AccountId, 
-  dispatch: AppDispatch,
-): Promise<Portfolio> => {
-  return new Promise((resolve, reject) => {
-    pendingAccountIds.add(accountId)
-    resolvers.set(accountId, { resolve, reject })
-    
-    if (!flushTimer) {
-      flushTimer = setTimeout(async () => {
-        const accountIds = Array.from(pendingAccountIds)
-        const callbacks = new Map(resolvers)
-        pendingAccountIds.clear()
-        resolvers.clear()
-        flushTimer = null
-        
-        try {
-          const result = await dispatch(
-            portfolioApi.endpoints.getAccountsBatch.initiate({ accountIds })
-          ).unwrap()
-          
-          callbacks.forEach((cb, id) => cb.resolve(result))
-        } catch (error) {
-          callbacks.forEach(cb => cb.reject(error))
-        }
-      }, 50)
-    }
+// Parent component fetches ALL accounts at once
+const ImportAccountsTable = ({ accountIds }) => {
+  const { data: accounts } = useQuery({
+    queryKey: ['accounts-batch', accountIds],
+    queryFn: async () => {
+      const { fetchAccountsGraphQL } = await import('@/lib/graphql')
+      return fetchAccountsGraphQL(accountIds)
+    },
+    staleTime: Infinity,
   })
+  
+  return accountIds.map(id => (
+    <TableRowAccount 
+      key={id} 
+      account={accounts?.[id]}  // Pass data as prop!
+    />
+  ))
+}
+
+// Row component receives data, doesn't fetch
+const TableRowAccount = ({ account }) => {
+  // No useQuery - just uses passed data
+  return <Td>{account?.balance}</Td>
 }
 ```
 
-**Effort**: Medium (4-6 hours)
-**Risk**: Low
+**Expected Impact**: 
+- Reduce 203 requests → 1-2 requests
+- ~95% reduction in ManageAccounts modal requests
+- Effort: 2-4 hours
+- Risk: Low
 
 ---
 
-### Option 5: React Query Request Deduplication
+### Option 2: Remove Dynamic Imports in accountManagement
 
-**Problem**: React Query already has deduplication for same query keys.
+**Problem**: Dynamic imports add async overhead.
 
-**Solution**: Leverage React Query's built-in deduplication by using consistent query keys.
-
-The current implementation already does this via `accountManagement.getAccount(accountId).queryKey`.
-
-**Status**: Already implemented ✅
-
----
-
-### Option 6: Apollo Client Migration (Future)
-
-**Problem**: `graphql-request` is basic, no built-in batching.
-
-**Solution**: Migrate to Apollo Client with HTTP batching.
+**Solution**: Static imports at module level.
 
 ```typescript
-import { ApolloClient, HttpLink, InMemoryCache } from '@apollo/client'
-import { BatchHttpLink } from '@apollo/client/link/batch-http'
-
-const link = new BatchHttpLink({
-  uri: '/graphql',
-  batchInterval: 20,
-  batchMax: 50,
-})
-
-const client = new ApolloClient({
-  link,
-  cache: new InMemoryCache(),
-})
-```
-
-**Effort**: High (3-5 days)
-**Risk**: High - Major architecture change
-
----
-
-## Recommendations
-
-### 🚨 CRITICAL: Fix Batching Failure (HAR-Confirmed)
-
-Based on HAR evidence showing 97% unbatched requests, **the dynamic import issue must be fixed first**.
-
-### Priority 1: Move Imports to Module Level (Option 2) ⭐ HIGHEST PRIORITY
-
-**Why**: This is the confirmed root cause. HAR data proves dynamic imports break batching.
-
-```typescript
-// BEFORE (broken) - accountManagement.ts
+// BEFORE (broken)
 const getGraphQLAccountData = async (accountId) => {
-  const { store } = await import('@/state/store')           // ❌ Async
-  const { selectFeatureFlag } = await import('@/state/...')  // ❌ Async
-  const { fetchAccountsGraphQL } = await import('@/lib/...')  // ❌ Async
+  const { store } = await import('@/state/store')
+  const { selectFeatureFlag } = await import('@/state/.../selectors')
+  const { fetchAccountsGraphQL } = await import('@/lib/graphql')
   // ...
 }
 
-// AFTER (fixed) - accountManagement.ts
-import { store } from '@/state/store'                        // ✅ Static
-import { selectFeatureFlag } from '@/state/.../selectors'    // ✅ Static
-import { fetchAccountsGraphQL } from '@/lib/graphql'         // ✅ Static
+// AFTER (fixed)
+import { store } from '@/state/store'
+import { selectFeatureFlag } from '@/state/.../selectors'
+import { fetchAccountsGraphQL } from '@/lib/graphql'
 
 const getGraphQLAccountData = async (accountId) => {
   // No async overhead - reaches DataLoader immediately
@@ -596,95 +358,90 @@ const getGraphQLAccountData = async (accountId) => {
 }
 ```
 
-**Expected Impact**: 
-- Reduce 208 requests → ~10-20 requests
-- Fix 97% unbatched → majority batched
+**Expected Impact**:
+- Improves batching for any remaining individual calls
 - Effort: 1-2 hours
-- Risk: Low (check for circular dependencies)
+- Risk: Low (check circular dependencies)
 
-### Priority 2: Increase Batch Window as Safety Net (Option 3)
+---
 
-**Why**: Even with static imports, some timing variance may occur.
+### Option 3: Increase Batch Window
+
+**Problem**: 16ms may be too short.
+
+**Solution**: Increase to 50ms.
 
 ```typescript
 // accountData.ts
-const BATCH_WINDOW_MS = 50 // Increase from 16ms to 50ms
+const BATCH_WINDOW_MS = 50 // ~3 frames at 60fps
 ```
 
 **Expected Impact**:
-- Catches edge cases where static imports alone aren't enough
-- Adds 34ms max latency (acceptable trade-off)
+- Catches more requests in same batch
+- Trade-off: Adds 34ms latency to all requests
 - Effort: 5 minutes
 - Risk: Low
 
-### Priority 3: Fix forceRefetch (Option 1)
+---
 
-**Why**: Once batching works, stale data becomes an issue.
+### Option 4: Server-Side Unchained Batching
 
-- Add `forceRefetch` parameter to clear DataLoader cache
-- Effort: 2-4 hours
-- Risk: Low
+**Problem**: No batch endpoint used.
 
-### Priority 4: Add Tests
+**Solution**: Check if Unchained supports batch endpoints, or implement request coalescing.
 
-**Why**: Prevent regression.
+**Effort**: Medium-High (requires API investigation)
+**Risk**: Medium (API changes)
 
-- Unit test: Verify multiple calls within window get batched
-- Integration test: Verify GraphQL endpoints work correctly
-- Effort: 4-8 hours
+---
 
-### Deprioritized (Future)
+## Recommendations
 
-- **Explicit queue function** (Option 4) - Not needed if above fixes work
-- **Apollo Client migration** (Option 6) - Overkill for current needs
+### Phase 1: Fix ImportAccounts (Immediate)
+
+1. **Lift data fetching to parent** - Use single `fetchAccountsGraphQL` call
+2. **Pass account data as props** - Remove `useQuery` from row components
+3. **Effort**: 2-4 hours
+4. **Expected Impact**: 95% reduction in single-account requests
+
+### Phase 2: Remove Dynamic Imports (Short-term)
+
+1. **Convert to static imports** in `accountManagement.ts`
+2. **Test for circular dependencies**
+3. **Effort**: 1-2 hours
+4. **Expected Impact**: Improves batching for edge cases
+
+### Phase 3: Increase Batch Window (Safety Net)
+
+1. **Increase from 16ms to 50ms**
+2. **Effort**: 5 minutes
+3. **Expected Impact**: Catches more edge cases
+
+### Phase 4: Server-Side Optimization (Future)
+
+1. **Investigate Unchained batch endpoints**
+2. **Implement response caching**
+3. **Effort**: 1-2 days
+4. **Expected Impact**: Reduced server load
 
 ---
 
 ## Testing & Verification
 
-### How to Verify Batching Works
+### How to Verify Fixes Work
 
-1. **Enable feature flag:**
-   ```bash
-   # In .env.development
-   VITE_FEATURE_GRAPHQL_ACCOUNT_DATA=true
-   ```
-
-2. **Start GraphQL server:**
-   ```bash
-   yarn graphql:dev
-   ```
-
-3. **Watch server logs for batching:**
-   ```
-   [AccountLoader] Batching 10 account requests
-   [AccountLoader] Grouped into 5 chains
-   ```
-
-4. **Check browser Network tab:**
-   - Should see single GraphQL request for multiple accounts
-   - Request body should contain array of accountIds
-
-### Test Cases
-
-| Scenario | Expected | How to Test |
-|----------|----------|-------------|
-| Initial portfolio load | All accounts in 1 request | Connect wallet, watch network |
-| Ledger discovery | Batch discovered accounts | Connect Ledger, watch logs |
-| TX subscription | Individual requests (OK) | Send TX, watch network |
-| Retry errored | Batch errored accounts | Click retry, watch network |
-| After swap | 1-2 requests | Complete swap, watch network |
+1. **Open ManageAccounts modal**
+2. **Watch Network tab for GraphQL requests**
+3. **Expected BEFORE fix**: Many single-account requests
+4. **Expected AFTER fix**: 1-2 batched requests
 
 ### Console Log Indicators
 
 ```
 // Good - batching working
-[GraphQL DataLoader] Batching 10 account requests into 1
+[GraphQL DataLoader] Batching 50 account requests into 1
 
-// OK - single request, no batching needed
-[GraphQL DataLoader] Batching 1 account requests into 1
-
-// Bad - multiple single requests (check timing)
+// Bad - batching failing
 [GraphQL DataLoader] Batching 1 account requests into 1
 [GraphQL DataLoader] Batching 1 account requests into 1
 [GraphQL DataLoader] Batching 1 account requests into 1
@@ -694,28 +451,25 @@ const BATCH_WINDOW_MS = 50 // Increase from 16ms to 50ms
 
 ## Appendix
 
-### A. File Reference
+### A. Callsite Summary (After Recent Fixes)
 
-| File | Purpose |
-|------|---------|
-| `src/lib/graphql/accountData.ts` | Client DataLoader with 16ms batching |
-| `src/lib/graphql/client.ts` | GraphQL client singleton |
-| `src/react-queries/queries/accountManagement.ts` | React Query wrapper with GraphQL support |
-| `src/state/slices/portfolioSlice/portfolioSlice.ts` | RTK Query endpoints |
-| `src/context/AppProvider/hooks/usePortfolioFetch.tsx` | Initial portfolio fetch |
-| `packages/graphql-server/src/loaders/accountLoader.ts` | Server-side DataLoader |
-| `packages/graphql-server/src/unchained/` | Unchained API integration |
+| Callsite | Uses | Batching Status |
+|----------|------|-----------------|
+| `usePortfolioFetch.tsx` | `getAccountsBatch` | ✅ Fixed |
+| `Chains.tsx` | `getAccountsBatch` | ✅ Fixed |
+| `DegradedStateBanner.tsx` | `getAccountsBatch` | ✅ Fixed |
+| `useSendActionSubscriber.tsx` | `getAccountsBatch` | ✅ Fixed |
+| `useSwapActionSubscriber.tsx` | `getAccountsBatch` | ✅ Fixed |
+| `useTransactionsSubscriber.ts` | `getAccountsBatch` (debounced) | ✅ Fixed |
+| `ImportAccounts.tsx` rows | `useQuery` (individual) | ❌ NEEDS FIX |
+| `ManageAccounts/helpers.ts` | `Promise.all` (individual) | ❌ NEEDS FIX |
 
-### B. Callsite Reference
+### B. Individual getAccount Usage
 
-| File | Line | Pattern | Batching? |
-|------|------|---------|-----------|
-| `usePortfolioFetch.tsx` | 42-44 | `getAccountsBatch` | ✅ Always |
-| `Chains.tsx` | 80-82 | `getAccount.initiate` in loop | ✅ Same tick |
-| `useTransactionsSubscriber.ts` | 170-172 | `getAccount.initiate` single | ⚠️ Usually not |
-| `DegradedStateBanner.tsx` | 116-123 | `getAccount.initiate` in forEach | ✅ Same tick |
-| `useSendActionSubscriber.tsx` | 65-72 | `getAccount.initiate` in forEach | ✅ Same tick |
-| `useSwapActionSubscriber.tsx` | 326-345 | `getAccount.initiate` 1-2 calls | ⚠️ Maybe |
+Only ONE place uses individual `getAccount.initiate()`:
+- `usePortfolioFetch.tsx` line 47 - **ONLY when GraphQL is DISABLED**
+
+When GraphQL is enabled, ALL paths use `getAccountsBatch`.
 
 ### C. Feature Flag States
 
@@ -732,5 +486,5 @@ const BATCH_WINDOW_MS = 50 // Increase from 16ms to 50ms
 | Date | Author | Changes |
 |------|--------|---------|
 | 2024-01-03 | Analysis | Initial deep analysis |
-| 2024-01-03 | Analysis | Updated with accurate current state after code review |
-| 2024-01-03 | Analysis | **CRITICAL UPDATE**: Added HAR analysis proving batching failure (97% single-account requests). Identified dynamic imports as confirmed root cause. Reprioritized recommendations. |
+| 2024-01-03 | Analysis | Updated with HAR evidence |
+| 2024-01-03 | Analysis | **MAJOR UPDATE**: Deep analysis revealed ImportAccounts.tsx as primary source of 203 single-account requests. All main callsites have been fixed to use getAccountsBatch. Updated recommendations to focus on ImportAccounts fix. |

@@ -30,8 +30,8 @@ export const usePortfolioFetch = () => {
     if (modal || isLoadingLocalWallet) return
     if (enabledWalletAccountIds.length === 0) return
 
-    // Avoid refetching if account IDs haven't changed
-    const accountIdsKey = enabledWalletAccountIds.join(',')
+    // Avoid refetching if account IDs haven't changed (sort for stable comparison)
+    const accountIdsKey = [...enabledWalletAccountIds].sort().join(',')
     if (accountIdsKey === prevAccountIdsRef.current) return
     prevAccountIdsRef.current = accountIdsKey
 

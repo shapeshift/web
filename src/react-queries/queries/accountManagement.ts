@@ -4,44 +4,8 @@ import { fromAccountId } from '@shapeshiftoss/caip'
 import type { Account } from '@shapeshiftoss/chain-adapters'
 import type { KnownChainIds } from '@shapeshiftoss/types'
 
+import type { GraphQLAccount } from '@/lib/graphql'
 import { assertGetChainAdapter } from '@/lib/utils'
-
-type GraphQLTokenBalance = {
-  assetId: string
-  balance: string
-  name: string | null
-  symbol: string | null
-  precision: number | null
-}
-
-type GraphQLUtxoAddress = {
-  pubkey: string
-  balance: string
-}
-
-type GraphQLAccount = {
-  id: string
-  balance: string
-  pubkey: string
-  chainId: string
-  assetId: string
-  tokens: GraphQLTokenBalance[]
-  evmData: { nonce: number; tokens: GraphQLTokenBalance[] } | null
-  utxoData: {
-    addresses: GraphQLUtxoAddress[]
-    nextChangeAddressIndex: number | null
-    nextReceiveAddressIndex: number | null
-  } | null
-  cosmosData: {
-    sequence: string | null
-    accountNumber: string | null
-    delegations: unknown | null
-    redelegations: unknown | null
-    undelegations: unknown | null
-    rewards: unknown | null
-  } | null
-  solanaData: { tokens: GraphQLTokenBalance[] } | null
-}
 
 const getGraphQLAccountData = async (
   accountId: AccountId,

@@ -84,7 +84,7 @@ function groupByChainId(
   return groups
 }
 
-const limit = pLimit(5)
+const limit = pLimit(10)
 
 async function fetchFromUnchained(
   chainId: ChainId,
@@ -233,6 +233,7 @@ async function fetchFromUnchained(
 
 function getNativeAssetId(chainId: ChainId): string {
   const nativeAssetMap: Record<string, string> = {
+    // EVM chains
     'eip155:1': 'eip155:1/slip44:60',
     'eip155:43114': 'eip155:43114/slip44:60',
     'eip155:10': 'eip155:10/slip44:60',
@@ -242,15 +243,25 @@ function getNativeAssetId(chainId: ChainId): string {
     'eip155:42161': 'eip155:42161/slip44:60',
     'eip155:42170': 'eip155:42170/slip44:60',
     'eip155:8453': 'eip155:8453/slip44:60',
+    'eip155:143': 'eip155:143/slip44:60',
+    'eip155:999': 'eip155:999/slip44:60',
+    'eip155:9745': 'eip155:9745/slip44:60',
+    // UTXO chains
     'bip122:000000000019d6689c085ae165831e93': 'bip122:000000000019d6689c085ae165831e93/slip44:0',
     'bip122:000000000000000000651ef99cb9fcbe': 'bip122:000000000000000000651ef99cb9fcbe/slip44:145',
     'bip122:00000000001a91e3dace36e2be3bf030': 'bip122:00000000001a91e3dace36e2be3bf030/slip44:3',
     'bip122:12a765e31ffd4059bada1e25190f6e98': 'bip122:12a765e31ffd4059bada1e25190f6e98/slip44:2',
     'bip122:00040fe8ec8471911baa1db1266ea15d': 'bip122:00040fe8ec8471911baa1db1266ea15d/slip44:133',
+    // Cosmos chains
     'cosmos:cosmoshub-4': 'cosmos:cosmoshub-4/slip44:118',
     'cosmos:thorchain-1': 'cosmos:thorchain-1/slip44:931',
     'cosmos:mayachain-mainnet-v1': 'cosmos:mayachain-mainnet-v1/slip44:931',
+    // Other chains
     'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp': 'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp/slip44:501',
+    'tron:0x2b6653dc': 'tron:0x2b6653dc/slip44:195',
+    'sui:35834a8a': 'sui:35834a8a/slip44:784',
+    'near:mainnet': 'near:mainnet/slip44:397',
+    'starknet:SN_MAIN': 'starknet:SN_MAIN/slip44:9004',
   }
   return nativeAssetMap[chainId] || `${chainId}/slip44:60`
 }

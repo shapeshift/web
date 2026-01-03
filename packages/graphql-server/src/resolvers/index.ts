@@ -155,7 +155,10 @@ export const resolvers = {
     },
 
     // Thornode/Mayanode resolvers
-    tcyClaims: async (_parent: unknown, args: { addresses: string[]; network?: ThornodeNetwork }) => {
+    tcyClaims: async (
+      _parent: unknown,
+      args: { addresses: string[]; network?: ThornodeNetwork },
+    ) => {
       const network = args.network ?? 'thorchain'
       console.log(
         `[Query.tcyClaims] Fetching claims for ${args.addresses.length} addresses on ${network}`,

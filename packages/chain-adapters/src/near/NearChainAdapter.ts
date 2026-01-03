@@ -102,6 +102,9 @@ type NearFullTxResult = {
   }[]
 }
 
+const MAX_RATE_LIMIT_RETRIES = 3
+const RATE_LIMIT_BASE_DELAY_MS = 1000
+
 export class ChainAdapter implements IChainAdapter<KnownChainIds.NearMainnet> {
   static readonly rootBip44Params: RootBip44Params = {
     purpose: 44,
@@ -124,6 +127,50 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.NearMainnet> {
     this.singleProvider = providers[0]
     this.provider = new FailoverRpcProvider(providers)
     this.fastNearApiUrl = args.fastNearApiUrl
+  }
+
+  private isRateLimitError(error: unknown): boolean {
+    if (!error) return false
+
+    const errorString = error instanceof Error ? error.message : String(error)
+    const lowerError = errorString.toLowerCase()
+
+    if (
+      lowerError.includes('429') ||
+      lowerError.includes('rate limit') ||
+      lowerError.includes('too many')
+    ) {
+      return true
+    }
+
+    if (typeof error === 'object' && error !== null && 'cause' in error) {
+      return error.cause === 429
+    }
+
+    return false
+  }
+
+  private async withRateLimitRetry<T>(fn: () => Promise<T>): Promise<T> {
+    let lastError: unknown
+
+    for (let attempt = 0; attempt < MAX_RATE_LIMIT_RETRIES; attempt++) {
+      try {
+        return await fn()
+      } catch (error) {
+        lastError = error
+
+        if (!this.isRateLimitError(error)) {
+          throw error
+        }
+
+        if (attempt < MAX_RATE_LIMIT_RETRIES - 1) {
+          const delay = RATE_LIMIT_BASE_DELAY_MS * Math.pow(2, attempt)
+          await new Promise(resolve => setTimeout(resolve, delay))
+        }
+      }
+    }
+
+    throw lastError
   }
 
   private assertSupportsChain(wallet: HDWallet): asserts wallet is NearWallet {
@@ -225,11 +272,13 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.NearMainnet> {
       // FailoverRpcProvider would retry all providers for "account doesn't exist" errors
       // then throw a generic "Exceeded N providers" error, losing the original message
       const [accountResult, tokens] = await Promise.all([
-        this.singleProvider.query<NearAccountResult>({
-          request_type: 'view_account',
-          finality: 'final',
-          account_id: pubkey,
-        }),
+        this.withRateLimitRetry(() =>
+          this.singleProvider.query<NearAccountResult>({
+            request_type: 'view_account',
+            finality: 'final',
+            account_id: pubkey,
+          }),
+        ),
         this.fetchTokenBalances(pubkey),
       ])
 
@@ -269,8 +318,14 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.NearMainnet> {
   }
 
   validateAddress(address: string): Promise<ValidAddressResult> {
-    const valid = { valid: true, result: ValidAddressResultType.Valid } as const
-    const invalid = { valid: false, result: ValidAddressResultType.Invalid } as const
+    const valid = {
+      valid: true,
+      result: ValidAddressResultType.Valid,
+    } as const
+    const invalid = {
+      valid: false,
+      result: ValidAddressResultType.Invalid,
+    } as const
 
     // NEAR-implicit accounts: 64 lowercase hex characters
     if (/^[0-9a-f]{64}$/.test(address)) return Promise.resolve(valid)
@@ -306,17 +361,19 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.NearMainnet> {
       const publicKey = PublicKey.fromString(`ed25519:${pubKeyBase58}`)
 
       // Get current nonce from access key
-      const accessKeyResult = await this.provider.query<NearAccessKeyResult>({
-        request_type: 'view_access_key',
-        finality: 'final',
-        account_id: from,
-        public_key: `ed25519:${pubKeyBase58}`,
-      })
+      const accessKeyResult = await this.withRateLimitRetry(() =>
+        this.provider.query<NearAccessKeyResult>({
+          request_type: 'view_access_key',
+          finality: 'final',
+          account_id: from,
+          public_key: `ed25519:${pubKeyBase58}`,
+        }),
+      )
 
       const nonce = BigInt(accessKeyResult.nonce + 1)
 
       // Get latest block hash for transaction
-      const statusResult = await this.provider.status()
+      const statusResult = await this.withRateLimitRetry(() => this.provider.status())
       const blockHashBase58 = statusResult.sync_info.latest_block_hash
       const blockHash = baseDecode(blockHashBase58)
 
@@ -391,7 +448,12 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.NearMainnet> {
       const from = await this.getAddress(input)
       const txToSign = await this.buildSendApiTransaction({ ...input, from })
 
-      return { txToSign: { ...txToSign, ...(input.pubKey ? { pubKey: input.pubKey } : {}) } }
+      return {
+        txToSign: {
+          ...txToSign,
+          ...(input.pubKey ? { pubKey: input.pubKey } : {}),
+        },
+      }
     } catch (err) {
       return ErrorHandler(err, {
         translation: 'chainAdapters.errors.buildTransaction',
@@ -479,7 +541,9 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.NearMainnet> {
       const signedTransaction = SignedTransaction.decode(signedTxBytes)
 
       // sendTransaction waits for the transaction to be included (broadcast_tx_commit)
-      const result = await this.provider.sendTransaction(signedTransaction)
+      const result = await this.withRateLimitRetry(() =>
+        this.provider.sendTransaction(signedTransaction),
+      )
 
       // Check for failures - status can be object (FinalExecutionStatus) or string (FinalExecutionStatusBasic)
       const status = result.status
@@ -506,7 +570,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.NearMainnet> {
     input: GetFeeDataInput<KnownChainIds.NearMainnet>,
   ): Promise<FeeDataEstimate<KnownChainIds.NearMainnet>> {
     try {
-      const gasPriceResult = await this.provider.gasPrice(null)
+      const gasPriceResult = await this.withRateLimitRetry(() => this.provider.gasPrice(null))
 
       const gasPrice = gasPriceResult.gas_price
 
@@ -559,7 +623,9 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.NearMainnet> {
   // I swear I didn't invent this, even NEAR docs use 'dontcare': https://docs.near.org/api/rpc/transactions
   async getTransactionStatus(txHash: string, accountId = 'dontcare'): Promise<TxStatus> {
     try {
-      const result = await this.provider.txStatus(txHash, accountId, 'FINAL')
+      const result = await this.withRateLimitRetry(() =>
+        this.provider.txStatus(txHash, accountId, 'FINAL'),
+      )
       const status = result.status
 
       // status can be object (FinalExecutionStatus) or string (FinalExecutionStatusBasic)
@@ -579,10 +645,8 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.NearMainnet> {
   async parseTx(txHash: string, pubkey: string): Promise<Transaction> {
     try {
       // Use pubkey as sender account ID for tx lookup (or 'dontcare' if not available)
-      const result = (await this.provider.txStatus(
-        txHash,
-        pubkey || 'dontcare',
-        'FINAL',
+      const result = (await this.withRateLimitRetry(() =>
+        this.provider.txStatus(txHash, pubkey || 'dontcare', 'FINAL'),
       )) as unknown as NearFullTxResult
 
       const status = (() => {
@@ -597,7 +661,9 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.NearMainnet> {
       const blockHash = result.transaction_outcome.block_hash
 
       // Fetch block details for accurate height and timestamp
-      const blockResult = await this.provider.block({ blockId: blockHash })
+      const blockResult = await this.withRateLimitRetry(() =>
+        this.provider.block({ blockId: blockHash }),
+      )
       const blockHeight = blockResult.header.height
       // NEAR timestamps are in nanoseconds
       const blockTime = Math.floor(blockResult.header.timestamp / 1_000_000_000)

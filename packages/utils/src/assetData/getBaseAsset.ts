@@ -18,6 +18,7 @@ import {
   hyperevm,
   litecoin,
   mayachain,
+  megaeth,
   monad,
   optimism,
   plasma,
@@ -79,6 +80,8 @@ export const getBaseAsset = (chainId: ChainId): Readonly<Asset> => {
       return hyperevm
     case KnownChainIds.PlasmaMainnet:
       return plasma
+    case KnownChainIds.MegaEthMainnet:
+      return megaeth
     case KnownChainIds.ZcashMainnet:
       return zcash
     default:

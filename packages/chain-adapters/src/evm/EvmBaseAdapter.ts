@@ -16,6 +16,7 @@ import {
   supportsETH,
   supportsGnosis,
   supportsHyperEvm,
+  supportsMegaEth,
   supportsMonad,
   supportsOptimism,
   supportsPlasma,
@@ -82,6 +83,7 @@ export const evmChainIds = [
   KnownChainIds.MonadMainnet,
   KnownChainIds.HyperEvmMainnet,
   KnownChainIds.PlasmaMainnet,
+  KnownChainIds.MegaEthMainnet,
 ] as const
 
 export type EvmChainAdapter = EvmBaseAdapter<EvmChainId>
@@ -151,7 +153,12 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
 
   getBip44Params({ accountNumber }: GetBip44ParamsInput): Bip44Params {
     if (accountNumber < 0) throw new Error('accountNumber must be >= 0')
-    return { ...this.rootBip44Params, accountNumber, isChange: false, addressIndex: 0 }
+    return {
+      ...this.rootBip44Params,
+      accountNumber,
+      isChange: false,
+      addressIndex: 0,
+    }
   }
 
   protected assertSupportsChain(
@@ -184,6 +191,8 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
           return supportsHyperEvm(wallet)
         case Number(fromChainId(KnownChainIds.PlasmaMainnet).chainReference):
           return supportsPlasma(wallet)
+        case Number(fromChainId(KnownChainIds.MegaEthMainnet).chainReference):
+          return supportsMegaEth(wallet)
         default:
           return false
       }
@@ -275,6 +284,11 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
         name: 'Plasma',
         symbol: 'XPL',
         explorer: 'https://plasmascan.to',
+      },
+      [KnownChainIds.MegaEthMainnet]: {
+        name: 'Ether',
+        symbol: 'ETH',
+        explorer: 'https://megaeth.blockscout.com',
       },
     }[this.chainId]
 
@@ -665,7 +679,10 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
     const bip44Params = this.getBip44Params({ accountNumber })
     const subscriptionId = toRootDerivationPath(bip44Params)
 
-    this.providers.ws.unsubscribeTxs(subscriptionId, { topic: 'txs', addresses: [] })
+    this.providers.ws.unsubscribeTxs(subscriptionId, {
+      topic: 'txs',
+      addresses: [],
+    })
   }
 
   closeTxs(): void {

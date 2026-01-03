@@ -14,6 +14,7 @@ import {
   hyperEvmChainId,
   ltcChainId,
   mayachainChainId,
+  megaethChainId,
   monadChainId,
   optimismChainId,
   plasmaChainId,
@@ -39,6 +40,7 @@ import {
   supportsGnosis,
   supportsHyperEvm,
   supportsMayachain,
+  supportsMegaEth,
   supportsMonad,
   supportsOptimism,
   supportsPlasma,
@@ -143,6 +145,7 @@ export const walletSupportsChain = ({
 
   const isArbitrumNovaEnabled = selectFeatureFlag(store.getState(), 'ArbitrumNova')
   const isHyperEvmEnabled = selectFeatureFlag(store.getState(), 'HyperEvm')
+  const isMegaEthEnabled = selectFeatureFlag(store.getState(), 'MegaEth')
   const isMonadEnabled = selectFeatureFlag(store.getState(), 'Monad')
   const isPlasmaEnabled = selectFeatureFlag(store.getState(), 'Plasma')
   const isStarknetEnabled = selectFeatureFlag(store.getState(), 'Starknet')
@@ -195,6 +198,8 @@ export const walletSupportsChain = ({
       return isMonadEnabled && supportsMonad(wallet)
     case hyperEvmChainId:
       return isHyperEvmEnabled && supportsHyperEvm(wallet)
+    case megaethChainId:
+      return isMegaEthEnabled && supportsMegaEth(wallet)
     case plasmaChainId:
       return isPlasmaEnabled && supportsPlasma(wallet)
     case cosmosChainId:

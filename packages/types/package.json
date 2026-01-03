@@ -33,6 +33,6 @@
     "@cowprotocol/app-data": "^2.3.0",
     "@shapeshiftoss/caip": "workspace:^",
     "ethers5": "npm:ethers@5.7.2",
-    "viem": "^2.40.3"
+    "viem": "2.43.5"
   }
 }

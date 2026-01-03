@@ -34,6 +34,7 @@ export type FeatureFlags = {
   Monad: boolean
   HyperEvm: boolean
   Plasma: boolean
+  MegaEth: boolean
   Zcash: boolean
   ThorSwap: boolean
   WalletConnectToDapps: boolean
@@ -175,6 +176,7 @@ const initialState: Preferences = {
     Monad: getConfig().VITE_FEATURE_MONAD,
     HyperEvm: getConfig().VITE_FEATURE_HYPEREVM,
     Plasma: getConfig().VITE_FEATURE_PLASMA,
+    MegaEth: getConfig().VITE_FEATURE_MEGAETH,
     Zcash: getConfig().VITE_FEATURE_ZCASH,
     ThorSwap: getConfig().VITE_FEATURE_THOR_SWAP,
     WalletConnectToDappsV2: getConfig().VITE_FEATURE_WALLET_CONNECT_TO_DAPPS_V2,

@@ -8,6 +8,7 @@ import {
   gnosisChainId,
   hyperEvmChainId,
   mayachainChainId,
+  megaethChainId,
   monadChainId,
   optimismChainId,
   polygonChainId,
@@ -70,13 +71,17 @@ class _AssetService {
         // Browser environment - fetch with cache-busting hash
         const manifest = await (async () => {
           try {
-            const { data } = await axios.get<{ assetData: string; relatedAssetIndex: string }>(
-              '/generated/asset-manifest.json',
-            )
+            const { data } = await axios.get<{
+              assetData: string
+              relatedAssetIndex: string
+            }>('/generated/asset-manifest.json')
             return data
           } catch {
             console.warn('asset-manifest.json not found, using timestamp for cache busting')
-            return { assetData: Date.now().toString(), relatedAssetIndex: Date.now().toString() }
+            return {
+              assetData: Date.now().toString(),
+              relatedAssetIndex: Date.now().toString(),
+            }
           }
         })()
 
@@ -119,6 +124,7 @@ class _AssetService {
       if (!config.VITE_FEATURE_TRON && asset.chainId === tronChainId) return false
       if (!config.VITE_FEATURE_MONAD && asset.chainId === monadChainId) return false
       if (!config.VITE_FEATURE_HYPEREVM && asset.chainId === hyperEvmChainId) return false
+      if (!config.VITE_FEATURE_MEGAETH && asset.chainId === megaethChainId) return false
       if (!config.VITE_FEATURE_MAYACHAIN && asset.chainId === mayachainChainId) return false
       if (!config.VITE_FEATURE_ZCASH && asset.chainId === zecChainId) return false
       if (!config.VITE_FEATURE_STARKNET && asset.chainId === starknetChainId) return false

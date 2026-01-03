@@ -12,6 +12,7 @@ import gnosis from '@/plugins/gnosis'
 import hyperevm from '@/plugins/hyperevm'
 import litecoin from '@/plugins/litecoin'
 import mayachain from '@/plugins/mayachain'
+import megaeth from '@/plugins/megaeth'
 import mobile from '@/plugins/mobile'
 import monad from '@/plugins/monad'
 import optimism from '@/plugins/optimism'
@@ -40,6 +41,7 @@ export const activePlugins = [
   hyperevm,
   litecoin,
   mayachain,
+  megaeth,
   mobile,
   monad,
   optimism,

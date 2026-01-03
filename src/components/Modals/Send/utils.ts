@@ -387,13 +387,14 @@ export const handleSend = async ({
       const adapter = assertGetNearChainAdapter(chainId)
       const fees = estimatedFees[feeType] as FeeData<KnownChainIds.NearMainnet>
       const contractAddress = contractAddressOrUndefined(asset.assetId)
+      const pubKey = skipDeviceDerivation ? fromAccountId(sendInput.accountId).account : undefined
 
       return adapter.buildSendTransaction({
         to,
         value,
         wallet,
         accountNumber,
-        pubKey: fromAccountId(sendInput.accountId).account,
+        pubKey,
         sendMax: sendInput.sendMax,
         chainSpecific: {
           gasPrice: fees.chainSpecific.gasPrice,

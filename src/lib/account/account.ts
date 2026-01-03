@@ -1,19 +1,19 @@
-import type { ChainId } from "@shapeshiftoss/caip";
-import { CHAIN_NAMESPACE, fromChainId } from "@shapeshiftoss/caip";
-import type { HDWallet } from "@shapeshiftoss/hdwallet-core";
-import type { AccountMetadataById } from "@shapeshiftoss/types";
-import merge from "lodash/merge";
+import type { ChainId } from '@shapeshiftoss/caip'
+import { CHAIN_NAMESPACE, fromChainId } from '@shapeshiftoss/caip'
+import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
+import type { AccountMetadataById } from '@shapeshiftoss/types'
+import merge from 'lodash/merge'
 
-import { deriveCosmosSdkAccountIdsAndMetadata } from "./cosmosSdk";
-import { deriveEvmAccountIdsAndMetadata } from "./evm";
-import { deriveNearAccountIdsAndMetadata } from "./near";
-import { deriveSolanaAccountIdsAndMetadata } from "./solana";
-import { deriveStarknetAccountIdsAndMetadata } from "./starknet";
-import { deriveSuiAccountIdsAndMetadata } from "./sui";
-import { deriveTronAccountIdsAndMetadata } from "./tron";
-import { deriveUtxoAccountIdsAndMetadata } from "./utxo";
+import { deriveCosmosSdkAccountIdsAndMetadata } from './cosmosSdk'
+import { deriveEvmAccountIdsAndMetadata } from './evm'
+import { deriveNearAccountIdsAndMetadata } from './near'
+import { deriveSolanaAccountIdsAndMetadata } from './solana'
+import { deriveStarknetAccountIdsAndMetadata } from './starknet'
+import { deriveSuiAccountIdsAndMetadata } from './sui'
+import { deriveTronAccountIdsAndMetadata } from './tron'
+import { deriveUtxoAccountIdsAndMetadata } from './utxo'
 
-import { isFulfilled, isRejected } from "@/lib/utils";
+import { isFulfilled, isRejected } from '@/lib/utils'
 
 export const deriveAccountIdsAndMetadataForChainNamespace = {
   [CHAIN_NAMESPACE.CosmosSdk]: deriveCosmosSdkAccountIdsAndMetadata,
@@ -24,30 +24,27 @@ export const deriveAccountIdsAndMetadataForChainNamespace = {
   [CHAIN_NAMESPACE.Sui]: deriveSuiAccountIdsAndMetadata,
   [CHAIN_NAMESPACE.Near]: deriveNearAccountIdsAndMetadata,
   [CHAIN_NAMESPACE.Starknet]: deriveStarknetAccountIdsAndMetadata,
-} as const;
+} as const
 
 export type DeriveAccountIdsAndMetadataArgs = {
-  accountNumber: number;
-  chainIds: ChainId[];
-  wallet: HDWallet;
-  isSnapInstalled: boolean;
-};
-export type DeriveAccountIdsAndMetadataReturn = Promise<AccountMetadataById>;
+  accountNumber: number
+  chainIds: ChainId[]
+  wallet: HDWallet
+  isSnapInstalled: boolean
+}
+export type DeriveAccountIdsAndMetadataReturn = Promise<AccountMetadataById>
 export type DeriveAccountIdsAndMetadata = (
   args: DeriveAccountIdsAndMetadataArgs,
-) => DeriveAccountIdsAndMetadataReturn;
+) => DeriveAccountIdsAndMetadataReturn
 
-export const deriveAccountIdsAndMetadata: DeriveAccountIdsAndMetadata = async (
-  args,
-) => {
-  const { accountNumber, chainIds, wallet, isSnapInstalled } = args;
+export const deriveAccountIdsAndMetadata: DeriveAccountIdsAndMetadata = async args => {
+  const { accountNumber, chainIds, wallet, isSnapInstalled } = args
   if (!Number.isInteger(accountNumber) || accountNumber < 0)
-    throw new Error("invalid accountNumber");
-  type ChainNamespaceKey =
-    (typeof CHAIN_NAMESPACE)[keyof typeof CHAIN_NAMESPACE];
+    throw new Error('invalid accountNumber')
+  type ChainNamespaceKey = (typeof CHAIN_NAMESPACE)[keyof typeof CHAIN_NAMESPACE]
   type ChainIdsByChainNamespace = {
-    [key in ChainNamespaceKey]: ChainId[];
-  };
+    [key in ChainNamespaceKey]: ChainId[]
+  }
   const initial: ChainIdsByChainNamespace = {
     [CHAIN_NAMESPACE.CosmosSdk]: [],
     [CHAIN_NAMESPACE.Evm]: [],
@@ -57,37 +54,36 @@ export const deriveAccountIdsAndMetadata: DeriveAccountIdsAndMetadata = async (
     [CHAIN_NAMESPACE.Sui]: [],
     [CHAIN_NAMESPACE.Near]: [],
     [CHAIN_NAMESPACE.Starknet]: [],
-  };
+  }
   const chainIdsByChainNamespace = chainIds.reduce((acc, chainId) => {
-    const { chainNamespace } = fromChainId(chainId);
-    if (!acc[chainNamespace]) acc[chainNamespace] = [];
-    acc[chainNamespace].push(chainId);
-    return acc;
-  }, initial);
+    const { chainNamespace } = fromChainId(chainId)
+    if (!acc[chainNamespace]) acc[chainNamespace] = []
+    acc[chainNamespace].push(chainId)
+    return acc
+  }, initial)
 
   const settledAccountIdsAndMetadata = await Promise.allSettled(
     Object.entries(chainIdsByChainNamespace).map(([chainNamespace, chainIds]) =>
-      deriveAccountIdsAndMetadataForChainNamespace[
-        chainNamespace as ChainNamespaceKey
-      ]({
+      deriveAccountIdsAndMetadataForChainNamespace[chainNamespace as ChainNamespaceKey]({
         accountNumber,
         chainIds,
         wallet,
         isSnapInstalled,
       }),
     ),
-  );
+  )
 
-  const fulfilledAccountIdsAndMetadata = settledAccountIdsAndMetadata.reduce<
-    AccountMetadataById[]
-  >((acc, result) => {
-    if (isRejected(result)) {
-      console.error(result.reason);
-    } else if (isFulfilled(result)) {
-      acc.push(result.value);
-    }
-    return acc;
-  }, []);
+  const fulfilledAccountIdsAndMetadata = settledAccountIdsAndMetadata.reduce<AccountMetadataById[]>(
+    (acc, result) => {
+      if (isRejected(result)) {
+        console.error(result.reason)
+      } else if (isFulfilled(result)) {
+        acc.push(result.value)
+      }
+      return acc
+    },
+    [],
+  )
 
-  return merge({}, ...fulfilledAccountIdsAndMetadata);
-};
+  return merge({}, ...fulfilledAccountIdsAndMetadata)
+}

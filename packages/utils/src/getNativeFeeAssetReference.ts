@@ -1,13 +1,5 @@
-import type {
-  AssetReference,
-  ChainNamespace,
-  ChainReference,
-} from "@shapeshiftoss/caip";
-import {
-  ASSET_REFERENCE,
-  CHAIN_NAMESPACE,
-  CHAIN_REFERENCE,
-} from "@shapeshiftoss/caip";
+import type { AssetReference, ChainNamespace, ChainReference } from '@shapeshiftoss/caip'
+import { ASSET_REFERENCE, CHAIN_NAMESPACE, CHAIN_REFERENCE } from '@shapeshiftoss/caip'
 
 export const getNativeFeeAssetReference = (
   chainNamespace: ChainNamespace,
@@ -18,113 +10,95 @@ export const getNativeFeeAssetReference = (
       case CHAIN_NAMESPACE.Utxo:
         switch (chainReference) {
           case CHAIN_REFERENCE.BitcoinMainnet:
-            return ASSET_REFERENCE.Bitcoin;
+            return ASSET_REFERENCE.Bitcoin
           case CHAIN_REFERENCE.BitcoinCashMainnet:
-            return ASSET_REFERENCE.BitcoinCash;
+            return ASSET_REFERENCE.BitcoinCash
           case CHAIN_REFERENCE.DogecoinMainnet:
-            return ASSET_REFERENCE.Dogecoin;
+            return ASSET_REFERENCE.Dogecoin
           case CHAIN_REFERENCE.LitecoinMainnet:
-            return ASSET_REFERENCE.Litecoin;
+            return ASSET_REFERENCE.Litecoin
           case CHAIN_REFERENCE.ZcashMainnet:
-            return ASSET_REFERENCE.Zcash;
+            return ASSET_REFERENCE.Zcash
           default:
-            throw new Error(
-              `Chain namespace ${chainNamespace} on ${chainReference} not supported.`,
-            );
+            throw new Error(`Chain namespace ${chainNamespace} on ${chainReference} not supported.`)
         }
       case CHAIN_NAMESPACE.Evm:
         switch (chainReference) {
           case CHAIN_REFERENCE.AvalancheCChain:
-            return ASSET_REFERENCE.AvalancheC;
+            return ASSET_REFERENCE.AvalancheC
           case CHAIN_REFERENCE.EthereumMainnet:
-            return ASSET_REFERENCE.Ethereum;
+            return ASSET_REFERENCE.Ethereum
           case CHAIN_REFERENCE.OptimismMainnet:
-            return ASSET_REFERENCE.Optimism;
+            return ASSET_REFERENCE.Optimism
           case CHAIN_REFERENCE.BnbSmartChainMainnet:
-            return ASSET_REFERENCE.BnbSmartChain;
+            return ASSET_REFERENCE.BnbSmartChain
           case CHAIN_REFERENCE.PolygonMainnet:
-            return ASSET_REFERENCE.Polygon;
+            return ASSET_REFERENCE.Polygon
           case CHAIN_REFERENCE.GnosisMainnet:
-            return ASSET_REFERENCE.Gnosis;
+            return ASSET_REFERENCE.Gnosis
           case CHAIN_REFERENCE.ArbitrumMainnet:
-            return ASSET_REFERENCE.Arbitrum;
+            return ASSET_REFERENCE.Arbitrum
           case CHAIN_REFERENCE.ArbitrumNovaMainnet:
-            return ASSET_REFERENCE.ArbitrumNova;
+            return ASSET_REFERENCE.ArbitrumNova
           case CHAIN_REFERENCE.BaseMainnet:
-            return ASSET_REFERENCE.Base;
+            return ASSET_REFERENCE.Base
           case CHAIN_REFERENCE.MonadMainnet:
-            return ASSET_REFERENCE.Monad;
+            return ASSET_REFERENCE.Monad
           case CHAIN_REFERENCE.HyperEvmMainnet:
-            return ASSET_REFERENCE.HyperEvm;
+            return ASSET_REFERENCE.HyperEvm
           case CHAIN_REFERENCE.PlasmaMainnet:
-            return ASSET_REFERENCE.Plasma;
+            return ASSET_REFERENCE.Plasma
           default:
-            throw new Error(
-              `Chain namespace ${chainNamespace} on ${chainReference} not supported.`,
-            );
+            throw new Error(`Chain namespace ${chainNamespace} on ${chainReference} not supported.`)
         }
       case CHAIN_NAMESPACE.CosmosSdk:
         switch (chainReference) {
           case CHAIN_REFERENCE.CosmosHubMainnet:
-            return ASSET_REFERENCE.Cosmos;
+            return ASSET_REFERENCE.Cosmos
           case CHAIN_REFERENCE.ThorchainMainnet:
-            return ASSET_REFERENCE.Thorchain;
+            return ASSET_REFERENCE.Thorchain
           case CHAIN_REFERENCE.MayachainMainnet:
-            return ASSET_REFERENCE.Mayachain;
+            return ASSET_REFERENCE.Mayachain
           default:
-            throw new Error(
-              `Chain namespace ${chainNamespace} on ${chainReference} not supported.`,
-            );
+            throw new Error(`Chain namespace ${chainNamespace} on ${chainReference} not supported.`)
         }
       case CHAIN_NAMESPACE.Solana:
         switch (chainReference) {
           case CHAIN_REFERENCE.SolanaMainnet:
-            return ASSET_REFERENCE.Solana;
+            return ASSET_REFERENCE.Solana
           default:
-            throw new Error(
-              `Chain namespace ${chainNamespace} on ${chainReference} not supported.`,
-            );
+            throw new Error(`Chain namespace ${chainNamespace} on ${chainReference} not supported.`)
         }
       case CHAIN_NAMESPACE.Tron:
         switch (chainReference) {
           case CHAIN_REFERENCE.TronMainnet:
-            return ASSET_REFERENCE.Tron;
+            return ASSET_REFERENCE.Tron
           default:
-            throw new Error(
-              `Chain namespace ${chainNamespace} on ${chainReference} not supported.`,
-            );
+            throw new Error(`Chain namespace ${chainNamespace} on ${chainReference} not supported.`)
         }
       case CHAIN_NAMESPACE.Sui:
         switch (chainReference) {
           case CHAIN_REFERENCE.SuiMainnet:
-            return ASSET_REFERENCE.Sui;
+            return ASSET_REFERENCE.Sui
           default:
-            throw new Error(
-              `Chain namespace ${chainNamespace} on ${chainReference} not supported.`,
-            );
+            throw new Error(`Chain namespace ${chainNamespace} on ${chainReference} not supported.`)
         }
       case CHAIN_NAMESPACE.Near:
         switch (chainReference) {
           case CHAIN_REFERENCE.NearMainnet:
-            return ASSET_REFERENCE.Near;
+            return ASSET_REFERENCE.Near
           default:
-            throw new Error(
-              `Chain namespace ${chainNamespace} on ${chainReference} not supported.`,
-            );
+            throw new Error(`Chain namespace ${chainNamespace} on ${chainReference} not supported.`)
         }
       case CHAIN_NAMESPACE.Starknet:
         switch (chainReference) {
           case CHAIN_REFERENCE.StarknetMainnet:
-            return ASSET_REFERENCE.Starknet;
+            return ASSET_REFERENCE.Starknet
           default:
-            throw new Error(
-              `Chain namespace ${chainNamespace} on ${chainReference} not supported.`,
-            );
+            throw new Error(`Chain namespace ${chainNamespace} on ${chainReference} not supported.`)
         }
       default:
-        throw new Error(
-          `Chain namespace ${chainNamespace} on ${chainReference} not supported.`,
-        );
+        throw new Error(`Chain namespace ${chainNamespace} on ${chainReference} not supported.`)
     }
-  })();
-};
+  })()
+}

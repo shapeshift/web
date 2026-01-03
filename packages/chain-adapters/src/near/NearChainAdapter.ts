@@ -123,7 +123,9 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.NearMainnet> {
       throw new Error('NearChainAdapter requires at least one RPC URL')
     }
     // FailoverRpcProvider automatically switches between RPC providers on failure
-    const providers = args.rpcUrls.map(url => new JsonRpcProvider({ url }))
+    const providers = args.rpcUrls.map(
+      url => new JsonRpcProvider({ url }, { retries: 2, wait: 500, backoff: 2 }),
+    )
     this.singleProvider = providers[0]
     this.provider = new FailoverRpcProvider(providers)
     this.fastNearApiUrl = args.fastNearApiUrl

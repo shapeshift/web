@@ -1,88 +1,75 @@
-import {
-  bchAssetId,
-  CHAIN_NAMESPACE,
-  fromAccountId,
-  fromChainId,
-} from "@shapeshiftoss/caip";
-import { supportsETH } from "@shapeshiftoss/hdwallet-core";
-import { isGridPlus } from "@shapeshiftoss/hdwallet-gridplus";
-import { isLedger } from "@shapeshiftoss/hdwallet-ledger";
-import { isTrezor } from "@shapeshiftoss/hdwallet-trezor";
-import type { SupportedTradeQuoteStepIndex } from "@shapeshiftoss/swapper";
+import { bchAssetId, CHAIN_NAMESPACE, fromAccountId, fromChainId } from '@shapeshiftoss/caip'
+import { supportsETH } from '@shapeshiftoss/hdwallet-core'
+import { isGridPlus } from '@shapeshiftoss/hdwallet-gridplus'
+import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
+import { isTrezor } from '@shapeshiftoss/hdwallet-trezor'
+import type { SupportedTradeQuoteStepIndex } from '@shapeshiftoss/swapper'
 import {
   getHopByIndex,
   isExecutableTradeQuote,
   SwapperName,
   swappers,
-} from "@shapeshiftoss/swapper";
-import { skipToken, useQuery } from "@tanstack/react-query";
-import { useMemo } from "react";
+} from '@shapeshiftoss/swapper'
+import { skipToken, useQuery } from '@tanstack/react-query'
+import { useMemo } from 'react'
 
-import { getConfig } from "@/config";
-import { useWallet } from "@/hooks/useWallet/useWallet";
-import { assertUnreachable } from "@/lib/utils";
-import { assertGetCosmosSdkChainAdapter } from "@/lib/utils/cosmosSdk";
-import { assertGetEvmChainAdapter } from "@/lib/utils/evm";
-import { assertGetNearChainAdapter } from "@/lib/utils/near";
-import { assertGetSolanaChainAdapter } from "@/lib/utils/solana";
-import { assertGetStarknetChainAdapter } from "@/lib/utils/starknet";
-import { assertGetSuiChainAdapter } from "@/lib/utils/sui";
-import { assertGetTronChainAdapter } from "@/lib/utils/tron";
-import { assertGetUtxoChainAdapter } from "@/lib/utils/utxo";
-import { selectPortfolioAccountMetadataByAccountId } from "@/state/slices/selectors";
+import { getConfig } from '@/config'
+import { useWallet } from '@/hooks/useWallet/useWallet'
+import { assertUnreachable } from '@/lib/utils'
+import { assertGetCosmosSdkChainAdapter } from '@/lib/utils/cosmosSdk'
+import { assertGetEvmChainAdapter } from '@/lib/utils/evm'
+import { assertGetNearChainAdapter } from '@/lib/utils/near'
+import { assertGetSolanaChainAdapter } from '@/lib/utils/solana'
+import { assertGetStarknetChainAdapter } from '@/lib/utils/starknet'
+import { assertGetSuiChainAdapter } from '@/lib/utils/sui'
+import { assertGetTronChainAdapter } from '@/lib/utils/tron'
+import { assertGetUtxoChainAdapter } from '@/lib/utils/utxo'
+import { selectPortfolioAccountMetadataByAccountId } from '@/state/slices/selectors'
 import {
   selectActiveQuote,
   selectActiveSwapperName,
   selectConfirmedTradeExecution,
   selectHopSellAccountId,
   selectTradeSlippagePercentageDecimal,
-} from "@/state/slices/tradeQuoteSlice/selectors";
-import { useAppSelector } from "@/state/store";
+} from '@/state/slices/tradeQuoteSlice/selectors'
+import { useAppSelector } from '@/state/store'
 
 export const useTradeNetworkFeeCryptoBaseUnit = ({
   hopIndex,
   enabled = true,
 }: {
-  hopIndex: SupportedTradeQuoteStepIndex;
-  enabled?: boolean;
+  hopIndex: SupportedTradeQuoteStepIndex
+  enabled?: boolean
 }) => {
-  const wallet = useWallet().state.wallet;
-  const slippageTolerancePercentageDecimal = useAppSelector(
-    selectTradeSlippagePercentageDecimal,
-  );
+  const wallet = useWallet().state.wallet
+  const slippageTolerancePercentageDecimal = useAppSelector(selectTradeSlippagePercentageDecimal)
 
   const hopSellAccountIdFilter = useMemo(() => {
     return {
       hopIndex,
-    };
-  }, [hopIndex]);
+    }
+  }, [hopIndex])
 
-  const confirmedTradeExecution = useAppSelector(selectConfirmedTradeExecution);
-  const sellAssetAccountId = useAppSelector((state) =>
+  const confirmedTradeExecution = useAppSelector(selectConfirmedTradeExecution)
+  const sellAssetAccountId = useAppSelector(state =>
     selectHopSellAccountId(state, hopSellAccountIdFilter),
-  );
+  )
 
   const accountMetadataFilter = useMemo(
     () => ({ accountId: sellAssetAccountId }),
     [sellAssetAccountId],
-  );
-  const accountMetadata = useAppSelector((state) =>
+  )
+  const accountMetadata = useAppSelector(state =>
     selectPortfolioAccountMetadataByAccountId(state, accountMetadataFilter),
-  );
-  const swapperName = useAppSelector(selectActiveSwapperName);
-  const tradeQuote = useAppSelector(selectActiveQuote);
+  )
+  const swapperName = useAppSelector(selectActiveSwapperName)
+  const tradeQuote = useAppSelector(selectActiveQuote)
 
-  const hop = useMemo(
-    () => getHopByIndex(tradeQuote, hopIndex),
-    [tradeQuote, hopIndex],
-  );
-  const swapper = useMemo(
-    () => (swapperName ? swappers[swapperName] : undefined),
-    [swapperName],
-  );
+  const hop = useMemo(() => getHopByIndex(tradeQuote, hopIndex), [tradeQuote, hopIndex])
+  const swapper = useMemo(() => (swapperName ? swappers[swapperName] : undefined), [swapperName])
 
   const quoteNetworkFeesCryptoBaseUnitQuery = useQuery({
-    queryKey: ["quoteNetworkFeesCryptoBaseUnit", tradeQuote],
+    queryKey: ['quoteNetworkFeesCryptoBaseUnit', tradeQuote],
     refetchInterval: 15_000,
     queryFn:
       enabled &&
@@ -95,36 +82,33 @@ export const useTradeNetworkFeeCryptoBaseUnit = ({
       hop &&
       isExecutableTradeQuote(tradeQuote)
         ? async () => {
-            const { accountType, bip44Params } = accountMetadata;
-            const accountNumber = bip44Params.accountNumber;
-            const stepSellAssetChainId = hop.sellAsset.chainId;
-            const stepSellAssetAssetId = hop.sellAsset.assetId;
+            const { accountType, bip44Params } = accountMetadata
+            const accountNumber = bip44Params.accountNumber
+            const stepSellAssetChainId = hop.sellAsset.chainId
+            const stepSellAssetAssetId = hop.sellAsset.assetId
 
             if (swapperName === SwapperName.CowSwap) {
               // No network fees for CowSwap as this is a message signing
-              return "0";
+              return '0'
             }
 
             const { chainNamespace: stepSellAssetChainNamespace } =
-              fromChainId(stepSellAssetChainId);
+              fromChainId(stepSellAssetChainId)
 
-            const pubKey = fromAccountId(sellAssetAccountId).account;
+            const pubKey = fromAccountId(sellAssetAccountId).account
             const skipDeviceDerivation =
-              wallet &&
-              (isLedger(wallet) || isTrezor(wallet) || isGridPlus(wallet));
+              wallet && (isLedger(wallet) || isTrezor(wallet) || isGridPlus(wallet))
 
             switch (stepSellAssetChainNamespace) {
               case CHAIN_NAMESPACE.Evm: {
-                if (!swapper.getEvmTransactionFees)
-                  throw Error("missing getEvmTransactionFees");
-                const adapter = assertGetEvmChainAdapter(stepSellAssetChainId);
+                if (!swapper.getEvmTransactionFees) throw Error('missing getEvmTransactionFees')
+                const adapter = assertGetEvmChainAdapter(stepSellAssetChainId)
                 const from = await adapter.getAddress({
                   accountNumber,
                   wallet,
                   pubKey: skipDeviceDerivation ? pubKey : undefined,
-                });
-                const supportsEIP1559 =
-                  supportsETH(wallet) && (await wallet.ethSupportsEIP1559());
+                })
+                const supportsEIP1559 = supportsETH(wallet) && (await wallet.ethSupportsEIP1559())
 
                 const output = await swapper.getEvmTransactionFees({
                   chainId: hop.sellAsset.chainId,
@@ -132,41 +116,32 @@ export const useTradeNetworkFeeCryptoBaseUnit = ({
                   stepIndex: hopIndex,
                   slippageTolerancePercentageDecimal,
                   // permit2Signature is zrx-specific and always on the first hop
-                  permit2Signature:
-                    confirmedTradeExecution?.firstHop.permit2?.permit2Signature,
+                  permit2Signature: confirmedTradeExecution?.firstHop.permit2?.permit2Signature,
                   from,
                   supportsEIP1559,
                   config: getConfig(),
                   assertGetEvmChainAdapter,
-                });
-                return output;
+                })
+                return output
               }
               case CHAIN_NAMESPACE.Utxo: {
-                if (!swapper.getUtxoTransactionFees)
-                  throw Error("missing getUtxoTransactionFees");
-                if (accountType === undefined)
-                  throw Error("Missing UTXO account type");
+                if (!swapper.getUtxoTransactionFees) throw Error('missing getUtxoTransactionFees')
+                if (accountType === undefined) throw Error('Missing UTXO account type')
 
-                const adapter = assertGetUtxoChainAdapter(stepSellAssetChainId);
+                const adapter = assertGetUtxoChainAdapter(stepSellAssetChainId)
                 const xpub = skipDeviceDerivation
                   ? fromAccountId(sellAssetAccountId).account
-                  : (
-                      await adapter.getPublicKey(
-                        wallet,
-                        accountNumber,
-                        accountType,
-                      )
-                    ).xpub;
+                  : (await adapter.getPublicKey(wallet, accountNumber, accountType)).xpub
                 const _senderAddress = await adapter.getAddress({
                   accountNumber,
                   accountType,
                   wallet,
                   ...(skipDeviceDerivation ? { pubKey } : {}),
-                });
+                })
                 const senderAddress =
                   stepSellAssetAssetId === bchAssetId
-                    ? _senderAddress.replace("bitcoincash:", "")
-                    : _senderAddress;
+                    ? _senderAddress.replace('bitcoincash:', '')
+                    : _senderAddress
 
                 const output = await swapper.getUtxoTransactionFees({
                   tradeQuote,
@@ -178,20 +153,19 @@ export const useTradeNetworkFeeCryptoBaseUnit = ({
                   senderAddress,
                   config: getConfig(),
                   assertGetUtxoChainAdapter,
-                });
-                return output;
+                })
+                return output
               }
               case CHAIN_NAMESPACE.CosmosSdk: {
                 if (!swapper.getCosmosSdkTransactionFees)
-                  throw Error("missing getCosmosSdkTransactionFees");
+                  throw Error('missing getCosmosSdkTransactionFees')
 
-                const adapter =
-                  assertGetCosmosSdkChainAdapter(stepSellAssetChainId);
+                const adapter = assertGetCosmosSdkChainAdapter(stepSellAssetChainId)
                 const from = await adapter.getAddress({
                   accountNumber,
                   wallet,
                   ...(skipDeviceDerivation ? { pubKey } : {}),
-                });
+                })
 
                 const output = await swapper.getCosmosSdkTransactionFees({
                   stepIndex: hopIndex,
@@ -201,20 +175,19 @@ export const useTradeNetworkFeeCryptoBaseUnit = ({
                   config: getConfig(),
                   slippageTolerancePercentageDecimal,
                   assertGetCosmosSdkChainAdapter,
-                });
-                return output;
+                })
+                return output
               }
               case CHAIN_NAMESPACE.Solana: {
                 if (!swapper.getSolanaTransactionFees)
-                  throw Error("missing getSolanaTransactionFees");
+                  throw Error('missing getSolanaTransactionFees')
 
-                const adapter =
-                  assertGetSolanaChainAdapter(stepSellAssetChainId);
+                const adapter = assertGetSolanaChainAdapter(stepSellAssetChainId)
                 const from = await adapter.getAddress({
                   accountNumber,
                   wallet,
                   ...(skipDeviceDerivation ? { pubKey } : {}),
-                });
+                })
 
                 const output = await swapper.getSolanaTransactionFees({
                   tradeQuote,
@@ -224,19 +197,18 @@ export const useTradeNetworkFeeCryptoBaseUnit = ({
                   chainId: hop.sellAsset.chainId,
                   config: getConfig(),
                   assertGetSolanaChainAdapter,
-                });
-                return output;
+                })
+                return output
               }
               case CHAIN_NAMESPACE.Tron: {
-                if (!swapper.getTronTransactionFees)
-                  throw Error("missing getTronTransactionFees");
+                if (!swapper.getTronTransactionFees) throw Error('missing getTronTransactionFees')
 
-                const adapter = assertGetTronChainAdapter(stepSellAssetChainId);
+                const adapter = assertGetTronChainAdapter(stepSellAssetChainId)
                 const from = await adapter.getAddress({
                   accountNumber,
                   wallet,
                   ...(isLedger(wallet) || isTrezor(wallet) ? { pubKey } : {}),
-                });
+                })
 
                 const output = await swapper.getTronTransactionFees({
                   tradeQuote,
@@ -246,19 +218,18 @@ export const useTradeNetworkFeeCryptoBaseUnit = ({
                   chainId: hop.sellAsset.chainId,
                   config: getConfig(),
                   assertGetTronChainAdapter,
-                });
-                return output;
+                })
+                return output
               }
               case CHAIN_NAMESPACE.Sui: {
-                if (!swapper.getSuiTransactionFees)
-                  throw Error("missing getSuiTransactionFees");
+                if (!swapper.getSuiTransactionFees) throw Error('missing getSuiTransactionFees')
 
-                const adapter = assertGetSuiChainAdapter(stepSellAssetChainId);
+                const adapter = assertGetSuiChainAdapter(stepSellAssetChainId)
                 const from = await adapter.getAddress({
                   accountNumber,
                   wallet,
                   ...(skipDeviceDerivation ? { pubKey } : {}),
-                });
+                })
 
                 const output = await swapper.getSuiTransactionFees({
                   tradeQuote,
@@ -268,19 +239,18 @@ export const useTradeNetworkFeeCryptoBaseUnit = ({
                   chainId: hop.sellAsset.chainId,
                   config: getConfig(),
                   assertGetSuiChainAdapter,
-                });
-                return output;
+                })
+                return output
               }
               case CHAIN_NAMESPACE.Near: {
-                if (!swapper.getNearTransactionFees)
-                  throw Error("missing getNearTransactionFees");
+                if (!swapper.getNearTransactionFees) throw Error('missing getNearTransactionFees')
 
-                const adapter = assertGetNearChainAdapter(stepSellAssetChainId);
+                const adapter = assertGetNearChainAdapter(stepSellAssetChainId)
                 const from = await adapter.getAddress({
                   accountNumber,
                   wallet,
                   ...(skipDeviceDerivation ? { pubKey } : {}),
-                });
+                })
 
                 const output = await swapper.getNearTransactionFees({
                   tradeQuote,
@@ -290,20 +260,19 @@ export const useTradeNetworkFeeCryptoBaseUnit = ({
                   chainId: hop.sellAsset.chainId,
                   config: getConfig(),
                   assertGetNearChainAdapter,
-                });
-                return output;
+                })
+                return output
               }
               case CHAIN_NAMESPACE.Starknet: {
                 if (!swapper.getStarknetTransactionFees)
-                  throw Error("missing getStarknetTransactionFees");
+                  throw Error('missing getStarknetTransactionFees')
 
-                const adapter =
-                  assertGetStarknetChainAdapter(stepSellAssetChainId);
+                const adapter = assertGetStarknetChainAdapter(stepSellAssetChainId)
                 const from = await adapter.getAddress({
                   accountNumber,
                   wallet,
                   ...(skipDeviceDerivation ? { pubKey } : {}),
-                });
+                })
 
                 const output = await swapper.getStarknetTransactionFees({
                   tradeQuote,
@@ -313,15 +282,15 @@ export const useTradeNetworkFeeCryptoBaseUnit = ({
                   chainId: hop.sellAsset.chainId,
                   config: getConfig(),
                   assertGetStarknetChainAdapter,
-                });
-                return output;
+                })
+                return output
               }
               default:
-                assertUnreachable(stepSellAssetChainNamespace);
+                assertUnreachable(stepSellAssetChainNamespace)
             }
           }
         : skipToken,
-  });
+  })
 
-  return quoteNetworkFeesCryptoBaseUnitQuery;
-};
+  return quoteNetworkFeesCryptoBaseUnitQuery
+}

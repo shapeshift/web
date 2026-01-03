@@ -1,4 +1,4 @@
-import type { AccountId, ChainId } from "@shapeshiftoss/caip";
+import type { AccountId, ChainId } from '@shapeshiftoss/caip'
 import {
   arbitrumChainId,
   arbitrumNovaChainId,
@@ -25,9 +25,9 @@ import {
   thorchainChainId,
   tronChainId,
   zecChainId,
-} from "@shapeshiftoss/caip";
-import { isEvmChainId } from "@shapeshiftoss/chain-adapters";
-import type { HDWallet } from "@shapeshiftoss/hdwallet-core";
+} from '@shapeshiftoss/caip'
+import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
+import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import {
   supportsArbitrum,
   supportsArbitrumNova,
@@ -49,33 +49,29 @@ import {
   supportsSui,
   supportsThorchain,
   supportsTron,
-} from "@shapeshiftoss/hdwallet-core";
-import { GridPlusHDWallet } from "@shapeshiftoss/hdwallet-gridplus";
-import { isMetaMask } from "@shapeshiftoss/hdwallet-metamask-multichain";
-import { PhantomHDWallet } from "@shapeshiftoss/hdwallet-phantom";
-import { VultisigHDWallet } from "@shapeshiftoss/hdwallet-vultisig";
-import { useMemo } from "react";
+} from '@shapeshiftoss/hdwallet-core'
+import { GridPlusHDWallet } from '@shapeshiftoss/hdwallet-gridplus'
+import { isMetaMask } from '@shapeshiftoss/hdwallet-metamask-multichain'
+import { PhantomHDWallet } from '@shapeshiftoss/hdwallet-phantom'
+import { VultisigHDWallet } from '@shapeshiftoss/hdwallet-vultisig'
+import { useMemo } from 'react'
 
-import { KeyManager } from "@/context/WalletProvider/KeyManager";
-import { useIsSnapInstalled } from "@/hooks/useIsSnapInstalled/useIsSnapInstalled";
-import { useWallet } from "@/hooks/useWallet/useWallet";
-import { METAMASK_RDNS } from "@/lib/mipd";
-import {
-  isLedgerHDWallet,
-  isNativeHDWallet,
-  isTrezorHDWallet,
-} from "@/lib/utils";
-import { supportsNear } from "@/lib/utils/near";
-import { selectAccountIdsByChainIdFilter } from "@/state/slices/portfolioSlice/selectors";
-import { selectFeatureFlag } from "@/state/slices/selectors";
-import { store, useAppSelector } from "@/state/store";
+import { KeyManager } from '@/context/WalletProvider/KeyManager'
+import { useIsSnapInstalled } from '@/hooks/useIsSnapInstalled/useIsSnapInstalled'
+import { useWallet } from '@/hooks/useWallet/useWallet'
+import { METAMASK_RDNS } from '@/lib/mipd'
+import { isLedgerHDWallet, isNativeHDWallet, isTrezorHDWallet } from '@/lib/utils'
+import { supportsNear } from '@/lib/utils/near'
+import { selectAccountIdsByChainIdFilter } from '@/state/slices/portfolioSlice/selectors'
+import { selectFeatureFlag } from '@/state/slices/selectors'
+import { store, useAppSelector } from '@/state/store'
 
 type CheckWalletHasRuntimeSupportArgs = {
-  isSnapInstalled: boolean | null;
-  chainId: ChainId;
-  wallet: HDWallet | null;
-  connectedType?: KeyManager | null;
-};
+  isSnapInstalled: boolean | null
+  chainId: ChainId
+  wallet: HDWallet | null
+  connectedType?: KeyManager | null
+}
 
 const checkWalletHasRuntimeSupport = ({
   chainId,
@@ -83,9 +79,9 @@ const checkWalletHasRuntimeSupport = ({
   isSnapInstalled,
   connectedType,
 }: CheckWalletHasRuntimeSupportArgs) => {
-  if (!wallet && connectedType === KeyManager.Ledger) return true;
+  if (!wallet && connectedType === KeyManager.Ledger) return true
 
-  if (!wallet) return false;
+  if (!wallet) return false
 
   // Non-EVM ChainIds are only supported with the MM multichain snap installed
   if (
@@ -95,23 +91,23 @@ const checkWalletHasRuntimeSupport = ({
     (!isSnapInstalled || wallet.providerRdns !== METAMASK_RDNS) &&
     !isEvmChainId(chainId)
   )
-    return false;
+    return false
 
   // We are now sure we have runtime support for the chain.
   // This is either a Ledger with supported chain account ids, a MM wallet with snaps installed, or
   // any other wallet, which supports static wallet feature-detection
-  return true;
-};
+  return true
+}
 
 type WalletSupportsChainArgs = {
-  isSnapInstalled: boolean | null;
-  chainId: ChainId;
-  wallet: HDWallet | null;
+  isSnapInstalled: boolean | null
+  chainId: ChainId
+  wallet: HDWallet | null
   // The connected account ids to check against. If set to false, the currently connected account
   // ids will not be checked (used for initial boot)
-  checkConnectedAccountIds: AccountId[] | false;
-  connectedType?: KeyManager | null;
-};
+  checkConnectedAccountIds: AccountId[] | false
+  connectedType?: KeyManager | null
+}
 
 // use outside react
 export const walletSupportsChain = ({
@@ -123,19 +119,17 @@ export const walletSupportsChain = ({
 }: WalletSupportsChainArgs): boolean => {
   // If the user has no connected chain account ids, the user can't use it to interact with the chain
   if (checkConnectedAccountIds !== false && !checkConnectedAccountIds.length) {
-    return false;
+    return false
   }
 
   // Handle Ledger read-only mode
   if (!wallet && connectedType === KeyManager.Ledger) {
     // For Ledger read-only, if we have account IDs for this chain, it means this Ledger supports it
-    return (
-      checkConnectedAccountIds !== false && checkConnectedAccountIds.length > 0
-    );
+    return checkConnectedAccountIds !== false && checkConnectedAccountIds.length > 0
   }
 
   if (!wallet) {
-    return false;
+    return false
   }
   // A wallet may have feature-capabilities for a chain, but not have runtime support for it
   // e.g MM without snaps installed
@@ -144,94 +138,89 @@ export const walletSupportsChain = ({
     isSnapInstalled,
     chainId,
     connectedType,
-  });
+  })
 
   // We have no runtime support for the current ChainId - trying and checking for feature-capabilities flags is futile
-  if (!hasRuntimeSupport) return false;
+  if (!hasRuntimeSupport) return false
 
-  const isArbitrumNovaEnabled = selectFeatureFlag(
-    store.getState(),
-    "ArbitrumNova",
-  );
-  const isHyperEvmEnabled = selectFeatureFlag(store.getState(), "HyperEvm");
-  const isMonadEnabled = selectFeatureFlag(store.getState(), "Monad");
-  const isNearEnabled = selectFeatureFlag(store.getState(), "Near");
-  const isPlasmaEnabled = selectFeatureFlag(store.getState(), "Plasma");
-  const isStarknetEnabled = selectFeatureFlag(store.getState(), "Starknet");
+  const isArbitrumNovaEnabled = selectFeatureFlag(store.getState(), 'ArbitrumNova')
+  const isHyperEvmEnabled = selectFeatureFlag(store.getState(), 'HyperEvm')
+  const isMonadEnabled = selectFeatureFlag(store.getState(), 'Monad')
+  const isNearEnabled = selectFeatureFlag(store.getState(), 'Near')
+  const isPlasmaEnabled = selectFeatureFlag(store.getState(), 'Plasma')
+  const isStarknetEnabled = selectFeatureFlag(store.getState(), 'Starknet')
 
   switch (chainId) {
     case btcChainId:
-      return supportsBTC(wallet);
+      return supportsBTC(wallet)
     case bchChainId:
       return (
         supportsBTC(wallet) &&
         !(wallet instanceof PhantomHDWallet) &&
         !(wallet instanceof GridPlusHDWallet)
-      );
+      )
     case dogeChainId:
       return (
         supportsBTC(wallet) &&
         !(wallet instanceof PhantomHDWallet) &&
         !(wallet instanceof GridPlusHDWallet)
-      );
+      )
     case ltcChainId:
       return (
         supportsBTC(wallet) &&
         !(wallet instanceof PhantomHDWallet) &&
         !(wallet instanceof GridPlusHDWallet)
-      );
+      )
     case zecChainId:
       return (
         supportsBTC(wallet) &&
-        (isNativeHDWallet(wallet) ||
-          isLedgerHDWallet(wallet) ||
-          isTrezorHDWallet(wallet))
-      );
+        (isNativeHDWallet(wallet) || isLedgerHDWallet(wallet) || isTrezorHDWallet(wallet))
+      )
     case ethChainId:
-      return supportsETH(wallet);
+      return supportsETH(wallet)
     case avalancheChainId:
-      return supportsAvalanche(wallet);
+      return supportsAvalanche(wallet)
     case optimismChainId:
-      return supportsOptimism(wallet);
+      return supportsOptimism(wallet)
     case bscChainId:
-      return supportsBSC(wallet);
+      return supportsBSC(wallet)
     case polygonChainId:
-      return supportsPolygon(wallet);
+      return supportsPolygon(wallet)
     case gnosisChainId:
-      return supportsGnosis(wallet);
+      return supportsGnosis(wallet)
     case arbitrumChainId:
-      return supportsArbitrum(wallet);
+      return supportsArbitrum(wallet)
     case arbitrumNovaChainId:
-      return isArbitrumNovaEnabled && supportsArbitrumNova(wallet);
+      return isArbitrumNovaEnabled && supportsArbitrumNova(wallet)
     case baseChainId:
-      return supportsBase(wallet);
+      return supportsBase(wallet)
     case monadChainId:
-      return isMonadEnabled && supportsMonad(wallet);
+      return isMonadEnabled && supportsMonad(wallet)
     case hyperEvmChainId:
-      return isHyperEvmEnabled && supportsHyperEvm(wallet);
+      return isHyperEvmEnabled && supportsHyperEvm(wallet)
     case plasmaChainId:
-      return isPlasmaEnabled && supportsPlasma(wallet);
+      return isPlasmaEnabled && supportsPlasma(wallet)
     case cosmosChainId:
-      return supportsCosmos(wallet);
+      return supportsCosmos(wallet)
     case thorchainChainId:
-      return supportsThorchain(wallet);
+      return supportsThorchain(wallet)
     case mayachainChainId:
-      return supportsMayachain(wallet);
+      return supportsMayachain(wallet)
     case solanaChainId:
-      return supportsSolana(wallet) && !(wallet instanceof VultisigHDWallet);
+      return supportsSolana(wallet) && !(wallet instanceof VultisigHDWallet)
     case tronChainId:
-      return supportsTron(wallet);
+      return supportsTron(wallet)
     case suiChainId:
-      return supportsSui(wallet);
+      return supportsSui(wallet)
     case nearChainId:
-      return isNearEnabled && supportsNear(wallet);
+      return isNearEnabled && supportsNear(wallet)
     case starknetChainId:
-      return isStarknetEnabled && supportsStarknet(wallet);
+      return isStarknetEnabled && supportsStarknet(wallet)
     default: {
-      return false;
+      return false
     }
   }
-};
+}
 
 export const useWalletSupportsChain = (
   chainId: ChainId,
@@ -240,14 +229,14 @@ export const useWalletSupportsChain = (
   // MetaMaskMultiChainHDWallet is the reference EIP-1193 JavaScript provider implementation, but also includes snaps support hardcoded in feature capabilities
   // However we might be in a state where the wallet adapter is MetaMaskMultiChainHDWallet, but the actual underlying wallet
   // doesn't have multichain capabilities since snaps isn't installed/the connected wallet isn't *actual* MM
-  const { isSnapInstalled } = useIsSnapInstalled();
-  const { state } = useWallet();
-  const connectedType = state.connectedType;
+  const { isSnapInstalled } = useIsSnapInstalled()
+  const { state } = useWallet()
+  const connectedType = state.connectedType
 
-  const chainAccountIdsFilter = useMemo(() => ({ chainId }), [chainId]);
-  const chainAccountIds = useAppSelector((state) =>
+  const chainAccountIdsFilter = useMemo(() => ({ chainId }), [chainId])
+  const chainAccountIds = useAppSelector(state =>
     selectAccountIdsByChainIdFilter(state, chainAccountIdsFilter),
-  );
+  )
 
   const result = useMemo(() => {
     return walletSupportsChain({
@@ -256,19 +245,19 @@ export const useWalletSupportsChain = (
       wallet,
       checkConnectedAccountIds: chainAccountIds,
       connectedType,
-    });
-  }, [chainAccountIds, chainId, isSnapInstalled, wallet, connectedType]);
+    })
+  }, [chainAccountIds, chainId, isSnapInstalled, wallet, connectedType])
 
-  return result;
-};
+  return result
+}
 
 export const useWalletSupportsChainAtRuntime = (
   chainId: ChainId,
   wallet: HDWallet | null,
 ): boolean | null => {
-  const { isSnapInstalled } = useIsSnapInstalled();
-  const { state } = useWallet();
-  const connectedType = state.connectedType;
+  const { isSnapInstalled } = useIsSnapInstalled()
+  const { state } = useWallet()
+  const connectedType = state.connectedType
 
   const result = useMemo(() => {
     return checkWalletHasRuntimeSupport({
@@ -276,8 +265,8 @@ export const useWalletSupportsChainAtRuntime = (
       chainId,
       wallet,
       connectedType,
-    });
-  }, [chainId, isSnapInstalled, wallet, connectedType]);
+    })
+  }, [chainId, isSnapInstalled, wallet, connectedType])
 
-  return result;
-};
+  return result
+}

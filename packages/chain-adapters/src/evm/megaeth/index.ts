@@ -1,1 +1,1 @@
-export * from "./MegaEthChainAdapter";
+export * from './MegaEthChainAdapter'

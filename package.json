@@ -180,7 +180,7 @@
     "p-queue": "^8.0.1",
     "p-ratelimit": "^1.0.1",
     "pretty-ms": "7.0.1",
-    "qs": "^6.10.5",
+    "qs": "^6.14.1",
     "re-reselect": "^4.0.0",
     "react": "^19.0.0",
     "react-canvas-confetti": "^2.0.7",

@@ -59,17 +59,12 @@ export const useSendActionSubscriber = () => {
       const isSecondClassChain = SECOND_CLASS_CHAINS.includes(chainId as KnownChainIds)
 
       if (isSecondClassChain) {
-        const { getAccount } = portfolioApi.endpoints
+        const { getAccountsBatch } = portfolioApi.endpoints
         const accountIdsToRefreshList = accountIdsToRefetch ?? [accountId]
 
-        accountIdsToRefreshList.forEach(accountIdToRefresh => {
-          dispatch(
-            getAccount.initiate(
-              { accountId: accountIdToRefresh, upsertOnFetch: true },
-              { forceRefetch: true },
-            ),
-          )
-        })
+        dispatch(
+          getAccountsBatch.initiate({ accountIds: accountIdsToRefreshList }, { forceRefetch: true }),
+        )
       }
 
       const isActive = toast.isActive(txHash)

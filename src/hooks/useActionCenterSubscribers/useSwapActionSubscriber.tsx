@@ -320,15 +320,10 @@ export const useSwapActionSubscriber = () => {
           }
         }
 
-        const { getAccount } = portfolioApi.endpoints
+        const accountIdsToRefresh: string[] = []
 
         if (isSellSecondClassChain) {
-          dispatch(
-            getAccount.initiate(
-              { accountId: swap.sellAccountId, upsertOnFetch: true },
-              { forceRefetch: true },
-            ),
-          )
+          accountIdsToRefresh.push(swap.sellAccountId)
         }
 
         if (swap.buyAccountId && swap.buyAccountId !== swap.sellAccountId) {
@@ -336,13 +331,15 @@ export const useSwapActionSubscriber = () => {
           const isBuySecondClassChain = SECOND_CLASS_CHAINS.includes(buyChainId as KnownChainIds)
 
           if (isBuySecondClassChain) {
-            dispatch(
-              getAccount.initiate(
-                { accountId: swap.buyAccountId, upsertOnFetch: true },
-                { forceRefetch: true },
-              ),
-            )
+            accountIdsToRefresh.push(swap.buyAccountId)
           }
+        }
+
+        if (accountIdsToRefresh.length > 0) {
+          const { getAccountsBatch } = portfolioApi.endpoints
+          dispatch(
+            getAccountsBatch.initiate({ accountIds: accountIdsToRefresh }, { forceRefetch: true }),
+          )
         }
 
         if (

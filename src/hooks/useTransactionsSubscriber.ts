@@ -5,7 +5,7 @@ import { isGridPlus } from '@shapeshiftoss/hdwallet-gridplus'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import { isTrezor } from '@shapeshiftoss/hdwallet-trezor'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { useSelector } from 'react-redux'
 
 import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
@@ -27,9 +27,36 @@ import {
 import { txHistory } from '@/state/slices/txHistorySlice/txHistorySlice'
 import { useAppDispatch } from '@/state/store'
 
+const ACCOUNT_REFRESH_DEBOUNCE_MS = 100
+
 export const useTransactionsSubscriber = () => {
   const dispatch = useAppDispatch()
   const [isSubscribed, setIsSubscribed] = useState<boolean>(false)
+  const pendingAccountRefreshes = useRef<Set<AccountId>>(new Set())
+  const debounceTimer = useRef<NodeJS.Timeout | null>(null)
+
+  const flushAccountRefreshes = useCallback(() => {
+    if (pendingAccountRefreshes.current.size === 0) return
+
+    const accountIds = Array.from(pendingAccountRefreshes.current)
+    pendingAccountRefreshes.current.clear()
+
+    const { getAccountsBatch } = portfolioApi.endpoints
+    dispatch(getAccountsBatch.initiate({ accountIds }, { forceRefetch: true }))
+  }, [dispatch])
+
+  const queueAccountRefresh = useCallback(
+    (accountId: AccountId) => {
+      pendingAccountRefreshes.current.add(accountId)
+
+      if (debounceTimer.current) {
+        clearTimeout(debounceTimer.current)
+      }
+
+      debounceTimer.current = setTimeout(flushAccountRefreshes, ACCOUNT_REFRESH_DEBOUNCE_MS)
+    },
+    [flushAccountRefreshes],
+  )
   const {
     state: { isConnected, wallet },
   } = useWallet()
@@ -163,13 +190,10 @@ export const useTransactionsSubscriber = () => {
             pubKey: skipDeviceDerivation ? fromAccountId(accountId).account : undefined,
           },
           msg => {
-            const { getAccount } = portfolioApi.endpoints
             const { onMessage } = txHistory.actions
 
-            // refetch account on new tx
-            dispatch(
-              getAccount.initiate({ accountId, upsertOnFetch: true }, { forceRefetch: true }),
-            )
+            // queue account refresh with debounced batching
+            queueAccountRefresh(accountId)
 
             maybeRefetchOpportunities(msg, accountId)
 
@@ -194,6 +218,15 @@ export const useTransactionsSubscriber = () => {
     maybeRefetchOpportunities,
     portfolioAccountMetadata,
     portfolioLoadingStatus,
+    queueAccountRefresh,
     wallet,
   ])
+
+  useEffect(() => {
+    return () => {
+      if (debounceTimer.current) {
+        clearTimeout(debounceTimer.current)
+      }
+    }
+  }, [])
 }

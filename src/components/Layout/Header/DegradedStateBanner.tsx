@@ -113,14 +113,14 @@ export const DegradedStateBanner = memo(() => {
       })
     })
 
-    erroredAccountIds.forEach(accountId =>
+    if (erroredAccountIds.length > 0) {
       dispatch(
-        portfolioApi.endpoints.getAccount.initiate(
-          { accountId, upsertOnFetch: true },
+        portfolioApi.endpoints.getAccountsBatch.initiate(
+          { accountIds: erroredAccountIds },
           { forceRefetch: true },
         ),
-      ),
-    )
+      )
+    }
   }, [dispatch, erroredAccountIds, deviceId, isSnapInstalled, degradedChainIds, queryClient])
 
   const renderIcons = useMemo(() => {

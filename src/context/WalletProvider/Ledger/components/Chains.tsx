@@ -75,32 +75,25 @@ export const LedgerChains = () => {
         })
 
         const accountIds = Object.keys(accountMetadataByAccountId)
-        const { getAccount } = portfolioApi.endpoints
-        const opts = { forceRefetch: true }
-        const accountPromises = accountIds.map(accountId =>
-          dispatch(getAccount.initiate({ accountId }, opts)),
+        const { getAccountsBatch } = portfolioApi.endpoints
+
+        const result = await dispatch(
+          getAccountsBatch.initiate({ accountIds }, { forceRefetch: true }),
         )
-        const accountResults = await Promise.allSettled(accountPromises)
+        const combinedPortfolio = result.data
 
-        const balanceByChainId = accountResults.reduce<Record<ChainId, BN>>((acc, res, idx) => {
-          if (res.status === 'rejected') {
-            console.error(`Failed to fetch account ${accountIds[idx]}`, res.reason)
-            return acc
-          }
-          const { data: account } = res.value
-          if (!account) return acc
-
-          const accountId = accountIds[idx]
+        const balanceByChainId = accountIds.reduce<Record<ChainId, BN>>((acc, accountId) => {
           const { chainId } = fromAccountId(accountId)
-          const accountBalance = Object.values(account.accountBalances.byId).reduce(
-            (acc, byAssetId) => {
-              Object.values(byAssetId).forEach(balance => (acc = acc.plus(bnOrZero(balance))))
-              return acc
-            },
-            bnOrZero(0),
-          )
 
-          acc[chainId] = bnOrZero(acc[chainId]).plus(accountBalance)
+          if (combinedPortfolio?.accountBalances?.byId) {
+            Object.values(combinedPortfolio.accountBalances.byId).forEach(byAssetId => {
+              if (byAssetId) {
+                Object.values(byAssetId).forEach(balance => {
+                  acc[chainId] = bnOrZero(acc[chainId]).plus(bnOrZero(balance))
+                })
+              }
+            })
+          }
 
           const accountMetadata = accountMetadataByAccountId[accountId]
           const payload = {
@@ -109,7 +102,6 @@ export const LedgerChains = () => {
           }
 
           dispatch(portfolio.actions.upsertAccountMetadata(payload))
-          dispatch(portfolio.actions.upsertPortfolio(account))
           dispatch(portfolio.actions.enableAccountId(accountId))
           return acc
         }, {})

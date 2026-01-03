@@ -1,19 +1,23 @@
-export type { EvmChainAdapter } from './EvmBaseAdapter'
-export { isEvmChainId, evmChainIds, EvmBaseAdapter } from './EvmBaseAdapter'
-export { SecondClassEvmAdapter } from './SecondClassEvmAdapter'
-export type { SecondClassEvmAdapterArgs, TokenInfo } from './SecondClassEvmAdapter'
+export type { EvmChainAdapter } from "./EvmBaseAdapter";
+export { isEvmChainId, evmChainIds, EvmBaseAdapter } from "./EvmBaseAdapter";
+export { SecondClassEvmAdapter } from "./SecondClassEvmAdapter";
+export type {
+  SecondClassEvmAdapterArgs,
+  TokenInfo,
+} from "./SecondClassEvmAdapter";
 
-export * as evm from './evm'
+export * as evm from "./evm";
 
-export * as ethereum from './ethereum'
-export * as avalanche from './avalanche'
-export * as optimism from './optimism'
-export * as polygon from './polygon'
-export * as gnosis from './gnosis'
-export * as bnbsmartchain from './bnbsmartchain'
-export * as arbitrum from './arbitrum'
-export * as arbitrumNova from './arbitrumNova'
-export * as base from './base'
-export * as monad from './monad'
-export * as hyperevm from './hyperevm'
-export * as plasma from './plasma'
+export * as ethereum from "./ethereum";
+export * as avalanche from "./avalanche";
+export * as optimism from "./optimism";
+export * as polygon from "./polygon";
+export * as gnosis from "./gnosis";
+export * as bnbsmartchain from "./bnbsmartchain";
+export * as arbitrum from "./arbitrum";
+export * as arbitrumNova from "./arbitrumNova";
+export * as base from "./base";
+export * as monad from "./monad";
+export * as hyperevm from "./hyperevm";
+export * as plasma from "./plasma";
+export * as megaeth from "./megaeth";

@@ -1,29 +1,30 @@
-import arbitrum from '@/plugins/arbitrum'
-import arbitrumNova from '@/plugins/arbitrumNova'
-import avalanche from '@/plugins/avalanche'
-import base from '@/plugins/base'
-import bitcoin from '@/plugins/bitcoin'
-import bitcoincash from '@/plugins/bitcoincash'
-import bnbsmartchain from '@/plugins/bnbsmartchain'
-import cosmos from '@/plugins/cosmos'
-import dogecoin from '@/plugins/dogecoin'
-import ethereum from '@/plugins/ethereum'
-import gnosis from '@/plugins/gnosis'
-import hyperevm from '@/plugins/hyperevm'
-import litecoin from '@/plugins/litecoin'
-import mayachain from '@/plugins/mayachain'
-import mobile from '@/plugins/mobile'
-import monad from '@/plugins/monad'
-import optimism from '@/plugins/optimism'
-import plasma from '@/plugins/plasma'
-import polygon from '@/plugins/polygon'
-import solana from '@/plugins/solana'
-import starknet from '@/plugins/starknet'
-import sui from '@/plugins/sui'
-import thorchain from '@/plugins/thorchain'
-import tron from '@/plugins/tron'
-import walletConnectToDapps from '@/plugins/walletConnectToDapps'
-import zcash from '@/plugins/zcash'
+import arbitrum from "@/plugins/arbitrum";
+import arbitrumNova from "@/plugins/arbitrumNova";
+import avalanche from "@/plugins/avalanche";
+import base from "@/plugins/base";
+import bitcoin from "@/plugins/bitcoin";
+import bitcoincash from "@/plugins/bitcoincash";
+import bnbsmartchain from "@/plugins/bnbsmartchain";
+import cosmos from "@/plugins/cosmos";
+import dogecoin from "@/plugins/dogecoin";
+import ethereum from "@/plugins/ethereum";
+import gnosis from "@/plugins/gnosis";
+import hyperevm from "@/plugins/hyperevm";
+import litecoin from "@/plugins/litecoin";
+import megaeth from "@/plugins/megaeth";
+import mayachain from "@/plugins/mayachain";
+import mobile from "@/plugins/mobile";
+import monad from "@/plugins/monad";
+import optimism from "@/plugins/optimism";
+import plasma from "@/plugins/plasma";
+import polygon from "@/plugins/polygon";
+import solana from "@/plugins/solana";
+import starknet from "@/plugins/starknet";
+import sui from "@/plugins/sui";
+import thorchain from "@/plugins/thorchain";
+import tron from "@/plugins/tron";
+import walletConnectToDapps from "@/plugins/walletConnectToDapps";
+import zcash from "@/plugins/zcash";
 
 export const activePlugins = [
   arbitrum,
@@ -40,6 +41,7 @@ export const activePlugins = [
   hyperevm,
   litecoin,
   mayachain,
+  megaeth,
   mobile,
   monad,
   optimism,
@@ -52,4 +54,4 @@ export const activePlugins = [
   tron,
   walletConnectToDapps,
   zcash,
-]
+];

@@ -47,7 +47,7 @@
     "multicoin-address-validator": "^0.5.12",
     "node-polyglot": "^2.4.0",
     "p-queue": "^8.0.1",
-    "viem": "^2.40.3"
+    "viem": "2.43.5"
   },
   "devDependencies": {
     "@types/bs58check": "^2.1.0",

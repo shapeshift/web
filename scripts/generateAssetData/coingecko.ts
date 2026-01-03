@@ -11,10 +11,12 @@ import {
   gnosisChainId,
   hyperEvmChainId,
   monadChainId,
+  nearChainId,
   optimismChainId,
   plasmaChainId,
   polygonChainId,
   solanaChainId,
+  starknetChainId,
   suiChainId,
   toAssetId,
   tronChainId,
@@ -30,6 +32,7 @@ import {
   gnosis,
   hyperevm,
   monad,
+  near,
   optimism,
   plasma,
   polygon,
@@ -166,6 +169,14 @@ export async function getAssets(chainId: ChainId): Promise<Asset[]> {
           explorerAddressLink: solana.explorerAddressLink,
           explorerTxLink: solana.explorerTxLink,
         }
+      case starknetChainId:
+        return {
+          assetNamespace: ASSET_NAMESPACE.starknetToken,
+          category: 'starknet',
+          explorer: 'https://starkscan.co',
+          explorerAddressLink: 'https://starkscan.co/contract/',
+          explorerTxLink: 'https://starkscan.co/tx/',
+        }
       case tronChainId:
         return {
           assetNamespace: ASSET_NAMESPACE.trc20,
@@ -181,6 +192,14 @@ export async function getAssets(chainId: ChainId): Promise<Asset[]> {
           explorer: sui.explorer,
           explorerAddressLink: sui.explorerAddressLink,
           explorerTxLink: sui.explorerTxLink,
+        }
+      case nearChainId:
+        return {
+          assetNamespace: ASSET_NAMESPACE.nep141,
+          category: adapters.chainIdToCoingeckoAssetPlatform(chainId),
+          explorer: near.explorer,
+          explorerAddressLink: near.explorerAddressLink,
+          explorerTxLink: near.explorerTxLink,
         }
       default:
         throw new Error(`no coingecko token support for chainId: ${chainId}`)

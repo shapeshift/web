@@ -17,10 +17,12 @@ import { csp as hyperevm } from './chains/hyperevm'
 import { csp as litecoin } from './chains/litecoin'
 import { csp as mayachain } from './chains/mayachain'
 import { csp as monad } from './chains/monad'
+import { csp as near } from './chains/near'
 import { csp as optimism } from './chains/optimism'
 import { csp as plasma } from './chains/plasma'
 import { csp as polygon } from './chains/polygon'
 import { csp as solana } from './chains/solana'
+import { csp as starknet } from './chains/starknet'
 import { csp as sui } from './chains/sui'
 import { csp as thorchain } from './chains/thorchain'
 import { csp as tron } from './chains/tron'
@@ -48,6 +50,7 @@ import { csp as interFont } from './InterFont'
 import { csp as jupiter } from './jupiter'
 import { csp as ledger } from './ledger'
 import { csp as coincap } from './marketService/coincap'
+import { csp as coingecko } from './marketService/coingecko'
 import { csp as exchangeRates } from './marketService/exchangeRates'
 import { csp as mercle } from './mercle'
 import { csp as mixPanel } from './mixPanel'
@@ -107,15 +110,18 @@ export const csps = [
   optimism,
   polygon,
   solana,
+  starknet,
   sui,
   thorchain,
   tron,
   zcash,
   mayachain,
   monad,
+  near,
   plasma,
   trustwallet,
   coincap,
+  coingecko,
   exchangeRates,
   onRamper,
   banxa,

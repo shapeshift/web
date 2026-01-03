@@ -37,6 +37,8 @@ export enum KnownChainIds {
   SolanaMainnet = 'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp',
   TronMainnet = 'tron:0x2b6653dc',
   SuiMainnet = 'sui:35834a8a',
+  NearMainnet = 'near:mainnet',
+  StarknetMainnet = 'starknet:SN_MAIN',
 }
 
 export type EvmChainId =
@@ -70,6 +72,10 @@ export type UtxoChainId =
 export type TronChainId = KnownChainIds.TronMainnet
 
 export type SuiChainId = KnownChainIds.SuiMainnet
+
+export type NearChainId = KnownChainIds.NearMainnet
+
+export type StarknetChainId = KnownChainIds.StarknetMainnet
 
 export enum WithdrawType {
   DELAYED,

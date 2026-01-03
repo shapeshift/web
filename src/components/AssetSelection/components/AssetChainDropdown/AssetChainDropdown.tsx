@@ -20,6 +20,7 @@ import { AssetChainRow } from './AssetChainRow'
 
 import { getStyledMenuButtonProps } from '@/components/AssetSelection/helpers'
 import { useModalChildZIndex } from '@/context/ModalStackProvider'
+import { usePlugins } from '@/context/PluginProvider/PluginProvider'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { assertGetChainAdapter } from '@/lib/utils'
 import { portfolio } from '@/state/slices/portfolioSlice/portfolioSlice'
@@ -64,6 +65,7 @@ export const AssetChainDropdown: React.FC<AssetChainDropdownProps> = memo(
     const {
       state: { wallet },
     } = useWallet()
+    const { supportedChains } = usePlugins()
     const translate = useTranslate()
     const modalChildZIndex = useModalChildZIndex()
     const chainDisplayName = useAppSelector(state =>
@@ -190,7 +192,10 @@ export const AssetChainDropdown: React.FC<AssetChainDropdownProps> = memo(
       return translate('trade.tooltip.noRelatedAssets', { chainDisplayName })
     }, [chainDisplayName, translate])
 
-    if (!assetId || isLoading) return <AssetRowLoading {...buttonProps} />
+    const assetChainId = assetId ? fromAssetId(assetId).chainId : undefined
+    if (!assetId || isLoading || (assetChainId && !supportedChains.includes(assetChainId))) {
+      return <AssetRowLoading {...buttonProps} />
+    }
 
     return (
       <Menu isLazy>

@@ -15,10 +15,12 @@ import {
   ltcAssetId,
   mayachainAssetId,
   monadAssetId,
+  nearAssetId,
   optimismAssetId,
   plasmaAssetId,
   polygonAssetId,
   solAssetId,
+  starknetAssetId,
   suiAssetId,
   thorchainAssetId,
   tronAssetId,
@@ -69,6 +71,8 @@ export const chainIdToFeeAssetId = (_chainId: ChainId): AssetId => {
       return tronAssetId
     case KnownChainIds.SuiMainnet:
       return suiAssetId
+    case KnownChainIds.StarknetMainnet:
+      return starknetAssetId
     case KnownChainIds.MonadMainnet:
       return monadAssetId
     case KnownChainIds.HyperEvmMainnet:
@@ -77,6 +81,8 @@ export const chainIdToFeeAssetId = (_chainId: ChainId): AssetId => {
       return plasmaAssetId
     case KnownChainIds.ZcashMainnet:
       return zecAssetId
+    case KnownChainIds.NearMainnet:
+      return nearAssetId
     default:
       return assertUnreachable(chainId)
   }

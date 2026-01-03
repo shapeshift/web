@@ -1100,6 +1100,7 @@
       "getFeesError": "Error getting fees",
       "broadcastingTransaction": "Broadcasting Transaction",
       "youHaveSent": "You have successfully sent %{amount} %{symbol}",
+      "sendFailed": "Send failed",
       "toAddress": "To Address",
       "toAddressOrEns": "To Address or ENS",
       "scanQrCode": "Scan QR Code",
@@ -1887,6 +1888,18 @@
     "title": "Open the %{appName} App",
     "description": "To continue, you will need to open the %{appName} app on your Ledger device.",
     "devicePrompt": "Your device will prompt you with any necessary steps required to complete your current action."
+  },
+  "starknet": {
+    "deployAccount": {
+      "title": "Deploy Starknet Account",
+      "description": "Starknet uses smart contract accounts that need to be deployed before use.",
+      "sendDescription": "You'll need to deploy the account first to be able to send",
+      "swapDescription": "Starknet uses smart contract accounts. You'll need to deploy your account first before you can swap.",
+      "explanation": "This is a one-time setup that will initialize your account on Starknet. A small fee will be deducted from your balance.",
+      "deployButton": "Deploy Account",
+      "deploying": "Deploying Account...",
+      "deployFailed": "Deployment Failed"
+    }
   },
   "transactionHistory": {
     "transactionHistory": "Transaction History",

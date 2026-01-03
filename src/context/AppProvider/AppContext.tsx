@@ -1,8 +1,9 @@
 import { usePrevious, useToast } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
+import { btcAssetId, ethAssetId, foxAssetId, usdcAssetId } from '@shapeshiftoss/caip'
 import type { LedgerOpenAppEventArgs } from '@shapeshiftoss/chain-adapters'
 import { emitter } from '@shapeshiftoss/chain-adapters'
-import { useQueries } from '@tanstack/react-query'
+import { useQueries, useQuery } from '@tanstack/react-query'
 import difference from 'lodash/difference'
 import React, { useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -25,8 +26,11 @@ import { useTransactionsSubscriber } from '@/hooks/useTransactionsSubscriber'
 import { useUser } from '@/hooks/useUser/useUser'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { walletSupportsChain } from '@/hooks/useWalletSupportsChain/useWalletSupportsChain'
+import { getAssetService, initAssetService } from '@/lib/asset-service'
 import { useGraphQLMarketData } from '@/lib/graphql'
 import { useGetFiatRampsQuery } from '@/state/apis/fiatRamps/fiatRamps'
+import { assets } from '@/state/slices/assetsSlice/assetsSlice'
+import { limitOrderInput } from '@/state/slices/limitOrderInputSlice/limitOrderInputSlice'
 import {
   marketApi,
   useFindAllMarketDataQuery,
@@ -41,6 +45,7 @@ import {
   selectWalletId,
 } from '@/state/slices/selectors'
 import { tradeInput } from '@/state/slices/tradeInputSlice/tradeInputSlice'
+import { tradeRampInput } from '@/state/slices/tradeRampInputSlice/tradeRampInputSlice'
 import { useAppDispatch, useAppSelector } from '@/state/store'
 
 const MARKET_DATA_POLLING_INTERVAL_MS = 60 * 1000 // refetch market-data every minute
@@ -79,6 +84,57 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
 
   // Initialize user system
   useUser()
+
+  // Initialize asset service and populate Redux with assets
+  const { isError: isAssetServiceError } = useQuery({
+    queryKey: ['assetService'],
+    queryFn: async () => {
+      await initAssetService()
+      const service = getAssetService()
+
+      dispatch(
+        assets.actions.upsertAssets({
+          byId: service.assetsById,
+          ids: service.assetIds,
+        }),
+      )
+      dispatch(assets.actions.setRelatedAssetIndex(service.relatedAssetIndex))
+
+      const btcAsset = service.assetsById[btcAssetId]
+      const ethAsset = service.assetsById[ethAssetId]
+      if (btcAsset && ethAsset) {
+        dispatch(tradeInput.actions.setBuyAsset(btcAsset))
+        dispatch(tradeInput.actions.setSellAsset(ethAsset))
+        dispatch(tradeRampInput.actions.setBuyAsset(btcAsset))
+        dispatch(tradeRampInput.actions.setSellAsset(ethAsset))
+      }
+
+      const foxAsset = service.assetsById[foxAssetId]
+      const usdcAsset = service.assetsById[usdcAssetId]
+      if (foxAsset && usdcAsset) {
+        dispatch(limitOrderInput.actions.setBuyAsset(foxAsset))
+        dispatch(limitOrderInput.actions.setSellAsset(usdcAsset))
+      }
+
+      return null
+    },
+    staleTime: Infinity,
+    gcTime: Infinity,
+  })
+
+  // Show error toast if asset loading fails
+  useEffect(() => {
+    if (isAssetServiceError) {
+      toast({
+        position: 'top-right',
+        title: translate('common.somethingWentWrong'),
+        description: translate('common.somethingWentWrongBody'),
+        status: 'error',
+        duration: null,
+        isClosable: true,
+      })
+    }
+  }, [isAssetServiceError, toast, translate])
 
   useEffect(() => {
     const handleLedgerOpenApp = ({ chainId, reject }: LedgerOpenAppEventArgs) => {

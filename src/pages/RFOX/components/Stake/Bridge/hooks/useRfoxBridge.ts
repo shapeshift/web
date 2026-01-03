@@ -28,7 +28,9 @@ import { fetchTradeStatus } from '@/lib/tradeExecution'
 import { assertGetChainAdapter } from '@/lib/utils'
 import { assertGetCosmosSdkChainAdapter } from '@/lib/utils/cosmosSdk'
 import { assertGetEvmChainAdapter, signAndBroadcast } from '@/lib/utils/evm'
+import { assertGetNearChainAdapter } from '@/lib/utils/near'
 import { assertGetSolanaChainAdapter } from '@/lib/utils/solana'
+import { assertGetStarknetChainAdapter } from '@/lib/utils/starknet'
 import { assertGetSuiChainAdapter } from '@/lib/utils/sui'
 import { assertGetTronChainAdapter } from '@/lib/utils/tron'
 import { assertGetUtxoChainAdapter } from '@/lib/utils/utxo'
@@ -179,6 +181,8 @@ export const useRfoxBridge = ({ confirmedQuote }: UseRfoxBridgeProps): UseRfoxBr
       assertGetSolanaChainAdapter,
       assertGetTronChainAdapter,
       assertGetSuiChainAdapter,
+      assertGetNearChainAdapter,
+      assertGetStarknetChainAdapter,
       getEthersV5Provider,
       fetchIsSmartContractAddressQuery,
       viemClientByChainId,

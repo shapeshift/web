@@ -18,10 +18,12 @@ import {
   hyperEvmChainId,
   mayachainChainId,
   monadChainId,
+  nearChainId,
   optimismChainId,
   plasmaChainId,
   polygonChainId,
   solanaChainId,
+  starknetChainId,
   suiChainId,
   thorchainChainId,
   tronChainId,
@@ -48,8 +50,10 @@ export enum CoingeckoAssetPlatform {
   HyperEvm = 'hyperevm',
   Plasma = 'plasma',
   Solana = 'solana',
+  Starknet = 'starknet',
   Tron = 'tron',
   Sui = 'sui',
+  Near = 'near-protocol',
 }
 
 type CoinGeckoId = string
@@ -149,6 +153,24 @@ export const chainIdToCoingeckoAssetPlatform = (chainId: ChainId): string => {
             `chainNamespace ${chainNamespace}, chainReference ${chainReference} not supported.`,
           )
       }
+    case CHAIN_NAMESPACE.Near:
+      switch (chainReference) {
+        case CHAIN_REFERENCE.NearMainnet:
+          return CoingeckoAssetPlatform.Near
+        default:
+          throw new Error(
+            `chainNamespace ${chainNamespace}, chainReference ${chainReference} not supported.`,
+          )
+      }
+    case CHAIN_NAMESPACE.Starknet:
+      switch (chainReference) {
+        case CHAIN_REFERENCE.StarknetMainnet:
+          return CoingeckoAssetPlatform.Starknet
+        default:
+          throw new Error(
+            `chainNamespace ${chainNamespace}, chainReference ${chainReference} not supported.`,
+          )
+      }
     // No valid asset platform: https://api.coingecko.com/api/v3/asset_platforms
     case CHAIN_NAMESPACE.Utxo:
     default:
@@ -192,10 +214,14 @@ export const coingeckoAssetPlatformToChainId = (
       return mayachainChainId
     case CoingeckoAssetPlatform.Solana:
       return solanaChainId
+    case CoingeckoAssetPlatform.Starknet:
+      return starknetChainId
     case CoingeckoAssetPlatform.Tron:
       return tronChainId
     case CoingeckoAssetPlatform.Sui:
       return suiChainId
+    case CoingeckoAssetPlatform.Near:
+      return nearChainId
     default:
       return undefined
   }

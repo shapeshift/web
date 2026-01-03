@@ -1,9 +1,5 @@
 import type { AssetId } from '@shapeshiftoss/caip'
-import {
-  ASSET_REFERENCE,
-  generateAssetIdFromCosmosSdkDenom,
-  thorchainAssetId,
-} from '@shapeshiftoss/caip'
+import { ASSET_REFERENCE, thorchainAssetId } from '@shapeshiftoss/caip'
 import type { HDWallet, ThorchainSignTx, ThorchainWallet } from '@shapeshiftoss/hdwallet-core'
 import { supportsThorchain } from '@shapeshiftoss/hdwallet-core'
 import type { RootBip44Params } from '@shapeshiftoss/types'
@@ -14,8 +10,6 @@ import PQueue from 'p-queue'
 
 import { ChainAdapterError, ErrorHandler } from '../../error/ErrorHandler'
 import type {
-  Account,
-  BroadcastTransactionInput,
   BuildDepositTxInput,
   BuildSendApiTxInput,
   BuildSendTxInput,
@@ -56,7 +50,6 @@ export interface ChainAdapterArgs extends BaseChainAdapterArgs<unchained.thorcha
   thorMidgardUrl: string
   mayaMidgardUrl: string
   httpV1: unchained.thorchainV1.V1Api
-  nodeUrl: string
 }
 
 export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.ThorchainMainnet> {
@@ -67,7 +60,6 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.ThorchainMa
   }
 
   protected readonly httpV1: unchained.thorchainV1.V1Api
-  protected readonly nodeUrl: string
 
   constructor(args: ChainAdapterArgs) {
     super({
@@ -86,7 +78,6 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.ThorchainMa
     })
 
     this.httpV1 = args.httpV1
-    this.nodeUrl = args.nodeUrl
   }
 
   private assertSupportsChain(wallet: HDWallet): asserts wallet is ThorchainWallet {
@@ -348,103 +339,6 @@ export class ChainAdapter extends CosmosSdkBaseAdapter<KnownChainIds.ThorchainMa
     } catch (err) {
       return ErrorHandler(err, {
         translation: 'chainAdapters.errors.signAndBroadcastTransaction',
-      })
-    }
-  }
-
-  async getAccount(pubkey: string): Promise<Account<KnownChainIds.ThorchainMainnet>> {
-    try {
-      const [authRes, balanceRes] = await Promise.all([
-        fetch(`${this.nodeUrl}/cosmos/auth/v1beta1/accounts/${pubkey}`),
-        fetch(`${this.nodeUrl}/cosmos/bank/v1beta1/balances/${pubkey}`),
-      ])
-
-      if (!authRes.ok) {
-        throw new Error(`Failed to fetch account: ${authRes.status} ${authRes.statusText}`)
-      }
-      if (!balanceRes.ok) {
-        throw new Error(`Failed to fetch balances: ${balanceRes.status} ${balanceRes.statusText}`)
-      }
-
-      const authData = (await authRes.json()) as {
-        account: { account_number: string; sequence: string; pub_key?: { key: string } }
-      }
-      const balanceData = (await balanceRes.json()) as {
-        balances: { denom: string; amount: string }[]
-      }
-
-      const assets = balanceData.balances.reduce<{ amount: string; assetId: AssetId }[]>(
-        (acc, b) => {
-          if (b.denom === this.denom) return acc
-          try {
-            acc.push({
-              amount: b.amount,
-              assetId: generateAssetIdFromCosmosSdkDenom(b.denom),
-            })
-          } catch {}
-          return acc
-        },
-        [],
-      )
-
-      const nativeBalance = balanceData.balances.find(b => b.denom === this.denom)?.amount ?? '0'
-
-      return {
-        balance: nativeBalance,
-        pubkey,
-        chainId: this.chainId,
-        assetId: this.assetId,
-        chain: this.getType(),
-        chainSpecific: {
-          accountNumber: authData.account.account_number,
-          sequence: authData.account.sequence,
-          assets,
-          delegations: [],
-          redelegations: [],
-          undelegations: [],
-          rewards: [],
-        },
-      } as Account<KnownChainIds.ThorchainMainnet>
-    } catch (err) {
-      return ErrorHandler(err, {
-        translation: 'chainAdapters.errors.getAccount',
-        options: { pubkey },
-      })
-    }
-  }
-
-  async broadcastTransaction({
-    senderAddress,
-    receiverAddress,
-    hex,
-  }: BroadcastTransactionInput): Promise<string> {
-    try {
-      await Promise.all([
-        assertAddressNotSanctioned(senderAddress),
-        receiverAddress !== CONTRACT_INTERACTION && assertAddressNotSanctioned(receiverAddress),
-      ])
-
-      const response = await fetch(`${this.nodeUrl}/cosmos/tx/v1beta1/txs`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          tx_bytes: hex,
-          mode: 'BROADCAST_MODE_SYNC',
-        }),
-      })
-
-      const data = (await response.json()) as {
-        tx_response?: { code: number; txhash: string; raw_log?: string }
-      }
-
-      if (data.tx_response?.code !== 0) {
-        throw new Error(data.tx_response?.raw_log || 'Broadcast failed')
-      }
-
-      return data.tx_response.txhash
-    } catch (err) {
-      return ErrorHandler(err, {
-        translation: 'chainAdapters.errors.broadcastTransaction',
       })
     }
   }

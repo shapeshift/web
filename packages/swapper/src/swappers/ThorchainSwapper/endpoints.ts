@@ -102,7 +102,8 @@ export const thorchainApi: SwapperApi = {
     const { config } = input
 
     const nodeUrl = `${config.VITE_THORCHAIN_NODE_URL}/thorchain`
+    const apiUrl = `${config.VITE_UNCHAINED_THORCHAIN_HTTP_URL}/api/v1`
 
-    return checkTradeStatus({ ...input, nodeUrl, nativeChain: 'THOR' })
+    return checkTradeStatus({ ...input, nodeUrl, apiUrl, nativeChain: 'THOR' })
   },
 }

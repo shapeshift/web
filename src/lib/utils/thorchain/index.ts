@@ -38,40 +38,6 @@ import { poll } from '@/lib/poll/poll'
 import type { getThorchainLpPosition } from '@/pages/ThorChainLP/queries/queries'
 import { getThorchainSaversPosition } from '@/state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
 
-export const getThorchainSendTransactionStatus = async (txHash: string): Promise<TxStatus> => {
-  try {
-    const nodeUrl = getConfig().VITE_THORCHAIN_NODE_URL
-    const response = await axios.get(`${nodeUrl}/cosmos/tx/v1beta1/txs/${txHash}`, {
-      validateStatus: () => true,
-    })
-
-    if (response.data?.tx_response) {
-      if (response.data.tx_response.code === 0) return TxStatus.Confirmed
-      return TxStatus.Failed
-    }
-
-    // Cosmos endpoint doesn't work for MsgDeposit txs (RUNE/TCY/RUJI internal sends)
-    // Fall back to midgard
-    const midgardUrl = getConfig().VITE_THORCHAIN_MIDGARD_URL
-    const midgardResponse = await axios.get<MidgardActionsResponse>(
-      `${midgardUrl}/actions?txid=${txHash}`,
-      { validateStatus: () => true },
-    )
-
-    if (midgardResponse.data?.actions?.length) {
-      const action = midgardResponse.data.actions[0]
-      if (action.status === 'success') return TxStatus.Confirmed
-      if (action.status === 'pending') return TxStatus.Pending
-      return TxStatus.Failed
-    }
-
-    return TxStatus.Pending
-  } catch (error) {
-    console.error('Error getting THORChain send transaction status:', error)
-    return TxStatus.Unknown
-  }
-}
-
 export const getThorchainTransactionStatus = async ({
   txHash,
   skipOutbound,

@@ -146,7 +146,7 @@ async function fetchFromUnchained(
 
           if ('assets' in data && Array.isArray(data.assets)) {
             for (const asset of data.assets as { denom?: string; amount?: string }[]) {
-              if (asset.denom && asset.amount) {
+              if (asset.denom && asset.amount && asset.amount !== '0') {
                 tokens.push({
                   assetId: `${chainId}/${asset.denom}`,
                   balance: asset.amount,

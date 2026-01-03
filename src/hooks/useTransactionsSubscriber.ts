@@ -27,7 +27,7 @@ import {
 import { txHistory } from '@/state/slices/txHistorySlice/txHistorySlice'
 import { useAppDispatch } from '@/state/store'
 
-const ACCOUNT_REFRESH_DEBOUNCE_MS = 100
+const ACCOUNT_REFRESH_DEBOUNCE_MS = 1000
 
 export const useTransactionsSubscriber = () => {
   const dispatch = useAppDispatch()

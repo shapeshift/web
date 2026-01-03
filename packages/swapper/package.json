@@ -57,7 +57,7 @@
     "mixpanel-browser": "^2.67.0",
     "node-polyglot": "^2.4.0",
     "pretty-ms": "7.0.1",
-    "qs": "^6.10.5",
+    "qs": "^6.14.1",
     "retry-axios": "^2.6.0",
     "uuid": "^9.0.0",
     "viem": "^2.40.3"

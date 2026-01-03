@@ -41,6 +41,8 @@ export const getNearIntentsAsset = ({
 
 const NEP245_CHAINS = ['bsc', 'pol', 'avax', 'op', 'tron', 'monad'] as const
 const TOKEN_LOOKUP_CHAINS = ['sui', 'starknet'] as const
+const NEAR_CHAIN = 'near' as const
+const WNEAR_CONTRACT_ADDRESS = 'wrap.near' as const
 
 type Nep245Chain = (typeof NEP245_CHAINS)[number]
 type TokenLookupChain = (typeof TOKEN_LOOKUP_CHAINS)[number]
@@ -58,6 +60,24 @@ export const assetToNearIntentsAsset = async (asset: Asset): Promise<string | nu
     chainIdToNearIntentsChain[asset.chainId as keyof typeof chainIdToNearIntentsChain]
 
   if (!nearNetwork) return null
+
+  // NEAR chain requires special handling
+  // Native NEAR maps to wNEAR (wrap.near)
+  if (nearNetwork === NEAR_CHAIN) {
+    const tokens = await OneClickService.getTokens()
+    const { assetNamespace, assetReference } = fromAssetId(asset.assetId)
+    const isNativeAsset = assetNamespace === 'slip44'
+
+    // Native NEAR maps to wNEAR, tokens use their contract address directly
+    const contractAddress = isNativeAsset ? WNEAR_CONTRACT_ADDRESS : assetReference
+
+    const match = tokens.find((t: TokenResponse) => {
+      if (t.blockchain !== NEAR_CHAIN) return false
+      return t.contractAddress === contractAddress
+    })
+
+    return match?.assetId ?? null
+  }
 
   // NEP-245 chains (BSC, Polygon, Avalanche, Optimism, TRON, Monad), Token lookup chains (Sui, Starknet), and Solana require token lookup
   // Asset IDs use hashed format that can't be generated from contract addresses

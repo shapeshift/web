@@ -32,6 +32,8 @@ import {
   mayachainChainId,
   monadAssetId,
   monadChainId,
+  nearAssetId,
+  nearChainId,
   optimismAssetId,
   optimismChainId,
   plasmaAssetId,
@@ -281,6 +283,20 @@ export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
         }
       }
 
+      if (Object.keys(platforms).includes(CoingeckoAssetPlatform.Near)) {
+        try {
+          const assetId = toAssetId({
+            chainNamespace: CHAIN_NAMESPACE.Near,
+            chainReference: CHAIN_REFERENCE.NearMainnet,
+            assetNamespace: ASSET_NAMESPACE.nep141,
+            assetReference: platforms[CoingeckoAssetPlatform.Near],
+          })
+          prev[nearChainId][assetId] = id
+        } catch {
+          // unable to create assetId, skip token
+        }
+      }
+
       return prev
     },
     {
@@ -299,6 +315,7 @@ export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
       [solanaChainId]: { [solAssetId]: 'solana' },
       [tronChainId]: { [tronAssetId]: 'tron' },
       [suiChainId]: { [suiAssetId]: 'sui' },
+      [nearChainId]: { [nearAssetId]: 'near' },
     },
   )
 

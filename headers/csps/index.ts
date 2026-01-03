@@ -52,6 +52,7 @@ import { csp as exchangeRates } from './marketService/exchangeRates'
 import { csp as mercle } from './mercle'
 import { csp as mixPanel } from './mixPanel'
 import { csp as moralis } from './moralis'
+import { csp as graphql } from './graphql'
 import { csp as foxPage } from './plugins/foxPage'
 import { csp as walletConnectToDapps } from './plugins/walletConnectToDapps'
 import { csp as railway } from './railway'
@@ -142,4 +143,5 @@ export const csps = [
   relay,
   railway,
   discord,
+  graphql,
 ]

@@ -109,6 +109,8 @@ export type FeatureFlags = {
   AddressBook: boolean
   AppRating: boolean
   GraphQLMarketData: boolean
+  GraphQLAccountData: boolean
+  GraphQLCoingeckoData: boolean
 }
 
 export type Flag = keyof FeatureFlags
@@ -252,6 +254,8 @@ const initialState: Preferences = {
     AddressBook: getConfig().VITE_FEATURE_ADDRESS_BOOK,
     AppRating: getConfig().VITE_FEATURE_APP_RATING,
     GraphQLMarketData: getConfig().VITE_FEATURE_GRAPHQL_MARKET_DATA,
+    GraphQLAccountData: getConfig().VITE_FEATURE_GRAPHQL_ACCOUNT_DATA,
+    GraphQLCoingeckoData: getConfig().VITE_FEATURE_GRAPHQL_COINGECKO_DATA,
   },
   selectedLocale: simpleLocale(),
   hasWalletSeenTcyClaimAlert: {},

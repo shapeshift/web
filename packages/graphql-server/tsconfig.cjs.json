@@ -9,6 +9,7 @@
   "include": ["src/**/*", "src/**/*.json"],
   "exclude": ["dist"],
   "references": [
-    { "path": "../caip/tsconfig.cjs.json" }
+    { "path": "../caip/tsconfig.cjs.json" },
+    { "path": "../unchained-client/tsconfig.cjs.json" }
   ]
 }

@@ -180,10 +180,13 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   // load top 2000 assets market data (legacy approach)
   // this is needed to sort assets by market cap
   // and covers most assets users will have
-  // Skip when GraphQL market data is enabled (unless falling back due to failures)
+  // When GraphQL is enabled, poll less frequently since GraphQL handles primary data
   const findAllQueryData = useFindAllMarketDataQuery(undefined, {
-    skip: modal || (isGraphQLMarketDataEnabled && !shouldUseLegacyFallback),
-    pollingInterval: MARKET_DATA_POLLING_INTERVAL_MS,
+    skip: modal,
+    pollingInterval:
+      isGraphQLMarketDataEnabled && !shouldUseLegacyFallback
+        ? MARKET_DATA_POLLING_INTERVAL_MS * 6 // Poll every 6 minutes when GraphQL is primary
+        : MARKET_DATA_POLLING_INTERVAL_MS,
   })
 
   useDiscoverAccounts()

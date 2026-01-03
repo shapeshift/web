@@ -182,6 +182,8 @@ export const mockStore: ReduxState = {
       AddressBook: false,
       AppRating: false,
       GraphQLMarketData: false,
+      GraphQLAccountData: false,
+      GraphQLCoingeckoData: false,
     },
     showTopAssetsCarousel: true,
     quickBuyAmounts: [10, 50, 100],

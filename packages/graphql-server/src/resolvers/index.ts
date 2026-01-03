@@ -1,6 +1,23 @@
 import type DataLoader from 'dataloader'
 import { GraphQLError } from 'graphql'
 
+import type { CoingeckoSortKey } from '../datasources/coingeckoService.js'
+import {
+  getMarkets,
+  getRecentlyAdded,
+  getTopMarkets,
+  getTopMovers,
+  getTrending,
+} from '../datasources/coingeckoService.js'
+import type { ThornodeNetwork } from '../datasources/thornodeService.js'
+import {
+  getBlock,
+  getInboundAddresses,
+  getMimir,
+  getPool,
+  getPools,
+  getTcyClaims,
+} from '../datasources/thornodeService.js'
 import type { Account } from '../loaders/accountLoader.js'
 import type { MarketData } from '../loaders/marketLoader.js'
 import type { TxHistoryResult } from '../loaders/txLoader.js'
@@ -20,6 +37,37 @@ export type Context = {
 export const resolvers = {
   Query: {
     health: () => 'OK',
+
+    // CoinGecko endpoints
+    coingeckoTrending: () => {
+      console.log('[Query.coingeckoTrending] Fetching trending coins')
+      return getTrending()
+    },
+
+    coingeckoTopMovers: () => {
+      console.log('[Query.coingeckoTopMovers] Fetching top movers')
+      return getTopMovers()
+    },
+
+    coingeckoRecentlyAdded: () => {
+      console.log('[Query.coingeckoRecentlyAdded] Fetching recently added')
+      return getRecentlyAdded()
+    },
+
+    coingeckoMarkets: (
+      _parent: unknown,
+      args: { order: CoingeckoSortKey; page?: number; perPage?: number },
+    ) => {
+      const { order, page = 1, perPage = 100 } = args
+      console.log(`[Query.coingeckoMarkets] Fetching markets (order=${order}, page=${page})`)
+      return getMarkets(order, page, perPage)
+    },
+
+    coingeckoTopMarkets: (_parent: unknown, args: { count?: number; order?: CoingeckoSortKey }) => {
+      const { count = 2500, order = 'market_cap_desc' } = args
+      console.log(`[Query.coingeckoTopMarkets] Fetching top ${count} markets`)
+      return getTopMarkets(count, order)
+    },
 
     marketData: async (_parent: unknown, args: { assetIds: string[] }, context: Context) => {
       if (args.assetIds.length > MAX_ASSET_IDS) {
@@ -104,6 +152,45 @@ export const resolvers = {
           endCursor: edges.length > 0 ? edges[edges.length - 1].cursor : null,
         },
       }
+    },
+
+    // Thornode/Mayanode resolvers
+    tcyClaims: async (_parent: unknown, args: { addresses: string[]; network?: ThornodeNetwork }) => {
+      const network = args.network ?? 'thorchain'
+      console.log(
+        `[Query.tcyClaims] Fetching claims for ${args.addresses.length} addresses on ${network}`,
+      )
+      return await getTcyClaims(args.addresses, network)
+    },
+
+    thornodePools: (_parent: unknown, args: { network?: ThornodeNetwork }) => {
+      const network = args.network ?? 'thorchain'
+      console.log(`[Query.thornodePools] Fetching pools for ${network}`)
+      return getPools(network)
+    },
+
+    thornodePool: (_parent: unknown, args: { asset: string; network?: ThornodeNetwork }) => {
+      const network = args.network ?? 'thorchain'
+      console.log(`[Query.thornodePool] Fetching pool ${args.asset} for ${network}`)
+      return getPool(args.asset, network)
+    },
+
+    thornodeMimir: (_parent: unknown, args: { network?: ThornodeNetwork }) => {
+      const network = args.network ?? 'thorchain'
+      console.log(`[Query.thornodeMimir] Fetching mimir for ${network}`)
+      return getMimir(network)
+    },
+
+    thornodeBlock: (_parent: unknown, args: { network?: ThornodeNetwork }) => {
+      const network = args.network ?? 'thorchain'
+      console.log(`[Query.thornodeBlock] Fetching block for ${network}`)
+      return getBlock(network)
+    },
+
+    thornodeInboundAddresses: (_parent: unknown, args: { network?: ThornodeNetwork }) => {
+      const network = args.network ?? 'thorchain'
+      console.log(`[Query.thornodeInboundAddresses] Fetching inbound addresses for ${network}`)
+      return getInboundAddresses(network)
     },
   },
 }

@@ -230,10 +230,218 @@ type GetAccountArgs = {
   upsertOnFetch?: boolean
 }
 
+type GetAccountsBatchArgs = {
+  accountIds: AccountId[]
+}
+
 export const portfolioApi = createApi({
   ...BASE_RTK_CREATE_API_CONFIG,
   reducerPath: 'portfolioApi',
   endpoints: build => ({
+    getAccountsBatch: build.query<Portfolio, GetAccountsBatchArgs>({
+      queryFn: async ({ accountIds }, { dispatch, getState }) => {
+        if (accountIds.length === 0) return { data: cloneDeep(initialState) }
+
+        accountIds.forEach(accountId => {
+          dispatch(
+            portfolio.actions.setIsPortfolioGetAccountLoading({ accountId, isLoading: true }),
+          )
+        })
+
+        const state: ReduxState = getState() as any
+        const assetIds = state.assets.ids
+        const chainAdapters = getChainAdapterManager()
+
+        try {
+          const { selectFeatureFlag } = await import('@/state/slices/preferencesSlice/selectors')
+          const { store } = await import('@/state/store')
+          const isGraphQLEnabled = selectFeatureFlag(store.getState(), 'GraphQLAccountData')
+
+          let combinedPortfolio = cloneDeep(initialState)
+
+          if (isGraphQLEnabled) {
+            const { fetchAccountsGraphQL } = await import('@/lib/graphql')
+            console.log(`[Portfolio] Fetching ${accountIds.length} accounts via GraphQL batch`)
+            const graphqlAccounts = await fetchAccountsGraphQL(accountIds)
+
+            for (const accountId of accountIds) {
+              const { chainId, account: pubkey } = fromAccountId(accountId)
+              const graphqlAccount = graphqlAccounts[accountId]
+
+              if (!graphqlAccount) {
+                combinedPortfolio.accounts.ids.push(accountId)
+                combinedPortfolio.accounts.byId[accountId] = { assetIds: [], hasActivity: false }
+                continue
+              }
+
+              const chainPrefix = chainId.split(':')[0]
+              let account: any
+
+              switch (chainPrefix) {
+                case 'eip155':
+                  account = {
+                    balance: graphqlAccount.balance,
+                    pubkey: graphqlAccount.pubkey,
+                    chainId: graphqlAccount.chainId,
+                    assetId: graphqlAccount.assetId,
+                    chain: chainId,
+                    nonce: graphqlAccount.evmData?.nonce ?? 0,
+                    tokens: (graphqlAccount.evmData?.tokens ?? graphqlAccount.tokens).map(t => ({
+                      assetId: t.assetId,
+                      balance: t.balance,
+                      symbol: t.symbol ?? '',
+                      name: t.name ?? '',
+                      precision: t.precision ?? 18,
+                    })),
+                  }
+                  break
+                case 'bip122':
+                  account = {
+                    balance: graphqlAccount.balance,
+                    pubkey: graphqlAccount.pubkey,
+                    chainId: graphqlAccount.chainId,
+                    assetId: graphqlAccount.assetId,
+                    chain: chainId,
+                    addresses: (graphqlAccount.utxoData?.addresses ?? []).map(a => ({
+                      pubkey: a.pubkey,
+                      balance: a.balance,
+                    })),
+                    nextChangeAddressIndex: graphqlAccount.utxoData?.nextChangeAddressIndex,
+                    nextReceiveAddressIndex: graphqlAccount.utxoData?.nextReceiveAddressIndex,
+                  }
+                  break
+                case 'cosmos':
+                  account = {
+                    balance: graphqlAccount.balance,
+                    pubkey: graphqlAccount.pubkey,
+                    chainId: graphqlAccount.chainId,
+                    assetId: graphqlAccount.assetId,
+                    chain: chainId,
+                    sequence: graphqlAccount.cosmosData?.sequence,
+                    accountNumber: graphqlAccount.cosmosData?.accountNumber,
+                    delegations: graphqlAccount.cosmosData?.delegations ?? [],
+                    redelegations: graphqlAccount.cosmosData?.redelegations ?? [],
+                    undelegations: graphqlAccount.cosmosData?.undelegations ?? [],
+                    rewards: graphqlAccount.cosmosData?.rewards ?? [],
+                  }
+                  break
+                case 'solana':
+                  account = {
+                    balance: graphqlAccount.balance,
+                    pubkey: graphqlAccount.pubkey,
+                    chainId: graphqlAccount.chainId,
+                    assetId: graphqlAccount.assetId,
+                    chain: chainId,
+                    tokens: (graphqlAccount.solanaData?.tokens ?? graphqlAccount.tokens).map(t => ({
+                      assetId: t.assetId,
+                      balance: t.balance,
+                      symbol: t.symbol ?? '',
+                      name: t.name ?? '',
+                      precision: t.precision ?? 9,
+                    })),
+                  }
+                  break
+                default:
+                  account = {
+                    balance: graphqlAccount.balance,
+                    pubkey: graphqlAccount.pubkey,
+                    chainId: graphqlAccount.chainId,
+                    assetId: graphqlAccount.assetId,
+                    chain: chainId,
+                    tokens: graphqlAccount.tokens.map(t => ({
+                      assetId: t.assetId,
+                      balance: t.balance,
+                      symbol: t.symbol ?? '',
+                      name: t.name ?? '',
+                      precision: t.precision ?? 18,
+                    })),
+                  }
+              }
+
+              const portfolioAccounts = { [pubkey]: account }
+
+              fetchIsSmartContractAddressQuery(pubkey, chainId)
+
+              const assets = await makeAssets({
+                chainId,
+                pubkey,
+                state,
+                portfolioAccounts,
+              })
+
+              if (assets) dispatch(assetSlice.actions.upsertAssets(assets))
+
+              const accountPortfolio = accountToPortfolio({
+                portfolioAccounts,
+                assetIds: assetIds.concat(assets?.ids ?? []),
+              })
+
+              combinedPortfolio = merge(combinedPortfolio, accountPortfolio)
+            }
+          } else {
+            for (const accountId of accountIds) {
+              const { chainId, account: pubkey } = fromAccountId(accountId)
+              const adapter = chainAdapters.get(chainId)
+
+              if (!adapter) {
+                combinedPortfolio.accounts.ids.push(accountId)
+                combinedPortfolio.accounts.byId[accountId] = { assetIds: [], hasActivity: false }
+                continue
+              }
+
+              try {
+                const account = await adapter.getAccount(pubkey)
+                const portfolioAccounts = { [pubkey]: account }
+
+                fetchIsSmartContractAddressQuery(pubkey, chainId)
+
+                const assets = await makeAssets({
+                  chainId,
+                  pubkey,
+                  state,
+                  portfolioAccounts,
+                })
+
+                if (assets) dispatch(assetSlice.actions.upsertAssets(assets))
+
+                const accountPortfolio = accountToPortfolio({
+                  portfolioAccounts,
+                  assetIds: assetIds.concat(assets?.ids ?? []),
+                })
+
+                combinedPortfolio = merge(combinedPortfolio, accountPortfolio)
+              } catch (e) {
+                console.error(`Error fetching account ${accountId}:`, e)
+                combinedPortfolio.accounts.ids.push(accountId)
+                combinedPortfolio.accounts.byId[accountId] = { assetIds: [], hasActivity: false }
+              }
+            }
+          }
+
+          dispatch(portfolio.actions.upsertPortfolio(combinedPortfolio))
+
+          accountIds.forEach(accountId => {
+            dispatch(
+              portfolio.actions.setIsPortfolioGetAccountLoading({ accountId, isLoading: false }),
+            )
+          })
+
+          return { data: combinedPortfolio }
+        } catch (e) {
+          console.error('Batch account fetch error:', e)
+          const data = cloneDeep(initialState)
+          accountIds.forEach(accountId => {
+            data.accounts.ids.push(accountId)
+            data.accounts.byId[accountId] = { assetIds: [], hasActivity: false }
+            dispatch(
+              portfolio.actions.setIsPortfolioGetAccountLoading({ accountId, isLoading: false }),
+            )
+          })
+          dispatch(portfolio.actions.upsertPortfolio(data))
+          return { data }
+        }
+      },
+    }),
     getAccount: build.query<Portfolio, GetAccountArgs>({
       queryFn: async ({ accountId, upsertOnFetch }, { dispatch, getState }) => {
         dispatch(portfolio.actions.setIsPortfolioGetAccountLoading({ accountId, isLoading: true }))

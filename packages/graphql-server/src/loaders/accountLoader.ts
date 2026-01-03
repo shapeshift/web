@@ -1,6 +1,10 @@
+import type { ChainId } from '@shapeshiftoss/caip'
 import DataLoader from 'dataloader'
+import pLimit from 'p-limit'
 
-// Aligned with chain-adapters types
+import { getChainConfig } from '../unchained/config.js'
+import { getUnchainedApi } from '../unchained/index.js'
+
 export type TokenBalance = {
   assetId: string
   balance: string
@@ -9,34 +13,63 @@ export type TokenBalance = {
   precision?: number
 }
 
-export type Account = {
-  id: string // accountId
-  balance: string // native balance
+export type UtxoAddress = {
   pubkey: string
-  chainId: string
-  assetId: string // native asset
+  balance: string
+}
+
+export type EvmAccountData = {
+  nonce: number
   tokens: TokenBalance[]
 }
 
-// Parse accountId to extract chainId and pubkey
-// AccountId format: chainId:account/pubkey (e.g., "eip155:1:0x123...")
-function parseAccountId(accountId: string): { chainId: string; pubkey: string } {
-  // Handle CAIP-10 format: chainNamespace:chainReference:address
+export type UtxoAccountData = {
+  addresses: UtxoAddress[]
+  nextChangeAddressIndex?: number
+  nextReceiveAddressIndex?: number
+}
+
+export type CosmosAccountData = {
+  sequence?: string
+  accountNumber?: string
+  delegations?: unknown
+  redelegations?: unknown
+  undelegations?: unknown
+  rewards?: unknown
+}
+
+export type SolanaAccountData = {
+  tokens: TokenBalance[]
+}
+
+export type Account = {
+  id: string
+  balance: string
+  pubkey: string
+  chainId: string
+  assetId: string
+  tokens: TokenBalance[]
+  // Chain-specific data
+  evmData?: EvmAccountData
+  utxoData?: UtxoAccountData
+  cosmosData?: CosmosAccountData
+  solanaData?: SolanaAccountData
+}
+
+function parseAccountId(accountId: string): { chainId: ChainId; pubkey: string } {
   const parts = accountId.split(':')
   if (parts.length >= 3) {
-    const chainId = `${parts[0]}:${parts[1]}`
+    const chainId = `${parts[0]}:${parts[1]}` as ChainId
     const pubkey = parts.slice(2).join(':')
     return { chainId, pubkey }
   }
-  // Fallback for simpler formats
-  return { chainId: 'unknown', pubkey: accountId }
+  return { chainId: 'unknown' as ChainId, pubkey: accountId }
 }
 
-// Group accounts by chainId for efficient batching
 function groupByChainId(
   accountIds: readonly string[],
-): Map<string, { accountId: string; pubkey: string }[]> {
-  const groups = new Map<string, { accountId: string; pubkey: string }[]>()
+): Map<ChainId, { accountId: string; pubkey: string }[]> {
+  const groups = new Map<ChainId, { accountId: string; pubkey: string }[]>()
 
   for (const accountId of accountIds) {
     const { chainId, pubkey } = parseAccountId(accountId)
@@ -51,14 +84,183 @@ function groupByChainId(
   return groups
 }
 
-// Batch function that fetches accounts grouped by chain
+const limit = pLimit(5)
+
+async function fetchFromUnchained(
+  chainId: ChainId,
+  accounts: { accountId: string; pubkey: string }[],
+): Promise<Account[]> {
+  const config = getChainConfig(chainId)
+  if (!config) {
+    console.warn(`[AccountLoader] No config for chain ${chainId}, returning empty accounts`)
+    return accounts.map(({ accountId, pubkey }) => ({
+      id: accountId,
+      balance: '0',
+      pubkey,
+      chainId,
+      assetId: `${chainId}/slip44:60`,
+      tokens: [],
+    }))
+  }
+
+  const api = getUnchainedApi(chainId)
+  if (!api) {
+    console.warn(`[AccountLoader] No API for chain ${chainId}, returning empty accounts`)
+    return accounts.map(({ accountId, pubkey }) => ({
+      id: accountId,
+      balance: '0',
+      pubkey,
+      chainId,
+      assetId: `${chainId}/slip44:60`,
+      tokens: [],
+    }))
+  }
+
+  const results = await Promise.all(
+    accounts.map(({ accountId, pubkey }) =>
+      limit(async (): Promise<Account> => {
+        try {
+          const data = await api.getAccount({ pubkey })
+
+          const balance = (
+            BigInt(data.balance || '0') + BigInt(data.unconfirmedBalance || '0')
+          ).toString()
+
+          const tokens: TokenBalance[] = []
+
+          if ('tokens' in data && Array.isArray(data.tokens)) {
+            for (const token of data.tokens) {
+              const tokenAssetId =
+                'assetId' in token ? (token as { assetId?: string }).assetId : undefined
+              if (tokenAssetId && token.balance) {
+                tokens.push({
+                  assetId: tokenAssetId,
+                  balance: token.balance,
+                  name: token.name,
+                  symbol: token.symbol,
+                  precision: token.decimals,
+                })
+              }
+            }
+          }
+
+          if ('assets' in data && Array.isArray(data.assets)) {
+            for (const asset of data.assets as { denom?: string; amount?: string }[]) {
+              if (asset.denom && asset.amount) {
+                tokens.push({
+                  assetId: `${chainId}/${asset.denom}`,
+                  balance: asset.amount,
+                })
+              }
+            }
+          }
+
+          const nativeAssetId = getNativeAssetId(chainId)
+
+          const account: Account = {
+            id: accountId,
+            balance,
+            pubkey: data.pubkey || pubkey,
+            chainId,
+            assetId: nativeAssetId,
+            tokens,
+          }
+
+          const chainPrefix = chainId.split(':')[0]
+          switch (chainPrefix) {
+            case 'eip155':
+              account.evmData = {
+                nonce: 'nonce' in data ? (data.nonce as number) : 0,
+                tokens,
+              }
+              break
+            case 'bip122':
+              account.utxoData = {
+                addresses:
+                  'addresses' in data && Array.isArray(data.addresses)
+                    ? data.addresses.map(addr => ({
+                        pubkey: (addr as { pubkey: string }).pubkey,
+                        balance: (addr as { balance: string }).balance,
+                      }))
+                    : [],
+                nextChangeAddressIndex:
+                  'nextChangeAddressIndex' in data
+                    ? (data.nextChangeAddressIndex as number)
+                    : undefined,
+                nextReceiveAddressIndex:
+                  'nextReceiveAddressIndex' in data
+                    ? (data.nextReceiveAddressIndex as number)
+                    : undefined,
+              }
+              break
+            case 'cosmos':
+              account.cosmosData = {
+                sequence: 'sequence' in data ? (data.sequence as string) : undefined,
+                accountNumber: 'accountNumber' in data ? (data.accountNumber as string) : undefined,
+                delegations: 'delegations' in data ? data.delegations : undefined,
+                redelegations: 'redelegations' in data ? data.redelegations : undefined,
+                undelegations: 'undelegations' in data ? data.undelegations : undefined,
+                rewards: 'rewards' in data ? data.rewards : undefined,
+              }
+              break
+            case 'solana':
+              account.solanaData = {
+                tokens,
+              }
+              break
+            default:
+              break
+          }
+
+          return account
+        } catch (error) {
+          console.error(`[AccountLoader] Error fetching account ${accountId}:`, error)
+          return {
+            id: accountId,
+            balance: '0',
+            pubkey,
+            chainId,
+            assetId: getNativeAssetId(chainId),
+            tokens: [],
+          }
+        }
+      }),
+    ),
+  )
+
+  return results
+}
+
+function getNativeAssetId(chainId: ChainId): string {
+  const nativeAssetMap: Record<string, string> = {
+    'eip155:1': 'eip155:1/slip44:60',
+    'eip155:43114': 'eip155:43114/slip44:60',
+    'eip155:10': 'eip155:10/slip44:60',
+    'eip155:56': 'eip155:56/slip44:60',
+    'eip155:137': 'eip155:137/slip44:60',
+    'eip155:100': 'eip155:100/slip44:60',
+    'eip155:42161': 'eip155:42161/slip44:60',
+    'eip155:42170': 'eip155:42170/slip44:60',
+    'eip155:8453': 'eip155:8453/slip44:60',
+    'bip122:000000000019d6689c085ae165831e93': 'bip122:000000000019d6689c085ae165831e93/slip44:0',
+    'bip122:000000000000000000651ef99cb9fcbe': 'bip122:000000000000000000651ef99cb9fcbe/slip44:145',
+    'bip122:00000000001a91e3dace36e2be3bf030': 'bip122:00000000001a91e3dace36e2be3bf030/slip44:3',
+    'bip122:12a765e31ffd4059bada1e25190f6e98': 'bip122:12a765e31ffd4059bada1e25190f6e98/slip44:2',
+    'bip122:00040fe8ec8471911baa1db1266ea15d': 'bip122:00040fe8ec8471911baa1db1266ea15d/slip44:133',
+    'cosmos:cosmoshub-4': 'cosmos:cosmoshub-4/slip44:118',
+    'cosmos:thorchain-1': 'cosmos:thorchain-1/slip44:931',
+    'cosmos:mayachain-mainnet-v1': 'cosmos:mayachain-mainnet-v1/slip44:931',
+    'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp': 'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp/slip44:501',
+  }
+  return nativeAssetMap[chainId] || `${chainId}/slip44:60`
+}
+
 async function batchGetAccounts(accountIds: readonly string[]): Promise<(Account | null)[]> {
   console.log(`[AccountLoader] Batching ${accountIds.length} account requests`)
 
   const groups = groupByChainId(accountIds)
   console.log(`[AccountLoader] Grouped into ${groups.size} chains`)
 
-  // Fetch from each chain in parallel
   const chainResults = await Promise.all(
     Array.from(groups.entries()).map(([chainId, accounts]) => {
       console.log(`[AccountLoader] Fetching ${accounts.length} accounts from chain ${chainId}`)
@@ -66,7 +268,6 @@ async function batchGetAccounts(accountIds: readonly string[]): Promise<(Account
     }),
   )
 
-  // Merge results back into a map
   const resultMap = new Map<string, Account>()
   for (const chainResult of chainResults) {
     for (const account of chainResult) {
@@ -74,40 +275,9 @@ async function batchGetAccounts(accountIds: readonly string[]): Promise<(Account
     }
   }
 
-  // Return in the same order as input
   return accountIds.map(id => resultMap.get(id) || null)
 }
 
-// Mock implementation - will be replaced with real Unchained integration
-async function fetchFromUnchained(
-  chainId: string,
-  accounts: { accountId: string; pubkey: string }[],
-): Promise<Account[]> {
-  // Simulate network delay
-  await new Promise(resolve => setTimeout(resolve, 50))
-
-  const nativeAssetId = `${chainId}/slip44:60`
-
-  // Return mock data for demonstration
-  return accounts.map(({ accountId, pubkey }) => ({
-    id: accountId,
-    balance: (Math.random() * 10).toFixed(18),
-    pubkey,
-    chainId,
-    assetId: nativeAssetId,
-    tokens: [
-      {
-        assetId: `${chainId}/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48`, // Mock USDC
-        balance: (Math.random() * 1000).toFixed(6),
-        name: 'USD Coin',
-        symbol: 'USDC',
-        precision: 6,
-      },
-    ],
-  }))
-}
-
-// Create a new DataLoader instance per request
 export function createAccountLoader(): DataLoader<string, Account | null> {
   return new DataLoader<string, Account | null>(batchGetAccounts, {
     cache: true,

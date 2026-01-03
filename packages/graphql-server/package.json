@@ -33,6 +33,7 @@
   "dependencies": {
     "@apollo/server": "^4.11.0",
     "@shapeshiftoss/caip": "workspace:^",
+    "@shapeshiftoss/unchained-client": "workspace:^",
     "axios": "^1.13.0",
     "dataloader": "^2.2.2",
     "graphql": "^16.9.0",

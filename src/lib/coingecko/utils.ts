@@ -39,8 +39,14 @@ import type {
 
 import { getConfig } from '@/config'
 import { queryClient } from '@/context/QueryClientProvider/queryClient'
+import {
+  fetchRecentlyAddedGraphQL,
+  fetchTopMoversGraphQL,
+  fetchTrendingGraphQL,
+} from '@/lib/graphql'
 import type { CoinGeckoSortKey } from '@/lib/market-service/coingecko/coingecko'
 import type { CoinGeckoMarketCap } from '@/lib/market-service/coingecko/coingecko-types'
+import { selectFeatureFlag } from '@/state/slices/preferencesSlice/selectors'
 import { selectAssets } from '@/state/slices/selectors'
 import { store } from '@/state/store'
 
@@ -119,6 +125,31 @@ const getCoinDetails = async (
 }
 
 export const getCoingeckoTopMovers = async (): Promise<CoingeckoAsset[]> => {
+  const isGraphQLEnabled = selectFeatureFlag(store.getState(), 'GraphQLCoingeckoData')
+
+  if (isGraphQLEnabled) {
+    try {
+      console.log('[CoinGecko] Using GraphQL for top movers')
+      const graphqlData = await fetchTopMoversGraphQL()
+      const allMovers = [...graphqlData.topGainers, ...graphqlData.topLosers]
+      const all: CoingeckoAsset[] = []
+
+      await Promise.allSettled(
+        allMovers.map((mover, i) =>
+          getCoinDetails(
+            { id: mover.id, name: mover.name, symbol: mover.symbol } as MoverAsset,
+            i,
+            all,
+          ),
+        ),
+      )
+
+      return all.filter(mover => Boolean(mover.assetId))
+    } catch (error) {
+      console.error('[CoinGecko] GraphQL failed, falling back to direct API:', error)
+    }
+  }
+
   const { data } = await axios.get<MoversResponse>(
     `${coingeckoBaseUrl}/coins/top_gainers_losers?vs_currency=usd`,
   )
@@ -135,6 +166,30 @@ export const getCoingeckoTopMovers = async (): Promise<CoingeckoAsset[]> => {
 }
 
 export const getCoingeckoTrending = async (): Promise<CoingeckoAsset[]> => {
+  const isGraphQLEnabled = selectFeatureFlag(store.getState(), 'GraphQLCoingeckoData')
+
+  if (isGraphQLEnabled) {
+    try {
+      console.log('[CoinGecko] Using GraphQL for trending')
+      const graphqlData = await fetchTrendingGraphQL()
+      const all: CoingeckoAsset[] = []
+
+      await Promise.allSettled(
+        graphqlData.map((coin, i) =>
+          getCoinDetails(
+            { id: coin.id, name: coin.name, symbol: coin.symbol } as TrendingCoin,
+            i,
+            all,
+          ),
+        ),
+      )
+
+      return all.filter(asset => Boolean(asset.assetId))
+    } catch (error) {
+      console.error('[CoinGecko] GraphQL failed, falling back to direct API:', error)
+    }
+  }
+
   const { data } = await axios.get<TrendingResponse>(`${coingeckoBaseUrl}/search/trending`)
 
   const all: CoingeckoAsset[] = []
@@ -147,6 +202,35 @@ export const getCoingeckoTrending = async (): Promise<CoingeckoAsset[]> => {
 }
 
 export const getCoingeckoRecentlyAdded = async (): Promise<CoingeckoAsset[]> => {
+  const isGraphQLEnabled = selectFeatureFlag(store.getState(), 'GraphQLCoingeckoData')
+
+  if (isGraphQLEnabled) {
+    try {
+      console.log('[CoinGecko] Using GraphQL for recently added')
+      const graphqlData = await fetchRecentlyAddedGraphQL()
+      const all: CoingeckoAsset[] = []
+
+      await Promise.allSettled(
+        graphqlData.map((coin, i) =>
+          getCoinDetails(
+            {
+              id: coin.id,
+              name: coin.name,
+              symbol: coin.symbol,
+              activated_at: coin.activatedAt ?? 0,
+            } as RecentlyAddedCoin,
+            i,
+            all,
+          ),
+        ),
+      )
+
+      return all.filter(asset => Boolean(asset.assetId))
+    } catch (error) {
+      console.error('[CoinGecko] GraphQL failed, falling back to direct API:', error)
+    }
+  }
+
   const { data } = await axios.get<RecentlyAddedResponse>(`${coingeckoBaseUrl}/coins/list/new`)
 
   const all: CoingeckoAsset[] = []

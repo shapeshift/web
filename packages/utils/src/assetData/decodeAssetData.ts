@@ -1,7 +1,7 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
-import { pick } from 'lodash'
+import pick from 'lodash/pick'
 
 import { assertUnreachable } from '../assertUnreachable'
 import { FIELDS } from './constants'

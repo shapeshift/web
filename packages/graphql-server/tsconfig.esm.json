@@ -9,6 +9,7 @@
   "include": ["src/**/*", "src/**/*.json"],
   "exclude": ["dist"],
   "references": [
-    { "path": "../caip/tsconfig.esm.json" }
+    { "path": "../caip/tsconfig.esm.json" },
+    { "path": "../unchained-client/tsconfig.esm.json" }
   ]
 }

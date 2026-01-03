@@ -165,7 +165,7 @@ export const estimateFees = async ({
       const getFeeDataInput: GetFeeDataInput<KnownChainIds.NearMainnet> = {
         to,
         value,
-        chainSpecific: { from: account },
+        chainSpecific: { from: account, contractAddress },
         sendMax,
       }
       return adapter.getFeeData(getFeeDataInput)

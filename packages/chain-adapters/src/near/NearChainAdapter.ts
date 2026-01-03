@@ -485,7 +485,10 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.NearMainnet> {
       // Convert hex signature to bytes (64 bytes for Ed25519)
       const signatureBytes = Buffer.from(signedTx.signature, 'hex')
 
-      // Create ED25519Signature for NEAR
+      // NEAR uses Borsh serialization for signatures. The @near-js/crypto library
+      // doesn't export a constructor for ED25519Signature that accepts raw signature bytes,
+      // so we define a compatible class here that mirrors the expected Borsh schema.
+      // This is similar to how Sui chain adapter handles custom signature formatting.
       class ED25519Signature {
         keyType = KeyType.ED25519
         data: Uint8Array

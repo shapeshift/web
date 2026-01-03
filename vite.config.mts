@@ -76,6 +76,10 @@ const serveCompressedAssets: PluginOption = {
       const urlWithoutQuery = req.url.split('?')[0]
       const filePath = path.join(publicPath, urlWithoutQuery)
 
+      if (!filePath.startsWith(publicPath + path.sep)) {
+        return next()
+      }
+
       const tryServeCompressed = (
         encoding: string,
         extension: string,

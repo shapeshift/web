@@ -12,6 +12,7 @@
     { "path": "./packages/chain-adapters" },
     { "path": "./packages/contracts" },
     { "path": "./packages/errors" },
+    { "path": "./packages/graphql-server" },
     { "path": "./packages/swapper" },
     { "path": "./packages/types" },
     { "path": "./packages/unchained-client" },

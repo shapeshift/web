@@ -15,6 +15,7 @@ import { DEFAULT_HISTORY_TIMEFRAME } from '@/constants/Config'
 import { LanguageTypeEnum } from '@/constants/LanguageTypeEnum'
 import { usePlugins } from '@/context/PluginProvider/PluginProvider'
 import { useActionCenterSubscribers } from '@/hooks/useActionCenterSubscribers/useActionCenterSubscribers'
+import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { useIsSnapInstalled } from '@/hooks/useIsSnapInstalled/useIsSnapInstalled'
 import { useLedgerConnectionState } from '@/hooks/useLedgerConnectionState'
 import { useMixpanelPortfolioTracking } from '@/hooks/useMixpanelPortfolioTracking/useMixpanelPortfolioTracking'
@@ -24,6 +25,7 @@ import { useTransactionsSubscriber } from '@/hooks/useTransactionsSubscriber'
 import { useUser } from '@/hooks/useUser/useUser'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { walletSupportsChain } from '@/hooks/useWalletSupportsChain/useWalletSupportsChain'
+import { useGraphQLMarketData } from '@/lib/graphql'
 import { useGetFiatRampsQuery } from '@/state/apis/fiatRamps/fiatRamps'
 import {
   marketApi,
@@ -109,11 +111,22 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   // track anonymous portfolio
   useMixpanelPortfolioTracking()
 
-  // load top 2000 assets market data
+  // Feature flag for GraphQL market data
+  const isGraphQLMarketDataEnabled = useFeatureFlag('GraphQLMarketData')
+
+  // GraphQL market data hook - only fetches portfolio assets (more efficient)
+  // Enabled when feature flag is on
+  // Falls back to legacy API after 3 consecutive failures
+  const { shouldUseLegacyFallback } = useGraphQLMarketData({
+    enabled: isGraphQLMarketDataEnabled && !modal,
+  })
+
+  // load top 2000 assets market data (legacy approach)
   // this is needed to sort assets by market cap
   // and covers most assets users will have
+  // Skip when GraphQL market data is enabled (unless falling back due to failures)
   const findAllQueryData = useFindAllMarketDataQuery(undefined, {
-    skip: modal,
+    skip: modal || (isGraphQLMarketDataEnabled && !shouldUseLegacyFallback),
     pollingInterval: MARKET_DATA_POLLING_INTERVAL_MS,
   })
 
@@ -159,6 +172,9 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   }, [dispatch, prevWalletId, walletId])
 
   const findByAssetIdPayload = useMemo(() => {
+    // GraphQL mode fetches portfolio assets directly, no need for granular fetching
+    if (isGraphQLMarketDataEnabled) return []
+
     // same condition as the `enabled` below, we would skip anyway
     if (!(isConnected || (portfolioLoadingStatus !== 'loading' && !modal && !isLoadingLocalWallet)))
       return []
@@ -174,6 +190,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
 
     return portfolioAssetIdsDelta
   }, [
+    isGraphQLMarketDataEnabled,
     findAllQueryData.status,
     findAllQueryData.currentData,
     isConnected,

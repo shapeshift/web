@@ -1,5 +1,4 @@
 import { mayachainChainId, thorchainChainId } from '@shapeshiftoss/caip'
-import type { cosmossdk } from '@shapeshiftoss/unchained-client'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import axios from 'axios'
 
@@ -11,7 +10,6 @@ import type { ThornodeStatusResponse, ThornodeTxResponse } from './types'
 
 type CheckTradeStatusInputExtended = CheckTradeStatusInput & {
   nodeUrl: string
-  apiUrl: string
   nativeChain: 'THOR' | 'MAYA'
 }
 
@@ -22,7 +20,6 @@ export const checkTradeStatus = async ({
   fetchIsSmartContractAddressQuery,
   assertGetEvmChainAdapter,
   nodeUrl,
-  apiUrl,
   nativeChain,
 }: CheckTradeStatusInputExtended): Promise<TradeStatus> => {
   try {
@@ -48,14 +45,21 @@ export const checkTradeStatus = async ({
       (chainId === thorchainChainId && nativeChain === 'THOR') ||
       (chainId === mayachainChainId && nativeChain === 'MAYA')
     ) {
-      const { data: tx } = await axios.get<cosmossdk.Tx>(`${apiUrl}/tx/${txHash}`)
+      try {
+        const cosmosNodeUrl = nodeUrl.replace('/thorchain', '').replace('/mayachain', '')
+        const { data: txResponse } = await axios.get<{
+          tx_response?: { code: number; raw_log?: string }
+        }>(`${cosmosNodeUrl}/cosmos/tx/v1beta1/txs/${txHash}`)
 
-      if (tx.events['0']?.error) {
-        return {
-          status: TxStatus.Failed,
-          buyTxHash: undefined,
-          message: tx.events[0].error.message,
+        if (txResponse.tx_response && txResponse.tx_response.code !== 0) {
+          return {
+            status: TxStatus.Failed,
+            buyTxHash: undefined,
+            message: txResponse.tx_response.raw_log,
+          }
         }
+      } catch {
+        // Cosmos endpoint may 404 for some txs (e.g. MsgDeposit), continue with thorchain status check
       }
     }
 

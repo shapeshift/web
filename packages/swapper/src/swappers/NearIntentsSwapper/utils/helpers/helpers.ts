@@ -1,146 +1,169 @@
-import { ASSOCIATED_PROGRAM_ID } from '@coral-xyz/anchor/dist/cjs/utils/token'
-import { fromAssetId, solanaChainId, suiChainId } from '@shapeshiftoss/caip'
-import type { Asset } from '@shapeshiftoss/types'
-import { TxStatus } from '@shapeshiftoss/unchained-client'
-import { bnOrZero, isToken } from '@shapeshiftoss/utils'
-import type { TransactionInstruction } from '@solana/web3.js'
-import { zeroAddress } from 'viem'
+import { ASSOCIATED_PROGRAM_ID } from "@coral-xyz/anchor/dist/cjs/utils/token";
+import { fromAssetId, solanaChainId } from "@shapeshiftoss/caip";
+import type { Asset } from "@shapeshiftoss/types";
+import { TxStatus } from "@shapeshiftoss/unchained-client";
+import { bnOrZero, isToken } from "@shapeshiftoss/utils";
+import type { TransactionInstruction } from "@solana/web3.js";
+import { zeroAddress } from "viem";
 
-import type { GetExecutionStatusResponse, TokenResponse } from '../../types'
-import { chainIdToNearIntentsChain } from '../../types'
-import { OneClickService } from '../oneClickService'
+import type { GetExecutionStatusResponse, TokenResponse } from "../../types";
+import { chainIdToNearIntentsChain } from "../../types";
+import { OneClickService } from "../oneClickService";
 
-const ATA_RENT_LAMPORTS = 2040000
+const ATA_RENT_LAMPORTS = 2040000;
 
-export const calculateAccountCreationCosts = (instructions: TransactionInstruction[]): string => {
-  let totalCost = bnOrZero(0)
+export const calculateAccountCreationCosts = (
+  instructions: TransactionInstruction[],
+): string => {
+  let totalCost = bnOrZero(0);
 
   for (const ix of instructions) {
     if (ix.programId.toString() === ASSOCIATED_PROGRAM_ID.toString()) {
-      totalCost = totalCost.plus(ATA_RENT_LAMPORTS)
+      totalCost = totalCost.plus(ATA_RENT_LAMPORTS);
     }
   }
 
-  return totalCost.toString()
-}
+  return totalCost.toString();
+};
 
 export const getNearIntentsAsset = ({
   nearNetwork,
   contractAddress,
 }: {
-  nearNetwork: string
-  contractAddress: string
+  nearNetwork: string;
+  contractAddress: string;
 }): string => {
   // Native EVM assets: "nep141:eth.omft.near"
   if (contractAddress === zeroAddress) {
-    return `nep141:${nearNetwork}.omft.near`
+    return `nep141:${nearNetwork}.omft.near`;
   }
   // ERC20 tokens: "nep141:eth-0x{address}.omft.near"
-  return `nep141:${nearNetwork}-${contractAddress.toLowerCase()}.omft.near`
-}
+  return `nep141:${nearNetwork}-${contractAddress.toLowerCase()}.omft.near`;
+};
 
-const NEP245_CHAINS = ['bsc', 'pol', 'avax', 'op', 'tron', 'monad'] as const
-const TOKEN_LOOKUP_CHAINS = ['sui'] as const
-const NEAR_CHAIN = 'near' as const
-const WNEAR_CONTRACT_ADDRESS = 'wrap.near' as const
+const NEP245_CHAINS = ["bsc", "pol", "avax", "op", "tron", "monad"] as const;
+const TOKEN_LOOKUP_CHAINS = ["sui", "starknet"] as const;
+const NEAR_CHAIN = "near" as const;
+const WNEAR_CONTRACT_ADDRESS = "wrap.near" as const;
 
-export const assetToNearIntentsAsset = async (asset: Asset): Promise<string | null> => {
+type Nep245Chain = (typeof NEP245_CHAINS)[number];
+type TokenLookupChain = (typeof TOKEN_LOOKUP_CHAINS)[number];
+
+const isNep245Chain = (chain: string): chain is Nep245Chain => {
+  return NEP245_CHAINS.includes(chain as Nep245Chain);
+};
+
+const isTokenLookupChain = (chain: string): chain is TokenLookupChain => {
+  return TOKEN_LOOKUP_CHAINS.includes(chain as TokenLookupChain);
+};
+
+export const assetToNearIntentsAsset = async (
+  asset: Asset,
+): Promise<string | null> => {
   const nearNetwork =
-    chainIdToNearIntentsChain[asset.chainId as keyof typeof chainIdToNearIntentsChain]
+    chainIdToNearIntentsChain[
+      asset.chainId as keyof typeof chainIdToNearIntentsChain
+    ];
 
-  if (!nearNetwork) return null
+  if (!nearNetwork) return null;
 
   // NEAR chain requires special handling
   // Native NEAR maps to wNEAR (wrap.near)
   if (nearNetwork === NEAR_CHAIN) {
-    const tokens = await OneClickService.getTokens()
-    const { assetNamespace, assetReference } = fromAssetId(asset.assetId)
-    const isNativeAsset = assetNamespace === 'slip44'
+    const tokens = await OneClickService.getTokens();
+    const { assetNamespace, assetReference } = fromAssetId(asset.assetId);
+    const isNativeAsset = assetNamespace === "slip44";
 
     // Native NEAR maps to wNEAR, tokens use their contract address directly
-    const contractAddress = isNativeAsset ? WNEAR_CONTRACT_ADDRESS : assetReference
+    const contractAddress = isNativeAsset
+      ? WNEAR_CONTRACT_ADDRESS
+      : assetReference;
 
     const match = tokens.find((t: TokenResponse) => {
-      if (t.blockchain !== NEAR_CHAIN) return false
-      return t.contractAddress === contractAddress
-    })
+      if (t.blockchain !== NEAR_CHAIN) return false;
+      return t.contractAddress === contractAddress;
+    });
 
-    return match?.assetId ?? null
+    return match?.assetId ?? null;
   }
 
-  // NEP-245 chains (BSC, Polygon, Avalanche, Optimism, TRON, SUI) and Solana require token lookup
+  // NEP-245 chains (BSC, Polygon, Avalanche, Optimism, TRON, Monad), Token lookup chains (Sui, Starknet), and Solana require token lookup
   // Asset IDs use hashed format that can't be generated from contract addresses
   const requiresLookup =
-    NEP245_CHAINS.includes(nearNetwork as any) ||
-    TOKEN_LOOKUP_CHAINS.includes(nearNetwork as any) ||
-    asset.chainId === solanaChainId ||
-    asset.chainId === suiChainId
+    isNep245Chain(nearNetwork) ||
+    isTokenLookupChain(nearNetwork) ||
+    asset.chainId === solanaChainId;
 
   if (requiresLookup) {
-    const tokens = await OneClickService.getTokens()
+    const tokens = await OneClickService.getTokens();
 
-    const { assetNamespace, assetReference } = fromAssetId(asset.assetId)
-    const isNativeAsset = assetNamespace === 'slip44'
-    const contractAddress = !isNativeAsset ? assetReference.toLowerCase() : null
+    const { assetNamespace, assetReference } = fromAssetId(asset.assetId);
+    const isNativeAsset = assetNamespace === "slip44";
+    const contractAddress = !isNativeAsset
+      ? assetReference.toLowerCase()
+      : null;
 
     const match = tokens.find((t: TokenResponse) => {
-      if (t.blockchain !== nearNetwork) return false
+      if (typeof t.blockchain !== "string" || t.blockchain !== nearNetwork)
+        return false;
       return contractAddress
         ? t.contractAddress?.toLowerCase() === contractAddress
-        : !t.contractAddress
-    })
+        : !t.contractAddress;
+    });
 
     if (!match) {
-      return null
+      return null;
     }
 
-    return match.assetId
+    return match.assetId;
   }
 
   // NEP-141 chains (ETH, ARB, BASE, GNOSIS, BTC, DOGE): use predictable format
   const contractAddress = isToken(asset.assetId)
     ? fromAssetId(asset.assetId).assetReference
-    : zeroAddress
+    : zeroAddress;
 
-  return getNearIntentsAsset({ nearNetwork, contractAddress })
-}
+  return getNearIntentsAsset({ nearNetwork, contractAddress });
+};
 
-export const mapNearIntentsStatus = (status: GetExecutionStatusResponse['status']): TxStatus => {
+export const mapNearIntentsStatus = (
+  status: GetExecutionStatusResponse["status"],
+): TxStatus => {
   switch (status) {
-    case 'PENDING_DEPOSIT':
-    case 'KNOWN_DEPOSIT_TX':
-    case 'PROCESSING':
-      return TxStatus.Pending
-    case 'SUCCESS':
-      return TxStatus.Confirmed
-    case 'INCOMPLETE_DEPOSIT':
-    case 'REFUNDED':
-    case 'FAILED':
-      return TxStatus.Failed
+    case "PENDING_DEPOSIT":
+    case "KNOWN_DEPOSIT_TX":
+    case "PROCESSING":
+      return TxStatus.Pending;
+    case "SUCCESS":
+      return TxStatus.Confirmed;
+    case "INCOMPLETE_DEPOSIT":
+    case "REFUNDED":
+    case "FAILED":
+      return TxStatus.Failed;
     default:
-      return TxStatus.Unknown
+      return TxStatus.Unknown;
   }
-}
+};
 
 export const getNearIntentsStatusMessage = (
-  status: GetExecutionStatusResponse['status'],
+  status: GetExecutionStatusResponse["status"],
 ): string | undefined => {
   switch (status) {
-    case 'PENDING_DEPOSIT':
-      return 'Waiting for deposit...'
-    case 'KNOWN_DEPOSIT_TX':
-      return 'Deposit detected, waiting for confirmation...'
-    case 'PROCESSING':
-      return 'Processing swap...'
-    case 'SUCCESS':
-      return undefined
-    case 'INCOMPLETE_DEPOSIT':
-      return 'Insufficient deposit amount'
-    case 'REFUNDED':
-      return 'Swap failed, funds refunded'
-    case 'FAILED':
-      return 'Swap failed'
+    case "PENDING_DEPOSIT":
+      return "Waiting for deposit...";
+    case "KNOWN_DEPOSIT_TX":
+      return "Deposit detected, waiting for confirmation...";
+    case "PROCESSING":
+      return "Processing swap...";
+    case "SUCCESS":
+      return undefined;
+    case "INCOMPLETE_DEPOSIT":
+      return "Insufficient deposit amount";
+    case "REFUNDED":
+      return "Swap failed, funds refunded";
+    case "FAILED":
+      return "Swap failed";
     default:
-      return 'Unknown status'
+      return "Unknown status";
   }
-}
+};

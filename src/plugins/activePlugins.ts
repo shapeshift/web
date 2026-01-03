@@ -19,6 +19,7 @@ import optimism from '@/plugins/optimism'
 import plasma from '@/plugins/plasma'
 import polygon from '@/plugins/polygon'
 import solana from '@/plugins/solana'
+import starknet from '@/plugins/starknet'
 import sui from '@/plugins/sui'
 import thorchain from '@/plugins/thorchain'
 import tron from '@/plugins/tron'
@@ -47,6 +48,7 @@ export const activePlugins = [
   plasma,
   polygon,
   solana,
+  starknet,
   sui,
   thorchain,
   tron,

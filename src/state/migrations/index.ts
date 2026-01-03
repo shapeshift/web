@@ -1,15 +1,15 @@
-import type { MigrationManifest } from 'redux-persist'
+import type { MigrationManifest } from "redux-persist";
 
-import { clearAction } from './clearAction'
-import { clearAddressBook } from './clearAddressBook'
-import { clearAssets } from './clearAssets'
-import { clearLocalWallet } from './clearLocalWallet'
-import { clearMarketData } from './clearMarketData'
-import { clearOpportunities } from './clearOpportunities'
-import { clearPortfolio } from './clearPortfolio'
-import { clearSnapshot } from './clearSnapshot'
-import { clearSwaps } from './clearSwaps'
-import { clearTxHistory } from './clearTxHistory'
+import { clearAction } from "./clearAction";
+import { clearAddressBook } from "./clearAddressBook";
+import { clearAssets } from "./clearAssets";
+import { clearLocalWallet } from "./clearLocalWallet";
+import { clearMarketData } from "./clearMarketData";
+import { clearOpportunities } from "./clearOpportunities";
+import { clearPortfolio } from "./clearPortfolio";
+import { clearSnapshot } from "./clearSnapshot";
+import { clearSwaps } from "./clearSwaps";
+import { clearTxHistory } from "./clearTxHistory";
 export const clearTxHistoryMigrations = {
   0: clearTxHistory,
   1: clearTxHistory,
@@ -19,7 +19,7 @@ export const clearTxHistoryMigrations = {
   5: clearTxHistory,
   6: clearTxHistory,
   7: clearTxHistory,
-} as unknown as Omit<MigrationManifest, '_persist'>
+} as unknown as Omit<MigrationManifest, "_persist">;
 
 export const clearOpportunitiesMigrations = {
   0: clearOpportunities,
@@ -28,7 +28,7 @@ export const clearOpportunitiesMigrations = {
   3: clearOpportunities,
   4: clearOpportunities,
   5: clearOpportunities,
-} as unknown as Omit<MigrationManifest, '_persist'>
+} as unknown as Omit<MigrationManifest, "_persist">;
 
 export const clearPortfolioMigrations = {
   0: clearPortfolio,
@@ -36,12 +36,12 @@ export const clearPortfolioMigrations = {
   2: clearPortfolio,
   3: clearPortfolio,
   4: clearPortfolio,
-} as unknown as Omit<MigrationManifest, '_persist'>
+} as unknown as Omit<MigrationManifest, "_persist">;
 
 export const localWalletMigrations = {
   0: clearLocalWallet,
   1: clearLocalWallet,
-} as unknown as Omit<MigrationManifest, '_persist'>
+} as unknown as Omit<MigrationManifest, "_persist">;
 
 export const clearAssetsMigrations = {
   0: clearAssets,
@@ -301,26 +301,27 @@ export const clearAssetsMigrations = {
   254: clearAssets,
   255: clearAssets,
   256: clearAssets,
-} as unknown as Omit<MigrationManifest, '_persist'>
+  257: clearAssets,
+} as unknown as Omit<MigrationManifest, "_persist">;
 
 export const clearMarketDataMigrations = {
   0: clearMarketData,
   1: clearMarketData,
-} as unknown as Omit<MigrationManifest, '_persist'>
+} as unknown as Omit<MigrationManifest, "_persist">;
 
 export const clearSnapshotMigrations = {
   0: clearSnapshot,
-} as unknown as Omit<MigrationManifest, '_persist'>
+} as unknown as Omit<MigrationManifest, "_persist">;
 
 export const clearActionMigrations = {
   0: clearAction,
   1: clearAction,
-} as unknown as Omit<MigrationManifest, '_persist'>
+} as unknown as Omit<MigrationManifest, "_persist">;
 
 export const clearSwapsMigrations = {
   0: clearSwaps,
-} as unknown as Omit<MigrationManifest, '_persist'>
+} as unknown as Omit<MigrationManifest, "_persist">;
 
 export const clearAddressBookMigrations = {
   0: clearAddressBook,
-} as unknown as Omit<MigrationManifest, '_persist'>
+} as unknown as Omit<MigrationManifest, "_persist">;

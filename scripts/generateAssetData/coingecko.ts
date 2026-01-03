@@ -16,6 +16,7 @@ import {
   plasmaChainId,
   polygonChainId,
   solanaChainId,
+  starknetChainId,
   suiChainId,
   toAssetId,
   tronChainId,
@@ -167,6 +168,14 @@ export async function getAssets(chainId: ChainId): Promise<Asset[]> {
           explorer: solana.explorer,
           explorerAddressLink: solana.explorerAddressLink,
           explorerTxLink: solana.explorerTxLink,
+        }
+      case starknetChainId:
+        return {
+          assetNamespace: ASSET_NAMESPACE.starknetToken,
+          category: 'starknet',
+          explorer: 'https://starkscan.co',
+          explorerAddressLink: 'https://starkscan.co/contract/',
+          explorerTxLink: 'https://starkscan.co/tx/',
         }
       case tronChainId:
         return {

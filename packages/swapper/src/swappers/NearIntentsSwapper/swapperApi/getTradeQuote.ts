@@ -1,36 +1,43 @@
-import { CHAIN_NAMESPACE, fromAssetId } from '@shapeshiftoss/caip'
-import { evm } from '@shapeshiftoss/chain-adapters'
+import { CHAIN_NAMESPACE, fromAssetId } from "@shapeshiftoss/caip";
+import { evm } from "@shapeshiftoss/chain-adapters";
 import {
   bn,
   bnOrZero,
   contractAddressOrUndefined,
   DAO_TREASURY_NEAR,
   isToken,
-} from '@shapeshiftoss/utils'
-import type { Result } from '@sniptt/monads'
-import { Err, Ok } from '@sniptt/monads'
-import { v4 as uuid } from 'uuid'
+} from "@shapeshiftoss/utils";
+import type { Result } from "@sniptt/monads";
+import { Err, Ok } from "@sniptt/monads";
+import { v4 as uuid } from "uuid";
 
-import { getDefaultSlippageDecimalPercentageForSwapper } from '../../../constants'
+import { getDefaultSlippageDecimalPercentageForSwapper } from "../../../constants";
 import type {
   CommonTradeQuoteInput,
   GetUtxoTradeQuoteInput,
   SwapErrorRight,
   SwapperDeps,
   TradeQuote,
-} from '../../../types'
-import { SwapperName, TradeQuoteError } from '../../../types'
+} from "../../../types";
+import { SwapperName, TradeQuoteError } from "../../../types";
 import {
   createTradeAmountTooSmallErr,
   getInputOutputRate,
   makeSwapErrorRight,
-} from '../../../utils'
-import { isNativeEvmAsset } from '../../utils/helpers/helpers'
-import { DEFAULT_QUOTE_DEADLINE_MS, DEFAULT_SLIPPAGE_BPS } from '../constants'
-import type { QuoteResponse } from '../types'
-import { QuoteRequest } from '../types'
-import { assetToNearIntentsAsset, calculateAccountCreationCosts } from '../utils/helpers/helpers'
-import { ApiError, initializeOneClickService, OneClickService } from '../utils/oneClickService'
+} from "../../../utils";
+import { isNativeEvmAsset } from "../../utils/helpers/helpers";
+import { DEFAULT_QUOTE_DEADLINE_MS, DEFAULT_SLIPPAGE_BPS } from "../constants";
+import type { QuoteResponse } from "../types";
+import { QuoteRequest } from "../types";
+import {
+  assetToNearIntentsAsset,
+  calculateAccountCreationCosts,
+} from "../utils/helpers/helpers";
+import {
+  ApiError,
+  initializeOneClickService,
+  OneClickService,
+} from "../utils/oneClickService";
 
 export const getTradeQuote = async (
   input: CommonTradeQuoteInput,
@@ -45,7 +52,7 @@ export const getTradeQuote = async (
     sellAmountIncludingProtocolFeesCryptoBaseUnit: sellAmount,
     slippageTolerancePercentageDecimal,
     affiliateBps,
-  } = input
+  } = input;
 
   if (accountNumber === undefined) {
     return Err(
@@ -53,7 +60,7 @@ export const getTradeQuote = async (
         message: `accountNumber is required`,
         code: TradeQuoteError.UnknownError,
       }),
-    )
+    );
   }
 
   if (sendAddress === undefined) {
@@ -62,7 +69,7 @@ export const getTradeQuote = async (
         message: `sendAddress is required`,
         code: TradeQuoteError.UnknownError,
       }),
-    )
+    );
   }
 
   if (receiveAddress === undefined) {
@@ -71,16 +78,16 @@ export const getTradeQuote = async (
         message: `receiveAddress is required`,
         code: TradeQuoteError.UnknownError,
       }),
-    )
+    );
   }
 
-  const from = sendAddress
+  const from = sendAddress;
 
   try {
-    initializeOneClickService(deps.config.VITE_NEAR_INTENTS_API_KEY)
+    initializeOneClickService(deps.config.VITE_NEAR_INTENTS_API_KEY);
 
-    const originAsset = await assetToNearIntentsAsset(sellAsset)
-    const destinationAsset = await assetToNearIntentsAsset(buyAsset)
+    const originAsset = await assetToNearIntentsAsset(sellAsset);
+    const destinationAsset = await assetToNearIntentsAsset(buyAsset);
 
     if (!originAsset) {
       return Err(
@@ -90,7 +97,7 @@ export const getTradeQuote = async (
             sellAsset.networkName || sellAsset.chainId
           } is not supported by NEAR Intents`,
         }),
-      )
+      );
     }
 
     if (!destinationAsset) {
@@ -101,7 +108,7 @@ export const getTradeQuote = async (
             buyAsset.networkName || buyAsset.chainId
           } is not supported by NEAR Intents`,
         }),
-      )
+      );
     }
 
     const quoteRequest: QuoteRequest = {
@@ -119,57 +126,62 @@ export const getTradeQuote = async (
       recipient: receiveAddress,
       recipientType: QuoteRequest.recipientType.DESTINATION_CHAIN,
       deadline: new Date(Date.now() + DEFAULT_QUOTE_DEADLINE_MS).toISOString(),
-      referral: 'shapeshift',
+      referral: "shapeshift",
       appFees: [
         {
           recipient: DAO_TREASURY_NEAR,
           fee: Number(affiliateBps),
         },
       ],
-    }
+    };
 
-    const quoteResponse: QuoteResponse = await OneClickService.getQuote(quoteRequest)
+    const quoteResponse: QuoteResponse =
+      await OneClickService.getQuote(quoteRequest);
 
-    const { quote } = quoteResponse
+    const { quote } = quoteResponse;
 
     if (!quote.depositAddress) {
-      throw new Error('Missing deposit address in quote response')
+      throw new Error("Missing deposit address in quote response");
     }
 
-    const { chainNamespace } = fromAssetId(sellAsset.assetId)
-    const depositAddress = quote.depositAddress
+    const { chainNamespace } = fromAssetId(sellAsset.assetId);
+    const depositAddress = quote.depositAddress;
 
     const getFeeData = async (): Promise<{
-      networkFeeCryptoBaseUnit: string | undefined
-      chainSpecific?: { satsPerByte: string }
+      networkFeeCryptoBaseUnit: string | undefined;
+      chainSpecific?: { satsPerByte: string };
     }> => {
       switch (chainNamespace) {
         case CHAIN_NAMESPACE.Evm: {
-          const sellAdapter = deps.assertGetEvmChainAdapter(sellAsset.chainId)
-          const contractAddress = contractAddressOrUndefined(sellAsset.assetId)
-          const data = evm.getErc20Data(depositAddress, sellAmount, contractAddress)
+          const sellAdapter = deps.assertGetEvmChainAdapter(sellAsset.chainId);
+          const contractAddress = contractAddressOrUndefined(sellAsset.assetId);
+          const data = evm.getErc20Data(
+            depositAddress,
+            sellAmount,
+            contractAddress,
+          );
 
           const feeData = await sellAdapter.getFeeData({
             to: contractAddress ?? depositAddress,
-            value: isNativeEvmAsset(sellAsset.assetId) ? sellAmount : '0',
+            value: isNativeEvmAsset(sellAsset.assetId) ? sellAmount : "0",
             chainSpecific: {
               from,
               contractAddress,
-              data: data || '0x',
+              data: data || "0x",
             },
             sendMax: false,
-          })
-          return { networkFeeCryptoBaseUnit: feeData.fast.txFee }
+          });
+          return { networkFeeCryptoBaseUnit: feeData.fast.txFee };
         }
 
         case CHAIN_NAMESPACE.Utxo: {
-          const sellAdapter = deps.assertGetUtxoChainAdapter(sellAsset.chainId)
-          const pubkey = (input as GetUtxoTradeQuoteInput).xpub
+          const sellAdapter = deps.assertGetUtxoChainAdapter(sellAsset.chainId);
+          const pubkey = (input as GetUtxoTradeQuoteInput).xpub;
 
           if (!pubkey) {
             return {
               networkFeeCryptoBaseUnit: undefined,
-            }
+            };
           }
 
           const feeData = await sellAdapter.getFeeData({
@@ -177,27 +189,29 @@ export const getTradeQuote = async (
             value: sellAmount,
             chainSpecific: { pubkey },
             sendMax: false,
-          })
+          });
           return {
             networkFeeCryptoBaseUnit: feeData.fast.txFee,
             chainSpecific: {
               satsPerByte: feeData.fast.chainSpecific.satoshiPerByte,
             },
-          }
+          };
         }
 
         case CHAIN_NAMESPACE.Solana: {
-          const sellAdapter = deps.assertGetSolanaChainAdapter(sellAsset.chainId)
+          const sellAdapter = deps.assertGetSolanaChainAdapter(
+            sellAsset.chainId,
+          );
           const tokenId = isToken(sellAsset.assetId)
             ? fromAssetId(sellAsset.assetId).assetReference
-            : undefined
+            : undefined;
 
           const instructions = await sellAdapter.buildEstimationInstructions({
             from,
             to: depositAddress,
             tokenId,
             value: sellAmount,
-          })
+          });
 
           const feeData = await sellAdapter.getFeeData({
             to: depositAddress,
@@ -208,18 +222,18 @@ export const getTradeQuote = async (
               instructions,
             },
             sendMax: false,
-          })
+          });
 
-          const txFee = feeData.fast.txFee
-          const ataCreationCost = calculateAccountCreationCosts(instructions)
-          const totalFee = bn(txFee).plus(ataCreationCost).toString()
+          const txFee = feeData.fast.txFee;
+          const ataCreationCost = calculateAccountCreationCosts(instructions);
+          const totalFee = bn(txFee).plus(ataCreationCost).toString();
 
-          return { networkFeeCryptoBaseUnit: totalFee }
+          return { networkFeeCryptoBaseUnit: totalFee };
         }
 
         case CHAIN_NAMESPACE.Tron: {
-          const sellAdapter = deps.assertGetTronChainAdapter(sellAsset.chainId)
-          const contractAddress = contractAddressOrUndefined(sellAsset.assetId)
+          const sellAdapter = deps.assertGetTronChainAdapter(sellAsset.chainId);
+          const contractAddress = contractAddressOrUndefined(sellAsset.assetId);
           const feeData = await sellAdapter.getFeeData({
             to: depositAddress,
             value: sellAmount,
@@ -227,16 +241,16 @@ export const getTradeQuote = async (
               from: sendAddress,
               contractAddress,
             },
-          })
+          });
 
-          return { networkFeeCryptoBaseUnit: feeData.fast.txFee }
+          return { networkFeeCryptoBaseUnit: feeData.fast.txFee };
         }
 
         case CHAIN_NAMESPACE.Sui: {
-          const sellAdapter = deps.assertGetSuiChainAdapter(sellAsset.chainId)
+          const sellAdapter = deps.assertGetSuiChainAdapter(sellAsset.chainId);
           const tokenId = isToken(sellAsset.assetId)
             ? fromAssetId(sellAsset.assetId).assetReference
-            : undefined
+            : undefined;
 
           const feeData = await sellAdapter.getFeeData({
             to: depositAddress,
@@ -246,35 +260,45 @@ export const getTradeQuote = async (
               tokenId,
             },
             sendMax: false,
-          })
+          });
 
-          return { networkFeeCryptoBaseUnit: feeData.fast.txFee }
+          return { networkFeeCryptoBaseUnit: feeData.fast.txFee };
         }
 
         case CHAIN_NAMESPACE.Near: {
-          const sellAdapter = deps.assertGetNearChainAdapter(sellAsset.chainId)
+          const sellAdapter = deps.assertGetNearChainAdapter(sellAsset.chainId);
           const feeData = await sellAdapter.getFeeData({
             to: depositAddress,
             value: sellAmount,
             chainSpecific: { from },
-          })
+          });
 
-          return { networkFeeCryptoBaseUnit: feeData.fast.txFee }
+          return { networkFeeCryptoBaseUnit: feeData.fast.txFee };
+        }
+
+        case CHAIN_NAMESPACE.Starknet: {
+          const sellAdapter = deps.assertGetStarknetChainAdapter(
+            sellAsset.chainId,
+          );
+
+          const feeData = await sellAdapter.getFeeData();
+
+          return { networkFeeCryptoBaseUnit: feeData.fast.txFee };
         }
 
         default:
-          throw new Error(`Unsupported chain namespace: ${chainNamespace}`)
+          throw new Error(`Unsupported chain namespace: ${chainNamespace}`);
       }
-    }
+    };
 
-    const { networkFeeCryptoBaseUnit, chainSpecific } = await getFeeData()
+    const { networkFeeCryptoBaseUnit, chainSpecific } = await getFeeData();
 
     const rate = getInputOutputRate({
       sellAmountCryptoBaseUnit: quote.amountIn,
       buyAmountCryptoBaseUnit: quote.amountOut,
       sellAsset,
       buyAsset,
-    })
+    });
 
     const tradeQuote: TradeQuote = {
       id: uuid(),
@@ -284,7 +308,7 @@ export const getTradeQuote = async (
       slippageTolerancePercentageDecimal:
         slippageTolerancePercentageDecimal ??
         getDefaultSlippageDecimalPercentageForSwapper(SwapperName.NearIntents),
-      quoteOrRate: 'quote' as const,
+      quoteOrRate: "quote" as const,
       swapperName: SwapperName.NearIntents,
       steps: [
         {
@@ -302,44 +326,46 @@ export const getTradeQuote = async (
           sellAmountIncludingProtocolFeesCryptoBaseUnit: quote.amountIn,
           sellAsset,
           source: SwapperName.NearIntents,
-          estimatedExecutionTimeMs: quote.timeEstimate ? quote.timeEstimate * 1000 : undefined,
+          estimatedExecutionTimeMs: quote.timeEstimate
+            ? quote.timeEstimate * 1000
+            : undefined,
           nearIntentsSpecific: {
-            depositAddress: quote.depositAddress ?? '',
+            depositAddress: quote.depositAddress ?? "",
             depositMemo: quote.depositMemo,
             timeEstimate: quote.timeEstimate,
-            deadline: quote.deadline ?? '',
+            deadline: quote.deadline ?? "",
           },
         },
       ],
-    }
+    };
 
-    return Ok([tradeQuote])
+    return Ok([tradeQuote]);
   } catch (error) {
-    console.error('[NEAR Intents] getTradeQuote error:', error)
+    console.error("[NEAR Intents] getTradeQuote error:", error);
 
     if (error instanceof ApiError) {
       if (
-        error.body?.message === 'tokenIn is not valid' ||
-        error.body?.message === 'tokenOut is not valid'
+        error.body?.message === "tokenIn is not valid" ||
+        error.body?.message === "tokenOut is not valid"
       ) {
         return Err(
           makeSwapErrorRight({
             code: TradeQuoteError.UnsupportedTradePair,
-            message: 'Unsupported asset',
+            message: "Unsupported asset",
           }),
-        )
+        );
       }
 
-      if (error.body?.message?.includes('Amount is too low')) {
-        const match = error.body.message.match(/try at least (\d+)/)
+      if (error.body?.message?.includes("Amount is too low")) {
+        const match = error.body.message.match(/try at least (\d+)/);
         if (match) {
-          const minAmountCryptoBaseUnit = match[1]
+          const minAmountCryptoBaseUnit = match[1];
           return Err(
             createTradeAmountTooSmallErr({
               minAmountCryptoBaseUnit,
               assetId: sellAsset.assetId,
             }),
-          )
+          );
         }
       }
     }
@@ -347,10 +373,12 @@ export const getTradeQuote = async (
     return Err(
       makeSwapErrorRight({
         message:
-          error instanceof Error ? error.message : 'Unknown error getting NEAR Intents quote',
+          error instanceof Error
+            ? error.message
+            : "Unknown error getting NEAR Intents quote",
         code: TradeQuoteError.QueryFailed,
         cause: error,
       }),
-    )
+    );
   }
-}
+};

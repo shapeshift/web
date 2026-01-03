@@ -18,6 +18,7 @@ import cosmos from './cosmos_cosmoshub-4/adapter.json'
 import thorchain from './cosmos_thorchain-1/adapter.json'
 import mayachain from './cosmos_mayachain-mainnet-v1/adapter.json'
 import solana from './solana_5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp/adapter.json'
+import starknet from './starknet_SN_MAIN/adapter.json'
 import sui from './sui_35834a8a/adapter.json'
 import tron from './tron_0x2b6653dc/adapter.json'
 import zcash from './bip122_00040fe8ec8471911baa1db1266ea15d/adapter.json'
@@ -44,6 +45,7 @@ export {
 	thorchain,
 	mayachain,
 	solana,
+	starknet,
 	sui,
 	tron,
 	zcash,

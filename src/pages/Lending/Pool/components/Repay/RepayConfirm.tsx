@@ -18,7 +18,7 @@ import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
-import { assertAndProcessMemo } from '@shapeshiftoss/swapper'
+import { assertAndProcessMemo, SwapperName } from '@shapeshiftoss/swapper'
 import type { Asset } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { isToken } from '@shapeshiftoss/utils'
@@ -244,7 +244,7 @@ export const RepayConfirm = ({
   const { data: inboundAddressData, isLoading: isInboundAddressLoading } = useQuery({
     ...reactQueries.thornode.inboundAddresses(),
     staleTime: 60_000,
-    select: data => selectInboundAddressData(data, repaymentAsset?.assetId),
+    select: data => selectInboundAddressData(data, repaymentAsset?.assetId, SwapperName.Thorchain),
     enabled: !!repaymentAsset?.assetId,
   })
 

@@ -244,7 +244,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.NearMainnet> {
 
   private async fetchTokenBalances(accountId: string): Promise<AssetBalance[]> {
     try {
-      const response = await fetch(`${this.fastNearApiUrl}/account/${accountId}/ft`)
+      const response = await fetch(`${this.fastNearApiUrl}/v1/account/${accountId}/ft`)
       if (!response.ok) {
         console.warn(`Failed to fetch NEAR token balances: ${response.status}`)
         return []

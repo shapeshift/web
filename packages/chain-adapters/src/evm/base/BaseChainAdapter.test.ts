@@ -20,7 +20,8 @@ vi.mock('../../utils/validateAddress', () => ({
 }))
 
 vi.mock('@shapeshiftoss/contracts', async importOriginal => {
-  const actual = await importOriginal<typeof import('@shapeshiftoss/contracts')>()
+  // eslint-disable-next-line @typescript-eslint/consistent-type-imports
+  const actual: typeof import('@shapeshiftoss/contracts') = await importOriginal()
   return {
     ...actual,
     viemBaseClient: {

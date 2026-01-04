@@ -282,9 +282,15 @@ export const fetchPortalsAccount = async (
   chainId: ChainId,
   owner: string,
 ): Promise<Record<AssetId, TokenInfo>> => {
+  const useGraphQL = getConfig().VITE_FEATURE_GRAPHQL_POC
+
+  if (useGraphQL) {
+    const { fetchPortalsAccountGraphQL } = await import('@/lib/graphql/portalsData')
+    return fetchPortalsAccountGraphQL(chainId, owner) as Promise<Record<AssetId, TokenInfo>>
+  }
+
   const network = CHAIN_ID_TO_PORTALS_NETWORK[chainId]
 
-  // Return empty object for chains not supported by Portals instead of throwing
   if (!network) {
     console.log(`[Portals] Chain ${chainId} not supported by Portals, skipping`)
     return {}

@@ -512,7 +512,7 @@ export const resolvers = {
         const subscribed: { chainId: string; address: string }[] = []
         for (const accountId of args.accountIds) {
           const parts = accountId.split(':')
-          if (parts.length >= 3) {
+          if (parts.length >= 3 && parts[0] && parts[1] && parts[2]) {
             const chainId = `${parts[0]}:${parts[1]}`
             const address = parts[2]
             if (subscribeToOrders(accountId, chainId, address)) {

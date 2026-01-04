@@ -149,13 +149,32 @@ export function subscribeToOrders(accountId: string, chainId: string, address: s
   }
 
   const key = `${chainId}:${address}`
-  if (!activeSubscriptions.has(key)) {
+  const isNew = !activeSubscriptions.has(key)
+
+  if (isNew) {
     activeSubscriptions.set(key, { accountId, chainId, address, network })
     console.log(`[CowSwap] Subscribed to orders for ${accountId}`)
   }
 
   if (activeSubscriptions.size === 1) {
     startPolling()
+  }
+
+  if (isNew && pubsub) {
+    setTimeout(async () => {
+      console.log(`[CowSwap] Fetching initial orders for ${accountId}`)
+      const orders = await fetchOrdersForAccount(address, network)
+      const cacheKey = `${network}:${address}`
+      orderCache.set(cacheKey, orders)
+
+      const update: OrdersUpdate = {
+        accountId,
+        orders,
+        timestamp: Date.now(),
+      }
+      console.log(`[CowSwap] Publishing initial ${orders.length} orders for ${accountId}`)
+      pubsub?.publish(ORDERS_UPDATED_TOPIC, { limitOrdersUpdated: update })
+    }, 100)
   }
 
   return true

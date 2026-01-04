@@ -289,7 +289,7 @@ const useTCYClaimsLegacy = (accountNumber: number | 'all') => {
 }
 
 export const useTCYClaims = (accountNumber: number | 'all') => {
-  const isGraphQLEnabled = useFeatureFlag('GraphQLTcyClaims')
+  const isGraphQLEnabled = useFeatureFlag('GraphQLPoc')
 
   const graphqlResult = useTCYClaimsGraphQL(accountNumber)
   const legacyResult = useTCYClaimsLegacy(accountNumber)

@@ -128,7 +128,7 @@ const getCoinDetails = async (
 }
 
 export const getCoingeckoTopMovers = async (): Promise<CoingeckoAsset[]> => {
-  const isGraphQLEnabled = selectFeatureFlag(store.getState(), 'GraphQLCoingeckoData')
+  const isGraphQLEnabled = selectFeatureFlag(store.getState(), 'GraphQLPoc')
 
   if (isGraphQLEnabled) {
     try {
@@ -170,7 +170,7 @@ export const getCoingeckoTopMovers = async (): Promise<CoingeckoAsset[]> => {
 }
 
 export const getCoingeckoTrending = async (): Promise<CoingeckoAsset[]> => {
-  const isGraphQLEnabled = selectFeatureFlag(store.getState(), 'GraphQLCoingeckoData')
+  const isGraphQLEnabled = selectFeatureFlag(store.getState(), 'GraphQLPoc')
 
   if (isGraphQLEnabled) {
     try {
@@ -207,7 +207,7 @@ export const getCoingeckoTrending = async (): Promise<CoingeckoAsset[]> => {
 }
 
 export const getCoingeckoRecentlyAdded = async (): Promise<CoingeckoAsset[]> => {
-  const isGraphQLEnabled = selectFeatureFlag(store.getState(), 'GraphQLCoingeckoData')
+  const isGraphQLEnabled = selectFeatureFlag(store.getState(), 'GraphQLPoc')
 
   if (isGraphQLEnabled) {
     try {

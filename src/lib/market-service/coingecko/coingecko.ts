@@ -108,7 +108,7 @@ export class CoinGeckoMarketService implements MarketService {
 
   async findAll(args?: FindAllMarketArgs, orderBy: CoinGeckoSortKey = 'market_cap_desc') {
     const count = args?.count ?? this.defaultCount
-    const isGraphQLEnabled = getConfig().VITE_FEATURE_GRAPHQL_ACCOUNT_DATA
+    const isGraphQLEnabled = getConfig().VITE_FEATURE_GRAPHQL_POC
 
     if (isGraphQLEnabled) {
       try {
@@ -239,7 +239,7 @@ export class CoinGeckoMarketService implements MarketService {
     const from = Math.floor(start.valueOf() / 1000)
     const to = Math.floor(end.valueOf() / 1000)
 
-    const isGraphQLEnabled = getConfig().VITE_FEATURE_GRAPHQL_COINGECKO_DATA
+    const isGraphQLEnabled = getConfig().VITE_FEATURE_GRAPHQL_POC
 
     if (isGraphQLEnabled) {
       try {

@@ -12,7 +12,7 @@ const getGraphQLAccountData = async (
 ): Promise<{ isEnabled: boolean; account: GraphQLAccount | null }> => {
   const { store } = await import('@/state/store')
   const { selectFeatureFlag } = await import('@/state/slices/preferencesSlice/selectors')
-  const isEnabled = selectFeatureFlag(store.getState(), 'GraphQLAccountData')
+  const isEnabled = selectFeatureFlag(store.getState(), 'GraphQLPoc')
 
   if (!isEnabled) {
     return { isEnabled: false, account: null }

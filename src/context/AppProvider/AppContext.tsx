@@ -168,7 +168,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   useMixpanelPortfolioTracking()
 
   // Feature flag for GraphQL market data
-  const isGraphQLMarketDataEnabled = useFeatureFlag('GraphQLMarketData')
+  const isGraphQLMarketDataEnabled = useFeatureFlag('GraphQLPoc')
 
   // GraphQL market data hook - only fetches portfolio assets (more efficient)
   // Enabled when feature flag is on

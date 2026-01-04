@@ -255,7 +255,7 @@ export const portfolioApi = createApi({
         try {
           const { selectFeatureFlag } = await import('@/state/slices/preferencesSlice/selectors')
           const { store } = await import('@/state/store')
-          const isGraphQLEnabled = selectFeatureFlag(store.getState(), 'GraphQLAccountData')
+          const isGraphQLEnabled = selectFeatureFlag(store.getState(), 'GraphQLPoc')
 
           let combinedPortfolio = cloneDeep(initialState)
 

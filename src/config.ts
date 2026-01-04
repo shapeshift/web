@@ -232,10 +232,7 @@ const validators = {
   VITE_FEATURE_ADDRESS_BOOK: bool({ default: false }),
   VITE_FEATURE_APP_RATING: bool({ default: false }),
   VITE_GRAPHQL_ENDPOINT: url({ default: 'http://localhost:4000/graphql' }),
-  VITE_FEATURE_GRAPHQL_MARKET_DATA: bool({ default: false }),
-  VITE_FEATURE_GRAPHQL_ACCOUNT_DATA: bool({ default: false }),
-  VITE_FEATURE_GRAPHQL_COINGECKO_DATA: bool({ default: false }),
-  VITE_FEATURE_GRAPHQL_TCY_CLAIMS: bool({ default: false }),
+  VITE_FEATURE_GRAPHQL_POC: bool({ default: false }),
 }
 
 function reporter<T>({ errors }: envalid.ReporterOptions<T>) {

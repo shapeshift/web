@@ -58,7 +58,7 @@ export const getAccountIdsWithActivityAndMetadata = async (
 
   const accountIds = Object.keys(accountIdsAndMetadata) as AccountId[]
 
-  const isGraphQLEnabled = selectFeatureFlag(store.getState(), 'GraphQLAccountData')
+  const isGraphQLEnabled = selectFeatureFlag(store.getState(), 'GraphQLPoc')
 
   if (isGraphQLEnabled && accountIds.length > 0) {
     try {

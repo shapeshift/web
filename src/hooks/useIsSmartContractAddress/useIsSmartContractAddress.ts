@@ -6,7 +6,7 @@ import { useMemo } from 'react'
 import { getConfig } from '@/config'
 import { queryClient } from '@/context/QueryClientProvider/queryClient'
 import { isSmartContractAddress } from '@/lib/address/utils'
-import { loadIsSmartContractAddress } from '@/lib/graphql'
+import { loadIsSmartContractAddress } from '@/lib/graphql/dataLoaders'
 
 const checkIsSmartContractAddress = (userAddress: string, chainId: ChainId): Promise<boolean> => {
   const isGraphQLEnabled = getConfig().VITE_FEATURE_GRAPHQL_POC

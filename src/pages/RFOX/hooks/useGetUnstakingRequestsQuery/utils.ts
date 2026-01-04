@@ -8,7 +8,7 @@ import { arbitrum } from 'viem/chains'
 import { getStakingContract } from '../../helpers'
 
 import { getConfig } from '@/config'
-import { loadRfoxUnstakingRequests } from '@/lib/graphql'
+import { loadRfoxUnstakingRequests } from '@/lib/graphql/dataLoaders'
 import { fromBaseUnit } from '@/lib/math'
 import { isSome } from '@/lib/utils'
 import { selectAssetById } from '@/state/slices/selectors'

@@ -97,17 +97,24 @@ export const getAllThorchainSaversPositions = async (
   const isGraphQLEnabled = selectFeatureFlag(store.getState(), 'GraphQLPoc')
 
   if (isGraphQLEnabled) {
-    console.log('[getAllThorchainSaversPositions] Using GraphQL for', poolId)
-    const graphqlSavers = await fetchPoolSaversGraphQL(poolId)
-    return graphqlSavers.map(s => ({
-      asset: s.asset,
-      asset_address: s.assetAddress,
-      last_add_height: s.lastAddHeight,
-      units: s.units,
-      asset_deposit_value: s.assetDepositValue,
-      asset_redeem_value: s.assetRedeemValue,
-      growth_pct: s.growthPct,
-    }))
+    try {
+      console.log('[getAllThorchainSaversPositions] Using GraphQL for', poolId)
+      const graphqlSavers = await fetchPoolSaversGraphQL(poolId)
+      return graphqlSavers.map(s => ({
+        asset: s.asset,
+        asset_address: s.assetAddress,
+        last_add_height: s.lastAddHeight,
+        units: s.units,
+        asset_deposit_value: s.assetDepositValue,
+        asset_redeem_value: s.assetRedeemValue,
+        growth_pct: s.growthPct,
+      }))
+    } catch (error) {
+      console.error(
+        '[getAllThorchainSaversPositions] GraphQL failed, falling back to direct API:',
+        error,
+      )
+    }
   }
 
   const { data: opportunitiesData } = await queryClient.fetchQuery({

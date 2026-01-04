@@ -132,20 +132,27 @@ export const getAllThorchainLendingPositions = async (
   const isGraphQLEnabled = selectFeatureFlag(store.getState(), 'GraphQLPoc')
 
   if (isGraphQLEnabled) {
-    console.log('[getAllThorchainLendingPositions] Using GraphQL for', poolAssetId)
-    const graphqlBorrowers = await fetchPoolBorrowersGraphQL(poolAssetId)
-    return graphqlBorrowers.map(b => ({
-      owner: b.owner,
-      asset: b.asset,
-      debt_issued: b.debtIssued,
-      debt_repaid: b.debtRepaid,
-      debt_current: b.debtCurrent,
-      collateral_deposited: b.collateralDeposited,
-      collateral_withdrawn: b.collateralWithdrawn,
-      collateral_current: b.collateralCurrent,
-      last_open_height: b.lastOpenHeight,
-      last_repay_height: b.lastRepayHeight,
-    }))
+    try {
+      console.log('[getAllThorchainLendingPositions] Using GraphQL for', poolAssetId)
+      const graphqlBorrowers = await fetchPoolBorrowersGraphQL(poolAssetId)
+      return graphqlBorrowers.map(b => ({
+        owner: b.owner,
+        asset: b.asset,
+        debt_issued: b.debtIssued,
+        debt_repaid: b.debtRepaid,
+        debt_current: b.debtCurrent,
+        collateral_deposited: b.collateralDeposited,
+        collateral_withdrawn: b.collateralWithdrawn,
+        collateral_current: b.collateralCurrent,
+        last_open_height: b.lastOpenHeight,
+        last_repay_height: b.lastRepayHeight,
+      }))
+    } catch (error) {
+      console.error(
+        '[getAllThorchainLendingPositions] GraphQL failed, falling back to direct API:',
+        error,
+      )
+    }
   }
 
   const { data } = await axios.get<BorrowersResponse>(

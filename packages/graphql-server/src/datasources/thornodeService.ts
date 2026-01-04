@@ -366,73 +366,131 @@ export async function getInboundAddresses(
   return result
 }
 
+type BorrowerLoaderKey = { asset: string; network: ThornodeNetwork }
+type SaverLoaderKey = { asset: string; network: ThornodeNetwork }
+
+function createBorrowersLoader() {
+  return new DataLoader<BorrowerLoaderKey, ThornodeBorrower[]>(
+    async (keys: readonly BorrowerLoaderKey[]): Promise<ThornodeBorrower[][]> => {
+      console.log(`[Thornode] Batching ${keys.length} borrower lookups`)
+
+      const results = await Promise.all(
+        keys.map(({ asset, network }) =>
+          limit(async (): Promise<ThornodeBorrower[]> => {
+            const cacheKey = `borrowers:${network}:${asset}`
+            const cached = getCached<ThornodeBorrower[]>(cacheKey)
+            if (cached) return cached
+
+            const baseUrl = getBaseUrl(network)
+            try {
+              const data = await fetchJson<BorrowerRaw[]>(`${baseUrl}/pool/${asset}/borrowers`)
+              const result = data.map(borrower => ({
+                owner: borrower.owner,
+                asset: borrower.asset,
+                debtIssued: borrower.debt_issued,
+                debtRepaid: borrower.debt_repaid,
+                debtCurrent: borrower.debt_current,
+                collateralDeposited: borrower.collateral_deposited,
+                collateralWithdrawn: borrower.collateral_withdrawn,
+                collateralCurrent: borrower.collateral_current,
+                lastOpenHeight: borrower.last_open_height,
+                lastRepayHeight: borrower.last_repay_height,
+              }))
+              setCache(cacheKey, result)
+              return result
+            } catch {
+              return []
+            }
+          }),
+        ),
+      )
+
+      return results
+    },
+    {
+      cache: true,
+      maxBatchSize: 20,
+      batchScheduleFn: callback => setTimeout(callback, 16),
+    },
+  )
+}
+
+function createSaversLoader() {
+  return new DataLoader<SaverLoaderKey, ThornodeSaver[]>(
+    async (keys: readonly SaverLoaderKey[]): Promise<ThornodeSaver[][]> => {
+      console.log(`[Thornode] Batching ${keys.length} saver lookups`)
+
+      const results = await Promise.all(
+        keys.map(({ asset, network }) =>
+          limit(async (): Promise<ThornodeSaver[]> => {
+            const cacheKey = `savers:${network}:${asset}`
+            const cached = getCached<ThornodeSaver[]>(cacheKey)
+            if (cached) return cached
+
+            const baseUrl = getBaseUrl(network)
+            try {
+              const data = await fetchJson<SaverRaw[]>(`${baseUrl}/pool/${asset}/savers`)
+              const result = data.map(saver => ({
+                asset: saver.asset,
+                assetAddress: saver.asset_address,
+                lastAddHeight: saver.last_add_height ?? null,
+                units: saver.units,
+                assetDepositValue: saver.asset_deposit_value,
+                assetRedeemValue: saver.asset_redeem_value,
+                growthPct: saver.growth_pct ?? null,
+              }))
+              setCache(cacheKey, result)
+              return result
+            } catch {
+              return []
+            }
+          }),
+        ),
+      )
+
+      return results
+    },
+    {
+      cache: true,
+      maxBatchSize: 20,
+      batchScheduleFn: callback => setTimeout(callback, 16),
+    },
+  )
+}
+
+let borrowersLoader: DataLoader<BorrowerLoaderKey, ThornodeBorrower[]> | null = null
+let saversLoader: DataLoader<SaverLoaderKey, ThornodeSaver[]> | null = null
+
+function getBorrowersLoader(): DataLoader<BorrowerLoaderKey, ThornodeBorrower[]> {
+  if (!borrowersLoader) {
+    borrowersLoader = createBorrowersLoader()
+  }
+  return borrowersLoader
+}
+
+function getSaversLoader(): DataLoader<SaverLoaderKey, ThornodeSaver[]> {
+  if (!saversLoader) {
+    saversLoader = createSaversLoader()
+  }
+  return saversLoader
+}
+
 export async function getPoolBorrowers(
   asset: string,
   network: ThornodeNetwork = 'thorchain',
 ): Promise<ThornodeBorrower[]> {
-  const cacheKey = `borrowers:${network}:${asset}`
-  const cached = getCached<ThornodeBorrower[]>(cacheKey)
-  if (cached) {
-    console.log(`[Thornode] Returning cached borrowers for ${asset} on ${network}`)
-    return cached
-  }
-
-  console.log(`[Thornode] Fetching borrowers for ${asset} on ${network}`)
-  const baseUrl = getBaseUrl(network)
-
-  try {
-    const data = await fetchJson<BorrowerRaw[]>(`${baseUrl}/pool/${asset}/borrowers`)
-
-    const result = data.map(borrower => ({
-      owner: borrower.owner,
-      asset: borrower.asset,
-      debtIssued: borrower.debt_issued,
-      debtRepaid: borrower.debt_repaid,
-      debtCurrent: borrower.debt_current,
-      collateralDeposited: borrower.collateral_deposited,
-      collateralWithdrawn: borrower.collateral_withdrawn,
-      collateralCurrent: borrower.collateral_current,
-      lastOpenHeight: borrower.last_open_height,
-      lastRepayHeight: borrower.last_repay_height,
-    }))
-
-    setCache(cacheKey, result)
-    return result
-  } catch {
-    return []
-  }
+  const loader = getBorrowersLoader()
+  const result = await loader.load({ asset, network })
+  console.log(`[Thornode] Loaded ${result.length} borrowers for ${asset}`)
+  return result
 }
 
 export async function getPoolSavers(
   asset: string,
   network: ThornodeNetwork = 'thorchain',
 ): Promise<ThornodeSaver[]> {
-  const cacheKey = `savers:${network}:${asset}`
-  const cached = getCached<ThornodeSaver[]>(cacheKey)
-  if (cached) {
-    console.log(`[Thornode] Returning cached savers for ${asset} on ${network}`)
-    return cached
-  }
-
-  console.log(`[Thornode] Fetching savers for ${asset} on ${network}`)
-  const baseUrl = getBaseUrl(network)
-
-  try {
-    const data = await fetchJson<SaverRaw[]>(`${baseUrl}/pool/${asset}/savers`)
-
-    const result = data.map(saver => ({
-      asset: saver.asset,
-      assetAddress: saver.asset_address,
-      lastAddHeight: saver.last_add_height ?? null,
-      units: saver.units,
-      assetDepositValue: saver.asset_deposit_value,
-      assetRedeemValue: saver.asset_redeem_value,
-      growthPct: saver.growth_pct ?? null,
-    }))
-
-    setCache(cacheKey, result)
-    return result
-  } catch {
-    return []
-  }
+  const loader = getSaversLoader()
+  const result = await loader.load({ asset, network })
+  console.log(`[Thornode] Loaded ${result.length} savers for ${asset}`)
+  return result
 }

@@ -1,5 +1,7 @@
 import { ExternalLinkIcon } from '@chakra-ui/icons'
 import { Box, Link, Text as CText, usePrevious } from '@chakra-ui/react'
+import { skipToken } from '@reduxjs/toolkit/query'
+import type { AccountId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import { cowSwapTokenToAssetId } from '@shapeshiftoss/swapper'
 import type { Order } from '@shapeshiftoss/types'
@@ -11,6 +13,7 @@ import { useTranslate } from 'react-polyglot'
 import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { useNotificationToast } from '@/hooks/useNotificationToast'
 import { useWallet } from '@/hooks/useWallet/useWallet'
+import { useLimitOrdersSubscription } from '@/lib/graphql/useLimitOrdersSubscription'
 import { useGetLimitOrdersQuery } from '@/state/apis/limit-orders/limitOrderApi'
 import { selectPartitionedAccountIds } from '@/state/slices/common-selectors'
 import {
@@ -20,23 +23,72 @@ import {
 } from '@/state/slices/selectors'
 import { store, useAppSelector } from '@/state/store'
 
-export const useLimitOrdersQuery = () => {
+type LimitOrdersQueryResult = {
+  data: { order: Order; accountId: AccountId }[] | undefined
+  currentData: { order: Order; accountId: AccountId }[] | undefined
+  isLoading: boolean
+  isFetching: boolean
+  isError: boolean
+  error: Error | null
+}
+
+export const useLimitOrdersQuery = (): LimitOrdersQueryResult => {
+  const isGraphQLEnabled = useFeatureFlag('GraphQLPoc')
   const { evmAccountIds } = useAppSelector(selectPartitionedAccountIds)
   const portfolioLoadingStatus = useAppSelector(selectPortfolioLoadingStatus)
   const {
     state: { isLoadingLocalWallet, modal, isConnected },
   } = useWallet()
 
-  return useGetLimitOrdersQuery(evmAccountIds, {
+  const shouldSkip =
+    !evmAccountIds.length ||
+    !isConnected ||
+    portfolioLoadingStatus === 'loading' ||
+    modal ||
+    isLoadingLocalWallet
+
+  const rtkQueryArg = shouldSkip || isGraphQLEnabled ? skipToken : evmAccountIds
+  const rtkResult = useGetLimitOrdersQuery(rtkQueryArg, {
     pollingInterval: 15_000,
     refetchOnMountOrArgChange: false,
-    skip:
-      !evmAccountIds.length ||
-      !isConnected ||
-      portfolioLoadingStatus === 'loading' ||
-      modal ||
-      isLoadingLocalWallet,
   })
+
+  const graphqlSkip = shouldSkip || !isGraphQLEnabled
+  const {
+    data: graphqlData,
+    isLoading: graphqlIsLoading,
+    error: graphqlError,
+  } = useLimitOrdersSubscription(evmAccountIds, graphqlSkip)
+
+  useEffect(() => {
+    if (isGraphQLEnabled && graphqlData) {
+      console.log(
+        '[useLimitOrdersQuery] GraphQL orders update received:',
+        graphqlData.length,
+        'orders',
+      )
+    }
+  }, [isGraphQLEnabled, graphqlData])
+
+  if (isGraphQLEnabled) {
+    return {
+      data: graphqlData,
+      currentData: graphqlData,
+      isLoading: graphqlIsLoading,
+      isFetching: graphqlIsLoading,
+      isError: Boolean(graphqlError),
+      error: graphqlError,
+    }
+  }
+
+  return {
+    data: rtkResult.data,
+    currentData: rtkResult.currentData,
+    isLoading: rtkResult.isLoading,
+    isFetching: rtkResult.isFetching,
+    isError: rtkResult.isError,
+    error: rtkResult.error ? new Error(String(rtkResult.error)) : null,
+  }
 }
 
 export const useLimitOrders = () => {

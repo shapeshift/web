@@ -95,7 +95,7 @@ function mapClaimerToClaim(
   }
 }
 
-const useTCYClaimsGraphQL = (accountNumber: number | 'all') => {
+const useTCYClaimsGraphQL = (accountNumber: number | 'all', enabled: boolean) => {
   const {
     state: { isConnected, wallet, isLocked },
   } = useWallet()
@@ -117,8 +117,16 @@ const useTCYClaimsGraphQL = (accountNumber: number | 'all') => {
   )
 
   return useSuspenseQuery({
-    queryKey: ['tcy-claims-graphql', accountIds.join(','), isConnected, isLocked, isSnapInstalled],
+    queryKey: [
+      'tcy-claims-graphql',
+      accountIds.join(','),
+      isConnected,
+      isLocked,
+      isSnapInstalled,
+      enabled,
+    ],
     queryFn: async (): Promise<{ data: Claim[] }[]> => {
+      if (!enabled) return accountIds.map(() => ({ data: [] }))
       if (!isConnected) return accountIds.map(() => ({ data: [] }))
 
       const allAddressInfos = await Promise.all(
@@ -177,7 +185,7 @@ const useTCYClaimsGraphQL = (accountNumber: number | 'all') => {
   })
 }
 
-const useTCYClaimsLegacy = (accountNumber: number | 'all') => {
+const useTCYClaimsLegacy = (accountNumber: number | 'all', enabled: boolean) => {
   const {
     state: { isConnected, wallet, isLocked },
   } = useWallet()
@@ -198,103 +206,106 @@ const useTCYClaimsLegacy = (accountNumber: number | 'all') => {
     [accountNumber, allAccountIds, accountIdsByAccountNumberAndChainId],
   )
 
-  return useSuspenseQueries({
-    queries: accountIds.map(accountId => ({
-      queryKey: ['tcy-claims', accountId, isConnected, isLocked, isSnapInstalled],
-      queryFn: async (): Promise<Claim[]> => {
-        if (!isConnected) return []
+  const queries = enabled
+    ? accountIds.map(accountId => ({
+        queryKey: ['tcy-claims', accountId, isConnected, isLocked, isSnapInstalled],
+        queryFn: async (): Promise<Claim[]> => {
+          if (!isConnected) return []
 
-        const activeAddresses = (
-          await ((): Promise<string[]> => {
-            const chainId = fromAccountId(accountId).chainId
-            const assetId = getChainAdapterManager().get(chainId)?.getFeeAssetId()
-            if (!assetId) return Promise.resolve([])
-            if (!isSupportedThorchainSaversAssetId(assetId)) return Promise.resolve([])
-            if (isRune(assetId)) return Promise.resolve([])
+          const activeAddresses = (
+            await ((): Promise<string[]> => {
+              const chainId = fromAccountId(accountId).chainId
+              const assetId = getChainAdapterManager().get(chainId)?.getFeeAssetId()
+              if (!assetId) return Promise.resolve([])
+              if (!isSupportedThorchainSaversAssetId(assetId)) return Promise.resolve([])
+              if (isRune(assetId)) return Promise.resolve([])
 
-            if (!isUtxoChainId(fromAccountId(accountId).chainId))
-              return Promise.resolve([fromAccountId(accountId).account])
+              if (!isUtxoChainId(fromAccountId(accountId).chainId))
+                return Promise.resolve([fromAccountId(accountId).account])
 
-            const isMetaMaskMultichainWallet = wallet instanceof MetaMaskMultiChainHDWallet
+              const isMetaMaskMultichainWallet = wallet instanceof MetaMaskMultiChainHDWallet
 
-            if (isMetaMaskMultichainWallet && !isSnapInstalled) return Promise.resolve([])
+              if (isMetaMaskMultichainWallet && !isSnapInstalled) return Promise.resolve([])
 
-            const accountMetadata = selectPortfolioAccountMetadataByAccountId(store.getState(), {
-              accountId,
-            })
-            if (!accountMetadata) return Promise.resolve([])
-            if (!wallet) return Promise.resolve([])
-
-            return getThorfiUtxoFromAddresses({
-              accountId,
-              assetId,
-              accountMetadata,
-              wallet,
-            })
-          })()
-        ).filter(isSome)
-
-        if (!activeAddresses) return []
-
-        try {
-          const tcyClaimers = await Promise.all(
-            activeAddresses.map(address =>
-              axios.get<{ tcy_claimer: TcyClaimer[] }>(
-                `${getConfig().VITE_THORCHAIN_NODE_URL}/thorchain/tcy_claimer/${address}`,
-              ),
-            ),
-          )
-
-          return tcyClaimers
-            .map(response => response.data.tcy_claimer)
-            .flat()
-            .filter(claimer => {
-              const assetId = thorPoolAssetIdToAssetId(claimer.asset)
-              if (!assetId) return false
-
-              const chainId = fromAssetId(assetId).chainId
-
-              if (chainId !== fromAccountId(accountId).chainId) return false
-
-              return true
-            })
-            .map(claimer => {
-              const l1AccountNumber = selectAccountNumberByAccountId(store.getState(), {
+              const accountMetadata = selectPortfolioAccountMetadataByAccountId(store.getState(), {
                 accountId,
               })
-              const matchingRuneAccountId =
-                l1AccountNumber !== undefined
-                  ? accountIdsByAccountNumberAndChainId[l1AccountNumber]?.[thorchainChainId]?.[0]
-                  : undefined
+              if (!accountMetadata) return Promise.resolve([])
+              if (!wallet) return Promise.resolve([])
 
-              return {
-                ...claimer,
+              return getThorfiUtxoFromAddresses({
                 accountId,
-                amountThorBaseUnit: claimer.amount,
-                assetId: thorPoolAssetIdToAssetId(claimer.asset) ?? '',
-                matchingRuneAccountId,
-                l1_address:
-                  claimer.asset === 'BCH.BCH'
-                    ? `bitcoincash:${claimer.l1_address}`
-                    : claimer.l1_address,
-              }
-            })
-        } catch {
-          return []
-        }
-      },
-      staleTime: 60_000,
-    })),
-  })
+                assetId,
+                accountMetadata,
+                wallet,
+              })
+            })()
+          ).filter(isSome)
+
+          if (!activeAddresses) return []
+
+          try {
+            const tcyClaimers = await Promise.all(
+              activeAddresses.map(address =>
+                axios.get<{ tcy_claimer: TcyClaimer[] }>(
+                  `${getConfig().VITE_THORCHAIN_NODE_URL}/thorchain/tcy_claimer/${address}`,
+                ),
+              ),
+            )
+
+            return tcyClaimers
+              .map(response => response.data.tcy_claimer)
+              .flat()
+              .filter(claimer => {
+                const assetId = thorPoolAssetIdToAssetId(claimer.asset)
+                if (!assetId) return false
+
+                const chainId = fromAssetId(assetId).chainId
+
+                if (chainId !== fromAccountId(accountId).chainId) return false
+
+                return true
+              })
+              .map(claimer => {
+                const l1AccountNumber = selectAccountNumberByAccountId(store.getState(), {
+                  accountId,
+                })
+                const matchingRuneAccountId =
+                  l1AccountNumber !== undefined
+                    ? accountIdsByAccountNumberAndChainId[l1AccountNumber]?.[thorchainChainId]?.[0]
+                    : undefined
+
+                return {
+                  ...claimer,
+                  accountId,
+                  amountThorBaseUnit: claimer.amount,
+                  assetId: thorPoolAssetIdToAssetId(claimer.asset) ?? '',
+                  matchingRuneAccountId,
+                  l1_address:
+                    claimer.asset === 'BCH.BCH'
+                      ? `bitcoincash:${claimer.l1_address}`
+                      : claimer.l1_address,
+                }
+              })
+          } catch {
+            return []
+          }
+        },
+        staleTime: 60_000,
+      }))
+    : []
+
+  return useSuspenseQueries({ queries })
 }
 
 export const useTCYClaims = (accountNumber: number | 'all') => {
   const isGraphQLEnabled = useFeatureFlag('GraphQLPoc')
 
-  const graphqlResult = useTCYClaimsGraphQL(accountNumber)
-  const legacyResult = useTCYClaimsLegacy(accountNumber)
+  const graphqlResult = useTCYClaimsGraphQL(accountNumber, isGraphQLEnabled)
+  const legacyResult = useTCYClaimsLegacy(accountNumber, !isGraphQLEnabled)
 
   if (isGraphQLEnabled) {
+    console.log('[useTCYClaims] GraphQL claims received:', graphqlResult.data.length, 'accounts')
     return graphqlResult.data
   }
 

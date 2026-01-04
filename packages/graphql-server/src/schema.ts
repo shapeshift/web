@@ -121,25 +121,11 @@ export const typeDefs = gql`
   }
 
   """
-  Legacy sort key for backwards compatibility
-  """
-  enum CoingeckoSortKey {
-    market_cap_asc
-    market_cap_desc
-    volume_asc
-    volume_desc
-    id_asc
-    id_desc
-    price_change_percentage_24h_desc
-    price_change_percentage_24h_asc
-  }
-
-  """
   Thornode/Mayanode network selection
   """
-  enum ThornodeNetwork {
-    thorchain
-    mayachain
+  enum Network {
+    THORCHAIN
+    MAYACHAIN
   }
 
   # ============================================================================
@@ -419,7 +405,7 @@ export const typeDefs = gql`
     assetId: AssetId!
 
     """
-    Token balances (for backwards compatibility)
+    Token balances
     """
     tokens: [TokenBalance!]!
 
@@ -428,12 +414,6 @@ export const typeDefs = gql`
     Use __typename to determine which type of details
     """
     details: AccountDetails
-
-    # Deprecated fields - use details instead
-    evmData: EvmAccountData @deprecated(reason: "Use details field with __typename instead")
-    utxoData: UtxoAccountData @deprecated(reason: "Use details field with __typename instead")
-    cosmosData: CosmosAccountData @deprecated(reason: "Use details field with __typename instead")
-    solanaData: SolanaAccountData @deprecated(reason: "Use details field with __typename instead")
   }
 
   """
@@ -442,31 +422,6 @@ export const typeDefs = gql`
   type AccountResult {
     data: Account
     error: AccountError
-  }
-
-  # Legacy types for backwards compatibility
-  type EvmAccountData {
-    nonce: Int!
-    tokens: [TokenBalance!]!
-  }
-
-  type UtxoAccountData {
-    addresses: [UtxoAddress!]!
-    nextChangeAddressIndex: Int
-    nextReceiveAddressIndex: Int
-  }
-
-  type CosmosAccountData {
-    sequence: String
-    accountNumber: String
-    delegations: JSON
-    redelegations: JSON
-    undelegations: JSON
-    rewards: JSON
-  }
-
-  type SolanaAccountData {
-    tokens: [TokenBalance!]!
   }
 
   # ============================================================================
@@ -533,7 +488,7 @@ export const typeDefs = gql`
   }
 
   # ============================================================================
-  # THORNODE TYPES
+  # THORNODE NAMESPACE TYPES
   # ============================================================================
 
   """
@@ -548,7 +503,7 @@ export const typeDefs = gql`
   """
   Thorchain/Mayachain pool data
   """
-  type ThornodePool {
+  type Pool {
     asset: String!
     status: String!
     balanceRune: String!
@@ -564,24 +519,24 @@ export const typeDefs = gql`
   """
   Pool edge for pagination
   """
-  type ThornodePoolEdge {
+  type PoolEdge {
     cursor: String!
-    node: ThornodePool!
+    node: Pool!
   }
 
   """
   Paginated pool connection
   """
-  type ThornodePoolConnection {
-    edges: [ThornodePoolEdge!]!
+  type PoolConnection {
+    edges: [PoolEdge!]!
     pageInfo: PageInfo!
     totalCount: Int
   }
 
   """
-  Thorchain borrower position
+  Borrower position
   """
-  type ThornodeBorrower {
+  type Borrower {
     owner: String!
     asset: String!
     debtIssued: String!
@@ -595,9 +550,9 @@ export const typeDefs = gql`
   }
 
   """
-  Thorchain saver position
+  Saver position
   """
-  type ThornodeSaver {
+  type Saver {
     asset: String!
     assetAddress: String!
     lastAddHeight: Int
@@ -628,14 +583,60 @@ export const typeDefs = gql`
   """
   Block info
   """
-  type ThornodeBlock {
+  type Block {
     height: String!
     hash: String
     timestamp: DateTime
   }
 
+  """
+  Thorchain/Mayachain data access
+  Use network parameter to select chain (defaults to THORCHAIN)
+  """
+  type Thornode {
+    """
+    Get single pool by asset
+    """
+    pool(asset: String!, network: Network = THORCHAIN): Pool
+
+    """
+    Get all pools (paginated)
+    """
+    pools(network: Network = THORCHAIN, first: Int = 100, after: String): PoolConnection!
+
+    """
+    Get borrowers for a specific pool
+    """
+    borrowers(asset: String!, network: Network = THORCHAIN): [Borrower!]!
+
+    """
+    Get savers for a specific pool
+    """
+    savers(asset: String!, network: Network = THORCHAIN): [Saver!]!
+
+    """
+    Get mimir configuration
+    """
+    mimir(network: Network = THORCHAIN): JSON!
+
+    """
+    Get latest block info
+    """
+    block(network: Network = THORCHAIN): Block!
+
+    """
+    Get inbound addresses for all chains
+    """
+    inboundAddresses(network: Network = THORCHAIN): [InboundAddress!]!
+
+    """
+    Get TCY claims for addresses
+    """
+    tcyClaims(addresses: [String!]!, network: Network = THORCHAIN): [TcyClaim]!
+  }
+
   # ============================================================================
-  # PORTALS TYPES
+  # PORTALS NAMESPACE TYPES
   # ============================================================================
 
   """
@@ -678,14 +679,34 @@ export const typeDefs = gql`
     address: String!
   }
 
+  """
+  Portals DeFi position aggregator
+  """
+  type Portals {
+    """
+    Get DeFi positions for a single account
+    """
+    account(chainId: ChainId!, address: String!): [PortalsToken!]!
+
+    """
+    Get DeFi positions for multiple accounts
+    """
+    accounts(requests: [PortalsAccountInput!]!): [[PortalsToken!]!]!
+
+    """
+    Get all supported platforms
+    """
+    platforms: [PortalsPlatform!]!
+  }
+
   # ============================================================================
-  # COWSWAP TYPES
+  # COWSWAP NAMESPACE TYPES
   # ============================================================================
 
   """
   CowSwap limit order
   """
-  type CowSwapOrder {
+  type Order {
     uid: String!
     sellToken: String!
     buyToken: String!
@@ -719,75 +740,18 @@ export const typeDefs = gql`
   """
   type OrdersUpdate {
     accountId: AccountId!
-    orders: [CowSwapOrder!]!
+    orders: [Order!]!
     timestamp: Float!
   }
 
-  # ============================================================================
-  # LEGACY COINGECKO TYPES (for backwards compatibility)
-  # ============================================================================
-
-  type CoingeckoTrendingCoin {
-    id: String!
-    name: String!
-    symbol: String!
-    marketCapRank: Int
-    thumb: String
-    small: String
-    large: String
-    score: Int
-  }
-
-  type CoingeckoMover {
-    id: String!
-    name: String!
-    symbol: String!
-    priceChangePercentage24h: Float!
-    marketCap: Float
-    marketCapRank: Int
-    thumb: String
-    small: String
-    large: String
-  }
-
-  type CoingeckoTopMovers {
-    topGainers: [CoingeckoMover!]!
-    topLosers: [CoingeckoMover!]!
-  }
-
-  type CoingeckoRecentlyAddedCoin {
-    id: String!
-    name: String!
-    symbol: String!
-    activatedAt: Int
-  }
-
-  type CoingeckoMarketCap {
-    id: String!
-    symbol: String!
-    name: String!
-    image: String
-    currentPrice: Float!
-    marketCap: Float!
-    marketCapRank: Int
-    fullyDilutedValuation: Float
-    totalVolume: Float!
-    high24h: Float
-    low24h: Float
-    priceChange24h: Float
-    priceChangePercentage24h: Float
-    marketCapChange24h: Float
-    marketCapChangePercentage24h: Float
-    circulatingSupply: Float
-    totalSupply: Float
-    maxSupply: Float
-    ath: Float
-    athChangePercentage: Float
-    athDate: String
-    atl: Float
-    atlChangePercentage: Float
-    atlDate: String
-    lastUpdated: String
+  """
+  CowSwap DEX limit orders
+  """
+  type CowSwap {
+    """
+    Get limit orders for accounts
+    """
+    orders(accountIds: [String!]!): [OrdersUpdate!]!
   }
 
   # ============================================================================
@@ -797,9 +761,23 @@ export const typeDefs = gql`
   type Query {
     """
     Unified market data access
-    Use this for all market-related queries
     """
     market: Market!
+
+    """
+    Thorchain/Mayachain data access
+    """
+    thornode: Thornode!
+
+    """
+    Portals DeFi position aggregator
+    """
+    portals: Portals!
+
+    """
+    CowSwap DEX limit orders
+    """
+    cowswap: CowSwap!
 
     """
     Fetches market data for specified assets
@@ -823,115 +801,6 @@ export const typeDefs = gql`
     """
     transactions(accountIds: [String!]!, limit: Int = 50): TransactionConnection!
 
-    # -------------------------------------------------------------------------
-    # Legacy CoinGecko queries (deprecated - use market.* instead)
-    # -------------------------------------------------------------------------
-
-    coingeckoTrending: [CoingeckoTrendingCoin!]! @deprecated(reason: "Use market.trending instead")
-
-    coingeckoTopMovers: CoingeckoTopMovers! @deprecated(reason: "Use market.movers instead")
-
-    coingeckoRecentlyAdded: [CoingeckoRecentlyAddedCoin!]!
-      @deprecated(reason: "Use market.recentlyAdded instead")
-
-    coingeckoMarkets(order: CoingeckoSortKey!, page: Int, perPage: Int): [CoingeckoMarketCap!]!
-      @deprecated(reason: "Use market.topAssets instead")
-
-    coingeckoTopMarkets(count: Int, order: CoingeckoSortKey): [CoingeckoMarketCap!]!
-      @deprecated(reason: "Use market.topAssets instead")
-
-    coingeckoPriceHistory(coingeckoId: String!, from: Int!, to: Int!): [PriceHistoryPoint!]!
-      @deprecated(reason: "Use market.priceHistory instead")
-
-    # -------------------------------------------------------------------------
-    # Thornode/Mayanode endpoints
-    # -------------------------------------------------------------------------
-
-    """
-    Get TCY claims for addresses
-    """
-    tcyClaims(addresses: [String!]!, network: ThornodeNetwork = thorchain): [TcyClaim]!
-
-    """
-    Get all pools (paginated)
-    """
-    thornodePools(
-      network: ThornodeNetwork = thorchain
-      first: Int = 100
-      after: String
-    ): ThornodePoolConnection!
-
-    """
-    Get all pools (legacy, non-paginated)
-    """
-    thornodePoolsLegacy(network: ThornodeNetwork = thorchain): [ThornodePool!]!
-      @deprecated(reason: "Use thornodePools with pagination instead")
-
-    """
-    Get single pool by asset
-    """
-    thornodePool(asset: String!, network: ThornodeNetwork = thorchain): ThornodePool
-
-    """
-    Get mimir configuration
-    """
-    thornodeMimir(network: ThornodeNetwork = thorchain): JSON!
-
-    """
-    Get latest block info
-    """
-    thornodeBlock(network: ThornodeNetwork = thorchain): ThornodeBlock!
-
-    """
-    Get inbound addresses for all chains
-    """
-    thornodeInboundAddresses(network: ThornodeNetwork = thorchain): [InboundAddress!]!
-
-    """
-    Get borrowers for a specific pool
-    """
-    thornodePoolBorrowers(
-      asset: String!
-      network: ThornodeNetwork = thorchain
-    ): [ThornodeBorrower!]!
-
-    """
-    Get savers for a specific pool
-    """
-    thornodePoolSavers(asset: String!, network: ThornodeNetwork = thorchain): [ThornodeSaver!]!
-
-    # -------------------------------------------------------------------------
-    # Portals endpoints
-    # -------------------------------------------------------------------------
-
-    """
-    Get DeFi positions for a single account
-    """
-    portalsAccount(chainId: ChainId!, address: String!): [PortalsToken!]!
-
-    """
-    Get DeFi positions for multiple accounts
-    """
-    portalsAccounts(requests: [PortalsAccountInput!]!): [[PortalsToken!]!]!
-
-    """
-    Get all supported platforms
-    """
-    portalsPlatforms: [PortalsPlatform!]!
-
-    # -------------------------------------------------------------------------
-    # CowSwap endpoints
-    # -------------------------------------------------------------------------
-
-    """
-    Get limit orders for accounts
-    """
-    limitOrders(accountIds: [String!]!): [OrdersUpdate!]!
-
-    # -------------------------------------------------------------------------
-    # Health check
-    # -------------------------------------------------------------------------
-
     """
     API health check
     """
@@ -944,8 +813,8 @@ export const typeDefs = gql`
 
   type Subscription {
     """
-    Real-time limit order updates
+    Real-time CowSwap limit order updates
     """
-    limitOrdersUpdated(accountIds: [String!]!): OrdersUpdate!
+    cowswapOrdersUpdated(accountIds: [String!]!): OrdersUpdate!
   }
 `

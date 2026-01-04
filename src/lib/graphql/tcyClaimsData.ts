@@ -10,16 +10,20 @@ export type GraphQLTcyClaim = {
 
 const GET_TCY_CLAIMS = gql`
   query GetTcyClaims($addresses: [String!]!) {
-    tcyClaims(addresses: $addresses) {
-      asset
-      amount
-      l1Address
+    thornode {
+      tcyClaims(addresses: $addresses) {
+        asset
+        amount
+        l1Address
+      }
     }
   }
 `
 
 type TcyClaimsResponse = {
-  tcyClaims: GraphQLTcyClaim[]
+  thornode: {
+    tcyClaims: GraphQLTcyClaim[]
+  }
 }
 
 export async function fetchTcyClaimsGraphQL(addresses: string[]): Promise<GraphQLTcyClaim[]> {
@@ -27,7 +31,7 @@ export async function fetchTcyClaimsGraphQL(addresses: string[]): Promise<GraphQ
 
   const client = getGraphQLClient()
   const response = await client.request<TcyClaimsResponse>(GET_TCY_CLAIMS, { addresses })
-  return response.tcyClaims
+  return response.thornode.tcyClaims
 }
 
 export type AddressToAccountIdMap = Map<string, string>

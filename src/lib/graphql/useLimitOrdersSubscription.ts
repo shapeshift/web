@@ -47,8 +47,8 @@ type LimitOrdersSubscriptionResult = {
 }
 
 const LIMIT_ORDERS_SUBSCRIPTION = `
-  subscription LimitOrdersUpdated($accountIds: [String!]!) {
-    limitOrdersUpdated(accountIds: $accountIds) {
+  subscription CowswapOrdersUpdated($accountIds: [String!]!) {
+    cowswapOrdersUpdated(accountIds: $accountIds) {
       accountId
       orders {
         uid
@@ -84,38 +84,40 @@ const LIMIT_ORDERS_SUBSCRIPTION = `
 `
 
 const LIMIT_ORDERS_QUERY = `
-  query LimitOrders($accountIds: [String!]!) {
-    limitOrders(accountIds: $accountIds) {
-      accountId
-      orders {
-        uid
-        sellToken
-        buyToken
-        sellAmount
-        buyAmount
-        validTo
-        appData
-        feeAmount
-        kind
-        partiallyFillable
-        sellTokenBalance
-        buyTokenBalance
-        signingScheme
-        signature
-        from
-        receiver
-        owner
-        creationDate
-        status
-        executedSellAmount
-        executedBuyAmount
-        executedSellAmountBeforeFees
-        executedFeeAmount
-        invalidated
-        fullAppData
-        class
+  query CowswapOrders($accountIds: [String!]!) {
+    cowswap {
+      orders(accountIds: $accountIds) {
+        accountId
+        orders {
+          uid
+          sellToken
+          buyToken
+          sellAmount
+          buyAmount
+          validTo
+          appData
+          feeAmount
+          kind
+          partiallyFillable
+          sellTokenBalance
+          buyTokenBalance
+          signingScheme
+          signature
+          from
+          receiver
+          owner
+          creationDate
+          status
+          executedSellAmount
+          executedBuyAmount
+          executedSellAmountBeforeFees
+          executedFeeAmount
+          invalidated
+          fullAppData
+          class
+        }
+        timestamp
       }
-      timestamp
     }
   }
 `
@@ -176,15 +178,15 @@ export function useLimitOrdersSubscription(
       await new Promise<void>((resolve, reject) => {
         let result: OrdersUpdate[] = []
 
-        wsClient.subscribe<{ limitOrders: OrdersUpdate[] }>(
+        wsClient.subscribe<{ cowswap: { orders: OrdersUpdate[] } }>(
           {
             query: LIMIT_ORDERS_QUERY,
             variables: { accountIds },
           },
           {
             next: data => {
-              if (data.data?.limitOrders) {
-                result = data.data.limitOrders
+              if (data.data?.cowswap?.orders) {
+                result = data.data.cowswap.orders
               }
             },
             error: reject,
@@ -221,15 +223,15 @@ export function useLimitOrdersSubscription(
 
     const wsClient = getGraphQLWsClient()
 
-    unsubscribeRef.current = wsClient.subscribe<{ limitOrdersUpdated: OrdersUpdate }>(
+    unsubscribeRef.current = wsClient.subscribe<{ cowswapOrdersUpdated: OrdersUpdate }>(
       {
         query: LIMIT_ORDERS_SUBSCRIPTION,
         variables: { accountIds },
       },
       {
         next: data => {
-          if (data.data?.limitOrdersUpdated) {
-            const update = data.data.limitOrdersUpdated
+          if (data.data?.cowswapOrdersUpdated) {
+            const update = data.data.cowswapOrdersUpdated
             console.log('[useLimitOrdersSubscription] Received update for', update.accountId)
 
             setOrders(prev => {

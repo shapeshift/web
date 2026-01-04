@@ -97,15 +97,20 @@ async function startServer() {
     console.log(`🚀 GraphQL server ready at http://localhost:${PORT}/graphql`)
     console.log(`🔌 WebSocket subscriptions ready at ws://localhost:${PORT}/graphql`)
     console.log(`
-Available queries:
-  - marketData(assetIds: [String!]!): [MarketData]!
-  - accounts(accountIds: [String!]!): [Account]!
+Namespaces:
+  - market { trending, movers, recentlyAdded, topAssets, data, priceHistory }
+  - thornode { pool, pools, borrowers, savers, mimir, block, inboundAddresses, tcyClaims }
+  - portals { account, accounts, platforms }
+  - cowswap { orders }
+
+Root queries:
+  - marketData(assetIds: [String!]!): [MarketDataResult!]!
+  - accounts(accountIds: [String!]!): [Account!]!
   - transactions(accountIds: [String!]!, limit: Int): TransactionConnection!
-  - limitOrders(accountIds: [String!]!): [OrdersUpdate!]!
   - health: String!
 
 Subscriptions:
-  - limitOrdersUpdated(accountIds: [String!]!): OrdersUpdate!
+  - cowswapOrdersUpdated(accountIds: [String!]!): OrdersUpdate!
     `)
   })
 }

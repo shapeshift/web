@@ -27,41 +27,49 @@ export type GraphQLSaver = {
 
 const GET_POOL_BORROWERS = gql`
   query GetPoolBorrowers($asset: String!) {
-    thornodePoolBorrowers(asset: $asset) {
-      owner
-      asset
-      debtIssued
-      debtRepaid
-      debtCurrent
-      collateralDeposited
-      collateralWithdrawn
-      collateralCurrent
-      lastOpenHeight
-      lastRepayHeight
+    thornode {
+      borrowers(asset: $asset) {
+        owner
+        asset
+        debtIssued
+        debtRepaid
+        debtCurrent
+        collateralDeposited
+        collateralWithdrawn
+        collateralCurrent
+        lastOpenHeight
+        lastRepayHeight
+      }
     }
   }
 `
 
 const GET_POOL_SAVERS = gql`
   query GetPoolSavers($asset: String!) {
-    thornodePoolSavers(asset: $asset) {
-      asset
-      assetAddress
-      lastAddHeight
-      units
-      assetDepositValue
-      assetRedeemValue
-      growthPct
+    thornode {
+      savers(asset: $asset) {
+        asset
+        assetAddress
+        lastAddHeight
+        units
+        assetDepositValue
+        assetRedeemValue
+        growthPct
+      }
     }
   }
 `
 
 type PoolBorrowersResponse = {
-  thornodePoolBorrowers: GraphQLBorrower[]
+  thornode: {
+    borrowers: GraphQLBorrower[]
+  }
 }
 
 type PoolSaversResponse = {
-  thornodePoolSavers: GraphQLSaver[]
+  thornode: {
+    savers: GraphQLSaver[]
+  }
 }
 
 export async function fetchPoolBorrowersGraphQL(poolAssetId: string): Promise<GraphQLBorrower[]> {
@@ -71,10 +79,10 @@ export async function fetchPoolBorrowersGraphQL(poolAssetId: string): Promise<Gr
   })
   console.log(
     '[fetchPoolBorrowersGraphQL] Received',
-    response.thornodePoolBorrowers.length,
+    response.thornode.borrowers.length,
     'borrowers',
   )
-  return response.thornodePoolBorrowers
+  return response.thornode.borrowers
 }
 
 export async function fetchPoolSaversGraphQL(poolAssetId: string): Promise<GraphQLSaver[]> {
@@ -82,6 +90,6 @@ export async function fetchPoolSaversGraphQL(poolAssetId: string): Promise<Graph
   const response = await client.request<PoolSaversResponse>(GET_POOL_SAVERS, {
     asset: poolAssetId,
   })
-  console.log('[fetchPoolSaversGraphQL] Received', response.thornodePoolSavers.length, 'savers')
-  return response.thornodePoolSavers
+  console.log('[fetchPoolSaversGraphQL] Received', response.thornode.savers.length, 'savers')
+  return response.thornode.savers
 }

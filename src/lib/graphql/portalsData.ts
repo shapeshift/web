@@ -7,46 +7,50 @@ import { getGraphQLClient } from './client'
 
 const GET_PORTALS_ACCOUNT = gql`
   query GetPortalsAccount($chainId: ChainId!, $address: String!) {
-    portalsAccount(chainId: $chainId, address: $address) {
-      key
-      name
-      decimals
-      symbol
-      address
-      images
-      image
-      price
-      pricePerShare
-      platform
-      network
-      liquidity
-      tokens
-      apy
-      volumeUsd1d
-      volumeUsd7d
+    portals {
+      account(chainId: $chainId, address: $address) {
+        key
+        name
+        decimals
+        symbol
+        address
+        images
+        image
+        price
+        pricePerShare
+        platform
+        network
+        liquidity
+        tokens
+        apy
+        volumeUsd1d
+        volumeUsd7d
+      }
     }
   }
 `
 
 const GET_PORTALS_ACCOUNTS = gql`
   query GetPortalsAccounts($requests: [PortalsAccountInput!]!) {
-    portalsAccounts(requests: $requests) {
-      key
-      name
-      decimals
-      symbol
-      address
-      images
-      image
-      price
-      pricePerShare
-      platform
-      network
-      liquidity
-      tokens
-      apy
-      volumeUsd1d
-      volumeUsd7d
+    portals {
+      accounts(requests: $requests) {
+        key
+        name
+        decimals
+        symbol
+        address
+        images
+        image
+        price
+        pricePerShare
+        platform
+        network
+        liquidity
+        tokens
+        apy
+        volumeUsd1d
+        volumeUsd7d
+      }
     }
   }
 `
@@ -71,7 +75,9 @@ type PortalsTokenResponse = {
 }
 
 type GetPortalsAccountResponse = {
-  portalsAccount: PortalsTokenResponse[]
+  portals: {
+    account: PortalsTokenResponse[]
+  }
 }
 
 export type TokenInfo = {
@@ -107,7 +113,9 @@ function parsePortalsAccountKey(key: PortalsAccountKey): { chainId: ChainId; add
 }
 
 type GetPortalsAccountsResponse = {
-  portalsAccounts: PortalsTokenResponse[][]
+  portals: {
+    accounts: PortalsTokenResponse[][]
+  }
 }
 
 const BATCH_WINDOW_MS = 16
@@ -130,7 +138,7 @@ async function batchGetPortalsAccounts(
       requests,
     })
 
-    return response.portalsAccounts.map((tokens, index) => {
+    return response.portals.accounts.map((tokens, index) => {
       const { chainId } = requests[index]
       return tokens.reduce<Record<AssetId, TokenInfo>>((acc, token) => {
         const assetId = toAssetId({
@@ -207,7 +215,7 @@ export async function fetchPortalsAccountGraphQLDirect(
       address: owner,
     })
 
-    return response.portalsAccount.reduce<Record<AssetId, TokenInfo>>((acc, token) => {
+    return response.portals.account.reduce<Record<AssetId, TokenInfo>>((acc, token) => {
       const assetId = toAssetId({
         chainId,
         assetNamespace: ASSET_NAMESPACE.erc20,

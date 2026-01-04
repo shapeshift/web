@@ -4,7 +4,6 @@ import type { PubSub } from 'graphql-subscriptions'
 
 import type { CoingeckoSortKey } from '../datasources/coingeckoService.js'
 import {
-  getMarkets,
   getPriceHistory,
   getRecentlyAdded,
   getTopMarkets,
@@ -22,7 +21,6 @@ import {
   getPortalsAccounts,
   getPortalsPlatforms,
 } from '../datasources/portalsService.js'
-import type { ThornodeNetwork } from '../datasources/thornodeService.js'
 import {
   getBlock,
   getInboundAddresses,
@@ -70,6 +68,12 @@ type MarketOrderField =
   | 'VOLUME_ASC'
   | 'PRICE_CHANGE_24H_DESC'
   | 'PRICE_CHANGE_24H_ASC'
+
+type Network = 'THORCHAIN' | 'MAYACHAIN'
+
+function networkToLegacy(network: Network): 'thorchain' | 'mayachain' {
+  return network === 'MAYACHAIN' ? 'mayachain' : 'thorchain'
+}
 
 function marketOrderFieldToCoingeckoSort(field: MarketOrderField): CoingeckoSortKey {
   const mapping: Record<MarketOrderField, CoingeckoSortKey> = {
@@ -144,6 +148,10 @@ export const resolvers = {
   MarketAsset: {
     assetId: () => null,
   },
+
+  // ============================================================================
+  // MARKET NAMESPACE RESOLVER
+  // ============================================================================
 
   Market: {
     trending: async (_parent: unknown, args: { limit?: number }) => {
@@ -246,50 +254,138 @@ export const resolvers = {
     },
   },
 
+  // ============================================================================
+  // THORNODE NAMESPACE RESOLVER
+  // ============================================================================
+
+  Thornode: {
+    pool: (_parent: unknown, args: { asset: string; network?: Network }) => {
+      const network = networkToLegacy(args.network ?? 'THORCHAIN')
+      console.log(`[Thornode.pool] Fetching pool ${args.asset} for ${network}`)
+      return getPool(args.asset, network)
+    },
+
+    pools: async (
+      _parent: unknown,
+      args: { network?: Network; first?: number; after?: string },
+    ) => {
+      const network = networkToLegacy(args.network ?? 'THORCHAIN')
+      const first = args.first ?? 100
+
+      console.log(`[Thornode.pools] Fetching pools for ${network}`)
+      const allPools = await getPools(network)
+
+      let startIndex = 0
+      if (args.after) {
+        const decoded = Buffer.from(args.after, 'base64').toString('utf8')
+        startIndex = parseInt(decoded, 10) + 1
+      }
+
+      const sliced = allPools.slice(startIndex, startIndex + first)
+      const edges = sliced.map((pool, index) => ({
+        cursor: Buffer.from(String(startIndex + index)).toString('base64'),
+        node: pool,
+      }))
+
+      return {
+        edges,
+        pageInfo: {
+          hasNextPage: startIndex + first < allPools.length,
+          endCursor: edges.length > 0 ? edges[edges.length - 1].cursor : null,
+        },
+        totalCount: allPools.length,
+      }
+    },
+
+    borrowers: (_parent: unknown, args: { asset: string; network?: Network }) => {
+      const network = networkToLegacy(args.network ?? 'THORCHAIN')
+      console.log(`[Thornode.borrowers] Fetching borrowers for ${args.asset} on ${network}`)
+      return getPoolBorrowers(args.asset, network)
+    },
+
+    savers: (_parent: unknown, args: { asset: string; network?: Network }) => {
+      const network = networkToLegacy(args.network ?? 'THORCHAIN')
+      console.log(`[Thornode.savers] Fetching savers for ${args.asset} on ${network}`)
+      return getPoolSavers(args.asset, network)
+    },
+
+    mimir: (_parent: unknown, args: { network?: Network }) => {
+      const network = networkToLegacy(args.network ?? 'THORCHAIN')
+      console.log(`[Thornode.mimir] Fetching mimir for ${network}`)
+      return getMimir(network)
+    },
+
+    block: (_parent: unknown, args: { network?: Network }) => {
+      const network = networkToLegacy(args.network ?? 'THORCHAIN')
+      console.log(`[Thornode.block] Fetching block for ${network}`)
+      return getBlock(network)
+    },
+
+    inboundAddresses: (_parent: unknown, args: { network?: Network }) => {
+      const network = networkToLegacy(args.network ?? 'THORCHAIN')
+      console.log(`[Thornode.inboundAddresses] Fetching inbound addresses for ${network}`)
+      return getInboundAddresses(network)
+    },
+
+    tcyClaims: async (_parent: unknown, args: { addresses: string[]; network?: Network }) => {
+      const network = networkToLegacy(args.network ?? 'THORCHAIN')
+      console.log(
+        `[Thornode.tcyClaims] Fetching claims for ${args.addresses.length} addresses on ${network}`,
+      )
+      return await getTcyClaims(args.addresses, network)
+    },
+  },
+
+  // ============================================================================
+  // PORTALS NAMESPACE RESOLVER
+  // ============================================================================
+
+  Portals: {
+    account: (_parent: unknown, args: { chainId: string; address: string }) => {
+      console.log(`[Portals.account] Fetching tokens for ${args.address} on ${args.chainId}`)
+      return getPortalsAccount(args.chainId, args.address)
+    },
+
+    accounts: (_parent: unknown, args: { requests: { chainId: string; address: string }[] }) => {
+      console.log(`[Portals.accounts] Fetching tokens for ${args.requests.length} accounts`)
+      return getPortalsAccounts(args.requests)
+    },
+
+    platforms: () => {
+      console.log('[Portals.platforms] Fetching platforms')
+      return getPortalsPlatforms()
+    },
+  },
+
+  // ============================================================================
+  // COWSWAP NAMESPACE RESOLVER
+  // ============================================================================
+
+  CowSwap: {
+    orders: (_parent: unknown, args: { accountIds: string[] }) => {
+      if (args.accountIds.length > MAX_ORDER_ACCOUNT_IDS) {
+        throw new GraphQLError(`Too many accountIds requested (max ${MAX_ORDER_ACCOUNT_IDS})`, {
+          extensions: { code: 'BAD_USER_INPUT' },
+        })
+      }
+
+      console.log(`[CowSwap.orders] Fetching orders for ${args.accountIds.length} accounts`)
+      return getOrders(args.accountIds)
+    },
+  },
+
+  // ============================================================================
+  // QUERY ROOT RESOLVER
+  // ============================================================================
+
   Query: {
     health: () => 'OK',
 
+    // Namespace objects - return empty objects, fields resolved by namespace resolvers
     market: () => ({}),
-
-    coingeckoTrending: () => {
-      console.log('[Query.coingeckoTrending] Fetching trending coins')
-      return getTrending()
-    },
-
-    coingeckoTopMovers: () => {
-      console.log('[Query.coingeckoTopMovers] Fetching top movers')
-      return getTopMovers()
-    },
-
-    coingeckoRecentlyAdded: () => {
-      console.log('[Query.coingeckoRecentlyAdded] Fetching recently added')
-      return getRecentlyAdded()
-    },
-
-    coingeckoMarkets: (
-      _parent: unknown,
-      args: { order: CoingeckoSortKey; page?: number; perPage?: number },
-    ) => {
-      const { order, page = 1, perPage = 100 } = args
-      console.log(`[Query.coingeckoMarkets] Fetching markets (order=${order}, page=${page})`)
-      return getMarkets(order, page, perPage)
-    },
-
-    coingeckoTopMarkets: (_parent: unknown, args: { count?: number; order?: CoingeckoSortKey }) => {
-      const { count = 2500, order = 'market_cap_desc' } = args
-      console.log(`[Query.coingeckoTopMarkets] Fetching top ${count} markets`)
-      return getTopMarkets(count, order)
-    },
-
-    coingeckoPriceHistory: (
-      _parent: unknown,
-      args: { coingeckoId: string; from: number; to: number },
-    ) => {
-      console.log(
-        `[Query.coingeckoPriceHistory] Fetching history for ${args.coingeckoId} (${args.from}-${args.to})`,
-      )
-      return getPriceHistory(args.coingeckoId, args.from, args.to)
-    },
+    thornode: () => ({}),
+    portals: () => ({}),
+    cowswap: () => ({}),
 
     marketData: async (_parent: unknown, args: { assetIds: string[] }, context: Context) => {
       if (args.assetIds.length > MAX_ASSET_IDS) {
@@ -392,132 +488,17 @@ export const resolvers = {
         },
       }
     },
-
-    tcyClaims: async (
-      _parent: unknown,
-      args: { addresses: string[]; network?: ThornodeNetwork },
-    ) => {
-      const network = args.network ?? 'thorchain'
-      console.log(
-        `[Query.tcyClaims] Fetching claims for ${args.addresses.length} addresses on ${network}`,
-      )
-      return await getTcyClaims(args.addresses, network)
-    },
-
-    thornodePools: async (
-      _parent: unknown,
-      args: { network?: ThornodeNetwork; first?: number; after?: string },
-    ) => {
-      const network = args.network ?? 'thorchain'
-      const first = args.first ?? 100
-
-      console.log(`[Query.thornodePools] Fetching pools for ${network}`)
-      const allPools = await getPools(network)
-
-      let startIndex = 0
-      if (args.after) {
-        const decoded = Buffer.from(args.after, 'base64').toString('utf8')
-        startIndex = parseInt(decoded, 10) + 1
-      }
-
-      const sliced = allPools.slice(startIndex, startIndex + first)
-      const edges = sliced.map((pool, index) => ({
-        cursor: Buffer.from(String(startIndex + index)).toString('base64'),
-        node: pool,
-      }))
-
-      return {
-        edges,
-        pageInfo: {
-          hasNextPage: startIndex + first < allPools.length,
-          endCursor: edges.length > 0 ? edges[edges.length - 1].cursor : null,
-        },
-        totalCount: allPools.length,
-      }
-    },
-
-    thornodePoolsLegacy: (_parent: unknown, args: { network?: ThornodeNetwork }) => {
-      const network = args.network ?? 'thorchain'
-      console.log(`[Query.thornodePoolsLegacy] Fetching pools for ${network}`)
-      return getPools(network)
-    },
-
-    thornodePool: (_parent: unknown, args: { asset: string; network?: ThornodeNetwork }) => {
-      const network = args.network ?? 'thorchain'
-      console.log(`[Query.thornodePool] Fetching pool ${args.asset} for ${network}`)
-      return getPool(args.asset, network)
-    },
-
-    thornodeMimir: (_parent: unknown, args: { network?: ThornodeNetwork }) => {
-      const network = args.network ?? 'thorchain'
-      console.log(`[Query.thornodeMimir] Fetching mimir for ${network}`)
-      return getMimir(network)
-    },
-
-    thornodeBlock: (_parent: unknown, args: { network?: ThornodeNetwork }) => {
-      const network = args.network ?? 'thorchain'
-      console.log(`[Query.thornodeBlock] Fetching block for ${network}`)
-      return getBlock(network)
-    },
-
-    thornodeInboundAddresses: (_parent: unknown, args: { network?: ThornodeNetwork }) => {
-      const network = args.network ?? 'thorchain'
-      console.log(`[Query.thornodeInboundAddresses] Fetching inbound addresses for ${network}`)
-      return getInboundAddresses(network)
-    },
-
-    thornodePoolBorrowers: (
-      _parent: unknown,
-      args: { asset: string; network?: ThornodeNetwork },
-    ) => {
-      const network = args.network ?? 'thorchain'
-      console.log(
-        `[Query.thornodePoolBorrowers] Fetching borrowers for ${args.asset} on ${network}`,
-      )
-      return getPoolBorrowers(args.asset, network)
-    },
-
-    thornodePoolSavers: (_parent: unknown, args: { asset: string; network?: ThornodeNetwork }) => {
-      const network = args.network ?? 'thorchain'
-      console.log(`[Query.thornodePoolSavers] Fetching savers for ${args.asset} on ${network}`)
-      return getPoolSavers(args.asset, network)
-    },
-
-    portalsAccount: (_parent: unknown, args: { chainId: string; address: string }) => {
-      console.log(`[Query.portalsAccount] Fetching tokens for ${args.address} on ${args.chainId}`)
-      return getPortalsAccount(args.chainId, args.address)
-    },
-
-    portalsAccounts: (
-      _parent: unknown,
-      args: { requests: { chainId: string; address: string }[] },
-    ) => {
-      console.log(`[Query.portalsAccounts] Fetching tokens for ${args.requests.length} accounts`)
-      return getPortalsAccounts(args.requests)
-    },
-
-    portalsPlatforms: () => {
-      console.log('[Query.portalsPlatforms] Fetching platforms')
-      return getPortalsPlatforms()
-    },
-
-    limitOrders: (_parent: unknown, args: { accountIds: string[] }) => {
-      if (args.accountIds.length > MAX_ORDER_ACCOUNT_IDS) {
-        throw new GraphQLError(`Too many accountIds requested (max ${MAX_ORDER_ACCOUNT_IDS})`, {
-          extensions: { code: 'BAD_USER_INPUT' },
-        })
-      }
-
-      console.log(`[Query.limitOrders] Fetching orders for ${args.accountIds.length} accounts`)
-      return getOrders(args.accountIds)
-    },
   },
 
+  // ============================================================================
+  // SUBSCRIPTION RESOLVER
+  // ============================================================================
+
   Subscription: {
-    limitOrdersUpdated: {
+    cowswapOrdersUpdated: {
       subscribe: (_parent: unknown, args: { accountIds: string[] }) => {
         console.log(
-          `[Subscription.limitOrdersUpdated] Starting subscription for ${args.accountIds.length} accounts`,
+          `[Subscription.cowswapOrdersUpdated] Starting subscription for ${args.accountIds.length} accounts`,
         )
 
         const subscribed: { chainId: string; address: string }[] = []
@@ -536,7 +517,7 @@ export const resolvers = {
 
         const originalReturn = iterator.return?.bind(iterator)
         iterator.return = () => {
-          console.log('[Subscription.limitOrdersUpdated] Subscription ending, cleaning up')
+          console.log('[Subscription.cowswapOrdersUpdated] Subscription ending, cleaning up')
           for (const { chainId, address } of subscribed) {
             unsubscribeFromOrders(chainId, address)
           }

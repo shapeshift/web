@@ -111,6 +111,7 @@ export type FeatureFlags = {
   GraphQLMarketData: boolean
   GraphQLAccountData: boolean
   GraphQLCoingeckoData: boolean
+  GraphQLTcyClaims: boolean
 }
 
 export type Flag = keyof FeatureFlags
@@ -256,6 +257,7 @@ const initialState: Preferences = {
     GraphQLMarketData: getConfig().VITE_FEATURE_GRAPHQL_MARKET_DATA,
     GraphQLAccountData: getConfig().VITE_FEATURE_GRAPHQL_ACCOUNT_DATA,
     GraphQLCoingeckoData: getConfig().VITE_FEATURE_GRAPHQL_COINGECKO_DATA,
+    GraphQLTcyClaims: getConfig().VITE_FEATURE_GRAPHQL_TCY_CLAIMS,
   },
   selectedLocale: simpleLocale(),
   hasWalletSeenTcyClaimAlert: {},

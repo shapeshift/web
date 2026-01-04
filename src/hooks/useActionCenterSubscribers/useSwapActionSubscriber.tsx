@@ -30,6 +30,7 @@ import { SECOND_CLASS_CHAINS } from '@/constants/chains'
 import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
 import { queryClient } from '@/context/QueryClientProvider/queryClient'
 import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
+import { accountService } from '@/lib/account/accountService'
 import { getTxLink } from '@/lib/getTxLink'
 import { fetchTradeStatus, tradeStatusQueryKey } from '@/lib/tradeExecution'
 import { vibrate } from '@/lib/vibrate'
@@ -39,7 +40,6 @@ import {
   selectSwapActionBySwapId,
 } from '@/state/slices/actionSlice/selectors'
 import { ActionStatus, ActionType, isSwapAction } from '@/state/slices/actionSlice/types'
-import { portfolioApi } from '@/state/slices/portfolioSlice/portfolioSlice'
 import { swapSlice } from '@/state/slices/swapSlice/swapSlice'
 import { selectConfirmedTradeExecution } from '@/state/slices/tradeQuoteSlice/selectors'
 import { tradeQuoteSlice } from '@/state/slices/tradeQuoteSlice/tradeQuoteSlice'
@@ -336,10 +336,8 @@ export const useSwapActionSubscriber = () => {
         }
 
         if (accountIdsToRefresh.length > 0) {
-          const { getAccountsBatch } = portfolioApi.endpoints
-          dispatch(
-            getAccountsBatch.initiate({ accountIds: accountIdsToRefresh }, { forceRefetch: true }),
-          )
+          accountIdsToRefresh.forEach(id => accountService.clearAccountCache(id))
+          accountService.loadAccounts(accountIdsToRefresh)
         }
 
         if (

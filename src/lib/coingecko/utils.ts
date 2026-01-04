@@ -56,31 +56,36 @@ const getCoinDetails = async (
   marketCap: CoinGeckoMarketCap | RecentlyAddedCoin | TrendingCoin | MoverAsset,
   i: number,
   all: CoingeckoAsset[],
+  skipDirectApiCall = false,
 ) => {
   const assets = selectAssets(store.getState())
 
   try {
-    // First, try to get asset IDs using the adapter
     const assetIds = adapters.coingeckoToAssetIds(marketCap.id)
 
     if (assetIds && assetIds.length > 0) {
-      // Check if we already have this asset in memory
       const existingAsset = assetIds.find(assetId => assets[assetId]?.isPrimary)
 
       if (existingAsset) {
-        // We already have this asset, create CoingeckoAsset without details
-        // The existing asset in Redux store already has all the necessary data
         all[i] = {
           assetId: existingAsset,
         }
         return
       }
+
+      const firstAssetId = assetIds[0]
+      if (firstAssetId) {
+        all[i] = {
+          assetId: firstAssetId,
+        }
+        return
+      }
     }
 
-    // Fallback to individual API call only if we don't have the asset
+    if (skipDirectApiCall) return
+
     const { data } = await queryClient.fetchQuery({
       queryKey: ['coingecko', 'coin', marketCap.id],
-      // Shared query across consumers, so make it infinite as there will be a lot of overlap
       queryFn: () => axios.get<CoingeckoAssetDetails>(`${coingeckoBaseUrl}/coins/${marketCap.id}`),
       gcTime: Infinity,
       staleTime: Infinity,
@@ -89,11 +94,9 @@ const getCoinDetails = async (
 
     const address = data.platforms?.[asset_platform_id]
 
-    // No token address, and not present in our native assets mapping - this is most likely a native asset we don't support
     if (!address && !COINGECKO_NATIVE_ASSET_ID_TO_ASSET_ID[id]) return
 
     const assetId = (() => {
-      // Handles native assets, which *may* not contain a platform_id
       if (COINGECKO_NATIVE_ASSET_ID_TO_ASSET_ID[id])
         return COINGECKO_NATIVE_ASSET_ID_TO_ASSET_ID[id]
 
@@ -140,6 +143,7 @@ export const getCoingeckoTopMovers = async (): Promise<CoingeckoAsset[]> => {
             { id: mover.id, name: mover.name, symbol: mover.symbol } as MoverAsset,
             i,
             all,
+            true,
           ),
         ),
       )
@@ -180,6 +184,7 @@ export const getCoingeckoTrending = async (): Promise<CoingeckoAsset[]> => {
             { id: coin.id, name: coin.name, symbol: coin.symbol } as TrendingCoin,
             i,
             all,
+            true,
           ),
         ),
       )
@@ -221,6 +226,7 @@ export const getCoingeckoRecentlyAdded = async (): Promise<CoingeckoAsset[]> => 
             } as RecentlyAddedCoin,
             i,
             all,
+            true,
           ),
         ),
       )

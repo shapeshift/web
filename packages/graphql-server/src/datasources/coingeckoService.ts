@@ -301,6 +301,45 @@ export async function getMarkets(
   return result
 }
 
+export type PriceHistoryPoint = {
+  date: number
+  price: number
+}
+
+type CoinGeckoHistoryData = {
+  prices: [number, number][]
+  market_caps: [number, number][]
+  total_volumes: [number, number][]
+}
+
+export async function getPriceHistory(
+  coingeckoId: string,
+  from: number,
+  to: number,
+): Promise<PriceHistoryPoint[]> {
+  const cacheKey = `priceHistory:${coingeckoId}:${from}:${to}`
+  const cached = getCached<PriceHistoryPoint[]>(cacheKey)
+  if (cached) {
+    console.log(`[CoinGecko] Returning cached price history for ${coingeckoId}`)
+    return cached
+  }
+
+  console.log(`[CoinGecko] Fetching price history for ${coingeckoId} (${from}-${to})`)
+
+  try {
+    const data = await fetchJson<CoinGeckoHistoryData>(
+      `${COINGECKO_BASE_URL}/coins/${coingeckoId}/market_chart/range?vs_currency=usd&from=${from}&to=${to}`,
+    )
+
+    const result = data.prices.map(([date, price]) => ({ date, price }))
+    setCache(cacheKey, result)
+    return result
+  } catch (error) {
+    console.error(`[CoinGecko] Failed to fetch price history for ${coingeckoId}:`, error)
+    return []
+  }
+}
+
 // Limit concurrent requests to avoid rate limiting
 const limit = pLimit(3)
 

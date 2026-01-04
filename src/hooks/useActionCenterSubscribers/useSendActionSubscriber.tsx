@@ -11,6 +11,7 @@ import { GenericTransactionNotification } from '@/components/Layout/Header/Actio
 import { getConfig } from '@/config'
 import { SECOND_CLASS_CHAINS } from '@/constants/chains'
 import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
+import { accountService } from '@/lib/account/accountService'
 import { getHyperEvmTransactionStatus } from '@/lib/utils/hyperevm'
 import { getMayachainTransactionStatus } from '@/lib/utils/mayachain'
 import { getMonadTransactionStatus } from '@/lib/utils/monad'
@@ -23,7 +24,6 @@ import { getTronTransactionStatus } from '@/lib/utils/tron'
 import { actionSlice } from '@/state/slices/actionSlice/actionSlice'
 import { selectPendingWalletSendActions } from '@/state/slices/actionSlice/selectors'
 import { ActionStatus } from '@/state/slices/actionSlice/types'
-import { portfolioApi } from '@/state/slices/portfolioSlice/portfolioSlice'
 import { selectTxs } from '@/state/slices/selectors'
 import { txHistory } from '@/state/slices/txHistorySlice/txHistorySlice'
 import { serializeTxIndex } from '@/state/slices/txHistorySlice/utils'
@@ -61,15 +61,9 @@ export const useSendActionSubscriber = () => {
       const isSecondClassChain = SECOND_CLASS_CHAINS.includes(chainId as KnownChainIds)
 
       if (isSecondClassChain) {
-        const { getAccountsBatch } = portfolioApi.endpoints
         const accountIdsToRefreshList = accountIdsToRefetch ?? [accountId]
-
-        dispatch(
-          getAccountsBatch.initiate(
-            { accountIds: accountIdsToRefreshList },
-            { forceRefetch: true },
-          ),
-        )
+        accountIdsToRefreshList.forEach(id => accountService.clearAccountCache(id))
+        accountService.loadAccounts(accountIdsToRefreshList)
       }
 
       const isActive = toast.isActive(txHash)

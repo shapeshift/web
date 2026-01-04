@@ -9,19 +9,31 @@ import type { MarketData as GraphQLMarketData } from './generated/types'
 const GET_MARKET_DATA = gql`
   query GetMarketData($assetIds: [String!]!) {
     marketData(assetIds: $assetIds) {
-      assetId
-      price
-      marketCap
-      volume
-      changePercent24Hr
-      supply
-      maxSupply
+      data {
+        assetId
+        price
+        marketCap
+        volume
+        changePercent24Hr
+        supply
+        maxSupply
+      }
+      error {
+        code
+        message
+        assetId
+      }
     }
   }
 `
 
+type MarketDataResultResponse = {
+  data: GraphQLMarketData | null
+  error: { code: string; message: string; assetId?: string } | null
+}
+
 type GetMarketDataResponse = {
-  marketData: (GraphQLMarketData | null)[]
+  marketData: MarketDataResultResponse[]
 }
 
 /**
@@ -45,15 +57,18 @@ export async function fetchMarketDataGraphQL(
     const result: Record<AssetId, MarketData> = {}
 
     for (const item of response.marketData) {
-      if (item) {
-        result[item.assetId as AssetId] = {
-          price: item.price,
-          marketCap: item.marketCap,
-          volume: item.volume,
-          changePercent24Hr: item.changePercent24Hr,
-          supply: item.supply ?? undefined,
-          maxSupply: item.maxSupply ?? undefined,
+      if (item.data) {
+        const marketData = item.data
+        result[marketData.assetId as AssetId] = {
+          price: marketData.price,
+          marketCap: marketData.marketCap,
+          volume: marketData.volume,
+          changePercent24Hr: marketData.changePercent24Hr,
+          supply: marketData.supply ?? undefined,
+          maxSupply: marketData.maxSupply ?? undefined,
         }
+      } else if (item.error) {
+        console.warn(`[GraphQL] Market data error for ${item.error.assetId}: ${item.error.message}`)
       }
     }
 

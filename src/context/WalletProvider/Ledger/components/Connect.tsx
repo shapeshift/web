@@ -11,7 +11,8 @@ import { WalletActions } from '@/context/WalletProvider/actions'
 import { KeyManager } from '@/context/WalletProvider/KeyManager'
 import { useLocalWallet } from '@/context/WalletProvider/local-wallet'
 import { useWallet } from '@/hooks/useWallet/useWallet'
-import { portfolio, portfolioApi } from '@/state/slices/portfolioSlice/portfolioSlice'
+import { accountService } from '@/lib/account/accountService'
+import { portfolio } from '@/state/slices/portfolioSlice/portfolioSlice'
 import { selectPortfolioHasWalletId } from '@/state/slices/selectors'
 import { useAppDispatch, useAppSelector } from '@/state/store'
 
@@ -108,7 +109,7 @@ export const LedgerConnect = () => {
 
   const handleClearPortfolio = useCallback(() => {
     dispatch(portfolio.actions.clear())
-    dispatch(portfolioApi.util.resetApiState())
+    accountService.clearCache()
   }, [dispatch])
 
   const handleClearCacheAndPair = useCallback(async () => {

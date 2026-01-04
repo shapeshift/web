@@ -9,15 +9,70 @@ import type {
 } from '@shapeshiftoss/types'
 import Axios from 'axios'
 import { setupCache } from 'axios-cache-interceptor'
+import { gql } from 'graphql-request'
 
 import type { MarketService } from '../api'
 import { DEFAULT_CACHE_TTL_MS } from '../config'
 import { isValidDate } from '../utils/isValidDate'
 import type { CoinGeckoMarketCap, CoinGeckoMarketData } from './coingecko-types'
 
+import { getConfig } from '@/config'
 import { queryClient } from '@/context/QueryClientProvider/queryClient'
 import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
+import { getGraphQLClient } from '@/lib/graphql/client'
 import { getTimeFrameBounds } from '@/lib/utils'
+
+const GET_TOP_MARKETS = gql`
+  query GetTopMarkets($count: Int!, $order: CoingeckoSortKey!) {
+    coingeckoTopMarkets(count: $count, order: $order) {
+      id
+      symbol
+      name
+      currentPrice
+      marketCap
+      totalVolume
+      priceChangePercentage24h
+      circulatingSupply
+      totalSupply
+      maxSupply
+    }
+  }
+`
+
+const GET_PRICE_HISTORY = gql`
+  query GetPriceHistory($coingeckoId: String!, $from: Int!, $to: Int!) {
+    coingeckoPriceHistory(coingeckoId: $coingeckoId, from: $from, to: $to) {
+      date
+      price
+    }
+  }
+`
+
+type GraphQLPriceHistoryPoint = {
+  date: number
+  price: number
+}
+
+type GetPriceHistoryResponse = {
+  coingeckoPriceHistory: GraphQLPriceHistoryPoint[]
+}
+
+type GraphQLMarketData = {
+  id: string
+  symbol: string
+  name: string
+  currentPrice: number
+  marketCap: number
+  totalVolume: number
+  priceChangePercentage24h: number
+  circulatingSupply: number
+  totalSupply: number | null
+  maxSupply: number | null
+}
+
+type GetTopMarketsResponse = {
+  coingeckoTopMarkets: GraphQLMarketData[]
+}
 
 // tons more params here: https://www.coingecko.com/en/api/documentation
 type CoinGeckoAssetData = {
@@ -53,6 +108,45 @@ export class CoinGeckoMarketService implements MarketService {
 
   async findAll(args?: FindAllMarketArgs, orderBy: CoinGeckoSortKey = 'market_cap_desc') {
     const count = args?.count ?? this.defaultCount
+    const isGraphQLEnabled = getConfig().VITE_FEATURE_GRAPHQL_ACCOUNT_DATA
+
+    if (isGraphQLEnabled) {
+      try {
+        const client = getGraphQLClient()
+        const data = await queryClient.fetchQuery({
+          queryKey: ['coingeckoTopMarketsGraphQL', count, orderBy],
+          queryFn: async () => {
+            const response = await client.request<GetTopMarketsResponse>(GET_TOP_MARKETS, {
+              count,
+              order: orderBy,
+            })
+            return response.coingeckoTopMarkets
+          },
+          staleTime: 60_000,
+        })
+
+        return data.reduce<MarketCapResult>((prev, asset) => {
+          const assetIds = adapters.coingeckoToAssetIds(asset.id)
+          if (!assetIds) return prev
+
+          assetIds.forEach(assetId => {
+            prev[assetId] = {
+              price: asset.currentPrice.toString(),
+              marketCap: asset.marketCap.toString(),
+              volume: asset.totalVolume.toString(),
+              changePercent24Hr: asset.priceChangePercentage24h,
+              supply: asset.circulatingSupply.toString(),
+              maxSupply: asset.maxSupply?.toString() ?? asset.totalSupply?.toString(),
+            }
+          })
+
+          return prev
+        }, {})
+      } catch (e) {
+        console.warn('[CoinGeckoMarketService] GraphQL failed, falling back to direct API:', e)
+      }
+    }
+
     const perPage = count < this.maxPerPage ? count : this.maxPerPage
     const pages = Math.ceil(bnOrZero(count).div(perPage).toNumber())
 
@@ -138,18 +232,55 @@ export class CoinGeckoMarketService implements MarketService {
     assetId,
     timeframe,
   }: PriceHistoryArgs): Promise<HistoryData[]> {
-    if (!adapters.assetIdToCoingecko(assetId)) return []
+    const coingeckoId = adapters.assetIdToCoingecko(assetId)
+    if (!coingeckoId) return []
+
+    const { start, end } = getTimeFrameBounds(timeframe)
+    const from = Math.floor(start.valueOf() / 1000)
+    const to = Math.floor(end.valueOf() / 1000)
+
+    const isGraphQLEnabled = getConfig().VITE_FEATURE_GRAPHQL_COINGECKO_DATA
+
+    if (isGraphQLEnabled) {
+      try {
+        const client = getGraphQLClient()
+        const data = await queryClient.fetchQuery({
+          queryKey: ['coingeckoPriceHistoryGraphQL', coingeckoId, from, to],
+          queryFn: async () => {
+            const response = await client.request<GetPriceHistoryResponse>(GET_PRICE_HISTORY, {
+              coingeckoId,
+              from,
+              to,
+            })
+            return response.coingeckoPriceHistory
+          },
+          staleTime: 60_000,
+        })
+
+        return data.reduce<HistoryData[]>((prev, point) => {
+          if (!isValidDate(point.date)) {
+            console.error('CoinGeckoMarketService(findPriceHistoryByAssetId): invalid date')
+            return prev
+          }
+
+          if (bn(point.price).isNaN()) {
+            console.error('CoinGeckoMarketService(findPriceHistoryByAssetId): invalid price')
+            return prev
+          }
+
+          prev.push({ date: point.date, price: point.price })
+          return prev
+        }, [])
+      } catch (e) {
+        console.warn('[CoinGeckoMarketService] GraphQL price history failed, falling back:', e)
+      }
+    }
 
     const url = adapters.makeCoingeckoAssetUrl(assetId)
     if (!url) return []
 
     try {
-      const { start, end } = getTimeFrameBounds(timeframe)
-
       const currency = 'usd'
-      const from = start.valueOf() / 1000
-      const to = end.valueOf() / 1000
-
       const [baseUrl, apiKeyQueryParam = ''] = url.split('?')
 
       const { data: historyData } = await axios.get<CoinGeckoHistoryData>(

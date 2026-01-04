@@ -28,11 +28,12 @@ import { RawText, Text } from '@/components/Text'
 import { WalletActions } from '@/context/WalletProvider/actions'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { deriveAccountIdsAndMetadataForChainNamespace } from '@/lib/account/account'
+import { accountService } from '@/lib/account/accountService'
 import type { BN } from '@/lib/bignumber/bignumber'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { isSome } from '@/lib/utils'
 import { getSupportedEvmChainIds } from '@/lib/utils/evm'
-import { portfolio, portfolioApi } from '@/state/slices/portfolioSlice/portfolioSlice'
+import { portfolio } from '@/state/slices/portfolioSlice/portfolioSlice'
 import { selectAssets, selectWalletConnectedChainIds } from '@/state/slices/selectors'
 import { useAppDispatch, useAppSelector } from '@/state/store'
 
@@ -75,24 +76,25 @@ export const LedgerChains = () => {
         })
 
         const accountIds = Object.keys(accountMetadataByAccountId)
-        const { getAccountsBatch } = portfolioApi.endpoints
 
-        const result = await dispatch(
-          getAccountsBatch.initiate({ accountIds }, { forceRefetch: true }),
-        )
-        const combinedPortfolio = result.data
+        accountService.clearCache()
+        const results = await accountService.loadAccounts(accountIds)
 
-        const balanceByChainId = accountIds.reduce<Record<ChainId, BN>>((acc, accountId) => {
+        const balanceByChainId = accountIds.reduce<Record<ChainId, BN>>((acc, accountId, index) => {
           const { chainId } = fromAccountId(accountId)
+          const result = results[index]
 
-          if (combinedPortfolio?.accountBalances?.byId) {
-            Object.values(combinedPortfolio.accountBalances.byId).forEach(byAssetId => {
-              if (byAssetId) {
-                Object.values(byAssetId).forEach(balance => {
-                  acc[chainId] = bnOrZero(acc[chainId]).plus(bnOrZero(balance))
-                })
-              }
-            })
+          if (result?.account) {
+            acc[chainId] = bnOrZero(acc[chainId]).plus(bnOrZero(result.account.balance))
+
+            const chainSpecific = result.account.chainSpecific as
+              | { tokens?: { balance: string }[] }
+              | undefined
+            if (chainSpecific?.tokens) {
+              chainSpecific.tokens.forEach(token => {
+                acc[chainId] = bnOrZero(acc[chainId]).plus(bnOrZero(token.balance))
+              })
+            }
           }
 
           const accountMetadata = accountMetadataByAccountId[accountId]

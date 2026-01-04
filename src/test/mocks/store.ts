@@ -184,6 +184,7 @@ export const mockStore: ReduxState = {
       GraphQLMarketData: false,
       GraphQLAccountData: false,
       GraphQLCoingeckoData: false,
+      GraphQLTcyClaims: false,
     },
     showTopAssetsCarousel: true,
     quickBuyAmounts: [10, 50, 100],

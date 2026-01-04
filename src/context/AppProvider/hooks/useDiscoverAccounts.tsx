@@ -1,3 +1,4 @@
+import type { AccountId } from '@shapeshiftoss/caip'
 import { isGridPlus } from '@shapeshiftoss/hdwallet-gridplus'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import { MetaMaskMultiChainHDWallet } from '@shapeshiftoss/hdwallet-metamask-multichain'
@@ -6,11 +7,12 @@ import type { AccountMetadataById } from '@shapeshiftoss/types'
 import { useQueries } from '@tanstack/react-query'
 import { useMemo } from 'react'
 
-import { getAccountIdsWithActivityAndMetadata } from '@/components/Modals/ManageAccounts/helpers'
 import { usePlugins } from '@/context/PluginProvider/PluginProvider'
 import { useIsSnapInstalled } from '@/hooks/useIsSnapInstalled/useIsSnapInstalled'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { walletSupportsChain } from '@/hooks/useWalletSupportsChain/useWalletSupportsChain'
+import { deriveAccountIdsAndMetadata } from '@/lib/account/account'
+import { accountService } from '@/lib/account/accountService'
 import { METAMASK_RDNS } from '@/lib/mipd'
 import { selectWalletRdns } from '@/state/slices/localWalletSlice/selectors'
 import { portfolio } from '@/state/slices/portfolioSlice/portfolioSlice'
@@ -73,18 +75,24 @@ export const useDiscoverAccounts = () => {
             }
 
             try {
-              const accountIdWithActivityAndMetadata = await getAccountIdsWithActivityAndMetadata(
+              const accountIdsAndMetadata = await deriveAccountIdsAndMetadata({
                 accountNumber,
-                chainId,
+                chainIds: [chainId],
                 wallet,
-                Boolean(isSnapInstalled),
+                isSnapInstalled: Boolean(isSnapInstalled),
+              })
+
+              const accountIds = Object.keys(accountIdsAndMetadata) as AccountId[]
+
+              const results = await Promise.all(
+                accountIds.map(accountId => accountService.loadAccount(accountId)),
               )
 
-              hasActivity = accountIdWithActivityAndMetadata.some(account => account.hasActivity)
+              hasActivity = results.some(result => result?.hasActivity === true)
 
               if (hasActivity || accountNumber === 0) {
-                accountIdWithActivityAndMetadata.forEach(({ accountId, accountMetadata }) => {
-                  chainAccountMetadata[accountId] = accountMetadata
+                accountIds.forEach(accountId => {
+                  chainAccountMetadata[accountId] = accountIdsAndMetadata[accountId]
                 })
               }
 

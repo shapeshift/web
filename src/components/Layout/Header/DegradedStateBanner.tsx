@@ -27,17 +27,15 @@ import { RawText, Text } from '@/components/Text'
 import { useDiscoverAccounts } from '@/context/AppProvider/hooks/useDiscoverAccounts'
 import { useIsSnapInstalled } from '@/hooks/useIsSnapInstalled/useIsSnapInstalled'
 import { useWallet } from '@/hooks/useWallet/useWallet'
+import { accountService } from '@/lib/account/accountService'
 import { isSome } from '@/lib/utils'
 import { accountIdToFeeAssetId } from '@/lib/utils/accounts'
-import { portfolioApi } from '@/state/slices/portfolioSlice/portfolioSlice'
 import { selectAssets, selectPortfolioErroredAccountIds } from '@/state/slices/selectors'
-import { useAppDispatch } from '@/state/store'
 
 const warningIcon = <WarningIcon />
 const idMdRefreshIcon = <IoMdRefresh />
 
 export const DegradedStateBanner = memo(() => {
-  const dispatch = useAppDispatch()
   const translate = useTranslate()
   const footerBg = useColorModeValue('blackAlpha.100', 'whiteAlpha.100')
   const buttonBg = useColorModeValue('blackAlpha.100', 'whiteAlpha.100')
@@ -114,14 +112,12 @@ export const DegradedStateBanner = memo(() => {
     })
 
     if (erroredAccountIds.length > 0) {
-      dispatch(
-        portfolioApi.endpoints.getAccountsBatch.initiate(
-          { accountIds: erroredAccountIds },
-          { forceRefetch: true },
-        ),
-      )
+      erroredAccountIds.forEach(accountId => {
+        accountService.clearAccountCache(accountId)
+      })
+      accountService.loadAccounts(erroredAccountIds)
     }
-  }, [dispatch, erroredAccountIds, deviceId, isSnapInstalled, degradedChainIds, queryClient])
+  }, [erroredAccountIds, deviceId, isSnapInstalled, degradedChainIds, queryClient])
 
   const renderIcons = useMemo(() => {
     return (

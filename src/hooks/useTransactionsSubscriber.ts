@@ -5,12 +5,13 @@ import { isGridPlus } from '@shapeshiftoss/hdwallet-gridplus'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import { isTrezor } from '@shapeshiftoss/hdwallet-trezor'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useSelector } from 'react-redux'
 
 import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
 import { usePlugins } from '@/context/PluginProvider/PluginProvider'
 import { useWallet } from '@/hooks/useWallet/useWallet'
+import { accountService } from '@/lib/account/accountService'
 import { assets as assetsSlice } from '@/state/slices/assetsSlice/assetsSlice'
 import { makeNftAssetsFromTxs } from '@/state/slices/assetsSlice/utils'
 import { foxEthLpAssetId } from '@/state/slices/opportunitiesSlice/constants'
@@ -19,7 +20,6 @@ import { opportunities } from '@/state/slices/opportunitiesSlice/opportunitiesSl
 import { fetchAllOpportunitiesUserDataByAccountId } from '@/state/slices/opportunitiesSlice/thunks'
 import { DefiProvider, DefiType } from '@/state/slices/opportunitiesSlice/types'
 import { toOpportunityId } from '@/state/slices/opportunitiesSlice/utils'
-import { portfolioApi } from '@/state/slices/portfolioSlice/portfolioSlice'
 import {
   selectPortfolioAccountMetadata,
   selectPortfolioLoadingStatus,
@@ -27,36 +27,15 @@ import {
 import { txHistory } from '@/state/slices/txHistorySlice/txHistorySlice'
 import { useAppDispatch } from '@/state/store'
 
-const ACCOUNT_REFRESH_DEBOUNCE_MS = 1000
-
 export const useTransactionsSubscriber = () => {
   const dispatch = useAppDispatch()
   const [isSubscribed, setIsSubscribed] = useState<boolean>(false)
-  const pendingAccountRefreshes = useRef<Set<AccountId>>(new Set())
-  const debounceTimer = useRef<NodeJS.Timeout | null>(null)
 
-  const flushAccountRefreshes = useCallback(() => {
-    if (pendingAccountRefreshes.current.size === 0) return
+  const refreshAccount = useCallback((accountId: AccountId) => {
+    accountService.clearAccountCache(accountId)
+    accountService.loadAccount(accountId)
+  }, [])
 
-    const accountIds = Array.from(pendingAccountRefreshes.current)
-    pendingAccountRefreshes.current.clear()
-
-    const { getAccountsBatch } = portfolioApi.endpoints
-    dispatch(getAccountsBatch.initiate({ accountIds }, { forceRefetch: true }))
-  }, [dispatch])
-
-  const queueAccountRefresh = useCallback(
-    (accountId: AccountId) => {
-      pendingAccountRefreshes.current.add(accountId)
-
-      if (debounceTimer.current) {
-        clearTimeout(debounceTimer.current)
-      }
-
-      debounceTimer.current = setTimeout(flushAccountRefreshes, ACCOUNT_REFRESH_DEBOUNCE_MS)
-    },
-    [flushAccountRefreshes],
-  )
   const {
     state: { isConnected, wallet },
   } = useWallet()
@@ -192,8 +171,7 @@ export const useTransactionsSubscriber = () => {
           msg => {
             const { onMessage } = txHistory.actions
 
-            // queue account refresh with debounced batching
-            queueAccountRefresh(accountId)
+            refreshAccount(accountId)
 
             maybeRefetchOpportunities(msg, accountId)
 
@@ -218,15 +196,7 @@ export const useTransactionsSubscriber = () => {
     maybeRefetchOpportunities,
     portfolioAccountMetadata,
     portfolioLoadingStatus,
-    queueAccountRefresh,
+    refreshAccount,
     wallet,
   ])
-
-  useEffect(() => {
-    return () => {
-      if (debounceTimer.current) {
-        clearTimeout(debounceTimer.current)
-      }
-    }
-  }, [])
 }

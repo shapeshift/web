@@ -22,6 +22,7 @@ import { createSubscriptionMiddleware } from './subscriptionMiddleware'
 import { updateWindowStoreMiddleware } from './windowMiddleware'
 
 import { getConfig } from '@/config'
+import { accountService } from '@/lib/account/accountService'
 // reselect pls stfu
 // We should probably revisit this at some point and re-enable, but for the time being, this silences things
 // https://github.com/reduxjs/reselect/discussions/662#discussioncomment-7870416
@@ -65,6 +66,8 @@ export const clearState = () => {
   store.dispatch(apiSlices.portalsApi.util.resetApiState())
   store.dispatch(apiSlices.swappersApi.util.resetApiState())
   store.dispatch(apiSlices.limitOrderApi.util.resetApiState())
+
+  accountService.clearCache()
 }
 
 /**

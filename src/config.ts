@@ -235,6 +235,7 @@ const validators = {
   VITE_FEATURE_GRAPHQL_MARKET_DATA: bool({ default: false }),
   VITE_FEATURE_GRAPHQL_ACCOUNT_DATA: bool({ default: false }),
   VITE_FEATURE_GRAPHQL_COINGECKO_DATA: bool({ default: false }),
+  VITE_FEATURE_GRAPHQL_TCY_CLAIMS: bool({ default: false }),
 }
 
 function reporter<T>({ errors }: envalid.ReporterOptions<T>) {

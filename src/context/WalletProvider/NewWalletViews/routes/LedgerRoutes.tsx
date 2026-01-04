@@ -14,7 +14,8 @@ import { useLocalWallet } from '@/context/WalletProvider/local-wallet'
 import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { useLedgerConnectionState } from '@/hooks/useLedgerConnectionState'
 import { useWallet } from '@/hooks/useWallet/useWallet'
-import { portfolio, portfolioApi } from '@/state/slices/portfolioSlice/portfolioSlice'
+import { accountService } from '@/lib/account/accountService'
+import { portfolio } from '@/state/slices/portfolioSlice/portfolioSlice'
 import { selectPortfolioHasWalletId } from '@/state/slices/selectors'
 import { useAppDispatch, useAppSelector } from '@/state/store'
 
@@ -57,7 +58,7 @@ export const LedgerRoutes = () => {
 
   const handleClearPortfolio = useCallback(() => {
     dispatch(portfolio.actions.clear())
-    dispatch(portfolioApi.util.resetApiState())
+    accountService.clearCache()
   }, [dispatch])
 
   const handlePair = useCallback(async () => {

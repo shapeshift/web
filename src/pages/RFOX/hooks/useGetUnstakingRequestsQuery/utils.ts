@@ -8,7 +8,7 @@ import { arbitrum } from 'viem/chains'
 import { getStakingContract } from '../../helpers'
 
 import { getConfig } from '@/config'
-import { fetchRfoxUnstakingRequestsGraphQL } from '@/lib/graphql'
+import { loadRfoxUnstakingRequests } from '@/lib/graphql'
 import { fromBaseUnit } from '@/lib/math'
 import { isSome } from '@/lib/utils'
 import { selectAssetById } from '@/state/slices/selectors'
@@ -47,11 +47,8 @@ export const getUnstakingRequestsQueryFn = ({
 
     if (isGraphQLEnabled) {
       try {
-        const results = await fetchRfoxUnstakingRequestsGraphQL([
-          { stakingAssetAccountAddress, stakingAssetId },
-        ])
+        const result = await loadRfoxUnstakingRequests(stakingAssetAccountAddress, stakingAssetId)
 
-        const result = results[0]
         if (!result) {
           return { unstakingRequests: [], stakingAssetAccountId }
         }

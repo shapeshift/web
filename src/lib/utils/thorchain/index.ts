@@ -315,8 +315,9 @@ export const getAccountAddresses = memoize(async (accountId: AccountId): Promise
     if (isGraphQLEnabled) {
       const accounts = await fetchAccountsGraphQL([accountId])
       const account = accounts[accountId]
-      if (!account?.utxoData?.addresses) return []
-      return account.utxoData.addresses.map(({ pubkey }) => {
+      const details = account?.details
+      if (details?.__typename !== 'UtxoAccountDetails' || !details.addresses) return []
+      return details.addresses.map(({ pubkey }: { pubkey: string }) => {
         const address = pubkey.startsWith('bitcoincash')
           ? pubkey.replace('bitcoincash:', '')
           : pubkey

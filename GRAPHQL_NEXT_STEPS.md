@@ -1,89 +1,148 @@
 # GraphQL POC - Next Steps
 
-## FIRST THING TOMORROW
+## Session Update (Latest)
 
-**Analyze `~/Downloads/graphql.har`** - There are still raw HTTP and account calls happening despite GraphQL being enabled. Need to:
-1. Identify all endpoints still making direct calls
-2. Route them through GraphQL
-3. Ensure DataLoader batching is working
+### Completed This Session
+
+1. **Major Schema Redesign - Namespaced Queries**
+   - Implemented `market { ... }` namespace for all CoinGecko data
+   - Updated `thornode { ... }` with batch queries `allBorrowers`, `allSavers`
+   - Updated `Account.details` to use union type with `__typename` discriminator
+   - Removed deprecated flat `coingecko*` queries from schema
+
+2. **Client-Side Type Updates**
+   - Updated `GraphQLAccount` to use `details` union instead of `evmData/utxoData/cosmosData/solanaData`
+   - Fixed all consumers: `accountManagement.ts`, `accountService.ts`, `portfolioSlice.ts`, `helpers.ts`, `thorchain/index.ts`
+   - Added conversion functions for legacy type compatibility
+
+3. **Batch Pool Queries**
+   - Added `thornode.allBorrowers(assets: [String!]!)` - fetch borrowers for multiple pools in single request
+   - Added `thornode.allSavers(assets: [String!]!)` - fetch savers for multiple pools in single request
+   - Client functions: `fetchAllPoolBorrowersGraphQL()`, `fetchAllPoolSaversGraphQL()`
+
+4. **CoinGecko Market Data**
+   - All queries now use `market { ... }` namespace
+   - Updated response type handling with adapter functions for legacy compatibility
+   - Functions: `fetchTrendingGraphQL`, `fetchTopMoversGraphQL`, `fetchRecentlyAddedGraphQL`, `fetchMarketsGraphQL`, `fetchTopMarketsGraphQL`
+
+5. **GraphQL Fallback Error Handling**
+   - Added try/catch with fallback to legacy APIs in savers/borrowers utilities
+
+### Servers Running
+- GraphQL: `http://localhost:4000/graphql`
+- Web: `http://localhost:3000`
+- Both compile and run with 0 TypeScript errors
 
 ---
 
-## Completed This Session
+## Remaining Work
+
+### Low Priority (Future Work)
+
+1. **Route useTransactionsSubscriber through GraphQL**
+   - Currently uses direct unchained API calls for WebSocket subscription
+   - Account refresh already uses GraphQL via accountService
+   - Would need: GraphQL subscription for transaction events
+   - Benefit: Unified subscription layer, server-side tx parsing
+   - Effort: High - requires new subscription infrastructure
+
+2. **Route useReceiveAddress through GraphQL**
+   - Uses chain adapter's `getAddress()` method directly
+   - Security consideration: wallet operations, address derivation
+   - Would need: New GraphQL mutation for address derivation
+   - Benefit: Centralized address management
+   - Effort: Medium - security review needed
+
+3. **Batch IPFS Metadata Requests**
+   - RFOX epoch history fetches N requests per page load (one per epoch)
+   - Current: `Promise.all()` with parallel requests (already efficient)
+   - Options:
+     - Lazy-load epochs (fetch recent 5, load older on scroll)
+     - Backend batch endpoint if IPFS gateway supports multi-hash
+     - IndexedDB caching for historical epochs
+   - Effort: Medium - mostly frontend optimization
+
+---
+
+## Previous Session Work
 
 1. **Limit Orders GraphQL Subscription Integration**
-   - `useLimitOrders.tsx` now routes through GraphQL WebSocket subscription when `VITE_FEATURE_GRAPHQL_POC=true`
-   - Uses `skipToken` pattern to prevent RTK Query polling when GraphQL is active
+   - `useLimitOrders.tsx` routes through GraphQL WebSocket when `VITE_FEATURE_GRAPHQL_POC=true`
    - Real-time order updates via WebSocket instead of 15-second polling
 
 2. **TCY Claims GraphQL Integration**
    - `useTcyClaims.tsx` skips legacy Thorchain API calls when GraphQL enabled
-   - Empty queries array passed to `useSuspenseQueries` to prevent any fetching
 
-3. **Feature Flag Consolidation** (previous session)
+3. **Feature Flag Consolidation**
    - Single `VITE_FEATURE_GRAPHQL_POC` flag controls all GraphQL features
 
-## Remaining Work
-
-### High Priority
-
-1. **Thorchain Borrowers/Savers GraphQL Integration**
-   - `getAllThorchainLendingPositions()` and `getThorchainLendingPosition()` in `src/lib/utils/thorchain/lending/index.ts` still make direct axios calls
-   - These are utility functions, not hooks - need refactor to support conditional GraphQL
-   - GraphQL server already has `thornodePoolBorrowers` and `thornodePoolSavers` endpoints
-   - Options:
-     - Create wrapper hooks that conditionally use GraphQL
-     - Pass feature flag down through call chain
-     - Create GraphQL client functions alongside existing axios ones
-
-2. **Transaction Subscriptions (`subscribeTxs`)**
-   - `useTransactionsSubscriber.ts` uses direct unchained API calls
-   - Should leverage GraphQL subscriptions for real-time tx updates
-   - Would significantly reduce polling overhead
-
-### Medium Priority
-
-3. **Portals Integration Testing**
-   - Portals GraphQL client exists but needs verification
-   - Ensure `fetchPortalsAccountGraphQL` is being used when flag enabled
-
-4. **Client-Side Savers/Borrowers Queries**
-   - GraphQL schema has `thornodePoolSavers` and `thornodePoolBorrowers`
-   - Need client-side hooks to consume these endpoints
-
-5. **Error Handling & Fallback**
-   - Add automatic fallback to legacy APIs on GraphQL failures
-   - Similar to `shouldUseLegacyFallback` pattern in market data
-
-### Low Priority
-
-6. **Performance Benchmarking**
-   - Compare batched GraphQL requests vs direct API calls
-   - Measure WebSocket subscription overhead vs polling
-
-7. **Subscription Filtering**
-   - Filter subscription updates by accountId server-side
-   - Currently all updates go to all subscribers
+---
 
 ## Architecture Notes
 
-### Current Data Flow (with GraphQL enabled)
-```
-Component
-  └── useLimitOrdersQuery()
-        ├── [GraphQL ON]  → useLimitOrdersSubscription() → WebSocket → GraphQL Server → CowSwap API
-        └── [GraphQL OFF] → useGetLimitOrdersQuery() → RTK Query polling → CowSwap API
+### Current Schema Structure
+```graphql
+type Query {
+  # Namespaced queries
+  market: Market!
+  thornode: Thornode!
+  portals: Portals!
+  cowswap: CowSwap!
+  
+  # Root queries
+  marketData(assetIds: [String!]!): [MarketDataResult!]!
+  accounts(accountIds: [String!]!): [Account!]!
+  transactions(accountIds: [String!]!, limit: Int): TransactionConnection!
+  health: String!
+}
+
+type Subscription {
+  cowswapOrdersUpdated(accountIds: [String!]!): OrdersUpdate!
+}
 ```
 
-### Files Modified
-- `src/components/MultiHopTrade/components/LimitOrder/hooks/useLimitOrders.tsx`
-- `src/pages/TCY/queries/useTcyClaims.tsx`
+### Account Details Union Pattern
+```graphql
+union AccountDetails = 
+  EvmAccountDetails | 
+  UtxoAccountDetails | 
+  CosmosAccountDetails | 
+  SolanaAccountDetails
 
-### Related Files (need work)
-- `src/lib/utils/thorchain/lending/index.ts` - borrowers/savers utilities
-- `src/hooks/useTransactionsSubscriber.ts` - tx subscriptions
-- `src/lib/graphql/` - GraphQL client utilities
+type Account {
+  details: AccountDetails  # Use __typename to discriminate
+}
+```
+
+### Client-Side Pattern
+```typescript
+const details = graphqlAccount.details
+if (details?.__typename === 'EvmAccountDetails') {
+  // TypeScript knows details has nonce, tokens
+}
+```
+
+---
+
+## Files Modified This Session
+
+### Server-Side
+- `packages/graphql-server/src/schema.ts` - Added allBorrowers, allSavers
+- `packages/graphql-server/src/resolvers/index.ts` - Batch resolver implementations
+
+### Client-Side
+- `src/lib/graphql/accountData.ts` - New type definitions
+- `src/lib/graphql/coingeckoData.ts` - Market namespace queries
+- `src/lib/graphql/thornodeData.ts` - Batch borrowers/savers functions
+- `src/lib/graphql/index.ts` - Updated exports
+- `src/react-queries/queries/accountManagement.ts` - Details pattern
+- `src/lib/account/accountService.ts` - Details pattern
+- `src/lib/utils/thorchain/index.ts` - Details pattern
+- `src/components/Modals/ManageAccounts/helpers.ts` - Details pattern
+- `src/state/slices/portfolioSlice/portfolioSlice.ts` - Details pattern
+
+---
 
 ## Backlog
 
-- **Portals API Unauthorized (401)**: GraphQL server getting 401 from `api.portals.fi/v2/account`. Likely needs API key or auth headers. Low priority - tackle after subscriptions work.
+- **Portals API Unauthorized (401)**: GraphQL server getting 401 from `api.portals.fi/v2/account`. Needs API key or auth headers.

@@ -223,6 +223,7 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
     isChange = false,
     showOnDevice = false,
     pubKey,
+    accountProvider,
   }: GetAddressInput): Promise<string> {
     try {
       this.assertIsAccountTypeSupported(accountType)
@@ -238,9 +239,12 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
 
       const account = await (async () => {
         if (pubKey || bip44Params.addressIndex === undefined) {
-          return this.getAccount(
-            pubKey ?? (await this.getPublicKey(wallet, accountNumber, accountType)).xpub,
-          )
+          const pubkeyToUse =
+            pubKey ?? (await this.getPublicKey(wallet, accountNumber, accountType)).xpub
+          if (accountProvider) {
+            return (await accountProvider(pubkeyToUse)) as Account<T>
+          }
+          return this.getAccount(pubkeyToUse)
         }
       })()
 
@@ -612,14 +616,21 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
     onMessage: (msg: Transaction) => void,
     onError: (err: SubscribeError) => void,
   ): Promise<void> {
-    const { wallet, accountNumber, accountType = this.defaultUtxoAccountType } = input
+    const {
+      wallet,
+      accountNumber,
+      accountType = this.defaultUtxoAccountType,
+      accountProvider,
+    } = input
 
     const bip44Params = this.getBip44Params({ accountNumber, accountType })
     const subscriptionId = `${toRootDerivationPath(bip44Params)}/${accountType}`
 
-    const account = await this.getAccount(
-      input.pubKey ?? (await this.getPublicKey(wallet, accountNumber, accountType)).xpub,
-    )
+    const pubkey =
+      input.pubKey ?? (await this.getPublicKey(wallet, accountNumber, accountType)).xpub
+    const account = accountProvider
+      ? ((await accountProvider(pubkey)) as Account<T>)
+      : await this.getAccount(pubkey)
 
     const addresses = (account.chainSpecific.addresses ?? []).map(address => address.pubkey)
 

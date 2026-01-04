@@ -7,6 +7,8 @@ import { arbitrum } from 'viem/chains'
 
 import { getStakingContract } from '../../helpers'
 
+import { getConfig } from '@/config'
+import { fetchRfoxUnstakingRequestsGraphQL } from '@/lib/graphql'
 import { fromBaseUnit } from '@/lib/math'
 import { isSome } from '@/lib/utils'
 import { selectAssetById } from '@/state/slices/selectors'
@@ -41,6 +43,40 @@ export const getUnstakingRequestsQueryFn = ({
   const stakingAssetAccountAddress = fromAccountId(stakingAssetAccountId).account
 
   return async () => {
+    const isGraphQLEnabled = getConfig().VITE_FEATURE_GRAPHQL_POC
+
+    if (isGraphQLEnabled) {
+      try {
+        const results = await fetchRfoxUnstakingRequestsGraphQL([
+          { stakingAssetAccountAddress, stakingAssetId },
+        ])
+
+        const result = results[0]
+        if (!result) {
+          return { unstakingRequests: [], stakingAssetAccountId }
+        }
+
+        const stakingAsset = selectAssetById(store.getState(), stakingAssetId)
+        if (!stakingAsset) {
+          return { unstakingRequests: [], stakingAssetAccountId }
+        }
+
+        const unstakingRequests = result.unstakingRequests.map(req => ({
+          amountCryptoBaseUnit: req.unstakingBalance,
+          amountCryptoPrecision: fromBaseUnit(req.unstakingBalance, stakingAsset.precision),
+          cooldownExpiry: req.cooldownExpiry,
+          stakingAssetId,
+          index: req.index,
+          id: `${req.index}-${req.cooldownExpiry}-${result.contractAddress}`,
+          stakingAssetAccountId,
+        }))
+
+        return { unstakingRequests, stakingAssetAccountId }
+      } catch (error) {
+        console.error('[getUnstakingRequests] GraphQL failed, falling back:', error)
+      }
+    }
+
     const count = await readContract(client, {
       abi: RFOX_ABI,
       address: getStakingContract(stakingAssetId),
@@ -68,9 +104,8 @@ export const getUnstakingRequestsQueryFn = ({
         if (!result) return null
         if (!stakingAsset) return null
 
-        const contractAddress = multicallParams[i].address
+        const currentContractAddress = multicallParams[i].address
 
-        // getUnstakingRequest(account address, index uint256)
         const index = Number(multicallParams[i].args[1])
 
         const amountCryptoBaseUnit = result.unstakingBalance.toString()
@@ -81,12 +116,7 @@ export const getUnstakingRequestsQueryFn = ({
           cooldownExpiry: result.cooldownExpiry.toString(),
           stakingAssetId,
           index,
-          // composite ID to ensure uniqueness of unstaking requests, to be used for lookups
-          // cooldownExpiry should be a unique enough index, since it's based on blockTime, and users are *not* going to be able to make
-          // two unstaking requests in one block. But for the sake of paranoia, we make it a composite ID with index too
-          // Which itself *is* unique at any given time, though as users unstake/claim, it may change due to the inner workings of solidity, as
-          // indexes can reorg
-          id: `${index}-${result.cooldownExpiry}-${contractAddress}`,
+          id: `${index}-${result.cooldownExpiry}-${currentContractAddress}`,
           stakingAssetAccountId,
         }
       })

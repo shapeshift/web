@@ -47,6 +47,10 @@ export const useDiscoverAccounts = () => {
           chainId,
         ],
         queryFn: async () => {
+          const chainTimerLabel = `[PERF] useDiscoverAccounts: Chain ${chainId}`
+          console.time(chainTimerLabel)
+          console.log(`[PERF] useDiscoverAccounts: Starting discovery for ${chainId}`)
+
           const isMetaMaskMultichainWallet = wallet instanceof MetaMaskMultiChainHDWallet
 
           if (
@@ -55,6 +59,10 @@ export const useDiscoverAccounts = () => {
             // Before connecting to MetaMask, isSnapInstalled is null then switch to false when the hook reacts, we would run the discovery 2 times
             (connectedRdns === METAMASK_RDNS && isSnapInstalled === null)
           ) {
+            console.timeEnd(chainTimerLabel)
+            console.log(
+              `[PERF] useDiscoverAccounts: Skipped ${chainId} (no wallet or auto-discovery disabled)`,
+            )
             return { accountMetadataByAccountId: {}, hasActivity: false }
           }
 
@@ -75,18 +83,24 @@ export const useDiscoverAccounts = () => {
             }
 
             try {
+              const deriveTimerLabel = `[PERF] useDiscoverAccounts: ${chainId} deriveAccountIdsAndMetadata (account #${accountNumber})`
+              console.time(deriveTimerLabel)
               const accountIdsAndMetadata = await deriveAccountIdsAndMetadata({
                 accountNumber,
                 chainIds: [chainId],
                 wallet,
                 isSnapInstalled: Boolean(isSnapInstalled),
               })
+              console.timeEnd(deriveTimerLabel)
 
               const accountIds = Object.keys(accountIdsAndMetadata) as AccountId[]
 
+              const loadTimerLabel = `[PERF] useDiscoverAccounts: ${chainId} loadAccount (account #${accountNumber}, ${accountIds.length} accounts)`
+              console.time(loadTimerLabel)
               const results = await Promise.all(
                 accountIds.map(accountId => accountService.loadAccount(accountId)),
               )
+              console.timeEnd(loadTimerLabel)
 
               hasActivity = results.some(result => result?.hasActivity === true)
 
@@ -105,6 +119,8 @@ export const useDiscoverAccounts = () => {
           }
 
           if (Object.keys(chainAccountMetadata).length > 0) {
+            const dispatchTimerLabel = `[PERF] useDiscoverAccounts: ${chainId} Redux dispatch`
+            console.time(dispatchTimerLabel)
             dispatch(
               portfolio.actions.upsertAccountMetadata({
                 accountMetadataByAccountId: chainAccountMetadata,
@@ -122,7 +138,15 @@ export const useDiscoverAccounts = () => {
 
               dispatch(portfolio.actions.enableAccountId(accountId))
             })
+            console.timeEnd(dispatchTimerLabel)
           }
+
+          console.timeEnd(chainTimerLabel)
+          console.log(
+            `[PERF] useDiscoverAccounts: Completed ${chainId} - found ${
+              Object.keys(chainAccountMetadata).length
+            } accounts`,
+          )
 
           return {
             accountMetadataByAccountId: chainAccountMetadata,

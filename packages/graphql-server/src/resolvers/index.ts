@@ -16,11 +16,23 @@ import {
   subscribeToOrders,
   unsubscribeFromOrders,
 } from '../datasources/cowswapService.js'
+import { batchIsSmartContractAddress, isSmartContractAddress } from '../datasources/evmService.js'
+import type { MidgardPoolPeriod } from '../datasources/midgardService.js'
+import {
+  getMember,
+  getPools as getMidgardPools,
+  getRunepoolMember,
+} from '../datasources/midgardService.js'
 import {
   getPortalsAccount,
   getPortalsAccounts,
   getPortalsPlatforms,
 } from '../datasources/portalsService.js'
+import {
+  batchGetUnstakingRequests,
+  getUnstakingRequests,
+} from '../datasources/rfoxContractService.js'
+import { getCurrentEpochMetadata, getEpoch, getEpochHistory } from '../datasources/rfoxService.js'
 import {
   getBlock,
   getInboundAddresses,
@@ -29,16 +41,20 @@ import {
   getPoolBorrowers,
   getPools,
   getPoolSavers,
+  getRunepoolInformation,
+  getRuneProvider,
   getTcyClaims,
 } from '../datasources/thornodeService.js'
 import type { Account } from '../loaders/accountLoader.js'
 import type { MarketData } from '../loaders/marketLoader.js'
+import type { PriceHistoryKey, PriceHistoryResult } from '../loaders/priceHistoryLoader.js'
 import type { TxHistoryResult } from '../loaders/txLoader.js'
 
 const MAX_ASSET_IDS = 500
 const MAX_ACCOUNT_IDS = 100
 const MAX_TX_ACCOUNT_IDS = 50
 const MAX_ORDER_ACCOUNT_IDS = 20
+const MAX_PRICE_HISTORY_REQUESTS = 100
 
 let sharedPubsub: PubSub | null = null
 
@@ -58,6 +74,7 @@ export type Context = {
     marketData: DataLoader<string, MarketData | null>
     accounts: DataLoader<string, Account | null>
     transactions: DataLoader<string, TxHistoryResult>
+    priceHistory: DataLoader<PriceHistoryKey, PriceHistoryResult>
   }
 }
 
@@ -309,6 +326,20 @@ export const resolvers = {
       return getPoolSavers(args.asset, network)
     },
 
+    allBorrowers: async (_parent: unknown, args: { assets: string[]; network?: Network }) => {
+      const network = networkToLegacy(args.network ?? 'THORCHAIN')
+      console.log(`[Thornode.allBorrowers] Batching ${args.assets.length} pools for ${network}`)
+      const results = await Promise.all(args.assets.map(asset => getPoolBorrowers(asset, network)))
+      return results
+    },
+
+    allSavers: async (_parent: unknown, args: { assets: string[]; network?: Network }) => {
+      const network = networkToLegacy(args.network ?? 'THORCHAIN')
+      console.log(`[Thornode.allSavers] Batching ${args.assets.length} pools for ${network}`)
+      const results = await Promise.all(args.assets.map(asset => getPoolSavers(asset, network)))
+      return results
+    },
+
     mimir: (_parent: unknown, args: { network?: Network }) => {
       const network = networkToLegacy(args.network ?? 'THORCHAIN')
       console.log(`[Thornode.mimir] Fetching mimir for ${network}`)
@@ -333,6 +364,18 @@ export const resolvers = {
         `[Thornode.tcyClaims] Fetching claims for ${args.addresses.length} addresses on ${network}`,
       )
       return await getTcyClaims(args.addresses, network)
+    },
+
+    runepoolInformation: (_parent: unknown, args: { network?: Network }) => {
+      const network = networkToLegacy(args.network ?? 'THORCHAIN')
+      console.log(`[Thornode.runepoolInformation] Fetching runepool info for ${network}`)
+      return getRunepoolInformation(network)
+    },
+
+    runeProvider: (_parent: unknown, args: { address: string; network?: Network }) => {
+      const network = networkToLegacy(args.network ?? 'THORCHAIN')
+      console.log(`[Thornode.runeProvider] Fetching rune provider ${args.address} for ${network}`)
+      return getRuneProvider(args.address, network)
     },
   },
 
@@ -375,17 +418,111 @@ export const resolvers = {
   },
 
   // ============================================================================
+  // RFOX NAMESPACE RESOLVER
+  // ============================================================================
+
+  Rfox: {
+    currentEpochMetadata: () => {
+      console.log('[Rfox.currentEpochMetadata] Fetching current epoch metadata')
+      return getCurrentEpochMetadata()
+    },
+
+    epochHistory: () => {
+      console.log('[Rfox.epochHistory] Fetching all epoch history')
+      return getEpochHistory()
+    },
+
+    epoch: (_parent: unknown, args: { ipfsHash: string }) => {
+      console.log(`[Rfox.epoch] Fetching epoch by IPFS hash: ${args.ipfsHash}`)
+      return getEpoch(args.ipfsHash)
+    },
+
+    unstakingRequests: (
+      _parent: unknown,
+      args: { stakingAssetAccountAddress: string; stakingAssetId: string },
+    ) => {
+      console.log(
+        `[Rfox.unstakingRequests] Fetching for ${args.stakingAssetAccountAddress} on ${args.stakingAssetId}`,
+      )
+      return getUnstakingRequests(args.stakingAssetAccountAddress, args.stakingAssetId)
+    },
+
+    batchUnstakingRequests: (
+      _parent: unknown,
+      args: { requests: { stakingAssetAccountAddress: string; stakingAssetId: string }[] },
+    ) => {
+      console.log(`[Rfox.batchUnstakingRequests] Fetching for ${args.requests.length} accounts`)
+      return batchGetUnstakingRequests(args.requests)
+    },
+  },
+
+  // ============================================================================
+  // MIDGARD NAMESPACE RESOLVER
+  // ============================================================================
+
+  Midgard: {
+    pools: (_parent: unknown, args: { period?: string }) => {
+      const periodMap: Record<string, MidgardPoolPeriod> = {
+        HOUR_1: '1h',
+        HOUR_24: '24h',
+        DAY_7: '7d',
+        DAY_14: '14d',
+        DAY_30: '30d',
+        DAY_90: '90d',
+        DAY_100: '100d',
+        DAY_180: '180d',
+        DAY_365: '365d',
+        ALL: 'all',
+      }
+      const period = args.period ? periodMap[args.period] : undefined
+      console.log(`[Midgard.pools] Fetching pools (period=${period ?? 'default'})`)
+      return getMidgardPools(period)
+    },
+
+    member: (_parent: unknown, args: { address: string }) => {
+      console.log(`[Midgard.member] Fetching member ${args.address}`)
+      return getMember(args.address)
+    },
+
+    runepoolMember: (_parent: unknown, args: { address: string }) => {
+      console.log(`[Midgard.runepoolMember] Fetching runepool member ${args.address}`)
+      return getRunepoolMember(args.address)
+    },
+  },
+
+  // ============================================================================
+  // EVM NAMESPACE RESOLVER
+  // ============================================================================
+
+  Evm: {
+    isSmartContractAddress: (_parent: unknown, args: { address: string; chainId: string }) => {
+      console.log(`[Evm.isSmartContractAddress] Checking ${args.address} on ${args.chainId}`)
+      return isSmartContractAddress(args.address, args.chainId)
+    },
+
+    batchIsSmartContractAddress: (
+      _parent: unknown,
+      args: { requests: { address: string; chainId: string }[] },
+    ) => {
+      console.log(`[Evm.batchIsSmartContractAddress] Checking ${args.requests.length} addresses`)
+      return batchIsSmartContractAddress(args.requests)
+    },
+  },
+
+  // ============================================================================
   // QUERY ROOT RESOLVER
   // ============================================================================
 
   Query: {
     health: () => 'OK',
 
-    // Namespace objects - return empty objects, fields resolved by namespace resolvers
     market: () => ({}),
     thornode: () => ({}),
     portals: () => ({}),
     cowswap: () => ({}),
+    rfox: () => ({}),
+    evm: () => ({}),
+    midgard: () => ({}),
 
     marketData: async (_parent: unknown, args: { assetIds: string[] }, context: Context) => {
       if (args.assetIds.length > MAX_ASSET_IDS) {
@@ -439,6 +576,33 @@ export const resolvers = {
       const results = await Promise.all(
         args.accountIds.map(accountId => context.loaders.accounts.load(accountId)),
       )
+
+      return results
+    },
+
+    priceHistories: async (
+      _parent: unknown,
+      args: { requests: { assetId: string; coingeckoId: string }[]; timeframe: string },
+      context: Context,
+    ) => {
+      if (args.requests.length > MAX_PRICE_HISTORY_REQUESTS) {
+        throw new GraphQLError(
+          `Too many price history requests (max ${MAX_PRICE_HISTORY_REQUESTS})`,
+          { extensions: { code: 'BAD_USER_INPUT' } },
+        )
+      }
+
+      console.log(
+        `[Query.priceHistories] Requested ${args.requests.length} assets for timeframe ${args.timeframe}`,
+      )
+
+      const keys = args.requests.map(req => ({
+        assetId: req.assetId,
+        coingeckoId: req.coingeckoId,
+        timeframe: args.timeframe,
+      }))
+
+      const results = await Promise.all(keys.map(key => context.loaders.priceHistory.load(key)))
 
       return results
     },

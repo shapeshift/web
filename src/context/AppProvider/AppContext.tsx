@@ -189,7 +189,9 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
         : MARKET_DATA_POLLING_INTERVAL_MS,
   })
 
+  console.log('[PERF] AppContext: useDiscoverAccounts hook called')
   useDiscoverAccounts()
+  console.log('[PERF] AppContext: usePortfolioFetch hook called')
   usePortfolioFetch()
 
   useGetFiatRampsQuery()

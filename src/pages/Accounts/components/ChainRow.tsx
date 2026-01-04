@@ -17,10 +17,9 @@ import { AccountNumberRow } from './AccountNumberRow'
 import { Amount } from '@/components/Amount/Amount'
 import { NestedList } from '@/components/NestedList'
 import { RawText } from '@/components/Text'
-import { useDiscoverAccounts } from '@/context/AppProvider/hooks/useDiscoverAccounts'
 import {
   selectFeeAssetByChainId,
-  selectIsAnyMarketDataApiQueryPending,
+  selectIsChainIdLoading,
   selectPortfolioAccountsGroupedByNumberByChainId,
   selectPortfolioTotalChainIdBalanceUserCurrency,
 } from '@/state/slices/selectors'
@@ -38,15 +37,12 @@ const hover = { borderColor: 'border.hover' }
 const stackPx = { base: 2, md: 4 }
 
 export const ChainRow: React.FC<ChainRowProps> = ({ chainId, isSimpleMenu = false, onClose }) => {
-  const { isFetching: isDiscoveringAccounts } = useDiscoverAccounts()
-  const isAnyMarketDataLoading = useAppSelector(selectIsAnyMarketDataApiQueryPending)
   const { isOpen, onToggle } = useDisclosure()
   const asset = useAppSelector(s => selectFeeAssetByChainId(s, chainId))
   const filter = useMemo(() => ({ chainId }), [chainId])
+  const isChainLoading = useAppSelector(s => selectIsChainIdLoading(s, filter))
   const chainUserCurrencyBalance = useAppSelector(s =>
-    isDiscoveringAccounts || isAnyMarketDataLoading
-      ? undefined
-      : selectPortfolioTotalChainIdBalanceUserCurrency(s, filter),
+    isChainLoading ? undefined : selectPortfolioTotalChainIdBalanceUserCurrency(s, filter),
   )
   const accountIdsByAccountNumber = useAppSelector(s =>
     isOpen ? selectPortfolioAccountsGroupedByNumberByChainId(s, filter) : undefined,

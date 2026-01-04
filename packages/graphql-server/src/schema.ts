@@ -128,6 +128,18 @@ export const typeDefs = gql`
     MAYACHAIN
   }
 
+  """
+  History timeframe for price charts
+  """
+  enum HistoryTimeframe {
+    HOUR
+    DAY
+    WEEK
+    MONTH
+    YEAR
+    ALL
+  }
+
   # ============================================================================
   # MARKET DATA TYPES
   # ============================================================================
@@ -160,6 +172,23 @@ export const typeDefs = gql`
   type PriceHistoryPoint {
     date: Float!
     price: Float!
+  }
+
+  """
+  Result wrapper for batched price history - enables partial success
+  """
+  type PriceHistoryResult {
+    assetId: AssetId!
+    data: [PriceHistoryPoint!]!
+    error: String
+  }
+
+  """
+  Input for batched price history request
+  """
+  input PriceHistoryRequest {
+    assetId: AssetId!
+    coingeckoId: String!
   }
 
   """
@@ -563,6 +592,62 @@ export const typeDefs = gql`
   }
 
   """
+  Protocol Owned Liquidity (POL) data in runepool
+  """
+  type RunepoolPOL {
+    runeDeposited: String!
+    runeWithdrawn: String!
+    value: String!
+    pnl: String!
+    currentDeposit: String!
+  }
+
+  """
+  Runepool providers aggregate data
+  """
+  type RunepoolProviders {
+    units: String!
+    pendingUnits: String!
+    pendingRune: String!
+    value: String!
+    pnl: String!
+    currentDeposit: String!
+  }
+
+  """
+  Runepool reserve data
+  """
+  type RunepoolReserve {
+    units: String!
+    value: String!
+    pnl: String!
+    currentDeposit: String!
+  }
+
+  """
+  Runepool information from THORNode
+  """
+  type RunepoolInformation {
+    pol: RunepoolPOL!
+    providers: RunepoolProviders!
+    reserve: RunepoolReserve!
+  }
+
+  """
+  Individual rune provider position
+  """
+  type RuneProvider {
+    runeAddress: String!
+    units: String!
+    value: String!
+    pnl: String!
+    depositAmount: String!
+    withdrawAmount: String!
+    lastDepositHeight: Int!
+    lastWithdrawHeight: Int!
+  }
+
+  """
   Inbound address for a chain
   """
   type InboundAddress {
@@ -610,9 +695,19 @@ export const typeDefs = gql`
     borrowers(asset: String!, network: Network = THORCHAIN): [Borrower!]!
 
     """
+    Get borrowers for multiple pools in a single request
+    """
+    allBorrowers(assets: [String!]!, network: Network = THORCHAIN): [[Borrower!]!]!
+
+    """
     Get savers for a specific pool
     """
     savers(asset: String!, network: Network = THORCHAIN): [Saver!]!
+
+    """
+    Get savers for multiple pools in a single request
+    """
+    allSavers(assets: [String!]!, network: Network = THORCHAIN): [[Saver!]!]!
 
     """
     Get mimir configuration
@@ -633,6 +728,119 @@ export const typeDefs = gql`
     Get TCY claims for addresses
     """
     tcyClaims(addresses: [String!]!, network: Network = THORCHAIN): [TcyClaim]!
+
+    """
+    Get runepool information (POL, providers, reserve)
+    """
+    runepoolInformation(network: Network = THORCHAIN): RunepoolInformation
+
+    """
+    Get rune provider position for a specific address
+    """
+    runeProvider(address: String!, network: Network = THORCHAIN): RuneProvider
+  }
+
+  # ============================================================================
+  # MIDGARD NAMESPACE TYPES
+  # ============================================================================
+
+  """
+  Midgard pool period for APY calculations
+  """
+  enum MidgardPoolPeriod {
+    HOUR_1
+    HOUR_24
+    DAY_7
+    DAY_14
+    DAY_30
+    DAY_90
+    DAY_100
+    DAY_180
+    DAY_365
+    ALL
+  }
+
+  """
+  Midgard pool data with APY and depth info
+  """
+  type MidgardPool {
+    asset: String!
+    annualPercentageRate: String!
+    assetDepth: String!
+    assetPrice: String!
+    assetPriceUSD: String!
+    liquidityUnits: String!
+    nativeDecimal: String!
+    poolAPY: String!
+    runeDepth: String!
+    saversAPR: String!
+    saversDepth: String!
+    saversUnits: String!
+    status: String!
+    synthSupply: String!
+    synthUnits: String!
+    units: String!
+    volume24h: String!
+  }
+
+  """
+  Midgard member pool position
+  """
+  type MidgardMemberPool {
+    assetAdded: String!
+    assetAddress: String!
+    assetDeposit: String!
+    assetPending: String!
+    assetWithdrawn: String!
+    dateFirstAdded: String!
+    dateLastAdded: String!
+    liquidityUnits: String!
+    pool: String!
+    runeAdded: String!
+    runeAddress: String!
+    runeDeposit: String!
+    runePending: String!
+    runeWithdrawn: String!
+  }
+
+  """
+  Midgard member with pool positions
+  """
+  type MidgardMember {
+    pools: [MidgardMemberPool!]!
+  }
+
+  """
+  Midgard runepool member position
+  """
+  type MidgardRunepoolMember {
+    runeAddress: String!
+    units: String!
+    runeAdded: String!
+    runeDeposit: String!
+    runeWithdrawn: String!
+    dateFirstAdded: String!
+    dateLastAdded: String!
+  }
+
+  """
+  Midgard THORChain data aggregator
+  """
+  type Midgard {
+    """
+    Get all pools with optional period for APY calculation
+    """
+    pools(period: MidgardPoolPeriod): [MidgardPool!]!
+
+    """
+    Get member LP positions by address
+    """
+    member(address: String!): MidgardMember
+
+    """
+    Get runepool member position by address
+    """
+    runepoolMember(address: String!): MidgardRunepoolMember
   }
 
   # ============================================================================
@@ -755,6 +963,234 @@ export const typeDefs = gql`
   }
 
   # ============================================================================
+  # RFOX NAMESPACE TYPES
+  # ============================================================================
+
+  """
+  RFOX reward distribution for a staking address
+  """
+  type RfoxRewardDistribution {
+    """
+    The amount (RUNE) distributed to the reward address
+    """
+    amount: String!
+    """
+    The rFOX staking reward units earned for the epoch
+    """
+    rewardUnits: String!
+    """
+    The total rFOX staking reward units earned across all epochs
+    """
+    totalRewardUnits: String!
+    """
+    The transaction ID (THORChain) for the reward distribution
+    """
+    txId: String!
+    """
+    The address used for the reward distribution
+    """
+    rewardAddress: String!
+  }
+
+  """
+  RFOX epoch details for a staking contract
+  """
+  type RfoxEpochDetails {
+    """
+    The total rFOX staking reward units for this epoch
+    """
+    totalRewardUnits: String!
+    """
+    The percentage of revenue (RUNE) to be distributed as rewards
+    """
+    distributionRate: Float!
+    """
+    The spot price of asset in USD
+    """
+    assetPriceUsd: String
+    """
+    The reward distribution for each staking address (JSON map)
+    """
+    distributionsByStakingAddress: JSON!
+  }
+
+  """
+  RFOX epoch data
+  """
+  type RfoxEpoch {
+    """
+    The epoch number
+    """
+    number: Int!
+    """
+    The IPFS hash for this epoch
+    """
+    ipfsHash: String!
+    """
+    The start timestamp for this epoch
+    """
+    startTimestamp: Float!
+    """
+    The end timestamp for this epoch
+    """
+    endTimestamp: Float!
+    """
+    The timestamp of the reward distribution
+    """
+    distributionTimestamp: Float
+    """
+    The start block for this epoch
+    """
+    startBlock: Int!
+    """
+    The end block for this epoch
+    """
+    endBlock: Int!
+    """
+    The treasury address on THORChain
+    """
+    treasuryAddress: String!
+    """
+    The total revenue (RUNE) earned for this epoch
+    """
+    totalRevenue: String!
+    """
+    The burn rate for this epoch
+    """
+    burnRate: Float!
+    """
+    The spot price of RUNE in USD
+    """
+    runePriceUsd: String
+    """
+    The status of the reward distribution
+    """
+    distributionStatus: String!
+    """
+    The details for each staking contract (JSON map)
+    """
+    detailsByStakingContract: JSON!
+  }
+
+  """
+  RFOX current epoch metadata
+  """
+  type RfoxCurrentEpochMetadata {
+    """
+    The current epoch number
+    """
+    epoch: Int!
+    """
+    The start timestamp for the current epoch
+    """
+    epochStartTimestamp: Float!
+    """
+    The end timestamp for the current epoch
+    """
+    epochEndTimestamp: Float!
+    """
+    The treasury address on THORChain
+    """
+    treasuryAddress: String!
+    """
+    The current burn rate
+    """
+    burnRate: Float!
+    """
+    The distribution rate by staking contract (JSON map)
+    """
+    distributionRateByStakingContract: JSON!
+    """
+    The IPFS hashes for each epoch (JSON map)
+    """
+    ipfsHashByEpoch: JSON!
+  }
+
+  """
+  RFOX unstaking request
+  """
+  type RfoxUnstakingRequest {
+    unstakingBalance: String!
+    cooldownExpiry: String!
+    index: Int!
+  }
+
+  """
+  RFOX unstaking requests result for an account
+  """
+  type RfoxUnstakingRequestsResult {
+    stakingAssetAccountAddress: String!
+    contractAddress: String!
+    unstakingRequests: [RfoxUnstakingRequest!]!
+  }
+
+  """
+  Input for batch unstaking requests query
+  """
+  input RfoxUnstakingRequestInput {
+    stakingAssetAccountAddress: String!
+    stakingAssetId: String!
+  }
+
+  """
+  RFOX staking data access
+  """
+  type Rfox {
+    """
+    Get current epoch metadata
+    """
+    currentEpochMetadata: RfoxCurrentEpochMetadata!
+
+    """
+    Get all epoch history (batched - fetches all epochs in one request)
+    """
+    epochHistory: [RfoxEpoch!]!
+
+    """
+    Get a specific epoch by IPFS hash
+    """
+    epoch(ipfsHash: String!): RfoxEpoch
+
+    """
+    Get unstaking requests for an account
+    """
+    unstakingRequests(
+      stakingAssetAccountAddress: String!
+      stakingAssetId: String!
+    ): RfoxUnstakingRequestsResult
+
+    """
+    Batch get unstaking requests for multiple accounts
+    """
+    batchUnstakingRequests(requests: [RfoxUnstakingRequestInput!]!): [RfoxUnstakingRequestsResult]!
+  }
+
+  # ============================================================================
+  # EVM UTILITIES
+  # ============================================================================
+
+  """
+  EVM chain utilities
+  """
+  type Evm {
+    """
+    Check if an address is a smart contract.
+    Results are cached server-side - once true, always true.
+    """
+    isSmartContractAddress(address: String!, chainId: String!): Boolean!
+
+    """
+    Batch check multiple addresses for smart contract status.
+    """
+    batchIsSmartContractAddress(requests: [SmartContractCheckRequest!]!): [Boolean!]!
+  }
+
+  input SmartContractCheckRequest {
+    address: String!
+    chainId: String!
+  }
+
+  # ============================================================================
   # QUERIES
   # ============================================================================
 
@@ -780,6 +1216,21 @@ export const typeDefs = gql`
     cowswap: CowSwap!
 
     """
+    Midgard THORChain data aggregator
+    """
+    midgard: Midgard!
+
+    """
+    RFOX staking data
+    """
+    rfox: Rfox!
+
+    """
+    EVM chain utilities
+    """
+    evm: Evm!
+
+    """
     Fetches market data for specified assets
 
     **Limits**: Maximum 100 AssetIds per request
@@ -800,6 +1251,17 @@ export const typeDefs = gql`
     Transaction history with pagination
     """
     transactions(accountIds: [String!]!, limit: Int = 50): TransactionConnection!
+
+    """
+    Batched price history for multiple assets
+
+    **Limits**: Maximum 100 assets per request
+    **Caching**: Results cached for 5 minutes (historical data is stable)
+    """
+    priceHistories(
+      requests: [PriceHistoryRequest!]!
+      timeframe: HistoryTimeframe!
+    ): [PriceHistoryResult!]!
 
     """
     API health check

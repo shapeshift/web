@@ -12,7 +12,12 @@ import { createServer } from 'http'
 import { WebSocket, WebSocketServer } from 'ws'
 
 import { initCowSwapService } from './datasources/cowswapService.js'
-import { createAccountLoader, createMarketDataLoader, createTxLoader } from './loaders/index.js'
+import {
+  createAccountLoader,
+  createMarketDataLoader,
+  createPriceHistoryLoader,
+  createTxLoader,
+} from './loaders/index.js'
 import type { Context } from './resolvers/index.js'
 import { resolvers, setSharedPubsub } from './resolvers/index.js'
 import { typeDefs } from './schema.js'
@@ -45,6 +50,7 @@ const serverCleanup = useServer(
         marketData: createMarketDataLoader(),
         accounts: createAccountLoader(),
         transactions: createTxLoader(),
+        priceHistory: createPriceHistoryLoader(),
       },
     }),
     onConnect: () => {
@@ -70,6 +76,36 @@ const server = new ApolloServer<Context>({
         })
       },
     },
+    {
+      async requestDidStart() {
+        await Promise.resolve()
+        return {
+          async didEncounterErrors({ errors, request }) {
+            await Promise.resolve()
+            for (const error of errors) {
+              console.error('[GraphQL Error]', {
+                message: error.message,
+                path: error.path,
+                extensions: error.extensions,
+                operationName: request.operationName,
+              })
+            }
+          },
+          async validationDidStart() {
+            await Promise.resolve()
+            return async (errors?: readonly Error[]) => {
+              await Promise.resolve()
+              if (errors?.length) {
+                console.error(
+                  '[Validation Errors]',
+                  errors.map(e => e.message),
+                )
+              }
+            }
+          },
+        }
+      },
+    },
   ],
 })
 
@@ -88,6 +124,7 @@ async function startServer() {
             marketData: createMarketDataLoader(),
             accounts: createAccountLoader(),
             transactions: createTxLoader(),
+            priceHistory: createPriceHistoryLoader(),
           },
         }),
     }),
@@ -99,9 +136,12 @@ async function startServer() {
     console.log(`
 Namespaces:
   - market { trending, movers, recentlyAdded, topAssets, data, priceHistory }
-  - thornode { pool, pools, borrowers, savers, mimir, block, inboundAddresses, tcyClaims }
+  - thornode { pool, pools, borrowers, savers, mimir, block, inboundAddresses, tcyClaims, runepoolInformation, runeProvider }
+  - midgard { pools, member, runepoolMember }
   - portals { account, accounts, platforms }
   - cowswap { orders }
+  - rfox { currentEpochMetadata, epochHistory, epoch, unstakingRequests, batchUnstakingRequests }
+  - evm { isSmartContractAddress }
 
 Root queries:
   - marketData(assetIds: [String!]!): [MarketDataResult!]!

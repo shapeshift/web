@@ -260,9 +260,24 @@ export const portfolioApi = createApi({
           let combinedPortfolio = cloneDeep(initialState)
 
           if (isGraphQLEnabled) {
-            const { fetchAccountsGraphQL } = await import('@/lib/graphql')
+            const { fetchAccountsGraphQL, prefetchPortalsAccounts } = await import('@/lib/graphql')
+            const { evmChainIds } = await import('@shapeshiftoss/chain-adapters')
             console.log(`[Portfolio] Fetching ${accountIds.length} accounts via GraphQL batch`)
             const graphqlAccounts = await fetchAccountsGraphQL(accountIds)
+
+            const evmAccounts = accountIds
+              .map(accountId => {
+                const { chainId, account: pubkey } = fromAccountId(accountId)
+                return { chainId, owner: pubkey }
+              })
+              .filter(({ chainId }) => evmChainIds.includes(chainId as any))
+
+            if (evmAccounts.length > 0) {
+              console.log(
+                `[Portfolio] Prefetching Portals data for ${evmAccounts.length} EVM accounts`,
+              )
+              await prefetchPortalsAccounts(evmAccounts)
+            }
 
             for (const accountId of accountIds) {
               const { chainId, account: pubkey } = fromAccountId(accountId)
@@ -274,88 +289,72 @@ export const portfolioApi = createApi({
                 continue
               }
 
-              const chainPrefix = chainId.split(':')[0]
+              const details = graphqlAccount.details
+
+              const mapTokens = (
+                tokens: {
+                  assetId: string
+                  balance: string
+                  symbol: string | null
+                  name: string | null
+                  precision: number | null
+                }[],
+                defaultPrecision: number,
+              ) =>
+                tokens.map(t => ({
+                  assetId: t.assetId,
+                  balance: t.balance,
+                  symbol: t.symbol ?? '',
+                  name: t.name ?? '',
+                  precision: t.precision ?? defaultPrecision,
+                }))
+
+              const baseAccount = {
+                balance: graphqlAccount.balance,
+                pubkey: graphqlAccount.pubkey,
+                chainId: graphqlAccount.chainId,
+                assetId: graphqlAccount.assetId,
+                chain: chainId,
+              }
+
               let account: any
 
-              switch (chainPrefix) {
-                case 'eip155':
-                  account = {
-                    balance: graphqlAccount.balance,
-                    pubkey: graphqlAccount.pubkey,
-                    chainId: graphqlAccount.chainId,
-                    assetId: graphqlAccount.assetId,
-                    chain: chainId,
-                    nonce: graphqlAccount.evmData?.nonce ?? 0,
-                    tokens: (graphqlAccount.evmData?.tokens ?? graphqlAccount.tokens).map(t => ({
-                      assetId: t.assetId,
-                      balance: t.balance,
-                      symbol: t.symbol ?? '',
-                      name: t.name ?? '',
-                      precision: t.precision ?? 18,
-                    })),
-                  }
-                  break
-                case 'bip122':
-                  account = {
-                    balance: graphqlAccount.balance,
-                    pubkey: graphqlAccount.pubkey,
-                    chainId: graphqlAccount.chainId,
-                    assetId: graphqlAccount.assetId,
-                    chain: chainId,
-                    addresses: (graphqlAccount.utxoData?.addresses ?? []).map(a => ({
-                      pubkey: a.pubkey,
-                      balance: a.balance,
-                    })),
-                    nextChangeAddressIndex: graphqlAccount.utxoData?.nextChangeAddressIndex,
-                    nextReceiveAddressIndex: graphqlAccount.utxoData?.nextReceiveAddressIndex,
-                  }
-                  break
-                case 'cosmos':
-                  account = {
-                    balance: graphqlAccount.balance,
-                    pubkey: graphqlAccount.pubkey,
-                    chainId: graphqlAccount.chainId,
-                    assetId: graphqlAccount.assetId,
-                    chain: chainId,
-                    sequence: graphqlAccount.cosmosData?.sequence,
-                    accountNumber: graphqlAccount.cosmosData?.accountNumber,
-                    delegations: graphqlAccount.cosmosData?.delegations ?? [],
-                    redelegations: graphqlAccount.cosmosData?.redelegations ?? [],
-                    undelegations: graphqlAccount.cosmosData?.undelegations ?? [],
-                    rewards: graphqlAccount.cosmosData?.rewards ?? [],
-                  }
-                  break
-                case 'solana':
-                  account = {
-                    balance: graphqlAccount.balance,
-                    pubkey: graphqlAccount.pubkey,
-                    chainId: graphqlAccount.chainId,
-                    assetId: graphqlAccount.assetId,
-                    chain: chainId,
-                    tokens: (graphqlAccount.solanaData?.tokens ?? graphqlAccount.tokens).map(t => ({
-                      assetId: t.assetId,
-                      balance: t.balance,
-                      symbol: t.symbol ?? '',
-                      name: t.name ?? '',
-                      precision: t.precision ?? 9,
-                    })),
-                  }
-                  break
-                default:
-                  account = {
-                    balance: graphqlAccount.balance,
-                    pubkey: graphqlAccount.pubkey,
-                    chainId: graphqlAccount.chainId,
-                    assetId: graphqlAccount.assetId,
-                    chain: chainId,
-                    tokens: graphqlAccount.tokens.map(t => ({
-                      assetId: t.assetId,
-                      balance: t.balance,
-                      symbol: t.symbol ?? '',
-                      name: t.name ?? '',
-                      precision: t.precision ?? 18,
-                    })),
-                  }
+              if (details?.__typename === 'EvmAccountDetails') {
+                account = {
+                  ...baseAccount,
+                  nonce: details.nonce ?? 0,
+                  tokens: mapTokens(details.tokens ?? graphqlAccount.tokens, 18),
+                }
+              } else if (details?.__typename === 'UtxoAccountDetails') {
+                account = {
+                  ...baseAccount,
+                  addresses: (details.addresses ?? []).map(a => ({
+                    pubkey: a.pubkey,
+                    balance: a.balance,
+                  })),
+                  nextChangeAddressIndex: details.nextChangeAddressIndex,
+                  nextReceiveAddressIndex: details.nextReceiveAddressIndex,
+                }
+              } else if (details?.__typename === 'CosmosAccountDetails') {
+                account = {
+                  ...baseAccount,
+                  sequence: details.sequence,
+                  accountNumber: details.accountNumber,
+                  delegations: details.delegations ?? [],
+                  redelegations: details.redelegations ?? [],
+                  undelegations: details.undelegations ?? [],
+                  rewards: details.rewards ?? [],
+                }
+              } else if (details?.__typename === 'SolanaAccountDetails') {
+                account = {
+                  ...baseAccount,
+                  tokens: mapTokens(details.tokens ?? graphqlAccount.tokens, 9),
+                }
+              } else {
+                account = {
+                  ...baseAccount,
+                  tokens: mapTokens(graphqlAccount.tokens, 18),
+                }
               }
 
               const portfolioAccounts = { [pubkey]: account }

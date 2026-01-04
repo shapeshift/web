@@ -59,16 +59,24 @@ export const EnterPassword = () => {
   const onSubmit = useCallback(
     async (values: FieldValues) => {
       try {
+        console.time('[PERF] NativeWallet: Total unlock time')
+        console.time('[PERF] NativeWallet: Vault open + mnemonic retrieval')
         if (!deviceId) return
         const wallet = keyring.get<NativeHDWallet>(deviceId)
         const Vault = await import('@shapeshiftoss/hdwallet-native-vault').then(m => m.Vault)
         const vault = await Vault.open(deviceId, values.password)
         const mnemonic = (await vault.get('#mnemonic')) as crypto.Isolation.Core.BIP39.Mnemonic
         mnemonic.addRevoker?.(() => vault.revoke())
+        console.timeEnd('[PERF] NativeWallet: Vault open + mnemonic retrieval')
+
+        console.time('[PERF] NativeWallet: wallet.loadDevice()')
         await wallet?.loadDevice({
           mnemonic,
           deviceId,
         })
+        console.timeEnd('[PERF] NativeWallet: wallet.loadDevice()')
+
+        console.time('[PERF] NativeWallet: Dispatch SET_WALLET and related actions')
         const { name, icon } = NativeConfig
         dispatch({
           type: WalletActions.SET_WALLET,
@@ -88,6 +96,8 @@ export const EnterPassword = () => {
         dispatch({ type: WalletActions.RESET_NATIVE_PENDING_DEVICE_ID })
         dispatch({ type: WalletActions.SET_LOCAL_WALLET_LOADING, payload: false })
         dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
+        console.timeEnd('[PERF] NativeWallet: Dispatch SET_WALLET and related actions')
+        console.timeEnd('[PERF] NativeWallet: Total unlock time')
       } catch (e) {
         setError(
           'password',

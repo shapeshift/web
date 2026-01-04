@@ -5,6 +5,15 @@ import pLimit from 'p-limit'
 import { getChainConfig } from '../unchained/config.js'
 import { getUnchainedApi } from '../unchained/index.js'
 
+const ACCOUNT_CACHE_TTL_MS = 30_000
+
+type CachedAccount = {
+  data: Account
+  timestamp: number
+}
+
+const accountCache = new Map<string, CachedAccount>()
+
 export type TokenBalance = {
   assetId: string
   balance: string
@@ -130,8 +139,14 @@ async function fetchFromUnchained(
 
           if ('tokens' in data && Array.isArray(data.tokens)) {
             for (const token of data.tokens) {
-              const tokenAssetId =
+              const contractAddress =
+                'contract' in token ? (token as { contract?: string }).contract : undefined
+              const directAssetId =
                 'assetId' in token ? (token as { assetId?: string }).assetId : undefined
+              const tokenAssetId =
+                directAssetId ||
+                (contractAddress ? `${chainId}/erc20:${contractAddress.toLowerCase()}` : undefined)
+
               if (tokenAssetId && token.balance) {
                 tokens.push({
                   assetId: tokenAssetId,
@@ -269,7 +284,30 @@ function getNativeAssetId(chainId: ChainId): string {
 async function batchGetAccounts(accountIds: readonly string[]): Promise<(Account | null)[]> {
   console.log(`[AccountLoader] Batching ${accountIds.length} account requests`)
 
-  const groups = groupByChainId(accountIds)
+  const now = Date.now()
+  const cachedResults = new Map<string, Account>()
+  const uncachedAccountIds: string[] = []
+
+  for (const accountId of accountIds) {
+    const cached = accountCache.get(accountId)
+    if (cached && now - cached.timestamp < ACCOUNT_CACHE_TTL_MS) {
+      cachedResults.set(accountId, cached.data)
+    } else {
+      uncachedAccountIds.push(accountId)
+    }
+  }
+
+  if (cachedResults.size > 0) {
+    console.log(`[AccountLoader] Cache hit for ${cachedResults.size} accounts`)
+  }
+
+  if (uncachedAccountIds.length === 0) {
+    return accountIds.map(id => cachedResults.get(id) || null)
+  }
+
+  console.log(`[AccountLoader] Fetching ${uncachedAccountIds.length} uncached accounts`)
+
+  const groups = groupByChainId(uncachedAccountIds)
   console.log(`[AccountLoader] Grouped into ${groups.size} chains`)
 
   const chainResults = await Promise.all(
@@ -279,10 +317,11 @@ async function batchGetAccounts(accountIds: readonly string[]): Promise<(Account
     }),
   )
 
-  const resultMap = new Map<string, Account>()
+  const resultMap = new Map<string, Account>(cachedResults)
   for (const chainResult of chainResults) {
     for (const account of chainResult) {
       resultMap.set(account.id, account)
+      accountCache.set(account.id, { data: account, timestamp: now })
     }
   }
 

@@ -136,6 +136,11 @@ const reducer = (state: InitialState, action: ActionTypes): InitialState => {
     case WalletActions.SET_ADAPTERS:
       return { ...state, adapters: action.payload }
     case WalletActions.SET_WALLET:
+      console.time('[PERF] WalletProvider: SET_WALLET reducer')
+      console.log('[PERF] WalletProvider: SET_WALLET action received', {
+        connectedType: action.payload.connectedType,
+        deviceId: action.payload.deviceId,
+      })
       const currentConnectedType = state.connectedType
       if (currentConnectedType === 'walletconnectv2') {
         state.wallet?.disconnect?.()
@@ -148,7 +153,10 @@ const reducer = (state: InitialState, action: ActionTypes): InitialState => {
         walletId: deviceId,
         walletName: name,
       }
+      console.time('[PERF] WalletProvider: portfolioSlice.setWalletMeta dispatch')
       store.dispatch(portfolioSlice.actions.setWalletMeta(walletMeta))
+      console.timeEnd('[PERF] WalletProvider: portfolioSlice.setWalletMeta dispatch')
+      console.timeEnd('[PERF] WalletProvider: SET_WALLET reducer')
       return {
         ...state,
         deviceId,

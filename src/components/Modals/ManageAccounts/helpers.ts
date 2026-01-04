@@ -39,10 +39,12 @@ export const filterChainIdsBySearchTerm = (search: string, chainIds: ChainId[]) 
 const checkGraphQLAccountHasActivity = (account: GraphQLAccount): boolean => {
   const hasBalance = account.balance !== '0' && account.balance !== ''
   const hasTokens = account.tokens.some(t => t.balance !== '0' && t.balance !== '')
+  const details = account.details
   const hasSequence =
-    account.cosmosData?.sequence !== undefined &&
-    account.cosmosData.sequence !== null &&
-    account.cosmosData.sequence !== '0'
+    details?.__typename === 'CosmosAccountDetails' &&
+    details.sequence !== undefined &&
+    details.sequence !== null &&
+    details.sequence !== '0'
   return hasBalance || hasTokens || hasSequence
 }
 

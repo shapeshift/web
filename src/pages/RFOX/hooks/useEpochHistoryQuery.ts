@@ -1,15 +1,10 @@
 import { useQuery } from '@tanstack/react-query'
-import axios from 'axios'
 import { useMemo } from 'react'
 
-import { IPFS_GATEWAY } from '../constants'
-import type { Epoch } from '../types'
-import {
-  fetchCurrentEpochMetadata,
-  getCurrentEpochMetadataQueryKey,
-} from './useCurrentEpochMetadataQuery'
+import type { Epoch, EpochDetails } from '../types'
 
-import { queryClient } from '@/context/QueryClientProvider/queryClient'
+import type { GraphQLRfoxEpoch } from '@/lib/graphql'
+import { fetchRfoxEpochHistoryGraphQL } from '@/lib/graphql'
 
 type EpochHistoryQueryKey = ['epochHistory']
 
@@ -20,31 +15,33 @@ type UseEpochHistoryQueryProps<SelectData = EpochWithIpfsHash[]> = {
   select?: (data: EpochWithIpfsHash[]) => SelectData
 }
 
-// The query key excludes the current timestamp so we don't inadvertently end up with stupid things like reactively fetching every second etc.
-// Instead we will rely on staleTime to refetch at a sensible interval.
 export const getEpochHistoryQueryKey = (): EpochHistoryQueryKey => ['epochHistory']
 
+const mapGraphQLEpochToEpoch = (epoch: GraphQLRfoxEpoch): EpochWithIpfsHash => ({
+  number: epoch.number,
+  ipfsHash: epoch.ipfsHash,
+  startTimestamp: epoch.startTimestamp,
+  endTimestamp: epoch.endTimestamp,
+  distributionTimestamp: epoch.distributionTimestamp,
+  startBlock: epoch.startBlock,
+  endBlock: epoch.endBlock,
+  treasuryAddress: epoch.treasuryAddress,
+  totalRevenue: epoch.totalRevenue,
+  burnRate: epoch.burnRate,
+  runePriceUsd: epoch.runePriceUsd,
+  distributionStatus: epoch.distributionStatus,
+  detailsByStakingContract: epoch.detailsByStakingContract as Record<string, EpochDetails>,
+})
+
 export const fetchEpochHistory = async (): Promise<EpochWithIpfsHash[]> => {
-  const currentEpochMetadata = await queryClient.fetchQuery({
-    queryKey: getCurrentEpochMetadataQueryKey(),
-    queryFn: fetchCurrentEpochMetadata,
-  })
-
-  const epochs = await Promise.all(
-    Object.values(currentEpochMetadata.ipfsHashByEpoch).map(async hash => {
-      const { data } = await axios.get<Epoch>(`${IPFS_GATEWAY}/${hash}`)
-      return { ...data, ipfsHash: hash }
-    }),
-  )
-
-  return epochs.sort((a, b) => b.number - a.number)
+  const epochs = await fetchRfoxEpochHistoryGraphQL()
+  return epochs.map(mapGraphQLEpochToEpoch)
 }
 
 export const useEpochHistoryQuery = <SelectData = EpochWithIpfsHash[]>({
   enabled,
   select,
 }: UseEpochHistoryQueryProps<SelectData>) => {
-  // This pattern looks weird but it allows us to add parameters to the query and key later without bigger refactor
   const queryKey = useMemo(() => getEpochHistoryQueryKey(), [])
 
   const queryFn = useMemo(() => () => fetchEpochHistory(), [])
@@ -52,7 +49,7 @@ export const useEpochHistoryQuery = <SelectData = EpochWithIpfsHash[]>({
   return useQuery({
     queryKey,
     queryFn,
-    staleTime: 60 * 60 * 1000, // 1 hour in milliseconds
+    staleTime: 60 * 60 * 1000,
     select,
     enabled,
   })

@@ -189,6 +189,34 @@ export const selectPortfolioDegradedState = createSelector(
   },
 )
 
+export const selectIsChainIdLoaded = createCachedSelector(
+  selectPortfolioLoadingStatusGranular,
+  selectChainIdParamFromFilter,
+  (portfolioLoadingStatusGranular, chainId): boolean => {
+    if (!chainId) return false
+    const accountEntries = entries(portfolioLoadingStatusGranular)
+    const chainAccountEntries = accountEntries.filter(
+      ([accountId]) => fromAccountId(accountId).chainId === chainId,
+    )
+    if (chainAccountEntries.length === 0) return false
+    return chainAccountEntries.every(([, status]) => status === 'success' || status === 'error')
+  },
+)((_s: ReduxState, filter) => filter?.chainId ?? 'chainId')
+
+export const selectIsChainIdLoading = createCachedSelector(
+  selectPortfolioLoadingStatusGranular,
+  selectChainIdParamFromFilter,
+  (portfolioLoadingStatusGranular, chainId): boolean => {
+    if (!chainId) return true
+    const accountEntries = entries(portfolioLoadingStatusGranular)
+    const chainAccountEntries = accountEntries.filter(
+      ([accountId]) => fromAccountId(accountId).chainId === chainId,
+    )
+    if (chainAccountEntries.length === 0) return true
+    return chainAccountEntries.some(([, status]) => status === 'loading')
+  },
+)((_s: ReduxState, filter) => filter?.chainId ?? 'chainId')
+
 export const selectPortfolioTotalUserCurrencyBalance = createSelector(
   selectPortfolioUserCurrencyBalances,
   (portfolioUserCurrencyBalances): string =>

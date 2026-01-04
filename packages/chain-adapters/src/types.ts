@@ -128,6 +128,12 @@ export type SubscribeTxsInput = {
   accountNumber: number
   accountType?: UtxoAccountType
   pubKey?: string
+  /**
+   * Optional account provider function for fetching account data.
+   * When provided, this function will be used instead of the adapter's internal getAccount method.
+   * This enables GraphQL/DataLoader integration at the web layer without polluting chain-adapters with GraphQL dependencies.
+   */
+  accountProvider?: (pubkey: string) => Promise<Account<ChainId>>
 }
 
 export type GetBip44ParamsInput = {
@@ -319,6 +325,12 @@ export type GetAddressInputBase = {
    * and instead use unchained to "derive" the address from the public key
    */
   pubKey?: string
+  /**
+   * Optional account provider function for fetching account data.
+   * When provided, this function will be used instead of the adapter's internal getAccount method.
+   * This enables GraphQL/DataLoader integration at the web layer without polluting chain-adapters with GraphQL dependencies.
+   */
+  accountProvider?: (pubkey: string) => Promise<Account<ChainId>>
 }
 
 export type GetAddressInput = GetAddressInputBase | utxo.GetAddressInput

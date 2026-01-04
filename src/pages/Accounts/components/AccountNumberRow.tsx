@@ -12,6 +12,7 @@ import {
   MenuGroup,
   MenuItem,
   MenuList,
+  Skeleton,
   Stack,
   useDisclosure,
 } from '@chakra-ui/react'
@@ -34,6 +35,7 @@ import { isUtxoAccountId, isUtxoChainId } from '@/lib/utils/utxo'
 import {
   selectAssets,
   selectFeeAssetByChainId,
+  selectIsChainIdLoading,
   selectPortfolioAccountBalanceByAccountNumberAndChainId,
   selectPortfolioAccountsUserCurrencyBalances,
 } from '@/state/slices/selectors'
@@ -146,6 +148,8 @@ export const AccountNumberRow: React.FC<AccountNumberRowProps> = ({
   const accountId = useMemo(() => accountIds[0], [accountIds]) // all accountIds belong to the same chain
   const isUtxoAccount = useMemo(() => isUtxoAccountId(accountId), [accountId])
   const filter = useMemo(() => ({ accountNumber, chainId }), [accountNumber, chainId])
+  const chainIdFilter = useMemo(() => ({ chainId }), [chainId])
+  const isChainLoading = useAppSelector(s => selectIsChainIdLoading(s, chainIdFilter))
   const fiatBalance = useAppSelector(s =>
     selectPortfolioAccountBalanceByAccountNumberAndChainId(s, filter),
   )
@@ -215,7 +219,9 @@ export const AccountNumberRow: React.FC<AccountNumberRowProps> = ({
             </RawText>
           </Stack>
           <Stack direction='row' alignItems='center' spacing={6} ml='auto'>
-            <Amount.Fiat value={fiatBalance} />
+            <Skeleton isLoaded={!isChainLoading}>
+              <Amount.Fiat value={fiatBalance} />
+            </Skeleton>
           </Stack>
         </Button>
         {buttonProps.onClick && (

@@ -31,6 +31,7 @@ export const BalanceChart: React.FC<BalanceChartArgs> = ({
   setPercentChange,
   isRainbowChart,
 }) => {
+  console.log('[BalanceChart] Rendering - assetId:', assetId, 'accountId:', accountId)
   const { balanceChartData, balanceChartDataLoading } = useBalanceChartData(
     timeframe,
     assetId,

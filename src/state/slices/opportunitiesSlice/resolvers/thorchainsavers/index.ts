@@ -31,6 +31,8 @@ import { getMidgardPools, getThorchainSaversPosition } from './utils'
 import { getConfig } from '@/config'
 import { queryClient } from '@/context/QueryClientProvider/queryClient'
 import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
+import { fetchMidgardMemberGraphQL } from '@/lib/graphql/midgardData'
+import { fetchRunepoolInformationGraphQL } from '@/lib/graphql/thornodeData'
 import { fromThorBaseUnit } from '@/lib/utils/thorchain'
 import {
   selectLiquidityLockupTime,
@@ -67,7 +69,8 @@ export const thorchainSaversStakingOpportunitiesMetadataResolver = async ({
   const { getState } = reduxApi
   const state: any = getState() // ReduxState causes circular dependency
 
-  const { SaversVaults } = preferences.selectors.selectFeatureFlags(state)
+  const { SaversVaults, GraphQLPoc: isGraphQLEnabled } =
+    preferences.selectors.selectFeatureFlags(state)
 
   if (!(SaversVaults && opportunityIds?.length)) {
     return Promise.resolve({
@@ -153,15 +156,92 @@ export const thorchainSaversStakingOpportunitiesMetadataResolver = async ({
   const thorchainAsset = selectAssetById(state, thorchainAssetId)
 
   if (getConfig().VITE_FEATURE_RUNEPOOL && thorchainAsset) {
-    const { data: reservePositions } = await axios.get<ThorchainRunepoolReservePositionsResponse>(
-      `${
-        getConfig().VITE_THORCHAIN_MIDGARD_URL
-      }/member/thor1dheycdevq39qlkxs2a6wuuzyn4aqxhve4qxtxt`,
-    )
-    const { data: runepoolInformation } =
-      await axios.get<ThorchainRunepoolInformationResponseSuccess>(
+    const RESERVE_ADDRESS = 'thor1dheycdevq39qlkxs2a6wuuzyn4aqxhve4qxtxt'
+
+    let reservePositions: ThorchainRunepoolReservePositionsResponse
+    if (isGraphQLEnabled) {
+      try {
+        const graphqlMember = await fetchMidgardMemberGraphQL(RESERVE_ADDRESS)
+        if (graphqlMember) {
+          reservePositions = {
+            pools: graphqlMember.pools.map(pool => ({
+              assetAdded: pool.assetAdded,
+              assetAddress: pool.assetAddress,
+              assetDeposit: pool.assetDeposit,
+              assetPending: pool.assetPending,
+              assetWithdrawn: pool.assetWithdrawn,
+              dateFirstAdded: pool.dateFirstAdded,
+              dateLastAdded: pool.dateLastAdded,
+              liquidityUnits: pool.liquidityUnits,
+              pool: pool.pool,
+              runeAdded: pool.runeAdded,
+              runeAddress: pool.runeAddress,
+              runeDeposit: pool.runeDeposit,
+              runePending: pool.runePending,
+              runeWithdrawn: pool.runeWithdrawn,
+            })),
+          }
+        } else {
+          throw new Error('GraphQL returned null for member')
+        }
+      } catch (error) {
+        console.error('[ReservePositions] GraphQL failed, falling back:', error)
+        const { data } = await axios.get<ThorchainRunepoolReservePositionsResponse>(
+          `${getConfig().VITE_THORCHAIN_MIDGARD_URL}/member/${RESERVE_ADDRESS}`,
+        )
+        reservePositions = data
+      }
+    } else {
+      const { data } = await axios.get<ThorchainRunepoolReservePositionsResponse>(
+        `${getConfig().VITE_THORCHAIN_MIDGARD_URL}/member/${RESERVE_ADDRESS}`,
+      )
+      reservePositions = data
+    }
+
+    let runepoolInformation: ThorchainRunepoolInformationResponseSuccess
+    if (isGraphQLEnabled) {
+      try {
+        const graphqlData = await fetchRunepoolInformationGraphQL()
+        if (graphqlData) {
+          runepoolInformation = {
+            pol: {
+              rune_deposited: graphqlData.pol.runeDeposited,
+              rune_withdrawn: graphqlData.pol.runeWithdrawn,
+              value: graphqlData.pol.value,
+              pnl: graphqlData.pol.pnl,
+              current_deposit: graphqlData.pol.currentDeposit,
+            },
+            providers: {
+              units: graphqlData.providers.units,
+              pending_units: graphqlData.providers.pendingUnits,
+              pending_rune: graphqlData.providers.pendingRune,
+              value: graphqlData.providers.value,
+              pnl: graphqlData.providers.pnl,
+              current_deposit: graphqlData.providers.currentDeposit,
+            },
+            reserve: {
+              units: graphqlData.reserve.units,
+              value: graphqlData.reserve.value,
+              pnl: graphqlData.reserve.pnl,
+              current_deposit: graphqlData.reserve.currentDeposit,
+            },
+          }
+        } else {
+          throw new Error('GraphQL returned null for runepoolInformation')
+        }
+      } catch (error) {
+        console.error('[RunepoolInformation] GraphQL failed, falling back:', error)
+        const { data } = await axios.get<ThorchainRunepoolInformationResponseSuccess>(
+          `${getConfig().VITE_THORCHAIN_NODE_URL}/thorchain/runepool`,
+        )
+        runepoolInformation = data
+      }
+    } else {
+      const { data } = await axios.get<ThorchainRunepoolInformationResponseSuccess>(
         `${getConfig().VITE_THORCHAIN_NODE_URL}/thorchain/runepool`,
       )
+      runepoolInformation = data
+    }
 
     const poolsByAssetid = thorchainPools.reduce<Record<string, ThornodePoolResponse>>(
       (acc, pool) => {

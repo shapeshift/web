@@ -1,13 +1,16 @@
-import type { AccountId } from '@shapeshiftoss/caip'
-import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
+import type { AccountId, ChainId } from '@shapeshiftoss/caip'
+import { fromAccountId, fromAssetId, toAccountId } from '@shapeshiftoss/caip'
+import type { Account } from '@shapeshiftoss/chain-adapters'
 import type { Asset } from '@shapeshiftoss/types'
 import { skipToken, useQuery } from '@tanstack/react-query'
 import { useMemo } from 'react'
 
 import type { GetReceiveAddressArgs } from '@/components/MultiHopTrade/types'
+import { getConfig } from '@/config'
 import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
 import { KeyManager } from '@/context/WalletProvider/KeyManager'
 import { useWallet } from '@/hooks/useWallet/useWallet'
+import { accountService } from '@/lib/account/accountService'
 import { isUtxoAccountId } from '@/lib/utils/utxo'
 import { selectWalletType } from '@/state/slices/localWalletSlice/selectors'
 import { selectPortfolioAccountMetadataByAccountId } from '@/state/slices/portfolioSlice/selectors'
@@ -18,6 +21,7 @@ export const getReceiveAddress = async ({
   wallet,
   accountMetadata,
   pubKey,
+  accountProvider,
 }: GetReceiveAddressArgs): Promise<string | undefined> => {
   const { chainId } = fromAssetId(asset.assetId)
   const { accountType, bip44Params } = accountMetadata
@@ -32,6 +36,7 @@ export const getReceiveAddress = async ({
     accountNumber,
     accountType,
     pubKey,
+    accountProvider,
   })
   return address
 }
@@ -55,7 +60,8 @@ export const useReceiveAddress = ({
   const skipDeviceDerivation =
     walletType === KeyManager.Ledger ||
     walletType === KeyManager.Trezor ||
-    walletType === KeyManager.GridPlus
+    walletType === KeyManager.GridPlus ||
+    getConfig().VITE_FEATURE_GRAPHQL_POC
 
   // This flag is used to skip the query below and treat missing input as `isLoading` to prevent UI
   // flashing during state changes. Any of the conditions below returning true should be treated as
@@ -115,11 +121,24 @@ export const useReceiveAddress = ({
             if (isUtxoAccountId(buyAccountId) && !buyAccountMetadata?.accountType)
               throw new Error(`Missing accountType for UTXO account ${buyAccountId}`)
 
+            const isGraphQLEnabled = getConfig().VITE_FEATURE_GRAPHQL_POC
+            const accountProvider = isGraphQLEnabled
+              ? async (pubkey: string): Promise<Account<ChainId>> => {
+                  const accountId = toAccountId({ chainId: buyAssetChainId, account: pubkey })
+                  const result = await accountService.loadAccount(accountId)
+                  if (!result) {
+                    throw new Error(`Failed to load account: ${accountId}`)
+                  }
+                  return result.account as Account<ChainId>
+                }
+              : undefined
+
             const walletReceiveAddress = await getReceiveAddress({
               asset: buyAsset,
               wallet,
               accountMetadata: buyAccountMetadata,
               pubKey: skipDeviceDerivation ? fromAccountId(buyAccountId).account : undefined,
+              accountProvider,
             })
 
             return walletReceiveAddress ?? null

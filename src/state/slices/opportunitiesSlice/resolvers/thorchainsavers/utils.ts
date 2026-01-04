@@ -35,14 +35,14 @@ import type {
 import { getConfig } from '@/config'
 import { queryClient } from '@/context/QueryClientProvider/queryClient'
 import { BigNumber, bnOrZero } from '@/lib/bignumber/bignumber'
-import { fetchPoolSaversGraphQL } from '@/lib/graphql/thornodeData'
+import { fetchMidgardPoolsGraphQL } from '@/lib/graphql/midgardData'
+import { fetchPoolSaversGraphQL, fetchRuneProviderGraphQL } from '@/lib/graphql/thornodeData'
 import { fromThorBaseUnit, getAccountAddresses, toThorBaseUnit } from '@/lib/utils/thorchain'
 import { BASE_BPS_POINTS, THORCHAIN_AFFILIATE_NAME } from '@/lib/utils/thorchain/constants'
 import { isUtxoChainId } from '@/lib/utils/utxo'
 import { selectFeatureFlag } from '@/state/slices/preferencesSlice/selectors'
 import { store } from '@/state/store'
 
-// BPS are needed as part of the memo, but 0bps won't incur any fees, only used for tracking purposes for now
 const AFFILIATE_BPS = 0
 
 const usdcEthereumAssetId: AssetId = 'eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48'
@@ -50,8 +50,6 @@ const usdcAvalancheAssetId: AssetId =
   'eip155:43114/erc20:0xb97ef9ef8734c71904d8002f8b6bc66dd9c48a6e'
 const usdtEthereumAssetId: AssetId = 'eip155:1/erc20:0xdac17f958d2ee523a2206206994597c13d831ec7'
 
-// The minimum amount to be sent both for deposit and withdraws
-// else it will be considered a dust attack and gifted to the network
 export const THORCHAIN_SAVERS_DUST_THRESHOLDS_CRYPTO_BASE_UNIT = {
   [btcAssetId]: '10000',
   [bchAssetId]: '10000',
@@ -60,8 +58,8 @@ export const THORCHAIN_SAVERS_DUST_THRESHOLDS_CRYPTO_BASE_UNIT = {
   [ethAssetId]: '10000000000',
   [avalancheAssetId]: '10000000000',
   [bscAssetId]: '10000000000',
-  [cosmosAssetId]: '1', // the inbound address dust_threshold is '0', but LP withdrawls fail without a dust value
-  [thorchainAssetId]: '1', // partial LP withdrawls fail without a dust value
+  [cosmosAssetId]: '1',
+  [thorchainAssetId]: '1',
   [binanceAssetId]: '0',
   [usdcEthereumAssetId]: '0',
   [usdtEthereumAssetId]: '0',
@@ -87,33 +85,38 @@ export const SUPPORTED_THORCHAIN_SAVERS_CHAIN_IDS = uniq(
   SUPPORTED_THORCHAIN_SAVERS_ASSET_IDS.map(assetId => fromAssetId(assetId).chainId),
 )
 
+const mapGraphQLSaverToPosition = (s: {
+  asset: string
+  assetAddress: string
+  lastAddHeight: number
+  units: string
+  assetDepositValue: string
+  assetRedeemValue: string
+  growthPct: string
+}): ThorchainSaverPositionResponse => ({
+  asset: s.asset,
+  asset_address: s.assetAddress,
+  last_add_height: s.lastAddHeight,
+  units: s.units,
+  asset_deposit_value: s.assetDepositValue,
+  asset_redeem_value: s.assetRedeemValue,
+  growth_pct: s.growthPct,
+})
+
 export const getAllThorchainSaversPositions = async (
   assetId: AssetId,
 ): Promise<ThorchainSaverPositionResponse[]> => {
   const poolId = assetIdToThorPoolAssetId({ assetId })
-
   if (!poolId) return []
 
   const isGraphQLEnabled = selectFeatureFlag(store.getState(), 'GraphQLPoc')
 
   if (isGraphQLEnabled) {
     try {
-      console.log('[getAllThorchainSaversPositions] Using GraphQL for', poolId)
       const graphqlSavers = await fetchPoolSaversGraphQL(poolId)
-      return graphqlSavers.map(s => ({
-        asset: s.asset,
-        asset_address: s.assetAddress,
-        last_add_height: s.lastAddHeight,
-        units: s.units,
-        asset_deposit_value: s.assetDepositValue,
-        asset_redeem_value: s.assetRedeemValue,
-        growth_pct: s.growthPct,
-      }))
+      return graphqlSavers.map(mapGraphQLSaverToPosition)
     } catch (error) {
-      console.error(
-        '[getAllThorchainSaversPositions] GraphQL failed, falling back to direct API:',
-        error,
-      )
+      console.error('[getAllThorchainSaversPositions] GraphQL failed, falling back:', error)
     }
   }
 
@@ -126,9 +129,7 @@ export const getAllThorchainSaversPositions = async (
     staleTime: 60_000,
   })
 
-  if (!opportunitiesData) return []
-
-  return opportunitiesData
+  return opportunitiesData ?? []
 }
 
 export const getThorchainSaversPosition = async ({
@@ -144,69 +145,67 @@ export const getThorchainSaversPosition = async ({
 
   if (!poolAssetId) return null
 
-  const accountPosition = await (async () => {
-    if (assetId === thorchainAssetId) {
-      const { data: runepoolInformation } =
-        await axios.get<ThorchainRunepoolProviderResponseSuccess>(
-          `${getConfig().VITE_THORCHAIN_NODE_URL}/thorchain/rune_provider/${address}`,
+  if (assetId === thorchainAssetId) {
+    if (isGraphQLEnabled) {
+      try {
+        const runeProvider = await fetchRuneProviderGraphQL(address)
+        if (!runeProvider) return null
+
+        return {
+          asset: 'THOR.RUNE',
+          asset_address: runeProvider.runeAddress,
+          last_add_height: runeProvider.lastDepositHeight,
+          units: runeProvider.units,
+          asset_deposit_value: bnOrZero(runeProvider.depositAmount)
+            .minus(runeProvider.withdrawAmount)
+            .plus(runeProvider.pnl)
+            .toFixed(),
+          asset_redeem_value: runeProvider.value,
+          growth_pct: undefined,
+        }
+      } catch (error) {
+        console.error(
+          '[getThorchainSaversPosition] GraphQL runeProvider failed, falling back:',
+          error,
         )
-
-      const runepoolOpportunity: ThorchainSaverPositionResponse = {
-        asset: 'THOR.RUNE',
-        asset_address: runepoolInformation.rune_address,
-        last_add_height: runepoolInformation.last_deposit_height,
-        units: runepoolInformation.units,
-        asset_deposit_value: bnOrZero(runepoolInformation.deposit_amount)
-          .minus(runepoolInformation.withdraw_amount)
-          .plus(runepoolInformation.pnl)
-          .toFixed(),
-        asset_redeem_value: runepoolInformation.value,
-        growth_pct: undefined,
       }
-
-      return runepoolOpportunity
     }
 
-    if (!isUtxoChainId(fromAssetId(assetId).chainId)) {
-      if (isGraphQLEnabled) {
-        const allSavers = await getAllThorchainSaversPositions(assetId)
-        return allSavers.find(s => s.asset_address.toLowerCase() === address.toLowerCase()) ?? null
-      }
-      return (
-        await axios.get<ThorchainSaverPositionResponse>(
-          `${getConfig().VITE_THORCHAIN_NODE_URL}/thorchain/pool/${poolAssetId}/saver/${address}`,
-        )
-      ).data
-    }
-
-    const lendingPositionsResponse = await getAllThorchainSaversPositions(assetId)
-
-    const allPositions = lendingPositionsResponse
-    if (!allPositions.length) {
-      throw new Error(`No lending positions found for asset ID: ${assetId}`)
-    }
-
-    if (!allPositions.length)
-      throw new Error(`Error fetching THORCHain savers positions for assetId: ${assetId}`)
-
-    // Returns either
-    // - A tuple made of a single address for EVM and Cosmos chains since the address *is* the account
-    // - An array of many addresses for UTXOs, since an xpub can derive many many addresses
-    const accountAddresses = await getAccountAddresses(accountId)
-
-    const accountPosition = allPositions.find(
-      ({ asset_address }) =>
-        asset_address === accountAddresses.find(accountAddress => accountAddress === asset_address),
+    const { data: runepoolInformation } = await axios.get<ThorchainRunepoolProviderResponseSuccess>(
+      `${getConfig().VITE_THORCHAIN_NODE_URL}/thorchain/rune_provider/${address}`,
     )
 
-    if (!accountPosition) {
-      return null
+    return {
+      asset: 'THOR.RUNE',
+      asset_address: runepoolInformation.rune_address,
+      last_add_height: runepoolInformation.last_deposit_height,
+      units: runepoolInformation.units,
+      asset_deposit_value: bnOrZero(runepoolInformation.deposit_amount)
+        .minus(runepoolInformation.withdraw_amount)
+        .plus(runepoolInformation.pnl)
+        .toFixed(),
+      asset_redeem_value: runepoolInformation.value,
+      growth_pct: undefined,
     }
+  }
 
-    return accountPosition
-  })()
+  if (!isUtxoChainId(fromAssetId(assetId).chainId)) {
+    if (isGraphQLEnabled) {
+      const allSavers = await getAllThorchainSaversPositions(assetId)
+      return allSavers.find(s => s.asset_address.toLowerCase() === address.toLowerCase()) ?? null
+    }
+    return (
+      await axios.get<ThorchainSaverPositionResponse>(
+        `${getConfig().VITE_THORCHAIN_NODE_URL}/thorchain/pool/${poolAssetId}/saver/${address}`,
+      )
+    ).data
+  }
 
-  return accountPosition || null
+  const allPositions = await getAllThorchainSaversPositions(assetId)
+  if (!allPositions.length) return null
+
+  const accountAddresses = await getAccountAddresses(accountId)
+  return allPositions.find(({ asset_address }) => accountAddresses.includes(asset_address)) ?? null
 }
 
 export const getMaybeThorchainSaversDepositQuote = async ({
@@ -217,7 +216,6 @@ export const getMaybeThorchainSaversDepositQuote = async ({
   amountCryptoBaseUnit: BigNumber.Value | null | undefined
 }): Promise<Result<ThorchainSaversDepositQuoteResponseSuccess, string>> => {
   const poolId = assetIdToThorPoolAssetId({ assetId: asset.assetId })
-
   if (!poolId) return Err(`Invalid assetId for THORCHain savers: ${asset.assetId}`)
 
   const amountThorBaseUnit = toThorBaseUnit({
@@ -247,29 +245,26 @@ export const getThorchainSaversWithdrawQuote = async ({
   bps: string
 }): Promise<Result<ThorchainSaversWithdrawQuoteResponseSuccess, string>> => {
   const poolId = assetIdToThorPoolAssetId({ assetId: asset.assetId })
-
   if (!poolId) return Err(`Invalid assetId for THORCHain savers: ${asset.assetId}`)
 
   const accountAddresses = await getAccountAddresses(accountId)
-
   const allPositions = await getAllThorchainSaversPositions(asset.assetId)
 
   if (!allPositions.length)
     return Err(`Error fetching THORCHain savers positions for assetId: ${asset.assetId}`)
 
-  const accountPosition = allPositions.find(
-    ({ asset_address }) =>
-      asset_address === accountAddresses.find(accountAddress => accountAddress === asset_address),
+  const accountPosition = allPositions.find(({ asset_address }) =>
+    accountAddresses.includes(asset_address),
   )
 
   if (!accountPosition) return Err('No THORChain savers position found')
 
-  const { asset_address } = accountPosition
-
   const { data: quoteData } = await axios.get<ThorchainSaversWithdrawQuoteResponse>(
     `${
       getConfig().VITE_THORCHAIN_NODE_URL
-    }/thorchain/quote/saver/withdraw?asset=${poolId}&address=${asset_address}&withdraw_bps=${bps}`,
+    }/thorchain/quote/saver/withdraw?asset=${poolId}&address=${
+      accountPosition.asset_address
+    }&withdraw_bps=${bps}`,
   )
 
   if (!quoteData || 'error' in quoteData)
@@ -281,15 +276,41 @@ export const getThorchainSaversWithdrawQuote = async ({
 export const getMidgardPools = async (
   period?: MidgardPoolPeriod,
 ): Promise<MidgardPoolResponse[]> => {
-  const maybePeriodQueryParameter: MidgardPoolRequest = period ? { period } : {}
+  const isGraphQLEnabled = selectFeatureFlag(store.getState(), 'GraphQLPoc')
+
+  if (isGraphQLEnabled) {
+    try {
+      const graphqlPools = await fetchMidgardPoolsGraphQL(period)
+      return graphqlPools.map(pool => ({
+        annualPercentageRate: pool.annualPercentageRate,
+        asset: pool.asset,
+        assetDepth: pool.assetDepth,
+        assetPrice: pool.assetPrice,
+        assetPriceUSD: pool.assetPriceUSD,
+        liquidityUnits: pool.liquidityUnits,
+        nativeDecimal: pool.nativeDecimal,
+        poolAPY: pool.poolAPY,
+        runeDepth: pool.runeDepth,
+        saversAPR: pool.saversAPR,
+        saversDepth: pool.saversDepth,
+        saversUnits: pool.saversUnits,
+        status: pool.status,
+        synthSupply: pool.synthSupply,
+        synthUnits: pool.synthUnits,
+        units: pool.units,
+        volume24h: pool.volume24h,
+      }))
+    } catch (error) {
+      console.error('[getMidgardPools] GraphQL failed, falling back:', error)
+    }
+  }
+
+  const params: MidgardPoolRequest = period ? { period } : {}
   const { data: poolsData } = await axios.get<MidgardPoolResponse[]>(
     `${getConfig().VITE_THORCHAIN_MIDGARD_URL}/pools`,
-    { params: maybePeriodQueryParameter },
+    { params },
   )
-
-  if (!poolsData) return []
-
-  return poolsData
+  return poolsData ?? []
 }
 
 export const isAboveDepositDustThreshold = ({
@@ -312,18 +333,15 @@ export const getWithdrawBps = ({
   const stakedAmountCryptoBaseUnitIncludeRewards = bnOrZero(stakedAmountCryptoBaseUnit).plus(
     rewardsAmountCryptoBaseUnit,
   )
-
   const withdrawRatio = bnOrZero(withdrawAmountCryptoBaseUnit).div(
     stakedAmountCryptoBaseUnitIncludeRewards,
   )
-
-  const withdrawBps = withdrawRatio.times(BASE_BPS_POINTS).toFixed(0)
-
-  return withdrawBps
+  return withdrawRatio.times(BASE_BPS_POINTS).toFixed(0)
 }
 
 export const isSupportedThorchainSaversAssetId = (assetId: AssetId) =>
   SUPPORTED_THORCHAIN_SAVERS_ASSET_IDS.includes(assetId)
+
 export const isSupportedThorchainSaversChainId = (chainId: ChainId) =>
   SUPPORTED_THORCHAIN_SAVERS_CHAIN_IDS.includes(chainId)
 
@@ -342,23 +360,14 @@ export const makeDaysToBreakEven = ({
     valueCryptoBaseUnit: amountCryptoBaseUnit,
     asset,
   })
-  // The total downside that goes into a savers deposit, from THOR docs;
-  // "the minimum amount of the target asset the user can expect to deposit after fees"
-  // https://api.thorchain.shapeshift.com/lcd/thorchain/doc
   const depositFeeCryptoPrecision = bnOrZero(
     fromThorBaseUnit(amountCryptoThorBaseUnit.minus(expectedAmountOutThorBaseUnit)),
   )
-  // Daily upside
   const dailyEarnAmount = bnOrZero(fromThorBaseUnit(expectedAmountOutThorBaseUnit))
     .times(apy)
     .div(365)
-
   const daysToBreakEvenOrZero = bnOrZero(1)
     .div(dailyEarnAmount.div(depositFeeCryptoPrecision))
     .toFixed()
-  // If daysToBreakEvenOrZero is a fraction of 1, the daily upside is effectively higher than the fees
-  // meaning the user will break even in a timeframe between the first rewards accrual (e.g next THOR block after deposit is confirmed)
-  // and ~ a day after deposit
-  const daysToBreakEven = BigNumber.max(daysToBreakEvenOrZero, 1).toFixed(0)
-  return daysToBreakEven
+  return BigNumber.max(daysToBreakEvenOrZero, 1).toFixed(0)
 }

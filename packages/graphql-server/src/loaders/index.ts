@@ -6,3 +6,9 @@ export {
   type Transfer,
   type TxHistoryResult,
 } from './txLoader.js'
+export {
+  createPriceHistoryLoader,
+  type PriceHistoryKey,
+  type PriceHistoryResult,
+  type PriceHistoryPoint,
+} from './priceHistoryLoader.js'

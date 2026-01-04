@@ -5,6 +5,15 @@ import pLimit from 'p-limit'
 import { getChainConfig } from '../unchained/config.js'
 import { getUnchainedApi } from '../unchained/index.js'
 
+const TX_CACHE_TTL_MS = 5 * 60_000
+
+type CachedTxHistory = {
+  data: TxHistoryResult
+  timestamp: number
+}
+
+const txCache = new Map<string, CachedTxHistory>()
+
 export type Transfer = {
   type: string
   assetId: string
@@ -230,7 +239,37 @@ async function fetchTxHistoryFromUnchained(
 async function batchGetTransactions(accountIds: readonly string[]): Promise<TxHistoryResult[]> {
   console.log(`[TxLoader] Batching ${accountIds.length} tx history requests`)
 
-  const groups = groupByChainId(accountIds)
+  const now = Date.now()
+  const cachedResults = new Map<string, TxHistoryResult>()
+  const uncachedAccountIds: string[] = []
+
+  for (const accountId of accountIds) {
+    const cached = txCache.get(accountId)
+    if (cached && now - cached.timestamp < TX_CACHE_TTL_MS) {
+      cachedResults.set(accountId, cached.data)
+    } else {
+      uncachedAccountIds.push(accountId)
+    }
+  }
+
+  if (cachedResults.size > 0) {
+    console.log(`[TxLoader] Cache hit for ${cachedResults.size} accounts`)
+  }
+
+  if (uncachedAccountIds.length === 0) {
+    return accountIds.map(
+      id =>
+        cachedResults.get(id) || {
+          accountId: id,
+          transactions: [],
+          cursor: null,
+        },
+    )
+  }
+
+  console.log(`[TxLoader] Fetching ${uncachedAccountIds.length} uncached tx histories`)
+
+  const groups = groupByChainId(uncachedAccountIds)
   console.log(`[TxLoader] Grouped into ${groups.size} chains`)
 
   const chainResults = await Promise.all(
@@ -242,10 +281,11 @@ async function batchGetTransactions(accountIds: readonly string[]): Promise<TxHi
     }),
   )
 
-  const resultMap = new Map<string, TxHistoryResult>()
+  const resultMap = new Map<string, TxHistoryResult>(cachedResults)
   for (const chainResult of chainResults) {
     for (const result of chainResult) {
       resultMap.set(result.accountId, result)
+      txCache.set(result.accountId, { data: result, timestamp: now })
     }
   }
 

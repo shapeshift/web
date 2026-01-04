@@ -494,3 +494,157 @@ export async function getPoolSavers(
   console.log(`[Thornode] Loaded ${result.length} savers for ${asset}`)
   return result
 }
+
+// ============================================================================
+// RUNEPOOL ENDPOINTS
+// ============================================================================
+
+export type RunepoolInformation = {
+  pol: {
+    runeDeposited: string
+    runeWithdrawn: string
+    value: string
+    pnl: string
+    currentDeposit: string
+  }
+  providers: {
+    units: string
+    pendingUnits: string
+    pendingRune: string
+    value: string
+    pnl: string
+    currentDeposit: string
+  }
+  reserve: {
+    units: string
+    value: string
+    pnl: string
+    currentDeposit: string
+  }
+}
+
+type RunepoolInformationRaw = {
+  pol: {
+    rune_deposited: string
+    rune_withdrawn: string
+    value: string
+    pnl: string
+    current_deposit: string
+  }
+  providers: {
+    units: string
+    pending_units: string
+    pending_rune: string
+    value: string
+    pnl: string
+    current_deposit: string
+  }
+  reserve: {
+    units: string
+    value: string
+    pnl: string
+    current_deposit: string
+  }
+}
+
+export type RuneProvider = {
+  runeAddress: string
+  units: string
+  value: string
+  pnl: string
+  depositAmount: string
+  withdrawAmount: string
+  lastDepositHeight: number
+  lastWithdrawHeight: number
+}
+
+type RuneProviderRaw = {
+  rune_address: string
+  units: string
+  value: string
+  pnl: string
+  deposit_amount: string
+  withdraw_amount: string
+  last_deposit_height: number
+  last_withdraw_height: number
+}
+
+export async function getRunepoolInformation(
+  network: ThornodeNetwork = 'thorchain',
+): Promise<RunepoolInformation | null> {
+  const cacheKey = `runepool:${network}`
+  const cached = getCached<RunepoolInformation>(cacheKey)
+  if (cached) {
+    console.log(`[Thornode] Returning cached runepool info for ${network}`)
+    return cached
+  }
+
+  console.log(`[Thornode] Fetching runepool info for ${network}`)
+  const baseUrl = getBaseUrl(network)
+
+  try {
+    const data = await fetchJson<RunepoolInformationRaw>(`${baseUrl}/runepool`)
+    const result: RunepoolInformation = {
+      pol: {
+        runeDeposited: data.pol.rune_deposited,
+        runeWithdrawn: data.pol.rune_withdrawn,
+        value: data.pol.value,
+        pnl: data.pol.pnl,
+        currentDeposit: data.pol.current_deposit,
+      },
+      providers: {
+        units: data.providers.units,
+        pendingUnits: data.providers.pending_units,
+        pendingRune: data.providers.pending_rune,
+        value: data.providers.value,
+        pnl: data.providers.pnl,
+        currentDeposit: data.providers.current_deposit,
+      },
+      reserve: {
+        units: data.reserve.units,
+        value: data.reserve.value,
+        pnl: data.reserve.pnl,
+        currentDeposit: data.reserve.current_deposit,
+      },
+    }
+    setCache(cacheKey, result)
+    return result
+  } catch (error) {
+    console.error(`[Thornode] Failed to fetch runepool info:`, error)
+    return null
+  }
+}
+
+export async function getRuneProvider(
+  address: string,
+  network: ThornodeNetwork = 'thorchain',
+): Promise<RuneProvider | null> {
+  const cacheKey = `rune_provider:${network}:${address}`
+  const cached = getCached<RuneProvider>(cacheKey)
+  if (cached) {
+    console.log(`[Thornode] Returning cached rune provider for ${address}`)
+    return cached
+  }
+
+  console.log(`[Thornode] Fetching rune provider for ${address}`)
+  const baseUrl = getBaseUrl(network)
+
+  try {
+    const data = await fetchJson<RuneProviderRaw>(`${baseUrl}/rune_provider/${address}`)
+    const result: RuneProvider = {
+      runeAddress: data.rune_address,
+      units: data.units,
+      value: data.value,
+      pnl: data.pnl,
+      depositAmount: data.deposit_amount,
+      withdrawAmount: data.withdraw_amount,
+      lastDepositHeight: data.last_deposit_height,
+      lastWithdrawHeight: data.last_withdraw_height,
+    }
+    setCache(cacheKey, result)
+    return result
+  } catch (error) {
+    console.error(`[Thornode] Failed to fetch rune provider for ${address}:`, error)
+    return null
+  }
+}

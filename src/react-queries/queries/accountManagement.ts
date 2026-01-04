@@ -35,68 +35,69 @@ function graphQLAccountToChainAdapterAccount(
     chain: chainId as KnownChainIds,
   }
 
-  const chainPrefix = chainId.split(':')[0]
+  const details = graphqlAccount.details
 
-  switch (chainPrefix) {
-    case 'eip155':
-      return {
-        ...baseAccount,
-        nonce: graphqlAccount.evmData?.nonce ?? 0,
-        tokens: (graphqlAccount.evmData?.tokens ?? graphqlAccount.tokens).map(t => ({
-          assetId: t.assetId,
-          balance: t.balance,
-          symbol: t.symbol ?? '',
-          name: t.name ?? '',
-          precision: t.precision ?? 18,
-        })),
-      } as unknown as Account<KnownChainIds>
+  const mapTokens = (
+    tokens: {
+      assetId: string
+      balance: string
+      symbol: string | null
+      name: string | null
+      precision: number | null
+    }[],
+    defaultPrecision: number,
+  ) =>
+    tokens.map(t => ({
+      assetId: t.assetId,
+      balance: t.balance,
+      symbol: t.symbol ?? '',
+      name: t.name ?? '',
+      precision: t.precision ?? defaultPrecision,
+    }))
 
-    case 'bip122':
-      return {
-        ...baseAccount,
-        addresses: (graphqlAccount.utxoData?.addresses ?? []).map(a => ({
-          pubkey: a.pubkey,
-          balance: a.balance,
-        })),
-        nextChangeAddressIndex: graphqlAccount.utxoData?.nextChangeAddressIndex ?? undefined,
-        nextReceiveAddressIndex: graphqlAccount.utxoData?.nextReceiveAddressIndex ?? undefined,
-      } as unknown as Account<KnownChainIds>
-
-    case 'cosmos':
-      return {
-        ...baseAccount,
-        sequence: graphqlAccount.cosmosData?.sequence ?? undefined,
-        accountNumber: graphqlAccount.cosmosData?.accountNumber ?? undefined,
-        delegations: graphqlAccount.cosmosData?.delegations ?? [],
-        redelegations: graphqlAccount.cosmosData?.redelegations ?? [],
-        undelegations: graphqlAccount.cosmosData?.undelegations ?? [],
-        rewards: graphqlAccount.cosmosData?.rewards ?? [],
-      } as unknown as Account<KnownChainIds>
-
-    case 'solana':
-      return {
-        ...baseAccount,
-        tokens: (graphqlAccount.solanaData?.tokens ?? graphqlAccount.tokens).map(t => ({
-          assetId: t.assetId,
-          balance: t.balance,
-          symbol: t.symbol ?? '',
-          name: t.name ?? '',
-          precision: t.precision ?? 9,
-        })),
-      } as unknown as Account<KnownChainIds>
-
-    default:
-      return {
-        ...baseAccount,
-        tokens: graphqlAccount.tokens.map(t => ({
-          assetId: t.assetId,
-          balance: t.balance,
-          symbol: t.symbol ?? '',
-          name: t.name ?? '',
-          precision: t.precision ?? 18,
-        })),
-      } as unknown as Account<KnownChainIds>
+  if (details?.__typename === 'EvmAccountDetails') {
+    return {
+      ...baseAccount,
+      nonce: details.nonce ?? 0,
+      tokens: mapTokens(details.tokens ?? graphqlAccount.tokens, 18),
+    } as unknown as Account<KnownChainIds>
   }
+
+  if (details?.__typename === 'UtxoAccountDetails') {
+    return {
+      ...baseAccount,
+      addresses: (details.addresses ?? []).map(a => ({
+        pubkey: a.pubkey,
+        balance: a.balance,
+      })),
+      nextChangeAddressIndex: details.nextChangeAddressIndex ?? undefined,
+      nextReceiveAddressIndex: details.nextReceiveAddressIndex ?? undefined,
+    } as unknown as Account<KnownChainIds>
+  }
+
+  if (details?.__typename === 'CosmosAccountDetails') {
+    return {
+      ...baseAccount,
+      sequence: details.sequence ?? undefined,
+      accountNumber: details.accountNumber ?? undefined,
+      delegations: details.delegations ?? [],
+      redelegations: details.redelegations ?? [],
+      undelegations: details.undelegations ?? [],
+      rewards: details.rewards ?? [],
+    } as unknown as Account<KnownChainIds>
+  }
+
+  if (details?.__typename === 'SolanaAccountDetails') {
+    return {
+      ...baseAccount,
+      tokens: mapTokens(details.tokens ?? graphqlAccount.tokens, 9),
+    } as unknown as Account<KnownChainIds>
+  }
+
+  return {
+    ...baseAccount,
+    tokens: mapTokens(graphqlAccount.tokens, 18),
+  } as unknown as Account<KnownChainIds>
 }
 
 export const accountManagement = createQueryKeys('accountManagement', {

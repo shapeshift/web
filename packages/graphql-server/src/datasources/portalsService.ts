@@ -2,7 +2,8 @@ import axios from 'axios'
 import DataLoader from 'dataloader'
 import pLimit from 'p-limit'
 
-const PORTALS_BASE_URL = 'https://api.portals.fi'
+const PORTALS_BASE_URL =
+  process.env.PORTALS_BASE_URL || 'https://api.proxy.shapeshift.com/api/v1/portals'
 const PORTALS_REQUEST_LIMIT = pLimit(5)
 const PLATFORMS_CACHE_TTL_MS = 5 * 60 * 1000
 const BATCH_WINDOW_MS = 50

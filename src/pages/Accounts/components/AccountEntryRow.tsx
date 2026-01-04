@@ -1,6 +1,7 @@
 import type { ButtonProps } from '@chakra-ui/react'
-import { Button, Flex, ListItem, Stack } from '@chakra-ui/react'
+import { Box, Button, Flex, Skeleton, Stack } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
+import { fromAccountId } from '@shapeshiftoss/caip'
 import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 
@@ -16,6 +17,7 @@ import { accountIdToLabel } from '@/state/slices/portfolioSlice/utils'
 import {
   selectAccountNumberByAccountId,
   selectAssetById,
+  selectIsChainIdLoading,
   selectPortfolioCryptoPrecisionBalanceByFilter,
 } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
@@ -43,6 +45,9 @@ export const AccountEntryRow: React.FC<AccountEntryRowProps> = ({
   const { navigate } = useBrowserRouter()
   const walletDrawer = useModal('walletDrawer')
   const translate = useTranslate()
+  const { chainId } = fromAccountId(accountId)
+  const chainIdFilter = useMemo(() => ({ chainId }), [chainId])
+  const isChainLoading = useAppSelector(s => selectIsChainIdLoading(s, chainIdFilter))
   const filter = useMemo(() => ({ assetId, accountId }), [accountId, assetId])
   const accountNumber = useAppSelector(s => selectAccountNumberByAccountId(s, filter))
   const asset = useAppSelector(s => selectAssetById(s, assetId))
@@ -91,7 +96,7 @@ export const AccountEntryRow: React.FC<AccountEntryRowProps> = ({
   }, [navigate, accountId, assetId, onClose, walletDrawer])
 
   return (
-    <ListItem>
+    <Box as='li'>
       <Button
         variant='ghost'
         py={4}
@@ -126,11 +131,13 @@ export const AccountEntryRow: React.FC<AccountEntryRowProps> = ({
             fontWeight='normal'
             fontSize='sm'
           >
-            <Amount.Crypto
-              value={cryptoBalance}
-              symbol={symbol ?? ''}
-              maximumFractionDigits={maximumFractionDigits}
-            />
+            <Skeleton isLoaded={!isChainLoading}>
+              <Amount.Crypto
+                value={cryptoBalance}
+                symbol={symbol ?? ''}
+                maximumFractionDigits={maximumFractionDigits}
+              />
+            </Skeleton>
             {asset?.id && <RawText color='text.subtle'>{middleEllipsis(asset?.id)}</RawText>}
           </Flex>
         </Stack>
@@ -141,16 +148,20 @@ export const AccountEntryRow: React.FC<AccountEntryRowProps> = ({
           alignItems='flex-end'
           direction='column'
         >
-          <Amount.Fiat value={userCurrencyBalance} />
-          <Amount.Crypto
-            value={cryptoBalance}
-            symbol={symbol ?? ''}
-            fontSize='sm'
-            display={cryptoDisplayProps}
-            maximumFractionDigits={maximumFractionDigits}
-          />
+          <Skeleton isLoaded={!isChainLoading}>
+            <Amount.Fiat value={userCurrencyBalance} />
+          </Skeleton>
+          <Skeleton isLoaded={!isChainLoading}>
+            <Amount.Crypto
+              value={cryptoBalance}
+              symbol={symbol ?? ''}
+              fontSize='sm'
+              display={cryptoDisplayProps}
+              maximumFractionDigits={maximumFractionDigits}
+            />
+          </Skeleton>
         </Flex>
       </Button>
-    </ListItem>
+    </Box>
   )
 }

@@ -1,12 +1,46 @@
 import type { ChainId } from '@shapeshiftoss/caip'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import { skipToken, useQuery } from '@tanstack/react-query'
+import { gql } from 'graphql-request'
 import { useMemo } from 'react'
 
+import { getConfig } from '@/config'
 import { queryClient } from '@/context/QueryClientProvider/queryClient'
 import { isSmartContractAddress } from '@/lib/address/utils'
+import { getGraphQLClient } from '@/lib/graphql/client'
 
-// For use outside of react-query, while still leveraging caching
+const IS_SMART_CONTRACT_QUERY = gql`
+  query IsSmartContractAddress($address: String!, $chainId: String!) {
+    evm {
+      isSmartContractAddress(address: $address, chainId: $chainId)
+    }
+  }
+`
+
+type IsSmartContractResponse = {
+  evm: {
+    isSmartContractAddress: boolean
+  }
+}
+
+const checkIsSmartContractAddress = async (
+  userAddress: string,
+  chainId: ChainId,
+): Promise<boolean> => {
+  const isGraphQLEnabled = getConfig().VITE_FEATURE_GRAPHQL_POC
+
+  if (isGraphQLEnabled) {
+    const client = getGraphQLClient()
+    const result = await client.request<IsSmartContractResponse>(IS_SMART_CONTRACT_QUERY, {
+      address: userAddress,
+      chainId,
+    })
+    return result.evm.isSmartContractAddress
+  }
+
+  return isSmartContractAddress(userAddress, chainId)
+}
+
 export const fetchIsSmartContractAddressQuery = (userAddress: string, chainId: ChainId) => {
   if (!isEvmChainId(chainId)) return Promise.resolve(false)
   if (!userAddress.length) return Promise.resolve(false)
@@ -19,15 +53,12 @@ export const fetchIsSmartContractAddressQuery = (userAddress: string, chainId: C
         chainId,
       },
     ],
-    queryFn: () => isSmartContractAddress(userAddress, chainId),
-    // Assume if an address isn't a sc, it never will be in the lifetime of a tab
+    queryFn: () => checkIsSmartContractAddress(userAddress, chainId),
     staleTime: Infinity,
-    // And don't garbage collect me either, this isn't guaranteed to have listeners
     gcTime: Infinity,
   })
 }
 export const useIsSmartContractAddress = (address: string, chainId: ChainId) => {
-  // Lowercase the address to ensure proper caching
   const userAddress = useMemo(() => address.toLowerCase(), [address])
 
   const query = useQuery({
@@ -40,11 +71,9 @@ export const useIsSmartContractAddress = (address: string, chainId: ChainId) => 
     ],
     queryFn:
       isEvmChainId(chainId) && Boolean(userAddress.length)
-        ? () => isSmartContractAddress(userAddress, chainId)
+        ? () => checkIsSmartContractAddress(userAddress, chainId)
         : skipToken,
-    // Assume if an address isn't a sc, it never will be in the lifetime of a tab
     staleTime: Infinity,
-    // Seriously. It never will.
     gcTime: Infinity,
   })
 

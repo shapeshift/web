@@ -22,28 +22,44 @@ import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
 import { getGraphQLClient } from '@/lib/graphql/client'
 import { getTimeFrameBounds } from '@/lib/utils'
 
+type MarketOrderField =
+  | 'MARKET_CAP_DESC'
+  | 'MARKET_CAP_ASC'
+  | 'VOLUME_DESC'
+  | 'VOLUME_ASC'
+  | 'PRICE_CHANGE_24H_DESC'
+  | 'PRICE_CHANGE_24H_ASC'
+
 const GET_TOP_MARKETS = gql`
-  query GetTopMarkets($count: Int!, $order: CoingeckoSortKey!) {
-    coingeckoTopMarkets(count: $count, order: $order) {
-      id
-      symbol
-      name
-      currentPrice
-      marketCap
-      totalVolume
-      priceChangePercentage24h
-      circulatingSupply
-      totalSupply
-      maxSupply
+  query GetTopMarkets($first: Int!, $orderBy: MarketOrderField!) {
+    market {
+      topAssets(first: $first, orderBy: $orderBy) {
+        edges {
+          node {
+            id
+            symbol
+            name
+            currentPrice
+            marketCap
+            totalVolume
+            priceChangePercentage24h
+            circulatingSupply
+            totalSupply
+            maxSupply
+          }
+        }
+      }
     }
   }
 `
 
 const GET_PRICE_HISTORY = gql`
   query GetPriceHistory($coingeckoId: String!, $from: Int!, $to: Int!) {
-    coingeckoPriceHistory(coingeckoId: $coingeckoId, from: $from, to: $to) {
-      date
-      price
+    market {
+      priceHistory(coingeckoId: $coingeckoId, from: $from, to: $to) {
+        date
+        price
+      }
     }
   }
 `
@@ -54,24 +70,30 @@ type GraphQLPriceHistoryPoint = {
 }
 
 type GetPriceHistoryResponse = {
-  coingeckoPriceHistory: GraphQLPriceHistoryPoint[]
+  market: {
+    priceHistory: GraphQLPriceHistoryPoint[]
+  }
 }
 
-type GraphQLMarketData = {
+type GraphQLMarketAsset = {
   id: string
   symbol: string
   name: string
-  currentPrice: number
-  marketCap: number
-  totalVolume: number
-  priceChangePercentage24h: number
-  circulatingSupply: number
+  currentPrice: number | null
+  marketCap: number | null
+  totalVolume: number | null
+  priceChangePercentage24h: number | null
+  circulatingSupply: number | null
   totalSupply: number | null
   maxSupply: number | null
 }
 
 type GetTopMarketsResponse = {
-  coingeckoTopMarkets: GraphQLMarketData[]
+  market: {
+    topAssets: {
+      edges: { node: GraphQLMarketAsset }[]
+    }
+  }
 }
 
 // tons more params here: https://www.coingecko.com/en/api/documentation
@@ -94,6 +116,20 @@ export type CoinGeckoSortKey =
   | 'price_change_percentage_24h_desc'
   | 'price_change_percentage_24h_asc'
 
+function toMarketOrderField(order: CoinGeckoSortKey): MarketOrderField {
+  const mapping: Record<CoinGeckoSortKey, MarketOrderField> = {
+    market_cap_asc: 'MARKET_CAP_ASC',
+    market_cap_desc: 'MARKET_CAP_DESC',
+    volume_asc: 'VOLUME_ASC',
+    volume_desc: 'VOLUME_DESC',
+    price_change_percentage_24h_desc: 'PRICE_CHANGE_24H_DESC',
+    price_change_percentage_24h_asc: 'PRICE_CHANGE_24H_ASC',
+    id_asc: 'MARKET_CAP_DESC',
+    id_desc: 'MARKET_CAP_DESC',
+  }
+  return mapping[order] || 'MARKET_CAP_DESC'
+}
+
 const axios = setupCache(Axios.create(), { ttl: DEFAULT_CACHE_TTL_MS, cacheTakeover: false })
 
 export class CoinGeckoMarketService implements MarketService {
@@ -113,14 +149,15 @@ export class CoinGeckoMarketService implements MarketService {
     if (isGraphQLEnabled) {
       try {
         const client = getGraphQLClient()
+        const marketOrderField = toMarketOrderField(orderBy)
         const data = await queryClient.fetchQuery({
-          queryKey: ['coingeckoTopMarketsGraphQL', count, orderBy],
+          queryKey: ['coingeckoTopMarketsGraphQL', count, marketOrderField],
           queryFn: async () => {
             const response = await client.request<GetTopMarketsResponse>(GET_TOP_MARKETS, {
-              count,
-              order: orderBy,
+              first: count,
+              orderBy: marketOrderField,
             })
-            return response.coingeckoTopMarkets
+            return response.market.topAssets.edges.map(edge => edge.node)
           },
           staleTime: 60_000,
         })
@@ -131,11 +168,11 @@ export class CoinGeckoMarketService implements MarketService {
 
           assetIds.forEach(assetId => {
             prev[assetId] = {
-              price: asset.currentPrice.toString(),
-              marketCap: asset.marketCap.toString(),
-              volume: asset.totalVolume.toString(),
-              changePercent24Hr: asset.priceChangePercentage24h,
-              supply: asset.circulatingSupply.toString(),
+              price: (asset.currentPrice ?? 0).toString(),
+              marketCap: (asset.marketCap ?? 0).toString(),
+              volume: (asset.totalVolume ?? 0).toString(),
+              changePercent24Hr: asset.priceChangePercentage24h ?? 0,
+              supply: (asset.circulatingSupply ?? 0).toString(),
               maxSupply: asset.maxSupply?.toString() ?? asset.totalSupply?.toString(),
             }
           })
@@ -252,25 +289,28 @@ export class CoinGeckoMarketService implements MarketService {
               from,
               to,
             })
-            return response.coingeckoPriceHistory
+            return response.market.priceHistory
           },
           staleTime: 60_000,
         })
 
-        return data.reduce<HistoryData[]>((prev, point) => {
-          if (!isValidDate(point.date)) {
-            console.error('CoinGeckoMarketService(findPriceHistoryByAssetId): invalid date')
-            return prev
-          }
+        return data.reduce<HistoryData[]>(
+          (prev: HistoryData[], point: GraphQLPriceHistoryPoint) => {
+            if (!isValidDate(point.date)) {
+              console.error('CoinGeckoMarketService(findPriceHistoryByAssetId): invalid date')
+              return prev
+            }
 
-          if (bn(point.price).isNaN()) {
-            console.error('CoinGeckoMarketService(findPriceHistoryByAssetId): invalid price')
-            return prev
-          }
+            if (bn(point.price).isNaN()) {
+              console.error('CoinGeckoMarketService(findPriceHistoryByAssetId): invalid price')
+              return prev
+            }
 
-          prev.push({ date: point.date, price: point.price })
-          return prev
-        }, [])
+            prev.push({ date: point.date, price: point.price })
+            return prev
+          },
+          [],
+        )
       } catch (e) {
         console.warn('[CoinGeckoMarketService] GraphQL price history failed, falling back:', e)
       }

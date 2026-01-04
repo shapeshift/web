@@ -565,6 +565,17 @@ export const makeAssets = async ({
   if (evmChainIds.includes(chainId as EvmChainId)) {
     const account = portfolioAccounts[pubkey] as Account<EvmChainId>
     const assetNamespace = ASSET_NAMESPACE.erc20
+    const tokens = account.chainSpecific.tokens ?? []
+
+    const hasUnknownTokens = tokens.some(token => {
+      const isSpam = [token.name, token.symbol].some(text => {
+        if (isNft(token.assetId)) return isSpammyNftText(text)
+        return isSpammyTokenText(text)
+      })
+      return !state.assets.byId[token.assetId] && !isSpam
+    })
+
+    if (!hasUnknownTokens) return undefined
 
     const maybePortalsAccounts = await queryClient.fetchQuery({
       queryFn: () => fetchPortalsAccount(chainId, pubkey),
@@ -583,7 +594,7 @@ export const makeAssets = async ({
       staleTime: Infinity,
     })
 
-    return (account.chainSpecific.tokens ?? []).reduce<UpsertAssetsPayload>(
+    return tokens.reduce<UpsertAssetsPayload>(
       (prev, token) => {
         const isSpam = [token.name, token.symbol].some(text => {
           if (isNft(token.assetId)) return isSpammyNftText(text)

@@ -1,6 +1,6 @@
-import type { AccountId } from '@shapeshiftoss/caip'
+import type { AccountId, ChainId } from '@shapeshiftoss/caip'
 import { ethChainId, foxAssetId, fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
-import type { Transaction } from '@shapeshiftoss/chain-adapters'
+import type { Account, Transaction } from '@shapeshiftoss/chain-adapters'
 import { isGridPlus } from '@shapeshiftoss/hdwallet-gridplus'
 import { isLedger } from '@shapeshiftoss/hdwallet-ledger'
 import { isTrezor } from '@shapeshiftoss/hdwallet-trezor'
@@ -161,12 +161,22 @@ export const useTransactionsSubscriber = () => {
       try {
         const skipDeviceDerivation =
           (isLedger(wallet) || isGridPlus(wallet) || isTrezor(wallet)) && accountId
+
+        const accountProvider = async (_pubkey: string): Promise<Account<ChainId>> => {
+          const result = await accountService.loadAccount(accountId)
+          if (!result) {
+            throw new Error(`Failed to load account: ${accountId}`)
+          }
+          return result.account as Account<ChainId>
+        }
+
         return adapter?.subscribeTxs(
           {
             wallet,
             accountType,
             accountNumber,
             pubKey: skipDeviceDerivation ? fromAccountId(accountId).account : undefined,
+            accountProvider,
           },
           msg => {
             const { onMessage } = txHistory.actions

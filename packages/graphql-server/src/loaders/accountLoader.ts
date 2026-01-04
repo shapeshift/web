@@ -2,6 +2,8 @@ import type { ChainId } from '@shapeshiftoss/caip'
 import DataLoader from 'dataloader'
 import pLimit from 'p-limit'
 
+import type { PortalsToken } from '../datasources/portalsService.js'
+import { getPortalsAccount } from '../datasources/portalsService.js'
 import { getChainConfig } from '../unchained/config.js'
 import { getUnchainedApi } from '../unchained/index.js'
 
@@ -21,6 +23,19 @@ export type TokenBalance = {
   symbol?: string
   precision?: number
 }
+
+export type PortalsEnrichment = {
+  isPool?: boolean
+  platform?: string
+  underlyingTokens?: string[]
+  images?: string[]
+  liquidity?: number
+  apy?: string
+  price?: string
+  pricePerShare?: string
+}
+
+export type EnrichedTokenBalance = TokenBalance & PortalsEnrichment
 
 export type UtxoAddress = {
   pubkey: string
@@ -57,8 +72,7 @@ export type Account = {
   pubkey: string
   chainId: string
   assetId: string
-  tokens: TokenBalance[]
-  // Chain-specific data
+  tokens: EnrichedTokenBalance[]
   evmData?: EvmAccountData
   utxoData?: UtxoAccountData
   cosmosData?: CosmosAccountData
@@ -183,12 +197,28 @@ async function fetchFromUnchained(
 
           const chainPrefix = chainId.split(':')[0]
           switch (chainPrefix) {
-            case 'eip155':
+            case 'eip155': {
+              let enrichedTokens: EnrichedTokenBalance[] = tokens
+              if (tokens.length > 0) {
+                try {
+                  const portalsTokens = await getPortalsAccount(chainId, pubkey)
+                  if (portalsTokens.length > 0) {
+                    enrichedTokens = enrichTokensWithPortals(tokens, portalsTokens)
+                  }
+                } catch (error) {
+                  console.warn(
+                    `[AccountLoader] Failed to fetch Portals data for ${accountId}:`,
+                    error,
+                  )
+                }
+              }
+              account.tokens = enrichedTokens
               account.evmData = {
                 nonce: 'nonce' in data ? (data.nonce as number) : 0,
-                tokens,
+                tokens: enrichedTokens,
               }
               break
+            }
             case 'bip122':
               account.utxoData = {
                 addresses:
@@ -244,6 +274,39 @@ async function fetchFromUnchained(
   )
 
   return results
+}
+
+function enrichTokensWithPortals(
+  tokens: TokenBalance[],
+  portalsTokens: PortalsToken[],
+): EnrichedTokenBalance[] {
+  const portalsMap = new Map<string, PortalsToken>()
+  for (const pt of portalsTokens) {
+    portalsMap.set(pt.address.toLowerCase(), pt)
+  }
+
+  return tokens.map(token => {
+    const contractAddress = token.assetId.split('/erc20:')[1]
+    if (!contractAddress) return token
+
+    const portalsToken = portalsMap.get(contractAddress.toLowerCase())
+    if (!portalsToken) return token
+
+    const isPool = Boolean(portalsToken.platform && portalsToken.tokens?.length > 0)
+
+    return {
+      ...token,
+      name: portalsToken.name || token.name,
+      isPool,
+      platform: portalsToken.platform,
+      underlyingTokens: portalsToken.tokens,
+      images: portalsToken.images ?? undefined,
+      liquidity: portalsToken.liquidity,
+      apy: portalsToken.apy ?? undefined,
+      price: portalsToken.price ?? undefined,
+      pricePerShare: portalsToken.pricePerShare ?? undefined,
+    }
+  })
 }
 
 function getNativeAssetId(chainId: ChainId): string {

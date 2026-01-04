@@ -332,7 +332,7 @@ export const typeDefs = gql`
   # ============================================================================
 
   """
-  Token balance
+  Token balance with optional Portals enrichment for LP tokens
   """
   type TokenBalance {
     assetId: AssetId!
@@ -340,6 +340,17 @@ export const typeDefs = gql`
     name: String
     symbol: String
     precision: Int
+    """
+    Portals enrichment fields - populated for EVM LP tokens
+    """
+    isPool: Boolean
+    platform: String
+    underlyingTokens: [String!]
+    images: [String!]
+    liquidity: Float
+    apy: String
+    price: String
+    pricePerShare: String
   }
 
   """

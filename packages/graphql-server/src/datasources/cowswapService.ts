@@ -3,12 +3,12 @@ import axios from 'axios'
 const COWSWAP_BASE_URL = 'https://api.cow.fi'
 const POLL_INTERVAL_MS = 15_000
 
-type CowSwapNetwork = 'mainnet' | 'gnosis' | 'arbitrum' | 'base' | 'sepolia'
+type CowSwapNetwork = 'mainnet' | 'xdai' | 'arbitrum_one' | 'base' | 'sepolia'
 
 const CHAIN_ID_TO_NETWORK: Record<string, CowSwapNetwork> = {
   'eip155:1': 'mainnet',
-  'eip155:100': 'gnosis',
-  'eip155:42161': 'arbitrum',
+  'eip155:100': 'xdai',
+  'eip155:42161': 'arbitrum_one',
   'eip155:8453': 'base',
   'eip155:11155111': 'sepolia',
 }
@@ -172,9 +172,16 @@ export function subscribeToOrders(accountId: string, chainId: string, address: s
         orders,
         timestamp: Date.now(),
       }
-      console.log(`[CowSwap] Publishing initial ${orders.length} orders for ${accountId}`)
-      pubsub?.publish(ORDERS_UPDATED_TOPIC, { limitOrdersUpdated: update })
-    }, 100)
+      console.log(
+        `[CowSwap] Publishing initial ${orders.length} orders for ${accountId} to topic ${ORDERS_UPDATED_TOPIC}`,
+      )
+      try {
+        await pubsub?.publish(ORDERS_UPDATED_TOPIC, { limitOrdersUpdated: update })
+        console.log(`[CowSwap] Published successfully`)
+      } catch (err) {
+        console.error(`[CowSwap] Publish failed:`, err)
+      }
+    }, 500)
   }
 
   return true

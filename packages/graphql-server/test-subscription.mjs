@@ -18,7 +18,7 @@ const unsubscribe = client.subscribe(
       }
     }`,
     variables: {
-      accountIds: ['eip155:42161:0x6c532c436478a460fe0c1a9e3cd96364e8e01496']
+      accountIds: ['eip155:42161:0x5daf465a9ccf64deb146eeae9e7bd40d6761c986']
     },
   },
   {

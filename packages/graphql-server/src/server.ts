@@ -14,7 +14,7 @@ import { WebSocket, WebSocketServer } from 'ws'
 import { initCowSwapService } from './datasources/cowswapService.js'
 import { createAccountLoader, createMarketDataLoader, createTxLoader } from './loaders/index.js'
 import type { Context } from './resolvers/index.js'
-import { resolvers } from './resolvers/index.js'
+import { resolvers, setSharedPubsub } from './resolvers/index.js'
 import { typeDefs } from './schema.js'
 
 export { WebSocket }
@@ -22,6 +22,7 @@ export { WebSocket }
 const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 4000
 
 const pubsub = new PubSub()
+setSharedPubsub(pubsub)
 initCowSwapService(pubsub)
 
 const schema = makeExecutableSchema({ typeDefs, resolvers: resolvers as never })

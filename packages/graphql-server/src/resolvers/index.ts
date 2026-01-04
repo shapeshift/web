@@ -1,6 +1,6 @@
 import type DataLoader from 'dataloader'
 import { GraphQLError } from 'graphql'
-import { PubSub } from 'graphql-subscriptions'
+import type { PubSub } from 'graphql-subscriptions'
 
 import type { CoingeckoSortKey } from '../datasources/coingeckoService.js'
 import {
@@ -42,7 +42,18 @@ const MAX_ACCOUNT_IDS = 100
 const MAX_TX_ACCOUNT_IDS = 50
 const MAX_ORDER_ACCOUNT_IDS = 20
 
-export const pubsub = new PubSub()
+let sharedPubsub: PubSub | null = null
+
+export function setSharedPubsub(ps: PubSub): void {
+  sharedPubsub = ps
+}
+
+function getPubsub(): PubSub {
+  if (!sharedPubsub) {
+    throw new Error('PubSub not initialized. Call setSharedPubsub first.')
+  }
+  return sharedPubsub
+}
 
 export type Context = {
   loaders: {
@@ -521,7 +532,7 @@ export const resolvers = {
           }
         }
 
-        const iterator = pubsub.asyncIterator([ORDERS_UPDATED_TOPIC])
+        const iterator = getPubsub().asyncIterator([ORDERS_UPDATED_TOPIC])
 
         const originalReturn = iterator.return?.bind(iterator)
         iterator.return = () => {

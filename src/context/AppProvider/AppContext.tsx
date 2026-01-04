@@ -27,7 +27,7 @@ import { useUser } from '@/hooks/useUser/useUser'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { walletSupportsChain } from '@/hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { getAssetService, initAssetService } from '@/lib/asset-service'
-import { useGraphQLMarketData } from '@/lib/graphql'
+import { useGraphQLDeltaMarketData } from '@/lib/graphql/useGraphQLDeltaMarketData'
 import { useGetFiatRampsQuery } from '@/state/apis/fiatRamps/fiatRamps'
 import { assets } from '@/state/slices/assetsSlice/assetsSlice'
 import { limitOrderInput } from '@/state/slices/limitOrderInputSlice/limitOrderInputSlice'
@@ -167,31 +167,14 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   // track anonymous portfolio
   useMixpanelPortfolioTracking()
 
-  // Feature flag for GraphQL market data
   const isGraphQLMarketDataEnabled = useFeatureFlag('GraphQLPoc')
 
-  // GraphQL market data hook - only fetches portfolio assets (more efficient)
-  // Enabled when feature flag is on
-  // Falls back to legacy API after 3 consecutive failures
-  const { shouldUseLegacyFallback } = useGraphQLMarketData({
-    enabled: isGraphQLMarketDataEnabled && !modal,
-  })
-
-  // load top 2000 assets market data (legacy approach)
-  // this is needed to sort assets by market cap
-  // and covers most assets users will have
-  // When GraphQL is enabled, poll less frequently since GraphQL handles primary data
   const findAllQueryData = useFindAllMarketDataQuery(undefined, {
     skip: modal,
-    pollingInterval:
-      isGraphQLMarketDataEnabled && !shouldUseLegacyFallback
-        ? MARKET_DATA_POLLING_INTERVAL_MS * 6 // Poll every 6 minutes when GraphQL is primary
-        : MARKET_DATA_POLLING_INTERVAL_MS,
+    pollingInterval: MARKET_DATA_POLLING_INTERVAL_MS,
   })
 
-  console.log('[PERF] AppContext: useDiscoverAccounts hook called')
   useDiscoverAccounts()
-  console.log('[PERF] AppContext: usePortfolioFetch hook called')
   usePortfolioFetch()
 
   useGetFiatRampsQuery()
@@ -232,26 +215,15 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     dispatch(tradeInput.actions.setBuyAccountId(undefined))
   }, [dispatch, prevWalletId, walletId])
 
-  const findByAssetIdPayload = useMemo(() => {
-    // GraphQL mode fetches portfolio assets directly, no need for granular fetching
-    if (isGraphQLMarketDataEnabled) return []
-
-    // same condition as the `enabled` below, we would skip anyway
+  const deltaAssetIds = useMemo(() => {
     if (!(isConnected || (portfolioLoadingStatus !== 'loading' && !modal && !isLoadingLocalWallet)))
       return []
-    // skip granular fetching until we've fetched the top assets
     if (['pending', 'uninitialized'].includes(findAllQueryData.status)) return []
-    // note, we use `currentData`, data may refer to the persisted data on first load, but we want to ensure data on the current run
     if (!findAllQueryData.currentData) return []
 
-    const assetIds = Object.keys(findAllQueryData.currentData) as AssetId[]
-
-    // use lodash diff to find assetIds that are in the portfolio but not in the top 2000 assets
-    const portfolioAssetIdsDelta = difference(portfolioAssetIds, assetIds)
-
-    return portfolioAssetIdsDelta
+    const topAssetIds = Object.keys(findAllQueryData.currentData) as AssetId[]
+    return difference(portfolioAssetIds, topAssetIds)
   }, [
-    isGraphQLMarketDataEnabled,
     findAllQueryData.status,
     findAllQueryData.currentData,
     isConnected,
@@ -261,31 +233,34 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     portfolioLoadingStatus,
   ])
 
-  useQueries({
-    queries: findByAssetIdPayload.map(assetId => ({
-      queryKey: ['marketData', assetId],
-      queryFn: async () => {
-        await dispatch(
-          marketApi.endpoints.findByAssetId.initiate(assetId, {
-            // Since we use react-query as a polling wrapper, every initiate call *is* a force refetch here
-            forceRefetch: true,
-          }),
-        )
+  useGraphQLDeltaMarketData({
+    assetIds: deltaAssetIds,
+    enabled:
+      isGraphQLMarketDataEnabled &&
+      deltaAssetIds.length > 0 &&
+      (isConnected || (portfolioLoadingStatus !== 'loading' && !modal && !isLoadingLocalWallet)),
+  })
 
-        // We *have* to return a value other than undefined from react-query queries, see
-        // https://tanstack.com/query/v4/docs/react/guides/migrating-to-react-query-4#undefined-is-an-illegal-cache-value-for-successful-queries
-        return null
-      },
-      // once the portfolio is loaded, fetch market data for all portfolio assets
-      // and start refetch timer to keep market data up to date
-      enabled:
-        isConnected || (portfolioLoadingStatus !== 'loading' && !modal && !isLoadingLocalWallet),
-      refetchInterval: MARKET_DATA_POLLING_INTERVAL_MS,
-      // Do NOT refetch market data in background to avoid spamming coingecko
-      refetchIntervalInBackground: false,
-      // Do NOT refetch market data on window focus to avoid spamming coingecko
-      refetchOnWindowFocus: false,
-    })),
+  useQueries({
+    queries: isGraphQLMarketDataEnabled
+      ? []
+      : deltaAssetIds.map(assetId => ({
+          queryKey: ['marketData', assetId],
+          queryFn: async () => {
+            await dispatch(
+              marketApi.endpoints.findByAssetId.initiate(assetId, {
+                forceRefetch: true,
+              }),
+            )
+            return null
+          },
+          enabled:
+            isConnected ||
+            (portfolioLoadingStatus !== 'loading' && !modal && !isLoadingLocalWallet),
+          refetchInterval: MARKET_DATA_POLLING_INTERVAL_MS,
+          refetchIntervalInBackground: false,
+          refetchOnWindowFocus: false,
+        })),
   })
 
   /**

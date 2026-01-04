@@ -1,6 +1,6 @@
 export { getGraphQLClient } from './client'
 export { fetchMarketDataGraphQL } from './marketData'
-export { useGraphQLMarketData, useGraphQLMarketDataQuery } from './useGraphQLMarketData'
+export { useGraphQLDeltaMarketData } from './useGraphQLDeltaMarketData'
 export {
   fetchAccountsGraphQL,
   fetchAccountsBatched,

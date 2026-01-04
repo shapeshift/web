@@ -19,6 +19,17 @@ vi.mock('../../utils/validateAddress', () => ({
   assertAddressNotSanctioned: vi.fn(),
 }))
 
+vi.mock('@shapeshiftoss/contracts', async importOriginal => {
+  // eslint-disable-next-line @typescript-eslint/consistent-type-imports
+  const actual: typeof import('@shapeshiftoss/contracts') = await importOriginal()
+  return {
+    ...actual,
+    viemBaseClient: {
+      sendRawTransaction: vi.fn(),
+    },
+  }
+})
+
 const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000'
 const EOA_ADDRESS = '0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045'
 
@@ -396,15 +407,15 @@ describe('BaseChainAdapter', () => {
   })
 
   describe('broadcastTransaction', () => {
-    it('should correctly call sendTx and return its response', async () => {
-      const expectedResult = 'success'
+    it('should correctly call viemBaseClient.sendRawTransaction and return its response', async () => {
+      const { viemBaseClient } = await import('@shapeshiftoss/contracts')
+      const expectedResult = '0xsuccesshash'
 
-      const httpProvider = {
-        sendTx: vi.fn().mockResolvedValue(expectedResult),
-      } as unknown as unchained.base.V1Api
+      vi.mocked(viemBaseClient.sendRawTransaction).mockResolvedValue(
+        expectedResult as `0x${string}`,
+      )
 
-      const args = makeChainAdapterArgs({ providers: { http: httpProvider } })
-      const adapter = new base.ChainAdapter(args)
+      const adapter = new base.ChainAdapter(makeChainAdapterArgs())
 
       const mockTx = '0x123'
       const result = await adapter.broadcastTransaction({
@@ -413,7 +424,9 @@ describe('BaseChainAdapter', () => {
         hex: mockTx,
       })
 
-      expect(args.providers.http.sendTx).toHaveBeenCalledWith<any>({ sendTxBody: { hex: mockTx } })
+      expect(viemBaseClient.sendRawTransaction).toHaveBeenCalledWith({
+        serializedTransaction: mockTx,
+      })
       expect(result).toEqual(expectedResult)
     })
   })

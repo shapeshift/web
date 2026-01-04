@@ -83,3 +83,7 @@ Component
 - `src/lib/utils/thorchain/lending/index.ts` - borrowers/savers utilities
 - `src/hooks/useTransactionsSubscriber.ts` - tx subscriptions
 - `src/lib/graphql/` - GraphQL client utilities
+
+## Backlog
+
+- **Portals API Unauthorized (401)**: GraphQL server getting 401 from `api.portals.fi/v2/account`. Likely needs API key or auth headers. Low priority - tackle after subscriptions work.

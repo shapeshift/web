@@ -102,7 +102,7 @@ async function pollOrders(): Promise<void> {
   const currentPubsub = pubsub
   if (!currentPubsub || activeSubscriptions.size === 0) return
 
-  console.log(`[CowSwap] Polling ${activeSubscriptions.size} subscriptions...`)
+  console.log(`[CowSwap] Polling ${activeSubscriptions.size} subscription(s)...`)
   const subscriptions = Array.from(activeSubscriptions.values())
 
   await Promise.all(
@@ -110,6 +110,12 @@ async function pollOrders(): Promise<void> {
       const newOrders = await fetchOrdersForAccount(address, network)
       const cacheKey = `${network}:${address}`
       const cachedOrders = orderCache.get(cacheKey) ?? []
+
+      console.log(
+        `[CowSwap] ${address.slice(0, 8)}... has ${newOrders.length} orders (was ${
+          cachedOrders.length
+        })`,
+      )
 
       if (hasOrdersChanged(cachedOrders, newOrders)) {
         orderCache.set(cacheKey, newOrders)
@@ -129,7 +135,7 @@ async function pollOrders(): Promise<void> {
 
 function startPolling(): void {
   if (pollInterval) return
-  console.log('[CowSwap] Starting order polling')
+  console.log(`[CowSwap] Starting order polling (${POLL_INTERVAL_MS / 1000}s interval)`)
   pollInterval = setInterval(pollOrders, POLL_INTERVAL_MS)
   pollOrders()
 }

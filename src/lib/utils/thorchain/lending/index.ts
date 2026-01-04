@@ -21,7 +21,9 @@ import type {
 import { getConfig } from '@/config'
 import type { BigNumber } from '@/lib/bignumber/bignumber'
 import { bn } from '@/lib/bignumber/bignumber'
+import { fetchPoolBorrowersGraphQL } from '@/lib/graphql/thornodeData'
 import { getAccountAddresses, toThorBaseUnit } from '@/lib/utils/thorchain'
+import { selectFeatureFlag } from '@/state/slices/preferencesSlice/selectors'
 import { selectAssetById } from '@/state/slices/selectors'
 import { store } from '@/state/store'
 
@@ -127,6 +129,25 @@ export const getAllThorchainLendingPositions = async (
 
   if (!poolAssetId) throw new Error(`Pool asset not found for assetId ${assetId}`)
 
+  const isGraphQLEnabled = selectFeatureFlag(store.getState(), 'GraphQLPoc')
+
+  if (isGraphQLEnabled) {
+    console.log('[getAllThorchainLendingPositions] Using GraphQL for', poolAssetId)
+    const graphqlBorrowers = await fetchPoolBorrowersGraphQL(poolAssetId)
+    return graphqlBorrowers.map(b => ({
+      owner: b.owner,
+      asset: b.asset,
+      debt_issued: b.debtIssued,
+      debt_repaid: b.debtRepaid,
+      debt_current: b.debtCurrent,
+      collateral_deposited: b.collateralDeposited,
+      collateral_withdrawn: b.collateralWithdrawn,
+      collateral_current: b.collateralCurrent,
+      last_open_height: b.lastOpenHeight,
+      last_repay_height: b.lastRepayHeight,
+    }))
+  }
+
   const { data } = await axios.get<BorrowersResponse>(
     `${getConfig().VITE_THORCHAIN_NODE_URL}/thorchain/pool/${poolAssetId}/borrowers`,
   )
@@ -147,9 +168,14 @@ export const getThorchainLendingPosition = async ({
 
   const address = fromAccountId(accountId).account
   const poolAssetId = assetIdToThorPoolAssetId({ assetId })
+  const isGraphQLEnabled = selectFeatureFlag(store.getState(), 'GraphQLPoc')
 
   const accountPosition = await (async () => {
-    if (!isUtxoChainId(fromAssetId(assetId).chainId))
+    if (!isUtxoChainId(fromAssetId(assetId).chainId)) {
+      if (isGraphQLEnabled) {
+        const allBorrowers = await getAllThorchainLendingPositions(assetId)
+        return allBorrowers.find(b => b.owner.toLowerCase() === address.toLowerCase()) ?? null
+      }
       return (
         await axios.get<Borrower>(
           `${
@@ -157,6 +183,7 @@ export const getThorchainLendingPosition = async ({
           }/thorchain/pool/${poolAssetId}/borrower/${address}`,
         )
       ).data
+    }
 
     const lendingPositionsResponse = await getAllThorchainLendingPositions(assetId)
 

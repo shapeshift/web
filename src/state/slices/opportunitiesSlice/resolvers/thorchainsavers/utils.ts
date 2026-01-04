@@ -35,9 +35,12 @@ import type {
 import { getConfig } from '@/config'
 import { queryClient } from '@/context/QueryClientProvider/queryClient'
 import { BigNumber, bnOrZero } from '@/lib/bignumber/bignumber'
+import { fetchPoolSaversGraphQL } from '@/lib/graphql/thornodeData'
 import { fromThorBaseUnit, getAccountAddresses, toThorBaseUnit } from '@/lib/utils/thorchain'
 import { BASE_BPS_POINTS, THORCHAIN_AFFILIATE_NAME } from '@/lib/utils/thorchain/constants'
 import { isUtxoChainId } from '@/lib/utils/utxo'
+import { selectFeatureFlag } from '@/state/slices/preferencesSlice/selectors'
+import { store } from '@/state/store'
 
 // BPS are needed as part of the memo, but 0bps won't incur any fees, only used for tracking purposes for now
 const AFFILIATE_BPS = 0
@@ -91,6 +94,22 @@ export const getAllThorchainSaversPositions = async (
 
   if (!poolId) return []
 
+  const isGraphQLEnabled = selectFeatureFlag(store.getState(), 'GraphQLPoc')
+
+  if (isGraphQLEnabled) {
+    console.log('[getAllThorchainSaversPositions] Using GraphQL for', poolId)
+    const graphqlSavers = await fetchPoolSaversGraphQL(poolId)
+    return graphqlSavers.map(s => ({
+      asset: s.asset,
+      asset_address: s.assetAddress,
+      last_add_height: s.lastAddHeight,
+      units: s.units,
+      asset_deposit_value: s.assetDepositValue,
+      asset_redeem_value: s.assetRedeemValue,
+      growth_pct: s.growthPct,
+    }))
+  }
+
   const { data: opportunitiesData } = await queryClient.fetchQuery({
     queryKey: ['thorchainSaversPositions', poolId],
     queryFn: () =>
@@ -114,6 +133,7 @@ export const getThorchainSaversPosition = async ({
 }): Promise<ThorchainSaverPositionResponse | null> => {
   const address = fromAccountId(accountId).account
   const poolAssetId = assetIdToThorPoolAssetId({ assetId })
+  const isGraphQLEnabled = selectFeatureFlag(store.getState(), 'GraphQLPoc')
 
   if (!poolAssetId) return null
 
@@ -140,12 +160,17 @@ export const getThorchainSaversPosition = async ({
       return runepoolOpportunity
     }
 
-    if (!isUtxoChainId(fromAssetId(assetId).chainId))
+    if (!isUtxoChainId(fromAssetId(assetId).chainId)) {
+      if (isGraphQLEnabled) {
+        const allSavers = await getAllThorchainSaversPositions(assetId)
+        return allSavers.find(s => s.asset_address.toLowerCase() === address.toLowerCase()) ?? null
+      }
       return (
         await axios.get<ThorchainSaverPositionResponse>(
           `${getConfig().VITE_THORCHAIN_NODE_URL}/thorchain/pool/${poolAssetId}/saver/${address}`,
         )
       ).data
+    }
 
     const lendingPositionsResponse = await getAllThorchainSaversPositions(assetId)
 

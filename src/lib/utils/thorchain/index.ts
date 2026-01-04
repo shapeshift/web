@@ -34,9 +34,12 @@ import { getConfig } from '@/config'
 import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
 import type { BigNumber, BN } from '@/lib/bignumber/bignumber'
 import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
+import { fetchAccountsGraphQL } from '@/lib/graphql/accountData'
 import { poll } from '@/lib/poll/poll'
 import type { getThorchainLpPosition } from '@/pages/ThorChainLP/queries/queries'
 import { getThorchainSaversPosition } from '@/state/slices/opportunitiesSlice/resolvers/thorchainsavers/utils'
+import { selectFeatureFlag } from '@/state/slices/preferencesSlice/selectors'
+import { store } from '@/state/store'
 
 export const getThorchainSendTransactionStatus = async (txHash: string): Promise<TxStatus> => {
   try {
@@ -307,6 +310,20 @@ export const getThorfiUtxoFromAddresses = async ({
 // "By default, the first argument provided to the memoized function is used as the map cache key."
 export const getAccountAddresses = memoize(async (accountId: AccountId): Promise<string[]> => {
   if (isUtxoAccountId(accountId)) {
+    const isGraphQLEnabled = selectFeatureFlag(store.getState(), 'GraphQLPoc')
+
+    if (isGraphQLEnabled) {
+      const accounts = await fetchAccountsGraphQL([accountId])
+      const account = accounts[accountId]
+      if (!account?.utxoData?.addresses) return []
+      return account.utxoData.addresses.map(({ pubkey }) => {
+        const address = pubkey.startsWith('bitcoincash')
+          ? pubkey.replace('bitcoincash:', '')
+          : pubkey
+        return address
+      })
+    }
+
     const { chainId, account: pubkey } = fromAccountId(accountId)
     const adapter = assertGetUtxoChainAdapter(chainId)
 

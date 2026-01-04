@@ -1,5 +1,14 @@
 # GraphQL POC - Next Steps
 
+## FIRST THING TOMORROW
+
+**Analyze `~/Downloads/graphql.har`** - There are still raw HTTP and account calls happening despite GraphQL being enabled. Need to:
+1. Identify all endpoints still making direct calls
+2. Route them through GraphQL
+3. Ensure DataLoader batching is working
+
+---
+
 ## Completed This Session
 
 1. **Limit Orders GraphQL Subscription Integration**

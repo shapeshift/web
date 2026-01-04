@@ -102,6 +102,7 @@ async function pollOrders(): Promise<void> {
   const currentPubsub = pubsub
   if (!currentPubsub || activeSubscriptions.size === 0) return
 
+  console.log(`[CowSwap] Polling ${activeSubscriptions.size} subscriptions...`)
   const subscriptions = Array.from(activeSubscriptions.values())
 
   await Promise.all(

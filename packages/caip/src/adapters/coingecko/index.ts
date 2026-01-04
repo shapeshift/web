@@ -18,6 +18,7 @@ import {
   hyperEvmChainId,
   mayachainChainId,
   monadChainId,
+  nearChainId,
   optimismChainId,
   plasmaChainId,
   polygonChainId,
@@ -52,6 +53,7 @@ export enum CoingeckoAssetPlatform {
   Starknet = 'starknet',
   Tron = 'tron',
   Sui = 'sui',
+  Near = 'near-protocol',
 }
 
 type CoinGeckoId = string
@@ -151,6 +153,15 @@ export const chainIdToCoingeckoAssetPlatform = (chainId: ChainId): string => {
             `chainNamespace ${chainNamespace}, chainReference ${chainReference} not supported.`,
           )
       }
+    case CHAIN_NAMESPACE.Near:
+      switch (chainReference) {
+        case CHAIN_REFERENCE.NearMainnet:
+          return CoingeckoAssetPlatform.Near
+        default:
+          throw new Error(
+            `chainNamespace ${chainNamespace}, chainReference ${chainReference} not supported.`,
+          )
+      }
     case CHAIN_NAMESPACE.Starknet:
       switch (chainReference) {
         case CHAIN_REFERENCE.StarknetMainnet:
@@ -209,6 +220,8 @@ export const coingeckoAssetPlatformToChainId = (
       return tronChainId
     case CoingeckoAssetPlatform.Sui:
       return suiChainId
+    case CoingeckoAssetPlatform.Near:
+      return nearChainId
     default:
       return undefined
   }

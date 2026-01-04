@@ -1,5 +1,5 @@
 import { bchAssetId, CHAIN_NAMESPACE, fromAccountId, fromChainId } from '@shapeshiftoss/caip'
-import type { SignTx, SignTypedDataInput } from '@shapeshiftoss/chain-adapters'
+import type { near, SignTx, SignTypedDataInput } from '@shapeshiftoss/chain-adapters'
 import { ChainAdapterError, toAddressNList } from '@shapeshiftoss/chain-adapters'
 import type {
   ETHSignTypedData,
@@ -40,6 +40,7 @@ import { TradeExecution } from '@/lib/tradeExecution'
 import { assertUnreachable } from '@/lib/utils'
 import { assertGetCosmosSdkChainAdapter } from '@/lib/utils/cosmosSdk'
 import { assertGetEvmChainAdapter, signAndBroadcast } from '@/lib/utils/evm'
+import { assertGetNearChainAdapter } from '@/lib/utils/near'
 import { assertGetSolanaChainAdapter } from '@/lib/utils/solana'
 import { assertGetStarknetChainAdapter } from '@/lib/utils/starknet'
 import { assertGetSuiChainAdapter } from '@/lib/utils/sui'
@@ -599,6 +600,38 @@ export const useTradeExecution = (
             slippageTolerancePercentageDecimal,
             from,
             signAndBroadcastTransaction: async (txToSign: SuiSignTx) => {
+              const hex = await adapter.signTransaction({ txToSign, wallet })
+
+              const output = await adapter.broadcastTransaction({
+                senderAddress: from,
+                receiverAddress,
+                hex,
+              })
+
+              trackMixpanelEventOnExecute()
+              return output
+            },
+          })
+          cancelPollingRef.current = output?.cancelPolling
+          return
+        }
+        case CHAIN_NAMESPACE.Near: {
+          const adapter = assertGetNearChainAdapter(stepSellAssetChainId)
+
+          const from = await adapter.getAddress({
+            accountNumber,
+            wallet,
+            pubKey:
+              wallet && isTrezor(wallet) ? fromAccountId(sellAssetAccountId).account : undefined,
+          })
+
+          const output = await execution.execNearTransaction({
+            swapperName,
+            tradeQuote,
+            stepIndex: hopIndex,
+            slippageTolerancePercentageDecimal,
+            from,
+            signAndBroadcastTransaction: async (txToSign: near.NearSignTx) => {
               const hex = await adapter.signTransaction({ txToSign, wallet })
 
               const output = await adapter.broadcastTransaction({

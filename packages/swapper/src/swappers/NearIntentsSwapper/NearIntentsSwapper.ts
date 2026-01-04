@@ -1,6 +1,7 @@
 import type { Swapper } from '../../types'
 import {
   executeEvmTransaction,
+  executeNearTransaction,
   executeSolanaTransaction,
   executeStarknetTransaction,
   executeSuiTransaction,
@@ -13,6 +14,7 @@ export const nearIntentsSwapper: Swapper = {
   executeStarknetTransaction,
   executeTronTransaction,
   executeSuiTransaction,
+  executeNearTransaction,
   executeUtxoTransaction: (txToSign, { signAndBroadcastTransaction }) => {
     return signAndBroadcastTransaction(txToSign)
   },

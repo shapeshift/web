@@ -10,6 +10,8 @@ export const getAssetNamespaceFromChainId = (chainId: KnownChainIds): AssetNames
       return ASSET_NAMESPACE.splToken
     case KnownChainIds.SuiMainnet:
       return ASSET_NAMESPACE.suiCoin
+    case KnownChainIds.NearMainnet:
+      return ASSET_NAMESPACE.nep141
     case KnownChainIds.TronMainnet:
       return ASSET_NAMESPACE.trc20
     case KnownChainIds.EthereumMainnet:

@@ -14,6 +14,7 @@ import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSin
 import { getHyperEvmTransactionStatus } from '@/lib/utils/hyperevm'
 import { getMayachainTransactionStatus } from '@/lib/utils/mayachain'
 import { getMonadTransactionStatus } from '@/lib/utils/monad'
+import { getNearTransactionStatus } from '@/lib/utils/near'
 import { getPlasmaTransactionStatus } from '@/lib/utils/plasma'
 import { getStarknetTransactionStatus, isStarknetChainAdapter } from '@/lib/utils/starknet'
 import { getSuiTransactionStatus } from '@/lib/utils/sui'
@@ -199,6 +200,12 @@ export const useSendActionSubscriber = () => {
                   )
                   isConfirmed =
                     hyperEvmTxStatus === TxStatus.Confirmed || hyperEvmTxStatus === TxStatus.Failed
+                  break
+                }
+                case KnownChainIds.NearMainnet: {
+                  const nearTxStatus = await getNearTransactionStatus(txHash)
+                  isConfirmed =
+                    nearTxStatus === TxStatus.Confirmed || nearTxStatus === TxStatus.Failed
                   break
                 }
                 case KnownChainIds.StarknetMainnet: {

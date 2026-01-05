@@ -3,16 +3,13 @@ import { useEffect, useState } from 'react'
 import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
 import { selectWalletId } from '@/state/slices/common-selectors'
 import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
-import {
-  selectIsAnyMarketDataApiQueryPending,
-  selectPortfolioAnonymized,
-} from '@/state/slices/selectors'
+import { selectIsMarketDataLoading, selectPortfolioAnonymized } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
 export const useMixpanelPortfolioTracking = () => {
   const anonymizedPortfolio = useAppSelector(selectPortfolioAnonymized)
   const [isTracked, setIsTracked] = useState(false)
-  const isAnyMarketDataLoading = useAppSelector(selectIsAnyMarketDataApiQueryPending)
+  const isAnyMarketDataLoading = useAppSelector(selectIsMarketDataLoading)
   const walletId = useAppSelector(selectWalletId)
   const selectedLocale = useAppSelector(preferences.selectors.selectSelectedLocale)
   const selectedCurrency = useAppSelector(preferences.selectors.selectSelectedCurrency)

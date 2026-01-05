@@ -7,14 +7,33 @@ import { CHAIN_ID_TO_SUPPORTED_DEFI_OPPORTUNITIES } from './mappings'
 import { opportunitiesApi } from './opportunitiesApiSlice'
 import { DefiProvider, DefiType } from './types'
 
+import { getConfig } from '@/config'
+import {
+  fetchStakingMetadata,
+  fetchUserStakingData,
+} from '@/lib/graphql/queries/useOpportunitiesQuery'
 import { assertIsKnownChainId } from '@/lib/utils'
 import type { AppDispatch } from '@/state/store'
+
+const isGraphQLEnabled = () => getConfig().VITE_FEATURE_GRAPHQL_POC
 
 export const fetchAllStakingOpportunitiesMetadataByChainId = async (
   dispatch: AppDispatch,
   chainId: ChainId,
   options?: StartQueryActionCreatorOptions,
 ) => {
+  if (isGraphQLEnabled()) {
+    // GraphQL POC: fetch via GraphQL
+    const requests = [
+      { chainId, provider: 'ETH_FOX_STAKING' as const },
+      { chainId, provider: 'THORCHAIN_SAVERS' as const },
+      { chainId, provider: 'SHAPE_SHIFT' as const },
+      { chainId, provider: 'COSMOS_SDK' as const },
+    ]
+    await fetchStakingMetadata(requests)
+    return
+  }
+
   const { getOpportunitiesMetadata, getOpportunityMetadata } = opportunitiesApi.endpoints
 
   assertIsKnownChainId(chainId)
@@ -76,6 +95,17 @@ export const fetchAllStakingOpportunitiesUserDataByAccountId = async (
   accountId: AccountId,
   options?: StartQueryActionCreatorOptions,
 ) => {
+  if (isGraphQLEnabled()) {
+    // GraphQL POC: fetch user staking data via GraphQL
+    const opportunityIds = [
+      ...foxEthStakingIds,
+      ...rFOXStakingIds,
+      'eip155:1/erc20:0xee77aa3Fd23BbeBaf94386dD44b548e9a785ea4b',
+    ]
+    await fetchUserStakingData([{ accountId, opportunityIds }])
+    return
+  }
+
   const { getOpportunitiesUserData, getOpportunityUserData } = opportunitiesApi.endpoints
 
   const chainId = fromAccountId(accountId).chainId

@@ -15,9 +15,10 @@ import {
   getCoingeckoTopMovers,
   getCoingeckoTrending,
 } from '@/lib/coingecko/utils'
+import { fetchAndDispatchPriceHistory } from '@/lib/graphql/helpers'
 import type { CoinGeckoSortKey } from '@/lib/market-service/coingecko/coingecko'
 import { assets as assetsSlice } from '@/state/slices/assetsSlice/assetsSlice'
-import { marketApi, marketData } from '@/state/slices/marketDataSlice/marketDataSlice'
+import { marketData } from '@/state/slices/marketDataSlice/marketDataSlice'
 import {
   selectAssets,
   selectFeeAssetById,
@@ -86,14 +87,8 @@ const selectCoingeckoAssets = (
 
         dispatch(marketData.actions.setCryptoMarketData({ [assetId]: currentMarketData }))
 
-        // We only need price history for the 0th item (big card with chart)
         if (i === 0) {
-          dispatch(
-            marketApi.endpoints.findPriceHistoryByAssetId.initiate({
-              assetId,
-              timeframe: DEFAULT_HISTORY_TIMEFRAME,
-            }),
-          )
+          void fetchAndDispatchPriceHistory(assetId, DEFAULT_HISTORY_TIMEFRAME)
         }
       }
 

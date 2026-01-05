@@ -1,3 +1,4 @@
+import type { AssetId } from '@shapeshiftoss/caip'
 import type {
   QuoteResult,
   RateResult,
@@ -14,6 +15,7 @@ import { validateTradeQuote } from './validateTradeQuote'
 import { getConfig } from '@/config'
 import { queryClient } from '@/context/QueryClientProvider/queryClient'
 import { fetchIsSmartContractAddressQuery } from '@/hooks/useIsSmartContractAddress/useIsSmartContractAddress'
+import { fetchAndDispatchMarketData } from '@/lib/graphql/helpers'
 import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
 import { assertGetChainAdapter } from '@/lib/utils'
 import { assertGetCosmosSdkChainAdapter } from '@/lib/utils/cosmosSdk'
@@ -31,18 +33,9 @@ import { getInputOutputRatioFromQuote } from '@/state/apis/swapper/helpers/getIn
 import type { ApiQuote } from '@/state/apis/swapper/types'
 import type { ReduxState } from '@/state/reducer'
 import { selectAssets } from '@/state/slices/assetsSlice/selectors'
-import { marketApi } from '@/state/slices/marketDataSlice/marketDataSlice'
-import type { AppDispatch } from '@/state/store'
 
-export const hydrateMarketData = async (
-  dispatch: AppDispatch,
-  sellAssetId: string,
-  buyAssetId: string,
-) => {
-  await Promise.all([
-    dispatch(marketApi.endpoints.findByAssetId.initiate(sellAssetId)),
-    dispatch(marketApi.endpoints.findByAssetId.initiate(buyAssetId)),
-  ])
+export const hydrateMarketData = async (sellAssetId: string, buyAssetId: string) => {
+  await fetchAndDispatchMarketData([sellAssetId as AssetId, buyAssetId as AssetId])
 }
 
 export const createSwapperDeps = (state: ReduxState): SwapperDeps => ({

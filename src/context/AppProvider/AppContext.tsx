@@ -3,7 +3,7 @@ import type { AssetId } from '@shapeshiftoss/caip'
 import { btcAssetId, ethAssetId, foxAssetId, usdcAssetId } from '@shapeshiftoss/caip'
 import type { LedgerOpenAppEventArgs } from '@shapeshiftoss/chain-adapters'
 import { emitter } from '@shapeshiftoss/chain-adapters'
-import { useQueries, useQuery } from '@tanstack/react-query'
+import { useQuery } from '@tanstack/react-query'
 import difference from 'lodash/difference'
 import React, { useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -16,7 +16,6 @@ import { DEFAULT_HISTORY_TIMEFRAME } from '@/constants/Config'
 import { LanguageTypeEnum } from '@/constants/LanguageTypeEnum'
 import { usePlugins } from '@/context/PluginProvider/PluginProvider'
 import { useActionCenterSubscribers } from '@/hooks/useActionCenterSubscribers/useActionCenterSubscribers'
-import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { useIsSnapInstalled } from '@/hooks/useIsSnapInstalled/useIsSnapInstalled'
 import { useLedgerConnectionState } from '@/hooks/useLedgerConnectionState'
 import { useMixpanelPortfolioTracking } from '@/hooks/useMixpanelPortfolioTracking/useMixpanelPortfolioTracking'
@@ -27,14 +26,15 @@ import { useUser } from '@/hooks/useUser/useUser'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { walletSupportsChain } from '@/hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { getAssetService, initAssetService } from '@/lib/asset-service'
-import { useGraphQLDeltaMarketData } from '@/lib/graphql/useGraphQLDeltaMarketData'
+import {
+  useDeltaMarketDataQuery,
+  useFiatMarketDataQuery,
+  useSingleAssetMarketDataQuery,
+  useTopMarketDataQuery,
+} from '@/lib/graphql/queries'
 import { useGetFiatRampsQuery } from '@/state/apis/fiatRamps/fiatRamps'
 import { assets } from '@/state/slices/assetsSlice/assetsSlice'
 import { limitOrderInput } from '@/state/slices/limitOrderInputSlice/limitOrderInputSlice'
-import {
-  marketApi,
-  useFindAllMarketDataQuery,
-} from '@/state/slices/marketDataSlice/marketDataSlice'
 import { portfolio } from '@/state/slices/portfolioSlice/portfolioSlice'
 import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
 import {
@@ -47,8 +47,6 @@ import {
 import { tradeInput } from '@/state/slices/tradeInputSlice/tradeInputSlice'
 import { tradeRampInput } from '@/state/slices/tradeRampInputSlice/tradeRampInputSlice'
 import { useAppDispatch, useAppSelector } from '@/state/store'
-
-const MARKET_DATA_POLLING_INTERVAL_MS = 60 * 1000 // refetch market-data every minute
 
 /**
  * note - be super careful playing with this component, as it's responsible for asset,
@@ -167,11 +165,8 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   // track anonymous portfolio
   useMixpanelPortfolioTracking()
 
-  const isGraphQLMarketDataEnabled = useFeatureFlag('GraphQLPoc')
-
-  const findAllQueryData = useFindAllMarketDataQuery(undefined, {
-    skip: modal,
-    pollingInterval: MARKET_DATA_POLLING_INTERVAL_MS,
+  const topMarketDataQuery = useTopMarketDataQuery({
+    enabled: !modal,
   })
 
   useDiscoverAccounts()
@@ -218,14 +213,14 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   const deltaAssetIds = useMemo(() => {
     if (!(isConnected || (portfolioLoadingStatus !== 'loading' && !modal && !isLoadingLocalWallet)))
       return []
-    if (['pending', 'uninitialized'].includes(findAllQueryData.status)) return []
-    if (!findAllQueryData.currentData) return []
+    if (topMarketDataQuery.isPending) return []
+    if (!topMarketDataQuery.data) return []
 
-    const topAssetIds = Object.keys(findAllQueryData.currentData) as AssetId[]
+    const topAssetIds = Object.keys(topMarketDataQuery.data) as AssetId[]
     return difference(portfolioAssetIds, topAssetIds)
   }, [
-    findAllQueryData.status,
-    findAllQueryData.currentData,
+    topMarketDataQuery.isPending,
+    topMarketDataQuery.data,
     isConnected,
     isLoadingLocalWallet,
     modal,
@@ -233,76 +228,38 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     portfolioLoadingStatus,
   ])
 
-  useGraphQLDeltaMarketData({
+  useDeltaMarketDataQuery({
     assetIds: deltaAssetIds,
     enabled:
-      isGraphQLMarketDataEnabled &&
       deltaAssetIds.length > 0 &&
       (isConnected || (portfolioLoadingStatus !== 'loading' && !modal && !isLoadingLocalWallet)),
   })
 
-  useQueries({
-    queries: isGraphQLMarketDataEnabled
-      ? []
-      : deltaAssetIds.map(assetId => ({
-          queryKey: ['marketData', assetId],
-          queryFn: async () => {
-            await dispatch(
-              marketApi.endpoints.findByAssetId.initiate(assetId, {
-                forceRefetch: true,
-              }),
-            )
-            return null
-          },
-          enabled:
-            isConnected ||
-            (portfolioLoadingStatus !== 'loading' && !modal && !isLoadingLocalWallet),
-          refetchInterval: MARKET_DATA_POLLING_INTERVAL_MS,
-          refetchIntervalInBackground: false,
-          refetchOnWindowFocus: false,
-        })),
-  })
-
-  /**
-   * fetch forex spot and history for user's selected currency
-   */
   const currency = useAppSelector(preferences.selectors.selectSelectedCurrency)
 
+  const { isError: isFiatError } = useFiatMarketDataQuery({
+    symbol: currency,
+    timeframe: DEFAULT_HISTORY_TIMEFRAME,
+    enabled: currency !== 'USD',
+  })
+
   useEffect(() => {
-    // we already know 1usd costs 1usd
-    if (currency === 'USD') return
+    if (!isFiatError) return
+    toast({
+      position: 'top-right',
+      title: translate('multiCurrency.toast.title', { symbol: currency }),
+      description: translate('multiCurrency.toast.description'),
+      status: 'error',
+      duration: null,
+      isClosable: true,
+    })
+    dispatch(preferences.actions.setSelectedCurrency({ currency: 'USD' }))
+  }, [currency, dispatch, isFiatError, toast, translate])
 
-    void (async () => {
-      const timeframe = DEFAULT_HISTORY_TIMEFRAME
-      const priceHistoryArgs = { symbol: currency, timeframe }
-      const { error: fiatPriceHistoryError } = await dispatch(
-        marketApi.endpoints.findPriceHistoryByFiatSymbol.initiate(priceHistoryArgs),
-      )
-      const { error: forexRateError } = await dispatch(
-        marketApi.endpoints.findByFiatSymbol.initiate(priceHistoryArgs),
-      )
-
-      if (fiatPriceHistoryError || forexRateError) {
-        toast({
-          position: 'top-right',
-          title: translate('multiCurrency.toast.title', { symbol: currency }),
-          description: translate('multiCurrency.toast.description'),
-          status: 'error',
-          duration: null, // don't auto-dismiss
-          isClosable: true,
-        })
-        dispatch(preferences.actions.setSelectedCurrency({ currency: 'USD' }))
-      }
-    })()
-  }, [currency, dispatch, toast, translate])
-
-  // market data single-asset fetch, will use cached version if available
-  // This uses the assetId from /assets route
-  useEffect(() => {
-    // early return for routes that don't contain an assetId, no need to refetch marketData granularly
-    if (!routeAssetId) return
-    dispatch(marketApi.endpoints.findByAssetId.initiate(routeAssetId))
-  }, [dispatch, routeAssetId])
+  useSingleAssetMarketDataQuery({
+    assetId: routeAssetId,
+    enabled: Boolean(routeAssetId),
+  })
 
   // If the assets aren't loaded, then the app isn't ready to render
   // This fixes issues with refreshes on pages that expect assets to already exist

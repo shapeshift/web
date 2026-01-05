@@ -14,7 +14,7 @@ import { swapperApi } from './apis/swapper/swapperApi'
 import type { ReduxState } from './reducer'
 import { apiSlices, reducer, slices } from './reducer'
 import { assetApi } from './slices/assetsSlice/assetsSlice'
-import { marketApi, marketData } from './slices/marketDataSlice/marketDataSlice'
+import { marketData } from './slices/marketDataSlice/marketDataSlice'
 import { opportunitiesApi } from './slices/opportunitiesSlice/opportunitiesApiSlice'
 import { portfolioApi } from './slices/portfolioSlice/portfolioSlice'
 import { txHistoryApi } from './slices/txHistorySlice/txHistorySlice'
@@ -30,7 +30,6 @@ setGlobalDevModeChecks({ identityFunctionCheck: 'never' })
 
 const apiMiddleware = [
   portfolioApi.middleware,
-  marketApi.middleware,
   assetApi.middleware,
   txHistoryApi.middleware,
   foxyApi.middleware,
@@ -59,7 +58,6 @@ export const clearState = () => {
   store.dispatch(slices.addressBook.actions.clear())
 
   store.dispatch(apiSlices.assetApi.util.resetApiState())
-  store.dispatch(apiSlices.marketApi.util.resetApiState())
   store.dispatch(apiSlices.portfolioApi.util.resetApiState())
   store.dispatch(apiSlices.txHistoryApi.util.resetApiState())
   store.dispatch(apiSlices.opportunitiesApi.util.resetApiState())
@@ -86,7 +84,6 @@ const actionSanitizer = (action: any) => {
     ...marketDataBlackList,
     // RTK query internal actions
     'assetApi/executeQuery/fulfilled',
-    'marketApi/executeQuery/fulfilled',
     'txHistoryApi/executeQuery/fulfilled',
     'portalsApi/executeQuery/fulfilled',
     'portals/executeQuery/fulfilled',
@@ -110,7 +107,6 @@ const stateSanitizer = (state: any) => {
     assets: msg,
     marketData: msg,
     assetApi: msg,
-    marketApi: msg,
   }
 }
 

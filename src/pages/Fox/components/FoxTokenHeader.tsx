@@ -1,7 +1,7 @@
 import type { FlexProps, StackProps } from '@chakra-ui/react'
 import { Button, Flex, SimpleGrid, Skeleton, Stack } from '@chakra-ui/react'
 import { bnOrZero } from '@shapeshiftoss/utils'
-import { useCallback, useEffect } from 'react'
+import { useCallback } from 'react'
 import { FaCreditCard } from 'react-icons/fa'
 import { useNavigate } from 'react-router-dom'
 
@@ -15,9 +15,9 @@ import { TradeRoutePaths } from '@/components/MultiHopTrade/types'
 import { Text } from '@/components/Text'
 import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { useModal } from '@/hooks/useModal/useModal'
-import { marketApi } from '@/state/slices/marketDataSlice/marketDataSlice'
+import { useSingleAssetMarketDataQuery } from '@/lib/graphql/queries'
 import { selectMarketDataByAssetIdUserCurrency } from '@/state/slices/selectors'
-import { useAppDispatch, useAppSelector } from '@/state/store'
+import { useAppSelector } from '@/state/store'
 
 const swapIcon = <SwapIcon />
 const rewardsIcon = <RewardsIcon />
@@ -47,9 +47,10 @@ const containerProps: FlexProps = {
 
 export const FoxTokenHeader = () => {
   const { assetId, assetAccountId } = useFoxPageContext()
-  const appDispatch = useAppDispatch()
 
   const marketData = useAppSelector(state => selectMarketDataByAssetIdUserCurrency(state, assetId))
+
+  useSingleAssetMarketDataQuery({ assetId })
   const fiatRamps = useModal('fiatRamps')
   const navigate = useNavigate()
   const isRfoxFoxEcosystemPageEnabled = useFeatureFlag('RfoxFoxEcosystemPage')
@@ -67,10 +68,6 @@ export const FoxTokenHeader = () => {
   const handleStakeClick = useCallback(() => {
     navigate('/rfox')
   }, [navigate])
-
-  useEffect(() => {
-    appDispatch(marketApi.endpoints.findByAssetId.initiate(assetId))
-  }, [marketData, assetId, appDispatch])
 
   return (
     <Flex {...containerProps}>

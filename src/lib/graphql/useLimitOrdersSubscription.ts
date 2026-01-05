@@ -166,7 +166,13 @@ export function useLimitOrdersSubscription(
   const accountIdsKey = useMemo(() => accountIds.sort().join(','), [accountIds])
 
   const fetchInitialOrders = useCallback(async () => {
+    console.log('[useLimitOrdersSubscription] fetchInitialOrders called:', {
+      accountIdsCount: accountIds.length,
+      accountIds: accountIds.slice(0, 3),
+    })
+
     if (accountIds.length === 0) {
+      console.log('[useLimitOrdersSubscription] No account IDs, setting empty orders')
       setOrders([])
       setIsLoading(false)
       return
@@ -174,6 +180,7 @@ export function useLimitOrdersSubscription(
 
     try {
       const wsClient = getGraphQLWsClient()
+      console.log('[useLimitOrdersSubscription] Sending initial query via WebSocket')
 
       await new Promise<void>((resolve, reject) => {
         let result: OrdersUpdate[] = []
@@ -185,18 +192,37 @@ export function useLimitOrdersSubscription(
           },
           {
             next: data => {
+              console.log('[useLimitOrdersSubscription] Initial query next:', {
+                hasData: Boolean(data.data),
+                hasCowswap: Boolean(data.data?.cowswap),
+                hasOrders: Boolean(data.data?.cowswap?.orders),
+                ordersLength: data.data?.cowswap?.orders?.length,
+              })
               if (data.data?.cowswap?.orders) {
                 result = data.data.cowswap.orders
               }
             },
-            error: reject,
+            error: err => {
+              console.error('[useLimitOrdersSubscription] Initial query error:', err)
+              reject(err)
+            },
             complete: () => {
+              console.log('[useLimitOrdersSubscription] Initial query complete:', {
+                resultLength: result.length,
+                totalOrders: result.reduce((sum, u) => sum + u.orders.length, 0),
+              })
               const mappedOrders = result.flatMap(update =>
                 update.orders.map(order => ({
                   order: mapCowSwapOrderToOrder(order),
                   accountId: update.accountId as AccountId,
                 })),
               )
+              console.log('[useLimitOrdersSubscription] Mapped orders:', {
+                count: mappedOrders.length,
+                statuses: mappedOrders
+                  .slice(0, 5)
+                  .map(o => ({ uid: o.order.uid.slice(0, 10), status: o.order.status })),
+              })
               setOrders(mappedOrders)
               setIsLoading(false)
               resolve()
@@ -212,7 +238,14 @@ export function useLimitOrdersSubscription(
   }, [accountIds])
 
   useEffect(() => {
+    console.log('[useLimitOrdersSubscription] useEffect triggered:', {
+      skip,
+      accountIdsCount: accountIds.length,
+      accountIdsKey,
+    })
+
     if (skip || accountIds.length === 0) {
+      console.log('[useLimitOrdersSubscription] Skipping - no accounts or skip=true')
       setOrders([])
       setIsLoading(false)
       return
@@ -222,6 +255,7 @@ export function useLimitOrdersSubscription(
     fetchInitialOrders()
 
     const wsClient = getGraphQLWsClient()
+    console.log('[useLimitOrdersSubscription] Starting subscription for real-time updates')
 
     unsubscribeRef.current = wsClient.subscribe<{ cowswapOrdersUpdated: OrdersUpdate }>(
       {
@@ -230,9 +264,19 @@ export function useLimitOrdersSubscription(
       },
       {
         next: data => {
+          console.log('[useLimitOrdersSubscription] Subscription next received:', {
+            hasData: Boolean(data.data),
+            hasCowswapOrdersUpdated: Boolean(data.data?.cowswapOrdersUpdated),
+          })
           if (data.data?.cowswapOrdersUpdated) {
             const update = data.data.cowswapOrdersUpdated
-            console.log('[useLimitOrdersSubscription] Received update for', update.accountId)
+            console.log('[useLimitOrdersSubscription] Subscription update:', {
+              accountId: update.accountId,
+              ordersCount: update.orders.length,
+              statuses: update.orders
+                .slice(0, 5)
+                .map(o => ({ uid: o.uid.slice(0, 10), status: o.status })),
+            })
 
             setOrders(prev => {
               const otherOrders = prev.filter(o => o.accountId !== update.accountId)
@@ -240,11 +284,16 @@ export function useLimitOrdersSubscription(
                 order: mapCowSwapOrderToOrder(order),
                 accountId: update.accountId as AccountId,
               }))
-              return [...otherOrders, ...newOrders].sort(
+              const merged = [...otherOrders, ...newOrders].sort(
                 (a, b) =>
                   new Date(b.order.creationDate).getTime() -
                   new Date(a.order.creationDate).getTime(),
               )
+              console.log('[useLimitOrdersSubscription] Orders updated:', {
+                previousCount: prev.length,
+                newCount: merged.length,
+              })
+              return merged
             })
           }
         },
@@ -261,8 +310,10 @@ export function useLimitOrdersSubscription(
     )
 
     setIsConnected(true)
+    console.log('[useLimitOrdersSubscription] Subscription established, isConnected=true')
 
     return () => {
+      console.log('[useLimitOrdersSubscription] Cleanup - unsubscribing')
       if (unsubscribeRef.current) {
         unsubscribeRef.current()
         unsubscribeRef.current = null

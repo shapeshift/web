@@ -5,7 +5,7 @@ import { useSelector } from 'react-redux'
 import { useDiscoverAccounts } from '@/context/AppProvider/hooks/useDiscoverAccounts'
 import { ChainRow } from '@/pages/Accounts/components/ChainRow'
 import {
-  selectIsAnyMarketDataApiQueryPending,
+  selectIsMarketDataLoading,
   selectIsPortfolioLoading,
   selectWalletConnectedChainIds,
   selectWalletConnectedChainIdsSorted,
@@ -24,7 +24,7 @@ export const AccountsListContent: React.FC<AccountsListContentProps> = ({
   const blanks = Array(4).fill(0)
   const loading = useSelector(selectIsPortfolioLoading)
   const { isFetching: isDiscoveringAccounts } = useDiscoverAccounts()
-  const isAnyMarketDataLoading = useAppSelector(selectIsAnyMarketDataApiQueryPending)
+  const isAnyMarketDataLoading = useAppSelector(selectIsMarketDataLoading)
 
   // Don't use user-currency sorting until we're fully loaded - else this will keep on re-rendering forever and will
   // both look janky (lots of reordering) and most importantly, barely usable

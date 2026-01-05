@@ -1,3 +1,4 @@
+import { HistoryTimeframe } from '@shapeshiftoss/types'
 import type DataLoader from 'dataloader'
 import { GraphQLError } from 'graphql'
 import type { PubSub } from 'graphql-subscriptions'
@@ -10,6 +11,7 @@ import {
   getTopMovers,
   getTrending,
 } from '../datasources/coingeckoService.js'
+import type { OrdersUpdate } from '../datasources/cowswapService.js'
 import {
   getOrders,
   ORDERS_UPDATED_TOPIC,
@@ -17,12 +19,23 @@ import {
   unsubscribeFromOrders,
 } from '../datasources/cowswapService.js'
 import { batchIsSmartContractAddress, isSmartContractAddress } from '../datasources/evmService.js'
+import { getFiatMarketData, getFiatPriceHistory } from '../datasources/fiatService.js'
 import type { MidgardPoolPeriod } from '../datasources/midgardService.js'
 import {
   getMember,
   getPools as getMidgardPools,
   getRunepoolMember,
 } from '../datasources/midgardService.js'
+import type {
+  DefiProvider,
+  StakingMetadataRequest,
+  UserStakingDataRequest,
+} from '../datasources/opportunitiesService.js'
+import {
+  getStakingIds,
+  getStakingMetadata,
+  getUserStakingData,
+} from '../datasources/opportunitiesService.js'
 import {
   getPortalsAccount,
   getPortalsAccounts,
@@ -53,7 +66,7 @@ import type { TxHistoryResult } from '../loaders/txLoader.js'
 const MAX_ASSET_IDS = 500
 const MAX_ACCOUNT_IDS = 100
 const MAX_TX_ACCOUNT_IDS = 50
-const MAX_ORDER_ACCOUNT_IDS = 20
+const MAX_ORDER_ACCOUNT_IDS = 100
 const MAX_PRICE_HISTORY_REQUESTS = 100
 
 let sharedPubsub: PubSub | null = null
@@ -268,6 +281,25 @@ export const resolvers = {
         `[Market.priceHistory] Fetching history for ${args.coingeckoId} (${args.from}-${args.to})`,
       )
       return getPriceHistory(args.coingeckoId, args.from, args.to)
+    },
+
+    fiatRate: (_parent: unknown, args: { symbol: string }) => {
+      console.log(`[Market.fiatRate] Fetching rate for ${args.symbol}`)
+      return getFiatMarketData(args.symbol)
+    },
+
+    fiatPriceHistory: (_parent: unknown, args: { symbol: string; timeframe: string }) => {
+      console.log(`[Market.fiatPriceHistory] Fetching history for ${args.symbol}:${args.timeframe}`)
+      const timeframeMap: Record<string, HistoryTimeframe> = {
+        HOUR: HistoryTimeframe.HOUR,
+        DAY: HistoryTimeframe.DAY,
+        WEEK: HistoryTimeframe.WEEK,
+        MONTH: HistoryTimeframe.MONTH,
+        YEAR: HistoryTimeframe.YEAR,
+        ALL: HistoryTimeframe.ALL,
+      }
+      const mappedTimeframe = timeframeMap[args.timeframe] || HistoryTimeframe.DAY
+      return getFiatPriceHistory(args.symbol, mappedTimeframe)
     },
   },
 
@@ -490,6 +522,23 @@ export const resolvers = {
     },
   },
 
+  Opportunities: {
+    stakingIds: (_parent: unknown, args: { chainId: string; provider: string }) => {
+      console.log(`[Opportunities.stakingIds] Fetching IDs for ${args.chainId}/${args.provider}`)
+      return getStakingIds(args.chainId, args.provider as DefiProvider)
+    },
+
+    stakingMetadata: (_parent: unknown, args: { requests: StakingMetadataRequest[] }) => {
+      console.log(`[Opportunities.stakingMetadata] Fetching for ${args.requests.length} requests`)
+      return getStakingMetadata(args.requests)
+    },
+
+    userStakingData: (_parent: unknown, args: { requests: UserStakingDataRequest[] }) => {
+      console.log(`[Opportunities.userStakingData] Fetching for ${args.requests.length} accounts`)
+      return getUserStakingData(args.requests)
+    },
+  },
+
   // ============================================================================
   // EVM NAMESPACE RESOLVER
   // ============================================================================
@@ -523,6 +572,7 @@ export const resolvers = {
     rfox: () => ({}),
     evm: () => ({}),
     midgard: () => ({}),
+    opportunities: () => ({}),
 
     marketData: async (_parent: unknown, args: { assetIds: string[] }, context: Context) => {
       if (args.assetIds.length > MAX_ASSET_IDS) {
@@ -661,9 +711,10 @@ export const resolvers = {
   Subscription: {
     cowswapOrdersUpdated: {
       subscribe: (_parent: unknown, args: { accountIds: string[] }) => {
-        console.log(
-          `[Subscription.cowswapOrdersUpdated] Starting subscription for ${args.accountIds.length} accounts`,
-        )
+        console.log(`[Subscription.cowswapOrdersUpdated] Starting subscription:`, {
+          accountIdsCount: args.accountIds.length,
+          accountIds: args.accountIds.slice(0, 3),
+        })
 
         const subscribed: { chainId: string; address: string }[] = []
         for (const accountId of args.accountIds) {
@@ -676,6 +727,10 @@ export const resolvers = {
             }
           }
         }
+
+        console.log(
+          `[Subscription.cowswapOrdersUpdated] Subscribed to ${subscribed.length} accounts`,
+        )
 
         const iterator = getPubsub().asyncIterator([ORDERS_UPDATED_TOPIC])
 
@@ -691,6 +746,13 @@ export const resolvers = {
         }
 
         return iterator
+      },
+      resolve: (payload: { cowswapOrdersUpdated: OrdersUpdate }) => {
+        console.log(`[Subscription.cowswapOrdersUpdated] Resolving payload:`, {
+          accountId: payload.cowswapOrdersUpdated.accountId,
+          ordersCount: payload.cowswapOrdersUpdated.orders.length,
+        })
+        return payload.cowswapOrdersUpdated
       },
     },
   },

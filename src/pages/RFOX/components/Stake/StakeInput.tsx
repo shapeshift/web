@@ -38,12 +38,12 @@ import { useToggle } from '@/hooks/useToggle/useToggle'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { useWalletSupportsChain } from '@/hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
+import { useBatchMarketDataQuery } from '@/lib/graphql/queries'
 import { toBaseUnit } from '@/lib/math'
 import { selectRuneAddress } from '@/pages/RFOX/helpers'
 import { useCooldownPeriodQuery } from '@/pages/RFOX/hooks/useCooldownPeriodQuery'
 import { supportedStakingAssetIds, useRFOXContext } from '@/pages/RFOX/hooks/useRfoxContext'
 import { useStakingInfoQuery } from '@/pages/RFOX/hooks/useStakingInfoQuery'
-import { marketApi } from '@/state/slices/marketDataSlice/marketDataSlice'
 import {
   selectAssetById,
   selectAssets,
@@ -52,7 +52,7 @@ import {
   selectMarketDataByFilter,
   selectPortfolioCryptoPrecisionBalanceByFilter,
 } from '@/state/slices/selectors'
-import { useAppDispatch, useAppSelector } from '@/state/store'
+import { useAppSelector } from '@/state/store'
 import { breakpoints } from '@/theme/theme'
 
 const formControlProps = {
@@ -86,7 +86,6 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
   setConfirmedQuote,
   setStepIndex,
 }) => {
-  const dispatch = useAppDispatch()
   const translate = useTranslate()
   const navigate = useNavigate()
   const [isSmallerThanMd] = useMediaQuery(`(max-width: ${breakpoints.md})`, { ssr: false })
@@ -209,12 +208,7 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
     [amountCryptoPrecision, amountUserCurrency],
   )
 
-  useEffect(() => {
-    // hydrate market data in case the user doesn't hold it
-    stakingAssetIds.forEach(stakingAssetId => {
-      dispatch(marketApi.endpoints.findByAssetId.initiate(stakingAssetId))
-    })
-  }, [dispatch, stakingAssetIds])
+  useBatchMarketDataQuery({ assetIds: stakingAssetIds })
 
   useEffect(() => {
     // Only set this once, never collapse out

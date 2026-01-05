@@ -19,10 +19,10 @@ import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { useLocalStorage } from '@/hooks/useLocalStorage/useLocalStorage'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
+import { useSingleAssetMarketDataQuery } from '@/lib/graphql/queries'
 import { fromBaseUnit } from '@/lib/math'
 import { THOR_PRECISION } from '@/lib/utils/thorchain/constants'
 import { selectWalletType } from '@/state/slices/localWalletSlice/selectors'
-import { marketApi } from '@/state/slices/marketDataSlice/marketDataSlice'
 import type { WalletId } from '@/state/slices/portfolioSlice/portfolioSliceCommon'
 import {
   selectAccountIdByAccountNumberAndChainId,
@@ -139,11 +139,7 @@ export const TCY = () => {
   const isTcyWidgetEnabled = useFeatureFlag('ThorchainTcyWidget')
   const isTcyActivityEnabled = useFeatureFlag('ThorchainTcyActivity')
 
-  useEffect(() => {
-    // Dispatch TCY market-data "fetching" as early as possible. This is effectively free anyway, as
-    // it's hardcoded to return $1 in market-service
-    dispatch(marketApi.endpoints.findByAssetId.initiate(tcyAssetId))
-  }, [dispatch])
+  useSingleAssetMarketDataQuery({ assetId: tcyAssetId })
 
   return (
     <Main pb={mainPaddingBottom} headerComponent={tcyHeader} px={4} isSubPage>

@@ -34,6 +34,7 @@ import { KeyManager } from '@/context/WalletProvider/KeyManager'
 import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
+import { useSingleAssetMarketDataQuery } from '@/lib/graphql/queries'
 import { fromBaseUnit } from '@/lib/math'
 import { formatSecondsToDuration } from '@/lib/utils/time'
 import type { Filter } from '@/pages/Fox/components/FoxTokenFilterButton'
@@ -55,13 +56,12 @@ import { useStakingInfoQuery } from '@/pages/RFOX/hooks/useStakingInfoQuery'
 import { useTimeInPoolQuery } from '@/pages/RFOX/hooks/useTimeInPoolQuery'
 import type { AbiStakingInfo } from '@/pages/RFOX/types'
 import { selectWalletType } from '@/state/slices/localWalletSlice/selectors'
-import { marketApi } from '@/state/slices/marketDataSlice/marketDataSlice'
 import {
   selectAccountIdByAccountNumberAndChainId,
   selectAssetById,
   selectMarketDataByAssetIdUserCurrency,
 } from '@/state/slices/selectors'
-import { useAppDispatch, useAppSelector } from '@/state/store'
+import { useAppSelector } from '@/state/store'
 
 const tbArrowUp = <TbArrowUp />
 const tbArrowDown = <TbArrowDown />
@@ -118,7 +118,6 @@ export const RFOXSection = () => {
   const isRFOXLPEnabled = useFeatureFlag('RFOX_LP')
   const { assetAccountNumber } = useFoxPageContext()
   const { setStakingAssetAccountId } = useRFOXContext()
-  const appDispatch = useAppDispatch()
   const location = useLocation()
   const selectedUnstakingRequest = location.state?.selectedUnstakingRequest as
     | UnstakingRequest
@@ -142,9 +141,7 @@ export const RFOXSection = () => {
     }
   }, [selectedUnstakingRequest, isClaimModalOpen, previousIsClaimModalOpen])
 
-  useEffect(() => {
-    appDispatch(marketApi.endpoints.findByAssetId.initiate(stakingAssetId))
-  }, [appDispatch, stakingAssetId])
+  useSingleAssetMarketDataQuery({ assetId: stakingAssetId })
 
   const currentApyQuery = useCurrentApyQuery({ stakingAssetId })
 

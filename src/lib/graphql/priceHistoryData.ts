@@ -81,9 +81,6 @@ async function flushPendingRequests(): Promise<void> {
 
   for (const [timeframe, assetRequests] of timeframesToProcess) {
     const assetIds = Array.from(assetRequests.keys())
-    console.log(
-      `[GraphQL PriceHistory] Flushing ${assetIds.length} batched requests for timeframe ${timeframe}`,
-    )
 
     const requests: PriceHistoryRequest[] = []
     for (const assetId of assetIds) {

@@ -125,7 +125,7 @@ type UserStakingDataRequest = {
   opportunityIds: string[]
 }
 
-async function fetchStakingMetadata(
+export async function fetchStakingMetadata(
   requests: StakingMetadataRequest[],
 ): Promise<StakingMetadataResult[]> {
   if (requests.length === 0) return []
@@ -153,7 +153,7 @@ async function fetchStakingMetadata(
   return response.opportunities.stakingMetadata
 }
 
-async function fetchUserStakingData(
+export async function fetchUserStakingData(
   requests: UserStakingDataRequest[],
 ): Promise<UserStakingDataResult[]> {
   if (requests.length === 0) return []

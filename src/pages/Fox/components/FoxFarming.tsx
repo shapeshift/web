@@ -33,9 +33,9 @@ import { useFoxFarming } from '@/features/defi/providers/fox-farming/hooks/useFo
 import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
+import { useSingleAssetMarketDataQuery } from '@/lib/graphql/queries'
 import { fromBaseUnit } from '@/lib/math'
 import { selectWalletType } from '@/state/slices/localWalletSlice/selectors'
-import { marketApi } from '@/state/slices/marketDataSlice/marketDataSlice'
 import { foxEthLpAssetId } from '@/state/slices/opportunitiesSlice/constants'
 import { opportunitiesApi } from '@/state/slices/opportunitiesSlice/opportunitiesApiSlice'
 import type { StakingEarnOpportunityType } from '@/state/slices/opportunitiesSlice/types'
@@ -94,9 +94,7 @@ export const FoxFarming = () => {
     [dispatch],
   )
 
-  useEffect(() => {
-    appDispatch(marketApi.endpoints.findByAssetId.initiate(foxEthLpAssetId))
-  }, [appDispatch])
+  useSingleAssetMarketDataQuery({ assetId: foxEthLpAssetId })
 
   const foxEthMarketData = useAppSelector(state =>
     selectMarketDataByAssetIdUserCurrency(state, foxEthLpAssetId),

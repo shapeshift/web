@@ -28,7 +28,7 @@ export const swapperApi = createApi({
   tagTypes: ['TradeQuote'],
   endpoints: build => ({
     getTradeQuote: build.query<Record<string, ApiQuote>, TradeQuoteOrRateRequest>({
-      queryFn: async (tradeQuoteInput: TradeQuoteOrRateRequest, { dispatch, getState }) => {
+      queryFn: async (tradeQuoteInput: TradeQuoteOrRateRequest, { getState }) => {
         const state = getState() as ReduxState
         const {
           swapperName,
@@ -57,8 +57,7 @@ export const swapperApi = createApi({
 
         if (!isSwapperEnabled) return { data: {} }
 
-        // hydrate crypto market data for buy and sell assets
-        await hydrateMarketData(dispatch, sellAsset.assetId, buyAsset.assetId)
+        await hydrateMarketData(sellAsset.assetId, buyAsset.assetId)
 
         const swapperDeps = createSwapperDeps(state)
 
@@ -123,7 +122,7 @@ export const swapperApi = createApi({
       ],
     }),
     getTradeRates: build.query<Record<SwapperName, Record<string, ApiQuote>>, GetTradeRateInput>({
-      queryFn: async (batchRequest: GetTradeRateInput, { dispatch, getState }) => {
+      queryFn: async (batchRequest: GetTradeRateInput, { getState }) => {
         const state = getState() as ReduxState
         const {
           sendAddress,
@@ -152,8 +151,7 @@ export const swapperApi = createApi({
           name => enabledSwappers[name],
         )
 
-        // Hydrate crypto market data for buy and sell assets once for all swappers
-        await hydrateMarketData(dispatch, sellAsset.assetId, buyAsset.assetId)
+        await hydrateMarketData(sellAsset.assetId, buyAsset.assetId)
 
         const swapperDeps = createSwapperDeps(state)
 

@@ -32,7 +32,7 @@ import { limitOrderInput } from './slices/limitOrderInputSlice/limitOrderInputSl
 import { limitOrderSlice } from './slices/limitOrderSlice/limitOrderSlice'
 import type { LocalWalletState } from './slices/localWalletSlice/localWalletSlice'
 import { localWalletSlice } from './slices/localWalletSlice/localWalletSlice'
-import { marketApi, marketData } from './slices/marketDataSlice/marketDataSlice'
+import { marketData } from './slices/marketDataSlice/marketDataSlice'
 import type { MarketDataState } from './slices/marketDataSlice/types'
 import { opportunitiesApi } from './slices/opportunitiesSlice/opportunitiesApiSlice'
 import { opportunities } from './slices/opportunitiesSlice/opportunitiesSlice'
@@ -186,7 +186,6 @@ export const sliceReducers = {
 export const apiSlices = {
   assetApi,
   portfolioApi,
-  marketApi,
   txHistoryApi,
   swappersApi: swapperApi,
   foxyApi,
@@ -201,7 +200,6 @@ export const apiSlices = {
 export const apiReducers = {
   [assetApi.reducerPath]: assetApi.reducer,
   [portfolioApi.reducerPath]: portfolioApi.reducer,
-  [marketApi.reducerPath]: marketApi.reducer,
   [txHistoryApi.reducerPath]: txHistoryApi.reducer,
   [swapperApi.reducerPath]: swapperApi.reducer,
   [foxyApi.reducerPath]: foxyApi.reducer,

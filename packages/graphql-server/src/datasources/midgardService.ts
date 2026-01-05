@@ -241,3 +241,30 @@ export async function getRunepoolMember(address: string): Promise<MidgardRunepoo
     return null
   }
 }
+
+export type MidgardSaver = {
+  pools: {
+    pool: string
+    dateLastAdded: string
+  }[]
+}
+
+export async function getSaver(address: string): Promise<MidgardSaver | null> {
+  const cacheKey = `midgard:saver:${address}`
+  const cached = getCached<MidgardSaver>(cacheKey)
+  if (cached) {
+    console.log(`[Midgard] Returning cached saver for ${address}`)
+    return cached
+  }
+
+  console.log(`[Midgard] Fetching saver for ${address}`)
+
+  try {
+    const data = await fetchJson<MidgardSaver>(`${MIDGARD_URL}/saver/${address}`)
+    setCache(cacheKey, data)
+    return data
+  } catch (error) {
+    console.error(`[Midgard] Failed to fetch saver ${address}:`, error)
+    return null
+  }
+}

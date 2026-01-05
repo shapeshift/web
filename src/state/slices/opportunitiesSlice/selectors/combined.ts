@@ -72,15 +72,67 @@ export const selectAggregatedEarnOpportunitiesByAssetId = createDeepEqualOutputS
     chainId,
   ): AggregatedOpportunitiesByAssetIdReturn[] => {
     const combined = [...userStakingOpportunites, ...userLpOpportunities]
+    console.log(
+      '[combined] ETH_FOX_STAKING sample:',
+      JSON.stringify(
+        userStakingOpportunites
+          .filter(o => o.provider === 'ETH/FOX Staking')
+          .slice(0, 1)
+          .map(o => ({
+            id: o.id,
+            provider: o.provider,
+            assetId: o.assetId,
+            underlyingAssetId: o.underlyingAssetId,
+            underlyingAssetIds: o.underlyingAssetIds,
+          })),
+        null,
+        2,
+      ),
+    )
     const totalFiatAmountByAssetId: Record<AssetId, BN> = {}
     const projectedAnnualizedYieldByAssetId: Record<AssetId, BN> = {}
 
     const isActiveOpportunityByAssetId = combined.reduce<Record<AssetId, boolean>>((acc, cur) => {
       const depositKey = getOpportunityAccessor({ provider: cur.provider, type: cur.type })
       const underlyingAssetIds = [cur[depositKey]].flat()
+
+      if (cur.provider === 'ETH/FOX Staking') {
+        console.log(
+          '[combined] ETH_FOX depositKey check:',
+          JSON.stringify(
+            {
+              id: cur.id,
+              assetId: cur.assetId,
+              provider: cur.provider,
+              depositKey,
+              curDepositValue: cur[depositKey],
+              curUnderlyingAssetId: cur.underlyingAssetId,
+              curUnderlyingAssetIds: cur.underlyingAssetIds,
+              underlyingAssetIds,
+              allKeys: Object.keys(cur).filter(
+                k => k.includes('underlying') || k.includes('asset'),
+              ),
+            },
+            null,
+            2,
+          ),
+        )
+      }
+
       underlyingAssetIds.forEach(assetId => {
         const asset = assets[assetId]
-        if (!asset) return acc
+        if (!asset) {
+          console.warn(
+            '[combined] Asset not in store:',
+            JSON.stringify({
+              assetId,
+              opportunityId: cur.id,
+              depositKey,
+              curDepositValue: cur[depositKey],
+            }),
+          )
+          return acc
+        }
 
         const amountFiat = cur.fiatAmount
 
@@ -126,7 +178,9 @@ export const selectAggregatedEarnOpportunitiesByAssetId = createDeepEqualOutputS
             }
           }
           const asset = assets[assetId]
-          if (!asset) return acc
+          if (!asset) {
+            return acc
+          }
 
           const amountFiat = cur.fiatAmount
 
@@ -195,6 +249,22 @@ export const selectAggregatedEarnOpportunitiesByAssetId = createDeepEqualOutputS
     const filtered = Object.values(byAssetId).filter(opportunity =>
       Boolean(
         bnOrZero(opportunity.fiatAmount).gt(0) || bnOrZero(opportunity.fiatRewardsAmount).gt(0),
+      ),
+    )
+
+    console.log(
+      '[combined] Result:',
+      JSON.stringify(
+        {
+          beforeFilter: Object.keys(byAssetId).length,
+          afterFilter: filtered.length,
+          sample: filtered.slice(0, 2).map(o => ({
+            assetId: o.assetId,
+            fiatAmount: o.fiatAmount,
+          })),
+        },
+        null,
+        2,
       ),
     )
 

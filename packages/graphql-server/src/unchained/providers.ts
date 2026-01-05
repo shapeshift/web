@@ -50,6 +50,7 @@ export type UnchainedApi = {
     delegations?: unknown[]
     redelegations?: unknown[]
     undelegations?: unknown[]
+    unbondings?: unknown[]
     rewards?: unknown[]
     assets?: {
       denom?: string

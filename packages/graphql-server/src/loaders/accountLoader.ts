@@ -1,11 +1,16 @@
-import type { ChainId } from '@shapeshiftoss/caip'
+import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import DataLoader from 'dataloader'
 import pLimit from 'p-limit'
 
+import { getNativeAssetId } from '../constants.js'
 import type { PortalsToken } from '../datasources/portalsService.js'
 import { getPortalsAccount } from '../datasources/portalsService.js'
+import type { Account, AccountError, EnrichedTokenBalance, TokenBalance } from '../types.js'
 import { getChainConfig } from '../unchained/config.js'
 import { getUnchainedApi } from '../unchained/index.js'
+import { groupByChainId } from '../utils.js'
+
+export type { Account, EnrichedTokenBalance, TokenBalance }
 
 const ACCOUNT_CACHE_TTL_MS = 30_000
 
@@ -16,44 +21,48 @@ type CachedAccount = {
 
 const accountCache = new Map<string, CachedAccount>()
 
-export type TokenBalance = {
-  assetId: string
-  balance: string
-  name?: string
-  symbol?: string
-  precision?: number
+function logAccountError(error: AccountError): void {
+  console.error(`[AccountLoader] ${error.code}: ${error.message}`, {
+    accountId: error.accountId,
+    chainId: error.chainId,
+  })
 }
 
-export type PortalsEnrichment = {
-  isPool?: boolean
-  platform?: string
-  underlyingTokens?: string[]
-  images?: string[]
-  liquidity?: number
-  apy?: string
-  price?: string
-  pricePerShare?: string
+function createEmptyAccount(
+  accountId: string,
+  pubkey: string,
+  chainId: ChainId,
+  nativeAssetId: AssetId,
+): Account {
+  return {
+    id: accountId,
+    balance: '0',
+    pubkey,
+    chainId,
+    assetId: nativeAssetId,
+    tokens: [],
+  }
 }
 
-export type EnrichedTokenBalance = TokenBalance & PortalsEnrichment
+const limit = pLimit(10)
 
-export type UtxoAddress = {
-  pubkey: string
-  balance: string
-}
-
-export type EvmAccountData = {
-  nonce: number
-  tokens: TokenBalance[]
-}
-
-export type UtxoAccountData = {
-  addresses: UtxoAddress[]
+type UnchainedAccountData = {
+  balance?: string
+  unconfirmedBalance?: string
+  pubkey?: string
+  nonce?: number
+  tokens?: {
+    contract?: string
+    assetId?: string
+    balance?: string
+    name?: string
+    symbol?: string
+    decimals?: number
+  }[]
+  assets?: { denom?: string; amount?: string }[]
+  addresses?: { pubkey: string; balance: string }[]
   nextChangeAddressIndex?: number
   nextReceiveAddressIndex?: number
-}
-
-export type CosmosAccountData = {
   sequence?: string
   accountNumber?: string
   delegations?: unknown
@@ -62,129 +71,141 @@ export type CosmosAccountData = {
   rewards?: unknown
 }
 
-export type SolanaAccountData = {
-  tokens: TokenBalance[]
-}
+function parseEvmTokens(tokens: UnchainedAccountData['tokens'], chainId: ChainId): TokenBalance[] {
+  if (!tokens) return []
 
-export type Account = {
-  id: string
-  balance: string
-  pubkey: string
-  chainId: string
-  assetId: string
-  tokens: EnrichedTokenBalance[]
-  evmData?: EvmAccountData
-  utxoData?: UtxoAccountData
-  cosmosData?: CosmosAccountData
-  solanaData?: SolanaAccountData
-}
-
-function parseAccountId(accountId: string): { chainId: ChainId; pubkey: string } {
-  const parts = accountId.split(':')
-  if (parts.length >= 3) {
-    const chainId = `${parts[0]}:${parts[1]}` as ChainId
-    const pubkey = parts.slice(2).join(':')
-    return { chainId, pubkey }
+  const result: TokenBalance[] = []
+  for (const token of tokens) {
+    const assetId =
+      token.assetId ||
+      (token.contract ? `${chainId}/erc20:${token.contract.toLowerCase()}` : undefined)
+    if (!assetId || !token.balance) continue
+    result.push({
+      assetId,
+      balance: token.balance,
+      name: token.name,
+      symbol: token.symbol,
+      precision: token.decimals,
+    })
   }
-  return { chainId: 'unknown' as ChainId, pubkey: accountId }
+  return result
 }
 
-function groupByChainId(
-  accountIds: readonly string[],
-): Map<ChainId, { accountId: string; pubkey: string }[]> {
-  const groups = new Map<ChainId, { accountId: string; pubkey: string }[]>()
+function parseCosmosAssets(
+  assets: UnchainedAccountData['assets'],
+  chainId: ChainId,
+): TokenBalance[] {
+  if (!assets) return []
 
-  for (const accountId of accountIds) {
-    const { chainId, pubkey } = parseAccountId(accountId)
-    const existing = groups.get(chainId)
-    if (existing) {
-      existing.push({ accountId, pubkey })
-    } else {
-      groups.set(chainId, [{ accountId, pubkey }])
+  const result: TokenBalance[] = []
+  for (const asset of assets) {
+    if (asset.denom && asset.amount && asset.amount !== '0') {
+      result.push({
+        assetId: `${chainId}/${asset.denom}`,
+        balance: asset.amount,
+      })
     }
   }
-
-  return groups
+  return result
 }
 
-const limit = pLimit(10)
+function buildEvmAccountData(
+  data: UnchainedAccountData,
+  tokens: TokenBalance[],
+  portalsTokens: PortalsToken[],
+): { tokens: EnrichedTokenBalance[]; evmData: Account['evmData'] } {
+  const enrichedTokens =
+    tokens.length > 0 && portalsTokens.length > 0
+      ? enrichTokensWithPortals(tokens, portalsTokens)
+      : tokens
+
+  return {
+    tokens: enrichedTokens,
+    evmData: {
+      nonce: data.nonce ?? 0,
+      tokens: enrichedTokens,
+    },
+  }
+}
+
+function buildUtxoAccountData(data: UnchainedAccountData): Account['utxoData'] {
+  return {
+    addresses: data.addresses ?? [],
+    nextChangeAddressIndex: data.nextChangeAddressIndex,
+    nextReceiveAddressIndex: data.nextReceiveAddressIndex,
+  }
+}
+
+function buildCosmosAccountData(data: UnchainedAccountData): Account['cosmosData'] {
+  return {
+    sequence: data.sequence,
+    accountNumber: data.accountNumber,
+    delegations: data.delegations,
+    redelegations: data.redelegations,
+    undelegations: data.undelegations,
+    rewards: data.rewards,
+  }
+}
 
 async function fetchFromUnchained(
   chainId: ChainId,
   accounts: { accountId: string; pubkey: string }[],
 ): Promise<Account[]> {
   const config = getChainConfig(chainId)
+  const nativeAssetId = getNativeAssetId(chainId)
+
   if (!config) {
-    console.warn(`[AccountLoader] No config for chain ${chainId}, returning empty accounts`)
-    return accounts.map(({ accountId, pubkey }) => ({
-      id: accountId,
-      balance: '0',
-      pubkey,
-      chainId,
-      assetId: `${chainId}/slip44:60`,
-      tokens: [],
-    }))
+    for (const { accountId } of accounts) {
+      logAccountError({
+        code: 'CHAIN_NOT_SUPPORTED',
+        message: `No config for chain ${chainId}`,
+        accountId,
+        chainId,
+      })
+    }
+    return accounts.map(({ accountId, pubkey }) =>
+      createEmptyAccount(accountId, pubkey, chainId, nativeAssetId),
+    )
   }
 
   const api = getUnchainedApi(chainId)
   if (!api) {
-    console.warn(`[AccountLoader] No API for chain ${chainId}, returning empty accounts`)
-    return accounts.map(({ accountId, pubkey }) => ({
-      id: accountId,
-      balance: '0',
-      pubkey,
-      chainId,
-      assetId: `${chainId}/slip44:60`,
-      tokens: [],
-    }))
+    for (const { accountId } of accounts) {
+      logAccountError({
+        code: 'CHAIN_NOT_SUPPORTED',
+        message: `No API available for chain ${chainId}`,
+        accountId,
+        chainId,
+      })
+    }
+    return accounts.map(({ accountId, pubkey }) =>
+      createEmptyAccount(accountId, pubkey, chainId, nativeAssetId),
+    )
   }
 
   const results = await Promise.all(
     accounts.map(({ accountId, pubkey }) =>
       limit(async (): Promise<Account> => {
         try {
-          const data = await api.getAccount({ pubkey })
+          const rawData = await api.getAccount({ pubkey })
+          const data = rawData as UnchainedAccountData
 
           const balance = (
             BigInt(data.balance || '0') + BigInt(data.unconfirmedBalance || '0')
           ).toString()
 
-          const tokens: TokenBalance[] = []
-
-          if ('tokens' in data && Array.isArray(data.tokens)) {
-            for (const token of data.tokens) {
-              const contractAddress =
-                'contract' in token ? (token as { contract?: string }).contract : undefined
-              const directAssetId =
-                'assetId' in token ? (token as { assetId?: string }).assetId : undefined
-              const tokenAssetId =
-                directAssetId ||
-                (contractAddress ? `${chainId}/erc20:${contractAddress.toLowerCase()}` : undefined)
-
-              if (tokenAssetId && token.balance) {
-                tokens.push({
-                  assetId: tokenAssetId,
-                  balance: token.balance,
-                  name: token.name,
-                  symbol: token.symbol,
-                  precision: token.decimals,
-                })
-              }
+          const chainPrefix = chainId.split(':')[0]
+          const tokens: TokenBalance[] = (() => {
+            switch (chainPrefix) {
+              case 'eip155':
+              case 'solana':
+                return parseEvmTokens(data.tokens, chainId)
+              case 'cosmos':
+                return parseCosmosAssets(data.assets, chainId)
+              default:
+                return []
             }
-          }
-
-          if ('assets' in data && Array.isArray(data.assets)) {
-            for (const asset of data.assets as { denom?: string; amount?: string }[]) {
-              if (asset.denom && asset.amount && asset.amount !== '0') {
-                tokens.push({
-                  assetId: `${chainId}/${asset.denom}`,
-                  balance: asset.amount,
-                })
-              }
-            }
-          }
-
-          const nativeAssetId = getNativeAssetId(chainId)
+          })()
 
           const account: Account = {
             id: accountId,
@@ -195,16 +216,12 @@ async function fetchFromUnchained(
             tokens,
           }
 
-          const chainPrefix = chainId.split(':')[0]
           switch (chainPrefix) {
             case 'eip155': {
-              let enrichedTokens: EnrichedTokenBalance[] = tokens
+              let portalsTokens: PortalsToken[] = []
               if (tokens.length > 0) {
                 try {
-                  const portalsTokens = await getPortalsAccount(chainId, pubkey)
-                  if (portalsTokens.length > 0) {
-                    enrichedTokens = enrichTokensWithPortals(tokens, portalsTokens)
-                  }
+                  portalsTokens = await getPortalsAccount(chainId, pubkey)
                 } catch (error) {
                   console.warn(
                     `[AccountLoader] Failed to fetch Portals data for ${accountId}:`,
@@ -212,46 +229,19 @@ async function fetchFromUnchained(
                   )
                 }
               }
-              account.tokens = enrichedTokens
-              account.evmData = {
-                nonce: 'nonce' in data ? (data.nonce as number) : 0,
-                tokens: enrichedTokens,
-              }
+              const evmResult = buildEvmAccountData(data, tokens, portalsTokens)
+              account.tokens = evmResult.tokens
+              account.evmData = evmResult.evmData
               break
             }
             case 'bip122':
-              account.utxoData = {
-                addresses:
-                  'addresses' in data && Array.isArray(data.addresses)
-                    ? data.addresses.map(addr => ({
-                        pubkey: (addr as { pubkey: string }).pubkey,
-                        balance: (addr as { balance: string }).balance,
-                      }))
-                    : [],
-                nextChangeAddressIndex:
-                  'nextChangeAddressIndex' in data
-                    ? (data.nextChangeAddressIndex as number)
-                    : undefined,
-                nextReceiveAddressIndex:
-                  'nextReceiveAddressIndex' in data
-                    ? (data.nextReceiveAddressIndex as number)
-                    : undefined,
-              }
+              account.utxoData = buildUtxoAccountData(data)
               break
             case 'cosmos':
-              account.cosmosData = {
-                sequence: 'sequence' in data ? (data.sequence as string) : undefined,
-                accountNumber: 'accountNumber' in data ? (data.accountNumber as string) : undefined,
-                delegations: 'delegations' in data ? data.delegations : undefined,
-                redelegations: 'redelegations' in data ? data.redelegations : undefined,
-                undelegations: 'undelegations' in data ? data.undelegations : undefined,
-                rewards: 'rewards' in data ? data.rewards : undefined,
-              }
+              account.cosmosData = buildCosmosAccountData(data)
               break
             case 'solana':
-              account.solanaData = {
-                tokens,
-              }
+              account.solanaData = { tokens }
               break
             default:
               break
@@ -259,15 +249,13 @@ async function fetchFromUnchained(
 
           return account
         } catch (error) {
-          console.error(`[AccountLoader] Error fetching account ${accountId}:`, error)
-          return {
-            id: accountId,
-            balance: '0',
-            pubkey,
+          logAccountError({
+            code: 'API_ERROR',
+            message: error instanceof Error ? error.message : String(error),
+            accountId,
             chainId,
-            assetId: getNativeAssetId(chainId),
-            tokens: [],
-          }
+          })
+          return createEmptyAccount(accountId, pubkey, chainId, getNativeAssetId(chainId))
         }
       }),
     ),
@@ -307,41 +295,6 @@ function enrichTokensWithPortals(
       pricePerShare: portalsToken.pricePerShare ?? undefined,
     }
   })
-}
-
-function getNativeAssetId(chainId: ChainId): string {
-  const nativeAssetMap: Record<string, string> = {
-    // EVM chains
-    'eip155:1': 'eip155:1/slip44:60',
-    'eip155:43114': 'eip155:43114/slip44:60',
-    'eip155:10': 'eip155:10/slip44:60',
-    'eip155:56': 'eip155:56/slip44:60',
-    'eip155:137': 'eip155:137/slip44:60',
-    'eip155:100': 'eip155:100/slip44:60',
-    'eip155:42161': 'eip155:42161/slip44:60',
-    'eip155:42170': 'eip155:42170/slip44:60',
-    'eip155:8453': 'eip155:8453/slip44:60',
-    'eip155:143': 'eip155:143/slip44:60',
-    'eip155:999': 'eip155:999/slip44:60',
-    'eip155:9745': 'eip155:9745/slip44:60',
-    // UTXO chains
-    'bip122:000000000019d6689c085ae165831e93': 'bip122:000000000019d6689c085ae165831e93/slip44:0',
-    'bip122:000000000000000000651ef99cb9fcbe': 'bip122:000000000000000000651ef99cb9fcbe/slip44:145',
-    'bip122:00000000001a91e3dace36e2be3bf030': 'bip122:00000000001a91e3dace36e2be3bf030/slip44:3',
-    'bip122:12a765e31ffd4059bada1e25190f6e98': 'bip122:12a765e31ffd4059bada1e25190f6e98/slip44:2',
-    'bip122:00040fe8ec8471911baa1db1266ea15d': 'bip122:00040fe8ec8471911baa1db1266ea15d/slip44:133',
-    // Cosmos chains
-    'cosmos:cosmoshub-4': 'cosmos:cosmoshub-4/slip44:118',
-    'cosmos:thorchain-1': 'cosmos:thorchain-1/slip44:931',
-    'cosmos:mayachain-mainnet-v1': 'cosmos:mayachain-mainnet-v1/slip44:931',
-    // Other chains
-    'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp': 'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp/slip44:501',
-    'tron:0x2b6653dc': 'tron:0x2b6653dc/slip44:195',
-    'sui:35834a8a': 'sui:35834a8a/slip44:784',
-    'near:mainnet': 'near:mainnet/slip44:397',
-    'starknet:SN_MAIN': 'starknet:SN_MAIN/slip44:9004',
-  }
-  return nativeAssetMap[chainId] || `${chainId}/slip44:60`
 }
 
 async function batchGetAccounts(accountIds: readonly string[]): Promise<(Account | null)[]> {

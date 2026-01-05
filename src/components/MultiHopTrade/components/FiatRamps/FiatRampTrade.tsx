@@ -34,10 +34,11 @@ import { useModal } from '@/hooks/useModal/useModal'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import type { FiatCurrencyItem } from '@/lib/fiatCurrencies/fiatCurrencies'
+import { fetchAndDispatchFiatMarketData } from '@/lib/graphql/helpers'
 import { getMaybeCompositeAssetSymbol } from '@/lib/mixpanel/helpers'
 import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from '@/lib/mixpanel/types'
-import { marketApi, marketData } from '@/state/slices/marketDataSlice/marketDataSlice'
+import { marketData } from '@/state/slices/marketDataSlice/marketDataSlice'
 import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
 import {
   selectAssets,
@@ -260,14 +261,10 @@ const RampRoutes = memo(({ onChangeTab, direction }: RampRoutesProps) => {
   const previousDebouncedSellDirectionCryptoAmount = usePrevious(debouncedSellDirectionCryptoAmount)
 
   useEffect(() => {
-    if (!fiatMarketData[buyFiatCurrency?.code]) {
-      dispatch(
-        marketApi.endpoints.findByFiatSymbol.initiate({
-          symbol: buyFiatCurrency?.code,
-        }),
-      )
+    if (!fiatMarketData[buyFiatCurrency?.code] && buyFiatCurrency?.code) {
+      void fetchAndDispatchFiatMarketData(buyFiatCurrency.code)
     }
-  }, [dispatch, buyFiatCurrency?.code, fiatMarketData])
+  }, [buyFiatCurrency?.code, fiatMarketData])
 
   // Unselect quote when amount changes (but not on refetch)
   useEffect(() => {

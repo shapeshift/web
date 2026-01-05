@@ -1,28 +1,15 @@
 import { createSlice, prepareAutoBatched } from '@reduxjs/toolkit'
-import { createApi } from '@reduxjs/toolkit/query/react'
 import type { AssetId } from '@shapeshiftoss/caip'
-import type { HistoryData, MarketCapResult, MarketData } from '@shapeshiftoss/types'
+import type { HistoryData, MarketData } from '@shapeshiftoss/types'
 import { HistoryTimeframe } from '@shapeshiftoss/types'
-import { AsyncQueuer } from '@tanstack/pacer'
 import merge from 'lodash/merge'
 
 import type { MarketDataById } from './types'
 import { trimOutOfBoundsMarketData } from './utils'
 
 import { bnOrZero } from '@/lib/bignumber/bignumber'
-import type {
-  FiatMarketDataArgs,
-  FiatPriceHistoryArgs,
-  SupportedFiatCurrencies,
-} from '@/lib/market-service'
-import { findByFiatSymbol, findPriceHistoryByFiatSymbol } from '@/lib/market-service'
-import { BASE_RTK_CREATE_API_CONFIG } from '@/state/apis/const'
-import { getMarketServiceManager } from '@/state/slices/marketDataSlice/marketServiceManagerSingleton'
-import type {
-  FindPriceHistoryByAssetIdArgs,
-  MarketDataState,
-} from '@/state/slices/marketDataSlice/types'
-import type { AppDispatch } from '@/state/store'
+import type { FiatPriceHistoryArgs, SupportedFiatCurrencies } from '@/lib/market-service'
+import type { MarketDataState } from '@/state/slices/marketDataSlice/types'
 
 export const initialState: MarketDataState = {
   crypto: {
@@ -151,144 +138,3 @@ export const marketData = createSlice({
     },
   },
 })
-
-// Async queuer to control findByAssetId() fetching parallelism
-const findbyAssetIdQueue = new AsyncQueuer(
-  async ({ assetId, dispatch }: { assetId: AssetId; dispatch: AppDispatch; priority: number }) => {
-    const currentMarketData = await getMarketServiceManager().findByAssetId({ assetId })
-    if (currentMarketData) {
-      const payload = { [assetId]: currentMarketData }
-      dispatch(marketData.actions.setCryptoMarketData(payload))
-    }
-  },
-  {
-    concurrency: 25, // Process max. 25 AssetIds at once
-    wait: 5_000, // Wait at least 5 seconds between starting a new chunk
-    started: true, // Start processing immediately
-    getPriority: item => item.priority, // Higher numbers have higher priority
-  },
-)
-
-// Async queuer to control findPriceHistoryByAssetId() fetching parallelism
-const findPriceHistoryByAssetIdQueue = new AsyncQueuer(
-  async ({
-    args,
-    dispatch,
-  }: {
-    args: FindPriceHistoryByAssetIdArgs
-    dispatch: AppDispatch
-    priority: number
-  }) => {
-    const { assetId, timeframe } = args
-
-    const historyDataByAssetId = await getMarketServiceManager()
-      .findPriceHistoryByAssetId({
-        timeframe,
-        assetId,
-      })
-      .then(data => ({ [assetId]: data }))
-      .catch(e => {
-        console.error(e)
-        return { [assetId]: [] }
-      })
-
-    dispatch(marketData.actions.setCryptoPriceHistory({ timeframe, historyDataByAssetId }))
-  },
-  {
-    concurrency: 25, // Process max. 25 AssetIds at once
-    wait: 5_000, // Wait at least 5 seconds between starting a new chunk
-    started: true, // Start processing immediately
-    getPriority: item => item.priority, // Higher numbers have higher priority
-  },
-)
-
-export const marketApi = createApi({
-  ...BASE_RTK_CREATE_API_CONFIG,
-  reducerPath: 'marketApi',
-  endpoints: build => ({
-    findAll: build.query<MarketCapResult, void>({
-      // top 2000 assets
-      // named function for profiling+debugging purposes
-      queryFn: async function findAll(_, { dispatch }) {
-        try {
-          const data = await getMarketServiceManager().findAll({ count: 2000 })
-          dispatch(marketData.actions.setCryptoMarketData(data))
-          return { data }
-        } catch (e) {
-          const error = { data: `findAll: could not find marketData for all assets`, status: 404 }
-          return { error }
-        }
-      },
-    }),
-    // TODO(gomes): While adding queuer to this, noting we don't even care about this guy anymore and never did -
-    // all it does is fetch and dispatch into `marketData`, this doesn't need to be an RTK query
-    // Keeping this here for the time being to not make potential breaking changes, but this could well be a react-query to avoid layers of complexity
-    findByAssetId: build.query<null, AssetId>({
-      // named function for profiling+debugging purposes
-      queryFn: function findByAssetId(assetId: AssetId, { dispatch }) {
-        findbyAssetIdQueue.addItem({ assetId, dispatch, priority: 1 })
-
-        return { data: null }
-      },
-      keepUnusedDataFor: 30, // Invalidate cached asset market data after 30 seconds.
-    }),
-    findPriceHistoryByAssetId: build.query<null, FindPriceHistoryByAssetIdArgs>({
-      // named function for profiling+debugging purposes
-      queryFn: function findPriceHistoryByAssetId(args, { dispatch }) {
-        findPriceHistoryByAssetIdQueue.addItem({
-          args,
-          dispatch,
-          priority: 0,
-        })
-
-        return { data: null }
-      },
-    }),
-    findByFiatSymbol: build.query<MarketCapResult, FiatMarketDataArgs>({
-      queryFn: async ({ symbol }: { symbol: SupportedFiatCurrencies }, baseQuery) => {
-        try {
-          const currentMarketData = await findByFiatSymbol({ symbol })
-          if (!currentMarketData) throw new Error()
-          const data = { [symbol]: currentMarketData }
-          baseQuery.dispatch(marketData.actions.setFiatMarketData(data))
-          return { data }
-        } catch (e) {
-          console.error(e)
-          const err = `findByFiatSymbol: no market data for ${symbol}`
-          // set dummy data on error
-          const data = { [symbol]: [] }
-          baseQuery.dispatch(marketData.actions.setFiatMarketData(data))
-          const error = { data: err, status: 404 }
-          return { error }
-        }
-      },
-    }),
-    findPriceHistoryByFiatSymbol: build.query<HistoryData[], FiatPriceHistoryArgs>({
-      queryFn: async (args, { dispatch }) => {
-        const { symbol, timeframe } = args
-        try {
-          const data = await findPriceHistoryByFiatSymbol({ timeframe, symbol })
-          const payload = { args, data }
-          dispatch(marketData.actions.setFiatPriceHistory(payload))
-          return { data }
-        } catch (e) {
-          // set dummy data on error
-          const data: HistoryData[] = []
-          const payload = { args, data }
-          dispatch(marketData.actions.setFiatPriceHistory(payload))
-          const error = {
-            data: `findPriceHistoryByFiatSymbol: error fetching price history for ${symbol}`,
-            status: 400,
-          }
-          return { error }
-        }
-      },
-    }),
-  }),
-})
-
-export const {
-  useFindAllQuery: useFindAllMarketDataQuery,
-  useFindPriceHistoryByAssetIdQuery,
-  useFindByAssetIdQuery: useFindMarketDataByAssetIdQuery,
-} = marketApi

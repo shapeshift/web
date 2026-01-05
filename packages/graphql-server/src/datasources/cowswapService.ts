@@ -40,6 +40,7 @@ export type CowSwapOrder = {
   invalidated: boolean
   fullAppData: string | null
   class: string
+  txHash?: string | null
 }
 
 export type OrdersUpdate = {
@@ -70,6 +71,92 @@ export function initCowSwapService(ps: PubSubLike): void {
   pubsub = ps
 }
 
+type CowSwapTrade = {
+  blockNumber: number
+  logIndex: number
+  orderUid: string
+  owner: string
+  sellToken: string
+  buyToken: string
+  sellAmount: string
+  sellAmountBeforeFees: string
+  buyAmount: string
+  txHash: string | null
+  executedProtocolFees?: {
+    policy: {
+      priceImprovement?: {
+        factor: number
+        maxVolumeFactor: number
+        quote: { sellAmount: string; buyAmount: string; fee: string }
+      }
+      volume?: { factor: number }
+      surplus?: { factor: number; maxVolumeFactor: number }
+    }
+    amount: string
+    token: string
+  }[]
+}
+
+const txHashCache = new Map<string, string>()
+const TX_HASH_BATCH_SIZE = 3
+const TX_HASH_BATCH_DELAY_MS = 500
+
+function sleep(ms: number): Promise<void> {
+  return new Promise(resolve => setTimeout(resolve, ms))
+}
+
+async function fetchTradesForOrder(
+  orderUid: string,
+  network: CowSwapNetwork,
+): Promise<string | null> {
+  const cacheKey = `${network}:${orderUid}`
+  const cached = txHashCache.get(cacheKey)
+  if (cached) return cached
+
+  try {
+    const { data } = await axios.get<CowSwapTrade[]>(
+      `${COWSWAP_BASE_URL}/${network}/api/v1/trades?orderUid=${orderUid}`,
+      { timeout: 5000 },
+    )
+    const txHash = data[0]?.txHash ?? null
+    if (txHash) {
+      txHashCache.set(cacheKey, txHash)
+    }
+    return txHash
+  } catch (error) {
+    if (axios.isAxiosError(error) && error.response?.status === 429) {
+      console.warn(`[CowSwap] Rate limited fetching trades for order ${orderUid.slice(0, 20)}...`)
+    } else {
+      console.warn(`[CowSwap] Failed to fetch trades for order ${orderUid.slice(0, 20)}...:`, error)
+    }
+    return null
+  }
+}
+
+async function fetchTxHashesWithRateLimit(
+  orders: { uid: string }[],
+  network: CowSwapNetwork,
+): Promise<Map<string, string | null>> {
+  const results = new Map<string, string | null>()
+
+  for (let i = 0; i < orders.length; i += TX_HASH_BATCH_SIZE) {
+    const batch = orders.slice(i, i + TX_HASH_BATCH_SIZE)
+    const batchResults = await Promise.all(
+      batch.map(async order => {
+        const txHash = await fetchTradesForOrder(order.uid, network)
+        return { uid: order.uid, txHash }
+      }),
+    )
+    batchResults.forEach(({ uid, txHash }) => results.set(uid, txHash))
+
+    if (i + TX_HASH_BATCH_SIZE < orders.length) {
+      await sleep(TX_HASH_BATCH_DELAY_MS)
+    }
+  }
+
+  return results
+}
+
 async function fetchOrdersForAccount(
   address: string,
   network: CowSwapNetwork,
@@ -79,6 +166,17 @@ async function fetchOrdersForAccount(
       `${COWSWAP_BASE_URL}/${network}/api/v1/account/${address}/orders?limit=1000`,
       { timeout: 10000 },
     )
+
+    const fulfilledOrders = data.filter(order => order.status === 'fulfilled')
+    if (fulfilledOrders.length > 0) {
+      const txHashMap = await fetchTxHashesWithRateLimit(fulfilledOrders, network)
+
+      return data.map(order => ({
+        ...order,
+        txHash: txHashMap.get(order.uid) ?? null,
+      }))
+    }
+
     return data
   } catch (error) {
     console.warn(`[CowSwap] Failed to fetch orders for ${address} on ${network}:`, error)
@@ -119,7 +217,11 @@ async function pollOrders(): Promise<void> {
 
       if (hasOrdersChanged(cachedOrders, newOrders)) {
         orderCache.set(cacheKey, newOrders)
-        console.log(`[CowSwap] Orders changed for ${accountId}, publishing update`)
+        console.log(`[CowSwap] Orders changed for ${accountId}, publishing update`, {
+          ordersCount: newOrders.length,
+          statuses: newOrders.slice(0, 5).map(o => ({ uid: o.uid.slice(0, 10), status: o.status })),
+          topic: ORDERS_UPDATED_TOPIC,
+        })
 
         const update: OrdersUpdate = {
           accountId,
@@ -127,7 +229,10 @@ async function pollOrders(): Promise<void> {
           timestamp: Date.now(),
         }
 
-        currentPubsub.publish(ORDERS_UPDATED_TOPIC, { limitOrdersUpdated: update })
+        currentPubsub.publish(ORDERS_UPDATED_TOPIC, { cowswapOrdersUpdated: update })
+        console.log(`[CowSwap] Published to topic ${ORDERS_UPDATED_TOPIC}`)
+      } else {
+        console.log(`[CowSwap] No changes for ${accountId}, skipping publish`)
       }
     }),
   )
@@ -149,6 +254,12 @@ function stopPolling(): void {
 }
 
 export function subscribeToOrders(accountId: string, chainId: string, address: string): boolean {
+  console.log(`[CowSwap] subscribeToOrders called:`, {
+    accountId,
+    chainId,
+    address: address.slice(0, 10) + '...',
+  })
+
   const network = CHAIN_ID_TO_NETWORK[chainId]
   if (!network) {
     console.log(`[CowSwap] Chain ${chainId} not supported for orders`)
@@ -158,9 +269,15 @@ export function subscribeToOrders(accountId: string, chainId: string, address: s
   const key = `${chainId}:${address}`
   const isNew = !activeSubscriptions.has(key)
 
+  console.log(`[CowSwap] Subscription status:`, {
+    network,
+    isNew,
+    activeSubscriptionsCount: activeSubscriptions.size,
+  })
+
   if (isNew) {
     activeSubscriptions.set(key, { accountId, chainId, address, network })
-    console.log(`[CowSwap] Subscribed to orders for ${accountId}`)
+    console.log(`[CowSwap] Added new subscription for ${accountId}`)
   }
 
   if (activeSubscriptions.size === 1) {
@@ -179,14 +296,17 @@ export function subscribeToOrders(accountId: string, chainId: string, address: s
         orders,
         timestamp: Date.now(),
       }
-      console.log(
-        `[CowSwap] Publishing initial ${orders.length} orders for ${accountId} to topic ${ORDERS_UPDATED_TOPIC}`,
-      )
+      console.log(`[CowSwap] Publishing initial orders:`, {
+        accountId,
+        ordersCount: orders.length,
+        topic: ORDERS_UPDATED_TOPIC,
+        statuses: orders.slice(0, 5).map(o => ({ uid: o.uid.slice(0, 10), status: o.status })),
+      })
       try {
-        await pubsub?.publish(ORDERS_UPDATED_TOPIC, { limitOrdersUpdated: update })
-        console.log(`[CowSwap] Published successfully`)
+        await pubsub?.publish(ORDERS_UPDATED_TOPIC, { cowswapOrdersUpdated: update })
+        console.log(`[CowSwap] Initial orders published successfully for ${accountId}`)
       } catch (err) {
-        console.error(`[CowSwap] Publish failed:`, err)
+        console.error(`[CowSwap] Initial orders publish failed for ${accountId}:`, err)
       }
     }, 500)
   }

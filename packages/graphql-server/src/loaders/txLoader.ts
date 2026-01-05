@@ -2,8 +2,13 @@ import type { ChainId } from '@shapeshiftoss/caip'
 import DataLoader from 'dataloader'
 import pLimit from 'p-limit'
 
+import { getNativeAssetId } from '../constants.js'
+import type { Transaction, Transfer, TxHistoryResult } from '../types.js'
 import { getChainConfig } from '../unchained/config.js'
 import { getUnchainedApi } from '../unchained/index.js'
+import { groupByChainId } from '../utils.js'
+
+export type { Transaction, Transfer, TxHistoryResult }
 
 const TX_CACHE_TTL_MS = 5 * 60_000
 
@@ -14,84 +19,7 @@ type CachedTxHistory = {
 
 const txCache = new Map<string, CachedTxHistory>()
 
-export type Transfer = {
-  type: string
-  assetId: string
-  value: string
-  from: string[]
-  to: string[]
-}
-
-export type Transaction = {
-  txid: string
-  pubkey: string
-  blockHeight: number | null
-  blockTime: number | null
-  chainId: string
-  status: string
-  fee: string | null
-  transfers: Transfer[]
-}
-
-export type TxHistoryResult = {
-  accountId: string
-  transactions: Transaction[]
-  cursor: string | null
-}
-
-function parseAccountId(accountId: string): { chainId: ChainId; pubkey: string } {
-  const parts = accountId.split(':')
-  if (parts.length >= 3) {
-    const chainId = `${parts[0]}:${parts[1]}` as ChainId
-    const pubkey = parts.slice(2).join(':')
-    return { chainId, pubkey }
-  }
-  return { chainId: 'unknown' as ChainId, pubkey: accountId }
-}
-
-function groupByChainId(
-  accountIds: readonly string[],
-): Map<ChainId, { accountId: string; pubkey: string }[]> {
-  const groups = new Map<ChainId, { accountId: string; pubkey: string }[]>()
-
-  for (const accountId of accountIds) {
-    const { chainId, pubkey } = parseAccountId(accountId)
-    const existing = groups.get(chainId)
-    if (existing) {
-      existing.push({ accountId, pubkey })
-    } else {
-      groups.set(chainId, [{ accountId, pubkey }])
-    }
-  }
-
-  return groups
-}
-
 const limit = pLimit(5)
-
-function getNativeAssetId(chainId: ChainId): string {
-  const nativeAssetMap: Record<string, string> = {
-    'eip155:1': 'eip155:1/slip44:60',
-    'eip155:43114': 'eip155:43114/slip44:60',
-    'eip155:10': 'eip155:10/slip44:60',
-    'eip155:56': 'eip155:56/slip44:60',
-    'eip155:137': 'eip155:137/slip44:60',
-    'eip155:100': 'eip155:100/slip44:60',
-    'eip155:42161': 'eip155:42161/slip44:60',
-    'eip155:42170': 'eip155:42170/slip44:60',
-    'eip155:8453': 'eip155:8453/slip44:60',
-    'bip122:000000000019d6689c085ae165831e93': 'bip122:000000000019d6689c085ae165831e93/slip44:0',
-    'bip122:000000000000000000651ef99cb9fcbe': 'bip122:000000000000000000651ef99cb9fcbe/slip44:145',
-    'bip122:00000000001a91e3dace36e2be3bf030': 'bip122:00000000001a91e3dace36e2be3bf030/slip44:3',
-    'bip122:12a765e31ffd4059bada1e25190f6e98': 'bip122:12a765e31ffd4059bada1e25190f6e98/slip44:2',
-    'bip122:00040fe8ec8471911baa1db1266ea15d': 'bip122:00040fe8ec8471911baa1db1266ea15d/slip44:133',
-    'cosmos:cosmoshub-4': 'cosmos:cosmoshub-4/slip44:118',
-    'cosmos:thorchain-1': 'cosmos:thorchain-1/slip44:931',
-    'cosmos:mayachain-mainnet-v1': 'cosmos:mayachain-mainnet-v1/slip44:931',
-    'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp': 'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp/slip44:501',
-  }
-  return nativeAssetMap[chainId] || `${chainId}/slip44:60`
-}
 
 type RawTx = {
   txid: string

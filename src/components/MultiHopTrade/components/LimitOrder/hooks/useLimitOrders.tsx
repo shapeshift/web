@@ -13,7 +13,8 @@ import { useTranslate } from 'react-polyglot'
 import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { useNotificationToast } from '@/hooks/useNotificationToast'
 import { useWallet } from '@/hooks/useWallet/useWallet'
-import { useLimitOrdersSubscription } from '@/lib/graphql/useLimitOrdersSubscription'
+import { useLimitOrdersGraphQLQuery } from '@/lib/graphql/queries/useLimitOrdersQuery'
+import { useLimitOrdersRealtimeSubscription } from '@/lib/graphql/useLimitOrdersRealtimeSubscription'
 import { useGetLimitOrdersQuery } from '@/state/apis/limit-orders/limitOrderApi'
 import { selectPartitionedAccountIds } from '@/state/slices/common-selectors'
 import {
@@ -24,8 +25,8 @@ import {
 import { store, useAppSelector } from '@/state/store'
 
 type LimitOrdersQueryResult = {
-  data: { order: Order; accountId: AccountId }[] | undefined
-  currentData: { order: Order; accountId: AccountId }[] | undefined
+  data: { order: Order; accountId: AccountId; txHash?: string | null }[] | undefined
+  currentData: { order: Order; accountId: AccountId; txHash?: string | null }[] | undefined
   isLoading: boolean
   isFetching: boolean
   isError: boolean
@@ -47,48 +48,98 @@ export const useLimitOrdersQuery = (): LimitOrdersQueryResult => {
     modal ||
     isLoadingLocalWallet
 
+  console.log('[useLimitOrdersQuery] State:', {
+    isGraphQLEnabled,
+    evmAccountIdsCount: evmAccountIds.length,
+    evmAccountIds: evmAccountIds.slice(0, 3),
+    isConnected,
+    portfolioLoadingStatus,
+    isLoadingLocalWallet,
+    modal: Boolean(modal),
+    shouldSkip,
+  })
+
   const rtkQueryArg = shouldSkip || isGraphQLEnabled ? skipToken : evmAccountIds
   const rtkResult = useGetLimitOrdersQuery(rtkQueryArg, {
     pollingInterval: 15_000,
     refetchOnMountOrArgChange: false,
   })
 
-  const graphqlSkip = shouldSkip || !isGraphQLEnabled
+  const graphqlQueryEnabled = !shouldSkip && isGraphQLEnabled
   const {
-    data: graphqlData,
-    isLoading: graphqlIsLoading,
-    error: graphqlError,
-  } = useLimitOrdersSubscription(evmAccountIds, graphqlSkip)
+    data: graphqlQueryData,
+    isLoading: graphqlQueryLoading,
+    isFetching: graphqlQueryFetching,
+    error: graphqlQueryError,
+  } = useLimitOrdersGraphQLQuery(evmAccountIds, { enabled: graphqlQueryEnabled })
+
+  const { isConnected: isSubscribed, error: subscriptionError } =
+    useLimitOrdersRealtimeSubscription(evmAccountIds, !graphqlQueryEnabled)
 
   useEffect(() => {
-    if (isGraphQLEnabled && graphqlData) {
-      console.log(
-        '[useLimitOrdersQuery] GraphQL orders update received:',
-        graphqlData.length,
-        'orders',
-      )
-    }
-  }, [isGraphQLEnabled, graphqlData])
+    console.log('[useLimitOrdersQuery] GraphQL state:', {
+      isGraphQLEnabled,
+      queryEnabled: graphqlQueryEnabled,
+      dataLength: graphqlQueryData?.length ?? 0,
+      isLoading: graphqlQueryLoading,
+      isFetching: graphqlQueryFetching,
+      isSubscribed,
+      queryError: graphqlQueryError?.message,
+      subscriptionError: subscriptionError?.message,
+    })
+  }, [
+    isGraphQLEnabled,
+    graphqlQueryEnabled,
+    graphqlQueryData,
+    graphqlQueryLoading,
+    graphqlQueryFetching,
+    isSubscribed,
+    graphqlQueryError,
+    subscriptionError,
+  ])
 
-  if (isGraphQLEnabled) {
+  const result = useMemo((): LimitOrdersQueryResult => {
+    if (isGraphQLEnabled) {
+      const error = graphqlQueryError ?? subscriptionError ?? null
+      console.log('[useLimitOrdersQuery] Returning GraphQL data:', {
+        dataLength: graphqlQueryData?.length ?? 0,
+        isLoading: graphqlQueryLoading,
+        isSubscribed,
+      })
+      return {
+        data: graphqlQueryData,
+        currentData: graphqlQueryData,
+        isLoading: graphqlQueryLoading,
+        isFetching: graphqlQueryFetching,
+        isError: Boolean(error),
+        error: error instanceof Error ? error : error ? new Error(String(error)) : null,
+      }
+    }
+
+    console.log('[useLimitOrdersQuery] Returning RTK data:', {
+      dataLength: rtkResult.data?.length ?? 0,
+      isLoading: rtkResult.isLoading,
+    })
     return {
-      data: graphqlData,
-      currentData: graphqlData,
-      isLoading: graphqlIsLoading,
-      isFetching: graphqlIsLoading,
-      isError: Boolean(graphqlError),
-      error: graphqlError,
+      data: rtkResult.data,
+      currentData: rtkResult.currentData,
+      isLoading: rtkResult.isLoading,
+      isFetching: rtkResult.isFetching,
+      isError: rtkResult.isError,
+      error: rtkResult.error ? new Error(String(rtkResult.error)) : null,
     }
-  }
+  }, [
+    isGraphQLEnabled,
+    graphqlQueryData,
+    graphqlQueryLoading,
+    graphqlQueryFetching,
+    graphqlQueryError,
+    subscriptionError,
+    isSubscribed,
+    rtkResult,
+  ])
 
-  return {
-    data: rtkResult.data,
-    currentData: rtkResult.currentData,
-    isLoading: rtkResult.isLoading,
-    isFetching: rtkResult.isFetching,
-    isError: rtkResult.isError,
-    error: rtkResult.error ? new Error(String(rtkResult.error)) : null,
-  }
+  return result
 }
 
 export const useLimitOrders = () => {

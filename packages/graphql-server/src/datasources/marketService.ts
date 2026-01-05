@@ -1,9 +1,39 @@
-import { adapters, foxAssetId, foxOnArbitrumOneAssetId, isNft } from '@shapeshiftoss/caip'
+import {
+  adapters,
+  arbitrumChainId,
+  avalancheChainId,
+  baseChainId,
+  bscChainId,
+  ethChainId,
+  foxAssetId,
+  foxOnArbitrumOneAssetId,
+  fromAssetId,
+  gnosisChainId,
+  isNft,
+  optimismChainId,
+  polygonChainId,
+} from '@shapeshiftoss/caip'
+import { isToken } from '@shapeshiftoss/utils'
 import axios from 'axios'
+import dayjs from 'dayjs'
 import pLimit from 'p-limit'
+import { zeroAddress } from 'viem'
 
-// Limit concurrent upstream API requests to prevent hammering providers
 const upstreamRequestLimit = pLimit(5)
+
+const PORTALS_BASE_URL =
+  process.env.PORTALS_BASE_URL || 'https://api.proxy.shapeshift.com/api/v1/portals'
+
+const CHAIN_ID_TO_PORTALS_NETWORK = {
+  [avalancheChainId]: 'avalanche',
+  [ethChainId]: 'ethereum',
+  [polygonChainId]: 'polygon',
+  [bscChainId]: 'bsc',
+  [optimismChainId]: 'optimism',
+  [arbitrumChainId]: 'arbitrum',
+  [gnosisChainId]: 'gnosis',
+  [baseChainId]: 'base',
+} as const
 
 // Aligned with packages/types/src/market.ts MarketData
 export type MarketData = {
@@ -180,6 +210,79 @@ class CoinCapService implements MarketService {
 }
 
 /**
+ * Portals Market Service - For LP tokens and DeFi positions
+ * Mirrors: src/lib/market-service/portals/portals.ts
+ */
+class PortalsService implements MarketService {
+  name = 'Portals'
+  private baseUrl = PORTALS_BASE_URL
+
+  async findByAssetIds(assetIds: string[]): Promise<Map<string, MarketData>> {
+    const result = new Map<string, MarketData>()
+
+    const requests = assetIds
+      .map(assetId => {
+        const { chainId, assetReference } = fromAssetId(assetId)
+        const network = CHAIN_ID_TO_PORTALS_NETWORK[chainId]
+        if (!network) return null
+        return { assetId, chainId, assetReference, network }
+      })
+      .filter(Boolean) as {
+      assetId: string
+      chainId: string
+      assetReference: string
+      network: string
+    }[]
+
+    if (requests.length === 0) return result
+
+    await Promise.all(
+      requests.map(async ({ assetId, assetReference, network }) => {
+        try {
+          const from = dayjs().subtract(24, 'hours').unix()
+          const url = `${this.baseUrl}/v2/tokens/history`
+          const { data } = await upstreamRequestLimit(() =>
+            axios.get<{ history: { openPrice: string; closePrice: string; liquidity: string }[] }>(
+              url,
+              {
+                params: {
+                  id: `${network}:${isToken(assetId) ? assetReference : zeroAddress}`,
+                  from,
+                  resolution: '1d',
+                  page: 0,
+                },
+                timeout: 10000,
+              },
+            ),
+          )
+
+          if (data.history.length === 0) return
+
+          const latestData = data.history[0]
+          if (!latestData) return
+
+          const openPrice = parseFloat(latestData.openPrice)
+          const closePrice = parseFloat(latestData.closePrice)
+          const changePercent = openPrice > 0 ? ((closePrice - openPrice) / openPrice) * 100 : 0
+
+          result.set(assetId, {
+            assetId,
+            price: closePrice.toString(),
+            marketCap: latestData.liquidity,
+            volume: '0',
+            changePercent24Hr: changePercent,
+          })
+        } catch (error) {
+          console.warn(`[Portals] Failed to fetch ${assetId}:`, error)
+        }
+      }),
+    )
+
+    return result
+  }
+}
+
+/**
  * Unified Market Service Manager with provider fallback chain
  *
  * Mirrors the pattern from: src/lib/market-service/market-service-manager.ts
@@ -197,16 +300,7 @@ export class MarketServiceManager {
   private providers: MarketService[]
 
   constructor() {
-    // Order constitutes fallback priority - more reliable providers first
-    // Same order as existing market-service-manager.ts
-    this.providers = [
-      new CoinGeckoService(),
-      new CoinCapService(),
-      // TODO: Add more providers as needed:
-      // - PortalsMarketService (good for LP tokens)
-      // - ThorchainAssetsMarketService
-      // - ZerionMarketService
-    ]
+    this.providers = [new CoinGeckoService(), new CoinCapService(), new PortalsService()]
   }
 
   /**

@@ -4,11 +4,11 @@ import { skipToken, useQuery } from '@tanstack/react-query'
 
 import { OrderDirection } from '@/components/OrderDropdown/types'
 import { SortOptionsKeys } from '@/components/SortDropdown/types'
+import { fetchAndDispatchSingleAssetMarketData } from '@/lib/graphql/helpers'
 import { PORTALS_NETWORK_TO_CHAIN_ID } from '@/lib/portals/constants'
 import type { TokenInfo } from '@/lib/portals/types'
 import { fetchPortalsPlatforms, fetchPortalsTokens, portalTokenToAsset } from '@/lib/portals/utils'
 import { assets as assetsSlice } from '@/state/slices/assetsSlice/assetsSlice'
-import { marketApi } from '@/state/slices/marketDataSlice/marketDataSlice'
 import { selectAssets, selectFeeAssetById } from '@/state/slices/selectors'
 import { store, useAppDispatch, useAppSelector } from '@/state/store'
 
@@ -102,8 +102,7 @@ export const usePortalsAssetsQuery = ({
             )
           }
 
-          // and fetch its market-data since it may or may not be missing
-          dispatch(marketApi.endpoints.findByAssetId.initiate(assetId))
+          void fetchAndDispatchSingleAssetMarketData(assetId)
 
           if (!acc.chainIds.includes(chainId)) {
             acc.chainIds.push(chainId)

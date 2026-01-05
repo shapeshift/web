@@ -38,6 +38,7 @@ import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { DEFAULT_FEE_BPS } from '@/lib/fees/constant'
 import { calculateFeeUsd } from '@/lib/fees/utils'
+import { useSingleAssetMarketDataQuery } from '@/lib/graphql/queries'
 import { getErc20Allowance } from '@/lib/utils/evm'
 import { useQuoteLimitOrderQuery } from '@/state/apis/limit-orders/limitOrderApi'
 import { LimitPriceMode, PriceDirection } from '@/state/slices/limitOrderInputSlice/constants'
@@ -66,7 +67,6 @@ import {
 import { makeLimitInputOutputRatio } from '@/state/slices/limitOrderSlice/helpers'
 import { limitOrderSlice } from '@/state/slices/limitOrderSlice/limitOrderSlice'
 import { selectActiveQuoteNetworkFeeUserCurrency } from '@/state/slices/limitOrderSlice/selectors'
-import { useFindMarketDataByAssetIdQuery } from '@/state/slices/marketDataSlice/marketDataSlice'
 import { selectUsdRateByAssetId, selectUserCurrencyToUsdRate } from '@/state/slices/selectors'
 import {
   selectIsTradeQuoteRequestAborted,
@@ -81,8 +81,6 @@ type LimitOrderInputProps = {
   onChangeTab: (newTab: TradeInputTab) => void
   noExpand?: boolean
 }
-
-const MARKET_DATA_POLLING_INTERVAL = 10_000
 
 export const LimitOrderInput = ({
   isCompact,
@@ -102,6 +100,26 @@ export const LimitOrderInput = ({
 
   const sellAsset = useAppSelector(selectInputSellAsset)
   const buyAsset = useAppSelector(selectInputBuyAsset)
+
+  const isSwitchAssetsDisabled = useMemo(() => {
+    if (!buyAsset?.assetId) {
+      console.warn('[LimitOrderInput] buyAsset or buyAsset.assetId is undefined', {
+        buyAsset,
+        sellAsset,
+      })
+      return false
+    }
+    try {
+      return isNativeEvmAsset(buyAsset.assetId)
+    } catch (error) {
+      console.error('[LimitOrderInput] Error in isNativeEvmAsset:', {
+        error,
+        buyAssetId: buyAsset?.assetId,
+        buyAsset,
+      })
+      return false
+    }
+  }, [buyAsset, sellAsset])
   const limitPrice = useAppSelector(selectLimitPrice)
   const sellAccountId = useAppSelector(selectSellAccountId)
   const buyAccountId = useAppSelector(selectBuyAccountId)
@@ -223,12 +241,12 @@ export const LimitOrderInput = ({
     isFetching: isLimitOrderQuoteFetching,
   } = useQuoteLimitOrderQuery(limitOrderQuoteParams)
 
-  useFindMarketDataByAssetIdQuery(sellAsset.assetId, {
-    pollingInterval: MARKET_DATA_POLLING_INTERVAL,
+  useSingleAssetMarketDataQuery({
+    assetId: sellAsset.assetId,
   })
 
-  useFindMarketDataByAssetIdQuery(buyAsset.assetId, {
-    pollingInterval: MARKET_DATA_POLLING_INTERVAL,
+  useSingleAssetMarketDataQuery({
+    assetId: buyAsset.assetId,
   })
 
   const sellAssetMarketDataUsd = useAppSelector(state =>
@@ -474,7 +492,7 @@ export const LimitOrderInput = ({
         sellAsset={sellAsset}
         sellAccountId={sellAccountId}
         onSwitchAssets={handleSwitchAssets}
-        isSwitchAssetsDisabled={isNativeEvmAsset(buyAsset.assetId)}
+        isSwitchAssetsDisabled={isSwitchAssetsDisabled}
         onChangeIsInputtingFiatSellAmount={setIsInputtingFiatSellAmount}
         onChangeSellAmountCryptoPrecision={setSellAmountCryptoPrecision}
         setSellAsset={setSellAsset}
@@ -517,6 +535,7 @@ export const LimitOrderInput = ({
     sellAsset,
     sellAccountId,
     handleSwitchAssets,
+    isSwitchAssetsDisabled,
     setIsInputtingFiatSellAmount,
     setSellAmountCryptoPrecision,
     setSellAsset,

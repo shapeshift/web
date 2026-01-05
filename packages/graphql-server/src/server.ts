@@ -1,5 +1,6 @@
 import { ApolloServer } from '@apollo/server'
 import { expressMiddleware } from '@apollo/server/express4'
+import { ApolloServerPluginCacheControl } from '@apollo/server/plugin/cacheControl'
 import { ApolloServerPluginDrainHttpServer } from '@apollo/server/plugin/drainHttpServer'
 import { makeExecutableSchema } from '@graphql-tools/schema'
 import bodyParser from 'body-parser'
@@ -66,6 +67,7 @@ const serverCleanup = useServer(
 const server = new ApolloServer<Context>({
   schema,
   plugins: [
+    ApolloServerPluginCacheControl({ defaultMaxAge: 60 }),
     ApolloServerPluginDrainHttpServer({ httpServer }),
     {
       serverWillStart() {
@@ -115,7 +117,7 @@ async function startServer() {
   app.use(
     '/graphql',
     cors<cors.CorsRequest>(),
-    bodyParser.json(),
+    bodyParser.json({ limit: '10mb' }),
     expressMiddleware(server, {
       context: () =>
         Promise.resolve({

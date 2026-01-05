@@ -254,11 +254,11 @@ const HistoricalLimitOrders: FC<{
           ![OrderStatus.OPEN, OrderStatus.PRESIGNATURE_PENDING].includes(order.status)
         )
       })
-      .map(({ accountId, order }) => {
+      .map(({ accountId, order, txHash }) => {
         const { chainId } = fromAccountId(accountId)
         const sellAssetId = cowSwapTokenToAssetId(chainId, order.sellToken)
         const buyAssetId = cowSwapTokenToAssetId(chainId, order.buyToken)
-        return { accountId, sellAssetId, buyAssetId, order }
+        return { accountId, sellAssetId, buyAssetId, order, txHash }
       })
   }, [ordersResponse])
 
@@ -313,7 +313,7 @@ const HistoricalLimitOrders: FC<{
                   <>
                     {topRowSpacerHeight > 0 && <Tr height={topRowSpacerHeight} />}
                     {virtualRows.map(virtualRow => {
-                      const { accountId, sellAssetId, buyAssetId, order } =
+                      const { accountId, sellAssetId, buyAssetId, order, txHash } =
                         historicalLimitOrders[virtualRow.index]
                       return (
                         <LimitOrderCard
@@ -331,6 +331,7 @@ const HistoricalLimitOrders: FC<{
                           status={order.status}
                           executedBuyAmountCryptoBaseUnit={order.executedBuyAmount}
                           executedSellAmountCryptoBaseUnit={order.executedSellAmount}
+                          txHash={txHash}
                         />
                       )
                     })}

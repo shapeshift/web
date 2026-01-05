@@ -21,11 +21,11 @@ import { WarningAcknowledgement } from '@/components/Acknowledgement/WarningAckn
 import { AssetIcon } from '@/components/AssetIcon'
 import { InlineCopyButton } from '@/components/InlineCopyButton'
 import { useToggle } from '@/hooks/useToggle/useToggle'
+import { fetchAndDispatchSingleAssetMarketData } from '@/lib/graphql/helpers'
 import { getMixPanel } from '@/lib/mixpanel/mixPanelSingleton'
 import { MixPanelEvent } from '@/lib/mixpanel/types'
 import { middleEllipsis } from '@/lib/utils'
 import { assets as assetsSlice } from '@/state/slices/assetsSlice/assetsSlice'
-import { marketApi } from '@/state/slices/marketDataSlice/marketDataSlice'
 import { useAppDispatch } from '@/state/store'
 
 const externalLinkIcon = <ExternalLinkIcon paddingLeft={'4px'} />
@@ -73,11 +73,8 @@ export const CustomAssetAcknowledgement: React.FC<CustomAssetAcknowledgementProp
       asset,
     })
 
-    // Add asset to the store
     dispatch(assetsSlice.actions.upsertAsset(asset))
-    // Use the market API to get the market data for the custom asset
-    dispatch(marketApi.endpoints.findByAssetId.initiate(asset.assetId))
-    // Once the custom asset is in the store, proceed as if it was a normal asset
+    void fetchAndDispatchSingleAssetMarketData(asset.assetId)
     handleAssetClick(asset)
   }, [dispatch, handleAssetClick, asset])
 

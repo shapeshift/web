@@ -2,19 +2,16 @@ import type { AssetId } from '@shapeshiftoss/caip'
 import { HistoryTimeframe } from '@shapeshiftoss/types'
 import { useEffect } from 'react'
 
-import { marketApi } from '@/state/slices/marketDataSlice/marketDataSlice'
-import { useAppDispatch } from '@/state/store'
+import { fetchAndDispatchMarketData, fetchAndDispatchPriceHistory } from '@/lib/graphql/helpers'
 
 export const useFetchFiatAssetMarketData = (assetIds: AssetId[]): void => {
-  const dispatch = useAppDispatch()
   useEffect(() => {
-    const timeframe = HistoryTimeframe.DAY
+    if (assetIds.length === 0) return
 
-    if (assetIds.length > 0) {
-      assetIds.forEach(assetId => {
-        dispatch(marketApi.endpoints.findPriceHistoryByAssetId.initiate({ assetId, timeframe }))
-        dispatch(marketApi.endpoints.findByAssetId.initiate(assetId))
-      })
-    }
-  }, [assetIds, dispatch])
+    void fetchAndDispatchMarketData(assetIds)
+
+    assetIds.forEach(assetId => {
+      void fetchAndDispatchPriceHistory(assetId, HistoryTimeframe.DAY)
+    })
+  }, [assetIds])
 }

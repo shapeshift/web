@@ -28,6 +28,7 @@ import * as arbitrumNova from './arbitrumNova'
 import * as avalanche from './avalanche'
 import * as base from './base'
 import * as bnbsmartchain from './bnbsmartchain'
+import { compressGeneratedAssets } from './compressAssets'
 import { ASSET_DATA_PATH, GENERATED_DIR, RELATED_ASSET_INDEX_PATH } from './constants'
 import * as ethereum from './ethereum'
 import { generateRelatedAssetIndex } from './generateRelatedAssetIndex/generateRelatedAssetIndex'
@@ -229,6 +230,9 @@ const main = async () => {
 
     // Generate manifest with content hashes for cache busting
     await generateManifest()
+
+    // Compress JSON files for optimized serving
+    await compressGeneratedAssets()
 
     console.info('Assets and related assets data generated.')
 

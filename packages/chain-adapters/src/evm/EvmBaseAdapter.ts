@@ -82,6 +82,7 @@ export const evmChainIds = [
   KnownChainIds.MonadMainnet,
   KnownChainIds.HyperEvmMainnet,
   KnownChainIds.PlasmaMainnet,
+  KnownChainIds.KatanaMainnet,
 ] as const
 
 export type EvmChainAdapter = EvmBaseAdapter<EvmChainId>
@@ -275,6 +276,11 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
         name: 'Plasma',
         symbol: 'XPL',
         explorer: 'https://plasmascan.to',
+      },
+      [KnownChainIds.KatanaMainnet]: {
+        name: 'Ethereum',
+        symbol: 'ETH',
+        explorer: 'https://katanascan.com',
       },
     }[this.chainId]
 

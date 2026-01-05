@@ -372,6 +372,23 @@ export const plasma: Readonly<Asset> = Object.freeze({
   relatedAssetKey: null,
 })
 
+export const katana: Readonly<Asset> = Object.freeze({
+  assetId: caip.katanaAssetId,
+  chainId: caip.katanaChainId,
+  name: 'Ethereum',
+  networkName: 'Katana',
+  symbol: 'ETH',
+  precision: 18,
+  color: '#5C6BC0',
+  networkColor: '#E11D48',
+  icon: 'https://rawcdn.githack.com/trustwallet/assets/32e51d582a890b3dd3135fe3ee7c20c2fd699a6d/blockchains/ethereum/info/logo.png',
+  networkIcon: 'https://assets.coingecko.com/asset_platforms/images/326/small/katana.png',
+  explorer: 'https://katanascan.com',
+  explorerAddressLink: 'https://katanascan.com/address/',
+  explorerTxLink: 'https://katanascan.com/tx/',
+  relatedAssetKey: 'eip155:1/slip44:60',
+})
+
 export const solana: Readonly<Asset> = Object.freeze({
   assetId: caip.solAssetId,
   chainId: caip.solanaChainId,

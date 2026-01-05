@@ -16,6 +16,7 @@ import {
   mayachainAssetId,
   megaethAssetId,
   monadAssetId,
+  nearAssetId,
   optimismAssetId,
   plasmaAssetId,
   polygonAssetId,
@@ -83,6 +84,8 @@ export const chainIdToFeeAssetId = (_chainId: ChainId): AssetId => {
       return megaethAssetId
     case KnownChainIds.ZcashMainnet:
       return zecAssetId
+    case KnownChainIds.NearMainnet:
+      return nearAssetId
     default:
       return assertUnreachable(chainId)
   }

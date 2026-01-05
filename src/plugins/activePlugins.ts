@@ -15,6 +15,7 @@ import mayachain from '@/plugins/mayachain'
 import megaeth from '@/plugins/megaeth'
 import mobile from '@/plugins/mobile'
 import monad from '@/plugins/monad'
+import near from '@/plugins/near'
 import optimism from '@/plugins/optimism'
 import plasma from '@/plugins/plasma'
 import polygon from '@/plugins/polygon'
@@ -44,6 +45,7 @@ export const activePlugins = [
   megaeth,
   mobile,
   monad,
+  near,
   optimism,
   plasma,
   polygon,

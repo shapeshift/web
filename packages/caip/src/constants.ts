@@ -25,6 +25,7 @@ export const wrappedSolAssetId: AssetId =
   'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp/token:So11111111111111111111111111111111111111112'
 export const tronAssetId: AssetId = 'tron:0x2b6653dc/slip44:195'
 export const suiAssetId: AssetId = 'sui:35834a8a/slip44:784'
+export const nearAssetId: AssetId = 'near:mainnet/slip44:397'
 export const starknetAssetId: AssetId = 'starknet:SN_MAIN/slip44:9004'
 export const uniV2EthFoxArbitrumAssetId: AssetId =
   'eip155:42161/erc20:0x5f6ce0ca13b87bd738519545d3e018e70e339c24'
@@ -88,6 +89,7 @@ export const binanceChainId: ChainId = 'cosmos:binance-chain-tigris'
 export const solanaChainId: ChainId = 'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp'
 export const tronChainId: ChainId = 'tron:0x2b6653dc'
 export const suiChainId: ChainId = 'sui:35834a8a'
+export const nearChainId: ChainId = 'near:mainnet'
 export const starknetChainId: ChainId = 'starknet:SN_MAIN'
 
 export const CHAIN_NAMESPACE = {
@@ -97,6 +99,7 @@ export const CHAIN_NAMESPACE = {
   Solana: 'solana',
   Tron: 'tron',
   Sui: 'sui',
+  Near: 'near',
   Starknet: 'starknet',
 } as const
 
@@ -130,6 +133,7 @@ export const CHAIN_REFERENCE = {
   SolanaMainnet: '5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp', // https://namespaces.chainagnostic.org/solana/caip2
   TronMainnet: '0x2b6653dc', // https://developers.tron.network/docs/networks
   SuiMainnet: '35834a8a', // First 8 chars of SUI mainnet genesis hash
+  NearMainnet: 'mainnet', // https://docs.reown.com/cloud/chains/chain-list (CAIP-2: near:mainnet)
   StarknetMainnet: 'SN_MAIN', // https://namespaces.chainagnostic.org/starknet/caip2
 } as const
 
@@ -142,6 +146,7 @@ export const ASSET_NAMESPACE = {
   trc20: 'trc20',
   trc10: 'trc10',
   suiCoin: 'coin',
+  nep141: 'nep141', // NEAR fungible token standard: https://nomicon.io/Standards/Tokens/FungibleToken/Core
   starknetToken: 'token',
 } as const
 
@@ -171,6 +176,7 @@ export const ASSET_REFERENCE = {
   Solana: '501',
   Tron: '195',
   Sui: '784',
+  Near: '397', // https://github.com/satoshilabs/slips/blob/master/slip-0044.md
   Starknet: '9004',
 } as const
 
@@ -206,6 +212,7 @@ export const VALID_CHAIN_IDS: ValidChainMap = Object.freeze({
   [CHAIN_NAMESPACE.Solana]: [CHAIN_REFERENCE.SolanaMainnet],
   [CHAIN_NAMESPACE.Tron]: [CHAIN_REFERENCE.TronMainnet],
   [CHAIN_NAMESPACE.Sui]: [CHAIN_REFERENCE.SuiMainnet],
+  [CHAIN_NAMESPACE.Near]: [CHAIN_REFERENCE.NearMainnet],
   [CHAIN_NAMESPACE.Starknet]: [CHAIN_REFERENCE.StarknetMainnet],
 })
 
@@ -225,6 +232,7 @@ export const VALID_ASSET_NAMESPACE: ValidAssetNamespace = Object.freeze({
   [CHAIN_NAMESPACE.Solana]: [ASSET_NAMESPACE.splToken, ASSET_NAMESPACE.slip44],
   [CHAIN_NAMESPACE.Tron]: [ASSET_NAMESPACE.slip44, ASSET_NAMESPACE.trc20],
   [CHAIN_NAMESPACE.Sui]: [ASSET_NAMESPACE.slip44, ASSET_NAMESPACE.suiCoin],
+  [CHAIN_NAMESPACE.Near]: [ASSET_NAMESPACE.slip44, ASSET_NAMESPACE.nep141],
   [CHAIN_NAMESPACE.Starknet]: [ASSET_NAMESPACE.slip44, ASSET_NAMESPACE.starknetToken],
 })
 
@@ -251,6 +259,7 @@ export const FEE_ASSET_IDS = [
   solAssetId,
   tronAssetId,
   suiAssetId,
+  nearAssetId,
   starknetAssetId,
   zecAssetId,
 ]

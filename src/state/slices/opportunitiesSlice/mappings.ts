@@ -193,6 +193,7 @@ export const CHAIN_ID_TO_SUPPORTED_DEFI_OPPORTUNITIES: Record<
   [KnownChainIds.PlasmaMainnet]: [],
   [KnownChainIds.MegaEthMainnet]: [],
   [KnownChainIds.ZcashMainnet]: [],
+  [KnownChainIds.NearMainnet]: [],
 }
 
 // Single opportunity metadata resolvers

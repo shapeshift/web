@@ -54,6 +54,8 @@ export const getChainShortName = (chainId: KnownChainIds) => {
       return 'MEGA'
     case KnownChainIds.ZcashMainnet:
       return 'ZEC'
+    case KnownChainIds.NearMainnet:
+      return 'NEAR'
     default: {
       assertUnreachable(chainId)
     }

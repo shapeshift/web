@@ -20,6 +20,7 @@ import {
   mayachain,
   megaeth,
   monad,
+  near,
   optimism,
   plasma,
   polygon,
@@ -82,6 +83,8 @@ export const getBaseAsset = (chainId: ChainId): Readonly<Asset> => {
       return plasma
     case KnownChainIds.MegaEthMainnet:
       return megaeth
+    case KnownChainIds.NearMainnet:
+      return near
     case KnownChainIds.ZcashMainnet:
       return zcash
     default:

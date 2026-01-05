@@ -92,12 +92,11 @@ export const viemPolygonClient = createPublicClient({
 
 export const viemBaseClient = createPublicClient({
   chain: base,
-  transport: fallback(
-    // https://github.com/DefiLlama/chainlist/blob/83b8cc32ee79c10e0281e1799ebe4cd1696082b7/constants/llamaNodesRpcs.js#L19
-    [process.env.VITE_BASE_NODE_URL, 'https://base.llamarpc.com']
-      .filter(Boolean)
-      .map(url => http(url)),
-  ),
+  transport: fallback([
+    http('https://mainnet.base.org'),
+    http('https://base.llamarpc.com'),
+    http('https://base.blockpi.network/v1/rpc/public'),
+  ]),
 }) as PublicClient
 
 export const viemMonadClient = createPublicClient({

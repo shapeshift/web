@@ -28,12 +28,14 @@ import * as arbitrumNova from './arbitrumNova'
 import * as avalanche from './avalanche'
 import * as base from './base'
 import * as bnbsmartchain from './bnbsmartchain'
+import { compressGeneratedAssets } from './compressAssets'
 import { ASSET_DATA_PATH, GENERATED_DIR, RELATED_ASSET_INDEX_PATH } from './constants'
 import * as ethereum from './ethereum'
 import { generateRelatedAssetIndex } from './generateRelatedAssetIndex/generateRelatedAssetIndex'
 import * as gnosis from './gnosis'
 import * as hyperevm from './hyperevm'
 import * as monad from './monad'
+import * as near from './near'
 import * as optimism from './optimism'
 import { overrideAssets } from './overrides'
 import * as plasma from './plasma'
@@ -72,6 +74,7 @@ const generateAssetData = async () => {
   const starknetAssets = await starknet.getAssets()
   const tronAssets = await tronModule.getAssets()
   const suiAssets = await sui.getAssets()
+  const nearAssets = await near.getAssets()
 
   // all assets, included assets to be blacklisted
   const unfilteredAssetData: Asset[] = [
@@ -102,6 +105,7 @@ const generateAssetData = async () => {
     ...starknetAssets,
     ...tronAssets,
     ...suiAssets,
+    ...nearAssets,
   ]
 
   // remove blacklisted assets
@@ -223,6 +227,9 @@ const main = async () => {
 
     // Generate manifest with content hashes for cache busting
     await generateManifest()
+
+    // Compress JSON files for optimized serving
+    await compressGeneratedAssets()
 
     console.info('Assets and related assets data generated.')
 

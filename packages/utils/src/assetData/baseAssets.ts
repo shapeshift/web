@@ -436,6 +436,22 @@ export const sui: Readonly<Asset> = Object.freeze({
   relatedAssetKey: null,
 })
 
+export const near: Readonly<Asset> = Object.freeze({
+  assetId: caip.nearAssetId,
+  chainId: caip.nearChainId,
+  name: 'NEAR Protocol',
+  networkName: 'NEAR',
+  symbol: 'NEAR',
+  precision: 24,
+  color: '#00C08B',
+  networkColor: '#00C08B',
+  icon: 'https://assets.coingecko.com/coins/images/10365/large/near.jpg?1696510367',
+  explorer: 'https://nearblocks.io',
+  explorerAddressLink: 'https://nearblocks.io/address/',
+  explorerTxLink: 'https://nearblocks.io/txns/',
+  relatedAssetKey: null,
+})
+
 export const starknet: Readonly<Asset> = Object.freeze({
   assetId: caip.starknetAssetId,
   chainId: caip.starknetChainId,

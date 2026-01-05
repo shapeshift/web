@@ -16,6 +16,7 @@ import {
   mayachainChainId,
   megaethChainId,
   monadChainId,
+  nearChainId,
   optimismChainId,
   plasmaChainId,
   polygonChainId,
@@ -62,6 +63,7 @@ import { useIsSnapInstalled } from '@/hooks/useIsSnapInstalled/useIsSnapInstalle
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { METAMASK_RDNS } from '@/lib/mipd'
 import { isLedgerHDWallet, isNativeHDWallet, isTrezorHDWallet } from '@/lib/utils'
+import { supportsNear } from '@/lib/utils/near'
 import { selectAccountIdsByChainIdFilter } from '@/state/slices/portfolioSlice/selectors'
 import { selectFeatureFlag } from '@/state/slices/selectors'
 import { store, useAppSelector } from '@/state/store'
@@ -147,6 +149,7 @@ export const walletSupportsChain = ({
   const isHyperEvmEnabled = selectFeatureFlag(store.getState(), 'HyperEvm')
   const isMegaEthEnabled = selectFeatureFlag(store.getState(), 'MegaEth')
   const isMonadEnabled = selectFeatureFlag(store.getState(), 'Monad')
+  const isNearEnabled = selectFeatureFlag(store.getState(), 'Near')
   const isPlasmaEnabled = selectFeatureFlag(store.getState(), 'Plasma')
   const isStarknetEnabled = selectFeatureFlag(store.getState(), 'Starknet')
 
@@ -214,6 +217,8 @@ export const walletSupportsChain = ({
       return supportsTron(wallet)
     case suiChainId:
       return supportsSui(wallet)
+    case nearChainId:
+      return isNearEnabled && supportsNear(wallet)
     case starknetChainId:
       return isStarknetEnabled && supportsStarknet(wallet)
     default: {

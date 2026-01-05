@@ -11,6 +11,7 @@ import {
   gnosisChainId,
   hyperEvmChainId,
   monadChainId,
+  nearChainId,
   optimismChainId,
   plasmaChainId,
   polygonChainId,
@@ -31,6 +32,7 @@ import {
   gnosis,
   hyperevm,
   monad,
+  near,
   optimism,
   plasma,
   polygon,
@@ -190,6 +192,14 @@ export async function getAssets(chainId: ChainId): Promise<Asset[]> {
           explorer: sui.explorer,
           explorerAddressLink: sui.explorerAddressLink,
           explorerTxLink: sui.explorerTxLink,
+        }
+      case nearChainId:
+        return {
+          assetNamespace: ASSET_NAMESPACE.nep141,
+          category: adapters.chainIdToCoingeckoAssetPlatform(chainId),
+          explorer: near.explorer,
+          explorerAddressLink: near.explorerAddressLink,
+          explorerTxLink: near.explorerTxLink,
         }
       default:
         throw new Error(`no coingecko token support for chainId: ${chainId}`)

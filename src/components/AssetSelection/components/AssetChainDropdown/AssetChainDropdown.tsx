@@ -216,7 +216,7 @@ export const AssetChainDropdown: React.FC<AssetChainDropdownProps> = memo(
           </MenuButton>
         </Tooltip>
         <Portal>
-          <MenuList zIndex={modalChildZIndex}>
+          <MenuList zIndex={modalChildZIndex} overflowY='auto' maxHeight='300px'>
             <MenuOptionGroup type='radio' value={assetId} onChange={handleChangeAsset}>
               {renderedChains}
             </MenuOptionGroup>

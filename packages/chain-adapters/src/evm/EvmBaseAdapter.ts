@@ -16,6 +16,7 @@ import {
   supportsETH,
   supportsGnosis,
   supportsHyperEvm,
+  supportsKatana,
   supportsMonad,
   supportsOptimism,
   supportsPlasma,
@@ -185,6 +186,8 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
           return supportsHyperEvm(wallet)
         case Number(fromChainId(KnownChainIds.PlasmaMainnet).chainReference):
           return supportsPlasma(wallet)
+        case Number(fromChainId(KnownChainIds.KatanaMainnet).chainReference):
+          return supportsKatana(wallet)
         default:
           return false
       }

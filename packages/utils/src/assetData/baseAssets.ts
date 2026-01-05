@@ -382,7 +382,7 @@ export const katana: Readonly<Asset> = Object.freeze({
   color: '#5C6BC0',
   networkColor: '#E11D48',
   icon: 'https://rawcdn.githack.com/trustwallet/assets/32e51d582a890b3dd3135fe3ee7c20c2fd699a6d/blockchains/ethereum/info/logo.png',
-  networkIcon: 'https://assets.coingecko.com/asset_platforms/images/326/small/katana.png',
+  networkIcon: 'https://assets.coingecko.com/asset_platforms/images/32239/small/katana.jpg',
   explorer: 'https://katanascan.com',
   explorerAddressLink: 'https://katanascan.com/address/',
   explorerTxLink: 'https://katanascan.com/tx/',

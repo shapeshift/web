@@ -51,7 +51,6 @@ export {
   type GraphQLRfoxUnstakingRequest,
   type GraphQLRfoxUnstakingRequestsResult,
 } from './rfoxData'
-export { prefetchPortalsAccounts } from './portalsData'
 export {
   fetchMidgardPoolsGraphQL,
   fetchMidgardMemberGraphQL,

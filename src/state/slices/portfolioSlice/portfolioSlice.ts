@@ -260,24 +260,9 @@ export const portfolioApi = createApi({
           let combinedPortfolio = cloneDeep(initialState)
 
           if (isGraphQLEnabled) {
-            const { fetchAccountsGraphQL, prefetchPortalsAccounts } = await import('@/lib/graphql')
-            const { evmChainIds } = await import('@shapeshiftoss/chain-adapters')
+            const { fetchAccountsGraphQL } = await import('@/lib/graphql')
             console.log(`[Portfolio] Fetching ${accountIds.length} accounts via GraphQL batch`)
             const graphqlAccounts = await fetchAccountsGraphQL(accountIds)
-
-            const evmAccounts = accountIds
-              .map(accountId => {
-                const { chainId, account: pubkey } = fromAccountId(accountId)
-                return { chainId, owner: pubkey }
-              })
-              .filter(({ chainId }) => evmChainIds.includes(chainId as any))
-
-            if (evmAccounts.length > 0) {
-              console.log(
-                `[Portfolio] Prefetching Portals data for ${evmAccounts.length} EVM accounts`,
-              )
-              await prefetchPortalsAccounts(evmAccounts)
-            }
 
             for (const accountId of accountIds) {
               const { chainId, account: pubkey } = fromAccountId(accountId)
@@ -298,6 +283,14 @@ export const portfolioApi = createApi({
                   symbol: string | null
                   name: string | null
                   precision: number | null
+                  isPool: boolean | null
+                  platform: string | null
+                  underlyingTokens: string[] | null
+                  images: string[] | null
+                  liquidity: number | null
+                  apy: string | null
+                  price: string | null
+                  pricePerShare: string | null
                 }[],
                 defaultPrecision: number,
               ) =>
@@ -307,6 +300,14 @@ export const portfolioApi = createApi({
                   symbol: t.symbol ?? '',
                   name: t.name ?? '',
                   precision: t.precision ?? defaultPrecision,
+                  isPool: t.isPool ?? undefined,
+                  platform: t.platform ?? undefined,
+                  underlyingTokens: t.underlyingTokens ?? undefined,
+                  images: t.images ?? undefined,
+                  liquidity: t.liquidity ?? undefined,
+                  apy: t.apy ?? undefined,
+                  price: t.price ?? undefined,
+                  pricePerShare: t.pricePerShare ?? undefined,
                 }))
 
               const baseAccount = {
@@ -322,38 +323,48 @@ export const portfolioApi = createApi({
               if (details?.__typename === 'EvmAccountDetails') {
                 account = {
                   ...baseAccount,
-                  nonce: details.nonce ?? 0,
-                  tokens: mapTokens(details.tokens ?? graphqlAccount.tokens, 18),
+                  chainSpecific: {
+                    nonce: details.nonce ?? 0,
+                    tokens: mapTokens(details.tokens ?? graphqlAccount.tokens, 18),
+                  },
                 }
               } else if (details?.__typename === 'UtxoAccountDetails') {
                 account = {
                   ...baseAccount,
-                  addresses: (details.addresses ?? []).map(a => ({
-                    pubkey: a.pubkey,
-                    balance: a.balance,
-                  })),
-                  nextChangeAddressIndex: details.nextChangeAddressIndex,
-                  nextReceiveAddressIndex: details.nextReceiveAddressIndex,
+                  chainSpecific: {
+                    addresses: (details.addresses ?? []).map(a => ({
+                      pubkey: a.pubkey,
+                      balance: a.balance,
+                    })),
+                    nextChangeAddressIndex: details.nextChangeAddressIndex,
+                    nextReceiveAddressIndex: details.nextReceiveAddressIndex,
+                  },
                 }
               } else if (details?.__typename === 'CosmosAccountDetails') {
                 account = {
                   ...baseAccount,
-                  sequence: details.sequence,
-                  accountNumber: details.accountNumber,
-                  delegations: details.delegations ?? [],
-                  redelegations: details.redelegations ?? [],
-                  undelegations: details.undelegations ?? [],
-                  rewards: details.rewards ?? [],
+                  chainSpecific: {
+                    sequence: details.sequence,
+                    accountNumber: details.accountNumber,
+                    delegations: details.delegations ?? [],
+                    redelegations: details.redelegations ?? [],
+                    undelegations: details.undelegations ?? [],
+                    rewards: details.rewards ?? [],
+                  },
                 }
               } else if (details?.__typename === 'SolanaAccountDetails') {
                 account = {
                   ...baseAccount,
-                  tokens: mapTokens(details.tokens ?? graphqlAccount.tokens, 9),
+                  chainSpecific: {
+                    tokens: mapTokens(details.tokens ?? graphqlAccount.tokens, 9),
+                  },
                 }
               } else {
                 account = {
                   ...baseAccount,
-                  tokens: mapTokens(graphqlAccount.tokens, 18),
+                  chainSpecific: {
+                    tokens: mapTokens(graphqlAccount.tokens, 18),
+                  },
                 }
               }
 

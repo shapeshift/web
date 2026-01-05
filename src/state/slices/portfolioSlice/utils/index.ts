@@ -577,17 +577,17 @@ export const makeAssets = async ({
 
     if (!hasUnknownTokens) return undefined
 
-    const maybePortalsAccounts = await queryClient.fetchQuery({
-      queryFn: () => fetchPortalsAccount(chainId, pubkey),
-      queryKey: ['portalsAccount', chainId, pubkey],
-      // Assume that this is static as far as our lifecycle is concerned.
-      // This may seem like a dangerous stretch, but it pragmatically is not:
-      // This is fetched for a given account fetch, and the only flow there would be a refetch would really be if the user disabled an account, then re-enabled it.
-      // It's an uncommon enough flow that we could compromise on it and make the experience better for all other cases by leveraging cached data.
-      // Most importantly, even if a user were to do this, the worst case senario wouldn't be one: all we fetch here is LP tokens meta, which won't change
-      // the second time around and not the 420th time around either
-      staleTime: Infinity,
-    })
+    const hasServerEnrichedTokens = tokens.some(
+      t => 'isPool' in t || 'platform' in t || 'liquidity' in t,
+    )
+
+    const maybePortalsAccounts = hasServerEnrichedTokens
+      ? {}
+      : await queryClient.fetchQuery({
+          queryFn: () => fetchPortalsAccount(chainId, pubkey),
+          queryKey: ['portalsAccount', chainId, pubkey],
+          staleTime: Infinity,
+        })
     const maybePortalsPlatforms = await queryClient.fetchQuery({
       queryFn: () => fetchPortalsPlatforms(),
       queryKey: ['portalsPlatforms'],
@@ -605,30 +605,44 @@ export const makeAssets = async ({
 
         const minimalAsset: MinimalAsset = token
 
-        const maybePortalsAsset = maybePortalsAccounts[token.assetId]
-        const isPool = Boolean(maybePortalsAsset?.platform && maybePortalsAsset?.tokens?.length)
+        const enrichedToken = token as typeof token & {
+          isPool?: boolean
+          platform?: string
+          underlyingTokens?: string[]
+          images?: string[]
+          liquidity?: number
+        }
 
-        if (maybePortalsAsset) {
-          if (!maybePortalsAsset.liquidity) return prev
+        const hasEnrichment = enrichedToken.platform !== undefined
+        const maybePortalsAsset = hasEnrichment ? undefined : maybePortalsAccounts[token.assetId]
 
-          const platform = maybePortalsPlatforms[maybePortalsAsset.platform]
+        const tokenPlatform = enrichedToken.platform ?? maybePortalsAsset?.platform
+        const tokenUnderlyingTokens = enrichedToken.underlyingTokens ?? maybePortalsAsset?.tokens
+        const tokenImages = enrichedToken.images ?? maybePortalsAsset?.images
+        const tokenLiquidity = enrichedToken.liquidity ?? maybePortalsAsset?.liquidity
+        const tokenName = enrichedToken.name ?? maybePortalsAsset?.name
+        const isPool =
+          enrichedToken.isPool ?? Boolean(tokenPlatform && tokenUnderlyingTokens?.length)
+
+        if (tokenPlatform !== undefined || maybePortalsAsset) {
+          if (!tokenLiquidity) return prev
+
+          const platform = maybePortalsPlatforms[tokenPlatform ?? '']
 
           const name = (() => {
-            // For single assets, just use the token name
-            if (!isPool) return maybePortalsAsset.name
+            if (!isPool) return tokenName
 
-            // For pools, create a name in the format of "<platform> <assets> Pool"
-            // e.g "UniswapV2 ETH/FOX Pool"
             const assetSymbols =
-              maybePortalsAsset.tokens?.map(token => {
-                const assetId = toAssetId({ chainId, assetNamespace, assetReference: token })
+              tokenUnderlyingTokens?.map(underlyingToken => {
+                const assetId = toAssetId({
+                  chainId,
+                  assetNamespace,
+                  assetReference: underlyingToken,
+                })
                 const asset = state.assets.byId[assetId]
 
                 if (!asset) return undefined
 
-                // This doesn't generalize, but this'll do, this is only a visual hack to display native asset instead of wrapped
-                // We could potentially use related assets for this and use primary implementation, though we'd have to remove BTC from there as WBTC and BTC are very
-                // much different assets on diff networks, i.e can't deposit BTC instead of WBTC automagically like you would with ETH instead of WETH
                 switch (asset.symbol) {
                   case 'WETH':
                     return 'ETH'
@@ -643,38 +657,37 @@ export const makeAssets = async ({
                 }
               }) ?? []
 
-            // Our best effort to contruct sane name using the native asset -> asset naming hack failed, but thankfully, upstream name is very close e.g
-            // for "UniswapV2 LP TRUST/WETH", we just have to append "Pool" to that and we're gucci
             if (assetSymbols.some(symbol => !symbol)) return `${token.name} Pool`
-            return `${platform.name} ${assetSymbols.join('/')} Pool`
+            return platform
+              ? `${platform.name} ${assetSymbols.join('/')} Pool`
+              : `${token.name} Pool`
           })()
 
-          const [, ...assetImages] = maybePortalsAsset.images ?? []
+          const [, ...assetImages] = tokenImages ?? []
 
           const { icon, icons } = ((): Pick<Asset, 'icon' | 'icons'> => {
-            // There are no underlying tokens' images, return asset icon if it exists
             if (!assetImages?.length) {
               return { icon: state.assets.byId[token.assetId]?.icon }
             }
 
             if (assetImages.length === 1) {
-              return { icon: maybeTokenImage(maybePortalsAsset.image || assetImages[0]) }
+              return { icon: maybeTokenImage(assetImages[0]) }
             }
 
-            // This is a multiple assets pool, populate icons array
             if (assetImages.length > 1) {
               return {
                 icons: assetImages.map((image, i) => {
-                  const token = maybePortalsAsset.tokens[i]
+                  const underlyingToken = tokenUnderlyingTokens?.[i]
 
-                  // No token at that index, but this isn't reliable as we've found out, it may be missing in tokens but present in images
-                  // However, this has to be an early return and we can't use our own flavour of that asset... because we have no idea which asset it is.
-                  if (!token) return maybeTokenImage(image) || ''
+                  if (!underlyingToken) return maybeTokenImage(image) || ''
 
-                  const assetId = toAssetId({ chainId, assetNamespace, assetReference: token })
+                  const assetId = toAssetId({
+                    chainId,
+                    assetNamespace,
+                    assetReference: underlyingToken,
+                  })
                   const asset = state.assets.byId[assetId]
 
-                  // Prioritise our own flavour of icons for that asset if available, else use upstream if present
                   return asset?.icon || maybeTokenImage(image) || ''
                 }),
                 icon: undefined,
@@ -692,7 +705,6 @@ export const makeAssets = async ({
 
         const asset = makeAsset(state.assets.byId, minimalAsset)
 
-        // Tokens without a precision are an obvious spam
         if (!asset.precision && !isNft(asset.assetId)) {
           return prev
         }

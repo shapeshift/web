@@ -9,6 +9,14 @@ export type GraphQLTokenBalance = {
   name: string | null
   symbol: string | null
   precision: number | null
+  isPool: boolean | null
+  platform: string | null
+  underlyingTokens: string[] | null
+  images: string[] | null
+  liquidity: number | null
+  apy: string | null
+  price: string | null
+  pricePerShare: string | null
 }
 
 export type GraphQLUtxoAddress = {
@@ -74,6 +82,14 @@ const GET_ACCOUNTS = gql`
         name
         symbol
         precision
+        isPool
+        platform
+        underlyingTokens
+        images
+        liquidity
+        apy
+        price
+        pricePerShare
       }
       details {
         __typename
@@ -85,6 +101,14 @@ const GET_ACCOUNTS = gql`
             name
             symbol
             precision
+            isPool
+            platform
+            underlyingTokens
+            images
+            liquidity
+            apy
+            price
+            pricePerShare
           }
         }
         ... on UtxoAccountDetails {

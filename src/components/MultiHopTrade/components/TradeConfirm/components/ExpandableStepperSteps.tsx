@@ -241,9 +241,9 @@ export const ExpandableStepperSteps = ({
     const displayText = currentHopMessage ?? stepSummaryTranslation
 
     return (
-      <Flex alignItems='center' justifyContent='space-between' flex={1} gap={2}>
-        <Text translation={displayText} />
-        <HStack mr={2}>
+      <Flex alignItems='center' justifyContent='space-between' flex={1} gap={2} minWidth={0}>
+        <Text translation={displayText} noOfLines={2} />
+        <HStack mr={2} flexShrink={0}>
           <Progress value={swapProgressValue} width='100px' size='xs' colorScheme={colorScheme} />
           <ArrowUpDownIcon boxSize={3} color='gray.500' />
         </HStack>

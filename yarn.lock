@@ -11973,7 +11973,7 @@ __metadata:
     "@uniswap/sdk-core": ^5.3.1
     "@uniswap/v3-sdk": ^3.13.1
     axios: ^1.13.0
-    axios-cache-interceptor: ^1.5.3
+    axios-cache-interceptor: ^1.11.1
     bignumber.js: ^9.3.1
     eip-712: ^1.0.0
     ethers: 6.11.1
@@ -12169,7 +12169,7 @@ __metadata:
     alchemy-sdk: ^3.4.1
     assert: ^2.0.0
     axios: ^1.13.0
-    axios-cache-interceptor: ^1.5.3
+    axios-cache-interceptor: ^1.11.1
     axios-retry: ^4.5.0
     babel-plugin-react-compiler: ^1.0.0
     bignumber.js: ^9.3.1
@@ -17796,16 +17796,18 @@ __metadata:
   languageName: node
   linkType: hard
 
-"axios-cache-interceptor@npm:^1.5.3":
-  version: 1.5.3
-  resolution: "axios-cache-interceptor@npm:1.5.3"
+"axios-cache-interceptor@npm:^1.11.1":
+  version: 1.11.2
+  resolution: "axios-cache-interceptor@npm:1.11.2"
   dependencies:
-    cache-parser: 1.2.5
-    fast-defer: 1.1.8
-    object-code: 1.3.3
+    cache-parser: ^1.2.6
+    fast-defer: ^1.1.9
+    http-vary: ^1.0.3
+    object-code: ^2.0.0
+    try: ^1.0.3
   peerDependencies:
     axios: ^1
-  checksum: 69850a6330528e38de0c1922c5fa6698e404a8283e99dc38141c06501d74fb8a54bbb10bd073e2833eb1060bf93cf4d2f09210cdfe166de6e62347169c412658
+  checksum: 4f3700a1ef552fc2b8674a48ebebaab35619c4345822ae2e12a7119109160b7d3f3509c714d95dd9c64ec5782b49dc10b4aa7aa0210c0d0a26118fc54cc635c4
   languageName: node
   linkType: hard
 
@@ -19199,10 +19201,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"cache-parser@npm:1.2.5":
-  version: 1.2.5
-  resolution: "cache-parser@npm:1.2.5"
-  checksum: ac6a15462e474a84b8830795aa3d34b63f09a2ef8ec1a3831e7941a7a7aece964df881da275dfc1e8e1874a3a56efd944de0a6bcd371e409d545ca49fd04cdd7
+"cache-parser@npm:^1.2.6":
+  version: 1.2.6
+  resolution: "cache-parser@npm:1.2.6"
+  checksum: 2aee1f0e34c427f15925d11a360ec0f44884f56a518dd69d52728791f25401ee46bf29895d53c2a2ea132aa6e2f75543467d1fcccb39a5b4b5477036af9d6056
   languageName: node
   linkType: hard
 
@@ -23645,10 +23647,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"fast-defer@npm:1.1.8":
-  version: 1.1.8
-  resolution: "fast-defer@npm:1.1.8"
-  checksum: 2fbdcf385929b53a2299c83cfb9c0ac4c0f0c4d1c268e791ed8a97dad9c25a7f459e1475e8270f268d29541be0a8b14a764d77f18cc7caea95c1863cf87c471b
+"fast-defer@npm:^1.1.9":
+  version: 1.1.9
+  resolution: "fast-defer@npm:1.1.9"
+  checksum: 9aea55eccc52046e95d430d0dabae1b49ead18ad5d911c9e3a504052086b54845d9b53ec2b4291831f06dbebd3223d2c12f98ad3242dd7dbd2894c4c8fbb47f8
   languageName: node
   linkType: hard
 
@@ -25246,6 +25248,13 @@ __metadata:
     jsprim: ^1.2.2
     sshpk: ^1.7.0
   checksum: 3324598712266a9683585bb84a75dec4fd550567d5e0dd4a0fff6ff3f74348793404d3eeac4918fa0902c810eeee1a86419e4a2e92a164132dfe6b26743fb47c
+  languageName: node
+  linkType: hard
+
+"http-vary@npm:^1.0.3":
+  version: 1.0.3
+  resolution: "http-vary@npm:1.0.3"
+  checksum: 012052aa4c5783f991cff01ee884f3a0755cb13b0543c6c61584e19a0cd5363c00d7bbe35a1e02e58d896109532ce8909984a6985ea0b8498cfef451e4f05235
   languageName: node
   linkType: hard
 
@@ -29000,10 +29009,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"object-code@npm:1.3.3":
-  version: 1.3.3
-  resolution: "object-code@npm:1.3.3"
-  checksum: 5f5602040a9d0e0f5e60e37340a21d8ab3d41309c7b7f63eeccf4d385686d8e1b408090f2a35899a84d740fbf6e243599208349027060b71f9911099a47714f8
+"object-code@npm:^2.0.0":
+  version: 2.0.0
+  resolution: "object-code@npm:2.0.0"
+  checksum: 7d35aa5401bd78f4b0257d1b8b214fb3fcd1e9e38698159107200a210c211b22fd894990c6a3f7397586b01133fbccb744bdddf334e2c21d6666ed50989fc10d
   languageName: node
   linkType: hard
 
@@ -34167,6 +34176,13 @@ pvutils@latest:
   version: 3.0.1
   resolution: "try-to-catch@npm:3.0.1"
   checksum: ab234d3c9a77632af1d5c2c184c9485ec3a4ed6fca97d4bb304f24b6c1bbe71598ef6d7db14334f4c8090c4f3a4c527faded872db6e402d1661a6898452bc9c7
+  languageName: node
+  linkType: hard
+
+"try@npm:^1.0.3":
+  version: 1.0.3
+  resolution: "try@npm:1.0.3"
+  checksum: 97f22dc071a7d2ccb07c6d86d4c57defa1699256ee8fb746e94f83c2d2dc60d342cd02fba2de9e839be4992c52b4e983100d30b18ab3e8be59f3a3555c526029
   languageName: node
   linkType: hard
 

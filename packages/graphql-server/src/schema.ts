@@ -36,6 +36,27 @@ export const typeDefs = gql`
   scalar JSON
 
   # ============================================================================
+  # CACHE CONTROL - Apollo Server caching directives
+  # ============================================================================
+
+  """
+  Cache control scope - PUBLIC responses are shared, PRIVATE are per-user
+  """
+  enum CacheControlScope {
+    PUBLIC
+    PRIVATE
+  }
+
+  """
+  Cache control directive for field/type-level caching hints
+  """
+  directive @cacheControl(
+    maxAge: Int
+    scope: CacheControlScope
+    inheritMaxAge: Boolean
+  ) on FIELD_DEFINITION | OBJECT | INTERFACE | UNION
+
+  # ============================================================================
   # ERROR HANDLING - Structured error responses
   # ============================================================================
 
@@ -325,6 +346,27 @@ export const typeDefs = gql`
     Get price history for an asset
     """
     priceHistory(coingeckoId: String!, from: Int!, to: Int!): [PriceHistoryPoint!]!
+
+    """
+    Get fiat currency rate (USD to target currency)
+    """
+    fiatRate(symbol: String!): FiatMarketData
+
+    """
+    Get fiat currency price history
+    """
+    fiatPriceHistory(symbol: String!, timeframe: HistoryTimeframe!): [PriceHistoryPoint!]!
+  }
+
+  """
+  Fiat currency market data (exchange rate from USD)
+  """
+  type FiatMarketData {
+    symbol: String!
+    price: String!
+    marketCap: String!
+    volume: String!
+    changePercent24Hr: Float!
   }
 
   # ============================================================================
@@ -931,7 +973,7 @@ export const typeDefs = gql`
     buyToken: String!
     sellAmount: String!
     buyAmount: String!
-    validTo: Int!
+    validTo: Float!
     appData: String!
     feeAmount: String!
     kind: String!
@@ -940,8 +982,8 @@ export const typeDefs = gql`
     buyTokenBalance: String!
     signingScheme: String!
     signature: String!
-    from: String!
-    receiver: String!
+    from: String
+    receiver: String
     owner: String!
     creationDate: DateTime!
     status: String!
@@ -952,6 +994,10 @@ export const typeDefs = gql`
     invalidated: Boolean!
     fullAppData: String
     class: String!
+    """
+    Transaction hash for fulfilled orders (fetched from trades API)
+    """
+    txHash: String
   }
 
   """
@@ -971,6 +1017,254 @@ export const typeDefs = gql`
     Get limit orders for accounts
     """
     orders(accountIds: [String!]!): [OrdersUpdate!]!
+  }
+
+  # ============================================================================
+  # OPPORTUNITIES NAMESPACE TYPES
+  # ============================================================================
+
+  """
+  DeFi provider for opportunities
+  """
+  enum DefiProvider {
+    THORCHAIN_SAVERS
+    COSMOS_SDK
+    RFOX
+    ETH_FOX_STAKING
+    SHAPE_SHIFT
+  }
+
+  """
+  DeFi opportunity type
+  """
+  enum DefiType {
+    STAKING
+    LIQUIDITY_POOL
+  }
+
+  """
+  Staking opportunity metadata
+  Cached for 1 hour - opportunities metadata rarely changes
+  """
+  type StakingOpportunityMetadata @cacheControl(maxAge: 3600) {
+    """
+    Unique opportunity identifier (StakingId format)
+    """
+    id: String!
+    """
+    DeFi provider
+    """
+    provider: DefiProvider!
+    """
+    Opportunity type
+    """
+    type: DefiType!
+    """
+    Primary asset ID for this opportunity
+    """
+    assetId: AssetId!
+    """
+    Underlying asset being staked
+    """
+    underlyingAssetId: AssetId!
+    """
+    All underlying asset IDs (for multi-asset positions)
+    """
+    underlyingAssetIds: [AssetId!]!
+    """
+    Reward asset IDs
+    """
+    rewardAssetIds: [AssetId!]!
+    """
+    Underlying asset ratios in base units
+    """
+    underlyingAssetRatiosBaseUnit: [String!]!
+    """
+    Optional weight percentages for underlying assets (decimal format)
+    """
+    underlyingAssetWeightPercentageDecimal: [String!]
+    """
+    Annual percentage yield (decimal string)
+    """
+    apy: String
+    """
+    Total value locked in user currency
+    """
+    tvl: String!
+    """
+    Human-readable name
+    """
+    name: String!
+    """
+    Optional icon URL
+    """
+    icon: String
+    """
+    Whether rewards can be claimed separately
+    """
+    isClaimableRewards: Boolean!
+    """
+    Whether the opportunity is read-only (no actions available)
+    """
+    isReadOnly: Boolean
+    """
+    Whether the opportunity has expired
+    """
+    expired: Boolean
+    """
+    Whether the opportunity is active
+    """
+    active: Boolean
+    """
+    THORChain specific: max supply in fiat
+    """
+    saversMaxSupplyFiat: String
+    """
+    THORChain specific: whether the pool is full
+    """
+    isFull: Boolean
+    """
+    Optional grouping for UI display
+    """
+    group: String
+    """
+    Optional version identifier
+    """
+    version: String
+    """
+    Optional tags for filtering
+    """
+    tags: [String!]
+  }
+
+  """
+  Rewards data for a user staking position
+  """
+  type StakingRewards {
+    """
+    Reward amounts in base units (one per reward asset)
+    """
+    amounts: [String!]!
+    """
+    Whether rewards are claimable
+    """
+    claimable: Boolean!
+  }
+
+  """
+  Cosmos SDK specific: undelegation entry
+  """
+  type Undelegation {
+    """
+    Undelegation amount in base units
+    """
+    undelegationAmountCryptoBaseUnit: String!
+    """
+    Timestamp when undelegation completes
+    """
+    completionTime: Float!
+  }
+
+  type UserStakingOpportunity @cacheControl(maxAge: 60, scope: PRIVATE) {
+    """
+    Unique user staking identifier (AccountId*StakingId format)
+    """
+    userStakingId: String!
+    """
+    Whether data has been loaded
+    """
+    isLoaded: Boolean!
+    """
+    Staked amount in base units
+    """
+    stakedAmountCryptoBaseUnit: String!
+    """
+    Rewards data
+    """
+    rewardsCryptoBaseUnit: StakingRewards!
+    """
+    THORChain specific: timestamp when position unlocks
+    """
+    dateUnlocked: Float
+    """
+    Cosmos SDK specific: active undelegations
+    """
+    undelegations: [Undelegation!]
+  }
+
+  """
+  Batched staking metadata result
+  Inherits maxAge from StakingOpportunityMetadata children
+  """
+  type StakingMetadataResult @cacheControl(inheritMaxAge: true) {
+    """
+    Chain ID this result is for
+    """
+    chainId: ChainId!
+    """
+    Provider this result is for
+    """
+    provider: DefiProvider!
+    """
+    Opportunity metadata list
+    """
+    opportunities: [StakingOpportunityMetadata!]!
+  }
+
+  """
+  Batched user staking data result
+  Inherits maxAge from UserStakingOpportunity children
+  """
+  type UserStakingDataResult @cacheControl(inheritMaxAge: true) {
+    """
+    Account ID this result is for
+    """
+    accountId: AccountId!
+    """
+    User staking opportunities
+    """
+    opportunities: [UserStakingOpportunity!]!
+  }
+
+  """
+  Input for requesting staking metadata
+  """
+  input StakingMetadataRequest {
+    chainId: ChainId!
+    provider: DefiProvider!
+  }
+
+  """
+  Input for requesting user staking data
+  """
+  input UserStakingDataRequest {
+    accountId: AccountId!
+    opportunityIds: [String!]!
+  }
+
+  """
+  Unified DeFi opportunities access
+  """
+  type Opportunities {
+    """
+    Get staking opportunity IDs for a chain and provider
+    Cached for 1 hour - opportunity IDs rarely change
+    """
+    stakingIds(chainId: ChainId!, provider: DefiProvider!): [String!]! @cacheControl(maxAge: 3600)
+
+    """
+    Get staking opportunities metadata (batched)
+    Cached for 1 hour - metadata rarely changes
+    """
+    stakingMetadata(requests: [StakingMetadataRequest!]!): [StakingMetadataResult!]!
+      @cacheControl(maxAge: 3600)
+
+    """
+    Get user-specific staking data (batched)
+    Cached for 60 seconds, private per user
+    """
+    userStakingData(requests: [UserStakingDataRequest!]!): [UserStakingDataResult!]!
+      @cacheControl(maxAge: 60, scope: PRIVATE)
   }
 
   # ============================================================================
@@ -1240,6 +1534,11 @@ export const typeDefs = gql`
     EVM chain utilities
     """
     evm: Evm!
+
+    """
+    DeFi opportunities
+    """
+    opportunities: Opportunities!
 
     """
     Fetches market data for specified assets

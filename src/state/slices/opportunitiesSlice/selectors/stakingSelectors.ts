@@ -72,9 +72,10 @@ export const selectUserStakingOpportunitiesById = createSelector(
   selectEnabledWalletAccountIds,
   opportunities.selectors.selectUserStakingOpportunitiesById,
   (walletAccountIds, userStakingById) => {
-    return pickBy(userStakingById, (_userStaking, userStakingId) =>
+    const result = pickBy(userStakingById, (_userStaking, userStakingId) =>
       walletAccountIds.includes(deserializeUserStakingId(userStakingId as UserStakingId)[0]),
     )
+    return result
   },
 )
 
@@ -249,7 +250,7 @@ const getAggregatedUserStakingOpportunityByStakingId = (
   return userStakingOpportunities.reduce<UserStakingOpportunityWithMetadata | undefined>(
     (acc, userStakingOpportunity) => {
       const { userStakingId, ...userStakingOpportunityWithoutUserStakingId } =
-        userStakingOpportunity // It makes sense to have it when we have a collection, but becomes useless when aggregated
+        userStakingOpportunity
 
       const stakedAmountCryptoBaseUnit = bnOrZero(acc?.stakedAmountCryptoBaseUnit)
         .plus(userStakingOpportunity.stakedAmountCryptoBaseUnit)
@@ -261,16 +262,19 @@ const getAggregatedUserStakingOpportunityByStakingId = (
             .plus(amount)
             .toString(),
         ) ?? []) as [string, string] | [string] | [],
-        // This aggregates by StakingId, meaning this is the same opportunity over multiple amounts
-        // Same rewards AssetIds, same arity etc
         claimable: userStakingOpportunity.isClaimableRewards,
       }
-      const undelegations = [
-        ...(supportsUndelegations(userStakingOpportunity)
+
+      const currentUndelegations = supportsUndelegations(userStakingOpportunity)
+        ? Array.isArray(userStakingOpportunity.undelegations)
           ? userStakingOpportunity.undelegations
-          : []),
-        ...((acc as CosmosSdkStakingSpecificUserStakingOpportunity)?.undelegations ?? []),
-      ]
+          : []
+        : []
+
+      const accUndelegations =
+        (acc as CosmosSdkStakingSpecificUserStakingOpportunity)?.undelegations ?? []
+
+      const undelegations = [...currentUndelegations, ...accUndelegations]
 
       return {
         ...userStakingOpportunityWithoutUserStakingId,
@@ -322,7 +326,9 @@ export const selectAggregatedEarnUserStakingOpportunityByStakingId = createDeepE
         cryptoAmountPrecision: bnOrZero(opportunity.stakedAmountCryptoBaseUnit)
           .div(bn(10).pow(asset?.precision ?? underlyingAsset?.precision ?? 1))
           .toFixed(),
-        fiatAmount: bnOrZero(opportunity.stakedAmountCryptoBaseUnit)
+        fiatAmount: bnOrZero(
+          fromBaseUnit(opportunity.stakedAmountCryptoBaseUnit, asset?.precision ?? 18),
+        )
           .times(marketData[opportunity.underlyingAssetId as AssetId]?.price ?? '0')
           .toString(),
         isLoaded: true,
@@ -354,6 +360,22 @@ export const selectAggregatedEarnUserStakingOpportunities = createDeepEqualOutpu
   selectAssets,
   (aggregatedUserStakingOpportunities, marketData, assets): StakingEarnOpportunityType[] =>
     aggregatedUserStakingOpportunities.map(opportunity => {
+      if (opportunity.provider === 'ETH/FOX Staking') {
+        console.log(
+          '[stakingSelectors] ETH_FOX opportunity before mapping:',
+          JSON.stringify(
+            {
+              id: opportunity.id,
+              assetId: opportunity.assetId,
+              underlyingAssetId: opportunity.underlyingAssetId,
+              underlyingAssetIds: opportunity.underlyingAssetIds,
+            },
+            null,
+            2,
+          ),
+        )
+      }
+
       const asset = assets[opportunity.assetId]
       const underlyingAsset = assets[opportunity.underlyingAssetId]
 
@@ -394,6 +416,23 @@ export const selectAggregatedEarnUserStakingOpportunities = createDeepEqualOutpu
           opportunityName: opportunity.name,
         },
       )
+
+      if (opportunity.provider === 'ETH/FOX Staking') {
+        console.log(
+          '[stakingSelectors] ETH_FOX opportunity after mapping:',
+          JSON.stringify(
+            {
+              id: aggregatedEarnUserStakingOpportunity.id,
+              assetId: aggregatedEarnUserStakingOpportunity.assetId,
+              underlyingAssetId: aggregatedEarnUserStakingOpportunity.underlyingAssetId,
+              underlyingAssetIds: aggregatedEarnUserStakingOpportunity.underlyingAssetIds,
+            },
+            null,
+            2,
+          ),
+        )
+      }
+
       return aggregatedEarnUserStakingOpportunity
     }),
 )

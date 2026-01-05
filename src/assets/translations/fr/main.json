@@ -1898,7 +1898,7 @@
       "explanation": "Il s'agit d'une configuration unique qui initialisera votre compte sur Starknet. Des frais minimes seront déduits de votre solde.",
       "deployButton": "Déployer le compte",
       "deploying": "Déploiement du compte...",
-      "deployFailed": "Le déploiement a échoué."
+      "deployFailed": "Le déploiement a échoué"
     }
   },
   "transactionHistory": {

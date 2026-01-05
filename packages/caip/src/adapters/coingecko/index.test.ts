@@ -200,6 +200,12 @@ describe('adapters:coingecko', () => {
         assetNamespace: 'token',
         assetReference: '0x33068f6539f8e6e6b131e6b2b814e6c34a5224bc66947c47dab9dfee93b35fb',
       })
+      const usdcOnNear = toAssetId({
+        chainNamespace: CHAIN_NAMESPACE.Near,
+        chainReference: CHAIN_REFERENCE.NearMainnet,
+        assetNamespace: 'nep141',
+        assetReference: '17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1',
+      })
       expect(coingeckoToAssetIds('usd-coin')).toEqual([
         usdcOnEthereum,
         usdcOnAvalanche,
@@ -213,6 +219,7 @@ describe('adapters:coingecko', () => {
         usdcOnStarknet,
         usdcOnSui,
         usdcOnTron,
+        usdcOnNear,
       ])
     })
     it('can get AssetIds for bridged USD Coin on EVM Chains', () => {

@@ -10,6 +10,8 @@ export const csp: Csp = {
     env.VITE_BASE_NODE_URL,
     env.VITE_UNCHAINED_BASE_HTTP_URL,
     env.VITE_UNCHAINED_BASE_WS_URL,
+    'https://mainnet.base.org',
     'https://base.llamarpc.com',
+    'https://base.blockpi.network',
   ],
 }

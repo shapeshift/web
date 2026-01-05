@@ -810,6 +810,130 @@ export * as [chainLower] from './[chainname]'
 export * from './[adaptertype]'
 ```
 
+### Step 3.2a: Implement parseTx (Iterative Approach)
+
+**CRITICAL**: The `parseTx()` method parses transaction data after broadcast. This determines:
+- Whether the transaction shows in history (if applicable)
+- Execution price calculation for swaps
+- Transfer display (from/to/value)
+
+**Reference Implementations** (use these as patterns):
+- **EVM chains**: `SecondClassEvmAdapter.parseTx()` - handles ERC-20 Transfer events automatically
+- **Sui**: `SuiChainAdapter.parseTx()` - parses SUI native and coin transfers
+- **Tron**: `TronChainAdapter.parseTx()` - parses TRC-20 transfers
+- **NEAR**: `NearChainAdapter.parseTx()` + `parseNep141Transfers()` - parses NEP-141 token logs
+
+**Iterative Development Flow**:
+
+1. **Start with naive implementation** - Parse native asset transfers only:
+```typescript
+async parseTx(txHash: string, pubkey: string): Promise<Transaction> {
+  const result = await this.rpcCall('getTransaction', [txHash])
+
+  // Basic structure
+  const status = result.success ? TxStatus.Confirmed : TxStatus.Failed
+  const fee = { assetId: this.assetId, value: result.fee.toString() }
+
+  const transfers: Transfer[] = []
+
+  // Parse native transfers (naive - just native asset)
+  if (result.value) {
+    transfers.push({
+      assetId: this.assetId,
+      from: [result.from],
+      to: [result.to],
+      type: result.from === pubkey ? TransferType.Send : TransferType.Receive,
+      value: result.value.toString(),
+    })
+  }
+
+  return { txid: txHash, status, fee, transfers, /* ... */ }
+}
+```
+
+2. **User testing reveals issues** - User tests sends/swaps and reports:
+   - "Native send works but tokens don't show"
+   - "Swap execution price is wrong"
+   - Provides RPC response from debugger
+
+3. **Refine with actual RPC response** - User provides debugger scope:
+```typescript
+// Example: User provides RPC response showing token events in logs
+// You then add token parsing logic based on actual data structure
+
+private parseTokenTransfers(result: RpcResult, pubkey: string): Transfer[] {
+  const transfers: Transfer[] = []
+
+  // Parse token events from logs/events
+  for (const event of result.events || []) {
+    if (event.type === 'token_transfer') {
+      // Token-specific parsing based on actual RPC structure
+    }
+  }
+
+  return transfers
+}
+```
+
+**Key considerations for parseTx**:
+
+| Aspect | Native Asset | Tokens | Internal Transfers |
+|--------|--------------|--------|-------------------|
+| Where to find | Transaction value field | Event logs / receipts | Nested calls / traces |
+| Asset ID | `this.assetId` | `chainId/namespace:contractAddress` | Varies |
+| pubkey comparison | Usually sender field | Event old_owner/new_owner | May be nested |
+
+**Common patterns by chain type**:
+
+**EVM Chains** (SecondClassEvmAdapter handles automatically):
+- Native: `tx.value`
+- Tokens: ERC-20 Transfer events in logs
+- Uses `ethers.Interface.parseLog()` to decode events
+
+**Non-EVM Chains** (must implement manually):
+
+```typescript
+// NEAR pattern - EVENT_JSON logs
+for (const log of receipt.outcome.logs) {
+  if (!log.startsWith('EVENT_JSON:')) continue
+  const event = JSON.parse(log.slice('EVENT_JSON:'.length))
+  if (event.standard === 'nep141' && event.event === 'ft_transfer') {
+    // Parse transfer from event.data
+  }
+}
+
+// Sui pattern - coin type from object changes
+for (const change of result.objectChanges) {
+  if (change.type === 'mutated' && change.objectType.includes('::coin::Coin<')) {
+    // Extract coin type and amount
+  }
+}
+
+// Tron pattern - TRC20 logs
+for (const log of result.log || []) {
+  if (log.topics[0] === TRC20_TRANSFER_TOPIC) {
+    // Decode TRC20 transfer
+  }
+}
+```
+
+**pubkey vs account ID gotcha**:
+- Some chains pass `pubkey` as hex public key
+- But logs/events use account addresses (e.g., `alice.near`, base58, etc.)
+- May need to convert: `const accountId = pubKeyToAddress(pubkey)`
+
+**When to ask user for debugger scope**:
+- Initial naive implementation doesn't catch tokens
+- Swap execution prices are wrong
+- Internal transfers missing
+
+**Example request to user**:
+> "The parseTx implementation needs refinement for token transfers. Can you:
+> 1. Make a token send/swap
+> 2. Set a breakpoint in parseTx()
+> 3. Share the `result` variable from the RPC response
+> This will help me see the actual data structure for token events."
+
 ### Step 3.3: Add Utility Functions
 
 **File**: `packages/utils/src/getAssetNamespaceFromChainId.ts`
@@ -1934,6 +2058,197 @@ case plasmaChainId:
 **Why**: This function converts accountId to human-readable label. Without the case, it hits the `default` and returns `''` (empty string), causing blank addresses everywhere in the UI.
 
 **Note**: This affects ALL wallet types (Native, Ledger, Trezor, MetaMask), not just one wallet.
+
+### Gotcha 18: Missing getNativeFeeAssetReference Case (RUNTIME CRASH!)
+
+**Problem**: App crashes with error:
+```
+Error: Chain namespace [chain] on mainnet not supported.
+    at getNativeFeeAssetReference.ts:XX:XX
+```
+
+**Root Cause**: Missing chainNamespace case in `getNativeFeeAssetReference()` function
+**File**: `packages/utils/src/getNativeFeeAssetReference.ts`
+
+**Solution**:
+Add case to the switch statement:
+```typescript
+case CHAIN_NAMESPACE.[ChainName]:
+  switch (chainReference) {
+    case CHAIN_REFERENCE.[ChainName]Mainnet:
+      return ASSET_REFERENCE.[ChainName]
+    default:
+      throw new Error(`Chain namespace ${chainNamespace} on ${chainReference} not supported.`)
+  }
+```
+
+**Why**: This function maps chainId to the native fee asset reference. Without it, any selector that needs the fee asset for your chain will throw and crash the app.
+
+**Note**: This is called early in the app initialization, so it will crash immediately when the app tries to load accounts for your chain.
+
+### Gotcha 19: Missing accountToPortfolio Case (ACCOUNT NOT VISIBLE!)
+
+**Problem**: Account discovery succeeds (getAccount returns valid data) but account doesn't appear in the UI anywhere.
+
+**Root Cause**: Missing or placeholder implementation in `accountToPortfolio()` function
+**File**: `src/state/slices/portfolioSlice/utils/index.ts`
+
+**Symptom**: You can verify getAccount is returning correct data with console.log, but the account just doesn't show up in the portfolio UI.
+
+**Solution**:
+Find the switch statement for `chainNamespace` and implement your chain's case:
+```typescript
+case CHAIN_NAMESPACE.[ChainName]: {
+  const chainAccount = account as Account<KnownChainIds.[ChainName]Mainnet>
+  const { chainId, assetId, pubkey } = account
+  const accountId = toAccountId({ chainId, account: pubkey })
+
+  portfolio.accounts.ids.push(accountId)
+  portfolio.accounts.byId[accountId] = { assetIds: [assetId], hasActivity }
+  portfolio.accountBalances.ids.push(accountId)
+  portfolio.accountBalances.byId[accountId] = { [assetId]: account.balance }
+
+  // Add token support if applicable
+  chainAccount.chainSpecific.tokens?.forEach(token => {
+    if (!assetIds.includes(token.assetId)) return
+    if (bnOrZero(token.balance).gt(0)) portfolio.accounts.byId[accountId].hasActivity = true
+    portfolio.accounts.byId[accountId].assetIds.push(token.assetId)
+    portfolio.accountBalances.byId[accountId][token.assetId] = token.balance
+  })
+
+  break
+}
+```
+
+**Why**: This function converts chain adapter account data into the Redux portfolio state structure. Without it, the account data is fetched but never stored, making the account invisible.
+
+### Gotcha 20: parseTx Doesn't Parse Token Transfers (SWAP EXECUTION PRICE WRONG!)
+
+**Problem**:
+- Native asset sends work fine
+- Token sends/swaps show wrong execution price or $0
+- Token transfers not appearing in transaction details
+
+**Root Cause**: `parseTx()` only parses native transfers, not token events
+
+**Symptom**: User reports swap worked but execution price shows as incorrect or zero.
+
+**Solution**: Implement token parsing in parseTx. This is an iterative process:
+
+1. **Start naive** - Parse native transfers only (initial implementation)
+2. **User tests** - User makes a token send/swap
+3. **Get RPC response** - User provides debugger scope with actual RPC data
+4. **Refine parsing** - Add token event parsing based on real data structure
+
+**Reference implementations**:
+- `SecondClassEvmAdapter.parseTx()` - ERC-20 Transfer events
+- `SuiChainAdapter.parseTx()` - SUI coin object changes
+- `TronChainAdapter.parseTx()` - TRC-20 logs
+- `NearChainAdapter.parseNep141Transfers()` - NEP-141 EVENT_JSON logs
+
+**Common issues**:
+1. **pubkey mismatch**: Logs use account address (e.g., `alice.near`) but function receives hex pubkey
+   - Solution: Convert pubkey to account address before comparison
+2. **Token contract ID extraction**: Token contract might be in receiver_id, Delegate action, or nested
+   - Solution: Check actual RPC response structure
+3. **Missing event parsing**: Chain-specific event format not handled
+   - Solution: Parse EVENT_JSON, logs, or objectChanges based on chain type
+
+**How to debug**:
+```typescript
+async parseTx(txHash: string, pubkey: string): Promise<Transaction> {
+  const result = await this.rpcCall('tx', [txHash, 'dontcare'])
+  console.log('parseTx result:', JSON.stringify(result, null, 2))
+  console.log('pubkey:', pubkey)
+  // ... rest of implementation
+}
+```
+
+**Ask user for**: Breakpoint in parseTx, share `result` variable to see actual token event structure.
+
+---
+
+### Gotcha 21: Token Sends Build as Native Transfers (isToken missing new namespace)
+
+**Problem**:
+- Token send UI works, transaction broadcasts successfully
+- But transaction is a native transfer to self, not a token transfer
+- Token balance unchanged, only gas spent
+
+**Root Cause**: `isToken()` in `packages/utils/src/index.ts` doesn't include the new chain's token namespace.
+
+**Why it matters**: `contractAddressOrUndefined(assetId)` uses `isToken()` to determine if an asset is a token. If `isToken()` returns `false`, `contractAddressOrUndefined()` returns `undefined`, and the chain adapter builds a native transfer instead of a token transfer.
+
+**EVM chains**: Not affected - EVM abstraction already handles `erc20`, `erc721`, `erc1155`.
+
+**Non-EVM chains**: MUST add their token namespace to `isToken()`:
+```typescript
+// packages/utils/src/index.ts
+export const isToken = (assetId: AssetId) => {
+  switch (fromAssetId(assetId).assetNamespace) {
+    case ASSET_NAMESPACE.erc20:
+    case ASSET_NAMESPACE.erc721:
+    case ASSET_NAMESPACE.erc1155:
+    case ASSET_NAMESPACE.splToken:  // Solana
+    case ASSET_NAMESPACE.trc20:     // Tron
+    case ASSET_NAMESPACE.suiCoin:   // Sui
+    case ASSET_NAMESPACE.nep141:    // NEAR <-- ADD YOUR NAMESPACE HERE
+      return true
+    default:
+      return false
+  }
+}
+```
+
+**Symptom**: User sends token, tx succeeds, but token balance unchanged. Tx on block explorer shows native transfer to self.
+
+**Debug**: Add logs in Send flow:
+```typescript
+console.log('[Send] assetId:', asset.assetId)
+console.log('[Send] contractAddress:', contractAddressOrUndefined(asset.assetId))
+// If contractAddress is undefined for a token, isToken() is missing the namespace
+```
+
+---
+
+### Gotcha 22: Ledger "TypeError: coin" Error (Missing translateCoinAndMethod case)
+
+**Problem**:
+- Ledger connection works for other chains
+- But new chain throws `TypeError: coin` when deriving address
+- Error trace shows `translateCoinAndMethod` hitting `default: throw new TypeError("coin")`
+
+**Root Cause**: For non-EVM chains, `translateCoinAndMethod` in Ledger WebHID/WebUSB transport needs a case for the new coin type.
+
+**Files to update**:
+1. `packages/hdwallet-ledger-webhid/src/transport.ts`
+2. `packages/hdwallet-ledger-webusb/src/transport.ts`
+
+**Solution**: Add import and case for the new chain's Ledger app:
+
+```typescript
+// 1. Add import at top
+import Near from "@ledgerhq/hw-app-near";
+
+// 2. Add case in translateCoinAndMethod switch
+case "Near": {
+  const near = new Near(transport as Transport);
+  const methodInstance = near[method as LedgerTransportMethodName<"Near">].bind(near);
+  return methodInstance as LedgerTransportMethod<T, U>;
+}
+```
+
+**Prerequisites**:
+- `@ledgerhq/hw-app-[chainname]` must exist as npm package
+- Chain must be in `LedgerTransportCoinType` union in `packages/hdwallet-ledger/src/transport.ts`
+
+**EVM chains**: Not affected - they use the Ethereum app via `case "Eth"`.
+
+**Checklist for new non-EVM Ledger chain**:
+- [ ] Add to `LedgerTransportCoinType` in `hdwallet-ledger/src/transport.ts`
+- [ ] Add to `LedgerTransportMethodMap` type mapping in same file
+- [ ] Add import + case in `hdwallet-ledger-webhid/src/transport.ts`
+- [ ] Add import + case in `hdwallet-ledger-webusb/src/transport.ts`
 
 ---
 

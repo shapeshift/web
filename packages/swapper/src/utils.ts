@@ -1,6 +1,13 @@
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import { solanaChainId, starknetChainId, suiChainId } from '@shapeshiftoss/caip'
-import type { EvmChainAdapter, SignTx, solana, starknet, sui } from '@shapeshiftoss/chain-adapters'
+import type {
+  EvmChainAdapter,
+  near,
+  SignTx,
+  solana,
+  starknet,
+  sui,
+} from '@shapeshiftoss/chain-adapters'
 import type { SolanaSignTx, StarknetSignTx, SuiSignTx } from '@shapeshiftoss/hdwallet-core'
 import type { Asset, EvmChainId } from '@shapeshiftoss/types'
 import { evm, TxStatus } from '@shapeshiftoss/unchained-client'
@@ -16,6 +23,7 @@ import { fetchSafeTransactionInfo } from './safe-utils'
 import type {
   EvmTransactionExecutionProps,
   ExecutableTradeStep,
+  NearTransactionExecutionProps,
   SolanaTransactionExecutionProps,
   StarknetTransactionExecutionProps,
   SuiTransactionExecutionProps,
@@ -191,6 +199,13 @@ export const executeTronTransaction = (
 export const executeSuiTransaction = (
   txToSign: SuiSignTx,
   callbacks: SuiTransactionExecutionProps,
+) => {
+  return callbacks.signAndBroadcastTransaction(txToSign)
+}
+
+export const executeNearTransaction = (
+  txToSign: near.NearSignTx,
+  callbacks: NearTransactionExecutionProps,
 ) => {
   return callbacks.signAndBroadcastTransaction(txToSign)
 }

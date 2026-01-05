@@ -328,7 +328,10 @@
     "viewSavedWallets": "Voir les porte-monnaie enregistrés",
     "footerOne": "En continuant, vous acceptez les",
     "terms": "Conditions",
-    "privacyPolicy": "Politique de confidentialité"
+    "privacyPolicy": "Politique de confidentialité",
+    "connectNewWallet": "Connecter un nouveau porte-monnaie",
+    "getANewWallet": "Créer un nouveau porte-monnaie",
+    "alreadyHaveWallet": "J'ai déjà un porte-monnaie"
   },
   "connectWallet": {
     "menu": {
@@ -523,6 +526,8 @@
     "foxToken": {
       "title": "Jeton FOX",
       "subtitle": "Notre jeton de gouvernance"
+    },
+    "agent": {
     },
     "classic": {
       "title": "Classique",
@@ -1879,6 +1884,10 @@
     "title": "Ouvrir l'app %{appName}",
     "description": "Pour continuer, vous devrez ouvrir l'application %{appName} sur votre appareil Ledger.",
     "devicePrompt": "Votre appareil vous indiquera toutes les étapes nécessaires requises pour terminer votre action en cours."
+  },
+  "starknet": {
+    "deployAccount": {
+    }
   },
   "transactionHistory": {
     "transactionHistory": "Historique des transactions",

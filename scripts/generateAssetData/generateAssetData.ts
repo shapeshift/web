@@ -34,11 +34,13 @@ import { generateRelatedAssetIndex } from './generateRelatedAssetIndex/generateR
 import * as gnosis from './gnosis'
 import * as hyperevm from './hyperevm'
 import * as monad from './monad'
+import * as near from './near'
 import * as optimism from './optimism'
 import { overrideAssets } from './overrides'
 import * as plasma from './plasma'
 import * as polygon from './polygon'
 import * as solana from './solana'
+import * as starknet from './starknet'
 import * as sui from './sui'
 import * as tronModule from './tron'
 import { filterOutBlacklistedAssets, getSortedAssetIds } from './utils'
@@ -68,8 +70,10 @@ const generateAssetData = async () => {
   const hyperevmAssets = await hyperevm.getAssets()
   const plasmaAssets = await plasma.getAssets()
   const solanaAssets = await solana.getAssets()
+  const starknetAssets = await starknet.getAssets()
   const tronAssets = await tronModule.getAssets()
   const suiAssets = await sui.getAssets()
+  const nearAssets = await near.getAssets()
 
   // all assets, included assets to be blacklisted
   const unfilteredAssetData: Asset[] = [
@@ -97,8 +101,10 @@ const generateAssetData = async () => {
     ...hyperevmAssets,
     ...plasmaAssets,
     ...solanaAssets,
+    ...starknetAssets,
     ...tronAssets,
     ...suiAssets,
+    ...nearAssets,
   ]
 
   // remove blacklisted assets

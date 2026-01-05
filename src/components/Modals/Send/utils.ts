@@ -33,7 +33,9 @@ import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
 import { assertGetChainAdapter } from '@/lib/utils'
 import { assertGetCosmosSdkChainAdapter } from '@/lib/utils/cosmosSdk'
 import { assertGetEvmChainAdapter, getSupportedEvmChainIds } from '@/lib/utils/evm'
+import { assertGetNearChainAdapter } from '@/lib/utils/near'
 import { assertGetSolanaChainAdapter } from '@/lib/utils/solana'
+import { assertGetStarknetChainAdapter } from '@/lib/utils/starknet'
 import { assertGetSuiChainAdapter } from '@/lib/utils/sui'
 import { assertGetUtxoChainAdapter, isUtxoChainId } from '@/lib/utils/utxo'
 import {
@@ -122,7 +124,11 @@ export const estimateFees = async ({
       const getFeeDataInput: GetFeeDataInput<KnownChainIds.SolanaMainnet> = {
         to,
         value,
-        chainSpecific: { from: account, tokenId: contractAddress, instructions },
+        chainSpecific: {
+          from: account,
+          tokenId: contractAddress,
+          instructions,
+        },
         sendMax,
       }
       return adapter.getFeeData(getFeeDataInput)
@@ -153,6 +159,20 @@ export const estimateFees = async ({
         sendMax,
       }
       return adapter.getFeeData(getFeeDataInput)
+    }
+    case CHAIN_NAMESPACE.Near: {
+      const adapter = assertGetNearChainAdapter(asset.chainId)
+      const getFeeDataInput: GetFeeDataInput<KnownChainIds.NearMainnet> = {
+        to,
+        value,
+        chainSpecific: { from: account, contractAddress },
+        sendMax,
+      }
+      return adapter.getFeeData(getFeeDataInput)
+    }
+    case CHAIN_NAMESPACE.Starknet: {
+      const adapter = assertGetStarknetChainAdapter(asset.chainId)
+      return adapter.getFeeData()
     }
     default:
       throw new Error(`${chainNamespace} not supported`)
@@ -360,6 +380,50 @@ export const handleSend = async ({
           gasPrice: fees.chainSpecific.gasPrice,
         },
       } as BuildSendTxInput<KnownChainIds.SuiMainnet>)
+    }
+
+    if (fromChainId(asset.chainId).chainNamespace === CHAIN_NAMESPACE.Near) {
+      const { accountNumber } = bip44Params
+      const adapter = assertGetNearChainAdapter(chainId)
+      const fees = estimatedFees[feeType] as FeeData<KnownChainIds.NearMainnet>
+      const contractAddress = contractAddressOrUndefined(asset.assetId)
+      const pubKey = skipDeviceDerivation ? fromAccountId(sendInput.accountId).account : undefined
+
+      return adapter.buildSendTransaction({
+        to,
+        value,
+        wallet,
+        accountNumber,
+        pubKey,
+        sendMax: sendInput.sendMax,
+        chainSpecific: {
+          gasPrice: fees.chainSpecific.gasPrice,
+          contractAddress,
+        },
+      } as BuildSendTxInput<KnownChainIds.NearMainnet>)
+    }
+
+    if (fromChainId(asset.chainId).chainNamespace === CHAIN_NAMESPACE.Starknet) {
+      const { accountNumber } = bip44Params
+      const adapter = assertGetStarknetChainAdapter(chainId)
+      const contractAddress = contractAddressOrUndefined(asset.assetId)
+      const fees = estimatedFees[feeType] as FeeData<KnownChainIds.StarknetMainnet>
+
+      return adapter.buildSendTransaction({
+        to,
+        value,
+        wallet,
+        accountNumber,
+        pubKey:
+          isLedger(wallet) || isTrezor(wallet)
+            ? fromAccountId(sendInput.accountId).account
+            : undefined,
+        sendMax: sendInput.sendMax,
+        chainSpecific: {
+          tokenContractAddress: contractAddress,
+          maxFee: fees.chainSpecific.maxFee,
+        },
+      } as BuildSendTxInput<KnownChainIds.StarknetMainnet>)
     }
 
     throw new Error(`${chainId} not supported`)

@@ -44,14 +44,14 @@ export type SecondClassEvmAdapterArgs<T extends EvmChainId> = {
   rootBip44Params: RootBip44Params
   supportedChainIds: ChainId[]
   rpcUrl: string
-  knownTokens: TokenInfo[]
+  getKnownTokens: () => TokenInfo[]
 }
 
 export abstract class SecondClassEvmAdapter<T extends EvmChainId> extends EvmBaseAdapter<T> {
   protected provider: JsonRpcProvider
   protected multicall: Contract
   protected erc20Interface: Interface
-  protected knownTokens: TokenInfo[]
+  protected getKnownTokens: () => TokenInfo[]
   private requestQueue: PQueue
 
   constructor(args: SecondClassEvmAdapterArgs<T>) {
@@ -77,7 +77,7 @@ export abstract class SecondClassEvmAdapter<T extends EvmChainId> extends EvmBas
 
     this.multicall = new Contract(MULTICALL3_CONTRACT, multicall3Abi, this.provider)
     this.erc20Interface = new Interface(ERC20_ABI)
-    this.knownTokens = args.knownTokens
+    this.getKnownTokens = args.getKnownTokens
     this.requestQueue = new PQueue({
       intervalCap: 1,
       interval: 50,
@@ -100,8 +100,9 @@ export abstract class SecondClassEvmAdapter<T extends EvmChainId> extends EvmBas
         precision: number
       }[] = []
 
-      if (this.knownTokens.length > 0) {
-        tokens = await this.getTokenBalancesMulticall(pubkey, this.knownTokens)
+      const knownTokens = this.getKnownTokens()
+      if (knownTokens.length > 0) {
+        tokens = await this.getTokenBalancesMulticall(pubkey, knownTokens)
       }
 
       return {
@@ -409,9 +410,10 @@ export abstract class SecondClassEvmAdapter<T extends EvmChainId> extends EvmBas
         eventName: 'Transfer',
       })
 
+      const knownTokens = this.getKnownTokens()
       const tokenTransfers: evm.TokenTransfer[] = transferLogs
         .map(log => {
-          const tokenInfo = this.knownTokens.find(
+          const tokenInfo = knownTokens.find(
             t => getAddress(t.contractAddress) === getAddress(log.address),
           )
 

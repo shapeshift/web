@@ -19,24 +19,25 @@ export default function register(): Plugins {
             [
               KnownChainIds.MonadMainnet,
               () => {
-                // Get all Monad ERC20 tokens from asset service
-                const assetService = getAssetService()
-                const knownTokens = assetService.assets
-                  .filter(asset => {
-                    const { chainId, assetNamespace } = fromAssetId(asset.assetId)
-                    return chainId === monadChainId && assetNamespace === 'erc20'
-                  })
-                  .map(asset => ({
-                    assetId: asset.assetId,
-                    contractAddress: fromAssetId(asset.assetId).assetReference,
-                    symbol: asset.symbol,
-                    name: asset.name,
-                    precision: asset.precision,
-                  }))
+                const getKnownTokens = () => {
+                  const assetService = getAssetService()
+                  return assetService.assets
+                    .filter(asset => {
+                      const { chainId, assetNamespace } = fromAssetId(asset.assetId)
+                      return chainId === monadChainId && assetNamespace === 'erc20'
+                    })
+                    .map(asset => ({
+                      assetId: asset.assetId,
+                      contractAddress: fromAssetId(asset.assetId).assetReference,
+                      symbol: asset.symbol,
+                      name: asset.name,
+                      precision: asset.precision,
+                    }))
+                }
 
                 return new monad.ChainAdapter({
                   rpcUrl: getConfig().VITE_MONAD_NODE_URL,
-                  knownTokens,
+                  getKnownTokens,
                 })
               },
             ],

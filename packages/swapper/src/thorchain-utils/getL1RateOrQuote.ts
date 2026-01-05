@@ -540,6 +540,22 @@ export const getL1RateOrQuote = async <T extends ThorTradeRateOrQuote>(
         }),
       )
     }
+    case CHAIN_NAMESPACE.Near: {
+      return Err(
+        makeSwapErrorRight({
+          message: 'NEAR is not supported',
+          code: TradeQuoteError.UnsupportedTradePair,
+        }),
+      )
+    }
+    case CHAIN_NAMESPACE.Starknet: {
+      return Err(
+        makeSwapErrorRight({
+          message: 'Starknet is not supported',
+          code: TradeQuoteError.UnsupportedTradePair,
+        }),
+      )
+    }
     default:
       return assertUnreachable(chainNamespace)
   }

@@ -72,13 +72,9 @@ export const avnuApi: SwapperApi = {
       return data
     })
 
-    // Get nonce
+    // Get nonce using adapter method (checks deployment status and returns appropriate nonce)
     const chainIdHex = await adapter.getStarknetProvider().getChainId()
-    const nonceResponse = await adapter
-      .getStarknetProvider()
-      .fetch('starknet_getNonce', ['pending', from])
-    const nonceResult: { result?: string; error?: unknown } = await nonceResponse.json()
-    const nonce = nonceResult.result || '0x0'
+    const nonce = await adapter.getNonce(from)
 
     // Estimate fees for the multi-call swap transaction
     const version = '0x3' as const
@@ -199,6 +195,11 @@ export const avnuApi: SwapperApi = {
         version,
         resourceBounds,
         chainId: chainIdHex,
+        nonceDataAvailabilityMode: 0 as const,
+        feeDataAvailabilityMode: 0 as const,
+        tip: '0x0',
+        paymasterData: [],
+        accountDeploymentData: [],
       },
     }
   },

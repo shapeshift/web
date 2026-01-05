@@ -37,16 +37,9 @@ import type {
   StarknetReceipt,
   StarknetTransfer,
   StarknetTxHashResult,
+  TokenInfo,
   TxHashOrObject,
 } from './types'
-
-export type TokenInfo = {
-  assetId: AssetId
-  contractAddress: string
-  symbol: string
-  name: string
-  precision: number
-}
 
 export interface ChainAdapterArgs {
   rpcUrl: string
@@ -307,6 +300,22 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.StarknetMainnet
     } catch (error) {
       return false
     }
+  }
+
+  /**
+   * Get the nonce for an account
+   * Returns '0x0' if account is not deployed, otherwise fetches the nonce from RPC
+   */
+  async getNonce(address: string): Promise<string> {
+    const isDeployed = await this.isAccountDeployed(address)
+
+    if (!isDeployed) return '0x0'
+
+    const nonceResponse = await this.provider.fetch('starknet_getNonce', ['pending', address])
+    const nonceResult: RpcJsonResponse<StarknetNonceResult> = await nonceResponse.json()
+    if (!nonceResult.result) throw new Error('Failed to fetch nonce')
+
+    return nonceResult.result
   }
 
   /**
@@ -815,6 +824,11 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.StarknetMainnet
           version,
           resourceBounds,
           chainId: chainIdHex,
+          nonceDataAvailabilityMode: 0 as const,
+          feeDataAvailabilityMode: 0 as const,
+          tip: '0x0',
+          paymasterData: [],
+          accountDeploymentData: [],
         },
       } as SignTxWithDetails
     } catch (err) {

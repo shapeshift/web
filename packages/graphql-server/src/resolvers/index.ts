@@ -756,4 +756,50 @@ export const resolvers = {
       },
     },
   },
+
+  // ============================================================================
+  // CUSTOM SCALARS
+  // ============================================================================
+
+  DefiProvider: {
+    __parseValue(value: unknown): string {
+      if (typeof value !== 'string') {
+        throw new Error('DefiProvider must be a string')
+      }
+      return value
+    },
+    __serialize(value: unknown): string {
+      if (typeof value !== 'string') {
+        throw new Error('DefiProvider must be a string')
+      }
+      return value
+    },
+    __parseLiteral(ast: { kind: string; value: string }): string {
+      if (ast.kind !== 'StringValue') {
+        throw new Error('DefiProvider must be a string')
+      }
+      return ast.value
+    },
+  },
+
+  DefiType: {
+    __parseValue(value: unknown): string {
+      if (typeof value !== 'string') {
+        throw new Error('DefiType must be a string')
+      }
+      return value
+    },
+    __serialize(value: unknown): string {
+      if (typeof value !== 'string') {
+        throw new Error('DefiType must be a string')
+      }
+      return value
+    },
+    __parseLiteral(ast: { kind: string; value: string }): string {
+      if (ast.kind !== 'StringValue') {
+        throw new Error('DefiType must be a string')
+      }
+      return ast.value
+    },
+  },
 }

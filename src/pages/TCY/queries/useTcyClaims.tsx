@@ -305,7 +305,6 @@ export const useTCYClaims = (accountNumber: number | 'all') => {
   const legacyResult = useTCYClaimsLegacy(accountNumber, !isGraphQLEnabled)
 
   if (isGraphQLEnabled) {
-    console.log('[useTCYClaims] GraphQL claims received:', graphqlResult.data.length, 'accounts')
     return graphqlResult.data
   }
 

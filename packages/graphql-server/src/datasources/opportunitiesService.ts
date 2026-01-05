@@ -28,13 +28,21 @@ import {
   getRuneProvider,
 } from './thornodeService.js'
 
-export type DefiProvider =
-  | 'THORCHAIN_SAVERS'
-  | 'COSMOS_SDK'
-  | 'RFOX'
-  | 'ETH_FOX_STAKING'
-  | 'SHAPE_SHIFT'
-export type DefiType = 'STAKING' | 'LIQUIDITY_POOL'
+export const DefiProvider = {
+  ShapeShift: 'ShapeShift',
+  rFOX: 'rFOX',
+  EthFoxStaking: 'ETH/FOX Staking',
+  CosmosSdk: 'Cosmos SDK',
+  ThorchainSavers: 'THORChain Savers',
+} as const
+
+export const DefiType = {
+  Staking: 'staking',
+  LiquidityPool: 'lp',
+} as const
+
+export type DefiProvider = (typeof DefiProvider)[keyof typeof DefiProvider]
+export type DefiType = (typeof DefiType)[keyof typeof DefiType]
 
 export type StakingOpportunityMetadata = {
   id: string
@@ -204,8 +212,8 @@ export async function getThorchainSaversMetadata(): Promise<StakingOpportunityMe
 
       opportunities.push({
         id: assetId,
-        provider: 'THORCHAIN_SAVERS',
-        type: 'STAKING',
+        provider: DefiProvider.ThorchainSavers,
+        type: DefiType.Staking,
         assetId,
         underlyingAssetId: assetId,
         underlyingAssetIds: [assetId],
@@ -221,8 +229,8 @@ export async function getThorchainSaversMetadata(): Promise<StakingOpportunityMe
 
     opportunities.push({
       id: thorchainAssetId,
-      provider: 'THORCHAIN_SAVERS',
-      type: 'STAKING',
+      provider: DefiProvider.ThorchainSavers,
+      type: DefiType.Staking,
       assetId: thorchainAssetId,
       underlyingAssetId: thorchainAssetId,
       underlyingAssetIds: [thorchainAssetId],
@@ -262,6 +270,15 @@ function serializeMetadataKey(key: MetadataLoaderKey): string {
   return `${key.chainId}:${key.provider}`
 }
 
+// Map GraphQL enum input values to actual provider strings
+const GRAPHQL_PROVIDER_MAP: Record<string, DefiProvider> = {
+  ETH_FOX_STAKING: DefiProvider.EthFoxStaking,
+  SHAPE_SHIFT: DefiProvider.ShapeShift,
+  THORCHAIN_SAVERS: DefiProvider.ThorchainSavers,
+  COSMOS_SDK: DefiProvider.CosmosSdk,
+  RFOX: DefiProvider.rFOX,
+}
+
 function createMetadataLoader() {
   const loaderCache = new Map<string, StakingOpportunityMetadata[]>()
 
@@ -272,29 +289,26 @@ function createMetadataLoader() {
       const results = await Promise.all(
         keys.map(({ chainId, provider }) =>
           limit(async (): Promise<StakingOpportunityMetadata[]> => {
-            const cacheKey = serializeMetadataKey({ chainId, provider })
+            // Map GraphQL enum value to actual provider string
+            const actualProvider = GRAPHQL_PROVIDER_MAP[provider] || provider
+            const cacheKey = serializeMetadataKey({ chainId, provider: actualProvider })
             const cached = loaderCache.get(cacheKey)
             if (cached) return cached
 
             let result: StakingOpportunityMetadata[]
-            switch (provider) {
-              case 'THORCHAIN_SAVERS':
+            switch (actualProvider) {
+              case DefiProvider.ThorchainSavers:
                 result = await getThorchainSaversMetadata()
                 break
-              case 'COSMOS_SDK':
+              case DefiProvider.CosmosSdk:
                 result = await getCosmosValidatorMetadata(chainId, [])
                 break
-              case 'ETH_FOX_STAKING':
-                console.log(
-                  '[Opportunities] Building ETH_FOX_STAKING metadata for',
-                  ETH_FOX_STAKING_CONTRACT_IDS_ARRAY.length,
-                  'contracts',
-                )
+              case DefiProvider.EthFoxStaking:
                 result = ETH_FOX_STAKING_CONTRACT_IDS_ARRAY.map((contractId: string) => {
-                  const metadata = {
+                  return {
                     id: contractId,
-                    provider: 'ETH_FOX_STAKING' as const,
-                    type: 'STAKING' as const,
+                    provider: DefiProvider.EthFoxStaking,
+                    type: DefiType.Staking,
                     assetId: contractId,
                     underlyingAssetId: foxEthLpAssetId,
                     underlyingAssetIds: foxEthPair,
@@ -305,19 +319,14 @@ function createMetadataLoader() {
                     name: 'Fox Farming',
                     isClaimableRewards: true,
                   }
-                  console.log('[Opportunities] ETH_FOX_STAKING metadata:', {
-                    id: metadata.id,
-                    underlyingAssetId: metadata.underlyingAssetId,
-                  })
-                  return metadata
                 })
                 break
-              case 'RFOX':
+              case DefiProvider.rFOX:
                 result = [
                   {
                     id: foxOnArbitrumOneAssetId,
-                    provider: 'RFOX' as const,
-                    type: 'STAKING' as const,
+                    provider: DefiProvider.rFOX,
+                    type: DefiType.Staking,
                     assetId: foxOnArbitrumOneAssetId,
                     underlyingAssetId: foxOnArbitrumOneAssetId,
                     underlyingAssetIds: [foxOnArbitrumOneAssetId],
@@ -330,8 +339,8 @@ function createMetadataLoader() {
                   },
                   {
                     id: uniV2EthFoxArbitrumAssetId,
-                    provider: 'RFOX' as const,
-                    type: 'STAKING' as const,
+                    provider: DefiProvider.rFOX,
+                    type: DefiType.Staking,
                     assetId: uniV2EthFoxArbitrumAssetId,
                     underlyingAssetId: uniV2EthFoxArbitrumAssetId,
                     underlyingAssetIds: [uniV2EthFoxArbitrumAssetId],
@@ -344,12 +353,12 @@ function createMetadataLoader() {
                   },
                 ]
                 break
-              case 'SHAPE_SHIFT':
+              case DefiProvider.ShapeShift:
                 result = [
                   {
                     id: foxyStakingAssetId,
-                    provider: 'SHAPE_SHIFT' as const,
-                    type: 'STAKING' as const,
+                    provider: DefiProvider.ShapeShift,
+                    type: DefiType.Staking,
                     assetId: foxyStakingAssetId,
                     underlyingAssetId: foxAssetId,
                     underlyingAssetIds: [foxAssetId],
@@ -398,9 +407,9 @@ export function getStakingIds(
   console.log(`[Opportunities.stakingIds] Fetching IDs for ${chainId}/${provider}`)
 
   switch (provider) {
-    case 'THORCHAIN_SAVERS':
+    case DefiProvider.ThorchainSavers:
       return getThorchainSaversOpportunityIds()
-    case 'COSMOS_SDK':
+    case DefiProvider.CosmosSdk:
       return getCosmosValidatorIds(chainId)
     default:
       return []
@@ -534,19 +543,19 @@ const THORCHAIN_SAVERS_ASSET_IDS = new Set([
 
 function identifyProvider(opportunityId: string): DefiProvider | null {
   if (ETH_FOX_STAKING_CONTRACT_IDS.has(opportunityId)) {
-    return 'ETH_FOX_STAKING'
+    return DefiProvider.EthFoxStaking
   }
   if (RFOX_STAKING_CONTRACT_IDS.has(opportunityId)) {
-    return 'RFOX'
+    return DefiProvider.rFOX
   }
   if (THORCHAIN_SAVERS_ASSET_IDS.has(opportunityId)) {
-    return 'THORCHAIN_SAVERS'
+    return DefiProvider.ThorchainSavers
   }
   if (opportunityId.startsWith('cosmos:')) {
-    return 'COSMOS_SDK'
+    return DefiProvider.CosmosSdk
   }
   if (opportunityId === foxyStakingAssetId) {
-    return 'SHAPE_SHIFT'
+    return DefiProvider.ShapeShift
   }
   return null
 }
@@ -917,19 +926,19 @@ export async function getUserStakingData(
 
         let result
         switch (provider) {
-          case 'ETH_FOX_STAKING':
+          case DefiProvider.EthFoxStaking:
             result = await fetchEthFoxStakingData(req.accountId, opportunityId)
             break
-          case 'RFOX':
+          case DefiProvider.rFOX:
             result = await fetchRfoxStakingData(req.accountId, opportunityId)
             break
-          case 'THORCHAIN_SAVERS':
+          case DefiProvider.ThorchainSavers:
             result = await fetchThorchainSaversData(req.accountId, opportunityId)
             break
-          case 'COSMOS_SDK':
+          case DefiProvider.CosmosSdk:
             result = await fetchCosmosSdkStakingData(req.accountId, opportunityId)
             break
-          case 'SHAPE_SHIFT':
+          case DefiProvider.ShapeShift:
             result = await fetchShapeShiftStakingData(req.accountId, opportunityId)
             break
           default:

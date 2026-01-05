@@ -117,22 +117,12 @@ function mapCowSwapOrderToOrder(cowOrder: CowSwapOrder): Order {
 async function fetchLimitOrders(accountIds: AccountId[]): Promise<OrderWithAccount[]> {
   if (accountIds.length === 0) return []
 
-  console.log('[fetchLimitOrders] Fetching orders for:', {
-    accountIdsCount: accountIds.length,
-    accountIds: accountIds.slice(0, 3),
-  })
-
   const client = getGraphQLClient()
   const response = await client.request<{
     cowswap: {
       orders: OrdersUpdate[]
     }
   }>(LIMIT_ORDERS_QUERY, { accountIds })
-
-  console.log('[fetchLimitOrders] Response received:', {
-    ordersUpdatesCount: response.cowswap.orders.length,
-    totalOrders: response.cowswap.orders.reduce((sum, u) => sum + u.orders.length, 0),
-  })
 
   const result = response.cowswap.orders.flatMap(update =>
     update.orders.map(order => ({
@@ -141,13 +131,6 @@ async function fetchLimitOrders(accountIds: AccountId[]): Promise<OrderWithAccou
       txHash: order.txHash,
     })),
   )
-
-  console.log('[fetchLimitOrders] Mapped result:', {
-    count: result.length,
-    statuses: result
-      .slice(0, 5)
-      .map(o => ({ uid: o.order.uid.slice(0, 10), status: o.order.status })),
-  })
 
   return result
 }
@@ -159,11 +142,6 @@ export function useLimitOrdersGraphQLQuery(
   options?: { enabled?: boolean },
 ) {
   const enabled = options?.enabled !== false && accountIds.length > 0
-
-  console.log('[useLimitOrdersGraphQLQuery] Query setup:', {
-    accountIdsCount: accountIds.length,
-    enabled,
-  })
 
   return useQuery({
     queryKey: [LIMIT_ORDERS_QUERY_KEY, accountIds],
@@ -182,16 +160,10 @@ export function useLimitOrdersCacheUpdater(accountIds: AccountId[]) {
 
   const updateCache = useCallback(
     (accountId: AccountId, orders: OrderUpdate[]) => {
-      console.log('[useLimitOrdersCacheUpdater] Updating cache:', {
-        accountId,
-        ordersCount: orders.length,
-      })
-
       queryClient.setQueryData<OrderWithAccount[]>(
         [LIMIT_ORDERS_QUERY_KEY, accountIds],
         oldData => {
           if (!oldData) {
-            console.log('[useLimitOrdersCacheUpdater] No existing data, creating new')
             return orders.map(({ order, txHash }) => ({ order, accountId, txHash }))
           }
 
@@ -202,11 +174,6 @@ export function useLimitOrdersCacheUpdater(accountIds: AccountId[]) {
             (a, b) =>
               new Date(b.order.creationDate).getTime() - new Date(a.order.creationDate).getTime(),
           )
-
-          console.log('[useLimitOrdersCacheUpdater] Cache updated:', {
-            previousCount: oldData.length,
-            newCount: merged.length,
-          })
 
           return merged
         },

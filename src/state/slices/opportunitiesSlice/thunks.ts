@@ -1,6 +1,7 @@
 import type { StartQueryActionCreatorOptions } from '@reduxjs/toolkit/query/react'
 import type { AccountId, ChainId } from '@shapeshiftoss/caip'
-import { fromAccountId } from '@shapeshiftoss/caip'
+import { ethChainId, fromAccountId } from '@shapeshiftoss/caip'
+import { KnownChainIds } from '@shapeshiftoss/types'
 
 import { foxEthStakingIds, rFOXStakingIds } from '../opportunitiesSlice/constants'
 import { CHAIN_ID_TO_SUPPORTED_DEFI_OPPORTUNITIES } from './mappings'
@@ -8,14 +9,48 @@ import { opportunitiesApi } from './opportunitiesApiSlice'
 import { DefiProvider, DefiType } from './types'
 
 import { getConfig } from '@/config'
+import type {
+  StakingMetadataResult,
+  UserStakingDataResult,
+} from '@/lib/graphql/queries/useOpportunitiesQuery'
 import {
   fetchStakingMetadata,
   fetchUserStakingData,
 } from '@/lib/graphql/queries/useOpportunitiesQuery'
 import { assertIsKnownChainId } from '@/lib/utils'
+import { opportunities } from '@/state/slices/opportunitiesSlice/opportunitiesSlice'
 import type { AppDispatch } from '@/state/store'
 
 const isGraphQLEnabled = () => getConfig().VITE_FEATURE_GRAPHQL_POC
+
+function transformStakingMetadata(results: StakingMetadataResult[]) {
+  const byId: Record<string, any> = {}
+
+  for (const result of results) {
+    for (const opp of result.opportunities) {
+      byId[opp.id] = {
+        ...opp,
+        type: DefiType.Staking,
+      }
+    }
+  }
+
+  return { type: DefiType.Staking, byId }
+}
+
+function transformUserStakingData(results: UserStakingDataResult[]) {
+  const byId: Record<string, any> = {}
+
+  for (const result of results) {
+    for (const opp of result.opportunities) {
+      byId[opp.userStakingId] = {
+        ...opp,
+      }
+    }
+  }
+
+  return { byId }
+}
 
 export const fetchAllStakingOpportunitiesMetadataByChainId = async (
   dispatch: AppDispatch,
@@ -23,14 +58,37 @@ export const fetchAllStakingOpportunitiesMetadataByChainId = async (
   options?: StartQueryActionCreatorOptions,
 ) => {
   if (isGraphQLEnabled()) {
-    // GraphQL POC: fetch via GraphQL
+    console.log('[GraphQL POC] fetchAllStakingOpportunitiesMetadataByChainId called:', { chainId })
+    const isCosmos = chainId.startsWith('cosmos:')
+
     const requests = [
-      { chainId, provider: 'ETH_FOX_STAKING' as const },
+      // Always fetch ETH_FOX_STAKING and SHAPE_SHIFT from Ethereum (they're Ethereum contracts)
+      { chainId: ethChainId, provider: 'ETH_FOX_STAKING' as const },
+      { chainId: ethChainId, provider: 'SHAPE_SHIFT' as const },
+      // Fetch chain-specific providers
       { chainId, provider: 'THORCHAIN_SAVERS' as const },
-      { chainId, provider: 'SHAPE_SHIFT' as const },
-      { chainId, provider: 'COSMOS_SDK' as const },
+      ...(chainId === KnownChainIds.ArbitrumMainnet
+        ? [{ chainId, provider: 'RFOX' as const }]
+        : []),
+      ...(isCosmos ? [{ chainId, provider: 'COSMOS_SDK' as const }] : []),
     ]
-    await fetchStakingMetadata(requests)
+
+    console.log('[GraphQL POC] Fetching staking metadata for requests:', requests.length, requests)
+
+    try {
+      const results = await fetchStakingMetadata(requests)
+      console.log('[GraphQL POC] fetchStakingMetadata returned:', results.length, 'results')
+
+      if (results.length > 0) {
+        const payload = transformStakingMetadata(results)
+        dispatch(opportunities.actions.upsertOpportunitiesMetadata(payload))
+        console.log('[GraphQL POC] Dispatched metadata to Redux')
+      }
+    } catch (error) {
+      console.error('[GraphQL POC] ERROR in fetchStakingMetadata:', error)
+      throw error
+    }
+
     return
   }
 
@@ -95,14 +153,34 @@ export const fetchAllStakingOpportunitiesUserDataByAccountId = async (
   accountId: AccountId,
   options?: StartQueryActionCreatorOptions,
 ) => {
+  console.log('[GraphQL POC] fetchAllStakingOpportunitiesUserDataByAccountId called:', {
+    accountId,
+    isGraphQLEnabled: isGraphQLEnabled(),
+  })
+
   if (isGraphQLEnabled()) {
-    // GraphQL POC: fetch user staking data via GraphQL
     const opportunityIds = [
       ...foxEthStakingIds,
       ...rFOXStakingIds,
       'eip155:1/erc20:0xee77aa3Fd23BbeBaf94386dD44b548e9a785ea4b',
     ]
-    await fetchUserStakingData([{ accountId, opportunityIds }])
+
+    console.log(
+      '[GraphQL POC] Fetching user staking data for',
+      opportunityIds.length,
+      'opportunities',
+    )
+
+    const results = await fetchUserStakingData([{ accountId, opportunityIds }])
+
+    console.log('[GraphQL POC] Got user staking results:', results.length, 'results')
+
+    if (results.length > 0) {
+      const payload = transformUserStakingData(results)
+      dispatch(opportunities.actions.upsertUserStakingOpportunities(payload))
+      console.log('[GraphQL POC] Dispatched user staking data to Redux')
+    }
+
     return
   }
 
@@ -167,7 +245,9 @@ export const fetchAllOpportunitiesUserDataByAccountId = (
   dispatch: AppDispatch,
   accountId: AccountId,
   options?: StartQueryActionCreatorOptions,
-) =>
-  Promise.allSettled([
+) => {
+  console.log('[GraphQL POC] fetchAllOpportunitiesUserDataByAccountId called for:', accountId)
+  return Promise.allSettled([
     fetchAllStakingOpportunitiesUserDataByAccountId(dispatch, accountId, options),
   ])
+}

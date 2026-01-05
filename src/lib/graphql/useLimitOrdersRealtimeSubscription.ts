@@ -133,19 +133,12 @@ export function useLimitOrdersRealtimeSubscription(
   const accountIdsKey = useMemo(() => accountIds.sort().join(','), [accountIds])
 
   useEffect(() => {
-    console.log('[useLimitOrdersRealtimeSubscription] useEffect triggered:', {
-      skip,
-      accountIdsCount: accountIds.length,
-    })
-
     if (skip || accountIds.length === 0) {
-      console.log('[useLimitOrdersRealtimeSubscription] Skipping - no accounts or skip=true')
       setIsConnected(false)
       return
     }
 
     const wsClient = getGraphQLWsClient()
-    console.log('[useLimitOrdersRealtimeSubscription] Starting subscription')
 
     unsubscribeRef.current = wsClient.subscribe<{ cowswapOrdersUpdated: OrdersUpdate }>(
       {
@@ -154,17 +147,8 @@ export function useLimitOrdersRealtimeSubscription(
       },
       {
         next: data => {
-          console.log('[useLimitOrdersRealtimeSubscription] Update received:', {
-            hasData: Boolean(data.data),
-            hasCowswapOrdersUpdated: Boolean(data.data?.cowswapOrdersUpdated),
-          })
-
           if (data.data?.cowswapOrdersUpdated) {
             const update = data.data.cowswapOrdersUpdated
-            console.log('[useLimitOrdersRealtimeSubscription] Processing update:', {
-              accountId: update.accountId,
-              ordersCount: update.orders.length,
-            })
 
             const mappedOrders = update.orders.map(cowOrder => ({
               order: mapCowSwapOrderToOrder(cowOrder),
@@ -174,22 +158,18 @@ export function useLimitOrdersRealtimeSubscription(
           }
         },
         error: err => {
-          console.error('[useLimitOrdersRealtimeSubscription] Error:', err)
           setError(err instanceof Error ? err : new Error('Subscription error'))
           setIsConnected(false)
         },
         complete: () => {
-          console.log('[useLimitOrdersRealtimeSubscription] Completed')
           setIsConnected(false)
         },
       },
     )
 
     setIsConnected(true)
-    console.log('[useLimitOrdersRealtimeSubscription] Subscription established')
 
     return () => {
-      console.log('[useLimitOrdersRealtimeSubscription] Cleanup')
       if (unsubscribeRef.current) {
         unsubscribeRef.current()
         unsubscribeRef.current = null

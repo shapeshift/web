@@ -48,17 +48,6 @@ export const useLimitOrdersQuery = (): LimitOrdersQueryResult => {
     modal ||
     isLoadingLocalWallet
 
-  console.log('[useLimitOrdersQuery] State:', {
-    isGraphQLEnabled,
-    evmAccountIdsCount: evmAccountIds.length,
-    evmAccountIds: evmAccountIds.slice(0, 3),
-    isConnected,
-    portfolioLoadingStatus,
-    isLoadingLocalWallet,
-    modal: Boolean(modal),
-    shouldSkip,
-  })
-
   const rtkQueryArg = shouldSkip || isGraphQLEnabled ? skipToken : evmAccountIds
   const rtkResult = useGetLimitOrdersQuery(rtkQueryArg, {
     pollingInterval: 15_000,
@@ -76,36 +65,9 @@ export const useLimitOrdersQuery = (): LimitOrdersQueryResult => {
   const { isConnected: isSubscribed, error: subscriptionError } =
     useLimitOrdersRealtimeSubscription(evmAccountIds, !graphqlQueryEnabled)
 
-  useEffect(() => {
-    console.log('[useLimitOrdersQuery] GraphQL state:', {
-      isGraphQLEnabled,
-      queryEnabled: graphqlQueryEnabled,
-      dataLength: graphqlQueryData?.length ?? 0,
-      isLoading: graphqlQueryLoading,
-      isFetching: graphqlQueryFetching,
-      isSubscribed,
-      queryError: graphqlQueryError?.message,
-      subscriptionError: subscriptionError?.message,
-    })
-  }, [
-    isGraphQLEnabled,
-    graphqlQueryEnabled,
-    graphqlQueryData,
-    graphqlQueryLoading,
-    graphqlQueryFetching,
-    isSubscribed,
-    graphqlQueryError,
-    subscriptionError,
-  ])
-
-  const result = useMemo((): LimitOrdersQueryResult => {
+  const graphqlResult = useMemo((): LimitOrdersQueryResult => {
     if (isGraphQLEnabled) {
       const error = graphqlQueryError ?? subscriptionError ?? null
-      console.log('[useLimitOrdersQuery] Returning GraphQL data:', {
-        dataLength: graphqlQueryData?.length ?? 0,
-        isLoading: graphqlQueryLoading,
-        isSubscribed,
-      })
       return {
         data: graphqlQueryData,
         currentData: graphqlQueryData,
@@ -116,10 +78,6 @@ export const useLimitOrdersQuery = (): LimitOrdersQueryResult => {
       }
     }
 
-    console.log('[useLimitOrdersQuery] Returning RTK data:', {
-      dataLength: rtkResult.data?.length ?? 0,
-      isLoading: rtkResult.isLoading,
-    })
     return {
       data: rtkResult.data,
       currentData: rtkResult.currentData,
@@ -139,7 +97,7 @@ export const useLimitOrdersQuery = (): LimitOrdersQueryResult => {
     rtkResult,
   ])
 
-  return result
+  return graphqlResult
 }
 
 export const useLimitOrders = () => {

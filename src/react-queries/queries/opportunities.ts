@@ -29,6 +29,8 @@ type FetchAllArgs = {
 }
 
 const fetchAll = async ({ dispatch, accountId, chainId }: FetchAllArgs): Promise<void> => {
+  console.log('[React-Queries] fetchAll called:', { chainId, hasAccountId: !!accountId, accountId })
+
   switch (chainId) {
     case btcChainId:
     case ltcChainId:
@@ -40,13 +42,40 @@ const fetchAll = async ({ dispatch, accountId, chainId }: FetchAllArgs): Promise
     case arbitrumChainId:
     case ethChainId:
     case thorchainChainId:
-      await fetchAllOpportunitiesIdsByChainId(dispatch, chainId)
-      await fetchAllStakingOpportunitiesMetadataByChainId(dispatch, chainId)
+      console.log('[React-Queries] In switch case for chain:', chainId)
+
+      try {
+        console.log('[React-Queries] Step 1: Fetching opportunity IDs...')
+        await fetchAllOpportunitiesIdsByChainId(dispatch, chainId)
+        console.log('[React-Queries] Step 1 complete: IDs fetched')
+
+        console.log('[React-Queries] Step 2: Fetching staking metadata...')
+        await fetchAllStakingOpportunitiesMetadataByChainId(dispatch, chainId)
+        console.log('[React-Queries] Step 2 complete: Metadata fetched')
+      } catch (error) {
+        console.error('[React-Queries] ERROR in fetchAll:', error)
+        throw error
+      }
+
+      console.log('[React-Queries] After metadata fetch, checking accountId:', {
+        hasAccountId: !!accountId,
+        accountId,
+      })
       if (accountId) {
-        await fetchAllOpportunitiesUserDataByAccountId(dispatch, accountId)
+        console.log('[React-Queries] Step 3: Fetching user data...')
+        try {
+          await fetchAllOpportunitiesUserDataByAccountId(dispatch, accountId)
+          console.log('[React-Queries] Step 3 complete: User data fetched')
+        } catch (error) {
+          console.error('[React-Queries] ERROR fetching user data:', error)
+          // Don't throw here - metadata is more important
+        }
+      } else {
+        console.log('[React-Queries] No accountId provided, skipping user data fetch')
       }
       break
     default:
+      console.log('[React-Queries] Unknown chain, skipping:', chainId)
       break
   }
 }

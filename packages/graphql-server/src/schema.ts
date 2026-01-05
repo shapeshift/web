@@ -35,6 +35,16 @@ export const typeDefs = gql`
   """
   scalar JSON
 
+  """
+  DeFi provider type - allows display names with spaces
+  """
+  scalar DefiProvider
+
+  """
+  DeFi opportunity type - allows display names with spaces
+  """
+  scalar DefiType
+
   # ============================================================================
   # CACHE CONTROL - Apollo Server caching directives
   # ============================================================================
@@ -1024,23 +1034,14 @@ export const typeDefs = gql`
   # ============================================================================
 
   """
-  DeFi provider for opportunities
+  DeFi provider for opportunities - returned as string to support display names with spaces
   """
-  enum DefiProvider {
-    THORCHAIN_SAVERS
-    COSMOS_SDK
-    RFOX
-    ETH_FOX_STAKING
-    SHAPE_SHIFT
-  }
+  scalar DefiProvider
 
   """
   DeFi opportunity type
   """
-  enum DefiType {
-    STAKING
-    LIQUIDITY_POOL
-  }
+  scalar DefiType
 
   """
   Staking opportunity metadata

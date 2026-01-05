@@ -17,6 +17,7 @@ import { csp as hyperevm } from './chains/hyperevm'
 import { csp as litecoin } from './chains/litecoin'
 import { csp as mayachain } from './chains/mayachain'
 import { csp as monad } from './chains/monad'
+import { csp as near } from './chains/near'
 import { csp as optimism } from './chains/optimism'
 import { csp as plasma } from './chains/plasma'
 import { csp as polygon } from './chains/polygon'
@@ -115,6 +116,7 @@ export const csps = [
   zcash,
   mayachain,
   monad,
+  near,
   plasma,
   trustwallet,
   coincap,

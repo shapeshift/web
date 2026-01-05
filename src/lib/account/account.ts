@@ -6,6 +6,7 @@ import merge from 'lodash/merge'
 
 import { deriveCosmosSdkAccountIdsAndMetadata } from './cosmosSdk'
 import { deriveEvmAccountIdsAndMetadata } from './evm'
+import { deriveNearAccountIdsAndMetadata } from './near'
 import { deriveSolanaAccountIdsAndMetadata } from './solana'
 import { deriveStarknetAccountIdsAndMetadata } from './starknet'
 import { deriveSuiAccountIdsAndMetadata } from './sui'
@@ -21,6 +22,7 @@ export const deriveAccountIdsAndMetadataForChainNamespace = {
   [CHAIN_NAMESPACE.Solana]: deriveSolanaAccountIdsAndMetadata,
   [CHAIN_NAMESPACE.Tron]: deriveTronAccountIdsAndMetadata,
   [CHAIN_NAMESPACE.Sui]: deriveSuiAccountIdsAndMetadata,
+  [CHAIN_NAMESPACE.Near]: deriveNearAccountIdsAndMetadata,
   [CHAIN_NAMESPACE.Starknet]: deriveStarknetAccountIdsAndMetadata,
 } as const
 
@@ -50,6 +52,7 @@ export const deriveAccountIdsAndMetadata: DeriveAccountIdsAndMetadata = async ar
     [CHAIN_NAMESPACE.Solana]: [],
     [CHAIN_NAMESPACE.Tron]: [],
     [CHAIN_NAMESPACE.Sui]: [],
+    [CHAIN_NAMESPACE.Near]: [],
     [CHAIN_NAMESPACE.Starknet]: [],
   }
   const chainIdsByChainNamespace = chainIds.reduce((acc, chainId) => {

@@ -7,6 +7,7 @@ import {
   fromAssetId,
   ltcAssetId,
   mayachainAssetId,
+  nearAssetId,
   solAssetId,
   suiAssetId,
   thorchainAssetId,
@@ -39,6 +40,7 @@ export const availableLedgerAppAssetIds = [
   ...(getConfig().VITE_FEATURE_SUI ? [suiAssetId] : []),
   mayachainAssetId,
   ...(getConfig().VITE_FEATURE_TRON ? [tronAssetId] : []),
+  ...(getConfig().VITE_FEATURE_NEAR ? [nearAssetId] : []),
 ]
 
 export const availableLedgerAppChainIds = availableLedgerAppAssetIds.map(

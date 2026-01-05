@@ -513,6 +513,7 @@
     "rFOX": "rFOX",
     "tcy": "TCY",
     "foxEcosystem": "Écosystème FOX",
+    "ecosystem": "Écosystème",
     "markets": "Marchés",
     "tokens": "Jetons",
     "swap": "Échanger"
@@ -528,6 +529,8 @@
       "subtitle": "Notre jeton de gouvernance"
     },
     "agent": {
+      "title": "Agent",
+      "subtitle": "Parlez à votre porte-monnaie"
     },
     "classic": {
       "title": "Classique",
@@ -1097,6 +1100,7 @@
       "getFeesError": "Erreur lors de l'obtention des frais",
       "broadcastingTransaction": "Diffusion de la transaction",
       "youHaveSent": "Vous avez envoyé %{amount} %{symbol} avec succès",
+      "sendFailed": "L'envoi a échoué",
       "toAddress": "Adresse de destination",
       "toAddressOrEns": "Adresse de destination ou ENS",
       "scanQrCode": "Scanner code QR",
@@ -1887,6 +1891,14 @@
   },
   "starknet": {
     "deployAccount": {
+      "title": "Déployer un compte Starknet",
+      "description": "Starknet utilise des comptes de contrats intelligents qui doivent être déployés avant utilisation.",
+      "sendDescription": "Vous devrez d'abord déployer le compte pour pouvoir envoyer",
+      "swapDescription": "Starknet utilise des comptes de contrats intelligents. Vous devrez d'abord déployer votre compte avant de pouvoir effectuer des échanges.",
+      "explanation": "Il s'agit d'une configuration unique qui initialisera votre compte sur Starknet. Des frais minimes seront déduits de votre solde.",
+      "deployButton": "Déployer le compte",
+      "deploying": "Déploiement du compte...",
+      "deployFailed": "Le déploiement a échoué."
     }
   },
   "transactionHistory": {
@@ -2525,6 +2537,7 @@
       "buildTransaction": "Échec de la création de la transaction.",
       "signTransaction": "Échec de la signature de la transaction.",
       "blindSigningRequired": "Cette transaction nécessite une signature à l'aveugle. Veuillez activer « Blind signing » ou « Contract Data » dans les paramètres de votre app Ledger et réessayer.",
+      "ledgerTronAllowDataDisabled": "Veuillez activer les données de transactions dans les paramètres de votre app TRON de Ledger et réessayer.",
       "signAndBroadcastTransaction": "Échec de la signature et de la diffusion de la transaction.",
       "signMessage": "Échec de la signature du message.",
       "broadcastTransaction": "Échec de la diffusion de la transaction.",

@@ -21,6 +21,7 @@ import {
   ltcChainId,
   mayachainChainId,
   monadChainId,
+  nearChainId,
   optimismChainId,
   plasmaChainId,
   polygonChainId,
@@ -79,6 +80,7 @@ import type { BigNumber } from '@/lib/bignumber/bignumber'
 import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
 import { fetchPortalsAccount, fetchPortalsPlatforms, maybeTokenImage } from '@/lib/portals/utils'
 import { assertUnreachable, isNativeHDWallet, isTrezorHDWallet, middleEllipsis } from '@/lib/utils'
+import { supportsNear } from '@/lib/utils/near'
 import { isSpammyNftText, isSpammyTokenText } from '@/state/blacklist'
 import type { ReduxState } from '@/state/reducer'
 import type { UpsertAssetsPayload } from '@/state/slices/assetsSlice/assetsSlice'
@@ -106,6 +108,7 @@ export const accountIdToLabel = (accountId: AccountId): string => {
     case starknetChainId:
     case tronChainId:
     case suiChainId:
+    case nearChainId:
       return middleEllipsis(pubkey)
     case btcChainId:
       // TODO(0xdef1cafe): translations
@@ -306,6 +309,27 @@ export const accountToPortfolio: AccountToPortfolio = ({ assetIds, portfolioAcco
 
         break
       }
+      case CHAIN_NAMESPACE.Near: {
+        const nearAccount = account as Account<KnownChainIds.NearMainnet>
+        const { chainId, assetId, pubkey } = account
+        const accountId = toAccountId({ chainId, account: pubkey })
+
+        portfolio.accounts.ids.push(accountId)
+        portfolio.accounts.byId[accountId] = { assetIds: [assetId], hasActivity }
+        portfolio.accountBalances.ids.push(accountId)
+        portfolio.accountBalances.byId[accountId] = { [assetId]: account.balance }
+
+        nearAccount.chainSpecific.tokens?.forEach(token => {
+          if (!assetIds.includes(token.assetId)) return
+
+          if (bnOrZero(token.balance).gt(0)) portfolio.accounts.byId[accountId].hasActivity = true
+
+          portfolio.accounts.byId[accountId].assetIds.push(token.assetId)
+          portfolio.accountBalances.byId[accountId][token.assetId] = token.balance
+        })
+
+        break
+      }
       case CHAIN_NAMESPACE.Starknet: {
         const starknetAccount = account as Account<KnownChainIds.StarknetMainnet>
         const { chainId, assetId, pubkey } = account
@@ -388,6 +412,11 @@ export const checkAccountHasActivity = (account: Account<ChainId>) => {
 
       return hasActivity
     }
+    case CHAIN_NAMESPACE.Near: {
+      const nearAccount = account as Account<KnownChainIds.NearMainnet>
+      const hasActivity = bnOrZero(nearAccount.balance).gt(0)
+      return hasActivity
+    }
     case CHAIN_NAMESPACE.Starknet: {
       const starknetAccount = account as Account<KnownChainIds.StarknetMainnet>
 
@@ -464,6 +493,8 @@ export const isAssetSupportedByWallet = (assetId: AssetId, wallet: HDWallet): bo
       return supportsPlasma(wallet)
     case tronChainId:
       return supportsTron(wallet)
+    case nearChainId:
+      return supportsNear(wallet)
     default:
       return false
   }

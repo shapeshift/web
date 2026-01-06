@@ -613,7 +613,9 @@ export async function getTrade<T extends 'quote' | 'rate'>({
           relayTransactionMetadata: {
             from: sendAddress,
             to: selectedItem.data?.to,
-            value: selectedItem.data?.value,
+            // v2 API may return value as undefined or empty object for ERC-20 swaps - default to '0'
+            value:
+              typeof selectedItem.data?.value === 'string' ? selectedItem.data.value : '0',
             data: selectedItem.data?.data,
             // gas is not documented in the relay docs but refers to gasLimit
             gasLimit: selectedItem.data?.gas,

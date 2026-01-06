@@ -71,6 +71,8 @@ export const fetchAllStakingOpportunitiesMetadataByChainId = async (
         ? [{ chainId, provider: 'RFOX' as const }]
         : []),
       ...(isCosmos ? [{ chainId, provider: 'COSMOS_SDK' as const }] : []),
+      // THORChain-specific: fetch RUNEPOOL for Cosmos chains (THORChain uses cosmos namespace)
+      ...(isCosmos ? [{ chainId, provider: 'RUNEPOOL' as const }] : []),
     ]
 
     console.log('[GraphQL POC] Fetching staking metadata for requests:', requests.length, requests)
@@ -163,6 +165,8 @@ export const fetchAllStakingOpportunitiesUserDataByAccountId = async (
       ...foxEthStakingIds,
       ...rFOXStakingIds,
       'eip155:1/erc20:0xee77aa3Fd23BbeBaf94386dD44b548e9a785ea4b',
+      // RUNEPOOL opportunity ID
+      'cosmos:thorchain-1/slip44:931',
     ]
 
     console.log(

@@ -61,6 +61,7 @@ const USER_STAKING_DATA_QUERY = `
 export type DefiProvider =
   | 'THORCHAIN_SAVERS'
   | 'COSMOS_SDK'
+  | 'RUNEPOOL'
   | 'RFOX'
   | 'ETH_FOX_STAKING'
   | 'SHAPE_SHIFT'

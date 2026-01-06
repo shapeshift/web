@@ -4,12 +4,14 @@ import {
   bscAssetId,
   btcAssetId,
   cosmosAssetId,
+  cosmosChainId,
   dogeAssetId,
   ethAssetId,
   fromAccountId,
   fromAssetId,
   ltcAssetId,
   thorchainAssetId,
+  thorchainChainId,
 } from '@shapeshiftoss/caip'
 import DataLoader from 'dataloader'
 import pLimit from 'p-limit'
@@ -34,6 +36,7 @@ export const DefiProvider = {
   EthFoxStaking: 'ETH/FOX Staking',
   CosmosSdk: 'Cosmos SDK',
   ThorchainSavers: 'THORChain Savers',
+  ThorchainRunePool: 'THORChain RunePool',
 } as const
 
 export const DefiType = {
@@ -251,17 +254,143 @@ export async function getThorchainSaversMetadata(): Promise<StakingOpportunityMe
   }
 }
 
+export async function getRunepoolMetadata(): Promise<StakingOpportunityMetadata[]> {
+  const cacheKey = 'opportunities:runepool:metadata'
+  const cached = getCached<StakingOpportunityMetadata[]>(cacheKey)
+  if (cached) {
+    console.log('[Opportunities] Returning cached RUNEPOOL metadata')
+    return cached
+  }
+
+  console.log('[Opportunities] Fetching RUNEPOOL metadata')
+
+  try {
+    const runepoolInfo = await import('./thornodeService.js').then(m =>
+      m.getRunepoolInformation('thorchain'),
+    )
+
+    if (!runepoolInfo) {
+      console.error('[Opportunities] Failed to fetch RUNEPOOL info')
+      return []
+    }
+
+    const opportunities: StakingOpportunityMetadata[] = [
+      {
+        id: thorchainAssetId,
+        provider: DefiProvider.ThorchainRunePool,
+        type: DefiType.Staking,
+        assetId: thorchainAssetId,
+        underlyingAssetId: thorchainAssetId,
+        underlyingAssetIds: [thorchainAssetId],
+        rewardAssetIds: [thorchainAssetId],
+        underlyingAssetRatiosBaseUnit: ['1000000000000000000'],
+        apy: null, // RUNEPOOL doesn't have a simple APY
+        tvl: runepoolInfo.providers.value,
+        name: 'RUNE Pool',
+        isClaimableRewards: true,
+      },
+    ]
+
+    setCache(cacheKey, opportunities)
+    return opportunities
+  } catch (error) {
+    console.error('[Opportunities] Failed to fetch RUNEPOOL metadata:', error)
+    return []
+  }
+}
+
 export function getCosmosValidatorIds(_chainId: string): string[] {
   console.log(`[Opportunities] Cosmos validator IDs are dynamic from user delegations`)
   return []
 }
 
-export function getCosmosValidatorMetadata(
-  _chainId: string,
+export async function getCosmosValidatorMetadata(
+  chainId: string,
   _validatorIds: string[],
-): StakingOpportunityMetadata[] {
-  console.log('[Opportunities] Cosmos validator metadata requires chain adapter integration')
-  return []
+): Promise<StakingOpportunityMetadata[]> {
+  const cacheKey = `opportunities:cosmos:${chainId}:validators`
+  const cached = getCached<StakingOpportunityMetadata[]>(cacheKey)
+  if (cached) {
+    console.log('[Opportunities] Returning cached Cosmos validators')
+    return cached
+  }
+
+  console.log(`[Opportunities] Fetching Cosmos validators for ${chainId}`)
+
+  try {
+    // Map chainId to Cosmos API endpoints (in order of preference)
+    const chainToApis: Record<string, string[]> = {
+      [cosmosChainId]: ['https://dev-api.cosmos.shapeshift.com'],
+      // THORChain validators are fetched via THORNode API, not Cosmos SDK API
+      // [thorchainChainId]: ['https://dev-api.cosmos.shapeshift.com'],
+    }
+
+    const apiUrls = chainToApis[chainId]
+    if (!apiUrls) {
+      console.log(`[Opportunities] No known API endpoints for chain: ${chainId}`)
+      return []
+    }
+
+    let response: Response | null = null
+    let lastError: Error | null = null
+
+    // Try each endpoint until one works
+    for (const apiUrl of apiUrls) {
+      try {
+        console.log(`[Opportunities] Trying Cosmos API: ${apiUrl}`)
+        // Use the ShapeShift API format: /api/v1/validators
+        response = await fetch(`${apiUrl}/api/v1/validators?limit=100`)
+        if (response.ok) break
+      } catch (error) {
+        lastError = error as Error
+      }
+    }
+
+    if (!response || !response.ok) {
+      console.error(
+        `[Opportunities] All Cosmos API endpoints failed. Last error: ${lastError?.message}`,
+      )
+      return []
+    }
+
+    // ShapeShift API format: { validators: [...] }
+    const data = (await response.json()) as {
+      validators?: {
+        address: string
+        moniker: string
+        website?: string
+        tokens: string
+      }[]
+    }
+
+    const validators = data.validators ?? []
+    console.log(`[Opportunities] Found ${validators.length} validators for ${chainId}`)
+
+    const chainParts = chainId.split(':')
+    const chainIdentifier = chainParts[1] ?? chainId
+
+    const opportunities: StakingOpportunityMetadata[] = validators.map(validator => ({
+      id: `${chainId}:${validator.address}`,
+      provider: DefiProvider.CosmosSdk,
+      type: DefiType.Staking,
+      assetId: `${chainId}:${validator.address}`,
+      underlyingAssetId: `${chainId}:${validator.address}`,
+      underlyingAssetIds: [`${chainId}:${validator.address}`],
+      rewardAssetIds: [`${chainId}:${validator.address}`],
+      underlyingAssetRatiosBaseUnit: ['1000000000000000000'],
+      apy: null,
+      tvl: validator.tokens,
+      name: validator.moniker,
+      isClaimableRewards: true,
+      group: chainIdentifier,
+    }))
+
+    setCache(cacheKey, opportunities, 5 * 60 * 1000)
+    return opportunities
+  } catch (error) {
+    console.error(`[Opportunities] Failed to fetch Cosmos validators for ${chainId}:`, error)
+    return []
+  }
 }
 
 type MetadataLoaderKey = { chainId: string; provider: DefiProvider }
@@ -277,6 +406,7 @@ const GRAPHQL_PROVIDER_MAP: Record<string, DefiProvider> = {
   THORCHAIN_SAVERS: DefiProvider.ThorchainSavers,
   COSMOS_SDK: DefiProvider.CosmosSdk,
   RFOX: DefiProvider.rFOX,
+  RUNEPOOL: DefiProvider.ThorchainRunePool,
 }
 
 function createMetadataLoader() {
@@ -299,6 +429,9 @@ function createMetadataLoader() {
             switch (actualProvider) {
               case DefiProvider.ThorchainSavers:
                 result = await getThorchainSaversMetadata()
+                break
+              case DefiProvider.ThorchainRunePool:
+                result = await getRunepoolMetadata()
                 break
               case DefiProvider.CosmosSdk:
                 result = await getCosmosValidatorMetadata(chainId, [])
@@ -708,7 +841,13 @@ async function fetchThorchainSaversData(
   const userStakingId = `${accountId}*${opportunityId}`
 
   try {
-    const { account: accountAddress } = fromAccountId(accountId)
+    // thorchain accounts can't use fromAccountId() since thorchain namespace isn't supported
+    // AccountId format: thorchain:thorchain:address
+    const accountAddress = accountId.split(':')[2]
+
+    if (!accountAddress) {
+      throw new Error(`Invalid thorchain accountId: ${accountId}`)
+    }
 
     if (opportunityId === thorchainAssetId) {
       const runeProvider = await getRuneProvider(accountAddress, 'thorchain')
@@ -814,13 +953,100 @@ async function fetchThorchainSaversData(
 async function fetchCosmosSdkStakingData(
   accountId: string,
   opportunityId: string,
+): Promise<UserStakingOpportunity | null> {
+  const { account: pubkey, chainId } = fromAccountId(accountId)
+
+  // If opportunityId is empty or wildcard, fetch ALL user delegations
+  if (!opportunityId || opportunityId === 'COSMOS_WILDCARD') {
+    console.log(`[Opportunities] Fetching all Cosmos delegations for ${accountId.slice(0, 20)}...`)
+    return fetchAllCosmosDelegations(accountId, chainId, pubkey)
+  }
+
+  const { account: validatorAddress } = fromAccountId(opportunityId)
+  return fetchSingleCosmosDelegation(accountId, chainId, pubkey, validatorAddress)
+}
+
+async function fetchAllCosmosDelegations(
+  accountId: string,
+  chainId: string,
+  pubkey: string,
+): Promise<UserStakingOpportunity | null> {
+  try {
+    const api = await import('../unchained/providers.js').then(m => m.getUnchainedApi(chainId))
+    if (!api) {
+      console.error(`[Opportunities] No unchained API for chainId: ${chainId}`)
+      return null
+    }
+
+    const accountData = await api.getAccount({ pubkey })
+
+    const delegations = (accountData.delegations ?? []) as {
+      validator: { address: string }
+      balance: { amount: string }
+    }[]
+    const rewards = (accountData.rewards ?? []) as {
+      validator: { address: string }
+      rewards: { amount: string }[]
+    }[]
+    const undelegations = (accountData.unbondings ?? []) as {
+      validator: { address: string }
+      entries: { balance: { amount: string }; completionTime: string }[]
+    }[]
+
+    if (delegations.length === 0) {
+      console.log(`[Opportunities] No Cosmos delegations found for ${accountId.slice(0, 20)}...`)
+      return null
+    }
+
+    // Aggregate all delegations into a single user staking opportunity
+    let totalStaked = BigInt(0)
+    let totalRewards = BigInt(0)
+
+    for (const delegation of delegations) {
+      totalStaked += BigInt(delegation.balance.amount)
+    }
+
+    for (const reward of rewards) {
+      for (const r of reward.rewards) {
+        const integerAmount = Math.floor(parseFloat(r.amount))
+        totalRewards += BigInt(integerAmount)
+      }
+    }
+
+    const activeUndelegations = undelegations
+      .flatMap(u => u.entries)
+      .filter(entry => parseInt(entry.completionTime) * 1000 > Date.now())
+
+    const userStakingId = `${accountId}*${chainId}:all-validators`
+
+    return {
+      userStakingId,
+      isLoaded: true,
+      stakedAmountCryptoBaseUnit: totalStaked.toString(),
+      rewardsCryptoBaseUnit: {
+        amounts: [totalRewards.toString()],
+        claimable: true,
+      },
+      undelegations: activeUndelegations.map(entry => ({
+        undelegationAmountCryptoBaseUnit: entry.balance.amount,
+        completionTime: parseInt(entry.completionTime),
+      })),
+    }
+  } catch (error) {
+    console.error(`[Opportunities] Failed to fetch all Cosmos delegations:`, error)
+    return null
+  }
+}
+
+async function fetchSingleCosmosDelegation(
+  accountId: string,
+  chainId: string,
+  pubkey: string,
+  validatorAddress: string,
 ): Promise<UserStakingOpportunity> {
-  const userStakingId = `${accountId}*${opportunityId}`
+  const userStakingId = `${accountId}*${validatorAddress}`
 
   try {
-    const { account: pubkey, chainId } = fromAccountId(accountId)
-    const { account: validatorAddress } = fromAccountId(opportunityId)
-
     const api = await import('../unchained/providers.js').then(m => m.getUnchainedApi(chainId))
     if (!api) {
       throw new Error(`No unchained API for chainId: ${chainId}`)

@@ -13354,7 +13354,9 @@ __metadata:
     "@apollo/server": ^4.11.0
     "@graphql-tools/schema": ^10.0.0
     "@shapeshiftoss/caip": "workspace:^"
+    "@shapeshiftoss/types": "workspace:^"
     "@shapeshiftoss/unchained-client": "workspace:^"
+    "@shapeshiftoss/utils": "workspace:^"
     "@types/body-parser": ^1.19.5
     "@types/cors": ^2.8.17
     "@types/express": ^4.17.21
@@ -13364,6 +13366,7 @@ __metadata:
     body-parser: ^1.20.2
     cors: ^2.8.5
     dataloader: ^2.2.2
+    dayjs: ^1.11.10
     express: ^4.18.2
     graphql: ^16.9.0
     graphql-subscriptions: ^2.0.0
@@ -23210,6 +23213,13 @@ __metadata:
   version: 1.11.13
   resolution: "dayjs@npm:1.11.13"
   checksum: f388db88a6aa93956c1f6121644e783391c7b738b73dbc54485578736565c8931bdfba4bb94e9b1535c6e509c97d5deb918bbe1ae6b34358d994de735055cca9
+  languageName: node
+  linkType: hard
+
+"dayjs@npm:^1.11.10":
+  version: 1.11.19
+  resolution: "dayjs@npm:1.11.19"
+  checksum: dfafcca2c67cc6e542fd880d77f1d91667efd323edc28f0487b470b184a11cc97696163ed5be1142ea2a031045b27a0d0555e72f60a63275e0e0401ac24bea5d
   languageName: node
   linkType: hard
 

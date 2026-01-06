@@ -9,8 +9,8 @@ export const ViewToggle = ({
     viewMode: 'grid' | 'list'
     setViewMode: (mode: 'grid' | 'list') => void
 }) => (
-    <Flex justify='flex-end' mb={4}>
-        <ButtonGroup size='sm' isAttached variant='outline'>
+    <Flex justify='flex-end'>
+        <ButtonGroup size='md' isAttached variant='outline'>
             <IconButton
                 aria-label='Grid View'
                 icon={<FaThLarge />}

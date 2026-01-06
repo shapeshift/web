@@ -1,4 +1,4 @@
-import { ArrowDownIcon, ArrowUpIcon } from '@chakra-ui/icons'
+import { ArrowDownIcon, ArrowUpIcon, SearchIcon } from '@chakra-ui/icons'
 import {
   Avatar,
   Box,
@@ -6,6 +6,9 @@ import {
   Flex,
   Heading,
   HStack,
+  Input,
+  InputGroup,
+  InputLeftElement,
   SimpleGrid,
   Skeleton,
   Stat,
@@ -199,6 +202,7 @@ const YieldsList = () => {
   const selectedNetwork = searchParams.get('network')
   const selectedProvider = searchParams.get('provider')
   const sortOption = (searchParams.get('sort') as SortOption) || 'apy-desc'
+  const [searchQuery, setSearchQuery] = useState('')
 
   const getProviderLogo = useCallback(
     (providerId: string) => {
@@ -311,8 +315,17 @@ const YieldsList = () => {
     if (selectedProvider) {
       data = data.filter(y => y.providerId === selectedProvider)
     }
+    if (searchQuery) {
+      const q = searchQuery.toLowerCase()
+      data = data.filter(
+        y =>
+          y.metadata.name.toLowerCase().includes(q) ||
+          y.token.symbol.toLowerCase().includes(q) ||
+          y.providerId.toLowerCase().includes(q),
+      )
+    }
     return data
-  }, [yields, selectedNetwork, selectedProvider])
+  }, [yields, selectedNetwork, selectedProvider, searchQuery])
 
   const myPositions = useMemo(() => {
     if (!yields || !allBalances) return []
@@ -327,9 +340,18 @@ const YieldsList = () => {
     return positions.filter(y => {
       if (selectedNetwork && y.network !== selectedNetwork) return false
       if (selectedProvider && y.providerId !== selectedProvider) return false
+      if (searchQuery) {
+        const q = searchQuery.toLowerCase()
+        if (
+          !y.metadata.name.toLowerCase().includes(q) &&
+          !y.token.symbol.toLowerCase().includes(q) &&
+          !y.providerId.toLowerCase().includes(q)
+        )
+          return false
+      }
       return true
     })
-  }, [yields, allBalances, selectedNetwork, selectedProvider])
+  }, [yields, allBalances, selectedNetwork, selectedProvider, searchQuery])
 
   const handleYieldClick = useCallback(
     (yieldId: string) => {
@@ -362,6 +384,7 @@ const YieldsList = () => {
                 {row.original.metadata.name}
               </Text>
               <HStack spacing={1}>
+                {row.original.chainId && <ChainIcon chainId={row.original.chainId} size='2xs' />}
                 <HStack spacing={1}>
                   <Avatar
                     src={getProviderLogo(row.original.providerId)}
@@ -474,30 +497,53 @@ const YieldsList = () => {
 
       <YieldOpportunityStats positions={myPositions} balances={allBalances} allYields={yields} />
 
-      <YieldFilters
-        networks={networks}
-        selectedNetwork={selectedNetwork}
-        onSelectNetwork={handleNetworkChange}
-        providers={providers}
-        selectedProvider={selectedProvider}
-        onSelectProvider={handleProviderChange}
-        sortOption={sortOption}
-        onSortChange={handleSortChange}
-      />
-
       <Tabs variant='soft-rounded' colorScheme='blue' isLazy>
-        <TabList mb={6} gap={4}>
+        <TabList mb={4} gap={4}>
           <Tab _selected={{ color: 'white', bg: 'blue.500' }}>{translate('common.all')}</Tab>
           <Tab _selected={{ color: 'white', bg: 'blue.500' }}>
             {translate('yieldXYZ.myPosition')} ({myPositions.length})
           </Tab>
         </TabList>
 
+        <Flex
+          justify='space-between'
+          align='center'
+          mb={6}
+          gap={4}
+          direction={{ base: 'column', md: 'row' }}
+        >
+          <InputGroup maxW={{ base: 'full', md: '300px' }} size='md'>
+            <InputLeftElement pointerEvents='none'>
+              <SearchIcon color='gray.500' />
+            </InputLeftElement>
+            <Input
+              placeholder={translate('common.search')}
+              value={searchQuery}
+              onChange={e => setSearchQuery(e.target.value)}
+              borderRadius='full'
+              bg={useColorModeValue('white', 'gray.800')}
+            />
+          </InputGroup>
+
+          <HStack spacing={4} width={{ base: 'full', md: 'auto' }} justify={{ base: 'space-between', md: 'flex-end' }}>
+            <YieldFilters
+              networks={networks}
+              selectedNetwork={selectedNetwork}
+              onSelectNetwork={handleNetworkChange}
+              providers={providers}
+              selectedProvider={selectedProvider}
+              onSelectProvider={handleProviderChange}
+              sortOption={sortOption}
+              onSortChange={handleSortChange}
+              mb={0}
+            />
+            <ViewToggle viewMode={viewMode} setViewMode={setViewMode} />
+          </HStack>
+        </Flex>
+
         <TabPanels>
           {/* All Yields Tab */}
           <TabPanel px={0}>
-            <ViewToggle viewMode={viewMode} setViewMode={setViewMode} />
-
             {viewMode === 'grid' ? (
               <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={6}>
                 {isLoading
@@ -524,8 +570,6 @@ const YieldsList = () => {
               </Box>
             )}
 
-
-
             {!isLoading && displayYields.length === 0 && (
               <Box textAlign='center' py={16}>
                 <Text color='text.subtle'>{translate('yieldXYZ.noYields')}</Text>
@@ -535,7 +579,6 @@ const YieldsList = () => {
 
           {/* My Positions Tab */}
           <TabPanel px={0}>
-            <ViewToggle viewMode={viewMode} setViewMode={setViewMode} />
             {!isConnected ? (
               <ResultsEmptyNoWallet
                 title='yieldXYZ.connectWallet'
@@ -543,9 +586,7 @@ const YieldsList = () => {
               />
             ) : isLoading || isLoadingBalances ? (
               <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={6}>
-                {Array.from({ length: 3 }).map((_, i) => (
-                  <YieldCardSkeleton key={i} />
-                ))}
+                {Array.from({ length: 3 }).map((_, i) => <YieldCardSkeleton key={i} />)}
               </SimpleGrid>
             ) : myPositions.length > 0 ? (
               viewMode === 'grid' ? (

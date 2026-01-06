@@ -1,3 +1,4 @@
+import React from 'react'
 import {
     Button,
     HStack,
@@ -6,6 +7,7 @@ import {
     MenuItem,
     MenuList,
     Stack,
+    StackProps,
     Text,
     useColorModeValue,
 } from '@chakra-ui/react'
@@ -40,7 +42,7 @@ type YieldFiltersProps = {
 
     sortOption: SortOption
     onSortChange: (option: SortOption) => void
-}
+} & StackProps
 
 const FilterMenu = ({
     label,
@@ -53,7 +55,7 @@ const FilterMenu = ({
     value: string | null
     options: { id: string; name: string; icon?: string; chainId?: ChainId }[]
     onSelect: (id: string | null) => void
-    renderIcon?: (opt: any) => JSX.Element
+    renderIcon?: (opt: any) => React.ReactElement
 }) => {
     const selectedOption = options.find(o => o.id === value)
     const displayLabel = selectedOption ? selectedOption.name : label
@@ -69,7 +71,7 @@ const FilterMenu = ({
                 borderWidth='1px'
                 borderColor={borderColor}
                 variant='outline'
-                size='sm'
+                size='md'
                 textAlign='left'
                 minW='160px'
                 _hover={{ bg: useColorModeValue('gray.50', 'gray.750') }}
@@ -106,6 +108,7 @@ export const YieldFilters = ({
     onSelectProvider,
     sortOption,
     onSortChange,
+    ...props
 }: YieldFiltersProps) => {
 
     const sortOptions: { value: SortOption; label: string }[] = [
@@ -118,7 +121,7 @@ export const YieldFilters = ({
     const currentSortLabel = sortOptions.find(o => o.value === sortOption)?.label ?? 'Sort'
 
     return (
-        <Stack direction={{ base: 'column', md: 'row' }} spacing={4} mb={6}>
+        <Stack direction={{ base: 'column', md: 'row' }} spacing={4} {...props}>
             <FilterMenu
                 label='All Networks'
                 value={selectedNetwork}
@@ -154,7 +157,7 @@ export const YieldFilters = ({
                     borderWidth='1px'
                     borderColor={useColorModeValue('gray.200', 'gray.700')}
                     variant='outline'
-                    size='sm'
+                    size='md'
                     minW='160px'
                     textAlign='left'
                 >

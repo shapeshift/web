@@ -2,6 +2,7 @@ import { getQuotes } from '@avnu/avnu-sdk'
 import { bn } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
+import { getTreasuryAddressFromChainId } from 'packages/swapper/src/swappers/utils/helpers/helpers'
 import { v4 as uuid } from 'uuid'
 
 import { getDefaultSlippageDecimalPercentageForSwapper } from '../../../constants'
@@ -81,6 +82,8 @@ export const getTradeQuote = async (
       sellAmount: BigInt(sellAmount),
       takerAddress: sendAddress,
       size: 1,
+      integratorFees: affiliateBps ? BigInt(affiliateBps) : undefined,
+      integratorFeeRecipient: getTreasuryAddressFromChainId(sellAsset.chainId),
     })
 
     if (!quotes || quotes.length === 0) {

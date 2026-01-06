@@ -161,19 +161,50 @@ export const fetchAllStakingOpportunitiesUserDataByAccountId = async (
   })
 
   if (isGraphQLEnabled()) {
-    const opportunityIds = [
-      ...foxEthStakingIds,
-      ...rFOXStakingIds,
-      'eip155:1/erc20:0xee77aa3Fd23BbeBaf94386dD44b548e9a785ea4b',
-      // RUNEPOOL opportunity ID
-      'cosmos:thorchain-1/slip44:931',
-    ]
+    // Only fetch opportunityIds relevant to this account's chain
+    // This prevents sending Ethereum opportunities to Bitcoin accounts
+    const { chainId } = fromAccountId(accountId)
+    const isEthereum = chainId === ethChainId
+    const isArbitrum = chainId === KnownChainIds.ArbitrumMainnet
+    const isCosmos = chainId.startsWith('cosmos:')
+
+    const opportunityIds: string[] = []
+
+    // ETH_FOX_STAKING and SHAPE_SHIFT are Ethereum contracts
+    if (isEthereum) {
+      opportunityIds.push(
+        ...foxEthStakingIds,
+        'eip155:1/erc20:0xee77aa3Fd23BbeBaf94386dD44b548e9a785ea4b',
+      )
+    }
+
+    // RFOX is on Arbitrum
+    if (isArbitrum) {
+      opportunityIds.push(...rFOXStakingIds)
+    }
+
+    // Cosmos chains: COSMOS_SDK validators and RUNEPOOL
+    if (isCosmos) {
+      // For Cosmos SDK, we use the wildcard to fetch all delegations
+      opportunityIds.push('COSMOS_WILDCARD')
+      // RUNEPOOL is THORChain-specific (uses cosmos:thorchain-1 namespace)
+      if (chainId === 'cosmos:thorchain-1') {
+        opportunityIds.push('cosmos:thorchain-1/slip44:931')
+      }
+    }
 
     console.log(
       '[GraphQL POC] Fetching user staking data for',
       opportunityIds.length,
-      'opportunities',
+      'opportunities (chain:',
+      chainId,
+      ')',
     )
+
+    if (opportunityIds.length === 0) {
+      console.log('[GraphQL POC] No relevant opportunities for chain:', chainId)
+      return
+    }
 
     const results = await fetchUserStakingData([{ accountId, opportunityIds }])
 

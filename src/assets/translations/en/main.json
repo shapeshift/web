@@ -516,7 +516,8 @@
     "ecosystem": "Ecosystem",
     "markets": "Markets",
     "tokens": "Tokens",
-    "swap": "Swap"
+    "swap": "Swap",
+    "yields": "Yields"
   },
   "shapeShiftMenu": {
     "products": "Products",
@@ -2661,5 +2662,39 @@
         "description": "Your reward of %{amountAndSymbol} is complete."
       }
     }
+  },
+  "yieldXYZ": {
+    "pageTitle": "Yields",
+    "pageSubtitle": "Discover and manage yield opportunities across multiple chains",
+    "enter": "Enter",
+    "exit": "Exit",
+    "apy": "APY",
+    "apr": "APR",
+    "tvl": "TVL",
+    "yourBalance": "Your Balance",
+    "noYields": "No yield opportunities available",
+    "connectWallet": "Connect a wallet to view yields",
+    "stats": "Stats",
+    "minDeposit": "Min Deposit",
+    "mechanics": "Mechanics",
+    "rewardSchedule": "Reward Schedule",
+    "gasToken": "Gas Token",
+    "transactionSteps": "Transaction Steps",
+    "stepApprove": "Approve",
+    "stepApproveDesc": "Approve the token for deposit",
+    "stepDeposit": "Deposit",
+    "stepDepositDesc": "Deposit your assets into the strategy",
+    "stepComplete": "Complete",
+    "stepCompleteDesc": "Your deposit is complete and earning yield",
+    "gasFeeNote": "Gas fees are paid in the native token of the network",
+    "yourInfo": "Your Position",
+    "activeBalance": "Active Balance",
+    "entering": "Entering",
+    "exiting": "Exiting",
+    "withdrawable": "Withdrawable",
+    "claimable": "Claimable",
+    "locked": "Locked",
+    "enterDisabled": "Enter is currently disabled for this yield opportunity",
+    "exitDisabled": "Exit is currently disabled for this yield opportunity"
   }
 }

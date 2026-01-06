@@ -1,26 +1,26 @@
-import { useQuery } from '@tanstack/react-query'
+import type { ChainId } from '@shapeshiftoss/caip'
+import { skipToken, useQuery } from '@tanstack/react-query'
 
 import { yieldxyzApi } from '@/lib/yieldxyz/api'
-import type { YieldBalancesResponse } from '@/lib/yieldxyz/types'
+import { augmentYieldBalances } from '@/lib/yieldxyz/augment'
+import type { AugmentedYieldBalance } from '@/lib/yieldxyz/types'
 
 type UseYieldBalancesParams = {
   yieldId: string
   address: string
+  chainId?: ChainId
 }
 
-const yieldBalancesQueryKey = (
-  params: UseYieldBalancesParams,
-): ['yieldBalances', UseYieldBalancesParams] => ['yieldBalances', params]
-
-export const useYieldBalances = (params: UseYieldBalancesParams) =>
-  useQuery({
-    queryKey: yieldBalancesQueryKey(params),
-    queryFn: async (): Promise<YieldBalancesResponse> => {
-      const response = await yieldxyzApi.getYieldBalances(params.yieldId, params.address)
-      return response
-    },
-    staleTime: 30_000,
-    enabled: !!params.yieldId && !!params.address,
+export const useYieldBalances = ({ yieldId, address, chainId }: UseYieldBalancesParams) => {
+  return useQuery<AugmentedYieldBalance[]>({
+    queryKey: ['yieldxyz', 'balances', yieldId, address],
+    queryFn:
+      yieldId && address
+        ? async () => {
+            const data = await yieldxyzApi.getYieldBalances(yieldId, address)
+            return augmentYieldBalances(data.balances, chainId)
+          }
+        : skipToken,
+    staleTime: Infinity,
   })
-
-export type UseYieldBalancesReturn = ReturnType<typeof useYieldBalances>['data']
+}

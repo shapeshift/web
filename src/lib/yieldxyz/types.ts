@@ -9,6 +9,13 @@
 // Enums (from API docs)
 // ============================================================================
 
+// ============================================================================
+// Augmented Types (ShapeShift-specific, derived from API types)
+// These types add CAIP-2 ChainId and CAIP-19 AssetId for ShapeShift integration
+// ============================================================================
+
+import type { AssetId, ChainId } from '@shapeshiftoss/caip'
+
 export enum YieldNetwork {
   Ethereum = 'ethereum',
   Arbitrum = 'arbitrum',
@@ -62,6 +69,7 @@ export type YieldToken = {
   network: string
   logoURI: string
   coinGeckoId?: string
+  isPoints?: boolean
 }
 
 // ============================================================================
@@ -255,3 +263,37 @@ export type NetworkDto = {
 }
 
 export type NetworksResponse = NetworkDto[]
+
+export type AugmentedYieldToken = YieldToken & {
+  chainId: ChainId | undefined
+  assetId: AssetId | undefined
+}
+
+export type AugmentedYieldRewardRateComponent = Omit<YieldRewardRateComponent, 'token'> & {
+  token: AugmentedYieldToken
+}
+
+export type AugmentedYieldRewardRate = Omit<YieldRewardRate, 'components'> & {
+  components: AugmentedYieldRewardRateComponent[]
+}
+
+export type AugmentedYieldMechanics = Omit<YieldMechanics, 'gasFeeToken'> & {
+  gasFeeToken: AugmentedYieldToken
+}
+
+export type AugmentedYieldBalance = Omit<YieldBalance, 'token'> & {
+  token: AugmentedYieldToken
+}
+
+export type AugmentedYieldDto = Omit<
+  YieldDto,
+  'chainId' | 'token' | 'inputTokens' | 'outputToken' | 'rewardRate' | 'mechanics'
+> & {
+  chainId: ChainId | undefined
+  evmChainId: number | undefined
+  token: AugmentedYieldToken
+  inputTokens: AugmentedYieldToken[]
+  outputToken: AugmentedYieldToken | undefined
+  rewardRate: AugmentedYieldRewardRate
+  mechanics: AugmentedYieldMechanics
+}

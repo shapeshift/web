@@ -1,18 +1,17 @@
 import { useQuery } from '@tanstack/react-query'
 
 import { yieldxyzApi } from '@/lib/yieldxyz/api'
+import { augmentYield } from '@/lib/yieldxyz/augment'
 
-const yieldQueryKey = (yieldId: string): ['yield', string] => ['yield', yieldId]
-
-export const useYield = (yieldId: string) =>
-  useQuery({
-    queryKey: yieldQueryKey(yieldId),
+export const useYield = (yieldId: string) => {
+  return useQuery({
+    queryKey: ['yieldxyz', 'yield', yieldId],
     queryFn: async () => {
-      const response = await yieldxyzApi.getYield(yieldId)
-      return response
+      if (!yieldId) throw new Error('yieldId is required')
+      return yieldxyzApi.getYield(yieldId)
     },
-    staleTime: 60_000,
+    select: augmentYield,
     enabled: !!yieldId,
+    staleTime: 60 * 1000,
   })
-
-export type UseYieldReturn = ReturnType<typeof useYield>['data']
+}

@@ -1,24 +1,15 @@
-import { useMutation } from '@tanstack/react-query'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 
 import { yieldxyzApi } from '@/lib/yieldxyz/api'
-import type { ActionDto } from '@/lib/yieldxyz/types'
 
-type UseExitYieldParams = {
-  yieldId: string
-  address: string
-  amount?: string
-  useMaxAmount?: boolean
-}
+export const useExitYield = () => {
+  const queryClient = useQueryClient()
 
-export const useExitYield = () =>
-  useMutation({
-    mutationFn: async (params: UseExitYieldParams): Promise<ActionDto> => {
-      const { yieldId, address, amount, useMaxAmount } = params
-      return yieldxyzApi.exitYield(yieldId, address, {
-        ...(amount !== undefined && { amount }),
-        ...(useMaxAmount !== undefined && { useMaxAmount }),
-      })
+  return useMutation({
+    mutationFn: (data: { yieldId: string; address: string; arguments: Record<string, unknown> }) =>
+      yieldxyzApi.exitYield(data.yieldId, data.address, data.arguments),
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['yieldxyz', 'balances', variables.yieldId] })
     },
   })
-
-export type UseExitYieldReturn = ReturnType<typeof useExitYield>['mutateAsync']
+}

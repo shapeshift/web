@@ -10,6 +10,7 @@ import {
   TbPool,
   TbRefresh,
   TbStack,
+  TbTrendingUp,
 } from 'react-icons/tb'
 import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
@@ -71,6 +72,7 @@ const earnSubMenuItems = [
   { label: 'navBar.tcy', path: '/tcy', icon: TCYIcon },
   { label: 'navBar.pools', path: '/pools', icon: TbPool },
   { label: 'navBar.lending', path: '/lending', icon: TbBuildingBank },
+  { label: 'navBar.yields', path: '/yields', icon: TbTrendingUp },
 ]
 
 export const Header = memo(() => {

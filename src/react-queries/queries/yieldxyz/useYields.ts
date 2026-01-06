@@ -1,30 +1,16 @@
 import { useQuery } from '@tanstack/react-query'
 
 import { yieldxyzApi } from '@/lib/yieldxyz/api'
-import type { YieldDto } from '@/lib/yieldxyz/types'
-import { filterSupportedYields } from '@/lib/yieldxyz/utils'
+import { augmentYield } from '@/lib/yieldxyz/augment'
+import type { AugmentedYieldDto } from '@/lib/yieldxyz/types'
 
-type UseYieldsParams = {
-  network?: string
-  provider?: string
-  limit?: number
-  offset?: number
-}
-
-const yieldsQueryKey = (params: UseYieldsParams = {}): ['yields', UseYieldsParams] => [
-  'yields',
-  params,
-]
-
-export const useYields = (params: UseYieldsParams = {}) =>
-  useQuery({
-    queryKey: yieldsQueryKey(params),
+export const useYields = (params?: { network?: string; limit?: number; offset?: number }) => {
+  return useQuery<AugmentedYieldDto[]>({
+    queryKey: ['yieldxyz', 'yields', params],
     queryFn: async () => {
-      const response = await yieldxyzApi.getYields(params)
-      return response.items
+      const data = await yieldxyzApi.getYields(params)
+      return data.items.map(augmentYield)
     },
-    select: (data: YieldDto[]) => filterSupportedYields(data),
-    staleTime: 60_000,
+    staleTime: 60 * 1000,
   })
-
-export type UseYieldsReturn = ReturnType<typeof useYields>['data']
+}

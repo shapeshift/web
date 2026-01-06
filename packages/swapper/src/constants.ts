@@ -2,6 +2,8 @@ import { assertUnreachable } from '@shapeshiftoss/utils'
 
 import { arbitrumBridgeSwapper } from './swappers/ArbitrumBridgeSwapper/ArbitrumBridgeSwapper'
 import { arbitrumBridgeApi } from './swappers/ArbitrumBridgeSwapper/endpoints'
+import { avnuSwapper } from './swappers/AvnuSwapper/AvnuSwapper'
+import { avnuApi } from './swappers/AvnuSwapper/endpoints'
 import { bebopSwapper } from './swappers/BebopSwapper/BebopSwapper'
 import { bebopApi } from './swappers/BebopSwapper/endpoints'
 import { butterSwap } from './swappers/ButterSwap/ButterSwap'
@@ -98,6 +100,10 @@ export const swappers: Record<SwapperName, (SwapperApi & Swapper) | undefined> =
     ...sunioSwapper,
     ...sunioApi,
   },
+  [SwapperName.Avnu]: {
+    ...avnuSwapper,
+    ...avnuApi,
+  },
   [SwapperName.Test]: undefined,
 }
 
@@ -113,6 +119,7 @@ const DEFAULT_CHAINFLIP_SLIPPAGE_DECIMAL_PERCENTAGE = '0.02' // 2%
 const DEFAULT_BUTTERSWAP_SLIPPAGE_DECIMAL_PERCENTAGE = '0.015' // 1.5%
 const DEFAULT_CETUS_SLIPPAGE_DECIMAL_PERCENTAGE = '0.005' // .5%
 const DEFAULT_SUNIO_SLIPPAGE_DECIMAL_PERCENTAGE = '0.005' // .5%
+const DEFAULT_AVNU_SLIPPAGE_DECIMAL_PERCENTAGE = '0.005' // .5%
 
 export const getDefaultSlippageDecimalPercentageForSwapper = (
   swapperName: SwapperName | undefined,
@@ -147,6 +154,8 @@ export const getDefaultSlippageDecimalPercentageForSwapper = (
       return DEFAULT_CETUS_SLIPPAGE_DECIMAL_PERCENTAGE
     case SwapperName.Sunio:
       return DEFAULT_SUNIO_SLIPPAGE_DECIMAL_PERCENTAGE
+    case SwapperName.Avnu:
+      return DEFAULT_AVNU_SLIPPAGE_DECIMAL_PERCENTAGE
     default:
       return assertUnreachable(swapperName)
   }

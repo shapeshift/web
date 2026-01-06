@@ -30,11 +30,33 @@ export const pairIconsClipPath =
 export type AssetIconProps = {
   // Show the network icon instead of the asset icon e.g OP icon instead of ETH for Optimism native asset
   showNetworkIcon?: boolean
-  assetId?: AssetId
-  asset?: Asset
-  src?: string
-  icon?: JSX.Element
-} & AvatarProps
+} & (
+  | {
+      assetId: AssetId
+      asset?: undefined
+      src?: undefined
+      icon?: undefined
+    }
+  | {
+      asset: Asset
+      assetId?: undefined
+      src?: undefined
+      icon?: undefined
+    }
+  | {
+      src: string | undefined
+      assetId?: undefined
+      asset?: undefined
+      icon?: undefined
+    }
+  | {
+      icon: JSX.Element
+      src?: undefined
+      assetId?: undefined
+      asset?: undefined
+    }
+) &
+  AvatarProps
 
 // @TODO: this will be replaced with whatever we do for icons later
 // The icon prop is used as the placeholder while the icon loads, or if it fails to load.
@@ -42,8 +64,6 @@ export type AssetIconProps = {
 type AssetWithNetworkProps = {
   asset: Asset
   showNetworkIcon?: boolean
-  networkIconSrc?: string
-  showNetworkBadge?: boolean
 } & AvatarProps
 
 const AssetWithNetwork: React.FC<AssetWithNetworkProps> = ({
@@ -51,11 +71,11 @@ const AssetWithNetwork: React.FC<AssetWithNetworkProps> = ({
   icon,
   src,
   showNetworkIcon = true,
-  networkIconSrc,
-  showNetworkBadge = false,
   size,
   ...rest
 }) => {
+  const feeAsset = useAppSelector(state => selectFeeAssetById(state, asset.assetId))
+  const showNetwork = Boolean(feeAsset?.networkIcon) || asset.assetId !== feeAsset?.assetId
   const iconSrc = src ?? asset.icon
   // We should only show the fallback if the asset doesn't have an icon/icons
   // Failure to check this means we would lose loading FOX icon functionality
@@ -63,8 +83,8 @@ const AssetWithNetwork: React.FC<AssetWithNetworkProps> = ({
 
   return (
     <Center>
-      <Center position={showNetworkBadge && showNetworkIcon ? 'relative' : 'static'}>
-        {showNetworkBadge && showNetworkIcon && (
+      <Center position={showNetwork && showNetworkIcon ? 'relative' : 'static'}>
+        {showNetwork && showNetworkIcon && (
           <LazyLoadAvatar
             position='absolute'
             left='-8%'
@@ -73,7 +93,7 @@ const AssetWithNetwork: React.FC<AssetWithNetworkProps> = ({
             transformOrigin='top left'
             icon={icon}
             fontSize='inherit'
-            src={networkIconSrc}
+            src={feeAsset?.networkIcon ?? feeAsset?.icon}
             size={size}
           />
         )}
@@ -83,7 +103,7 @@ const AssetWithNetwork: React.FC<AssetWithNetworkProps> = ({
           icon={icon}
           border={0}
           size={size}
-          clipPath={showNetworkBadge && showNetworkIcon ? defaultClipPath : ''}
+          clipPath={showNetwork && showNetworkIcon ? defaultClipPath : ''}
           {...rest}
         />
       </Center>
@@ -93,25 +113,10 @@ const AssetWithNetwork: React.FC<AssetWithNetworkProps> = ({
 
 export const AssetIcon = memo(
   ({ assetId: _assetId, asset: _asset, showNetworkIcon, src, ...rest }: AssetIconProps) => {
-    const assetFromStore = useAppSelector(state =>
+    const asset = useAppSelector(state =>
       _asset ? _asset : selectAssetById(state, _assetId ?? ''),
     )
-    const assetId = _asset ? _asset.assetId : _assetId
-
-    // If we have an assetId but no asset in store, we create a proxy asset to allow the network badge to render
-    const asset = assetFromStore ?? (assetId ? ({
-      assetId,
-      chainId: fromAssetId(assetId).chainId,
-      symbol: 'N/A',
-      name: 'N/A',
-      precision: 18,
-      color: '#FFFFFF',
-      icon: src ?? '',
-      explorer: '',
-      explorerTxLink: '',
-      explorerAddressLink: ''
-    } as Asset) : undefined)
-
+    const assetId = _assetId ?? asset?.assetId
     const assetIconBg = useColorModeValue('gray.200', 'gray.700')
 
     const chainAdapterManager = getChainAdapterManager()
@@ -125,19 +130,13 @@ export const AssetIcon = memo(
       return <LazyLoadAvatar src={asset.networkIcon} bg={assetIconBg} icon={foxIcon} {...rest} />
     }
 
-    // Determine if we should show the network badge
-    // This logic was previously inside AssetWithNetwork but is now lifted here to share/ensure correctness
-    // fallback logic: if feeAsset is not found, we can't show badge safely, or we assume false?
-    // Using loose equality for compatibility if needed, but strict is better.
-    // Logic: Show badge if feeAsset has a network icon OR if asset is NOT the fee asset.
-    const showNetworkBadge = Boolean(feeAsset?.networkIcon) || asset.assetId !== feeAsset?.assetId
-    const networkIconSrc = feeAsset?.networkIcon ?? feeAsset?.icon
-
     if (asset.icons?.length) {
+      const showNetwork = feeAsset?.networkIcon || asset.assetId !== feeAsset?.assetId
+
       return (
         <Center>
-          <Center position={showNetworkBadge && showNetworkIcon ? 'relative' : 'static'}>
-            {showNetworkBadge && showNetworkIcon && (
+          <Center position={showNetwork && showNetworkIcon ? 'relative' : 'static'}>
+            {showNetwork && showNetworkIcon && (
               <LazyLoadAvatar
                 position='absolute'
                 left='-8%'
@@ -146,7 +145,7 @@ export const AssetIcon = memo(
                 transformOrigin='top left'
                 icon={foxIcon}
                 fontSize='inherit'
-                src={networkIconSrc}
+                src={feeAsset?.networkIcon ?? feeAsset?.icon}
                 size={rest.size}
                 zIndex={2}
               />
@@ -155,7 +154,7 @@ export const AssetIcon = memo(
               icons={asset.icons}
               iconSize={rest.size}
               iconBoxSize={rest.boxSize}
-              clipPath={showNetworkBadge && showNetworkIcon ? pairIconsClipPath : ''}
+              clipPath={showNetwork && showNetworkIcon ? pairIconsClipPath : ''}
               {...rest}
             />
           </Center>
@@ -164,15 +163,7 @@ export const AssetIcon = memo(
     }
 
     return (
-      <AssetWithNetwork
-        asset={asset}
-        icon={foxIcon}
-        showNetworkIcon={showNetworkIcon}
-        src={src}
-        networkIconSrc={networkIconSrc}
-        showNetworkBadge={showNetworkBadge}
-        {...rest}
-      />
+      <AssetWithNetwork asset={asset} icon={foxIcon} showNetworkIcon={showNetworkIcon} {...rest} />
     )
   },
 )

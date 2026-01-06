@@ -1,4 +1,3 @@
-import { AssetIcon } from '@/components/AssetIcon'
 import {
   Box,
   Card,
@@ -13,6 +12,7 @@ import {
 } from '@chakra-ui/react'
 import { useTranslate } from 'react-polyglot'
 
+import { AssetIcon } from '@/components/AssetIcon'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { formatLargeNumber } from '@/lib/utils/formatters'
 import type { AugmentedYieldDto } from '@/lib/yieldxyz/types'
@@ -39,8 +39,6 @@ export const YieldCard = ({ yield: yieldItem, onEnter, providerIcon }: YieldCard
     }
   }
 
-
-
   return (
     <Card
       bg={cardBg}
@@ -64,8 +62,6 @@ export const YieldCard = ({ yield: yieldItem, onEnter, providerIcon }: YieldCard
           <Flex alignItems='center' gap={4}>
             <AssetIcon
               src={yieldItem.metadata.logoURI}
-              assetId={yieldItem.token.assetId}
-              showNetworkIcon
               size='md'
               boxShadow='md'
               borderWidth='1px'
@@ -133,7 +129,6 @@ export const YieldCard = ({ yield: yieldItem, onEnter, providerIcon }: YieldCard
         </Flex>
 
         {/* Footer: Tags + Action */}
-
       </CardBody>
     </Card>
   )

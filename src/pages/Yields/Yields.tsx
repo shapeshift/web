@@ -24,6 +24,16 @@ import {
   Tr,
   useColorModeValue,
 } from '@chakra-ui/react'
+import type { ChainId } from '@shapeshiftoss/caip'
+import {
+  arbitrumChainId,
+  baseChainId,
+  bscChainId,
+  ethChainId,
+  gnosisChainId,
+  optimismChainId,
+  polygonChainId,
+} from '@shapeshiftoss/caip'
 import type { ColumnDef, Row, SortingState, Table as TanstackTable } from '@tanstack/react-table'
 import {
   flexRender,
@@ -36,29 +46,20 @@ import { useTranslate } from 'react-polyglot'
 import { Route, Routes, useNavigate } from 'react-router-dom'
 
 import { AssetIcon } from '@/components/AssetIcon'
-import {
-  arbitrumChainId,
-  baseChainId,
-  bscChainId,
-  ethChainId,
-  gnosisChainId,
-  optimismChainId,
-  polygonChainId,
-  ChainId,
-} from '@shapeshiftoss/caip'
 import { ResultsEmptyNoWallet } from '@/components/ResultsEmptyNoWallet'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { formatLargeNumber } from '@/lib/utils/formatters'
 import type { AugmentedYieldDto } from '@/lib/yieldxyz/types'
 import { YieldCard, YieldCardSkeleton } from '@/pages/Yields/components/YieldCard'
+import type { SortOption } from '@/pages/Yields/components/YieldFilters'
+import { YieldFilters } from '@/pages/Yields/components/YieldFilters'
 import { YieldOverview } from '@/pages/Yields/components/YieldOverview'
 import { ViewToggle } from '@/pages/Yields/components/YieldViewHelpers'
 import { YieldDetail } from '@/pages/Yields/YieldDetail'
 import { useAllYieldBalances } from '@/react-queries/queries/yieldxyz/useAllYieldBalances'
 import { useYieldProviders } from '@/react-queries/queries/yieldxyz/useYieldProviders'
 import { useYields } from '@/react-queries/queries/yieldxyz/useYields'
-import { YieldFilters, SortOption } from '@/pages/Yields/components/YieldFilters'
 
 type YieldColumnMeta = {
   display?: Record<string, string>
@@ -137,37 +138,37 @@ const YieldTable = ({
       <Tbody>
         {isLoading
           ? Array.from({ length: 6 }).map((_, rowIndex) => (
-            <Tr key={rowIndex}>
-              {columns.map(column => (
-                <Td key={`${rowIndex}-${column.id}`}>
-                  <Skeleton height='16px' />
-                </Td>
-              ))}
-            </Tr>
-          ))
-          : table.getRowModel().rows.map(row => {
-            const isClickable = row.original.status.enter
-            return (
-              <Tr
-                key={row.id}
-                cursor={isClickable ? 'pointer' : undefined}
-                onClick={() => {
-                  if (!isClickable) return
-                  onRowClick(row)
-                }}
-                _hover={isClickable ? { bg: hoverBg } : undefined}
-              >
-                {row.getVisibleCells().map(cell => {
-                  const meta = cell.column.columnDef.meta as YieldColumnMeta | undefined
-                  return (
-                    <Td key={cell.id} display={meta?.display} textAlign={meta?.textAlign}>
-                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                    </Td>
-                  )
-                })}
+              <Tr key={rowIndex}>
+                {columns.map(column => (
+                  <Td key={`${rowIndex}-${column.id}`}>
+                    <Skeleton height='16px' />
+                  </Td>
+                ))}
               </Tr>
-            )
-          })}
+            ))
+          : table.getRowModel().rows.map(row => {
+              const isClickable = row.original.status.enter
+              return (
+                <Tr
+                  key={row.id}
+                  cursor={isClickable ? 'pointer' : undefined}
+                  onClick={() => {
+                    if (!isClickable) return
+                    onRowClick(row)
+                  }}
+                  _hover={isClickable ? { bg: hoverBg } : undefined}
+                >
+                  {row.getVisibleCells().map(cell => {
+                    const meta = cell.column.columnDef.meta as YieldColumnMeta | undefined
+                    return (
+                      <Td key={cell.id} display={meta?.display} textAlign={meta?.textAlign}>
+                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                      </Td>
+                    )
+                  })}
+                </Tr>
+              )
+            })}
       </Tbody>
     </Table>
   )
@@ -184,7 +185,9 @@ const YieldsList = () => {
   // TODO: Multi-account support - currently defaulting to account 0
   const { data: allBalances, isFetching: isLoadingBalances } = useAllYieldBalances()
   const [allSorting, setAllSorting] = useState<SortingState>([{ id: 'apy', desc: true }])
-  const [positionsSorting, setPositionsSorting] = useState<SortingState>([{ id: 'apy', desc: true }])
+  const [positionsSorting, setPositionsSorting] = useState<SortingState>([
+    { id: 'apy', desc: true },
+  ])
 
   const { data: yieldProviders } = useYieldProviders()
 
@@ -243,7 +246,7 @@ const YieldsList = () => {
       return {
         id: net,
         name: net.charAt(0).toUpperCase() + net.slice(1),
-        chainId: chainId
+        chainId,
       }
     })
   }, [yields])
@@ -254,7 +257,7 @@ const YieldsList = () => {
     return Array.from(unique).map(pId => ({
       id: pId,
       name: pId.charAt(0).toUpperCase() + pId.slice(1),
-      icon: getProviderLogo(pId)
+      icon: getProviderLogo(pId),
     }))
   }, [yields, getProviderLogo])
 
@@ -293,7 +296,6 @@ const YieldsList = () => {
     [navigate],
   )
 
-
   const handleRowClick = useCallback(
     (row: Row<AugmentedYieldDto>) => {
       if (!row.original.status.enter) return
@@ -312,12 +314,7 @@ const YieldsList = () => {
         sortingFn: 'alphanumeric',
         cell: ({ row }) => (
           <HStack spacing={4} minW='200px'>
-            <AssetIcon
-              src={row.original.metadata.logoURI}
-              assetId={row.original.token.assetId}
-              showNetworkIcon
-              size='sm'
-            />
+            <AssetIcon src={row.original.metadata.logoURI} size='sm' />
             <Box>
               <Text fontWeight='bold' fontSize='sm' noOfLines={1} lineHeight='shorter'>
                 {row.original.metadata.name}
@@ -464,15 +461,15 @@ const YieldsList = () => {
                 {isLoading
                   ? Array.from({ length: 6 }).map((_, i) => <YieldCardSkeleton key={i} />)
                   : allTable
-                    .getRowModel()
-                    .rows.map(row => (
-                      <YieldCard
-                        key={row.id}
-                        yield={row.original}
-                        onEnter={() => handleYieldClick(row.original.id)}
-                        providerIcon={getProviderLogo(row.original.providerId)}
-                      />
-                    ))}
+                      .getRowModel()
+                      .rows.map(row => (
+                        <YieldCard
+                          key={row.id}
+                          yield={row.original}
+                          onEnter={() => handleYieldClick(row.original.id)}
+                          providerIcon={getProviderLogo(row.original.providerId)}
+                        />
+                      ))}
               </SimpleGrid>
             ) : (
               <Box borderWidth='1px' borderRadius='xl' overflow='hidden'>

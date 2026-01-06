@@ -1,7 +1,5 @@
-import { AssetIcon } from '@/components/AssetIcon'
 import {
   Avatar,
-  Badge,
   Box,
   Button,
   Container,
@@ -16,6 +14,7 @@ import { FaChevronLeft } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { useNavigate, useParams } from 'react-router-dom'
 
+import { AssetIcon } from '@/components/AssetIcon'
 import { YieldEnterExit } from '@/pages/Yields/components/YieldEnterExit'
 import { YieldPositionCard } from '@/pages/Yields/components/YieldPositionCard'
 import { YieldStats } from '@/pages/Yields/components/YieldStats'
@@ -90,8 +89,6 @@ export const YieldDetail = () => {
           <Flex alignItems='start' gap={8}>
             <AssetIcon
               src={yieldItem.metadata.logoURI}
-              assetId={yieldItem.token.assetId}
-              showNetworkIcon
               boxSize={24}
               boxShadow='2xl'
               border='4px solid'

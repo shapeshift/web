@@ -41,9 +41,9 @@ import {
   getSortedRowModel,
   useReactTable,
 } from '@tanstack/react-table'
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { Route, Routes, useNavigate } from 'react-router-dom'
+import { Route, Routes, useNavigate, useSearchParams } from 'react-router-dom'
 
 import { AssetIcon } from '@/components/AssetIcon'
 import { ResultsEmptyNoWallet } from '@/components/ResultsEmptyNoWallet'
@@ -54,7 +54,7 @@ import type { AugmentedYieldDto } from '@/lib/yieldxyz/types'
 import { YieldCard, YieldCardSkeleton } from '@/pages/Yields/components/YieldCard'
 import type { SortOption } from '@/pages/Yields/components/YieldFilters'
 import { YieldFilters } from '@/pages/Yields/components/YieldFilters'
-import { YieldOverview } from '@/pages/Yields/components/YieldOverview'
+import { YieldOpportunityStats } from '@/pages/Yields/components/YieldOpportunityStats'
 import { ViewToggle } from '@/pages/Yields/components/YieldViewHelpers'
 import { YieldDetail } from '@/pages/Yields/YieldDetail'
 import { useAllYieldBalances } from '@/react-queries/queries/yieldxyz/useAllYieldBalances'
@@ -138,37 +138,37 @@ const YieldTable = ({
       <Tbody>
         {isLoading
           ? Array.from({ length: 6 }).map((_, rowIndex) => (
-              <Tr key={rowIndex}>
-                {columns.map(column => (
-                  <Td key={`${rowIndex}-${column.id}`}>
-                    <Skeleton height='16px' />
-                  </Td>
-                ))}
-              </Tr>
-            ))
+            <Tr key={rowIndex}>
+              {columns.map(column => (
+                <Td key={`${rowIndex}-${column.id}`}>
+                  <Skeleton height='16px' />
+                </Td>
+              ))}
+            </Tr>
+          ))
           : table.getRowModel().rows.map(row => {
-              const isClickable = row.original.status.enter
-              return (
-                <Tr
-                  key={row.id}
-                  cursor={isClickable ? 'pointer' : undefined}
-                  onClick={() => {
-                    if (!isClickable) return
-                    onRowClick(row)
-                  }}
-                  _hover={isClickable ? { bg: hoverBg } : undefined}
-                >
-                  {row.getVisibleCells().map(cell => {
-                    const meta = cell.column.columnDef.meta as YieldColumnMeta | undefined
-                    return (
-                      <Td key={cell.id} display={meta?.display} textAlign={meta?.textAlign}>
-                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                      </Td>
-                    )
-                  })}
-                </Tr>
-              )
-            })}
+            const isClickable = row.original.status.enter
+            return (
+              <Tr
+                key={row.id}
+                cursor={isClickable ? 'pointer' : undefined}
+                onClick={() => {
+                  if (!isClickable) return
+                  onRowClick(row)
+                }}
+                _hover={isClickable ? { bg: hoverBg } : undefined}
+              >
+                {row.getVisibleCells().map(cell => {
+                  const meta = cell.column.columnDef.meta as YieldColumnMeta | undefined
+                  return (
+                    <Td key={cell.id} display={meta?.display} textAlign={meta?.textAlign}>
+                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                    </Td>
+                  )
+                })}
+              </Tr>
+            )
+          })}
       </Tbody>
     </Table>
   )
@@ -182,6 +182,7 @@ const YieldsList = () => {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
   // TODO: Multi-chain support - currently hardcoded to 'base'
   const { data: yields, isFetching: isLoading, error } = useYields({ network: 'base' })
+
   // TODO: Multi-account support - currently defaulting to account 0
   const { data: allBalances, isFetching: isLoadingBalances } = useAllYieldBalances()
   const [allSorting, setAllSorting] = useState<SortingState>([{ id: 'apy', desc: true }])
@@ -191,10 +192,13 @@ const YieldsList = () => {
 
   const { data: yieldProviders } = useYieldProviders()
 
-  // Filter States
-  const [selectedNetwork, setSelectedNetwork] = useState<string | null>(null)
-  const [selectedProvider, setSelectedProvider] = useState<string | null>(null)
-  const [sortOption, setSortOption] = useState<SortOption>('apy-desc')
+
+
+  // Filter States synced with URL
+  const [searchParams, setSearchParams] = useSearchParams()
+  const selectedNetwork = searchParams.get('network')
+  const selectedProvider = searchParams.get('provider')
+  const sortOption = (searchParams.get('sort') as SortOption) || 'apy-desc'
 
   const getProviderLogo = useCallback(
     (providerId: string) => {
@@ -203,9 +207,47 @@ const YieldsList = () => {
     [yieldProviders],
   )
 
-  const handleSortChange = useCallback((option: SortOption) => {
-    setSortOption(option)
-    switch (option) {
+  const handleNetworkChange = useCallback(
+    (network: string | null) => {
+      setSearchParams(prev => {
+        if (!network) {
+          prev.delete('network')
+        } else {
+          prev.set('network', network)
+        }
+        return prev
+      })
+    },
+    [setSearchParams],
+  )
+
+  const handleProviderChange = useCallback(
+    (provider: string | null) => {
+      setSearchParams(prev => {
+        if (!provider) {
+          prev.delete('provider')
+        } else {
+          prev.set('provider', provider)
+        }
+        return prev
+      })
+    },
+    [setSearchParams],
+  )
+
+  const handleSortChange = useCallback(
+    (option: SortOption) => {
+      setSearchParams(prev => {
+        prev.set('sort', option)
+        return prev
+      })
+    },
+    [setSearchParams],
+  )
+
+  // Sync table sorting with URL sort param
+  useEffect(() => {
+    switch (sortOption) {
       case 'apy-desc':
         setAllSorting([{ id: 'apy', desc: true }])
         setPositionsSorting([{ id: 'apy', desc: true }])
@@ -227,7 +269,7 @@ const YieldsList = () => {
         setPositionsSorting([{ id: 'pool', desc: false }])
         break
     }
-  }, [])
+  }, [sortOption])
 
   // Derived filter options
   const networks = useMemo(() => {
@@ -430,15 +472,15 @@ const YieldsList = () => {
         </Box>
       )}
 
-      {myPositions.length > 0 && <YieldOverview positions={myPositions} balances={allBalances} />}
+      <YieldOpportunityStats positions={myPositions} balances={allBalances} allYields={yields} />
 
       <YieldFilters
         networks={networks}
         selectedNetwork={selectedNetwork}
-        onSelectNetwork={setSelectedNetwork}
+        onSelectNetwork={handleNetworkChange}
         providers={providers}
         selectedProvider={selectedProvider}
-        onSelectProvider={setSelectedProvider}
+        onSelectProvider={handleProviderChange}
         sortOption={sortOption}
         onSortChange={handleSortChange}
       />
@@ -461,15 +503,15 @@ const YieldsList = () => {
                 {isLoading
                   ? Array.from({ length: 6 }).map((_, i) => <YieldCardSkeleton key={i} />)
                   : allTable
-                      .getRowModel()
-                      .rows.map(row => (
-                        <YieldCard
-                          key={row.id}
-                          yield={row.original}
-                          onEnter={() => handleYieldClick(row.original.id)}
-                          providerIcon={getProviderLogo(row.original.providerId)}
-                        />
-                      ))}
+                    .getRowModel()
+                    .rows.map(row => (
+                      <YieldCard
+                        key={row.id}
+                        yield={row.original}
+                        onEnter={() => handleYieldClick(row.original.id)}
+                        providerIcon={getProviderLogo(row.original.providerId)}
+                      />
+                    ))}
               </SimpleGrid>
             ) : (
               <Box borderWidth='1px' borderRadius='xl' overflow='hidden'>
@@ -481,6 +523,8 @@ const YieldsList = () => {
                 />
               </Box>
             )}
+
+
 
             {!isLoading && displayYields.length === 0 && (
               <Box textAlign='center' py={16}>

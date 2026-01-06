@@ -19,9 +19,11 @@ import {
 } from '@chakra-ui/react'
 import { keyframes } from '@emotion/react'
 import { fromAccountId } from '@shapeshiftoss/caip'
+import type { AssetId } from '@shapeshiftoss/caip'
 import { toAddressNList } from '@shapeshiftoss/chain-adapters'
 import { useState } from 'react'
 import { FaCheck, FaExternalLinkAlt, FaWallet } from 'react-icons/fa'
+import { useQueryClient } from '@tanstack/react-query'
 import { useTranslate } from 'react-polyglot'
 
 import { MiddleEllipsis } from '@/components/MiddleEllipsis/MiddleEllipsis'
@@ -31,7 +33,7 @@ import { makeBlockiesUrl } from '@/lib/blockies/makeBlockiesUrl'
 import { assertGetChainAdapter } from '@/lib/utils'
 import { signAndBroadcast } from '@/lib/utils/evm'
 import { parseUnsignedTransaction, toChainAdapterTx } from '@/lib/yieldxyz/transaction'
-import type { ActionDto, AugmentedYieldDto, TransactionDto } from '@/lib/yieldxyz/types'
+import type { AugmentedYieldDto, TransactionDto } from '@/lib/yieldxyz/types'
 import { TransactionStatus } from '@/lib/yieldxyz/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { useEnterYield } from '@/react-queries/queries/yieldxyz/useEnterYield'
@@ -59,9 +61,12 @@ const waitForTransactionConfirmation = async (adapter: any, txHash: string): Pro
 }
 import { useExitYield } from '@/react-queries/queries/yieldxyz/useExitYield'
 import { useSubmitYieldTransactionHash } from '@/react-queries/queries/yieldxyz/useSubmitYieldTransactionHash'
+import { ActionStatus, ActionType, GenericTransactionDisplayType } from '@/state/slices/actionSlice/types'
+import { actionSlice } from '@/state/slices/actionSlice/actionSlice'
 import { selectPortfolioAccountMetadataByAccountId } from '@/state/slices/portfolioSlice/selectors'
 import { selectFeeAssetByChainId, selectFirstAccountIdByChainId } from '@/state/slices/selectors'
-import { useAppSelector } from '@/state/store'
+import { useAppDispatch, useAppSelector } from '@/state/store'
+import { uuidv4 } from '@walletconnect/utils'
 
 type YieldActionModalProps = {
   isOpen: boolean
@@ -95,6 +100,8 @@ export const YieldActionModal = ({
   assetSymbol,
 }: YieldActionModalProps) => {
   const translate = useTranslate()
+  const dispatch = useAppDispatch()
+  const queryClient = useQueryClient()
   const toast = useToast()
   const {
     state: { wallet },
@@ -102,6 +109,7 @@ export const YieldActionModal = ({
 
   // State
   const [step, setStep] = useState<ModalStep>(ModalStep.Review)
+  const [rawTransactions, setRawTransactions] = useState<TransactionDto[]>([])
   const [transactionSteps, setTransactionSteps] = useState<
     {
       title: string
@@ -140,6 +148,7 @@ export const YieldActionModal = ({
     if (isSubmitting) return
     setStep(ModalStep.Review)
     setTransactionSteps([])
+    setRawTransactions([])
     setActiveStepIndex(-1)
     onClose()
   }
@@ -147,100 +156,150 @@ export const YieldActionModal = ({
   const filterExecutableTransactions = (transactions: TransactionDto[]): TransactionDto[] =>
     transactions.filter(tx => tx.status === TransactionStatus.Created)
 
-  const executeTransactionStep = async (actionDto: ActionDto) => {
+  const executeSingleTransaction = async (
+    tx: TransactionDto,
+    index: number,
+    allTransactions: TransactionDto[],
+  ) => {
     if (!wallet || !accountId) throw new Error('Wallet not connected')
     if (!yieldChainId) throw new Error('Unsupported yield network')
 
     const adapter = assertGetChainAdapter(yieldChainId)
 
-    const transactions = filterExecutableTransactions(actionDto.transactions)
-
-    if (transactions.length === 0) {
-      setStep(ModalStep.Success)
-      setIsSubmitting(false)
-      return
-    }
-
-    setTransactionSteps(
-      transactions.map((tx, i) => ({
-        title: formatTxTitle(tx.title || `Transaction ${i + 1}`, assetSymbol),
-        originalTitle: tx.title || '',
-        status: i === 0 ? 'loading' : 'pending',
-      })),
+    // Update step status to loading
+    setTransactionSteps(prev =>
+      prev.map((s, idx) =>
+        idx === index ? { ...s, status: 'loading', loadingMessage: 'Sign in Wallet' } : s,
+      ),
     )
+    setIsSubmitting(true)
 
-    for (let i = 0; i < transactions.length; i++) {
-      const tx = transactions[i]
-      setActiveStepIndex(i)
+    try {
+      // 1. Parse Transaction
+      const parsed = parseUnsignedTransaction(tx)
+      const chainAdapterTx = toChainAdapterTx(parsed)
 
-      // Update step status to loading
+      // 2. Build addressNList
+      const addressNList = accountMetadata?.bip44Params
+        ? toAddressNList(adapter.getBip44Params(accountMetadata.bip44Params))
+        : undefined
+
+      if (!addressNList) throw new Error('Failed to get address derivation path')
+
+      // 3. Sign and Broadcast
+      const txHash = await signAndBroadcast({
+        adapter: adapter as any, // Type cast for EVM adapter
+        txToSign: { ...chainAdapterTx, addressNList } as any, // Type cast for adapter input
+        wallet,
+        senderAddress: userAddress,
+        receiverAddress: chainAdapterTx.to,
+      })
+
+      if (!txHash) throw new Error('Failed to broadcast transaction')
+
+      // Get Explorer URL
+      const txUrl = feeAsset ? `${feeAsset.explorerTxLink}${txHash}` : ''
+
+      // Show "Confirming..." state
       setTransactionSteps(prev =>
-        prev.map((s, idx) => (idx === i ? { ...s, status: 'loading' } : s)),
+        prev.map((s, idx) =>
+          idx === index ? { ...s, txHash, txUrl, loadingMessage: 'Confirming...' } : s,
+        ),
       )
 
-      try {
-        // 1. Parse Transaction
-        const parsed = parseUnsignedTransaction(tx)
-        const chainAdapterTx = toChainAdapterTx(parsed)
+      // Wait for confirmation
+      await waitForTransactionConfirmation(adapter, txHash)
 
-        // 2. Build addressNList from account metadata for native wallet signing
-        const addressNList = accountMetadata?.bip44Params
-          ? toAddressNList(adapter.getBip44Params(accountMetadata.bip44Params))
-          : undefined
+      // 4. Submit Hash
+      await submitHashMutation.mutateAsync({
+        transactionId: tx.id,
+        hash: txHash,
+      })
 
-        if (!addressNList) throw new Error('Failed to get address derivation path')
+      // Invalidate queries to refresh balances and yields immediately
+      queryClient.invalidateQueries({ queryKey: ['yieldxyz', 'allBalances'] })
+      queryClient.invalidateQueries({ queryKey: ['yieldxyz', 'yields'] })
 
-        // 3. Sign and Broadcast
-        const txHash = await signAndBroadcast({
-          adapter: adapter as any, // Type cast for EVM adapter
-          txToSign: { ...chainAdapterTx, addressNList } as any, // Type cast for adapter input
-          wallet,
-          senderAddress: userAddress,
-          receiverAddress: chainAdapterTx.to,
-        })
+      // Dispatch Action for Notification Center
+      const isApproval = tx.title && tx.title.toLowerCase().includes('approv')
+      const actionType = isApproval
+        ? ActionType.Approve
+        : action === 'enter'
+          ? ActionType.Deposit
+          : ActionType.Withdraw
+      const displayType = isApproval
+        ? GenericTransactionDisplayType.Approve
+        : GenericTransactionDisplayType.Yield
 
-        if (!txHash) throw new Error('Failed to broadcast transaction')
+      dispatch(
+        actionSlice.actions.upsertAction({
+          id: uuidv4(),
+          type: actionType,
+          status: ActionStatus.Pending,
+          createdAt: Date.now(),
+          updatedAt: Date.now(),
+          transactionMetadata: {
+            displayType,
+            txHash,
+            chainId: yieldChainId,
+            assetId: (yieldItem.token.assetId || '') as AssetId,
+            accountId,
+            message: tx.title || 'Transaction',
+            amountCryptoPrecision: amount,
+          },
+        }),
+      )
 
-        // Get Explorer URL
-        const txUrl = feeAsset ? `${feeAsset.explorerTxLink}${txHash}` : ''
+      // Update step status to success
+      setTransactionSteps(prev =>
+        prev.map((s, idx) =>
+          idx === index
+            ? { ...s, status: 'success', txHash, txUrl, loadingMessage: undefined }
+            : s,
+        ),
+      )
 
-        // Show "Confirming..." state
-        setTransactionSteps(prev =>
-          prev.map((s, idx) => (idx === i ? { ...s, txHash, txUrl, loadingMessage: 'Confirming...' } : s)),
-        )
-
-        // Wait for confirmation
-        await waitForTransactionConfirmation(adapter, txHash)
-
-        // 3. Submit Hash
-        await submitHashMutation.mutateAsync({
-          transactionId: tx.id,
-          hash: txHash,
-        })
-
-        // Update step status to success AND save hash/url
-        setTransactionSteps(prev =>
-          prev.map((s, idx) => (idx === i ? { ...s, status: 'success', txHash, txUrl, loadingMessage: undefined } : s)),
-        )
-      } catch (error) {
-        console.error('Transaction execution failed:', error)
-        toast({
-          title: 'Transaction Failed',
-          description: String(error),
-          status: 'error',
-          duration: 5000,
-          isClosable: true,
-        })
+      // Check if next step exists
+      if (index + 1 < allTransactions.length) {
+        setActiveStepIndex(index + 1)
+        setIsSubmitting(false) // Stop submitting to allow user to click next button
+      } else {
+        setStep(ModalStep.Success)
         setIsSubmitting(false)
-        return
       }
+    } catch (error) {
+      console.error('Transaction execution failed:', error)
+      toast({
+        title: 'Transaction Failed',
+        description: String(error),
+        status: 'error',
+        duration: 5000,
+        isClosable: true,
+      })
+      setIsSubmitting(false)
+      // Reset step status to pending or error state if we had one?
+      // For now keep as loading (stuck) or revert to pending?
+      // Let's revert to pending so user can retry
+      setTransactionSteps(prev =>
+        prev.map((s, idx) =>
+          idx === index ? { ...s, status: 'pending', loadingMessage: undefined } : s,
+        ),
+      )
     }
-
-    setStep(ModalStep.Success)
-    setIsSubmitting(false)
   }
 
   const handleConfirm = async () => {
+    // Continue existing sequence
+    if (activeStepIndex >= 0 && rawTransactions[activeStepIndex]) {
+      await executeSingleTransaction(
+        rawTransactions[activeStepIndex],
+        activeStepIndex,
+        rawTransactions,
+      )
+      return
+    }
+
+    // Initial Start
     if (!yieldChainId) {
       toast({
         title: 'Unsupported network',
@@ -278,7 +337,6 @@ export const YieldActionModal = ({
       { title: 'Preparing Transaction...', status: 'loading', originalTitle: '' },
     ])
 
-    // const userAddress = fromAccountId(accountId).account // Defined at component scope
     const mutation = action === 'enter' ? enterMutation : exitMutation
 
     const fields =
@@ -298,7 +356,26 @@ export const YieldActionModal = ({
         arguments: args,
       })
 
-      await executeTransactionStep(actionDto)
+      const transactions = filterExecutableTransactions(actionDto.transactions)
+
+      if (transactions.length === 0) {
+        setStep(ModalStep.Success)
+        setIsSubmitting(false)
+        return
+      }
+
+      setRawTransactions(transactions)
+      setTransactionSteps(
+        transactions.map((tx, i) => ({
+          title: formatTxTitle(tx.title || `Transaction ${i + 1}`, assetSymbol),
+          originalTitle: tx.title || '',
+          status: 'pending',
+        })),
+      )
+
+      setActiveStepIndex(0)
+      // Execute the first transaction immediately
+      await executeSingleTransaction(transactions[0], 0, transactions)
     } catch (error) {
       console.error('Failed to initiate action:', error)
       toast({
@@ -552,7 +629,9 @@ export const YieldActionModal = ({
       >
         {isSubmitting
           ? 'Processing...'
-          : `Confirm ${action === 'enter' ? 'Deposit' : 'Withdrawal'}`}
+          : activeStepIndex >= 0 && transactionSteps[activeStepIndex]
+            ? transactionSteps[activeStepIndex].title
+            : `Confirm ${action === 'enter' ? 'Deposit' : 'Withdrawal'}`}
       </Button>
     </VStack>
   )

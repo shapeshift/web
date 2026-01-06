@@ -1,6 +1,5 @@
 import { AssetIcon } from '@/components/AssetIcon'
 import {
-  Badge,
   Box,
   Card,
   CardBody,
@@ -40,10 +39,7 @@ export const YieldCard = ({ yield: yieldItem, onEnter, providerIcon }: YieldCard
     }
   }
 
-  // Filter out redundant tags to reduce clutter
-  const visibleTags = yieldItem.tags
-    .filter(t => t !== yieldItem.network && t !== 'vault' && t.length < 15)
-    .slice(0, 3)
+
 
   return (
     <Card
@@ -137,23 +133,7 @@ export const YieldCard = ({ yield: yieldItem, onEnter, providerIcon }: YieldCard
         </Flex>
 
         {/* Footer: Tags + Action */}
-        <Flex justifyContent='space-between' alignItems='center' gap={4}>
-          <Flex gap={2}>
-            {visibleTags.map((tag, idx) => (
-              <Badge
-                key={idx}
-                variant='subtle'
-                colorScheme='gray'
-                fontSize='xs'
-                borderRadius='full'
-                px={2}
-                py={0.5}
-              >
-                {tag}
-              </Badge>
-            ))}
-          </Flex>
-        </Flex>
+
       </CardBody>
     </Card>
   )

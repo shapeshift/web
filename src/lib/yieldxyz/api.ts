@@ -54,8 +54,12 @@ export const yieldxyzApi = {
     return handleResponse(response)
   },
 
-  async getProviders(): Promise<ProvidersResponse> {
-    const response = await fetch(`${BASE_URL}/providers`, { headers })
+  async getProviders(params?: { limit?: number; offset?: number }): Promise<ProvidersResponse> {
+    const searchParams = new URLSearchParams()
+    if (params?.limit) searchParams.set('limit', String(params.limit))
+    if (params?.offset) searchParams.set('offset', String(params.offset))
+
+    const response = await fetch(`${BASE_URL}/providers?${searchParams}`, { headers })
     return handleResponse(response)
   },
 

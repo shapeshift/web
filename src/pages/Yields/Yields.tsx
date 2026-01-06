@@ -1,7 +1,6 @@
 import { ArrowDownIcon, ArrowUpIcon } from '@chakra-ui/icons'
 import {
   Avatar,
-  Badge,
   Box,
   Container,
   Flex,
@@ -36,8 +35,18 @@ import { useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { Route, Routes, useNavigate } from 'react-router-dom'
 
-import { ChainIcon } from '@/components/ChainMenu'
 import { AssetIcon } from '@/components/AssetIcon'
+import {
+  arbitrumChainId,
+  baseChainId,
+  bscChainId,
+  ethChainId,
+  gnosisChainId,
+  optimismChainId,
+  polygonChainId,
+  ChainId,
+} from '@shapeshiftoss/caip'
+import { ResultsEmptyNoWallet } from '@/components/ResultsEmptyNoWallet'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { formatLargeNumber } from '@/lib/utils/formatters'
@@ -49,6 +58,7 @@ import { YieldDetail } from '@/pages/Yields/YieldDetail'
 import { useAllYieldBalances } from '@/react-queries/queries/yieldxyz/useAllYieldBalances'
 import { useYieldProviders } from '@/react-queries/queries/yieldxyz/useYieldProviders'
 import { useYields } from '@/react-queries/queries/yieldxyz/useYields'
+import { YieldFilters, SortOption } from '@/pages/Yields/components/YieldFilters'
 
 type YieldColumnMeta = {
   display?: Record<string, string>
@@ -169,12 +179,19 @@ const YieldsList = () => {
   const { state: walletState } = useWallet()
   const isConnected = Boolean(walletState.walletInfo)
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
-  const { data: yields, isLoading, error } = useYields({ network: 'base' })
-  const { data: allBalances, isLoading: isLoadingBalances } = useAllYieldBalances()
-  const [allSorting, setAllSorting] = useState<SortingState>([])
-  const [positionsSorting, setPositionsSorting] = useState<SortingState>([])
+  // TODO: Multi-chain support - currently hardcoded to 'base'
+  const { data: yields, isFetching: isLoading, error } = useYields({ network: 'base' })
+  // TODO: Multi-account support - currently defaulting to account 0
+  const { data: allBalances, isFetching: isLoadingBalances } = useAllYieldBalances()
+  const [allSorting, setAllSorting] = useState<SortingState>([{ id: 'apy', desc: true }])
+  const [positionsSorting, setPositionsSorting] = useState<SortingState>([{ id: 'apy', desc: true }])
 
   const { data: yieldProviders } = useYieldProviders()
+
+  // Filter States
+  const [selectedNetwork, setSelectedNetwork] = useState<string | null>(null)
+  const [selectedProvider, setSelectedProvider] = useState<string | null>(null)
+  const [sortOption, setSortOption] = useState<SortOption>('apy-desc')
 
   const getProviderLogo = useCallback(
     (providerId: string) => {
@@ -183,20 +200,91 @@ const YieldsList = () => {
     [yieldProviders],
   )
 
-  const connectedYields = useMemo(() => {
-    if (!isConnected || !yields) return []
-    return yields
-  }, [isConnected, yields])
+  const handleSortChange = useCallback((option: SortOption) => {
+    setSortOption(option)
+    switch (option) {
+      case 'apy-desc':
+        setAllSorting([{ id: 'apy', desc: true }])
+        setPositionsSorting([{ id: 'apy', desc: true }])
+        break
+      case 'apy-asc':
+        setAllSorting([{ id: 'apy', desc: false }])
+        setPositionsSorting([{ id: 'apy', desc: false }])
+        break
+      case 'tvl-desc':
+        setAllSorting([{ id: 'tvl', desc: true }])
+        setPositionsSorting([{ id: 'tvl', desc: true }])
+        break
+      case 'tvl-asc':
+        setAllSorting([{ id: 'tvl', desc: false }])
+        setPositionsSorting([{ id: 'tvl', desc: false }])
+        break
+      case 'name-asc':
+        setAllSorting([{ id: 'pool', desc: false }])
+        setPositionsSorting([{ id: 'pool', desc: false }])
+        break
+    }
+  }, [])
+
+  // Derived filter options
+  const networks = useMemo(() => {
+    if (!yields) return []
+    const unique = new Set(yields.map(y => y.network))
+    return Array.from(unique).map(net => {
+      let chainId: ChainId | undefined
+      if (net === 'base') chainId = baseChainId
+      if (net === 'ethereum') chainId = ethChainId
+      if (net === 'optimism') chainId = optimismChainId
+      if (net === 'arbitrum') chainId = arbitrumChainId
+      if (net === 'polygon') chainId = polygonChainId
+      if (net === 'gnosis') chainId = gnosisChainId
+      if (net === 'bsc') chainId = bscChainId
+
+      return {
+        id: net,
+        name: net.charAt(0).toUpperCase() + net.slice(1),
+        chainId: chainId
+      }
+    })
+  }, [yields])
+
+  const providers = useMemo(() => {
+    if (!yields) return []
+    const unique = new Set(yields.map(y => y.providerId))
+    return Array.from(unique).map(pId => ({
+      id: pId,
+      name: pId.charAt(0).toUpperCase() + pId.slice(1),
+      icon: getProviderLogo(pId)
+    }))
+  }, [yields, getProviderLogo])
+
+  const displayYields = useMemo(() => {
+    let data = yields || []
+    if (selectedNetwork) {
+      data = data.filter(y => y.network === selectedNetwork)
+    }
+    if (selectedProvider) {
+      data = data.filter(y => y.providerId === selectedProvider)
+    }
+    return data
+  }, [yields, selectedNetwork, selectedProvider])
 
   const myPositions = useMemo(() => {
-    if (!connectedYields || !allBalances) return []
-    return connectedYields.filter(yieldItem => {
+    if (!yields || !allBalances) return []
+    // Start with all positions
+    const positions = yields.filter(yieldItem => {
       const balances = allBalances[yieldItem.id]
       if (!balances) return false
-      // Check if any balance type has > 0 amount
       return balances.some(b => bnOrZero(b.amount).gt(0))
     })
-  }, [connectedYields, allBalances])
+
+    // Apply cumulative filters to positions too
+    return positions.filter(y => {
+      if (selectedNetwork && y.network !== selectedNetwork) return false
+      if (selectedProvider && y.providerId !== selectedProvider) return false
+      return true
+    })
+  }, [yields, allBalances, selectedNetwork, selectedProvider])
 
   const handleYieldClick = useCallback(
     (yieldId: string) => {
@@ -204,6 +292,7 @@ const YieldsList = () => {
     },
     [navigate],
   )
+
 
   const handleRowClick = useCallback(
     (row: Row<AugmentedYieldDto>) => {
@@ -303,37 +392,12 @@ const YieldsList = () => {
           display: { base: 'none', md: 'table-cell' },
         },
       },
-      {
-        header: translate('yieldXYZ.type') ?? 'Type',
-        id: 'tags',
-        accessorFn: row => row.tags,
-        enableSorting: false,
-        cell: ({ row }) => {
-          const visibleTags = row.original.tags
-            .filter(tag => tag !== row.original.network && tag !== 'vault' && tag.length < 15)
-            .slice(0, 2)
-          return (
-            <HStack spacing={2} justify='flex-end'>
-              {visibleTags.map((tag, idx) => (
-                <Badge key={idx} variant='outline' fontSize='xs' borderRadius='md'>
-                  {tag}
-                </Badge>
-              ))}
-            </HStack>
-          )
-        },
-        meta: {
-          display: { base: 'none', lg: 'table-cell' },
-          textAlign: 'right',
-          justifyContent: 'flex-end',
-        },
-      },
     ],
     [translate, getProviderLogo],
   )
 
   const allTable = useReactTable({
-    data: connectedYields,
+    data: displayYields,
     columns,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
@@ -354,21 +418,6 @@ const YieldsList = () => {
     onSortingChange: setPositionsSorting,
   })
 
-  if (!isConnected) {
-    return (
-      <Container maxW='1200px' py={8}>
-        <Box textAlign='center' py={16}>
-          <Heading as='h2' size='xl' mb={4}>
-            {translate('yieldXYZ.pageTitle')}
-          </Heading>
-          <Text color='text.subtle' mb={8} maxW='md' mx='auto'>
-            {translate('yieldXYZ.connectWallet')}
-          </Text>
-        </Box>
-      </Container>
-    )
-  }
-
   return (
     <Container maxW='1200px' py={8}>
       <Box mb={8}>
@@ -386,8 +435,19 @@ const YieldsList = () => {
 
       {myPositions.length > 0 && <YieldOverview positions={myPositions} balances={allBalances} />}
 
+      <YieldFilters
+        networks={networks}
+        selectedNetwork={selectedNetwork}
+        onSelectNetwork={setSelectedNetwork}
+        providers={providers}
+        selectedProvider={selectedProvider}
+        onSelectProvider={setSelectedProvider}
+        sortOption={sortOption}
+        onSortChange={handleSortChange}
+      />
+
       <Tabs variant='soft-rounded' colorScheme='blue' isLazy>
-        <TabList mb={6}>
+        <TabList mb={6} gap={4}>
           <Tab _selected={{ color: 'white', bg: 'blue.500' }}>{translate('common.all')}</Tab>
           <Tab _selected={{ color: 'white', bg: 'blue.500' }}>
             {translate('yieldXYZ.myPosition')} ({myPositions.length})
@@ -425,7 +485,7 @@ const YieldsList = () => {
               </Box>
             )}
 
-            {!isLoading && connectedYields.length === 0 && (
+            {!isLoading && displayYields.length === 0 && (
               <Box textAlign='center' py={16}>
                 <Text color='text.subtle'>{translate('yieldXYZ.noYields')}</Text>
               </Box>
@@ -435,8 +495,12 @@ const YieldsList = () => {
           {/* My Positions Tab */}
           <TabPanel px={0}>
             <ViewToggle viewMode={viewMode} setViewMode={setViewMode} />
-
-            {isLoading || isLoadingBalances ? (
+            {!isConnected ? (
+              <ResultsEmptyNoWallet
+                title='yieldXYZ.connectWallet'
+                body='Connect a wallet to view your active yield positions.'
+              />
+            ) : isLoading || isLoadingBalances ? (
               <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={6}>
                 {Array.from({ length: 3 }).map((_, i) => (
                   <YieldCardSkeleton key={i} />

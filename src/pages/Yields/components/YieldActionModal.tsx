@@ -33,7 +33,30 @@ import { signAndBroadcast } from '@/lib/utils/evm'
 import { parseUnsignedTransaction, toChainAdapterTx } from '@/lib/yieldxyz/transaction'
 import type { ActionDto, AugmentedYieldDto, TransactionDto } from '@/lib/yieldxyz/types'
 import { TransactionStatus } from '@/lib/yieldxyz/types'
+import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { useEnterYield } from '@/react-queries/queries/yieldxyz/useEnterYield'
+
+const waitForTransactionConfirmation = async (adapter: any, txHash: string): Promise<void> => {
+  const pollInterval = 5000
+  const maxAttempts = 120 // 10 minutes
+
+  for (let i = 0; i < maxAttempts; i++) {
+    try {
+      if ('getTransactionStatus' in adapter) {
+        const status = await adapter.getTransactionStatus(txHash)
+        if (status === TxStatus.Confirmed) return
+        if (status === TxStatus.Failed) throw new Error('Transaction failed on-chain')
+      } else {
+        // Fallback or warning? For now return to avoid infinite loop on unsupported chains
+        return
+      }
+    } catch (e) {
+      // ignore fetching errors
+    }
+    await new Promise(resolve => setTimeout(resolve, pollInterval))
+  }
+  throw new Error('Transaction confirmation timed out')
+}
 import { useExitYield } from '@/react-queries/queries/yieldxyz/useExitYield'
 import { useSubmitYieldTransactionHash } from '@/react-queries/queries/yieldxyz/useSubmitYieldTransactionHash'
 import { selectPortfolioAccountMetadataByAccountId } from '@/state/slices/portfolioSlice/selectors'
@@ -86,6 +109,7 @@ export const YieldActionModal = ({
       originalTitle: string
       txHash?: string
       txUrl?: string
+      loadingMessage?: string
     }[]
   >([])
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -180,6 +204,14 @@ export const YieldActionModal = ({
         // Get Explorer URL
         const txUrl = feeAsset ? `${feeAsset.explorerTxLink}${txHash}` : ''
 
+        // Show "Confirming..." state
+        setTransactionSteps(prev =>
+          prev.map((s, idx) => (idx === i ? { ...s, txHash, txUrl, loadingMessage: 'Confirming...' } : s)),
+        )
+
+        // Wait for confirmation
+        await waitForTransactionConfirmation(adapter, txHash)
+
         // 3. Submit Hash
         await submitHashMutation.mutateAsync({
           transactionId: tx.id,
@@ -188,7 +220,7 @@ export const YieldActionModal = ({
 
         // Update step status to success AND save hash/url
         setTransactionSteps(prev =>
-          prev.map((s, idx) => (idx === i ? { ...s, status: 'success', txHash, txUrl } : s)),
+          prev.map((s, idx) => (idx === i ? { ...s, status: 'success', txHash, txUrl, loadingMessage: undefined } : s)),
         )
       } catch (error) {
         console.error('Transaction execution failed:', error)
@@ -444,8 +476,8 @@ export const YieldActionModal = ({
                 {s.status === 'success'
                   ? 'Done'
                   : s.status === 'loading'
-                  ? 'Sign now...'
-                  : 'Waiting'}
+                    ? 'Sign now...'
+                    : 'Waiting'}
               </Text>
             )}
           </Flex>
@@ -510,9 +542,10 @@ export const YieldActionModal = ({
         isDisabled={!canSubmit || isSubmitting}
         isLoading={isSubmitting}
         loadingText={
-          transactionSteps[activeStepIndex]?.status === 'loading'
+          transactionSteps[activeStepIndex]?.loadingMessage ??
+          (transactionSteps[activeStepIndex]?.status === 'loading'
             ? `Sign in Wallet`
-            : 'Preparing...'
+            : 'Preparing...')
         }
         _hover={{ transform: 'translateY(-2px)', boxShadow: 'lg' }}
         transition='all 0.2s'

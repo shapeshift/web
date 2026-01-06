@@ -37,6 +37,7 @@ import { useTranslate } from 'react-polyglot'
 import { Route, Routes, useNavigate } from 'react-router-dom'
 
 import { ChainIcon } from '@/components/ChainMenu'
+import { AssetIcon } from '@/components/AssetIcon'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { formatLargeNumber } from '@/lib/utils/formatters'

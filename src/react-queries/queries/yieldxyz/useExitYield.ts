@@ -10,7 +10,6 @@ export const useExitYield = () => {
       yieldxyzApi.exitYield(data.yieldId, data.address, data.arguments),
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['yieldxyz', 'balances', variables.yieldId] })
-      queryClient.invalidateQueries({ queryKey: ['yieldxyz', 'allBalances'] })
     },
   })
 }

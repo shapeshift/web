@@ -10,6 +10,7 @@ export const useSubmitYieldTransactionHash = () => {
       yieldxyzApi.submitTransactionHash(transactionId, hash),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['yieldxyz', 'balances'] })
+      queryClient.invalidateQueries({ queryKey: ['yieldxyz', 'allBalances'] })
     },
   })
 }

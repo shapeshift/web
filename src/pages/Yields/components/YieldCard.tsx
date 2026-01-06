@@ -123,19 +123,7 @@ export const YieldCard = ({ yield: yieldItem, onEnter, providerIcon }: YieldCard
               </StatNumber>
             </Stat>
 
-            {/* Reward breakdown pills */}
-            {yieldItem.rewardRate.components.length > 0 && (
-              <Flex gap={2} mt={3}>
-                {yieldItem.rewardRate.components.slice(0, 2).map((component, idx) => (
-                  <Flex key={idx} alignItems='center' gap={1}>
-                    <Box w={1.5} h={1.5} borderRadius='full' bg='green.400' />
-                    <Text fontSize='xs' color='text.subtle'>
-                      {bnOrZero(component.rate).times(100).toFixed(1)}% {component.yieldSource}
-                    </Text>
-                  </Flex>
-                ))}
-              </Flex>
-            )}
+            {/* Reward breakdown pills removed as per user request */}
           </Box>
 
           <Box textAlign='right'>

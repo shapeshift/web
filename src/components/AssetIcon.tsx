@@ -42,6 +42,8 @@ export type AssetIconProps = {
 type AssetWithNetworkProps = {
   asset: Asset
   showNetworkIcon?: boolean
+  networkIconSrc?: string
+  showNetworkBadge?: boolean
 } & AvatarProps
 
 const AssetWithNetwork: React.FC<AssetWithNetworkProps> = ({
@@ -49,11 +51,11 @@ const AssetWithNetwork: React.FC<AssetWithNetworkProps> = ({
   icon,
   src,
   showNetworkIcon = true,
+  networkIconSrc,
+  showNetworkBadge = false,
   size,
   ...rest
 }) => {
-  const feeAsset = useAppSelector(state => selectFeeAssetById(state, asset.assetId))
-  const showNetwork = Boolean(feeAsset?.networkIcon) || asset.assetId !== feeAsset?.assetId
   const iconSrc = src ?? asset.icon
   // We should only show the fallback if the asset doesn't have an icon/icons
   // Failure to check this means we would lose loading FOX icon functionality
@@ -61,8 +63,8 @@ const AssetWithNetwork: React.FC<AssetWithNetworkProps> = ({
 
   return (
     <Center>
-      <Center position={showNetwork && showNetworkIcon ? 'relative' : 'static'}>
-        {showNetwork && showNetworkIcon && (
+      <Center position={showNetworkBadge && showNetworkIcon ? 'relative' : 'static'}>
+        {showNetworkBadge && showNetworkIcon && (
           <LazyLoadAvatar
             position='absolute'
             left='-8%'
@@ -71,7 +73,7 @@ const AssetWithNetwork: React.FC<AssetWithNetworkProps> = ({
             transformOrigin='top left'
             icon={icon}
             fontSize='inherit'
-            src={feeAsset?.networkIcon ?? feeAsset?.icon}
+            src={networkIconSrc}
             size={size}
           />
         )}
@@ -81,7 +83,7 @@ const AssetWithNetwork: React.FC<AssetWithNetworkProps> = ({
           icon={icon}
           border={0}
           size={size}
-          clipPath={showNetwork && showNetworkIcon ? defaultClipPath : ''}
+          clipPath={showNetworkBadge && showNetworkIcon ? defaultClipPath : ''}
           {...rest}
         />
       </Center>
@@ -123,13 +125,19 @@ export const AssetIcon = memo(
       return <LazyLoadAvatar src={asset.networkIcon} bg={assetIconBg} icon={foxIcon} {...rest} />
     }
 
-    if (asset.icons?.length) {
-      const showNetwork = feeAsset?.networkIcon || asset.assetId !== feeAsset?.assetId
+    // Determine if we should show the network badge
+    // This logic was previously inside AssetWithNetwork but is now lifted here to share/ensure correctness
+    // fallback logic: if feeAsset is not found, we can't show badge safely, or we assume false?
+    // Using loose equality for compatibility if needed, but strict is better.
+    // Logic: Show badge if feeAsset has a network icon OR if asset is NOT the fee asset.
+    const showNetworkBadge = Boolean(feeAsset?.networkIcon) || asset.assetId !== feeAsset?.assetId
+    const networkIconSrc = feeAsset?.networkIcon ?? feeAsset?.icon
 
+    if (asset.icons?.length) {
       return (
         <Center>
-          <Center position={showNetwork && showNetworkIcon ? 'relative' : 'static'}>
-            {showNetwork && showNetworkIcon && (
+          <Center position={showNetworkBadge && showNetworkIcon ? 'relative' : 'static'}>
+            {showNetworkBadge && showNetworkIcon && (
               <LazyLoadAvatar
                 position='absolute'
                 left='-8%'
@@ -138,7 +146,7 @@ export const AssetIcon = memo(
                 transformOrigin='top left'
                 icon={foxIcon}
                 fontSize='inherit'
-                src={feeAsset?.networkIcon ?? feeAsset?.icon}
+                src={networkIconSrc}
                 size={rest.size}
                 zIndex={2}
               />
@@ -147,7 +155,7 @@ export const AssetIcon = memo(
               icons={asset.icons}
               iconSize={rest.size}
               iconBoxSize={rest.boxSize}
-              clipPath={showNetwork && showNetworkIcon ? pairIconsClipPath : ''}
+              clipPath={showNetworkBadge && showNetworkIcon ? pairIconsClipPath : ''}
               {...rest}
             />
           </Center>
@@ -156,7 +164,15 @@ export const AssetIcon = memo(
     }
 
     return (
-      <AssetWithNetwork asset={asset} icon={foxIcon} showNetworkIcon={showNetworkIcon} src={src} {...rest} />
+      <AssetWithNetwork
+        asset={asset}
+        icon={foxIcon}
+        showNetworkIcon={showNetworkIcon}
+        src={src}
+        networkIconSrc={networkIconSrc}
+        showNetworkBadge={showNetworkBadge}
+        {...rest}
+      />
     )
   },
 )

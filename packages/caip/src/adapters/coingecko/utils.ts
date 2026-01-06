@@ -320,7 +320,7 @@ export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
       [avalancheChainId]: { [avalancheAssetId]: 'avalanche-2' },
       [optimismChainId]: { [optimismAssetId]: 'ethereum' },
       [bscChainId]: { [bscAssetId]: 'binancecoin' },
-      [polygonChainId]: { [polygonAssetId]: 'matic-network' },
+      [polygonChainId]: { [polygonAssetId]: 'polygon-ecosystem-token' },
       [gnosisChainId]: { [gnosisAssetId]: 'xdai' },
       [arbitrumChainId]: { [arbitrumAssetId]: 'ethereum' },
       [arbitrumNovaChainId]: { [arbitrumNovaAssetId]: 'ethereum' },

@@ -93,6 +93,8 @@ export const augmentYield = (yieldDto: YieldDto): AugmentedYieldDto => {
       : undefined,
     rewardRate: augmentRewardRate(yieldDto.rewardRate, chainId),
     mechanics: augmentMechanics(yieldDto.mechanics, chainId),
+    tokens: yieldDto.tokens?.map(t => augmentYieldToken(t, chainId)) ?? [],
+    state: yieldDto.state,
   }
 }
 

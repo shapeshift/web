@@ -9,11 +9,6 @@
 // Enums (from API docs)
 // ============================================================================
 
-// ============================================================================
-// Augmented Types (ShapeShift-specific, derived from API types)
-// These types add CAIP-2 ChainId and CAIP-19 AssetId for ShapeShift integration
-// ============================================================================
-
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 
 export enum YieldNetwork {
@@ -196,6 +191,10 @@ export type YieldRewardRate = {
 export type YieldStatistics = {
   tvlUsd: string
   tvl: string
+  tvlRaw?: string
+  uniqueUsers?: number | null
+  averagePositionSizeUsd?: string | null
+  averagePositionSize?: string | null
 }
 
 export type YieldMetadata = {
@@ -205,6 +204,7 @@ export type YieldMetadata = {
   documentation?: string
   underMaintenance: boolean
   deprecated: boolean
+  supportedStandards?: string[]
 }
 
 export type YieldStatus = {
@@ -225,6 +225,13 @@ export type YieldMechanics = {
   gasFeeToken: YieldToken
   entryLimits: YieldEntryLimits
   arguments: YieldArguments
+  supportsLedgerWalletApi?: boolean
+  possibleFeeTakingMechanisms?: {
+    depositFee: boolean
+    managementFee: boolean
+    performanceFee: boolean
+    validatorRebates: boolean
+  }
 }
 
 export type YieldDto = {
@@ -241,6 +248,14 @@ export type YieldDto = {
   metadata: YieldMetadata
   mechanics: YieldMechanics
   tags: string[]
+  tokens: YieldToken[]
+  state?: {
+    capacityState?: {
+      current: string
+      max: string
+      remaining: string
+    }
+  }
 }
 
 export type YieldsResponse = {
@@ -263,6 +278,11 @@ export type NetworkDto = {
 }
 
 export type NetworksResponse = NetworkDto[]
+
+// ============================================================================
+// Augmented Types (ShapeShift-specific, derived from API types)
+// These types add CAIP-2 ChainId and CAIP-19 AssetId for ShapeShift integration
+// ============================================================================
 
 export type AugmentedYieldToken = YieldToken & {
   chainId: ChainId | undefined
@@ -287,7 +307,7 @@ export type AugmentedYieldBalance = Omit<YieldBalance, 'token'> & {
 
 export type AugmentedYieldDto = Omit<
   YieldDto,
-  'chainId' | 'token' | 'inputTokens' | 'outputToken' | 'rewardRate' | 'mechanics'
+  'chainId' | 'token' | 'inputTokens' | 'outputToken' | 'rewardRate' | 'mechanics' | 'tokens'
 > & {
   chainId: ChainId | undefined
   evmChainId: number | undefined
@@ -296,4 +316,5 @@ export type AugmentedYieldDto = Omit<
   outputToken: AugmentedYieldToken | undefined
   rewardRate: AugmentedYieldRewardRate
   mechanics: AugmentedYieldMechanics
+  tokens: AugmentedYieldToken[]
 }

@@ -2695,6 +2695,17 @@
     "claimable": "Claimable",
     "locked": "Locked",
     "enterDisabled": "Enter is currently disabled for this yield opportunity",
-    "exitDisabled": "Exit is currently disabled for this yield opportunity"
+    "exitDisabled": "Exit is currently disabled for this yield opportunity",
+    "type": "Type",
+    "protocol": "Protocol",
+    "inputToken": "Input Token",
+    "netApy": "Net APY",
+    "grossApy": "Gross APY",
+    "totalValue": "Total Value",
+    "myPosition": "My Positions",
+    "vault": "Vault",
+    "lending": "Lending",
+    "yourDeposits": "Your Deposits",
+    "positions": "Positions"
   }
 }

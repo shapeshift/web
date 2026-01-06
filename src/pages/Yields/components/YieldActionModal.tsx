@@ -118,7 +118,7 @@ export const YieldActionModal = ({
 
   const filterExecutableTransactions = (transactions: TransactionDto[]): TransactionDto[] =>
     transactions.filter(
-      tx => tx.status !== TransactionStatus.Skipped && tx.status !== TransactionStatus.Created,
+      tx => tx.status === TransactionStatus.Created,
     )
 
   const executeTransactionStep = async (actionDto: ActionDto) => {
@@ -435,8 +435,8 @@ export const YieldActionModal = ({
                 {s.status === 'success'
                   ? 'Done'
                   : s.status === 'loading'
-                  ? 'Sign now...'
-                  : 'Waiting'}
+                    ? 'Sign now...'
+                    : 'Waiting'}
               </Text>
             )}
           </Flex>

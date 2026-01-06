@@ -72,6 +72,7 @@ import { csp as metamask } from './wallets/metamask'
 import { csp as walletConnect } from './wallets/walletConnect'
 import { csp as walletMigration } from './wallets/walletMigration'
 import { csp as webflow } from './webflow'
+import { csp as yieldxyz } from './yieldxyz'
 
 export const csps = [
   base,
@@ -148,4 +149,5 @@ export const csps = [
   relay,
   railway,
   discord,
+  yieldxyz,
 ]

@@ -122,6 +122,9 @@ interface ImportMetaEnv {
   readonly VITE_TENDERLY_PROJECT_SLUG: string
   readonly VITE_TENDERLY_API_KEY: string
   readonly VITE_FEATURE_ADDRESS_BOOK: string
+  readonly VITE_FEATURE_YIELD_XYZ: string
+  readonly VITE_YIELD_XYZ_API_KEY: string
+  readonly VITE_YIELD_XYZ_BASE_URL: string
 
   // Unchained URLs and node URLs - present in all envs (prod, development, private)
   // even though they're not present in base env

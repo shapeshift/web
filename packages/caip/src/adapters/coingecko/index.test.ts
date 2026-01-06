@@ -315,7 +315,7 @@ describe('adapters:coingecko', () => {
         assetNamespace: 'slip44',
         assetReference: ASSET_REFERENCE.Polygon,
       })
-      expect(assetIdToCoingecko(assetId)).toEqual('matic-network')
+      expect(assetIdToCoingecko(assetId)).toEqual('polygon-ecosystem-token')
     })
     it('can get CoinGecko id for gnosis AssetId', () => {
       const chainNamespace = CHAIN_NAMESPACE.Evm

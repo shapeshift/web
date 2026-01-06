@@ -112,8 +112,14 @@ export const StepperStep = ({
         <VerticalDivider opacity={isLastStep ? 0 : 1} />
       </Flex>
 
-      <Flex alignItems='center' py={stepIndicatorVariant === 'innerSteps' ? 2 : 4} flex={1}>
-        <Box width='100%' flex={1}>
+      <Flex
+        alignItems='center'
+        py={stepIndicatorVariant === 'innerSteps' ? 2 : 4}
+        flex={1}
+        minWidth={0}
+        overflow='hidden'
+      >
+        <Box width='100%' flex={1} minWidth={0} overflow='hidden'>
           <StepTitle {...titleProps}>
             <SkeletonText noOfLines={1} skeletonHeight={6} isLoaded={!isLoading}>
               {title}

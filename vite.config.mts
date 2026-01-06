@@ -64,6 +64,51 @@ const defineGlobalThis: PluginOption = {
   },
 }
 
+const serveCompressedAssets: PluginOption = {
+  name: 'serve-compressed-assets',
+  configureServer(server) {
+    server.middlewares.use((req, res, next) => {
+      if (!req.url?.startsWith('/generated/') || !req.url?.includes('.json')) {
+        return next()
+      }
+
+      const acceptEncoding = req.headers['accept-encoding'] || ''
+      const urlWithoutQuery = req.url.split('?')[0]
+      const filePath = path.join(publicPath, urlWithoutQuery)
+
+      if (!filePath.startsWith(publicPath + path.sep)) {
+        return next()
+      }
+
+      const tryServeCompressed = (
+        encoding: string,
+        extension: string,
+        contentType: string,
+      ): boolean => {
+        const compressedPath = `${filePath}.${extension}`
+        if (fs.existsSync(compressedPath)) {
+          res.setHeader('Content-Type', contentType)
+          res.setHeader('Content-Encoding', encoding)
+          res.setHeader('Vary', 'Accept-Encoding')
+          fs.createReadStream(compressedPath).pipe(res)
+          return true
+        }
+        return false
+      }
+
+      if (acceptEncoding.includes('br') && tryServeCompressed('br', 'br', 'application/json')) {
+        return
+      }
+
+      if (acceptEncoding.includes('gzip') && tryServeCompressed('gzip', 'gz', 'application/json')) {
+        return
+      }
+
+      next()
+    })
+  },
+}
+
 // eslint-disable-next-line import/no-default-export
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '')
@@ -104,6 +149,7 @@ export default defineConfig(({ mode }) => {
           analyzerPort: 8888,
           openAnalyzer: true,
         }),
+      serveCompressedAssets,
     ],
     define: {
       ...Object.fromEntries(

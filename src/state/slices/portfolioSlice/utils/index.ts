@@ -20,6 +20,7 @@ import {
   isNft,
   ltcChainId,
   mayachainChainId,
+  megaethChainId,
   monadChainId,
   nearChainId,
   optimismChainId,
@@ -49,6 +50,7 @@ import {
   supportsGnosis,
   supportsHyperEvm,
   supportsMayachain,
+  supportsMegaEth,
   supportsMonad,
   supportsOptimism,
   supportsPlasma,
@@ -99,6 +101,7 @@ export const accountIdToLabel = (accountId: AccountId): string => {
     case arbitrumNovaChainId:
     case baseChainId:
     case hyperEvmChainId:
+    case megaethChainId:
     case monadChainId:
     case plasmaChainId:
     case thorchainChainId:
@@ -188,9 +191,14 @@ export const accountToPortfolio: AccountToPortfolio = ({ assetIds, portfolioAcco
         const accountId = toAccountId({ chainId, account: pubkey })
 
         portfolio.accounts.ids.push(accountId)
-        portfolio.accounts.byId[accountId] = { assetIds: [assetId], hasActivity }
+        portfolio.accounts.byId[accountId] = {
+          assetIds: [assetId],
+          hasActivity,
+        }
         portfolio.accountBalances.ids.push(accountId)
-        portfolio.accountBalances.byId[accountId] = { [assetId]: account.balance }
+        portfolio.accountBalances.byId[accountId] = {
+          [assetId]: account.balance,
+        }
 
         ethAccount.chainSpecific.tokens?.forEach(token => {
           // don't update portfolio if asset is not in the store except for nft assets,
@@ -216,7 +224,10 @@ export const accountToPortfolio: AccountToPortfolio = ({ assetIds, portfolioAcco
         const accountId = `${chainId}:${pubkey}`
 
         portfolio.accounts.ids.push(accountId)
-        portfolio.accounts.byId[accountId] = { assetIds: [assetId], hasActivity }
+        portfolio.accounts.byId[accountId] = {
+          assetIds: [assetId],
+          hasActivity,
+        }
         portfolio.accountBalances.ids.push(accountId)
         portfolio.accountBalances.byId[accountId] = { [assetId]: balance }
 
@@ -228,9 +239,14 @@ export const accountToPortfolio: AccountToPortfolio = ({ assetIds, portfolioAcco
         const accountId = toAccountId({ chainId, account: _xpubOrAccount })
 
         portfolio.accounts.ids.push(accountId)
-        portfolio.accounts.byId[accountId] = { assetIds: [assetId], hasActivity }
+        portfolio.accounts.byId[accountId] = {
+          assetIds: [assetId],
+          hasActivity,
+        }
         portfolio.accountBalances.ids.push(accountId)
-        portfolio.accountBalances.byId[accountId] = { [assetId]: account.balance }
+        portfolio.accountBalances.byId[accountId] = {
+          [assetId]: account.balance,
+        }
 
         cosmosAccount.chainSpecific.assets?.forEach(asset => {
           if (!assetIds.includes(asset.assetId)) return
@@ -249,9 +265,14 @@ export const accountToPortfolio: AccountToPortfolio = ({ assetIds, portfolioAcco
         const accountId = toAccountId({ chainId, account: pubkey })
 
         portfolio.accounts.ids.push(accountId)
-        portfolio.accounts.byId[accountId] = { assetIds: [assetId], hasActivity }
+        portfolio.accounts.byId[accountId] = {
+          assetIds: [assetId],
+          hasActivity,
+        }
         portfolio.accountBalances.ids.push(accountId)
-        portfolio.accountBalances.byId[accountId] = { [assetId]: account.balance }
+        portfolio.accountBalances.byId[accountId] = {
+          [assetId]: account.balance,
+        }
 
         solanaAccount.chainSpecific.tokens?.forEach(token => {
           // don't update portfolio if asset is not in the store
@@ -271,9 +292,14 @@ export const accountToPortfolio: AccountToPortfolio = ({ assetIds, portfolioAcco
         const accountId = toAccountId({ chainId, account: pubkey })
 
         portfolio.accounts.ids.push(accountId)
-        portfolio.accounts.byId[accountId] = { assetIds: [assetId], hasActivity }
+        portfolio.accounts.byId[accountId] = {
+          assetIds: [assetId],
+          hasActivity,
+        }
         portfolio.accountBalances.ids.push(accountId)
-        portfolio.accountBalances.byId[accountId] = { [assetId]: account.balance }
+        portfolio.accountBalances.byId[accountId] = {
+          [assetId]: account.balance,
+        }
 
         tronAccount.chainSpecific.tokens?.forEach(token => {
           // don't update portfolio if asset is not in the store
@@ -293,9 +319,14 @@ export const accountToPortfolio: AccountToPortfolio = ({ assetIds, portfolioAcco
         const accountId = toAccountId({ chainId, account: pubkey })
 
         portfolio.accounts.ids.push(accountId)
-        portfolio.accounts.byId[accountId] = { assetIds: [assetId], hasActivity }
+        portfolio.accounts.byId[accountId] = {
+          assetIds: [assetId],
+          hasActivity,
+        }
         portfolio.accountBalances.ids.push(accountId)
-        portfolio.accountBalances.byId[accountId] = { [assetId]: account.balance }
+        portfolio.accountBalances.byId[accountId] = {
+          [assetId]: account.balance,
+        }
 
         suiAccount.chainSpecific.tokens?.forEach(token => {
           // don't update portfolio if asset is not in the store
@@ -336,9 +367,14 @@ export const accountToPortfolio: AccountToPortfolio = ({ assetIds, portfolioAcco
         const accountId = toAccountId({ chainId, account: pubkey })
 
         portfolio.accounts.ids.push(accountId)
-        portfolio.accounts.byId[accountId] = { assetIds: [assetId], hasActivity }
+        portfolio.accounts.byId[accountId] = {
+          assetIds: [assetId],
+          hasActivity,
+        }
         portfolio.accountBalances.ids.push(accountId)
-        portfolio.accountBalances.byId[accountId] = { [assetId]: account.balance }
+        portfolio.accountBalances.byId[accountId] = {
+          [assetId]: account.balance,
+        }
 
         starknetAccount.chainSpecific.tokens?.forEach(token => {
           // don't update portfolio if asset is not in the store
@@ -489,6 +525,8 @@ export const isAssetSupportedByWallet = (assetId: AssetId, wallet: HDWallet): bo
       return supportsMonad(wallet)
     case hyperEvmChainId:
       return supportsHyperEvm(wallet)
+    case megaethChainId:
+      return supportsMegaEth(wallet)
     case plasmaChainId:
       return supportsPlasma(wallet)
     case tronChainId:
@@ -610,7 +648,11 @@ export const makeAssets = async ({
             // e.g "UniswapV2 ETH/FOX Pool"
             const assetSymbols =
               maybePortalsAsset.tokens?.map(token => {
-                const assetId = toAssetId({ chainId, assetNamespace, assetReference: token })
+                const assetId = toAssetId({
+                  chainId,
+                  assetNamespace,
+                  assetReference: token,
+                })
                 const asset = state.assets.byId[assetId]
 
                 if (!asset) return undefined
@@ -647,7 +689,9 @@ export const makeAssets = async ({
             }
 
             if (assetImages.length === 1) {
-              return { icon: maybeTokenImage(maybePortalsAsset.image || assetImages[0]) }
+              return {
+                icon: maybeTokenImage(maybePortalsAsset.image || assetImages[0]),
+              }
             }
 
             // This is a multiple assets pool, populate icons array
@@ -660,7 +704,11 @@ export const makeAssets = async ({
                   // However, this has to be an early return and we can't use our own flavour of that asset... because we have no idea which asset it is.
                   if (!token) return maybeTokenImage(image) || ''
 
-                  const assetId = toAssetId({ chainId, assetNamespace, assetReference: token })
+                  const assetId = toAssetId({
+                    chainId,
+                    assetNamespace,
+                    assetReference: token,
+                  })
                   const asset = state.assets.byId[assetId]
 
                   // Prioritise our own flavour of icons for that asset if available, else use upstream if present

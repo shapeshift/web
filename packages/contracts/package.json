@@ -37,7 +37,7 @@
     "ethers": "6.11.1",
     "ethers5": "npm:ethers@5.7.2",
     "lodash": "^4.17.21",
-    "viem": "^2.40.3"
+    "viem": "2.43.5"
   },
   "devDependencies": {
     "@types/lodash": "^4.14.178"

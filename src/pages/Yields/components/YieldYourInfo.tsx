@@ -16,13 +16,11 @@ import { fromAccountId } from '@shapeshiftoss/caip'
 import { useTranslate } from 'react-polyglot'
 
 import { bnOrZero } from '@/lib/bignumber/bignumber'
+import { formatLargeNumber } from '@/lib/utils/formatters'
 import type { AugmentedYieldBalance, AugmentedYieldDto } from '@/lib/yieldxyz/types'
 import { YieldBalanceType } from '@/lib/yieldxyz/types'
 import { useYieldBalances } from '@/react-queries/queries/yieldxyz/useYieldBalances'
-import {
-  selectFirstAccountIdByChainId,
-  selectPortfolioCryptoPrecisionBalanceByFilter,
-} from '@/state/slices/selectors'
+import { selectFirstAccountIdByChainId } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
 type YieldYourInfoProps = {
@@ -39,18 +37,6 @@ export const YieldYourInfo = ({ yieldItem }: YieldYourInfoProps) => {
     chainId ? selectFirstAccountIdByChainId(state, chainId) : undefined,
   )
   const address = accountId ? fromAccountId(accountId).account : undefined
-
-  const inputToken = yieldItem.inputTokens[0]
-  const inputTokenAssetId = inputToken?.assetId
-
-  const inputTokenBalance = useAppSelector(state =>
-    inputTokenAssetId && accountId
-      ? selectPortfolioCryptoPrecisionBalanceByFilter(state, {
-          assetId: inputTokenAssetId,
-          accountId,
-        })
-      : '0',
-  )
 
   const {
     data: balances,
@@ -76,12 +62,12 @@ export const YieldYourInfo = ({ yieldItem }: YieldYourInfoProps) => {
 
   const formatBalance = (balance: AugmentedYieldBalance | undefined) => {
     if (!balance) return '0'
-    return `${bnOrZero(balance.amount).toFixed(6)} ${balance.token.symbol}`
+    return `${formatLargeNumber(bnOrZero(balance.amount).toNumber())} ${balance.token.symbol}`
   }
 
   const formatUsd = (balance: AugmentedYieldBalance | undefined) => {
     if (!balance) return '$0.00'
-    return `$${bnOrZero(balance.amountUsd).toFixed(2)}`
+    return formatLargeNumber(bnOrZero(balance.amountUsd).toNumber(), '$')
   }
 
   const hasActivePosition = activeBalance && bnOrZero(activeBalance.amount).gt(0)

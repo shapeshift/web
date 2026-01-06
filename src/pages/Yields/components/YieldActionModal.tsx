@@ -26,12 +26,13 @@ import { useTranslate } from 'react-polyglot'
 
 import { MiddleEllipsis } from '@/components/MiddleEllipsis/MiddleEllipsis'
 import { useWallet } from '@/hooks/useWallet/useWallet'
-import { makeBlockiesUrl } from '@/lib/blockies/makeBlockiesUrl'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
+import { makeBlockiesUrl } from '@/lib/blockies/makeBlockiesUrl'
 import { assertGetChainAdapter } from '@/lib/utils'
 import { signAndBroadcast } from '@/lib/utils/evm'
 import { parseUnsignedTransaction, toChainAdapterTx } from '@/lib/yieldxyz/transaction'
-import type { ActionDto, AugmentedYieldDto } from '@/lib/yieldxyz/types'
+import type { ActionDto, AugmentedYieldDto, TransactionDto } from '@/lib/yieldxyz/types'
+import { TransactionStatus } from '@/lib/yieldxyz/types'
 import { useEnterYield } from '@/react-queries/queries/yieldxyz/useEnterYield'
 import { useExitYield } from '@/react-queries/queries/yieldxyz/useExitYield'
 import { useSubmitYieldTransactionHash } from '@/react-queries/queries/yieldxyz/useSubmitYieldTransactionHash'
@@ -103,7 +104,7 @@ export const YieldActionModal = ({
   )
 
   const userAddress = accountId ? fromAccountId(accountId).account : ''
-  const walletAvatarUrl = makeBlockiesUrl(userAddress)
+  const walletAvatarUrl = userAddress ? makeBlockiesUrl(userAddress) : ''
 
   const canSubmit = Boolean(wallet && accountId && yieldChainId && bnOrZero(amount).gt(0))
 
@@ -115,17 +116,25 @@ export const YieldActionModal = ({
     onClose()
   }
 
+  const filterExecutableTransactions = (transactions: TransactionDto[]): TransactionDto[] =>
+    transactions.filter(
+      tx => tx.status !== TransactionStatus.Skipped && tx.status !== TransactionStatus.Created,
+    )
+
   const executeTransactionStep = async (actionDto: ActionDto) => {
     if (!wallet || !accountId) throw new Error('Wallet not connected')
     if (!yieldChainId) throw new Error('Unsupported yield network')
 
     const adapter = assertGetChainAdapter(yieldChainId)
-    // const userAddress = fromAccountId(accountId).account // Already defined at component scope
 
-    // We process transactions sequentially
-    const transactions = actionDto.transactions
+    const transactions = filterExecutableTransactions(actionDto.transactions)
 
-    // Initialize UI steps
+    if (transactions.length === 0) {
+      setStep(ModalStep.Success)
+      setIsSubmitting(false)
+      return
+    }
+
     setTransactionSteps(
       transactions.map((tx, i) => ({
         title: formatTxTitle(tx.title || `Transaction ${i + 1}`, assetSymbol),
@@ -309,9 +318,23 @@ export const YieldActionModal = ({
         </VStack>
 
         {/* Animated Direction Flow */}
-        <Box position='relative' flex={1} h='50px' display='flex' alignItems='center' justifyContent='center'>
+        <Box
+          position='relative'
+          flex={1}
+          h='50px'
+          display='flex'
+          alignItems='center'
+          justifyContent='center'
+        >
           {/* Base Line */}
-          <Box position='absolute' left={0} right={0} h='2px' bg='whiteAlpha.100' borderRadius='full' />
+          <Box
+            position='absolute'
+            left={0}
+            right={0}
+            h='2px'
+            bg='whiteAlpha.100'
+            borderRadius='full'
+          />
 
           {/* Flowing Dots - Repeating pattern for smoother infinite scroll */}
           <Box
@@ -324,8 +347,10 @@ export const YieldActionModal = ({
             backgroundSize='14px 100%'
             animation={`${horizontalScroll} 3s infinite linear`}
             style={{
-              maskImage: 'linear-gradient(to right, transparent, black 20%, black 80%, transparent)',
-              WebkitMaskImage: 'linear-gradient(to right, transparent, black 20%, black 80%, transparent)',
+              maskImage:
+                'linear-gradient(to right, transparent, black 20%, black 80%, transparent)',
+              WebkitMaskImage:
+                'linear-gradient(to right, transparent, black 20%, black 80%, transparent)',
             }}
           />
         </Box>
@@ -352,7 +377,9 @@ export const YieldActionModal = ({
               }
             />
           </Box>
-          <Text fontSize='sm' color='gray.300' fontWeight='bold'>Vault</Text>
+          <Text fontSize='sm' color='gray.300' fontWeight='bold'>
+            Vault
+          </Text>
         </VStack>
       </Flex>
 
@@ -408,8 +435,8 @@ export const YieldActionModal = ({
                 {s.status === 'success'
                   ? 'Done'
                   : s.status === 'loading'
-                    ? 'Sign now...'
-                    : 'Waiting'}
+                  ? 'Sign now...'
+                  : 'Waiting'}
               </Text>
             )}
           </Flex>

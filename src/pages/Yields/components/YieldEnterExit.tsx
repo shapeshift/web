@@ -84,20 +84,21 @@ export const YieldEnterExit = ({ yieldItem }: YieldEnterExitProps) => {
       const percentAmount = parseFloat(balance) * percent
       setCryptoAmount(percentAmount.toString())
     },
-    [inputTokenBalance, withdrawableBalance, tabIndex],
+    [inputTokenBalance, exitBalance, tabIndex],
   )
 
   const handleMaxClick = useCallback(async () => {
+    await Promise.resolve()
     const balance = tabIndex === 0 ? inputTokenBalance : exitBalance
     setCryptoAmount(balance)
-  }, [inputTokenBalance, withdrawableBalance, tabIndex])
+  }, [inputTokenBalance, exitBalance, tabIndex])
 
-  const handleEnterClick = useCallback(async () => {
+  const handleEnterClick = useCallback(() => {
     setModalAction('enter')
     setIsModalOpen(true)
   }, [])
 
-  const handleExitClick = useCallback(async () => {
+  const handleExitClick = useCallback(() => {
     setModalAction('exit')
     setIsModalOpen(true)
   }, [])

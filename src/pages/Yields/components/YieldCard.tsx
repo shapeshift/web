@@ -1,7 +1,6 @@
 import {
   Badge,
   Box,
-  Button,
   Card,
   CardBody,
   Flex,
@@ -15,11 +14,12 @@ import {
 import { useTranslate } from 'react-polyglot'
 
 import { bnOrZero } from '@/lib/bignumber/bignumber'
-import type { YieldDto } from '@/lib/yieldxyz/types'
+import { formatLargeNumber } from '@/lib/utils/formatters'
+import type { AugmentedYieldDto } from '@/lib/yieldxyz/types'
 
 interface YieldCardProps {
-  yield: YieldDto
-  onEnter?: (yieldItem: YieldDto) => void
+  yield: AugmentedYieldDto
+  onEnter?: (yieldItem: AugmentedYieldDto) => void
   isLoading?: boolean
 }
 
@@ -31,14 +31,6 @@ export const YieldCard = ({ yield: yieldItem, onEnter }: YieldCardProps) => {
 
   const apy = bnOrZero(yieldItem.rewardRate.total).times(100).toNumber()
   const apyLabel = yieldItem.rewardRate.rateType
-
-  const formatTvl = (tvlUsd: string) => {
-    const value = bnOrZero(tvlUsd).toNumber()
-    if (value >= 1000000000) return `$${bnOrZero(value).div(1000000000).toFixed(1)}B`
-    if (value >= 1000000) return `$${bnOrZero(value).div(1000000).toFixed(1)}M`
-    if (value >= 1000) return `$${bnOrZero(value).div(1000).toFixed(1)}k`
-    return `$${bnOrZero(value).toFixed(0)}`
-  }
 
   const handleClick = () => {
     if (yieldItem.status.enter) {
@@ -153,7 +145,7 @@ export const YieldCard = ({ yield: yieldItem, onEnter }: YieldCardProps) => {
               TVL
             </Text>
             <Text fontWeight='semibold' fontSize='md'>
-              {formatTvl(yieldItem.statistics?.tvlUsd ?? '0')}
+              {formatLargeNumber(yieldItem.statistics?.tvlUsd ?? '0', '$')}
             </Text>
           </Box>
         </Flex>
@@ -176,28 +168,6 @@ export const YieldCard = ({ yield: yieldItem, onEnter }: YieldCardProps) => {
             ))}
           </Flex>
         </Flex>
-
-        <Button
-          mt={5}
-          width='full'
-          colorScheme='blue'
-          size='md'
-          height='48px'
-          fontSize='sm'
-          fontWeight='bold'
-          borderRadius='lg'
-          isDisabled={!yieldItem.status.enter}
-          onClick={e => {
-            e.stopPropagation()
-            onEnter?.(yieldItem)
-          }}
-          _hover={{
-            transform: 'translateY(-1px)',
-            boxShadow: 'md',
-          }}
-        >
-          {translate('yieldXYZ.enter')}
-        </Button>
       </CardBody>
     </Card>
   )

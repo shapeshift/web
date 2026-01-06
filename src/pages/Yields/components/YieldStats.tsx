@@ -5,6 +5,7 @@ import {
   Divider,
   Flex,
   Heading,
+  Icon,
   Stat,
   StatLabel,
   StatNumber,
@@ -12,13 +13,15 @@ import {
   Tooltip,
   useColorModeValue,
 } from '@chakra-ui/react'
+import { FaClock, FaGasPump, FaLayerGroup, FaMoneyBillWave } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 
 import { bnOrZero } from '@/lib/bignumber/bignumber'
-import type { YieldDto } from '@/lib/yieldxyz/types'
+import { formatLargeNumber } from '@/lib/utils/formatters'
+import type { AugmentedYieldDto } from '@/lib/yieldxyz/types'
 
 interface YieldStatsProps {
-  yieldItem: YieldDto
+  yieldItem: AugmentedYieldDto
 }
 
 export const YieldStats = ({ yieldItem }: YieldStatsProps) => {
@@ -29,13 +32,6 @@ export const YieldStats = ({ yieldItem }: YieldStatsProps) => {
   const tvlUsd = bnOrZero(yieldItem.statistics?.tvlUsd).toNumber()
   const tvl = bnOrZero(yieldItem.statistics?.tvl).toNumber()
   const apy = bnOrZero(yieldItem.rewardRate.total).times(100).toNumber()
-
-  const formatTvl = (value: number) => {
-    if (value >= 1000000000) return `$${(value / 1000000000).toFixed(2)}B`
-    if (value >= 1000000) return `$${(value / 1000000).toFixed(2)}M`
-    if (value >= 1000) return `$${(value / 1000).toFixed(2)}K`
-    return `$${value.toFixed(2)}`
-  }
 
   return (
     <Card bg={cardBg} borderRadius='xl' shadow='sm' border='1px solid' borderColor={borderColor}>
@@ -101,10 +97,10 @@ export const YieldStats = ({ yieldItem }: YieldStatsProps) => {
               {translate('yieldXYZ.tvl')}
             </StatLabel>
             <StatNumber fontSize='xl' fontWeight='bold'>
-              {formatTvl(tvlUsd)}
+              {formatLargeNumber(tvlUsd, '$')}
             </StatNumber>
             <Text fontSize='xs' color='text.subtle' mt={1}>
-              {tvl.toLocaleString(undefined, { maximumFractionDigits: 4 })} {yieldItem.token.symbol}
+              {formatLargeNumber(tvl)} {yieldItem.token.symbol}
             </Text>
           </Stat>
 
@@ -120,36 +116,40 @@ export const YieldStats = ({ yieldItem }: YieldStatsProps) => {
             >
               {translate('yieldXYZ.mechanics')}
             </Text>
-            <Flex direction='column' gap={3}>
-              <Flex justifyContent='space-between'>
-                <Text fontSize='sm' color='text.subtle'>
-                  {translate('yieldXYZ.type')}
-                </Text>
+            <Flex direction='column' gap={4}>
+              <Flex justifyContent='space-between' alignItems='center'>
+                <Flex alignItems='center' gap={2} color='text.subtle'>
+                  <Icon as={FaLayerGroup} />
+                  <Text fontSize='sm'>{translate('yieldXYZ.type')}</Text>
+                </Flex>
                 <Text fontSize='sm' fontWeight='medium' textTransform='capitalize'>
                   {yieldItem.mechanics.type}
                 </Text>
               </Flex>
-              <Flex justifyContent='space-between'>
-                <Text fontSize='sm' color='text.subtle'>
-                  {translate('yieldXYZ.rewardSchedule')}
-                </Text>
+              <Flex justifyContent='space-between' alignItems='center'>
+                <Flex alignItems='center' gap={2} color='text.subtle'>
+                  <Icon as={FaClock} />
+                  <Text fontSize='sm'>{translate('yieldXYZ.rewardSchedule')}</Text>
+                </Flex>
                 <Text fontSize='sm' fontWeight='medium' textTransform='capitalize'>
                   {yieldItem.mechanics.rewardSchedule}
                 </Text>
               </Flex>
-              <Flex justifyContent='space-between'>
-                <Text fontSize='sm' color='text.subtle'>
-                  {translate('yieldXYZ.gasToken')}
-                </Text>
+              <Flex justifyContent='space-between' alignItems='center'>
+                <Flex alignItems='center' gap={2} color='text.subtle'>
+                  <Icon as={FaGasPump} />
+                  <Text fontSize='sm'>{translate('yieldXYZ.gasToken')}</Text>
+                </Flex>
                 <Text fontSize='sm' fontWeight='medium'>
                   {yieldItem.mechanics.gasFeeToken.symbol}
                 </Text>
               </Flex>
               {yieldItem.mechanics.entryLimits.minimum && (
-                <Flex justifyContent='space-between'>
-                  <Text fontSize='sm' color='text.subtle'>
-                    {translate('yieldXYZ.minDeposit')}
-                  </Text>
+                <Flex justifyContent='space-between' alignItems='center'>
+                  <Flex alignItems='center' gap={2} color='text.subtle'>
+                    <Icon as={FaMoneyBillWave} />
+                    <Text fontSize='sm'>{translate('yieldXYZ.minDeposit')}</Text>
+                  </Flex>
                   <Text fontSize='sm' fontWeight='medium'>
                     {bnOrZero(yieldItem.mechanics.entryLimits.minimum).toNumber()}{' '}
                     {yieldItem.token.symbol}

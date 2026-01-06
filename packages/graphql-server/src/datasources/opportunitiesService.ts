@@ -1125,18 +1125,74 @@ export async function getUserStakingData(
   requests: UserStakingDataRequest[],
 ): Promise<UserStakingDataResult[]> {
   console.log(`[Opportunities.userStakingData] Fetching data for ${requests.length} accounts`)
-  console.log(
-    `[Opportunities.userStakingData] Request details:`,
-    requests.map(r => ({
-      accountId: r.accountId,
-      opportunityIdsCount: r.opportunityIds.length,
-      opportunityIdsSample: r.opportunityIds.slice(0, 5),
-    })),
-  )
 
   const results = await Promise.all(
     requests.map(async req => {
-      const opportunityPromises = req.opportunityIds.map(async opportunityId => {
+      // Filter opportunityIds to only those matching the account's chain
+      // This prevents incompatible combinations like Bitcoin account + Ethereum opportunities
+      const accountChainId = (() => {
+        try {
+          return fromAccountId(req.accountId).chainId
+        } catch {
+          // Handle malformed accountIds by parsing directly
+          const parts = req.accountId.split(':')
+          if (parts.length >= 2) {
+            // Handle malformed THORChain accountIds: thorchain:thorchain:address
+            // These should match cosmos:thorchain-1 opportunityIds
+            if (parts[0] === 'thorchain' && parts[1] === 'thorchain') {
+              return 'cosmos:thorchain-1'
+            }
+            return `${parts[0]}:${parts[1]}`
+          }
+          return null
+        }
+      })()
+
+      // Filter opportunityIds to only those matching the account's chain
+      const filteredOpportunityIds = accountChainId
+        ? req.opportunityIds.filter(opportunityId => {
+            try {
+              // Try to extract chainId from opportunityId (may be assetId or accountId format)
+              const opportunityChainId = (() => {
+                try {
+                  return fromAssetId(opportunityId).chainId
+                } catch {
+                  try {
+                    return fromAccountId(opportunityId).chainId
+                  } catch {
+                    return null
+                  }
+                }
+              })()
+              return opportunityChainId === accountChainId
+            } catch {
+              return false
+            }
+          })
+        : req.opportunityIds // If we can't determine account chain, return all (defer to individual fetchers)
+
+      if (filteredOpportunityIds.length === 0) {
+        console.log(
+          `[Opportunities.userStakingData] No matching opportunities for account ${req.accountId.slice(
+            0,
+            30,
+          )}... (chain: ${accountChainId})`,
+        )
+        return {
+          accountId: req.accountId,
+          opportunities: [],
+        }
+      }
+
+      if (filteredOpportunityIds.length !== req.opportunityIds.length) {
+        console.log(
+          `[Opportunities.userStakingData] Filtered ${
+            req.opportunityIds.length - filteredOpportunityIds.length
+          } incompatible opportunityIds for account ${req.accountId.slice(0, 30)}...`,
+        )
+      }
+
+      const opportunityPromises = filteredOpportunityIds.map(async opportunityId => {
         const provider = identifyProvider(opportunityId)
 
         console.log(`[Opportunities.userStakingData] Processing opportunity:`, {

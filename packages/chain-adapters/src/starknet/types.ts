@@ -13,6 +13,14 @@ export type Token = types.AssetBalance & {
   precision: number
 }
 
+export type TokenInfo = {
+  assetId: AssetId
+  contractAddress: string
+  symbol: string
+  name: string
+  precision: number
+}
+
 export type BuildTxInput = {
   maxFee?: string
   tokenContractAddress?: string
@@ -66,6 +74,11 @@ export type StarknetTxDetails = {
     l1_data_gas: { max_amount: bigint; max_price_per_unit: bigint }
   }
   chainId: string
+  nonceDataAvailabilityMode: 0 | 1
+  feeDataAvailabilityMode: 0 | 1
+  tip: string
+  paymasterData: string[]
+  accountDeploymentData: string[]
 }
 
 export type SignTxWithDetails = types.SignTx<KnownChainIds.StarknetMainnet> & {

@@ -97,6 +97,7 @@ export enum SwapperName {
   NearIntents = 'NEAR Intents',
   Cetus = 'Cetus',
   Sunio = 'Sun.io',
+  Avnu = 'AVNU',
 }
 
 export type SwapSource = SwapperName | `${SwapperName} • ${string}`
@@ -425,6 +426,10 @@ export type TradeQuoteStep = {
       poolVersions: string[]
       stepAmountsOut: string[]
     }
+  }
+  avnuSpecific?: {
+    quoteId: string
+    routes: any[]
   }
 }
 

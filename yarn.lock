@@ -95,6 +95,21 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@avnu/avnu-sdk@npm:^4.0.1":
+  version: 4.0.1
+  resolution: "@avnu/avnu-sdk@npm:4.0.1"
+  dependencies:
+    dayjs: ^1.11.19
+    moment: ^2.30.1
+    qs: ^6.14.0
+    zod: ^4.2.1
+  peerDependencies:
+    ethers: ^6.15.0
+    starknet: ^8.9.1
+  checksum: 77024a458cafe350dfe75cf0d92d8bfbe51855c6baf435f4a63c46e1eaf93f5db06b784dc0a1cb0e9113b8719fd656b66a11ab2ad558fd9092e40c7b66ba1576
+  languageName: node
+  linkType: hard
+
 "@babel/cli@npm:^7.21.0":
   version: 7.22.9
   resolution: "@babel/cli@npm:7.22.9"
@@ -11951,6 +11966,7 @@ __metadata:
   resolution: "@shapeshiftoss/swapper@workspace:packages/swapper"
   dependencies:
     "@arbitrum/sdk": ^4.0.1
+    "@avnu/avnu-sdk": ^4.0.1
     "@coral-xyz/anchor": 0.29.0
     "@cowprotocol/app-data": ^2.3.0
     "@defuse-protocol/one-click-sdk-typescript": ^0.1.1-0.2
@@ -20791,6 +20807,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"dayjs@npm:^1.11.19":
+  version: 1.11.19
+  resolution: "dayjs@npm:1.11.19"
+  checksum: dfafcca2c67cc6e542fd880d77f1d91667efd323edc28f0487b470b184a11cc97696163ed5be1142ea2a031045b27a0d0555e72f60a63275e0e0401ac24bea5d
+  languageName: node
+  linkType: hard
+
 "dayjs@npm:^1.11.3":
   version: 1.11.7
   resolution: "dayjs@npm:1.11.7"
@@ -28210,6 +28233,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"moment@npm:^2.30.1":
+  version: 2.30.1
+  resolution: "moment@npm:2.30.1"
+  checksum: 859236bab1e88c3e5802afcf797fc801acdbd0ee509d34ea3df6eea21eb6bcc2abd4ae4e4e64aa7c986aa6cba563c6e62806218e6412a765010712e5fa121ba6
+  languageName: node
+  linkType: hard
+
 "monero-regex@npm:^1.0.8":
   version: 1.0.9
   resolution: "monero-regex@npm:1.0.9"
@@ -30474,7 +30504,7 @@ pvutils@latest:
   languageName: node
   linkType: hard
 
-"qs@npm:^6.14.1":
+"qs@npm:^6.14.0, qs@npm:^6.14.1":
   version: 6.14.1
   resolution: "qs@npm:6.14.1"
   dependencies:
@@ -36967,6 +36997,13 @@ pvutils@latest:
   version: 3.25.76
   resolution: "zod@npm:3.25.76"
   checksum: c9a403a62b329188a5f6bd24d5d935d2bba345f7ab8151d1baa1505b5da9f227fb139354b043711490c798e91f3df75991395e40142e6510a4b16409f302b849
+  languageName: node
+  linkType: hard
+
+"zod@npm:^4.2.1":
+  version: 4.2.1
+  resolution: "zod@npm:4.2.1"
+  checksum: 7ef4a6507713fb62e7659513f18e75819a602269a9f252296054224ef121c7b94cbe9806e0d5a76ef070949e771eee5b8d9710c9954ee0743621c4f0cbc9d673
   languageName: node
   linkType: hard
 

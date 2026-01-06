@@ -264,8 +264,19 @@ export const getTradeQuote = async (
 
         case CHAIN_NAMESPACE.Starknet: {
           const sellAdapter = deps.assertGetStarknetChainAdapter(sellAsset.chainId)
+          const tokenContractAddress = isToken(sellAsset.assetId)
+            ? fromAssetId(sellAsset.assetId).assetReference
+            : undefined
 
-          const feeData = await sellAdapter.getFeeData()
+          const feeData = await sellAdapter.getFeeData({
+            to: depositAddress,
+            value: sellAmount,
+            chainSpecific: {
+              from,
+              tokenContractAddress,
+            },
+            sendMax: false,
+          })
 
           return { networkFeeCryptoBaseUnit: feeData.fast.txFee }
         }

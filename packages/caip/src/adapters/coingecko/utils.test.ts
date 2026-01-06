@@ -193,6 +193,9 @@ describe('adapters:coingecko:utils', () => {
         'tron:0x2b6653dc': {
           'tron:0x2b6653dc/slip44:195': 'tron',
         },
+        'starknet:SN_MAIN': {
+          'starknet:SN_MAIN/slip44:9004': 'starknet',
+        },
       }
       expect(result).toEqual(expected)
     })

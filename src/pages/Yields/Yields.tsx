@@ -49,6 +49,7 @@ import { useTranslate } from 'react-polyglot'
 import { Route, Routes, useNavigate, useSearchParams } from 'react-router-dom'
 
 import { AssetIcon } from '@/components/AssetIcon'
+import { ChainIcon } from '@/components/ChainMenu'
 import { ResultsEmptyNoWallet } from '@/components/ResultsEmptyNoWallet'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bnOrZero } from '@/lib/bignumber/bignumber'

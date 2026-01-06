@@ -266,6 +266,25 @@ export type YieldsResponse = {
 }
 
 // ============================================================================
+// Provider Types
+// ============================================================================
+
+export type ProviderDto = {
+  id: string
+  name: string
+  logoURI: string
+  description?: string
+  documentation?: string
+}
+
+export type ProvidersResponse = {
+  items: ProviderDto[]
+  total: number
+  offset: number
+  limit: number
+}
+
+// ============================================================================
 // Network Types
 // ============================================================================
 

@@ -6,7 +6,6 @@ import {
   Flex,
   Heading,
   Icon,
-  Image,
   Link,
   Modal,
   ModalBody,
@@ -20,6 +19,7 @@ import {
 } from '@chakra-ui/react'
 import { keyframes } from '@emotion/react'
 import { fromAccountId } from '@shapeshiftoss/caip'
+import { toAddressNList } from '@shapeshiftoss/chain-adapters'
 import { useState } from 'react'
 import { FaCheck, FaExternalLinkAlt, FaWallet } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
@@ -36,6 +36,7 @@ import { TransactionStatus } from '@/lib/yieldxyz/types'
 import { useEnterYield } from '@/react-queries/queries/yieldxyz/useEnterYield'
 import { useExitYield } from '@/react-queries/queries/yieldxyz/useExitYield'
 import { useSubmitYieldTransactionHash } from '@/react-queries/queries/yieldxyz/useSubmitYieldTransactionHash'
+import { selectPortfolioAccountMetadataByAccountId } from '@/state/slices/portfolioSlice/selectors'
 import { selectFeeAssetByChainId, selectFirstAccountIdByChainId } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
@@ -102,6 +103,9 @@ export const YieldActionModal = ({
   const feeAsset = useAppSelector(state =>
     yieldChainId ? selectFeeAssetByChainId(state, yieldChainId) : undefined,
   )
+  const accountMetadata = useAppSelector(state =>
+    accountId ? selectPortfolioAccountMetadataByAccountId(state, { accountId }) : undefined,
+  )
 
   const userAddress = accountId ? fromAccountId(accountId).account : ''
   const walletAvatarUrl = userAddress ? makeBlockiesUrl(userAddress) : ''
@@ -117,9 +121,7 @@ export const YieldActionModal = ({
   }
 
   const filterExecutableTransactions = (transactions: TransactionDto[]): TransactionDto[] =>
-    transactions.filter(
-      tx => tx.status === TransactionStatus.Created,
-    )
+    transactions.filter(tx => tx.status === TransactionStatus.Created)
 
   const executeTransactionStep = async (actionDto: ActionDto) => {
     if (!wallet || !accountId) throw new Error('Wallet not connected')
@@ -157,10 +159,17 @@ export const YieldActionModal = ({
         const parsed = parseUnsignedTransaction(tx)
         const chainAdapterTx = toChainAdapterTx(parsed)
 
-        // 2. Sign and Broadcast
+        // 2. Build addressNList from account metadata for native wallet signing
+        const addressNList = accountMetadata?.bip44Params
+          ? toAddressNList(adapter.getBip44Params(accountMetadata.bip44Params))
+          : undefined
+
+        if (!addressNList) throw new Error('Failed to get address derivation path')
+
+        // 3. Sign and Broadcast
         const txHash = await signAndBroadcast({
           adapter: adapter as any, // Type cast for EVM adapter
-          txToSign: chainAdapterTx as any, // Type cast for adapter input
+          txToSign: { ...chainAdapterTx, addressNList } as any, // Type cast for adapter input
           wallet,
           senderAddress: userAddress,
           receiverAddress: chainAdapterTx.to,
@@ -366,12 +375,12 @@ export const YieldActionModal = ({
             borderColor='blue.500'
             boxShadow='0 0 25px rgba(66, 153, 225, 0.2)'
           >
-            <Image
+            <Avatar
               src={yieldItem.metadata.logoURI}
-              boxSize={12}
-              borderRadius='full'
-              fallback={
-                <Box p={3} bg='purple.500' borderRadius='full'>
+              size='md'
+              name={yieldItem.metadata.name}
+              icon={
+                <Box p={2}>
                   <Icon as={FaCheck} color='white' />
                 </Box>
               }
@@ -435,8 +444,8 @@ export const YieldActionModal = ({
                 {s.status === 'success'
                   ? 'Done'
                   : s.status === 'loading'
-                    ? 'Sign now...'
-                    : 'Waiting'}
+                  ? 'Sign now...'
+                  : 'Waiting'}
               </Text>
             )}
           </Flex>

@@ -1,3 +1,4 @@
+import { AssetIcon } from '@/components/AssetIcon'
 import {
   Badge,
   Box,
@@ -21,9 +22,10 @@ interface YieldCardProps {
   yield: AugmentedYieldDto
   onEnter?: (yieldItem: AugmentedYieldDto) => void
   isLoading?: boolean
+  providerIcon?: string
 }
 
-export const YieldCard = ({ yield: yieldItem, onEnter }: YieldCardProps) => {
+export const YieldCard = ({ yield: yieldItem, onEnter, providerIcon }: YieldCardProps) => {
   const translate = useTranslate()
   const borderColor = useColorModeValue('gray.100', 'gray.750')
   const cardBg = useColorModeValue('white', 'gray.800')
@@ -64,14 +66,11 @@ export const YieldCard = ({ yield: yieldItem, onEnter }: YieldCardProps) => {
         {/* Header: Icon + Name */}
         <Flex justifyContent='space-between' alignItems='flex-start' mb={6}>
           <Flex alignItems='center' gap={4}>
-            <Box
-              w={12}
-              h={12}
-              borderRadius='full'
-              bg='gray.700'
-              backgroundImage={`url(${yieldItem.metadata.logoURI})`}
-              backgroundSize='cover'
-              backgroundPosition='center'
+            <AssetIcon
+              src={yieldItem.metadata.logoURI}
+              assetId={yieldItem.token.assetId}
+              showNetworkIcon
+              size='md'
               boxShadow='md'
               borderWidth='1px'
               borderColor={borderColor}
@@ -88,17 +87,16 @@ export const YieldCard = ({ yield: yieldItem, onEnter }: YieldCardProps) => {
                 {yieldItem.metadata.name}
               </Text>
               <Flex alignItems='center' gap={2}>
-                <Badge
-                  colorScheme='gray'
-                  variant='solid'
-                  bg='gray.700'
-                  color='gray.200'
-                  fontSize='xs'
-                  borderRadius='md'
-                  px={1.5}
-                >
-                  {yieldItem.network}
-                </Badge>
+                {providerIcon && (
+                  <Box
+                    as='img'
+                    src={providerIcon}
+                    w={4}
+                    h={4}
+                    borderRadius='full'
+                    title={yieldItem.providerId}
+                  />
+                )}
                 <Text fontSize='xs' color='text.subtle' textTransform='capitalize'>
                   {yieldItem.providerId}
                 </Text>

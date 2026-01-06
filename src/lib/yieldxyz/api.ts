@@ -2,6 +2,7 @@ import type {
   ActionDto,
   ActionsResponse,
   NetworksResponse,
+  ProvidersResponse,
   YieldBalancesResponse,
   YieldDto,
   YieldsResponse,
@@ -50,6 +51,11 @@ export const yieldxyzApi = {
 
   async getNetworks(): Promise<NetworksResponse> {
     const response = await fetch(`${BASE_URL}/networks`, { headers })
+    return handleResponse(response)
+  },
+
+  async getProviders(): Promise<ProvidersResponse> {
+    const response = await fetch(`${BASE_URL}/providers`, { headers })
     return handleResponse(response)
   },
 

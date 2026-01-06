@@ -10,6 +10,7 @@ export type ParsedUnsignedTransaction = {
   maxPriorityFeePerGas?: string
   nonce: number
   chainId: number
+  type?: number
 }
 
 /**
@@ -32,12 +33,13 @@ export const toChainAdapterTx = (parsed: ParsedUnsignedTransaction) => {
   return {
     to: parsed.to,
     from: parsed.from,
-    data: parsed.data,
+    data: parsed.data ?? '0x0',
     value: parsed.value ?? '0x0',
-    gasLimit: parsed.gasLimit,
-    maxFeePerGas: parsed.maxFeePerGas,
-    maxPriorityFeePerGas: parsed.maxPriorityFeePerGas,
-    nonce: String(parsed.nonce),
+    gasLimit: parsed.gasLimit ?? '0x0',
+    maxFeePerGas: parsed.maxFeePerGas ?? '0x0',
+    maxPriorityFeePerGas: parsed.maxPriorityFeePerGas ?? '0x0',
+    nonce: String(parsed.nonce ?? 0),
     chainId: parsed.chainId,
+    type: parsed.type,
   }
 }

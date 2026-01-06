@@ -18,6 +18,7 @@ import { SpamWarningBanner } from './components/SpamWarningBanner'
 
 import { AssetTransactionHistory } from '@/components/TransactionHistory/AssetTransactionHistory'
 import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
+import { YieldAssetSection } from '@/pages/Yields/components/YieldAssetSection'
 import { StandaloneTrade } from '@/pages/Trade/StandaloneTrade'
 import { selectIsSpamMarkedByAssetId } from '@/state/slices/preferencesSlice/selectors'
 import { selectMarketDataByAssetIdUserCurrency } from '@/state/slices/selectors'
@@ -58,6 +59,7 @@ export const AssetAccountDetails = ({ assetId, accountId }: AssetDetailsProps) =
           <MaybeChartUnavailable assetIds={assetIds} />
           <Equity assetId={assetId} accountId={accountId} />
           {accountId && <AccountAssets assetId={assetId} accountId={accountId} />}
+          <YieldAssetSection assetId={assetId} accountId={accountId} />
           <RelatedAssets assetId={assetId} />
           <AssetTransactionHistory limit={10} assetId={assetId} accountId={accountId} />
         </Stack>

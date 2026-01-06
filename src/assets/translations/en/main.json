@@ -345,6 +345,7 @@
     }
   },
   "defi": {
+    "yourBalance": "Your Balance",
     "modals": {
       "learnMore": {
         "next": "Next",
@@ -2668,9 +2669,13 @@
     "pageSubtitle": "Discover and manage yield opportunities across multiple chains",
     "enter": "Enter",
     "exit": "Exit",
+    "yield": "Yield",
     "apy": "APY",
     "apr": "APR",
     "tvl": "TVL",
+    "asset": "Asset",
+    "provider": "Provider",
+    "balance": "Balance",
     "yourBalance": "Your Balance",
     "noYields": "No yield opportunities available",
     "connectWallet": "Connect a wallet to view yields",
@@ -2706,6 +2711,10 @@
     "vault": "Vault",
     "lending": "Lending",
     "yourDeposits": "Your Deposits",
-    "positions": "Positions"
+    "positions": "Positions",
+    "opportunities": "Opportunities",
+    "yields": "Yields",
+    "earnUpTo": "You could earn up to %{apy}% on your balance",
+    "startEarning": "Start earning"
   }
 }

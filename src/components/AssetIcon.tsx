@@ -30,33 +30,11 @@ export const pairIconsClipPath =
 export type AssetIconProps = {
   // Show the network icon instead of the asset icon e.g OP icon instead of ETH for Optimism native asset
   showNetworkIcon?: boolean
-} & (
-  | {
-      assetId: AssetId
-      asset?: undefined
-      src?: undefined
-      icon?: undefined
-    }
-  | {
-      asset: Asset
-      assetId?: undefined
-      src?: undefined
-      icon?: undefined
-    }
-  | {
-      src: string | undefined
-      assetId?: undefined
-      asset?: undefined
-      icon?: undefined
-    }
-  | {
-      icon: JSX.Element
-      src?: undefined
-      assetId?: undefined
-      asset?: undefined
-    }
-) &
-  AvatarProps
+  assetId?: AssetId
+  asset?: Asset
+  src?: string
+  icon?: JSX.Element
+} & AvatarProps
 
 // @TODO: this will be replaced with whatever we do for icons later
 // The icon prop is used as the placeholder while the icon loads, or if it fails to load.
@@ -113,10 +91,25 @@ const AssetWithNetwork: React.FC<AssetWithNetworkProps> = ({
 
 export const AssetIcon = memo(
   ({ assetId: _assetId, asset: _asset, showNetworkIcon, src, ...rest }: AssetIconProps) => {
-    const asset = useAppSelector(state =>
+    const assetFromStore = useAppSelector(state =>
       _asset ? _asset : selectAssetById(state, _assetId ?? ''),
     )
-    const assetId = _assetId ?? asset?.assetId
+    const assetId = _asset ? _asset.assetId : _assetId
+
+    // If we have an assetId but no asset in store, we create a proxy asset to allow the network badge to render
+    const asset = assetFromStore ?? (assetId ? ({
+      assetId,
+      chainId: fromAssetId(assetId).chainId,
+      symbol: 'N/A',
+      name: 'N/A',
+      precision: 18,
+      color: '#FFFFFF',
+      icon: src ?? '',
+      explorer: '',
+      explorerTxLink: '',
+      explorerAddressLink: ''
+    } as Asset) : undefined)
+
     const assetIconBg = useColorModeValue('gray.200', 'gray.700')
 
     const chainAdapterManager = getChainAdapterManager()
@@ -163,7 +156,7 @@ export const AssetIcon = memo(
     }
 
     return (
-      <AssetWithNetwork asset={asset} icon={foxIcon} showNetworkIcon={showNetworkIcon} {...rest} />
+      <AssetWithNetwork asset={asset} icon={foxIcon} showNetworkIcon={showNetworkIcon} src={src} {...rest} />
     )
   },
 )

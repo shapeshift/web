@@ -1,11 +1,13 @@
+import { AssetIcon } from '@/components/AssetIcon'
 import {
+  Avatar,
   Badge,
   Box,
   Button,
   Container,
   Flex,
   Heading,
-  Image,
+  HStack,
   Text,
   useColorModeValue,
 } from '@chakra-ui/react'
@@ -18,6 +20,7 @@ import { YieldEnterExit } from '@/pages/Yields/components/YieldEnterExit'
 import { YieldPositionCard } from '@/pages/Yields/components/YieldPositionCard'
 import { YieldStats } from '@/pages/Yields/components/YieldStats'
 import { useYield } from '@/react-queries/queries/yieldxyz/useYield'
+import { useYieldProviders } from '@/react-queries/queries/yieldxyz/useYieldProviders'
 
 export const YieldDetail = () => {
   const { yieldId } = useParams<{ yieldId: string }>()
@@ -25,6 +28,8 @@ export const YieldDetail = () => {
   const translate = useTranslate()
 
   const { data: yieldItem, isLoading, error } = useYield(yieldId ?? '')
+  const { data: yieldProviders } = useYieldProviders()
+  const providerLogo = yieldProviders?.find(p => p.id === yieldItem?.providerId)?.logoURI
 
   // Premium dark mode foundation
   const bgColor = useColorModeValue('gray.50', 'gray.900')
@@ -83,15 +88,15 @@ export const YieldDetail = () => {
           </Button>
 
           <Flex alignItems='start' gap={8}>
-            <Image
+            <AssetIcon
               src={yieldItem.metadata.logoURI}
-              w={24}
-              h={24}
-              borderRadius='full'
+              assetId={yieldItem.token.assetId}
+              showNetworkIcon
+              boxSize={24}
               boxShadow='2xl'
               border='4px solid'
               borderColor='gray.800'
-              fallbackSrc='https://raw.githubusercontent.com/shapeshift/lib/main/packages/asset-service/src/generateAssetData/eth-icons/eth.png'
+              borderRadius='full'
             />
             <Box pt={2}>
               <Heading as='h1' size='2xl' color='white' lineHeight='1.2' mb={3}>
@@ -99,22 +104,14 @@ export const YieldDetail = () => {
               </Heading>
 
               <Flex alignItems='center' gap={4} mb={4}>
-                <Badge
-                  colorScheme='blue'
-                  variant='solid'
-                  fontSize='xs'
-                  borderRadius='full'
-                  px={3}
-                  py={1}
-                >
-                  {yieldItem.network}
-                </Badge>
-                <Text color='text.subtle' fontSize='md'>
-                  Provided by{' '}
-                  <Text as='span' color='white' fontWeight='semibold'>
-                    {yieldItem.providerId}
+                <HStack spacing={2}>
+                  <Avatar src={providerLogo} size='xs' name={yieldItem.providerId} />
+                  <Text color='text.subtle' fontSize='md'>
+                    <Text as='span' color='white' fontWeight='semibold'>
+                      {yieldItem.providerId}
+                    </Text>
                   </Text>
-                </Text>
+                </HStack>
               </Flex>
 
               <Text color='gray.400' fontSize='lg' maxW='container.md' lineHeight='short'>

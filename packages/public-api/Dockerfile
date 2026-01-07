@@ -21,15 +21,26 @@ COPY packages/unchained-client/package.json ./packages/unchained-client/
 COPY packages/contracts/package.json ./packages/contracts/
 COPY packages/errors/package.json ./packages/errors/
 
-# Install dependencies (skip postinstall scripts that require git/cypress/etc)
-RUN YARN_ENABLE_SCRIPTS=false yarn install --immutable
+# Install dependencies (skip build/postinstall scripts that require git/cypress/etc)
+RUN yarn install --immutable --mode skip-build
 
 # Copy source files
 COPY packages/ ./packages/
 COPY public/generated/generatedAssetData.json ./public/generated/
+COPY tsconfig.json tsconfig.packages.json ./
 
 # Build packages that public-api depends on
-RUN yarn workspaces foreach -Rt --from @shapeshiftoss/public-api run build
+# Use build:docker for unchained-client to skip Java-based code generation
+# The generated code must exist locally before building Docker image
+RUN yarn workspace @shapeshiftoss/errors build && \
+    yarn workspace @shapeshiftoss/types build && \
+    yarn workspace @shapeshiftoss/contracts build && \
+    yarn workspace @shapeshiftoss/caip build && \
+    yarn workspace @shapeshiftoss/utils build && \
+    yarn workspace @shapeshiftoss/unchained-client build:docker && \
+    yarn workspace @shapeshiftoss/chain-adapters build && \
+    yarn workspace @shapeshiftoss/swapper build && \
+    yarn workspace @shapeshiftoss/public-api build
 
 # Build the public-api bundle
 WORKDIR /app/packages/public-api

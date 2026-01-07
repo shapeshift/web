@@ -1,16 +1,19 @@
+import type { GetTradeRateInput } from '@shapeshiftoss/swapper'
 import type { Request, Response } from 'express'
 import { z } from 'zod'
 
-import { getAssetsById, getAsset } from '../assets'
+import { getAsset, getAssetsById } from '../assets'
 import { DEFAULT_AFFILIATE_BPS } from '../config'
 import { createServerSwapperDeps } from '../swapperDeps'
-import type { ApiRate, RatesResponse, ErrorResponse } from '../types'
-import type { GetTradeRateInput } from '@shapeshiftoss/swapper'
+import type { ApiRate, ErrorResponse, RatesResponse } from '../types'
 
 // Request validation schema
 export const RatesRequestSchema = z.object({
   sellAssetId: z.string().min(1).openapi({ example: 'eip155:1/slip44:60' }),
-  buyAssetId: z.string().min(1).openapi({ example: 'eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48' }),
+  buyAssetId: z
+    .string()
+    .min(1)
+    .openapi({ example: 'eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48' }),
   sellAmountCryptoBaseUnit: z.string().min(1).openapi({ example: '1000000000000000000' }),
   slippageTolerancePercentageDecimal: z.string().optional().openapi({ example: '0.01' }),
   allowMultiHop: z.boolean().optional().default(true).openapi({ example: true }),
@@ -34,10 +37,11 @@ const ENABLED_SWAPPER_NAMES = [
 const RATE_TIMEOUT_MS = 10_000
 
 // Lazy load swapper to avoid import issues at module load time
-let swapperModule: typeof import('@shapeshiftoss/swapper') | null = null
+let swapperModule: Awaited<ReturnType<typeof importSwapperModule>> | null = null
+const importSwapperModule = () => import('@shapeshiftoss/swapper')
 const getSwapperModule = async () => {
   if (!swapperModule) {
-    swapperModule = await import('@shapeshiftoss/swapper')
+    swapperModule = await importSwapperModule()
   }
   return swapperModule
 }
@@ -101,7 +105,7 @@ export const getRates = async (req: Request, res: Response): Promise<void> => {
     const enabledSwappers = ENABLED_SWAPPER_NAMES.map(name => {
       const swapperName = Object.values(SwapperName).find(v => v === name)
       return swapperName
-    }).filter((name): name is typeof SwapperName[keyof typeof SwapperName] => name !== undefined)
+    }).filter((name): name is (typeof SwapperName)[keyof typeof SwapperName] => name !== undefined)
 
     // Fetch rates from all enabled swappers in parallel
     const ratePromises = enabledSwappers.map(async (swapperName): Promise<ApiRate | null> => {
@@ -109,7 +113,12 @@ export const getRates = async (req: Request, res: Response): Promise<void> => {
         const swapper = swappers[swapperName]
         if (!swapper) return null
 
-        const result = await getTradeRates(rateInput as GetTradeRateInput, swapperName, deps, RATE_TIMEOUT_MS)
+        const result = await getTradeRates(
+          rateInput as GetTradeRateInput,
+          swapperName,
+          deps,
+          RATE_TIMEOUT_MS,
+        )
 
         if (!result) return null
 

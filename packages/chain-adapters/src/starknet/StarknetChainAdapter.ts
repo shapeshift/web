@@ -210,7 +210,10 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.StarknetMainnet
           if (balance > BigInt(0)) {
             // Find token info if it's not STRK (STRK is first, so idx > 0 means it's from knownTokens)
             const tokenInfo = idx > 0 ? knownTokens[idx - 1] : undefined
-            tokenBalances.set(tokenAddress, { balance: balance.toString(), info: tokenInfo })
+            tokenBalances.set(tokenAddress, {
+              balance: balance.toString(),
+              info: tokenInfo,
+            })
           }
         }
       })
@@ -268,9 +271,15 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.StarknetMainnet
   validateAddress(address: string): Promise<ValidAddressResult> {
     try {
       validateAndParseAddress(address)
-      return Promise.resolve({ valid: true, result: ValidAddressResultType.Valid })
+      return Promise.resolve({
+        valid: true,
+        result: ValidAddressResultType.Valid,
+      })
     } catch (err) {
-      return Promise.resolve({ valid: false, result: ValidAddressResultType.Invalid })
+      return Promise.resolve({
+        valid: false,
+        result: ValidAddressResultType.Invalid,
+      })
     }
   }
 
@@ -316,6 +325,138 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.StarknetMainnet
     if (!nonceResult.result) throw new Error('Failed to fetch nonce')
 
     return nonceResult.result
+  }
+
+  /**
+   * Get fee data for deploying a Starknet account contract
+   * This estimates fees for the DEPLOY_ACCOUNT transaction type
+   */
+  async getDeployAccountFeeData(input: {
+    accountNumber: number
+    wallet: HDWallet
+  }): Promise<FeeDataEstimate<KnownChainIds.StarknetMainnet>> {
+    try {
+      const { accountNumber, wallet } = input
+
+      this.assertSupportsChain(wallet)
+
+      const publicKey = await wallet.starknetGetPublicKey({
+        addressNList: toAddressNList(this.getBip44Params({ accountNumber })),
+      })
+
+      if (!publicKey) {
+        throw new Error('error getting public key from wallet')
+      }
+
+      const constructorCalldata = CallData.compile([publicKey])
+      const salt = publicKey
+      const version = '0x3' as const
+      const nonce = '0x0'
+
+      const formattedCalldata = constructorCalldata.map((data: string) => {
+        if (!data.startsWith('0x')) {
+          return num.toHex(data)
+        }
+        return data
+      })
+
+      const formattedSalt = salt.startsWith('0x') ? salt : `0x${salt}`
+
+      const estimateTx = {
+        type: 'DEPLOY_ACCOUNT',
+        version,
+        signature: [],
+        nonce,
+        contract_address_salt: formattedSalt,
+        constructor_calldata: formattedCalldata,
+        class_hash: OPENZEPPELIN_ACCOUNT_CLASS_HASH,
+        resource_bounds: {
+          l1_gas: { max_amount: '0x186a0', max_price_per_unit: '0x5f5e100' },
+          l2_gas: { max_amount: '0x0', max_price_per_unit: '0x0' },
+          l1_data_gas: { max_amount: '0x186a0', max_price_per_unit: '0x1' },
+        },
+        tip: '0x0',
+        paymaster_data: [],
+        nonce_data_availability_mode: 'L1',
+        fee_data_availability_mode: 'L1',
+      }
+
+      const estimateResponse = await this.provider.fetch('starknet_estimateFee', [
+        [estimateTx],
+        ['SKIP_VALIDATE'],
+        'latest',
+      ])
+      const estimateResult: RpcJsonResponse<StarknetFeeEstimate[]> = await estimateResponse.json()
+
+      if (estimateResult.error) {
+        throw new Error(`Fee estimation failed: ${estimateResult.error.message}`)
+      }
+
+      const feeEstimate = estimateResult.result?.[0]
+      if (!feeEstimate) {
+        throw new Error('Fee estimation failed: no estimate returned')
+      }
+
+      const l1GasConsumed = feeEstimate.l1_gas_consumed
+        ? BigInt(feeEstimate.l1_gas_consumed)
+        : BigInt('0x186a0')
+      const l1GasPrice = feeEstimate.l1_gas_price
+        ? BigInt(feeEstimate.l1_gas_price)
+        : BigInt('0x5f5e100')
+      const l2GasConsumed = feeEstimate.l2_gas_consumed
+        ? BigInt(feeEstimate.l2_gas_consumed)
+        : BigInt('0x0')
+      const l2GasPrice = feeEstimate.l2_gas_price ? BigInt(feeEstimate.l2_gas_price) : BigInt('0x0')
+      const l1DataGasConsumed = feeEstimate.l1_data_gas_consumed
+        ? BigInt(feeEstimate.l1_data_gas_consumed)
+        : BigInt('0x186a0')
+      const l1DataGasPrice = feeEstimate.l1_data_gas_price
+        ? BigInt(feeEstimate.l1_data_gas_price)
+        : BigInt('0x1')
+
+      const baseFee =
+        l1GasConsumed * l1GasPrice + l2GasConsumed * l2GasPrice + l1DataGasConsumed * l1DataGasPrice
+
+      const slowMaxFee = (
+        ((l1GasConsumed * BigInt(150)) / BigInt(100)) * ((l1GasPrice * BigInt(120)) / BigInt(100)) +
+        ((l2GasConsumed * BigInt(150)) / BigInt(100)) * ((l2GasPrice * BigInt(120)) / BigInt(100)) +
+        ((l1DataGasConsumed * BigInt(150)) / BigInt(100)) *
+          ((l1DataGasPrice * BigInt(120)) / BigInt(100))
+      ).toString()
+
+      const averageMaxFee = (
+        ((l1GasConsumed * BigInt(300)) / BigInt(100)) * ((l1GasPrice * BigInt(150)) / BigInt(100)) +
+        ((l2GasConsumed * BigInt(300)) / BigInt(100)) * ((l2GasPrice * BigInt(150)) / BigInt(100)) +
+        ((l1DataGasConsumed * BigInt(300)) / BigInt(100)) *
+          ((l1DataGasPrice * BigInt(150)) / BigInt(100))
+      ).toString()
+
+      const fastMaxFee = (
+        ((l1GasConsumed * BigInt(500)) / BigInt(100)) * ((l1GasPrice * BigInt(200)) / BigInt(100)) +
+        ((l2GasConsumed * BigInt(500)) / BigInt(100)) * ((l2GasPrice * BigInt(200)) / BigInt(100)) +
+        ((l1DataGasConsumed * BigInt(500)) / BigInt(100)) *
+          ((l1DataGasPrice * BigInt(200)) / BigInt(100))
+      ).toString()
+
+      return {
+        slow: {
+          txFee: ((baseFee * BigInt(180)) / BigInt(100)).toString(),
+          chainSpecific: { maxFee: slowMaxFee },
+        },
+        average: {
+          txFee: ((baseFee * BigInt(450)) / BigInt(100)).toString(),
+          chainSpecific: { maxFee: averageMaxFee },
+        },
+        fast: {
+          txFee: ((baseFee * BigInt(1000)) / BigInt(100)).toString(),
+          chainSpecific: { maxFee: fastMaxFee },
+        },
+      }
+    } catch (err) {
+      return ErrorHandler(err, {
+        translation: 'chainAdapters.errors.getFeeData',
+      })
+    }
   }
 
   /**
@@ -611,7 +752,10 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.StarknetMainnet
             signature: [],
             nonce,
             resource_bounds: {
-              l1_gas: { max_amount: '0x186a0', max_price_per_unit: '0x5f5e100' },
+              l1_gas: {
+                max_amount: '0x186a0',
+                max_price_per_unit: '0x5f5e100',
+              },
               l2_gas: { max_amount: '0x0', max_price_per_unit: '0x0' },
               l1_data_gas: { max_amount: '0x186a0', max_price_per_unit: '0x1' },
             },
@@ -845,7 +989,12 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.StarknetMainnet
       const from = await this.getAddress(input)
       const txToSign = await this.buildSendApiTransaction({ ...input, from })
 
-      return { txToSign: { ...txToSign, ...(input.pubKey ? { pubKey: input.pubKey } : {}) } }
+      return {
+        txToSign: {
+          ...txToSign,
+          ...(input.pubKey ? { pubKey: input.pubKey } : {}),
+        },
+      }
     } catch (err) {
       return ErrorHandler(err, {
         translation: 'chainAdapters.errors.buildTransaction',

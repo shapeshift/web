@@ -187,8 +187,8 @@ export const getRates = async (req: Request, res: Response): Promise<void> => {
       if (a.error && !b.error) return 1
       if (!a.error && b.error) return -1
       try {
-        const aBuyAmount = BigInt(a.buyAmountCryptoBaseUnit.split('.')[0])
-        const bBuyAmount = BigInt(b.buyAmountCryptoBaseUnit.split('.')[0])
+        const aBuyAmount = BigInt(a.buyAmountCryptoBaseUnit.split('.')[0] ?? '0')
+        const bBuyAmount = BigInt(b.buyAmountCryptoBaseUnit.split('.')[0] ?? '0')
         return bBuyAmount > aBuyAmount ? 1 : bBuyAmount < aBuyAmount ? -1 : 0
       } catch {
         return 0

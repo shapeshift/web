@@ -1,3 +1,4 @@
+import './setupZod'
 import express from 'express'
 import cors from 'cors'
 
@@ -7,6 +8,7 @@ import { apiKeyAuth, optionalApiKeyAuth } from './middleware/auth'
 import { getRates } from './routes/rates'
 import { getQuote } from './routes/quote'
 import { getAssets, getAssetById, getAssetCount } from './routes/assets'
+import { docsRouter } from './routes/docs'
 
 const app = express()
 
@@ -32,6 +34,7 @@ v1Router.get('/assets/count', optionalApiKeyAuth, getAssetCount)
 v1Router.get('/assets/:assetId(*)', optionalApiKeyAuth, getAssetById)
 
 app.use('/v1', v1Router)
+app.use('/docs', docsRouter)
 
 // 404 handler
 app.use((_req, res) => {

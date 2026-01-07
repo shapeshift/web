@@ -8,12 +8,12 @@ import type { ApiRate, RatesResponse, ErrorResponse } from '../types'
 import type { GetTradeRateInput } from '@shapeshiftoss/swapper'
 
 // Request validation schema
-const RatesRequestSchema = z.object({
-  sellAssetId: z.string().min(1),
-  buyAssetId: z.string().min(1),
-  sellAmountCryptoBaseUnit: z.string().min(1),
-  slippageTolerancePercentageDecimal: z.string().optional(),
-  allowMultiHop: z.boolean().optional().default(true),
+export const RatesRequestSchema = z.object({
+  sellAssetId: z.string().min(1).openapi({ example: 'eip155:1/slip44:60' }),
+  buyAssetId: z.string().min(1).openapi({ example: 'eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48' }),
+  sellAmountCryptoBaseUnit: z.string().min(1).openapi({ example: '1000000000000000000' }),
+  slippageTolerancePercentageDecimal: z.string().optional().openapi({ example: '0.01' }),
+  allowMultiHop: z.boolean().optional().default(true).openapi({ example: true }),
 })
 
 // Swapper names as strings to avoid import issues

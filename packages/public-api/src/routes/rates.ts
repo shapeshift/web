@@ -81,7 +81,18 @@ export const getRates = async (req: Request, res: Response): Promise<void> => {
     }
 
     // Lazy load swapper module
-    const { getTradeRates, swappers, SwapperName } = await getSwapperModule()
+    let swapperModuleResult
+    try {
+      swapperModuleResult = await getSwapperModule()
+    } catch (error) {
+      console.error('Failed to load swapper module:', error)
+      res.status(503).json({
+        error: 'Swap service temporarily unavailable',
+        details: 'Failed to initialize swapper module',
+      } as ErrorResponse)
+      return
+    }
+    const { getTradeRates, swappers, SwapperName } = swapperModuleResult
 
     // Create swapper dependencies
     const deps = createServerSwapperDeps(getAssetsById())
@@ -175,7 +186,13 @@ export const getRates = async (req: Request, res: Response): Promise<void> => {
     rates.sort((a, b) => {
       if (a.error && !b.error) return 1
       if (!a.error && b.error) return -1
-      return BigInt(b.buyAmountCryptoBaseUnit) > BigInt(a.buyAmountCryptoBaseUnit) ? 1 : -1
+      try {
+        const aBuyAmount = BigInt(a.buyAmountCryptoBaseUnit.split('.')[0])
+        const bBuyAmount = BigInt(b.buyAmountCryptoBaseUnit.split('.')[0])
+        return bBuyAmount > aBuyAmount ? 1 : bBuyAmount < aBuyAmount ? -1 : 0
+      } catch {
+        return 0
+      }
     })
 
     const now = Date.now()

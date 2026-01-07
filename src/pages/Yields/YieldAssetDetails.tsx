@@ -58,7 +58,7 @@ export const YieldAssetDetails = () => {
   // Helpers
   const getProviderLogo = useCallback(
     (providerId: string) => {
-      return yieldProviders?.find(p => p.id === providerId)?.logoURI
+      return yieldProviders?.[providerId]?.logoURI
     },
     [yieldProviders],
   )

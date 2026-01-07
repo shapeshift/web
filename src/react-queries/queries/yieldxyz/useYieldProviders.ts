@@ -8,18 +8,22 @@ const YIELD_XYZ_PROVIDER_ID = 'yield-xyz'
 const YIELD_XYZ_LOCAL_LOGO_URI = '/images/providers/yield-xyz.png'
 
 export const useYieldProviders = () => {
-  return useQuery<ProviderDto[], Error, ProviderDto[]>({
+  return useQuery<ProviderDto[], Error, Record<string, ProviderDto>>({
     queryKey: ['yieldxyz', 'providers'],
     queryFn: async () => {
       const data = await getProviders({ limit: 100 })
       return data.items
     },
-    select: providers =>
-      providers.map(provider =>
-        provider.id === YIELD_XYZ_PROVIDER_ID
-          ? { ...provider, logoURI: YIELD_XYZ_LOCAL_LOGO_URI }
-          : provider,
-      ),
+    select: providers => {
+      return providers.reduce((acc, provider) => {
+        const p =
+          provider.id === YIELD_XYZ_PROVIDER_ID
+            ? { ...provider, logoURI: YIELD_XYZ_LOCAL_LOGO_URI }
+            : provider
+        acc[p.id] = p
+        return acc
+      }, {} as Record<string, ProviderDto>)
+    },
     staleTime: Infinity,
     gcTime: Infinity,
   })

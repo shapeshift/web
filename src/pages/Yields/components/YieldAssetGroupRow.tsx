@@ -23,6 +23,7 @@ type YieldAssetGroupRowProps = {
   assetSymbol: string
   assetName: string
   assetIcon: string
+  assetId?: string
   yields: AugmentedYieldDto[]
 }
 
@@ -30,6 +31,7 @@ export const YieldAssetGroupRow = ({
   assetSymbol,
   assetName,
   assetIcon,
+  assetId,
   yields,
 }: YieldAssetGroupRowProps) => {
   const navigate = useNavigate()
@@ -54,7 +56,7 @@ export const YieldAssetGroupRow = ({
 
     const providers = Array.from(providerIds).map(id => ({
       id,
-      logo: yieldProviders?.find(p => p.id === id)?.logoURI,
+      logo: yieldProviders?.[id]?.logoURI,
     }))
 
     const chainIds = Array.from(chainIdSet)
@@ -85,7 +87,11 @@ export const YieldAssetGroupRow = ({
       gap={4}
     >
       <Flex alignItems='center' gap={3} flex='1' minW='200px'>
-        <AssetIcon src={assetIcon} size='sm' />
+        {assetId ? (
+          <AssetIcon assetId={assetId} size='sm' showNetworkIcon={false} />
+        ) : (
+          <AssetIcon src={assetIcon} size='sm' />
+        )}
         <Box>
           <Text fontWeight='semibold' fontSize='sm'>
             {assetName}

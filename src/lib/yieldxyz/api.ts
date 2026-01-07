@@ -29,11 +29,18 @@ const instance: AxiosInstance = axios.create({
 // Discovery
 export const getYields = (params?: {
   network?: string
+  networks?: string[]
   provider?: string
   limit?: number
   offset?: number
 }): Promise<YieldsResponse> => {
-  return instance.get<YieldsResponse>('/yields', { params }).then(res => res.data)
+  const queryParams = { ...params }
+  if (params?.networks) {
+    // API expects comma-separated string for multiple networks
+    // @ts-ignore
+    queryParams.networks = params.networks.join(',')
+  }
+  return instance.get<YieldsResponse>('/yields', { params: queryParams }).then(res => res.data)
 }
 
 export const getYield = (yieldId: string): Promise<YieldDto> => {

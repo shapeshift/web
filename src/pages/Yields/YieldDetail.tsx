@@ -37,7 +37,10 @@ export const YieldDetail = () => {
     yieldItem?.mechanics.type === 'staking' && yieldItem?.mechanics.requiresValidatorSelection
   const { data: validators } = useYieldValidators(yieldId ?? '', shouldFetchValidators)
 
-  const providerLogo = yieldProviders?.find(p => p.id === yieldItem?.providerId)?.logoURI
+  const providerLogo =
+    yieldItem?.providerId && yieldProviders
+      ? yieldProviders[yieldItem.providerId]?.logoURI
+      : undefined
 
   // Premium dark mode foundation
   const bgColor = useColorModeValue('gray.50', 'gray.900')

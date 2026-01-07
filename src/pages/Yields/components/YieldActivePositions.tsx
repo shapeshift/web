@@ -13,7 +13,7 @@ import {
   useColorModeValue,
 } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
-import { useMemo } from 'react'
+
 import { useTranslate } from 'react-polyglot'
 import { useNavigate } from 'react-router-dom'
 
@@ -41,20 +41,8 @@ export const YieldActivePositions = ({ balances, yields, assetId }: YieldActiveP
 
   const { data: providers } = useYieldProviders()
 
-  // Memoize the provider logo lookup
-  const providerLogoMap = useMemo(() => {
-    if (!providers) return {}
-    return providers.reduce(
-      (acc, provider) => {
-        acc[provider.id] = provider.logoURI
-        return acc
-      },
-      {} as Record<string, string>,
-    )
-  }, [providers])
-
   const getProviderLogo = (providerId: string) => {
-    return providerLogoMap[providerId] || undefined
+    return providers?.[providerId]?.logoURI
   }
 
   if (!asset) return null

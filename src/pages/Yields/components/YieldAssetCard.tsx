@@ -29,6 +29,7 @@ type YieldAssetCardProps = {
   assetSymbol: string
   assetName: string
   assetIcon: string
+  assetId?: string
   yields: AugmentedYieldDto[]
 }
 
@@ -36,6 +37,7 @@ export const YieldAssetCard = ({
   assetSymbol,
   assetName,
   assetIcon,
+  assetId,
   yields,
 }: YieldAssetCardProps) => {
   const navigate = useNavigate()
@@ -62,7 +64,7 @@ export const YieldAssetCard = ({
 
     const providers = Array.from(providerIds).map(id => ({
       id,
-      logo: yieldProviders?.find(p => p.id === id)?.logoURI,
+      logo: yieldProviders?.[id]?.logoURI,
     }))
 
     return {
@@ -98,13 +100,24 @@ export const YieldAssetCard = ({
       <CardBody p={5}>
         <Flex justifyContent='space-between' alignItems='flex-start' mb={6}>
           <Flex alignItems='center' gap={4}>
-            <AssetIcon
-              src={assetIcon}
-              size='md'
-              boxShadow='md'
-              borderWidth='1px'
-              borderColor={borderColor}
-            />
+            {assetId ? (
+              <AssetIcon
+                assetId={assetId}
+                size='md'
+                boxShadow='md'
+                borderWidth='1px'
+                borderColor={borderColor}
+                showNetworkIcon={false}
+              />
+            ) : (
+              <AssetIcon
+                src={assetIcon}
+                size='md'
+                boxShadow='md'
+                borderWidth='1px'
+                borderColor={borderColor}
+              />
+            )}
             <Box>
               <Text
                 fontWeight='bold'

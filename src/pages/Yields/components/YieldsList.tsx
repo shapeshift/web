@@ -46,7 +46,7 @@ import { YieldFilters } from '@/pages/Yields/components/YieldFilters'
 import { YieldOpportunityStats } from '@/pages/Yields/components/YieldOpportunityStats'
 import { YieldTable } from '@/pages/Yields/components/YieldTable'
 import { ViewToggle } from '@/pages/Yields/components/YieldViewHelpers'
-import { useYieldGroups } from '@/pages/Yields/hooks/useYieldGroups'
+
 import { useAllYieldBalances } from '@/react-queries/queries/yieldxyz/useAllYieldBalances'
 import { useYieldProviders } from '@/react-queries/queries/yieldxyz/useYieldProviders'
 import { useYields } from '@/react-queries/queries/yieldxyz/useYields'
@@ -101,7 +101,7 @@ export const YieldsList = () => {
 
   const getProviderLogo = useCallback(
     (providerId: string) => {
-      return yieldProviders?.find(p => p.id === providerId)?.logoURI
+      return yieldProviders?.[providerId]?.logoURI
     },
     [yieldProviders],
   )
@@ -228,8 +228,40 @@ export const YieldsList = () => {
     userCurrencyBalances,
   ])
 
-  // Group yields by Asset symbol using the extracted hook
-  const yieldsByAsset = useYieldGroups(yields?.all, displayYields)
+  // Group yields by Asset symbol locally using pre-calculated metadata
+  const yieldsByAsset = useMemo(() => {
+    if (!displayYields || !yields?.meta?.assetMetadata) return []
+    const groups: Record<string, AugmentedYieldDto[]> = {}
+
+    displayYields.forEach(y => {
+      const token = y.inputTokens?.[0] || y.token
+      const symbol = token.symbol
+      if (!symbol) return
+
+      if (!groups[symbol]) {
+        groups[symbol] = []
+      }
+      groups[symbol].push(y)
+    })
+
+    const assetGroups = Object.entries(groups).map(([symbol, groupYields]) => {
+      const meta = yields.meta.assetMetadata[symbol] || {
+        assetName: symbol,
+        assetIcon: '',
+        assetId: undefined,
+      }
+
+      return {
+        yields: groupYields,
+        assetSymbol: symbol,
+        assetName: meta.assetName,
+        assetIcon: meta.assetIcon,
+        assetId: meta.assetId,
+      }
+    })
+
+    return assetGroups
+  }, [displayYields, yields])
 
   const myPositions = useMemo(() => {
     if (!yields?.all || !allBalances) return []

@@ -105,7 +105,7 @@ export const YieldActionModal = ({
     }
 
     // 2. Lending/Others: Provider
-    const provider = providers?.find(p => p.id === yieldItem.providerId)
+    const provider = providers?.[yieldItem.providerId]
     if (provider) return { name: provider.name, logoURI: provider.logoURI }
 
     return { name: 'Vault', logoURI: yieldItem.metadata.logoURI }

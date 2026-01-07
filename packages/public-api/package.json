@@ -1,0 +1,40 @@
+{
+  "name": "@shapeshiftoss/public-api",
+  "version": "0.1.0",
+  "packageManager": "yarn@3.5.0",
+  "repository": "https://github.com/shapeshift/web",
+  "license": "MIT",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "yarn clean && yarn run -T tsc --build",
+    "build:bundle": "node esbuild.config.mjs",
+    "clean": "rm -rf dist",
+    "dev": "tsx watch src/index.ts",
+    "start": "node dist/index.js",
+    "start:prod": "node dist/server.cjs",
+    "docker:build": "docker build -t shapeshift-public-api -f Dockerfile ../../",
+    "docker:run": "docker run -p 3001:3001 --env-file .env shapeshift-public-api"
+  },
+  "dependencies": {
+    "@shapeshiftoss/caip": "workspace:^",
+    "@shapeshiftoss/chain-adapters": "workspace:^",
+    "@shapeshiftoss/swapper": "workspace:^",
+    "@shapeshiftoss/types": "workspace:^",
+    "@shapeshiftoss/utils": "workspace:^",
+    "@sniptt/monads": "^0.5.10",
+    "cors": "^2.8.5",
+    "express": "^4.21.0",
+    "uuid": "^9.0.0",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.17",
+    "@types/express": "^4.17.21",
+    "@types/node": "^22.10.4",
+    "@types/uuid": "^9.0.5",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.3"
+  }
+}

@@ -18,12 +18,11 @@ export const useYield = (yieldId: string) => {
     staleTime: 60 * 1000, // 1 minute
     // Use cached yield from the list if available (avoids redundant API call)
     initialData: () => {
-      const cachedYields = queryClient.getQueryData<AugmentedYieldDto[]>([
-        'yieldxyz',
-        'yields',
-        undefined,
-      ])
-      return cachedYields?.find(y => y.id === yieldId)
+      const cachedYields = queryClient.getQueryData<{
+        all: AugmentedYieldDto[]
+        byId: Record<string, AugmentedYieldDto>
+      }>(['yieldxyz', 'yields', undefined])
+      return cachedYields?.byId[yieldId]
     },
     initialDataUpdatedAt: () => {
       return queryClient.getQueryState(['yieldxyz', 'yields', undefined])?.dataUpdatedAt

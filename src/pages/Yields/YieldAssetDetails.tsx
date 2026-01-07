@@ -120,8 +120,8 @@ export const YieldAssetDetails = () => {
 
   // Data processing
   const assetYields = useMemo(() => {
-    if (!yields || !decodedSymbol) return []
-    return yields.filter(y => {
+    if (!yields?.all || !decodedSymbol) return []
+    return yields.all.filter(y => {
       const token = y.inputTokens?.[0] || y.token
       return token.symbol === decodedSymbol
     })

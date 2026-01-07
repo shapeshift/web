@@ -1,4 +1,4 @@
-import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { useQuery } from '@tanstack/react-query'
 
 import { getYields } from '@/lib/yieldxyz/api'
 import { augmentYield } from '@/lib/yieldxyz/augment'
@@ -6,9 +6,8 @@ import { isSupportedYieldNetwork } from '@/lib/yieldxyz/constants'
 import type { AugmentedYieldDto } from '@/lib/yieldxyz/types'
 
 export const useYields = (params?: { network?: string; provider?: string }) => {
-  const queryClient = useQueryClient()
 
-  return useQuery<AugmentedYieldDto[]>({
+  return useQuery({
     queryKey: ['yieldxyz', 'yields', params],
     queryFn: async () => {
       let allItems: any[] = []
@@ -22,16 +21,18 @@ export const useYields = (params?: { network?: string; provider?: string }) => {
         offset += limit
       }
 
-      const augmentedYields = allItems
+      const all = allItems
         .filter(item => isSupportedYieldNetwork(item.network))
         .map(augmentYield)
 
-      // Pre-populate individual yield cache entries to avoid redundant fetches
-      augmentedYields.forEach(yieldItem => {
-        queryClient.setQueryData(['yieldxyz', 'yield', yieldItem.id], yieldItem)
-      })
+      const byId = all.reduce((acc, item) => {
+        acc[item.id] = item
+        return acc
+      }, {} as Record<string, AugmentedYieldDto>)
 
-      return augmentedYields
+      const ids = all.map(item => item.id)
+
+      return { all, byId, ids }
     },
     staleTime: 5 * 60 * 1000, // 5 minutes (increased from 60s)
   })

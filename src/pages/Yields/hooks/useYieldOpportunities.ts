@@ -23,9 +23,9 @@ export const useYieldOpportunities = ({ assetId, accountId }: UseYieldOpportunit
   const multiAccountEnabled = getConfig().VITE_FEATURE_YIELD_MULTI_ACCOUNT
 
   const matchingYields = useMemo(() => {
-    if (!yields || !asset) return []
+    if (!yields?.all || !asset) return []
 
-    return yields.filter(yieldItem => {
+    return yields.all.filter(yieldItem => {
       // 1. Primary Token Match
       const matchesToken = yieldItem.token.assetId === assetId
       // 2. Input Tokens Match

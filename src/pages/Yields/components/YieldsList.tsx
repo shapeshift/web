@@ -169,8 +169,8 @@ export const YieldsList = () => {
 
   // Derived filter options
   const networks = useMemo(() => {
-    if (!yields) return []
-    const unique = new Set(yields.map(y => y.network))
+    if (!yields?.all) return []
+    const unique = new Set(yields.all.map(y => y.network))
     return Array.from(unique).map(net => ({
       id: net,
       name: net.charAt(0).toUpperCase() + net.slice(1),
@@ -179,8 +179,8 @@ export const YieldsList = () => {
   }, [yields])
 
   const providers = useMemo(() => {
-    if (!yields) return []
-    const unique = new Set(yields.map(y => y.providerId))
+    if (!yields?.all) return []
+    const unique = new Set(yields.all.map(y => y.providerId))
     return Array.from(unique).map(pId => ({
       id: pId,
       name: pId.charAt(0).toUpperCase() + pId.slice(1),
@@ -189,8 +189,8 @@ export const YieldsList = () => {
   }, [yields, getProviderLogo])
 
   const displayYields = useMemo(() => {
-    if (!yields) return []
-    let data = yields
+    if (!yields?.all) return []
+    let data = yields.all
 
     if (isMyOpportunities) {
       data = data.filter(y => {
@@ -234,9 +234,9 @@ export const YieldsList = () => {
   const yieldsByAsset = useYieldGroups(displayYields)
 
   const myPositions = useMemo(() => {
-    if (!yields || !allBalances) return []
+    if (!yields?.all || !allBalances) return []
     // Start with all positions
-    const positions = yields.filter(yieldItem => {
+    const positions = yields.all.filter(yieldItem => {
       const balances = allBalances[yieldItem.id]
       if (!balances) return false
       return balances.some(b => bnOrZero(b.amount).gt(0))
@@ -401,7 +401,7 @@ export const YieldsList = () => {
       <YieldOpportunityStats
         positions={myPositions}
         balances={allBalances}
-        allYields={yields}
+        allYields={yields?.all}
         isMyOpportunities={isMyOpportunities}
         onToggleMyOpportunities={handleToggleMyOpportunities}
       />

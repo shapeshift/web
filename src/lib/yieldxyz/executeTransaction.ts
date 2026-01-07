@@ -3,12 +3,20 @@ import type { ChainId } from '@shapeshiftoss/caip'
 import { CHAIN_NAMESPACE, fromChainId } from '@shapeshiftoss/caip'
 import { CONTRACT_INTERACTION, toAddressNList } from '@shapeshiftoss/chain-adapters'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
+import {
+  AddressLookupTableAccount,
+  ComputeBudgetProgram,
+  PublicKey,
+  TransactionMessage,
+  VersionedTransaction,
+} from '@solana/web3.js'
 
 import type { TransactionDto } from './types'
 
 import { toBaseUnit } from '@/lib/math'
 import { assertGetCosmosSdkChainAdapter } from '@/lib/utils/cosmosSdk'
 import { assertGetEvmChainAdapter, signAndBroadcast as evmSignAndBroadcast } from '@/lib/utils/evm'
+import { assertGetSolanaChainAdapter } from '@/lib/utils/solana'
 import { assertGetSuiChainAdapter } from '@/lib/utils/sui'
 import { isStakingChainAdapter } from '@/plugins/cosmos/components/modals/Staking/StakingCommon'
 
@@ -80,6 +88,14 @@ export const executeTransaction = async ({
     }
     case CHAIN_NAMESPACE.Sui: {
       return await executeSuiTransaction({
+        unsignedTransaction: tx.unsignedTransaction,
+        chainId,
+        wallet,
+        bip44Params,
+      })
+    }
+    case CHAIN_NAMESPACE.Solana: {
+      return await executeSolanaTransaction({
         unsignedTransaction: tx.unsignedTransaction,
         chainId,
         wallet,
@@ -257,4 +273,155 @@ const executeSuiTransaction = async ({
 
   if (!txHash) throw new Error('Failed to broadcast Sui transaction')
   return txHash
+}
+
+type ExecuteSolanaTransactionInput = {
+  unsignedTransaction: string
+  chainId: ChainId
+  wallet: HDWallet
+  bip44Params?: { purpose: number; coinType: number; accountNumber: number }
+}
+
+const executeSolanaTransaction = async ({
+  unsignedTransaction,
+  chainId,
+  wallet,
+  bip44Params,
+}: ExecuteSolanaTransactionInput): Promise<string> => {
+  console.log('[executeSolanaTransaction] Starting with:', {
+    chainId,
+    accountNumber: bip44Params?.accountNumber,
+  })
+
+  const adapter = assertGetSolanaChainAdapter(chainId)
+  const accountNumber = bip44Params?.accountNumber ?? 0
+
+  const txData = unsignedTransaction.startsWith('0x')
+    ? unsignedTransaction.slice(2)
+    : unsignedTransaction
+  console.log('[executeSolanaTransaction] Deserializing tx, length:', txData.length)
+
+  const versionedTransaction = VersionedTransaction.deserialize(
+    new Uint8Array(Buffer.from(txData, 'hex')),
+  )
+  console.log('[executeSolanaTransaction] Deserialized versionedTransaction:', {
+    numSignatures: versionedTransaction.signatures.length,
+    numLookupTables: versionedTransaction.message.addressTableLookups.length,
+  })
+
+  const addressLookupTableAccountKeys = versionedTransaction.message.addressTableLookups.map(
+    lookup => lookup.accountKey.toString(),
+  )
+  console.log('[executeSolanaTransaction] Lookup table keys:', addressLookupTableAccountKeys)
+
+  const addressLookupTableAccountsInfos = await adapter.getAddressLookupTableAccounts(
+    addressLookupTableAccountKeys,
+  )
+  console.log(
+    '[executeSolanaTransaction] Got lookup table infos:',
+    addressLookupTableAccountsInfos.length,
+  )
+
+  const addressLookupTableAccounts = addressLookupTableAccountsInfos.map(
+    info =>
+      new AddressLookupTableAccount({
+        key: new PublicKey(info.key),
+        state: AddressLookupTableAccount.deserialize(new Uint8Array(info.data)),
+      }),
+  )
+
+  const decompiledMessage = TransactionMessage.decompile(versionedTransaction.message, {
+    addressLookupTableAccounts,
+  })
+  console.log('[executeSolanaTransaction] Decompiled message:', {
+    numInstructions: decompiledMessage.instructions.length,
+    payerKey: decompiledMessage.payerKey.toString(),
+    recentBlockhash: decompiledMessage.recentBlockhash,
+  })
+
+  const computeBudgetProgramId = ComputeBudgetProgram.programId.toString()
+  const nonComputeBudgetInstructions = decompiledMessage.instructions.filter(
+    ix => ix.programId.toString() !== computeBudgetProgramId,
+  )
+  console.log('[executeSolanaTransaction] Filtered instructions (excluding compute budget):', {
+    original: decompiledMessage.instructions.length,
+    filtered: nonComputeBudgetInstructions.length,
+  })
+
+  const from = await adapter.getAddress({ accountNumber, wallet })
+  console.log('[executeSolanaTransaction] Got address:', from)
+
+  const { fast } = await adapter.getFeeData({
+    to: '',
+    value: '0',
+    chainSpecific: {
+      from,
+      addressLookupTableAccounts: addressLookupTableAccountKeys,
+      instructions: nonComputeBudgetInstructions,
+    },
+  })
+  console.log('[executeSolanaTransaction] Fee data:', {
+    computeUnits: fast.chainSpecific.computeUnits,
+    priorityFee: fast.chainSpecific.priorityFee,
+  })
+
+  const convertedInstructions = nonComputeBudgetInstructions.map(instruction =>
+    adapter.convertInstruction(instruction),
+  )
+  console.log('[executeSolanaTransaction] Converted instructions:', convertedInstructions.length)
+
+  const STAKE_COMPUTE_UNIT_BUFFER = 50000
+  const estimatedComputeUnits = Math.max(
+    Number(fast.chainSpecific.computeUnits),
+    STAKE_COMPUTE_UNIT_BUFFER,
+  )
+  console.log('[executeSolanaTransaction] Using compute units:', estimatedComputeUnits)
+
+  const txToSign = await adapter.buildSendApiTransaction({
+    from,
+    to: '',
+    value: '0',
+    accountNumber,
+    chainSpecific: {
+      addressLookupTableAccounts: addressLookupTableAccountKeys,
+      instructions: convertedInstructions,
+      computeUnitLimit: String(estimatedComputeUnits),
+      computeUnitPrice: fast.chainSpecific.priorityFee,
+    },
+  })
+  console.log('[executeSolanaTransaction] Built txToSign:', {
+    addressNList: txToSign.addressNList,
+    blockHash: txToSign.blockHash,
+    computeUnitLimit: txToSign.computeUnitLimit,
+    computeUnitPrice: txToSign.computeUnitPrice,
+    numInstructions: txToSign.instructions?.length,
+    to: txToSign.to,
+    value: txToSign.value,
+  })
+
+  console.log('[executeSolanaTransaction] Signing transaction...')
+  const signedTx = await adapter.signTransaction({ txToSign, wallet })
+  console.log(
+    '[executeSolanaTransaction] Signed tx:',
+    signedTx ? `${signedTx.substring(0, 50)}...` : 'null',
+  )
+
+  if (!signedTx) throw new Error('Failed to sign Solana transaction')
+
+  console.log('[executeSolanaTransaction] Broadcasting transaction...')
+  try {
+    const txHash = await adapter.broadcastTransaction({
+      senderAddress: from,
+      receiverAddress: CONTRACT_INTERACTION,
+      hex: signedTx,
+    })
+    console.log('[executeSolanaTransaction] Got txHash:', txHash)
+
+    if (!txHash) throw new Error('Failed to broadcast Solana transaction')
+    return txHash
+  } catch (err) {
+    console.error('[executeSolanaTransaction] Broadcast error:', err)
+    console.error('[executeSolanaTransaction] Signed tx (base64):', signedTx)
+    throw err
+  }
 }

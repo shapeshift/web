@@ -363,8 +363,9 @@ export const YieldActionModal = ({
         ? yieldItem.mechanics.arguments.enter.fields
         : yieldItem.mechanics.arguments.exit.fields
     const fieldNames = new Set(fields.map(field => field.name))
-    const amountInBaseUnit = toBaseUnit(amount, yieldItem.token.decimals)
-    const args: Record<string, unknown> = { amount: amountInBaseUnit }
+    const isSolana = yieldItem.network === 'solana'
+    const yieldAmount = isSolana ? amount : toBaseUnit(amount, yieldItem.token.decimals)
+    const args: Record<string, unknown> = { amount: yieldAmount }
     if (fieldNames.has('receiverAddress')) {
       args.receiverAddress = userAddress
     }

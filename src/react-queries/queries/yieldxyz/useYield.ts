@@ -15,7 +15,7 @@ export const useYield = (yieldId: string) => {
       return augmentYield(result)
     },
     enabled: !!yieldId,
-    staleTime: 5 * 60 * 1000, // 5 minutes
+    staleTime: 60 * 1000, // 1 minute
     // Use cached yield from the list if available (avoids redundant API call)
     initialData: () => {
       const cachedYields = queryClient.getQueryData<AugmentedYieldDto[]>([

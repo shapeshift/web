@@ -1,5 +1,6 @@
 import {
   Avatar,
+  AvatarGroup,
   Box,
   Button,
   Container,
@@ -20,14 +21,20 @@ import { YieldPositionCard } from '@/pages/Yields/components/YieldPositionCard'
 import { YieldStats } from '@/pages/Yields/components/YieldStats'
 import { useYield } from '@/react-queries/queries/yieldxyz/useYield'
 import { useYieldProviders } from '@/react-queries/queries/yieldxyz/useYieldProviders'
+import { useYieldValidators } from '@/react-queries/queries/yieldxyz/useYieldValidators'
 
 export const YieldDetail = () => {
   const { yieldId } = useParams<{ yieldId: string }>()
   const navigate = useNavigate()
   const translate = useTranslate()
 
-  const { data: yieldItem, isLoading, error } = useYield(yieldId ?? '')
+  const { data: yieldItem, isLoading, isFetching, error } = useYield(yieldId ?? '')
   const { data: yieldProviders } = useYieldProviders()
+
+  const shouldFetchValidators =
+    yieldItem?.mechanics.type === 'staking' && yieldItem?.mechanics.requiresValidatorSelection
+  const { data: validators } = useYieldValidators(yieldId ?? '', shouldFetchValidators)
+
   const providerLogo = yieldProviders?.find(p => p.id === yieldItem?.providerId)?.logoURI
 
   // Premium dark mode foundation
@@ -102,14 +109,29 @@ export const YieldDetail = () => {
               </Heading>
 
               <Flex alignItems='center' gap={4} mb={4}>
-                <HStack spacing={2}>
-                  <Avatar src={providerLogo} size='xs' name={yieldItem.providerId} />
-                  <Text color='text.subtle' fontSize='md'>
-                    <Text as='span' color='white' fontWeight='semibold'>
-                      {yieldItem.providerId}
+                {shouldFetchValidators && validators && validators.length > 0 ? (
+                  <HStack spacing={2}>
+                    <AvatarGroup size='xs' max={3}>
+                      {validators.map(v => (
+                        <Avatar key={v.address} src={v.logoURI} name={v.name} />
+                      ))}
+                    </AvatarGroup>
+                    <Text color='text.subtle' fontSize='md'>
+                      <Text as='span' color='white' fontWeight='semibold'>
+                        {validators.length > 3 ? `${validators.length} Validators` : 'Validators'}
+                      </Text>
                     </Text>
-                  </Text>
-                </HStack>
+                  </HStack>
+                ) : (
+                  <HStack spacing={2}>
+                    <Avatar src={providerLogo} size='xs' name={yieldItem.providerId} />
+                    <Text color='text.subtle' fontSize='md'>
+                      <Text as='span' color='white' fontWeight='semibold'>
+                        {yieldItem.providerId}
+                      </Text>
+                    </Text>
+                  </HStack>
+                )}
               </Flex>
 
               <Text color='gray.400' fontSize='lg' maxW='container.md' lineHeight='short'>
@@ -125,7 +147,7 @@ export const YieldDetail = () => {
         <Flex direction={{ base: 'column-reverse', lg: 'row' }} gap={10}>
           {/* Main Column: Enter/Exit */}
           <Box flex={2}>
-            <YieldEnterExit yieldItem={yieldItem} />
+            <YieldEnterExit yieldItem={yieldItem} isQuoteLoading={isFetching} />
           </Box>
 
           {/* Sidebar: Your Position + Stats */}

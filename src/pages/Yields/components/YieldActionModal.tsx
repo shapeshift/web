@@ -25,11 +25,16 @@ import { FaCheck, FaExternalLinkAlt, FaWallet } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 
 import { MiddleEllipsis } from '@/components/MiddleEllipsis/MiddleEllipsis'
+import { Amount as AmountComponent } from '@/components/Amount/Amount'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import type { AugmentedYieldDto } from '@/lib/yieldxyz/types'
+import { GradientApy } from '@/pages/Yields/components/GradientApy'
 import { ModalStep, useYieldTransactionFlow } from '@/pages/Yields/hooks/useYieldTransactionFlow'
 import { useYieldProviders } from '@/react-queries/queries/yieldxyz/useYieldProviders'
 import { useYieldValidators } from '@/react-queries/queries/yieldxyz/useYieldValidators'
+
+import { selectFeeAssetByChainId, selectMarketDataByAssetIdUserCurrency } from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 type YieldActionModalProps = {
   isOpen: boolean
@@ -54,7 +59,6 @@ export const YieldActionModal = ({
     step,
     transactionSteps,
     isSubmitting,
-    activeStepIndex,
     canSubmit,
     handleConfirm,
     handleClose,
@@ -72,7 +76,11 @@ export const YieldActionModal = ({
     yieldItem.mechanics.type === 'staking' && yieldItem.mechanics.requiresValidatorSelection
 
   const { data: validators } = useYieldValidators(yieldItem.id, shouldFetchValidators)
+
   const { data: providers } = useYieldProviders()
+  const marketData = useAppSelector(state =>
+    selectMarketDataByAssetIdUserCurrency(state, yieldItem.inputTokens[0]?.assetId ?? ''),
+  )
 
   // https://docs.yield.xyz/docs/cosmos-atom-native-staking
   const FIGMENT_COSMOS_VALIDATOR_ADDRESS = 'cosmosvaloper1hjct6q7npsspsg3dgvzk3sdf89spmlpfdn6m9d'
@@ -97,9 +105,11 @@ export const YieldActionModal = ({
     const provider = providers?.find(p => p.id === yieldItem.providerId)
     if (provider) return { name: provider.name, logoURI: provider.logoURI }
 
-    // 3. Fallback
     return { name: 'Vault', logoURI: yieldItem.metadata.logoURI }
   }, [yieldItem, yieldChainId, validators, providers])
+
+  // Get network icon from fee asset
+  const feeAsset = useAppSelector(state => selectFeeAssetByChainId(state, yieldItem.chainId ?? ''))
 
   const horizontalScroll = keyframes`
         0% { background-position: 0 0; }
@@ -210,9 +220,9 @@ export const YieldActionModal = ({
             backgroundClip='padding-box'
           >
             <Avatar
-              src={yieldItem.metadata.logoURI}
+              src={vaultMetadata.logoURI}
               size='md'
-              name={yieldItem.metadata.name}
+              name={vaultMetadata.name}
               icon={
                 <Box p={2}>
                   <Icon as={FaCheck} color='white' />
@@ -221,34 +231,90 @@ export const YieldActionModal = ({
             />
           </Box>
           <Text fontSize='sm' color='gray.300' fontWeight='bold'>
-            Vault
+            {vaultMetadata.name}
           </Text>
-          {action === 'enter' && (
-            <Box
-              position='absolute'
-              top='100%'
-              left='50%'
-              transform='translateX(-50%)'
-              px={3}
-              py={0.5}
-              bg='green.900'
-              borderRadius='full'
-              border='1px solid'
-              borderColor='green.800'
-              mt={1.5}
-              whiteSpace='nowrap'
-              display='flex'
-              alignItems='center'
-              justifyContent='center'
-              boxShadow='lg'
-            >
-              <Text color='green.200' fontWeight='bold' fontSize='xs'>
-                {bnOrZero(yieldItem.rewardRate.total).times(100).toFixed(2)}% APY
-              </Text>
-            </Box>
-          )}
         </VStack>
       </Flex>
+
+      {/* Info Rows */}
+      <VStack align='stretch' spacing={0} mt={4}>
+        {/* APR Row */}
+        {action === 'enter' && (
+          <>
+            <Flex justify='space-between' align='center' py={2} borderBottomWidth='1px' borderColor='whiteAlpha.100'>
+              <Text color='gray.400' fontSize='sm'>
+                APR
+              </Text>
+              <GradientApy fontSize='sm' fontWeight='bold'>
+                {bnOrZero(yieldItem.rewardRate.total).times(100).toFixed(2)}%
+              </GradientApy>
+            </Flex>
+            {/* Estimated Earnings Row */}
+            {bnOrZero(amount).gt(0) && (
+              <Flex justify='space-between' align='center' py={2} borderBottomWidth='1px' borderColor='whiteAlpha.100'>
+                <Text color='gray.400' fontSize='sm'>
+                  Est. Earnings
+                </Text>
+                <Flex align='center' gap={1}>
+                  <Flex direction='column' align='flex-end'>
+                    <GradientApy fontSize='sm' fontWeight='bold'>
+                      {bnOrZero(amount).times(yieldItem.rewardRate.total).decimalPlaces(4).toString()} {assetSymbol}/yr
+                    </GradientApy>
+                    <Flex color='gray.500' fontWeight='normal' fontSize='xs'>
+                      <AmountComponent.Fiat
+                        value={bnOrZero(amount)
+                          .times(yieldItem.rewardRate.total)
+                          .times(marketData?.price ?? 0)
+                          .toString()}
+                      />
+                    </Flex>
+                  </Flex>
+                </Flex>
+              </Flex>
+            )}
+          </>
+        )}
+        {/* Validator Row (only for staking) */}
+        {yieldItem.mechanics.type === 'staking' && vaultMetadata.name !== 'Vault' && (
+          <Flex justify='space-between' align='center' py={2} borderBottomWidth='1px' borderColor='whiteAlpha.100'>
+            <Text color='gray.400' fontSize='sm'>
+              Validator
+            </Text>
+            <Flex align='center' gap={2}>
+              <Avatar size='xs' src={vaultMetadata.logoURI} name={vaultMetadata.name} />
+              <Text color='white' fontSize='sm' fontWeight='medium'>
+                {vaultMetadata.name}
+              </Text>
+            </Flex>
+          </Flex>
+        )}
+        {/* Provider Row (for non-staking) */}
+        {yieldItem.mechanics.type !== 'staking' && (
+          <Flex justify='space-between' align='center' py={2} borderBottomWidth='1px' borderColor='whiteAlpha.100'>
+            <Text color='gray.400' fontSize='sm'>
+              Provider
+            </Text>
+            <Flex align='center' gap={2}>
+              <Avatar size='xs' src={vaultMetadata.logoURI} name={vaultMetadata.name} />
+              <Text color='white' fontSize='sm' fontWeight='medium'>
+                {vaultMetadata.name}
+              </Text>
+            </Flex>
+          </Flex>
+        )}
+        {/* Network Row */}
+        <Flex justify='space-between' align='center' py={2}>
+          <Text color='gray.400' fontSize='sm'>
+            Network
+          </Text>
+          <Flex align='center' gap={2}>
+            {feeAsset && <Avatar size='xs' src={feeAsset.networkIcon ?? feeAsset.icon} name={yieldItem.network} />}
+            <Text color='white' fontSize='sm' fontWeight='medium' textTransform='capitalize'>
+              {yieldItem.network}
+            </Text>
+          </Flex>
+        </Flex>
+      </VStack>
 
       <VStack align='stretch' spacing={0} bg='blackAlpha.300' borderRadius='xl' overflow='hidden' mt={4}>
         {transactionSteps.map((s, idx) => (
@@ -482,8 +548,8 @@ export const YieldActionModal = ({
           <ModalCloseButton top={5} right={5} isDisabled={isSubmitting} />
           <ModalBody p={8}>
             {step !== ModalStep.Success && (
-              <Flex alignItems='center' gap={3} mb={8}>
-                <Heading size='md'>
+              <Flex alignItems='center' justifyContent='center' mb={8}>
+                <Heading size='md' textAlign='center'>
                   {action === 'enter' ? `Supply ${assetSymbol}` : `Withdraw ${assetSymbol}`}
                 </Heading>
               </Flex>

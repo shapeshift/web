@@ -18,10 +18,12 @@ import { FaMoneyBillWave } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { useLocation } from 'react-router-dom'
 
+import { GradientApy } from '@/pages/Yields/components/GradientApy'
 import { WalletActions } from '@/context/WalletProvider/actions'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 
 import { AssetInput } from '@/components/DeFi/components/AssetInput'
+import { Amount } from '@/components/Amount/Amount'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { SUI_GAS_BUFFER } from '@/lib/yieldxyz/constants'
 import type { AugmentedYieldBalance, AugmentedYieldDto } from '@/lib/yieldxyz/types'
@@ -31,12 +33,14 @@ import { useYieldAccount } from '@/pages/Yields/YieldAccountContext'
 import { useYieldBalances } from '@/react-queries/queries/yieldxyz/useYieldBalances'
 import {
   selectAccountIdByAccountNumberAndChainId,
+  selectMarketDataByAssetIdUserCurrency,
   selectPortfolioCryptoPrecisionBalanceByFilter,
 } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
 type YieldEnterExitProps = {
   yieldItem: AugmentedYieldDto
+  isQuoteLoading?: boolean
 }
 
 const percentOptions = [0.25, 0.5, 0.75, 1]
@@ -48,7 +52,7 @@ const YieldEnterExitSkeleton = () => (
   </Flex>
 )
 
-export const YieldEnterExit = ({ yieldItem }: YieldEnterExitProps) => {
+export const YieldEnterExit = ({ yieldItem, isQuoteLoading }: YieldEnterExitProps) => {
   const translate = useTranslate()
   const location = useLocation()
   const { accountNumber } = useYieldAccount()
@@ -94,11 +98,15 @@ export const YieldEnterExit = ({ yieldItem }: YieldEnterExitProps) => {
     return bnOrZero(cryptoAmount).lt(minDeposit)
   }, [cryptoAmount, minDeposit])
 
-  const { data: balances, isLoading: isBalancesLoading } = useYieldBalances({
+  const { data: balances, isLoading: isBalancesLoading, isFetching: isBalancesFetching } = useYieldBalances({
     yieldId: yieldItem.id,
     address: address ?? '',
     chainId,
   })
+
+  // Combine loading states
+  // Combine loading states
+  const isLoading = isBalancesLoading || isBalancesFetching || isQuoteLoading
 
   const extractBalance = (type: YieldBalanceType) =>
     balances?.find((b: AugmentedYieldBalance) => b.type === type)
@@ -139,7 +147,20 @@ export const YieldEnterExit = ({ yieldItem }: YieldEnterExitProps) => {
   const handleExitClick = useCallback(() => {
     setModalAction('exit')
     setIsModalOpen(true)
+    setIsModalOpen(true)
   }, [])
+
+  // Calculate estimated returns
+  const marketData = useAppSelector(state =>
+    selectMarketDataByAssetIdUserCurrency(state, inputTokenAssetId ?? ''),
+  )
+  const apy = bnOrZero(yieldItem.rewardRate.total)
+  const estimatedYearlyEarnings = bnOrZero(cryptoAmount).times(apy)
+
+  const estimatedYearlyEarningsFiat = estimatedYearlyEarnings.times(marketData?.price ?? 0)
+  const fiatAmount = bnOrZero(cryptoAmount).times(marketData?.price ?? 0).toFixed(2)
+  const hasAmount = bnOrZero(cryptoAmount).gt(0)
+  const inputSymbol = inputToken?.symbol ?? ''
 
   return (
     <>
@@ -213,16 +234,18 @@ export const YieldEnterExit = ({ yieldItem }: YieldEnterExitProps) => {
                     assetSymbol={inputToken?.symbol ?? ''}
                     assetIcon={yieldItem.metadata.logoURI}
                     cryptoAmount={cryptoAmount}
-                    showFiatAmount={false}
+                    cryptoAmount={cryptoAmount}
                     balance={inputTokenBalance}
                     percentOptions={percentOptions}
                     onChange={setCryptoAmount}
                     onPercentOptionClick={handlePercentClick}
                     onMaxClick={handleMaxClick}
+                    fiatAmount={fiatAmount}
+                    showFiatAmount={true}
                   />
                 )}
 
-                {minDeposit && !isBalancesLoading && (
+                {minDeposit && !isLoading && (
                   <Flex justifyContent='space-between' width='full' px={1}>
                     <Flex gap={2} alignItems='center'>
                       <Icon as={FaMoneyBillWave} color='gray.500' boxSize={3} />
@@ -240,6 +263,42 @@ export const YieldEnterExit = ({ yieldItem }: YieldEnterExitProps) => {
                   </Flex>
                 )}
 
+                {/* Estimated Earnings Carrot */}
+                <Box
+                  bg={useColorModeValue('gray.50', 'whiteAlpha.50')}
+                  borderRadius='lg'
+                  p={4}
+                  border='1px solid'
+                  borderColor={useColorModeValue('gray.100', 'whiteAlpha.100')}
+                >
+                  <Flex justify='space-between' align='center' mb={hasAmount ? 2 : 0}>
+                    <Text fontSize='sm' color='text.subtle' fontWeight='medium'>
+                      Current APY
+                    </Text>
+                    <GradientApy fontSize='sm' fontWeight='bold'>
+                      {apy.times(100).toFixed(2)}%
+                    </GradientApy>
+                  </Flex>
+
+                  {hasAmount && (
+                    <>
+                      <Flex justify='space-between' align='center'>
+                        <Text fontSize='sm' color='text.subtle' fontWeight='medium'>
+                          Est. Yearly Earnings/yr
+                        </Text>
+                        <Flex direction='column' align='flex-end'>
+                          <GradientApy fontSize='sm' fontWeight='bold'>
+                            {estimatedYearlyEarnings.decimalPlaces(4).toString()} {inputSymbol}
+                          </GradientApy>
+                          <Flex color='gray.500' fontWeight='normal' fontSize='xs'>
+                            <Amount.Fiat value={estimatedYearlyEarningsFiat.toString()} />
+                          </Flex>
+                        </Flex>
+                      </Flex>
+                    </>
+                  )}
+                </Box>
+
                 <Button
                   colorScheme='blue'
                   size='lg'
@@ -248,7 +307,7 @@ export const YieldEnterExit = ({ yieldItem }: YieldEnterExitProps) => {
                   fontSize='lg'
                   isDisabled={
                     isConnected &&
-                    (isBalancesLoading || !yieldItem.status.enter || !cryptoAmount || isBelowMinimum)
+                    (isLoading || !yieldItem.status.enter || !cryptoAmount || isBelowMinimum || !!isQuoteLoading)
                   }
                   onClick={
                     isConnected
@@ -257,7 +316,11 @@ export const YieldEnterExit = ({ yieldItem }: YieldEnterExitProps) => {
                   }
                   _hover={{ transform: 'translateY(-1px)', boxShadow: 'lg' }}
                 >
-                  {isConnected ? translate('yieldXYZ.enter') : translate('common.connectWallet')}
+                  {isQuoteLoading
+                    ? translate('common.loading')
+                    : isConnected
+                      ? translate('yieldXYZ.enter')
+                      : translate('common.connectWallet')}
                 </Button>
               </Flex>
             </TabPanel>
@@ -279,6 +342,8 @@ export const YieldEnterExit = ({ yieldItem }: YieldEnterExitProps) => {
                     onChange={setCryptoAmount}
                     onPercentOptionClick={handlePercentClick}
                     onMaxClick={handleMaxClick}
+                    fiatAmount={fiatAmount}
+                    showFiatAmount={true}
                   />
                 )}
 
@@ -290,7 +355,7 @@ export const YieldEnterExit = ({ yieldItem }: YieldEnterExitProps) => {
                   fontSize='lg'
                   isDisabled={
                     isConnected &&
-                    (isBalancesLoading || !yieldItem.status.exit || !cryptoAmount)
+                    (isLoading || !yieldItem.status.exit || !cryptoAmount)
                   }
                   onClick={
                     isConnected

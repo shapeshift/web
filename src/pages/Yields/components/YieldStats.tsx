@@ -1,4 +1,5 @@
 import {
+  Avatar,
   Box,
   Card,
   CardBody,
@@ -13,12 +14,14 @@ import {
   Tooltip,
   useColorModeValue,
 } from '@chakra-ui/react'
-import { FaClock, FaGasPump, FaLayerGroup, FaMoneyBillWave } from 'react-icons/fa'
+import { cosmosChainId } from '@shapeshiftoss/caip'
+import { FaClock, FaGasPump, FaLayerGroup, FaMoneyBillWave, FaUserShield } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 
 import { Amount } from '@/components/Amount/Amount'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import type { AugmentedYieldDto } from '@/lib/yieldxyz/types'
+import { useYieldValidators } from '@/react-queries/queries/yieldxyz/useYieldValidators'
 
 interface YieldStatsProps {
   yieldItem: AugmentedYieldDto
@@ -32,6 +35,36 @@ export const YieldStats = ({ yieldItem }: YieldStatsProps) => {
   const tvlUsd = bnOrZero(yieldItem.statistics?.tvlUsd).toNumber()
   const tvl = bnOrZero(yieldItem.statistics?.tvl).toNumber()
   const apy = bnOrZero(yieldItem.rewardRate.total).times(100).toNumber()
+
+  const shouldFetchValidators =
+    yieldItem.mechanics.type === 'staking' && yieldItem.mechanics.requiresValidatorSelection
+  const { data: validators } = useYieldValidators(yieldItem.id, shouldFetchValidators)
+
+  // Get validator data for staking yields
+  const validatorMetadata = (() => {
+    if (yieldItem.mechanics.type !== 'staking') return null
+
+    // Figment addresses
+    const FIGMENT_COSMOS_VALIDATOR_ADDRESS = 'cosmosvaloper1hjct6q7npsspsg3dgvzk3sdf89spmlpfdn6m9d'
+    const FIGMENT_SOLANA_VALIDATOR_ADDRESS = 'CcaHc2L43ZWjwCHART3oZoJvHLAe9hzT2DJNUpBzoTN1'
+    const FIGMENT_SUI_VALIDATOR_ADDRESS = '0x8ecaf4b95b3c82c712d3ddb22e7da88d2286c4653f3753a86b6f7a216a3ca518'
+
+    let targetValidatorAddress = ''
+    if (yieldItem.chainId === cosmosChainId) targetValidatorAddress = FIGMENT_COSMOS_VALIDATOR_ADDRESS
+    if (yieldItem.id === 'solana-sol-native-multivalidator-staking') targetValidatorAddress = FIGMENT_SOLANA_VALIDATOR_ADDRESS
+    if (yieldItem.network === 'sui') targetValidatorAddress = FIGMENT_SUI_VALIDATOR_ADDRESS
+
+    const validator = validators?.find(v => v.address === targetValidatorAddress)
+
+    if (validator) return { name: validator.name, logoURI: validator.logoURI }
+
+    // Fallback names if validator data not loaded yet or not found
+    if (targetValidatorAddress) return { name: 'Figment', logoURI: '' }
+    if (yieldItem.network === 'monad') return { name: 'Figment', logoURI: '' }
+    if (yieldItem.network === 'tron') return { name: 'Justlend', logoURI: '' }
+
+    return null
+  })()
 
   return (
     <Card bg={cardBg} borderRadius='xl' shadow='sm' border='1px solid' borderColor={borderColor}>
@@ -106,16 +139,6 @@ export const YieldStats = ({ yieldItem }: YieldStatsProps) => {
 
           {/* Mechanics Grid */}
           <Box pt={2}>
-            <Text
-              fontSize='xs'
-              color='text.subtle'
-              mb={3}
-              fontWeight='bold'
-              textTransform='uppercase'
-              letterSpacing='wide'
-            >
-              {translate('yieldXYZ.mechanics')}
-            </Text>
             <Flex direction='column' gap={4}>
               <Flex justifyContent='space-between' alignItems='center'>
                 <Flex alignItems='center' gap={2} color='text.subtle'>
@@ -126,6 +149,23 @@ export const YieldStats = ({ yieldItem }: YieldStatsProps) => {
                   {yieldItem.mechanics.type}
                 </Text>
               </Flex>
+              {/* Validator Row (only for staking) */}
+              {validatorMetadata && (
+                <Flex justifyContent='space-between' alignItems='center'>
+                  <Flex alignItems='center' gap={2} color='text.subtle'>
+                    <Icon as={FaUserShield} />
+                    <Text fontSize='sm'>Validator</Text>
+                  </Flex>
+                  <Flex alignItems='center' gap={2}>
+                    {validatorMetadata.logoURI && (
+                      <Avatar size='xs' src={validatorMetadata.logoURI} name={validatorMetadata.name} />
+                    )}
+                    <Text fontSize='sm' fontWeight='medium'>
+                      {validatorMetadata.name}
+                    </Text>
+                  </Flex>
+                </Flex>
+              )}
               <Flex justifyContent='space-between' alignItems='center'>
                 <Flex alignItems='center' gap={2} color='text.subtle'>
                   <Icon as={FaClock} />

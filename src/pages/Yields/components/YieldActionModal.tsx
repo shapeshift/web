@@ -158,8 +158,6 @@ export const YieldActionModal = ({
   const hasStartedRef = useRef(false)
   const handleConfirmRef = useRef<(() => Promise<void>) | null>(null)
 
-
-
   useEffect(() => {
     if (!isOpen) {
       hasStartedRef.current = false
@@ -199,12 +197,12 @@ export const YieldActionModal = ({
     const cosmosStakeArgs: CosmosStakeArgs | undefined =
       yieldChainId === cosmosChainId
         ? {
-          validator: FIGMENT_COSMOS_VALIDATOR_ADDRESS,
-          amountCryptoBaseUnit: bnOrZero(amount)
-            .times(bnOrZero(10).pow(yieldItem.token.decimals))
-            .toFixed(0),
-          action: action === 'enter' ? 'stake' : 'unstake',
-        }
+            validator: FIGMENT_COSMOS_VALIDATOR_ADDRESS,
+            amountCryptoBaseUnit: bnOrZero(amount)
+              .times(bnOrZero(10).pow(yieldItem.token.decimals))
+              .toFixed(0),
+            action: action === 'enter' ? 'stake' : 'unstake',
+          }
         : undefined
 
     try {
@@ -248,8 +246,8 @@ export const YieldActionModal = ({
       const actionType = isApproval
         ? ActionType.Approve
         : action === 'enter'
-          ? ActionType.Deposit
-          : ActionType.Withdraw
+        ? ActionType.Deposit
+        : ActionType.Withdraw
       const displayType = isApproval
         ? GenericTransactionDisplayType.Approve
         : GenericTransactionDisplayType.Yield
@@ -604,8 +602,8 @@ export const YieldActionModal = ({
                 {s.status === 'success'
                   ? 'Done'
                   : s.status === 'loading'
-                    ? 'Sign now...'
-                    : 'Waiting'}
+                  ? 'Sign now...'
+                  : 'Waiting'}
               </Text>
             )}
           </Flex>
@@ -640,8 +638,8 @@ export const YieldActionModal = ({
         {isSubmitting
           ? 'Processing...'
           : activeStepIndex >= 0 && transactionSteps[activeStepIndex]
-            ? transactionSteps[activeStepIndex].title
-            : `Confirm ${action === 'enter' ? 'Deposit' : 'Withdrawal'}`}
+          ? transactionSteps[activeStepIndex].title
+          : `Confirm ${action === 'enter' ? 'Deposit' : 'Withdrawal'}`}
       </Button>
     </VStack>
   )

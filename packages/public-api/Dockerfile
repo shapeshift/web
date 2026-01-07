@@ -21,8 +21,8 @@ COPY packages/unchained-client/package.json ./packages/unchained-client/
 COPY packages/contracts/package.json ./packages/contracts/
 COPY packages/errors/package.json ./packages/errors/
 
-# Install dependencies
-RUN yarn install --immutable
+# Install dependencies (skip postinstall scripts that require git/cypress/etc)
+RUN YARN_ENABLE_SCRIPTS=false yarn install --immutable
 
 # Copy source files
 COPY packages/ ./packages/

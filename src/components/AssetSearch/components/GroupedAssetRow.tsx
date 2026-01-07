@@ -1,5 +1,6 @@
 import { ChevronDownIcon, ChevronUpIcon } from '@chakra-ui/icons'
 import { Box, Button, Center, Collapse, Flex, Text as CText, useDisclosure } from '@chakra-ui/react'
+import type { AssetId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import type { FC } from 'react'
@@ -31,6 +32,7 @@ type GroupedAssetRowProps = {
   hideZeroBalanceAmounts?: boolean
   showPrice?: boolean
   onLongPress?: (asset: Asset) => void
+  relatedAssetIds?: AssetId[]
 }
 
 export const GroupedAssetRow: FC<GroupedAssetRowProps> = ({
@@ -40,6 +42,7 @@ export const GroupedAssetRow: FC<GroupedAssetRowProps> = ({
   hideZeroBalanceAmounts,
   showPrice,
   onLongPress,
+  relatedAssetIds: providedRelatedAssetIds,
 }) => {
   const { isOpen, onToggle } = useDisclosure()
   const assets = useAppSelector(selectAssets)
@@ -67,10 +70,13 @@ export const GroupedAssetRow: FC<GroupedAssetRowProps> = ({
     }),
     [asset],
   )
-  const relatedAssetIds = useSelectorWithArgs(
+
+  // Always fetch relatedAssetIds, but prefer provided filtered list if available
+  const allRelatedAssetIds = useSelectorWithArgs(
     selectRelatedAssetIdsInclusiveSorted,
     relatedAssetIdsFilter,
   )
+  const relatedAssetIds = providedRelatedAssetIds ?? allRelatedAssetIds
 
   const handleGroupClick = useCallback(
     (e: React.MouseEvent) => {

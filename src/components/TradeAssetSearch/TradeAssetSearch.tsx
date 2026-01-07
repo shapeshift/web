@@ -305,7 +305,7 @@ export const TradeAssetSearch: FC<TradeAssetSearchProps> = ({
     [onSelectFiatCurrency],
   )
 
-  const renferFiatItem = useCallback(
+  const renderFiatItem = useCallback(
     (index: number) => {
       const fiat = searchFiatCurrencies[index]
       return <FiatRow key={fiat.code} fiat={fiat} onClick={handleFiatClick} />
@@ -322,7 +322,7 @@ export const TradeAssetSearch: FC<TradeAssetSearchProps> = ({
             <Virtuoso
               className='scroll-container'
               data={searchFiatCurrencies}
-              itemContent={renferFiatItem}
+              itemContent={renderFiatItem}
               style={style}
               overscan={1000}
               increaseViewportBy={INCREASE_VIEWPORT_BY}
@@ -380,6 +380,8 @@ export const TradeAssetSearch: FC<TradeAssetSearchProps> = ({
                   popularAssets={popularAssets}
                   onAssetClick={handleAssetClick}
                   activeChainId={activeChainId}
+                  assetFilterPredicate={assetFilterPredicate}
+                  chainIdFilterPredicate={chainIdFilterPredicate}
                 />
               )}
             </TabPanel>
@@ -389,7 +391,7 @@ export const TradeAssetSearch: FC<TradeAssetSearchProps> = ({
                 <Virtuoso
                   className='scroll-container'
                   data={searchFiatCurrencies}
-                  itemContent={renferFiatItem}
+                  itemContent={renderFiatItem}
                   style={style}
                   overscan={1000}
                   increaseViewportBy={INCREASE_VIEWPORT_BY}
@@ -428,12 +430,15 @@ export const TradeAssetSearch: FC<TradeAssetSearchProps> = ({
         popularAssets={popularAssets}
         onAssetClick={handleAssetClick}
         activeChainId={activeChainId}
+        assetFilterPredicate={assetFilterPredicate}
+        chainIdFilterPredicate={chainIdFilterPredicate}
       />
     )
   }, [
     activeChainId,
     allowWalletUnsupportedAssets,
     assetFilterPredicate,
+    chainIdFilterPredicate,
     handleAssetClick,
     handleImportIntent,
     hasWallet,
@@ -443,7 +448,7 @@ export const TradeAssetSearch: FC<TradeAssetSearchProps> = ({
     popularAssets,
     portfolioAssetsSortedByBalanceForChain,
     workerSearchState,
-    renferFiatItem,
+    renderFiatItem,
     searchFiatCurrencies,
     searchString,
     showFiatTab,

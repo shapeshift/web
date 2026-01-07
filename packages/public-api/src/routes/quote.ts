@@ -25,7 +25,7 @@ export const QuoteRequestSchema = z.object({
   sellAmountCryptoBaseUnit: z.string().min(1).openapi({ example: '1000000000000000000' }),
   receiveAddress: z.string().min(1).openapi({ example: '0x0000000000000000000000000000000000000000' }),
   sendAddress: z.string().optional().openapi({ example: '0x0000000000000000000000000000000000000000' }),
-  swapperName: z.string().min(1).openapi({ example: 'THORChain' }),
+  swapperName: z.string().min(1).openapi({ example: '0x' }),
   slippageTolerancePercentageDecimal: z.string().optional().openapi({ example: '0.01' }),
   allowMultiHop: z.boolean().optional().default(true).openapi({ example: true }),
   accountNumber: z.number().optional().default(0).openapi({ example: 0 }),

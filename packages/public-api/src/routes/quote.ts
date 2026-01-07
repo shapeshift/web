@@ -1,7 +1,7 @@
 import type { Request, Response } from 'express'
 import { z } from 'zod'
 import { v4 as uuidv4 } from 'uuid'
-import type { TradeQuote, TradeQuoteStep, SwapperName } from '@shapeshiftoss/swapper'
+import type { TradeQuote, TradeQuoteStep, SwapperName, GetTradeQuoteInputWithWallet } from '@shapeshiftoss/swapper'
 import { fromChainId } from '@shapeshiftoss/caip'
 
 import { getAssetsById, getAsset } from '../assets'
@@ -200,7 +200,7 @@ export const getQuote = async (req: Request, res: Response): Promise<void> => {
     }
 
     // Fetch quote
-    const result = await getTradeQuotes(quoteInput, validSwapperName, deps)
+    const result = await getTradeQuotes(quoteInput as GetTradeQuoteInputWithWallet, validSwapperName, deps)
 
     if (!result) {
       res.status(404).json({ error: 'No quote available from this swapper' } as ErrorResponse)

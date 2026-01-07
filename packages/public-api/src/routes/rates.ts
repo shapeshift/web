@@ -5,6 +5,7 @@ import { getAssetsById, getAsset } from '../assets'
 import { DEFAULT_AFFILIATE_BPS } from '../config'
 import { createServerSwapperDeps } from '../swapperDeps'
 import type { ApiRate, RatesResponse, ErrorResponse } from '../types'
+import type { GetTradeRateInput } from '@shapeshiftoss/swapper'
 
 // Request validation schema
 const RatesRequestSchema = z.object({
@@ -108,7 +109,7 @@ export const getRates = async (req: Request, res: Response): Promise<void> => {
         const swapper = swappers[swapperName]
         if (!swapper) return null
 
-        const result = await getTradeRates(rateInput, swapperName, deps, RATE_TIMEOUT_MS)
+        const result = await getTradeRates(rateInput as GetTradeRateInput, swapperName, deps, RATE_TIMEOUT_MS)
 
         if (!result) return null
 

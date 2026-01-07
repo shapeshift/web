@@ -1,8 +1,8 @@
 import { Box, Card, CardBody, Flex, Stat, StatLabel, StatNumber, Text } from '@chakra-ui/react'
 import { useTranslate } from 'react-polyglot'
 
+import { Amount } from '@/components/Amount/Amount'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
-import { formatLargeNumber } from '@/lib/utils/formatters'
 import type { AugmentedYieldBalance, AugmentedYieldDto } from '@/lib/yieldxyz/types'
 
 type YieldOverviewProps = {
@@ -74,7 +74,7 @@ export const YieldOverview = ({ positions, balances }: YieldOverviewProps) => {
               {translate('yieldXYZ.yourDeposits')}
             </Text>
             <Text fontSize='4xl' fontWeight='800' color='white' lineHeight='1'>
-              {formatLargeNumber(totalValueUsd.toNumber(), '$')}
+              <Amount.Fiat value={totalValueUsd.toFixed()} abbreviated />
             </Text>
           </Box>
 

@@ -12,10 +12,10 @@ import {
 import { useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 
+import { Amount } from '@/components/Amount/Amount'
 import { AssetIcon } from '@/components/AssetIcon'
 import { ChainIcon } from '@/components/ChainMenu'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
-import { formatLargeNumber } from '@/lib/utils/formatters'
 import type { AugmentedYieldDto } from '@/lib/yieldxyz/types'
 import { useYieldProviders } from '@/react-queries/queries/yieldxyz/useYieldProviders'
 
@@ -107,7 +107,7 @@ export const YieldAssetGroupRow = ({
       </Text>
 
       <Text fontWeight='medium' fontSize='sm' w='90px' display={{ base: 'none', md: 'block' }}>
-        {formatLargeNumber(stats.totalTvl.toNumber(), '$')}
+        <Amount.Fiat value={stats.totalTvl.toFixed()} abbreviated />
       </Text>
 
       <HStack spacing={1} w='100px' display={{ base: 'none', lg: 'flex' }}>

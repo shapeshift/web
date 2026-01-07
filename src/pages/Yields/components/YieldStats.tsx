@@ -16,8 +16,8 @@ import {
 import { FaClock, FaGasPump, FaLayerGroup, FaMoneyBillWave } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 
+import { Amount } from '@/components/Amount/Amount'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
-import { formatLargeNumber } from '@/lib/utils/formatters'
 import type { AugmentedYieldDto } from '@/lib/yieldxyz/types'
 
 interface YieldStatsProps {
@@ -97,10 +97,10 @@ export const YieldStats = ({ yieldItem }: YieldStatsProps) => {
               {translate('yieldXYZ.tvl')}
             </StatLabel>
             <StatNumber fontSize='xl' fontWeight='bold'>
-              {formatLargeNumber(tvlUsd, '$')}
+              <Amount.Fiat value={tvlUsd} abbreviated />
             </StatNumber>
             <Text fontSize='xs' color='text.subtle' mt={1}>
-              {formatLargeNumber(tvl)} {yieldItem.token.symbol}
+              <Amount.Crypto value={tvl.toFixed()} symbol={yieldItem.token.symbol} abbreviated />
             </Text>
           </Stat>
 

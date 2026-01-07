@@ -20,7 +20,6 @@ import { useNavigate } from 'react-router-dom'
 import { Amount } from '@/components/Amount/Amount'
 import { AssetIcon } from '@/components/AssetIcon'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
-import { formatLargeNumber } from '@/lib/utils/formatters'
 import type { AugmentedYieldDto } from '@/lib/yieldxyz/types'
 import { useYieldProviders } from '@/react-queries/queries/yieldxyz/useYieldProviders'
 import { selectAssetById } from '@/state/slices/selectors'
@@ -141,7 +140,7 @@ export const YieldActivePositions = ({ balances, yields, assetId }: YieldActiveP
                   </Td>
                   <Td isNumeric>
                     <Text fontSize='sm' color='text.subtle'>
-                      {tvl ? formatLargeNumber(tvl, '$') : '-'}
+                      {tvl ? <Amount.Fiat value={tvl} abbreviated /> : '-'}
                     </Text>
                   </Td>
                   <Td isNumeric>

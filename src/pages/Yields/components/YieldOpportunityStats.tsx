@@ -13,8 +13,8 @@ import {
 import { useMemo } from 'react'
 import { FaChartPie, FaLeaf } from 'react-icons/fa'
 
+import { Amount } from '@/components/Amount/Amount'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
-import { formatLargeNumber } from '@/lib/utils/formatters'
 import type { AugmentedYieldDto, YieldBalancesResponse } from '@/lib/yieldxyz/types'
 import { selectPortfolioUserCurrencyBalances } from '@/state/slices/common-selectors'
 import { useAppSelector } from '@/state/store'
@@ -104,7 +104,7 @@ export const YieldOpportunityStats = ({
             Active Deposits
           </StatLabel>
           <StatNumber fontSize='3xl' fontWeight='bold' color='white'>
-            {formatLargeNumber(activeValueUsd.toNumber(), '$')}
+            <Amount.Fiat value={activeValueUsd.toFixed()} abbreviated />
           </StatNumber>
           <StatHelpText color='blue.300'>Across {positions.length} positions</StatHelpText>
         </Stat>
@@ -131,7 +131,7 @@ export const YieldOpportunityStats = ({
               Available to Earn
             </StatLabel>
             <StatNumber fontSize='3xl' fontWeight='bold' color='white'>
-              {formatLargeNumber(idleValueUsd.toNumber(), '$')}
+              <Amount.Fiat value={idleValueUsd.toFixed()} abbreviated />
             </StatNumber>
             <StatHelpText color='purple.300'>
               Idle assets that could be earning up to {maxApy.toFixed(2)}% APY
@@ -160,7 +160,7 @@ export const YieldOpportunityStats = ({
                 Potential Earnings
               </Text>
               <Text fontSize='xl' fontWeight='bold' color='white'>
-                {formatLargeNumber(idleValueUsd.times(0.05).toNumber(), '$')} / yr
+                <Amount.Fiat value={idleValueUsd.times(0.05).toFixed()} abbreviated /> / yr
               </Text>
             </Box>
             {onToggleMyOpportunities && (

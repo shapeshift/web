@@ -12,8 +12,8 @@ import {
   useColorModeValue,
 } from '@chakra-ui/react'
 
+import { Amount } from '@/components/Amount/Amount'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
-import { formatLargeNumber } from '@/lib/utils/formatters'
 import type { AugmentedYieldDto } from '@/lib/yieldxyz/types'
 
 interface YieldRowProps {
@@ -83,7 +83,7 @@ export const YieldRow = ({ yield: yieldItem, onEnter }: YieldRowProps) => {
       {/* 3. TVL */}
       <Box flex={1} display={{ base: 'none', md: 'block' }}>
         <Text fontWeight='semibold' fontSize='sm'>
-          {formatLargeNumber(yieldItem.statistics?.tvlUsd ?? '0', '$')}
+          <Amount.Fiat value={yieldItem.statistics?.tvlUsd ?? '0'} abbreviated />
         </Text>
         <Text fontSize='xs' color='text.subtle'>
           TVL

@@ -16,8 +16,8 @@ import {
 import { fromAccountId } from '@shapeshiftoss/caip'
 import { useTranslate } from 'react-polyglot'
 
+import { Amount } from '@/components/Amount/Amount'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
-import { formatLargeNumber } from '@/lib/utils/formatters'
 import type { AugmentedYieldBalance, AugmentedYieldDto } from '@/lib/yieldxyz/types'
 import { YieldBalanceType } from '@/lib/yieldxyz/types'
 import { useYieldBalances } from '@/react-queries/queries/yieldxyz/useYieldBalances'
@@ -63,7 +63,7 @@ export const YieldPositionCard = ({ yieldItem }: YieldPositionCardProps) => {
 
   const formatBalance = (balance: AugmentedYieldBalance | undefined) => {
     if (!balance) return '0'
-    return `${formatLargeNumber(bnOrZero(balance.amount).toNumber())} ${balance.token.symbol}`
+    return <Amount.Crypto value={balance.amount} symbol={balance.token.symbol} abbreviated />
   }
   const hasEntering = enteringBalance && bnOrZero(enteringBalance.amount).gt(0)
   const hasExiting = exitingBalance && bnOrZero(exitingBalance.amount).gt(0)
@@ -128,10 +128,14 @@ export const YieldPositionCard = ({ yieldItem }: YieldPositionCardProps) => {
                 {translate('yieldXYZ.totalValue')}
               </Text>
               <Text fontSize='3xl' fontWeight='800' lineHeight='1'>
-                {formatLargeNumber(totalValueUsd.toNumber(), '$')}
+                <Amount.Fiat value={totalValueUsd.toFixed()} abbreviated />
               </Text>
               <Text fontSize='sm' color='text.subtle' mt={1}>
-                {formatLargeNumber(totalAmount.toNumber())} {yieldItem.token.symbol}
+                <Amount.Crypto
+                  value={totalAmount.toFixed()}
+                  symbol={yieldItem.token.symbol}
+                  abbreviated
+                />
               </Text>
             </Box>
 

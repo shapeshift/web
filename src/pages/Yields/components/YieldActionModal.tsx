@@ -1,3 +1,4 @@
+import { cosmosChainId } from '@shapeshiftoss/caip'
 import {
   Avatar,
   Box,
@@ -13,75 +14,19 @@ import {
   ModalOverlay,
   Spinner,
   Text,
-  useToast,
   VStack,
 } from '@chakra-ui/react'
 import { keyframes } from '@emotion/react'
-import type { AssetId, ChainId } from '@shapeshiftoss/caip'
-import { cosmosChainId, fromAccountId } from '@shapeshiftoss/caip'
-import type { ChainAdapter } from '@shapeshiftoss/chain-adapters'
-import type { KnownChainIds } from '@shapeshiftoss/types'
-import { TxStatus } from '@shapeshiftoss/unchained-client'
-import { uuidv4 } from '@walletconnect/utils'
-import { useState } from 'react'
+import { useMemo } from 'react'
 import { FaCheck, FaExternalLinkAlt, FaWallet } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 
 import { MiddleEllipsis } from '@/components/MiddleEllipsis/MiddleEllipsis'
-import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
-import { makeBlockiesUrl } from '@/lib/blockies/makeBlockiesUrl'
-import { toBaseUnit } from '@/lib/math'
-import { assertGetChainAdapter } from '@/lib/utils'
-import type { CosmosStakeArgs } from '@/lib/yieldxyz/executeTransaction'
-import { executeTransaction } from '@/lib/yieldxyz/executeTransaction'
-import type { AugmentedYieldDto, TransactionDto } from '@/lib/yieldxyz/types'
-import { TransactionStatus } from '@/lib/yieldxyz/types'
-import { useEnterYield } from '@/react-queries/queries/yieldxyz/useEnterYield'
-import { useExitYield } from '@/react-queries/queries/yieldxyz/useExitYield'
-import { useSubmitYieldTransactionHash } from '@/react-queries/queries/yieldxyz/useSubmitYieldTransactionHash'
-import { actionSlice } from '@/state/slices/actionSlice/actionSlice'
-import {
-  ActionStatus,
-  ActionType,
-  GenericTransactionDisplayType,
-} from '@/state/slices/actionSlice/types'
-import { selectPortfolioAccountMetadataByAccountId } from '@/state/slices/portfolioSlice/selectors'
-import { selectFeeAssetByChainId, selectFirstAccountIdByChainId } from '@/state/slices/selectors'
-import { useAppDispatch, useAppSelector } from '@/state/store'
-
-// https://docs.yield.xyz/docs/cosmos-atom-native-staking
-const FIGMENT_COSMOS_VALIDATOR_ADDRESS = 'cosmosvaloper1hjct6q7npsspsg3dgvzk3sdf89spmlpfdn6m9d'
-const FIGMENT_SOLANA_VALIDATOR_ADDRESS = 'CcaHc2L43ZWjwCHART3oZoJvHLAe9hzT2DJNUpBzoTN1'
-const FIGMENT_SUI_VALIDATOR_ADDRESS =
-  '0x8ecaf4b95b3c82c712d3ddb22e7da88d2286c4653f3753a86b6f7a216a3ca518'
-
-const waitForTransactionConfirmation = async (
-  adapter: ChainAdapter<ChainId>,
-  txHash: string,
-): Promise<void> => {
-  const pollInterval = 5000
-  const maxAttempts = 120 // 10 minutes
-
-  for (let i = 0; i < maxAttempts; i++) {
-    try {
-      if ('getTransactionStatus' in adapter) {
-        // cast to any allows access to the method we just checked exists
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const status = await (adapter as any).getTransactionStatus(txHash)
-        if (status === TxStatus.Confirmed) return
-        if (status === TxStatus.Failed) throw new Error('Transaction failed on-chain')
-      } else {
-        // Fallback or warning? For now return to avoid infinite loop on unsupported chains
-        return
-      }
-    } catch (e) {
-      // ignore fetching errors
-    }
-    await new Promise(resolve => setTimeout(resolve, pollInterval))
-  }
-  throw new Error('Transaction confirmation timed out')
-}
+import type { AugmentedYieldDto } from '@/lib/yieldxyz/types'
+import { ModalStep, useYieldTransactionFlow } from '@/pages/Yields/hooks/useYieldTransactionFlow'
+import { useYieldProviders } from '@/react-queries/queries/yieldxyz/useYieldProviders'
+import { useYieldValidators } from '@/react-queries/queries/yieldxyz/useYieldValidators'
 
 type YieldActionModalProps = {
   isOpen: boolean
@@ -92,26 +37,6 @@ type YieldActionModalProps = {
   assetSymbol: string
 }
 
-enum ModalStep {
-  InProgress = 'in_progress',
-  Success = 'success',
-}
-
-const formatTxTitle = (title: string, assetSymbol: string) => {
-  const t = title.replace(/ transaction$/i, '').toLowerCase()
-  if (t.includes('approval') || t.includes('approve') || t.includes('approved'))
-    return `Approve ${assetSymbol}`
-  if (t.includes('supply') || t.includes('deposit') || t.includes('enter'))
-    return `Deposit ${assetSymbol}`
-  if (t.includes('withdraw') || t.includes('withdrawal') || t.includes('exit'))
-    return `Withdraw ${assetSymbol}`
-  if (t.includes('claim')) return `Claim ${assetSymbol}`
-  if (t.includes('unstake')) return `Unstake ${assetSymbol}`
-  if (t.includes('stake')) return `Stake ${assetSymbol}`
-  // Fallback: Sentence case
-  return t.charAt(0).toUpperCase() + t.slice(1)
-}
-
 export const YieldActionModal = ({
   isOpen,
   onClose,
@@ -120,316 +45,58 @@ export const YieldActionModal = ({
   amount,
   assetSymbol,
 }: YieldActionModalProps) => {
-  const dispatch = useAppDispatch()
-  const toast = useToast()
   const translate = useTranslate()
+
   const {
-    state: { wallet },
-  } = useWallet()
+    step,
+    transactionSteps,
+    isSubmitting,
+    activeStepIndex,
+    canSubmit,
+    handleConfirm,
+    handleClose,
+  } = useYieldTransactionFlow({
+    yieldItem,
+    action,
+    amount,
+    assetSymbol,
+    onClose,
+  })
 
-  // State
-  const [step, setStep] = useState<ModalStep>(ModalStep.InProgress)
-  const [rawTransactions, setRawTransactions] = useState<TransactionDto[]>([])
-  const [transactionSteps, setTransactionSteps] = useState<
-    {
-      title: string
-      status: 'pending' | 'success' | 'loading'
-      originalTitle: string
-      txHash?: string
-      txUrl?: string
-      loadingMessage?: string
-    }[]
-  >([])
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [activeStepIndex, setActiveStepIndex] = useState(-1)
-
-  // Mutations
-  const enterMutation = useEnterYield()
-  const exitMutation = useExitYield()
-  const submitHashMutation = useSubmitYieldTransactionHash()
-
+  // Vault Metadata Logic (retained for UI)
   const { chainId: yieldChainId } = yieldItem
-  const accountId = useAppSelector(state =>
-    yieldChainId ? selectFirstAccountIdByChainId(state, yieldChainId) : undefined,
-  )
-  const feeAsset = useAppSelector(state =>
-    yieldChainId ? selectFeeAssetByChainId(state, yieldChainId) : undefined,
-  )
-  const accountMetadata = useAppSelector(state =>
-    accountId ? selectPortfolioAccountMetadataByAccountId(state, { accountId }) : undefined,
-  )
+  const shouldFetchValidators =
+    yieldItem.mechanics.type === 'staking' && yieldItem.mechanics.requiresValidatorSelection
 
-  const userAddress = accountId ? fromAccountId(accountId).account : ''
-  const walletAvatarUrl = userAddress ? makeBlockiesUrl(userAddress) : ''
+  const { data: validators } = useYieldValidators(yieldItem.id, shouldFetchValidators)
+  const { data: providers } = useYieldProviders()
 
-  const canSubmit = Boolean(wallet && accountId && yieldChainId && bnOrZero(amount).gt(0))
+  // https://docs.yield.xyz/docs/cosmos-atom-native-staking
+  const FIGMENT_COSMOS_VALIDATOR_ADDRESS = 'cosmosvaloper1hjct6q7npsspsg3dgvzk3sdf89spmlpfdn6m9d'
+  const FIGMENT_SOLANA_VALIDATOR_ADDRESS = 'CcaHc2L43ZWjwCHART3oZoJvHLAe9hzT2DJNUpBzoTN1'
+  const FIGMENT_SUI_VALIDATOR_ADDRESS =
+    '0x8ecaf4b95b3c82c712d3ddb22e7da88d2286c4653f3753a86b6f7a216a3ca518'
 
-  const handleClose = () => {
-    if (isSubmitting) return
-    setStep(ModalStep.InProgress)
-    setTransactionSteps([])
-    setRawTransactions([])
-    setActiveStepIndex(-1)
-    onClose()
-  }
+  const vaultMetadata = useMemo(() => {
+    // 1. Staking: specific validator
+    if (yieldItem.mechanics.type === 'staking') {
+      let targetValidatorAddress = ''
+      if (yieldChainId === cosmosChainId) targetValidatorAddress = FIGMENT_COSMOS_VALIDATOR_ADDRESS
+      if (yieldItem.id === 'solana-sol-native-multivalidator-staking')
+        targetValidatorAddress = FIGMENT_SOLANA_VALIDATOR_ADDRESS
+      if (yieldItem.network === 'sui') targetValidatorAddress = FIGMENT_SUI_VALIDATOR_ADDRESS
 
-  const filterExecutableTransactions = (transactions: TransactionDto[]): TransactionDto[] =>
-    transactions.filter(tx => tx.status === TransactionStatus.Created)
-
-  const executeSingleTransaction = async (
-    tx: TransactionDto,
-    index: number,
-    allTransactions: TransactionDto[],
-  ) => {
-    if (!wallet || !accountId) {
-      throw new Error(translate('yieldXYZ.errors.walletNotConnected'))
-    }
-    if (!yieldChainId) {
-      throw new Error(translate('yieldXYZ.errors.unsupportedYieldNetwork'))
+      const validator = validators?.find(v => v.address === targetValidatorAddress)
+      if (validator) return { name: validator.name, logoURI: validator.logoURI }
     }
 
-    const adapter = assertGetChainAdapter(yieldChainId as KnownChainIds)
+    // 2. Lending/Others: Provider
+    const provider = providers?.find(p => p.id === yieldItem.providerId)
+    if (provider) return { name: provider.name, logoURI: provider.logoURI }
 
-    // Update step status to loading
-    setTransactionSteps(prev =>
-      prev.map((s, idx) =>
-        idx === index
-          ? { ...s, status: 'loading', loadingMessage: translate('yieldXYZ.loading.signInWallet') }
-          : s,
-      ),
-    )
-    setIsSubmitting(true)
-
-    const cosmosStakeArgs: CosmosStakeArgs | undefined =
-      yieldChainId === cosmosChainId
-        ? {
-            validator: FIGMENT_COSMOS_VALIDATOR_ADDRESS,
-            amountCryptoBaseUnit: bnOrZero(amount)
-              .times(bnOrZero(10).pow(yieldItem.token.decimals))
-              .toFixed(0),
-            action: action === 'enter' ? 'stake' : 'unstake',
-          }
-        : undefined
-
-    try {
-      const txHash = await executeTransaction({
-        tx,
-        chainId: yieldChainId,
-        wallet,
-        accountId,
-        userAddress,
-        bip44Params: accountMetadata?.bip44Params,
-        cosmosStakeArgs,
-      })
-
-      if (!txHash) throw new Error(translate('yieldXYZ.errors.broadcastFailed'))
-
-      // Get Explorer URL
-      const txUrl = feeAsset ? `${feeAsset.explorerTxLink}${txHash}` : ''
-
-      // Show "Confirming..." state
-      setTransactionSteps(prev =>
-        prev.map((s, idx) =>
-          idx === index ? { ...s, txHash, txUrl, loadingMessage: 'Confirming...' } : s,
-        ),
-      )
-
-      // Wait for confirmation
-      await waitForTransactionConfirmation(adapter, txHash)
-
-      // 4. Submit Hash - invalidation handled by mutation's onSuccess
-      await submitHashMutation.mutateAsync({
-        transactionId: tx.id,
-        hash: txHash,
-        yieldId: yieldItem.id,
-        address: userAddress,
-      })
-
-      // Dispatch Action for Notification Center
-      const isApproval = tx.title && tx.title.toLowerCase().includes('approv')
-      const actionType = isApproval
-        ? ActionType.Approve
-        : action === 'enter'
-        ? ActionType.Deposit
-        : ActionType.Withdraw
-      const displayType = isApproval
-        ? GenericTransactionDisplayType.Approve
-        : GenericTransactionDisplayType.Yield
-
-      dispatch(
-        actionSlice.actions.upsertAction({
-          id: uuidv4(),
-          type: actionType,
-          status: ActionStatus.Pending,
-          createdAt: Date.now(),
-          updatedAt: Date.now(),
-          transactionMetadata: {
-            displayType,
-            txHash,
-            chainId: yieldChainId,
-            assetId: (yieldItem.token.assetId || '') as AssetId,
-            accountId,
-            message: formatTxTitle(tx.title || 'Transaction', assetSymbol),
-            amountCryptoPrecision: amount,
-          },
-        }),
-      )
-
-      // Update step status to success
-      setTransactionSteps(prev =>
-        prev.map((s, idx) =>
-          idx === index ? { ...s, status: 'success', txHash, txUrl, loadingMessage: undefined } : s,
-        ),
-      )
-
-      // Check if next step exists
-      if (index + 1 < allTransactions.length) {
-        setActiveStepIndex(index + 1)
-        setIsSubmitting(false) // Stop submitting to allow user to click next button
-      } else {
-        setStep(ModalStep.Success)
-        setIsSubmitting(false)
-      }
-    } catch (error) {
-      console.error('Transaction execution failed:', error)
-      toast({
-        title: translate('yieldXYZ.errors.transactionFailedTitle'),
-        description: translate('yieldXYZ.errors.transactionFailedDescription'),
-        status: 'error',
-        duration: 5000,
-        isClosable: true,
-      })
-      setIsSubmitting(false)
-      // Reset step status to pending or error state if we had one?
-      // For now keep as loading (stuck) or revert to pending?
-      // Let's revert to pending so user can retry
-      setTransactionSteps(prev =>
-        prev.map((s, idx) =>
-          idx === index ? { ...s, status: 'pending', loadingMessage: undefined } : s,
-        ),
-      )
-    }
-  }
-
-  const handleConfirm = async () => {
-    // Continue existing sequence
-    if (activeStepIndex >= 0 && rawTransactions[activeStepIndex]) {
-      await executeSingleTransaction(
-        rawTransactions[activeStepIndex],
-        activeStepIndex,
-        rawTransactions,
-      )
-      return
-    }
-
-    // Initial Start
-    if (!yieldChainId) {
-      toast({
-        title: translate('yieldXYZ.errors.unsupportedNetworkTitle'),
-        description: translate('yieldXYZ.errors.unsupportedNetworkDescription'),
-        status: 'error',
-        duration: 5000,
-        isClosable: true,
-      })
-      return
-    }
-    if (!wallet || !accountId) {
-      toast({
-        title: translate('yieldXYZ.errors.walletNotConnectedTitle'),
-        description: translate('yieldXYZ.errors.walletNotConnectedDescription'),
-        status: 'error',
-        duration: 5000,
-        isClosable: true,
-      })
-      return
-    }
-    if (!bnOrZero(amount).gt(0)) {
-      toast({
-        title: translate('yieldXYZ.errors.enterAmountTitle'),
-        description: translate('yieldXYZ.errors.enterAmountDescription'),
-        status: 'error',
-        duration: 4000,
-        isClosable: true,
-      })
-      return
-    }
-    setIsSubmitting(true)
-
-    // Show generic loading state immediately
-    setTransactionSteps([
-      {
-        title: translate('yieldXYZ.loading.preparingTransaction'),
-        status: 'loading',
-        originalTitle: '',
-      },
-    ])
-
-    const mutation = action === 'enter' ? enterMutation : exitMutation
-
-    const fields =
-      action === 'enter'
-        ? yieldItem.mechanics.arguments.enter.fields
-        : yieldItem.mechanics.arguments.exit.fields
-    const fieldNames = new Set(fields.map(field => field.name))
-    const isSolana = yieldItem.network === 'solana'
-    const yieldAmount = isSolana ? amount : toBaseUnit(amount, yieldItem.token.decimals)
-    const args: Record<string, unknown> = { amount: yieldAmount }
-    if (fieldNames.has('receiverAddress')) {
-      args.receiverAddress = userAddress
-    }
-    if (fieldNames.has('validatorAddress')) {
-      if (yieldChainId === cosmosChainId) {
-        args.validatorAddress = FIGMENT_COSMOS_VALIDATOR_ADDRESS
-      }
-      if (yieldItem.id === 'solana-sol-native-multivalidator-staking') {
-        args.validatorAddress = FIGMENT_SOLANA_VALIDATOR_ADDRESS
-      }
-      if (yieldItem.network === 'sui') {
-        args.validatorAddress = FIGMENT_SUI_VALIDATOR_ADDRESS
-      }
-    }
-    if (fieldNames.has('cosmosPubKey') && yieldChainId === cosmosChainId) {
-      args.cosmosPubKey = userAddress
-    }
-
-    try {
-      const actionDto = await mutation.mutateAsync({
-        yieldId: yieldItem.id,
-        address: userAddress,
-        arguments: args,
-      })
-
-      const transactions = filterExecutableTransactions(actionDto.transactions)
-
-      if (transactions.length === 0) {
-        setStep(ModalStep.Success)
-        setIsSubmitting(false)
-        return
-      }
-
-      setRawTransactions(transactions)
-      setTransactionSteps(
-        transactions.map((tx, i) => ({
-          title: formatTxTitle(tx.title || `Transaction ${i + 1}`, assetSymbol),
-          originalTitle: tx.title || '',
-          status: 'pending',
-        })),
-      )
-
-      setActiveStepIndex(0)
-      // Execute the first transaction immediately
-      await executeSingleTransaction(transactions[0], 0, transactions)
-    } catch (error) {
-      console.error('Failed to initiate action:', error)
-      toast({
-        title: translate('yieldXYZ.errors.initiateFailedTitle'),
-        description: translate('yieldXYZ.errors.initiateFailedDescription'),
-        status: 'error',
-      })
-      setIsSubmitting(false)
-      setTransactionSteps([])
-    }
-  }
+    // 3. Fallback
+    return { name: 'Vault', logoURI: yieldItem.metadata.logoURI }
+  }, [yieldItem, yieldChainId, validators, providers])
 
   const horizontalScroll = keyframes`
         0% { background-position: 0 0; }
@@ -616,8 +283,8 @@ export const YieldActionModal = ({
                 {s.status === 'success'
                   ? translate('yieldXYZ.loading.done')
                   : s.status === 'loading'
-                  ? ''
-                  : translate('yieldXYZ.loading.waiting')}
+                    ? ''
+                    : translate('yieldXYZ.loading.waiting')}
               </Text>
             )}
           </Flex>
@@ -652,8 +319,8 @@ export const YieldActionModal = ({
         {isSubmitting
           ? 'Processing...'
           : activeStepIndex >= 0 && transactionSteps[activeStepIndex]
-          ? transactionSteps[activeStepIndex].title
-          : `Confirm ${action === 'enter' ? 'Deposit' : 'Withdrawal'}`}
+            ? transactionSteps[activeStepIndex].title
+            : `Confirm ${action === 'enter' ? 'Deposit' : 'Withdrawal'}`}
       </Button>
     </VStack>
   )

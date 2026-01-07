@@ -12,9 +12,9 @@ import {
 } from '@chakra-ui/react'
 import { useTranslate } from 'react-polyglot'
 
+import { Amount } from '@/components/Amount/Amount'
 import { AssetIcon } from '@/components/AssetIcon'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
-import { formatLargeNumber } from '@/lib/utils/formatters'
 import type { AugmentedYieldDto } from '@/lib/yieldxyz/types'
 
 interface YieldCardProps {
@@ -131,7 +131,7 @@ export const YieldCard = ({
               TVL
             </Text>
             <Text fontWeight='semibold' fontSize='md'>
-              {formatLargeNumber(yieldItem.statistics?.tvlUsd ?? '0', '$')}
+              <Amount.Fiat value={yieldItem.statistics?.tvlUsd ?? '0'} abbreviated />
             </Text>
           </Box>
         </Flex>

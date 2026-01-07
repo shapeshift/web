@@ -36,3 +36,26 @@ export const filterSupportedYields = (yields: YieldDto[]): YieldDto[] =>
 
 export const isExitableBalanceType = (type: string): boolean =>
   type === 'active' || type === 'withdrawable'
+
+type YieldIconSource = { assetId: string | undefined; src: string | undefined }
+
+type YieldItemForIcon = {
+  inputTokens: { assetId?: string; logoURI?: string }[]
+  token: { assetId?: string; logoURI?: string }
+  metadata: { logoURI?: string }
+}
+
+// HACK: yield.xyz SVG logos often fail to load in browser, so we prefer our local asset icons.
+// Priority: inputToken.assetId > token.assetId > inputToken.logoURI > metadata.logoURI
+export const resolveYieldInputAssetIcon = (yieldItem: YieldItemForIcon): YieldIconSource => {
+  const inputToken = yieldItem.inputTokens[0]
+  const inputTokenAssetId = inputToken?.assetId
+  const vaultTokenAssetId = yieldItem.token?.assetId
+  const inputTokenLogoURI = inputToken?.logoURI
+  const metadataLogoURI = yieldItem.metadata?.logoURI
+
+  if (inputTokenAssetId) return { assetId: inputTokenAssetId, src: undefined }
+  if (vaultTokenAssetId) return { assetId: vaultTokenAssetId, src: undefined }
+  if (inputTokenLogoURI) return { assetId: undefined, src: inputTokenLogoURI }
+  return { assetId: undefined, src: metadataLogoURI }
+}

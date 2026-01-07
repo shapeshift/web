@@ -34,6 +34,7 @@ import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { YIELD_NETWORK_TO_CHAIN_ID } from '@/lib/yieldxyz/constants'
 import type { AugmentedYieldDto, YieldNetwork } from '@/lib/yieldxyz/types'
+import { resolveYieldInputAssetIcon } from '@/lib/yieldxyz/utils'
 import { YieldAssetCard, YieldAssetCardSkeleton } from '@/pages/Yields/components/YieldAssetCard'
 import {
   YieldAssetGroupRow,
@@ -282,29 +283,36 @@ export const YieldsList = () => {
         accessorFn: row => row.metadata.name,
         enableSorting: true,
         sortingFn: 'alphanumeric',
-        cell: ({ row }) => (
-          <HStack spacing={4} minW='200px'>
-            <AssetIcon src={row.original.metadata.logoURI} size='sm' />
-            <Box>
-              <Text fontWeight='bold' fontSize='sm' noOfLines={1} lineHeight='shorter'>
-                {row.original.metadata.name}
-              </Text>
-              <HStack spacing={1}>
-                {row.original.chainId && <ChainIcon chainId={row.original.chainId} size='2xs' />}
+        cell: ({ row }) => {
+          const iconSource = resolveYieldInputAssetIcon(row.original)
+          return (
+            <HStack spacing={4} minW='200px'>
+              {iconSource.assetId ? (
+                <AssetIcon assetId={iconSource.assetId} size='sm' />
+              ) : (
+                <AssetIcon src={iconSource.src} size='sm' />
+              )}
+              <Box>
+                <Text fontWeight='bold' fontSize='sm' noOfLines={1} lineHeight='shorter'>
+                  {row.original.metadata.name}
+                </Text>
                 <HStack spacing={1}>
-                  <Avatar
-                    src={getProviderLogo(row.original.providerId)}
-                    size='2xs'
-                    name={row.original.providerId}
-                  />
-                  <Text fontSize='xs' color='text.subtle' textTransform='capitalize'>
-                    {row.original.providerId}
-                  </Text>
+                  {row.original.chainId && <ChainIcon chainId={row.original.chainId} size='2xs' />}
+                  <HStack spacing={1}>
+                    <Avatar
+                      src={getProviderLogo(row.original.providerId)}
+                      size='2xs'
+                      name={row.original.providerId}
+                    />
+                    <Text fontSize='xs' color='text.subtle' textTransform='capitalize'>
+                      {row.original.providerId}
+                    </Text>
+                  </HStack>
                 </HStack>
-              </HStack>
-            </Box>
-          </HStack>
-        ),
+              </Box>
+            </HStack>
+          )
+        },
         meta: {
           display: { base: 'table-cell' },
         },

@@ -18,16 +18,15 @@ import { FaMoneyBillWave } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { useLocation } from 'react-router-dom'
 
-import { GradientApy } from '@/pages/Yields/components/GradientApy'
+import { Amount } from '@/components/Amount/Amount'
+import { AssetInput } from '@/components/DeFi/components/AssetInput'
 import { WalletActions } from '@/context/WalletProvider/actions'
 import { useWallet } from '@/hooks/useWallet/useWallet'
-
-import { AssetInput } from '@/components/DeFi/components/AssetInput'
-import { Amount } from '@/components/Amount/Amount'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { SUI_GAS_BUFFER } from '@/lib/yieldxyz/constants'
 import type { AugmentedYieldBalance, AugmentedYieldDto } from '@/lib/yieldxyz/types'
 import { YieldBalanceType } from '@/lib/yieldxyz/types'
+import { GradientApy } from '@/pages/Yields/components/GradientApy'
 import { YieldActionModal } from '@/pages/Yields/components/YieldActionModal'
 import { useYieldAccount } from '@/pages/Yields/YieldAccountContext'
 import { useYieldBalances } from '@/react-queries/queries/yieldxyz/useYieldBalances'
@@ -86,9 +85,9 @@ export const YieldEnterExit = ({ yieldItem, isQuoteLoading }: YieldEnterExitProp
   const inputTokenBalance = useAppSelector(state =>
     inputTokenAssetId && accountId
       ? selectPortfolioCryptoPrecisionBalanceByFilter(state, {
-        assetId: inputTokenAssetId,
-        accountId,
-      })
+          assetId: inputTokenAssetId,
+          accountId,
+        })
       : '0',
   )
 
@@ -98,7 +97,11 @@ export const YieldEnterExit = ({ yieldItem, isQuoteLoading }: YieldEnterExitProp
     return bnOrZero(cryptoAmount).lt(minDeposit)
   }, [cryptoAmount, minDeposit])
 
-  const { data: balances, isLoading: isBalancesLoading, isFetching: isBalancesFetching } = useYieldBalances({
+  const {
+    data: balances,
+    isLoading: isBalancesLoading,
+    isFetching: isBalancesFetching,
+  } = useYieldBalances({
     yieldId: yieldItem.id,
     address: address ?? '',
     chainId,
@@ -158,7 +161,9 @@ export const YieldEnterExit = ({ yieldItem, isQuoteLoading }: YieldEnterExitProp
   const estimatedYearlyEarnings = bnOrZero(cryptoAmount).times(apy)
 
   const estimatedYearlyEarningsFiat = estimatedYearlyEarnings.times(marketData?.price ?? 0)
-  const fiatAmount = bnOrZero(cryptoAmount).times(marketData?.price ?? 0).toFixed(2)
+  const fiatAmount = bnOrZero(cryptoAmount)
+    .times(marketData?.price ?? 0)
+    .toFixed(2)
   const hasAmount = bnOrZero(cryptoAmount).gt(0)
   const inputSymbol = inputToken?.symbol ?? ''
 
@@ -234,7 +239,6 @@ export const YieldEnterExit = ({ yieldItem, isQuoteLoading }: YieldEnterExitProp
                     assetSymbol={inputToken?.symbol ?? ''}
                     assetIcon={yieldItem.metadata.logoURI}
                     cryptoAmount={cryptoAmount}
-                    cryptoAmount={cryptoAmount}
                     balance={inputTokenBalance}
                     percentOptions={percentOptions}
                     onChange={setCryptoAmount}
@@ -307,7 +311,11 @@ export const YieldEnterExit = ({ yieldItem, isQuoteLoading }: YieldEnterExitProp
                   fontSize='lg'
                   isDisabled={
                     isConnected &&
-                    (isLoading || !yieldItem.status.enter || !cryptoAmount || isBelowMinimum || !!isQuoteLoading)
+                    (isLoading ||
+                      !yieldItem.status.enter ||
+                      !cryptoAmount ||
+                      isBelowMinimum ||
+                      !!isQuoteLoading)
                   }
                   onClick={
                     isConnected
@@ -319,8 +327,8 @@ export const YieldEnterExit = ({ yieldItem, isQuoteLoading }: YieldEnterExitProp
                   {isQuoteLoading
                     ? translate('common.loading')
                     : isConnected
-                      ? translate('yieldXYZ.enter')
-                      : translate('common.connectWallet')}
+                    ? translate('yieldXYZ.enter')
+                    : translate('common.connectWallet')}
                 </Button>
               </Flex>
             </TabPanel>
@@ -336,7 +344,6 @@ export const YieldEnterExit = ({ yieldItem, isQuoteLoading }: YieldEnterExitProp
                     assetSymbol={yieldItem.token.symbol}
                     assetIcon={yieldItem.metadata.logoURI}
                     cryptoAmount={cryptoAmount}
-                    showFiatAmount={false}
                     balance={exitBalance}
                     percentOptions={percentOptions}
                     onChange={setCryptoAmount}
@@ -353,10 +360,7 @@ export const YieldEnterExit = ({ yieldItem, isQuoteLoading }: YieldEnterExitProp
                   width='full'
                   height='56px'
                   fontSize='lg'
-                  isDisabled={
-                    isConnected &&
-                    (isLoading || !yieldItem.status.exit || !cryptoAmount)
-                  }
+                  isDisabled={isConnected && (isLoading || !yieldItem.status.exit || !cryptoAmount)}
                   onClick={
                     isConnected
                       ? handleExitClick

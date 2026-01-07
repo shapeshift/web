@@ -14,6 +14,7 @@ import { useNavigate } from 'react-router-dom'
 import { AssetIcon } from '@/components/AssetIcon'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import type { AugmentedYieldDto } from '@/lib/yieldxyz/types'
+import { resolveYieldInputAssetIcon } from '@/lib/yieldxyz/utils'
 
 type YieldAssetRowProps = {
   yieldItem: AugmentedYieldDto
@@ -25,6 +26,7 @@ export const YieldAssetRow = ({ yieldItem }: YieldAssetRowProps) => {
   const hoverBg = useColorModeValue('gray.50', 'whiteAlpha.50')
 
   const apy = bnOrZero(yieldItem.rewardRate.total).times(100).toNumber()
+  const iconSource = resolveYieldInputAssetIcon(yieldItem)
 
   const handleClick = () => {
     navigate(`/yields/${yieldItem.id}`)
@@ -42,7 +44,11 @@ export const YieldAssetRow = ({ yieldItem }: YieldAssetRowProps) => {
       onClick={handleClick}
     >
       <HStack spacing={4}>
-        <AssetIcon src={yieldItem.metadata.logoURI} size='sm' />
+        {iconSource.assetId ? (
+          <AssetIcon assetId={iconSource.assetId} size='sm' />
+        ) : (
+          <AssetIcon src={iconSource.src} size='sm' />
+        )}
         <Box>
           <Text fontWeight='bold' fontSize='sm'>
             {yieldItem.metadata.name}

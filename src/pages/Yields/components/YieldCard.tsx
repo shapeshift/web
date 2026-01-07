@@ -16,23 +16,16 @@ import { Amount } from '@/components/Amount/Amount'
 import { AssetIcon } from '@/components/AssetIcon'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import type { AugmentedYieldDto } from '@/lib/yieldxyz/types'
+import { resolveYieldInputAssetIcon } from '@/lib/yieldxyz/utils'
 
 interface YieldCardProps {
   yield: AugmentedYieldDto
   onEnter?: (yieldItem: AugmentedYieldDto) => void
   isLoading?: boolean
   providerIcon?: string
-  assetId?: string
-  assetSrc?: string
 }
 
-export const YieldCard = ({
-  yield: yieldItem,
-  onEnter,
-  providerIcon,
-  assetId,
-  assetSrc,
-}: YieldCardProps) => {
+export const YieldCard = ({ yield: yieldItem, onEnter, providerIcon }: YieldCardProps) => {
   const translate = useTranslate()
   const borderColor = useColorModeValue('gray.100', 'gray.750')
   const cardBg = useColorModeValue('white', 'gray.800')
@@ -68,13 +61,26 @@ export const YieldCard = ({
         {/* Header: Icon + Name */}
         <Flex justifyContent='space-between' alignItems='flex-start' mb={6}>
           <Flex alignItems='center' gap={4}>
-            <AssetIcon
-              {...(assetId ? { assetId } : { src: assetSrc || yieldItem.metadata.logoURI })}
-              size='md'
-              boxShadow='md'
-              borderWidth='1px'
-              borderColor={borderColor}
-            />
+            {(() => {
+              const iconSource = resolveYieldInputAssetIcon(yieldItem)
+              return iconSource.assetId ? (
+                <AssetIcon
+                  assetId={iconSource.assetId}
+                  size='md'
+                  boxShadow='md'
+                  borderWidth='1px'
+                  borderColor={borderColor}
+                />
+              ) : (
+                <AssetIcon
+                  src={iconSource.src}
+                  size='md'
+                  boxShadow='md'
+                  borderWidth='1px'
+                  borderColor={borderColor}
+                />
+              )
+            })()}
             <Box>
               <Text
                 fontWeight='bold'

@@ -4,21 +4,20 @@ import { cosmosChainId, fromAccountId } from '@shapeshiftoss/caip'
 import type { ChainAdapter } from '@shapeshiftoss/chain-adapters'
 import type { KnownChainIds } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
-import { useQueryClient } from '@tanstack/react-query'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { uuidv4 } from '@walletconnect/utils'
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { toBaseUnit } from '@/lib/math'
 import { assertGetChainAdapter, isTransactionStatusAdapter } from '@/lib/utils'
+import { enterYield, exitYield } from '@/lib/yieldxyz/api'
 import type { CosmosStakeArgs } from '@/lib/yieldxyz/executeTransaction'
 import { executeTransaction } from '@/lib/yieldxyz/executeTransaction'
 import type { AugmentedYieldDto, TransactionDto } from '@/lib/yieldxyz/types'
 import { TransactionStatus } from '@/lib/yieldxyz/types'
-import { useEnterYield } from '@/react-queries/queries/yieldxyz/useEnterYield'
-import { useExitYield } from '@/react-queries/queries/yieldxyz/useExitYield'
 import { useSubmitYieldTransactionHash } from '@/react-queries/queries/yieldxyz/useSubmitYieldTransactionHash'
 import { actionSlice } from '@/state/slices/actionSlice/actionSlice'
 import {
@@ -97,6 +96,7 @@ type UseYieldTransactionFlowProps = {
   amount: string
   assetSymbol: string
   onClose: () => void
+  isOpen?: boolean
 }
 
 export const useYieldTransactionFlow = ({
@@ -105,6 +105,7 @@ export const useYieldTransactionFlow = ({
   amount,
   assetSymbol,
   onClose,
+  isOpen,
 }: UseYieldTransactionFlowProps) => {
   const dispatch = useAppDispatch()
   const queryClient = useQueryClient()
@@ -122,8 +123,6 @@ export const useYieldTransactionFlow = ({
   const [activeStepIndex, setActiveStepIndex] = useState(-1)
 
   // Mutations
-  const enterMutation = useEnterYield()
-  const exitMutation = useExitYield()
   const submitHashMutation = useSubmitYieldTransactionHash()
 
   const { chainId: yieldChainId } = yieldItem
@@ -138,7 +137,6 @@ export const useYieldTransactionFlow = ({
   )
 
   const userAddress = accountId ? fromAccountId(accountId).account : ''
-
   const canSubmit = Boolean(wallet && accountId && yieldChainId && bnOrZero(amount).gt(0))
 
   const handleClose = () => {
@@ -149,6 +147,72 @@ export const useYieldTransactionFlow = ({
     setActiveStepIndex(-1)
     onClose()
   }
+
+  // Memoize arguments creation
+  const txArguments = useMemo(() => {
+    if (!yieldItem || !userAddress || !amount || !yieldChainId) return null
+
+    const fields =
+      action === 'enter'
+        ? yieldItem.mechanics.arguments.enter.fields
+        : yieldItem.mechanics.arguments.exit.fields
+    const fieldNames = new Set(fields.map(field => field.name))
+
+    // Note: Solana, Tron, Monad, and Sui APIs expect precision amounts, not base units
+    const usesPrecisionAmount =
+      yieldItem.network === 'solana' ||
+      yieldItem.network === 'tron' ||
+      yieldItem.network === 'monad' ||
+      yieldItem.network === 'sui'
+
+    const yieldAmount = usesPrecisionAmount ? amount : toBaseUnit(amount, yieldItem.token.decimals)
+    const args: Record<string, unknown> = { amount: yieldAmount }
+
+    if (fieldNames.has('receiverAddress')) {
+      args.receiverAddress = userAddress
+    }
+
+    if (fieldNames.has('validatorAddress')) {
+      if (yieldChainId === cosmosChainId) {
+        args.validatorAddress = FIGMENT_COSMOS_VALIDATOR_ADDRESS
+      }
+      if (yieldItem.id === 'solana-sol-native-multivalidator-staking') {
+        args.validatorAddress = FIGMENT_SOLANA_VALIDATOR_ADDRESS
+      }
+      if (yieldItem.network === 'monad') {
+        args.validatorAddress = FIGMENT_MONAD_VALIDATOR_ADDRESS
+      }
+      if (yieldItem.network === 'sui') {
+        args.validatorAddress = FIGMENT_SUI_VALIDATOR_ADDRESS
+      }
+    }
+
+    if (fieldNames.has('cosmosPubKey') && yieldChainId === cosmosChainId) {
+      args.cosmosPubKey = userAddress
+    }
+
+    return args
+  }, [yieldItem, action, amount, userAddress, yieldChainId])
+
+  // Prefetch Quote using useQuery
+  const {
+    data: quoteData,
+    isLoading: isQuoteLoading,
+    error: quoteError,
+  } = useQuery({
+    queryKey: ['yieldxyz', 'quote', action, yieldItem.id, userAddress, txArguments],
+    queryFn: async () => {
+      if (!txArguments || !userAddress || !yieldItem.id) throw new Error('Missing arguments')
+      // Note: We're using the API functions directly here instead of hooks
+      // because we want standard query behavior (caching, etc.)
+      const fn = action === 'enter' ? enterYield : exitYield
+      return fn(yieldItem.id, userAddress, txArguments)
+    },
+    // Only fetch if we have valid arguments and wallet is connected
+    enabled: !!txArguments && !!wallet && !!accountId && canSubmit && isOpen,
+    staleTime: 60 * 1000, // 1 minute
+    retry: false,
+  })
 
   const filterExecutableTransactions = (transactions: TransactionDto[]): TransactionDto[] =>
     transactions.filter(tx => tx.status === TransactionStatus.Created)
@@ -332,6 +396,23 @@ export const useYieldTransactionFlow = ({
       })
       return
     }
+
+    if (quoteError) {
+      toast({
+        title: translate('yieldXYZ.errors.quoteFailedTitle'),
+        description: translate('yieldXYZ.errors.quoteFailedDescription'),
+        status: 'error',
+        duration: 5000,
+        isClosable: true,
+      })
+      return
+    }
+
+    if (!quoteData) {
+      // Should not happen if button is enabled only when !isQuoteLoading
+      return
+    }
+
     setIsSubmitting(true)
 
     // Show generic loading state immediately
@@ -343,50 +424,8 @@ export const useYieldTransactionFlow = ({
       },
     ])
 
-    const mutation = action === 'enter' ? enterMutation : exitMutation
-
-    const fields =
-      action === 'enter'
-        ? yieldItem.mechanics.arguments.enter.fields
-        : yieldItem.mechanics.arguments.exit.fields
-    const fieldNames = new Set(fields.map(field => field.name))
-    // Note: Solana, Tron, Monad, and Sui APIs expect precision amounts, not base units
-    const usesPrecisionAmount =
-      yieldItem.network === 'solana' ||
-      yieldItem.network === 'tron' ||
-      yieldItem.network === 'monad' ||
-      yieldItem.network === 'sui'
-    const yieldAmount = usesPrecisionAmount ? amount : toBaseUnit(amount, yieldItem.token.decimals)
-    const args: Record<string, unknown> = { amount: yieldAmount }
-    if (fieldNames.has('receiverAddress')) {
-      args.receiverAddress = userAddress
-    }
-    if (fieldNames.has('validatorAddress')) {
-      if (yieldChainId === cosmosChainId) {
-        args.validatorAddress = FIGMENT_COSMOS_VALIDATOR_ADDRESS
-      }
-      if (yieldItem.id === 'solana-sol-native-multivalidator-staking') {
-        args.validatorAddress = FIGMENT_SOLANA_VALIDATOR_ADDRESS
-      }
-      if (yieldItem.network === 'monad') {
-        args.validatorAddress = FIGMENT_MONAD_VALIDATOR_ADDRESS
-      }
-      if (yieldItem.network === 'sui') {
-        args.validatorAddress = FIGMENT_SUI_VALIDATOR_ADDRESS
-      }
-    }
-    if (fieldNames.has('cosmosPubKey') && yieldChainId === cosmosChainId) {
-      args.cosmosPubKey = userAddress
-    }
-
     try {
-      const actionDto = await mutation.mutateAsync({
-        yieldId: yieldItem.id,
-        address: userAddress,
-        arguments: args,
-      })
-
-      const transactions = filterExecutableTransactions(actionDto.transactions)
+      const transactions = filterExecutableTransactions(quoteData.transactions)
 
       if (transactions.length === 0) {
         setStep(ModalStep.Success)
@@ -412,6 +451,7 @@ export const useYieldTransactionFlow = ({
         title: translate('yieldXYZ.errors.initiateFailedTitle'),
         description: translate('yieldXYZ.errors.initiateFailedDescription'),
         status: 'error',
+        duration: 5000,
       })
       setIsSubmitting(false)
       setTransactionSteps([])
@@ -426,5 +466,6 @@ export const useYieldTransactionFlow = ({
     canSubmit,
     handleConfirm,
     handleClose,
+    isQuoteLoading,
   }
 }

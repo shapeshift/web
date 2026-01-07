@@ -21,6 +21,7 @@ import { useTranslate } from 'react-polyglot'
 import { Amount } from '@/components/Amount/Amount'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import type { AugmentedYieldDto } from '@/lib/yieldxyz/types'
+import { YieldNetwork } from '@/lib/yieldxyz/types'
 import { useYieldValidators } from '@/react-queries/queries/yieldxyz/useYieldValidators'
 
 interface YieldStatsProps {
@@ -52,7 +53,7 @@ export const YieldStats = ({ yieldItem }: YieldStatsProps) => {
     let targetValidatorAddress = ''
     if (yieldItem.chainId === cosmosChainId) targetValidatorAddress = FIGMENT_COSMOS_VALIDATOR_ADDRESS
     if (yieldItem.id === 'solana-sol-native-multivalidator-staking') targetValidatorAddress = FIGMENT_SOLANA_VALIDATOR_ADDRESS
-    if (yieldItem.network === 'sui') targetValidatorAddress = FIGMENT_SUI_VALIDATOR_ADDRESS
+    if (yieldItem.network === YieldNetwork.Sui) targetValidatorAddress = FIGMENT_SUI_VALIDATOR_ADDRESS
 
     const validator = validators?.find(v => v.address === targetValidatorAddress)
 
@@ -60,8 +61,8 @@ export const YieldStats = ({ yieldItem }: YieldStatsProps) => {
 
     // Fallback names if validator data not loaded yet or not found
     if (targetValidatorAddress) return { name: 'Figment', logoURI: '' }
-    if (yieldItem.network === 'monad') return { name: 'Figment', logoURI: '' }
-    if (yieldItem.network === 'tron') return { name: 'Justlend', logoURI: '' }
+    if (yieldItem.network === YieldNetwork.Monad) return { name: 'Figment', logoURI: '' }
+    if (yieldItem.network === YieldNetwork.Tron) return { name: 'Justlend', logoURI: '' }
 
     return null
   })()
@@ -190,10 +191,12 @@ export const YieldStats = ({ yieldItem }: YieldStatsProps) => {
                     <Icon as={FaMoneyBillWave} />
                     <Text fontSize='sm'>{translate('yieldXYZ.minDeposit')}</Text>
                   </Flex>
-                  <Text fontSize='sm' fontWeight='medium'>
-                    {bnOrZero(yieldItem.mechanics.entryLimits.minimum).toNumber()}{' '}
-                    {yieldItem.token.symbol}
-                  </Text>
+                  <Amount.Crypto
+                    value={yieldItem.mechanics.entryLimits.minimum}
+                    symbol={yieldItem.token.symbol}
+                    fontSize='sm'
+                    fontWeight='medium'
+                  />
                 </Flex>
               )}
             </Flex>

@@ -21,6 +21,7 @@ import { Amount } from '@/components/Amount/Amount'
 import { AssetIcon } from '@/components/AssetIcon'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import type { AugmentedYieldDto } from '@/lib/yieldxyz/types'
+import { resolveYieldInputAssetIcon } from '@/lib/yieldxyz/utils'
 import { useYieldProviders } from '@/react-queries/queries/yieldxyz/useYieldProviders'
 import { selectAssetById } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
@@ -110,7 +111,14 @@ export const YieldActivePositions = ({ balances, yields, assetId }: YieldActiveP
                 >
                   <Td>
                     <HStack spacing={3}>
-                      <AssetIcon src={yieldItem.metadata.logoURI} size='sm' />
+                      {(() => {
+                        const iconSource = resolveYieldInputAssetIcon(yieldItem)
+                        return iconSource.assetId ? (
+                          <AssetIcon assetId={iconSource.assetId} size='sm' />
+                        ) : (
+                          <AssetIcon src={iconSource.src} size='sm' />
+                        )
+                      })()}
                       <Text fontWeight='bold' fontSize='sm'>
                         {yieldItem.metadata.name}
                       </Text>

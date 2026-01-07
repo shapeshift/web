@@ -1,8 +1,11 @@
 import { useMemo } from 'react'
 
+import { useSymbolToAssetMap } from './useSymbolToAssetMap'
+
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import type { AugmentedYieldDto } from '@/lib/yieldxyz/types'
-import { store } from '@/state/store'
+import { selectAssets } from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 export type YieldAssetGroup = {
   yields: AugmentedYieldDto[]
@@ -14,6 +17,9 @@ export type YieldAssetGroup = {
 export const useYieldGroups = (
   displayYields: AugmentedYieldDto[] | undefined,
 ): YieldAssetGroup[] => {
+  const symbolToAssetMap = useSymbolToAssetMap()
+  const assets = useAppSelector(selectAssets)
+
   return useMemo(() => {
     if (!displayYields) return []
     const groups: Record<string, AugmentedYieldDto[]> = {}
@@ -37,8 +43,6 @@ export const useYieldGroups = (
       // 1. Yield with matching Store Asset (Native/Known)
       // 2. Yield with highest TVL
       // 3. First yield
-
-      const assets = store.getState().assets.byId
 
       const bestYield = yields.reduce((prev, current) => {
         const prevToken = prev.inputTokens?.[0] || prev.token
@@ -69,8 +73,8 @@ export const useYieldGroups = (
         assetIcon = assets[representativeToken.assetId]?.icon ?? ''
       }
       if (!assetIcon) {
-        // Fallback by symbol
-        const localAsset = Object.values(assets).find(a => a?.symbol === symbol)
+        // Fallback by symbol using the efficient map
+        const localAsset = symbolToAssetMap.get(symbol)
         if (localAsset?.icon) assetIcon = localAsset.icon
       }
 
@@ -88,5 +92,5 @@ export const useYieldGroups = (
       const maxApyB = Math.max(...b.yields.map(y => bnOrZero(y.rewardRate.total).toNumber()))
       return maxApyB - maxApyA
     })
-  }, [displayYields])
+  }, [displayYields, assets, symbolToAssetMap])
 }

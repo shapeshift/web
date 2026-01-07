@@ -1,5 +1,4 @@
 import {
-  Avatar,
   Badge,
   Box,
   Flex,
@@ -12,8 +11,10 @@ import {
 } from '@chakra-ui/react'
 
 import { Amount } from '@/components/Amount/Amount'
+import { AssetIcon } from '@/components/AssetIcon'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import type { AugmentedYieldDto } from '@/lib/yieldxyz/types'
+import { resolveYieldInputAssetIcon } from '@/lib/yieldxyz/utils'
 import { GradientApy } from '@/pages/Yields/components/GradientApy'
 
 interface YieldRowProps {
@@ -26,6 +27,7 @@ export const YieldRow = ({ yield: yieldItem, onEnter }: YieldRowProps) => {
   const borderColor = useColorModeValue('gray.100', 'whiteAlpha.100')
 
   const apy = bnOrZero(yieldItem.rewardRate.total).times(100).toNumber()
+  const iconSource = resolveYieldInputAssetIcon(yieldItem)
 
   const handleClick = () => {
     if (yieldItem.status.enter) {
@@ -52,7 +54,11 @@ export const YieldRow = ({ yield: yieldItem, onEnter }: YieldRowProps) => {
     >
       {/* 1. Asset / Protocol */}
       <HStack spacing={4} flex={2} minW='200px'>
-        <Avatar src={yieldItem.metadata.logoURI} size='sm' name={yieldItem.metadata.name} />
+        {iconSource.assetId ? (
+          <AssetIcon assetId={iconSource.assetId} size='sm' />
+        ) : (
+          <AssetIcon src={iconSource.src} size='sm' />
+        )}
         <Box>
           <Text fontWeight='bold' fontSize='sm' noOfLines={1} lineHeight='shorter'>
             {yieldItem.metadata.name}

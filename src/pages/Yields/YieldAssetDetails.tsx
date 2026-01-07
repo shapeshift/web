@@ -23,15 +23,18 @@ import { ChainIcon } from '@/components/ChainMenu'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { YIELD_NETWORK_TO_CHAIN_ID } from '@/lib/yieldxyz/constants'
 import type { AugmentedYieldDto, YieldNetwork } from '@/lib/yieldxyz/types'
+import { resolveYieldInputAssetIcon } from '@/lib/yieldxyz/utils'
 import { GradientApy } from '@/pages/Yields/components/GradientApy'
 import { YieldCard, YieldCardSkeleton } from '@/pages/Yields/components/YieldCard'
 import type { SortOption } from '@/pages/Yields/components/YieldFilters'
 import { YieldFilters } from '@/pages/Yields/components/YieldFilters'
 import { YieldTable } from '@/pages/Yields/components/YieldTable'
 import { ViewToggle } from '@/pages/Yields/components/YieldViewHelpers'
+import { useSymbolToAssetMap } from '@/pages/Yields/hooks/useSymbolToAssetMap'
 import { useYieldProviders } from '@/react-queries/queries/yieldxyz/useYieldProviders'
 import { useYields } from '@/react-queries/queries/yieldxyz/useYields'
-import { store } from '@/state/store'
+import { selectAssets } from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 export const YieldAssetDetails = () => {
   const { assetId: assetSymbol } = useParams<{ assetId: string }>()
@@ -49,6 +52,8 @@ export const YieldAssetDetails = () => {
 
   const { data: yields, isLoading } = useYields()
   const { data: yieldProviders } = useYieldProviders()
+  const assets = useAppSelector(selectAssets)
+  const symbolToAssetMap = useSymbolToAssetMap()
 
   // Helpers
   const getProviderLogo = useCallback(
@@ -156,14 +161,13 @@ export const YieldAssetDetails = () => {
     if (!assetYields[0]) return null
     const token = assetYields[0].inputTokens?.[0] || assetYields[0].token
 
-    const assets = store.getState().assets.byId
     let resolvedAssetId: string | undefined = token.assetId
     let resolvedSrc: string | undefined = token.logoURI
 
     if (resolvedAssetId && assets[resolvedAssetId]) {
       resolvedSrc = undefined
     } else {
-      const localAsset = Object.values(assets).find(a => a?.symbol === token.symbol)
+      const localAsset = symbolToAssetMap.get(token.symbol)
       if (localAsset) {
         resolvedAssetId = localAsset.assetId
         resolvedSrc = undefined
@@ -173,8 +177,7 @@ export const YieldAssetDetails = () => {
     }
 
     return { ...token, resolvedAssetId, resolvedSrc }
-  }, [assetYields])
-
+  }, [assetYields, assets, symbolToAssetMap])
   // Table Columns
   const columns = useMemo<ColumnDef<AugmentedYieldDto>[]>(
     () => [
@@ -184,29 +187,36 @@ export const YieldAssetDetails = () => {
         accessorFn: row => row.metadata.name,
         enableSorting: true,
         sortingFn: 'alphanumeric',
-        cell: ({ row }) => (
-          <HStack spacing={4} minW='200px'>
-            <AssetIcon src={row.original.metadata.logoURI} size='sm' />
-            <Box>
-              <Text fontWeight='bold' fontSize='sm' noOfLines={1} lineHeight='shorter'>
-                {row.original.metadata.name}
-              </Text>
-              <HStack spacing={1}>
-                {row.original.chainId && <ChainIcon chainId={row.original.chainId} size='2xs' />}
+        cell: ({ row }) => {
+          const iconSource = resolveYieldInputAssetIcon(row.original)
+          return (
+            <HStack spacing={4} minW='200px'>
+              {iconSource.assetId ? (
+                <AssetIcon assetId={iconSource.assetId} size='sm' />
+              ) : (
+                <AssetIcon src={iconSource.src} size='sm' />
+              )}
+              <Box>
+                <Text fontWeight='bold' fontSize='sm' noOfLines={1} lineHeight='shorter'>
+                  {row.original.metadata.name}
+                </Text>
                 <HStack spacing={1}>
-                  <Avatar
-                    src={getProviderLogo(row.original.providerId)}
-                    size='2xs'
-                    name={row.original.providerId}
-                  />
-                  <Text fontSize='xs' color='text.subtle' textTransform='capitalize'>
-                    {row.original.providerId}
-                  </Text>
+                  {row.original.chainId && <ChainIcon chainId={row.original.chainId} size='2xs' />}
+                  <HStack spacing={1}>
+                    <Avatar
+                      src={getProviderLogo(row.original.providerId)}
+                      size='2xs'
+                      name={row.original.providerId}
+                    />
+                    <Text fontSize='xs' color='text.subtle' textTransform='capitalize'>
+                      {row.original.providerId}
+                    </Text>
+                  </HStack>
                 </HStack>
-              </HStack>
-            </Box>
-          </HStack>
-        ),
+              </Box>
+            </HStack>
+          )
+        },
         meta: {
           display: { base: 'table-cell' },
         },
@@ -359,8 +369,6 @@ export const YieldAssetDetails = () => {
               key={row.original.id}
               yield={row.original}
               onEnter={() => handleYieldClick(row.original.id)}
-              assetId={assetInfo?.resolvedAssetId}
-              assetSrc={assetInfo?.resolvedSrc}
               providerIcon={getProviderLogo(row.original.providerId)}
             />
           ))}

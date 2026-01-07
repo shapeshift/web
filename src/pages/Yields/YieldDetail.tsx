@@ -16,6 +16,8 @@ import { useTranslate } from 'react-polyglot'
 import { useNavigate, useParams } from 'react-router-dom'
 
 import { AssetIcon } from '@/components/AssetIcon'
+import { ChainIcon } from '@/components/ChainMenu'
+import { resolveYieldInputAssetIcon } from '@/lib/yieldxyz/utils'
 import { YieldEnterExit } from '@/pages/Yields/components/YieldEnterExit'
 import { YieldPositionCard } from '@/pages/Yields/components/YieldPositionCard'
 import { YieldStats } from '@/pages/Yields/components/YieldStats'
@@ -94,21 +96,35 @@ export const YieldDetail = () => {
           </Button>
 
           <Flex alignItems='start' gap={8}>
-            <AssetIcon
-              src={yieldItem.token.assetId ? undefined : yieldItem.metadata.logoURI}
-              assetId={yieldItem.token.assetId}
-              boxSize={24}
-              boxShadow='2xl'
-              border='4px solid'
-              borderColor='gray.800'
-              borderRadius='full'
-            />
+            {(() => {
+              const iconSource = resolveYieldInputAssetIcon(yieldItem)
+              return iconSource.assetId ? (
+                <AssetIcon
+                  assetId={iconSource.assetId}
+                  showNetworkIcon={false}
+                  boxSize={24}
+                  boxShadow='2xl'
+                  border='4px solid'
+                  borderColor='gray.800'
+                  borderRadius='full'
+                />
+              ) : (
+                <AssetIcon
+                  src={iconSource.src}
+                  boxSize={24}
+                  boxShadow='2xl'
+                  border='4px solid'
+                  borderColor='gray.800'
+                  borderRadius='full'
+                />
+              )
+            })()}
             <Box pt={2}>
               <Heading as='h1' size='2xl' color='white' lineHeight='1.2' mb={3}>
                 {yieldItem.metadata.name}
               </Heading>
 
-              <Flex alignItems='center' gap={4} mb={4}>
+              <Flex alignItems='center' gap={4} mb={2}>
                 {shouldFetchValidators && validators && validators.length > 0 ? (
                   <HStack spacing={2}>
                     <AvatarGroup size='xs' max={3}>
@@ -133,6 +149,20 @@ export const YieldDetail = () => {
                   </HStack>
                 )}
               </Flex>
+
+              {yieldItem.chainId && (
+                <HStack spacing={2} mb={4}>
+                  <ChainIcon chainId={yieldItem.chainId} boxSize='20px' />
+                  <Text
+                    color='white'
+                    fontWeight='semibold'
+                    fontSize='md'
+                    textTransform='capitalize'
+                  >
+                    {yieldItem.network}
+                  </Text>
+                </HStack>
+              )}
 
               <Text color='gray.400' fontSize='lg' maxW='container.md' lineHeight='short'>
                 {yieldItem.metadata.description}

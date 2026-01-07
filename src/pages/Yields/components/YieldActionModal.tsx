@@ -25,9 +25,10 @@ import { FaCheck, FaExternalLinkAlt, FaWallet } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 
 import { MiddleEllipsis } from '@/components/MiddleEllipsis/MiddleEllipsis'
-import { Amount as AmountComponent } from '@/components/Amount/Amount'
+import { Amount } from '@/components/Amount/Amount'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import type { AugmentedYieldDto } from '@/lib/yieldxyz/types'
+import { YieldNetwork } from '@/lib/yieldxyz/types'
 import { GradientApy } from '@/pages/Yields/components/GradientApy'
 import { ModalStep, useYieldTransactionFlow } from '@/pages/Yields/hooks/useYieldTransactionFlow'
 import { useYieldProviders } from '@/react-queries/queries/yieldxyz/useYieldProviders'
@@ -62,12 +63,14 @@ export const YieldActionModal = ({
     canSubmit,
     handleConfirm,
     handleClose,
+    isQuoteLoading,
   } = useYieldTransactionFlow({
     yieldItem,
     action,
     amount,
     assetSymbol,
     onClose,
+    isOpen,
   })
 
   // Vault Metadata Logic (retained for UI)
@@ -95,7 +98,7 @@ export const YieldActionModal = ({
       if (yieldChainId === cosmosChainId) targetValidatorAddress = FIGMENT_COSMOS_VALIDATOR_ADDRESS
       if (yieldItem.id === 'solana-sol-native-multivalidator-staking')
         targetValidatorAddress = FIGMENT_SOLANA_VALIDATOR_ADDRESS
-      if (yieldItem.network === 'sui') targetValidatorAddress = FIGMENT_SUI_VALIDATOR_ADDRESS
+      if (yieldItem.network === YieldNetwork.Sui) targetValidatorAddress = FIGMENT_SUI_VALIDATOR_ADDRESS
 
       const validator = validators?.find(v => v.address === targetValidatorAddress)
       if (validator) return { name: validator.name, logoURI: validator.logoURI }
@@ -139,12 +142,12 @@ export const YieldActionModal = ({
       />
 
       <Flex justify='space-between' align='center' mb={6}>
-        <Flex align='center' gap={3}>
-          <Heading size='lg'>{amount}</Heading>
-          <Text fontWeight='bold' color='gray.400' fontSize='lg'>
-            {assetSymbol}
-          </Text>
-        </Flex>
+        <Amount.Crypto
+          value={amount}
+          symbol={assetSymbol}
+          size='2xl'
+          fontWeight='bold'
+        />
       </Flex>
 
       <Flex
@@ -261,7 +264,7 @@ export const YieldActionModal = ({
                       {bnOrZero(amount).times(yieldItem.rewardRate.total).decimalPlaces(4).toString()} {assetSymbol}/yr
                     </GradientApy>
                     <Flex color='gray.500' fontWeight='normal' fontSize='xs'>
-                      <AmountComponent.Fiat
+                      <Amount.Fiat
                         value={bnOrZero(amount)
                           .times(yieldItem.rewardRate.total)
                           .times(marketData?.price ?? 0)
@@ -389,9 +392,15 @@ export const YieldActionModal = ({
         onClick={handleConfirm}
         width='full'
         borderRadius='xl'
-        isDisabled={!canSubmit || isSubmitting}
-        isLoading={isSubmitting}
-        loadingText={action === 'enter' ? 'Depositing...' : 'Withdrawing...'}
+        isDisabled={!canSubmit || isSubmitting || isQuoteLoading}
+        isLoading={isSubmitting || isQuoteLoading}
+        loadingText={
+          isQuoteLoading
+            ? 'Loading Quote...'
+            : action === 'enter'
+              ? 'Depositing...'
+              : 'Withdrawing...'
+        }
         _hover={{ transform: 'translateY(-2px)', boxShadow: 'lg' }}
         transition='all 0.2s'
       >

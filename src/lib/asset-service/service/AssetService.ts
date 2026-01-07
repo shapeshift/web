@@ -7,6 +7,7 @@ import {
   bscChainId,
   gnosisChainId,
   hyperEvmChainId,
+  katanaChainId,
   mayachainChainId,
   monadChainId,
   nearChainId,
@@ -120,6 +121,7 @@ class _AssetService {
       if (!config.VITE_FEATURE_TRON && asset.chainId === tronChainId) return false
       if (!config.VITE_FEATURE_MONAD && asset.chainId === monadChainId) return false
       if (!config.VITE_FEATURE_HYPEREVM && asset.chainId === hyperEvmChainId) return false
+      if (!config.VITE_FEATURE_KATANA && asset.chainId === katanaChainId) return false
       if (!config.VITE_FEATURE_MAYACHAIN && asset.chainId === mayachainChainId) return false
       if (!config.VITE_FEATURE_NEAR && asset.chainId === nearChainId) return false
       if (!config.VITE_FEATURE_ZCASH && asset.chainId === zecChainId) return false

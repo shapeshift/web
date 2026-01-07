@@ -109,6 +109,7 @@ export const mockStore: ReduxState = {
       Monad: false,
       HyperEvm: false,
       Plasma: false,
+      Katana: false,
       Zcash: false,
       ZrxSwap: false,
       ThorSwap: false,

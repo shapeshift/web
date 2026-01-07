@@ -270,6 +270,31 @@ export type YieldsResponse = {
 }
 
 // ============================================================================
+// Validator Types
+// ============================================================================
+
+export type ValidatorDto = {
+  address: string
+  preferred: boolean
+  name: string
+  logoURI: string
+  website?: string
+  commission: number
+  votingPower: number
+  status: string
+  tvl: string
+  tvlRaw: string
+  rewardRate: YieldRewardRate
+}
+
+export type YieldValidatorsResponse = {
+  items: ValidatorDto[]
+  total: number
+  offset: number
+  limit: number
+}
+
+// ============================================================================
 // Provider Types
 // ============================================================================
 

@@ -9,6 +9,7 @@ import type {
   YieldBalancesResponse,
   YieldDto,
   YieldsResponse,
+  YieldValidatorsResponse,
 } from './types'
 
 import { getConfig } from '@/config'
@@ -64,6 +65,10 @@ export const getAggregateBalances = (
   errors: { query: (typeof queries)[0]; error: string }[]
 }> => {
   return instance.post('/yields/balances', { queries }).then(res => res.data)
+}
+
+export const getYieldValidators = (yieldId: string): Promise<YieldValidatorsResponse> => {
+  return instance.get<YieldValidatorsResponse>(`/yields/${yieldId}/validators`).then(res => res.data)
 }
 
 // Actions

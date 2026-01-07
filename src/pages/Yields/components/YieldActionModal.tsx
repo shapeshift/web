@@ -22,7 +22,6 @@ import { cosmosChainId, fromAccountId } from '@shapeshiftoss/caip'
 import type { ChainAdapter } from '@shapeshiftoss/chain-adapters'
 import type { KnownChainIds } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
-import { useQueryClient } from '@tanstack/react-query'
 import { uuidv4 } from '@walletconnect/utils'
 import { useState } from 'react'
 import { FaCheck, FaExternalLinkAlt, FaWallet } from 'react-icons/fa'
@@ -56,7 +55,6 @@ const FIGMENT_COSMOS_VALIDATOR_ADDRESS = 'cosmosvaloper1hjct6q7npsspsg3dgvzk3sdf
 const FIGMENT_SOLANA_VALIDATOR_ADDRESS = 'CcaHc2L43ZWjwCHART3oZoJvHLAe9hzT2DJNUpBzoTN1'
 const FIGMENT_SUI_VALIDATOR_ADDRESS =
   '0x8ecaf4b95b3c82c712d3ddb22e7da88d2286c4653f3753a86b6f7a216a3ca518'
-
 
 const waitForTransactionConfirmation = async (
   adapter: ChainAdapter<ChainId>,
@@ -123,7 +121,6 @@ export const YieldActionModal = ({
   assetSymbol,
 }: YieldActionModalProps) => {
   const dispatch = useAppDispatch()
-  const queryClient = useQueryClient()
   const toast = useToast()
   const translate = useTranslate()
   const {
@@ -206,12 +203,12 @@ export const YieldActionModal = ({
     const cosmosStakeArgs: CosmosStakeArgs | undefined =
       yieldChainId === cosmosChainId
         ? {
-          validator: FIGMENT_COSMOS_VALIDATOR_ADDRESS,
-          amountCryptoBaseUnit: bnOrZero(amount)
-            .times(bnOrZero(10).pow(yieldItem.token.decimals))
-            .toFixed(0),
-          action: action === 'enter' ? 'stake' : 'unstake',
-        }
+            validator: FIGMENT_COSMOS_VALIDATOR_ADDRESS,
+            amountCryptoBaseUnit: bnOrZero(amount)
+              .times(bnOrZero(10).pow(yieldItem.token.decimals))
+              .toFixed(0),
+            action: action === 'enter' ? 'stake' : 'unstake',
+          }
         : undefined
 
     try {
@@ -240,23 +237,21 @@ export const YieldActionModal = ({
       // Wait for confirmation
       await waitForTransactionConfirmation(adapter, txHash)
 
-      // 4. Submit Hash
+      // 4. Submit Hash - invalidation handled by mutation's onSuccess
       await submitHashMutation.mutateAsync({
         transactionId: tx.id,
         hash: txHash,
+        yieldId: yieldItem.id,
+        address: userAddress,
       })
-
-      // Invalidate queries to refresh balances and yields immediately
-      queryClient.invalidateQueries({ queryKey: ['yieldxyz', 'allBalances'] })
-      queryClient.invalidateQueries({ queryKey: ['yieldxyz', 'yields'] })
 
       // Dispatch Action for Notification Center
       const isApproval = tx.title && tx.title.toLowerCase().includes('approv')
       const actionType = isApproval
         ? ActionType.Approve
         : action === 'enter'
-          ? ActionType.Deposit
-          : ActionType.Withdraw
+        ? ActionType.Deposit
+        : ActionType.Withdraw
       const displayType = isApproval
         ? GenericTransactionDisplayType.Approve
         : GenericTransactionDisplayType.Yield
@@ -436,7 +431,6 @@ export const YieldActionModal = ({
     }
   }
 
-
   const horizontalScroll = keyframes`
         0% { background-position: 0 0; }
         100% { background-position: 28px 0; }
@@ -484,7 +478,14 @@ export const YieldActionModal = ({
         </Box>
       </Flex>
 
-      <Flex alignItems='center' justify='center' mb={6} position='relative' gap={6} flexDirection={action === 'exit' ? 'row-reverse' : 'row'}>
+      <Flex
+        alignItems='center'
+        justify='center'
+        mb={6}
+        position='relative'
+        gap={6}
+        flexDirection={action === 'exit' ? 'row-reverse' : 'row'}
+      >
         <VStack spacing={3} zIndex={2}>
           <Box
             p={1}
@@ -615,8 +616,8 @@ export const YieldActionModal = ({
                 {s.status === 'success'
                   ? translate('yieldXYZ.loading.done')
                   : s.status === 'loading'
-                    ? ''
-                    : translate('yieldXYZ.loading.waiting')}
+                  ? ''
+                  : translate('yieldXYZ.loading.waiting')}
               </Text>
             )}
           </Flex>
@@ -651,8 +652,8 @@ export const YieldActionModal = ({
         {isSubmitting
           ? 'Processing...'
           : activeStepIndex >= 0 && transactionSteps[activeStepIndex]
-            ? transactionSteps[activeStepIndex].title
-            : `Confirm ${action === 'enter' ? 'Deposit' : 'Withdrawal'}`}
+          ? transactionSteps[activeStepIndex].title
+          : `Confirm ${action === 'enter' ? 'Deposit' : 'Withdrawal'}`}
       </Button>
     </VStack>
   )

@@ -150,9 +150,9 @@ export const deepUpsertArray = <T>(
 
 export const getTypeGuardAssertion =
   <T, U>(typeGuard: (maybeT: T | U) => maybeT is T, message: string) =>
-  (value: T | U): asserts value is T => {
-    if (!typeGuard(value)) throw new Error(`${message}: ${value}`)
-  }
+    (value: T | U): asserts value is T => {
+      if (!typeGuard(value)) throw new Error(`${message}: ${value}`)
+    }
 
 export const isFulfilled = <T>(
   promise: PromiseSettledResult<T>,
@@ -227,6 +227,12 @@ export const assertGetChainAdapter = (chainId: ChainId): ChainAdapter<KnownChain
   }
 
   return adapter
+}
+
+export const isTransactionStatusAdapter = (
+  adapter: ChainAdapter<ChainId>,
+): adapter is ChainAdapter<ChainId> & { getTransactionStatus: (txHash: string) => Promise<TxStatus> } => {
+  return 'getTransactionStatus' in adapter && typeof (adapter as any).getTransactionStatus === 'function'
 }
 
 export const sortChainIdsByDisplayName = (unsortedChainIds: ChainId[]) => {

@@ -6,11 +6,23 @@ export const useSubmitYieldTransactionHash = () => {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: ({ transactionId, hash }: { transactionId: string; hash: string }) =>
-      submitTransactionHash(transactionId, hash),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['yieldxyz', 'balances'] })
+    mutationFn: ({
+      transactionId,
+      hash,
+    }: {
+      transactionId: string
+      hash: string
+      yieldId?: string
+      address?: string
+    }) => submitTransactionHash(transactionId, hash),
+    onSuccess: (_, variables) => {
+      if (variables.yieldId && variables.address) {
+        queryClient.invalidateQueries({
+          queryKey: ['yieldxyz', 'balances', variables.yieldId, variables.address],
+        })
+      }
       queryClient.invalidateQueries({ queryKey: ['yieldxyz', 'allBalances'] })
+      queryClient.invalidateQueries({ queryKey: ['yieldxyz', 'yields'] })
     },
   })
 }

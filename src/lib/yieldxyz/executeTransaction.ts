@@ -416,8 +416,6 @@ const executeSolanaTransaction = async ({
     if (!txHash) throw new Error('Failed to broadcast Solana transaction')
     return txHash
   } catch (err) {
-    console.error('[executeSolanaTransaction] Broadcast error:', err)
     throw err
   }
 }
-

@@ -18,6 +18,7 @@ import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useNavigate } from 'react-router-dom'
 
+import BigNumber from 'bignumber.js'
 import { Amount } from '@/components/Amount/Amount'
 import { AssetIcon } from '@/components/AssetIcon'
 import { ChainIcon } from '@/components/ChainMenu'
@@ -31,6 +32,7 @@ type YieldAssetCardProps = {
   assetIcon: string
   assetId?: string
   yields: AugmentedYieldDto[]
+  userGroupBalanceUsd?: BigNumber
 }
 
 export const YieldAssetCard = ({
@@ -39,6 +41,7 @@ export const YieldAssetCard = ({
   assetIcon,
   assetId,
   yields,
+  userGroupBalanceUsd,
 }: YieldAssetCardProps) => {
   const navigate = useNavigate()
   const translate = useTranslate()
@@ -80,6 +83,8 @@ export const YieldAssetCard = ({
     navigate(`/yields/asset/${encodeURIComponent(assetSymbol)}`)
   }
 
+  const hasBalance = userGroupBalanceUsd && userGroupBalanceUsd.gt(0)
+
   return (
     <Card
       bg={cardBg}
@@ -96,8 +101,11 @@ export const YieldAssetCard = ({
       }}
       borderRadius='xl'
       variant='outline'
+      position='relative'
+      display='flex'
+      flexDir='column'
     >
-      <CardBody p={5}>
+      <CardBody p={5} display='flex' flexDir='column' flex={1}>
         <Flex justifyContent='space-between' alignItems='flex-start' mb={6}>
           <Flex alignItems='center' gap={4}>
             {assetId ? (
@@ -136,7 +144,7 @@ export const YieldAssetCard = ({
           </Flex>
         </Flex>
 
-        <HStack spacing={6} justify='space-between'>
+        <HStack spacing={6} justify='space-between' mt='auto'>
           <Stat size='sm'>
             <StatLabel fontSize='xs' color='text.subtle'>
               {translate('yieldXYZ.maxApy')}
@@ -152,12 +160,25 @@ export const YieldAssetCard = ({
           </Stat>
 
           <Stat size='sm' textAlign='right'>
-            <StatLabel fontSize='xs' color='text.subtle'>
-              {translate('yieldXYZ.tvl')}
-            </StatLabel>
-            <StatNumber fontSize='md' fontWeight='semibold'>
-              <Amount.Fiat value={stats.totalTvl.toFixed()} abbreviated />
-            </StatNumber>
+            {hasBalance ? (
+              <>
+                <StatLabel fontSize='xs' color='text.subtle'>
+                  My Balance
+                </StatLabel>
+                <StatNumber fontSize='md' fontWeight='bold' color='blue.400'>
+                  <Amount.Fiat value={userGroupBalanceUsd.toFixed()} abbreviated />
+                </StatNumber>
+              </>
+            ) : (
+              <>
+                <StatLabel fontSize='xs' color='text.subtle'>
+                  {translate('yieldXYZ.tvl')}
+                </StatLabel>
+                <StatNumber fontSize='md' fontWeight='semibold'>
+                  <Amount.Fiat value={stats.totalTvl.toFixed()} abbreviated />
+                </StatNumber>
+              </>
+            )}
           </Stat>
         </HStack>
 

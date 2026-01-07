@@ -2717,6 +2717,10 @@
     "earnUpTo": "You could earn up to %{apy}% on your balance",
     "startEarning": "Start earning",
     "maxApy": "Max APY",
+    "validatorBreakdown": "Validator Breakdown",
+    "staked": "Staked",
+    "exiting": "Exiting",
+    "claimable": "Claimable",
     "loading": {
       "signInWallet": "Sign in Wallet",
       "signNow": "Sign now...",

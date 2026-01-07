@@ -210,7 +210,7 @@ export const ValidatorBreakdown = ({ yieldItem }: ValidatorBreakdownProps) => {
                       {group.active && hasActive && (
                         <Flex justify='space-between' align='center'>
                           <Text fontSize='xs' color='text.subtle' textTransform='uppercase'>
-                            Staked
+                            {translate('yieldXYZ.staked')}
                           </Text>
                           <Text fontSize='sm' fontWeight='medium'>
                             <Amount.Crypto
@@ -238,7 +238,7 @@ export const ValidatorBreakdown = ({ yieldItem }: ValidatorBreakdownProps) => {
                               fontWeight='semibold'
                               textTransform='uppercase'
                             >
-                              Exiting
+                              {translate('yieldXYZ.exiting')}
                             </Text>
                             {group.exiting.date && (
                               <Text fontSize='xs' color='orange.400'>
@@ -271,7 +271,7 @@ export const ValidatorBreakdown = ({ yieldItem }: ValidatorBreakdownProps) => {
                             fontWeight='semibold'
                             textTransform='uppercase'
                           >
-                            Claimable
+                            {translate('yieldXYZ.claimable')}
                           </Text>
                           <Text fontSize='sm' fontWeight='medium' color='purple.200'>
                             <Amount.Crypto

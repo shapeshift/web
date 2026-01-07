@@ -59,10 +59,20 @@ export const YieldsList = () => {
   const { state: walletState } = useWallet()
   const isConnected = Boolean(walletState.walletInfo)
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
-  const [tabIndex, setTabIndex] = useState(0)
-
-  // Filter States synced with URL
   const [searchParams, setSearchParams] = useSearchParams()
+  const tabParam = searchParams.get('tab')
+  const tabIndex = tabParam === 'my-positions' ? 1 : 0
+
+  const handleTabChange = (index: number) => {
+    setSearchParams(prev => {
+      if (index === 0) {
+        prev.delete('tab')
+      } else {
+        prev.set('tab', 'my-positions')
+      }
+      return prev
+    })
+  }
   const selectedNetwork = searchParams.get('network')
   const selectedProvider = searchParams.get('provider')
   const sortOption = (searchParams.get('sort') as SortOption) || 'apy-desc'
@@ -251,17 +261,31 @@ export const YieldsList = () => {
         assetId: undefined,
       }
 
+      // Calculate aggregated balance for this group
+      let userGroupBalanceUsd = bnOrZero(0)
+      if (allBalances) {
+        groupYields.forEach(y => {
+          const balances = allBalances[y.id]
+          if (balances) {
+            balances.forEach(b => {
+              userGroupBalanceUsd = userGroupBalanceUsd.plus(bnOrZero(b.amountUsd))
+            })
+          }
+        })
+      }
+
       return {
         yields: groupYields,
         assetSymbol: symbol,
         assetName: meta.assetName,
         assetIcon: meta.assetIcon,
         assetId: meta.assetId,
+        userGroupBalanceUsd,
       }
     })
 
     return assetGroups
-  }, [displayYields, yields])
+  }, [displayYields, yields, allBalances])
 
   const myPositions = useMemo(() => {
     if (!yields?.all || !allBalances) return []
@@ -441,7 +465,7 @@ export const YieldsList = () => {
         colorScheme='blue'
         isLazy
         index={tabIndex}
-        onChange={setTabIndex}
+        onChange={handleTabChange}
       >
         <TabList mb={4} gap={4}>
           <Tab _selected={{ color: 'white', bg: 'blue.500' }}>{translate('common.all')}</Tab>
@@ -519,7 +543,9 @@ export const YieldsList = () => {
                     assetSymbol={group.assetSymbol}
                     assetName={group.assetName}
                     assetIcon={group.assetIcon}
+                    assetId={group.assetId}
                     yields={group.yields}
+                    userGroupBalanceUsd={group.userGroupBalanceUsd}
                   />
                 ))}
               </SimpleGrid>
@@ -531,7 +557,9 @@ export const YieldsList = () => {
                     assetSymbol={group.assetSymbol}
                     assetName={group.assetName}
                     assetIcon={group.assetIcon}
+                    assetId={group.assetId}
                     yields={group.yields}
+                    userGroupBalanceUsd={group.userGroupBalanceUsd}
                   />
                 ))}
               </Box>
@@ -560,6 +588,14 @@ export const YieldsList = () => {
                       yield={row.original}
                       onEnter={() => handleYieldClick(row.original.id)}
                       providerIcon={getProviderLogo(row.original.providerId)}
+                      userBalanceUsd={
+                        allBalances?.[row.original.id]
+                          ? allBalances[row.original.id].reduce(
+                            (sum, b) => sum.plus(bnOrZero(b.amountUsd)),
+                            bnOrZero(0),
+                          )
+                          : undefined
+                      }
                     />
                   ))}
                 </SimpleGrid>

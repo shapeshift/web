@@ -18,6 +18,7 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { AssetIcon } from '@/components/AssetIcon'
 import { ChainIcon } from '@/components/ChainMenu'
 import { resolveYieldInputAssetIcon } from '@/lib/yieldxyz/utils'
+import { ValidatorBreakdown } from '@/pages/Yields/components/ValidatorBreakdown'
 import { YieldEnterExit } from '@/pages/Yields/components/YieldEnterExit'
 import { YieldPositionCard } from '@/pages/Yields/components/YieldPositionCard'
 import { YieldStats } from '@/pages/Yields/components/YieldStats'
@@ -181,6 +182,9 @@ export const YieldDetail = () => {
           {/* Main Column: Enter/Exit */}
           <Box flex={2}>
             <YieldEnterExit yieldItem={yieldItem} isQuoteLoading={isFetching} />
+            <Box mt={8}>
+              <ValidatorBreakdown yieldItem={yieldItem} />
+            </Box>
           </Box>
 
           {/* Sidebar: Your Position + Stats */}

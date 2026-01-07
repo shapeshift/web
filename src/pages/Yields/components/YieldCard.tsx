@@ -12,6 +12,7 @@ import {
 } from '@chakra-ui/react'
 import { useTranslate } from 'react-polyglot'
 
+import BigNumber from 'bignumber.js'
 import { Amount } from '@/components/Amount/Amount'
 import { AssetIcon } from '@/components/AssetIcon'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
@@ -23,9 +24,15 @@ interface YieldCardProps {
   onEnter?: (yieldItem: AugmentedYieldDto) => void
   isLoading?: boolean
   providerIcon?: string
+  userBalanceUsd?: BigNumber
 }
 
-export const YieldCard = ({ yield: yieldItem, onEnter, providerIcon }: YieldCardProps) => {
+export const YieldCard = ({
+  yield: yieldItem,
+  onEnter,
+  providerIcon,
+  userBalanceUsd,
+}: YieldCardProps) => {
   const translate = useTranslate()
   const borderColor = useColorModeValue('gray.100', 'gray.750')
   const cardBg = useColorModeValue('white', 'gray.800')
@@ -39,6 +46,8 @@ export const YieldCard = ({ yield: yieldItem, onEnter, providerIcon }: YieldCard
       onEnter?.(yieldItem)
     }
   }
+
+  const hasBalance = userBalanceUsd && userBalanceUsd.gt(0)
 
   return (
     <Card
@@ -56,8 +65,11 @@ export const YieldCard = ({ yield: yieldItem, onEnter, providerIcon }: YieldCard
       }}
       borderRadius='xl'
       variant='outline'
+      position='relative'
+      display='flex'
+      flexDir='column'
     >
-      <CardBody p={5}>
+      <CardBody p={5} display='flex' flexDir='column' flex={1}>
         {/* Header: Icon + Name */}
         <Flex justifyContent='space-between' alignItems='flex-start' mb={6}>
           <Flex alignItems='center' gap={4}>
@@ -70,6 +82,7 @@ export const YieldCard = ({ yield: yieldItem, onEnter, providerIcon }: YieldCard
                   boxShadow='md'
                   borderWidth='1px'
                   borderColor={borderColor}
+                  showNetworkIcon={false}
                 />
               ) : (
                 <AssetIcon
@@ -111,8 +124,8 @@ export const YieldCard = ({ yield: yieldItem, onEnter, providerIcon }: YieldCard
           </Flex>
         </Flex>
 
-        {/* Hero Section: APY */}
-        <Flex justifyContent='space-between' alignItems='flex-end' mb={6}>
+        {/* Hero Section: APY & TVL */}
+        <Flex justifyContent='space-between' alignItems='flex-end' mt='auto'>
           <Box>
             <Stat>
               <StatLabel color='text.subtle' fontSize='xs' mb={1}>
@@ -128,17 +141,28 @@ export const YieldCard = ({ yield: yieldItem, onEnter, providerIcon }: YieldCard
                 {apy.toFixed(2)}%
               </StatNumber>
             </Stat>
-
-            {/* Reward breakdown pills removed as per user request */}
           </Box>
 
           <Box textAlign='right'>
-            <Text fontSize='xs' color='text.subtle' mb={1}>
-              TVL
-            </Text>
-            <Text fontWeight='semibold' fontSize='md'>
-              <Amount.Fiat value={yieldItem.statistics?.tvlUsd ?? '0'} abbreviated />
-            </Text>
+            {hasBalance ? (
+              <>
+                <Text fontSize='xs' color='text.subtle' mb={1}>
+                  My Position
+                </Text>
+                <Text fontWeight='bold' fontSize='md' color='blue.400'>
+                  <Amount.Fiat value={userBalanceUsd.toFixed()} abbreviated />
+                </Text>
+              </>
+            ) : (
+              <>
+                <Text fontSize='xs' color='text.subtle' mb={1}>
+                  TVL
+                </Text>
+                <Text fontWeight='semibold' fontSize='md'>
+                  <Amount.Fiat value={yieldItem.statistics?.tvlUsd ?? '0'} abbreviated />
+                </Text>
+              </>
+            )}
           </Box>
         </Flex>
 

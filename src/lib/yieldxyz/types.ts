@@ -96,6 +96,14 @@ export type YieldBalance = {
     type: string
     passthrough: string
   }[]
+  validator?: {
+    address: string
+    name: string
+    logoURI: string
+    status?: string
+    apr?: number
+    commission?: number
+  }
 }
 
 export type YieldBalancesResponse = {

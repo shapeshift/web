@@ -215,6 +215,7 @@ export const YieldsList = () => {
         y =>
           y.metadata.name.toLowerCase().includes(q) ||
           y.token.symbol.toLowerCase().includes(q) ||
+          y.token.name.toLowerCase().includes(q) ||
           y.providerId.toLowerCase().includes(q),
       )
     }
@@ -249,6 +250,7 @@ export const YieldsList = () => {
         if (
           !y.metadata.name.toLowerCase().includes(q) &&
           !y.token.symbol.toLowerCase().includes(q) &&
+          !y.token.name.toLowerCase().includes(q) &&
           !y.providerId.toLowerCase().includes(q)
         )
           return false

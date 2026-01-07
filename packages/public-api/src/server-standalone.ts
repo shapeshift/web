@@ -6,10 +6,10 @@
  * For production, use index.ts which integrates with the real swapper package.
  */
 
-import express from 'express'
 import cors from 'cors'
-import { v4 as uuidv4 } from 'uuid'
 import crypto from 'crypto'
+import express from 'express'
+import { v4 as uuidv4 } from 'uuid'
 
 const API_PORT = parseInt(process.env.PORT || '3001', 10)
 const API_HOST = process.env.HOST || '0.0.0.0'
@@ -109,13 +109,8 @@ app.get('/v1/swap/rates', apiKeyAuth, (req, res) => {
 
 // Mock quote endpoint
 app.post('/v1/swap/quote', apiKeyAuth, (req, res) => {
-  const {
-    sellAssetId,
-    buyAssetId,
-    sellAmountCryptoBaseUnit,
-    receiveAddress,
-    swapperName,
-  } = req.body
+  const { sellAssetId, buyAssetId, sellAmountCryptoBaseUnit, receiveAddress, swapperName } =
+    req.body
 
   if (!sellAssetId || !buyAssetId || !sellAmountCryptoBaseUnit || !receiveAddress || !swapperName) {
     return res.status(400).json({

@@ -35,7 +35,7 @@ router.use(
     customCss: `
       .sidebar { --theme-color-1: #383838; }
     `,
-  } as any)
+  } as any),
 )
 
 export const docsRouter = router

@@ -9,8 +9,8 @@ let assetIds: AssetId[] = []
 let assets: Asset[] = []
 let initialized = false
 
-export const initAssets = async (): Promise<void> => {
-  if (initialized) return
+export const initAssets = (): Promise<void> => {
+  if (initialized) return Promise.resolve()
 
   try {
     // Try to load from the generated asset data file
@@ -66,6 +66,7 @@ export const initAssets = async (): Promise<void> => {
   }
 
   initialized = true
+  return Promise.resolve()
 }
 
 export const getAssetsById = (): AssetsById => assetsById

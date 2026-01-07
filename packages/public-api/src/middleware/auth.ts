@@ -1,8 +1,8 @@
-import type { Request, Response, NextFunction } from 'express'
 import crypto from 'crypto'
+import type { NextFunction, Request, Response } from 'express'
 
 import { STATIC_API_KEYS } from '../config'
-import type { PartnerConfig, ErrorResponse } from '../types'
+import type { ErrorResponse, PartnerConfig } from '../types'
 
 // Hash an API key for comparison (in production, keys would be stored hashed)
 const hashApiKey = (key: string): string => {
@@ -10,11 +10,7 @@ const hashApiKey = (key: string): string => {
 }
 
 // API key authentication middleware
-export const apiKeyAuth = async (
-  req: Request,
-  res: Response,
-  next: NextFunction,
-): Promise<void> => {
+export const apiKeyAuth = (req: Request, res: Response, next: NextFunction): void => {
   const apiKey = req.header('X-API-Key')
 
   if (!apiKey) {
@@ -59,11 +55,7 @@ export const apiKeyAuth = async (
 }
 
 // Optional auth - allows unauthenticated requests but attaches partner info if present
-export const optionalApiKeyAuth = async (
-  req: Request,
-  res: Response,
-  next: NextFunction,
-): Promise<void> => {
+export const optionalApiKeyAuth = (req: Request, _res: Response, next: NextFunction): void => {
   const apiKey = req.header('X-API-Key')
 
   if (apiKey) {

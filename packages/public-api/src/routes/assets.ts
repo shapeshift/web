@@ -16,7 +16,7 @@ export const AssetsListRequestSchema = z.object({
   offset: z.coerce.number().min(0).optional().default(0).openapi({ example: 0 }),
 })
 
-export const getAssets = async (req: Request, res: Response): Promise<void> => {
+export const getAssets = (req: Request, res: Response): void => {
   try {
     const parseResult = AssetsListRequestSchema.safeParse(req.query)
     if (!parseResult.success) {
@@ -52,7 +52,7 @@ export const getAssets = async (req: Request, res: Response): Promise<void> => {
   }
 }
 
-export const getAssetById = async (req: Request, res: Response): Promise<void> => {
+export const getAssetById = (req: Request, res: Response): void => {
   try {
     const parseResult = AssetRequestSchema.safeParse(req.params)
     if (!parseResult.success) {
@@ -81,7 +81,7 @@ export const getAssetById = async (req: Request, res: Response): Promise<void> =
   }
 }
 
-export const getAssetCount = async (_req: Request, res: Response): Promise<void> => {
+export const getAssetCount = (_req: Request, res: Response): void => {
   try {
     const count = getAssetIds().length
     res.json({ count, timestamp: Date.now() })

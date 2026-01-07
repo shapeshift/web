@@ -231,7 +231,7 @@ export const YieldsList = () => {
   ])
 
   // Group yields by Asset symbol using the extracted hook
-  const yieldsByAsset = useYieldGroups(displayYields)
+  const yieldsByAsset = useYieldGroups(yields?.all, displayYields)
 
   const myPositions = useMemo(() => {
     if (!yields?.all || !allBalances) return []

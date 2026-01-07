@@ -14,18 +14,28 @@ export type YieldAssetGroup = {
   assetIcon: string
 }
 
-export const useYieldGroups = (
-  displayYields: AugmentedYieldDto[] | undefined,
-): YieldAssetGroup[] => {
+type YieldMetadata = {
+  assetName: string
+  assetIcon: string
+}
+
+/**
+ * Calculates metadata (icon/name) for consistent display across groups.
+ * This is expensive (heuristics, loops), so we want to run it once for the whole dataset
+ * and output a map that can be queried O(1).
+ */
+const useYieldGroupMetadata = (
+  allYields: AugmentedYieldDto[] | undefined,
+): Record<string, YieldMetadata> => {
   const symbolToAssetMap = useSymbolToAssetMap()
   const assets = useAppSelector(selectAssets)
 
   return useMemo(() => {
-    if (!displayYields) return []
+    if (!allYields) return {}
     const groups: Record<string, AugmentedYieldDto[]> = {}
 
-    // 1. Group by symbol
-    displayYields.forEach(y => {
+    // 1. Group ALL yields by symbol
+    allYields.forEach(y => {
       const token = y.inputTokens?.[0] || y.token
       const symbol = token.symbol
       if (!symbol) return
@@ -36,14 +46,11 @@ export const useYieldGroups = (
       groups[symbol].push(y)
     })
 
-    // 2. Reduce to YieldAssetGroup with best metadata
-    const assetGroups = Object.entries(groups).map(([symbol, yields]) => {
-      // Find "Best" representative yield for metadata
-      // Prioritize:
-      // 1. Yield with matching Store Asset (Native/Known)
-      // 2. Yield with highest TVL
-      // 3. First yield
+    // 2. Compute metadata for each group
+    const metadata: Record<string, YieldMetadata> = {}
 
+    Object.entries(groups).forEach(([symbol, yields]) => {
+      // Find "Best" representative yield for metadata
       const bestYield = yields.reduce((prev, current) => {
         const prevToken = prev.inputTokens?.[0] || prev.token
         const currToken = current.inputTokens?.[0] || current.token
@@ -55,8 +62,7 @@ export const useYieldGroups = (
         if (currHasAsset && !prevHasAsset) return current
         if (prevHasAsset && !currHasAsset) return prev
 
-        // Heuristic: Prefer names that don't look "Wrapped" or "Pegged" if one does and other doesn't
-        // (Simple length check often works: "Tron" < "Binance-Peg TRX")
+        // Heuristic: Prefer names that don't look "Wrapped" or "Pegged"
         if (currToken.name && prevToken.name) {
           if (currToken.name.length < prevToken.name.length) return current
           if (prevToken.name.length < currToken.name.length) return prev
@@ -78,19 +84,55 @@ export const useYieldGroups = (
         if (localAsset?.icon) assetIcon = localAsset.icon
       }
 
-      return {
-        yields,
-        assetSymbol: symbol,
+      metadata[symbol] = {
         assetName: representativeToken.name || symbol,
         assetIcon,
       }
     })
 
-    // 3. Sort by Max APY (consistent with previous logic)
+    return metadata
+  }, [allYields, assets, symbolToAssetMap])
+}
+
+export const useYieldGroups = (
+  allYields: AugmentedYieldDto[] | undefined,
+  displayYields: AugmentedYieldDto[] | undefined,
+): YieldAssetGroup[] => {
+  // 1. Calculate metadata for ALL yields (Memoized, independent of filters)
+  const metadataMap = useYieldGroupMetadata(allYields)
+
+  // 2. Group the FILTERED yields (displayYields) and attach metadata (Fast O(1) lookup)
+  return useMemo(() => {
+    if (!displayYields) return []
+    const groups: Record<string, AugmentedYieldDto[]> = {}
+
+    displayYields.forEach(y => {
+      const token = y.inputTokens?.[0] || y.token
+      const symbol = token.symbol
+      if (!symbol) return
+
+      if (!groups[symbol]) {
+        groups[symbol] = []
+      }
+      groups[symbol].push(y)
+    })
+
+    const assetGroups = Object.entries(groups).map(([symbol, yields]) => {
+      const meta = metadataMap[symbol] || { assetName: symbol, assetIcon: '' }
+
+      return {
+        yields,
+        assetSymbol: symbol,
+        assetName: meta.assetName,
+        assetIcon: meta.assetIcon,
+      }
+    })
+
+    // 3. Sort by Max APY
     return assetGroups.sort((a, b) => {
       const maxApyA = Math.max(...a.yields.map(y => bnOrZero(y.rewardRate.total).toNumber()))
       const maxApyB = Math.max(...b.yields.map(y => bnOrZero(y.rewardRate.total).toNumber()))
       return maxApyB - maxApyA
     })
-  }, [displayYields, assets, symbolToAssetMap])
+  }, [displayYields, metadataMap])
 }

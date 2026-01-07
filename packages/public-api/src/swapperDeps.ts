@@ -44,7 +44,7 @@ const fetchGasFees = async (unchainedUrl: string): Promise<GasFeeDataEstimate> =
   if (!response.ok) {
     throw new Error(`Failed to fetch gas fees: ${response.statusText}`)
   }
-  const data = await response.json()
+  const data = (await response.json()) as GasFeeDataEstimate
   return {
     fast: {
       gasPrice: data.fast.gasPrice,

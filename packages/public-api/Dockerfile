@@ -52,6 +52,7 @@ WORKDIR /app
 # Copy the bundled server and asset data
 COPY --from=builder /app/packages/public-api/dist/server.cjs ./server.cjs
 COPY --from=builder /app/public/generated/generatedAssetData.json ./public/generated/
+COPY --from=builder /app/node_modules ./node_modules
 
 # Set environment
 ENV NODE_ENV=production

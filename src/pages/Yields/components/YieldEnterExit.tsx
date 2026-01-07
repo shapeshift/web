@@ -70,7 +70,12 @@ export const YieldEnterExit = ({ yieldItem }: YieldEnterExitProps) => {
       : '0',
   )
 
-  const minDeposit = yieldItem.mechanics?.entryLimits?.minimum
+  const minDepositRaw = yieldItem.mechanics?.entryLimits?.minimum
+  const minDeposit = useMemo(() => {
+    // SUI native staking requires 1 SUI minimum
+    if (yieldItem.network === 'sui') return '1'
+    return minDepositRaw
+  }, [yieldItem.network, minDepositRaw])
   const isBelowMinimum = useMemo(() => {
     if (!cryptoAmount || !minDeposit) return false
     return bnOrZero(cryptoAmount).lt(minDeposit)

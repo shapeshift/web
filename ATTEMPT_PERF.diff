@@ -1,0 +1,930 @@
+diff --git a/src/assets/translations/en/main.json b/src/assets/translations/en/main.json
+index 0f89fb267a..30f07bebb7 100644
+--- a/src/assets/translations/en/main.json
++++ b/src/assets/translations/en/main.json
+@@ -2717,6 +2717,7 @@
+     "earnUpTo": "You could earn up to %{apy}% on your balance",
+     "startEarning": "Start earning",
+     "maxApy": "Max APY",
++    "validatorBreakdown": "Validator Breakdown",
+     "loading": {
+       "signInWallet": "Sign in Wallet",
+       "signNow": "Sign now...",
+diff --git a/src/components/Layout/Header/NavBar/NavigationDropdown.tsx b/src/components/Layout/Header/NavBar/NavigationDropdown.tsx
+index 1a080746a9..b5e0c31614 100644
+--- a/src/components/Layout/Header/NavBar/NavigationDropdown.tsx
++++ b/src/components/Layout/Header/NavBar/NavigationDropdown.tsx
+@@ -101,7 +101,7 @@ export const NavigationDropdown = ({ label, items, defaultPath }: NavigationDrop
+       position='relative'
+       _after={afterSx}
+     >
+-      <Menu isOpen={isOpen} onOpen={onOpen} onClose={onClose}>
++      <Menu isOpen={isOpen} onOpen={onOpen} onClose={onClose} isLazy lazyBehavior='unmount'>
+         <MenuButton
+           as={Button}
+           variant='ghost'
+diff --git a/src/components/LazyLoadAvatar.tsx b/src/components/LazyLoadAvatar.tsx
+index 1a8298ea44..3c27d44c4c 100644
+--- a/src/components/LazyLoadAvatar.tsx
++++ b/src/components/LazyLoadAvatar.tsx
+@@ -1,49 +1,42 @@
+ import type { AvatarProps, SkeletonProps } from '@chakra-ui/react'
+ import { Avatar, SkeletonCircle } from '@chakra-ui/react'
+-import { useCallback, useState } from 'react'
++import { memo, useCallback, useState } from 'react'
+ 
+ import { imageLongPressSx } from '@/constants/longPress'
+ 
+ export type LazyLoadAvatarProps = SkeletonProps &
+   Pick<AvatarProps, 'src' | 'size' | 'boxSize' | 'name' | 'icon' | 'bg'>
+ 
+-export const LazyLoadAvatar: React.FC<LazyLoadAvatarProps> = ({
+-  src,
+-  size = 'sm',
+-  borderRadius,
+-  name,
+-  icon,
+-  boxSize,
+-  bg,
+-  ...rest
+-}) => {
+-  const [imageLoaded, setImageLoaded] = useState(src ? false : true)
+-  const [imageError, setImageError] = useState(false)
+-  const handleImageLoaded = useCallback(() => setImageLoaded(true), [])
+-  const handleImageError = useCallback(() => setImageError(true), [])
++export const LazyLoadAvatar: React.FC<LazyLoadAvatarProps> = memo(
++  ({ src, size = 'sm', borderRadius, name, icon, boxSize, bg, ...rest }) => {
++    const [imageLoaded, setImageLoaded] = useState(src ? false : true)
++    const [imageError, setImageError] = useState(false)
++    const handleImageLoaded = useCallback(() => setImageLoaded(true), [])
++    const handleImageError = useCallback(() => setImageError(true), [])
+ 
+-  return (
+-    <SkeletonCircle
+-      isLoaded={Boolean(imageLoaded || (imageError && name))}
+-      width='auto'
+-      height='auto'
+-      display='flex'
+-      borderRadius={borderRadius}
+-      {...rest}
+-    >
+-      <Avatar
+-        loading='lazy'
+-        onLoad={handleImageLoaded}
+-        onError={handleImageError}
+-        src={src}
+-        size={size}
+-        icon={icon}
+-        boxSize={boxSize}
+-        name={name}
++    return (
++      <SkeletonCircle
++        isLoaded={Boolean(imageLoaded || (imageError && name))}
++        width='auto'
++        height='auto'
++        display='flex'
+         borderRadius={borderRadius}
+-        sx={imageLongPressSx}
+-        bg={bg}
+-      />
+-    </SkeletonCircle>
+-  )
+-}
++        {...rest}
++      >
++        <Avatar
++          loading='lazy'
++          onLoad={handleImageLoaded}
++          onError={handleImageError}
++          src={src}
++          size={size}
++          icon={icon}
++          boxSize={boxSize}
++          name={name}
++          borderRadius={borderRadius}
++          sx={imageLongPressSx}
++          bg={bg}
++        />
++      </SkeletonCircle>
++    )
++  },
++)
+diff --git a/src/index.tsx b/src/index.tsx
+index adce266790..9801a1a00c 100644
+--- a/src/index.tsx
++++ b/src/index.tsx
+@@ -23,7 +23,7 @@ import { renderConsoleArt } from './lib/consoleArt'
+ import { reportWebVitals } from './lib/reportWebVitals'
+ import { httpClientIntegration } from './utils/sentry/httpclient'
+ 
+-const enableReactScan = false
++const enableReactScan = true
+ 
+ const SENTRY_ENABLED = true
+ 
+diff --git a/src/lib/yieldxyz/augment.ts b/src/lib/yieldxyz/augment.ts
+index a9493ab951..4c31fd2af6 100644
+--- a/src/lib/yieldxyz/augment.ts
++++ b/src/lib/yieldxyz/augment.ts
+@@ -1,7 +1,6 @@
+ import type { AssetId, AssetNamespace, ChainId, ChainReference } from '@shapeshiftoss/caip'
+ import {
+   ASSET_NAMESPACE,
+-  bscChainId,
+   CHAIN_NAMESPACE,
+   fromChainId,
+   toAssetId,
+@@ -46,7 +45,7 @@ const tokenToAssetId = (token: YieldToken, chainId: ChainId | undefined): AssetI
+ 
+   switch (chainNamespace) {
+     case CHAIN_NAMESPACE.Evm:
+-      assetNamespace = chainId === bscChainId ? ('bep20' as AssetNamespace) : ASSET_NAMESPACE.erc20
++      assetNamespace = ASSET_NAMESPACE.erc20
+       break
+     case CHAIN_NAMESPACE.CosmosSdk:
+       // Cosmos tokens are usually 'ibc' or 'native', but widely vary.
+diff --git a/src/lib/yieldxyz/types.ts b/src/lib/yieldxyz/types.ts
+index d6dd680796..577ba9c2f2 100644
+--- a/src/lib/yieldxyz/types.ts
++++ b/src/lib/yieldxyz/types.ts
+@@ -84,6 +84,14 @@ export enum YieldBalanceType {
+   Locked = 'locked',
+ }
+ 
++export type YieldBalanceValidator = {
++  address: string
++  name: string
++  logoURI: string
++  commission: number
++  rewardRate: YieldRewardRate
++}
++
+ export type YieldBalance = {
+   address: string
+   amount: string
+@@ -96,6 +104,8 @@ export type YieldBalance = {
+     type: string
+     passthrough: string
+   }[]
++  date?: string
++  validator?: YieldBalanceValidator
+ }
+ 
+ export type YieldBalancesResponse = {
+@@ -351,6 +361,8 @@ export type AugmentedYieldMechanics = Omit<YieldMechanics, 'gasFeeToken'> & {
+ 
+ export type AugmentedYieldBalance = Omit<YieldBalance, 'token'> & {
+   token: AugmentedYieldToken
++  date?: string
++  validator?: YieldBalanceValidator
+ }
+ 
+ export type AugmentedYieldDto = Omit<
+diff --git a/src/lib/yieldxyz/utils.ts b/src/lib/yieldxyz/utils.ts
+index e00adb2460..e45cd59429 100644
+--- a/src/lib/yieldxyz/utils.ts
++++ b/src/lib/yieldxyz/utils.ts
+@@ -45,17 +45,12 @@ type YieldItemForIcon = {
+   metadata: { logoURI?: string }
+ }
+ 
+-// HACK: yield.xyz SVG logos often fail to load in browser, so we prefer our local asset icons.
+-// Priority: inputToken.assetId > token.assetId > inputToken.logoURI > metadata.logoURI
+ export const resolveYieldInputAssetIcon = (yieldItem: YieldItemForIcon): YieldIconSource => {
+   const inputToken = yieldItem.inputTokens[0]
+   const inputTokenAssetId = inputToken?.assetId
+   const vaultTokenAssetId = yieldItem.token?.assetId
+-  const inputTokenLogoURI = inputToken?.logoURI
+-  const metadataLogoURI = yieldItem.metadata?.logoURI
+ 
+   if (inputTokenAssetId) return { assetId: inputTokenAssetId, src: undefined }
+   if (vaultTokenAssetId) return { assetId: vaultTokenAssetId, src: undefined }
+-  if (inputTokenLogoURI) return { assetId: undefined, src: inputTokenLogoURI }
+-  return { assetId: undefined, src: metadataLogoURI }
++  return { assetId: undefined, src: undefined }
+ }
+diff --git a/src/pages/Yields/components/YieldsList.tsx b/src/pages/Yields/components/YieldsList.tsx
+index bd7d48a4f8..f864044e4b 100644
+--- a/src/pages/Yields/components/YieldsList.tsx
++++ b/src/pages/Yields/components/YieldsList.tsx
+@@ -22,7 +22,8 @@ import {
+ } from '@chakra-ui/react'
+ import type { ColumnDef, SortingState } from '@tanstack/react-table'
+ import { getCoreRowModel, getSortedRowModel, useReactTable } from '@tanstack/react-table'
+-import { useCallback, useEffect, useMemo, useState } from 'react'
++import { useWindowVirtualizer } from '@tanstack/react-virtual'
++import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+ import { useTranslate } from 'react-polyglot'
+ import { useNavigate, useSearchParams } from 'react-router-dom'
+ 
+@@ -46,6 +47,7 @@ import { YieldFilters } from '@/pages/Yields/components/YieldFilters'
+ import { YieldOpportunityStats } from '@/pages/Yields/components/YieldOpportunityStats'
+ import { YieldTable } from '@/pages/Yields/components/YieldTable'
+ import { ViewToggle } from '@/pages/Yields/components/YieldViewHelpers'
++import type { YieldAssetGroup } from '@/pages/Yields/hooks/useYieldGroups'
+ import { useYieldGroups } from '@/pages/Yields/hooks/useYieldGroups'
+ import { useAllYieldBalances } from '@/react-queries/queries/yieldxyz/useAllYieldBalances'
+ import { useYieldProviders } from '@/react-queries/queries/yieldxyz/useYieldProviders'
+@@ -53,6 +55,136 @@ import { useYields } from '@/react-queries/queries/yieldxyz/useYields'
+ import { selectPortfolioUserCurrencyBalances } from '@/state/slices/selectors'
+ import { useAppSelector } from '@/state/store'
+ 
++const CARD_ROW_HEIGHT = 280
++const LIST_ROW_HEIGHT = 80
++const GAP = 24
++const COLUMNS = 3
++
++const gridColumns = { base: 1, md: 2, lg: COLUMNS }
++
++const VirtualizedYieldGridRow = memo(
++  ({ groups, startIndex }: { groups: YieldAssetGroup[]; startIndex: number }) => {
++    const rowGroups = useMemo(
++      () => groups.slice(startIndex, startIndex + COLUMNS),
++      [groups, startIndex],
++    )
++
++    const cards = useMemo(
++      () =>
++        rowGroups.map(group => (
++          <YieldAssetCard
++            key={group.assetSymbol}
++            assetSymbol={group.assetSymbol}
++            assetName={group.assetName}
++            assetIcon={group.assetIcon}
++            yields={group.yields}
++          />
++        )),
++      [rowGroups],
++    )
++
++    return (
++      <SimpleGrid columns={gridColumns} spacing={6}>
++        {cards}
++      </SimpleGrid>
++    )
++  },
++)
++
++const VirtualizedYieldGrid = memo(({ groups }: { groups: YieldAssetGroup[] }) => {
++  const listRef = useRef<HTMLDivElement | null>(null)
++  const rowCount = useMemo(() => Math.ceil(groups.length / COLUMNS), [groups.length])
++
++  const virtualizer = useWindowVirtualizer({
++    count: rowCount,
++    estimateSize: useCallback(() => CARD_ROW_HEIGHT + GAP, []),
++    overscan: 2,
++    scrollMargin: listRef.current?.offsetTop ?? 0,
++  })
++
++  const virtualRows = virtualizer.getVirtualItems()
++  const totalHeight = virtualizer.getTotalSize()
++
++  const rows = useMemo(
++    () =>
++      virtualRows.map(virtualRow => (
++        <Box
++          key={virtualRow.key}
++          position='absolute'
++          top={0}
++          left={0}
++          width='100%'
++          height={`${virtualRow.size}px`}
++          transform={`translateY(${virtualRow.start - (virtualizer.options.scrollMargin ?? 0)}px)`}
++        >
++          <VirtualizedYieldGridRow groups={groups} startIndex={virtualRow.index * COLUMNS} />
++        </Box>
++      )),
++    [virtualRows, groups, virtualizer.options.scrollMargin],
++  )
++
++  return (
++    <Box ref={listRef} position='relative' height={`${totalHeight}px`}>
++      {rows}
++    </Box>
++  )
++})
++
++const VirtualizedYieldList = memo(({ groups }: { groups: YieldAssetGroup[] }) => {
++  const listRef = useRef<HTMLDivElement | null>(null)
++
++  const virtualizer = useWindowVirtualizer({
++    count: groups.length,
++    estimateSize: useCallback(() => LIST_ROW_HEIGHT, []),
++    overscan: 5,
++    scrollMargin: listRef.current?.offsetTop ?? 0,
++  })
++
++  const virtualRows = virtualizer.getVirtualItems()
++  const totalHeight = virtualizer.getTotalSize()
++
++  const rows = useMemo(
++    () =>
++      virtualRows.map(virtualRow => {
++        const group = groups[virtualRow.index]
++        return (
++          <Box
++            key={virtualRow.key}
++            position='absolute'
++            top={0}
++            left={0}
++            width='100%'
++            height={`${virtualRow.size}px`}
++            transform={`translateY(${
++              virtualRow.start - (virtualizer.options.scrollMargin ?? 0)
++            }px)`}
++          >
++            <YieldAssetGroupRow
++              assetSymbol={group.assetSymbol}
++              assetName={group.assetName}
++              assetIcon={group.assetIcon}
++              yields={group.yields}
++            />
++          </Box>
++        )
++      }),
++    [virtualRows, groups, virtualizer.options.scrollMargin],
++  )
++
++  return (
++    <Box
++      ref={listRef}
++      position='relative'
++      height={`${totalHeight}px`}
++      borderWidth='1px'
++      borderRadius='xl'
++      overflow='hidden'
++    >
++      {rows}
++    </Box>
++  )
++})
++
+ export const YieldsList = () => {
+   const translate = useTranslate()
+   const navigate = useNavigate()
+@@ -81,14 +213,7 @@ export const YieldsList = () => {
+     setSearchParams(searchParams)
+   }
+ 
+-  const {
+-    data: yields,
+-    isFetching: isLoading,
+-    error,
+-  } = useYields({
+-    network: selectedNetwork || undefined,
+-    provider: selectedProvider || undefined,
+-  })
++  const { data: yields, isFetching: isLoading, error } = useYields()
+ 
+   // TODO: Multi-account support - currently defaulting to account 0
+   const { data: allBalances, isFetching: isLoadingBalances } = useAllYieldBalances()
+@@ -482,29 +607,9 @@ export const YieldsList = () => {
+                 <Text color='text.subtle'>{translate('yieldXYZ.noYields')}</Text>
+               </Box>
+             ) : viewMode === 'grid' ? (
+-              <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={6}>
+-                {yieldsByAsset.map(group => (
+-                  <YieldAssetCard
+-                    key={group.assetSymbol}
+-                    assetSymbol={group.assetSymbol}
+-                    assetName={group.assetName}
+-                    assetIcon={group.assetIcon}
+-                    yields={group.yields}
+-                  />
+-                ))}
+-              </SimpleGrid>
++              <VirtualizedYieldGrid groups={yieldsByAsset} />
+             ) : (
+-              <Box borderWidth='1px' borderRadius='xl' overflow='hidden'>
+-                {yieldsByAsset.map(group => (
+-                  <YieldAssetGroupRow
+-                    key={group.assetSymbol}
+-                    assetSymbol={group.assetSymbol}
+-                    assetName={group.assetName}
+-                    assetIcon={group.assetIcon}
+-                    yields={group.yields}
+-                  />
+-                ))}
+-              </Box>
++              <VirtualizedYieldList groups={yieldsByAsset} />
+             )}
+           </TabPanel>
+ 
+diff --git a/src/react-queries/queries/yieldxyz/useAllYieldBalances.ts b/src/react-queries/queries/yieldxyz/useAllYieldBalances.ts
+index f62e0e60f9..133d8b93da 100644
+--- a/src/react-queries/queries/yieldxyz/useAllYieldBalances.ts
++++ b/src/react-queries/queries/yieldxyz/useAllYieldBalances.ts
+@@ -98,43 +98,60 @@ export const useAllYieldBalances = (options: UseAllYieldBalancesOptions = {}) =>
+     return payloads
+   }, [isConnected, accountIds, filterAccountIds, networks, networkMap])
+ 
++  const queryPayloadsKey = useMemo(
++    () =>
++      queryPayloads
++        .map(p => `${p.network}:${p.address.toLowerCase()}`)
++        .sort()
++        .join(','),
++    [queryPayloads],
++  )
++
++  const queryFn = useMemo(() => {
++    if (!isConnected || queryPayloads.length === 0) return skipToken
++
++    const seen = new Set<string>()
++    const uniqueQueries = queryPayloads.reduce<{ address: string; network: string }[]>(
++      (acc, { address, network }) => {
++        const key = `${network}:${address.toLowerCase()}`
++        if (seen.has(key)) return acc
++        seen.add(key)
++        acc.push({ address, network })
++        return acc
++      },
++      [],
++    )
++
++    const addressToChainId = queryPayloads.reduce<Map<string, ChainId>>(
++      (acc, { address, chainId }) => {
++        acc.set(address.toLowerCase(), chainId)
++        return acc
++      },
++      new Map<string, ChainId>(),
++    )
++
++    return async () => {
++      const response = await getAggregateBalances(uniqueQueries)
++      const balanceMap: { [yieldId: string]: AugmentedYieldBalance[] } = {}
++
++      response.items.forEach(item => {
++        const firstAddress = item.balances[0]?.address?.toLowerCase()
++        const chainId = firstAddress ? addressToChainId.get(firstAddress) : undefined
++
++        if (!balanceMap[item.yieldId]) {
++          balanceMap[item.yieldId] = []
++        }
++
++        balanceMap[item.yieldId].push(...augmentYieldBalances(item.balances, chainId))
++      })
++
++      return balanceMap
++    }
++  }, [isConnected, queryPayloads])
++
+   return useQuery<{ [yieldId: string]: AugmentedYieldBalance[] }>({
+-    queryKey: ['yieldxyz', 'allBalances', queryPayloads],
+-    queryFn:
+-      queryPayloads.length > 0
+-        ? async () => {
+-            // Deduplicate requests by (address, network) just in case, though the API handles it
+-            // We pass chainId along to augment the results correctly
+-            const uniqueQueries = queryPayloads.map(({ address, network }) => ({
+-              address,
+-              network,
+-            }))
+-
+-            const response = await getAggregateBalances(uniqueQueries)
+-
+-            // Flatten and map results by yieldId
+-            const balanceMap: { [yieldId: string]: AugmentedYieldBalance[] } = {}
+-
+-            response.items.forEach(item => {
+-              // Find the chainId for this item's address results to augment correctly
+-              // This is a bit tricky since the response doesn't strictly echo back the chainId we sent
+-              // We infer it from the payloads we sent matching the address
+-              const relevantPayload = queryPayloads.find(
+-                p => p.address.toLowerCase() === item.balances[0]?.address.toLowerCase(), // heuristic match
+-              )
+-              const chainId = relevantPayload?.chainId
+-
+-              if (!balanceMap[item.yieldId]) {
+-                balanceMap[item.yieldId] = []
+-              }
+-
+-              balanceMap[item.yieldId].push(...augmentYieldBalances(item.balances, chainId))
+-            })
+-
+-            return balanceMap
+-          }
+-        : skipToken,
+-    enabled: isConnected && queryPayloads.length > 0,
++    queryKey: ['yieldxyz', 'allBalances', queryPayloadsKey],
++    queryFn,
+     staleTime: 60000, // 1 minute
+   })
+ }
+diff --git a/src/react-queries/queries/yieldxyz/useYield.ts b/src/react-queries/queries/yieldxyz/useYield.ts
+index e19cb843e8..66ca15c235 100644
+--- a/src/react-queries/queries/yieldxyz/useYield.ts
++++ b/src/react-queries/queries/yieldxyz/useYield.ts
+@@ -16,18 +16,12 @@ export const useYield = (yieldId: string) => {
+     },
+     enabled: !!yieldId,
+     staleTime: 60 * 1000, // 1 minute
+-    // Use cached yield from the list if available (avoids redundant API call)
+     initialData: () => {
+-      const cachedYields = queryClient.getQueryData<AugmentedYieldDto[]>([
+-        'yieldxyz',
+-        'yields',
+-        undefined,
+-      ])
++      const cachedYields = queryClient.getQueryData<AugmentedYieldDto[]>(['yieldxyz', 'yields'])
+       return cachedYields?.find(y => y.id === yieldId)
+     },
+     initialDataUpdatedAt: () => {
+-      return queryClient.getQueryState(['yieldxyz', 'yields', undefined])?.dataUpdatedAt
++      return queryClient.getQueryState(['yieldxyz', 'yields'])?.dataUpdatedAt
+     },
+   })
+ }
+-
+diff --git a/src/react-queries/queries/yieldxyz/useYields.ts b/src/react-queries/queries/yieldxyz/useYields.ts
+index 81b996f2cb..0697fc6b7a 100644
+--- a/src/react-queries/queries/yieldxyz/useYields.ts
++++ b/src/react-queries/queries/yieldxyz/useYields.ts
+@@ -1,39 +1,39 @@
+-import { useQuery, useQueryClient } from '@tanstack/react-query'
++import { useQuery } from '@tanstack/react-query'
++import { useMemo } from 'react'
+ 
+ import { getYields } from '@/lib/yieldxyz/api'
+ import { augmentYield } from '@/lib/yieldxyz/augment'
+ import { isSupportedYieldNetwork } from '@/lib/yieldxyz/constants'
+-import type { AugmentedYieldDto } from '@/lib/yieldxyz/types'
++import type { AugmentedYieldDto, YieldDto } from '@/lib/yieldxyz/types'
+ 
+-export const useYields = (params?: { network?: string; provider?: string }) => {
+-  const queryClient = useQueryClient()
+-
+-  return useQuery<AugmentedYieldDto[]>({
+-    queryKey: ['yieldxyz', 'yields', params],
++const useRawYields = () => {
++  return useQuery<YieldDto[]>({
++    queryKey: ['yieldxyz', 'yields', 'raw'],
+     queryFn: async () => {
+-      let allItems: any[] = []
++      let allItems: YieldDto[] = []
+       let offset = 0
+       const limit = 100
+ 
+       while (true) {
+-        const data = await getYields({ ...params, limit, offset })
++        const data = await getYields({ limit, offset })
+         allItems = [...allItems, ...data.items]
+         if (data.items.length < limit) break
+         offset += limit
+       }
+ 
+-      const augmentedYields = allItems
+-        .filter(item => isSupportedYieldNetwork(item.network))
+-        .map(augmentYield)
+-
+-      // Pre-populate individual yield cache entries to avoid redundant fetches
+-      augmentedYields.forEach(yieldItem => {
+-        queryClient.setQueryData(['yieldxyz', 'yield', yieldItem.id], yieldItem)
+-      })
+-
+-      return augmentedYields
++      return allItems.filter(item => isSupportedYieldNetwork(item.network))
+     },
+-    staleTime: 5 * 60 * 1000, // 5 minutes (increased from 60s)
++    staleTime: 5 * 60 * 1000,
+   })
+ }
+ 
++export const useYields = () => {
++  const { data: rawYields, isFetching, isLoading, error } = useRawYields()
++
++  const augmentedYields = useMemo<AugmentedYieldDto[] | undefined>(() => {
++    if (!rawYields) return undefined
++    return rawYields.map(augmentYield)
++  }, [rawYields])
++
++  return { data: augmentedYields, isFetching, isLoading, error }
++}
+diff --git a/src/state/slices/common-selectors.ts b/src/state/slices/common-selectors.ts
+index baad4be98d..55c725e305 100644
+--- a/src/state/slices/common-selectors.ts
++++ b/src/state/slices/common-selectors.ts
+@@ -169,8 +169,9 @@ export const selectPortfolioUserCurrencyBalances = createDeepEqualOutputSelector
+   preferences.selectors.selectBalanceThresholdUserCurrency,
+   preferences.selectors.selectSpamMarkedAssetIds,
+   (assetsById, marketData, balances, balanceThresholdUserCurrency, spamMarkedAssetIds) => {
++    console.time('[selectPortfolioUserCurrencyBalances]')
+     const spamAssetIdsSet = new Set(spamMarkedAssetIds)
+-    return Object.entries(balances).reduce<Record<AssetId, string>>(
++    const result = Object.entries(balances).reduce<Record<AssetId, string>>(
+       (acc, [assetId, baseUnitBalance]) => {
+         const asset = assetsById[assetId]
+         if (!asset) return acc
+@@ -186,6 +187,14 @@ export const selectPortfolioUserCurrencyBalances = createDeepEqualOutputSelector
+       },
+       {},
+     )
++    console.timeEnd('[selectPortfolioUserCurrencyBalances]')
++    console.log(
++      '[selectPortfolioUserCurrencyBalances] balances:',
++      Object.keys(balances).length,
++      '-> result:',
++      Object.keys(result).length,
++    )
++    return result
+   },
+ )
+ 
+
+
+=== NEW FILE: src/pages/Yields/components/ValidatorBreakdown.tsx ===
+import {
+  Avatar,
+  Box,
+  Card,
+  CardBody,
+  Collapse,
+  Divider,
+  Flex,
+  Heading,
+  HStack,
+  Skeleton,
+  Text,
+  useColorModeValue,
+  useDisclosure,
+  VStack,
+} from '@chakra-ui/react'
+import { fromAccountId } from '@shapeshiftoss/caip'
+import { useCallback, useMemo } from 'react'
+import { FaChevronDown, FaChevronUp } from 'react-icons/fa'
+import { useTranslate } from 'react-polyglot'
+
+import { Amount } from '@/components/Amount/Amount'
+import { bnOrZero } from '@/lib/bignumber/bignumber'
+import type {
+  AugmentedYieldBalance,
+  AugmentedYieldDto,
+  YieldBalanceValidator,
+} from '@/lib/yieldxyz/types'
+import { YieldBalanceType } from '@/lib/yieldxyz/types'
+import { useYieldBalances } from '@/react-queries/queries/yieldxyz/useYieldBalances'
+import { selectFirstAccountIdByChainId } from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
+
+type ValidatorBreakdownProps = {
+  yieldItem: AugmentedYieldDto
+}
+
+type ValidatorGroupedBalances = {
+  validator: YieldBalanceValidator
+  active: AugmentedYieldBalance | undefined
+  exiting: AugmentedYieldBalance | undefined
+  claimable: AugmentedYieldBalance | undefined
+  totalUsd: string
+}
+
+export const ValidatorBreakdown = ({ yieldItem }: ValidatorBreakdownProps) => {
+  const translate = useTranslate()
+  const { isOpen, onToggle } = useDisclosure({ defaultIsOpen: true })
+
+  const cardBg = useColorModeValue('white', 'gray.800')
+  const borderColor = useColorModeValue('gray.100', 'gray.750')
+  const hoverBg = useColorModeValue('gray.50', 'gray.750')
+
+  const { chainId } = yieldItem
+  const accountId = useAppSelector(state =>
+    chainId ? selectFirstAccountIdByChainId(state, chainId) : undefined,
+  )
+  const address = accountId ? fromAccountId(accountId).account : undefined
+
+  const {
+    data: balances,
+    isLoading: isLoadingQuery,
+    fetchStatus,
+  } = useYieldBalances({
+    yieldId: yieldItem.id,
+    address: address ?? '',
+    chainId,
+  })
+
+  const isLoading = isLoadingQuery && fetchStatus !== 'idle'
+
+  const requiresValidatorSelection = useMemo(() => {
+    return yieldItem.mechanics.requiresValidatorSelection
+  }, [yieldItem.mechanics.requiresValidatorSelection])
+
+  const groupedByValidator = useMemo((): ValidatorGroupedBalances[] => {
+    if (!balances || !requiresValidatorSelection) return []
+
+    const validatorMap = new Map<
+      string,
+      Omit<ValidatorGroupedBalances, 'totalUsd'> & { totalUsd: ReturnType<typeof bnOrZero> }
+    >()
+
+    for (const balance of balances) {
+      if (!balance.validator) continue
+
+      const key = balance.validator.address
+      const existing = validatorMap.get(key)
+
+      if (!existing) {
+        validatorMap.set(key, {
+          validator: balance.validator,
+          active: balance.type === YieldBalanceType.Active ? balance : undefined,
+          exiting: balance.type === YieldBalanceType.Exiting ? balance : undefined,
+          claimable: balance.type === YieldBalanceType.Claimable ? balance : undefined,
+          totalUsd: bnOrZero(balance.amountUsd),
+        })
+      } else {
+        if (balance.type === YieldBalanceType.Active) existing.active = balance
+        if (balance.type === YieldBalanceType.Exiting) existing.exiting = balance
+        if (balance.type === YieldBalanceType.Claimable) existing.claimable = balance
+        existing.totalUsd = existing.totalUsd.plus(bnOrZero(balance.amountUsd))
+      }
+    }
+
+    return Array.from(validatorMap.values())
+      .filter(
+        group =>
+          bnOrZero(group.active?.amount).gt(0) ||
+          bnOrZero(group.exiting?.amount).gt(0) ||
+          bnOrZero(group.claimable?.amount).gt(0),
+      )
+      .map(group => ({ ...group, totalUsd: group.totalUsd.toFixed() }))
+  }, [balances, requiresValidatorSelection])
+
+  const hasValidatorPositions = useMemo(() => {
+    return groupedByValidator.length > 0
+  }, [groupedByValidator.length])
+
+  const formatUnlockDate = useCallback((dateString: string | undefined) => {
+    if (!dateString) return null
+    const date = new Date(dateString)
+    return date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })
+  }, [])
+
+  if (!requiresValidatorSelection || !address) {
+    return null
+  }
+
+  if (isLoading) {
+    return (
+      <Card bg={cardBg} borderRadius='xl' shadow='sm' border='1px solid' borderColor={borderColor}>
+        <CardBody p={6}>
+          <Skeleton height='24px' width='200px' mb={4} />
+          <VStack spacing={3} align='stretch'>
+            <Skeleton height='80px' />
+            <Skeleton height='80px' />
+          </VStack>
+        </CardBody>
+      </Card>
+    )
+  }
+
+  if (!hasValidatorPositions) {
+    return null
+  }
+
+  return (
+    <Card bg={cardBg} borderRadius='xl' shadow='sm' border='1px solid' borderColor={borderColor}>
+      <CardBody p={6}>
+        <Flex
+          justifyContent='space-between'
+          alignItems='center'
+          mb={isOpen ? 4 : 0}
+          cursor='pointer'
+          onClick={onToggle}
+          _hover={{ opacity: 0.8 }}
+          transition='opacity 0.2s'
+        >
+          <Heading
+            as='h3'
+            size='sm'
+            textTransform='uppercase'
+            color='text.subtle'
+            letterSpacing='wider'
+          >
+            {translate('yieldXYZ.validatorBreakdown')}
+          </Heading>
+          <Box color='text.subtle'>
+            {isOpen ? <FaChevronUp size={12} /> : <FaChevronDown size={12} />}
+          </Box>
+        </Flex>
+
+        <Collapse in={isOpen} animateOpacity>
+          <VStack spacing={3} align='stretch'>
+            {groupedByValidator.map((group, index) => {
+              const hasActive = bnOrZero(group.active?.amount).gt(0)
+              const hasExiting = bnOrZero(group.exiting?.amount).gt(0)
+              const hasClaimable = bnOrZero(group.claimable?.amount).gt(0)
+
+              return (
+                <Box key={group.validator.address}>
+                  {index > 0 && <Divider borderColor={borderColor} mb={3} />}
+                  <Flex
+                    direction='column'
+                    gap={3}
+                    p={3}
+                    borderRadius='lg'
+                    bg={hoverBg}
+                    transition='background 0.2s'
+                  >
+                    <HStack spacing={3}>
+                      <Avatar
+                        src={group.validator.logoURI}
+                        name={group.validator.name}
+                        size='sm'
+                        bg='gray.700'
+                      />
+                      <Box flex={1}>
+                        <Text fontWeight='semibold' fontSize='sm'>
+                          {group.validator.name}
+                        </Text>
+                        <Text fontSize='xs' color='text.subtle'>
+                          <Amount.Fiat value={group.totalUsd} />
+                        </Text>
+                      </Box>
+                    </HStack>
+
+                    <VStack spacing={2} align='stretch' pl={10}>
+                      {group.active && hasActive && (
+                        <Flex justify='space-between' align='center'>
+                          <Text fontSize='xs' color='text.subtle' textTransform='uppercase'>
+                            Staked
+                          </Text>
+                          <Text fontSize='sm' fontWeight='medium'>
+                            <Amount.Crypto
+                              value={group.active.amount}
+                              symbol={group.active.token.symbol}
+                              abbreviated
+                            />
+                          </Text>
+                        </Flex>
+                      )}
+
+                      {group.exiting && hasExiting && (
+                        <Flex
+                          justify='space-between'
+                          align='center'
+                          px={2}
+                          py={1}
+                          borderRadius='md'
+                          bg='orange.900'
+                        >
+                          <HStack spacing={1}>
+                            <Text
+                              fontSize='xs'
+                              color='orange.300'
+                              fontWeight='semibold'
+                              textTransform='uppercase'
+                            >
+                              Exiting
+                            </Text>
+                            {group.exiting.date && (
+                              <Text fontSize='xs' color='orange.400'>
+                                ({formatUnlockDate(group.exiting.date)})
+                              </Text>
+                            )}
+                          </HStack>
+                          <Text fontSize='sm' fontWeight='medium' color='orange.200'>
+                            <Amount.Crypto
+                              value={group.exiting.amount}
+                              symbol={group.exiting.token.symbol}
+                              abbreviated
+                            />
+                          </Text>
+                        </Flex>
+                      )}
+
+                      {group.claimable && hasClaimable && (
+                        <Flex
+                          justify='space-between'
+                          align='center'
+                          px={2}
+                          py={1}
+                          borderRadius='md'
+                          bg='purple.900'
+                        >
+                          <Text
+                            fontSize='xs'
+                            color='purple.300'
+                            fontWeight='semibold'
+                            textTransform='uppercase'
+                          >
+                            Claimable
+                          </Text>
+                          <Text fontSize='sm' fontWeight='medium' color='purple.200'>
+                            <Amount.Crypto
+                              value={group.claimable.amount}
+                              symbol={group.claimable.token.symbol}
+                              abbreviated
+                            />
+                          </Text>
+                        </Flex>
+                      )}
+                    </VStack>
+                  </Flex>
+                </Box>
+              )
+            })}
+          </VStack>
+        </Collapse>
+      </CardBody>
+    </Card>
+  )
+}

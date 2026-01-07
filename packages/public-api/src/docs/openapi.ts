@@ -51,7 +51,7 @@ const QuoteStepSchema = registry.register(
     buyAmountAfterFeesCryptoBaseUnit: z.string().openapi({ example: '995000000' }),
     allowanceContract: z.string().openapi({ example: '0xdef1c0ded9bec7f1a1670819833240f027b25eff' }),
     estimatedExecutionTimeMs: z.number().optional().openapi({ example: 60000 }),
-    source: z.string().openapi({ example: 'Thorchain' }),
+    source: z.string().openapi({ example: '0x' }),
     transactionData: z
       .object({
         to: z.string(),
@@ -68,7 +68,7 @@ const QuoteResponseSchema = registry.register(
   'QuoteResponse',
   z.object({
     quoteId: z.string().uuid(),
-    swapperName: z.string().openapi({ example: 'Thorchain' }),
+    swapperName: z.string().openapi({ example: '0x' }),
     rate: z.string().openapi({ example: '0.995' }),
     sellAsset: AssetSchema,
     buyAsset: AssetSchema,

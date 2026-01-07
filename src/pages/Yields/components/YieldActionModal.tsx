@@ -1,4 +1,3 @@
-import { cosmosChainId } from '@shapeshiftoss/caip'
 import {
   Avatar,
   Box,
@@ -17,7 +16,11 @@ import {
   VStack,
 } from '@chakra-ui/react'
 import { keyframes } from '@emotion/react'
-import { useMemo } from 'react'
+import { cosmosChainId } from '@shapeshiftoss/caip'
+import type { Options } from 'canvas-confetti'
+import { useCallback, useEffect, useMemo, useRef } from 'react'
+import ReactCanvasConfetti from 'react-canvas-confetti'
+import type { TCanvasConfettiInstance } from 'react-canvas-confetti/dist/types'
 import { FaCheck, FaExternalLinkAlt, FaWallet } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 
@@ -325,6 +328,53 @@ export const YieldActionModal = ({
     </VStack>
   )
 
+  // Confetti Logic
+  const refAnimationInstance = useRef<TCanvasConfettiInstance | null>(null)
+  const getInstance = useCallback(({ confetti }: { confetti: TCanvasConfettiInstance }) => {
+    refAnimationInstance.current = confetti
+  }, [])
+
+  const makeShot = useCallback((particleRatio: number, opts: Partial<Options>) => {
+    if (refAnimationInstance.current) {
+      refAnimationInstance.current({
+        ...opts,
+        origin: { y: 0.7 },
+        particleCount: Math.floor(200 * particleRatio),
+      })
+    }
+  }, [])
+
+  const fireConfetti = useCallback(() => {
+    makeShot(0.25, {
+      spread: 26,
+      startVelocity: 55,
+    })
+    makeShot(0.2, {
+      spread: 60,
+    })
+    makeShot(0.35, {
+      spread: 100,
+      decay: 0.91,
+      scalar: 0.8,
+    })
+    makeShot(0.1, {
+      spread: 120,
+      startVelocity: 25,
+      decay: 0.92,
+      scalar: 1.2,
+    })
+    makeShot(0.1, {
+      spread: 120,
+      startVelocity: 45,
+    })
+  }, [makeShot])
+
+  useEffect(() => {
+    if (step === ModalStep.Success) {
+      fireConfetti()
+    }
+  }, [step, fireConfetti])
+
   const renderSuccess = () => (
     <VStack spacing={8} py={8} textAlign='center' align='center'>
       <Box
@@ -407,35 +457,49 @@ export const YieldActionModal = ({
   )
 
   return (
-    <Modal
-      isOpen={isOpen}
-      onClose={handleClose}
-      isCentered
-      size='md'
-      closeOnOverlayClick={!isSubmitting}
-    >
-      <ModalOverlay backdropFilter='blur(12px)' bg='blackAlpha.600' />
-      <ModalContent
-        bg='gray.900'
-        borderColor='gray.700'
-        borderWidth='1px'
-        borderRadius='3xl'
-        boxShadow='2xl'
+    <>
+      <Modal
+        isOpen={isOpen}
+        onClose={handleClose}
+        isCentered
+        size='md'
+        closeOnOverlayClick={!isSubmitting}
       >
-        <ModalCloseButton top={5} right={5} isDisabled={isSubmitting} />
-        <ModalBody p={8}>
-          {step !== ModalStep.Success && (
-            <Flex alignItems='center' gap={3} mb={8}>
-              <Heading size='md'>
-                {action === 'enter' ? `Supply ${assetSymbol}` : `Withdraw ${assetSymbol}`}
-              </Heading>
-            </Flex>
-          )}
+        <ModalOverlay backdropFilter='blur(12px)' bg='blackAlpha.600' />
+        <ModalContent
+          bg='gray.900'
+          borderColor='gray.700'
+          borderWidth='1px'
+          borderRadius='3xl'
+          boxShadow='2xl'
+        >
+          <ModalCloseButton top={5} right={5} isDisabled={isSubmitting} />
+          <ModalBody p={8}>
+            {step !== ModalStep.Success && (
+              <Flex alignItems='center' gap={3} mb={8}>
+                <Heading size='md'>
+                  {action === 'enter' ? `Supply ${assetSymbol}` : `Withdraw ${assetSymbol}`}
+                </Heading>
+              </Flex>
+            )}
 
-          {step === ModalStep.InProgress && renderAction()}
-          {step === ModalStep.Success && renderSuccess()}
-        </ModalBody>
-      </ModalContent>
-    </Modal>
+            {step === ModalStep.InProgress && renderAction()}
+            {step === ModalStep.Success && renderSuccess()}
+          </ModalBody>
+        </ModalContent>
+      </Modal>
+      <ReactCanvasConfetti
+        onInit={getInstance}
+        style={{
+          position: 'fixed',
+          pointerEvents: 'none',
+          width: '100%',
+          height: '100%',
+          top: 0,
+          left: 0,
+          zIndex: 9999, // Ensure it's above the modal
+        }}
+      />
+    </>
   )
 }

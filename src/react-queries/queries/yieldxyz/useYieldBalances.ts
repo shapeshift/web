@@ -17,9 +17,9 @@ export const useYieldBalances = ({ yieldId, address, chainId }: UseYieldBalances
     queryFn:
       yieldId && address
         ? async () => {
-          const data = await getYieldBalances(yieldId, address)
-          return augmentYieldBalances(data.balances, chainId)
-        }
+            const data = await getYieldBalances(yieldId, address)
+            return augmentYieldBalances(data.balances, chainId)
+          }
         : skipToken,
     staleTime: Infinity,
   })

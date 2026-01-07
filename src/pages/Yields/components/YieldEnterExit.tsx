@@ -77,9 +77,9 @@ export const YieldEnterExit = ({ yieldItem }: YieldEnterExitProps) => {
   const inputTokenBalance = useAppSelector(state =>
     inputTokenAssetId && accountId
       ? selectPortfolioCryptoPrecisionBalanceByFilter(state, {
-        assetId: inputTokenAssetId,
-        accountId,
-      })
+          assetId: inputTokenAssetId,
+          accountId,
+        })
       : '0',
   )
 

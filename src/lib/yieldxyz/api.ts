@@ -52,7 +52,10 @@ export const getProviders = (params?: {
 }
 
 // Balances
-export const getYieldBalances = (yieldId: string, address: string): Promise<YieldBalancesResponse> => {
+export const getYieldBalances = (
+  yieldId: string,
+  address: string,
+): Promise<YieldBalancesResponse> => {
   return instance
     .get<YieldBalancesResponse>(`/yields/${yieldId}/balances`, { params: { address } })
     .then(res => res.data)
@@ -68,7 +71,9 @@ export const getAggregateBalances = (
 }
 
 export const getYieldValidators = (yieldId: string): Promise<YieldValidatorsResponse> => {
-  return instance.get<YieldValidatorsResponse>(`/yields/${yieldId}/validators`).then(res => res.data)
+  return instance
+    .get<YieldValidatorsResponse>(`/yields/${yieldId}/validators`)
+    .then(res => res.data)
 }
 
 // Actions
@@ -129,14 +134,15 @@ export const getActions = (params: {
 }
 
 // Transaction Submission
-export const submitTransaction = (transactionId: string, signedTransaction: string): Promise<void> => {
+export const submitTransaction = (
+  transactionId: string,
+  signedTransaction: string,
+): Promise<void> => {
   return instance
     .post(`/transactions/${transactionId}/submit`, { signedTransaction })
     .then(res => res.data)
 }
 
 export const submitTransactionHash = (transactionId: string, hash: string): Promise<void> => {
-  return instance
-    .put(`/transactions/${transactionId}/submit-hash`, { hash })
-    .then(res => res.data)
+  return instance.put(`/transactions/${transactionId}/submit-hash`, { hash }).then(res => res.data)
 }

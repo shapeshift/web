@@ -5,7 +5,7 @@ import {
   isSupportedYieldNetwork,
   YIELD_NETWORK_TO_CHAIN_ID,
 } from './constants'
-import { YieldDto, YieldNetwork } from './types'
+import type { YieldDto, YieldNetwork } from './types'
 
 export const chainIdToYieldNetwork = (chainId: ChainId): YieldNetwork | undefined =>
   CHAIN_ID_TO_YIELD_NETWORK[chainId]
@@ -33,7 +33,6 @@ export const assertChainIdToYieldNetwork = (chainId: ChainId): YieldNetwork => {
 
 export const filterSupportedYields = (yields: YieldDto[]): YieldDto[] =>
   yields.filter(y => isSupportedYieldNetwork(y.network))
-
 
 export const isExitableBalanceType = (type: string): boolean =>
   type === 'active' || type === 'withdrawable'

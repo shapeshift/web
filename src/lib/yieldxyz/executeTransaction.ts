@@ -1,8 +1,8 @@
 import { Transaction as SuiTransaction } from '@mysten/sui/transactions'
 import type { ChainId } from '@shapeshiftoss/caip'
 import { CHAIN_NAMESPACE, fromChainId } from '@shapeshiftoss/caip'
-import { CONTRACT_INTERACTION, toAddressNList } from '@shapeshiftoss/chain-adapters'
 import type { SignTx } from '@shapeshiftoss/chain-adapters'
+import { CONTRACT_INTERACTION, toAddressNList } from '@shapeshiftoss/chain-adapters'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import type { EvmChainId } from '@shapeshiftoss/types'
 import {
@@ -132,7 +132,7 @@ const toHexOrDefault = (value: string | number | undefined, fallback: Hex): Hex 
 
 const toHexData = (value: string | undefined): Hex => {
   if (!value) return '0x'
-  return isHex(value) ? (value as Hex) : (value.startsWith('0x') ? (value as Hex) : '0x')
+  return isHex(value) ? (value as Hex) : value.startsWith('0x') ? (value as Hex) : '0x'
 }
 
 const executeEvmTransaction = async ({
@@ -161,14 +161,14 @@ const executeEvmTransaction = async ({
   const txToSign: SignTx<EvmChainId> =
     parsed.maxFeePerGas || parsed.maxPriorityFeePerGas
       ? {
-        ...baseTxToSign,
-        maxFeePerGas: toHexOrDefault(parsed.maxFeePerGas, '0x0'),
-        maxPriorityFeePerGas: toHexOrDefault(parsed.maxPriorityFeePerGas, '0x0'),
-      }
+          ...baseTxToSign,
+          maxFeePerGas: toHexOrDefault(parsed.maxFeePerGas, '0x0'),
+          maxPriorityFeePerGas: toHexOrDefault(parsed.maxPriorityFeePerGas, '0x0'),
+        }
       : {
-        ...baseTxToSign,
-        gasPrice: toHexOrDefault(parsed.gasPrice ?? '0', '0x0'),
-      }
+          ...baseTxToSign,
+          gasPrice: toHexOrDefault(parsed.gasPrice ?? '0', '0x0'),
+        }
 
   /*
     We need to cast to any here because existing EVM adapters might have slight signature differences
@@ -189,7 +189,6 @@ const executeEvmTransaction = async ({
     senderAddress: parsed.from,
     receiverAddress: parsed.to,
   })
-
 
   if (!txHash) throw new Error('Failed to broadcast EVM transaction')
   return txHash

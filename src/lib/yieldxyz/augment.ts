@@ -46,8 +46,7 @@ const tokenToAssetId = (token: YieldToken, chainId: ChainId | undefined): AssetI
 
   switch (chainNamespace) {
     case CHAIN_NAMESPACE.Evm:
-      assetNamespace =
-        chainId === bscChainId ? ('bep20' as AssetNamespace) : ASSET_NAMESPACE.erc20
+      assetNamespace = chainId === bscChainId ? ('bep20' as AssetNamespace) : ASSET_NAMESPACE.erc20
       break
     case CHAIN_NAMESPACE.CosmosSdk:
       // Cosmos tokens are usually 'ibc' or 'native', but widely vary.

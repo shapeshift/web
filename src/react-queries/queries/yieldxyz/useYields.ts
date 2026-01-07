@@ -32,7 +32,29 @@ export const useYields = (params?: { network?: string; provider?: string }) => {
 
       const ids = all.map(item => item.id)
 
-      return { all, byId, ids }
+      const byAssetSymbol: Record<string, AugmentedYieldDto[]> = {}
+      const networksSet = new Set<string>()
+      const providersSet = new Set<string>()
+
+      all.forEach(item => {
+        // Group by Symbol
+        const symbol = (item.inputTokens?.[0] || item.token).symbol
+        if (symbol) {
+          if (!byAssetSymbol[symbol]) byAssetSymbol[symbol] = []
+          byAssetSymbol[symbol].push(item)
+        }
+
+        // Collect Filters
+        networksSet.add(item.network)
+        providersSet.add(item.providerId)
+      })
+
+      const meta = {
+        networks: Array.from(networksSet),
+        providers: Array.from(providersSet),
+      }
+
+      return { all, byId, ids, byAssetSymbol, meta }
     },
     staleTime: 5 * 60 * 1000, // 5 minutes (increased from 60s)
   })

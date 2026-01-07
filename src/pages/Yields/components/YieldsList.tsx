@@ -169,9 +169,8 @@ export const YieldsList = () => {
 
   // Derived filter options
   const networks = useMemo(() => {
-    if (!yields?.all) return []
-    const unique = new Set(yields.all.map(y => y.network))
-    return Array.from(unique).map(net => ({
+    if (!yields?.meta?.networks) return []
+    return yields.meta.networks.map(net => ({
       id: net,
       name: net.charAt(0).toUpperCase() + net.slice(1),
       chainId: YIELD_NETWORK_TO_CHAIN_ID[net as YieldNetwork],
@@ -179,9 +178,8 @@ export const YieldsList = () => {
   }, [yields])
 
   const providers = useMemo(() => {
-    if (!yields?.all) return []
-    const unique = new Set(yields.all.map(y => y.providerId))
-    return Array.from(unique).map(pId => ({
+    if (!yields?.meta?.providers) return []
+    return yields.meta.providers.map(pId => ({
       id: pId,
       name: pId.charAt(0).toUpperCase() + pId.slice(1),
       icon: getProviderLogo(pId),

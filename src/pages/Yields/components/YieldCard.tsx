@@ -22,9 +22,17 @@ interface YieldCardProps {
   onEnter?: (yieldItem: AugmentedYieldDto) => void
   isLoading?: boolean
   providerIcon?: string
+  assetId?: string
+  assetSrc?: string
 }
 
-export const YieldCard = ({ yield: yieldItem, onEnter, providerIcon }: YieldCardProps) => {
+export const YieldCard = ({
+  yield: yieldItem,
+  onEnter,
+  providerIcon,
+  assetId,
+  assetSrc,
+}: YieldCardProps) => {
   const translate = useTranslate()
   const borderColor = useColorModeValue('gray.100', 'gray.750')
   const cardBg = useColorModeValue('white', 'gray.800')
@@ -61,7 +69,7 @@ export const YieldCard = ({ yield: yieldItem, onEnter, providerIcon }: YieldCard
         <Flex justifyContent='space-between' alignItems='flex-start' mb={6}>
           <Flex alignItems='center' gap={4}>
             <AssetIcon
-              src={yieldItem.metadata.logoURI}
+              {...(assetId ? { assetId } : { src: assetSrc || yieldItem.metadata.logoURI })}
               size='md'
               boxShadow='md'
               borderWidth='1px'

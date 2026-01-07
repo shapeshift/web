@@ -61,8 +61,8 @@ import { YieldDetail } from '@/pages/Yields/YieldDetail'
 import { useAllYieldBalances } from '@/react-queries/queries/yieldxyz/useAllYieldBalances'
 import { useYieldProviders } from '@/react-queries/queries/yieldxyz/useYieldProviders'
 import { useYields } from '@/react-queries/queries/yieldxyz/useYields'
-import { selectPortfolioUserCurrencyBalances } from '@/state/slices/common-selectors'
-import { useAppSelector } from '@/state/store'
+import { selectAssets, selectPortfolioUserCurrencyBalances } from '@/state/slices/selectors'
+import { store, useAppSelector } from '@/state/store'
 
 type YieldColumnMeta = {
   display?: Record<string, string>
@@ -142,37 +142,37 @@ const YieldTable = ({
       <Tbody>
         {isLoading
           ? Array.from({ length: 6 }).map((_, rowIndex) => (
-            <Tr key={rowIndex}>
-              {columns.map(column => (
-                <Td key={`${rowIndex}-${column.id}`}>
-                  <Skeleton height='16px' />
-                </Td>
-              ))}
-            </Tr>
-          ))
-          : table.getRowModel().rows.map(row => {
-            const isClickable = row.original.status.enter
-            return (
-              <Tr
-                key={row.id}
-                cursor={isClickable ? 'pointer' : undefined}
-                onClick={() => {
-                  if (!isClickable) return
-                  onRowClick(row)
-                }}
-                _hover={isClickable ? { bg: hoverBg } : undefined}
-              >
-                {row.getVisibleCells().map(cell => {
-                  const meta = cell.column.columnDef.meta as YieldColumnMeta | undefined
-                  return (
-                    <Td key={cell.id} display={meta?.display} textAlign={meta?.textAlign}>
-                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                    </Td>
-                  )
-                })}
+              <Tr key={rowIndex}>
+                {columns.map(column => (
+                  <Td key={`${rowIndex}-${column.id}`}>
+                    <Skeleton height='16px' />
+                  </Td>
+                ))}
               </Tr>
-            )
-          })}
+            ))
+          : table.getRowModel().rows.map(row => {
+              const isClickable = row.original.status.enter
+              return (
+                <Tr
+                  key={row.id}
+                  cursor={isClickable ? 'pointer' : undefined}
+                  onClick={() => {
+                    if (!isClickable) return
+                    onRowClick(row)
+                  }}
+                  _hover={isClickable ? { bg: hoverBg } : undefined}
+                >
+                  {row.getVisibleCells().map(cell => {
+                    const meta = cell.column.columnDef.meta as YieldColumnMeta | undefined
+                    return (
+                      <Td key={cell.id} display={meta?.display} textAlign={meta?.textAlign}>
+                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                      </Td>
+                    )
+                  })}
+                </Tr>
+              )
+            })}
       </Tbody>
     </Table>
   )
@@ -345,7 +345,14 @@ const YieldsList = () => {
       )
     }
     return data
-  }, [yields, selectedNetwork, selectedProvider, searchQuery])
+  }, [
+    yields,
+    selectedNetwork,
+    selectedProvider,
+    searchQuery,
+    isMyOpportunities,
+    userCurrencyBalances,
+  ])
 
   // Group yields by Asset symbol for the aggregated view (groups same token across chains)
   const yieldsByAsset = useMemo(() => {
@@ -370,11 +377,26 @@ const YieldsList = () => {
       if (!symbol) return
 
       if (!groups[symbol]) {
+        // Fallback image logic using local asset store
+        let assetIcon = token.logoURI || y.metadata.logoURI || ''
+        if (!assetIcon) {
+          const assets = store.getState().assets.byId
+          // Try lookup by assetId if available
+          if (token.assetId && assets[token.assetId]?.icon) {
+            assetIcon = assets[token.assetId].icon
+          }
+          // Fallback: Find by symbol (expensive but needed for missing assetIds)
+          else {
+            const localAsset = Object.values(assets).find(a => a.symbol === symbol)
+            if (localAsset?.icon) assetIcon = localAsset.icon
+          }
+        }
+
         groups[symbol] = {
           yields: [],
           assetSymbol: symbol,
           assetName: token.name || symbol,
-          assetIcon: token.logoURI || y.metadata.logoURI || '',
+          assetIcon,
         }
       }
       groups[symbol].yields.push(y)

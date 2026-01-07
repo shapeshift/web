@@ -19,16 +19,16 @@ const getSwapperModule = async () => {
 }
 
 // Request validation schema - swapperName is string, validated later
-const QuoteRequestSchema = z.object({
-  sellAssetId: z.string().min(1),
-  buyAssetId: z.string().min(1),
-  sellAmountCryptoBaseUnit: z.string().min(1),
-  receiveAddress: z.string().min(1),
-  sendAddress: z.string().optional(),
-  swapperName: z.string().min(1),
-  slippageTolerancePercentageDecimal: z.string().optional(),
-  allowMultiHop: z.boolean().optional().default(true),
-  accountNumber: z.number().optional().default(0),
+export const QuoteRequestSchema = z.object({
+  sellAssetId: z.string().min(1).openapi({ example: 'eip155:1/slip44:60' }),
+  buyAssetId: z.string().min(1).openapi({ example: 'eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48' }),
+  sellAmountCryptoBaseUnit: z.string().min(1).openapi({ example: '1000000000000000000' }),
+  receiveAddress: z.string().min(1).openapi({ example: '0x0000000000000000000000000000000000000000' }),
+  sendAddress: z.string().optional().openapi({ example: '0x0000000000000000000000000000000000000000' }),
+  swapperName: z.string().min(1).openapi({ example: 'THORChain' }),
+  slippageTolerancePercentageDecimal: z.string().optional().openapi({ example: '0.01' }),
+  allowMultiHop: z.boolean().optional().default(true).openapi({ example: true }),
+  accountNumber: z.number().optional().default(0).openapi({ example: 0 }),
 })
 
 // Helper to extract transaction data from quote step

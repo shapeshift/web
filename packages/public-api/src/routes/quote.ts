@@ -1,19 +1,25 @@
-import type { Request, Response } from 'express'
-import { z } from 'zod'
-import { v4 as uuidv4 } from 'uuid'
-import type { TradeQuote, TradeQuoteStep, SwapperName, GetTradeQuoteInputWithWallet } from '@shapeshiftoss/swapper'
 import { fromChainId } from '@shapeshiftoss/caip'
+import type {
+  GetTradeQuoteInputWithWallet,
+  SwapperName,
+  TradeQuote,
+  TradeQuoteStep,
+} from '@shapeshiftoss/swapper'
+import type { Request, Response } from 'express'
+import { v4 as uuidv4 } from 'uuid'
+import { z } from 'zod'
 
-import { getAssetsById, getAsset } from '../assets'
+import { getAsset, getAssetsById } from '../assets'
 import { DEFAULT_AFFILIATE_BPS } from '../config'
 import { createServerSwapperDeps } from '../swapperDeps'
-import type { QuoteResponse, ApiQuoteStep, ApprovalInfo, ErrorResponse } from '../types'
+import type { ApiQuoteStep, ApprovalInfo, ErrorResponse, QuoteResponse } from '../types'
 
 // Lazy load swapper to avoid import issues at module load time
-let swapperModule: typeof import('@shapeshiftoss/swapper') | null = null
+let swapperModule: Awaited<ReturnType<typeof importSwapperModule>> | null = null
+const importSwapperModule = () => import('@shapeshiftoss/swapper')
 const getSwapperModule = async () => {
   if (!swapperModule) {
-    swapperModule = await import('@shapeshiftoss/swapper')
+    swapperModule = await importSwapperModule()
   }
   return swapperModule
 }
@@ -21,10 +27,19 @@ const getSwapperModule = async () => {
 // Request validation schema - swapperName is string, validated later
 export const QuoteRequestSchema = z.object({
   sellAssetId: z.string().min(1).openapi({ example: 'eip155:1/slip44:60' }),
-  buyAssetId: z.string().min(1).openapi({ example: 'eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48' }),
+  buyAssetId: z
+    .string()
+    .min(1)
+    .openapi({ example: 'eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48' }),
   sellAmountCryptoBaseUnit: z.string().min(1).openapi({ example: '1000000000000000000' }),
-  receiveAddress: z.string().min(1).openapi({ example: '0x742d35Cc6634C0532925a3b844Bc9e7595f2bD28' }),
-  sendAddress: z.string().optional().openapi({ example: '0x742d35Cc6634C0532925a3b844Bc9e7595f2bD28' }),
+  receiveAddress: z
+    .string()
+    .min(1)
+    .openapi({ example: '0x742d35Cc6634C0532925a3b844Bc9e7595f2bD28' }),
+  sendAddress: z
+    .string()
+    .optional()
+    .openapi({ example: '0x742d35Cc6634C0532925a3b844Bc9e7595f2bD28' }),
   swapperName: z.string().min(1).openapi({ example: '0x' }),
   slippageTolerancePercentageDecimal: z.string().optional().openapi({ example: '0.01' }),
   allowMultiHop: z.boolean().optional().default(true).openapi({ example: true }),
@@ -76,7 +91,7 @@ const extractTransactionData = (step: TradeQuoteStep): ApiQuoteStep['transaction
 }
 
 // Helper to build approval info
-const buildApprovalInfo = (step: TradeQuoteStep, sellAssetId: string): ApprovalInfo => {
+const buildApprovalInfo = (step: TradeQuoteStep, _sellAssetId: string): ApprovalInfo => {
   const { chainNamespace } = fromChainId(step.sellAsset.chainId)
 
   // Only EVM tokens need approval
@@ -140,10 +155,13 @@ export const getQuote = async (req: Request, res: Response): Promise<void> => {
     } = parseResult.data
 
     // Lazy load swapper module
-    const { getTradeQuotes, swappers, SwapperName, getDefaultSlippageDecimalPercentageForSwapper } = await getSwapperModule()
+    const { getTradeQuotes, swappers, SwapperName, getDefaultSlippageDecimalPercentageForSwapper } =
+      await getSwapperModule()
 
     // Validate swapper name
-    const validSwapperName = Object.values(SwapperName).find(v => v === swapperName) as SwapperName | undefined
+    const validSwapperName = Object.values(SwapperName).find(v => v === swapperName) as
+      | SwapperName
+      | undefined
     if (!validSwapperName) {
       res.status(400).json({ error: `Unknown swapper: ${swapperName}` } as ErrorResponse)
       return
@@ -200,7 +218,11 @@ export const getQuote = async (req: Request, res: Response): Promise<void> => {
     }
 
     // Fetch quote
-    const result = await getTradeQuotes(quoteInput as GetTradeQuoteInputWithWallet, validSwapperName, deps)
+    const result = await getTradeQuotes(
+      quoteInput as GetTradeQuoteInputWithWallet,
+      validSwapperName,
+      deps,
+    )
 
     if (!result) {
       res.status(404).json({ error: 'No quote available from this swapper' } as ErrorResponse)

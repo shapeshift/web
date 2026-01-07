@@ -1,3 +1,5 @@
+# syntax=docker/dockerfile:1
+
 # Build stage
 FROM node:22-alpine AS builder
 
@@ -21,8 +23,9 @@ COPY packages/unchained-client/package.json ./packages/unchained-client/
 COPY packages/contracts/package.json ./packages/contracts/
 COPY packages/errors/package.json ./packages/errors/
 
-# Install dependencies (skip build/postinstall scripts that require git/cypress/etc)
-RUN yarn install --immutable --mode skip-build
+# Install dependencies with Railway cache mount (skip build/postinstall scripts that require git/cypress/etc)
+RUN --mount=type=cache,id=s/5fa4b228-de48-4bb3-90d6-807d0c6e7f1c-/root/.yarn/berry/cache,target=/root/.yarn/berry/cache \
+    yarn install --immutable --mode skip-build
 
 # Copy source files
 COPY packages/ ./packages/

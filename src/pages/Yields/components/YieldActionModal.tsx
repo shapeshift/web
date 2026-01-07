@@ -17,12 +17,14 @@ import {
   VStack,
 } from '@chakra-ui/react'
 import { keyframes } from '@emotion/react'
-import type { AssetId } from '@shapeshiftoss/caip'
+import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import { cosmosChainId, fromAccountId } from '@shapeshiftoss/caip'
+import type { ChainAdapter } from '@shapeshiftoss/chain-adapters'
+import type { KnownChainIds } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { useQueryClient } from '@tanstack/react-query'
 import { uuidv4 } from '@walletconnect/utils'
-import { useEffect, useRef, useState } from 'react'
+import { useState } from 'react'
 import { FaCheck, FaExternalLinkAlt, FaWallet } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 
@@ -55,14 +57,20 @@ const FIGMENT_SOLANA_VALIDATOR_ADDRESS = 'CcaHc2L43ZWjwCHART3oZoJvHLAe9hzT2DJNUp
 const FIGMENT_SUI_VALIDATOR_ADDRESS =
   '0x8ecaf4b95b3c82c712d3ddb22e7da88d2286c4653f3753a86b6f7a216a3ca518'
 
-const waitForTransactionConfirmation = async (adapter: any, txHash: string): Promise<void> => {
+
+const waitForTransactionConfirmation = async (
+  adapter: ChainAdapter<ChainId>,
+  txHash: string,
+): Promise<void> => {
   const pollInterval = 5000
   const maxAttempts = 120 // 10 minutes
 
   for (let i = 0; i < maxAttempts; i++) {
     try {
       if ('getTransactionStatus' in adapter) {
-        const status = await adapter.getTransactionStatus(txHash)
+        // cast to any allows access to the method we just checked exists
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const status = await (adapter as any).getTransactionStatus(txHash)
         if (status === TxStatus.Confirmed) return
         if (status === TxStatus.Failed) throw new Error('Transaction failed on-chain')
       } else {
@@ -92,7 +100,7 @@ enum ModalStep {
 }
 
 const formatTxTitle = (title: string, assetSymbol: string) => {
-  const t = title.toLowerCase()
+  const t = title.replace(/ transaction$/i, '').toLowerCase()
   if (t.includes('approval') || t.includes('approve') || t.includes('approved'))
     return `Approve ${assetSymbol}`
   if (t.includes('supply') || t.includes('deposit') || t.includes('enter'))
@@ -100,8 +108,10 @@ const formatTxTitle = (title: string, assetSymbol: string) => {
   if (t.includes('withdraw') || t.includes('withdrawal') || t.includes('exit'))
     return `Withdraw ${assetSymbol}`
   if (t.includes('claim')) return `Claim ${assetSymbol}`
+  if (t.includes('unstake')) return `Unstake ${assetSymbol}`
+  if (t.includes('stake')) return `Stake ${assetSymbol}`
   // Fallback: Sentence case
-  return title.charAt(0).toUpperCase() + title.slice(1)
+  return t.charAt(0).toUpperCase() + t.slice(1)
 }
 
 export const YieldActionModal = ({
@@ -181,7 +191,7 @@ export const YieldActionModal = ({
       throw new Error(translate('yieldXYZ.errors.unsupportedYieldNetwork'))
     }
 
-    const adapter = assertGetChainAdapter(yieldChainId)
+    const adapter = assertGetChainAdapter(yieldChainId as KnownChainIds)
 
     // Update step status to loading
     setTransactionSteps(prev =>
@@ -426,7 +436,6 @@ export const YieldActionModal = ({
     }
   }
 
-  handleConfirmRef.current = handleConfirm
 
   const horizontalScroll = keyframes`
         0% { background-position: 0 0; }
@@ -475,7 +484,7 @@ export const YieldActionModal = ({
         </Box>
       </Flex>
 
-      <Flex alignItems='center' justify='center' mb={6} position='relative' gap={6}>
+      <Flex alignItems='center' justify='center' mb={6} position='relative' gap={6} flexDirection={action === 'exit' ? 'row-reverse' : 'row'}>
         <VStack spacing={3} zIndex={2}>
           <Box
             p={1}
@@ -486,11 +495,11 @@ export const YieldActionModal = ({
             border='2px solid'
             borderColor='blue.500'
           >
-            <Avatar size='md' src={walletAvatarUrl} icon={<FaWallet color='white' />} />
+            <Avatar size='md' src={yieldItem.token.logoURI} icon={<FaWallet color='white' />} />
           </Box>
-          <Box maxW='100px'>
-            <MiddleEllipsis value={userAddress} fontSize='sm' color='gray.300' fontWeight='bold' />
-          </Box>
+          <Text fontSize='sm' color='gray.300' fontWeight='bold'>
+            {assetSymbol}
+          </Text>
         </VStack>
 
         <Box
@@ -606,7 +615,7 @@ export const YieldActionModal = ({
                 {s.status === 'success'
                   ? translate('yieldXYZ.loading.done')
                   : s.status === 'loading'
-                    ? translate('yieldXYZ.loading.signNow')
+                    ? ''
                     : translate('yieldXYZ.loading.waiting')}
               </Text>
             )}

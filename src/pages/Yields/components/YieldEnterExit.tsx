@@ -77,9 +77,9 @@ export const YieldEnterExit = ({ yieldItem }: YieldEnterExitProps) => {
   const inputTokenBalance = useAppSelector(state =>
     inputTokenAssetId && accountId
       ? selectPortfolioCryptoPrecisionBalanceByFilter(state, {
-          assetId: inputTokenAssetId,
-          accountId,
-        })
+        assetId: inputTokenAssetId,
+        accountId,
+      })
       : '0',
   )
 
@@ -116,7 +116,7 @@ export const YieldEnterExit = ({ yieldItem }: YieldEnterExitProps) => {
   )
 
   const handleMaxClick = useCallback(async () => {
-    await Promise.resolve()
+    // await Promise.resolve() // Removed useless promise
     const balance = tabIndex === 0 ? inputTokenBalance : exitBalance
 
     // For SUI native staking, we must reserve amount for gas

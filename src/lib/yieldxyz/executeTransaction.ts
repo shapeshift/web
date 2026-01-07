@@ -306,7 +306,7 @@ const executeSuiTransaction = async ({
   const txToSign = {
     addressNList: toAddressNList(adapter.getBip44Params({ accountNumber })),
     intentMessageBytes: intentMessage,
-    transactionJson: {}, // Added to satisfy SuiSignTx type requirement
+    transactionJson: '{}', // Added to satisfy SuiSignTx type requirement
   }
 
   const txHash = await adapter.signAndBroadcastTransaction({

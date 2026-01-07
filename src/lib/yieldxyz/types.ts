@@ -352,10 +352,11 @@ export type ParsedUnsignedTransaction = {
   data: string
   value?: string
   nonce: number
-  type: number
+  type?: number
   gasLimit: string
-  maxFeePerGas: string
-  maxPriorityFeePerGas: string
+  maxFeePerGas?: string
+  maxPriorityFeePerGas?: string
+  gasPrice?: string
   chainId: number
 }
 

@@ -5,13 +5,7 @@ import {
   isSupportedYieldNetwork,
   YIELD_NETWORK_TO_CHAIN_ID,
 } from './constants'
-import type {
-  ParsedGasEstimate,
-  ParsedUnsignedTransaction,
-  TransactionDto,
-  YieldDto,
-  YieldNetwork,
-} from './types'
+import { YieldDto, YieldNetwork } from './types'
 
 export const chainIdToYieldNetwork = (chainId: ChainId): YieldNetwork | undefined =>
   CHAIN_ID_TO_YIELD_NETWORK[chainId]
@@ -40,19 +34,6 @@ export const assertChainIdToYieldNetwork = (chainId: ChainId): YieldNetwork => {
 export const filterSupportedYields = (yields: YieldDto[]): YieldDto[] =>
   yields.filter(y => isSupportedYieldNetwork(y.network))
 
-export const parseUnsignedTransaction = (tx: TransactionDto): ParsedUnsignedTransaction => {
-  if (typeof tx.unsignedTransaction === 'string') {
-    return JSON.parse(tx.unsignedTransaction)
-  }
-  return tx.unsignedTransaction as unknown as ParsedUnsignedTransaction
-}
-
-export const parseGasEstimate = (tx: TransactionDto): ParsedGasEstimate => {
-  if (typeof tx.gasEstimate === 'string') {
-    return JSON.parse(tx.gasEstimate)
-  }
-  return tx.gasEstimate as unknown as ParsedGasEstimate
-}
 
 export const isExitableBalanceType = (type: string): boolean =>
   type === 'active' || type === 'withdrawable'

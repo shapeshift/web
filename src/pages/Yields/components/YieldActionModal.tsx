@@ -2,7 +2,6 @@ import {
   Avatar,
   Box,
   Button,
-  Divider,
   Flex,
   Heading,
   Icon,
@@ -18,25 +17,42 @@ import {
   VStack,
 } from '@chakra-ui/react'
 import { keyframes } from '@emotion/react'
-import { fromAccountId } from '@shapeshiftoss/caip'
 import type { AssetId } from '@shapeshiftoss/caip'
-import { toAddressNList } from '@shapeshiftoss/chain-adapters'
-import { useState } from 'react'
-import { FaCheck, FaExternalLinkAlt, FaWallet } from 'react-icons/fa'
+import { cosmosChainId, fromAccountId } from '@shapeshiftoss/caip'
+import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { useQueryClient } from '@tanstack/react-query'
-import { useTranslate } from 'react-polyglot'
+import { uuidv4 } from '@walletconnect/utils'
+import { useEffect, useRef, useState } from 'react'
+import { FaCheck, FaExternalLinkAlt, FaWallet } from 'react-icons/fa'
 
 import { MiddleEllipsis } from '@/components/MiddleEllipsis/MiddleEllipsis'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { makeBlockiesUrl } from '@/lib/blockies/makeBlockiesUrl'
+import { toBaseUnit } from '@/lib/math'
 import { assertGetChainAdapter } from '@/lib/utils'
-import { signAndBroadcast } from '@/lib/utils/evm'
-import { parseUnsignedTransaction, toChainAdapterTx } from '@/lib/yieldxyz/transaction'
+import type { CosmosStakeArgs } from '@/lib/yieldxyz/executeTransaction'
+import { executeTransaction } from '@/lib/yieldxyz/executeTransaction'
 import type { AugmentedYieldDto, TransactionDto } from '@/lib/yieldxyz/types'
 import { TransactionStatus } from '@/lib/yieldxyz/types'
-import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { useEnterYield } from '@/react-queries/queries/yieldxyz/useEnterYield'
+import { useExitYield } from '@/react-queries/queries/yieldxyz/useExitYield'
+import { useSubmitYieldTransactionHash } from '@/react-queries/queries/yieldxyz/useSubmitYieldTransactionHash'
+import { actionSlice } from '@/state/slices/actionSlice/actionSlice'
+import {
+  ActionStatus,
+  ActionType,
+  GenericTransactionDisplayType,
+} from '@/state/slices/actionSlice/types'
+import { selectPortfolioAccountMetadataByAccountId } from '@/state/slices/portfolioSlice/selectors'
+import { selectFeeAssetByChainId, selectFirstAccountIdByChainId } from '@/state/slices/selectors'
+import { useAppDispatch, useAppSelector } from '@/state/store'
+
+// https://docs.yield.xyz/docs/cosmos-atom-native-staking
+const FIGMENT_COSMOS_VALIDATOR_ADDRESS = 'cosmosvaloper1hjct6q7npsspsg3dgvzk3sdf89spmlpfdn6m9d'
+const FIGMENT_SOLANA_VALIDATOR_ADDRESS = 'CcaHc2L43ZWjwCHART3oZoJvHLAe9hzT2DJNUpBzoTN1'
+const FIGMENT_SUI_VALIDATOR_ADDRESS =
+  '0x8ecaf4b95b3c82c712d3ddb22e7da88d2286c4653f3753a86b6f7a216a3ca518'
 
 const waitForTransactionConfirmation = async (adapter: any, txHash: string): Promise<void> => {
   const pollInterval = 5000
@@ -59,14 +75,6 @@ const waitForTransactionConfirmation = async (adapter: any, txHash: string): Pro
   }
   throw new Error('Transaction confirmation timed out')
 }
-import { useExitYield } from '@/react-queries/queries/yieldxyz/useExitYield'
-import { useSubmitYieldTransactionHash } from '@/react-queries/queries/yieldxyz/useSubmitYieldTransactionHash'
-import { ActionStatus, ActionType, GenericTransactionDisplayType } from '@/state/slices/actionSlice/types'
-import { actionSlice } from '@/state/slices/actionSlice/actionSlice'
-import { selectPortfolioAccountMetadataByAccountId } from '@/state/slices/portfolioSlice/selectors'
-import { selectFeeAssetByChainId, selectFirstAccountIdByChainId } from '@/state/slices/selectors'
-import { useAppDispatch, useAppSelector } from '@/state/store'
-import { uuidv4 } from '@walletconnect/utils'
 
 type YieldActionModalProps = {
   isOpen: boolean
@@ -78,17 +86,21 @@ type YieldActionModalProps = {
 }
 
 enum ModalStep {
-  Review = 'review',
+  InProgress = 'in_progress',
   Success = 'success',
 }
 
 const formatTxTitle = (title: string, assetSymbol: string) => {
   const t = title.toLowerCase()
-  if (t.includes('approval') || t.includes('approve')) return `Approve ${assetSymbol}`
-  if (t.includes('supply') || t.includes('deposit')) return `Deposit ${assetSymbol}`
-  if (t.includes('withdraw')) return `Withdraw ${assetSymbol}`
+  if (t.includes('approval') || t.includes('approve') || t.includes('approved'))
+    return `Approve ${assetSymbol}`
+  if (t.includes('supply') || t.includes('deposit') || t.includes('enter'))
+    return `Deposit ${assetSymbol}`
+  if (t.includes('withdraw') || t.includes('withdrawal') || t.includes('exit'))
+    return `Withdraw ${assetSymbol}`
+  if (t.includes('claim')) return `Claim ${assetSymbol}`
   // Fallback: Sentence case
-  return title.charAt(0).toUpperCase() + title.slice(1).toLowerCase()
+  return title.charAt(0).toUpperCase() + title.slice(1)
 }
 
 export const YieldActionModal = ({
@@ -99,7 +111,6 @@ export const YieldActionModal = ({
   amount,
   assetSymbol,
 }: YieldActionModalProps) => {
-  const translate = useTranslate()
   const dispatch = useAppDispatch()
   const queryClient = useQueryClient()
   const toast = useToast()
@@ -108,7 +119,7 @@ export const YieldActionModal = ({
   } = useWallet()
 
   // State
-  const [step, setStep] = useState<ModalStep>(ModalStep.Review)
+  const [step, setStep] = useState<ModalStep>(ModalStep.InProgress)
   const [rawTransactions, setRawTransactions] = useState<TransactionDto[]>([])
   const [transactionSteps, setTransactionSteps] = useState<
     {
@@ -144,9 +155,20 @@ export const YieldActionModal = ({
 
   const canSubmit = Boolean(wallet && accountId && yieldChainId && bnOrZero(amount).gt(0))
 
+  const hasStartedRef = useRef(false)
+  const handleConfirmRef = useRef<(() => Promise<void>) | null>(null)
+
+
+
+  useEffect(() => {
+    if (!isOpen) {
+      hasStartedRef.current = false
+    }
+  }, [isOpen])
+
   const handleClose = () => {
     if (isSubmitting) return
-    setStep(ModalStep.Review)
+    setStep(ModalStep.InProgress)
     setTransactionSteps([])
     setRawTransactions([])
     setActiveStepIndex(-1)
@@ -174,25 +196,26 @@ export const YieldActionModal = ({
     )
     setIsSubmitting(true)
 
-    try {
-      // 1. Parse Transaction
-      const parsed = parseUnsignedTransaction(tx)
-      const chainAdapterTx = toChainAdapterTx(parsed)
-
-      // 2. Build addressNList
-      const addressNList = accountMetadata?.bip44Params
-        ? toAddressNList(adapter.getBip44Params(accountMetadata.bip44Params))
+    const cosmosStakeArgs: CosmosStakeArgs | undefined =
+      yieldChainId === cosmosChainId
+        ? {
+          validator: FIGMENT_COSMOS_VALIDATOR_ADDRESS,
+          amountCryptoBaseUnit: bnOrZero(amount)
+            .times(bnOrZero(10).pow(yieldItem.token.decimals))
+            .toFixed(0),
+          action: action === 'enter' ? 'stake' : 'unstake',
+        }
         : undefined
 
-      if (!addressNList) throw new Error('Failed to get address derivation path')
-
-      // 3. Sign and Broadcast
-      const txHash = await signAndBroadcast({
-        adapter: adapter as any, // Type cast for EVM adapter
-        txToSign: { ...chainAdapterTx, addressNList } as any, // Type cast for adapter input
+    try {
+      const txHash = await executeTransaction({
+        tx,
+        chainId: yieldChainId,
         wallet,
-        senderAddress: userAddress,
-        receiverAddress: chainAdapterTx.to,
+        accountId,
+        userAddress,
+        bip44Params: accountMetadata?.bip44Params,
+        cosmosStakeArgs,
       })
 
       if (!txHash) throw new Error('Failed to broadcast transaction')
@@ -244,7 +267,7 @@ export const YieldActionModal = ({
             chainId: yieldChainId,
             assetId: (yieldItem.token.assetId || '') as AssetId,
             accountId,
-            message: tx.title || 'Transaction',
+            message: formatTxTitle(tx.title || 'Transaction', assetSymbol),
             amountCryptoPrecision: amount,
           },
         }),
@@ -253,9 +276,7 @@ export const YieldActionModal = ({
       // Update step status to success
       setTransactionSteps(prev =>
         prev.map((s, idx) =>
-          idx === index
-            ? { ...s, status: 'success', txHash, txUrl, loadingMessage: undefined }
-            : s,
+          idx === index ? { ...s, status: 'success', txHash, txUrl, loadingMessage: undefined } : s,
         ),
       )
 
@@ -344,9 +365,24 @@ export const YieldActionModal = ({
         ? yieldItem.mechanics.arguments.enter.fields
         : yieldItem.mechanics.arguments.exit.fields
     const fieldNames = new Set(fields.map(field => field.name))
-    const args: Record<string, unknown> = { amount }
+    const amountInBaseUnit = toBaseUnit(amount, yieldItem.token.decimals)
+    const args: Record<string, unknown> = { amount: amountInBaseUnit }
     if (fieldNames.has('receiverAddress')) {
       args.receiverAddress = userAddress
+    }
+    if (fieldNames.has('validatorAddress')) {
+      if (yieldChainId === cosmosChainId) {
+        args.validatorAddress = FIGMENT_COSMOS_VALIDATOR_ADDRESS
+      }
+      if (yieldItem.id === 'solana-sol-native-multivalidator-staking') {
+        args.validatorAddress = FIGMENT_SOLANA_VALIDATOR_ADDRESS
+      }
+      if (yieldItem.network === 'sui') {
+        args.validatorAddress = FIGMENT_SUI_VALIDATOR_ADDRESS
+      }
+    }
+    if (fieldNames.has('cosmosPubKey') && yieldChainId === cosmosChainId) {
+      args.cosmosPubKey = userAddress
     }
 
     try {
@@ -388,7 +424,8 @@ export const YieldActionModal = ({
     }
   }
 
-  // Animation Keyframes
+  handleConfirmRef.current = handleConfirm
+
   const horizontalScroll = keyframes`
         0% { background-position: 0 0; }
         100% { background-position: 28px 0; }
@@ -405,7 +442,6 @@ export const YieldActionModal = ({
       overflow='hidden'
       boxShadow='xl'
     >
-      {/* Top Glow Accent */}
       <Box
         position='absolute'
         top='0'
@@ -416,8 +452,28 @@ export const YieldActionModal = ({
         boxShadow='0 0 20px 2px rgba(66, 153, 225, 0.5)'
       />
 
-      <Flex alignItems='center' justify='center' mb={10} position='relative' gap={6}>
-        {/* Wallet Node */}
+      <Flex justify='space-between' align='center' mb={6}>
+        <Flex align='center' gap={3}>
+          <Heading size='lg'>{amount}</Heading>
+          <Text fontWeight='bold' color='gray.400' fontSize='lg'>
+            {assetSymbol}
+          </Text>
+        </Flex>
+        <Box
+          px={3}
+          py={1}
+          bg='green.900'
+          borderRadius='full'
+          border='1px solid'
+          borderColor='green.800'
+        >
+          <Text color='green.200' fontWeight='bold' fontSize='sm'>
+            {bnOrZero(yieldItem.rewardRate.total).times(100).toFixed(2)}% APY
+          </Text>
+        </Box>
+      </Flex>
+
+      <Flex alignItems='center' justify='center' mb={6} position='relative' gap={6}>
         <VStack spacing={3} zIndex={2}>
           <Box
             p={1}
@@ -435,7 +491,6 @@ export const YieldActionModal = ({
           </Box>
         </VStack>
 
-        {/* Animated Direction Flow */}
         <Box
           position='relative'
           flex={1}
@@ -444,7 +499,6 @@ export const YieldActionModal = ({
           alignItems='center'
           justifyContent='center'
         >
-          {/* Base Line */}
           <Box
             position='absolute'
             left={0}
@@ -454,7 +508,6 @@ export const YieldActionModal = ({
             borderRadius='full'
           />
 
-          {/* Flowing Dots - Repeating pattern for smoother infinite scroll */}
           <Box
             position='absolute'
             left={0}
@@ -473,7 +526,6 @@ export const YieldActionModal = ({
           />
         </Box>
 
-        {/* Vault Node */}
         <VStack spacing={3} zIndex={2}>
           <Box
             position='relative'
@@ -501,7 +553,6 @@ export const YieldActionModal = ({
         </VStack>
       </Flex>
 
-      {/* Transaction Steps List */}
       <VStack align='stretch' spacing={0} bg='blackAlpha.300' borderRadius='xl' overflow='hidden'>
         {transactionSteps.map((s, idx) => (
           <Flex
@@ -565,49 +616,8 @@ export const YieldActionModal = ({
 
   const renderAction = () => (
     <VStack spacing={6} align='stretch'>
-      {!isSubmitting ? (
-        <Box
-          p={5}
-          bg='whiteAlpha.50'
-          borderRadius='2xl'
-          borderWidth='1px'
-          borderColor='whiteAlpha.100'
-        >
-          <Flex justifyContent='space-between' alignItems='center' mb={4}>
-            <Text color='gray.400' fontSize='sm' fontWeight='medium'>
-              {translate('common.amount')}
-            </Text>
-            <Flex alignItems='center' gap={2}>
-              <Heading size='lg'>{amount}</Heading>
-              <Text fontWeight='bold' color='gray.400' fontSize='lg'>
-                {assetSymbol}
-              </Text>
-            </Flex>
-          </Flex>
-          <Divider my={4} borderColor='whiteAlpha.100' />
-          <Flex justifyContent='space-between' alignItems='center'>
-            <Text color='gray.400' fontSize='sm'>
-              Expected APY
-            </Text>
-            <Box
-              px={3}
-              py={1}
-              bg='green.900'
-              borderRadius='full'
-              border='1px solid'
-              borderColor='green.800'
-            >
-              <Text color='green.200' fontWeight='bold' fontSize='sm'>
-                {bnOrZero(yieldItem.rewardRate.total).times(100).toFixed(2)}% APY
-              </Text>
-            </Box>
-          </Flex>
-        </Box>
-      ) : (
-        renderStatusCard()
-      )}
+      {renderStatusCard()}
 
-      {/* Main Wizard Button */}
       <Button
         size='lg'
         height='64px'
@@ -621,7 +631,7 @@ export const YieldActionModal = ({
         loadingText={
           transactionSteps[activeStepIndex]?.loadingMessage ??
           (transactionSteps[activeStepIndex]?.status === 'loading'
-            ? `Sign in Wallet`
+            ? 'Sign in Wallet'
             : 'Preparing...')
         }
         _hover={{ transform: 'translateY(-2px)', boxShadow: 'lg' }}
@@ -743,7 +753,7 @@ export const YieldActionModal = ({
             </Flex>
           )}
 
-          {step === ModalStep.Review && renderAction()}
+          {step === ModalStep.InProgress && renderAction()}
           {step === ModalStep.Success && renderSuccess()}
         </ModalBody>
       </ModalContent>

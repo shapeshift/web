@@ -21,6 +21,10 @@ export enum YieldNetwork {
   AvalancheC = 'avalanche-c',
   Binance = 'binance',
   Solana = 'solana',
+  Cosmos = 'cosmos',
+  Sui = 'sui',
+  Monad = 'monad',
+  Tron = 'tron',
 }
 
 export enum ActionIntent {

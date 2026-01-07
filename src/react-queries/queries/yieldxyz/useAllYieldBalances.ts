@@ -1,5 +1,22 @@
 import type { ChainId } from '@shapeshiftoss/caip'
-import { fromAccountId } from '@shapeshiftoss/caip'
+import {
+  arbitrumChainId,
+  avalancheChainId,
+  baseChainId,
+  bscChainId,
+  cosmosChainId,
+  ethChainId,
+  fromAccountId,
+  gnosisChainId,
+  monadChainId,
+  nearChainId,
+  optimismChainId,
+  plasmaChainId,
+  polygonChainId,
+  solanaChainId,
+  suiChainId,
+  tronChainId,
+} from '@shapeshiftoss/caip'
 import { skipToken, useQuery } from '@tanstack/react-query'
 import { useMemo } from 'react'
 
@@ -10,40 +27,76 @@ import type { AugmentedYieldBalance } from '@/lib/yieldxyz/types'
 import { selectEnabledWalletAccountIds } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
-export const useAllYieldBalances = (
-  networks: string[] = ['base', 'arbitrum', 'optimism', 'ethereum'],
-) => {
+type UseAllYieldBalancesOptions = {
+  networks?: string[]
+  accountIds?: string[]
+}
+
+const DEFAULT_NETWORKS = [
+  'ethereum',
+  'arbitrum',
+  'base',
+  'optimism',
+  'polygon',
+  'gnosis',
+  'avalanche-c',
+  'binance',
+  'solana',
+  'cosmos',
+  'near',
+  'tron',
+  'sui',
+  'monad',
+  'plasma',
+]
+
+export const useAllYieldBalances = (options: UseAllYieldBalancesOptions = {}) => {
+  const { networks = DEFAULT_NETWORKS, accountIds: filterAccountIds } = options
   const { state: walletState } = useWallet()
   const isConnected = Boolean(walletState.walletInfo)
   const accountIds = useAppSelector(selectEnabledWalletAccountIds)
 
-  // Memoize the query payloads to avoid unstable references
+  const networkMap: Record<string, string> = useMemo(
+    () => ({
+      [ethChainId]: 'ethereum',
+      [arbitrumChainId]: 'arbitrum',
+      [baseChainId]: 'base',
+      [optimismChainId]: 'optimism',
+      [polygonChainId]: 'polygon',
+      [gnosisChainId]: 'gnosis',
+      [avalancheChainId]: 'avalanche-c',
+      [bscChainId]: 'binance',
+      [cosmosChainId]: 'cosmos',
+      [solanaChainId]: 'solana',
+      [nearChainId]: 'near',
+      [tronChainId]: 'tron',
+      [suiChainId]: 'sui',
+      [monadChainId]: 'monad',
+      [plasmaChainId]: 'plasma',
+    }),
+    [],
+  )
+
   const queryPayloads = useMemo(() => {
     if (!isConnected || accountIds.length === 0) return []
 
+    const targetAccountIds = filterAccountIds ?? accountIds
+
     const payloads: { address: string; network: string; chainId: ChainId }[] = []
 
-    // Map our ChainIds to Yield.xyz network strings
-    // This is a simplified mapping, might need more robust handling
-    const networkMap: Record<string, string> = {
-      'eip155:8453': 'base',
-      'eip155:42161': 'arbitrum',
-      'eip155:10': 'optimism',
-      'eip155:1': 'ethereum',
-    }
+    targetAccountIds.forEach(accountId => {
+      if (!accountIds.includes(accountId)) return
 
-    accountIds.forEach(accountId => {
       const { chainId, account } = fromAccountId(accountId)
       const network = networkMap[chainId]
 
-      // Only query if we support this network in the yield list AND mapping exists
       if (network && networks.includes(network)) {
         payloads.push({ address: account, network, chainId })
       }
     })
 
     return payloads
-  }, [isConnected, accountIds, networks])
+  }, [isConnected, accountIds, filterAccountIds, networks, networkMap])
 
   return useQuery<{ [yieldId: string]: AugmentedYieldBalance[] }>({
     queryKey: ['yieldxyz', 'allBalances', queryPayloads],

@@ -2,19 +2,23 @@ import {
   Box,
   Button,
   Flex,
+  Icon,
   Tab,
   TabList,
   TabPanel,
   TabPanels,
   Tabs,
+  Text,
   useColorModeValue,
 } from '@chakra-ui/react'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import { useCallback, useMemo, useState } from 'react'
+import { FaMoneyBillWave } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { useLocation } from 'react-router-dom'
 
 import { AssetInput } from '@/components/DeFi/components/AssetInput'
+import { bnOrZero } from '@/lib/bignumber/bignumber'
 import type { AugmentedYieldBalance, AugmentedYieldDto } from '@/lib/yieldxyz/types'
 import { YieldBalanceType } from '@/lib/yieldxyz/types'
 import { YieldActionModal } from '@/pages/Yields/components/YieldActionModal'
@@ -60,11 +64,17 @@ export const YieldEnterExit = ({ yieldItem }: YieldEnterExitProps) => {
   const inputTokenBalance = useAppSelector(state =>
     inputTokenAssetId && accountId
       ? selectPortfolioCryptoPrecisionBalanceByFilter(state, {
-          assetId: inputTokenAssetId,
-          accountId,
-        })
+        assetId: inputTokenAssetId,
+        accountId,
+      })
       : '0',
   )
+
+  const minDeposit = yieldItem.mechanics?.entryLimits?.minimum
+  const isBelowMinimum = useMemo(() => {
+    if (!cryptoAmount || !minDeposit) return false
+    return bnOrZero(cryptoAmount).lt(minDeposit)
+  }, [cryptoAmount, minDeposit])
 
   const { data: balances } = useYieldBalances({
     yieldId: yieldItem.id,
@@ -180,13 +190,31 @@ export const YieldEnterExit = ({ yieldItem }: YieldEnterExitProps) => {
                   onMaxClick={handleMaxClick}
                 />
 
+                {minDeposit && (
+                  <Flex justifyContent='space-between' width='full' px={1}>
+                    <Flex gap={2} alignItems='center'>
+                      <Icon as={FaMoneyBillWave} color='gray.500' boxSize={3} />
+                      <Text fontSize='xs' color='gray.500' fontWeight='medium'>
+                        Min Deposit
+                      </Text>
+                    </Flex>
+                    <Text
+                      fontSize='xs'
+                      color={isBelowMinimum ? 'red.500' : 'gray.500'}
+                      fontWeight='bold'
+                    >
+                      {minDeposit} {inputToken?.symbol}
+                    </Text>
+                  </Flex>
+                )}
+
                 <Button
                   colorScheme='blue'
                   size='lg'
                   width='full'
                   height='56px'
                   fontSize='lg'
-                  isDisabled={!yieldItem.status.enter || !cryptoAmount}
+                  isDisabled={!yieldItem.status.enter || !cryptoAmount || isBelowMinimum}
                   onClick={handleEnterClick}
                   _hover={{ transform: 'translateY(-1px)', boxShadow: 'lg' }}
                 >

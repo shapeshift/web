@@ -27,16 +27,6 @@ import {
   Tr,
   useColorModeValue,
 } from '@chakra-ui/react'
-import type { ChainId } from '@shapeshiftoss/caip'
-import {
-  arbitrumChainId,
-  baseChainId,
-  bscChainId,
-  ethChainId,
-  gnosisChainId,
-  optimismChainId,
-  polygonChainId,
-} from '@shapeshiftoss/caip'
 import type { ColumnDef, Row, SortingState, Table as TanstackTable } from '@tanstack/react-table'
 import {
   flexRender,
@@ -54,16 +44,25 @@ import { ResultsEmptyNoWallet } from '@/components/ResultsEmptyNoWallet'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { formatLargeNumber } from '@/lib/utils/formatters'
-import type { AugmentedYieldDto } from '@/lib/yieldxyz/types'
+import { YIELD_NETWORK_TO_CHAIN_ID } from '@/lib/yieldxyz/constants'
+import type { AugmentedYieldDto, YieldNetwork } from '@/lib/yieldxyz/types'
+import { YieldAssetCard, YieldAssetCardSkeleton } from '@/pages/Yields/components/YieldAssetCard'
+import {
+  YieldAssetGroupRow,
+  YieldAssetGroupRowSkeleton,
+} from '@/pages/Yields/components/YieldAssetGroupRow'
 import { YieldCard, YieldCardSkeleton } from '@/pages/Yields/components/YieldCard'
 import type { SortOption } from '@/pages/Yields/components/YieldFilters'
 import { YieldFilters } from '@/pages/Yields/components/YieldFilters'
 import { YieldOpportunityStats } from '@/pages/Yields/components/YieldOpportunityStats'
 import { ViewToggle } from '@/pages/Yields/components/YieldViewHelpers'
+import { YieldAssetDetails } from '@/pages/Yields/YieldAssetDetails'
 import { YieldDetail } from '@/pages/Yields/YieldDetail'
 import { useAllYieldBalances } from '@/react-queries/queries/yieldxyz/useAllYieldBalances'
 import { useYieldProviders } from '@/react-queries/queries/yieldxyz/useYieldProviders'
 import { useYields } from '@/react-queries/queries/yieldxyz/useYields'
+import { selectPortfolioUserCurrencyBalances } from '@/state/slices/common-selectors'
+import { useAppSelector } from '@/state/store'
 
 type YieldColumnMeta = {
   display?: Record<string, string>
@@ -74,6 +73,7 @@ type YieldColumnMeta = {
 export const Yields = () => {
   return (
     <Routes>
+      <Route path='asset/:assetId' element={<YieldAssetDetails />} />
       <Route index element={<YieldsList />} />
       {/* More specific routes must come BEFORE general :yieldId route */}
       <Route path=':yieldId/enter' element={<YieldDetail />} />
@@ -184,19 +184,7 @@ const YieldsList = () => {
   const { state: walletState } = useWallet()
   const isConnected = Boolean(walletState.walletInfo)
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
-  // TODO: Multi-chain support - currently hardcoded to 'base'
-  const { data: yields, isFetching: isLoading, error } = useYields({ network: 'base' })
-
-  // TODO: Multi-account support - currently defaulting to account 0
-  const { data: allBalances, isFetching: isLoadingBalances } = useAllYieldBalances()
-  const [allSorting, setAllSorting] = useState<SortingState>([{ id: 'apy', desc: true }])
-  const [positionsSorting, setPositionsSorting] = useState<SortingState>([
-    { id: 'apy', desc: true },
-  ])
-
-  const { data: yieldProviders } = useYieldProviders()
-
-
+  const [tabIndex, setTabIndex] = useState(0)
 
   // Filter States synced with URL
   const [searchParams, setSearchParams] = useSearchParams()
@@ -204,6 +192,37 @@ const YieldsList = () => {
   const selectedProvider = searchParams.get('provider')
   const sortOption = (searchParams.get('sort') as SortOption) || 'apy-desc'
   const [searchQuery, setSearchQuery] = useState('')
+
+  const filterOption = searchParams.get('filter')
+  const isMyOpportunities = filterOption === 'my-assets'
+  const userCurrencyBalances = useAppSelector(selectPortfolioUserCurrencyBalances)
+
+  const handleToggleMyOpportunities = () => {
+    if (isMyOpportunities) {
+      searchParams.delete('filter')
+    } else {
+      searchParams.set('filter', 'my-assets')
+    }
+    setSearchParams(searchParams)
+  }
+
+  const {
+    data: yields,
+    isFetching: isLoading,
+    error,
+  } = useYields({
+    network: selectedNetwork || undefined,
+    provider: selectedProvider || undefined,
+  })
+
+  // TODO: Multi-account support - currently defaulting to account 0
+  const { data: allBalances, isFetching: isLoadingBalances } = useAllYieldBalances()
+
+  const [positionsSorting, setPositionsSorting] = useState<SortingState>([
+    { id: 'apy', desc: true },
+  ])
+
+  const { data: yieldProviders } = useYieldProviders()
 
   const getProviderLogo = useCallback(
     (providerId: string) => {
@@ -254,24 +273,21 @@ const YieldsList = () => {
   useEffect(() => {
     switch (sortOption) {
       case 'apy-desc':
-        setAllSorting([{ id: 'apy', desc: true }])
         setPositionsSorting([{ id: 'apy', desc: true }])
         break
       case 'apy-asc':
-        setAllSorting([{ id: 'apy', desc: false }])
         setPositionsSorting([{ id: 'apy', desc: false }])
         break
       case 'tvl-desc':
-        setAllSorting([{ id: 'tvl', desc: true }])
         setPositionsSorting([{ id: 'tvl', desc: true }])
         break
       case 'tvl-asc':
-        setAllSorting([{ id: 'tvl', desc: false }])
         setPositionsSorting([{ id: 'tvl', desc: false }])
         break
       case 'name-asc':
-        setAllSorting([{ id: 'pool', desc: false }])
         setPositionsSorting([{ id: 'pool', desc: false }])
+        break
+      default:
         break
     }
   }, [sortOption])
@@ -280,22 +296,11 @@ const YieldsList = () => {
   const networks = useMemo(() => {
     if (!yields) return []
     const unique = new Set(yields.map(y => y.network))
-    return Array.from(unique).map(net => {
-      let chainId: ChainId | undefined
-      if (net === 'base') chainId = baseChainId
-      if (net === 'ethereum') chainId = ethChainId
-      if (net === 'optimism') chainId = optimismChainId
-      if (net === 'arbitrum') chainId = arbitrumChainId
-      if (net === 'polygon') chainId = polygonChainId
-      if (net === 'gnosis') chainId = gnosisChainId
-      if (net === 'bsc') chainId = bscChainId
-
-      return {
-        id: net,
-        name: net.charAt(0).toUpperCase() + net.slice(1),
-        chainId,
-      }
-    })
+    return Array.from(unique).map(net => ({
+      id: net,
+      name: net.charAt(0).toUpperCase() + net.slice(1),
+      chainId: YIELD_NETWORK_TO_CHAIN_ID[net as YieldNetwork],
+    }))
   }, [yields])
 
   const providers = useMemo(() => {
@@ -309,7 +314,21 @@ const YieldsList = () => {
   }, [yields, getProviderLogo])
 
   const displayYields = useMemo(() => {
-    let data = yields || []
+    if (!yields) return []
+    let data = yields
+
+    if (isMyOpportunities) {
+      data = data.filter(y => {
+        const hasInputBalance = y.inputTokens?.some(t => {
+          const bal = userCurrencyBalances[t.assetId || '']
+          return bnOrZero(bal).gt(0)
+        })
+        if (hasInputBalance) return true
+        const bal = userCurrencyBalances[y.token.assetId || '']
+        return bnOrZero(bal).gt(0)
+      })
+    }
+
     if (selectedNetwork) {
       data = data.filter(y => y.network === selectedNetwork)
     }
@@ -327,6 +346,47 @@ const YieldsList = () => {
     }
     return data
   }, [yields, selectedNetwork, selectedProvider, searchQuery])
+
+  // Group yields by Asset symbol for the aggregated view (groups same token across chains)
+  const yieldsByAsset = useMemo(() => {
+    if (!displayYields) return []
+    const groups: Record<
+      string,
+      {
+        yields: AugmentedYieldDto[]
+        assetSymbol: string
+        assetName: string
+        assetIcon: string
+      }
+    > = {}
+
+    displayYields.forEach(y => {
+      // Heuristic: Use first input token for grouping, fall back to receipt token
+      const token = y.inputTokens?.[0] || y.token
+      // Group by symbol to combine same asset across different chains
+      const symbol = token.symbol
+
+      // Skip if no symbol
+      if (!symbol) return
+
+      if (!groups[symbol]) {
+        groups[symbol] = {
+          yields: [],
+          assetSymbol: symbol,
+          assetName: token.name || symbol,
+          assetIcon: token.logoURI || y.metadata.logoURI || '',
+        }
+      }
+      groups[symbol].yields.push(y)
+    })
+
+    // Sort by Total TVL descending
+    return Object.values(groups).sort((a, b) => {
+      const maxApyA = Math.max(...a.yields.map(y => y.rewardRate.total))
+      const maxApyB = Math.max(...b.yields.map(y => y.rewardRate.total))
+      return maxApyB - maxApyA
+    })
+  }, [displayYields])
 
   const myPositions = useMemo(() => {
     if (!yields || !allBalances) return []
@@ -459,17 +519,6 @@ const YieldsList = () => {
     [translate, getProviderLogo],
   )
 
-  const allTable = useReactTable({
-    data: displayYields,
-    columns,
-    getCoreRowModel: getCoreRowModel(),
-    getSortedRowModel: getSortedRowModel(),
-    getRowId: row => row.id,
-    enableSorting: true,
-    state: { sorting: allSorting },
-    onSortingChange: setAllSorting,
-  })
-
   const positionsTable = useReactTable({
     data: myPositions,
     columns,
@@ -496,9 +545,21 @@ const YieldsList = () => {
         </Box>
       )}
 
-      <YieldOpportunityStats positions={myPositions} balances={allBalances} allYields={yields} />
+      <YieldOpportunityStats
+        positions={myPositions}
+        balances={allBalances}
+        allYields={yields}
+        isMyOpportunities={isMyOpportunities}
+        onToggleMyOpportunities={handleToggleMyOpportunities}
+      />
 
-      <Tabs variant='soft-rounded' colorScheme='blue' isLazy>
+      <Tabs
+        variant='soft-rounded'
+        colorScheme='blue'
+        isLazy
+        index={tabIndex}
+        onChange={setTabIndex}
+      >
         <TabList mb={4} gap={4}>
           <Tab _selected={{ color: 'white', bg: 'blue.500' }}>{translate('common.all')}</Tab>
           <Tab _selected={{ color: 'white', bg: 'blue.500' }}>
@@ -526,7 +587,11 @@ const YieldsList = () => {
             />
           </InputGroup>
 
-          <HStack spacing={4} width={{ base: 'full', md: 'auto' }} justify={{ base: 'space-between', md: 'flex-end' }}>
+          <HStack
+            spacing={4}
+            width={{ base: 'full', md: 'auto' }}
+            justify={{ base: 'space-between', md: 'flex-end' }}
+          >
             <YieldFilters
               networks={networks}
               selectedNetwork={selectedNetwork}
@@ -545,35 +610,47 @@ const YieldsList = () => {
         <TabPanels>
           {/* All Yields Tab */}
           <TabPanel px={0}>
-            {viewMode === 'grid' ? (
+            {isLoading ? (
+              viewMode === 'grid' ? (
+                <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={6}>
+                  {Array.from({ length: 6 }).map((_, i) => (
+                    <YieldAssetCardSkeleton key={i} />
+                  ))}
+                </SimpleGrid>
+              ) : (
+                <Box borderWidth='1px' borderRadius='xl' overflow='hidden'>
+                  {Array.from({ length: 8 }).map((_, i) => (
+                    <YieldAssetGroupRowSkeleton key={i} />
+                  ))}
+                </Box>
+              )
+            ) : yieldsByAsset.length === 0 ? (
+              <Box textAlign='center' py={16}>
+                <Text color='text.subtle'>{translate('yieldXYZ.noYields')}</Text>
+              </Box>
+            ) : viewMode === 'grid' ? (
               <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={6}>
-                {isLoading
-                  ? Array.from({ length: 6 }).map((_, i) => <YieldCardSkeleton key={i} />)
-                  : allTable
-                    .getRowModel()
-                    .rows.map(row => (
-                      <YieldCard
-                        key={row.id}
-                        yield={row.original}
-                        onEnter={() => handleYieldClick(row.original.id)}
-                        providerIcon={getProviderLogo(row.original.providerId)}
-                      />
-                    ))}
+                {yieldsByAsset.map(group => (
+                  <YieldAssetCard
+                    key={group.assetSymbol}
+                    assetSymbol={group.assetSymbol}
+                    assetName={group.assetName}
+                    assetIcon={group.assetIcon}
+                    yields={group.yields}
+                  />
+                ))}
               </SimpleGrid>
             ) : (
               <Box borderWidth='1px' borderRadius='xl' overflow='hidden'>
-                <YieldTable
-                  key={allSorting.map(s => `${s.id}-${s.desc}`).join(',')}
-                  table={allTable}
-                  isLoading={isLoading}
-                  onRowClick={handleRowClick}
-                />
-              </Box>
-            )}
-
-            {!isLoading && displayYields.length === 0 && (
-              <Box textAlign='center' py={16}>
-                <Text color='text.subtle'>{translate('yieldXYZ.noYields')}</Text>
+                {yieldsByAsset.map(group => (
+                  <YieldAssetGroupRow
+                    key={group.assetSymbol}
+                    assetSymbol={group.assetSymbol}
+                    assetName={group.assetName}
+                    assetIcon={group.assetIcon}
+                    yields={group.yields}
+                  />
+                ))}
               </Box>
             )}
           </TabPanel>
@@ -587,7 +664,9 @@ const YieldsList = () => {
               />
             ) : isLoading || isLoadingBalances ? (
               <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={6}>
-                {Array.from({ length: 3 }).map((_, i) => <YieldCardSkeleton key={i} />)}
+                {Array.from({ length: 3 }).map((_, i) => (
+                  <YieldCardSkeleton key={i} />
+                ))}
               </SimpleGrid>
             ) : myPositions.length > 0 ? (
               viewMode === 'grid' ? (

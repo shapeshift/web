@@ -56,7 +56,6 @@ export const YieldAssetRow = ({ yieldItem }: YieldAssetRowProps) => {
       </HStack>
 
       <HStack spacing={6}>
-        {/* APY Section */}
         <Stat textAlign='right' size='sm'>
           <StatNumber color='green.400' fontSize='md' fontWeight='bold'>
             {apy.toFixed(2)}%
@@ -66,7 +65,6 @@ export const YieldAssetRow = ({ yieldItem }: YieldAssetRowProps) => {
           </Text>
         </Stat>
 
-        {/* Action Button */}
         <Button
           size='sm'
           variant='ghost'

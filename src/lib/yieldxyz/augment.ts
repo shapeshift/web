@@ -1,5 +1,6 @@
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import { ASSET_NAMESPACE, toAssetId } from '@shapeshiftoss/caip'
+import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 
 import type {
   AugmentedYieldBalance,
@@ -17,8 +18,19 @@ import type {
 } from './types'
 import { yieldNetworkToChainId } from './utils'
 
+import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
+
 const tokenToAssetId = (token: YieldToken, chainId: ChainId | undefined): AssetId | undefined => {
-  if (!chainId || !token.address) return undefined
+  if (!chainId) return undefined
+
+  if (!token.address) {
+    return getChainAdapterManager().get(chainId)?.getFeeAssetId()
+  }
+
+  if (!isEvmChainId(chainId)) {
+    return undefined
+  }
+
   try {
     return toAssetId({
       chainId,

@@ -4,10 +4,15 @@ import {
   avalancheChainId,
   baseChainId,
   bscChainId,
+  cosmosChainId,
   ethChainId,
   gnosisChainId,
+  monadChainId,
   optimismChainId,
   polygonChainId,
+  solanaChainId,
+  suiChainId,
+  tronChainId,
 } from '@shapeshiftoss/caip'
 import invert from 'lodash/invert'
 
@@ -22,6 +27,11 @@ export const CHAIN_ID_TO_YIELD_NETWORK: Partial<Record<ChainId, YieldNetwork>> =
   [bscChainId]: YieldNetwork.Binance,
   [avalancheChainId]: YieldNetwork.AvalancheC,
   [gnosisChainId]: YieldNetwork.Gnosis,
+  [cosmosChainId]: YieldNetwork.Cosmos,
+  [solanaChainId]: YieldNetwork.Solana,
+  [suiChainId]: YieldNetwork.Sui,
+  [monadChainId]: YieldNetwork.Monad,
+  [tronChainId]: YieldNetwork.Tron,
 }
 
 export const YIELD_NETWORK_TO_CHAIN_ID: Partial<Record<YieldNetwork, ChainId>> = invert(

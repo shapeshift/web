@@ -11,7 +11,7 @@ import {
   Text,
 } from '@chakra-ui/react'
 import { useMemo } from 'react'
-import { FaChartPie, FaLeaf } from 'react-icons/fa'
+import { FaChartPie, FaMoon } from 'react-icons/fa'
 
 import { Amount } from '@/components/Amount/Amount'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
@@ -123,7 +123,7 @@ export const YieldOpportunityStats = ({
         gridColumn={{ md: 'span 2' }}
       >
         <Box position='absolute' right={-4} top={-4} opacity={0.1}>
-          <Icon as={FaLeaf} boxSize={32} />
+          <Icon as={FaMoon} boxSize={32} />
         </Box>
         <Flex justifyContent='space-between' alignItems='center'>
           <Stat>

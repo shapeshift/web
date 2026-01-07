@@ -5,15 +5,15 @@ import { getAllAssets, getAsset, getAssetIds } from '../assets'
 import type { AssetsResponse, ErrorResponse } from '../types'
 
 // Request validation schema for single asset
-const AssetRequestSchema = z.object({
-  assetId: z.string().min(1),
+export const AssetRequestSchema = z.object({
+  assetId: z.string().min(1).openapi({ example: 'eip155:1/slip44:60' }),
 })
 
 // Request validation schema for filtered list
-const AssetsListRequestSchema = z.object({
-  chainId: z.string().optional(),
-  limit: z.coerce.number().min(1).max(1000).optional().default(100),
-  offset: z.coerce.number().min(0).optional().default(0),
+export const AssetsListRequestSchema = z.object({
+  chainId: z.string().optional().openapi({ example: 'eip155:1' }),
+  limit: z.coerce.number().min(1).max(1000).optional().default(100).openapi({ example: 100 }),
+  offset: z.coerce.number().min(0).optional().default(0).openapi({ example: 0 }),
 })
 
 export const getAssets = async (req: Request, res: Response): Promise<void> => {

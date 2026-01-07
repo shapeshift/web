@@ -49,10 +49,9 @@ FROM node:22-alpine AS runner
 
 WORKDIR /app
 
-# Copy the bundled server and asset data
+# Copy only the bundled server and asset data (node_modules not needed - esbuild bundles everything)
 COPY --from=builder /app/packages/public-api/dist/server.cjs ./server.cjs
 COPY --from=builder /app/public/generated/generatedAssetData.json ./public/generated/
-COPY --from=builder /app/node_modules ./node_modules
 
 # Set environment
 ENV NODE_ENV=production

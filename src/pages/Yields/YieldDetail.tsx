@@ -88,7 +88,8 @@ export const YieldDetail = () => {
 
           <Flex alignItems='start' gap={8}>
             <AssetIcon
-              src={yieldItem.metadata.logoURI}
+              src={yieldItem.token.assetId ? undefined : yieldItem.metadata.logoURI}
+              assetId={yieldItem.token.assetId}
               boxSize={24}
               boxShadow='2xl'
               border='4px solid'

@@ -42,3 +42,5 @@ export const SUPPORTED_YIELD_NETWORKS = Object.values(CHAIN_ID_TO_YIELD_NETWORK)
 
 export const isSupportedYieldNetwork = (network: string): network is YieldNetwork =>
   Object.values(CHAIN_ID_TO_YIELD_NETWORK).includes(network as YieldNetwork)
+
+export const SUI_GAS_BUFFER = '0.1'

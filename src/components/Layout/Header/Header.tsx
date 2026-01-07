@@ -68,17 +68,11 @@ const exploreSubMenuItems = [
   { label: 'navBar.markets', path: '/markets', icon: TbGraph },
 ]
 
-const earnSubMenuItems = [
-  { label: 'navBar.tcy', path: '/tcy', icon: TCYIcon },
-  { label: 'navBar.pools', path: '/pools', icon: TbPool },
-  { label: 'navBar.lending', path: '/lending', icon: TbBuildingBank },
-  { label: 'navBar.yields', path: '/yields', icon: TbTrendingUp },
-]
-
 export const Header = memo(() => {
   const isDegradedState = useSelector(selectPortfolioDegradedState)
   const translate = useTranslate()
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`)
+  const isYieldXyzEnabled = useFeatureFlag('YieldXyz')
 
   const navigate = useNavigate()
   const {
@@ -119,6 +113,17 @@ export const Header = memo(() => {
   const { degradedChainIds } = useDiscoverAccounts()
 
   const hasWallet = Boolean(walletInfo?.deviceId)
+  const earnSubMenuItems = useMemo(
+    () => [
+      { label: 'navBar.tcy', path: '/tcy', icon: TCYIcon },
+      { label: 'navBar.pools', path: '/pools', icon: TbPool },
+      { label: 'navBar.lending', path: '/lending', icon: TbBuildingBank },
+      ...(isYieldXyzEnabled
+        ? [{ label: 'navBar.yields', path: '/yields', icon: TbTrendingUp }]
+        : []),
+    ],
+    [isYieldXyzEnabled],
+  )
 
   /**
    * FOR DEVELOPERS:

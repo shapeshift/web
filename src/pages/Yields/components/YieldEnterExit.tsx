@@ -3,6 +3,7 @@ import {
   Button,
   Flex,
   Icon,
+  Skeleton,
   Tab,
   TabList,
   TabPanel,
@@ -19,12 +20,14 @@ import { useLocation } from 'react-router-dom'
 
 import { AssetInput } from '@/components/DeFi/components/AssetInput'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
+import { SUI_GAS_BUFFER } from '@/lib/yieldxyz/constants'
 import type { AugmentedYieldBalance, AugmentedYieldDto } from '@/lib/yieldxyz/types'
 import { YieldBalanceType } from '@/lib/yieldxyz/types'
 import { YieldActionModal } from '@/pages/Yields/components/YieldActionModal'
+import { useYieldAccount } from '@/pages/Yields/YieldAccountContext'
 import { useYieldBalances } from '@/react-queries/queries/yieldxyz/useYieldBalances'
 import {
-  selectFirstAccountIdByChainId,
+  selectAccountIdByAccountNumberAndChainId,
   selectPortfolioCryptoPrecisionBalanceByFilter,
 } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
@@ -35,9 +38,17 @@ type YieldEnterExitProps = {
 
 const percentOptions = [0.25, 0.5, 0.75, 1]
 
+const YieldEnterExitSkeleton = () => (
+  <Flex direction='column' gap={4}>
+    <Skeleton height='56px' borderRadius='lg' />
+    <Skeleton height='56px' borderRadius='lg' />
+  </Flex>
+)
+
 export const YieldEnterExit = ({ yieldItem }: YieldEnterExitProps) => {
   const translate = useTranslate()
   const location = useLocation()
+  const { accountNumber } = useYieldAccount()
   const cardBg = useColorModeValue('white', 'gray.800')
   const borderColor = useColorModeValue('gray.100', 'gray.750')
 
@@ -53,9 +64,11 @@ export const YieldEnterExit = ({ yieldItem }: YieldEnterExitProps) => {
   const [modalAction, setModalAction] = useState<'enter' | 'exit'>('enter')
 
   const { chainId } = yieldItem
-  const accountId = useAppSelector(state =>
-    chainId ? selectFirstAccountIdByChainId(state, chainId) : undefined,
-  )
+  const accountId = useAppSelector(state => {
+    if (!chainId) return undefined
+    const accountIdsByNumberAndChain = selectAccountIdByAccountNumberAndChainId(state)
+    return accountIdsByNumberAndChain[accountNumber]?.[chainId]
+  })
   const address = accountId ? fromAccountId(accountId).account : undefined
 
   const inputToken = yieldItem.inputTokens[0]
@@ -81,7 +94,7 @@ export const YieldEnterExit = ({ yieldItem }: YieldEnterExitProps) => {
     return bnOrZero(cryptoAmount).lt(minDeposit)
   }, [cryptoAmount, minDeposit])
 
-  const { data: balances } = useYieldBalances({
+  const { data: balances, isLoading: isBalancesLoading } = useYieldBalances({
     yieldId: yieldItem.id,
     address: address ?? '',
     chainId,
@@ -109,7 +122,7 @@ export const YieldEnterExit = ({ yieldItem }: YieldEnterExitProps) => {
     // For SUI native staking, we must reserve amount for gas
     if (tabIndex === 0 && yieldItem.network === 'sui') {
       const balanceBn = bnOrZero(balance)
-      const gasBuffer = bnOrZero('0.1')
+      const gasBuffer = bnOrZero(SUI_GAS_BUFFER)
       const maxAmount = balanceBn.minus(gasBuffer)
       setCryptoAmount(maxAmount.gt(0) ? maxAmount.toString() : '0')
       return
@@ -191,26 +204,30 @@ export const YieldEnterExit = ({ yieldItem }: YieldEnterExitProps) => {
           <TabPanels>
             <TabPanel p={8}>
               <Flex direction='column' gap={2}>
-                <AssetInput
-                  accountId={accountId}
-                  assetId={inputTokenAssetId ?? ''}
-                  assetSymbol={inputToken?.symbol ?? ''}
-                  assetIcon={yieldItem.metadata.logoURI}
-                  cryptoAmount={cryptoAmount}
-                  showFiatAmount={false}
-                  balance={inputTokenBalance}
-                  percentOptions={percentOptions}
-                  onChange={setCryptoAmount}
-                  onPercentOptionClick={handlePercentClick}
-                  onMaxClick={handleMaxClick}
-                />
+                {isBalancesLoading ? (
+                  <YieldEnterExitSkeleton />
+                ) : (
+                  <AssetInput
+                    accountId={accountId}
+                    assetId={inputTokenAssetId ?? ''}
+                    assetSymbol={inputToken?.symbol ?? ''}
+                    assetIcon={yieldItem.metadata.logoURI}
+                    cryptoAmount={cryptoAmount}
+                    showFiatAmount={false}
+                    balance={inputTokenBalance}
+                    percentOptions={percentOptions}
+                    onChange={setCryptoAmount}
+                    onPercentOptionClick={handlePercentClick}
+                    onMaxClick={handleMaxClick}
+                  />
+                )}
 
-                {minDeposit && (
+                {minDeposit && !isBalancesLoading && (
                   <Flex justifyContent='space-between' width='full' px={1}>
                     <Flex gap={2} alignItems='center'>
                       <Icon as={FaMoneyBillWave} color='gray.500' boxSize={3} />
                       <Text fontSize='xs' color='gray.500' fontWeight='medium'>
-                        Min Deposit
+                        {translate('yieldXYZ.minDeposit')}
                       </Text>
                     </Flex>
                     <Text
@@ -229,7 +246,9 @@ export const YieldEnterExit = ({ yieldItem }: YieldEnterExitProps) => {
                   width='full'
                   height='56px'
                   fontSize='lg'
-                  isDisabled={!yieldItem.status.enter || !cryptoAmount || isBelowMinimum}
+                  isDisabled={
+                    isBalancesLoading || !yieldItem.status.enter || !cryptoAmount || isBelowMinimum
+                  }
                   onClick={handleEnterClick}
                   _hover={{ transform: 'translateY(-1px)', boxShadow: 'lg' }}
                 >
@@ -240,19 +259,23 @@ export const YieldEnterExit = ({ yieldItem }: YieldEnterExitProps) => {
 
             <TabPanel p={8}>
               <Flex direction='column' gap={2}>
-                <AssetInput
-                  accountId={accountId}
-                  assetId={inputTokenAssetId ?? ''}
-                  assetSymbol={yieldItem.token.symbol}
-                  assetIcon={yieldItem.metadata.logoURI}
-                  cryptoAmount={cryptoAmount}
-                  showFiatAmount={false}
-                  balance={exitBalance}
-                  percentOptions={percentOptions}
-                  onChange={setCryptoAmount}
-                  onPercentOptionClick={handlePercentClick}
-                  onMaxClick={handleMaxClick}
-                />
+                {isBalancesLoading ? (
+                  <YieldEnterExitSkeleton />
+                ) : (
+                  <AssetInput
+                    accountId={accountId}
+                    assetId={inputTokenAssetId ?? ''}
+                    assetSymbol={yieldItem.token.symbol}
+                    assetIcon={yieldItem.metadata.logoURI}
+                    cryptoAmount={cryptoAmount}
+                    showFiatAmount={false}
+                    balance={exitBalance}
+                    percentOptions={percentOptions}
+                    onChange={setCryptoAmount}
+                    onPercentOptionClick={handlePercentClick}
+                    onMaxClick={handleMaxClick}
+                  />
+                )}
 
                 <Button
                   colorScheme='blue'
@@ -260,7 +283,7 @@ export const YieldEnterExit = ({ yieldItem }: YieldEnterExitProps) => {
                   width='full'
                   height='56px'
                   fontSize='lg'
-                  isDisabled={!yieldItem.status.exit || !cryptoAmount}
+                  isDisabled={isBalancesLoading || !yieldItem.status.exit || !cryptoAmount}
                   onClick={handleExitClick}
                   _hover={{ transform: 'translateY(-1px)', boxShadow: 'lg' }}
                 >

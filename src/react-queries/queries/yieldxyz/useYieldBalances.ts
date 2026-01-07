@@ -1,7 +1,7 @@
 import type { ChainId } from '@shapeshiftoss/caip'
 import { skipToken, useQuery } from '@tanstack/react-query'
 
-import { yieldxyzApi } from '@/lib/yieldxyz/api'
+import { getYieldBalances } from '@/lib/yieldxyz/api'
 import { augmentYieldBalances } from '@/lib/yieldxyz/augment'
 import type { AugmentedYieldBalance } from '@/lib/yieldxyz/types'
 
@@ -17,9 +17,9 @@ export const useYieldBalances = ({ yieldId, address, chainId }: UseYieldBalances
     queryFn:
       yieldId && address
         ? async () => {
-            const data = await yieldxyzApi.getYieldBalances(yieldId, address)
-            return augmentYieldBalances(data.balances, chainId)
-          }
+          const data = await getYieldBalances(yieldId, address)
+          return augmentYieldBalances(data.balances, chainId)
+        }
         : skipToken,
     staleTime: Infinity,
   })

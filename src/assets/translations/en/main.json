@@ -2716,6 +2716,29 @@
     "yields": "Yields",
     "earnUpTo": "You could earn up to %{apy}% on your balance",
     "startEarning": "Start earning",
-    "maxApy": "Max APY"
+    "maxApy": "Max APY",
+    "loading": {
+      "signInWallet": "Sign in Wallet",
+      "signNow": "Sign now...",
+      "waiting": "Waiting",
+      "done": "Done",
+      "preparing": "Preparing...",
+      "preparingTransaction": "Preparing transaction..."
+    },
+    "errors": {
+      "walletNotConnected": "Wallet not connected",
+      "unsupportedYieldNetwork": "Unsupported yield network",
+      "broadcastFailed": "Failed to broadcast transaction",
+      "transactionFailedTitle": "Transaction failed",
+      "transactionFailedDescription": "Please try again.",
+      "unsupportedNetworkTitle": "Unsupported network",
+      "unsupportedNetworkDescription": "This yield network is not supported yet.",
+      "walletNotConnectedTitle": "Wallet not connected",
+      "walletNotConnectedDescription": "Connect a wallet that supports this network to continue.",
+      "enterAmountTitle": "Enter an amount",
+      "enterAmountDescription": "Amount must be greater than zero.",
+      "initiateFailedTitle": "Error",
+      "initiateFailedDescription": "Failed to initiate transaction sequence."
+    }
   }
 }

@@ -1,7 +1,7 @@
 import { useQueries } from '@tanstack/react-query'
 import { useMemo } from 'react'
 
-import { yieldxyzApi } from '@/lib/yieldxyz/api'
+import { getYield } from '@/lib/yieldxyz/api'
 import { augmentYield } from '@/lib/yieldxyz/augment'
 import type { AugmentedYieldDto } from '@/lib/yieldxyz/types'
 
@@ -13,7 +13,7 @@ export const useYieldsByIds = (yieldIds: string[]) => {
     queries: uniqueIds.map(id => ({
       queryKey: ['yieldxyz', 'yield', id],
       queryFn: async () => {
-        const yieldDto = await yieldxyzApi.getYield(id)
+        const yieldDto = await getYield(id)
         return augmentYield(yieldDto)
       },
       staleTime: 1000 * 60 * 5, // 5 minutes

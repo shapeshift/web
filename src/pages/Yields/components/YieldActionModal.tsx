@@ -24,6 +24,7 @@ import { useQueryClient } from '@tanstack/react-query'
 import { uuidv4 } from '@walletconnect/utils'
 import { useEffect, useRef, useState } from 'react'
 import { FaCheck, FaExternalLinkAlt, FaWallet } from 'react-icons/fa'
+import { useTranslate } from 'react-polyglot'
 
 import { MiddleEllipsis } from '@/components/MiddleEllipsis/MiddleEllipsis'
 import { useWallet } from '@/hooks/useWallet/useWallet'
@@ -114,6 +115,7 @@ export const YieldActionModal = ({
   const dispatch = useAppDispatch()
   const queryClient = useQueryClient()
   const toast = useToast()
+  const translate = useTranslate()
   const {
     state: { wallet },
   } = useWallet()
@@ -155,15 +157,6 @@ export const YieldActionModal = ({
 
   const canSubmit = Boolean(wallet && accountId && yieldChainId && bnOrZero(amount).gt(0))
 
-  const hasStartedRef = useRef(false)
-  const handleConfirmRef = useRef<(() => Promise<void>) | null>(null)
-
-  useEffect(() => {
-    if (!isOpen) {
-      hasStartedRef.current = false
-    }
-  }, [isOpen])
-
   const handleClose = () => {
     if (isSubmitting) return
     setStep(ModalStep.InProgress)
@@ -181,15 +174,21 @@ export const YieldActionModal = ({
     index: number,
     allTransactions: TransactionDto[],
   ) => {
-    if (!wallet || !accountId) throw new Error('Wallet not connected')
-    if (!yieldChainId) throw new Error('Unsupported yield network')
+    if (!wallet || !accountId) {
+      throw new Error(translate('yieldXYZ.errors.walletNotConnected'))
+    }
+    if (!yieldChainId) {
+      throw new Error(translate('yieldXYZ.errors.unsupportedYieldNetwork'))
+    }
 
     const adapter = assertGetChainAdapter(yieldChainId)
 
     // Update step status to loading
     setTransactionSteps(prev =>
       prev.map((s, idx) =>
-        idx === index ? { ...s, status: 'loading', loadingMessage: 'Sign in Wallet' } : s,
+        idx === index
+          ? { ...s, status: 'loading', loadingMessage: translate('yieldXYZ.loading.signInWallet') }
+          : s,
       ),
     )
     setIsSubmitting(true)
@@ -197,12 +196,12 @@ export const YieldActionModal = ({
     const cosmosStakeArgs: CosmosStakeArgs | undefined =
       yieldChainId === cosmosChainId
         ? {
-            validator: FIGMENT_COSMOS_VALIDATOR_ADDRESS,
-            amountCryptoBaseUnit: bnOrZero(amount)
-              .times(bnOrZero(10).pow(yieldItem.token.decimals))
-              .toFixed(0),
-            action: action === 'enter' ? 'stake' : 'unstake',
-          }
+          validator: FIGMENT_COSMOS_VALIDATOR_ADDRESS,
+          amountCryptoBaseUnit: bnOrZero(amount)
+            .times(bnOrZero(10).pow(yieldItem.token.decimals))
+            .toFixed(0),
+          action: action === 'enter' ? 'stake' : 'unstake',
+        }
         : undefined
 
     try {
@@ -216,7 +215,7 @@ export const YieldActionModal = ({
         cosmosStakeArgs,
       })
 
-      if (!txHash) throw new Error('Failed to broadcast transaction')
+      if (!txHash) throw new Error(translate('yieldXYZ.errors.broadcastFailed'))
 
       // Get Explorer URL
       const txUrl = feeAsset ? `${feeAsset.explorerTxLink}${txHash}` : ''
@@ -246,8 +245,8 @@ export const YieldActionModal = ({
       const actionType = isApproval
         ? ActionType.Approve
         : action === 'enter'
-        ? ActionType.Deposit
-        : ActionType.Withdraw
+          ? ActionType.Deposit
+          : ActionType.Withdraw
       const displayType = isApproval
         ? GenericTransactionDisplayType.Approve
         : GenericTransactionDisplayType.Yield
@@ -289,8 +288,8 @@ export const YieldActionModal = ({
     } catch (error) {
       console.error('Transaction execution failed:', error)
       toast({
-        title: 'Transaction Failed',
-        description: String(error),
+        title: translate('yieldXYZ.errors.transactionFailedTitle'),
+        description: translate('yieldXYZ.errors.transactionFailedDescription'),
         status: 'error',
         duration: 5000,
         isClosable: true,
@@ -321,8 +320,8 @@ export const YieldActionModal = ({
     // Initial Start
     if (!yieldChainId) {
       toast({
-        title: 'Unsupported network',
-        description: 'This yield network is not supported yet.',
+        title: translate('yieldXYZ.errors.unsupportedNetworkTitle'),
+        description: translate('yieldXYZ.errors.unsupportedNetworkDescription'),
         status: 'error',
         duration: 5000,
         isClosable: true,
@@ -331,8 +330,8 @@ export const YieldActionModal = ({
     }
     if (!wallet || !accountId) {
       toast({
-        title: 'Wallet not connected',
-        description: 'Connect a wallet that supports this network to continue.',
+        title: translate('yieldXYZ.errors.walletNotConnectedTitle'),
+        description: translate('yieldXYZ.errors.walletNotConnectedDescription'),
         status: 'error',
         duration: 5000,
         isClosable: true,
@@ -341,8 +340,8 @@ export const YieldActionModal = ({
     }
     if (!bnOrZero(amount).gt(0)) {
       toast({
-        title: 'Enter an amount',
-        description: 'Amount must be greater than zero.',
+        title: translate('yieldXYZ.errors.enterAmountTitle'),
+        description: translate('yieldXYZ.errors.enterAmountDescription'),
         status: 'error',
         duration: 4000,
         isClosable: true,
@@ -353,7 +352,11 @@ export const YieldActionModal = ({
 
     // Show generic loading state immediately
     setTransactionSteps([
-      { title: 'Preparing Transaction...', status: 'loading', originalTitle: '' },
+      {
+        title: translate('yieldXYZ.loading.preparingTransaction'),
+        status: 'loading',
+        originalTitle: '',
+      },
     ])
 
     const mutation = action === 'enter' ? enterMutation : exitMutation
@@ -414,8 +417,8 @@ export const YieldActionModal = ({
     } catch (error) {
       console.error('Failed to initiate action:', error)
       toast({
-        title: 'Error',
-        description: 'Failed to initiate transaction sequence.',
+        title: translate('yieldXYZ.errors.initiateFailedTitle'),
+        description: translate('yieldXYZ.errors.initiateFailedDescription'),
         status: 'error',
       })
       setIsSubmitting(false)
@@ -601,10 +604,10 @@ export const YieldActionModal = ({
                 fontWeight='medium'
               >
                 {s.status === 'success'
-                  ? 'Done'
+                  ? translate('yieldXYZ.loading.done')
                   : s.status === 'loading'
-                  ? 'Sign now...'
-                  : 'Waiting'}
+                    ? translate('yieldXYZ.loading.signNow')
+                    : translate('yieldXYZ.loading.waiting')}
               </Text>
             )}
           </Flex>
@@ -630,8 +633,8 @@ export const YieldActionModal = ({
         loadingText={
           transactionSteps[activeStepIndex]?.loadingMessage ??
           (transactionSteps[activeStepIndex]?.status === 'loading'
-            ? 'Sign in Wallet'
-            : 'Preparing...')
+            ? translate('yieldXYZ.loading.signInWallet')
+            : translate('yieldXYZ.loading.preparing'))
         }
         _hover={{ transform: 'translateY(-2px)', boxShadow: 'lg' }}
         transition='all 0.2s'
@@ -639,8 +642,8 @@ export const YieldActionModal = ({
         {isSubmitting
           ? 'Processing...'
           : activeStepIndex >= 0 && transactionSteps[activeStepIndex]
-          ? transactionSteps[activeStepIndex].title
-          : `Confirm ${action === 'enter' ? 'Deposit' : 'Withdrawal'}`}
+            ? transactionSteps[activeStepIndex].title
+            : `Confirm ${action === 'enter' ? 'Deposit' : 'Withdrawal'}`}
       </Button>
     </VStack>
   )

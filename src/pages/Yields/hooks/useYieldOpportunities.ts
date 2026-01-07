@@ -36,6 +36,11 @@ export const useYieldOpportunities = ({ assetId, accountId }: UseYieldOpportunit
   }, [yields, asset, assetId])
 
   const accountBalances = useMemo(() => {
+    // Multi-account not implemented yet - throw if enabled without accountId
+    if (multiAccountEnabled && !accountId) {
+      throw new Error('Multi-account yield not yet implemented')
+    }
+
     if (!allBalances || !matchingYields.length) return {}
 
     const balances: Record<string, any> = {}
@@ -49,13 +54,7 @@ export const useYieldOpportunities = ({ assetId, accountId }: UseYieldOpportunit
           return b.address.toLowerCase() === fromAccountId(accountId).account.toLowerCase()
         }
 
-        // If multi-account disabled, we leave it as-is for now (showing all connected).
-        // In a perfect world we would filter for 'account 0' but we lack that context easily here.
-        // Assuming 'useAllYieldBalances' behaves correctly for enabled wallets.
-        if (!multiAccountEnabled) {
-          return true
-        }
-
+        // Multi-account not implemented: show all balances for now
         return true
       })
 

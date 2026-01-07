@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 
-import { yieldxyzApi } from '@/lib/yieldxyz/api'
+import { submitTransaction } from '@/lib/yieldxyz/api'
 
 export const useSubmitYieldTransaction = () => {
   const queryClient = useQueryClient()
@@ -12,7 +12,7 @@ export const useSubmitYieldTransaction = () => {
     }: {
       transactionId: string
       signedTransaction: string
-    }) => yieldxyzApi.submitTransaction(transactionId, signedTransaction),
+    }) => submitTransaction(transactionId, signedTransaction),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['yieldxyz', 'balances'] })
     },

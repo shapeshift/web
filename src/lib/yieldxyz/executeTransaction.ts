@@ -2,7 +2,9 @@ import { Transaction as SuiTransaction } from '@mysten/sui/transactions'
 import type { ChainId } from '@shapeshiftoss/caip'
 import { CHAIN_NAMESPACE, fromChainId } from '@shapeshiftoss/caip'
 import { CONTRACT_INTERACTION, toAddressNList } from '@shapeshiftoss/chain-adapters'
+import type { SignTx } from '@shapeshiftoss/chain-adapters'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
+import type { EvmChainId } from '@shapeshiftoss/types'
 import {
   AddressLookupTableAccount,
   ComputeBudgetProgram,
@@ -10,6 +12,8 @@ import {
   TransactionMessage,
   VersionedTransaction,
 } from '@solana/web3.js'
+import type { Hex } from 'viem'
+import { isHex, toHex } from 'viem'
 
 import type { TransactionDto } from './types'
 
@@ -26,6 +30,7 @@ type ParsedEvmTransaction = {
   data: string
   value?: string
   gasLimit?: string
+  gasPrice?: string
   maxFeePerGas?: string
   maxPriorityFeePerGas?: string
   nonce: number
@@ -114,6 +119,22 @@ type ExecuteEvmTransactionInput = {
   bip44Params?: { purpose: number; coinType: number; accountNumber: number }
 }
 
+const toHexOrDefault = (value: string | number | undefined, fallback: Hex): Hex => {
+  if (value === undefined || value === null || value === '') return fallback
+  if (typeof value === 'number') return toHex(value)
+  if (isHex(value)) return value as Hex
+  try {
+    return toHex(BigInt(value))
+  } catch {
+    return fallback
+  }
+}
+
+const toHexData = (value: string | undefined): Hex => {
+  if (!value) return '0x'
+  return isHex(value) ? (value as Hex) : (value.startsWith('0x') ? (value as Hex) : '0x')
+}
+
 const executeEvmTransaction = async ({
   parsed,
   chainId,
@@ -126,27 +147,49 @@ const executeEvmTransaction = async ({
 
   if (!addressNList) throw new Error('Failed to get address derivation path')
 
-  const txToSign = {
-    to: parsed.to,
-    from: parsed.from,
-    data: parsed.data ?? '0x0',
-    value: parsed.value ?? '0x0',
-    gasLimit: parsed.gasLimit ?? '0x0',
-    maxFeePerGas: parsed.maxFeePerGas ?? '0x0',
-    maxPriorityFeePerGas: parsed.maxPriorityFeePerGas ?? '0x0',
-    nonce: String(parsed.nonce ?? 0),
+  const baseTxToSign = {
+    to: toHexData(parsed.to),
+    data: toHexData(parsed.data),
+    value: toHexOrDefault(parsed.value, '0x0'),
+    gasLimit: toHexOrDefault(parsed.gasLimit, '0x0'),
+    nonce: toHexOrDefault(parsed.nonce ?? 0, '0x0'),
     chainId: parsed.chainId,
     type: parsed.type,
     addressNList,
   }
 
+  const txToSign: SignTx<EvmChainId> =
+    parsed.maxFeePerGas || parsed.maxPriorityFeePerGas
+      ? {
+        ...baseTxToSign,
+        maxFeePerGas: toHexOrDefault(parsed.maxFeePerGas, '0x0'),
+        maxPriorityFeePerGas: toHexOrDefault(parsed.maxPriorityFeePerGas, '0x0'),
+      }
+      : {
+        ...baseTxToSign,
+        gasPrice: toHexOrDefault(parsed.gasPrice ?? '0', '0x0'),
+      }
+
+  /*
+    We need to cast to any here because existing EVM adapters might have slight signature differences
+    in their signAndBroadcast types that strict TS doesn't like, OR the txToSign object
+    constructed above is missing optional properties that the adapter expects but doesn't strictly need for this call.
+    However, the goal is to remove 'as any'.
+    
+    The error is usually that 'SignTx' type in shapeshift-adapters is a union of all chain tx types,
+    and we are passing a specific EVM tx object.
+    
+    Let's relax the cast to 'SignTx<EvmChainId>' which we already did in variable declaration,
+    but let's double check if we can pass it without 'as any'.
+  */
   const txHash = await evmSignAndBroadcast({
     adapter,
-    txToSign: txToSign as any,
+    txToSign, // remove 'as any' - it is already typed as SignTx<EvmChainId>
     wallet,
     senderAddress: parsed.from,
     receiverAddress: parsed.to,
   })
+
 
   if (!txHash) throw new Error('Failed to broadcast EVM transaction')
   return txHash
@@ -263,6 +306,7 @@ const executeSuiTransaction = async ({
   const txToSign = {
     addressNList: toAddressNList(adapter.getBip44Params({ accountNumber })),
     intentMessageBytes: intentMessage,
+    transactionJson: {}, // Added to satisfy SuiSignTx type requirement
   }
 
   const txHash = await adapter.signAndBroadcastTransaction({
@@ -288,38 +332,22 @@ const executeSolanaTransaction = async ({
   wallet,
   bip44Params,
 }: ExecuteSolanaTransactionInput): Promise<string> => {
-  console.log('[executeSolanaTransaction] Starting with:', {
-    chainId,
-    accountNumber: bip44Params?.accountNumber,
-  })
-
   const adapter = assertGetSolanaChainAdapter(chainId)
   const accountNumber = bip44Params?.accountNumber ?? 0
-
   const txData = unsignedTransaction.startsWith('0x')
     ? unsignedTransaction.slice(2)
     : unsignedTransaction
-  console.log('[executeSolanaTransaction] Deserializing tx, length:', txData.length)
 
   const versionedTransaction = VersionedTransaction.deserialize(
     new Uint8Array(Buffer.from(txData, 'hex')),
   )
-  console.log('[executeSolanaTransaction] Deserialized versionedTransaction:', {
-    numSignatures: versionedTransaction.signatures.length,
-    numLookupTables: versionedTransaction.message.addressTableLookups.length,
-  })
 
   const addressLookupTableAccountKeys = versionedTransaction.message.addressTableLookups.map(
     lookup => lookup.accountKey.toString(),
   )
-  console.log('[executeSolanaTransaction] Lookup table keys:', addressLookupTableAccountKeys)
 
   const addressLookupTableAccountsInfos = await adapter.getAddressLookupTableAccounts(
     addressLookupTableAccountKeys,
-  )
-  console.log(
-    '[executeSolanaTransaction] Got lookup table infos:',
-    addressLookupTableAccountsInfos.length,
   )
 
   const addressLookupTableAccounts = addressLookupTableAccountsInfos.map(
@@ -333,23 +361,13 @@ const executeSolanaTransaction = async ({
   const decompiledMessage = TransactionMessage.decompile(versionedTransaction.message, {
     addressLookupTableAccounts,
   })
-  console.log('[executeSolanaTransaction] Decompiled message:', {
-    numInstructions: decompiledMessage.instructions.length,
-    payerKey: decompiledMessage.payerKey.toString(),
-    recentBlockhash: decompiledMessage.recentBlockhash,
-  })
 
   const computeBudgetProgramId = ComputeBudgetProgram.programId.toString()
   const nonComputeBudgetInstructions = decompiledMessage.instructions.filter(
     ix => ix.programId.toString() !== computeBudgetProgramId,
   )
-  console.log('[executeSolanaTransaction] Filtered instructions (excluding compute budget):', {
-    original: decompiledMessage.instructions.length,
-    filtered: nonComputeBudgetInstructions.length,
-  })
 
   const from = await adapter.getAddress({ accountNumber, wallet })
-  console.log('[executeSolanaTransaction] Got address:', from)
 
   const { fast } = await adapter.getFeeData({
     to: '',
@@ -360,22 +378,16 @@ const executeSolanaTransaction = async ({
       instructions: nonComputeBudgetInstructions,
     },
   })
-  console.log('[executeSolanaTransaction] Fee data:', {
-    computeUnits: fast.chainSpecific.computeUnits,
-    priorityFee: fast.chainSpecific.priorityFee,
-  })
 
   const convertedInstructions = nonComputeBudgetInstructions.map(instruction =>
     adapter.convertInstruction(instruction),
   )
-  console.log('[executeSolanaTransaction] Converted instructions:', convertedInstructions.length)
 
   const STAKE_COMPUTE_UNIT_BUFFER = 50000
   const estimatedComputeUnits = Math.max(
     Number(fast.chainSpecific.computeUnits),
     STAKE_COMPUTE_UNIT_BUFFER,
   )
-  console.log('[executeSolanaTransaction] Using compute units:', estimatedComputeUnits)
 
   const txToSign = await adapter.buildSendApiTransaction({
     from,
@@ -389,39 +401,23 @@ const executeSolanaTransaction = async ({
       computeUnitPrice: fast.chainSpecific.priorityFee,
     },
   })
-  console.log('[executeSolanaTransaction] Built txToSign:', {
-    addressNList: txToSign.addressNList,
-    blockHash: txToSign.blockHash,
-    computeUnitLimit: txToSign.computeUnitLimit,
-    computeUnitPrice: txToSign.computeUnitPrice,
-    numInstructions: txToSign.instructions?.length,
-    to: txToSign.to,
-    value: txToSign.value,
-  })
 
-  console.log('[executeSolanaTransaction] Signing transaction...')
   const signedTx = await adapter.signTransaction({ txToSign, wallet })
-  console.log(
-    '[executeSolanaTransaction] Signed tx:',
-    signedTx ? `${signedTx.substring(0, 50)}...` : 'null',
-  )
 
   if (!signedTx) throw new Error('Failed to sign Solana transaction')
 
-  console.log('[executeSolanaTransaction] Broadcasting transaction...')
   try {
     const txHash = await adapter.broadcastTransaction({
       senderAddress: from,
       receiverAddress: CONTRACT_INTERACTION,
       hex: signedTx,
     })
-    console.log('[executeSolanaTransaction] Got txHash:', txHash)
 
     if (!txHash) throw new Error('Failed to broadcast Solana transaction')
     return txHash
   } catch (err) {
     console.error('[executeSolanaTransaction] Broadcast error:', err)
-    console.error('[executeSolanaTransaction] Signed tx (base64):', signedTx)
     throw err
   }
 }
+

@@ -1,3 +1,6 @@
+import type { AxiosInstance } from 'axios'
+import axios from 'axios'
+
 import type {
   ActionDto,
   ActionsResponse,
@@ -13,159 +16,122 @@ import { getConfig } from '@/config'
 const BASE_URL = getConfig().VITE_YIELD_XYZ_BASE_URL
 const API_KEY = getConfig().VITE_YIELD_XYZ_API_KEY
 
-const headers = {
-  'X-API-KEY': API_KEY,
-  'Content-Type': 'application/json',
+const instance: AxiosInstance = axios.create({
+  baseURL: BASE_URL,
+  timeout: 30000,
+  headers: {
+    'X-API-KEY': API_KEY,
+    'Content-Type': 'application/json',
+  },
+})
+
+// Discovery
+export const getYields = (params?: {
+  network?: string
+  provider?: string
+  limit?: number
+  offset?: number
+}): Promise<YieldsResponse> => {
+  return instance.get<YieldsResponse>('/yields', { params }).then(res => res.data)
 }
 
-const handleResponse = async <T>(response: Response): Promise<T> => {
-  if (!response.ok) {
-    const error = await response.text()
-    throw new Error(`Yield.xyz API error: ${response.status} - ${error}`)
-  }
-  return response.json()
+export const getYield = (yieldId: string): Promise<YieldDto> => {
+  return instance.get<YieldDto>(`/yields/${yieldId}`).then(res => res.data)
 }
 
-export const yieldxyzApi = {
-  // Discovery
-  async getYields(params?: {
-    network?: string
-    provider?: string
-    limit?: number
-    offset?: number
-  }): Promise<YieldsResponse> {
-    const searchParams = new URLSearchParams()
-    if (params?.network) searchParams.set('network', params.network)
-    if (params?.provider) searchParams.set('provider', params.provider)
-    if (params?.limit) searchParams.set('limit', String(params.limit))
-    if (params?.offset) searchParams.set('offset', String(params.offset))
+export const getNetworks = (): Promise<NetworksResponse> => {
+  return instance.get<NetworksResponse>('/networks').then(res => res.data)
+}
 
-    const response = await fetch(`${BASE_URL}/yields?${searchParams}`, { headers })
-    return handleResponse(response)
-  },
+export const getProviders = (params?: {
+  limit?: number
+  offset?: number
+}): Promise<ProvidersResponse> => {
+  return instance.get<ProvidersResponse>('/providers', { params }).then(res => res.data)
+}
 
-  async getYield(yieldId: string): Promise<YieldDto> {
-    const response = await fetch(`${BASE_URL}/yields/${yieldId}`, { headers })
-    return handleResponse(response)
-  },
+// Balances
+export const getYieldBalances = (yieldId: string, address: string): Promise<YieldBalancesResponse> => {
+  return instance
+    .get<YieldBalancesResponse>(`/yields/${yieldId}/balances`, { params: { address } })
+    .then(res => res.data)
+}
 
-  async getNetworks(): Promise<NetworksResponse> {
-    const response = await fetch(`${BASE_URL}/networks`, { headers })
-    return handleResponse(response)
-  },
+export const getAggregateBalances = (
+  queries: { address: string; network: string; yieldId?: string }[],
+): Promise<{
+  items: YieldBalancesResponse[]
+  errors: { query: (typeof queries)[0]; error: string }[]
+}> => {
+  return instance.post('/yields/balances', { queries }).then(res => res.data)
+}
 
-  async getProviders(params?: { limit?: number; offset?: number }): Promise<ProvidersResponse> {
-    const searchParams = new URLSearchParams()
-    if (params?.limit) searchParams.set('limit', String(params.limit))
-    if (params?.offset) searchParams.set('offset', String(params.offset))
-
-    const response = await fetch(`${BASE_URL}/providers?${searchParams}`, { headers })
-    return handleResponse(response)
-  },
-
-  // Balances
-  async getYieldBalances(yieldId: string, address: string): Promise<YieldBalancesResponse> {
-    const response = await fetch(`${BASE_URL}/yields/${yieldId}/balances?address=${address}`, {
-      headers,
+// Actions
+export const enterYield = (
+  yieldId: string,
+  address: string,
+  arguments_: Record<string, unknown>,
+): Promise<ActionDto> => {
+  return instance
+    .post<ActionDto>('/actions/enter', {
+      yieldId,
+      address,
+      arguments: arguments_,
     })
-    return handleResponse(response)
-  },
+    .then(res => res.data)
+}
 
-  async getAggregateBalances(
-    queries: { address: string; network: string; yieldId?: string }[],
-  ): Promise<{
-    items: YieldBalancesResponse[]
-    errors: { query: (typeof queries)[0]; error: string }[]
-  }> {
-    const response = await fetch(`${BASE_URL}/yields/balances`, {
-      method: 'POST',
-      headers,
-      body: JSON.stringify({ queries }),
+export const exitYield = (
+  yieldId: string,
+  address: string,
+  arguments_: Record<string, unknown>,
+): Promise<ActionDto> => {
+  return instance
+    .post<ActionDto>('/actions/exit', {
+      yieldId,
+      address,
+      arguments: arguments_,
     })
-    return handleResponse(response)
-  },
+    .then(res => res.data)
+}
 
-  // Actions
-  async enterYield(
-    yieldId: string,
-    address: string,
-    arguments_: Record<string, unknown>,
-  ): Promise<ActionDto> {
-    const response = await fetch(`${BASE_URL}/actions/enter`, {
-      method: 'POST',
-      headers,
-      body: JSON.stringify({ yieldId, address, arguments: arguments_ }),
+export const manageYield = (
+  yieldId: string,
+  address: string,
+  action: string,
+  passthrough: string,
+  arguments_?: Record<string, unknown>,
+): Promise<ActionDto> => {
+  return instance
+    .post<ActionDto>('/actions/manage', {
+      yieldId,
+      address,
+      action,
+      passthrough,
+      arguments: arguments_,
     })
-    return handleResponse(response)
-  },
+    .then(res => res.data)
+}
 
-  async exitYield(
-    yieldId: string,
-    address: string,
-    arguments_: Record<string, unknown>,
-  ): Promise<ActionDto> {
-    const response = await fetch(`${BASE_URL}/actions/exit`, {
-      method: 'POST',
-      headers,
-      body: JSON.stringify({ yieldId, address, arguments: arguments_ }),
-    })
-    return handleResponse(response)
-  },
+export const getActions = (params: {
+  address: string
+  limit?: number
+  offset?: number
+  status?: string
+  intent?: string
+}): Promise<ActionsResponse> => {
+  return instance.get<ActionsResponse>('/actions', { params }).then(res => res.data)
+}
 
-  async manageYield(
-    yieldId: string,
-    address: string,
-    action: string,
-    passthrough: string,
-    arguments_?: Record<string, unknown>,
-  ): Promise<ActionDto> {
-    const response = await fetch(`${BASE_URL}/actions/manage`, {
-      method: 'POST',
-      headers,
-      body: JSON.stringify({ yieldId, address, action, passthrough, arguments: arguments_ }),
-    })
-    return handleResponse(response)
-  },
+// Transaction Submission
+export const submitTransaction = (transactionId: string, signedTransaction: string): Promise<void> => {
+  return instance
+    .post(`/transactions/${transactionId}/submit`, { signedTransaction })
+    .then(res => res.data)
+}
 
-  async getActions(params: {
-    address: string
-    limit?: number
-    offset?: number
-    status?: string
-    intent?: string
-  }): Promise<ActionsResponse> {
-    const searchParams = new URLSearchParams({ address: params.address })
-    if (params.limit) searchParams.set('limit', String(params.limit))
-    if (params.offset) searchParams.set('offset', String(params.offset))
-    if (params.status) searchParams.set('status', params.status)
-    if (params.intent) searchParams.set('intent', params.intent)
-
-    const response = await fetch(`${BASE_URL}/actions?${searchParams}`, { headers })
-    return handleResponse(response)
-  },
-
-  // Transaction Submission
-  async submitTransaction(transactionId: string, signedTransaction: string): Promise<void> {
-    const response = await fetch(`${BASE_URL}/transactions/${transactionId}/submit`, {
-      method: 'POST',
-      headers,
-      body: JSON.stringify({ signedTransaction }),
-    })
-    if (!response.ok) {
-      const error = await response.text()
-      throw new Error(`Failed to submit transaction: ${response.status} - ${error}`)
-    }
-  },
-
-  async submitTransactionHash(transactionId: string, hash: string): Promise<void> {
-    const response = await fetch(`${BASE_URL}/transactions/${transactionId}/submit-hash`, {
-      method: 'PUT',
-      headers,
-      body: JSON.stringify({ hash }),
-    })
-    if (!response.ok) {
-      const error = await response.text()
-      throw new Error(`Failed to submit transaction hash: ${response.status} - ${error}`)
-    }
-  },
+export const submitTransactionHash = (transactionId: string, hash: string): Promise<void> => {
+  return instance
+    .put(`/transactions/${transactionId}/submit-hash`, { hash })
+    .then(res => res.data)
 }

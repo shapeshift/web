@@ -333,11 +333,41 @@ export type AugmentedYieldDto = Omit<
   'chainId' | 'token' | 'inputTokens' | 'outputToken' | 'rewardRate' | 'mechanics' | 'tokens'
 > & {
   chainId: ChainId | undefined
-  evmChainId: number | undefined
+  evmNetworkId: string | undefined
   token: AugmentedYieldToken
   inputTokens: AugmentedYieldToken[]
   outputToken: AugmentedYieldToken | undefined
   rewardRate: AugmentedYieldRewardRate
   mechanics: AugmentedYieldMechanics
   tokens: AugmentedYieldToken[]
+}
+
+// ============================================================================
+// Parsed Types (for utils)
+// ============================================================================
+
+export type ParsedUnsignedTransaction = {
+  from: string
+  to: string
+  data: string
+  value?: string
+  nonce: number
+  type: number
+  gasLimit: string
+  maxFeePerGas: string
+  maxPriorityFeePerGas: string
+  chainId: number
+}
+
+export type ParsedGasEstimate = {
+  token: {
+    name: string
+    symbol: string
+    logoURI: string
+    network: string
+    decimals: number
+    coinGeckoId?: string
+  }
+  amount: string
+  gasLimit: string
 }

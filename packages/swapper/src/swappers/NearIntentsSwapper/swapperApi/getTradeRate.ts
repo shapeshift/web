@@ -56,7 +56,6 @@ export const getTradeRate = async (
     const destinationAsset = await assetToNearIntentsAsset(buyAsset)
 
     if (!originAsset) {
-      console.log('[NEAR] Returning error - originAsset not supported')
       return Err(
         makeSwapErrorRight({
           code: TradeQuoteError.UnsupportedTradePair,
@@ -68,7 +67,6 @@ export const getTradeRate = async (
     }
 
     if (!destinationAsset) {
-      console.log('[NEAR] Returning error - destinationAsset not supported')
       return Err(
         makeSwapErrorRight({
           code: TradeQuoteError.UnsupportedTradePair,
@@ -276,6 +274,33 @@ export const getTradeRate = async (
               chainSpecific: {
                 from: sendAddress,
                 tokenId,
+              },
+              sendMax: false,
+            })
+
+            return feeData.fast.txFee
+          } catch (error) {
+            return '0'
+          }
+        }
+
+        case CHAIN_NAMESPACE.Starknet: {
+          try {
+            const sellAdapter = deps.assertGetStarknetChainAdapter(sellAsset.chainId)
+            const tokenContractAddress = isToken(sellAsset.assetId)
+              ? fromAssetId(sellAsset.assetId).assetReference
+              : undefined
+
+            if (!sendAddress) {
+              return '0'
+            }
+
+            const feeData = await sellAdapter.getFeeData({
+              to: depositAddress,
+              value: sellAmount,
+              chainSpecific: {
+                from: sendAddress,
+                tokenContractAddress,
               },
               sendMax: false,
             })

@@ -11,8 +11,6 @@ const result = await esbuild.build({
   external: [
     // Keep native modules external
     'fsevents',
-    // Exclude all cowswap-related packages that have ethers import issues
-    '@cowprotocol/*',
   ],
   alias: {
     // Alias ethers/lib/utils to ethers which has the utils re-exported

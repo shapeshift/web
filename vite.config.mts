@@ -222,6 +222,7 @@ export default defineConfig(({ mode }) => {
               if (id.match(/(dayjs|lodash|@formatjs)/)) return 'utils'
               if (id.match(/(@redux|@tanstack)/)) return 'state'
               if (id.match(/(@metaplex-foundation|@solana)/)) return 'solana'
+              if (id.match(/(starknet|@avnu|@starknet-io)/)) return 'starknet'
               if (id.match(/(@sentry|mixpanel|@moralisweb3|moralis)/)) return 'sdk'
               if (id.match(/(embla-carousel)/)) return 'carousel'
               if (id.includes('lightweight-charts')) return 'charts'

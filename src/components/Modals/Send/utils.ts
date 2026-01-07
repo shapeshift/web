@@ -172,7 +172,16 @@ export const estimateFees = async ({
     }
     case CHAIN_NAMESPACE.Starknet: {
       const adapter = assertGetStarknetChainAdapter(asset.chainId)
-      return adapter.getFeeData()
+      const getFeeDataInput: GetFeeDataInput<KnownChainIds.StarknetMainnet> = {
+        to,
+        value,
+        chainSpecific: {
+          from: account,
+          tokenContractAddress: contractAddress,
+        },
+        sendMax,
+      }
+      return adapter.getFeeData(getFeeDataInput)
     }
     default:
       throw new Error(`${chainNamespace} not supported`)

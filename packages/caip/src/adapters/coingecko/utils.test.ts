@@ -153,7 +153,7 @@ describe('adapters:coingecko:utils', () => {
           'eip155:10/erc20:0x4200000000000000000000000000000000000006': 'weth',
         },
         'eip155:137': {
-          'eip155:137/slip44:60': 'matic-network',
+          'eip155:137/slip44:60': 'polygon-ecosystem-token',
           'eip155:137/erc20:0x7ceb23fd6bc0add59e62ac25578270cff1b9f619': 'weth',
         },
         'eip155:100': {
@@ -192,6 +192,9 @@ describe('adapters:coingecko:utils', () => {
         },
         'tron:0x2b6653dc': {
           'tron:0x2b6653dc/slip44:195': 'tron',
+        },
+        'starknet:SN_MAIN': {
+          'starknet:SN_MAIN/slip44:9004': 'starknet',
         },
       }
       expect(result).toEqual(expected)

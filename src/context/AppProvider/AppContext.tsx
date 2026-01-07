@@ -154,6 +154,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   // Only runs ONCE per input type - refs ensure we don't reset on navigation
   useEffect(() => {
     if (Object.keys(assetsById).length === 0) return
+    if (hasTradeRouteParams) return
 
     const btcAsset = assetsById[btcAssetId]
     const ethAsset = assetsById[ethAssetId]
@@ -176,7 +177,13 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
       dispatch(limitOrderInput.actions.setSellAsset(usdcAsset))
       hasSetLimitDefaults.current = true
     }
-  }, [assetsById, dispatch, tradeInputBuyAsset.assetId, limitOrderInputBuyAsset.assetId])
+  }, [
+    assetsById,
+    dispatch,
+    hasTradeRouteParams,
+    tradeInputBuyAsset.assetId,
+    limitOrderInputBuyAsset.assetId,
+  ])
 
   useEffect(() => {
     const handleLedgerOpenApp = ({ chainId, reject }: LedgerOpenAppEventArgs) => {

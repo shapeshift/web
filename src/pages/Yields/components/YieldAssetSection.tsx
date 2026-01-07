@@ -49,8 +49,8 @@ export const YieldAssetSection = ({ assetId, accountId }: YieldAssetSectionProps
       </Heading>
 
       <Stack spacing={4}>
-        {/* Active Positions Table (only for Global Asset Page and has positions) */}
-        {!isAccountPage && hasActivePositions && (
+        {/* Active Positions Table */}
+        {hasActivePositions && (
           <YieldActivePositions balances={balances} yields={yields} assetId={assetId} />
         )}
 

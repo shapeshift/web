@@ -65,18 +65,22 @@ export const YieldPositionCard = ({ yieldItem }: YieldPositionCardProps) => {
     if (!balance) return '0'
     return `${formatLargeNumber(bnOrZero(balance.amount).toNumber())} ${balance.token.symbol}`
   }
-
-  const formatUsd = (balance: AugmentedYieldBalance | undefined) => {
-    if (!balance) return '$0.00'
-    const val = bnOrZero(balance.amountUsd).toNumber()
-    return formatLargeNumber(val, '$')
-  }
-
-  const hasActivePosition = activeBalance && bnOrZero(activeBalance.amount).gt(0)
   const hasEntering = enteringBalance && bnOrZero(enteringBalance.amount).gt(0)
   const hasExiting = exitingBalance && bnOrZero(exitingBalance.amount).gt(0)
   const hasWithdrawable = withdrawableBalance && bnOrZero(withdrawableBalance.amount).gt(0)
   const hasClaimable = claimableBalance && bnOrZero(claimableBalance.amount).gt(0)
+
+  const totalValueUsd = [
+    activeBalance,
+    enteringBalance,
+    exitingBalance,
+    withdrawableBalance,
+  ].reduce((sum, b) => sum.plus(bnOrZero(b?.amountUsd)), bnOrZero(0))
+  const totalAmount = [activeBalance, enteringBalance, exitingBalance, withdrawableBalance].reduce(
+    (sum, b) => sum.plus(bnOrZero(b?.amount)),
+    bnOrZero(0),
+  )
+  const hasAnyPosition = totalAmount.gt(0)
 
   return (
     <Card bg={cardBg} borderRadius='xl' shadow='sm' border='1px solid' borderColor={borderColor}>
@@ -124,15 +128,15 @@ export const YieldPositionCard = ({ yieldItem }: YieldPositionCardProps) => {
                 {translate('yieldXYZ.totalValue')}
               </Text>
               <Text fontSize='3xl' fontWeight='800' lineHeight='1'>
-                {formatUsd(activeBalance)}
+                {formatLargeNumber(totalValueUsd.toNumber(), '$')}
               </Text>
               <Text fontSize='sm' color='text.subtle' mt={1}>
-                {formatBalance(activeBalance)}
+                {formatLargeNumber(totalAmount.toNumber())} {yieldItem.token.symbol}
               </Text>
             </Box>
 
             {/* Empty State CTA */}
-            {!hasActivePosition && !hasEntering && !hasExiting && (
+            {!hasAnyPosition && (
               <Alert
                 status='info'
                 variant='subtle'

@@ -33,6 +33,7 @@ import { useAppDispatch, useAppSelector } from '@/state/store'
 // https://docs.yield.xyz/docs/cosmos-atom-native-staking
 const FIGMENT_COSMOS_VALIDATOR_ADDRESS = 'cosmosvaloper1hjct6q7npsspsg3dgvzk3sdf89spmlpfdn6m9d'
 const FIGMENT_SOLANA_VALIDATOR_ADDRESS = 'CcaHc2L43ZWjwCHART3oZoJvHLAe9hzT2DJNUpBzoTN1'
+const FIGMENT_MONAD_VALIDATOR_ADDRESS = '129'
 const FIGMENT_SUI_VALIDATOR_ADDRESS =
   '0x8ecaf4b95b3c82c712d3ddb22e7da88d2286c4653f3753a86b6f7a216a3ca518'
 
@@ -349,8 +350,9 @@ export const useYieldTransactionFlow = ({
         ? yieldItem.mechanics.arguments.enter.fields
         : yieldItem.mechanics.arguments.exit.fields
     const fieldNames = new Set(fields.map(field => field.name))
-    const isSolana = yieldItem.network === 'solana'
-    const yieldAmount = isSolana ? amount : toBaseUnit(amount, yieldItem.token.decimals)
+    // Note: Solana and Tron APIs expect precision amounts, not base units
+    const usesPrecisionAmount = yieldItem.network === 'solana' || yieldItem.network === 'tron'
+    const yieldAmount = usesPrecisionAmount ? amount : toBaseUnit(amount, yieldItem.token.decimals)
     const args: Record<string, unknown> = { amount: yieldAmount }
     if (fieldNames.has('receiverAddress')) {
       args.receiverAddress = userAddress
@@ -361,6 +363,9 @@ export const useYieldTransactionFlow = ({
       }
       if (yieldItem.id === 'solana-sol-native-multivalidator-staking') {
         args.validatorAddress = FIGMENT_SOLANA_VALIDATOR_ADDRESS
+      }
+      if (yieldItem.network === 'monad') {
+        args.validatorAddress = FIGMENT_MONAD_VALIDATOR_ADDRESS
       }
       if (yieldItem.network === 'sui') {
         args.validatorAddress = FIGMENT_SUI_VALIDATOR_ADDRESS

@@ -24,7 +24,7 @@ COPY packages/contracts/package.json ./packages/contracts/
 COPY packages/errors/package.json ./packages/errors/
 
 # Install dependencies with cache mount (skip build/postinstall scripts that require git/cypress/etc)
-RUN --mount=type=cache,target=/root/.yarn/berry/cache \
+RUN --mount=type=cache,id=yarn-cache,target=/root/.yarn/berry/cache \
     yarn install --immutable --mode skip-build
 
 # Copy source files

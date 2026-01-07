@@ -108,7 +108,7 @@ export const YieldActionModal = ({
 
   const renderStatusCard = () => (
     <Box
-      p={8}
+      p={10}
       bg='gray.800'
       borderRadius='2xl'
       borderWidth='1px'
@@ -116,6 +116,7 @@ export const YieldActionModal = ({
       position='relative'
       overflow='hidden'
       boxShadow='xl'
+      minH='200px'
     >
       <Box
         position='absolute'
@@ -139,9 +140,10 @@ export const YieldActionModal = ({
       <Flex
         alignItems='center'
         justify='center'
-        mb={6}
+        mb={8}
+        py={4}
         position='relative'
-        gap={6}
+        gap={10}
         flexDirection={action === 'exit' ? 'row-reverse' : 'row'}
       >
         <VStack spacing={3} zIndex={2}>
@@ -248,7 +250,7 @@ export const YieldActionModal = ({
         </VStack>
       </Flex>
 
-      <VStack align='stretch' spacing={0} bg='blackAlpha.300' borderRadius='xl' overflow='hidden'>
+      <VStack align='stretch' spacing={0} bg='blackAlpha.300' borderRadius='xl' overflow='hidden' mt={4}>
         {transactionSteps.map((s, idx) => (
           <Flex
             key={idx}
@@ -299,8 +301,8 @@ export const YieldActionModal = ({
                 {s.status === 'success'
                   ? translate('yieldXYZ.loading.done')
                   : s.status === 'loading'
-                  ? ''
-                  : translate('yieldXYZ.loading.waiting')}
+                    ? ''
+                    : translate('yieldXYZ.loading.waiting')}
               </Text>
             )}
           </Flex>
@@ -323,20 +325,11 @@ export const YieldActionModal = ({
         borderRadius='xl'
         isDisabled={!canSubmit || isSubmitting}
         isLoading={isSubmitting}
-        loadingText={
-          transactionSteps[activeStepIndex]?.loadingMessage ??
-          (transactionSteps[activeStepIndex]?.status === 'loading'
-            ? translate('yieldXYZ.loading.signInWallet')
-            : translate('yieldXYZ.loading.preparing'))
-        }
+        loadingText={action === 'enter' ? 'Depositing...' : 'Withdrawing...'}
         _hover={{ transform: 'translateY(-2px)', boxShadow: 'lg' }}
         transition='all 0.2s'
       >
-        {isSubmitting
-          ? 'Processing...'
-          : activeStepIndex >= 0 && transactionSteps[activeStepIndex]
-          ? transactionSteps[activeStepIndex].title
-          : `Confirm ${action === 'enter' ? 'Deposit' : 'Withdrawal'}`}
+        {action === 'enter' ? 'Deposit' : 'Withdraw'}
       </Button>
     </VStack>
   )

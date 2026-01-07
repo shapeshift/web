@@ -516,7 +516,8 @@
     "ecosystem": "Ecosystem",
     "markets": "Markets",
     "tokens": "Tokens",
-    "swap": "Swap"
+    "swap": "Swap",
+    "perpetuals": "Perpetuals"
   },
   "shapeShiftMenu": {
     "products": "Products",

@@ -1,136 +1,146 @@
-import { TimeIcon } from '@chakra-ui/icons'
-import { lazy } from 'react'
-import { FaCreditCard, FaFlag } from 'react-icons/fa'
-import { RiExchangeFundsLine } from 'react-icons/ri'
-import { TbGraph } from 'react-icons/tb'
+import { TimeIcon } from "@chakra-ui/icons";
+import { lazy } from "react";
+import { FaCreditCard, FaFlag } from "react-icons/fa";
+import { RiExchangeFundsLine } from "react-icons/ri";
+import { TbChartLine, TbGraph } from "react-icons/tb";
 
-import type { Route } from './helpers'
-import { RouteCategory } from './helpers'
+import type { Route } from "./helpers";
+import { RouteCategory } from "./helpers";
 
-import { ExploreIcon } from '@/components/Icons/Explore'
-import { FoxIcon } from '@/components/Icons/FoxIcon'
-import { FoxPageIcon } from '@/components/Icons/FoxPageIcon'
-import { HomeIcon } from '@/components/Icons/Home'
-import { PoolsIcon } from '@/components/Icons/Pools'
-import { RFOXIcon } from '@/components/Icons/RFOX'
-import { SwapIcon } from '@/components/Icons/SwapIcon'
-import { TCYIcon } from '@/components/Icons/TCYIcon'
-import { WalletIcon } from '@/components/Icons/WalletIcon'
-import { LimitOrderRoutePaths } from '@/components/MultiHopTrade/components/LimitOrder/types'
-import { TradeRoutePaths } from '@/components/MultiHopTrade/types'
-import { getConfig } from '@/config'
-import { assetIdPaths } from '@/hooks/useRouteAssetId/useRouteAssetId'
-import { Accounts } from '@/pages/Accounts/Accounts'
-import { ExploreCategory } from '@/pages/Explore/ExploreCategory'
-import { FoxEcosystemPage } from '@/pages/Fox/FoxEcosystemPage'
-import { FoxPage } from '@/pages/Fox/FoxPage'
-import { History } from '@/pages/History/History'
-import { RFOX } from '@/pages/RFOX/RFOX'
-import { TCYNavIndicator } from '@/pages/TCY/components/TCYNavIndicator'
-import { TCY } from '@/pages/TCY/tcy'
-import { LimitTab } from '@/pages/Trade/tabs/LimitTab'
-import { RampTab } from '@/pages/Trade/tabs/RampTab'
-import { TradeTab } from '@/pages/Trade/tabs/TradeTab'
-import { makeSuspenseful } from '@/utils/makeSuspenseful'
+import { ExploreIcon } from "@/components/Icons/Explore";
+import { FoxIcon } from "@/components/Icons/FoxIcon";
+import { FoxPageIcon } from "@/components/Icons/FoxPageIcon";
+import { HomeIcon } from "@/components/Icons/Home";
+import { PoolsIcon } from "@/components/Icons/Pools";
+import { RFOXIcon } from "@/components/Icons/RFOX";
+import { SwapIcon } from "@/components/Icons/SwapIcon";
+import { TCYIcon } from "@/components/Icons/TCYIcon";
+import { WalletIcon } from "@/components/Icons/WalletIcon";
+import { LimitOrderRoutePaths } from "@/components/MultiHopTrade/components/LimitOrder/types";
+import { TradeRoutePaths } from "@/components/MultiHopTrade/types";
+import { getConfig } from "@/config";
+import { assetIdPaths } from "@/hooks/useRouteAssetId/useRouteAssetId";
+import { Accounts } from "@/pages/Accounts/Accounts";
+import { ExploreCategory } from "@/pages/Explore/ExploreCategory";
+import { FoxEcosystemPage } from "@/pages/Fox/FoxEcosystemPage";
+import { FoxPage } from "@/pages/Fox/FoxPage";
+import { History } from "@/pages/History/History";
+import { RFOX } from "@/pages/RFOX/RFOX";
+import { TCYNavIndicator } from "@/pages/TCY/components/TCYNavIndicator";
+import { TCY } from "@/pages/TCY/tcy";
+import { LimitTab } from "@/pages/Trade/tabs/LimitTab";
+import { RampTab } from "@/pages/Trade/tabs/RampTab";
+import { TradeTab } from "@/pages/Trade/tabs/TradeTab";
+import { makeSuspenseful } from "@/utils/makeSuspenseful";
 
 export const TRADE_ROUTE_ASSET_SPECIFIC =
-  '/trade/:chainId/:assetSubId/:sellChainId/:sellAssetSubId/:sellAmountCryptoBaseUnit'
+  "/trade/:chainId/:assetSubId/:sellChainId/:sellAssetSubId/:sellAmountCryptoBaseUnit";
 export const LIMIT_ORDER_ROUTE_ASSET_SPECIFIC =
-  '/limit/:chainId/:assetSubId/:sellChainId/:sellAssetSubId/:sellAmountCryptoBaseUnit/:limitPriceMode/:limitPriceDirection/:limitPrice'
+  "/limit/:chainId/:assetSubId/:sellChainId/:sellAssetSubId/:sellAmountCryptoBaseUnit/:limitPriceMode/:limitPriceDirection/:limitPrice";
 
 const Dashboard = makeSuspenseful(
   lazy(() =>
-    import('@/pages/Dashboard/Dashboard').then(({ Dashboard }) => ({
+    import("@/pages/Dashboard/Dashboard").then(({ Dashboard }) => ({
       default: Dashboard,
     })),
   ),
   {},
   true,
-)
+);
 
 const Asset = makeSuspenseful(
   lazy(() =>
-    import('@/pages/Assets/Asset').then(({ Asset }) => ({
+    import("@/pages/Assets/Asset").then(({ Asset }) => ({
       default: Asset,
     })),
   ),
   {},
   true,
-)
+);
 
 const Assets = makeSuspenseful(
   lazy(() =>
-    import('@/pages/Assets/Assets').then(({ Assets }) => ({
+    import("@/pages/Assets/Assets").then(({ Assets }) => ({
       default: Assets,
     })),
   ),
   {},
   true,
-)
+);
 
 const Ramp = makeSuspenseful(
   lazy(() =>
-    import('@/pages/Ramp/Ramp').then(({ Ramp }) => ({
+    import("@/pages/Ramp/Ramp").then(({ Ramp }) => ({
       default: Ramp,
     })),
   ),
   {},
   true,
-)
+);
 
 const Flags = makeSuspenseful(
   lazy(() =>
-    import('@/pages/Flags/Flags').then(({ Flags }) => ({
+    import("@/pages/Flags/Flags").then(({ Flags }) => ({
       default: Flags,
     })),
   ),
   {},
   true,
-)
+);
 
 const Explore = makeSuspenseful(
   lazy(() =>
-    import('@/pages/Explore/Explore').then(({ Explore }) => ({
+    import("@/pages/Explore/Explore").then(({ Explore }) => ({
       default: Explore,
     })),
   ),
   {},
   true,
-)
+);
 
 const LendingPage = makeSuspenseful(
   lazy(() =>
-    import('@/pages/Lending/LendingPage').then(({ LendingPage }) => ({
+    import("@/pages/Lending/LendingPage").then(({ LendingPage }) => ({
       default: LendingPage,
     })),
   ),
   {},
   true,
-)
+);
 
 const PoolsPage = makeSuspenseful(
   lazy(() =>
-    import('@/pages/ThorChainLP/PoolsPage').then(({ PoolsPage }) => ({
+    import("@/pages/ThorChainLP/PoolsPage").then(({ PoolsPage }) => ({
       default: PoolsPage,
     })),
   ),
   {},
   true,
-)
+);
 
 const MarketsPage = makeSuspenseful(
   lazy(() =>
-    import('@/pages/Markets/MarketsPage').then(({ MarketsPage }) => ({
+    import("@/pages/Markets/MarketsPage").then(({ MarketsPage }) => ({
       default: MarketsPage,
     })),
   ),
   {},
   true,
-)
+);
+
+const PerpetualsPage = makeSuspenseful(
+  lazy(() =>
+    import("@/pages/Perpetuals/PerpetualsPage").then(({ PerpetualsPage }) => ({
+      default: PerpetualsPage,
+    })),
+  ),
+  {},
+  true,
+);
 
 const WalletConnectDeepLink = makeSuspenseful(
   lazy(() =>
-    import('@/pages/WalletConnectDeepLink/WalletConnectDeepLink').then(
+    import("@/pages/WalletConnectDeepLink/WalletConnectDeepLink").then(
       ({ WalletConnectDeepLink }) => ({
         default: WalletConnectDeepLink,
       }),
@@ -138,7 +148,7 @@ const WalletConnectDeepLink = makeSuspenseful(
   ),
   {},
   true,
-)
+);
 
 /**
  * WARNING: whenever routes that contain user addresses are edited here, we need
@@ -150,9 +160,9 @@ const WalletConnectDeepLink = makeSuspenseful(
 
 export const routes: Route[] = [
   {
-    path: '/wallet/*',
-    label: 'navBar.home',
-    shortLabel: 'navBar.home',
+    path: "/wallet/*",
+    label: "navBar.home",
+    shortLabel: "navBar.home",
     icon: <HomeIcon />,
     main: Dashboard,
     category: RouteCategory.Featured,
@@ -161,9 +171,9 @@ export const routes: Route[] = [
     priority: 1,
   },
   {
-    path: '/accounts/*',
-    label: 'navBar.myWallet',
-    shortLabel: 'navBar.wallet',
+    path: "/accounts/*",
+    label: "navBar.myWallet",
+    shortLabel: "navBar.wallet",
     icon: <WalletIcon />,
     main: Accounts,
     category: RouteCategory.Featured,
@@ -172,8 +182,8 @@ export const routes: Route[] = [
     hide: true,
   },
   {
-    path: '/history',
-    label: 'navBar.history',
+    path: "/history",
+    label: "navBar.history",
     icon: <TimeIcon />,
     mobileNav: true,
     hideDesktop: true,
@@ -181,15 +191,15 @@ export const routes: Route[] = [
     priority: 7,
   },
   {
-    path: '/trade/*',
-    label: 'navBar.trade',
-    shortLabel: 'common.trade',
+    path: "/trade/*",
+    label: "navBar.trade",
+    shortLabel: "common.trade",
     icon: <SwapIcon />,
     mobileNav: true,
     priority: 2,
     main: TradeTab,
     category: RouteCategory.Featured,
-    relatedPaths: ['/trade', '/limit'],
+    relatedPaths: ["/trade", "/limit"],
     routes: [
       {
         path: TRADE_ROUTE_ASSET_SPECIFIC,
@@ -211,7 +221,7 @@ export const routes: Route[] = [
         main: TradeTab,
         hide: true,
       },
-      ...assetIdPaths.map<Route>(assetIdPath => ({
+      ...assetIdPaths.map<Route>((assetIdPath) => ({
         path: assetIdPath,
         main: TradeTab,
         hide: true,
@@ -219,8 +229,8 @@ export const routes: Route[] = [
     ],
   },
   {
-    path: '/markets/*',
-    label: 'navBar.markets',
+    path: "/markets/*",
+    label: "navBar.markets",
     icon: <TbGraph />,
     main: MarketsPage,
     category: RouteCategory.Featured,
@@ -229,9 +239,19 @@ export const routes: Route[] = [
     disable: !getConfig().VITE_FEATURE_MARKETS,
   },
   {
-    path: '/ramp/*',
-    label: 'navBar.buyCrypto',
-    shortLabel: 'navBar.buyCryptoShort',
+    path: "/perpetuals/*",
+    label: "navBar.perpetuals",
+    icon: <TbChartLine />,
+    main: PerpetualsPage,
+    category: RouteCategory.Featured,
+    priority: 4,
+    mobileNav: false,
+    disable: !getConfig().VITE_FEATURE_ORDERLY_PERPETUALS,
+  },
+  {
+    path: "/ramp/*",
+    label: "navBar.buyCrypto",
+    shortLabel: "navBar.buyCryptoShort",
     icon: <FaCreditCard />,
     main: Ramp,
     category: RouteCategory.Featured,
@@ -244,27 +264,27 @@ export const routes: Route[] = [
         hide: true,
       },
       {
-        path: '/ramp/buy/*',
-        label: 'fiatRamps.buy',
+        path: "/ramp/buy/*",
+        label: "fiatRamps.buy",
         main: Ramp,
         hide: true,
       },
       {
-        path: '/ramp/sell/*',
-        label: 'fiatRamps.sell',
+        path: "/ramp/sell/*",
+        label: "fiatRamps.sell",
         main: Ramp,
         hide: true,
       },
-      ...assetIdPaths.flatMap(assetIdPath => [
+      ...assetIdPaths.flatMap((assetIdPath) => [
         {
           path: `/ramp/buy${assetIdPath}`,
-          label: 'fiatRamps.buy',
+          label: "fiatRamps.buy",
           main: Ramp,
           hide: true,
         },
         {
           path: `/ramp/sell${assetIdPath}`,
-          label: 'fiatRamps.sell',
+          label: "fiatRamps.sell",
           main: Ramp,
           hide: true,
         },
@@ -272,8 +292,8 @@ export const routes: Route[] = [
     ],
   },
   {
-    path: '/explore',
-    label: 'navBar.explore',
+    path: "/explore",
+    label: "navBar.explore",
     icon: <ExploreIcon />,
     main: Explore,
     mobileNav: true,
@@ -281,40 +301,44 @@ export const routes: Route[] = [
     priority: 7,
     routes: [
       {
-        path: 'category/:category',
+        path: "category/:category",
         main: ExploreCategory,
         hide: true,
       },
       {
-        path: 'category/:category/:tag',
+        path: "category/:category/:tag",
         main: ExploreCategory,
         hide: true,
       },
     ],
   },
   {
-    path: '/rfox/*',
-    label: 'navBar.rFOX',
+    path: "/rfox/*",
+    label: "navBar.rFOX",
     icon: <RFOXIcon />,
     mobileNav: false,
     priority: 1,
     main: RFOX,
     category: RouteCategory.Fox,
-    disable: !getConfig().VITE_FEATURE_RFOX || getConfig().VITE_FEATURE_RFOX_FOX_ECOSYSTEM_PAGE,
+    disable:
+      !getConfig().VITE_FEATURE_RFOX ||
+      getConfig().VITE_FEATURE_RFOX_FOX_ECOSYSTEM_PAGE,
   },
   {
-    path: '/fox',
-    label: 'navBar.foxEcosystem',
+    path: "/fox",
+    label: "navBar.foxEcosystem",
     icon: <FoxIcon />,
     main: FoxPage,
     category: RouteCategory.Fox,
     priority: 6,
     mobileNav: false,
-    disable: !getConfig().VITE_FEATURE_FOX_PAGE || getConfig().VITE_FEATURE_RFOX_FOX_ECOSYSTEM_PAGE,
+    disable:
+      !getConfig().VITE_FEATURE_FOX_PAGE ||
+      getConfig().VITE_FEATURE_RFOX_FOX_ECOSYSTEM_PAGE,
   },
   {
-    path: '/fox-ecosystem/*',
-    label: 'navBar.foxEcosystem',
+    path: "/fox-ecosystem/*",
+    label: "navBar.foxEcosystem",
     icon: <FoxPageIcon />,
     main: FoxEcosystemPage,
     priority: 6,
@@ -322,8 +346,8 @@ export const routes: Route[] = [
     disable: !getConfig().VITE_FEATURE_RFOX_FOX_ECOSYSTEM_PAGE,
   },
   {
-    path: '/tcy/*',
-    label: 'navBar.tcy',
+    path: "/tcy/*",
+    label: "navBar.tcy",
     icon: <TCYIcon />,
     main: TCY,
     category: RouteCategory.Thorchain,
@@ -331,8 +355,8 @@ export const routes: Route[] = [
     menuRightComponent: <TCYNavIndicator />,
   },
   {
-    path: '/pools/*',
-    label: 'navBar.pools',
+    path: "/pools/*",
+    label: "navBar.pools",
     icon: <PoolsIcon />,
     main: PoolsPage,
     category: RouteCategory.Thorchain,
@@ -341,8 +365,8 @@ export const routes: Route[] = [
     disable: !getConfig().VITE_FEATURE_THORCHAIN_LP,
   },
   {
-    path: '/lending/*',
-    label: 'navBar.lending',
+    path: "/lending/*",
+    label: "navBar.lending",
     icon: <RiExchangeFundsLine />,
     main: LendingPage,
     category: RouteCategory.Thorchain,
@@ -352,30 +376,30 @@ export const routes: Route[] = [
     isViewOnly: true,
   },
   {
-    path: '/assets',
+    path: "/assets",
     main: Assets,
     hide: true,
-    routes: assetIdPaths.map(assetIdPath => ({
+    routes: assetIdPaths.map((assetIdPath) => ({
       path: assetIdPath,
       main: Asset,
       hide: true,
     })),
   },
   {
-    path: '/flags',
-    label: 'navBar.featureFlags',
+    path: "/flags",
+    label: "navBar.featureFlags",
     icon: <FaFlag />,
-    hide: window.location.hostname !== 'localhost',
+    hide: window.location.hostname !== "localhost",
     main: Flags,
   },
   {
-    path: '/wc',
+    path: "/wc",
     main: WalletConnectDeepLink,
     hide: true,
   },
   {
-    path: '/limit/*',
-    label: '',
+    path: "/limit/*",
+    label: "",
     hideDesktop: true,
     main: LimitTab,
     routes: [
@@ -406,4 +430,4 @@ export const routes: Route[] = [
       },
     ],
   },
-]
+];

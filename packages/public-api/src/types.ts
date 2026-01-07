@@ -1,5 +1,5 @@
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
-import type { SwapperName, TradeQuote, TradeRate, TradeQuoteError } from '@shapeshiftoss/swapper'
+import type { SwapperName, TradeQuote, TradeQuoteError, TradeRate } from '@shapeshiftoss/swapper'
 import type { Asset } from '@shapeshiftoss/types'
 
 // Partner configuration

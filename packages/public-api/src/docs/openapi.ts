@@ -228,7 +228,49 @@ export const generateOpenApiDocument = () => {
     info: {
       version: '1.0.0',
       title: 'ShapeShift Public API',
-      description: 'Public API for ShapeShift swap functionality',
+      description: `The ShapeShift Public API enables developers to integrate multi-chain swap functionality into their applications. Access rates from multiple DEX aggregators and execute swaps across supported blockchains.
+
+## Integration Overview
+
+### 1. Get Supported Assets
+First, fetch the list of supported assets to populate your UI:
+\`\`\`
+GET /v1/assets
+\`\`\`
+
+### 2. Get Swap Rates
+When a user wants to swap, fetch rates from all available swappers to find the best deal:
+\`\`\`
+GET /v1/swap/rates?sellAssetId=eip155:1/slip44:60&buyAssetId=eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48&sellAmountCryptoBaseUnit=1000000000000000000
+\`\`\`
+This returns rates from THORChain, 0x, CoW Swap, and other supported swappers.
+
+### 3. Get Executable Quote
+Once the user selects a rate, request an executable quote with transaction data:
+\`\`\`
+POST /v1/swap/quote
+{
+  "sellAssetId": "eip155:1/slip44:60",
+  "buyAssetId": "eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+  "sellAmountCryptoBaseUnit": "1000000000000000000",
+  "swapperName": "THORChain",
+  "receiveAddress": "0x...",
+  "sendAddress": "0x..."
+}
+\`\`\`
+
+### 4. Execute the Swap
+Use the returned \`transactionData\` to build and sign a transaction with the user's wallet, then broadcast it to the network.
+
+## Authentication
+Include your API key in the \`X-API-Key\` header for all swap endpoints.
+
+## Asset IDs
+Assets use CAIP-19 format: \`{chainId}/{assetNamespace}:{assetReference}\`
+- Native ETH: \`eip155:1/slip44:60\`
+- USDC on Ethereum: \`eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48\`
+- Native BTC: \`bip122:000000000019d6689c085ae165831e93/slip44:0\`
+`,
     },
     servers: [
       { url: 'https://api.shapeshift.com' },

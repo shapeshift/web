@@ -3,15 +3,16 @@ import type {
   ChainAdapter,
   CosmosSdkChainAdapter,
   EvmChainAdapter,
-  UtxoChainAdapter,
   near,
   solana,
   starknet,
   sui,
   tron,
+  UtxoChainAdapter,
 } from '@shapeshiftoss/chain-adapters'
 import type { SwapperDeps } from '@shapeshiftoss/swapper'
-import { KnownChainIds, type AssetsByIdPartial } from '@shapeshiftoss/types'
+import type { AssetsByIdPartial } from '@shapeshiftoss/types'
+import { KnownChainIds } from '@shapeshiftoss/types'
 
 import { getServerConfig } from './config'
 
@@ -105,7 +106,7 @@ const createStubAdapter = (type: string) => {
   return () => {
     throw new Error(
       `Chain adapter ${type} not implemented in public API. ` +
-      `This swapper requires chain adapter functionality that is not yet available.`
+        `This swapper requires chain adapter functionality that is not yet available.`,
     )
   }
 }
@@ -115,25 +116,39 @@ export const createServerSwapperDeps = (assetsById: AssetsByIdPartial): SwapperD
   config: getServerConfig(),
   mixPanel: undefined,
 
-  assertGetChainAdapter: createStubAdapter('generic') as unknown as (chainId: ChainId) => ChainAdapter<KnownChainIds>,
+  assertGetChainAdapter: createStubAdapter('generic') as unknown as (
+    chainId: ChainId,
+  ) => ChainAdapter<KnownChainIds>,
 
   assertGetEvmChainAdapter: ((chainId: ChainId) => {
     const unchainedUrl = EVM_UNCHAINED_URLS[chainId]
     if (unchainedUrl) {
       return createMinimalEvmAdapter(chainId)
     }
-    throw new Error(
-      `Chain adapter EVM for ${chainId} not implemented in public API.`
-    )
+    throw new Error(`Chain adapter EVM for ${chainId} not implemented in public API.`)
   }) as unknown as (chainId: ChainId) => EvmChainAdapter,
 
-  assertGetUtxoChainAdapter: createStubAdapter('UTXO') as unknown as (chainId: ChainId) => UtxoChainAdapter,
-  assertGetCosmosSdkChainAdapter: createStubAdapter('CosmosSdk') as unknown as (chainId: ChainId) => CosmosSdkChainAdapter,
-  assertGetSolanaChainAdapter: createStubAdapter('Solana') as unknown as (chainId: ChainId) => solana.ChainAdapter,
-  assertGetTronChainAdapter: createStubAdapter('Tron') as unknown as (chainId: ChainId) => tron.ChainAdapter,
-  assertGetSuiChainAdapter: createStubAdapter('Sui') as unknown as (chainId: ChainId) => sui.ChainAdapter,
-  assertGetNearChainAdapter: createStubAdapter('Near') as unknown as (chainId: ChainId) => near.ChainAdapter,
-  assertGetStarknetChainAdapter: createStubAdapter('Starknet') as unknown as (chainId: ChainId) => starknet.ChainAdapter,
+  assertGetUtxoChainAdapter: createStubAdapter('UTXO') as unknown as (
+    chainId: ChainId,
+  ) => UtxoChainAdapter,
+  assertGetCosmosSdkChainAdapter: createStubAdapter('CosmosSdk') as unknown as (
+    chainId: ChainId,
+  ) => CosmosSdkChainAdapter,
+  assertGetSolanaChainAdapter: createStubAdapter('Solana') as unknown as (
+    chainId: ChainId,
+  ) => solana.ChainAdapter,
+  assertGetTronChainAdapter: createStubAdapter('Tron') as unknown as (
+    chainId: ChainId,
+  ) => tron.ChainAdapter,
+  assertGetSuiChainAdapter: createStubAdapter('Sui') as unknown as (
+    chainId: ChainId,
+  ) => sui.ChainAdapter,
+  assertGetNearChainAdapter: createStubAdapter('Near') as unknown as (
+    chainId: ChainId,
+  ) => near.ChainAdapter,
+  assertGetStarknetChainAdapter: createStubAdapter('Starknet') as unknown as (
+    chainId: ChainId,
+  ) => starknet.ChainAdapter,
 
-  fetchIsSmartContractAddressQuery: async () => false,
+  fetchIsSmartContractAddressQuery: () => Promise.resolve(false),
 })

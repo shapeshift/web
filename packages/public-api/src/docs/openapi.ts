@@ -1,8 +1,6 @@
 import '../setupZod'
-import {
-  OpenAPIRegistry,
-  OpenApiGeneratorV3,
-} from '@asteasolutions/zod-to-openapi'
+
+import { OpenApiGeneratorV3, OpenAPIRegistry } from '@asteasolutions/zod-to-openapi'
 import { z } from 'zod'
 
 import { AssetRequestSchema, AssetsListRequestSchema } from '../routes/assets'
@@ -38,7 +36,7 @@ const AssetSchema = registry.register(
     explorer: z.string().openapi({ example: 'https://etherscan.io' }),
     explorerAddressLink: z.string().openapi({ example: 'https://etherscan.io/address/' }),
     explorerTxLink: z.string().openapi({ example: 'https://etherscan.io/tx/' }),
-  })
+  }),
 )
 
 // Quote Response Step
@@ -49,7 +47,9 @@ const QuoteStepSchema = registry.register(
     buyAsset: AssetSchema,
     sellAmountCryptoBaseUnit: z.string().openapi({ example: '1000000000000000000' }),
     buyAmountAfterFeesCryptoBaseUnit: z.string().openapi({ example: '995000000' }),
-    allowanceContract: z.string().openapi({ example: '0xdef1c0ded9bec7f1a1670819833240f027b25eff' }),
+    allowanceContract: z
+      .string()
+      .openapi({ example: '0xdef1c0ded9bec7f1a1670819833240f027b25eff' }),
     estimatedExecutionTimeMs: z.number().optional().openapi({ example: 60000 }),
     source: z.string().openapi({ example: '0x' }),
     transactionData: z
@@ -60,7 +60,7 @@ const QuoteStepSchema = registry.register(
         gasLimit: z.string().optional(),
       })
       .optional(),
-  })
+  }),
 )
 
 // Quote Response
@@ -79,7 +79,7 @@ const QuoteResponseSchema = registry.register(
     slippageTolerancePercentageDecimal: z.string().optional().openapi({ example: '0.01' }),
     steps: z.array(QuoteStepSchema),
     expiresAt: z.number(),
-  })
+  }),
 )
 
 // Rate Response
@@ -101,11 +101,11 @@ const RateResponseSchema = registry.register(
             message: z.string(),
           })
           .optional(),
-      })
+      }),
     ),
     timestamp: z.number(),
     expiresAt: z.number(),
-  })
+  }),
 )
 
 // --- Paths ---
@@ -272,9 +272,6 @@ Assets use CAIP-19 format: \`{chainId}/{assetNamespace}:{assetReference}\`
 - Native BTC: \`bip122:000000000019d6689c085ae165831e93/slip44:0\`
 `,
     },
-    servers: [
-      { url: 'https://api.shapeshift.com' },
-      { url: 'http://localhost:3001' },
-    ],
+    servers: [{ url: 'https://api.shapeshift.com' }, { url: 'http://localhost:3001' }],
   })
 }

@@ -3,8 +3,8 @@ FROM node:22-alpine AS builder
 
 WORKDIR /app
 
-# Install build dependencies
-RUN apk add --no-cache python3 make g++
+# Install build dependencies (including Java for unchained-client code generation)
+RUN apk add --no-cache python3 make g++ openjdk17-jre
 
 # Copy workspace files
 COPY package.json yarn.lock .yarnrc.yml ./
@@ -30,14 +30,12 @@ COPY public/generated/generatedAssetData.json ./public/generated/
 COPY tsconfig.json tsconfig.packages.json ./
 
 # Build packages that public-api depends on
-# Use build:docker for unchained-client to skip Java-based code generation
-# The generated code must exist locally before building Docker image
 RUN yarn workspace @shapeshiftoss/errors build && \
     yarn workspace @shapeshiftoss/types build && \
     yarn workspace @shapeshiftoss/contracts build && \
     yarn workspace @shapeshiftoss/caip build && \
     yarn workspace @shapeshiftoss/utils build && \
-    yarn workspace @shapeshiftoss/unchained-client build:docker && \
+    yarn workspace @shapeshiftoss/unchained-client build && \
     yarn workspace @shapeshiftoss/chain-adapters build && \
     yarn workspace @shapeshiftoss/swapper build && \
     yarn workspace @shapeshiftoss/public-api build

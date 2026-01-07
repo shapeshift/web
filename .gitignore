@@ -42,3 +42,4 @@ yarn-error.log*
 # idea
 *.iml
 .idea/
+.playwright-mcp/

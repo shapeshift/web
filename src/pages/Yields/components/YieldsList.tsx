@@ -261,18 +261,29 @@ export const YieldsList = () => {
         assetId: undefined,
       }
 
-      // Calculate aggregated balance for this group
+      // Calculate aggregated balance and stats for this group for sorting
       let userGroupBalanceUsd = bnOrZero(0)
-      if (allBalances) {
-        groupYields.forEach(y => {
+      let maxApy = 0
+      let totalTvlUsd = bnOrZero(0)
+
+      groupYields.forEach(y => {
+        // Balance
+        if (allBalances) {
           const balances = allBalances[y.id]
           if (balances) {
             balances.forEach(b => {
               userGroupBalanceUsd = userGroupBalanceUsd.plus(bnOrZero(b.amountUsd))
             })
           }
-        })
-      }
+        }
+
+        // APY
+        const apy = bnOrZero(y.rewardRate.total).toNumber()
+        if (apy > maxApy) maxApy = apy
+
+        // TVL
+        totalTvlUsd = totalTvlUsd.plus(bnOrZero(y.statistics?.tvlUsd))
+      })
 
       return {
         yields: groupYields,
@@ -281,11 +292,31 @@ export const YieldsList = () => {
         assetIcon: meta.assetIcon,
         assetId: meta.assetId,
         userGroupBalanceUsd,
+        maxApy,
+        totalTvlUsd,
       }
     })
 
-    return assetGroups
-  }, [displayYields, yields, allBalances])
+    // Sort the groups
+    return assetGroups.sort((a, b) => {
+      switch (sortOption) {
+        case 'apy-desc':
+          return b.maxApy - a.maxApy
+        case 'apy-asc':
+          return a.maxApy - b.maxApy
+        case 'tvl-desc':
+          return b.totalTvlUsd.minus(a.totalTvlUsd).toNumber()
+        case 'tvl-asc':
+          return a.totalTvlUsd.minus(b.totalTvlUsd).toNumber()
+        case 'name-asc':
+          return a.assetName.localeCompare(b.assetName)
+        case 'name-desc':
+          return b.assetName.localeCompare(a.assetName)
+        default:
+          return 0
+      }
+    })
+  }, [displayYields, yields, allBalances, sortOption])
 
   const myPositions = useMemo(() => {
     if (!yields?.all || !allBalances) return []

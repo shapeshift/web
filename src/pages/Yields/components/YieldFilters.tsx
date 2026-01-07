@@ -3,16 +3,24 @@ import type { StackProps } from '@chakra-ui/react'
 import {
   Button,
   HStack,
+  IconButton,
   Menu,
   MenuButton,
   MenuItem,
   MenuList,
   Stack,
   Text,
+  Tooltip,
   useColorModeValue,
 } from '@chakra-ui/react'
 import type { ChainId } from '@shapeshiftoss/caip'
 import React from 'react'
+import {
+  FaSortAlphaDown,
+  FaSortAlphaUp,
+  FaSortAmountDown,
+  FaSortAmountUp,
+} from 'react-icons/fa'
 
 import { AssetIcon } from '@/components/AssetIcon'
 import { ChainIcon } from '@/components/ChainMenu'
@@ -148,22 +156,40 @@ export const YieldFilters = ({
       />
 
       <Menu>
-        <MenuButton
-          as={Button}
-          rightIcon={<ChevronDownIcon />}
-          bg={useColorModeValue('white', 'gray.800')}
-          borderWidth='1px'
-          borderColor={useColorModeValue('gray.200', 'gray.700')}
-          variant='outline'
-          size='md'
-          minW='160px'
-          textAlign='left'
-        >
-          {currentSortLabel}
-        </MenuButton>
+        <Tooltip label='Sort' hasArrow>
+          <MenuButton
+            as={IconButton}
+            aria-label='Sort'
+            icon={
+              sortOption === 'name-asc' || sortOption === 'name-desc' ? (
+                sortOption === 'name-asc' ? (
+                  <FaSortAlphaDown />
+                ) : (
+                  <FaSortAlphaUp />
+                )
+              ) : sortOption.includes('asc') ? (
+                <FaSortAmountUp />
+              ) : (
+                <FaSortAmountDown />
+              )
+            }
+            bg={useColorModeValue('white', 'gray.800')}
+            borderWidth='1px'
+            borderColor={useColorModeValue('gray.200', 'gray.700')}
+            variant='outline'
+            size='md'
+            _hover={{ bg: useColorModeValue('gray.50', 'gray.750') }}
+            _active={{ bg: useColorModeValue('gray.100', 'gray.700') }}
+          />
+        </Tooltip>
         <MenuList zIndex={10}>
           {sortOptions.map(opt => (
-            <MenuItem key={opt.value} onClick={() => onSortChange(opt.value)}>
+            <MenuItem
+              key={opt.value}
+              onClick={() => onSortChange(opt.value)}
+              color={sortOption === opt.value ? 'blue.500' : 'inherit'}
+              fontWeight={sortOption === opt.value ? 'bold' : 'normal'}
+            >
               {opt.label}
             </MenuItem>
           ))}

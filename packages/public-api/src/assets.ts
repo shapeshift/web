@@ -33,7 +33,7 @@ export const initAssets = (): Promise<void> => {
     if (!assetDataPath) {
       console.warn('Asset data file not found in any of the expected locations:', possiblePaths)
       initialized = true
-      return
+      return Promise.resolve()
     }
 
     const assetDataJson = JSON.parse(fs.readFileSync(assetDataPath, 'utf8'))

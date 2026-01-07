@@ -32,11 +32,7 @@ export const YieldAssetSection = ({ assetId, accountId }: YieldAssetSectionProps
 
   const bestYield = sortedYields[0]
 
-  // Determine active positions
   const hasActivePositions = Object.keys(balances).length > 0
-
-  // For account page, we only show rows. For asset page, we might show breakdown.
-  const isAccountPage = Boolean(accountId)
 
   const handleOpportunityClick = (yieldItem: any) => {
     navigate(`/yields/${yieldItem.id}`)
@@ -67,21 +63,23 @@ export const YieldAssetSection = ({ assetId, accountId }: YieldAssetSectionProps
           <YieldOpportunityCard maxApyYield={bestYield} onClick={handleOpportunityClick} />
         )}
 
-        {/* Active State List: Show full list if user has active positions */}
-        {!isLoading && hasActivePositions && (
-          <VStack spacing={4} align='stretch'>
-            {/* Header for list if we showed breakdown above */}
-            {!isAccountPage && (
-              <Text fontSize='sm' color='gray.500' fontWeight='medium' mt={2}>
-                {translate('yieldXYZ.opportunities') ?? 'Opportunities'}
-              </Text>
-            )}
-
-            {sortedYields.map(yieldItem => (
-              <YieldAssetRow key={yieldItem.id} yieldItem={yieldItem} />
-            ))}
-          </VStack>
-        )}
+        {/* Opportunities list: only show when user has active positions (to show additional opportunities) */}
+        {!isLoading &&
+          hasActivePositions &&
+          (() => {
+            const yieldsWithoutPositions = sortedYields.filter(y => !balances[y.id])
+            if (yieldsWithoutPositions.length === 0) return null
+            return (
+              <VStack spacing={4} align='stretch'>
+                <Text fontSize='sm' color='gray.500' fontWeight='medium' mt={2}>
+                  {translate('yieldXYZ.opportunities') ?? 'Opportunities'}
+                </Text>
+                {yieldsWithoutPositions.map(yieldItem => (
+                  <YieldAssetRow key={yieldItem.id} yieldItem={yieldItem} />
+                ))}
+              </VStack>
+            )
+          })()}
       </Stack>
     </Box>
   )

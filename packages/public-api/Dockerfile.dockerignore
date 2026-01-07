@@ -1,0 +1,30 @@
+# Dependencies (yarn install handles these fresh)
+node_modules/
+packages/*/node_modules/
+
+# Git
+.git/
+
+# Build artifacts
+build/
+packages/*/dist/
+
+# Development files
+.env*
+!.env.example
+*.log
+.DS_Store
+coverage/
+
+# IDE
+.idea/
+.vscode/
+
+# Test files not needed for build
+cypress/
+**/*.test.ts
+**/*.test.tsx
+**/*.spec.ts
+
+# Other large/unnecessary directories
+.playwright-mcp/

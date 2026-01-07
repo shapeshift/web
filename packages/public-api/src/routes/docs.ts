@@ -20,6 +20,7 @@ router.use(
     spec: {
       content: openApiDocument,
     },
+    pageTitle: 'ShapeShift API Reference',
     theme: 'purple',
     showSidebar: true,
     hideDownloadButton: true,

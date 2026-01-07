@@ -57,7 +57,12 @@ export const YieldAssetRow = ({ yieldItem }: YieldAssetRowProps) => {
 
       <HStack spacing={6}>
         <Stat textAlign='right' size='sm'>
-          <StatNumber color='green.400' fontSize='md' fontWeight='bold'>
+          <StatNumber
+            fontSize='md'
+            fontWeight='bold'
+            bgGradient='linear(to-r, green.300, blue.400)'
+            bgClip='text'
+          >
             {apy.toFixed(2)}%
           </StatNumber>
           <Text fontSize='xs' color='text.subtle' lineHeight={1}>

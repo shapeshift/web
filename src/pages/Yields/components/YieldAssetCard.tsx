@@ -128,7 +128,12 @@ export const YieldAssetCard = ({
             <StatLabel fontSize='xs' color='text.subtle'>
               {translate('yieldXYZ.maxApy')}
             </StatLabel>
-            <StatNumber fontSize='xl' fontWeight='bold' color='green.400'>
+            <StatNumber
+              fontSize='xl'
+              fontWeight='bold'
+              bgGradient='linear(to-r, green.300, blue.400)'
+              bgClip='text'
+            >
               {stats.maxApy > 0 ? `${(stats.maxApy * 100).toFixed(2)}%` : 'N/A'}
             </StatNumber>
           </Stat>

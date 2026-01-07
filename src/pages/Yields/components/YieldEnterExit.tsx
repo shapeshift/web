@@ -18,6 +18,9 @@ import { FaMoneyBillWave } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { useLocation } from 'react-router-dom'
 
+import { WalletActions } from '@/context/WalletProvider/actions'
+import { useWallet } from '@/hooks/useWallet/useWallet'
+
 import { AssetInput } from '@/components/DeFi/components/AssetInput'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { SUI_GAS_BUFFER } from '@/lib/yieldxyz/constants'
@@ -49,6 +52,8 @@ export const YieldEnterExit = ({ yieldItem }: YieldEnterExitProps) => {
   const translate = useTranslate()
   const location = useLocation()
   const { accountNumber } = useYieldAccount()
+  const { state: walletState, dispatch } = useWallet()
+  const isConnected = Boolean(walletState.walletInfo)
   const cardBg = useColorModeValue('white', 'gray.800')
   const borderColor = useColorModeValue('gray.100', 'gray.750')
 
@@ -77,18 +82,13 @@ export const YieldEnterExit = ({ yieldItem }: YieldEnterExitProps) => {
   const inputTokenBalance = useAppSelector(state =>
     inputTokenAssetId && accountId
       ? selectPortfolioCryptoPrecisionBalanceByFilter(state, {
-          assetId: inputTokenAssetId,
-          accountId,
-        })
+        assetId: inputTokenAssetId,
+        accountId,
+      })
       : '0',
   )
 
-  const minDepositRaw = yieldItem.mechanics?.entryLimits?.minimum
-  const minDeposit = useMemo(() => {
-    // SUI native staking requires 1 SUI minimum
-    if (yieldItem.network === 'sui') return '1'
-    return minDepositRaw
-  }, [yieldItem.network, minDepositRaw])
+  const minDeposit = yieldItem.mechanics?.entryLimits?.minimum
   const isBelowMinimum = useMemo(() => {
     if (!cryptoAmount || !minDeposit) return false
     return bnOrZero(cryptoAmount).lt(minDeposit)
@@ -247,12 +247,17 @@ export const YieldEnterExit = ({ yieldItem }: YieldEnterExitProps) => {
                   height='56px'
                   fontSize='lg'
                   isDisabled={
-                    isBalancesLoading || !yieldItem.status.enter || !cryptoAmount || isBelowMinimum
+                    isConnected &&
+                    (isBalancesLoading || !yieldItem.status.enter || !cryptoAmount || isBelowMinimum)
                   }
-                  onClick={handleEnterClick}
+                  onClick={
+                    isConnected
+                      ? handleEnterClick
+                      : () => dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
+                  }
                   _hover={{ transform: 'translateY(-1px)', boxShadow: 'lg' }}
                 >
-                  {translate('yieldXYZ.enter')}
+                  {isConnected ? translate('yieldXYZ.enter') : translate('common.connectWallet')}
                 </Button>
               </Flex>
             </TabPanel>
@@ -283,11 +288,18 @@ export const YieldEnterExit = ({ yieldItem }: YieldEnterExitProps) => {
                   width='full'
                   height='56px'
                   fontSize='lg'
-                  isDisabled={isBalancesLoading || !yieldItem.status.exit || !cryptoAmount}
-                  onClick={handleExitClick}
+                  isDisabled={
+                    isConnected &&
+                    (isBalancesLoading || !yieldItem.status.exit || !cryptoAmount)
+                  }
+                  onClick={
+                    isConnected
+                      ? handleExitClick
+                      : () => dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
+                  }
                   _hover={{ transform: 'translateY(-1px)', boxShadow: 'lg' }}
                 >
-                  {translate('yieldXYZ.exit')}
+                  {isConnected ? translate('yieldXYZ.exit') : translate('common.connectWallet')}
                 </Button>
               </Flex>
             </TabPanel>

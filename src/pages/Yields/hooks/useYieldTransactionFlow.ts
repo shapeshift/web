@@ -180,12 +180,12 @@ export const useYieldTransactionFlow = ({
     const cosmosStakeArgs: CosmosStakeArgs | undefined =
       yieldChainId === cosmosChainId
         ? {
-            validator: FIGMENT_COSMOS_VALIDATOR_ADDRESS,
-            amountCryptoBaseUnit: bnOrZero(amount)
-              .times(bnOrZero(10).pow(yieldItem.token.decimals))
-              .toFixed(0),
-            action: action === 'enter' ? 'stake' : 'unstake',
-          }
+          validator: FIGMENT_COSMOS_VALIDATOR_ADDRESS,
+          amountCryptoBaseUnit: bnOrZero(amount)
+            .times(bnOrZero(10).pow(yieldItem.token.decimals))
+            .toFixed(0),
+          action: action === 'enter' ? 'stake' : 'unstake',
+        }
         : undefined
 
     try {
@@ -231,8 +231,8 @@ export const useYieldTransactionFlow = ({
       const actionType = isApproval
         ? ActionType.Approve
         : action === 'enter'
-        ? ActionType.Deposit
-        : ActionType.Withdraw
+          ? ActionType.Deposit
+          : ActionType.Withdraw
       const displayType = isApproval
         ? GenericTransactionDisplayType.Approve
         : GenericTransactionDisplayType.Yield
@@ -350,8 +350,12 @@ export const useYieldTransactionFlow = ({
         ? yieldItem.mechanics.arguments.enter.fields
         : yieldItem.mechanics.arguments.exit.fields
     const fieldNames = new Set(fields.map(field => field.name))
-    // Note: Solana and Tron APIs expect precision amounts, not base units
-    const usesPrecisionAmount = yieldItem.network === 'solana' || yieldItem.network === 'tron'
+    // Note: Solana, Tron, Monad, and Sui APIs expect precision amounts, not base units
+    const usesPrecisionAmount =
+      yieldItem.network === 'solana' ||
+      yieldItem.network === 'tron' ||
+      yieldItem.network === 'monad' ||
+      yieldItem.network === 'sui'
     const yieldAmount = usesPrecisionAmount ? amount : toBaseUnit(amount, yieldItem.token.decimals)
     const args: Record<string, unknown> = { amount: yieldAmount }
     if (fieldNames.has('receiverAddress')) {

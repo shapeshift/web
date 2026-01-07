@@ -22,6 +22,7 @@ import { assertGetCosmosSdkChainAdapter } from '@/lib/utils/cosmosSdk'
 import { assertGetEvmChainAdapter, signAndBroadcast as evmSignAndBroadcast } from '@/lib/utils/evm'
 import { assertGetSolanaChainAdapter } from '@/lib/utils/solana'
 import { assertGetSuiChainAdapter } from '@/lib/utils/sui'
+import { assertGetTronChainAdapter } from '@/lib/utils/tron'
 import { isStakingChainAdapter } from '@/plugins/cosmos/components/modals/Staking/StakingCommon'
 
 type ParsedEvmTransaction = {
@@ -101,6 +102,14 @@ export const executeTransaction = async ({
     }
     case CHAIN_NAMESPACE.Solana: {
       return await executeSolanaTransaction({
+        unsignedTransaction: tx.unsignedTransaction,
+        chainId,
+        wallet,
+        bip44Params,
+      })
+    }
+    case CHAIN_NAMESPACE.Tron: {
+      return await executeTronTransaction({
         unsignedTransaction: tx.unsignedTransaction,
         chainId,
         wallet,
@@ -417,4 +426,69 @@ const executeSolanaTransaction = async ({
   } catch (err) {
     throw err
   }
+}
+
+type ExecuteTronTransactionInput = {
+  unsignedTransaction: string
+  chainId: ChainId
+  wallet: HDWallet
+  bip44Params?: { purpose: number; coinType: number; accountNumber: number }
+}
+
+/**
+ * Executes a Tron transaction for YieldXYZ staking.
+ *
+ * The `unsignedTransaction` from YieldXYZ is a JSON string containing a raw Tron transaction object.
+ * We parse this, wrap it into a `txToSign` object compatible with the Tron adapter, sign, and broadcast.
+ */
+const executeTronTransaction = async ({
+  unsignedTransaction,
+  chainId,
+  wallet,
+  bip44Params,
+}: ExecuteTronTransactionInput): Promise<string> => {
+  const adapter = assertGetTronChainAdapter(chainId)
+  const accountNumber = bip44Params?.accountNumber ?? 0
+
+  // Parse the raw transaction JSON from YieldXYZ
+  const rawTx = JSON.parse(unsignedTransaction)
+
+  // Build addressNList from bip44Params (same pattern as approveTron)
+  const adapterBip44Params = adapter.getBip44Params({ accountNumber })
+  const addressNList = toAddressNList(adapterBip44Params)
+
+  // Extract rawDataHex (may be a string or buffer)
+  const rawDataHex =
+    typeof rawTx.raw_data_hex === 'string'
+      ? rawTx.raw_data_hex
+      : Buffer.isBuffer(rawTx.raw_data_hex)
+      ? (rawTx.raw_data_hex as Buffer).toString('hex')
+      : Array.isArray(rawTx.raw_data_hex)
+      ? Buffer.from(rawTx.raw_data_hex as number[]).toString('hex')
+      : (() => {
+          throw new Error(`Unexpected raw_data_hex type: ${typeof rawTx.raw_data_hex}`)
+        })()
+
+  // Build HDWallet-compatible transaction object
+  // The adapter.signTransaction expects: { txToSign: { addressNList, rawDataHex, transaction } }
+  const txToSign = {
+    addressNList,
+    rawDataHex,
+    transaction: rawTx, // The full Tron transaction object
+  }
+
+  const from = await adapter.getAddress({ accountNumber, wallet })
+
+  const signedTx = await adapter.signTransaction({ txToSign, wallet })
+
+  if (!signedTx) throw new Error('Failed to sign Tron transaction')
+
+  const txHash = await adapter.broadcastTransaction({
+    senderAddress: from,
+    receiverAddress: CONTRACT_INTERACTION,
+    hex: signedTx,
+  })
+
+  if (!txHash) throw new Error('Failed to broadcast Tron transaction')
+  return txHash
 }

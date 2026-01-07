@@ -95,6 +95,9 @@ export const YieldOpportunityStats = ({
         borderColor='blue.700'
         position='relative'
         overflow='hidden'
+        display='flex'
+        flexDirection='column'
+        justifyContent='center'
       >
         <Box position='absolute' right={-4} top={-4} opacity={0.1}>
           <Icon as={FaChartPie} boxSize={32} />
@@ -125,7 +128,7 @@ export const YieldOpportunityStats = ({
         <Box position='absolute' right={-4} top={-4} opacity={0.1}>
           <Icon as={FaMoon} boxSize={32} />
         </Box>
-        <Flex justifyContent='space-between' alignItems='center'>
+        <Flex justifyContent='space-between' alignItems='flex-start'>
           <Stat>
             <StatLabel fontSize='md' color='purple.200'>
               Available to Earn
@@ -159,9 +162,10 @@ export const YieldOpportunityStats = ({
               >
                 Potential Earnings
               </Text>
-              <Text fontSize='xl' fontWeight='bold' color='white'>
-                <Amount.Fiat value={idleValueUsd.times(0.05).toFixed()} abbreviated /> / yr
-              </Text>
+              <Flex fontSize='xl' fontWeight='bold' color='white' whiteSpace='nowrap'>
+                <Amount.Fiat value={idleValueUsd.times(0.05).toFixed()} abbreviated />
+                <Text ml={1}>/yr</Text>
+              </Flex>
             </Box>
             {onToggleMyOpportunities && (
               <Button

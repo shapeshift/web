@@ -9,7 +9,6 @@ import {
   HStack,
   SimpleGrid,
   Stat,
-  StatNumber,
   Text,
 } from '@chakra-ui/react'
 import type { ColumnDef, SortingState } from '@tanstack/react-table'
@@ -24,6 +23,7 @@ import { ChainIcon } from '@/components/ChainMenu'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { YIELD_NETWORK_TO_CHAIN_ID } from '@/lib/yieldxyz/constants'
 import type { AugmentedYieldDto, YieldNetwork } from '@/lib/yieldxyz/types'
+import { GradientApy } from '@/pages/Yields/components/GradientApy'
 import { YieldCard, YieldCardSkeleton } from '@/pages/Yields/components/YieldCard'
 import type { SortOption } from '@/pages/Yields/components/YieldFilters'
 import { YieldFilters } from '@/pages/Yields/components/YieldFilters'
@@ -225,9 +225,9 @@ export const YieldAssetDetails = () => {
           const apy = bnOrZero(row.original.rewardRate.total).times(100).toNumber()
           return (
             <Stat size='sm'>
-              <StatNumber fontSize='md' fontWeight='bold' color='green.400' lineHeight='1'>
+              <GradientApy fontSize='md' lineHeight='1'>
                 {apy.toFixed(2)}%
-              </StatNumber>
+              </GradientApy>
               <Text fontSize='xs' color='text.subtle'>
                 {row.original.rewardRate.rateType}
               </Text>

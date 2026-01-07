@@ -7,7 +7,6 @@ import {
   Skeleton,
   SkeletonCircle,
   Stat,
-  StatNumber,
   Text,
   useColorModeValue,
 } from '@chakra-ui/react'
@@ -15,6 +14,7 @@ import {
 import { Amount } from '@/components/Amount/Amount'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import type { AugmentedYieldDto } from '@/lib/yieldxyz/types'
+import { GradientApy } from '@/pages/Yields/components/GradientApy'
 
 interface YieldRowProps {
   yield: AugmentedYieldDto
@@ -71,9 +71,9 @@ export const YieldRow = ({ yield: yieldItem, onEnter }: YieldRowProps) => {
       {/* 2. APY */}
       <Box flex={1}>
         <Stat size='sm'>
-          <StatNumber fontSize='md' fontWeight='bold' color='green.400' lineHeight='1'>
+          <GradientApy fontSize='md' lineHeight='1'>
             {apy.toFixed(2)}%
-          </StatNumber>
+          </GradientApy>
           <Text fontSize='xs' color='text.subtle'>
             {yieldItem.rewardRate.rateType}
           </Text>

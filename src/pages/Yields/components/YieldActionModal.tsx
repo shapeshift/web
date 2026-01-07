@@ -134,18 +134,6 @@ export const YieldActionModal = ({
             {assetSymbol}
           </Text>
         </Flex>
-        <Box
-          px={3}
-          py={1}
-          bg='green.900'
-          borderRadius='full'
-          border='1px solid'
-          borderColor='green.800'
-        >
-          <Text color='green.200' fontWeight='bold' fontSize='sm'>
-            {bnOrZero(yieldItem.rewardRate.total).times(100).toFixed(2)}% APY
-          </Text>
-        </Box>
       </Flex>
 
       <Flex
@@ -208,7 +196,7 @@ export const YieldActionModal = ({
           />
         </Box>
 
-        <VStack spacing={3} zIndex={2}>
+        <VStack spacing={3} zIndex={2} position='relative'>
           <Box
             position='relative'
             p={1}
@@ -217,6 +205,7 @@ export const YieldActionModal = ({
             border='2px solid'
             borderColor='blue.500'
             boxShadow='0 0 25px rgba(66, 153, 225, 0.2)'
+            backgroundClip='padding-box'
           >
             <Avatar
               src={yieldItem.metadata.logoURI}
@@ -232,6 +221,30 @@ export const YieldActionModal = ({
           <Text fontSize='sm' color='gray.300' fontWeight='bold'>
             Vault
           </Text>
+          {action === 'enter' && (
+            <Box
+              position='absolute'
+              top='100%'
+              left='50%'
+              transform='translateX(-50%)'
+              px={3}
+              py={0.5}
+              bg='green.900'
+              borderRadius='full'
+              border='1px solid'
+              borderColor='green.800'
+              mt={1.5}
+              whiteSpace='nowrap'
+              display='flex'
+              alignItems='center'
+              justifyContent='center'
+              boxShadow='lg'
+            >
+              <Text color='green.200' fontWeight='bold' fontSize='xs'>
+                {bnOrZero(yieldItem.rewardRate.total).times(100).toFixed(2)}% APY
+              </Text>
+            </Box>
+          )}
         </VStack>
       </Flex>
 
@@ -286,8 +299,8 @@ export const YieldActionModal = ({
                 {s.status === 'success'
                   ? translate('yieldXYZ.loading.done')
                   : s.status === 'loading'
-                    ? ''
-                    : translate('yieldXYZ.loading.waiting')}
+                  ? ''
+                  : translate('yieldXYZ.loading.waiting')}
               </Text>
             )}
           </Flex>
@@ -322,8 +335,8 @@ export const YieldActionModal = ({
         {isSubmitting
           ? 'Processing...'
           : activeStepIndex >= 0 && transactionSteps[activeStepIndex]
-            ? transactionSteps[activeStepIndex].title
-            : `Confirm ${action === 'enter' ? 'Deposit' : 'Withdrawal'}`}
+          ? transactionSteps[activeStepIndex].title
+          : `Confirm ${action === 'enter' ? 'Deposit' : 'Withdrawal'}`}
       </Button>
     </VStack>
   )

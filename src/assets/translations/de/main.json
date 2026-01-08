@@ -513,6 +513,7 @@
     "rFOX": "rFOX",
     "tcy": "TCY",
     "foxEcosystem": "FOX Ökosystem",
+    "ecosystem": "Ecosystem",
     "markets": "Märkte",
     "tokens": "Tokens",
     "swap": "Swap"
@@ -528,6 +529,8 @@
       "subtitle": "Unser Governance Token"
     },
     "agent": {
+      "title": "Agent",
+      "subtitle": "Chatten Sie mit Ihrer Wallet"
     },
     "classic": {
       "title": "Klassisch",
@@ -1097,6 +1100,7 @@
       "getFeesError": "Fehler beim Abrufen der Gebühren",
       "broadcastingTransaction": "Transaktion übertragen",
       "youHaveSent": "Sie haben %{amount} %{symbol} erfolgreich gesendet",
+      "sendFailed": "Senden fehlgeschlagen",
       "toAddress": "an Adresse",
       "toAddressOrEns": "An Adresse oder ENS",
       "scanQrCode": "QR-Code scannen",
@@ -1887,6 +1891,14 @@
   },
   "starknet": {
     "deployAccount": {
+      "title": "Starknet Konto bereitstellen",
+      "description": "Starknet verwendet Smart Contract Konten, die vor der Verwendung bereitgestellt werden müssen.",
+      "sendDescription": "Sie müssen das Konto zuerst bereitstellen, um senden zu können.",
+      "swapDescription": "Starknet verwendet Smart Contract Konten. Sie müssen Ihr Konto zuerst bereitstellen, bevor Sie tauschen können.",
+      "explanation": "Dies ist eine einmalige Einrichtung, die Ihr Konto bei Starknet initialisiert. Eine geringe Gebühr wird von Ihrem Guthaben abgezogen.",
+      "deployButton": "Konto bereitstellen",
+      "deploying": "Konto wird bereitgestellt...",
+      "deployFailed": "Bereitstellung fehlgeschlagen"
     }
   },
   "transactionHistory": {
@@ -2525,6 +2537,7 @@
       "buildTransaction": "Die Transaktion konnte nicht erstellt werden.",
       "signTransaction": "Die Unterzeichnung der Transaktion ist fehlgeschlagen.",
       "blindSigningRequired": "Für diese Transaktion ist eine Blindsignatur erforderlich. Bitte aktivieren Sie Blind signing oder Contract Data in den Einstellungen Ihrer Ledger App und versuchen Sie es erneut.",
+      "ledgerTronAllowDataDisabled": "Bitte aktivieren Sie die Transaktionsdaten in den Einstellungen Ihrer Ledger TRON App und versuchen Sie es erneut.",
       "signAndBroadcastTransaction": "Signieren und Senden der Transaktion fehlgeschlagen.",
       "signMessage": "Signieren der Nachricht fehlgeschlagen.",
       "broadcastTransaction": "Die Übertragung der Transaktion ist fehlgeschlagen.",

@@ -328,7 +328,10 @@
     "viewSavedWallets": "Gespeicherte Wallets anzeigen",
     "footerOne": "Fortfahren, gilt als Zustimmung zu den ",
     "terms": "Bedingungen",
-    "privacyPolicy": "Datenschutzrichtlinie"
+    "privacyPolicy": "Datenschutzrichtlinie",
+    "connectNewWallet": "Neue Wallet verbinden",
+    "getANewWallet": "Hol dir eine neue Wallet",
+    "alreadyHaveWallet": "Ich besitze bereits eine Wallet"
   },
   "connectWallet": {
     "menu": {
@@ -523,6 +526,8 @@
     "foxToken": {
       "title": "FOX Token",
       "subtitle": "Unser Governance Token"
+    },
+    "agent": {
     },
     "classic": {
       "title": "Klassisch",
@@ -1879,6 +1884,10 @@
     "title": "Öffnen Sie die %{appName} App",
     "description": "Um fortzufahren, müssen Sie die App %{appName} auf Ihrem Ledger-Gerät öffnen.",
     "devicePrompt": "Ihr Gerät fordert Sie zu allen notwendigen Schritten auf die zum Abschließen Ihrer aktuellen Aktion erforderlich sind."
+  },
+  "starknet": {
+    "deployAccount": {
+    }
   },
   "transactionHistory": {
     "transactionHistory": "bisherige Transaktionen",

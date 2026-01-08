@@ -513,6 +513,7 @@
     "rFOX": "rFOX",
     "tcy": "TCY",
     "foxEcosystem": "FOX 生态系统",
+    "ecosystem": "生态系统",
     "markets": "市场",
     "tokens": "代币",
     "swap": "交换"
@@ -528,6 +529,8 @@
       "subtitle": "我们的治理代币"
     },
     "agent": {
+      "title": "代理",
+      "subtitle": "与您的钱包聊天"
     },
     "classic": {
       "title": "经典",
@@ -1097,6 +1100,7 @@
       "getFeesError": "获取费用错误",
       "broadcastingTransaction": "广播交易",
       "youHaveSent": "你已经成功发送 %{amount} %{symbol}",
+      "sendFailed": "发送失败",
       "toAddress": "目标地址",
       "toAddressOrEns": "目标地址或 ENS",
       "scanQrCode": "扫描二维码",
@@ -1887,6 +1891,14 @@
   },
   "starknet": {
     "deployAccount": {
+      "title": "部署 Starknet 帐户",
+      "description": "Starknet 使用智能合约帐户，需要在使用之前部署。",
+      "sendDescription": "您需要先部署帐户，才能进行发送",
+      "swapDescription": "Starknet 使用智能合约帐户。您需要先部署帐户，才能进行交换。",
+      "explanation": "这是一次性设置，用于在 Starknet 上初始化您的帐户。此操作会从您的余额中扣除少量费用。",
+      "deployButton": "部署帐户",
+      "deploying": "部署帐户中...",
+      "deployFailed": "部署失败"
     }
   },
   "transactionHistory": {
@@ -2525,6 +2537,7 @@
       "buildTransaction": "无法建立交易。",
       "signTransaction": "签署交易失败。",
       "blindSigningRequired": "此交易需要盲签。 请在您的 Ledger 应用中启用 Blind signing 或 Contract Data 并重试。",
+      "ledgerTronAllowDataDisabled": "请在您的 Ledger TRON 应用中启用 Transactions Data 功能并重试。",
       "signAndBroadcastTransaction": "签署并广播交易失败。",
       "signMessage": "消息签名失败。",
       "broadcastTransaction": "广播交易失败。",

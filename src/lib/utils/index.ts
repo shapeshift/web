@@ -11,6 +11,7 @@ import type { TrezorHDWallet } from '@shapeshiftoss/hdwallet-trezor'
 import type { WalletConnectV2HDWallet } from '@shapeshiftoss/hdwallet-walletconnectv2'
 import type { NestedArray } from '@shapeshiftoss/types'
 import { HistoryTimeframe, KnownChainIds } from '@shapeshiftoss/types'
+import type { TxStatus } from '@shapeshiftoss/unchained-client'
 import type { Dayjs } from 'dayjs'
 import dayjs from 'dayjs'
 import { isNull, orderBy } from 'lodash'
@@ -227,6 +228,16 @@ export const assertGetChainAdapter = (chainId: ChainId): ChainAdapter<KnownChain
   }
 
   return adapter
+}
+
+export const isTransactionStatusAdapter = (
+  adapter: ChainAdapter<ChainId>,
+): adapter is ChainAdapter<ChainId> & {
+  getTransactionStatus: (txHash: string) => Promise<TxStatus>
+} => {
+  return (
+    'getTransactionStatus' in adapter && typeof (adapter as any).getTransactionStatus === 'function'
+  )
 }
 
 export const sortChainIdsByDisplayName = (unsortedChainIds: ChainId[]) => {

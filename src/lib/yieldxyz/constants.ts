@@ -57,6 +57,9 @@ export const YIELD_MAX_POLL_ATTEMPTS = 120
 export const SHAPESHIFT_COSMOS_VALIDATOR_ADDRESS =
   'cosmosvaloper199mlc7fr6ll5t54w7tts7f4s0cvnqgc59nmuxf'
 
+export const SHAPESHIFT_VALIDATOR_NAME = 'ShapeShift'
+export const SHAPESHIFT_FOX_LOGO_URL = 'https://assets.coincap.io/assets/icons/256/fox.png'
+
 export const DEFAULT_NATIVE_VALIDATOR_BY_CHAIN_ID: Partial<Record<ChainId, string>> = {
   [cosmosChainId]: SHAPESHIFT_COSMOS_VALIDATOR_ADDRESS,
 }

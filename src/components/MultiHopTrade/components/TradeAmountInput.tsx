@@ -433,7 +433,7 @@ export const TradeAmountInput: React.FC<TradeAmountInputProps> = memo(
             pe={0}
             display={hideAmounts ? 'none' : 'flex'}
           >
-            <Flex gap={2} flex={1} alignItems='flex-end' pb={layout === 'inline' ? 4 : 0}>
+            <Flex gap={2} flex={1} alignItems='flex-end' pb={layout === 'inline' ? 4 : 0} pe={5}>
               <Skeleton isLoaded={!showInputSkeleton} width='full'>
                 <Controller
                   name={'amountFieldInput'}

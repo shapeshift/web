@@ -9,7 +9,9 @@ import {
   gnosisChainId,
   hyperEvmChainId,
   monadChainId,
+  nearChainId,
   optimismChainId,
+  plasmaChainId,
   polygonChainId,
   solanaChainId,
   suiChainId,
@@ -34,6 +36,8 @@ export const CHAIN_ID_TO_YIELD_NETWORK: Partial<Record<ChainId, YieldNetwork>> =
   [monadChainId]: YieldNetwork.Monad,
   [tronChainId]: YieldNetwork.Tron,
   [hyperEvmChainId]: YieldNetwork.Hyperevm,
+  [nearChainId]: YieldNetwork.Near,
+  [plasmaChainId]: YieldNetwork.Plasma,
 }
 
 export const YIELD_NETWORK_TO_CHAIN_ID: Partial<Record<YieldNetwork, ChainId>> = invert(

@@ -26,6 +26,8 @@ export enum YieldNetwork {
   Monad = 'monad',
   Tron = 'tron',
   Hyperevm = 'hyperevm',
+  Near = 'near',
+  Plasma = 'plasma',
 }
 
 export enum ActionIntent {
@@ -383,20 +385,6 @@ export type AugmentedYieldDto = Omit<
 // ============================================================================
 // Parsed Types (for utils)
 // ============================================================================
-
-export type ParsedUnsignedTransaction = {
-  from: string
-  to: string
-  data: string
-  value?: string
-  nonce: number
-  type?: number
-  gasLimit: string
-  maxFeePerGas?: string
-  maxPriorityFeePerGas?: string
-  gasPrice?: string
-  chainId: number
-}
 
 export type ParsedGasEstimate = {
   token: {

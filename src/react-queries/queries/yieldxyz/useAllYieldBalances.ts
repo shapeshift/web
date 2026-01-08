@@ -1,23 +1,5 @@
 import type { AccountId, ChainId } from '@shapeshiftoss/caip'
-import {
-  arbitrumChainId,
-  avalancheChainId,
-  baseChainId,
-  bscChainId,
-  cosmosChainId,
-  ethChainId,
-  fromAccountId,
-  gnosisChainId,
-  monadChainId,
-  nearChainId,
-  optimismChainId,
-  plasmaChainId,
-  polygonChainId,
-  solanaChainId,
-  suiChainId,
-  toAccountId,
-  tronChainId,
-} from '@shapeshiftoss/caip'
+import { fromAccountId, toAccountId } from '@shapeshiftoss/caip'
 import { skipToken, useQuery } from '@tanstack/react-query'
 import { useMemo } from 'react'
 
@@ -25,12 +7,13 @@ import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { fetchAggregateBalances } from '@/lib/yieldxyz/api'
 import { augmentYieldBalances } from '@/lib/yieldxyz/augment'
-import type { AugmentedYieldBalance } from '@/lib/yieldxyz/types'
+import { CHAIN_ID_TO_YIELD_NETWORK, SUPPORTED_YIELD_NETWORKS } from '@/lib/yieldxyz/constants'
+import type { AugmentedYieldBalance, YieldNetwork } from '@/lib/yieldxyz/types'
 import { selectEnabledWalletAccountIds } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
 type UseAllYieldBalancesOptions = {
-  networks?: string[]
+  networks?: YieldNetwork[]
   accountIds?: string[]
 }
 
@@ -39,44 +22,8 @@ export type AugmentedYieldBalanceWithAccountId = AugmentedYieldBalance & {
   highestAmountUsdValidator?: string
 }
 
-const DEFAULT_NETWORKS = [
-  'ethereum',
-  'arbitrum',
-  'base',
-  'optimism',
-  'polygon',
-  'gnosis',
-  'avalanche-c',
-  'binance',
-  'solana',
-  'cosmos',
-  'near',
-  'tron',
-  'sui',
-  'monad',
-  'plasma',
-]
-
-const CHAIN_ID_TO_NETWORK: Record<ChainId, string> = {
-  [ethChainId]: 'ethereum',
-  [arbitrumChainId]: 'arbitrum',
-  [baseChainId]: 'base',
-  [optimismChainId]: 'optimism',
-  [polygonChainId]: 'polygon',
-  [gnosisChainId]: 'gnosis',
-  [avalancheChainId]: 'avalanche-c',
-  [bscChainId]: 'binance',
-  [cosmosChainId]: 'cosmos',
-  [solanaChainId]: 'solana',
-  [nearChainId]: 'near',
-  [tronChainId]: 'tron',
-  [suiChainId]: 'sui',
-  [monadChainId]: 'monad',
-  [plasmaChainId]: 'plasma',
-}
-
 export const useAllYieldBalances = (options: UseAllYieldBalancesOptions = {}) => {
-  const { networks = DEFAULT_NETWORKS, accountIds: filterAccountIds } = options
+  const { networks = SUPPORTED_YIELD_NETWORKS, accountIds: filterAccountIds } = options
   const { state: walletState } = useWallet()
   const isConnected = Boolean(walletState.walletInfo)
   const accountIds = useAppSelector(selectEnabledWalletAccountIds)
@@ -92,7 +39,7 @@ export const useAllYieldBalances = (options: UseAllYieldBalancesOptions = {}) =>
       if (!accountIds.includes(accountId)) continue
 
       const { chainId, account } = fromAccountId(accountId)
-      const network = CHAIN_ID_TO_NETWORK[chainId]
+      const network = CHAIN_ID_TO_YIELD_NETWORK[chainId]
 
       if (network && networks.includes(network)) {
         payloads.push({ address: account, network, chainId, accountId })

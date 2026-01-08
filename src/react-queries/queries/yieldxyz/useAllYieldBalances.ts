@@ -178,7 +178,9 @@ const normalizeBalances = (
       bnOrZero(0),
     )
 
-    const claimAction = claimableBalance?.pendingActions?.find(a => a.type === 'CLAIM_REWARDS')
+    const claimAction = claimableBalance?.pendingActions?.find(a =>
+      a.type.toUpperCase().includes('CLAIM'),
+    )
     const hasAnyPosition = hasActive || hasEntering || hasExiting || hasClaimable
     if (!hasAnyPosition) continue
 

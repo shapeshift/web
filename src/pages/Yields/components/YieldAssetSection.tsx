@@ -1,4 +1,4 @@
-import { Box, Heading, Stack, Text, VStack } from '@chakra-ui/react'
+import { Box, Heading, Stack, VStack } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import { memo, useCallback, useMemo } from 'react'
@@ -6,7 +6,7 @@ import { useTranslate } from 'react-polyglot'
 import { useNavigate } from 'react-router-dom'
 
 import { YieldActivePositions } from './YieldActivePositions'
-import { YieldItem, YieldItemSkeleton } from './YieldItem'
+import { YieldItemSkeleton } from './YieldItem'
 import { YieldOpportunityCard } from './YieldOpportunityCard'
 
 import { getConfig } from '@/config'
@@ -76,11 +76,6 @@ export const YieldAssetSection = memo(({ assetId, accountId }: YieldAssetSection
 
   const hasActivePositions = Object.keys(aggregated).length > 0
 
-  const yieldsWithoutPositions = useMemo(
-    () => sortedYields.filter(y => !aggregated[y.id]),
-    [sortedYields, aggregated],
-  )
-
   const handleOpportunityClick = useCallback(
     (yieldItem: AugmentedYieldDto) => {
       navigate(`/yields/${yieldItem.id}`)
@@ -89,8 +84,6 @@ export const YieldAssetSection = memo(({ assetId, accountId }: YieldAssetSection
   )
 
   const yieldHeading = translate('yieldXYZ.yield') ?? 'Yield'
-
-  const opportunitiesHeading = translate('yieldXYZ.opportunities') ?? 'Opportunities'
 
   const loadingContent = useMemo(
     () => (
@@ -112,25 +105,6 @@ export const YieldAssetSection = memo(({ assetId, accountId }: YieldAssetSection
     return <YieldOpportunityCard maxApyYield={bestYield} onClick={handleOpportunityClick} />
   }, [bestYield, handleOpportunityClick])
 
-  const opportunitiesListContent = useMemo(() => {
-    if (yieldsWithoutPositions.length === 0) return null
-    return (
-      <VStack spacing={4} align='stretch'>
-        <Text fontSize='sm' color='gray.500' fontWeight='medium' mt={2}>
-          {opportunitiesHeading}
-        </Text>
-        {yieldsWithoutPositions.map(yieldItem => (
-          <YieldItem
-            key={yieldItem.id}
-            data={{ type: 'single', yieldItem }}
-            variant='row'
-            onEnter={handleOpportunityClick}
-          />
-        ))}
-      </VStack>
-    )
-  }, [yieldsWithoutPositions, opportunitiesHeading, handleOpportunityClick])
-
   if (!isYieldXyzEnabled) return null
   if (!isLoading && yields.length === 0) return null
 
@@ -143,7 +117,6 @@ export const YieldAssetSection = memo(({ assetId, accountId }: YieldAssetSection
         {hasActivePositions && activePositionsContent}
         {isLoading && loadingContent}
         {!isLoading && !hasActivePositions && opportunityCardContent}
-        {!isLoading && hasActivePositions && opportunitiesListContent}
       </Stack>
     </Box>
   )

@@ -21,6 +21,7 @@ export enum YieldNetwork {
   Hyperevm = 'hyperevm',
   Near = 'near',
   Plasma = 'plasma',
+  Katana = 'katana',
 }
 
 export enum ActionIntent {

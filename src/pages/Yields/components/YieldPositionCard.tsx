@@ -115,7 +115,10 @@ export const YieldPositionCard = memo(
     const claimableBalance = balancesByType?.[YieldBalanceType.Claimable]
 
     const claimAction = useMemo(
-      () => claimableBalance?.pendingActions?.find(action => action.type === 'CLAIM_REWARDS'),
+      () =>
+        claimableBalance?.pendingActions?.find(action =>
+          action.type.toUpperCase().includes('CLAIM'),
+        ),
       [claimableBalance],
     )
 

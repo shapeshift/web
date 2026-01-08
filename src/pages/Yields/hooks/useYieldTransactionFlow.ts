@@ -75,8 +75,15 @@ const waitForActionCompletion = (actionId: string): Promise<ActionDto> => {
   )
 }
 
-const filterExecutableTransactions = (transactions: TransactionDto[]): TransactionDto[] =>
-  transactions.filter(tx => tx.status === TransactionStatus.Created)
+const filterExecutableTransactions = (transactions: TransactionDto[]): TransactionDto[] => {
+  const seen = new Set<string>()
+  return transactions.filter(tx => {
+    if (tx.status !== TransactionStatus.Created) return false
+    if (seen.has(tx.id)) return false
+    seen.add(tx.id)
+    return true
+  })
+}
 
 type UseYieldTransactionFlowProps = {
   yieldItem: AugmentedYieldDto
@@ -327,7 +334,7 @@ export const useYieldTransactionFlow = ({
 
         if (isLastTransaction) {
           await waitForActionCompletion(actionId)
-          queryClient.invalidateQueries({ queryKey: ['yieldxyz', 'balances'] })
+          queryClient.invalidateQueries({ queryKey: ['yieldxyz', 'allBalances'] })
           queryClient.invalidateQueries({ queryKey: ['yieldxyz', 'yields'] })
           dispatchNotification(tx, txHash)
           updateStepStatus(index, { status: 'success', loadingMessage: undefined })
@@ -344,7 +351,7 @@ export const useYieldTransactionFlow = ({
             setActiveStepIndex(index + 1)
           } else {
             await waitForActionCompletion(actionId)
-            queryClient.invalidateQueries({ queryKey: ['yieldxyz', 'balances'] })
+            queryClient.invalidateQueries({ queryKey: ['yieldxyz', 'allBalances'] })
             queryClient.invalidateQueries({ queryKey: ['yieldxyz', 'yields'] })
             dispatchNotification(tx, txHash)
             updateStepStatus(index, { status: 'success', loadingMessage: undefined })

@@ -142,6 +142,11 @@ export const manageYield = async ({
   return response.data
 }
 
+export const fetchAction = async (actionId: string) => {
+  const response = await instance.get<ActionDto>(`/actions/${actionId}`)
+  return response.data
+}
+
 export const fetchActions = async (params: {
   address: string
   limit?: number

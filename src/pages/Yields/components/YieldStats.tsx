@@ -26,7 +26,10 @@ import type { AugmentedYieldDto } from '@/lib/yieldxyz/types'
 import type { AugmentedYieldBalanceWithAccountId } from '@/react-queries/queries/yieldxyz/useAllYieldBalances'
 import type { NormalizedYieldBalances } from '@/react-queries/queries/yieldxyz/useYieldBalances'
 import { useYieldValidators } from '@/react-queries/queries/yieldxyz/useYieldValidators'
-import { selectUserCurrencyToUsdRate } from '@/state/slices/selectors'
+import {
+  selectMarketDataByAssetIdUserCurrency,
+  selectUserCurrencyToUsdRate,
+} from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
 const layerGroupIcon = <Icon as={FaLayerGroup} />
@@ -43,6 +46,10 @@ type YieldStatsProps = {
 export const YieldStats = memo(({ yieldItem, balances }: YieldStatsProps) => {
   const translate = useTranslate()
   const userCurrencyToUsdRate = useAppSelector(selectUserCurrencyToUsdRate)
+  const inputTokenAssetId = yieldItem.inputTokens[0]?.assetId ?? ''
+  const inputTokenMarketData = useAppSelector(state =>
+    selectMarketDataByAssetIdUserCurrency(state, inputTokenAssetId),
+  )
   const cardBg = useColorModeValue('white', 'gray.800')
   const borderColor = useColorModeValue('gray.100', 'gray.750')
   const rewardBreakdownBg = useColorModeValue('gray.50', 'whiteAlpha.50')
@@ -68,19 +75,6 @@ export const YieldStats = memo(({ yieldItem, balances }: YieldStatsProps) => {
     [validatorParam, defaultValidator],
   )
 
-  const tvlUsd = useMemo(
-    () => bnOrZero(yieldItem.statistics?.tvlUsd),
-    [yieldItem.statistics?.tvlUsd],
-  )
-  const tvlUserCurrency = useMemo(
-    () => tvlUsd.times(userCurrencyToUsdRate).toFixed(),
-    [tvlUsd, userCurrencyToUsdRate],
-  )
-  const tvl = useMemo(
-    () => bnOrZero(yieldItem.statistics?.tvl).toNumber(),
-    [yieldItem.statistics?.tvl],
-  )
-
   const selectedValidator = useMemo(() => {
     if (!selectedValidatorAddress) return undefined
     const inList = validators?.find(v => v.address === selectedValidatorAddress)
@@ -91,6 +85,21 @@ export const YieldStats = memo(({ yieldItem, balances }: YieldStatsProps) => {
     if (inBalances) return inBalances
     return undefined
   }, [validators, selectedValidatorAddress, balances])
+
+  const tvl = useMemo(() => {
+    const validatorTvl =
+      selectedValidator && 'tvl' in selectedValidator ? selectedValidator.tvl : undefined
+    return bnOrZero(yieldItem.statistics?.tvl ?? validatorTvl).toNumber()
+  }, [selectedValidator, yieldItem.statistics?.tvl])
+
+  const tvlUserCurrency = useMemo(() => {
+    if (yieldItem.statistics?.tvlUsd) {
+      return bnOrZero(yieldItem.statistics.tvlUsd).times(userCurrencyToUsdRate).toFixed()
+    }
+    return bnOrZero(tvl)
+      .times(bnOrZero(inputTokenMarketData?.price))
+      .toFixed()
+  }, [yieldItem.statistics?.tvlUsd, userCurrencyToUsdRate, tvl, inputTokenMarketData?.price])
 
   const apy = useMemo(
     () =>

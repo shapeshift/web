@@ -22,6 +22,7 @@ import { skipToken, useQuery } from '@tanstack/react-query'
 import { useMemo } from 'react'
 
 import { useWallet } from '@/hooks/useWallet/useWallet'
+import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { getAggregateBalances } from '@/lib/yieldxyz/api'
 import { augmentYieldBalances } from '@/lib/yieldxyz/augment'
 import type { AugmentedYieldBalance } from '@/lib/yieldxyz/types'
@@ -133,12 +134,12 @@ export const useAllYieldBalances = (options: UseAllYieldBalancesOptions = {}) =>
 
               const augmentedBalances = augmentYieldBalances(item.balances, chainId)
 
-              let highestAmountUsd = 0
+              let highestAmountUsd = bnOrZero(0)
               let highestAmountUsdValidator: string | undefined
 
               for (const balance of augmentedBalances) {
-                const usd = parseFloat(balance.amountUsd)
-                if (balance.validator?.address && usd > highestAmountUsd) {
+                const usd = bnOrZero(balance.amountUsd)
+                if (balance.validator?.address && usd.gt(highestAmountUsd)) {
                   highestAmountUsd = usd
                   highestAmountUsdValidator = balance.validator.address
                 }

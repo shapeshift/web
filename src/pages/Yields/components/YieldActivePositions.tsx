@@ -22,7 +22,7 @@ import { bnOrZero } from '@/lib/bignumber/bignumber'
 import type { AugmentedYieldDto } from '@/lib/yieldxyz/types'
 import { resolveYieldInputAssetIcon } from '@/lib/yieldxyz/utils'
 import { useYieldProviders } from '@/react-queries/queries/yieldxyz/useYieldProviders'
-import { selectAssetById } from '@/state/slices/selectors'
+import { selectAssetById, selectUserCurrencyToUsdRate } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
 type YieldActivePositionsProps = {
@@ -35,6 +35,7 @@ export const YieldActivePositions = ({ balances, yields, assetId }: YieldActiveP
   const translate = useTranslate()
   const navigate = useNavigate()
   const asset = useAppSelector(state => selectAssetById(state, assetId))
+  const userCurrencyToUsdRate = useAppSelector(selectUserCurrencyToUsdRate)
   const hoverBg = useColorModeValue('gray.50', 'whiteAlpha.50')
   const borderColor = useColorModeValue('gray.100', 'whiteAlpha.100')
 
@@ -114,12 +115,11 @@ export const YieldActivePositions = ({ balances, yields, assetId }: YieldActiveP
                   (acc: any, b: any) => acc.plus(b.amount),
                   bnOrZero(0),
                 )
-                const totalFiat = groupBalances.reduce(
+                const totalUsd = groupBalances.reduce(
                   (acc: any, b: any) => acc.plus(b.amountUsd),
                   bnOrZero(0),
                 )
-                // Use validator APR if available, else fall back to yield total
-                // yieldItem APY is "total", maybe we should use that or try to find validator specific if passed
+                const totalUserCurrency = totalUsd.times(userCurrencyToUsdRate).toFixed()
                 const apy = bnOrZero(yieldItem.rewardRate.total).times(100).toNumber()
 
                 rows.push(
@@ -171,20 +171,13 @@ export const YieldActivePositions = ({ balances, yields, assetId }: YieldActiveP
                     </Td>
                     <Td isNumeric>
                       <Text fontSize='sm' color='text.subtle'>
-                        {/* Validator TVL isn't readily available in balance, using yield TVL might be misleading if per validator. 
-                            However, the design usually shows global TVL or dash. 
-                            If we want specific validator TVL we need more data. 
-                            For now, lets show dash for validator rows or keep yield TVL? 
-                            User image shows TVL for validators. 
-                            If we don't have it, show - 
-                        */}
                         -
                       </Text>
                     </Td>
                     <Td isNumeric>
                       <Box textAlign='right'>
                         <Amount.Fiat
-                          value={totalFiat.toString()}
+                          value={totalUserCurrency}
                           fontWeight='bold'
                           color='green.400'
                         />
@@ -207,12 +200,14 @@ export const YieldActivePositions = ({ balances, yields, assetId }: YieldActiveP
                   (acc: any, b: any) => acc.plus(b.amount),
                   bnOrZero(0),
                 )
-                const totalFiat = noValidatorBalances.reduce(
+                const totalUsd = noValidatorBalances.reduce(
                   (acc: any, b: any) => acc.plus(b.amountUsd),
                   bnOrZero(0),
                 )
+                const totalUserCurrency = totalUsd.times(userCurrencyToUsdRate).toFixed()
                 const apy = bnOrZero(yieldItem.rewardRate.total).times(100).toNumber()
-                const tvl = yieldItem.statistics?.tvlUsd
+                const tvlUsd = yieldItem.statistics?.tvlUsd
+                const tvlUserCurrency = bnOrZero(tvlUsd).times(userCurrencyToUsdRate).toFixed()
 
                 rows.push(
                   <Tr
@@ -259,13 +254,13 @@ export const YieldActivePositions = ({ balances, yields, assetId }: YieldActiveP
                     </Td>
                     <Td isNumeric>
                       <Text fontSize='sm' color='text.subtle'>
-                        {tvl ? <Amount.Fiat value={tvl} abbreviated /> : '-'}
+                        {tvlUsd ? <Amount.Fiat value={tvlUserCurrency} abbreviated /> : '-'}
                       </Text>
                     </Td>
                     <Td isNumeric>
                       <Box textAlign='right'>
                         <Amount.Fiat
-                          value={totalFiat.toString()}
+                          value={totalUserCurrency}
                           fontWeight='bold'
                           color='green.400'
                         />

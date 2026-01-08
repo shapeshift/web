@@ -33,6 +33,8 @@ import { ViewToggle } from '@/pages/Yields/components/YieldViewHelpers'
 import { useAllYieldBalances } from '@/react-queries/queries/yieldxyz/useAllYieldBalances'
 import { useYieldProviders } from '@/react-queries/queries/yieldxyz/useYieldProviders'
 import { useYields } from '@/react-queries/queries/yieldxyz/useYields'
+import { selectUserCurrencyToUsdRate } from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 export const YieldAssetDetails = () => {
   const { assetId: assetSymbol } = useParams<{ assetId: string }>()
@@ -50,6 +52,7 @@ export const YieldAssetDetails = () => {
 
   const { data: yields, isLoading } = useYields()
   const { data: yieldProviders } = useYieldProviders()
+  const userCurrencyToUsdRate = useAppSelector(selectUserCurrencyToUsdRate)
 
   // Helpers
   const getProviderLogo = useCallback(
@@ -237,22 +240,27 @@ export const YieldAssetDetails = () => {
           const b = bnOrZero(rowB.original.statistics?.tvlUsd).toNumber()
           return a === b ? 0 : a > b ? 1 : -1
         },
-        cell: ({ row }) => (
-          <Box>
-            <Text fontWeight='semibold' fontSize='sm'>
-              <Amount.Fiat value={row.original.statistics?.tvlUsd ?? '0'} abbreviated />
-            </Text>
-            <Text fontSize='xs' color='text.subtle'>
-              TVL
-            </Text>
-          </Box>
-        ),
+        cell: ({ row }) => {
+          const tvlUserCurrency = bnOrZero(row.original.statistics?.tvlUsd)
+            .times(userCurrencyToUsdRate)
+            .toFixed()
+          return (
+            <Box>
+              <Text fontWeight='semibold' fontSize='sm'>
+                <Amount.Fiat value={tvlUserCurrency} abbreviated />
+              </Text>
+              <Text fontSize='xs' color='text.subtle'>
+                TVL
+              </Text>
+            </Box>
+          )
+        },
         meta: {
           display: { base: 'none', md: 'table-cell' },
         },
       },
     ],
-    [translate, getProviderLogo],
+    [translate, getProviderLogo, userCurrencyToUsdRate],
   )
 
   const table = useReactTable({

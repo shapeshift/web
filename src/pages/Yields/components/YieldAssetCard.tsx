@@ -25,6 +25,8 @@ import { ChainIcon } from '@/components/ChainMenu'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import type { AugmentedYieldDto } from '@/lib/yieldxyz/types'
 import { useYieldProviders } from '@/react-queries/queries/yieldxyz/useYieldProviders'
+import { selectUserCurrencyToUsdRate } from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 type YieldAssetCardProps = {
   assetSymbol: string
@@ -37,7 +39,7 @@ type YieldAssetCardProps = {
 
 export const YieldAssetCard = ({
   assetSymbol,
-  assetName,
+  assetName: _assetName,
   assetIcon,
   assetId,
   yields,
@@ -50,19 +52,20 @@ export const YieldAssetCard = ({
   const hoverBorderColor = useColorModeValue('blue.500', 'blue.400')
   const cardShadow = useColorModeValue('sm', 'none')
   const cardHoverShadow = useColorModeValue('lg', 'lg')
+  const userCurrencyToUsdRate = useAppSelector(selectUserCurrencyToUsdRate)
 
   const { data: yieldProviders } = useYieldProviders()
 
   const stats = useMemo(() => {
     let maxApy = 0
-    let totalTvl = bnOrZero(0)
+    let totalTvlUsd = bnOrZero(0)
     const providerIds = new Set<string>()
     const chainIds = new Set<string>()
 
     yields.forEach(y => {
       const apy = y.rewardRate.total
       if (apy > maxApy) maxApy = apy
-      totalTvl = totalTvl.plus(bnOrZero(y.statistics?.tvlUsd))
+      totalTvlUsd = totalTvlUsd.plus(bnOrZero(y.statistics?.tvlUsd))
       providerIds.add(y.providerId)
       if (y.chainId) chainIds.add(y.chainId)
     })
@@ -72,20 +75,27 @@ export const YieldAssetCard = ({
       logo: yieldProviders?.[id]?.logoURI,
     }))
 
+    const totalTvlUserCurrency = totalTvlUsd.times(userCurrencyToUsdRate).toFixed()
+
     return {
       maxApy,
-      totalTvl,
+      totalTvlUserCurrency,
       providers,
       chainIds: Array.from(chainIds),
       count: yields.length,
     }
-  }, [yields, yieldProviders])
+  }, [yields, yieldProviders, userCurrencyToUsdRate])
 
   const handleClick = () => {
     navigate(`/yields/asset/${encodeURIComponent(assetSymbol)}`)
   }
 
   const hasBalance = userGroupBalanceUsd && userGroupBalanceUsd.gt(0)
+
+  const userGroupBalanceUserCurrency = useMemo(() => {
+    if (!userGroupBalanceUsd) return undefined
+    return userGroupBalanceUsd.times(userCurrencyToUsdRate).toFixed()
+  }, [userGroupBalanceUsd, userCurrencyToUsdRate])
 
   return (
     <Card
@@ -137,7 +147,7 @@ export const YieldAssetCard = ({
                 lineHeight='1.2'
                 mb={1}
               >
-                {assetName}
+                {assetSymbol}
               </Text>
               <Text fontSize='xs' color='text.subtle'>
                 {stats.count} {stats.count === 1 ? 'market' : 'markets'}
@@ -165,7 +175,7 @@ export const YieldAssetCard = ({
             {hasBalance ? (
               <>
                 <StatNumber fontSize='lg' fontWeight='bold' color='blue.400'>
-                  <Amount.Fiat value={userGroupBalanceUsd.toFixed()} abbreviated />
+                  <Amount.Fiat value={userGroupBalanceUserCurrency ?? '0'} abbreviated />
                 </StatNumber>
               </>
             ) : (
@@ -174,7 +184,7 @@ export const YieldAssetCard = ({
                   {translate('yieldXYZ.tvl')}
                 </StatLabel>
                 <StatNumber fontSize='md' fontWeight='semibold'>
-                  <Amount.Fiat value={stats.totalTvl.toFixed()} abbreviated />
+                  <Amount.Fiat value={stats.totalTvlUserCurrency} abbreviated />
                 </StatNumber>
               </>
             )}

@@ -17,6 +17,7 @@ import { Amount } from '@/components/Amount/Amount'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import type { AugmentedYieldDto, YieldBalancesResponse } from '@/lib/yieldxyz/types'
 import { selectPortfolioUserCurrencyBalances } from '@/state/slices/common-selectors'
+import { selectUserCurrencyToUsdRate } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
 type YieldOpportunityStatsProps = {
@@ -34,6 +35,8 @@ export const YieldOpportunityStats = ({
   isMyOpportunities,
   onToggleMyOpportunities,
 }: YieldOpportunityStatsProps) => {
+  const userCurrencyToUsdRate = useAppSelector(selectUserCurrencyToUsdRate)
+
   // 1. Calculate Active Yield Value
   const activeValueUsd = useMemo(() => {
     return positions.reduce((acc, position) => {
@@ -110,7 +113,10 @@ export const YieldOpportunityStats = ({
               Active Deposits
             </StatLabel>
             <StatNumber fontSize='3xl' fontWeight='bold' color='white'>
-              <Amount.Fiat value={activeValueUsd.toFixed()} abbreviated />
+              <Amount.Fiat
+                value={activeValueUsd.times(userCurrencyToUsdRate).toFixed()}
+                abbreviated
+              />
             </StatNumber>
             <StatHelpText color='blue.300'>Across {positions.length} positions</StatHelpText>
           </Stat>

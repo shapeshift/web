@@ -49,7 +49,10 @@ import { ViewToggle } from '@/pages/Yields/components/YieldViewHelpers'
 import { useAllYieldBalances } from '@/react-queries/queries/yieldxyz/useAllYieldBalances'
 import { useYieldProviders } from '@/react-queries/queries/yieldxyz/useYieldProviders'
 import { useYields } from '@/react-queries/queries/yieldxyz/useYields'
-import { selectPortfolioUserCurrencyBalances } from '@/state/slices/selectors'
+import {
+  selectPortfolioUserCurrencyBalances,
+  selectUserCurrencyToUsdRate,
+} from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
 export const YieldsList = () => {
@@ -81,6 +84,7 @@ export const YieldsList = () => {
   const filterOption = searchParams.get('filter')
   const isMyOpportunities = filterOption === 'my-assets'
   const userCurrencyBalances = useAppSelector(selectPortfolioUserCurrencyBalances)
+  const userCurrencyToUsdRate = useAppSelector(selectUserCurrencyToUsdRate)
 
   const handleToggleMyOpportunities = () => {
     if (isMyOpportunities) {
@@ -449,16 +453,21 @@ export const YieldsList = () => {
           const b = bnOrZero(rowB.original.statistics?.tvlUsd).toNumber()
           return a === b ? 0 : a > b ? 1 : -1
         },
-        cell: ({ row }) => (
-          <Box>
-            <Text fontWeight='semibold' fontSize='sm'>
-              <Amount.Fiat value={row.original.statistics?.tvlUsd ?? '0'} abbreviated />
-            </Text>
-            <Text fontSize='xs' color='text.subtle'>
-              TVL
-            </Text>
-          </Box>
-        ),
+        cell: ({ row }) => {
+          const tvlUserCurrency = bnOrZero(row.original.statistics?.tvlUsd)
+            .times(userCurrencyToUsdRate)
+            .toFixed()
+          return (
+            <Box>
+              <Text fontWeight='semibold' fontSize='sm'>
+                <Amount.Fiat value={tvlUserCurrency} abbreviated />
+              </Text>
+              <Text fontSize='xs' color='text.subtle'>
+                TVL
+              </Text>
+            </Box>
+          )
+        },
         meta: {
           display: { base: 'none', md: 'table-cell' },
         },
@@ -491,10 +500,11 @@ export const YieldsList = () => {
             ? balances.reduce((sum, b) => sum.plus(bnOrZero(b.amountUsd)), bnOrZero(0))
             : bnOrZero(0)
           if (totalUsd.lte(0)) return null
+          const totalUserCurrency = totalUsd.times(userCurrencyToUsdRate).toFixed()
           return (
             <Box>
               <Text fontWeight='bold' fontSize='sm' color='blue.400'>
-                <Amount.Fiat value={totalUsd.toFixed()} abbreviated />
+                <Amount.Fiat value={totalUserCurrency} abbreviated />
               </Text>
               <Text fontSize='xs' color='text.subtle'>
                 {translate('yieldXYZ.yourBalance')}
@@ -507,7 +517,7 @@ export const YieldsList = () => {
         },
       },
     ],
-    [translate, getProviderLogo, allBalances],
+    [translate, getProviderLogo, allBalances, userCurrencyToUsdRate],
   )
 
   const positionsTable = useReactTable({

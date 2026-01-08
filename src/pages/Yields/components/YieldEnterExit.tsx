@@ -212,8 +212,8 @@ export const YieldEnterExit = ({
   const handlePercentClick = useCallback(
     (percent: number) => {
       const balance = tabIndex === 0 ? inputTokenBalance : exitBalance
-      const percentAmount = parseFloat(balance) * percent
-      setCryptoAmount(percentAmount.toString())
+      const percentAmount = bnOrZero(balance).times(percent).toFixed()
+      setCryptoAmount(percentAmount)
     },
     [inputTokenBalance, exitBalance, tabIndex],
   )

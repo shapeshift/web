@@ -33,7 +33,10 @@ import type {
   NormalizedYieldBalances,
 } from '@/react-queries/queries/yieldxyz/useYieldBalances'
 import { useYieldValidators } from '@/react-queries/queries/yieldxyz/useYieldValidators'
-import { selectFirstAccountIdByChainId } from '@/state/slices/selectors'
+import {
+  selectFirstAccountIdByChainId,
+  selectUserCurrencyToUsdRate,
+} from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
 type YieldPositionCardProps = {
@@ -82,6 +85,7 @@ export const YieldPositionCard = ({
   const accountId = useAppSelector(state =>
     chainId ? selectFirstAccountIdByChainId(state, chainId) : undefined,
   )
+  const userCurrencyToUsdRate = useAppSelector(selectUserCurrencyToUsdRate)
   const address = accountId ? fromAccountId(accountId).account : undefined
 
   const balancesByType = useMemo(() => {
@@ -122,6 +126,11 @@ export const YieldPositionCard = ({
       bnOrZero(0),
     )
   }, [activeBalance, enteringBalance, exitingBalance, withdrawableBalance])
+
+  const totalValueUserCurrency = useMemo(
+    () => totalValueUsd.times(userCurrencyToUsdRate).toFixed(),
+    [totalValueUsd, userCurrencyToUsdRate],
+  )
 
   const totalAmount = useMemo(() => {
     return [activeBalance, enteringBalance, exitingBalance, withdrawableBalance].reduce(
@@ -187,7 +196,7 @@ export const YieldPositionCard = ({
                 {translate('yieldXYZ.totalValue')}
               </Text>
               <Text fontSize='3xl' fontWeight='800' lineHeight='1'>
-                <Amount.Fiat value={totalValueUsd.toFixed()} abbreviated />
+                <Amount.Fiat value={totalValueUserCurrency} abbreviated />
               </Text>
               <Text fontSize='sm' color='text.subtle' mt={1}>
                 <Amount.Crypto

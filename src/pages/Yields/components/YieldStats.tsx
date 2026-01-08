@@ -26,6 +26,8 @@ import type { AugmentedYieldDto } from '@/lib/yieldxyz/types'
 import type { AugmentedYieldBalanceWithAccountId } from '@/react-queries/queries/yieldxyz/useAllYieldBalances'
 import type { NormalizedYieldBalances } from '@/react-queries/queries/yieldxyz/useYieldBalances'
 import { useYieldValidators } from '@/react-queries/queries/yieldxyz/useYieldValidators'
+import { selectUserCurrencyToUsdRate } from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 type YieldStatsProps = {
   yieldItem: AugmentedYieldDto
@@ -34,6 +36,7 @@ type YieldStatsProps = {
 
 export const YieldStats = ({ yieldItem, balances }: YieldStatsProps) => {
   const translate = useTranslate()
+  const userCurrencyToUsdRate = useAppSelector(selectUserCurrencyToUsdRate)
   const cardBg = useColorModeValue('white', 'gray.800')
   const borderColor = useColorModeValue('gray.100', 'gray.750')
   const rewardBreakdownBg = useColorModeValue('gray.50', 'whiteAlpha.50')
@@ -55,7 +58,11 @@ export const YieldStats = ({ yieldItem, balances }: YieldStatsProps) => {
 
   const selectedValidatorAddress = validatorParam || defaultValidator
 
-  const tvlUsd = bnOrZero(yieldItem.statistics?.tvlUsd).toNumber()
+  const tvlUsd = bnOrZero(yieldItem.statistics?.tvlUsd)
+  const tvlUserCurrency = useMemo(
+    () => tvlUsd.times(userCurrencyToUsdRate).toFixed(),
+    [tvlUsd, userCurrencyToUsdRate],
+  )
   const tvl = bnOrZero(yieldItem.statistics?.tvl).toNumber()
 
   const selectedValidator = useMemo(() => {
@@ -161,7 +168,7 @@ export const YieldStats = ({ yieldItem, balances }: YieldStatsProps) => {
               {translate('yieldXYZ.tvl')}
             </StatLabel>
             <StatNumber fontSize='xl' fontWeight='bold'>
-              <Amount.Fiat value={tvlUsd} abbreviated />
+              <Amount.Fiat value={tvlUserCurrency} abbreviated />
             </StatNumber>
             <Text fontSize='xs' color='text.subtle' mt={1}>
               <Amount.Crypto value={tvl.toFixed()} symbol={yieldItem.token.symbol} abbreviated />

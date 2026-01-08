@@ -17,7 +17,8 @@ import { AssetIcon } from '@/components/AssetIcon'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import type { AugmentedYieldDto } from '@/lib/yieldxyz/types'
 import { useYieldProviders } from '@/react-queries/queries/yieldxyz/useYieldProviders'
-// ... existing imports ...
+import { selectUserCurrencyToUsdRate } from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 type YieldAssetGroupRowProps = {
   assetSymbol: string
@@ -38,17 +39,18 @@ export const YieldAssetGroupRow = ({
 }: YieldAssetGroupRowProps) => {
   const navigate = useNavigate()
   const hoverBg = useColorModeValue('gray.50', 'whiteAlpha.50')
+  const userCurrencyToUsdRate = useAppSelector(selectUserCurrencyToUsdRate)
   const { data: yieldProviders } = useYieldProviders()
 
   const stats = useMemo(() => {
     let maxApy = 0
-    let totalTvl = bnOrZero(0)
+    let totalTvlUsd = bnOrZero(0)
     const providerIds = new Set<string>()
 
     yields.forEach(y => {
       const apy = y.rewardRate.total
       if (apy > maxApy) maxApy = apy
-      totalTvl = totalTvl.plus(bnOrZero(y.statistics?.tvlUsd))
+      totalTvlUsd = totalTvlUsd.plus(bnOrZero(y.statistics?.tvlUsd))
       providerIds.add(y.providerId)
     })
 
@@ -57,13 +59,20 @@ export const YieldAssetGroupRow = ({
       logo: yieldProviders?.[id]?.logoURI,
     }))
 
+    const totalTvlUserCurrency = totalTvlUsd.times(userCurrencyToUsdRate).toFixed()
+
     return {
       maxApy,
-      totalTvl,
+      totalTvlUserCurrency,
       providers,
       count: yields.length,
     }
-  }, [yields, yieldProviders])
+  }, [yields, yieldProviders, userCurrencyToUsdRate])
+
+  const userGroupBalanceUserCurrency = useMemo(() => {
+    if (!userGroupBalanceUsd) return undefined
+    return userGroupBalanceUsd.times(userCurrencyToUsdRate).toFixed()
+  }, [userGroupBalanceUsd, userCurrencyToUsdRate])
 
   return (
     <Box
@@ -106,7 +115,7 @@ export const YieldAssetGroupRow = ({
               TVL
             </Text>
             <Text fontSize='sm'>
-              <Amount.Fiat value={stats.totalTvl.toFixed()} abbreviated />
+              <Amount.Fiat value={stats.totalTvlUserCurrency} abbreviated />
             </Text>
           </Box>
 
@@ -116,7 +125,7 @@ export const YieldAssetGroupRow = ({
                 My Balance
               </Text>
               <Text fontSize='sm' fontWeight='bold' color='blue.400'>
-                <Amount.Fiat value={userGroupBalanceUsd.toFixed()} abbreviated />
+                <Amount.Fiat value={userGroupBalanceUserCurrency ?? '0'} abbreviated />
               </Text>
             </Box>
           )}

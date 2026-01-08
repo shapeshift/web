@@ -30,6 +30,8 @@ import { SHAPESHIFT_COSMOS_VALIDATOR_ADDRESS } from '@/lib/yieldxyz/constants'
 import type { ValidatorDto } from '@/lib/yieldxyz/types'
 import { GradientApy } from '@/pages/Yields/components/GradientApy'
 import type { AugmentedYieldBalanceWithAccountId } from '@/react-queries/queries/yieldxyz/useAllYieldBalances'
+import { selectUserCurrencyToUsdRate } from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 type YieldValidatorSelectModalProps = {
   isOpen: boolean
@@ -47,6 +49,7 @@ export const YieldValidatorSelectModal = ({
   balances,
 }: YieldValidatorSelectModalProps) => {
   const translate = useTranslate()
+  const userCurrencyToUsdRate = useAppSelector(selectUserCurrencyToUsdRate)
   const [searchQuery, setSearchQuery] = useState('')
   const bgColor = useColorModeValue('white', 'gray.800')
   const borderColor = useColorModeValue('gray.100', 'gray.750')
@@ -141,10 +144,10 @@ export const YieldValidatorSelectModal = ({
   const renderValidatorRow = (v: ValidatorDto) => {
     const apr = v.rewardRate?.total ? (v.rewardRate.total * 100).toFixed(2) + '%' : null
 
-    // Calculate total USD for this validator
     const totalUsd = (balances || [])
       .filter(b => b.validator?.address === v.address)
       .reduce((acc, b) => acc.plus(bnOrZero(b.amountUsd)), bnOrZero(0))
+    const totalUserCurrency = totalUsd.times(userCurrencyToUsdRate).toFixed()
 
     const hasBalance = totalUsd?.gt(0)
 
@@ -182,7 +185,7 @@ export const YieldValidatorSelectModal = ({
             </Flex>
             {hasBalance && (
               <Text fontSize='xs' color='text.subtle'>
-                <Amount.Fiat value={totalUsd.toFixed()} />
+                <Amount.Fiat value={totalUserCurrency} />
               </Text>
             )}
           </Box>

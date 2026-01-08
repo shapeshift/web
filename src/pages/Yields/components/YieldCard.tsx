@@ -11,6 +11,7 @@ import {
   useColorModeValue,
 } from '@chakra-ui/react'
 import type BigNumber from 'bignumber.js'
+import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 
 import { Amount } from '@/components/Amount/Amount'
@@ -18,6 +19,8 @@ import { AssetIcon } from '@/components/AssetIcon'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import type { AugmentedYieldDto } from '@/lib/yieldxyz/types'
 import { resolveYieldInputAssetIcon } from '@/lib/yieldxyz/utils'
+import { selectUserCurrencyToUsdRate } from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 interface YieldCardProps {
   yieldItem: AugmentedYieldDto
@@ -29,6 +32,7 @@ interface YieldCardProps {
 
 export const YieldCard = ({ yieldItem, onEnter, providerIcon, userBalanceUsd }: YieldCardProps) => {
   const translate = useTranslate()
+  const userCurrencyToUsdRate = useAppSelector(selectUserCurrencyToUsdRate)
   const borderColor = useColorModeValue('gray.100', 'gray.750')
   const cardBg = useColorModeValue('white', 'gray.800')
   const hoverBorderColor = useColorModeValue('blue.500', 'blue.400')
@@ -45,6 +49,19 @@ export const YieldCard = ({ yieldItem, onEnter, providerIcon, userBalanceUsd }: 
   }
 
   const hasBalance = userBalanceUsd && userBalanceUsd.gt(0)
+
+  const userBalanceUserCurrency = useMemo(
+    () => (userBalanceUsd ? userBalanceUsd.times(userCurrencyToUsdRate).toFixed() : undefined),
+    [userBalanceUsd, userCurrencyToUsdRate],
+  )
+
+  const tvlUserCurrency = useMemo(
+    () =>
+      bnOrZero(yieldItem.statistics?.tvlUsd)
+        .times(userCurrencyToUsdRate)
+        .toFixed(),
+    [yieldItem.statistics?.tvlUsd, userCurrencyToUsdRate],
+  )
 
   return (
     <Card
@@ -140,10 +157,10 @@ export const YieldCard = ({ yieldItem, onEnter, providerIcon, userBalanceUsd }: 
           </Box>
 
           <Box textAlign='right'>
-            {hasBalance ? (
+            {hasBalance && userBalanceUserCurrency ? (
               <>
                 <Text fontWeight='bold' fontSize='lg' color='blue.400'>
-                  <Amount.Fiat value={userBalanceUsd.toFixed()} abbreviated />
+                  <Amount.Fiat value={userBalanceUserCurrency} abbreviated />
                 </Text>
               </>
             ) : (
@@ -152,7 +169,7 @@ export const YieldCard = ({ yieldItem, onEnter, providerIcon, userBalanceUsd }: 
                   TVL
                 </Text>
                 <Text fontWeight='semibold' fontSize='md'>
-                  <Amount.Fiat value={yieldItem.statistics?.tvlUsd ?? '0'} abbreviated />
+                  <Amount.Fiat value={tvlUserCurrency} abbreviated />
                 </Text>
               </>
             )}

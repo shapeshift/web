@@ -30,7 +30,10 @@ import type { AugmentedYieldDto, YieldBalanceValidator } from '@/lib/yieldxyz/ty
 import { YieldBalanceType } from '@/lib/yieldxyz/types'
 import type { AugmentedYieldBalanceWithAccountId } from '@/react-queries/queries/yieldxyz/useAllYieldBalances'
 import type { NormalizedYieldBalances } from '@/react-queries/queries/yieldxyz/useYieldBalances'
-import { selectFirstAccountIdByChainId } from '@/state/slices/selectors'
+import {
+  selectFirstAccountIdByChainId,
+  selectUserCurrencyToUsdRate,
+} from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
 type ValidatorBreakdownProps = {
@@ -88,6 +91,7 @@ export const ValidatorBreakdown = ({
   const accountId = useAppSelector(state =>
     chainId ? selectFirstAccountIdByChainId(state, chainId) : undefined,
   )
+  const userCurrencyToUsdRate = useAppSelector(selectUserCurrencyToUsdRate)
   const address = accountId ? fromAccountId(accountId).account : undefined
 
   const [searchParams, setSearchParams] = useSearchParams()
@@ -144,6 +148,13 @@ export const ValidatorBreakdown = ({
     return groupedByValidator.length > 1
   }, [groupedByValidator.length])
 
+  const allPositionsTotalUserCurrency = useMemo(() => {
+    return groupedByValidator
+      .reduce((acc, g) => acc.plus(bnOrZero(g.totalUsd)), bnOrZero(0))
+      .times(userCurrencyToUsdRate)
+      .toFixed()
+  }, [groupedByValidator, userCurrencyToUsdRate])
+
   const formatUnlockDate = useCallback((dateString: string | undefined) => {
     if (!dateString) return null
     const date = new Date(dateString)
@@ -196,11 +207,7 @@ export const ValidatorBreakdown = ({
               {translate('yieldXYZ.allPositions')}
             </Heading>
             <Text fontSize='lg' fontWeight='bold'>
-              <Amount.Fiat
-                value={groupedByValidator
-                  .reduce((acc, g) => acc.plus(bnOrZero(g.totalUsd)), bnOrZero(0))
-                  .toFixed()}
-              />
+              <Amount.Fiat value={allPositionsTotalUserCurrency} />
             </Text>
           </Box>
           <Box color='text.subtle'>
@@ -268,7 +275,9 @@ export const ValidatorBreakdown = ({
                             )}
                         </Flex>
                         <Text fontSize='xs' color='text.subtle'>
-                          <Amount.Fiat value={group.totalUsd} />
+                          <Amount.Fiat
+                            value={bnOrZero(group.totalUsd).times(userCurrencyToUsdRate).toFixed()}
+                          />
                         </Text>
                       </Box>
                     </HStack>

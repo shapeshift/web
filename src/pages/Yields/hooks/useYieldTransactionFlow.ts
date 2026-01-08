@@ -235,6 +235,10 @@ export const useYieldTransactionFlow = ({
   const dispatchNotification = useCallback(
     (tx: TransactionDto, txHash: string) => {
       if (!yieldChainId || !accountId) return
+      if (!yieldItem.token.assetId) {
+        console.warn('[useYieldTransactionFlow] Cannot dispatch notification: missing assetId')
+        return
+      }
 
       const isApproval = tx.title?.toLowerCase().includes('approv')
       const actionType = isApproval
@@ -266,7 +270,7 @@ export const useYieldTransactionFlow = ({
             displayType,
             txHash,
             chainId: yieldChainId,
-            assetId: (yieldItem.token.assetId || '') as AssetId,
+            assetId: yieldItem.token.assetId as AssetId,
             accountId,
             message: formatYieldTxTitle(tx.title || 'Transaction', assetSymbol),
             amountCryptoPrecision: amount,

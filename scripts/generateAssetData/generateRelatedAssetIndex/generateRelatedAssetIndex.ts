@@ -9,6 +9,7 @@ import {
   foxAssetId,
   foxOnArbitrumOneAssetId,
   fromAssetId,
+  katanaAssetId,
   optimismAssetId,
 } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
@@ -45,7 +46,7 @@ if (!ZERION_API_KEY) throw new Error('Missing Zerion API key - see readme for in
 const REGEN_ALL = process.env.REGEN_ALL === 'true'
 
 const manualRelatedAssetIndex: Record<AssetId, AssetId[]> = {
-  [ethAssetId]: [optimismAssetId, arbitrumAssetId, arbitrumNovaAssetId, baseAssetId],
+  [ethAssetId]: [optimismAssetId, arbitrumAssetId, arbitrumNovaAssetId, baseAssetId, katanaAssetId],
   [foxAssetId]: [foxOnArbitrumOneAssetId],
 }
 

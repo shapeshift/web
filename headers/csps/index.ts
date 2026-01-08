@@ -14,6 +14,7 @@ import { csp as dogecoin } from './chains/dogecoin'
 import { csp as ethereum } from './chains/ethereum'
 import { csp as gnosis } from './chains/gnosis'
 import { csp as hyperevm } from './chains/hyperevm'
+import { csp as katana } from './chains/katana'
 import { csp as litecoin } from './chains/litecoin'
 import { csp as mayachain } from './chains/mayachain'
 import { csp as monad } from './chains/monad'
@@ -34,6 +35,7 @@ import { csp as idle } from './defi/idle'
 import { csp as mtpelerin } from './defi/mtpelerin'
 import { csp as safe } from './defi/safe'
 import { csp as zeroX } from './defi/swappers/0x'
+import { csp as avnu } from './defi/swappers/Avnu'
 import { csp as bebop } from './defi/swappers/Bebop'
 import { csp as butterSwap } from './defi/swappers/ButterSwap'
 import { csp as cowSwap } from './defi/swappers/CowSwap'
@@ -105,6 +107,7 @@ export const csps = [
   ethereum,
   gnosis,
   hyperevm,
+  katana,
   litecoin,
   optimism,
   polygon,
@@ -129,6 +132,7 @@ export const csps = [
   mtpelerin,
   safe,
   zeroX,
+  avnu,
   bebop,
   cowSwap,
   nearIntents,

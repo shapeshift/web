@@ -31,6 +31,7 @@
   },
   "dependencies": {
     "@arbitrum/sdk": "^4.0.1",
+    "@avnu/avnu-sdk": "^4.0.1",
     "@coral-xyz/anchor": "0.29.0",
     "@cowprotocol/app-data": "^2.3.0",
     "@defuse-protocol/one-click-sdk-typescript": "^0.1.1-0.2",
@@ -39,7 +40,7 @@
     "@shapeshiftoss/caip": "workspace:^",
     "@shapeshiftoss/chain-adapters": "workspace:^",
     "@shapeshiftoss/contracts": "workspace:^",
-    "@shapeshiftoss/hdwallet-core": "1.62.36",
+    "@shapeshiftoss/hdwallet-core": "1.62.38",
     "@shapeshiftoss/types": "workspace:^",
     "@shapeshiftoss/unchained-client": "workspace:^",
     "@shapeshiftoss/utils": "workspace:^",

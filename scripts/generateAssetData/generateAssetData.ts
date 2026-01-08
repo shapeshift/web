@@ -28,11 +28,13 @@ import * as arbitrumNova from './arbitrumNova'
 import * as avalanche from './avalanche'
 import * as base from './base'
 import * as bnbsmartchain from './bnbsmartchain'
+import { compressGeneratedAssets } from './compressAssets'
 import { ASSET_DATA_PATH, GENERATED_DIR, RELATED_ASSET_INDEX_PATH } from './constants'
 import * as ethereum from './ethereum'
 import { generateRelatedAssetIndex } from './generateRelatedAssetIndex/generateRelatedAssetIndex'
 import * as gnosis from './gnosis'
 import * as hyperevm from './hyperevm'
+import * as katana from './katana'
 import * as monad from './monad'
 import * as near from './near'
 import * as optimism from './optimism'
@@ -68,6 +70,7 @@ const generateAssetData = async () => {
   const baseAssets = await base.getAssets()
   const monadAssets = await monad.getAssets()
   const hyperevmAssets = await hyperevm.getAssets()
+  const katanaAssets = await katana.getAssets()
   const plasmaAssets = await plasma.getAssets()
   const solanaAssets = await solana.getAssets()
   const starknetAssets = await starknet.getAssets()
@@ -99,6 +102,7 @@ const generateAssetData = async () => {
     ...baseAssets,
     ...monadAssets,
     ...hyperevmAssets,
+    ...katanaAssets,
     ...plasmaAssets,
     ...solanaAssets,
     ...starknetAssets,
@@ -226,6 +230,9 @@ const main = async () => {
 
     // Generate manifest with content hashes for cache busting
     await generateManifest()
+
+    // Compress JSON files for optimized serving
+    await compressGeneratedAssets()
 
     console.info('Assets and related assets data generated.')
 

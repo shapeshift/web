@@ -5,13 +5,13 @@ import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { fromBaseUnit } from '@/lib/math'
 import { assertGetCosmosSdkChainAdapter } from '@/lib/utils/cosmosSdk'
 import { fetchYieldValidators } from '@/lib/yieldxyz/api'
-import { SHAPESHIFT_COSMOS_VALIDATOR_ADDRESS } from '@/lib/yieldxyz/constants'
+import {
+  COSMOS_DECIMALS,
+  COSMOS_SHAPESHIFT_FALLBACK_APR,
+  SHAPESHIFT_COSMOS_VALIDATOR_ADDRESS,
+  SHAPESHIFT_VALIDATOR_LOGO,
+} from '@/lib/yieldxyz/constants'
 import type { ValidatorDto } from '@/lib/yieldxyz/types'
-
-const SHAPESHIFT_VALIDATOR_LOGO =
-  'https://raw.githubusercontent.com/cosmostation/chainlist/main/chain/cosmos/moniker/cosmosvaloper199mlc7fr6ll5t54w7tts7f4s0cvnqgc59nmuxf.png'
-const FALLBACK_APR = '0.1425'
-const ATOM_DECIMALS = 6
 
 const fetchShapeShiftValidatorData = async (): Promise<{
   apr: string
@@ -22,12 +22,12 @@ const fetchShapeShiftValidatorData = async (): Promise<{
     const adapter = assertGetCosmosSdkChainAdapter(cosmosChainId)
     const validatorData = await adapter.getValidator(SHAPESHIFT_COSMOS_VALIDATOR_ADDRESS)
     return {
-      apr: validatorData?.apr ?? FALLBACK_APR,
+      apr: validatorData?.apr ?? COSMOS_SHAPESHIFT_FALLBACK_APR,
       commission: validatorData?.commission ?? '0.1',
       tokensBaseUnit: validatorData?.tokens ?? '0',
     }
   } catch {
-    return { apr: FALLBACK_APR, commission: '0.1', tokensBaseUnit: '0' }
+    return { apr: COSMOS_SHAPESHIFT_FALLBACK_APR, commission: '0.1', tokensBaseUnit: '0' }
   }
 }
 
@@ -36,7 +36,7 @@ const createShapeShiftValidator = (data: {
   commission: string
   tokensBaseUnit: string
 }): ValidatorDto => {
-  const tvlPrecision = fromBaseUnit(data.tokensBaseUnit, ATOM_DECIMALS)
+  const tvlPrecision = fromBaseUnit(data.tokensBaseUnit, COSMOS_DECIMALS)
 
   return {
     address: SHAPESHIFT_COSMOS_VALIDATOR_ADDRESS,

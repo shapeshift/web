@@ -57,6 +57,13 @@ export const YIELD_MAX_POLL_ATTEMPTS = 120
 export const SHAPESHIFT_COSMOS_VALIDATOR_ADDRESS =
   'cosmosvaloper199mlc7fr6ll5t54w7tts7f4s0cvnqgc59nmuxf'
 
+export const SHAPESHIFT_VALIDATOR_LOGO =
+  'https://raw.githubusercontent.com/cosmostation/chainlist/main/chain/cosmos/moniker/cosmosvaloper199mlc7fr6ll5t54w7tts7f4s0cvnqgc59nmuxf.png'
+
+export const COSMOS_SHAPESHIFT_FALLBACK_APR = '0.1425'
+
+export const COSMOS_DECIMALS = 6
+
 export const DEFAULT_NATIVE_VALIDATOR_BY_CHAIN_ID: Partial<Record<ChainId, string>> = {
   [cosmosChainId]: SHAPESHIFT_COSMOS_VALIDATOR_ADDRESS,
 }

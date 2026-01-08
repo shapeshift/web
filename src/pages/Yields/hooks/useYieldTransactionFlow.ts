@@ -221,11 +221,21 @@ export const useYieldTransactionFlow = ({
         // Use provided manageActionType or fallback to CLAIM_REWARDS (legacy behavior)
         const type = manageActionType || 'CLAIM_REWARDS'
 
-        return await manageYield(yieldItem.id, userAddress, type, passthrough, txArguments)
+        return await manageYield({
+          yieldId: yieldItem.id,
+          address: userAddress,
+          action: type,
+          passthrough,
+          arguments: txArguments,
+        })
       }
 
       const fn = action === 'enter' ? enterYield : exitYield
-      return await fn(yieldItem.id, userAddress, txArguments)
+      return await fn({
+        yieldId: yieldItem.id,
+        address: userAddress,
+        arguments: txArguments,
+      })
     },
     // Only fetch if we have valid arguments and wallet is connected
     enabled: !!txArguments && !!wallet && !!accountId && canSubmit && isOpen,
@@ -235,6 +245,35 @@ export const useYieldTransactionFlow = ({
 
   const filterExecutableTransactions = (transactions: TransactionDto[]): TransactionDto[] =>
     transactions.filter(tx => tx.status === TransactionStatus.Created)
+
+  const refetchAction = async (): Promise<TransactionDto[]> => {
+    if (!txArguments || !userAddress || !yieldItem.id) {
+      throw new Error('Missing arguments for refetch')
+    }
+
+    let actionData: { transactions: TransactionDto[] }
+
+    if (action === 'manage') {
+      if (!passthrough) throw new Error('Missing passthrough for manage action')
+      const type = manageActionType || 'CLAIM_REWARDS'
+      actionData = await manageYield({
+        yieldId: yieldItem.id,
+        address: userAddress,
+        action: type,
+        passthrough,
+        arguments: txArguments,
+      })
+    } else {
+      const fn = action === 'enter' ? enterYield : exitYield
+      actionData = await fn({
+        yieldId: yieldItem.id,
+        address: userAddress,
+        arguments: txArguments,
+      })
+    }
+
+    return filterExecutableTransactions(actionData.transactions)
+  }
 
   const executeSingleTransaction = async (
     tx: TransactionDto,
@@ -360,10 +399,15 @@ export const useYieldTransactionFlow = ({
         ),
       )
 
-      // Check if next step exists
       if (index + 1 < allTransactions.length) {
-        setActiveStepIndex(index + 1)
-        setIsSubmitting(false) // Stop submitting to allow user to click next button
+        const freshTransactions = await refetchAction()
+        if (freshTransactions.length > 0) {
+          setRawTransactions(freshTransactions)
+          setActiveStepIndex(0)
+        } else {
+          setStep(ModalStep.Success)
+        }
+        setIsSubmitting(false)
       } else {
         setStep(ModalStep.Success)
         setIsSubmitting(false)

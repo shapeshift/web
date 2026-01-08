@@ -379,13 +379,13 @@ export const YieldsList = () => {
       {
         header: translate('yieldXYZ.yield'),
         id: 'pool',
-        accessorFn: row => row.metadata.name,
+        accessorFn: row => row.token.symbol,
         enableSorting: true,
         sortingFn: 'alphanumeric',
         cell: ({ row }) => {
           const iconSource = resolveYieldInputAssetIcon(row.original)
           return (
-            <HStack spacing={4} minW='200px'>
+            <HStack spacing={4} minW='150px'>
               {iconSource.assetId ? (
                 <AssetIcon assetId={iconSource.assetId} size='sm' />
               ) : (
@@ -393,27 +393,43 @@ export const YieldsList = () => {
               )}
               <Box>
                 <Text fontWeight='bold' fontSize='sm' noOfLines={1} lineHeight='shorter'>
-                  {row.original.metadata.name}
+                  {row.original.token.symbol}
                 </Text>
-                <HStack spacing={1}>
-                  {row.original.chainId && <ChainIcon chainId={row.original.chainId} size='2xs' />}
+                {row.original.chainId && (
                   <HStack spacing={1}>
-                    <Avatar
-                      src={getProviderLogo(row.original.providerId)}
-                      size='2xs'
-                      name={row.original.providerId}
-                    />
-                    <Text fontSize='xs' color='text.subtle' textTransform='capitalize'>
-                      {row.original.providerId}
-                    </Text>
+                    <ChainIcon chainId={row.original.chainId} size='2xs' />
                   </HStack>
-                </HStack>
+                )}
               </Box>
             </HStack>
           )
         },
         meta: {
           display: { base: 'table-cell' },
+        },
+      },
+      {
+        header: translate('yieldXYZ.provider'),
+        id: 'provider',
+        accessorFn: row => row.providerId,
+        enableSorting: true,
+        sortingFn: 'alphanumeric',
+        cell: ({ row }) => {
+          return (
+            <HStack spacing={2}>
+              <Avatar
+                src={getProviderLogo(row.original.providerId)}
+                size='xs'
+                name={row.original.providerId}
+              />
+              <Text fontSize='sm' textTransform='capitalize'>
+                {row.original.providerId}
+              </Text>
+            </HStack>
+          )
+        },
+        meta: {
+          display: { base: 'none', md: 'table-cell' },
         },
       },
       {

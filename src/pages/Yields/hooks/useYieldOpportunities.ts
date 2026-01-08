@@ -36,34 +36,31 @@ export const useYieldOpportunities = ({ assetId, accountId }: UseYieldOpportunit
   }, [yields, asset, assetId])
 
   const accountBalances = useMemo(() => {
-    // Multi-account not implemented yet - throw if enabled without accountId
     if (multiAccountEnabled && !accountId) {
       throw new Error('Multi-account yield not yet implemented')
     }
 
     if (!allBalances || !matchingYields.length) return {}
 
-    const balances: Record<string, any> = {}
+    return matchingYields.reduce(
+      (acc, yieldItem) => {
+        const itemBalances = allBalances[yieldItem.id] || []
 
-    matchingYields.forEach(yieldItem => {
-      const itemBalances = allBalances[yieldItem.id] || []
+        const filtered = itemBalances.filter(b => {
+          if (accountId) {
+            return b.address.toLowerCase() === fromAccountId(accountId).account.toLowerCase()
+          }
+          return true
+        })
 
-      const filtered = itemBalances.filter(b => {
-        // If specific account requested
-        if (accountId) {
-          return b.address.toLowerCase() === fromAccountId(accountId).account.toLowerCase()
+        if (filtered.length > 0) {
+          acc[yieldItem.id] = filtered
         }
 
-        // Multi-account not implemented: show all balances for now
-        return true
-      })
-
-      if (filtered.length > 0) {
-        balances[yieldItem.id] = filtered
-      }
-    })
-
-    return balances
+        return acc
+      },
+      {} as Record<string, any>,
+    )
   }, [allBalances, matchingYields, accountId, multiAccountEnabled])
 
   return {

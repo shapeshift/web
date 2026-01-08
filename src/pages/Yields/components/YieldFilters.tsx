@@ -60,7 +60,12 @@ const FilterMenu = ({
   value: string | null
   options: { id: string; name: string; icon?: string; chainId?: ChainId }[]
   onSelect: (id: string | null) => void
-  renderIcon?: (opt: any) => React.ReactElement
+  renderIcon?: (opt: {
+    id: string
+    name: string
+    icon?: string
+    chainId?: ChainId
+  }) => React.ReactElement
 }) => {
   const selectedOption = options.find(o => o.id === value)
   const displayLabel = selectedOption ? selectedOption.name : label

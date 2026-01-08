@@ -1,4 +1,5 @@
 import { Transaction as SuiTransaction } from '@mysten/sui/transactions'
+import { Transaction as NearTransaction } from '@near-js/transactions'
 import type { ChainId } from '@shapeshiftoss/caip'
 import { CHAIN_NAMESPACE, fromChainId } from '@shapeshiftoss/caip'
 import type { SignTx } from '@shapeshiftoss/chain-adapters'
@@ -20,6 +21,7 @@ import type { TransactionDto } from './types'
 import { toBaseUnit } from '@/lib/math'
 import { assertGetCosmosSdkChainAdapter } from '@/lib/utils/cosmosSdk'
 import { assertGetEvmChainAdapter, signAndBroadcast as evmSignAndBroadcast } from '@/lib/utils/evm'
+import { assertGetNearChainAdapter } from '@/lib/utils/near'
 import { assertGetSolanaChainAdapter } from '@/lib/utils/solana'
 import { assertGetSuiChainAdapter } from '@/lib/utils/sui'
 import { assertGetTronChainAdapter } from '@/lib/utils/tron'
@@ -110,6 +112,14 @@ export const executeTransaction = async ({
     }
     case CHAIN_NAMESPACE.Tron: {
       return await executeTronTransaction({
+        unsignedTransaction: tx.unsignedTransaction,
+        chainId,
+        wallet,
+        bip44Params,
+      })
+    }
+    case CHAIN_NAMESPACE.Near: {
+      return await executeNearTransaction({
         unsignedTransaction: tx.unsignedTransaction,
         chainId,
         wallet,
@@ -478,5 +488,49 @@ const executeTronTransaction = async ({
   })
 
   if (!txHash) throw new Error('Failed to broadcast Tron transaction')
+  return txHash
+}
+
+type ExecuteNearTransactionInput = {
+  unsignedTransaction: string
+  chainId: ChainId
+  wallet: HDWallet
+  bip44Params?: { purpose: number; coinType: number; accountNumber: number }
+}
+
+const executeNearTransaction = async ({
+  unsignedTransaction,
+  chainId,
+  wallet,
+  bip44Params,
+}: ExecuteNearTransactionInput): Promise<string> => {
+  const adapter = assertGetNearChainAdapter(chainId)
+  const accountNumber = bip44Params?.accountNumber ?? 0
+
+  const txBytes = new Uint8Array(Buffer.from(unsignedTransaction, 'hex'))
+  const transaction = NearTransaction.decode(txBytes)
+
+  const adapterBip44Params = adapter.getBip44Params({ accountNumber })
+  const addressNList = toAddressNList(adapterBip44Params)
+
+  const txToSign = {
+    addressNList,
+    transaction,
+    txBytes,
+  }
+
+  const from = await adapter.getAddress({ accountNumber, wallet })
+
+  const signedTx = await adapter.signTransaction({ txToSign, wallet })
+
+  if (!signedTx) throw new Error('Failed to sign NEAR transaction')
+
+  const txHash = await adapter.broadcastTransaction({
+    senderAddress: from,
+    receiverAddress: CONTRACT_INTERACTION,
+    hex: signedTx,
+  })
+
+  if (!txHash) throw new Error('Failed to broadcast NEAR transaction')
   return txHash
 }

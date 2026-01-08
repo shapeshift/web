@@ -11,7 +11,6 @@ export const Yields = () => {
       <Routes>
         <Route path='asset/:assetId' element={<YieldAssetDetails />} />
         <Route index element={<YieldsList />} />
-        {/* More specific routes must come BEFORE general :yieldId route */}
         <Route path=':yieldId/enter' element={<YieldDetail />} />
         <Route path=':yieldId/exit' element={<YieldDetail />} />
         <Route path=':yieldId' element={<YieldDetail />} />

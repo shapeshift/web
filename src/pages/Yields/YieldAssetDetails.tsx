@@ -259,8 +259,73 @@ export const YieldAssetDetails = () => {
           display: { base: 'none', md: 'table-cell' },
         },
       },
+      {
+        header: translate('yieldXYZ.provider'),
+        id: 'provider',
+        accessorFn: row => row.providerId,
+        enableSorting: true,
+        sortingFn: 'alphanumeric',
+        cell: ({ row }) => {
+          return (
+            <HStack spacing={2}>
+              <Avatar
+                src={getProviderLogo(row.original.providerId)}
+                size='xs'
+                name={row.original.providerId}
+              />
+              <Text fontSize='sm' textTransform='capitalize'>
+                {row.original.providerId}
+              </Text>
+            </HStack>
+          )
+        },
+        meta: {
+          display: { base: 'none', md: 'table-cell' },
+        },
+      },
+      {
+        header: translate('yieldXYZ.yourBalance'),
+        id: 'balance',
+        accessorFn: row => {
+          const balances = allBalances?.[row.id]
+          if (!balances) return 0
+          return balances
+            .reduce((sum, b) => sum.plus(bnOrZero(b.amountUsd)), bnOrZero(0))
+            .toNumber()
+        },
+        enableSorting: true,
+        sortingFn: (rowA, rowB) => {
+          const balancesA = allBalances?.[rowA.original.id]
+          const balancesB = allBalances?.[rowB.original.id]
+          const a = balancesA
+            ? balancesA.reduce((sum, b) => sum.plus(bnOrZero(b.amountUsd)), bnOrZero(0)).toNumber()
+            : 0
+          const b = balancesB
+            ? balancesB.reduce((sum, b) => sum.plus(bnOrZero(b.amountUsd)), bnOrZero(0)).toNumber()
+            : 0
+          return a === b ? 0 : a > b ? 1 : -1
+        },
+        cell: ({ row }) => {
+          const balances = allBalances?.[row.original.id]
+          const totalUsd = balances
+            ? balances.reduce((sum, b) => sum.plus(bnOrZero(b.amountUsd)), bnOrZero(0))
+            : bnOrZero(0)
+          if (totalUsd.lte(0)) return null
+          const totalUserCurrency = totalUsd.times(userCurrencyToUsdRate).toFixed()
+          return (
+            <Box>
+              <Text fontWeight='bold' fontSize='sm' color='blue.400'>
+                <Amount.Fiat value={totalUserCurrency} abbreviated />
+              </Text>
+            </Box>
+          )
+        },
+        meta: {
+          display: { base: 'none', lg: 'table-cell' },
+        },
+      },
     ],
-    [translate, getProviderLogo, userCurrencyToUsdRate],
+    [translate, userCurrencyToUsdRate, getProviderLogo, allBalances],
   )
 
   const table = useReactTable({

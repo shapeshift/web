@@ -160,3 +160,9 @@ export const augmentYieldBalances = (
   balances: YieldBalance[],
   fallbackChainId?: ChainId,
 ): AugmentedYieldBalance[] => balances.map(b => augmentYieldBalance(b, fallbackChainId))
+
+// TODO: Quadruple check all augmentation logic in this file - verify:
+// - All network string to ChainId mappings are correct
+// - All token augmentation includes proper assetId derivation
+// - Fallback chainId logic is sound for edge cases
+// - No data loss during Omit/spread operations

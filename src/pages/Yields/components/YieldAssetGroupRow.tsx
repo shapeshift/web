@@ -121,9 +121,6 @@ export const YieldAssetGroupRow = ({
 
           {userGroupBalanceUsd && userGroupBalanceUsd.gt(0) && (
             <Box minW='120px' display={{ base: 'none', md: 'block' }}>
-              <Text fontSize='xs' color='text.subtle'>
-                My Balance
-              </Text>
               <Text fontSize='sm' fontWeight='bold' color='blue.400'>
                 <Amount.Fiat value={userGroupBalanceUserCurrency ?? '0'} abbreviated />
               </Text>

@@ -14,7 +14,7 @@ export const useSubmitYieldTransactionHash = () => {
       hash: string
       yieldId?: string
       address?: string
-    }) => submitTransactionHash(transactionId, hash),
+    }) => submitTransactionHash({ transactionId, hash }),
     onSuccess: (_, variables) => {
       if (variables.yieldId && variables.address) {
         queryClient.invalidateQueries({

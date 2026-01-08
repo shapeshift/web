@@ -52,6 +52,17 @@ type ValidatorGroupedBalances = {
   totalUsd: string
 }
 
+type ClaimModalData = {
+  validatorAddress: string
+  validatorName: string
+  validatorLogoURI: string | undefined
+  amount: string
+  assetSymbol: string
+  assetLogoURI: string | undefined
+  passthrough: string
+  manageActionType: string
+}
+
 export const ValidatorBreakdown = ({
   yieldItem,
   balances,
@@ -60,16 +71,7 @@ export const ValidatorBreakdown = ({
   const translate = useTranslate()
   const { isOpen, onToggle } = useDisclosure({ defaultIsOpen: true })
 
-  const [claimModalData, setClaimModalData] = useState<{
-    validatorAddress: string
-    validatorName: string
-    validatorLogoURI: string | undefined
-    amount: string
-    assetSymbol: string
-    assetLogoURI: string | undefined
-    passthrough: string
-    manageActionType: string
-  } | null>(null)
+  const [claimModalData, setClaimModalData] = useState<ClaimModalData | null>(null)
 
   const handleClaimClose = useCallback(() => setClaimModalData(null), [])
 
@@ -108,19 +110,16 @@ export const ValidatorBreakdown = ({
   const groupedByValidator = useMemo((): ValidatorGroupedBalances[] => {
     if (!balances || !requiresValidatorSelection) return []
 
-    const validatorMap = new Map<
-      string,
-      Omit<ValidatorGroupedBalances, 'totalUsd'> & { totalUsd: ReturnType<typeof bnOrZero> }
-    >()
+    const balancesWithValidators = balances.raw.filter(
+      (b): b is typeof b & { validator: NonNullable<typeof b.validator> } => !!b.validator,
+    )
 
-    for (const balance of balances.raw) {
-      if (!balance.validator) continue
-
+    const validatorMap = balancesWithValidators.reduce((map, balance) => {
       const key = balance.validator.address
-      const existing = validatorMap.get(key)
+      const existing = map.get(key)
 
       if (!existing) {
-        validatorMap.set(key, {
+        return map.set(key, {
           validator: balance.validator,
           active: balance.type === YieldBalanceType.Active ? balance : undefined,
           entering: balance.type === YieldBalanceType.Entering ? balance : undefined,
@@ -128,14 +127,17 @@ export const ValidatorBreakdown = ({
           claimable: balance.type === YieldBalanceType.Claimable ? balance : undefined,
           totalUsd: bnOrZero(balance.amountUsd),
         })
-      } else {
-        if (balance.type === YieldBalanceType.Active) existing.active = balance
-        if (balance.type === YieldBalanceType.Entering) existing.entering = balance
-        if (balance.type === YieldBalanceType.Exiting) existing.exiting = balance
-        if (balance.type === YieldBalanceType.Claimable) existing.claimable = balance
-        existing.totalUsd = existing.totalUsd.plus(bnOrZero(balance.amountUsd))
       }
-    }
+
+      return map.set(key, {
+        ...existing,
+        active: balance.type === YieldBalanceType.Active ? balance : existing.active,
+        entering: balance.type === YieldBalanceType.Entering ? balance : existing.entering,
+        exiting: balance.type === YieldBalanceType.Exiting ? balance : existing.exiting,
+        claimable: balance.type === YieldBalanceType.Claimable ? balance : existing.claimable,
+        totalUsd: existing.totalUsd.plus(bnOrZero(balance.amountUsd)),
+      })
+    }, new Map<string, Omit<ValidatorGroupedBalances, 'totalUsd'> & { totalUsd: ReturnType<typeof bnOrZero> }>())
 
     return Array.from(validatorMap.values())
       .filter(

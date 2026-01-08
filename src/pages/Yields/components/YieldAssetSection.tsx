@@ -9,6 +9,7 @@ import { YieldAssetRow, YieldAssetRowSkeleton } from './YieldAssetRow'
 import { YieldOpportunityCard } from './YieldOpportunityCard'
 
 import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
+import type { AugmentedYieldDto } from '@/lib/yieldxyz/types'
 
 type YieldAssetSectionProps = {
   assetId: AssetId
@@ -34,7 +35,7 @@ export const YieldAssetSection = ({ assetId, accountId }: YieldAssetSectionProps
 
   const hasActivePositions = Object.keys(balances).length > 0
 
-  const handleOpportunityClick = (yieldItem: any) => {
+  const handleOpportunityClick = (yieldItem: AugmentedYieldDto) => {
     navigate(`/yields/${yieldItem.id}`)
   }
 
@@ -45,12 +46,10 @@ export const YieldAssetSection = ({ assetId, accountId }: YieldAssetSectionProps
       </Heading>
 
       <Stack spacing={4}>
-        {/* Active Positions Table */}
         {hasActivePositions && (
           <YieldActivePositions balances={balances} yields={yields} assetId={assetId} />
         )}
 
-        {/* Loading State */}
         {isLoading && (
           <VStack spacing={4} align='stretch'>
             <YieldAssetRowSkeleton />
@@ -58,12 +57,10 @@ export const YieldAssetSection = ({ assetId, accountId }: YieldAssetSectionProps
           </VStack>
         )}
 
-        {/* Upsell State: No active positions, show best opportunity card */}
         {!isLoading && !hasActivePositions && bestYield && (
           <YieldOpportunityCard maxApyYield={bestYield} onClick={handleOpportunityClick} />
         )}
 
-        {/* Opportunities list: only show when user has active positions (to show additional opportunities) */}
         {!isLoading &&
           hasActivePositions &&
           (() => {

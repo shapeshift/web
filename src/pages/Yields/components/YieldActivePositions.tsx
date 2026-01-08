@@ -13,6 +13,7 @@ import {
   useColorModeValue,
 } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
+import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useNavigate } from 'react-router-dom'
 
@@ -21,12 +22,13 @@ import { AssetIcon } from '@/components/AssetIcon'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import type { AugmentedYieldDto } from '@/lib/yieldxyz/types'
 import { resolveYieldInputAssetIcon } from '@/lib/yieldxyz/utils'
+import type { AugmentedYieldBalanceWithAccountId } from '@/react-queries/queries/yieldxyz/useAllYieldBalances'
 import { useYieldProviders } from '@/react-queries/queries/yieldxyz/useYieldProviders'
 import { selectAssetById, selectUserCurrencyToUsdRate } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
 type YieldActivePositionsProps = {
-  balances: Record<string, any[]>
+  balances: Record<string, AugmentedYieldBalanceWithAccountId[]>
   yields: AugmentedYieldDto[]
   assetId: AssetId
 }
@@ -41,26 +43,32 @@ export const YieldActivePositions = ({ balances, yields, assetId }: YieldActiveP
 
   const { data: providers } = useYieldProviders()
 
-  const getProviderLogo = (providerId: string) => {
-    return providers?.[providerId]?.logoURI
-  }
+  const getProviderLogo = useCallback(
+    (providerId: string) => providers?.[providerId]?.logoURI,
+    [providers],
+  )
+
+  const activeYields = useMemo(
+    () => yields.filter(y => balances[y.id] && balances[y.id].length > 0),
+    [yields, balances],
+  )
+
+  const handleRowClick = useCallback(
+    (yieldId: string) => navigate(`/yields/${yieldId}`),
+    [navigate],
+  )
+
+  const hasValidators = useMemo(
+    () =>
+      activeYields.some(y => {
+        const yieldBalances = balances[y.id]
+        return yieldBalances.some(b => !!b.validator)
+      }),
+    [activeYields, balances],
+  )
 
   if (!asset) return null
-
-  // Filter yields that have balances
-  const activeYields = yields.filter(y => balances[y.id] && balances[y.id].length > 0)
-
   if (activeYields.length === 0) return null
-
-  const handleRowClick = (yieldId: string) => {
-    navigate(`/yields/${yieldId}`)
-  }
-
-  // Check if any active position has a validator to determine column header
-  const hasValidators = activeYields.some(y => {
-    const yieldBalances = balances[y.id]
-    return yieldBalances.some((b: any) => !!b.validator)
-  })
 
   return (
     <Box>
@@ -91,12 +99,10 @@ export const YieldActivePositions = ({ balances, yields, assetId }: YieldActiveP
             {activeYields.map(yieldItem => {
               const yieldBalances = balances[yieldItem.id]
 
-              // Check if we have validator-specific balances
-              // We group by validator address if meaningful validator info exists
-              const validatorGroups: Record<string, typeof yieldBalances> = {}
-              const noValidatorBalances: typeof yieldBalances = []
+              const validatorGroups: Record<string, AugmentedYieldBalanceWithAccountId[]> = {}
+              const noValidatorBalances: AugmentedYieldBalanceWithAccountId[] = []
 
-              yieldBalances.forEach((b: any) => {
+              yieldBalances.forEach(b => {
                 if (b.validator) {
                   const key = b.validator.address
                   if (!validatorGroups[key]) validatorGroups[key] = []
@@ -108,15 +114,14 @@ export const YieldActivePositions = ({ balances, yields, assetId }: YieldActiveP
 
               const rows = []
 
-              // Render validator rows
               Object.entries(validatorGroups).forEach(([validatorAddress, groupBalances]) => {
                 const validator = groupBalances[0].validator
                 const totalCrypto = groupBalances.reduce(
-                  (acc: any, b: any) => acc.plus(b.amount),
+                  (acc, b) => acc.plus(b.amount),
                   bnOrZero(0),
                 )
                 const totalUsd = groupBalances.reduce(
-                  (acc: any, b: any) => acc.plus(b.amountUsd),
+                  (acc, b) => acc.plus(b.amountUsd),
                   bnOrZero(0),
                 )
                 const totalUserCurrency = totalUsd.times(userCurrencyToUsdRate).toFixed()
@@ -193,15 +198,13 @@ export const YieldActivePositions = ({ balances, yields, assetId }: YieldActiveP
                 )
               })
 
-              // Render remaining (non-validator) balances as a generic row if any exist
-              // (or if there were no validators at all, this catches the standard case)
               if (noValidatorBalances.length > 0) {
                 const totalCrypto = noValidatorBalances.reduce(
-                  (acc: any, b: any) => acc.plus(b.amount),
+                  (acc, b) => acc.plus(b.amount),
                   bnOrZero(0),
                 )
                 const totalUsd = noValidatorBalances.reduce(
-                  (acc: any, b: any) => acc.plus(b.amountUsd),
+                  (acc, b) => acc.plus(b.amountUsd),
                   bnOrZero(0),
                 )
                 const totalUserCurrency = totalUsd.times(userCurrencyToUsdRate).toFixed()

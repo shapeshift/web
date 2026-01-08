@@ -123,6 +123,7 @@ interface ImportMetaEnv {
   readonly VITE_TENDERLY_API_KEY: string
   readonly VITE_FEATURE_ADDRESS_BOOK: string
   readonly VITE_FEATURE_YIELD_XYZ: string
+  readonly VITE_FEATURE_YIELD_MULTI_ACCOUNT: string
   readonly VITE_YIELD_XYZ_API_KEY: string
   readonly VITE_YIELD_XYZ_BASE_URL: string
 

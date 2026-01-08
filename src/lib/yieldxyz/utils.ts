@@ -5,7 +5,7 @@ import {
   isSupportedYieldNetwork,
   YIELD_NETWORK_TO_CHAIN_ID,
 } from './constants'
-import type { YieldDto, YieldNetwork } from './types'
+import type { YieldDto, YieldIconSource, YieldNetwork } from './types'
 
 export const chainIdToYieldNetwork = (chainId: ChainId): YieldNetwork | undefined =>
   CHAIN_ID_TO_YIELD_NETWORK[chainId]
@@ -37,19 +37,21 @@ export const filterSupportedYields = (yields: YieldDto[]): YieldDto[] =>
 export const isExitableBalanceType = (type: string): boolean =>
   type === 'active' || type === 'withdrawable'
 
-export const formatYieldTxTitle = (title: string, assetSymbol: string): string => {
-  const t = title.replace(/ transaction$/i, '').toLowerCase()
-  if (t.includes('approval') || t.includes('approve')) return `Approve ${assetSymbol}`
-  if (t.includes('supply') || t.includes('deposit') || t.includes('enter'))
-    return `Deposit ${assetSymbol}`
-  if (t.includes('withdraw') || t.includes('exit')) return `Withdraw ${assetSymbol}`
-  if (t.includes('claim')) return `Claim ${assetSymbol}`
-  if (t.includes('unstake')) return `Unstake ${assetSymbol}`
-  if (t.includes('stake')) return `Stake ${assetSymbol}`
-  return t.charAt(0).toUpperCase() + t.slice(1)
-}
+const TX_TITLE_PATTERNS: [RegExp, string][] = [
+  [/approv/i, 'Approve'],
+  [/supply|deposit|enter/i, 'Deposit'],
+  [/withdraw|exit/i, 'Withdraw'],
+  [/claim/i, 'Claim'],
+  [/unstake/i, 'Unstake'],
+  [/stake/i, 'Stake'],
+]
 
-type YieldIconSource = { assetId: string | undefined; src: string | undefined }
+export const formatYieldTxTitle = (title: string, assetSymbol: string): string => {
+  const normalized = title.replace(/ transaction$/i, '').toLowerCase()
+  const match = TX_TITLE_PATTERNS.find(([pattern]) => pattern.test(normalized))
+  if (match) return `${match[1]} ${assetSymbol}`
+  return normalized.charAt(0).toUpperCase() + normalized.slice(1)
+}
 
 type YieldItemForIcon = {
   inputTokens: { assetId?: string; logoURI?: string }[]

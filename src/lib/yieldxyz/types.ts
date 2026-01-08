@@ -398,3 +398,8 @@ export type ParsedGasEstimate = {
   amount: string
   gasLimit: string
 }
+
+export type YieldIconSource = {
+  assetId: string | undefined
+  src: string | undefined
+}

@@ -24,11 +24,7 @@ import { AssetInput } from '@/components/DeFi/components/AssetInput'
 import { WalletActions } from '@/context/WalletProvider/actions'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
-import {
-  DEFAULT_NATIVE_VALIDATOR_BY_CHAIN_ID,
-  SHAPESHIFT_COSMOS_VALIDATOR_ADDRESS,
-  SUI_GAS_BUFFER,
-} from '@/lib/yieldxyz/constants'
+import { DEFAULT_NATIVE_VALIDATOR_BY_CHAIN_ID, SUI_GAS_BUFFER } from '@/lib/yieldxyz/constants'
 import type { AugmentedYieldDto, ValidatorDto } from '@/lib/yieldxyz/types'
 import { YieldBalanceType, YieldNetwork } from '@/lib/yieldxyz/types'
 import { GradientApy } from '@/pages/Yields/components/GradientApy'
@@ -158,16 +154,6 @@ export const YieldEnterExit = memo(
           apr: undefined,
           commission: undefined,
         }
-
-      if (selectedValidatorAddress === SHAPESHIFT_COSMOS_VALIDATOR_ADDRESS) {
-        return {
-          name: 'ShapeShift',
-          logoURI: 'https://assets.coincap.io/assets/icons/256/fox.png',
-          address: selectedValidatorAddress,
-          apr: '0',
-          commission: '0',
-        }
-      }
 
       return {
         name: `${selectedValidatorAddress.slice(0, 6)}...${selectedValidatorAddress.slice(-4)}`,
@@ -381,8 +367,8 @@ export const YieldEnterExit = memo(
     const exitTabOpacity = useMemo(() => (exitTabDisabled ? 0.5 : 1), [exitTabDisabled])
 
     const isPreferredValidator = useMemo(
-      () => validatorMetadata?.address === SHAPESHIFT_COSMOS_VALIDATOR_ADDRESS,
-      [validatorMetadata?.address],
+      () => (validatorMetadata as ValidatorDto | undefined)?.preferred === true,
+      [validatorMetadata],
     )
 
     const validatorRewardRate = useMemo(() => {

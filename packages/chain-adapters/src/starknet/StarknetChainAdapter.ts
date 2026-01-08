@@ -5,6 +5,7 @@ import { supportsStarknet } from '@shapeshiftoss/hdwallet-core'
 import type { Bip44Params, RootBip44Params } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { TransferType, TxStatus } from '@shapeshiftoss/unchained-client'
+import { bnOrZero } from '@shapeshiftoss/utils'
 import PQueue from 'p-queue'
 import type { Call } from 'starknet'
 import { CallData, hash, num, RpcProvider, validateAndParseAddress } from 'starknet'
@@ -52,6 +53,77 @@ const STRK_TOKEN_ADDRESS = '0x04718f5a0fc34cc1af16a1cdee98ffb20c31f5cd61d6ab0720
 // OpenZeppelin account contract class hash - same as used in hdwallet
 const OPENZEPPELIN_ACCOUNT_CLASS_HASH =
   '0x05b4b537eaa2399e3aa99c4e2e0208ebd6c71bc1467938cd52c798c601e43564'
+
+// Static fee estimates for undeployed accounts
+// Used as fallback when RPC estimation fails
+// These match typical Starknet transaction costs (account deployment costs ~0.001-0.01 STRK)
+const STATIC_FEE_ESTIMATES = {
+  l1GasConsumed: '0x186a0', // 100,000
+  l1GasPrice: '0x5f5e100', // 100 gwei
+  l2GasConsumed: '0x0',
+  l2GasPrice: '0x0',
+  l1DataGasConsumed: '0x186a0', // 100,000
+  l1DataGasPrice: '0x1', // 1 wei
+}
+
+const calculateFeeTiers = (params: {
+  l1GasConsumed: string
+  l1GasPrice: string
+  l2GasConsumed: string
+  l2GasPrice: string
+  l1DataGasConsumed: string
+  l1DataGasPrice: string
+}): FeeDataEstimate<KnownChainIds.StarknetMainnet> => {
+  const {
+    l1GasConsumed,
+    l1GasPrice,
+    l2GasConsumed,
+    l2GasPrice,
+    l1DataGasConsumed,
+    l1DataGasPrice,
+  } = params
+
+  const baseFee = bnOrZero(l1GasConsumed)
+    .times(l1GasPrice)
+    .plus(bnOrZero(l2GasConsumed).times(l2GasPrice))
+    .plus(bnOrZero(l1DataGasConsumed).times(l1DataGasPrice))
+
+  const slowMaxFee = bnOrZero(l1GasConsumed)
+    .times(1.5)
+    .times(bnOrZero(l1GasPrice).times(1.2))
+    .plus(bnOrZero(l2GasConsumed).times(1.5).times(bnOrZero(l2GasPrice).times(1.2)))
+    .plus(bnOrZero(l1DataGasConsumed).times(1.5).times(bnOrZero(l1DataGasPrice).times(1.2)))
+    .toFixed(0)
+
+  const averageMaxFee = bnOrZero(l1GasConsumed)
+    .times(3)
+    .times(bnOrZero(l1GasPrice).times(1.5))
+    .plus(bnOrZero(l2GasConsumed).times(3).times(bnOrZero(l2GasPrice).times(1.5)))
+    .plus(bnOrZero(l1DataGasConsumed).times(3).times(bnOrZero(l1DataGasPrice).times(1.5)))
+    .toFixed(0)
+
+  const fastMaxFee = bnOrZero(l1GasConsumed)
+    .times(5)
+    .times(bnOrZero(l1GasPrice).times(2))
+    .plus(bnOrZero(l2GasConsumed).times(5).times(bnOrZero(l2GasPrice).times(2)))
+    .plus(bnOrZero(l1DataGasConsumed).times(5).times(bnOrZero(l1DataGasPrice).times(2)))
+    .toFixed(0)
+
+  return {
+    slow: {
+      txFee: baseFee.times(1.8).toFixed(0),
+      chainSpecific: { maxFee: slowMaxFee },
+    },
+    average: {
+      txFee: baseFee.times(4.5).toFixed(0),
+      chainSpecific: { maxFee: averageMaxFee },
+    },
+    fast: {
+      txFee: baseFee.times(10).toFixed(0),
+      chainSpecific: { maxFee: fastMaxFee },
+    },
+  }
+}
 
 export class ChainAdapter implements IChainAdapter<KnownChainIds.StarknetMainnet> {
   static readonly rootBip44Params: RootBip44Params = {
@@ -340,6 +412,9 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.StarknetMainnet
 
       this.assertSupportsChain(wallet)
 
+      const address = await this.getAddress({ accountNumber, wallet })
+      const isDeployed = await this.isAccountDeployed(address)
+
       const publicKey = await wallet.starknetGetPublicKey({
         addressNList: toAddressNList(this.getBip44Params({ accountNumber })),
       })
@@ -361,6 +436,63 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.StarknetMainnet
       })
 
       const formattedSalt = salt.startsWith('0x') ? salt : `0x${salt}`
+
+      if (!isDeployed) {
+        const estimateTx = {
+          type: 'DEPLOY_ACCOUNT',
+          version,
+          signature: [],
+          nonce,
+          contract_address_salt: formattedSalt,
+          constructor_calldata: formattedCalldata,
+          class_hash: OPENZEPPELIN_ACCOUNT_CLASS_HASH,
+          resource_bounds: {
+            l1_gas: { max_amount: '0x186a0', max_price_per_unit: '0x5f5e100' },
+            l2_gas: { max_amount: '0x0', max_price_per_unit: '0x0' },
+            l1_data_gas: { max_amount: '0x186a0', max_price_per_unit: '0x1' },
+          },
+          tip: '0x0',
+          paymaster_data: [],
+          nonce_data_availability_mode: 'L1',
+          fee_data_availability_mode: 'L1',
+        }
+
+        try {
+          const estimateResponse = await this.provider.fetch('starknet_estimateFee', [
+            [estimateTx],
+            ['SKIP_VALIDATE'],
+            'latest',
+          ])
+          const estimateResult: RpcJsonResponse<StarknetFeeEstimate[]> =
+            await estimateResponse.json()
+
+          if (!estimateResult.error && estimateResult.result?.[0]) {
+            const feeEstimate = estimateResult.result[0]
+            console.log(
+              '[StarknetChainAdapter.getDeployAccountFeeData] RPC estimate for undeployed account:',
+              feeEstimate,
+            )
+            return calculateFeeTiers({
+              l1GasConsumed: feeEstimate.l1_gas_consumed ?? '0x186a0',
+              l1GasPrice: feeEstimate.l1_gas_price ?? '0x5f5e100',
+              l2GasConsumed: feeEstimate.l2_gas_consumed ?? '0x0',
+              l2GasPrice: feeEstimate.l2_gas_price ?? '0x0',
+              l1DataGasConsumed: feeEstimate.l1_data_gas_consumed ?? '0x186a0',
+              l1DataGasPrice: feeEstimate.l1_data_gas_price ?? '0x1',
+            })
+          }
+        } catch (error) {
+          console.log(
+            '[StarknetChainAdapter.getDeployAccountFeeData] RPC estimation failed for undeployed account, using static estimates:',
+            error,
+          )
+        }
+
+        console.log(
+          '[StarknetChainAdapter.getDeployAccountFeeData] Using static estimates for undeployed account',
+        )
+        return calculateFeeTiers(STATIC_FEE_ESTIMATES)
+      }
 
       const estimateTx = {
         type: 'DEPLOY_ACCOUNT',
@@ -389,7 +521,8 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.StarknetMainnet
       const estimateResult: RpcJsonResponse<StarknetFeeEstimate[]> = await estimateResponse.json()
 
       if (estimateResult.error) {
-        throw new Error(`Fee estimation failed: ${estimateResult.error.message}`)
+        const errorMessage = estimateResult.error.message || JSON.stringify(estimateResult.error)
+        throw new Error(`Fee estimation failed: ${errorMessage}`)
       }
 
       const feeEstimate = estimateResult.result?.[0]
@@ -397,61 +530,14 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.StarknetMainnet
         throw new Error('Fee estimation failed: no estimate returned')
       }
 
-      const l1GasConsumed = feeEstimate.l1_gas_consumed
-        ? BigInt(feeEstimate.l1_gas_consumed)
-        : BigInt('0x186a0')
-      const l1GasPrice = feeEstimate.l1_gas_price
-        ? BigInt(feeEstimate.l1_gas_price)
-        : BigInt('0x5f5e100')
-      const l2GasConsumed = feeEstimate.l2_gas_consumed
-        ? BigInt(feeEstimate.l2_gas_consumed)
-        : BigInt('0x0')
-      const l2GasPrice = feeEstimate.l2_gas_price ? BigInt(feeEstimate.l2_gas_price) : BigInt('0x0')
-      const l1DataGasConsumed = feeEstimate.l1_data_gas_consumed
-        ? BigInt(feeEstimate.l1_data_gas_consumed)
-        : BigInt('0x186a0')
-      const l1DataGasPrice = feeEstimate.l1_data_gas_price
-        ? BigInt(feeEstimate.l1_data_gas_price)
-        : BigInt('0x1')
-
-      const baseFee =
-        l1GasConsumed * l1GasPrice + l2GasConsumed * l2GasPrice + l1DataGasConsumed * l1DataGasPrice
-
-      const slowMaxFee = (
-        ((l1GasConsumed * BigInt(150)) / BigInt(100)) * ((l1GasPrice * BigInt(120)) / BigInt(100)) +
-        ((l2GasConsumed * BigInt(150)) / BigInt(100)) * ((l2GasPrice * BigInt(120)) / BigInt(100)) +
-        ((l1DataGasConsumed * BigInt(150)) / BigInt(100)) *
-          ((l1DataGasPrice * BigInt(120)) / BigInt(100))
-      ).toString()
-
-      const averageMaxFee = (
-        ((l1GasConsumed * BigInt(300)) / BigInt(100)) * ((l1GasPrice * BigInt(150)) / BigInt(100)) +
-        ((l2GasConsumed * BigInt(300)) / BigInt(100)) * ((l2GasPrice * BigInt(150)) / BigInt(100)) +
-        ((l1DataGasConsumed * BigInt(300)) / BigInt(100)) *
-          ((l1DataGasPrice * BigInt(150)) / BigInt(100))
-      ).toString()
-
-      const fastMaxFee = (
-        ((l1GasConsumed * BigInt(500)) / BigInt(100)) * ((l1GasPrice * BigInt(200)) / BigInt(100)) +
-        ((l2GasConsumed * BigInt(500)) / BigInt(100)) * ((l2GasPrice * BigInt(200)) / BigInt(100)) +
-        ((l1DataGasConsumed * BigInt(500)) / BigInt(100)) *
-          ((l1DataGasPrice * BigInt(200)) / BigInt(100))
-      ).toString()
-
-      return {
-        slow: {
-          txFee: ((baseFee * BigInt(180)) / BigInt(100)).toString(),
-          chainSpecific: { maxFee: slowMaxFee },
-        },
-        average: {
-          txFee: ((baseFee * BigInt(450)) / BigInt(100)).toString(),
-          chainSpecific: { maxFee: averageMaxFee },
-        },
-        fast: {
-          txFee: ((baseFee * BigInt(1000)) / BigInt(100)).toString(),
-          chainSpecific: { maxFee: fastMaxFee },
-        },
-      }
+      return calculateFeeTiers({
+        l1GasConsumed: feeEstimate.l1_gas_consumed ?? '0x186a0',
+        l1GasPrice: feeEstimate.l1_gas_price ?? '0x5f5e100',
+        l2GasConsumed: feeEstimate.l2_gas_consumed ?? '0x0',
+        l2GasPrice: feeEstimate.l2_gas_price ?? '0x0',
+        l1DataGasConsumed: feeEstimate.l1_data_gas_consumed ?? '0x186a0',
+        l1DataGasPrice: feeEstimate.l1_data_gas_price ?? '0x1',
+      })
     } catch (err) {
       return ErrorHandler(err, {
         translation: 'chainAdapters.errors.getFeeData',
@@ -505,7 +591,22 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.StarknetMainnet
 
       const formattedSalt = salt.startsWith('0x') ? salt : `0x${salt}`
 
-      // Estimate fees
+      const callResult: string[] = await this.provider.callContract({
+        contractAddress: STRK_TOKEN_ADDRESS,
+        entrypoint: 'balanceOf',
+        calldata: [address],
+      })
+
+      const low = BigInt(callResult[0] ?? '0x0')
+      const high = BigInt(callResult[1] ?? '0x0')
+      const balance = low + (high << BigInt(128))
+
+      let resourceBounds: {
+        l1_gas: { max_amount: bigint; max_price_per_unit: bigint }
+        l2_gas: { max_amount: bigint; max_price_per_unit: bigint }
+        l1_data_gas: { max_amount: bigint; max_price_per_unit: bigint }
+      }
+
       const estimateTx = {
         type: 'DEPLOY_ACCOUNT',
         version,
@@ -521,56 +622,102 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.StarknetMainnet
         },
         tip: '0x0',
         paymaster_data: [],
-        nonce_data_availability_mode: 'L1', // RPC expects "L1" or "L2"
+        nonce_data_availability_mode: 'L1',
         fee_data_availability_mode: 'L1',
       }
 
-      const estimateResponse = await this.provider.fetch('starknet_estimateFee', [
-        [estimateTx],
-        ['SKIP_VALIDATE'],
-        'latest',
-      ])
-      const estimateResult: RpcJsonResponse<StarknetFeeEstimate[]> = await estimateResponse.json()
+      try {
+        const estimateResponse = await this.provider.fetch('starknet_estimateFee', [
+          [estimateTx],
+          ['SKIP_VALIDATE'],
+          'latest',
+        ])
+        const estimateResult: RpcJsonResponse<StarknetFeeEstimate[]> = await estimateResponse.json()
 
-      if (estimateResult.error) {
-        throw new Error(`Fee estimation failed: ${estimateResult.error.message}`)
+        if (!estimateResult.error && estimateResult.result?.[0]) {
+          const feeEstimate = estimateResult.result[0]
+          console.log('[StarknetChainAdapter.deployAccount] Using RPC estimate:', feeEstimate)
+
+          resourceBounds = {
+            l1_gas: {
+              max_amount:
+                (BigInt(feeEstimate.l1_gas_consumed ?? '0x186a0') * BigInt(150)) / BigInt(100),
+              max_price_per_unit:
+                (BigInt(feeEstimate.l1_gas_price ?? '0x5f5e100') * BigInt(150)) / BigInt(100),
+            },
+            l2_gas: {
+              max_amount:
+                (BigInt(feeEstimate.l2_gas_consumed ?? '0x0') * BigInt(150)) / BigInt(100),
+              max_price_per_unit:
+                (BigInt(feeEstimate.l2_gas_price ?? '0x0') * BigInt(150)) / BigInt(100),
+            },
+            l1_data_gas: {
+              max_amount:
+                (BigInt(feeEstimate.l1_data_gas_consumed ?? '0x186a0') * BigInt(150)) / BigInt(100),
+              max_price_per_unit:
+                (BigInt(feeEstimate.l1_data_gas_price ?? '0x1') * BigInt(150)) / BigInt(100),
+            },
+          }
+        } else {
+          throw new Error('RPC estimation failed or returned empty result')
+        }
+      } catch (error) {
+        console.log(
+          '[StarknetChainAdapter.deployAccount] RPC estimation failed, using static estimates:',
+          error,
+        )
+
+        const {
+          l1GasConsumed,
+          l1GasPrice,
+          l2GasConsumed,
+          l2GasPrice,
+          l1DataGasConsumed,
+          l1DataGasPrice,
+        } = STATIC_FEE_ESTIMATES
+
+        resourceBounds = {
+          l1_gas: {
+            max_amount: BigInt(bnOrZero(l1GasConsumed).times(1.5).toFixed(0)),
+            max_price_per_unit: BigInt(bnOrZero(l1GasPrice).times(1.5).toFixed(0)),
+          },
+          l2_gas: {
+            max_amount: BigInt(bnOrZero(l2GasConsumed).times(1.5).toFixed(0)),
+            max_price_per_unit: BigInt(bnOrZero(l2GasPrice).times(1.5).toFixed(0)),
+          },
+          l1_data_gas: {
+            max_amount: BigInt(bnOrZero(l1DataGasConsumed).times(1.5).toFixed(0)),
+            max_price_per_unit: BigInt(bnOrZero(l1DataGasPrice).times(1.5).toFixed(0)),
+          },
+        }
       }
 
-      const feeEstimate = estimateResult.result?.[0]
-      if (!feeEstimate) {
-        throw new Error('Fee estimation failed: no estimate returned')
-      }
+      const totalMaxFee =
+        resourceBounds.l1_gas.max_amount * resourceBounds.l1_gas.max_price_per_unit +
+        resourceBounds.l2_gas.max_amount * resourceBounds.l2_gas.max_price_per_unit +
+        resourceBounds.l1_data_gas.max_amount * resourceBounds.l1_data_gas.max_price_per_unit
 
-      const l1GasConsumed = feeEstimate.l1_gas_consumed
-        ? BigInt(feeEstimate.l1_gas_consumed)
-        : BigInt('0x186a0')
-      const l1GasPrice = feeEstimate.l1_gas_price
-        ? BigInt(feeEstimate.l1_gas_price)
-        : BigInt('0x5f5e100')
-      const l2GasConsumed = feeEstimate.l2_gas_consumed
-        ? BigInt(feeEstimate.l2_gas_consumed)
-        : BigInt('0x0')
-      const l2GasPrice = feeEstimate.l2_gas_price ? BigInt(feeEstimate.l2_gas_price) : BigInt('0x0')
-      const l1DataGasConsumed = feeEstimate.l1_data_gas_consumed
-        ? BigInt(feeEstimate.l1_data_gas_consumed)
-        : BigInt('0x186a0')
-      const l1DataGasPrice = feeEstimate.l1_data_gas_price
-        ? BigInt(feeEstimate.l1_data_gas_price)
-        : BigInt('0x1')
+      console.log('[StarknetChainAdapter.deployAccount] Balance check:', {
+        address,
+        balance: balance.toString(),
+        totalMaxFee: totalMaxFee.toString(),
+        hasEnoughBalance: balance >= totalMaxFee,
+        resourceBounds: {
+          l1_gas: {
+            max_amount: resourceBounds.l1_gas.max_amount.toString(),
+            max_price_per_unit: resourceBounds.l1_gas.max_price_per_unit.toString(),
+          },
+          l1_data_gas: {
+            max_amount: resourceBounds.l1_data_gas.max_amount.toString(),
+            max_price_per_unit: resourceBounds.l1_data_gas.max_price_per_unit.toString(),
+          },
+        },
+      })
 
-      const resourceBounds = {
-        l1_gas: {
-          max_amount: (l1GasConsumed * BigInt(500)) / BigInt(100),
-          max_price_per_unit: (l1GasPrice * BigInt(200)) / BigInt(100),
-        },
-        l2_gas: {
-          max_amount: (l2GasConsumed * BigInt(500)) / BigInt(100),
-          max_price_per_unit: (l2GasPrice * BigInt(200)) / BigInt(100),
-        },
-        l1_data_gas: {
-          max_amount: (l1DataGasConsumed * BigInt(500)) / BigInt(100),
-          max_price_per_unit: (l1DataGasPrice * BigInt(200)) / BigInt(100),
-        },
+      if (balance < totalMaxFee) {
+        throw new Error(
+          `Insufficient STRK balance for deployment. Balance: ${balance.toString()}, Required: ${totalMaxFee.toString()}`,
+        )
       }
 
       const hashInputs = {
@@ -679,15 +826,6 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.StarknetMainnet
     try {
       const { from, to, value, chainSpecific, sendMax } = input
       let { tokenContractAddress } = chainSpecific
-
-      // Check if account is deployed first - must happen before ANY fee estimation
-      const isDeployed = await this.isAccountDeployed(from)
-
-      if (!isDeployed) {
-        throw new Error(
-          'Account is not deployed on Starknet. Please deploy your account before sending transactions.',
-        )
-      }
 
       // On Starknet, STRK is the native gas token but it's an ERC-20
       // If no token address is specified, use STRK token address
@@ -822,19 +960,18 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.StarknetMainnet
         calldata: [normalizedTo, uint256Value.low.toString(), uint256Value.high.toString()],
       }
 
-      // Get account nonce using RPC directly (account is already confirmed deployed at this point)
-      const nonceResponse = await this.provider.fetch('starknet_getNonce', ['pending', from])
-      const nonceResult: RpcJsonResponse<StarknetNonceResult> = await nonceResponse.json()
-
-      if (nonceResult.error) {
-        throw new Error(`Failed to fetch nonce: ${nonceResult.error.message}`)
+      // Get account nonce - use '0x0' for undeployed accounts
+      let nonce = '0x0'
+      try {
+        const nonceResponse = await this.provider.fetch('starknet_getNonce', ['pending', from])
+        const nonceResult: RpcJsonResponse<StarknetNonceResult> = await nonceResponse.json()
+        if (!nonceResult.error && nonceResult.result) {
+          nonce = nonceResult.result
+        }
+      } catch (error) {
+        // If nonce fetch fails (e.g., account not deployed, method not supported), use '0x0'
+        nonce = '0x0'
       }
-
-      if (!nonceResult.result) {
-        throw new Error('Nonce result is missing')
-      }
-
-      const nonce = nonceResult.result
 
       const chainIdHex = await this.provider.getChainId()
       const version = '0x3' as const // Use v3 for Lava RPC
@@ -1205,12 +1342,14 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.StarknetMainnet
         return data.toString()
       })
 
-      // Get nonce for fee estimation
-      const nonceResponse = await this.provider.fetch('starknet_getNonce', ['pending', from])
-      const nonceResult: RpcJsonResponse<StarknetNonceResult> = await nonceResponse.json()
-      const nonce = nonceResult.result || '0x0'
+      const isDeployed = await this.isAccountDeployed(from)
 
-      // Build estimate transaction
+      if (!isDeployed) {
+        return calculateFeeTiers(STATIC_FEE_ESTIMATES)
+      }
+
+      const nonce = await this.getNonce(from)
+
       const estimateTx = {
         type: 'INVOKE',
         version: '0x3',
@@ -1230,7 +1369,6 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.StarknetMainnet
         fee_data_availability_mode: 'L1',
       }
 
-      // Estimate fees via RPC
       const estimateResponse = await this.provider.fetch('starknet_estimateFee', [
         [estimateTx],
         ['SKIP_VALIDATE'],
@@ -1239,7 +1377,8 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.StarknetMainnet
       const estimateResult: RpcJsonResponse<StarknetFeeEstimate[]> = await estimateResponse.json()
 
       if (estimateResult.error) {
-        throw new Error(`Fee estimation failed: ${estimateResult.error.message}`)
+        const errorMessage = estimateResult.error.message || JSON.stringify(estimateResult.error)
+        throw new Error(`Fee estimation failed: ${errorMessage}`)
       }
 
       const feeEstimate = estimateResult.result?.[0]
@@ -1247,68 +1386,14 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.StarknetMainnet
         throw new Error('Fee estimation failed: no estimate returned')
       }
 
-      // Parse fee components from RPC response
-      const l1GasConsumed = feeEstimate.l1_gas_consumed
-        ? BigInt(feeEstimate.l1_gas_consumed)
-        : BigInt('0x186a0')
-      const l1GasPrice = feeEstimate.l1_gas_price
-        ? BigInt(feeEstimate.l1_gas_price)
-        : BigInt('0x5f5e100')
-      const l2GasConsumed = feeEstimate.l2_gas_consumed
-        ? BigInt(feeEstimate.l2_gas_consumed)
-        : BigInt('0x0')
-      const l2GasPrice = feeEstimate.l2_gas_price ? BigInt(feeEstimate.l2_gas_price) : BigInt('0x0')
-      const l1DataGasConsumed = feeEstimate.l1_data_gas_consumed
-        ? BigInt(feeEstimate.l1_data_gas_consumed)
-        : BigInt('0x186a0')
-      const l1DataGasPrice = feeEstimate.l1_data_gas_price
-        ? BigInt(feeEstimate.l1_data_gas_price)
-        : BigInt('0x1')
-
-      // Calculate base fee from RPC estimate
-      const baseFee =
-        l1GasConsumed * l1GasPrice + l2GasConsumed * l2GasPrice + l1DataGasConsumed * l1DataGasPrice
-
-      // Calculate max fees for each tier with buffer
-      // Slow: 1.5x gas amount, 1.2x gas price = 1.8x total
-      const slowMaxFee = (
-        ((l1GasConsumed * BigInt(150)) / BigInt(100)) * ((l1GasPrice * BigInt(120)) / BigInt(100)) +
-        ((l2GasConsumed * BigInt(150)) / BigInt(100)) * ((l2GasPrice * BigInt(120)) / BigInt(100)) +
-        ((l1DataGasConsumed * BigInt(150)) / BigInt(100)) *
-          ((l1DataGasPrice * BigInt(120)) / BigInt(100))
-      ).toString()
-
-      // Average: 3x gas amount, 1.5x gas price = 4.5x total
-      const averageMaxFee = (
-        ((l1GasConsumed * BigInt(300)) / BigInt(100)) * ((l1GasPrice * BigInt(150)) / BigInt(100)) +
-        ((l2GasConsumed * BigInt(300)) / BigInt(100)) * ((l2GasPrice * BigInt(150)) / BigInt(100)) +
-        ((l1DataGasConsumed * BigInt(300)) / BigInt(100)) *
-          ((l1DataGasPrice * BigInt(150)) / BigInt(100))
-      ).toString()
-
-      // Fast: 5x gas amount, 2x gas price = 10x total
-      const fastMaxFee = (
-        ((l1GasConsumed * BigInt(500)) / BigInt(100)) * ((l1GasPrice * BigInt(200)) / BigInt(100)) +
-        ((l2GasConsumed * BigInt(500)) / BigInt(100)) * ((l2GasPrice * BigInt(200)) / BigInt(100)) +
-        ((l1DataGasConsumed * BigInt(500)) / BigInt(100)) *
-          ((l1DataGasPrice * BigInt(200)) / BigInt(100))
-      ).toString()
-
-      // Return fee tiers based on RPC estimates
-      return {
-        slow: {
-          txFee: ((baseFee * BigInt(180)) / BigInt(100)).toString(),
-          chainSpecific: { maxFee: slowMaxFee },
-        },
-        average: {
-          txFee: ((baseFee * BigInt(450)) / BigInt(100)).toString(),
-          chainSpecific: { maxFee: averageMaxFee },
-        },
-        fast: {
-          txFee: ((baseFee * BigInt(1000)) / BigInt(100)).toString(),
-          chainSpecific: { maxFee: fastMaxFee },
-        },
-      }
+      return calculateFeeTiers({
+        l1GasConsumed: feeEstimate.l1_gas_consumed ?? '0x186a0',
+        l1GasPrice: feeEstimate.l1_gas_price ?? '0x5f5e100',
+        l2GasConsumed: feeEstimate.l2_gas_consumed ?? '0x0',
+        l2GasPrice: feeEstimate.l2_gas_price ?? '0x0',
+        l1DataGasConsumed: feeEstimate.l1_data_gas_consumed ?? '0x186a0',
+        l1DataGasPrice: feeEstimate.l1_data_gas_price ?? '0x1',
+      })
     } catch (err) {
       return ErrorHandler(err, {
         translation: 'chainAdapters.errors.getFeeData',

@@ -22,7 +22,7 @@ import {
 } from '@chakra-ui/react'
 import type { ColumnDef, Row, SortingState } from '@tanstack/react-table'
 import { getCoreRowModel, getSortedRowModel, useReactTable } from '@tanstack/react-table'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { memo, useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 
@@ -55,45 +55,32 @@ import {
 } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
-export const YieldsList = () => {
+export const YieldsList = memo(() => {
   const translate = useTranslate()
   const navigate = useNavigate()
   const { state: walletState } = useWallet()
-  const isConnected = Boolean(walletState.walletInfo)
+  const isConnected = useMemo(() => Boolean(walletState.walletInfo), [walletState.walletInfo])
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
   const headerBg = useColorModeValue('gray.50', 'whiteAlpha.50')
+  const searchInputBg = useColorModeValue('white', 'gray.800')
   const [searchParams, setSearchParams] = useSearchParams()
-  const tabParam = searchParams.get('tab')
-  const tabIndex = tabParam === 'my-positions' ? 1 : 0
-
-  const handleTabChange = (index: number) => {
-    setSearchParams(prev => {
-      if (index === 0) {
-        prev.delete('tab')
-      } else {
-        prev.set('tab', 'my-positions')
-      }
-      return prev
-    })
-  }
-  const selectedNetwork = searchParams.get('network')
-  const selectedProvider = searchParams.get('provider')
-  const sortOption = (searchParams.get('sort') as SortOption) || 'apy-desc'
+  const tabParam = useMemo(() => searchParams.get('tab'), [searchParams])
+  const tabIndex = useMemo(() => (tabParam === 'my-positions' ? 1 : 0), [tabParam])
+  const selectedNetwork = useMemo(() => searchParams.get('network'), [searchParams])
+  const selectedProvider = useMemo(() => searchParams.get('provider'), [searchParams])
+  const sortOption = useMemo(
+    () => (searchParams.get('sort') as SortOption) || 'apy-desc',
+    [searchParams],
+  )
+  const filterOption = useMemo(() => searchParams.get('filter'), [searchParams])
+  const isMyOpportunities = useMemo(() => filterOption === 'my-assets', [filterOption])
   const [searchQuery, setSearchQuery] = useState('')
+  const [positionsSorting, setPositionsSorting] = useState<SortingState>([
+    { id: 'apy', desc: true },
+  ])
 
-  const filterOption = searchParams.get('filter')
-  const isMyOpportunities = filterOption === 'my-assets'
   const userCurrencyBalances = useAppSelector(selectPortfolioUserCurrencyBalances)
   const userCurrencyToUsdRate = useAppSelector(selectUserCurrencyToUsdRate)
-
-  const handleToggleMyOpportunities = () => {
-    if (isMyOpportunities) {
-      searchParams.delete('filter')
-    } else {
-      searchParams.set('filter', 'my-assets')
-    }
-    setSearchParams(searchParams)
-  }
 
   const {
     data: yields,
@@ -106,28 +93,37 @@ export const YieldsList = () => {
 
   // TODO: Multi-account support - currently defaulting to account 0
   const { data: allBalances, isFetching: isLoadingBalances } = useAllYieldBalances()
-
-  const [positionsSorting, setPositionsSorting] = useState<SortingState>([
-    { id: 'apy', desc: true },
-  ])
-
   const { data: yieldProviders } = useYieldProviders()
 
-  const getProviderLogo = useCallback(
-    (providerId: string) => {
-      return yieldProviders?.[providerId]?.logoURI
+  const handleTabChange = useCallback(
+    (index: number) => {
+      setSearchParams(prev => {
+        if (index === 0) prev.delete('tab')
+        else prev.set('tab', 'my-positions')
+        return prev
+      })
     },
+    [setSearchParams],
+  )
+
+  const handleToggleMyOpportunities = useCallback(() => {
+    setSearchParams(prev => {
+      if (isMyOpportunities) prev.delete('filter')
+      else prev.set('filter', 'my-assets')
+      return prev
+    })
+  }, [isMyOpportunities, setSearchParams])
+
+  const getProviderLogo = useCallback(
+    (providerId: string) => yieldProviders?.[providerId]?.logoURI,
     [yieldProviders],
   )
 
   const handleNetworkChange = useCallback(
     (network: string | null) => {
       setSearchParams(prev => {
-        if (!network) {
-          prev.delete('network')
-        } else {
-          prev.set('network', network)
-        }
+        if (!network) prev.delete('network')
+        else prev.set('network', network)
         return prev
       })
     },
@@ -137,11 +133,8 @@ export const YieldsList = () => {
   const handleProviderChange = useCallback(
     (provider: string | null) => {
       setSearchParams(prev => {
-        if (!provider) {
-          prev.delete('provider')
-        } else {
-          prev.set('provider', provider)
-        }
+        if (!provider) prev.delete('provider')
+        else prev.set('provider', provider)
         return prev
       })
     },
@@ -158,7 +151,11 @@ export const YieldsList = () => {
     [setSearchParams],
   )
 
-  // Sync table sorting with URL sort param
+  const handleSearchChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => setSearchQuery(e.target.value),
+    [],
+  )
+
   useEffect(() => {
     switch (sortOption) {
       case 'apy-desc':
@@ -181,7 +178,6 @@ export const YieldsList = () => {
     }
   }, [sortOption])
 
-  // Derived filter options
   const networks = useMemo(() => {
     if (!yields?.meta?.networks) return []
     return yields.meta.networks.map(net => ({
@@ -216,12 +212,8 @@ export const YieldsList = () => {
       })
     }
 
-    if (selectedNetwork) {
-      data = data.filter(y => y.network === selectedNetwork)
-    }
-    if (selectedProvider) {
-      data = data.filter(y => y.providerId === selectedProvider)
-    }
+    if (selectedNetwork) data = data.filter(y => y.network === selectedNetwork)
+    if (selectedProvider) data = data.filter(y => y.providerId === selectedProvider)
     if (searchQuery) {
       const q = searchQuery.toLowerCase()
       data = data.filter(
@@ -242,7 +234,6 @@ export const YieldsList = () => {
     userCurrencyBalances,
   ])
 
-  // Group yields by Asset symbol locally using pre-calculated metadata
   const yieldsByAsset = useMemo(() => {
     if (!displayYields || !yields?.meta?.assetMetadata) return []
     const groups: Record<string, AugmentedYieldDto[]> = {}
@@ -251,10 +242,7 @@ export const YieldsList = () => {
       const token = y.inputTokens?.[0] || y.token
       const symbol = token.symbol
       if (!symbol) return
-
-      if (!groups[symbol]) {
-        groups[symbol] = []
-      }
+      if (!groups[symbol]) groups[symbol] = []
       groups[symbol].push(y)
     })
 
@@ -265,13 +253,11 @@ export const YieldsList = () => {
         assetId: undefined,
       }
 
-      // Calculate aggregated balance and stats for this group for sorting
       let userGroupBalanceUsd = bnOrZero(0)
       let maxApy = 0
       let totalTvlUsd = bnOrZero(0)
 
       groupYields.forEach(y => {
-        // Balance
         if (allBalances) {
           const balances = allBalances[y.id]
           if (balances) {
@@ -280,12 +266,8 @@ export const YieldsList = () => {
             })
           }
         }
-
-        // APY
         const apy = bnOrZero(y.rewardRate.total).toNumber()
         if (apy > maxApy) maxApy = apy
-
-        // TVL
         totalTvlUsd = totalTvlUsd.plus(bnOrZero(y.statistics?.tvlUsd))
       })
 
@@ -301,7 +283,6 @@ export const YieldsList = () => {
       }
     })
 
-    // Sort the groups
     return assetGroups.sort((a, b) => {
       switch (sortOption) {
         case 'apy-desc':
@@ -324,14 +305,12 @@ export const YieldsList = () => {
 
   const myPositions = useMemo(() => {
     if (!yields?.all || !allBalances) return []
-    // Start with all positions
     const positions = yields.all.filter(yieldItem => {
       const balances = allBalances[yieldItem.id]
       if (!balances) return false
       return balances.some(b => bnOrZero(b.amount).gt(0))
     })
 
-    // Apply cumulative filters to positions too
     return positions.filter(y => {
       if (selectedNetwork && y.network !== selectedNetwork) return false
       if (selectedProvider && y.providerId !== selectedProvider) return false
@@ -352,15 +331,11 @@ export const YieldsList = () => {
   const handleYieldClick = useCallback(
     (yieldId: string) => {
       let url = `/yields/${yieldId}`
-
       const balances = allBalances?.[yieldId]
       if (balances && balances.length > 0) {
         const highestAmountValidator = balances[0].highestAmountUsdValidator
-        if (highestAmountValidator) {
-          url += `?validator=${highestAmountValidator}`
-        }
+        if (highestAmountValidator) url += `?validator=${highestAmountValidator}`
       }
-
       navigate(url)
     },
     [navigate, allBalances],
@@ -404,9 +379,7 @@ export const YieldsList = () => {
             </HStack>
           )
         },
-        meta: {
-          display: { base: 'table-cell' },
-        },
+        meta: { display: { base: 'table-cell' } },
       },
       {
         header: translate('yieldXYZ.provider'),
@@ -414,23 +387,19 @@ export const YieldsList = () => {
         accessorFn: row => row.providerId,
         enableSorting: true,
         sortingFn: 'alphanumeric',
-        cell: ({ row }) => {
-          return (
-            <HStack spacing={2}>
-              <Avatar
-                src={getProviderLogo(row.original.providerId)}
-                size='xs'
-                name={row.original.providerId}
-              />
-              <Text fontSize='sm' textTransform='capitalize'>
-                {row.original.providerId}
-              </Text>
-            </HStack>
-          )
-        },
-        meta: {
-          display: { base: 'none', md: 'table-cell' },
-        },
+        cell: ({ row }) => (
+          <HStack spacing={2}>
+            <Avatar
+              src={getProviderLogo(row.original.providerId)}
+              size='xs'
+              name={row.original.providerId}
+            />
+            <Text fontSize='sm' textTransform='capitalize'>
+              {row.original.providerId}
+            </Text>
+          </HStack>
+        ),
+        meta: { display: { base: 'none', md: 'table-cell' } },
       },
       {
         header: translate('yieldXYZ.apy'),
@@ -455,9 +424,7 @@ export const YieldsList = () => {
             </Stat>
           )
         },
-        meta: {
-          display: { base: 'table-cell' },
-        },
+        meta: { display: { base: 'table-cell' } },
       },
       {
         header: translate('yieldXYZ.tvl'),
@@ -484,9 +451,7 @@ export const YieldsList = () => {
             </Box>
           )
         },
-        meta: {
-          display: { base: 'none', md: 'table-cell' },
-        },
+        meta: { display: { base: 'none', md: 'table-cell' } },
       },
       {
         header: translate('yieldXYZ.yourBalance'),
@@ -528,9 +493,7 @@ export const YieldsList = () => {
             </Box>
           )
         },
-        meta: {
-          display: { base: 'none', lg: 'table-cell' },
-        },
+        meta: { display: { base: 'none', lg: 'table-cell' } },
       },
     ],
     [translate, getProviderLogo, allBalances, userCurrencyToUsdRate],
@@ -547,6 +510,218 @@ export const YieldsList = () => {
     onSortingChange: setPositionsSorting,
   })
 
+  const errorElement = useMemo(() => {
+    if (!error) return null
+    return (
+      <Box mb={8} p={4} bg='red.900' borderRadius='md'>
+        <Text color='red.200'>Error loading yields: {String(error)}</Text>
+      </Box>
+    )
+  }, [error])
+
+  const allYieldsLoadingGridElement = useMemo(
+    () => (
+      <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={6}>
+        {Array.from({ length: 6 }).map((_, i) => (
+          <YieldAssetCardSkeleton key={i} />
+        ))}
+      </SimpleGrid>
+    ),
+    [],
+  )
+
+  const allYieldsLoadingListElement = useMemo(
+    () => (
+      <Box borderWidth='1px' borderRadius='xl' overflow='hidden'>
+        {Array.from({ length: 8 }).map((_, i) => (
+          <YieldAssetGroupRowSkeleton key={i} />
+        ))}
+      </Box>
+    ),
+    [],
+  )
+
+  const allYieldsEmptyElement = useMemo(
+    () => (
+      <Box textAlign='center' py={16}>
+        <Text color='text.subtle'>{translate('yieldXYZ.noYields')}</Text>
+      </Box>
+    ),
+    [translate],
+  )
+
+  const allYieldsGridElement = useMemo(
+    () => (
+      <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={6}>
+        {yieldsByAsset.map(group => (
+          <YieldAssetCard
+            key={group.assetSymbol}
+            assetSymbol={group.assetSymbol}
+            assetName={group.assetName}
+            assetIcon={group.assetIcon}
+            assetId={group.assetId}
+            yields={group.yields}
+            userGroupBalanceUsd={group.userGroupBalanceUsd}
+          />
+        ))}
+      </SimpleGrid>
+    ),
+    [yieldsByAsset],
+  )
+
+  const allYieldsListElement = useMemo(
+    () => (
+      <Box borderWidth='1px' borderRadius='xl' overflow='hidden'>
+        <Flex
+          p={4}
+          alignItems='center'
+          gap={4}
+          borderBottomWidth='1px'
+          borderColor='inherit'
+          bg={headerBg}
+        >
+          <Flex flex='1' minW='200px'>
+            <Text fontSize='xs' fontWeight='bold' color='text.subtle' textTransform='uppercase'>
+              {translate('yieldXYZ.asset')}
+            </Text>
+          </Flex>
+          <Flex gap={8} flex='2'>
+            <Box minW='100px'>
+              <Text fontSize='xs' fontWeight='bold' color='text.subtle' textTransform='uppercase'>
+                {translate('yieldXYZ.maxApy')}
+              </Text>
+            </Box>
+            <Box minW='120px' display={{ base: 'none', md: 'block' }}>
+              <Text fontSize='xs' fontWeight='bold' color='text.subtle' textTransform='uppercase'>
+                {translate('yieldXYZ.tvl')}
+              </Text>
+            </Box>
+            <Box flex='1' display={{ base: 'none', lg: 'block' }}>
+              <Text fontSize='xs' fontWeight='bold' color='text.subtle' textTransform='uppercase'>
+                {translate('yieldXYZ.provider')}
+              </Text>
+            </Box>
+          </Flex>
+        </Flex>
+        {yieldsByAsset.map(group => (
+          <YieldAssetGroupRow
+            key={group.assetSymbol}
+            assetSymbol={group.assetSymbol}
+            assetName={group.assetName}
+            assetIcon={group.assetIcon}
+            assetId={group.assetId}
+            yields={group.yields}
+            userGroupBalanceUsd={group.userGroupBalanceUsd}
+          />
+        ))}
+      </Box>
+    ),
+    [headerBg, translate, yieldsByAsset],
+  )
+
+  const allYieldsContentElement = useMemo(() => {
+    if (isLoading)
+      return viewMode === 'grid' ? allYieldsLoadingGridElement : allYieldsLoadingListElement
+    if (yieldsByAsset.length === 0) return allYieldsEmptyElement
+    return viewMode === 'grid' ? allYieldsGridElement : allYieldsListElement
+  }, [
+    allYieldsEmptyElement,
+    allYieldsGridElement,
+    allYieldsListElement,
+    allYieldsLoadingGridElement,
+    allYieldsLoadingListElement,
+    isLoading,
+    viewMode,
+    yieldsByAsset.length,
+  ])
+
+  const positionsLoadingElement = useMemo(
+    () => (
+      <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={6}>
+        {Array.from({ length: 3 }).map((_, i) => (
+          <YieldCardSkeleton key={i} />
+        ))}
+      </SimpleGrid>
+    ),
+    [],
+  )
+
+  const positionsEmptyElement = useMemo(
+    () => (
+      <Box textAlign='center' py={16} bg='whiteAlpha.50' borderRadius='xl'>
+        <Text color='text.subtle' mb={2}>
+          {translate('yieldXYZ.noYields')}
+        </Text>
+        <Text fontSize='sm' color='text.subtle'>
+          {translate('yieldXYZ.noActivePositions')}
+        </Text>
+      </Box>
+    ),
+    [translate],
+  )
+
+  const positionsGridElement = useMemo(
+    () => (
+      <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={6}>
+        {positionsTable.getRowModel().rows.map(row => (
+          <YieldCard
+            key={row.id}
+            yieldItem={row.original}
+            onEnter={() => handleYieldClick(row.original.id)}
+            providerIcon={getProviderLogo(row.original.providerId)}
+            userBalanceUsd={
+              allBalances?.[row.original.id]
+                ? allBalances[row.original.id].reduce(
+                    (sum, b) => sum.plus(bnOrZero(b.amountUsd)),
+                    bnOrZero(0),
+                  )
+                : undefined
+            }
+          />
+        ))}
+      </SimpleGrid>
+    ),
+    [allBalances, getProviderLogo, handleYieldClick, positionsTable],
+  )
+
+  const positionsListElement = useMemo(
+    () => (
+      <Box borderWidth='1px' borderRadius='xl' overflow='hidden'>
+        <YieldTable
+          key={positionsSorting.map(s => `${s.id}-${s.desc}`).join(',')}
+          table={positionsTable}
+          isLoading={false}
+          onRowClick={handleRowClick}
+        />
+      </Box>
+    ),
+    [handleRowClick, positionsSorting, positionsTable],
+  )
+
+  const positionsContentElement = useMemo(() => {
+    if (!isConnected)
+      return (
+        <ResultsEmptyNoWallet
+          title='yieldXYZ.connectWallet'
+          body='yieldXYZ.connectWalletPositions'
+        />
+      )
+    if (isLoading || isLoadingBalances) return positionsLoadingElement
+    if (myPositions.length > 0)
+      return viewMode === 'grid' ? positionsGridElement : positionsListElement
+    return positionsEmptyElement
+  }, [
+    isConnected,
+    isLoading,
+    isLoadingBalances,
+    myPositions.length,
+    positionsEmptyElement,
+    positionsGridElement,
+    positionsListElement,
+    positionsLoadingElement,
+    viewMode,
+  ])
+
   return (
     <Container maxW='1200px' py={8}>
       <Box mb={8}>
@@ -555,13 +730,7 @@ export const YieldsList = () => {
         </Heading>
         <Text color='text.subtle'>{translate('yieldXYZ.pageSubtitle')}</Text>
       </Box>
-
-      {error && (
-        <Box mb={8} p={4} bg='red.900' borderRadius='md'>
-          <Text color='red.200'>Error loading yields: {String(error)}</Text>
-        </Box>
-      )}
-
+      {errorElement}
       <YieldOpportunityStats
         positions={myPositions}
         balances={allBalances}
@@ -569,7 +738,6 @@ export const YieldsList = () => {
         isMyOpportunities={isMyOpportunities}
         onToggleMyOpportunities={handleToggleMyOpportunities}
       />
-
       <Tabs
         variant='soft-rounded'
         colorScheme='blue'
@@ -583,7 +751,6 @@ export const YieldsList = () => {
             {translate('yieldXYZ.myPosition')} ({myPositions.length})
           </Tab>
         </TabList>
-
         <Flex
           justify='space-between'
           align='center'
@@ -598,12 +765,11 @@ export const YieldsList = () => {
             <Input
               placeholder={translate('common.search')}
               value={searchQuery}
-              onChange={e => setSearchQuery(e.target.value)}
+              onChange={handleSearchChange}
               borderRadius='full'
-              bg={useColorModeValue('white', 'gray.800')}
+              bg={searchInputBg}
             />
           </InputGroup>
-
           <HStack
             spacing={4}
             width={{ base: 'full', md: 'auto' }}
@@ -623,166 +789,11 @@ export const YieldsList = () => {
             <ViewToggle viewMode={viewMode} setViewMode={setViewMode} />
           </HStack>
         </Flex>
-
         <TabPanels>
-          {/* All Yields Tab */}
-          <TabPanel px={0}>
-            {isLoading ? (
-              viewMode === 'grid' ? (
-                <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={6}>
-                  {Array.from({ length: 6 }).map((_, i) => (
-                    <YieldAssetCardSkeleton key={i} />
-                  ))}
-                </SimpleGrid>
-              ) : (
-                <Box borderWidth='1px' borderRadius='xl' overflow='hidden'>
-                  {Array.from({ length: 8 }).map((_, i) => (
-                    <YieldAssetGroupRowSkeleton key={i} />
-                  ))}
-                </Box>
-              )
-            ) : yieldsByAsset.length === 0 ? (
-              <Box textAlign='center' py={16}>
-                <Text color='text.subtle'>{translate('yieldXYZ.noYields')}</Text>
-              </Box>
-            ) : viewMode === 'grid' ? (
-              <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={6}>
-                {yieldsByAsset.map(group => (
-                  <YieldAssetCard
-                    key={group.assetSymbol}
-                    assetSymbol={group.assetSymbol}
-                    assetName={group.assetName}
-                    assetIcon={group.assetIcon}
-                    assetId={group.assetId}
-                    yields={group.yields}
-                    userGroupBalanceUsd={group.userGroupBalanceUsd}
-                  />
-                ))}
-              </SimpleGrid>
-            ) : (
-              <Box borderWidth='1px' borderRadius='xl' overflow='hidden'>
-                <Flex
-                  p={4}
-                  alignItems='center'
-                  gap={4}
-                  borderBottomWidth='1px'
-                  borderColor='inherit'
-                  bg={headerBg}
-                >
-                  <Flex flex='1' minW='200px'>
-                    <Text
-                      fontSize='xs'
-                      fontWeight='bold'
-                      color='text.subtle'
-                      textTransform='uppercase'
-                    >
-                      {translate('yieldXYZ.asset')}
-                    </Text>
-                  </Flex>
-                  <Flex gap={8} flex='2'>
-                    <Box minW='100px'>
-                      <Text
-                        fontSize='xs'
-                        fontWeight='bold'
-                        color='text.subtle'
-                        textTransform='uppercase'
-                      >
-                        {translate('yieldXYZ.maxApy')}
-                      </Text>
-                    </Box>
-                    <Box minW='120px' display={{ base: 'none', md: 'block' }}>
-                      <Text
-                        fontSize='xs'
-                        fontWeight='bold'
-                        color='text.subtle'
-                        textTransform='uppercase'
-                      >
-                        {translate('yieldXYZ.tvl')}
-                      </Text>
-                    </Box>
-                    <Box flex='1' display={{ base: 'none', lg: 'block' }}>
-                      <Text
-                        fontSize='xs'
-                        fontWeight='bold'
-                        color='text.subtle'
-                        textTransform='uppercase'
-                      >
-                        {translate('yieldXYZ.provider')}
-                      </Text>
-                    </Box>
-                  </Flex>
-                </Flex>
-                {yieldsByAsset.map(group => (
-                  <YieldAssetGroupRow
-                    key={group.assetSymbol}
-                    assetSymbol={group.assetSymbol}
-                    assetName={group.assetName}
-                    assetIcon={group.assetIcon}
-                    assetId={group.assetId}
-                    yields={group.yields}
-                    userGroupBalanceUsd={group.userGroupBalanceUsd}
-                  />
-                ))}
-              </Box>
-            )}
-          </TabPanel>
-
-          {/* My Positions Tab */}
-          <TabPanel px={0}>
-            {!isConnected ? (
-              <ResultsEmptyNoWallet
-                title='yieldXYZ.connectWallet'
-                body='yieldXYZ.connectWalletPositions'
-              />
-            ) : isLoading || isLoadingBalances ? (
-              <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={6}>
-                {Array.from({ length: 3 }).map((_, i) => (
-                  <YieldCardSkeleton key={i} />
-                ))}
-              </SimpleGrid>
-            ) : myPositions.length > 0 ? (
-              viewMode === 'grid' ? (
-                <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={6}>
-                  {positionsTable.getRowModel().rows.map(row => (
-                    <YieldCard
-                      key={row.id}
-                      yieldItem={row.original}
-                      onEnter={() => handleYieldClick(row.original.id)}
-                      providerIcon={getProviderLogo(row.original.providerId)}
-                      userBalanceUsd={
-                        allBalances?.[row.original.id]
-                          ? allBalances[row.original.id].reduce(
-                              (sum, b) => sum.plus(bnOrZero(b.amountUsd)),
-                              bnOrZero(0),
-                            )
-                          : undefined
-                      }
-                    />
-                  ))}
-                </SimpleGrid>
-              ) : (
-                <Box borderWidth='1px' borderRadius='xl' overflow='hidden'>
-                  <YieldTable
-                    key={positionsSorting.map(s => `${s.id}-${s.desc}`).join(',')}
-                    table={positionsTable}
-                    isLoading={false}
-                    onRowClick={handleRowClick}
-                  />
-                </Box>
-              )
-            ) : (
-              <Box textAlign='center' py={16} bg='whiteAlpha.50' borderRadius='xl'>
-                <Text color='text.subtle' mb={2}>
-                  {translate('yieldXYZ.noYields')}
-                </Text>
-                <Text fontSize='sm' color='text.subtle'>
-                  {translate('yieldXYZ.noActivePositions')}
-                </Text>
-              </Box>
-            )}
-          </TabPanel>
+          <TabPanel px={0}>{allYieldsContentElement}</TabPanel>
+          <TabPanel px={0}>{positionsContentElement}</TabPanel>
         </TabPanels>
       </Tabs>
     </Container>
   )
-}
+})

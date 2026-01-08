@@ -10,7 +10,7 @@ import {
   StatNumber,
   Text,
 } from '@chakra-ui/react'
-import { useMemo } from 'react'
+import { memo, useMemo } from 'react'
 import { FaChartPie, FaMoon } from 'react-icons/fa'
 
 import { Amount } from '@/components/Amount/Amount'
@@ -20,6 +20,9 @@ import { selectPortfolioUserCurrencyBalances } from '@/state/slices/common-selec
 import { selectUserCurrencyToUsdRate } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
+const chartPieIcon = <Icon as={FaChartPie} boxSize={32} />
+const moonIcon = <Icon as={FaMoon} boxSize={32} />
+
 type YieldOpportunityStatsProps = {
   positions: AugmentedYieldDto[]
   balances: Record<string, YieldBalancesResponse['balances']> | undefined
@@ -28,102 +31,130 @@ type YieldOpportunityStatsProps = {
   onToggleMyOpportunities?: () => void
 }
 
-export const YieldOpportunityStats = ({
+export const YieldOpportunityStats = memo(function YieldOpportunityStats({
   positions,
   balances,
   allYields,
   isMyOpportunities,
   onToggleMyOpportunities,
-}: YieldOpportunityStatsProps) => {
+}: YieldOpportunityStatsProps) {
   const userCurrencyToUsdRate = useAppSelector(selectUserCurrencyToUsdRate)
+  const portfolioBalances = useAppSelector(selectPortfolioUserCurrencyBalances)
 
-  // 1. Calculate Active Yield Value
   const activeValueUsd = useMemo(() => {
     return positions.reduce((acc, position) => {
       const positionBalances = balances?.[position.id]
       if (!positionBalances) return acc
-
       const activeBalance = positionBalances.find(b => b.type === 'active' || b.type === 'locked')
       return acc.plus(bnOrZero(activeBalance?.amountUsd))
     }, bnOrZero(0))
   }, [positions, balances])
 
-  // 2. Calculate "Idle Assets" (Opportunity)
-  // Sum of wallet balances for assets that support yield (input tokens of allYields)
-  const portfolioBalances = useAppSelector(selectPortfolioUserCurrencyBalances)
-
   const idleValueUsd = useMemo(() => {
     if (!allYields) return bnOrZero(0)
-
-    // Get unique asset IDs that have yield opportunities
     const yieldableAssetIds = new Set<string>()
     allYields.forEach(y => {
-      // Check inputTokens first
       y.inputTokens?.forEach(t => {
         if (t.assetId) yieldableAssetIds.add(t.assetId)
       })
-
-      // Fallback or additional check: some yields might be single-sided staking where input=token
       if (y.token.assetId) yieldableAssetIds.add(y.token.assetId)
     })
-
-    // Now sum user balances for these assets
     let totalIdle = bnOrZero(0)
     yieldableAssetIds.forEach(assetId => {
       const bal = portfolioBalances[assetId]
-      if (bal) {
-        totalIdle = totalIdle.plus(bnOrZero(bal)) // UserCurrencyBalance is USD string
-      }
+      if (bal) totalIdle = totalIdle.plus(bnOrZero(bal))
     })
-
     return totalIdle
   }, [allYields, portfolioBalances])
 
-  // Opportunity APY (Average APY of available yields weighted by ... or just max APY?)
-  // For simplicity, let's show "Up to X% APY"
   const maxApy = useMemo(() => {
     if (!allYields) return 0
     return Math.max(...allYields.map(y => y.rewardRate.total)) * 100
   }, [allYields])
 
-  const hasActiveDeposits = activeValueUsd.gt(0)
+  const hasActiveDeposits = useMemo(() => activeValueUsd.gt(0), [activeValueUsd])
+
+  const activeValueFormatted = useMemo(
+    () => activeValueUsd.times(userCurrencyToUsdRate).toFixed(),
+    [activeValueUsd, userCurrencyToUsdRate],
+  )
+
+  const idleValueFormatted = useMemo(() => idleValueUsd.toFixed(), [idleValueUsd])
+
+  const potentialEarnings = useMemo(() => idleValueUsd.times(0.05).toFixed(), [idleValueUsd])
+
+  const maxApyFormatted = useMemo(() => maxApy.toFixed(2), [maxApy])
+
+  const positionsCount = useMemo(() => positions.length, [positions.length])
+
+  const gridColumn = useMemo(
+    () => ({ md: hasActiveDeposits ? 'span 2' : 'span 3' }),
+    [hasActiveDeposits],
+  )
+
+  const buttonBg = useMemo(
+    () => (isMyOpportunities ? 'whiteAlpha.300' : 'blue.500'),
+    [isMyOpportunities],
+  )
+
+  const buttonHoverBg = useMemo(
+    () => ({ bg: isMyOpportunities ? 'whiteAlpha.400' : 'blue.400' }),
+    [isMyOpportunities],
+  )
+
+  const buttonText = useMemo(() => (isMyOpportunities ? 'Show All' : 'Earn'), [isMyOpportunities])
+
+  const activeDepositsCard = useMemo(() => {
+    if (!hasActiveDeposits) return null
+    return (
+      <Box
+        bgGradient='linear(to-br, blue.800, blue.900)'
+        p={6}
+        borderRadius='2xl'
+        boxShadow='xl'
+        border='1px solid'
+        borderColor='blue.700'
+        position='relative'
+        overflow='hidden'
+        display='flex'
+        flexDirection='column'
+        justifyContent='center'
+      >
+        <Box position='absolute' right={-4} top={-4} opacity={0.1}>
+          {chartPieIcon}
+        </Box>
+        <Stat>
+          <StatLabel fontSize='md' color='blue.200'>
+            Active Deposits
+          </StatLabel>
+          <StatNumber fontSize='3xl' fontWeight='bold' color='white'>
+            <Amount.Fiat value={activeValueFormatted} abbreviated />
+          </StatNumber>
+          <StatHelpText color='blue.300'>Across {positionsCount} positions</StatHelpText>
+        </Stat>
+      </Box>
+    )
+  }, [hasActiveDeposits, activeValueFormatted, positionsCount])
+
+  const toggleButton = useMemo(() => {
+    if (!onToggleMyOpportunities) return null
+    return (
+      <Button
+        size='sm'
+        bg={buttonBg}
+        color='white'
+        _hover={buttonHoverBg}
+        onClick={onToggleMyOpportunities}
+        width='full'
+      >
+        {buttonText}
+      </Button>
+    )
+  }, [onToggleMyOpportunities, buttonBg, buttonHoverBg, buttonText])
 
   return (
     <SimpleGrid columns={{ base: 1, md: 3 }} spacing={4} mb={8}>
-      {/* Active Position Card */}
-      {hasActiveDeposits && (
-        <Box
-          bgGradient='linear(to-br, blue.800, blue.900)'
-          p={6}
-          borderRadius='2xl'
-          boxShadow='xl'
-          border='1px solid'
-          borderColor='blue.700'
-          position='relative'
-          overflow='hidden'
-          display='flex'
-          flexDirection='column'
-          justifyContent='center'
-        >
-          <Box position='absolute' right={-4} top={-4} opacity={0.1}>
-            <Icon as={FaChartPie} boxSize={32} />
-          </Box>
-          <Stat>
-            <StatLabel fontSize='md' color='blue.200'>
-              Active Deposits
-            </StatLabel>
-            <StatNumber fontSize='3xl' fontWeight='bold' color='white'>
-              <Amount.Fiat
-                value={activeValueUsd.times(userCurrencyToUsdRate).toFixed()}
-                abbreviated
-              />
-            </StatNumber>
-            <StatHelpText color='blue.300'>Across {positions.length} positions</StatHelpText>
-          </Stat>
-        </Box>
-      )}
-
-      {/* Available to Earn (Carrot) Card */}
+      {activeDepositsCard}
       <Box
         bgGradient='linear(to-br, purple.800, purple.900)'
         p={6}
@@ -133,10 +164,10 @@ export const YieldOpportunityStats = ({
         borderColor='purple.700'
         position='relative'
         overflow='hidden'
-        gridColumn={{ md: hasActiveDeposits ? 'span 2' : 'span 3' }}
+        gridColumn={gridColumn}
       >
         <Box position='absolute' right={-4} top={-4} opacity={0.1}>
-          <Icon as={FaMoon} boxSize={32} />
+          {moonIcon}
         </Box>
         <Flex justifyContent='space-between' alignItems='flex-start'>
           <Stat>
@@ -144,10 +175,10 @@ export const YieldOpportunityStats = ({
               Available to Earn
             </StatLabel>
             <StatNumber fontSize='3xl' fontWeight='bold' color='white'>
-              <Amount.Fiat value={idleValueUsd.toFixed()} abbreviated />
+              <Amount.Fiat value={idleValueFormatted} abbreviated />
             </StatNumber>
             <StatHelpText color='purple.300'>
-              Idle assets that could be earning up to {maxApy.toFixed(2)}% APY
+              Idle assets that could be earning up to {maxApyFormatted}% APY
             </StatHelpText>
           </Stat>
           <Flex
@@ -173,25 +204,14 @@ export const YieldOpportunityStats = ({
                 Potential Earnings
               </Text>
               <Flex fontSize='xl' fontWeight='bold' color='white' whiteSpace='nowrap'>
-                <Amount.Fiat value={idleValueUsd.times(0.05).toFixed()} abbreviated />
+                <Amount.Fiat value={potentialEarnings} abbreviated />
                 <Text ml={1}>/yr</Text>
               </Flex>
             </Box>
-            {onToggleMyOpportunities && (
-              <Button
-                size='sm'
-                bg={isMyOpportunities ? 'whiteAlpha.300' : 'blue.500'}
-                color={isMyOpportunities ? 'white' : 'white'}
-                _hover={{ bg: isMyOpportunities ? 'whiteAlpha.400' : 'blue.400' }}
-                onClick={onToggleMyOpportunities}
-                width='full'
-              >
-                {isMyOpportunities ? 'Show All' : 'Earn'}
-              </Button>
-            )}
+            {toggleButton}
           </Flex>
         </Flex>
       </Box>
     </SimpleGrid>
   )
-}
+})

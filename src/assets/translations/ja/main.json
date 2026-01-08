@@ -328,7 +328,10 @@
     "viewSavedWallets": "保存されたウォレットを表示する",
     "footerOne": "続行すると、次の内容に同意したことになります",
     "terms": "利用規約",
-    "privacyPolicy": "プライバシーポリシー"
+    "privacyPolicy": "プライバシーポリシー",
+    "connectNewWallet": "新しいウォレットを接続する",
+    "getANewWallet": "新しいウォレットを入手する",
+    "alreadyHaveWallet": "すでにウォレットを持っています"
   },
   "connectWallet": {
     "menu": {
@@ -523,6 +526,8 @@
     "foxToken": {
       "title": "FOXトークン",
       "subtitle": "ガバナンストークン"
+    },
+    "agent": {
     },
     "classic": {
       "title": "クラシック",
@@ -1879,6 +1884,10 @@
     "title": "%{appName} アプリを開く",
     "description": "続行するには、Ledger デバイスで %{appName} アプリを開く必要があります。",
     "devicePrompt": "Your device will prompt you with any necessary steps required to complete your current action."
+  },
+  "starknet": {
+    "deployAccount": {
+    }
   },
   "transactionHistory": {
     "transactionHistory": "取引履歴",

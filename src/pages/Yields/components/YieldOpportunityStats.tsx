@@ -69,7 +69,7 @@ export const YieldOpportunityStats = memo(function YieldOpportunityStats({
   }, [allYields, portfolioBalances])
 
   const maxApy = useMemo(() => {
-    if (!allYields) return 0
+    if (!allYields || allYields.length === 0) return 0
     return Math.max(...allYields.map(y => y.rewardRate.total)) * 100
   }, [allYields])
 

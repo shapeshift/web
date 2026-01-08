@@ -11,8 +11,18 @@ export const useYieldProviders = () => {
   return useQuery<ProviderDto[], Error, Record<string, ProviderDto>>({
     queryKey: ['yieldxyz', 'providers'],
     queryFn: async () => {
-      const data = await fetchProviders({ limit: 100 })
-      return data.items
+      const allItems: ProviderDto[] = []
+      let offset = 0
+      const limit = 100
+
+      while (true) {
+        const data = await fetchProviders({ limit, offset })
+        allItems.push(...data.items)
+        if (data.items.length < limit) break
+        offset += limit
+      }
+
+      return allItems
     },
     select: providers => {
       return providers.reduce(

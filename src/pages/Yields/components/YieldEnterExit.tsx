@@ -14,7 +14,7 @@ import {
   Text,
   useColorModeValue,
 } from '@chakra-ui/react'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { memo, useCallback, useEffect, useMemo, useState } from 'react'
 import { FaMoneyBillWave } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { useLocation, useSearchParams } from 'react-router-dom'
@@ -54,503 +54,647 @@ type YieldEnterExitProps = {
 
 const percentOptions = [0.25, 0.5, 0.75, 1]
 
-const YieldEnterExitSkeleton = () => (
+const YieldEnterExitSkeleton = memo(() => (
   <Flex direction='column' gap={4}>
     <Skeleton height='56px' borderRadius='lg' />
     <Skeleton height='56px' borderRadius='lg' />
   </Flex>
-)
+))
 
-export const YieldEnterExit = ({
-  yieldItem,
-  isQuoteLoading,
-  balances,
-  isBalancesLoading,
-}: YieldEnterExitProps) => {
-  const translate = useTranslate()
-  const location = useLocation()
-  const { accountNumber } = useYieldAccount()
-  const { state: walletState, dispatch } = useWallet()
-  const isConnected = Boolean(walletState.walletInfo)
-  const cardBg = useColorModeValue('white', 'gray.800')
-  const borderColor = useColorModeValue('gray.100', 'gray.750')
-  const validatorPickerBg = useColorModeValue('gray.50', 'blackAlpha.50')
-  const validatorPickerHoverBg = useColorModeValue('gray.100', 'whiteAlpha.100')
-  const tabListBg = useColorModeValue('gray.50', 'blackAlpha.200')
-  const estimatedEarningsBg = useColorModeValue('gray.50', 'whiteAlpha.50')
-  const estimatedEarningsBorderColor = useColorModeValue('gray.100', 'whiteAlpha.100')
+const moneyBillWaveIcon = <Icon as={FaMoneyBillWave} color='gray.500' boxSize={3} />
+const chevronDownIcon = <Icon as={ChevronDownIcon} color='gray.500' />
 
-  const initialTab = useMemo(() => {
-    if (location.pathname.endsWith('/exit')) return 1
-    if (location.pathname.endsWith('/enter')) return 0
-    return 0
-  }, [location.pathname])
+export const YieldEnterExit = memo(
+  ({ yieldItem, isQuoteLoading, balances, isBalancesLoading }: YieldEnterExitProps) => {
+    const translate = useTranslate()
+    const location = useLocation()
+    const { accountNumber } = useYieldAccount()
+    const { state: walletState, dispatch } = useWallet()
+    const isConnected = useMemo(() => Boolean(walletState.walletInfo), [walletState.walletInfo])
+    const cardBg = useColorModeValue('white', 'gray.800')
+    const borderColor = useColorModeValue('gray.100', 'gray.750')
+    const validatorPickerBg = useColorModeValue('gray.50', 'blackAlpha.50')
+    const validatorPickerHoverBg = useColorModeValue('gray.100', 'whiteAlpha.100')
+    const tabListBg = useColorModeValue('gray.50', 'blackAlpha.200')
+    const estimatedEarningsBg = useColorModeValue('gray.50', 'whiteAlpha.50')
+    const estimatedEarningsBorderColor = useColorModeValue('gray.100', 'whiteAlpha.100')
 
-  const [tabIndex, setTabIndex] = useState(initialTab)
-  const [cryptoAmount, setCryptoAmount] = useState('')
-  const [isModalOpen, setIsModalOpen] = useState(false)
-  const [modalAction, setModalAction] = useState<'enter' | 'exit'>('enter')
-  const [isValidatorModalOpen, setIsValidatorModalOpen] = useState(false)
+    const initialTab = useMemo(() => {
+      if (location.pathname.endsWith('/exit')) return 1
+      if (location.pathname.endsWith('/enter')) return 0
+      return 0
+    }, [location.pathname])
 
-  const { chainId } = yieldItem
+    const [tabIndex, setTabIndex] = useState(initialTab)
+    const [cryptoAmount, setCryptoAmount] = useState('')
+    const [isModalOpen, setIsModalOpen] = useState(false)
+    const [modalAction, setModalAction] = useState<'enter' | 'exit'>('enter')
+    const [isValidatorModalOpen, setIsValidatorModalOpen] = useState(false)
 
-  // Validator Selection Logic
-  const [searchParams, setSearchParams] = useSearchParams()
-  const validatorParam = searchParams.get('validator')
+    const { chainId } = yieldItem
 
-  const shouldFetchValidators =
-    yieldItem.mechanics.type === 'staking' && yieldItem.mechanics.requiresValidatorSelection
-  const { data: validators } = useYieldValidators(yieldItem.id, shouldFetchValidators)
+    const [searchParams, setSearchParams] = useSearchParams()
+    const validatorParam = useMemo(() => searchParams.get('validator'), [searchParams])
 
-  const defaultValidator = useMemo(() => {
-    if (chainId && DEFAULT_NATIVE_VALIDATOR_BY_CHAIN_ID[chainId]) {
-      return DEFAULT_NATIVE_VALIDATOR_BY_CHAIN_ID[chainId]
-    }
-    return validators?.[0]?.address
-  }, [chainId, validators])
+    const shouldFetchValidators = useMemo(
+      () =>
+        yieldItem.mechanics.type === 'staking' && yieldItem.mechanics.requiresValidatorSelection,
+      [yieldItem.mechanics.type, yieldItem.mechanics.requiresValidatorSelection],
+    )
+    const { data: validators } = useYieldValidators(yieldItem.id, shouldFetchValidators)
 
-  const selectedValidatorAddress = validatorParam || defaultValidator
+    const defaultValidator = useMemo(() => {
+      if (chainId && DEFAULT_NATIVE_VALIDATOR_BY_CHAIN_ID[chainId])
+        return DEFAULT_NATIVE_VALIDATOR_BY_CHAIN_ID[chainId]
+      return validators?.[0]?.address
+    }, [chainId, validators])
 
-  const handleValidatorChange = useCallback(
-    (newAddress: string) => {
-      setSearchParams(params => {
-        params.set('validator', newAddress)
-        return params
-      })
-    },
-    [setSearchParams],
-  )
+    const selectedValidatorAddress = useMemo(
+      () => validatorParam || defaultValidator,
+      [validatorParam, defaultValidator],
+    )
 
-  useEffect(() => {
-    if (!validatorParam && defaultValidator) {
-      setSearchParams(
-        params => {
-          params.set('validator', defaultValidator)
+    const handleValidatorChange = useCallback(
+      (newAddress: string) => {
+        setSearchParams(params => {
+          params.set('validator', newAddress)
           return params
-        },
-        { replace: true },
-      )
-    }
-  }, [defaultValidator, validatorParam, setSearchParams])
+        })
+      },
+      [setSearchParams],
+    )
 
-  const accountId = useAppSelector(state => {
-    if (!chainId) return undefined
-    const accountIdsByNumberAndChain = selectAccountIdByAccountNumberAndChainId(state)
-    return accountIdsByNumberAndChain[accountNumber]?.[chainId]
-  })
+    useEffect(() => {
+      if (!validatorParam && defaultValidator) {
+        setSearchParams(
+          params => {
+            params.set('validator', defaultValidator)
+            return params
+          },
+          { replace: true },
+        )
+      }
+    }, [defaultValidator, validatorParam, setSearchParams])
 
-  const validatorMetadata = useMemo(() => {
-    if (!selectedValidatorAddress) return undefined
+    const accountId = useAppSelector(state => {
+      if (!chainId) return undefined
+      const accountIdsByNumberAndChain = selectAccountIdByAccountNumberAndChainId(state)
+      return accountIdsByNumberAndChain[accountNumber]?.[chainId]
+    })
 
-    // 1. Try to find in main validators list
-    const foundInList = validators?.find(v => v.address === selectedValidatorAddress)
-    if (foundInList) return foundInList
+    const validatorMetadata = useMemo(() => {
+      if (!selectedValidatorAddress) return undefined
 
-    // 2. Try to find in user balances
-    const foundInBalances = balances?.raw.find(
-      (b: AugmentedYieldBalanceWithAccountId) => b.validator?.address === selectedValidatorAddress,
-    )?.validator
-    if (foundInBalances)
-      return {
-        ...foundInBalances,
-        apr: undefined, // Balances don't have APR info
-        commission: undefined,
+      const foundInList = validators?.find(v => v.address === selectedValidatorAddress)
+      if (foundInList) return foundInList
+
+      const foundInBalances = balances?.raw.find(
+        (b: AugmentedYieldBalanceWithAccountId) =>
+          b.validator?.address === selectedValidatorAddress,
+      )?.validator
+      if (foundInBalances)
+        return {
+          ...foundInBalances,
+          apr: undefined,
+          commission: undefined,
+        }
+
+      if (selectedValidatorAddress === SHAPESHIFT_COSMOS_VALIDATOR_ADDRESS) {
+        return {
+          name: 'ShapeShift',
+          logoURI: 'https://assets.coincap.io/assets/icons/256/fox.png',
+          address: selectedValidatorAddress,
+          apr: '0',
+          commission: '0',
+        }
       }
 
-    // 3. Fallbacks
-    if (selectedValidatorAddress === SHAPESHIFT_COSMOS_VALIDATOR_ADDRESS) {
       return {
-        name: 'ShapeShift',
-        logoURI: 'https://assets.coincap.io/assets/icons/256/fox.png',
+        name: `${selectedValidatorAddress.slice(0, 6)}...${selectedValidatorAddress.slice(-4)}`,
+        logoURI: '',
         address: selectedValidatorAddress,
         apr: '0',
         commission: '0',
       }
-    }
+    }, [validators, selectedValidatorAddress, balances])
 
-    return {
-      name: `${selectedValidatorAddress.slice(0, 6)}...${selectedValidatorAddress.slice(-4)}`,
-      logoURI: '', // Default avatar will handle empty string
-      address: selectedValidatorAddress,
-      apr: '0',
-      commission: '0',
-    }
-  }, [validators, selectedValidatorAddress, balances])
+    const inputToken = useMemo(() => yieldItem.inputTokens[0], [yieldItem.inputTokens])
+    const inputTokenAssetId = useMemo(() => inputToken?.assetId, [inputToken?.assetId])
 
-  const inputToken = yieldItem.inputTokens[0]
-  const inputTokenAssetId = inputToken?.assetId
+    const inputTokenBalance = useAppSelector(state =>
+      inputTokenAssetId && accountId
+        ? selectPortfolioCryptoPrecisionBalanceByFilter(state, {
+            assetId: inputTokenAssetId,
+            accountId,
+          })
+        : '0',
+    )
 
-  const inputTokenBalance = useAppSelector(state =>
-    inputTokenAssetId && accountId
-      ? selectPortfolioCryptoPrecisionBalanceByFilter(state, {
-          assetId: inputTokenAssetId,
-          accountId,
-        })
-      : '0',
-  )
+    const minDeposit = useMemo(
+      () => yieldItem.mechanics?.entryLimits?.minimum,
+      [yieldItem.mechanics?.entryLimits?.minimum],
+    )
 
-  const minDeposit = yieldItem.mechanics?.entryLimits?.minimum
-  const isBelowMinimum = useMemo(() => {
-    if (!cryptoAmount || !minDeposit) return false
-    return bnOrZero(cryptoAmount).lt(minDeposit)
-  }, [cryptoAmount, minDeposit])
+    const isBelowMinimum = useMemo(() => {
+      if (!cryptoAmount || !minDeposit) return false
+      return bnOrZero(cryptoAmount).lt(minDeposit)
+    }, [cryptoAmount, minDeposit])
 
-  const isLoading = isBalancesLoading || isQuoteLoading
+    const isLoading = useMemo(
+      () => isBalancesLoading || isQuoteLoading,
+      [isBalancesLoading, isQuoteLoading],
+    )
 
-  const extractBalance = (type: YieldBalanceType) =>
-    balances?.raw.find((b: AugmentedYieldBalanceWithAccountId) => {
-      if (b.type !== type) return false
-      if (selectedValidatorAddress && b.validator) {
-        return b.validator.address === selectedValidatorAddress
-      }
-      return true
-    })
-  const activeBalance = extractBalance(YieldBalanceType.Active)
-  const withdrawableBalance = extractBalance(YieldBalanceType.Withdrawable)
-  const exitBalance = activeBalance?.amount ?? withdrawableBalance?.amount ?? '0'
+    const activeBalance = useMemo(
+      () =>
+        balances?.raw.find((b: AugmentedYieldBalanceWithAccountId) => {
+          if (b.type !== YieldBalanceType.Active) return false
+          if (selectedValidatorAddress && b.validator)
+            return b.validator.address === selectedValidatorAddress
+          return true
+        }),
+      [balances?.raw, selectedValidatorAddress],
+    )
 
-  const handlePercentClick = useCallback(
-    (percent: number) => {
+    const withdrawableBalance = useMemo(
+      () =>
+        balances?.raw.find((b: AugmentedYieldBalanceWithAccountId) => {
+          if (b.type !== YieldBalanceType.Withdrawable) return false
+          if (selectedValidatorAddress && b.validator)
+            return b.validator.address === selectedValidatorAddress
+          return true
+        }),
+      [balances?.raw, selectedValidatorAddress],
+    )
+
+    const exitBalance = useMemo(
+      () => activeBalance?.amount ?? withdrawableBalance?.amount ?? '0',
+      [activeBalance?.amount, withdrawableBalance?.amount],
+    )
+
+    const handlePercentClick = useCallback(
+      (percent: number) => {
+        const balance = tabIndex === 0 ? inputTokenBalance : exitBalance
+        const percentAmount = bnOrZero(balance).times(percent).toFixed()
+        setCryptoAmount(percentAmount)
+      },
+      [inputTokenBalance, exitBalance, tabIndex],
+    )
+
+    const handleMaxClick = useCallback(async () => {
+      await Promise.resolve()
       const balance = tabIndex === 0 ? inputTokenBalance : exitBalance
-      const percentAmount = bnOrZero(balance).times(percent).toFixed()
-      setCryptoAmount(percentAmount)
-    },
-    [inputTokenBalance, exitBalance, tabIndex],
-  )
 
-  const handleMaxClick = useCallback(async () => {
-    await Promise.resolve() // Satisfy async requirement
-    const balance = tabIndex === 0 ? inputTokenBalance : exitBalance
+      if (tabIndex === 0 && yieldItem.network === YieldNetwork.Sui) {
+        const balanceBn = bnOrZero(balance)
+        const gasBuffer = bnOrZero(SUI_GAS_BUFFER)
+        const maxAmount = balanceBn.minus(gasBuffer)
+        setCryptoAmount(maxAmount.gt(0) ? maxAmount.toString() : '0')
+        return
+      }
 
-    // For SUI native staking, we must reserve amount for gas
-    if (tabIndex === 0 && yieldItem.network === YieldNetwork.Sui) {
-      const balanceBn = bnOrZero(balance)
-      const gasBuffer = bnOrZero(SUI_GAS_BUFFER)
-      const maxAmount = balanceBn.minus(gasBuffer)
-      setCryptoAmount(maxAmount.gt(0) ? maxAmount.toString() : '0')
-      return
-    }
+      setCryptoAmount(balance)
+    }, [inputTokenBalance, exitBalance, tabIndex, yieldItem.network])
 
-    setCryptoAmount(balance)
-  }, [inputTokenBalance, exitBalance, tabIndex, yieldItem.network])
+    const handleEnterClick = useCallback(() => {
+      setModalAction('enter')
+      setIsModalOpen(true)
+    }, [])
 
-  const handleEnterClick = useCallback(() => {
-    setModalAction('enter')
-    setIsModalOpen(true)
-  }, [])
+    const handleExitClick = useCallback(() => {
+      setModalAction('exit')
+      setIsModalOpen(true)
+    }, [])
 
-  const handleExitClick = useCallback(() => {
-    setModalAction('exit')
-    setIsModalOpen(true)
-  }, [])
+    const handleOpenValidatorModal = useCallback(() => setIsValidatorModalOpen(true), [])
+    const handleCloseValidatorModal = useCallback(() => setIsValidatorModalOpen(false), [])
+    const handleCloseModal = useCallback(() => setIsModalOpen(false), [])
 
-  // Calculate estimated returns
-  const marketData = useAppSelector(state =>
-    selectMarketDataByAssetIdUserCurrency(state, inputTokenAssetId ?? ''),
-  )
-  const apy = bnOrZero(yieldItem.rewardRate.total)
-  const estimatedYearlyEarnings = bnOrZero(cryptoAmount).times(apy)
+    const handleConnectWallet = useCallback(
+      () => dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true }),
+      [dispatch],
+    )
 
-  const estimatedYearlyEarningsFiat = estimatedYearlyEarnings.times(marketData?.price ?? 0)
-  const fiatAmount = bnOrZero(cryptoAmount)
-    .times(marketData?.price ?? 0)
-    .toFixed(2)
-  const hasAmount = bnOrZero(cryptoAmount).gt(0)
-  const inputSymbol = inputToken?.symbol ?? ''
+    const marketData = useAppSelector(state =>
+      selectMarketDataByAssetIdUserCurrency(state, inputTokenAssetId ?? ''),
+    )
 
-  // Determine unique active validators count
-  const uniqueValidatorCount = useMemo(() => {
-    if (!balances) return 0
-    return balances.validatorAddresses.length
-  }, [balances])
+    const apy = useMemo(() => bnOrZero(yieldItem.rewardRate.total), [yieldItem.rewardRate.total])
 
-  // Only show picker if we have more than 1 active validator
-  // Otherwise we use default (0 active) or the single existing one (1 active)
-  const shouldShowValidatorPicker = uniqueValidatorCount > 1
+    const estimatedYearlyEarnings = useMemo(
+      () => bnOrZero(cryptoAmount).times(apy),
+      [cryptoAmount, apy],
+    )
 
-  return (
-    <>
-      <Box
-        bg={cardBg}
-        borderRadius='xl'
-        shadow='sm'
-        border='1px solid'
-        borderColor={borderColor}
-        overflow='hidden'
-      >
-        {/* Validator Selection Header */}
-        {shouldShowValidatorPicker ? (
-          <>
-            <Box
-              p={4}
-              borderBottom='1px solid'
-              borderColor={borderColor}
-              bg={validatorPickerBg}
-              _hover={{ bg: validatorPickerHoverBg }}
-              cursor='pointer'
-              onClick={() => setIsValidatorModalOpen(true)}
-              transition='background 0.2s'
-            >
-              <Flex justify='space-between' align='center' gap={4}>
-                <Flex align='center' gap={3}>
-                  {validatorMetadata ? (
-                    <>
-                      <Avatar
-                        size='sm'
-                        src={validatorMetadata.logoURI}
-                        name={validatorMetadata.name}
-                      />
-                      <Box>
-                        <Text fontWeight='bold' fontSize='sm'>
-                          {validatorMetadata.name}
-                        </Text>
-                        <Flex gap={2} fontSize='xs' color='text.subtle'>
-                          {validatorMetadata.address === SHAPESHIFT_COSMOS_VALIDATOR_ADDRESS && (
-                            <Text color='blue.400' fontWeight='bold'>
-                              {translate('yieldXYZ.preferred')}
-                            </Text>
-                          )}
-                          {'rewardRate' in validatorMetadata &&
-                            (validatorMetadata as ValidatorDto).rewardRate?.total && (
-                              <GradientApy>
-                                {(
-                                  (validatorMetadata as ValidatorDto).rewardRate.total * 100
-                                ).toFixed(2)}
-                                % {translate('yieldXYZ.apr')}
-                              </GradientApy>
-                            )}
-                        </Flex>
-                      </Box>
-                    </>
-                  ) : (
-                    <Text fontWeight='bold' fontSize='sm'>
-                      {translate('yieldXYZ.selectValidator')}
-                    </Text>
-                  )}
-                </Flex>
+    const estimatedYearlyEarningsFiat = useMemo(
+      () => estimatedYearlyEarnings.times(marketData?.price ?? 0),
+      [estimatedYearlyEarnings, marketData?.price],
+    )
 
-                <Icon as={ChevronDownIcon} color='gray.500' />
-              </Flex>
-            </Box>
+    const fiatAmount = useMemo(
+      () =>
+        bnOrZero(cryptoAmount)
+          .times(marketData?.price ?? 0)
+          .toFixed(2),
+      [cryptoAmount, marketData?.price],
+    )
 
-            <YieldValidatorSelectModal
-              isOpen={isValidatorModalOpen}
-              onClose={() => setIsValidatorModalOpen(false)}
-              validators={validators || []}
-              onSelect={handleValidatorChange}
-              balances={balances?.raw}
-            />
-          </>
-        ) : null}
+    const hasAmount = useMemo(() => bnOrZero(cryptoAmount).gt(0), [cryptoAmount])
+    const inputSymbol = useMemo(() => inputToken?.symbol ?? '', [inputToken?.symbol])
 
-        <Tabs
-          index={tabIndex}
-          onChange={setTabIndex}
-          isFitted
-          variant='enclosed'
-          borderBottomWidth={0}
-        >
-          <TabList mb='0' borderBottom='1px solid' borderColor={borderColor} bg={tabListBg}>
-            <Tab
-              _selected={{
-                color: 'blue.400',
-                bg: cardBg,
-                borderBottomColor: cardBg,
-                borderTopColor: 'blue.400',
-                borderTopWidth: 2,
-              }}
-              _focus={{ boxShadow: 'none' }}
-              fontWeight='bold'
-              py={4}
-              borderBottomWidth='1px'
-              borderRadius={0}
-              borderTopWidth='2px'
-              borderTopColor='transparent'
-              isDisabled={!yieldItem.status.enter}
-              opacity={!yieldItem.status.enter ? 0.5 : 1}
-            >
-              {translate('yieldXYZ.enter')}
-            </Tab>
-            <Tab
-              _selected={{
-                color: 'blue.400',
-                bg: cardBg,
-                borderBottomColor: cardBg,
-                borderTopColor: 'blue.400',
-                borderTopWidth: 2,
-              }}
-              _focus={{ boxShadow: 'none' }}
-              fontWeight='bold'
-              py={4}
-              borderBottomWidth='1px'
-              borderRadius={0}
-              borderTopWidth='2px'
-              borderTopColor='transparent'
-              isDisabled={!yieldItem.status.exit}
-              opacity={!yieldItem.status.exit ? 0.5 : 1}
-            >
-              {translate('yieldXYZ.exit')}
-            </Tab>
-          </TabList>
+    const uniqueValidatorCount = useMemo(() => {
+      if (!balances) return 0
+      return balances.validatorAddresses.length
+    }, [balances])
 
-          <TabPanels>
-            <TabPanel p={8}>
-              <Flex direction='column' gap={2}>
-                {isBalancesLoading ? (
-                  <YieldEnterExitSkeleton />
-                ) : (
-                  <AssetInput
-                    accountId={accountId}
-                    assetId={inputTokenAssetId ?? ''}
-                    assetSymbol={inputToken?.symbol ?? ''}
-                    assetIcon={yieldItem.metadata.logoURI}
-                    cryptoAmount={cryptoAmount}
-                    balance={inputTokenBalance}
-                    percentOptions={percentOptions}
-                    onChange={setCryptoAmount}
-                    onPercentOptionClick={handlePercentClick}
-                    onMaxClick={handleMaxClick}
-                    fiatAmount={fiatAmount}
-                    showFiatAmount={true}
-                  />
-                )}
+    const shouldShowValidatorPicker = useMemo(
+      () => uniqueValidatorCount > 1,
+      [uniqueValidatorCount],
+    )
 
-                {minDeposit && !isLoading && (
-                  <Flex justifyContent='space-between' width='full' px={1}>
-                    <Flex gap={2} alignItems='center'>
-                      <Icon as={FaMoneyBillWave} color='gray.500' boxSize={3} />
-                      <Text fontSize='xs' color='gray.500' fontWeight='medium'>
-                        {translate('yieldXYZ.minDeposit')}
+    const enterTabSelectedStyle = useMemo(
+      () => ({
+        color: 'blue.400',
+        bg: cardBg,
+        borderBottomColor: cardBg,
+        borderTopColor: 'blue.400',
+        borderTopWidth: 2,
+      }),
+      [cardBg],
+    )
+
+    const tabFocusStyle = useMemo(() => ({ boxShadow: 'none' }), [])
+    const buttonHoverStyle = useMemo(() => ({ transform: 'translateY(-1px)', boxShadow: 'lg' }), [])
+
+    const enterButtonDisabled = useMemo(
+      () =>
+        isConnected &&
+        (isLoading ||
+          !yieldItem.status.enter ||
+          !cryptoAmount ||
+          isBelowMinimum ||
+          !!isQuoteLoading),
+      [
+        isConnected,
+        isLoading,
+        yieldItem.status.enter,
+        cryptoAmount,
+        isBelowMinimum,
+        isQuoteLoading,
+      ],
+    )
+
+    const exitButtonDisabled = useMemo(
+      () => isConnected && (isLoading || !yieldItem.status.exit || !cryptoAmount),
+      [isConnected, isLoading, yieldItem.status.exit, cryptoAmount],
+    )
+
+    const enterButtonText = useMemo(() => {
+      if (isQuoteLoading) return translate('common.loading')
+      if (isConnected) return translate('yieldXYZ.enter')
+      return translate('common.connectWallet')
+    }, [isQuoteLoading, isConnected, translate])
+
+    const exitButtonText = useMemo(() => {
+      if (isConnected) return translate('yieldXYZ.exit')
+      return translate('common.connectWallet')
+    }, [isConnected, translate])
+
+    const handleEnterButtonClick = useMemo(
+      () => (isConnected ? handleEnterClick : handleConnectWallet),
+      [isConnected, handleEnterClick, handleConnectWallet],
+    )
+
+    const handleExitButtonClick = useMemo(
+      () => (isConnected ? handleExitClick : handleConnectWallet),
+      [isConnected, handleExitClick, handleConnectWallet],
+    )
+
+    const modalAssetSymbol = useMemo(
+      () => (modalAction === 'enter' ? inputToken?.symbol ?? '' : yieldItem.token.symbol),
+      [modalAction, inputToken?.symbol, yieldItem.token.symbol],
+    )
+
+    const enterTabDisabled = useMemo(() => !yieldItem.status.enter, [yieldItem.status.enter])
+    const exitTabDisabled = useMemo(() => !yieldItem.status.exit, [yieldItem.status.exit])
+    const enterTabOpacity = useMemo(() => (enterTabDisabled ? 0.5 : 1), [enterTabDisabled])
+    const exitTabOpacity = useMemo(() => (exitTabDisabled ? 0.5 : 1), [exitTabDisabled])
+
+    const isPreferredValidator = useMemo(
+      () => validatorMetadata?.address === SHAPESHIFT_COSMOS_VALIDATOR_ADDRESS,
+      [validatorMetadata?.address],
+    )
+
+    const validatorRewardRate = useMemo(() => {
+      if (!validatorMetadata) return null
+      if (!('rewardRate' in validatorMetadata)) return null
+      const rate = (validatorMetadata as ValidatorDto).rewardRate?.total
+      if (!rate) return null
+      return (rate * 100).toFixed(2)
+    }, [validatorMetadata])
+
+    const apyDisplay = useMemo(() => `${apy.times(100).toFixed(2)}%`, [apy])
+
+    const estimatedYearlyEarningsDisplay = useMemo(
+      () => `${estimatedYearlyEarnings.decimalPlaces(4).toString()} ${inputSymbol}`,
+      [estimatedYearlyEarnings, inputSymbol],
+    )
+
+    const estimatedEarningsMarginBottom = useMemo(() => (hasAmount ? 2 : 0), [hasAmount])
+
+    const validatorPickerContent = useMemo(() => {
+      if (!shouldShowValidatorPicker) return null
+
+      return (
+        <>
+          <Box
+            p={4}
+            borderBottom='1px solid'
+            borderColor={borderColor}
+            bg={validatorPickerBg}
+            _hover={{ bg: validatorPickerHoverBg }}
+            cursor='pointer'
+            onClick={handleOpenValidatorModal}
+            transition='background 0.2s'
+          >
+            <Flex justify='space-between' align='center' gap={4}>
+              <Flex align='center' gap={3}>
+                {validatorMetadata ? (
+                  <>
+                    <Avatar
+                      size='sm'
+                      src={validatorMetadata.logoURI}
+                      name={validatorMetadata.name}
+                    />
+                    <Box>
+                      <Text fontWeight='bold' fontSize='sm'>
+                        {validatorMetadata.name}
                       </Text>
-                    </Flex>
-                    <Text
-                      fontSize='xs'
-                      color={isBelowMinimum ? 'red.500' : 'gray.500'}
-                      fontWeight='bold'
-                    >
-                      {minDeposit} {inputToken?.symbol}
-                    </Text>
-                  </Flex>
-                )}
-
-                {/* Estimated Earnings Carrot */}
-                <Box
-                  bg={estimatedEarningsBg}
-                  borderRadius='lg'
-                  p={4}
-                  border='1px solid'
-                  borderColor={estimatedEarningsBorderColor}
-                >
-                  <Flex justify='space-between' align='center' mb={hasAmount ? 2 : 0}>
-                    <Text fontSize='sm' color='text.subtle' fontWeight='medium'>
-                      {translate('yieldXYZ.currentApy')}
-                    </Text>
-                    <GradientApy fontSize='sm' fontWeight='bold'>
-                      {apy.times(100).toFixed(2)}%
-                    </GradientApy>
-                  </Flex>
-
-                  {hasAmount && (
-                    <>
-                      <Flex justify='space-between' align='center'>
-                        <Text fontSize='sm' color='text.subtle' fontWeight='medium'>
-                          {translate('yieldXYZ.estYearlyEarnings')}
-                        </Text>
-                        <Flex direction='column' align='flex-end'>
-                          <GradientApy fontSize='sm' fontWeight='bold'>
-                            {estimatedYearlyEarnings.decimalPlaces(4).toString()} {inputSymbol}
+                      <Flex gap={2} fontSize='xs' color='text.subtle'>
+                        {isPreferredValidator && (
+                          <Text color='blue.400' fontWeight='bold'>
+                            {translate('yieldXYZ.preferred')}
+                          </Text>
+                        )}
+                        {validatorRewardRate && (
+                          <GradientApy>
+                            {validatorRewardRate}% {translate('yieldXYZ.apr')}
                           </GradientApy>
-                          <Flex color='gray.500' fontWeight='normal' fontSize='xs'>
-                            <Amount.Fiat value={estimatedYearlyEarningsFiat.toString()} />
-                          </Flex>
-                        </Flex>
+                        )}
                       </Flex>
-                    </>
-                  )}
-                </Box>
-
-                <Button
-                  colorScheme='blue'
-                  size='lg'
-                  width='full'
-                  height='56px'
-                  fontSize='lg'
-                  isDisabled={
-                    isConnected &&
-                    (isLoading ||
-                      !yieldItem.status.enter ||
-                      !cryptoAmount ||
-                      isBelowMinimum ||
-                      !!isQuoteLoading)
-                  }
-                  onClick={
-                    isConnected
-                      ? handleEnterClick
-                      : () => dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
-                  }
-                  _hover={{ transform: 'translateY(-1px)', boxShadow: 'lg' }}
-                >
-                  {isQuoteLoading
-                    ? translate('common.loading')
-                    : isConnected
-                    ? translate('yieldXYZ.enter')
-                    : translate('common.connectWallet')}
-                </Button>
-              </Flex>
-            </TabPanel>
-
-            <TabPanel p={8}>
-              <Flex direction='column' gap={2}>
-                {isBalancesLoading ? (
-                  <YieldEnterExitSkeleton />
+                    </Box>
+                  </>
                 ) : (
-                  <AssetInput
-                    accountId={accountId}
-                    assetId={inputTokenAssetId ?? ''}
-                    assetSymbol={yieldItem.token.symbol}
-                    assetIcon={yieldItem.metadata.logoURI}
-                    cryptoAmount={cryptoAmount}
-                    balance={exitBalance}
-                    percentOptions={percentOptions}
-                    onChange={setCryptoAmount}
-                    onPercentOptionClick={handlePercentClick}
-                    onMaxClick={handleMaxClick}
-                    fiatAmount={fiatAmount}
-                    showFiatAmount={true}
-                  />
+                  <Text fontWeight='bold' fontSize='sm'>
+                    {translate('yieldXYZ.selectValidator')}
+                  </Text>
                 )}
-
-                <Button
-                  colorScheme='blue'
-                  size='lg'
-                  width='full'
-                  height='56px'
-                  fontSize='lg'
-                  isDisabled={isConnected && (isLoading || !yieldItem.status.exit || !cryptoAmount)}
-                  onClick={
-                    isConnected
-                      ? handleExitClick
-                      : () => dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
-                  }
-                  _hover={{ transform: 'translateY(-1px)', boxShadow: 'lg' }}
-                >
-                  {isConnected ? translate('yieldXYZ.exit') : translate('common.connectWallet')}
-                </Button>
               </Flex>
-            </TabPanel>
-          </TabPanels>
-        </Tabs>
-      </Box>
+              {chevronDownIcon}
+            </Flex>
+          </Box>
+          <YieldValidatorSelectModal
+            isOpen={isValidatorModalOpen}
+            onClose={handleCloseValidatorModal}
+            validators={validators || []}
+            onSelect={handleValidatorChange}
+            balances={balances?.raw}
+          />
+        </>
+      )
+    }, [
+      shouldShowValidatorPicker,
+      borderColor,
+      validatorPickerBg,
+      validatorPickerHoverBg,
+      handleOpenValidatorModal,
+      validatorMetadata,
+      isPreferredValidator,
+      translate,
+      validatorRewardRate,
+      isValidatorModalOpen,
+      handleCloseValidatorModal,
+      validators,
+      handleValidatorChange,
+      balances?.raw,
+    ])
 
-      <YieldActionModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        yieldItem={yieldItem}
-        action={modalAction}
-        amount={cryptoAmount}
-        assetSymbol={modalAction === 'enter' ? inputToken?.symbol ?? '' : yieldItem.token.symbol}
-        validatorAddress={selectedValidatorAddress}
-      />
-    </>
-  )
-}
+    const minDepositContent = useMemo(() => {
+      if (!minDeposit || isLoading) return null
+
+      return (
+        <Flex justifyContent='space-between' width='full' px={1}>
+          <Flex gap={2} alignItems='center'>
+            {moneyBillWaveIcon}
+            <Text fontSize='xs' color='gray.500' fontWeight='medium'>
+              {translate('yieldXYZ.minDeposit')}
+            </Text>
+          </Flex>
+          <Text fontSize='xs' color={isBelowMinimum ? 'red.500' : 'gray.500'} fontWeight='bold'>
+            {minDeposit} {inputToken?.symbol}
+          </Text>
+        </Flex>
+      )
+    }, [minDeposit, isLoading, translate, isBelowMinimum, inputToken?.symbol])
+
+    const estimatedYearlyEarningsContent = useMemo(() => {
+      if (!hasAmount) return null
+
+      return (
+        <Flex justify='space-between' align='center'>
+          <Text fontSize='sm' color='text.subtle' fontWeight='medium'>
+            {translate('yieldXYZ.estYearlyEarnings')}
+          </Text>
+          <Flex direction='column' align='flex-end'>
+            <GradientApy fontSize='sm' fontWeight='bold'>
+              {estimatedYearlyEarningsDisplay}
+            </GradientApy>
+            <Flex color='gray.500' fontWeight='normal' fontSize='xs'>
+              <Amount.Fiat value={estimatedYearlyEarningsFiat.toString()} />
+            </Flex>
+          </Flex>
+        </Flex>
+      )
+    }, [hasAmount, translate, estimatedYearlyEarningsDisplay, estimatedYearlyEarningsFiat])
+
+    const enterTabPanelContent = useMemo(() => {
+      if (isBalancesLoading) return <YieldEnterExitSkeleton />
+
+      return (
+        <AssetInput
+          accountId={accountId}
+          assetId={inputTokenAssetId ?? ''}
+          assetSymbol={inputToken?.symbol ?? ''}
+          assetIcon={yieldItem.metadata.logoURI}
+          cryptoAmount={cryptoAmount}
+          balance={inputTokenBalance}
+          percentOptions={percentOptions}
+          onChange={setCryptoAmount}
+          onPercentOptionClick={handlePercentClick}
+          onMaxClick={handleMaxClick}
+          fiatAmount={fiatAmount}
+          showFiatAmount={true}
+        />
+      )
+    }, [
+      isBalancesLoading,
+      accountId,
+      inputTokenAssetId,
+      inputToken?.symbol,
+      yieldItem.metadata.logoURI,
+      cryptoAmount,
+      inputTokenBalance,
+      handlePercentClick,
+      handleMaxClick,
+      fiatAmount,
+    ])
+
+    const exitTabPanelContent = useMemo(() => {
+      if (isBalancesLoading) return <YieldEnterExitSkeleton />
+
+      return (
+        <AssetInput
+          accountId={accountId}
+          assetId={inputTokenAssetId ?? ''}
+          assetSymbol={yieldItem.token.symbol}
+          assetIcon={yieldItem.metadata.logoURI}
+          cryptoAmount={cryptoAmount}
+          balance={exitBalance}
+          percentOptions={percentOptions}
+          onChange={setCryptoAmount}
+          onPercentOptionClick={handlePercentClick}
+          onMaxClick={handleMaxClick}
+          fiatAmount={fiatAmount}
+          showFiatAmount={true}
+        />
+      )
+    }, [
+      isBalancesLoading,
+      accountId,
+      inputTokenAssetId,
+      yieldItem.token.symbol,
+      yieldItem.metadata.logoURI,
+      cryptoAmount,
+      exitBalance,
+      handlePercentClick,
+      handleMaxClick,
+      fiatAmount,
+    ])
+
+    return (
+      <>
+        <Box
+          bg={cardBg}
+          borderRadius='xl'
+          shadow='sm'
+          border='1px solid'
+          borderColor={borderColor}
+          overflow='hidden'
+        >
+          {validatorPickerContent}
+          <Tabs
+            index={tabIndex}
+            onChange={setTabIndex}
+            isFitted
+            variant='enclosed'
+            borderBottomWidth={0}
+          >
+            <TabList mb='0' borderBottom='1px solid' borderColor={borderColor} bg={tabListBg}>
+              <Tab
+                _selected={enterTabSelectedStyle}
+                _focus={tabFocusStyle}
+                fontWeight='bold'
+                py={4}
+                borderBottomWidth='1px'
+                borderRadius={0}
+                borderTopWidth='2px'
+                borderTopColor='transparent'
+                isDisabled={enterTabDisabled}
+                opacity={enterTabOpacity}
+              >
+                {translate('yieldXYZ.enter')}
+              </Tab>
+              <Tab
+                _selected={enterTabSelectedStyle}
+                _focus={tabFocusStyle}
+                fontWeight='bold'
+                py={4}
+                borderBottomWidth='1px'
+                borderRadius={0}
+                borderTopWidth='2px'
+                borderTopColor='transparent'
+                isDisabled={exitTabDisabled}
+                opacity={exitTabOpacity}
+              >
+                {translate('yieldXYZ.exit')}
+              </Tab>
+            </TabList>
+            <TabPanels>
+              <TabPanel p={8}>
+                <Flex direction='column' gap={2}>
+                  {enterTabPanelContent}
+                  {minDepositContent}
+                  <Box
+                    bg={estimatedEarningsBg}
+                    borderRadius='lg'
+                    p={4}
+                    border='1px solid'
+                    borderColor={estimatedEarningsBorderColor}
+                  >
+                    <Flex justify='space-between' align='center' mb={estimatedEarningsMarginBottom}>
+                      <Text fontSize='sm' color='text.subtle' fontWeight='medium'>
+                        {translate('yieldXYZ.currentApy')}
+                      </Text>
+                      <GradientApy fontSize='sm' fontWeight='bold'>
+                        {apyDisplay}
+                      </GradientApy>
+                    </Flex>
+                    {estimatedYearlyEarningsContent}
+                  </Box>
+                  <Button
+                    colorScheme='blue'
+                    size='lg'
+                    width='full'
+                    height='56px'
+                    fontSize='lg'
+                    isDisabled={enterButtonDisabled}
+                    onClick={handleEnterButtonClick}
+                    _hover={buttonHoverStyle}
+                  >
+                    {enterButtonText}
+                  </Button>
+                </Flex>
+              </TabPanel>
+              <TabPanel p={8}>
+                <Flex direction='column' gap={2}>
+                  {exitTabPanelContent}
+                  <Button
+                    colorScheme='blue'
+                    size='lg'
+                    width='full'
+                    height='56px'
+                    fontSize='lg'
+                    isDisabled={exitButtonDisabled}
+                    onClick={handleExitButtonClick}
+                    _hover={buttonHoverStyle}
+                  >
+                    {exitButtonText}
+                  </Button>
+                </Flex>
+              </TabPanel>
+            </TabPanels>
+          </Tabs>
+        </Box>
+        <YieldActionModal
+          isOpen={isModalOpen}
+          onClose={handleCloseModal}
+          yieldItem={yieldItem}
+          action={modalAction}
+          amount={cryptoAmount}
+          assetSymbol={modalAssetSymbol}
+          validatorAddress={selectedValidatorAddress}
+        />
+      </>
+    )
+  },
+)

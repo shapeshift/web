@@ -13,11 +13,16 @@ import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { assertGetChainAdapter, isTransactionStatusAdapter } from '@/lib/utils'
 import { enterYield, exitYield, fetchAction, manageYield } from '@/lib/yieldxyz/api'
-import { DEFAULT_NATIVE_VALIDATOR_BY_CHAIN_ID } from '@/lib/yieldxyz/constants'
+import {
+  DEFAULT_NATIVE_VALIDATOR_BY_CHAIN_ID,
+  YIELD_MAX_POLL_ATTEMPTS,
+  YIELD_POLL_INTERVAL_MS,
+} from '@/lib/yieldxyz/constants'
 import type { CosmosStakeArgs } from '@/lib/yieldxyz/executeTransaction'
 import { executeTransaction } from '@/lib/yieldxyz/executeTransaction'
 import type { ActionDto, AugmentedYieldDto, TransactionDto } from '@/lib/yieldxyz/types'
 import { ActionStatus as YieldActionStatus, TransactionStatus } from '@/lib/yieldxyz/types'
+import { formatYieldTxTitle } from '@/lib/yieldxyz/utils'
 import { useYieldAccount } from '@/pages/Yields/YieldAccountContext'
 import { useSubmitYieldTransactionHash } from '@/react-queries/queries/yieldxyz/useSubmitYieldTransactionHash'
 import { actionSlice } from '@/state/slices/actionSlice/actionSlice'
@@ -47,20 +52,17 @@ export type TransactionStep = {
   loadingMessage?: string
 }
 
-const POLL_INTERVAL_MS = 5000
-const MAX_POLL_ATTEMPTS = 120
-
 const poll = async <T>(
   fn: () => Promise<T>,
   isComplete: (result: T) => boolean,
   shouldThrow?: (result: T) => Error | undefined,
 ): Promise<T> => {
-  for (let i = 0; i < MAX_POLL_ATTEMPTS; i++) {
+  for (let i = 0; i < YIELD_MAX_POLL_ATTEMPTS; i++) {
     const result = await fn()
     const error = shouldThrow?.(result)
     if (error) throw error
     if (isComplete(result)) return result
-    await new Promise(resolve => setTimeout(resolve, POLL_INTERVAL_MS))
+    await new Promise(resolve => setTimeout(resolve, YIELD_POLL_INTERVAL_MS))
   }
   throw new Error('Polling timed out')
 }
@@ -88,18 +90,6 @@ const waitForActionCompletion = (actionId: string): Promise<ActionDto> => {
       return undefined
     },
   )
-}
-
-const formatTxTitle = (title: string, assetSymbol: string): string => {
-  const t = title.replace(/ transaction$/i, '').toLowerCase()
-  if (t.includes('approval') || t.includes('approve')) return `Approve ${assetSymbol}`
-  if (t.includes('supply') || t.includes('deposit') || t.includes('enter'))
-    return `Deposit ${assetSymbol}`
-  if (t.includes('withdraw') || t.includes('exit')) return `Withdraw ${assetSymbol}`
-  if (t.includes('claim')) return `Claim ${assetSymbol}`
-  if (t.includes('unstake')) return `Unstake ${assetSymbol}`
-  if (t.includes('stake')) return `Stake ${assetSymbol}`
-  return t.charAt(0).toUpperCase() + t.slice(1)
 }
 
 const filterExecutableTransactions = (transactions: TransactionDto[]): TransactionDto[] =>
@@ -284,7 +274,7 @@ export const useYieldTransactionFlow = ({
             chainId: yieldChainId,
             assetId: (yieldItem.token.assetId || '') as AssetId,
             accountId,
-            message: formatTxTitle(tx.title || 'Transaction', assetSymbol),
+            message: formatYieldTxTitle(tx.title || 'Transaction', assetSymbol),
             amountCryptoPrecision: amount,
           },
         }),
@@ -477,7 +467,7 @@ export const useYieldTransactionFlow = ({
       setRawTransactions(transactions)
       setTransactionSteps(
         transactions.map((tx, i) => ({
-          title: formatTxTitle(tx.title || `Transaction ${i + 1}`, assetSymbol),
+          title: formatYieldTxTitle(tx.title || `Transaction ${i + 1}`, assetSymbol),
           originalTitle: tx.title || '',
           status: 'pending' as const,
         })),

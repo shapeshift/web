@@ -51,6 +51,9 @@ export const isSupportedYieldNetwork = (network: string): network is YieldNetwor
 
 export const SUI_GAS_BUFFER = '0.1'
 
+export const YIELD_POLL_INTERVAL_MS = 5000
+export const YIELD_MAX_POLL_ATTEMPTS = 120
+
 export const SHAPESHIFT_COSMOS_VALIDATOR_ADDRESS =
   'cosmosvaloper199mlc7fr6ll5t54w7tts7f4s0cvnqgc59nmuxf'
 

@@ -37,6 +37,18 @@ export const filterSupportedYields = (yields: YieldDto[]): YieldDto[] =>
 export const isExitableBalanceType = (type: string): boolean =>
   type === 'active' || type === 'withdrawable'
 
+export const formatYieldTxTitle = (title: string, assetSymbol: string): string => {
+  const t = title.replace(/ transaction$/i, '').toLowerCase()
+  if (t.includes('approval') || t.includes('approve')) return `Approve ${assetSymbol}`
+  if (t.includes('supply') || t.includes('deposit') || t.includes('enter'))
+    return `Deposit ${assetSymbol}`
+  if (t.includes('withdraw') || t.includes('exit')) return `Withdraw ${assetSymbol}`
+  if (t.includes('claim')) return `Claim ${assetSymbol}`
+  if (t.includes('unstake')) return `Unstake ${assetSymbol}`
+  if (t.includes('stake')) return `Stake ${assetSymbol}`
+  return t.charAt(0).toUpperCase() + t.slice(1)
+}
+
 type YieldIconSource = { assetId: string | undefined; src: string | undefined }
 
 type YieldItemForIcon = {

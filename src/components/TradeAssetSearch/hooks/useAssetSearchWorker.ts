@@ -6,6 +6,7 @@ import AssetSearchWorker from '../workers/assetSearch.worker?worker'
 
 import { useDebounce } from '@/hooks/useDebounce/useDebounce'
 import type { AssetSearchWorkerOutboundMessage } from '@/lib/assetSearch'
+import { profiler } from '@/lib/performanceProfiler'
 import {
   selectAssetsSortedByMarketCapUserCurrencyBalanceCryptoPrecisionAndName,
   selectPrimaryAssetsSortedByMarketCapUserCurrencyBalanceCryptoPrecisionAndName,
@@ -43,6 +44,7 @@ export const useAssetSearchWorker = ({
 
   const workerRef = useRef<Worker | null>(null)
   const requestIdRef = useRef(0)
+  const searchStartTimeRef = useRef<Map<number, { startTime: number; query: string }>>(new Map())
   const [searchString, setSearchString] = useState('')
   const debouncedSearchString = useDebounce(searchString, 200)
   const [workerSearchState, setWorkerSearchState] = useState<WorkerSearchState>({
@@ -63,6 +65,13 @@ export const useAssetSearchWorker = ({
         const { type, requestId, payload } = event.data
         if (type !== 'searchResult') return
         if (requestId !== requestIdRef.current) return
+
+        const searchInfo = searchStartTimeRef.current.get(requestId)
+        if (searchInfo) {
+          const duration = performance.now() - searchInfo.startTime
+          profiler.trackAssetSearch(searchInfo.query, duration)
+          searchStartTimeRef.current.delete(requestId)
+        }
 
         setWorkerSearchState(prev => ({
           ...prev,
@@ -124,6 +133,10 @@ export const useAssetSearchWorker = ({
 
       const nextRequestId = requestIdRef.current + 1
       requestIdRef.current = nextRequestId
+      searchStartTimeRef.current.set(nextRequestId, {
+        startTime: performance.now(),
+        query: searchTerm,
+      })
 
       setWorkerSearchState(prev => ({
         ...prev,

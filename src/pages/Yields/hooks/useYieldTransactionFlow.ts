@@ -261,6 +261,10 @@ export const useYieldTransactionFlow = ({
         ? GenericTransactionDisplayType.Claim
         : GenericTransactionDisplayType.Yield
 
+      // TODO(gomes): handle claim notifications - there's more logic TBD here (e.g. unbonding periods).
+      // For now, KISS and simply don't handle claims in action center.
+      if (action === 'manage') return
+
       dispatch(
         actionSlice.actions.upsertAction({
           id: uuidv4(),
@@ -340,15 +344,13 @@ export const useYieldTransactionFlow = ({
           address: userAddress,
         })
 
-        queryClient.invalidateQueries({ queryKey: ['yieldxyz', 'balances'] })
-        queryClient.invalidateQueries({ queryKey: ['yieldxyz', 'yields'] })
-
-        dispatchNotification(tx, txHash)
-
         const isLastTransaction = index + 1 >= allTransactions.length
 
         if (isLastTransaction) {
           await waitForActionCompletion(actionId)
+          queryClient.invalidateQueries({ queryKey: ['yieldxyz', 'balances'] })
+          queryClient.invalidateQueries({ queryKey: ['yieldxyz', 'yields'] })
+          dispatchNotification(tx, txHash)
           updateStepStatus(index, { status: 'success', loadingMessage: undefined })
           setStep(ModalStep.Success)
         } else {
@@ -363,6 +365,9 @@ export const useYieldTransactionFlow = ({
             setActiveStepIndex(index + 1)
           } else {
             await waitForActionCompletion(actionId)
+            queryClient.invalidateQueries({ queryKey: ['yieldxyz', 'balances'] })
+            queryClient.invalidateQueries({ queryKey: ['yieldxyz', 'yields'] })
+            dispatchNotification(tx, txHash)
             updateStepStatus(index, { status: 'success', loadingMessage: undefined })
             setStep(ModalStep.Success)
           }

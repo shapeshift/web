@@ -44,18 +44,15 @@ export const YieldAssetGroupRow = memo(
     const { data: yieldProviders } = useYieldProviders()
 
     const stats = useMemo(() => {
-      let maxApy = 0
-      let totalTvlUsd = bnOrZero(0)
-      const providerIds = new Set<string>()
+      const maxApy = Math.max(...yields.map(y => y.rewardRate.total))
 
-      yields.forEach(y => {
-        const apy = y.rewardRate.total
-        if (apy > maxApy) maxApy = apy
-        totalTvlUsd = totalTvlUsd.plus(bnOrZero(y.statistics?.tvlUsd))
-        providerIds.add(y.providerId)
-      })
+      const totalTvlUsd = yields.reduce(
+        (acc, y) => acc.plus(bnOrZero(y.statistics?.tvlUsd)),
+        bnOrZero(0),
+      )
 
-      const providers = Array.from(providerIds).map(id => ({
+      const providerIds = [...new Set(yields.map(y => y.providerId))]
+      const providers = providerIds.map(id => ({
         id,
         logo: yieldProviders?.[id]?.logoURI,
       }))

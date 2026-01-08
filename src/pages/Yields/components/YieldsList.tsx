@@ -198,33 +198,32 @@ export const YieldsList = memo(() => {
 
   const displayYields = useMemo(() => {
     if (!yields?.all) return []
-    let data = yields.all
 
-    if (isMyOpportunities) {
-      data = data.filter(y => {
-        const hasInputBalance = y.inputTokens?.some(t => {
-          const bal = userCurrencyBalances[t.assetId || '']
-          return bnOrZero(bal).gt(0)
-        })
-        if (hasInputBalance) return true
-        const bal = userCurrencyBalances[y.token.assetId || '']
+    const hasUserBalance = (y: AugmentedYieldDto) => {
+      const hasInputBalance = y.inputTokens?.some(t => {
+        const bal = userCurrencyBalances[t.assetId || '']
         return bnOrZero(bal).gt(0)
       })
+      if (hasInputBalance) return true
+      const bal = userCurrencyBalances[y.token.assetId || '']
+      return bnOrZero(bal).gt(0)
     }
 
-    if (selectedNetwork) data = data.filter(y => y.network === selectedNetwork)
-    if (selectedProvider) data = data.filter(y => y.providerId === selectedProvider)
-    if (searchQuery) {
-      const q = searchQuery.toLowerCase()
-      data = data.filter(
-        y =>
-          y.metadata.name.toLowerCase().includes(q) ||
-          y.token.symbol.toLowerCase().includes(q) ||
-          y.token.name.toLowerCase().includes(q) ||
-          y.providerId.toLowerCase().includes(q),
-      )
-    }
-    return data
+    const matchesSearch = (y: AugmentedYieldDto, q: string) =>
+      y.metadata.name.toLowerCase().includes(q) ||
+      y.token.symbol.toLowerCase().includes(q) ||
+      y.token.name.toLowerCase().includes(q) ||
+      y.providerId.toLowerCase().includes(q)
+
+    const q = searchQuery?.toLowerCase()
+
+    return yields.all.filter(y => {
+      if (isMyOpportunities && !hasUserBalance(y)) return false
+      if (selectedNetwork && y.network !== selectedNetwork) return false
+      if (selectedProvider && y.providerId !== selectedProvider) return false
+      if (q && !matchesSearch(y, q)) return false
+      return true
+    })
   }, [
     yields,
     selectedNetwork,
@@ -236,15 +235,13 @@ export const YieldsList = memo(() => {
 
   const yieldsByAsset = useMemo(() => {
     if (!displayYields || !yields?.meta?.assetMetadata) return []
-    const groups: Record<string, AugmentedYieldDto[]> = {}
 
-    displayYields.forEach(y => {
+    const groups = displayYields.reduce<Record<string, AugmentedYieldDto[]>>((acc, y) => {
       const token = y.inputTokens?.[0] || y.token
       const symbol = token.symbol
-      if (!symbol) return
-      if (!groups[symbol]) groups[symbol] = []
-      groups[symbol].push(y)
-    })
+      if (!symbol) return acc
+      return { ...acc, [symbol]: [...(acc[symbol] || []), y] }
+    }, {})
 
     const assetGroups = Object.entries(groups).map(([symbol, groupYields]) => {
       const meta = yields.meta.assetMetadata[symbol] || {
@@ -253,23 +250,18 @@ export const YieldsList = memo(() => {
         assetId: undefined,
       }
 
-      let userGroupBalanceUsd = bnOrZero(0)
-      let maxApy = 0
-      let totalTvlUsd = bnOrZero(0)
+      const userGroupBalanceUsd = groupYields.reduce((acc, y) => {
+        const balances = allBalances?.[y.id]
+        if (!balances) return acc
+        return balances.reduce((sum, b) => sum.plus(bnOrZero(b.amountUsd)), acc)
+      }, bnOrZero(0))
 
-      groupYields.forEach(y => {
-        if (allBalances) {
-          const balances = allBalances[y.id]
-          if (balances) {
-            balances.forEach(b => {
-              userGroupBalanceUsd = userGroupBalanceUsd.plus(bnOrZero(b.amountUsd))
-            })
-          }
-        }
-        const apy = bnOrZero(y.rewardRate.total).toNumber()
-        if (apy > maxApy) maxApy = apy
-        totalTvlUsd = totalTvlUsd.plus(bnOrZero(y.statistics?.tvlUsd))
-      })
+      const maxApy = Math.max(...groupYields.map(y => bnOrZero(y.rewardRate.total).toNumber()))
+
+      const totalTvlUsd = groupYields.reduce(
+        (acc, y) => acc.plus(bnOrZero(y.statistics?.tvlUsd)),
+        bnOrZero(0),
+      )
 
       return {
         yields: groupYields,
@@ -330,12 +322,11 @@ export const YieldsList = memo(() => {
 
   const handleYieldClick = useCallback(
     (yieldId: string) => {
-      let url = `/yields/${yieldId}`
       const balances = allBalances?.[yieldId]
-      if (balances && balances.length > 0) {
-        const highestAmountValidator = balances[0].highestAmountUsdValidator
-        if (highestAmountValidator) url += `?validator=${highestAmountValidator}`
-      }
+      const highestAmountValidator = balances?.[0]?.highestAmountUsdValidator
+      const url = highestAmountValidator
+        ? `/yields/${yieldId}?validator=${highestAmountValidator}`
+        : `/yields/${yieldId}`
       navigate(url)
     },
     [navigate, allBalances],

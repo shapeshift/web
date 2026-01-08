@@ -67,96 +67,77 @@ export const useYields = (params?: { network?: string; provider?: string }) => {
 
     const ids = filtered.map(item => item.id)
 
-    const byAssetSymbol: Record<string, AugmentedYieldDto[]> = {}
-    const networksSet = new Set<string>()
-    const providersSet = new Set<string>()
+    // Use GLOBAL networks/providers so dropdowns don't shrink when filtered
+    const globalNetworks = [...new Set(allYields.map(item => item.network))]
+    const globalProviders = [...new Set(allYields.map(item => item.providerId))]
 
-    // For metadata, we might want ALL networks/providers available,
-    // but the UI typically expects meta to reflect the current data?
-    // Actually for filters, we usually want Global meta.
-    // But let's stick to current behavior: meta reflects the returned data.
-    // If we want global filters, we should probably return global meta separately.
-    // For now, let's keep consistency with previous behavior.
-
-    // Actually, to fix "dropdowns disappear", we should populate meta from allYields!
-    const globalNetworksSet = new Set<string>()
-    const globalProvidersSet = new Set<string>()
-    allYields.forEach(item => {
-      globalNetworksSet.add(item.network)
-      globalProvidersSet.add(item.providerId)
-    })
-
-    filtered.forEach(item => {
-      // Group by Symbol
+    const byAssetSymbol = filtered.reduce<Record<string, AugmentedYieldDto[]>>((acc, item) => {
       const symbol = (item.inputTokens?.[0] || item.token).symbol
       if (symbol) {
-        if (!byAssetSymbol[symbol]) byAssetSymbol[symbol] = []
-        byAssetSymbol[symbol].push(item)
+        if (!acc[symbol]) acc[symbol] = []
+        acc[symbol].push(item)
       }
+      return acc
+    }, {})
 
-      // Collect Filters (Scoped)
-      networksSet.add(item.network)
-      providersSet.add(item.providerId)
-    })
-
-    const symbolToAssetMap = new Map<string, Asset>()
-    Object.values(assets).forEach(asset => {
-      if (asset?.symbol && !symbolToAssetMap.has(asset.symbol)) {
-        symbolToAssetMap.set(asset.symbol, asset)
+    const symbolToAssetMap = Object.values(assets).reduce<Map<string, Asset>>((map, asset) => {
+      if (asset?.symbol && !map.has(asset.symbol)) {
+        map.set(asset.symbol, asset)
       }
-    })
+      return map
+    }, new Map())
 
-    const assetMetadata: Record<
-      string,
-      { assetName: string; assetIcon: string; assetId?: string }
-    > = {}
+    const assetMetadata = Object.fromEntries(
+      Object.entries(byAssetSymbol).map(([symbol, yields]) => {
+        const bestYield = yields.reduce((prev, current) => {
+          const prevToken = prev.inputTokens?.[0] || prev.token
+          const currToken = current.inputTokens?.[0] || current.token
 
-    Object.entries(byAssetSymbol).forEach(([symbol, yields]) => {
-      const bestYield = yields.reduce((prev, current) => {
-        const prevToken = prev.inputTokens?.[0] || prev.token
-        const currToken = current.inputTokens?.[0] || current.token
+          const prevHasAsset = prevToken.assetId && assets[prevToken.assetId]
+          const currHasAsset = currToken.assetId && assets[currToken.assetId]
 
-        const prevHasAsset = prevToken.assetId && assets[prevToken.assetId]
-        const currHasAsset = currToken.assetId && assets[currToken.assetId]
+          if (currHasAsset && !prevHasAsset) return current
+          if (prevHasAsset && !currHasAsset) return prev
 
-        if (currHasAsset && !prevHasAsset) return current
-        if (prevHasAsset && !currHasAsset) return prev
+          const prevIsNative = prevToken.assetId?.includes('slip44')
+          const currIsNative = currToken.assetId?.includes('slip44')
+          if (currIsNative && !prevIsNative) return current
+          if (prevIsNative && !currIsNative) return prev
 
-        // Prefer Native Assets (slip44) over tokens
-        const prevIsNative = prevToken.assetId?.includes('slip44')
-        const currIsNative = currToken.assetId?.includes('slip44')
-        if (currIsNative && !prevIsNative) return current
-        if (prevIsNative && !currIsNative) return prev
+          if (currToken.name && prevToken.name) {
+            if (currToken.name.length < prevToken.name.length) return current
+            if (prevToken.name.length < currToken.name.length) return prev
+          }
+          return prev
+        }, yields[0])
 
-        if (currToken.name && prevToken.name) {
-          if (currToken.name.length < prevToken.name.length) return current
-          if (prevToken.name.length < currToken.name.length) return prev
-        }
-        return prev
-      }, yields[0])
+        const representativeToken = bestYield.inputTokens?.[0] || bestYield.token
+        const defaultIcon = representativeToken.logoURI || bestYield.metadata.logoURI || ''
 
-      const representativeToken = bestYield.inputTokens?.[0] || bestYield.token
+        const resolvedAsset = (() => {
+          if (representativeToken.assetId && assets[representativeToken.assetId]) {
+            return {
+              assetId: representativeToken.assetId,
+              icon: assets[representativeToken.assetId]?.icon ?? defaultIcon,
+            }
+          }
+          const localAsset = symbolToAssetMap.get(symbol)
+          if (localAsset) {
+            return { assetId: localAsset.assetId, icon: localAsset.icon ?? defaultIcon }
+          }
+          return { assetId: undefined, icon: defaultIcon }
+        })()
 
-      let finalAssetId: string | undefined
-      let assetIcon = representativeToken.logoURI || bestYield.metadata.logoURI || ''
-
-      if (representativeToken.assetId && assets[representativeToken.assetId]) {
-        finalAssetId = representativeToken.assetId
-        assetIcon = assets[finalAssetId]?.icon ?? assetIcon
-      } else {
-        const localAsset = symbolToAssetMap.get(symbol)
-        if (localAsset) {
-          finalAssetId = localAsset.assetId
-          assetIcon = localAsset.icon ?? assetIcon
-        }
-      }
-
-      assetMetadata[symbol] = {
-        assetName: representativeToken.name || symbol,
-        assetIcon,
-        assetId: finalAssetId,
-      }
-    })
+        return [
+          symbol,
+          {
+            assetName: representativeToken.name || symbol,
+            assetIcon: resolvedAsset.icon,
+            assetId: resolvedAsset.assetId,
+          },
+        ] as const
+      }),
+    )
 
     return {
       all: filtered,
@@ -164,9 +145,8 @@ export const useYields = (params?: { network?: string; provider?: string }) => {
       ids,
       byAssetSymbol,
       meta: {
-        // Use GLOBAL networks/providers so dropdowns don't shrink when filtered
-        networks: Array.from(globalNetworksSet),
-        providers: Array.from(globalProvidersSet),
+        networks: globalNetworks,
+        providers: globalProviders,
         assetMetadata,
       },
     }

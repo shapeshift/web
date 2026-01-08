@@ -41,25 +41,20 @@ const tokenToAssetId = (token: YieldToken, chainId: ChainId | undefined): AssetI
 
   const { chainNamespace } = fromChainId(chainId)
 
-  let assetNamespace: AssetNamespace
+  const assetNamespace = ((): AssetNamespace | undefined => {
+    switch (chainNamespace) {
+      case CHAIN_NAMESPACE.Evm:
+        return ASSET_NAMESPACE.erc20
+      case CHAIN_NAMESPACE.CosmosSdk:
+        return 'ibc' as AssetNamespace
+      case CHAIN_NAMESPACE.Solana:
+        return ASSET_NAMESPACE.splToken
+      default:
+        return undefined
+    }
+  })()
 
-  switch (chainNamespace) {
-    case CHAIN_NAMESPACE.Evm:
-      assetNamespace = ASSET_NAMESPACE.erc20
-      break
-    case CHAIN_NAMESPACE.CosmosSdk:
-      // Cosmos tokens are usually 'ibc' or 'native', but widely vary.
-      // For now, if provided an address, we assume it fits the standard 'ibc/...' or 'cw20/...' pattern
-      // which 'toAssetId' handles if we pass the correct params.
-      // However, Yield.xyz 'address' for Cosmos might be the denomination string itself.
-      assetNamespace = 'ibc' as AssetNamespace // Simplification, might need refinement for CW20
-      break
-    case CHAIN_NAMESPACE.Solana:
-      assetNamespace = ASSET_NAMESPACE.splToken
-      break
-    default:
-      return undefined
-  }
+  if (!assetNamespace) return undefined
 
   try {
     return toAssetId({

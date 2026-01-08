@@ -52,19 +52,20 @@ export const YieldOpportunityStats = memo(function YieldOpportunityStats({
 
   const idleValueUsd = useMemo(() => {
     if (!allYields) return bnOrZero(0)
-    const yieldableAssetIds = new Set<string>()
-    allYields.forEach(y => {
-      y.inputTokens?.forEach(t => {
-        if (t.assetId) yieldableAssetIds.add(t.assetId)
-      })
-      if (y.token.assetId) yieldableAssetIds.add(y.token.assetId)
-    })
-    let totalIdle = bnOrZero(0)
-    yieldableAssetIds.forEach(assetId => {
+
+    const yieldableAssetIds = new Set(
+      allYields.flatMap(
+        y =>
+          [...(y.inputTokens?.map(t => t.assetId).filter(Boolean) ?? []), y.token.assetId].filter(
+            Boolean,
+          ) as string[],
+      ),
+    )
+
+    return [...yieldableAssetIds].reduce((totalIdle, assetId) => {
       const bal = portfolioBalances[assetId]
-      if (bal) totalIdle = totalIdle.plus(bnOrZero(bal))
-    })
-    return totalIdle
+      return bal ? totalIdle.plus(bnOrZero(bal)) : totalIdle
+    }, bnOrZero(0))
   }, [allYields, portfolioBalances])
 
   const maxApy = useMemo(() => {

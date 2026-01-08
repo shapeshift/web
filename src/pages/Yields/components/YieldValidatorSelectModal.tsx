@@ -60,38 +60,32 @@ export const YieldValidatorSelectModal = memo(
     const myValidators = useMemo(() => {
       if (!balances) return []
 
-      const uniqueValidators = new Map<string, ValidatorDto>()
+      const validBalances = balances.filter(b => b.validator && bnOrZero(b.amount).gt(0))
 
-      balances.forEach(balance => {
-        if (!balance.validator || !bnOrZero(balance.amount).gt(0)) return
-
-        const address = balance.validator.address
-        if (uniqueValidators.has(address)) return
+      const uniqueValidators = validBalances.reduce<Map<string, ValidatorDto>>((acc, balance) => {
+        const address = balance.validator!.address
+        if (acc.has(address)) return acc
 
         const fullValidator = validatorsMap.get(address)
-
-        if (fullValidator) {
-          uniqueValidators.set(address, fullValidator)
-        } else {
-          const partialValidator: ValidatorDto = {
-            address: balance.validator.address,
-            name: balance.validator.name,
-            logoURI: balance.validator.logoURI,
-            preferred: false,
-            votingPower: 0,
-            commission: balance.validator.commission ?? 0,
-            status: balance.validator.status ?? 'active',
-            tvl: '0',
-            tvlRaw: '0',
-            rewardRate: {
-              total: balance.validator.apr ?? 0,
-              rateType: 'APR' as const,
-              components: [],
-            },
-          }
-          uniqueValidators.set(address, partialValidator)
+        const validator = fullValidator ?? {
+          address: balance.validator!.address,
+          name: balance.validator!.name,
+          logoURI: balance.validator!.logoURI,
+          preferred: false,
+          votingPower: 0,
+          commission: balance.validator!.commission ?? 0,
+          status: balance.validator!.status ?? 'active',
+          tvl: '0',
+          tvlRaw: '0',
+          rewardRate: {
+            total: balance.validator!.apr ?? 0,
+            rateType: 'APR' as const,
+            components: [],
+          },
         }
-      })
+
+        return new Map([...acc, [address, validator]])
+      }, new Map())
 
       const list = Array.from(uniqueValidators.values())
 

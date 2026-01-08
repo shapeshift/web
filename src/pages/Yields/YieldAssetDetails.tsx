@@ -140,10 +140,11 @@ export const YieldAssetDetails = memo(() => {
   }, [assetYields, getProviderLogo])
 
   const filteredYields = useMemo(() => {
-    let data = assetYields
-    if (selectedNetwork) data = data.filter(y => y.network === selectedNetwork)
-    if (selectedProvider) data = data.filter(y => y.providerId === selectedProvider)
-    return data
+    return assetYields.filter(y => {
+      if (selectedNetwork && y.network !== selectedNetwork) return false
+      if (selectedProvider && y.providerId !== selectedProvider) return false
+      return true
+    })
   }, [assetYields, selectedNetwork, selectedProvider])
 
   const assetInfo = useMemo(() => {
@@ -319,12 +320,11 @@ export const YieldAssetDetails = memo(() => {
 
   const handleYieldClick = useCallback(
     (yieldId: string) => {
-      let url = `/yields/${yieldId}`
       const balances = allBalances?.[yieldId]
-      if (balances && balances.length > 0) {
-        const highestAmountValidator = balances[0].highestAmountUsdValidator
-        if (highestAmountValidator) url += `?validator=${highestAmountValidator}`
-      }
+      const highestAmountValidator = balances?.[0]?.highestAmountUsdValidator
+      const url = highestAmountValidator
+        ? `/yields/${yieldId}?validator=${highestAmountValidator}`
+        : `/yields/${yieldId}`
       navigate(url)
     },
     [allBalances, navigate],

@@ -95,14 +95,14 @@ export const YieldValidatorSelectModal = ({
         if (!searchQuery) return list
 
         const search = searchQuery.toLowerCase()
-        return list.filter(v => v.name.toLowerCase().includes(search) || v.address.toLowerCase().includes(search))
+        return list.filter(v => (v.name || '').toLowerCase().includes(search) || (v.address || '').toLowerCase().includes(search))
     }, [balances, validatorsMap, searchQuery])
 
     const filteredValidators = useMemo(() => {
         return validators.filter(v => {
             const search = searchQuery.toLowerCase()
             return (
-                v.name.toLowerCase().includes(search) || v.address.toLowerCase().includes(search)
+                (v.name || '').toLowerCase().includes(search) || (v.address || '').toLowerCase().includes(search)
             )
         })
     }, [validators, searchQuery])
@@ -128,8 +128,8 @@ export const YieldValidatorSelectModal = ({
         const apr = v.rewardRate?.total ? (v.rewardRate.total * 100).toFixed(2) + '%' : null
 
         // Calculate total USD for this validator
-        const totalUsd = balances
-            ?.filter(b => b.validator?.address === v.address)
+        const totalUsd = (balances || [])
+            .filter(b => b.validator?.address === v.address)
             .reduce((acc, b) => acc.plus(bnOrZero(b.amountUsd)), bnOrZero(0))
 
         const hasBalance = totalUsd?.gt(0)

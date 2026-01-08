@@ -10,21 +10,27 @@ import {
   Text,
   useColorModeValue,
 } from '@chakra-ui/react'
-import { useEffect } from 'react'
+
+import { fromAccountId } from '@shapeshiftoss/caip'
+import { useEffect, useMemo } from 'react'
 import { FaChevronLeft } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { useNavigate, useParams } from 'react-router-dom'
 
 import { AssetIcon } from '@/components/AssetIcon'
 import { ChainIcon } from '@/components/ChainMenu'
+import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { resolveYieldInputAssetIcon } from '@/lib/yieldxyz/utils'
 import { ValidatorBreakdown } from '@/pages/Yields/components/ValidatorBreakdown'
 import { YieldEnterExit } from '@/pages/Yields/components/YieldEnterExit'
 import { YieldPositionCard } from '@/pages/Yields/components/YieldPositionCard'
 import { YieldStats } from '@/pages/Yields/components/YieldStats'
 import { useYield } from '@/react-queries/queries/yieldxyz/useYield'
+import { useYieldBalances } from '@/react-queries/queries/yieldxyz/useYieldBalances'
 import { useYieldProviders } from '@/react-queries/queries/yieldxyz/useYieldProviders'
 import { useYieldValidators } from '@/react-queries/queries/yieldxyz/useYieldValidators'
+import { selectFirstAccountIdByChainId } from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 export const YieldDetail = () => {
   const { yieldId } = useParams<{ yieldId: string }>()
@@ -46,6 +52,26 @@ export const YieldDetail = () => {
   // Premium dark mode foundation
   const bgColor = useColorModeValue('gray.50', 'gray.900')
   const borderColor = useColorModeValue('gray.200', 'gray.800')
+
+  const { chainId } = yieldItem || {}
+  const accountId = useAppSelector(state =>
+    chainId ? selectFirstAccountIdByChainId(state, chainId) : undefined,
+  )
+  const address = accountId ? fromAccountId(accountId).account : undefined
+
+  const { data: balances } = useYieldBalances({
+    yieldId: yieldItem?.id ?? '',
+    address: address ?? '',
+    chainId,
+  })
+
+  const uniqueValidatorCount = useMemo(() => {
+    if (!balances) return 0
+    const unique = new Set(
+      balances.filter(b => bnOrZero(b.amount).gt(0) && b.validator).map(b => b.validator!.address),
+    )
+    return unique.size
+  }, [balances])
 
   useEffect(() => {
     if (!yieldId) {
@@ -129,7 +155,7 @@ export const YieldDetail = () => {
               </Heading>
 
               <Flex alignItems='center' gap={4} mb={2}>
-                {shouldFetchValidators && validators && validators.length > 0 ? (
+                {shouldFetchValidators && validators && validators.length > 0 && uniqueValidatorCount > 1 ? (
                   <HStack spacing={2}>
                     <AvatarGroup size='xs' max={3}>
                       {validators.map(v => (
@@ -182,15 +208,13 @@ export const YieldDetail = () => {
           {/* Main Column: Enter/Exit */}
           <Box flex={2}>
             <YieldEnterExit yieldItem={yieldItem} isQuoteLoading={isFetching} />
-            <Box mt={8}>
-              <ValidatorBreakdown yieldItem={yieldItem} />
-            </Box>
           </Box>
 
           {/* Sidebar: Your Position + Stats */}
           <Box flex={1.2} minW={{ base: '100%', lg: '420px' }}>
             <Flex direction='column' gap={6}>
               <YieldPositionCard yieldItem={yieldItem} />
+              <ValidatorBreakdown yieldItem={yieldItem} />
               <YieldStats yieldItem={yieldItem} />
             </Flex>
           </Box>

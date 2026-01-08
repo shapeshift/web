@@ -103,36 +103,56 @@ export const useAllYieldBalances = (options: UseAllYieldBalancesOptions = {}) =>
     queryFn:
       queryPayloads.length > 0
         ? async () => {
-            // Deduplicate requests by (address, network) just in case, though the API handles it
-            // We pass chainId along to augment the results correctly
-            const uniqueQueries = queryPayloads.map(({ address, network }) => ({
-              address,
-              network,
-            }))
+          // Deduplicate requests by (address, network) just in case, though the API handles it
+          // We pass chainId along to augment the results correctly
+          const uniqueQueries = queryPayloads.map(({ address, network }) => ({
+            address,
+            network,
+          }))
 
-            const response = await getAggregateBalances(uniqueQueries)
+          const response = await getAggregateBalances(uniqueQueries)
 
-            // Flatten and map results by yieldId
-            const balanceMap: { [yieldId: string]: AugmentedYieldBalance[] } = {}
+          // Flatten and map results by yieldId
+          const balanceMap: { [yieldId: string]: AugmentedYieldBalance[] } = {}
 
-            response.items.forEach(item => {
-              // Find the chainId for this item's address results to augment correctly
-              // This is a bit tricky since the response doesn't strictly echo back the chainId we sent
-              // We infer it from the payloads we sent matching the address
-              const relevantPayload = queryPayloads.find(
-                p => p.address.toLowerCase() === item.balances[0]?.address.toLowerCase(), // heuristic match
-              )
-              const chainId = relevantPayload?.chainId
+          response.items.forEach(item => {
+            // Find the chainId for this item's address results to augment correctly
+            // This is a bit tricky since the response doesn't strictly echo back the chainId we sent
+            // We infer it from the payloads we sent matching the address
+            const relevantPayload = queryPayloads.find(
+              p => p.address.toLowerCase() === item.balances[0]?.address.toLowerCase(), // heuristic match
+            )
+            const chainId = relevantPayload?.chainId
 
-              if (!balanceMap[item.yieldId]) {
-                balanceMap[item.yieldId] = []
+            if (!balanceMap[item.yieldId]) {
+              balanceMap[item.yieldId] = []
+            }
+
+            const augmentedBalances = augmentYieldBalances(item.balances, chainId)
+
+            // Find the validator with the highest USD balance for this yield
+            let highestAmountUsd = 0
+            let highestAmountUsdValidator: string | undefined
+
+            augmentedBalances.forEach(balance => {
+              const usd = parseFloat(balance.amountUsd)
+              if (balance.validator?.address && usd > highestAmountUsd) {
+                highestAmountUsd = usd
+                highestAmountUsdValidator = balance.validator.address
               }
-
-              balanceMap[item.yieldId].push(...augmentYieldBalances(item.balances, chainId))
             })
 
-            return balanceMap
-          }
+            // Attach the highest amount validator to each balance
+            const balancesWithHighestValidator = augmentedBalances.map(balance => ({
+              ...balance,
+              highestAmountUsdValidator
+            }))
+
+            balanceMap[item.yieldId].push(...balancesWithHighestValidator)
+          })
+
+          return balanceMap
+        }
         : skipToken,
     enabled: isConnected && queryPayloads.length > 0,
     staleTime: 60000, // 1 minute

@@ -14,6 +14,7 @@ import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { toBaseUnit } from '@/lib/math'
 import { assertGetChainAdapter, isTransactionStatusAdapter } from '@/lib/utils'
 import { enterYield, exitYield } from '@/lib/yieldxyz/api'
+import { DEFAULT_NATIVE_VALIDATOR_BY_CHAIN_ID } from '@/lib/yieldxyz/constants'
 import type { CosmosStakeArgs } from '@/lib/yieldxyz/executeTransaction'
 import { executeTransaction } from '@/lib/yieldxyz/executeTransaction'
 import type { AugmentedYieldDto, TransactionDto } from '@/lib/yieldxyz/types'
@@ -28,8 +29,6 @@ import {
 import { selectPortfolioAccountMetadataByAccountId } from '@/state/slices/portfolioSlice/selectors'
 import { selectFeeAssetByChainId, selectFirstAccountIdByChainId } from '@/state/slices/selectors'
 import { useAppDispatch, useAppSelector } from '@/state/store'
-
-import { DEFAULT_NATIVE_VALIDATOR_BY_CHAIN_ID } from '@/lib/yieldxyz/constants'
 
 export enum ModalStep {
   InProgress = 'in_progress',
@@ -234,13 +233,13 @@ export const useYieldTransactionFlow = ({
     const cosmosStakeArgs: CosmosStakeArgs | undefined =
       yieldChainId === cosmosChainId
         ? {
-          validator:
-            validatorAddress || (DEFAULT_NATIVE_VALIDATOR_BY_CHAIN_ID[cosmosChainId] ?? ''),
-          amountCryptoBaseUnit: bnOrZero(amount)
-            .times(bnOrZero(10).pow(yieldItem.token.decimals))
-            .toFixed(0),
-          action: action === 'enter' ? 'stake' : 'unstake',
-        }
+            validator:
+              validatorAddress || (DEFAULT_NATIVE_VALIDATOR_BY_CHAIN_ID[cosmosChainId] ?? ''),
+            amountCryptoBaseUnit: bnOrZero(amount)
+              .times(bnOrZero(10).pow(yieldItem.token.decimals))
+              .toFixed(0),
+            action: action === 'enter' ? 'stake' : 'unstake',
+          }
         : undefined
 
     try {
@@ -277,8 +276,7 @@ export const useYieldTransactionFlow = ({
         address: userAddress,
       })
 
-      // Invalidate queries to refresh balances and yields immediately
-      queryClient.invalidateQueries({ queryKey: ['yieldxyz', 'allBalances'] })
+      queryClient.invalidateQueries({ queryKey: ['yieldxyz', 'balances'] })
       queryClient.invalidateQueries({ queryKey: ['yieldxyz', 'yields'] })
 
       // Dispatch Action for Notification Center
@@ -286,8 +284,8 @@ export const useYieldTransactionFlow = ({
       const actionType = isApproval
         ? ActionType.Approve
         : action === 'enter'
-          ? ActionType.Deposit
-          : ActionType.Withdraw
+        ? ActionType.Deposit
+        : ActionType.Withdraw
       const displayType = isApproval
         ? GenericTransactionDisplayType.Approve
         : GenericTransactionDisplayType.Yield

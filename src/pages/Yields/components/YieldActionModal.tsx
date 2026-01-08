@@ -26,13 +26,12 @@ import { useTranslate } from 'react-polyglot'
 import { Amount } from '@/components/Amount/Amount'
 import { MiddleEllipsis } from '@/components/MiddleEllipsis/MiddleEllipsis'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
+import { DEFAULT_NATIVE_VALIDATOR_BY_CHAIN_ID } from '@/lib/yieldxyz/constants'
 import type { AugmentedYieldDto } from '@/lib/yieldxyz/types'
-
 import { GradientApy } from '@/pages/Yields/components/GradientApy'
 import { ModalStep, useYieldTransactionFlow } from '@/pages/Yields/hooks/useYieldTransactionFlow'
 import { useYieldProviders } from '@/react-queries/queries/yieldxyz/useYieldProviders'
 import { useYieldValidators } from '@/react-queries/queries/yieldxyz/useYieldValidators'
-import { DEFAULT_NATIVE_VALIDATOR_BY_CHAIN_ID } from '@/lib/yieldxyz/constants'
 import {
   selectFeeAssetByChainId,
   selectMarketDataByAssetIdUserCurrency,
@@ -91,23 +90,16 @@ export const YieldActionModal = ({
   )
 
   const vaultMetadata = useMemo(() => {
-    // 1. Staking: specific validator
-    if (yieldItem.mechanics.type === 'staking') {
-      let targetValidatorAddress = ''
-      if (yieldChainId && DEFAULT_NATIVE_VALIDATOR_BY_CHAIN_ID[yieldChainId]) {
-        targetValidatorAddress = DEFAULT_NATIVE_VALIDATOR_BY_CHAIN_ID[yieldChainId]!
-      }
-
-      const validator = validators?.find(v => v.address === targetValidatorAddress)
+    if (yieldItem.mechanics.type === 'staking' && validatorAddress) {
+      const validator = validators?.find(v => v.address === validatorAddress)
       if (validator) return { name: validator.name, logoURI: validator.logoURI }
     }
 
-    // 2. Lending/Others: Provider
     const provider = providers?.[yieldItem.providerId]
     if (provider) return { name: provider.name, logoURI: provider.logoURI }
 
     return { name: 'Vault', logoURI: yieldItem.metadata.logoURI }
-  }, [yieldItem, yieldChainId, validators, providers])
+  }, [yieldItem, validatorAddress, validators, providers])
 
   // Get network icon from fee asset
   const feeAsset = useAppSelector(state => selectFeeAssetByChainId(state, yieldItem.chainId ?? ''))
@@ -404,8 +396,8 @@ export const YieldActionModal = ({
                 {s.status === 'success'
                   ? translate('yieldXYZ.loading.done')
                   : s.status === 'loading'
-                    ? ''
-                    : translate('yieldXYZ.loading.waiting')}
+                  ? ''
+                  : translate('yieldXYZ.loading.waiting')}
               </Text>
             )}
           </Flex>
@@ -432,8 +424,8 @@ export const YieldActionModal = ({
           isQuoteLoading
             ? 'Loading Quote...'
             : action === 'enter'
-              ? 'Depositing...'
-              : 'Withdrawing...'
+            ? 'Depositing...'
+            : 'Withdrawing...'
         }
         _hover={{ transform: 'translateY(-2px)', boxShadow: 'lg' }}
         transition='all 0.2s'

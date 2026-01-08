@@ -1,6 +1,7 @@
 import {
   Avatar,
   Box,
+  Button,
   Card,
   CardBody,
   Collapse,
@@ -18,6 +19,7 @@ import { fromAccountId } from '@shapeshiftoss/caip'
 import { useCallback, useMemo } from 'react'
 import { FaChevronDown, FaChevronUp } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
+import { useSearchParams } from 'react-router-dom'
 
 import { Amount } from '@/components/Amount/Amount'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
@@ -57,6 +59,9 @@ export const ValidatorBreakdown = ({ yieldItem }: ValidatorBreakdownProps) => {
     chainId ? selectFirstAccountIdByChainId(state, chainId) : undefined,
   )
   const address = accountId ? fromAccountId(accountId).account : undefined
+
+  const [searchParams, setSearchParams] = useSearchParams()
+  const selectedValidator = searchParams.get('validator')
 
   const {
     data: balances,
@@ -118,7 +123,7 @@ export const ValidatorBreakdown = ({ yieldItem }: ValidatorBreakdownProps) => {
   }, [balances, requiresValidatorSelection])
 
   const hasValidatorPositions = useMemo(() => {
-    return groupedByValidator.length > 0
+    return groupedByValidator.length > 1
   }, [groupedByValidator.length])
 
   const formatUnlockDate = useCallback((dateString: string | undefined) => {
@@ -161,15 +166,21 @@ export const ValidatorBreakdown = ({ yieldItem }: ValidatorBreakdownProps) => {
           _hover={{ opacity: 0.8 }}
           transition='opacity 0.2s'
         >
-          <Heading
-            as='h3'
-            size='sm'
-            textTransform='uppercase'
-            color='text.subtle'
-            letterSpacing='wider'
-          >
-            {translate('yieldXYZ.validatorBreakdown')}
-          </Heading>
+          <Box>
+            <Heading
+              as='h3'
+              size='sm'
+              textTransform='uppercase'
+              color='text.subtle'
+              letterSpacing='wider'
+              mb={1}
+            >
+              All Positions
+            </Heading>
+            <Text fontSize='lg' fontWeight='bold'>
+              <Amount.Fiat value={groupedByValidator.reduce((acc, g) => acc.plus(bnOrZero(g.totalUsd)), bnOrZero(0)).toFixed()} />
+            </Text>
+          </Box>
           <Box color='text.subtle'>
             {isOpen ? <FaChevronUp size={12} /> : <FaChevronDown size={12} />}
           </Box>
@@ -182,18 +193,33 @@ export const ValidatorBreakdown = ({ yieldItem }: ValidatorBreakdownProps) => {
               const hasEntering = bnOrZero(group.entering?.amount).gt(0)
               const hasExiting = bnOrZero(group.exiting?.amount).gt(0)
               const hasClaimable = bnOrZero(group.claimable?.amount).gt(0)
+              const isSelected = group.validator.address === selectedValidator
 
               return (
                 <Box key={group.validator.address}>
                   {index > 0 && <Divider borderColor={borderColor} mb={3} />}
-                  <Flex
-                    direction='column'
-                    gap={3}
-                    p={3}
-                    borderRadius='lg'
-                    bg={hoverBg}
-                    transition='background 0.2s'
-                  >
+                  <Flex direction='column' gap={3} p={3} borderRadius='lg' bg={hoverBg} position='relative'>
+
+                    {!isSelected && (
+                      <Button
+                        size='xs'
+                        position='absolute'
+                        top={3}
+                        right={3}
+                        colorScheme='blue'
+                        variant='outline'
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          setSearchParams(prev => {
+                            prev.set('validator', group.validator.address)
+                            return prev
+                          })
+                        }}
+                      >
+                        Switch
+                      </Button>
+                    )}
+
                     <HStack spacing={3}>
                       <Avatar
                         src={group.validator.logoURI}

@@ -83,35 +83,39 @@ export const YieldOpportunityStats = ({
     return Math.max(...allYields.map(y => y.rewardRate.total)) * 100
   }, [allYields])
 
+  const hasActiveDeposits = activeValueUsd.gt(0)
+
   return (
     <SimpleGrid columns={{ base: 1, md: 3 }} spacing={4} mb={8}>
       {/* Active Position Card */}
-      <Box
-        bgGradient='linear(to-br, blue.800, blue.900)'
-        p={6}
-        borderRadius='2xl'
-        boxShadow='xl'
-        border='1px solid'
-        borderColor='blue.700'
-        position='relative'
-        overflow='hidden'
-        display='flex'
-        flexDirection='column'
-        justifyContent='center'
-      >
-        <Box position='absolute' right={-4} top={-4} opacity={0.1}>
-          <Icon as={FaChartPie} boxSize={32} />
+      {hasActiveDeposits && (
+        <Box
+          bgGradient='linear(to-br, blue.800, blue.900)'
+          p={6}
+          borderRadius='2xl'
+          boxShadow='xl'
+          border='1px solid'
+          borderColor='blue.700'
+          position='relative'
+          overflow='hidden'
+          display='flex'
+          flexDirection='column'
+          justifyContent='center'
+        >
+          <Box position='absolute' right={-4} top={-4} opacity={0.1}>
+            <Icon as={FaChartPie} boxSize={32} />
+          </Box>
+          <Stat>
+            <StatLabel fontSize='md' color='blue.200'>
+              Active Deposits
+            </StatLabel>
+            <StatNumber fontSize='3xl' fontWeight='bold' color='white'>
+              <Amount.Fiat value={activeValueUsd.toFixed()} abbreviated />
+            </StatNumber>
+            <StatHelpText color='blue.300'>Across {positions.length} positions</StatHelpText>
+          </Stat>
         </Box>
-        <Stat>
-          <StatLabel fontSize='md' color='blue.200'>
-            Active Deposits
-          </StatLabel>
-          <StatNumber fontSize='3xl' fontWeight='bold' color='white'>
-            <Amount.Fiat value={activeValueUsd.toFixed()} abbreviated />
-          </StatNumber>
-          <StatHelpText color='blue.300'>Across {positions.length} positions</StatHelpText>
-        </Stat>
-      </Box>
+      )}
 
       {/* Available to Earn (Carrot) Card */}
       <Box
@@ -123,7 +127,7 @@ export const YieldOpportunityStats = ({
         borderColor='purple.700'
         position='relative'
         overflow='hidden'
-        gridColumn={{ md: 'span 2' }}
+        gridColumn={{ md: hasActiveDeposits ? 'span 2' : 'span 3' }}
       >
         <Box position='absolute' right={-4} top={-4} opacity={0.1}>
           <Icon as={FaMoon} boxSize={32} />

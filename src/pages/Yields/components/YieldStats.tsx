@@ -14,15 +14,21 @@ import {
   Tooltip,
   useColorModeValue,
 } from '@chakra-ui/react'
-import { cosmosChainId } from '@shapeshiftoss/caip'
+import { fromAccountId } from '@shapeshiftoss/caip'
+import { useMemo } from 'react' // Added useMemo
 import { FaClock, FaGasPump, FaLayerGroup, FaMoneyBillWave, FaUserShield } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
+import { useSearchParams } from 'react-router-dom' // Added useSearchParams
 
 import { Amount } from '@/components/Amount/Amount'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
+import { DEFAULT_NATIVE_VALIDATOR_BY_CHAIN_ID } from '@/lib/yieldxyz/constants' // Added constants
 import type { AugmentedYieldDto } from '@/lib/yieldxyz/types'
 import { YieldNetwork } from '@/lib/yieldxyz/types'
+import { useYieldBalances } from '@/react-queries/queries/yieldxyz/useYieldBalances'
 import { useYieldValidators } from '@/react-queries/queries/yieldxyz/useYieldValidators'
+import { selectFirstAccountIdByChainId } from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 interface YieldStatsProps {
   yieldItem: AugmentedYieldDto
@@ -33,38 +39,81 @@ export const YieldStats = ({ yieldItem }: YieldStatsProps) => {
   const cardBg = useColorModeValue('white', 'gray.800')
   const borderColor = useColorModeValue('gray.100', 'gray.750')
 
-  const tvlUsd = bnOrZero(yieldItem.statistics?.tvlUsd).toNumber()
-  const tvl = bnOrZero(yieldItem.statistics?.tvl).toNumber()
-  const apy = bnOrZero(yieldItem.rewardRate.total).times(100).toNumber()
+  const [searchParams] = useSearchParams()
+  const validatorParam = searchParams.get('validator')
 
   const shouldFetchValidators =
     yieldItem.mechanics.type === 'staking' && yieldItem.mechanics.requiresValidatorSelection
   const { data: validators } = useYieldValidators(yieldItem.id, shouldFetchValidators)
 
+  const defaultValidator = useMemo(() => {
+    if (yieldItem.chainId && DEFAULT_NATIVE_VALIDATOR_BY_CHAIN_ID[yieldItem.chainId]) {
+      return DEFAULT_NATIVE_VALIDATOR_BY_CHAIN_ID[yieldItem.chainId]
+    }
+    return validators?.[0]?.address
+  }, [yieldItem.chainId, validators])
+
+  const selectedValidatorAddress = validatorParam || defaultValidator
+
+  const tvlUsd = bnOrZero(yieldItem.statistics?.tvlUsd).toNumber()
+  const tvl = bnOrZero(yieldItem.statistics?.tvl).toNumber()
+
+  const { chainId } = yieldItem
+  const accountId = useAppSelector(state =>
+    chainId ? selectFirstAccountIdByChainId(state, chainId) : undefined,
+  )
+  const address = accountId ? fromAccountId(accountId).account : undefined
+
+  const { data: balances } = useYieldBalances({
+    yieldId: yieldItem.id,
+    address: address ?? '',
+    chainId,
+  })
+
+  const selectedValidator = useMemo(() => {
+    if (!selectedValidatorAddress) return undefined
+
+    // 1. Try active validators list
+    const inList = validators?.find(v => v.address === selectedValidatorAddress)
+    if (inList) return inList
+
+    // 2. Try balances metadata
+    const inBalances = balances?.find(b => b.validator?.address === selectedValidatorAddress)
+      ?.validator
+    if (inBalances) return inBalances
+
+    return undefined
+  }, [validators, selectedValidatorAddress, balances])
+
+  const apy = bnOrZero(selectedValidator?.rewardRate?.total ?? yieldItem.rewardRate.total)
+    .times(100)
+    .toNumber()
+
   // Get validator data for staking yields
   const validatorMetadata = (() => {
     if (yieldItem.mechanics.type !== 'staking') return null
 
-    // Figment addresses
-    const FIGMENT_COSMOS_VALIDATOR_ADDRESS = 'cosmosvaloper199mlc7fr6ll5t54w7tts7f4s0cvnqgc59nmuxf'
-    const FIGMENT_SOLANA_VALIDATOR_ADDRESS = 'CcaHc2L43ZWjwCHART3oZoJvHLAe9hzT2DJNUpBzoTN1'
-    const FIGMENT_SUI_VALIDATOR_ADDRESS =
-      '0x8ecaf4b95b3c82c712d3ddb22e7da88d2286c4653f3753a86b6f7a216a3ca518'
-
-    let targetValidatorAddress = ''
-    if (yieldItem.chainId === cosmosChainId)
-      targetValidatorAddress = FIGMENT_COSMOS_VALIDATOR_ADDRESS
-    if (yieldItem.id === 'solana-sol-native-multivalidator-staking')
-      targetValidatorAddress = FIGMENT_SOLANA_VALIDATOR_ADDRESS
-    if (yieldItem.network === YieldNetwork.Sui)
-      targetValidatorAddress = FIGMENT_SUI_VALIDATOR_ADDRESS
-
-    const validator = validators?.find(v => v.address === targetValidatorAddress)
-
-    if (validator) return { name: validator.name, logoURI: validator.logoURI }
+    if (selectedValidator)
+      return { name: selectedValidator.name, logoURI: selectedValidator.logoURI }
 
     // Fallback names if validator data not loaded yet or not found
-    if (targetValidatorAddress) return { name: 'Figment', logoURI: '' }
+    if (selectedValidatorAddress) {
+      // Try to find known validators by address hardcoded if needed, or return generic
+      const FIGMENT_COSMOS_VALIDATOR_ADDRESS =
+        'cosmosvaloper199mlc7fr6ll5t54w7tts7f4s0cvnqgc59nmuxf'
+      const FIGMENT_SOLANA_VALIDATOR_ADDRESS = 'CcaHc2L43ZWjwCHART3oZoJvHLAe9hzT2DJNUpBzoTN1'
+      const FIGMENT_SUI_VALIDATOR_ADDRESS =
+        '0x8ecaf4b95b3c82c712d3ddb22e7da88d2286c4653f3753a86b6f7a216a3ca518'
+
+      if (
+        selectedValidatorAddress === FIGMENT_COSMOS_VALIDATOR_ADDRESS ||
+        selectedValidatorAddress === FIGMENT_SOLANA_VALIDATOR_ADDRESS ||
+        selectedValidatorAddress === FIGMENT_SUI_VALIDATOR_ADDRESS
+      ) {
+        return { name: 'Figment', logoURI: '' }
+      }
+    }
+
     if (yieldItem.network === YieldNetwork.Monad) return { name: 'Figment', logoURI: '' }
     if (yieldItem.network === YieldNetwork.Tron) return { name: 'Justlend', logoURI: '' }
 

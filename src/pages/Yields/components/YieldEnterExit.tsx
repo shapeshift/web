@@ -1,3 +1,4 @@
+import { ChevronDownIcon } from '@chakra-ui/icons'
 import {
   Avatar,
   Box,
@@ -5,7 +6,6 @@ import {
   Flex,
   Icon,
   Skeleton,
-  Select,
   Tab,
   TabList,
   TabPanel,
@@ -36,7 +36,6 @@ import { GradientApy } from '@/pages/Yields/components/GradientApy'
 import { YieldActionModal } from '@/pages/Yields/components/YieldActionModal'
 import { YieldValidatorSelectModal } from '@/pages/Yields/components/YieldValidatorSelectModal'
 import { useYieldAccount } from '@/pages/Yields/YieldAccountContext'
-import { ChevronDownIcon } from '@chakra-ui/icons'
 import { useYieldBalances } from '@/react-queries/queries/yieldxyz/useYieldBalances'
 import { useYieldValidators } from '@/react-queries/queries/yieldxyz/useYieldValidators'
 import {
@@ -84,87 +83,50 @@ export const YieldEnterExit = ({ yieldItem, isQuoteLoading }: YieldEnterExitProp
   const { chainId } = yieldItem
 
   // Validator Selection Logic
-  // Validator Selection Logic
   const [searchParams, setSearchParams] = useSearchParams()
   const validatorParam = searchParams.get('validator')
-  const defaultValidator = chainId ? DEFAULT_NATIVE_VALIDATOR_BY_CHAIN_ID[chainId] : undefined
-
-  // Initialize with URL param or default
-  const [selectedValidatorAddress, setSelectedValidatorAddress] = useState<string | undefined>(
-    validatorParam || defaultValidator,
-  )
-
-  // Sync state with URL param
-  const handleValidatorChange = useCallback((newAddress: string) => {
-    setSelectedValidatorAddress(newAddress)
-    setSearchParams(params => {
-      params.set('validator', newAddress)
-      return params
-    })
-  }, [setSearchParams])
-
-  // Sync initial mount if missing param but have default
-  useEffect(() => {
-    if (!validatorParam && defaultValidator) {
-      setSearchParams(params => {
-        params.set('validator', defaultValidator)
-        return params
-      }, { replace: true })
-    }
-  }, [defaultValidator, validatorParam, setSearchParams])
 
   const shouldFetchValidators =
     yieldItem.mechanics.type === 'staking' && yieldItem.mechanics.requiresValidatorSelection
   const { data: validators } = useYieldValidators(yieldItem.id, shouldFetchValidators)
 
-  // const selectedValidator = validators?.find(v => v.address === selectedValidatorAddress)
-  const validatorMetadata = useMemo(() => {
-    if (!selectedValidatorAddress) return undefined
-    const found = validators?.find(v => v.address === selectedValidatorAddress)
-    if (found) return found
-
-    if (selectedValidatorAddress === SHAPESHIFT_COSMOS_VALIDATOR_ADDRESS) {
-      return {
-        name: 'ShapeShift',
-        logoURI: 'https://assets.coincap.io/assets/icons/256/fox.png',
-        address: selectedValidatorAddress,
-        apr: '0',
-        commission: '0'
-      }
+  const defaultValidator = useMemo(() => {
+    if (chainId && DEFAULT_NATIVE_VALIDATOR_BY_CHAIN_ID[chainId]) {
+      return DEFAULT_NATIVE_VALIDATOR_BY_CHAIN_ID[chainId]
     }
+    return validators?.[0]?.address
+  }, [chainId, validators])
 
-    return {
-      name: `${selectedValidatorAddress.slice(0, 6)}...${selectedValidatorAddress.slice(-4)}`,
-      logoURI: '', // Default avatar will handle empty string
-      address: selectedValidatorAddress,
-      apr: '0',
-      commission: '0'
+  const selectedValidatorAddress = validatorParam || defaultValidator
+
+  const handleValidatorChange = useCallback(
+    (newAddress: string) => {
+      setSearchParams(params => {
+        params.set('validator', newAddress)
+        return params
+      })
+    },
+    [setSearchParams],
+  )
+
+  useEffect(() => {
+    if (!validatorParam && defaultValidator) {
+      setSearchParams(
+        params => {
+          params.set('validator', defaultValidator)
+          return params
+        },
+        { replace: true },
+      )
     }
-  }, [validators, selectedValidatorAddress])
+  }, [defaultValidator, validatorParam, setSearchParams])
+
   const accountId = useAppSelector(state => {
     if (!chainId) return undefined
     const accountIdsByNumberAndChain = selectAccountIdByAccountNumberAndChainId(state)
     return accountIdsByNumberAndChain[accountNumber]?.[chainId]
   })
   const address = accountId ? fromAccountId(accountId).account : undefined
-
-  const inputToken = yieldItem.inputTokens[0]
-  const inputTokenAssetId = inputToken?.assetId
-
-  const inputTokenBalance = useAppSelector(state =>
-    inputTokenAssetId && accountId
-      ? selectPortfolioCryptoPrecisionBalanceByFilter(state, {
-        assetId: inputTokenAssetId,
-        accountId,
-      })
-      : '0',
-  )
-
-  const minDeposit = yieldItem.mechanics?.entryLimits?.minimum
-  const isBelowMinimum = useMemo(() => {
-    if (!cryptoAmount || !minDeposit) return false
-    return bnOrZero(cryptoAmount).lt(minDeposit)
-  }, [cryptoAmount, minDeposit])
 
   const {
     data: balances,
@@ -176,12 +138,73 @@ export const YieldEnterExit = ({ yieldItem, isQuoteLoading }: YieldEnterExitProp
     chainId,
   })
 
-  // Combine loading states
+  // const selectedValidator = validators?.find(v => v.address === selectedValidatorAddress)
+  const validatorMetadata = useMemo(() => {
+    if (!selectedValidatorAddress) return undefined
+
+    // 1. Try to find in main validators list
+    const foundInList = validators?.find(v => v.address === selectedValidatorAddress)
+    if (foundInList) return foundInList
+
+    // 2. Try to find in user balances
+    const foundInBalances = balances?.find(b => b.validator?.address === selectedValidatorAddress)
+      ?.validator
+    if (foundInBalances)
+      return {
+        ...foundInBalances,
+        apr: undefined, // Balances don't have APR info
+        commission: undefined,
+      }
+
+    // 3. Fallbacks
+    if (selectedValidatorAddress === SHAPESHIFT_COSMOS_VALIDATOR_ADDRESS) {
+      return {
+        name: 'ShapeShift',
+        logoURI: 'https://assets.coincap.io/assets/icons/256/fox.png',
+        address: selectedValidatorAddress,
+        apr: '0',
+        commission: '0',
+      }
+    }
+
+    return {
+      name: `${selectedValidatorAddress.slice(0, 6)}...${selectedValidatorAddress.slice(-4)}`,
+      logoURI: '', // Default avatar will handle empty string
+      address: selectedValidatorAddress,
+      apr: '0',
+      commission: '0',
+    }
+  }, [validators, selectedValidatorAddress, balances])
+
+  const inputToken = yieldItem.inputTokens[0]
+  const inputTokenAssetId = inputToken?.assetId
+
+  const inputTokenBalance = useAppSelector(state =>
+    inputTokenAssetId && accountId
+      ? selectPortfolioCryptoPrecisionBalanceByFilter(state, {
+          assetId: inputTokenAssetId,
+          accountId,
+        })
+      : '0',
+  )
+
+  const minDeposit = yieldItem.mechanics?.entryLimits?.minimum
+  const isBelowMinimum = useMemo(() => {
+    if (!cryptoAmount || !minDeposit) return false
+    return bnOrZero(cryptoAmount).lt(minDeposit)
+  }, [cryptoAmount, minDeposit])
+
   // Combine loading states
   const isLoading = isBalancesLoading || isBalancesFetching || isQuoteLoading
 
   const extractBalance = (type: YieldBalanceType) =>
-    balances?.find((b: AugmentedYieldBalance) => b.type === type)
+    balances?.find((b: AugmentedYieldBalance) => {
+      if (b.type !== type) return false
+      if (selectedValidatorAddress && b.validator) {
+        return b.validator.address === selectedValidatorAddress
+      }
+      return true
+    })
   const activeBalance = extractBalance(YieldBalanceType.Active)
   const withdrawableBalance = extractBalance(YieldBalanceType.Withdrawable)
   const exitBalance = activeBalance?.amount ?? withdrawableBalance?.amount ?? '0'
@@ -240,15 +263,14 @@ export const YieldEnterExit = ({ yieldItem, isQuoteLoading }: YieldEnterExitProp
   const uniqueValidatorCount = useMemo(() => {
     if (!balances) return 0
     const unique = new Set(
-      balances
-        .filter(b => bnOrZero(b.amount).gt(0) && b.validator)
-        .map(b => b.validator!.address)
+      balances.filter(b => bnOrZero(b.amount).gt(0) && b.validator).map(b => b.validator!.address),
     )
     return unique.size
   }, [balances])
 
-  // Disable picker if on Exit tab and we have 1 or 0 active validators (no choice needed/possible)
-  const isPickerDisabled = tabIndex === 1 && uniqueValidatorCount <= 1
+  // Only show picker if we have more than 1 active validator
+  // Otherwise we use default (0 active) or the single existing one (1 active)
+  const shouldShowValidatorPicker = uniqueValidatorCount > 1
 
   return (
     <>
@@ -261,43 +283,53 @@ export const YieldEnterExit = ({ yieldItem, isQuoteLoading }: YieldEnterExitProp
         overflow='hidden'
       >
         {/* Validator Selection Header */}
-        {(validators && validators.length > 0) || (selectedValidatorAddress === SHAPESHIFT_COSMOS_VALIDATOR_ADDRESS) ? (
+        {shouldShowValidatorPicker ? (
           <>
             <Box
               p={4}
               borderBottom='1px solid'
               borderColor={borderColor}
               bg='blackAlpha.50'
-              _hover={!isPickerDisabled ? { bg: 'whiteAlpha.100' } : undefined}
-              cursor={!isPickerDisabled ? 'pointer' : 'default'}
-              onClick={!isPickerDisabled ? () => setIsValidatorModalOpen(true) : undefined}
+              _hover={{ bg: 'whiteAlpha.100' }}
+              cursor='pointer'
+              onClick={() => setIsValidatorModalOpen(true)}
               transition='background 0.2s'
             >
               <Flex justify='space-between' align='center' gap={4}>
                 <Flex align='center' gap={3}>
                   {validatorMetadata ? (
                     <>
-                      <Avatar size='sm' src={validatorMetadata.logoURI} name={validatorMetadata.name} />
+                      <Avatar
+                        size='sm'
+                        src={validatorMetadata.logoURI}
+                        name={validatorMetadata.name}
+                      />
                       <Box>
-                        <Text fontWeight='bold' fontSize='sm'>{validatorMetadata.name}</Text>
+                        <Text fontWeight='bold' fontSize='sm'>
+                          {validatorMetadata.name}
+                        </Text>
                         <Flex gap={2} fontSize='xs' color='text.subtle'>
                           {validatorMetadata.address === SHAPESHIFT_COSMOS_VALIDATOR_ADDRESS && (
-                            <Text color='blue.400' fontWeight='bold'>Preferred</Text>
+                            <Text color='blue.400' fontWeight='bold'>
+                              Preferred
+                            </Text>
                           )}
-                          {validatorMetadata.rewardRate?.total && (
+                          {(validatorMetadata as any).rewardRate?.total && (
                             <Text color='green.400'>
-                              {(validatorMetadata.rewardRate.total * 100).toFixed(2)}% APR
+                              {((validatorMetadata as any).rewardRate.total * 100).toFixed(2)}% APR
                             </Text>
                           )}
                         </Flex>
                       </Box>
                     </>
                   ) : (
-                    <Text fontWeight='bold' fontSize='sm'>Select Validator</Text>
+                    <Text fontWeight='bold' fontSize='sm'>
+                      Select Validator
+                    </Text>
                   )}
                 </Flex>
 
-                {!isPickerDisabled && <Icon as={ChevronDownIcon} color='gray.500' />}
+                <Icon as={ChevronDownIcon} color='gray.500' />
               </Flex>
             </Box>
 
@@ -383,8 +415,6 @@ export const YieldEnterExit = ({ yieldItem, isQuoteLoading }: YieldEnterExitProp
                   />
                 )}
 
-
-
                 {minDeposit && !isLoading && (
                   <Flex justifyContent='space-between' width='full' px={1}>
                     <Flex gap={2} alignItems='center'>
@@ -402,8 +432,6 @@ export const YieldEnterExit = ({ yieldItem, isQuoteLoading }: YieldEnterExitProp
                     </Text>
                   </Flex>
                 )}
-
-
 
                 {/* Estimated Earnings Carrot */}
                 <Box
@@ -465,8 +493,8 @@ export const YieldEnterExit = ({ yieldItem, isQuoteLoading }: YieldEnterExitProp
                   {isQuoteLoading
                     ? translate('common.loading')
                     : isConnected
-                      ? translate('yieldXYZ.enter')
-                      : translate('common.connectWallet')}
+                    ? translate('yieldXYZ.enter')
+                    : translate('common.connectWallet')}
                 </Button>
               </Flex>
             </TabPanel>

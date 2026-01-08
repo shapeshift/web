@@ -347,9 +347,19 @@ export const YieldsList = () => {
 
   const handleYieldClick = useCallback(
     (yieldId: string) => {
-      navigate(`/yields/${yieldId}`)
+      let url = `/yields/${yieldId}`
+
+      const balances = allBalances?.[yieldId]
+      if (balances && balances.length > 0) {
+        const highestAmountValidator = balances[0].highestAmountUsdValidator
+        if (highestAmountValidator) {
+          url += `?validator=${highestAmountValidator}`
+        }
+      }
+
+      navigate(url)
     },
-    [navigate],
+    [navigate, allBalances],
   )
 
   const handleRowClick = useCallback(

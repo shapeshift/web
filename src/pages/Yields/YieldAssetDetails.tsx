@@ -31,6 +31,7 @@ import { YieldFilters } from '@/pages/Yields/components/YieldFilters'
 import { YieldTable } from '@/pages/Yields/components/YieldTable'
 import { ViewToggle } from '@/pages/Yields/components/YieldViewHelpers'
 import { useSymbolToAssetMap } from '@/pages/Yields/hooks/useSymbolToAssetMap'
+import { useAllYieldBalances } from '@/react-queries/queries/yieldxyz/useAllYieldBalances'
 import { useYieldProviders } from '@/react-queries/queries/yieldxyz/useYieldProviders'
 import { useYields } from '@/react-queries/queries/yieldxyz/useYields'
 import { selectAssets } from '@/state/slices/selectors'
@@ -123,6 +124,9 @@ export const YieldAssetDetails = () => {
     if (!yields?.byAssetSymbol || !decodedSymbol) return []
     return yields.byAssetSymbol[decodedSymbol] || []
   }, [yields, decodedSymbol])
+
+  // Get user balances for navigation logic
+  const { data: allBalances } = useAllYieldBalances()
 
   // Derive filters from the asset's yields
   const networks = useMemo(() => {
@@ -268,7 +272,18 @@ export const YieldAssetDetails = () => {
   })
 
   // Navigation
-  const handleYieldClick = (yieldId: string) => navigate(`/yields/${yieldId}`)
+  const handleYieldClick = useCallback((yieldId: string) => {
+    let url = `/yields/${yieldId}`
+    const balances = allBalances?.[yieldId]
+    if (balances && balances.length > 0) {
+      const highestAmountValidator = balances[0].highestAmountUsdValidator
+      if (highestAmountValidator) {
+        url += `?validator=${highestAmountValidator}`
+      }
+    }
+    navigate(url)
+  }, [allBalances, navigate])
+
   const handleRowClick = (row: import('@tanstack/react-table').Row<AugmentedYieldDto>) => {
     if (!row.original.status.enter) return
     handleYieldClick(row.original.id)

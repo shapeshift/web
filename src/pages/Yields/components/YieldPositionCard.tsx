@@ -14,6 +14,7 @@ import {
   VStack,
 } from '@chakra-ui/react'
 import { fromAccountId } from '@shapeshiftoss/caip'
+import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useSearchParams } from 'react-router-dom'
 
@@ -23,6 +24,7 @@ import { DEFAULT_NATIVE_VALIDATOR_BY_CHAIN_ID } from '@/lib/yieldxyz/constants'
 import type { AugmentedYieldBalance, AugmentedYieldDto } from '@/lib/yieldxyz/types'
 import { YieldBalanceType } from '@/lib/yieldxyz/types'
 import { useYieldBalances } from '@/react-queries/queries/yieldxyz/useYieldBalances'
+import { useYieldValidators } from '@/react-queries/queries/yieldxyz/useYieldValidators'
 import { selectFirstAccountIdByChainId } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
@@ -116,6 +118,16 @@ export const YieldPositionCard = ({ yieldItem }: YieldPositionCardProps) => {
   )
   const hasAnyPosition = totalAmount.gt(0)
 
+  const { data: validators } = useYieldValidators(yieldItem.id)
+  const selectedValidatorName = useMemo(() => {
+    if (!selectedValidatorAddress) return undefined
+    const found = validators?.find(v => v.address === selectedValidatorAddress)
+    if (found) return found.name
+
+    const foundInBalances = balances?.find(b => b.validator?.address === selectedValidatorAddress)
+    return foundInBalances?.validator?.name
+  }, [validators, selectedValidatorAddress, balances])
+
   return (
     <Card bg={cardBg} borderRadius='xl' shadow='sm' border='1px solid' borderColor={borderColor}>
       <CardBody p={6}>
@@ -127,7 +139,10 @@ export const YieldPositionCard = ({ yieldItem }: YieldPositionCardProps) => {
             color='text.subtle'
             letterSpacing='wider'
           >
-            {translate('yieldXYZ.myPosition')}
+            {selectedValidatorName
+              ? translate('yieldXYZ.myValidatorPosition', { validator: selectedValidatorName })
+              : translate('yieldXYZ.myPosition')
+            }
           </Heading>
           {address && (
             <Badge

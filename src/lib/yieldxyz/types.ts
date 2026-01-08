@@ -362,6 +362,7 @@ export type AugmentedYieldMechanics = Omit<YieldMechanics, 'gasFeeToken'> & {
 
 export type AugmentedYieldBalance = Omit<YieldBalance, 'token'> & {
   token: AugmentedYieldToken
+  highestAmountUsdValidator?: string
 }
 
 export type AugmentedYieldDto = Omit<

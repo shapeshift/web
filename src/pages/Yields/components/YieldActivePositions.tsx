@@ -13,6 +13,7 @@ import {
   useColorModeValue,
 } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
+import type { ReactNode } from 'react'
 import { memo, useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useNavigate } from 'react-router-dom'
@@ -112,7 +113,7 @@ export const YieldActivePositions = memo(
           }
         })
 
-        const rows: JSX.Element[] = []
+        const rows: ReactNode[] = []
 
         Object.entries(validatorGroups).forEach(([validatorAddress, groupBalances]) => {
           const validator = groupBalances[0].validator

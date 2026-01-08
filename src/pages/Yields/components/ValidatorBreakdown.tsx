@@ -16,6 +16,7 @@ import {
   VStack,
 } from '@chakra-ui/react'
 import { fromAccountId } from '@shapeshiftoss/caip'
+import type { FC } from 'react'
 import { memo, useCallback, useMemo, useState } from 'react'
 import { FaChevronDown, FaChevronUp } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
@@ -30,6 +31,7 @@ import type { AugmentedYieldDto } from '@/lib/yieldxyz/types'
 import { YieldBalanceType } from '@/lib/yieldxyz/types'
 import { useYieldAccount } from '@/pages/Yields/YieldAccountContext'
 import type {
+  AggregatedBalance,
   NormalizedYieldBalances,
   ValidatorSummary,
 } from '@/react-queries/queries/yieldxyz/useYieldBalances'
@@ -56,16 +58,122 @@ type ClaimModalData = {
   manageActionType: string
 }
 
-export const ValidatorBreakdown = memo(
-  ({ yieldItem, balances, isBalancesLoading }: ValidatorBreakdownProps) => {
-    const translate = useTranslate()
-    const { isOpen, onToggle } = useDisclosure({ defaultIsOpen: true })
-    const [claimModalData, setClaimModalData] = useState<ClaimModalData | null>(null)
-    const handleClaimClose = useCallback(() => setClaimModalData(null), [])
+type ValidatorCardProps = {
+  validatorSummary: ValidatorSummary
+  isSelected: boolean
+  userCurrencyToUsdRate: string
+  hoverBg: string
+  onValidatorSwitch: (e: React.MouseEvent) => void
+  onClaimClick: (e: React.MouseEvent) => void
+  formatUnlockDate: (dateString: string | undefined) => string | null
+}
 
-    const cardBg = useColorModeValue('white', 'gray.800')
-    const borderColor = useColorModeValue('gray.100', 'gray.750')
-    const hoverBg = useColorModeValue('gray.50', 'gray.750')
+type BalanceRowProps = {
+  balance: AggregatedBalance | undefined
+  hasBalance: boolean
+  label: string
+  bg?: string
+  textColor?: string
+  dateColor?: string
+  valueColor?: string
+  showDate?: boolean
+  claimButton?: React.ReactNode
+}
+
+const BalanceRow: FC<BalanceRowProps> = memo(
+  ({ balance, hasBalance, label, bg, textColor, valueColor, dateColor, showDate, claimButton }) => {
+    const translate = useTranslate()
+    const formatUnlockDate = useCallback((dateString: string | undefined) => {
+      if (!dateString) return null
+      const date = new Date(dateString)
+      return date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })
+    }, [])
+
+    if (!balance || !hasBalance) return null
+
+    const isStyledRow = !!bg
+
+    if (isStyledRow) {
+      return (
+        <Flex justify='space-between' align='center' px={2} py={1} borderRadius='md' bg={bg}>
+          {claimButton ? (
+            <>
+              <Box>
+                <Text
+                  fontSize='xs'
+                  color={textColor}
+                  fontWeight='semibold'
+                  textTransform='uppercase'
+                >
+                  {translate(label)}
+                </Text>
+                <Text fontSize='sm' fontWeight='medium' color={valueColor}>
+                  <Amount.Crypto
+                    value={balance.aggregatedAmount}
+                    symbol={balance.token.symbol}
+                    abbreviated
+                  />
+                </Text>
+              </Box>
+              {claimButton}
+            </>
+          ) : (
+            <>
+              <HStack spacing={1}>
+                <Text
+                  fontSize='xs'
+                  color={textColor}
+                  fontWeight='semibold'
+                  textTransform='uppercase'
+                >
+                  {translate(label)}
+                </Text>
+                {showDate && balance.date && (
+                  <Text fontSize='xs' color={dateColor}>
+                    ({formatUnlockDate(balance.date)})
+                  </Text>
+                )}
+              </HStack>
+              <Text fontSize='sm' fontWeight='medium' color={valueColor}>
+                <Amount.Crypto
+                  value={balance.aggregatedAmount}
+                  symbol={balance.token.symbol}
+                  abbreviated
+                />
+              </Text>
+            </>
+          )}
+        </Flex>
+      )
+    }
+
+    return (
+      <Flex justify='space-between' align='center'>
+        <Text fontSize='xs' color='text.subtle' textTransform='uppercase'>
+          {translate(label)}
+        </Text>
+        <Text fontSize='sm' fontWeight='medium'>
+          <Amount.Crypto
+            value={balance.aggregatedAmount}
+            symbol={balance.token.symbol}
+            abbreviated
+          />
+        </Text>
+      </Flex>
+    )
+  },
+)
+
+const ValidatorCard: FC<ValidatorCardProps> = memo(
+  ({
+    validatorSummary,
+    isSelected,
+    userCurrencyToUsdRate,
+    hoverBg,
+    onValidatorSwitch,
+    onClaimClick,
+  }) => {
+    const translate = useTranslate()
     const enteringBg = useColorModeValue('blue.50', 'blue.900')
     const enteringTextColor = useColorModeValue('blue.700', 'blue.300')
     const enteringDateColor = useColorModeValue('blue.600', 'blue.400')
@@ -77,6 +185,113 @@ export const ValidatorBreakdown = memo(
     const claimableBg = useColorModeValue('purple.50', 'purple.900')
     const claimableTextColor = useColorModeValue('purple.700', 'purple.300')
     const claimableValueColor = useColorModeValue('purple.800', 'purple.200')
+
+    const {
+      validator,
+      byType,
+      totalUsd,
+      hasActive,
+      hasEntering,
+      hasExiting,
+      hasClaimable,
+      claimAction,
+    } = validatorSummary
+
+    const activeBalance = byType[YieldBalanceType.Active]
+    const enteringBalance = byType[YieldBalanceType.Entering]
+    const exitingBalance = byType[YieldBalanceType.Exiting]
+    const claimableBalance = byType[YieldBalanceType.Claimable]
+
+    const claimButton = useMemo(
+      () =>
+        claimAction ? (
+          <Button size='xs' colorScheme='purple' variant='solid' onClick={onClaimClick}>
+            {translate('common.claim')}
+          </Button>
+        ) : null,
+      [claimAction, onClaimClick, translate],
+    )
+
+    return (
+      <Flex direction='column' gap={3} p={3} borderRadius='lg' bg={hoverBg} position='relative'>
+        {!isSelected && (
+          <Button
+            size='xs'
+            position='absolute'
+            top={3}
+            right={3}
+            colorScheme='blue'
+            variant='outline'
+            onClick={onValidatorSwitch}
+          >
+            {translate('yieldXYZ.switch')}
+          </Button>
+        )}
+        <HStack spacing={3}>
+          <Avatar src={validator.logoURI} name={validator.name} size='sm' bg='gray.700' />
+          <Box flex={1}>
+            <Flex align='center' gap={2}>
+              <Text fontWeight='semibold' fontSize='sm'>
+                {validator.name}
+              </Text>
+              {validator.apr !== undefined && bnOrZero(validator.apr).gt(0) && (
+                <GradientApy fontSize='xs'>
+                  {bnOrZero(validator.apr).times(100).toFixed(2)}% APR
+                </GradientApy>
+              )}
+            </Flex>
+            <Text fontSize='xs' color='text.subtle'>
+              <Amount.Fiat value={bnOrZero(totalUsd).times(userCurrencyToUsdRate).toFixed()} />
+            </Text>
+          </Box>
+        </HStack>
+        <VStack spacing={2} align='stretch' pl={10}>
+          <BalanceRow balance={activeBalance} hasBalance={hasActive} label='yieldXYZ.staked' />
+          <BalanceRow
+            balance={enteringBalance}
+            hasBalance={hasEntering}
+            label='yieldXYZ.entering'
+            bg={enteringBg}
+            textColor={enteringTextColor}
+            dateColor={enteringDateColor}
+            valueColor={enteringValueColor}
+            showDate
+          />
+          <BalanceRow
+            balance={exitingBalance}
+            hasBalance={hasExiting}
+            label='yieldXYZ.exiting'
+            bg={exitingBg}
+            textColor={exitingTextColor}
+            dateColor={exitingDateColor}
+            valueColor={exitingValueColor}
+            showDate
+          />
+          <BalanceRow
+            balance={claimableBalance}
+            hasBalance={hasClaimable}
+            label='yieldXYZ.claimable'
+            bg={claimableBg}
+            textColor={claimableTextColor}
+            valueColor={claimableValueColor}
+            claimButton={claimButton}
+          />
+        </VStack>
+      </Flex>
+    )
+  },
+)
+
+export const ValidatorBreakdown = memo(
+  ({ yieldItem, balances, isBalancesLoading }: ValidatorBreakdownProps) => {
+    const translate = useTranslate()
+    const { isOpen, onToggle } = useDisclosure({ defaultIsOpen: true })
+    const [claimModalData, setClaimModalData] = useState<ClaimModalData | null>(null)
+    const handleClaimClose = useCallback(() => setClaimModalData(null), [])
+
+    const cardBg = useColorModeValue('white', 'gray.800')
+    const borderColor = useColorModeValue('gray.100', 'gray.750')
+    const hoverBg = useColorModeValue('gray.50', 'gray.750')
 
     const { chainId } = yieldItem
     const { accountNumber } = useYieldAccount()
@@ -232,196 +447,24 @@ export const ValidatorBreakdown = memo(
           <Collapse in={isOpen} animateOpacity>
             <VStack spacing={3} align='stretch'>
               {validators.map((validatorSummary, index) => {
-                const {
-                  validator,
-                  byType,
-                  totalUsd,
-                  hasActive,
-                  hasEntering,
-                  hasExiting,
-                  hasClaimable,
-                  claimAction,
-                } = validatorSummary
-                const activeBalance = byType[YieldBalanceType.Active]
-                const enteringBalance = byType[YieldBalanceType.Entering]
-                const exitingBalance = byType[YieldBalanceType.Exiting]
-                const claimableBalance = byType[YieldBalanceType.Claimable]
-                const isSelected = validator.address === selectedValidator
+                const isSelected = validatorSummary.validator.address === selectedValidator
 
                 return (
-                  <Box key={validator.address}>
+                  <Box key={validatorSummary.validator.address}>
                     {index > 0 && <Divider borderColor={borderColor} mb={3} />}
-                    <Flex
-                      direction='column'
-                      gap={3}
-                      p={3}
-                      borderRadius='lg'
-                      bg={hoverBg}
-                      position='relative'
-                    >
-                      {!isSelected && (
-                        <Button
-                          size='xs'
-                          position='absolute'
-                          top={3}
-                          right={3}
-                          colorScheme='blue'
-                          variant='outline'
-                          onClick={handleValidatorSwitch(validator.address)}
-                        >
-                          {translate('yieldXYZ.switch')}
-                        </Button>
+                    <ValidatorCard
+                      validatorSummary={validatorSummary}
+                      isSelected={isSelected}
+                      userCurrencyToUsdRate={userCurrencyToUsdRate}
+                      hoverBg={hoverBg}
+                      onValidatorSwitch={handleValidatorSwitch(validatorSummary.validator.address)}
+                      onClaimClick={handleClaimClick(
+                        validatorSummary,
+                        validatorSummary.claimAction?.passthrough ?? '',
+                        validatorSummary.claimAction?.type ?? '',
                       )}
-                      <HStack spacing={3}>
-                        <Avatar
-                          src={validator.logoURI}
-                          name={validator.name}
-                          size='sm'
-                          bg='gray.700'
-                        />
-                        <Box flex={1}>
-                          <Flex align='center' gap={2}>
-                            <Text fontWeight='semibold' fontSize='sm'>
-                              {validator.name}
-                            </Text>
-                            {validator.apr !== undefined && bnOrZero(validator.apr).gt(0) && (
-                              <GradientApy fontSize='xs'>
-                                {bnOrZero(validator.apr).times(100).toFixed(2)}% APR
-                              </GradientApy>
-                            )}
-                          </Flex>
-                          <Text fontSize='xs' color='text.subtle'>
-                            <Amount.Fiat
-                              value={bnOrZero(totalUsd).times(userCurrencyToUsdRate).toFixed()}
-                            />
-                          </Text>
-                        </Box>
-                      </HStack>
-                      <VStack spacing={2} align='stretch' pl={10}>
-                        {activeBalance && hasActive && (
-                          <Flex justify='space-between' align='center'>
-                            <Text fontSize='xs' color='text.subtle' textTransform='uppercase'>
-                              {translate('yieldXYZ.staked')}
-                            </Text>
-                            <Text fontSize='sm' fontWeight='medium'>
-                              <Amount.Crypto
-                                value={activeBalance.aggregatedAmount}
-                                symbol={activeBalance.token.symbol}
-                                abbreviated
-                              />
-                            </Text>
-                          </Flex>
-                        )}
-                        {enteringBalance && hasEntering && (
-                          <Flex
-                            justify='space-between'
-                            align='center'
-                            px={2}
-                            py={1}
-                            borderRadius='md'
-                            bg={enteringBg}
-                          >
-                            <HStack spacing={1}>
-                              <Text
-                                fontSize='xs'
-                                color={enteringTextColor}
-                                fontWeight='semibold'
-                                textTransform='uppercase'
-                              >
-                                {translate('yieldXYZ.entering')}
-                              </Text>
-                              {enteringBalance.date && (
-                                <Text fontSize='xs' color={enteringDateColor}>
-                                  ({formatUnlockDate(enteringBalance.date)})
-                                </Text>
-                              )}
-                            </HStack>
-                            <Text fontSize='sm' fontWeight='medium' color={enteringValueColor}>
-                              <Amount.Crypto
-                                value={enteringBalance.aggregatedAmount}
-                                symbol={enteringBalance.token.symbol}
-                                abbreviated
-                              />
-                            </Text>
-                          </Flex>
-                        )}
-                        {exitingBalance && hasExiting && (
-                          <Flex
-                            justify='space-between'
-                            align='center'
-                            px={2}
-                            py={1}
-                            borderRadius='md'
-                            bg={exitingBg}
-                          >
-                            <HStack spacing={1}>
-                              <Text
-                                fontSize='xs'
-                                color={exitingTextColor}
-                                fontWeight='semibold'
-                                textTransform='uppercase'
-                              >
-                                {translate('yieldXYZ.exiting')}
-                              </Text>
-                              {exitingBalance.date && (
-                                <Text fontSize='xs' color={exitingDateColor}>
-                                  ({formatUnlockDate(exitingBalance.date)})
-                                </Text>
-                              )}
-                            </HStack>
-                            <Text fontSize='sm' fontWeight='medium' color={exitingValueColor}>
-                              <Amount.Crypto
-                                value={exitingBalance.aggregatedAmount}
-                                symbol={exitingBalance.token.symbol}
-                                abbreviated
-                              />
-                            </Text>
-                          </Flex>
-                        )}
-                        {claimableBalance && hasClaimable && (
-                          <Flex
-                            justify='space-between'
-                            align='center'
-                            px={2}
-                            py={1}
-                            borderRadius='md'
-                            bg={claimableBg}
-                          >
-                            <Box>
-                              <Text
-                                fontSize='xs'
-                                color={claimableTextColor}
-                                fontWeight='semibold'
-                                textTransform='uppercase'
-                              >
-                                {translate('yieldXYZ.claimable')}
-                              </Text>
-                              <Text fontSize='sm' fontWeight='medium' color={claimableValueColor}>
-                                <Amount.Crypto
-                                  value={claimableBalance.aggregatedAmount}
-                                  symbol={claimableBalance.token.symbol}
-                                  abbreviated
-                                />
-                              </Text>
-                            </Box>
-                            {claimAction && (
-                              <Button
-                                size='xs'
-                                colorScheme='purple'
-                                variant='solid'
-                                onClick={handleClaimClick(
-                                  validatorSummary,
-                                  claimAction.passthrough,
-                                  claimAction.type,
-                                )}
-                              >
-                                {translate('common.claim')}
-                              </Button>
-                            )}
-                          </Flex>
-                        )}
-                      </VStack>
-                    </Flex>
+                      formatUnlockDate={formatUnlockDate}
+                    />
                   </Box>
                 )
               })}

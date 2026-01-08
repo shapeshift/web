@@ -13,7 +13,7 @@ export const useYields = (params?: { network?: string; provider?: string }) => {
   const { data: allYields, ...queryResult } = useQuery({
     queryKey: ['yieldxyz', 'yields'],
     queryFn: async () => {
-      let allItems: YieldDto[] = []
+      const allItems: YieldDto[] = []
       let offset = 0
       const limit = 100
 
@@ -23,7 +23,7 @@ export const useYields = (params?: { network?: string; provider?: string }) => {
           limit,
           offset,
         })
-        allItems = [...allItems, ...data.items]
+        allItems.push(...data.items)
         if (data.items.length < limit) break
         offset += limit
       }

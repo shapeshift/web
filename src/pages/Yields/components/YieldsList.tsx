@@ -474,14 +474,9 @@ export const YieldsList = memo(() => {
           if (totalUsd.lte(0)) return null
           const totalUserCurrency = totalUsd.times(userCurrencyToUsdRate).toFixed()
           return (
-            <Box>
-              <Text fontWeight='bold' fontSize='sm' color='blue.400'>
-                <Amount.Fiat value={totalUserCurrency} abbreviated />
-              </Text>
-              <Text fontSize='xs' color='text.subtle'>
-                {translate('yieldXYZ.yourBalance')}
-              </Text>
-            </Box>
+            <Text fontWeight='bold' fontSize='sm' color='blue.400'>
+              <Amount.Fiat value={totalUserCurrency} abbreviated />
+            </Text>
           )
         },
         meta: { display: { base: 'none', lg: 'table-cell' } },
@@ -672,7 +667,7 @@ export const YieldsList = memo(() => {
         ))}
       </SimpleGrid>
     ),
-    [allBalances, getProviderLogo, handleYieldClick, positionsTable],
+    [allBalances, getProviderLogo, handleYieldClick, myPositions, positionsTable],
   )
 
   const positionsListElement = useMemo(

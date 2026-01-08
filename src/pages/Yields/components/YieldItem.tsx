@@ -180,8 +180,8 @@ export const YieldItem = memo(({ data, variant, userBalanceUsd, onEnter }: Yield
     if (isSingle) {
       return data.yieldItem.providerId
     }
-    return `${stats.count} ${stats.count === 1 ? 'market' : 'markets'}`
-  }, [data, isSingle, stats.count])
+    return `${stats.count} ${stats.count === 1 ? translate('yieldXYZ.market') : translate('yieldXYZ.markets')}`
+  }, [data, isSingle, stats.count, translate])
 
   const title = useMemo(() => {
     if (isSingle) return data.yieldItem.metadata.name
@@ -343,7 +343,7 @@ export const YieldItem = memo(({ data, variant, userBalanceUsd, onEnter }: Yield
             <Flex justify='space-between' mb={2}>
               <Box>
                 <Text fontSize='xs' color='text.subtle' mb={1}>
-                  {stats.providers.length} {stats.providers.length === 1 ? 'protocol' : 'protocols'}
+                  {stats.providers.length} {stats.providers.length === 1 ? translate('yieldXYZ.protocol') : translate('yieldXYZ.protocols')}
                 </Text>
                 <AvatarGroup size='xs' max={5} spacing={-1}>
                   {stats.providers.map(p => (
@@ -353,7 +353,7 @@ export const YieldItem = memo(({ data, variant, userBalanceUsd, onEnter }: Yield
               </Box>
               <Box textAlign='right'>
                 <Text fontSize='xs' color='text.subtle' mb={1}>
-                  {stats.chainIds.length} {stats.chainIds.length === 1 ? 'chain' : 'chains'}
+                  {stats.chainIds.length} {stats.chainIds.length === 1 ? translate('yieldXYZ.chain') : translate('yieldXYZ.chains')}
                 </Text>
                 <HStack spacing={-1} justify='flex-end'>
                   {stats.chainIds.slice(0, 5).map(chainId => (

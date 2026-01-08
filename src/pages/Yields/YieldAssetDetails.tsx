@@ -191,7 +191,7 @@ export const YieldAssetDetails = memo(() => {
                 <Amount.Fiat value={tvlUserCurrency} abbreviated />
               </Text>
               <Text fontSize='xs' color='text.subtle'>
-                TVL
+                {translate('yieldXYZ.tvl')}
               </Text>
             </Box>
           )
@@ -302,12 +302,12 @@ export const YieldAssetDetails = memo(() => {
           showNetworkIcon={false}
         />
         <Box>
-          <Heading size='lg'>{assetInfo.assetName} Yields</Heading>
-          <Text color='text.subtle'>{assetYields.length} opportunities available</Text>
+          <Heading size='lg'>{translate('yieldXYZ.assetYields', { asset: assetInfo.assetName })}</Heading>
+          <Text color='text.subtle'>{translate('yieldXYZ.opportunitiesAvailable', { count: assetYields.length })}</Text>
         </Box>
       </Flex>
     )
-  }, [assetInfo, assetYields.length])
+  }, [assetInfo, assetYields.length, translate])
 
   const loadingGridElement = useMemo(
     () => (
@@ -347,9 +347,9 @@ export const YieldAssetDetails = memo(() => {
             userBalanceUsd={
               allBalances?.[row.original.id]
                 ? allBalances[row.original.id].reduce(
-                    (sum, b) => sum.plus(bnOrZero(b.amountUsd)),
-                    bnOrZero(0),
-                  )
+                  (sum, b) => sum.plus(bnOrZero(b.amountUsd)),
+                  bnOrZero(0),
+                )
                 : undefined
             }
           />
@@ -370,7 +370,7 @@ export const YieldAssetDetails = memo(() => {
 
   const contentElement = useMemo(() => {
     if (isLoading) return viewMode === 'grid' ? loadingGridElement : loadingListElement
-    if (filteredYields.length === 0) return <Text>No yields found matching filters.</Text>
+    if (filteredYields.length === 0) return <Text>{translate('yieldXYZ.noYieldsMatchingFilters')}</Text>
     return viewMode === 'grid' ? gridViewElement : listViewElement
   }, [
     filteredYields.length,

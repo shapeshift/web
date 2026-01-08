@@ -152,7 +152,7 @@ export const YieldStats = memo(({ yieldItem, balances }: YieldStatsProps) => {
       <Flex justifyContent='space-between' alignItems='center'>
         <Flex alignItems='center' gap={2} color='text.subtle'>
           {userShieldIcon}
-          <Text fontSize='sm'>Validator</Text>
+          <Text fontSize='sm'>{translate('yieldXYZ.validator')}</Text>
         </Flex>
         <Flex alignItems='center' gap={2}>
           {validatorMetadata.logoURI && (

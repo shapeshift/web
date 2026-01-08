@@ -45,8 +45,6 @@ const tokenToAssetId = (token: YieldToken, chainId: ChainId | undefined): AssetI
     switch (chainNamespace) {
       case CHAIN_NAMESPACE.Evm:
         return ASSET_NAMESPACE.erc20
-      case CHAIN_NAMESPACE.CosmosSdk:
-        return 'ibc' as AssetNamespace
       case CHAIN_NAMESPACE.Solana:
         return ASSET_NAMESPACE.splToken
       default:

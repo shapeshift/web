@@ -64,6 +64,9 @@ export const useYieldFilters = () => {
       case 'name-asc':
         setSorting([{ id: 'pool', desc: false }])
         break
+      case 'name-desc':
+        setSorting([{ id: 'pool', desc: true }])
+        break
       default:
         break
     }

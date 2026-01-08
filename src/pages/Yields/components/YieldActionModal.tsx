@@ -359,7 +359,7 @@ export const YieldActionModal = memo(function YieldActionModal({
                   borderColor='whiteAlpha.100'
                 >
                   <Text color='gray.400' fontSize='sm'>
-                    Est. Earnings
+                    {translate('yieldXYZ.estEarnings')}
                   </Text>
                   <Flex align='center' gap={1}>
                     <Flex direction='column' align='flex-end'>
@@ -384,7 +384,7 @@ export const YieldActionModal = memo(function YieldActionModal({
               borderColor='whiteAlpha.100'
             >
               <Text color='gray.400' fontSize='sm'>
-                Validator
+                {translate('yieldXYZ.validator')}
               </Text>
               <Flex align='center' gap={2}>
                 <Avatar size='xs' src={vaultMetadata.logoURI} name={vaultMetadata.name} />
@@ -403,7 +403,7 @@ export const YieldActionModal = memo(function YieldActionModal({
               borderColor='whiteAlpha.100'
             >
               <Text color='gray.400' fontSize='sm'>
-                Provider
+                {translate('yieldXYZ.provider')}
               </Text>
               <Flex align='center' gap={2}>
                 <Avatar size='xs' src={vaultMetadata.logoURI} name={vaultMetadata.name} />
@@ -415,7 +415,7 @@ export const YieldActionModal = memo(function YieldActionModal({
           )}
           <Flex justify='space-between' align='center' py={2}>
             <Text color='gray.400' fontSize='sm'>
-              Network
+              {translate('yieldXYZ.network')}
             </Text>
             <Flex align='center' gap={2}>
               {feeAsset && <Avatar size='xs' src={networkAvatarSrc} name={yieldItem.network} />}
@@ -482,8 +482,8 @@ export const YieldActionModal = memo(function YieldActionModal({
                   {s.status === 'success'
                     ? translate('yieldXYZ.loading.done')
                     : s.status === 'loading'
-                    ? ''
-                    : translate('yieldXYZ.loading.waiting')}
+                      ? ''
+                      : translate('yieldXYZ.loading.waiting')}
                 </Text>
               )}
             </Flex>

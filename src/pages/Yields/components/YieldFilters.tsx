@@ -176,6 +176,7 @@ export const YieldFilters = memo(
         { value: 'tvl-desc' as const, label: translate('yieldXYZ.highestTvl') },
         { value: 'tvl-asc' as const, label: translate('yieldXYZ.lowestTvl') },
         { value: 'name-asc' as const, label: translate('yieldXYZ.nameAZ') },
+        { value: 'name-desc' as const, label: translate('yieldXYZ.nameZA') },
       ],
       [translate],
     )

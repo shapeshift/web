@@ -246,11 +246,11 @@ export const YieldPositionCard = memo(
           <Flex alignItems='center' gap={2} mb={1}>
             <AlertIcon boxSize='20px' color={emptyStateTextColor} mr={0} />
             <Text fontWeight='bold' color={emptyStateTitleColor}>
-              Start Earning
+              {translate('yieldXYZ.startEarning')}
             </Text>
           </Flex>
           <Text fontSize='sm' color={emptyStateTextColor}>
-            Deposit your {yieldItem.token.symbol} to start earning yield securely.
+            {translate('yieldXYZ.depositYourToken', { symbol: yieldItem.token.symbol })}
           </Text>
         </Alert>
       ),
@@ -260,6 +260,7 @@ export const YieldPositionCard = memo(
         emptyStateTextColor,
         emptyStateTitleColor,
         yieldItem.token.symbol,
+        translate,
       ],
     )
 
@@ -289,7 +290,7 @@ export const YieldPositionCard = memo(
             </Text>
           </Box>
           <Badge colorScheme='yellow' variant='solid' fontSize='xs'>
-            Pending
+            {translate('yieldXYZ.pending')}
           </Badge>
         </Flex>
       )
@@ -369,7 +370,7 @@ export const YieldPositionCard = memo(
             </Text>
           </Box>
           <Badge colorScheme='green' variant='solid' fontSize='xs'>
-            Ready
+            {translate('yieldXYZ.ready')}
           </Badge>
         </Flex>
       )
@@ -410,7 +411,7 @@ export const YieldPositionCard = memo(
           </Box>
           <HStack spacing={2}>
             <Badge colorScheme='purple' variant='solid' fontSize='xs'>
-              Reward
+              {translate('yieldXYZ.reward')}
             </Badge>
             {claimAction && (
               <Button

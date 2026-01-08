@@ -10,10 +10,12 @@
   "scripts": {
     "build": "yarn clean && yarn run -T tsc --build",
     "build:bundle": "node esbuild.config.mjs",
+    "build:smoke-tests": "node esbuild.smoke-tests.mjs",
     "clean": "rm -rf dist",
     "dev": "tsx watch src/index.ts",
     "start": "node dist/index.js",
     "start:prod": "node dist/server.cjs",
+    "test:smoke": "tsx tests/run-smoke-tests.ts",
     "docker:build": "docker build -t shapeshift-public-api -f Dockerfile ../../",
     "docker:run": "docker run -p 3001:3001 --env-file .env shapeshift-public-api"
   },

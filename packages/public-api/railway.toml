@@ -7,6 +7,10 @@ watchPatterns = [
   "packages/caip/**",
   "packages/types/**",
   "packages/utils/**",
+  "packages/unchained-client/**",
+  "packages/chain-adapters/**",
+  "packages/contracts/**",
+  "packages/errors/**",
   "public/generated/generatedAssetData.json"
 ]
 

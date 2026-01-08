@@ -1,6 +1,5 @@
 import { Box, Flex, useMediaQuery } from '@chakra-ui/react'
 import { memo, useCallback, useMemo } from 'react'
-import { FormProvider, useForm } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { matchPath, Route, Routes, useLocation, useNavigate } from 'react-router-dom'
 
@@ -28,7 +27,6 @@ const containerPaddingBottom = { base: 0, md: 12 }
 export const TradeTab = memo(() => {
   const translate = useTranslate()
   const location = useLocation()
-  const methods = useForm({ mode: 'onChange' })
   const navigate = useNavigate()
   const [isSmallerThanMd] = useMediaQuery(`(max-width: ${breakpoints.md})`, { ssr: false })
   const hasUserEnteredAmount = useAppSelector(selectHasUserEnteredAmount)
@@ -132,11 +130,9 @@ export const TradeTab = memo(() => {
           zIndex={2}
           position='relative'
         >
-          <FormProvider {...methods}>
-            <Routes>
-              <Route key={TradeRoutePaths.Input} path={'*'} element={tradeElement} />
-            </Routes>
-          </FormProvider>
+          <Routes>
+            <Route key={TradeRoutePaths.Input} path={'*'} element={tradeElement} />
+          </Routes>
         </Flex>
         <TopAssetsCarousel />
       </Box>

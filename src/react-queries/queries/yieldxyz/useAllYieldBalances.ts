@@ -320,7 +320,6 @@ export const useAllYieldBalances = (options: UseAllYieldBalancesOptions = {}) =>
             return balanceMap
           }
         : skipToken,
-    enabled: isConnected && queryPayloads.length > 0,
     staleTime: 60000,
   })
 

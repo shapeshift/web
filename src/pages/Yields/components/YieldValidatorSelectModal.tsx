@@ -82,7 +82,7 @@ export const YieldValidatorSelectModal = memo(
         )
           continue
         seen.add(balance.validator.address)
-        const full = validators.find(v => v.address === balance.validator!.address)
+        const full = validators.find(v => v.address === balance.validator?.address)
         result.push(
           full ?? {
             address: balance.validator.address,

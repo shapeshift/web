@@ -1,9 +1,6 @@
 import { useToast } from '@chakra-ui/react'
-import type { AssetId, ChainId } from '@shapeshiftoss/caip'
+import type { AssetId } from '@shapeshiftoss/caip'
 import { cosmosChainId, fromAccountId } from '@shapeshiftoss/caip'
-import type { ChainAdapter } from '@shapeshiftoss/chain-adapters'
-import type { KnownChainIds } from '@shapeshiftoss/types'
-import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { uuidv4 } from '@walletconnect/utils'
 import { useCallback, useMemo, useState } from 'react'
@@ -11,7 +8,6 @@ import { useTranslate } from 'react-polyglot'
 
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
-import { assertGetChainAdapter, isTransactionStatusAdapter } from '@/lib/utils'
 import { enterYield, exitYield, fetchAction, manageYield } from '@/lib/yieldxyz/api'
 import {
   DEFAULT_NATIVE_VALIDATOR_BY_CHAIN_ID,
@@ -65,19 +61,6 @@ const poll = async <T>(
     await new Promise(resolve => setTimeout(resolve, YIELD_POLL_INTERVAL_MS))
   }
   throw new Error('Polling timed out')
-}
-
-const waitForTransactionConfirmation = async (
-  adapter: ChainAdapter<ChainId>,
-  txHash: string,
-): Promise<void> => {
-  if (!isTransactionStatusAdapter(adapter)) return
-
-  await poll(
-    () => adapter.getTransactionStatus(txHash),
-    status => status === TxStatus.Confirmed,
-    status => (status === TxStatus.Failed ? new Error('Transaction failed on-chain') : undefined),
-  )
 }
 
 const waitForActionCompletion = (actionId: string): Promise<ActionDto> => {
@@ -310,8 +293,6 @@ export const useYieldTransactionFlow = ({
         throw new Error(translate('yieldXYZ.errors.walletNotConnected'))
       }
 
-      const adapter = assertGetChainAdapter(yieldChainId as KnownChainIds)
-
       updateStepStatus(index, {
         status: 'loading',
         loadingMessage: translate('yieldXYZ.loading.signInWallet'),
@@ -334,8 +315,6 @@ export const useYieldTransactionFlow = ({
         const txUrl = feeAsset ? `${feeAsset.explorerTxLink}${txHash}` : ''
 
         updateStepStatus(index, { txHash, txUrl, loadingMessage: translate('common.confirming') })
-
-        await waitForTransactionConfirmation(adapter as ChainAdapter<ChainId>, txHash)
 
         await submitHashMutation.mutateAsync({
           transactionId: tx.id,

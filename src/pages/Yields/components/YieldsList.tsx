@@ -20,9 +20,9 @@ import {
   Text,
   useColorModeValue,
 } from '@chakra-ui/react'
-import type { ColumnDef, Row, SortingState } from '@tanstack/react-table'
+import type { ColumnDef, Row } from '@tanstack/react-table'
 import { getCoreRowModel, getSortedRowModel, useReactTable } from '@tanstack/react-table'
-import { memo, useCallback, useEffect, useMemo, useState } from 'react'
+import { memo, useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 
@@ -35,12 +35,12 @@ import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { YIELD_NETWORK_TO_CHAIN_ID } from '@/lib/yieldxyz/constants'
 import type { AugmentedYieldDto, YieldNetwork } from '@/lib/yieldxyz/types'
 import { resolveYieldInputAssetIcon, searchYields } from '@/lib/yieldxyz/utils'
-import type { SortOption } from '@/pages/Yields/components/YieldFilters'
 import { YieldFilters } from '@/pages/Yields/components/YieldFilters'
 import { YieldItem, YieldItemSkeleton } from '@/pages/Yields/components/YieldItem'
 import { YieldOpportunityStats } from '@/pages/Yields/components/YieldOpportunityStats'
 import { YieldTable } from '@/pages/Yields/components/YieldTable'
 import { ViewToggle } from '@/pages/Yields/components/YieldViewHelpers'
+import { useYieldFilters } from '@/pages/Yields/hooks/useYieldFilters'
 import { useAllYieldBalances } from '@/react-queries/queries/yieldxyz/useAllYieldBalances'
 import { useYieldProviders } from '@/react-queries/queries/yieldxyz/useYieldProviders'
 import { useYields } from '@/react-queries/queries/yieldxyz/useYields'
@@ -61,18 +61,20 @@ export const YieldsList = memo(() => {
   const [searchParams, setSearchParams] = useSearchParams()
   const tabParam = useMemo(() => searchParams.get('tab'), [searchParams])
   const tabIndex = useMemo(() => (tabParam === 'my-positions' ? 1 : 0), [tabParam])
-  const selectedNetwork = useMemo(() => searchParams.get('network'), [searchParams])
-  const selectedProvider = useMemo(() => searchParams.get('provider'), [searchParams])
-  const sortOption = useMemo(
-    () => (searchParams.get('sort') as SortOption) || 'apy-desc',
-    [searchParams],
-  )
   const filterOption = useMemo(() => searchParams.get('filter'), [searchParams])
   const isMyOpportunities = useMemo(() => filterOption === 'my-assets', [filterOption])
   const [searchQuery, setSearchQuery] = useState('')
-  const [positionsSorting, setPositionsSorting] = useState<SortingState>([
-    { id: 'apy', desc: true },
-  ])
+
+  const {
+    selectedNetwork,
+    selectedProvider,
+    sortOption,
+    sorting: positionsSorting,
+    setSorting: setPositionsSorting,
+    handleNetworkChange,
+    handleProviderChange,
+    handleSortChange,
+  } = useYieldFilters()
 
   const userCurrencyBalances = useAppSelector(selectPortfolioUserCurrencyBalances)
   const userCurrencyToUsdRate = useAppSelector(selectUserCurrencyToUsdRate)
@@ -115,64 +117,10 @@ export const YieldsList = memo(() => {
     [yieldProviders],
   )
 
-  const handleNetworkChange = useCallback(
-    (network: string | null) => {
-      setSearchParams(prev => {
-        if (!network) prev.delete('network')
-        else prev.set('network', network)
-        return prev
-      })
-    },
-    [setSearchParams],
-  )
-
-  const handleProviderChange = useCallback(
-    (provider: string | null) => {
-      setSearchParams(prev => {
-        if (!provider) prev.delete('provider')
-        else prev.set('provider', provider)
-        return prev
-      })
-    },
-    [setSearchParams],
-  )
-
-  const handleSortChange = useCallback(
-    (option: SortOption) => {
-      setSearchParams(prev => {
-        prev.set('sort', option)
-        return prev
-      })
-    },
-    [setSearchParams],
-  )
-
   const handleSearchChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => setSearchQuery(e.target.value),
     [],
   )
-
-  useEffect(() => {
-    switch (sortOption) {
-      case 'apy-desc':
-        setPositionsSorting([{ id: 'apy', desc: true }])
-        break
-      case 'apy-asc':
-        setPositionsSorting([{ id: 'apy', desc: false }])
-        break
-      case 'tvl-desc':
-        setPositionsSorting([{ id: 'tvl', desc: true }])
-        break
-      case 'tvl-asc':
-        setPositionsSorting([{ id: 'tvl', desc: false }])
-        break
-      case 'name-asc':
-        setPositionsSorting([{ id: 'pool', desc: false }])
-        break
-      default:
-        break
-    }
-  }, [sortOption])
 
   const networks = useMemo(
     () =>
@@ -663,7 +611,7 @@ export const YieldsList = memo(() => {
         ))}
       </SimpleGrid>
     ),
-    [allBalances, getProviderLogo, handleYieldClick, myPositions, positionsTable],
+    [allBalances, getProviderLogo, handleYieldClick, positionsTable],
   )
 
   const positionsListElement = useMemo(

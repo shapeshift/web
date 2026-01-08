@@ -13,11 +13,10 @@ import {
   Skeleton,
   Text,
   useColorModeValue,
-  useDisclosure,
   VStack,
 } from '@chakra-ui/react'
 import { fromAccountId } from '@shapeshiftoss/caip'
-import { memo, useCallback, useMemo } from 'react'
+import { memo, useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useSearchParams } from 'react-router-dom'
 
@@ -46,9 +45,20 @@ type YieldPositionCardProps = {
   isBalancesLoading: boolean
 }
 
+type ClaimModalData = {
+  amount: string
+  assetSymbol: string
+  assetLogoURI: string | undefined
+  validatorAddress: string | undefined
+  validatorName: string | undefined
+  validatorLogoURI: string | undefined
+  passthrough: string | undefined
+  manageActionType: string | undefined
+}
+
 export const YieldPositionCard = memo(
   ({ yieldItem, balances, isBalancesLoading }: YieldPositionCardProps) => {
-    const { isOpen, onOpen, onClose } = useDisclosure()
+    const [claimModalData, setClaimModalData] = useState<ClaimModalData | null>(null)
     const translate = useTranslate()
     const cardBg = useColorModeValue('white', 'gray.800')
     const borderColor = useColorModeValue('gray.100', 'gray.750')
@@ -187,35 +197,20 @@ export const YieldPositionCard = memo(
 
     const totalAmountFixed = useMemo(() => totalAmount.toFixed(), [totalAmount])
 
-    const claimableAmount = useMemo(
-      () => claimableBalance?.amount ?? '0',
-      [claimableBalance?.amount],
-    )
-    const claimableAssetSymbol = useMemo(
-      () => claimableBalance?.token.symbol ?? '',
-      [claimableBalance?.token.symbol],
-    )
-    const claimableAssetLogoURI = useMemo(
-      () => claimableBalance?.token.logoURI,
-      [claimableBalance?.token.logoURI],
-    )
-    const claimableValidatorName = useMemo(
-      () => claimableBalance?.validator?.name,
-      [claimableBalance?.validator?.name],
-    )
-    const claimableValidatorLogoURI = useMemo(
-      () => claimableBalance?.validator?.logoURI,
-      [claimableBalance?.validator?.logoURI],
-    )
-    const claimActionPassthrough = useMemo(
-      () => claimAction?.passthrough,
-      [claimAction?.passthrough],
-    )
-    const claimActionType = useMemo(() => claimAction?.type, [claimAction?.type])
-
     const handleClaimClick = useCallback(() => {
-      onOpen()
-    }, [onOpen])
+      setClaimModalData({
+        amount: claimableBalance?.amount ?? '0',
+        assetSymbol: claimableBalance?.token.symbol ?? '',
+        assetLogoURI: claimableBalance?.token.logoURI,
+        validatorAddress: selectedValidatorAddress,
+        validatorName: claimableBalance?.validator?.name,
+        validatorLogoURI: claimableBalance?.validator?.logoURI,
+        passthrough: claimAction?.passthrough,
+        manageActionType: claimAction?.type,
+      })
+    }, [claimableBalance, selectedValidatorAddress, claimAction])
+
+    const handleClaimClose = useCallback(() => setClaimModalData(null), [])
 
     const showPendingActions = useMemo(
       () => hasEntering || hasExiting || hasWithdrawable || hasClaimable,
@@ -541,20 +536,22 @@ export const YieldPositionCard = memo(
             </Box>
             {!hasAnyPosition && emptyStateAlert}
             {pendingActionsSection}
-            <YieldActionModal
-              yieldItem={yieldItem}
-              action='manage'
-              isOpen={isOpen}
-              onClose={onClose}
-              amount={claimableAmount}
-              assetSymbol={claimableAssetSymbol}
-              assetLogoURI={claimableAssetLogoURI}
-              validatorAddress={selectedValidatorAddress}
-              validatorName={claimableValidatorName}
-              validatorLogoURI={claimableValidatorLogoURI}
-              passthrough={claimActionPassthrough}
-              manageActionType={claimActionType}
-            />
+            {claimModalData && (
+              <YieldActionModal
+                yieldItem={yieldItem}
+                action='manage'
+                isOpen={!!claimModalData}
+                onClose={handleClaimClose}
+                amount={claimModalData.amount}
+                assetSymbol={claimModalData.assetSymbol}
+                assetLogoURI={claimModalData.assetLogoURI}
+                validatorAddress={claimModalData.validatorAddress}
+                validatorName={claimModalData.validatorName}
+                validatorLogoURI={claimModalData.validatorLogoURI}
+                passthrough={claimModalData.passthrough}
+                manageActionType={claimModalData.manageActionType}
+              />
+            )}
           </VStack>
         </CardBody>
       </Card>

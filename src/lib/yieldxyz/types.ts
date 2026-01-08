@@ -1,10 +1,3 @@
-/**
- * Yield.xyz API Types
- * These types are derived from actual API responses.
- * DO NOT add derived/composite types - only what the API returns.
- * https://docs.yield.xyz/reference/
- */
-
 // ============================================================================
 // Enums (from API docs)
 // ============================================================================

@@ -26,7 +26,9 @@ export const YieldAccountProvider: React.FC<{ children: React.ReactNode }> = mem
 
 export const useYieldAccount = () => {
   const context = useContext(YieldAccountContext)
-  if (context === undefined)
-    throw new Error('useYieldAccount must be used within a YieldAccountProvider')
+  // Fallback to account 0 when used outside YieldAccountProvider (e.g., YieldAssetSection on asset pages)
+  if (context === undefined) {
+    return { accountNumber: 0, setAccountNumber: () => {} }
+  }
   return context
 }

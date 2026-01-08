@@ -38,6 +38,18 @@ const findRepresentativeYield = (
   }, yields[0])
 }
 
+const isLowQualityYield = (yieldItem: YieldDto): boolean => {
+  const tvl = Number(yieldItem.statistics?.tvlUsd ?? 0)
+  const apy = yieldItem.rewardRate?.total ?? 0
+
+  // Keep zero TVL (upstream bug), high TVL, or decent APY
+  if (tvl === 0) return false // keep - likely indexing bug
+  if (tvl >= 100000) return false // keep - significant TVL
+  if (apy >= 0.01) return false // keep - decent APY (1%+)
+
+  return true // filter out - low TVL AND low APY
+}
+
 export const useYields = (params?: { network?: string; provider?: string }) => {
   const { data: allYields, ...queryResult } = useQuery({
     queryKey: ['yieldxyz', 'yields'],
@@ -155,16 +167,4 @@ export const useYields = (params?: { network?: string; provider?: string }) => {
   }, [allYields, assets, params?.network, params?.provider])
 
   return { ...queryResult, data }
-}
-
-const isLowQualityYield = (yieldItem: YieldDto): boolean => {
-  const tvl = Number(yieldItem.statistics?.tvlUsd ?? 0)
-  const apy = yieldItem.rewardRate?.total ?? 0
-
-  // Keep zero TVL (upstream bug), high TVL, or decent APY
-  if (tvl === 0) return false // keep - likely indexing bug
-  if (tvl >= 100000) return false // keep - significant TVL
-  if (apy >= 0.01) return false // keep - decent APY (1%+)
-
-  return true // filter out - low TVL AND low APY
 }

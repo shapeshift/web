@@ -24,9 +24,9 @@ import { AssetInput } from '@/components/DeFi/components/AssetInput'
 import { WalletActions } from '@/context/WalletProvider/actions'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
-import { DEFAULT_NATIVE_VALIDATOR_BY_CHAIN_ID, SUI_GAS_BUFFER } from '@/lib/yieldxyz/constants'
+import { DEFAULT_NATIVE_VALIDATOR_BY_CHAIN_ID } from '@/lib/yieldxyz/constants'
 import type { AugmentedYieldDto, ValidatorDto } from '@/lib/yieldxyz/types'
-import { YieldBalanceType, YieldNetwork } from '@/lib/yieldxyz/types'
+import { YieldBalanceType } from '@/lib/yieldxyz/types'
 import { GradientApy } from '@/pages/Yields/components/GradientApy'
 import { YieldActionModal } from '@/pages/Yields/components/YieldActionModal'
 import { YieldValidatorSelectModal } from '@/pages/Yields/components/YieldValidatorSelectModal'
@@ -226,17 +226,8 @@ export const YieldEnterExit = memo(
     const handleMaxClick = useCallback(async () => {
       await Promise.resolve()
       const balance = tabIndex === 0 ? inputTokenBalance : exitBalance
-
-      if (tabIndex === 0 && yieldItem.network === YieldNetwork.Sui) {
-        const balanceBn = bnOrZero(balance)
-        const gasBuffer = bnOrZero(SUI_GAS_BUFFER)
-        const maxAmount = balanceBn.minus(gasBuffer)
-        setCryptoAmount(maxAmount.gt(0) ? maxAmount.toString() : '0')
-        return
-      }
-
       setCryptoAmount(balance)
-    }, [inputTokenBalance, exitBalance, tabIndex, yieldItem.network])
+    }, [inputTokenBalance, exitBalance, tabIndex])
 
     const handleEnterClick = useCallback(() => {
       setModalAction('enter')

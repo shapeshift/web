@@ -23,7 +23,6 @@ export const useYield = (yieldId: string) => {
           return augmentYield(result)
         }
       : skipToken,
-    enabled: !!yieldId,
     staleTime: 60 * 1000,
     initialData: getCachedYield,
     initialDataUpdatedAt: () => {

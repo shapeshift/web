@@ -460,7 +460,7 @@ export const YieldActionModal = memo(function YieldActionModal({
                   {s.title}
                 </Text>
               </Flex>
-              {s.status === 'success' && s.txHash ? (
+              {s.txHash ? (
                 <Link
                   href={s.txUrl}
                   isExternal

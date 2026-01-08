@@ -129,7 +129,7 @@ export const YieldAssetSection = memo(({ assetId, accountId }: YieldAssetSection
         ))}
       </VStack>
     )
-  }, [yieldsWithoutPositions, opportunitiesHeading])
+  }, [yieldsWithoutPositions, opportunitiesHeading, handleOpportunityClick])
 
   if (!isYieldXyzEnabled) return null
   if (!isLoading && yields.length === 0) return null

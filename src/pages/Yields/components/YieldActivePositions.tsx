@@ -55,7 +55,12 @@ export const YieldActivePositions = memo(
     )
 
     const handleRowClick = useCallback(
-      (yieldId: string) => navigate(`/yields/${yieldId}`),
+      (yieldId: string, validatorAddress?: string) => {
+        const url = validatorAddress
+          ? `/yields/${yieldId}?validator=${validatorAddress}`
+          : `/yields/${yieldId}`
+        navigate(url)
+      },
       [navigate],
     )
 
@@ -110,7 +115,7 @@ export const YieldActivePositions = memo(
                 <Tr
                   key={`${yieldItem.id}-${validator.address}`}
                   _hover={{ bg: hoverBg, cursor: 'pointer' }}
-                  onClick={() => handleRowClick(yieldItem.id)}
+                  onClick={() => handleRowClick(yieldItem.id, validator.address)}
                 >
                   <Td>
                     <HStack spacing={3}>

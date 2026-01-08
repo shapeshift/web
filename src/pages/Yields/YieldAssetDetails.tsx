@@ -155,26 +155,9 @@ export const YieldAssetDetails = () => {
   }, [assetYields, selectedNetwork, selectedProvider])
 
   const assetInfo = useMemo(() => {
-    if (!assetYields[0]) return null
-    const token = assetYields[0].inputTokens?.[0] || assetYields[0].token
-
-    let resolvedAssetId: string | undefined = token.assetId
-    let resolvedSrc: string | undefined = token.logoURI
-
-    if (resolvedAssetId && assets[resolvedAssetId]) {
-      resolvedSrc = undefined
-    } else {
-      const localAsset = symbolToAssetMap.get(token.symbol)
-      if (localAsset) {
-        resolvedAssetId = localAsset.assetId
-        resolvedSrc = undefined
-      } else {
-        resolvedAssetId = undefined
-      }
-    }
-
-    return { ...token, resolvedAssetId, resolvedSrc }
-  }, [assetYields, assets, symbolToAssetMap])
+    if (!yields?.meta?.assetMetadata || !decodedSymbol) return null
+    return yields.meta.assetMetadata[decodedSymbol]
+  }, [yields, decodedSymbol])
   // Table Columns
   const columns = useMemo<ColumnDef<AugmentedYieldDto>[]>(
     () => [
@@ -305,13 +288,14 @@ export const YieldAssetDetails = () => {
       {assetInfo && (
         <Flex alignItems='center' gap={4} mb={8}>
           <AssetIcon
-            {...(assetInfo.resolvedAssetId
-              ? { assetId: assetInfo.resolvedAssetId }
-              : { src: assetInfo.resolvedSrc })}
+            {...(assetInfo.assetId
+              ? { assetId: assetInfo.assetId }
+              : { src: assetInfo.assetIcon })}
             size='lg'
+            showNetworkIcon={false}
           />
           <Box>
-            <Heading size='lg'>{assetInfo.symbol} Yields</Heading>
+            <Heading size='lg'>{assetInfo.assetName} Yields</Heading>
             <Text color='text.subtle'>{assetYields.length} opportunities available</Text>
           </Box>
         </Flex>

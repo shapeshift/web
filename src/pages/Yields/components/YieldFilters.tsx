@@ -126,7 +126,6 @@ export const YieldFilters = ({
     { value: 'tvl-asc', label: 'Lowest TVL' },
     { value: 'name-asc', label: 'Name (A-Z)' },
   ]
-  const currentSortLabel = sortOptions.find(o => o.value === sortOption)?.label ?? 'Sort'
 
   return (
     <Stack direction={{ base: 'column', md: 'row' }} spacing={4} {...props}>

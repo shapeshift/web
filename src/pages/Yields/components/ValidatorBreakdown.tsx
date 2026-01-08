@@ -38,6 +38,7 @@ type ValidatorBreakdownProps = {
 type ValidatorGroupedBalances = {
   validator: YieldBalanceValidator
   active: AugmentedYieldBalance | undefined
+  entering: AugmentedYieldBalance | undefined
   exiting: AugmentedYieldBalance | undefined
   claimable: AugmentedYieldBalance | undefined
   totalUsd: string
@@ -91,12 +92,14 @@ export const ValidatorBreakdown = ({ yieldItem }: ValidatorBreakdownProps) => {
         validatorMap.set(key, {
           validator: balance.validator,
           active: balance.type === YieldBalanceType.Active ? balance : undefined,
+          entering: balance.type === YieldBalanceType.Entering ? balance : undefined,
           exiting: balance.type === YieldBalanceType.Exiting ? balance : undefined,
           claimable: balance.type === YieldBalanceType.Claimable ? balance : undefined,
           totalUsd: bnOrZero(balance.amountUsd),
         })
       } else {
         if (balance.type === YieldBalanceType.Active) existing.active = balance
+        if (balance.type === YieldBalanceType.Entering) existing.entering = balance
         if (balance.type === YieldBalanceType.Exiting) existing.exiting = balance
         if (balance.type === YieldBalanceType.Claimable) existing.claimable = balance
         existing.totalUsd = existing.totalUsd.plus(bnOrZero(balance.amountUsd))
@@ -107,6 +110,7 @@ export const ValidatorBreakdown = ({ yieldItem }: ValidatorBreakdownProps) => {
       .filter(
         group =>
           bnOrZero(group.active?.amount).gt(0) ||
+          bnOrZero(group.entering?.amount).gt(0) ||
           bnOrZero(group.exiting?.amount).gt(0) ||
           bnOrZero(group.claimable?.amount).gt(0),
       )
@@ -175,6 +179,7 @@ export const ValidatorBreakdown = ({ yieldItem }: ValidatorBreakdownProps) => {
           <VStack spacing={3} align='stretch'>
             {groupedByValidator.map((group, index) => {
               const hasActive = bnOrZero(group.active?.amount).gt(0)
+              const hasEntering = bnOrZero(group.entering?.amount).gt(0)
               const hasExiting = bnOrZero(group.exiting?.amount).gt(0)
               const hasClaimable = bnOrZero(group.claimable?.amount).gt(0)
 
@@ -216,6 +221,40 @@ export const ValidatorBreakdown = ({ yieldItem }: ValidatorBreakdownProps) => {
                             <Amount.Crypto
                               value={group.active.amount}
                               symbol={group.active.token.symbol}
+                              abbreviated
+                            />
+                          </Text>
+                        </Flex>
+                      )}
+
+                      {group.entering && hasEntering && (
+                        <Flex
+                          justify='space-between'
+                          align='center'
+                          px={2}
+                          py={1}
+                          borderRadius='md'
+                          bg='blue.900'
+                        >
+                          <HStack spacing={1}>
+                            <Text
+                              fontSize='xs'
+                              color='blue.300'
+                              fontWeight='semibold'
+                              textTransform='uppercase'
+                            >
+                              {translate('yieldXYZ.entering')}
+                            </Text>
+                            {group.entering.date && (
+                              <Text fontSize='xs' color='blue.400'>
+                                ({formatUnlockDate(group.entering.date)})
+                              </Text>
+                            )}
+                          </HStack>
+                          <Text fontSize='sm' fontWeight='medium' color='blue.200'>
+                            <Amount.Crypto
+                              value={group.entering.amount}
+                              symbol={group.entering.token.symbol}
                               abbreviated
                             />
                           </Text>

@@ -84,6 +84,15 @@ export enum YieldBalanceType {
   Locked = 'locked',
 }
 
+export type YieldBalanceValidator = {
+  address: string
+  name: string
+  logoURI: string
+  status?: string
+  apr?: number
+  commission?: number
+}
+
 export type YieldBalance = {
   address: string
   amount: string
@@ -92,18 +101,12 @@ export type YieldBalance = {
   type: YieldBalanceType
   token: YieldToken
   isEarning: boolean
+  date?: string
   pendingActions: {
     type: string
     passthrough: string
   }[]
-  validator?: {
-    address: string
-    name: string
-    logoURI: string
-    status?: string
-    apr?: number
-    commission?: number
-  }
+  validator?: YieldBalanceValidator
 }
 
 export type YieldBalancesResponse = {

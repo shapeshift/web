@@ -15,9 +15,11 @@ import {
 } from '@chakra-ui/react'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import { useTranslate } from 'react-polyglot'
+import { useSearchParams } from 'react-router-dom'
 
 import { Amount } from '@/components/Amount/Amount'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
+import { DEFAULT_NATIVE_VALIDATOR_BY_CHAIN_ID } from '@/lib/yieldxyz/constants'
 import type { AugmentedYieldBalance, AugmentedYieldDto } from '@/lib/yieldxyz/types'
 import { YieldBalanceType } from '@/lib/yieldxyz/types'
 import { useYieldBalances } from '@/react-queries/queries/yieldxyz/useYieldBalances'
@@ -32,6 +34,12 @@ export const YieldPositionCard = ({ yieldItem }: YieldPositionCardProps) => {
   const translate = useTranslate()
   const cardBg = useColorModeValue('white', 'gray.800')
   const borderColor = useColorModeValue('gray.100', 'gray.750')
+  const [searchParams] = useSearchParams()
+  const validatorParam = searchParams.get('validator')
+
+  // If no param, default to the chain's default validator (same logic as EnterExit)
+  const defaultValidator = yieldItem.chainId ? DEFAULT_NATIVE_VALIDATOR_BY_CHAIN_ID[yieldItem.chainId] : undefined
+  const selectedValidatorAddress = validatorParam || defaultValidator
 
   const { chainId } = yieldItem
   const accountId = useAppSelector(state =>
@@ -52,14 +60,40 @@ export const YieldPositionCard = ({ yieldItem }: YieldPositionCardProps) => {
 
   const isLoading = isLoadingQuery && fetchStatus !== 'idle'
 
-  const extractBalance = (type: YieldBalanceType) =>
-    balances?.find((b: AugmentedYieldBalance) => b.type === type)
+  const aggregateBalancesByType = (type: YieldBalanceType) => {
+    // Filter balances by the selected validator
+    const matchingBalances = balances?.filter((b: AugmentedYieldBalance) => {
+      if (b.type !== type) return false
+      // If we have a selected validator, only include balances for that validator
+      if (selectedValidatorAddress && b.validator) {
+        return b.validator.address === selectedValidatorAddress
+      }
+      return true
+    }) ?? []
 
-  const activeBalance = extractBalance(YieldBalanceType.Active)
-  const enteringBalance = extractBalance(YieldBalanceType.Entering)
-  const exitingBalance = extractBalance(YieldBalanceType.Exiting)
-  const withdrawableBalance = extractBalance(YieldBalanceType.Withdrawable)
-  const claimableBalance = extractBalance(YieldBalanceType.Claimable)
+    if (matchingBalances.length === 0) return undefined
+
+    const totalAmount = matchingBalances.reduce(
+      (sum, b) => sum.plus(bnOrZero(b.amount)),
+      bnOrZero(0),
+    )
+    const totalAmountUsd = matchingBalances.reduce(
+      (sum, b) => sum.plus(bnOrZero(b.amountUsd)),
+      bnOrZero(0),
+    )
+
+    return {
+      ...matchingBalances[0],
+      amount: totalAmount.toFixed(),
+      amountUsd: totalAmountUsd.toFixed(),
+    } as AugmentedYieldBalance
+  }
+
+  const activeBalance = aggregateBalancesByType(YieldBalanceType.Active)
+  const enteringBalance = aggregateBalancesByType(YieldBalanceType.Entering)
+  const exitingBalance = aggregateBalancesByType(YieldBalanceType.Exiting)
+  const withdrawableBalance = aggregateBalancesByType(YieldBalanceType.Withdrawable)
+  const claimableBalance = aggregateBalancesByType(YieldBalanceType.Claimable)
 
   const formatBalance = (balance: AugmentedYieldBalance | undefined) => {
     if (!balance) return '0'

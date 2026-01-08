@@ -44,3 +44,16 @@ export const isSupportedYieldNetwork = (network: string): network is YieldNetwor
   Object.values(CHAIN_ID_TO_YIELD_NETWORK).includes(network as YieldNetwork)
 
 export const SUI_GAS_BUFFER = '0.1'
+
+
+export const SHAPESHIFT_COSMOS_VALIDATOR_ADDRESS = 'cosmosvaloper199mlc7fr6ll5t54w7tts7f4s0cvnqgc59nmuxf'
+export const FIGMENT_SOLANA_VALIDATOR_ADDRESS = 'CcaHc2L43ZWjwCHART3oZoJvHLAe9hzT2DJNUpBzoTN1'
+export const FIGMENT_SUI_VALIDATOR_ADDRESS = '0x8ecaf4b95b3c82c712d3ddb22e7da88d2286c4653f3753a86b6f7a216a3ca518'
+export const FIGMENT_MONAD_VALIDATOR_ADDRESS = '129'
+
+export const DEFAULT_NATIVE_VALIDATOR_BY_CHAIN_ID: Partial<Record<ChainId, string>> = {
+  [cosmosChainId]: SHAPESHIFT_COSMOS_VALIDATOR_ADDRESS,
+  [solanaChainId]: FIGMENT_SOLANA_VALIDATOR_ADDRESS,
+  [suiChainId]: FIGMENT_SUI_VALIDATOR_ADDRESS,
+  [monadChainId]: FIGMENT_MONAD_VALIDATOR_ADDRESS,
+}

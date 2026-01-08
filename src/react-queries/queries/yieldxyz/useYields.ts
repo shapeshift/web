@@ -12,8 +12,8 @@ import { useAppSelector } from '@/state/store'
 
 export const useYields = (params?: { network?: string; provider?: string }) => {
 
-  const { data: queryData, ...queryResult } = useQuery({
-    queryKey: ['yieldxyz', 'yields', params],
+  const { data: allYields, ...queryResult } = useQuery({
+    queryKey: ['yieldxyz', 'yields'],
     queryFn: async () => {
       let allItems: YieldDto[] = []
       let offset = 0
@@ -21,7 +21,6 @@ export const useYields = (params?: { network?: string; provider?: string }) => {
 
       while (true) {
         const data = await getYields({
-          ...params,
           networks: SUPPORTED_YIELD_NETWORKS as string[],
           limit,
           offset,
@@ -40,40 +39,9 @@ export const useYields = (params?: { network?: string; provider?: string }) => {
         return tvlB - tvlA
       })
 
-      const all = qualityYields
+      return qualityYields
         .filter(item => isSupportedYieldNetwork(item.network))
         .map(augmentYield)
-
-      const byId = all.reduce((acc, item) => {
-        acc[item.id] = item
-        return acc
-      }, {} as Record<string, AugmentedYieldDto>)
-
-      const ids = all.map(item => item.id)
-
-      const byAssetSymbol: Record<string, AugmentedYieldDto[]> = {}
-      const networksSet = new Set<string>()
-      const providersSet = new Set<string>()
-
-      all.forEach(item => {
-        // Group by Symbol
-        const symbol = (item.inputTokens?.[0] || item.token).symbol
-        if (symbol) {
-          if (!byAssetSymbol[symbol]) byAssetSymbol[symbol] = []
-          byAssetSymbol[symbol].push(item)
-        }
-
-        // Collect Filters
-        networksSet.add(item.network)
-        providersSet.add(item.providerId)
-      })
-
-      const meta = {
-        networks: Array.from(networksSet),
-        providers: Array.from(providersSet),
-      }
-
-      return { all, byId, ids, byAssetSymbol, meta }
     },
     staleTime: 5 * 60 * 1000,
   })
@@ -81,9 +49,56 @@ export const useYields = (params?: { network?: string; provider?: string }) => {
   const assets = useAppSelector(selectAssets)
 
   const data = useMemo(() => {
-    if (!queryData) return undefined
+    if (!allYields) return undefined
 
-    const { byAssetSymbol } = queryData
+    // Apply Filters Client-Side
+    let filtered = allYields
+    if (params?.network) {
+      filtered = filtered.filter(y => y.network === params.network)
+    }
+    if (params?.provider) {
+      filtered = filtered.filter(y => y.providerId === params.provider)
+    }
+
+    // Build Indices
+    const byId = filtered.reduce((acc, item) => {
+      acc[item.id] = item
+      return acc
+    }, {} as Record<string, AugmentedYieldDto>)
+
+    const ids = filtered.map(item => item.id)
+
+    const byAssetSymbol: Record<string, AugmentedYieldDto[]> = {}
+    const networksSet = new Set<string>()
+    const providersSet = new Set<string>()
+
+    // For metadata, we might want ALL networks/providers available, 
+    // but the UI typically expects meta to reflect the current data?
+    // Actually for filters, we usually want Global meta. 
+    // But let's stick to current behavior: meta reflects the returned data.
+    // If we want global filters, we should probably return global meta separately.
+    // For now, let's keep consistency with previous behavior.
+
+    // Actually, to fix "dropdowns disappear", we should populate meta from allYields!
+    const globalNetworksSet = new Set<string>()
+    const globalProvidersSet = new Set<string>()
+    allYields.forEach(item => {
+      globalNetworksSet.add(item.network)
+      globalProvidersSet.add(item.providerId)
+    })
+
+    filtered.forEach(item => {
+      // Group by Symbol
+      const symbol = (item.inputTokens?.[0] || item.token).symbol
+      if (symbol) {
+        if (!byAssetSymbol[symbol]) byAssetSymbol[symbol] = []
+        byAssetSymbol[symbol].push(item)
+      }
+
+      // Collect Filters (Scoped)
+      networksSet.add(item.network)
+      providersSet.add(item.providerId)
+    })
 
     const symbolToAssetMap = new Map<string, Asset>()
     Object.values(assets).forEach(asset => {
@@ -104,6 +119,12 @@ export const useYields = (params?: { network?: string; provider?: string }) => {
 
         if (currHasAsset && !prevHasAsset) return current
         if (prevHasAsset && !currHasAsset) return prev
+
+        // Prefer Native Assets (slip44) over tokens
+        const prevIsNative = prevToken.assetId?.includes('slip44')
+        const currIsNative = currToken.assetId?.includes('slip44')
+        if (currIsNative && !prevIsNative) return current
+        if (prevIsNative && !currIsNative) return prev
 
         if (currToken.name && prevToken.name) {
           if (currToken.name.length < prevToken.name.length) return current
@@ -136,13 +157,18 @@ export const useYields = (params?: { network?: string; provider?: string }) => {
     })
 
     return {
-      ...queryData,
+      all: filtered,
+      byId,
+      ids,
+      byAssetSymbol,
       meta: {
-        ...queryData.meta,
+        // Use GLOBAL networks/providers so dropdowns don't shrink when filtered
+        networks: Array.from(globalNetworksSet),
+        providers: Array.from(globalProvidersSet),
         assetMetadata,
       },
     }
-  }, [queryData, assets])
+  }, [allYields, assets, params?.network, params?.provider])
 
   return { ...queryResult, data }
 }

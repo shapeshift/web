@@ -46,14 +46,18 @@ export const YieldStats = ({ yieldItem }: YieldStatsProps) => {
     if (yieldItem.mechanics.type !== 'staking') return null
 
     // Figment addresses
-    const FIGMENT_COSMOS_VALIDATOR_ADDRESS = 'cosmosvaloper1hjct6q7npsspsg3dgvzk3sdf89spmlpfdn6m9d'
+    const FIGMENT_COSMOS_VALIDATOR_ADDRESS = 'cosmosvaloper199mlc7fr6ll5t54w7tts7f4s0cvnqgc59nmuxf'
     const FIGMENT_SOLANA_VALIDATOR_ADDRESS = 'CcaHc2L43ZWjwCHART3oZoJvHLAe9hzT2DJNUpBzoTN1'
-    const FIGMENT_SUI_VALIDATOR_ADDRESS = '0x8ecaf4b95b3c82c712d3ddb22e7da88d2286c4653f3753a86b6f7a216a3ca518'
+    const FIGMENT_SUI_VALIDATOR_ADDRESS =
+      '0x8ecaf4b95b3c82c712d3ddb22e7da88d2286c4653f3753a86b6f7a216a3ca518'
 
     let targetValidatorAddress = ''
-    if (yieldItem.chainId === cosmosChainId) targetValidatorAddress = FIGMENT_COSMOS_VALIDATOR_ADDRESS
-    if (yieldItem.id === 'solana-sol-native-multivalidator-staking') targetValidatorAddress = FIGMENT_SOLANA_VALIDATOR_ADDRESS
-    if (yieldItem.network === YieldNetwork.Sui) targetValidatorAddress = FIGMENT_SUI_VALIDATOR_ADDRESS
+    if (yieldItem.chainId === cosmosChainId)
+      targetValidatorAddress = FIGMENT_COSMOS_VALIDATOR_ADDRESS
+    if (yieldItem.id === 'solana-sol-native-multivalidator-staking')
+      targetValidatorAddress = FIGMENT_SOLANA_VALIDATOR_ADDRESS
+    if (yieldItem.network === YieldNetwork.Sui)
+      targetValidatorAddress = FIGMENT_SUI_VALIDATOR_ADDRESS
 
     const validator = validators?.find(v => v.address === targetValidatorAddress)
 
@@ -159,7 +163,11 @@ export const YieldStats = ({ yieldItem }: YieldStatsProps) => {
                   </Flex>
                   <Flex alignItems='center' gap={2}>
                     {validatorMetadata.logoURI && (
-                      <Avatar size='xs' src={validatorMetadata.logoURI} name={validatorMetadata.name} />
+                      <Avatar
+                        size='xs'
+                        src={validatorMetadata.logoURI}
+                        name={validatorMetadata.name}
+                      />
                     )}
                     <Text fontSize='sm' fontWeight='medium'>
                       {validatorMetadata.name}

@@ -29,12 +29,7 @@ import { selectPortfolioAccountMetadataByAccountId } from '@/state/slices/portfo
 import { selectFeeAssetByChainId, selectFirstAccountIdByChainId } from '@/state/slices/selectors'
 import { useAppDispatch, useAppSelector } from '@/state/store'
 
-// https://docs.yield.xyz/docs/cosmos-atom-native-staking
-const FIGMENT_COSMOS_VALIDATOR_ADDRESS = 'cosmosvaloper1hjct6q7npsspsg3dgvzk3sdf89spmlpfdn6m9d'
-const FIGMENT_SOLANA_VALIDATOR_ADDRESS = 'CcaHc2L43ZWjwCHART3oZoJvHLAe9hzT2DJNUpBzoTN1'
-const FIGMENT_MONAD_VALIDATOR_ADDRESS = '129'
-const FIGMENT_SUI_VALIDATOR_ADDRESS =
-  '0x8ecaf4b95b3c82c712d3ddb22e7da88d2286c4653f3753a86b6f7a216a3ca518'
+import { DEFAULT_NATIVE_VALIDATOR_BY_CHAIN_ID } from '@/lib/yieldxyz/constants'
 
 export enum ModalStep {
   InProgress = 'in_progress',
@@ -97,6 +92,7 @@ type UseYieldTransactionFlowProps = {
   assetSymbol: string
   onClose: () => void
   isOpen?: boolean
+  validatorAddress?: string
 }
 
 export const useYieldTransactionFlow = ({
@@ -106,6 +102,7 @@ export const useYieldTransactionFlow = ({
   assetSymbol,
   onClose,
   isOpen,
+  validatorAddress,
 }: UseYieldTransactionFlowProps) => {
   const dispatch = useAppDispatch()
   const queryClient = useQueryClient()
@@ -172,18 +169,11 @@ export const useYieldTransactionFlow = ({
       args.receiverAddress = userAddress
     }
 
-    if (fieldNames.has('validatorAddress')) {
-      if (yieldChainId === cosmosChainId) {
-        args.validatorAddress = FIGMENT_COSMOS_VALIDATOR_ADDRESS
-      }
-      if (yieldItem.id === 'solana-sol-native-multivalidator-staking') {
-        args.validatorAddress = FIGMENT_SOLANA_VALIDATOR_ADDRESS
-      }
-      if (yieldItem.network === 'monad') {
-        args.validatorAddress = FIGMENT_MONAD_VALIDATOR_ADDRESS
-      }
-      if (yieldItem.network === 'sui') {
-        args.validatorAddress = FIGMENT_SUI_VALIDATOR_ADDRESS
+    if (fieldNames.has('validatorAddress') && yieldChainId) {
+      if (validatorAddress) {
+        args.validatorAddress = validatorAddress
+      } else if (DEFAULT_NATIVE_VALIDATOR_BY_CHAIN_ID[yieldChainId]) {
+        args.validatorAddress = DEFAULT_NATIVE_VALIDATOR_BY_CHAIN_ID[yieldChainId]
       }
     }
 
@@ -192,7 +182,7 @@ export const useYieldTransactionFlow = ({
     }
 
     return args
-  }, [yieldItem, action, amount, userAddress, yieldChainId])
+  }, [yieldItem, action, amount, userAddress, yieldChainId, validatorAddress])
 
   // Prefetch Quote using useQuery
   const {
@@ -244,7 +234,8 @@ export const useYieldTransactionFlow = ({
     const cosmosStakeArgs: CosmosStakeArgs | undefined =
       yieldChainId === cosmosChainId
         ? {
-          validator: FIGMENT_COSMOS_VALIDATOR_ADDRESS,
+          validator:
+            validatorAddress || (DEFAULT_NATIVE_VALIDATOR_BY_CHAIN_ID[cosmosChainId] ?? ''),
           amountCryptoBaseUnit: bnOrZero(amount)
             .times(bnOrZero(10).pow(yieldItem.token.decimals))
             .toFixed(0),

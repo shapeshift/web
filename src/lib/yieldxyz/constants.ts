@@ -64,6 +64,8 @@ export const COSMOS_SHAPESHIFT_FALLBACK_APR = '0.1425'
 
 export const COSMOS_DECIMALS = 6
 
+export const COSMOS_ATOM_NATIVE_STAKING_YIELD_ID = 'cosmos-atom-native-staking'
+
 export const DEFAULT_NATIVE_VALIDATOR_BY_CHAIN_ID: Partial<Record<ChainId, string>> = {
   [cosmosChainId]: SHAPESHIFT_COSMOS_VALIDATOR_ADDRESS,
 }

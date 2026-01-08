@@ -34,7 +34,7 @@ import type {
   AggregatedBalance,
   NormalizedYieldBalances,
   ValidatorSummary,
-} from '@/react-queries/queries/yieldxyz/useYieldBalances'
+} from '@/react-queries/queries/yieldxyz/useAllYieldBalances'
 import {
   selectAccountIdByAccountNumberAndChainId,
   selectUserCurrencyToUsdRate,

@@ -23,8 +23,10 @@ import { Amount } from '@/components/Amount/Amount'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { DEFAULT_NATIVE_VALIDATOR_BY_CHAIN_ID } from '@/lib/yieldxyz/constants'
 import type { AugmentedYieldDto } from '@/lib/yieldxyz/types'
-import type { AugmentedYieldBalanceWithAccountId } from '@/react-queries/queries/yieldxyz/useAllYieldBalances'
-import type { NormalizedYieldBalances } from '@/react-queries/queries/yieldxyz/useYieldBalances'
+import type {
+  AugmentedYieldBalanceWithAccountId,
+  NormalizedYieldBalances,
+} from '@/react-queries/queries/yieldxyz/useAllYieldBalances'
 import { useYieldValidators } from '@/react-queries/queries/yieldxyz/useYieldValidators'
 import {
   selectMarketDataByAssetIdUserCurrency,

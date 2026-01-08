@@ -31,8 +31,10 @@ import { GradientApy } from '@/pages/Yields/components/GradientApy'
 import { YieldActionModal } from '@/pages/Yields/components/YieldActionModal'
 import { YieldValidatorSelectModal } from '@/pages/Yields/components/YieldValidatorSelectModal'
 import { useYieldAccount } from '@/pages/Yields/YieldAccountContext'
-import type { AugmentedYieldBalanceWithAccountId } from '@/react-queries/queries/yieldxyz/useAllYieldBalances'
-import type { NormalizedYieldBalances } from '@/react-queries/queries/yieldxyz/useYieldBalances'
+import type {
+  AugmentedYieldBalanceWithAccountId,
+  NormalizedYieldBalances,
+} from '@/react-queries/queries/yieldxyz/useAllYieldBalances'
 import { useYieldValidators } from '@/react-queries/queries/yieldxyz/useYieldValidators'
 import {
   selectAccountIdByAccountNumberAndChainId,
@@ -164,8 +166,8 @@ export const YieldEnterExit = memo(
       }
     }, [validators, selectedValidatorAddress, balances])
 
-    const inputToken = useMemo(() => yieldItem.inputTokens[0], [yieldItem.inputTokens])
-    const inputTokenAssetId = useMemo(() => inputToken?.assetId, [inputToken?.assetId])
+    const inputToken = yieldItem.inputTokens[0]
+    const inputTokenAssetId = inputToken?.assetId
 
     const inputTokenBalance = useAppSelector(state =>
       inputTokenAssetId && accountId
@@ -176,20 +178,14 @@ export const YieldEnterExit = memo(
         : '0',
     )
 
-    const minDeposit = useMemo(
-      () => yieldItem.mechanics?.entryLimits?.minimum,
-      [yieldItem.mechanics?.entryLimits?.minimum],
-    )
+    const minDeposit = yieldItem.mechanics?.entryLimits?.minimum
 
     const isBelowMinimum = useMemo(() => {
       if (!cryptoAmount || !minDeposit) return false
       return bnOrZero(cryptoAmount).lt(minDeposit)
     }, [cryptoAmount, minDeposit])
 
-    const isLoading = useMemo(
-      () => isBalancesLoading || isQuoteLoading,
-      [isBalancesLoading, isQuoteLoading],
-    )
+    const isLoading = isBalancesLoading || isQuoteLoading
 
     const activeBalance = useMemo(
       () =>
@@ -285,18 +281,11 @@ export const YieldEnterExit = memo(
       [cryptoAmount, marketData?.price],
     )
 
-    const hasAmount = useMemo(() => bnOrZero(cryptoAmount).gt(0), [cryptoAmount])
-    const inputSymbol = useMemo(() => inputToken?.symbol ?? '', [inputToken?.symbol])
+    const hasAmount = bnOrZero(cryptoAmount).gt(0)
+    const inputSymbol = inputToken?.symbol ?? ''
 
-    const uniqueValidatorCount = useMemo(() => {
-      if (!balances) return 0
-      return balances.validatorAddresses.length
-    }, [balances])
-
-    const shouldShowValidatorPicker = useMemo(
-      () => uniqueValidatorCount > 1,
-      [uniqueValidatorCount],
-    )
+    const uniqueValidatorCount = balances ? balances.validatorAddresses.length : 0
+    const shouldShowValidatorPicker = uniqueValidatorCount > 1
 
     const enterTabSelectedStyle = useMemo(
       () => ({
@@ -361,10 +350,10 @@ export const YieldEnterExit = memo(
       [modalAction, inputToken?.symbol, yieldItem.token.symbol],
     )
 
-    const enterTabDisabled = useMemo(() => !yieldItem.status.enter, [yieldItem.status.enter])
-    const exitTabDisabled = useMemo(() => !yieldItem.status.exit, [yieldItem.status.exit])
-    const enterTabOpacity = useMemo(() => (enterTabDisabled ? 0.5 : 1), [enterTabDisabled])
-    const exitTabOpacity = useMemo(() => (exitTabDisabled ? 0.5 : 1), [exitTabDisabled])
+    const enterTabDisabled = !yieldItem.status.enter
+    const exitTabDisabled = !yieldItem.status.exit
+    const enterTabOpacity = enterTabDisabled ? 0.5 : 1
+    const exitTabOpacity = exitTabDisabled ? 0.5 : 1
 
     const isPreferredValidator = useMemo(
       () => (validatorMetadata as ValidatorDto | undefined)?.preferred === true,
@@ -386,7 +375,7 @@ export const YieldEnterExit = memo(
       [estimatedYearlyEarnings, inputSymbol],
     )
 
-    const estimatedEarningsMarginBottom = useMemo(() => (hasAmount ? 2 : 0), [hasAmount])
+    const estimatedEarningsMarginBottom = hasAmount ? 2 : 0
 
     const validatorPickerContent = useMemo(() => {
       if (!shouldShowValidatorPicker) return null

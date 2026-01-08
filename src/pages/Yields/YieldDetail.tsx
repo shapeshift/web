@@ -22,8 +22,8 @@ import { ValidatorBreakdown } from '@/pages/Yields/components/ValidatorBreakdown
 import { YieldEnterExit } from '@/pages/Yields/components/YieldEnterExit'
 import { YieldPositionCard } from '@/pages/Yields/components/YieldPositionCard'
 import { YieldStats } from '@/pages/Yields/components/YieldStats'
+import { useAllYieldBalances } from '@/react-queries/queries/yieldxyz/useAllYieldBalances'
 import { useYield } from '@/react-queries/queries/yieldxyz/useYield'
-import { useYieldBalances } from '@/react-queries/queries/yieldxyz/useYieldBalances'
 import { useYieldProviders } from '@/react-queries/queries/yieldxyz/useYieldProviders'
 import { useYieldValidators } from '@/react-queries/queries/yieldxyz/useYieldValidators'
 
@@ -57,18 +57,10 @@ export const YieldDetail = memo(() => {
   const heroSubtleColor = useColorModeValue('gray.600', 'gray.400')
   const heroIconBorderColor = useColorModeValue('gray.200', 'gray.800')
 
-  const { data: balances, isFetching: isBalancesFetching } = useYieldBalances({
-    yieldId: yieldItem?.id ?? '',
-  })
-  const isBalancesLoading = useMemo(
-    () => !balances && isBalancesFetching,
-    [balances, isBalancesFetching],
-  )
-
-  const uniqueValidatorCount = useMemo(() => {
-    if (!balances) return 0
-    return balances.validatorAddresses.length
-  }, [balances])
+  const { data: allBalancesData, isFetching: isBalancesFetching } = useAllYieldBalances()
+  const balances = yieldItem?.id ? allBalancesData?.normalized[yieldItem.id] : undefined
+  const isBalancesLoading = !allBalancesData && isBalancesFetching
+  const uniqueValidatorCount = balances?.validatorAddresses.length ?? 0
 
   useEffect(() => {
     if (!yieldId) navigate('/yields')

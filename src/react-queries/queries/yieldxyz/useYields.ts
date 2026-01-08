@@ -1,13 +1,42 @@
-import type { Asset } from '@shapeshiftoss/types'
 import { useQuery } from '@tanstack/react-query'
 import { useMemo } from 'react'
 
+import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { fetchYields } from '@/lib/yieldxyz/api'
 import { augmentYield } from '@/lib/yieldxyz/augment'
 import { isSupportedYieldNetwork, SUPPORTED_YIELD_NETWORKS } from '@/lib/yieldxyz/constants'
-import type { AugmentedYieldDto, YieldDto } from '@/lib/yieldxyz/types'
+import type { AugmentedYieldDto, YieldAssetGroup, YieldDto } from '@/lib/yieldxyz/types'
 import { selectAssets } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
+
+// Find the "best" yield in a group to use as representative for icon/name
+// Priority: has known assetId > is native asset > shorter name (less verbose)
+const findRepresentativeYield = (
+  yields: AugmentedYieldDto[],
+  assets: Record<string, unknown>,
+): AugmentedYieldDto => {
+  return yields.reduce((prev, current) => {
+    const prevToken = prev.inputTokens?.[0] || prev.token
+    const currToken = current.inputTokens?.[0] || current.token
+
+    const prevHasAsset = prevToken.assetId && assets[prevToken.assetId]
+    const currHasAsset = currToken.assetId && assets[currToken.assetId]
+
+    if (currHasAsset && !prevHasAsset) return current
+    if (prevHasAsset && !currHasAsset) return prev
+
+    const prevIsNative = prevToken.assetId?.includes('slip44')
+    const currIsNative = currToken.assetId?.includes('slip44')
+    if (currIsNative && !prevIsNative) return current
+    if (prevIsNative && !currIsNative) return prev
+
+    if (currToken.name && prevToken.name) {
+      if (currToken.name.length < prevToken.name.length) return current
+      if (prevToken.name.length < currToken.name.length) return prev
+    }
+    return prev
+  }, yields[0])
+}
 
 export const useYields = (params?: { network?: string; provider?: string }) => {
   const { data: allYields, ...queryResult } = useQuery({
@@ -71,6 +100,7 @@ export const useYields = (params?: { network?: string; provider?: string }) => {
     const globalNetworks = [...new Set(allYields.map(item => item.network))]
     const globalProviders = [...new Set(allYields.map(item => item.providerId))]
 
+    // Group yields by asset symbol
     const byAssetSymbol = filtered.reduce<Record<string, AugmentedYieldDto[]>>((acc, item) => {
       const symbol = (item.inputTokens?.[0] || item.token).symbol
       if (symbol) {
@@ -80,63 +110,35 @@ export const useYields = (params?: { network?: string; provider?: string }) => {
       return acc
     }, {})
 
-    const symbolToAssetMap = Object.values(assets).reduce<Map<string, Asset>>((map, asset) => {
-      if (asset?.symbol && !map.has(asset.symbol)) {
-        map.set(asset.symbol, asset)
-      }
-      return map
-    }, new Map())
-
-    const assetMetadata = Object.fromEntries(
-      Object.entries(byAssetSymbol).map(([symbol, yields]) => {
-        const bestYield = yields.reduce((prev, current) => {
-          const prevToken = prev.inputTokens?.[0] || prev.token
-          const currToken = current.inputTokens?.[0] || current.token
-
-          const prevHasAsset = prevToken.assetId && assets[prevToken.assetId]
-          const currHasAsset = currToken.assetId && assets[currToken.assetId]
-
-          if (currHasAsset && !prevHasAsset) return current
-          if (prevHasAsset && !currHasAsset) return prev
-
-          const prevIsNative = prevToken.assetId?.includes('slip44')
-          const currIsNative = currToken.assetId?.includes('slip44')
-          if (currIsNative && !prevIsNative) return current
-          if (prevIsNative && !currIsNative) return prev
-
-          if (currToken.name && prevToken.name) {
-            if (currToken.name.length < prevToken.name.length) return current
-            if (prevToken.name.length < currToken.name.length) return prev
-          }
-          return prev
-        }, yields[0])
-
+    // Pre-compute asset groups with all derived metadata
+    // Consumers no longer need to compute this themselves
+    const assetGroups: YieldAssetGroup[] = Object.entries(byAssetSymbol).map(
+      ([symbol, groupYields]) => {
+        const bestYield = findRepresentativeYield(groupYields, assets)
         const representativeToken = bestYield.inputTokens?.[0] || bestYield.token
-        const defaultIcon = representativeToken.logoURI || bestYield.metadata.logoURI || ''
 
-        const resolvedAsset = (() => {
-          if (representativeToken.assetId && assets[representativeToken.assetId]) {
-            return {
-              assetId: representativeToken.assetId,
-              icon: assets[representativeToken.assetId]?.icon ?? defaultIcon,
-            }
-          }
-          const localAsset = symbolToAssetMap.get(symbol)
-          if (localAsset) {
-            return { assetId: localAsset.assetId, icon: localAsset.icon ?? defaultIcon }
-          }
-          return { assetId: undefined, icon: defaultIcon }
-        })()
+        // Icon resolution: prefer known asset icon, fallback to token logoURI
+        const knownAsset = representativeToken.assetId
+          ? (assets[representativeToken.assetId] as { icon?: string } | undefined)
+          : undefined
+        const icon =
+          knownAsset?.icon || representativeToken.logoURI || bestYield.metadata.logoURI || ''
 
-        return [
+        return {
           symbol,
-          {
-            assetName: representativeToken.name || symbol,
-            assetIcon: resolvedAsset.icon,
-            assetId: resolvedAsset.assetId,
-          },
-        ] as const
-      }),
+          name: representativeToken.name || symbol,
+          icon,
+          assetId: representativeToken.assetId,
+          yields: groupYields,
+          count: groupYields.length,
+          maxApy: Math.max(0, ...groupYields.map(y => y.rewardRate.total)),
+          totalTvlUsd: groupYields
+            .reduce((acc, y) => acc.plus(bnOrZero(y.statistics?.tvlUsd)), bnOrZero(0))
+            .toFixed(),
+          providerIds: [...new Set(groupYields.map(y => y.providerId))],
+          chainIds: [...new Set(groupYields.map(y => y.chainId).filter(Boolean))] as string[],
+        }
+      },
     )
 
     return {
@@ -144,10 +146,10 @@ export const useYields = (params?: { network?: string; provider?: string }) => {
       byId,
       ids,
       byAssetSymbol,
+      assetGroups,
       meta: {
         networks: globalNetworks,
         providers: globalProviders,
-        assetMetadata,
       },
     }
   }, [allYields, assets, params?.network, params?.provider])

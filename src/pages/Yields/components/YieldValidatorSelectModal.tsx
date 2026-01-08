@@ -29,6 +29,7 @@ import { Amount } from '@/components/Amount/Amount'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { SHAPESHIFT_COSMOS_VALIDATOR_ADDRESS } from '@/lib/yieldxyz/constants'
 import type { ValidatorDto } from '@/lib/yieldxyz/types'
+import { searchValidators, sortValidators, toUserCurrency } from '@/lib/yieldxyz/utils'
 import { GradientApy } from '@/pages/Yields/components/GradientApy'
 import type { AugmentedYieldBalanceWithAccountId } from '@/react-queries/queries/yieldxyz/useAllYieldBalances'
 import { selectUserCurrencyToUsdRate } from '@/state/slices/selectors'
@@ -53,71 +54,68 @@ export const YieldValidatorSelectModal = memo(
     const borderColor = useColorModeValue('gray.100', 'gray.750')
     const hoverBg = useColorModeValue('gray.50', 'whiteAlpha.50')
 
-    const validatorsMap = useMemo(() => {
-      return new Map(validators.map(v => [v.address, v]))
-    }, [validators])
+    const balanceMap = useMemo(() => {
+      if (!balances) return new Map<string, string>()
+      const map = new Map<string, string>()
+      for (const balance of balances) {
+        if (!balance.validator || bnOrZero(balance.amount).lte(0)) continue
+        const addr = balance.validator.address
+        map.set(
+          addr,
+          bnOrZero(map.get(addr) || '0')
+            .plus(balance.amountUsd)
+            .toFixed(),
+        )
+      }
+      return map
+    }, [balances])
 
     const myValidators = useMemo(() => {
       if (!balances) return []
-
-      const validBalances = balances.filter(b => b.validator && bnOrZero(b.amount).gt(0))
-
-      const uniqueValidators = validBalances.reduce<Map<string, ValidatorDto>>((acc, balance) => {
-        const address = balance.validator!.address
-        if (acc.has(address)) return acc
-
-        const fullValidator = validatorsMap.get(address)
-        const validator = fullValidator ?? {
-          address: balance.validator!.address,
-          name: balance.validator!.name,
-          logoURI: balance.validator!.logoURI,
-          preferred: false,
-          votingPower: 0,
-          commission: balance.validator!.commission ?? 0,
-          status: balance.validator!.status ?? 'active',
-          tvl: '0',
-          tvlRaw: '0',
-          rewardRate: {
-            total: balance.validator!.apr ?? 0,
-            rateType: 'APR' as const,
-            components: [],
-          },
-        }
-
-        return new Map([...acc, [address, validator]])
-      }, new Map())
-
-      const list = Array.from(uniqueValidators.values())
-
-      if (!searchQuery) return list
-
-      const search = searchQuery.toLowerCase()
-      return list.filter(
-        v =>
-          (v.name || '').toLowerCase().includes(search) ||
-          (v.address || '').toLowerCase().includes(search),
-      )
-    }, [balances, validatorsMap, searchQuery])
-
-    const filteredValidators = useMemo(() => {
-      return validators.filter(v => {
-        const search = searchQuery.toLowerCase()
-        return (
-          (v.name || '').toLowerCase().includes(search) ||
-          (v.address || '').toLowerCase().includes(search)
+      const seen = new Set<string>()
+      const result: ValidatorDto[] = []
+      for (const balance of balances) {
+        if (
+          !balance.validator ||
+          bnOrZero(balance.amount).lte(0) ||
+          seen.has(balance.validator.address)
         )
-      })
-    }, [validators, searchQuery])
+          continue
+        seen.add(balance.validator.address)
+        const full = validators.find(v => v.address === balance.validator!.address)
+        result.push(
+          full ?? {
+            address: balance.validator.address,
+            name: balance.validator.name,
+            logoURI: balance.validator.logoURI,
+            preferred: false,
+            votingPower: 0,
+            commission: balance.validator.commission ?? 0,
+            status: balance.validator.status ?? 'active',
+            tvl: '0',
+            tvlRaw: '0',
+            rewardRate: {
+              total: balance.validator.apr ?? 0,
+              rateType: 'APR' as const,
+              components: [],
+            },
+          },
+        )
+      }
+      return result
+    }, [balances, validators])
 
-    const allValidatorsSorted = useMemo(() => {
-      return [...filteredValidators].sort((a, b) => {
-        if (a.address === SHAPESHIFT_COSMOS_VALIDATOR_ADDRESS) return -1
-        if (b.address === SHAPESHIFT_COSMOS_VALIDATOR_ADDRESS) return 1
-        if (a.preferred && !b.preferred) return -1
-        if (!a.preferred && b.preferred) return 1
-        return 0
-      })
-    }, [filteredValidators])
+    const allValidators = validators
+
+    const filteredAll = useMemo(
+      () => sortValidators(searchValidators(allValidators, searchQuery)),
+      [allValidators, searchQuery],
+    )
+
+    const filteredMy = useMemo(
+      () => searchValidators(myValidators, searchQuery),
+      [myValidators, searchQuery],
+    )
 
     const handleSelect = useCallback(
       (address: string) => {
@@ -127,20 +125,16 @@ export const YieldValidatorSelectModal = memo(
       [onSelect, onClose],
     )
 
-    const handleSearchChange = useCallback((e: ChangeEvent<HTMLInputElement>) => {
-      setSearchQuery(e.target.value)
-    }, [])
+    const handleSearchChange = useCallback(
+      (e: ChangeEvent<HTMLInputElement>) => setSearchQuery(e.target.value),
+      [],
+    )
 
     const renderValidatorRow = useCallback(
       (v: ValidatorDto) => {
-        const apr = v.rewardRate?.total ? (v.rewardRate.total * 100).toFixed(2) + '%' : null
-
-        const totalUsd = (balances || [])
-          .filter(b => b.validator?.address === v.address)
-          .reduce((acc, b) => acc.plus(bnOrZero(b.amountUsd)), bnOrZero(0))
-        const totalUserCurrency = totalUsd.times(userCurrencyToUsdRate).toFixed()
-
-        const hasBalance = totalUsd?.gt(0)
+        const apr = v.rewardRate?.total ? `${(v.rewardRate.total * 100).toFixed(2)}%` : null
+        const usd = balanceMap.get(v.address) || '0'
+        const hasBalance = bnOrZero(usd).gt(0)
 
         return (
           <Flex
@@ -176,7 +170,7 @@ export const YieldValidatorSelectModal = memo(
                 </Flex>
                 {hasBalance && (
                   <Text fontSize='xs' color='text.subtle'>
-                    <Amount.Fiat value={totalUserCurrency} />
+                    <Amount.Fiat value={toUserCurrency(usd, userCurrencyToUsdRate)} />
                   </Text>
                 )}
               </Box>
@@ -191,67 +185,21 @@ export const YieldValidatorSelectModal = memo(
           </Flex>
         )
       },
-      [balances, userCurrencyToUsdRate, hoverBg, handleSelect, translate],
+      [balanceMap, userCurrencyToUsdRate, hoverBg, handleSelect, translate],
     )
-
-    const searchPlaceholder = useMemo(() => translate('yieldXYZ.searchValidator'), [translate])
-
-    const allValidatorsTabLabel = useMemo(
-      () => `${translate('yieldXYZ.allValidators')} (${validators.length})`,
-      [translate, validators.length],
-    )
-
-    const myValidatorsTabLabel = useMemo(
-      () => `${translate('yieldXYZ.myValidators')} (${myValidators.length})`,
-      [translate, myValidators.length],
-    )
-
-    const noValidatorsFoundText = useMemo(
-      () => translate('yieldXYZ.noValidatorsFound'),
-      [translate],
-    )
-
-    const noActiveValidatorsText = useMemo(
-      () => translate('yieldXYZ.noActiveValidators'),
-      [translate],
-    )
-
-    const allValidatorsContent = useMemo(() => {
-      if (allValidatorsSorted.length === 0) {
-        return (
-          <Text p={4} textAlign='center' color='gray.500'>
-            {noValidatorsFoundText}
-          </Text>
-        )
-      }
-      return allValidatorsSorted.map(renderValidatorRow)
-    }, [allValidatorsSorted, renderValidatorRow, noValidatorsFoundText])
-
-    const myValidatorsContent = useMemo(() => {
-      if (myValidators.length === 0) {
-        return (
-          <Text p={4} textAlign='center' color='gray.500'>
-            {noActiveValidatorsText}
-          </Text>
-        )
-      }
-      return myValidators.map(renderValidatorRow)
-    }, [myValidators, renderValidatorRow, noActiveValidatorsText])
-
-    const modalHeader = useMemo(() => translate('yieldXYZ.selectValidator'), [translate])
 
     return (
       <Modal isOpen={isOpen} onClose={onClose} scrollBehavior='inside' size='lg'>
         <ModalOverlay backdropFilter='blur(5px)' />
         <ModalContent bg={bgColor} borderColor={borderColor}>
-          <ModalHeader>{modalHeader}</ModalHeader>
+          <ModalHeader>{translate('yieldXYZ.selectValidator')}</ModalHeader>
           <ModalCloseButton />
           <ModalBody p={0}>
             <Box px={6} mb={4}>
               <InputGroup>
                 <InputLeftElement pointerEvents='none'>{searchIcon}</InputLeftElement>
                 <Input
-                  placeholder={searchPlaceholder}
+                  placeholder={translate('yieldXYZ.searchValidator')}
                   value={searchQuery}
                   onChange={handleSearchChange}
                 />
@@ -259,18 +207,30 @@ export const YieldValidatorSelectModal = memo(
             </Box>
             <Tabs isFitted variant='enclosed'>
               <TabList px={6}>
-                <Tab>{allValidatorsTabLabel}</Tab>
-                <Tab>{myValidatorsTabLabel}</Tab>
+                <Tab>{`${translate('yieldXYZ.allValidators')} (${filteredAll.length})`}</Tab>
+                <Tab>{`${translate('yieldXYZ.myValidators')} (${filteredMy.length})`}</Tab>
               </TabList>
               <TabPanels>
                 <TabPanel px={2}>
                   <VStack align='stretch' spacing={0}>
-                    {allValidatorsContent}
+                    {filteredAll.length === 0 ? (
+                      <Text p={4} textAlign='center' color='gray.500'>
+                        {translate('yieldXYZ.noValidatorsFound')}
+                      </Text>
+                    ) : (
+                      filteredAll.map(renderValidatorRow)
+                    )}
                   </VStack>
                 </TabPanel>
                 <TabPanel px={2}>
                   <VStack align='stretch' spacing={0}>
-                    {myValidatorsContent}
+                    {filteredMy.length === 0 ? (
+                      <Text p={4} textAlign='center' color='gray.500'>
+                        {translate('yieldXYZ.noActiveValidators')}
+                      </Text>
+                    ) : (
+                      filteredMy.map(renderValidatorRow)
+                    )}
                   </VStack>
                 </TabPanel>
               </TabPanels>

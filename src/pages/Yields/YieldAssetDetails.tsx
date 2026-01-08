@@ -11,11 +11,11 @@ import {
   Stat,
   Text,
 } from '@chakra-ui/react'
-import type { ColumnDef, Row, SortingState } from '@tanstack/react-table'
+import type { ColumnDef, Row } from '@tanstack/react-table'
 import { getCoreRowModel, getSortedRowModel, useReactTable } from '@tanstack/react-table'
-import { memo, useCallback, useEffect, useMemo, useState } from 'react'
+import { memo, useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 
 import { Amount } from '@/components/Amount/Amount'
 import { AssetIcon } from '@/components/AssetIcon'
@@ -25,11 +25,11 @@ import { YIELD_NETWORK_TO_CHAIN_ID } from '@/lib/yieldxyz/constants'
 import type { AugmentedYieldDto, YieldNetwork } from '@/lib/yieldxyz/types'
 import { resolveYieldInputAssetIcon } from '@/lib/yieldxyz/utils'
 import { GradientApy } from '@/pages/Yields/components/GradientApy'
-import { YieldCard, YieldCardSkeleton } from '@/pages/Yields/components/YieldCard'
-import type { SortOption } from '@/pages/Yields/components/YieldFilters'
 import { YieldFilters } from '@/pages/Yields/components/YieldFilters'
+import { YieldItem, YieldItemSkeleton } from '@/pages/Yields/components/YieldItem'
 import { YieldTable } from '@/pages/Yields/components/YieldTable'
 import { ViewToggle } from '@/pages/Yields/components/YieldViewHelpers'
+import { useYieldFilters } from '@/pages/Yields/hooks/useYieldFilters'
 import { useAllYieldBalances } from '@/react-queries/queries/yieldxyz/useAllYieldBalances'
 import { useYieldProviders } from '@/react-queries/queries/yieldxyz/useYieldProviders'
 import { useYields } from '@/react-queries/queries/yieldxyz/useYields'
@@ -43,114 +43,68 @@ export const YieldAssetDetails = memo(() => {
   const translate = useTranslate()
 
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
-  const [searchParams, setSearchParams] = useSearchParams()
-  const selectedNetwork = useMemo(() => searchParams.get('network'), [searchParams])
-  const selectedProvider = useMemo(() => searchParams.get('provider'), [searchParams])
-  const sortOption = useMemo(
-    () => (searchParams.get('sort') as SortOption) || 'apy-desc',
-    [searchParams],
-  )
-  const [sorting, setSorting] = useState<SortingState>([{ id: 'apy', desc: true }])
+  const {
+    selectedNetwork,
+    selectedProvider,
+    sortOption,
+    sorting,
+    setSorting,
+    handleNetworkChange,
+    handleProviderChange,
+    handleSortChange,
+  } = useYieldFilters()
 
   const { data: yields, isLoading } = useYields()
   const { data: yieldProviders } = useYieldProviders()
   const userCurrencyToUsdRate = useAppSelector(selectUserCurrencyToUsdRate)
-  const { data: allBalances } = useAllYieldBalances()
+  const { data: allBalancesData } = useAllYieldBalances()
+  const allBalances = allBalancesData?.byYieldId
 
   const getProviderLogo = useCallback(
     (providerId: string) => yieldProviders?.[providerId]?.logoURI,
     [yieldProviders],
   )
 
-  const handleNetworkChange = useCallback(
-    (network: string | null) => {
-      setSearchParams(prev => {
-        if (!network) prev.delete('network')
-        else prev.set('network', network)
-        return prev
-      })
-    },
-    [setSearchParams],
+  const assetYields = useMemo(
+    () => (yields?.byAssetSymbol && decodedSymbol ? yields.byAssetSymbol[decodedSymbol] || [] : []),
+    [yields, decodedSymbol],
   )
 
-  const handleProviderChange = useCallback(
-    (provider: string | null) => {
-      setSearchParams(prev => {
-        if (!provider) prev.delete('provider')
-        else prev.set('provider', provider)
-        return prev
-      })
-    },
-    [setSearchParams],
+  const networks = useMemo(
+    () =>
+      Array.from(new Set(assetYields.map(y => y.network))).map(net => ({
+        id: net,
+        name: net.charAt(0).toUpperCase() + net.slice(1),
+        chainId: YIELD_NETWORK_TO_CHAIN_ID[net as YieldNetwork],
+      })),
+    [assetYields],
   )
 
-  const handleSortChange = useCallback(
-    (option: SortOption) => {
-      setSearchParams(prev => {
-        prev.set('sort', option)
-        return prev
-      })
-    },
-    [setSearchParams],
+  const providers = useMemo(
+    () =>
+      Array.from(new Set(assetYields.map(y => y.providerId))).map(pId => ({
+        id: pId,
+        name: pId.charAt(0).toUpperCase() + pId.slice(1),
+        icon: getProviderLogo(pId),
+      })),
+    [assetYields, getProviderLogo],
   )
 
-  useEffect(() => {
-    switch (sortOption) {
-      case 'apy-desc':
-        setSorting([{ id: 'apy', desc: true }])
-        break
-      case 'apy-asc':
-        setSorting([{ id: 'apy', desc: false }])
-        break
-      case 'tvl-desc':
-        setSorting([{ id: 'tvl', desc: true }])
-        break
-      case 'tvl-asc':
-        setSorting([{ id: 'tvl', desc: false }])
-        break
-      case 'name-asc':
-        setSorting([{ id: 'pool', desc: false }])
-        break
-      default:
-        break
-    }
-  }, [sortOption])
-
-  const assetYields = useMemo(() => {
-    if (!yields?.byAssetSymbol || !decodedSymbol) return []
-    return yields.byAssetSymbol[decodedSymbol] || []
-  }, [yields, decodedSymbol])
-
-  const networks = useMemo(() => {
-    const unique = new Set(assetYields.map(y => y.network))
-    return Array.from(unique).map(net => ({
-      id: net,
-      name: net.charAt(0).toUpperCase() + net.slice(1),
-      chainId: YIELD_NETWORK_TO_CHAIN_ID[net as YieldNetwork],
-    }))
-  }, [assetYields])
-
-  const providers = useMemo(() => {
-    const unique = new Set(assetYields.map(y => y.providerId))
-    return Array.from(unique).map(pId => ({
-      id: pId,
-      name: pId.charAt(0).toUpperCase() + pId.slice(1),
-      icon: getProviderLogo(pId),
-    }))
-  }, [assetYields, getProviderLogo])
-
-  const filteredYields = useMemo(() => {
-    return assetYields.filter(y => {
-      if (selectedNetwork && y.network !== selectedNetwork) return false
-      if (selectedProvider && y.providerId !== selectedProvider) return false
-      return true
-    })
-  }, [assetYields, selectedNetwork, selectedProvider])
+  const filteredYields = useMemo(
+    () =>
+      assetYields.filter(y => {
+        if (selectedNetwork && y.network !== selectedNetwork) return false
+        if (selectedProvider && y.providerId !== selectedProvider) return false
+        return true
+      }),
+    [assetYields, selectedNetwork, selectedProvider],
+  )
 
   const assetInfo = useMemo(() => {
-    if (!yields?.meta?.assetMetadata || !decodedSymbol) return null
-    return yields.meta.assetMetadata[decodedSymbol]
-  }, [yields, decodedSymbol])
+    const group = yields?.assetGroups?.find(g => g.symbol === decodedSymbol)
+    if (!group) return null
+    return { assetName: group.name, assetIcon: group.icon, assetId: group.assetId }
+  }, [yields?.assetGroups, decodedSymbol])
 
   const columns = useMemo<ColumnDef<AugmentedYieldDto>[]>(
     () => [
@@ -359,7 +313,7 @@ export const YieldAssetDetails = memo(() => {
     () => (
       <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={6}>
         {Array.from({ length: 6 }).map((_, i) => (
-          <YieldCardSkeleton key={i} />
+          <YieldItemSkeleton key={i} variant='card' />
         ))}
       </SimpleGrid>
     ),
@@ -381,11 +335,15 @@ export const YieldAssetDetails = memo(() => {
     () => (
       <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={6}>
         {table.getSortedRowModel().rows.map(row => (
-          <YieldCard
+          <YieldItem
             key={row.original.id}
-            yieldItem={row.original}
+            data={{
+              type: 'single',
+              yieldItem: row.original,
+              providerIcon: getProviderLogo(row.original.providerId),
+            }}
+            variant='card'
             onEnter={() => handleYieldClick(row.original.id)}
-            providerIcon={getProviderLogo(row.original.providerId)}
             userBalanceUsd={
               allBalances?.[row.original.id]
                 ? allBalances[row.original.id].reduce(

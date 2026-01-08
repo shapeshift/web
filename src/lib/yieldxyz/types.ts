@@ -403,3 +403,16 @@ export type YieldIconSource = {
   assetId: string | undefined
   src: string | undefined
 }
+
+export type YieldAssetGroup = {
+  symbol: string
+  name: string
+  icon: string
+  assetId?: string
+  yields: AugmentedYieldDto[]
+  count: number
+  maxApy: number
+  totalTvlUsd: string
+  providerIds: string[]
+  chainIds: string[]
+}

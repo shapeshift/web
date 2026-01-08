@@ -6,6 +6,7 @@ import { fromBaseUnit } from '@/lib/math'
 import { assertGetCosmosSdkChainAdapter } from '@/lib/utils/cosmosSdk'
 import { fetchYieldValidators } from '@/lib/yieldxyz/api'
 import {
+  COSMOS_ATOM_NATIVE_STAKING_YIELD_ID,
   COSMOS_DECIMALS,
   COSMOS_SHAPESHIFT_FALLBACK_APR,
   SHAPESHIFT_COSMOS_VALIDATOR_ADDRESS,
@@ -16,7 +17,7 @@ import type { ValidatorDto } from '@/lib/yieldxyz/types'
 const fetchShapeShiftValidatorData = async (): Promise<{
   apr: string
   commission: string
-  tokensBaseUnit: string
+  tokensCryptoBaseUnit: string
 }> => {
   try {
     const adapter = assertGetCosmosSdkChainAdapter(cosmosChainId)
@@ -24,19 +25,19 @@ const fetchShapeShiftValidatorData = async (): Promise<{
     return {
       apr: validatorData?.apr ?? COSMOS_SHAPESHIFT_FALLBACK_APR,
       commission: validatorData?.commission ?? '0.1',
-      tokensBaseUnit: validatorData?.tokens ?? '0',
+      tokensCryptoBaseUnit: validatorData?.tokens ?? '0',
     }
   } catch {
-    return { apr: COSMOS_SHAPESHIFT_FALLBACK_APR, commission: '0.1', tokensBaseUnit: '0' }
+    return { apr: COSMOS_SHAPESHIFT_FALLBACK_APR, commission: '0.1', tokensCryptoBaseUnit: '0' }
   }
 }
 
 const createShapeShiftValidator = (data: {
   apr: string
   commission: string
-  tokensBaseUnit: string
+  tokensCryptoBaseUnit: string
 }): ValidatorDto => {
-  const tvlPrecision = fromBaseUnit(data.tokensBaseUnit, COSMOS_DECIMALS)
+  const tvlCryptoPrecision = fromBaseUnit(data.tokensCryptoBaseUnit, COSMOS_DECIMALS)
 
   return {
     address: SHAPESHIFT_COSMOS_VALIDATOR_ADDRESS,
@@ -47,8 +48,8 @@ const createShapeShiftValidator = (data: {
     commission: bnOrZero(data.commission).toNumber(),
     votingPower: 0,
     status: 'active',
-    tvl: tvlPrecision,
-    tvlRaw: data.tokensBaseUnit,
+    tvl: tvlCryptoPrecision,
+    tvlRaw: data.tokensCryptoBaseUnit,
     rewardRate: {
       total: bnOrZero(data.apr).toNumber(),
       rateType: 'APR' as const,
@@ -63,7 +64,7 @@ export const useYieldValidators = (yieldId: string, enabled: boolean = true) => 
     queryFn: async () => {
       const data = await fetchYieldValidators(yieldId)
 
-      if (yieldId === 'cosmos-atom-native-staking') {
+      if (yieldId === COSMOS_ATOM_NATIVE_STAKING_YIELD_ID) {
         const hasShapeShift = data.items.some(
           v => v.address === SHAPESHIFT_COSMOS_VALIDATOR_ADDRESS,
         )

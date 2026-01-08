@@ -21,20 +21,20 @@ import { Amount } from '@/components/Amount/Amount'
 import { AssetIcon } from '@/components/AssetIcon'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import type { AugmentedYieldDto } from '@/lib/yieldxyz/types'
-import { resolveYieldInputAssetIcon } from '@/lib/yieldxyz/utils'
-import type { AugmentedYieldBalanceWithAccountId } from '@/react-queries/queries/yieldxyz/useAllYieldBalances'
+import { resolveYieldInputAssetIcon, toUserCurrency } from '@/lib/yieldxyz/utils'
+import type { YieldBalanceAggregate } from '@/react-queries/queries/yieldxyz/useAllYieldBalances'
 import { useYieldProviders } from '@/react-queries/queries/yieldxyz/useYieldProviders'
 import { selectAssetById, selectUserCurrencyToUsdRate } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
 type YieldActivePositionsProps = {
-  balances: Record<string, AugmentedYieldBalanceWithAccountId[]>
+  aggregated: Record<string, YieldBalanceAggregate>
   yields: AugmentedYieldDto[]
   assetId: AssetId
 }
 
 export const YieldActivePositions = memo(
-  ({ balances, yields, assetId }: YieldActivePositionsProps) => {
+  ({ aggregated, yields, assetId }: YieldActivePositionsProps) => {
     const translate = useTranslate()
     const navigate = useNavigate()
     const asset = useAppSelector(state => selectAssetById(state, assetId))
@@ -50,8 +50,8 @@ export const YieldActivePositions = memo(
     )
 
     const activeYields = useMemo(
-      () => yields.filter(y => balances[y.id] && balances[y.id].length > 0),
-      [yields, balances],
+      () => yields.filter(y => aggregated[y.id] && bnOrZero(aggregated[y.id].totalUsd).gt(0)),
+      [yields, aggregated],
     )
 
     const handleRowClick = useCallback(
@@ -60,12 +60,8 @@ export const YieldActivePositions = memo(
     )
 
     const hasValidators = useMemo(
-      () =>
-        activeYields.some(y => {
-          const yieldBalances = balances[y.id]
-          return yieldBalances.some(b => !!b.validator)
-        }),
-      [activeYields, balances],
+      () => activeYields.some(y => aggregated[y.id]?.hasValidators),
+      [activeYields, aggregated],
     )
 
     const assetColumnHeader = useMemo(() => translate('yieldXYZ.asset') ?? 'Asset', [translate])
@@ -99,168 +95,142 @@ export const YieldActivePositions = memo(
       if (!asset) return null
 
       return activeYields.flatMap(yieldItem => {
-        const yieldBalances = balances[yieldItem.id]
+        const yieldAggregate = aggregated[yieldItem.id]
+        if (!yieldAggregate) return []
+
         const apy = bnOrZero(yieldItem.rewardRate.total).times(100).toNumber()
+        const { byValidator, hasValidators, totalUsd, totalCrypto } = yieldAggregate
 
-        const validatorGroups = yieldBalances
-          .filter(b => b.validator)
-          .reduce<Record<string, AugmentedYieldBalanceWithAccountId[]>>((acc, b) => {
-            const key = b.validator!.address
-            return { ...acc, [key]: [...(acc[key] || []), b] }
-          }, {})
+        if (hasValidators) {
+          return Object.values(byValidator).map(
+            ({ validator, totalUsd: validatorUsd, totalCrypto: validatorCrypto }) => {
+              const totalUserCurrency = toUserCurrency(validatorUsd, userCurrencyToUsdRate)
 
-        const noValidatorBalances = yieldBalances.filter(b => !b.validator)
-
-        const validatorRows = Object.entries(validatorGroups).map(
-          ([validatorAddress, groupBalances]) => {
-            const validator = groupBalances[0].validator
-            const totalCrypto = groupBalances.reduce((acc, b) => acc.plus(b.amount), bnOrZero(0))
-            const totalUsd = groupBalances.reduce((acc, b) => acc.plus(b.amountUsd), bnOrZero(0))
-            const totalUserCurrency = totalUsd.times(userCurrencyToUsdRate).toFixed()
-
-            return (
-              <Tr
-                key={`${yieldItem.id}-${validatorAddress}`}
-                _hover={{ bg: hoverBg, cursor: 'pointer' }}
-                onClick={() => handleRowClick(yieldItem.id)}
-              >
-                <Td>
-                  <HStack spacing={3}>
-                    {renderAssetIcon(yieldItem)}
-                    <Text fontWeight='bold' fontSize='sm'>
-                      {yieldItem.metadata.name}
-                    </Text>
-                  </HStack>
-                </Td>
-                <Td>
-                  <HStack spacing={2}>
-                    {validator?.logoURI ? (
-                      <Avatar src={validator.logoURI} size='xs' name={validator.name} />
-                    ) : (
-                      <Avatar
-                        size='xs'
-                        src={getProviderLogo(yieldItem.providerId)}
-                        name={yieldItem.providerId}
-                      />
-                    )}
-                    <Text fontSize='sm' textTransform='capitalize'>
-                      {validator?.name || yieldItem.providerId}
-                    </Text>
-                  </HStack>
-                </Td>
-                <Td isNumeric>
-                  <Text
-                    fontWeight='bold'
-                    fontSize='md'
-                    bgGradient='linear(to-r, green.300, blue.400)'
-                    bgClip='text'
-                  >
-                    {apy.toFixed(2)}%
-                  </Text>
-                </Td>
-                <Td isNumeric>
-                  <Text fontSize='sm' color='text.subtle'>
-                    -
-                  </Text>
-                </Td>
-                <Td isNumeric>
-                  <Box textAlign='right'>
-                    <Amount.Fiat value={totalUserCurrency} fontWeight='bold' color='green.400' />
-                    <Amount.Crypto
-                      value={totalCrypto.toString()}
-                      symbol={asset.symbol}
-                      color='text.subtle'
-                      fontSize='xs'
-                    />
-                  </Box>
-                </Td>
-              </Tr>
-            )
-          },
-        )
-
-        const noValidatorRow =
-          noValidatorBalances.length > 0
-            ? (() => {
-                const totalCrypto = noValidatorBalances.reduce(
-                  (acc, b) => acc.plus(b.amount),
-                  bnOrZero(0),
-                )
-                const totalUsd = noValidatorBalances.reduce(
-                  (acc, b) => acc.plus(b.amountUsd),
-                  bnOrZero(0),
-                )
-                const totalUserCurrency = totalUsd.times(userCurrencyToUsdRate).toFixed()
-                const tvlUsd = yieldItem.statistics?.tvlUsd
-                const tvlUserCurrency = bnOrZero(tvlUsd).times(userCurrencyToUsdRate).toFixed()
-
-                return (
-                  <Tr
-                    key={yieldItem.id}
-                    _hover={{ bg: hoverBg, cursor: 'pointer' }}
-                    onClick={() => handleRowClick(yieldItem.id)}
-                  >
-                    <Td>
-                      <HStack spacing={3}>
-                        {renderAssetIcon(yieldItem)}
-                        <Text fontWeight='bold' fontSize='sm'>
-                          {yieldItem.metadata.name}
-                        </Text>
-                      </HStack>
-                    </Td>
-                    <Td>
-                      <HStack spacing={2}>
+              return (
+                <Tr
+                  key={`${yieldItem.id}-${validator.address}`}
+                  _hover={{ bg: hoverBg, cursor: 'pointer' }}
+                  onClick={() => handleRowClick(yieldItem.id)}
+                >
+                  <Td>
+                    <HStack spacing={3}>
+                      {renderAssetIcon(yieldItem)}
+                      <Text fontWeight='bold' fontSize='sm'>
+                        {yieldItem.metadata.name}
+                      </Text>
+                    </HStack>
+                  </Td>
+                  <Td>
+                    <HStack spacing={2}>
+                      {validator.logoURI ? (
+                        <Avatar src={validator.logoURI} size='xs' name={validator.name} />
+                      ) : (
                         <Avatar
                           size='xs'
                           src={getProviderLogo(yieldItem.providerId)}
                           name={yieldItem.providerId}
                         />
-                        <Text fontSize='sm' textTransform='capitalize'>
-                          {yieldItem.providerId}
-                        </Text>
-                      </HStack>
-                    </Td>
-                    <Td isNumeric>
-                      <Text
-                        fontWeight='bold'
-                        fontSize='md'
-                        bgGradient='linear(to-r, green.300, blue.400)'
-                        bgClip='text'
-                      >
-                        {apy.toFixed(2)}%
+                      )}
+                      <Text fontSize='sm' textTransform='capitalize'>
+                        {validator.name || yieldItem.providerId}
                       </Text>
-                    </Td>
-                    <Td isNumeric>
-                      <Text fontSize='sm' color='text.subtle'>
-                        {tvlUsd ? <Amount.Fiat value={tvlUserCurrency} abbreviated /> : '-'}
-                      </Text>
-                    </Td>
-                    <Td isNumeric>
-                      <Box textAlign='right'>
-                        <Amount.Fiat
-                          value={totalUserCurrency}
-                          fontWeight='bold'
-                          color='green.400'
-                        />
-                        <Amount.Crypto
-                          value={totalCrypto.toString()}
-                          symbol={asset.symbol}
-                          color='text.subtle'
-                          fontSize='xs'
-                        />
-                      </Box>
-                    </Td>
-                  </Tr>
-                )
-              })()
-            : null
+                    </HStack>
+                  </Td>
+                  <Td isNumeric>
+                    <Text
+                      fontWeight='bold'
+                      fontSize='md'
+                      bgGradient='linear(to-r, green.300, blue.400)'
+                      bgClip='text'
+                    >
+                      {apy.toFixed(2)}%
+                    </Text>
+                  </Td>
+                  <Td isNumeric>
+                    <Text fontSize='sm' color='text.subtle'>
+                      -
+                    </Text>
+                  </Td>
+                  <Td isNumeric>
+                    <Box textAlign='right'>
+                      <Amount.Fiat value={totalUserCurrency} fontWeight='bold' color='green.400' />
+                      <Amount.Crypto
+                        value={validatorCrypto}
+                        symbol={asset.symbol}
+                        color='text.subtle'
+                        fontSize='xs'
+                      />
+                    </Box>
+                  </Td>
+                </Tr>
+              )
+            },
+          )
+        }
 
-        return [...validatorRows, noValidatorRow].filter(Boolean)
+        const totalUserCurrency = toUserCurrency(totalUsd, userCurrencyToUsdRate)
+        const tvlUsd = yieldItem.statistics?.tvlUsd
+        const tvlUserCurrency = toUserCurrency(tvlUsd, userCurrencyToUsdRate)
+
+        return (
+          <Tr
+            key={yieldItem.id}
+            _hover={{ bg: hoverBg, cursor: 'pointer' }}
+            onClick={() => handleRowClick(yieldItem.id)}
+          >
+            <Td>
+              <HStack spacing={3}>
+                {renderAssetIcon(yieldItem)}
+                <Text fontWeight='bold' fontSize='sm'>
+                  {yieldItem.metadata.name}
+                </Text>
+              </HStack>
+            </Td>
+            <Td>
+              <HStack spacing={2}>
+                <Avatar
+                  size='xs'
+                  src={getProviderLogo(yieldItem.providerId)}
+                  name={yieldItem.providerId}
+                />
+                <Text fontSize='sm' textTransform='capitalize'>
+                  {yieldItem.providerId}
+                </Text>
+              </HStack>
+            </Td>
+            <Td isNumeric>
+              <Text
+                fontWeight='bold'
+                fontSize='md'
+                bgGradient='linear(to-r, green.300, blue.400)'
+                bgClip='text'
+              >
+                {apy.toFixed(2)}%
+              </Text>
+            </Td>
+            <Td isNumeric>
+              <Text fontSize='sm' color='text.subtle'>
+                {tvlUsd ? <Amount.Fiat value={tvlUserCurrency} abbreviated /> : '-'}
+              </Text>
+            </Td>
+            <Td isNumeric>
+              <Box textAlign='right'>
+                <Amount.Fiat value={totalUserCurrency} fontWeight='bold' color='green.400' />
+                <Amount.Crypto
+                  value={totalCrypto}
+                  symbol={asset.symbol}
+                  color='text.subtle'
+                  fontSize='xs'
+                />
+              </Box>
+            </Td>
+          </Tr>
+        )
       })
     }, [
       activeYields,
+      aggregated,
       asset,
-      balances,
       getProviderLogo,
       handleRowClick,
       hoverBg,

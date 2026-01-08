@@ -32,7 +32,7 @@ import { useYieldAccount } from '@/pages/Yields/YieldAccountContext'
 import type {
   AggregatedBalance,
   NormalizedYieldBalances,
-} from '@/react-queries/queries/yieldxyz/useYieldBalances'
+} from '@/react-queries/queries/yieldxyz/useAllYieldBalances'
 import { useYieldValidators } from '@/react-queries/queries/yieldxyz/useYieldValidators'
 import {
   selectAccountIdByAccountNumberAndChainId,
@@ -76,15 +76,8 @@ export const YieldPositionCard = memo(
     const { chainId } = yieldItem
     const { accountNumber } = useYieldAccount()
 
-    const defaultValidator = useMemo(
-      () => (chainId ? DEFAULT_NATIVE_VALIDATOR_BY_CHAIN_ID[chainId] : undefined),
-      [chainId],
-    )
-
-    const selectedValidatorAddress = useMemo(
-      () => validatorParam || defaultValidator,
-      [validatorParam, defaultValidator],
-    )
+    const defaultValidator = chainId ? DEFAULT_NATIVE_VALIDATOR_BY_CHAIN_ID[chainId] : undefined
+    const selectedValidatorAddress = validatorParam || defaultValidator
 
     const accountId = useAppSelector(state => {
       if (!chainId) return undefined
@@ -105,23 +98,11 @@ export const YieldPositionCard = memo(
       return balances.byType
     }, [balances, selectedValidatorAddress])
 
-    const activeBalance = useMemo(() => balancesByType?.[YieldBalanceType.Active], [balancesByType])
-    const enteringBalance = useMemo(
-      () => balancesByType?.[YieldBalanceType.Entering],
-      [balancesByType],
-    )
-    const exitingBalance = useMemo(
-      () => balancesByType?.[YieldBalanceType.Exiting],
-      [balancesByType],
-    )
-    const withdrawableBalance = useMemo(
-      () => balancesByType?.[YieldBalanceType.Withdrawable],
-      [balancesByType],
-    )
-    const claimableBalance = useMemo(
-      () => balancesByType?.[YieldBalanceType.Claimable],
-      [balancesByType],
-    )
+    const activeBalance = balancesByType?.[YieldBalanceType.Active]
+    const enteringBalance = balancesByType?.[YieldBalanceType.Entering]
+    const exitingBalance = balancesByType?.[YieldBalanceType.Exiting]
+    const withdrawableBalance = balancesByType?.[YieldBalanceType.Withdrawable]
+    const claimableBalance = balancesByType?.[YieldBalanceType.Claimable]
 
     const claimAction = useMemo(
       () => claimableBalance?.pendingActions?.find(action => action.type === 'CLAIM_REWARDS'),

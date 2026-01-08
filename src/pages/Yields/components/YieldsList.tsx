@@ -34,15 +34,10 @@ import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { YIELD_NETWORK_TO_CHAIN_ID } from '@/lib/yieldxyz/constants'
 import type { AugmentedYieldDto, YieldNetwork } from '@/lib/yieldxyz/types'
-import { resolveYieldInputAssetIcon } from '@/lib/yieldxyz/utils'
-import { YieldAssetCard, YieldAssetCardSkeleton } from '@/pages/Yields/components/YieldAssetCard'
-import {
-  YieldAssetGroupRow,
-  YieldAssetGroupRowSkeleton,
-} from '@/pages/Yields/components/YieldAssetGroupRow'
-import { YieldCard, YieldCardSkeleton } from '@/pages/Yields/components/YieldCard'
+import { resolveYieldInputAssetIcon, searchYields } from '@/lib/yieldxyz/utils'
 import type { SortOption } from '@/pages/Yields/components/YieldFilters'
 import { YieldFilters } from '@/pages/Yields/components/YieldFilters'
+import { YieldItem, YieldItemSkeleton } from '@/pages/Yields/components/YieldItem'
 import { YieldOpportunityStats } from '@/pages/Yields/components/YieldOpportunityStats'
 import { YieldTable } from '@/pages/Yields/components/YieldTable'
 import { ViewToggle } from '@/pages/Yields/components/YieldViewHelpers'
@@ -92,7 +87,8 @@ export const YieldsList = memo(() => {
   })
 
   // TODO: Multi-account support - currently defaulting to account 0
-  const { data: allBalances, isFetching: isLoadingBalances } = useAllYieldBalances()
+  const { data: allBalancesData, isFetching: isLoadingBalances } = useAllYieldBalances()
+  const allBalances = allBalancesData?.byYieldId
   const { data: yieldProviders } = useYieldProviders()
 
   const handleTabChange = useCallback(
@@ -178,122 +174,110 @@ export const YieldsList = memo(() => {
     }
   }, [sortOption])
 
-  const networks = useMemo(() => {
-    if (!yields?.meta?.networks) return []
-    return yields.meta.networks.map(net => ({
-      id: net,
-      name: net.charAt(0).toUpperCase() + net.slice(1),
-      chainId: YIELD_NETWORK_TO_CHAIN_ID[net as YieldNetwork],
-    }))
-  }, [yields])
+  const networks = useMemo(
+    () =>
+      yields?.meta?.networks
+        ? yields.meta.networks.map(net => ({
+            id: net,
+            name: net.charAt(0).toUpperCase() + net.slice(1),
+            chainId: YIELD_NETWORK_TO_CHAIN_ID[net as YieldNetwork],
+          }))
+        : [],
+    [yields],
+  )
 
-  const providers = useMemo(() => {
-    if (!yields?.meta?.providers) return []
-    return yields.meta.providers.map(pId => ({
-      id: pId,
-      name: pId.charAt(0).toUpperCase() + pId.slice(1),
-      icon: getProviderLogo(pId),
-    }))
-  }, [yields, getProviderLogo])
+  const providers = useMemo(
+    () =>
+      yields?.meta?.providers
+        ? yields.meta.providers.map(pId => ({
+            id: pId,
+            name: pId.charAt(0).toUpperCase() + pId.slice(1),
+            icon: getProviderLogo(pId),
+          }))
+        : [],
+    [yields, getProviderLogo],
+  )
 
-  const displayYields = useMemo(() => {
-    if (!yields?.all) return []
+  const yieldsByAsset = useMemo(() => {
+    if (!yields?.assetGroups) return []
 
     const hasUserBalance = (y: AugmentedYieldDto) => {
-      const hasInputBalance = y.inputTokens?.some(t => {
-        const bal = userCurrencyBalances[t.assetId || '']
-        return bnOrZero(bal).gt(0)
-      })
-      if (hasInputBalance) return true
-      const bal = userCurrencyBalances[y.token.assetId || '']
-      return bnOrZero(bal).gt(0)
+      if (y.inputTokens?.some(t => bnOrZero(userCurrencyBalances[t.assetId || '']).gt(0)))
+        return true
+      return bnOrZero(userCurrencyBalances[y.token.assetId || '']).gt(0)
     }
 
-    const matchesSearch = (y: AugmentedYieldDto, q: string) =>
-      y.metadata.name.toLowerCase().includes(q) ||
-      y.token.symbol.toLowerCase().includes(q) ||
-      y.token.name.toLowerCase().includes(q) ||
-      y.providerId.toLowerCase().includes(q)
+    return yields.assetGroups
+      .map(group => {
+        let filteredYields = group.yields
+        if (isMyOpportunities) filteredYields = filteredYields.filter(hasUserBalance)
+        if (selectedNetwork)
+          filteredYields = filteredYields.filter(y => y.network === selectedNetwork)
+        if (selectedProvider)
+          filteredYields = filteredYields.filter(y => y.providerId === selectedProvider)
+        if (searchQuery) filteredYields = searchYields(filteredYields, searchQuery)
 
-    const q = searchQuery?.toLowerCase()
+        if (filteredYields.length === 0) return null
 
-    return yields.all.filter(y => {
-      if (isMyOpportunities && !hasUserBalance(y)) return false
-      if (selectedNetwork && y.network !== selectedNetwork) return false
-      if (selectedProvider && y.providerId !== selectedProvider) return false
-      if (q && !matchesSearch(y, q)) return false
-      return true
-    })
+        const userGroupBalanceUsd = filteredYields.reduce((acc, y) => {
+          const balances = allBalances?.[y.id]
+          if (!balances) return acc
+          return balances.reduce((sum, b) => sum.plus(bnOrZero(b.amountUsd)), acc)
+        }, bnOrZero(0))
+
+        return {
+          yields: filteredYields,
+          assetSymbol: group.symbol,
+          assetName: group.name,
+          assetIcon: group.icon,
+          assetId: group.assetId,
+          userGroupBalanceUsd,
+          maxApy: Math.max(0, ...filteredYields.map(y => y.rewardRate.total)),
+          totalTvlUsd: filteredYields.reduce(
+            (acc, y) => acc.plus(bnOrZero(y.statistics?.tvlUsd)),
+            bnOrZero(0),
+          ),
+        }
+      })
+      .filter(Boolean)
+      .sort((a, b) => {
+        if (!a || !b) return 0
+        switch (sortOption) {
+          case 'apy-desc':
+            return b.maxApy - a.maxApy
+          case 'apy-asc':
+            return a.maxApy - b.maxApy
+          case 'tvl-desc':
+            return b.totalTvlUsd.minus(a.totalTvlUsd).toNumber()
+          case 'tvl-asc':
+            return a.totalTvlUsd.minus(b.totalTvlUsd).toNumber()
+          case 'name-asc':
+            return a.assetName.localeCompare(b.assetName)
+          case 'name-desc':
+            return b.assetName.localeCompare(a.assetName)
+          default:
+            return 0
+        }
+      }) as {
+      yields: AugmentedYieldDto[]
+      assetSymbol: string
+      assetName: string
+      assetIcon: string
+      assetId: string | undefined
+      userGroupBalanceUsd: ReturnType<typeof bnOrZero>
+      maxApy: number
+      totalTvlUsd: ReturnType<typeof bnOrZero>
+    }[]
   }, [
-    yields,
+    yields?.assetGroups,
+    isMyOpportunities,
     selectedNetwork,
     selectedProvider,
     searchQuery,
-    isMyOpportunities,
+    allBalances,
+    sortOption,
     userCurrencyBalances,
   ])
-
-  const yieldsByAsset = useMemo(() => {
-    if (!displayYields || !yields?.meta?.assetMetadata) return []
-
-    const groups = displayYields.reduce<Record<string, AugmentedYieldDto[]>>((acc, y) => {
-      const token = y.inputTokens?.[0] || y.token
-      const symbol = token.symbol
-      if (!symbol) return acc
-      return { ...acc, [symbol]: [...(acc[symbol] || []), y] }
-    }, {})
-
-    const assetGroups = Object.entries(groups).map(([symbol, groupYields]) => {
-      const meta = yields.meta.assetMetadata[symbol] || {
-        assetName: symbol,
-        assetIcon: '',
-        assetId: undefined,
-      }
-
-      const userGroupBalanceUsd = groupYields.reduce((acc, y) => {
-        const balances = allBalances?.[y.id]
-        if (!balances) return acc
-        return balances.reduce((sum, b) => sum.plus(bnOrZero(b.amountUsd)), acc)
-      }, bnOrZero(0))
-
-      const maxApy = Math.max(...groupYields.map(y => bnOrZero(y.rewardRate.total).toNumber()))
-
-      const totalTvlUsd = groupYields.reduce(
-        (acc, y) => acc.plus(bnOrZero(y.statistics?.tvlUsd)),
-        bnOrZero(0),
-      )
-
-      return {
-        yields: groupYields,
-        assetSymbol: symbol,
-        assetName: meta.assetName,
-        assetIcon: meta.assetIcon,
-        assetId: meta.assetId,
-        userGroupBalanceUsd,
-        maxApy,
-        totalTvlUsd,
-      }
-    })
-
-    return assetGroups.sort((a, b) => {
-      switch (sortOption) {
-        case 'apy-desc':
-          return b.maxApy - a.maxApy
-        case 'apy-asc':
-          return a.maxApy - b.maxApy
-        case 'tvl-desc':
-          return b.totalTvlUsd.minus(a.totalTvlUsd).toNumber()
-        case 'tvl-asc':
-          return a.totalTvlUsd.minus(b.totalTvlUsd).toNumber()
-        case 'name-asc':
-          return a.assetName.localeCompare(b.assetName)
-        case 'name-desc':
-          return b.assetName.localeCompare(a.assetName)
-        default:
-          return 0
-      }
-    })
-  }, [displayYields, yields, allBalances, sortOption])
 
   const myPositions = useMemo(() => {
     if (!yields?.all || !allBalances) return []
@@ -509,7 +493,7 @@ export const YieldsList = memo(() => {
     () => (
       <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={6}>
         {Array.from({ length: 6 }).map((_, i) => (
-          <YieldAssetCardSkeleton key={i} />
+          <YieldItemSkeleton key={i} variant='card' />
         ))}
       </SimpleGrid>
     ),
@@ -520,7 +504,7 @@ export const YieldsList = memo(() => {
     () => (
       <Box borderWidth='1px' borderRadius='xl' overflow='hidden'>
         {Array.from({ length: 8 }).map((_, i) => (
-          <YieldAssetGroupRowSkeleton key={i} />
+          <YieldItemSkeleton key={i} variant='row' />
         ))}
       </Box>
     ),
@@ -540,14 +524,18 @@ export const YieldsList = memo(() => {
     () => (
       <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={6}>
         {yieldsByAsset.map(group => (
-          <YieldAssetCard
+          <YieldItem
             key={group.assetSymbol}
-            assetSymbol={group.assetSymbol}
-            assetName={group.assetName}
-            assetIcon={group.assetIcon}
-            assetId={group.assetId}
-            yields={group.yields}
-            userGroupBalanceUsd={group.userGroupBalanceUsd}
+            data={{
+              type: 'group',
+              assetSymbol: group.assetSymbol,
+              assetName: group.assetName,
+              assetIcon: group.assetIcon,
+              assetId: group.assetId,
+              yields: group.yields,
+            }}
+            variant='card'
+            userBalanceUsd={group.userGroupBalanceUsd}
           />
         ))}
       </SimpleGrid>
@@ -590,14 +578,18 @@ export const YieldsList = memo(() => {
           </Flex>
         </Flex>
         {yieldsByAsset.map(group => (
-          <YieldAssetGroupRow
+          <YieldItem
             key={group.assetSymbol}
-            assetSymbol={group.assetSymbol}
-            assetName={group.assetName}
-            assetIcon={group.assetIcon}
-            assetId={group.assetId}
-            yields={group.yields}
-            userGroupBalanceUsd={group.userGroupBalanceUsd}
+            data={{
+              type: 'group',
+              assetSymbol: group.assetSymbol,
+              assetName: group.assetName,
+              assetIcon: group.assetIcon,
+              assetId: group.assetId,
+              yields: group.yields,
+            }}
+            variant='row'
+            userBalanceUsd={group.userGroupBalanceUsd}
           />
         ))}
       </Box>
@@ -625,7 +617,7 @@ export const YieldsList = memo(() => {
     () => (
       <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={6}>
         {Array.from({ length: 3 }).map((_, i) => (
-          <YieldCardSkeleton key={i} />
+          <YieldItemSkeleton key={i} variant='card' />
         ))}
       </SimpleGrid>
     ),
@@ -650,11 +642,15 @@ export const YieldsList = memo(() => {
     () => (
       <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={6}>
         {positionsTable.getRowModel().rows.map(row => (
-          <YieldCard
+          <YieldItem
             key={row.id}
-            yieldItem={row.original}
+            data={{
+              type: 'single',
+              yieldItem: row.original,
+              providerIcon: getProviderLogo(row.original.providerId),
+            }}
+            variant='card'
             onEnter={() => handleYieldClick(row.original.id)}
-            providerIcon={getProviderLogo(row.original.providerId)}
             userBalanceUsd={
               allBalances?.[row.original.id]
                 ? allBalances[row.original.id].reduce(

@@ -3,8 +3,6 @@ import axios from 'axios'
 
 import type {
   ActionDto,
-  ActionsResponse,
-  NetworksResponse,
   ProvidersResponse,
   YieldBalancesResponse,
   YieldDto,
@@ -47,26 +45,8 @@ export const fetchYield = async (yieldId: string) => {
   return response.data
 }
 
-export const fetchNetworks = async () => {
-  const response = await instance.get<NetworksResponse>('/networks')
-  return response.data
-}
-
 export const fetchProviders = async (params?: { limit?: number; offset?: number }) => {
   const response = await instance.get<ProvidersResponse>('/providers', { params })
-  return response.data
-}
-
-export const fetchYieldBalances = async ({
-  yieldId,
-  address,
-}: {
-  yieldId: string
-  address: string
-}) => {
-  const response = await instance.get<YieldBalancesResponse>(`/yields/${yieldId}/balances`, {
-    params: { address },
-  })
   return response.data
 }
 
@@ -144,30 +124,6 @@ export const manageYield = async ({
 
 export const fetchAction = async (actionId: string) => {
   const response = await instance.get<ActionDto>(`/actions/${actionId}`)
-  return response.data
-}
-
-export const fetchActions = async (params: {
-  address: string
-  limit?: number
-  offset?: number
-  status?: string
-  intent?: string
-}) => {
-  const response = await instance.get<ActionsResponse>('/actions', { params })
-  return response.data
-}
-
-export const submitTransaction = async ({
-  transactionId,
-  signedTransaction,
-}: {
-  transactionId: string
-  signedTransaction: string
-}) => {
-  const response = await instance.post(`/transactions/${transactionId}/submit`, {
-    signedTransaction,
-  })
   return response.data
 }
 

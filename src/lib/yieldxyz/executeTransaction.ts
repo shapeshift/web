@@ -183,14 +183,14 @@ const executeEvmTransaction = async ({
   const txToSign: SignTx<EvmChainId> =
     parsed.maxFeePerGas || parsed.maxPriorityFeePerGas
       ? {
-          ...baseTxToSign,
-          maxFeePerGas: toHexOrDefault(parsed.maxFeePerGas, '0x0'),
-          maxPriorityFeePerGas: toHexOrDefault(parsed.maxPriorityFeePerGas, '0x0'),
-        }
+        ...baseTxToSign,
+        maxFeePerGas: toHexOrDefault(parsed.maxFeePerGas, '0x0'),
+        maxPriorityFeePerGas: toHexOrDefault(parsed.maxPriorityFeePerGas, '0x0'),
+      }
       : {
-          ...baseTxToSign,
-          gasPrice: toHexOrDefault(parsed.gasPrice ?? '0', '0x0'),
-        }
+        ...baseTxToSign,
+        gasPrice: toHexOrDefault(parsed.gasPrice ?? '0', '0x0'),
+      }
 
   const txHash = await evmSignAndBroadcast({
     adapter,
@@ -230,11 +230,11 @@ const executeCosmosTransaction = async ({
 
   const { validator, amountCryptoBaseUnit, action } = cosmosStakeArgs
 
-  const feeInBaseUnit = toBaseUnit(gas.amount, gas.token.decimals)
+  const feeCryptoBaseUnit = toBaseUnit(gas.amount, gas.token.decimals)
 
   const chainSpecific = {
     gas: gas.gasLimit,
-    fee: feeInBaseUnit,
+    fee: feeCryptoBaseUnit,
   }
 
   const address = await adapter.getAddress({ accountNumber, wallet })
@@ -463,12 +463,12 @@ const executeTronTransaction = async ({
     typeof rawTx.raw_data_hex === 'string'
       ? rawTx.raw_data_hex
       : Buffer.isBuffer(rawTx.raw_data_hex)
-      ? (rawTx.raw_data_hex as Buffer).toString('hex')
-      : Array.isArray(rawTx.raw_data_hex)
-      ? Buffer.from(rawTx.raw_data_hex as number[]).toString('hex')
-      : (() => {
-          throw new Error(`Unexpected raw_data_hex type: ${typeof rawTx.raw_data_hex}`)
-        })()
+        ? (rawTx.raw_data_hex as Buffer).toString('hex')
+        : Array.isArray(rawTx.raw_data_hex)
+          ? Buffer.from(rawTx.raw_data_hex as number[]).toString('hex')
+          : (() => {
+            throw new Error(`Unexpected raw_data_hex type: ${typeof rawTx.raw_data_hex}`)
+          })()
 
   // Build HDWallet-compatible transaction object
   // The adapter.signTransaction expects: { txToSign: { addressNList, rawDataHex, transaction } }

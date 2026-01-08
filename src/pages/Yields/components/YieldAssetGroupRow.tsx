@@ -9,7 +9,7 @@ import {
   useColorModeValue,
 } from '@chakra-ui/react'
 import type BigNumber from 'bignumber.js'
-import { useMemo } from 'react'
+import { memo, useCallback, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 import { Amount } from '@/components/Amount/Amount'
@@ -29,116 +29,135 @@ type YieldAssetGroupRowProps = {
   userGroupBalanceUsd?: BigNumber
 }
 
-export const YieldAssetGroupRow = ({
-  assetSymbol,
-  assetName,
-  assetIcon,
-  assetId,
-  yields,
-  userGroupBalanceUsd,
-}: YieldAssetGroupRowProps) => {
-  const navigate = useNavigate()
-  const hoverBg = useColorModeValue('gray.50', 'whiteAlpha.50')
-  const userCurrencyToUsdRate = useAppSelector(selectUserCurrencyToUsdRate)
-  const { data: yieldProviders } = useYieldProviders()
+export const YieldAssetGroupRow = memo(
+  ({
+    assetSymbol,
+    assetName,
+    assetIcon,
+    assetId,
+    yields,
+    userGroupBalanceUsd,
+  }: YieldAssetGroupRowProps) => {
+    const navigate = useNavigate()
+    const hoverBg = useColorModeValue('gray.50', 'whiteAlpha.50')
+    const userCurrencyToUsdRate = useAppSelector(selectUserCurrencyToUsdRate)
+    const { data: yieldProviders } = useYieldProviders()
 
-  const stats = useMemo(() => {
-    let maxApy = 0
-    let totalTvlUsd = bnOrZero(0)
-    const providerIds = new Set<string>()
+    const stats = useMemo(() => {
+      let maxApy = 0
+      let totalTvlUsd = bnOrZero(0)
+      const providerIds = new Set<string>()
 
-    yields.forEach(y => {
-      const apy = y.rewardRate.total
-      if (apy > maxApy) maxApy = apy
-      totalTvlUsd = totalTvlUsd.plus(bnOrZero(y.statistics?.tvlUsd))
-      providerIds.add(y.providerId)
-    })
+      yields.forEach(y => {
+        const apy = y.rewardRate.total
+        if (apy > maxApy) maxApy = apy
+        totalTvlUsd = totalTvlUsd.plus(bnOrZero(y.statistics?.tvlUsd))
+        providerIds.add(y.providerId)
+      })
 
-    const providers = Array.from(providerIds).map(id => ({
-      id,
-      logo: yieldProviders?.[id]?.logoURI,
-    }))
+      const providers = Array.from(providerIds).map(id => ({
+        id,
+        logo: yieldProviders?.[id]?.logoURI,
+      }))
 
-    const totalTvlUserCurrency = totalTvlUsd.times(userCurrencyToUsdRate).toFixed()
+      const totalTvlUserCurrency = totalTvlUsd.times(userCurrencyToUsdRate).toFixed()
 
-    return {
-      maxApy,
-      totalTvlUserCurrency,
-      providers,
-      count: yields.length,
-    }
-  }, [yields, yieldProviders, userCurrencyToUsdRate])
+      return {
+        maxApy,
+        totalTvlUserCurrency,
+        providers,
+        count: yields.length,
+      }
+    }, [yields, yieldProviders, userCurrencyToUsdRate])
 
-  const userGroupBalanceUserCurrency = useMemo(() => {
-    if (!userGroupBalanceUsd) return undefined
-    return userGroupBalanceUsd.times(userCurrencyToUsdRate).toFixed()
-  }, [userGroupBalanceUsd, userCurrencyToUsdRate])
+    const userGroupBalanceUserCurrency = useMemo(() => {
+      if (!userGroupBalanceUsd) return undefined
+      return userGroupBalanceUsd.times(userCurrencyToUsdRate).toFixed()
+    }, [userGroupBalanceUsd, userCurrencyToUsdRate])
 
-  return (
-    <Box
-      onClick={() => navigate(`/yields/asset/${assetSymbol}`)}
-      cursor='pointer'
-      _hover={{ bg: hoverBg }}
-      borderBottomWidth='1px'
-      borderColor='inherit'
-      transition='background 0.2s'
-    >
-      <Flex p={4} alignItems='center' gap={4}>
-        <Flex alignItems='center' gap={3} flex='1' minW='200px'>
-          {assetId ? (
-            <AssetIcon assetId={assetId} size='sm' showNetworkIcon={false} />
-          ) : (
-            <AssetIcon src={assetIcon} size='sm' />
-          )}
-          <Box>
-            <Text fontWeight='bold' fontSize='sm'>
-              {assetName}
-            </Text>
-            <Text fontSize='xs' color='text.subtle'>
-              {stats.count} opportunities
-            </Text>
-          </Box>
-        </Flex>
+    const handleClick = useCallback(() => {
+      navigate(`/yields/asset/${assetSymbol}`)
+    }, [navigate, assetSymbol])
 
-        <Flex gap={8} alignItems='center' flex='2'>
-          <Box minW='100px'>
-            <Text fontSize='xs' color='text.subtle'>
-              Max APY
-            </Text>
-            <Text fontWeight='bold' color='green.400' fontSize='sm'>
-              {stats.maxApy > 0 ? `${(stats.maxApy * 100).toFixed(2)}%` : '0.00%'}
-            </Text>
-          </Box>
+    const maxApyFormatted = useMemo(() => {
+      return stats.maxApy > 0 ? `${(stats.maxApy * 100).toFixed(2)}%` : '0.00%'
+    }, [stats.maxApy])
 
-          <Box minW='120px' display={{ base: 'none', md: 'block' }}>
-            <Text fontSize='xs' color='text.subtle'>
-              TVL
-            </Text>
-            <Text fontSize='sm'>
-              <Amount.Fiat value={stats.totalTvlUserCurrency} abbreviated />
-            </Text>
-          </Box>
+    const assetIconElement = useMemo(() => {
+      if (assetId) return <AssetIcon assetId={assetId} size='sm' showNetworkIcon={false} />
+      return <AssetIcon src={assetIcon} size='sm' />
+    }, [assetId, assetIcon])
 
-          {userGroupBalanceUsd && userGroupBalanceUsd.gt(0) && (
-            <Box minW='120px' display={{ base: 'none', md: 'block' }}>
-              <Text fontSize='sm' fontWeight='bold' color='blue.400'>
-                <Amount.Fiat value={userGroupBalanceUserCurrency ?? '0'} abbreviated />
+    const userBalanceElement = useMemo(() => {
+      if (!userGroupBalanceUsd || !userGroupBalanceUsd.gt(0)) return null
+      return (
+        <Box minW='120px' display={{ base: 'none', md: 'block' }}>
+          <Text fontSize='sm' fontWeight='bold' color='blue.400'>
+            <Amount.Fiat value={userGroupBalanceUserCurrency ?? '0'} abbreviated />
+          </Text>
+        </Box>
+      )
+    }, [userGroupBalanceUsd, userGroupBalanceUserCurrency])
+
+    const providersElement = useMemo(
+      () => (
+        <AvatarGroup size='xs' max={4}>
+          {stats.providers.map(p => (
+            <Avatar key={p.id} src={p.logo} name={p.id} />
+          ))}
+        </AvatarGroup>
+      ),
+      [stats.providers],
+    )
+
+    return (
+      <Box
+        onClick={handleClick}
+        cursor='pointer'
+        _hover={{ bg: hoverBg }}
+        borderBottomWidth='1px'
+        borderColor='inherit'
+        transition='background 0.2s'
+      >
+        <Flex p={4} alignItems='center' gap={4}>
+          <Flex alignItems='center' gap={3} flex='1' minW='200px'>
+            {assetIconElement}
+            <Box>
+              <Text fontWeight='bold' fontSize='sm'>
+                {assetName}
+              </Text>
+              <Text fontSize='xs' color='text.subtle'>
+                {stats.count} opportunities
               </Text>
             </Box>
-          )}
-
-          <Box flex='1' display={{ base: 'none', lg: 'block' }}>
-            <AvatarGroup size='xs' max={4}>
-              {stats.providers.map(p => (
-                <Avatar key={p.id} src={p.logo} name={p.id} />
-              ))}
-            </AvatarGroup>
-          </Box>
+          </Flex>
+          <Flex gap={8} alignItems='center' flex='2'>
+            <Box minW='100px'>
+              <Text fontSize='xs' color='text.subtle'>
+                Max APY
+              </Text>
+              <Text fontWeight='bold' color='green.400' fontSize='sm'>
+                {maxApyFormatted}
+              </Text>
+            </Box>
+            <Box minW='120px' display={{ base: 'none', md: 'block' }}>
+              <Text fontSize='xs' color='text.subtle'>
+                TVL
+              </Text>
+              <Text fontSize='sm'>
+                <Amount.Fiat value={stats.totalTvlUserCurrency} abbreviated />
+              </Text>
+            </Box>
+            {userBalanceElement}
+            <Box flex='1' display={{ base: 'none', lg: 'block' }}>
+              {providersElement}
+            </Box>
+          </Flex>
         </Flex>
-      </Flex>
-    </Box>
-  )
-}
+      </Box>
+    )
+  },
+)
 
 export const YieldAssetGroupRowSkeleton = () => {
   const borderColor = useColorModeValue('gray.200', 'whiteAlpha.100')

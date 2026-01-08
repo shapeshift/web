@@ -20,26 +20,21 @@ export const useYieldOpportunities = ({ assetId, accountId }: UseYieldOpportunit
   const balanceOptions = useMemo(() => (accountId ? { accountIds: [accountId] } : {}), [accountId])
   const { data: allBalances, isLoading: isBalancesLoading } = useAllYieldBalances(balanceOptions)
 
-  const multiAccountEnabled = getConfig().VITE_FEATURE_YIELD_MULTI_ACCOUNT
+  const multiAccountEnabled = useMemo(() => getConfig().VITE_FEATURE_YIELD_MULTI_ACCOUNT, [])
 
   const matchingYields = useMemo(() => {
     if (!yields?.all || !asset) return []
 
     return yields.all.filter(yieldItem => {
-      // 1. Primary Token Match
       const matchesToken = yieldItem.token.assetId === assetId
-      // 2. Input Tokens Match
       const matchesInput = yieldItem.inputTokens.some(t => t.assetId === assetId)
-
       return matchesToken || matchesInput
     })
   }, [yields, asset, assetId])
 
   const accountBalances = useMemo(() => {
-    if (multiAccountEnabled && !accountId) {
+    if (multiAccountEnabled && !accountId)
       throw new Error('Multi-account yield not yet implemented')
-    }
-
     if (!allBalances || !matchingYields.length) return {}
 
     return matchingYields.reduce(
@@ -47,15 +42,12 @@ export const useYieldOpportunities = ({ assetId, accountId }: UseYieldOpportunit
         const itemBalances = allBalances[yieldItem.id] || []
 
         const filtered = itemBalances.filter(b => {
-          if (accountId) {
+          if (accountId)
             return b.address.toLowerCase() === fromAccountId(accountId).account.toLowerCase()
-          }
           return true
         })
 
-        if (filtered.length > 0) {
-          acc[yieldItem.id] = filtered
-        }
+        if (filtered.length > 0) acc[yieldItem.id] = filtered
 
         return acc
       },
@@ -63,10 +55,17 @@ export const useYieldOpportunities = ({ assetId, accountId }: UseYieldOpportunit
     )
   }, [allBalances, matchingYields, accountId, multiAccountEnabled])
 
+  const isLoading = useMemo(
+    () => isYieldsLoading || isBalancesLoading,
+    [isYieldsLoading, isBalancesLoading],
+  )
+
+  const totalActivePositions = useMemo(() => Object.keys(accountBalances).length, [accountBalances])
+
   return {
     yields: matchingYields,
     balances: accountBalances,
-    isLoading: isYieldsLoading || isBalancesLoading,
-    totalActivePositions: Object.keys(accountBalances).length,
+    isLoading,
+    totalActivePositions,
   }
 }

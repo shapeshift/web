@@ -280,8 +280,11 @@ export const useYieldTransactionFlow = ({
   const buildCosmosStakeArgs = useCallback((): CosmosStakeArgs | undefined => {
     if (yieldChainId !== cosmosChainId) return undefined
 
+    const validator = validatorAddress || DEFAULT_NATIVE_VALIDATOR_BY_CHAIN_ID[cosmosChainId]
+    if (!validator) return undefined
+
     return {
-      validator: validatorAddress || (DEFAULT_NATIVE_VALIDATOR_BY_CHAIN_ID[cosmosChainId] ?? ''),
+      validator,
       amountCryptoBaseUnit: bnOrZero(amount)
         .times(bnOrZero(10).pow(yieldItem.token.decimals))
         .toFixed(0),

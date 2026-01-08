@@ -45,8 +45,10 @@ export const YieldAssetSection = memo(({ assetId, accountId }: YieldAssetSection
 
   const aggregated = useMemo(() => {
     const multiAccountEnabled = getConfig().VITE_FEATURE_YIELD_MULTI_ACCOUNT
-    if (multiAccountEnabled && !accountId)
-      throw new Error('Multi-account yield not yet implemented')
+    if (multiAccountEnabled && !accountId) {
+      console.warn('[YieldAssetSection] Multi-account yield enabled but no accountId provided')
+      return {}
+    }
     if (!allBalancesData?.aggregated || !yields.length) return {}
 
     const accountFilter = accountId ? fromAccountId(accountId).account.toLowerCase() : null

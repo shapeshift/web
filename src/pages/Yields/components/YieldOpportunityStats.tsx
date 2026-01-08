@@ -16,6 +16,7 @@ import { FaChartPie, FaMoon } from 'react-icons/fa'
 import { Amount } from '@/components/Amount/Amount'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import type { AugmentedYieldDto, YieldBalancesResponse } from '@/lib/yieldxyz/types'
+import { useYields } from '@/react-queries/queries/yieldxyz/useYields'
 import { selectPortfolioUserCurrencyBalances } from '@/state/slices/common-selectors'
 import { selectUserCurrencyToUsdRate } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
@@ -40,6 +41,7 @@ export const YieldOpportunityStats = memo(function YieldOpportunityStats({
 }: YieldOpportunityStatsProps) {
   const userCurrencyToUsdRate = useAppSelector(selectUserCurrencyToUsdRate)
   const portfolioBalances = useAppSelector(selectPortfolioUserCurrencyBalances)
+  const { data: yields } = useYields()
 
   const activeValueUsd = useMemo(() => {
     return positions.reduce((acc, position) => {
@@ -68,10 +70,32 @@ export const YieldOpportunityStats = memo(function YieldOpportunityStats({
     }, bnOrZero(0))
   }, [allYields, portfolioBalances])
 
-  const maxApy = useMemo(() => {
-    if (!allYields || allYields.length === 0) return 0
-    return Math.max(...allYields.map(y => y.rewardRate.total)) * 100
-  }, [allYields])
+  // Calculate weighted APY and potential earnings based on user's actual held assets
+  const { weightedApy, potentialEarningsValue } = useMemo(() => {
+    if (!yields?.byInputAssetId || !portfolioBalances) {
+      return { weightedApy: 0, potentialEarningsValue: bnOrZero(0) }
+    }
+
+    let totalEarnings = bnOrZero(0)
+    let totalActionableBalance = bnOrZero(0)
+
+    for (const [assetId, balanceFiat] of Object.entries(portfolioBalances)) {
+      const yieldsForAsset = yields.byInputAssetId[assetId]
+      if (!yieldsForAsset?.length) continue // Early bail - no yield for this asset
+
+      const balance = bnOrZero(balanceFiat)
+      const bestApy = Math.max(...yieldsForAsset.map(y => y.rewardRate.total))
+
+      totalEarnings = totalEarnings.plus(balance.times(bestApy))
+      totalActionableBalance = totalActionableBalance.plus(balance)
+    }
+
+    const avgApy = totalActionableBalance.gt(0)
+      ? totalEarnings.div(totalActionableBalance).times(100).toNumber()
+      : 0
+
+    return { weightedApy: avgApy, potentialEarningsValue: totalEarnings }
+  }, [yields?.byInputAssetId, portfolioBalances])
 
   const hasActiveDeposits = useMemo(() => activeValueUsd.gt(0), [activeValueUsd])
 
@@ -82,9 +106,12 @@ export const YieldOpportunityStats = memo(function YieldOpportunityStats({
 
   const idleValueFormatted = useMemo(() => idleValueUsd.toFixed(), [idleValueUsd])
 
-  const potentialEarnings = useMemo(() => idleValueUsd.times(0.05).toFixed(), [idleValueUsd])
+  const potentialEarnings = useMemo(
+    () => potentialEarningsValue.toFixed(),
+    [potentialEarningsValue],
+  )
 
-  const maxApyFormatted = useMemo(() => maxApy.toFixed(2), [maxApy])
+  const weightedApyFormatted = useMemo(() => weightedApy.toFixed(2), [weightedApy])
 
   const positionsCount = useMemo(() => positions.length, [positions.length])
 
@@ -179,7 +206,7 @@ export const YieldOpportunityStats = memo(function YieldOpportunityStats({
               <Amount.Fiat value={idleValueFormatted} abbreviated />
             </StatNumber>
             <StatHelpText color='purple.300'>
-              Idle assets that could be earning up to {maxApyFormatted}% APY
+              Idle assets that could be earning up to {weightedApyFormatted}% APY
             </StatHelpText>
           </Stat>
           <Flex

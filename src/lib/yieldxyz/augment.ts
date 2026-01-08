@@ -79,10 +79,14 @@ const chainIdFromYieldDto = (yieldDto: YieldDto): ChainId | undefined => {
 
   const evmNetworkId = parseEvmNetworkId(yieldDto.chainId)
   if (evmNetworkId) {
-    return toChainId({
-      chainNamespace: CHAIN_NAMESPACE.Evm,
-      chainReference: evmNetworkId as ChainReference,
-    })
+    try {
+      return toChainId({
+        chainNamespace: CHAIN_NAMESPACE.Evm,
+        chainReference: evmNetworkId as ChainReference,
+      })
+    } catch {
+      return undefined
+    }
   }
 
   return undefined

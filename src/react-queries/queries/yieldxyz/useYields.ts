@@ -122,6 +122,16 @@ export const useYields = (params?: { network?: string; provider?: string }) => {
       return acc
     }, {})
 
+    // Group yields by input token assetId for accurate portfolio matching
+    const byInputAssetId = filtered.reduce<Record<string, AugmentedYieldDto[]>>((acc, item) => {
+      const assetId = item.inputTokens?.[0]?.assetId
+      if (assetId) {
+        if (!acc[assetId]) acc[assetId] = []
+        acc[assetId].push(item)
+      }
+      return acc
+    }, {})
+
     // Pre-compute asset groups with all derived metadata
     // Consumers no longer need to compute this themselves
     const assetGroups: YieldAssetGroup[] = Object.entries(byAssetSymbol).map(
@@ -158,6 +168,7 @@ export const useYields = (params?: { network?: string; provider?: string }) => {
       byId,
       ids,
       byAssetSymbol,
+      byInputAssetId,
       assetGroups,
       meta: {
         networks: globalNetworks,

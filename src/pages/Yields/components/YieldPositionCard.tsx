@@ -330,7 +330,7 @@ export const YieldPositionCard = memo(
             </Text>
           </Box>
           <Badge colorScheme='orange' variant='solid' fontSize='xs'>
-            Pending
+            {translate('yieldXYZ.pending')}
           </Badge>
         </Flex>
       )

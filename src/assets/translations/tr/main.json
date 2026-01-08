@@ -328,7 +328,10 @@
     "viewSavedWallets": "Kayıtlı Cüzdanları Görüntüle",
     "footerOne": "Devam ederek şunları kabul etmiş olursunuz:",
     "terms": "Şartlar",
-    "privacyPolicy": "Gizlilik Politikası"
+    "privacyPolicy": "Gizlilik Politikası",
+    "connectNewWallet": "Yeni Cüzdanı Bağla",
+    "getANewWallet": "Yeni Bir Cüzdan Alın",
+    "alreadyHaveWallet": "Zaten bir Cüzdanım var"
   },
   "connectWallet": {
     "menu": {
@@ -523,6 +526,8 @@
     "foxToken": {
       "title": "FOX Token",
       "subtitle": "Yönetim Tokenımız"
+    },
+    "agent": {
     },
     "classic": {
       "title": "Klasik",
@@ -1879,6 +1884,10 @@
     "title": "%{appName} Uygulamasını açın",
     "description": "Devam etmek için Ledger cihazınızda %{appName} uygulamasını açmanız gerekecektir.",
     "devicePrompt": "Cihazınız, mevcut eyleminizi tamamlamak için gerekli adımları size bildirecektir."
+  },
+  "starknet": {
+    "deployAccount": {
+    }
   },
   "transactionHistory": {
     "transactionHistory": "İşlem Geçmişi",

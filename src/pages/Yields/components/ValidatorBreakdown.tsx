@@ -26,11 +26,13 @@ import { YieldActionModal } from './YieldActionModal'
 
 import { Amount } from '@/components/Amount/Amount'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
-import type { AugmentedYieldDto, YieldBalanceValidator } from '@/lib/yieldxyz/types'
+import type { AugmentedYieldDto } from '@/lib/yieldxyz/types'
 import { YieldBalanceType } from '@/lib/yieldxyz/types'
 import { useYieldAccount } from '@/pages/Yields/YieldAccountContext'
-import type { AugmentedYieldBalanceWithAccountId } from '@/react-queries/queries/yieldxyz/useAllYieldBalances'
-import type { NormalizedYieldBalances } from '@/react-queries/queries/yieldxyz/useYieldBalances'
+import type {
+  NormalizedYieldBalances,
+  ValidatorSummary,
+} from '@/react-queries/queries/yieldxyz/useYieldBalances'
 import {
   selectAccountIdByAccountNumberAndChainId,
   selectUserCurrencyToUsdRate,
@@ -41,15 +43,6 @@ type ValidatorBreakdownProps = {
   yieldItem: AugmentedYieldDto
   balances: NormalizedYieldBalances | undefined
   isBalancesLoading: boolean
-}
-
-type ValidatorGroupedBalances = {
-  validator: YieldBalanceValidator
-  active: AugmentedYieldBalanceWithAccountId | undefined
-  entering: AugmentedYieldBalanceWithAccountId | undefined
-  exiting: AugmentedYieldBalanceWithAccountId | undefined
-  claimable: AugmentedYieldBalanceWithAccountId | undefined
-  totalUsd: string
 }
 
 type ClaimModalData = {
@@ -106,61 +99,22 @@ export const ValidatorBreakdown = memo(
       [yieldItem.mechanics.requiresValidatorSelection],
     )
 
-    const groupedByValidator = useMemo((): ValidatorGroupedBalances[] => {
-      if (!balances || !requiresValidatorSelection) return []
-
-      const balancesWithValidators = balances.raw.filter(
-        (b): b is typeof b & { validator: NonNullable<typeof b.validator> } => !!b.validator,
-      )
-
-      const validatorMap = balancesWithValidators.reduce((map, balance) => {
-        const key = balance.validator.address
-        const existing = map.get(key)
-
-        if (!existing) {
-          return map.set(key, {
-            validator: balance.validator,
-            active: balance.type === YieldBalanceType.Active ? balance : undefined,
-            entering: balance.type === YieldBalanceType.Entering ? balance : undefined,
-            exiting: balance.type === YieldBalanceType.Exiting ? balance : undefined,
-            claimable: balance.type === YieldBalanceType.Claimable ? balance : undefined,
-            totalUsd: bnOrZero(balance.amountUsd),
-          })
-        }
-
-        return map.set(key, {
-          ...existing,
-          active: balance.type === YieldBalanceType.Active ? balance : existing.active,
-          entering: balance.type === YieldBalanceType.Entering ? balance : existing.entering,
-          exiting: balance.type === YieldBalanceType.Exiting ? balance : existing.exiting,
-          claimable: balance.type === YieldBalanceType.Claimable ? balance : existing.claimable,
-          totalUsd: existing.totalUsd.plus(bnOrZero(balance.amountUsd)),
-        })
-      }, new Map<string, Omit<ValidatorGroupedBalances, 'totalUsd'> & { totalUsd: ReturnType<typeof bnOrZero> }>())
-
-      return Array.from(validatorMap.values())
-        .filter(
-          group =>
-            bnOrZero(group.active?.amount).gt(0) ||
-            bnOrZero(group.entering?.amount).gt(0) ||
-            bnOrZero(group.exiting?.amount).gt(0) ||
-            bnOrZero(group.claimable?.amount).gt(0),
-        )
-        .map(group => ({ ...group, totalUsd: group.totalUsd.toFixed() }))
-    }, [balances, requiresValidatorSelection])
+    const validators = useMemo(
+      () => (requiresValidatorSelection ? balances?.validators ?? [] : []),
+      [balances?.validators, requiresValidatorSelection],
+    )
 
     const hasValidatorPositions = useMemo(
-      () => groupedByValidator.length > 1,
-      [groupedByValidator.length],
+      () => (requiresValidatorSelection ? balances?.hasValidatorPositions ?? false : false),
+      [balances?.hasValidatorPositions, requiresValidatorSelection],
     )
 
     const allPositionsTotalUserCurrency = useMemo(
       () =>
-        groupedByValidator
-          .reduce((acc, g) => acc.plus(bnOrZero(g.totalUsd)), bnOrZero(0))
+        bnOrZero(balances?.totalUsd)
           .times(userCurrencyToUsdRate)
           .toFixed(),
-      [groupedByValidator, userCurrencyToUsdRate],
+      [balances?.totalUsd, userCurrencyToUsdRate],
     )
 
     const formatUnlockDate = useCallback((dateString: string | undefined) => {
@@ -181,16 +135,17 @@ export const ValidatorBreakdown = memo(
     )
 
     const handleClaimClick = useCallback(
-      (group: ValidatorGroupedBalances, passthrough: string, manageActionType: string) =>
+      (validatorSummary: ValidatorSummary, passthrough: string, manageActionType: string) =>
         (e: React.MouseEvent) => {
           e.stopPropagation()
+          const claimableBalance = validatorSummary.byType[YieldBalanceType.Claimable]
           setClaimModalData({
-            validatorAddress: group.validator.address,
-            validatorName: group.validator.name,
-            validatorLogoURI: group.validator.logoURI,
-            amount: group.claimable?.amount ?? '0',
-            assetSymbol: group.claimable?.token.symbol ?? '',
-            assetLogoURI: group.claimable?.token.logoURI,
+            validatorAddress: validatorSummary.validator.address,
+            validatorName: validatorSummary.validator.name,
+            validatorLogoURI: validatorSummary.validator.logoURI,
+            amount: claimableBalance?.aggregatedAmount ?? '0',
+            assetSymbol: claimableBalance?.token.symbol ?? '',
+            assetLogoURI: claimableBalance?.token.logoURI,
             passthrough,
             manageActionType,
           })
@@ -276,18 +231,25 @@ export const ValidatorBreakdown = memo(
           </Flex>
           <Collapse in={isOpen} animateOpacity>
             <VStack spacing={3} align='stretch'>
-              {groupedByValidator.map((group, index) => {
-                const hasActive = bnOrZero(group.active?.amount).gt(0)
-                const hasEntering = bnOrZero(group.entering?.amount).gt(0)
-                const hasExiting = bnOrZero(group.exiting?.amount).gt(0)
-                const hasClaimable = bnOrZero(group.claimable?.amount).gt(0)
-                const isSelected = group.validator.address === selectedValidator
-                const claimAction = group.claimable?.pendingActions?.find(
-                  a => a.type === 'CLAIM_REWARDS',
-                )
+              {validators.map((validatorSummary, index) => {
+                const {
+                  validator,
+                  byType,
+                  totalUsd,
+                  hasActive,
+                  hasEntering,
+                  hasExiting,
+                  hasClaimable,
+                  claimAction,
+                } = validatorSummary
+                const activeBalance = byType[YieldBalanceType.Active]
+                const enteringBalance = byType[YieldBalanceType.Entering]
+                const exitingBalance = byType[YieldBalanceType.Exiting]
+                const claimableBalance = byType[YieldBalanceType.Claimable]
+                const isSelected = validator.address === selectedValidator
 
                 return (
-                  <Box key={group.validator.address}>
+                  <Box key={validator.address}>
                     {index > 0 && <Divider borderColor={borderColor} mb={3} />}
                     <Flex
                       direction='column'
@@ -305,55 +267,52 @@ export const ValidatorBreakdown = memo(
                           right={3}
                           colorScheme='blue'
                           variant='outline'
-                          onClick={handleValidatorSwitch(group.validator.address)}
+                          onClick={handleValidatorSwitch(validator.address)}
                         >
                           {translate('yieldXYZ.switch')}
                         </Button>
                       )}
                       <HStack spacing={3}>
                         <Avatar
-                          src={group.validator.logoURI}
-                          name={group.validator.name}
+                          src={validator.logoURI}
+                          name={validator.name}
                           size='sm'
                           bg='gray.700'
                         />
                         <Box flex={1}>
                           <Flex align='center' gap={2}>
                             <Text fontWeight='semibold' fontSize='sm'>
-                              {group.validator.name}
+                              {validator.name}
                             </Text>
-                            {group.validator.apr !== undefined &&
-                              bnOrZero(group.validator.apr).gt(0) && (
-                                <GradientApy fontSize='xs'>
-                                  {bnOrZero(group.validator.apr).times(100).toFixed(2)}% APR
-                                </GradientApy>
-                              )}
+                            {validator.apr !== undefined && bnOrZero(validator.apr).gt(0) && (
+                              <GradientApy fontSize='xs'>
+                                {bnOrZero(validator.apr).times(100).toFixed(2)}% APR
+                              </GradientApy>
+                            )}
                           </Flex>
                           <Text fontSize='xs' color='text.subtle'>
                             <Amount.Fiat
-                              value={bnOrZero(group.totalUsd)
-                                .times(userCurrencyToUsdRate)
-                                .toFixed()}
+                              value={bnOrZero(totalUsd).times(userCurrencyToUsdRate).toFixed()}
                             />
                           </Text>
                         </Box>
                       </HStack>
                       <VStack spacing={2} align='stretch' pl={10}>
-                        {group.active && hasActive && (
+                        {activeBalance && hasActive && (
                           <Flex justify='space-between' align='center'>
                             <Text fontSize='xs' color='text.subtle' textTransform='uppercase'>
                               {translate('yieldXYZ.staked')}
                             </Text>
                             <Text fontSize='sm' fontWeight='medium'>
                               <Amount.Crypto
-                                value={group.active.amount}
-                                symbol={group.active.token.symbol}
+                                value={activeBalance.aggregatedAmount}
+                                symbol={activeBalance.token.symbol}
                                 abbreviated
                               />
                             </Text>
                           </Flex>
                         )}
-                        {group.entering && hasEntering && (
+                        {enteringBalance && hasEntering && (
                           <Flex
                             justify='space-between'
                             align='center'
@@ -371,22 +330,22 @@ export const ValidatorBreakdown = memo(
                               >
                                 {translate('yieldXYZ.entering')}
                               </Text>
-                              {group.entering.date && (
+                              {enteringBalance.date && (
                                 <Text fontSize='xs' color={enteringDateColor}>
-                                  ({formatUnlockDate(group.entering.date)})
+                                  ({formatUnlockDate(enteringBalance.date)})
                                 </Text>
                               )}
                             </HStack>
                             <Text fontSize='sm' fontWeight='medium' color={enteringValueColor}>
                               <Amount.Crypto
-                                value={group.entering.amount}
-                                symbol={group.entering.token.symbol}
+                                value={enteringBalance.aggregatedAmount}
+                                symbol={enteringBalance.token.symbol}
                                 abbreviated
                               />
                             </Text>
                           </Flex>
                         )}
-                        {group.exiting && hasExiting && (
+                        {exitingBalance && hasExiting && (
                           <Flex
                             justify='space-between'
                             align='center'
@@ -404,22 +363,22 @@ export const ValidatorBreakdown = memo(
                               >
                                 {translate('yieldXYZ.exiting')}
                               </Text>
-                              {group.exiting.date && (
+                              {exitingBalance.date && (
                                 <Text fontSize='xs' color={exitingDateColor}>
-                                  ({formatUnlockDate(group.exiting.date)})
+                                  ({formatUnlockDate(exitingBalance.date)})
                                 </Text>
                               )}
                             </HStack>
                             <Text fontSize='sm' fontWeight='medium' color={exitingValueColor}>
                               <Amount.Crypto
-                                value={group.exiting.amount}
-                                symbol={group.exiting.token.symbol}
+                                value={exitingBalance.aggregatedAmount}
+                                symbol={exitingBalance.token.symbol}
                                 abbreviated
                               />
                             </Text>
                           </Flex>
                         )}
-                        {group.claimable && hasClaimable && (
+                        {claimableBalance && hasClaimable && (
                           <Flex
                             justify='space-between'
                             align='center'
@@ -439,8 +398,8 @@ export const ValidatorBreakdown = memo(
                               </Text>
                               <Text fontSize='sm' fontWeight='medium' color={claimableValueColor}>
                                 <Amount.Crypto
-                                  value={group.claimable.amount}
-                                  symbol={group.claimable.token.symbol}
+                                  value={claimableBalance.aggregatedAmount}
+                                  symbol={claimableBalance.token.symbol}
                                   abbreviated
                                 />
                               </Text>
@@ -451,7 +410,7 @@ export const ValidatorBreakdown = memo(
                                 colorScheme='purple'
                                 variant='solid'
                                 onClick={handleClaimClick(
-                                  group,
+                                  validatorSummary,
                                   claimAction.passthrough,
                                   claimAction.type,
                                 )}

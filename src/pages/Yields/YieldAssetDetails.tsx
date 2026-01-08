@@ -351,9 +351,9 @@ export const YieldAssetDetails = memo(() => {
             userBalanceUsd={
               allBalances?.[row.original.id]
                 ? allBalances[row.original.id].reduce(
-                  (sum, b) => sum.plus(bnOrZero(b.amountUsd)),
-                  bnOrZero(0),
-                )
+                    (sum, b) => sum.plus(bnOrZero(b.amountUsd)),
+                    bnOrZero(0),
+                  )
                 : undefined
             }
           />

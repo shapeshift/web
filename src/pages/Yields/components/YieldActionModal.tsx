@@ -482,8 +482,8 @@ export const YieldActionModal = memo(function YieldActionModal({
                   {s.status === 'success'
                     ? translate('yieldXYZ.loading.done')
                     : s.status === 'loading'
-                      ? ''
-                      : translate('yieldXYZ.loading.waiting')}
+                    ? ''
+                    : translate('yieldXYZ.loading.waiting')}
                 </Text>
               )}
             </Flex>

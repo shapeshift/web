@@ -164,7 +164,7 @@ export const YieldStats = memo(({ yieldItem, balances }: YieldStatsProps) => {
         </Flex>
       </Flex>
     )
-  }, [validatorMetadata])
+  }, [validatorMetadata, translate])
 
   const minDepositRowContent = useMemo(() => {
     if (!yieldItem.mechanics.entryLimits.minimum) return null

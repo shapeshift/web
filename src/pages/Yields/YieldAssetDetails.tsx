@@ -302,8 +302,12 @@ export const YieldAssetDetails = memo(() => {
           showNetworkIcon={false}
         />
         <Box>
-          <Heading size='lg'>{translate('yieldXYZ.assetYields', { asset: assetInfo.assetName })}</Heading>
-          <Text color='text.subtle'>{translate('yieldXYZ.opportunitiesAvailable', { count: assetYields.length })}</Text>
+          <Heading size='lg'>
+            {translate('yieldXYZ.assetYields', { asset: assetInfo.assetName })}
+          </Heading>
+          <Text color='text.subtle'>
+            {translate('yieldXYZ.opportunitiesAvailable', { count: assetYields.length })}
+          </Text>
         </Box>
       </Flex>
     )
@@ -370,7 +374,8 @@ export const YieldAssetDetails = memo(() => {
 
   const contentElement = useMemo(() => {
     if (isLoading) return viewMode === 'grid' ? loadingGridElement : loadingListElement
-    if (filteredYields.length === 0) return <Text>{translate('yieldXYZ.noYieldsMatchingFilters')}</Text>
+    if (filteredYields.length === 0)
+      return <Text>{translate('yieldXYZ.noYieldsMatchingFilters')}</Text>
     return viewMode === 'grid' ? gridViewElement : listViewElement
   }, [
     filteredYields.length,
@@ -379,6 +384,7 @@ export const YieldAssetDetails = memo(() => {
     listViewElement,
     loadingGridElement,
     loadingListElement,
+    translate,
     viewMode,
   ])
 

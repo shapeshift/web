@@ -1,5 +1,6 @@
 import { Box, Flex } from '@chakra-ui/react'
 import { useCallback, useMemo } from 'react'
+import { FormProvider, useForm } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { Route, Routes, useLocation, useNavigate } from 'react-router-dom'
 
@@ -22,6 +23,7 @@ const containerPaddingBottom = { base: 0, md: 12 }
 
 export const RampTab = () => {
   const translate = useTranslate()
+  const methods = useForm({ mode: 'onChange' })
   const navigate = useNavigate()
   const location = useLocation()
 
@@ -88,9 +90,11 @@ export const RampTab = () => {
           zIndex={2}
           position='relative'
         >
-          <Routes>
-            <Route key={FiatRampRoutePaths.Buy} path={'*'} element={buyElement} />
-          </Routes>
+          <FormProvider {...methods}>
+            <Routes>
+              <Route key={FiatRampRoutePaths.Buy} path={'*'} element={buyElement} />
+            </Routes>
+          </FormProvider>
         </Flex>
       </Box>
     </Main>

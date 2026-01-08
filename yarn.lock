@@ -11548,9 +11548,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/hdwallet-gridplus@npm:1.62.38":
-  version: 1.62.38
-  resolution: "@shapeshiftoss/hdwallet-gridplus@npm:1.62.38"
+"@shapeshiftoss/hdwallet-gridplus@npm:1.62.39-gridplus-evm.0":
+  version: 1.62.39-gridplus-evm.0
+  resolution: "@shapeshiftoss/hdwallet-gridplus@npm:1.62.39-gridplus-evm.0"
   dependencies:
     "@bitcoinerlab/secp256k1": ^1.1.1
     "@ethereumjs/common": 4.4.0
@@ -11564,7 +11564,7 @@ __metadata:
     crypto-js: ^4.2.0
     gridplus-sdk: ^3.2.0
     lodash: ^4.17.21
-  checksum: ea90fc9ec0b64a24eeda7b46fae6c8690a2c2b70cd5c430ee2e6bd17ad84e118fa1a0274b552b18365071a8e68f3cd353bfe8282597442649a23dfaf9f1c7d50
+  checksum: 5d6ff5efde967915efffc7316d68001b1eac734625873159b3d6964ff6ea7813032076841a062b71b8dba94f91cd045c39b97d75160d973e01047c95ebd6d9d7
   languageName: node
   linkType: hard
 
@@ -12116,7 +12116,7 @@ __metadata:
     "@shapeshiftoss/errors": "workspace:^"
     "@shapeshiftoss/hdwallet-coinbase": 1.62.38
     "@shapeshiftoss/hdwallet-core": 1.62.38
-    "@shapeshiftoss/hdwallet-gridplus": 1.62.38
+    "@shapeshiftoss/hdwallet-gridplus": 1.62.39-gridplus-evm.0
     "@shapeshiftoss/hdwallet-keepkey": 1.62.38
     "@shapeshiftoss/hdwallet-keepkey-webusb": 1.62.38
     "@shapeshiftoss/hdwallet-keplr": 1.62.38

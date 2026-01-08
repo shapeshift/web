@@ -27,8 +27,6 @@ import { bnOrZero } from '@/lib/bignumber/bignumber'
 import {
   DEFAULT_NATIVE_VALIDATOR_BY_CHAIN_ID,
   SHAPESHIFT_COSMOS_VALIDATOR_ADDRESS,
-  SHAPESHIFT_FOX_LOGO_URL,
-  SHAPESHIFT_VALIDATOR_NAME,
   SUI_GAS_BUFFER,
 } from '@/lib/yieldxyz/constants'
 import type { AugmentedYieldDto, ValidatorDto } from '@/lib/yieldxyz/types'
@@ -163,8 +161,8 @@ export const YieldEnterExit = memo(
 
       if (selectedValidatorAddress === SHAPESHIFT_COSMOS_VALIDATOR_ADDRESS) {
         return {
-          name: SHAPESHIFT_VALIDATOR_NAME,
-          logoURI: SHAPESHIFT_FOX_LOGO_URL,
+          name: 'ShapeShift',
+          logoURI: 'https://assets.coincap.io/assets/icons/256/fox.png',
           address: selectedValidatorAddress,
           apr: '0',
           commission: '0',

@@ -2762,6 +2762,7 @@
     "withdraw": "Withdraw",
     "successDeposit": "You successfully deposited %{amount} %{symbol}",
     "successWithdraw": "You successfully withdrew %{amount} %{symbol}",
+    "successClaim": "You successfully claimed %{amount} %{symbol}",
     "loading": {
       "signInWallet": "Sign in Wallet",
       "signNow": "Sign now...",

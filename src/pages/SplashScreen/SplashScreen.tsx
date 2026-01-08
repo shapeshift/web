@@ -1,8 +1,8 @@
 import { Center, Circle, Spinner } from '@chakra-ui/react'
 import { isFirefox } from 'react-device-detect'
 
-import Orbs from '@/assets/orbs.svg'
 import OrbsStatic from '@/assets/orbs-static.png'
+import Orbs from '@/assets/orbs.svg?url'
 import { FoxIcon } from '@/components/Icons/FoxIcon'
 import { Page } from '@/components/Layout/Page'
 import { colors } from '@/theme/colors'

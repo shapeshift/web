@@ -5,7 +5,6 @@ import { useQueryClient } from '@tanstack/react-query'
 import { AnimatePresence } from 'framer-motion'
 import type { FormEvent } from 'react'
 import { memo, useCallback, useEffect, useMemo, useRef } from 'react'
-import { FormProvider, useForm } from 'react-hook-form'
 import { Route, Routes, useLocation, useNavigate } from 'react-router-dom'
 
 import { FiatRampRoutePaths } from './types'
@@ -69,13 +68,7 @@ export type FiatRampTradeProps = {
 }
 
 export const FiatRampTrade = memo(({ onChangeTab, direction }: FiatRampTradeProps) => {
-  const methods = useForm({ mode: 'onChange' })
-
-  return (
-    <FormProvider {...methods}>
-      <RampRoutes onChangeTab={onChangeTab} direction={direction} />
-    </FormProvider>
-  )
+  return <RampRoutes onChangeTab={onChangeTab} direction={direction} />
 })
 
 type RampRoutesProps = {

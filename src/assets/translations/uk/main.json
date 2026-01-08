@@ -328,7 +328,10 @@
     "viewSavedWallets": "Переглянути збережені гаманці",
     "footerOne": "Продовжуючи, ви погоджуєтеся з",
     "terms": "Умовами",
-    "privacyPolicy": "Політики конфіденційності"
+    "privacyPolicy": "Політики конфіденційності",
+    "connectNewWallet": "Підключити новий гаманець",
+    "getANewWallet": "Отримайте новий гаманець",
+    "alreadyHaveWallet": "У мене вже є гаманець"
   },
   "connectWallet": {
     "menu": {
@@ -523,6 +526,8 @@
     "foxToken": {
       "title": "Токен FOX",
       "subtitle": "Наш токен управління"
+    },
+    "agent": {
     },
     "classic": {
       "title": "Класичний",
@@ -1879,6 +1884,10 @@
     "title": "Відкрити %{appName} додаток",
     "description": "Щоб продовжити, вам потрібно відкрити додаток %{appName} на вашому пристрої Ledger.",
     "devicePrompt": "Пристрій підкаже вам усі необхідні кроки для завершення поточної дії."
+  },
+  "starknet": {
+    "deployAccount": {
+    }
   },
   "transactionHistory": {
     "transactionHistory": "Історія транзакцій",

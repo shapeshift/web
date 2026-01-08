@@ -7,6 +7,7 @@ import {
   cosmosChainId,
   ethChainId,
   gnosisChainId,
+  hyperEvmChainId,
   monadChainId,
   optimismChainId,
   polygonChainId,
@@ -32,6 +33,7 @@ export const CHAIN_ID_TO_YIELD_NETWORK: Partial<Record<ChainId, YieldNetwork>> =
   [suiChainId]: YieldNetwork.Sui,
   [monadChainId]: YieldNetwork.Monad,
   [tronChainId]: YieldNetwork.Tron,
+  [hyperEvmChainId]: YieldNetwork.Hyperevm,
 }
 
 export const YIELD_NETWORK_TO_CHAIN_ID: Partial<Record<YieldNetwork, ChainId>> = invert(

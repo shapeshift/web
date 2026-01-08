@@ -25,6 +25,7 @@ export enum YieldNetwork {
   Sui = 'sui',
   Monad = 'monad',
   Tron = 'tron',
+  Hyperevm = 'hyperevm',
 }
 
 export enum ActionIntent {

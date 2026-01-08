@@ -49,12 +49,15 @@ export const useAllYieldBalances = (options: UseAllYieldBalancesOptions = {}) =>
     return payloads
   }, [isConnected, accountIds, filterAccountIds, networks])
 
-  const addressToAccountId = useMemo(() => {
-    const map: Record<string, AccountId> = {}
+  const { addressToAccountId, addressToChainId } = useMemo(() => {
+    const accountIdMap: Record<string, AccountId> = {}
+    const chainIdMap: Record<string, ChainId> = {}
     for (const payload of queryPayloads) {
-      map[`${payload.address.toLowerCase()}:${payload.network}`] = payload.accountId
+      const key = payload.address.toLowerCase()
+      accountIdMap[`${key}:${payload.network}`] = payload.accountId
+      chainIdMap[key] = payload.chainId
     }
-    return map
+    return { addressToAccountId: accountIdMap, addressToChainId: chainIdMap }
   }, [queryPayloads])
 
   return useQuery<Record<string, AugmentedYieldBalanceWithAccountId[]>>({
@@ -74,10 +77,7 @@ export const useAllYieldBalances = (options: UseAllYieldBalancesOptions = {}) =>
               const firstBalance = item.balances[0]
               if (!firstBalance) continue
 
-              const relevantPayload = queryPayloads.find(
-                p => p.address.toLowerCase() === firstBalance.address.toLowerCase(),
-              )
-              const chainId = relevantPayload?.chainId
+              const chainId = addressToChainId[firstBalance.address.toLowerCase()]
 
               const augmentedBalances = augmentYieldBalances(item.balances, chainId)
 

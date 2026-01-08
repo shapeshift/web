@@ -513,6 +513,7 @@
     "rFOX": "rFOX",
     "tcy": "TCY",
     "foxEcosystem": "Ecosistema FOX",
+    "ecosystem": "Ecosistema",
     "markets": "Mercados",
     "tokens": "Tokens",
     "swap": "Intercambiar"
@@ -528,6 +529,8 @@
       "subtitle": "Nuestro Token de Gobernanza"
     },
     "agent": {
+      "title": "Agente",
+      "subtitle": "Chatea con tu billetera"
     },
     "classic": {
       "title": "Clásico",
@@ -1097,6 +1100,7 @@
       "getFeesError": "Error al obtener tarifas",
       "broadcastingTransaction": "Enviando Transacción",
       "youHaveSent": "Has enviado con éxito %{amount} %{symbol}",
+      "sendFailed": "Envío fallido",
       "toAddress": "A Dirección",
       "toAddressOrEns": "Para Dirección o ENS",
       "scanQrCode": "Escanear código QR",
@@ -1887,6 +1891,14 @@
   },
   "starknet": {
     "deployAccount": {
+      "title": "Implementar Cuenta Starknet",
+      "description": "Starknet utiliza cuentas de contratos inteligentes que deben implementarse antes de su uso.",
+      "sendDescription": "Primero deberás implementar la cuenta para poder enviar",
+      "swapDescription": "Starknet usa cuentas con contratos inteligentes. Necesitarás implementar tu cuenta antes de poder intercambiar.",
+      "explanation": "Esta es una configuración única que inicializará tu cuenta en Starknet. Se deducirá una pequeña comisión de tu saldo.",
+      "deployButton": "Implementar Cuenta",
+      "deploying": "Implementando Cuenta...",
+      "deployFailed": "Implementación Fallida"
     }
   },
   "transactionHistory": {
@@ -2525,6 +2537,7 @@
       "buildTransaction": "Error al crear la transacción.",
       "signTransaction": "No se pudo firmar la transacción.",
       "blindSigningRequired": "Transacción requiere firma ciega. Activa Blind Signing o Contract Data en la configuración de tu app Ledger y vuelve a intentarlo.",
+      "ledgerTronAllowDataDisabled": "Habilite los datos de transacciones en la configuración de su app Ledger TRON y vuelva a intentarlo.",
       "signAndBroadcastTransaction": "No se pudo firmar ni transmitir la transacción.",
       "signMessage": "No se pudo firmar el mensaje.",
       "broadcastTransaction": "No se pudo transmitir la transacción.",

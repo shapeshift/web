@@ -179,21 +179,9 @@ const executeEvmTransaction = async ({
           gasPrice: toHexOrDefault(parsed.gasPrice ?? '0', '0x0'),
         }
 
-  /*
-    We need to cast to any here because existing EVM adapters might have slight signature differences
-    in their signAndBroadcast types that strict TS doesn't like, OR the txToSign object
-    constructed above is missing optional properties that the adapter expects but doesn't strictly need for this call.
-    However, the goal is to remove 'as any'.
-    
-    The error is usually that 'SignTx' type in shapeshift-adapters is a union of all chain tx types,
-    and we are passing a specific EVM tx object.
-    
-    Let's relax the cast to 'SignTx<EvmChainId>' which we already did in variable declaration,
-    but let's double check if we can pass it without 'as any'.
-  */
   const txHash = await evmSignAndBroadcast({
     adapter,
-    txToSign, // remove 'as any' - it is already typed as SignTx<EvmChainId>
+    txToSign,
     wallet,
     senderAddress: parsed.from,
     receiverAddress: parsed.to,

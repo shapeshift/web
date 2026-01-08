@@ -26,34 +26,36 @@ import { YieldActionModal } from './YieldActionModal'
 
 import { Amount } from '@/components/Amount/Amount'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
-import type {
-  AugmentedYieldBalance,
-  AugmentedYieldDto,
-  YieldBalanceValidator,
-} from '@/lib/yieldxyz/types'
+import type { AugmentedYieldDto, YieldBalanceValidator } from '@/lib/yieldxyz/types'
 import { YieldBalanceType } from '@/lib/yieldxyz/types'
-import { useYieldBalances } from '@/react-queries/queries/yieldxyz/useYieldBalances'
+import type { AugmentedYieldBalanceWithAccountId } from '@/react-queries/queries/yieldxyz/useAllYieldBalances'
+import type { NormalizedYieldBalances } from '@/react-queries/queries/yieldxyz/useYieldBalances'
 import { selectFirstAccountIdByChainId } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
 type ValidatorBreakdownProps = {
   yieldItem: AugmentedYieldDto
+  balances: NormalizedYieldBalances | undefined
+  isBalancesLoading: boolean
 }
 
 type ValidatorGroupedBalances = {
   validator: YieldBalanceValidator
-  active: AugmentedYieldBalance | undefined
-  entering: AugmentedYieldBalance | undefined
-  exiting: AugmentedYieldBalance | undefined
-  claimable: AugmentedYieldBalance | undefined
+  active: AugmentedYieldBalanceWithAccountId | undefined
+  entering: AugmentedYieldBalanceWithAccountId | undefined
+  exiting: AugmentedYieldBalanceWithAccountId | undefined
+  claimable: AugmentedYieldBalanceWithAccountId | undefined
   totalUsd: string
 }
 
-export const ValidatorBreakdown = ({ yieldItem }: ValidatorBreakdownProps) => {
+export const ValidatorBreakdown = ({
+  yieldItem,
+  balances,
+  isBalancesLoading,
+}: ValidatorBreakdownProps) => {
   const translate = useTranslate()
   const { isOpen, onToggle } = useDisclosure({ defaultIsOpen: true })
 
-  // Modal state
   const [claimModalData, setClaimModalData] = useState<{
     validatorAddress: string
     validatorName: string
@@ -62,6 +64,7 @@ export const ValidatorBreakdown = ({ yieldItem }: ValidatorBreakdownProps) => {
     assetSymbol: string
     assetLogoURI: string | undefined
     passthrough: string
+    manageActionType: string
   } | null>(null)
 
   const handleClaimClose = useCallback(() => setClaimModalData(null), [])
@@ -90,18 +93,6 @@ export const ValidatorBreakdown = ({ yieldItem }: ValidatorBreakdownProps) => {
   const [searchParams, setSearchParams] = useSearchParams()
   const selectedValidator = searchParams.get('validator')
 
-  const {
-    data: balances,
-    isLoading: isLoadingQuery,
-    fetchStatus,
-  } = useYieldBalances({
-    yieldId: yieldItem.id,
-    address: address ?? '',
-    chainId,
-  })
-
-  const isLoading = isLoadingQuery && fetchStatus !== 'idle'
-
   const requiresValidatorSelection = useMemo(() => {
     return yieldItem.mechanics.requiresValidatorSelection
   }, [yieldItem.mechanics.requiresValidatorSelection])
@@ -114,7 +105,7 @@ export const ValidatorBreakdown = ({ yieldItem }: ValidatorBreakdownProps) => {
       Omit<ValidatorGroupedBalances, 'totalUsd'> & { totalUsd: ReturnType<typeof bnOrZero> }
     >()
 
-    for (const balance of balances) {
+    for (const balance of balances.raw) {
       if (!balance.validator) continue
 
       const key = balance.validator.address
@@ -163,7 +154,7 @@ export const ValidatorBreakdown = ({ yieldItem }: ValidatorBreakdownProps) => {
     return null
   }
 
-  if (isLoading) {
+  if (isBalancesLoading) {
     return (
       <Card bg={cardBg} borderRadius='xl' shadow='sm' border='1px solid' borderColor={borderColor}>
         <CardBody p={6}>
@@ -414,6 +405,7 @@ export const ValidatorBreakdown = ({ yieldItem }: ValidatorBreakdownProps) => {
                                     assetSymbol: group.claimable?.token.symbol ?? '',
                                     assetLogoURI: group.claimable?.token.logoURI,
                                     passthrough: claimAction.passthrough,
+                                    manageActionType: claimAction.type,
                                   })
                                 }}
                               >
@@ -446,6 +438,7 @@ export const ValidatorBreakdown = ({ yieldItem }: ValidatorBreakdownProps) => {
           validatorName={claimModalData.validatorName}
           validatorLogoURI={claimModalData.validatorLogoURI}
           passthrough={claimModalData.passthrough}
+          manageActionType={claimModalData.manageActionType}
         />
       )}
     </Card>

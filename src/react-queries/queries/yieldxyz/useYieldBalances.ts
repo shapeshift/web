@@ -1,26 +1,124 @@
-import type { ChainId } from '@shapeshiftoss/caip'
-import { skipToken, useQuery } from '@tanstack/react-query'
+import type { AccountId } from '@shapeshiftoss/caip'
+import { useMemo } from 'react'
 
-import { getYieldBalances } from '@/lib/yieldxyz/api'
-import { augmentYieldBalances } from '@/lib/yieldxyz/augment'
-import type { AugmentedYieldBalance } from '@/lib/yieldxyz/types'
+import type { AugmentedYieldBalanceWithAccountId } from './useAllYieldBalances'
+import { useAllYieldBalances } from './useAllYieldBalances'
+
+import { bnOrZero } from '@/lib/bignumber/bignumber'
+import type { YieldBalanceType } from '@/lib/yieldxyz/types'
 
 type UseYieldBalancesParams = {
   yieldId: string
-  address: string
-  chainId?: ChainId
+  accountId?: AccountId
 }
 
-export const useYieldBalances = ({ yieldId, address, chainId }: UseYieldBalancesParams) => {
-  return useQuery<AugmentedYieldBalance[]>({
-    queryKey: ['yieldxyz', 'balances', yieldId, address],
-    queryFn:
-      yieldId && address
-        ? async () => {
-            const data = await getYieldBalances(yieldId, address)
-            return augmentYieldBalances(data.balances, chainId)
+export type AggregatedBalance = AugmentedYieldBalanceWithAccountId & {
+  aggregatedAmount: string
+  aggregatedAmountUsd: string
+}
+
+type BalancesByType = Partial<Record<YieldBalanceType, AggregatedBalance>>
+
+export type NormalizedYieldBalances = {
+  raw: AugmentedYieldBalanceWithAccountId[]
+  byType: BalancesByType
+  byValidatorAddress: Record<string, BalancesByType>
+  validatorAddresses: string[]
+}
+
+export const useYieldBalances = ({ yieldId, accountId }: UseYieldBalancesParams) => {
+  const { data: allBalances, ...queryResult } = useAllYieldBalances()
+
+  const data = useMemo((): NormalizedYieldBalances | undefined => {
+    if (!allBalances) return undefined
+
+    const yieldBalances = allBalances[yieldId]
+    if (!yieldBalances || yieldBalances.length === 0) {
+      return {
+        raw: [],
+        byType: {},
+        byValidatorAddress: {},
+        validatorAddresses: [],
+      }
+    }
+
+    const rawBalances = accountId
+      ? yieldBalances.filter(b => b.accountId === accountId)
+      : yieldBalances
+
+    if (rawBalances.length === 0) {
+      return {
+        raw: [],
+        byType: {},
+        byValidatorAddress: {},
+        validatorAddresses: [],
+      }
+    }
+
+    const byType: BalancesByType = {}
+    const byValidatorAddress: Record<string, BalancesByType> = {}
+    const validatorAddressSet = new Set<string>()
+
+    for (const balance of rawBalances) {
+      const type = balance.type as YieldBalanceType
+      const validatorAddr = balance.validator?.address
+
+      const existingByType = byType[type]
+      if (!existingByType) {
+        byType[type] = {
+          ...balance,
+          aggregatedAmount: balance.amount,
+          aggregatedAmountUsd: balance.amountUsd,
+        }
+      } else {
+        byType[type] = {
+          ...existingByType,
+          aggregatedAmount: bnOrZero(existingByType.aggregatedAmount)
+            .plus(balance.amount)
+            .toFixed(),
+          aggregatedAmountUsd: bnOrZero(existingByType.aggregatedAmountUsd)
+            .plus(balance.amountUsd)
+            .toFixed(),
+        }
+      }
+
+      if (validatorAddr) {
+        validatorAddressSet.add(validatorAddr)
+
+        if (!byValidatorAddress[validatorAddr]) {
+          byValidatorAddress[validatorAddr] = {}
+        }
+
+        const validatorBalances = byValidatorAddress[validatorAddr]
+        const existingValidatorByType = validatorBalances[type]
+
+        if (!existingValidatorByType) {
+          validatorBalances[type] = {
+            ...balance,
+            aggregatedAmount: balance.amount,
+            aggregatedAmountUsd: balance.amountUsd,
           }
-        : skipToken,
-    staleTime: Infinity,
-  })
+        } else {
+          validatorBalances[type] = {
+            ...existingValidatorByType,
+            aggregatedAmount: bnOrZero(existingValidatorByType.aggregatedAmount)
+              .plus(balance.amount)
+              .toFixed(),
+            aggregatedAmountUsd: bnOrZero(existingValidatorByType.aggregatedAmountUsd)
+              .plus(balance.amountUsd)
+              .toFixed(),
+          }
+        }
+      }
+    }
+
+    return {
+      raw: rawBalances,
+      byType,
+      byValidatorAddress,
+      validatorAddresses: Array.from(validatorAddressSet),
+    }
+  }, [allBalances, yieldId, accountId])
+
+  return { ...queryResult, data }
 }

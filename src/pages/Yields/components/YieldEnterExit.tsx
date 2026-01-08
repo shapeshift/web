@@ -14,7 +14,6 @@ import {
   Text,
   useColorModeValue,
 } from '@chakra-ui/react'
-import { fromAccountId } from '@shapeshiftoss/caip'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { FaMoneyBillWave } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
@@ -30,13 +29,14 @@ import {
   SHAPESHIFT_COSMOS_VALIDATOR_ADDRESS,
   SUI_GAS_BUFFER,
 } from '@/lib/yieldxyz/constants'
-import type { AugmentedYieldBalance, AugmentedYieldDto, ValidatorDto } from '@/lib/yieldxyz/types'
+import type { AugmentedYieldDto, ValidatorDto } from '@/lib/yieldxyz/types'
 import { YieldBalanceType, YieldNetwork } from '@/lib/yieldxyz/types'
 import { GradientApy } from '@/pages/Yields/components/GradientApy'
 import { YieldActionModal } from '@/pages/Yields/components/YieldActionModal'
 import { YieldValidatorSelectModal } from '@/pages/Yields/components/YieldValidatorSelectModal'
 import { useYieldAccount } from '@/pages/Yields/YieldAccountContext'
-import { useYieldBalances } from '@/react-queries/queries/yieldxyz/useYieldBalances'
+import type { AugmentedYieldBalanceWithAccountId } from '@/react-queries/queries/yieldxyz/useAllYieldBalances'
+import type { NormalizedYieldBalances } from '@/react-queries/queries/yieldxyz/useYieldBalances'
 import { useYieldValidators } from '@/react-queries/queries/yieldxyz/useYieldValidators'
 import {
   selectAccountIdByAccountNumberAndChainId,
@@ -48,6 +48,8 @@ import { useAppSelector } from '@/state/store'
 type YieldEnterExitProps = {
   yieldItem: AugmentedYieldDto
   isQuoteLoading?: boolean
+  balances: NormalizedYieldBalances | undefined
+  isBalancesLoading: boolean
 }
 
 const percentOptions = [0.25, 0.5, 0.75, 1]
@@ -59,7 +61,12 @@ const YieldEnterExitSkeleton = () => (
   </Flex>
 )
 
-export const YieldEnterExit = ({ yieldItem, isQuoteLoading }: YieldEnterExitProps) => {
+export const YieldEnterExit = ({
+  yieldItem,
+  isQuoteLoading,
+  balances,
+  isBalancesLoading,
+}: YieldEnterExitProps) => {
   const translate = useTranslate()
   const location = useLocation()
   const { accountNumber } = useYieldAccount()
@@ -131,19 +138,7 @@ export const YieldEnterExit = ({ yieldItem, isQuoteLoading }: YieldEnterExitProp
     const accountIdsByNumberAndChain = selectAccountIdByAccountNumberAndChainId(state)
     return accountIdsByNumberAndChain[accountNumber]?.[chainId]
   })
-  const address = accountId ? fromAccountId(accountId).account : undefined
 
-  const {
-    data: balances,
-    isLoading: isBalancesLoading,
-    isFetching: isBalancesFetching,
-  } = useYieldBalances({
-    yieldId: yieldItem.id,
-    address: address ?? '',
-    chainId,
-  })
-
-  // const selectedValidator = validators?.find(v => v.address === selectedValidatorAddress)
   const validatorMetadata = useMemo(() => {
     if (!selectedValidatorAddress) return undefined
 
@@ -152,8 +147,9 @@ export const YieldEnterExit = ({ yieldItem, isQuoteLoading }: YieldEnterExitProp
     if (foundInList) return foundInList
 
     // 2. Try to find in user balances
-    const foundInBalances = balances?.find(b => b.validator?.address === selectedValidatorAddress)
-      ?.validator
+    const foundInBalances = balances?.raw.find(
+      (b: AugmentedYieldBalanceWithAccountId) => b.validator?.address === selectedValidatorAddress,
+    )?.validator
     if (foundInBalances)
       return {
         ...foundInBalances,
@@ -199,11 +195,10 @@ export const YieldEnterExit = ({ yieldItem, isQuoteLoading }: YieldEnterExitProp
     return bnOrZero(cryptoAmount).lt(minDeposit)
   }, [cryptoAmount, minDeposit])
 
-  // Combine loading states
-  const isLoading = isBalancesLoading || isBalancesFetching || isQuoteLoading
+  const isLoading = isBalancesLoading || isQuoteLoading
 
   const extractBalance = (type: YieldBalanceType) =>
-    balances?.find((b: AugmentedYieldBalance) => {
+    balances?.raw.find((b: AugmentedYieldBalanceWithAccountId) => {
       if (b.type !== type) return false
       if (selectedValidatorAddress && b.validator) {
         return b.validator.address === selectedValidatorAddress
@@ -266,10 +261,7 @@ export const YieldEnterExit = ({ yieldItem, isQuoteLoading }: YieldEnterExitProp
   // Determine unique active validators count
   const uniqueValidatorCount = useMemo(() => {
     if (!balances) return 0
-    const unique = new Set(
-      balances.filter(b => bnOrZero(b.amount).gt(0) && b.validator).map(b => b.validator?.address),
-    )
-    return unique.size
+    return balances.validatorAddresses.length
   }, [balances])
 
   // Only show picker if we have more than 1 active validator
@@ -346,7 +338,7 @@ export const YieldEnterExit = ({ yieldItem, isQuoteLoading }: YieldEnterExitProp
               onClose={() => setIsValidatorModalOpen(false)}
               validators={validators || []}
               onSelect={handleValidatorChange}
-              balances={balances}
+              balances={balances?.raw}
             />
           </>
         ) : null}

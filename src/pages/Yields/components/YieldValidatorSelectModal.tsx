@@ -27,15 +27,16 @@ import { useTranslate } from 'react-polyglot'
 import { Amount } from '@/components/Amount/Amount'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { SHAPESHIFT_COSMOS_VALIDATOR_ADDRESS } from '@/lib/yieldxyz/constants'
-import type { AugmentedYieldBalance, ValidatorDto } from '@/lib/yieldxyz/types'
+import type { ValidatorDto } from '@/lib/yieldxyz/types'
 import { GradientApy } from '@/pages/Yields/components/GradientApy'
+import type { AugmentedYieldBalanceWithAccountId } from '@/react-queries/queries/yieldxyz/useAllYieldBalances'
 
 type YieldValidatorSelectModalProps = {
   isOpen: boolean
   onClose: () => void
   validators: ValidatorDto[]
   onSelect: (address: string) => void
-  balances?: AugmentedYieldBalance[]
+  balances?: AugmentedYieldBalanceWithAccountId[]
 }
 
 export const YieldValidatorSelectModal = ({

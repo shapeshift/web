@@ -1,4 +1,4 @@
-import type { ChainId } from '@shapeshiftoss/caip'
+import type { AccountId, ChainId } from '@shapeshiftoss/caip'
 import {
   arbitrumChainId,
   avalancheChainId,
@@ -15,6 +15,7 @@ import {
   polygonChainId,
   solanaChainId,
   suiChainId,
+  toAccountId,
   tronChainId,
 } from '@shapeshiftoss/caip'
 import { skipToken, useQuery } from '@tanstack/react-query'
@@ -30,6 +31,11 @@ import { useAppSelector } from '@/state/store'
 type UseAllYieldBalancesOptions = {
   networks?: string[]
   accountIds?: string[]
+}
+
+export type AugmentedYieldBalanceWithAccountId = AugmentedYieldBalance & {
+  accountId: AccountId
+  highestAmountUsdValidator?: string
 }
 
 const DEFAULT_NETWORKS = [
@@ -50,111 +56,121 @@ const DEFAULT_NETWORKS = [
   'plasma',
 ]
 
+const CHAIN_ID_TO_NETWORK: Record<ChainId, string> = {
+  [ethChainId]: 'ethereum',
+  [arbitrumChainId]: 'arbitrum',
+  [baseChainId]: 'base',
+  [optimismChainId]: 'optimism',
+  [polygonChainId]: 'polygon',
+  [gnosisChainId]: 'gnosis',
+  [avalancheChainId]: 'avalanche-c',
+  [bscChainId]: 'binance',
+  [cosmosChainId]: 'cosmos',
+  [solanaChainId]: 'solana',
+  [nearChainId]: 'near',
+  [tronChainId]: 'tron',
+  [suiChainId]: 'sui',
+  [monadChainId]: 'monad',
+  [plasmaChainId]: 'plasma',
+}
+
 export const useAllYieldBalances = (options: UseAllYieldBalancesOptions = {}) => {
   const { networks = DEFAULT_NETWORKS, accountIds: filterAccountIds } = options
   const { state: walletState } = useWallet()
   const isConnected = Boolean(walletState.walletInfo)
   const accountIds = useAppSelector(selectEnabledWalletAccountIds)
 
-  const networkMap: Record<string, string> = useMemo(
-    () => ({
-      [ethChainId]: 'ethereum',
-      [arbitrumChainId]: 'arbitrum',
-      [baseChainId]: 'base',
-      [optimismChainId]: 'optimism',
-      [polygonChainId]: 'polygon',
-      [gnosisChainId]: 'gnosis',
-      [avalancheChainId]: 'avalanche-c',
-      [bscChainId]: 'binance',
-      [cosmosChainId]: 'cosmos',
-      [solanaChainId]: 'solana',
-      [nearChainId]: 'near',
-      [tronChainId]: 'tron',
-      [suiChainId]: 'sui',
-      [monadChainId]: 'monad',
-      [plasmaChainId]: 'plasma',
-    }),
-    [],
-  )
-
   const queryPayloads = useMemo(() => {
     if (!isConnected || accountIds.length === 0) return []
 
     const targetAccountIds = filterAccountIds ?? accountIds
+    const payloads: { address: string; network: string; chainId: ChainId; accountId: AccountId }[] =
+      []
 
-    const payloads: { address: string; network: string; chainId: ChainId }[] = []
-
-    targetAccountIds.forEach(accountId => {
-      if (!accountIds.includes(accountId)) return
+    for (const accountId of targetAccountIds) {
+      if (!accountIds.includes(accountId)) continue
 
       const { chainId, account } = fromAccountId(accountId)
-      const network = networkMap[chainId]
+      const network = CHAIN_ID_TO_NETWORK[chainId]
 
       if (network && networks.includes(network)) {
-        payloads.push({ address: account, network, chainId })
+        payloads.push({ address: account, network, chainId, accountId })
       }
-    })
+    }
 
     return payloads
-  }, [isConnected, accountIds, filterAccountIds, networks, networkMap])
+  }, [isConnected, accountIds, filterAccountIds, networks])
 
-  return useQuery<{ [yieldId: string]: AugmentedYieldBalance[] }>({
+  const addressToAccountId = useMemo(() => {
+    const map: Record<string, AccountId> = {}
+    for (const payload of queryPayloads) {
+      map[`${payload.address.toLowerCase()}:${payload.network}`] = payload.accountId
+    }
+    return map
+  }, [queryPayloads])
+
+  return useQuery<Record<string, AugmentedYieldBalanceWithAccountId[]>>({
     queryKey: ['yieldxyz', 'allBalances', queryPayloads],
     queryFn:
       queryPayloads.length > 0
         ? async () => {
-            // Deduplicate requests by (address, network) just in case, though the API handles it
-            // We pass chainId along to augment the results correctly
             const uniqueQueries = queryPayloads.map(({ address, network }) => ({
               address,
               network,
             }))
 
             const response = await getAggregateBalances(uniqueQueries)
+            const balanceMap: Record<string, AugmentedYieldBalanceWithAccountId[]> = {}
 
-            // Flatten and map results by yieldId
-            const balanceMap: { [yieldId: string]: AugmentedYieldBalance[] } = {}
+            for (const item of response.items) {
+              const firstBalance = item.balances[0]
+              if (!firstBalance) continue
 
-            response.items.forEach(item => {
-              // Find the chainId for this item's address results to augment correctly
-              // This is a bit tricky since the response doesn't strictly echo back the chainId we sent
-              // We infer it from the payloads we sent matching the address
               const relevantPayload = queryPayloads.find(
-                p => p.address.toLowerCase() === item.balances[0]?.address.toLowerCase(), // heuristic match
+                p => p.address.toLowerCase() === firstBalance.address.toLowerCase(),
               )
               const chainId = relevantPayload?.chainId
 
-              if (!balanceMap[item.yieldId]) {
-                balanceMap[item.yieldId] = []
-              }
-
               const augmentedBalances = augmentYieldBalances(item.balances, chainId)
 
-              // Find the validator with the highest USD balance for this yield
               let highestAmountUsd = 0
               let highestAmountUsdValidator: string | undefined
 
-              augmentedBalances.forEach(balance => {
+              for (const balance of augmentedBalances) {
                 const usd = parseFloat(balance.amountUsd)
                 if (balance.validator?.address && usd > highestAmountUsd) {
                   highestAmountUsd = usd
                   highestAmountUsdValidator = balance.validator.address
                 }
-              })
+              }
 
-              // Attach the highest amount validator to each balance
-              const balancesWithHighestValidator = augmentedBalances.map(balance => ({
-                ...balance,
-                highestAmountUsdValidator,
-              }))
+              if (!balanceMap[item.yieldId]) {
+                balanceMap[item.yieldId] = []
+              }
 
-              balanceMap[item.yieldId].push(...balancesWithHighestValidator)
-            })
+              for (const balance of augmentedBalances) {
+                const network = item.yieldId.split('-')[0]
+                const lookupKey = `${balance.address.toLowerCase()}:${network}`
+                let accountId = addressToAccountId[lookupKey]
+
+                if (!accountId && chainId) {
+                  accountId = toAccountId({ chainId, account: balance.address })
+                }
+
+                if (!accountId) continue
+
+                balanceMap[item.yieldId].push({
+                  ...balance,
+                  accountId,
+                  highestAmountUsdValidator,
+                })
+              }
+            }
 
             return balanceMap
           }
         : skipToken,
     enabled: isConnected && queryPayloads.length > 0,
-    staleTime: 60000, // 1 minute
+    staleTime: 60000,
   })
 }

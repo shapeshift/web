@@ -26,18 +26,27 @@ import { YieldActionModal } from './YieldActionModal'
 import { Amount } from '@/components/Amount/Amount'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { DEFAULT_NATIVE_VALIDATOR_BY_CHAIN_ID } from '@/lib/yieldxyz/constants'
-import type { AugmentedYieldBalance, AugmentedYieldDto } from '@/lib/yieldxyz/types'
+import type { AugmentedYieldDto } from '@/lib/yieldxyz/types'
 import { YieldBalanceType } from '@/lib/yieldxyz/types'
-import { useYieldBalances } from '@/react-queries/queries/yieldxyz/useYieldBalances'
+import type {
+  AggregatedBalance,
+  NormalizedYieldBalances,
+} from '@/react-queries/queries/yieldxyz/useYieldBalances'
 import { useYieldValidators } from '@/react-queries/queries/yieldxyz/useYieldValidators'
 import { selectFirstAccountIdByChainId } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
 type YieldPositionCardProps = {
   yieldItem: AugmentedYieldDto
+  balances: NormalizedYieldBalances | undefined
+  isBalancesLoading: boolean
 }
 
-export const YieldPositionCard = ({ yieldItem }: YieldPositionCardProps) => {
+export const YieldPositionCard = ({
+  yieldItem,
+  balances,
+  isBalancesLoading,
+}: YieldPositionCardProps) => {
   const { isOpen, onOpen, onClose } = useDisclosure()
   const translate = useTranslate()
   const cardBg = useColorModeValue('white', 'gray.800')
@@ -75,81 +84,52 @@ export const YieldPositionCard = ({ yieldItem }: YieldPositionCardProps) => {
   )
   const address = accountId ? fromAccountId(accountId).account : undefined
 
-  const {
-    data: balances,
-    isLoading: isLoadingQuery,
-    isError,
-    fetchStatus,
-  } = useYieldBalances({
-    yieldId: yieldItem.id,
-    address: address ?? '',
-    chainId,
-  })
+  const balancesByType = useMemo(() => {
+    if (!balances) return undefined
+    if (selectedValidatorAddress && balances.byValidatorAddress[selectedValidatorAddress]) {
+      return balances.byValidatorAddress[selectedValidatorAddress]
+    }
+    return balances.byType
+  }, [balances, selectedValidatorAddress])
 
-  const isLoading = isLoadingQuery && fetchStatus !== 'idle'
+  const activeBalance = balancesByType?.[YieldBalanceType.Active]
+  const enteringBalance = balancesByType?.[YieldBalanceType.Entering]
+  const exitingBalance = balancesByType?.[YieldBalanceType.Exiting]
+  const withdrawableBalance = balancesByType?.[YieldBalanceType.Withdrawable]
+  const claimableBalance = balancesByType?.[YieldBalanceType.Claimable]
 
-  const aggregateBalancesByType = (type: YieldBalanceType) => {
-    // Filter balances by the selected validator
-    const matchingBalances =
-      balances?.filter((b: AugmentedYieldBalance) => {
-        if (b.type !== type) return false
-        // If we have a selected validator, only include balances for that validator
-        if (selectedValidatorAddress && b.validator) {
-          return b.validator.address === selectedValidatorAddress
-        }
-        return true
-      }) ?? []
-
-    if (matchingBalances.length === 0) return undefined
-
-    const totalAmount = matchingBalances.reduce(
-      (sum, b) => sum.plus(bnOrZero(b.amount)),
-      bnOrZero(0),
-    )
-    const totalAmountUsd = matchingBalances.reduce(
-      (sum, b) => sum.plus(bnOrZero(b.amountUsd)),
-      bnOrZero(0),
-    )
-
-    return {
-      ...matchingBalances[0],
-      amount: totalAmount.toFixed(),
-      amountUsd: totalAmountUsd.toFixed(),
-    } as AugmentedYieldBalance
-  }
-
-  const activeBalance = aggregateBalancesByType(YieldBalanceType.Active)
-  const enteringBalance = aggregateBalancesByType(YieldBalanceType.Entering)
-  const exitingBalance = aggregateBalancesByType(YieldBalanceType.Exiting)
-  const withdrawableBalance = aggregateBalancesByType(YieldBalanceType.Withdrawable)
-  const claimableBalance = aggregateBalancesByType(YieldBalanceType.Claimable)
-
-  // Check for Claim Action
   const claimAction = useMemo(() => {
     return claimableBalance?.pendingActions?.find(action => action.type === 'CLAIM_REWARDS')
   }, [claimableBalance])
 
-  const canClaim = Boolean(claimAction && bnOrZero(claimableBalance?.amount).gt(0))
+  const canClaim = Boolean(claimAction && bnOrZero(claimableBalance?.aggregatedAmount).gt(0))
 
-  const formatBalance = (balance: AugmentedYieldBalance | undefined) => {
+  const formatBalance = (balance: AggregatedBalance | undefined) => {
     if (!balance) return '0'
-    return <Amount.Crypto value={balance.amount} symbol={balance.token.symbol} abbreviated />
+    return (
+      <Amount.Crypto value={balance.aggregatedAmount} symbol={balance.token.symbol} abbreviated />
+    )
   }
-  const hasEntering = enteringBalance && bnOrZero(enteringBalance.amount).gt(0)
-  const hasExiting = exitingBalance && bnOrZero(exitingBalance.amount).gt(0)
-  const hasWithdrawable = withdrawableBalance && bnOrZero(withdrawableBalance.amount).gt(0)
+  const hasEntering = enteringBalance && bnOrZero(enteringBalance.aggregatedAmount).gt(0)
+  const hasExiting = exitingBalance && bnOrZero(exitingBalance.aggregatedAmount).gt(0)
+  const hasWithdrawable =
+    withdrawableBalance && bnOrZero(withdrawableBalance.aggregatedAmount).gt(0)
   const hasClaimable = Boolean(claimableBalance)
 
-  const totalValueUsd = [
-    activeBalance,
-    enteringBalance,
-    exitingBalance,
-    withdrawableBalance,
-  ].reduce((sum, b) => sum.plus(bnOrZero(b?.amountUsd)), bnOrZero(0))
-  const totalAmount = [activeBalance, enteringBalance, exitingBalance, withdrawableBalance].reduce(
-    (sum, b) => sum.plus(bnOrZero(b?.amount)),
-    bnOrZero(0),
-  )
+  const totalValueUsd = useMemo(() => {
+    return [activeBalance, enteringBalance, exitingBalance, withdrawableBalance].reduce(
+      (sum, b) => sum.plus(bnOrZero(b?.aggregatedAmountUsd)),
+      bnOrZero(0),
+    )
+  }, [activeBalance, enteringBalance, exitingBalance, withdrawableBalance])
+
+  const totalAmount = useMemo(() => {
+    return [activeBalance, enteringBalance, exitingBalance, withdrawableBalance].reduce(
+      (sum, b) => sum.plus(bnOrZero(b?.aggregatedAmount)),
+      bnOrZero(0),
+    )
+  }, [activeBalance, enteringBalance, exitingBalance, withdrawableBalance])
+
   const hasAnyPosition = totalAmount.gt(0)
 
   const { data: validators } = useYieldValidators(yieldItem.id)
@@ -158,7 +138,9 @@ export const YieldPositionCard = ({ yieldItem }: YieldPositionCardProps) => {
     const found = validators?.find(v => v.address === selectedValidatorAddress)
     if (found) return found.name
 
-    const foundInBalances = balances?.find(b => b.validator?.address === selectedValidatorAddress)
+    const foundInBalances = balances?.raw.find(
+      b => b.validator?.address === selectedValidatorAddress,
+    )
     return foundInBalances?.validator?.name
   }, [validators, selectedValidatorAddress, balances])
 
@@ -192,16 +174,11 @@ export const YieldPositionCard = ({ yieldItem }: YieldPositionCardProps) => {
           )}
         </Flex>
 
-        {isLoading ? (
+        {isBalancesLoading ? (
           <VStack align='stretch' spacing={4}>
             <Skeleton height='60px' />
             <Skeleton height='40px' />
           </VStack>
-        ) : isError ? (
-          <Alert status='error' variant='subtle' borderRadius='md'>
-            <AlertIcon />
-            <Text fontSize='sm'>{translate('common.error')}</Text>
-          </Alert>
         ) : (
           <VStack spacing={6} align='stretch'>
             {/* Main Position Value */}
@@ -393,6 +370,7 @@ export const YieldPositionCard = ({ yieldItem }: YieldPositionCardProps) => {
               validatorName={claimableBalance?.validator?.name}
               validatorLogoURI={claimableBalance?.validator?.logoURI}
               passthrough={claimAction?.passthrough}
+              manageActionType={claimAction?.type}
             />
           </VStack>
         )}

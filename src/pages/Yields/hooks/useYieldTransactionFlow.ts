@@ -92,6 +92,7 @@ type UseYieldTransactionFlowProps = {
   isOpen?: boolean
   validatorAddress?: string
   passthrough?: string
+  manageActionType?: string
 }
 
 export const useYieldTransactionFlow = ({
@@ -103,6 +104,7 @@ export const useYieldTransactionFlow = ({
   isOpen,
   validatorAddress,
   passthrough,
+  manageActionType,
 }: UseYieldTransactionFlowProps) => {
   const dispatch = useAppDispatch()
   const queryClient = useQueryClient()
@@ -209,25 +211,10 @@ export const useYieldTransactionFlow = ({
 
       if (action === 'manage') {
         if (!passthrough) throw new Error('Missing passthrough for manage action')
-        // For claiming rewards, the action type is usually "CLAIM_REWARDS"
-        // But the passthrough blob contains the intent details.
-        // We receive the action type string (e.g. "CLAIM_REWARDS") from the pendingActions object
-        // For now, we'll assume the component passes the specific action string (e.g. "CLAIM_REWARDS")
-        // But our prop is 'manage'.
-        // Wait, the API manageYield takes (yieldId, address, action, passthrough, args)
-        // The 'action' param in API is the type, e.g. "CLAIM_REWARDS".
-        // We need to pass that down.
-        // Let's assume for this specific flow (Claim Button), we are hardcoding a Claim flow or passing the type.
-        // To keep it simple for now, let's hardcode "CLAIM_REWARDS" if we are in manage mode triggered by Claim button.
-        // Ideally we pass `manageActionType` prop.
-        // For now, let's assume "CLAIM_REWARDS" is the primary use case for manage here.
-        return await manageYield(
-          yieldItem.id,
-          userAddress,
-          'CLAIM_REWARDS',
-          passthrough,
-          txArguments,
-        )
+        // Use provided manageActionType or fallback to CLAIM_REWARDS (legacy behavior)
+        const type = manageActionType || 'CLAIM_REWARDS'
+
+        return await manageYield(yieldItem.id, userAddress, type, passthrough, txArguments)
       }
 
       const fn = action === 'enter' ? enterYield : exitYield

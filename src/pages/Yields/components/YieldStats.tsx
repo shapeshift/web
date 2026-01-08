@@ -14,26 +14,25 @@ import {
   Tooltip,
   useColorModeValue,
 } from '@chakra-ui/react'
-import { fromAccountId } from '@shapeshiftoss/caip'
-import { useMemo } from 'react' // Added useMemo
+import { useMemo } from 'react'
 import { FaClock, FaGasPump, FaLayerGroup, FaMoneyBillWave, FaUserShield } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
-import { useSearchParams } from 'react-router-dom' // Added useSearchParams
+import { useSearchParams } from 'react-router-dom'
 
 import { Amount } from '@/components/Amount/Amount'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
-import { DEFAULT_NATIVE_VALIDATOR_BY_CHAIN_ID } from '@/lib/yieldxyz/constants' // Added constants
+import { DEFAULT_NATIVE_VALIDATOR_BY_CHAIN_ID } from '@/lib/yieldxyz/constants'
 import type { AugmentedYieldDto } from '@/lib/yieldxyz/types'
-import { useYieldBalances } from '@/react-queries/queries/yieldxyz/useYieldBalances'
+import type { AugmentedYieldBalanceWithAccountId } from '@/react-queries/queries/yieldxyz/useAllYieldBalances'
+import type { NormalizedYieldBalances } from '@/react-queries/queries/yieldxyz/useYieldBalances'
 import { useYieldValidators } from '@/react-queries/queries/yieldxyz/useYieldValidators'
-import { selectFirstAccountIdByChainId } from '@/state/slices/selectors'
-import { useAppSelector } from '@/state/store'
 
-interface YieldStatsProps {
+type YieldStatsProps = {
   yieldItem: AugmentedYieldDto
+  balances?: NormalizedYieldBalances
 }
 
-export const YieldStats = ({ yieldItem }: YieldStatsProps) => {
+export const YieldStats = ({ yieldItem, balances }: YieldStatsProps) => {
   const translate = useTranslate()
   const cardBg = useColorModeValue('white', 'gray.800')
   const borderColor = useColorModeValue('gray.100', 'gray.750')
@@ -59,18 +58,6 @@ export const YieldStats = ({ yieldItem }: YieldStatsProps) => {
   const tvlUsd = bnOrZero(yieldItem.statistics?.tvlUsd).toNumber()
   const tvl = bnOrZero(yieldItem.statistics?.tvl).toNumber()
 
-  const { chainId } = yieldItem
-  const accountId = useAppSelector(state =>
-    chainId ? selectFirstAccountIdByChainId(state, chainId) : undefined,
-  )
-  const address = accountId ? fromAccountId(accountId).account : undefined
-
-  const { data: balances } = useYieldBalances({
-    yieldId: yieldItem.id,
-    address: address ?? '',
-    chainId,
-  })
-
   const selectedValidator = useMemo(() => {
     if (!selectedValidatorAddress) return undefined
 
@@ -79,8 +66,9 @@ export const YieldStats = ({ yieldItem }: YieldStatsProps) => {
     if (inList) return inList
 
     // 2. Try balances metadata
-    const inBalances = balances?.find(b => b.validator?.address === selectedValidatorAddress)
-      ?.validator
+    const inBalances = balances?.raw.find(
+      (b: AugmentedYieldBalanceWithAccountId) => b.validator?.address === selectedValidatorAddress,
+    )?.validator
     if (inBalances) return inBalances
 
     return undefined
@@ -95,12 +83,12 @@ export const YieldStats = ({ yieldItem }: YieldStatsProps) => {
     .toNumber()
 
   // Get validator data for staking yields
-  const validatorMetadata = (() => {
+  const validatorMetadata = useMemo(() => {
     if (yieldItem.mechanics.type !== 'staking') return null
     if (selectedValidator)
       return { name: selectedValidator.name, logoURI: selectedValidator.logoURI }
     return null
-  })()
+  }, [yieldItem.mechanics.type, selectedValidator])
 
   return (
     <Card bg={cardBg} borderRadius='xl' shadow='sm' border='1px solid' borderColor={borderColor}>

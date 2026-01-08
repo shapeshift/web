@@ -142,12 +142,12 @@ export type LimitOrderAction = BaseAction & {
 
 export type GenericTransactionAction = BaseAction & {
   type:
-  | ActionType.Deposit
-  | ActionType.Withdraw
-  | ActionType.Claim
-  | ActionType.ChangeAddress
-  | ActionType.Send
-  | ActionType.Approve
+    | ActionType.Deposit
+    | ActionType.Withdraw
+    | ActionType.Claim
+    | ActionType.ChangeAddress
+    | ActionType.Send
+    | ActionType.Approve
 
   transactionMetadata: ActionGenericTransactionMetadata
 }
@@ -210,7 +210,7 @@ export const isSwapAction = (action: Action): action is SwapAction => {
 export const isSendAction = (action: Action): action is GenericTransactionAction => {
   return Boolean(
     action.type === ActionType.Send &&
-    action.transactionMetadata?.displayType === GenericTransactionDisplayType.SEND,
+      action.transactionMetadata?.displayType === GenericTransactionDisplayType.SEND,
   )
 }
 
@@ -241,7 +241,7 @@ export const isRewardDistributionAction = (action: Action): action is RewardDist
 export const isThorchainLpAction = (action: Action): action is GenericTransactionAction => {
   return Boolean(
     (action.type === ActionType.Deposit || action.type === ActionType.Withdraw) &&
-    action.transactionMetadata?.displayType === GenericTransactionDisplayType.ThorchainLP,
+      action.transactionMetadata?.displayType === GenericTransactionDisplayType.ThorchainLP,
   )
 }
 

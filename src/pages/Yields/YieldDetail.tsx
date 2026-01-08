@@ -10,7 +10,6 @@ import {
   Text,
   useColorModeValue,
 } from '@chakra-ui/react'
-import { fromAccountId } from '@shapeshiftoss/caip'
 import { useEffect, useMemo } from 'react'
 import { FaChevronLeft } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
@@ -18,7 +17,6 @@ import { useNavigate, useParams } from 'react-router-dom'
 
 import { AssetIcon } from '@/components/AssetIcon'
 import { ChainIcon } from '@/components/ChainMenu'
-import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { resolveYieldInputAssetIcon } from '@/lib/yieldxyz/utils'
 import { ValidatorBreakdown } from '@/pages/Yields/components/ValidatorBreakdown'
 import { YieldEnterExit } from '@/pages/Yields/components/YieldEnterExit'
@@ -28,8 +26,6 @@ import { useYield } from '@/react-queries/queries/yieldxyz/useYield'
 import { useYieldBalances } from '@/react-queries/queries/yieldxyz/useYieldBalances'
 import { useYieldProviders } from '@/react-queries/queries/yieldxyz/useYieldProviders'
 import { useYieldValidators } from '@/react-queries/queries/yieldxyz/useYieldValidators'
-import { selectFirstAccountIdByChainId } from '@/state/slices/selectors'
-import { useAppSelector } from '@/state/store'
 
 export const YieldDetail = () => {
   const { yieldId } = useParams<{ yieldId: string }>()
@@ -55,24 +51,14 @@ export const YieldDetail = () => {
   const heroSubtleColor = useColorModeValue('gray.600', 'gray.400')
   const heroIconBorderColor = useColorModeValue('gray.200', 'gray.800')
 
-  const { chainId } = yieldItem || {}
-  const accountId = useAppSelector(state =>
-    chainId ? selectFirstAccountIdByChainId(state, chainId) : undefined,
-  )
-  const address = accountId ? fromAccountId(accountId).account : undefined
-
-  const { data: balances } = useYieldBalances({
+  const { data: balances, isFetching: isBalancesFetching } = useYieldBalances({
     yieldId: yieldItem?.id ?? '',
-    address: address ?? '',
-    chainId,
   })
+  const isBalancesLoading = !balances && isBalancesFetching
 
   const uniqueValidatorCount = useMemo(() => {
     if (!balances) return 0
-    const unique = new Set(
-      balances.filter(b => bnOrZero(b.amount).gt(0) && b.validator).map(b => b.validator?.address),
-    )
-    return unique.size
+    return balances.validatorAddresses.length
   }, [balances])
 
   useEffect(() => {
@@ -212,15 +198,28 @@ export const YieldDetail = () => {
         <Flex direction={{ base: 'column-reverse', lg: 'row' }} gap={10}>
           {/* Main Column: Enter/Exit */}
           <Box flex={2}>
-            <YieldEnterExit yieldItem={yieldItem} isQuoteLoading={isFetching} />
+            <YieldEnterExit
+              yieldItem={yieldItem}
+              isQuoteLoading={isFetching}
+              balances={balances}
+              isBalancesLoading={isBalancesLoading}
+            />
           </Box>
 
           {/* Sidebar: Your Position + Stats */}
           <Box flex={1.2} minW={{ base: '100%', lg: '420px' }}>
             <Flex direction='column' gap={6}>
-              <YieldPositionCard yieldItem={yieldItem} />
-              <ValidatorBreakdown yieldItem={yieldItem} />
-              <YieldStats yieldItem={yieldItem} />
+              <YieldPositionCard
+                yieldItem={yieldItem}
+                balances={balances}
+                isBalancesLoading={isBalancesLoading}
+              />
+              <ValidatorBreakdown
+                yieldItem={yieldItem}
+                balances={balances}
+                isBalancesLoading={isBalancesLoading}
+              />
+              <YieldStats yieldItem={yieldItem} balances={balances} />
             </Flex>
           </Box>
         </Flex>

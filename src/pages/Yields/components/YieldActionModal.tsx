@@ -50,6 +50,7 @@ type YieldActionModalProps = {
   validatorName?: string
   validatorLogoURI?: string
   passthrough?: string
+  manageActionType?: string
 }
 
 export const YieldActionModal = ({
@@ -64,6 +65,7 @@ export const YieldActionModal = ({
   validatorName,
   validatorLogoURI,
   passthrough,
+  ...props
 }: YieldActionModalProps) => {
   const translate = useTranslate()
   const modalBg = useColorModeValue('white', 'gray.900')
@@ -90,6 +92,7 @@ export const YieldActionModal = ({
     isOpen,
     validatorAddress,
     passthrough,
+    manageActionType: props.manageActionType,
   })
 
   // Vault Metadata Logic (retained for UI)

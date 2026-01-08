@@ -28,10 +28,11 @@ import { Amount } from '@/components/Amount/Amount'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import type { AugmentedYieldDto, YieldBalanceValidator } from '@/lib/yieldxyz/types'
 import { YieldBalanceType } from '@/lib/yieldxyz/types'
+import { useYieldAccount } from '@/pages/Yields/YieldAccountContext'
 import type { AugmentedYieldBalanceWithAccountId } from '@/react-queries/queries/yieldxyz/useAllYieldBalances'
 import type { NormalizedYieldBalances } from '@/react-queries/queries/yieldxyz/useYieldBalances'
 import {
-  selectFirstAccountIdByChainId,
+  selectAccountIdByAccountNumberAndChainId,
   selectUserCurrencyToUsdRate,
 } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
@@ -88,9 +89,12 @@ export const ValidatorBreakdown = ({
   const claimableValueColor = useColorModeValue('purple.800', 'purple.200')
 
   const { chainId } = yieldItem
-  const accountId = useAppSelector(state =>
-    chainId ? selectFirstAccountIdByChainId(state, chainId) : undefined,
-  )
+  const { accountNumber } = useYieldAccount()
+  const accountId = useAppSelector(state => {
+    if (!chainId) return undefined
+    const accountIdsByNumberAndChain = selectAccountIdByAccountNumberAndChainId(state)
+    return accountIdsByNumberAndChain[accountNumber]?.[chainId]
+  })
   const userCurrencyToUsdRate = useAppSelector(selectUserCurrencyToUsdRate)
   const address = accountId ? fromAccountId(accountId).account : undefined
 

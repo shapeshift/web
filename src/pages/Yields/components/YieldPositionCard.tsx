@@ -28,13 +28,14 @@ import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { DEFAULT_NATIVE_VALIDATOR_BY_CHAIN_ID } from '@/lib/yieldxyz/constants'
 import type { AugmentedYieldDto } from '@/lib/yieldxyz/types'
 import { YieldBalanceType } from '@/lib/yieldxyz/types'
+import { useYieldAccount } from '@/pages/Yields/YieldAccountContext'
 import type {
   AggregatedBalance,
   NormalizedYieldBalances,
 } from '@/react-queries/queries/yieldxyz/useYieldBalances'
 import { useYieldValidators } from '@/react-queries/queries/yieldxyz/useYieldValidators'
 import {
-  selectFirstAccountIdByChainId,
+  selectAccountIdByAccountNumberAndChainId,
   selectUserCurrencyToUsdRate,
 } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
@@ -82,9 +83,12 @@ export const YieldPositionCard = ({
   const selectedValidatorAddress = validatorParam || defaultValidator
 
   const { chainId } = yieldItem
-  const accountId = useAppSelector(state =>
-    chainId ? selectFirstAccountIdByChainId(state, chainId) : undefined,
-  )
+  const { accountNumber } = useYieldAccount()
+  const accountId = useAppSelector(state => {
+    if (!chainId) return undefined
+    const accountIdsByNumberAndChain = selectAccountIdByAccountNumberAndChainId(state)
+    return accountIdsByNumberAndChain[accountNumber]?.[chainId]
+  })
   const userCurrencyToUsdRate = useAppSelector(selectUserCurrencyToUsdRate)
   const address = accountId ? fromAccountId(accountId).account : undefined
 

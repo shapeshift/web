@@ -1,6 +1,6 @@
 import { skipToken, useQuery, useQueryClient } from '@tanstack/react-query'
 
-import { getYield } from '@/lib/yieldxyz/api'
+import { fetchYield } from '@/lib/yieldxyz/api'
 import { augmentYield } from '@/lib/yieldxyz/augment'
 import type { AugmentedYieldDto } from '@/lib/yieldxyz/types'
 
@@ -19,7 +19,7 @@ export const useYield = (yieldId: string) => {
           const cached = getCachedYield()
           if (cached) return cached
 
-          const result = await getYield(yieldId)
+          const result = await fetchYield(yieldId)
           return augmentYield(result)
         }
       : skipToken,

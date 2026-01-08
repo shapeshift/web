@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 
-import { getProviders } from '@/lib/yieldxyz/api'
+import { fetchProviders } from '@/lib/yieldxyz/api'
 import type { ProviderDto } from '@/lib/yieldxyz/types'
 
 const YIELD_XYZ_PROVIDER_ID = 'yield-xyz'
@@ -11,7 +11,7 @@ export const useYieldProviders = () => {
   return useQuery<ProviderDto[], Error, Record<string, ProviderDto>>({
     queryKey: ['yieldxyz', 'providers'],
     queryFn: async () => {
-      const data = await getProviders({ limit: 100 })
+      const data = await fetchProviders({ limit: 100 })
       return data.items
     },
     select: providers => {

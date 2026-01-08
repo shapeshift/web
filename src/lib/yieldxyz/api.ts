@@ -26,15 +26,13 @@ const instance: AxiosInstance = axios.create({
   },
 })
 
-// Discovery
-export const getYields = (params?: {
+export const fetchYields = (params?: {
   network?: string
   networks?: string[]
   provider?: string
   limit?: number
   offset?: number
-}): Promise<YieldsResponse> => {
-  // API expects comma-separated string for multiple networks
+}) => {
   const { networks, ...restParams } = params ?? {}
   const queryParams: Record<string, string | number | undefined> = {
     ...restParams,
@@ -43,74 +41,41 @@ export const getYields = (params?: {
   return instance.get<YieldsResponse>('/yields', { params: queryParams }).then(res => res.data)
 }
 
-export const getYield = (yieldId: string): Promise<YieldDto> => {
-  return instance.get<YieldDto>(`/yields/${yieldId}`).then(res => res.data)
-}
+export const fetchYield = (yieldId: string) =>
+  instance.get<YieldDto>(`/yields/${yieldId}`).then(res => res.data)
 
-export const getNetworks = (): Promise<NetworksResponse> => {
-  return instance.get<NetworksResponse>('/networks').then(res => res.data)
-}
+export const fetchNetworks = () => instance.get<NetworksResponse>('/networks').then(res => res.data)
 
-export const getProviders = (params?: {
-  limit?: number
-  offset?: number
-}): Promise<ProvidersResponse> => {
-  return instance.get<ProvidersResponse>('/providers', { params }).then(res => res.data)
-}
+export const fetchProviders = (params?: { limit?: number; offset?: number }) =>
+  instance.get<ProvidersResponse>('/providers', { params }).then(res => res.data)
 
-// Balances
-export const getYieldBalances = (
-  yieldId: string,
-  address: string,
-): Promise<YieldBalancesResponse> => {
-  return instance
+export const fetchYieldBalances = (yieldId: string, address: string) =>
+  instance
     .get<YieldBalancesResponse>(`/yields/${yieldId}/balances`, { params: { address } })
     .then(res => res.data)
-}
 
-export const getAggregateBalances = (
+export const fetchAggregateBalances = (
   queries: { address: string; network: string; yieldId?: string }[],
-): Promise<{
-  items: YieldBalancesResponse[]
-  errors: { query: (typeof queries)[0]; error: string }[]
-}> => {
-  return instance.post('/yields/balances', { queries }).then(res => res.data)
-}
-
-export const getYieldValidators = (yieldId: string): Promise<YieldValidatorsResponse> => {
-  return instance
-    .get<YieldValidatorsResponse>(`/yields/${yieldId}/validators`)
+) =>
+  instance
+    .post<{
+      items: YieldBalancesResponse[]
+      errors: { query: (typeof queries)[0]; error: string }[]
+    }>('/yields/balances', { queries })
     .then(res => res.data)
-}
 
-// Actions
-export const enterYield = (
-  yieldId: string,
-  address: string,
-  arguments_: Record<string, unknown>,
-): Promise<ActionDto> => {
-  return instance
-    .post<ActionDto>('/actions/enter', {
-      yieldId,
-      address,
-      arguments: arguments_,
-    })
-    .then(res => res.data)
-}
+export const fetchYieldValidators = (yieldId: string) =>
+  instance.get<YieldValidatorsResponse>(`/yields/${yieldId}/validators`).then(res => res.data)
 
-export const exitYield = (
-  yieldId: string,
-  address: string,
-  arguments_: Record<string, unknown>,
-): Promise<ActionDto> => {
-  return instance
-    .post<ActionDto>('/actions/exit', {
-      yieldId,
-      address,
-      arguments: arguments_,
-    })
+export const enterYield = (yieldId: string, address: string, arguments_: Record<string, unknown>) =>
+  instance
+    .post<ActionDto>('/actions/enter', { yieldId, address, arguments: arguments_ })
     .then(res => res.data)
-}
+
+export const exitYield = (yieldId: string, address: string, arguments_: Record<string, unknown>) =>
+  instance
+    .post<ActionDto>('/actions/exit', { yieldId, address, arguments: arguments_ })
+    .then(res => res.data)
 
 export const manageYield = (
   yieldId: string,
@@ -118,8 +83,8 @@ export const manageYield = (
   action: string,
   passthrough: string,
   arguments_?: Record<string, unknown>,
-): Promise<ActionDto> => {
-  return instance
+) =>
+  instance
     .post<ActionDto>('/actions/manage', {
       yieldId,
       address,
@@ -128,28 +93,19 @@ export const manageYield = (
       arguments: arguments_,
     })
     .then(res => res.data)
-}
 
-export const getActions = (params: {
+export const fetchActions = (params: {
   address: string
   limit?: number
   offset?: number
   status?: string
   intent?: string
-}): Promise<ActionsResponse> => {
-  return instance.get<ActionsResponse>('/actions', { params }).then(res => res.data)
-}
+}) => instance.get<ActionsResponse>('/actions', { params }).then(res => res.data)
 
-// Transaction Submission
-export const submitTransaction = (
-  transactionId: string,
-  signedTransaction: string,
-): Promise<void> => {
-  return instance
+export const submitTransaction = (transactionId: string, signedTransaction: string) =>
+  instance
     .post(`/transactions/${transactionId}/submit`, { signedTransaction })
     .then(res => res.data)
-}
 
-export const submitTransactionHash = (transactionId: string, hash: string): Promise<void> => {
-  return instance.put(`/transactions/${transactionId}/submit-hash`, { hash }).then(res => res.data)
-}
+export const submitTransactionHash = (transactionId: string, hash: string) =>
+  instance.put(`/transactions/${transactionId}/submit-hash`, { hash }).then(res => res.data)

@@ -23,7 +23,7 @@ import { useMemo } from 'react'
 
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
-import { getAggregateBalances } from '@/lib/yieldxyz/api'
+import { fetchAggregateBalances } from '@/lib/yieldxyz/api'
 import { augmentYieldBalances } from '@/lib/yieldxyz/augment'
 import type { AugmentedYieldBalance } from '@/lib/yieldxyz/types'
 import { selectEnabledWalletAccountIds } from '@/state/slices/selectors'
@@ -120,7 +120,7 @@ export const useAllYieldBalances = (options: UseAllYieldBalancesOptions = {}) =>
               network,
             }))
 
-            const response = await getAggregateBalances(uniqueQueries)
+            const response = await fetchAggregateBalances(uniqueQueries)
             const balanceMap: Record<string, AugmentedYieldBalanceWithAccountId[]> = {}
 
             for (const item of response.items) {

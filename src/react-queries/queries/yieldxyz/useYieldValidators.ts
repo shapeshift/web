@@ -1,13 +1,13 @@
 import { useQuery } from '@tanstack/react-query'
 
-import { getYieldValidators } from '@/lib/yieldxyz/api'
+import { fetchYieldValidators } from '@/lib/yieldxyz/api'
 import type { ValidatorDto } from '@/lib/yieldxyz/types'
 
 export const useYieldValidators = (yieldId: string, enabled: boolean = true) => {
   return useQuery<ValidatorDto[], Error, ValidatorDto[]>({
     queryKey: ['yieldxyz', 'validators', yieldId],
     queryFn: async () => {
-      const data = await getYieldValidators(yieldId)
+      const data = await fetchYieldValidators(yieldId)
 
       // Monkey patch correct ShapeShift DAO Validator for Cosmos (missing from API)
       if (yieldId === 'cosmos-atom-native-staking') {

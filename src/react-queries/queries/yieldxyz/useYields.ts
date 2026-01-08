@@ -2,7 +2,7 @@ import type { Asset } from '@shapeshiftoss/types'
 import { useQuery } from '@tanstack/react-query'
 import { useMemo } from 'react'
 
-import { getYields } from '@/lib/yieldxyz/api'
+import { fetchYields } from '@/lib/yieldxyz/api'
 import { augmentYield } from '@/lib/yieldxyz/augment'
 import { isSupportedYieldNetwork, SUPPORTED_YIELD_NETWORKS } from '@/lib/yieldxyz/constants'
 import type { AugmentedYieldDto, YieldDto } from '@/lib/yieldxyz/types'
@@ -18,7 +18,7 @@ export const useYields = (params?: { network?: string; provider?: string }) => {
       const limit = 100
 
       while (true) {
-        const data = await getYields({
+        const data = await fetchYields({
           networks: SUPPORTED_YIELD_NETWORKS as string[],
           limit,
           offset,

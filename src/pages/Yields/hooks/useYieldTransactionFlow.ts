@@ -18,6 +18,7 @@ import type { CosmosStakeArgs } from '@/lib/yieldxyz/executeTransaction'
 import { executeTransaction } from '@/lib/yieldxyz/executeTransaction'
 import type { AugmentedYieldDto, TransactionDto } from '@/lib/yieldxyz/types'
 import { TransactionStatus } from '@/lib/yieldxyz/types'
+import { useYieldAccount } from '@/pages/Yields/YieldAccountContext'
 import { useSubmitYieldTransactionHash } from '@/react-queries/queries/yieldxyz/useSubmitYieldTransactionHash'
 import { actionSlice } from '@/state/slices/actionSlice/actionSlice'
 import {
@@ -26,7 +27,10 @@ import {
   GenericTransactionDisplayType,
 } from '@/state/slices/actionSlice/types'
 import { selectPortfolioAccountMetadataByAccountId } from '@/state/slices/portfolioSlice/selectors'
-import { selectFeeAssetByChainId, selectFirstAccountIdByChainId } from '@/state/slices/selectors'
+import {
+  selectAccountIdByAccountNumberAndChainId,
+  selectFeeAssetByChainId,
+} from '@/state/slices/selectors'
 import { useAppDispatch, useAppSelector } from '@/state/store'
 
 export enum ModalStep {
@@ -125,9 +129,12 @@ export const useYieldTransactionFlow = ({
   const submitHashMutation = useSubmitYieldTransactionHash()
 
   const { chainId: yieldChainId } = yieldItem
-  const accountId = useAppSelector(state =>
-    yieldChainId ? selectFirstAccountIdByChainId(state, yieldChainId) : undefined,
-  )
+  const { accountNumber } = useYieldAccount()
+  const accountId = useAppSelector(state => {
+    if (!yieldChainId) return undefined
+    const accountIdsByNumberAndChain = selectAccountIdByAccountNumberAndChainId(state)
+    return accountIdsByNumberAndChain[accountNumber]?.[yieldChainId]
+  })
   const feeAsset = useAppSelector(state =>
     yieldChainId ? selectFeeAssetByChainId(state, yieldChainId) : undefined,
   )

@@ -20,23 +20,20 @@ import type { AugmentedYieldDto } from '@/lib/yieldxyz/types'
 import { resolveYieldInputAssetIcon } from '@/lib/yieldxyz/utils'
 
 interface YieldCardProps {
-  yield: AugmentedYieldDto
+  yieldItem: AugmentedYieldDto
   onEnter?: (yieldItem: AugmentedYieldDto) => void
   isLoading?: boolean
   providerIcon?: string
   userBalanceUsd?: BigNumber
 }
 
-export const YieldCard = ({
-  yield: yieldItem,
-  onEnter,
-  providerIcon,
-  userBalanceUsd,
-}: YieldCardProps) => {
+export const YieldCard = ({ yieldItem, onEnter, providerIcon, userBalanceUsd }: YieldCardProps) => {
   const translate = useTranslate()
   const borderColor = useColorModeValue('gray.100', 'gray.750')
   const cardBg = useColorModeValue('white', 'gray.800')
   const hoverBorderColor = useColorModeValue('blue.500', 'blue.400')
+  const cardShadow = useColorModeValue('sm', 'none')
+  const cardHoverShadow = useColorModeValue('lg', 'lg')
 
   const apy = bnOrZero(yieldItem.rewardRate.total).times(100).toNumber()
   const apyLabel = yieldItem.rewardRate.rateType
@@ -54,14 +51,14 @@ export const YieldCard = ({
       bg={cardBg}
       borderWidth='1px'
       borderColor={borderColor}
-      boxShadow='sm'
+      boxShadow={cardShadow}
       cursor={yieldItem.status.enter ? 'pointer' : 'default'}
       onClick={handleClick}
       transition='all 0.2s cubic-bezier(0.4, 0, 0.2, 1)'
       _hover={{
         borderColor: hoverBorderColor,
         transform: 'translateY(-2px)',
-        boxShadow: 'lg',
+        boxShadow: cardHoverShadow,
       }}
       borderRadius='xl'
       variant='outline'

@@ -58,6 +58,7 @@ export const YieldsList = () => {
   const { state: walletState } = useWallet()
   const isConnected = Boolean(walletState.walletInfo)
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
+  const headerBg = useColorModeValue('gray.50', 'whiteAlpha.50')
   const [searchParams, setSearchParams] = useSearchParams()
   const tabParam = searchParams.get('tab')
   const tabIndex = tabParam === 'my-positions' ? 1 : 0
@@ -462,8 +463,51 @@ export const YieldsList = () => {
           display: { base: 'none', md: 'table-cell' },
         },
       },
+      {
+        header: translate('yieldXYZ.yourBalance'),
+        id: 'balance',
+        accessorFn: row => {
+          const balances = allBalances?.[row.id]
+          if (!balances) return 0
+          return balances
+            .reduce((sum, b) => sum.plus(bnOrZero(b.amountUsd)), bnOrZero(0))
+            .toNumber()
+        },
+        enableSorting: true,
+        sortingFn: (rowA, rowB) => {
+          const balancesA = allBalances?.[rowA.original.id]
+          const balancesB = allBalances?.[rowB.original.id]
+          const a = balancesA
+            ? balancesA.reduce((sum, b) => sum.plus(bnOrZero(b.amountUsd)), bnOrZero(0)).toNumber()
+            : 0
+          const b = balancesB
+            ? balancesB.reduce((sum, b) => sum.plus(bnOrZero(b.amountUsd)), bnOrZero(0)).toNumber()
+            : 0
+          return a === b ? 0 : a > b ? 1 : -1
+        },
+        cell: ({ row }) => {
+          const balances = allBalances?.[row.original.id]
+          const totalUsd = balances
+            ? balances.reduce((sum, b) => sum.plus(bnOrZero(b.amountUsd)), bnOrZero(0))
+            : bnOrZero(0)
+          if (totalUsd.lte(0)) return null
+          return (
+            <Box>
+              <Text fontWeight='bold' fontSize='sm' color='blue.400'>
+                <Amount.Fiat value={totalUsd.toFixed()} abbreviated />
+              </Text>
+              <Text fontSize='xs' color='text.subtle'>
+                {translate('yieldXYZ.yourBalance')}
+              </Text>
+            </Box>
+          )
+        },
+        meta: {
+          display: { base: 'none', lg: 'table-cell' },
+        },
+      },
     ],
-    [translate, getProviderLogo],
+    [translate, getProviderLogo, allBalances],
   )
 
   const positionsTable = useReactTable({
@@ -591,6 +635,57 @@ export const YieldsList = () => {
               </SimpleGrid>
             ) : (
               <Box borderWidth='1px' borderRadius='xl' overflow='hidden'>
+                <Flex
+                  p={4}
+                  alignItems='center'
+                  gap={4}
+                  borderBottomWidth='1px'
+                  borderColor='inherit'
+                  bg={headerBg}
+                >
+                  <Flex flex='1' minW='200px'>
+                    <Text
+                      fontSize='xs'
+                      fontWeight='bold'
+                      color='text.subtle'
+                      textTransform='uppercase'
+                    >
+                      {translate('yieldXYZ.asset')}
+                    </Text>
+                  </Flex>
+                  <Flex gap={8} flex='2'>
+                    <Box minW='100px'>
+                      <Text
+                        fontSize='xs'
+                        fontWeight='bold'
+                        color='text.subtle'
+                        textTransform='uppercase'
+                      >
+                        {translate('yieldXYZ.maxApy')}
+                      </Text>
+                    </Box>
+                    <Box minW='120px' display={{ base: 'none', md: 'block' }}>
+                      <Text
+                        fontSize='xs'
+                        fontWeight='bold'
+                        color='text.subtle'
+                        textTransform='uppercase'
+                      >
+                        {translate('yieldXYZ.tvl')}
+                      </Text>
+                    </Box>
+                    <Box flex='1' display={{ base: 'none', lg: 'block' }}>
+                      <Text
+                        fontSize='xs'
+                        fontWeight='bold'
+                        color='text.subtle'
+                        textTransform='uppercase'
+                      >
+                        {translate('yieldXYZ.provider')}
+                      </Text>
+                    </Box>
+                  </Flex>
+                </Flex>
                 {yieldsByAsset.map(group => (
                   <YieldAssetGroupRow
                     key={group.assetSymbol}
@@ -611,7 +706,7 @@ export const YieldsList = () => {
             {!isConnected ? (
               <ResultsEmptyNoWallet
                 title='yieldXYZ.connectWallet'
-                body='Connect a wallet to view your active yield positions.'
+                body='yieldXYZ.connectWalletPositions'
               />
             ) : isLoading || isLoadingBalances ? (
               <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={6}>
@@ -625,7 +720,7 @@ export const YieldsList = () => {
                   {positionsTable.getRowModel().rows.map(row => (
                     <YieldCard
                       key={row.id}
-                      yield={row.original}
+                      yieldItem={row.original}
                       onEnter={() => handleYieldClick(row.original.id)}
                       providerIcon={getProviderLogo(row.original.providerId)}
                       userBalanceUsd={
@@ -655,7 +750,7 @@ export const YieldsList = () => {
                   {translate('yieldXYZ.noYields')}
                 </Text>
                 <Text fontSize='sm' color='text.subtle'>
-                  You do not have any active yield positions.
+                  {translate('yieldXYZ.noActivePositions')}
                 </Text>
               </Box>
             )}

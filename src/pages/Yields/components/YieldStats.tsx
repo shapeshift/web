@@ -37,6 +37,8 @@ export const YieldStats = ({ yieldItem }: YieldStatsProps) => {
   const translate = useTranslate()
   const cardBg = useColorModeValue('white', 'gray.800')
   const borderColor = useColorModeValue('gray.100', 'gray.750')
+  const rewardBreakdownBg = useColorModeValue('gray.50', 'whiteAlpha.50')
+  const dividerColor = useColorModeValue('gray.200', 'whiteAlpha.100')
 
   const [searchParams] = useSearchParams()
   const validatorParam = searchParams.get('validator')
@@ -138,7 +140,14 @@ export const YieldStats = ({ yieldItem }: YieldStatsProps) => {
 
             {/* Reward Breakdown */}
             {yieldItem.rewardRate.components.length > 0 && (
-              <Flex direction='column' gap={2} mt={3} p={3} bg='whiteAlpha.50' borderRadius='md'>
+              <Flex
+                direction='column'
+                gap={2}
+                mt={3}
+                p={3}
+                bg={rewardBreakdownBg}
+                borderRadius='md'
+              >
                 {yieldItem.rewardRate.components.map((component, idx) => (
                   <Flex key={idx} justifyContent='space-between' alignItems='center'>
                     <Flex alignItems='center' gap={2}>
@@ -156,7 +165,7 @@ export const YieldStats = ({ yieldItem }: YieldStatsProps) => {
             )}
           </Box>
 
-          <Divider borderColor='whiteAlpha.100' />
+          <Divider borderColor={dividerColor} />
 
           {/* TVL Section */}
           <Stat>

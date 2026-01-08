@@ -48,9 +48,12 @@ export const YieldDetail = () => {
       ? yieldProviders[yieldItem.providerId]?.logoURI
       : undefined
 
-  // Premium dark mode foundation
   const bgColor = useColorModeValue('gray.50', 'gray.900')
   const borderColor = useColorModeValue('gray.200', 'gray.800')
+  const heroBg = useColorModeValue('gray.100', 'gray.900')
+  const heroTextColor = useColorModeValue('gray.900', 'white')
+  const heroSubtleColor = useColorModeValue('gray.600', 'gray.400')
+  const heroIconBorderColor = useColorModeValue('gray.200', 'gray.800')
 
   const { chainId } = yieldItem || {}
   const accountId = useAppSelector(state =>
@@ -93,7 +96,7 @@ export const YieldDetail = () => {
   if (error || !yieldItem) {
     return (
       <Container maxW='1200px' py={20}>
-        <Box textAlign='center' py={16} bg='gray.800' borderRadius='2xl'>
+        <Box textAlign='center' py={16} bg={heroBg} borderRadius='2xl'>
           <Heading as='h2' size='xl' mb={4}>
             {translate('common.error')}
           </Heading>
@@ -111,7 +114,7 @@ export const YieldDetail = () => {
   return (
     <Box bg={bgColor} minH='100vh' pb={20}>
       {/* Header Section */}
-      <Box borderBottom='1px' borderColor={borderColor} bg='gray.900' py={12} mb={10}>
+      <Box borderBottom='1px' borderColor={borderColor} bg={heroBg} py={12} mb={10}>
         <Container maxW='1200px'>
           <Button
             variant='link'
@@ -119,7 +122,7 @@ export const YieldDetail = () => {
             leftIcon={<FaChevronLeft />}
             onClick={() => navigate('/yields')}
             mb={8}
-            _hover={{ color: 'white', textDecoration: 'none' }}
+            _hover={{ color: heroTextColor, textDecoration: 'none' }}
           >
             {translate('common.back')}
           </Button>
@@ -134,7 +137,7 @@ export const YieldDetail = () => {
                   boxSize={24}
                   boxShadow='2xl'
                   border='4px solid'
-                  borderColor='gray.800'
+                  borderColor={heroIconBorderColor}
                   borderRadius='full'
                 />
               ) : (
@@ -143,13 +146,13 @@ export const YieldDetail = () => {
                   boxSize={24}
                   boxShadow='2xl'
                   border='4px solid'
-                  borderColor='gray.800'
+                  borderColor={heroIconBorderColor}
                   borderRadius='full'
                 />
               )
             })()}
             <Box pt={2}>
-              <Heading as='h1' size='2xl' color='white' lineHeight='1.2' mb={3}>
+              <Heading as='h1' size='2xl' color={heroTextColor} lineHeight='1.2' mb={3}>
                 {yieldItem.metadata.name}
               </Heading>
 
@@ -165,7 +168,7 @@ export const YieldDetail = () => {
                       ))}
                     </AvatarGroup>
                     <Text color='text.subtle' fontSize='md'>
-                      <Text as='span' color='white' fontWeight='semibold'>
+                      <Text as='span' color={heroTextColor} fontWeight='semibold'>
                         {validators.length > 3 ? `${validators.length} Validators` : 'Validators'}
                       </Text>
                     </Text>
@@ -174,7 +177,7 @@ export const YieldDetail = () => {
                   <HStack spacing={2}>
                     <Avatar src={providerLogo} size='xs' name={yieldItem.providerId} />
                     <Text color='text.subtle' fontSize='md'>
-                      <Text as='span' color='white' fontWeight='semibold'>
+                      <Text as='span' color={heroTextColor} fontWeight='semibold'>
                         {yieldItem.providerId}
                       </Text>
                     </Text>
@@ -186,7 +189,7 @@ export const YieldDetail = () => {
                 <HStack spacing={2} mb={4}>
                   <ChainIcon chainId={yieldItem.chainId} boxSize='20px' />
                   <Text
-                    color='white'
+                    color={heroTextColor}
                     fontWeight='semibold'
                     fontSize='md'
                     textTransform='capitalize'
@@ -196,7 +199,7 @@ export const YieldDetail = () => {
                 </HStack>
               )}
 
-              <Text color='gray.400' fontSize='lg' maxW='container.md' lineHeight='short'>
+              <Text color={heroSubtleColor} fontSize='lg' maxW='container.md' lineHeight='short'>
                 {yieldItem.metadata.description}
               </Text>
             </Box>

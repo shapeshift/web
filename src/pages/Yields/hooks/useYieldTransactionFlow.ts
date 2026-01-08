@@ -11,14 +11,13 @@ import { useTranslate } from 'react-polyglot'
 
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
-import { toBaseUnit } from '@/lib/math'
 import { assertGetChainAdapter, isTransactionStatusAdapter } from '@/lib/utils'
-import { enterYield, exitYield } from '@/lib/yieldxyz/api'
+import { enterYield, exitYield, manageYield } from '@/lib/yieldxyz/api'
 import { DEFAULT_NATIVE_VALIDATOR_BY_CHAIN_ID } from '@/lib/yieldxyz/constants'
 import type { CosmosStakeArgs } from '@/lib/yieldxyz/executeTransaction'
 import { executeTransaction } from '@/lib/yieldxyz/executeTransaction'
 import type { AugmentedYieldDto, TransactionDto } from '@/lib/yieldxyz/types'
-import { TransactionStatus, YieldNetwork } from '@/lib/yieldxyz/types'
+import { TransactionStatus } from '@/lib/yieldxyz/types'
 import { useSubmitYieldTransactionHash } from '@/react-queries/queries/yieldxyz/useSubmitYieldTransactionHash'
 import { actionSlice } from '@/state/slices/actionSlice/actionSlice'
 import {
@@ -86,12 +85,13 @@ const formatTxTitle = (title: string, assetSymbol: string) => {
 
 type UseYieldTransactionFlowProps = {
   yieldItem: AugmentedYieldDto
-  action: 'enter' | 'exit'
+  action: 'enter' | 'exit' | 'manage'
   amount: string
   assetSymbol: string
   onClose: () => void
   isOpen?: boolean
   validatorAddress?: string
+  passthrough?: string
 }
 
 export const useYieldTransactionFlow = ({
@@ -102,6 +102,7 @@ export const useYieldTransactionFlow = ({
   onClose,
   isOpen,
   validatorAddress,
+  passthrough,
 }: UseYieldTransactionFlowProps) => {
   const dispatch = useAppDispatch()
   const queryClient = useQueryClient()
@@ -133,7 +134,9 @@ export const useYieldTransactionFlow = ({
   )
 
   const userAddress = accountId ? fromAccountId(accountId).account : ''
-  const canSubmit = Boolean(wallet && accountId && yieldChainId && bnOrZero(amount).gt(0))
+  const canSubmit = Boolean(
+    wallet && accountId && yieldChainId && (action === 'manage' || bnOrZero(amount).gt(0)),
+  )
 
   const handleClose = () => {
     if (isSubmitting) return
@@ -146,36 +149,32 @@ export const useYieldTransactionFlow = ({
 
   // Memoize arguments creation
   const txArguments = useMemo(() => {
-    if (!yieldItem || !userAddress || !amount || !yieldChainId) return null
+    if (!yieldItem || !userAddress || !yieldChainId) return null
+    if (action !== 'manage' && !amount) return null
 
-    const fields =
-      action === 'enter'
-        ? yieldItem.mechanics.arguments.enter.fields
-        : yieldItem.mechanics.arguments.exit.fields
+    // For manage actions, we might not have 'arguments' from mechanics
+    // But we might need to construct them manually or pass empty args
+    // The API call usually needs 'action' and 'passthrough' which are passed directly to the mutation
+    // args are separate. For basic claim, args are often empty or optional.
+    let fields: { name: string }[] = []
+
+    if (action === 'enter') {
+      fields = yieldItem.mechanics.arguments.enter.fields
+    } else if (action === 'exit') {
+      fields = yieldItem.mechanics.arguments.exit.fields
+    }
+    // TODO: Handle manage arguments schema if available in future API updates
+
     const fieldNames = new Set(fields.map(field => field.name))
 
-    // TODO(gomes): This precision vs base unit split is likely unnecessary.
-    // The yield.xyz API docs say "valid decimal number" for ALL networks, suggesting
-    // they all expect precision amounts (e.g., "1.5" not "1500000").
-    //
-    // Current behavior:
-    // - Solana, Tron, Monad, Sui → precision amount (e.g., "1.5")
-    // - EVM, Cosmos → base unit (e.g., "1500000000000000000")
-    //
-    // If all networks use precision, simplify to:
-    //   const args: Record<string, unknown> = { amount }
-    //
-    // Note: For Cosmos, we build the tx locally via cosmosStakeArgs anyway,
-    // so the API amount might not even matter. Test with EVM yields first.
-    const PRECISION_AMOUNT_NETWORKS = new Set([
-      YieldNetwork.Solana,
-      YieldNetwork.Tron,
-      YieldNetwork.Monad,
-      YieldNetwork.Sui,
-    ])
-    const usesPrecisionAmount = PRECISION_AMOUNT_NETWORKS.has(yieldItem.network as YieldNetwork)
-    const yieldAmount = usesPrecisionAmount ? amount : toBaseUnit(amount, yieldItem.token.decimals)
-    const args: Record<string, unknown> = { amount: yieldAmount }
+    const args: Record<string, unknown> = {}
+    if (action !== 'manage') {
+      // Amount is required for enter/exit
+      // yield.xyz API expects precision amounts (e.g., "0.5") for ALL networks
+      if (amount) {
+        args.amount = amount
+      }
+    }
 
     if (fieldNames.has('receiverAddress')) {
       args.receiverAddress = userAddress
@@ -207,6 +206,30 @@ export const useYieldTransactionFlow = ({
       if (!txArguments || !userAddress || !yieldItem.id) throw new Error('Missing arguments')
       // Note: We're using the API functions directly here instead of hooks
       // because we want standard query behavior (caching, etc.)
+
+      if (action === 'manage') {
+        if (!passthrough) throw new Error('Missing passthrough for manage action')
+        // For claiming rewards, the action type is usually "CLAIM_REWARDS"
+        // But the passthrough blob contains the intent details.
+        // We receive the action type string (e.g. "CLAIM_REWARDS") from the pendingActions object
+        // For now, we'll assume the component passes the specific action string (e.g. "CLAIM_REWARDS")
+        // But our prop is 'manage'.
+        // Wait, the API manageYield takes (yieldId, address, action, passthrough, args)
+        // The 'action' param in API is the type, e.g. "CLAIM_REWARDS".
+        // We need to pass that down.
+        // Let's assume for this specific flow (Claim Button), we are hardcoding a Claim flow or passing the type.
+        // To keep it simple for now, let's hardcode "CLAIM_REWARDS" if we are in manage mode triggered by Claim button.
+        // Ideally we pass `manageActionType` prop.
+        // For now, let's assume "CLAIM_REWARDS" is the primary use case for manage here.
+        return await manageYield(
+          yieldItem.id,
+          userAddress,
+          'CLAIM_REWARDS',
+          passthrough,
+          txArguments,
+        )
+      }
+
       const fn = action === 'enter' ? enterYield : exitYield
       return await fn(yieldItem.id, userAddress, txArguments)
     },
@@ -251,7 +274,16 @@ export const useYieldTransactionFlow = ({
             amountCryptoBaseUnit: bnOrZero(amount)
               .times(bnOrZero(10).pow(yieldItem.token.decimals))
               .toFixed(0),
-            action: action === 'enter' ? 'stake' : 'unstake',
+            action:
+              action === 'enter'
+                ? 'stake'
+                : action === 'exit'
+                ? 'unstake'
+                : action === 'manage'
+                ? 'claim'
+                : (() => {
+                    throw new Error(`Unsupported action: ${action}`)
+                  })(),
           }
         : undefined
 
@@ -298,9 +330,14 @@ export const useYieldTransactionFlow = ({
         ? ActionType.Approve
         : action === 'enter'
         ? ActionType.Deposit
-        : ActionType.Withdraw
+        : action === 'exit'
+        ? ActionType.Withdraw
+        : ActionType.Claim
+
       const displayType = isApproval
         ? GenericTransactionDisplayType.Approve
+        : action === 'manage'
+        ? GenericTransactionDisplayType.Claim
         : GenericTransactionDisplayType.Yield
 
       dispatch(

@@ -13,6 +13,7 @@ import {
   ModalOverlay,
   Spinner,
   Text,
+  useColorModeValue,
   VStack,
 } from '@chakra-ui/react'
 import { keyframes } from '@emotion/react'
@@ -41,10 +42,14 @@ type YieldActionModalProps = {
   isOpen: boolean
   onClose: () => void
   yieldItem: AugmentedYieldDto
-  action: 'enter' | 'exit'
+  action: 'enter' | 'exit' | 'manage'
   amount: string
   assetSymbol: string
+  assetLogoURI?: string
   validatorAddress?: string
+  validatorName?: string
+  validatorLogoURI?: string
+  passthrough?: string
 }
 
 export const YieldActionModal = ({
@@ -54,9 +59,19 @@ export const YieldActionModal = ({
   action,
   amount,
   assetSymbol,
+  assetLogoURI,
   validatorAddress,
+  validatorName,
+  validatorLogoURI,
+  passthrough,
 }: YieldActionModalProps) => {
   const translate = useTranslate()
+  const modalBg = useColorModeValue('white', 'gray.900')
+  const modalBorderColor = useColorModeValue('gray.200', 'gray.700')
+  const cardBg = useColorModeValue('gray.50', 'gray.800')
+  const cardBorderColor = useColorModeValue('gray.200', 'whiteAlpha.100')
+  const subtleTextColor = useColorModeValue('gray.600', 'gray.400')
+  const avatarBg = useColorModeValue('gray.100', 'gray.900')
 
   const {
     step,
@@ -74,6 +89,7 @@ export const YieldActionModal = ({
     onClose,
     isOpen,
     validatorAddress,
+    passthrough,
   })
 
   // Vault Metadata Logic (retained for UI)
@@ -91,13 +107,14 @@ export const YieldActionModal = ({
     if (yieldItem.mechanics.type === 'staking' && validatorAddress) {
       const validator = validators?.find(v => v.address === validatorAddress)
       if (validator) return { name: validator.name, logoURI: validator.logoURI }
+      if (validatorName) return { name: validatorName, logoURI: validatorLogoURI }
     }
 
     const provider = providers?.[yieldItem.providerId]
     if (provider) return { name: provider.name, logoURI: provider.logoURI }
 
     return { name: 'Vault', logoURI: yieldItem.metadata.logoURI }
-  }, [yieldItem, validatorAddress, validators, providers])
+  }, [yieldItem, validatorAddress, validatorName, validatorLogoURI, validators, providers])
 
   // Get network icon from fee asset
   const feeAsset = useAppSelector(state => selectFeeAssetByChainId(state, yieldItem.chainId ?? ''))
@@ -110,10 +127,10 @@ export const YieldActionModal = ({
   const renderStatusCard = () => (
     <Box
       p={10}
-      bg='gray.800'
+      bg={cardBg}
       borderRadius='2xl'
       borderWidth='1px'
-      borderColor='whiteAlpha.100'
+      borderColor={cardBorderColor}
       position='relative'
       overflow='hidden'
       boxShadow='xl'
@@ -140,21 +157,25 @@ export const YieldActionModal = ({
         py={4}
         position='relative'
         gap={10}
-        flexDirection={action === 'exit' ? 'row-reverse' : 'row'}
+        flexDirection={action === 'enter' ? 'row' : 'row-reverse'}
       >
         <VStack spacing={3} zIndex={2}>
           <Box
             p={1}
-            bg='gray.900'
+            bg={avatarBg}
             borderRadius='full'
             boxShadow='0 0 25px rgba(66, 153, 225, 0.4)'
             position='relative'
             border='2px solid'
             borderColor='blue.500'
           >
-            <Avatar size='md' src={yieldItem.token.logoURI} icon={<FaWallet color='white' />} />
+            <Avatar
+              size='md'
+              src={assetLogoURI ?? yieldItem.token.logoURI}
+              icon={<FaWallet color='white' />}
+            />
           </Box>
-          <Text fontSize='sm' color='gray.300' fontWeight='bold'>
+          <Text fontSize='sm' color={subtleTextColor} fontWeight='bold'>
             {assetSymbol}
           </Text>
         </VStack>
@@ -198,7 +219,7 @@ export const YieldActionModal = ({
           <Box
             position='relative'
             p={1}
-            bg='gray.900'
+            bg={avatarBg}
             borderRadius='full'
             border='2px solid'
             borderColor='blue.500'
@@ -216,7 +237,7 @@ export const YieldActionModal = ({
               }
             />
           </Box>
-          <Text fontSize='sm' color='gray.300' fontWeight='bold'>
+          <Text fontSize='sm' color={subtleTextColor} fontWeight='bold'>
             {vaultMetadata.name}
           </Text>
         </VStack>
@@ -224,7 +245,7 @@ export const YieldActionModal = ({
 
       {/* Info Rows */}
       <VStack align='stretch' spacing={0} mt={4}>
-        {/* APR Row */}
+        {/* APR Row - Hide for manage/claim, only show for enter */}
         {action === 'enter' && (
           <>
             <Flex
@@ -235,7 +256,7 @@ export const YieldActionModal = ({
               borderColor='whiteAlpha.100'
             >
               <Text color='gray.400' fontSize='sm'>
-                APR
+                {translate('yieldXYZ.apr')}
               </Text>
               <GradientApy fontSize='sm' fontWeight='bold'>
                 {bnOrZero(yieldItem.rewardRate.total).times(100).toFixed(2)}%
@@ -420,15 +441,21 @@ export const YieldActionModal = ({
         isLoading={isSubmitting || isQuoteLoading}
         loadingText={
           isQuoteLoading
-            ? 'Loading Quote...'
+            ? translate('yieldXYZ.loadingQuote')
             : action === 'enter'
-            ? 'Depositing...'
-            : 'Withdrawing...'
+            ? translate('yieldXYZ.depositing')
+            : action === 'exit'
+            ? translate('yieldXYZ.withdrawing')
+            : translate('common.claiming')
         }
         _hover={{ transform: 'translateY(-2px)', boxShadow: 'lg' }}
         transition='all 0.2s'
       >
-        {action === 'enter' ? 'Deposit' : 'Withdraw'}
+        {action === 'enter'
+          ? translate('yieldXYZ.deposit')
+          : action === 'exit'
+          ? translate('yieldXYZ.withdraw')
+          : translate('common.claim')}
       </Button>
     </VStack>
   )
@@ -500,17 +527,27 @@ export const YieldActionModal = ({
 
       <Box>
         <Heading size='xl' mb={3}>
-          Success!
+          {translate('yieldXYZ.success')}
         </Heading>
-        <Text color='gray.400' fontSize='lg'>
-          You successfully {action === 'enter' ? 'supplied' : 'withdrew'} {amount} {assetSymbol}
+        <Text color='text.subtle' fontSize='lg'>
+          {translate(
+            action === 'enter'
+              ? 'yieldXYZ.successDeposit'
+              : action === 'exit'
+              ? 'yieldXYZ.successWithdraw'
+              : 'yieldXYZ.successClaim',
+            {
+              symbol: assetSymbol,
+              amount,
+            },
+          )}
         </Text>
       </Box>
 
       <Box width='full'>
         <VStack spacing={2} align='stretch' mt={4}>
           <Text fontSize='sm' color='gray.400' textAlign='left' px={1}>
-            Transactions
+            {translate('yieldXYZ.transactions')}
           </Text>
           {transactionSteps.map((s, idx) => (
             <Flex
@@ -540,7 +577,7 @@ export const YieldActionModal = ({
                   gap={2}
                   _hover={{ textDecor: 'underline' }}
                 >
-                  View <Icon as={FaExternalLinkAlt} boxSize={3} />
+                  {translate('yieldXYZ.view')} <Icon as={FaExternalLinkAlt} boxSize={3} />
                 </Link>
               )}
             </Flex>
@@ -556,7 +593,7 @@ export const YieldActionModal = ({
         borderRadius='xl'
         height='64px'
       >
-        Close
+        {translate('yieldXYZ.close')}
       </Button>
     </VStack>
   )
@@ -572,8 +609,8 @@ export const YieldActionModal = ({
       >
         <ModalOverlay backdropFilter='blur(12px)' bg='blackAlpha.600' />
         <ModalContent
-          bg='gray.900'
-          borderColor='gray.700'
+          bg={modalBg}
+          borderColor={modalBorderColor}
           borderWidth='1px'
           borderRadius='3xl'
           boxShadow='2xl'
@@ -583,7 +620,16 @@ export const YieldActionModal = ({
             {step !== ModalStep.Success && (
               <Flex alignItems='center' justifyContent='center' mb={8}>
                 <Heading size='md' textAlign='center'>
-                  {action === 'enter' ? `Supply ${assetSymbol}` : `Withdraw ${assetSymbol}`}
+                  {translate(
+                    action === 'enter'
+                      ? 'yieldXYZ.supplySymbol'
+                      : action === 'exit'
+                      ? 'yieldXYZ.withdrawSymbol'
+                      : 'yieldXYZ.claimSymbol',
+                    {
+                      symbol: assetSymbol,
+                    },
+                  )}
                 </Heading>
               </Flex>
             )}

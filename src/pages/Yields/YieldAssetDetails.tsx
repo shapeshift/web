@@ -359,7 +359,7 @@ export const YieldAssetDetails = () => {
           {table.getSortedRowModel().rows.map(row => (
             <YieldCard
               key={row.original.id}
-              yield={row.original}
+              yieldItem={row.original}
               onEnter={() => handleYieldClick(row.original.id)}
               providerIcon={getProviderLogo(row.original.providerId)}
               userBalanceUsd={

@@ -34,11 +34,11 @@ export const getYields = (params?: {
   limit?: number
   offset?: number
 }): Promise<YieldsResponse> => {
-  const queryParams = { ...params }
-  if (params?.networks) {
-    // API expects comma-separated string for multiple networks
-    // @ts-ignore
-    queryParams.networks = params.networks.join(',')
+  // API expects comma-separated string for multiple networks
+  const { networks, ...restParams } = params ?? {}
+  const queryParams: Record<string, string | number | undefined> = {
+    ...restParams,
+    ...(networks && { networks: networks.join(',') }),
   }
   return instance.get<YieldsResponse>('/yields', { params: queryParams }).then(res => res.data)
 }

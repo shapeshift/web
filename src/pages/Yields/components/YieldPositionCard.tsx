@@ -3,20 +3,25 @@ import {
   AlertIcon,
   Badge,
   Box,
+  Button,
   Card,
   CardBody,
   Divider,
   Flex,
   Heading,
+  HStack,
   Skeleton,
   Text,
   useColorModeValue,
+  useDisclosure,
   VStack,
 } from '@chakra-ui/react'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useSearchParams } from 'react-router-dom'
+
+import { YieldActionModal } from './YieldActionModal'
 
 import { Amount } from '@/components/Amount/Amount'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
@@ -33,9 +38,28 @@ type YieldPositionCardProps = {
 }
 
 export const YieldPositionCard = ({ yieldItem }: YieldPositionCardProps) => {
+  const { isOpen, onOpen, onClose } = useDisclosure()
   const translate = useTranslate()
   const cardBg = useColorModeValue('white', 'gray.800')
   const borderColor = useColorModeValue('gray.100', 'gray.750')
+  const badgeBg = useColorModeValue('blue.50', 'blue.900')
+  const badgeColor = useColorModeValue('blue.700', 'blue.200')
+  const emptyStateBg = useColorModeValue('blue.50', 'blue.900')
+  const emptyStateBorderColor = useColorModeValue('blue.200', 'blue.800')
+  const emptyStateTitleColor = useColorModeValue('blue.700', 'blue.100')
+  const emptyStateTextColor = useColorModeValue('blue.600', 'blue.200')
+  const enteringBg = useColorModeValue('yellow.50', 'yellow.900')
+  const enteringBorderColor = useColorModeValue('yellow.300', 'yellow.700')
+  const enteringTextColor = useColorModeValue('yellow.700', 'yellow.300')
+  const exitingBg = useColorModeValue('orange.50', 'orange.900')
+  const exitingBorderColor = useColorModeValue('orange.300', 'orange.700')
+  const exitingTextColor = useColorModeValue('orange.700', 'orange.300')
+  const withdrawableBg = useColorModeValue('green.50', 'green.900')
+  const withdrawableBorderColor = useColorModeValue('green.300', 'green.700')
+  const withdrawableTextColor = useColorModeValue('green.700', 'green.300')
+  const claimableBg = useColorModeValue('purple.50', 'purple.900')
+  const claimableBorderColor = useColorModeValue('purple.300', 'purple.700')
+  const claimableTextColor = useColorModeValue('purple.700', 'purple.300')
   const [searchParams] = useSearchParams()
   const validatorParam = searchParams.get('validator')
 
@@ -100,6 +124,13 @@ export const YieldPositionCard = ({ yieldItem }: YieldPositionCardProps) => {
   const withdrawableBalance = aggregateBalancesByType(YieldBalanceType.Withdrawable)
   const claimableBalance = aggregateBalancesByType(YieldBalanceType.Claimable)
 
+  // Check for Claim Action
+  const claimAction = useMemo(() => {
+    return claimableBalance?.pendingActions?.find(action => action.type === 'CLAIM_REWARDS')
+  }, [claimableBalance])
+
+  const canClaim = Boolean(claimAction && bnOrZero(claimableBalance?.amount).gt(0))
+
   const formatBalance = (balance: AugmentedYieldBalance | undefined) => {
     if (!balance) return '0'
     return <Amount.Crypto value={balance.amount} symbol={balance.token.symbol} abbreviated />
@@ -107,7 +138,7 @@ export const YieldPositionCard = ({ yieldItem }: YieldPositionCardProps) => {
   const hasEntering = enteringBalance && bnOrZero(enteringBalance.amount).gt(0)
   const hasExiting = exitingBalance && bnOrZero(exitingBalance.amount).gt(0)
   const hasWithdrawable = withdrawableBalance && bnOrZero(withdrawableBalance.amount).gt(0)
-  const hasClaimable = claimableBalance && bnOrZero(claimableBalance.amount).gt(0)
+  const hasClaimable = Boolean(claimableBalance)
 
   const totalValueUsd = [
     activeBalance,
@@ -153,8 +184,8 @@ export const YieldPositionCard = ({ yieldItem }: YieldPositionCardProps) => {
               borderRadius='full'
               px={2}
               py={0.5}
-              bg='blue.900'
-              color='blue.200'
+              bg={badgeBg}
+              color={badgeColor}
             >
               {address.slice(0, 4)}...{address.slice(-4)}
             </Badge>
@@ -199,17 +230,17 @@ export const YieldPositionCard = ({ yieldItem }: YieldPositionCardProps) => {
                 flexDirection='column'
                 alignItems='start'
                 p={4}
-                bg='blue.900'
-                borderColor='blue.800'
+                bg={emptyStateBg}
+                borderColor={emptyStateBorderColor}
                 border='1px solid'
               >
                 <Flex alignItems='center' gap={2} mb={1}>
-                  <AlertIcon boxSize='20px' color='blue.200' mr={0} />
-                  <Text fontWeight='bold' color='blue.100'>
+                  <AlertIcon boxSize='20px' color={emptyStateTextColor} mr={0} />
+                  <Text fontWeight='bold' color={emptyStateTitleColor}>
                     Start Earning
                   </Text>
                 </Flex>
-                <Text fontSize='sm' color='blue.200'>
+                <Text fontSize='sm' color={emptyStateTextColor}>
                   Deposit your {yieldItem.token.symbol} to start earning yield securely.
                 </Text>
               </Alert>
@@ -225,16 +256,16 @@ export const YieldPositionCard = ({ yieldItem }: YieldPositionCardProps) => {
                       justify='space-between'
                       align='center'
                       p={3}
-                      bg='yellow.900'
+                      bg={enteringBg}
                       borderRadius='lg'
                       border='1px solid'
-                      borderColor='yellow.700'
+                      borderColor={enteringBorderColor}
                     >
                       <Box>
                         <Text
                           fontSize='xs'
                           fontWeight='bold'
-                          color='yellow.300'
+                          color={enteringTextColor}
                           textTransform='uppercase'
                         >
                           {translate('yieldXYZ.entering')}
@@ -253,16 +284,16 @@ export const YieldPositionCard = ({ yieldItem }: YieldPositionCardProps) => {
                       justify='space-between'
                       align='center'
                       p={3}
-                      bg='orange.900'
+                      bg={exitingBg}
                       borderRadius='lg'
                       border='1px solid'
-                      borderColor='orange.700'
+                      borderColor={exitingBorderColor}
                     >
                       <Box>
                         <Text
                           fontSize='xs'
                           fontWeight='bold'
-                          color='orange.300'
+                          color={exitingTextColor}
                           textTransform='uppercase'
                         >
                           {translate('yieldXYZ.exiting')}
@@ -281,16 +312,16 @@ export const YieldPositionCard = ({ yieldItem }: YieldPositionCardProps) => {
                       justify='space-between'
                       align='center'
                       p={3}
-                      bg='green.900'
+                      bg={withdrawableBg}
                       borderRadius='lg'
                       border='1px solid'
-                      borderColor='green.700'
+                      borderColor={withdrawableBorderColor}
                     >
                       <Box>
                         <Text
                           fontSize='xs'
                           fontWeight='bold'
-                          color='green.300'
+                          color={withdrawableTextColor}
                           textTransform='uppercase'
                         >
                           {translate('yieldXYZ.withdrawable')}
@@ -309,16 +340,16 @@ export const YieldPositionCard = ({ yieldItem }: YieldPositionCardProps) => {
                       justify='space-between'
                       align='center'
                       p={3}
-                      bg='purple.900'
+                      bg={claimableBg}
                       borderRadius='lg'
                       border='1px solid'
-                      borderColor='purple.700'
+                      borderColor={claimableBorderColor}
                     >
                       <Box>
                         <Text
                           fontSize='xs'
                           fontWeight='bold'
-                          color='purple.300'
+                          color={claimableTextColor}
                           textTransform='uppercase'
                         >
                           {translate('yieldXYZ.claimable')}
@@ -327,14 +358,42 @@ export const YieldPositionCard = ({ yieldItem }: YieldPositionCardProps) => {
                           {formatBalance(claimableBalance)}
                         </Text>
                       </Box>
-                      <Badge colorScheme='purple' variant='solid' fontSize='xs'>
-                        Reward
-                      </Badge>
+                      <HStack spacing={2}>
+                        <Badge colorScheme='purple' variant='solid' fontSize='xs'>
+                          Reward
+                        </Badge>
+                        {claimAction && (
+                          <Button
+                            size='xs'
+                            colorScheme='purple'
+                            variant='solid'
+                            onClick={onOpen}
+                            isDisabled={!canClaim}
+                          >
+                            {translate('common.claim')}
+                          </Button>
+                        )}
+                      </HStack>
                     </Flex>
                   )}
                 </VStack>
               </>
             )}
+
+            {/* Action Modal */}
+            <YieldActionModal
+              yieldItem={yieldItem}
+              action='manage'
+              isOpen={isOpen}
+              onClose={onClose}
+              amount={claimableBalance?.amount ?? '0'}
+              assetSymbol={claimableBalance?.token.symbol ?? ''}
+              assetLogoURI={claimableBalance?.token.logoURI}
+              validatorAddress={selectedValidatorAddress}
+              validatorName={claimableBalance?.validator?.name}
+              validatorLogoURI={claimableBalance?.validator?.logoURI}
+              passthrough={claimAction?.passthrough}
+            />
           </VStack>
         )}
       </CardBody>

@@ -30,7 +30,7 @@ import {
   SHAPESHIFT_COSMOS_VALIDATOR_ADDRESS,
   SUI_GAS_BUFFER,
 } from '@/lib/yieldxyz/constants'
-import type { AugmentedYieldBalance, AugmentedYieldDto } from '@/lib/yieldxyz/types'
+import type { AugmentedYieldBalance, AugmentedYieldDto, ValidatorDto } from '@/lib/yieldxyz/types'
 import { YieldBalanceType, YieldNetwork } from '@/lib/yieldxyz/types'
 import { GradientApy } from '@/pages/Yields/components/GradientApy'
 import { YieldActionModal } from '@/pages/Yields/components/YieldActionModal'
@@ -67,6 +67,11 @@ export const YieldEnterExit = ({ yieldItem, isQuoteLoading }: YieldEnterExitProp
   const isConnected = Boolean(walletState.walletInfo)
   const cardBg = useColorModeValue('white', 'gray.800')
   const borderColor = useColorModeValue('gray.100', 'gray.750')
+  const validatorPickerBg = useColorModeValue('gray.50', 'blackAlpha.50')
+  const validatorPickerHoverBg = useColorModeValue('gray.100', 'whiteAlpha.100')
+  const tabListBg = useColorModeValue('gray.50', 'blackAlpha.200')
+  const estimatedEarningsBg = useColorModeValue('gray.50', 'whiteAlpha.50')
+  const estimatedEarningsBorderColor = useColorModeValue('gray.100', 'whiteAlpha.100')
 
   const initialTab = useMemo(() => {
     if (location.pathname.endsWith('/exit')) return 1
@@ -242,7 +247,6 @@ export const YieldEnterExit = ({ yieldItem, isQuoteLoading }: YieldEnterExitProp
   const handleExitClick = useCallback(() => {
     setModalAction('exit')
     setIsModalOpen(true)
-    setIsModalOpen(true)
   }, [])
 
   // Calculate estimated returns
@@ -289,8 +293,8 @@ export const YieldEnterExit = ({ yieldItem, isQuoteLoading }: YieldEnterExitProp
               p={4}
               borderBottom='1px solid'
               borderColor={borderColor}
-              bg='blackAlpha.50'
-              _hover={{ bg: 'whiteAlpha.100' }}
+              bg={validatorPickerBg}
+              _hover={{ bg: validatorPickerHoverBg }}
               cursor='pointer'
               onClick={() => setIsValidatorModalOpen(true)}
               transition='background 0.2s'
@@ -311,20 +315,24 @@ export const YieldEnterExit = ({ yieldItem, isQuoteLoading }: YieldEnterExitProp
                         <Flex gap={2} fontSize='xs' color='text.subtle'>
                           {validatorMetadata.address === SHAPESHIFT_COSMOS_VALIDATOR_ADDRESS && (
                             <Text color='blue.400' fontWeight='bold'>
-                              Preferred
+                              {translate('yieldXYZ.preferred')}
                             </Text>
                           )}
-                          {(validatorMetadata as any).rewardRate?.total && (
-                            <Text color='green.400'>
-                              {((validatorMetadata as any).rewardRate.total * 100).toFixed(2)}% APR
-                            </Text>
-                          )}
+                          {'rewardRate' in validatorMetadata &&
+                            (validatorMetadata as ValidatorDto).rewardRate?.total && (
+                              <GradientApy>
+                                {(
+                                  (validatorMetadata as ValidatorDto).rewardRate.total * 100
+                                ).toFixed(2)}
+                                % {translate('yieldXYZ.apr')}
+                              </GradientApy>
+                            )}
                         </Flex>
                       </Box>
                     </>
                   ) : (
                     <Text fontWeight='bold' fontSize='sm'>
-                      Select Validator
+                      {translate('yieldXYZ.selectValidator')}
                     </Text>
                   )}
                 </Flex>
@@ -350,7 +358,7 @@ export const YieldEnterExit = ({ yieldItem, isQuoteLoading }: YieldEnterExitProp
           variant='enclosed'
           borderBottomWidth={0}
         >
-          <TabList mb='0' borderBottom='1px solid' borderColor={borderColor} bg='blackAlpha.200'>
+          <TabList mb='0' borderBottom='1px solid' borderColor={borderColor} bg={tabListBg}>
             <Tab
               _selected={{
                 color: 'blue.400',
@@ -435,15 +443,15 @@ export const YieldEnterExit = ({ yieldItem, isQuoteLoading }: YieldEnterExitProp
 
                 {/* Estimated Earnings Carrot */}
                 <Box
-                  bg={useColorModeValue('gray.50', 'whiteAlpha.50')}
+                  bg={estimatedEarningsBg}
                   borderRadius='lg'
                   p={4}
                   border='1px solid'
-                  borderColor={useColorModeValue('gray.100', 'whiteAlpha.100')}
+                  borderColor={estimatedEarningsBorderColor}
                 >
                   <Flex justify='space-between' align='center' mb={hasAmount ? 2 : 0}>
                     <Text fontSize='sm' color='text.subtle' fontWeight='medium'>
-                      Current APY
+                      {translate('yieldXYZ.currentApy')}
                     </Text>
                     <GradientApy fontSize='sm' fontWeight='bold'>
                       {apy.times(100).toFixed(2)}%
@@ -454,7 +462,7 @@ export const YieldEnterExit = ({ yieldItem, isQuoteLoading }: YieldEnterExitProp
                     <>
                       <Flex justify='space-between' align='center'>
                         <Text fontSize='sm' color='text.subtle' fontWeight='medium'>
-                          Est. Yearly Earnings/yr
+                          {translate('yieldXYZ.estYearlyEarnings')}
                         </Text>
                         <Flex direction='column' align='flex-end'>
                           <GradientApy fontSize='sm' fontWeight='bold'>

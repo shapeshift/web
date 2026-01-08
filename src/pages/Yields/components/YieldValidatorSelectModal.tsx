@@ -22,11 +22,13 @@ import {
 } from '@chakra-ui/react'
 import { useMemo, useState } from 'react'
 import { FaSearch } from 'react-icons/fa'
+import { useTranslate } from 'react-polyglot'
 
 import { Amount } from '@/components/Amount/Amount'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { SHAPESHIFT_COSMOS_VALIDATOR_ADDRESS } from '@/lib/yieldxyz/constants'
 import type { AugmentedYieldBalance, ValidatorDto } from '@/lib/yieldxyz/types'
+import { GradientApy } from '@/pages/Yields/components/GradientApy'
 
 type YieldValidatorSelectModalProps = {
   isOpen: boolean
@@ -43,6 +45,7 @@ export const YieldValidatorSelectModal = ({
   onSelect,
   balances,
 }: YieldValidatorSelectModalProps) => {
+  const translate = useTranslate()
   const [searchQuery, setSearchQuery] = useState('')
   const bgColor = useColorModeValue('white', 'gray.800')
   const borderColor = useColorModeValue('gray.100', 'gray.750')
@@ -172,7 +175,7 @@ export const YieldValidatorSelectModal = ({
                   fontWeight='bold'
                   textTransform='uppercase'
                 >
-                  Preferred
+                  {translate('yieldXYZ.preferred')}
                 </Box>
               )}
             </Flex>
@@ -185,9 +188,9 @@ export const YieldValidatorSelectModal = ({
         </Flex>
         <Box textAlign='right'>
           {apr && (
-            <Text fontWeight='bold' color='green.400'>
-              {apr} APR
-            </Text>
+            <GradientApy fontWeight='bold'>
+              {apr} {translate('yieldXYZ.apr')}
+            </GradientApy>
           )}
         </Box>
       </Flex>
@@ -198,7 +201,7 @@ export const YieldValidatorSelectModal = ({
     <Modal isOpen={isOpen} onClose={onClose} scrollBehavior='inside' size='lg'>
       <ModalOverlay backdropFilter='blur(5px)' />
       <ModalContent bg={bgColor} borderColor={borderColor}>
-        <ModalHeader>Select Validator</ModalHeader>
+        <ModalHeader>{translate('yieldXYZ.selectValidator')}</ModalHeader>
         <ModalCloseButton />
         <ModalBody p={0}>
           <Box px={6} mb={4}>
@@ -207,7 +210,7 @@ export const YieldValidatorSelectModal = ({
                 <FaSearch color='gray.300' />
               </InputLeftElement>
               <Input
-                placeholder='Search for validator'
+                placeholder={translate('yieldXYZ.searchValidator')}
                 value={searchQuery}
                 onChange={e => setSearchQuery(e.target.value)}
               />
@@ -216,8 +219,12 @@ export const YieldValidatorSelectModal = ({
 
           <Tabs isFitted variant='enclosed'>
             <TabList px={6}>
-              <Tab>All Validators ({validators.length})</Tab>
-              <Tab>My Validators ({myValidators.length})</Tab>
+              <Tab>
+                {translate('yieldXYZ.allValidators')} ({validators.length})
+              </Tab>
+              <Tab>
+                {translate('yieldXYZ.myValidators')} ({myValidators.length})
+              </Tab>
             </TabList>
             <TabPanels>
               {/* All Validators Tab */}
@@ -227,7 +234,7 @@ export const YieldValidatorSelectModal = ({
                     allValidatorsSorted.map(renderValidatorRow)
                   ) : (
                     <Text p={4} textAlign='center' color='gray.500'>
-                      No validators found
+                      {translate('yieldXYZ.noValidatorsFound')}
                     </Text>
                   )}
                 </VStack>
@@ -240,7 +247,7 @@ export const YieldValidatorSelectModal = ({
                     myValidators.map(renderValidatorRow)
                   ) : (
                     <Text p={4} textAlign='center' color='gray.500'>
-                      You don't have any active validators yet.
+                      {translate('yieldXYZ.noActiveValidators')}
                     </Text>
                   )}
                 </VStack>

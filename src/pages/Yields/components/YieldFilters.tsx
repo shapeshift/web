@@ -16,6 +16,7 @@ import {
 import type { ChainId } from '@shapeshiftoss/caip'
 import React from 'react'
 import { FaSortAlphaDown, FaSortAlphaUp, FaSortAmountDown, FaSortAmountUp } from 'react-icons/fa'
+import { useTranslate } from 'react-polyglot'
 
 import { AssetIcon } from '@/components/AssetIcon'
 import { ChainIcon } from '@/components/ChainMenu'
@@ -65,6 +66,8 @@ const FilterMenu = ({
   const displayLabel = selectedOption ? selectedOption.name : label
   const bg = useColorModeValue('white', 'gray.800')
   const borderColor = useColorModeValue('gray.200', 'gray.700')
+  const selectedBg = useColorModeValue('blue.50', 'blue.900')
+  const selectedColor = useColorModeValue('blue.600', 'blue.200')
 
   return (
     <Menu>
@@ -88,10 +91,23 @@ const FilterMenu = ({
           </Text>
         </HStack>
       </MenuButton>
-      <MenuList zIndex={10}>
-        <MenuItem onClick={() => onSelect(null)}>{label}</MenuItem>
+      <MenuList zIndex={10} maxH='300px' overflowY='auto'>
+        <MenuItem
+          onClick={() => onSelect(null)}
+          bg={value === null ? selectedBg : undefined}
+          color={value === null ? selectedColor : undefined}
+          fontWeight={value === null ? 'semibold' : undefined}
+        >
+          {label}
+        </MenuItem>
         {options.map(opt => (
-          <MenuItem key={opt.id} onClick={() => onSelect(opt.id)}>
+          <MenuItem
+            key={opt.id}
+            onClick={() => onSelect(opt.id)}
+            bg={value === opt.id ? selectedBg : undefined}
+            color={value === opt.id ? selectedColor : undefined}
+            fontWeight={value === opt.id ? 'semibold' : undefined}
+          >
             <HStack spacing={3}>
               {renderIcon && renderIcon(opt)}
               <Text>{opt.name}</Text>
@@ -114,18 +130,19 @@ export const YieldFilters = ({
   onSortChange,
   ...props
 }: YieldFiltersProps) => {
+  const translate = useTranslate()
   const sortOptions: { value: SortOption; label: string }[] = [
-    { value: 'apy-desc', label: 'Highest APY' },
-    { value: 'apy-asc', label: 'Lowest APY' },
-    { value: 'tvl-desc', label: 'Highest TVL' },
-    { value: 'tvl-asc', label: 'Lowest TVL' },
-    { value: 'name-asc', label: 'Name (A-Z)' },
+    { value: 'apy-desc', label: translate('yieldXYZ.highestApy') },
+    { value: 'apy-asc', label: translate('yieldXYZ.lowestApy') },
+    { value: 'tvl-desc', label: translate('yieldXYZ.highestTvl') },
+    { value: 'tvl-asc', label: translate('yieldXYZ.lowestTvl') },
+    { value: 'name-asc', label: translate('yieldXYZ.nameAZ') },
   ]
 
   return (
     <Stack direction={{ base: 'column', md: 'row' }} spacing={4} {...props}>
       <FilterMenu
-        label='All Networks'
+        label={translate('yieldXYZ.allNetworks')}
         value={selectedNetwork}
         options={networks}
         onSelect={onSelectNetwork}
@@ -142,7 +159,7 @@ export const YieldFilters = ({
       />
 
       <FilterMenu
-        label='All Providers'
+        label={translate('yieldXYZ.allProviders')}
         value={selectedProvider}
         options={providers}
         onSelect={onSelectProvider}
@@ -176,7 +193,7 @@ export const YieldFilters = ({
             _active={{ bg: useColorModeValue('gray.100', 'gray.700') }}
           />
         </Tooltip>
-        <MenuList zIndex={10}>
+        <MenuList zIndex={10} maxH='300px' overflowY='auto'>
           {sortOptions.map(opt => (
             <MenuItem
               key={opt.value}

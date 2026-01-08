@@ -48,6 +48,8 @@ export const YieldAssetCard = ({
   const borderColor = useColorModeValue('gray.100', 'gray.750')
   const cardBg = useColorModeValue('white', 'gray.800')
   const hoverBorderColor = useColorModeValue('blue.500', 'blue.400')
+  const cardShadow = useColorModeValue('sm', 'none')
+  const cardHoverShadow = useColorModeValue('lg', 'lg')
 
   const { data: yieldProviders } = useYieldProviders()
 
@@ -90,14 +92,14 @@ export const YieldAssetCard = ({
       bg={cardBg}
       borderWidth='1px'
       borderColor={borderColor}
-      boxShadow='sm'
+      boxShadow={cardShadow}
       cursor='pointer'
       onClick={handleClick}
       transition='all 0.2s cubic-bezier(0.4, 0, 0.2, 1)'
       _hover={{
         borderColor: hoverBorderColor,
         transform: 'translateY(-2px)',
-        boxShadow: 'lg',
+        boxShadow: cardHoverShadow,
       }}
       borderRadius='xl'
       variant='outline'

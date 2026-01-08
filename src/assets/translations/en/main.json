@@ -2784,7 +2784,9 @@
       "enterAmountTitle": "Enter an amount",
       "enterAmountDescription": "Amount must be greater than zero.",
       "initiateFailedTitle": "Error",
-      "initiateFailedDescription": "Failed to initiate transaction sequence."
+      "initiateFailedDescription": "Failed to initiate transaction sequence.",
+      "quoteFailedTitle": "Quote failed",
+      "quoteFailedDescription": "Unable to get a quote for this transaction. Please try again."
     }
   }
 }

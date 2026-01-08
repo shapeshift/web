@@ -12,6 +12,7 @@ import {
 } from '@chakra-ui/react'
 import { memo, useMemo } from 'react'
 import { FaChartPie, FaMoon } from 'react-icons/fa'
+import { useTranslate } from 'react-polyglot'
 
 import { Amount } from '@/components/Amount/Amount'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
@@ -39,6 +40,7 @@ export const YieldOpportunityStats = memo(function YieldOpportunityStats({
   isMyOpportunities,
   onToggleMyOpportunities,
 }: YieldOpportunityStatsProps) {
+  const translate = useTranslate()
   const userCurrencyToUsdRate = useAppSelector(selectUserCurrencyToUsdRate)
   const portfolioBalances = useAppSelector(selectPortfolioUserCurrencyBalances)
   const { data: yields } = useYields()
@@ -130,7 +132,10 @@ export const YieldOpportunityStats = memo(function YieldOpportunityStats({
     [isMyOpportunities],
   )
 
-  const buttonText = useMemo(() => (isMyOpportunities ? 'Show All' : 'Earn'), [isMyOpportunities])
+  const buttonText = useMemo(
+    () => (isMyOpportunities ? translate('yieldXYZ.showAll') : translate('yieldXYZ.earn')),
+    [isMyOpportunities, translate],
+  )
 
   const activeDepositsCard = useMemo(() => {
     if (!hasActiveDeposits) return null
@@ -153,16 +158,18 @@ export const YieldOpportunityStats = memo(function YieldOpportunityStats({
         </Box>
         <Stat>
           <StatLabel fontSize='md' color='blue.200'>
-            Active Deposits
+            {translate('yieldXYZ.activeDeposits')}
           </StatLabel>
           <StatNumber fontSize='3xl' fontWeight='bold' color='white'>
             <Amount.Fiat value={activeValueFormatted} abbreviated />
           </StatNumber>
-          <StatHelpText color='blue.300'>Across {positionsCount} positions</StatHelpText>
+          <StatHelpText color='blue.300'>
+            {translate('yieldXYZ.acrossPositions', { count: positionsCount })}
+          </StatHelpText>
         </Stat>
       </Box>
     )
-  }, [hasActiveDeposits, activeValueFormatted, positionsCount])
+  }, [hasActiveDeposits, activeValueFormatted, positionsCount, translate])
 
   const toggleButton = useMemo(() => {
     if (!onToggleMyOpportunities) return null
@@ -200,13 +207,13 @@ export const YieldOpportunityStats = memo(function YieldOpportunityStats({
         <Flex justifyContent='space-between' alignItems='flex-start'>
           <Stat>
             <StatLabel fontSize='md' color='purple.200'>
-              Available to Earn
+              {translate('yieldXYZ.availableToEarn')}
             </StatLabel>
             <StatNumber fontSize='3xl' fontWeight='bold' color='white'>
               <Amount.Fiat value={idleValueFormatted} abbreviated />
             </StatNumber>
             <StatHelpText color='purple.300'>
-              Idle assets that could be earning up to {weightedApyFormatted}% APY
+              {translate('yieldXYZ.idleAssetsEarning', { apy: weightedApyFormatted })}
             </StatHelpText>
           </Stat>
           <Flex
@@ -229,11 +236,11 @@ export const YieldOpportunityStats = memo(function YieldOpportunityStats({
                 textTransform='uppercase'
                 letterSpacing='wider'
               >
-                Potential Earnings
+                {translate('yieldXYZ.potentialEarnings')}
               </Text>
               <Flex fontSize='xl' fontWeight='bold' color='white' whiteSpace='nowrap'>
                 <Amount.Fiat value={potentialEarnings} abbreviated />
-                <Text ml={1}>/yr</Text>
+                <Text ml={1}>{translate('yieldXYZ.perYear')}</Text>
               </Flex>
             </Box>
             {toggleButton}

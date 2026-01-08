@@ -55,7 +55,6 @@ export const YieldsList = memo(() => {
   const navigate = useNavigate()
   const { state: walletState } = useWallet()
   const isConnected = useMemo(() => Boolean(walletState.walletInfo), [walletState.walletInfo])
-  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
   const headerBg = useColorModeValue('gray.50', 'whiteAlpha.50')
   const searchInputBg = useColorModeValue('white', 'gray.800')
   const [searchParams, setSearchParams] = useSearchParams()
@@ -63,6 +62,21 @@ export const YieldsList = memo(() => {
   const tabIndex = useMemo(() => (tabParam === 'my-positions' ? 1 : 0), [tabParam])
   const filterOption = useMemo(() => searchParams.get('filter'), [searchParams])
   const isMyOpportunities = useMemo(() => filterOption === 'my-assets', [filterOption])
+  const viewParam = useMemo(() => searchParams.get('view'), [searchParams])
+  const viewMode = useMemo<'grid' | 'list'>(
+    () => (viewParam === 'list' ? 'list' : 'grid'),
+    [viewParam],
+  )
+  const setViewMode = useCallback(
+    (mode: 'grid' | 'list') => {
+      setSearchParams(prev => {
+        if (mode === 'grid') prev.delete('view')
+        else prev.set('view', mode)
+        return prev
+      })
+    },
+    [setSearchParams],
+  )
   const [searchQuery, setSearchQuery] = useState('')
 
   const {
@@ -518,9 +532,14 @@ export const YieldsList = memo(() => {
                 {translate('yieldXYZ.tvl')}
               </Text>
             </Box>
-            <Box flex='1' display={{ base: 'none', lg: 'block' }}>
+            <Box minW='120px' display={{ base: 'none', lg: 'block' }}>
               <Text fontSize='xs' fontWeight='bold' color='text.subtle' textTransform='uppercase'>
-                {translate('yieldXYZ.provider')}
+                {translate('yieldXYZ.providers')}
+              </Text>
+            </Box>
+            <Box flex='1' display={{ base: 'none', md: 'block' }} textAlign='right'>
+              <Text fontSize='xs' fontWeight='bold' color='text.subtle' textTransform='uppercase'>
+                {translate('yieldXYZ.myBalance')}
               </Text>
             </Box>
           </Flex>

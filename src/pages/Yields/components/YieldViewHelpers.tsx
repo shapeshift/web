@@ -41,13 +41,24 @@ export const ViewToggle = memo(({ viewMode, setViewMode }: ViewToggleProps) => {
 const typeDisplayStyle = { base: 'none', lg: 'block' }
 const tvlDisplayStyle = { base: 'none', md: 'block' }
 
-export const ListHeader = memo(() => {
+type ListHeaderProps = {
+  isGroup?: boolean
+}
+
+export const ListHeader = memo(({ isGroup = true }: ListHeaderProps) => {
   const translate = useTranslate()
 
-  const poolText = useMemo(() => translate('yieldXYZ.pool') ?? 'Pool', [translate])
-  const apyText = useMemo(() => translate('yieldXYZ.apy'), [translate])
+  const assetText = useMemo(() => translate('yieldXYZ.asset') ?? 'Asset', [translate])
+  const apyText = useMemo(
+    () => (isGroup ? translate('yieldXYZ.maxApy') : translate('yieldXYZ.apy')),
+    [translate, isGroup],
+  )
   const tvlText = useMemo(() => translate('yieldXYZ.tvl'), [translate])
-  const typeText = useMemo(() => translate('yieldXYZ.type') ?? 'Type', [translate])
+  const balanceText = useMemo(() => translate('yieldXYZ.myBalance'), [translate])
+  const providerText = useMemo(
+    () => (isGroup ? translate('yieldXYZ.providers') : translate('yieldXYZ.provider')),
+    [translate, isGroup],
+  )
 
   return (
     <Flex
@@ -59,14 +70,17 @@ export const ListHeader = memo(() => {
       letterSpacing='wider'
     >
       <Box flex={2} minW='200px'>
-        {poolText}
+        {assetText}
       </Box>
       <Box flex={1}>{apyText}</Box>
       <Box flex={1} display={tvlDisplayStyle}>
         {tvlText}
       </Box>
+      <Box flex={1} display={tvlDisplayStyle}>
+        {balanceText}
+      </Box>
       <Box flex={1} display={typeDisplayStyle} textAlign='right'>
-        {typeText}
+        {providerText}
       </Box>
     </Flex>
   )

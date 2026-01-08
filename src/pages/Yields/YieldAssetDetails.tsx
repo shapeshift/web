@@ -13,9 +13,9 @@ import {
 } from '@chakra-ui/react'
 import type { ColumnDef, Row } from '@tanstack/react-table'
 import { getCoreRowModel, getSortedRowModel, useReactTable } from '@tanstack/react-table'
-import { memo, useCallback, useMemo, useState } from 'react'
+import { memo, useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useNavigate, useParams } from 'react-router-dom'
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
 
 import { Amount } from '@/components/Amount/Amount'
 import { AssetIcon } from '@/components/AssetIcon'
@@ -41,8 +41,23 @@ export const YieldAssetDetails = memo(() => {
   const decodedSymbol = useMemo(() => decodeURIComponent(assetSymbol || ''), [assetSymbol])
   const navigate = useNavigate()
   const translate = useTranslate()
+  const [searchParams, setSearchParams] = useSearchParams()
 
-  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
+  const viewParam = useMemo(() => searchParams.get('view'), [searchParams])
+  const viewMode = useMemo<'grid' | 'list'>(
+    () => (viewParam === 'list' ? 'list' : 'grid'),
+    [viewParam],
+  )
+  const setViewMode = useCallback(
+    (mode: 'grid' | 'list') => {
+      setSearchParams(prev => {
+        if (mode === 'grid') prev.delete('view')
+        else prev.set('view', mode)
+        return prev
+      })
+    },
+    [setSearchParams],
+  )
   const {
     selectedNetwork,
     selectedProvider,

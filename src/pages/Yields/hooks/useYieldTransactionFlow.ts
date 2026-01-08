@@ -283,14 +283,21 @@ export const useYieldTransactionFlow = ({
     const validator = validatorAddress || DEFAULT_NATIVE_VALIDATOR_BY_CHAIN_ID[cosmosChainId]
     if (!validator) return undefined
 
+    const inputTokenDecimals = yieldItem.inputTokens[0]?.decimals ?? yieldItem.token.decimals
+
     return {
       validator,
-      amountCryptoBaseUnit: bnOrZero(amount)
-        .times(bnOrZero(10).pow(yieldItem.token.decimals))
-        .toFixed(0),
+      amountCryptoBaseUnit: bnOrZero(amount).times(bnOrZero(10).pow(inputTokenDecimals)).toFixed(0),
       action: action === 'enter' ? 'stake' : action === 'exit' ? 'unstake' : 'claim',
     }
-  }, [yieldChainId, validatorAddress, amount, yieldItem.token.decimals, action])
+  }, [
+    yieldChainId,
+    validatorAddress,
+    amount,
+    yieldItem.inputTokens,
+    yieldItem.token.decimals,
+    action,
+  ])
 
   const executeSingleTransaction = useCallback(
     async (

@@ -57,8 +57,9 @@ export const useYields = (params?: { network?: string; provider?: string }) => {
       const allItems: YieldDto[] = []
       let offset = 0
       const limit = 100
+      const maxPages = 50 // Safety limit to prevent infinite loops
 
-      while (true) {
+      for (let page = 0; page < maxPages; page++) {
         const data = await fetchYields({
           networks: SUPPORTED_YIELD_NETWORKS as string[],
           limit,

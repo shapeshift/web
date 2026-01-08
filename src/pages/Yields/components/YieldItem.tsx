@@ -229,22 +229,32 @@ export const YieldItem = memo(({ data, variant, userBalanceUsd, onEnter }: Yield
                 <Amount.Fiat value={tvlUserCurrency} abbreviated />
               </Text>
             </Box>
-            {hasBalance && (
-              <Box minW='120px' display={{ base: 'none', md: 'block' }}>
-                <Text fontSize='sm' fontWeight='bold' color='blue.400'>
-                  <Amount.Fiat value={userBalanceUserCurrency ?? '0'} abbreviated />
-                </Text>
-              </Box>
-            )}
-            {isGroup && (
-              <Box flex='1' display={{ base: 'none', lg: 'block' }}>
+            <Box minW='120px' display={{ base: 'none', lg: 'block' }}>
+              {isGroup ? (
                 <AvatarGroup size='xs' max={4}>
                   {stats.providers.map(p => (
                     <Avatar key={p.id} src={p.logo} name={p.id} />
                   ))}
                 </AvatarGroup>
-              </Box>
-            )}
+              ) : (
+                <AvatarGroup size='xs' max={1}>
+                  {stats.providers.slice(0, 1).map(p => (
+                    <Avatar key={p.id} src={p.logo} name={p.id} />
+                  ))}
+                </AvatarGroup>
+              )}
+            </Box>
+            <Box flex='1' display={{ base: 'none', md: 'block' }} textAlign='right'>
+              {hasBalance ? (
+                <Text fontSize='sm' fontWeight='bold' color='blue.400'>
+                  <Amount.Fiat value={userBalanceUserCurrency ?? '0'} abbreviated />
+                </Text>
+              ) : (
+                <Text fontSize='sm' color='text.subtle'>
+                  —
+                </Text>
+              )}
+            </Box>
           </Flex>
         </Flex>
       </Box>

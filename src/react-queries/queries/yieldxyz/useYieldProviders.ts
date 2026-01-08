@@ -14,8 +14,9 @@ export const useYieldProviders = () => {
       const allItems: ProviderDto[] = []
       let offset = 0
       const limit = 100
+      const maxPages = 20 // Safety limit to prevent infinite loops
 
-      while (true) {
+      for (let page = 0; page < maxPages; page++) {
         const data = await fetchProviders({ limit, offset })
         allItems.push(...data.items)
         if (data.items.length < limit) break

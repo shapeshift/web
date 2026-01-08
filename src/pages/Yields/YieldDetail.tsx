@@ -10,7 +10,7 @@ import {
   Text,
   useColorModeValue,
 } from '@chakra-ui/react'
-import { useEffect, useMemo } from 'react'
+import { memo, useEffect, useMemo } from 'react'
 import { FaChevronLeft } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 import { useNavigate, useParams } from 'react-router-dom'
@@ -27,7 +27,7 @@ import { useYieldBalances } from '@/react-queries/queries/yieldxyz/useYieldBalan
 import { useYieldProviders } from '@/react-queries/queries/yieldxyz/useYieldProviders'
 import { useYieldValidators } from '@/react-queries/queries/yieldxyz/useYieldValidators'
 
-export const YieldDetail = () => {
+export const YieldDetail = memo(() => {
   const { yieldId } = useParams<{ yieldId: string }>()
   const navigate = useNavigate()
   const translate = useTranslate()
@@ -35,14 +35,20 @@ export const YieldDetail = () => {
   const { data: yieldItem, isLoading, isFetching, error } = useYield(yieldId ?? '')
   const { data: yieldProviders } = useYieldProviders()
 
-  const shouldFetchValidators =
-    yieldItem?.mechanics.type === 'staking' && yieldItem?.mechanics.requiresValidatorSelection
+  const shouldFetchValidators = useMemo(
+    () =>
+      yieldItem?.mechanics.type === 'staking' && yieldItem?.mechanics.requiresValidatorSelection,
+    [yieldItem?.mechanics.type, yieldItem?.mechanics.requiresValidatorSelection],
+  )
   const { data: validators } = useYieldValidators(yieldId ?? '', shouldFetchValidators)
 
-  const providerLogo =
-    yieldItem?.providerId && yieldProviders
-      ? yieldProviders[yieldItem.providerId]?.logoURI
-      : undefined
+  const providerLogo = useMemo(
+    () =>
+      yieldItem?.providerId && yieldProviders
+        ? yieldProviders[yieldItem.providerId]?.logoURI
+        : undefined,
+    [yieldItem?.providerId, yieldProviders],
+  )
 
   const bgColor = useColorModeValue('gray.50', 'gray.900')
   const borderColor = useColorModeValue('gray.200', 'gray.800')
@@ -54,7 +60,10 @@ export const YieldDetail = () => {
   const { data: balances, isFetching: isBalancesFetching } = useYieldBalances({
     yieldId: yieldItem?.id ?? '',
   })
-  const isBalancesLoading = !balances && isBalancesFetching
+  const isBalancesLoading = useMemo(
+    () => !balances && isBalancesFetching,
+    [balances, isBalancesFetching],
+  )
 
   const uniqueValidatorCount = useMemo(() => {
     if (!balances) return 0
@@ -62,13 +71,11 @@ export const YieldDetail = () => {
   }, [balances])
 
   useEffect(() => {
-    if (!yieldId) {
-      navigate('/yields')
-    }
+    if (!yieldId) navigate('/yields')
   }, [yieldId, navigate])
 
-  if (isLoading) {
-    return (
+  const loadingElement = useMemo(
+    () => (
       <Container maxW='1200px' py={20}>
         <Flex direction='column' gap={8} alignItems='center'>
           <Text color='text.subtle' fontSize='lg'>
@@ -76,11 +83,12 @@ export const YieldDetail = () => {
           </Text>
         </Flex>
       </Container>
-    )
-  }
+    ),
+    [translate],
+  )
 
-  if (error || !yieldItem) {
-    return (
+  const errorElement = useMemo(
+    () => (
       <Container maxW='1200px' py={20}>
         <Box textAlign='center' py={16} bg={heroBg} borderRadius='2xl'>
           <Heading as='h2' size='xl' mb={4}>
@@ -94,12 +102,90 @@ export const YieldDetail = () => {
           </Button>
         </Box>
       </Container>
+    ),
+    [error, heroBg, navigate, translate],
+  )
+
+  const heroIcon = useMemo(() => {
+    if (!yieldItem) return null
+    const iconSource = resolveYieldInputAssetIcon(yieldItem)
+    if (iconSource.assetId)
+      return (
+        <AssetIcon
+          assetId={iconSource.assetId}
+          showNetworkIcon={false}
+          boxSize={24}
+          boxShadow='2xl'
+          border='4px solid'
+          borderColor={heroIconBorderColor}
+          borderRadius='full'
+        />
+      )
+    return (
+      <AssetIcon
+        src={iconSource.src}
+        boxSize={24}
+        boxShadow='2xl'
+        border='4px solid'
+        borderColor={heroIconBorderColor}
+        borderRadius='full'
+      />
     )
-  }
+  }, [heroIconBorderColor, yieldItem])
+
+  const providerOrValidatorsElement = useMemo(() => {
+    if (!yieldItem) return null
+    if (shouldFetchValidators && validators && validators.length > 0 && uniqueValidatorCount > 1)
+      return (
+        <HStack spacing={2}>
+          <AvatarGroup size='xs' max={3}>
+            {validators.map(v => (
+              <Avatar key={v.address} src={v.logoURI} name={v.name} />
+            ))}
+          </AvatarGroup>
+          <Text color='text.subtle' fontSize='md'>
+            <Text as='span' color={heroTextColor} fontWeight='semibold'>
+              {validators.length > 3 ? `${validators.length} Validators` : 'Validators'}
+            </Text>
+          </Text>
+        </HStack>
+      )
+    return (
+      <HStack spacing={2}>
+        <Avatar src={providerLogo} size='xs' name={yieldItem.providerId} />
+        <Text color='text.subtle' fontSize='md'>
+          <Text as='span' color={heroTextColor} fontWeight='semibold'>
+            {yieldItem.providerId}
+          </Text>
+        </Text>
+      </HStack>
+    )
+  }, [
+    heroTextColor,
+    providerLogo,
+    shouldFetchValidators,
+    uniqueValidatorCount,
+    validators,
+    yieldItem,
+  ])
+
+  const chainElement = useMemo(() => {
+    if (!yieldItem?.chainId) return null
+    return (
+      <HStack spacing={2} mb={4}>
+        <ChainIcon chainId={yieldItem.chainId} boxSize='20px' />
+        <Text color={heroTextColor} fontWeight='semibold' fontSize='md' textTransform='capitalize'>
+          {yieldItem.network}
+        </Text>
+      </HStack>
+    )
+  }, [heroTextColor, yieldItem?.chainId, yieldItem?.network])
+
+  if (isLoading) return loadingElement
+  if (error || !yieldItem) return errorElement
 
   return (
     <Box bg={bgColor} minH='100vh' pb={20}>
-      {/* Header Section */}
       <Box borderBottom='1px' borderColor={borderColor} bg={heroBg} py={12} mb={10}>
         <Container maxW='1200px'>
           <Button
@@ -112,79 +198,16 @@ export const YieldDetail = () => {
           >
             {translate('common.back')}
           </Button>
-
           <Flex alignItems='start' gap={8}>
-            {(() => {
-              const iconSource = resolveYieldInputAssetIcon(yieldItem)
-              return iconSource.assetId ? (
-                <AssetIcon
-                  assetId={iconSource.assetId}
-                  showNetworkIcon={false}
-                  boxSize={24}
-                  boxShadow='2xl'
-                  border='4px solid'
-                  borderColor={heroIconBorderColor}
-                  borderRadius='full'
-                />
-              ) : (
-                <AssetIcon
-                  src={iconSource.src}
-                  boxSize={24}
-                  boxShadow='2xl'
-                  border='4px solid'
-                  borderColor={heroIconBorderColor}
-                  borderRadius='full'
-                />
-              )
-            })()}
+            {heroIcon}
             <Box pt={2}>
               <Heading as='h1' size='2xl' color={heroTextColor} lineHeight='1.2' mb={3}>
                 {yieldItem.metadata.name}
               </Heading>
-
               <Flex alignItems='center' gap={4} mb={2}>
-                {shouldFetchValidators &&
-                validators &&
-                validators.length > 0 &&
-                uniqueValidatorCount > 1 ? (
-                  <HStack spacing={2}>
-                    <AvatarGroup size='xs' max={3}>
-                      {validators.map(v => (
-                        <Avatar key={v.address} src={v.logoURI} name={v.name} />
-                      ))}
-                    </AvatarGroup>
-                    <Text color='text.subtle' fontSize='md'>
-                      <Text as='span' color={heroTextColor} fontWeight='semibold'>
-                        {validators.length > 3 ? `${validators.length} Validators` : 'Validators'}
-                      </Text>
-                    </Text>
-                  </HStack>
-                ) : (
-                  <HStack spacing={2}>
-                    <Avatar src={providerLogo} size='xs' name={yieldItem.providerId} />
-                    <Text color='text.subtle' fontSize='md'>
-                      <Text as='span' color={heroTextColor} fontWeight='semibold'>
-                        {yieldItem.providerId}
-                      </Text>
-                    </Text>
-                  </HStack>
-                )}
+                {providerOrValidatorsElement}
               </Flex>
-
-              {yieldItem.chainId && (
-                <HStack spacing={2} mb={4}>
-                  <ChainIcon chainId={yieldItem.chainId} boxSize='20px' />
-                  <Text
-                    color={heroTextColor}
-                    fontWeight='semibold'
-                    fontSize='md'
-                    textTransform='capitalize'
-                  >
-                    {yieldItem.network}
-                  </Text>
-                </HStack>
-              )}
-
+              {chainElement}
               <Text color={heroSubtleColor} fontSize='lg' maxW='container.md' lineHeight='short'>
                 {yieldItem.metadata.description}
               </Text>
@@ -192,11 +215,8 @@ export const YieldDetail = () => {
           </Flex>
         </Container>
       </Box>
-
-      {/* Content Section */}
       <Container maxW='1200px'>
         <Flex direction={{ base: 'column-reverse', lg: 'row' }} gap={10}>
-          {/* Main Column: Enter/Exit */}
           <Box flex={2}>
             <YieldEnterExit
               yieldItem={yieldItem}
@@ -205,8 +225,6 @@ export const YieldDetail = () => {
               isBalancesLoading={isBalancesLoading}
             />
           </Box>
-
-          {/* Sidebar: Your Position + Stats */}
           <Box flex={1.2} minW={{ base: '100%', lg: '420px' }}>
             <Flex direction='column' gap={6}>
               <YieldPositionCard
@@ -226,4 +244,4 @@ export const YieldDetail = () => {
       </Container>
     </Box>
   )
-}
+})

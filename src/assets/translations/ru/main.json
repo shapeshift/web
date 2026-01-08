@@ -328,7 +328,10 @@
     "viewSavedWallets": "Посмотреть сохраненные кошельки",
     "footerOne": "Продолжая, вы соглашаетесь с",
     "terms": "условиями",
-    "privacyPolicy": "Политики конфиденциальности"
+    "privacyPolicy": "Политики конфиденциальности",
+    "connectNewWallet": "Подключить новый кошелек",
+    "getANewWallet": "Получите новый кошелек",
+    "alreadyHaveWallet": "У меня уже есть кошелек"
   },
   "connectWallet": {
     "menu": {
@@ -523,6 +526,8 @@
     "foxToken": {
       "title": "Токен FOX",
       "subtitle": "Наш токен управления"
+    },
+    "agent": {
     },
     "classic": {
       "title": "Классический",
@@ -1879,6 +1884,10 @@
     "title": "Открыть %{appName} апликацию",
     "description": "Чтобы продолжить, вам нужно открыть приложение %{appName} на вашем устройстве Ledger.",
     "devicePrompt": "Устройство предложит вам выполнить все необходимые действия для завершения текущего действия."
+  },
+  "starknet": {
+    "deployAccount": {
+    }
   },
   "transactionHistory": {
     "transactionHistory": "История транзакций",

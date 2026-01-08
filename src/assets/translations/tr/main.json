@@ -513,6 +513,7 @@
     "rFOX": "rFOX",
     "tcy": "TCY",
     "foxEcosystem": "FOX Ekosistem",
+    "ecosystem": "Ekosistem",
     "markets": "Piyasalar",
     "tokens": "Tokenlar",
     "swap": "Takas"
@@ -528,6 +529,8 @@
       "subtitle": "Yönetim Tokenımız"
     },
     "agent": {
+      "title": "Ajan",
+      "subtitle": "Cüzdanınızla iletişime geçin"
     },
     "classic": {
       "title": "Klasik",
@@ -1097,6 +1100,7 @@
       "getFeesError": "Ücret alınırken hata oluştu",
       "broadcastingTransaction": "İşlem Sırası",
       "youHaveSent": "%{amount} %{symbol} başarıyla gönderdiniz",
+      "sendFailed": "Gönderme başarısız oldu",
       "toAddress": "Adrese",
       "toAddressOrEns": "Adres veya ENS'e",
       "scanQrCode": "QR Kodunu Tara",
@@ -1887,6 +1891,14 @@
   },
   "starknet": {
     "deployAccount": {
+      "title": "Starknet Hesabını Etkinleştir",
+      "description": "Starknet, kullanımdan önce devreye alınması gereken akıllı sözleşme hesapları kullanır.",
+      "sendDescription": "Gönderebilmek için öncelikle hesabı etkinleştirmeniz gerekecek.",
+      "swapDescription": "Starknet akıllı sözleşme hesapları kullanır. Takas işlemine başlamadan önce hesabınızı devreye almanız gerekecektir.",
+      "explanation": "Bu, Starknet'teki hesabınızı başlatacak tek seferlik bir kurulumdur. Bakiyenizden küçük bir ücret düşülecektir.",
+      "deployButton": "Hesabı Etkinleştir",
+      "deploying": "Hesap Etkinleştiriliyor...",
+      "deployFailed": "Etkinleştirme Başarısız Oldu"
     }
   },
   "transactionHistory": {
@@ -2525,6 +2537,7 @@
       "buildTransaction": "İşlem oluşturulamadı.",
       "signTransaction": "İşlem imzalanamadı.",
       "blindSigningRequired": "İşlem için gizli imzalama gerekiyor. Lütfen Ledger uygulama ayarlarınızda Blind Signing veya Contract Data'yi etkinleştirin ve tekrar deneyin.",
+      "ledgerTronAllowDataDisabled": "Lütfen Ledger TRON uygulamanızın ayarlarından İşlem Verilerini etkinleştirin ve tekrar deneyin.",
       "signAndBroadcastTransaction": "İşlem imzalanamadı ve yayınlanamadı.",
       "signMessage": "Mesaj imzalanamadı.",
       "broadcastTransaction": "İşlem yayınlanamadı.",

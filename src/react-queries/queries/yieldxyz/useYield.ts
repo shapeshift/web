@@ -1,4 +1,4 @@
-import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { skipToken, useQuery, useQueryClient } from '@tanstack/react-query'
 
 import { getYield } from '@/lib/yieldxyz/api'
 import { augmentYield } from '@/lib/yieldxyz/augment'
@@ -7,25 +7,27 @@ import type { AugmentedYieldDto } from '@/lib/yieldxyz/types'
 export const useYield = (yieldId: string) => {
   const queryClient = useQueryClient()
 
+  const getCachedYield = (): AugmentedYieldDto | undefined => {
+    const cachedYields = queryClient.getQueryData<AugmentedYieldDto[]>(['yieldxyz', 'yields'])
+    return cachedYields?.find(y => y.id === yieldId)
+  }
+
   return useQuery<AugmentedYieldDto>({
     queryKey: ['yieldxyz', 'yield', yieldId],
-    queryFn: async () => {
-      if (!yieldId) throw new Error('yieldId is required')
-      const result = await getYield(yieldId)
-      return augmentYield(result)
-    },
+    queryFn: yieldId
+      ? async () => {
+          const cached = getCachedYield()
+          if (cached) return cached
+
+          const result = await getYield(yieldId)
+          return augmentYield(result)
+        }
+      : skipToken,
     enabled: !!yieldId,
-    staleTime: 60 * 1000, // 1 minute
-    // Use cached yield from the list if available (avoids redundant API call)
-    initialData: () => {
-      const cachedYields = queryClient.getQueryData<{
-        all: AugmentedYieldDto[]
-        byId: Record<string, AugmentedYieldDto>
-      }>(['yieldxyz', 'yields', undefined])
-      return cachedYields?.byId[yieldId]
-    },
+    staleTime: 60 * 1000,
+    initialData: getCachedYield,
     initialDataUpdatedAt: () => {
-      return queryClient.getQueryState(['yieldxyz', 'yields', undefined])?.dataUpdatedAt
+      return queryClient.getQueryState(['yieldxyz', 'yields'])?.dataUpdatedAt
     },
   })
 }

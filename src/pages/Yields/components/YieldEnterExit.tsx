@@ -31,7 +31,7 @@ import {
   SUI_GAS_BUFFER,
 } from '@/lib/yieldxyz/constants'
 import type { AugmentedYieldBalance, AugmentedYieldDto } from '@/lib/yieldxyz/types'
-import { YieldBalanceType } from '@/lib/yieldxyz/types'
+import { YieldBalanceType, YieldNetwork } from '@/lib/yieldxyz/types'
 import { GradientApy } from '@/pages/Yields/components/GradientApy'
 import { YieldActionModal } from '@/pages/Yields/components/YieldActionModal'
 import { YieldValidatorSelectModal } from '@/pages/Yields/components/YieldValidatorSelectModal'
@@ -219,11 +219,11 @@ export const YieldEnterExit = ({ yieldItem, isQuoteLoading }: YieldEnterExitProp
   )
 
   const handleMaxClick = useCallback(async () => {
-    // await Promise.resolve() // Removed useless promise
+    await Promise.resolve() // Satisfy async requirement
     const balance = tabIndex === 0 ? inputTokenBalance : exitBalance
 
     // For SUI native staking, we must reserve amount for gas
-    if (tabIndex === 0 && yieldItem.network === 'sui') {
+    if (tabIndex === 0 && yieldItem.network === YieldNetwork.Sui) {
       const balanceBn = bnOrZero(balance)
       const gasBuffer = bnOrZero(SUI_GAS_BUFFER)
       const maxAmount = balanceBn.minus(gasBuffer)
@@ -263,7 +263,7 @@ export const YieldEnterExit = ({ yieldItem, isQuoteLoading }: YieldEnterExitProp
   const uniqueValidatorCount = useMemo(() => {
     if (!balances) return 0
     const unique = new Set(
-      balances.filter(b => bnOrZero(b.amount).gt(0) && b.validator).map(b => b.validator!.address),
+      balances.filter(b => bnOrZero(b.amount).gt(0) && b.validator).map(b => b.validator?.address),
     )
     return unique.size
   }, [balances])

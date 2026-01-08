@@ -15,17 +15,12 @@ import {
 } from '@chakra-ui/react'
 import type { ChainId } from '@shapeshiftoss/caip'
 import React from 'react'
-import {
-  FaSortAlphaDown,
-  FaSortAlphaUp,
-  FaSortAmountDown,
-  FaSortAmountUp,
-} from 'react-icons/fa'
+import { FaSortAlphaDown, FaSortAlphaUp, FaSortAmountDown, FaSortAmountUp } from 'react-icons/fa'
 
 import { AssetIcon } from '@/components/AssetIcon'
 import { ChainIcon } from '@/components/ChainMenu'
 
-export type SortOption = 'apy-desc' | 'apy-asc' | 'tvl-desc' | 'tvl-asc' | 'name-asc'
+export type SortOption = 'apy-desc' | 'apy-asc' | 'tvl-desc' | 'tvl-asc' | 'name-asc' | 'name-desc'
 
 export type NetworkOption = {
   id: string // chainId or slug

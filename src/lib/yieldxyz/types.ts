@@ -65,7 +65,7 @@ export type YieldToken = {
   symbol: string
   name: string
   decimals: number
-  network: string
+  network: YieldNetwork
   logoURI: string
   coinGeckoId?: string
   isPoints?: boolean
@@ -121,7 +121,7 @@ export type YieldBalancesResponse = {
 export type TransactionDto = {
   id: string
   title: string
-  network: string
+  network: YieldNetwork
   status: TransactionStatus
   type: string
   hash: string | null
@@ -251,7 +251,7 @@ export type YieldMechanics = {
 
 export type YieldDto = {
   id: string
-  network: string
+  network: YieldNetwork
   chainId: string
   providerId: string
   token: YieldToken
@@ -402,7 +402,7 @@ export type ParsedGasEstimate = {
     name: string
     symbol: string
     logoURI: string
-    network: string
+    network: YieldNetwork
     decimals: number
     coinGeckoId?: string
   }

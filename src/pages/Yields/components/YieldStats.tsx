@@ -24,7 +24,6 @@ import { Amount } from '@/components/Amount/Amount'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { DEFAULT_NATIVE_VALIDATOR_BY_CHAIN_ID } from '@/lib/yieldxyz/constants' // Added constants
 import type { AugmentedYieldDto } from '@/lib/yieldxyz/types'
-import { YieldNetwork } from '@/lib/yieldxyz/types'
 import { useYieldBalances } from '@/react-queries/queries/yieldxyz/useYieldBalances'
 import { useYieldValidators } from '@/react-queries/queries/yieldxyz/useYieldValidators'
 import { selectFirstAccountIdByChainId } from '@/state/slices/selectors'
@@ -85,38 +84,19 @@ export const YieldStats = ({ yieldItem }: YieldStatsProps) => {
     return undefined
   }, [validators, selectedValidatorAddress, balances])
 
-  const apy = bnOrZero(selectedValidator?.rewardRate?.total ?? yieldItem.rewardRate.total)
+  const apy = bnOrZero(
+    selectedValidator && 'rewardRate' in selectedValidator && selectedValidator.rewardRate
+      ? selectedValidator.rewardRate.total
+      : yieldItem.rewardRate.total,
+  )
     .times(100)
     .toNumber()
 
   // Get validator data for staking yields
   const validatorMetadata = (() => {
     if (yieldItem.mechanics.type !== 'staking') return null
-
     if (selectedValidator)
       return { name: selectedValidator.name, logoURI: selectedValidator.logoURI }
-
-    // Fallback names if validator data not loaded yet or not found
-    if (selectedValidatorAddress) {
-      // Try to find known validators by address hardcoded if needed, or return generic
-      const FIGMENT_COSMOS_VALIDATOR_ADDRESS =
-        'cosmosvaloper199mlc7fr6ll5t54w7tts7f4s0cvnqgc59nmuxf'
-      const FIGMENT_SOLANA_VALIDATOR_ADDRESS = 'CcaHc2L43ZWjwCHART3oZoJvHLAe9hzT2DJNUpBzoTN1'
-      const FIGMENT_SUI_VALIDATOR_ADDRESS =
-        '0x8ecaf4b95b3c82c712d3ddb22e7da88d2286c4653f3753a86b6f7a216a3ca518'
-
-      if (
-        selectedValidatorAddress === FIGMENT_COSMOS_VALIDATOR_ADDRESS ||
-        selectedValidatorAddress === FIGMENT_SOLANA_VALIDATOR_ADDRESS ||
-        selectedValidatorAddress === FIGMENT_SUI_VALIDATOR_ADDRESS
-      ) {
-        return { name: 'Figment', logoURI: '' }
-      }
-    }
-
-    if (yieldItem.network === YieldNetwork.Monad) return { name: 'Figment', logoURI: '' }
-    if (yieldItem.network === YieldNetwork.Tron) return { name: 'Justlend', logoURI: '' }
-
     return null
   })()
 

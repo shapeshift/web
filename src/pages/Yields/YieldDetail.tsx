@@ -10,7 +10,6 @@ import {
   Text,
   useColorModeValue,
 } from '@chakra-ui/react'
-
 import { fromAccountId } from '@shapeshiftoss/caip'
 import { useEffect, useMemo } from 'react'
 import { FaChevronLeft } from 'react-icons/fa'
@@ -68,7 +67,7 @@ export const YieldDetail = () => {
   const uniqueValidatorCount = useMemo(() => {
     if (!balances) return 0
     const unique = new Set(
-      balances.filter(b => bnOrZero(b.amount).gt(0) && b.validator).map(b => b.validator!.address),
+      balances.filter(b => bnOrZero(b.amount).gt(0) && b.validator).map(b => b.validator?.address),
     )
     return unique.size
   }, [balances])
@@ -155,7 +154,10 @@ export const YieldDetail = () => {
               </Heading>
 
               <Flex alignItems='center' gap={4} mb={2}>
-                {shouldFetchValidators && validators && validators.length > 0 && uniqueValidatorCount > 1 ? (
+                {shouldFetchValidators &&
+                validators &&
+                validators.length > 0 &&
+                uniqueValidatorCount > 1 ? (
                   <HStack spacing={2}>
                     <AvatarGroup size='xs' max={3}>
                       {validators.map(v => (

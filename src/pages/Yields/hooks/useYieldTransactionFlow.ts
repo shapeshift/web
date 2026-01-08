@@ -18,7 +18,7 @@ import { DEFAULT_NATIVE_VALIDATOR_BY_CHAIN_ID } from '@/lib/yieldxyz/constants'
 import type { CosmosStakeArgs } from '@/lib/yieldxyz/executeTransaction'
 import { executeTransaction } from '@/lib/yieldxyz/executeTransaction'
 import type { AugmentedYieldDto, TransactionDto } from '@/lib/yieldxyz/types'
-import { TransactionStatus } from '@/lib/yieldxyz/types'
+import { TransactionStatus, YieldNetwork } from '@/lib/yieldxyz/types'
 import { useSubmitYieldTransactionHash } from '@/react-queries/queries/yieldxyz/useSubmitYieldTransactionHash'
 import { actionSlice } from '@/state/slices/actionSlice/actionSlice'
 import {
@@ -154,13 +154,26 @@ export const useYieldTransactionFlow = ({
         : yieldItem.mechanics.arguments.exit.fields
     const fieldNames = new Set(fields.map(field => field.name))
 
-    // Note: Solana, Tron, Monad, and Sui APIs expect precision amounts, not base units
-    const usesPrecisionAmount =
-      yieldItem.network === 'solana' ||
-      yieldItem.network === 'tron' ||
-      yieldItem.network === 'monad' ||
-      yieldItem.network === 'sui'
-
+    // TODO(gomes): This precision vs base unit split is likely unnecessary.
+    // The yield.xyz API docs say "valid decimal number" for ALL networks, suggesting
+    // they all expect precision amounts (e.g., "1.5" not "1500000").
+    //
+    // Current behavior:
+    // - Solana, Tron, Monad, Sui → precision amount (e.g., "1.5")
+    // - EVM, Cosmos → base unit (e.g., "1500000000000000000")
+    //
+    // If all networks use precision, simplify to:
+    //   const args: Record<string, unknown> = { amount }
+    //
+    // Note: For Cosmos, we build the tx locally via cosmosStakeArgs anyway,
+    // so the API amount might not even matter. Test with EVM yields first.
+    const PRECISION_AMOUNT_NETWORKS = new Set([
+      YieldNetwork.Solana,
+      YieldNetwork.Tron,
+      YieldNetwork.Monad,
+      YieldNetwork.Sui,
+    ])
+    const usesPrecisionAmount = PRECISION_AMOUNT_NETWORKS.has(yieldItem.network as YieldNetwork)
     const yieldAmount = usesPrecisionAmount ? amount : toBaseUnit(amount, yieldItem.token.decimals)
     const args: Record<string, unknown> = { amount: yieldAmount }
 
@@ -195,7 +208,7 @@ export const useYieldTransactionFlow = ({
       // Note: We're using the API functions directly here instead of hooks
       // because we want standard query behavior (caching, etc.)
       const fn = action === 'enter' ? enterYield : exitYield
-      return fn(yieldItem.id, userAddress, txArguments)
+      return await fn(yieldItem.id, userAddress, txArguments)
     },
     // Only fetch if we have valid arguments and wallet is connected
     enabled: !!txArguments && !!wallet && !!accountId && canSubmit && isOpen,

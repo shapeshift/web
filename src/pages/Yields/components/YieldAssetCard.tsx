@@ -14,11 +14,11 @@ import {
   Text,
   useColorModeValue,
 } from '@chakra-ui/react'
+import type BigNumber from 'bignumber.js'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useNavigate } from 'react-router-dom'
 
-import BigNumber from 'bignumber.js'
 import { Amount } from '@/components/Amount/Amount'
 import { AssetIcon } from '@/components/AssetIcon'
 import { ChainIcon } from '@/components/ChainMenu'
@@ -162,10 +162,7 @@ export const YieldAssetCard = ({
           <Stat size='sm' textAlign='right'>
             {hasBalance ? (
               <>
-                <StatLabel fontSize='xs' color='text.subtle'>
-                  My Balance
-                </StatLabel>
-                <StatNumber fontSize='md' fontWeight='bold' color='blue.400'>
+                <StatNumber fontSize='lg' fontWeight='bold' color='blue.400'>
                   <Amount.Fiat value={userGroupBalanceUsd.toFixed()} abbreviated />
                 </StatNumber>
               </>

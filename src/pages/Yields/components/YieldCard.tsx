@@ -10,9 +10,9 @@ import {
   Text,
   useColorModeValue,
 } from '@chakra-ui/react'
+import type BigNumber from 'bignumber.js'
 import { useTranslate } from 'react-polyglot'
 
-import BigNumber from 'bignumber.js'
 import { Amount } from '@/components/Amount/Amount'
 import { AssetIcon } from '@/components/AssetIcon'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
@@ -82,7 +82,6 @@ export const YieldCard = ({
                   boxShadow='md'
                   borderWidth='1px'
                   borderColor={borderColor}
-                  showNetworkIcon={false}
                 />
               ) : (
                 <AssetIcon
@@ -146,10 +145,7 @@ export const YieldCard = ({
           <Box textAlign='right'>
             {hasBalance ? (
               <>
-                <Text fontSize='xs' color='text.subtle' mb={1}>
-                  My Position
-                </Text>
-                <Text fontWeight='bold' fontSize='md' color='blue.400'>
+                <Text fontWeight='bold' fontSize='lg' color='blue.400'>
                   <Amount.Fiat value={userBalanceUsd.toFixed()} abbreviated />
                 </Text>
               </>

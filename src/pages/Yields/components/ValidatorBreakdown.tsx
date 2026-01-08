@@ -178,7 +178,11 @@ export const ValidatorBreakdown = ({ yieldItem }: ValidatorBreakdownProps) => {
               All Positions
             </Heading>
             <Text fontSize='lg' fontWeight='bold'>
-              <Amount.Fiat value={groupedByValidator.reduce((acc, g) => acc.plus(bnOrZero(g.totalUsd)), bnOrZero(0)).toFixed()} />
+              <Amount.Fiat
+                value={groupedByValidator
+                  .reduce((acc, g) => acc.plus(bnOrZero(g.totalUsd)), bnOrZero(0))
+                  .toFixed()}
+              />
             </Text>
           </Box>
           <Box color='text.subtle'>
@@ -198,8 +202,14 @@ export const ValidatorBreakdown = ({ yieldItem }: ValidatorBreakdownProps) => {
               return (
                 <Box key={group.validator.address}>
                   {index > 0 && <Divider borderColor={borderColor} mb={3} />}
-                  <Flex direction='column' gap={3} p={3} borderRadius='lg' bg={hoverBg} position='relative'>
-
+                  <Flex
+                    direction='column'
+                    gap={3}
+                    p={3}
+                    borderRadius='lg'
+                    bg={hoverBg}
+                    position='relative'
+                  >
                     {!isSelected && (
                       <Button
                         size='xs'
@@ -208,7 +218,7 @@ export const ValidatorBreakdown = ({ yieldItem }: ValidatorBreakdownProps) => {
                         right={3}
                         colorScheme='blue'
                         variant='outline'
-                        onClick={(e) => {
+                        onClick={e => {
                           e.stopPropagation()
                           setSearchParams(prev => {
                             prev.set('validator', group.validator.address)

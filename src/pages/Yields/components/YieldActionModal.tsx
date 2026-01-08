@@ -26,7 +26,6 @@ import { useTranslate } from 'react-polyglot'
 import { Amount } from '@/components/Amount/Amount'
 import { MiddleEllipsis } from '@/components/MiddleEllipsis/MiddleEllipsis'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
-import { DEFAULT_NATIVE_VALIDATOR_BY_CHAIN_ID } from '@/lib/yieldxyz/constants'
 import type { AugmentedYieldDto } from '@/lib/yieldxyz/types'
 import { GradientApy } from '@/pages/Yields/components/GradientApy'
 import { ModalStep, useYieldTransactionFlow } from '@/pages/Yields/hooks/useYieldTransactionFlow'
@@ -78,7 +77,6 @@ export const YieldActionModal = ({
   })
 
   // Vault Metadata Logic (retained for UI)
-  const { chainId: yieldChainId } = yieldItem
   const shouldFetchValidators =
     yieldItem.mechanics.type === 'staking' && yieldItem.mechanics.requiresValidatorSelection
 

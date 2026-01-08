@@ -13,7 +13,6 @@ import {
   useColorModeValue,
 } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
-
 import { useTranslate } from 'react-polyglot'
 import { useNavigate } from 'react-router-dom'
 
@@ -197,7 +196,7 @@ export const YieldActivePositions = ({ balances, yields, assetId }: YieldActiveP
                         />
                       </Box>
                     </Td>
-                  </Tr>
+                  </Tr>,
                 )
               })
 
@@ -278,7 +277,7 @@ export const YieldActivePositions = ({ balances, yields, assetId }: YieldActiveP
                         />
                       </Box>
                     </Td>
-                  </Tr>
+                  </Tr>,
                 )
               }
 

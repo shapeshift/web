@@ -1,6 +1,5 @@
-import { useQuery } from '@tanstack/react-query'
 import type { Asset } from '@shapeshiftoss/types'
-
+import { useQuery } from '@tanstack/react-query'
 import { useMemo } from 'react'
 
 import { getYields } from '@/lib/yieldxyz/api'
@@ -11,7 +10,6 @@ import { selectAssets } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
 export const useYields = (params?: { network?: string; provider?: string }) => {
-
   const { data: allYields, ...queryResult } = useQuery({
     queryKey: ['yieldxyz', 'yields'],
     queryFn: async () => {
@@ -39,9 +37,7 @@ export const useYields = (params?: { network?: string; provider?: string }) => {
         return tvlB - tvlA
       })
 
-      return qualityYields
-        .filter(item => isSupportedYieldNetwork(item.network))
-        .map(augmentYield)
+      return qualityYields.filter(item => isSupportedYieldNetwork(item.network)).map(augmentYield)
     },
     staleTime: 5 * 60 * 1000,
   })
@@ -61,10 +57,13 @@ export const useYields = (params?: { network?: string; provider?: string }) => {
     }
 
     // Build Indices
-    const byId = filtered.reduce((acc, item) => {
-      acc[item.id] = item
-      return acc
-    }, {} as Record<string, AugmentedYieldDto>)
+    const byId = filtered.reduce(
+      (acc, item) => {
+        acc[item.id] = item
+        return acc
+      },
+      {} as Record<string, AugmentedYieldDto>,
+    )
 
     const ids = filtered.map(item => item.id)
 
@@ -72,9 +71,9 @@ export const useYields = (params?: { network?: string; provider?: string }) => {
     const networksSet = new Set<string>()
     const providersSet = new Set<string>()
 
-    // For metadata, we might want ALL networks/providers available, 
+    // For metadata, we might want ALL networks/providers available,
     // but the UI typically expects meta to reflect the current data?
-    // Actually for filters, we usually want Global meta. 
+    // Actually for filters, we usually want Global meta.
     // But let's stick to current behavior: meta reflects the returned data.
     // If we want global filters, we should probably return global meta separately.
     // For now, let's keep consistency with previous behavior.
@@ -107,7 +106,10 @@ export const useYields = (params?: { network?: string; provider?: string }) => {
       }
     })
 
-    const assetMetadata: Record<string, { assetName: string; assetIcon: string; assetId?: string }> = {}
+    const assetMetadata: Record<
+      string,
+      { assetName: string; assetIcon: string; assetId?: string }
+    > = {}
 
     Object.entries(byAssetSymbol).forEach(([symbol, yields]) => {
       const bestYield = yields.reduce((prev, current) => {
@@ -140,12 +142,12 @@ export const useYields = (params?: { network?: string; provider?: string }) => {
 
       if (representativeToken.assetId && assets[representativeToken.assetId]) {
         finalAssetId = representativeToken.assetId
-        assetIcon = assets[finalAssetId].icon
+        assetIcon = assets[finalAssetId]?.icon ?? assetIcon
       } else {
         const localAsset = symbolToAssetMap.get(symbol)
         if (localAsset) {
           finalAssetId = localAsset.assetId
-          assetIcon = localAsset.icon
+          assetIcon = localAsset.icon ?? assetIcon
         }
       }
 
@@ -184,4 +186,3 @@ const isLowQualityYield = (yieldItem: YieldDto): boolean => {
 
   return true // filter out - low TVL AND low APY
 }
-

@@ -20,7 +20,7 @@ import {
   Text,
   useColorModeValue,
 } from '@chakra-ui/react'
-import type { ColumnDef, SortingState } from '@tanstack/react-table'
+import type { ColumnDef, Row, SortingState } from '@tanstack/react-table'
 import { getCoreRowModel, getSortedRowModel, useReactTable } from '@tanstack/react-table'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -46,7 +46,6 @@ import { YieldFilters } from '@/pages/Yields/components/YieldFilters'
 import { YieldOpportunityStats } from '@/pages/Yields/components/YieldOpportunityStats'
 import { YieldTable } from '@/pages/Yields/components/YieldTable'
 import { ViewToggle } from '@/pages/Yields/components/YieldViewHelpers'
-
 import { useAllYieldBalances } from '@/react-queries/queries/yieldxyz/useAllYieldBalances'
 import { useYieldProviders } from '@/react-queries/queries/yieldxyz/useYieldProviders'
 import { useYields } from '@/react-queries/queries/yieldxyz/useYields'
@@ -363,7 +362,7 @@ export const YieldsList = () => {
   )
 
   const handleRowClick = useCallback(
-    (row: import('@tanstack/react-table').Row<AugmentedYieldDto>) => {
+    (row: Row<AugmentedYieldDto>) => {
       if (!row.original.status.enter) return
       handleYieldClick(row.original.id)
     },
@@ -632,9 +631,9 @@ export const YieldsList = () => {
                       userBalanceUsd={
                         allBalances?.[row.original.id]
                           ? allBalances[row.original.id].reduce(
-                            (sum, b) => sum.plus(bnOrZero(b.amountUsd)),
-                            bnOrZero(0),
-                          )
+                              (sum, b) => sum.plus(bnOrZero(b.amountUsd)),
+                              bnOrZero(0),
+                            )
                           : undefined
                       }
                     />

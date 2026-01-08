@@ -11,7 +11,7 @@ import {
   Stat,
   Text,
 } from '@chakra-ui/react'
-import type { ColumnDef, SortingState } from '@tanstack/react-table'
+import type { ColumnDef, Row, SortingState } from '@tanstack/react-table'
 import { getCoreRowModel, getSortedRowModel, useReactTable } from '@tanstack/react-table'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -30,12 +30,9 @@ import type { SortOption } from '@/pages/Yields/components/YieldFilters'
 import { YieldFilters } from '@/pages/Yields/components/YieldFilters'
 import { YieldTable } from '@/pages/Yields/components/YieldTable'
 import { ViewToggle } from '@/pages/Yields/components/YieldViewHelpers'
-import { useSymbolToAssetMap } from '@/pages/Yields/hooks/useSymbolToAssetMap'
 import { useAllYieldBalances } from '@/react-queries/queries/yieldxyz/useAllYieldBalances'
 import { useYieldProviders } from '@/react-queries/queries/yieldxyz/useYieldProviders'
 import { useYields } from '@/react-queries/queries/yieldxyz/useYields'
-import { selectAssets } from '@/state/slices/selectors'
-import { useAppSelector } from '@/state/store'
 
 export const YieldAssetDetails = () => {
   const { assetId: assetSymbol } = useParams<{ assetId: string }>()
@@ -53,8 +50,6 @@ export const YieldAssetDetails = () => {
 
   const { data: yields, isLoading } = useYields()
   const { data: yieldProviders } = useYieldProviders()
-  const assets = useAppSelector(selectAssets)
-  const symbolToAssetMap = useSymbolToAssetMap()
 
   // Helpers
   const getProviderLogo = useCallback(
@@ -272,19 +267,22 @@ export const YieldAssetDetails = () => {
   })
 
   // Navigation
-  const handleYieldClick = useCallback((yieldId: string) => {
-    let url = `/yields/${yieldId}`
-    const balances = allBalances?.[yieldId]
-    if (balances && balances.length > 0) {
-      const highestAmountValidator = balances[0].highestAmountUsdValidator
-      if (highestAmountValidator) {
-        url += `?validator=${highestAmountValidator}`
+  const handleYieldClick = useCallback(
+    (yieldId: string) => {
+      let url = `/yields/${yieldId}`
+      const balances = allBalances?.[yieldId]
+      if (balances && balances.length > 0) {
+        const highestAmountValidator = balances[0].highestAmountUsdValidator
+        if (highestAmountValidator) {
+          url += `?validator=${highestAmountValidator}`
+        }
       }
-    }
-    navigate(url)
-  }, [allBalances, navigate])
+      navigate(url)
+    },
+    [allBalances, navigate],
+  )
 
-  const handleRowClick = (row: import('@tanstack/react-table').Row<AugmentedYieldDto>) => {
+  const handleRowClick = (row: Row<AugmentedYieldDto>) => {
     if (!row.original.status.enter) return
     handleYieldClick(row.original.id)
   }
@@ -303,9 +301,7 @@ export const YieldAssetDetails = () => {
       {assetInfo && (
         <Flex alignItems='center' gap={4} mb={8}>
           <AssetIcon
-            {...(assetInfo.assetId
-              ? { assetId: assetInfo.assetId }
-              : { src: assetInfo.assetIcon })}
+            {...(assetInfo.assetId ? { assetId: assetInfo.assetId } : { src: assetInfo.assetIcon })}
             size='lg'
             showNetworkIcon={false}
           />
@@ -366,6 +362,14 @@ export const YieldAssetDetails = () => {
               yield={row.original}
               onEnter={() => handleYieldClick(row.original.id)}
               providerIcon={getProviderLogo(row.original.providerId)}
+              userBalanceUsd={
+                allBalances?.[row.original.id]
+                  ? allBalances[row.original.id].reduce(
+                      (sum, b) => sum.plus(bnOrZero(b.amountUsd)),
+                      bnOrZero(0),
+                    )
+                  : undefined
+              }
             />
           ))}
         </SimpleGrid>

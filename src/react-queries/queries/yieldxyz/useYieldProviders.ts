@@ -15,14 +15,17 @@ export const useYieldProviders = () => {
       return data.items
     },
     select: providers => {
-      return providers.reduce((acc, provider) => {
-        const p =
-          provider.id === YIELD_XYZ_PROVIDER_ID
-            ? { ...provider, logoURI: YIELD_XYZ_LOCAL_LOGO_URI }
-            : provider
-        acc[p.id] = p
-        return acc
-      }, {} as Record<string, ProviderDto>)
+      return providers.reduce(
+        (acc, provider) => {
+          const p =
+            provider.id === YIELD_XYZ_PROVIDER_ID
+              ? { ...provider, logoURI: YIELD_XYZ_LOCAL_LOGO_URI }
+              : provider
+          acc[p.id] = p
+          return acc
+        },
+        {} as Record<string, ProviderDto>,
+      )
     },
     staleTime: Infinity,
     gcTime: Infinity,

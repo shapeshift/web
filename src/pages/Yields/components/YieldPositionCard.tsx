@@ -14,7 +14,7 @@ import {
   VStack,
 } from '@chakra-ui/react'
 import { fromAccountId } from '@shapeshiftoss/caip'
-import { useCallback, useMemo } from 'react'
+import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useSearchParams } from 'react-router-dom'
 
@@ -40,7 +40,9 @@ export const YieldPositionCard = ({ yieldItem }: YieldPositionCardProps) => {
   const validatorParam = searchParams.get('validator')
 
   // If no param, default to the chain's default validator (same logic as EnterExit)
-  const defaultValidator = yieldItem.chainId ? DEFAULT_NATIVE_VALIDATOR_BY_CHAIN_ID[yieldItem.chainId] : undefined
+  const defaultValidator = yieldItem.chainId
+    ? DEFAULT_NATIVE_VALIDATOR_BY_CHAIN_ID[yieldItem.chainId]
+    : undefined
   const selectedValidatorAddress = validatorParam || defaultValidator
 
   const { chainId } = yieldItem
@@ -64,14 +66,15 @@ export const YieldPositionCard = ({ yieldItem }: YieldPositionCardProps) => {
 
   const aggregateBalancesByType = (type: YieldBalanceType) => {
     // Filter balances by the selected validator
-    const matchingBalances = balances?.filter((b: AugmentedYieldBalance) => {
-      if (b.type !== type) return false
-      // If we have a selected validator, only include balances for that validator
-      if (selectedValidatorAddress && b.validator) {
-        return b.validator.address === selectedValidatorAddress
-      }
-      return true
-    }) ?? []
+    const matchingBalances =
+      balances?.filter((b: AugmentedYieldBalance) => {
+        if (b.type !== type) return false
+        // If we have a selected validator, only include balances for that validator
+        if (selectedValidatorAddress && b.validator) {
+          return b.validator.address === selectedValidatorAddress
+        }
+        return true
+      }) ?? []
 
     if (matchingBalances.length === 0) return undefined
 
@@ -141,8 +144,7 @@ export const YieldPositionCard = ({ yieldItem }: YieldPositionCardProps) => {
           >
             {selectedValidatorName
               ? translate('yieldXYZ.myValidatorPosition', { validator: selectedValidatorName })
-              : translate('yieldXYZ.myPosition')
-            }
+              : translate('yieldXYZ.myPosition')}
           </Heading>
           {address && (
             <Badge

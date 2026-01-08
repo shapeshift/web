@@ -3,23 +3,20 @@ import {
   AvatarGroup,
   Box,
   Flex,
-  HStack,
   Skeleton,
   SkeletonCircle,
   Text,
   useColorModeValue,
 } from '@chakra-ui/react'
+import type BigNumber from 'bignumber.js'
 import { useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 import { Amount } from '@/components/Amount/Amount'
 import { AssetIcon } from '@/components/AssetIcon'
-import { ChainIcon } from '@/components/ChainMenu'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import type { AugmentedYieldDto } from '@/lib/yieldxyz/types'
 import { useYieldProviders } from '@/react-queries/queries/yieldxyz/useYieldProviders'
-
-import BigNumber from 'bignumber.js'
 // ... existing imports ...
 
 type YieldAssetGroupRowProps = {
@@ -40,7 +37,6 @@ export const YieldAssetGroupRow = ({
   userGroupBalanceUsd,
 }: YieldAssetGroupRowProps) => {
   const navigate = useNavigate()
-  const translate = useTranslate()
   const hoverBg = useColorModeValue('gray.50', 'whiteAlpha.50')
   const { data: yieldProviders } = useYieldProviders()
 

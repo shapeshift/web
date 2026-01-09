@@ -36,11 +36,30 @@ class WorkerStorage {
     this.initPromise = new Promise<void>(resolve => {
       try {
         this.worker = new IndexedDBWorker()
-        this.worker.onmessage = this.handleMessage.bind(this)
+        let resolved = false
+
+        this.worker.onmessage = (event: MessageEvent<IndexedDBWorkerOutboundMessage>) => {
+          if (event.data.type === 'ready' && !resolved) {
+            resolved = true
+            resolve()
+            return
+          }
+          this.handleMessage(event)
+        }
+
         this.worker.onerror = err => {
           console.error('[WorkerStorage] Worker error:', err)
         }
-        resolve()
+
+        this.worker.postMessage({ type: 'ping' })
+
+        setTimeout(() => {
+          if (!resolved) {
+            resolved = true
+            console.warn('[WorkerStorage] Worker ready timeout, continuing anyway')
+            resolve()
+          }
+        }, 5000)
       } catch (err) {
         console.error('[WorkerStorage] Failed to create worker:', err)
         resolve()
@@ -52,6 +71,8 @@ class WorkerStorage {
 
   private handleMessage(event: MessageEvent<IndexedDBWorkerOutboundMessage>): void {
     const data = event.data
+    if (data.type === 'ready') return
+
     const pending = this.pendingRequests.get(data.requestId)
     if (!pending) return
 
@@ -76,7 +97,7 @@ class WorkerStorage {
   }
 
   private sendMessage(
-    message: IndexedDBWorkerInboundMessage,
+    message: Exclude<IndexedDBWorkerInboundMessage, { type: 'ping' }>,
     key: string,
     type: 'read' | 'write',
   ): Promise<unknown> {

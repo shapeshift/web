@@ -328,7 +328,10 @@
     "viewSavedWallets": "保存されたウォレットを表示する",
     "footerOne": "続行すると、次の内容に同意したことになります",
     "terms": "利用規約",
-    "privacyPolicy": "プライバシーポリシー"
+    "privacyPolicy": "プライバシーポリシー",
+    "connectNewWallet": "新しいウォレットを接続する",
+    "getANewWallet": "新しいウォレットを入手する",
+    "alreadyHaveWallet": "すでにウォレットを持っています"
   },
   "connectWallet": {
     "menu": {
@@ -510,6 +513,7 @@
     "rFOX": "rFOX",
     "tcy": "TCY",
     "foxEcosystem": "FOXエコシステム",
+    "ecosystem": "エコシステム",
     "markets": "市場",
     "tokens": "トークン",
     "swap": "スワップ"
@@ -523,6 +527,10 @@
     "foxToken": {
       "title": "FOXトークン",
       "subtitle": "ガバナンストークン"
+    },
+    "agent": {
+      "title": "エージェント",
+      "subtitle": "ウォレットとチャット"
     },
     "classic": {
       "title": "クラシック",
@@ -1092,6 +1100,7 @@
       "getFeesError": "料金取得中のエラー",
       "broadcastingTransaction": "ブロードキャストトランザクション",
       "youHaveSent": "%{amount} %{symbol} を正常に送信しました",
+      "sendFailed": "送信に失敗しました",
       "toAddress": "宛先",
       "toAddressOrEns": "宛先またはENS",
       "scanQrCode": "QRコードをスキャン",
@@ -1880,6 +1889,18 @@
     "description": "続行するには、Ledger デバイスで %{appName} アプリを開く必要があります。",
     "devicePrompt": "Your device will prompt you with any necessary steps required to complete your current action."
   },
+  "starknet": {
+    "deployAccount": {
+      "title": "Starknetアカウントをデプロイする",
+      "description": "Starknet は、使用する前にデプロイする必要があるスマート コントラクトアカウントを使用します。",
+      "sendDescription": "送信するにはまずアカウントをデプロイする必要があります",
+      "swapDescription": "Starknetはスマートコントラクトアカウントを使用します。スワップを行う前に、まずアカウントをデプロイする必要があります。",
+      "explanation": "これはStarknetアカウントを初期化するための1回限りの設定です。残高から少額の手数料が差し引かれます。",
+      "deployButton": "アカウントをデプロイする",
+      "deploying": "アカウントをデプロイしています...",
+      "deployFailed": "デプロイに失敗しました"
+    }
+  },
   "transactionHistory": {
     "transactionHistory": "取引履歴",
     "recentTransactions": "最近の取引",
@@ -2516,6 +2537,7 @@
       "buildTransaction": "トランザクションの構築に失敗しました。",
       "signTransaction": "トランザクションの署名に失敗しました。",
       "blindSigningRequired": "トランザクションにはブラインド署名が必要です。Ledgerアプリの設定で「Blind signing」または「Contract Data」を有効にして、もう一度お試しください。",
+      "ledgerTronAllowDataDisabled": "Ledger TRON アプリの設定でトランザクションデータを有効にして、もう一度お試しください。",
       "signAndBroadcastTransaction": "トランザクションの署名とブロードキャストに失敗しました。",
       "signMessage": "メッセージの署名に失敗しました。",
       "broadcastTransaction": "トランザクションのブロードキャストに失敗しました。",

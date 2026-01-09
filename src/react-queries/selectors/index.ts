@@ -2,6 +2,7 @@ import type { AssetId } from '@shapeshiftoss/caip'
 import type { evm } from '@shapeshiftoss/chain-adapters'
 import type { InboundAddressResponse } from '@shapeshiftoss/swapper'
 import {
+  assetIdToMayaPoolAssetId,
   assetIdToThorPoolAssetId,
   isNativeAsset,
   isRuji,
@@ -18,10 +19,21 @@ import type { ThorchainMimir } from '@/lib/utils/thorchain/types'
 export const selectInboundAddressData = (
   data: InboundAddressResponse[],
   assetId: AssetId | undefined,
+  swapperName: SwapperName,
 ): InboundAddressResponse | undefined => {
   if (!assetId) throw new Error(`AssetId is required: ${assetId}`)
 
-  const assetPoolId = assetIdToThorPoolAssetId({ assetId })
+  const assetPoolId = (() => {
+    switch (swapperName) {
+      case SwapperName.Thorchain:
+        return assetIdToThorPoolAssetId({ assetId })
+      case SwapperName.Mayachain:
+        return assetIdToMayaPoolAssetId({ assetId })
+      default:
+        throw new Error(`Invalid swapper name: ${swapperName}`)
+    }
+  })()
+
   const assetChainSymbol = assetPoolId?.slice(0, assetPoolId.indexOf('.'))
 
   return data.find(inbound => inbound.chain === assetChainSymbol)

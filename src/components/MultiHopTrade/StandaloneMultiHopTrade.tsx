@@ -1,6 +1,5 @@
 import { AnimatePresence } from 'framer-motion'
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { FormProvider, useForm } from 'react-hook-form'
 import { matchPath, useLocation, useNavigate } from 'react-router-dom'
 import { Route, Switch } from 'wouter'
 
@@ -42,7 +41,6 @@ export const StandaloneMultiHopTrade = memo(
     isStandalone,
   }: StandaloneTradeCardProps) => {
     const dispatch = useAppDispatch()
-    const methods = useForm({ mode: 'onChange' })
     const location = useLocation()
 
     // Extract params directly from location.pathname using matchPath instead of useParams()
@@ -128,13 +126,11 @@ export const StandaloneMultiHopTrade = memo(
     }, [dispatch, routeBuyAsset, routeSellAsset, paramsSellAmountCryptoBaseUnit, isInitialized])
 
     return (
-      <FormProvider {...methods}>
-        <StandaloneTradeRoutes
-          isCompact={isCompact}
-          onChangeTab={onChangeTab}
-          isStandalone={isStandalone}
-        />
-      </FormProvider>
+      <StandaloneTradeRoutes
+        isCompact={isCompact}
+        onChangeTab={onChangeTab}
+        isStandalone={isStandalone}
+      />
     )
   },
 )

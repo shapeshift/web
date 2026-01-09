@@ -1,7 +1,6 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import { AnimatePresence } from 'framer-motion'
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { FormProvider, useForm } from 'react-hook-form'
 import { matchPath, Route, Routes, useLocation } from 'react-router-dom'
 
 import type { QuoteListProps } from './components/QuoteList/QuoteList'
@@ -45,7 +44,6 @@ export const MultiHopTrade = memo(
     onChangeTab,
   }: TradeCardProps) => {
     const dispatch = useAppDispatch()
-    const methods = useForm({ mode: 'onChange' })
     const location = useLocation()
 
     // Extract params directly from location.pathname using matchPath instead of useParams()
@@ -104,9 +102,7 @@ export const MultiHopTrade = memo(
     }, [dispatch, buyAsset, sellAsset, paramsSellAmountCryptoBaseUnit, isInitialized])
 
     return (
-      <FormProvider {...methods}>
-        <TradeRoutes isCompact={isCompact} onChangeTab={onChangeTab} isStandalone={isStandalone} />
-      </FormProvider>
+      <TradeRoutes isCompact={isCompact} onChangeTab={onChangeTab} isStandalone={isStandalone} />
     )
   },
 )

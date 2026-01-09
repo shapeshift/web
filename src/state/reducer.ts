@@ -47,7 +47,8 @@ import type { TxHistory } from './slices/txHistorySlice/txHistorySlice'
 import { txHistory, txHistoryApi } from './slices/txHistorySlice/txHistorySlice'
 
 import { getConfig } from '@/config'
-import { createLocalStorageAdapter, createProfiledStorage } from '@/lib/profiledStorage'
+import { createLocalStorageAdapter } from '@/lib/profiledStorage'
+import { createWorkerStorage } from '@/lib/storage/workerStorage'
 import { gridplusSlice } from '@/state/slices/gridplusSlice/gridplusSlice'
 import type { GridPlusState } from '@/state/slices/gridplusSlice/types'
 import { tradeQuoteSlice } from '@/state/slices/tradeQuoteSlice/tradeQuoteSlice'
@@ -72,7 +73,7 @@ export const slices = {
 }
 
 const isProfilingEnabled = getConfig().VITE_FEATURE_PERFORMANCE_PROFILER
-const storage = createProfiledStorage(isProfilingEnabled)
+const storage = createWorkerStorage(isProfilingEnabled)
 const localStorageAdapter = createLocalStorageAdapter(isProfilingEnabled)
 
 const PERSIST_THROTTLE_MS = 1000

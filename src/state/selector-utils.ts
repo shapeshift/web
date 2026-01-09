@@ -1,11 +1,11 @@
-import isEqual from 'lodash/isEqual'
+import equal from 'fast-deep-equal'
 import { createSelectorCreator, lruMemoize } from 'reselect'
 
 import { profiler } from '@/lib/performanceProfiler'
 
-// memoize selector output with lodash isEqual
+// memoize selector output with fast-deep-equal (2-7x faster than lodash/isEqual)
 export const createDeepEqualOutputSelector = createSelectorCreator(lruMemoize, {
-  resultEqualityCheck: isEqual,
+  resultEqualityCheck: equal,
 })
 
 export const createProfiledSelector = <T extends (...args: never[]) => unknown>(

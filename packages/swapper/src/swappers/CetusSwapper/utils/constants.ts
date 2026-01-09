@@ -8,3 +8,5 @@ export const isSupportedChainId = (
 ): chainId is (typeof SUPPORTED_CETUS_CHAIN_IDS)[number] => {
   return SUPPORTED_CETUS_CHAIN_IDS.includes(chainId)
 }
+
+export const PYTH_DEPENDENT_PROVIDERS = ['HAEDALPMM', 'HAEDALHMMV2', 'METASTABLE']

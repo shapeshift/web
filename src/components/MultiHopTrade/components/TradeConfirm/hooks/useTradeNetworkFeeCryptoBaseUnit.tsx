@@ -18,7 +18,9 @@ import { useWallet } from '@/hooks/useWallet/useWallet'
 import { assertUnreachable } from '@/lib/utils'
 import { assertGetCosmosSdkChainAdapter } from '@/lib/utils/cosmosSdk'
 import { assertGetEvmChainAdapter } from '@/lib/utils/evm'
+import { assertGetNearChainAdapter } from '@/lib/utils/near'
 import { assertGetSolanaChainAdapter } from '@/lib/utils/solana'
+import { assertGetStarknetChainAdapter } from '@/lib/utils/starknet'
 import { assertGetSuiChainAdapter } from '@/lib/utils/sui'
 import { assertGetTronChainAdapter } from '@/lib/utils/tron'
 import { assertGetUtxoChainAdapter } from '@/lib/utils/utxo'
@@ -237,6 +239,49 @@ export const useTradeNetworkFeeCryptoBaseUnit = ({
                   chainId: hop.sellAsset.chainId,
                   config: getConfig(),
                   assertGetSuiChainAdapter,
+                })
+                return output
+              }
+              case CHAIN_NAMESPACE.Near: {
+                if (!swapper.getNearTransactionFees) throw Error('missing getNearTransactionFees')
+
+                const adapter = assertGetNearChainAdapter(stepSellAssetChainId)
+                const from = await adapter.getAddress({
+                  accountNumber,
+                  wallet,
+                  ...(skipDeviceDerivation ? { pubKey } : {}),
+                })
+
+                const output = await swapper.getNearTransactionFees({
+                  tradeQuote,
+                  from,
+                  stepIndex: hopIndex,
+                  slippageTolerancePercentageDecimal,
+                  chainId: hop.sellAsset.chainId,
+                  config: getConfig(),
+                  assertGetNearChainAdapter,
+                })
+                return output
+              }
+              case CHAIN_NAMESPACE.Starknet: {
+                if (!swapper.getStarknetTransactionFees)
+                  throw Error('missing getStarknetTransactionFees')
+
+                const adapter = assertGetStarknetChainAdapter(stepSellAssetChainId)
+                const from = await adapter.getAddress({
+                  accountNumber,
+                  wallet,
+                  ...(skipDeviceDerivation ? { pubKey } : {}),
+                })
+
+                const output = await swapper.getStarknetTransactionFees({
+                  tradeQuote,
+                  from,
+                  stepIndex: hopIndex,
+                  slippageTolerancePercentageDecimal,
+                  chainId: hop.sellAsset.chainId,
+                  config: getConfig(),
+                  assertGetStarknetChainAdapter,
                 })
                 return output
               }

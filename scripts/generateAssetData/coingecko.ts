@@ -9,10 +9,15 @@ import {
   bscChainId,
   ethChainId,
   gnosisChainId,
+  hyperEvmChainId,
+  katanaChainId,
   monadChainId,
+  nearChainId,
   optimismChainId,
+  plasmaChainId,
   polygonChainId,
   solanaChainId,
+  starknetChainId,
   suiChainId,
   toAssetId,
   tronChainId,
@@ -26,8 +31,12 @@ import {
   bnbsmartchain,
   ethereum,
   gnosis,
+  hyperevm,
+  katana,
   monad,
+  near,
   optimism,
+  plasma,
   polygon,
   solana,
   sui,
@@ -138,6 +147,30 @@ export async function getAssets(chainId: ChainId): Promise<Asset[]> {
           explorerAddressLink: monad.explorerAddressLink,
           explorerTxLink: monad.explorerTxLink,
         }
+      case hyperEvmChainId:
+        return {
+          assetNamespace: ASSET_NAMESPACE.erc20,
+          category: adapters.chainIdToCoingeckoAssetPlatform(chainId),
+          explorer: hyperevm.explorer,
+          explorerAddressLink: hyperevm.explorerAddressLink,
+          explorerTxLink: hyperevm.explorerTxLink,
+        }
+      case plasmaChainId:
+        return {
+          assetNamespace: ASSET_NAMESPACE.erc20,
+          category: adapters.chainIdToCoingeckoAssetPlatform(chainId),
+          explorer: plasma.explorer,
+          explorerAddressLink: plasma.explorerAddressLink,
+          explorerTxLink: plasma.explorerTxLink,
+        }
+      case katanaChainId:
+        return {
+          assetNamespace: ASSET_NAMESPACE.erc20,
+          category: adapters.chainIdToCoingeckoAssetPlatform(chainId),
+          explorer: katana.explorer,
+          explorerAddressLink: katana.explorerAddressLink,
+          explorerTxLink: katana.explorerTxLink,
+        }
       case solanaChainId:
         return {
           assetNamespace: ASSET_NAMESPACE.splToken,
@@ -145,6 +178,14 @@ export async function getAssets(chainId: ChainId): Promise<Asset[]> {
           explorer: solana.explorer,
           explorerAddressLink: solana.explorerAddressLink,
           explorerTxLink: solana.explorerTxLink,
+        }
+      case starknetChainId:
+        return {
+          assetNamespace: ASSET_NAMESPACE.starknetToken,
+          category: 'starknet',
+          explorer: 'https://starkscan.co',
+          explorerAddressLink: 'https://starkscan.co/contract/',
+          explorerTxLink: 'https://starkscan.co/tx/',
         }
       case tronChainId:
         return {
@@ -161,6 +202,14 @@ export async function getAssets(chainId: ChainId): Promise<Asset[]> {
           explorer: sui.explorer,
           explorerAddressLink: sui.explorerAddressLink,
           explorerTxLink: sui.explorerTxLink,
+        }
+      case nearChainId:
+        return {
+          assetNamespace: ASSET_NAMESPACE.nep141,
+          category: adapters.chainIdToCoingeckoAssetPlatform(chainId),
+          explorer: near.explorer,
+          explorerAddressLink: near.explorerAddressLink,
+          explorerTxLink: near.explorerTxLink,
         }
       default:
         throw new Error(`no coingecko token support for chainId: ${chainId}`)

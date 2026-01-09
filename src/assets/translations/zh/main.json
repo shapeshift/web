@@ -513,6 +513,7 @@
     "rFOX": "rFOX",
     "tcy": "TCY",
     "foxEcosystem": "FOX 生态系统",
+    "ecosystem": "生态系统",
     "markets": "市场",
     "tokens": "代币",
     "swap": "交换"
@@ -526,6 +527,10 @@
     "foxToken": {
       "title": "FOX 代币",
       "subtitle": "我们的治理代币"
+    },
+    "agent": {
+      "title": "代理",
+      "subtitle": "与您的钱包聊天"
     },
     "classic": {
       "title": "经典",
@@ -755,8 +760,15 @@
     "slowSwapBody": "该兑换可能需要几分钟才能完成。",
     "thorSmartContractWalletUnsupported": "THORChain 网络目前不支持智能合约钱包。",
     "intoAssetSymbolBody": "你可以继续进行此交易，但接收 %{assetSymbol} 的交易历史记录暂时不可用",
+    "receiveAddress": "接收地址",
     "changeAddress": "退款地址",
     "changeAddressExplainer": "在基于 UTXO 的网络上发送加密货币时，交易中未使用的余额将会通过此地址返回给您。",
+    "depositAddress": "充值地址",
+    "depositAddressExplainer": "这是协议用于处理资金的地址。您的硬件钱包会显示该地址供您验证。",
+    "customReceiveAddress": "自定义接收地址",
+    "customReceiveAddressDescription": "为此交易输入一个自定义接收地址",
+    "thisIsYourCustomReceiveAddress": "这是您的自定义接收地址",
+    "enterCustomReceiveAddress": "输入自定义接收地址",
     "receiveAtLeast": "至少收到",
     "tooltip": {
       "continueSwapping": "继续交换以查看最终详情",
@@ -828,7 +840,6 @@
     "or": "或者",
     "onChainName": "在 %{chainName} 上",
     "unknownGas": "（未知）",
-    "receiveAddress": "接收地址",
     "receiveAddressDescription": "未从已连接的钱包中找到 %{chainName} 地址。请手动输入地址",
     "disableThorTaprootReceive": "我们检测到你正在向 taproot 比特币地址发送。由于 THORChain 的限制，目前不支持将 BTC 接收至 taproot 地址。请输入其他地址。",
     "toContinue": "来继续。",
@@ -1089,6 +1100,7 @@
       "getFeesError": "获取费用错误",
       "broadcastingTransaction": "广播交易",
       "youHaveSent": "你已经成功发送 %{amount} %{symbol}",
+      "sendFailed": "发送失败",
       "toAddress": "目标地址",
       "toAddressOrEns": "目标地址或 ENS",
       "scanQrCode": "扫描二维码",
@@ -1427,7 +1439,9 @@
         "renamed": "SafeCard 已重命名 ",
         "deleted": "SafeCard 已删除",
         "deletedDescription": "投资组合数据已被清除",
-        "warning": "每张 SafeCard 都有自己独立的资产组合。在连接之前请确保将正确的 SafeCard 插入设备。"
+        "warning": "每张 SafeCard 都有自己独立的资产组合。在连接之前请确保将正确的 SafeCard 插入设备。",
+        "safeCardLabel": "SafeCard",
+        "internalSafeCardLabel": "内置 SafeCard"
       },
       "connect": {
         "header": "连接新的 SafeCard",
@@ -1461,6 +1475,9 @@
         "deviceNotConnected": "设备未连接。请先调用 connectDevice。",
         "connectFailure": "无法连接到 GridPlus 钱包",
         "unknown": "与 GridPlus 钱包通信时发生了意料之外的错误"
+      },
+      "menu": {
+        "switchSafeCard": "切换 SafeCard"
       }
     },
     "ledger": {
@@ -1871,6 +1888,18 @@
     "title": "打开 %{appName} 应用程序",
     "description": "要继续，你需要在 Ledger 设备上打开 %{appName} 应用程序。",
     "devicePrompt": "你的设备将提示你完成当前操作所需的任何必要步骤。"
+  },
+  "starknet": {
+    "deployAccount": {
+      "title": "部署 Starknet 帐户",
+      "description": "Starknet 使用智能合约帐户，需要在使用之前部署。",
+      "sendDescription": "您需要先部署帐户，才能进行发送",
+      "swapDescription": "Starknet 使用智能合约帐户。您需要先部署帐户，才能进行交换。",
+      "explanation": "这是一次性设置，用于在 Starknet 上初始化您的帐户。此操作会从您的余额中扣除少量费用。",
+      "deployButton": "部署帐户",
+      "deploying": "部署帐户中...",
+      "deployFailed": "部署失败"
+    }
   },
   "transactionHistory": {
     "transactionHistory": "交易记录",
@@ -2508,6 +2537,7 @@
       "buildTransaction": "无法建立交易。",
       "signTransaction": "签署交易失败。",
       "blindSigningRequired": "此交易需要盲签。 请在您的 Ledger 应用中启用 Blind signing 或 Contract Data 并重试。",
+      "ledgerTronAllowDataDisabled": "请在您的 Ledger TRON 应用中启用 Transactions Data 功能并重试。",
       "signAndBroadcastTransaction": "签署并广播交易失败。",
       "signMessage": "消息签名失败。",
       "broadcastTransaction": "广播交易失败。",
@@ -2516,7 +2546,11 @@
       "getFeeData": "无法估算网络费用。",
       "getPublicKey": "无法从钱包获取公钥。",
       "getUtxos": "无法获取 utxos。",
-      "getValidator": "无法获取验证器。"
+      "getValidator": "无法获取验证器。",
+      "gridplus": {
+        "wrongSafeCard": "插入了错误的 SafeCard。请插入正确的 SafeCard，然后重试",
+        "removeSafeCard": "请移除已插入的 SafeCard 以访问内置的 GridPlus 钱包。"
+      }
     }
   },
   "actionCenter": {

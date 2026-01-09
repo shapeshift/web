@@ -17,11 +17,16 @@ export const arbitrumAssetId: AssetId = 'eip155:42161/slip44:60'
 export const arbitrumNovaAssetId: AssetId = 'eip155:42170/slip44:60'
 export const baseAssetId: AssetId = 'eip155:8453/slip44:60'
 export const monadAssetId: AssetId = 'eip155:143/slip44:60'
+export const hyperEvmAssetId: AssetId = 'eip155:999/slip44:60'
+export const plasmaAssetId: AssetId = 'eip155:9745/slip44:60'
+export const katanaAssetId: AssetId = 'eip155:747474/slip44:60'
 export const solAssetId: AssetId = 'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp/slip44:501'
 export const wrappedSolAssetId: AssetId =
   'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp/token:So11111111111111111111111111111111111111112'
 export const tronAssetId: AssetId = 'tron:0x2b6653dc/slip44:195'
 export const suiAssetId: AssetId = 'sui:35834a8a/slip44:784'
+export const nearAssetId: AssetId = 'near:mainnet/slip44:397'
+export const starknetAssetId: AssetId = 'starknet:SN_MAIN/slip44:9004'
 export const uniV2EthFoxArbitrumAssetId: AssetId =
   'eip155:42161/erc20:0x5f6ce0ca13b87bd738519545d3e018e70e339c24'
 
@@ -72,6 +77,9 @@ export const arbitrumChainId: ChainId = 'eip155:42161'
 export const arbitrumNovaChainId: ChainId = 'eip155:42170'
 export const baseChainId: ChainId = 'eip155:8453'
 export const monadChainId: ChainId = 'eip155:143'
+export const hyperEvmChainId: ChainId = 'eip155:999'
+export const plasmaChainId: ChainId = 'eip155:9745'
+export const katanaChainId: ChainId = 'eip155:747474'
 
 export const cosmosChainId: ChainId = 'cosmos:cosmoshub-4'
 export const thorchainChainId: ChainId = 'cosmos:thorchain-1'
@@ -81,6 +89,8 @@ export const binanceChainId: ChainId = 'cosmos:binance-chain-tigris'
 export const solanaChainId: ChainId = 'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp'
 export const tronChainId: ChainId = 'tron:0x2b6653dc'
 export const suiChainId: ChainId = 'sui:35834a8a'
+export const nearChainId: ChainId = 'near:mainnet'
+export const starknetChainId: ChainId = 'starknet:SN_MAIN'
 
 export const CHAIN_NAMESPACE = {
   Evm: 'eip155',
@@ -89,6 +99,8 @@ export const CHAIN_NAMESPACE = {
   Solana: 'solana',
   Tron: 'tron',
   Sui: 'sui',
+  Near: 'near',
+  Starknet: 'starknet',
 } as const
 
 type ValidChainMap = {
@@ -115,9 +127,14 @@ export const CHAIN_REFERENCE = {
   ArbitrumNovaMainnet: '42170', // https://chainlist.org/chain/42170
   BaseMainnet: '8453', // https://chainlist.org/chain/8453
   MonadMainnet: '143', // https://docs.monad.xyz/developer-essentials/network-information
+  HyperEvmMainnet: '999', // https://chainlist.org/chain/999
+  PlasmaMainnet: '9745', // https://chainlist.org/chain/9745
+  KatanaMainnet: '747474', // https://docs.katana.network
   SolanaMainnet: '5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp', // https://namespaces.chainagnostic.org/solana/caip2
   TronMainnet: '0x2b6653dc', // https://developers.tron.network/docs/networks
   SuiMainnet: '35834a8a', // First 8 chars of SUI mainnet genesis hash
+  NearMainnet: 'mainnet', // https://docs.reown.com/cloud/chains/chain-list (CAIP-2: near:mainnet)
+  StarknetMainnet: 'SN_MAIN', // https://namespaces.chainagnostic.org/starknet/caip2
 } as const
 
 export const ASSET_NAMESPACE = {
@@ -129,6 +146,8 @@ export const ASSET_NAMESPACE = {
   trc20: 'trc20',
   trc10: 'trc10',
   suiCoin: 'coin',
+  nep141: 'nep141', // NEAR fungible token standard: https://nomicon.io/Standards/Tokens/FungibleToken/Core
+  starknetToken: 'token',
 } as const
 
 export const ASSET_REFERENCE = {
@@ -151,9 +170,14 @@ export const ASSET_REFERENCE = {
   ArbitrumNova: '60', // evm chain which uses ethereum derivation path as common practice
   Base: '60', // evm chain which uses ethereum derivation path as common practice
   Monad: '60', // evm chain which uses ethereum derivation path as common practice
+  HyperEvm: '60', // evm chain which uses ethereum derivation path as common practice
+  Plasma: '60', // evm chain which uses ethereum derivation path as common practice
+  Katana: '60', // evm chain which uses ethereum derivation path as common practice
   Solana: '501',
   Tron: '195',
   Sui: '784',
+  Near: '397', // https://github.com/satoshilabs/slips/blob/master/slip-0044.md
+  Starknet: '9004',
 } as const
 
 export const VALID_CHAIN_IDS: ValidChainMap = Object.freeze({
@@ -175,6 +199,9 @@ export const VALID_CHAIN_IDS: ValidChainMap = Object.freeze({
     CHAIN_REFERENCE.ArbitrumNovaMainnet,
     CHAIN_REFERENCE.BaseMainnet,
     CHAIN_REFERENCE.MonadMainnet,
+    CHAIN_REFERENCE.HyperEvmMainnet,
+    CHAIN_REFERENCE.PlasmaMainnet,
+    CHAIN_REFERENCE.KatanaMainnet,
   ],
   [CHAIN_NAMESPACE.CosmosSdk]: [
     CHAIN_REFERENCE.CosmosHubMainnet,
@@ -185,6 +212,8 @@ export const VALID_CHAIN_IDS: ValidChainMap = Object.freeze({
   [CHAIN_NAMESPACE.Solana]: [CHAIN_REFERENCE.SolanaMainnet],
   [CHAIN_NAMESPACE.Tron]: [CHAIN_REFERENCE.TronMainnet],
   [CHAIN_NAMESPACE.Sui]: [CHAIN_REFERENCE.SuiMainnet],
+  [CHAIN_NAMESPACE.Near]: [CHAIN_REFERENCE.NearMainnet],
+  [CHAIN_NAMESPACE.Starknet]: [CHAIN_REFERENCE.StarknetMainnet],
 })
 
 type ValidAssetNamespace = {
@@ -203,6 +232,8 @@ export const VALID_ASSET_NAMESPACE: ValidAssetNamespace = Object.freeze({
   [CHAIN_NAMESPACE.Solana]: [ASSET_NAMESPACE.splToken, ASSET_NAMESPACE.slip44],
   [CHAIN_NAMESPACE.Tron]: [ASSET_NAMESPACE.slip44, ASSET_NAMESPACE.trc20],
   [CHAIN_NAMESPACE.Sui]: [ASSET_NAMESPACE.slip44, ASSET_NAMESPACE.suiCoin],
+  [CHAIN_NAMESPACE.Near]: [ASSET_NAMESPACE.slip44, ASSET_NAMESPACE.nep141],
+  [CHAIN_NAMESPACE.Starknet]: [ASSET_NAMESPACE.slip44, ASSET_NAMESPACE.starknetToken],
 })
 
 // We should prob change this once we add more chains
@@ -227,5 +258,7 @@ export const FEE_ASSET_IDS = [
   solAssetId,
   tronAssetId,
   suiAssetId,
+  nearAssetId,
+  starknetAssetId,
   zecAssetId,
 ]

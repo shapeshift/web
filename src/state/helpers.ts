@@ -1,6 +1,7 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import { SwapperName } from '@shapeshiftoss/swapper'
+import { KnownChainIds } from '@shapeshiftoss/types'
 
 import type { FeatureFlags } from './slices/preferencesSlice/preferencesSlice'
 
@@ -24,6 +25,7 @@ export const isCrossAccountTradeSupported = (swapperName: SwapperName) => {
     case SwapperName.Portals:
     case SwapperName.Cetus:
     case SwapperName.Sunio:
+    case SwapperName.Avnu:
     case SwapperName.Test:
       // Technically supported for Arbitrum Bridge, but we disable it for the sake of simplicity for now
       return false
@@ -48,6 +50,7 @@ export const getEnabledSwappers = (
     NearIntentsSwap,
     CetusSwap,
     SunioSwap,
+    AvnuSwap,
   }: FeatureFlags,
   isCrossAccountTrade: boolean,
   isSolBuyAssetId: boolean,
@@ -56,6 +59,11 @@ export const getEnabledSwappers = (
 ): Record<SwapperName, boolean> => {
   const isGridPlusUtxoSell =
     walletName === 'GridPlus' && sellAssetId && isUtxoChainId(fromAssetId(sellAssetId).chainId)
+
+  const isLedgerTronSell =
+    walletName === 'Ledger' &&
+    sellAssetId &&
+    fromAssetId(sellAssetId).chainId === KnownChainIds.TronMainnet
 
   return {
     [SwapperName.Thorchain]:
@@ -94,7 +102,11 @@ export const getEnabledSwappers = (
     [SwapperName.Cetus]:
       CetusSwap && (!isCrossAccountTrade || isCrossAccountTradeSupported(SwapperName.Cetus)),
     [SwapperName.Sunio]:
-      SunioSwap && (!isCrossAccountTrade || isCrossAccountTradeSupported(SwapperName.Sunio)),
+      SunioSwap &&
+      (!isCrossAccountTrade || isCrossAccountTradeSupported(SwapperName.Sunio)) &&
+      !isLedgerTronSell,
+    [SwapperName.Avnu]:
+      AvnuSwap && (!isCrossAccountTrade || isCrossAccountTradeSupported(SwapperName.Avnu)),
     [SwapperName.Test]: false,
   }
 }

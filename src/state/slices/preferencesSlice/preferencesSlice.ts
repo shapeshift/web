@@ -26,11 +26,16 @@ export type FeatureFlags = {
   Arbitrum: boolean
   ArbitrumNova: boolean
   Solana: boolean
+  Starknet: boolean
   Tron: boolean
   Sui: boolean
+  Near: boolean
   Base: boolean
   Mayachain: boolean
   Monad: boolean
+  HyperEvm: boolean
+  Plasma: boolean
+  Katana: boolean
   Zcash: boolean
   ThorSwap: boolean
   WalletConnectToDapps: boolean
@@ -95,6 +100,7 @@ export type FeatureFlags = {
   NearIntentsSwap: boolean
   CetusSwap: boolean
   SunioSwap: boolean
+  AvnuSwap: boolean
   LazyTxHistory: boolean
   RfoxFoxEcosystemPage: boolean
   LedgerReadOnly: boolean
@@ -104,6 +110,8 @@ export type FeatureFlags = {
   WebServices: boolean
   AddressBook: boolean
   AppRating: boolean
+  YieldXyz: boolean
+  YieldMultiAccount: boolean
 }
 
 export type Flag = keyof FeatureFlags
@@ -164,11 +172,16 @@ const initialState: Preferences = {
     Arbitrum: getConfig().VITE_FEATURE_ARBITRUM,
     ArbitrumNova: getConfig().VITE_FEATURE_ARBITRUM_NOVA,
     Solana: getConfig().VITE_FEATURE_SOLANA,
+    Starknet: getConfig().VITE_FEATURE_STARKNET,
     Tron: getConfig().VITE_FEATURE_TRON,
     Sui: getConfig().VITE_FEATURE_SUI,
+    Near: getConfig().VITE_FEATURE_NEAR,
     Base: getConfig().VITE_FEATURE_BASE,
     Mayachain: getConfig().VITE_FEATURE_MAYACHAIN,
     Monad: getConfig().VITE_FEATURE_MONAD,
+    HyperEvm: getConfig().VITE_FEATURE_HYPEREVM,
+    Plasma: getConfig().VITE_FEATURE_PLASMA,
+    Katana: getConfig().VITE_FEATURE_KATANA,
     Zcash: getConfig().VITE_FEATURE_ZCASH,
     ThorSwap: getConfig().VITE_FEATURE_THOR_SWAP,
     WalletConnectToDappsV2: getConfig().VITE_FEATURE_WALLET_CONNECT_TO_DAPPS_V2,
@@ -233,6 +246,7 @@ const initialState: Preferences = {
     NearIntentsSwap: getConfig().VITE_FEATURE_NEAR_INTENTS_SWAP,
     CetusSwap: getConfig().VITE_FEATURE_CETUS_SWAP,
     SunioSwap: getConfig().VITE_FEATURE_SUNIO_SWAP,
+    AvnuSwap: getConfig().VITE_FEATURE_AVNU_SWAP,
     LazyTxHistory: getConfig().VITE_FEATURE_TX_HISTORY_BYE_BYE,
     RfoxFoxEcosystemPage: getConfig().VITE_FEATURE_RFOX_FOX_ECOSYSTEM_PAGE,
     LedgerReadOnly: getConfig().VITE_FEATURE_LEDGER_READ_ONLY,
@@ -242,6 +256,8 @@ const initialState: Preferences = {
     WebServices: getConfig().VITE_FEATURE_NOTIFICATIONS_WEBSERVICES,
     AddressBook: getConfig().VITE_FEATURE_ADDRESS_BOOK,
     AppRating: getConfig().VITE_FEATURE_APP_RATING,
+    YieldXyz: getConfig().VITE_FEATURE_YIELD_XYZ,
+    YieldMultiAccount: getConfig().VITE_FEATURE_YIELD_MULTI_ACCOUNT,
   },
   selectedLocale: simpleLocale(),
   hasWalletSeenTcyClaimAlert: {},

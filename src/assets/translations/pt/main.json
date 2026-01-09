@@ -513,6 +513,7 @@
     "rFOX": "rFOX",
     "tcy": "TCY",
     "foxEcosystem": "Ecossistema FOX",
+    "ecosystem": "Ecossistema",
     "markets": "Mercados",
     "tokens": "Tokens",
     "swap": "Swap"
@@ -526,6 +527,10 @@
     "foxToken": {
       "title": "FOX Token",
       "subtitle": "Nosso Token de Governança"
+    },
+    "agent": {
+      "title": "Agente",
+      "subtitle": "Converse com sua carteira"
     },
     "classic": {
       "title": "Clássico",
@@ -755,8 +760,15 @@
     "slowSwapBody": "Este swap pode levar alguns minutos para ser concluído.",
     "thorSmartContractWalletUnsupported": "A rede THORChain atualmente não oferece suporte a carteiras com contratos inteligentes.",
     "intoAssetSymbolBody": "Você pode continuar com esta negociação, mas o histórico de transações para receber %{assetSymbol} está temporariamente indisponível",
+    "receiveAddress": "Endereço de recebimento",
     "changeAddress": "Endereço de troco",
     "changeAddressExplainer": "Ao enviar criptomoedas em redes baseadas em UTXO, quaisquer fundos restantes da sua transação são enviados de volta para este endereço.",
+    "depositAddress": "Endereço de depósito",
+    "depositAddressExplainer": "Este é o endereço do protocolo para onde seus fundos serão enviados para processamento. Sua hardware wallet exibirá este endereço para verificação.",
+    "customReceiveAddress": "Endereço de recebimento personalizado",
+    "customReceiveAddressDescription": "Insira um endereço de recebimento personalizado para esta transação.",
+    "thisIsYourCustomReceiveAddress": "Este é o seu endereço de recebimento personalizado.",
+    "enterCustomReceiveAddress": "Insira um endereço de recebimento personalizado.",
     "receiveAtLeast": "Receba pelo menos",
     "tooltip": {
       "continueSwapping": "Continue negociando para mais detalhes",
@@ -828,7 +840,6 @@
     "or": "ou",
     "onChainName": "na %{chainName}",
     "unknownGas": "(desconhecido)",
-    "receiveAddress": "Endereço de recebimento",
     "receiveAddressDescription": "Nenhum endereço %{chainName} encontrado na carteira conectada. Insira um endereço manualmente",
     "disableThorTaprootReceive": "Detectamos que você está enviando para um endereço taproot Bitcoin. Devido às limitações do THORChain, receber BTC para um endereço taproot não é suportado no momento. Insira outro endereço.",
     "toContinue": "para continuar.",
@@ -1089,6 +1100,7 @@
       "getFeesError": "Erro ao receber taxas",
       "broadcastingTransaction": "Transmitindo Transação",
       "youHaveSent": "Você enviou com sucesso %{amount} %{symbol}",
+      "sendFailed": "Falha no envio",
       "toAddress": "Para Endereço",
       "toAddressOrEns": "Para Endereço ou ENS",
       "scanQrCode": "Digitalizar código QR",
@@ -1427,7 +1439,9 @@
         "renamed": "SafeCard renomeado",
         "deleted": "SafeCard excluído",
         "deletedDescription": "Os dados do portfólio foram apagados.",
-        "warning": "Cada SafeCard mantém seu próprio portfólio. Certifique-se de inserir o SafeCard correto em seu dispositivo antes de conectar."
+        "warning": "Cada SafeCard mantém seu próprio portfólio. Certifique-se de inserir o SafeCard correto em seu dispositivo antes de conectar.",
+        "safeCardLabel": "SafeCard",
+        "internalSafeCardLabel": "SafeCard interna"
       },
       "connect": {
         "header": "Conectar novo SafeCard",
@@ -1461,6 +1475,9 @@
         "deviceNotConnected": "Dispositivo não conectado. Chame connectDevice primeiro.",
         "connectFailure": "Não foi possível conectar a carteira GridPlus.",
         "unknown": "Ocorreu um erro inesperado ao comunicar com a carteira GridPlus."
+      },
+      "menu": {
+        "switchSafeCard": "Mude a SafeCard"
       }
     },
     "ledger": {
@@ -1871,6 +1888,18 @@
     "title": "Abra o aplicativo %{appName}",
     "description": "Para continuar, você precisará abrir o aplicativo %{appName} no seu dispositivo Ledger.",
     "devicePrompt": "Seu dispositivo solicitará quaisquer etapas necessárias para concluir sua ação atual."
+  },
+  "starknet": {
+    "deployAccount": {
+      "title": "Implementar conta Starknet",
+      "description": "A Starknet utiliza contas de contratos inteligentes que precisam ser implementadas antes do uso.",
+      "sendDescription": "Primeiro você precisa implementar a conta para poder enviar.",
+      "swapDescription": "A Starknet utiliza contas de contrato inteligente. Você precisará implementar sua conta primeiro antes de poder trocá-la.",
+      "explanation": "Esta é uma configuração única que inicializará sua conta na Starknet. Uma pequena taxa será deduzida do seu saldo.",
+      "deployButton": "Implementar conta",
+      "deploying": "Implementando conta...",
+      "deployFailed": "Implementação Falhou"
+    }
   },
   "transactionHistory": {
     "transactionHistory": "Histórico de transações",
@@ -2508,6 +2537,7 @@
       "buildTransaction": "Falha ao construir transação.",
       "signTransaction": "Falha ao assinar a transação.",
       "blindSigningRequired": "Transação requer uma \"assinatura cega\". Por favor, habilite o \"Blind signing\" ou \"Contract Data\" nas configurações da sua Ledger e tente novamente. ",
+      "ledgerTronAllowDataDisabled": "Por favor, habilite os Dados de Transações nas configurações do seu aplicativo Ledger TRON e tente novamente.",
       "signAndBroadcastTransaction": "Falha ao assinar e transmitir a transação.",
       "signMessage": "Falha ao assinar a mensagem.",
       "broadcastTransaction": "Falha ao transmitir a transação.",
@@ -2516,7 +2546,11 @@
       "getFeeData": "Falha ao estimar as taxas de rede.",
       "getPublicKey": "Falha ao obter a chave pública da carteira.",
       "getUtxos": "Falha ao obter os utxos.",
-      "getValidator": "Falha ao obter o validador."
+      "getValidator": "Falha ao obter o validador.",
+      "gridplus": {
+        "wrongSafeCard": "SafeCard errada inserida. Insira a SafeCard correta e tente novamente.",
+        "removeSafeCard": "Remova a SafeCard para acessar a carteira GridPlus interna. "
+      }
     }
   },
   "actionCenter": {

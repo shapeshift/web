@@ -1,4 +1,3 @@
-import { csp as addressable } from './addressable'
 import { csp as alchemy } from './alchemy'
 import { csp as trustwallet } from './assetService/trustwallet'
 import { csp as base } from './base'
@@ -14,12 +13,17 @@ import { csp as cosmos } from './chains/cosmos'
 import { csp as dogecoin } from './chains/dogecoin'
 import { csp as ethereum } from './chains/ethereum'
 import { csp as gnosis } from './chains/gnosis'
+import { csp as hyperevm } from './chains/hyperevm'
+import { csp as katana } from './chains/katana'
 import { csp as litecoin } from './chains/litecoin'
 import { csp as mayachain } from './chains/mayachain'
 import { csp as monad } from './chains/monad'
+import { csp as near } from './chains/near'
 import { csp as optimism } from './chains/optimism'
+import { csp as plasma } from './chains/plasma'
 import { csp as polygon } from './chains/polygon'
 import { csp as solana } from './chains/solana'
+import { csp as starknet } from './chains/starknet'
 import { csp as sui } from './chains/sui'
 import { csp as thorchain } from './chains/thorchain'
 import { csp as tron } from './chains/tron'
@@ -31,6 +35,7 @@ import { csp as idle } from './defi/idle'
 import { csp as mtpelerin } from './defi/mtpelerin'
 import { csp as safe } from './defi/safe'
 import { csp as zeroX } from './defi/swappers/0x'
+import { csp as avnu } from './defi/swappers/Avnu'
 import { csp as bebop } from './defi/swappers/Bebop'
 import { csp as butterSwap } from './defi/swappers/ButterSwap'
 import { csp as cowSwap } from './defi/swappers/CowSwap'
@@ -42,10 +47,12 @@ import { csp as thor } from './defi/swappers/Thor'
 import { csp as discord } from './discord'
 import { csp as banxa } from './fiatRamps/banxa'
 import { csp as onRamper } from './fiatRamps/onRamper'
+import { csp as hypelab } from './hypelab'
 import { csp as interFont } from './InterFont'
 import { csp as jupiter } from './jupiter'
 import { csp as ledger } from './ledger'
 import { csp as coincap } from './marketService/coincap'
+import { csp as coingecko } from './marketService/coingecko'
 import { csp as exchangeRates } from './marketService/exchangeRates'
 import { csp as mercle } from './mercle'
 import { csp as mixPanel } from './mixPanel'
@@ -67,10 +74,11 @@ import { csp as metamask } from './wallets/metamask'
 import { csp as walletConnect } from './wallets/walletConnect'
 import { csp as walletMigration } from './wallets/walletMigration'
 import { csp as webflow } from './webflow'
+import { csp as yieldxyz } from './yieldxyz'
 
 export const csps = [
   base,
-  addressable,
+  hypelab,
   alchemy,
   moralis,
   chainflip,
@@ -99,18 +107,24 @@ export const csps = [
   dogecoin,
   ethereum,
   gnosis,
+  hyperevm,
+  katana,
   litecoin,
   optimism,
   polygon,
   solana,
+  starknet,
   sui,
   thorchain,
   tron,
   zcash,
   mayachain,
   monad,
+  near,
+  plasma,
   trustwallet,
   coincap,
+  coingecko,
   exchangeRates,
   onRamper,
   banxa,
@@ -119,6 +133,7 @@ export const csps = [
   mtpelerin,
   safe,
   zeroX,
+  avnu,
   bebop,
   cowSwap,
   nearIntents,
@@ -138,4 +153,5 @@ export const csps = [
   relay,
   railway,
   discord,
+  yieldxyz,
 ]

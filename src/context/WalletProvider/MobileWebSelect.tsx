@@ -96,6 +96,8 @@ export const MobileWebSelect: React.FC<PropsWithChildren<MobileWebSelectProps>> 
         bg='background.surface.raised.accent'
         flexDir='column'
         gap={4}
+        pb={8}
+        mb='calc(calc(env(safe-area-inset-bottom) + 1rem) * -1)'
         width='full'
         borderTopWidth={1}
         borderColor='border.base'

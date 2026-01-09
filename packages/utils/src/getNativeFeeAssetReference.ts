@@ -44,6 +44,12 @@ export const getNativeFeeAssetReference = (
             return ASSET_REFERENCE.Base
           case CHAIN_REFERENCE.MonadMainnet:
             return ASSET_REFERENCE.Monad
+          case CHAIN_REFERENCE.HyperEvmMainnet:
+            return ASSET_REFERENCE.HyperEvm
+          case CHAIN_REFERENCE.PlasmaMainnet:
+            return ASSET_REFERENCE.Plasma
+          case CHAIN_REFERENCE.KatanaMainnet:
+            return ASSET_REFERENCE.Katana
           default:
             throw new Error(`Chain namespace ${chainNamespace} on ${chainReference} not supported.`)
         }
@@ -76,6 +82,20 @@ export const getNativeFeeAssetReference = (
         switch (chainReference) {
           case CHAIN_REFERENCE.SuiMainnet:
             return ASSET_REFERENCE.Sui
+          default:
+            throw new Error(`Chain namespace ${chainNamespace} on ${chainReference} not supported.`)
+        }
+      case CHAIN_NAMESPACE.Near:
+        switch (chainReference) {
+          case CHAIN_REFERENCE.NearMainnet:
+            return ASSET_REFERENCE.Near
+          default:
+            throw new Error(`Chain namespace ${chainNamespace} on ${chainReference} not supported.`)
+        }
+      case CHAIN_NAMESPACE.Starknet:
+        switch (chainReference) {
+          case CHAIN_REFERENCE.StarknetMainnet:
+            return ASSET_REFERENCE.Starknet
           default:
             throw new Error(`Chain namespace ${chainNamespace} on ${chainReference} not supported.`)
         }

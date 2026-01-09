@@ -15,12 +15,17 @@ import {
   dogecoin,
   ethereum,
   gnosis,
+  hyperevm,
+  katana,
   litecoin,
   mayachain,
   monad,
+  near,
   optimism,
+  plasma,
   polygon,
   solana,
+  starknet,
   sui,
   thorchain,
   tron,
@@ -52,6 +57,8 @@ export const getBaseAsset = (chainId: ChainId): Readonly<Asset> => {
       return solana
     case KnownChainIds.SuiMainnet:
       return sui
+    case KnownChainIds.StarknetMainnet:
+      return starknet
     case KnownChainIds.BitcoinMainnet:
       return bitcoin
     case KnownChainIds.BitcoinCashMainnet:
@@ -70,6 +77,14 @@ export const getBaseAsset = (chainId: ChainId): Readonly<Asset> => {
       return tron
     case KnownChainIds.MonadMainnet:
       return monad
+    case KnownChainIds.HyperEvmMainnet:
+      return hyperevm
+    case KnownChainIds.PlasmaMainnet:
+      return plasma
+    case KnownChainIds.KatanaMainnet:
+      return katana
+    case KnownChainIds.NearMainnet:
+      return near
     case KnownChainIds.ZcashMainnet:
       return zcash
     default:

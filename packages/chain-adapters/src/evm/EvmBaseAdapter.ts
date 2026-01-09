@@ -15,8 +15,11 @@ import {
   supportsBSC,
   supportsETH,
   supportsGnosis,
+  supportsHyperEvm,
+  supportsKatana,
   supportsMonad,
   supportsOptimism,
+  supportsPlasma,
   supportsPolygon,
 } from '@shapeshiftoss/hdwallet-core'
 import type { Bip44Params, EvmChainId, RootBip44Params } from '@shapeshiftoss/types'
@@ -78,6 +81,9 @@ export const evmChainIds = [
   KnownChainIds.ArbitrumNovaMainnet,
   KnownChainIds.BaseMainnet,
   KnownChainIds.MonadMainnet,
+  KnownChainIds.HyperEvmMainnet,
+  KnownChainIds.PlasmaMainnet,
+  KnownChainIds.KatanaMainnet,
 ] as const
 
 export type EvmChainAdapter = EvmBaseAdapter<EvmChainId>
@@ -176,6 +182,12 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
           return supportsBase(wallet)
         case Number(fromChainId(KnownChainIds.MonadMainnet).chainReference):
           return supportsMonad(wallet)
+        case Number(fromChainId(KnownChainIds.HyperEvmMainnet).chainReference):
+          return supportsHyperEvm(wallet)
+        case Number(fromChainId(KnownChainIds.PlasmaMainnet).chainReference):
+          return supportsPlasma(wallet)
+        case Number(fromChainId(KnownChainIds.KatanaMainnet).chainReference):
+          return supportsKatana(wallet)
         default:
           return false
       }
@@ -257,6 +269,21 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
         name: 'MON',
         symbol: 'MON',
         explorer: 'https://monadvision.com',
+      },
+      [KnownChainIds.HyperEvmMainnet]: {
+        name: 'HYPE',
+        symbol: 'HYPE',
+        explorer: 'https://hyperevmscan.io',
+      },
+      [KnownChainIds.PlasmaMainnet]: {
+        name: 'Plasma',
+        symbol: 'XPL',
+        explorer: 'https://plasmascan.to',
+      },
+      [KnownChainIds.KatanaMainnet]: {
+        name: 'Ethereum',
+        symbol: 'ETH',
+        explorer: 'https://katanascan.com',
       },
     }[this.chainId]
 

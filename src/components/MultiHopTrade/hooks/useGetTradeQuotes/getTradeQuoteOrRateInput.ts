@@ -6,19 +6,25 @@ import type {
   Asset,
   CosmosSdkChainId,
   EvmChainId,
+  NearChainId,
   TronChainId,
   UtxoChainId,
 } from '@shapeshiftoss/types'
 import { UtxoAccountType } from '@shapeshiftoss/types'
 
+import { KeyManager } from '@/context/WalletProvider/KeyManager'
 import { toBaseUnit } from '@/lib/math'
 import { assertUnreachable } from '@/lib/utils'
 import { assertGetCosmosSdkChainAdapter } from '@/lib/utils/cosmosSdk'
 import { assertGetEvmChainAdapter } from '@/lib/utils/evm'
+import { assertGetNearChainAdapter } from '@/lib/utils/near'
 import { assertGetSolanaChainAdapter } from '@/lib/utils/solana'
+import { assertGetStarknetChainAdapter } from '@/lib/utils/starknet'
 import { assertGetSuiChainAdapter } from '@/lib/utils/sui'
 import { assertGetTronChainAdapter } from '@/lib/utils/tron'
 import { assertGetUtxoChainAdapter } from '@/lib/utils/utxo'
+import { selectWalletType } from '@/state/slices/localWalletSlice/selectors'
+import { store } from '@/state/store'
 
 export type GetTradeQuoteOrRateInputArgs = {
   sellAsset: Asset
@@ -192,11 +198,18 @@ export const getTradeQuoteOrRateInput = async ({
     }
     case CHAIN_NAMESPACE.Tron: {
       const sellAssetChainAdapter = assertGetTronChainAdapter(sellAsset.chainId)
+      const walletType = selectWalletType(store.getState())
+      const shouldSkipDeviceDerivation =
+        !wallet &&
+        (walletType === KeyManager.Ledger ||
+          walletType === KeyManager.Trezor ||
+          walletType === KeyManager.GridPlus)
+
       const sendAddress =
-        wallet && sellAccountNumber !== undefined
+        (wallet || shouldSkipDeviceDerivation) && sellAccountNumber !== undefined
           ? await sellAssetChainAdapter.getAddress({
               accountNumber: sellAccountNumber,
-              wallet,
+              wallet: wallet ?? null,
               pubKey,
             })
           : undefined
@@ -222,6 +235,42 @@ export const getTradeQuoteOrRateInput = async ({
       return {
         ...tradeQuoteInputCommonArgs,
         chainId: sellAsset.chainId as CosmosSdkChainId,
+        sendAddress,
+      } as GetTradeQuoteInput
+    }
+    case CHAIN_NAMESPACE.Near: {
+      const sellAssetChainAdapter = assertGetNearChainAdapter(sellAsset.chainId)
+
+      const sendAddress =
+        wallet && sellAccountNumber !== undefined
+          ? await sellAssetChainAdapter.getAddress({
+              accountNumber: sellAccountNumber,
+              wallet,
+              pubKey,
+            })
+          : undefined
+
+      return {
+        ...tradeQuoteInputCommonArgs,
+        chainId: sellAsset.chainId as NearChainId,
+        sendAddress,
+      } as GetTradeQuoteInput
+    }
+    case CHAIN_NAMESPACE.Starknet: {
+      const sellAssetChainAdapter = assertGetStarknetChainAdapter(sellAsset.chainId)
+
+      const sendAddress =
+        wallet && sellAccountNumber !== undefined
+          ? await sellAssetChainAdapter.getAddress({
+              accountNumber: sellAccountNumber,
+              wallet,
+              pubKey,
+            })
+          : undefined
+
+      return {
+        ...tradeQuoteInputCommonArgs,
+        chainId: sellAsset.chainId,
         sendAddress,
       } as GetTradeQuoteInput
     }

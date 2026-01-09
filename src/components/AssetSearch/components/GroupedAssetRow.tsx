@@ -1,5 +1,6 @@
 import { ChevronDownIcon, ChevronUpIcon } from '@chakra-ui/icons'
 import { Box, Button, Center, Collapse, Flex, Text as CText, useDisclosure } from '@chakra-ui/react'
+import type { AssetId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import type { FC } from 'react'
@@ -31,6 +32,7 @@ type GroupedAssetRowProps = {
   hideZeroBalanceAmounts?: boolean
   showPrice?: boolean
   onLongPress?: (asset: Asset) => void
+  relatedAssetIds?: AssetId[]
 }
 
 export const GroupedAssetRow: FC<GroupedAssetRowProps> = ({
@@ -40,6 +42,7 @@ export const GroupedAssetRow: FC<GroupedAssetRowProps> = ({
   hideZeroBalanceAmounts,
   showPrice,
   onLongPress,
+  relatedAssetIds: providedRelatedAssetIds,
 }) => {
   const { isOpen, onToggle } = useDisclosure()
   const assets = useAppSelector(selectAssets)
@@ -67,10 +70,13 @@ export const GroupedAssetRow: FC<GroupedAssetRowProps> = ({
     }),
     [asset],
   )
-  const relatedAssetIds = useSelectorWithArgs(
+
+  // Always fetch relatedAssetIds, but prefer provided filtered list if available
+  const allRelatedAssetIds = useSelectorWithArgs(
     selectRelatedAssetIdsInclusiveSorted,
     relatedAssetIdsFilter,
   )
+  const relatedAssetIds = providedRelatedAssetIds ?? allRelatedAssetIds
 
   const handleGroupClick = useCallback(
     (e: React.MouseEvent) => {
@@ -88,11 +94,16 @@ export const GroupedAssetRow: FC<GroupedAssetRowProps> = ({
   )
 
   const networksIcons = useMemo(() => {
-    return relatedAssetIds.map((assetId, index) => {
-      const feeAsset = selectFeeAssetByChainId(store.getState(), fromAssetId(assetId).chainId)
+    // Deduplicate by chainId to show each chain only once
+    const uniqueChainIds = Array.from(
+      new Set(relatedAssetIds.map(assetId => fromAssetId(assetId).chainId)),
+    )
+
+    return uniqueChainIds.map((chainId, index) => {
+      const feeAsset = selectFeeAssetByChainId(store.getState(), chainId)
       return (
         <Box
-          key={feeAsset?.chainId}
+          key={chainId}
           borderRadius='full'
           display='flex'
           alignItems='center'
@@ -101,7 +112,7 @@ export const GroupedAssetRow: FC<GroupedAssetRowProps> = ({
           boxSize='16px'
           color='white'
           fontWeight='bold'
-          zIndex={relatedAssetIds.length - index} // Higher z-index for earlier items
+          zIndex={uniqueChainIds.length - index} // Higher z-index for earlier items
           ml={index > 0 ? -1.5 : 0}
           border='1px solid'
           borderColor='background.surface.overlay.base'

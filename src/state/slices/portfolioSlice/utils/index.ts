@@ -16,13 +16,18 @@ import {
   fromAssetId,
   fromChainId,
   gnosisChainId,
+  hyperEvmChainId,
   isNft,
+  katanaChainId,
   ltcChainId,
   mayachainChainId,
   monadChainId,
+  nearChainId,
   optimismChainId,
+  plasmaChainId,
   polygonChainId,
   solanaChainId,
+  starknetChainId,
   suiChainId,
   thorchainChainId,
   toAccountId,
@@ -43,13 +48,20 @@ import {
   supportsCosmos,
   supportsETH,
   supportsGnosis,
+  supportsHyperEvm,
+  supportsKatana,
   supportsMayachain,
+  supportsMonad,
   supportsOptimism,
+  supportsPlasma,
   supportsPolygon,
   supportsSolana,
+  supportsStarknet,
   supportsSui,
   supportsThorchain,
+  supportsTron,
 } from '@shapeshiftoss/hdwallet-core'
+import { GridPlusHDWallet } from '@shapeshiftoss/hdwallet-gridplus'
 import { PhantomHDWallet } from '@shapeshiftoss/hdwallet-phantom'
 import type { Asset, EvmChainId, KnownChainIds, UtxoChainId } from '@shapeshiftoss/types'
 import type { MinimalAsset } from '@shapeshiftoss/utils'
@@ -69,7 +81,8 @@ import { queryClient } from '@/context/QueryClientProvider/queryClient'
 import type { BigNumber } from '@/lib/bignumber/bignumber'
 import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
 import { fetchPortalsAccount, fetchPortalsPlatforms, maybeTokenImage } from '@/lib/portals/utils'
-import { assertUnreachable, middleEllipsis } from '@/lib/utils'
+import { assertUnreachable, isNativeHDWallet, isTrezorHDWallet, middleEllipsis } from '@/lib/utils'
+import { supportsNear } from '@/lib/utils/near'
 import { isSpammyNftText, isSpammyTokenText } from '@/state/blacklist'
 import type { ReduxState } from '@/state/reducer'
 import type { UpsertAssetsPayload } from '@/state/slices/assetsSlice/assetsSlice'
@@ -87,13 +100,18 @@ export const accountIdToLabel = (accountId: AccountId): string => {
     case arbitrumChainId:
     case arbitrumNovaChainId:
     case baseChainId:
+    case hyperEvmChainId:
+    case katanaChainId:
     case monadChainId:
+    case plasmaChainId:
     case thorchainChainId:
     case mayachainChainId:
     case cosmosChainId:
     case solanaChainId:
+    case starknetChainId:
     case tronChainId:
     case suiChainId:
+    case nearChainId:
       return middleEllipsis(pubkey)
     case btcChainId:
       // TODO(0xdef1cafe): translations
@@ -294,6 +312,49 @@ export const accountToPortfolio: AccountToPortfolio = ({ assetIds, portfolioAcco
 
         break
       }
+      case CHAIN_NAMESPACE.Near: {
+        const nearAccount = account as Account<KnownChainIds.NearMainnet>
+        const { chainId, assetId, pubkey } = account
+        const accountId = toAccountId({ chainId, account: pubkey })
+
+        portfolio.accounts.ids.push(accountId)
+        portfolio.accounts.byId[accountId] = { assetIds: [assetId], hasActivity }
+        portfolio.accountBalances.ids.push(accountId)
+        portfolio.accountBalances.byId[accountId] = { [assetId]: account.balance }
+
+        nearAccount.chainSpecific.tokens?.forEach(token => {
+          if (!assetIds.includes(token.assetId)) return
+
+          if (bnOrZero(token.balance).gt(0)) portfolio.accounts.byId[accountId].hasActivity = true
+
+          portfolio.accounts.byId[accountId].assetIds.push(token.assetId)
+          portfolio.accountBalances.byId[accountId][token.assetId] = token.balance
+        })
+
+        break
+      }
+      case CHAIN_NAMESPACE.Starknet: {
+        const starknetAccount = account as Account<KnownChainIds.StarknetMainnet>
+        const { chainId, assetId, pubkey } = account
+        const accountId = toAccountId({ chainId, account: pubkey })
+
+        portfolio.accounts.ids.push(accountId)
+        portfolio.accounts.byId[accountId] = { assetIds: [assetId], hasActivity }
+        portfolio.accountBalances.ids.push(accountId)
+        portfolio.accountBalances.byId[accountId] = { [assetId]: account.balance }
+
+        starknetAccount.chainSpecific.tokens?.forEach(token => {
+          // don't update portfolio if asset is not in the store
+          if (!assetIds.includes(token.assetId)) return
+
+          if (bnOrZero(token.balance).gt(0)) portfolio.accounts.byId[accountId].hasActivity = true
+
+          portfolio.accounts.byId[accountId].assetIds.push(token.assetId)
+          portfolio.accountBalances.byId[accountId][token.assetId] = token.balance
+        })
+
+        break
+      }
       default:
         assertUnreachable(chainNamespace)
     }
@@ -354,6 +415,18 @@ export const checkAccountHasActivity = (account: Account<ChainId>) => {
 
       return hasActivity
     }
+    case CHAIN_NAMESPACE.Near: {
+      const nearAccount = account as Account<KnownChainIds.NearMainnet>
+      const hasActivity = bnOrZero(nearAccount.balance).gt(0)
+      return hasActivity
+    }
+    case CHAIN_NAMESPACE.Starknet: {
+      const starknetAccount = account as Account<KnownChainIds.StarknetMainnet>
+
+      const hasActivity = bnOrZero(starknetAccount.balance).gt(0)
+
+      return hasActivity
+    }
     default:
       assertUnreachable(chainNamespace)
   }
@@ -384,13 +457,25 @@ export const isAssetSupportedByWallet = (assetId: AssetId, wallet: HDWallet): bo
     case btcChainId:
       return supportsBTC(wallet)
     case ltcChainId:
-      return supportsBTC(wallet) && !(wallet instanceof PhantomHDWallet)
+      return (
+        supportsBTC(wallet) &&
+        !(wallet instanceof PhantomHDWallet) &&
+        !(wallet instanceof GridPlusHDWallet)
+      )
     case dogeChainId:
-      return supportsBTC(wallet) && !(wallet instanceof PhantomHDWallet)
+      return (
+        supportsBTC(wallet) &&
+        !(wallet instanceof PhantomHDWallet) &&
+        !(wallet instanceof GridPlusHDWallet)
+      )
     case bchChainId:
-      return supportsBTC(wallet) && !(wallet instanceof PhantomHDWallet)
+      return (
+        supportsBTC(wallet) &&
+        !(wallet instanceof PhantomHDWallet) &&
+        !(wallet instanceof GridPlusHDWallet)
+      )
     case zecChainId:
-      return supportsBTC(wallet) && !(wallet instanceof PhantomHDWallet)
+      return supportsBTC(wallet) && (isNativeHDWallet(wallet) || isTrezorHDWallet(wallet))
     case cosmosChainId:
       return supportsCosmos(wallet)
     case thorchainChainId:
@@ -401,6 +486,20 @@ export const isAssetSupportedByWallet = (assetId: AssetId, wallet: HDWallet): bo
       return supportsSolana(wallet)
     case suiChainId:
       return supportsSui(wallet)
+    case starknetChainId:
+      return supportsStarknet(wallet)
+    case monadChainId:
+      return supportsMonad(wallet)
+    case hyperEvmChainId:
+      return supportsHyperEvm(wallet)
+    case plasmaChainId:
+      return supportsPlasma(wallet)
+    case katanaChainId:
+      return supportsKatana(wallet)
+    case tronChainId:
+      return supportsTron(wallet)
+    case nearChainId:
+      return supportsNear(wallet)
     default:
       return false
   }
@@ -634,6 +733,22 @@ export const makeAssets = async ({
 
   if (chainId === suiChainId) {
     const account = portfolioAccounts[pubkey] as Account<KnownChainIds.SuiMainnet>
+
+    return (account.chainSpecific.tokens ?? []).reduce<UpsertAssetsPayload>(
+      (prev, token) => {
+        if (state.assets.byId[token.assetId]) return prev
+
+        prev.byId[token.assetId] = makeAsset(state.assets.byId, { ...token })
+        prev.ids.push(token.assetId)
+
+        return prev
+      },
+      { byId: {}, ids: [] },
+    )
+  }
+
+  if (chainId === starknetChainId) {
+    const account = portfolioAccounts[pubkey] as Account<KnownChainIds.StarknetMainnet>
 
     return (account.chainSpecific.tokens ?? []).reduce<UpsertAssetsPayload>(
       (prev, token) => {

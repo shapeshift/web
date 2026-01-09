@@ -7,10 +7,12 @@ import {
   fromAssetId,
   ltcAssetId,
   mayachainAssetId,
+  nearAssetId,
   solAssetId,
   suiAssetId,
   thorchainAssetId,
   tronAssetId,
+  zecAssetId,
 } from '@shapeshiftoss/caip'
 import { uniq } from 'lodash'
 
@@ -30,6 +32,7 @@ export const availableLedgerAppAssetIds = [
   dogeAssetId,
   bchAssetId,
   ltcAssetId,
+  ...(getConfig().VITE_FEATURE_ZCASH ? [zecAssetId] : []),
   ethAssetId,
   thorchainAssetId,
   cosmosAssetId,
@@ -37,6 +40,7 @@ export const availableLedgerAppAssetIds = [
   ...(getConfig().VITE_FEATURE_SUI ? [suiAssetId] : []),
   mayachainAssetId,
   ...(getConfig().VITE_FEATURE_TRON ? [tronAssetId] : []),
+  ...(getConfig().VITE_FEATURE_NEAR ? [nearAssetId] : []),
 ]
 
 export const availableLedgerAppChainIds = availableLedgerAppAssetIds.map(

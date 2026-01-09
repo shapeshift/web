@@ -29,6 +29,8 @@ describe('getTradeRate', () => {
       assertGetSolanaChainAdapter: () => vi.fn() as any,
       assertGetTronChainAdapter: () => vi.fn() as any,
       assertGetSuiChainAdapter: () => vi.fn() as any,
+      assertGetNearChainAdapter: () => vi.fn() as any,
+      assertGetStarknetChainAdapter: () => vi.fn() as any,
       config: {
         VITE_BUTTERSWAP_CLIENT_ID: 'test',
       } as any,
@@ -70,6 +72,8 @@ describe('getTradeRate', () => {
       assertGetSolanaChainAdapter: () => vi.fn() as any,
       assertGetTronChainAdapter: () => vi.fn() as any,
       assertGetSuiChainAdapter: () => vi.fn() as any,
+      assertGetNearChainAdapter: () => vi.fn() as any,
+      assertGetStarknetChainAdapter: () => vi.fn() as any,
       config: {
         VITE_BUTTERSWAP_CLIENT_ID: 'test',
       } as any,

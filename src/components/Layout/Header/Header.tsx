@@ -1,4 +1,4 @@
-import { Box, Divider, Flex, HStack, useMediaQuery } from '@chakra-ui/react'
+import { Box, Divider, Flex, HStack, Link, Text, useMediaQuery } from '@chakra-ui/react'
 import { useScroll } from 'framer-motion'
 import { lazy, memo, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import {
@@ -10,9 +10,11 @@ import {
   TbPool,
   TbRefresh,
   TbStack,
+  TbTrendingUp,
 } from 'react-icons/tb'
+import { useTranslate } from 'react-polyglot'
 import { useSelector } from 'react-redux'
-import { useNavigate } from 'react-router-dom'
+import { Link as ReactRouterLink, useNavigate } from 'react-router-dom'
 
 import { ActionCenter } from './ActionCenter/ActionCenter'
 import { DegradedStateBanner } from './DegradedStateBanner'
@@ -66,15 +68,11 @@ const exploreSubMenuItems = [
   { label: 'navBar.markets', path: '/markets', icon: TbGraph },
 ]
 
-const earnSubMenuItems = [
-  { label: 'navBar.tcy', path: '/tcy', icon: TCYIcon },
-  { label: 'navBar.pools', path: '/pools', icon: TbPool },
-  { label: 'navBar.lending', path: '/lending', icon: TbBuildingBank },
-]
-
 export const Header = memo(() => {
   const isDegradedState = useSelector(selectPortfolioDegradedState)
+  const translate = useTranslate()
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`)
+  const isYieldXyzEnabled = useFeatureFlag('YieldXyz')
 
   const navigate = useNavigate()
   const {
@@ -111,9 +109,21 @@ export const Header = memo(() => {
   const isWalletConnectToDappsV2Enabled = useFeatureFlag('WalletConnectToDappsV2')
   const isActionCenterEnabled = useFeatureFlag('ActionCenter')
   const isNewWalletManagerEnabled = useFeatureFlag('NewWalletManager')
+  const isRfoxFoxEcosystemPageEnabled = useFeatureFlag('RfoxFoxEcosystemPage')
   const { degradedChainIds } = useDiscoverAccounts()
 
   const hasWallet = Boolean(walletInfo?.deviceId)
+  const earnSubMenuItems = useMemo(
+    () => [
+      { label: 'navBar.tcy', path: '/tcy', icon: TCYIcon },
+      { label: 'navBar.pools', path: '/pools', icon: TbPool },
+      { label: 'navBar.lending', path: '/lending', icon: TbBuildingBank },
+      ...(isYieldXyzEnabled
+        ? [{ label: 'navBar.yields', path: '/yields', icon: TbTrendingUp }]
+        : []),
+    ],
+    [isYieldXyzEnabled],
+  )
 
   /**
    * FOR DEVELOPERS:
@@ -170,6 +180,15 @@ export const Header = memo(() => {
                 defaultPath='/assets'
               />
               <NavigationDropdown label='defi.earn' items={earnSubMenuItems} defaultPath='/tcy' />
+              <Link
+                as={ReactRouterLink}
+                to={isRfoxFoxEcosystemPageEnabled ? '/fox-ecosystem' : '/fox'}
+                fontWeight='medium'
+                color='text.subtle'
+                _hover={{ color: 'text.base', textDecoration: 'none' }}
+              >
+                <Text>{translate('navBar.ecosystem')}</Text>
+              </Link>
             </HStack>
           </HStack>
 

@@ -513,6 +513,7 @@
     "rFOX": "rFOX",
     "tcy": "TCY",
     "foxEcosystem": "FOXエコシステム",
+    "ecosystem": "エコシステム",
     "markets": "市場",
     "tokens": "トークン",
     "swap": "スワップ"
@@ -526,6 +527,10 @@
     "foxToken": {
       "title": "FOXトークン",
       "subtitle": "ガバナンストークン"
+    },
+    "agent": {
+      "title": "エージェント",
+      "subtitle": "ウォレットとチャット"
     },
     "classic": {
       "title": "クラシック",
@@ -755,8 +760,15 @@
     "slowSwapBody": "このスワップが完了するまでに数分かかる場合があります。",
     "thorSmartContractWalletUnsupported": "THORChainネットワークは現在、スマートコントラクト ウォレットをサポートしていません。",
     "intoAssetSymbolBody": "この取引は続行できますが、%{assetSymbol} を受け取るための取引履歴は一時的に利用できなくなります",
+    "receiveAddress": "受取アドレス",
     "changeAddress": "アドレスを変更",
     "changeAddressExplainer": "UTXO ベースのネットワークで暗号通貨を送信すると、トランザクションで残った資金はこのアドレスに送り返されます。",
+    "depositAddress": "入金先アドレス",
+    "depositAddressExplainer": "これは、資金が処理のために送金されるプロトコルアドレスです。ハードウェアウォレットには、確認のためにこのアドレスが表示されます。",
+    "customReceiveAddress": "カスタム受信アドレス",
+    "customReceiveAddressDescription": "この取引のカスタム受信アドレスを入力してください",
+    "thisIsYourCustomReceiveAddress": "これはあなたのカスタム受信アドレスです",
+    "enterCustomReceiveAddress": "カスタム受信アドレスを入力",
     "receiveAtLeast": "少なくとも受け取る",
     "tooltip": {
       "continueSwapping": "最終的な詳細について交換を続ける",
@@ -828,7 +840,6 @@
     "or": "または",
     "onChainName": "%{chainName} で",
     "unknownGas": "(unknown)",
-    "receiveAddress": "受信アドレス",
     "receiveAddressDescription": "接続されたウォレットから %{chainName} アドレスが見つかりません。アドレスを手動で入力してください",
     "disableThorTaprootReceive": "タップルート Bitcoin アドレスに送信しようとしていることが検出されました。THORChain の制限により、タップルートアドレスへの BTC の受信は現在サポートされていません。別のアドレスを入力してください。",
     "toContinue": "続ける。",
@@ -1089,6 +1100,7 @@
       "getFeesError": "料金取得中のエラー",
       "broadcastingTransaction": "ブロードキャストトランザクション",
       "youHaveSent": "%{amount} %{symbol} を正常に送信しました",
+      "sendFailed": "送信に失敗しました",
       "toAddress": "宛先",
       "toAddressOrEns": "宛先またはENS",
       "scanQrCode": "QRコードをスキャン",
@@ -1427,7 +1439,9 @@
         "renamed": "SafeCardの名前が変更されました",
         "deleted": "セーフカードが削除されました",
         "deletedDescription": "ポートフォリオデータが消去されました",
-        "warning": "各SafeCardは独自のポートフォリオを保持しています。接続する前に、正しいSafeCardをデバイスにセットしてください。"
+        "warning": "各SafeCardは独自のポートフォリオを保持しています。接続する前に、正しいSafeCardをデバイスにセットしてください。",
+        "safeCardLabel": "SafeCard",
+        "internalSafeCardLabel": "SafeCard内部"
       },
       "connect": {
         "header": "新しいセーフカードを接続",
@@ -1461,6 +1475,9 @@
         "deviceNotConnected": "デバイスが接続されていません。まず connectDevice を呼び出してください。",
         "connectFailure": "GridPlusウォレットに接続できません",
         "unknown": "GridPlusウォレットとの通信中に予期しないエラーが発生しました"
+      },
+      "menu": {
+        "switchSafeCard": "SafeCardをスイッチする"
       }
     },
     "ledger": {
@@ -1871,6 +1888,18 @@
     "title": "%{appName} アプリを開く",
     "description": "続行するには、Ledger デバイスで %{appName} アプリを開く必要があります。",
     "devicePrompt": "Your device will prompt you with any necessary steps required to complete your current action."
+  },
+  "starknet": {
+    "deployAccount": {
+      "title": "Starknetアカウントをデプロイする",
+      "description": "Starknet は、使用する前にデプロイする必要があるスマート コントラクトアカウントを使用します。",
+      "sendDescription": "送信するにはまずアカウントをデプロイする必要があります",
+      "swapDescription": "Starknetはスマートコントラクトアカウントを使用します。スワップを行う前に、まずアカウントをデプロイする必要があります。",
+      "explanation": "これはStarknetアカウントを初期化するための1回限りの設定です。残高から少額の手数料が差し引かれます。",
+      "deployButton": "アカウントをデプロイする",
+      "deploying": "アカウントをデプロイしています...",
+      "deployFailed": "デプロイに失敗しました"
+    }
   },
   "transactionHistory": {
     "transactionHistory": "取引履歴",
@@ -2508,6 +2537,7 @@
       "buildTransaction": "トランザクションの構築に失敗しました。",
       "signTransaction": "トランザクションの署名に失敗しました。",
       "blindSigningRequired": "トランザクションにはブラインド署名が必要です。Ledgerアプリの設定で「Blind signing」または「Contract Data」を有効にして、もう一度お試しください。",
+      "ledgerTronAllowDataDisabled": "Ledger TRON アプリの設定でトランザクションデータを有効にして、もう一度お試しください。",
       "signAndBroadcastTransaction": "トランザクションの署名とブロードキャストに失敗しました。",
       "signMessage": "メッセージの署名に失敗しました。",
       "broadcastTransaction": "トランザクションのブロードキャストに失敗しました。",
@@ -2516,7 +2546,11 @@
       "getFeeData": "ネットワーク料金の見積りに失敗しました。",
       "getPublicKey": "ウォレットから公開鍵を取得できませんでした。",
       "getUtxos": "utxos を取得できませんでした。",
-      "getValidator": "バリデータを取得できませんでした。"
+      "getValidator": "バリデータを取得できませんでした。",
+      "gridplus": {
+        "wrongSafeCard": "間違ったSafeCardが挿入されました。正しいSafeCardを挿入して、もう一度お試しください。",
+        "removeSafeCard": "挿入された SafeCard を取り外して、内部の GridPlus ウォレットにアクセスします。"
+      }
     }
   },
   "actionCenter": {

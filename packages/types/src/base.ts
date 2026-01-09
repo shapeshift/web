@@ -24,6 +24,9 @@ export enum KnownChainIds {
   ArbitrumNovaMainnet = 'eip155:42170',
   BaseMainnet = 'eip155:8453',
   MonadMainnet = 'eip155:143',
+  HyperEvmMainnet = 'eip155:999',
+  PlasmaMainnet = 'eip155:9745',
+  KatanaMainnet = 'eip155:747474',
   BitcoinMainnet = 'bip122:000000000019d6689c085ae165831e93',
   BitcoinCashMainnet = 'bip122:000000000000000000651ef99cb9fcbe',
   DogecoinMainnet = 'bip122:00000000001a91e3dace36e2be3bf030',
@@ -35,6 +38,8 @@ export enum KnownChainIds {
   SolanaMainnet = 'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp',
   TronMainnet = 'tron:0x2b6653dc',
   SuiMainnet = 'sui:35834a8a',
+  NearMainnet = 'near:mainnet',
+  StarknetMainnet = 'starknet:SN_MAIN',
 }
 
 export type EvmChainId =
@@ -48,6 +53,9 @@ export type EvmChainId =
   | KnownChainIds.ArbitrumNovaMainnet
   | KnownChainIds.BaseMainnet
   | KnownChainIds.MonadMainnet
+  | KnownChainIds.HyperEvmMainnet
+  | KnownChainIds.PlasmaMainnet
+  | KnownChainIds.KatanaMainnet
 
 export type CosmosSdkChainId =
   | KnownChainIds.CosmosMainnet
@@ -66,6 +74,10 @@ export type UtxoChainId =
 export type TronChainId = KnownChainIds.TronMainnet
 
 export type SuiChainId = KnownChainIds.SuiMainnet
+
+export type NearChainId = KnownChainIds.NearMainnet
+
+export type StarknetChainId = KnownChainIds.StarknetMainnet
 
 export enum WithdrawType {
   DELAYED,

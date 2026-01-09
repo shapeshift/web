@@ -513,6 +513,7 @@
     "rFOX": "rFOX",
     "tcy": "TCY",
     "foxEcosystem": "FOX Ekosistem",
+    "ecosystem": "Ekosistem",
     "markets": "Piyasalar",
     "tokens": "Tokenlar",
     "swap": "Takas"
@@ -526,6 +527,10 @@
     "foxToken": {
       "title": "FOX Token",
       "subtitle": "Yönetim Tokenımız"
+    },
+    "agent": {
+      "title": "Ajan",
+      "subtitle": "Cüzdanınızla iletişime geçin"
     },
     "classic": {
       "title": "Klasik",
@@ -755,8 +760,15 @@
     "slowSwapBody": "Bu takasın tamamlanması birkaç dakika sürebilir.",
     "thorSmartContractWalletUnsupported": "THORChain ağı şu anda akıllı sözleşme cüzdanlarını desteklemiyor.",
     "intoAssetSymbolBody": "Bu ticarete devam edebilirsiniz, ancak %{assetSymbol} almak için işlem geçmişi geçici olarak kullanılamıyor",
+    "receiveAddress": "Çekim Adresi",
     "changeAddress": "Adresi değiştir",
     "changeAddressExplainer": "UTXO tabanlı ağlar üzerinden kripto para gönderirken, işlemden kalan fonlar bu adrese geri gönderilir.",
+    "depositAddress": "Para yatırma adresi",
+    "depositAddressExplainer": "Bu, paranızın işleme alınmak üzere gönderileceği protokol adresidir. Donanım cüzdanınız doğrulama için bu adresi gösterecektir.",
+    "customReceiveAddress": "Özel alıcı adresi",
+    "customReceiveAddressDescription": "Bu işlem için özel bir çekme adresi girin",
+    "thisIsYourCustomReceiveAddress": "Bu sizin özel çekme adresinizdir",
+    "enterCustomReceiveAddress": "Özel çekme adresini girin",
     "receiveAtLeast": "En azdan al",
     "tooltip": {
       "continueSwapping": "Son detaylar için takasa devam edin",
@@ -828,7 +840,6 @@
     "or": "veya",
     "onChainName": "%{chainName} üzerinde",
     "unknownGas": "(Bilinmeyen)",
-    "receiveAddress": "Alıcı Adresi",
     "receiveAddressDescription": "Bağlı cüzdandan %{chainName} adresi bulunamadı. Adresi manuel olarak girin",
     "disableThorTaprootReceive": "Taproot Bitcoin adresine gönderdiğinizi tespit ettik. THORChain sınırlamaları nedeniyle, BTC'yi taproot adresine almak şu anda desteklenmiyor. Lütfen başka bir adres girin.",
     "toContinue": "devam edin.",
@@ -1089,6 +1100,7 @@
       "getFeesError": "Ücret alınırken hata oluştu",
       "broadcastingTransaction": "İşlem Sırası",
       "youHaveSent": "%{amount} %{symbol} başarıyla gönderdiniz",
+      "sendFailed": "Gönderme başarısız oldu",
       "toAddress": "Adrese",
       "toAddressOrEns": "Adres veya ENS'e",
       "scanQrCode": "QR Kodunu Tara",
@@ -1427,7 +1439,9 @@
         "renamed": "SafeCard yeniden adlandırıldı",
         "deleted": "SafeCard silindi",
         "deletedDescription": "Portföy verileri temizlendi",
-        "warning": "Her SafeCard kendi portföyüne sahiptir. Bağlanmadan önce cihazınıza doğru SafeCard'ı taktığınızdan emin olun."
+        "warning": "Her SafeCard kendi portföyüne sahiptir. Bağlanmadan önce cihazınıza doğru SafeCard'ı taktığınızdan emin olun.",
+        "safeCardLabel": "SafeCard",
+        "internalSafeCardLabel": "Dahili SafeCard"
       },
       "connect": {
         "header": "Yeni SafeCard'ı Bağla",
@@ -1461,6 +1475,9 @@
         "deviceNotConnected": "Cihaz bağlı değil. Önce connectDevice'ı çağırın.",
         "connectFailure": "GridPlus cüzdanına bağlanılamıyor",
         "unknown": "GridPlus cüzdanıyla iletişim kurulurken beklenmeyen bir hata oluştu"
+      },
+      "menu": {
+        "switchSafeCard": "SafeCard'ı Değiştir"
       }
     },
     "ledger": {
@@ -1871,6 +1888,18 @@
     "title": "%{appName} Uygulamasını açın",
     "description": "Devam etmek için Ledger cihazınızda %{appName} uygulamasını açmanız gerekecektir.",
     "devicePrompt": "Cihazınız, mevcut eyleminizi tamamlamak için gerekli adımları size bildirecektir."
+  },
+  "starknet": {
+    "deployAccount": {
+      "title": "Starknet Hesabını Etkinleştir",
+      "description": "Starknet, kullanımdan önce devreye alınması gereken akıllı sözleşme hesapları kullanır.",
+      "sendDescription": "Gönderebilmek için öncelikle hesabı etkinleştirmeniz gerekecek.",
+      "swapDescription": "Starknet akıllı sözleşme hesapları kullanır. Takas işlemine başlamadan önce hesabınızı devreye almanız gerekecektir.",
+      "explanation": "Bu, Starknet'teki hesabınızı başlatacak tek seferlik bir kurulumdur. Bakiyenizden küçük bir ücret düşülecektir.",
+      "deployButton": "Hesabı Etkinleştir",
+      "deploying": "Hesap Etkinleştiriliyor...",
+      "deployFailed": "Etkinleştirme Başarısız Oldu"
+    }
   },
   "transactionHistory": {
     "transactionHistory": "İşlem Geçmişi",
@@ -2508,6 +2537,7 @@
       "buildTransaction": "İşlem oluşturulamadı.",
       "signTransaction": "İşlem imzalanamadı.",
       "blindSigningRequired": "İşlem için gizli imzalama gerekiyor. Lütfen Ledger uygulama ayarlarınızda Blind Signing veya Contract Data'yi etkinleştirin ve tekrar deneyin.",
+      "ledgerTronAllowDataDisabled": "Lütfen Ledger TRON uygulamanızın ayarlarından İşlem Verilerini etkinleştirin ve tekrar deneyin.",
       "signAndBroadcastTransaction": "İşlem imzalanamadı ve yayınlanamadı.",
       "signMessage": "Mesaj imzalanamadı.",
       "broadcastTransaction": "İşlem yayınlanamadı.",
@@ -2516,7 +2546,11 @@
       "getFeeData": "Ağ ücretlerinin tahmin edilmesi başarısız oldu.",
       "getPublicKey": "Cüzdandan genel anahtar alınamadı.",
       "getUtxos": "Utxos alınamadı.",
-      "getValidator": "Doğrulayıcı alınamadı."
+      "getValidator": "Doğrulayıcı alınamadı.",
+      "gridplus": {
+        "wrongSafeCard": "Yanlış SafeCard takıldı. Lütfen doğru SafeCard'ı takıp tekrar deneyin.",
+        "removeSafeCard": "Dahili GridPlus cüzdanına erişmek için takılı SafeCard'ı çıkarın."
+      }
     }
   },
   "actionCenter": {

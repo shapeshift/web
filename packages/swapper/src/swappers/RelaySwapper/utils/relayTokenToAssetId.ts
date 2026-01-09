@@ -101,6 +101,11 @@ export const relayTokenToAssetId = (relayToken: RelayToken): AssetId => {
           assetReference: ASSET_REFERENCE.Base,
           assetNamespace: ASSET_NAMESPACE.slip44,
         }
+      case CHAIN_REFERENCE.BnbSmartChainMainnet:
+        return {
+          assetReference: ASSET_REFERENCE.BnbSmartChain,
+          assetNamespace: ASSET_NAMESPACE.slip44,
+        }
       case CHAIN_REFERENCE.BitcoinMainnet:
         return {
           assetReference: ASSET_REFERENCE.Bitcoin,
@@ -119,6 +124,21 @@ export const relayTokenToAssetId = (relayToken: RelayToken): AssetId => {
       case CHAIN_REFERENCE.MonadMainnet:
         return {
           assetReference: ASSET_REFERENCE.Monad,
+          assetNamespace: ASSET_NAMESPACE.slip44,
+        }
+      case CHAIN_REFERENCE.HyperEvmMainnet:
+        return {
+          assetReference: ASSET_REFERENCE.HyperEvm,
+          assetNamespace: ASSET_NAMESPACE.slip44,
+        }
+      case CHAIN_REFERENCE.PlasmaMainnet:
+        return {
+          assetReference: ASSET_REFERENCE.Plasma,
+          assetNamespace: ASSET_NAMESPACE.slip44,
+        }
+      case CHAIN_REFERENCE.KatanaMainnet:
+        return {
+          assetReference: ASSET_REFERENCE.Katana,
           assetNamespace: ASSET_NAMESPACE.slip44,
         }
       default:

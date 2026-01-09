@@ -1,7 +1,12 @@
 import { bchAssetId, CHAIN_NAMESPACE, fromAccountId, fromChainId } from '@shapeshiftoss/caip'
-import type { SignTx, SignTypedDataInput } from '@shapeshiftoss/chain-adapters'
+import type { near, SignTx, SignTypedDataInput } from '@shapeshiftoss/chain-adapters'
 import { ChainAdapterError, toAddressNList } from '@shapeshiftoss/chain-adapters'
-import type { ETHSignTypedData, SolanaSignTx, SuiSignTx } from '@shapeshiftoss/hdwallet-core'
+import type {
+  ETHSignTypedData,
+  SolanaSignTx,
+  StarknetSignTx,
+  SuiSignTx,
+} from '@shapeshiftoss/hdwallet-core'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import { isGridPlus } from '@shapeshiftoss/hdwallet-gridplus'
 import { isTrezor } from '@shapeshiftoss/hdwallet-trezor'
@@ -29,12 +34,15 @@ import { TradeRoutePaths } from '@/components/MultiHopTrade/types'
 import { useErrorToast } from '@/hooks/useErrorToast/useErrorToast'
 import { useNotificationToast } from '@/hooks/useNotificationToast'
 import { useWallet } from '@/hooks/useWallet/useWallet'
+import { HypeLabEvent, trackHypeLabEvent } from '@/lib/hypelab/hypelabSingleton'
 import { MixPanelEvent } from '@/lib/mixpanel/types'
 import { TradeExecution } from '@/lib/tradeExecution'
 import { assertUnreachable } from '@/lib/utils'
 import { assertGetCosmosSdkChainAdapter } from '@/lib/utils/cosmosSdk'
 import { assertGetEvmChainAdapter, signAndBroadcast } from '@/lib/utils/evm'
+import { assertGetNearChainAdapter } from '@/lib/utils/near'
 import { assertGetSolanaChainAdapter } from '@/lib/utils/solana'
+import { assertGetStarknetChainAdapter } from '@/lib/utils/starknet'
 import { assertGetSuiChainAdapter } from '@/lib/utils/sui'
 import { assertGetTronChainAdapter } from '@/lib/utils/tron'
 import { assertGetUtxoChainAdapter } from '@/lib/utils/utxo'
@@ -53,7 +61,7 @@ import {
   selectTradeSlippagePercentageDecimal,
 } from '@/state/slices/tradeQuoteSlice/selectors'
 import { tradeQuoteSlice } from '@/state/slices/tradeQuoteSlice/tradeQuoteSlice'
-import { useAppDispatch, useAppSelector } from '@/state/store'
+import { store, useAppDispatch, useAppSelector } from '@/state/store'
 
 export const useTradeExecution = (
   hopIndex: SupportedTradeQuoteStepIndex,
@@ -169,6 +177,9 @@ export const useTradeExecution = (
         const event =
           hopIndex === 0 ? MixPanelEvent.TradeConfirm : MixPanelEvent.TradeConfirmSecondHop
         trackMixpanelEvent(event, eventDataSnapshot)
+        if (hopIndex === 0) {
+          trackHypeLabEvent(HypeLabEvent.TradeConfirm)
+        }
       }
 
       const execution = new TradeExecution()
@@ -227,23 +238,68 @@ export const useTradeExecution = (
           )
         },
       )
-      execution.on(TradeExecutionEvent.Status, ({ buyTxHash, message }) => {
-        dispatch(
-          tradeQuoteSlice.actions.setSwapTxMessage({ hopIndex, message, id: confirmedTradeId }),
-        )
+      execution.on(
+        TradeExecutionEvent.Status,
+        ({ buyTxHash, message, actualBuyAmountCryptoBaseUnit }) => {
+          dispatch(
+            tradeQuoteSlice.actions.setSwapTxMessage({ hopIndex, message, id: confirmedTradeId }),
+          )
+          if (buyTxHash) {
+            txHashReceived = true
+            dispatch(
+              tradeQuoteSlice.actions.setSwapBuyTxHash({
+                hopIndex,
+                buyTxHash,
+                id: confirmedTradeId,
+              }),
+            )
+          }
+
+          // Update the swap with the actual buy amount if available
+          // Read fresh state to avoid stale closure - swapsById captured at render time may have outdated status
+          if (actualBuyAmountCryptoBaseUnit) {
+            const freshActiveSwapId = swapSlice.selectors.selectActiveSwapId(store.getState())
+            if (freshActiveSwapId) {
+              const currentSwap = swapSlice.selectors.selectSwapsById(store.getState())[
+                freshActiveSwapId
+              ]
+              if (currentSwap) {
+                dispatch(
+                  swapSlice.actions.upsertSwap({
+                    ...currentSwap,
+                    actualBuyAmountCryptoBaseUnit,
+                  }),
+                )
+              }
+            }
+          }
+        },
+      )
+      execution.on(TradeExecutionEvent.Success, ({ buyTxHash, actualBuyAmountCryptoBaseUnit }) => {
         if (buyTxHash) {
           txHashReceived = true
           dispatch(
             tradeQuoteSlice.actions.setSwapBuyTxHash({ hopIndex, buyTxHash, id: confirmedTradeId }),
           )
         }
-      })
-      execution.on(TradeExecutionEvent.Success, ({ buyTxHash }) => {
-        if (buyTxHash) {
-          txHashReceived = true
-          dispatch(
-            tradeQuoteSlice.actions.setSwapBuyTxHash({ hopIndex, buyTxHash, id: confirmedTradeId }),
-          )
+
+        // Update the swap with the actual buy amount if available
+        // Read fresh state to avoid stale closure - swapsById captured at render time may have outdated status
+        if (actualBuyAmountCryptoBaseUnit) {
+          const freshActiveSwapId = swapSlice.selectors.selectActiveSwapId(store.getState())
+          if (freshActiveSwapId) {
+            const currentSwap = swapSlice.selectors.selectSwapsById(store.getState())[
+              freshActiveSwapId
+            ]
+            if (currentSwap) {
+              dispatch(
+                swapSlice.actions.upsertSwap({
+                  ...currentSwap,
+                  actualBuyAmountCryptoBaseUnit,
+                }),
+              )
+            }
+          }
         }
 
         if (!txHashReceived) {
@@ -278,6 +334,7 @@ export const useTradeExecution = (
         const isLastHop = hopIndex === tradeQuote.steps.length - 1
         if (isLastHop && !hasMixpanelSuccessOrFailFiredRef.current) {
           trackMixpanelEvent(MixPanelEvent.TradeSuccess, eventDataSnapshot)
+          trackHypeLabEvent(HypeLabEvent.TradeSuccess)
           hasMixpanelSuccessOrFailFiredRef.current = true
         }
 
@@ -543,6 +600,69 @@ export const useTradeExecution = (
             slippageTolerancePercentageDecimal,
             from,
             signAndBroadcastTransaction: async (txToSign: SuiSignTx) => {
+              const hex = await adapter.signTransaction({ txToSign, wallet })
+
+              const output = await adapter.broadcastTransaction({
+                senderAddress: from,
+                receiverAddress,
+                hex,
+              })
+
+              trackMixpanelEventOnExecute()
+              return output
+            },
+          })
+          cancelPollingRef.current = output?.cancelPolling
+          return
+        }
+        case CHAIN_NAMESPACE.Near: {
+          const adapter = assertGetNearChainAdapter(stepSellAssetChainId)
+
+          const from = await adapter.getAddress({
+            accountNumber,
+            wallet,
+            pubKey:
+              wallet && isTrezor(wallet) ? fromAccountId(sellAssetAccountId).account : undefined,
+          })
+
+          const output = await execution.execNearTransaction({
+            swapperName,
+            tradeQuote,
+            stepIndex: hopIndex,
+            slippageTolerancePercentageDecimal,
+            from,
+            signAndBroadcastTransaction: async (txToSign: near.NearSignTx) => {
+              const hex = await adapter.signTransaction({ txToSign, wallet })
+
+              const output = await adapter.broadcastTransaction({
+                senderAddress: from,
+                receiverAddress,
+                hex,
+              })
+
+              trackMixpanelEventOnExecute()
+              return output
+            },
+          })
+          cancelPollingRef.current = output?.cancelPolling
+          return
+        }
+        case CHAIN_NAMESPACE.Starknet: {
+          const adapter = assertGetStarknetChainAdapter(stepSellAssetChainId)
+
+          const from = await adapter.getAddress({
+            accountNumber,
+            wallet,
+            pubKey: skipDeviceDerivation ? pubKey : undefined,
+          })
+
+          const output = await execution.execStarknetTransaction({
+            swapperName,
+            tradeQuote,
+            stepIndex: hopIndex,
+            slippageTolerancePercentageDecimal,
+            from,
+            signAndBroadcastTransaction: async (txToSign: StarknetSignTx) => {
               const hex = await adapter.signTransaction({ txToSign, wallet })
 
               const output = await adapter.broadcastTransaction({

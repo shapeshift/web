@@ -9,5 +9,5 @@ export const fetchRelayTrade = async <T extends 'quote' | 'rate'>(
   params: RelayFetchQuoteParams<T>,
   config: SwapperConfig,
 ): Promise<Result<AxiosResponse<RelayQuote, any>, SwapErrorRight>> => {
-  return await relayService.post<RelayQuote>(`${config.VITE_RELAY_API_URL}/quote`, params)
+  return await relayService.post<RelayQuote>(`${config.VITE_RELAY_API_URL}/quote/v2`, params)
 }

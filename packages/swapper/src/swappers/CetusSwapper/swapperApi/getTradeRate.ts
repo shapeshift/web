@@ -1,20 +1,15 @@
-import type { AssetId } from '@shapeshiftoss/caip'
-import { suiAssetId } from '@shapeshiftoss/caip'
+import { Transaction } from '@cetusprotocol/aggregator-sdk/node_modules/@mysten/sui/transactions'
+import { bnOrZero } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
-import { Err, Ok } from '@sniptt/monads'
+import { Err } from '@sniptt/monads'
 import { v4 as uuid } from 'uuid'
 
-import type {
-  GetTradeRateInput,
-  ProtocolFee,
-  SwapErrorRight,
-  SwapperDeps,
-  TradeRate,
-} from '../../../types'
+import { getDefaultSlippageDecimalPercentageForSwapper } from '../../../constants'
+import type { GetTradeRateInput, SwapErrorRight, SwapperDeps, TradeRate } from '../../../types'
 import { SwapperName, TradeQuoteError } from '../../../types'
-import { getInputOutputRate, makeSwapErrorRight } from '../../../utils'
-import { isSupportedChainId } from '../utils/constants'
-import { calculateSwapAmounts, findBestPool, getCetusSDK, getCoinType } from '../utils/helpers'
+import { makeSwapErrorRight } from '../../../utils'
+import { getAggregatorClient, getSuiClient } from '../utils/helpers'
+import { getCetusTradeData } from './getCetusTradeData'
 
 export const getTradeRate = async (
   input: GetTradeRateInput,
@@ -29,93 +24,71 @@ export const getTradeRate = async (
     slippageTolerancePercentageDecimal,
   } = input
 
-  const { assetsById } = deps
-
-  if (!isSupportedChainId(sellAsset.chainId)) {
-    return Err(
-      makeSwapErrorRight({
-        message: `unsupported chainId`,
-        code: TradeQuoteError.UnsupportedChain,
-        details: { chainId: sellAsset.chainId },
-      }),
-    )
-  }
-
-  if (!isSupportedChainId(buyAsset.chainId)) {
-    return Err(
-      makeSwapErrorRight({
-        message: `unsupported chainId`,
-        code: TradeQuoteError.UnsupportedChain,
-        details: { chainId: buyAsset.chainId },
-      }),
-    )
-  }
-
-  const suiAsset = assetsById[suiAssetId]
-
-  if (!suiAsset) {
-    return Err(
-      makeSwapErrorRight({
-        message: `suiAsset is required`,
-        code: TradeQuoteError.UnknownError,
-      }),
-    )
-  }
-
-  try {
-    const sdk = await getCetusSDK()
-
-    const sellCoinType = getCoinType(sellAsset)
-    const buyCoinType = getCoinType(buyAsset)
-
-    const pool = await findBestPool(sdk, sellCoinType, buyCoinType)
-
-    if (!pool) {
-      return Err(
-        makeSwapErrorRight({
-          message: `No liquidity pool found for ${sellAsset.symbol}/${buyAsset.symbol}`,
-          code: TradeQuoteError.NoRouteFound,
-        }),
-      )
-    }
-
-    const swapResult = await calculateSwapAmounts(sdk, pool, sellAsset, buyAsset, sellAmount)
-
-    if (!swapResult) {
-      return Err(
-        makeSwapErrorRight({
-          message: `Failed to calculate swap for ${sellAsset.symbol}/${buyAsset.symbol}`,
-          code: TradeQuoteError.QueryFailed,
-        }),
-      )
-    }
-
-    const buyAmountAfterFeesCryptoBaseUnit = swapResult.estimatedAmountOut
-
-    const rate = getInputOutputRate({
-      sellAmountCryptoBaseUnit: sellAmount,
-      buyAmountCryptoBaseUnit: buyAmountAfterFeesCryptoBaseUnit,
+  const tradeDataResult = await getCetusTradeData(
+    {
       sellAsset,
       buyAsset,
+      receiveAddress,
+      sellAmountIncludingProtocolFeesCryptoBaseUnit: sellAmount,
+    },
+    deps,
+  )
+
+  if (tradeDataResult.isErr()) return Err(tradeDataResult.unwrapErr())
+
+  const {
+    buyAmountAfterFeesCryptoBaseUnit,
+    rate,
+    addressForFeeEstimate,
+    routerData,
+    protocolFees,
+    rpcUrl,
+  } = tradeDataResult.unwrap()
+
+  try {
+    // Build the actual Cetus swap transaction to get accurate gas estimation
+    const client = getAggregatorClient(rpcUrl)
+    const suiClient = getSuiClient(rpcUrl)
+
+    const slippage = bnOrZero(
+      slippageTolerancePercentageDecimal ??
+        getDefaultSlippageDecimalPercentageForSwapper(SwapperName.Cetus),
+    ).toNumber()
+
+    const txb = new Transaction()
+    txb.setSender(addressForFeeEstimate)
+
+    await client.fastRouterSwap({
+      router: routerData,
+      slippage,
+      txb,
+      refreshAllCoins: true,
     })
 
-    const adapter = deps.assertGetSuiChainAdapter(sellAsset.chainId)
+    const txFee = await (async () => {
+      try {
+        const transactionBytes = await txb.build({ client: suiClient })
 
-    const dummyAddress = '0x0000000000000000000000000000000000000000000000000000000000000000'
-    const addressForFeeEstimate = receiveAddress ?? dummyAddress
+        const dryRunResult = await suiClient.dryRunTransactionBlock({
+          transactionBlock: transactionBytes,
+        })
 
-    const { fast: feeDataFast } = await adapter.getFeeData({
-      to: addressForFeeEstimate,
-      value: sellAmount,
-      chainSpecific: {
-        from: addressForFeeEstimate,
-        tokenId: getCoinType(sellAsset),
-      },
-    })
+        const computationCost = BigInt(dryRunResult.effects.gasUsed.computationCost)
+        const storageCost = BigInt(dryRunResult.effects.gasUsed.storageCost)
+        const storageRebate = BigInt(dryRunResult.effects.gasUsed.storageRebate)
 
-    const protocolFees: Record<AssetId, ProtocolFee> = {}
+        const netStorageCost = storageCost > storageRebate ? storageCost - storageRebate : 0n
 
-    const rates: TradeRate[] = []
+        const estimatedGas = computationCost + netStorageCost
+
+        return estimatedGas.toString()
+      } catch (error) {
+        if (error instanceof Error && error.message.includes('Not enough coins of type')) {
+          return undefined
+        }
+        throw error
+      }
+    })()
 
     const tradeRate: TradeRate = {
       id: uuid(),
@@ -133,7 +106,7 @@ export const getTradeRate = async (
           sellAmountIncludingProtocolFeesCryptoBaseUnit: sellAmount,
           feeData: {
             protocolFees,
-            networkFeeCryptoBaseUnit: feeDataFast.txFee,
+            networkFeeCryptoBaseUnit: txFee,
           },
           rate,
           source: SwapperName.Cetus,
@@ -145,9 +118,7 @@ export const getTradeRate = async (
       ],
     }
 
-    rates.push(tradeRate)
-
-    return Ok(rates)
+    return tradeDataResult.map(() => [tradeRate])
   } catch (error) {
     return Err(
       makeSwapErrorRight({

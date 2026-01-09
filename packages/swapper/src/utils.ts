@@ -1,7 +1,14 @@
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
-import { solanaChainId, suiChainId } from '@shapeshiftoss/caip'
-import type { EvmChainAdapter, SignTx, solana, sui } from '@shapeshiftoss/chain-adapters'
-import type { SolanaSignTx, SuiSignTx } from '@shapeshiftoss/hdwallet-core'
+import { solanaChainId, starknetChainId, suiChainId } from '@shapeshiftoss/caip'
+import type {
+  EvmChainAdapter,
+  near,
+  SignTx,
+  solana,
+  starknet,
+  sui,
+} from '@shapeshiftoss/chain-adapters'
+import type { SolanaSignTx, StarknetSignTx, SuiSignTx } from '@shapeshiftoss/hdwallet-core'
 import type { Asset, EvmChainId } from '@shapeshiftoss/types'
 import { evm, TxStatus } from '@shapeshiftoss/unchained-client'
 import { bn, fromBaseUnit } from '@shapeshiftoss/utils'
@@ -16,7 +23,9 @@ import { fetchSafeTransactionInfo } from './safe-utils'
 import type {
   EvmTransactionExecutionProps,
   ExecutableTradeStep,
+  NearTransactionExecutionProps,
   SolanaTransactionExecutionProps,
+  StarknetTransactionExecutionProps,
   SuiTransactionExecutionProps,
   SupportedTradeQuoteStepIndex,
   SwapErrorRight,
@@ -190,6 +199,20 @@ export const executeTronTransaction = (
 export const executeSuiTransaction = (
   txToSign: SuiSignTx,
   callbacks: SuiTransactionExecutionProps,
+) => {
+  return callbacks.signAndBroadcastTransaction(txToSign)
+}
+
+export const executeNearTransaction = (
+  txToSign: near.NearSignTx,
+  callbacks: NearTransactionExecutionProps,
+) => {
+  return callbacks.signAndBroadcastTransaction(txToSign)
+}
+
+export const executeStarknetTransaction = (
+  txToSign: StarknetSignTx,
+  callbacks: StarknetTransactionExecutionProps,
 ) => {
   return callbacks.signAndBroadcastTransaction(txToSign)
 }
@@ -369,11 +392,69 @@ export const checkSuiSwapStatus = async ({
       digest: txHash,
       options: {
         showEffects: true,
+        showBalanceChanges: true,
       },
     })
 
     const status =
       txResponse.effects?.status?.status === 'success' ? TxStatus.Confirmed : TxStatus.Failed
+
+    // Extract actual buy amount from balance changes
+    let actualBuyAmountCryptoBaseUnit: string | undefined
+
+    if (txResponse.balanceChanges) {
+      // Balance changes show the net effect on the user's balances
+      // Positive amounts are received, negative are sent
+      const receivedChanges = txResponse.balanceChanges.filter(change => {
+        // The owner field is a discriminated union - check for AddressOwner variant
+        // Handle both object and string cases
+        const ownerAddress =
+          change.owner && typeof change.owner === 'object' && 'AddressOwner' in change.owner
+            ? change.owner.AddressOwner
+            : change.owner && typeof change.owner === 'object' && 'ObjectOwner' in change.owner
+            ? change.owner.ObjectOwner
+            : null
+
+        return ownerAddress === address && Number(change.amount) > 0
+      })
+
+      if (receivedChanges.length > 0) {
+        // For swaps, we expect exactly one positive balance change (the buy asset)
+        actualBuyAmountCryptoBaseUnit = receivedChanges[0].amount
+      }
+    }
+
+    return {
+      status,
+      buyTxHash: txHash,
+      message: undefined,
+      actualBuyAmountCryptoBaseUnit,
+    }
+  } catch (e) {
+    console.error(e)
+    return createDefaultStatusResponse(txHash)
+  }
+}
+
+export const checkStarknetSwapStatus = async ({
+  txHash,
+  assertGetStarknetChainAdapter,
+}: {
+  txHash: string
+  assertGetStarknetChainAdapter: (chainId: ChainId) => starknet.ChainAdapter
+}): Promise<TradeStatus> => {
+  try {
+    const adapter = assertGetStarknetChainAdapter(starknetChainId)
+    const provider = adapter.getStarknetProvider()
+
+    const receipt: any = await provider.getTransactionReceipt(txHash)
+
+    const status =
+      receipt.execution_status === 'SUCCEEDED'
+        ? TxStatus.Confirmed
+        : receipt.execution_status === 'REVERTED'
+        ? TxStatus.Failed
+        : TxStatus.Pending
 
     return {
       status,

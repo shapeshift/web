@@ -1,5 +1,16 @@
 import type { ChainId } from '@shapeshiftoss/caip'
-import { mayachainAssetId, thorchainAssetId } from '@shapeshiftoss/caip'
+import {
+  hyperEvmAssetId,
+  katanaAssetId,
+  mayachainAssetId,
+  monadAssetId,
+  nearAssetId,
+  plasmaAssetId,
+  starknetAssetId,
+  suiAssetId,
+  thorchainAssetId,
+  tronAssetId,
+} from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { useQuery } from '@tanstack/react-query'
 
@@ -25,7 +36,17 @@ export const queryFn = async () => {
   assetIds.push(thorchainAssetId)
   if (enabledFlags.Mayachain) assetIds.push(mayachainAssetId)
 
-  for (const assetId of assetIds) {
+  // add second-class citizen chains to popular assets for discoverability
+  if (enabledFlags.HyperEvm) assetIds.push(hyperEvmAssetId)
+  if (enabledFlags.Monad) assetIds.push(monadAssetId)
+  if (enabledFlags.Near) assetIds.push(nearAssetId)
+  if (enabledFlags.Plasma) assetIds.push(plasmaAssetId)
+  if (enabledFlags.Katana) assetIds.push(katanaAssetId)
+  if (enabledFlags.Starknet) assetIds.push(starknetAssetId)
+  if (enabledFlags.Tron) assetIds.push(tronAssetId)
+  if (enabledFlags.Sui) assetIds.push(suiAssetId)
+
+  for (const assetId of [...new Set(assetIds)]) {
     const asset = primaryAssets[assetId]
     const relatedAssetIds = selectRelatedAssetIds(store.getState(), { assetId })
     if (!asset) continue

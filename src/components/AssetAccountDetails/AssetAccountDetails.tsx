@@ -18,7 +18,9 @@ import { SpamWarningBanner } from './components/SpamWarningBanner'
 
 import { AssetTransactionHistory } from '@/components/TransactionHistory/AssetTransactionHistory'
 import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
+import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { StandaloneTrade } from '@/pages/Trade/StandaloneTrade'
+import { YieldAssetSection } from '@/pages/Yields/components/YieldAssetSection'
 import { selectIsSpamMarkedByAssetId } from '@/state/slices/preferencesSlice/selectors'
 import { selectMarketDataByAssetIdUserCurrency } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
@@ -34,6 +36,7 @@ const display = { base: 'none', md: 'block' }
 const contentPaddingY = { base: 0, md: 8 }
 
 export const AssetAccountDetails = ({ assetId, accountId }: AssetDetailsProps) => {
+  const isYieldXyzEnabled = useFeatureFlag('YieldXyz')
   const marketData = useAppSelector(state => selectMarketDataByAssetIdUserCurrency(state, assetId))
   const isSpamMarked = useAppSelector(state => selectIsSpamMarkedByAssetId(state, assetId))
   const assetIds = useMemo(() => [assetId], [assetId])
@@ -58,6 +61,7 @@ export const AssetAccountDetails = ({ assetId, accountId }: AssetDetailsProps) =
           <MaybeChartUnavailable assetIds={assetIds} />
           <Equity assetId={assetId} accountId={accountId} />
           {accountId && <AccountAssets assetId={assetId} accountId={accountId} />}
+          {isYieldXyzEnabled && <YieldAssetSection assetId={assetId} accountId={accountId} />}
           <RelatedAssets assetId={assetId} />
           <AssetTransactionHistory limit={10} assetId={assetId} accountId={accountId} />
         </Stack>

@@ -513,6 +513,7 @@
     "rFOX": "rFOX",
     "tcy": "TCY",
     "foxEcosystem": "Екосистема FOX",
+    "ecosystem": "Екосистема",
     "markets": "Ринки",
     "tokens": "Токени",
     "swap": "Обмін"
@@ -526,6 +527,10 @@
     "foxToken": {
       "title": "Токен FOX",
       "subtitle": "Наш токен управління"
+    },
+    "agent": {
+      "title": "Агент",
+      "subtitle": "Поспілкуйтеся зі своїм гаманцем"
     },
     "classic": {
       "title": "Класичний",
@@ -755,8 +760,15 @@
     "slowSwapBody": "Цей обмін може зайняти кілька хвилин.",
     "thorSmartContractWalletUnsupported": "Наразі мережа THORchain не підтримує гаманці смарт-контрактів.",
     "intoAssetSymbolBody": "Ви можете продовжити цю угоду, але історія транзакцій по отриманню %{assetSymbol} тимчасово недоступна",
+    "receiveAddress": "Адреса для отримання",
     "changeAddress": "Змінити адресу",
     "changeAddressExplainer": "При відправленні криптовалют у мережах на основі UTXO будь-які залишки коштів від вашої транзакції повертаються вам на цю адресу.",
+    "depositAddress": "Адреса депозиту",
+    "depositAddressExplainer": "Це протокольна адреса, на яку будуть відправлені ваші кошти для обробки. Ваш апаратний гаманець відобразить цю адресу для перевірки.",
+    "customReceiveAddress": "Адреса для отримання клейму",
+    "customReceiveAddressDescription": "Введіть індивідуальну адресу для отримання цієї угоди",
+    "thisIsYourCustomReceiveAddress": "Це ваша індивідуальна адреса для отримання повідомлень",
+    "enterCustomReceiveAddress": "Введіть адресу для отримання",
     "receiveAtLeast": "Отримаєте щонайменше",
     "tooltip": {
       "continueSwapping": "Продовжуйте обмін для отримання фінальних деталей",
@@ -828,7 +840,6 @@
     "or": "або",
     "onChainName": "на %{chainName}",
     "unknownGas": "(невідомо)",
-    "receiveAddress": "Адреса отримувача",
     "receiveAddressDescription": "Не знайдено адресу %%{chainName} з підключеного гаманця. Введіть адресу вручну",
     "disableThorTaprootReceive": "Ми виявили, що ви відправляєте на адресу taproot Bitcoin. Через обмеження THORchain, отримання BTC на адресу taproot наразі не підтримується. Будь ласка, введіть іншу адресу.",
     "toContinue": "щоб продовжити",
@@ -1089,6 +1100,7 @@
       "getFeesError": "Помилка отримання комісій",
       "broadcastingTransaction": "Транзакція відправляється",
       "youHaveSent": "Ви успішно відправили %{amount} %{symbol}",
+      "sendFailed": "Відправлення не вдалося",
       "toAddress": "На адресу",
       "toAddressOrEns": "На адресу або ENS",
       "scanQrCode": "Відсканувати QR-код",
@@ -1427,7 +1439,9 @@
         "renamed": "SafeCard перейменовано",
         "deleted": "SafeCard видалено",
         "deletedDescription": "Дані портфоліо були очищені",
-        "warning": "Кожна SafeCard має власний портфель. Перед підключенням переконайтеся, що ви вставили в пристрій правильну SafeCard."
+        "warning": "Кожна SafeCard має власний портфель. Перед підключенням переконайтеся, що ви вставили в пристрій правильну SafeCard.",
+        "safeCardLabel": "SafeCard",
+        "internalSafeCardLabel": "Внутрішня SafeCard"
       },
       "connect": {
         "header": "Підключити нову SafeCard",
@@ -1461,6 +1475,9 @@
         "deviceNotConnected": "Пристрій не підключено. Спочатку нажміть connectDevice.",
         "connectFailure": "Неможливо підключитися до гаманця GridPlus",
         "unknown": "Сталася несподівана помилка під час зв'язку з гаманцем GridPlus"
+      },
+      "menu": {
+        "switchSafeCard": "Переключити SafeCard"
       }
     },
     "ledger": {
@@ -1871,6 +1888,18 @@
     "title": "Відкрити %{appName} додаток",
     "description": "Щоб продовжити, вам потрібно відкрити додаток %{appName} на вашому пристрої Ledger.",
     "devicePrompt": "Пристрій підкаже вам усі необхідні кроки для завершення поточної дії."
+  },
+  "starknet": {
+    "deployAccount": {
+      "title": "Розгорнути обліковий запис Starknet",
+      "description": "Starknet використовує рахунки смарт-контрактів, які необхідно розгорнути перед використанням.",
+      "sendDescription": "Спочатку потрібно розгорнути обліковий запис, щоб мати можливість надсилати повідомлення.",
+      "swapDescription": "Starknet використовує рахунки смарт-контрактів. Перед тим, як здійснювати обмін, вам потрібно буде спочатку розгорнути свій рахунок.",
+      "explanation": "Це одноразова настройка, яка ініціалізує ваш обліковий запис на Starknet. З вашого балансу буде списано невелику комісію.",
+      "deployButton": "Розгорнути обліковий запис",
+      "deploying": "Розгортання облікового запису...",
+      "deployFailed": "Розгортання не вдалося"
+    }
   },
   "transactionHistory": {
     "transactionHistory": "Історія транзакцій",
@@ -2508,6 +2537,7 @@
       "buildTransaction": "Не вдалося створити транзакцію.",
       "signTransaction": "Не вдалося підписати транзакцію.",
       "blindSigningRequired": "Транзакція вимагає сліпого підпису. Увімкніть Blind signing (сліпий підпис) або Contract Data (дані контракту) в налаштуваннях програми Ledger і спробуйте ще раз.",
+      "ledgerTronAllowDataDisabled": "Увімкніть дані про транзакції в налаштуваннях додатка Ledger TRON і спробуйте ще раз.",
       "signAndBroadcastTransaction": "Не вдалося підписати та відправити транзакцію.",
       "signMessage": "Не вдалося підписати повідомлення.",
       "broadcastTransaction": "Не вдалося передати транзакцію.",
@@ -2516,7 +2546,11 @@
       "getFeeData": "Не вдалося оцінити мережеві комісії.",
       "getPublicKey": "Не вдалося отримати публічний ключ від гаманця.",
       "getUtxos": "Не вдалося дістати utxos.",
-      "getValidator": "Не вдалося отримати валідатора."
+      "getValidator": "Не вдалося отримати валідатора.",
+      "gridplus": {
+        "wrongSafeCard": "Вставлено неправильну картку SafeCard. Вставте правильну картку SafeCard і спробуйте ще раз.",
+        "removeSafeCard": "Вийміть вставлену картку SafeCard, щоб отримати доступ до внутрішнього гаманця GridPlus."
+      }
     }
   },
   "actionCenter": {

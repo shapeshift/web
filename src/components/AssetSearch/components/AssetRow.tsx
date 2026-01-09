@@ -62,7 +62,14 @@ export type AssetRowProps = AssetRowData & ButtonProps
 export const AssetRow: FC<AssetRowProps> = memo(
   ({
     asset,
-    data: { handleClick, handleLongPress, disableUnsupported, hideZeroBalanceAmounts },
+    data: {
+      handleClick,
+      handleLongPress,
+      disableUnsupported,
+      hideZeroBalanceAmounts,
+      assetFilterPredicate,
+      chainIdFilterPredicate,
+    },
     showPrice = false,
     onImportClick,
     showRelatedAssets = false,
@@ -100,13 +107,26 @@ export const AssetRow: FC<AssetRowProps> = memo(
       relatedAssetIdsFilter,
     )
 
+    // Filter related assets by predicates if provided (same pattern as AssetChainDropdown)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    const filteredRelatedAssetIds = useMemo(() => {
+      return relatedAssetIds.filter(assetId => {
+        const { chainId } = fromAssetId(assetId)
+        const isChainAllowed = chainIdFilterPredicate?.(chainId) ?? true
+        const isAssetAllowed = assetFilterPredicate?.(assetId) ?? true
+        return isChainAllowed && isAssetAllowed
+      })
+    }, [relatedAssetIds, chainIdFilterPredicate, assetFilterPredicate])
+
     const filter = useMemo(() => ({ assetId }), [assetId])
     const isSupported = wallet && isAssetSupportedByWallet(assetId, wallet)
     const cryptoHumanBalance = useAppSelector(s =>
-      selectPortfolioCryptoPrecisionBalanceByFilter(s, filter),
+      canDisplayBalances ? selectPortfolioCryptoPrecisionBalanceByFilter(s, filter) : '0',
     )
     const userCurrencyBalance =
-      useAppSelector(s => selectPortfolioUserCurrencyBalanceByAssetId(s, filter)) ?? '0'
+      useAppSelector(s =>
+        canDisplayBalances ? selectPortfolioUserCurrencyBalanceByAssetId(s, filter) : '0',
+      ) ?? '0'
 
     const knownAsset = useAppSelector(s => selectAssetById(s, assetId))
 
@@ -227,7 +247,7 @@ export const AssetRow: FC<AssetRowProps> = memo(
       changePercent24Hr,
     ])
 
-    if (showRelatedAssets && relatedAssetIds.length > 1) {
+    if (showRelatedAssets && filteredRelatedAssetIds.length > 1) {
       return (
         <GroupedAssetRow
           asset={asset}
@@ -236,6 +256,7 @@ export const AssetRow: FC<AssetRowProps> = memo(
           hideZeroBalanceAmounts={hideZeroBalanceAmounts}
           showPrice={showPrice}
           onLongPress={handleLongPress}
+          relatedAssetIds={filteredRelatedAssetIds}
         />
       )
     }

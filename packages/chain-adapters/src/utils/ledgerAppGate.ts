@@ -5,6 +5,7 @@ import { KnownChainIds } from '@shapeshiftoss/types'
 import { EventEmitter } from 'node:events'
 
 import { ChainAdapterError } from '../error/ErrorHandler'
+import { isEvmChainId } from '../evm/EvmBaseAdapter'
 
 export const emitter = new EventEmitter()
 
@@ -14,18 +15,10 @@ export type LedgerOpenAppEventArgs = {
 }
 
 export const getLedgerAppName = (chainId: ChainId | KnownChainIds | undefined) => {
+  // All EVM chains use the Ethereum Ledger app
+  if (chainId && isEvmChainId(chainId)) return 'Ethereum'
+
   switch (chainId as KnownChainIds) {
-    case KnownChainIds.ArbitrumMainnet:
-    case KnownChainIds.AvalancheMainnet:
-    case KnownChainIds.ArbitrumNovaMainnet:
-    case KnownChainIds.BaseMainnet:
-    case KnownChainIds.BnbSmartChainMainnet:
-    case KnownChainIds.EthereumMainnet:
-    case KnownChainIds.GnosisMainnet:
-    case KnownChainIds.MonadMainnet:
-    case KnownChainIds.OptimismMainnet:
-    case KnownChainIds.PolygonMainnet:
-      return 'Ethereum'
     case KnownChainIds.BitcoinCashMainnet:
       return 'Bitcoin Cash'
     case KnownChainIds.BitcoinMainnet:
@@ -40,15 +33,24 @@ export const getLedgerAppName = (chainId: ChainId | KnownChainIds | undefined) =
       return 'Zcash'
     case KnownChainIds.SolanaMainnet:
       return 'Solana'
+    case KnownChainIds.SuiMainnet:
+      return 'Sui'
     case KnownChainIds.ThorchainMainnet:
     case KnownChainIds.MayachainMainnet:
       return 'THORChain'
+    case KnownChainIds.TronMainnet:
+      return 'Tron'
+    case KnownChainIds.NearMainnet:
+      return 'NEAR'
     default:
       throw Error(`Unsupported chainId: ${chainId}`)
   }
 }
 
 const getCoin = (chainId: ChainId | KnownChainIds) => {
+  // All EVM chains use the Ethereum Ledger app
+  if (isEvmChainId(chainId)) return 'Ethereum'
+
   switch (chainId as KnownChainIds) {
     case KnownChainIds.BitcoinMainnet:
       return 'Bitcoin'
@@ -60,26 +62,6 @@ const getCoin = (chainId: ChainId | KnownChainIds) => {
       return 'Litecoin'
     case KnownChainIds.ZcashMainnet:
       return 'Zcash'
-    case KnownChainIds.EthereumMainnet:
-      return 'Ethereum'
-    case KnownChainIds.AvalancheMainnet:
-      return 'Avalanche'
-    case KnownChainIds.OptimismMainnet:
-      return 'Optimism'
-    case KnownChainIds.BnbSmartChainMainnet:
-      return 'BnbSmartChain'
-    case KnownChainIds.PolygonMainnet:
-      return 'Polygon'
-    case KnownChainIds.GnosisMainnet:
-      return 'Gnosis'
-    case KnownChainIds.ArbitrumMainnet:
-      return 'Arbitrum'
-    case KnownChainIds.ArbitrumNovaMainnet:
-      return 'ArbitrumNova'
-    case KnownChainIds.BaseMainnet:
-      return 'Base'
-    case KnownChainIds.MonadMainnet:
-      return 'Monad'
     case KnownChainIds.ThorchainMainnet:
       return 'Rune'
     case KnownChainIds.MayachainMainnet:
@@ -88,6 +70,12 @@ const getCoin = (chainId: ChainId | KnownChainIds) => {
       return 'Atom'
     case KnownChainIds.SolanaMainnet:
       return 'Solana'
+    case KnownChainIds.SuiMainnet:
+      return 'Sui'
+    case KnownChainIds.TronMainnet:
+      return 'Tron'
+    case KnownChainIds.NearMainnet:
+      return 'Near'
     default:
       throw Error(`Unsupported chainId: ${chainId}`)
   }
@@ -118,17 +106,23 @@ export const verifyLedgerAppOpen = async (chainId: ChainId | KnownChainIds, wall
       const args: LedgerOpenAppEventArgs = { chainId, reject }
       emitter.emit('LedgerOpenApp', args)
 
-      // prompt user to open app on device
-      wallet.openApp(appName)
+      // start polling for app open status after openApp completes to avoid concurrent USB requests
+      const startPolling = () => {
+        intervalId = setInterval(async () => {
+          if (!(await isAppOpen())) return
 
-      intervalId = setInterval(async () => {
-        if (!(await isAppOpen())) return
+          // emit event to trigger modal close
+          emitter.emit('LedgerAppOpened')
+          clearInterval(intervalId)
+          resolve()
+        }, 1000)
+      }
 
-        // emit event to trigger modal close
-        emitter.emit('LedgerAppOpened')
-        clearInterval(intervalId)
-        resolve()
-      }, 1000)
+      // prompt user to open app on device, then start polling
+      // Promise.resolve normalizes both promise and non-promise return values
+      Promise.resolve(wallet.openApp(appName))
+        .then(() => startPolling())
+        .catch(() => startPolling())
     })
   } catch {
     clearInterval(intervalId)

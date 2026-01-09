@@ -513,6 +513,7 @@
     "rFOX": "rFOX",
     "tcy": "TCY",
     "foxEcosystem": "FOX Ökosystem",
+    "ecosystem": "Ecosystem",
     "markets": "Märkte",
     "tokens": "Tokens",
     "swap": "Swap"
@@ -526,6 +527,10 @@
     "foxToken": {
       "title": "FOX Token",
       "subtitle": "Unser Governance Token"
+    },
+    "agent": {
+      "title": "Agent",
+      "subtitle": "Chatten Sie mit Ihrer Wallet"
     },
     "classic": {
       "title": "Klassisch",
@@ -755,8 +760,15 @@
     "slowSwapBody": "Dieser Wechsel kann einige Minuten dauern.",
     "thorSmartContractWalletUnsupported": "Das THORChain-Netzwerk unterstützt derzeit keine Smart Contract Wallets.",
     "intoAssetSymbolBody": "Sie können mit diesem Handel fortfahren, aber der Transaktionsverlauf für den Erhalt von %{assetSymbol} ist vorübergehend nicht verfügbar",
+    "receiveAddress": "Empfangsadresse",
     "changeAddress": "Retourgeld Adresse",
     "changeAddressExplainer": "Beim Senden von Kryptowährungen über UTXO-basierte Netzwerke werden alle Restbeträge Ihrer Transaktion an diese Adresse zurückgesendet.",
+    "depositAddress": "Einzahlungsadresse",
+    "depositAddressExplainer": "Dies ist die Protokolladresse, an die Ihre Werte zur Verarbeitung gesendet werden. Ihre Hardware Wallet zeigt diese Adresse zur Überprüfung an.",
+    "customReceiveAddress": "Benutzerdefinierte Empfangsadresse",
+    "customReceiveAddressDescription": "Geben Sie eine benutzerdefinierte Empfangsadresse für diesen Handel ein",
+    "thisIsYourCustomReceiveAddress": "Dies ist Ihre benutzerdefinierte Empfangsadresse",
+    "enterCustomReceiveAddress": "Geben Sie eine benutzerdefinierte Empfangsadresse ein",
     "receiveAtLeast": "Erhalten Sie zumindest",
     "tooltip": {
       "continueSwapping": "Weiter tauschen, um die letzten Details zu erfahren",
@@ -828,7 +840,6 @@
     "or": "oder",
     "onChainName": "auf %{chainName}",
     "unknownGas": "(unbekannt)",
-    "receiveAddress": "Empfangsadresse ",
     "receiveAddressDescription": "Keine %{chainName} Adresse aus verbundener Wallet gefunden. Bitte Adresse manuell eingeben",
     "disableThorTaprootReceive": "Wir haben festgestellt, dass Sie an eine Taproot-Bitcoin-Adresse senden. Aufgrund von THORChain-Einschränkungen wird der Empfang von BTC an eine Taproot-Adresse derzeit nicht unterstützt. Bitte geben Sie eine andere Adresse ein.",
     "toContinue": " weiter zu machen.",
@@ -1089,6 +1100,7 @@
       "getFeesError": "Fehler beim Abrufen der Gebühren",
       "broadcastingTransaction": "Transaktion übertragen",
       "youHaveSent": "Sie haben %{amount} %{symbol} erfolgreich gesendet",
+      "sendFailed": "Senden fehlgeschlagen",
       "toAddress": "an Adresse",
       "toAddressOrEns": "An Adresse oder ENS",
       "scanQrCode": "QR-Code scannen",
@@ -1427,7 +1439,9 @@
         "renamed": "SafeCard umbenannt",
         "deleted": "SafeCard gelöscht",
         "deletedDescription": "Die Portfoliodaten wurden gelöscht",
-        "warning": "Jede SafeCard verwaltet ihr eigenes Portfolio. Stellen Sie sicher, dass Sie die richtige SafeCard in Ihr Gerät einlegen, bevor Sie eine Verbindung herstellen."
+        "warning": "Jede SafeCard verwaltet ihr eigenes Portfolio. Stellen Sie sicher, dass Sie die richtige SafeCard in Ihr Gerät einlegen, bevor Sie eine Verbindung herstellen.",
+        "safeCardLabel": "SafeCard",
+        "internalSafeCardLabel": "Interne SafeCard"
       },
       "connect": {
         "header": "Neue SafeCard verbinden",
@@ -1461,6 +1475,9 @@
         "deviceNotConnected": "Gerät nicht verbunden. Rufen Sie zuerst connectDevice auf.",
         "connectFailure": "Verbindung zur GridPlus Wallet nicht möglich",
         "unknown": "Bei der Kommunikation mit der GridPlus Wallet ist ein unerwarteter Fehler aufgetreten."
+      },
+      "menu": {
+        "switchSafeCard": "Wechsle SafeCard"
       }
     },
     "ledger": {
@@ -1871,6 +1888,18 @@
     "title": "Öffnen Sie die %{appName} App",
     "description": "Um fortzufahren, müssen Sie die App %{appName} auf Ihrem Ledger-Gerät öffnen.",
     "devicePrompt": "Ihr Gerät fordert Sie zu allen notwendigen Schritten auf die zum Abschließen Ihrer aktuellen Aktion erforderlich sind."
+  },
+  "starknet": {
+    "deployAccount": {
+      "title": "Starknet Konto bereitstellen",
+      "description": "Starknet verwendet Smart Contract Konten, die vor der Verwendung bereitgestellt werden müssen.",
+      "sendDescription": "Sie müssen das Konto zuerst bereitstellen, um senden zu können.",
+      "swapDescription": "Starknet verwendet Smart Contract Konten. Sie müssen Ihr Konto zuerst bereitstellen, bevor Sie tauschen können.",
+      "explanation": "Dies ist eine einmalige Einrichtung, die Ihr Konto bei Starknet initialisiert. Eine geringe Gebühr wird von Ihrem Guthaben abgezogen.",
+      "deployButton": "Konto bereitstellen",
+      "deploying": "Konto wird bereitgestellt...",
+      "deployFailed": "Bereitstellung fehlgeschlagen"
+    }
   },
   "transactionHistory": {
     "transactionHistory": "bisherige Transaktionen",
@@ -2508,6 +2537,7 @@
       "buildTransaction": "Die Transaktion konnte nicht erstellt werden.",
       "signTransaction": "Die Unterzeichnung der Transaktion ist fehlgeschlagen.",
       "blindSigningRequired": "Für diese Transaktion ist eine Blindsignatur erforderlich. Bitte aktivieren Sie Blind signing oder Contract Data in den Einstellungen Ihrer Ledger App und versuchen Sie es erneut.",
+      "ledgerTronAllowDataDisabled": "Bitte aktivieren Sie die Transaktionsdaten in den Einstellungen Ihrer Ledger TRON App und versuchen Sie es erneut.",
       "signAndBroadcastTransaction": "Signieren und Senden der Transaktion fehlgeschlagen.",
       "signMessage": "Signieren der Nachricht fehlgeschlagen.",
       "broadcastTransaction": "Die Übertragung der Transaktion ist fehlgeschlagen.",
@@ -2516,7 +2546,11 @@
       "getFeeData": "Die Netzwerkgebühren konnten nicht geschätzt werden.",
       "getPublicKey": "Der öffentliche Schlüssel konnte nicht aus der Wallet abgerufen werden.",
       "getUtxos": "Utxos konnten nicht abgerufen werden.",
-      "getValidator": "Der Validierer konnte nicht abgerufen werden."
+      "getValidator": "Der Validierer konnte nicht abgerufen werden.",
+      "gridplus": {
+        "wrongSafeCard": "Die falsche SafeCard wurde eingelegt. Bitte legen Sie die richtige SafeCard ein und versuchen Sie es erneut.",
+        "removeSafeCard": "Um auf die interne GridPlus Wallet zuzugreifen, entfernen Sie die eingelegte SafeCard."
+      }
     }
   },
   "actionCenter": {

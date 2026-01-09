@@ -1,5 +1,5 @@
 import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
-import { fromAccountId, fromAssetId } from '@shapeshiftoss/caip'
+import { CHAIN_NAMESPACE, fromAccountId, fromAssetId, toAccountId } from '@shapeshiftoss/caip'
 import type { FeeDataEstimate } from '@shapeshiftoss/chain-adapters'
 import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
 import { AnimatePresence } from 'framer-motion'
@@ -35,6 +35,7 @@ import {
   ActionType,
   GenericTransactionDisplayType,
 } from '@/state/slices/actionSlice/types'
+import { selectInternalAccountIdByAddress } from '@/state/slices/addressBookSlice/selectors'
 import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
 import {
   selectFirstAccountIdByChainId,
@@ -138,20 +139,39 @@ export const Form: React.FC<SendFormProps> = ({ initialAssetId, input = '', acco
     qrCode.close()
   }, [qrCode, send])
 
-  const handleSubmit = useCallback(
+  const executeSend = useCallback(
     async (data: SendInput) => {
-      if (!wallet) return
-
-      // Get change address if this is UTXO
-      const changeAddress = await maybeFetchChangeAddress({ sendInput: data, wallet })
-      if (changeAddress) {
-        methods.setValue(SendFormFields.ChangeAddress, changeAddress)
-      }
-
       const txHash = await handleFormSend(data, false)
-      if (!txHash) return
+      if (!txHash) return null
       mixpanel?.track(MixPanelEvent.SendBroadcast)
       methods.setValue(SendFormFields.TxHash, txHash)
+      return txHash
+    },
+    [handleFormSend, methods, mixpanel],
+  )
+
+  const completeSendFlow = useCallback(
+    (txHash: string, data: SendInput) => {
+      const internalAccountIdFilter = {
+        accountAddress: data.to,
+        chainId: fromAccountId(formAccountId).chainId,
+      }
+
+      const { chainNamespace } = fromAccountId(formAccountId)
+
+      const internalReceiveAccountId = (() => {
+        if (chainNamespace === CHAIN_NAMESPACE.Evm) {
+          return toAccountId({ chainId: fromAccountId(formAccountId).chainId, account: data.to })
+        }
+
+        return selectInternalAccountIdByAddress(store.getState(), internalAccountIdFilter)
+      })()
+
+      const accountIdsToRefetch = [formAccountId]
+
+      if (internalReceiveAccountId) {
+        accountIdsToRefetch.push(internalReceiveAccountId)
+      }
 
       dispatch(
         actionSlice.actions.upsertAction({
@@ -162,6 +182,7 @@ export const Form: React.FC<SendFormProps> = ({ initialAssetId, input = '', acco
             txHash,
             chainId: fromAccountId(formAccountId).chainId,
             accountId: formAccountId,
+            accountIdsToRefetch,
             assetId,
             amountCryptoPrecision: formAmountCryptoPrecision,
             message: 'modals.send.status.pendingBody',
@@ -196,10 +217,6 @@ export const Form: React.FC<SendFormProps> = ({ initialAssetId, input = '', acco
       handleClose()
     },
     [
-      wallet,
-      methods,
-      handleFormSend,
-      mixpanel,
       assetId,
       dispatch,
       formAccountId,
@@ -209,6 +226,24 @@ export const Form: React.FC<SendFormProps> = ({ initialAssetId, input = '', acco
       openActionCenter,
       toast,
     ],
+  )
+
+  const handleSubmit = useCallback(
+    async (data: SendInput) => {
+      if (!wallet) return
+
+      // Get change address if this is UTXO
+      const changeAddress = await maybeFetchChangeAddress({ sendInput: data, wallet })
+      if (changeAddress) {
+        methods.setValue(SendFormFields.ChangeAddress, changeAddress)
+      }
+
+      const txHash = await executeSend(data)
+      if (!txHash) return
+
+      completeSendFlow(txHash, data)
+    },
+    [wallet, methods, executeSend, completeSendFlow],
   )
 
   const handleAssetSelect = useCallback(

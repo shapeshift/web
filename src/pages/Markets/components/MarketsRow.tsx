@@ -80,17 +80,22 @@ export const MarketsRow: React.FC<MarketsRowProps> = ({
     (params.category && sortOptionsByCategory[params.category]?.[0]) ?? SortOptionsKeys.Volume,
   )
   const isArbitrumNovaEnabled = useAppSelector(state => selectFeatureFlag(state, 'ArbitrumNova'))
+  const isSuiEnabled = useAppSelector(state => selectFeatureFlag(state, 'Sui'))
+  const isPlasmaEnabled = useAppSelector(state => selectFeatureFlag(state, 'Plasma'))
+  const isHyperEvmEnabled = useAppSelector(state => selectFeatureFlag(state, 'HyperEvm'))
   const [isSmallerThanLg] = useMediaQuery(`(max-width: ${breakpoints.lg})`)
 
   const chainIds = useMemo(() => {
-    if (!supportedChainIds)
-      return Object.values(KnownChainIds).filter(chainId => {
-        if (!isArbitrumNovaEnabled && chainId === KnownChainIds.ArbitrumNovaMainnet) return false
-        return true
-      })
+    const baseChainIds = supportedChainIds ?? Object.values(KnownChainIds)
 
-    return supportedChainIds
-  }, [isArbitrumNovaEnabled, supportedChainIds])
+    return baseChainIds.filter(chainId => {
+      if (!isArbitrumNovaEnabled && chainId === KnownChainIds.ArbitrumNovaMainnet) return false
+      if (!isSuiEnabled && chainId === KnownChainIds.SuiMainnet) return false
+      if (!isPlasmaEnabled && chainId === KnownChainIds.PlasmaMainnet) return false
+      if (!isHyperEvmEnabled && chainId === KnownChainIds.HyperEvmMainnet) return false
+      return true
+    })
+  }, [supportedChainIds, isArbitrumNovaEnabled, isSuiEnabled, isPlasmaEnabled, isHyperEvmEnabled])
 
   const Title = useMemo(() => {
     if (!title) return null

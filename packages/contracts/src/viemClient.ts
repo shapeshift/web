@@ -10,9 +10,12 @@ import {
   base,
   bsc,
   gnosis,
+  hyperEvm,
+  katana,
   mainnet,
   monad,
   optimism,
+  plasma,
   polygon,
 } from 'viem/chains'
 
@@ -69,17 +72,31 @@ export const viemPolygonClient = createPublicClient({
 
 export const viemBaseClient = createPublicClient({
   chain: base,
-  transport: fallback(
-    // https://github.com/DefiLlama/chainlist/blob/83b8cc32ee79c10e0281e1799ebe4cd1696082b7/constants/llamaNodesRpcs.js#L19
-    [process.env.VITE_BASE_NODE_URL, 'https://base.llamarpc.com']
-      .filter(Boolean)
-      .map(url => http(url)),
-  ),
+  transport: fallback([
+    http('https://mainnet.base.org'),
+    http('https://base.llamarpc.com'),
+    http('https://base.blockpi.network/v1/rpc/public'),
+  ]),
 }) as PublicClient
 
 export const viemMonadClient = createPublicClient({
   chain: monad,
   transport: fallback([process.env.VITE_MONAD_NODE_URL].filter(Boolean).map(url => http(url))),
+}) as PublicClient
+
+export const viemHyperEvmClient = createPublicClient({
+  chain: hyperEvm,
+  transport: fallback([process.env.VITE_HYPEREVM_NODE_URL].filter(Boolean).map(url => http(url))),
+}) as PublicClient
+
+export const viemPlasmaClient = createPublicClient({
+  chain: plasma,
+  transport: fallback([process.env.VITE_PLASMA_NODE_URL].filter(Boolean).map(url => http(url))),
+}) as PublicClient
+
+export const viemKatanaClient = createPublicClient({
+  chain: katana,
+  transport: fallback([process.env.VITE_KATANA_NODE_URL].filter(Boolean).map(url => http(url))),
 }) as PublicClient
 
 export const viemClientByChainId: Record<ChainId, PublicClient> = {
@@ -93,6 +110,9 @@ export const viemClientByChainId: Record<ChainId, PublicClient> = {
   [KnownChainIds.OptimismMainnet]: viemOptimismClient,
   [KnownChainIds.BaseMainnet]: viemBaseClient,
   [KnownChainIds.MonadMainnet]: viemMonadClient,
+  [KnownChainIds.HyperEvmMainnet]: viemHyperEvmClient,
+  [KnownChainIds.PlasmaMainnet]: viemPlasmaClient,
+  [KnownChainIds.KatanaMainnet]: viemKatanaClient,
 }
 
 export const viemNetworkIdByChainId: Record<ChainId, number> = {
@@ -106,6 +126,9 @@ export const viemNetworkIdByChainId: Record<ChainId, number> = {
   [KnownChainIds.OptimismMainnet]: optimism.id,
   [KnownChainIds.BaseMainnet]: base.id,
   [KnownChainIds.MonadMainnet]: monad.id,
+  [KnownChainIds.HyperEvmMainnet]: hyperEvm.id,
+  [KnownChainIds.PlasmaMainnet]: plasma.id,
+  [KnownChainIds.KatanaMainnet]: katana.id,
 }
 
 export const viemClientByNetworkId: Record<number, PublicClient> = {
@@ -119,6 +142,9 @@ export const viemClientByNetworkId: Record<number, PublicClient> = {
   [optimism.id]: viemOptimismClient,
   [base.id]: viemBaseClient,
   [monad.id]: viemMonadClient,
+  [hyperEvm.id]: viemHyperEvmClient,
+  [plasma.id]: viemPlasmaClient,
+  [katana.id]: viemKatanaClient,
 }
 
 export const assertGetViemClient = (chainId: ChainId): PublicClient => {

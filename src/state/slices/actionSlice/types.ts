@@ -93,6 +93,8 @@ export enum GenericTransactionDisplayType {
   SEND = 'Send',
   Approve = 'Approve',
   ThorchainLP = 'ThorchainLP',
+  Yield = 'Yield',
+  Claim = 'Claim',
 }
 
 export enum GenericTransactionQueryId {
@@ -105,6 +107,7 @@ type ActionGenericTransactionMetadata = {
   queryId?: GenericTransactionQueryId
   message: string
   accountId: AccountId
+  accountIdsToRefetch?: AccountId[]
   txHash: string
   chainId: ChainId
   assetId: AssetId

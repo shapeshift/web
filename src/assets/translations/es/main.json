@@ -513,6 +513,7 @@
     "rFOX": "rFOX",
     "tcy": "TCY",
     "foxEcosystem": "Ecosistema FOX",
+    "ecosystem": "Ecosistema",
     "markets": "Mercados",
     "tokens": "Tokens",
     "swap": "Intercambiar"
@@ -526,6 +527,10 @@
     "foxToken": {
       "title": "Token FOX",
       "subtitle": "Nuestro Token de Gobernanza"
+    },
+    "agent": {
+      "title": "Agente",
+      "subtitle": "Chatea con tu billetera"
     },
     "classic": {
       "title": "Clásico",
@@ -755,8 +760,15 @@
     "slowSwapBody": "Este intercambio puede tardar unos minutos en completarse.",
     "thorSmartContractWalletUnsupported": "Actualmente, la red THORChain no admite carteras de contratos inteligentes.",
     "intoAssetSymbolBody": "Puede continuar con este comercio, pero el historial de transacciones para recibir %{assetSymbol} no está disponible temporalmente",
+    "receiveAddress": "Dirección de recepción",
     "changeAddress": "Cambiar dirección",
     "changeAddressExplainer": "Al enviar criptomonedas de redes basadas en UTXO, los fondos sobrantes se envían de vuelta a esta dirección.",
+    "depositAddress": "Dirección de depósito",
+    "depositAddressExplainer": "Dirección de protocolo donde se enviarán tus fondos para su procesamiento. Tu billetera física mostrará esta dirección para verificación.",
+    "customReceiveAddress": "Dirección de recepción personalizada",
+    "customReceiveAddressDescription": "Introduzca dirección personalizada para este intercambio",
+    "thisIsYourCustomReceiveAddress": "Esta es tu dirección de recepción personalizada",
+    "enterCustomReceiveAddress": "Introduzca dirección de recepción personalizada",
     "receiveAtLeast": "Recibe al menos",
     "tooltip": {
       "continueSwapping": "Continúe intercambiando para obtener detalles finales.",
@@ -828,7 +840,6 @@
     "or": "o",
     "onChainName": "en %{chainName}",
     "unknownGas": "(desconocido)",
-    "receiveAddress": "Dirección de recepción",
     "receiveAddressDescription": "No se encontró ninguna dirección %{chainName} en la billetera conectada. Ingrese manualmente una dirección",
     "disableThorTaprootReceive": "Hemos detectado que envias a dirección taproot Bitcoin. Debido a las limitaciones THORChain, actualmente no se admite la recepción de BTC a una dirección taproot. Ingresa otra dirección.",
     "toContinue": "para continuar.",
@@ -1089,6 +1100,7 @@
       "getFeesError": "Error al obtener tarifas",
       "broadcastingTransaction": "Enviando Transacción",
       "youHaveSent": "Has enviado con éxito %{amount} %{symbol}",
+      "sendFailed": "Envío fallido",
       "toAddress": "A Dirección",
       "toAddressOrEns": "Para Dirección o ENS",
       "scanQrCode": "Escanear código QR",
@@ -1427,7 +1439,9 @@
         "renamed": "SafeCard renombrada",
         "deleted": "SafeCard eliminada",
         "deletedDescription": "Los datos de la Billetera se han borrado",
-        "warning": "Cada SafeCard tiene su propia billetera. Asegúrese de insertar la SafeCard correcta en su dispositivo antes de conectarla."
+        "warning": "Cada SafeCard tiene su propia billetera. Asegúrese de insertar la SafeCard correcta en su dispositivo antes de conectarla.",
+        "safeCardLabel": "SafeCard",
+        "internalSafeCardLabel": "SafeCard interna"
       },
       "connect": {
         "header": "Conectar nueva SafeCard",
@@ -1461,6 +1475,9 @@
         "deviceNotConnected": "Dispositivo no conectado. Llama a connectDevice.",
         "connectFailure": "No se puede conectar la billetera GridPlus",
         "unknown": "Se produjo un error inesperado al comunicarse con la billetera GridPlus"
+      },
+      "menu": {
+        "switchSafeCard": "Cambiar SafeCard"
       }
     },
     "ledger": {
@@ -1871,6 +1888,18 @@
     "title": "Abra la app %{appName}",
     "description": "Para continuar, deberá abrir la aplicación %{appName} en su dispositivo Ledger.",
     "devicePrompt": "Su dispositivo le indicará los pasos necesarios para completar su acción actual."
+  },
+  "starknet": {
+    "deployAccount": {
+      "title": "Implementar Cuenta Starknet",
+      "description": "Starknet utiliza cuentas de contratos inteligentes que deben implementarse antes de su uso.",
+      "sendDescription": "Primero deberás implementar la cuenta para poder enviar",
+      "swapDescription": "Starknet usa cuentas con contratos inteligentes. Necesitarás implementar tu cuenta antes de poder intercambiar.",
+      "explanation": "Esta es una configuración única que inicializará tu cuenta en Starknet. Se deducirá una pequeña comisión de tu saldo.",
+      "deployButton": "Implementar Cuenta",
+      "deploying": "Implementando Cuenta...",
+      "deployFailed": "Implementación Fallida"
+    }
   },
   "transactionHistory": {
     "transactionHistory": "Historial de transacciones",
@@ -2508,6 +2537,7 @@
       "buildTransaction": "Error al crear la transacción.",
       "signTransaction": "No se pudo firmar la transacción.",
       "blindSigningRequired": "Transacción requiere firma ciega. Activa Blind Signing o Contract Data en la configuración de tu app Ledger y vuelve a intentarlo.",
+      "ledgerTronAllowDataDisabled": "Habilite los datos de transacciones en la configuración de su app Ledger TRON y vuelva a intentarlo.",
       "signAndBroadcastTransaction": "No se pudo firmar ni transmitir la transacción.",
       "signMessage": "No se pudo firmar el mensaje.",
       "broadcastTransaction": "No se pudo transmitir la transacción.",
@@ -2516,7 +2546,11 @@
       "getFeeData": "No se pudieron estimar las tarifas de red.",
       "getPublicKey": "No se pudo obtener la clave pública de billetera.",
       "getUtxos": "No se pudieron obtener utxos.",
-      "getValidator": "No se pudo obtener validador."
+      "getValidator": "No se pudo obtener validador.",
+      "gridplus": {
+        "wrongSafeCard": "SafeCard incorrecta. Inserte SafeCard correcta y vuelva a intentarlo.",
+        "removeSafeCard": "Retire SafeCard insertada para acceder a billetera interna GridPlus."
+      }
     }
   },
   "actionCenter": {

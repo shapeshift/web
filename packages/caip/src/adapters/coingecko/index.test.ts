@@ -188,6 +188,24 @@ describe('adapters:coingecko', () => {
         assetNamespace: 'erc20',
         assetReference: '0x754704bc059f8c67012fed69bc8a327a5aafb603',
       })
+      const usdcOnHyperEvm = toAssetId({
+        chainNamespace: CHAIN_NAMESPACE.Evm,
+        chainReference: CHAIN_REFERENCE.HyperEvmMainnet,
+        assetNamespace: 'erc20',
+        assetReference: '0xb88339cb7199b77e23db6e890353e22632ba630f',
+      })
+      const usdcOnStarknet = toAssetId({
+        chainNamespace: CHAIN_NAMESPACE.Starknet,
+        chainReference: CHAIN_REFERENCE.StarknetMainnet,
+        assetNamespace: 'token',
+        assetReference: '0x33068f6539f8e6e6b131e6b2b814e6c34a5224bc66947c47dab9dfee93b35fb',
+      })
+      const usdcOnNear = toAssetId({
+        chainNamespace: CHAIN_NAMESPACE.Near,
+        chainReference: CHAIN_REFERENCE.NearMainnet,
+        assetNamespace: 'nep141',
+        assetReference: '17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1',
+      })
       expect(coingeckoToAssetIds('usd-coin')).toEqual([
         usdcOnEthereum,
         usdcOnAvalanche,
@@ -196,9 +214,12 @@ describe('adapters:coingecko', () => {
         usdcOnArbitrum,
         usdcOnBase,
         usdcOnMonad,
+        usdcOnHyperEvm,
         usdcOnSolana,
+        usdcOnStarknet,
         usdcOnSui,
         usdcOnTron,
+        usdcOnNear,
       ])
     })
     it('can get AssetIds for bridged USD Coin on EVM Chains', () => {
@@ -294,7 +315,7 @@ describe('adapters:coingecko', () => {
         assetNamespace: 'slip44',
         assetReference: ASSET_REFERENCE.Polygon,
       })
-      expect(assetIdToCoingecko(assetId)).toEqual('matic-network')
+      expect(assetIdToCoingecko(assetId)).toEqual('polygon-ecosystem-token')
     })
     it('can get CoinGecko id for gnosis AssetId', () => {
       const chainNamespace = CHAIN_NAMESPACE.Evm

@@ -15,11 +15,16 @@ import {
   cosmosChainId,
   ethChainId,
   gnosisChainId,
+  hyperEvmChainId,
+  katanaChainId,
   mayachainChainId,
   monadChainId,
+  nearChainId,
   optimismChainId,
+  plasmaChainId,
   polygonChainId,
   solanaChainId,
+  starknetChainId,
   suiChainId,
   thorchainChainId,
   tronChainId,
@@ -43,9 +48,14 @@ export enum CoingeckoAssetPlatform {
   ArbitrumNova = 'arbitrum-nova',
   Base = 'base',
   Monad = 'monad',
+  HyperEvm = 'hyperevm',
+  Plasma = 'plasma',
+  Katana = 'katana',
   Solana = 'solana',
+  Starknet = 'starknet',
   Tron = 'tron',
   Sui = 'sui',
+  Near = 'near-protocol',
 }
 
 type CoinGeckoId = string
@@ -96,6 +106,12 @@ export const chainIdToCoingeckoAssetPlatform = (chainId: ChainId): string => {
           return CoingeckoAssetPlatform.Base
         case CHAIN_REFERENCE.MonadMainnet:
           return CoingeckoAssetPlatform.Monad
+        case CHAIN_REFERENCE.HyperEvmMainnet:
+          return CoingeckoAssetPlatform.HyperEvm
+        case CHAIN_REFERENCE.PlasmaMainnet:
+          return CoingeckoAssetPlatform.Plasma
+        case CHAIN_REFERENCE.KatanaMainnet:
+          return CoingeckoAssetPlatform.Katana
         default:
           throw new Error(
             `chainNamespace ${chainNamespace}, chainReference ${chainReference} not supported.`,
@@ -141,6 +157,24 @@ export const chainIdToCoingeckoAssetPlatform = (chainId: ChainId): string => {
             `chainNamespace ${chainNamespace}, chainReference ${chainReference} not supported.`,
           )
       }
+    case CHAIN_NAMESPACE.Near:
+      switch (chainReference) {
+        case CHAIN_REFERENCE.NearMainnet:
+          return CoingeckoAssetPlatform.Near
+        default:
+          throw new Error(
+            `chainNamespace ${chainNamespace}, chainReference ${chainReference} not supported.`,
+          )
+      }
+    case CHAIN_NAMESPACE.Starknet:
+      switch (chainReference) {
+        case CHAIN_REFERENCE.StarknetMainnet:
+          return CoingeckoAssetPlatform.Starknet
+        default:
+          throw new Error(
+            `chainNamespace ${chainNamespace}, chainReference ${chainReference} not supported.`,
+          )
+      }
     // No valid asset platform: https://api.coingecko.com/api/v3/asset_platforms
     case CHAIN_NAMESPACE.Utxo:
     default:
@@ -172,6 +206,12 @@ export const coingeckoAssetPlatformToChainId = (
       return baseChainId
     case CoingeckoAssetPlatform.Monad:
       return monadChainId
+    case CoingeckoAssetPlatform.HyperEvm:
+      return hyperEvmChainId
+    case CoingeckoAssetPlatform.Plasma:
+      return plasmaChainId
+    case CoingeckoAssetPlatform.Katana:
+      return katanaChainId
     case CoingeckoAssetPlatform.Cosmos:
       return cosmosChainId
     case CoingeckoAssetPlatform.Thorchain:
@@ -180,10 +220,14 @@ export const coingeckoAssetPlatformToChainId = (
       return mayachainChainId
     case CoingeckoAssetPlatform.Solana:
       return solanaChainId
+    case CoingeckoAssetPlatform.Starknet:
+      return starknetChainId
     case CoingeckoAssetPlatform.Tron:
       return tronChainId
     case CoingeckoAssetPlatform.Sui:
       return suiChainId
+    case CoingeckoAssetPlatform.Near:
+      return nearChainId
     default:
       return undefined
   }

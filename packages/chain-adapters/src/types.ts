@@ -6,6 +6,7 @@ import type {
   HDWallet,
   MayachainSignTx,
   SolanaSignTx,
+  StarknetSignTx,
   SuiSignTx,
   ThorchainSignTx,
 } from '@shapeshiftoss/hdwallet-core'
@@ -20,7 +21,9 @@ import type PQueue from 'p-queue'
 
 import type * as cosmossdk from './cosmossdk/types'
 import type * as evm from './evm/types'
+import type * as near from './near/types'
 import type * as solana from './solana/types'
+import type * as starknet from './starknet/types'
 import type * as sui from './sui/types'
 import type * as tron from './tron/types'
 import type * as utxo from './utxo/types'
@@ -42,6 +45,9 @@ type ChainSpecificAccount<T> = ChainSpecific<
     [KnownChainIds.ArbitrumNovaMainnet]: evm.Account
     [KnownChainIds.BaseMainnet]: evm.Account
     [KnownChainIds.MonadMainnet]: evm.Account
+    [KnownChainIds.HyperEvmMainnet]: evm.Account
+    [KnownChainIds.PlasmaMainnet]: evm.Account
+    [KnownChainIds.KatanaMainnet]: evm.Account
     [KnownChainIds.BitcoinMainnet]: utxo.Account
     [KnownChainIds.BitcoinCashMainnet]: utxo.Account
     [KnownChainIds.DogecoinMainnet]: utxo.Account
@@ -53,6 +59,8 @@ type ChainSpecificAccount<T> = ChainSpecific<
     [KnownChainIds.SolanaMainnet]: solana.Account
     [KnownChainIds.TronMainnet]: tron.Account
     [KnownChainIds.SuiMainnet]: sui.Account
+    [KnownChainIds.NearMainnet]: near.Account
+    [KnownChainIds.StarknetMainnet]: starknet.Account
   }
 >
 
@@ -88,6 +96,9 @@ type ChainSpecificFeeData<T> = ChainSpecific<
     [KnownChainIds.ArbitrumNovaMainnet]: evm.FeeData
     [KnownChainIds.BaseMainnet]: evm.FeeData
     [KnownChainIds.MonadMainnet]: evm.FeeData
+    [KnownChainIds.HyperEvmMainnet]: evm.FeeData
+    [KnownChainIds.PlasmaMainnet]: evm.FeeData
+    [KnownChainIds.KatanaMainnet]: evm.FeeData
     [KnownChainIds.BitcoinMainnet]: utxo.FeeData
     [KnownChainIds.BitcoinCashMainnet]: utxo.FeeData
     [KnownChainIds.DogecoinMainnet]: utxo.FeeData
@@ -99,6 +110,8 @@ type ChainSpecificFeeData<T> = ChainSpecific<
     [KnownChainIds.SolanaMainnet]: solana.FeeData
     [KnownChainIds.TronMainnet]: tron.FeeData
     [KnownChainIds.SuiMainnet]: sui.FeeData
+    [KnownChainIds.NearMainnet]: near.FeeData
+    [KnownChainIds.StarknetMainnet]: starknet.FeeData
   }
 >
 
@@ -168,6 +181,8 @@ export type ChainSignTx = {
   [KnownChainIds.ArbitrumNovaMainnet]: ETHSignTx
   [KnownChainIds.BaseMainnet]: ETHSignTx
   [KnownChainIds.MonadMainnet]: ETHSignTx
+  [KnownChainIds.PlasmaMainnet]: ETHSignTx
+  [KnownChainIds.KatanaMainnet]: ETHSignTx
   [KnownChainIds.BitcoinMainnet]: BTCSignTx
   [KnownChainIds.BitcoinCashMainnet]: BTCSignTx
   [KnownChainIds.DogecoinMainnet]: BTCSignTx
@@ -179,6 +194,8 @@ export type ChainSignTx = {
   [KnownChainIds.SolanaMainnet]: SolanaSignTx
   [KnownChainIds.TronMainnet]: tron.TronSignTx
   [KnownChainIds.SuiMainnet]: SuiSignTx
+  [KnownChainIds.NearMainnet]: near.NearSignTx
+  [KnownChainIds.StarknetMainnet]: StarknetSignTx
 }
 
 export type SignTx<T extends ChainId> = T extends keyof ChainSignTx ? ChainSignTx[T] : never
@@ -217,6 +234,9 @@ export type ChainSpecificBuildTxData<T> = ChainSpecific<
     [KnownChainIds.ArbitrumNovaMainnet]: evm.BuildTxInput
     [KnownChainIds.BaseMainnet]: evm.BuildTxInput
     [KnownChainIds.MonadMainnet]: evm.BuildTxInput
+    [KnownChainIds.HyperEvmMainnet]: evm.BuildTxInput
+    [KnownChainIds.PlasmaMainnet]: evm.BuildTxInput
+    [KnownChainIds.KatanaMainnet]: evm.BuildTxInput
     [KnownChainIds.BitcoinMainnet]: utxo.BuildTxInput
     [KnownChainIds.BitcoinCashMainnet]: utxo.BuildTxInput
     [KnownChainIds.DogecoinMainnet]: utxo.BuildTxInput
@@ -228,6 +248,8 @@ export type ChainSpecificBuildTxData<T> = ChainSpecific<
     [KnownChainIds.SolanaMainnet]: solana.BuildTxInput
     [KnownChainIds.TronMainnet]: tron.BuildTxInput
     [KnownChainIds.SuiMainnet]: sui.BuildTxInput
+    [KnownChainIds.NearMainnet]: near.BuildTxInput
+    [KnownChainIds.StarknetMainnet]: starknet.BuildTxInput
   }
 >
 
@@ -318,6 +340,9 @@ type ChainSpecificGetFeeDataInput<T> = ChainSpecific<
     [KnownChainIds.ArbitrumNovaMainnet]: evm.GetFeeDataInput
     [KnownChainIds.BaseMainnet]: evm.GetFeeDataInput
     [KnownChainIds.MonadMainnet]: evm.GetFeeDataInput
+    [KnownChainIds.HyperEvmMainnet]: evm.GetFeeDataInput
+    [KnownChainIds.PlasmaMainnet]: evm.GetFeeDataInput
+    [KnownChainIds.KatanaMainnet]: evm.GetFeeDataInput
     [KnownChainIds.BitcoinMainnet]: utxo.GetFeeDataInput
     [KnownChainIds.BitcoinCashMainnet]: utxo.GetFeeDataInput
     [KnownChainIds.DogecoinMainnet]: utxo.GetFeeDataInput
@@ -326,6 +351,8 @@ type ChainSpecificGetFeeDataInput<T> = ChainSpecific<
     [KnownChainIds.SolanaMainnet]: solana.GetFeeDataInput
     [KnownChainIds.SuiMainnet]: sui.GetFeeDataInput
     [KnownChainIds.TronMainnet]: tron.GetFeeDataInput
+    [KnownChainIds.NearMainnet]: near.GetFeeDataInput
+    [KnownChainIds.StarknetMainnet]: starknet.GetFeeDataInput
   }
 >
 export type GetFeeDataInput<T extends ChainId> = {
@@ -384,6 +411,9 @@ export enum ChainAdapterDisplayName {
   ArbitrumNova = 'Arbitrum Nova',
   Base = 'Base',
   Monad = 'Monad',
+  HyperEvm = 'HyperEVM',
+  Plasma = 'Plasma',
+  Katana = 'Katana',
   Cosmos = 'Cosmos',
   Bitcoin = 'Bitcoin',
   BitcoinCash = 'Bitcoin Cash',
@@ -393,6 +423,8 @@ export enum ChainAdapterDisplayName {
   Solana = 'Solana',
   Tron = 'Tron',
   Sui = 'Sui',
+  Near = 'NEAR',
+  Starknet = 'Starknet',
 }
 
 export type BroadcastTransactionInput = {

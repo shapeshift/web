@@ -9,6 +9,7 @@ import { getPool, getVolumeStats, selectSwapsData } from './usePool'
 
 import { bn } from '@/lib/bignumber/bignumber'
 import {
+  isLpChainHalted,
   isLpDepositEnabled,
   isLpWithdrawEnabled,
 } from '@/lib/utils/thorchain/hooks/useIsThorchainLpDepositEnabled'
@@ -145,6 +146,7 @@ export const usePools = () => {
 
       acc.push({
         ...pool,
+        isLpChainHalted: isLpChainHalted({ mimir, assetId }),
         isLpDepositEnabled: isLpDepositEnabled({ mimir, assetId }),
         isLpWithdrawEnabled: isLpWithdrawEnabled({ mimir, assetId }),
       })

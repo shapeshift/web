@@ -1,5 +1,6 @@
 import type { ListProps } from '@chakra-ui/react'
 import { Box, Center, Flex, Icon, Skeleton } from '@chakra-ui/react'
+import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { range } from 'lodash'
 import type { FC, WheelEvent } from 'react'
@@ -25,11 +26,13 @@ export type AssetData = {
   showPrice?: boolean
   onImportClick?: (asset: Asset) => void
   showRelatedAssets?: boolean
+  assetFilterPredicate?: (assetId: AssetId) => boolean
+  chainIdFilterPredicate?: (chainId: ChainId) => boolean
 }
 
 type AssetListProps = AssetData & ListProps
 
-export const INCREASE_VIEWPORT_BY = { top: 300, bottom: 100 } as const
+export const INCREASE_VIEWPORT_BY = { top: Infinity, bottom: 500 } as const
 
 export const AssetList: FC<AssetListProps> = ({
   assets,
@@ -44,6 +47,8 @@ export const AssetList: FC<AssetListProps> = ({
   height = '50vh',
   onImportClick,
   showRelatedAssets = false,
+  assetFilterPredicate,
+  chainIdFilterPredicate,
 }) => {
   const virtuosoStyle = useMemo(
     () => ({
@@ -62,6 +67,8 @@ export const AssetList: FC<AssetListProps> = ({
       portalsAssets,
       onImportClick,
       showRelatedAssets,
+      assetFilterPredicate,
+      chainIdFilterPredicate,
     }),
     [
       assets,
@@ -72,6 +79,8 @@ export const AssetList: FC<AssetListProps> = ({
       portalsAssets,
       onImportClick,
       showRelatedAssets,
+      assetFilterPredicate,
+      chainIdFilterPredicate,
     ],
   )
 

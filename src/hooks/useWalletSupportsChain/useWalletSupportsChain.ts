@@ -11,12 +11,17 @@ import {
   dogeChainId,
   ethChainId,
   gnosisChainId,
+  hyperEvmChainId,
+  katanaChainId,
   ltcChainId,
   mayachainChainId,
   monadChainId,
+  nearChainId,
   optimismChainId,
+  plasmaChainId,
   polygonChainId,
   solanaChainId,
+  starknetChainId,
   suiChainId,
   thorchainChainId,
   tronChainId,
@@ -34,23 +39,31 @@ import {
   supportsCosmos,
   supportsETH,
   supportsGnosis,
+  supportsHyperEvm,
+  supportsKatana,
   supportsMayachain,
   supportsMonad,
   supportsOptimism,
+  supportsPlasma,
   supportsPolygon,
   supportsSolana,
+  supportsStarknet,
   supportsSui,
   supportsThorchain,
   supportsTron,
 } from '@shapeshiftoss/hdwallet-core'
+import { GridPlusHDWallet } from '@shapeshiftoss/hdwallet-gridplus'
 import { isMetaMask } from '@shapeshiftoss/hdwallet-metamask-multichain'
 import { PhantomHDWallet } from '@shapeshiftoss/hdwallet-phantom'
+import { VultisigHDWallet } from '@shapeshiftoss/hdwallet-vultisig'
 import { useMemo } from 'react'
 
 import { KeyManager } from '@/context/WalletProvider/KeyManager'
 import { useIsSnapInstalled } from '@/hooks/useIsSnapInstalled/useIsSnapInstalled'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { METAMASK_RDNS } from '@/lib/mipd'
+import { isLedgerHDWallet, isNativeHDWallet, isTrezorHDWallet } from '@/lib/utils'
+import { supportsNear } from '@/lib/utils/near'
 import { selectAccountIdsByChainIdFilter } from '@/state/slices/portfolioSlice/selectors'
 import { selectFeatureFlag } from '@/state/slices/selectors'
 import { store, useAppSelector } from '@/state/store'
@@ -133,18 +146,39 @@ export const walletSupportsChain = ({
   if (!hasRuntimeSupport) return false
 
   const isArbitrumNovaEnabled = selectFeatureFlag(store.getState(), 'ArbitrumNova')
+  const isHyperEvmEnabled = selectFeatureFlag(store.getState(), 'HyperEvm')
+  const isKatanaEnabled = selectFeatureFlag(store.getState(), 'Katana')
+  const isMonadEnabled = selectFeatureFlag(store.getState(), 'Monad')
+  const isNearEnabled = selectFeatureFlag(store.getState(), 'Near')
+  const isPlasmaEnabled = selectFeatureFlag(store.getState(), 'Plasma')
+  const isStarknetEnabled = selectFeatureFlag(store.getState(), 'Starknet')
 
   switch (chainId) {
     case btcChainId:
       return supportsBTC(wallet)
     case bchChainId:
-      return supportsBTC(wallet) && !(wallet instanceof PhantomHDWallet)
+      return (
+        supportsBTC(wallet) &&
+        !(wallet instanceof PhantomHDWallet) &&
+        !(wallet instanceof GridPlusHDWallet)
+      )
     case dogeChainId:
-      return supportsBTC(wallet) && !(wallet instanceof PhantomHDWallet)
+      return (
+        supportsBTC(wallet) &&
+        !(wallet instanceof PhantomHDWallet) &&
+        !(wallet instanceof GridPlusHDWallet)
+      )
     case ltcChainId:
-      return supportsBTC(wallet) && !(wallet instanceof PhantomHDWallet)
+      return (
+        supportsBTC(wallet) &&
+        !(wallet instanceof PhantomHDWallet) &&
+        !(wallet instanceof GridPlusHDWallet)
+      )
     case zecChainId:
-      return supportsBTC(wallet) && !(wallet instanceof PhantomHDWallet)
+      return (
+        supportsBTC(wallet) &&
+        (isNativeHDWallet(wallet) || isLedgerHDWallet(wallet) || isTrezorHDWallet(wallet))
+      )
     case ethChainId:
       return supportsETH(wallet)
     case avalancheChainId:
@@ -164,7 +198,13 @@ export const walletSupportsChain = ({
     case baseChainId:
       return supportsBase(wallet)
     case monadChainId:
-      return supportsMonad(wallet)
+      return isMonadEnabled && supportsMonad(wallet)
+    case hyperEvmChainId:
+      return isHyperEvmEnabled && supportsHyperEvm(wallet)
+    case plasmaChainId:
+      return isPlasmaEnabled && supportsPlasma(wallet)
+    case katanaChainId:
+      return isKatanaEnabled && supportsKatana(wallet)
     case cosmosChainId:
       return supportsCosmos(wallet)
     case thorchainChainId:
@@ -172,11 +212,15 @@ export const walletSupportsChain = ({
     case mayachainChainId:
       return supportsMayachain(wallet)
     case solanaChainId:
-      return supportsSolana(wallet)
+      return supportsSolana(wallet) && !(wallet instanceof VultisigHDWallet)
     case tronChainId:
       return supportsTron(wallet)
     case suiChainId:
       return supportsSui(wallet)
+    case nearChainId:
+      return isNearEnabled && supportsNear(wallet)
+    case starknetChainId:
+      return isStarknetEnabled && supportsStarknet(wallet)
     default: {
       return false
     }

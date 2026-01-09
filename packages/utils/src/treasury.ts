@@ -15,6 +15,7 @@ export const treasuryChainIds = [
   KnownChainIds.BaseMainnet,
   KnownChainIds.SolanaMainnet,
   KnownChainIds.BitcoinMainnet,
+  KnownChainIds.StarknetMainnet,
 ] as const
 
 export type TreasuryChainId = (typeof treasuryChainIds)[number]
@@ -35,3 +36,5 @@ export const DAO_TREASURY_BASE = '0x9c9aA90363630d4ab1D9dbF416cc3BBC8d3Ed502'
 export const DAO_TREASURY_SOLANA = 'Bh7R3MeJ98D7Ersxh7TgVQVQUSmDMqwrFVHH9DLfb4u3'
 export const DAO_TREASURY_BITCOIN = 'bc1qr2whxtd0gvqnctcxlynwejp6fvntv0mtxkv0dlv02vyale8h69ysm6l32n'
 export const DAO_TREASURY_NEAR = 'f471d0b0f90593d85125f38aaf5458748d6f23fd5b437b844d293d8e87557070'
+export const DAO_TREASURY_STARKNET =
+  '0x052a1132ea4db81Bde863AFb18a4d4CE5de9d3efdfda6b3DaA6484e26425D467'

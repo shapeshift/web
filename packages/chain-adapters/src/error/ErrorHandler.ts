@@ -32,6 +32,12 @@ export const ErrorHandler = async (err: unknown, metadata?: ErrorMetadata): Prom
     })
   }
 
+  if ((err as Error).name === 'LedgerTronAllowDataDisabled') {
+    throw new ChainAdapterError(err, {
+      translation: 'chainAdapters.errors.ledgerTronAllowDataDisabled',
+    })
+  }
+
   if (
     err instanceof Error &&
     err.message.includes('Remove inserted SafeCard to access internal GridPlus wallet')

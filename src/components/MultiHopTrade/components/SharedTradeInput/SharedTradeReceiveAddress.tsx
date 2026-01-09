@@ -79,7 +79,9 @@ const ManualReceiveAddressLabels = ({
     <>
       <FormLabel color='yellow.400'>
         {manualAddressEntryDescription ??
-          translate('trade.receiveAddressDescription', { chainName: buyAssetChainName })}
+          translate('trade.receiveAddressDescription', {
+            chainName: buyAssetChainName,
+          })}
         {isMetaMaskWalletWithoutSnap && (
           <Link textDecor='underline' ml={1} onClick={handleEnableShapeShiftSnap}>
             {translate('trade.or')}
@@ -91,7 +93,9 @@ const ManualReceiveAddressLabels = ({
             &nbsp;
             {translate('common.or')}
             <Link textDecor='underline' ml={1} onClick={handleAddAccount}>
-              {translate('trade.connectChain', { chainName: buyAssetChainName })}
+              {translate('trade.connectChain', {
+                chainName: buyAssetChainName,
+              })}
             </Link>
           </>
         )}
@@ -147,7 +151,9 @@ export const SharedTradeReceiveAddress = ({
     trigger,
   } = useFormContext()
 
-  const value = useWatch<SendInput, SendFormFields.Input>({ name: SendFormFields.Input })
+  const value = useWatch<SendInput, SendFormFields.Input>({
+    name: SendFormFields.Input,
+  })
   const debouncedValue = useDebounce(value, 500)
 
   const [isReceiveAddressEditing, setIsReceiveAddressEditing] = useState(false)
@@ -157,9 +163,22 @@ export const SharedTradeReceiveAddress = ({
     manualReceiveAddress && setFormValue(SendFormFields.Input, manualReceiveAddress)
   }, [manualReceiveAddress, setFormValue])
 
+  const shouldForceDisplayManualAddressEntry = useIsManualReceiveAddressRequired({
+    shouldForceManualAddressEntry: Boolean(shouldForceManualAddressEntry),
+    sellAccountId: sellAssetAccountId,
+    buyAsset,
+    manualReceiveAddress,
+    walletReceiveAddress,
+    isWalletReceiveAddressLoading,
+  })
+
+  const isAddressInputVisible = isReceiveAddressEditing || shouldForceDisplayManualAddressEntry
+
   useEffect(() => {
-    onIsValidatingChange(isValidating)
-  }, [onIsValidatingChange, isValidating])
+    const shouldSyncValidating = isAddressInputVisible && Boolean(value)
+    onIsValidatingChange(shouldSyncValidating ? isValidating : false)
+    return () => onIsValidatingChange(false)
+  }, [onIsValidatingChange, isValidating, isAddressInputVisible, value])
 
   useEffect(() => {
     if (!isReceiveAddressEditing) return
@@ -230,15 +249,6 @@ export const SharedTradeReceiveAddress = ({
     setFormValue(SendFormFields.Input, '')
   }, [onReset, setFormValue])
 
-  const shouldForceDisplayManualAddressEntry = useIsManualReceiveAddressRequired({
-    shouldForceManualAddressEntry: Boolean(shouldForceManualAddressEntry),
-    sellAccountId: sellAssetAccountId,
-    buyAsset,
-    manualReceiveAddress,
-    walletReceiveAddress,
-    isWalletReceiveAddressLoading,
-  })
-
   useEffect(() => {
     if (!debouncedValue) return
     ;(async () => {
@@ -276,6 +286,8 @@ export const SharedTradeReceiveAddress = ({
             rules={rules}
             placeholder={translate('trade.enterCustomReceiveAddress')}
             pe={20}
+            shouldShowSaveButton={false}
+            resolvedAddress={receiveAddress}
           />
           <InputRightElement
             width='full'

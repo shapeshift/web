@@ -14,6 +14,7 @@ import { csp as dogecoin } from './chains/dogecoin'
 import { csp as ethereum } from './chains/ethereum'
 import { csp as gnosis } from './chains/gnosis'
 import { csp as hyperevm } from './chains/hyperevm'
+import { csp as katana } from './chains/katana'
 import { csp as litecoin } from './chains/litecoin'
 import { csp as mayachain } from './chains/mayachain'
 import { csp as monad } from './chains/monad'
@@ -73,6 +74,7 @@ import { csp as metamask } from './wallets/metamask'
 import { csp as walletConnect } from './wallets/walletConnect'
 import { csp as walletMigration } from './wallets/walletMigration'
 import { csp as webflow } from './webflow'
+import { csp as yieldxyz } from './yieldxyz'
 
 export const csps = [
   base,
@@ -106,6 +108,7 @@ export const csps = [
   ethereum,
   gnosis,
   hyperevm,
+  katana,
   litecoin,
   optimism,
   polygon,
@@ -150,4 +153,5 @@ export const csps = [
   relay,
   railway,
   discord,
+  yieldxyz,
 ]

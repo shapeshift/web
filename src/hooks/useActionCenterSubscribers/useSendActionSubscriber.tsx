@@ -12,6 +12,7 @@ import { getConfig } from '@/config'
 import { SECOND_CLASS_CHAINS } from '@/constants/chains'
 import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
 import { getHyperEvmTransactionStatus } from '@/lib/utils/hyperevm'
+import { getKatanaTransactionStatus } from '@/lib/utils/katana'
 import { getMonadTransactionStatus } from '@/lib/utils/monad'
 import { getNearTransactionStatus } from '@/lib/utils/near'
 import { getPlasmaTransactionStatus } from '@/lib/utils/plasma'
@@ -198,6 +199,13 @@ export const useSendActionSubscriber = () => {
                   )
                   isConfirmed =
                     hyperEvmTxStatus === TxStatus.Confirmed || hyperEvmTxStatus === TxStatus.Failed
+                  break
+                }
+                case KnownChainIds.KatanaMainnet: {
+                  const katanaNodeUrl = getConfig().VITE_KATANA_NODE_URL
+                  const katanaTxStatus = await getKatanaTransactionStatus(txHash, katanaNodeUrl)
+                  isConfirmed =
+                    katanaTxStatus === TxStatus.Confirmed || katanaTxStatus === TxStatus.Failed
                   break
                 }
                 case KnownChainIds.NearMainnet: {

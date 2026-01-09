@@ -7,6 +7,7 @@ import {
   rujiAssetId,
   tcyAssetId,
   thorchainChainId,
+  tronChainId,
 } from '@shapeshiftoss/caip'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { isGridPlus } from '@shapeshiftoss/hdwallet-gridplus'
@@ -303,7 +304,7 @@ export const getThorchainTransactionType = (chainId: ChainId) => {
   if (supportedEvmChainIds.includes(chainId as KnownChainIds)) {
     return 'EvmCustomTx'
   }
-  if (isUtxoChainId(chainId) || chainId === cosmosChainId) {
+  if (isUtxoChainId(chainId) || chainId === cosmosChainId || chainId === tronChainId) {
     return 'Send'
   }
 

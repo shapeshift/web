@@ -16,6 +16,7 @@ import {
   ethereum,
   gnosis,
   hyperevm,
+  katana,
   litecoin,
   mayachain,
   monad,
@@ -80,6 +81,8 @@ export const getBaseAsset = (chainId: ChainId): Readonly<Asset> => {
       return hyperevm
     case KnownChainIds.PlasmaMainnet:
       return plasma
+    case KnownChainIds.KatanaMainnet:
+      return katana
     case KnownChainIds.NearMainnet:
       return near
     case KnownChainIds.ZcashMainnet:

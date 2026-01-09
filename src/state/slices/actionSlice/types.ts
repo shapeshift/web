@@ -93,6 +93,8 @@ export enum GenericTransactionDisplayType {
   SEND = 'Send',
   Approve = 'Approve',
   ThorchainLP = 'ThorchainLP',
+  Yield = 'Yield',
+  Claim = 'Claim',
 }
 
 export enum GenericTransactionQueryId {

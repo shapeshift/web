@@ -16,6 +16,7 @@ import {
   ethChainId,
   gnosisChainId,
   hyperEvmChainId,
+  katanaChainId,
   mayachainChainId,
   monadChainId,
   nearChainId,
@@ -49,6 +50,7 @@ export enum CoingeckoAssetPlatform {
   Monad = 'monad',
   HyperEvm = 'hyperevm',
   Plasma = 'plasma',
+  Katana = 'katana',
   Solana = 'solana',
   Starknet = 'starknet',
   Tron = 'tron',
@@ -108,6 +110,8 @@ export const chainIdToCoingeckoAssetPlatform = (chainId: ChainId): string => {
           return CoingeckoAssetPlatform.HyperEvm
         case CHAIN_REFERENCE.PlasmaMainnet:
           return CoingeckoAssetPlatform.Plasma
+        case CHAIN_REFERENCE.KatanaMainnet:
+          return CoingeckoAssetPlatform.Katana
         default:
           throw new Error(
             `chainNamespace ${chainNamespace}, chainReference ${chainReference} not supported.`,
@@ -206,6 +210,8 @@ export const coingeckoAssetPlatformToChainId = (
       return hyperEvmChainId
     case CoingeckoAssetPlatform.Plasma:
       return plasmaChainId
+    case CoingeckoAssetPlatform.Katana:
+      return katanaChainId
     case CoingeckoAssetPlatform.Cosmos:
       return cosmosChainId
     case CoingeckoAssetPlatform.Thorchain:

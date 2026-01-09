@@ -10,6 +10,7 @@ import {
   ethChainId,
   gnosisChainId,
   hyperEvmChainId,
+  katanaChainId,
   monadChainId,
   nearChainId,
   optimismChainId,
@@ -31,6 +32,7 @@ import {
   ethereum,
   gnosis,
   hyperevm,
+  katana,
   monad,
   near,
   optimism,
@@ -160,6 +162,14 @@ export async function getAssets(chainId: ChainId): Promise<Asset[]> {
           explorer: plasma.explorer,
           explorerAddressLink: plasma.explorerAddressLink,
           explorerTxLink: plasma.explorerTxLink,
+        }
+      case katanaChainId:
+        return {
+          assetNamespace: ASSET_NAMESPACE.erc20,
+          category: adapters.chainIdToCoingeckoAssetPlatform(chainId),
+          explorer: katana.explorer,
+          explorerAddressLink: katana.explorerAddressLink,
+          explorerTxLink: katana.explorerTxLink,
         }
       case solanaChainId:
         return {

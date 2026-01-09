@@ -11,7 +11,7 @@ export const unstakeEvent = getAbiItem({ abi: RFOX_ABI, name: 'Unstake' })
 
 export const IPFS_GATEWAY = 'https://gateway.shapeshift.com/ipfs'
 
-export const CURRENT_EPOCH_IPFS_HASH = 'bafkreiapwxmfytgbbiar6nrmjmrbhd6llhf5gdg2lz6mo5yjshqj6xsgoy'
+export const CURRENT_EPOCH_IPFS_HASH = 'bafkreiarmxslt2zkggsocwz7eir2n2rrdoqc7zp5dcp4233jdp4k5owjfm'
 
 export const RFOX_STAKING_ASSET_IDS = [foxOnArbitrumOneAssetId, uniV2EthFoxArbitrumAssetId]
 

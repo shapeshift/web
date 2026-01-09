@@ -19,6 +19,7 @@ export const baseAssetId: AssetId = 'eip155:8453/slip44:60'
 export const monadAssetId: AssetId = 'eip155:143/slip44:60'
 export const hyperEvmAssetId: AssetId = 'eip155:999/slip44:60'
 export const plasmaAssetId: AssetId = 'eip155:9745/slip44:60'
+export const katanaAssetId: AssetId = 'eip155:747474/slip44:60'
 export const solAssetId: AssetId = 'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp/slip44:501'
 export const wrappedSolAssetId: AssetId =
   'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp/token:So11111111111111111111111111111111111111112'
@@ -78,6 +79,7 @@ export const baseChainId: ChainId = 'eip155:8453'
 export const monadChainId: ChainId = 'eip155:143'
 export const hyperEvmChainId: ChainId = 'eip155:999'
 export const plasmaChainId: ChainId = 'eip155:9745'
+export const katanaChainId: ChainId = 'eip155:747474'
 
 export const cosmosChainId: ChainId = 'cosmos:cosmoshub-4'
 export const thorchainChainId: ChainId = 'cosmos:thorchain-1'
@@ -127,6 +129,7 @@ export const CHAIN_REFERENCE = {
   MonadMainnet: '143', // https://docs.monad.xyz/developer-essentials/network-information
   HyperEvmMainnet: '999', // https://chainlist.org/chain/999
   PlasmaMainnet: '9745', // https://chainlist.org/chain/9745
+  KatanaMainnet: '747474', // https://docs.katana.network
   SolanaMainnet: '5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp', // https://namespaces.chainagnostic.org/solana/caip2
   TronMainnet: '0x2b6653dc', // https://developers.tron.network/docs/networks
   SuiMainnet: '35834a8a', // First 8 chars of SUI mainnet genesis hash
@@ -169,6 +172,7 @@ export const ASSET_REFERENCE = {
   Monad: '60', // evm chain which uses ethereum derivation path as common practice
   HyperEvm: '60', // evm chain which uses ethereum derivation path as common practice
   Plasma: '60', // evm chain which uses ethereum derivation path as common practice
+  Katana: '60', // evm chain which uses ethereum derivation path as common practice
   Solana: '501',
   Tron: '195',
   Sui: '784',
@@ -197,6 +201,7 @@ export const VALID_CHAIN_IDS: ValidChainMap = Object.freeze({
     CHAIN_REFERENCE.MonadMainnet,
     CHAIN_REFERENCE.HyperEvmMainnet,
     CHAIN_REFERENCE.PlasmaMainnet,
+    CHAIN_REFERENCE.KatanaMainnet,
   ],
   [CHAIN_NAMESPACE.CosmosSdk]: [
     CHAIN_REFERENCE.CosmosHubMainnet,

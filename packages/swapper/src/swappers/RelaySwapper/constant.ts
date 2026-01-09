@@ -7,6 +7,7 @@ import {
   ethChainId,
   gnosisChainId,
   hyperEvmChainId,
+  katanaChainId,
   monadChainId,
   optimismChainId,
   plasmaChainId,
@@ -23,6 +24,7 @@ import {
   bsc,
   gnosis,
   hyperEvm,
+  katana,
   mainnet as ethereum,
   monad,
   optimism,
@@ -50,6 +52,7 @@ export const chainIdToRelayChainId = {
   [monadChainId]: monad.id,
   [hyperEvmChainId]: hyperEvm.id,
   [plasmaChainId]: plasma.id,
+  [katanaChainId]: katana.id,
 }
 
 export enum RelayStatusMessage {

@@ -34,11 +34,13 @@ const displayTypeMessagesMap: Partial<Record<ActionType, DisplayTypeMessageMap>>
     [GenericTransactionDisplayType.RFOX]: 'RFOX.stakeSuccess',
     [GenericTransactionDisplayType.TCY]: 'actionCenter.tcy.stakeComplete',
     [GenericTransactionDisplayType.FoxFarm]: 'actionCenter.deposit.complete',
+    [GenericTransactionDisplayType.Yield]: 'actionCenter.deposit.complete',
   },
   [ActionType.Withdraw]: {
     [GenericTransactionDisplayType.RFOX]: 'RFOX.unstakeSuccess',
     [GenericTransactionDisplayType.TCY]: 'actionCenter.tcy.unstakeComplete',
     [GenericTransactionDisplayType.FoxFarm]: 'actionCenter.withdrawal.complete',
+    [GenericTransactionDisplayType.Yield]: 'actionCenter.withdrawal.complete',
   },
   [ActionType.Claim]: {
     [GenericTransactionDisplayType.FoxFarm]: 'actionCenter.claim.complete',
@@ -73,6 +75,7 @@ export const useGenericTransactionSubscriber = () => {
           GenericTransactionDisplayType.TCY,
           GenericTransactionDisplayType.FoxFarm,
           GenericTransactionDisplayType.Approve,
+          GenericTransactionDisplayType.Yield,
         ].includes(action.transactionMetadata.displayType)
       ) {
         return

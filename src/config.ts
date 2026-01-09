@@ -65,6 +65,7 @@ const validators = {
   VITE_MONAD_NODE_URL: url(),
   VITE_HYPEREVM_NODE_URL: url(),
   VITE_PLASMA_NODE_URL: url(),
+  VITE_KATANA_NODE_URL: url(),
   VITE_SOLANA_NODE_URL: url(),
   VITE_STARKNET_NODE_URL: url(),
   VITE_TRON_NODE_URL: url(),
@@ -104,6 +105,7 @@ const validators = {
   VITE_FEATURE_MONAD: bool({ default: false }),
   VITE_FEATURE_HYPEREVM: bool({ default: false }),
   VITE_FEATURE_PLASMA: bool({ default: false }),
+  VITE_FEATURE_KATANA: bool({ default: false }),
   VITE_FEATURE_MAYACHAIN: bool({ default: false }),
   VITE_FEATURE_ZCASH: bool({ default: false }),
   VITE_FEATURE_ZRX_SWAP: bool({ default: false }),
@@ -232,6 +234,10 @@ const validators = {
   VITE_NOTIFICATIONS_SERVER_URL: url({ default: '' }),
   VITE_FEATURE_ADDRESS_BOOK: bool({ default: false }),
   VITE_FEATURE_APP_RATING: bool({ default: false }),
+  VITE_FEATURE_YIELD_XYZ: bool({ default: false }),
+  VITE_YIELD_XYZ_API_KEY: str({ default: '' }),
+  VITE_YIELD_XYZ_BASE_URL: url({ default: 'https://api.yield.xyz/v1' }),
+  VITE_FEATURE_YIELD_MULTI_ACCOUNT: bool({ default: false }),
 }
 
 function reporter<T>({ errors }: envalid.ReporterOptions<T>) {

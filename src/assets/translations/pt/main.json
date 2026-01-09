@@ -328,7 +328,10 @@
     "viewSavedWallets": "Ver carteiras salvas",
     "footerOne": "Ao continuar, você concorda com os",
     "terms": "Termos",
-    "privacyPolicy": "Política de Privacidade"
+    "privacyPolicy": "Política de Privacidade",
+    "connectNewWallet": "Conectar Nova Carteira",
+    "getANewWallet": "Pegue uma Nova Carteira",
+    "alreadyHaveWallet": "Já tenho uma nova carteira"
   },
   "connectWallet": {
     "menu": {
@@ -510,6 +513,7 @@
     "rFOX": "rFOX",
     "tcy": "TCY",
     "foxEcosystem": "Ecossistema FOX",
+    "ecosystem": "Ecossistema",
     "markets": "Mercados",
     "tokens": "Tokens",
     "swap": "Swap"
@@ -523,6 +527,10 @@
     "foxToken": {
       "title": "FOX Token",
       "subtitle": "Nosso Token de Governança"
+    },
+    "agent": {
+      "title": "Agente",
+      "subtitle": "Converse com sua carteira"
     },
     "classic": {
       "title": "Clássico",
@@ -1092,6 +1100,7 @@
       "getFeesError": "Erro ao receber taxas",
       "broadcastingTransaction": "Transmitindo Transação",
       "youHaveSent": "Você enviou com sucesso %{amount} %{symbol}",
+      "sendFailed": "Falha no envio",
       "toAddress": "Para Endereço",
       "toAddressOrEns": "Para Endereço ou ENS",
       "scanQrCode": "Digitalizar código QR",
@@ -1880,6 +1889,18 @@
     "description": "Para continuar, você precisará abrir o aplicativo %{appName} no seu dispositivo Ledger.",
     "devicePrompt": "Seu dispositivo solicitará quaisquer etapas necessárias para concluir sua ação atual."
   },
+  "starknet": {
+    "deployAccount": {
+      "title": "Implementar conta Starknet",
+      "description": "A Starknet utiliza contas de contratos inteligentes que precisam ser implementadas antes do uso.",
+      "sendDescription": "Primeiro você precisa implementar a conta para poder enviar.",
+      "swapDescription": "A Starknet utiliza contas de contrato inteligente. Você precisará implementar sua conta primeiro antes de poder trocá-la.",
+      "explanation": "Esta é uma configuração única que inicializará sua conta na Starknet. Uma pequena taxa será deduzida do seu saldo.",
+      "deployButton": "Implementar conta",
+      "deploying": "Implementando conta...",
+      "deployFailed": "Implementação Falhou"
+    }
+  },
   "transactionHistory": {
     "transactionHistory": "Histórico de transações",
     "recentTransactions": "Transações recentes",
@@ -2516,6 +2537,7 @@
       "buildTransaction": "Falha ao construir transação.",
       "signTransaction": "Falha ao assinar a transação.",
       "blindSigningRequired": "Transação requer uma \"assinatura cega\". Por favor, habilite o \"Blind signing\" ou \"Contract Data\" nas configurações da sua Ledger e tente novamente. ",
+      "ledgerTronAllowDataDisabled": "Por favor, habilite os Dados de Transações nas configurações do seu aplicativo Ledger TRON e tente novamente.",
       "signAndBroadcastTransaction": "Falha ao assinar e transmitir a transação.",
       "signMessage": "Falha ao assinar a mensagem.",
       "broadcastTransaction": "Falha ao transmitir a transação.",

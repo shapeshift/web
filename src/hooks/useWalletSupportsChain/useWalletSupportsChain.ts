@@ -12,6 +12,7 @@ import {
   ethChainId,
   gnosisChainId,
   hyperEvmChainId,
+  katanaChainId,
   ltcChainId,
   mayachainChainId,
   monadChainId,
@@ -39,6 +40,7 @@ import {
   supportsETH,
   supportsGnosis,
   supportsHyperEvm,
+  supportsKatana,
   supportsMayachain,
   supportsMonad,
   supportsOptimism,
@@ -145,6 +147,7 @@ export const walletSupportsChain = ({
 
   const isArbitrumNovaEnabled = selectFeatureFlag(store.getState(), 'ArbitrumNova')
   const isHyperEvmEnabled = selectFeatureFlag(store.getState(), 'HyperEvm')
+  const isKatanaEnabled = selectFeatureFlag(store.getState(), 'Katana')
   const isMonadEnabled = selectFeatureFlag(store.getState(), 'Monad')
   const isNearEnabled = selectFeatureFlag(store.getState(), 'Near')
   const isPlasmaEnabled = selectFeatureFlag(store.getState(), 'Plasma')
@@ -200,6 +203,8 @@ export const walletSupportsChain = ({
       return isHyperEvmEnabled && supportsHyperEvm(wallet)
     case plasmaChainId:
       return isPlasmaEnabled && supportsPlasma(wallet)
+    case katanaChainId:
+      return isKatanaEnabled && supportsKatana(wallet)
     case cosmosChainId:
       return supportsCosmos(wallet)
     case thorchainChainId:

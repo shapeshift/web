@@ -6,12 +6,27 @@
 
 import localforage from 'localforage'
 
+let isReady = false
+let readyPromise: Promise<void> | null = null
+
+const ensureReady = (): Promise<void> => {
+  if (isReady) return Promise.resolve()
+  if (!readyPromise) {
+    readyPromise = localforage.ready().then(() => {
+      isReady = true
+    })
+  }
+  return readyPromise
+}
+
 export type IndexedDBWorkerInboundMessage =
+  | { type: 'ping' }
   | { type: 'getItem'; requestId: number; key: string }
   | { type: 'setItem'; requestId: number; key: string; value: unknown }
   | { type: 'removeItem'; requestId: number; key: string }
 
 export type IndexedDBWorkerOutboundMessage =
+  | { type: 'ready' }
   | { type: 'getItemResult'; requestId: number; value: unknown; duration: number }
   | { type: 'setItemResult'; requestId: number; value: unknown; duration: number }
   | { type: 'removeItemResult'; requestId: number; duration: number }
@@ -83,8 +98,17 @@ const handleRemoveItem = async (requestId: number, key: string): Promise<void> =
 }
 
 // eslint-disable-next-line no-restricted-globals
-self.onmessage = (event: MessageEvent<IndexedDBWorkerInboundMessage>) => {
+self.onmessage = async (event: MessageEvent<IndexedDBWorkerInboundMessage>) => {
   const data = event.data
+
+  if (data.type === 'ping') {
+    await ensureReady()
+    postMessage({ type: 'ready' })
+    return
+  }
+
+  await ensureReady()
+
   switch (data.type) {
     case 'getItem':
       handleGetItem(data.requestId, data.key)

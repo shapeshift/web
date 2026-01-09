@@ -1,4 +1,4 @@
-import { btcAssetId, btcChainId, solanaChainId } from '@shapeshiftoss/caip'
+import { btcAssetId, btcChainId, solanaChainId, tronChainId } from '@shapeshiftoss/caip'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import {
   bnOrZero,
@@ -36,7 +36,7 @@ import {
 
 export const getTradeQuote = async (
   input: CommonTradeQuoteInput,
-  _deps: SwapperDeps,
+  deps: SwapperDeps,
 ): Promise<Result<TradeQuote[], SwapErrorRight>> => {
   const {
     sellAsset,
@@ -52,12 +52,24 @@ export const getTradeQuote = async (
   if (
     !isEvmChainId(sellAsset.chainId) &&
     sellAsset.chainId !== btcChainId &&
-    sellAsset.chainId !== solanaChainId
+    sellAsset.chainId !== solanaChainId &&
+    sellAsset.chainId !== tronChainId
   ) {
     return Err(
       makeSwapErrorRight({
         message: `Unsupported chain`,
         code: TradeQuoteError.UnsupportedChain,
+      }),
+    )
+  }
+
+  const isSameChainTronSwap = sellAsset.chainId === tronChainId && buyAsset.chainId === tronChainId
+
+  if (isSameChainTronSwap && !deps.config.VITE_FEATURE_BUTTERSWAP_TRON_SAME_CHAIN) {
+    return Err(
+      makeSwapErrorRight({
+        message: 'Same-chain Tron swaps are not yet supported',
+        code: TradeQuoteError.UnsupportedTradePair,
       }),
     )
   }
@@ -161,7 +173,7 @@ export const getTradeQuote = async (
   }
 
   // Fee asset for network fees
-  const feeAsset = _deps.assetsById[chainIdToFeeAssetId(sellAsset.chainId)]
+  const feeAsset = deps.assetsById[chainIdToFeeAssetId(sellAsset.chainId)]
   if (!feeAsset) {
     return Err(
       makeSwapErrorRight({
@@ -198,7 +210,7 @@ export const getTradeQuote = async (
       new Uint8Array(Buffer.from(txData, 'hex')),
     )
 
-    const adapter = _deps.assertGetSolanaChainAdapter(sellAsset.chainId)
+    const adapter = deps.assertGetSolanaChainAdapter(sellAsset.chainId)
 
     try {
       const addressLookupTableAccountKeys = versionedTransaction.message.addressTableLookups.map(

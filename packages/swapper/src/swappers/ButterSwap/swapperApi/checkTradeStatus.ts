@@ -1,4 +1,4 @@
-import { solanaChainId } from '@shapeshiftoss/caip'
+import { solanaChainId, tronChainId } from '@shapeshiftoss/caip'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 
@@ -28,6 +28,7 @@ export const checkTradeStatus = async (input: CheckTradeStatusInput): Promise<Tr
     swap,
     assertGetEvmChainAdapter,
     assertGetSolanaChainAdapter,
+    assertGetTronChainAdapter,
     fetchIsSmartContractAddressQuery,
   } = input
   try {
@@ -40,6 +41,30 @@ export const checkTradeStatus = async (input: CheckTradeStatusInput): Promise<Tr
           address,
           assertGetSolanaChainAdapter,
         })
+      }
+
+      if (sellChainId === tronChainId) {
+        const adapter = assertGetTronChainAdapter(tronChainId)
+        const tx = await adapter.httpProvider.getTransaction({ txid: txHash })
+
+        if (!tx) {
+          return createDefaultStatusResponse(txHash)
+        }
+
+        const contractRet = tx.ret?.[0]?.contractRet
+
+        const status =
+          contractRet === 'SUCCESS' && tx.confirmations > 0
+            ? TxStatus.Confirmed
+            : contractRet === 'REVERT'
+            ? TxStatus.Failed
+            : TxStatus.Pending
+
+        return {
+          status,
+          buyTxHash: txHash,
+          message: undefined,
+        }
       }
 
       if (isEvmChainId(sellChainId)) {

@@ -13,11 +13,20 @@ export const getUnsignedTronTransaction = ({
 
   const step = getExecutableTradeStep(tradeQuote, stepIndex)
 
-  const { accountNumber, sellAsset, relayTransactionMetadata, nearIntentsSpecific } = step
+  const {
+    accountNumber,
+    sellAsset,
+    relayTransactionMetadata,
+    nearIntentsSpecific,
+    butterSwapTransactionMetadata,
+  } = step
 
   const adapter = assertGetTronChainAdapter(sellAsset.chainId)
 
-  const to = relayTransactionMetadata?.to ?? nearIntentsSpecific?.depositAddress
+  const to =
+    relayTransactionMetadata?.to ??
+    nearIntentsSpecific?.depositAddress ??
+    butterSwapTransactionMetadata?.to
   if (!to) throw new Error('Missing transaction destination address')
 
   const value = step.sellAmountIncludingProtocolFeesCryptoBaseUnit

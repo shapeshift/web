@@ -213,6 +213,7 @@ const validators = {
   VITE_COINCAP_API_KEY: str(),
   VITE_FEATURE_MAYA_SWAP: bool({ default: false }),
   VITE_FEATURE_BUTTERSWAP: bool({ default: false }),
+  VITE_FEATURE_BUTTERSWAP_TRON_SAME_CHAIN: bool({ default: false }),
   VITE_FEATURE_BEBOP_SWAP: bool({ default: false }),
   VITE_BEBOP_API_KEY: str(),
   VITE_FEATURE_NEAR_INTENTS_SWAP: bool({ default: false }),

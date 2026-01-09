@@ -7,4 +7,7 @@ export const butterSwap: Swapper = {
   executeUtxoTransaction: (txToSign, { signAndBroadcastTransaction }) => {
     return signAndBroadcastTransaction(txToSign)
   },
+  executeTronTransaction: (txToSign, { signAndBroadcastTransaction }) => {
+    return signAndBroadcastTransaction(txToSign)
+  },
 }

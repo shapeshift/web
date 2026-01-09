@@ -3,6 +3,8 @@ import BigNumber from 'bignumber.js'
 
 import { getSolanaTransactionFees } from '../../solana-utils/getSolanaTransactionFees'
 import { getUnsignedSolanaTransaction } from '../../solana-utils/getUnsignedSolanaTransaction'
+import { getTronTransactionFees } from '../../tron-utils/getTronTransactionFees'
+import { getUnsignedTronTransaction } from '../../tron-utils/getUnsignedTronTransaction'
 import type { SwapperApi } from '../../types'
 import { getExecutableTradeStep, isExecutableTradeQuote } from '../../utils'
 import { checkTradeStatus } from './swapperApi/checkTradeStatus'
@@ -85,4 +87,6 @@ export const butterSwapApi: SwapperApi = {
   },
   getUnsignedSolanaTransaction,
   getSolanaTransactionFees,
+  getUnsignedTronTransaction,
+  getTronTransactionFees,
 }

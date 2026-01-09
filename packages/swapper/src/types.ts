@@ -79,6 +79,7 @@ export type SwapperConfig = {
   VITE_TENDERLY_ACCOUNT_SLUG: string
   VITE_TENDERLY_PROJECT_SLUG: string
   VITE_SUI_NODE_URL: string
+  VITE_FEATURE_BUTTERSWAP_TRON_SAME_CHAIN: boolean
 }
 
 export enum SwapperName {

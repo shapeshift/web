@@ -1,6 +1,6 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 import { ASSET_NAMESPACE, fromAssetId } from '@shapeshiftoss/caip'
-import { isNull, isUndefined } from 'lodash'
+import { isNull, isUndefined } from 'lodash-es'
 
 export * from './assertUnreachable'
 export * from './assetData'

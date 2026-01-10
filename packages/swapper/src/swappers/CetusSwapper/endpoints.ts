@@ -1,5 +1,5 @@
 import { getProvidersExcluding } from '@cetusprotocol/aggregator-sdk'
-import { Transaction } from '@cetusprotocol/aggregator-sdk/node_modules/@mysten/sui/transactions'
+import { Transaction } from '@mysten/sui/transactions'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { bnOrZero } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'

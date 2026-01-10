@@ -1,0 +1,22 @@
+[build]
+builder = "dockerfile"
+dockerfilePath = "packages/public-api/Dockerfile"
+watchPatterns = [
+  "packages/public-api/**",
+  "packages/swapper/**",
+  "packages/caip/**",
+  "packages/types/**",
+  "packages/utils/**",
+  "packages/chain-adapters/**",
+  "packages/unchained-client/**",
+  "packages/contracts/**",
+  "packages/errors/**",
+  "public/generated/generatedAssetData.json"
+]
+
+[deploy]
+healthcheckPath = "/health"
+healthcheckTimeout = 60
+startCommand = "node server.cjs"
+restartPolicyType = "on_failure"
+restartPolicyMaxRetries = 5

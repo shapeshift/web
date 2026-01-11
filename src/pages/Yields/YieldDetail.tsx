@@ -98,6 +98,8 @@ export const YieldDetail = memo(() => {
     [error, heroBg, navigate, translate],
   )
 
+  const iconBg = useColorModeValue('white', 'gray.800')
+
   const heroIcon = useMemo(() => {
     if (!yieldItem) return null
     const iconSource = resolveYieldInputAssetIcon(yieldItem)
@@ -111,6 +113,7 @@ export const YieldDetail = memo(() => {
           border='4px solid'
           borderColor={heroIconBorderColor}
           borderRadius='full'
+          bg={iconBg}
         />
       )
     return (
@@ -121,9 +124,10 @@ export const YieldDetail = memo(() => {
         border='4px solid'
         borderColor={heroIconBorderColor}
         borderRadius='full'
+        bg={iconBg}
       />
     )
-  }, [heroIconBorderColor, yieldItem])
+  }, [heroIconBorderColor, yieldItem, iconBg])
 
   const providerOrValidatorsElement = useMemo(() => {
     if (!yieldItem) return null

@@ -275,11 +275,23 @@ export const useYieldTransactionFlow = ({
             accountId,
             message: formatYieldTxTitle(tx.title || 'Transaction', assetSymbol),
             amountCryptoPrecision: amount,
+            contractName: yieldItem.metadata.name,
+            chainName: yieldItem.network,
           },
         }),
       )
     },
-    [dispatch, yieldChainId, accountId, action, yieldItem.token.assetId, assetSymbol, amount],
+    [
+      dispatch,
+      yieldChainId,
+      accountId,
+      action,
+      yieldItem.token.assetId,
+      yieldItem.metadata.name,
+      yieldItem.network,
+      assetSymbol,
+      amount,
+    ],
   )
 
   const buildCosmosStakeArgs = useCallback((): CosmosStakeArgs | undefined => {

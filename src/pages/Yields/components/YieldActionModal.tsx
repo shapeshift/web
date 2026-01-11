@@ -216,10 +216,10 @@ export const YieldActionModal = memo(function YieldActionModal({
       const step = transactionSteps[activeStepIndex]
       return getTransactionButtonText(step.type, step.originalTitle)
     }
-    // Before execution starts, use the first transaction from quoteData
-    if (quoteData?.transactions?.[0]) {
-      const firstTx = quoteData.transactions[0]
-      return getTransactionButtonText(firstTx.type, firstTx.title)
+    // Before execution starts, use the first CREATED transaction from quoteData
+    const firstCreatedTx = quoteData?.transactions?.find(tx => tx.status === 'CREATED')
+    if (firstCreatedTx) {
+      return getTransactionButtonText(firstCreatedTx.type, firstCreatedTx.title)
     }
     // Fallback to action-based text
     if (action === 'enter') return translate('yieldXYZ.deposit')
@@ -252,14 +252,16 @@ export const YieldActionModal = memo(function YieldActionModal({
     if (transactionSteps.length > 0) {
       return transactionSteps
     }
-    // Before execution, create preview steps from quoteData
+    // Before execution, create preview steps from quoteData (filter out SKIPPED transactions)
     if (quoteData?.transactions?.length) {
-      return quoteData.transactions.map((tx, i) => ({
-        title: formatYieldTxTitle(tx.title || `Transaction ${i + 1}`, assetSymbol),
-        originalTitle: tx.title || '',
-        type: tx.type,
-        status: 'pending' as const,
-      }))
+      return quoteData.transactions
+        .filter(tx => tx.status === 'CREATED')
+        .map((tx, i) => ({
+          title: formatYieldTxTitle(tx.title || `Transaction ${i + 1}`, assetSymbol),
+          originalTitle: tx.title || '',
+          type: tx.type,
+          status: 'pending' as const,
+        }))
     }
     return []
   }, [transactionSteps, quoteData, assetSymbol])

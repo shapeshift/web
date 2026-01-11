@@ -29,15 +29,16 @@ const TX_TITLE_PATTERNS: [RegExp, string][] = [
 // These should match the action verbs shown in the step row (without the asset symbol)
 const TX_TYPE_TO_LABEL: Record<string, string> = {
   APPROVE: 'Approve',
+  APPROVAL: 'Approve',
   DELEGATE: 'Stake', // Monad uses DELEGATE for staking
   UNDELEGATE: 'Unstake', // Monad uses UNDELEGATE for unstaking
   STAKE: 'Stake',
   UNSTAKE: 'Unstake',
   DEPOSIT: 'Deposit',
   WITHDRAW: 'Withdraw',
-  SUPPLY: 'Supply',
-  EXIT: 'Exit',
-  ENTER: 'Enter',
+  SUPPLY: 'Deposit',
+  EXIT: 'Withdraw',
+  ENTER: 'Deposit',
   BRIDGE: 'Bridge',
   SWAP: 'Swap',
   CLAIM: 'Claim',

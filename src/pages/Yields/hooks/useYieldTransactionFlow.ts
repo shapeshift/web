@@ -361,8 +361,8 @@ export const useYieldTransactionFlow = ({
 
         if (isLastTransaction) {
           await waitForActionCompletion(actionId)
-          queryClient.invalidateQueries({ queryKey: ['yieldxyz', 'allBalances'] })
-          queryClient.invalidateQueries({ queryKey: ['yieldxyz', 'yields'] })
+          await queryClient.refetchQueries({ queryKey: ['yieldxyz', 'allBalances'] })
+          await queryClient.refetchQueries({ queryKey: ['yieldxyz', 'yields'] })
           dispatchNotification(tx, txHash)
           updateStepStatus(index, { status: 'success', loadingMessage: undefined })
           setStep(ModalStep.Success)
@@ -378,8 +378,8 @@ export const useYieldTransactionFlow = ({
             setActiveStepIndex(index + 1)
           } else {
             await waitForActionCompletion(actionId)
-            queryClient.invalidateQueries({ queryKey: ['yieldxyz', 'allBalances'] })
-            queryClient.invalidateQueries({ queryKey: ['yieldxyz', 'yields'] })
+            await queryClient.refetchQueries({ queryKey: ['yieldxyz', 'allBalances'] })
+            await queryClient.refetchQueries({ queryKey: ['yieldxyz', 'yields'] })
             dispatchNotification(tx, txHash)
             updateStepStatus(index, { status: 'success', loadingMessage: undefined })
             setStep(ModalStep.Success)

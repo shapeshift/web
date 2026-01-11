@@ -70,9 +70,10 @@ export const YieldsList = memo(() => {
   const setViewMode = useCallback(
     (mode: 'grid' | 'list') => {
       setSearchParams(prev => {
-        if (mode === 'grid') prev.delete('view')
-        else prev.set('view', mode)
-        return prev
+        const next = new URLSearchParams(prev)
+        if (mode === 'grid') next.delete('view')
+        else next.set('view', mode)
+        return next
       })
     },
     [setSearchParams],
@@ -110,9 +111,10 @@ export const YieldsList = memo(() => {
   const handleTabChange = useCallback(
     (index: number) => {
       setSearchParams(prev => {
-        if (index === 0) prev.delete('tab')
-        else prev.set('tab', 'my-positions')
-        return prev
+        const next = new URLSearchParams(prev)
+        if (index === 0) next.delete('tab')
+        else next.set('tab', 'my-positions')
+        return next
       })
     },
     [setSearchParams],
@@ -120,9 +122,10 @@ export const YieldsList = memo(() => {
 
   const handleToggleMyOpportunities = useCallback(() => {
     setSearchParams(prev => {
-      if (isMyOpportunities) prev.delete('filter')
-      else prev.set('filter', 'my-assets')
-      return prev
+      const next = new URLSearchParams(prev)
+      if (isMyOpportunities) next.delete('filter')
+      else next.set('filter', 'my-assets')
+      return next
     })
   }, [isMyOpportunities, setSearchParams])
 

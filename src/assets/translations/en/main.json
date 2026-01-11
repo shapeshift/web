@@ -52,6 +52,7 @@
     "withdrawal": "Withdrawal",
     "claim": "Claim",
     "claiming": "Claiming...",
+    "confirming": "Confirming...",
     "withdrawAndClaim": "Withdraw & Claim",
     "overview": "Overview",
     "connectWallet": "Connect Wallet",

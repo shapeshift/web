@@ -28,7 +28,9 @@ import { Amount } from '@/components/Amount/Amount'
 import { MiddleEllipsis } from '@/components/MiddleEllipsis/MiddleEllipsis'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import type { AugmentedYieldDto } from '@/lib/yieldxyz/types'
+import { formatYieldTxTitle, getTransactionButtonText } from '@/lib/yieldxyz/utils'
 import { GradientApy } from '@/pages/Yields/components/GradientApy'
+import type { TransactionStep } from '@/pages/Yields/hooks/useYieldTransactionFlow'
 import { ModalStep, useYieldTransactionFlow } from '@/pages/Yields/hooks/useYieldTransactionFlow'
 import { useYieldProviders } from '@/react-queries/queries/yieldxyz/useYieldProviders'
 import { useYieldValidators } from '@/react-queries/queries/yieldxyz/useYieldValidators'
@@ -86,10 +88,12 @@ export const YieldActionModal = memo(function YieldActionModal({
     step,
     transactionSteps,
     isSubmitting,
+    activeStepIndex,
     canSubmit,
     handleConfirm,
     handleClose,
     isQuoteLoading,
+    quoteData,
   } = useYieldTransactionFlow({
     yieldItem,
     action,
@@ -197,16 +201,31 @@ export const YieldActionModal = memo(function YieldActionModal({
 
   const loadingText = useMemo(() => {
     if (isQuoteLoading) return translate('yieldXYZ.loadingQuote')
+    // Use the current step's loading message if available
+    if (activeStepIndex >= 0 && transactionSteps[activeStepIndex]?.loadingMessage) {
+      return transactionSteps[activeStepIndex].loadingMessage
+    }
     if (action === 'enter') return translate('yieldXYZ.depositing')
     if (action === 'exit') return translate('yieldXYZ.withdrawing')
     return translate('common.claiming')
-  }, [isQuoteLoading, action, translate])
+  }, [isQuoteLoading, action, translate, activeStepIndex, transactionSteps])
 
   const buttonText = useMemo(() => {
+    // Use the current step's type/title for a clean button label (e.g., "Delegate", "Undelegate", "Approve")
+    if (activeStepIndex >= 0 && transactionSteps[activeStepIndex]) {
+      const step = transactionSteps[activeStepIndex]
+      return getTransactionButtonText(step.type, step.originalTitle)
+    }
+    // Before execution starts, use the first transaction from quoteData
+    if (quoteData?.transactions?.[0]) {
+      const firstTx = quoteData.transactions[0]
+      return getTransactionButtonText(firstTx.type, firstTx.title)
+    }
+    // Fallback to action-based text
     if (action === 'enter') return translate('yieldXYZ.deposit')
     if (action === 'exit') return translate('yieldXYZ.withdraw')
     return translate('common.claim')
-  }, [action, translate])
+  }, [action, translate, activeStepIndex, transactionSteps, quoteData])
 
   const modalHeading = useMemo(() => {
     if (action === 'enter') return translate('yieldXYZ.supplySymbol', { symbol: assetSymbol })
@@ -226,6 +245,24 @@ export const YieldActionModal = memo(function YieldActionModal({
     () => feeAsset?.networkIcon ?? feeAsset?.icon,
     [feeAsset?.networkIcon, feeAsset?.icon],
   )
+
+  // Show steps from quoteData before execution starts, then switch to actual transactionSteps
+  const displaySteps = useMemo((): TransactionStep[] => {
+    // If we have transactionSteps (execution has started or completed), use those
+    if (transactionSteps.length > 0) {
+      return transactionSteps
+    }
+    // Before execution, create preview steps from quoteData
+    if (quoteData?.transactions?.length) {
+      return quoteData.transactions.map((tx, i) => ({
+        title: formatYieldTxTitle(tx.title || `Transaction ${i + 1}`, assetSymbol),
+        originalTitle: tx.title || '',
+        type: tx.type,
+        status: 'pending' as const,
+      }))
+    }
+    return []
+  }, [transactionSteps, quoteData, assetSymbol])
 
   const statusCard = useMemo(
     () => (
@@ -433,13 +470,13 @@ export const YieldActionModal = memo(function YieldActionModal({
           overflow='hidden'
           mt={4}
         >
-          {transactionSteps.map((s, idx) => (
+          {displaySteps.map((s, idx) => (
             <Flex
               key={idx}
               justify='space-between'
               align='center'
               p={4}
-              borderBottomWidth={idx !== transactionSteps.length - 1 ? '1px' : '0'}
+              borderBottomWidth={idx !== displaySteps.length - 1 ? '1px' : '0'}
               borderColor='whiteAlpha.50'
               bg={s.status === 'loading' ? 'whiteAlpha.50' : 'transparent'}
               transition='all 0.2s'
@@ -514,7 +551,7 @@ export const YieldActionModal = memo(function YieldActionModal({
       feeAsset,
       networkAvatarSrc,
       yieldItem.network,
-      transactionSteps,
+      displaySteps,
     ],
   )
 

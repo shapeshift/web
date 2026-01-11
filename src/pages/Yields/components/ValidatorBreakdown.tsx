@@ -342,8 +342,9 @@ export const ValidatorBreakdown = memo(
       (validatorAddress: string) => (e: React.MouseEvent) => {
         e.stopPropagation()
         setSearchParams(prev => {
-          prev.set('validator', validatorAddress)
-          return prev
+          const next = new URLSearchParams(prev)
+          next.set('validator', validatorAddress)
+          return next
         })
       },
       [setSearchParams],

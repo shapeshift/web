@@ -19,9 +19,58 @@ const TX_TITLE_PATTERNS: [RegExp, string][] = [
   [/supply|deposit|enter/i, 'Deposit'],
   [/withdraw|exit/i, 'Withdraw'],
   [/claim/i, 'Claim'],
-  [/unstake/i, 'Unstake'],
-  [/stake/i, 'Stake'],
+  [/unstake|undelegate/i, 'Unstake'],
+  [/stake|delegate/i, 'Stake'],
+  [/bridge/i, 'Bridge'],
+  [/swap/i, 'Swap'],
 ]
+
+// Map of transaction types to user-friendly button labels
+// These should match the action verbs shown in the step row (without the asset symbol)
+const TX_TYPE_TO_LABEL: Record<string, string> = {
+  APPROVE: 'Approve',
+  DELEGATE: 'Stake', // Monad uses DELEGATE for staking
+  UNDELEGATE: 'Unstake', // Monad uses UNDELEGATE for unstaking
+  STAKE: 'Stake',
+  UNSTAKE: 'Unstake',
+  DEPOSIT: 'Deposit',
+  WITHDRAW: 'Withdraw',
+  SUPPLY: 'Supply',
+  EXIT: 'Exit',
+  ENTER: 'Enter',
+  BRIDGE: 'Bridge',
+  SWAP: 'Swap',
+  CLAIM: 'Claim',
+  CLAIM_REWARDS: 'Claim',
+  TRANSFER: 'Transfer',
+}
+
+/**
+ * Gets a clean button label from a transaction type or title.
+ * Used for the main CTA button in the yield action modal.
+ */
+export const getTransactionButtonText = (
+  type: string | undefined,
+  title: string | undefined,
+): string => {
+  // First try to use the transaction type directly
+  if (type) {
+    const normalized = type.toUpperCase().replace(/[_-]/g, '_')
+    if (TX_TYPE_TO_LABEL[normalized]) {
+      return TX_TYPE_TO_LABEL[normalized]
+    }
+    // Fallback: capitalize the type
+    return type.charAt(0).toUpperCase() + type.slice(1).toLowerCase()
+  }
+
+  // Fall back to parsing the title
+  if (title) {
+    const match = TX_TITLE_PATTERNS.find(([pattern]) => pattern.test(title))
+    if (match) return match[1]
+  }
+
+  return 'Confirm'
+}
 
 export const formatYieldTxTitle = (title: string, assetSymbol: string): string => {
   const normalized = title.replace(/ transaction$/i, '').toLowerCase()

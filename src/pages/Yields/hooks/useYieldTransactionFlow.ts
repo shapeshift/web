@@ -43,6 +43,7 @@ export type TransactionStep = {
   title: string
   status: 'pending' | 'success' | 'loading'
   originalTitle: string
+  type?: string
   txHash?: string
   txUrl?: string
   loadingMessage?: string
@@ -474,6 +475,7 @@ export const useYieldTransactionFlow = ({
         transactions.map((tx, i) => ({
           title: formatYieldTxTitle(tx.title || `Transaction ${i + 1}`, assetSymbol),
           originalTitle: tx.title || '',
+          type: tx.type,
           status: 'pending' as const,
         })),
       )
@@ -516,6 +518,7 @@ export const useYieldTransactionFlow = ({
       handleConfirm,
       handleClose,
       isQuoteLoading,
+      quoteData,
     }),
     [
       step,
@@ -526,6 +529,7 @@ export const useYieldTransactionFlow = ({
       handleConfirm,
       handleClose,
       isQuoteLoading,
+      quoteData,
     ],
   )
 }

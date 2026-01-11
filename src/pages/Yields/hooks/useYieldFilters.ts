@@ -18,9 +18,10 @@ export const useYieldFilters = () => {
   const handleNetworkChange = useCallback(
     (network: string | null) => {
       setSearchParams(prev => {
-        if (!network) prev.delete('network')
-        else prev.set('network', network)
-        return prev
+        const next = new URLSearchParams(prev)
+        if (!network) next.delete('network')
+        else next.set('network', network)
+        return next
       })
     },
     [setSearchParams],
@@ -29,9 +30,10 @@ export const useYieldFilters = () => {
   const handleProviderChange = useCallback(
     (provider: string | null) => {
       setSearchParams(prev => {
-        if (!provider) prev.delete('provider')
-        else prev.set('provider', provider)
-        return prev
+        const next = new URLSearchParams(prev)
+        if (!provider) next.delete('provider')
+        else next.set('provider', provider)
+        return next
       })
     },
     [setSearchParams],
@@ -40,8 +42,9 @@ export const useYieldFilters = () => {
   const handleSortChange = useCallback(
     (option: SortOption) => {
       setSearchParams(prev => {
-        prev.set('sort', option)
-        return prev
+        const next = new URLSearchParams(prev)
+        next.set('sort', option)
+        return next
       })
     },
     [setSearchParams],

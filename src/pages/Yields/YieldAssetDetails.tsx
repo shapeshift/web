@@ -51,9 +51,10 @@ export const YieldAssetDetails = memo(() => {
   const setViewMode = useCallback(
     (mode: 'grid' | 'list') => {
       setSearchParams(prev => {
-        if (mode === 'grid') prev.delete('view')
-        else prev.set('view', mode)
-        return prev
+        const next = new URLSearchParams(prev)
+        if (mode === 'grid') next.delete('view')
+        else next.set('view', mode)
+        return next
       })
     },
     [setSearchParams],
@@ -85,6 +86,8 @@ export const YieldAssetDetails = memo(() => {
     [yields, decodedSymbol],
   )
 
+  // Networks available for THIS asset - since we're on an asset-specific page,
+  // we show only networks that have yields for this particular asset (not all global networks)
   const networks = useMemo(
     () =>
       Array.from(new Set(assetYields.map(y => y.network))).map(net => ({
@@ -95,6 +98,7 @@ export const YieldAssetDetails = memo(() => {
     [assetYields],
   )
 
+  // Providers available for THIS asset - shows only providers that offer yields for this asset
   const providers = useMemo(
     () =>
       Array.from(new Set(assetYields.map(y => y.providerId))).map(pId => ({

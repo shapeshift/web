@@ -59,8 +59,7 @@ const FilterMenu = memo(({ label, value, options, onSelect, renderIcon }: Filter
   )
   const bg = useColorModeValue('white', 'gray.800')
   const borderColor = useColorModeValue('gray.200', 'gray.700')
-  const selectedBg = useColorModeValue('blue.50', 'blue.900')
-  const selectedColor = useColorModeValue('blue.600', 'blue.200')
+  const selectedColor = useColorModeValue('blue.500', 'blue.300')
   const hoverBg = useColorModeValue('gray.50', 'gray.750')
   const activeBg = useColorModeValue('gray.100', 'gray.700')
 
@@ -74,7 +73,6 @@ const FilterMenu = memo(({ label, value, options, onSelect, renderIcon }: Filter
     [selectedOption, renderIcon],
   )
 
-  const allItemBg = useMemo(() => (value === null ? selectedBg : undefined), [value, selectedBg])
   const allItemColor = useMemo(
     () => (value === null ? selectedColor : undefined),
     [value, selectedColor],
@@ -89,7 +87,6 @@ const FilterMenu = memo(({ label, value, options, onSelect, renderIcon }: Filter
           <MenuItem
             key={opt.id}
             onClick={() => onSelect(opt.id)}
-            bg={isSelected ? selectedBg : undefined}
             color={isSelected ? selectedColor : undefined}
             fontWeight={isSelected ? 'semibold' : undefined}
           >
@@ -100,7 +97,7 @@ const FilterMenu = memo(({ label, value, options, onSelect, renderIcon }: Filter
           </MenuItem>
         )
       }),
-    [options, value, selectedBg, selectedColor, renderIcon, onSelect],
+    [options, value, selectedColor, renderIcon, onSelect],
   )
 
   return (
@@ -126,12 +123,7 @@ const FilterMenu = memo(({ label, value, options, onSelect, renderIcon }: Filter
         </HStack>
       </MenuButton>
       <MenuList zIndex={10} maxH='300px' overflowY='auto'>
-        <MenuItem
-          onClick={handleSelectAll}
-          bg={allItemBg}
-          color={allItemColor}
-          fontWeight={allItemFontWeight}
-        >
+        <MenuItem onClick={handleSelectAll} color={allItemColor} fontWeight={allItemFontWeight}>
           {label}
         </MenuItem>
         {menuItems}

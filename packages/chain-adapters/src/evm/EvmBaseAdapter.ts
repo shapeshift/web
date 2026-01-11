@@ -343,7 +343,7 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
           : toHex(BigInt(account.chainSpecific.nonce))
 
       const txToSign = {
-        addressNList: toAddressNList(this.getBip44Params({ accountNumber })),
+        addressNList: input.addressNList ?? toAddressNList(this.getBip44Params({ accountNumber })),
         value: toHex(isTokenSend ? 0n : BigInt(value)),
         to: isTokenSend ? contractAddress : to,
         chainId: Number(fromChainId(this.chainId).chainReference),
@@ -368,7 +368,18 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
       this.assertSupportsChain(input.wallet)
 
       const from = await this.getAddress(input)
-      const txToSign = await this.buildSendApiTransaction({ ...input, from })
+
+      // Get wallet-native path if available (fixes BIP44 wallets like GridPlus/Trezor)
+      const addressNList = (() => {
+        const paths = input.wallet.ethGetAccountPaths?.({
+          coin: 'Ethereum',
+          accountIdx: input.accountNumber,
+        })
+        if (paths?.[0]?.addressNList) return paths[0].addressNList
+        return undefined
+      })()
+
+      const txToSign = await this.buildSendApiTransaction({ ...input, from, addressNList })
 
       return { txToSign }
     } catch (err) {
@@ -713,9 +724,8 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
             }
           : { gasPrice: toHex(gasPrice ? BigInt(gasPrice) : 0n) }
 
-      const bip44Params = this.getBip44Params({ accountNumber })
       const txToSign = {
-        addressNList: toAddressNList(bip44Params),
+        addressNList: input.addressNList ?? toAddressNList(this.getBip44Params({ accountNumber })),
         value: toHex(BigInt(value)),
         to,
         chainId: Number(fromChainId(this.chainId).chainReference),
@@ -740,7 +750,18 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
       this.assertSupportsChain(wallet)
 
       const from = await this.getAddress({ accountNumber, wallet, pubKey })
-      const txToSign = await this.buildCustomApiTx({ ...input, from })
+
+      // Get wallet-native path if available (fixes BIP44 wallets like GridPlus/Trezor)
+      const addressNList = (() => {
+        const paths = wallet.ethGetAccountPaths?.({
+          coin: 'Ethereum',
+          accountIdx: accountNumber,
+        })
+        if (paths?.[0]?.addressNList) return paths[0].addressNList
+        return undefined
+      })()
+
+      const txToSign = await this.buildCustomApiTx({ ...input, from, addressNList })
 
       return { txToSign }
     } catch (err) {

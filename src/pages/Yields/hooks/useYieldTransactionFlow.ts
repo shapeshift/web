@@ -215,7 +215,8 @@ export const useYieldTransactionFlow = ({
       return fn({ yieldId: yieldItem.id, address: userAddress, arguments: txArguments })
     },
     enabled: !!txArguments && !!wallet && !!accountId && canSubmit && isOpen,
-    staleTime: 60_000,
+    staleTime: Infinity,
+    gcTime: 0,
     retry: false,
   })
 

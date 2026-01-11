@@ -260,11 +260,17 @@ export const useYieldTransactionFlow = ({
       // For now, KISS and simply don't handle claims in action center.
       if (action === 'manage') return
 
+      const typeMessagesMap: Partial<Record<ActionType, string>> = {
+        [ActionType.Deposit]: 'actionCenter.deposit.complete',
+        [ActionType.Withdraw]: 'actionCenter.withdrawal.complete',
+        [ActionType.Approve]: 'actionCenter.approve.approvalTxComplete',
+      }
+
       dispatch(
         actionSlice.actions.upsertAction({
           id: uuidv4(),
           type: actionType,
-          status: ActionStatus.Pending,
+          status: ActionStatus.Complete,
           createdAt: Date.now(),
           updatedAt: Date.now(),
           transactionMetadata: {
@@ -273,7 +279,9 @@ export const useYieldTransactionFlow = ({
             chainId: yieldChainId,
             assetId: yieldItem.token.assetId as AssetId,
             accountId,
-            message: formatYieldTxTitle(tx.title || 'Transaction', assetSymbol),
+            message:
+              typeMessagesMap[actionType] ??
+              formatYieldTxTitle(tx.title || 'Transaction', assetSymbol),
             amountCryptoPrecision: amount,
             contractName: yieldItem.metadata.name,
             chainName: yieldItem.network,

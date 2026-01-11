@@ -453,13 +453,14 @@ export const useYieldTransactionFlow = ({
 
   const handleClose = useCallback(() => {
     if (isSubmitting) return
+    queryClient.removeQueries({ queryKey: ['yieldxyz', 'quote'] })
     setStep(ModalStep.InProgress)
     setTransactionSteps([])
     setRawTransactions([])
     setActiveStepIndex(-1)
     setCurrentActionId(null)
     onClose()
-  }, [isSubmitting, onClose])
+  }, [isSubmitting, onClose, queryClient])
 
   const handleConfirm = useCallback(async () => {
     if (activeStepIndex >= 0 && rawTransactions[activeStepIndex] && currentActionId) {

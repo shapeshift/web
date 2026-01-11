@@ -1,11 +1,13 @@
 import { useToast } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { cosmosChainId, fromAccountId } from '@shapeshiftoss/caip'
+import type { KnownChainIds } from '@shapeshiftoss/types'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { uuidv4 } from '@walletconnect/utils'
 import { useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 
+import { SECOND_CLASS_CHAINS } from '@/constants/chains'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { enterYield, exitYield, fetchAction, manageYield } from '@/lib/yieldxyz/api'
@@ -27,6 +29,7 @@ import {
   ActionType,
   GenericTransactionDisplayType,
 } from '@/state/slices/actionSlice/types'
+import { portfolioApi } from '@/state/slices/portfolioSlice/portfolioSlice'
 import { selectPortfolioAccountMetadataByAccountId } from '@/state/slices/portfolioSlice/selectors'
 import {
   selectAccountIdByAccountNumberAndChainId,
@@ -371,6 +374,18 @@ export const useYieldTransactionFlow = ({
           await waitForActionCompletion(actionId)
           await queryClient.refetchQueries({ queryKey: ['yieldxyz', 'allBalances'] })
           await queryClient.refetchQueries({ queryKey: ['yieldxyz', 'yields'] })
+          if (
+            yieldChainId &&
+            accountId &&
+            SECOND_CLASS_CHAINS.includes(yieldChainId as KnownChainIds)
+          ) {
+            dispatch(
+              portfolioApi.endpoints.getAccount.initiate(
+                { accountId, upsertOnFetch: true },
+                { forceRefetch: true },
+              ),
+            )
+          }
           dispatchNotification(tx, txHash)
           updateStepStatus(index, { status: 'success', loadingMessage: undefined })
           setStep(ModalStep.Success)
@@ -388,6 +403,18 @@ export const useYieldTransactionFlow = ({
             await waitForActionCompletion(actionId)
             await queryClient.refetchQueries({ queryKey: ['yieldxyz', 'allBalances'] })
             await queryClient.refetchQueries({ queryKey: ['yieldxyz', 'yields'] })
+            if (
+              yieldChainId &&
+              accountId &&
+              SECOND_CLASS_CHAINS.includes(yieldChainId as KnownChainIds)
+            ) {
+              dispatch(
+                portfolioApi.endpoints.getAccount.initiate(
+                  { accountId, upsertOnFetch: true },
+                  { forceRefetch: true },
+                ),
+              )
+            }
             dispatchNotification(tx, txHash)
             updateStepStatus(index, { status: 'success', loadingMessage: undefined })
             setStep(ModalStep.Success)
@@ -419,6 +446,7 @@ export const useYieldTransactionFlow = ({
       queryClient,
       dispatchNotification,
       showErrorToast,
+      dispatch,
     ],
   )
 

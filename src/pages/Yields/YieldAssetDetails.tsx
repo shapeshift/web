@@ -291,6 +291,8 @@ export const YieldAssetDetails = memo(() => {
     onSortingChange: setSorting,
   })
 
+  const sortedRows = table.getSortedRowModel().rows
+
   const handleYieldClick = useCallback(
     (yieldId: string) => {
       const balances = allBalances?.[yieldId]
@@ -357,7 +359,7 @@ export const YieldAssetDetails = memo(() => {
   const gridViewElement = useMemo(
     () => (
       <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={6}>
-        {table.getSortedRowModel().rows.map(row => (
+        {sortedRows.map(row => (
           <YieldItem
             key={row.original.id}
             data={{
@@ -379,7 +381,7 @@ export const YieldAssetDetails = memo(() => {
         ))}
       </SimpleGrid>
     ),
-    [allBalances, getProviderLogo, handleYieldClick, table],
+    [allBalances, getProviderLogo, handleYieldClick, sortedRows],
   )
 
   const listViewElement = useMemo(
@@ -388,7 +390,9 @@ export const YieldAssetDetails = memo(() => {
         <YieldTable table={table} isLoading={false} onRowClick={handleRowClick} />
       </Box>
     ),
-    [handleRowClick, table],
+    // sortedRows needed to trigger re-memoization when filtered data changes (table ref is stable)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [handleRowClick, sortedRows, table],
   )
 
   const contentElement = useMemo(() => {

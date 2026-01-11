@@ -369,7 +369,6 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
 
       const from = await this.getAddress(input)
 
-      // Get wallet-native path if available (fixes BIP44 wallets like GridPlus/Trezor)
       const addressNList = input.wallet.ethGetAccountPaths?.({
         coin: 'Ethereum',
         accountIdx: input.accountNumber,
@@ -594,9 +593,6 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
       this.assertSupportsChain(wallet)
       await verifyLedgerAppOpen(this.chainId, wallet)
 
-      // Use hdwallet's native path if available (respects wallet-specific derivation)
-      // This fixes BIP44 wallets like GridPlus/Trezor that use m/44'/60'/0'/0/N
-      // instead of Ledger Live style m/44'/60'/N'/0/0
       const addressNList =
         wallet.ethGetAccountPaths?.({ coin: 'Ethereum', accountIdx: accountNumber })?.[0]
           ?.addressNList ?? toAddressNList(this.getBip44Params({ accountNumber }))
@@ -626,7 +622,6 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
       // Check if wallet supports batch address derivation (Trezor currently, but any wallet could implement ethGetAddresses)
       if (wallet.ethGetAddresses) {
         const msgs = accountNumbers.map(accountNumber => {
-          // Use hdwallet's native path if available (respects wallet-specific derivation)
           const addressNList =
             wallet.ethGetAccountPaths?.({ coin: 'Ethereum', accountIdx: accountNumber })?.[0]
               ?.addressNList ?? toAddressNList(this.getBip44Params({ accountNumber }))
@@ -740,7 +735,6 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
 
       const from = await this.getAddress({ accountNumber, wallet, pubKey })
 
-      // Get wallet-native path if available (fixes BIP44 wallets like GridPlus/Trezor)
       const addressNList = wallet.ethGetAccountPaths?.({
         coin: 'Ethereum',
         accountIdx: accountNumber,

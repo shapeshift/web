@@ -79,6 +79,7 @@ export const YieldsList = memo(() => {
     [setSearchParams],
   )
   const [searchQuery, setSearchQuery] = useState('')
+  const filterSearchString = useMemo(() => searchParams.toString(), [searchParams])
 
   const {
     selectedNetwork,
@@ -501,11 +502,12 @@ export const YieldsList = memo(() => {
             }}
             variant='card'
             userBalanceUsd={group.userGroupBalanceUsd}
+            searchString={filterSearchString}
           />
         ))}
       </SimpleGrid>
     ),
-    [yieldsByAsset],
+    [filterSearchString, yieldsByAsset],
   )
 
   const allYieldsListElement = useMemo(
@@ -560,11 +562,12 @@ export const YieldsList = memo(() => {
             }}
             variant='row'
             userBalanceUsd={group.userGroupBalanceUsd}
+            searchString={filterSearchString}
           />
         ))}
       </Box>
     ),
-    [headerBg, translate, yieldsByAsset],
+    [filterSearchString, headerBg, translate, yieldsByAsset],
   )
 
   const allYieldsContentElement = useMemo(() => {

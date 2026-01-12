@@ -437,26 +437,26 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.StarknetMainnet
 
       const formattedSalt = salt.startsWith('0x') ? salt : `0x${salt}`
 
-      if (!isDeployed) {
-        const estimateTx = {
-          type: 'DEPLOY_ACCOUNT',
-          version,
-          signature: [],
-          nonce,
-          contract_address_salt: formattedSalt,
-          constructor_calldata: formattedCalldata,
-          class_hash: OPENZEPPELIN_ACCOUNT_CLASS_HASH,
-          resource_bounds: {
-            l1_gas: { max_amount: '0x186a0', max_price_per_unit: '0x5f5e100' },
-            l2_gas: { max_amount: '0x0', max_price_per_unit: '0x0' },
-            l1_data_gas: { max_amount: '0x186a0', max_price_per_unit: '0x1' },
-          },
-          tip: '0x0',
-          paymaster_data: [],
-          nonce_data_availability_mode: 'L1',
-          fee_data_availability_mode: 'L1',
-        }
+      const estimateTx = {
+        type: 'DEPLOY_ACCOUNT',
+        version,
+        signature: [],
+        nonce,
+        contract_address_salt: formattedSalt,
+        constructor_calldata: formattedCalldata,
+        class_hash: OPENZEPPELIN_ACCOUNT_CLASS_HASH,
+        resource_bounds: {
+          l1_gas: { max_amount: '0x186a0', max_price_per_unit: '0x5f5e100' },
+          l2_gas: { max_amount: '0x0', max_price_per_unit: '0x0' },
+          l1_data_gas: { max_amount: '0x186a0', max_price_per_unit: '0x1' },
+        },
+        tip: '0x0',
+        paymaster_data: [],
+        nonce_data_availability_mode: 'L1',
+        fee_data_availability_mode: 'L1',
+      }
 
+      if (!isDeployed) {
         try {
           const estimateResponse = await this.provider.fetch('starknet_estimateFee', [
             [estimateTx],
@@ -468,10 +468,6 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.StarknetMainnet
 
           if (!estimateResult.error && estimateResult.result?.[0]) {
             const feeEstimate = estimateResult.result[0]
-            console.log(
-              '[StarknetChainAdapter.getDeployAccountFeeData] RPC estimate for undeployed account:',
-              feeEstimate,
-            )
             return calculateFeeTiers({
               l1GasConsumed: feeEstimate.l1_gas_consumed ?? '0x186a0',
               l1GasPrice: feeEstimate.l1_gas_price ?? '0x5f5e100',
@@ -492,25 +488,6 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.StarknetMainnet
           '[StarknetChainAdapter.getDeployAccountFeeData] Using static estimates for undeployed account',
         )
         return calculateFeeTiers(STATIC_FEE_ESTIMATES)
-      }
-
-      const estimateTx = {
-        type: 'DEPLOY_ACCOUNT',
-        version,
-        signature: [],
-        nonce,
-        contract_address_salt: formattedSalt,
-        constructor_calldata: formattedCalldata,
-        class_hash: OPENZEPPELIN_ACCOUNT_CLASS_HASH,
-        resource_bounds: {
-          l1_gas: { max_amount: '0x186a0', max_price_per_unit: '0x5f5e100' },
-          l2_gas: { max_amount: '0x0', max_price_per_unit: '0x0' },
-          l1_data_gas: { max_amount: '0x186a0', max_price_per_unit: '0x1' },
-        },
-        tip: '0x0',
-        paymaster_data: [],
-        nonce_data_availability_mode: 'L1',
-        fee_data_availability_mode: 'L1',
       }
 
       const estimateResponse = await this.provider.fetch('starknet_estimateFee', [

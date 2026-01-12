@@ -111,7 +111,7 @@ const coinSelectZcash = (
   }
 > => {
   const opReturnOutputSize = extraOutput[0]?.script
-    ? TX_OUTPUT_BASE + extraOutput[0].script.length
+    ? TX_OUTPUT_BASE + Buffer.byteLength(extraOutput[0].script, 'utf-8')
     : 0
 
   if (input.sendMax) {

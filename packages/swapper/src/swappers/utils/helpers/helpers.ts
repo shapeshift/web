@@ -7,6 +7,7 @@ import {
   ethAssetId,
   fromAssetId,
   gnosisAssetId,
+  katanaAssetId,
   monadAssetId,
   optimismAssetId,
   plasmaAssetId,
@@ -52,6 +53,8 @@ export const isNativeEvmAsset = (assetId: AssetId): boolean => {
       return assetId === monadAssetId
     case KnownChainIds.PlasmaMainnet:
       return assetId === plasmaAssetId
+    case KnownChainIds.KatanaMainnet:
+      return assetId === katanaAssetId
     default:
       return false
   }

@@ -677,7 +677,7 @@ export const YieldsList = memo(() => {
   ])
 
   return (
-    <Container maxW='1200px' py={8}>
+    <Container maxW='1200px' py={8} px={{ base: 4, md: 6 }}>
       <Box mb={8}>
         <Heading as='h2' size='xl' mb={2}>
           {translate('yieldXYZ.pageTitle')}
@@ -685,13 +685,16 @@ export const YieldsList = memo(() => {
         <Text color='text.subtle'>{translate('yieldXYZ.pageSubtitle')}</Text>
       </Box>
       {errorElement}
-      <YieldOpportunityStats
-        positions={myPositions}
-        balances={allBalances}
-        allYields={yields?.all}
-        isMyOpportunities={isMyOpportunities}
-        onToggleMyOpportunities={handleToggleMyOpportunities}
-      />
+      {isConnected && (
+        <YieldOpportunityStats
+          positions={myPositions}
+          balances={allBalances}
+          allYields={yields?.all}
+          isMyOpportunities={isMyOpportunities}
+          onToggleMyOpportunities={handleToggleMyOpportunities}
+          isConnected={isConnected}
+        />
+      )}
       <Tabs
         variant='soft-rounded'
         colorScheme='blue'
@@ -702,7 +705,7 @@ export const YieldsList = memo(() => {
         <TabList mb={4} gap={4}>
           <Tab _selected={tabSelectedSx}>{translate('common.all')}</Tab>
           <Tab _selected={tabSelectedSx}>
-            {translate('yieldXYZ.myPosition')} ({myPositions.length})
+            {translate('yieldXYZ.myPositions')} ({myPositions.length})
           </Tab>
         </TabList>
         <Flex

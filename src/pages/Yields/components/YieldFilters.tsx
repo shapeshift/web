@@ -185,7 +185,12 @@ export const YieldFilters = memo(
     )
 
     return (
-      <Stack direction={{ base: 'column', md: 'row' }} spacing={4} {...props}>
+      <Stack
+        direction={{ base: 'column', md: 'row' }}
+        spacing={4}
+        width={{ base: 'full', md: 'auto' }}
+        {...props}
+      >
         <FilterMenu
           label={allNetworksLabel}
           value={selectedNetwork}
@@ -202,7 +207,12 @@ export const YieldFilters = memo(
         />
         <Menu>
           <Tooltip label='Sort' hasArrow>
-            <MenuButton as={IconButton} aria-label='Sort' icon={sortIcon} />
+            <MenuButton
+              as={IconButton}
+              aria-label='Sort'
+              icon={sortIcon}
+              width={{ base: 'full', md: 'auto' }}
+            />
           </Tooltip>
           <MenuList zIndex='banner' maxH='300px' overflowY='auto'>
             <MenuOptionGroup type='radio' value={sortOption} onChange={handleSortChange}>

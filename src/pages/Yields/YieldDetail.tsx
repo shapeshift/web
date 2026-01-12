@@ -153,7 +153,7 @@ export const YieldDetail = memo(() => {
   return (
     <Box bg='background.surface.base' minH='100vh' pb={20}>
       <Box py={12} mb={10}>
-        <Container maxW='1200px'>
+        <Container maxW='1200px' px={{ base: 4, md: 6 }}>
           <Button
             variant='link'
             color='text.subtle'
@@ -201,7 +201,7 @@ export const YieldDetail = memo(() => {
           </Flex>
         </Container>
       </Box>
-      <Container maxW='1200px'>
+      <Container maxW='1200px' px={{ base: 4, md: 6 }}>
         <Flex direction={{ base: 'column-reverse', lg: 'row' }} gap={10}>
           <Box flex={2}>
             <YieldEnterExit

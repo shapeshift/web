@@ -412,7 +412,7 @@ export const YieldAssetDetails = memo(() => {
   ])
 
   return (
-    <Container maxW='1200px' py={8}>
+    <Container maxW='1200px' py={8} px={{ base: 4, md: 6 }}>
       <Button
         leftIcon={<ArrowBackIcon />}
         variant='ghost'
@@ -423,27 +423,24 @@ export const YieldAssetDetails = memo(() => {
       </Button>
       {assetHeaderElement}
       <Flex
-        justify='space-between'
-        align='center'
+        justify='flex-end'
+        align={{ base: 'stretch', md: 'center' }}
         mb={6}
         gap={4}
         direction={{ base: 'column', md: 'row' }}
+        width='full'
       >
-        <Box />
-        <HStack spacing={4} width={{ base: 'full', md: 'auto' }} justify='flex-end'>
-          <YieldFilters
-            networks={networks}
-            selectedNetwork={selectedNetwork}
-            onSelectNetwork={handleNetworkChange}
-            providers={providers}
-            selectedProvider={selectedProvider}
-            onSelectProvider={handleProviderChange}
-            sortOption={sortOption}
-            onSortChange={handleSortChange}
-            mb={0}
-          />
-          <ViewToggle viewMode={viewMode} setViewMode={setViewMode} />
-        </HStack>
+        <YieldFilters
+          networks={networks}
+          selectedNetwork={selectedNetwork}
+          onSelectNetwork={handleNetworkChange}
+          providers={providers}
+          selectedProvider={selectedProvider}
+          onSelectProvider={handleProviderChange}
+          sortOption={sortOption}
+          onSortChange={handleSortChange}
+        />
+        <ViewToggle viewMode={viewMode} setViewMode={setViewMode} />
       </Flex>
       {contentElement}
     </Container>

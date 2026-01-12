@@ -31,6 +31,7 @@ type YieldOpportunityStatsProps = {
   allYields: AugmentedYieldDto[] | undefined
   isMyOpportunities?: boolean
   onToggleMyOpportunities?: () => void
+  isConnected: boolean
 }
 
 export const YieldOpportunityStats = memo(function YieldOpportunityStats({
@@ -39,6 +40,7 @@ export const YieldOpportunityStats = memo(function YieldOpportunityStats({
   allYields,
   isMyOpportunities,
   onToggleMyOpportunities,
+  isConnected,
 }: YieldOpportunityStatsProps) {
   const translate = useTranslate()
   const userCurrencyToUsdRate = useAppSelector(selectUserCurrencyToUsdRate)
@@ -55,7 +57,7 @@ export const YieldOpportunityStats = memo(function YieldOpportunityStats({
   }, [positions, balances])
 
   const idleValueUsd = useMemo(() => {
-    if (!allYields) return bnOrZero(0)
+    if (!isConnected || !allYields) return bnOrZero(0)
 
     const yieldableAssetIds = new Set(
       allYields.flatMap(
@@ -70,11 +72,11 @@ export const YieldOpportunityStats = memo(function YieldOpportunityStats({
       const bal = portfolioBalances[assetId]
       return bal ? totalIdle.plus(bnOrZero(bal)) : totalIdle
     }, bnOrZero(0))
-  }, [allYields, portfolioBalances])
+  }, [isConnected, allYields, portfolioBalances])
 
   // Calculate weighted APY and potential earnings based on user's actual held assets
   const { weightedApy, potentialEarningsValue } = useMemo(() => {
-    if (!yields?.byInputAssetId || !portfolioBalances) {
+    if (!isConnected || !yields?.byInputAssetId || !portfolioBalances) {
       return { weightedApy: 0, potentialEarningsValue: bnOrZero(0) }
     }
 
@@ -97,7 +99,7 @@ export const YieldOpportunityStats = memo(function YieldOpportunityStats({
       : 0
 
     return { weightedApy: avgApy, potentialEarningsValue: totalEarnings }
-  }, [yields?.byInputAssetId, portfolioBalances])
+  }, [isConnected, yields?.byInputAssetId, portfolioBalances])
 
   const hasActiveDeposits = useMemo(() => activeValueUsd.gt(0), [activeValueUsd])
 

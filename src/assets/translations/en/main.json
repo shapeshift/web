@@ -2692,6 +2692,7 @@
     "type": "Type",
     "totalValue": "Total Value",
     "myPosition": "My Position",
+    "myPositions": "My Positions",
     "myValidatorPosition": "My %{validator} Position",
     "earnUpToOnBalance": "You could earn up to %{apy} on your balance",
     "startEarning": "Start earning",

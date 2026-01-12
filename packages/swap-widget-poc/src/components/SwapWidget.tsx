@@ -326,8 +326,8 @@ const SwapWidgetInner = ({
   }, [walletClient, canExecuteDirectly, onConnectWallet, handleExecuteSwap]);
 
   const buttonText = useMemo(() => {
-    if (!sellAmount) return "Enter an amount";
     if (!isSellAssetEvm) return "Proceed on ShapeShift";
+    if (!sellAmount) return "Enter an amount";
     if (!walletClient && canExecuteDirectly) return "Connect Wallet";
     if (isLoadingRates) return "Finding rates...";
     if (ratesError) return "No routes available";
@@ -347,16 +347,16 @@ const SwapWidgetInner = ({
   ]);
 
   const isButtonDisabled = useMemo(() => {
+    if (!isSellAssetEvm) return false; // Allow non-EVM without amount
     if (!sellAmount) return true;
-    if (!isSellAssetEvm) return false;
     if (isLoadingRates) return true;
     if (ratesError) return true;
     if (!rates?.length) return true;
     if (isExecuting) return true;
     return false;
   }, [
-    sellAmount,
     isSellAssetEvm,
+    sellAmount,
     isLoadingRates,
     ratesError,
     rates,

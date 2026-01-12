@@ -723,10 +723,11 @@ export const YieldsList = memo(() => {
               borderRadius='full'
             />
           </InputGroup>
-          <HStack
-            spacing={4}
+          <Flex
+            gap={4}
             width={{ base: 'full', md: 'auto' }}
-            justify={{ base: 'space-between', md: 'flex-end' }}
+            direction={{ base: 'column', md: 'row' }}
+            align={{ base: 'stretch', md: 'center' }}
           >
             <YieldFilters
               networks={networks}
@@ -740,7 +741,7 @@ export const YieldsList = memo(() => {
               mb={0}
             />
             <ViewToggle viewMode={viewMode} setViewMode={setViewMode} />
-          </HStack>
+          </Flex>
         </Flex>
         <TabPanels>
           <TabPanel px={0}>{allYieldsContentElement}</TabPanel>

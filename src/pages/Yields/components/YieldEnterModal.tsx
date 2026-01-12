@@ -346,7 +346,13 @@ export const YieldEnterModal = memo(
       if (!approvalSpender) return false
       if (!allowanceQuery.data) return false
       return bnOrZero(allowanceQuery.data).gt(0)
-    }, [isUsdtApprovalResetEnabled, inputTokenAssetId, chainId, approvalSpender, allowanceQuery.data])
+    }, [
+      isUsdtApprovalResetEnabled,
+      inputTokenAssetId,
+      chainId,
+      approvalSpender,
+      allowanceQuery.data,
+    ])
 
     // Check if we're waiting for USDT allowance check before we can determine reset requirement
     const isAllowanceCheckPending = useMemo(() => {
@@ -572,8 +578,6 @@ export const YieldEnterModal = memo(
       updateStepStatus,
       toast,
       allowanceQuery,
-      activeStepIndex,
-      resetTxHash,
     ])
 
     const executeSingleTransaction = useCallback(
@@ -701,7 +705,6 @@ export const YieldEnterModal = memo(
         dispatchNotification,
         dispatch,
         toast,
-        isUsdtResetRequired,
       ],
     )
 

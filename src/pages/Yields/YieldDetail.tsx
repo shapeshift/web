@@ -93,30 +93,17 @@ export const YieldDetail = memo(() => {
   const heroIcon = useMemo(() => {
     if (!yieldItem) return null
     const iconSource = resolveYieldInputAssetIcon(yieldItem)
-    if (iconSource.assetId)
-      return (
-        <AssetIcon
-          assetId={iconSource.assetId}
-          showNetworkIcon={false}
-          boxSize={24}
-          boxShadow='2xl'
-          border='4px solid'
-          borderColor='border.base'
-          borderRadius='full'
-          bg='background.surface.base'
-        />
-      )
-    return (
-      <AssetIcon
-        src={iconSource.src}
-        boxSize={24}
-        boxShadow='2xl'
-        border='4px solid'
-        borderColor='border.base'
-        borderRadius='full'
-        bg='background.surface.base'
-      />
-    )
+    const iconProps = {
+      showNetworkIcon: false,
+      boxSize: { base: 16, md: 24 },
+      boxShadow: '2xl',
+      border: '4px solid',
+      borderColor: 'border.base',
+      borderRadius: 'full',
+      bg: 'background.surface.base',
+    }
+    if (iconSource.assetId) return <AssetIcon assetId={iconSource.assetId} {...iconProps} />
+    return <AssetIcon src={iconSource.src} {...iconProps} />
   }, [yieldItem])
 
   const providerOrValidatorsElement = useMemo(() => {
@@ -177,17 +164,37 @@ export const YieldDetail = memo(() => {
           >
             {translate('common.back')}
           </Button>
-          <Flex alignItems='start' gap={8}>
+          <Flex
+            alignItems={{ base: 'center', md: 'start' }}
+            gap={{ base: 4, md: 8 }}
+            direction={{ base: 'column', md: 'row' }}
+          >
             {heroIcon}
-            <Box pt={2}>
-              <Heading as='h1' size='2xl' color='text.base' lineHeight='1.2' mb={3}>
+            <Box pt={{ base: 0, md: 2 }} textAlign={{ base: 'center', md: 'left' }}>
+              <Heading
+                as='h1'
+                size={{ base: 'xl', md: '2xl' }}
+                color='text.base'
+                lineHeight='1.2'
+                mb={3}
+              >
                 {yieldItem.metadata.name}
               </Heading>
-              <Flex alignItems='center' gap={4} mb={2}>
+              <Flex
+                alignItems='center'
+                gap={4}
+                mb={2}
+                justify={{ base: 'center', md: 'flex-start' }}
+              >
                 {providerOrValidatorsElement}
               </Flex>
-              {chainElement}
-              <Text color='text.subtle' fontSize='lg' maxW='container.md' lineHeight='short'>
+              <Flex justify={{ base: 'center', md: 'flex-start' }}>{chainElement}</Flex>
+              <Text
+                color='text.subtle'
+                fontSize={{ base: 'md', md: 'lg' }}
+                maxW='container.md'
+                lineHeight='short'
+              >
                 {yieldItem.metadata.description}
               </Text>
             </Box>

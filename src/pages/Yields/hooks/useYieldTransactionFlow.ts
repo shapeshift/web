@@ -498,8 +498,6 @@ export const useYieldTransactionFlow = ({
     updateStepStatus,
     toast,
     allowanceQuery,
-    activeStepIndex,
-    resetTxHash,
   ])
 
   const executeSingleTransaction = useCallback(

@@ -1,8 +1,8 @@
-import { Avatar, Box, Button, Flex, Heading, Icon, Link, Text, VStack } from '@chakra-ui/react'
+import { Avatar, Box, Button, Flex, Icon, Text, VStack } from '@chakra-ui/react'
 import { keyframes } from '@emotion/react'
 import { memo, useEffect, useMemo } from 'react'
 import ReactCanvasConfetti from 'react-canvas-confetti'
-import { FaCheck, FaExternalLinkAlt, FaWallet } from 'react-icons/fa'
+import { FaCheck, FaWallet } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 
 import { Amount } from '@/components/Amount/Amount'
@@ -296,7 +296,8 @@ export const YieldActionModal = memo(function YieldActionModal({
             backgroundSize='14px 100%'
             animation={`${horizontalScroll} 3s infinite linear`}
             style={{
-              maskImage: 'linear-gradient(to right, transparent, black 20%, black 80%, transparent)',
+              maskImage:
+                'linear-gradient(to right, transparent, black 20%, black 80%, transparent)',
               WebkitMaskImage:
                 'linear-gradient(to right, transparent, black 20%, black 80%, transparent)',
             }}
@@ -304,7 +305,12 @@ export const YieldActionModal = memo(function YieldActionModal({
         </Box>
         <VStack spacing={2}>
           <Box p={1} bg='background.surface.raised.base' borderRadius='full'>
-            <Avatar src={vaultMetadata.logoURI} size='md' name={vaultMetadata.name} icon={checkIconBox} />
+            <Avatar
+              src={vaultMetadata.logoURI}
+              size='md'
+              name={vaultMetadata.name}
+              icon={checkIconBox}
+            />
           </Box>
           <Text fontSize='sm' color='text.subtle' fontWeight='medium'>
             {vaultMetadata.name}
@@ -312,12 +318,25 @@ export const YieldActionModal = memo(function YieldActionModal({
         </VStack>
       </Flex>
     ),
-    [flexDirection, assetAvatarSrc, assetSymbol, horizontalScroll, vaultMetadata.logoURI, vaultMetadata.name],
+    [
+      flexDirection,
+      assetAvatarSrc,
+      assetSymbol,
+      horizontalScroll,
+      vaultMetadata.logoURI,
+      vaultMetadata.name,
+    ],
   )
 
   const statsContent = useMemo(
     () => (
-      <Box bg='background.surface.raised.base' borderRadius='xl' p={4} borderWidth='1px' borderColor='border.base'>
+      <Box
+        bg='background.surface.raised.base'
+        borderRadius='xl'
+        p={4}
+        borderWidth='1px'
+        borderColor='border.base'
+      >
         <Flex justify='space-between' align='center'>
           <Text fontSize='sm' color='text.subtle'>
             {translate('common.amount')}
@@ -428,30 +447,22 @@ export const YieldActionModal = memo(function YieldActionModal({
 
   const successContent = useMemo(
     () => (
-      <VStack spacing={8} py={8} textAlign='center' align='center'>
+      <VStack spacing={6} py={4} textAlign='center' align='center'>
         <Box
-          position='relative'
-          w={24}
-          h={24}
+          w={20}
+          h={20}
           borderRadius='full'
           bgGradient='linear(to-br, green.400, green.600)'
-          color='text.base'
+          color='white'
           display='flex'
           alignItems='center'
           justifyContent='center'
-          boxShadow='0 0 30px rgba(72, 187, 120, 0.5)'
-          mb={4}
         >
-          <Icon as={FaCheck} boxSize={10} />
+          <Icon as={FaCheck} boxSize={8} />
         </Box>
-        <Box>
-          <Heading size='xl' mb={3}>
-            {translate('yieldXYZ.success')}
-          </Heading>
-          <Text color='text.subtle' fontSize='lg'>
-            {successMessage}
-          </Text>
-        </Box>
+        <Text color='text.subtle' fontSize='md'>
+          {successMessage}
+        </Text>
         {vaultMetadata && (
           <Flex
             align='center'
@@ -468,48 +479,11 @@ export const YieldActionModal = memo(function YieldActionModal({
           </Flex>
         )}
         <Box width='full'>
-          <VStack spacing={2} align='stretch' mt={4}>
-            <Text fontSize='sm' color='text.subtle' textAlign='left' px={1}>
-              {translate('yieldXYZ.transactions')}
-            </Text>
-            {transactionSteps.map((s, idx) => (
-              <Flex
-                key={idx}
-                justify='space-between'
-                align='center'
-                p={4}
-                bg='background.surface.raised.base'
-                borderRadius='lg'
-                border='1px solid'
-                borderColor='border.base'
-              >
-                <Flex align='center' gap={2}>
-                  <Icon as={FaCheck} color='green.400' boxSize={3} />
-                  <Text fontSize='sm' fontWeight='medium'>
-                    {s.title}
-                  </Text>
-                </Flex>
-                {s.txHash && (
-                  <Link
-                    href={s.txUrl}
-                    isExternal
-                    color='blue.400'
-                    fontSize='sm'
-                    display='flex'
-                    alignItems='center'
-                    gap={2}
-                    _hover={{ textDecor: 'underline' }}
-                  >
-                    {translate('yieldXYZ.view')} <Icon as={FaExternalLinkAlt} boxSize={3} />
-                  </Link>
-                )}
-              </Flex>
-            ))}
-          </VStack>
+          <TransactionStepsList steps={transactionSteps} />
         </Box>
       </VStack>
     ),
-    [translate, successMessage, vaultMetadata, transactionSteps],
+    [successMessage, vaultMetadata, transactionSteps],
   )
 
   const isInProgress = step === ModalStep.InProgress
@@ -524,17 +498,15 @@ export const YieldActionModal = memo(function YieldActionModal({
         isFullScreen
         modalProps={{ closeOnOverlayClick: !isSubmitting }}
       >
-        {!isSuccess && (
-          <DialogHeader>
-            <DialogHeader.Left>{null}</DialogHeader.Left>
-            <DialogHeader.Middle>
-              <DialogTitle>{modalHeading}</DialogTitle>
-            </DialogHeader.Middle>
-            <DialogHeader.Right>
-              <DialogCloseButton isDisabled={isSubmitting} />
-            </DialogHeader.Right>
-          </DialogHeader>
-        )}
+        <DialogHeader>
+          <DialogHeader.Left>{null}</DialogHeader.Left>
+          <DialogHeader.Middle>
+            <DialogTitle>{isSuccess ? translate('common.success') : modalHeading}</DialogTitle>
+          </DialogHeader.Middle>
+          <DialogHeader.Right>
+            <DialogCloseButton isDisabled={isSubmitting} />
+          </DialogHeader.Right>
+        </DialogHeader>
         <DialogBody py={4} flex={1}>
           {isInProgress && actionContent}
           {isSuccess && successContent}

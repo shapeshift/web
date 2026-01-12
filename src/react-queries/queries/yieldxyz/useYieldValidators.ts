@@ -7,6 +7,7 @@ import {
   SHAPESHIFT_VALIDATOR,
 } from '@/lib/yieldxyz/constants'
 import type { ValidatorDto } from '@/lib/yieldxyz/types'
+import { ensureValidatorApr } from '@/lib/yieldxyz/utils'
 
 const normalizeCosmosValidators = (validators: ValidatorDto[]): ValidatorDto[] => {
   const existingShapeshift = validators.find(v => v.address === SHAPESHIFT_COSMOS_VALIDATOR_ADDRESS)
@@ -17,7 +18,7 @@ const normalizeCosmosValidators = (validators: ValidatorDto[]): ValidatorDto[] =
 
   const otherValidators = validators
     .filter(v => v.address !== SHAPESHIFT_COSMOS_VALIDATOR_ADDRESS)
-    .map(v => ({ ...v, preferred: false }))
+    .map(v => ensureValidatorApr({ ...v, preferred: false }))
 
   return [shapeshiftValidator, ...otherValidators]
 }

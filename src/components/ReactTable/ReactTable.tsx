@@ -49,10 +49,14 @@ const arrowBackIcon = <ArrowBackIcon />
 const arrowForwardIcon = <ArrowForwardIcon />
 
 const CellWrap = <T extends {}>({ cell }: { cell: Cell<T, unknown> }) => {
-  const cellProps = useMemo(() => cell.getCellProps(), [cell])
-  const dataLabel = useMemo(() => {
-    return typeof cell.column.Header === 'string' ? cell.column.Header : undefined
-  }, [cell.column.Header])
+  const cellProps = useMemo(() => {
+    const { key: _key, ...rest } = cell.getCellProps()
+    return rest
+  }, [cell])
+  const dataLabel = useMemo(
+    () => (typeof cell.column.Header === 'string' ? cell.column.Header : undefined),
+    [cell.column.Header],
+  )
 
   return (
     <Td
@@ -60,7 +64,6 @@ const CellWrap = <T extends {}>({ cell }: { cell: Cell<T, unknown> }) => {
       data-label={dataLabel}
       display={cell.column.display}
       textAlign={cell.column.textAlign}
-      key={cell.column.id}
     >
       {cell.render('Cell')}
     </Td>
@@ -94,7 +97,10 @@ const RowWrap = <T extends {}>({
     onRowLongPress?.(row as Row<T>)
   }, defaultLongPressConfig)
 
-  const rowProps = useMemo(() => row.getRowProps(), [row])
+  const rowProps = useMemo(() => {
+    const { key: _key, ...rest } = row.getRowProps()
+    return rest
+  }, [row])
 
   const dataTest = useMemo(() => {
     if (!rowDataTestKey) return undefined
@@ -229,33 +235,48 @@ export const ReactTable = <T extends {}>({
     <Table ref={tableRef} variant={variant} size={tableSize} {...tableProps}>
       {displayHeaders && (
         <Thead>
-          {headerGroups.map(headerGroup => (
-            <Tr {...headerGroup.getHeaderGroupProps()}>
-              {headerGroup.headers.map(column => (
-                <Th
-                  {...column.getHeaderProps(column.getSortByToggleProps())}
-                  color='text.subtle'
-                  textAlign={column.textAlign}
-                  display={column.display}
-                  // we need to pass an arg here, so we need an anonymous function wrapper
-                  _hover={{ color: column.canSort ? hoverColor : 'text.subtle' }}
-                >
-                  <Flex justifyContent={column.justifyContent} alignItems={column.alignItems}>
-                    {column.render('Header')}
-                    <Flex alignItems='center'>
-                      {column.isSorted ? (
-                        column.isSortedDesc ? (
-                          <ArrowDownIcon ml={2} aria-label={translate('common.table.sortedDesc')} />
-                        ) : (
-                          <ArrowUpIcon ml={2} aria-label={translate('common.table.sortedAsc')} />
-                        )
-                      ) : null}
-                    </Flex>
-                  </Flex>
-                </Th>
-              ))}
-            </Tr>
-          ))}
+          {headerGroups.map(headerGroup => {
+            const { key: headerGroupKey, ...headerGroupProps } = headerGroup.getHeaderGroupProps()
+            return (
+              <Tr key={headerGroupKey} {...headerGroupProps}>
+                {headerGroup.headers.map(column => {
+                  const { key: columnKey, ...columnProps } = column.getHeaderProps(
+                    column.getSortByToggleProps(),
+                  )
+                  return (
+                    <Th
+                      key={columnKey}
+                      {...columnProps}
+                      color='text.subtle'
+                      textAlign={column.textAlign}
+                      display={column.display}
+                      // we need to pass an arg here, so we need an anonymous function wrapper
+                      _hover={{ color: column.canSort ? hoverColor : 'text.subtle' }}
+                    >
+                      <Flex justifyContent={column.justifyContent} alignItems={column.alignItems}>
+                        {column.render('Header')}
+                        <Flex alignItems='center'>
+                          {column.isSorted ? (
+                            column.isSortedDesc ? (
+                              <ArrowDownIcon
+                                ml={2}
+                                aria-label={translate('common.table.sortedDesc')}
+                              />
+                            ) : (
+                              <ArrowUpIcon
+                                ml={2}
+                                aria-label={translate('common.table.sortedAsc')}
+                              />
+                            )
+                          ) : null}
+                        </Flex>
+                      </Flex>
+                    </Th>
+                  )
+                })}
+              </Tr>
+            )
+          })}
         </Thead>
       )}
       <Tbody {...tableBodyProps}>{renderedRows}</Tbody>

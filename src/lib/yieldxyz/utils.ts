@@ -1,6 +1,7 @@
 import type { ChainId } from '@shapeshiftoss/caip'
 
 import {
+  COSMOS_NETWORK_FALLBACK_APR,
   isSupportedYieldNetwork,
   SHAPESHIFT_COSMOS_VALIDATOR_ADDRESS,
   YIELD_NETWORK_TO_CHAIN_ID,
@@ -147,3 +148,15 @@ export const sortValidators = (
 
 export const toUserCurrency = (usdAmount: string | number, rate: string | number): string =>
   bnOrZero(usdAmount).times(rate).toFixed()
+
+export const ensureValidatorApr = (validator: ValidatorDto): ValidatorDto =>
+  validator.rewardRate?.total
+    ? validator
+    : {
+        ...validator,
+        rewardRate: {
+          total: COSMOS_NETWORK_FALLBACK_APR,
+          rateType: 'APR' as const,
+          components: validator.rewardRate?.components ?? [],
+        },
+      }

@@ -17,10 +17,9 @@ import { useTranslate } from 'react-polyglot'
 import { useNavigate } from 'react-router-dom'
 
 import { Amount } from '@/components/Amount/Amount'
-import { AssetIcon } from '@/components/AssetIcon'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import type { AugmentedYieldDto } from '@/lib/yieldxyz/types'
-import { resolveYieldInputAssetIcon, toUserCurrency } from '@/lib/yieldxyz/utils'
+import { toUserCurrency } from '@/lib/yieldxyz/utils'
 import type { YieldBalanceAggregate } from '@/react-queries/queries/yieldxyz/useAllYieldBalances'
 import { useYieldProviders } from '@/react-queries/queries/yieldxyz/useYieldProviders'
 import { selectAssetById, selectUserCurrencyToUsdRate } from '@/state/slices/selectors'
@@ -66,8 +65,6 @@ export const YieldActivePositions = memo(
       [activeYields, aggregated],
     )
 
-    const assetColumnHeader = useMemo(() => translate('yieldXYZ.asset') ?? 'Asset', [translate])
-
     const providerColumnHeader = useMemo(
       () =>
         hasValidators
@@ -84,14 +81,6 @@ export const YieldActivePositions = memo(
       () => translate('yieldXYZ.balance') ?? 'Balance',
       [translate],
     )
-
-    const yourBalanceLabel = useMemo(() => translate('defi.yourBalance'), [translate])
-
-    const renderAssetIcon = useCallback((yieldItem: AugmentedYieldDto) => {
-      const iconSource = resolveYieldInputAssetIcon(yieldItem)
-      if (iconSource.assetId) return <AssetIcon assetId={iconSource.assetId} size='sm' />
-      return <AssetIcon src={iconSource.src} size='sm' />
-    }, [])
 
     const tableRows = useMemo(() => {
       if (!asset) return null
@@ -114,14 +103,6 @@ export const YieldActivePositions = memo(
                   _hover={{ bg: 'background.surface.raised.base', cursor: 'pointer' }}
                   onClick={() => handleRowClick(yieldItem.id, validator.address)}
                 >
-                  <Td>
-                    <HStack spacing={3}>
-                      {renderAssetIcon(yieldItem)}
-                      <Text fontWeight='bold' fontSize='sm'>
-                        {yieldItem.metadata.name}
-                      </Text>
-                    </HStack>
-                  </Td>
                   <Td>
                     <HStack spacing={2}>
                       {validator.logoURI ? (
@@ -181,14 +162,6 @@ export const YieldActivePositions = memo(
             onClick={() => handleRowClick(yieldItem.id)}
           >
             <Td>
-              <HStack spacing={3}>
-                {renderAssetIcon(yieldItem)}
-                <Text fontWeight='bold' fontSize='sm'>
-                  {yieldItem.metadata.name}
-                </Text>
-              </HStack>
-            </Td>
-            <Td>
               <HStack spacing={2}>
                 <Avatar
                   size='xs'
@@ -229,39 +202,25 @@ export const YieldActivePositions = memo(
           </Tr>
         )
       })
-    }, [
-      activeYields,
-      aggregated,
-      asset,
-      getProviderLogo,
-      handleRowClick,
-      renderAssetIcon,
-      userCurrencyToUsdRate,
-    ])
+    }, [activeYields, aggregated, asset, getProviderLogo, handleRowClick, userCurrencyToUsdRate])
 
     if (!asset) return null
     if (activeYields.length === 0) return null
 
     return (
-      <Box>
-        <Text fontSize='sm' color='text.subtle' fontWeight='medium' mb={2}>
-          {yourBalanceLabel}
-        </Text>
-        <TableContainer borderWidth='1px' borderColor='border.base' borderRadius='xl'>
-          <Table variant='simple'>
-            <Thead bg='background.surface.raised.base'>
-              <Tr>
-                <Th>{assetColumnHeader}</Th>
-                <Th>{providerColumnHeader}</Th>
-                <Th isNumeric>{apyColumnHeader}</Th>
-                <Th isNumeric>{tvlColumnHeader}</Th>
-                <Th isNumeric>{balanceColumnHeader}</Th>
-              </Tr>
-            </Thead>
-            <Tbody>{tableRows}</Tbody>
-          </Table>
-        </TableContainer>
-      </Box>
+      <TableContainer borderWidth='1px' borderColor='border.base' borderRadius='xl'>
+        <Table variant='simple'>
+          <Thead bg='background.surface.raised.base'>
+            <Tr>
+              <Th>{providerColumnHeader}</Th>
+              <Th isNumeric>{apyColumnHeader}</Th>
+              <Th isNumeric>{tvlColumnHeader}</Th>
+              <Th isNumeric>{balanceColumnHeader}</Th>
+            </Tr>
+          </Thead>
+          <Tbody>{tableRows}</Tbody>
+        </Table>
+      </TableContainer>
     )
   },
 )

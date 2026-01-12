@@ -11,6 +11,7 @@ import {
   dogeChainId,
   ethChainId,
   gnosisChainId,
+  katanaChainId,
   ltcChainId,
   mayachainChainId,
   optimismChainId,
@@ -212,5 +213,6 @@ export const getCoingeckoSupportedChainIds = () => {
     dogeChainId,
     zecChainId,
     ...(getConfig().VITE_FEATURE_ARBITRUM_NOVA ? [arbitrumNovaChainId] : []),
+    ...(getConfig().VITE_FEATURE_KATANA ? [katanaChainId] : []),
   ]
 }

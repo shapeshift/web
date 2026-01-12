@@ -78,7 +78,7 @@ export const waitForActionCompletion = (actionId: string): Promise<ActionDto> =>
     },
   )
 
-const filterExecutableTransactions = (transactions: TransactionDto[]): TransactionDto[] => {
+export const filterExecutableTransactions = (transactions: TransactionDto[]): TransactionDto[] => {
   const seen = new Set<string>()
   return transactions.filter(tx => {
     if (tx.status !== TransactionStatus.Created) return false

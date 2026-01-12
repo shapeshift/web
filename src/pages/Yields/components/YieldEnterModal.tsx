@@ -40,7 +40,7 @@ import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { useLocaleFormatter } from '@/hooks/useLocaleFormatter/useLocaleFormatter'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
-import { enterYield } from '@/lib/yieldxyz/api'
+import { enterYield, fetchAction } from '@/lib/yieldxyz/api'
 import {
   DEFAULT_NATIVE_VALIDATOR_BY_CHAIN_ID,
   SHAPESHIFT_COSMOS_VALIDATOR_ADDRESS,
@@ -55,7 +55,10 @@ import { GradientApy } from '@/pages/Yields/components/GradientApy'
 import { TransactionStepsList } from '@/pages/Yields/components/TransactionStepsList'
 import { useConfetti } from '@/pages/Yields/hooks/useConfetti'
 import type { TransactionStep } from '@/pages/Yields/hooks/useYieldTransactionFlow'
-import { waitForActionCompletion } from '@/pages/Yields/hooks/useYieldTransactionFlow'
+import {
+  filterExecutableTransactions,
+  waitForActionCompletion,
+} from '@/pages/Yields/hooks/useYieldTransactionFlow'
 import { useSubmitYieldTransactionHash } from '@/react-queries/queries/yieldxyz/useSubmitYieldTransactionHash'
 import { useYieldProviders } from '@/react-queries/queries/yieldxyz/useYieldProviders'
 import { useYieldValidators } from '@/react-queries/queries/yieldxyz/useYieldValidators'
@@ -164,6 +167,9 @@ export const YieldEnterModal = memo(
     const [isSubmitting, setIsSubmitting] = useState(false)
     const [transactionSteps, setTransactionSteps] = useState<TransactionStep[]>([])
     const [selectedPercent, setSelectedPercent] = useState<number | null>(null)
+    const [activeStepIndex, setActiveStepIndex] = useState(-1)
+    const [rawTransactions, setRawTransactions] = useState<TransactionDto[]>([])
+    const [currentActionId, setCurrentActionId] = useState<string | null>(null)
 
     const debouncedAmount = useDebounce(cryptoAmount, QUOTE_DEBOUNCE_MS)
 
@@ -380,6 +386,9 @@ export const YieldEnterModal = memo(
       setSelectedAccountId(undefined)
       setModalStep('input')
       setTransactionSteps([])
+      setActiveStepIndex(-1)
+      setRawTransactions([])
+      setCurrentActionId(null)
       queryClient.removeQueries({ queryKey: ['yieldxyz', 'quote', 'enter', yieldItem.id] })
       onClose()
     }, [onClose, isSubmitting, queryClient, yieldItem.id])
@@ -444,41 +453,28 @@ export const YieldEnterModal = memo(
       [dispatch, chainId, accountId, yieldItem, cryptoAmount],
     )
 
-    const updateStepStatus = useCallback(
-      (index: number, update: Partial<TransactionStep> & { status: TransactionStep['status'] }) => {
-        setTransactionSteps(prev => prev.map((s, i) => (i === index ? { ...s, ...update } : s)))
-      },
-      [],
-    )
+    const updateStepStatus = useCallback((index: number, updates: Partial<TransactionStep>) => {
+      setTransactionSteps(prev => prev.map((s, i) => (i === index ? { ...s, ...updates } : s)))
+    }, [])
 
-    const handleExecute = useCallback(async () => {
-      if (!wallet || !accountId || !chainId || !quoteData || !inputTokenAsset) return
+    const executeSingleTransaction = useCallback(
+      async (
+        tx: TransactionDto,
+        index: number,
+        allTransactions: TransactionDto[],
+        actionId: string,
+      ) => {
+        if (!wallet || !accountId || !chainId) {
+          throw new Error(translate('yieldXYZ.errors.walletNotConnected'))
+        }
 
-      const transactions = quoteData.transactions.filter(
-        tx => tx.status === TransactionStatus.Created,
-      )
+        updateStepStatus(index, {
+          status: 'loading',
+          loadingMessage: translate('yieldXYZ.loading.signInWallet'),
+        })
+        setIsSubmitting(true)
 
-      if (transactions.length === 0) {
-        setModalStep('success')
-        return
-      }
-
-      const initialSteps: TransactionStep[] = transactions.map((tx, i) => ({
-        title: formatYieldTxTitle(tx.title || `Transaction ${i + 1}`, inputTokenAsset.symbol),
-        originalTitle: tx.title || '',
-        type: tx.type,
-        status: 'pending' as const,
-      }))
-
-      setTransactionSteps(initialSteps)
-      setIsSubmitting(true)
-
-      try {
-        for (let i = 0; i < transactions.length; i++) {
-          const tx = transactions[i]
-
-          updateStepStatus(i, { status: 'loading' })
-
+        try {
           const txHash = await executeTransaction({
             tx,
             chainId,
@@ -489,7 +485,10 @@ export const YieldEnterModal = memo(
             cosmosStakeArgs: buildCosmosStakeArgs(),
           })
 
-          if (!txHash) throw new Error('Broadcast failed')
+          if (!txHash) throw new Error(translate('yieldXYZ.errors.broadcastFailed'))
+
+          const txUrl = feeAsset?.explorerTxLink ? `${feeAsset.explorerTxLink}${txHash}` : ''
+          updateStepStatus(index, { txHash, txUrl, loadingMessage: translate('common.confirming') })
 
           await submitHashMutation.mutateAsync({
             transactionId: tx.id,
@@ -498,63 +497,141 @@ export const YieldEnterModal = memo(
             address: userAddress,
           })
 
-          const txUrl = feeAsset?.explorerTxLink ? `${feeAsset.explorerTxLink}${txHash}` : ''
-          updateStepStatus(i, { status: 'success', txHash, txUrl })
+          const isLastTransaction = index + 1 >= allTransactions.length
 
-          if (i === transactions.length - 1) {
+          if (isLastTransaction) {
+            await waitForActionCompletion(actionId)
+            await queryClient.refetchQueries({ queryKey: ['yieldxyz', 'allBalances'] })
+            await queryClient.refetchQueries({ queryKey: ['yieldxyz', 'yields'] })
+
+            if (chainId && SECOND_CLASS_CHAINS.includes(chainId as KnownChainIds)) {
+              dispatch(
+                portfolioApi.endpoints.getAccount.initiate(
+                  { accountId, upsertOnFetch: true },
+                  { forceRefetch: true },
+                ),
+              )
+            }
+
             dispatchNotification(tx, txHash)
+            updateStepStatus(index, { status: 'success', loadingMessage: undefined })
+            setModalStep('success')
+          } else {
+            // Not last transaction - fetch fresh action to get the next tx
+            const freshAction = await fetchAction(actionId)
+            const nextTx = freshAction.transactions.find(
+              t => t.status === TransactionStatus.Created && t.stepIndex === index + 1,
+            )
+
+            if (nextTx) {
+              updateStepStatus(index, { status: 'success', loadingMessage: undefined })
+              setRawTransactions(prev => prev.map((t, i) => (i === index + 1 ? nextTx : t)))
+              setActiveStepIndex(index + 1)
+            } else {
+              // No next tx found - action might be complete
+              await waitForActionCompletion(actionId)
+              await queryClient.refetchQueries({ queryKey: ['yieldxyz', 'allBalances'] })
+              await queryClient.refetchQueries({ queryKey: ['yieldxyz', 'yields'] })
+
+              if (chainId && SECOND_CLASS_CHAINS.includes(chainId as KnownChainIds)) {
+                dispatch(
+                  portfolioApi.endpoints.getAccount.initiate(
+                    { accountId, upsertOnFetch: true },
+                    { forceRefetch: true },
+                  ),
+                )
+              }
+
+              dispatchNotification(tx, txHash)
+              updateStepStatus(index, { status: 'success', loadingMessage: undefined })
+              setModalStep('success')
+            }
           }
+        } catch (error) {
+          console.error('Transaction execution failed:', error)
+          toast({
+            title: translate('yieldXYZ.errors.transactionFailedTitle'),
+            description:
+              error instanceof Error
+                ? error.message
+                : translate('yieldXYZ.errors.transactionFailedDescription'),
+            status: 'error',
+            duration: 5000,
+            isClosable: true,
+          })
+          updateStepStatus(index, { status: 'pending', loadingMessage: undefined })
+        } finally {
+          setIsSubmitting(false)
         }
+      },
+      [
+        wallet,
+        accountId,
+        chainId,
+        userAddress,
+        accountMetadata?.bip44Params,
+        feeAsset?.explorerTxLink,
+        translate,
+        updateStepStatus,
+        buildCosmosStakeArgs,
+        submitHashMutation,
+        yieldItem.id,
+        queryClient,
+        dispatchNotification,
+        dispatch,
+        toast,
+      ],
+    )
 
-        await waitForActionCompletion(quoteData.id)
-        await queryClient.refetchQueries({ queryKey: ['yieldxyz', 'allBalances'] })
-        await queryClient.refetchQueries({ queryKey: ['yieldxyz', 'yields'] })
-
-        if (SECOND_CLASS_CHAINS.includes(chainId as KnownChainIds)) {
-          dispatch(
-            portfolioApi.endpoints.getAccount.initiate(
-              { accountId, upsertOnFetch: true },
-              { forceRefetch: true },
-            ),
-          )
-        }
-
-        setModalStep('success')
-      } catch (error) {
-        console.error('Transaction failed:', error)
-        toast({
-          title: translate('yieldXYZ.errors.transactionFailedTitle'),
-          description:
-            error instanceof Error
-              ? error.message
-              : translate('yieldXYZ.errors.transactionFailedDescription'),
-          status: 'error',
-          duration: 5000,
-          isClosable: true,
-        })
-        setModalStep('input')
-        setTransactionSteps([])
-      } finally {
-        setIsSubmitting(false)
+    const handleExecute = useCallback(async () => {
+      // If we're in the middle of a multi-step flow, execute the next step
+      if (activeStepIndex >= 0 && rawTransactions[activeStepIndex] && currentActionId) {
+        await executeSingleTransaction(
+          rawTransactions[activeStepIndex],
+          activeStepIndex,
+          rawTransactions,
+          currentActionId,
+        )
+        return
       }
+
+      // Initial execution - set up and execute first transaction
+      if (!wallet || !accountId || !chainId || !quoteData || !inputTokenAsset) return
+
+      const transactions = filterExecutableTransactions(quoteData.transactions)
+
+      if (transactions.length === 0) {
+        setModalStep('success')
+        return
+      }
+
+      setCurrentActionId(quoteData.id)
+      setRawTransactions(transactions)
+      setTransactionSteps(
+        transactions.map((tx, i) => ({
+          title: formatYieldTxTitle(
+            tx.title || translate('yieldXYZ.transactionNumber', { number: i + 1 }),
+            inputTokenAsset.symbol,
+          ),
+          originalTitle: tx.title || '',
+          type: tx.type,
+          status: 'pending' as const,
+        })),
+      )
+      setActiveStepIndex(0)
+
+      await executeSingleTransaction(transactions[0], 0, transactions, quoteData.id)
     }, [
+      activeStepIndex,
+      rawTransactions,
+      currentActionId,
       wallet,
       accountId,
       chainId,
       quoteData,
       inputTokenAsset,
-      userAddress,
-      accountMetadata?.bip44Params,
       translate,
-      updateStepStatus,
-      buildCosmosStakeArgs,
-      submitHashMutation,
-      yieldItem.id,
-      dispatchNotification,
-      queryClient,
-      dispatch,
-      toast,
-      feeAsset?.explorerTxLink,
+      executeSingleTransaction,
     ])
 
     const enterButtonDisabled = useMemo(
@@ -568,10 +645,16 @@ export const YieldEnterModal = memo(
       if (!isConnected) return translate('common.connectWallet')
       if (isQuoteActive) return translate('yieldXYZ.loadingQuote')
 
-      // During execution, find the current active step (first non-success)
+      // During execution, show the current step's action
       if (isSubmitting && transactionSteps.length > 0) {
         const activeStep = transactionSteps.find(s => s.status !== 'success')
         if (activeStep) return getTransactionButtonText(activeStep.type, activeStep.originalTitle)
+      }
+
+      // In multi-step flow (waiting for next click), use rawTransactions for current step
+      if (activeStepIndex >= 0 && rawTransactions[activeStepIndex]) {
+        const nextTx = rawTransactions[activeStepIndex]
+        return getTransactionButtonText(nextTx.type, nextTx.title)
       }
 
       // Before execution, use the first CREATED transaction from quoteData
@@ -587,6 +670,8 @@ export const YieldEnterModal = memo(
       isQuoteActive,
       isSubmitting,
       transactionSteps,
+      activeStepIndex,
+      rawTransactions,
       quoteData,
       translate,
       inputTokenAsset?.symbol,
@@ -849,7 +934,7 @@ export const YieldEnterModal = memo(
                   </Flex>
                 )}
                 {statsContent}
-                {isSubmitting ? (
+                {activeStepIndex >= 0 ? (
                   <TransactionStepsList steps={transactionSteps} />
                 ) : (
                   previewSteps.length > 0 && <TransactionStepsList steps={previewSteps} />

@@ -47,7 +47,11 @@ export const useAssetBalance = (
   const isNative = parsed && !parsed.tokenAddress;
   const isErc20 = parsed && !!parsed.tokenAddress;
 
-  const { data: nativeBalance } = useBalance({
+  const {
+    data: nativeBalance,
+    isLoading: isNativeLoading,
+    refetch: refetchNative,
+  } = useBalance({
     address: address as `0x${string}` | undefined,
     chainId: isNative ? parsed.chainId : undefined,
     query: {
@@ -55,7 +59,11 @@ export const useAssetBalance = (
     },
   });
 
-  const { data: erc20Balance } = useBalance({
+  const {
+    data: erc20Balance,
+    isLoading: isErc20Loading,
+    refetch: refetchErc20,
+  } = useBalance({
     address: address as `0x${string}` | undefined,
     chainId: isErc20 ? parsed.chainId : undefined,
     token: isErc20 ? parsed.tokenAddress : undefined,
@@ -65,10 +73,16 @@ export const useAssetBalance = (
   });
 
   const balance = isNative ? nativeBalance : isErc20 ? erc20Balance : undefined;
+  const isLoading = isNative
+    ? isNativeLoading
+    : isErc20
+    ? isErc20Loading
+    : false;
+  const refetch = isNative ? refetchNative : isErc20 ? refetchErc20 : undefined;
 
   return useMemo(() => {
     if (!balance || !assetId) {
-      return { data: undefined, isLoading: false };
+      return { data: undefined, isLoading, refetch };
     }
 
     return {
@@ -77,9 +91,10 @@ export const useAssetBalance = (
         balance: balance.value.toString(),
         balanceFormatted: formatAmount(balance.value.toString(), precision),
       },
-      isLoading: false,
+      isLoading,
+      refetch,
     };
-  }, [balance, assetId, precision]);
+  }, [balance, assetId, precision, isLoading, refetch]);
 };
 
 export const useEvmBalances = (

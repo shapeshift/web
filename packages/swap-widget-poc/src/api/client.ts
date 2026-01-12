@@ -63,6 +63,7 @@ export const createApiClient = (config: ApiClientConfig = {}) => {
       sellAssetId: AssetId;
       buyAssetId: AssetId;
       sellAmountCryptoBaseUnit: string;
+      sendAddress: string;
       receiveAddress: string;
       swapperName: string;
       slippageTolerancePercentageDecimal?: string;
@@ -73,6 +74,7 @@ export const createApiClient = (config: ApiClientConfig = {}) => {
           sellAssetId: params.sellAssetId,
           buyAssetId: params.buyAssetId,
           sellAmountCryptoBaseUnit: params.sellAmountCryptoBaseUnit,
+          sendAddress: params.sendAddress,
           receiveAddress: params.receiveAddress,
           swapperName: params.swapperName,
           ...(params.slippageTolerancePercentageDecimal && {

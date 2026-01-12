@@ -1,5 +1,6 @@
 import { useState, useMemo, useCallback } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { encodeFunctionData } from "viem";
 import type { WalletClient } from "viem";
 import { createApiClient } from "../api/client";
 import { useSwapRates } from "../hooks/useSwapRates";
@@ -71,6 +72,11 @@ const SwapWidgetInner = ({
   const [selectedRate, setSelectedRate] = useState<TradeRate | null>(null);
   const [slippage, setSlippage] = useState(defaultSlippage);
   const [isExecuting, setIsExecuting] = useState(false);
+  const [txStatus, setTxStatus] = useState<{
+    status: "pending" | "success" | "error";
+    txHash?: string;
+    message?: string;
+  } | null>(null);
 
   const [tokenModalType, setTokenModalType] = useState<"sell" | "buy" | null>(
     null,
@@ -105,6 +111,17 @@ const SwapWidgetInner = ({
   const isSellAssetEvm = getChainType(sellAsset.chainId) === "evm";
   const isBuyAssetEvm = getChainType(buyAsset.chainId) === "evm";
   const canExecuteDirectly = isSellAssetEvm && isBuyAssetEvm;
+
+  const {
+    data: sellAssetBalance,
+    isLoading: isSellBalanceLoading,
+    refetch: refetchSellBalance,
+  } = useAssetBalance(walletAddress, sellAsset.assetId, sellAsset.precision);
+  const {
+    data: buyAssetBalance,
+    isLoading: isBuyBalanceLoading,
+    refetch: refetchBuyBalance,
+  } = useAssetBalance(walletAddress, buyAsset.assetId, buyAsset.precision);
 
   const handleSwapTokens = useCallback(() => {
     const tempSell = sellAsset;
@@ -152,38 +169,117 @@ const SwapWidgetInner = ({
     setIsExecuting(true);
 
     try {
+      const requiredChainId = getEvmChainIdNumber(sellAsset.chainId);
+      const client = walletClient as WalletClient;
+
+      const currentChainId = await client.getChainId();
+      if (currentChainId !== requiredChainId) {
+        await client.switchChain({ id: requiredChainId });
+      }
+
       const slippageDecimal = (parseFloat(slippage) / 100).toString();
       const quoteResponse = await apiClient.getQuote({
         sellAssetId: sellAsset.assetId,
         buyAssetId: buyAsset.assetId,
         sellAmountCryptoBaseUnit: sellAmountBaseUnit!,
+        sendAddress: walletAddress,
         receiveAddress: walletAddress,
         swapperName: rateToUse.swapperName,
         slippageTolerancePercentageDecimal: slippageDecimal,
       });
 
-      if (!quoteResponse.transactionData) {
-        throw new Error("No transaction data returned");
+      const chain = {
+        id: requiredChainId,
+        name: "Chain",
+        nativeCurrency: { name: "ETH", symbol: "ETH", decimals: 18 },
+        rpcUrls: { default: { http: [] } },
+      };
+
+      if (quoteResponse.approval?.isRequired) {
+        const sellAssetAddress = sellAsset.assetId.split("/")[1]?.split(":")[1];
+        if (sellAssetAddress) {
+          const approvalData = encodeFunctionData({
+            abi: [
+              {
+                name: "approve",
+                type: "function",
+                inputs: [
+                  { name: "spender", type: "address" },
+                  { name: "amount", type: "uint256" },
+                ],
+                outputs: [{ name: "", type: "bool" }],
+              },
+            ],
+            functionName: "approve",
+            args: [
+              quoteResponse.approval.spender as `0x${string}`,
+              BigInt(sellAmountBaseUnit!),
+            ],
+          });
+
+          await client.sendTransaction({
+            to: sellAssetAddress as `0x${string}`,
+            data: approvalData,
+            value: BigInt(0),
+            chain,
+            account: walletAddress as `0x${string}`,
+          });
+        }
       }
 
-      const { to, data, value, gasLimit } = quoteResponse.transactionData;
+      const outerStep = quoteResponse.steps?.[0];
+      const innerStep = quoteResponse.quote?.steps?.[0];
 
-      const txHash = await (walletClient as WalletClient).sendTransaction({
+      const transactionData =
+        quoteResponse.transactionData ??
+        outerStep?.transactionData ??
+        outerStep?.relayTransactionMetadata ??
+        outerStep?.butterSwapTransactionMetadata ??
+        innerStep?.transactionData ??
+        innerStep?.relayTransactionMetadata ??
+        innerStep?.butterSwapTransactionMetadata;
+
+      if (!transactionData) {
+        throw new Error(
+          `No transaction data returned. Response keys: ${Object.keys(
+            quoteResponse,
+          ).join(", ")}`,
+        );
+      }
+
+      const to = transactionData.to as string;
+      const data = transactionData.data as string;
+      const value = transactionData.value ?? "0";
+      const gasLimit = transactionData.gasLimit as string | undefined;
+
+      setTxStatus({
+        status: "pending",
+        message: "Waiting for confirmation...",
+      });
+
+      const txHash = await client.sendTransaction({
         to: to as `0x${string}`,
         data: data as `0x${string}`,
         value: BigInt(value),
         gas: gasLimit ? BigInt(gasLimit) : undefined,
-        chain: {
-          id: getEvmChainIdNumber(sellAsset.chainId),
-          name: "Chain",
-          nativeCurrency: { name: "ETH", symbol: "ETH", decimals: 18 },
-          rpcUrls: { default: { http: [] } },
-        },
+        chain,
         account: walletAddress as `0x${string}`,
       });
 
+      setTxStatus({ status: "success", txHash, message: "Swap successful!" });
       onSwapSuccess?.(txHash);
+
+      setSellAmount("");
+      setSelectedRate(null);
+
+      setTimeout(() => {
+        refetchSellBalance?.();
+        refetchBuyBalance?.();
+      }, 3000);
     } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : "Transaction failed";
+      setTxStatus({ status: "error", message: errorMessage });
       onSwapError?.(error as Error);
     } finally {
       setIsExecuting(false);
@@ -202,6 +298,8 @@ const SwapWidgetInner = ({
     apiClient,
     onSwapSuccess,
     onSwapError,
+    refetchSellBalance,
+    refetchBuyBalance,
   ]);
 
   const handleButtonClick = useCallback(() => {
@@ -244,11 +342,6 @@ const SwapWidgetInner = ({
   const { data: buyChainInfo } = useChainInfo(buyAsset.chainId);
   const displayRate = selectedRate ?? rates?.[0];
   const buyAmount = displayRate?.buyAmountCryptoBaseUnit;
-
-  const { data: sellAssetBalance, isLoading: isSellBalanceLoading } =
-    useAssetBalance(walletAddress, sellAsset.assetId, sellAsset.precision);
-  const { data: buyAssetBalance, isLoading: isBuyBalanceLoading } =
-    useAssetBalance(walletAddress, buyAsset.assetId, buyAsset.precision);
 
   const assetIdsForPrices = useMemo(
     () => [sellAsset.assetId, buyAsset.assetId],
@@ -514,6 +607,83 @@ const SwapWidgetInner = ({
       >
         {buttonText}
       </button>
+
+      {txStatus && (
+        <div className={`ssw-tx-status ssw-tx-status-${txStatus.status}`}>
+          <div className="ssw-tx-status-icon">
+            {txStatus.status === "pending" && (
+              <svg
+                className="ssw-spinner"
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+              >
+                <circle cx="12" cy="12" r="10" opacity="0.25" />
+                <path d="M12 2a10 10 0 0 1 10 10" />
+              </svg>
+            )}
+            {txStatus.status === "success" && (
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+              >
+                <path d="M20 6L9 17l-5-5" />
+              </svg>
+            )}
+            {txStatus.status === "error" && (
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+              >
+                <circle cx="12" cy="12" r="10" />
+                <path d="M15 9l-6 6M9 9l6 6" />
+              </svg>
+            )}
+          </div>
+          <div className="ssw-tx-status-content">
+            <span className="ssw-tx-status-message">{txStatus.message}</span>
+            {txStatus.txHash && (
+              <a
+                href={`${
+                  sellAsset.explorerTxLink ?? "https://etherscan.io/tx/"
+                }${txStatus.txHash}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="ssw-tx-status-link"
+              >
+                View transaction
+              </a>
+            )}
+          </div>
+          <button
+            className="ssw-tx-status-close"
+            onClick={() => setTxStatus(null)}
+            type="button"
+          >
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+            >
+              <path d="M18 6L6 18M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+      )}
 
       {showPoweredBy && (
         <div className="ssw-powered-by">

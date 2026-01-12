@@ -116,15 +116,44 @@ export type RatesResponse = {
   rates: TradeRate[];
 };
 
+type TransactionData = {
+  to: string;
+  data: string;
+  value?: string;
+  gasLimit?: string;
+  chainId?: number;
+  relayId?: string;
+};
+
+type QuoteStep = {
+  transactionData?: TransactionData;
+  relayTransactionMetadata?: TransactionData;
+  butterSwapTransactionMetadata?: TransactionData;
+};
+
 export type QuoteResponse = {
-  quote: TradeQuote;
-  transactionData?: {
-    to: string;
-    data: string;
-    value: string;
-    gasLimit?: string;
+  quote?: {
+    steps?: QuoteStep[];
+  };
+  transactionData?: TransactionData;
+  steps?: QuoteStep[];
+  approval?: {
+    isRequired: boolean;
+    spender: string;
   };
 };
+
+export const ERC20_APPROVE_ABI = [
+  {
+    name: "approve",
+    type: "function",
+    inputs: [
+      { name: "spender", type: "address" },
+      { name: "amount", type: "uint256" },
+    ],
+    outputs: [{ name: "", type: "bool" }],
+  },
+] as const;
 
 export type AssetsResponse = {
   byId: Record<AssetId, Asset>;

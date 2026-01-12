@@ -133,12 +133,10 @@ const DemoContent = () => {
 
   const handleSwapSuccess = (txHash: string) => {
     console.log("Swap successful:", txHash);
-    alert(`Swap successful! TxHash: ${txHash}`);
   };
 
   const handleSwapError = (error: Error) => {
     console.error("Swap failed:", error);
-    alert(`Swap failed: ${error.message}`);
   };
 
   const demoStyle = useMemo(

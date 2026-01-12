@@ -18,7 +18,7 @@ RUN corepack enable
 
 ENV YARN_ENABLE_SCRIPTS=false
 
-RUN yarn workspaces focus @shapeshiftoss/swap-widget-poc --production=false
+RUN yarn install
 
 RUN yarn workspace @shapeshiftoss/types build
 RUN yarn workspace @shapeshiftoss/caip build  

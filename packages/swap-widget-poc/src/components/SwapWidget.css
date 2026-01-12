@@ -334,3 +334,104 @@
 .ssw-powered-by a:hover {
   opacity: 0.8;
 }
+
+/* Transaction Status */
+.ssw-tx-status {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px 16px;
+  margin: 0 16px 16px;
+  border-radius: 12px;
+  background: var(--ssw-bg-tertiary);
+  border: 1px solid var(--ssw-border);
+}
+
+.ssw-tx-status-pending {
+  border-color: var(--ssw-accent);
+  background: var(--ssw-accent-light);
+}
+
+.ssw-tx-status-success {
+  border-color: var(--ssw-success);
+  background: rgba(0, 211, 149, 0.1);
+}
+
+.ssw-tx-status-error {
+  border-color: var(--ssw-error);
+  background: rgba(244, 67, 54, 0.1);
+}
+
+.ssw-tx-status-icon {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+}
+
+.ssw-tx-status-pending .ssw-tx-status-icon {
+  color: var(--ssw-accent);
+}
+
+.ssw-tx-status-success .ssw-tx-status-icon {
+  color: var(--ssw-success);
+}
+
+.ssw-tx-status-error .ssw-tx-status-icon {
+  color: var(--ssw-error);
+}
+
+.ssw-tx-status-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.ssw-tx-status-message {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--ssw-text-primary);
+  word-break: break-word;
+}
+
+.ssw-tx-status-link {
+  font-size: 13px;
+  color: var(--ssw-accent);
+  text-decoration: none;
+}
+
+.ssw-tx-status-link:hover {
+  text-decoration: underline;
+}
+
+.ssw-tx-status-close {
+  flex-shrink: 0;
+  background: none;
+  border: none;
+  padding: 4px;
+  cursor: pointer;
+  color: var(--ssw-text-muted);
+  transition: color 0.15s ease;
+}
+
+.ssw-tx-status-close:hover {
+  color: var(--ssw-text-primary);
+}
+
+/* Spinner animation */
+@keyframes ssw-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.ssw-spinner {
+  animation: ssw-spin 1s linear infinite;
+}

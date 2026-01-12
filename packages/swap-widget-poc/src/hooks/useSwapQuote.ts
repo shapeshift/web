@@ -6,6 +6,7 @@ export type UseSwapQuoteParams = {
   sellAssetId: AssetId | undefined;
   buyAssetId: AssetId | undefined;
   sellAmountCryptoBaseUnit: string | undefined;
+  sendAddress: string | undefined;
   receiveAddress: string | undefined;
   swapperName: SwapperName | undefined;
   slippageTolerancePercentageDecimal?: string;
@@ -20,6 +21,7 @@ export const useSwapQuote = (
     sellAssetId,
     buyAssetId,
     sellAmountCryptoBaseUnit,
+    sendAddress,
     receiveAddress,
     swapperName,
     slippageTolerancePercentageDecimal,
@@ -32,6 +34,7 @@ export const useSwapQuote = (
       sellAssetId,
       buyAssetId,
       sellAmountCryptoBaseUnit,
+      sendAddress,
       receiveAddress,
       swapperName,
     ],
@@ -40,6 +43,7 @@ export const useSwapQuote = (
         !sellAssetId ||
         !buyAssetId ||
         !sellAmountCryptoBaseUnit ||
+        !sendAddress ||
         !receiveAddress ||
         !swapperName
       ) {
@@ -49,6 +53,7 @@ export const useSwapQuote = (
         sellAssetId,
         buyAssetId,
         sellAmountCryptoBaseUnit,
+        sendAddress,
         receiveAddress,
         swapperName,
         slippageTolerancePercentageDecimal,
@@ -59,6 +64,7 @@ export const useSwapQuote = (
       !!sellAssetId &&
       !!buyAssetId &&
       !!sellAmountCryptoBaseUnit &&
+      !!sendAddress &&
       !!receiveAddress &&
       !!swapperName,
     staleTime: 30_000,

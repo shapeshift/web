@@ -328,7 +328,10 @@
     "viewSavedWallets": "Kayıtlı Cüzdanları Görüntüle",
     "footerOne": "Devam ederek şunları kabul etmiş olursunuz:",
     "terms": "Şartlar",
-    "privacyPolicy": "Gizlilik Politikası"
+    "privacyPolicy": "Gizlilik Politikası",
+    "connectNewWallet": "Yeni Cüzdanı Bağla",
+    "getANewWallet": "Yeni Bir Cüzdan Alın",
+    "alreadyHaveWallet": "Zaten bir Cüzdanım var"
   },
   "connectWallet": {
     "menu": {
@@ -510,6 +513,7 @@
     "rFOX": "rFOX",
     "tcy": "TCY",
     "foxEcosystem": "FOX Ekosistem",
+    "ecosystem": "Ekosistem",
     "markets": "Piyasalar",
     "tokens": "Tokenlar",
     "swap": "Takas"
@@ -523,6 +527,10 @@
     "foxToken": {
       "title": "FOX Token",
       "subtitle": "Yönetim Tokenımız"
+    },
+    "agent": {
+      "title": "Ajan",
+      "subtitle": "Cüzdanınızla iletişime geçin"
     },
     "classic": {
       "title": "Klasik",
@@ -1092,6 +1100,7 @@
       "getFeesError": "Ücret alınırken hata oluştu",
       "broadcastingTransaction": "İşlem Sırası",
       "youHaveSent": "%{amount} %{symbol} başarıyla gönderdiniz",
+      "sendFailed": "Gönderme başarısız oldu",
       "toAddress": "Adrese",
       "toAddressOrEns": "Adres veya ENS'e",
       "scanQrCode": "QR Kodunu Tara",
@@ -1880,6 +1889,18 @@
     "description": "Devam etmek için Ledger cihazınızda %{appName} uygulamasını açmanız gerekecektir.",
     "devicePrompt": "Cihazınız, mevcut eyleminizi tamamlamak için gerekli adımları size bildirecektir."
   },
+  "starknet": {
+    "deployAccount": {
+      "title": "Starknet Hesabını Etkinleştir",
+      "description": "Starknet, kullanımdan önce devreye alınması gereken akıllı sözleşme hesapları kullanır.",
+      "sendDescription": "Gönderebilmek için öncelikle hesabı etkinleştirmeniz gerekecek.",
+      "swapDescription": "Starknet akıllı sözleşme hesapları kullanır. Takas işlemine başlamadan önce hesabınızı devreye almanız gerekecektir.",
+      "explanation": "Bu, Starknet'teki hesabınızı başlatacak tek seferlik bir kurulumdur. Bakiyenizden küçük bir ücret düşülecektir.",
+      "deployButton": "Hesabı Etkinleştir",
+      "deploying": "Hesap Etkinleştiriliyor...",
+      "deployFailed": "Etkinleştirme Başarısız Oldu"
+    }
+  },
   "transactionHistory": {
     "transactionHistory": "İşlem Geçmişi",
     "recentTransactions": "Son İşlemler",
@@ -2516,6 +2537,7 @@
       "buildTransaction": "İşlem oluşturulamadı.",
       "signTransaction": "İşlem imzalanamadı.",
       "blindSigningRequired": "İşlem için gizli imzalama gerekiyor. Lütfen Ledger uygulama ayarlarınızda Blind Signing veya Contract Data'yi etkinleştirin ve tekrar deneyin.",
+      "ledgerTronAllowDataDisabled": "Lütfen Ledger TRON uygulamanızın ayarlarından İşlem Verilerini etkinleştirin ve tekrar deneyin.",
       "signAndBroadcastTransaction": "İşlem imzalanamadı ve yayınlanamadı.",
       "signMessage": "Mesaj imzalanamadı.",
       "broadcastTransaction": "İşlem yayınlanamadı.",

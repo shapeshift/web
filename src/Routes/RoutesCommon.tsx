@@ -128,6 +128,16 @@ const MarketsPage = makeSuspenseful(
   true,
 )
 
+const YieldsPage = makeSuspenseful(
+  lazy(() =>
+    import('@/pages/Yields/Yields').then(({ Yields }) => ({
+      default: Yields,
+    })),
+  ),
+  {},
+  true,
+)
+
 const WalletConnectDeepLink = makeSuspenseful(
   lazy(() =>
     import('@/pages/WalletConnectDeepLink/WalletConnectDeepLink').then(
@@ -227,6 +237,16 @@ export const routes: Route[] = [
     priority: 3,
     mobileNav: false,
     disable: !getConfig().VITE_FEATURE_MARKETS,
+  },
+  {
+    path: '/yields/*',
+    label: 'navBar.yields',
+    icon: <TbGraph />,
+    main: YieldsPage,
+    category: RouteCategory.Featured,
+    priority: 3,
+    mobileNav: false,
+    disable: !getConfig().VITE_FEATURE_YIELD_XYZ,
   },
   {
     path: '/ramp/*',

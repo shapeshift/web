@@ -2764,6 +2764,7 @@
       "signInWallet": "Sign in Wallet",
       "waiting": "Waiting",
       "done": "Done",
+      "failed": "Failed",
       "preparingTransaction": "Preparing transaction..."
     },
     "errors": {

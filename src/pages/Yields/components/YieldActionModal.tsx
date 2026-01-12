@@ -49,6 +49,7 @@ const STATUS_LABEL_KEYS: Record<TransactionStep['status'], string | null> = {
   pending: 'yieldXYZ.loading.waiting',
   success: 'yieldXYZ.loading.done',
   loading: null,
+  failed: 'yieldXYZ.loading.failed',
 }
 
 const TransactionStepStatus = memo(function TransactionStepStatus({

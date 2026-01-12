@@ -1,6 +1,6 @@
 import { Box, Flex, Icon, Link, Spinner, Text } from '@chakra-ui/react'
 import { memo, useMemo } from 'react'
-import { FaCheck, FaExternalLinkAlt } from 'react-icons/fa'
+import { FaCheck, FaExternalLinkAlt, FaTimes } from 'react-icons/fa'
 
 import { MiddleEllipsis } from '@/components/MiddleEllipsis/MiddleEllipsis'
 import type { TransactionStep } from '@/pages/Yields/hooks/useYieldTransactionFlow'
@@ -14,6 +14,9 @@ type TransactionStepsListProps = {
 const StepIcon = memo(({ status }: { status: TransactionStepStatus }) => {
   if (status === 'success') {
     return <Icon as={FaCheck} color='green.400' boxSize={4} flexShrink={0} />
+  }
+  if (status === 'failed') {
+    return <Icon as={FaTimes} color='red.400' boxSize={4} flexShrink={0} />
   }
   if (status === 'loading') {
     return <Spinner size='xs' color='blue.400' flexShrink={0} />
@@ -37,7 +40,7 @@ export const TransactionStepsList = memo(({ steps }: TransactionStepsListProps) 
         <Flex align='center' gap={3} flex={1} minW={0}>
           <StepIcon status={step.status} />
           <Text
-            color={step.status === 'pending' ? 'text.subtle' : 'text.base'}
+            color={step.status === 'failed' ? 'red.400' : step.status === 'pending' ? 'text.subtle' : 'text.base'}
             fontSize='sm'
             fontWeight={step.status === 'loading' ? 'bold' : 'medium'}
             noOfLines={1}

@@ -44,7 +44,7 @@ export enum ModalStep {
 
 export type TransactionStep = {
   title: string
-  status: 'pending' | 'success' | 'loading'
+  status: 'pending' | 'success' | 'loading' | 'failed'
   originalTitle: string
   type?: string
   txHash?: string
@@ -91,6 +91,8 @@ export const waitForTransactionConfirmation = (
     action => {
       if (action.status === YieldActionStatus.Failed) return new Error('Action failed')
       if (action.status === YieldActionStatus.Canceled) return new Error('Action was canceled')
+      const tx = action.transactions.find(t => t.id === transactionId)
+      if (tx?.status === TransactionStatus.Failed) return new Error('Transaction failed')
       return undefined
     },
   )

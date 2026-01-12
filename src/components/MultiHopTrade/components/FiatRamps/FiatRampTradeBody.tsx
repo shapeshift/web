@@ -289,9 +289,20 @@ export const FiatRampTradeBody: React.FC<FiatRampTradeBodyProps> = ({
     [direction, dispatch],
   )
 
-  if (!buyAsset || !sellAsset) return null
+  // If assets aren't initialized yet (defaultAsset), show loading skeleton
+  const areAssetsInitialized = Boolean(buyAsset?.assetId) && Boolean(sellAsset?.assetId)
+
+  if (!areAssetsInitialized) {
+    return (
+      <Stack spacing={4} height='100%' overflowY='auto'>
+        <Box height='100px' />
+      </Stack>
+    )
+  }
 
   if (direction === FiatRampAction.Buy) {
+    if (!buyAsset) return null
+
     return (
       <Stack spacing={4} height='100%' overflowY='auto'>
         <FiatInput
@@ -324,6 +335,8 @@ export const FiatRampTradeBody: React.FC<FiatRampTradeBodyProps> = ({
       </Stack>
     )
   }
+
+  if (!sellAsset) return null
 
   return (
     <Stack spacing={4} height='100%' overflowY='auto'>

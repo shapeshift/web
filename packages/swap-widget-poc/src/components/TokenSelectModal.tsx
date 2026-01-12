@@ -1,9 +1,20 @@
-import { useState, useMemo, useCallback } from "react";
+import { useState, useMemo, useCallback, useEffect } from "react";
 import type { Asset, AssetId, ChainId } from "../types";
 import { useAssets, useChains, type ChainInfo } from "../hooks/useAssets";
 import { useEvmBalances } from "../hooks/useBalances";
 import { useAllMarketData } from "../hooks/useMarketData";
 import "./TokenSelectModal.css";
+
+const useLockBodyScroll = (isLocked: boolean) => {
+  useEffect(() => {
+    if (!isLocked) return;
+    const originalOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = originalOverflow;
+    };
+  }, [isLocked]);
+};
 
 type TokenSelectModalProps = {
   isOpen: boolean;
@@ -46,6 +57,7 @@ export const TokenSelectModal = ({
   disabledChainIds = [],
   walletAddress,
 }: TokenSelectModalProps) => {
+  useLockBodyScroll(isOpen);
   const [searchQuery, setSearchQuery] = useState("");
   const [chainSearchQuery, setChainSearchQuery] = useState("");
   const [selectedChainId, setSelectedChainId] = useState<ChainId | null>(null);

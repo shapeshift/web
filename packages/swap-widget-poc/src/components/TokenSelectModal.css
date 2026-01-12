@@ -107,6 +107,25 @@
   flex: 1;
   overflow-y: auto;
   padding: 0 8px 16px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--ssw-border) transparent;
+}
+
+.ssw-chain-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.ssw-chain-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.ssw-chain-list::-webkit-scrollbar-thumb {
+  background: var(--ssw-border);
+  border-radius: 3px;
+}
+
+.ssw-chain-list::-webkit-scrollbar-thumb:hover {
+  background: var(--ssw-border-hover);
 }
 
 .ssw-chain-item {
@@ -181,6 +200,25 @@
   flex: 1;
   overflow-y: auto;
   padding: 0 16px 16px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--ssw-border) transparent;
+}
+
+.ssw-token-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.ssw-token-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.ssw-token-list::-webkit-scrollbar-thumb {
+  background: var(--ssw-border);
+  border-radius: 3px;
+}
+
+.ssw-token-list::-webkit-scrollbar-thumb:hover {
+  background: var(--ssw-border-hover);
 }
 
 .ssw-token-item {

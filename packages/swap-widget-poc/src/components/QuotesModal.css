@@ -96,10 +96,12 @@
   display: flex;
   flex-direction: column;
   gap: 6px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--ssw-border) transparent;
 }
 
 .ssw-quotes-modal-list::-webkit-scrollbar {
-  width: 4px;
+  width: 6px;
 }
 
 .ssw-quotes-modal-list::-webkit-scrollbar-track {
@@ -107,8 +109,12 @@
 }
 
 .ssw-quotes-modal-list::-webkit-scrollbar-thumb {
-  background: var(--ssw-border, rgba(255, 255, 255, 0.08));
-  border-radius: 2px;
+  background: var(--ssw-border);
+  border-radius: 3px;
+}
+
+.ssw-quotes-modal-list::-webkit-scrollbar-thumb:hover {
+  background: var(--ssw-border-hover);
 }
 
 .ssw-quote-row {

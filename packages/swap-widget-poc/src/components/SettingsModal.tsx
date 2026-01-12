@@ -1,7 +1,18 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import "./SettingsModal.css";
 
 const SLIPPAGE_PRESETS = ["0.1", "0.5", "1.0"];
+
+const useLockBodyScroll = (isLocked: boolean) => {
+  useEffect(() => {
+    if (!isLocked) return;
+    const originalOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = originalOverflow;
+    };
+  }, [isLocked]);
+};
 
 type SettingsModalProps = {
   isOpen: boolean;
@@ -16,6 +27,7 @@ export const SettingsModal = ({
   slippage,
   onSlippageChange,
 }: SettingsModalProps) => {
+  useLockBodyScroll(isOpen);
   const [customSlippage, setCustomSlippage] = useState("");
   const [isCustom, setIsCustom] = useState(
     !SLIPPAGE_PRESETS.includes(slippage),

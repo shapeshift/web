@@ -396,7 +396,7 @@ export const YieldActionModal = memo(function YieldActionModal({
                       <GradientApy fontSize='sm' fontWeight='bold'>
                         {estimatedEarningsAmount}
                       </GradientApy>
-                      <Flex color='gray.500' fontWeight='normal' fontSize='xs'>
+                      <Flex color='text.subtle' fontWeight='normal' fontSize='xs'>
                         <Amount.Fiat value={estimatedEarningsFiat} />
                       </Flex>
                     </Flex>
@@ -480,10 +480,10 @@ export const YieldActionModal = memo(function YieldActionModal({
                 ) : s.status === 'loading' ? (
                   <Spinner size='xs' color='blue.400' />
                 ) : (
-                  <Box w={2} h={2} bg='gray.600' borderRadius='full' ml={1} />
+                  <Box w={2} h={2} bg='text.subtle' borderRadius='full' ml={1} />
                 )}
                 <Text
-                  color={s.status === 'pending' ? 'gray.500' : 'white'}
+                  color={s.status === 'pending' ? 'text.subtle' : 'text.base'}
                   fontSize='sm'
                   fontWeight={s.status === 'loading' ? 'bold' : 'medium'}
                 >
@@ -506,7 +506,7 @@ export const YieldActionModal = memo(function YieldActionModal({
               ) : (
                 <Text
                   fontSize='xs'
-                  color={s.status === 'loading' ? 'blue.300' : 'gray.600'}
+                  color={s.status === 'loading' ? 'blue.300' : 'text.subtle'}
                   fontWeight='medium'
                 >
                   {s.status === 'success'

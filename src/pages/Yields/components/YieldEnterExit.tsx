@@ -58,8 +58,8 @@ const YieldEnterExitSkeleton = memo(() => (
   </Flex>
 ))
 
-const moneyBillWaveIcon = <Icon as={FaMoneyBillWave} color='gray.500' boxSize={3} />
-const chevronDownIcon = <Icon as={ChevronDownIcon} color='gray.500' />
+const moneyBillWaveIcon = <Icon as={FaMoneyBillWave} color='text.subtle' boxSize={3} />
+const chevronDownIcon = <Icon as={ChevronDownIcon} color='text.subtle' />
 
 export const YieldEnterExit = memo(
   ({ yieldItem, isQuoteLoading, balances, isBalancesLoading }: YieldEnterExitProps) => {
@@ -441,7 +441,7 @@ export const YieldEnterExit = memo(
         <Flex justifyContent='space-between' width='full' px={1}>
           <Flex gap={2} alignItems='center'>
             {moneyBillWaveIcon}
-            <Text fontSize='xs' color='gray.500' fontWeight='medium'>
+            <Text fontSize='xs' color='text.subtle' fontWeight='medium'>
               {translate('yieldXYZ.minDeposit')}
             </Text>
           </Flex>
@@ -464,7 +464,7 @@ export const YieldEnterExit = memo(
             <GradientApy fontSize='sm' fontWeight='bold'>
               {estimatedYearlyEarningsDisplay}
             </GradientApy>
-            <Flex color='gray.500' fontWeight='normal' fontSize='xs'>
+            <Flex color='text.subtle' fontWeight='normal' fontSize='xs'>
               <Amount.Fiat value={estimatedYearlyEarningsFiat.toString()} />
             </Flex>
           </Flex>

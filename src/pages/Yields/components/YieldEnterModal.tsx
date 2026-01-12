@@ -50,7 +50,7 @@ import type { CosmosStakeArgs } from '@/lib/yieldxyz/executeTransaction'
 import { executeTransaction } from '@/lib/yieldxyz/executeTransaction'
 import type { AugmentedYieldDto, TransactionDto } from '@/lib/yieldxyz/types'
 import { TransactionStatus } from '@/lib/yieldxyz/types'
-import { formatYieldTxTitle } from '@/lib/yieldxyz/utils'
+import { formatYieldTxTitle, getTransactionButtonText } from '@/lib/yieldxyz/utils'
 import { GradientApy } from '@/pages/Yields/components/GradientApy'
 import { TransactionStepsList } from '@/pages/Yields/components/TransactionStepsList'
 import { useConfetti } from '@/pages/Yields/hooks/useConfetti'
@@ -465,6 +465,8 @@ export const YieldEnterModal = memo(
 
       const initialSteps: TransactionStep[] = transactions.map((tx, i) => ({
         title: formatYieldTxTitle(tx.title || `Transaction ${i + 1}`, inputTokenAsset.symbol),
+        originalTitle: tx.title || '',
+        type: tx.type,
         status: 'pending' as const,
       }))
 
@@ -565,8 +567,30 @@ export const YieldEnterModal = memo(
     const enterButtonText = useMemo(() => {
       if (!isConnected) return translate('common.connectWallet')
       if (isQuoteActive) return translate('yieldXYZ.loadingQuote')
+
+      // During execution, find the current active step (first non-success)
+      if (isSubmitting && transactionSteps.length > 0) {
+        const activeStep = transactionSteps.find(s => s.status !== 'success')
+        if (activeStep) return getTransactionButtonText(activeStep.type, activeStep.originalTitle)
+      }
+
+      // Before execution, use the first CREATED transaction from quoteData
+      const firstCreatedTx = quoteData?.transactions?.find(
+        tx => tx.status === TransactionStatus.Created,
+      )
+      if (firstCreatedTx) return getTransactionButtonText(firstCreatedTx.type, firstCreatedTx.title)
+
+      // Fallback to generic stake text
       return translate('yieldXYZ.stakeAsset', { asset: inputTokenAsset?.symbol })
-    }, [isConnected, isQuoteActive, translate, inputTokenAsset?.symbol])
+    }, [
+      isConnected,
+      isQuoteActive,
+      isSubmitting,
+      transactionSteps,
+      quoteData,
+      translate,
+      inputTokenAsset?.symbol,
+    ])
 
     const modalTitle = useMemo(() => {
       if (modalStep === 'success') return translate('common.success')
@@ -579,6 +603,8 @@ export const YieldEnterModal = memo(
         .filter(tx => tx.status === TransactionStatus.Created)
         .map((tx, i) => ({
           title: formatYieldTxTitle(tx.title || `Transaction ${i + 1}`, inputTokenAsset.symbol),
+          originalTitle: tx.title || '',
+          type: tx.type,
           status: 'pending' as const,
         }))
     }, [quoteData, inputTokenAsset])

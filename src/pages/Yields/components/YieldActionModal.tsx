@@ -233,8 +233,8 @@ export const YieldActionModal = memo(function YieldActionModal({
 
   const loadingText = useMemo(() => {
     if (isQuoteLoading) return translate('yieldXYZ.loadingQuote')
-    if (activeStepIndex >= 0 && transactionSteps[activeStepIndex]?.statusLabel) {
-      return transactionSteps[activeStepIndex].statusLabel
+    if (activeStepIndex >= 0 && transactionSteps[activeStepIndex]?.loadingMessage) {
+      return transactionSteps[activeStepIndex].loadingMessage
     }
     if (action === 'enter') return translate('yieldXYZ.depositing')
     if (action === 'exit') return translate('yieldXYZ.withdrawing')

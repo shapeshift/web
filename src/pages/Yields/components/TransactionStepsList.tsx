@@ -62,7 +62,7 @@ export const TransactionStepsList = memo(({ steps }: TransactionStepsListProps) 
             <Icon as={FaExternalLinkAlt} boxSize={3} />
           </Link>
         ) : (
-          step.statusLabel && (
+          step.loadingMessage && (
             <Text
               fontSize='xs'
               color={step.status === 'loading' ? 'blue.300' : 'text.subtle'}
@@ -70,7 +70,7 @@ export const TransactionStepsList = memo(({ steps }: TransactionStepsListProps) 
               flexShrink={0}
               ml={3}
             >
-              {step.statusLabel}
+              {step.loadingMessage}
             </Text>
           )
         )}

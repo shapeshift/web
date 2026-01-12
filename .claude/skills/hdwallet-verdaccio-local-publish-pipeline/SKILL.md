@@ -12,13 +12,18 @@ This skill automates the complete hdwallet local publish pipeline.
 
 This skill runs the complete hdwallet publish pipeline:
 
-### 0. Verify verdaccio setup (FIRST TIME ONLY)
-Only needed if this is the first time setting up verdaccio in these repos.
+### 0. Configure registry for Verdaccio (REQUIRED - FIRST PUBLISH IN SESSION)
+**IMPORTANT:** This must be done at the START of every new Claude session before any publish.
+The registry config does NOT persist between Claude sessions.
 
-Run in both repos:
-- `yarn config set npmRegistryServer http://127.0.0.1:4873 && npm set registry http://127.0.0.1:4873`
+Run in BOTH repos (hdwallet AND web):
+```bash
+yarn config set npmRegistryServer http://127.0.0.1:4873 && npm set registry http://127.0.0.1:4873
+```
 
-Once configured, this persists across runs.
+Verify with: `npm config get registry` (should show `http://127.0.0.1:4873`)
+
+Once configured for this session, follow-up publishes don't need to run this again.
 
 ### 1. Build hdwallet
 In the hdwallet repo (`../shapeshiftHdWallet`, or whichever is the path for hdwallet):

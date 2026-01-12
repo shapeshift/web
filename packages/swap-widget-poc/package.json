@@ -13,7 +13,6 @@
   },
   "dependencies": {
     "@rainbow-me/rainbowkit": "^2.2.3",
-    "@shapeshiftoss/caip": "workspace:*",
     "@tanstack/react-query": "^5.60.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",

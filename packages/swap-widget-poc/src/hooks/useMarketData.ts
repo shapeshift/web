@@ -1,5 +1,4 @@
 import { useQuery } from "@tanstack/react-query";
-import { adapters } from "@shapeshiftoss/caip";
 import type { AssetId } from "../types";
 
 const MARKET_DATA_STALE_TIME = 10 * 60 * 1000;
@@ -25,6 +24,50 @@ type CoinGeckoMarketCap = {
 
 const COINGECKO_PROXY_URL = "https://api.proxy.shapeshift.com/api/v1/markets";
 const COINGECKO_DIRECT_URL = "https://api.coingecko.com/api/v3";
+
+const SYMBOL_TO_COINGECKO_ID: Record<string, string> = {
+  ETH: "ethereum",
+  BTC: "bitcoin",
+  USDC: "usd-coin",
+  USDT: "tether",
+  DAI: "dai",
+  WETH: "weth",
+  WBTC: "wrapped-bitcoin",
+  MATIC: "matic-network",
+  POL: "matic-network",
+  AVAX: "avalanche-2",
+  BNB: "binancecoin",
+  ARB: "arbitrum",
+  OP: "optimism",
+  SOL: "solana",
+  ATOM: "cosmos",
+  RUNE: "thorchain",
+  FOX: "shapeshift-fox-token",
+  LINK: "chainlink",
+  UNI: "uniswap",
+  AAVE: "aave",
+  CRV: "curve-dao-token",
+  LDO: "lido-dao",
+  MKR: "maker",
+  SNX: "havven",
+  COMP: "compound-governance-token",
+  GRT: "the-graph",
+  ENS: "ethereum-name-service",
+  SHIB: "shiba-inu",
+  PEPE: "pepe",
+  APE: "apecoin",
+  DOGE: "dogecoin",
+  LTC: "litecoin",
+  BCH: "bitcoin-cash",
+  XRP: "ripple",
+  ADA: "cardano",
+  DOT: "polkadot",
+  TRX: "tron",
+  NEAR: "near",
+  FTM: "fantom",
+  GNO: "gnosis",
+  XDAI: "xdai",
+};
 
 const fetchWithRetry = async (
   url: string,
@@ -86,20 +129,32 @@ const fetchAllMarketData = async (): Promise<MarketDataById> => {
       }
     }
 
+    const coingeckoIdToMarketData = new Map<string, MarketData>();
     for (const asset of allData) {
-      const assetIds = adapters.coingeckoToAssetIds(asset.id);
-      if (!assetIds?.length) continue;
+      coingeckoIdToMarketData.set(asset.id, {
+        price: asset.current_price?.toString() ?? "0",
+        marketCap: asset.market_cap?.toString() ?? "0",
+        volume: asset.total_volume?.toString() ?? "0",
+        changePercent24Hr: asset.price_change_percentage_24h ?? 0,
+      });
+    }
 
-      const marketData: MarketData = {
+    for (const [symbol, coingeckoId] of Object.entries(
+      SYMBOL_TO_COINGECKO_ID,
+    )) {
+      const marketData = coingeckoIdToMarketData.get(coingeckoId);
+      if (marketData) {
+        result[`symbol:${symbol.toLowerCase()}`] = marketData;
+      }
+    }
+
+    for (const asset of allData) {
+      result[`coingecko:${asset.id}`] = {
         price: asset.current_price?.toString() ?? "0",
         marketCap: asset.market_cap?.toString() ?? "0",
         volume: asset.total_volume?.toString() ?? "0",
         changePercent24Hr: asset.price_change_percentage_24h ?? 0,
       };
-
-      for (const assetId of assetIds) {
-        result[assetId] = marketData;
-      }
     }
   } catch (error) {
     console.error("Failed to fetch market data:", error);
@@ -119,7 +174,10 @@ export const useAllMarketData = () => {
   });
 };
 
-export const useMarketData = (assetIds: AssetId[]) => {
+export const useMarketData = (
+  assetIds: AssetId[],
+  symbols?: Record<AssetId, string>,
+) => {
   const { data: allMarketData, ...rest } = useAllMarketData();
 
   const filteredData = (() => {
@@ -127,6 +185,14 @@ export const useMarketData = (assetIds: AssetId[]) => {
 
     const result: MarketDataById = {};
     for (const assetId of assetIds) {
+      const symbol = symbols?.[assetId];
+      if (symbol) {
+        const symbolKey = `symbol:${symbol.toLowerCase()}`;
+        if (allMarketData[symbolKey]) {
+          result[assetId] = allMarketData[symbolKey];
+          continue;
+        }
+      }
       if (allMarketData[assetId]) {
         result[assetId] = allMarketData[assetId];
       }
@@ -137,13 +203,24 @@ export const useMarketData = (assetIds: AssetId[]) => {
   return { data: filteredData, ...rest };
 };
 
-export const useAssetPrice = (assetId: AssetId | undefined) => {
+export const useAssetPrice = (
+  assetId: AssetId | undefined,
+  symbol?: string,
+) => {
   const { data: allMarketData, ...rest } = useAllMarketData();
 
-  return {
-    data: assetId ? allMarketData?.[assetId]?.price : undefined,
-    ...rest,
-  };
+  const price = (() => {
+    if (!assetId || !allMarketData) return undefined;
+    if (symbol) {
+      const symbolKey = `symbol:${symbol.toLowerCase()}`;
+      if (allMarketData[symbolKey]) {
+        return allMarketData[symbolKey].price;
+      }
+    }
+    return allMarketData[assetId]?.price;
+  })();
+
+  return { data: price, ...rest };
 };
 
 export const formatUsdValue = (

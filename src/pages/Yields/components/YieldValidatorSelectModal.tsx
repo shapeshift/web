@@ -34,7 +34,7 @@ import type { AugmentedYieldBalanceWithAccountId } from '@/react-queries/queries
 import { selectUserCurrencyToUsdRate } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
-const searchIcon = <FaSearch color='gray.300' />
+const searchIcon = <FaSearch color='text.subtle' />
 
 type YieldValidatorSelectModalProps = {
   isOpen: boolean
@@ -210,7 +210,7 @@ export const YieldValidatorSelectModal = memo(
                 <TabPanel px={2}>
                   <VStack align='stretch' spacing={0}>
                     {filteredAll.length === 0 ? (
-                      <Text p={4} textAlign='center' color='gray.500'>
+                      <Text p={4} textAlign='center' color='text.subtle'>
                         {translate('yieldXYZ.noValidatorsFound')}
                       </Text>
                     ) : (
@@ -221,7 +221,7 @@ export const YieldValidatorSelectModal = memo(
                 <TabPanel px={2}>
                   <VStack align='stretch' spacing={0}>
                     {filteredMy.length === 0 ? (
-                      <Text p={4} textAlign='center' color='gray.500'>
+                      <Text p={4} textAlign='center' color='text.subtle'>
                         {translate('yieldXYZ.noActiveValidators')}
                       </Text>
                     ) : (

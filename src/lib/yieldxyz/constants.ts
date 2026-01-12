@@ -20,6 +20,7 @@ import {
 } from '@shapeshiftoss/caip'
 import invert from 'lodash/invert'
 
+import type { ValidatorDto } from './types'
 import { YieldNetwork } from './types'
 
 export const CHAIN_ID_TO_YIELD_NETWORK: Partial<Record<ChainId, YieldNetwork>> = {
@@ -61,6 +62,27 @@ export const SHAPESHIFT_VALIDATOR_LOGO =
   'https://raw.githubusercontent.com/cosmostation/chainlist/main/chain/cosmos/moniker/cosmosvaloper199mlc7fr6ll5t54w7tts7f4s0cvnqgc59nmuxf.png'
 
 export const COSMOS_SHAPESHIFT_FALLBACK_APR = '0.1425'
+
+export const COSMOS_NETWORK_FALLBACK_APR = 0.15
+
+export const SHAPESHIFT_VALIDATOR_NAME = 'ShapeShift DAO'
+
+export const SHAPESHIFT_VALIDATOR: ValidatorDto = {
+  address: SHAPESHIFT_COSMOS_VALIDATOR_ADDRESS,
+  name: SHAPESHIFT_VALIDATOR_NAME,
+  logoURI: SHAPESHIFT_VALIDATOR_LOGO,
+  preferred: true,
+  votingPower: 0,
+  commission: 0.1,
+  status: 'active',
+  tvl: '0',
+  tvlRaw: '0',
+  rewardRate: {
+    total: parseFloat(COSMOS_SHAPESHIFT_FALLBACK_APR),
+    rateType: 'APR',
+    components: [],
+  },
+}
 
 export const COSMOS_DECIMALS = 6
 

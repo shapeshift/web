@@ -26,9 +26,12 @@ import { useTranslate } from 'react-polyglot'
 
 import { Amount } from '@/components/Amount/Amount'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
-import { SHAPESHIFT_COSMOS_VALIDATOR_ADDRESS } from '@/lib/yieldxyz/constants'
+import {
+  COSMOS_NETWORK_FALLBACK_APR,
+  SHAPESHIFT_COSMOS_VALIDATOR_ADDRESS,
+} from '@/lib/yieldxyz/constants'
 import type { ValidatorDto } from '@/lib/yieldxyz/types'
-import { searchValidators, sortValidators, toUserCurrency } from '@/lib/yieldxyz/utils'
+import { searchValidators, toUserCurrency } from '@/lib/yieldxyz/utils'
 import { GradientApy } from '@/pages/Yields/components/GradientApy'
 import type { AugmentedYieldBalanceWithAccountId } from '@/react-queries/queries/yieldxyz/useAllYieldBalances'
 import { selectUserCurrencyToUsdRate } from '@/state/slices/selectors'
@@ -79,8 +82,10 @@ export const YieldValidatorSelectModal = memo(
           continue
         seen.add(balance.validator.address)
         const full = validators.find(v => v.address === balance.validator?.address)
-        result.push(
-          full ?? {
+        if (full) {
+          result.push(full)
+        } else {
+          result.push({
             address: balance.validator.address,
             name: balance.validator.name,
             logoURI: balance.validator.logoURI,
@@ -91,12 +96,12 @@ export const YieldValidatorSelectModal = memo(
             tvl: '0',
             tvlRaw: '0',
             rewardRate: {
-              total: balance.validator.apr ?? 0,
+              total: balance.validator.apr ?? COSMOS_NETWORK_FALLBACK_APR,
               rateType: 'APR' as const,
               components: [],
             },
-          },
-        )
+          })
+        }
       }
       return result
     }, [balances, validators])
@@ -104,7 +109,7 @@ export const YieldValidatorSelectModal = memo(
     const allValidators = validators
 
     const filteredAll = useMemo(
-      () => sortValidators(searchValidators(allValidators, searchQuery)),
+      () => searchValidators(allValidators, searchQuery),
       [allValidators, searchQuery],
     )
 

@@ -174,7 +174,7 @@ export const YieldStats = memo(({ yieldItem, balances }: YieldStatsProps) => {
       <Flex justifyContent='space-between' alignItems='center'>
         <Flex alignItems='center' gap={2} color='text.subtle'>
           {moneyBillWaveIcon}
-          <Text fontSize='sm'>{translate('yieldXYZ.minDeposit')}</Text>
+          <Text fontSize='sm'>{translate('yieldXYZ.minEnter')}</Text>
         </Flex>
         <Amount.Crypto
           value={yieldItem.mechanics.entryLimits.minimum}

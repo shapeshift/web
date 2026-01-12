@@ -17,29 +17,29 @@ export const yieldNetworkToChainId = (network: string): ChainId | undefined => {
 
 const TX_TITLE_PATTERNS: [RegExp, string][] = [
   [/approv/i, 'Approve'],
-  [/supply|deposit|enter/i, 'Deposit'],
-  [/withdraw|exit/i, 'Withdraw'],
+  [/supply|deposit|enter/i, 'Enter'],
+  [/withdraw|exit|unstake|undelegate/i, 'Exit'],
   [/claim/i, 'Claim'],
-  [/unstake|undelegate/i, 'Unstake'],
-  [/stake|delegate/i, 'Stake'],
+  [/stake|delegate/i, 'Enter'],
   [/bridge/i, 'Bridge'],
   [/swap/i, 'Swap'],
 ]
 
 // Map of transaction types to user-friendly button labels
 // These should match the action verbs shown in the step row (without the asset symbol)
+// Yield.xyz uses Enter/Exit terminology consistently
 const TX_TYPE_TO_LABEL: Record<string, string> = {
   APPROVE: 'Approve',
   APPROVAL: 'Approve',
-  DELEGATE: 'Stake', // Monad uses DELEGATE for staking
-  UNDELEGATE: 'Unstake', // Monad uses UNDELEGATE for unstaking
-  STAKE: 'Stake',
-  UNSTAKE: 'Unstake',
-  DEPOSIT: 'Deposit',
-  WITHDRAW: 'Withdraw',
-  SUPPLY: 'Deposit',
-  EXIT: 'Withdraw',
-  ENTER: 'Deposit',
+  DELEGATE: 'Enter', // Monad uses DELEGATE for staking
+  UNDELEGATE: 'Exit', // Monad uses UNDELEGATE for unstaking
+  STAKE: 'Enter',
+  UNSTAKE: 'Exit',
+  DEPOSIT: 'Enter',
+  WITHDRAW: 'Exit',
+  SUPPLY: 'Enter',
+  EXIT: 'Exit',
+  ENTER: 'Enter',
   BRIDGE: 'Bridge',
   SWAP: 'Swap',
   CLAIM: 'Claim',

@@ -419,7 +419,7 @@ export const YieldEnterExit = memo(
           <Flex gap={2} alignItems='center'>
             {moneyBillWaveIcon}
             <Text fontSize='xs' color='text.subtle' fontWeight='medium'>
-              {translate('yieldXYZ.minDeposit')}
+              {translate('yieldXYZ.minEnter')}
             </Text>
           </Flex>
           <Text fontSize='xs' color={isBelowMinimum ? 'red.500' : 'text.subtle'} fontWeight='bold'>

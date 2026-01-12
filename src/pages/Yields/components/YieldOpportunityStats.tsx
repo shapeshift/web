@@ -158,7 +158,7 @@ export const YieldOpportunityStats = memo(function YieldOpportunityStats({
         </Box>
         <Stat>
           <StatLabel fontSize='md' color='blue.200'>
-            {translate('yieldXYZ.activeDeposits')}
+            {translate('yieldXYZ.activePositions')}
           </StatLabel>
           <StatNumber fontSize='3xl' fontWeight='bold' color='white'>
             <Amount.Fiat value={activeValueFormatted} abbreviated />

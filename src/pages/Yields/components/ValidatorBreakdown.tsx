@@ -232,7 +232,7 @@ const ValidatorCard: FC<ValidatorCardProps> = memo(
           </Box>
         </HStack>
         <VStack spacing={2} align='stretch' pl={10}>
-          <BalanceRow balance={activeBalance} hasBalance={hasActive} label='yieldXYZ.staked' />
+          <BalanceRow balance={activeBalance} hasBalance={hasActive} label='yieldXYZ.entered' />
           <BalanceRow
             balance={enteringBalance}
             hasBalance={hasEntering}

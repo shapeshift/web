@@ -12,7 +12,8 @@ import {
   useToast,
   VStack,
 } from '@chakra-ui/react'
-import { cosmosChainId, fromAccountId } from '@shapeshiftoss/caip'
+import { cosmosChainId, ethChainId, fromAccountId } from '@shapeshiftoss/caip'
+import { assertGetViemClient } from '@shapeshiftoss/contracts'
 import type { KnownChainIds } from '@shapeshiftoss/types'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { uuidv4 } from '@walletconnect/utils'
@@ -23,6 +24,7 @@ import { TbSwitchVertical } from 'react-icons/tb'
 import type { NumberFormatValues } from 'react-number-format'
 import { NumericFormat } from 'react-number-format'
 import { useTranslate } from 'react-polyglot'
+import type { Hash } from 'viem'
 
 import { AccountSelector } from '@/components/AccountSelector/AccountSelector'
 import { Amount } from '@/components/Amount/Amount'
@@ -57,9 +59,14 @@ import { useConfetti } from '@/pages/Yields/hooks/useConfetti'
 import type { TransactionStep } from '@/pages/Yields/hooks/useYieldTransactionFlow'
 import {
   filterExecutableTransactions,
+  getSpenderFromApprovalTx,
+  isApprovalTransaction,
+  isUsdtOnEthereumMainnet,
   waitForActionCompletion,
   waitForTransactionConfirmation,
 } from '@/pages/Yields/hooks/useYieldTransactionFlow'
+import { reactQueries } from '@/react-queries'
+import { useAllowance } from '@/react-queries/hooks/useAllowance'
 import { useSubmitYieldTransactionHash } from '@/react-queries/queries/yieldxyz/useSubmitYieldTransactionHash'
 import { useYieldProviders } from '@/react-queries/queries/yieldxyz/useYieldProviders'
 import { useYieldValidators } from '@/react-queries/queries/yieldxyz/useYieldValidators'
@@ -156,6 +163,7 @@ export const YieldEnterModal = memo(
     const wallet = walletState.wallet
     const isConnected = useMemo(() => Boolean(walletState.walletInfo), [walletState.walletInfo])
     const isYieldMultiAccountEnabled = useFeatureFlag('YieldMultiAccount')
+    const isUsdtApprovalResetEnabled = useFeatureFlag('UsdtApprovalReset')
     const {
       number: { localeParts },
     } = useLocaleFormatter()
@@ -171,6 +179,7 @@ export const YieldEnterModal = memo(
     const [activeStepIndex, setActiveStepIndex] = useState(-1)
     const [rawTransactions, setRawTransactions] = useState<TransactionDto[]>([])
     const [currentActionId, setCurrentActionId] = useState<string | null>(null)
+    const [resetTxHash, setResetTxHash] = useState<string | null>(null)
 
     const debouncedAmount = useDebounce(cryptoAmount, QUOTE_DEBOUNCE_MS)
 
@@ -313,8 +322,50 @@ export const YieldEnterModal = memo(
       retry: false,
     })
 
+    const approvalSpender = useMemo(() => {
+      if (!quoteData?.transactions) return null
+      const createdTransactions = quoteData.transactions.filter(
+        tx => tx.status === TransactionStatus.Created,
+      )
+      const approvalTx = createdTransactions.find(isApprovalTransaction)
+      if (!approvalTx) return null
+      return getSpenderFromApprovalTx(approvalTx)
+    }, [quoteData?.transactions])
+
+    const allowanceQuery = useAllowance({
+      assetId: inputTokenAssetId,
+      spender: approvalSpender ?? undefined,
+      from: userAddress || undefined,
+      isDisabled: !approvalSpender || !isUsdtApprovalResetEnabled,
+      isRefetchEnabled: true,
+    })
+
+    const isUsdtResetRequired = useMemo(() => {
+      if (!isUsdtApprovalResetEnabled) return false
+      if (!isUsdtOnEthereumMainnet(inputTokenAssetId, chainId)) return false
+      if (!approvalSpender) return false
+      if (!allowanceQuery.data) return false
+      return bnOrZero(allowanceQuery.data).gt(0)
+    }, [isUsdtApprovalResetEnabled, inputTokenAssetId, chainId, approvalSpender, allowanceQuery.data])
+
+    // Check if we're waiting for USDT allowance check before we can determine reset requirement
+    const isAllowanceCheckPending = useMemo(() => {
+      if (!isUsdtApprovalResetEnabled) return false
+      if (!isUsdtOnEthereumMainnet(inputTokenAssetId, chainId)) return false
+      if (!approvalSpender) return false
+      // If we have an approval spender for USDT but allowance data hasn't loaded yet
+      return allowanceQuery.data === undefined && !allowanceQuery.isError
+    }, [
+      isUsdtApprovalResetEnabled,
+      inputTokenAssetId,
+      chainId,
+      approvalSpender,
+      allowanceQuery.data,
+      allowanceQuery.isError,
+    ])
+
     const isLoading = isValidatorsLoading || !inputTokenAsset
-    const isQuoteActive = isQuoteLoading || isQuoteFetching
+    const isQuoteActive = isQuoteLoading || isQuoteFetching || isAllowanceCheckPending
 
     const fiatAmount = useMemo(
       () => bnOrZero(cryptoAmount).times(marketData?.price ?? 0),
@@ -390,6 +441,7 @@ export const YieldEnterModal = memo(
       setActiveStepIndex(-1)
       setRawTransactions([])
       setCurrentActionId(null)
+      setResetTxHash(null)
       queryClient.removeQueries({ queryKey: ['yieldxyz', 'quote', 'enter', yieldItem.id] })
       onClose()
     }, [onClose, isSubmitting, queryClient, yieldItem.id])
@@ -458,10 +510,77 @@ export const YieldEnterModal = memo(
       setTransactionSteps(prev => prev.map((s, i) => (i === index ? { ...s, ...updates } : s)))
     }, [])
 
+    const executeResetAllowance = useCallback(async () => {
+      if (!wallet || !accountId || !inputTokenAssetId || !approvalSpender) {
+        throw new Error(translate('yieldXYZ.errors.walletNotConnected'))
+      }
+
+      setIsSubmitting(true)
+      updateStepStatus(0, {
+        status: 'loading',
+        loadingMessage: translate('yieldXYZ.loading.signInWallet'),
+      })
+
+      try {
+        const txHash = await reactQueries.mutations
+          .approve({
+            assetId: inputTokenAssetId,
+            spender: approvalSpender,
+            amountCryptoBaseUnit: '0',
+            accountNumber: accountMetadata?.bip44Params?.accountNumber ?? 0,
+            wallet,
+            from: userAddress,
+          })
+          .mutationFn()
+
+        if (!txHash) throw new Error(translate('yieldXYZ.errors.broadcastFailed'))
+
+        setResetTxHash(txHash)
+        const txUrl = feeAsset?.explorerTxLink ? `${feeAsset.explorerTxLink}${txHash}` : ''
+        updateStepStatus(0, { txHash, txUrl, loadingMessage: translate('common.confirming') })
+
+        const publicClient = assertGetViemClient(ethChainId)
+        await publicClient.waitForTransactionReceipt({ hash: txHash as Hash })
+
+        await allowanceQuery.refetch()
+        updateStepStatus(0, { status: 'success', loadingMessage: undefined })
+        setActiveStepIndex(1)
+      } catch (error) {
+        toast({
+          title: translate('yieldXYZ.errors.transactionFailedTitle'),
+          description:
+            error instanceof Error
+              ? error.message
+              : translate('yieldXYZ.errors.transactionFailedDescription'),
+          status: 'error',
+          duration: 5000,
+          isClosable: true,
+        })
+        updateStepStatus(0, { status: 'failed', loadingMessage: undefined })
+      } finally {
+        setIsSubmitting(false)
+      }
+    }, [
+      wallet,
+      accountId,
+      inputTokenAssetId,
+      approvalSpender,
+      userAddress,
+      accountMetadata?.bip44Params?.accountNumber,
+      feeAsset?.explorerTxLink,
+      translate,
+      updateStepStatus,
+      toast,
+      allowanceQuery,
+      activeStepIndex,
+      resetTxHash,
+    ])
+
     const executeSingleTransaction = useCallback(
       async (
         tx: TransactionDto,
-        index: number,
+        yieldTxIndex: number,
+        uiStepIndex: number,
         allTransactions: TransactionDto[],
         actionId: string,
       ) => {
@@ -469,7 +588,7 @@ export const YieldEnterModal = memo(
           throw new Error(translate('yieldXYZ.errors.walletNotConnected'))
         }
 
-        updateStepStatus(index, {
+        updateStepStatus(uiStepIndex, {
           status: 'loading',
           loadingMessage: translate('yieldXYZ.loading.signInWallet'),
         })
@@ -489,7 +608,11 @@ export const YieldEnterModal = memo(
           if (!txHash) throw new Error(translate('yieldXYZ.errors.broadcastFailed'))
 
           const txUrl = feeAsset?.explorerTxLink ? `${feeAsset.explorerTxLink}${txHash}` : ''
-          updateStepStatus(index, { txHash, txUrl, loadingMessage: translate('common.confirming') })
+          updateStepStatus(uiStepIndex, {
+            txHash,
+            txUrl,
+            loadingMessage: translate('common.confirming'),
+          })
 
           await submitHashMutation.mutateAsync({
             transactionId: tx.id,
@@ -498,7 +621,7 @@ export const YieldEnterModal = memo(
             address: userAddress,
           })
 
-          const isLastTransaction = index + 1 >= allTransactions.length
+          const isLastTransaction = yieldTxIndex + 1 >= allTransactions.length
 
           if (isLastTransaction) {
             await waitForActionCompletion(actionId)
@@ -515,21 +638,19 @@ export const YieldEnterModal = memo(
             }
 
             dispatchNotification(tx, txHash)
-            updateStepStatus(index, { status: 'success', loadingMessage: undefined })
+            updateStepStatus(uiStepIndex, { status: 'success', loadingMessage: undefined })
             setModalStep('success')
           } else {
-            // Wait for current tx to be confirmed before advancing to next step
             const confirmedAction = await waitForTransactionConfirmation(actionId, tx.id)
             const nextTx = confirmedAction.transactions.find(
-              t => t.status === TransactionStatus.Created && t.stepIndex === index + 1,
+              t => t.status === TransactionStatus.Created && t.stepIndex === yieldTxIndex + 1,
             )
 
             if (nextTx) {
-              updateStepStatus(index, { status: 'success', loadingMessage: undefined })
-              setRawTransactions(prev => prev.map((t, i) => (i === index + 1 ? nextTx : t)))
-              setActiveStepIndex(index + 1)
+              updateStepStatus(uiStepIndex, { status: 'success', loadingMessage: undefined })
+              setRawTransactions(prev => prev.map((t, i) => (i === yieldTxIndex + 1 ? nextTx : t)))
+              setActiveStepIndex(uiStepIndex + 1)
             } else {
-              // No next tx found - action might be complete
               await waitForActionCompletion(actionId)
               await queryClient.refetchQueries({ queryKey: ['yieldxyz', 'allBalances'] })
               await queryClient.refetchQueries({ queryKey: ['yieldxyz', 'yields'] })
@@ -544,12 +665,11 @@ export const YieldEnterModal = memo(
               }
 
               dispatchNotification(tx, txHash)
-              updateStepStatus(index, { status: 'success', loadingMessage: undefined })
+              updateStepStatus(uiStepIndex, { status: 'success', loadingMessage: undefined })
               setModalStep('success')
             }
           }
         } catch (error) {
-          console.error('Transaction execution failed:', error)
           toast({
             title: translate('yieldXYZ.errors.transactionFailedTitle'),
             description:
@@ -560,7 +680,7 @@ export const YieldEnterModal = memo(
             duration: 5000,
             isClosable: true,
           })
-          updateStepStatus(index, { status: 'pending', loadingMessage: undefined })
+          updateStepStatus(uiStepIndex, { status: 'failed', loadingMessage: undefined })
         } finally {
           setIsSubmitting(false)
         }
@@ -581,14 +701,31 @@ export const YieldEnterModal = memo(
         dispatchNotification,
         dispatch,
         toast,
+        isUsdtResetRequired,
       ],
     )
 
     const handleExecute = useCallback(async () => {
+      // Handle USDT reset step if required and not yet done
+      const shouldExecuteReset = isUsdtResetRequired && activeStepIndex === 0 && !resetTxHash
+
+      if (shouldExecuteReset) {
+        await executeResetAllowance()
+        return
+      }
+
+      // Calculate the yield transaction index (offset by 1 if we had a reset step)
+      // Use resetTxHash as indicator, not isUsdtResetRequired (which changes to false after reset)
+      const hadResetStep = Boolean(resetTxHash)
+      const yieldStepIndex = hadResetStep ? activeStepIndex - 1 : activeStepIndex
+
       // If we're in the middle of a multi-step flow, execute the next step
-      if (activeStepIndex >= 0 && rawTransactions[activeStepIndex] && currentActionId) {
+      const hasYieldTx = yieldStepIndex >= 0 && rawTransactions[yieldStepIndex] && currentActionId
+
+      if (hasYieldTx) {
         await executeSingleTransaction(
-          rawTransactions[activeStepIndex],
+          rawTransactions[yieldStepIndex],
+          yieldStepIndex,
           activeStepIndex,
           rawTransactions,
           currentActionId,
@@ -608,8 +745,21 @@ export const YieldEnterModal = memo(
 
       setCurrentActionId(quoteData.id)
       setRawTransactions(transactions)
-      setTransactionSteps(
-        transactions.map((tx, i) => ({
+
+      // Build transaction steps with reset step if needed
+      const steps: TransactionStep[] = []
+
+      if (isUsdtResetRequired) {
+        steps.push({
+          title: translate('yieldXYZ.resetAllowance'),
+          originalTitle: 'Reset Allowance',
+          type: 'RESET',
+          status: 'pending',
+        })
+      }
+
+      steps.push(
+        ...transactions.map((tx, i) => ({
           title: formatYieldTxTitle(
             tx.title || translate('yieldXYZ.transactionNumber', { number: i + 1 }),
             inputTokenAsset.symbol,
@@ -619,11 +769,21 @@ export const YieldEnterModal = memo(
           status: 'pending' as const,
         })),
       )
+
+      setTransactionSteps(steps)
       setActiveStepIndex(0)
 
-      await executeSingleTransaction(transactions[0], 0, transactions, quoteData.id)
+      // Execute first step (reset if required, otherwise first yield tx)
+      if (isUsdtResetRequired) {
+        await executeResetAllowance()
+      } else {
+        await executeSingleTransaction(transactions[0], 0, 0, transactions, quoteData.id)
+      }
     }, [
+      isUsdtResetRequired,
       activeStepIndex,
+      resetTxHash,
+      executeResetAllowance,
       rawTransactions,
       currentActionId,
       wallet,
@@ -652,27 +812,31 @@ export const YieldEnterModal = memo(
         if (activeStep) return getTransactionButtonText(activeStep.type, activeStep.originalTitle)
       }
 
-      // In multi-step flow (waiting for next click), use rawTransactions for current step
-      if (activeStepIndex >= 0 && rawTransactions[activeStepIndex]) {
-        const nextTx = rawTransactions[activeStepIndex]
-        return getTransactionButtonText(nextTx.type, nextTx.title)
+      // In multi-step flow (waiting for next click)
+      if (activeStepIndex >= 0 && transactionSteps[activeStepIndex]) {
+        const currentStep = transactionSteps[activeStepIndex]
+        return getTransactionButtonText(currentStep.type, currentStep.originalTitle)
       }
 
-      // Before execution, use the first CREATED transaction from quoteData
+      // Before execution - show reset if required, otherwise first yield tx
+      if (isUsdtResetRequired) {
+        return translate('yieldXYZ.resetAllowance')
+      }
+
       const firstCreatedTx = quoteData?.transactions?.find(
         tx => tx.status === TransactionStatus.Created,
       )
       if (firstCreatedTx) return getTransactionButtonText(firstCreatedTx.type, firstCreatedTx.title)
 
-      // Fallback to generic stake text
-      return translate('yieldXYZ.stakeAsset', { asset: inputTokenAsset?.symbol })
+      // Fallback to generic enter text
+      return translate('yieldXYZ.enterAsset', { asset: inputTokenAsset?.symbol })
     }, [
       isConnected,
       isQuoteActive,
       isSubmitting,
       transactionSteps,
       activeStepIndex,
-      rawTransactions,
+      isUsdtResetRequired,
       quoteData,
       translate,
       inputTokenAsset?.symbol,
@@ -680,20 +844,38 @@ export const YieldEnterModal = memo(
 
     const modalTitle = useMemo(() => {
       if (modalStep === 'success') return translate('common.success')
-      return translate('yieldXYZ.stakeAsset', { asset: inputTokenAsset?.symbol })
+      return translate('yieldXYZ.enterAsset', { asset: inputTokenAsset?.symbol })
     }, [translate, inputTokenAsset?.symbol, modalStep])
 
     const previewSteps = useMemo((): TransactionStep[] => {
       if (!quoteData?.transactions?.length || !inputTokenAsset) return []
-      return quoteData.transactions
-        .filter(tx => tx.status === TransactionStatus.Created)
-        .map((tx, i) => ({
-          title: formatYieldTxTitle(tx.title || `Transaction ${i + 1}`, inputTokenAsset.symbol),
-          originalTitle: tx.title || '',
-          type: tx.type,
-          status: 'pending' as const,
-        }))
-    }, [quoteData, inputTokenAsset])
+      // Don't show preview steps while still checking if USDT reset is needed
+      if (isAllowanceCheckPending) return []
+
+      const steps: TransactionStep[] = []
+
+      if (isUsdtResetRequired) {
+        steps.push({
+          title: translate('yieldXYZ.resetAllowance'),
+          originalTitle: 'Reset Allowance',
+          type: 'RESET',
+          status: 'pending',
+        })
+      }
+
+      steps.push(
+        ...quoteData.transactions
+          .filter(tx => tx.status === TransactionStatus.Created)
+          .map((tx, i) => ({
+            title: formatYieldTxTitle(tx.title || `Transaction ${i + 1}`, inputTokenAsset.symbol),
+            originalTitle: tx.title || '',
+            type: tx.type,
+            status: 'pending' as const,
+          })),
+      )
+
+      return steps
+    }, [quoteData, inputTokenAsset, isUsdtResetRequired, isAllowanceCheckPending, translate])
 
     const percentButtons = useMemo(
       () => (
@@ -787,7 +969,7 @@ export const YieldEnterModal = memo(
           {minDeposit && bnOrZero(minDeposit).gt(0) && (
             <Flex justify='space-between' align='center' mt={3}>
               <Text fontSize='sm' color='text.subtle'>
-                {translate('yieldXYZ.minDeposit')}
+                {translate('yieldXYZ.minEnter')}
               </Text>
               <Text
                 fontSize='sm'
@@ -908,7 +1090,7 @@ export const YieldEnterModal = memo(
               {translate('yieldXYZ.success')}
             </Heading>
             <Text color='text.subtle' fontSize='md'>
-              {translate('yieldXYZ.successDeposit', {
+              {translate('yieldXYZ.successEnter', {
                 amount: cryptoAmount,
                 symbol: inputTokenAsset?.symbol,
               })}

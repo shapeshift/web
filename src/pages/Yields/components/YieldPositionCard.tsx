@@ -224,7 +224,7 @@ export const YieldPositionCard = memo(
             <Text fontWeight='bold'>{translate('yieldXYZ.startEarning')}</Text>
           </Flex>
           <Text fontSize='sm'>
-            {translate('yieldXYZ.depositYourToken', { symbol: yieldItem.token.symbol })}
+            {translate('yieldXYZ.enterYourToken', { symbol: yieldItem.token.symbol })}
           </Text>
         </Alert>
       ),

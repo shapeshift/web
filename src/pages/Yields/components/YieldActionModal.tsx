@@ -1,20 +1,4 @@
-import {
-  Avatar,
-  Box,
-  Button,
-  Flex,
-  Heading,
-  Icon,
-  Link,
-  Modal,
-  ModalBody,
-  ModalCloseButton,
-  ModalContent,
-  ModalOverlay,
-  Spinner,
-  Text,
-  VStack,
-} from '@chakra-ui/react'
+import { Avatar, Box, Button, Flex, Heading, Icon, Link, Text, VStack } from '@chakra-ui/react'
 import { keyframes } from '@emotion/react'
 import { memo, useEffect, useMemo } from 'react'
 import ReactCanvasConfetti from 'react-canvas-confetti'
@@ -22,11 +6,17 @@ import { FaCheck, FaExternalLinkAlt, FaWallet } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 
 import { Amount } from '@/components/Amount/Amount'
-import { MiddleEllipsis } from '@/components/MiddleEllipsis/MiddleEllipsis'
+import { Dialog } from '@/components/Modal/components/Dialog'
+import { DialogBody } from '@/components/Modal/components/DialogBody'
+import { DialogCloseButton } from '@/components/Modal/components/DialogCloseButton'
+import { DialogFooter } from '@/components/Modal/components/DialogFooter'
+import { DialogHeader } from '@/components/Modal/components/DialogHeader'
+import { DialogTitle } from '@/components/Modal/components/DialogTitle'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import type { AugmentedYieldDto } from '@/lib/yieldxyz/types'
 import { formatYieldTxTitle, getTransactionButtonText } from '@/lib/yieldxyz/utils'
 import { GradientApy } from '@/pages/Yields/components/GradientApy'
+import { TransactionStepsList } from '@/pages/Yields/components/TransactionStepsList'
 import { useConfetti } from '@/pages/Yields/hooks/useConfetti'
 import type { TransactionStep } from '@/pages/Yields/hooks/useYieldTransactionFlow'
 import { ModalStep, useYieldTransactionFlow } from '@/pages/Yields/hooks/useYieldTransactionFlow'
@@ -44,47 +34,6 @@ const checkIconBox = (
     <Icon as={FaCheck} color='text.base' />
   </Box>
 )
-
-const STATUS_LABEL_KEYS: Record<TransactionStep['status'], string | null> = {
-  pending: 'yieldXYZ.loading.waiting',
-  success: 'yieldXYZ.loading.done',
-  loading: null,
-  failed: 'yieldXYZ.loading.failed',
-}
-
-const TransactionStepStatus = memo(function TransactionStepStatus({
-  step,
-  translate,
-}: {
-  step: TransactionStep
-  translate: ReturnType<typeof useTranslate>
-}) {
-  if (step.txHash) {
-    return (
-      <Link
-        href={step.txUrl}
-        isExternal
-        color='blue.400'
-        fontSize='xs'
-        display='flex'
-        alignItems='center'
-        gap={1}
-        _hover={{ textDecoration: 'underline' }}
-      >
-        <MiddleEllipsis value={step.txHash} /> <Icon as={FaExternalLinkAlt} boxSize={3} />
-      </Link>
-    )
-  }
-  const labelKey = STATUS_LABEL_KEYS[step.status]
-  if (labelKey) {
-    return (
-      <Text fontSize='xs' color='text.subtle' fontWeight='medium'>
-        {translate(labelKey)}
-      </Text>
-    )
-  }
-  return null
-})
 
 type YieldActionModalProps = {
   isOpen: boolean
@@ -127,6 +76,8 @@ export const YieldActionModal = memo(function YieldActionModal({
     handleClose,
     isQuoteLoading,
     quoteData,
+    isAllowanceCheckPending,
+    isUsdtResetRequired,
   } = useYieldTransactionFlow({
     yieldItem,
     action,
@@ -228,8 +179,8 @@ export const YieldActionModal = memo(function YieldActionModal({
   )
 
   const isButtonLoading = useMemo(
-    () => isSubmitting || isQuoteLoading,
-    [isSubmitting, isQuoteLoading],
+    () => isSubmitting || isQuoteLoading || isAllowanceCheckPending,
+    [isSubmitting, isQuoteLoading, isAllowanceCheckPending],
   )
 
   const loadingText = useMemo(() => {
@@ -237,8 +188,8 @@ export const YieldActionModal = memo(function YieldActionModal({
     if (activeStepIndex >= 0 && transactionSteps[activeStepIndex]?.loadingMessage) {
       return transactionSteps[activeStepIndex].loadingMessage
     }
-    if (action === 'enter') return translate('yieldXYZ.depositing')
-    if (action === 'exit') return translate('yieldXYZ.withdrawing')
+    if (action === 'enter') return translate('yieldXYZ.entering')
+    if (action === 'exit') return translate('yieldXYZ.exiting')
     return translate('common.claiming')
   }, [isQuoteLoading, action, translate, activeStepIndex, transactionSteps])
 
@@ -254,22 +205,21 @@ export const YieldActionModal = memo(function YieldActionModal({
       return getTransactionButtonText(firstCreatedTx.type, firstCreatedTx.title)
     }
     // Fallback to action-based text
-    if (action === 'enter') return translate('yieldXYZ.deposit')
-    if (action === 'exit') return translate('yieldXYZ.withdraw')
+    if (action === 'enter') return translate('yieldXYZ.enter')
+    if (action === 'exit') return translate('yieldXYZ.exit')
     return translate('common.claim')
   }, [action, translate, activeStepIndex, transactionSteps, quoteData])
 
   const modalHeading = useMemo(() => {
-    if (action === 'enter') return translate('yieldXYZ.supplySymbol', { symbol: assetSymbol })
-    if (action === 'exit') return translate('yieldXYZ.withdrawSymbol', { symbol: assetSymbol })
+    if (action === 'enter') return translate('yieldXYZ.enterSymbol', { symbol: assetSymbol })
+    if (action === 'exit') return translate('yieldXYZ.exitSymbol', { symbol: assetSymbol })
     return translate('yieldXYZ.claimSymbol', { symbol: assetSymbol })
   }, [action, assetSymbol, translate])
 
   const successMessage = useMemo(() => {
     if (action === 'enter')
-      return translate('yieldXYZ.successDeposit', { symbol: assetSymbol, amount })
-    if (action === 'exit')
-      return translate('yieldXYZ.successWithdraw', { symbol: assetSymbol, amount })
+      return translate('yieldXYZ.successEnter', { symbol: assetSymbol, amount })
+    if (action === 'exit') return translate('yieldXYZ.successExit', { symbol: assetSymbol, amount })
     return translate('yieldXYZ.successClaim', { symbol: assetSymbol, amount })
   }, [action, assetSymbol, amount, translate])
 
@@ -284,266 +234,165 @@ export const YieldActionModal = memo(function YieldActionModal({
     if (transactionSteps.length > 0) {
       return transactionSteps
     }
+    // Don't show preview steps while still checking if USDT reset is needed
+    if (isAllowanceCheckPending) return []
     // Before execution, create preview steps from quoteData (filter out SKIPPED transactions)
     if (quoteData?.transactions?.length) {
-      return quoteData.transactions
-        .filter(tx => tx.status === 'CREATED')
-        .map((tx, i) => ({
-          title: formatYieldTxTitle(tx.title || `Transaction ${i + 1}`, assetSymbol),
-          originalTitle: tx.title || '',
-          type: tx.type,
+      const steps: TransactionStep[] = []
+      // Add reset step if USDT reset is required
+      if (isUsdtResetRequired) {
+        steps.push({
+          title: translate('yieldXYZ.resetAllowance'),
+          originalTitle: 'Reset Allowance',
+          type: 'RESET',
           status: 'pending' as const,
-        }))
+        })
+      }
+      // Add yield.xyz transactions
+      steps.push(
+        ...quoteData.transactions
+          .filter(tx => tx.status === 'CREATED')
+          .map((tx, i) => ({
+            title: formatYieldTxTitle(tx.title || `Transaction ${i + 1}`, assetSymbol),
+            originalTitle: tx.title || '',
+            type: tx.type,
+            status: 'pending' as const,
+          })),
+      )
+      return steps
     }
     return []
-  }, [transactionSteps, quoteData, assetSymbol])
+  }, [
+    transactionSteps,
+    quoteData,
+    assetSymbol,
+    isAllowanceCheckPending,
+    isUsdtResetRequired,
+    translate,
+  ])
 
-  const statusCard = useMemo(
+  const animatedAvatarRow = useMemo(
     () => (
-      <Box
-        p={10}
-        bg='background.surface.raised.base'
-        borderRadius='2xl'
-        borderWidth='1px'
-        borderColor='border.base'
-        position='relative'
-        overflow='hidden'
-        minH='200px'
-      >
-        <Box
-          position='absolute'
-          top='0'
-          left='20%'
-          right='20%'
-          h='1px'
-          bgGradient='linear(to-r, transparent, blue.500, transparent)'
-          boxShadow='0 0 20px 2px rgba(66, 153, 225, 0.5)'
-        />
-        <Flex justify='space-between' align='center' mb={6}>
-          <Amount.Crypto value={amount} symbol={assetSymbol} size='2xl' fontWeight='bold' />
-        </Flex>
-        <Flex
-          alignItems='center'
-          justify='center'
-          mb={8}
-          py={4}
-          position='relative'
-          gap={10}
-          flexDirection={flexDirection}
-        >
-          <VStack spacing={3} zIndex={2}>
-            <Box
-              p={1}
-              bg='background.surface.base'
-              borderRadius='full'
-              boxShadow='0 0 25px rgba(66, 153, 225, 0.4)'
-              position='relative'
-              border='2px solid'
-              borderColor='blue.500'
-            >
-              <Avatar size='md' src={assetAvatarSrc} icon={walletIcon} />
-            </Box>
-            <Text fontSize='sm' color='text.subtle' fontWeight='bold'>
-              {assetSymbol}
-            </Text>
-          </VStack>
-          <Box
-            position='relative'
-            flex={1}
-            h='50px'
-            display='flex'
-            alignItems='center'
-            justifyContent='center'
-          >
-            <Box
-              position='absolute'
-              left={0}
-              right={0}
-              h='2px'
-              bg='border.base'
-              borderRadius='full'
-            />
-            <Box
-              position='absolute'
-              left={0}
-              right={0}
-              h='6px'
-              opacity={0.8}
-              backgroundImage='radial-gradient(circle, #4299E1 2px, transparent 2.5px)'
-              backgroundSize='14px 100%'
-              animation={`${horizontalScroll} 3s infinite linear`}
-              style={{
-                maskImage:
-                  'linear-gradient(to right, transparent, black 20%, black 80%, transparent)',
-                WebkitMaskImage:
-                  'linear-gradient(to right, transparent, black 20%, black 80%, transparent)',
-              }}
-            />
+      <Flex alignItems='center' justify='center' py={6} gap={6} flexDirection={flexDirection}>
+        <VStack spacing={2}>
+          <Box p={1} bg='background.surface.raised.base' borderRadius='full'>
+            <Avatar size='md' src={assetAvatarSrc} icon={walletIcon} />
           </Box>
-          <VStack spacing={3} zIndex={2} position='relative'>
-            <Box
-              position='relative'
-              p={1}
-              bg='background.surface.base'
-              borderRadius='full'
-              border='2px solid'
-              borderColor='blue.500'
-              boxShadow='0 0 25px rgba(66, 153, 225, 0.2)'
-              backgroundClip='padding-box'
-            >
-              <Avatar
-                src={vaultMetadata.logoURI}
-                size='md'
-                name={vaultMetadata.name}
-                icon={checkIconBox}
-              />
-            </Box>
-            <Text fontSize='sm' color='text.subtle' fontWeight='bold'>
-              {vaultMetadata.name}
-            </Text>
-          </VStack>
+          <Text fontSize='sm' color='text.subtle' fontWeight='medium'>
+            {assetSymbol}
+          </Text>
+        </VStack>
+        <Box position='relative' flex={1} maxW='120px'>
+          <Box h='2px' bg='border.base' borderRadius='full' />
+          <Box
+            position='absolute'
+            top='50%'
+            left={0}
+            right={0}
+            h='6px'
+            transform='translateY(-50%)'
+            opacity={0.6}
+            backgroundImage='radial-gradient(circle, var(--chakra-colors-text-subtle) 2px, transparent 2.5px)'
+            backgroundSize='14px 100%'
+            animation={`${horizontalScroll} 3s infinite linear`}
+            style={{
+              maskImage: 'linear-gradient(to right, transparent, black 20%, black 80%, transparent)',
+              WebkitMaskImage:
+                'linear-gradient(to right, transparent, black 20%, black 80%, transparent)',
+            }}
+          />
+        </Box>
+        <VStack spacing={2}>
+          <Box p={1} bg='background.surface.raised.base' borderRadius='full'>
+            <Avatar src={vaultMetadata.logoURI} size='md' name={vaultMetadata.name} icon={checkIconBox} />
+          </Box>
+          <Text fontSize='sm' color='text.subtle' fontWeight='medium'>
+            {vaultMetadata.name}
+          </Text>
+        </VStack>
+      </Flex>
+    ),
+    [flexDirection, assetAvatarSrc, assetSymbol, horizontalScroll, vaultMetadata.logoURI, vaultMetadata.name],
+  )
+
+  const statsContent = useMemo(
+    () => (
+      <Box bg='background.surface.raised.base' borderRadius='xl' p={4} borderWidth='1px' borderColor='border.base'>
+        <Flex justify='space-between' align='center'>
+          <Text fontSize='sm' color='text.subtle'>
+            {translate('common.amount')}
+          </Text>
+          <Amount.Crypto value={amount} symbol={assetSymbol} fontSize='sm' fontWeight='medium' />
         </Flex>
-        <VStack align='stretch' spacing={0} mt={4}>
-          {action === 'enter' && (
-            <>
-              <Flex
-                justify='space-between'
-                align='center'
-                py={2}
-                borderBottomWidth='1px'
-                borderColor='border.base'
-              >
-                <Text color='text.subtle' fontSize='sm'>
-                  {translate('yieldXYZ.apr')}
+        {action === 'enter' && (
+          <>
+            <Flex justify='space-between' align='center' mt={3}>
+              <Text fontSize='sm' color='text.subtle'>
+                {translate('yieldXYZ.apr')}
+              </Text>
+              <GradientApy fontSize='sm' fontWeight='bold'>
+                {aprFormatted}
+              </GradientApy>
+            </Flex>
+            {showEstimatedEarnings && (
+              <Flex justify='space-between' align='center' mt={3}>
+                <Text fontSize='sm' color='text.subtle'>
+                  {translate('yieldXYZ.estEarnings')}
                 </Text>
-                <GradientApy fontSize='sm' fontWeight='bold'>
-                  {aprFormatted}
-                </GradientApy>
-              </Flex>
-              {showEstimatedEarnings && (
-                <Flex
-                  justify='space-between'
-                  align='center'
-                  py={2}
-                  borderBottomWidth='1px'
-                  borderColor='border.base'
-                >
-                  <Text color='text.subtle' fontSize='sm'>
-                    {translate('yieldXYZ.estEarnings')}
+                <Flex direction='column' align='flex-end'>
+                  <GradientApy fontSize='sm' fontWeight='bold'>
+                    {estimatedEarningsAmount}
+                  </GradientApy>
+                  <Text fontSize='xs' color='text.subtle'>
+                    <Amount.Fiat value={estimatedEarningsFiat} />
                   </Text>
-                  <Flex align='center' gap={1}>
-                    <Flex direction='column' align='flex-end'>
-                      <GradientApy fontSize='sm' fontWeight='bold'>
-                        {estimatedEarningsAmount}
-                      </GradientApy>
-                      <Flex color='text.subtle' fontWeight='normal' fontSize='xs'>
-                        <Amount.Fiat value={estimatedEarningsFiat} />
-                      </Flex>
-                    </Flex>
-                  </Flex>
                 </Flex>
-              )}
-            </>
-          )}
-          {showValidatorRow && (
-            <Flex
-              justify='space-between'
-              align='center'
-              py={2}
-              borderBottomWidth='1px'
-              borderColor='border.base'
-            >
-              <Text color='text.subtle' fontSize='sm'>
-                {translate('yieldXYZ.validator')}
-              </Text>
-              <Flex align='center' gap={2}>
-                <Avatar size='xs' src={vaultMetadata.logoURI} name={vaultMetadata.name} />
-                <Text color='text.base' fontSize='sm' fontWeight='medium'>
-                  {vaultMetadata.name}
-                </Text>
               </Flex>
-            </Flex>
-          )}
-          {!isStaking && (
-            <Flex
-              justify='space-between'
-              align='center'
-              py={2}
-              borderBottomWidth='1px'
-              borderColor='border.base'
-            >
-              <Text color='text.subtle' fontSize='sm'>
-                {translate('yieldXYZ.provider')}
-              </Text>
-              <Flex align='center' gap={2}>
-                <Avatar size='xs' src={vaultMetadata.logoURI} name={vaultMetadata.name} />
-                <Text color='text.base' fontSize='sm' fontWeight='medium'>
-                  {vaultMetadata.name}
-                </Text>
-              </Flex>
-            </Flex>
-          )}
-          <Flex justify='space-between' align='center' py={2}>
-            <Text color='text.subtle' fontSize='sm'>
-              {translate('yieldXYZ.network')}
+            )}
+          </>
+        )}
+        {showValidatorRow && (
+          <Flex justify='space-between' align='center' mt={3}>
+            <Text fontSize='sm' color='text.subtle'>
+              {translate('yieldXYZ.validator')}
             </Text>
             <Flex align='center' gap={2}>
-              {feeAsset && <Avatar size='xs' src={networkAvatarSrc} name={yieldItem.network} />}
-              <Text color='text.base' fontSize='sm' fontWeight='medium' textTransform='capitalize'>
-                {yieldItem.network}
+              <Avatar size='xs' src={vaultMetadata.logoURI} name={vaultMetadata.name} />
+              <Text fontSize='sm' fontWeight='medium'>
+                {vaultMetadata.name}
               </Text>
             </Flex>
           </Flex>
-        </VStack>
-        <VStack
-          align='stretch'
-          spacing={0}
-          bg='blackAlpha.300'
-          borderRadius='xl'
-          overflow='hidden'
-          mt={4}
-        >
-          {displaySteps.map((s, idx) => (
-            <Flex
-              key={idx}
-              justify='space-between'
-              align='center'
-              p={4}
-              borderBottomWidth={idx !== displaySteps.length - 1 ? '1px' : '0'}
-              borderColor='whiteAlpha.50'
-              bg={s.status === 'loading' ? 'whiteAlpha.50' : 'transparent'}
-              transition='all 0.2s'
-            >
-              <Flex align='center' gap={3}>
-                {s.status === 'success' ? (
-                  <Icon as={FaCheck} color='green.400' boxSize={4} />
-                ) : s.status === 'loading' ? (
-                  <Spinner size='xs' color='blue.400' />
-                ) : (
-                  <Box w={2} h={2} bg='text.subtle' borderRadius='full' ml={1} />
-                )}
-                <Text
-                  color={s.status === 'pending' ? 'text.subtle' : 'text.base'}
-                  fontSize='sm'
-                  fontWeight={s.status === 'loading' ? 'bold' : 'medium'}
-                >
-                  {s.title}
-                </Text>
-              </Flex>
-              <TransactionStepStatus step={s} translate={translate} />
+        )}
+        {!isStaking && (
+          <Flex justify='space-between' align='center' mt={3}>
+            <Text fontSize='sm' color='text.subtle'>
+              {translate('yieldXYZ.provider')}
+            </Text>
+            <Flex align='center' gap={2}>
+              <Avatar size='xs' src={vaultMetadata.logoURI} name={vaultMetadata.name} />
+              <Text fontSize='sm' fontWeight='medium'>
+                {vaultMetadata.name}
+              </Text>
             </Flex>
-          ))}
-        </VStack>
+          </Flex>
+        )}
+        <Flex justify='space-between' align='center' mt={3}>
+          <Text fontSize='sm' color='text.subtle'>
+            {translate('yieldXYZ.network')}
+          </Text>
+          <Flex align='center' gap={2}>
+            {feeAsset && <Avatar size='xs' src={networkAvatarSrc} name={yieldItem.network} />}
+            <Text fontSize='sm' fontWeight='medium' textTransform='capitalize'>
+              {yieldItem.network}
+            </Text>
+          </Flex>
+        </Flex>
       </Box>
     ),
     [
       amount,
       assetSymbol,
-      flexDirection,
-      assetAvatarSrc,
-      horizontalScroll,
-      vaultMetadata.logoURI,
-      vaultMetadata.name,
       action,
       translate,
       aprFormatted,
@@ -552,36 +401,23 @@ export const YieldActionModal = memo(function YieldActionModal({
       estimatedEarningsFiat,
       showValidatorRow,
       isStaking,
+      vaultMetadata.logoURI,
+      vaultMetadata.name,
       feeAsset,
       networkAvatarSrc,
       yieldItem.network,
-      displaySteps,
     ],
   )
 
   const actionContent = useMemo(
     () => (
-      <VStack spacing={6} align='stretch'>
-        {statusCard}
-        <Button
-          size='lg'
-          height='64px'
-          fontSize='lg'
-          colorScheme='blue'
-          onClick={handleConfirm}
-          width='full'
-          borderRadius='xl'
-          isDisabled={isButtonDisabled}
-          isLoading={isButtonLoading}
-          loadingText={loadingText}
-          _hover={{ transform: 'translateY(-2px)', boxShadow: 'lg' }}
-          transition='all 0.2s'
-        >
-          {buttonText}
-        </Button>
-      </VStack>
+      <Flex direction='column' gap={4} height='full'>
+        {animatedAvatarRow}
+        {statsContent}
+        <TransactionStepsList steps={displaySteps} />
+      </Flex>
     ),
-    [statusCard, handleConfirm, isButtonDisabled, isButtonLoading, loadingText, buttonText],
+    [animatedAvatarRow, statsContent, displaySteps],
   )
 
   const { getInstance, fireConfetti, confettiStyle } = useConfetti()
@@ -671,56 +507,74 @@ export const YieldActionModal = memo(function YieldActionModal({
             ))}
           </VStack>
         </Box>
-        <Button
-          size='lg'
-          colorScheme='gray'
-          width='full'
-          onClick={handleClose}
-          borderRadius='xl'
-          height='64px'
-        >
-          {translate('yieldXYZ.close')}
-        </Button>
       </VStack>
     ),
-    [translate, successMessage, vaultMetadata, transactionSteps, handleClose],
+    [translate, successMessage, vaultMetadata, transactionSteps],
   )
 
-  const isNotSuccess = useMemo(() => step !== ModalStep.Success, [step])
-  const isInProgress = useMemo(() => step === ModalStep.InProgress, [step])
-  const isSuccess = useMemo(() => step === ModalStep.Success, [step])
-
-  const headerContent = useMemo(() => {
-    if (!isNotSuccess) return null
-    return (
-      <Flex alignItems='center' justifyContent='center' mb={8}>
-        <Heading size='md' textAlign='center'>
-          {modalHeading}
-        </Heading>
-      </Flex>
-    )
-  }, [isNotSuccess, modalHeading])
+  const isInProgress = step === ModalStep.InProgress
+  const isSuccess = step === ModalStep.Success
 
   return (
     <>
-      <Modal
+      <ReactCanvasConfetti onInit={getInstance} style={confettiStyle} />
+      <Dialog
         isOpen={isOpen}
         onClose={handleClose}
-        isCentered
-        size='md'
-        closeOnOverlayClick={!isSubmitting}
+        isFullScreen
+        modalProps={{ closeOnOverlayClick: !isSubmitting }}
       >
-        <ModalOverlay />
-        <ModalContent>
-          <ModalCloseButton top={5} right={5} isDisabled={isSubmitting} />
-          <ModalBody p={8}>
-            {headerContent}
-            {isInProgress && actionContent}
-            {isSuccess && successContent}
-          </ModalBody>
-        </ModalContent>
-      </Modal>
-      <ReactCanvasConfetti onInit={getInstance} style={confettiStyle} />
+        {!isSuccess && (
+          <DialogHeader>
+            <DialogHeader.Left>{null}</DialogHeader.Left>
+            <DialogHeader.Middle>
+              <DialogTitle>{modalHeading}</DialogTitle>
+            </DialogHeader.Middle>
+            <DialogHeader.Right>
+              <DialogCloseButton isDisabled={isSubmitting} />
+            </DialogHeader.Right>
+          </DialogHeader>
+        )}
+        <DialogBody py={4} flex={1}>
+          {isInProgress && actionContent}
+          {isSuccess && successContent}
+        </DialogBody>
+        {isInProgress && (
+          <DialogFooter borderTop='1px solid' borderColor='border.base' pt={4} pb={4}>
+            <Button
+              colorScheme='blue'
+              size='lg'
+              width='full'
+              height='56px'
+              fontSize='lg'
+              fontWeight='semibold'
+              borderRadius='xl'
+              isDisabled={isButtonDisabled}
+              isLoading={isButtonLoading}
+              loadingText={loadingText}
+              onClick={handleConfirm}
+            >
+              {buttonText}
+            </Button>
+          </DialogFooter>
+        )}
+        {isSuccess && (
+          <DialogFooter borderTop='1px solid' borderColor='border.base' pt={4} pb={4}>
+            <Button
+              colorScheme='blue'
+              size='lg'
+              width='full'
+              height='56px'
+              fontSize='lg'
+              fontWeight='semibold'
+              borderRadius='xl'
+              onClick={handleClose}
+            >
+              {translate('common.close')}
+            </Button>
+          </DialogFooter>
+        )}
+      </Dialog>
     </>
   )
 })

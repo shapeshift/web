@@ -51,6 +51,40 @@ const STATUS_LABEL_KEYS: Record<TransactionStep['status'], string | null> = {
   loading: null,
 }
 
+const TransactionStepStatus = memo(function TransactionStepStatus({
+  step,
+  translate,
+}: {
+  step: TransactionStep
+  translate: ReturnType<typeof useTranslate>
+}) {
+  if (step.txHash) {
+    return (
+      <Link
+        href={step.txUrl}
+        isExternal
+        color='blue.400'
+        fontSize='xs'
+        display='flex'
+        alignItems='center'
+        gap={1}
+        _hover={{ textDecoration: 'underline' }}
+      >
+        <MiddleEllipsis value={step.txHash} /> <Icon as={FaExternalLinkAlt} boxSize={3} />
+      </Link>
+    )
+  }
+  const labelKey = STATUS_LABEL_KEYS[step.status]
+  if (labelKey) {
+    return (
+      <Text fontSize='xs' color='text.subtle' fontWeight='medium'>
+        {translate(labelKey)}
+      </Text>
+    )
+  }
+  return null
+})
+
 type YieldActionModalProps = {
   isOpen: boolean
   onClose: () => void
@@ -495,34 +529,7 @@ export const YieldActionModal = memo(function YieldActionModal({
                   {s.title}
                 </Text>
               </Flex>
-              {(() => {
-                if (s.txHash) {
-                  return (
-                    <Link
-                      href={s.txUrl}
-                      isExternal
-                      color='blue.400'
-                      fontSize='xs'
-                      display='flex'
-                      alignItems='center'
-                      gap={1}
-                      _hover={{ textDecoration: 'underline' }}
-                    >
-                      <MiddleEllipsis value={s.txHash} />{' '}
-                      <Icon as={FaExternalLinkAlt} boxSize={3} />
-                    </Link>
-                  )
-                }
-                const labelKey = STATUS_LABEL_KEYS[s.status]
-                if (labelKey) {
-                  return (
-                    <Text fontSize='xs' color='text.subtle' fontWeight='medium'>
-                      {translate(labelKey)}
-                    </Text>
-                  )
-                }
-                return null
-              })()}
+              <TransactionStepStatus step={s} translate={translate} />
             </Flex>
           ))}
         </VStack>

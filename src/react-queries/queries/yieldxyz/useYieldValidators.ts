@@ -31,11 +31,8 @@ export const useYieldValidators = (yieldId: string, enabled: boolean = true) => 
         ? async () => {
             const data = await fetchYieldValidators(yieldId)
             const validators = data.items
-
-            if (yieldId === COSMOS_ATOM_NATIVE_STAKING_YIELD_ID) {
+            if (yieldId === COSMOS_ATOM_NATIVE_STAKING_YIELD_ID)
               return normalizeCosmosValidators(validators)
-            }
-
             return validators
           }
         : skipToken,

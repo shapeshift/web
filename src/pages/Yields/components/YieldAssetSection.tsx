@@ -11,6 +11,7 @@ import { YieldOpportunityCard } from './YieldOpportunityCard'
 
 import { getConfig } from '@/config'
 import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
+import { useWallet } from '@/hooks/useWallet/useWallet'
 import type { AugmentedYieldDto } from '@/lib/yieldxyz/types'
 import type { YieldBalanceAggregate } from '@/react-queries/queries/yieldxyz/useAllYieldBalances'
 import { useAllYieldBalances } from '@/react-queries/queries/yieldxyz/useAllYieldBalances'
@@ -31,6 +32,9 @@ type YieldAssetSectionProps = {
 export const YieldAssetSection = memo(({ assetId, accountId }: YieldAssetSectionProps) => {
   const translate = useTranslate()
   const isYieldXyzEnabled = useFeatureFlag('YieldXyz')
+  const {
+    state: { isConnected },
+  } = useWallet()
   const { data: yieldsData, isLoading: isYieldsLoading } = useYields()
   const balanceOptions = useMemo(() => (accountId ? { accountIds: [accountId] } : {}), [accountId])
   const { data: allBalancesData, isLoading: isBalancesLoading } =
@@ -95,6 +99,7 @@ export const YieldAssetSection = memo(({ assetId, accountId }: YieldAssetSection
   }, [])
 
   if (!isYieldXyzEnabled) return null
+  if (!isConnected) return null
   if (!isLoading && yields.length === 0) return null
 
   return (

@@ -151,6 +151,19 @@ const SwapWidgetInner = ({
   );
 
   const handleExecuteSwap = useCallback(async () => {
+    if (!isSellAssetEvm) {
+      const params = new URLSearchParams({
+        sellAssetId: sellAsset.assetId,
+        buyAssetId: buyAsset.assetId,
+        sellAmount,
+      });
+      window.open(
+        `https://app.shapeshift.com/trade?${params.toString()}`,
+        "_blank",
+      );
+      return;
+    }
+
     const rateToUse = selectedRate ?? rates?.[0];
     if (!rateToUse || !walletClient || !walletAddress) return;
 
@@ -291,6 +304,7 @@ const SwapWidgetInner = ({
     walletClient,
     walletAddress,
     canExecuteDirectly,
+    isSellAssetEvm,
     sellAsset,
     buyAsset,
     sellAmount,

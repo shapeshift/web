@@ -1,0 +1,336 @@
+.ssw-widget {
+  --ssw-accent: #3861fb;
+  --ssw-accent-light: rgba(56, 97, 251, 0.1);
+  --ssw-success: #00d395;
+  --ssw-error: #f44336;
+  --ssw-warning: #ffc107;
+
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, sans-serif;
+  width: 100%;
+  max-width: 420px;
+  border-radius: 20px;
+  overflow: hidden;
+}
+
+.ssw-widget *,
+.ssw-widget *::before,
+.ssw-widget *::after {
+  box-sizing: border-box;
+}
+
+.ssw-widget.ssw-dark {
+  --ssw-bg-primary: #0a0a14;
+  --ssw-bg-secondary: #12121c;
+  --ssw-bg-tertiary: #1a1a2e;
+  --ssw-bg-input: #0d0d16;
+  --ssw-bg-hover: rgba(255, 255, 255, 0.05);
+  --ssw-border: rgba(255, 255, 255, 0.08);
+  --ssw-border-hover: rgba(255, 255, 255, 0.15);
+  --ssw-text-primary: #ffffff;
+  --ssw-text-secondary: #a0a0b0;
+  --ssw-text-muted: #6b6b80;
+
+  background: var(--ssw-bg-secondary);
+  color: var(--ssw-text-primary);
+}
+
+.ssw-widget.ssw-light {
+  --ssw-bg-primary: #ffffff;
+  --ssw-bg-secondary: #f8f9fc;
+  --ssw-bg-tertiary: #ffffff;
+  --ssw-bg-input: #f0f2f5;
+  --ssw-bg-hover: rgba(0, 0, 0, 0.04);
+  --ssw-border: rgba(0, 0, 0, 0.08);
+  --ssw-border-hover: rgba(0, 0, 0, 0.15);
+  --ssw-text-primary: #1a1a2e;
+  --ssw-text-secondary: #5c5c70;
+  --ssw-text-muted: #9090a0;
+
+  background: var(--ssw-bg-secondary);
+  color: var(--ssw-text-primary);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+}
+
+.ssw-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--ssw-border);
+}
+
+.ssw-header-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--ssw-text-primary);
+}
+
+.ssw-settings-btn {
+  padding: 8px;
+  border: none;
+  background: none;
+  border-radius: 10px;
+  color: var(--ssw-text-secondary);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.ssw-settings-btn:hover {
+  color: var(--ssw-text-primary);
+  background: var(--ssw-bg-hover);
+}
+
+.ssw-swap-container {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  position: relative;
+}
+
+.ssw-token-section {
+  background: var(--ssw-bg-tertiary);
+  border-radius: 16px;
+  padding: 16px;
+  border: 1px solid var(--ssw-border);
+  transition: border-color 0.15s ease;
+}
+
+.ssw-token-section:focus-within {
+  border-color: var(--ssw-accent);
+}
+
+.ssw-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.ssw-section-label {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--ssw-text-secondary);
+}
+
+.ssw-wallet-badge {
+  font-size: 12px;
+  color: var(--ssw-accent);
+  padding: 2px 8px;
+  background: var(--ssw-accent-light);
+  border-radius: 6px;
+}
+
+.ssw-input-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.ssw-amount-input {
+  flex: 1;
+  background: none;
+  border: none;
+  font-size: 32px;
+  font-weight: 500;
+  color: var(--ssw-text-primary);
+  outline: none;
+  min-width: 0;
+}
+
+.ssw-amount-input::placeholder {
+  color: var(--ssw-text-muted);
+}
+
+.ssw-token-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  border: none;
+  background: var(--ssw-bg-secondary);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  flex-shrink: 0;
+}
+
+.ssw-token-btn:hover {
+  background: var(--ssw-bg-hover);
+}
+
+.ssw-token-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: contain;
+}
+
+.ssw-token-icon-placeholder {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--ssw-accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 600;
+  color: white;
+}
+
+.ssw-token-info {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+}
+
+.ssw-token-symbol {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--ssw-text-primary);
+}
+
+.ssw-token-chain {
+  font-size: 12px;
+  color: var(--ssw-text-secondary);
+}
+
+.ssw-token-btn svg {
+  color: var(--ssw-text-muted);
+}
+
+.ssw-section-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 8px;
+}
+
+.ssw-balance {
+  font-size: 12px;
+  color: var(--ssw-text-muted);
+}
+
+.ssw-balance-skeleton {
+  width: 80px;
+  height: 14px;
+  border-radius: 4px;
+  background: linear-gradient(
+    90deg,
+    var(--ssw-bg-hover) 25%,
+    var(--ssw-border) 50%,
+    var(--ssw-bg-hover) 75%
+  );
+  background-size: 200% 100%;
+  animation: ssw-skeleton-shimmer 1.5s infinite;
+}
+
+@keyframes ssw-skeleton-shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+.ssw-usd-value {
+  font-size: 13px;
+  color: var(--ssw-text-muted);
+}
+
+.ssw-swap-divider {
+  display: flex;
+  justify-content: center;
+  margin: -12px 0;
+  position: relative;
+  z-index: 10;
+}
+
+.ssw-swap-btn {
+  width: 36px;
+  height: 36px;
+  border: 4px solid var(--ssw-bg-secondary);
+  background: var(--ssw-bg-tertiary);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--ssw-text-secondary);
+  transition: all 0.15s ease;
+}
+
+.ssw-swap-btn:hover {
+  color: var(--ssw-text-primary);
+  background: var(--ssw-bg-hover);
+}
+
+.ssw-quotes {
+  padding: 0 16px 16px;
+}
+
+.ssw-action-btn {
+  width: calc(100% - 32px);
+  margin: 0 16px 16px;
+  padding: 16px;
+  border: none;
+  border-radius: 14px;
+  background: var(--ssw-accent);
+  color: white;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.ssw-action-btn:hover:not(:disabled) {
+  filter: brightness(1.1);
+}
+
+.ssw-action-btn:disabled {
+  background: var(--ssw-bg-tertiary);
+  color: var(--ssw-text-muted);
+  cursor: not-allowed;
+}
+
+.ssw-action-btn.ssw-secondary {
+  background: var(--ssw-bg-tertiary);
+  color: var(--ssw-text-primary);
+  border: 1px solid var(--ssw-border);
+}
+
+.ssw-action-btn.ssw-secondary:hover:not(:disabled) {
+  background: var(--ssw-bg-hover);
+  filter: none;
+}
+
+.ssw-powered-by {
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  font-size: 12px;
+  color: var(--ssw-text-muted);
+  border-top: 1px solid var(--ssw-border);
+}
+
+.ssw-powered-by a {
+  color: var(--ssw-accent);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.ssw-powered-by-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.ssw-powered-by a:hover {
+  opacity: 0.8;
+}

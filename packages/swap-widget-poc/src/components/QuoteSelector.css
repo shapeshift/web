@@ -1,0 +1,146 @@
+.ssw-quote-selector {
+  width: 100%;
+  padding: 14px 16px;
+  border-radius: 14px;
+  background: var(--ssw-bg-tertiary);
+  border: 1px solid var(--ssw-border);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.ssw-quote-selector:hover {
+  border-color: var(--ssw-border-hover);
+  background: var(--ssw-bg-hover);
+}
+
+.ssw-quote-selector.ssw-loading {
+  cursor: default;
+  justify-content: center;
+}
+
+.ssw-quote-selector.ssw-loading:hover {
+  border-color: var(--ssw-border);
+  background: var(--ssw-bg-tertiary);
+}
+
+.ssw-quote-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  color: var(--ssw-text-secondary);
+  font-size: 14px;
+}
+
+.ssw-spinner-small {
+  width: 16px;
+  height: 16px;
+  border: 2px solid var(--ssw-border);
+  border-top-color: var(--ssw-accent);
+  border-radius: 50%;
+  animation: ssw-spin 0.8s linear infinite;
+}
+
+@keyframes ssw-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.ssw-quote-left {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  align-items: flex-start;
+}
+
+.ssw-quote-provider {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.ssw-quote-provider-icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  object-fit: contain;
+  background: var(--ssw-bg-secondary);
+}
+
+.ssw-quote-provider-icon-placeholder {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 600;
+  color: white;
+}
+
+.ssw-quote-provider-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ssw-text-primary);
+}
+
+.ssw-quote-best-tag {
+  padding: 3px 7px;
+  border-radius: 5px;
+  background: var(--ssw-accent);
+  color: white;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.ssw-quote-usd {
+  font-size: 13px;
+  color: var(--ssw-text-secondary);
+  padding-left: 38px;
+}
+
+.ssw-quote-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+}
+
+.ssw-quote-amount-row {
+  display: flex;
+  align-items: baseline;
+  gap: 5px;
+}
+
+.ssw-quote-amount {
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--ssw-text-primary);
+}
+
+.ssw-quote-symbol {
+  font-size: 13px;
+  color: var(--ssw-text-secondary);
+  font-weight: 500;
+}
+
+.ssw-quote-more {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 12px;
+  color: var(--ssw-accent);
+  font-weight: 500;
+}
+
+.ssw-quote-more svg {
+  opacity: 0.9;
+}

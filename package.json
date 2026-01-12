@@ -29,6 +29,7 @@
     "dev:web": "vite",
     "dev:web:linked": "GENERATE_SOURCEMAP=false BROWSER=none yarn dev:web",
     "dev:packages": "yarn tsc --build --watch --preserveWatchOutput tsconfig.packages.json",
+    "dev:swap-widget": "yarn workspace @shapeshiftoss/swap-widget-poc dev",
     "generate:all": "yarn generate:caip-adapters && yarn run generate:color-map && yarn run generate:asset-data && yarn run generate:tradable-asset-map && yarn run generate:thor-longtail-tokens",
     "generate:caip-adapters": "yarn workspace @shapeshiftoss/caip generate",
     "generate:asset-data": "yarn tsx ./scripts/generateAssetData/generateAssetData.ts && yarn run codemod:clear-assets-migration",

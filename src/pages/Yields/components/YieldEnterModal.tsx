@@ -40,7 +40,7 @@ import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { useLocaleFormatter } from '@/hooks/useLocaleFormatter/useLocaleFormatter'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
-import { enterYield, fetchAction } from '@/lib/yieldxyz/api'
+import { enterYield } from '@/lib/yieldxyz/api'
 import {
   DEFAULT_NATIVE_VALIDATOR_BY_CHAIN_ID,
   SHAPESHIFT_COSMOS_VALIDATOR_ADDRESS,
@@ -58,6 +58,7 @@ import type { TransactionStep } from '@/pages/Yields/hooks/useYieldTransactionFl
 import {
   filterExecutableTransactions,
   waitForActionCompletion,
+  waitForTransactionConfirmation,
 } from '@/pages/Yields/hooks/useYieldTransactionFlow'
 import { useSubmitYieldTransactionHash } from '@/react-queries/queries/yieldxyz/useSubmitYieldTransactionHash'
 import { useYieldProviders } from '@/react-queries/queries/yieldxyz/useYieldProviders'
@@ -517,9 +518,9 @@ export const YieldEnterModal = memo(
             updateStepStatus(index, { status: 'success', loadingMessage: undefined })
             setModalStep('success')
           } else {
-            // Not last transaction - fetch fresh action to get the next tx
-            const freshAction = await fetchAction(actionId)
-            const nextTx = freshAction.transactions.find(
+            // Wait for current tx to be confirmed before advancing to next step
+            const confirmedAction = await waitForTransactionConfirmation(actionId, tx.id)
+            const nextTx = confirmedAction.transactions.find(
               t => t.status === TransactionStatus.Created && t.stepIndex === index + 1,
             )
 

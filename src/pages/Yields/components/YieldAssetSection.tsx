@@ -105,7 +105,7 @@ export const YieldAssetSection = memo(({ assetId, accountId }: YieldAssetSection
   return (
     <>
       <Card variant='dashboard'>
-        <CardHeader>
+        <CardHeader borderBottomWidth={{ md: 0 }}>
           <Heading as='h5'>{translate('yieldXYZ.yield')}</Heading>
         </CardHeader>
         <CardBody pt={0}>

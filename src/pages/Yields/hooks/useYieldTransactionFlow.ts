@@ -78,6 +78,23 @@ export const waitForActionCompletion = (actionId: string): Promise<ActionDto> =>
     },
   )
 
+export const waitForTransactionConfirmation = (
+  actionId: string,
+  transactionId: string,
+): Promise<ActionDto> =>
+  poll(
+    () => fetchAction(actionId),
+    action => {
+      const tx = action.transactions.find(t => t.id === transactionId)
+      return tx?.status !== TransactionStatus.Created
+    },
+    action => {
+      if (action.status === YieldActionStatus.Failed) return new Error('Action failed')
+      if (action.status === YieldActionStatus.Canceled) return new Error('Action was canceled')
+      return undefined
+    },
+  )
+
 export const filterExecutableTransactions = (transactions: TransactionDto[]): TransactionDto[] => {
   const seen = new Set<string>()
   return transactions.filter(tx => {
@@ -390,8 +407,9 @@ export const useYieldTransactionFlow = ({
           updateStepStatus(index, { status: 'success', loadingMessage: undefined })
           setStep(ModalStep.Success)
         } else {
-          const freshAction = await fetchAction(actionId)
-          const nextTx = freshAction.transactions.find(
+          // Wait for current tx to be confirmed before advancing to next step
+          const confirmedAction = await waitForTransactionConfirmation(actionId, tx.id)
+          const nextTx = confirmedAction.transactions.find(
             t => t.status === TransactionStatus.Created && t.stepIndex === index + 1,
           )
 

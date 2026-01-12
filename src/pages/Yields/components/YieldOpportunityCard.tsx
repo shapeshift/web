@@ -1,9 +1,11 @@
-import { Box, Button, Flex, Heading, Text, useColorModeValue } from '@chakra-ui/react'
+import { Box, Button, Flex, useColorModeValue } from '@chakra-ui/react'
 import { memo, useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 
+import { Text } from '@/components/Text/Text'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import type { AugmentedYieldDto } from '@/lib/yieldxyz/types'
+import { GradientApy } from '@/pages/Yields/components/GradientApy'
 
 type YieldOpportunityCardProps = {
   maxApyYield: AugmentedYieldDto
@@ -22,13 +24,20 @@ export const YieldOpportunityCard = memo(({ maxApyYield, onClick }: YieldOpportu
     [maxApyYield.rewardRate.total],
   )
 
-  const earnUpToText = useMemo(() => translate('yieldXYZ.earnUpTo', { apy }), [translate, apy])
-
   const startEarningText = useMemo(() => translate('yieldXYZ.startEarning'), [translate])
 
   const handleClick = useCallback(() => {
     onClick(maxApyYield)
   }, [onClick, maxApyYield])
+
+  const apyComponent = useMemo(
+    () => (
+      <GradientApy as='span' fontWeight='bold' fontSize={{ base: 'lg', sm: 'md' }}>
+        {apy}%
+      </GradientApy>
+    ),
+    [apy],
+  )
 
   return (
     <Box
@@ -36,29 +45,25 @@ export const YieldOpportunityCard = memo(({ maxApyYield, onClick }: YieldOpportu
       borderRadius='xl'
       borderWidth={1}
       borderColor={borderColor}
-      p={6}
+      p={{ base: 4, sm: 6 }}
       position='relative'
       overflow='hidden'
     >
-      <Flex
-        justify='space-between'
-        align='center'
-        direction={{ base: 'column', sm: 'row' }}
-        gap={4}
-      >
-        <Box>
-          <Text color='text.subtle' fontSize='sm' mb={1}>
-            {earnUpToText}
-          </Text>
-          <Heading size='md' bgClip='text' bgGradient='linear(to-r, blue.400, purple.500)'>
-            {apy}% APY
-          </Heading>
+      <Flex justify='space-between' align='center' gap={4}>
+        <Box flex={1}>
+          <Text
+            translation='yieldXYZ.earnUpToOnBalance'
+            components={{ apy: apyComponent }}
+            color='text.subtle'
+            fontSize='sm'
+          />
         </Box>
         <Button
           colorScheme='blue'
           size='md'
           onClick={handleClick}
-          px={8}
+          px={6}
+          flexShrink={0}
           bgGradient='linear(to-r, blue.500, purple.600)'
           _hover={hoverStyle}
         >

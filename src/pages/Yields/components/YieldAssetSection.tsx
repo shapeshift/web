@@ -1,4 +1,4 @@
-import { Box, Heading, Stack, VStack } from '@chakra-ui/react'
+import { Card, CardBody, CardHeader, Heading, Stack, VStack } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import { memo, useCallback, useMemo, useState } from 'react'
@@ -117,16 +117,18 @@ export const YieldAssetSection = memo(({ assetId, accountId }: YieldAssetSection
 
   return (
     <>
-      <Box mt={6}>
-        <Heading as='h5' fontSize='md' mb={4}>
-          {yieldHeading}
-        </Heading>
-        <Stack spacing={4}>
-          {hasActivePositions && activePositionsContent}
-          {isLoading && loadingContent}
-          {!isLoading && !hasActivePositions && opportunityCardContent}
-        </Stack>
-      </Box>
+      <Card variant='dashboard'>
+        <CardHeader>
+          <Heading as='h5'>{yieldHeading}</Heading>
+        </CardHeader>
+        <CardBody pt={0}>
+          <Stack spacing={4}>
+            {hasActivePositions && activePositionsContent}
+            {isLoading && loadingContent}
+            {!isLoading && !hasActivePositions && opportunityCardContent}
+          </Stack>
+        </CardBody>
+      </Card>
       {selectedYield && (
         <YieldEnterModal
           isOpen={isEnterModalOpen}

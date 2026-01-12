@@ -3,31 +3,41 @@ import {
   Box,
   Button,
   Flex,
+  Heading,
   HStack,
   Icon,
   Input,
-  Modal,
-  ModalBody,
-  ModalCloseButton,
-  ModalContent,
-  ModalHeader,
-  ModalOverlay,
   Skeleton,
   Text,
   useColorModeValue,
+  useToast,
+  VStack,
 } from '@chakra-ui/react'
 import { cosmosChainId, fromAccountId } from '@shapeshiftoss/caip'
-import { useQuery } from '@tanstack/react-query'
-import { memo, useCallback, useMemo, useState } from 'react'
+import type { KnownChainIds } from '@shapeshiftoss/types'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { uuidv4 } from '@walletconnect/utils'
+import { memo, useCallback, useEffect, useMemo, useState } from 'react'
+import ReactCanvasConfetti from 'react-canvas-confetti'
+import { FaCheck } from 'react-icons/fa'
 import { TbSwitchVertical } from 'react-icons/tb'
 import type { NumberFormatValues } from 'react-number-format'
 import { NumericFormat } from 'react-number-format'
 import { useTranslate } from 'react-polyglot'
 
+import { AccountSelector } from '@/components/AccountSelector/AccountSelector'
 import { Amount } from '@/components/Amount/Amount'
 import { AssetIcon } from '@/components/AssetIcon'
+import { Dialog } from '@/components/Modal/components/Dialog'
+import { DialogBody } from '@/components/Modal/components/DialogBody'
+import { DialogCloseButton } from '@/components/Modal/components/DialogCloseButton'
+import { DialogFooter } from '@/components/Modal/components/DialogFooter'
+import { DialogHeader } from '@/components/Modal/components/DialogHeader'
+import { DialogTitle } from '@/components/Modal/components/DialogTitle'
+import { SECOND_CLASS_CHAINS } from '@/constants/chains'
 import { WalletActions } from '@/context/WalletProvider/actions'
 import { useDebounce } from '@/hooks/useDebounce/useDebounce'
+import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { useLocaleFormatter } from '@/hooks/useLocaleFormatter/useLocaleFormatter'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
@@ -37,18 +47,36 @@ import {
   SHAPESHIFT_COSMOS_VALIDATOR_ADDRESS,
   SHAPESHIFT_VALIDATOR_LOGO,
 } from '@/lib/yieldxyz/constants'
-import type { AugmentedYieldDto } from '@/lib/yieldxyz/types'
+import type { CosmosStakeArgs } from '@/lib/yieldxyz/executeTransaction'
+import { executeTransaction } from '@/lib/yieldxyz/executeTransaction'
+import type { AugmentedYieldDto, TransactionDto } from '@/lib/yieldxyz/types'
+import { TransactionStatus } from '@/lib/yieldxyz/types'
+import { formatYieldTxTitle } from '@/lib/yieldxyz/utils'
 import { GradientApy } from '@/pages/Yields/components/GradientApy'
-import { YieldActionModal } from '@/pages/Yields/components/YieldActionModal'
+import type { TransactionStep } from '@/pages/Yields/components/TransactionStepsList'
+import { TransactionStepsList } from '@/pages/Yields/components/TransactionStepsList'
+import { useConfetti } from '@/pages/Yields/hooks/useConfetti'
+import { waitForActionCompletion } from '@/pages/Yields/hooks/useYieldTransactionFlow'
+import { useSubmitYieldTransactionHash } from '@/react-queries/queries/yieldxyz/useSubmitYieldTransactionHash'
 import { useYieldProviders } from '@/react-queries/queries/yieldxyz/useYieldProviders'
 import { useYieldValidators } from '@/react-queries/queries/yieldxyz/useYieldValidators'
+import { actionSlice } from '@/state/slices/actionSlice/actionSlice'
+import {
+  ActionStatus,
+  ActionType,
+  GenericTransactionDisplayType,
+} from '@/state/slices/actionSlice/types'
+import { portfolioApi } from '@/state/slices/portfolioSlice/portfolioSlice'
+import { selectPortfolioAccountMetadataByAccountId } from '@/state/slices/portfolioSlice/selectors'
 import { allowedDecimalSeparators } from '@/state/slices/preferencesSlice/preferencesSlice'
 import {
   selectAccountIdByAccountNumberAndChainId,
+  selectFeeAssetByChainId,
   selectMarketDataByAssetIdUserCurrency,
+  selectPortfolioAccountIdsByAssetIdFilter,
   selectPortfolioCryptoPrecisionBalanceByFilter,
 } from '@/state/slices/selectors'
-import { useAppSelector } from '@/state/store'
+import { useAppDispatch, useAppSelector } from '@/state/store'
 
 type YieldEnterModalProps = {
   isOpen: boolean
@@ -107,18 +135,23 @@ const YieldEnterModalSkeleton = memo(() => (
   </Flex>
 ))
 
+type ModalStep = 'input' | 'success'
+
 export const YieldEnterModal = memo(
   ({ isOpen, onClose, yieldItem, accountNumber = 0 }: YieldEnterModalProps) => {
+    const dispatch = useAppDispatch()
+    const queryClient = useQueryClient()
+    const toast = useToast()
     const translate = useTranslate()
-    const { state: walletState, dispatch } = useWallet()
+    const { state: walletState, dispatch: walletDispatch } = useWallet()
     const wallet = walletState.wallet
     const isConnected = useMemo(() => Boolean(walletState.walletInfo), [walletState.walletInfo])
+    const isYieldMultiAccountEnabled = useFeatureFlag('YieldMultiAccount')
     const {
-      number: { localeParts, toCrypto, toFiat },
+      number: { localeParts },
     } = useLocaleFormatter()
+    const submitHashMutation = useSubmitYieldTransactionHash()
 
-    const modalBg = useColorModeValue('white', 'gray.800')
-    const borderColor = useColorModeValue('gray.200', 'gray.700')
     const statsBg = useColorModeValue('gray.50', 'whiteAlpha.50')
     const statsBorderColor = useColorModeValue('gray.100', 'whiteAlpha.100')
     const percentButtonBg = useColorModeValue('gray.100', 'whiteAlpha.100')
@@ -128,11 +161,34 @@ export const YieldEnterModal = memo(
 
     const [cryptoAmount, setCryptoAmount] = useState('')
     const [isFiat, setIsFiat] = useState(false)
-    const [isActionModalOpen, setIsActionModalOpen] = useState(false)
+    const [selectedAccountId, setSelectedAccountId] = useState<string | undefined>()
+    const [modalStep, setModalStep] = useState<ModalStep>('input')
+    const [isSubmitting, setIsSubmitting] = useState(false)
+    const [transactionSteps, setTransactionSteps] = useState<TransactionStep[]>([])
 
     const debouncedAmount = useDebounce(cryptoAmount, QUOTE_DEBOUNCE_MS)
 
     const { chainId } = yieldItem
+    const inputToken = yieldItem.inputTokens[0]
+    const inputTokenAssetId = inputToken?.assetId
+
+    const accountIdFilter = useMemo(
+      () => ({ assetId: inputTokenAssetId ?? '' }),
+      [inputTokenAssetId],
+    )
+    const accountIds = useAppSelector(state =>
+      selectPortfolioAccountIdsByAssetIdFilter(state, accountIdFilter),
+    )
+
+    const defaultAccountId = useAppSelector(state => {
+      if (!chainId) return undefined
+      const accountIdsByNumberAndChain = selectAccountIdByAccountNumberAndChainId(state)
+      return accountIdsByNumberAndChain[accountNumber]?.[chainId]
+    })
+
+    const accountId = selectedAccountId ?? defaultAccountId
+    const hasMultipleAccounts = accountIds.length > 1
+    const isAccountSelectorDisabled = !isYieldMultiAccountEnabled || !hasMultipleAccounts
 
     const shouldFetchValidators = useMemo(
       () =>
@@ -174,19 +230,11 @@ export const YieldEnterModal = memo(
       return providers[yieldItem.providerId]
     }, [providers, yieldItem.providerId])
 
-    const accountId = useAppSelector(state => {
-      if (!chainId) return undefined
-      const accountIdsByNumberAndChain = selectAccountIdByAccountNumberAndChainId(state)
-      return accountIdsByNumberAndChain[accountNumber]?.[chainId]
-    })
-
     const userAddress = useMemo(
       () => (accountId ? fromAccountId(accountId).account : ''),
       [accountId],
     )
 
-    const inputToken = yieldItem.inputTokens[0]
-    const inputTokenAssetId = inputToken?.assetId
     const inputSymbol = inputToken?.symbol ?? ''
     const inputPrecision = inputToken?.decimals ?? 18
 
@@ -201,6 +249,15 @@ export const YieldEnterModal = memo(
 
     const marketData = useAppSelector(state =>
       selectMarketDataByAssetIdUserCurrency(state, inputTokenAssetId ?? ''),
+    )
+
+    const feeAsset = useAppSelector(state =>
+      chainId ? selectFeeAssetByChainId(state, chainId) : undefined,
+    )
+
+    const accountMetadataFilter = useMemo(() => ({ accountId: accountId ?? '' }), [accountId])
+    const accountMetadata = useAppSelector(state =>
+      selectPortfolioAccountMetadataByAccountId(state, accountMetadataFilter),
     )
 
     const minDeposit = yieldItem.mechanics?.entryLimits?.minimum
@@ -234,7 +291,11 @@ export const YieldEnterModal = memo(
       return args
     }, [yieldItem, userAddress, chainId, debouncedAmount, selectedValidatorAddress])
 
-    const { isLoading: isQuoteLoading, isFetching: isQuoteFetching } = useQuery({
+    const {
+      data: quoteData,
+      isLoading: isQuoteLoading,
+      isFetching: isQuoteFetching,
+    } = useQuery({
       queryKey: ['yieldxyz', 'quote', 'enter', yieldItem.id, userAddress, txArguments],
       queryFn: () => {
         if (!txArguments || !userAddress || !yieldItem.id) throw new Error('Missing arguments')
@@ -253,11 +314,6 @@ export const YieldEnterModal = memo(
     const fiatAmount = useMemo(
       () => bnOrZero(cryptoAmount).times(marketData?.price ?? 0),
       [cryptoAmount, marketData?.price],
-    )
-
-    const balanceFiat = useMemo(
-      () => bnOrZero(inputTokenBalance).times(marketData?.price ?? 0),
-      [inputTokenBalance, marketData?.price],
     )
 
     const apy = useMemo(() => bnOrZero(yieldItem.rewardRate.total), [yieldItem.rewardRate.total])
@@ -315,30 +371,205 @@ export const YieldEnterModal = memo(
       [inputTokenBalance],
     )
 
-    const handleEnterClick = useCallback(() => {
-      setIsActionModalOpen(true)
-    }, [])
-
     const handleConnectWallet = useCallback(
-      () => dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true }),
-      [dispatch],
+      () => walletDispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true }),
+      [walletDispatch],
     )
 
-    const handleActionModalClose = useCallback(() => {
-      setIsActionModalOpen(false)
-    }, [])
-
     const handleModalClose = useCallback(() => {
+      if (isSubmitting) return
       setCryptoAmount('')
       setSelectedPercent(null)
       setIsFiat(false)
+      setSelectedAccountId(undefined)
+      setModalStep('input')
+      setTransactionSteps([])
+      queryClient.removeQueries({ queryKey: ['yieldxyz', 'quote', 'enter', yieldItem.id] })
       onClose()
-    }, [onClose])
+    }, [onClose, isSubmitting, queryClient, yieldItem.id])
+
+    const handleAccountChange = useCallback((newAccountId: string) => {
+      setSelectedAccountId(newAccountId)
+      setCryptoAmount('')
+      setSelectedPercent(null)
+    }, [])
+
+    const buildCosmosStakeArgs = useCallback((): CosmosStakeArgs | undefined => {
+      if (chainId !== cosmosChainId) return undefined
+
+      const validator =
+        selectedValidatorAddress || DEFAULT_NATIVE_VALIDATOR_BY_CHAIN_ID[cosmosChainId]
+      if (!validator) return undefined
+
+      const inputTokenDecimals = yieldItem.inputTokens[0]?.decimals ?? yieldItem.token.decimals
+
+      return {
+        validator,
+        amountCryptoBaseUnit: bnOrZero(cryptoAmount)
+          .times(bnOrZero(10).pow(inputTokenDecimals))
+          .toFixed(0),
+        action: 'stake',
+      }
+    }, [
+      chainId,
+      selectedValidatorAddress,
+      cryptoAmount,
+      yieldItem.inputTokens,
+      yieldItem.token.decimals,
+    ])
+
+    const dispatchNotification = useCallback(
+      (tx: TransactionDto, txHash: string) => {
+        if (!chainId || !accountId) return
+        if (!yieldItem.token.assetId) return
+
+        const isApproval = tx.title?.toLowerCase().includes('approv')
+        const actionType = isApproval ? ActionType.Approve : ActionType.Deposit
+
+        dispatch(
+          actionSlice.actions.upsertAction({
+            id: uuidv4(),
+            type: actionType,
+            status: ActionStatus.Complete,
+            createdAt: Date.now(),
+            updatedAt: Date.now(),
+            transactionMetadata: {
+              displayType: isApproval
+                ? GenericTransactionDisplayType.Approve
+                : GenericTransactionDisplayType.Yield,
+              txHash,
+              chainId,
+              assetId: yieldItem.token.assetId,
+              accountId,
+              message: isApproval
+                ? 'actionCenter.approve.approvalTxComplete'
+                : 'actionCenter.deposit.complete',
+              amountCryptoPrecision: cryptoAmount,
+              contractName: yieldItem.metadata.name,
+              chainName: yieldItem.network,
+            },
+          }),
+        )
+      },
+      [dispatch, chainId, accountId, yieldItem, cryptoAmount],
+    )
+
+    const updateStepStatus = useCallback(
+      (index: number, update: Partial<TransactionStep> & { status: TransactionStep['status'] }) => {
+        setTransactionSteps(prev => prev.map((s, i) => (i === index ? { ...s, ...update } : s)))
+      },
+      [],
+    )
+
+    const handleExecute = useCallback(async () => {
+      if (!wallet || !accountId || !chainId || !quoteData) return
+
+      const transactions = quoteData.transactions.filter(
+        tx => tx.status === TransactionStatus.Created,
+      )
+
+      if (transactions.length === 0) {
+        setModalStep('success')
+        return
+      }
+
+      const initialSteps: TransactionStep[] = transactions.map((tx, i) => ({
+        title: formatYieldTxTitle(tx.title || `Transaction ${i + 1}`, inputSymbol),
+        status: 'pending' as const,
+      }))
+
+      setTransactionSteps(initialSteps)
+      setIsSubmitting(true)
+
+      try {
+        for (let i = 0; i < transactions.length; i++) {
+          const tx = transactions[i]
+
+          updateStepStatus(i, { status: 'loading' })
+
+          const txHash = await executeTransaction({
+            tx,
+            chainId,
+            wallet,
+            accountId,
+            userAddress,
+            bip44Params: accountMetadata?.bip44Params,
+            cosmosStakeArgs: buildCosmosStakeArgs(),
+          })
+
+          if (!txHash) throw new Error('Broadcast failed')
+
+          await submitHashMutation.mutateAsync({
+            transactionId: tx.id,
+            hash: txHash,
+            yieldId: yieldItem.id,
+            address: userAddress,
+          })
+
+          const txUrl = feeAsset?.explorerTxLink ? `${feeAsset.explorerTxLink}${txHash}` : ''
+          updateStepStatus(i, { status: 'success', txHash, txUrl })
+
+          if (i === transactions.length - 1) {
+            dispatchNotification(tx, txHash)
+          }
+        }
+
+        await waitForActionCompletion(quoteData.id)
+        await queryClient.refetchQueries({ queryKey: ['yieldxyz', 'allBalances'] })
+        await queryClient.refetchQueries({ queryKey: ['yieldxyz', 'yields'] })
+
+        if (SECOND_CLASS_CHAINS.includes(chainId as KnownChainIds)) {
+          dispatch(
+            portfolioApi.endpoints.getAccount.initiate(
+              { accountId, upsertOnFetch: true },
+              { forceRefetch: true },
+            ),
+          )
+        }
+
+        setModalStep('success')
+      } catch (error) {
+        console.error('Transaction failed:', error)
+        toast({
+          title: translate('yieldXYZ.errors.transactionFailedTitle'),
+          description:
+            error instanceof Error
+              ? error.message
+              : translate('yieldXYZ.errors.transactionFailedDescription'),
+          status: 'error',
+          duration: 5000,
+          isClosable: true,
+        })
+        setModalStep('input')
+        setTransactionSteps([])
+      } finally {
+        setIsSubmitting(false)
+      }
+    }, [
+      wallet,
+      accountId,
+      chainId,
+      quoteData,
+      inputSymbol,
+      userAddress,
+      accountMetadata?.bip44Params,
+      translate,
+      updateStepStatus,
+      buildCosmosStakeArgs,
+      submitHashMutation,
+      yieldItem.id,
+      dispatchNotification,
+      queryClient,
+      dispatch,
+      toast,
+      feeAsset?.explorerTxLink,
+    ])
 
     const enterButtonDisabled = useMemo(
       () =>
-        isConnected && (isLoading || !yieldItem.status.enter || !cryptoAmount || isBelowMinimum),
-      [isConnected, isLoading, yieldItem.status.enter, cryptoAmount, isBelowMinimum],
+        isConnected &&
+        (isLoading || !yieldItem.status.enter || !cryptoAmount || isBelowMinimum || !quoteData),
+      [isConnected, isLoading, yieldItem.status.enter, cryptoAmount, isBelowMinimum, quoteData],
     )
 
     const enterButtonText = useMemo(() => {
@@ -348,14 +579,24 @@ export const YieldEnterModal = memo(
     }, [isConnected, isQuoteActive, translate, inputSymbol])
 
     const handleEnterButtonClick = useMemo(
-      () => (isConnected ? handleEnterClick : handleConnectWallet),
-      [isConnected, handleEnterClick, handleConnectWallet],
+      () => (isConnected ? handleExecute : handleConnectWallet),
+      [isConnected, handleExecute, handleConnectWallet],
     )
 
-    const modalTitle = useMemo(
-      () => translate('yieldXYZ.stakeAsset', { asset: inputSymbol }),
-      [translate, inputSymbol],
-    )
+    const modalTitle = useMemo(() => {
+      if (modalStep === 'success') return translate('common.success')
+      return translate('yieldXYZ.stakeAsset', { asset: inputSymbol })
+    }, [translate, inputSymbol, modalStep])
+
+    const previewSteps = useMemo((): TransactionStep[] => {
+      if (!quoteData?.transactions?.length) return []
+      return quoteData.transactions
+        .filter(tx => tx.status === TransactionStatus.Created)
+        .map((tx, i) => ({
+          title: formatYieldTxTitle(tx.title || `Transaction ${i + 1}`, inputSymbol),
+          status: 'pending' as const,
+        }))
+    }, [quoteData, inputSymbol])
 
     const percentButtons = useMemo(
       () => (
@@ -480,12 +721,6 @@ export const YieldEnterModal = memo(
       ],
     )
 
-    const balanceDisplay = useMemo(() => {
-      const cryptoDisplay = toCrypto(bnOrZero(inputTokenBalance), inputSymbol)
-      const fiatDisplay = toFiat(balanceFiat.toString())
-      return `${translate('common.balance')}: ${cryptoDisplay} (${fiatDisplay})`
-    }, [inputTokenBalance, inputSymbol, balanceFiat, translate, toCrypto, toFiat])
-
     const inputContent = useMemo(() => {
       if (isLoading) return <YieldEnterModalSkeleton />
 
@@ -518,9 +753,6 @@ export const YieldEnterModal = memo(
             </Text>
             <Icon as={TbSwitchVertical} fontSize='sm' color='text.subtle' />
           </HStack>
-          <Text fontSize='xs' color='text.subtle' mt={1}>
-            {balanceDisplay}
-          </Text>
         </Flex>
       )
     }, [
@@ -536,57 +768,123 @@ export const YieldEnterModal = memo(
       toggleIsFiat,
       cryptoAmount,
       fiatAmount,
-      balanceDisplay,
     ])
+
+    const { getInstance, fireConfetti, confettiStyle } = useConfetti()
+
+    useEffect(() => {
+      if (modalStep === 'success') fireConfetti()
+    }, [modalStep, fireConfetti])
+
+    const successContent = useMemo(
+      () => (
+        <VStack spacing={6} py={4} textAlign='center' align='center'>
+          <Box
+            position='relative'
+            w={20}
+            h={20}
+            borderRadius='full'
+            bgGradient='linear(to-br, green.400, green.600)'
+            color='white'
+            display='flex'
+            alignItems='center'
+            justifyContent='center'
+            boxShadow='0 0 30px rgba(72, 187, 120, 0.5)'
+          >
+            <Icon as={FaCheck} boxSize={8} />
+          </Box>
+          <Box>
+            <Heading size='lg' mb={2}>
+              {translate('yieldXYZ.success')}
+            </Heading>
+            <Text color='text.subtle' fontSize='md'>
+              {translate('yieldXYZ.successDeposit', { amount: cryptoAmount, symbol: inputSymbol })}
+            </Text>
+          </Box>
+          <Box width='full'>
+            <TransactionStepsList steps={transactionSteps} />
+          </Box>
+        </VStack>
+      ),
+      [translate, cryptoAmount, inputSymbol, transactionSteps],
+    )
 
     return (
       <>
-        <Modal isOpen={isOpen} onClose={handleModalClose} isCentered size='md'>
-          <ModalOverlay />
-          <ModalContent bg={modalBg} borderRadius='2xl'>
-            <ModalHeader
-              borderBottomWidth='1px'
-              borderColor={borderColor}
-              textAlign='center'
-              fontSize='lg'
-              fontWeight='semibold'
-            >
-              {modalTitle}
-            </ModalHeader>
-            <ModalCloseButton />
-            <ModalBody py={4}>
-              <Flex direction='column' gap={4}>
+        <ReactCanvasConfetti onInit={getInstance} style={confettiStyle} />
+        <Dialog isOpen={isOpen} onClose={handleModalClose} isFullScreen>
+          <DialogHeader>
+            <DialogHeader.Left>{null}</DialogHeader.Left>
+            <DialogHeader.Middle>
+              <DialogTitle>{modalTitle}</DialogTitle>
+            </DialogHeader.Middle>
+            <DialogHeader.Right>
+              <DialogCloseButton isDisabled={isSubmitting} />
+            </DialogHeader.Right>
+          </DialogHeader>
+          <DialogBody py={4} flex={1}>
+            {modalStep === 'input' && (
+              <Flex direction='column' gap={4} height='full'>
                 {inputContent}
                 {percentButtons}
+                {inputTokenAssetId && accountId && (
+                  <Flex justify='center'>
+                    <AccountSelector
+                      assetId={inputTokenAssetId}
+                      accountId={accountId}
+                      onChange={handleAccountChange}
+                      disabled={isAccountSelectorDisabled}
+                    />
+                  </Flex>
+                )}
                 {statsContent}
-                <Button
-                  colorScheme='blue'
-                  size='lg'
-                  width='full'
-                  height='56px'
-                  fontSize='lg'
-                  fontWeight='semibold'
-                  borderRadius='xl'
-                  isDisabled={enterButtonDisabled}
-                  isLoading={isQuoteActive && hasAmount}
-                  loadingText={translate('yieldXYZ.loadingQuote')}
-                  onClick={handleEnterButtonClick}
-                >
-                  {enterButtonText}
-                </Button>
+                {isSubmitting ? (
+                  <TransactionStepsList steps={transactionSteps} />
+                ) : (
+                  previewSteps.length > 0 && <TransactionStepsList steps={previewSteps} />
+                )}
               </Flex>
-            </ModalBody>
-          </ModalContent>
-        </Modal>
-        <YieldActionModal
-          isOpen={isActionModalOpen}
-          onClose={handleActionModalClose}
-          yieldItem={yieldItem}
-          action='enter'
-          amount={cryptoAmount}
-          assetSymbol={inputSymbol}
-          validatorAddress={selectedValidatorAddress}
-        />
+            )}
+            {modalStep === 'success' && successContent}
+          </DialogBody>
+          {modalStep === 'input' && (
+            <DialogFooter borderTop='1px solid' borderColor='border.base' pt={4} pb={4}>
+              <Button
+                colorScheme='blue'
+                size='lg'
+                width='full'
+                height='56px'
+                fontSize='lg'
+                fontWeight='semibold'
+                borderRadius='xl'
+                isDisabled={enterButtonDisabled || isSubmitting}
+                isLoading={isSubmitting || (isQuoteActive && hasAmount)}
+                loadingText={
+                  isSubmitting ? translate('common.confirming') : translate('yieldXYZ.loadingQuote')
+                }
+                onClick={handleEnterButtonClick}
+              >
+                {enterButtonText}
+              </Button>
+            </DialogFooter>
+          )}
+          {modalStep === 'success' && (
+            <DialogFooter borderTop='1px solid' borderColor='border.base' pt={4} pb={4}>
+              <Button
+                colorScheme='blue'
+                size='lg'
+                width='full'
+                height='56px'
+                fontSize='lg'
+                fontWeight='semibold'
+                borderRadius='xl'
+                onClick={handleModalClose}
+              >
+                {translate('common.close')}
+              </Button>
+            </DialogFooter>
+          )}
+        </Dialog>
       </>
     )
   },

@@ -2716,6 +2716,7 @@
     "opportunities": "Opportunities",
     "yields": "Yields",
     "earnUpTo": "You could earn up to %{apy}% on your balance",
+    "earnUpToOnBalance": "You could earn up to %{apy} on your balance",
     "startEarning": "Start earning",
     "maxApy": "Max APY",
     "validator": "Validator",

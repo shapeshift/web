@@ -45,14 +45,14 @@ export enum ModalStep {
 export type TransactionStep = {
   title: string
   status: 'pending' | 'success' | 'loading'
-  originalTitle: string
+  originalTitle?: string
   type?: string
   txHash?: string
   txUrl?: string
   loadingMessage?: string
 }
 
-const poll = async <T>(
+export const poll = async <T>(
   fn: () => Promise<T>,
   isComplete: (result: T) => boolean,
   shouldThrow?: (result: T) => Error | undefined,
@@ -67,7 +67,7 @@ const poll = async <T>(
   throw new Error('Polling timed out')
 }
 
-const waitForActionCompletion = (actionId: string): Promise<ActionDto> => {
+export const waitForActionCompletion = (actionId: string): Promise<ActionDto> => {
   return poll(
     () => fetchAction(actionId),
     action => action.status === YieldActionStatus.Success,

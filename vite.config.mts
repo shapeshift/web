@@ -168,6 +168,7 @@ export default defineConfig(({ mode }) => {
       port: 3000,
       headers,
       host: '0.0.0.0',
+      allowedHosts: true,
       proxy: {
         '/user-api': {
           target: 'http://localhost:3002',

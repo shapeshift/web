@@ -1,0 +1,144 @@
+.ssw-address-modal {
+  background: var(--ssw-bg-secondary);
+  border-radius: 16px;
+  width: 90%;
+  max-width: 420px;
+  max-height: 90vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.ssw-address-content {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.ssw-address-label {
+  font-size: 14px;
+  color: var(--ssw-text-secondary);
+}
+
+.ssw-address-input-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--ssw-bg-tertiary);
+  border: 1px solid var(--ssw-border);
+  border-radius: 12px;
+  padding: 12px 16px;
+  transition: border-color 0.15s ease;
+}
+
+.ssw-address-input-wrapper:focus-within {
+  border-color: var(--ssw-accent);
+}
+
+.ssw-address-input-wrapper.ssw-invalid {
+  border-color: #ef4444;
+}
+
+.ssw-address-input {
+  flex: 1;
+  background: none;
+  border: none;
+  outline: none;
+  color: var(--ssw-text-primary);
+  font-size: 14px;
+  font-family: monospace;
+}
+
+.ssw-address-input::placeholder {
+  color: var(--ssw-text-muted);
+}
+
+.ssw-address-clear-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  border: none;
+  background: none;
+  color: var(--ssw-text-muted);
+  cursor: pointer;
+  border-radius: 4px;
+  transition: all 0.15s ease;
+}
+
+.ssw-address-clear-btn:hover {
+  color: var(--ssw-text-primary);
+  background: var(--ssw-bg-hover);
+}
+
+.ssw-address-error {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: #ef4444;
+}
+
+.ssw-use-wallet-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 16px;
+  background: var(--ssw-bg-tertiary);
+  border: 1px solid var(--ssw-border);
+  border-radius: 10px;
+  color: var(--ssw-text-secondary);
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.ssw-use-wallet-btn:hover {
+  background: var(--ssw-bg-hover);
+  color: var(--ssw-text-primary);
+}
+
+.ssw-address-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.ssw-address-btn {
+  flex: 1;
+  padding: 14px 16px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.ssw-address-btn-secondary {
+  background: var(--ssw-bg-tertiary);
+  border: 1px solid var(--ssw-border);
+  color: var(--ssw-text-secondary);
+}
+
+.ssw-address-btn-secondary:hover {
+  background: var(--ssw-bg-hover);
+  color: var(--ssw-text-primary);
+}
+
+.ssw-address-btn-primary {
+  background: var(--ssw-accent);
+  border: none;
+  color: white;
+}
+
+.ssw-address-btn-primary:hover:not(:disabled) {
+  filter: brightness(1.1);
+}
+
+.ssw-address-btn-primary:disabled {
+  background: var(--ssw-bg-tertiary);
+  color: var(--ssw-text-muted);
+  cursor: not-allowed;
+}

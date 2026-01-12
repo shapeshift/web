@@ -18,6 +18,7 @@ import {
 import { TokenSelectModal } from "./TokenSelectModal";
 import { SettingsModal } from "./SettingsModal";
 import { QuoteSelector } from "./QuoteSelector";
+import { AddressInputModal } from "./AddressInputModal";
 import "./SwapWidget.css";
 
 const DEFAULT_SELL_ASSET: Asset = {
@@ -82,6 +83,8 @@ const SwapWidgetInner = ({
     null,
   );
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [isAddressModalOpen, setIsAddressModalOpen] = useState(false);
+  const [customReceiveAddress, setCustomReceiveAddress] = useState<string>("");
 
   const themeMode: ThemeMode = typeof theme === "string" ? theme : theme.mode;
   const themeConfig = typeof theme === "object" ? theme : undefined;
@@ -112,6 +115,14 @@ const SwapWidgetInner = ({
     if (!walletClient) return undefined;
     return (walletClient as WalletClient).account?.address;
   }, [walletClient]);
+
+  const effectiveReceiveAddress = useMemo(() => {
+    return customReceiveAddress || walletAddress || "";
+  }, [customReceiveAddress, walletAddress]);
+
+  const isCustomAddress = useMemo(() => {
+    return !!customReceiveAddress && customReceiveAddress !== walletAddress;
+  }, [customReceiveAddress, walletAddress]);
 
   const {
     data: sellAssetBalance,
@@ -539,11 +550,30 @@ const SwapWidgetInner = ({
         <div className="ssw-token-section ssw-buy">
           <div className="ssw-section-header">
             <span className="ssw-section-label">Buy</span>
-            {walletAddress && isBuyAssetEvm && (
-              <span className="ssw-wallet-badge">
-                {truncateAddress(walletAddress)}
+            <button
+              className={`ssw-receive-address-btn ${
+                isCustomAddress ? "ssw-custom" : ""
+              }`}
+              onClick={() => setIsAddressModalOpen(true)}
+              type="button"
+            >
+              <span className="ssw-receive-address-text">
+                {effectiveReceiveAddress
+                  ? truncateAddress(effectiveReceiveAddress, 4)
+                  : "Enter address"}
               </span>
-            )}
+              <svg
+                width="12"
+                height="12"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+              >
+                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+              </svg>
+            </button>
           </div>
 
           <div className="ssw-input-row">
@@ -745,6 +775,16 @@ const SwapWidgetInner = ({
         onClose={() => setIsSettingsOpen(false)}
         slippage={slippage}
         onSlippageChange={setSlippage}
+      />
+
+      <AddressInputModal
+        isOpen={isAddressModalOpen}
+        onClose={() => setIsAddressModalOpen(false)}
+        chainId={buyAsset.chainId}
+        chainName={buyChainInfo?.name ?? buyAsset.networkName ?? buyAsset.name}
+        currentAddress={customReceiveAddress || walletAddress || ""}
+        onAddressChange={setCustomReceiveAddress}
+        walletAddress={walletAddress}
       />
     </div>
   );

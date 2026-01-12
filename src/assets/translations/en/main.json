@@ -2671,6 +2671,7 @@
     "pageSubtitle": "Discover and manage yield opportunities across multiple chains",
     "enter": "Enter",
     "exit": "Exit",
+    "stakeAsset": "Stake %{asset}",
     "yield": "Yield",
     "apy": "APY",
     "apr": "APR",

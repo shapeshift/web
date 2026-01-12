@@ -1,11 +1,11 @@
 import { Box, Heading, Stack, VStack } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
-import { memo, useCallback, useMemo } from 'react'
+import { memo, useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useNavigate } from 'react-router-dom'
 
 import { YieldActivePositions } from './YieldActivePositions'
+import { YieldEnterModal } from './YieldEnterModal'
 import { YieldItemSkeleton } from './YieldItem'
 import { YieldOpportunityCard } from './YieldOpportunityCard'
 
@@ -25,7 +25,6 @@ type YieldAssetSectionProps = {
 
 export const YieldAssetSection = memo(({ assetId, accountId }: YieldAssetSectionProps) => {
   const translate = useTranslate()
-  const navigate = useNavigate()
   const isYieldXyzEnabled = useFeatureFlag('YieldXyz')
   const asset = useAppSelector(state => selectAssetById(state, assetId))
   const { data: yieldsData, isLoading: isYieldsLoading } = useYields()
@@ -33,6 +32,9 @@ export const YieldAssetSection = memo(({ assetId, accountId }: YieldAssetSection
   const { data: allBalancesData, isLoading: isBalancesLoading } =
     useAllYieldBalances(balanceOptions)
   const isLoading = isYieldsLoading || isBalancesLoading
+
+  const [isEnterModalOpen, setIsEnterModalOpen] = useState(false)
+  const [selectedYield, setSelectedYield] = useState<AugmentedYieldDto | null>(null)
 
   const yields = useMemo(() => {
     if (!yieldsData?.all || !asset) return []
@@ -78,12 +80,15 @@ export const YieldAssetSection = memo(({ assetId, accountId }: YieldAssetSection
 
   const hasActivePositions = Object.keys(aggregated).length > 0
 
-  const handleOpportunityClick = useCallback(
-    (yieldItem: AugmentedYieldDto) => {
-      navigate(`/yields/${yieldItem.id}`)
-    },
-    [navigate],
-  )
+  const handleOpportunityClick = useCallback((yieldItem: AugmentedYieldDto) => {
+    setSelectedYield(yieldItem)
+    setIsEnterModalOpen(true)
+  }, [])
+
+  const handleEnterModalClose = useCallback(() => {
+    setIsEnterModalOpen(false)
+    setSelectedYield(null)
+  }, [])
 
   const yieldHeading = translate('yieldXYZ.yield') ?? 'Yield'
 
@@ -111,15 +116,24 @@ export const YieldAssetSection = memo(({ assetId, accountId }: YieldAssetSection
   if (!isLoading && yields.length === 0) return null
 
   return (
-    <Box mt={6}>
-      <Heading as='h5' fontSize='md' mb={4}>
-        {yieldHeading}
-      </Heading>
-      <Stack spacing={4}>
-        {hasActivePositions && activePositionsContent}
-        {isLoading && loadingContent}
-        {!isLoading && !hasActivePositions && opportunityCardContent}
-      </Stack>
-    </Box>
+    <>
+      <Box mt={6}>
+        <Heading as='h5' fontSize='md' mb={4}>
+          {yieldHeading}
+        </Heading>
+        <Stack spacing={4}>
+          {hasActivePositions && activePositionsContent}
+          {isLoading && loadingContent}
+          {!isLoading && !hasActivePositions && opportunityCardContent}
+        </Stack>
+      </Box>
+      {selectedYield && (
+        <YieldEnterModal
+          isOpen={isEnterModalOpen}
+          onClose={handleEnterModalClose}
+          yieldItem={selectedYield}
+        />
+      )}
+    </>
   )
 })

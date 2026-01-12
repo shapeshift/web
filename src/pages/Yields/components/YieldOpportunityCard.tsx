@@ -1,4 +1,4 @@
-import { Box, Button, Flex, useColorModeValue } from '@chakra-ui/react'
+import { Box, Button, Flex } from '@chakra-ui/react'
 import { memo, useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 
@@ -16,8 +16,6 @@ const hoverStyle = { bgGradient: 'linear(to-r, blue.600, purple.700)' }
 
 export const YieldOpportunityCard = memo(({ maxApyYield, onClick }: YieldOpportunityCardProps) => {
   const translate = useTranslate()
-  const bg = useColorModeValue('gray.50', 'whiteAlpha.100')
-  const borderColor = useColorModeValue('gray.100', 'whiteAlpha.100')
 
   const apy = useMemo(
     () => bnOrZero(maxApyYield.rewardRate.total).times(100).toFixed(2),
@@ -41,13 +39,11 @@ export const YieldOpportunityCard = memo(({ maxApyYield, onClick }: YieldOpportu
 
   return (
     <Box
-      bg={bg}
+      bg='background.surface.raised.base'
       borderRadius='xl'
       borderWidth={1}
-      borderColor={borderColor}
+      borderColor='border.base'
       p={{ base: 4, sm: 6 }}
-      position='relative'
-      overflow='hidden'
     >
       <Flex justify='space-between' align='center' gap={4}>
         <Box flex={1}>

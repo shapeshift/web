@@ -12,7 +12,6 @@ import {
   StatNumber,
   Text,
   Tooltip,
-  useColorModeValue,
 } from '@chakra-ui/react'
 import { memo, useMemo } from 'react'
 import { FaClock, FaGasPump, FaLayerGroup, FaMoneyBillWave, FaUserShield } from 'react-icons/fa'
@@ -52,10 +51,6 @@ export const YieldStats = memo(({ yieldItem, balances }: YieldStatsProps) => {
   const inputTokenMarketData = useAppSelector(state =>
     selectMarketDataByAssetIdUserCurrency(state, inputTokenAssetId),
   )
-  const cardBg = useColorModeValue('white', 'gray.800')
-  const borderColor = useColorModeValue('gray.100', 'gray.750')
-  const rewardBreakdownBg = useColorModeValue('gray.50', 'whiteAlpha.50')
-  const dividerColor = useColorModeValue('gray.200', 'whiteAlpha.100')
 
   const [searchParams] = useSearchParams()
   const validatorParam = useMemo(() => searchParams.get('validator'), [searchParams])
@@ -128,7 +123,14 @@ export const YieldStats = memo(({ yieldItem, balances }: YieldStatsProps) => {
   const rewardBreakdownContent = useMemo(() => {
     if (yieldItem.rewardRate.components.length === 0) return null
     return (
-      <Flex direction='column' gap={2} mt={3} p={3} bg={rewardBreakdownBg} borderRadius='md'>
+      <Flex
+        direction='column'
+        gap={2}
+        mt={3}
+        p={3}
+        bg='background.surface.raised.base'
+        borderRadius='md'
+      >
         {yieldItem.rewardRate.components.map((component, idx) => (
           <Flex key={idx} justifyContent='space-between' alignItems='center'>
             <Flex alignItems='center' gap={2}>
@@ -144,7 +146,7 @@ export const YieldStats = memo(({ yieldItem, balances }: YieldStatsProps) => {
         ))}
       </Flex>
     )
-  }, [yieldItem.rewardRate.components, rewardBreakdownBg])
+  }, [yieldItem.rewardRate.components])
 
   const validatorRowContent = useMemo(() => {
     if (!validatorMetadata) return null
@@ -185,7 +187,7 @@ export const YieldStats = memo(({ yieldItem, balances }: YieldStatsProps) => {
   }, [yieldItem.mechanics.entryLimits.minimum, yieldItem.token.symbol, translate])
 
   return (
-    <Card bg={cardBg} borderRadius='xl' shadow='sm' border='1px solid' borderColor={borderColor}>
+    <Card variant='dashboard'>
       <CardBody p={6}>
         <Heading
           as='h3'
@@ -219,7 +221,7 @@ export const YieldStats = memo(({ yieldItem, balances }: YieldStatsProps) => {
             </Tooltip>
             {rewardBreakdownContent}
           </Box>
-          <Divider borderColor={dividerColor} />
+          <Divider borderColor='border.base' />
           <Stat>
             <StatLabel fontSize='xs' color='text.subtle' mb={1}>
               {translate('yieldXYZ.tvl')}

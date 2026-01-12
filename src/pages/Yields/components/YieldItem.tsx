@@ -12,7 +12,6 @@ import {
   StatLabel,
   StatNumber,
   Text,
-  useColorModeValue,
 } from '@chakra-ui/react'
 import type BigNumber from 'bignumber.js'
 import { memo, useCallback, useMemo } from 'react'
@@ -58,13 +57,6 @@ export const YieldItem = memo(
     const translate = useTranslate()
     const userCurrencyToUsdRate = useAppSelector(selectUserCurrencyToUsdRate)
     const { data: yieldProviders } = useYieldProviders()
-
-    const borderColor = useColorModeValue('gray.100', 'gray.750')
-    const cardBg = useColorModeValue('white', 'gray.800')
-    const hoverBorderColor = useColorModeValue('blue.500', 'blue.400')
-    const hoverBg = useColorModeValue('gray.50', 'whiteAlpha.50')
-    const cardShadow = useColorModeValue('sm', 'none')
-    const cardHoverShadow = useColorModeValue('lg', 'lg')
 
     const isSingle = data.type === 'single'
     const isGroup = data.type === 'group'
@@ -135,49 +127,16 @@ export const YieldItem = memo(
         const iconSource = resolveYieldInputAssetIcon(data.yieldItem)
         const size = variant === 'card' ? 'md' : 'sm'
         if (iconSource.assetId) {
-          return (
-            <AssetIcon
-              assetId={iconSource.assetId}
-              size={size}
-              boxShadow={variant === 'card' ? 'md' : undefined}
-              borderWidth={variant === 'card' ? '1px' : undefined}
-              borderColor={borderColor}
-            />
-          )
+          return <AssetIcon assetId={iconSource.assetId} size={size} />
         }
-        return (
-          <AssetIcon
-            src={iconSource.src}
-            size={size}
-            boxShadow={variant === 'card' ? 'md' : undefined}
-            borderWidth={variant === 'card' ? '1px' : undefined}
-            borderColor={borderColor}
-          />
-        )
+        return <AssetIcon src={iconSource.src} size={size} />
       }
       const size = variant === 'card' ? 'md' : 'sm'
       if (data.assetId) {
-        return (
-          <AssetIcon
-            assetId={data.assetId}
-            size={size}
-            showNetworkIcon={false}
-            boxShadow={variant === 'card' ? 'md' : undefined}
-            borderWidth={variant === 'card' ? '1px' : undefined}
-            borderColor={borderColor}
-          />
-        )
+        return <AssetIcon assetId={data.assetId} size={size} showNetworkIcon={false} />
       }
-      return (
-        <AssetIcon
-          src={data.assetIcon}
-          size={size}
-          boxShadow={variant === 'card' ? 'md' : undefined}
-          borderWidth={variant === 'card' ? '1px' : undefined}
-          borderColor={borderColor}
-        />
-      )
-    }, [data, isSingle, variant, borderColor])
+      return <AssetIcon src={data.assetIcon} size={size} />
+    }, [data, isSingle, variant])
 
     const subtitle = useMemo(() => {
       if (isSingle) {
@@ -198,9 +157,9 @@ export const YieldItem = memo(
         <Box
           onClick={handleClick}
           cursor='pointer'
-          _hover={{ bg: hoverBg }}
+          _hover={{ bg: 'background.surface.raised.base' }}
           borderBottomWidth='1px'
-          borderColor='inherit'
+          borderColor='border.base'
           transition='background 0.2s'
         >
           <Flex p={4} alignItems='center' gap={4}>
@@ -266,20 +225,14 @@ export const YieldItem = memo(
 
     return (
       <Card
-        bg={cardBg}
-        borderWidth='1px'
-        borderColor={borderColor}
-        boxShadow={cardShadow}
+        variant='dashboard'
         cursor={stats.canEnter ? 'pointer' : 'default'}
         onClick={handleClick}
         transition='all 0.2s cubic-bezier(0.4, 0, 0.2, 1)'
         _hover={{
-          borderColor: hoverBorderColor,
+          borderColor: 'blue.500',
           transform: 'translateY(-2px)',
-          boxShadow: cardHoverShadow,
         }}
-        borderRadius='xl'
-        variant='outline'
         position='relative'
         display='flex'
         flexDir='column'
@@ -354,7 +307,7 @@ export const YieldItem = memo(
           </HStack>
 
           {isGroup && (
-            <Box mt={4} pt={4} borderTopWidth='1px' borderColor={borderColor}>
+            <Box mt={4} pt={4} borderTopWidth='1px' borderColor='border.base'>
               <Flex justify='space-between' mb={2}>
                 <Box>
                   <Text fontSize='xs' color='text.subtle' mb={1}>
@@ -392,14 +345,11 @@ export const YieldItem = memo(
 )
 
 export const YieldItemSkeleton = memo(({ variant }: { variant: 'card' | 'row' }) => {
-  const borderColor = useColorModeValue('gray.100', 'gray.750')
-  const cardBg = useColorModeValue('white', 'gray.800')
-
   if (variant === 'row') {
     return (
       <Flex
         borderBottomWidth='1px'
-        borderColor={borderColor}
+        borderColor='border.base'
         py={3}
         px={4}
         alignItems='center'
@@ -420,13 +370,7 @@ export const YieldItemSkeleton = memo(({ variant }: { variant: 'card' | 'row' })
   }
 
   return (
-    <Card
-      bg={cardBg}
-      borderWidth='1px'
-      borderColor={borderColor}
-      borderRadius='xl'
-      variant='outline'
-    >
+    <Card variant='dashboard'>
       <CardBody p={5}>
         <Flex alignItems='center' gap={4} mb={6}>
           <SkeletonCircle size='12' />

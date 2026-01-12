@@ -13,7 +13,6 @@ import {
   ModalOverlay,
   Spinner,
   Text,
-  useColorModeValue,
   VStack,
 } from '@chakra-ui/react'
 import { keyframes } from '@emotion/react'
@@ -39,10 +38,10 @@ import {
 } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
-const walletIcon = <FaWallet color='white' />
+const walletIcon = <FaWallet color='text.base' />
 const checkIconBox = (
   <Box p={2}>
-    <Icon as={FaCheck} color='white' />
+    <Icon as={FaCheck} color='text.base' />
   </Box>
 )
 
@@ -76,12 +75,6 @@ export const YieldActionModal = memo(function YieldActionModal({
   ...props
 }: YieldActionModalProps) {
   const translate = useTranslate()
-  const modalBg = useColorModeValue('white', 'gray.900')
-  const modalBorderColor = useColorModeValue('gray.200', 'gray.700')
-  const cardBg = useColorModeValue('gray.50', 'gray.800')
-  const cardBorderColor = useColorModeValue('gray.200', 'whiteAlpha.100')
-  const subtleTextColor = useColorModeValue('gray.600', 'gray.400')
-  const avatarBg = useColorModeValue('gray.100', 'gray.900')
 
   const {
     step,
@@ -269,13 +262,12 @@ export const YieldActionModal = memo(function YieldActionModal({
     () => (
       <Box
         p={10}
-        bg={cardBg}
+        bg='background.surface.raised.base'
         borderRadius='2xl'
         borderWidth='1px'
-        borderColor={cardBorderColor}
+        borderColor='border.base'
         position='relative'
         overflow='hidden'
-        boxShadow='xl'
         minH='200px'
       >
         <Box
@@ -302,7 +294,7 @@ export const YieldActionModal = memo(function YieldActionModal({
           <VStack spacing={3} zIndex={2}>
             <Box
               p={1}
-              bg={avatarBg}
+              bg='background.surface.base'
               borderRadius='full'
               boxShadow='0 0 25px rgba(66, 153, 225, 0.4)'
               position='relative'
@@ -311,7 +303,7 @@ export const YieldActionModal = memo(function YieldActionModal({
             >
               <Avatar size='md' src={assetAvatarSrc} icon={walletIcon} />
             </Box>
-            <Text fontSize='sm' color={subtleTextColor} fontWeight='bold'>
+            <Text fontSize='sm' color='text.subtle' fontWeight='bold'>
               {assetSymbol}
             </Text>
           </VStack>
@@ -328,7 +320,7 @@ export const YieldActionModal = memo(function YieldActionModal({
               left={0}
               right={0}
               h='2px'
-              bg='whiteAlpha.100'
+              bg='border.base'
               borderRadius='full'
             />
             <Box
@@ -352,7 +344,7 @@ export const YieldActionModal = memo(function YieldActionModal({
             <Box
               position='relative'
               p={1}
-              bg={avatarBg}
+              bg='background.surface.base'
               borderRadius='full'
               border='2px solid'
               borderColor='blue.500'
@@ -366,7 +358,7 @@ export const YieldActionModal = memo(function YieldActionModal({
                 icon={checkIconBox}
               />
             </Box>
-            <Text fontSize='sm' color={subtleTextColor} fontWeight='bold'>
+            <Text fontSize='sm' color='text.subtle' fontWeight='bold'>
               {vaultMetadata.name}
             </Text>
           </VStack>
@@ -379,9 +371,9 @@ export const YieldActionModal = memo(function YieldActionModal({
                 align='center'
                 py={2}
                 borderBottomWidth='1px'
-                borderColor='whiteAlpha.100'
+                borderColor='border.base'
               >
-                <Text color='gray.400' fontSize='sm'>
+                <Text color='text.subtle' fontSize='sm'>
                   {translate('yieldXYZ.apr')}
                 </Text>
                 <GradientApy fontSize='sm' fontWeight='bold'>
@@ -394,9 +386,9 @@ export const YieldActionModal = memo(function YieldActionModal({
                   align='center'
                   py={2}
                   borderBottomWidth='1px'
-                  borderColor='whiteAlpha.100'
+                  borderColor='border.base'
                 >
-                  <Text color='gray.400' fontSize='sm'>
+                  <Text color='text.subtle' fontSize='sm'>
                     {translate('yieldXYZ.estEarnings')}
                   </Text>
                   <Flex align='center' gap={1}>
@@ -419,14 +411,14 @@ export const YieldActionModal = memo(function YieldActionModal({
               align='center'
               py={2}
               borderBottomWidth='1px'
-              borderColor='whiteAlpha.100'
+              borderColor='border.base'
             >
-              <Text color='gray.400' fontSize='sm'>
+              <Text color='text.subtle' fontSize='sm'>
                 {translate('yieldXYZ.validator')}
               </Text>
               <Flex align='center' gap={2}>
                 <Avatar size='xs' src={vaultMetadata.logoURI} name={vaultMetadata.name} />
-                <Text color='white' fontSize='sm' fontWeight='medium'>
+                <Text color='text.base' fontSize='sm' fontWeight='medium'>
                   {vaultMetadata.name}
                 </Text>
               </Flex>
@@ -438,26 +430,26 @@ export const YieldActionModal = memo(function YieldActionModal({
               align='center'
               py={2}
               borderBottomWidth='1px'
-              borderColor='whiteAlpha.100'
+              borderColor='border.base'
             >
-              <Text color='gray.400' fontSize='sm'>
+              <Text color='text.subtle' fontSize='sm'>
                 {translate('yieldXYZ.provider')}
               </Text>
               <Flex align='center' gap={2}>
                 <Avatar size='xs' src={vaultMetadata.logoURI} name={vaultMetadata.name} />
-                <Text color='white' fontSize='sm' fontWeight='medium'>
+                <Text color='text.base' fontSize='sm' fontWeight='medium'>
                   {vaultMetadata.name}
                 </Text>
               </Flex>
             </Flex>
           )}
           <Flex justify='space-between' align='center' py={2}>
-            <Text color='gray.400' fontSize='sm'>
+            <Text color='text.subtle' fontSize='sm'>
               {translate('yieldXYZ.network')}
             </Text>
             <Flex align='center' gap={2}>
               {feeAsset && <Avatar size='xs' src={networkAvatarSrc} name={yieldItem.network} />}
-              <Text color='white' fontSize='sm' fontWeight='medium' textTransform='capitalize'>
+              <Text color='text.base' fontSize='sm' fontWeight='medium' textTransform='capitalize'>
                 {yieldItem.network}
               </Text>
             </Flex>
@@ -530,14 +522,10 @@ export const YieldActionModal = memo(function YieldActionModal({
       </Box>
     ),
     [
-      cardBg,
-      cardBorderColor,
       amount,
       assetSymbol,
       flexDirection,
-      avatarBg,
       assetAvatarSrc,
-      subtleTextColor,
       horizontalScroll,
       vaultMetadata.logoURI,
       vaultMetadata.name,
@@ -596,7 +584,7 @@ export const YieldActionModal = memo(function YieldActionModal({
           h={24}
           borderRadius='full'
           bgGradient='linear(to-br, green.400, green.600)'
-          color='white'
+          color='text.base'
           display='flex'
           alignItems='center'
           justifyContent='center'
@@ -615,7 +603,7 @@ export const YieldActionModal = memo(function YieldActionModal({
         </Box>
         <Box width='full'>
           <VStack spacing={2} align='stretch' mt={4}>
-            <Text fontSize='sm' color='gray.400' textAlign='left' px={1}>
+            <Text fontSize='sm' color='text.subtle' textAlign='left' px={1}>
               {translate('yieldXYZ.transactions')}
             </Text>
             {transactionSteps.map((s, idx) => (
@@ -627,7 +615,7 @@ export const YieldActionModal = memo(function YieldActionModal({
                 bg='whiteAlpha.50'
                 borderRadius='lg'
                 border='1px solid'
-                borderColor='whiteAlpha.100'
+                borderColor='border.base'
               >
                 <Flex align='center' gap={2}>
                   <Icon as={FaCheck} color='green.400' boxSize={3} />
@@ -692,14 +680,8 @@ export const YieldActionModal = memo(function YieldActionModal({
         size='md'
         closeOnOverlayClick={!isSubmitting}
       >
-        <ModalOverlay backdropFilter='blur(12px)' bg='blackAlpha.600' />
-        <ModalContent
-          bg={modalBg}
-          borderColor={modalBorderColor}
-          borderWidth='1px'
-          borderRadius='3xl'
-          boxShadow='2xl'
-        >
+        <ModalOverlay />
+        <ModalContent>
           <ModalCloseButton top={5} right={5} isDisabled={isSubmitting} />
           <ModalBody p={8}>
             {headerContent}

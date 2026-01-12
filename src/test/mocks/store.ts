@@ -184,6 +184,7 @@ export const mockStore: ReduxState = {
       AddressBook: false,
       AppRating: false,
       YieldXyz: false,
+      YieldsPage: false,
       YieldMultiAccount: false,
     },
     showTopAssetsCarousel: true,

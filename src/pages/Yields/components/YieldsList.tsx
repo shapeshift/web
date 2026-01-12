@@ -18,7 +18,6 @@ import {
   TabPanels,
   Tabs,
   Text,
-  useColorModeValue,
 } from '@chakra-ui/react'
 import type { ColumnDef, Row } from '@tanstack/react-table'
 import { getCoreRowModel, getSortedRowModel, useReactTable } from '@tanstack/react-table'
@@ -55,8 +54,6 @@ export const YieldsList = memo(() => {
   const navigate = useNavigate()
   const { state: walletState } = useWallet()
   const isConnected = useMemo(() => Boolean(walletState.walletInfo), [walletState.walletInfo])
-  const headerBg = useColorModeValue('gray.50', 'whiteAlpha.50')
-  const searchInputBg = useColorModeValue('white', 'gray.800')
   const [searchParams, setSearchParams] = useSearchParams()
   const tabParam = useMemo(() => searchParams.get('tab'), [searchParams])
   const tabIndex = useMemo(() => (tabParam === 'my-positions' ? 1 : 0), [tabParam])
@@ -519,7 +516,7 @@ export const YieldsList = memo(() => {
           gap={4}
           borderBottomWidth='1px'
           borderColor='inherit'
-          bg={headerBg}
+          bg='background.surface.raised.base'
         >
           <Flex flex='1' minW='200px'>
             <Text fontSize='xs' fontWeight='bold' color='text.subtle' textTransform='uppercase'>
@@ -567,7 +564,7 @@ export const YieldsList = memo(() => {
         ))}
       </Box>
     ),
-    [filterSearchString, headerBg, translate, yieldsByAsset],
+    [filterSearchString, translate, yieldsByAsset],
   )
 
   const allYieldsContentElement = useMemo(() => {
@@ -715,14 +712,13 @@ export const YieldsList = memo(() => {
         >
           <InputGroup maxW={{ base: 'full', md: '300px' }} size='md'>
             <InputLeftElement pointerEvents='none'>
-              <SearchIcon color='gray.500' />
+              <SearchIcon color='text.subtle' />
             </InputLeftElement>
             <Input
               placeholder={translate('common.search')}
               value={searchQuery}
               onChange={handleSearchChange}
               borderRadius='full'
-              bg={searchInputBg}
             />
           </InputGroup>
           <HStack

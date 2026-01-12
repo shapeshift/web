@@ -10,7 +10,6 @@ import {
   Th,
   Thead,
   Tr,
-  useColorModeValue,
 } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { memo, useCallback, useMemo } from 'react'
@@ -39,8 +38,6 @@ export const YieldActivePositions = memo(
     const navigate = useNavigate()
     const asset = useAppSelector(state => selectAssetById(state, assetId))
     const userCurrencyToUsdRate = useAppSelector(selectUserCurrencyToUsdRate)
-    const hoverBg = useColorModeValue('gray.50', 'whiteAlpha.50')
-    const borderColor = useColorModeValue('gray.100', 'whiteAlpha.100')
 
     const { data: providers } = useYieldProviders()
 
@@ -114,7 +111,7 @@ export const YieldActivePositions = memo(
               return (
                 <Tr
                   key={`${yieldItem.id}-${validator.address}`}
-                  _hover={{ bg: hoverBg, cursor: 'pointer' }}
+                  _hover={{ bg: 'background.surface.raised.base', cursor: 'pointer' }}
                   onClick={() => handleRowClick(yieldItem.id, validator.address)}
                 >
                   <Td>
@@ -180,7 +177,7 @@ export const YieldActivePositions = memo(
         return (
           <Tr
             key={yieldItem.id}
-            _hover={{ bg: hoverBg, cursor: 'pointer' }}
+            _hover={{ bg: 'background.surface.raised.base', cursor: 'pointer' }}
             onClick={() => handleRowClick(yieldItem.id)}
           >
             <Td>
@@ -238,7 +235,6 @@ export const YieldActivePositions = memo(
       asset,
       getProviderLogo,
       handleRowClick,
-      hoverBg,
       renderAssetIcon,
       userCurrencyToUsdRate,
     ])
@@ -248,17 +244,12 @@ export const YieldActivePositions = memo(
 
     return (
       <Box>
-        <Text fontSize='sm' color='gray.500' fontWeight='medium' mb={2}>
+        <Text fontSize='sm' color='text.subtle' fontWeight='medium' mb={2}>
           {yourBalanceLabel}
         </Text>
-        <TableContainer
-          bg='transparent'
-          borderWidth='1px'
-          borderColor={borderColor}
-          borderRadius='xl'
-        >
+        <TableContainer borderWidth='1px' borderColor='border.base' borderRadius='xl'>
           <Table variant='simple'>
-            <Thead bg='whiteAlpha.50'>
+            <Thead bg='background.surface.raised.base'>
               <Tr>
                 <Th>{assetColumnHeader}</Th>
                 <Th>{providerColumnHeader}</Th>

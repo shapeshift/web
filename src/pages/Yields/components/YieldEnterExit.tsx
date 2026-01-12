@@ -12,7 +12,6 @@ import {
   TabPanels,
   Tabs,
   Text,
-  useColorModeValue,
 } from '@chakra-ui/react'
 import { memo, useCallback, useEffect, useMemo, useState } from 'react'
 import { FaMoneyBillWave } from 'react-icons/fa'
@@ -69,13 +68,6 @@ export const YieldEnterExit = memo(
     const { accountNumber } = useYieldAccount()
     const { state: walletState, dispatch } = useWallet()
     const isConnected = useMemo(() => Boolean(walletState.walletInfo), [walletState.walletInfo])
-    const cardBg = useColorModeValue('white', 'gray.800')
-    const borderColor = useColorModeValue('gray.100', 'gray.750')
-    const validatorPickerBg = useColorModeValue('gray.50', 'blackAlpha.50')
-    const validatorPickerHoverBg = useColorModeValue('gray.100', 'whiteAlpha.100')
-    const tabListBg = useColorModeValue('gray.50', 'blackAlpha.200')
-    const estimatedEarningsBg = useColorModeValue('gray.50', 'whiteAlpha.50')
-    const estimatedEarningsBorderColor = useColorModeValue('gray.100', 'whiteAlpha.100')
 
     const initialTab = useMemo(() => {
       if (location.pathname.endsWith('/exit')) return 1
@@ -281,12 +273,12 @@ export const YieldEnterExit = memo(
     const enterTabSelectedStyle = useMemo(
       () => ({
         color: 'blue.400',
-        bg: cardBg,
-        borderBottomColor: cardBg,
+        borderBottomColor: 'transparent',
         borderTopColor: 'blue.400',
-        borderTopWidth: 2,
+        borderTopWidth: '3px',
+        marginTop: '-1px',
       }),
-      [cardBg],
+      [],
     )
 
     const tabFocusStyle = useMemo(() => ({ boxShadow: 'none' }), [])
@@ -376,9 +368,9 @@ export const YieldEnterExit = memo(
           <Box
             p={4}
             borderBottom='1px solid'
-            borderColor={borderColor}
-            bg={validatorPickerBg}
-            _hover={{ bg: validatorPickerHoverBg }}
+            borderColor='border.base'
+            bg='background.surface.raised.base'
+            _hover={{ bg: 'background.surface.raised.hover' }}
             cursor='pointer'
             onClick={handleOpenValidatorModal}
             transition='background 0.2s'
@@ -430,9 +422,6 @@ export const YieldEnterExit = memo(
       )
     }, [
       shouldShowValidatorPicker,
-      borderColor,
-      validatorPickerBg,
-      validatorPickerHoverBg,
       handleOpenValidatorModal,
       validatorMetadata,
       isPreferredValidator,
@@ -550,11 +539,10 @@ export const YieldEnterExit = memo(
     return (
       <>
         <Box
-          bg={cardBg}
+          borderWidth='1px'
+          borderColor='border.base'
           borderRadius='xl'
-          shadow='sm'
-          border='1px solid'
-          borderColor={borderColor}
+          bg='background.surface.overlay.base'
           overflow='hidden'
         >
           {validatorPickerContent}
@@ -565,15 +553,14 @@ export const YieldEnterExit = memo(
             variant='enclosed'
             borderBottomWidth={0}
           >
-            <TabList mb='0' borderBottom='1px solid' borderColor={borderColor} bg={tabListBg}>
+            <TabList mb='0' borderBottom='1px solid' borderColor='border.base'>
               <Tab
                 _selected={enterTabSelectedStyle}
                 _focus={tabFocusStyle}
                 fontWeight='bold'
                 py={4}
                 borderBottomWidth='1px'
-                borderRadius={0}
-                borderTopWidth='2px'
+                borderTopWidth='3px'
                 borderTopColor='transparent'
                 isDisabled={enterTabDisabled}
                 opacity={enterTabOpacity}
@@ -586,8 +573,7 @@ export const YieldEnterExit = memo(
                 fontWeight='bold'
                 py={4}
                 borderBottomWidth='1px'
-                borderRadius={0}
-                borderTopWidth='2px'
+                borderTopWidth='3px'
                 borderTopColor='transparent'
                 isDisabled={exitTabDisabled}
                 opacity={exitTabOpacity}
@@ -601,11 +587,11 @@ export const YieldEnterExit = memo(
                   {enterTabPanelContent}
                   {minDepositContent}
                   <Box
-                    bg={estimatedEarningsBg}
+                    bg='background.surface.raised.base'
                     borderRadius='lg'
                     p={4}
                     border='1px solid'
-                    borderColor={estimatedEarningsBorderColor}
+                    borderColor='border.base'
                   >
                     <Flex justify='space-between' align='center' mb={estimatedEarningsMarginBottom}>
                       <Text fontSize='sm' color='text.subtle' fontWeight='medium'>

@@ -22,7 +22,7 @@ export const TransactionStepsList = memo(({ steps }: TransactionStepsListProps) 
     <Box bg='blackAlpha.300' borderRadius='xl' overflow='hidden'>
       {steps.map((step, idx) => (
         <Flex
-          key={idx}
+          key={`${step.title}-${idx}`}
           justify='space-between'
           align='center'
           p={4}

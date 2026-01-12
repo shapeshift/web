@@ -9,7 +9,6 @@ import {
   Input,
   Skeleton,
   Text,
-  useColorModeValue,
   useToast,
   VStack,
 } from '@chakra-ui/react'
@@ -71,6 +70,7 @@ import { selectPortfolioAccountMetadataByAccountId } from '@/state/slices/portfo
 import { allowedDecimalSeparators } from '@/state/slices/preferencesSlice/preferencesSlice'
 import {
   selectAccountIdByAccountNumberAndChainId,
+  selectAssetById,
   selectFeeAssetByChainId,
   selectMarketDataByAssetIdUserCurrency,
   selectPortfolioAccountIdsByAssetIdFilter,
@@ -86,17 +86,19 @@ type YieldEnterModalProps = {
 }
 
 const QUOTE_DEBOUNCE_MS = 500
+const PRESET_PERCENTAGES = [0.25, 0.5, 0.75, 1] as const
+const SHAPESHIFT_VALIDATOR_NAME = 'ShapeShift DAO'
 
-const FONT_SIZE_THRESHOLDS = {
-  SMALL: 10,
-  MEDIUM: 14,
-  LARGE: 22,
+const INPUT_LENGTH_BREAKPOINTS = {
+  FOR_XS_FONT: 22,
+  FOR_SM_FONT: 14,
+  FOR_MD_FONT: 10,
 } as const
 
 const getFontSizeByLength = (length: number): string => {
-  if (length >= FONT_SIZE_THRESHOLDS.LARGE) return '24px'
-  if (length >= FONT_SIZE_THRESHOLDS.MEDIUM) return '30px'
-  if (length >= FONT_SIZE_THRESHOLDS.SMALL) return '38px'
+  if (length >= INPUT_LENGTH_BREAKPOINTS.FOR_XS_FONT) return '24px'
+  if (length >= INPUT_LENGTH_BREAKPOINTS.FOR_SM_FONT) return '30px'
+  if (length >= INPUT_LENGTH_BREAKPOINTS.FOR_MD_FONT) return '38px'
   return '48px'
 }
 
@@ -152,19 +154,13 @@ export const YieldEnterModal = memo(
     } = useLocaleFormatter()
     const submitHashMutation = useSubmitYieldTransactionHash()
 
-    const statsBg = useColorModeValue('gray.50', 'whiteAlpha.50')
-    const statsBorderColor = useColorModeValue('gray.100', 'whiteAlpha.100')
-    const percentButtonBg = useColorModeValue('gray.100', 'whiteAlpha.100')
-    const percentButtonHoverBg = useColorModeValue('gray.200', 'whiteAlpha.200')
-    const percentButtonActiveBg = useColorModeValue('blue.100', 'blue.800')
-    const percentButtonActiveColor = useColorModeValue('blue.600', 'blue.200')
-
     const [cryptoAmount, setCryptoAmount] = useState('')
     const [isFiat, setIsFiat] = useState(false)
     const [selectedAccountId, setSelectedAccountId] = useState<string | undefined>()
     const [modalStep, setModalStep] = useState<ModalStep>('input')
     const [isSubmitting, setIsSubmitting] = useState(false)
     const [transactionSteps, setTransactionSteps] = useState<TransactionStep[]>([])
+    const [selectedPercent, setSelectedPercent] = useState<number | null>(null)
 
     const debouncedAmount = useDebounce(cryptoAmount, QUOTE_DEBOUNCE_MS)
 
@@ -217,7 +213,7 @@ export const YieldEnterModal = memo(
       if (found) return found
       if (selectedValidatorAddress === SHAPESHIFT_COSMOS_VALIDATOR_ADDRESS) {
         return {
-          name: 'ShapeShift DAO',
+          name: SHAPESHIFT_VALIDATOR_NAME,
           logoURI: SHAPESHIFT_VALIDATOR_LOGO,
           address: selectedValidatorAddress,
         }
@@ -235,8 +231,7 @@ export const YieldEnterModal = memo(
       [accountId],
     )
 
-    const inputSymbol = inputToken?.symbol ?? ''
-    const inputPrecision = inputToken?.decimals ?? 18
+    const inputTokenAsset = useAppSelector(state => selectAssetById(state, inputTokenAssetId ?? ''))
 
     const inputTokenBalance = useAppSelector(state =>
       inputTokenAssetId && accountId
@@ -308,7 +303,7 @@ export const YieldEnterModal = memo(
       retry: false,
     })
 
-    const isLoading = isValidatorsLoading
+    const isLoading = isValidatorsLoading || !inputTokenAsset
     const isQuoteActive = isQuoteLoading || isQuoteFetching
 
     const fiatAmount = useMemo(
@@ -360,8 +355,6 @@ export const YieldEnterModal = memo(
 
     const toggleIsFiat = useCallback(() => setIsFiat(prev => !prev), [])
 
-    const [selectedPercent, setSelectedPercent] = useState<number | null>(null)
-
     const handlePercentClick = useCallback(
       (percent: number) => {
         const percentAmount = bnOrZero(inputTokenBalance).times(percent).toFixed()
@@ -396,34 +389,28 @@ export const YieldEnterModal = memo(
 
     const buildCosmosStakeArgs = useCallback((): CosmosStakeArgs | undefined => {
       if (chainId !== cosmosChainId) return undefined
+      if (!inputTokenAsset) return undefined
 
       const validator =
         selectedValidatorAddress || DEFAULT_NATIVE_VALIDATOR_BY_CHAIN_ID[cosmosChainId]
       if (!validator) return undefined
 
-      const inputTokenDecimals = yieldItem.inputTokens[0]?.decimals ?? yieldItem.token.decimals
-
       return {
         validator,
         amountCryptoBaseUnit: bnOrZero(cryptoAmount)
-          .times(bnOrZero(10).pow(inputTokenDecimals))
+          .times(bnOrZero(10).pow(inputTokenAsset.precision))
           .toFixed(0),
         action: 'stake',
       }
-    }, [
-      chainId,
-      selectedValidatorAddress,
-      cryptoAmount,
-      yieldItem.inputTokens,
-      yieldItem.token.decimals,
-    ])
+    }, [chainId, selectedValidatorAddress, cryptoAmount, inputTokenAsset])
 
     const dispatchNotification = useCallback(
       (tx: TransactionDto, txHash: string) => {
         if (!chainId || !accountId) return
         if (!yieldItem.token.assetId) return
 
-        const isApproval = tx.title?.toLowerCase().includes('approv')
+        const isApproval =
+          tx.type?.toLowerCase() === 'approval' || tx.title?.toLowerCase().includes('approv')
         const actionType = isApproval ? ActionType.Approve : ActionType.Deposit
 
         dispatch(
@@ -462,7 +449,7 @@ export const YieldEnterModal = memo(
     )
 
     const handleExecute = useCallback(async () => {
-      if (!wallet || !accountId || !chainId || !quoteData) return
+      if (!wallet || !accountId || !chainId || !quoteData || !inputTokenAsset) return
 
       const transactions = quoteData.transactions.filter(
         tx => tx.status === TransactionStatus.Created,
@@ -474,7 +461,7 @@ export const YieldEnterModal = memo(
       }
 
       const initialSteps: TransactionStep[] = transactions.map((tx, i) => ({
-        title: formatYieldTxTitle(tx.title || `Transaction ${i + 1}`, inputSymbol),
+        title: formatYieldTxTitle(tx.title || `Transaction ${i + 1}`, inputTokenAsset.symbol),
         status: 'pending' as const,
       }))
 
@@ -550,7 +537,7 @@ export const YieldEnterModal = memo(
       accountId,
       chainId,
       quoteData,
-      inputSymbol,
+      inputTokenAsset,
       userAddress,
       accountMetadata?.bip44Params,
       translate,
@@ -575,8 +562,8 @@ export const YieldEnterModal = memo(
     const enterButtonText = useMemo(() => {
       if (!isConnected) return translate('common.connectWallet')
       if (isQuoteActive) return translate('yieldXYZ.loadingQuote')
-      return translate('yieldXYZ.stakeAsset', { asset: inputSymbol })
-    }, [isConnected, isQuoteActive, translate, inputSymbol])
+      return translate('yieldXYZ.stakeAsset', { asset: inputTokenAsset?.symbol })
+    }, [isConnected, isQuoteActive, translate, inputTokenAsset?.symbol])
 
     const handleEnterButtonClick = useMemo(
       () => (isConnected ? handleExecute : handleConnectWallet),
@@ -585,56 +572,55 @@ export const YieldEnterModal = memo(
 
     const modalTitle = useMemo(() => {
       if (modalStep === 'success') return translate('common.success')
-      return translate('yieldXYZ.stakeAsset', { asset: inputSymbol })
-    }, [translate, inputSymbol, modalStep])
+      return translate('yieldXYZ.stakeAsset', { asset: inputTokenAsset?.symbol })
+    }, [translate, inputTokenAsset?.symbol, modalStep])
 
     const previewSteps = useMemo((): TransactionStep[] => {
-      if (!quoteData?.transactions?.length) return []
+      if (!quoteData?.transactions?.length || !inputTokenAsset) return []
       return quoteData.transactions
         .filter(tx => tx.status === TransactionStatus.Created)
         .map((tx, i) => ({
-          title: formatYieldTxTitle(tx.title || `Transaction ${i + 1}`, inputSymbol),
+          title: formatYieldTxTitle(tx.title || `Transaction ${i + 1}`, inputTokenAsset.symbol),
           status: 'pending' as const,
         }))
-    }, [quoteData, inputSymbol])
+    }, [quoteData, inputTokenAsset])
 
     const percentButtons = useMemo(
       () => (
         <HStack spacing={2} justify='center' width='full'>
-          {[0.25, 0.5, 0.75, 1].map(percent => {
+          {PRESET_PERCENTAGES.map(percent => {
             const isSelected = selectedPercent === percent
             return (
               <Button
                 key={percent}
                 size='sm'
                 variant='ghost'
-                bg={isSelected ? percentButtonActiveBg : percentButtonBg}
-                color={isSelected ? percentButtonActiveColor : 'text.subtle'}
-                _hover={{ bg: isSelected ? percentButtonActiveBg : percentButtonHoverBg }}
+                bg={isSelected ? 'blue.500' : 'background.surface.raised.base'}
+                color={isSelected ? 'white' : 'text.subtle'}
+                _hover={{ bg: isSelected ? 'blue.600' : 'background.surface.raised.hover' }}
                 onClick={() => handlePercentClick(percent)}
                 borderRadius='full'
                 px={4}
                 fontWeight='medium'
               >
-                {percent === 1 ? 'Max' : `${percent * 100}%`}
+                {percent === 1 ? translate('modals.send.sendForm.max') : `${percent * 100}%`}
               </Button>
             )
           })}
         </HStack>
       ),
-      [
-        selectedPercent,
-        percentButtonActiveBg,
-        percentButtonBg,
-        percentButtonActiveColor,
-        percentButtonHoverBg,
-        handlePercentClick,
-      ],
+      [selectedPercent, handlePercentClick, translate],
     )
 
     const statsContent = useMemo(
       () => (
-        <Box bg={statsBg} borderRadius='xl' p={4} border='1px solid' borderColor={statsBorderColor}>
+        <Box
+          bg='background.surface.raised.base'
+          borderRadius='xl'
+          p={4}
+          borderWidth='1px'
+          borderColor='border.base'
+        >
           <Flex justify='space-between' align='center'>
             <Text fontSize='sm' color='text.subtle'>
               {translate('yieldXYZ.currentApy')}
@@ -650,7 +636,7 @@ export const YieldEnterModal = memo(
               </Text>
               <Flex direction='column' align='flex-end'>
                 <GradientApy fontSize='sm' fontWeight='bold'>
-                  {estimatedYearlyEarnings.decimalPlaces(4).toString()} {inputSymbol}
+                  {estimatedYearlyEarnings.decimalPlaces(4).toString()} {inputTokenAsset?.symbol}
                 </GradientApy>
                 <Text fontSize='xs' color='text.subtle'>
                   <Amount.Fiat value={estimatedYearlyEarningsFiat.toString()} />
@@ -698,20 +684,18 @@ export const YieldEnterModal = memo(
                 color={isBelowMinimum ? 'red.500' : 'text.base'}
                 fontWeight='medium'
               >
-                {minDeposit} {inputSymbol}
+                {minDeposit} {inputTokenAsset?.symbol}
               </Text>
             </Flex>
           )}
         </Box>
       ),
       [
-        statsBg,
-        statsBorderColor,
         translate,
         apyDisplay,
         hasAmount,
         estimatedYearlyEarnings,
-        inputSymbol,
+        inputTokenAsset?.symbol,
         estimatedYearlyEarningsFiat,
         isStaking,
         selectedValidatorMetadata,
@@ -730,7 +714,7 @@ export const YieldEnterModal = memo(
           <NumericFormat
             customInput={BigAmountInput}
             valueIsNumericString={true}
-            decimalScale={isFiat ? 2 : inputPrecision}
+            decimalScale={isFiat ? 2 : inputTokenAsset?.precision}
             inputMode='decimal'
             thousandSeparator={localeParts.group}
             decimalSeparator={localeParts.decimal}
@@ -740,13 +724,13 @@ export const YieldEnterModal = memo(
             value={displayValue}
             placeholder={displayPlaceholder}
             prefix={isFiat ? localeParts.prefix : ''}
-            suffix={isFiat ? '' : ` ${inputSymbol}`}
+            suffix={isFiat ? '' : ` ${inputTokenAsset?.symbol}`}
             onValueChange={handleInputChange}
           />
           <HStack spacing={2} mt={2} onClick={toggleIsFiat} cursor='pointer'>
             <Text fontSize='sm' color='text.subtle'>
               {isFiat ? (
-                <Amount.Crypto value={cryptoAmount || '0'} symbol={inputSymbol} />
+                <Amount.Crypto value={cryptoAmount || '0'} symbol={inputTokenAsset?.symbol} />
               ) : (
                 <Amount.Fiat value={fiatAmount.toFixed(2)} />
               )}
@@ -759,11 +743,11 @@ export const YieldEnterModal = memo(
       isLoading,
       inputTokenAssetId,
       isFiat,
-      inputPrecision,
+      inputTokenAsset?.precision,
       localeParts,
       displayValue,
       displayPlaceholder,
-      inputSymbol,
+      inputTokenAsset?.symbol,
       handleInputChange,
       toggleIsFiat,
       cryptoAmount,
@@ -798,7 +782,10 @@ export const YieldEnterModal = memo(
               {translate('yieldXYZ.success')}
             </Heading>
             <Text color='text.subtle' fontSize='md'>
-              {translate('yieldXYZ.successDeposit', { amount: cryptoAmount, symbol: inputSymbol })}
+              {translate('yieldXYZ.successDeposit', {
+                amount: cryptoAmount,
+                symbol: inputTokenAsset?.symbol,
+              })}
             </Text>
           </Box>
           <Box width='full'>
@@ -806,7 +793,7 @@ export const YieldEnterModal = memo(
           </Box>
         </VStack>
       ),
-      [translate, cryptoAmount, inputSymbol, transactionSteps],
+      [translate, cryptoAmount, inputTokenAsset?.symbol, transactionSteps],
     )
 
     return (

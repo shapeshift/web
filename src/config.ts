@@ -235,6 +235,7 @@ const validators = {
   VITE_FEATURE_ADDRESS_BOOK: bool({ default: false }),
   VITE_FEATURE_APP_RATING: bool({ default: false }),
   VITE_FEATURE_YIELD_XYZ: bool({ default: false }),
+  VITE_FEATURE_YIELDS_PAGE: bool({ default: false }),
   VITE_YIELD_XYZ_API_KEY: str({ default: '' }),
   VITE_YIELD_XYZ_BASE_URL: url({ default: 'https://api.yield.xyz/v1' }),
   VITE_FEATURE_YIELD_MULTI_ACCOUNT: bool({ default: false }),

@@ -17,7 +17,6 @@ import {
   TabPanels,
   Tabs,
   Text,
-  useColorModeValue,
   VStack,
 } from '@chakra-ui/react'
 import type { ChangeEvent } from 'react'
@@ -50,9 +49,6 @@ export const YieldValidatorSelectModal = memo(
     const translate = useTranslate()
     const userCurrencyToUsdRate = useAppSelector(selectUserCurrencyToUsdRate)
     const [searchQuery, setSearchQuery] = useState('')
-    const bgColor = useColorModeValue('white', 'gray.800')
-    const borderColor = useColorModeValue('gray.100', 'gray.750')
-    const hoverBg = useColorModeValue('gray.50', 'whiteAlpha.50')
 
     const balanceMap = useMemo(() => {
       if (!balances) return new Map<string, string>()
@@ -144,7 +140,7 @@ export const YieldValidatorSelectModal = memo(
             p={4}
             cursor='pointer'
             borderRadius='lg'
-            _hover={{ bg: hoverBg }}
+            _hover={{ bg: 'background.surface.raised.base' }}
             onClick={() => handleSelect(v.address)}
           >
             <Flex align='center' gap={3}>
@@ -185,13 +181,13 @@ export const YieldValidatorSelectModal = memo(
           </Flex>
         )
       },
-      [balanceMap, userCurrencyToUsdRate, hoverBg, handleSelect, translate],
+      [balanceMap, userCurrencyToUsdRate, handleSelect, translate],
     )
 
     return (
       <Modal isOpen={isOpen} onClose={onClose} scrollBehavior='inside' size='lg'>
         <ModalOverlay backdropFilter='blur(5px)' />
-        <ModalContent bg={bgColor} borderColor={borderColor}>
+        <ModalContent>
           <ModalHeader>{translate('yieldXYZ.selectValidator')}</ModalHeader>
           <ModalCloseButton />
           <ModalBody p={0}>

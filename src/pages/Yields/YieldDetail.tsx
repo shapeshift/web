@@ -8,7 +8,6 @@ import {
   Heading,
   HStack,
   Text,
-  useColorModeValue,
 } from '@chakra-ui/react'
 import { memo, useEffect, useMemo } from 'react'
 import { FaChevronLeft } from 'react-icons/fa'
@@ -50,13 +49,6 @@ export const YieldDetail = memo(() => {
     [yieldItem?.providerId, yieldProviders],
   )
 
-  const bgColor = useColorModeValue('gray.50', 'gray.900')
-  const borderColor = useColorModeValue('gray.200', 'gray.800')
-  const heroBg = useColorModeValue('gray.100', 'gray.900')
-  const heroTextColor = useColorModeValue('gray.900', 'white')
-  const heroSubtleColor = useColorModeValue('gray.600', 'gray.400')
-  const heroIconBorderColor = useColorModeValue('gray.200', 'gray.800')
-
   const { data: allBalancesData, isFetching: isBalancesFetching } = useAllYieldBalances()
   const balances = yieldItem?.id ? allBalancesData?.normalized[yieldItem.id] : undefined
   const isBalancesLoading = !allBalancesData && isBalancesFetching
@@ -82,7 +74,7 @@ export const YieldDetail = memo(() => {
   const errorElement = useMemo(
     () => (
       <Container maxW='1200px' py={20}>
-        <Box textAlign='center' py={16} bg={heroBg} borderRadius='2xl'>
+        <Box textAlign='center' py={16} bg='background.surface.raised.base' borderRadius='2xl'>
           <Heading as='h2' size='xl' mb={4}>
             {translate('common.error')}
           </Heading>
@@ -95,10 +87,8 @@ export const YieldDetail = memo(() => {
         </Box>
       </Container>
     ),
-    [error, heroBg, navigate, translate],
+    [error, navigate, translate],
   )
-
-  const iconBg = useColorModeValue('white', 'gray.800')
 
   const heroIcon = useMemo(() => {
     if (!yieldItem) return null
@@ -111,9 +101,9 @@ export const YieldDetail = memo(() => {
           boxSize={24}
           boxShadow='2xl'
           border='4px solid'
-          borderColor={heroIconBorderColor}
+          borderColor='border.base'
           borderRadius='full'
-          bg={iconBg}
+          bg='background.surface.base'
         />
       )
     return (
@@ -122,12 +112,12 @@ export const YieldDetail = memo(() => {
         boxSize={24}
         boxShadow='2xl'
         border='4px solid'
-        borderColor={heroIconBorderColor}
+        borderColor='border.base'
         borderRadius='full'
-        bg={iconBg}
+        bg='background.surface.base'
       />
     )
-  }, [heroIconBorderColor, yieldItem, iconBg])
+  }, [yieldItem])
 
   const providerOrValidatorsElement = useMemo(() => {
     if (!yieldItem) return null
@@ -140,7 +130,7 @@ export const YieldDetail = memo(() => {
             ))}
           </AvatarGroup>
           <Text color='text.subtle' fontSize='md'>
-            <Text as='span' color={heroTextColor} fontWeight='semibold'>
+            <Text as='span' color='text.base' fontWeight='semibold'>
               {validators.length > 3 ? `${validators.length} Validators` : 'Validators'}
             </Text>
           </Text>
@@ -150,39 +140,32 @@ export const YieldDetail = memo(() => {
       <HStack spacing={2}>
         <Avatar src={providerLogo} size='xs' name={yieldItem.providerId} />
         <Text color='text.subtle' fontSize='md'>
-          <Text as='span' color={heroTextColor} fontWeight='semibold'>
+          <Text as='span' color='text.base' fontWeight='semibold'>
             {yieldItem.providerId}
           </Text>
         </Text>
       </HStack>
     )
-  }, [
-    heroTextColor,
-    providerLogo,
-    shouldFetchValidators,
-    uniqueValidatorCount,
-    validators,
-    yieldItem,
-  ])
+  }, [providerLogo, shouldFetchValidators, uniqueValidatorCount, validators, yieldItem])
 
   const chainElement = useMemo(() => {
     if (!yieldItem?.chainId) return null
     return (
       <HStack spacing={2} mb={4}>
         <ChainIcon chainId={yieldItem.chainId} boxSize='20px' />
-        <Text color={heroTextColor} fontWeight='semibold' fontSize='md' textTransform='capitalize'>
+        <Text color='text.base' fontWeight='semibold' fontSize='md' textTransform='capitalize'>
           {yieldItem.network}
         </Text>
       </HStack>
     )
-  }, [heroTextColor, yieldItem?.chainId, yieldItem?.network])
+  }, [yieldItem?.chainId, yieldItem?.network])
 
   if (isLoading) return loadingElement
   if (error || !yieldItem) return errorElement
 
   return (
-    <Box bg={bgColor} minH='100vh' pb={20}>
-      <Box borderBottom='1px' borderColor={borderColor} bg={heroBg} py={12} mb={10}>
+    <Box bg='background.surface.base' minH='100vh' pb={20}>
+      <Box py={12} mb={10}>
         <Container maxW='1200px'>
           <Button
             variant='link'
@@ -190,21 +173,21 @@ export const YieldDetail = memo(() => {
             leftIcon={<FaChevronLeft />}
             onClick={() => navigate('/yields')}
             mb={8}
-            _hover={{ color: heroTextColor, textDecoration: 'none' }}
+            _hover={{ color: 'text.base', textDecoration: 'none' }}
           >
             {translate('common.back')}
           </Button>
           <Flex alignItems='start' gap={8}>
             {heroIcon}
             <Box pt={2}>
-              <Heading as='h1' size='2xl' color={heroTextColor} lineHeight='1.2' mb={3}>
+              <Heading as='h1' size='2xl' color='text.base' lineHeight='1.2' mb={3}>
                 {yieldItem.metadata.name}
               </Heading>
               <Flex alignItems='center' gap={4} mb={2}>
                 {providerOrValidatorsElement}
               </Flex>
               {chainElement}
-              <Text color={heroSubtleColor} fontSize='lg' maxW='container.md' lineHeight='short'>
+              <Text color='text.subtle' fontSize='lg' maxW='container.md' lineHeight='short'>
                 {yieldItem.metadata.description}
               </Text>
             </Box>

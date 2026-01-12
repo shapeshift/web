@@ -11,7 +11,6 @@ import {
   HStack,
   Skeleton,
   Text,
-  useColorModeValue,
   useDisclosure,
   VStack,
 } from '@chakra-ui/react'
@@ -62,7 +61,6 @@ type ValidatorCardProps = {
   validatorSummary: ValidatorSummary
   isSelected: boolean
   userCurrencyToUsdRate: string
-  hoverBg: string
   onValidatorSwitch: (e: React.MouseEvent) => void
   onClaimClick: (e: React.MouseEvent) => void
   formatUnlockDate: (dateString: string | undefined) => string | null
@@ -165,26 +163,8 @@ const BalanceRow: FC<BalanceRowProps> = memo(
 )
 
 const ValidatorCard: FC<ValidatorCardProps> = memo(
-  ({
-    validatorSummary,
-    isSelected,
-    userCurrencyToUsdRate,
-    hoverBg,
-    onValidatorSwitch,
-    onClaimClick,
-  }) => {
+  ({ validatorSummary, isSelected, userCurrencyToUsdRate, onValidatorSwitch, onClaimClick }) => {
     const translate = useTranslate()
-    const enteringBg = useColorModeValue('blue.50', 'blue.900')
-    const enteringTextColor = useColorModeValue('blue.700', 'blue.300')
-    const enteringDateColor = useColorModeValue('blue.600', 'blue.400')
-    const enteringValueColor = useColorModeValue('blue.800', 'blue.200')
-    const exitingBg = useColorModeValue('orange.50', 'orange.900')
-    const exitingTextColor = useColorModeValue('orange.700', 'orange.300')
-    const exitingDateColor = useColorModeValue('orange.600', 'orange.400')
-    const exitingValueColor = useColorModeValue('orange.800', 'orange.200')
-    const claimableBg = useColorModeValue('purple.50', 'purple.900')
-    const claimableTextColor = useColorModeValue('purple.700', 'purple.300')
-    const claimableValueColor = useColorModeValue('purple.800', 'purple.200')
 
     const {
       validator,
@@ -213,7 +193,14 @@ const ValidatorCard: FC<ValidatorCardProps> = memo(
     )
 
     return (
-      <Flex direction='column' gap={3} p={3} borderRadius='lg' bg={hoverBg} position='relative'>
+      <Flex
+        direction='column'
+        gap={3}
+        p={3}
+        borderRadius='lg'
+        bg='background.surface.raised.base'
+        position='relative'
+      >
         {!isSelected && (
           <Button
             size='xs'
@@ -228,7 +215,7 @@ const ValidatorCard: FC<ValidatorCardProps> = memo(
           </Button>
         )}
         <HStack spacing={3}>
-          <Avatar src={validator.logoURI} name={validator.name} size='sm' bg='gray.700' />
+          <Avatar src={validator.logoURI} name={validator.name} size='sm' />
           <Box flex={1}>
             <Flex align='center' gap={2}>
               <Text fontWeight='semibold' fontSize='sm'>
@@ -251,29 +238,29 @@ const ValidatorCard: FC<ValidatorCardProps> = memo(
             balance={enteringBalance}
             hasBalance={hasEntering}
             label='yieldXYZ.entering'
-            bg={enteringBg}
-            textColor={enteringTextColor}
-            dateColor={enteringDateColor}
-            valueColor={enteringValueColor}
+            bg='blue.900'
+            textColor='blue.300'
+            dateColor='blue.400'
+            valueColor='blue.200'
             showDate
           />
           <BalanceRow
             balance={exitingBalance}
             hasBalance={hasExiting}
             label='yieldXYZ.exiting'
-            bg={exitingBg}
-            textColor={exitingTextColor}
-            dateColor={exitingDateColor}
-            valueColor={exitingValueColor}
+            bg='orange.900'
+            textColor='orange.300'
+            dateColor='orange.400'
+            valueColor='orange.200'
             showDate
           />
           <BalanceRow
             balance={claimableBalance}
             hasBalance={hasClaimable}
             label='yieldXYZ.claimable'
-            bg={claimableBg}
-            textColor={claimableTextColor}
-            valueColor={claimableValueColor}
+            bg='purple.900'
+            textColor='purple.300'
+            valueColor='purple.200'
             claimButton={claimButton}
           />
         </VStack>
@@ -288,10 +275,6 @@ export const ValidatorBreakdown = memo(
     const { isOpen, onToggle } = useDisclosure({ defaultIsOpen: true })
     const [claimModalData, setClaimModalData] = useState<ClaimModalData | null>(null)
     const handleClaimClose = useCallback(() => setClaimModalData(null), [])
-
-    const cardBg = useColorModeValue('white', 'gray.800')
-    const borderColor = useColorModeValue('gray.100', 'gray.750')
-    const hoverBg = useColorModeValue('gray.50', 'gray.750')
 
     const { chainId } = yieldItem
     const { accountNumber } = useYieldAccount()
@@ -371,13 +354,7 @@ export const ValidatorBreakdown = memo(
 
     const loadingElement = useMemo(
       () => (
-        <Card
-          bg={cardBg}
-          borderRadius='xl'
-          shadow='sm'
-          border='1px solid'
-          borderColor={borderColor}
-        >
+        <Card variant='dashboard'>
           <CardBody p={6}>
             <Skeleton height='24px' width='200px' mb={4} />
             <VStack spacing={3} align='stretch'>
@@ -387,7 +364,7 @@ export const ValidatorBreakdown = memo(
           </CardBody>
         </Card>
       ),
-      [borderColor, cardBg],
+      [],
     )
 
     const claimModalElement = useMemo(() => {
@@ -415,7 +392,7 @@ export const ValidatorBreakdown = memo(
     if (!hasValidatorPositions) return null
 
     return (
-      <Card bg={cardBg} borderRadius='xl' shadow='sm' border='1px solid' borderColor={borderColor}>
+      <Card variant='dashboard'>
         <CardBody p={6}>
           <Flex
             justifyContent='space-between'
@@ -452,12 +429,11 @@ export const ValidatorBreakdown = memo(
 
                 return (
                   <Box key={validatorSummary.validator.address}>
-                    {index > 0 && <Divider borderColor={borderColor} mb={3} />}
+                    {index > 0 && <Divider borderColor='border.base' mb={3} />}
                     <ValidatorCard
                       validatorSummary={validatorSummary}
                       isSelected={isSelected}
                       userCurrencyToUsdRate={userCurrencyToUsdRate}
-                      hoverBg={hoverBg}
                       onValidatorSwitch={handleValidatorSwitch(validatorSummary.validator.address)}
                       onClaimClick={handleClaimClick(
                         validatorSummary,

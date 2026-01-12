@@ -11,7 +11,6 @@ import {
   Stack,
   Text,
   Tooltip,
-  useColorModeValue,
 } from '@chakra-ui/react'
 import type { ChainId } from '@shapeshiftoss/caip'
 import React, { memo, useCallback, useMemo } from 'react'
@@ -57,27 +56,13 @@ const FilterMenu = memo(({ label, value, options, onSelect, renderIcon }: Filter
     () => (selectedOption ? selectedOption.name : label),
     [selectedOption, label],
   )
-  const bg = useColorModeValue('white', 'gray.800')
-  const borderColor = useColorModeValue('gray.200', 'gray.700')
-  const selectedColor = useColorModeValue('blue.500', 'blue.300')
-  const hoverBg = useColorModeValue('gray.50', 'gray.750')
-  const activeBg = useColorModeValue('gray.100', 'gray.700')
 
   const handleSelectAll = useCallback(() => onSelect(null), [onSelect])
-
-  const hoverStyle = useMemo(() => ({ bg: hoverBg }), [hoverBg])
-  const activeStyle = useMemo(() => ({ bg: activeBg }), [activeBg])
 
   const selectedIcon = useMemo(
     () => (selectedOption && renderIcon ? renderIcon(selectedOption) : null),
     [selectedOption, renderIcon],
   )
-
-  const allItemColor = useMemo(
-    () => (value === null ? selectedColor : undefined),
-    [value, selectedColor],
-  )
-  const allItemFontWeight = useMemo(() => (value === null ? 'semibold' : undefined), [value])
 
   const menuItems = useMemo(
     () =>
@@ -87,7 +72,7 @@ const FilterMenu = memo(({ label, value, options, onSelect, renderIcon }: Filter
           <MenuItem
             key={opt.id}
             onClick={() => onSelect(opt.id)}
-            color={isSelected ? selectedColor : undefined}
+            color={isSelected ? 'blue.500' : undefined}
             fontWeight={isSelected ? 'semibold' : undefined}
           >
             <HStack spacing={3}>
@@ -97,24 +82,12 @@ const FilterMenu = memo(({ label, value, options, onSelect, renderIcon }: Filter
           </MenuItem>
         )
       }),
-    [options, value, selectedColor, renderIcon, onSelect],
+    [options, value, renderIcon, onSelect],
   )
 
   return (
     <Menu>
-      <MenuButton
-        as={Button}
-        rightIcon={chevronDownIcon}
-        bg={bg}
-        borderWidth='1px'
-        borderColor={borderColor}
-        variant='outline'
-        size='md'
-        textAlign='left'
-        minW='160px'
-        _hover={hoverStyle}
-        _active={activeStyle}
-      >
+      <MenuButton as={Button} rightIcon={chevronDownIcon} minW='160px'>
         <HStack spacing={2}>
           {selectedIcon}
           <Text isTruncated maxW='120px'>
@@ -122,8 +95,12 @@ const FilterMenu = memo(({ label, value, options, onSelect, renderIcon }: Filter
           </Text>
         </HStack>
       </MenuButton>
-      <MenuList zIndex={10} maxH='300px' overflowY='auto'>
-        <MenuItem onClick={handleSelectAll} color={allItemColor} fontWeight={allItemFontWeight}>
+      <MenuList zIndex='banner' maxH='300px' overflowY='auto'>
+        <MenuItem
+          onClick={handleSelectAll}
+          color={value === null ? 'blue.500' : undefined}
+          fontWeight={value === null ? 'semibold' : undefined}
+        >
           {label}
         </MenuItem>
         {menuItems}
@@ -156,10 +133,6 @@ export const YieldFilters = memo(
     ...props
   }: YieldFiltersProps) => {
     const translate = useTranslate()
-    const bg = useColorModeValue('white', 'gray.800')
-    const borderColor = useColorModeValue('gray.200', 'gray.700')
-    const hoverBg = useColorModeValue('gray.50', 'gray.750')
-    const activeBg = useColorModeValue('gray.100', 'gray.700')
 
     const sortOptions = useMemo(
       () => [
@@ -196,17 +169,14 @@ export const YieldFilters = memo(
       return <FaSortAmountDown />
     }, [sortOption])
 
-    const hoverStyle = useMemo(() => ({ bg: hoverBg }), [hoverBg])
-    const activeStyle = useMemo(() => ({ bg: activeBg }), [activeBg])
-
     const sortMenuItems = useMemo(
       () =>
         sortOptions.map(opt => (
           <MenuItem
             key={opt.value}
             onClick={() => onSortChange(opt.value)}
-            color={sortOption === opt.value ? 'blue.500' : 'inherit'}
-            fontWeight={sortOption === opt.value ? 'bold' : 'normal'}
+            color={sortOption === opt.value ? 'blue.500' : undefined}
+            fontWeight={sortOption === opt.value ? 'bold' : undefined}
           >
             {opt.label}
           </MenuItem>
@@ -232,20 +202,9 @@ export const YieldFilters = memo(
         />
         <Menu>
           <Tooltip label='Sort' hasArrow>
-            <MenuButton
-              as={IconButton}
-              aria-label='Sort'
-              icon={sortIcon}
-              bg={bg}
-              borderWidth='1px'
-              borderColor={borderColor}
-              variant='outline'
-              size='md'
-              _hover={hoverStyle}
-              _active={activeStyle}
-            />
+            <MenuButton as={IconButton} aria-label='Sort' icon={sortIcon} />
           </Tooltip>
-          <MenuList zIndex={10} maxH='300px' overflowY='auto'>
+          <MenuList zIndex='banner' maxH='300px' overflowY='auto'>
             {sortMenuItems}
           </MenuList>
         </Menu>

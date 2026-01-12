@@ -246,7 +246,7 @@ export const routes: Route[] = [
     category: RouteCategory.Featured,
     priority: 3,
     mobileNav: false,
-    disable: !getConfig().VITE_FEATURE_YIELD_XYZ,
+    disable: !getConfig().VITE_FEATURE_YIELD_XYZ || !getConfig().VITE_FEATURE_YIELDS_PAGE,
   },
   {
     path: '/ramp/*',

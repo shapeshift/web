@@ -16,6 +16,7 @@ import { EarnOpportunities } from '@/components/StakingVaults/EarnOpportunities'
 import { AssetTransactionHistory } from '@/components/TransactionHistory/AssetTransactionHistory'
 import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
 import { StandaloneTrade } from '@/pages/Trade/StandaloneTrade'
+import { YieldAssetSection } from '@/pages/Yields/components/YieldAssetSection'
 import { selectEnabledWalletAccountIds } from '@/state/slices/selectors'
 import { breakpoints } from '@/theme/theme'
 
@@ -68,6 +69,7 @@ export const AccountToken = () => {
         <AccountBalance assetId={assetId} accountId={accountId} />
         <AssetAccounts assetId={assetId} accountId={accountId} />
         <EarnOpportunities assetId={assetId} accountId={accountId} />
+        <YieldAssetSection assetId={assetId} accountId={accountId} />
         <AssetTransactionHistory assetId={assetId} accountId={accountId} />
       </Stack>
       <Flex

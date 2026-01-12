@@ -363,6 +363,7 @@ export const handleSend = async ({
         sendMax: sendInput.sendMax,
         chainSpecific: {
           contractAddress,
+          memo,
         },
       } as BuildSendTxInput<KnownChainIds.TronMainnet>)
     }

@@ -1,28 +1,30 @@
-FROM node:20-slim AS builder
+FROM node:20-slim
+
+RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
+RUN npm install -g serve
 
 WORKDIR /app
 
-RUN corepack enable && corepack prepare yarn@4.4.0 --activate
+RUN git init
 
 COPY package.json yarn.lock .yarnrc.yml ./
 COPY .yarn ./.yarn
+
 COPY packages/swap-widget-poc ./packages/swap-widget-poc
-COPY packages/caip ./packages/caip
+COPY packages/caip ./packages/caip  
 COPY packages/types ./packages/types
 
-RUN yarn workspaces focus @shapeshiftoss/swap-widget-poc --production=false
+RUN corepack enable
+
+ENV YARN_ENABLE_SCRIPTS=false
+
+RUN yarn workspaces focus @shapeshiftoss/swap-widget-poc @shapeshiftoss/caip @shapeshiftoss/types --production=false
+
+RUN yarn workspace @shapeshiftoss/types build
+RUN yarn workspace @shapeshiftoss/caip build  
+RUN yarn workspace @shapeshiftoss/swap-widget-poc build
 
 WORKDIR /app/packages/swap-widget-poc
-RUN yarn build
-
-FROM node:20-slim AS runner
-
-WORKDIR /app
-
-RUN corepack enable && corepack prepare yarn@4.4.0 --activate && \
-    npm install -g serve
-
-COPY --from=builder /app/packages/swap-widget-poc/dist ./dist
 
 EXPOSE 3000
 

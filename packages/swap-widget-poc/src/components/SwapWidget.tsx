@@ -347,17 +347,7 @@ const SwapWidgetInner = ({
     () => [sellAsset.assetId, buyAsset.assetId],
     [sellAsset.assetId, buyAsset.assetId],
   );
-  const symbolsForPrices = useMemo(
-    () => ({
-      [sellAsset.assetId]: sellAsset.symbol,
-      [buyAsset.assetId]: buyAsset.symbol,
-    }),
-    [sellAsset.assetId, sellAsset.symbol, buyAsset.assetId, buyAsset.symbol],
-  );
-  const { data: marketData } = useMarketData(
-    assetIdsForPrices,
-    symbolsForPrices,
-  );
+  const { data: marketData } = useMarketData(assetIdsForPrices);
   const sellAssetUsdPrice = marketData?.[sellAsset.assetId]?.price;
   const buyAssetUsdPrice = marketData?.[buyAsset.assetId]?.price;
 

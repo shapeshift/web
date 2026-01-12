@@ -92,6 +92,10 @@ const SwapWidgetInner = ({
     [sellAmount, sellAsset.precision],
   );
 
+  const isSellAssetEvm = getChainType(sellAsset.chainId) === "evm";
+  const isBuyAssetEvm = getChainType(buyAsset.chainId) === "evm";
+  const canExecuteDirectly = isSellAssetEvm && isBuyAssetEvm;
+
   const {
     data: rates,
     isLoading: isLoadingRates,
@@ -100,17 +104,14 @@ const SwapWidgetInner = ({
     sellAssetId: sellAsset.assetId,
     buyAssetId: buyAsset.assetId,
     sellAmountCryptoBaseUnit: sellAmountBaseUnit,
-    enabled: !!sellAmountBaseUnit && sellAmountBaseUnit !== "0",
+    enabled:
+      !!sellAmountBaseUnit && sellAmountBaseUnit !== "0" && isSellAssetEvm,
   });
 
   const walletAddress = useMemo(() => {
     if (!walletClient) return undefined;
     return (walletClient as WalletClient).account?.address;
   }, [walletClient]);
-
-  const isSellAssetEvm = getChainType(sellAsset.chainId) === "evm";
-  const isBuyAssetEvm = getChainType(buyAsset.chainId) === "evm";
-  const canExecuteDirectly = isSellAssetEvm && isBuyAssetEvm;
 
   const {
     data: sellAssetBalance,
@@ -311,8 +312,9 @@ const SwapWidgetInner = ({
   }, [walletClient, canExecuteDirectly, onConnectWallet, handleExecuteSwap]);
 
   const buttonText = useMemo(() => {
-    if (!walletClient && canExecuteDirectly) return "Connect Wallet";
     if (!sellAmount) return "Enter an amount";
+    if (!isSellAssetEvm) return "Proceed on ShapeShift";
+    if (!walletClient && canExecuteDirectly) return "Connect Wallet";
     if (isLoadingRates) return "Finding rates...";
     if (ratesError) return "No routes available";
     if (!rates?.length) return "No routes found";
@@ -322,6 +324,7 @@ const SwapWidgetInner = ({
   }, [
     walletClient,
     canExecuteDirectly,
+    isSellAssetEvm,
     sellAmount,
     isLoadingRates,
     ratesError,
@@ -331,12 +334,20 @@ const SwapWidgetInner = ({
 
   const isButtonDisabled = useMemo(() => {
     if (!sellAmount) return true;
+    if (!isSellAssetEvm) return false;
     if (isLoadingRates) return true;
     if (ratesError) return true;
     if (!rates?.length) return true;
     if (isExecuting) return true;
     return false;
-  }, [sellAmount, isLoadingRates, ratesError, rates, isExecuting]);
+  }, [
+    sellAmount,
+    isSellAssetEvm,
+    isLoadingRates,
+    ratesError,
+    rates,
+    isExecuting,
+  ]);
 
   const { data: sellChainInfo } = useChainInfo(sellAsset.chainId);
   const { data: buyChainInfo } = useChainInfo(buyAsset.chainId);

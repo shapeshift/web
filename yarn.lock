@@ -12121,7 +12121,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/caip@^8.15.0, @shapeshiftoss/caip@workspace:*, @shapeshiftoss/caip@workspace:^, @shapeshiftoss/caip@workspace:packages/caip":
+"@shapeshiftoss/caip@^8.15.0, @shapeshiftoss/caip@^8.16.5, @shapeshiftoss/caip@workspace:^, @shapeshiftoss/caip@workspace:packages/caip":
   version: 0.0.0-use.local
   resolution: "@shapeshiftoss/caip@workspace:packages/caip"
   dependencies:
@@ -12696,7 +12696,7 @@ __metadata:
   resolution: "@shapeshiftoss/swap-widget-poc@workspace:packages/swap-widget-poc"
   dependencies:
     "@rainbow-me/rainbowkit": ^2.2.3
-    "@shapeshiftoss/caip": "workspace:*"
+    "@shapeshiftoss/caip": ^8.16.5
     "@tanstack/react-query": ^5.60.0
     "@types/react": ^18.2.0
     "@types/react-dom": ^18.2.0

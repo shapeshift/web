@@ -269,7 +269,7 @@
   flex-shrink: 0;
 }
 
-.ssw-token-price {
+.ssw-token-fiat-value {
   font-size: 14px;
   font-weight: 500;
   color: var(--ssw-text-primary);

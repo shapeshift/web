@@ -18,14 +18,9 @@ export const createApiClient = (config: ApiClientConfig = {}) => {
   const fetchWithConfig = async <T>(
     endpoint: string,
     params?: Record<string, string>,
+    method: "GET" | "POST" = "GET",
   ): Promise<T> => {
     const url = new URL(`${baseUrl}${endpoint}`);
-    if (params) {
-      Object.entries(params).forEach(([key, value]) => {
-        url.searchParams.append(key, value);
-      });
-    }
-
     const headers: Record<string, string> = {
       "Content-Type": "application/json",
     };
@@ -33,7 +28,17 @@ export const createApiClient = (config: ApiClientConfig = {}) => {
       headers["x-api-key"] = config.apiKey;
     }
 
-    const response = await fetch(url.toString(), { headers });
+    const fetchOptions: RequestInit = { headers, method };
+
+    if (method === "GET" && params) {
+      Object.entries(params).forEach(([key, value]) => {
+        url.searchParams.append(key, value);
+      });
+    } else if (method === "POST" && params) {
+      fetchOptions.body = JSON.stringify(params);
+    }
+
+    const response = await fetch(url.toString(), fetchOptions);
     if (!response.ok) {
       throw new Error(`API error: ${response.status} ${response.statusText}`);
     }
@@ -62,17 +67,21 @@ export const createApiClient = (config: ApiClientConfig = {}) => {
       swapperName: string;
       slippageTolerancePercentageDecimal?: string;
     }) =>
-      fetchWithConfig<QuoteResponse>("/v1/swap/quote", {
-        sellAssetId: params.sellAssetId,
-        buyAssetId: params.buyAssetId,
-        sellAmountCryptoBaseUnit: params.sellAmountCryptoBaseUnit,
-        receiveAddress: params.receiveAddress,
-        swapperName: params.swapperName,
-        ...(params.slippageTolerancePercentageDecimal && {
-          slippageTolerancePercentageDecimal:
-            params.slippageTolerancePercentageDecimal,
-        }),
-      }),
+      fetchWithConfig<QuoteResponse>(
+        "/v1/swap/quote",
+        {
+          sellAssetId: params.sellAssetId,
+          buyAssetId: params.buyAssetId,
+          sellAmountCryptoBaseUnit: params.sellAmountCryptoBaseUnit,
+          receiveAddress: params.receiveAddress,
+          swapperName: params.swapperName,
+          ...(params.slippageTolerancePercentageDecimal && {
+            slippageTolerancePercentageDecimal:
+              params.slippageTolerancePercentageDecimal,
+          }),
+        },
+        "POST",
+      ),
   };
 };
 

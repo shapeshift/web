@@ -320,24 +320,28 @@ export const TokenSelectModal = ({
                         </span>
                       </div>
                       <div className="ssw-token-right">
-                        {marketData?.[asset.assetId]?.price && (
-                          <span className="ssw-token-price">
-                            $
-                            {Number(
-                              marketData[asset.assetId].price,
-                            ).toLocaleString(undefined, {
-                              minimumFractionDigits: 2,
-                              maximumFractionDigits: 2,
-                            })}
-                          </span>
-                        )}
                         {walletAddress &&
                           (loadingAssetIds.has(asset.assetId) ? (
                             <span className="ssw-token-balance-skeleton" />
                           ) : balance && balance.balance !== "0" ? (
-                            <span className="ssw-token-balance">
-                              {balance.balanceFormatted}
-                            </span>
+                            <>
+                              {marketData?.[asset.assetId]?.price && (
+                                <span className="ssw-token-fiat-value">
+                                  $
+                                  {(
+                                    (Number(balance.balance) /
+                                      Math.pow(10, asset.precision)) *
+                                    Number(marketData[asset.assetId].price)
+                                  ).toLocaleString(undefined, {
+                                    minimumFractionDigits: 2,
+                                    maximumFractionDigits: 2,
+                                  })}
+                                </span>
+                              )}
+                              <span className="ssw-token-balance">
+                                {balance.balanceFormatted}
+                              </span>
+                            </>
                           ) : null)}
                       </div>
                     </button>

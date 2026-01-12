@@ -6,8 +6,9 @@ import {
   IconButton,
   Menu,
   MenuButton,
-  MenuItem,
+  MenuItemOption,
   MenuList,
+  MenuOptionGroup,
   Stack,
   Text,
   Tooltip,
@@ -50,6 +51,8 @@ type FilterMenuProps = {
 
 const chevronDownIcon = <ChevronDownIcon />
 
+const ALL_OPTION_VALUE = '__all__'
+
 const FilterMenu = memo(({ label, value, options, onSelect, renderIcon }: FilterMenuProps) => {
   const selectedOption = useMemo(() => options.find(o => o.id === value), [options, value])
   const displayLabel = useMemo(
@@ -57,32 +60,30 @@ const FilterMenu = memo(({ label, value, options, onSelect, renderIcon }: Filter
     [selectedOption, label],
   )
 
-  const handleSelectAll = useCallback(() => onSelect(null), [onSelect])
-
   const selectedIcon = useMemo(
     () => (selectedOption && renderIcon ? renderIcon(selectedOption) : null),
     [selectedOption, renderIcon],
   )
 
+  const handleChange = useCallback(
+    (newValue: string | string[]) => {
+      const selectedValue = Array.isArray(newValue) ? newValue[0] : newValue
+      onSelect(selectedValue === ALL_OPTION_VALUE ? null : selectedValue)
+    },
+    [onSelect],
+  )
+
   const menuItems = useMemo(
     () =>
-      options.map(opt => {
-        const isSelected = value === opt.id
-        return (
-          <MenuItem
-            key={opt.id}
-            onClick={() => onSelect(opt.id)}
-            color={isSelected ? 'blue.500' : undefined}
-            fontWeight={isSelected ? 'semibold' : undefined}
-          >
-            <HStack spacing={3}>
-              {renderIcon && renderIcon(opt)}
-              <Text>{opt.name}</Text>
-            </HStack>
-          </MenuItem>
-        )
-      }),
-    [options, value, renderIcon, onSelect],
+      options.map(opt => (
+        <MenuItemOption key={opt.id} value={opt.id}>
+          <HStack spacing={3}>
+            {renderIcon && renderIcon(opt)}
+            <Text>{opt.name}</Text>
+          </HStack>
+        </MenuItemOption>
+      )),
+    [options, renderIcon],
   )
 
   return (
@@ -96,14 +97,10 @@ const FilterMenu = memo(({ label, value, options, onSelect, renderIcon }: Filter
         </HStack>
       </MenuButton>
       <MenuList zIndex='banner' maxH='300px' overflowY='auto'>
-        <MenuItem
-          onClick={handleSelectAll}
-          color={value === null ? 'blue.500' : undefined}
-          fontWeight={value === null ? 'semibold' : undefined}
-        >
-          {label}
-        </MenuItem>
-        {menuItems}
+        <MenuOptionGroup type='radio' value={value ?? ALL_OPTION_VALUE} onChange={handleChange}>
+          <MenuItemOption value={ALL_OPTION_VALUE}>{label}</MenuItemOption>
+          {menuItems}
+        </MenuOptionGroup>
       </MenuList>
     </Menu>
   )
@@ -169,19 +166,22 @@ export const YieldFilters = memo(
       return <FaSortAmountDown />
     }, [sortOption])
 
+    const handleSortChange = useCallback(
+      (newValue: string | string[]) => {
+        const selectedValue = Array.isArray(newValue) ? newValue[0] : newValue
+        onSortChange(selectedValue as SortOption)
+      },
+      [onSortChange],
+    )
+
     const sortMenuItems = useMemo(
       () =>
         sortOptions.map(opt => (
-          <MenuItem
-            key={opt.value}
-            onClick={() => onSortChange(opt.value)}
-            color={sortOption === opt.value ? 'blue.500' : undefined}
-            fontWeight={sortOption === opt.value ? 'bold' : undefined}
-          >
+          <MenuItemOption key={opt.value} value={opt.value}>
             {opt.label}
-          </MenuItem>
+          </MenuItemOption>
         )),
-      [sortOptions, sortOption, onSortChange],
+      [sortOptions],
     )
 
     return (
@@ -205,7 +205,9 @@ export const YieldFilters = memo(
             <MenuButton as={IconButton} aria-label='Sort' icon={sortIcon} />
           </Tooltip>
           <MenuList zIndex='banner' maxH='300px' overflowY='auto'>
-            {sortMenuItems}
+            <MenuOptionGroup type='radio' value={sortOption} onChange={handleSortChange}>
+              {sortMenuItems}
+            </MenuOptionGroup>
           </MenuList>
         </Menu>
       </Stack>

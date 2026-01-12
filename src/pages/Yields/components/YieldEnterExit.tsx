@@ -3,6 +3,8 @@ import {
   Avatar,
   Box,
   Button,
+  Card,
+  CardBody,
   Flex,
   Icon,
   Skeleton,
@@ -60,6 +62,16 @@ const YieldEnterExitSkeleton = memo(() => (
 
 const moneyBillWaveIcon = <Icon as={FaMoneyBillWave} color='text.subtle' boxSize={3} />
 const chevronDownIcon = <Icon as={ChevronDownIcon} color='text.subtle' />
+
+const tabSelectedSx = {
+  color: 'blue.400',
+  borderBottomColor: 'transparent',
+  borderTopColor: 'blue.400',
+  borderTopWidth: '3px',
+  marginTop: '-1px',
+}
+const tabFocusSx = { boxShadow: 'none' }
+const buttonHoverSx = { transform: 'translateY(-1px)', boxShadow: 'lg' }
 
 export const YieldEnterExit = memo(
   ({ yieldItem, isQuoteLoading, balances, isBalancesLoading }: YieldEnterExitProps) => {
@@ -270,20 +282,6 @@ export const YieldEnterExit = memo(
     const uniqueValidatorCount = balances ? balances.validatorAddresses.length : 0
     const shouldShowValidatorPicker = uniqueValidatorCount > 1
 
-    const tabSelectedSx = useMemo(
-      () => ({
-        color: 'blue.400',
-        borderBottomColor: 'transparent',
-        borderTopColor: 'blue.400',
-        borderTopWidth: '3px',
-        marginTop: '-1px',
-      }),
-      [],
-    )
-
-    const tabFocusSx = useMemo(() => ({ boxShadow: 'none' }), [])
-    const buttonHoverSx = useMemo(() => ({ transform: 'translateY(-1px)', boxShadow: 'lg' }), [])
-
     const enterButtonDisabled = useMemo(
       () =>
         isConnected &&
@@ -317,16 +315,6 @@ export const YieldEnterExit = memo(
       if (isConnected) return translate('yieldXYZ.exit')
       return translate('common.connectWallet')
     }, [isConnected, translate])
-
-    const handleEnterButtonClick = useMemo(
-      () => (isConnected ? handleEnterClick : handleConnectWallet),
-      [isConnected, handleEnterClick, handleConnectWallet],
-    )
-
-    const handleExitButtonClick = useMemo(
-      () => (isConnected ? handleExitClick : handleConnectWallet),
-      [isConnected, handleExitClick, handleConnectWallet],
-    )
 
     const modalAssetSymbol = useMemo(
       () => (modalAction === 'enter' ? inputToken?.symbol ?? '' : yieldItem.token.symbol),
@@ -369,7 +357,7 @@ export const YieldEnterExit = memo(
             p={4}
             borderBottom='1px solid'
             borderColor='border.base'
-            bg='background.surface.raised.base'
+            bg='background.surface.base'
             _hover={{ bg: 'background.surface.raised.hover' }}
             cursor='pointer'
             onClick={handleOpenValidatorModal}
@@ -445,7 +433,7 @@ export const YieldEnterExit = memo(
               {translate('yieldXYZ.minDeposit')}
             </Text>
           </Flex>
-          <Text fontSize='xs' color={isBelowMinimum ? 'red.500' : 'gray.500'} fontWeight='bold'>
+          <Text fontSize='xs' color={isBelowMinimum ? 'red.500' : 'text.subtle'} fontWeight='bold'>
             {minDeposit} {inputToken?.symbol}
           </Text>
         </Flex>
@@ -538,105 +526,105 @@ export const YieldEnterExit = memo(
 
     return (
       <>
-        <Box
-          borderWidth='1px'
-          borderColor='border.base'
-          borderRadius='xl'
-          bg='background.surface.overlay.base'
-          overflow='hidden'
-        >
-          {validatorPickerContent}
-          <Tabs
-            index={tabIndex}
-            onChange={setTabIndex}
-            isFitted
-            variant='enclosed'
-            borderBottomWidth={0}
-          >
-            <TabList mb='0' borderBottom='1px solid' borderColor='border.base'>
-              <Tab
-                _selected={tabSelectedSx}
-                _focus={tabFocusSx}
-                fontWeight='bold'
-                py={4}
-                borderBottomWidth='1px'
-                borderTopWidth='3px'
-                borderTopColor='transparent'
-                isDisabled={enterTabDisabled}
-                opacity={enterTabOpacity}
-              >
-                {translate('yieldXYZ.enter')}
-              </Tab>
-              <Tab
-                _selected={tabSelectedSx}
-                _focus={tabFocusSx}
-                fontWeight='bold'
-                py={4}
-                borderBottomWidth='1px'
-                borderTopWidth='3px'
-                borderTopColor='transparent'
-                isDisabled={exitTabDisabled}
-                opacity={exitTabOpacity}
-              >
-                {translate('yieldXYZ.exit')}
-              </Tab>
-            </TabList>
-            <TabPanels>
-              <TabPanel p={8}>
-                <Flex direction='column' gap={2}>
-                  {enterTabPanelContent}
-                  {minDepositContent}
-                  <Box
-                    bg='background.surface.raised.base'
-                    borderRadius='lg'
-                    p={4}
-                    border='1px solid'
-                    borderColor='border.base'
-                  >
-                    <Flex justify='space-between' align='center' mb={estimatedEarningsMarginBottom}>
-                      <Text fontSize='sm' color='text.subtle' fontWeight='medium'>
-                        {translate('yieldXYZ.currentApy')}
-                      </Text>
-                      <GradientApy fontSize='sm' fontWeight='bold'>
-                        {apyDisplay}
-                      </GradientApy>
-                    </Flex>
-                    {estimatedYearlyEarningsContent}
-                  </Box>
-                  <Button
-                    colorScheme='blue'
-                    size='lg'
-                    width='full'
-                    height='56px'
-                    fontSize='lg'
-                    isDisabled={enterButtonDisabled}
-                    onClick={handleEnterButtonClick}
-                    _hover={buttonHoverSx}
-                  >
-                    {enterButtonText}
-                  </Button>
-                </Flex>
-              </TabPanel>
-              <TabPanel p={8}>
-                <Flex direction='column' gap={2}>
-                  {exitTabPanelContent}
-                  <Button
-                    colorScheme='blue'
-                    size='lg'
-                    width='full'
-                    height='56px'
-                    fontSize='lg'
-                    isDisabled={exitButtonDisabled}
-                    onClick={handleExitButtonClick}
-                    _hover={buttonHoverSx}
-                  >
-                    {exitButtonText}
-                  </Button>
-                </Flex>
-              </TabPanel>
-            </TabPanels>
-          </Tabs>
-        </Box>
+        <Card variant='dashboard'>
+          <CardBody p={0} overflow='hidden'>
+            {validatorPickerContent}
+            <Tabs
+              index={tabIndex}
+              onChange={setTabIndex}
+              isFitted
+              variant='enclosed'
+              borderBottomWidth={0}
+            >
+              <TabList mb='0' borderBottom='1px solid' borderColor='border.base'>
+                <Tab
+                  _selected={tabSelectedSx}
+                  _focus={tabFocusSx}
+                  fontWeight='bold'
+                  py={4}
+                  borderBottomWidth='1px'
+                  borderTopWidth='3px'
+                  borderTopColor='transparent'
+                  isDisabled={enterTabDisabled}
+                  opacity={enterTabOpacity}
+                >
+                  {translate('yieldXYZ.enter')}
+                </Tab>
+                <Tab
+                  _selected={tabSelectedSx}
+                  _focus={tabFocusSx}
+                  fontWeight='bold'
+                  py={4}
+                  borderBottomWidth='1px'
+                  borderTopWidth='3px'
+                  borderTopColor='transparent'
+                  isDisabled={exitTabDisabled}
+                  opacity={exitTabOpacity}
+                >
+                  {translate('yieldXYZ.exit')}
+                </Tab>
+              </TabList>
+              <TabPanels>
+                <TabPanel p={8}>
+                  <Flex direction='column' gap={2}>
+                    {enterTabPanelContent}
+                    {minDepositContent}
+                    <Box
+                      bg='background.surface.base'
+                      borderRadius='lg'
+                      p={4}
+                      border='1px solid'
+                      borderColor='border.base'
+                    >
+                      <Flex
+                        justify='space-between'
+                        align='center'
+                        mb={estimatedEarningsMarginBottom}
+                      >
+                        <Text fontSize='sm' color='text.subtle' fontWeight='medium'>
+                          {translate('yieldXYZ.currentApy')}
+                        </Text>
+                        <GradientApy fontSize='sm' fontWeight='bold'>
+                          {apyDisplay}
+                        </GradientApy>
+                      </Flex>
+                      {estimatedYearlyEarningsContent}
+                    </Box>
+                    <Button
+                      colorScheme='blue'
+                      size='lg'
+                      width='full'
+                      height='56px'
+                      fontSize='lg'
+                      isDisabled={enterButtonDisabled}
+                      onClick={isConnected ? handleEnterClick : handleConnectWallet}
+                      _hover={buttonHoverSx}
+                    >
+                      {enterButtonText}
+                    </Button>
+                  </Flex>
+                </TabPanel>
+                <TabPanel p={8}>
+                  <Flex direction='column' gap={2}>
+                    {exitTabPanelContent}
+                    <Button
+                      colorScheme='blue'
+                      size='lg'
+                      width='full'
+                      height='56px'
+                      fontSize='lg'
+                      isDisabled={exitButtonDisabled}
+                      onClick={isConnected ? handleExitClick : handleConnectWallet}
+                      _hover={buttonHoverSx}
+                    >
+                      {exitButtonText}
+                    </Button>
+                  </Flex>
+                </TabPanel>
+              </TabPanels>
+            </Tabs>
+          </CardBody>
+        </Card>
         <YieldActionModal
           isOpen={isModalOpen}
           onClose={handleCloseModal}

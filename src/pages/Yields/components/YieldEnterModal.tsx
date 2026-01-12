@@ -52,9 +52,9 @@ import type { AugmentedYieldDto, TransactionDto } from '@/lib/yieldxyz/types'
 import { TransactionStatus } from '@/lib/yieldxyz/types'
 import { formatYieldTxTitle } from '@/lib/yieldxyz/utils'
 import { GradientApy } from '@/pages/Yields/components/GradientApy'
-import type { TransactionStep } from '@/pages/Yields/components/TransactionStepsList'
 import { TransactionStepsList } from '@/pages/Yields/components/TransactionStepsList'
 import { useConfetti } from '@/pages/Yields/hooks/useConfetti'
+import type { TransactionStep } from '@/pages/Yields/hooks/useYieldTransactionFlow'
 import { waitForActionCompletion } from '@/pages/Yields/hooks/useYieldTransactionFlow'
 import { useSubmitYieldTransactionHash } from '@/react-queries/queries/yieldxyz/useSubmitYieldTransactionHash'
 import { useYieldProviders } from '@/react-queries/queries/yieldxyz/useYieldProviders'
@@ -101,6 +101,9 @@ const getInputFontSize = (length: number): string => {
   if (length >= INPUT_LENGTH_BREAKPOINTS.FOR_MD_FONT) return '38px'
   return '48px'
 }
+
+const selectedHoverSx = { bg: 'blue.600' }
+const unselectedHoverSx = { bg: 'background.surface.raised.hover' }
 
 type CryptoAmountInputProps = {
   value?: string
@@ -565,11 +568,6 @@ export const YieldEnterModal = memo(
       return translate('yieldXYZ.stakeAsset', { asset: inputTokenAsset?.symbol })
     }, [isConnected, isQuoteActive, translate, inputTokenAsset?.symbol])
 
-    const handleEnterButtonClick = useMemo(
-      () => (isConnected ? handleExecute : handleConnectWallet),
-      [isConnected, handleExecute, handleConnectWallet],
-    )
-
     const modalTitle = useMemo(() => {
       if (modalStep === 'success') return translate('common.success')
       return translate('yieldXYZ.stakeAsset', { asset: inputTokenAsset?.symbol })
@@ -585,9 +583,6 @@ export const YieldEnterModal = memo(
         }))
     }, [quoteData, inputTokenAsset])
 
-    const selectedHoverStyle = useMemo(() => ({ bg: 'blue.600' }), [])
-    const unselectedHoverStyle = useMemo(() => ({ bg: 'background.surface.raised.hover' }), [])
-
     const percentButtons = useMemo(
       () => (
         <HStack spacing={2} justify='center' width='full'>
@@ -600,7 +595,7 @@ export const YieldEnterModal = memo(
                 variant='ghost'
                 bg={isSelected ? 'blue.500' : 'background.surface.raised.base'}
                 color={isSelected ? 'white' : 'text.subtle'}
-                _hover={isSelected ? selectedHoverStyle : unselectedHoverStyle}
+                _hover={isSelected ? selectedHoverSx : unselectedHoverSx}
                 onClick={() => handlePercentClick(percent)}
                 borderRadius='full'
                 px={4}
@@ -612,7 +607,7 @@ export const YieldEnterModal = memo(
           })}
         </HStack>
       ),
-      [selectedPercent, handlePercentClick, translate, selectedHoverStyle, unselectedHoverStyle],
+      [selectedPercent, handlePercentClick, translate],
     )
 
     const statsContent = useMemo(
@@ -852,7 +847,7 @@ export const YieldEnterModal = memo(
                 loadingText={
                   isSubmitting ? translate('common.confirming') : translate('yieldXYZ.loadingQuote')
                 }
-                onClick={handleEnterButtonClick}
+                onClick={isConnected ? handleExecute : handleConnectWallet}
               >
                 {enterButtonText}
               </Button>

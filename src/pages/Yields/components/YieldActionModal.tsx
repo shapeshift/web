@@ -45,6 +45,12 @@ const checkIconBox = (
   </Box>
 )
 
+const STATUS_LABEL_KEYS: Record<TransactionStep['status'], string | null> = {
+  pending: 'yieldXYZ.loading.waiting',
+  success: 'yieldXYZ.loading.done',
+  loading: null,
+}
+
 type YieldActionModalProps = {
   isOpen: boolean
   onClose: () => void
@@ -193,9 +199,8 @@ export const YieldActionModal = memo(function YieldActionModal({
 
   const loadingText = useMemo(() => {
     if (isQuoteLoading) return translate('yieldXYZ.loadingQuote')
-    // Use the current step's loading message if available
-    if (activeStepIndex >= 0 && transactionSteps[activeStepIndex]?.loadingMessage) {
-      return transactionSteps[activeStepIndex].loadingMessage
+    if (activeStepIndex >= 0 && transactionSteps[activeStepIndex]?.statusLabel) {
+      return transactionSteps[activeStepIndex].statusLabel
     }
     if (action === 'enter') return translate('yieldXYZ.depositing')
     if (action === 'exit') return translate('yieldXYZ.withdrawing')
@@ -490,32 +495,34 @@ export const YieldActionModal = memo(function YieldActionModal({
                   {s.title}
                 </Text>
               </Flex>
-              {s.txHash ? (
-                <Link
-                  href={s.txUrl}
-                  isExternal
-                  color='blue.400'
-                  fontSize='xs'
-                  display='flex'
-                  alignItems='center'
-                  gap={1}
-                  _hover={{ textDecoration: 'underline' }}
-                >
-                  <MiddleEllipsis value={s.txHash} /> <Icon as={FaExternalLinkAlt} boxSize={3} />
-                </Link>
-              ) : (
-                <Text
-                  fontSize='xs'
-                  color={s.status === 'loading' ? 'blue.300' : 'text.subtle'}
-                  fontWeight='medium'
-                >
-                  {s.status === 'success'
-                    ? translate('yieldXYZ.loading.done')
-                    : s.status === 'loading'
-                    ? ''
-                    : translate('yieldXYZ.loading.waiting')}
-                </Text>
-              )}
+              {(() => {
+                if (s.txHash) {
+                  return (
+                    <Link
+                      href={s.txUrl}
+                      isExternal
+                      color='blue.400'
+                      fontSize='xs'
+                      display='flex'
+                      alignItems='center'
+                      gap={1}
+                      _hover={{ textDecoration: 'underline' }}
+                    >
+                      <MiddleEllipsis value={s.txHash} />{' '}
+                      <Icon as={FaExternalLinkAlt} boxSize={3} />
+                    </Link>
+                  )
+                }
+                const labelKey = STATUS_LABEL_KEYS[s.status]
+                if (labelKey) {
+                  return (
+                    <Text fontSize='xs' color='text.subtle' fontWeight='medium'>
+                      {translate(labelKey)}
+                    </Text>
+                  )
+                }
+                return null
+              })()}
             </Flex>
           ))}
         </VStack>

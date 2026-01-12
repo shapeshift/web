@@ -45,11 +45,11 @@ export enum ModalStep {
 export type TransactionStep = {
   title: string
   status: 'pending' | 'success' | 'loading'
+  statusLabel?: string
   originalTitle?: string
   type?: string
   txHash?: string
   txUrl?: string
-  loadingMessage?: string
 }
 
 export const poll = async <T>(
@@ -341,7 +341,7 @@ export const useYieldTransactionFlow = ({
 
       updateStepStatus(index, {
         status: 'loading',
-        loadingMessage: translate('yieldXYZ.loading.signInWallet'),
+        statusLabel: translate('yieldXYZ.loading.signInWallet'),
       })
       setIsSubmitting(true)
 
@@ -360,7 +360,7 @@ export const useYieldTransactionFlow = ({
 
         const txUrl = feeAsset ? `${feeAsset.explorerTxLink}${txHash}` : ''
 
-        updateStepStatus(index, { txHash, txUrl, loadingMessage: translate('common.confirming') })
+        updateStepStatus(index, { txHash, txUrl, statusLabel: translate('common.confirming') })
 
         await submitHashMutation.mutateAsync({
           transactionId: tx.id,
@@ -388,7 +388,7 @@ export const useYieldTransactionFlow = ({
             )
           }
           dispatchNotification(tx, txHash)
-          updateStepStatus(index, { status: 'success', loadingMessage: undefined })
+          updateStepStatus(index, { status: 'success', statusLabel: undefined })
           setStep(ModalStep.Success)
         } else {
           const freshAction = await fetchAction(actionId)
@@ -397,7 +397,7 @@ export const useYieldTransactionFlow = ({
           )
 
           if (nextTx) {
-            updateStepStatus(index, { status: 'success', loadingMessage: undefined })
+            updateStepStatus(index, { status: 'success', statusLabel: undefined })
             setRawTransactions(prev => prev.map((t, i) => (i === index + 1 ? nextTx : t)))
             setActiveStepIndex(index + 1)
           } else {
@@ -417,7 +417,7 @@ export const useYieldTransactionFlow = ({
               )
             }
             dispatchNotification(tx, txHash)
-            updateStepStatus(index, { status: 'success', loadingMessage: undefined })
+            updateStepStatus(index, { status: 'success', statusLabel: undefined })
             setStep(ModalStep.Success)
           }
         }
@@ -427,7 +427,7 @@ export const useYieldTransactionFlow = ({
           'yieldXYZ.errors.transactionFailedTitle',
           'yieldXYZ.errors.transactionFailedDescription',
         )
-        updateStepStatus(index, { status: 'pending', loadingMessage: undefined })
+        updateStepStatus(index, { status: 'pending', statusLabel: undefined })
       } finally {
         setIsSubmitting(false)
       }

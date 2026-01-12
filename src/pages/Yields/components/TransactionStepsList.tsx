@@ -1,12 +1,10 @@
 import { Box, Flex, Icon, Link, Spinner, Text } from '@chakra-ui/react'
 import { memo, useMemo } from 'react'
 import { FaCheck, FaExternalLinkAlt } from 'react-icons/fa'
-import { useTranslate } from 'react-polyglot'
 
 import { MiddleEllipsis } from '@/components/MiddleEllipsis/MiddleEllipsis'
 import type { TransactionStep } from '@/pages/Yields/hooks/useYieldTransactionFlow'
 
-export type { TransactionStep }
 type TransactionStepStatus = TransactionStep['status']
 
 type TransactionStepsListProps = {
@@ -20,21 +18,10 @@ const StepIcon = memo(({ status }: { status: TransactionStepStatus }) => {
   if (status === 'loading') {
     return <Spinner size='xs' color='blue.400' flexShrink={0} />
   }
-  return <Box w={2} h={2} bg='gray.600' borderRadius='full' ml={1} flexShrink={0} />
+  return <Box w={2} h={2} bg='text.subtle' borderRadius='full' ml={1} flexShrink={0} />
 })
 
-const getStatusLabel = (
-  status: TransactionStepStatus,
-  translate: ReturnType<typeof useTranslate>,
-): string => {
-  if (status === 'success') return translate('yieldXYZ.loading.done')
-  if (status === 'loading') return ''
-  return translate('yieldXYZ.loading.waiting')
-}
-
 export const TransactionStepsList = memo(({ steps }: TransactionStepsListProps) => {
-  const translate = useTranslate()
-
   const stepElements = useMemo(() => {
     return steps.map((step, idx) => (
       <Flex
@@ -50,7 +37,7 @@ export const TransactionStepsList = memo(({ steps }: TransactionStepsListProps) 
         <Flex align='center' gap={3} flex={1} minW={0}>
           <StepIcon status={step.status} />
           <Text
-            color={step.status === 'pending' ? 'gray.500' : 'text.base'}
+            color={step.status === 'pending' ? 'text.subtle' : 'text.base'}
             fontSize='sm'
             fontWeight={step.status === 'loading' ? 'bold' : 'medium'}
             noOfLines={1}
@@ -75,19 +62,21 @@ export const TransactionStepsList = memo(({ steps }: TransactionStepsListProps) 
             <Icon as={FaExternalLinkAlt} boxSize={3} />
           </Link>
         ) : (
-          <Text
-            fontSize='xs'
-            color={step.status === 'loading' ? 'blue.300' : 'gray.600'}
-            fontWeight='medium'
-            flexShrink={0}
-            ml={3}
-          >
-            {getStatusLabel(step.status, translate)}
-          </Text>
+          step.statusLabel && (
+            <Text
+              fontSize='xs'
+              color={step.status === 'loading' ? 'blue.300' : 'text.subtle'}
+              fontWeight='medium'
+              flexShrink={0}
+              ml={3}
+            >
+              {step.statusLabel}
+            </Text>
+          )
         )}
       </Flex>
     ))
-  }, [steps, translate])
+  }, [steps])
 
   if (!steps.length) return null
 

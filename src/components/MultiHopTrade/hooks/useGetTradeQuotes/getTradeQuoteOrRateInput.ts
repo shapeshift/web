@@ -274,6 +274,9 @@ export const getTradeQuoteOrRateInput = async ({
         sendAddress,
       } as GetTradeQuoteInput
     }
+    case CHAIN_NAMESPACE.Ton: {
+      throw new Error('TON swaps are not supported')
+    }
     default:
       assertUnreachable(chainNamespace)
   }

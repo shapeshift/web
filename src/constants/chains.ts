@@ -8,6 +8,7 @@ const enabledFlags = preferences.selectors.selectFeatureFlags(store.getState())
 export const SECOND_CLASS_CHAINS: readonly KnownChainIds[] = [
   KnownChainIds.TronMainnet,
   KnownChainIds.SuiMainnet,
+  KnownChainIds.TonMainnet,
   KnownChainIds.MonadMainnet,
   KnownChainIds.HyperEvmMainnet,
   KnownChainIds.PlasmaMainnet,
@@ -34,6 +35,7 @@ export const knownChainIds = Object.values(KnownChainIds).filter(chainId => {
   if (chainId === KnownChainIds.KatanaMainnet && !enabledFlags.Katana) return false
   if (chainId === KnownChainIds.NearMainnet && !enabledFlags.Near) return false
   if (chainId === KnownChainIds.StarknetMainnet && !enabledFlags.Starknet) return false
+  if (chainId === KnownChainIds.TonMainnet && !enabledFlags.Ton) return false
   if (chainId === KnownChainIds.ZcashMainnet && !enabledFlags.Zcash) return false
 
   return true

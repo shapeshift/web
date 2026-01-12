@@ -16,6 +16,7 @@ import {
   solanaChainId,
   starknetChainId,
   suiChainId,
+  tonChainId,
   tronChainId,
   zecChainId,
 } from '@shapeshiftoss/caip'
@@ -72,13 +73,17 @@ class _AssetService {
         // Browser environment - fetch with cache-busting hash
         const manifest = await (async () => {
           try {
-            const { data } = await axios.get<{ assetData: string; relatedAssetIndex: string }>(
-              '/generated/asset-manifest.json',
-            )
+            const { data } = await axios.get<{
+              assetData: string
+              relatedAssetIndex: string
+            }>('/generated/asset-manifest.json')
             return data
           } catch {
             console.warn('asset-manifest.json not found, using timestamp for cache busting')
-            return { assetData: Date.now().toString(), relatedAssetIndex: Date.now().toString() }
+            return {
+              assetData: Date.now().toString(),
+              relatedAssetIndex: Date.now().toString(),
+            }
           }
         })()
 
@@ -126,6 +131,7 @@ class _AssetService {
       if (!config.VITE_FEATURE_NEAR && asset.chainId === nearChainId) return false
       if (!config.VITE_FEATURE_ZCASH && asset.chainId === zecChainId) return false
       if (!config.VITE_FEATURE_STARKNET && asset.chainId === starknetChainId) return false
+      if (!config.VITE_FEATURE_TON && asset.chainId === tonChainId) return false
       return true
     })
 

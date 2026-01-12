@@ -1,21 +1,19 @@
-import type { AssetNamespace } from "@shapeshiftoss/caip";
-import { ASSET_NAMESPACE } from "@shapeshiftoss/caip";
-import { KnownChainIds } from "@shapeshiftoss/types";
+import type { AssetNamespace } from '@shapeshiftoss/caip'
+import { ASSET_NAMESPACE } from '@shapeshiftoss/caip'
+import { KnownChainIds } from '@shapeshiftoss/types'
 
-import { assertUnreachable } from "./assertUnreachable";
+import { assertUnreachable } from './assertUnreachable'
 
-export const getAssetNamespaceFromChainId = (
-  chainId: KnownChainIds,
-): AssetNamespace => {
+export const getAssetNamespaceFromChainId = (chainId: KnownChainIds): AssetNamespace => {
   switch (chainId) {
     case KnownChainIds.SolanaMainnet:
-      return ASSET_NAMESPACE.splToken;
+      return ASSET_NAMESPACE.splToken
     case KnownChainIds.SuiMainnet:
-      return ASSET_NAMESPACE.suiCoin;
+      return ASSET_NAMESPACE.suiCoin
     case KnownChainIds.NearMainnet:
-      return ASSET_NAMESPACE.nep141;
+      return ASSET_NAMESPACE.nep141
     case KnownChainIds.TronMainnet:
-      return ASSET_NAMESPACE.trc20;
+      return ASSET_NAMESPACE.trc20
     case KnownChainIds.EthereumMainnet:
     case KnownChainIds.AvalancheMainnet:
     case KnownChainIds.OptimismMainnet:
@@ -29,9 +27,9 @@ export const getAssetNamespaceFromChainId = (
     case KnownChainIds.HyperEvmMainnet:
     case KnownChainIds.PlasmaMainnet:
     case KnownChainIds.KatanaMainnet:
-      return ASSET_NAMESPACE.erc20;
+      return ASSET_NAMESPACE.erc20
     case KnownChainIds.StarknetMainnet:
-      return ASSET_NAMESPACE.starknetToken;
+      return ASSET_NAMESPACE.starknetToken
     case KnownChainIds.CosmosMainnet:
     case KnownChainIds.BitcoinMainnet:
     case KnownChainIds.BitcoinCashMainnet:
@@ -41,8 +39,8 @@ export const getAssetNamespaceFromChainId = (
     case KnownChainIds.ThorchainMainnet:
     case KnownChainIds.MayachainMainnet:
     case KnownChainIds.TonMainnet:
-      throw Error(`Unhandled case '${chainId}'`);
+      throw Error(`Unhandled case '${chainId}'`)
     default:
-      return assertUnreachable(chainId);
+      return assertUnreachable(chainId)
   }
-};
+}

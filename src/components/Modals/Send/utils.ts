@@ -37,6 +37,7 @@ import { assertGetNearChainAdapter } from '@/lib/utils/near'
 import { assertGetSolanaChainAdapter } from '@/lib/utils/solana'
 import { assertGetStarknetChainAdapter } from '@/lib/utils/starknet'
 import { assertGetSuiChainAdapter } from '@/lib/utils/sui'
+import { assertGetTonChainAdapter } from '@/lib/utils/ton'
 import { assertGetUtxoChainAdapter, isUtxoChainId } from '@/lib/utils/utxo'
 import {
   selectAssetById,
@@ -178,6 +179,18 @@ export const estimateFees = async ({
         chainSpecific: {
           from: account,
           tokenContractAddress: contractAddress,
+        },
+        sendMax,
+      }
+      return adapter.getFeeData(getFeeDataInput)
+    }
+    case CHAIN_NAMESPACE.Ton: {
+      const adapter = assertGetTonChainAdapter(asset.chainId)
+      const getFeeDataInput: GetFeeDataInput<KnownChainIds.TonMainnet> = {
+        to,
+        value,
+        chainSpecific: {
+          from: account,
         },
         sendMax,
       }
@@ -434,6 +447,23 @@ export const handleSend = async ({
           maxFee: fees.chainSpecific.maxFee,
         },
       } as BuildSendTxInput<KnownChainIds.StarknetMainnet>)
+    }
+
+    if (fromChainId(asset.chainId).chainNamespace === CHAIN_NAMESPACE.Ton) {
+      const { accountNumber } = bip44Params
+      const adapter = assertGetTonChainAdapter(chainId)
+      const fees = estimatedFees[feeType] as FeeData<KnownChainIds.TonMainnet>
+
+      return adapter.buildSendTransaction({
+        to,
+        value,
+        wallet,
+        accountNumber,
+        sendMax: sendInput.sendMax,
+        chainSpecific: {
+          gasPrice: fees.chainSpecific.gasPrice,
+        },
+      } as BuildSendTxInput<KnownChainIds.TonMainnet>)
     }
 
     throw new Error(`${chainId} not supported`)

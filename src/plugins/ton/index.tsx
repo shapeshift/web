@@ -1,17 +1,17 @@
-import { ton } from "@shapeshiftoss/chain-adapters";
-import { KnownChainIds } from "@shapeshiftoss/types";
+import { ton } from '@shapeshiftoss/chain-adapters'
+import { KnownChainIds } from '@shapeshiftoss/types'
 
-import { getConfig } from "@/config";
-import type { Plugins } from "@/plugins/types";
+import { getConfig } from '@/config'
+import type { Plugins } from '@/plugins/types'
 
 // eslint-disable-next-line import/no-default-export
 export default function register(): Plugins {
   return [
     [
-      "tonChainAdapter",
+      'tonChainAdapter',
       {
-        name: "tonChainAdapter",
-        featureFlag: ["Ton"],
+        name: 'tonChainAdapter',
+        featureFlag: ['Ton'],
         providers: {
           chainAdapters: [
             [
@@ -19,12 +19,12 @@ export default function register(): Plugins {
               () => {
                 return new ton.ChainAdapter({
                   rpcUrl: getConfig().VITE_TON_NODE_URL,
-                });
+                })
               },
             ],
           ],
         },
       },
     ],
-  ];
+  ]
 }

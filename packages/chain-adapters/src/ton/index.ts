@@ -1,3 +1,3 @@
-export { ChainAdapter } from "./TonChainAdapter";
+export { ChainAdapter } from './TonChainAdapter'
 
-export * from "./types";
+export * from './types'

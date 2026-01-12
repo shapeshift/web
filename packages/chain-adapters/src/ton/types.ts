@@ -1,32 +1,32 @@
-import type { BIP32Path } from "@shapeshiftoss/hdwallet-core";
+import type { BIP32Path } from '@shapeshiftoss/hdwallet-core'
 
-import type * as types from "../types";
+import type * as types from '../types'
 
 export type Token = types.AssetBalance & {
-  symbol: string;
-  name: string;
-  precision: number;
-};
+  symbol: string
+  name: string
+  precision: number
+}
 
 export type Account = {
-  tokens?: Token[];
-};
+  tokens?: Token[]
+}
 
 export type BuildTxInput = {
-  memo?: string;
-};
+  memo?: string
+}
 
 export type GetFeeDataInput = {
-  from: string;
-  memo?: string;
-};
+  from: string
+  memo?: string
+}
 
 export type FeeData = {
-  gasPrice: string;
-};
+  gasPrice: string
+}
 
 export type TonSignTx = {
-  addressNList: BIP32Path;
-  message: Uint8Array;
-  pubKey?: string;
-};
+  addressNList: BIP32Path
+  message: Uint8Array
+  pubKey?: string
+}

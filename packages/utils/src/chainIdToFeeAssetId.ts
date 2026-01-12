@@ -1,4 +1,4 @@
-import type { AssetId, ChainId } from "@shapeshiftoss/caip";
+import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import {
   arbitrumAssetId,
   arbitrumNovaAssetId,
@@ -27,69 +27,69 @@ import {
   tonAssetId,
   tronAssetId,
   zecAssetId,
-} from "@shapeshiftoss/caip";
-import { KnownChainIds } from "@shapeshiftoss/types";
+} from '@shapeshiftoss/caip'
+import { KnownChainIds } from '@shapeshiftoss/types'
 
-import { assertUnreachable } from "./assertUnreachable";
+import { assertUnreachable } from './assertUnreachable'
 
 export const chainIdToFeeAssetId = (_chainId: ChainId): AssetId => {
-  const chainId = _chainId as KnownChainIds;
+  const chainId = _chainId as KnownChainIds
   switch (chainId) {
     case KnownChainIds.ArbitrumMainnet:
-      return arbitrumAssetId;
+      return arbitrumAssetId
     case KnownChainIds.AvalancheMainnet:
-      return avalancheAssetId;
+      return avalancheAssetId
     case KnownChainIds.ArbitrumNovaMainnet:
-      return arbitrumNovaAssetId;
+      return arbitrumNovaAssetId
     case KnownChainIds.BaseMainnet:
-      return baseAssetId;
+      return baseAssetId
     case KnownChainIds.BitcoinCashMainnet:
-      return bchAssetId;
+      return bchAssetId
     case KnownChainIds.BitcoinMainnet:
-      return btcAssetId;
+      return btcAssetId
     case KnownChainIds.BnbSmartChainMainnet:
-      return bscAssetId;
+      return bscAssetId
     case KnownChainIds.CosmosMainnet:
-      return cosmosAssetId;
+      return cosmosAssetId
     case KnownChainIds.DogecoinMainnet:
-      return dogeAssetId;
+      return dogeAssetId
     case KnownChainIds.EthereumMainnet:
-      return ethAssetId;
+      return ethAssetId
     case KnownChainIds.GnosisMainnet:
-      return gnosisAssetId;
+      return gnosisAssetId
     case KnownChainIds.LitecoinMainnet:
-      return ltcAssetId;
+      return ltcAssetId
     case KnownChainIds.OptimismMainnet:
-      return optimismAssetId;
+      return optimismAssetId
     case KnownChainIds.PolygonMainnet:
-      return polygonAssetId;
+      return polygonAssetId
     case KnownChainIds.ThorchainMainnet:
-      return thorchainAssetId;
+      return thorchainAssetId
     case KnownChainIds.MayachainMainnet:
-      return mayachainAssetId;
+      return mayachainAssetId
     case KnownChainIds.SolanaMainnet:
-      return solAssetId;
+      return solAssetId
     case KnownChainIds.TronMainnet:
-      return tronAssetId;
+      return tronAssetId
     case KnownChainIds.SuiMainnet:
-      return suiAssetId;
+      return suiAssetId
     case KnownChainIds.StarknetMainnet:
-      return starknetAssetId;
+      return starknetAssetId
     case KnownChainIds.MonadMainnet:
-      return monadAssetId;
+      return monadAssetId
     case KnownChainIds.HyperEvmMainnet:
-      return hyperEvmAssetId;
+      return hyperEvmAssetId
     case KnownChainIds.PlasmaMainnet:
-      return plasmaAssetId;
+      return plasmaAssetId
     case KnownChainIds.KatanaMainnet:
-      return katanaAssetId;
+      return katanaAssetId
     case KnownChainIds.ZcashMainnet:
-      return zecAssetId;
+      return zecAssetId
     case KnownChainIds.NearMainnet:
-      return nearAssetId;
+      return nearAssetId
     case KnownChainIds.TonMainnet:
-      return tonAssetId;
+      return tonAssetId
     default:
-      return assertUnreachable(chainId);
+      return assertUnreachable(chainId)
   }
-};
+}

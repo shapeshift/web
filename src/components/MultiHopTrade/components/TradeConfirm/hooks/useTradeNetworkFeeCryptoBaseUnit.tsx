@@ -285,6 +285,9 @@ export const useTradeNetworkFeeCryptoBaseUnit = ({
                 })
                 return output
               }
+              case CHAIN_NAMESPACE.Ton: {
+                throw new Error('TON swaps are not supported')
+              }
               default:
                 assertUnreachable(stepSellAssetChainNamespace)
             }

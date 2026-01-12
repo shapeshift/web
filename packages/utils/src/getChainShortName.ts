@@ -1,65 +1,65 @@
-import { KnownChainIds } from "@shapeshiftoss/types";
+import { KnownChainIds } from '@shapeshiftoss/types'
 
-import { assertUnreachable } from "./assertUnreachable";
+import { assertUnreachable } from './assertUnreachable'
 
 export const getChainShortName = (chainId: KnownChainIds) => {
   switch (chainId) {
     case KnownChainIds.AvalancheMainnet:
-      return "AVA";
+      return 'AVA'
     case KnownChainIds.OptimismMainnet:
-      return "OP";
+      return 'OP'
     case KnownChainIds.EthereumMainnet:
-      return "ETH";
+      return 'ETH'
     case KnownChainIds.PolygonMainnet:
-      return "POLY";
+      return 'POLY'
     case KnownChainIds.GnosisMainnet:
-      return "GNO";
+      return 'GNO'
     case KnownChainIds.BnbSmartChainMainnet:
-      return "BNB";
+      return 'BNB'
     case KnownChainIds.ArbitrumMainnet:
-      return "ARB";
+      return 'ARB'
     case KnownChainIds.ArbitrumNovaMainnet:
-      return "ARB-Nova";
+      return 'ARB-Nova'
     case KnownChainIds.BaseMainnet:
-      return "BAS";
+      return 'BAS'
     case KnownChainIds.BitcoinMainnet:
-      return "BTC";
+      return 'BTC'
     case KnownChainIds.BitcoinCashMainnet:
-      return "BCH";
+      return 'BCH'
     case KnownChainIds.CosmosMainnet:
-      return "COSM";
+      return 'COSM'
     case KnownChainIds.ThorchainMainnet:
-      return "THOR";
+      return 'THOR'
     case KnownChainIds.MayachainMainnet:
-      return "MAYA";
+      return 'MAYA'
     case KnownChainIds.DogecoinMainnet:
-      return "DOGE";
+      return 'DOGE'
     case KnownChainIds.LitecoinMainnet:
-      return "LTC";
+      return 'LTC'
     case KnownChainIds.SolanaMainnet:
-      return "SOL";
+      return 'SOL'
     case KnownChainIds.TronMainnet:
-      return "TRX";
+      return 'TRX'
     case KnownChainIds.SuiMainnet:
-      return "SUI";
+      return 'SUI'
     case KnownChainIds.StarknetMainnet:
-      return "STRK";
+      return 'STRK'
     case KnownChainIds.MonadMainnet:
-      return "MON";
+      return 'MON'
     case KnownChainIds.HyperEvmMainnet:
-      return "HYPE";
+      return 'HYPE'
     case KnownChainIds.PlasmaMainnet:
-      return "XPL";
+      return 'XPL'
     case KnownChainIds.KatanaMainnet:
-      return "KAT";
+      return 'KAT'
     case KnownChainIds.ZcashMainnet:
-      return "ZEC";
+      return 'ZEC'
     case KnownChainIds.NearMainnet:
-      return "NEAR";
+      return 'NEAR'
     case KnownChainIds.TonMainnet:
-      return "TON";
+      return 'TON'
     default: {
-      assertUnreachable(chainId);
+      assertUnreachable(chainId)
     }
   }
-};
+}

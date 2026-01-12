@@ -49,6 +49,8 @@ import {
 } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
+const tabSelectedSx = { color: 'white', bg: 'blue.500' }
+
 export const YieldsList = memo(() => {
   const translate = useTranslate()
   const navigate = useNavigate()
@@ -596,7 +598,7 @@ export const YieldsList = memo(() => {
 
   const positionsEmptyElement = useMemo(
     () => (
-      <Box textAlign='center' py={16} bg='whiteAlpha.50' borderRadius='xl'>
+      <Box textAlign='center' py={16} bg='background.surface.raised.base' borderRadius='xl'>
         <Text color='text.subtle' mb={2}>
           {translate('yieldXYZ.noYields')}
         </Text>
@@ -698,8 +700,8 @@ export const YieldsList = memo(() => {
         onChange={handleTabChange}
       >
         <TabList mb={4} gap={4}>
-          <Tab _selected={{ color: 'white', bg: 'blue.500' }}>{translate('common.all')}</Tab>
-          <Tab _selected={{ color: 'white', bg: 'blue.500' }}>
+          <Tab _selected={tabSelectedSx}>{translate('common.all')}</Tab>
+          <Tab _selected={tabSelectedSx}>
             {translate('yieldXYZ.myPosition')} ({myPositions.length})
           </Tab>
         </TabList>

@@ -1,16 +1,16 @@
-import * as envalid from 'envalid'
-import { bool } from 'envalid'
-import forEach from 'lodash/forEach'
-import memoize from 'lodash/memoize'
+import * as envalid from "envalid";
+import { bool } from "envalid";
+import forEach from "lodash/forEach";
+import memoize from "lodash/memoize";
 
-import { JUPITER_API_URL } from '@/constants/urls'
+import { JUPITER_API_URL } from "@/constants/urls";
 
-const { cleanEnv, str, url } = envalid
+const { cleanEnv, str, url } = envalid;
 
 // add validators for each .env variable
 // note env vars must be prefixed with VITE_
 const validators = {
-  VITE_LOG_LEVEL: str({ default: 'info' }),
+  VITE_LOG_LEVEL: str({ default: "info" }),
   VITE_REDUX_WINDOW: bool({ default: false }),
   VITE_UNCHAINED_ETHEREUM_HTTP_URL: url(),
   VITE_UNCHAINED_ETHEREUM_WS_URL: url(),
@@ -70,9 +70,10 @@ const validators = {
   VITE_STARKNET_NODE_URL: url(),
   VITE_TRON_NODE_URL: url(),
   VITE_SUI_NODE_URL: url(),
+  VITE_TON_NODE_URL: url(),
   VITE_NEAR_NODE_URL: url(),
-  VITE_NEAR_NODE_URL_FALLBACK_1: url({ default: '' }),
-  VITE_NEAR_NODE_URL_FALLBACK_2: url({ default: '' }),
+  VITE_NEAR_NODE_URL_FALLBACK_1: url({ default: "" }),
+  VITE_NEAR_NODE_URL_FALLBACK_2: url({ default: "" }),
   VITE_FASTNEAR_API_URL: url(),
   VITE_ALCHEMY_POLYGON_URL: url(),
   VITE_KEEPKEY_VERSIONS_URL: url(),
@@ -100,6 +101,7 @@ const validators = {
   VITE_FEATURE_STARKNET: bool({ default: false }),
   VITE_FEATURE_TRON: bool({ default: false }),
   VITE_FEATURE_SUI: bool({ default: false }),
+  VITE_FEATURE_TON: bool({ default: false }),
   VITE_FEATURE_NEAR: bool({ default: false }),
   VITE_FEATURE_BASE: bool({ default: false }),
   VITE_FEATURE_MONAD: bool({ default: false }),
@@ -124,33 +126,45 @@ const validators = {
   VITE_FEATURE_GRIDPLUS_WALLET: bool({ default: false }),
   VITE_FEATURE_WALLET_CONNECT_V2: bool({ default: false }),
   VITE_FEATURE_WC_DIRECT_CONNECTION: bool({ default: false }),
-  VITE_WALLET_CONNECT_TO_DAPPS_PROJECT_ID: str({ default: '' }),
-  VITE_WALLET_CONNECT_WALLET_PROJECT_ID: str({ default: '' }),
-  VITE_WALLET_CONNECT_RELAY_URL: str({ default: 'wss://relay.walletconnect.com' }),
-  VITE_TOKEMAK_STATS_URL: url({ default: 'https://stats.tokemaklabs.com/' }),
-  VITE_BOARDROOM_API_BASE_URL: url({
-    default: 'https://api.boardroom.info/v1/protocols/shapeshift/',
+  VITE_WALLET_CONNECT_TO_DAPPS_PROJECT_ID: str({ default: "" }),
+  VITE_WALLET_CONNECT_WALLET_PROJECT_ID: str({ default: "" }),
+  VITE_WALLET_CONNECT_RELAY_URL: str({
+    default: "wss://relay.walletconnect.com",
   }),
-  VITE_BOARDROOM_APP_BASE_URL: url({ default: 'https://boardroom.io/shapeshift/' }),
-  VITE_THORCHAIN_MIDGARD_URL: url({ default: 'https://midgard.thorchain.info/v2' }),
-  VITE_MAYACHAIN_MIDGARD_URL: url({ default: 'https://midgard.mayachain.info/v2' }),
-  VITE_COWSWAP_BASE_URL: url({ default: 'https://api.cow.fi' }),
+  VITE_TOKEMAK_STATS_URL: url({ default: "https://stats.tokemaklabs.com/" }),
+  VITE_BOARDROOM_API_BASE_URL: url({
+    default: "https://api.boardroom.info/v1/protocols/shapeshift/",
+  }),
+  VITE_BOARDROOM_APP_BASE_URL: url({
+    default: "https://boardroom.io/shapeshift/",
+  }),
+  VITE_THORCHAIN_MIDGARD_URL: url({
+    default: "https://midgard.thorchain.info/v2",
+  }),
+  VITE_MAYACHAIN_MIDGARD_URL: url({
+    default: "https://midgard.mayachain.info/v2",
+  }),
+  VITE_COWSWAP_BASE_URL: url({ default: "https://api.cow.fi" }),
   VITE_ONRAMPER_WIDGET_URL: url(),
   VITE_ONRAMPER_API_URL: url(),
   VITE_ONRAMPER_API_KEY: str(),
   VITE_ONRAMPER_SIGNING_KEY: str(),
   VITE_KEEPKEY_UPDATER_RELEASE_PAGE: url({
-    default: 'https://github.com/keepkey/keepkey-desktop/releases/latest',
+    default: "https://github.com/keepkey/keepkey-desktop/releases/latest",
   }),
   VITE_KEEPKEY_UPDATER_BASE_URL: url({
-    default: 'https://github.com/keepkey/keepkey-desktop/releases/download/',
+    default: "https://github.com/keepkey/keepkey-desktop/releases/download/",
   }),
-  VITE_ETHERSCAN_API_KEY: str({ default: 'XT8BI6VDYUGD9675X861ATHZNK3AN6HRMF' }),
-  VITE_MIXPANEL_TOKEN: str({ default: '' }),
-  VITE_SNAPSHOT_BASE_URL: url({ default: 'https://snapshot.org/#/shapeshiftdao.eth' }),
+  VITE_ETHERSCAN_API_KEY: str({
+    default: "XT8BI6VDYUGD9675X861ATHZNK3AN6HRMF",
+  }),
+  VITE_MIXPANEL_TOKEN: str({ default: "" }),
+  VITE_SNAPSHOT_BASE_URL: url({
+    default: "https://snapshot.org/#/shapeshiftdao.eth",
+  }),
   VITE_FEATURE_MIXPANEL: bool({ default: false }),
   VITE_ENABLE_HYPELAB: bool({ default: false }),
-  VITE_HYPELAB_PROPERTY_SLUG: str({ default: '' }),
+  VITE_HYPELAB_PROPERTY_SLUG: str({ default: "" }),
   VITE_FEATURE_DYNAMIC_LP_ASSETS: bool({ default: false }),
   VITE_FEATURE_READ_ONLY_ASSETS: bool({ default: false }),
   VITE_FEATURE_ARBITRUM_BRIDGE: bool({ default: false }),
@@ -229,27 +243,29 @@ const validators = {
   VITE_TENDERLY_PROJECT_SLUG: str(),
   VITE_TENDERLY_API_KEY: str(),
   VITE_FEATURE_NOTIFICATIONS_WEBSERVICES: bool({ default: false }),
-  VITE_USER_SERVER_URL: url({ default: '' }),
-  VITE_SWAPS_SERVER_URL: url({ default: '' }),
-  VITE_NOTIFICATIONS_SERVER_URL: url({ default: '' }),
+  VITE_USER_SERVER_URL: url({ default: "" }),
+  VITE_SWAPS_SERVER_URL: url({ default: "" }),
+  VITE_NOTIFICATIONS_SERVER_URL: url({ default: "" }),
   VITE_FEATURE_ADDRESS_BOOK: bool({ default: false }),
   VITE_FEATURE_APP_RATING: bool({ default: false }),
   VITE_FEATURE_YIELD_XYZ: bool({ default: false }),
-  VITE_YIELD_XYZ_API_KEY: str({ default: '' }),
-  VITE_YIELD_XYZ_BASE_URL: url({ default: 'https://api.yield.xyz/v1' }),
+  VITE_YIELD_XYZ_API_KEY: str({ default: "" }),
+  VITE_YIELD_XYZ_BASE_URL: url({ default: "https://api.yield.xyz/v1" }),
   VITE_FEATURE_YIELD_MULTI_ACCOUNT: bool({ default: false }),
-}
+};
 
 function reporter<T>({ errors }: envalid.ReporterOptions<T>) {
   forEach(errors, (err, key) => {
-    if (!err) return
-    err.message = key
+    if (!err) return;
+    err.message = key;
     // Can't use logger in src/config in tests
     // eslint-disable-next-line no-console
-    console.error(err, key, 'Invalid Config')
-  })
+    console.error(err, key, "Invalid Config");
+  });
 }
 
 export const getConfig = memoize(() => {
-  return Object.freeze({ ...cleanEnv(import.meta.env ?? process.env, validators, { reporter }) })
-})
+  return Object.freeze({
+    ...cleanEnv(import.meta.env ?? process.env, validators, { reporter }),
+  });
+});

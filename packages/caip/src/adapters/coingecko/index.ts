@@ -1,9 +1,9 @@
-import invertBy from 'lodash/invertBy'
+import invertBy from "lodash/invertBy";
 
-import type { AssetId } from '../../assetId/assetId'
-import { fromAssetId } from '../../assetId/assetId'
-import type { ChainId } from '../../chainId/chainId'
-import { fromChainId, toChainId } from '../../chainId/chainId'
+import type { AssetId } from "../../assetId/assetId";
+import { fromAssetId } from "../../assetId/assetId";
+import type { ChainId } from "../../chainId/chainId";
+import { fromChainId, toChainId } from "../../chainId/chainId";
 import {
   arbitrumChainId,
   arbitrumNovaChainId,
@@ -27,225 +27,245 @@ import {
   starknetChainId,
   suiChainId,
   thorchainChainId,
+  tonChainId,
   tronChainId,
-} from '../../constants'
-import * as adapters from './generated'
+} from "../../constants";
+import * as adapters from "./generated";
 
-export { fetchData as fetchCoingeckoData, parseData as parseCoingeckoData } from './utils'
+export {
+  fetchData as fetchCoingeckoData,
+  parseData as parseCoingeckoData,
+} from "./utils";
 
 // https://api.coingecko.com/api/v3/asset_platforms
 export enum CoingeckoAssetPlatform {
-  Ethereum = 'ethereum',
-  Cosmos = 'cosmos',
-  Polygon = 'polygon-pos',
-  Gnosis = 'xdai',
-  Avalanche = 'avalanche',
-  Thorchain = 'thorchain',
-  Mayachain = 'cacao',
-  Optimism = 'optimistic-ethereum',
-  BnbSmartChain = 'binance-smart-chain',
-  Arbitrum = 'arbitrum-one',
-  ArbitrumNova = 'arbitrum-nova',
-  Base = 'base',
-  Monad = 'monad',
-  HyperEvm = 'hyperevm',
-  Plasma = 'plasma',
-  Katana = 'katana',
-  Solana = 'solana',
-  Starknet = 'starknet',
-  Tron = 'tron',
-  Sui = 'sui',
-  Near = 'near-protocol',
+  Ethereum = "ethereum",
+  Cosmos = "cosmos",
+  Polygon = "polygon-pos",
+  Gnosis = "xdai",
+  Avalanche = "avalanche",
+  Thorchain = "thorchain",
+  Mayachain = "cacao",
+  Optimism = "optimistic-ethereum",
+  BnbSmartChain = "binance-smart-chain",
+  Arbitrum = "arbitrum-one",
+  ArbitrumNova = "arbitrum-nova",
+  Base = "base",
+  Monad = "monad",
+  HyperEvm = "hyperevm",
+  Plasma = "plasma",
+  Katana = "katana",
+  Solana = "solana",
+  Starknet = "starknet",
+  Tron = "tron",
+  Sui = "sui",
+  Ton = "the-open-network",
+  Near = "near-protocol",
 }
 
-type CoinGeckoId = string
+type CoinGeckoId = string;
 
-export const coingeckoBaseUrl = 'https://api.proxy.shapeshift.com/api/v1/markets'
-export const coingeckoUrl = `${coingeckoBaseUrl}/coins/list?include_platform=true`
+export const coingeckoBaseUrl =
+  "https://api.proxy.shapeshift.com/api/v1/markets";
+export const coingeckoUrl = `${coingeckoBaseUrl}/coins/list?include_platform=true`;
 
-const assetIdToCoinGeckoIdMapByChain: Record<AssetId, CoinGeckoId>[] = Object.values(adapters)
+const assetIdToCoinGeckoIdMapByChain: Record<AssetId, CoinGeckoId>[] =
+  Object.values(adapters);
 
-const generatedAssetIdToCoingeckoMap = assetIdToCoinGeckoIdMapByChain.reduce((acc, cur) => ({
-  ...acc,
-  ...cur,
-})) as Record<string, string>
+const generatedAssetIdToCoingeckoMap = assetIdToCoinGeckoIdMapByChain.reduce(
+  (acc, cur) => ({
+    ...acc,
+    ...cur,
+  }),
+) as Record<string, string>;
 
-const generatedCoingeckoToAssetIdsMap: Record<CoinGeckoId, AssetId[]> = invertBy(
-  generatedAssetIdToCoingeckoMap,
-)
+const generatedCoingeckoToAssetIdsMap: Record<CoinGeckoId, AssetId[]> =
+  invertBy(generatedAssetIdToCoingeckoMap);
 
 export const coingeckoToAssetIds = (id: CoinGeckoId): AssetId[] =>
-  generatedCoingeckoToAssetIdsMap[id]
+  generatedCoingeckoToAssetIdsMap[id];
 
 export const assetIdToCoingecko = (assetId: AssetId): CoinGeckoId | undefined =>
-  generatedAssetIdToCoingeckoMap[assetId]
+  generatedAssetIdToCoingeckoMap[assetId];
 
 // https://www.coingecko.com/en/api/documentation - See asset_platforms
 export const chainIdToCoingeckoAssetPlatform = (chainId: ChainId): string => {
-  const { chainNamespace, chainReference } = fromChainId(chainId)
+  const { chainNamespace, chainReference } = fromChainId(chainId);
   switch (chainNamespace) {
     case CHAIN_NAMESPACE.Evm:
       switch (chainReference) {
         case CHAIN_REFERENCE.EthereumMainnet:
-          return CoingeckoAssetPlatform.Ethereum
+          return CoingeckoAssetPlatform.Ethereum;
         case CHAIN_REFERENCE.AvalancheCChain:
-          return CoingeckoAssetPlatform.Avalanche
+          return CoingeckoAssetPlatform.Avalanche;
         case CHAIN_REFERENCE.OptimismMainnet:
-          return CoingeckoAssetPlatform.Optimism
+          return CoingeckoAssetPlatform.Optimism;
         case CHAIN_REFERENCE.BnbSmartChainMainnet:
-          return CoingeckoAssetPlatform.BnbSmartChain
+          return CoingeckoAssetPlatform.BnbSmartChain;
         case CHAIN_REFERENCE.PolygonMainnet:
-          return CoingeckoAssetPlatform.Polygon
+          return CoingeckoAssetPlatform.Polygon;
         case CHAIN_REFERENCE.GnosisMainnet:
-          return CoingeckoAssetPlatform.Gnosis
+          return CoingeckoAssetPlatform.Gnosis;
         case CHAIN_REFERENCE.ArbitrumMainnet:
-          return CoingeckoAssetPlatform.Arbitrum
+          return CoingeckoAssetPlatform.Arbitrum;
         case CHAIN_REFERENCE.ArbitrumNovaMainnet:
-          return CoingeckoAssetPlatform.ArbitrumNova
+          return CoingeckoAssetPlatform.ArbitrumNova;
         case CHAIN_REFERENCE.BaseMainnet:
-          return CoingeckoAssetPlatform.Base
+          return CoingeckoAssetPlatform.Base;
         case CHAIN_REFERENCE.MonadMainnet:
-          return CoingeckoAssetPlatform.Monad
+          return CoingeckoAssetPlatform.Monad;
         case CHAIN_REFERENCE.HyperEvmMainnet:
-          return CoingeckoAssetPlatform.HyperEvm
+          return CoingeckoAssetPlatform.HyperEvm;
         case CHAIN_REFERENCE.PlasmaMainnet:
-          return CoingeckoAssetPlatform.Plasma
+          return CoingeckoAssetPlatform.Plasma;
         case CHAIN_REFERENCE.KatanaMainnet:
-          return CoingeckoAssetPlatform.Katana
+          return CoingeckoAssetPlatform.Katana;
         default:
           throw new Error(
             `chainNamespace ${chainNamespace}, chainReference ${chainReference} not supported.`,
-          )
+          );
       }
     case CHAIN_NAMESPACE.CosmosSdk:
       switch (chainReference) {
         case CHAIN_REFERENCE.CosmosHubMainnet:
-          return CoingeckoAssetPlatform.Cosmos
+          return CoingeckoAssetPlatform.Cosmos;
         case CHAIN_REFERENCE.ThorchainMainnet:
-          return CoingeckoAssetPlatform.Thorchain
+          return CoingeckoAssetPlatform.Thorchain;
         case CHAIN_REFERENCE.MayachainMainnet:
-          return CoingeckoAssetPlatform.Mayachain
+          return CoingeckoAssetPlatform.Mayachain;
         default:
           throw new Error(
             `chainNamespace ${chainNamespace}, chainReference ${chainReference} not supported.`,
-          )
+          );
       }
     case CHAIN_NAMESPACE.Solana:
       switch (chainReference) {
         case CHAIN_REFERENCE.SolanaMainnet:
-          return CoingeckoAssetPlatform.Solana
+          return CoingeckoAssetPlatform.Solana;
         default:
           throw new Error(
             `chainNamespace ${chainNamespace}, chainReference ${chainReference} not supported.`,
-          )
+          );
       }
     case CHAIN_NAMESPACE.Tron:
       switch (chainReference) {
         case CHAIN_REFERENCE.TronMainnet:
-          return CoingeckoAssetPlatform.Tron
+          return CoingeckoAssetPlatform.Tron;
         default:
           throw new Error(
             `chainNamespace ${chainNamespace}, chainReference ${chainReference} not supported.`,
-          )
+          );
       }
     case CHAIN_NAMESPACE.Sui:
       switch (chainReference) {
         case CHAIN_REFERENCE.SuiMainnet:
-          return CoingeckoAssetPlatform.Sui
+          return CoingeckoAssetPlatform.Sui;
         default:
           throw new Error(
             `chainNamespace ${chainNamespace}, chainReference ${chainReference} not supported.`,
-          )
+          );
       }
     case CHAIN_NAMESPACE.Near:
       switch (chainReference) {
         case CHAIN_REFERENCE.NearMainnet:
-          return CoingeckoAssetPlatform.Near
+          return CoingeckoAssetPlatform.Near;
         default:
           throw new Error(
             `chainNamespace ${chainNamespace}, chainReference ${chainReference} not supported.`,
-          )
+          );
       }
     case CHAIN_NAMESPACE.Starknet:
       switch (chainReference) {
         case CHAIN_REFERENCE.StarknetMainnet:
-          return CoingeckoAssetPlatform.Starknet
+          return CoingeckoAssetPlatform.Starknet;
         default:
           throw new Error(
             `chainNamespace ${chainNamespace}, chainReference ${chainReference} not supported.`,
-          )
+          );
+      }
+    case CHAIN_NAMESPACE.Ton:
+      switch (chainReference) {
+        case CHAIN_REFERENCE.TonMainnet:
+          return CoingeckoAssetPlatform.Ton;
+        default:
+          throw new Error(
+            `chainNamespace ${chainNamespace}, chainReference ${chainReference} not supported.`,
+          );
       }
     // No valid asset platform: https://api.coingecko.com/api/v3/asset_platforms
     case CHAIN_NAMESPACE.Utxo:
     default:
-      throw new Error(`chainNamespace ${chainNamespace} not supported.`)
+      throw new Error(`chainNamespace ${chainNamespace} not supported.`);
   }
-}
+};
 
 export const coingeckoAssetPlatformToChainId = (
   platform: CoingeckoAssetPlatform,
 ): ChainId | undefined => {
   switch (platform) {
     case CoingeckoAssetPlatform.Ethereum:
-      return ethChainId
+      return ethChainId;
     case CoingeckoAssetPlatform.Avalanche:
-      return avalancheChainId
+      return avalancheChainId;
     case CoingeckoAssetPlatform.Optimism:
-      return optimismChainId
+      return optimismChainId;
     case CoingeckoAssetPlatform.BnbSmartChain:
-      return bscChainId
+      return bscChainId;
     case CoingeckoAssetPlatform.Polygon:
-      return polygonChainId
+      return polygonChainId;
     case CoingeckoAssetPlatform.Gnosis:
-      return gnosisChainId
+      return gnosisChainId;
     case CoingeckoAssetPlatform.Arbitrum:
-      return arbitrumChainId
+      return arbitrumChainId;
     case CoingeckoAssetPlatform.ArbitrumNova:
-      return arbitrumNovaChainId
+      return arbitrumNovaChainId;
     case CoingeckoAssetPlatform.Base:
-      return baseChainId
+      return baseChainId;
     case CoingeckoAssetPlatform.Monad:
-      return monadChainId
+      return monadChainId;
     case CoingeckoAssetPlatform.HyperEvm:
-      return hyperEvmChainId
+      return hyperEvmChainId;
     case CoingeckoAssetPlatform.Plasma:
-      return plasmaChainId
+      return plasmaChainId;
     case CoingeckoAssetPlatform.Katana:
-      return katanaChainId
+      return katanaChainId;
     case CoingeckoAssetPlatform.Cosmos:
-      return cosmosChainId
+      return cosmosChainId;
     case CoingeckoAssetPlatform.Thorchain:
-      return thorchainChainId
+      return thorchainChainId;
     case CoingeckoAssetPlatform.Mayachain:
-      return mayachainChainId
+      return mayachainChainId;
     case CoingeckoAssetPlatform.Solana:
-      return solanaChainId
+      return solanaChainId;
     case CoingeckoAssetPlatform.Starknet:
-      return starknetChainId
+      return starknetChainId;
     case CoingeckoAssetPlatform.Tron:
-      return tronChainId
+      return tronChainId;
     case CoingeckoAssetPlatform.Sui:
-      return suiChainId
+      return suiChainId;
+    case CoingeckoAssetPlatform.Ton:
+      return tonChainId;
     case CoingeckoAssetPlatform.Near:
-      return nearChainId
+      return nearChainId;
     default:
-      return undefined
+      return undefined;
   }
-}
+};
 
 export const makeCoingeckoAssetUrl = (assetId: AssetId): string | undefined => {
-  const id = assetIdToCoingecko(assetId)
-  if (!id) return
+  const id = assetIdToCoingecko(assetId);
+  if (!id) return;
 
-  const { chainNamespace, chainReference, assetNamespace, assetReference } = fromAssetId(assetId)
+  const { chainNamespace, chainReference, assetNamespace, assetReference } =
+    fromAssetId(assetId);
 
-  if (assetNamespace === 'erc20') {
+  if (assetNamespace === "erc20") {
     const assetPlatform = chainIdToCoingeckoAssetPlatform(
       toChainId({ chainNamespace, chainReference }),
-    )
+    );
 
-    return `${coingeckoBaseUrl}/coins/${assetPlatform}/contract/${assetReference}`
+    return `${coingeckoBaseUrl}/coins/${assetPlatform}/contract/${assetReference}`;
   }
 
-  return `${coingeckoBaseUrl}/coins/${id}`
-}
+  return `${coingeckoBaseUrl}/coins/${id}`;
+};

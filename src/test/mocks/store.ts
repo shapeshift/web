@@ -1,22 +1,22 @@
-import { OrderDirection } from '@/components/OrderDropdown/types'
-import { SortOptionsKeys } from '@/components/SortDropdown/types'
-import { DEFAULT_HISTORY_TIMEFRAME } from '@/constants/Config'
-import { FiatCurrencyTypeEnum } from '@/constants/FiatCurrencyTypeEnum'
-import { fiatCurrencyItemsByCode } from '@/lib/fiatCurrencies/fiatCurrencies'
-import { MarketsCategories } from '@/pages/Markets/constants'
-import type { ReduxState } from '@/state/reducer'
-import { defaultAsset } from '@/state/slices/assetsSlice/assetsSlice'
+import { OrderDirection } from "@/components/OrderDropdown/types";
+import { SortOptionsKeys } from "@/components/SortDropdown/types";
+import { DEFAULT_HISTORY_TIMEFRAME } from "@/constants/Config";
+import { FiatCurrencyTypeEnum } from "@/constants/FiatCurrencyTypeEnum";
+import { fiatCurrencyItemsByCode } from "@/lib/fiatCurrencies/fiatCurrencies";
+import { MarketsCategories } from "@/pages/Markets/constants";
+import type { ReduxState } from "@/state/reducer";
+import { defaultAsset } from "@/state/slices/assetsSlice/assetsSlice";
 import {
   ExpiryOption,
   LimitPriceMode,
   PriceDirection,
-} from '@/state/slices/limitOrderInputSlice/constants'
+} from "@/state/slices/limitOrderInputSlice/constants";
 import {
   CurrencyFormats,
   HomeMarketView,
   QuoteDisplayOption,
-} from '@/state/slices/preferencesSlice/preferencesSlice'
-import { QuoteSortOption } from '@/state/slices/tradeQuoteSlice/types'
+} from "@/state/slices/preferencesSlice/preferencesSlice";
+import { QuoteSortOption } from "@/state/slices/tradeQuoteSlice/types";
 
 const mockApiFactory = <T extends unknown>(reducerPath: T) => ({
   queries: {},
@@ -32,39 +32,42 @@ const mockApiFactory = <T extends unknown>(reducerPath: T) => ({
     refetchOnFocus: false,
     refetchOnMountOrArgChange: false,
     refetchOnReconnect: false,
-    invalidationBehavior: 'delayed' as const,
+    invalidationBehavior: "delayed" as const,
   },
-})
+});
 
-const mockSwapperApi = Object.assign(mockApiFactory('swapperApi' as const), {
+const mockSwapperApi = Object.assign(mockApiFactory("swapperApi" as const), {
   provided: {
     TradeQuote: {},
   },
-})
+});
 
-const mockLimitOrderApi = Object.assign(mockApiFactory('limitOrderApi' as const), {
-  provided: {
-    limitOrders: {},
-    limitOrderQuote: {},
+const mockLimitOrderApi = Object.assign(
+  mockApiFactory("limitOrderApi" as const),
+  {
+    provided: {
+      limitOrders: {},
+      limitOrderQuote: {},
+    },
+    _persist: {
+      version: 0,
+      rehydrated: false,
+    },
   },
-  _persist: {
-    version: 0,
-    rehydrated: false,
-  },
-})
+);
 
 export const mockStore: ReduxState = {
-  assetApi: mockApiFactory('assetApi' as const),
-  portfolioApi: mockApiFactory('portfolioApi' as const),
-  marketApi: mockApiFactory('marketApi' as const),
-  txHistoryApi: mockApiFactory('txHistoryApi' as const),
-  portalsApi: mockApiFactory('portalsApi' as const),
+  assetApi: mockApiFactory("assetApi" as const),
+  portfolioApi: mockApiFactory("portfolioApi" as const),
+  marketApi: mockApiFactory("marketApi" as const),
+  txHistoryApi: mockApiFactory("txHistoryApi" as const),
+  portalsApi: mockApiFactory("portalsApi" as const),
   swapperApi: mockSwapperApi,
-  foxyApi: mockApiFactory('foxyApi' as const),
-  fiatRampApi: mockApiFactory('fiatRampApi' as const),
-  snapshotApi: mockApiFactory('snapshotApi' as const),
-  opportunitiesApi: mockApiFactory('opportunitiesApi' as const),
-  abiApi: mockApiFactory('abiApi' as const),
+  foxyApi: mockApiFactory("foxyApi" as const),
+  fiatRampApi: mockApiFactory("fiatRampApi" as const),
+  snapshotApi: mockApiFactory("snapshotApi" as const),
+  opportunitiesApi: mockApiFactory("opportunitiesApi" as const),
+  abiApi: mockApiFactory("abiApi" as const),
   limitOrderApi: mockLimitOrderApi,
   portfolio: {
     _persist: {
@@ -101,6 +104,7 @@ export const mockStore: ReduxState = {
       Starknet: false,
       Tron: false,
       Sui: false,
+      Ton: false,
       Near: false,
       ArbitrumBridge: false,
       Base: false,
@@ -189,9 +193,9 @@ export const mockStore: ReduxState = {
     showTopAssetsCarousel: true,
     quickBuyAmounts: [10, 50, 100],
     quoteDisplayOption: QuoteDisplayOption.Basic,
-    selectedLocale: 'en',
-    balanceThresholdUserCurrency: '0',
-    selectedCurrency: 'USD',
+    selectedLocale: "en",
+    balanceThresholdUserCurrency: "0",
+    selectedCurrency: "USD",
     currencyFormat: CurrencyFormats.DotDecimalCommaThousands,
     chartTimeframe: DEFAULT_HISTORY_TIMEFRAME,
     showWelcomeModal: false,
@@ -206,7 +210,7 @@ export const mockStore: ReduxState = {
       selectedCategory: MarketsCategories.Trending,
       selectedOrder: OrderDirection.Descending,
       selectedSort: SortOptionsKeys.Apy,
-      selectedChainId: 'all',
+      selectedChainId: "all",
     },
     hasSeenRatingModal: false,
     // the following object is required by redux-persist
@@ -294,7 +298,7 @@ export const mockStore: ReduxState = {
     sellAsset: defaultAsset,
     sellAccountId: undefined,
     buyAccountId: undefined,
-    sellAmountCryptoPrecision: '0',
+    sellAmountCryptoPrecision: "0",
     isInputtingFiatSellAmount: false,
     manualReceiveAddress: undefined,
     isManualReceiveAddressValidating: false,
@@ -302,47 +306,47 @@ export const mockStore: ReduxState = {
     isManualReceiveAddressValid: undefined,
     slippagePreferencePercentage: undefined,
     sellAssetUtxoChangeAddress: undefined,
-    selectedBuyAssetChainId: 'All',
-    selectedSellAssetChainId: 'All',
+    selectedBuyAssetChainId: "All",
+    selectedSellAssetChainId: "All",
   },
   limitOrderInput: {
     buyAsset: defaultAsset,
     sellAsset: defaultAsset,
     sellAccountId: undefined,
     buyAccountId: undefined,
-    sellAmountCryptoPrecision: '0',
+    sellAmountCryptoPrecision: "0",
     isInputtingFiatSellAmount: false,
     manualReceiveAddress: undefined,
     isManualReceiveAddressValidating: false,
     isManualReceiveAddressEditing: false,
     isManualReceiveAddressValid: undefined,
     limitPrice: {
-      [PriceDirection.BuyAssetDenomination]: '0',
-      [PriceDirection.SellAssetDenomination]: '0',
+      [PriceDirection.BuyAssetDenomination]: "0",
+      [PriceDirection.SellAssetDenomination]: "0",
     },
     limitPriceMode: LimitPriceMode.Market,
     expiry: ExpiryOption.SevenDays,
     limitPriceDirection: PriceDirection.BuyAssetDenomination,
-    selectedBuyAssetChainId: 'All',
-    selectedSellAssetChainId: 'All',
+    selectedBuyAssetChainId: "All",
+    selectedSellAssetChainId: "All",
   },
   tradeRampInput: {
     buyAsset: defaultAsset,
     sellAsset: defaultAsset,
     sellAccountId: undefined,
     buyAccountId: undefined,
-    sellAmountCryptoPrecision: '0',
+    sellAmountCryptoPrecision: "0",
     isInputtingFiatSellAmount: false,
     manualReceiveAddress: undefined,
     isManualReceiveAddressValidating: false,
     isManualReceiveAddressEditing: false,
     isManualReceiveAddressValid: undefined,
-    selectedBuyAssetChainId: 'All',
-    selectedSellAssetChainId: 'All',
+    selectedBuyAssetChainId: "All",
+    selectedSellAssetChainId: "All",
     buyFiatCurrency: fiatCurrencyItemsByCode[FiatCurrencyTypeEnum.USD],
     sellFiatCurrency: fiatCurrencyItemsByCode[FiatCurrencyTypeEnum.USD],
-    buyFiatAmount: '0',
-    sellCryptoAmount: '0',
+    buyFiatAmount: "0",
+    sellCryptoAmount: "0",
     slippagePreferencePercentage: undefined,
     selectedBuyFiatRampQuote: null,
     selectedSellFiatRampQuote: null,
@@ -404,4 +408,4 @@ export const mockStore: ReduxState = {
     },
     byAccountId: {},
   },
-}
+};

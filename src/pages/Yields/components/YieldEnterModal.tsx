@@ -95,23 +95,23 @@ const INPUT_LENGTH_BREAKPOINTS = {
   FOR_MD_FONT: 10,
 } as const
 
-const getFontSizeByLength = (length: number): string => {
+const getInputFontSize = (length: number): string => {
   if (length >= INPUT_LENGTH_BREAKPOINTS.FOR_XS_FONT) return '24px'
   if (length >= INPUT_LENGTH_BREAKPOINTS.FOR_SM_FONT) return '30px'
   if (length >= INPUT_LENGTH_BREAKPOINTS.FOR_MD_FONT) return '38px'
   return '48px'
 }
 
-type BigAmountInputProps = {
+type CryptoAmountInputProps = {
   value?: string
   onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void
   placeholder?: string
   [key: string]: unknown
 }
 
-const BigAmountInput = (props: BigAmountInputProps) => {
+const CryptoAmountInput = (props: CryptoAmountInputProps) => {
   const valueLength = useMemo(() => (props.value ? String(props.value).length : 0), [props.value])
-  const fontSize = useMemo(() => getFontSizeByLength(valueLength), [valueLength])
+  const fontSize = useMemo(() => getInputFontSize(valueLength), [valueLength])
 
   return (
     <Input
@@ -585,6 +585,9 @@ export const YieldEnterModal = memo(
         }))
     }, [quoteData, inputTokenAsset])
 
+    const selectedHoverStyle = useMemo(() => ({ bg: 'blue.600' }), [])
+    const unselectedHoverStyle = useMemo(() => ({ bg: 'background.surface.raised.hover' }), [])
+
     const percentButtons = useMemo(
       () => (
         <HStack spacing={2} justify='center' width='full'>
@@ -597,7 +600,7 @@ export const YieldEnterModal = memo(
                 variant='ghost'
                 bg={isSelected ? 'blue.500' : 'background.surface.raised.base'}
                 color={isSelected ? 'white' : 'text.subtle'}
-                _hover={{ bg: isSelected ? 'blue.600' : 'background.surface.raised.hover' }}
+                _hover={isSelected ? selectedHoverStyle : unselectedHoverStyle}
                 onClick={() => handlePercentClick(percent)}
                 borderRadius='full'
                 px={4}
@@ -609,7 +612,7 @@ export const YieldEnterModal = memo(
           })}
         </HStack>
       ),
-      [selectedPercent, handlePercentClick, translate],
+      [selectedPercent, handlePercentClick, translate, selectedHoverStyle, unselectedHoverStyle],
     )
 
     const statsContent = useMemo(
@@ -712,7 +715,7 @@ export const YieldEnterModal = memo(
         <Flex direction='column' align='center' py={6}>
           {inputTokenAssetId && <AssetIcon assetId={inputTokenAssetId} size='md' mb={4} />}
           <NumericFormat
-            customInput={BigAmountInput}
+            customInput={CryptoAmountInput}
             valueIsNumericString={true}
             decimalScale={isFiat ? 2 : inputTokenAsset?.precision}
             inputMode='decimal'

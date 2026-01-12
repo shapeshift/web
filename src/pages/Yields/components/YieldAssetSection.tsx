@@ -15,8 +15,13 @@ import type { AugmentedYieldDto } from '@/lib/yieldxyz/types'
 import type { YieldBalanceAggregate } from '@/react-queries/queries/yieldxyz/useAllYieldBalances'
 import { useAllYieldBalances } from '@/react-queries/queries/yieldxyz/useAllYieldBalances'
 import { useYields } from '@/react-queries/queries/yieldxyz/useYields'
-import { selectAssetById } from '@/state/slices/selectors'
-import { useAppSelector } from '@/state/store'
+
+const LoadingContent = (
+  <VStack spacing={4} align='stretch'>
+    <YieldItemSkeleton variant='row' />
+    <YieldItemSkeleton variant='row' />
+  </VStack>
+)
 
 type YieldAssetSectionProps = {
   assetId: AssetId
@@ -26,7 +31,6 @@ type YieldAssetSectionProps = {
 export const YieldAssetSection = memo(({ assetId, accountId }: YieldAssetSectionProps) => {
   const translate = useTranslate()
   const isYieldXyzEnabled = useFeatureFlag('YieldXyz')
-  const asset = useAppSelector(state => selectAssetById(state, assetId))
   const { data: yieldsData, isLoading: isYieldsLoading } = useYields()
   const balanceOptions = useMemo(() => (accountId ? { accountIds: [accountId] } : {}), [accountId])
   const { data: allBalancesData, isLoading: isBalancesLoading } =
@@ -37,13 +41,13 @@ export const YieldAssetSection = memo(({ assetId, accountId }: YieldAssetSection
   const [selectedYield, setSelectedYield] = useState<AugmentedYieldDto | null>(null)
 
   const yields = useMemo(() => {
-    if (!yieldsData?.all || !asset) return []
+    if (!yieldsData?.all) return []
     return yieldsData.all.filter(yieldItem => {
       const matchesToken = yieldItem.token.assetId === assetId
       const matchesInput = yieldItem.inputTokens.some(t => t.assetId === assetId)
       return matchesToken || matchesInput
     })
-  }, [yieldsData, asset, assetId])
+  }, [yieldsData, assetId])
 
   const aggregated = useMemo(() => {
     const multiAccountEnabled = getConfig().VITE_FEATURE_YIELD_MULTI_ACCOUNT
@@ -90,28 +94,6 @@ export const YieldAssetSection = memo(({ assetId, accountId }: YieldAssetSection
     setSelectedYield(null)
   }, [])
 
-  const yieldHeading = translate('yieldXYZ.yield') ?? 'Yield'
-
-  const loadingContent = useMemo(
-    () => (
-      <VStack spacing={4} align='stretch'>
-        <YieldItemSkeleton variant='row' />
-        <YieldItemSkeleton variant='row' />
-      </VStack>
-    ),
-    [],
-  )
-
-  const activePositionsContent = useMemo(
-    () => <YieldActivePositions aggregated={aggregated} yields={yields} assetId={assetId} />,
-    [aggregated, yields, assetId],
-  )
-
-  const opportunityCardContent = useMemo(() => {
-    if (!bestYield) return null
-    return <YieldOpportunityCard maxApyYield={bestYield} onClick={handleOpportunityClick} />
-  }, [bestYield, handleOpportunityClick])
-
   if (!isYieldXyzEnabled) return null
   if (!isLoading && yields.length === 0) return null
 
@@ -119,13 +101,17 @@ export const YieldAssetSection = memo(({ assetId, accountId }: YieldAssetSection
     <>
       <Card variant='dashboard'>
         <CardHeader>
-          <Heading as='h5'>{yieldHeading}</Heading>
+          <Heading as='h5'>{translate('yieldXYZ.yield')}</Heading>
         </CardHeader>
         <CardBody pt={0}>
           <Stack spacing={4}>
-            {hasActivePositions && activePositionsContent}
-            {isLoading && loadingContent}
-            {!isLoading && !hasActivePositions && opportunityCardContent}
+            {hasActivePositions && (
+              <YieldActivePositions aggregated={aggregated} yields={yields} assetId={assetId} />
+            )}
+            {isLoading && LoadingContent}
+            {!isLoading && !hasActivePositions && bestYield && (
+              <YieldOpportunityCard maxApyYield={bestYield} onClick={handleOpportunityClick} />
+            )}
           </Stack>
         </CardBody>
       </Card>

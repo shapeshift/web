@@ -270,7 +270,7 @@ export const YieldEnterExit = memo(
     const uniqueValidatorCount = balances ? balances.validatorAddresses.length : 0
     const shouldShowValidatorPicker = uniqueValidatorCount > 1
 
-    const enterTabSelectedStyle = useMemo(
+    const tabSelectedSx = useMemo(
       () => ({
         color: 'blue.400',
         borderBottomColor: 'transparent',
@@ -281,8 +281,8 @@ export const YieldEnterExit = memo(
       [],
     )
 
-    const tabFocusStyle = useMemo(() => ({ boxShadow: 'none' }), [])
-    const buttonHoverStyle = useMemo(() => ({ transform: 'translateY(-1px)', boxShadow: 'lg' }), [])
+    const tabFocusSx = useMemo(() => ({ boxShadow: 'none' }), [])
+    const buttonHoverSx = useMemo(() => ({ transform: 'translateY(-1px)', boxShadow: 'lg' }), [])
 
     const enterButtonDisabled = useMemo(
       () =>
@@ -555,8 +555,8 @@ export const YieldEnterExit = memo(
           >
             <TabList mb='0' borderBottom='1px solid' borderColor='border.base'>
               <Tab
-                _selected={enterTabSelectedStyle}
-                _focus={tabFocusStyle}
+                _selected={tabSelectedSx}
+                _focus={tabFocusSx}
                 fontWeight='bold'
                 py={4}
                 borderBottomWidth='1px'
@@ -568,8 +568,8 @@ export const YieldEnterExit = memo(
                 {translate('yieldXYZ.enter')}
               </Tab>
               <Tab
-                _selected={enterTabSelectedStyle}
-                _focus={tabFocusStyle}
+                _selected={tabSelectedSx}
+                _focus={tabFocusSx}
                 fontWeight='bold'
                 py={4}
                 borderBottomWidth='1px'
@@ -611,7 +611,7 @@ export const YieldEnterExit = memo(
                     fontSize='lg'
                     isDisabled={enterButtonDisabled}
                     onClick={handleEnterButtonClick}
-                    _hover={buttonHoverStyle}
+                    _hover={buttonHoverSx}
                   >
                     {enterButtonText}
                   </Button>
@@ -628,7 +628,7 @@ export const YieldEnterExit = memo(
                     fontSize='lg'
                     isDisabled={exitButtonDisabled}
                     onClick={handleExitButtonClick}
-                    _hover={buttonHoverStyle}
+                    _hover={buttonHoverSx}
                   >
                     {exitButtonText}
                   </Button>

@@ -11,6 +11,7 @@ import {
   HStack,
   Skeleton,
   Text,
+  useColorModeValue,
   useDisclosure,
   VStack,
 } from '@chakra-ui/react'
@@ -166,6 +167,20 @@ const ValidatorCard: FC<ValidatorCardProps> = memo(
   ({ validatorSummary, isSelected, userCurrencyToUsdRate, onValidatorSwitch, onClaimClick }) => {
     const translate = useTranslate()
 
+    const enteringBg = useColorModeValue('blue.50', 'blue.900')
+    const enteringTextColor = useColorModeValue('blue.700', 'blue.300')
+    const enteringDateColor = useColorModeValue('blue.600', 'blue.400')
+    const enteringValueColor = useColorModeValue('blue.800', 'blue.200')
+
+    const exitingBg = useColorModeValue('orange.50', 'orange.900')
+    const exitingTextColor = useColorModeValue('orange.700', 'orange.300')
+    const exitingDateColor = useColorModeValue('orange.600', 'orange.400')
+    const exitingValueColor = useColorModeValue('orange.800', 'orange.200')
+
+    const claimableBg = useColorModeValue('purple.50', 'purple.900')
+    const claimableTextColor = useColorModeValue('purple.700', 'purple.300')
+    const claimableValueColor = useColorModeValue('purple.800', 'purple.200')
+
     const {
       validator,
       byType,
@@ -238,29 +253,29 @@ const ValidatorCard: FC<ValidatorCardProps> = memo(
             balance={enteringBalance}
             hasBalance={hasEntering}
             label='yieldXYZ.entering'
-            bg='blue.900'
-            textColor='blue.300'
-            dateColor='blue.400'
-            valueColor='blue.200'
+            bg={enteringBg}
+            textColor={enteringTextColor}
+            dateColor={enteringDateColor}
+            valueColor={enteringValueColor}
             showDate
           />
           <BalanceRow
             balance={exitingBalance}
             hasBalance={hasExiting}
             label='yieldXYZ.exiting'
-            bg='orange.900'
-            textColor='orange.300'
-            dateColor='orange.400'
-            valueColor='orange.200'
+            bg={exitingBg}
+            textColor={exitingTextColor}
+            dateColor={exitingDateColor}
+            valueColor={exitingValueColor}
             showDate
           />
           <BalanceRow
             balance={claimableBalance}
             hasBalance={hasClaimable}
             label='yieldXYZ.claimable'
-            bg='purple.900'
-            textColor='purple.300'
-            valueColor='purple.200'
+            bg={claimableBg}
+            textColor={claimableTextColor}
+            valueColor={claimableValueColor}
             claimButton={claimButton}
           />
         </VStack>

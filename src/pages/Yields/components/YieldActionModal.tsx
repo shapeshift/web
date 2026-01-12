@@ -615,6 +615,21 @@ export const YieldActionModal = memo(function YieldActionModal({
             {successMessage}
           </Text>
         </Box>
+        {vaultMetadata && (
+          <Flex
+            align='center'
+            gap={2}
+            bg='background.surface.raised.base'
+            px={4}
+            py={2}
+            borderRadius='full'
+          >
+            <Avatar size='sm' src={vaultMetadata.logoURI} name={vaultMetadata.name} />
+            <Text fontSize='sm' fontWeight='medium'>
+              {vaultMetadata.name}
+            </Text>
+          </Flex>
+        )}
         <Box width='full'>
           <VStack spacing={2} align='stretch' mt={4}>
             <Text fontSize='sm' color='text.subtle' textAlign='left' px={1}>
@@ -667,7 +682,7 @@ export const YieldActionModal = memo(function YieldActionModal({
         </Button>
       </VStack>
     ),
-    [translate, successMessage, transactionSteps, handleClose],
+    [translate, successMessage, vaultMetadata, transactionSteps, handleClose],
   )
 
   const isNotSuccess = useMemo(() => step !== ModalStep.Success, [step])

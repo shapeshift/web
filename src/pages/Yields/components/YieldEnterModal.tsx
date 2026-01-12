@@ -869,6 +869,22 @@ export const YieldEnterModal = memo(
       if (modalStep === 'success') fireConfetti()
     }, [modalStep, fireConfetti])
 
+    const successProviderInfo = useMemo(() => {
+      if (isStaking && selectedValidatorMetadata) {
+        return {
+          name: selectedValidatorMetadata.name,
+          logoURI: selectedValidatorMetadata.logoURI,
+        }
+      }
+      if (providerMetadata) {
+        return {
+          name: providerMetadata.name,
+          logoURI: providerMetadata.logoURI,
+        }
+      }
+      return null
+    }, [isStaking, selectedValidatorMetadata, providerMetadata])
+
     const successContent = useMemo(
       () => (
         <VStack spacing={6} py={4} textAlign='center' align='center'>
@@ -897,12 +913,27 @@ export const YieldEnterModal = memo(
               })}
             </Text>
           </Box>
+          {successProviderInfo && (
+            <Flex
+              align='center'
+              gap={2}
+              bg='background.surface.raised.base'
+              px={4}
+              py={2}
+              borderRadius='full'
+            >
+              <Avatar size='sm' src={successProviderInfo.logoURI} name={successProviderInfo.name} />
+              <Text fontSize='sm' fontWeight='medium'>
+                {successProviderInfo.name}
+              </Text>
+            </Flex>
+          )}
           <Box width='full'>
             <TransactionStepsList steps={transactionSteps} />
           </Box>
         </VStack>
       ),
-      [translate, cryptoAmount, inputTokenAsset?.symbol, transactionSteps],
+      [translate, cryptoAmount, inputTokenAsset?.symbol, successProviderInfo, transactionSteps],
     )
 
     return (

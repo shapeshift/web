@@ -62,15 +62,6 @@ const YieldEnterExitSkeleton = memo(() => (
 
 const moneyBillWaveIcon = <Icon as={FaMoneyBillWave} color='text.subtle' boxSize={3} />
 const chevronDownIcon = <Icon as={ChevronDownIcon} color='text.subtle' />
-
-const tabSelectedSx = {
-  color: 'blue.400',
-  borderBottomColor: 'transparent',
-  borderTopColor: 'blue.400',
-  borderTopWidth: '3px',
-  marginTop: '-1px',
-}
-const tabFocusSx = { boxShadow: 'none' }
 const buttonHoverSx = { transform: 'translateY(-1px)', boxShadow: 'lg' }
 
 export const YieldEnterExit = memo(
@@ -323,8 +314,6 @@ export const YieldEnterExit = memo(
 
     const enterTabDisabled = !yieldItem.status.enter
     const exitTabDisabled = !yieldItem.status.exit
-    const enterTabOpacity = enterTabDisabled ? 0.5 : 1
-    const exitTabOpacity = exitTabDisabled ? 0.5 : 1
 
     const isPreferredValidator = useMemo(
       () => (validatorMetadata as ValidatorDto | undefined)?.preferred === true,
@@ -529,43 +518,43 @@ export const YieldEnterExit = memo(
         <Card variant='dashboard'>
           <CardBody p={0} overflow='hidden'>
             {validatorPickerContent}
-            <Tabs
-              index={tabIndex}
-              onChange={setTabIndex}
-              isFitted
-              variant='enclosed'
-              borderBottomWidth={0}
-            >
-              <TabList mb='0' borderBottom='1px solid' borderColor='border.base'>
+            <Tabs index={tabIndex} onChange={setTabIndex} isFitted variant='unstyled'>
+              <TabList bg='background.surface.base' p={1} mx={6} mt={6} mb={4} borderRadius='xl'>
                 <Tab
-                  _selected={tabSelectedSx}
-                  _focus={tabFocusSx}
+                  _selected={{
+                    bg: 'background.surface.raised.pressed',
+                    color: 'text.base',
+                    shadow: 'sm',
+                  }}
+                  color='text.subtle'
                   fontWeight='bold'
-                  py={4}
-                  borderBottomWidth='1px'
-                  borderTopWidth='3px'
-                  borderTopColor='transparent'
+                  borderRadius='lg'
+                  py={3}
+                  transition='all 0.2s'
                   isDisabled={enterTabDisabled}
-                  opacity={enterTabOpacity}
+                  _disabled={{ opacity: 0.4, cursor: 'not-allowed' }}
                 >
                   {translate('yieldXYZ.enter')}
                 </Tab>
                 <Tab
-                  _selected={tabSelectedSx}
-                  _focus={tabFocusSx}
+                  _selected={{
+                    bg: 'background.surface.raised.pressed',
+                    color: 'text.base',
+                    shadow: 'sm',
+                  }}
+                  color='text.subtle'
                   fontWeight='bold'
-                  py={4}
-                  borderBottomWidth='1px'
-                  borderTopWidth='3px'
-                  borderTopColor='transparent'
+                  borderRadius='lg'
+                  py={3}
+                  transition='all 0.2s'
                   isDisabled={exitTabDisabled}
-                  opacity={exitTabOpacity}
+                  _disabled={{ opacity: 0.4, cursor: 'not-allowed' }}
                 >
                   {translate('yieldXYZ.exit')}
                 </Tab>
               </TabList>
               <TabPanels>
-                <TabPanel p={8}>
+                <TabPanel px={6} pb={6} pt={2}>
                   <Flex direction='column' gap={2}>
                     {enterTabPanelContent}
                     {minDepositContent}
@@ -604,7 +593,7 @@ export const YieldEnterExit = memo(
                     </Button>
                   </Flex>
                 </TabPanel>
-                <TabPanel p={8}>
+                <TabPanel px={6} pb={6} pt={2}>
                   <Flex direction='column' gap={2}>
                     {exitTabPanelContent}
                     <Button

@@ -37,7 +37,7 @@
 }
 
 .ssw-address-input-wrapper.ssw-invalid {
-  border-color: #ef4444;
+  border-color: var(--ssw-error);
 }
 
 .ssw-address-input {
@@ -77,7 +77,7 @@
   align-items: center;
   gap: 6px;
   font-size: 13px;
-  color: #ef4444;
+  color: var(--ssw-error);
 }
 
 .ssw-use-wallet-btn {

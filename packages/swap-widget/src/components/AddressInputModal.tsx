@@ -1,30 +1,33 @@
-import './AddressInputModal.css'
+import "./AddressInputModal.css";
 
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
-import type { ChainId } from '../types'
-import { getAddressFormatHint, validateAddress } from '../utils/addressValidation'
+import type { ChainId } from "../types";
+import {
+  getAddressFormatHint,
+  validateAddress,
+} from "../utils/addressValidation";
 
 const useLockBodyScroll = (isLocked: boolean) => {
   useEffect(() => {
-    if (!isLocked) return
-    const originalOverflow = document.body.style.overflow
-    document.body.style.overflow = 'hidden'
+    if (!isLocked) return;
+    const originalOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
     return () => {
-      document.body.style.overflow = originalOverflow
-    }
-  }, [isLocked])
-}
+      document.body.style.overflow = originalOverflow;
+    };
+  }, [isLocked]);
+};
 
 type AddressInputModalProps = {
-  isOpen: boolean
-  onClose: () => void
-  chainId: ChainId
-  chainName: string
-  currentAddress: string
-  onAddressChange: (address: string) => void
-  walletAddress?: string
-}
+  isOpen: boolean;
+  onClose: () => void;
+  chainId: ChainId;
+  chainName: string;
+  currentAddress: string;
+  onAddressChange: (address: string) => void;
+  walletAddress?: string;
+};
 
 export const AddressInputModal = ({
   isOpen,
@@ -35,188 +38,204 @@ export const AddressInputModal = ({
   onAddressChange,
   walletAddress,
 }: AddressInputModalProps) => {
-  useLockBodyScroll(isOpen)
-  const [inputValue, setInputValue] = useState(currentAddress)
-  const [hasInteracted, setHasInteracted] = useState(false)
+  useLockBodyScroll(isOpen);
+  const [inputValue, setInputValue] = useState(currentAddress);
+  const [hasInteracted, setHasInteracted] = useState(false);
+  const backdropRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (isOpen) {
-      setInputValue(currentAddress)
-      setHasInteracted(false)
+      setInputValue(currentAddress);
+      setHasInteracted(false);
+      backdropRef.current?.focus();
     }
-  }, [isOpen, currentAddress])
+  }, [isOpen, currentAddress]);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [isOpen, onClose]);
 
   const validation = useMemo(() => {
     if (!inputValue || !hasInteracted) {
-      return { valid: true, error: undefined }
+      return { valid: true, error: undefined };
     }
-    return validateAddress(inputValue, chainId)
-  }, [inputValue, chainId, hasInteracted])
+    return validateAddress(inputValue, chainId);
+  }, [inputValue, chainId, hasInteracted]);
 
-  const formatHint = useMemo(() => getAddressFormatHint(chainId), [chainId])
+  const formatHint = useMemo(() => getAddressFormatHint(chainId), [chainId]);
 
   const handleInputChange = useCallback((value: string) => {
-    setInputValue(value)
-    setHasInteracted(true)
-  }, [])
+    setInputValue(value);
+    setHasInteracted(true);
+  }, []);
 
   const handleUseWalletAddress = useCallback(() => {
     if (walletAddress) {
-      setInputValue(walletAddress)
-      setHasInteracted(true)
+      setInputValue(walletAddress);
+      setHasInteracted(true);
     }
-  }, [walletAddress])
+  }, [walletAddress]);
 
   const handleConfirm = useCallback(() => {
-    const result = validateAddress(inputValue, chainId)
+    const result = validateAddress(inputValue, chainId);
     if (result.valid) {
-      onAddressChange(inputValue)
-      onClose()
+      onAddressChange(inputValue);
+      onClose();
     }
-  }, [inputValue, chainId, onAddressChange, onClose])
+  }, [inputValue, chainId, onAddressChange, onClose]);
 
   const handleClear = useCallback(() => {
-    setInputValue('')
-    setHasInteracted(false)
-    onAddressChange('')
-    onClose()
-  }, [onAddressChange, onClose])
+    setInputValue("");
+    setHasInteracted(false);
+    onAddressChange("");
+    onClose();
+  }, [onAddressChange, onClose]);
 
   const handleBackdropClick = useCallback(
     (e: React.MouseEvent) => {
       if (e.target === e.currentTarget) {
-        onClose()
+        onClose();
       }
     },
     [onClose],
-  )
+  );
 
   const isConfirmDisabled = useMemo(() => {
-    if (!inputValue) return true
-    return !validateAddress(inputValue, chainId).valid
-  }, [inputValue, chainId])
+    if (!inputValue) return true;
+    return !validateAddress(inputValue, chainId).valid;
+  }, [inputValue, chainId]);
 
-  if (!isOpen) return null
+  if (!isOpen) return null;
 
   return (
     // eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions
     <div
-      className='ssw-modal-backdrop'
+      ref={backdropRef}
+      className="ssw-modal-backdrop"
       onClick={handleBackdropClick}
-      onKeyDown={e => e.key === 'Escape' && onClose()}
-      role='dialog'
-      aria-modal='true'
-      aria-labelledby='address-modal-title'
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="address-modal-title"
+      tabIndex={-1}
     >
-      <div className='ssw-address-modal'>
-        <div className='ssw-modal-header'>
-          <h2 id='address-modal-title' className='ssw-modal-title'>
+      <div className="ssw-address-modal">
+        <div className="ssw-modal-header">
+          <h2 id="address-modal-title" className="ssw-modal-title">
             Receive Address
           </h2>
-          <button className='ssw-modal-close' onClick={onClose} type='button'>
+          <button className="ssw-modal-close" onClick={onClose} type="button">
             <svg
-              width='20'
-              height='20'
-              viewBox='0 0 24 24'
-              fill='none'
-              stroke='currentColor'
-              strokeWidth='2'
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
             >
-              <path d='M18 6L6 18M6 6l12 12' />
+              <path d="M18 6L6 18M6 6l12 12" />
             </svg>
           </button>
         </div>
 
-        <div className='ssw-address-content'>
-          <div className='ssw-address-label'>
+        <div className="ssw-address-content">
+          <div className="ssw-address-label">
             <span>Enter {chainName} address</span>
           </div>
 
           <div
             className={`ssw-address-input-wrapper ${
-              !validation.valid && hasInteracted ? 'ssw-invalid' : ''
+              !validation.valid && hasInteracted ? "ssw-invalid" : ""
             }`}
           >
             <input
-              type='text'
-              className='ssw-address-input'
+              type="text"
+              className="ssw-address-input"
               placeholder={formatHint}
               value={inputValue}
-              onChange={e => handleInputChange(e.target.value)}
+              onChange={(e) => handleInputChange(e.target.value)}
               autoFocus
               spellCheck={false}
-              autoComplete='off'
+              autoComplete="off"
             />
             {inputValue && (
               <button
-                className='ssw-address-clear-btn'
+                className="ssw-address-clear-btn"
                 onClick={() => {
-                  setInputValue('')
-                  setHasInteracted(false)
+                  setInputValue("");
+                  setHasInteracted(false);
                 }}
-                type='button'
+                type="button"
               >
                 <svg
-                  width='16'
-                  height='16'
-                  viewBox='0 0 24 24'
-                  fill='none'
-                  stroke='currentColor'
-                  strokeWidth='2'
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
                 >
-                  <path d='M18 6L6 18M6 6l12 12' />
+                  <path d="M18 6L6 18M6 6l12 12" />
                 </svg>
               </button>
             )}
           </div>
 
           {!validation.valid && hasInteracted && validation.error && (
-            <div className='ssw-address-error'>
+            <div className="ssw-address-error">
               <svg
-                width='14'
-                height='14'
-                viewBox='0 0 24 24'
-                fill='none'
-                stroke='currentColor'
-                strokeWidth='2'
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
               >
-                <circle cx='12' cy='12' r='10' />
-                <path d='M12 8v4M12 16h.01' />
+                <circle cx="12" cy="12" r="10" />
+                <path d="M12 8v4M12 16h.01" />
               </svg>
               <span>{validation.error}</span>
             </div>
           )}
 
           {walletAddress && (
-            <button className='ssw-use-wallet-btn' onClick={handleUseWalletAddress} type='button'>
+            <button
+              className="ssw-use-wallet-btn"
+              onClick={handleUseWalletAddress}
+              type="button"
+            >
               <svg
-                width='16'
-                height='16'
-                viewBox='0 0 24 24'
-                fill='none'
-                stroke='currentColor'
-                strokeWidth='2'
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
               >
-                <path d='M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1' />
-                <path d='M3 5v14a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-4' />
+                <path d="M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1" />
+                <path d="M3 5v14a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-4" />
               </svg>
               <span>Use connected wallet</span>
             </button>
           )}
 
-          <div className='ssw-address-actions'>
+          <div className="ssw-address-actions">
             <button
-              className='ssw-address-btn ssw-address-btn-secondary'
+              className="ssw-address-btn ssw-address-btn-secondary"
               onClick={handleClear}
-              type='button'
+              type="button"
             >
               Reset to Wallet
             </button>
             <button
-              className='ssw-address-btn ssw-address-btn-primary'
+              className="ssw-address-btn ssw-address-btn-primary"
               onClick={handleConfirm}
               disabled={isConfirmDisabled}
-              type='button'
+              type="button"
             >
               Confirm
             </button>
@@ -224,5 +243,5 @@ export const AddressInputModal = ({
         </div>
       </div>
     </div>
-  )
-}
+  );
+};

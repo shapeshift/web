@@ -1,20 +1,23 @@
-import { useQuery } from '@tanstack/react-query'
+import { useQuery } from "@tanstack/react-query";
 
-import type { ApiClient } from '../api/client'
-import type { AssetId, QuoteResponse, SwapperName } from '../types'
+import type { ApiClient } from "../api/client";
+import type { AssetId, QuoteResponse, SwapperName } from "../types";
 
 export type UseSwapQuoteParams = {
-  sellAssetId: AssetId | undefined
-  buyAssetId: AssetId | undefined
-  sellAmountCryptoBaseUnit: string | undefined
-  sendAddress: string | undefined
-  receiveAddress: string | undefined
-  swapperName: SwapperName | undefined
-  slippageTolerancePercentageDecimal?: string
-  enabled?: boolean
-}
+  sellAssetId: AssetId | undefined;
+  buyAssetId: AssetId | undefined;
+  sellAmountCryptoBaseUnit: string | undefined;
+  sendAddress: string | undefined;
+  receiveAddress: string | undefined;
+  swapperName: SwapperName | undefined;
+  slippageTolerancePercentageDecimal?: string;
+  enabled?: boolean;
+};
 
-export const useSwapQuote = (apiClient: ApiClient, params: UseSwapQuoteParams) => {
+export const useSwapQuote = (
+  apiClient: ApiClient,
+  params: UseSwapQuoteParams,
+) => {
   const {
     sellAssetId,
     buyAssetId,
@@ -24,17 +27,18 @@ export const useSwapQuote = (apiClient: ApiClient, params: UseSwapQuoteParams) =
     swapperName,
     slippageTolerancePercentageDecimal,
     enabled = true,
-  } = params
+  } = params;
 
   return useQuery({
     queryKey: [
-      'swapQuote',
+      "swapQuote",
       sellAssetId,
       buyAssetId,
       sellAmountCryptoBaseUnit,
       sendAddress,
       receiveAddress,
       swapperName,
+      slippageTolerancePercentageDecimal,
     ],
     queryFn: (): Promise<QuoteResponse | null> => {
       if (
@@ -45,7 +49,7 @@ export const useSwapQuote = (apiClient: ApiClient, params: UseSwapQuoteParams) =
         !receiveAddress ||
         !swapperName
       ) {
-        return Promise.resolve(null)
+        return Promise.resolve(null);
       }
       return apiClient.getQuote({
         sellAssetId,
@@ -55,7 +59,7 @@ export const useSwapQuote = (apiClient: ApiClient, params: UseSwapQuoteParams) =
         receiveAddress,
         swapperName,
         slippageTolerancePercentageDecimal,
-      })
+      });
     },
     enabled:
       enabled &&
@@ -66,5 +70,5 @@ export const useSwapQuote = (apiClient: ApiClient, params: UseSwapQuoteParams) =
       !!receiveAddress &&
       !!swapperName,
     staleTime: 30_000,
-  })
-}
+  });
+};

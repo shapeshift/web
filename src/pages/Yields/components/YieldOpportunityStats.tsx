@@ -34,6 +34,7 @@ type YieldOpportunityStatsProps = {
   isMyOpportunities?: boolean
   onToggleMyOpportunities?: () => void
   isConnected: boolean
+  isMobile?: boolean
 }
 
 export const YieldOpportunityStats = memo(function YieldOpportunityStats({
@@ -43,6 +44,7 @@ export const YieldOpportunityStats = memo(function YieldOpportunityStats({
   isMyOpportunities,
   onToggleMyOpportunities,
   isConnected,
+  isMobile,
 }: YieldOpportunityStatsProps) {
   const translate = useTranslate()
   const userCurrencyToUsdRate = useAppSelector(selectUserCurrencyToUsdRate)
@@ -190,6 +192,8 @@ export const YieldOpportunityStats = memo(function YieldOpportunityStats({
       </Button>
     )
   }, [onToggleMyOpportunities, buttonBg, buttonHoverBg, buttonText])
+
+  if (isMobile) return null
 
   return (
     <SimpleGrid columns={{ base: 1, md: 3 }} spacing={4} mb={8}>

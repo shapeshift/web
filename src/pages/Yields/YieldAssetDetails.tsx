@@ -10,6 +10,7 @@ import {
   SimpleGrid,
   Stat,
   Text,
+  useMediaQuery,
 } from '@chakra-ui/react'
 import type { ColumnDef, Row } from '@tanstack/react-table'
 import { getCoreRowModel, getSortedRowModel, useReactTable } from '@tanstack/react-table'
@@ -41,6 +42,7 @@ export const YieldAssetDetails = memo(() => {
   const decodedSymbol = useMemo(() => decodeURIComponent(assetSymbol || ''), [assetSymbol])
   const navigate = useNavigate()
   const translate = useTranslate()
+  const [isMobile] = useMediaQuery('(max-width: 768px)')
   const [searchParams, setSearchParams] = useSearchParams()
 
   const viewParam = useMemo(() => searchParams.get('view'), [searchParams])
@@ -339,9 +341,7 @@ export const YieldAssetDetails = memo(() => {
           <Heading size='lg'>
             {translate('yieldXYZ.assetYields', { asset: assetInfo.assetName })}
           </Heading>
-          <Text color='text.subtle'>
-            {translate('yieldXYZ.opportunitiesAvailable', { count: assetYields.length })}
-          </Text>
+
         </Box>
       </Flex>
     )
@@ -349,9 +349,9 @@ export const YieldAssetDetails = memo(() => {
 
   const loadingGridElement = useMemo(
     () => (
-      <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={6}>
+      <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={{ base: 2, md: 6 }}>
         {Array.from({ length: 6 }).map((_, i) => (
-          <YieldItemSkeleton key={i} variant='card' />
+          <YieldItemSkeleton key={i} variant={isMobile ? 'mobile' : 'card'} />
         ))}
       </SimpleGrid>
     ),
@@ -371,7 +371,7 @@ export const YieldAssetDetails = memo(() => {
 
   const gridViewElement = useMemo(
     () => (
-      <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={6}>
+      <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={{ base: 2, md: 6 }}>
         {sortedRows.map(row => (
           <YieldItem
             key={row.original.id}
@@ -380,14 +380,14 @@ export const YieldAssetDetails = memo(() => {
               yieldItem: row.original,
               providerIcon: getProviderLogo(row.original.providerId),
             }}
-            variant='card'
+            variant={isMobile ? 'mobile' : 'card'}
             onEnter={() => handleYieldClick(row.original.id)}
             userBalanceUsd={
               allBalances?.[row.original.id]
                 ? allBalances[row.original.id].reduce(
-                    (sum, b) => sum.plus(bnOrZero(b.amountUsd)),
-                    bnOrZero(0),
-                  )
+                  (sum, b) => sum.plus(bnOrZero(b.amountUsd)),
+                  bnOrZero(0),
+                )
                 : undefined
             }
           />
@@ -408,11 +408,14 @@ export const YieldAssetDetails = memo(() => {
     [handleRowClick, sortedRows, table],
   )
 
+  // Force grid view (which renders mobile cards) on mobile
+  const effectiveViewMode = isMobile ? 'grid' : viewMode
+
   const contentElement = useMemo(() => {
-    if (isLoading) return viewMode === 'grid' ? loadingGridElement : loadingListElement
+    if (isLoading) return effectiveViewMode === 'grid' ? loadingGridElement : loadingListElement
     if (filteredYields.length === 0)
       return <Text>{translate('yieldXYZ.noYieldsMatchingFilters')}</Text>
-    return viewMode === 'grid' ? gridViewElement : listViewElement
+    return effectiveViewMode === 'grid' ? gridViewElement : listViewElement
   }, [
     filteredYields.length,
     gridViewElement,
@@ -421,11 +424,11 @@ export const YieldAssetDetails = memo(() => {
     loadingGridElement,
     loadingListElement,
     translate,
-    viewMode,
+    effectiveViewMode,
   ])
 
   return (
-    <Container maxW='1200px' py={8} px={{ base: 4, md: 6 }}>
+    <Container maxW='1200px' py={{ base: 4, md: 8 }} px={{ base: 4, md: 6 }}>
       <Button
         leftIcon={<ArrowBackIcon />}
         variant='ghost'
@@ -442,6 +445,7 @@ export const YieldAssetDetails = memo(() => {
         gap={4}
         direction={{ base: 'column', md: 'row' }}
         width='full'
+        display={isMobile ? 'none' : 'flex'}
       >
         <YieldFilters
           networks={networks}

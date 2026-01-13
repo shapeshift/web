@@ -6,6 +6,7 @@ import {
   CardBody,
   Flex,
   HStack,
+  SimpleGrid,
   Skeleton,
   SkeletonCircle,
   Stat,
@@ -20,10 +21,11 @@ import { useNavigate } from 'react-router-dom'
 
 import { Amount } from '@/components/Amount/Amount'
 import { AssetIcon } from '@/components/AssetIcon'
-import { ChainIcon } from '@/components/ChainMenu'
+
 import { bnOrZero } from '@/lib/bignumber/bignumber'
-import type { AugmentedYieldDto } from '@/lib/yieldxyz/types'
+import { AugmentedYieldDto } from '@/lib/yieldxyz/types'
 import { resolveYieldInputAssetIcon } from '@/lib/yieldxyz/utils'
+import { GradientApy } from '@/pages/Yields/components/GradientApy'
 import { useYieldProviders } from '@/react-queries/queries/yieldxyz/useYieldProviders'
 import { selectUserCurrencyToUsdRate } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
@@ -45,14 +47,15 @@ type GroupYieldData = {
 
 type YieldItemProps = {
   data: SingleYieldData | GroupYieldData
-  variant: 'card' | 'row'
+  variant: 'card' | 'row' | 'mobile'
   userBalanceUsd?: BigNumber
   onEnter?: (yieldItem: AugmentedYieldDto) => void
   searchString?: string
+  titleOverride?: string
 }
 
 export const YieldItem = memo(
-  ({ data, variant, userBalanceUsd, onEnter, searchString }: YieldItemProps) => {
+  ({ data, variant, userBalanceUsd, onEnter, searchString, titleOverride }: YieldItemProps) => {
     const navigate = useNavigate()
     const translate = useTranslate()
     const userCurrencyToUsdRate = useAppSelector(selectUserCurrencyToUsdRate)
@@ -142,15 +145,87 @@ export const YieldItem = memo(
       if (isSingle) {
         return data.yieldItem.providerId
       }
-      return `${stats.count} ${
-        stats.count === 1 ? translate('yieldXYZ.market') : translate('yieldXYZ.markets')
-      }`
+      return `${stats.count} ${stats.count === 1 ? translate('yieldXYZ.market') : translate('yieldXYZ.markets')
+        }`
     }, [data, isSingle, stats.count, translate])
 
     const title = useMemo(() => {
+      if (titleOverride) return titleOverride
       if (isSingle) return data.yieldItem.metadata.name
       return data.assetSymbol
-    }, [data, isSingle])
+    }, [data, isSingle, titleOverride])
+
+    if (variant === 'mobile') {
+      return (
+        <Card
+          variant='dashboard'
+          cursor='pointer'
+          onClick={handleClick}
+
+          borderWidth='1px'
+          borderColor='border.base'
+          boxShadow='none'
+          _hover={{ bg: 'background.surface.raised.base' }}
+        >
+          <CardBody p={2}>
+            <Flex alignItems='center' gap={2} mb={2}>
+              {iconElement}
+              <Text fontWeight='bold' fontSize='md' lineHeight='1.2'>
+                {title}
+              </Text>
+            </Flex>
+
+            <SimpleGrid columns={3} spacing={2}>
+              <Box>
+                <Text
+                  fontSize='xs'
+                  color='text.subtle'
+                  fontWeight='bold'
+                  noOfLines={1}
+                  mb={0}
+                  textTransform='uppercase'
+                >
+                  {translate('yieldXYZ.balance')}
+                </Text>
+                <Text fontWeight='medium'>
+                  <Amount.Fiat value={userBalanceUserCurrency ?? '0'} abbreviated />
+                </Text>
+              </Box>
+              <Box>
+                <Text
+                  fontSize='xs'
+                  color='text.subtle'
+                  fontWeight='bold'
+                  noOfLines={1}
+                  mb={0}
+                  textTransform='uppercase'
+                >
+                  {translate('yieldXYZ.tvl')}
+                </Text>
+                <Text fontWeight='medium'>
+                  <Amount.Fiat value={tvlUserCurrency} abbreviated />
+                </Text>
+              </Box>
+              <Box textAlign='right'>
+                <Text
+                  fontSize='xs'
+                  color='text.subtle'
+                  fontWeight='bold'
+                  noOfLines={1}
+                  mb={0}
+                  textTransform='uppercase'
+                >
+                  {isGroup ? translate('yieldXYZ.maxApy') : translate('yieldXYZ.apy')}
+                </Text>
+                <GradientApy itemProp='medium' justifyContent='flex-end'>
+                  {apyFormatted}
+                </GradientApy>
+              </Box>
+            </SimpleGrid>
+          </CardBody>
+        </Card>
+      )
+    }
 
     if (variant === 'row') {
       return (
@@ -279,8 +354,8 @@ export const YieldItem = memo(
                   : `${translate('yieldXYZ.apy')} (${stats.apyLabel})`}
               </StatLabel>
               <StatNumber
-                fontSize={isSingle ? '3xl' : 'xl'}
-                fontWeight={isSingle ? '800' : 'bold'}
+                fontSize='xl'
+                fontWeight='bold'
                 bgGradient='linear(to-r, green.300, blue.400)'
                 bgClip='text'
                 lineHeight='1'
@@ -290,9 +365,14 @@ export const YieldItem = memo(
             </Stat>
             <Stat size='sm' textAlign='right'>
               {hasBalance ? (
-                <StatNumber fontSize='lg' fontWeight='bold' color='blue.400'>
-                  <Amount.Fiat value={userBalanceUserCurrency ?? '0'} abbreviated />
-                </StatNumber>
+                <>
+                  <StatLabel fontSize='xs' color='text.subtle'>
+                    {translate('yieldXYZ.balance')}
+                  </StatLabel>
+                  <StatNumber fontSize='lg' fontWeight='bold' color='blue.400'>
+                    <Amount.Fiat value={userBalanceUserCurrency ?? '0'} abbreviated />
+                  </StatNumber>
+                </>
               ) : (
                 <>
                   <StatLabel fontSize='xs' color='text.subtle'>
@@ -306,45 +386,33 @@ export const YieldItem = memo(
             </Stat>
           </HStack>
 
-          {isGroup && (
-            <Box mt={4} pt={4} borderTopWidth='1px' borderColor='border.base'>
-              <Flex justify='space-between' mb={2}>
-                <Box>
-                  <Text fontSize='xs' color='text.subtle' mb={1}>
-                    {stats.providers.length}{' '}
-                    {stats.providers.length === 1
-                      ? translate('yieldXYZ.protocol')
-                      : translate('yieldXYZ.protocols')}
-                  </Text>
-                  <AvatarGroup size='xs' max={5} spacing={-1}>
-                    {stats.providers.map(p => (
-                      <Avatar key={p.id} src={p.logo} name={p.id} />
-                    ))}
-                  </AvatarGroup>
-                </Box>
-                <Box textAlign='right'>
-                  <Text fontSize='xs' color='text.subtle' mb={1}>
-                    {stats.chainIds.length}{' '}
-                    {stats.chainIds.length === 1
-                      ? translate('yieldXYZ.chain')
-                      : translate('yieldXYZ.chains')}
-                  </Text>
-                  <HStack spacing={-1} justify='flex-end'>
-                    {stats.chainIds.slice(0, 5).map(chainId => (
-                      <ChainIcon key={chainId} chainId={chainId} boxSize='20px' />
-                    ))}
-                  </HStack>
-                </Box>
-              </Flex>
-            </Box>
-          )}
+
         </CardBody>
       </Card>
     )
   },
 )
 
-export const YieldItemSkeleton = memo(({ variant }: { variant: 'card' | 'row' }) => {
+export const YieldItemSkeleton = memo(({ variant }: { variant: 'card' | 'row' | 'mobile' }) => {
+  if (variant === 'mobile') {
+    return (
+      <Card variant='dashboard' mb={3} boxShadow='none' borderWidth='1px'>
+        <CardBody p={4}>
+          <Flex alignItems='center' justify='space-between'>
+            <Flex alignItems='center' gap={3}>
+              <SkeletonCircle size='10' />
+              <Box>
+                <Skeleton height='16px' width='80px' mb={1} />
+                <Skeleton height='12px' width='120px' />
+              </Box>
+            </Flex>
+            <Skeleton height='12px' width='12px' />
+          </Flex>
+        </CardBody>
+      </Card>
+    )
+  }
+
   if (variant === 'row') {
     return (
       <Flex

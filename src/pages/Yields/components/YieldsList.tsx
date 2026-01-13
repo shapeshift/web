@@ -2,7 +2,6 @@ import { SearchIcon } from '@chakra-ui/icons'
 import {
   Avatar,
   Box,
-  Button,
   Container,
   Flex,
   Heading,
@@ -84,11 +83,13 @@ export const YieldsList = memo(() => {
   const {
     selectedNetwork,
     selectedProvider,
+    selectedType,
     sortOption,
     sorting: positionsSorting,
     setSorting: setPositionsSorting,
     handleNetworkChange,
     handleProviderChange,
+    handleTypeChange,
     handleSortChange,
   } = useYieldFilters()
 
@@ -164,6 +165,15 @@ export const YieldsList = memo(() => {
     [yields, getProviderLogo],
   )
 
+  const types = useMemo(() => {
+    if (!yields?.all) return []
+    const uniqueTypes = [...new Set(yields.all.map(y => y.mechanics.type))]
+    return uniqueTypes.map(type => ({
+      id: type,
+      name: type.charAt(0).toUpperCase() + type.slice(1).replace(/-/g, ' '),
+    }))
+  }, [yields])
+
   const yieldsByAsset = useMemo(() => {
     if (!yields?.assetGroups) return []
 
@@ -181,6 +191,8 @@ export const YieldsList = memo(() => {
           filteredYields = filteredYields.filter(y => y.network === selectedNetwork)
         if (selectedProvider)
           filteredYields = filteredYields.filter(y => y.providerId === selectedProvider)
+        if (selectedType)
+          filteredYields = filteredYields.filter(y => y.mechanics.type === selectedType)
         if (searchQuery) filteredYields = searchYields(filteredYields, searchQuery)
 
         if (filteredYields.length === 0) return null
@@ -239,6 +251,7 @@ export const YieldsList = memo(() => {
     isMyOpportunities,
     selectedNetwork,
     selectedProvider,
+    selectedType,
     searchQuery,
     allBalances,
     sortOption,
@@ -607,22 +620,9 @@ export const YieldsList = memo(() => {
 
     return (
       <Box mb={6}>
-        <Flex justify='space-between' align='center' mb={4}>
-          <Text fontSize='lg' fontWeight='semibold'>
-            {translate('yieldXYZ.recommendedForYou')}
-          </Text>
-          <Button
-            variant='link'
-            size='sm'
-            color='blue.400'
-            onClick={() => {
-              const gridElement = document.getElementById('yields-grid')
-              gridElement?.scrollIntoView({ behavior: 'smooth' })
-            }}
-          >
-            {translate('yieldXYZ.viewAllOpportunities')}
-          </Button>
-        </Flex>
+        <Text fontSize='lg' fontWeight='semibold' mb={4}>
+          {translate('yieldXYZ.recommendedForYou')}
+        </Text>
         <SimpleGrid columns={{ base: 1, md: 3 }} spacing={4}>
           {recommendedYields.map(rec => (
             <YieldItem
@@ -775,6 +775,7 @@ export const YieldsList = memo(() => {
           isConnected={isConnected}
         />
       )}
+      {recommendedStripElement}
       <Tabs
         variant='soft-rounded'
         colorScheme='blue'
@@ -819,6 +820,9 @@ export const YieldsList = memo(() => {
               providers={providers}
               selectedProvider={selectedProvider}
               onSelectProvider={handleProviderChange}
+              types={types}
+              selectedType={selectedType}
+              onSelectType={handleTypeChange}
               sortOption={sortOption}
               onSortChange={handleSortChange}
               mb={0}
@@ -827,10 +831,7 @@ export const YieldsList = memo(() => {
           </Flex>
         </Flex>
         <TabPanels>
-          <TabPanel px={0}>
-            {recommendedStripElement}
-            <Box id='yields-grid'>{allYieldsContentElement}</Box>
-          </TabPanel>
+          <TabPanel px={0}>{allYieldsContentElement}</TabPanel>
           <TabPanel px={0}>{positionsContentElement}</TabPanel>
         </TabPanels>
       </Tabs>

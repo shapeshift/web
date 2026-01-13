@@ -36,6 +36,11 @@ export type ProviderOption = {
   icon?: string
 }
 
+export type TypeOption = {
+  id: string
+  name: string
+}
+
 type FilterMenuProps = {
   label: string
   value: string | null
@@ -113,6 +118,9 @@ type YieldFiltersProps = {
   providers: ProviderOption[]
   selectedProvider: string | null
   onSelectProvider: (id: string | null) => void
+  types: TypeOption[]
+  selectedType: string | null
+  onSelectType: (id: string | null) => void
   sortOption: SortOption
   onSortChange: (option: SortOption) => void
 } & StackProps
@@ -125,6 +133,9 @@ export const YieldFilters = memo(
     providers,
     selectedProvider,
     onSelectProvider,
+    types,
+    selectedType,
+    onSelectType,
     sortOption,
     onSortChange,
     ...props
@@ -145,6 +156,7 @@ export const YieldFilters = memo(
 
     const allNetworksLabel = useMemo(() => translate('yieldXYZ.allNetworks'), [translate])
     const allProvidersLabel = useMemo(() => translate('yieldXYZ.allProviders'), [translate])
+    const allTypesLabel = useMemo(() => translate('yieldXYZ.allTypes'), [translate])
 
     const renderNetworkIcon = useCallback(
       (opt: { id: string; name: string; icon?: string; chainId?: ChainId }) => {
@@ -204,6 +216,12 @@ export const YieldFilters = memo(
           options={providers}
           onSelect={onSelectProvider}
           renderIcon={renderProviderIcon}
+        />
+        <FilterMenu
+          label={allTypesLabel}
+          value={selectedType}
+          options={types}
+          onSelect={onSelectType}
         />
         <Menu>
           <Tooltip label='Sort' hasArrow>

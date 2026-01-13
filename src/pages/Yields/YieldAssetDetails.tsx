@@ -63,10 +63,12 @@ export const YieldAssetDetails = memo(() => {
     selectedNetwork,
     selectedProvider,
     sortOption,
+    selectedType,
     sorting,
     setSorting,
     handleNetworkChange,
     handleProviderChange,
+    handleTypeChange,
     handleSortChange,
   } = useYieldFilters()
 
@@ -109,14 +111,25 @@ export const YieldAssetDetails = memo(() => {
     [assetYields, getProviderLogo],
   )
 
+  // Types available for THIS asset
+  const types = useMemo(
+    () =>
+      Array.from(new Set(assetYields.map(y => y.mechanics.type))).map(type => ({
+        id: type,
+        name: type.charAt(0).toUpperCase() + type.slice(1).replace(/-/g, ' '),
+      })),
+    [assetYields],
+  )
+
   const filteredYields = useMemo(
     () =>
       assetYields.filter(y => {
         if (selectedNetwork && y.network !== selectedNetwork) return false
         if (selectedProvider && y.providerId !== selectedProvider) return false
+        if (selectedType && y.mechanics.type !== selectedType) return false
         return true
       }),
-    [assetYields, selectedNetwork, selectedProvider],
+    [assetYields, selectedNetwork, selectedProvider, selectedType],
   )
 
   const assetInfo = useMemo(() => {
@@ -437,6 +450,9 @@ export const YieldAssetDetails = memo(() => {
           providers={providers}
           selectedProvider={selectedProvider}
           onSelectProvider={handleProviderChange}
+          types={types}
+          selectedType={selectedType}
+          onSelectType={handleTypeChange}
           sortOption={sortOption}
           onSortChange={handleSortChange}
         />

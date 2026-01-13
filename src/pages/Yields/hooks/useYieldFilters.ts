@@ -10,6 +10,7 @@ export const useYieldFilters = () => {
 
   const selectedNetwork = useMemo(() => searchParams.get('network'), [searchParams])
   const selectedProvider = useMemo(() => searchParams.get('provider'), [searchParams])
+  const selectedType = useMemo(() => searchParams.get('type'), [searchParams])
   const sortOption = useMemo(
     () => (searchParams.get('sort') as SortOption) || 'apy-desc',
     [searchParams],
@@ -33,6 +34,18 @@ export const useYieldFilters = () => {
         const next = new URLSearchParams(prev)
         if (!provider) next.delete('provider')
         else next.set('provider', provider)
+        return next
+      })
+    },
+    [setSearchParams],
+  )
+
+  const handleTypeChange = useCallback(
+    (type: string | null) => {
+      setSearchParams(prev => {
+        const next = new URLSearchParams(prev)
+        if (!type) next.delete('type')
+        else next.set('type', type)
         return next
       })
     },
@@ -78,11 +91,13 @@ export const useYieldFilters = () => {
   return {
     selectedNetwork,
     selectedProvider,
+    selectedType,
     sortOption,
     sorting,
     setSorting,
     handleNetworkChange,
     handleProviderChange,
+    handleTypeChange,
     handleSortChange,
   }
 }

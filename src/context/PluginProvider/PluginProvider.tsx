@@ -61,7 +61,9 @@ export const PluginProvider = ({ children }: PluginProviderProps): JSX.Element =
     let pluginRoutes: Route[] = []
 
     // newly registered will be default + what comes from plugins
-    const newChainAdapters: { [k in ChainId]?: () => ChainAdapter<KnownChainIds> } = {}
+    const newChainAdapters: {
+      [k in ChainId]?: () => ChainAdapter<KnownChainIds>
+    } = {}
 
     // register providers from each plugin
     for (const plugin of pluginManager.values()) {
@@ -106,7 +108,10 @@ export const PluginProvider = ({ children }: PluginProviderProps): JSX.Element =
 
     setRoutes(pluginRoutes)
 
-    const _supportedChains = Object.values<ChainId>(KnownChainIds).filter(chainId => {
+    const knownChainIds = Object.values<ChainId>(KnownChainIds)
+    const knownChainIdSet = new Set(knownChainIds)
+
+    const _supportedChains = knownChainIds.filter(chainId => {
       if (!featureFlags.Optimism && chainId === KnownChainIds.OptimismMainnet) return false
       if (!featureFlags.Polygon && chainId === KnownChainIds.PolygonMainnet) return false
       if (!featureFlags.Gnosis && chainId === KnownChainIds.GnosisMainnet) return false
@@ -128,7 +133,15 @@ export const PluginProvider = ({ children }: PluginProviderProps): JSX.Element =
       return true
     })
 
-    setSupportedChains(_supportedChains)
+    const allChainIds = [...getChainAdapterManager().keys()]
+
+    const dynamicEvmChainIds = featureFlags.DynamicEvmChains
+      ? allChainIds.filter(
+          chainId => chainId.startsWith('eip155:') && !knownChainIdSet.has(chainId),
+        )
+      : []
+
+    setSupportedChains([..._supportedChains, ...dynamicEvmChainIds])
   }, [chainAdapterManager, featureFlags, pluginManager, plugins])
 
   const values = useMemo(

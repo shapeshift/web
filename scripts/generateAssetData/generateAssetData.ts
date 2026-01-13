@@ -28,6 +28,7 @@ import * as arbitrumNova from './arbitrumNova'
 import * as avalanche from './avalanche'
 import * as base from './base'
 import * as bnbsmartchain from './bnbsmartchain'
+import * as celoModule from './celo'
 import { compressGeneratedAssets } from './compressAssets'
 import { ASSET_DATA_PATH, GENERATED_DIR, RELATED_ASSET_INDEX_PATH } from './constants'
 import * as ethereum from './ethereum'
@@ -41,6 +42,7 @@ import * as optimism from './optimism'
 import { overrideAssets } from './overrides'
 import * as plasma from './plasma'
 import * as polygon from './polygon'
+import * as seiModule from './sei'
 import * as solana from './solana'
 import * as starknet from './starknet'
 import * as sui from './sui'
@@ -77,6 +79,8 @@ const generateAssetData = async () => {
   const tronAssets = await tronModule.getAssets()
   const suiAssets = await sui.getAssets()
   const nearAssets = await near.getAssets()
+  const seiAssets = await seiModule.getAssets()
+  const celoAssets = await celoModule.getAssets()
 
   // all assets, included assets to be blacklisted
   const unfilteredAssetData: Asset[] = [
@@ -109,6 +113,8 @@ const generateAssetData = async () => {
     ...tronAssets,
     ...suiAssets,
     ...nearAssets,
+    ...seiAssets,
+    ...celoAssets,
   ]
 
   // remove blacklisted assets

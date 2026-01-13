@@ -42,7 +42,7 @@ export enum KnownChainIds {
   StarknetMainnet = 'starknet:SN_MAIN',
 }
 
-export type EvmChainId =
+export type KnownEvmChainId =
   | KnownChainIds.EthereumMainnet
   | KnownChainIds.AvalancheMainnet
   | KnownChainIds.OptimismMainnet
@@ -56,6 +56,12 @@ export type EvmChainId =
   | KnownChainIds.HyperEvmMainnet
   | KnownChainIds.PlasmaMainnet
   | KnownChainIds.KatanaMainnet
+
+export type EvmChainId = KnownEvmChainId
+
+export type DynamicEvmChainId = `eip155:${number}`
+
+export type AnyEvmChainId = KnownEvmChainId | DynamicEvmChainId
 
 export type CosmosSdkChainId =
   | KnownChainIds.CosmosMainnet

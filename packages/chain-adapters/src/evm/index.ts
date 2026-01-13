@@ -2,6 +2,14 @@ export type { EvmChainAdapter } from './EvmBaseAdapter'
 export { isEvmChainId, evmChainIds, EvmBaseAdapter } from './EvmBaseAdapter'
 export { SecondClassEvmAdapter } from './SecondClassEvmAdapter'
 export type { SecondClassEvmAdapterArgs, TokenInfo } from './SecondClassEvmAdapter'
+export {
+  createDynamicEvmAdapter,
+  getDynamicEvmAdapter,
+  getDynamicEvmAdapterByChainId,
+  getAllDynamicEvmAdapters,
+  clearDynamicEvmAdapters,
+} from './DynamicEvmAdapterFactory'
+export type { DynamicEvmChainConfig } from './DynamicEvmAdapterFactory'
 
 export * as evm from './evm'
 

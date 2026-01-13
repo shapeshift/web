@@ -1,5 +1,5 @@
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
-import { fromChainId, toAssetId } from '@shapeshiftoss/caip'
+import { fromChainId, isDynamicEvmChainReference, toAssetId } from '@shapeshiftoss/caip'
 import type {
   ETHSignMessage,
   ETHSignTx,
@@ -91,7 +91,14 @@ export type EvmChainAdapter = EvmBaseAdapter<EvmChainId>
 export const isEvmChainId = (
   maybeEvmChainId: string | EvmChainId,
 ): maybeEvmChainId is EvmChainId => {
-  return evmChainIds.includes(maybeEvmChainId as EvmChainId)
+  if (evmChainIds.includes(maybeEvmChainId as EvmChainId)) {
+    return true
+  }
+  if (maybeEvmChainId.startsWith('eip155:')) {
+    const chainReference = maybeEvmChainId.slice(7)
+    return isDynamicEvmChainReference(chainReference)
+  }
+  return false
 }
 
 export interface ChainAdapterArgs<T = unchained.evm.Api> {
@@ -153,7 +160,12 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
 
   getBip44Params({ accountNumber }: GetBip44ParamsInput): Bip44Params {
     if (accountNumber < 0) throw new Error('accountNumber must be >= 0')
-    return { ...this.rootBip44Params, accountNumber, isChange: false, addressIndex: 0 }
+    return {
+      ...this.rootBip44Params,
+      accountNumber,
+      isChange: false,
+      addressIndex: 0,
+    }
   }
 
   protected assertSupportsChain(
@@ -189,7 +201,7 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
         case Number(fromChainId(KnownChainIds.KatanaMainnet).chainReference):
           return supportsKatana(wallet)
         default:
-          return false
+          return supportsETH(wallet)
       }
     })()
 
@@ -374,7 +386,11 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
         accountIdx: input.accountNumber,
       })?.[0]?.addressNList
 
-      const txToSign = await this.buildSendApiTransaction({ ...input, from, addressNList })
+      const txToSign = await this.buildSendApiTransaction({
+        ...input,
+        from,
+        addressNList,
+      })
 
       return { txToSign }
     } catch (err) {
@@ -594,8 +610,10 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
       await verifyLedgerAppOpen(this.chainId, wallet)
 
       const addressNList =
-        wallet.ethGetAccountPaths?.({ coin: 'Ethereum', accountIdx: accountNumber })?.[0]
-          ?.addressNList ?? toAddressNList(this.getBip44Params({ accountNumber }))
+        wallet.ethGetAccountPaths?.({
+          coin: 'Ethereum',
+          accountIdx: accountNumber,
+        })?.[0]?.addressNList ?? toAddressNList(this.getBip44Params({ accountNumber }))
 
       const address = await wallet.ethGetAddress({
         addressNList,
@@ -623,8 +641,10 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
       if (wallet.ethGetAddresses) {
         const msgs = accountNumbers.map(accountNumber => {
           const addressNList =
-            wallet.ethGetAccountPaths?.({ coin: 'Ethereum', accountIdx: accountNumber })?.[0]
-              ?.addressNList ?? toAddressNList(this.getBip44Params({ accountNumber }))
+            wallet.ethGetAccountPaths?.({
+              coin: 'Ethereum',
+              accountIdx: accountNumber,
+            })?.[0]?.addressNList ?? toAddressNList(this.getBip44Params({ accountNumber }))
 
           return {
             addressNList,
@@ -686,7 +706,10 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
     const bip44Params = this.getBip44Params({ accountNumber })
     const subscriptionId = toRootDerivationPath(bip44Params)
 
-    this.providers.ws.unsubscribeTxs(subscriptionId, { topic: 'txs', addresses: [] })
+    this.providers.ws.unsubscribeTxs(subscriptionId, {
+      topic: 'txs',
+      addresses: [],
+    })
   }
 
   closeTxs(): void {
@@ -740,7 +763,11 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
         accountIdx: accountNumber,
       })?.[0]?.addressNList
 
-      const txToSign = await this.buildCustomApiTx({ ...input, from, addressNList })
+      const txToSign = await this.buildCustomApiTx({
+        ...input,
+        from,
+        addressNList,
+      })
 
       return { txToSign }
     } catch (err) {

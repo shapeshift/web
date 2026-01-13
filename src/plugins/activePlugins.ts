@@ -7,6 +7,7 @@ import bitcoincash from '@/plugins/bitcoincash'
 import bnbsmartchain from '@/plugins/bnbsmartchain'
 import cosmos from '@/plugins/cosmos'
 import dogecoin from '@/plugins/dogecoin'
+import dynamicEvmChains from '@/plugins/dynamicEvmChains'
 import ethereum from '@/plugins/ethereum'
 import gnosis from '@/plugins/gnosis'
 import hyperevm from '@/plugins/hyperevm'
@@ -37,6 +38,7 @@ export const activePlugins = [
   bnbsmartchain,
   cosmos,
   dogecoin,
+  dynamicEvmChains,
   ethereum,
   gnosis,
   hyperevm,

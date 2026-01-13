@@ -1,8 +1,7 @@
 import { createQueryKeys } from '@lukemorales/query-key-factory'
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import { fromAssetId, tronChainId } from '@shapeshiftoss/caip'
-import { evmChainIds } from '@shapeshiftoss/chain-adapters'
-import type { EvmChainId } from '@shapeshiftoss/types'
+import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
 
@@ -55,7 +54,7 @@ export const common = createQueryKeys('common', {
       }
 
       // Handle EVM chains
-      if (!evmChainIds.includes(chainId as EvmChainId)) {
+      if (!isEvmChainId(chainId)) {
         return Err(GetAllowanceErr.NotEVMChain)
       }
 

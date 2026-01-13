@@ -112,6 +112,7 @@ export type FeatureFlags = {
   AppRating: boolean
   YieldXyz: boolean
   YieldMultiAccount: boolean
+  DynamicEvmChains: boolean
 }
 
 export type Flag = keyof FeatureFlags
@@ -258,6 +259,7 @@ const initialState: Preferences = {
     AppRating: getConfig().VITE_FEATURE_APP_RATING,
     YieldXyz: getConfig().VITE_FEATURE_YIELD_XYZ,
     YieldMultiAccount: getConfig().VITE_FEATURE_YIELD_MULTI_ACCOUNT,
+    DynamicEvmChains: getConfig().VITE_FEATURE_DYNAMIC_EVM_CHAINS,
   },
   selectedLocale: simpleLocale(),
   hasWalletSeenTcyClaimAlert: {},

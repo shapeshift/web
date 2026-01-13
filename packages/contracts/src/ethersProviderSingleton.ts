@@ -1,49 +1,59 @@
 import type { ChainId } from '@shapeshiftoss/caip'
-import type { EvmChainId } from '@shapeshiftoss/types'
+import type { EvmChainId, KnownEvmChainId } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { assertUnreachable } from '@shapeshiftoss/utils'
 import { JsonRpcProvider } from 'ethers'
 import { ethers as ethersV5 } from 'ethers5'
 
-export const rpcUrlByChainId = (chainId: EvmChainId): string => {
-  const url = (() => {
-    switch (chainId) {
-      case KnownChainIds.AvalancheMainnet:
-        return process.env.VITE_AVALANCHE_NODE_URL
-      case KnownChainIds.OptimismMainnet:
-        return process.env.VITE_OPTIMISM_NODE_URL
-      case KnownChainIds.BnbSmartChainMainnet:
-        return process.env.VITE_BNBSMARTCHAIN_NODE_URL
-      case KnownChainIds.PolygonMainnet:
-        return process.env.VITE_POLYGON_NODE_URL
-      case KnownChainIds.GnosisMainnet:
-        return process.env.VITE_GNOSIS_NODE_URL
-      case KnownChainIds.EthereumMainnet:
-        return process.env.VITE_ETHEREUM_NODE_URL
-      case KnownChainIds.ArbitrumMainnet:
-        return process.env.VITE_ARBITRUM_NODE_URL
-      case KnownChainIds.ArbitrumNovaMainnet:
-        return process.env.VITE_ARBITRUM_NOVA_NODE_URL
-      case KnownChainIds.BaseMainnet:
-        return process.env.VITE_BASE_NODE_URL
-      case KnownChainIds.MonadMainnet:
-        return process.env.VITE_MONAD_NODE_URL
-      case KnownChainIds.HyperEvmMainnet:
-        return process.env.VITE_HYPEREVM_NODE_URL
-      case KnownChainIds.PlasmaMainnet:
-        return process.env.VITE_PLASMA_NODE_URL
-      case KnownChainIds.KatanaMainnet:
-        return process.env.VITE_KATANA_NODE_URL
-      default:
-        return assertUnreachable(chainId)
-    }
-  })()
+export const rpcUrlByKnownChainId = (chainId: KnownEvmChainId): string | undefined => {
+  switch (chainId) {
+    case KnownChainIds.AvalancheMainnet:
+      return process.env.VITE_AVALANCHE_NODE_URL
+    case KnownChainIds.OptimismMainnet:
+      return process.env.VITE_OPTIMISM_NODE_URL
+    case KnownChainIds.BnbSmartChainMainnet:
+      return process.env.VITE_BNBSMARTCHAIN_NODE_URL
+    case KnownChainIds.PolygonMainnet:
+      return process.env.VITE_POLYGON_NODE_URL
+    case KnownChainIds.GnosisMainnet:
+      return process.env.VITE_GNOSIS_NODE_URL
+    case KnownChainIds.EthereumMainnet:
+      return process.env.VITE_ETHEREUM_NODE_URL
+    case KnownChainIds.ArbitrumMainnet:
+      return process.env.VITE_ARBITRUM_NODE_URL
+    case KnownChainIds.ArbitrumNovaMainnet:
+      return process.env.VITE_ARBITRUM_NOVA_NODE_URL
+    case KnownChainIds.BaseMainnet:
+      return process.env.VITE_BASE_NODE_URL
+    case KnownChainIds.MonadMainnet:
+      return process.env.VITE_MONAD_NODE_URL
+    case KnownChainIds.HyperEvmMainnet:
+      return process.env.VITE_HYPEREVM_NODE_URL
+    case KnownChainIds.PlasmaMainnet:
+      return process.env.VITE_PLASMA_NODE_URL
+    case KnownChainIds.KatanaMainnet:
+      return process.env.VITE_KATANA_NODE_URL
+    default:
+      return assertUnreachable(chainId)
+  }
+}
 
-  if (!url) {
-    throw new Error(`No RPC URL found for chainId ${chainId}`)
+const isKnownEvmChainId = (chainId: EvmChainId): chainId is KnownEvmChainId => {
+  return Object.values(KnownChainIds).includes(chainId as KnownChainIds)
+}
+
+export const rpcUrlByChainId = (chainId: EvmChainId): string => {
+  if (isKnownEvmChainId(chainId)) {
+    const url = rpcUrlByKnownChainId(chainId)
+    if (!url) {
+      throw new Error(`No RPC URL found for chainId ${chainId}`)
+    }
+    return url
   }
 
-  return url
+  throw new Error(
+    `No RPC URL configured for dynamic chainId ${chainId}. Use dynamic adapters instead.`,
+  )
 }
 
 const ethersProviders: Map<ChainId, JsonRpcProvider> = new Map()

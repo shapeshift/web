@@ -468,3 +468,35 @@ export const starknet: Readonly<Asset> = Object.freeze({
   explorerTxLink: 'https://starkscan.co/tx/',
   relatedAssetKey: null,
 })
+
+export const sei: Readonly<Asset> = Object.freeze({
+  assetId: caip.seiAssetId,
+  chainId: caip.seiChainId,
+  name: 'Sei',
+  networkName: 'Sei',
+  symbol: 'SEI',
+  precision: 18,
+  color: '#9B1C1C',
+  networkColor: '#9B1C1C',
+  icon: 'https://assets.coingecko.com/coins/images/28205/large/Sei_Logo_-_Transparent.png',
+  explorer: 'https://seitrace.com',
+  explorerAddressLink: 'https://seitrace.com/address/',
+  explorerTxLink: 'https://seitrace.com/tx/',
+  relatedAssetKey: null,
+})
+
+export const celo: Readonly<Asset> = Object.freeze({
+  assetId: caip.celoAssetId,
+  chainId: caip.celoChainId,
+  name: 'Celo',
+  networkName: 'Celo',
+  symbol: 'CELO',
+  precision: 18,
+  color: '#35D07F',
+  networkColor: '#35D07F',
+  icon: 'https://assets.coingecko.com/coins/images/11090/large/InjsYi7.png',
+  explorer: 'https://celoscan.io',
+  explorerAddressLink: 'https://celoscan.io/address/',
+  explorerTxLink: 'https://celoscan.io/tx/',
+  relatedAssetKey: null,
+})

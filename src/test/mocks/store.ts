@@ -185,6 +185,7 @@ export const mockStore: ReduxState = {
       AppRating: false,
       YieldXyz: false,
       YieldMultiAccount: false,
+      DynamicEvmChains: false,
     },
     showTopAssetsCarousel: true,
     quickBuyAmounts: [10, 50, 100],

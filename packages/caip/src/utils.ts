@@ -4,6 +4,7 @@ import type { AssetId } from './assetId/assetId'
 import type { ChainId, ChainNamespace, ChainReference } from './chainId/chainId'
 import * as constants from './constants'
 import { rujiAssetId, tcyAssetId } from './constants'
+import { isDynamicEvmChainReference } from './evmChainRegistry'
 
 const mayaTokenAssetId: AssetId = 'cosmos:mayachain-mainnet-v1/slip44:maya'
 
@@ -16,7 +17,18 @@ export const accountIdToSpecifier = (accountId: AccountId): string =>
 export const isValidChainPartsPair = (
   chainNamespace: ChainNamespace,
   chainReference: ChainReference,
-) => constants.VALID_CHAIN_IDS[chainNamespace]?.includes(chainReference) || false
+) => {
+  if (constants.VALID_CHAIN_IDS[chainNamespace]?.includes(chainReference)) {
+    return true
+  }
+  if (
+    chainNamespace === constants.CHAIN_NAMESPACE.Evm &&
+    isDynamicEvmChainReference(chainReference)
+  ) {
+    return true
+  }
+  return false
+}
 
 export const generateAssetIdFromCosmosSdkDenom = (denom: string): AssetId => {
   switch (denom) {

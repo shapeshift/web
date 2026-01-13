@@ -1,10 +1,9 @@
-import type { AssetNamespace } from '@shapeshiftoss/caip'
+import type { AssetNamespace, ChainId } from '@shapeshiftoss/caip'
 import { ASSET_NAMESPACE } from '@shapeshiftoss/caip'
 import { KnownChainIds } from '@shapeshiftoss/types'
 
-import { assertUnreachable } from './assertUnreachable'
-
-export const getAssetNamespaceFromChainId = (chainId: KnownChainIds): AssetNamespace => {
+export const getAssetNamespaceFromChainId = (_chainId: ChainId): AssetNamespace => {
+  const chainId = _chainId as KnownChainIds
   switch (chainId) {
     case KnownChainIds.SolanaMainnet:
       return ASSET_NAMESPACE.splToken
@@ -40,6 +39,9 @@ export const getAssetNamespaceFromChainId = (chainId: KnownChainIds): AssetNames
     case KnownChainIds.MayachainMainnet:
       throw Error(`Unhandled case '${chainId}'`)
     default:
-      return assertUnreachable(chainId)
+      if (_chainId.startsWith('eip155:')) {
+        return ASSET_NAMESPACE.erc20
+      }
+      throw Error(`getAssetNamespaceFromChainId: unsupported chainId ${_chainId}`)
   }
 }

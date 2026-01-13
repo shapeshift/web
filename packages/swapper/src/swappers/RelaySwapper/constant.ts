@@ -1,10 +1,13 @@
+import type { ChainId } from '@shapeshiftoss/caip'
 import {
   arbitrumChainId,
   avalancheChainId,
   baseChainId,
   bscChainId,
   btcChainId,
+  CHAIN_NAMESPACE,
   ethChainId,
+  fromChainId,
   gnosisChainId,
   hyperEvmChainId,
   katanaChainId,
@@ -15,7 +18,6 @@ import {
   solanaChainId,
   tronChainId,
 } from '@shapeshiftoss/caip'
-import invert from 'lodash/invert'
 import { zeroAddress } from 'viem'
 import {
   arbitrum,
@@ -35,15 +37,13 @@ import {
 import { TradeQuoteError } from '../../types'
 import { RelayErrorCode } from './utils/types'
 
-export const chainIdToRelayChainId = {
-  // https://docs.relay.link/resources/supported-chains
+const knownChainIdToRelayChainId: Record<string, number> = {
   [btcChainId]: 8253038,
   [ethChainId]: ethereum.id,
   [arbitrumChainId]: arbitrum.id,
   [baseChainId]: base.id,
   [optimismChainId]: optimism.id,
   [polygonChainId]: polygon.id,
-  // https://docs.relay.link/resources/supported-chains
   [solanaChainId]: 792703809,
   [gnosisChainId]: gnosis.id,
   [avalancheChainId]: avalanche.id,
@@ -55,6 +55,36 @@ export const chainIdToRelayChainId = {
   [katanaChainId]: katana.id,
 }
 
+export const getRelayChainId = (chainId: ChainId): number | undefined => {
+  const known = knownChainIdToRelayChainId[chainId]
+  if (known !== undefined) return known
+
+  const { chainNamespace, chainReference } = fromChainId(chainId)
+  if (chainNamespace === CHAIN_NAMESPACE.Evm) {
+    const numericChainId = Number(chainReference)
+    if (!Number.isNaN(numericChainId)) return numericChainId
+  }
+
+  return undefined
+}
+
+export const getChainIdFromRelayChainId = (relayChainId: number): ChainId | undefined => {
+  for (const [chainId, id] of Object.entries(knownChainIdToRelayChainId)) {
+    if (id === relayChainId) return chainId as ChainId
+  }
+
+  return `eip155:${relayChainId}` as ChainId
+}
+
+export const chainIdToRelayChainId: Record<string, number> = new Proxy(knownChainIdToRelayChainId, {
+  get(target, prop: string) {
+    if (prop in target) return target[prop]
+
+    const relayChainId = getRelayChainId(prop as ChainId)
+    return relayChainId
+  },
+})
+
 export enum RelayStatusMessage {
   WaitingForDeposit = 'Waiting for deposit...',
   DepositDetected = 'Deposit detected, processing swap...',
@@ -63,7 +93,9 @@ export enum RelayStatusMessage {
   SwapFailed = 'Swap failed',
 }
 
-export const relayChainIdToChainId = invert(chainIdToRelayChainId)
+export const relayChainIdToChainId = (relayChainId: number): ChainId | undefined => {
+  return getChainIdFromRelayChainId(relayChainId)
+}
 
 export const DEFAULT_RELAY_EVM_TOKEN_ADDRESS = zeroAddress
 export const RELAY_BTC_TOKEN_ADDRESS = 'bc1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqmql8k8'

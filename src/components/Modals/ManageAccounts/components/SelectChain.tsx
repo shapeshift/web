@@ -42,7 +42,9 @@ const ChainButton = ({
     return assertGetChainAdapter(chainId)
   }, [chainId])
 
-  if (!feeAsset) return null
+  if (!feeAsset) {
+    return null
+  }
 
   return (
     <Button height='100px' width='full' onClick={handleClick}>

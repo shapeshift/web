@@ -1,8 +1,8 @@
+import type { ChainId } from '@shapeshiftoss/caip'
 import { KnownChainIds } from '@shapeshiftoss/types'
 
-import { assertUnreachable } from './assertUnreachable'
-
-export const getChainShortName = (chainId: KnownChainIds) => {
+export const getChainShortName = (_chainId: ChainId): string => {
+  const chainId = _chainId as KnownChainIds
   switch (chainId) {
     case KnownChainIds.AvalancheMainnet:
       return 'AVA'
@@ -56,8 +56,10 @@ export const getChainShortName = (chainId: KnownChainIds) => {
       return 'ZEC'
     case KnownChainIds.NearMainnet:
       return 'NEAR'
-    default: {
-      assertUnreachable(chainId)
-    }
+    default:
+      if (_chainId.startsWith('eip155:')) {
+        return _chainId.slice(7)
+      }
+      throw Error(`getChainShortName: unsupported chainId ${_chainId}`)
   }
 }

@@ -1,5 +1,10 @@
 import type { AssetReference, ChainNamespace, ChainReference } from '@shapeshiftoss/caip'
-import { ASSET_REFERENCE, CHAIN_NAMESPACE, CHAIN_REFERENCE } from '@shapeshiftoss/caip'
+import {
+  ASSET_REFERENCE,
+  CHAIN_NAMESPACE,
+  CHAIN_REFERENCE,
+  isDynamicEvmChainReference,
+} from '@shapeshiftoss/caip'
 
 export const getNativeFeeAssetReference = (
   chainNamespace: ChainNamespace,
@@ -51,6 +56,9 @@ export const getNativeFeeAssetReference = (
           case CHAIN_REFERENCE.KatanaMainnet:
             return ASSET_REFERENCE.Katana
           default:
+            if (isDynamicEvmChainReference(chainReference)) {
+              return ASSET_REFERENCE.Ethereum
+            }
             throw new Error(`Chain namespace ${chainNamespace} on ${chainReference} not supported.`)
         }
       case CHAIN_NAMESPACE.CosmosSdk:

@@ -2,6 +2,7 @@ import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import {
   arbitrumAssetId,
   arbitrumNovaAssetId,
+  ASSET_NAMESPACE,
   avalancheAssetId,
   baseAssetId,
   bchAssetId,
@@ -24,12 +25,11 @@ import {
   starknetAssetId,
   suiAssetId,
   thorchainAssetId,
+  toAssetId,
   tronAssetId,
   zecAssetId,
 } from '@shapeshiftoss/caip'
 import { KnownChainIds } from '@shapeshiftoss/types'
-
-import { assertUnreachable } from './assertUnreachable'
 
 export const chainIdToFeeAssetId = (_chainId: ChainId): AssetId => {
   const chainId = _chainId as KnownChainIds
@@ -87,6 +87,13 @@ export const chainIdToFeeAssetId = (_chainId: ChainId): AssetId => {
     case KnownChainIds.NearMainnet:
       return nearAssetId
     default:
-      return assertUnreachable(chainId)
+      if (_chainId.startsWith('eip155:')) {
+        return toAssetId({
+          chainId: _chainId,
+          assetNamespace: ASSET_NAMESPACE.slip44,
+          assetReference: '60',
+        })
+      }
+      throw new Error(`chainIdToFeeAssetId: unsupported chainId ${_chainId}`)
   }
 }

@@ -9,6 +9,8 @@ export const isSmartContractAddress = async (
 ): Promise<boolean> => {
   if (!isAddress(address)) return false
   if (!isEvmChainId(chainId)) return false
-  const bytecode = await viemClientByChainId[chainId].getBytecode({ address: getAddress(address) })
+  const client = viemClientByChainId[chainId]
+  if (!client) return false
+  const bytecode = await client.getBytecode({ address: getAddress(address) })
   return bytecode !== undefined
 }

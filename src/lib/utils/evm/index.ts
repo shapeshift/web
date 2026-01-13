@@ -1,7 +1,7 @@
 import type { AccountId, ChainId } from '@shapeshiftoss/caip'
 import { CHAIN_NAMESPACE, fromAccountId } from '@shapeshiftoss/caip'
 import type { ContractInteraction, EvmChainAdapter, SignTx } from '@shapeshiftoss/chain-adapters'
-import { evm, evmChainIds, isEvmChainId } from '@shapeshiftoss/chain-adapters'
+import { evm, isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import { ContractType, getOrCreateContractByType } from '@shapeshiftoss/contracts'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
@@ -181,7 +181,9 @@ export const getErc20Allowance = async ({
 }
 
 export const isEvmChainAdapter = (chainAdapter: unknown): chainAdapter is EvmChainAdapter => {
-  return evmChainIds.includes((chainAdapter as EvmChainAdapter).getChainId() as EvmChainId)
+  if (!chainAdapter) return false
+  const chainId = (chainAdapter as EvmChainAdapter).getChainId?.()
+  return chainId ? isEvmChainId(chainId) : false
 }
 
 export const assertGetEvmChainAdapter = (chainId: ChainId | KnownChainIds): EvmChainAdapter => {

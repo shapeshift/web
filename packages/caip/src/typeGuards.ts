@@ -8,6 +8,7 @@ import {
   CHAIN_REFERENCE,
   VALID_CHAIN_IDS,
 } from './constants'
+import { isDynamicEvmChainReference, isValidEvmChainReference } from './evmChainRegistry'
 import { isValidChainPartsPair } from './utils'
 
 export const isChainNamespace = (
@@ -18,7 +19,8 @@ export const isChainNamespace = (
 export const isChainReference = (
   maybeChainReference: ChainReference | string,
 ): maybeChainReference is ChainReference =>
-  Object.values(CHAIN_REFERENCE).includes(maybeChainReference as ChainReference)
+  Object.values(CHAIN_REFERENCE).includes(maybeChainReference as ChainReference) ||
+  isDynamicEvmChainReference(maybeChainReference)
 
 export const isAssetNamespace = (
   maybeAssetNamespace: AssetNamespace | string,
@@ -50,23 +52,64 @@ export const isAssetIdParts = (
   maybeChainReference: string,
   maybeAssetNamespace: string,
 ): boolean => {
-  return (
-    !!VALID_CHAIN_IDS[maybeChainNamespace as ChainNamespace]?.includes(
+  if (!isAssetNamespace(maybeAssetNamespace)) {
+    return false
+  }
+
+  if (
+    VALID_CHAIN_IDS[maybeChainNamespace as ChainNamespace]?.includes(
       maybeChainReference as ChainReference,
-    ) && isAssetNamespace(maybeAssetNamespace)
-  )
+    )
+  ) {
+    return true
+  }
+
+  if (
+    maybeChainNamespace === CHAIN_NAMESPACE.Evm &&
+    isValidEvmChainReference(maybeChainReference) &&
+    isDynamicEvmChainReference(maybeChainReference)
+  ) {
+    return true
+  }
+
+  return false
 }
 
 // NOTE: perf critical - benchmark any changes
 export const isChainId = (maybeChainId: ChainId | string): maybeChainId is ChainId => {
   const { chainNamespace, chainReference } = fromChainId(maybeChainId as ChainId)
-  return !!VALID_CHAIN_IDS[chainNamespace]?.includes(chainReference)
+
+  if (VALID_CHAIN_IDS[chainNamespace]?.includes(chainReference)) {
+    return true
+  }
+
+  if (
+    chainNamespace === CHAIN_NAMESPACE.Evm &&
+    isValidEvmChainReference(chainReference) &&
+    isDynamicEvmChainReference(chainReference)
+  ) {
+    return true
+  }
+
+  return false
 }
 
 export const isChainIdParts = (chainNamespace: string, chainReference: string): boolean => {
-  return !!VALID_CHAIN_IDS[chainNamespace as ChainNamespace]?.includes(
-    chainReference as ChainReference,
-  )
+  if (
+    VALID_CHAIN_IDS[chainNamespace as ChainNamespace]?.includes(chainReference as ChainReference)
+  ) {
+    return true
+  }
+
+  if (
+    chainNamespace === CHAIN_NAMESPACE.Evm &&
+    isValidEvmChainReference(chainReference) &&
+    isDynamicEvmChainReference(chainReference)
+  ) {
+    return true
+  }
+
+  return false
 }
 
 const getTypeGuardAssertion = <T>(

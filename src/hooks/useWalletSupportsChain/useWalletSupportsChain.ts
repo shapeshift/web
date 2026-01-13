@@ -222,6 +222,10 @@ export const walletSupportsChain = ({
     case starknetChainId:
       return isStarknetEnabled && supportsStarknet(wallet)
     default: {
+      const isDynamicEvmEnabled = selectFeatureFlag(store.getState(), 'DynamicEvmChains')
+      if (isDynamicEvmEnabled && isEvmChainId(chainId)) {
+        return supportsETH(wallet)
+      }
       return false
     }
   }

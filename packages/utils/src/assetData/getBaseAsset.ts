@@ -2,7 +2,6 @@ import type { ChainId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
 
-import { assertUnreachable } from '../assertUnreachable'
 import {
   arbitrum,
   arbitrumNova,
@@ -88,6 +87,6 @@ export const getBaseAsset = (chainId: ChainId): Readonly<Asset> => {
     case KnownChainIds.ZcashMainnet:
       return zcash
     default:
-      return assertUnreachable(knownChainId)
+      throw Error(`getBaseAsset: unsupported chainId ${chainId}`)
   }
 }

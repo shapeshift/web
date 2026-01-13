@@ -20,9 +20,6 @@ import type {
   ValidAddressResult,
 } from './types'
 
-/**
- * Type alias for a Map that can be used to manage instances of ChainAdapters
- */
 export type ChainAdapterManager = Map<ChainId, ChainAdapter<KnownChainIds>>
 
 export type ChainAdapter<T extends ChainId> = {

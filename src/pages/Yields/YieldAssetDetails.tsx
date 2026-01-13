@@ -344,7 +344,7 @@ export const YieldAssetDetails = memo(() => {
         </Box>
       </Flex>
     )
-  }, [assetInfo, assetYields.length, translate])
+  }, [assetInfo, translate])
 
   const loadingGridElement = useMemo(
     () => (
@@ -354,7 +354,7 @@ export const YieldAssetDetails = memo(() => {
         ))}
       </SimpleGrid>
     ),
-    [],
+    [isMobile],
   )
 
   const loadingListElement = useMemo(
@@ -393,7 +393,7 @@ export const YieldAssetDetails = memo(() => {
         ))}
       </SimpleGrid>
     ),
-    [allBalances, getProviderLogo, handleYieldClick, sortedRows],
+    [allBalances, getProviderLogo, handleYieldClick, isMobile, sortedRows],
   )
 
   const listViewElement = useMemo(

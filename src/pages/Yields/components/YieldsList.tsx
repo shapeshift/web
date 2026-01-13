@@ -711,8 +711,6 @@ export const YieldsList = memo(() => {
     getProviderLogo,
     handleYieldClick,
     isMobile,
-    assetBalancesBaseUnit,
-    assets,
   ])
 
   const allYieldsContentElement = useMemo(() => {

@@ -2,7 +2,7 @@ FROM node:20-slim AS builder
 
 WORKDIR /app
 
-COPY packages/swap-widget-poc ./
+COPY packages/swap-widget ./
 
 RUN npm install --legacy-peer-deps
 RUN npm run build

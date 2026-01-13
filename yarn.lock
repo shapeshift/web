@@ -12691,9 +12691,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/swap-widget-poc@workspace:packages/swap-widget-poc":
+"@shapeshiftoss/swap-widget@workspace:packages/swap-widget":
   version: 0.0.0-use.local
-  resolution: "@shapeshiftoss/swap-widget-poc@workspace:packages/swap-widget-poc"
+  resolution: "@shapeshiftoss/swap-widget@workspace:packages/swap-widget"
   dependencies:
     "@rainbow-me/rainbowkit": ^2.2.3
     "@shapeshiftoss/caip": ^8.16.5
@@ -12701,6 +12701,7 @@ __metadata:
     "@types/react": ^18.2.0
     "@types/react-dom": ^18.2.0
     "@vitejs/plugin-react": ^4.2.0
+    p-queue: ^8.0.1
     react: ^18.2.0
     react-dom: ^18.2.0
     react-virtuoso: ^4.18.1

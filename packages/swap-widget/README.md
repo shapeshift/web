@@ -1,4 +1,4 @@
-# @shapeshiftoss/swap-widget-poc
+# @shapeshiftoss/swap-widget
 
 An embeddable React widget that enables multi-chain token swaps using ShapeShift's aggregation API. Integrate swaps into your application with minimal configuration.
 
@@ -18,9 +18,9 @@ An embeddable React widget that enables multi-chain token swaps using ShapeShift
 ## Installation
 
 ```bash
-yarn add @shapeshiftoss/swap-widget-poc
+yarn add @shapeshiftoss/swap-widget
 # or
-npm install @shapeshiftoss/swap-widget-poc
+npm install @shapeshiftoss/swap-widget
 ```
 
 ### Peer Dependencies
@@ -39,7 +39,7 @@ This package requires React 18 or later:
 ## Quick Start
 
 ```tsx
-import { SwapWidget } from "@shapeshiftoss/swap-widget-poc";
+import { SwapWidget } from "@shapeshiftoss/swap-widget";
 
 function App() {
   return (
@@ -94,8 +94,8 @@ The widget supports both simple theme modes and full customization.
 ### Custom Theme Configuration
 
 ```tsx
-import { SwapWidget } from "@shapeshiftoss/swap-widget-poc";
-import type { ThemeConfig } from "@shapeshiftoss/swap-widget-poc";
+import { SwapWidget } from "@shapeshiftoss/swap-widget";
+import type { ThemeConfig } from "@shapeshiftoss/swap-widget";
 
 const customTheme: ThemeConfig = {
   mode: "dark",
@@ -129,7 +129,7 @@ function App() {
 ### Basic Usage
 
 ```tsx
-import { SwapWidget } from "@shapeshiftoss/swap-widget-poc";
+import { SwapWidget } from "@shapeshiftoss/swap-widget";
 
 function App() {
   return <SwapWidget apiKey="your-api-key" theme="dark" />;
@@ -139,7 +139,7 @@ function App() {
 ### With Wallet Connection (wagmi/viem)
 
 ```tsx
-import { SwapWidget } from "@shapeshiftoss/swap-widget-poc";
+import { SwapWidget } from "@shapeshiftoss/swap-widget";
 import { useWalletClient } from "wagmi";
 import { useConnectModal } from "@rainbow-me/rainbowkit";
 
@@ -172,8 +172,8 @@ function App() {
 ### With Custom Default Assets
 
 ```tsx
-import { SwapWidget } from "@shapeshiftoss/swap-widget-poc";
-import type { Asset } from "@shapeshiftoss/swap-widget-poc";
+import { SwapWidget } from "@shapeshiftoss/swap-widget";
+import type { Asset } from "@shapeshiftoss/swap-widget";
 
 const defaultSellAsset: Asset = {
   assetId: "eip155:137/slip44:966",
@@ -210,7 +210,7 @@ function App() {
 Use `allowedChainIds` to restrict the widget to only show specific chains. This is useful when you want to limit swaps to certain networks.
 
 ```tsx
-import { SwapWidget, EVM_CHAIN_IDS } from "@shapeshiftoss/swap-widget-poc";
+import { SwapWidget, EVM_CHAIN_IDS } from "@shapeshiftoss/swap-widget";
 
 function App() {
   return (
@@ -235,7 +235,7 @@ function App() {
 The widget can manage wallet connections internally using RainbowKit. This is useful when you don't have an existing wallet connection setup.
 
 ```tsx
-import { SwapWidget } from "@shapeshiftoss/swap-widget-poc";
+import { SwapWidget } from "@shapeshiftoss/swap-widget";
 
 function App() {
   return (
@@ -254,7 +254,7 @@ function App() {
 Use `defaultReceiveAddress` to lock the receive address. When set, users cannot change the destination address. This is useful for integrations where you want all swaps to go to a specific address.
 
 ```tsx
-import { SwapWidget } from "@shapeshiftoss/swap-widget-poc";
+import { SwapWidget } from "@shapeshiftoss/swap-widget";
 
 function App() {
   return (
@@ -281,7 +281,7 @@ import type {
   SwapWidgetProps,
   ThemeMode,
   ThemeConfig,
-} from "@shapeshiftoss/swap-widget-poc";
+} from "@shapeshiftoss/swap-widget";
 ```
 
 ### Asset
@@ -361,7 +361,7 @@ import {
   getChainName,
   getChainIcon,
   getChainColor,
-} from "@shapeshiftoss/swap-widget-poc";
+} from "@shapeshiftoss/swap-widget";
 ```
 
 ### Chain Type Utilities
@@ -431,7 +431,7 @@ import {
   useChains,
   useAssetsByChainId,
   useAssetSearch,
-} from "@shapeshiftoss/swap-widget-poc";
+} from "@shapeshiftoss/swap-widget";
 ```
 
 | Hook                              | Return Type                                | Description                                                    |

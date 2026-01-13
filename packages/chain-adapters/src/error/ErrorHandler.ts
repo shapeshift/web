@@ -1,9 +1,19 @@
+import type * as unchained from '@shapeshiftoss/unchained-client'
 import type { AxiosError } from 'axios'
 import type { InterpolationOptions } from 'node-polyglot'
 
 type ErrorMetadata = {
   translation: string
   options?: InterpolationOptions
+}
+
+const isResponseError = (err: unknown): err is unchained.ResponseError => {
+  return (
+    err instanceof Error &&
+    err.name === 'ResponseError' &&
+    'response' in err &&
+    err.response instanceof Response
+  )
 }
 
 export class ChainAdapterError extends Error {
@@ -22,6 +32,36 @@ export class ChainAdapterError extends Error {
     this.metadata = (error as ChainAdapterError).metadata ?? metadata
 
     Error.captureStackTrace(this, this.constructor)
+  }
+}
+
+export const handleBroadcastTransactionError = async (
+  err: unknown,
+  customMessage?: (response: any) => string,
+) => {
+  try {
+    if (!isResponseError(err)) throw err
+
+    const response = await err.response.clone().json()
+
+    const message = (() => {
+      if (customMessage) return customMessage(response)
+
+      try {
+        return JSON.parse(response.message).message
+      } catch {
+        return response.message
+      }
+    })()
+
+    return ErrorHandler(JSON.stringify(response), {
+      translation: 'chainAdapters.errors.broadcastTransactionWithMessage',
+      options: { message },
+    })
+  } catch (err) {
+    return ErrorHandler(err, {
+      translation: 'chainAdapters.errors.broadcastTransaction',
+    })
   }
 }
 
@@ -60,10 +100,8 @@ export const ErrorHandler = async (err: unknown, metadata?: ErrorMetadata): Prom
     const response = JSON.stringify((err as AxiosError).response?.data)
     if (metadata) throw new ChainAdapterError(response, metadata)
     throw new Error(response)
-  } else if ((err as Error).name === 'ResponseError') {
-    // handle fetch api error coming from generated typescript client
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const response = JSON.stringify(await ((err as any).response as Response).json())
+  } else if (isResponseError(err)) {
+    const response = JSON.stringify(await err.response.clone().json())
     if (metadata) throw new ChainAdapterError(response, metadata)
     throw new Error(response)
   } else if (err instanceof Error || err instanceof ChainAdapterError) {

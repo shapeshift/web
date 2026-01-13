@@ -28,6 +28,7 @@ import { History } from '@/pages/History/History'
 import { RFOX } from '@/pages/RFOX/RFOX'
 import { TCYNavIndicator } from '@/pages/TCY/components/TCYNavIndicator'
 import { TCY } from '@/pages/TCY/tcy'
+import { EarnTab } from '@/pages/Trade/tabs/EarnTab'
 import { LimitTab } from '@/pages/Trade/tabs/LimitTab'
 import { RampTab } from '@/pages/Trade/tabs/RampTab'
 import { TradeTab } from '@/pages/Trade/tabs/TradeTab'
@@ -37,6 +38,8 @@ export const TRADE_ROUTE_ASSET_SPECIFIC =
   '/trade/:chainId/:assetSubId/:sellChainId/:sellAssetSubId/:sellAmountCryptoBaseUnit'
 export const LIMIT_ORDER_ROUTE_ASSET_SPECIFIC =
   '/limit/:chainId/:assetSubId/:sellChainId/:sellAssetSubId/:sellAmountCryptoBaseUnit/:limitPriceMode/:limitPriceDirection/:limitPrice'
+export const EARN_ROUTE_ASSET_SPECIFIC =
+  '/earn/:sellChainId/:sellAssetSubId/:yieldId/:sellAmountCryptoBaseUnit'
 
 const Dashboard = makeSuspenseful(
   lazy(() =>
@@ -422,6 +425,20 @@ export const routes: Route[] = [
       {
         path: LimitOrderRoutePaths.Orders,
         main: LimitTab,
+        hide: true,
+      },
+    ],
+  },
+  {
+    path: '/earn/*',
+    label: '',
+    hideDesktop: true,
+    main: EarnTab,
+    disable: !getConfig().VITE_FEATURE_EARN_TAB,
+    routes: [
+      {
+        path: EARN_ROUTE_ASSET_SPECIFIC,
+        main: EarnTab,
         hide: true,
       },
     ],

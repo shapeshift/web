@@ -20,4 +20,5 @@ export enum TradeInputTab {
   LimitOrder = 'limitOrder',
   BuyFiat = 'buy',
   SellFiat = 'sell',
+  Earn = 'earn',
 }

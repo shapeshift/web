@@ -1,30 +1,10 @@
-import {
-  Avatar,
-  Box,
-  Button,
-  Flex,
-  Heading,
-  HStack,
-  Icon,
-  Input,
-  Skeleton,
-  Text,
-  useToast,
-  VStack,
-} from '@chakra-ui/react'
-import { cosmosChainId, ethChainId, fromAccountId } from '@shapeshiftoss/caip'
-import { assertGetViemClient } from '@shapeshiftoss/contracts'
-import type { KnownChainIds } from '@shapeshiftoss/types'
-import { useQuery, useQueryClient } from '@tanstack/react-query'
-import { uuidv4 } from '@walletconnect/utils'
+import { Avatar, Box, Button, Flex, HStack, Icon, Input, Skeleton, Text } from '@chakra-ui/react'
+import { useQueryClient } from '@tanstack/react-query'
 import { memo, useCallback, useEffect, useMemo, useState } from 'react'
-import ReactCanvasConfetti from 'react-canvas-confetti'
-import { FaCheck } from 'react-icons/fa'
 import { TbSwitchVertical } from 'react-icons/tb'
 import type { NumberFormatValues } from 'react-number-format'
 import { NumericFormat } from 'react-number-format'
 import { useTranslate } from 'react-polyglot'
-import type { Hash } from 'viem'
 
 import { AccountSelector } from '@/components/AccountSelector/AccountSelector'
 import { Amount } from '@/components/Amount/Amount'
@@ -35,59 +15,33 @@ import { DialogCloseButton } from '@/components/Modal/components/DialogCloseButt
 import { DialogFooter } from '@/components/Modal/components/DialogFooter'
 import { DialogHeader } from '@/components/Modal/components/DialogHeader'
 import { DialogTitle } from '@/components/Modal/components/DialogTitle'
-import { SECOND_CLASS_CHAINS } from '@/constants/chains'
 import { WalletActions } from '@/context/WalletProvider/actions'
-import { useDebounce } from '@/hooks/useDebounce/useDebounce'
 import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { useLocaleFormatter } from '@/hooks/useLocaleFormatter/useLocaleFormatter'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
-import { enterYield } from '@/lib/yieldxyz/api'
 import {
   DEFAULT_NATIVE_VALIDATOR_BY_CHAIN_ID,
   SHAPESHIFT_COSMOS_VALIDATOR_ADDRESS,
   SHAPESHIFT_VALIDATOR_LOGO,
 } from '@/lib/yieldxyz/constants'
-import type { CosmosStakeArgs } from '@/lib/yieldxyz/executeTransaction'
-import { executeTransaction } from '@/lib/yieldxyz/executeTransaction'
-import type { AugmentedYieldDto, TransactionDto } from '@/lib/yieldxyz/types'
-import { TransactionStatus } from '@/lib/yieldxyz/types'
-import { formatYieldTxTitle, getTransactionButtonText } from '@/lib/yieldxyz/utils'
+import type { AugmentedYieldDto } from '@/lib/yieldxyz/types'
+import { getTransactionButtonText } from '@/lib/yieldxyz/utils'
 import { GradientApy } from '@/pages/Yields/components/GradientApy'
 import { TransactionStepsList } from '@/pages/Yields/components/TransactionStepsList'
-import { useConfetti } from '@/pages/Yields/hooks/useConfetti'
-import type { TransactionStep } from '@/pages/Yields/hooks/useYieldTransactionFlow'
-import {
-  filterExecutableTransactions,
-  getSpenderFromApprovalTx,
-  isApprovalTransaction,
-  isUsdtOnEthereumMainnet,
-  waitForActionCompletion,
-  waitForTransactionConfirmation,
-} from '@/pages/Yields/hooks/useYieldTransactionFlow'
-import { reactQueries } from '@/react-queries'
-import { useAllowance } from '@/react-queries/hooks/useAllowance'
-import { useSubmitYieldTransactionHash } from '@/react-queries/queries/yieldxyz/useSubmitYieldTransactionHash'
+import { YieldSuccess } from '@/pages/Yields/components/YieldSuccess'
+import { ModalStep, useYieldTransactionFlow } from '@/pages/Yields/hooks/useYieldTransactionFlow'
 import { useYieldProviders } from '@/react-queries/queries/yieldxyz/useYieldProviders'
 import { useYieldValidators } from '@/react-queries/queries/yieldxyz/useYieldValidators'
-import { actionSlice } from '@/state/slices/actionSlice/actionSlice'
-import {
-  ActionStatus,
-  ActionType,
-  GenericTransactionDisplayType,
-} from '@/state/slices/actionSlice/types'
-import { portfolioApi } from '@/state/slices/portfolioSlice/portfolioSlice'
-import { selectPortfolioAccountMetadataByAccountId } from '@/state/slices/portfolioSlice/selectors'
 import { allowedDecimalSeparators } from '@/state/slices/preferencesSlice/preferencesSlice'
 import {
   selectAccountIdByAccountNumberAndChainId,
   selectAssetById,
-  selectFeeAssetByChainId,
   selectMarketDataByAssetIdUserCurrency,
   selectPortfolioAccountIdsByAssetIdFilter,
   selectPortfolioCryptoPrecisionBalanceByFilter,
 } from '@/state/slices/selectors'
-import { useAppDispatch, useAppSelector } from '@/state/store'
+import { useAppSelector } from '@/state/store'
 
 type YieldEnterModalProps = {
   isOpen: boolean
@@ -96,7 +50,6 @@ type YieldEnterModalProps = {
   accountNumber?: number
 }
 
-const QUOTE_DEBOUNCE_MS = 500
 const PRESET_PERCENTAGES = [0.25, 0.5, 0.75, 1] as const
 const SHAPESHIFT_VALIDATOR_NAME = 'ShapeShift DAO'
 
@@ -151,37 +104,21 @@ const YieldEnterModalSkeleton = memo(() => (
   </Flex>
 ))
 
-type ModalStep = 'input' | 'success'
-
 export const YieldEnterModal = memo(
   ({ isOpen, onClose, yieldItem, accountNumber = 0 }: YieldEnterModalProps) => {
-    const dispatch = useAppDispatch()
     const queryClient = useQueryClient()
-    const toast = useToast()
     const translate = useTranslate()
     const { state: walletState, dispatch: walletDispatch } = useWallet()
-    const wallet = walletState.wallet
     const isConnected = useMemo(() => Boolean(walletState.walletInfo), [walletState.walletInfo])
     const isYieldMultiAccountEnabled = useFeatureFlag('YieldMultiAccount')
-    const isUsdtApprovalResetEnabled = useFeatureFlag('UsdtApprovalReset')
     const {
       number: { localeParts },
     } = useLocaleFormatter()
-    const submitHashMutation = useSubmitYieldTransactionHash()
 
     const [cryptoAmount, setCryptoAmount] = useState('')
     const [isFiat, setIsFiat] = useState(false)
     const [selectedAccountId, setSelectedAccountId] = useState<string | undefined>()
-    const [modalStep, setModalStep] = useState<ModalStep>('input')
-    const [isSubmitting, setIsSubmitting] = useState(false)
-    const [transactionSteps, setTransactionSteps] = useState<TransactionStep[]>([])
     const [selectedPercent, setSelectedPercent] = useState<number | null>(null)
-    const [activeStepIndex, setActiveStepIndex] = useState(-1)
-    const [rawTransactions, setRawTransactions] = useState<TransactionDto[]>([])
-    const [currentActionId, setCurrentActionId] = useState<string | null>(null)
-    const [resetTxHash, setResetTxHash] = useState<string | null>(null)
-
-    const debouncedAmount = useDebounce(cryptoAmount, QUOTE_DEBOUNCE_MS)
 
     const { chainId } = yieldItem
     const inputToken = yieldItem.inputTokens[0]
@@ -245,11 +182,6 @@ export const YieldEnterModal = memo(
       return providers[yieldItem.providerId]
     }, [providers, yieldItem.providerId])
 
-    const userAddress = useMemo(
-      () => (accountId ? fromAccountId(accountId).account : ''),
-      [accountId],
-    )
-
     const inputTokenAsset = useAppSelector(state => selectAssetById(state, inputTokenAssetId ?? ''))
 
     const inputTokenBalance = useAppSelector(state =>
@@ -265,15 +197,6 @@ export const YieldEnterModal = memo(
       selectMarketDataByAssetIdUserCurrency(state, inputTokenAssetId ?? ''),
     )
 
-    const feeAsset = useAppSelector(state =>
-      chainId ? selectFeeAssetByChainId(state, chainId) : undefined,
-    )
-
-    const accountMetadataFilter = useMemo(() => ({ accountId: accountId ?? '' }), [accountId])
-    const accountMetadata = useAppSelector(state =>
-      selectPortfolioAccountMetadataByAccountId(state, accountMetadataFilter),
-    )
-
     const minDeposit = yieldItem.mechanics?.entryLimits?.minimum
 
     const isBelowMinimum = useMemo(() => {
@@ -281,97 +204,7 @@ export const YieldEnterModal = memo(
       return bnOrZero(cryptoAmount).lt(minDeposit)
     }, [cryptoAmount, minDeposit])
 
-    const txArguments = useMemo(() => {
-      if (!yieldItem || !userAddress || !chainId || !debouncedAmount) return null
-      if (!bnOrZero(debouncedAmount).gt(0)) return null
-
-      const fields = yieldItem.mechanics.arguments.enter.fields
-      const fieldNames = new Set(fields.map(field => field.name))
-      const args: Record<string, unknown> = { amount: debouncedAmount }
-
-      if (fieldNames.has('receiverAddress')) {
-        args.receiverAddress = userAddress
-      }
-
-      if (fieldNames.has('validatorAddress') && chainId) {
-        args.validatorAddress =
-          selectedValidatorAddress || DEFAULT_NATIVE_VALIDATOR_BY_CHAIN_ID[chainId]
-      }
-
-      if (fieldNames.has('cosmosPubKey') && chainId === cosmosChainId) {
-        args.cosmosPubKey = userAddress
-      }
-
-      return args
-    }, [yieldItem, userAddress, chainId, debouncedAmount, selectedValidatorAddress])
-
-    const {
-      data: quoteData,
-      isLoading: isQuoteLoading,
-      isFetching: isQuoteFetching,
-    } = useQuery({
-      queryKey: ['yieldxyz', 'quote', 'enter', yieldItem.id, userAddress, txArguments],
-      queryFn: () => {
-        if (!txArguments || !userAddress || !yieldItem.id) throw new Error('Missing arguments')
-        return enterYield({ yieldId: yieldItem.id, address: userAddress, arguments: txArguments })
-      },
-      enabled:
-        !!txArguments && !!wallet && !!accountId && isOpen && bnOrZero(debouncedAmount).gt(0),
-      staleTime: 30_000,
-      gcTime: 60_000,
-      retry: false,
-    })
-
-    const approvalSpender = useMemo(() => {
-      if (!quoteData?.transactions) return null
-      const createdTransactions = quoteData.transactions.filter(
-        tx => tx.status === TransactionStatus.Created,
-      )
-      const approvalTx = createdTransactions.find(isApprovalTransaction)
-      if (!approvalTx) return null
-      return getSpenderFromApprovalTx(approvalTx)
-    }, [quoteData?.transactions])
-
-    const allowanceQuery = useAllowance({
-      assetId: inputTokenAssetId,
-      spender: approvalSpender ?? undefined,
-      from: userAddress || undefined,
-      isDisabled: !approvalSpender || !isUsdtApprovalResetEnabled,
-      isRefetchEnabled: true,
-    })
-
-    const isUsdtResetRequired = useMemo(() => {
-      if (!isUsdtApprovalResetEnabled) return false
-      if (!isUsdtOnEthereumMainnet(inputTokenAssetId, chainId)) return false
-      if (!approvalSpender) return false
-      if (!allowanceQuery.data) return false
-      return bnOrZero(allowanceQuery.data).gt(0)
-    }, [
-      isUsdtApprovalResetEnabled,
-      inputTokenAssetId,
-      chainId,
-      approvalSpender,
-      allowanceQuery.data,
-    ])
-
-    // Check if we're waiting for USDT allowance check before we can determine reset requirement
-    const isAllowanceCheckPending = useMemo(() => {
-      if (!isUsdtApprovalResetEnabled) return false
-      if (!isUsdtOnEthereumMainnet(inputTokenAssetId, chainId)) return false
-      if (!approvalSpender) return false
-      // If we have an approval spender for USDT but allowance data hasn't loaded yet
-      return allowanceQuery.data === undefined && !allowanceQuery.isError
-    }, [
-      isUsdtApprovalResetEnabled,
-      inputTokenAssetId,
-      chainId,
-      approvalSpender,
-      allowanceQuery.data,
-      allowanceQuery.isError,
-    ])
-
     const isLoading = isValidatorsLoading || !inputTokenAsset
-    const isQuoteActive = isQuoteLoading || isQuoteFetching || isAllowanceCheckPending
 
     const fiatAmount = useMemo(
       () => bnOrZero(cryptoAmount).times(marketData?.price ?? 0),
@@ -437,20 +270,13 @@ export const YieldEnterModal = memo(
     )
 
     const handleModalClose = useCallback(() => {
-      if (isSubmitting) return
       setCryptoAmount('')
       setSelectedPercent(null)
       setIsFiat(false)
       setSelectedAccountId(undefined)
-      setModalStep('input')
-      setTransactionSteps([])
-      setActiveStepIndex(-1)
-      setRawTransactions([])
-      setCurrentActionId(null)
-      setResetTxHash(null)
       queryClient.removeQueries({ queryKey: ['yieldxyz', 'quote', 'enter', yieldItem.id] })
       onClose()
-    }, [onClose, isSubmitting, queryClient, yieldItem.id])
+    }, [onClose, queryClient, yieldItem.id])
 
     const handleAccountChange = useCallback((newAccountId: string) => {
       setSelectedAccountId(newAccountId)
@@ -458,345 +284,52 @@ export const YieldEnterModal = memo(
       setSelectedPercent(null)
     }, [])
 
-    const buildCosmosStakeArgs = useCallback((): CosmosStakeArgs | undefined => {
-      if (chainId !== cosmosChainId) return undefined
-      if (!inputTokenAsset) return undefined
-
-      const validator =
-        selectedValidatorAddress || DEFAULT_NATIVE_VALIDATOR_BY_CHAIN_ID[cosmosChainId]
-      if (!validator) return undefined
-
-      return {
-        validator,
-        amountCryptoBaseUnit: bnOrZero(cryptoAmount)
-          .times(bnOrZero(10).pow(inputTokenAsset.precision))
-          .toFixed(0),
-        action: 'stake',
-      }
-    }, [chainId, selectedValidatorAddress, cryptoAmount, inputTokenAsset])
-
-    const dispatchNotification = useCallback(
-      (tx: TransactionDto, txHash: string) => {
-        if (!chainId || !accountId) return
-        if (!yieldItem.token.assetId) return
-
-        const isApproval =
-          tx.type?.toLowerCase() === 'approval' || tx.title?.toLowerCase().includes('approv')
-        const actionType = isApproval ? ActionType.Approve : ActionType.Deposit
-
-        dispatch(
-          actionSlice.actions.upsertAction({
-            id: uuidv4(),
-            type: actionType,
-            status: ActionStatus.Complete,
-            createdAt: Date.now(),
-            updatedAt: Date.now(),
-            transactionMetadata: {
-              displayType: isApproval
-                ? GenericTransactionDisplayType.Approve
-                : GenericTransactionDisplayType.Yield,
-              txHash,
-              chainId,
-              assetId: yieldItem.token.assetId,
-              accountId,
-              message: isApproval
-                ? 'actionCenter.approve.approvalTxComplete'
-                : 'actionCenter.deposit.complete',
-              amountCryptoPrecision: cryptoAmount,
-              contractName: yieldItem.metadata.name,
-              chainName: yieldItem.network,
-            },
-          }),
-        )
-      },
-      [dispatch, chainId, accountId, yieldItem, cryptoAmount],
-    )
-
-    const updateStepStatus = useCallback((index: number, updates: Partial<TransactionStep>) => {
-      setTransactionSteps(prev => prev.map((s, i) => (i === index ? { ...s, ...updates } : s)))
-    }, [])
-
-    const executeResetAllowance = useCallback(async () => {
-      if (!wallet || !accountId || !inputTokenAssetId || !approvalSpender) {
-        throw new Error(translate('yieldXYZ.errors.walletNotConnected'))
-      }
-
-      setIsSubmitting(true)
-      updateStepStatus(0, {
-        status: 'loading',
-        loadingMessage: translate('yieldXYZ.loading.signInWallet'),
-      })
-
-      try {
-        const txHash = await reactQueries.mutations
-          .approve({
-            assetId: inputTokenAssetId,
-            spender: approvalSpender,
-            amountCryptoBaseUnit: '0',
-            accountNumber: accountMetadata?.bip44Params?.accountNumber ?? 0,
-            wallet,
-            from: userAddress,
-          })
-          .mutationFn()
-
-        if (!txHash) throw new Error(translate('yieldXYZ.errors.broadcastFailed'))
-
-        setResetTxHash(txHash)
-        const txUrl = feeAsset?.explorerTxLink ? `${feeAsset.explorerTxLink}${txHash}` : ''
-        updateStepStatus(0, { txHash, txUrl, loadingMessage: translate('common.confirming') })
-
-        const publicClient = assertGetViemClient(ethChainId)
-        await publicClient.waitForTransactionReceipt({ hash: txHash as Hash })
-
-        await allowanceQuery.refetch()
-        updateStepStatus(0, { status: 'success', loadingMessage: undefined })
-        setActiveStepIndex(1)
-      } catch (error) {
-        toast({
-          title: translate('yieldXYZ.errors.transactionFailedTitle'),
-          description:
-            error instanceof Error
-              ? error.message
-              : translate('yieldXYZ.errors.transactionFailedDescription'),
-          status: 'error',
-          duration: 5000,
-          isClosable: true,
-        })
-        updateStepStatus(0, { status: 'failed', loadingMessage: undefined })
-      } finally {
-        setIsSubmitting(false)
-      }
-    }, [
-      wallet,
-      accountId,
-      inputTokenAssetId,
-      approvalSpender,
-      userAddress,
-      accountMetadata?.bip44Params?.accountNumber,
-      feeAsset?.explorerTxLink,
-      translate,
-      updateStepStatus,
-      toast,
-      allowanceQuery,
-    ])
-
-    const executeSingleTransaction = useCallback(
-      async (
-        tx: TransactionDto,
-        yieldTxIndex: number,
-        uiStepIndex: number,
-        allTransactions: TransactionDto[],
-        actionId: string,
-      ) => {
-        if (!wallet || !accountId || !chainId) {
-          throw new Error(translate('yieldXYZ.errors.walletNotConnected'))
-        }
-
-        updateStepStatus(uiStepIndex, {
-          status: 'loading',
-          loadingMessage: translate('yieldXYZ.loading.signInWallet'),
-        })
-        setIsSubmitting(true)
-
-        try {
-          const txHash = await executeTransaction({
-            tx,
-            chainId,
-            wallet,
-            accountId,
-            userAddress,
-            bip44Params: accountMetadata?.bip44Params,
-            cosmosStakeArgs: buildCosmosStakeArgs(),
-          })
-
-          if (!txHash) throw new Error(translate('yieldXYZ.errors.broadcastFailed'))
-
-          const txUrl = feeAsset?.explorerTxLink ? `${feeAsset.explorerTxLink}${txHash}` : ''
-          updateStepStatus(uiStepIndex, {
-            txHash,
-            txUrl,
-            loadingMessage: translate('common.confirming'),
-          })
-
-          await submitHashMutation.mutateAsync({
-            transactionId: tx.id,
-            hash: txHash,
-            yieldId: yieldItem.id,
-            address: userAddress,
-          })
-
-          const isLastTransaction = yieldTxIndex + 1 >= allTransactions.length
-
-          if (isLastTransaction) {
-            await waitForActionCompletion(actionId)
-            await queryClient.refetchQueries({ queryKey: ['yieldxyz', 'allBalances'] })
-            await queryClient.refetchQueries({ queryKey: ['yieldxyz', 'yields'] })
-
-            if (chainId && SECOND_CLASS_CHAINS.includes(chainId as KnownChainIds)) {
-              dispatch(
-                portfolioApi.endpoints.getAccount.initiate(
-                  { accountId, upsertOnFetch: true },
-                  { forceRefetch: true },
-                ),
-              )
-            }
-
-            dispatchNotification(tx, txHash)
-            updateStepStatus(uiStepIndex, { status: 'success', loadingMessage: undefined })
-            setModalStep('success')
-          } else {
-            const confirmedAction = await waitForTransactionConfirmation(actionId, tx.id)
-            const nextTx = confirmedAction.transactions.find(
-              t => t.status === TransactionStatus.Created && t.stepIndex === yieldTxIndex + 1,
-            )
-
-            if (nextTx) {
-              updateStepStatus(uiStepIndex, { status: 'success', loadingMessage: undefined })
-              setRawTransactions(prev => prev.map((t, i) => (i === yieldTxIndex + 1 ? nextTx : t)))
-              setActiveStepIndex(uiStepIndex + 1)
-            } else {
-              await waitForActionCompletion(actionId)
-              await queryClient.refetchQueries({ queryKey: ['yieldxyz', 'allBalances'] })
-              await queryClient.refetchQueries({ queryKey: ['yieldxyz', 'yields'] })
-
-              if (chainId && SECOND_CLASS_CHAINS.includes(chainId as KnownChainIds)) {
-                dispatch(
-                  portfolioApi.endpoints.getAccount.initiate(
-                    { accountId, upsertOnFetch: true },
-                    { forceRefetch: true },
-                  ),
-                )
-              }
-
-              dispatchNotification(tx, txHash)
-              updateStepStatus(uiStepIndex, { status: 'success', loadingMessage: undefined })
-              setModalStep('success')
-            }
-          }
-        } catch (error) {
-          toast({
-            title: translate('yieldXYZ.errors.transactionFailedTitle'),
-            description:
-              error instanceof Error
-                ? error.message
-                : translate('yieldXYZ.errors.transactionFailedDescription'),
-            status: 'error',
-            duration: 5000,
-            isClosable: true,
-          })
-          updateStepStatus(uiStepIndex, { status: 'failed', loadingMessage: undefined })
-        } finally {
-          setIsSubmitting(false)
-        }
-      },
-      [
-        wallet,
-        accountId,
-        chainId,
-        userAddress,
-        accountMetadata?.bip44Params,
-        feeAsset?.explorerTxLink,
-        translate,
-        updateStepStatus,
-        buildCosmosStakeArgs,
-        submitHashMutation,
-        yieldItem.id,
-        queryClient,
-        dispatchNotification,
-        dispatch,
-        toast,
-      ],
-    )
-
-    const handleExecute = useCallback(async () => {
-      // Handle USDT reset step if required and not yet done
-      const shouldExecuteReset = isUsdtResetRequired && activeStepIndex === 0 && !resetTxHash
-
-      if (shouldExecuteReset) {
-        await executeResetAllowance()
-        return
-      }
-
-      // Calculate the yield transaction index (offset by 1 if we had a reset step)
-      // Use resetTxHash as indicator, not isUsdtResetRequired (which changes to false after reset)
-      const hadResetStep = Boolean(resetTxHash)
-      const yieldStepIndex = hadResetStep ? activeStepIndex - 1 : activeStepIndex
-
-      // If we're in the middle of a multi-step flow, execute the next step
-      const hasYieldTx = yieldStepIndex >= 0 && rawTransactions[yieldStepIndex] && currentActionId
-
-      if (hasYieldTx) {
-        await executeSingleTransaction(
-          rawTransactions[yieldStepIndex],
-          yieldStepIndex,
-          activeStepIndex,
-          rawTransactions,
-          currentActionId,
-        )
-        return
-      }
-
-      // Initial execution - set up and execute first transaction
-      if (!wallet || !accountId || !chainId || !quoteData || !inputTokenAsset) return
-
-      const transactions = filterExecutableTransactions(quoteData.transactions)
-
-      if (transactions.length === 0) {
-        setModalStep('success')
-        return
-      }
-
-      setCurrentActionId(quoteData.id)
-      setRawTransactions(transactions)
-
-      // Build transaction steps with reset step if needed
-      const steps: TransactionStep[] = []
-
-      if (isUsdtResetRequired) {
-        steps.push({
-          title: translate('yieldXYZ.resetAllowance'),
-          originalTitle: 'Reset Allowance',
-          type: 'RESET',
-          status: 'pending',
-        })
-      }
-
-      steps.push(
-        ...transactions.map((tx, i) => ({
-          title: formatYieldTxTitle(
-            tx.title || translate('yieldXYZ.transactionNumber', { number: i + 1 }),
-            inputTokenAsset.symbol,
-          ),
-          originalTitle: tx.title || '',
-          type: tx.type,
-          status: 'pending' as const,
-        })),
-      )
-
-      setTransactionSteps(steps)
-      setActiveStepIndex(0)
-
-      // Execute first step (reset if required, otherwise first yield tx)
-      if (isUsdtResetRequired) {
-        await executeResetAllowance()
-      } else {
-        await executeSingleTransaction(transactions[0], 0, 0, transactions, quoteData.id)
-      }
-    }, [
-      isUsdtResetRequired,
+    const {
+      step,
+      transactionSteps,
+      displaySteps,
+      isSubmitting,
       activeStepIndex,
-      resetTxHash,
-      executeResetAllowance,
-      rawTransactions,
-      currentActionId,
-      wallet,
-      accountId,
-      chainId,
+      handleConfirm,
+      handleClose: hookHandleClose,
+      isQuoteLoading,
       quoteData,
-      inputTokenAsset,
-      translate,
-      executeSingleTransaction,
-    ])
+      isAllowanceCheckPending,
+      isUsdtResetRequired,
+    } = useYieldTransactionFlow({
+      yieldItem,
+      action: 'enter',
+      amount: cryptoAmount,
+      assetSymbol: inputTokenAsset?.symbol ?? '',
+      onClose: handleModalClose,
+      isOpen,
+      validatorAddress: selectedValidatorAddress,
+      accountId,
+    })
+
+    const isQuoteActive = isQuoteLoading || isAllowanceCheckPending
+
+    useEffect(() => {
+      if (step === ModalStep.Success) {
+        handleModalClose()
+      }
+    }, [step, handleModalClose])
+
+    const successProviderInfo = useMemo(() => {
+      if (isStaking && selectedValidatorMetadata) {
+        return {
+          name: selectedValidatorMetadata.name,
+          logoURI: selectedValidatorMetadata.logoURI,
+        }
+      }
+      if (providerMetadata) {
+        return {
+          name: providerMetadata.name,
+          logoURI: providerMetadata.logoURI,
+        }
+      }
+      return null
+    }, [isStaking, selectedValidatorMetadata, providerMetadata])
 
     const enterButtonDisabled = useMemo(
       () =>
@@ -809,29 +342,23 @@ export const YieldEnterModal = memo(
       if (!isConnected) return translate('common.connectWallet')
       if (isQuoteActive) return translate('yieldXYZ.loadingQuote')
 
-      // During execution, show the current step's action
       if (isSubmitting && transactionSteps.length > 0) {
         const activeStep = transactionSteps.find(s => s.status !== 'success')
         if (activeStep) return getTransactionButtonText(activeStep.type, activeStep.originalTitle)
       }
 
-      // In multi-step flow (waiting for next click)
       if (activeStepIndex >= 0 && transactionSteps[activeStepIndex]) {
         const currentStep = transactionSteps[activeStepIndex]
         return getTransactionButtonText(currentStep.type, currentStep.originalTitle)
       }
 
-      // Before execution - show reset if required, otherwise first yield tx
       if (isUsdtResetRequired) {
         return translate('yieldXYZ.resetAllowance')
       }
 
-      const firstCreatedTx = quoteData?.transactions?.find(
-        tx => tx.status === TransactionStatus.Created,
-      )
+      const firstCreatedTx = quoteData?.transactions?.find(tx => tx.status === 'CREATED')
       if (firstCreatedTx) return getTransactionButtonText(firstCreatedTx.type, firstCreatedTx.title)
 
-      // Fallback to generic enter text
       return translate('yieldXYZ.enterAsset', { asset: inputTokenAsset?.symbol })
     }, [
       isConnected,
@@ -846,39 +373,9 @@ export const YieldEnterModal = memo(
     ])
 
     const modalTitle = useMemo(() => {
-      if (modalStep === 'success') return translate('common.success')
+      if (step === ModalStep.Success) return translate('common.success')
       return translate('yieldXYZ.enterAsset', { asset: inputTokenAsset?.symbol })
-    }, [translate, inputTokenAsset?.symbol, modalStep])
-
-    const previewSteps = useMemo((): TransactionStep[] => {
-      if (!quoteData?.transactions?.length || !inputTokenAsset) return []
-      // Don't show preview steps while still checking if USDT reset is needed
-      if (isAllowanceCheckPending) return []
-
-      const steps: TransactionStep[] = []
-
-      if (isUsdtResetRequired) {
-        steps.push({
-          title: translate('yieldXYZ.resetAllowance'),
-          originalTitle: 'Reset Allowance',
-          type: 'RESET',
-          status: 'pending',
-        })
-      }
-
-      steps.push(
-        ...quoteData.transactions
-          .filter(tx => tx.status === TransactionStatus.Created)
-          .map((tx, i) => ({
-            title: formatYieldTxTitle(tx.title || `Transaction ${i + 1}`, inputTokenAsset.symbol),
-            originalTitle: tx.title || '',
-            type: tx.type,
-            status: 'pending' as const,
-          })),
-      )
-
-      return steps
-    }, [quoteData, inputTokenAsset, isUsdtResetRequired, isAllowanceCheckPending, translate])
+    }, [translate, inputTokenAsset?.symbol, step])
 
     const percentButtons = useMemo(
       () => (
@@ -1049,156 +546,108 @@ export const YieldEnterModal = memo(
       fiatAmount,
     ])
 
-    const { getInstance, fireConfetti, confettiStyle } = useConfetti()
-
-    useEffect(() => {
-      if (modalStep === 'success') fireConfetti()
-    }, [modalStep, fireConfetti])
-
-    const successProviderInfo = useMemo(() => {
-      if (isStaking && selectedValidatorMetadata) {
-        return {
-          name: selectedValidatorMetadata.name,
-          logoURI: selectedValidatorMetadata.logoURI,
-        }
-      }
-      if (providerMetadata) {
-        return {
-          name: providerMetadata.name,
-          logoURI: providerMetadata.logoURI,
-        }
-      }
-      return null
-    }, [isStaking, selectedValidatorMetadata, providerMetadata])
+    const isInProgress = step === ModalStep.InProgress
+    const isSuccess = step === ModalStep.Success
 
     const successContent = useMemo(
       () => (
-        <VStack spacing={6} py={4} textAlign='center' align='center'>
-          <Box
-            position='relative'
-            w={20}
-            h={20}
-            borderRadius='full'
-            bgGradient='linear(to-br, green.400, green.600)'
-            color='white'
-            display='flex'
-            alignItems='center'
-            justifyContent='center'
-            boxShadow='0 0 30px rgba(72, 187, 120, 0.5)'
-          >
-            <Icon as={FaCheck} boxSize={8} />
-          </Box>
-          <Box>
-            <Heading size='lg' mb={2}>
-              {translate('yieldXYZ.success')}
-            </Heading>
-            <Text color='text.subtle' fontSize='md'>
-              {translate('yieldXYZ.successEnter', {
-                amount: cryptoAmount,
-                symbol: inputTokenAsset?.symbol,
-              })}
-            </Text>
-          </Box>
-          {successProviderInfo && (
-            <Flex
-              align='center'
-              gap={2}
-              bg='background.surface.raised.base'
-              px={4}
-              py={2}
-              borderRadius='full'
-            >
-              <Avatar size='sm' src={successProviderInfo.logoURI} name={successProviderInfo.name} />
-              <Text fontSize='sm' fontWeight='medium'>
-                {successProviderInfo.name}
-              </Text>
-            </Flex>
-          )}
-          <Box width='full'>
-            <TransactionStepsList steps={transactionSteps} />
-          </Box>
-        </VStack>
+        <YieldSuccess
+          amount={cryptoAmount}
+          symbol={inputTokenAsset?.symbol ?? ''}
+          providerInfo={successProviderInfo}
+          transactionSteps={transactionSteps}
+          yieldId={yieldItem.id}
+          onDone={hookHandleClose}
+          successMessageKey='successEnter'
+        />
       ),
-      [translate, cryptoAmount, inputTokenAsset?.symbol, successProviderInfo, transactionSteps],
+      [
+        cryptoAmount,
+        inputTokenAsset?.symbol,
+        successProviderInfo,
+        transactionSteps,
+        yieldItem.id,
+        hookHandleClose,
+      ],
+    )
+
+    const stepsToShow = activeStepIndex >= 0 ? transactionSteps : displaySteps
+
+    const dialogOnClose = useMemo(
+      () => (isSubmitting ? () => {} : hookHandleClose),
+      [isSubmitting, hookHandleClose],
     )
 
     return (
-      <>
-        <ReactCanvasConfetti onInit={getInstance} style={confettiStyle} />
-        <Dialog isOpen={isOpen} onClose={handleModalClose} isFullScreen>
-          <DialogHeader>
-            <DialogHeader.Left>{null}</DialogHeader.Left>
-            <DialogHeader.Middle>
-              <DialogTitle>{modalTitle}</DialogTitle>
-            </DialogHeader.Middle>
-            <DialogHeader.Right>
-              <DialogCloseButton isDisabled={isSubmitting} />
-            </DialogHeader.Right>
-          </DialogHeader>
-          <DialogBody py={4} flex={1}>
-            {modalStep === 'input' && (
-              <Flex direction='column' gap={4} height='full'>
-                {inputContent}
-                {percentButtons}
-                {inputTokenAssetId && accountId && (
-                  <Flex justify='center'>
-                    <AccountSelector
-                      assetId={inputTokenAssetId}
-                      accountId={accountId}
-                      onChange={handleAccountChange}
-                      disabled={isAccountSelectorDisabled}
-                    />
-                  </Flex>
-                )}
-                {statsContent}
-                {activeStepIndex >= 0 ? (
-                  <TransactionStepsList steps={transactionSteps} />
-                ) : (
-                  previewSteps.length > 0 && <TransactionStepsList steps={previewSteps} />
-                )}
-              </Flex>
-            )}
-            {modalStep === 'success' && successContent}
-          </DialogBody>
-          {modalStep === 'input' && (
-            <DialogFooter borderTop='1px solid' borderColor='border.base' pt={4} pb={4}>
-              <Button
-                colorScheme='blue'
-                size='lg'
-                width='full'
-                height='56px'
-                fontSize='lg'
-                fontWeight='semibold'
-                borderRadius='xl'
-                isDisabled={enterButtonDisabled || isSubmitting}
-                isLoading={isSubmitting || (isQuoteActive && hasAmount)}
-                loadingText={
-                  isSubmitting ? translate('common.confirming') : translate('yieldXYZ.loadingQuote')
-                }
-                onClick={isConnected ? handleExecute : handleConnectWallet}
-              >
-                {enterButtonText}
-              </Button>
-            </DialogFooter>
+      <Dialog isOpen={isOpen} onClose={dialogOnClose} isFullScreen>
+        <DialogHeader>
+          <DialogHeader.Left>{null}</DialogHeader.Left>
+          <DialogHeader.Middle>
+            <DialogTitle>{modalTitle}</DialogTitle>
+          </DialogHeader.Middle>
+          <DialogHeader.Right>
+            <DialogCloseButton isDisabled={isSubmitting} />
+          </DialogHeader.Right>
+        </DialogHeader>
+        <DialogBody py={4} flex={1}>
+          {isInProgress && (
+            <Flex direction='column' gap={4} height='full'>
+              {inputContent}
+              {percentButtons}
+              {inputTokenAssetId && accountId && (
+                <Flex justify='center'>
+                  <AccountSelector
+                    assetId={inputTokenAssetId}
+                    accountId={accountId}
+                    onChange={handleAccountChange}
+                    disabled={isAccountSelectorDisabled}
+                  />
+                </Flex>
+              )}
+              {statsContent}
+              {stepsToShow.length > 0 && <TransactionStepsList steps={stepsToShow} />}
+            </Flex>
           )}
-          {modalStep === 'success' && (
-            <DialogFooter borderTop='1px solid' borderColor='border.base' pt={4} pb={4}>
-              <Button
-                colorScheme='blue'
-                size='lg'
-                width='full'
-                height='56px'
-                fontSize='lg'
-                fontWeight='semibold'
-                borderRadius='xl'
-                onClick={handleModalClose}
-              >
-                {translate('common.close')}
-              </Button>
-            </DialogFooter>
-          )}
-        </Dialog>
-      </>
+          {isSuccess && successContent}
+        </DialogBody>
+        {isInProgress && (
+          <DialogFooter borderTop='1px solid' borderColor='border.base' pt={4} pb={4}>
+            <Button
+              colorScheme='blue'
+              size='lg'
+              width='full'
+              height='56px'
+              fontSize='lg'
+              fontWeight='semibold'
+              borderRadius='xl'
+              isDisabled={enterButtonDisabled || isSubmitting}
+              isLoading={isSubmitting || (isQuoteActive && hasAmount)}
+              loadingText={
+                isSubmitting ? translate('common.confirming') : translate('yieldXYZ.loadingQuote')
+              }
+              onClick={isConnected ? handleConfirm : handleConnectWallet}
+            >
+              {enterButtonText}
+            </Button>
+          </DialogFooter>
+        )}
+        {isSuccess && (
+          <DialogFooter borderTop='1px solid' borderColor='border.base' pt={4} pb={4}>
+            <Button
+              colorScheme='blue'
+              size='lg'
+              width='full'
+              height='56px'
+              fontSize='lg'
+              fontWeight='semibold'
+              borderRadius='xl'
+              onClick={hookHandleClose}
+            >
+              {translate('common.close')}
+            </Button>
+          </DialogFooter>
+        )}
+      </Dialog>
     )
   },
 )

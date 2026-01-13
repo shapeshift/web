@@ -145,6 +145,7 @@ type UseYieldTransactionFlowProps = {
   validatorAddress?: string
   passthrough?: string
   manageActionType?: string
+  accountId?: string
 }
 
 export const useYieldTransactionFlow = ({
@@ -157,6 +158,7 @@ export const useYieldTransactionFlow = ({
   validatorAddress,
   passthrough,
   manageActionType,
+  accountId: accountIdProp,
 }: UseYieldTransactionFlowProps) => {
   const dispatch = useAppDispatch()
   const queryClient = useQueryClient()
@@ -177,18 +179,18 @@ export const useYieldTransactionFlow = ({
   const isUsdtApprovalResetEnabled = useFeatureFlag('UsdtApprovalReset')
   const submitHashMutation = useSubmitYieldTransactionHash()
 
-  const inputTokenAssetId = useMemo(
-    () => yieldItem.inputTokens[0]?.assetId,
-    [yieldItem.inputTokens],
-  )
+  const inputTokenAssetId = useMemo(() => yieldItem.inputTokens?.[0]?.assetId, [yieldItem])
 
   const { chainId: yieldChainId } = yieldItem
-  const { accountNumber } = useYieldAccount()
+  const { accountNumber: contextAccountNumber } = useYieldAccount()
 
-  const accountId = useAppSelector(state => {
+  const derivedAccountId = useAppSelector(state => {
+    if (accountIdProp) return undefined
     if (!yieldChainId) return undefined
-    return selectAccountIdByAccountNumberAndChainId(state)[accountNumber]?.[yieldChainId]
+    return selectAccountIdByAccountNumberAndChainId(state)[contextAccountNumber]?.[yieldChainId]
   })
+
+  const accountId = accountIdProp ?? derivedAccountId
 
   const feeAsset = useAppSelector(state =>
     yieldChainId ? selectFeeAssetByChainId(state, yieldChainId) : undefined,
@@ -268,7 +270,7 @@ export const useYieldTransactionFlow = ({
       return fn({ yieldId: yieldItem.id, address: userAddress, arguments: txArguments })
     },
     enabled: !!txArguments && !!wallet && !!accountId && canSubmit && isOpen,
-    staleTime: Infinity,
+    staleTime: 0,
     gcTime: 0,
     retry: false,
   })
@@ -325,6 +327,43 @@ export const useYieldTransactionFlow = ({
     approvalSpender,
     allowanceQuery.data,
     allowanceQuery.isError,
+  ])
+
+  const displaySteps = useMemo((): TransactionStep[] => {
+    if (transactionSteps.length > 0) {
+      return transactionSteps
+    }
+    if (isAllowanceCheckPending) return []
+    if (quoteData?.transactions?.length) {
+      const steps: TransactionStep[] = []
+      if (isUsdtResetRequired) {
+        steps.push({
+          title: translate('yieldXYZ.resetAllowance'),
+          originalTitle: 'Reset Allowance',
+          type: 'RESET',
+          status: 'pending' as const,
+        })
+      }
+      steps.push(
+        ...quoteData.transactions
+          .filter(tx => tx.status === TransactionStatus.Created)
+          .map((tx, i) => ({
+            title: formatYieldTxTitle(tx.title || `Transaction ${i + 1}`, assetSymbol),
+            originalTitle: tx.title || '',
+            type: tx.type,
+            status: 'pending' as const,
+          })),
+      )
+      return steps
+    }
+    return []
+  }, [
+    transactionSteps,
+    quoteData,
+    assetSymbol,
+    isAllowanceCheckPending,
+    isUsdtResetRequired,
+    translate,
   ])
 
   const updateStepStatus = useCallback((index: number, updates: Partial<TransactionStep>) => {
@@ -419,21 +458,15 @@ export const useYieldTransactionFlow = ({
     const validator = validatorAddress || DEFAULT_NATIVE_VALIDATOR_BY_CHAIN_ID[cosmosChainId]
     if (!validator) return undefined
 
-    const inputTokenDecimals = yieldItem.inputTokens[0]?.decimals ?? yieldItem.token.decimals
+    const inputTokenDecimals =
+      yieldItem.inputTokens?.[0]?.decimals ?? yieldItem.token?.decimals ?? 18
 
     return {
       validator,
       amountCryptoBaseUnit: bnOrZero(amount).times(bnOrZero(10).pow(inputTokenDecimals)).toFixed(0),
       action: action === 'enter' ? 'stake' : action === 'exit' ? 'unstake' : 'claim',
     }
-  }, [
-    yieldChainId,
-    validatorAddress,
-    amount,
-    yieldItem.inputTokens,
-    yieldItem.token.decimals,
-    action,
-  ])
+  }, [yieldChainId, validatorAddress, amount, yieldItem, action])
 
   const executeResetAllowance = useCallback(async () => {
     if (!wallet || !accountId || !inputTokenAssetId || !approvalSpender) {
@@ -443,7 +476,6 @@ export const useYieldTransactionFlow = ({
     setIsSubmitting(true)
     updateStepStatus(0, {
       status: 'loading',
-      loadingMessage: translate('yieldXYZ.loading.signInWallet'),
     })
 
     try {
@@ -452,7 +484,7 @@ export const useYieldTransactionFlow = ({
           assetId: inputTokenAssetId,
           spender: approvalSpender,
           amountCryptoBaseUnit: '0',
-          accountNumber,
+          accountNumber: accountMetadata?.bip44Params?.accountNumber ?? 0,
           wallet,
           from: userAddress,
         })
@@ -491,7 +523,7 @@ export const useYieldTransactionFlow = ({
     accountId,
     inputTokenAssetId,
     approvalSpender,
-    accountNumber,
+    accountMetadata?.bip44Params?.accountNumber,
     userAddress,
     feeAsset?.explorerTxLink,
     translate,
@@ -514,7 +546,6 @@ export const useYieldTransactionFlow = ({
 
       updateStepStatus(uiStepIndex, {
         status: 'loading',
-        loadingMessage: translate('yieldXYZ.loading.signInWallet'),
       })
       setIsSubmitting(true)
 
@@ -566,6 +597,7 @@ export const useYieldTransactionFlow = ({
           }
           dispatchNotification(tx, txHash)
           updateStepStatus(uiStepIndex, { status: 'success', loadingMessage: undefined })
+          queryClient.removeQueries({ queryKey: ['yieldxyz', 'quote'] })
           setStep(ModalStep.Success)
         } else {
           const confirmedAction = await waitForTransactionConfirmation(actionId, tx.id)
@@ -595,6 +627,7 @@ export const useYieldTransactionFlow = ({
             }
             dispatchNotification(tx, txHash)
             updateStepStatus(uiStepIndex, { status: 'success', loadingMessage: undefined })
+            queryClient.removeQueries({ queryKey: ['yieldxyz', 'quote'] })
             setStep(ModalStep.Success)
           }
         }
@@ -776,6 +809,7 @@ export const useYieldTransactionFlow = ({
     () => ({
       step,
       transactionSteps,
+      displaySteps,
       isSubmitting,
       activeStepIndex,
       canSubmit,
@@ -789,6 +823,7 @@ export const useYieldTransactionFlow = ({
     [
       step,
       transactionSteps,
+      displaySteps,
       isSubmitting,
       activeStepIndex,
       canSubmit,

@@ -113,6 +113,7 @@ export type FeatureFlags = {
   YieldXyz: boolean
   YieldsPage: boolean
   YieldMultiAccount: boolean
+  EarnTab: boolean
 }
 
 export type Flag = keyof FeatureFlags
@@ -260,6 +261,7 @@ const initialState: Preferences = {
     YieldXyz: getConfig().VITE_FEATURE_YIELD_XYZ,
     YieldsPage: getConfig().VITE_FEATURE_YIELDS_PAGE,
     YieldMultiAccount: getConfig().VITE_FEATURE_YIELD_MULTI_ACCOUNT,
+    EarnTab: getConfig().VITE_FEATURE_EARN_TAB,
   },
   selectedLocale: simpleLocale(),
   hasWalletSeenTcyClaimAlert: {},

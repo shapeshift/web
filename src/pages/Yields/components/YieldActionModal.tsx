@@ -1,8 +1,5 @@
-import { Avatar, Box, Button, Flex, Icon, Text, VStack } from '@chakra-ui/react'
-import { keyframes } from '@emotion/react'
-import { memo, useEffect, useMemo } from 'react'
-import ReactCanvasConfetti from 'react-canvas-confetti'
-import { FaCheck, FaWallet } from 'react-icons/fa'
+import { Avatar, Box, Button, Flex, Text } from '@chakra-ui/react'
+import { memo, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 
 import { Amount } from '@/components/Amount/Amount'
@@ -14,11 +11,11 @@ import { DialogHeader } from '@/components/Modal/components/DialogHeader'
 import { DialogTitle } from '@/components/Modal/components/DialogTitle'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import type { AugmentedYieldDto } from '@/lib/yieldxyz/types'
-import { formatYieldTxTitle, getTransactionButtonText } from '@/lib/yieldxyz/utils'
+import { getTransactionButtonText } from '@/lib/yieldxyz/utils'
 import { GradientApy } from '@/pages/Yields/components/GradientApy'
 import { TransactionStepsList } from '@/pages/Yields/components/TransactionStepsList'
-import { useConfetti } from '@/pages/Yields/hooks/useConfetti'
-import type { TransactionStep } from '@/pages/Yields/hooks/useYieldTransactionFlow'
+import { YieldAssetFlow } from '@/pages/Yields/components/YieldAssetFlow'
+import { YieldSuccess } from '@/pages/Yields/components/YieldSuccess'
 import { ModalStep, useYieldTransactionFlow } from '@/pages/Yields/hooks/useYieldTransactionFlow'
 import { useYieldProviders } from '@/react-queries/queries/yieldxyz/useYieldProviders'
 import { useYieldValidators } from '@/react-queries/queries/yieldxyz/useYieldValidators'
@@ -27,13 +24,6 @@ import {
   selectMarketDataByAssetIdUserCurrency,
 } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
-
-const walletIcon = <FaWallet color='text.base' />
-const checkIconBox = (
-  <Box p={2}>
-    <Icon as={FaCheck} color='text.base' />
-  </Box>
-)
 
 type YieldActionModalProps = {
   isOpen: boolean
@@ -48,6 +38,7 @@ type YieldActionModalProps = {
   validatorLogoURI?: string
   passthrough?: string
   manageActionType?: string
+  accountId?: string
 }
 
 export const YieldActionModal = memo(function YieldActionModal({
@@ -69,6 +60,7 @@ export const YieldActionModal = memo(function YieldActionModal({
   const {
     step,
     transactionSteps,
+    displaySteps,
     isSubmitting,
     activeStepIndex,
     canSubmit,
@@ -88,6 +80,7 @@ export const YieldActionModal = memo(function YieldActionModal({
     validatorAddress,
     passthrough,
     manageActionType: props.manageActionType,
+    accountId: props.accountId,
   })
 
   const shouldFetchValidators = useMemo(
@@ -119,19 +112,6 @@ export const YieldActionModal = memo(function YieldActionModal({
 
   const chainId = useMemo(() => yieldItem.chainId ?? '', [yieldItem.chainId])
   const feeAsset = useAppSelector(state => selectFeeAssetByChainId(state, chainId))
-
-  const horizontalScroll = useMemo(
-    () => keyframes`
-      0% { background-position: 0 0; }
-      100% { background-position: 28px 0; }
-    `,
-    [],
-  )
-
-  const flexDirection = useMemo(
-    () => (action === 'enter' ? 'row' : 'row-reverse') as 'row' | 'row-reverse',
-    [action],
-  )
 
   const assetAvatarSrc = useMemo(
     () => assetLogoURI ?? yieldItem.token.logoURI,
@@ -194,10 +174,14 @@ export const YieldActionModal = memo(function YieldActionModal({
   }, [isQuoteLoading, action, translate, activeStepIndex, transactionSteps])
 
   const buttonText = useMemo(() => {
-    // Use the current step's type/title for a clean button label (e.g., "Delegate", "Undelegate", "Approve")
+    // Use the current step's type/title for a clean button label (e.g., "Enter", "Exit", "Approve")
     if (activeStepIndex >= 0 && transactionSteps[activeStepIndex]) {
       const step = transactionSteps[activeStepIndex]
       return getTransactionButtonText(step.type, step.originalTitle)
+    }
+    // USDT reset required before other transactions
+    if (isUsdtResetRequired) {
+      return translate('yieldXYZ.resetAllowance')
     }
     // Before execution starts, use the first CREATED transaction from quoteData
     const firstCreatedTx = quoteData?.transactions?.find(tx => tx.status === 'CREATED')
@@ -208,7 +192,7 @@ export const YieldActionModal = memo(function YieldActionModal({
     if (action === 'enter') return translate('yieldXYZ.enter')
     if (action === 'exit') return translate('yieldXYZ.exit')
     return translate('common.claim')
-  }, [action, translate, activeStepIndex, transactionSteps, quoteData])
+  }, [action, translate, activeStepIndex, transactionSteps, quoteData, isUsdtResetRequired])
 
   const modalHeading = useMemo(() => {
     if (action === 'enter') return translate('yieldXYZ.enterSymbol', { symbol: assetSymbol })
@@ -216,116 +200,24 @@ export const YieldActionModal = memo(function YieldActionModal({
     return translate('yieldXYZ.claimSymbol', { symbol: assetSymbol })
   }, [action, assetSymbol, translate])
 
-  const successMessage = useMemo(() => {
-    if (action === 'enter')
-      return translate('yieldXYZ.successEnter', { symbol: assetSymbol, amount })
-    if (action === 'exit') return translate('yieldXYZ.successExit', { symbol: assetSymbol, amount })
-    return translate('yieldXYZ.successClaim', { symbol: assetSymbol, amount })
-  }, [action, assetSymbol, amount, translate])
-
   const networkAvatarSrc = useMemo(
     () => feeAsset?.networkIcon ?? feeAsset?.icon,
     [feeAsset?.networkIcon, feeAsset?.icon],
   )
 
-  // Show steps from quoteData before execution starts, then switch to actual transactionSteps
-  const displaySteps = useMemo((): TransactionStep[] => {
-    // If we have transactionSteps (execution has started or completed), use those
-    if (transactionSteps.length > 0) {
-      return transactionSteps
-    }
-    // Don't show preview steps while still checking if USDT reset is needed
-    if (isAllowanceCheckPending) return []
-    // Before execution, create preview steps from quoteData (filter out SKIPPED transactions)
-    if (quoteData?.transactions?.length) {
-      const steps: TransactionStep[] = []
-      // Add reset step if USDT reset is required
-      if (isUsdtResetRequired) {
-        steps.push({
-          title: translate('yieldXYZ.resetAllowance'),
-          originalTitle: 'Reset Allowance',
-          type: 'RESET',
-          status: 'pending' as const,
-        })
-      }
-      // Add yield.xyz transactions
-      steps.push(
-        ...quoteData.transactions
-          .filter(tx => tx.status === 'CREATED')
-          .map((tx, i) => ({
-            title: formatYieldTxTitle(tx.title || `Transaction ${i + 1}`, assetSymbol),
-            originalTitle: tx.title || '',
-            type: tx.type,
-            status: 'pending' as const,
-          })),
-      )
-      return steps
-    }
-    return []
-  }, [
-    transactionSteps,
-    quoteData,
-    assetSymbol,
-    isAllowanceCheckPending,
-    isUsdtResetRequired,
-    translate,
-  ])
+  const assetFlowDirection = action === 'exit' ? 'exit' : 'enter'
 
   const animatedAvatarRow = useMemo(
     () => (
-      <Flex alignItems='center' justify='center' py={6} gap={6} flexDirection={flexDirection}>
-        <VStack spacing={2}>
-          <Box p={1} bg='background.surface.raised.base' borderRadius='full'>
-            <Avatar size='md' src={assetAvatarSrc} icon={walletIcon} />
-          </Box>
-          <Text fontSize='sm' color='text.subtle' fontWeight='medium'>
-            {assetSymbol}
-          </Text>
-        </VStack>
-        <Box position='relative' flex={1} maxW='120px'>
-          <Box h='2px' bg='border.base' borderRadius='full' />
-          <Box
-            position='absolute'
-            top='50%'
-            left={0}
-            right={0}
-            h='6px'
-            transform='translateY(-50%)'
-            opacity={0.6}
-            backgroundImage='radial-gradient(circle, var(--chakra-colors-text-subtle) 2px, transparent 2.5px)'
-            backgroundSize='14px 100%'
-            animation={`${horizontalScroll} 3s infinite linear`}
-            style={{
-              maskImage:
-                'linear-gradient(to right, transparent, black 20%, black 80%, transparent)',
-              WebkitMaskImage:
-                'linear-gradient(to right, transparent, black 20%, black 80%, transparent)',
-            }}
-          />
-        </Box>
-        <VStack spacing={2}>
-          <Box p={1} bg='background.surface.raised.base' borderRadius='full'>
-            <Avatar
-              src={vaultMetadata.logoURI}
-              size='md'
-              name={vaultMetadata.name}
-              icon={checkIconBox}
-            />
-          </Box>
-          <Text fontSize='sm' color='text.subtle' fontWeight='medium'>
-            {vaultMetadata.name}
-          </Text>
-        </VStack>
-      </Flex>
+      <YieldAssetFlow
+        assetSymbol={assetSymbol}
+        assetLogoURI={assetAvatarSrc}
+        providerName={vaultMetadata.name}
+        providerLogoURI={vaultMetadata.logoURI}
+        direction={assetFlowDirection}
+      />
     ),
-    [
-      flexDirection,
-      assetAvatarSrc,
-      assetSymbol,
-      horizontalScroll,
-      vaultMetadata.logoURI,
-      vaultMetadata.name,
-    ],
+    [assetSymbol, assetAvatarSrc, vaultMetadata.name, vaultMetadata.logoURI, assetFlowDirection],
   )
 
   const statsContent = useMemo(
@@ -439,114 +331,98 @@ export const YieldActionModal = memo(function YieldActionModal({
     [animatedAvatarRow, statsContent, displaySteps],
   )
 
-  const { getInstance, fireConfetti, confettiStyle } = useConfetti()
+  const successMessageKey = useMemo(() => {
+    if (action === 'enter') return 'successEnter' as const
+    if (action === 'exit') return 'successExit' as const
+    return 'successClaim' as const
+  }, [action])
 
-  useEffect(() => {
-    if (step === ModalStep.Success) fireConfetti()
-  }, [step, fireConfetti])
+  const successProviderInfo = useMemo(
+    () => (vaultMetadata ? { name: vaultMetadata.name, logoURI: vaultMetadata.logoURI } : null),
+    [vaultMetadata],
+  )
 
   const successContent = useMemo(
     () => (
-      <VStack spacing={6} py={4} textAlign='center' align='center'>
-        <Box
-          w={20}
-          h={20}
-          borderRadius='full'
-          bgGradient='linear(to-br, green.400, green.600)'
-          color='white'
-          display='flex'
-          alignItems='center'
-          justifyContent='center'
-        >
-          <Icon as={FaCheck} boxSize={8} />
-        </Box>
-        <Text color='text.subtle' fontSize='md'>
-          {successMessage}
-        </Text>
-        {vaultMetadata && (
-          <Flex
-            align='center'
-            gap={2}
-            bg='background.surface.raised.base'
-            px={4}
-            py={2}
-            borderRadius='full'
-          >
-            <Avatar size='sm' src={vaultMetadata.logoURI} name={vaultMetadata.name} />
-            <Text fontSize='sm' fontWeight='medium'>
-              {vaultMetadata.name}
-            </Text>
-          </Flex>
-        )}
-        <Box width='full'>
-          <TransactionStepsList steps={transactionSteps} />
-        </Box>
-      </VStack>
+      <YieldSuccess
+        amount={amount}
+        symbol={assetSymbol}
+        providerInfo={successProviderInfo}
+        transactionSteps={transactionSteps}
+        yieldId={yieldItem.id}
+        onDone={handleClose}
+        successMessageKey={successMessageKey}
+      />
     ),
-    [successMessage, vaultMetadata, transactionSteps],
+    [
+      amount,
+      assetSymbol,
+      successProviderInfo,
+      transactionSteps,
+      yieldItem.id,
+      handleClose,
+      successMessageKey,
+    ],
   )
 
   const isInProgress = step === ModalStep.InProgress
   const isSuccess = step === ModalStep.Success
 
   return (
-    <>
-      <ReactCanvasConfetti onInit={getInstance} style={confettiStyle} />
-      <Dialog
-        isOpen={isOpen}
-        onClose={handleClose}
-        isFullScreen
-        modalProps={{ closeOnOverlayClick: !isSubmitting }}
-      >
-        <DialogHeader>
-          <DialogHeader.Left>{null}</DialogHeader.Left>
-          <DialogHeader.Middle>
-            <DialogTitle>{isSuccess ? translate('common.success') : modalHeading}</DialogTitle>
-          </DialogHeader.Middle>
-          <DialogHeader.Right>
-            <DialogCloseButton isDisabled={isSubmitting} />
-          </DialogHeader.Right>
-        </DialogHeader>
-        <DialogBody py={4} flex={1}>
-          {isInProgress && actionContent}
-          {isSuccess && successContent}
-        </DialogBody>
-        {isInProgress && (
-          <DialogFooter borderTop='1px solid' borderColor='border.base' pt={4} pb={4}>
-            <Button
-              colorScheme='blue'
-              size='lg'
-              width='full'
-              height='56px'
-              fontSize='lg'
-              fontWeight='semibold'
-              borderRadius='xl'
-              isDisabled={isButtonDisabled}
-              isLoading={isButtonLoading}
-              loadingText={loadingText}
-              onClick={handleConfirm}
-            >
-              {buttonText}
-            </Button>
-          </DialogFooter>
-        )}
-        {isSuccess && (
-          <DialogFooter borderTop='1px solid' borderColor='border.base' pt={4} pb={4}>
-            <Button
-              colorScheme='blue'
-              size='lg'
-              width='full'
-              height='56px'
-              fontSize='lg'
-              fontWeight='semibold'
-              borderRadius='xl'
-              onClick={handleClose}
-            >
-              {translate('common.close')}
-            </Button>
-          </DialogFooter>
-        )}
-      </Dialog>
-    </>
+    <Dialog
+      isOpen={isOpen}
+      onClose={handleClose}
+      isFullScreen
+      modalProps={{ closeOnOverlayClick: !isSubmitting }}
+    >
+      <DialogHeader>
+        <DialogHeader.Left>{null}</DialogHeader.Left>
+        <DialogHeader.Middle>
+          <DialogTitle>{isSuccess ? translate('common.success') : modalHeading}</DialogTitle>
+        </DialogHeader.Middle>
+        <DialogHeader.Right>
+          <DialogCloseButton isDisabled={isSubmitting} />
+        </DialogHeader.Right>
+      </DialogHeader>
+      <DialogBody py={4} flex={1}>
+        {isInProgress && actionContent}
+        {isSuccess && successContent}
+      </DialogBody>
+      {isInProgress && (
+        <DialogFooter borderTop='1px solid' borderColor='border.base' pt={4} pb={4}>
+          <Button
+            colorScheme='blue'
+            size='lg'
+            width='full'
+            height='56px'
+            fontSize='lg'
+            fontWeight='semibold'
+            borderRadius='xl'
+            isDisabled={isButtonDisabled}
+            isLoading={isButtonLoading}
+            loadingText={loadingText}
+            onClick={handleConfirm}
+          >
+            {buttonText}
+          </Button>
+        </DialogFooter>
+      )}
+      {isSuccess && (
+        <DialogFooter borderTop='1px solid' borderColor='border.base' pt={4} pb={4}>
+          <Button
+            colorScheme='blue'
+            size='lg'
+            width='full'
+            height='56px'
+            fontSize='lg'
+            fontWeight='semibold'
+            borderRadius='xl'
+            onClick={handleClose}
+          >
+            {translate('common.close')}
+          </Button>
+        </DialogFooter>
+      )}
+    </Dialog>
   )
 })

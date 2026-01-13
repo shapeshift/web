@@ -2,6 +2,7 @@ import {
   Box,
   Button,
   Flex,
+  HStack,
   Icon,
   SimpleGrid,
   Stat,
@@ -9,9 +10,10 @@ import {
   StatLabel,
   StatNumber,
   Text,
+  Tooltip,
 } from '@chakra-ui/react'
 import { memo, useMemo } from 'react'
-import { FaChartPie, FaMoon } from 'react-icons/fa'
+import { FaChartPie, FaInfoCircle, FaMoon } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 
 import { Amount } from '@/components/Amount/Amount'
@@ -209,13 +211,29 @@ export const YieldOpportunityStats = memo(function YieldOpportunityStats({
         <Flex justifyContent='space-between' alignItems='flex-start'>
           <Stat>
             <StatLabel fontSize='md' color='purple.200'>
-              {translate('yieldXYZ.availableToEarn')}
+              <HStack spacing={1}>
+                <Text>{translate('yieldXYZ.availableToEarn')}</Text>
+                <Tooltip label={translate('yieldXYZ.availableToEarnTooltip')} hasArrow>
+                  <Box as='span' cursor='help'>
+                    <Icon as={FaInfoCircle} boxSize={3} color='purple.300' />
+                  </Box>
+                </Tooltip>
+              </HStack>
             </StatLabel>
             <StatNumber fontSize='3xl' fontWeight='bold' color='white'>
               <Amount.Fiat value={idleValueFormatted} abbreviated />
             </StatNumber>
             <StatHelpText color='purple.300'>
-              {translate('yieldXYZ.idleAssetsEarning', { apy: weightedApyFormatted })}
+              <HStack spacing={1}>
+                <Text>
+                  {translate('yieldXYZ.idleAssetsEarning', { apy: weightedApyFormatted })}
+                </Text>
+                <Tooltip label={translate('yieldXYZ.apyTooltip')} hasArrow>
+                  <Box as='span' cursor='help'>
+                    <Icon as={FaInfoCircle} boxSize={3} color='purple.400' />
+                  </Box>
+                </Tooltip>
+              </HStack>
             </StatHelpText>
           </Stat>
           <Flex
@@ -231,15 +249,22 @@ export const YieldOpportunityStats = memo(function YieldOpportunityStats({
             minW='200px'
           >
             <Box textAlign='right'>
-              <Text
-                fontSize='xs'
-                fontWeight='bold'
-                color='purple.100'
-                textTransform='uppercase'
-                letterSpacing='wider'
-              >
-                {translate('yieldXYZ.potentialEarnings')}
-              </Text>
+              <HStack spacing={1} justify='flex-end'>
+                <Text
+                  fontSize='xs'
+                  fontWeight='bold'
+                  color='purple.100'
+                  textTransform='uppercase'
+                  letterSpacing='wider'
+                >
+                  {translate('yieldXYZ.potentialEarnings')}
+                </Text>
+                <Tooltip label={translate('yieldXYZ.potentialEarningsTooltip')} hasArrow>
+                  <Box as='span' cursor='help'>
+                    <Icon as={FaInfoCircle} boxSize={3} color='purple.200' />
+                  </Box>
+                </Tooltip>
+              </HStack>
               <Flex fontSize='xl' fontWeight='bold' color='white' whiteSpace='nowrap'>
                 <Amount.Fiat value={potentialEarnings} abbreviated />
                 <Text ml={1}>{translate('yieldXYZ.perYear')}</Text>

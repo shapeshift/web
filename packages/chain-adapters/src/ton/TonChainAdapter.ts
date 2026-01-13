@@ -1,9 +1,10 @@
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
-import { ASSET_REFERENCE, tonAssetId, tonChainId } from '@shapeshiftoss/caip'
+import { ASSET_REFERENCE, toAssetId, tonAssetId, tonChainId } from '@shapeshiftoss/caip'
 import type { HDWallet, TonWallet } from '@shapeshiftoss/hdwallet-core'
 import type { Bip44Params, RootBip44Params } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
+import PQueue from 'p-queue'
 
 import type { ChainAdapter as IChainAdapter } from '../api'
 import { ChainAdapterError, ErrorHandler } from '../error/ErrorHandler'
@@ -23,7 +24,7 @@ import type {
 } from '../types'
 import { ChainAdapterDisplayName, ValidAddressResultType } from '../types'
 import { toAddressNList, verifyLedgerAppOpen } from '../utils'
-import type { TonSignTx } from './types'
+import type { TonFeeData, TonSignTx, TonToken } from './types'
 
 const supportsTon = (wallet: HDWallet): wallet is TonWallet => {
   return '_supportsTon' in wallet && (wallet as TonWallet)._supportsTon === true
@@ -31,6 +32,35 @@ const supportsTon = (wallet: HDWallet): wallet is TonWallet => {
 
 export type ChainAdapterArgs = {
   rpcUrl: string
+}
+
+type TonRpcResponse<T> = {
+  ok: boolean
+  result?: T
+  error?: string
+}
+
+type TonAccountInfo = {
+  balance: string
+  state: 'active' | 'uninitialized' | 'frozen'
+  code?: string
+  data?: string
+}
+
+type JettonWalletInfo = {
+  address: string
+  balance: string
+  jetton: string
+  jetton_content?: {
+    name?: string
+    symbol?: string
+    decimals?: string
+    image?: string
+  }
+}
+
+type JettonsResponse = {
+  jetton_wallets: JettonWalletInfo[]
 }
 
 export class ChainAdapter implements IChainAdapter<KnownChainIds.TonMainnet> {
@@ -43,9 +73,15 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TonMainnet> {
   protected readonly chainId = tonChainId
   protected readonly assetId = tonAssetId
   protected readonly rpcUrl: string
+  private requestQueue: PQueue
 
   constructor(args: ChainAdapterArgs) {
     this.rpcUrl = args.rpcUrl
+    this.requestQueue = new PQueue({
+      intervalCap: 1,
+      interval: 1100,
+      concurrency: 1,
+    })
   }
 
   private assertSupportsChain(wallet: HDWallet): asserts wallet is TonWallet {
@@ -55,6 +91,123 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TonMainnet> {
         options: { chain: this.getDisplayName() },
       })
     }
+  }
+
+  private rpcRequest<T>(method: string, params: Record<string, unknown> = {}): Promise<T> {
+    return this.requestQueue.add(async () => {
+      const maxRetries = 5
+      let lastError: Error | undefined
+
+      for (let attempt = 0; attempt < maxRetries; attempt++) {
+        try {
+          const response = await fetch(this.rpcUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              id: 1,
+              jsonrpc: '2.0',
+              method,
+              params,
+            }),
+          })
+
+          if (response.status === 429) {
+            const retryAfter = parseInt(response.headers.get('Retry-After') || '2', 10)
+            const backoffDelay = Math.min(retryAfter * 1000, 10000) * Math.pow(1.5, attempt)
+            await new Promise(resolve => setTimeout(resolve, backoffDelay))
+            continue
+          }
+
+          if (response.status === 500 || response.status === 502 || response.status === 503) {
+            lastError = new Error(`TON RPC server error: ${response.status}`)
+            const backoffDelay = 1000 * Math.pow(2, attempt)
+            await new Promise(resolve => setTimeout(resolve, backoffDelay))
+            continue
+          }
+
+          const data = (await response.json()) as TonRpcResponse<T>
+
+          if (!data.ok && data.error) {
+            lastError = new Error(this.formatTonError(data.error))
+            if (this.isRetryableError(data.error)) {
+              const backoffDelay = 1000 * Math.pow(2, attempt)
+              await new Promise(resolve => setTimeout(resolve, backoffDelay))
+              continue
+            }
+            throw lastError
+          }
+
+          return data.result as T
+        } catch (err) {
+          if (err instanceof Error && err.message.includes('TON RPC')) {
+            throw err
+          }
+          lastError = err instanceof Error ? err : new Error(String(err))
+          if (attempt < maxRetries - 1) {
+            const backoffDelay = 1000 * Math.pow(2, attempt)
+            await new Promise(resolve => setTimeout(resolve, backoffDelay))
+          }
+        }
+      }
+
+      throw lastError || new Error('Max retries exceeded for TON RPC request')
+    }) as Promise<T>
+  }
+
+  private formatTonError(error: string): string {
+    if (error.includes('INVALID_BAG_OF_CELLS')) {
+      return `TON transaction serialization error: ${error}. This may indicate an invalid transaction format.`
+    }
+    if (error.includes('seqno')) {
+      return `TON sequence number error: ${error}. The transaction may be stale or already processed.`
+    }
+    if (error.includes('not enough balance') || error.includes('insufficient')) {
+      return `TON insufficient balance: ${error}`
+    }
+    return `TON RPC error: ${error}`
+  }
+
+  private isRetryableError(error: string): boolean {
+    const retryablePatterns = [
+      'timeout',
+      'ETIMEDOUT',
+      'ECONNRESET',
+      'ECONNREFUSED',
+      'network',
+      'temporarily unavailable',
+    ]
+    const lowerError = error.toLowerCase()
+    return retryablePatterns.some(pattern => lowerError.includes(pattern.toLowerCase()))
+  }
+
+  private httpApiRequest<T>(endpoint: string): Promise<T> {
+    return this.requestQueue.add(async () => {
+      const maxRetries = 3
+      let lastError: Error | undefined
+
+      for (let attempt = 0; attempt < maxRetries; attempt++) {
+        const baseUrl = this.rpcUrl.replace('/jsonRPC', '')
+        const response = await fetch(`${baseUrl}${endpoint}`, {
+          method: 'GET',
+          headers: { 'Content-Type': 'application/json' },
+        })
+
+        if (response.status === 429) {
+          const retryAfter = parseInt(response.headers.get('Retry-After') || '2', 10)
+          await new Promise(resolve => setTimeout(resolve, retryAfter * 1000))
+          continue
+        }
+
+        if (!response.ok) {
+          lastError = new Error(`HTTP API error: ${response.status}`)
+          continue
+        }
+
+        return response.json() as Promise<T>
+      }
+
+      throw lastError || new Error('Max retries exceeded')
+    }) as Promise<T>
   }
 
   getName() {
@@ -83,7 +236,6 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TonMainnet> {
 
   getBip44Params({ accountNumber }: GetBip44ParamsInput): Bip44Params {
     if (accountNumber < 0) throw new Error('accountNumber must be >= 0')
-    // TON uses 3-level derivation path: m/44'/607'/<account>'
     return {
       ...ChainAdapter.rootBip44Params,
       accountNumber,
@@ -120,46 +272,54 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TonMainnet> {
 
   async getAccount(pubkey: string): Promise<Account<KnownChainIds.TonMainnet>> {
     try {
-      // Call TON RPC to get account info
-      const response = await fetch(this.rpcUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          id: 1,
-          jsonrpc: '2.0',
-          method: 'getAddressInformation',
-          params: { address: pubkey },
-        }),
-      })
+      let balance = '0'
+      let tokens: TonToken[] = []
 
-      const data = await response.json()
-
-      if (data.error) {
-        // Account not found or not initialized - return 0 balance
-        if (
-          data.error.message?.includes('not found') ||
-          data.error.message?.includes('not initialized')
-        ) {
-          return {
-            balance: '0',
-            chainId: this.chainId,
-            assetId: this.assetId,
-            chain: this.getType(),
-            chainSpecific: { tokens: [] },
-            pubkey,
-          }
-        }
-        throw new Error(data.error.message || 'Failed to get account info')
+      try {
+        const accountInfo = await this.rpcRequest<TonAccountInfo>('getAddressInformation', {
+          address: pubkey,
+        })
+        balance = accountInfo.balance ?? '0'
+      } catch {
+        balance = '0'
       }
 
-      const balance = data.result?.balance ?? '0'
+      try {
+        const jettonsResponse = await this.httpApiRequest<JettonsResponse>(
+          `/v2/accounts/${encodeURIComponent(pubkey)}/jettons`,
+        )
+
+        if (jettonsResponse.jetton_wallets) {
+          tokens = jettonsResponse.jetton_wallets
+            .filter(jw => jw.balance && jw.balance !== '0')
+            .map(jw => {
+              const precision = jw.jetton_content?.decimals
+                ? parseInt(jw.jetton_content.decimals, 10)
+                : 9
+
+              return {
+                assetId: toAssetId({
+                  chainId: this.chainId,
+                  assetNamespace: 'jetton',
+                  assetReference: jw.jetton,
+                }),
+                balance: jw.balance,
+                symbol: jw.jetton_content?.symbol ?? '',
+                name: jw.jetton_content?.name ?? '',
+                precision,
+              }
+            })
+        }
+      } catch {
+        tokens = []
+      }
 
       return {
         balance,
         chainId: this.chainId,
         assetId: this.assetId,
         chain: this.getType(),
-        chainSpecific: { tokens: [] },
+        chainSpecific: { tokens },
         pubkey,
       }
     } catch (err) {
@@ -180,18 +340,11 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TonMainnet> {
       result: ValidAddressResultType.Invalid,
     } as const
 
-    // TON user-friendly addresses are base64-encoded (48 characters)
-    // Format: [flags:1][workchain:1][hash:32][crc:2] = 36 bytes -> 48 base64 chars
-    // Can use standard base64 (+/) or url-safe (-_)
-
-    // Raw addresses: workchain:hex_hash format (e.g., "0:abc123...")
     const rawAddressRegex = /^-?\d+:[0-9a-fA-F]{64}$/
     if (rawAddressRegex.test(address)) {
       return Promise.resolve(valid)
     }
 
-    // User-friendly addresses: base64 encoded, 48 characters
-    // Standard base64 or url-safe base64
     const userFriendlyRegex = /^[A-Za-z0-9+/_-]{48}$/
     if (userFriendlyRegex.test(address)) {
       return Promise.resolve(valid)
@@ -204,53 +357,50 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TonMainnet> {
     throw new Error('TON transaction history not yet implemented')
   }
 
+  private async getSeqno(address: string): Promise<number> {
+    try {
+      const result = await this.rpcRequest<{ stack: [string, string][] }>('runGetMethod', {
+        address,
+        method: 'seqno',
+        stack: [],
+      })
+      if (result.stack?.[0]?.[1]) {
+        return parseInt(result.stack[0][1], 16)
+      }
+      return 0
+    } catch {
+      return 0
+    }
+  }
+
   async buildSendApiTransaction(
     input: BuildSendApiTxInput<KnownChainIds.TonMainnet>,
   ): Promise<TonSignTx> {
     try {
       const { from, accountNumber, to, value, chainSpecific } = input
       const memo = chainSpecific?.memo
+      const contractAddress = chainSpecific?.contractAddress
 
-      // Get seqno for the sender
-      const seqnoResponse = await fetch(this.rpcUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          id: 1,
-          jsonrpc: '2.0',
-          method: 'runGetMethod',
-          params: {
-            address: from,
-            method: 'seqno',
-            stack: [],
-          },
-        }),
-      })
+      const seqno = await this.getSeqno(from)
 
-      const seqnoData = await seqnoResponse.json()
-      const seqno = seqnoData.result?.stack?.[0]?.[1]
-        ? parseInt(seqnoData.result.stack[0][1], 16)
-        : 0
-
-      // Build internal message (transfer)
-      // This is a simplified representation - actual BOC serialization
-      // would need @ton/core library
       const messageData = {
-        type: 'transfer',
+        type: contractAddress ? 'jetton_transfer' : 'transfer',
         from,
         to,
         value,
         seqno,
+        expireAt: Math.floor(Date.now() / 1000) + 60,
         ...(memo ? { memo } : {}),
+        ...(contractAddress ? { contractAddress } : {}),
       }
 
-      // Serialize message to bytes for signing
-      // In a full implementation, this would use @ton/core to create proper BOC
       const messageBytes = new TextEncoder().encode(JSON.stringify(messageData))
 
       return {
         addressNList: toAddressNList(this.getBip44Params({ accountNumber })),
         message: messageBytes,
+        seqno,
+        expireAt: messageData.expireAt,
       }
     } catch (err) {
       return ErrorHandler(err, {
@@ -293,8 +443,8 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TonMainnet> {
         message: txToSign.message,
       })
 
-      if (!signedTx?.signature || !signedTx?.serialized) {
-        throw new Error('error signing tx - missing signature or serialized data')
+      if (!signedTx?.serialized) {
+        throw new Error('error signing tx - missing serialized data')
       }
 
       return signedTx.serialized
@@ -328,55 +478,75 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TonMainnet> {
     try {
       const { hex: signedTx } = input
 
-      const response = await fetch(this.rpcUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          id: 1,
-          jsonrpc: '2.0',
-          method: 'sendBocReturnHash',
-          params: { boc: signedTx },
-        }),
+      const result = await this.rpcRequest<{ hash: string }>('sendBocReturnHash', {
+        boc: signedTx,
       })
 
-      const data = await response.json()
-
-      if (data.error) {
-        throw new Error(data.error.message || 'Failed to broadcast transaction')
-      }
-
-      return data.result?.hash || ''
+      return result.hash ?? ''
     } catch (err) {
-      console.error('[TON broadcastTransaction] error:', err)
       return ErrorHandler(err, {
         translation: 'chainAdapters.errors.broadcastTransaction',
       })
     }
   }
 
-  getFeeData(
-    _input: GetFeeDataInput<KnownChainIds.TonMainnet>,
+  async getFeeData(
+    input: GetFeeDataInput<KnownChainIds.TonMainnet>,
   ): Promise<FeeDataEstimate<KnownChainIds.TonMainnet>> {
     try {
-      // TON has relatively stable fees
-      // Standard transfer costs ~0.005-0.01 TON
-      // We use a conservative estimate of 0.01 TON (10_000_000 nanoton)
-      const estimatedFee = '10000000' // 0.01 TON in nanotons
+      const { chainSpecific } = input
+      const contractAddress = chainSpecific?.contractAddress
 
-      return Promise.resolve({
+      let baseFee = '5000000'
+      let forwardFee = '0'
+      let storageFee = '0'
+
+      try {
+        const configResult = await this.rpcRequest<{
+          gas_price?: string
+          flat_gas_limit?: string
+          flat_gas_price?: string
+        }>('getConfigParam', { config_id: 20 })
+
+        if (configResult.gas_price) {
+          const gasPrice = BigInt(configResult.gas_price)
+          const estimatedGas = contractAddress ? BigInt(100000) : BigInt(50000)
+          baseFee = (gasPrice * estimatedGas).toString()
+        }
+      } catch {
+        baseFee = contractAddress ? '15000000' : '5000000'
+      }
+
+      if (contractAddress) {
+        forwardFee = '10000000'
+        storageFee = '5000000'
+      }
+
+      const totalFee = (BigInt(baseFee) + BigInt(forwardFee) + BigInt(storageFee)).toString()
+
+      const fastFee = ((BigInt(totalFee) * BigInt(150)) / BigInt(100)).toString()
+      const slowFee = ((BigInt(totalFee) * BigInt(80)) / BigInt(100)).toString()
+
+      const feeData: TonFeeData = {
+        gasPrice: baseFee,
+        forwardFee,
+        storageFee,
+      }
+
+      return {
         fast: {
-          txFee: estimatedFee,
-          chainSpecific: { gasPrice: estimatedFee },
+          txFee: fastFee,
+          chainSpecific: feeData,
         },
         average: {
-          txFee: estimatedFee,
-          chainSpecific: { gasPrice: estimatedFee },
+          txFee: totalFee,
+          chainSpecific: feeData,
         },
         slow: {
-          txFee: estimatedFee,
-          chainSpecific: { gasPrice: estimatedFee },
+          txFee: slowFee,
+          chainSpecific: feeData,
         },
-      })
+      }
     } catch (err) {
       return ErrorHandler(err, {
         translation: 'chainAdapters.errors.getFeeData',
@@ -398,29 +568,20 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TonMainnet> {
 
   async getTransactionStatus(txHash: string): Promise<TxStatus> {
     try {
-      const response = await fetch(this.rpcUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          id: 1,
-          jsonrpc: '2.0',
-          method: 'getTransactionByHash',
-          params: { hash: txHash },
-        }),
-      })
+      const result = await this.httpApiRequest<{
+        success?: boolean
+        in_progress?: boolean
+      }>(`/v2/blockchain/transactions/${txHash}`)
 
-      const data = await response.json()
-
-      if (data.error || !data.result) {
-        return TxStatus.Unknown
-      }
-
-      // Check if transaction is confirmed (has block reference)
-      if (data.result.block) {
+      if (result.success) {
         return TxStatus.Confirmed
       }
 
-      return TxStatus.Pending
+      if (result.in_progress) {
+        return TxStatus.Pending
+      }
+
+      return TxStatus.Unknown
     } catch {
       return TxStatus.Unknown
     }
@@ -428,38 +589,37 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TonMainnet> {
 
   async parseTx(txHash: string, pubkey: string): Promise<Transaction> {
     try {
-      const response = await fetch(this.rpcUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          id: 1,
-          jsonrpc: '2.0',
-          method: 'getTransactionByHash',
-          params: { hash: txHash },
-        }),
-      })
+      const tx = await this.httpApiRequest<{
+        hash: string
+        lt: string
+        utime: number
+        total_fees: string
+        success: boolean
+        in_msg?: {
+          value: string
+          source?: { address: string }
+          destination?: { address: string }
+        }
+        out_msgs?: {
+          value: string
+          destination?: { address: string }
+        }[]
+      }>(`/v2/blockchain/transactions/${txHash}`)
 
-      const data = await response.json()
-
-      if (data.error || !data.result) {
-        throw new Error(`Transaction not found: ${txHash}`)
-      }
-
-      const tx = data.result
-      const status = tx.block ? TxStatus.Confirmed : TxStatus.Pending
+      const status = tx.success ? TxStatus.Confirmed : TxStatus.Failed
 
       return {
         txid: txHash,
-        blockHeight: tx.block?.seqno ?? 0,
-        blockTime: tx.utime ?? 0,
-        blockHash: tx.block?.hash,
+        blockHeight: parseInt(tx.lt, 10) || 0,
+        blockTime: tx.utime || 0,
+        blockHash: undefined,
         chainId: this.chainId,
         confirmations: status === TxStatus.Confirmed ? 1 : 0,
         status,
-        fee: tx.fee
+        fee: tx.total_fees
           ? {
               assetId: this.assetId,
-              value: tx.fee,
+              value: tx.total_fees,
             }
           : undefined,
         transfers: [],

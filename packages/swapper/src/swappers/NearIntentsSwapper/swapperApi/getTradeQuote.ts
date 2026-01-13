@@ -281,6 +281,24 @@ export const getTradeQuote = async (
           return { networkFeeCryptoBaseUnit: feeData.fast.txFee }
         }
 
+        case CHAIN_NAMESPACE.Ton: {
+          const sellAdapter = deps.assertGetTonChainAdapter(sellAsset.chainId)
+          const contractAddress = isToken(sellAsset.assetId)
+            ? fromAssetId(sellAsset.assetId).assetReference
+            : undefined
+
+          const feeData = await sellAdapter.getFeeData({
+            to: depositAddress,
+            value: sellAmount,
+            chainSpecific: {
+              from,
+              contractAddress,
+            },
+          })
+
+          return { networkFeeCryptoBaseUnit: feeData.fast.txFee }
+        }
+
         default:
           throw new Error(`Unsupported chain namespace: ${chainNamespace}`)
       }

@@ -40,7 +40,7 @@ export const getNearIntentsAsset = ({
 }
 
 const NEP245_CHAINS = ['bsc', 'pol', 'avax', 'op', 'tron', 'monad'] as const
-const TOKEN_LOOKUP_CHAINS = ['sui', 'starknet'] as const
+const TOKEN_LOOKUP_CHAINS = ['sui', 'starknet', 'ton'] as const
 const NEAR_CHAIN = 'near' as const
 const WNEAR_CONTRACT_ADDRESS = 'wrap.near' as const
 

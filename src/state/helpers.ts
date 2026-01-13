@@ -26,6 +26,7 @@ export const isCrossAccountTradeSupported = (swapperName: SwapperName) => {
     case SwapperName.Cetus:
     case SwapperName.Sunio:
     case SwapperName.Avnu:
+    case SwapperName.Stonfi:
     case SwapperName.Test:
       // Technically supported for Arbitrum Bridge, but we disable it for the sake of simplicity for now
       return false
@@ -107,6 +108,7 @@ export const getEnabledSwappers = (
       !isLedgerTronSell,
     [SwapperName.Avnu]:
       AvnuSwap && (!isCrossAccountTrade || isCrossAccountTradeSupported(SwapperName.Avnu)),
+    [SwapperName.Stonfi]: false,
     [SwapperName.Test]: false,
   }
 }

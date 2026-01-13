@@ -9,6 +9,7 @@ import type {
   solana,
   starknet,
   sui,
+  ton,
   tron,
   UtxoChainAdapter,
 } from '@shapeshiftoss/chain-adapters'
@@ -28,6 +29,7 @@ import type {
   NearChainId,
   OrderQuoteResponse,
   PartialRecord,
+  TonChainId,
   TronChainId,
   UtxoAccountType,
   UtxoChainId,
@@ -98,6 +100,7 @@ export enum SwapperName {
   Cetus = 'Cetus',
   Sunio = 'Sun.io',
   Avnu = 'AVNU',
+  Stonfi = 'STON.fi',
 }
 
 export type SwapSource = SwapperName | `${SwapperName} • ${string}`
@@ -256,6 +259,18 @@ export type GetNearTradeRateInput = CommonTradeRateInput & {
   chainId: NearChainId
 }
 
+export type GetTonTradeQuoteInputBase = CommonTradeInput & {
+  chainId: TonChainId
+}
+
+export type GetTonTradeQuoteInput = CommonTradeInput & {
+  chainId: TonChainId
+}
+
+export type GetTonTradeRateInput = CommonTradeRateInput & {
+  chainId: TonChainId
+}
+
 type GetUtxoTradeQuoteWithWallet = CommonTradeQuoteInput & {
   chainId: UtxoChainId
   accountType: UtxoAccountType
@@ -280,6 +295,7 @@ export type GetTradeQuoteInput =
   | GetCosmosSdkTradeQuoteInput
   | GetTronTradeQuoteInput
   | GetNearTradeQuoteInput
+  | GetTonTradeQuoteInput
 
 export type GetTradeRateInput =
   | GetEvmTradeRateInput
@@ -287,6 +303,7 @@ export type GetTradeRateInput =
   | GetUtxoTradeRateInput
   | GetTronTradeRateInput
   | GetNearTradeRateInput
+  | GetTonTradeRateInput
 
 export type GetTradeQuoteInputWithWallet =
   | GetUtxoTradeQuoteWithWallet
@@ -294,6 +311,7 @@ export type GetTradeQuoteInputWithWallet =
   | GetCosmosSdkTradeQuoteInputBase
   | GetTronTradeQuoteInputBase
   | GetNearTradeQuoteInputBase
+  | GetTonTradeQuoteInputBase
 
 export type EvmSwapperDeps = {
   assertGetEvmChainAdapter: (chainId: ChainId) => EvmChainAdapter
@@ -327,6 +345,10 @@ export type StarknetSwapperDeps = {
   assertGetStarknetChainAdapter: (chainId: ChainId) => starknet.ChainAdapter
 }
 
+export type TonSwapperDeps = {
+  assertGetTonChainAdapter: (chainId: ChainId) => ton.ChainAdapter
+}
+
 export type SwapperDeps = {
   assetsById: AssetsByIdPartial
   config: SwapperConfig
@@ -339,7 +361,8 @@ export type SwapperDeps = {
   TronSwapperDeps &
   SuiSwapperDeps &
   NearSwapperDeps &
-  StarknetSwapperDeps
+  StarknetSwapperDeps &
+  TonSwapperDeps
 
 export type TradeQuoteStep = {
   buyAmountBeforeFeesCryptoBaseUnit: string
@@ -431,10 +454,21 @@ export type TradeQuoteStep = {
     quoteId: string
     routes: any[]
   }
+  stonfiSpecific?: {
+    quoteId: string
+    resolverId: string
+    resolverName: string
+    tradeStartDeadline: number
+    gasBudget: string
+  }
 }
 
-export type TradeRateStep = Omit<TradeQuoteStep, 'accountNumber'> & { accountNumber: undefined }
-export type ExecutableTradeStep = Omit<TradeQuoteStep, 'accountNumber'> & { accountNumber: number }
+export type TradeRateStep = Omit<TradeQuoteStep, 'accountNumber'> & {
+  accountNumber: undefined
+}
+export type ExecutableTradeStep = Omit<TradeQuoteStep, 'accountNumber'> & {
+  accountNumber: number
+}
 
 type TradeQuoteBase = {
   id: string
@@ -618,13 +652,21 @@ export type StarknetTransactionExecutionProps = {
   signAndBroadcastTransaction: (txToSign: StarknetSignTx) => Promise<string>
 }
 
+export type TonTransactionExecutionProps = {
+  signAndBroadcastTransaction: (txToSign: ton.TonSignTx) => Promise<string>
+}
+
 type EvmAccountMetadata = { from: string }
 type SolanaAccountMetadata = { from: string }
 type TronAccountMetadata = { from: string }
 type SuiAccountMetadata = { from: string }
 type NearAccountMetadata = { from: string }
 type StarknetAccountMetadata = { from: string }
-type UtxoAccountMetadata = { senderAddress: string; xpub: string; accountType: UtxoAccountType }
+type UtxoAccountMetadata = {
+  senderAddress: string
+  xpub: string
+  accountType: UtxoAccountType
+}
 type CosmosSdkAccountMetadata = { from: string }
 
 export type CommonGetUnsignedTransactionArgs = {
@@ -658,6 +700,11 @@ export type GetUnsignedNearTransactionArgs = CommonGetUnsignedTransactionArgs &
 export type GetUnsignedStarknetTransactionArgs = CommonGetUnsignedTransactionArgs &
   StarknetAccountMetadata &
   StarknetSwapperDeps
+
+type TonAccountMetadata = { from: string }
+export type GetUnsignedTonTransactionArgs = CommonGetUnsignedTransactionArgs &
+  TonAccountMetadata &
+  TonSwapperDeps
 
 export type GetUnsignedEvmMessageArgs = CommonGetUnsignedTransactionArgs &
   EvmAccountMetadata &
@@ -696,7 +743,8 @@ export type CheckTradeStatusInput = {
   TronSwapperDeps &
   SuiSwapperDeps &
   NearSwapperDeps &
-  StarknetSwapperDeps
+  StarknetSwapperDeps &
+  TonSwapperDeps
 
 export type TradeStatus = {
   status: TxStatus
@@ -755,6 +803,10 @@ export type Swapper = {
     txToSign: StarknetSignTx,
     callbacks: StarknetTransactionExecutionProps,
   ) => Promise<string>
+  executeTonTransaction?: (
+    txToSign: ton.TonSignTx,
+    callbacks: TonTransactionExecutionProps,
+  ) => Promise<string>
 }
 
 export type SwapperApi = {
@@ -779,6 +831,7 @@ export type SwapperApi = {
   getUnsignedStarknetTransaction?: (
     input: GetUnsignedStarknetTransactionArgs,
   ) => Promise<StarknetSignTx>
+  getUnsignedTonTransaction?: (input: GetUnsignedTonTransactionArgs) => Promise<ton.TonSignTx>
 
   getEvmTransactionFees?: (input: GetUnsignedEvmTransactionArgs) => Promise<string>
   getSolanaTransactionFees?: (input: GetUnsignedSolanaTransactionArgs) => Promise<string>
@@ -788,6 +841,7 @@ export type SwapperApi = {
   getTronTransactionFees?: (input: GetUnsignedTronTransactionArgs) => Promise<string>
   getNearTransactionFees?: (input: GetUnsignedNearTransactionArgs) => Promise<string>
   getStarknetTransactionFees?: (input: GetUnsignedStarknetTransactionArgs) => Promise<string>
+  getTonTransactionFees?: (input: GetUnsignedTonTransactionArgs) => Promise<string>
 }
 
 export type QuoteResult = Result<TradeQuote[], SwapErrorRight> & {
@@ -808,7 +862,10 @@ export type CommonTradeExecutionInput = {
 
 export type EvmTransactionExecutionInput = CommonTradeExecutionInput &
   EvmTransactionExecutionProps &
-  EvmAccountMetadata & { supportsEIP1559: boolean; permit2Signature: string | undefined }
+  EvmAccountMetadata & {
+    supportsEIP1559: boolean
+    permit2Signature: string | undefined
+  }
 
 export type EvmMessageExecutionInput = CommonTradeExecutionInput &
   EvmMessageExecutionProps &
@@ -840,6 +897,10 @@ export type StarknetTransactionExecutionInput = CommonTradeExecutionInput &
   StarknetTransactionExecutionProps &
   StarknetAccountMetadata
 
+export type TonTransactionExecutionInput = CommonTradeExecutionInput &
+  TonTransactionExecutionProps &
+  TonAccountMetadata
+
 export enum TradeExecutionEvent {
   SellTxHash = 'sellTxHash',
   RelayerTxHash = 'relayerTxHash',
@@ -849,7 +910,10 @@ export enum TradeExecutionEvent {
   Error = 'error',
 }
 
-export type SellTxHashArgs = { stepIndex: SupportedTradeQuoteStepIndex; sellTxHash: string }
+export type SellTxHashArgs = {
+  stepIndex: SupportedTradeQuoteStepIndex
+  sellTxHash: string
+}
 export type RelayerTxDetailsArgs = {
   stepIndex: SupportedTradeQuoteStepIndex
   relayerTxHash: string

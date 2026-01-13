@@ -152,6 +152,7 @@ export const ASSET_NAMESPACE = {
   suiCoin: 'coin',
   nep141: 'nep141', // NEAR fungible token standard: https://nomicon.io/Standards/Tokens/FungibleToken/Core
   starknetToken: 'token',
+  jetton: 'jetton', // TON fungible token standard (TEP-74)
 } as const
 
 export const ASSET_REFERENCE = {
@@ -240,7 +241,7 @@ export const VALID_ASSET_NAMESPACE: ValidAssetNamespace = Object.freeze({
   [CHAIN_NAMESPACE.Sui]: [ASSET_NAMESPACE.slip44, ASSET_NAMESPACE.suiCoin],
   [CHAIN_NAMESPACE.Near]: [ASSET_NAMESPACE.slip44, ASSET_NAMESPACE.nep141],
   [CHAIN_NAMESPACE.Starknet]: [ASSET_NAMESPACE.slip44, ASSET_NAMESPACE.starknetToken],
-  [CHAIN_NAMESPACE.Ton]: [ASSET_NAMESPACE.slip44],
+  [CHAIN_NAMESPACE.Ton]: [ASSET_NAMESPACE.slip44, ASSET_NAMESPACE.jetton],
 })
 
 // We should prob change this once we add more chains

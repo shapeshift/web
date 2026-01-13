@@ -23,6 +23,7 @@ import { assertGetSolanaChainAdapter } from '@/lib/utils/solana'
 import { assertGetStarknetChainAdapter } from '@/lib/utils/starknet'
 import { assertGetSuiChainAdapter } from '@/lib/utils/sui'
 import { thorchainBlockTimeMs } from '@/lib/utils/thorchain/constants'
+import { assertGetTonChainAdapter } from '@/lib/utils/ton'
 import { assertGetTronChainAdapter } from '@/lib/utils/tron'
 import { assertGetUtxoChainAdapter } from '@/lib/utils/utxo'
 import { getInboundAddressesQuery, getMimirQuery } from '@/react-queries/queries/thornode'
@@ -52,6 +53,7 @@ export const createSwapperDeps = (state: ReduxState): SwapperDeps => ({
   assertGetUtxoChainAdapter,
   assertGetCosmosSdkChainAdapter,
   assertGetSolanaChainAdapter,
+  assertGetTonChainAdapter,
   assertGetTronChainAdapter,
   assertGetSuiChainAdapter,
   assertGetNearChainAdapter,
@@ -101,7 +103,10 @@ export const checkTradingActivity = async (
   tradeType?: TradeType,
 ) => {
   if (error !== undefined) {
-    return { isTradingActiveOnSellPool: false, isTradingActiveOnBuyPool: false }
+    return {
+      isTradingActiveOnSellPool: false,
+      isTradingActiveOnBuyPool: false,
+    }
   }
 
   const [isTradingActiveOnSellPool, isTradingActiveOnBuyPool] = await Promise.all(

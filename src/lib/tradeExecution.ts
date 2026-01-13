@@ -38,6 +38,7 @@ import { assertGetNearChainAdapter } from './utils/near'
 import { assertGetSolanaChainAdapter } from './utils/solana'
 import { assertGetStarknetChainAdapter } from './utils/starknet'
 import { assertGetSuiChainAdapter } from './utils/sui'
+import { assertGetTonChainAdapter } from './utils/ton'
 import { assertGetTronChainAdapter } from './utils/tron'
 import { assertGetUtxoChainAdapter } from './utils/utxo'
 
@@ -91,6 +92,7 @@ export const fetchTradeStatus = async ({
     assertGetUtxoChainAdapter,
     assertGetCosmosSdkChainAdapter,
     assertGetSolanaChainAdapter,
+    assertGetTonChainAdapter,
     assertGetTronChainAdapter,
     assertGetSuiChainAdapter,
     assertGetNearChainAdapter,

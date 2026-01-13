@@ -1,9 +1,12 @@
 import { useState, useMemo, useCallback, useEffect } from "react";
+import { Virtuoso } from "react-virtuoso";
 import type { Asset, AssetId, ChainId } from "../types";
 import { useAssets, useChains, type ChainInfo } from "../hooks/useAssets";
 import { useEvmBalances } from "../hooks/useBalances";
 import { useAllMarketData } from "../hooks/useMarketData";
 import "./TokenSelectModal.css";
+
+const VISIBLE_BUFFER = 10;
 
 const useLockBodyScroll = (isLocked: boolean) => {
   useEffect(() => {
@@ -61,6 +64,10 @@ export const TokenSelectModal = ({
   const [searchQuery, setSearchQuery] = useState("");
   const [chainSearchQuery, setChainSearchQuery] = useState("");
   const [selectedChainId, setSelectedChainId] = useState<ChainId | null>(null);
+  const [visibleRange, setVisibleRange] = useState({
+    startIndex: 0,
+    endIndex: 20,
+  });
 
   const { data: allAssets, isLoading: isLoadingAssets } = useAssets();
   const { data: chains, isLoading: isLoadingChains } = useChains();
@@ -125,17 +132,26 @@ export const TokenSelectModal = ({
     disabledChainIds,
   ]);
 
+  const visibleAssets = useMemo(() => {
+    const start = Math.max(0, visibleRange.startIndex - VISIBLE_BUFFER);
+    const end = Math.min(
+      filteredAssets.length,
+      visibleRange.endIndex + VISIBLE_BUFFER,
+    );
+    return filteredAssets.slice(start, end);
+  }, [filteredAssets, visibleRange]);
+
   const assetPrecisions = useMemo(() => {
     const precisions: Record<AssetId, number> = {};
-    for (const asset of filteredAssets) {
+    for (const asset of visibleAssets) {
       precisions[asset.assetId] = asset.precision;
     }
     return precisions;
-  }, [filteredAssets]);
+  }, [visibleAssets]);
 
   const assetIds = useMemo(
-    () => filteredAssets.map((a) => a.assetId),
-    [filteredAssets],
+    () => visibleAssets.map((a) => a.assetId),
+    [visibleAssets],
   );
 
   const { data: balances, loadingAssetIds } = useEvmBalances(
@@ -292,73 +308,79 @@ export const TokenSelectModal = ({
               ) : filteredAssets.length === 0 ? (
                 <div className="ssw-empty">No tokens found</div>
               ) : (
-                filteredAssets.map((asset) => {
-                  const chainInfo = chainInfoMap.get(asset.chainId);
-                  const balance = balances?.[asset.assetId];
-                  return (
-                    <button
-                      key={asset.assetId}
-                      className="ssw-token-item"
-                      onClick={() => handleAssetSelect(asset)}
-                      type="button"
-                    >
-                      <div className="ssw-token-icon-wrapper">
-                        {asset.icon ? (
-                          <img
-                            src={asset.icon}
-                            alt={asset.symbol}
-                            className="ssw-token-icon"
-                          />
-                        ) : (
-                          <div
-                            className="ssw-token-icon-placeholder"
-                            style={{ backgroundColor: asset.color ?? "#888" }}
-                          >
-                            {asset.symbol?.charAt(0) ?? "?"}
-                          </div>
-                        )}
-                        {chainInfo?.icon && (
-                          <img
-                            src={chainInfo.icon}
-                            alt={chainInfo.name}
-                            className="ssw-token-chain-badge"
-                          />
-                        )}
-                      </div>
-                      <div className="ssw-token-info">
-                        <span className="ssw-token-symbol">{asset.symbol}</span>
-                        <span className="ssw-token-name">
-                          {chainInfo?.name ?? asset.networkName ?? asset.name}
-                        </span>
-                      </div>
-                      <div className="ssw-token-right">
-                        {walletAddress &&
-                          (loadingAssetIds.has(asset.assetId) ? (
-                            <span className="ssw-token-balance-skeleton" />
-                          ) : balance && balance.balance !== "0" ? (
-                            <>
-                              {marketData?.[asset.assetId]?.price && (
-                                <span className="ssw-token-fiat-value">
-                                  $
-                                  {(
-                                    (Number(balance.balance) /
-                                      Math.pow(10, asset.precision)) *
-                                    Number(marketData[asset.assetId].price)
-                                  ).toLocaleString(undefined, {
-                                    minimumFractionDigits: 2,
-                                    maximumFractionDigits: 2,
-                                  })}
+                <Virtuoso
+                  data={filteredAssets}
+                  rangeChanged={setVisibleRange}
+                  overscan={200}
+                  itemContent={(_, asset) => {
+                    const chainInfo = chainInfoMap.get(asset.chainId);
+                    const balance = balances?.[asset.assetId];
+                    return (
+                      <button
+                        className="ssw-token-item"
+                        onClick={() => handleAssetSelect(asset)}
+                        type="button"
+                      >
+                        <div className="ssw-token-icon-wrapper">
+                          {asset.icon ? (
+                            <img
+                              src={asset.icon}
+                              alt={asset.symbol}
+                              className="ssw-token-icon"
+                            />
+                          ) : (
+                            <div
+                              className="ssw-token-icon-placeholder"
+                              style={{ backgroundColor: asset.color ?? "#888" }}
+                            >
+                              {asset.symbol?.charAt(0) ?? "?"}
+                            </div>
+                          )}
+                          {chainInfo?.icon && (
+                            <img
+                              src={chainInfo.icon}
+                              alt={chainInfo.name}
+                              className="ssw-token-chain-badge"
+                            />
+                          )}
+                        </div>
+                        <div className="ssw-token-info">
+                          <span className="ssw-token-symbol">
+                            {asset.symbol}
+                          </span>
+                          <span className="ssw-token-name">
+                            {chainInfo?.name ?? asset.networkName ?? asset.name}
+                          </span>
+                        </div>
+                        <div className="ssw-token-right">
+                          {walletAddress &&
+                            (loadingAssetIds.has(asset.assetId) ? (
+                              <span className="ssw-token-balance-skeleton" />
+                            ) : balance && balance.balance !== "0" ? (
+                              <>
+                                {marketData?.[asset.assetId]?.price && (
+                                  <span className="ssw-token-fiat-value">
+                                    $
+                                    {(
+                                      (Number(balance.balance) /
+                                        Math.pow(10, asset.precision)) *
+                                      Number(marketData[asset.assetId].price)
+                                    ).toLocaleString(undefined, {
+                                      minimumFractionDigits: 2,
+                                      maximumFractionDigits: 2,
+                                    })}
+                                  </span>
+                                )}
+                                <span className="ssw-token-balance">
+                                  {balance.balanceFormatted}
                                 </span>
-                              )}
-                              <span className="ssw-token-balance">
-                                {balance.balanceFormatted}
-                              </span>
-                            </>
-                          ) : null)}
-                      </div>
-                    </button>
-                  );
-                })
+                              </>
+                            ) : null)}
+                        </div>
+                      </button>
+                    );
+                  }}
+                />
               )}
             </div>
           </div>

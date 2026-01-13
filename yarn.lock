@@ -12703,6 +12703,7 @@ __metadata:
     "@vitejs/plugin-react": ^4.2.0
     react: ^18.2.0
     react-dom: ^18.2.0
+    react-virtuoso: ^4.18.1
     typescript: ^5.2.2
     viem: ^2.21.0
     vite: ^5.0.0
@@ -33230,6 +33231,16 @@ pvutils@latest:
     react: ^15.3.0 || ^16.0.0-alpha || ^17.0.0 || ^18.0.0 || ^19.0.0
     react-dom: ^15.3.0 || ^16.0.0-alpha || ^17.0.0 || ^18.0.0 || ^19.0.0
   checksum: bbfecf2bc8546b350a948a3e1a3be445bf04c46400f8e33771795aa8fafbc4e8f436d2ab461e8476b89ec4b7efe3c194bfaf31f5f6b3cf043276c4f7d3705b52
+  languageName: node
+  linkType: hard
+
+"react-virtuoso@npm:^4.18.1":
+  version: 4.18.1
+  resolution: "react-virtuoso@npm:4.18.1"
+  peerDependencies:
+    react: ">=16 || >=17 || >= 18 || >= 19"
+    react-dom: ">=16 || >=17 || >= 18 || >=19"
+  checksum: 613261e9555a4d6fbb17ffc3443bc2d0b877c2f8ec52b5cd45ab40c91183e0e14d74151d1cf16195b0df91e41017d733d78aaf28b26987e55642d2b13aa733ed
   languageName: node
   linkType: hard
 

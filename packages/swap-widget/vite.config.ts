@@ -1,12 +1,13 @@
-import react from "@vitejs/plugin-react";
-import { defineConfig } from "vite";
+import react from '@vitejs/plugin-react'
+import { defineConfig } from 'vite'
 
-const isLibBuild = process.env.BUILD_LIB === "true";
+const isLibBuild = process.env.BUILD_LIB === 'true'
 
+// eslint-disable-next-line import/no-default-export
 export default defineConfig({
   plugins: [react()],
   define: {
-    "process.env": {},
+    'process.env': {},
   },
   server: {
     port: 3001,
@@ -19,21 +20,21 @@ export default defineConfig({
   build: isLibBuild
     ? {
         lib: {
-          entry: "src/index.ts",
-          name: "SwapWidget",
-          fileName: "index",
+          entry: 'src/index.ts',
+          name: 'SwapWidget',
+          fileName: 'index',
         },
         rollupOptions: {
-          external: ["react", "react-dom"],
+          external: ['react', 'react-dom'],
           output: {
             globals: {
-              react: "React",
-              "react-dom": "ReactDOM",
+              react: 'React',
+              'react-dom': 'ReactDOM',
             },
           },
         },
       }
     : {
-        outDir: "dist",
+        outDir: 'dist',
       },
-});
+})

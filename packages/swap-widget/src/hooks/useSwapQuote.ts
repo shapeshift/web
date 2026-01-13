@@ -1,23 +1,20 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery } from '@tanstack/react-query'
 
-import type { ApiClient } from "../api/client";
-import type { AssetId, QuoteResponse, SwapperName } from "../types";
+import type { ApiClient } from '../api/client'
+import type { AssetId, QuoteResponse, SwapperName } from '../types'
 
 export type UseSwapQuoteParams = {
-  sellAssetId: AssetId | undefined;
-  buyAssetId: AssetId | undefined;
-  sellAmountCryptoBaseUnit: string | undefined;
-  sendAddress: string | undefined;
-  receiveAddress: string | undefined;
-  swapperName: SwapperName | undefined;
-  slippageTolerancePercentageDecimal?: string;
-  enabled?: boolean;
-};
+  sellAssetId: AssetId | undefined
+  buyAssetId: AssetId | undefined
+  sellAmountCryptoBaseUnit: string | undefined
+  sendAddress: string | undefined
+  receiveAddress: string | undefined
+  swapperName: SwapperName | undefined
+  slippageTolerancePercentageDecimal?: string
+  enabled?: boolean
+}
 
-export const useSwapQuote = (
-  apiClient: ApiClient,
-  params: UseSwapQuoteParams,
-) => {
+export const useSwapQuote = (apiClient: ApiClient, params: UseSwapQuoteParams) => {
   const {
     sellAssetId,
     buyAssetId,
@@ -27,11 +24,11 @@ export const useSwapQuote = (
     swapperName,
     slippageTolerancePercentageDecimal,
     enabled = true,
-  } = params;
+  } = params
 
   return useQuery({
     queryKey: [
-      "swapQuote",
+      'swapQuote',
       sellAssetId,
       buyAssetId,
       sellAmountCryptoBaseUnit,
@@ -49,7 +46,7 @@ export const useSwapQuote = (
         !receiveAddress ||
         !swapperName
       ) {
-        return Promise.resolve(null);
+        return Promise.resolve(null)
       }
       return apiClient.getQuote({
         sellAssetId,
@@ -59,7 +56,7 @@ export const useSwapQuote = (
         receiveAddress,
         swapperName,
         slippageTolerancePercentageDecimal,
-      });
+      })
     },
     enabled:
       enabled &&
@@ -70,5 +67,5 @@ export const useSwapQuote = (
       !!receiveAddress &&
       !!swapperName,
     staleTime: 30_000,
-  });
-};
+  })
+}

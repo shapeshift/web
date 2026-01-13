@@ -18,7 +18,7 @@ import type { ThemeConfig } from '../types'
 
 const config = getDefaultConfig({
   appName: 'ShapeShift Swap Widget',
-  projectId: 'demo-project-id',
+  projectId: 'f58c0242def84c3b9befe9b1e6086bbd',
   chains: [mainnet, polygon, arbitrum, optimism, base],
   ssr: false,
 })
@@ -203,7 +203,7 @@ const DemoContent = () => {
                 <h3 className='demo-customizer-title'>Customize Widget</h3>
 
                 <div className='demo-customizer-section'>
-                  <label className='demo-customizer-label'>Presets</label>
+                  <span className='demo-customizer-label'>Presets</span>
                   <div className='demo-preset-grid'>
                     {THEME_PRESETS.map(preset => {
                       const previewColors = theme === 'dark' ? preset.dark : preset.light
@@ -236,7 +236,7 @@ const DemoContent = () => {
                 </div>
 
                 <div className='demo-customizer-section'>
-                  <label className='demo-customizer-label'>Theme</label>
+                  <span className='demo-customizer-label'>Theme</span>
                   <div className='demo-theme-toggle'>
                     <button
                       className={`demo-theme-btn ${theme === 'light' ? 'active' : ''}`}
@@ -277,7 +277,7 @@ const DemoContent = () => {
                 </div>
 
                 <div className='demo-customizer-section'>
-                  <label className='demo-customizer-label'>Background Color</label>
+                  <span className='demo-customizer-label'>Background Color</span>
                   <div className='demo-color-input-row'>
                     <input
                       type='color'
@@ -295,7 +295,7 @@ const DemoContent = () => {
                 </div>
 
                 <div className='demo-customizer-section'>
-                  <label className='demo-customizer-label'>Card Color</label>
+                  <span className='demo-customizer-label'>Card Color</span>
                   <div className='demo-color-input-row'>
                     <input
                       type='color'
@@ -323,7 +323,7 @@ const DemoContent = () => {
                 </div>
 
                 <div className='demo-customizer-section'>
-                  <label className='demo-customizer-label'>Accent Color</label>
+                  <span className='demo-customizer-label'>Accent Color</span>
                   <div className='demo-color-input-row'>
                     <input
                       type='color'
@@ -351,7 +351,7 @@ const DemoContent = () => {
                 </div>
 
                 <div className='demo-customizer-section'>
-                  <label className='demo-customizer-label'>Connection</label>
+                  <span className='demo-customizer-label'>Connection</span>
                   <div className='demo-connection-info'>
                     {isConnected ? (
                       <>
@@ -411,6 +411,8 @@ const DemoContent = () => {
                 onSwapSuccess={handleSwapSuccess}
                 onSwapError={handleSwapError}
                 showPoweredBy={true}
+                enableWalletConnection={true}
+                defaultReceiveAddress={'0x1234567890123456789012345678901234567890'}
               />
             </div>
           </div>

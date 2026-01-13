@@ -66,6 +66,43 @@
   color: var(--ssw-text-primary);
 }
 
+.ssw-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ssw-connect-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  border: 1px solid var(--ssw-border);
+  background: var(--ssw-bg-tertiary);
+  border-radius: 10px;
+  color: var(--ssw-text-primary);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.ssw-connect-btn:hover {
+  background: var(--ssw-bg-hover);
+  border-color: var(--ssw-accent);
+}
+
+.ssw-connect-btn.ssw-connected {
+  background: color-mix(in srgb, var(--ssw-accent) 15%, var(--ssw-bg-tertiary));
+  border-color: color-mix(in srgb, var(--ssw-accent) 40%, transparent);
+}
+
+.ssw-connect-btn.ssw-wrong-network {
+  background: color-mix(in srgb, var(--ssw-error) 15%, var(--ssw-bg-tertiary));
+  border-color: var(--ssw-error);
+  color: var(--ssw-error);
+}
+
 .ssw-settings-btn {
   padding: 8px;
   border: none;

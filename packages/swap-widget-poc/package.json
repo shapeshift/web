@@ -9,12 +9,16 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "lint": "eslint src --ext .ts,.tsx",
+    "lint:fix": "eslint src --ext .ts,.tsx --fix",
+    "type-check": "tsc --noEmit"
   },
   "dependencies": {
     "@rainbow-me/rainbowkit": "^2.2.3",
     "@shapeshiftoss/caip": "^8.16.5",
     "@tanstack/react-query": "^5.60.0",
+    "p-queue": "^8.0.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-virtuoso": "^4.18.1",

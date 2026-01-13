@@ -57,24 +57,27 @@ function App() {
 
 ### SwapWidgetProps
 
-| Prop               | Type                                            | Default          | Description                                                              |
-| ------------------ | ----------------------------------------------- | ---------------- | ------------------------------------------------------------------------ |
-| `apiKey`           | `string`                                        | -                | ShapeShift API key for fetching swap rates. Required for production use. |
-| `apiBaseUrl`       | `string`                                        | -                | Custom API base URL. Useful for testing or custom deployments.           |
-| `defaultSellAsset` | `Asset`                                         | ETH on Ethereum  | Initial asset to sell.                                                   |
-| `defaultBuyAsset`  | `Asset`                                         | USDC on Ethereum | Initial asset to buy.                                                    |
-| `disabledChainIds` | `ChainId[]`                                     | `[]`             | Chain IDs to hide from the asset selector.                               |
-| `disabledAssetIds` | `AssetId[]`                                     | `[]`             | Asset IDs to hide from the asset selector.                               |
-| `allowedChainIds`  | `ChainId[]`                                     | -                | If provided, only show assets from these chains.                         |
-| `allowedAssetIds`  | `AssetId[]`                                     | -                | If provided, only show these specific assets.                            |
-| `walletClient`     | `WalletClient`                                  | -                | Viem wallet client for executing EVM transactions.                       |
-| `onConnectWallet`  | `() => void`                                    | -                | Callback when user clicks "Connect Wallet" button.                       |
-| `onSwapSuccess`    | `(txHash: string) => void`                      | -                | Callback when a swap transaction succeeds.                               |
-| `onSwapError`      | `(error: Error) => void`                        | -                | Callback when a swap transaction fails.                                  |
-| `onAssetSelect`    | `(type: "sell" \| "buy", asset: Asset) => void` | -                | Callback when user selects an asset.                                     |
-| `theme`            | `ThemeMode \| ThemeConfig`                      | `"dark"`         | Theme mode (`"light"` or `"dark"`) or full theme configuration.          |
-| `defaultSlippage`  | `string`                                        | `"0.5"`          | Default slippage tolerance percentage.                                   |
-| `showPoweredBy`    | `boolean`                                       | `true`           | Show "Powered by ShapeShift" branding.                                   |
+| Prop                     | Type                                            | Default          | Description                                                                                              |
+| ------------------------ | ----------------------------------------------- | ---------------- | -------------------------------------------------------------------------------------------------------- |
+| `apiKey`                 | `string`                                        | -                | ShapeShift API key for fetching swap rates. Required for production use.                                 |
+| `apiBaseUrl`             | `string`                                        | -                | Custom API base URL. Useful for testing or custom deployments.                                           |
+| `defaultSellAsset`       | `Asset`                                         | ETH on Ethereum  | Initial asset to sell.                                                                                   |
+| `defaultBuyAsset`        | `Asset`                                         | USDC on Ethereum | Initial asset to buy.                                                                                    |
+| `disabledChainIds`       | `ChainId[]`                                     | `[]`             | Chain IDs to hide from the asset selector.                                                               |
+| `disabledAssetIds`       | `AssetId[]`                                     | `[]`             | Asset IDs to hide from the asset selector.                                                               |
+| `allowedChainIds`        | `ChainId[]`                                     | -                | If provided, only show assets from these chains. Use this to restrict the widget to specific chains.     |
+| `allowedAssetIds`        | `AssetId[]`                                     | -                | If provided, only show these specific assets.                                                            |
+| `walletClient`           | `WalletClient`                                  | -                | Viem wallet client for executing EVM transactions.                                                       |
+| `onConnectWallet`        | `() => void`                                    | -                | Callback when user clicks "Connect Wallet" button.                                                       |
+| `onSwapSuccess`          | `(txHash: string) => void`                      | -                | Callback when a swap transaction succeeds.                                                               |
+| `onSwapError`            | `(error: Error) => void`                        | -                | Callback when a swap transaction fails.                                                                  |
+| `onAssetSelect`          | `(type: "sell" \| "buy", asset: Asset) => void` | -                | Callback when user selects an asset.                                                                     |
+| `theme`                  | `ThemeMode \| ThemeConfig`                      | `"dark"`         | Theme mode (`"light"` or `"dark"`) or full theme configuration.                                          |
+| `defaultSlippage`        | `string`                                        | `"0.5"`          | Default slippage tolerance percentage.                                                                   |
+| `showPoweredBy`          | `boolean`                                       | `true`           | Show "Powered by ShapeShift" branding.                                                                   |
+| `enableWalletConnection` | `boolean`                                       | `false`          | Enable built-in wallet connection UI using RainbowKit. Requires `walletConnectProjectId`.                |
+| `walletConnectProjectId` | `string`                                        | -                | WalletConnect project ID for the built-in wallet connection. Get one at https://cloud.walletconnect.com. |
+| `defaultReceiveAddress`  | `string`                                        | -                | Fixed receive address for swaps. When set, users cannot change the receive address.                      |
 
 ## Theming
 
@@ -204,6 +207,8 @@ function App() {
 
 ### Restricting Available Chains and Assets
 
+Use `allowedChainIds` to restrict the widget to only show specific chains. This is useful when you want to limit swaps to certain networks.
+
 ```tsx
 import { SwapWidget, EVM_CHAIN_IDS } from "@shapeshiftoss/swap-widget-poc";
 
@@ -219,6 +224,43 @@ function App() {
       disabledAssetIds={[
         "eip155:1/erc20:0x...", // Hide specific tokens
       ]}
+      theme="dark"
+    />
+  );
+}
+```
+
+### With Built-in Wallet Connection
+
+The widget can manage wallet connections internally using RainbowKit. This is useful when you don't have an existing wallet connection setup.
+
+```tsx
+import { SwapWidget } from "@shapeshiftoss/swap-widget-poc";
+
+function App() {
+  return (
+    <SwapWidget
+      apiKey="your-api-key"
+      enableWalletConnection={true}
+      walletConnectProjectId="your-walletconnect-project-id"
+      theme="dark"
+    />
+  );
+}
+```
+
+### With Fixed Receive Address
+
+Use `defaultReceiveAddress` to lock the receive address. When set, users cannot change the destination address. This is useful for integrations where you want all swaps to go to a specific address.
+
+```tsx
+import { SwapWidget } from "@shapeshiftoss/swap-widget-poc";
+
+function App() {
+  return (
+    <SwapWidget
+      apiKey="your-api-key"
+      defaultReceiveAddress="0x1234567890abcdef1234567890abcdef12345678"
       theme="dark"
     />
   );

@@ -109,6 +109,7 @@
   padding: 0 8px 16px;
   scrollbar-width: thin;
   scrollbar-color: var(--ssw-border) transparent;
+  min-height: 300px;
 }
 
 .ssw-chain-list::-webkit-scrollbar {

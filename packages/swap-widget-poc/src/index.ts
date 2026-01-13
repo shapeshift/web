@@ -1,4 +1,4 @@
-export { SwapWidget } from "./components/SwapWidget";
+export { SwapWidget } from './components/SwapWidget'
 
 export type {
   Asset,
@@ -11,7 +11,7 @@ export type {
   SwapWidgetProps,
   ThemeMode,
   ThemeConfig,
-} from "./types";
+} from './types'
 
 export {
   isEvmChainId,
@@ -24,7 +24,7 @@ export {
   UTXO_CHAIN_IDS,
   COSMOS_CHAIN_IDS,
   OTHER_CHAIN_IDS,
-} from "./types";
+} from './types'
 
 export {
   CHAIN_METADATA,
@@ -32,7 +32,7 @@ export {
   getChainName,
   getChainIcon,
   getChainColor,
-} from "./constants/chains";
+} from './constants/chains'
 
 export {
   useAssets,
@@ -40,4 +40,4 @@ export {
   useChains,
   useAssetsByChainId,
   useAssetSearch,
-} from "./hooks/useAssets";
+} from './hooks/useAssets'

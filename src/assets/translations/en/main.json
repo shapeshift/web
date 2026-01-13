@@ -2756,6 +2756,8 @@
     "availableToEarnTooltip": "Total idle balance across assets that have yield opportunities available.",
     "apyTooltip": "Annual percentage yield shown by the provider. Rates may fluctuate over time.",
     "perYear": "/yr",
+    "recommendedForYou": "Recommended for you",
+    "viewAllOpportunities": "View all opportunities",
     "earn": "Earn",
     "myBalance": "My Balance",
     "providers": "Providers",

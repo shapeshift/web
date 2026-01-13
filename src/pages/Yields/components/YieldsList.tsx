@@ -2,6 +2,7 @@ import { SearchIcon } from '@chakra-ui/icons'
 import {
   Avatar,
   Box,
+  Button,
   Container,
   Flex,
   Heading,
@@ -243,6 +244,38 @@ export const YieldsList = memo(() => {
     sortOption,
     userCurrencyBalances,
   ])
+
+  const recommendedYields = useMemo(() => {
+    if (!isConnected || !yields?.byInputAssetId || !userCurrencyBalances) return []
+
+    const recommendations: {
+      yield: AugmentedYieldDto
+      balanceFiat: ReturnType<typeof bnOrZero>
+      potentialEarnings: ReturnType<typeof bnOrZero>
+    }[] = []
+
+    for (const [assetId, balanceFiat] of Object.entries(userCurrencyBalances)) {
+      const yieldsForAsset = yields.byInputAssetId[assetId]
+      if (!yieldsForAsset?.length) continue
+
+      const balance = bnOrZero(balanceFiat)
+      if (balance.lte(0)) continue
+
+      const bestYield = yieldsForAsset.reduce((best, current) =>
+        current.rewardRate.total > best.rewardRate.total ? current : best,
+      )
+
+      recommendations.push({
+        yield: bestYield,
+        balanceFiat: balance,
+        potentialEarnings: balance.times(bestYield.rewardRate.total),
+      })
+    }
+
+    return recommendations
+      .sort((a, b) => b.potentialEarnings.minus(a.potentialEarnings).toNumber())
+      .slice(0, 3)
+  }, [isConnected, yields?.byInputAssetId, userCurrencyBalances])
 
   const myPositions = useMemo(() => {
     if (!yields?.all || !allBalances) return []
@@ -569,6 +602,53 @@ export const YieldsList = memo(() => {
     [filterSearchString, translate, yieldsByAsset],
   )
 
+  const recommendedStripElement = useMemo(() => {
+    if (!isConnected || recommendedYields.length === 0 || isMyOpportunities) return null
+
+    return (
+      <Box mb={6}>
+        <Flex justify='space-between' align='center' mb={4}>
+          <Text fontSize='lg' fontWeight='semibold'>
+            {translate('yieldXYZ.recommendedForYou')}
+          </Text>
+          <Button
+            variant='link'
+            size='sm'
+            color='blue.400'
+            onClick={() => {
+              const gridElement = document.getElementById('yields-grid')
+              gridElement?.scrollIntoView({ behavior: 'smooth' })
+            }}
+          >
+            {translate('yieldXYZ.viewAllOpportunities')}
+          </Button>
+        </Flex>
+        <SimpleGrid columns={{ base: 1, md: 3 }} spacing={4}>
+          {recommendedYields.map(rec => (
+            <YieldItem
+              key={rec.yield.id}
+              data={{
+                type: 'single',
+                yieldItem: rec.yield,
+                providerIcon: getProviderLogo(rec.yield.providerId),
+              }}
+              variant='card'
+              userBalanceUsd={rec.balanceFiat}
+              onEnter={() => handleYieldClick(rec.yield.id)}
+            />
+          ))}
+        </SimpleGrid>
+      </Box>
+    )
+  }, [
+    isConnected,
+    recommendedYields,
+    isMyOpportunities,
+    translate,
+    getProviderLogo,
+    handleYieldClick,
+  ])
+
   const allYieldsContentElement = useMemo(() => {
     if (isLoading)
       return viewMode === 'grid' ? allYieldsLoadingGridElement : allYieldsLoadingListElement
@@ -747,7 +827,10 @@ export const YieldsList = memo(() => {
           </Flex>
         </Flex>
         <TabPanels>
-          <TabPanel px={0}>{allYieldsContentElement}</TabPanel>
+          <TabPanel px={0}>
+            {recommendedStripElement}
+            <Box id='yields-grid'>{allYieldsContentElement}</Box>
+          </TabPanel>
           <TabPanel px={0}>{positionsContentElement}</TabPanel>
         </TabPanels>
       </Tabs>

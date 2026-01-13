@@ -21,9 +21,8 @@ import { useNavigate } from 'react-router-dom'
 
 import { Amount } from '@/components/Amount/Amount'
 import { AssetIcon } from '@/components/AssetIcon'
-
 import { bnOrZero } from '@/lib/bignumber/bignumber'
-import { AugmentedYieldDto } from '@/lib/yieldxyz/types'
+import type { AugmentedYieldDto } from '@/lib/yieldxyz/types'
 import { resolveYieldInputAssetIcon } from '@/lib/yieldxyz/utils'
 import { GradientApy } from '@/pages/Yields/components/GradientApy'
 import { useYieldProviders } from '@/react-queries/queries/yieldxyz/useYieldProviders'
@@ -145,8 +144,9 @@ export const YieldItem = memo(
       if (isSingle) {
         return data.yieldItem.providerId
       }
-      return `${stats.count} ${stats.count === 1 ? translate('yieldXYZ.market') : translate('yieldXYZ.markets')
-        }`
+      return `${stats.count} ${
+        stats.count === 1 ? translate('yieldXYZ.market') : translate('yieldXYZ.markets')
+      }`
     }, [data, isSingle, stats.count, translate])
 
     const title = useMemo(() => {
@@ -161,7 +161,6 @@ export const YieldItem = memo(
           variant='dashboard'
           cursor='pointer'
           onClick={handleClick}
-
           borderWidth='1px'
           borderColor='border.base'
           boxShadow='none'
@@ -385,8 +384,6 @@ export const YieldItem = memo(
               )}
             </Stat>
           </HStack>
-
-
         </CardBody>
       </Card>
     )

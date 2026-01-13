@@ -32,6 +32,7 @@ import { ChainIcon } from '@/components/ChainMenu'
 import { ResultsEmptyNoWallet } from '@/components/ResultsEmptyNoWallet'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
+import { fromBaseUnit } from '@/lib/math'
 import { YIELD_NETWORK_TO_CHAIN_ID } from '@/lib/yieldxyz/constants'
 import type { AugmentedYieldDto, YieldNetwork } from '@/lib/yieldxyz/types'
 import { resolveYieldInputAssetIcon, searchYields } from '@/lib/yieldxyz/utils'
@@ -50,7 +51,6 @@ import {
   selectPortfolioUserCurrencyBalances,
   selectUserCurrencyToUsdRate,
 } from '@/state/slices/selectors'
-import { fromBaseUnit } from '@/lib/math'
 import { useAppSelector } from '@/state/store'
 
 const tabSelectedSx = { color: 'white', bg: 'blue.500' }
@@ -152,10 +152,10 @@ export const YieldsList = memo(() => {
     () =>
       yields?.meta?.networks
         ? yields.meta.networks.map(net => ({
-          id: net,
-          name: net.charAt(0).toUpperCase() + net.slice(1),
-          chainId: YIELD_NETWORK_TO_CHAIN_ID[net as YieldNetwork],
-        }))
+            id: net,
+            name: net.charAt(0).toUpperCase() + net.slice(1),
+            chainId: YIELD_NETWORK_TO_CHAIN_ID[net as YieldNetwork],
+          }))
         : [],
     [yields],
   )
@@ -164,10 +164,10 @@ export const YieldsList = memo(() => {
     () =>
       yields?.meta?.providers
         ? yields.meta.providers.map(pId => ({
-          id: pId,
-          name: pId.charAt(0).toUpperCase() + pId.slice(1),
-          icon: getProviderLogo(pId),
-        }))
+            id: pId,
+            name: pId.charAt(0).toUpperCase() + pId.slice(1),
+            icon: getProviderLogo(pId),
+          }))
         : [],
     [yields, getProviderLogo],
   )
@@ -210,8 +210,6 @@ export const YieldsList = memo(() => {
           return balances.reduce((sum, b) => sum.plus(bnOrZero(b.amountUsd)), acc)
         }, bnOrZero(0))
 
-
-
         return {
           yields: filteredYields,
           assetSymbol: group.symbol,
@@ -246,15 +244,15 @@ export const YieldsList = memo(() => {
             return 0
         }
       }) as {
-        yields: AugmentedYieldDto[]
-        assetSymbol: string
-        assetName: string
-        assetIcon: string
-        assetId: string | undefined
-        userGroupBalanceUsd: ReturnType<typeof bnOrZero>
-        maxApy: number
-        totalTvlUsd: ReturnType<typeof bnOrZero>
-      }[]
+      yields: AugmentedYieldDto[]
+      assetSymbol: string
+      assetName: string
+      assetIcon: string
+      assetId: string | undefined
+      userGroupBalanceUsd: ReturnType<typeof bnOrZero>
+      maxApy: number
+      totalTvlUsd: ReturnType<typeof bnOrZero>
+    }[]
   }, [
     yields?.assetGroups,
     isMyOpportunities,
@@ -268,7 +266,8 @@ export const YieldsList = memo(() => {
   ])
 
   const recommendedYields = useMemo(() => {
-    if (!isConnected || !yields?.byInputAssetId || !userCurrencyBalances || !assetBalancesBaseUnit) return []
+    if (!isConnected || !yields?.byInputAssetId || !userCurrencyBalances || !assetBalancesBaseUnit)
+      return []
 
     const recommendations: {
       yield: AugmentedYieldDto
@@ -687,21 +686,20 @@ export const YieldsList = memo(() => {
           {translate('yieldXYZ.recommendedForYou')}
         </Text>
         <SimpleGrid columns={{ base: 1, md: 3 }} spacing={{ base: 2, md: 4 }}>
-          {recommendedYields
-            .map(rec => (
-              <YieldItem
-                key={rec.yield.id}
-                data={{
-                  type: 'single',
-                  yieldItem: rec.yield,
-                  providerIcon: getProviderLogo(rec.yield.providerId),
-                }}
-                variant={isMobile ? 'mobile' : 'card'}
-                userBalanceUsd={rec.balanceFiat}
-                titleOverride={rec.yield.token.symbol}
-                onEnter={() => handleYieldClick(rec.yield.id)}
-              />
-            ))}
+          {recommendedYields.map(rec => (
+            <YieldItem
+              key={rec.yield.id}
+              data={{
+                type: 'single',
+                yieldItem: rec.yield,
+                providerIcon: getProviderLogo(rec.yield.providerId),
+              }}
+              variant={isMobile ? 'mobile' : 'card'}
+              userBalanceUsd={rec.balanceFiat}
+              titleOverride={rec.yield.token.symbol}
+              onEnter={() => handleYieldClick(rec.yield.id)}
+            />
+          ))}
         </SimpleGrid>
       </Box>
     )
@@ -719,7 +717,9 @@ export const YieldsList = memo(() => {
 
   const allYieldsContentElement = useMemo(() => {
     if (isLoading)
-      return viewMode === 'grid' || isMobile ? allYieldsLoadingGridElement : allYieldsLoadingListElement
+      return viewMode === 'grid' || isMobile
+        ? allYieldsLoadingGridElement
+        : allYieldsLoadingListElement
     if (yieldsByAsset.length === 0) return allYieldsEmptyElement
     return viewMode === 'grid' || isMobile ? allYieldsGridElement : allYieldsListElement
   }, [
@@ -775,9 +775,9 @@ export const YieldsList = memo(() => {
             userBalanceUsd={
               allBalances?.[row.original.id]
                 ? allBalances[row.original.id].reduce(
-                  (sum, b) => sum.plus(bnOrZero(b.amountUsd)),
-                  bnOrZero(0),
-                )
+                    (sum, b) => sum.plus(bnOrZero(b.amountUsd)),
+                    bnOrZero(0),
+                  )
                 : undefined
             }
           />

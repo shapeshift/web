@@ -312,6 +312,57 @@ export const YieldsList = memo(() => {
       .slice(0, 3)
   }, [isConnected, yields?.byInputAssetId, userCurrencyBalances, assetBalancesBaseUnit, assets])
 
+  const availableYields = useMemo(() => {
+    if (!isConnected || !yields?.byInputAssetId || !userCurrencyBalances || !assetBalancesBaseUnit)
+      return []
+
+    const available: {
+      yield: AugmentedYieldDto
+      balanceFiat: ReturnType<typeof bnOrZero>
+    }[] = []
+
+    for (const [assetId, balanceFiat] of Object.entries(userCurrencyBalances)) {
+      const yieldsForAsset = yields.byInputAssetId[assetId]
+      if (!yieldsForAsset?.length) continue
+
+      const balance = bnOrZero(balanceFiat)
+      if (balance.lte(0)) continue
+
+      const eligibleYields = yieldsForAsset.filter(y => {
+        const minDeposit = bnOrZero(y.mechanics?.entryLimits?.minimum)
+        if (minDeposit.gt(0)) {
+          const precision = assets[assetId]?.precision ?? 18
+          const baseBalance = bnOrZero(assetBalancesBaseUnit[assetId])
+          const balanceHuman = bnOrZero(fromBaseUnit(baseBalance, precision))
+          if (balanceHuman.lt(minDeposit)) return false
+        }
+        if (selectedNetwork && y.network !== selectedNetwork) return false
+        if (selectedProvider && y.providerId !== selectedProvider) return false
+        if (selectedType && y.mechanics.type !== selectedType) return false
+        if (searchQuery && !searchYields([y], searchQuery).length) return false
+        return true
+      })
+
+      for (const yieldItem of eligibleYields) {
+        available.push({ yield: yieldItem, balanceFiat: balance })
+      }
+    }
+
+    return available.sort((a, b) =>
+      bnOrZero(b.yield.rewardRate.total).minus(a.yield.rewardRate.total).toNumber(),
+    )
+  }, [
+    isConnected,
+    yields?.byInputAssetId,
+    userCurrencyBalances,
+    assetBalancesBaseUnit,
+    assets,
+    selectedNetwork,
+    selectedProvider,
+    selectedType,
+    searchQuery,
+  ])
+
   const myPositions = useMemo(() => {
     if (!yields?.all || !allBalances) return []
     const positions = yields.all.filter(yieldItem => {
@@ -553,12 +604,44 @@ export const YieldsList = memo(() => {
     [translate],
   )
 
-  const allYieldsGridElement = useMemo(
-    () => (
+  const allYieldsGridElement = useMemo(() => {
+    if (isMyOpportunities) {
+      return (
+        <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={{ base: 2, md: 6 }}>
+          {availableYields.map(item => {
+            const yieldBalances = allBalances?.[item.yield.id]
+            const positionBalanceUsd = yieldBalances
+              ? yieldBalances.reduce((sum, b) => sum.plus(bnOrZero(b.amountUsd)), bnOrZero(0))
+              : undefined
+            return (
+              <YieldItem
+                key={item.yield.id}
+                data={{
+                  type: 'single',
+                  yieldItem: item.yield,
+                  providerIcon: getProviderLogo(item.yield.providerId),
+                }}
+                variant={isMobile ? 'mobile' : 'card'}
+                userBalanceUsd={positionBalanceUsd}
+                availableBalanceUserCurrency={item.balanceFiat}
+                titleOverride={item.yield.token.symbol}
+                onEnter={() => handleYieldClick(item.yield.id)}
+              />
+            )
+          })}
+        </SimpleGrid>
+      )
+    }
+
+    return (
       <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={{ base: 2, md: 6 }}>
         {yieldsByAsset.map(group => {
           if (group.yields.length === 1) {
             const singleYield = group.yields[0]
+            const inputAssetId = singleYield.inputTokens?.[0]?.assetId
+            const availableUsd = inputAssetId
+              ? bnOrZero(userCurrencyBalances[inputAssetId])
+              : undefined
             return (
               <YieldItem
                 key={singleYield.id}
@@ -569,6 +652,7 @@ export const YieldsList = memo(() => {
                 }}
                 variant={isMobile ? 'mobile' : 'card'}
                 userBalanceUsd={group.userGroupBalanceUsd}
+                availableBalanceUserCurrency={availableUsd}
                 titleOverride={group.assetSymbol}
                 onEnter={() => handleYieldClick(singleYield.id)}
               />
@@ -593,52 +677,98 @@ export const YieldsList = memo(() => {
           )
         })}
       </SimpleGrid>
-    ),
-    [filterSearchString, yieldsByAsset, isMobile, getProviderLogo, handleYieldClick],
-  )
+    )
+  }, [
+    isMyOpportunities,
+    availableYields,
+    allBalances,
+    filterSearchString,
+    yieldsByAsset,
+    isMobile,
+    getProviderLogo,
+    handleYieldClick,
+    userCurrencyBalances,
+  ])
 
-  const allYieldsListElement = useMemo(
-    () => (
-      <Box borderWidth='1px' borderRadius='xl' overflow='hidden'>
-        <Flex
-          p={4}
-          alignItems='center'
-          gap={4}
-          borderBottomWidth='1px'
-          borderColor='inherit'
-          bg='background.surface.raised.base'
-        >
-          <Flex flex='1' minW='200px'>
-            <Text fontSize='xs' fontWeight='bold' color='text.subtle' textTransform='uppercase'>
-              {translate('yieldXYZ.asset')}
-            </Text>
-          </Flex>
-          <Flex gap={8} flex='2'>
-            <Box minW='100px'>
-              <Text fontSize='xs' fontWeight='bold' color='text.subtle' textTransform='uppercase'>
-                {translate('yieldXYZ.maxApy')}
-              </Text>
-            </Box>
-            <Box minW='120px' display={{ base: 'none', md: 'block' }}>
-              <Text fontSize='xs' fontWeight='bold' color='text.subtle' textTransform='uppercase'>
-                {translate('yieldXYZ.tvl')}
-              </Text>
-            </Box>
-            <Box minW='120px' display={{ base: 'none', lg: 'block' }}>
-              <Text fontSize='xs' fontWeight='bold' color='text.subtle' textTransform='uppercase'>
-                {translate('yieldXYZ.providers')}
-              </Text>
-            </Box>
-            <Box flex='1' display={{ base: 'none', md: 'block' }} textAlign='right'>
-              <Text fontSize='xs' fontWeight='bold' color='text.subtle' textTransform='uppercase'>
-                {translate('yieldXYZ.myBalance')}
-              </Text>
-            </Box>
-          </Flex>
+  const allYieldsListElement = useMemo(() => {
+    const listHeader = (
+      <Flex
+        p={4}
+        alignItems='center'
+        gap={4}
+        borderBottomWidth='1px'
+        borderColor='inherit'
+        bg='background.surface.raised.base'
+      >
+        <Flex flex='1' minW='200px'>
+          <Text fontSize='xs' fontWeight='bold' color='text.subtle' textTransform='uppercase'>
+            {translate('yieldXYZ.asset')}
+          </Text>
         </Flex>
+        <Flex gap={8} flex='2'>
+          <Box minW='100px'>
+            <Text fontSize='xs' fontWeight='bold' color='text.subtle' textTransform='uppercase'>
+              {translate('yieldXYZ.maxApy')}
+            </Text>
+          </Box>
+          <Box minW='120px' display={{ base: 'none', md: 'block' }}>
+            <Text fontSize='xs' fontWeight='bold' color='text.subtle' textTransform='uppercase'>
+              {translate('yieldXYZ.tvl')}
+            </Text>
+          </Box>
+          <Box minW='120px' display={{ base: 'none', lg: 'block' }}>
+            <Text fontSize='xs' fontWeight='bold' color='text.subtle' textTransform='uppercase'>
+              {translate('yieldXYZ.providers')}
+            </Text>
+          </Box>
+          <Box flex='1' display={{ base: 'none', md: 'block' }} textAlign='right'>
+            <Text fontSize='xs' fontWeight='bold' color='text.subtle' textTransform='uppercase'>
+              {translate('yieldXYZ.myBalance')}
+            </Text>
+          </Box>
+        </Flex>
+      </Flex>
+    )
+
+    if (isMyOpportunities) {
+      return (
+        <Box borderWidth='1px' borderRadius='xl' overflow='hidden'>
+          {listHeader}
+          {availableYields.map(item => {
+            const yieldBalances = allBalances?.[item.yield.id]
+            const positionBalanceUsd = yieldBalances
+              ? yieldBalances.reduce((sum, b) => sum.plus(bnOrZero(b.amountUsd)), bnOrZero(0))
+              : undefined
+            return (
+              <YieldItem
+                key={item.yield.id}
+                data={{
+                  type: 'single',
+                  yieldItem: item.yield,
+                  providerIcon: getProviderLogo(item.yield.providerId),
+                }}
+                variant='row'
+                userBalanceUsd={positionBalanceUsd}
+                availableBalanceUserCurrency={item.balanceFiat}
+                titleOverride={item.yield.token.symbol}
+                onEnter={() => handleYieldClick(item.yield.id)}
+              />
+            )
+          })}
+        </Box>
+      )
+    }
+
+    return (
+      <Box borderWidth='1px' borderRadius='xl' overflow='hidden'>
+        {listHeader}
         {yieldsByAsset.map(group => {
           if (group.yields.length === 1) {
             const singleYield = group.yields[0]
+            const inputAssetId = singleYield.inputTokens?.[0]?.assetId
+            const availableUsd = inputAssetId
+              ? bnOrZero(userCurrencyBalances[inputAssetId])
+              : undefined
             return (
               <YieldItem
                 key={singleYield.id}
@@ -649,6 +779,7 @@ export const YieldsList = memo(() => {
                 }}
                 variant='row'
                 userBalanceUsd={group.userGroupBalanceUsd}
+                availableBalanceUserCurrency={availableUsd}
                 titleOverride={group.assetSymbol}
                 onEnter={() => handleYieldClick(singleYield.id)}
               />
@@ -673,9 +804,18 @@ export const YieldsList = memo(() => {
           )
         })}
       </Box>
-    ),
-    [filterSearchString, translate, yieldsByAsset, getProviderLogo, handleYieldClick],
-  )
+    )
+  }, [
+    isMyOpportunities,
+    availableYields,
+    allBalances,
+    filterSearchString,
+    translate,
+    yieldsByAsset,
+    getProviderLogo,
+    handleYieldClick,
+    userCurrencyBalances,
+  ])
 
   const recommendedStripElement = useMemo(() => {
     if (!isConnected || recommendedYields.length === 0 || isMyOpportunities) return null
@@ -718,7 +858,8 @@ export const YieldsList = memo(() => {
       return viewMode === 'grid' || isMobile
         ? allYieldsLoadingGridElement
         : allYieldsLoadingListElement
-    if (yieldsByAsset.length === 0) return allYieldsEmptyElement
+    const isEmpty = isMyOpportunities ? availableYields.length === 0 : yieldsByAsset.length === 0
+    if (isEmpty) return allYieldsEmptyElement
     return viewMode === 'grid' || isMobile ? allYieldsGridElement : allYieldsListElement
   }, [
     allYieldsEmptyElement,
@@ -727,6 +868,8 @@ export const YieldsList = memo(() => {
     allYieldsLoadingGridElement,
     allYieldsLoadingListElement,
     isLoading,
+    isMyOpportunities,
+    availableYields.length,
     viewMode,
     yieldsByAsset.length,
     isMobile,

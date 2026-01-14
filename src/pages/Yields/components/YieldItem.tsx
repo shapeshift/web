@@ -48,13 +48,22 @@ type YieldItemProps = {
   data: SingleYieldData | GroupYieldData
   variant: 'card' | 'row' | 'mobile'
   userBalanceUsd?: BigNumber
+  availableBalanceUserCurrency?: BigNumber
   onEnter?: (yieldItem: AugmentedYieldDto) => void
   searchString?: string
   titleOverride?: string
 }
 
 export const YieldItem = memo(
-  ({ data, variant, userBalanceUsd, onEnter, searchString, titleOverride }: YieldItemProps) => {
+  ({
+    data,
+    variant,
+    userBalanceUsd,
+    availableBalanceUserCurrency,
+    onEnter,
+    searchString,
+    titleOverride,
+  }: YieldItemProps) => {
     const navigate = useNavigate()
     const translate = useTranslate()
     const userCurrencyToUsdRate = useAppSelector(selectUserCurrencyToUsdRate)
@@ -110,6 +119,7 @@ export const YieldItem = memo(
     )
 
     const hasBalance = userBalanceUsd && userBalanceUsd.gt(0)
+    const hasAvailable = availableBalanceUserCurrency && availableBalanceUserCurrency.gt(0)
 
     const handleClick = useCallback(() => {
       if (isSingle) {
@@ -155,6 +165,137 @@ export const YieldItem = memo(
       return data.assetSymbol
     }, [data, isSingle, titleOverride])
 
+    const showAvailable = isSingle && hasAvailable && !hasBalance
+
+    const cardStatElement = useMemo(() => {
+      if (hasBalance) {
+        return (
+          <>
+            <StatLabel fontSize='xs' color='text.subtle'>
+              {translate('yieldXYZ.balance')}
+            </StatLabel>
+            <StatNumber fontSize='lg' fontWeight='bold' color='blue.400'>
+              <Amount.Fiat value={userBalanceUserCurrency ?? '0'} abbreviated />
+            </StatNumber>
+          </>
+        )
+      }
+      if (showAvailable) {
+        return (
+          <>
+            <StatLabel fontSize='xs' color='text.subtle'>
+              {translate('common.available')}
+            </StatLabel>
+            <StatNumber fontSize='lg' fontWeight='bold' color='green.400'>
+              <Amount.Fiat value={availableBalanceUserCurrency?.toFixed() ?? '0'} abbreviated />
+            </StatNumber>
+          </>
+        )
+      }
+      return (
+        <>
+          <StatLabel fontSize='xs' color='text.subtle'>
+            {translate('yieldXYZ.tvl')}
+          </StatLabel>
+          <StatNumber fontSize='md' fontWeight='semibold'>
+            <Amount.Fiat value={tvlUserCurrency} abbreviated />
+          </StatNumber>
+        </>
+      )
+    }, [
+      hasBalance,
+      showAvailable,
+      userBalanceUserCurrency,
+      availableBalanceUserCurrency,
+      tvlUserCurrency,
+      translate,
+    ])
+
+    const showAvailableInRow = isSingle && hasAvailable
+
+    const mobileBalanceLabelKey = useMemo(() => {
+      if (hasBalance) return 'yieldXYZ.balance'
+      if (showAvailable) return 'common.available'
+      return 'yieldXYZ.balance'
+    }, [hasBalance, showAvailable])
+
+    const mobileBalanceElement = useMemo(() => {
+      if (hasBalance) {
+        return (
+          <Text fontWeight='medium' color='blue.400'>
+            <Amount.Fiat value={userBalanceUserCurrency ?? '0'} abbreviated />
+          </Text>
+        )
+      }
+      if (showAvailable) {
+        return (
+          <Text fontWeight='medium' color='green.400'>
+            <Amount.Fiat value={availableBalanceUserCurrency?.toFixed() ?? '0'} abbreviated />
+          </Text>
+        )
+      }
+      return (
+        <Text fontWeight='medium' color='text.subtle'>
+          —
+        </Text>
+      )
+    }, [hasBalance, showAvailable, userBalanceUserCurrency, availableBalanceUserCurrency])
+
+    const rowBalanceElement = useMemo(() => {
+      if (hasBalance && showAvailableInRow) {
+        return (
+          <Box>
+            <Flex justifyContent='flex-end' gap={1} alignItems='baseline'>
+              <Text fontSize='sm' fontWeight='bold' color='blue.400'>
+                <Amount.Fiat value={userBalanceUserCurrency ?? '0'} abbreviated />
+              </Text>
+              <Text fontSize='xs' color='text.subtle'>
+                {translate('yieldXYZ.balance').toLowerCase()}
+              </Text>
+            </Flex>
+            <Flex justifyContent='flex-end' gap={1} alignItems='baseline'>
+              <Text fontSize='sm' fontWeight='semibold' color='green.400'>
+                <Amount.Fiat value={availableBalanceUserCurrency?.toFixed() ?? '0'} abbreviated />
+              </Text>
+              <Text fontSize='xs' color='text.subtle'>
+                {translate('common.available').toLowerCase()}
+              </Text>
+            </Flex>
+          </Box>
+        )
+      }
+      if (hasBalance) {
+        return (
+          <Text fontSize='sm' fontWeight='bold' color='blue.400'>
+            <Amount.Fiat value={userBalanceUserCurrency ?? '0'} abbreviated />
+          </Text>
+        )
+      }
+      if (showAvailableInRow) {
+        return (
+          <>
+            <Text fontSize='xs' color='text.subtle'>
+              {translate('common.available')}
+            </Text>
+            <Text fontSize='sm' fontWeight='bold' color='green.400'>
+              <Amount.Fiat value={availableBalanceUserCurrency?.toFixed() ?? '0'} abbreviated />
+            </Text>
+          </>
+        )
+      }
+      return (
+        <Text fontSize='sm' color='text.subtle'>
+          —
+        </Text>
+      )
+    }, [
+      hasBalance,
+      showAvailableInRow,
+      userBalanceUserCurrency,
+      availableBalanceUserCurrency,
+      translate,
+    ])
+
     if (variant === 'mobile') {
       return (
         <Card
@@ -184,11 +325,9 @@ export const YieldItem = memo(
                   mb={0}
                   textTransform='uppercase'
                 >
-                  {translate('yieldXYZ.balance')}
+                  {translate(mobileBalanceLabelKey)}
                 </Text>
-                <Text fontWeight='medium'>
-                  <Amount.Fiat value={userBalanceUserCurrency ?? '0'} abbreviated />
-                </Text>
+                {mobileBalanceElement}
               </Box>
               <Box>
                 <Text
@@ -281,15 +420,7 @@ export const YieldItem = memo(
                 )}
               </Box>
               <Box flex='1' display={{ base: 'none', md: 'block' }} textAlign='right'>
-                {hasBalance ? (
-                  <Text fontSize='sm' fontWeight='bold' color='blue.400'>
-                    <Amount.Fiat value={userBalanceUserCurrency ?? '0'} abbreviated />
-                  </Text>
-                ) : (
-                  <Text fontSize='sm' color='text.subtle'>
-                    —
-                  </Text>
-                )}
+                {rowBalanceElement}
               </Box>
             </Flex>
           </Flex>
@@ -363,25 +494,7 @@ export const YieldItem = memo(
               </StatNumber>
             </Stat>
             <Stat size='sm' textAlign='right'>
-              {hasBalance ? (
-                <>
-                  <StatLabel fontSize='xs' color='text.subtle'>
-                    {translate('yieldXYZ.balance')}
-                  </StatLabel>
-                  <StatNumber fontSize='lg' fontWeight='bold' color='blue.400'>
-                    <Amount.Fiat value={userBalanceUserCurrency ?? '0'} abbreviated />
-                  </StatNumber>
-                </>
-              ) : (
-                <>
-                  <StatLabel fontSize='xs' color='text.subtle'>
-                    {translate('yieldXYZ.tvl')}
-                  </StatLabel>
-                  <StatNumber fontSize='md' fontWeight='semibold'>
-                    <Amount.Fiat value={tvlUserCurrency} abbreviated />
-                  </StatNumber>
-                </>
-              )}
+              {cardStatElement}
             </Stat>
           </HStack>
         </CardBody>

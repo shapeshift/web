@@ -1,6 +1,6 @@
 import { Avatar, Box, Button, Flex, HStack, Icon, Input, Skeleton, Text } from '@chakra-ui/react'
 import { useQueryClient } from '@tanstack/react-query'
-import { memo, useCallback, useEffect, useMemo, useState } from 'react'
+import { memo, useCallback, useMemo, useState } from 'react'
 import { TbSwitchVertical } from 'react-icons/tb'
 import type { NumberFormatValues } from 'react-number-format'
 import { NumericFormat } from 'react-number-format'
@@ -308,12 +308,6 @@ export const YieldEnterModal = memo(
     })
 
     const isQuoteActive = isQuoteLoading || isAllowanceCheckPending
-
-    useEffect(() => {
-      if (step === ModalStep.Success) {
-        handleModalClose()
-      }
-    }, [step, handleModalClose])
 
     const successProviderInfo = useMemo(() => {
       if (isStaking && selectedValidatorMetadata) {

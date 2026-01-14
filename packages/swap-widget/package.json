@@ -15,20 +15,20 @@
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
-    "@rainbow-me/rainbowkit": "^2.2.3",
+    "@rainbow-me/rainbowkit": "^2.2.10",
     "@shapeshiftoss/caip": "^8.16.5",
-    "@tanstack/react-query": "^5.60.0",
+    "@tanstack/react-query": "^5.69.0",
     "p-queue": "^8.0.1",
-    "react-virtuoso": "^4.18.1",
+    "react-virtuoso": "^4.7.11",
     "viem": "^2.40.3",
-    "wagmi": "^2.9.2"
+    "wagmi": "^2.17.0"
   },
   "devDependencies": {
     "@types/react": "^18.2.0",
     "@types/react-dom": "^18.2.0",
     "@vitejs/plugin-react": "^4.2.0",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
     "typescript": "^5.2.2",
     "vite": "^5.0.0"
   },

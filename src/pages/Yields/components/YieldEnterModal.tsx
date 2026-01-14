@@ -625,22 +625,6 @@ export const YieldEnterModal = memo(
             </Button>
           </DialogFooter>
         )}
-        {isSuccess && (
-          <DialogFooter borderTop='1px solid' borderColor='border.base' pt={4} pb={4}>
-            <Button
-              colorScheme='blue'
-              size='lg'
-              width='full'
-              height='56px'
-              fontSize='lg'
-              fontWeight='semibold'
-              borderRadius='xl'
-              onClick={hookHandleClose}
-            >
-              {translate('common.close')}
-            </Button>
-          </DialogFooter>
-        )}
       </Dialog>
     )
   },

@@ -114,11 +114,19 @@ export const GroupedAssetList = ({
     ],
   )
 
+  const computeItemKey = useCallback(
+    (index: number) => {
+      return assets[index]?.assetId ?? index
+    },
+    [assets],
+  )
+
   return (
     <GroupedVirtuoso
       groupCounts={groupCounts}
       groupContent={renderGroupContent}
       itemContent={renderItem}
+      computeItemKey={computeItemKey}
       components={components}
       style={style}
       overscan={200}

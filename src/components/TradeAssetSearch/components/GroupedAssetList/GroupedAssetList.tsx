@@ -121,7 +121,7 @@ export const GroupedAssetList = ({
       itemContent={renderItem}
       components={components}
       style={style}
-      overscan={1000}
+      overscan={200}
       increaseViewportBy={INCREASE_VIEWPORT_BY}
     />
   )

@@ -213,6 +213,8 @@ export type BuildSendTxInput<T extends ChainId> = {
 
 export type BuildSendApiTxInput<T extends KnownChainIds> = Omit<BuildSendTxInput<T>, 'wallet'> & {
   from: string
+  /** Optional override for wallet-specific derivation paths (e.g., BIP44 vs Ledger Live) */
+  addressNList?: number[]
 }
 
 export type UtxoBuildSendApiTxInput<T extends UtxoChainId> = Omit<BuildSendTxInput<T>, 'wallet'> & {

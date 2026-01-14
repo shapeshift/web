@@ -420,7 +420,7 @@ export const TransactionRow: React.FC<TransactionRowProps> = ({
     // halted by the time the user clicked the confirm button
     // But we still have some sane 60s stale time rather than 0 for paranoia's sake, as a balance of safety and not overfetching
     staleTime: 60_000,
-    select: data => selectInboundAddressData(data, assetId),
+    select: data => selectInboundAddressData(data, assetId, SwapperName.Thorchain),
     enabled: !!assetId,
   })
 

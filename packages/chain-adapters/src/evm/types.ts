@@ -26,7 +26,11 @@ export type BuildCustomTxInput = {
   pubKey?: string
 } & NetworkFees
 
-export type BuildCustomApiTxInput = Omit<BuildCustomTxInput, 'wallet'> & { from: string }
+export type BuildCustomApiTxInput = Omit<BuildCustomTxInput, 'wallet'> & {
+  from: string
+  /** Optional override for wallet-specific derivation paths (e.g., BIP44 vs Ledger Live) */
+  addressNList?: number[]
+}
 
 export type BuildTxInput = {
   gasLimit: string

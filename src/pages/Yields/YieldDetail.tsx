@@ -145,7 +145,10 @@ export const YieldDetail = memo(() => {
 
   return (
     <Box bg='background.surface.base' minH='100vh' pb={20}>
-      <Container maxW={{ base: 'full', md: 'container.md', lg: 'container.lg' }} px={{ base: 4, md: 8, lg: 12 }}>
+      <Container
+        maxW={{ base: 'full', md: 'container.md', lg: 'container.lg' }}
+        px={{ base: 4, md: 8, lg: 12 }}
+      >
         <YieldHero
           yieldItem={yieldItem}
           userBalanceUsd={userBalances.usd}

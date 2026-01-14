@@ -1,6 +1,5 @@
 import {
   Alert,
-  AlertIcon,
   Badge,
   Box,
   Button,
@@ -15,13 +14,13 @@ import {
   VStack,
 } from '@chakra-ui/react'
 import { fromAccountId } from '@shapeshiftoss/caip'
-import { memo, useCallback, useMemo, useState } from 'react'
+import qs from 'qs'
+import { memo, useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useSearchParams } from 'react-router-dom'
-
-import { YieldActionModal } from './YieldActionModal'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 
 import { Amount } from '@/components/Amount/Amount'
+import { useBrowserRouter } from '@/hooks/useBrowserRouter/useBrowserRouter'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { DEFAULT_NATIVE_VALIDATOR_BY_CHAIN_ID } from '@/lib/yieldxyz/constants'
 import type { AugmentedYieldDto } from '@/lib/yieldxyz/types'
@@ -44,21 +43,11 @@ type YieldPositionCardProps = {
   isBalancesLoading: boolean
 }
 
-type ClaimModalData = {
-  amount: string
-  assetSymbol: string
-  assetLogoURI: string | undefined
-  validatorAddress: string | undefined
-  validatorName: string | undefined
-  validatorLogoURI: string | undefined
-  passthrough: string | undefined
-  manageActionType: string | undefined
-}
-
 export const YieldPositionCard = memo(
   ({ yieldItem, balances, isBalancesLoading }: YieldPositionCardProps) => {
-    const [claimModalData, setClaimModalData] = useState<ClaimModalData | null>(null)
     const translate = useTranslate()
+    const navigate = useNavigate()
+    const { location } = useBrowserRouter()
     const [searchParams] = useSearchParams()
     const validatorParam = searchParams.get('validator')
 
@@ -180,19 +169,15 @@ export const YieldPositionCard = memo(
     const totalAmountFixed = useMemo(() => totalAmount.toFixed(), [totalAmount])
 
     const handleClaimClick = useCallback(() => {
-      setClaimModalData({
-        amount: claimableBalance?.amount ?? '0',
-        assetSymbol: claimableBalance?.token.symbol ?? '',
-        assetLogoURI: claimableBalance?.token.logoURI,
-        validatorAddress: selectedValidatorAddress,
-        validatorName: claimableBalance?.validator?.name,
-        validatorLogoURI: claimableBalance?.validator?.logoURI,
-        passthrough: claimAction?.passthrough,
-        manageActionType: claimAction?.type,
+      navigate({
+        pathname: location.pathname,
+        search: qs.stringify({
+          action: 'claim',
+          modal: 'yield',
+          ...(selectedValidatorAddress ? { validator: selectedValidatorAddress } : {}),
+        }),
       })
-    }, [claimableBalance, selectedValidatorAddress, claimAction])
-
-    const handleClaimClose = useCallback(() => setClaimModalData(null), [])
+    }, [navigate, location.pathname, selectedValidatorAddress])
 
     const showPendingActions = useMemo(
       () => hasEntering || hasExiting || hasWithdrawable || hasClaimable,
@@ -207,28 +192,6 @@ export const YieldPositionCard = memo(
         </VStack>
       ),
       [],
-    )
-
-    const emptyStateAlert = useMemo(
-      () => (
-        <Alert
-          status='info'
-          variant='subtle'
-          borderRadius='lg'
-          flexDirection='column'
-          alignItems='start'
-          p={4}
-        >
-          <Flex alignItems='center' gap={2} mb={1}>
-            <AlertIcon boxSize='20px' mr={0} />
-            <Text fontWeight='bold'>{translate('yieldXYZ.startEarning')}</Text>
-          </Flex>
-          <Text fontSize='sm'>
-            {translate('yieldXYZ.enterYourToken', { symbol: yieldItem.token.symbol })}
-          </Text>
-        </Alert>
-      ),
-      [yieldItem.token.symbol, translate],
     )
 
     const enteringSection = useMemo(() => {
@@ -360,11 +323,13 @@ export const YieldPositionCard = memo(
       )
     }, [showPendingActions, enteringSection, exitingSection, withdrawableSection, claimableSection])
 
+    if (!accountId) return null
+
     if (isBalancesLoading) {
       return (
         <Card variant='dashboard'>
-          <CardBody p={6}>
-            <Flex justifyContent='space-between' alignItems='center' mb={6}>
+          <CardBody p={{ base: 4, md: 5 }}>
+            <Flex justifyContent='space-between' alignItems='center' mb={4}>
               <Heading
                 as='h3'
                 size='sm'
@@ -372,9 +337,8 @@ export const YieldPositionCard = memo(
                 color='text.subtle'
                 letterSpacing='wider'
               >
-                {headingText}
+                {translate('yieldXYZ.myPosition')}
               </Heading>
-              {addressBadge}
             </Flex>
             {loadingState}
           </CardBody>
@@ -382,10 +346,12 @@ export const YieldPositionCard = memo(
       )
     }
 
+    if (!hasAnyPosition && !showPendingActions) return null
+
     return (
       <Card variant='dashboard'>
-        <CardBody p={6}>
-          <Flex justifyContent='space-between' alignItems='center' mb={6}>
+        <CardBody p={{ base: 4, md: 5 }}>
+          <Flex justifyContent='space-between' alignItems='center' mb={4}>
             <Heading
               as='h3'
               size='sm'
@@ -397,7 +363,7 @@ export const YieldPositionCard = memo(
             </Heading>
             {addressBadge}
           </Flex>
-          <VStack spacing={6} align='stretch'>
+          <VStack spacing={4} align='stretch'>
             <Box>
               <Text fontSize='xs' color='text.subtle' mb={1} textTransform='uppercase'>
                 {translate('yieldXYZ.totalValue')}
@@ -413,24 +379,7 @@ export const YieldPositionCard = memo(
                 />
               </Text>
             </Box>
-            {!hasAnyPosition && emptyStateAlert}
             {pendingActionsSection}
-            {claimModalData && (
-              <YieldActionModal
-                yieldItem={yieldItem}
-                action='manage'
-                isOpen={!!claimModalData}
-                onClose={handleClaimClose}
-                amount={claimModalData.amount}
-                assetSymbol={claimModalData.assetSymbol}
-                assetLogoURI={claimModalData.assetLogoURI}
-                validatorAddress={claimModalData.validatorAddress}
-                validatorName={claimModalData.validatorName}
-                validatorLogoURI={claimModalData.validatorLogoURI}
-                passthrough={claimModalData.passthrough}
-                manageActionType={claimModalData.manageActionType}
-              />
-            )}
           </VStack>
         </CardBody>
       </Card>

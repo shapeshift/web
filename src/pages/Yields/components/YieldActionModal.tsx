@@ -130,8 +130,8 @@ export const YieldActionModal = memo(function YieldActionModal({
       `${bnOrZero(amount)
         .times(yieldItem.rewardRate.total)
         .decimalPlaces(4)
-        .toString()} ${assetSymbol}/yr`,
-    [amount, yieldItem.rewardRate.total, assetSymbol],
+        .toString()} ${assetSymbol}${translate('yieldXYZ.perYear')}`,
+    [amount, yieldItem.rewardRate.total, assetSymbol, translate],
   )
 
   const estimatedEarningsFiat = useMemo(

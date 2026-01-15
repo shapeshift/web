@@ -9,7 +9,17 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import type { ReactNode } from 'react'
 import { useMemo } from 'react'
 import { useWalletClient, WagmiProvider } from 'wagmi'
-import { arbitrum, avalanche, base, bsc, gnosis, mainnet, optimism, polygon } from 'wagmi/chains'
+import {
+  arbitrum,
+  arbitrumNova,
+  avalanche,
+  base,
+  bsc,
+  gnosis,
+  mainnet,
+  optimism,
+  polygon,
+} from 'wagmi/chains'
 
 import type { ThemeMode } from '../types'
 
@@ -40,7 +50,7 @@ export const InternalWalletProvider = ({
       getDefaultConfig({
         appName: 'ShapeShift Swap Widget',
         projectId,
-        chains: [mainnet, polygon, arbitrum, optimism, base, avalanche, bsc, gnosis],
+        chains: [mainnet, polygon, arbitrum, arbitrumNova, optimism, base, avalanche, bsc, gnosis],
         ssr: false,
       }),
     [projectId],

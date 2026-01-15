@@ -1,43 +1,42 @@
-import type { SwapperName } from '../types'
+import { SwapperName } from '../types'
 
-export const SWAPPER_ICONS: Record<SwapperName, string> = {
-  THORChain:
+export const SWAPPER_ICONS: Partial<Record<SwapperName, string>> = {
+  [SwapperName.Thorchain]:
     'https://raw.githubusercontent.com/shapeshift/web/develop/src/components/MultiHopTrade/components/TradeInput/components/SwapperIcon/thorchain-icon.png',
-  MAYAChain:
+  [SwapperName.Mayachain]:
     'https://raw.githubusercontent.com/shapeshift/web/develop/src/components/MultiHopTrade/components/TradeInput/components/SwapperIcon/maya_logo.png',
-  'CoW Swap':
+  [SwapperName.CowSwap]:
     'https://raw.githubusercontent.com/shapeshift/web/develop/src/components/MultiHopTrade/components/TradeInput/components/SwapperIcon/cow-icon.png',
-  '0x': 'https://raw.githubusercontent.com/shapeshift/web/develop/src/components/MultiHopTrade/components/TradeInput/components/SwapperIcon/0x-icon.png',
-  Portals:
+  [SwapperName.Zrx]:
+    'https://raw.githubusercontent.com/shapeshift/web/develop/src/components/MultiHopTrade/components/TradeInput/components/SwapperIcon/0x-icon.png',
+  [SwapperName.Portals]:
     'https://raw.githubusercontent.com/shapeshift/web/develop/src/components/MultiHopTrade/components/TradeInput/components/SwapperIcon/portals-icon.png',
-  Chainflip:
+  [SwapperName.Chainflip]:
     'https://raw.githubusercontent.com/shapeshift/web/develop/src/components/MultiHopTrade/components/TradeInput/components/SwapperIcon/chainflip-icon.png',
-  Relay:
+  [SwapperName.Relay]:
     'https://raw.githubusercontent.com/shapeshift/web/develop/src/components/MultiHopTrade/components/TradeInput/components/SwapperIcon/relay-icon.svg',
-  Bebop:
+  [SwapperName.Bebop]:
     'https://raw.githubusercontent.com/shapeshift/web/develop/src/components/MultiHopTrade/components/TradeInput/components/SwapperIcon/bebop-icon.png',
-  Jupiter:
+  [SwapperName.Jupiter]:
     'https://raw.githubusercontent.com/shapeshift/web/develop/src/components/MultiHopTrade/components/TradeInput/components/SwapperIcon/jupiter-icon.svg',
-  '1inch': 'https://raw.githubusercontent.com/trustwallet/assets/master/dapps/1inch.exchange.png',
-  ButterSwap:
+  [SwapperName.ButterSwap]:
     'https://raw.githubusercontent.com/shapeshift/web/develop/src/components/MultiHopTrade/components/TradeInput/components/SwapperIcon/butterswap.png',
-  ArbitrumBridge:
+  [SwapperName.ArbitrumBridge]:
     'https://raw.githubusercontent.com/shapeshift/web/develop/src/components/MultiHopTrade/components/TradeInput/components/SwapperIcon/arbitrum-bridge-icon.png',
 }
 
 export const SWAPPER_COLORS: Partial<Record<SwapperName, string>> = {
-  THORChain: '#00CCFF',
-  MAYAChain: '#4169E1',
-  'CoW Swap': '#012d73',
-  '0x': '#000000',
-  Portals: '#8B5CF6',
-  Chainflip: '#FF4081',
-  Relay: '#6366F1',
-  Bebop: '#E91E63',
-  Jupiter: '#C4A962',
-  '1inch': '#1B314F',
-  ButterSwap: '#FFD700',
-  ArbitrumBridge: '#28A0F0',
+  [SwapperName.Thorchain]: '#00CCFF',
+  [SwapperName.Mayachain]: '#4169E1',
+  [SwapperName.CowSwap]: '#012d73',
+  [SwapperName.Zrx]: '#000000',
+  [SwapperName.Portals]: '#8B5CF6',
+  [SwapperName.Chainflip]: '#FF4081',
+  [SwapperName.Relay]: '#6366F1',
+  [SwapperName.Bebop]: '#E91E63',
+  [SwapperName.Jupiter]: '#C4A962',
+  [SwapperName.ButterSwap]: '#FFD700',
+  [SwapperName.ArbitrumBridge]: '#28A0F0',
 }
 
 export const getSwapperIcon = (swapperName: SwapperName): string | undefined => {

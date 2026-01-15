@@ -1,6 +1,7 @@
 import type { AssetId, AssetsResponse, QuoteResponse, RatesResponse } from '../types'
 
-const DEFAULT_API_BASE_URL = 'https://api.shapeshift.com'
+const DEFAULT_API_BASE_URL =
+  import.meta.env.VITE_SWAP_WIDGET_API_URL ?? 'https://api.shapeshift.com'
 
 export type ApiClientConfig = {
   baseUrl?: string

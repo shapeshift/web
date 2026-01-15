@@ -11,7 +11,17 @@ import {
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { useCallback, useMemo, useState } from 'react'
 import { useAccount, useWalletClient, WagmiProvider } from 'wagmi'
-import { arbitrum, base, mainnet, optimism, polygon } from 'wagmi/chains'
+import {
+  arbitrum,
+  arbitrumNova,
+  avalanche,
+  base,
+  bsc,
+  gnosis,
+  mainnet,
+  optimism,
+  polygon,
+} from 'wagmi/chains'
 
 import { SwapWidget } from '../components/SwapWidget'
 import type { ThemeConfig } from '../types'
@@ -19,7 +29,7 @@ import type { ThemeConfig } from '../types'
 const config = getDefaultConfig({
   appName: 'ShapeShift Swap Widget',
   projectId: 'f58c0242def84c3b9befe9b1e6086bbd',
-  chains: [mainnet, polygon, arbitrum, optimism, base],
+  chains: [mainnet, polygon, arbitrum, arbitrumNova, optimism, base, avalanche, bsc, gnosis],
   ssr: false,
 })
 
@@ -68,10 +78,14 @@ const THEME_PRESETS: {
   },
 ]
 
-const DemoContent = () => {
+type DemoContentProps = {
+  theme: 'light' | 'dark'
+  setTheme: (theme: 'light' | 'dark') => void
+}
+
+const DemoContent = ({ theme, setTheme }: DemoContentProps) => {
   const { address, isConnected } = useAccount()
   const { data: walletClient } = useWalletClient()
-  const [theme, setTheme] = useState<'light' | 'dark'>('dark')
   const [showCustomizer, setShowCustomizer] = useState(true)
 
   const [darkColors, setDarkColors] = useState<ThemeColors>({
@@ -427,16 +441,15 @@ const DemoContent = () => {
 }
 
 export const App = () => {
+  const [theme, setTheme] = useState<'light' | 'dark'>('dark')
+
+  const rainbowTheme = useMemo(() => (theme === 'dark' ? darkTheme() : lightTheme()), [theme])
+
   return (
     <WagmiProvider config={config}>
       <QueryClientProvider client={queryClient}>
-        <RainbowKitProvider
-          theme={{
-            lightMode: lightTheme(),
-            darkMode: darkTheme(),
-          }}
-        >
-          <DemoContent />
+        <RainbowKitProvider theme={rainbowTheme}>
+          <DemoContent theme={theme} setTheme={setTheme} />
         </RainbowKitProvider>
       </QueryClientProvider>
     </WagmiProvider>

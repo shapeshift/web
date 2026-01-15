@@ -1,3 +1,4 @@
+import { ASSET_NAMESPACE, fromAssetId } from '@shapeshiftoss/caip'
 import { useQuery } from '@tanstack/react-query'
 
 import type { Asset, AssetId, ChainId } from '../types'
@@ -74,6 +75,15 @@ export type ChainInfo = {
   nativeAsset: Asset
 }
 
+const isNativeAsset = (assetId: string): boolean => {
+  try {
+    const { assetNamespace } = fromAssetId(assetId)
+    return assetNamespace === ASSET_NAMESPACE.slip44
+  } catch {
+    return false
+  }
+}
+
 export const useChains = () => {
   const { data: assets, ...rest } = useAssets()
 
@@ -85,9 +95,7 @@ export const useChains = () => {
     for (const asset of assets) {
       if (chainMap.has(asset.chainId)) continue
 
-      const isNativeAsset = asset.assetId.includes('/slip44:') || asset.assetId.endsWith('/native')
-
-      if (isNativeAsset) {
+      if (isNativeAsset(asset.assetId)) {
         chainMap.set(asset.chainId, {
           chainId: asset.chainId,
           name: asset.networkName ?? asset.name,
@@ -116,10 +124,6 @@ export const useAssetsByChainId = (chainId: ChainId | undefined) => {
   const filteredAssets = chainId ? assets.filter(asset => asset.chainId === chainId) : assets
 
   return { data: filteredAssets, ...rest }
-}
-
-const isNativeAsset = (assetId: string): boolean => {
-  return assetId.includes('/slip44:') || assetId.endsWith('/native')
 }
 
 const scoreAsset = (asset: Asset, query: string): number => {

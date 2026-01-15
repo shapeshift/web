@@ -15,17 +15,21 @@
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
-    "@rainbow-me/rainbowkit": "^2.2.10",
+    "@rainbow-me/rainbowkit": "2.1.7",
     "@shapeshiftoss/caip": "^8.16.5",
+    "@shapeshiftoss/chain-adapters": "*",
+    "@shapeshiftoss/swapper": "*",
+    "@shapeshiftoss/utils": "*",
     "@tanstack/react-query": "^5.69.0",
+    "bech32": "^2.0.0",
     "p-queue": "^8.0.1",
     "react-virtuoso": "^4.7.11",
-    "viem": "^2.40.3",
-    "wagmi": "^2.17.0"
+    "viem": "2.40.3",
+    "wagmi": "^2.9.2"
   },
   "devDependencies": {
-    "@types/react": "^18.2.0",
-    "@types/react-dom": "^18.2.0",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
     "@vitejs/plugin-react": "^4.2.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",

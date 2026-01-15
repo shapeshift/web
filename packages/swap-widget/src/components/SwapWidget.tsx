@@ -2,28 +2,45 @@ import './SwapWidget.css'
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { useCallback, useMemo, useState } from 'react'
-import type { WalletClient } from 'viem'
+import type { Chain, WalletClient } from 'viem'
 import { createPublicClient, encodeFunctionData, http } from 'viem'
+import {
+  arbitrum,
+  arbitrumNova,
+  avalanche,
+  base,
+  bsc,
+  gnosis,
+  mainnet,
+  optimism,
+  polygon,
+} from 'viem/chains'
 
 import { createApiClient } from '../api/client'
-import { getChainMeta } from '../constants/chains'
+import { getBaseAsset } from '../constants/chains'
 import { useChainInfo } from '../hooks/useAssets'
 import { useAssetBalance } from '../hooks/useBalances'
 import { formatUsdValue, useMarketData } from '../hooks/useMarketData'
 import { useSwapRates } from '../hooks/useSwapRates'
 import type { Asset, SwapWidgetProps, ThemeMode, TradeRate } from '../types'
-import {
-  formatAmount,
-  getChainType,
-  getEvmChainIdNumber,
-  parseAmount,
-  truncateAddress,
-} from '../types'
+import { formatAmount, getChainType, getEvmNetworkId, parseAmount, truncateAddress } from '../types'
 import { AddressInputModal } from './AddressInputModal'
 import { QuoteSelector } from './QuoteSelector'
 import { SettingsModal } from './SettingsModal'
 import { TokenSelectModal } from './TokenSelectModal'
 import { ConnectWalletButton, InternalWalletProvider } from './WalletProvider'
+
+const VIEM_CHAINS_BY_ID: Record<number, Chain> = {
+  1: mainnet,
+  10: optimism,
+  56: bsc,
+  100: gnosis,
+  137: polygon,
+  8453: base,
+  42161: arbitrum,
+  42170: arbitrumNova,
+  43114: avalanche,
+}
 
 const DEFAULT_SELL_ASSET: Asset = {
   assetId: 'eip155:1/slip44:60',
@@ -195,7 +212,7 @@ const SwapWidgetCore = ({
     setIsExecuting(true)
 
     try {
-      const requiredChainId = getEvmChainIdNumber(sellAsset.chainId)
+      const requiredChainId = getEvmNetworkId(sellAsset.chainId)
       const client = walletClient as WalletClient
 
       const currentChainId = await client.getChainId()
@@ -218,15 +235,23 @@ const SwapWidgetCore = ({
         slippageTolerancePercentageDecimal: slippageDecimal,
       })
 
-      const chainMeta = getChainMeta(sellAsset.chainId)
-      const nativeCurrency = chainMeta?.nativeCurrency ?? {
-        name: 'ETH',
-        symbol: 'ETH',
-        decimals: 18,
-      }
-      const chain = {
+      const baseAsset = getBaseAsset(sellAsset.chainId)
+      const nativeCurrency = baseAsset
+        ? {
+            name: baseAsset.name,
+            symbol: baseAsset.symbol,
+            decimals: baseAsset.precision,
+          }
+        : {
+            name: 'ETH',
+            symbol: 'ETH',
+            decimals: 18,
+          }
+
+      const viemChain = VIEM_CHAINS_BY_ID[requiredChainId]
+      const chain = viemChain ?? {
         id: requiredChainId,
-        name: chainMeta?.name ?? 'Chain',
+        name: baseAsset?.networkName ?? baseAsset?.name ?? 'Chain',
         nativeCurrency,
         rpcUrls: { default: { http: [] } },
       }

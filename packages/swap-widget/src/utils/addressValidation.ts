@@ -1,14 +1,8 @@
+import { bech32 } from 'bech32'
 import { isAddress } from 'viem'
 
 import type { ChainId } from '../types'
 import { COSMOS_CHAIN_IDS, getChainType } from '../types'
-
-/**
- * Validates an EVM address using viem
- */
-export const isValidEvmAddress = (address: string): boolean => {
-  return isAddress(address, { strict: false })
-}
 
 /**
  * Validates a Bitcoin address (Legacy, SegWit, Native SegWit, Taproot)
@@ -69,23 +63,16 @@ export const isValidDogecoinAddress = (address: string): boolean => {
   return p2pkhRegex.test(address) || p2shRegex.test(address)
 }
 
-/**
- * Validates a Cosmos SDK address (bech32 format)
- */
 export const isValidCosmosAddress = (address: string, expectedPrefix?: string): boolean => {
-  // Basic bech32 validation - prefix + 1 + base32 characters
-  const bech32Regex = /^[a-z]{1,83}1[a-z0-9]{38,58}$/i
-
-  if (!bech32Regex.test(address)) {
+  try {
+    const decoded = bech32.decode(address)
+    if (expectedPrefix && decoded.prefix !== expectedPrefix) {
+      return false
+    }
+    return true
+  } catch {
     return false
   }
-
-  // If prefix is specified, validate it
-  if (expectedPrefix) {
-    return address.toLowerCase().startsWith(expectedPrefix.toLowerCase())
-  }
-
-  return true
 }
 
 /**
@@ -126,7 +113,7 @@ export const validateAddress = (
 
   switch (chainType) {
     case 'evm':
-      if (!isValidEvmAddress(trimmedAddress)) {
+      if (!isAddress(trimmedAddress, { strict: false })) {
         return { valid: false, error: 'Invalid EVM address' }
       }
       break

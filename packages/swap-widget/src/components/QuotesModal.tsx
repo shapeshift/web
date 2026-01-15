@@ -1,5 +1,6 @@
 import './QuotesModal.css'
 
+import { bnOrZero } from '@shapeshiftoss/utils'
 import { useCallback, useEffect, useMemo } from 'react'
 
 import { getSwapperColor, getSwapperIcon } from '../constants/swappers'
@@ -31,11 +32,11 @@ type QuotesModalProps = {
 }
 
 const calculateSavingsPercent = (bestAmount: string, currentAmount: string): string | null => {
-  const best = parseFloat(bestAmount || '0')
-  const current = parseFloat(currentAmount || '0')
-  if (best === 0) return null
-  const diff = ((best - current) / best) * 100
-  return diff > 0.1 ? diff.toFixed(2) : null
+  const best = bnOrZero(bestAmount)
+  const current = bnOrZero(currentAmount)
+  if (best.isZero()) return null
+  const diff = best.minus(current).div(best).times(100)
+  return diff.gt(0.1) ? diff.toFixed(2) : null
 }
 
 export const QuotesModal = ({
@@ -72,9 +73,9 @@ export const QuotesModal = ({
     return [...rates]
       .filter(r => !r.error && r.buyAmountCryptoBaseUnit !== '0')
       .sort((a, b) => {
-        const aAmount = parseFloat(a.buyAmountCryptoBaseUnit || '0')
-        const bAmount = parseFloat(b.buyAmountCryptoBaseUnit || '0')
-        return bAmount - aAmount
+        const aAmount = bnOrZero(a.buyAmountCryptoBaseUnit)
+        const bAmount = bnOrZero(b.buyAmountCryptoBaseUnit)
+        return bAmount.minus(aAmount).toNumber()
       })
   }, [rates])
 

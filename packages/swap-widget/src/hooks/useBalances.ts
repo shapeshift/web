@@ -1,3 +1,4 @@
+import { ASSET_NAMESPACE, CHAIN_NAMESPACE, fromAssetId } from '@shapeshiftoss/caip'
 import { useQueries } from '@tanstack/react-query'
 import { getBalance, readContract } from '@wagmi/core'
 import PQueue from 'p-queue'
@@ -6,7 +7,7 @@ import { erc20Abi } from 'viem'
 import { useBalance, useConfig } from 'wagmi'
 
 import type { AssetId } from '../types'
-import { formatAmount, getEvmChainIdNumber } from '../types'
+import { formatAmount } from '../types'
 
 const CONCURRENCY_LIMIT = 5
 const DELAY_BETWEEN_BATCHES_MS = 50
@@ -28,24 +29,24 @@ type BalancesMap = Record<AssetId, BalanceResult>
 const parseAssetId = (
   assetId: AssetId,
 ): { chainId: number; tokenAddress?: `0x${string}` } | null => {
-  const [chainPart, assetPart] = assetId.split('/')
+  try {
+    const { chainNamespace, chainReference, assetNamespace, assetReference } = fromAssetId(assetId)
 
-  if (!chainPart?.startsWith('eip155:')) return null
+    if (chainNamespace !== CHAIN_NAMESPACE.Evm) return null
 
-  const chainId = getEvmChainIdNumber(chainPart)
+    const evmChainId = Number(chainReference)
 
-  if (!assetPart) return { chainId }
+    if (assetNamespace === ASSET_NAMESPACE.erc20) {
+      return {
+        chainId: evmChainId,
+        tokenAddress: assetReference as `0x${string}`,
+      }
+    }
 
-  if (assetPart.startsWith('erc20:')) {
-    const tokenAddress = assetPart.replace('erc20:', '') as `0x${string}`
-    return { chainId, tokenAddress }
+    return { chainId: evmChainId }
+  } catch {
+    return null
   }
-
-  if (assetPart.startsWith('slip44:')) {
-    return { chainId }
-  }
-
-  return { chainId }
 }
 
 export const useAssetBalance = (

@@ -7,15 +7,15 @@ export type {
   Chain,
   TradeRate,
   TradeQuote,
-  SwapperName,
   SwapWidgetProps,
   ThemeMode,
   ThemeConfig,
 } from './types'
 
 export {
+  SwapperName,
   isEvmChainId,
-  getEvmChainIdNumber,
+  getEvmNetworkId,
   getChainType,
   formatAmount,
   parseAmount,
@@ -27,11 +27,11 @@ export {
 } from './types'
 
 export {
-  CHAIN_METADATA,
-  getChainMeta,
+  getBaseAsset,
   getChainName,
   getChainIcon,
   getChainColor,
+  getExplorerTxLink,
 } from './constants/chains'
 
 export {

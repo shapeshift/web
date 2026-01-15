@@ -1,4 +1,4 @@
-import { fromAccountId } from "@shapeshiftoss/caip";
+import { fromAccountId } from '@shapeshiftoss/caip'
 import type {
   CommonGetUnsignedTransactionArgs,
   CommonTradeExecutionInput,
@@ -20,7 +20,7 @@ import type {
   TradeExecutionEventMap,
   TronTransactionExecutionInput,
   UtxoTransactionExecutionInput,
-} from "@shapeshiftoss/swapper";
+} from '@shapeshiftoss/swapper'
 import {
   getHopByIndex,
   isExecutableTradeQuote,
@@ -28,39 +28,36 @@ import {
   SwapStatus,
   TRADE_STATUS_POLL_INTERVAL_MILLISECONDS,
   TradeExecutionEvent,
-} from "@shapeshiftoss/swapper";
-import { TxStatus } from "@shapeshiftoss/unchained-client";
-import axios from "axios";
-import { EventEmitter } from "node:events";
+} from '@shapeshiftoss/swapper'
+import { TxStatus } from '@shapeshiftoss/unchained-client'
+import axios from 'axios'
+import { EventEmitter } from 'node:events'
 
-import { assertGetCosmosSdkChainAdapter } from "./utils/cosmosSdk";
-import { assertGetEvmChainAdapter } from "./utils/evm";
-import { assertGetNearChainAdapter } from "./utils/near";
-import { assertGetSolanaChainAdapter } from "./utils/solana";
-import { assertGetStarknetChainAdapter } from "./utils/starknet";
-import { assertGetSuiChainAdapter } from "./utils/sui";
-import { assertGetTonChainAdapter } from "./utils/ton";
-import { assertGetTronChainAdapter } from "./utils/tron";
-import { assertGetUtxoChainAdapter } from "./utils/utxo";
+import { assertGetCosmosSdkChainAdapter } from './utils/cosmosSdk'
+import { assertGetEvmChainAdapter } from './utils/evm'
+import { assertGetNearChainAdapter } from './utils/near'
+import { assertGetSolanaChainAdapter } from './utils/solana'
+import { assertGetStarknetChainAdapter } from './utils/starknet'
+import { assertGetSuiChainAdapter } from './utils/sui'
+import { assertGetTonChainAdapter } from './utils/ton'
+import { assertGetTronChainAdapter } from './utils/tron'
+import { assertGetUtxoChainAdapter } from './utils/utxo'
 
-import { getConfig } from "@/config";
-import { queryClient } from "@/context/QueryClientProvider/queryClient";
-import { fetchIsSmartContractAddressQuery } from "@/hooks/useIsSmartContractAddress/useIsSmartContractAddress";
-import { poll } from "@/lib/poll/poll";
-import { getOrCreateUser } from "@/lib/user/api";
-import {
-  selectCurrentSwap,
-  selectWalletEnabledAccountIds,
-} from "@/state/slices/selectors";
-import { swapSlice } from "@/state/slices/swapSlice/swapSlice";
-import { selectFirstHopSellAccountId } from "@/state/slices/tradeInputSlice/selectors";
-import { store } from "@/state/store";
+import { getConfig } from '@/config'
+import { queryClient } from '@/context/QueryClientProvider/queryClient'
+import { fetchIsSmartContractAddressQuery } from '@/hooks/useIsSmartContractAddress/useIsSmartContractAddress'
+import { poll } from '@/lib/poll/poll'
+import { getOrCreateUser } from '@/lib/user/api'
+import { selectCurrentSwap, selectWalletEnabledAccountIds } from '@/state/slices/selectors'
+import { swapSlice } from '@/state/slices/swapSlice/swapSlice'
+import { selectFirstHopSellAccountId } from '@/state/slices/tradeInputSlice/selectors'
+import { store } from '@/state/store'
 
 export const tradeStatusQueryKey = (swapId: string, sellTxHash: string) => [
-  "tradeStatus",
+  'tradeStatus',
   swapId,
   sellTxHash,
-];
+]
 
 export const fetchTradeStatus = async ({
   swapper,
@@ -70,13 +67,13 @@ export const fetchTradeStatus = async ({
   swap,
   stepIndex,
 }: {
-  swapper: Swapper & SwapperApi;
-  sellTxHash: string;
-  sellAssetChainId: string;
-  address: string | undefined;
-  swap: Swap | undefined;
-  stepIndex: SupportedTradeQuoteStepIndex;
-  config: ReturnType<typeof getConfig>;
+  swapper: Swapper & SwapperApi
+  sellTxHash: string
+  sellAssetChainId: string
+  address: string | undefined
+  swap: Swap | undefined
+  stepIndex: SupportedTradeQuoteStepIndex
+  config: ReturnType<typeof getConfig>
 }) => {
   const {
     status,
@@ -102,7 +99,7 @@ export const fetchTradeStatus = async ({
     assertGetNearChainAdapter,
     assertGetStarknetChainAdapter,
     fetchIsSmartContractAddressQuery,
-  });
+  })
 
   return {
     status,
@@ -111,22 +108,19 @@ export const fetchTradeStatus = async ({
     relayerTxHash,
     relayerExplorerTxLink,
     actualBuyAmountCryptoBaseUnit,
-  };
-};
+  }
+}
 
 export class TradeExecution {
-  private emitter = new EventEmitter();
-  private pollInterval = TRADE_STATUS_POLL_INTERVAL_MILLISECONDS;
+  private emitter = new EventEmitter()
+  private pollInterval = TRADE_STATUS_POLL_INTERVAL_MILLISECONDS
 
-  on<T extends TradeExecutionEvent>(
-    eventName: T,
-    callback: TradeExecutionEventMap[T],
-  ): void {
-    this.emitter.on(eventName, callback);
+  on<T extends TradeExecutionEvent>(eventName: T, callback: TradeExecutionEventMap[T]): void {
+    this.emitter.on(eventName, callback)
   }
 
   setPollInterval(ms: number): void {
-    this.pollInterval = ms;
+    this.pollInterval = ms
   }
 
   private async _execWalletAgnostic(
@@ -142,23 +136,23 @@ export class TradeExecution {
     ) => Promise<string>,
   ) {
     try {
-      const maybeSwapper = swappers[swapperName];
+      const maybeSwapper = swappers[swapperName]
 
       if (maybeSwapper === undefined)
-        throw new Error(`no swapper matching swapperName '${swapperName}'`);
+        throw new Error(`no swapper matching swapperName '${swapperName}'`)
 
-      const swapper = maybeSwapper;
+      const swapper = maybeSwapper
 
-      const hop = getHopByIndex(tradeQuote, stepIndex);
+      const hop = getHopByIndex(tradeQuote, stepIndex)
 
       if (!hop) {
-        throw new Error(`No hop found for stepIndex ${stepIndex}`);
+        throw new Error(`No hop found for stepIndex ${stepIndex}`)
       }
 
-      const chainId = hop.sellAsset.chainId;
+      const chainId = hop.sellAsset.chainId
 
       if (!isExecutableTradeQuote(tradeQuote)) {
-        throw new Error("Unable to execute trade");
+        throw new Error('Unable to execute trade')
       }
       const sellTxHash = await buildSignBroadcast(swapper, {
         tradeQuote,
@@ -166,22 +160,22 @@ export class TradeExecution {
         stepIndex,
         slippageTolerancePercentageDecimal,
         config: getConfig(),
-      });
+      })
 
-      const sellTxHashArgs: SellTxHashArgs = { stepIndex, sellTxHash };
-      this.emitter.emit(TradeExecutionEvent.SellTxHash, sellTxHashArgs);
+      const sellTxHashArgs: SellTxHashArgs = { stepIndex, sellTxHash }
+      this.emitter.emit(TradeExecutionEvent.SellTxHash, sellTxHashArgs)
 
       // TODO(gomes): this is wrong, but isn't.
       // It is a "sufficiently sane" solution to avoid more plumbing and possible regressions
       // All this is used for is to check whether the address is a smart contract, to avoid spewing SAFE API with requests
       // Given the intersection of the inherent bits of sc wallets (only one chain, not deployed on others) and EVM chains (same address on every chain)
       // this means that this is absolutely fine, as in case of multi-hops, the first hop and the last would be the same addy
-      const accountId = selectFirstHopSellAccountId(store.getState());
+      const accountId = selectFirstHopSellAccountId(store.getState())
 
-      const swap = selectCurrentSwap(store.getState());
+      const swap = selectCurrentSwap(store.getState())
 
       if (!swap) {
-        throw new Error("Swap not found");
+        throw new Error('Swap not found')
       }
 
       const updatedSwap = {
@@ -191,66 +185,51 @@ export class TradeExecution {
         status: SwapStatus.Pending,
         metadata: {
           ...swap.metadata,
-          chainflipSwapId:
-            tradeQuote.steps[0]?.chainflipSpecific?.chainflipSwapId,
+          chainflipSwapId: tradeQuote.steps[0]?.chainflipSpecific?.chainflipSwapId,
           nearIntentsSpecific: tradeQuote.steps[0]?.nearIntentsSpecific,
-          relayTransactionMetadata:
-            tradeQuote.steps[0]?.relayTransactionMetadata,
-          quoteId:
-            tradeQuote.steps[0]?.stonfiSpecific?.quoteId ??
-            swap.metadata.quoteId,
+          relayTransactionMetadata: tradeQuote.steps[0]?.relayTransactionMetadata,
+          quoteId: tradeQuote.steps[0]?.stonfiSpecific?.quoteId ?? swap.metadata.quoteId,
           stepIndex,
         },
-      };
+      }
 
-      store.dispatch(swapSlice.actions.upsertSwap(updatedSwap));
+      store.dispatch(swapSlice.actions.upsertSwap(updatedSwap))
 
-      const isWebServicesEnabled =
-        getConfig().VITE_FEATURE_NOTIFICATIONS_WEBSERVICES;
+      const isWebServicesEnabled = getConfig().VITE_FEATURE_NOTIFICATIONS_WEBSERVICES
 
       if (isWebServicesEnabled) {
-        const walletEnabledAccountIds = selectWalletEnabledAccountIds(
-          store.getState(),
-        );
+        const walletEnabledAccountIds = selectWalletEnabledAccountIds(store.getState())
         const userData = await queryClient.fetchQuery<{ id: string }>({
-          queryKey: ["user", walletEnabledAccountIds],
-          queryFn: () =>
-            getOrCreateUser({ accountIds: walletEnabledAccountIds }),
-        });
+          queryKey: ['user', walletEnabledAccountIds],
+          queryFn: () => getOrCreateUser({ accountIds: walletEnabledAccountIds }),
+        })
 
         if (userData) {
           queryClient.fetchQuery({
-            queryKey: ["createSwap", swap.id],
+            queryKey: ['createSwap', swap.id],
             queryFn: () => {
-              return axios.post(
-                `${import.meta.env.VITE_SWAPS_SERVER_URL}/swaps`,
-                {
-                  swapId: swap.id,
-                  sellTxHash,
-                  userId: userData?.id,
-                  sellAsset: updatedSwap.sellAsset,
-                  buyAsset: updatedSwap.buyAsset,
-                  sellAmountCryptoBaseUnit:
-                    updatedSwap.sellAmountCryptoBaseUnit,
-                  expectedBuyAmountCryptoBaseUnit:
-                    updatedSwap.expectedBuyAmountCryptoBaseUnit,
-                  sellAmountCryptoPrecision:
-                    updatedSwap.sellAmountCryptoPrecision,
-                  expectedBuyAmountCryptoPrecision:
-                    updatedSwap.expectedBuyAmountCryptoPrecision,
-                  source: updatedSwap.source,
-                  swapperName: updatedSwap.swapperName,
-                  sellAccountId: accountId,
-                  buyAccountId: accountId,
-                  receiveAddress: updatedSwap.receiveAddress,
-                  isStreaming: updatedSwap.isStreaming,
-                  metadata: updatedSwap.metadata,
-                },
-              );
+              return axios.post(`${import.meta.env.VITE_SWAPS_SERVER_URL}/swaps`, {
+                swapId: swap.id,
+                sellTxHash,
+                userId: userData?.id,
+                sellAsset: updatedSwap.sellAsset,
+                buyAsset: updatedSwap.buyAsset,
+                sellAmountCryptoBaseUnit: updatedSwap.sellAmountCryptoBaseUnit,
+                expectedBuyAmountCryptoBaseUnit: updatedSwap.expectedBuyAmountCryptoBaseUnit,
+                sellAmountCryptoPrecision: updatedSwap.sellAmountCryptoPrecision,
+                expectedBuyAmountCryptoPrecision: updatedSwap.expectedBuyAmountCryptoPrecision,
+                source: updatedSwap.source,
+                swapperName: updatedSwap.swapperName,
+                sellAccountId: accountId,
+                buyAccountId: accountId,
+                receiveAddress: updatedSwap.receiveAddress,
+                isStreaming: updatedSwap.isStreaming,
+                metadata: updatedSwap.metadata,
+              })
             },
             staleTime: 0,
             gcTime: 0,
-          });
+          })
         }
       }
 
@@ -270,16 +249,14 @@ export class TradeExecution {
                 swapper,
                 sellTxHash: updatedSwap.sellTxHash,
                 sellAssetChainId: updatedSwap.sellAsset.chainId,
-                address: accountId
-                  ? fromAccountId(accountId).account
-                  : undefined,
+                address: accountId ? fromAccountId(accountId).account : undefined,
                 swap: updatedSwap,
                 stepIndex,
                 config: getConfig(),
               }),
             staleTime: this.pollInterval,
             gcTime: this.pollInterval,
-          });
+          })
 
           // Emit RelayerTxHash event when relayerTxHash becomes available
           if (
@@ -292,11 +269,8 @@ export class TradeExecution {
               stepIndex,
               relayerTxHash,
               relayerExplorerTxLink,
-            };
-            this.emitter.emit(
-              TradeExecutionEvent.RelayerTxHash,
-              relayerTxDetailsArgs,
-            );
+            }
+            this.emitter.emit(TradeExecutionEvent.RelayerTxHash, relayerTxDetailsArgs)
           }
 
           const payload: StatusArgs = {
@@ -306,27 +280,25 @@ export class TradeExecution {
             buyTxHash,
             relayerTxHash,
             actualBuyAmountCryptoBaseUnit,
-          };
-          this.emitter.emit(TradeExecutionEvent.Status, payload);
+          }
+          this.emitter.emit(TradeExecutionEvent.Status, payload)
 
-          if (status === TxStatus.Confirmed)
-            this.emitter.emit(TradeExecutionEvent.Success, payload);
-          if (status === TxStatus.Failed)
-            this.emitter.emit(TradeExecutionEvent.Fail, payload);
+          if (status === TxStatus.Confirmed) this.emitter.emit(TradeExecutionEvent.Success, payload)
+          if (status === TxStatus.Failed) this.emitter.emit(TradeExecutionEvent.Fail, payload)
 
-          return status;
+          return status
         },
-        validate: (status) => {
-          return status === TxStatus.Confirmed || status === TxStatus.Failed;
+        validate: status => {
+          return status === TxStatus.Confirmed || status === TxStatus.Failed
         },
         interval: this.pollInterval,
         maxAttempts: Infinity,
-      });
+      })
 
-      return { cancelPolling };
+      return { cancelPolling }
     } catch (e) {
-      console.error(e);
-      this.emitter.emit(TradeExecutionEvent.Error, e);
+      console.error(e)
+      this.emitter.emit(TradeExecutionEvent.Error, e)
     }
   }
 
@@ -353,10 +325,10 @@ export class TradeExecution {
         }: CommonGetUnsignedTransactionArgs,
       ) => {
         if (!swapper.getUnsignedEvmTransaction) {
-          throw Error("missing implementation for getUnsignedEvmTransaction");
+          throw Error('missing implementation for getUnsignedEvmTransaction')
         }
         if (!swapper.executeEvmTransaction) {
-          throw Error("missing implementation for executeEvmTransaction");
+          throw Error('missing implementation for executeEvmTransaction')
         }
 
         const unsignedTxResult = await swapper.getUnsignedEvmTransaction({
@@ -369,12 +341,12 @@ export class TradeExecution {
           config,
           assertGetEvmChainAdapter,
           permit2Signature,
-        });
+        })
 
         return await swapper.executeEvmTransaction(unsignedTxResult, {
           signAndBroadcastTransaction,
-        });
-      };
+        })
+      }
 
     return await this._execWalletAgnostic(
       {
@@ -384,7 +356,7 @@ export class TradeExecution {
         slippageTolerancePercentageDecimal,
       },
       buildSignBroadcast(supportsEIP1559),
-    );
+    )
   }
 
   async execEvmMessage({
@@ -406,10 +378,10 @@ export class TradeExecution {
       }: CommonGetUnsignedTransactionArgs,
     ) => {
       if (!swapper.getUnsignedEvmMessage) {
-        throw Error("missing implementation for getUnsignedEvmMessage");
+        throw Error('missing implementation for getUnsignedEvmMessage')
       }
       if (!swapper.executeEvmMessage) {
-        throw Error("missing implementation for executeEvmMessage");
+        throw Error('missing implementation for executeEvmMessage')
       }
 
       const unsignedTxResult = await swapper.getUnsignedEvmMessage({
@@ -420,14 +392,10 @@ export class TradeExecution {
         from,
         config,
         assertGetEvmChainAdapter,
-      });
+      })
 
-      return await swapper.executeEvmMessage(
-        unsignedTxResult,
-        { signMessage },
-        config,
-      );
-    };
+      return await swapper.executeEvmMessage(unsignedTxResult, { signMessage }, config)
+    }
 
     return await this._execWalletAgnostic(
       {
@@ -437,7 +405,7 @@ export class TradeExecution {
         slippageTolerancePercentageDecimal,
       },
       buildSignBroadcast,
-    );
+    )
   }
 
   async execUtxoTransaction({
@@ -461,10 +429,10 @@ export class TradeExecution {
       }: CommonGetUnsignedTransactionArgs,
     ) => {
       if (!swapper.getUnsignedUtxoTransaction) {
-        throw Error("missing implementation for getUnsignedUtxoTransaction");
+        throw Error('missing implementation for getUnsignedUtxoTransaction')
       }
       if (!swapper.executeUtxoTransaction) {
-        throw Error("missing implementation for executeUtxoTransaction");
+        throw Error('missing implementation for executeUtxoTransaction')
       }
 
       const unsignedTxResult = await swapper.getUnsignedUtxoTransaction({
@@ -477,12 +445,12 @@ export class TradeExecution {
         accountType,
         config,
         assertGetUtxoChainAdapter,
-      });
+      })
 
       return await swapper.executeUtxoTransaction(unsignedTxResult, {
         signAndBroadcastTransaction,
-      });
-    };
+      })
+    }
 
     return await this._execWalletAgnostic(
       {
@@ -492,7 +460,7 @@ export class TradeExecution {
         slippageTolerancePercentageDecimal,
       },
       buildSignBroadcast,
-    );
+    )
   }
 
   async execCosmosSdkTransaction({
@@ -514,12 +482,10 @@ export class TradeExecution {
       }: CommonGetUnsignedTransactionArgs,
     ) => {
       if (!swapper.getUnsignedCosmosSdkTransaction) {
-        throw Error(
-          "missing implementation for getUnsignedCosmosSdkTransaction",
-        );
+        throw Error('missing implementation for getUnsignedCosmosSdkTransaction')
       }
       if (!swapper.executeCosmosSdkTransaction) {
-        throw Error("missing implementation for executeCosmosSdkTransaction");
+        throw Error('missing implementation for executeCosmosSdkTransaction')
       }
 
       const unsignedTxResult = await swapper.getUnsignedCosmosSdkTransaction({
@@ -530,12 +496,12 @@ export class TradeExecution {
         from,
         config,
         assertGetCosmosSdkChainAdapter,
-      });
+      })
 
       return await swapper.executeCosmosSdkTransaction(unsignedTxResult, {
         signAndBroadcastTransaction,
-      });
-    };
+      })
+    }
 
     return await this._execWalletAgnostic(
       {
@@ -545,7 +511,7 @@ export class TradeExecution {
         slippageTolerancePercentageDecimal,
       },
       buildSignBroadcast,
-    );
+    )
   }
 
   async execSolanaTransaction({
@@ -567,10 +533,10 @@ export class TradeExecution {
       }: CommonGetUnsignedTransactionArgs,
     ) => {
       if (!swapper.getUnsignedSolanaTransaction) {
-        throw Error("missing implementation for getUnsignedSolanaTransaction");
+        throw Error('missing implementation for getUnsignedSolanaTransaction')
       }
       if (!swapper.executeSolanaTransaction) {
-        throw Error("missing implementation for executeSolanaTransaction");
+        throw Error('missing implementation for executeSolanaTransaction')
       }
 
       const unsignedTxResult = await swapper.getUnsignedSolanaTransaction({
@@ -581,12 +547,12 @@ export class TradeExecution {
         from,
         config,
         assertGetSolanaChainAdapter,
-      });
+      })
 
       return await swapper.executeSolanaTransaction(unsignedTxResult, {
         signAndBroadcastTransaction,
-      });
-    };
+      })
+    }
 
     return await this._execWalletAgnostic(
       {
@@ -596,7 +562,7 @@ export class TradeExecution {
         slippageTolerancePercentageDecimal,
       },
       buildSignBroadcast,
-    );
+    )
   }
 
   async execTronTransaction({
@@ -618,10 +584,10 @@ export class TradeExecution {
       }: CommonGetUnsignedTransactionArgs,
     ) => {
       if (!swapper.getUnsignedTronTransaction) {
-        throw Error("missing implementation for getUnsignedTronTransaction");
+        throw Error('missing implementation for getUnsignedTronTransaction')
       }
       if (!swapper.executeTronTransaction) {
-        throw Error("missing implementation for executeTronTransaction");
+        throw Error('missing implementation for executeTronTransaction')
       }
 
       const unsignedTxResult = await swapper.getUnsignedTronTransaction({
@@ -632,12 +598,12 @@ export class TradeExecution {
         from,
         config,
         assertGetTronChainAdapter,
-      });
+      })
 
       return await swapper.executeTronTransaction(unsignedTxResult, {
         signAndBroadcastTransaction,
-      });
-    };
+      })
+    }
 
     return await this._execWalletAgnostic(
       {
@@ -647,7 +613,7 @@ export class TradeExecution {
         slippageTolerancePercentageDecimal,
       },
       buildSignBroadcast,
-    );
+    )
   }
 
   async execSuiTransaction({
@@ -669,10 +635,10 @@ export class TradeExecution {
       }: CommonGetUnsignedTransactionArgs,
     ) => {
       if (!swapper.getUnsignedSuiTransaction) {
-        throw Error("missing implementation for getUnsignedSuiTransaction");
+        throw Error('missing implementation for getUnsignedSuiTransaction')
       }
       if (!swapper.executeSuiTransaction) {
-        throw Error("missing implementation for executeSuiTransaction");
+        throw Error('missing implementation for executeSuiTransaction')
       }
 
       const unsignedTxResult = await swapper.getUnsignedSuiTransaction({
@@ -683,12 +649,12 @@ export class TradeExecution {
         from,
         config,
         assertGetSuiChainAdapter,
-      });
+      })
 
       return await swapper.executeSuiTransaction(unsignedTxResult, {
         signAndBroadcastTransaction,
-      });
-    };
+      })
+    }
 
     return await this._execWalletAgnostic(
       {
@@ -698,7 +664,7 @@ export class TradeExecution {
         slippageTolerancePercentageDecimal,
       },
       buildSignBroadcast,
-    );
+    )
   }
 
   async execNearTransaction({
@@ -720,10 +686,10 @@ export class TradeExecution {
       }: CommonGetUnsignedTransactionArgs,
     ) => {
       if (!swapper.getUnsignedNearTransaction) {
-        throw Error("missing implementation for getUnsignedNearTransaction");
+        throw Error('missing implementation for getUnsignedNearTransaction')
       }
       if (!swapper.executeNearTransaction) {
-        throw Error("missing implementation for executeNearTransaction");
+        throw Error('missing implementation for executeNearTransaction')
       }
 
       const unsignedTxResult = await swapper.getUnsignedNearTransaction({
@@ -734,12 +700,12 @@ export class TradeExecution {
         from,
         config,
         assertGetNearChainAdapter,
-      });
+      })
 
       return await swapper.executeNearTransaction(unsignedTxResult, {
         signAndBroadcastTransaction,
-      });
-    };
+      })
+    }
 
     return await this._execWalletAgnostic(
       {
@@ -749,7 +715,7 @@ export class TradeExecution {
         slippageTolerancePercentageDecimal,
       },
       buildSignBroadcast,
-    );
+    )
   }
 
   async execStarknetTransaction({
@@ -771,12 +737,10 @@ export class TradeExecution {
       }: CommonGetUnsignedTransactionArgs,
     ) => {
       if (!swapper.getUnsignedStarknetTransaction) {
-        throw Error(
-          "missing implementation for getUnsignedStarknetTransaction",
-        );
+        throw Error('missing implementation for getUnsignedStarknetTransaction')
       }
       if (!swapper.executeStarknetTransaction) {
-        throw Error("missing implementation for executeStarknetTransaction");
+        throw Error('missing implementation for executeStarknetTransaction')
       }
 
       const unsignedTxResult = await swapper.getUnsignedStarknetTransaction({
@@ -787,12 +751,12 @@ export class TradeExecution {
         from,
         config,
         assertGetStarknetChainAdapter,
-      });
+      })
 
       return await swapper.executeStarknetTransaction(unsignedTxResult, {
         signAndBroadcastTransaction,
-      });
-    };
+      })
+    }
 
     return await this._execWalletAgnostic(
       {
@@ -802,7 +766,7 @@ export class TradeExecution {
         slippageTolerancePercentageDecimal,
       },
       buildSignBroadcast,
-    );
+    )
   }
 
   async execTonTransaction({
@@ -824,10 +788,10 @@ export class TradeExecution {
       }: CommonGetUnsignedTransactionArgs,
     ) => {
       if (!swapper.getUnsignedTonTransaction) {
-        throw Error("missing implementation for getUnsignedTonTransaction");
+        throw Error('missing implementation for getUnsignedTonTransaction')
       }
       if (!swapper.executeTonTransaction) {
-        throw Error("missing implementation for executeTonTransaction");
+        throw Error('missing implementation for executeTonTransaction')
       }
 
       const unsignedTxResult = await swapper.getUnsignedTonTransaction({
@@ -838,12 +802,12 @@ export class TradeExecution {
         from,
         config,
         assertGetTonChainAdapter,
-      });
+      })
 
       return await swapper.executeTonTransaction(unsignedTxResult, {
         signAndBroadcastTransaction,
-      });
-    };
+      })
+    }
 
     return await this._execWalletAgnostic(
       {
@@ -853,6 +817,6 @@ export class TradeExecution {
         slippageTolerancePercentageDecimal,
       },
       buildSignBroadcast,
-    );
+    )
   }
 }

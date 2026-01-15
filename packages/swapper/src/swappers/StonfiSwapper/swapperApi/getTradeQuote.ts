@@ -105,9 +105,6 @@ export const getTradeQuote = async (input: CommonTradeQuoteInput): Promise<Trade
   const bidAssetAddress = assetToOmnistonAddress(sellAsset)
   const askAssetAddress = assetToOmnistonAddress(buyAsset)
 
-  console.log('bidAssetAddress', bidAssetAddress)
-  console.log('askAssetAddress', askAssetAddress)
-
   if (!bidAssetAddress || !askAssetAddress) {
     return Err(
       makeSwapErrorRight({

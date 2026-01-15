@@ -1,5 +1,6 @@
 import type { ChainId, Nominal } from '@shapeshiftoss/caip'
 import type {
+  AptosSignTx,
   BTCSignTx,
   CosmosSignTx,
   ETHSignTx,
@@ -19,6 +20,7 @@ import type {
 import type * as unchained from '@shapeshiftoss/unchained-client'
 import type PQueue from 'p-queue'
 
+import type * as aptos from './aptos/types'
 import type * as cosmossdk from './cosmossdk/types'
 import type * as evm from './evm/types'
 import type * as near from './near/types'
@@ -59,6 +61,7 @@ type ChainSpecificAccount<T> = ChainSpecific<
     [KnownChainIds.SolanaMainnet]: solana.Account
     [KnownChainIds.TronMainnet]: tron.Account
     [KnownChainIds.SuiMainnet]: sui.Account
+    [KnownChainIds.AptosMainnet]: aptos.AptosAccount
     [KnownChainIds.NearMainnet]: near.Account
     [KnownChainIds.StarknetMainnet]: starknet.Account
   }
@@ -110,6 +113,7 @@ type ChainSpecificFeeData<T> = ChainSpecific<
     [KnownChainIds.SolanaMainnet]: solana.FeeData
     [KnownChainIds.TronMainnet]: tron.FeeData
     [KnownChainIds.SuiMainnet]: sui.FeeData
+    [KnownChainIds.AptosMainnet]: aptos.AptosFeeData
     [KnownChainIds.NearMainnet]: near.FeeData
     [KnownChainIds.StarknetMainnet]: starknet.FeeData
   }
@@ -194,6 +198,7 @@ export type ChainSignTx = {
   [KnownChainIds.SolanaMainnet]: SolanaSignTx
   [KnownChainIds.TronMainnet]: tron.TronSignTx
   [KnownChainIds.SuiMainnet]: SuiSignTx
+  [KnownChainIds.AptosMainnet]: AptosSignTx
   [KnownChainIds.NearMainnet]: near.NearSignTx
   [KnownChainIds.StarknetMainnet]: StarknetSignTx
 }
@@ -250,6 +255,7 @@ export type ChainSpecificBuildTxData<T> = ChainSpecific<
     [KnownChainIds.SolanaMainnet]: solana.BuildTxInput
     [KnownChainIds.TronMainnet]: tron.BuildTxInput
     [KnownChainIds.SuiMainnet]: sui.BuildTxInput
+    [KnownChainIds.AptosMainnet]: aptos.AptosBuildTxInput
     [KnownChainIds.NearMainnet]: near.BuildTxInput
     [KnownChainIds.StarknetMainnet]: starknet.BuildTxInput
   }
@@ -352,6 +358,7 @@ type ChainSpecificGetFeeDataInput<T> = ChainSpecific<
     [KnownChainIds.ZcashMainnet]: utxo.GetFeeDataInput
     [KnownChainIds.SolanaMainnet]: solana.GetFeeDataInput
     [KnownChainIds.SuiMainnet]: sui.GetFeeDataInput
+    [KnownChainIds.AptosMainnet]: aptos.AptosGetFeeDataInput
     [KnownChainIds.TronMainnet]: tron.GetFeeDataInput
     [KnownChainIds.NearMainnet]: near.GetFeeDataInput
     [KnownChainIds.StarknetMainnet]: starknet.GetFeeDataInput
@@ -425,6 +432,7 @@ export enum ChainAdapterDisplayName {
   Solana = 'Solana',
   Tron = 'Tron',
   Sui = 'Sui',
+  Aptos = 'Aptos',
   Near = 'NEAR',
   Starknet = 'Starknet',
 }

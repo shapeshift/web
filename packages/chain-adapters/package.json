@@ -54,6 +54,7 @@
     "viem": "^2.40.3"
   },
   "devDependencies": {
+    "@aptos-labs/ts-sdk": "^5.2.1",
     "@types/bs58check": "^2.1.0",
     "@types/lodash": "^4.14.178",
     "@types/multicoin-address-validator": "^0.5.0",

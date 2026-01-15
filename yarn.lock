@@ -75,6 +75,44 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@aptos-labs/aptos-cli@npm:^1.0.2":
+  version: 1.1.1
+  resolution: "@aptos-labs/aptos-cli@npm:1.1.1"
+  dependencies:
+    commander: ^12.1.0
+  bin:
+    aptos: dist/aptos.js
+  checksum: 89bba7f7aafb6ac081286600c085642ca67bf89d269836034db237a13c2db95e96e536c5dafdc1b4f6a38449eb6ba3aff63479fe3c3f6fc1d0fda84ad8cbba2c
+  languageName: node
+  linkType: hard
+
+"@aptos-labs/aptos-client@npm:^2.1.0":
+  version: 2.1.0
+  resolution: "@aptos-labs/aptos-client@npm:2.1.0"
+  peerDependencies:
+    got: ^11.8.6
+  checksum: 88676d5eed10e79f4a8e2f98bbff573737bad131efa9b909edb5706a68301a6a4b93b8da2ac7a02d44e2842d6ba1ffbe620aab2d2d1666f8a1611d99e4644abe
+  languageName: node
+  linkType: hard
+
+"@aptos-labs/ts-sdk@npm:^5.2.1":
+  version: 5.2.1
+  resolution: "@aptos-labs/ts-sdk@npm:5.2.1"
+  dependencies:
+    "@aptos-labs/aptos-cli": ^1.0.2
+    "@aptos-labs/aptos-client": ^2.1.0
+    "@noble/curves": ^1.9.0
+    "@noble/hashes": ^1.5.0
+    "@scure/bip32": ^1.4.0
+    "@scure/bip39": ^1.3.0
+    eventemitter3: ^5.0.1
+    js-base64: ^3.7.7
+    jwt-decode: ^4.0.0
+    poseidon-lite: ^0.2.0
+  checksum: 1c49339cf5fd352b4126853c9e361e70981a650b20c7a23024c9640ced42be2d0dd9f94ff212307935fe61d828e3ec5ec8fe82d9d76118dce11201f7271a3a52
+  languageName: node
+  linkType: hard
+
 "@arbitrum/sdk@npm:^4.0.1":
   version: 4.0.1
   resolution: "@arbitrum/sdk@npm:4.0.1"
@@ -9661,7 +9699,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@noble/curves@npm:1.9.7, @noble/curves@npm:^1.0.0":
+"@noble/curves@npm:1.9.7, @noble/curves@npm:^1.0.0, @noble/curves@npm:^1.9.0":
   version: 1.9.7
   resolution: "@noble/curves@npm:1.9.7"
   dependencies:
@@ -11485,7 +11523,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@scure/bip32@npm:1.7.0, @scure/bip32@npm:^1.3.1, @scure/bip32@npm:^1.5.0, @scure/bip32@npm:^1.7.0":
+"@scure/bip32@npm:1.7.0, @scure/bip32@npm:^1.3.1, @scure/bip32@npm:^1.4.0, @scure/bip32@npm:^1.5.0, @scure/bip32@npm:^1.7.0":
   version: 1.7.0
   resolution: "@scure/bip32@npm:1.7.0"
   dependencies:
@@ -11536,7 +11574,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@scure/bip39@npm:1.6.0, @scure/bip39@npm:^1.2.1, @scure/bip39@npm:^1.4.0, @scure/bip39@npm:^1.5.1, @scure/bip39@npm:^1.6.0":
+"@scure/bip39@npm:1.6.0, @scure/bip39@npm:^1.2.1, @scure/bip39@npm:^1.3.0, @scure/bip39@npm:^1.4.0, @scure/bip39@npm:^1.5.1, @scure/bip39@npm:^1.6.0":
   version: 1.6.0
   resolution: "@scure/bip39@npm:1.6.0"
   dependencies:
@@ -11776,6 +11814,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@shapeshiftoss/chain-adapters@workspace:packages/chain-adapters"
   dependencies:
+    "@aptos-labs/ts-sdk": ^5.2.1
     "@mysten/sui": 1.45.0
     "@near-js/crypto": ^2.5.1
     "@near-js/providers": ^2.5.1
@@ -27238,7 +27277,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"js-base64@npm:^3.7.2, js-base64@npm:^3.7.4":
+"js-base64@npm:^3.7.2, js-base64@npm:^3.7.4, js-base64@npm:^3.7.7":
   version: 3.7.8
   resolution: "js-base64@npm:3.7.8"
   checksum: 891746b0f23aea7dd466c5ef2d349b093944a25eca6093c09b2cbb99bc47a94237c63b91623bbc203306b7c72aab5112e90378544bceef3fd0eb9ab86d7af496
@@ -27632,6 +27671,13 @@ __metadata:
     jwa: ^2.0.1
     safe-buffer: ^5.0.1
   checksum: c33a060b2cce1e0e49f85054a49a951f9d52a9e2ae732d720f0fc51843c9ac07a68aacd8e9d086ef4c7c4437d42978b698b57a3e7c9bc4a91c0b74276ea85a9a
+  languageName: node
+  linkType: hard
+
+"jwt-decode@npm:^4.0.0":
+  version: 4.0.0
+  resolution: "jwt-decode@npm:4.0.0"
+  checksum: 390e2edcb31a92e86c8cbdd1edeea4c0d62acd371f8a8f0a8878e499390c0ecf4c658b365c4e941e4ef37d0170e4ca650aaa49f99a45c0b9695a235b210154b0
   languageName: node
   linkType: hard
 
@@ -30621,7 +30667,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"poseidon-lite@npm:0.2.1":
+"poseidon-lite@npm:0.2.1, poseidon-lite@npm:^0.2.0":
   version: 0.2.1
   resolution: "poseidon-lite@npm:0.2.1"
   checksum: ecd420d48ffafc99408f9ef6d124d21a0d12d089f1cfc20bcd97a0b0364e7526f8d4747a2b72da2157f18d569c9a4b19beb5958fd8509d87f8a65edf6979c168

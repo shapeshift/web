@@ -38,6 +38,7 @@ export enum KnownChainIds {
   SolanaMainnet = 'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp',
   TronMainnet = 'tron:0x2b6653dc',
   SuiMainnet = 'sui:35834a8a',
+  AptosMainnet = 'aptos:861fb8e6',
   NearMainnet = 'near:mainnet',
   StarknetMainnet = 'starknet:SN_MAIN',
 }
@@ -74,6 +75,8 @@ export type UtxoChainId =
 export type TronChainId = KnownChainIds.TronMainnet
 
 export type SuiChainId = KnownChainIds.SuiMainnet
+
+export type AptosChainId = KnownChainIds.AptosMainnet
 
 export type NearChainId = KnownChainIds.NearMainnet
 

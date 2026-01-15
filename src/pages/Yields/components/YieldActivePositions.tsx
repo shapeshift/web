@@ -22,7 +22,6 @@ import { Display } from '@/components/Display'
 import { RawText } from '@/components/Text'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import type { AugmentedYieldDto } from '@/lib/yieldxyz/types'
-import { toUserCurrency } from '@/lib/yieldxyz/utils'
 import type { AugmentedYieldBalanceWithAccountId } from '@/react-queries/queries/yieldxyz/useAllYieldBalances'
 import { useYieldProviders } from '@/react-queries/queries/yieldxyz/useYieldProviders'
 import { accountIdToLabel } from '@/state/slices/portfolioSlice/utils'
@@ -154,7 +153,7 @@ export const YieldActivePositions = memo(
       if (!asset) return null
 
       return accountPositions.map(position => {
-        const totalUserCurrency = toUserCurrency(position.totalUsd, userCurrencyToUsdRate)
+        const totalUserCurrency = bnOrZero(position.totalUsd).times(userCurrencyToUsdRate).toFixed()
         const displayName = position.validatorName ?? getProviderName(position.providerId)
         const displayLogo = position.validatorLogo ?? position.providerLogo
 
@@ -218,7 +217,7 @@ export const YieldActivePositions = memo(
       if (!asset) return []
 
       return accountPositions.map(position => {
-        const totalUserCurrency = toUserCurrency(position.totalUsd, userCurrencyToUsdRate)
+        const totalUserCurrency = bnOrZero(position.totalUsd).times(userCurrencyToUsdRate).toFixed()
         const displayName = position.validatorName ?? getProviderName(position.providerId)
         const displayLogo = position.validatorLogo ?? position.providerLogo
 

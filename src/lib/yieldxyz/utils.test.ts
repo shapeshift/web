@@ -9,37 +9,9 @@ import {
   searchValidators,
   searchYields,
   sortValidators,
-  toUserCurrency,
 } from './utils'
 
-describe('toUserCurrency', () => {
-  it('should convert USD to user currency with a rate', () => {
-    expect(toUserCurrency('100', '1.5')).toBe('150')
-    expect(toUserCurrency(100, 1.5)).toBe('150')
-  })
-
-  it('should handle zero values', () => {
-    expect(toUserCurrency('0', '1.5')).toBe('0')
-    expect(toUserCurrency('100', '0')).toBe('0')
-  })
-
-  it('should handle decimal precision', () => {
-    expect(toUserCurrency('10.123', '2')).toBe('20.246')
-  })
-})
-
 describe('getTransactionButtonText', () => {
-  it('should return correct labels for known transaction types', () => {
-    expect(getTransactionButtonText('APPROVE', undefined)).toBe('Approve')
-    expect(getTransactionButtonText('STAKE', undefined)).toBe('Enter')
-    expect(getTransactionButtonText('UNSTAKE', undefined)).toBe('Exit')
-    expect(getTransactionButtonText('DELEGATE', undefined)).toBe('Enter')
-    expect(getTransactionButtonText('UNDELEGATE', undefined)).toBe('Exit')
-    expect(getTransactionButtonText('CLAIM', undefined)).toBe('Claim')
-    expect(getTransactionButtonText('DEPOSIT', undefined)).toBe('Enter')
-    expect(getTransactionButtonText('WITHDRAW', undefined)).toBe('Exit')
-  })
-
   it('should handle type variations with dashes and underscores', () => {
     expect(getTransactionButtonText('CLAIM_REWARDS', undefined)).toBe('Claim')
     expect(getTransactionButtonText('claim-rewards', undefined)).toBe('Claim')

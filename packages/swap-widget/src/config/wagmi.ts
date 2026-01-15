@@ -1,4 +1,5 @@
-import { getDefaultConfig } from '@rainbow-me/rainbowkit'
+import { getDefaultConfig } from "@rainbow-me/rainbowkit";
+import type { WagmiProviderProps } from "wagmi";
 import {
   arbitrum,
   arbitrumNova,
@@ -13,7 +14,7 @@ import {
   optimism,
   plasma,
   polygon,
-} from 'wagmi/chains'
+} from "wagmi/chains";
 
 export const SUPPORTED_CHAINS = [
   mainnet,
@@ -29,15 +30,20 @@ export const SUPPORTED_CHAINS = [
   hyperEvm,
   plasma,
   katana,
-] as const
+] as const;
 
-export type SupportedChains = typeof SUPPORTED_CHAINS
-export type SupportedChainId = SupportedChains[number]['id']
+export type SupportedChains = typeof SUPPORTED_CHAINS;
+export type SupportedChainId = SupportedChains[number]["id"];
 
-export const createWagmiConfig = (projectId: string, appName: string = 'ShapeShift Swap Widget') =>
+export type WagmiConfig = WagmiProviderProps["config"];
+
+export const createWagmiConfig = (
+  projectId: string,
+  appName: string = "ShapeShift Swap Widget",
+): WagmiConfig =>
   getDefaultConfig({
     appName,
     projectId,
     chains: SUPPORTED_CHAINS,
     ssr: false,
-  })
+  }) as WagmiConfig;

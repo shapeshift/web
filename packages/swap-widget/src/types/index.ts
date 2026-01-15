@@ -1,4 +1,5 @@
-import type { AssetId, ChainId } from '@shapeshiftoss/caip'
+import type { AssetId, ChainId } from "@shapeshiftoss/caip";
+import type { WalletClient } from "viem";
 import {
   arbitrumChainId,
   arbitrumNovaChainId,
@@ -23,169 +24,169 @@ import {
   polygonChainId,
   solanaChainId,
   thorchainChainId,
-} from '@shapeshiftoss/caip'
-import { fromBaseUnit, toBaseUnit } from '@shapeshiftoss/utils'
-import { erc20Abi } from 'viem'
+} from "@shapeshiftoss/caip";
+import { fromBaseUnit, toBaseUnit } from "@shapeshiftoss/utils";
+import { erc20Abi } from "viem";
 
-export type { AssetId, ChainId }
+export type { AssetId, ChainId };
 
 export enum SwapperName {
-  Thorchain = 'THORChain',
-  Mayachain = 'MAYAChain',
-  CowSwap = 'CoW Swap',
-  Zrx = '0x',
-  ArbitrumBridge = 'Arbitrum Bridge',
-  Portals = 'Portals',
-  Chainflip = 'Chainflip',
-  Jupiter = 'Jupiter',
-  Relay = 'Relay',
-  ButterSwap = 'ButterSwap',
-  Bebop = 'Bebop',
-  NearIntents = 'NEAR Intents',
-  Cetus = 'Cetus',
-  Sunio = 'Sun.io',
-  Avnu = 'AVNU',
+  Thorchain = "THORChain",
+  Mayachain = "MAYAChain",
+  CowSwap = "CoW Swap",
+  Zrx = "0x",
+  ArbitrumBridge = "Arbitrum Bridge",
+  Portals = "Portals",
+  Chainflip = "Chainflip",
+  Jupiter = "Jupiter",
+  Relay = "Relay",
+  ButterSwap = "ButterSwap",
+  Bebop = "Bebop",
+  NearIntents = "NEAR Intents",
+  Cetus = "Cetus",
+  Sunio = "Sun.io",
+  Avnu = "AVNU",
 }
 
 export type Chain = {
-  chainId: ChainId
-  name: string
-  icon: string
-  color: string
-  nativeAssetId: AssetId
-}
+  chainId: ChainId;
+  name: string;
+  icon: string;
+  color: string;
+  nativeAssetId: AssetId;
+};
 
 export type Asset = {
-  assetId: AssetId
-  chainId: ChainId
-  symbol: string
-  name: string
-  precision: number
-  icon?: string
-  color?: string
-  networkName?: string
-  networkIcon?: string
-  explorer?: string
-  explorerTxLink?: string
-  explorerAddressLink?: string
-  relatedAssetKey?: AssetId | null
-}
+  assetId: AssetId;
+  chainId: ChainId;
+  symbol: string;
+  name: string;
+  precision: number;
+  icon?: string;
+  color?: string;
+  networkName?: string;
+  networkIcon?: string;
+  explorer?: string;
+  explorerTxLink?: string;
+  explorerAddressLink?: string;
+  relatedAssetKey?: AssetId | null;
+};
 
 export type TradeQuoteStep = {
-  sellAsset: Asset
-  buyAsset: Asset
-  sellAmountCryptoBaseUnit: string
-  buyAmountCryptoBaseUnit: string
-  rate: string
-  source: SwapperName
+  sellAsset: Asset;
+  buyAsset: Asset;
+  sellAmountCryptoBaseUnit: string;
+  buyAmountCryptoBaseUnit: string;
+  rate: string;
+  source: SwapperName;
   feeData: {
-    networkFeeCryptoBaseUnit: string
-    protocolFees?: Record<AssetId, { amountCryptoBaseUnit: string }>
-  }
-  allowanceContract?: string
-  estimatedExecutionTimeMs?: number
-}
+    networkFeeCryptoBaseUnit: string;
+    protocolFees?: Record<AssetId, { amountCryptoBaseUnit: string }>;
+  };
+  allowanceContract?: string;
+  estimatedExecutionTimeMs?: number;
+};
 
 export type TradeQuote = {
-  id: string
-  rate: string
-  swapperName: SwapperName
-  steps: TradeQuoteStep[]
-  receiveAddress: string
-  affiliateBps: string
-  slippageTolerancePercentageDecimal?: string
-  isStreaming?: boolean
-}
+  id: string;
+  rate: string;
+  swapperName: SwapperName;
+  steps: TradeQuoteStep[];
+  receiveAddress: string;
+  affiliateBps: string;
+  slippageTolerancePercentageDecimal?: string;
+  isStreaming?: boolean;
+};
 
 export type TradeRate = {
-  swapperName: SwapperName
-  rate: string
-  buyAmountCryptoBaseUnit: string
-  sellAmountCryptoBaseUnit: string
-  steps: number
-  estimatedExecutionTimeMs?: number
-  affiliateBps: string
-  networkFeeCryptoBaseUnit?: string
+  swapperName: SwapperName;
+  rate: string;
+  buyAmountCryptoBaseUnit: string;
+  sellAmountCryptoBaseUnit: string;
+  steps: number;
+  estimatedExecutionTimeMs?: number;
+  affiliateBps: string;
+  networkFeeCryptoBaseUnit?: string;
   error?: {
-    code: string
-    message: string
-  }
-  id?: string
-}
+    code: string;
+    message: string;
+  };
+  id?: string;
+};
 
-export type ThemeMode = 'light' | 'dark'
+export type ThemeMode = "light" | "dark";
 
 export type ThemeConfig = {
-  mode: ThemeMode
-  accentColor?: string
-  backgroundColor?: string
-  cardColor?: string
-  textColor?: string
-  borderRadius?: string
-  fontFamily?: string
-}
+  mode: ThemeMode;
+  accentColor?: string;
+  backgroundColor?: string;
+  cardColor?: string;
+  textColor?: string;
+  borderRadius?: string;
+  fontFamily?: string;
+};
 
 export type SwapWidgetProps = {
-  apiKey?: string
-  apiBaseUrl?: string
-  defaultSellAsset?: Asset
-  defaultBuyAsset?: Asset
-  disabledChainIds?: ChainId[]
-  disabledAssetIds?: AssetId[]
-  allowedChainIds?: ChainId[]
-  allowedAssetIds?: AssetId[]
-  allowedSwapperNames?: SwapperName[]
-  walletClient?: unknown
-  onConnectWallet?: () => void
-  onSwapSuccess?: (txHash: string) => void
-  onSwapError?: (error: Error) => void
-  onAssetSelect?: (type: 'sell' | 'buy', asset: Asset) => void
-  theme?: ThemeMode | ThemeConfig
-  defaultSlippage?: string
-  showPoweredBy?: boolean
-  enableWalletConnection?: boolean
-  walletConnectProjectId?: string
-  defaultReceiveAddress?: string
-  ratesRefetchInterval?: number
-}
+  apiKey?: string;
+  apiBaseUrl?: string;
+  defaultSellAsset?: Asset;
+  defaultBuyAsset?: Asset;
+  disabledChainIds?: ChainId[];
+  disabledAssetIds?: AssetId[];
+  allowedChainIds?: ChainId[];
+  allowedAssetIds?: AssetId[];
+  allowedSwapperNames?: SwapperName[];
+  walletClient?: WalletClient;
+  onConnectWallet?: () => void;
+  onSwapSuccess?: (txHash: string) => void;
+  onSwapError?: (error: Error) => void;
+  onAssetSelect?: (type: "sell" | "buy", asset: Asset) => void;
+  theme?: ThemeMode | ThemeConfig;
+  defaultSlippage?: string;
+  showPoweredBy?: boolean;
+  enableWalletConnection?: boolean;
+  walletConnectProjectId?: string;
+  defaultReceiveAddress?: string;
+  ratesRefetchInterval?: number;
+};
 
 export type RatesResponse = {
-  rates: TradeRate[]
-}
+  rates: TradeRate[];
+};
 
 type TransactionData = {
-  to: string
-  data: string
-  value?: string
-  gasLimit?: string
-  chainId?: number
-  relayId?: string
-}
+  to: string;
+  data: string;
+  value?: string;
+  gasLimit?: string;
+  chainId?: number;
+  relayId?: string;
+};
 
 type QuoteStep = {
-  transactionData?: TransactionData
-  relayTransactionMetadata?: TransactionData
-  butterSwapTransactionMetadata?: TransactionData
-}
+  transactionData?: TransactionData;
+  relayTransactionMetadata?: TransactionData;
+  butterSwapTransactionMetadata?: TransactionData;
+};
 
 export type QuoteResponse = {
   quote?: {
-    steps?: QuoteStep[]
-  }
-  transactionData?: TransactionData
-  steps?: QuoteStep[]
+    steps?: QuoteStep[];
+  };
+  transactionData?: TransactionData;
+  steps?: QuoteStep[];
   approval?: {
-    isRequired: boolean
-    spender: string
-  }
-}
+    isRequired: boolean;
+    spender: string;
+  };
+};
 
-export { erc20Abi as ERC20_ABI }
+export { erc20Abi as ERC20_ABI };
 
 export type AssetsResponse = {
-  byId: Record<AssetId, Asset>
-  ids: AssetId[]
-}
+  byId: Record<AssetId, Asset>;
+  ids: AssetId[];
+};
 
 export const EVM_CHAIN_IDS = {
   ethereum: ethChainId,
@@ -201,64 +202,70 @@ export const EVM_CHAIN_IDS = {
   hyperEvm: hyperEvmChainId,
   plasma: plasmaChainId,
   katana: katanaChainId,
-} as const
+} as const;
 
 export const UTXO_CHAIN_IDS = {
   bitcoin: btcChainId,
   bitcoinCash: bchChainId,
   dogecoin: dogeChainId,
   litecoin: ltcChainId,
-} as const
+} as const;
 
 export const COSMOS_CHAIN_IDS = {
   cosmos: cosmosChainId,
   thorchain: thorchainChainId,
   mayachain: mayachainChainId,
-} as const
+} as const;
 
 export const OTHER_CHAIN_IDS = {
   solana: solanaChainId,
-} as const
+} as const;
 
 export const isEvmChainId = (chainId: string): boolean => {
-  const { chainNamespace } = fromChainId(chainId as ChainId)
-  return chainNamespace === CHAIN_NAMESPACE.Evm
-}
+  const { chainNamespace } = fromChainId(chainId as ChainId);
+  return chainNamespace === CHAIN_NAMESPACE.Evm;
+};
 
 export const getEvmNetworkId = (chainId: string): number => {
-  const { chainReference } = fromChainId(chainId as ChainId)
-  return parseInt(chainReference, 10)
-}
+  const { chainReference } = fromChainId(chainId as ChainId);
+  return parseInt(chainReference, 10);
+};
 
-export const getChainType = (chainId: string): 'evm' | 'utxo' | 'cosmos' | 'solana' | 'other' => {
-  const { chainNamespace } = fromChainId(chainId as ChainId)
+export const getChainType = (
+  chainId: string,
+): "evm" | "utxo" | "cosmos" | "solana" | "other" => {
+  const { chainNamespace } = fromChainId(chainId as ChainId);
   switch (chainNamespace) {
     case CHAIN_NAMESPACE.Evm:
-      return 'evm'
+      return "evm";
     case CHAIN_NAMESPACE.Utxo:
-      return 'utxo'
+      return "utxo";
     case CHAIN_NAMESPACE.CosmosSdk:
-      return 'cosmos'
+      return "cosmos";
     case CHAIN_NAMESPACE.Solana:
-      return 'solana'
+      return "solana";
     default:
-      return 'other'
+      return "other";
   }
-}
+};
 
-export const formatAmount = (amount: string, decimals: number, maxDecimals = 6): string => {
-  const result = fromBaseUnit(amount, decimals, maxDecimals)
-  const num = Number(result)
-  if (num === 0) return '0'
-  if (num < 0.0001) return '< 0.0001'
-  return num.toLocaleString(undefined, { maximumFractionDigits: maxDecimals })
-}
+export const formatAmount = (
+  amount: string,
+  decimals: number,
+  maxDecimals = 6,
+): string => {
+  const result = fromBaseUnit(amount, decimals, maxDecimals);
+  const num = Number(result);
+  if (num === 0) return "0";
+  if (num < 0.0001) return "< 0.0001";
+  return num.toLocaleString(undefined, { maximumFractionDigits: maxDecimals });
+};
 
 export const parseAmount = (amount: string, decimals: number): string => {
-  return toBaseUnit(amount, decimals)
-}
+  return toBaseUnit(amount, decimals);
+};
 
 export const truncateAddress = (address: string, chars = 4): string => {
-  if (address.length <= chars * 2 + 2) return address
-  return `${address.slice(0, chars + 2)}...${address.slice(-chars)}`
-}
+  if (address.length <= chars * 2 + 2) return address;
+  return `${address.slice(0, chars + 2)}...${address.slice(-chars)}`;
+};

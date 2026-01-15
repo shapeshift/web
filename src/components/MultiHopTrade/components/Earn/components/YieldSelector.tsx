@@ -7,16 +7,9 @@ import {
   Input,
   InputGroup,
   InputLeftElement,
-  Modal,
-  ModalBody,
-  ModalCloseButton,
-  ModalContent,
-  ModalHeader,
-  ModalOverlay,
   Skeleton,
   Text,
   useColorModeValue,
-  useDisclosure,
   VStack,
 } from '@chakra-ui/react'
 import { cosmosChainId } from '@shapeshiftoss/caip'
@@ -24,6 +17,11 @@ import type { Asset } from '@shapeshiftoss/types'
 import { memo, useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 
+import { Dialog } from '@/components/Modal/components/Dialog'
+import { DialogBody } from '@/components/Modal/components/DialogBody'
+import { DialogCloseButton } from '@/components/Modal/components/DialogCloseButton'
+import { DialogHeader } from '@/components/Modal/components/DialogHeader'
+import { DialogTitle } from '@/components/Modal/components/DialogTitle'
 import {
   DEFAULT_NATIVE_VALIDATOR_BY_CHAIN_ID,
   SHAPESHIFT_VALIDATOR_LOGO,
@@ -166,7 +164,7 @@ export const YieldSelector = memo(
     selectedValidator,
   }: YieldSelectorProps) => {
     const translate = useTranslate()
-    const { isOpen, onOpen, onClose } = useDisclosure()
+    const [isOpen, setIsOpen] = useState(false)
     const borderColor = useColorModeValue('gray.200', 'gray.700')
     const [searchQuery, setSearchQuery] = useState('')
     const { data: providers } = useYieldProviders()
@@ -199,19 +197,21 @@ export const YieldSelector = memo(
       return groups
     }, [filteredYields])
 
+    const handleOpen = useCallback(() => setIsOpen(true), [])
+
+    const handleClose = useCallback(() => {
+      setSearchQuery('')
+      setIsOpen(false)
+    }, [])
+
     const handleYieldClick = useCallback(
       (yieldId: string) => {
         onYieldSelect(yieldId)
         setSearchQuery('')
-        onClose()
+        setIsOpen(false)
       },
-      [onYieldSelect, onClose],
+      [onYieldSelect],
     )
-
-    const handleClose = useCallback(() => {
-      setSearchQuery('')
-      onClose()
-    }, [onClose])
 
     const selectedApyDisplay = useMemo(() => {
       if (!selectedYield) return '0.00%'
@@ -259,7 +259,7 @@ export const YieldSelector = memo(
           width='full'
           height='auto'
           p={4}
-          onClick={onOpen}
+          onClick={handleOpen}
           rightIcon={chevronDownIcon}
           justifyContent='space-between'
         >
@@ -286,53 +286,57 @@ export const YieldSelector = memo(
           )}
         </Button>
 
-        <Modal isOpen={isOpen} onClose={handleClose} size='md' scrollBehavior='inside'>
-          <ModalOverlay />
-          <ModalContent>
-            <ModalHeader>
-              {translate('earn.selectYieldFor', { asset: sellAsset?.symbol ?? '' })}
-            </ModalHeader>
-            <ModalCloseButton />
-            <ModalBody pb={6}>
-              <VStack spacing={4} align='stretch'>
-                <InputGroup>
-                  <InputLeftElement pointerEvents='none'>{searchIcon}</InputLeftElement>
-                  <Input
-                    placeholder={translate('common.search')}
-                    value={searchQuery}
-                    onChange={e => setSearchQuery(e.target.value)}
-                    variant='filled'
-                  />
-                </InputGroup>
+        <Dialog isOpen={isOpen} onClose={handleClose} height='80vh'>
+          <DialogHeader>
+            <DialogHeader.Left>{null}</DialogHeader.Left>
+            <DialogHeader.Middle>
+              <DialogTitle>
+                {translate('earn.selectYieldFor', { asset: sellAsset?.symbol ?? '' })}
+              </DialogTitle>
+            </DialogHeader.Middle>
+            <DialogHeader.Right>
+              <DialogCloseButton />
+            </DialogHeader.Right>
+          </DialogHeader>
+          <DialogBody pb={6}>
+            <VStack spacing={4} align='stretch'>
+              <InputGroup>
+                <InputLeftElement pointerEvents='none'>{searchIcon}</InputLeftElement>
+                <Input
+                  placeholder={translate('common.search')}
+                  value={searchQuery}
+                  onChange={e => setSearchQuery(e.target.value)}
+                  variant='filled'
+                />
+              </InputGroup>
 
-                {Object.entries(groupedYields).length === 0 ? (
-                  <Text color='text.subtle' textAlign='center' py={4}>
-                    {translate('common.noResultsFound')}
-                  </Text>
-                ) : (
-                  Object.entries(groupedYields).map(([type, typeYields]) => (
-                    <Box key={type}>
-                      <Text fontSize='xs' fontWeight='bold' color='text.subtle' mb={2}>
-                        {getYieldTypeName(type, translate).toUpperCase()}
-                      </Text>
-                      <VStack spacing={2} align='stretch'>
-                        {typeYields.map(yieldItem => (
-                          <YieldItem
-                            key={yieldItem.id}
-                            yieldItem={yieldItem}
-                            isSelected={yieldItem.id === selectedYieldId}
-                            onClick={() => handleYieldClick(yieldItem.id)}
-                            providers={providers}
-                          />
-                        ))}
-                      </VStack>
-                    </Box>
-                  ))
-                )}
-              </VStack>
-            </ModalBody>
-          </ModalContent>
-        </Modal>
+              {Object.entries(groupedYields).length === 0 ? (
+                <Text color='text.subtle' textAlign='center' py={4}>
+                  {translate('common.noResultsFound')}
+                </Text>
+              ) : (
+                Object.entries(groupedYields).map(([type, typeYields]) => (
+                  <Box key={type}>
+                    <Text fontSize='xs' fontWeight='bold' color='text.subtle' mb={2}>
+                      {getYieldTypeName(type, translate).toUpperCase()}
+                    </Text>
+                    <VStack spacing={2} align='stretch'>
+                      {typeYields.map(yieldItem => (
+                        <YieldItem
+                          key={yieldItem.id}
+                          yieldItem={yieldItem}
+                          isSelected={yieldItem.id === selectedYieldId}
+                          onClick={() => handleYieldClick(yieldItem.id)}
+                          providers={providers}
+                        />
+                      ))}
+                    </VStack>
+                  </Box>
+                ))
+              )}
+            </VStack>
+          </DialogBody>
+        </Dialog>
       </>
     )
   },

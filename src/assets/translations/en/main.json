@@ -2800,6 +2800,7 @@
     }
   },
   "earn": {
+    "enterFrom": "Enter from",
     "stakeAmount": "Stake Amount",
     "selectYieldOpportunity": "Select yield opportunity",
     "selectYieldFor": "Select yield for %{asset}",

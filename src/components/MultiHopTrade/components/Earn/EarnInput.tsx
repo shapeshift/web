@@ -302,7 +302,7 @@ export const EarnInput = memo(
         onAssetClick: (asset: Asset) => {
           dispatch(tradeEarnInput.actions.setSellAssetWithYieldReset(asset))
         },
-        title: 'trade.tradeFrom',
+        title: 'earn.enterFrom',
         assetFilterPredicate,
         chainIdFilterPredicate,
       })

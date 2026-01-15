@@ -288,9 +288,10 @@ export const YieldsList = memo(() => {
         if (minDeposit.lte(0)) return true
 
         // minDeposit is human readable (e.g. 32), so convert base balance to human
-        const precision = assets[assetId]?.precision ?? 18
+        const asset = assets[assetId]
+        if (!asset) return false
         const baseBalance = bnOrZero(assetBalancesBaseUnit[assetId])
-        const balanceHuman = bnOrZero(fromBaseUnit(baseBalance, precision))
+        const balanceHuman = bnOrZero(fromBaseUnit(baseBalance, asset.precision))
         return balanceHuman.gte(minDeposit)
       })
 
@@ -331,9 +332,10 @@ export const YieldsList = memo(() => {
       const eligibleYields = yieldsForAsset.filter(y => {
         const minDeposit = bnOrZero(y.mechanics?.entryLimits?.minimum)
         if (minDeposit.gt(0)) {
-          const precision = assets[assetId]?.precision ?? 18
+          const asset = assets[assetId]
+          if (!asset) return false
           const baseBalance = bnOrZero(assetBalancesBaseUnit[assetId])
-          const balanceHuman = bnOrZero(fromBaseUnit(baseBalance, precision))
+          const balanceHuman = bnOrZero(fromBaseUnit(baseBalance, asset.precision))
           if (balanceHuman.lt(minDeposit)) return false
         }
         if (selectedNetwork && y.network !== selectedNetwork) return false

@@ -32,9 +32,7 @@ export const getAffiliateRevenueUsdQueryFn = ({
   if (!startTimestamp || !endTimestamp) return skipToken
 
   return async () => {
-    // Use local proxy in dev to bypass CORS
-    const isDev = import.meta.env.DEV
-    const baseUrl = isDev ? '/affiliate-revenue/' : getConfig().VITE_AFFILIATE_REVENUE_URL
+    const baseUrl = getConfig().VITE_AFFILIATE_REVENUE_URL
 
     // Convert timestamps (in milliseconds) to YYYY-MM-DD format
     const startDate = new Date(startTimestamp).toISOString().split('T')[0]

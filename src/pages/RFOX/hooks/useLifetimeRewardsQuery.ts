@@ -52,6 +52,7 @@ export const useLifetimeRewardsUserCurrencyQuery = ({
         if (epoch.distributionStatus === 'complete' && !distribution.txId) return acc
 
         const epochRewardUserCurrency = (() => {
+          // rFOX v3 updated rewards from rune to usdc
           if (epoch.number > 17) {
             return bn(fromBaseUnit(distribution.amount, usdcAsset?.precision)).times(
               usdcMarketData.price,

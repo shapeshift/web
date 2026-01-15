@@ -8,7 +8,7 @@ import { getAddress } from 'viem'
 
 import { getStakingContract } from '../helpers'
 import type { CurrentEpochMetadata, Epoch } from '../types'
-import { calcEpochRewardForAccount } from './helpers'
+import { calcEpochRewardForAccountUsdcBaseUnit } from './helpers'
 import {
   getAffiliateRevenueUsdQueryFn,
   getAffiliateRevenueUsdQueryKey,
@@ -84,14 +84,14 @@ export const useCurrentEpochRewardsQuery = ({
 
         const rewardUnits = currentEpochRewardUnits - previousEpochRewardUnits
 
-        const affiliateRevenue = toBaseUnit(
+        const affiliateRevenueUsdcBaseUnit = toBaseUnit(
           bn(affiliateRevenueUsd).div(usdcMarketData.price),
           usdcAsset.precision,
         )
 
-        return calcEpochRewardForAccount(
+        return calcEpochRewardForAccountUsdcBaseUnit(
           rewardUnits,
-          affiliateRevenue,
+          affiliateRevenueUsdcBaseUnit,
           currentEpochMetadata,
           stakingAssetId,
         )

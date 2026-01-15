@@ -17,7 +17,7 @@ import { bn } from '@/lib/bignumber/bignumber'
  * display purposes due to precision differences between this approach and the internal
  * accounting on-chain.
  */
-export const calcEpochRewardForAccount = (
+export const calcEpochRewardForAccountUsdcBaseUnit = (
   rewardUnits: bigint,
   affiliateRevenue: string,
   currentEpochMetadata: CurrentEpochMetadata,

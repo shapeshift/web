@@ -2690,6 +2690,8 @@
     "gasToken": "Gas Token",
     "entering": "Entering...",
     "exiting": "Exiting...",
+    "unstaking": "Unstaking",
+    "availableDate": "available %{date}",
     "withdrawable": "Withdrawable",
     "type": "Type",
     "totalValue": "Total Value",

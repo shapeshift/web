@@ -18,7 +18,11 @@ import WAValidator from 'multicoin-address-validator'
 import PQueue from 'p-queue'
 
 import type { ChainAdapter as IChainAdapter } from '../api'
-import { ChainAdapterError, ErrorHandler } from '../error/ErrorHandler'
+import {
+  ChainAdapterError,
+  ErrorHandler,
+  handleBroadcastTransactionError,
+} from '../error/ErrorHandler'
 import type {
   Account,
   BroadcastTransactionInput,
@@ -591,19 +595,7 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
 
       return txHash
     } catch (err) {
-      if ((err as Error).name === 'ResponseError') {
-        const response = await ((err as any).response as Response).json()
-        const error = JSON.parse(response.message)
-
-        return ErrorHandler(JSON.stringify(response), {
-          translation: 'chainAdapters.errors.broadcastTransactionWithMessage',
-          options: { message: error.message },
-        })
-      }
-
-      return ErrorHandler(err, {
-        translation: 'chainAdapters.errors.broadcastTransaction',
-      })
+      return handleBroadcastTransactionError(err)
     }
   }
 

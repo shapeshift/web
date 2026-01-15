@@ -40,7 +40,6 @@ export default defineConfig({
     'process.env': {},
   },
   optimizeDeps: {
-    exclude: ['@shapeshiftoss/swapper', '@shapeshiftoss/chain-adapters'],
     esbuildOptions: {
       define: {
         global: 'globalThis',

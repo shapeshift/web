@@ -67,7 +67,7 @@ export default defineConfig({
           fileName: 'index',
         },
         rollupOptions: {
-          external: ['react', 'react-dom'],
+          external: ['react', 'react-dom', 'starknet'],
           output: {
             globals: {
               react: 'React',
@@ -78,5 +78,8 @@ export default defineConfig({
       }
     : {
         outDir: 'dist',
+        rollupOptions: {
+          external: ['starknet'],
+        },
       },
 })

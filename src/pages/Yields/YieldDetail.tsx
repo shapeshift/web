@@ -7,6 +7,9 @@ import { bnOrZero } from '@/lib/bignumber/bignumber'
 import {
   COSMOS_ATOM_NATIVE_STAKING_YIELD_ID,
   DEFAULT_NATIVE_VALIDATOR_BY_CHAIN_ID,
+  FIGMENT_SOLANA_VALIDATOR_ADDRESS,
+  FIGMENT_VALIDATOR_LOGO,
+  FIGMENT_VALIDATOR_NAME,
   SHAPESHIFT_COSMOS_VALIDATOR_ADDRESS,
   SHAPESHIFT_VALIDATOR_LOGO,
   SHAPESHIFT_VALIDATOR_NAME,
@@ -19,6 +22,7 @@ import { YieldPositionCard } from '@/pages/Yields/components/YieldPositionCard'
 import { YieldStats } from '@/pages/Yields/components/YieldStats'
 import { useAllYieldBalances } from '@/react-queries/queries/yieldxyz/useAllYieldBalances'
 import { useYield } from '@/react-queries/queries/yieldxyz/useYield'
+import { useYieldProviders } from '@/react-queries/queries/yieldxyz/useYieldProviders'
 import { useYieldValidators } from '@/react-queries/queries/yieldxyz/useYieldValidators'
 import { selectUserCurrencyToUsdRate } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
@@ -59,6 +63,7 @@ export const YieldDetail = memo(() => {
     [isStaking, yieldItem?.mechanics.requiresValidatorSelection],
   )
   const { data: validators } = useYieldValidators(yieldItem?.id ?? '', shouldFetchValidators)
+  const { data: yieldProviders } = useYieldProviders()
 
   const validatorOrProvider = useMemo(() => {
     if (isStaking && selectedValidatorAddress) {
@@ -67,28 +72,16 @@ export const YieldDetail = memo(() => {
       if (selectedValidatorAddress === SHAPESHIFT_COSMOS_VALIDATOR_ADDRESS) {
         return { name: SHAPESHIFT_VALIDATOR_NAME, logoURI: SHAPESHIFT_VALIDATOR_LOGO }
       }
+      if (selectedValidatorAddress === FIGMENT_SOLANA_VALIDATOR_ADDRESS) {
+        return { name: FIGMENT_VALIDATOR_NAME, logoURI: FIGMENT_VALIDATOR_LOGO }
+      }
     }
     if (!isStaking && yieldItem) {
-      // Extract protocol name from metadata (e.g., "JustLend" from "JustLend Staked TRX")
-      const metadataName = yieldItem.metadata.name
-      const stakedParts = metadataName.split(' Staked ')
-      if (stakedParts.length > 1 && stakedParts[0]) {
-        return { name: stakedParts[0], logoURI: yieldItem.metadata.logoURI }
-      }
-      const onParts = metadataName.split(' on ')
-      if (onParts.length > 1 && onParts[1]) {
-        return { name: onParts[1], logoURI: yieldItem.metadata.logoURI }
-      }
-      // Fallback: capitalize the yield type
-      const yieldType = yieldItem.mechanics.type
-        .split('-')
-        .filter((word): word is string => Boolean(word))
-        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-        .join(' ')
-      return { name: yieldType, logoURI: yieldItem.metadata.logoURI }
+      const provider = yieldProviders?.[yieldItem.providerId]
+      if (provider) return { name: provider.name, logoURI: provider.logoURI }
     }
     return null
-  }, [isStaking, selectedValidatorAddress, validators, yieldItem])
+  }, [isStaking, selectedValidatorAddress, validators, yieldItem, yieldProviders])
 
   const titleOverride = useMemo(() => {
     if (!yieldItem) return undefined

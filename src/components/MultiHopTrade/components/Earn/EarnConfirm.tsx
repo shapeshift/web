@@ -193,7 +193,6 @@ export const EarnConfirm = memo(() => {
           </VStack>
         }
         footerContent={null}
-        isLoading={false}
         onBack={handleBack}
         headerTranslation='earn.confirmEarn'
       />
@@ -216,7 +215,6 @@ export const EarnConfirm = memo(() => {
           </Flex>
         }
         footerContent={null}
-        isLoading={false}
         onBack={handleBack}
         headerTranslation='yieldXYZ.success'
       />
@@ -344,7 +342,6 @@ export const EarnConfirm = memo(() => {
     <SharedConfirm
       bodyContent={bodyContent}
       footerContent={footerContent}
-      isLoading={isLoading}
       onBack={handleBack}
       headerTranslation='earn.confirmEarn'
     />

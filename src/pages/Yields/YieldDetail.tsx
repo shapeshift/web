@@ -9,6 +9,7 @@ import {
   DEFAULT_NATIVE_VALIDATOR_BY_CHAIN_ID,
   SHAPESHIFT_COSMOS_VALIDATOR_ADDRESS,
   SHAPESHIFT_VALIDATOR_LOGO,
+  SHAPESHIFT_VALIDATOR_NAME,
   SOLANA_SOL_NATIVE_MULTIVALIDATOR_STAKING_YIELD_ID,
 } from '@/lib/yieldxyz/constants'
 import { YieldBalanceType } from '@/lib/yieldxyz/types'
@@ -21,8 +22,6 @@ import { useYield } from '@/react-queries/queries/yieldxyz/useYield'
 import { useYieldValidators } from '@/react-queries/queries/yieldxyz/useYieldValidators'
 import { selectUserCurrencyToUsdRate } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
-
-const SHAPESHIFT_VALIDATOR_NAME = 'ShapeShift DAO'
 
 export const YieldDetail = memo(() => {
   const { yieldId } = useParams<{ yieldId: string }>()
@@ -101,7 +100,7 @@ export const YieldDetail = memo(() => {
   }, [yieldItem, translate])
 
   const userBalances = useMemo(() => {
-    if (!balances) return { usd: '0', crypto: '0' }
+    if (!balances) return { userCurrency: '0', crypto: '0' }
 
     const balancesByType = selectedValidatorAddress
       ? balances.byValidatorAddress[selectedValidatorAddress] ?? balances.byType
@@ -125,7 +124,7 @@ export const YieldDetail = memo(() => {
     )
 
     return {
-      usd: totalUsd.times(userCurrencyToUsdRate).toFixed(),
+      userCurrency: totalUsd.times(userCurrencyToUsdRate).toFixed(),
       crypto: totalCrypto.toFixed(),
     }
   }, [balances, selectedValidatorAddress, userCurrencyToUsdRate])
@@ -182,7 +181,7 @@ export const YieldDetail = memo(() => {
       >
         <YieldHero
           yieldItem={yieldItem}
-          userBalanceUsd={userBalances.usd}
+          userBalanceUsd={userBalances.userCurrency}
           userBalanceCrypto={userBalances.crypto}
           validatorOrProvider={validatorOrProvider}
           titleOverride={titleOverride}

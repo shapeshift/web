@@ -12,7 +12,6 @@ import type { TextPropTypes } from '@/components/Text/Text'
 type SharedConfirmProps = {
   bodyContent: JSX.Element
   footerContent: JSX.Element | null
-  isLoading: boolean
   onBack: () => void
   headerTranslation: TextPropTypes['translation']
 }

@@ -66,20 +66,64 @@ export const DeFiEarn: React.FC<DefiEarnProps> = ({
     const map = new Map<string, UnifiedOpportunity>()
 
     if (isYieldXyzEnabled && yieldOpportunities) {
+      console.debug('[DeFiEarn] Yield opportunities:', JSON.stringify(yieldOpportunities, null, 2))
       yieldOpportunities.forEach(item => {
         map.set(item.assetId, item)
       })
     }
 
+    console.debug(
+      '[DeFiEarn] Legacy positions:',
+      JSON.stringify(
+        legacyPositions.map(p => ({ assetId: p.assetId, fiatAmount: p.fiatAmount })),
+        null,
+        2,
+      ),
+    )
+
     legacyPositions.forEach(item => {
-      if (!map.has(item.assetId)) {
+      const existing = map.get(item.assetId)
+      if (existing) {
+        console.debug('[DeFiEarn] Merging asset:', item.assetId, {
+          yieldFiat: existing.fiatAmount,
+          legacyFiat: item.fiatAmount,
+        })
+        const mergedFiatAmount = bnOrZero(existing.fiatAmount)
+          .plus(bnOrZero(item.fiatAmount))
+          .toFixed(2)
+        const mergedApy = bnOrZero(existing.apy).gt(bnOrZero(item.apy)) ? existing.apy : item.apy
+        map.set(item.assetId, {
+          ...existing,
+          fiatAmount: mergedFiatAmount,
+          apy: mergedApy,
+          opportunities: {
+            staking: [...existing.opportunities.staking, ...item.opportunities.staking],
+            lp: [...existing.opportunities.lp, ...item.opportunities.lp],
+          },
+        })
+      } else {
         map.set(item.assetId, item as UnifiedOpportunity)
       }
     })
 
-    return Array.from(map.values()).sort((a, b) =>
+    const result = Array.from(map.values()).sort((a, b) =>
       bnOrZero(b.fiatAmount).minus(bnOrZero(a.fiatAmount)).toNumber(),
     )
+    console.debug(
+      '[DeFiEarn] Final merged data:',
+      JSON.stringify(
+        result.map(r => ({
+          assetId: r.assetId,
+          fiatAmount: r.fiatAmount,
+          isYield: r.isYield,
+          yieldCount: r.yieldOpportunities?.length,
+          stakingCount: r.opportunities.staking.length,
+        })),
+        null,
+        2,
+      ),
+    )
+    return result
   }, [isYieldXyzEnabled, legacyPositions, yieldOpportunities])
 
   const chainIds = useMemo(() => {

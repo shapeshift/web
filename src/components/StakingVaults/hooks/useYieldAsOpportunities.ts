@@ -1,7 +1,9 @@
 import type { AssetId } from '@shapeshiftoss/caip'
+import { fromAssetId } from '@shapeshiftoss/caip'
 import { useMemo } from 'react'
 
 import { bnOrZero } from '@/lib/bignumber/bignumber'
+import { DEFAULT_NATIVE_VALIDATOR_BY_CHAIN_ID } from '@/lib/yieldxyz/constants'
 import type { AugmentedYieldDto } from '@/lib/yieldxyz/types'
 import { useAllYieldBalances } from '@/react-queries/queries/yieldxyz/useAllYieldBalances'
 import { useYields } from '@/react-queries/queries/yieldxyz/useYields'
@@ -61,8 +63,24 @@ export const useYieldAsOpportunities = (
       }
 
       const balancesForYield = yieldBalancesData?.aggregated[yieldItem.id]
-      const totalUsd = balancesForYield?.totalUsd ?? '0'
-      const totalCrypto = balancesForYield?.totalCrypto ?? '0'
+      const { chainId } = fromAssetId(inputAssetId)
+
+      let totalUsd: string
+      let totalCrypto: string
+
+      if (balancesForYield?.hasValidators) {
+        const defaultValidatorAddress = DEFAULT_NATIVE_VALIDATOR_BY_CHAIN_ID[chainId]
+        const validatorAddresses = Object.keys(balancesForYield.byValidator)
+        const selectedValidatorAddress = defaultValidatorAddress ?? validatorAddresses[0]
+        const validatorBalance = selectedValidatorAddress
+          ? balancesForYield.byValidator[selectedValidatorAddress]
+          : undefined
+        totalUsd = validatorBalance?.totalUsd ?? '0'
+        totalCrypto = validatorBalance?.totalCrypto ?? '0'
+      } else {
+        totalUsd = balancesForYield?.totalUsd ?? '0'
+        totalCrypto = balancesForYield?.totalCrypto ?? '0'
+      }
 
       const existingFiatAmount = bnOrZero(aggregatedByAssetId[inputAssetId].fiatAmount)
       const existingCryptoBalancePrecision = bnOrZero(
@@ -81,14 +99,16 @@ export const useYieldAsOpportunities = (
           : yieldItem.rewardRate.total.toString()
         : yieldItem.rewardRate.total.toString()
 
-      aggregatedByAssetId[inputAssetId].yieldOpportunities.push({
-        yieldId: yieldItem.id,
-        providerName: yieldItem.metadata.name || yieldItem.providerId,
-        providerIcon: yieldItem.metadata.logoURI,
-        apy: yieldItem.rewardRate.total.toString(),
-        fiatAmount: bnOrZero(totalUsd).toFixed(2),
-        cryptoAmount: bnOrZero(totalCrypto).toString(),
-      })
+      if (bnOrZero(totalUsd).gt(0.01) || bnOrZero(totalCrypto).gt(0)) {
+        aggregatedByAssetId[inputAssetId].yieldOpportunities.push({
+          yieldId: yieldItem.id,
+          providerName: yieldItem.metadata.name || yieldItem.providerId,
+          providerIcon: yieldItem.metadata.logoURI,
+          apy: yieldItem.rewardRate.total.toString(),
+          fiatAmount: bnOrZero(totalUsd).toFixed(2),
+          cryptoAmount: bnOrZero(totalCrypto).toString(),
+        })
+      }
 
       const searchable = aggregatedByAssetId[inputAssetId].searchable
       const tokenSymbol = yieldItem.inputTokens?.[0]?.symbol ?? yieldItem.token.symbol
@@ -97,7 +117,34 @@ export const useYieldAsOpportunities = (
       searchable.push(tokenSymbol, tokenName, providerName, yieldItem.id)
     })
 
-    return Object.values(aggregatedByAssetId)
+    const result = Object.values(aggregatedByAssetId)
+
+    result.forEach(agg => {
+      agg.yieldOpportunities.sort((a, b) => {
+        const aFiat = bnOrZero(a.fiatAmount)
+        const bFiat = bnOrZero(b.fiatAmount)
+        if (!aFiat.eq(bFiat)) return bFiat.minus(aFiat).toNumber()
+        return bnOrZero(b.apy).minus(bnOrZero(a.apy)).toNumber()
+      })
+    })
+
+    console.debug(
+      '[useYieldAsOpportunities] Result:',
+      JSON.stringify(
+        result.map(r => ({
+          assetId: r.assetId,
+          fiatAmount: r.fiatAmount,
+          yieldOpportunities: r.yieldOpportunities.map(y => ({
+            providerName: y.providerName,
+            fiatAmount: y.fiatAmount,
+          })),
+        })),
+        null,
+        2,
+      ),
+    )
+
+    return result
   }, [yieldBalancesData?.aggregated, yieldsData?.all])
 
   const isLoading = isYieldsLoading || isYieldBalancesLoading

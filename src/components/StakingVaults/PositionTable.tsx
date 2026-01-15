@@ -1,7 +1,8 @@
 import { ArrowDownIcon, ArrowUpIcon } from '@chakra-ui/icons'
-import { Box, Button, Flex, IconButton, Spinner, Tag, useMediaQuery } from '@chakra-ui/react'
+import { Box, Flex, IconButton, Spinner, Tag, useMediaQuery } from '@chakra-ui/react'
 import type { ChainId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
+import { matchSorter } from 'match-sorter'
 import { useCallback, useEffect, useMemo, useState, useTransition } from 'react'
 import { useTranslate } from 'react-polyglot'
 import type { Column, Row } from 'react-table'
@@ -16,7 +17,6 @@ import { ReactTable } from '@/components/ReactTable/ReactTable'
 import { ResultsEmpty } from '@/components/ResultsEmpty'
 import { AssetCell } from '@/components/StakingVaults/Cells'
 import { RawText } from '@/components/Text'
-import { useBrowserRouter } from '@/hooks/useBrowserRouter/useBrowserRouter'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { isEvmAddress } from '@/lib/utils/isEvmAddress'
 import type { AggregatedOpportunitiesByAssetIdReturn } from '@/state/slices/opportunitiesSlice/types'
@@ -53,7 +53,6 @@ export const PositionTable: React.FC<PositionTableProps> = ({
   const translate = useTranslate()
   const assets = useAppSelector(selectAssetsSortedByMarketCap)
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
-  const { navigate } = useBrowserRouter()
 
   const isCompactCols = !isLargerThanMd || forceCompactView
 
@@ -77,10 +76,13 @@ export const PositionTable: React.FC<PositionTableProps> = ({
         return rows.filter(row => fromAssetId(row.assetId).assetReference.toLowerCase() === search)
       }
 
-      return rows.filter(row => {
-        const asset = assets.find(a => a.assetId === row.assetId)
-        const haystack = [asset?.name, asset?.symbol, ...(row.searchable ?? [])]
-        return haystack.some(token => token?.toLowerCase().includes(search))
+      return matchSorter(rows, search, {
+        keys: [
+          row => assets.find(a => a.assetId === row.assetId)?.name ?? '',
+          row => assets.find(a => a.assetId === row.assetId)?.symbol ?? '',
+          row => (row.searchable ?? []).join(' '),
+        ],
+        threshold: matchSorter.rankings.CONTAINS,
       })
     },
     [assets],
@@ -163,62 +165,22 @@ export const PositionTable: React.FC<PositionTableProps> = ({
     [assets, isCompactCols, translate],
   )
 
-  const handleRowClick = useCallback(
-    (row: RowProps) => {
-      if (row.original.isYield && row.original.yieldOpportunities?.length === 1) {
-        const target = row.original.yieldOpportunities[0]
-        navigate(`/yields/${target.yieldId}`)
-        return
-      }
-      row.toggleRowExpanded()
-    },
-    [navigate],
-  )
-
-  const renderYieldSubcomponent = useCallback(
-    (original: UnifiedOpportunity) => {
-      const items = original.yieldOpportunities ?? []
-      if (!items.length) return <RawText>{translate('common.noResults')}</RawText>
-      return (
-        <Flex flexDir='column' gap={3} px={4} py={2}>
-          {items.map(item => (
-            <Flex
-              key={item.yieldId}
-              alignItems='center'
-              justifyContent='space-between'
-              gap={4}
-              wrap='wrap'
-            >
-              <Flex flexDir='column'>
-                <RawText fontWeight='medium'>{item.providerName}</RawText>
-                <RawText variant='sub-text' fontSize='sm'>
-                  {translate('defi.apy')} <Amount.Percent value={item.apy} />
-                </RawText>
-              </Flex>
-              <Flex alignItems='center' gap={4}>
-                <RawText>
-                  <Amount.Fiat value={bnOrZero(item.fiatAmount).toFixed(2)} />
-                </RawText>
-                <Button size='sm' onClick={() => navigate(`/yields/${item.yieldId}`)}>
-                  {translate('common.view')}
-                </Button>
-              </Flex>
-            </Flex>
-          ))}
-        </Flex>
-      )
-    },
-    [navigate, translate],
-  )
+  const handleRowClick = useCallback((row: RowProps) => {
+    row.toggleRowExpanded()
+  }, [])
 
   const renderSubComponent = useCallback(
     ({ original }: RowProps) => {
-      if (original.isYield) return renderYieldSubcomponent(original)
       return (
-        <PositionDetails key={original.assetId} {...original} forceCompactView={forceCompactView} />
+        <PositionDetails
+          key={original.assetId}
+          {...original}
+          forceCompactView={forceCompactView}
+          yieldOpportunities={original.yieldOpportunities}
+        />
       )
     },
-    [forceCompactView, renderYieldSubcomponent],
+    [forceCompactView],
   )
 
   const renderEmptyComponent = useCallback(() => {

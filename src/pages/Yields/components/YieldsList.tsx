@@ -29,6 +29,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom'
 import { Amount } from '@/components/Amount/Amount'
 import { AssetIcon } from '@/components/AssetIcon'
 import { ChainIcon } from '@/components/ChainMenu'
+import { Display } from '@/components/Display'
 import { ResultsEmptyNoWallet } from '@/components/ResultsEmptyNoWallet'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
@@ -57,6 +58,7 @@ import { useYieldProviders } from '@/react-queries/queries/yieldxyz/useYieldProv
 import { useYields } from '@/react-queries/queries/yieldxyz/useYields'
 import {
   selectAssets,
+  selectEnabledWalletAccountIds,
   selectPortfolioAssetBalancesBaseUnit,
   selectPortfolioUserCurrencyBalances,
   selectUserCurrencyToUsdRate,
@@ -70,6 +72,7 @@ export const YieldsList = memo(() => {
   const navigate = useNavigate()
   const { state: walletState } = useWallet()
   const isConnected = useMemo(() => Boolean(walletState.walletInfo), [walletState.walletInfo])
+  const { accountId, setAccountId } = useYieldAccount()
   const [isMobile] = useMediaQuery('(max-width: 768px)')
   const [searchParams, setSearchParams] = useSearchParams()
   const tabParam = useMemo(() => searchParams.get('tab'), [searchParams])
@@ -122,7 +125,6 @@ export const YieldsList = memo(() => {
     provider: selectedProvider || undefined,
   })
 
-  // TODO: Multi-account support - currently defaulting to account 0
   const { data: allBalancesData, isFetching: isLoadingBalances } = useAllYieldBalances()
   const allBalances = allBalancesData?.byYieldId
   const { data: yieldProviders } = useYieldProviders()
@@ -1046,10 +1048,29 @@ export const YieldsList = memo(() => {
   return (
     <Container maxW='1200px' py={8} px={{ base: 4, md: 6 }}>
       <Box mb={8}>
-        <Heading as='h2' size='xl' mb={2}>
-          {translate('yieldXYZ.pageTitle')}
-        </Heading>
-        {!isMobile && <Text color='text.subtle'>{translate('yieldXYZ.pageSubtitle')}</Text>}
+        <Flex
+          justifyContent='space-between'
+          alignItems={{ base: 'flex-start', md: 'center' }}
+          direction={{ base: 'column', md: 'row' }}
+          gap={4}
+        >
+          <Box>
+            <Heading as='h2' size='xl' mb={2}>
+              {translate('yieldXYZ.pageTitle')}
+            </Heading>
+            {!isMobile && <Text color='text.subtle'>{translate('yieldXYZ.pageSubtitle')}</Text>}
+          </Box>
+          <Display.Desktop>
+            <YieldAccountSwitcher accountId={accountId} onChange={setAccountId} />
+          </Display.Desktop>
+        </Flex>
+        <Display.Mobile>
+          <YieldAccountSwitcher
+            accountId={accountId}
+            onChange={setAccountId}
+            boxProps={{ mt: 2 }}
+          />
+        </Display.Mobile>
       </Box>
       {errorElement}
       {isConnected && (

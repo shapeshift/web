@@ -1,4 +1,5 @@
 import { Avatar, Box, Button, Flex, HStack, Icon, Input, Skeleton, Text } from '@chakra-ui/react'
+import type { AccountId } from '@shapeshiftoss/caip'
 import { useQueryClient } from '@tanstack/react-query'
 import type { ChangeEvent } from 'react'
 import { memo, useCallback, useMemo, useState } from 'react'
@@ -38,6 +39,7 @@ import { useYieldValidators } from '@/react-queries/queries/yieldxyz/useYieldVal
 import { allowedDecimalSeparators } from '@/state/slices/preferencesSlice/preferencesSlice'
 import {
   selectAccountIdByAccountNumberAndChainId,
+  selectAccountNumberByAccountId,
   selectAssetById,
   selectMarketDataByAssetIdUserCurrency,
   selectPortfolioAccountIdsByAssetIdFilter,
@@ -49,6 +51,7 @@ type YieldEnterModalProps = {
   isOpen: boolean
   onClose: () => void
   yieldItem: AugmentedYieldDto
+  accountId?: AccountId
   accountNumber?: number
 }
 
@@ -106,7 +109,13 @@ const YieldEnterModalSkeleton = memo(() => (
 ))
 
 export const YieldEnterModal = memo(
-  ({ isOpen, onClose, yieldItem, accountNumber = 0 }: YieldEnterModalProps) => {
+  ({
+    isOpen,
+    onClose,
+    yieldItem,
+    accountId: accountIdProp,
+    accountNumber,
+  }: YieldEnterModalProps) => {
     const queryClient = useQueryClient()
     const translate = useTranslate()
     const { state: walletState, dispatch: walletDispatch } = useWallet()
@@ -118,7 +127,7 @@ export const YieldEnterModal = memo(
 
     const [cryptoAmount, setCryptoAmount] = useState('')
     const [isFiat, setIsFiat] = useState(false)
-    const [selectedAccountId, setSelectedAccountId] = useState<string | undefined>()
+    const [selectedAccountId, setSelectedAccountId] = useState<AccountId | undefined>(accountIdProp)
     const [selectedPercent, setSelectedPercent] = useState<number | null>(null)
 
     const { chainId } = yieldItem
@@ -133,10 +142,18 @@ export const YieldEnterModal = memo(
       selectPortfolioAccountIdsByAssetIdFilter(state, accountIdFilter),
     )
 
+    const derivedAccountNumber = useAppSelector(state => {
+      if (accountNumber !== undefined) return accountNumber
+      if (accountIdProp) return selectAccountNumberByAccountId(state, { accountId: accountIdProp })
+      return undefined
+    })
+
     const defaultAccountId = useAppSelector(state => {
+      if (accountIdProp) return accountIdProp
       if (!chainId) return undefined
+      if (derivedAccountNumber === undefined) return undefined
       const accountIdsByNumberAndChain = selectAccountIdByAccountNumberAndChainId(state)
-      return accountIdsByNumberAndChain[accountNumber]?.[chainId]
+      return accountIdsByNumberAndChain[derivedAccountNumber]?.[chainId]
     })
 
     const accountId = selectedAccountId ?? defaultAccountId

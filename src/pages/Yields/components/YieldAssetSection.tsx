@@ -125,6 +125,7 @@ export const YieldAssetSection = memo(({ assetId, accountId }: YieldAssetSection
           isOpen={isEnterModalOpen}
           onClose={handleEnterModalClose}
           yieldItem={selectedYield}
+          accountId={accountId}
         />
       )}
     </>

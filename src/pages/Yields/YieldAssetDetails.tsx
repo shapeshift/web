@@ -21,6 +21,7 @@ import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { Amount } from '@/components/Amount/Amount'
 import { AssetIcon } from '@/components/AssetIcon'
 import { ChainIcon } from '@/components/ChainMenu'
+import { Display } from '@/components/Display'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import {
   COSMOS_ATOM_NATIVE_STAKING_YIELD_ID,
@@ -34,11 +35,13 @@ import {
 import type { AugmentedYieldDto, YieldNetwork } from '@/lib/yieldxyz/types'
 import { resolveYieldInputAssetIcon } from '@/lib/yieldxyz/utils'
 import { GradientApy } from '@/pages/Yields/components/GradientApy'
+import { YieldAccountSwitcher } from '@/pages/Yields/components/YieldAccountSwitcher'
 import { YieldFilters } from '@/pages/Yields/components/YieldFilters'
 import { YieldItem, YieldItemSkeleton } from '@/pages/Yields/components/YieldItem'
 import { YieldTable } from '@/pages/Yields/components/YieldTable'
 import { ViewToggle } from '@/pages/Yields/components/YieldViewHelpers'
 import { useYieldFilters } from '@/pages/Yields/hooks/useYieldFilters'
+import { useYieldAccount } from '@/pages/Yields/YieldAccountContext'
 import { useAllYieldBalances } from '@/react-queries/queries/yieldxyz/useAllYieldBalances'
 import { useYieldProviders } from '@/react-queries/queries/yieldxyz/useYieldProviders'
 import { useYields } from '@/react-queries/queries/yieldxyz/useYields'
@@ -52,6 +55,14 @@ export const YieldAssetDetails = memo(() => {
   const translate = useTranslate()
   const [isMobile] = useMediaQuery('(max-width: 768px)')
   const [searchParams, setSearchParams] = useSearchParams()
+  const { accountId, setAccountId } = useYieldAccount()
+
+  const handleAccountChange = useCallback(
+    (newAccountId: string) => {
+      setAccountId(newAccountId)
+    },
+    [setAccountId],
+  )
 
   const viewParam = useMemo(() => searchParams.get('view'), [searchParams])
   const viewMode = useMemo<'grid' | 'list'>(
@@ -374,20 +385,39 @@ export const YieldAssetDetails = memo(() => {
   const assetHeaderElement = useMemo(() => {
     if (!assetInfo) return null
     return (
-      <Flex alignItems='center' gap={4} mb={8}>
-        <AssetIcon
-          {...(assetInfo.assetId ? { assetId: assetInfo.assetId } : { src: assetInfo.assetIcon })}
-          size='lg'
-          showNetworkIcon={false}
-        />
-        <Box>
-          <Heading size='lg'>
-            {translate('yieldXYZ.assetYields', { asset: assetInfo.assetName })}
-          </Heading>
-        </Box>
-      </Flex>
+      <Box mb={8}>
+        <Flex
+          alignItems={{ base: 'flex-start', md: 'center' }}
+          justifyContent='space-between'
+          gap={4}
+          direction={{ base: 'column', md: 'row' }}
+        >
+          <Flex alignItems='center' gap={4}>
+            <AssetIcon
+              {...(assetInfo.assetId
+                ? { assetId: assetInfo.assetId }
+                : { src: assetInfo.assetIcon })}
+              size='lg'
+              showNetworkIcon={false}
+            />
+            <Box>
+              <Heading size='lg'>
+                {translate('yieldXYZ.assetYields', { asset: assetInfo.assetName })}
+              </Heading>
+            </Box>
+          </Flex>
+          <Display.Desktop>
+            <YieldAccountSwitcher accountId={accountId} onChange={handleAccountChange} />
+          </Display.Desktop>
+        </Flex>
+        <Display.Mobile>
+          <Box mt={4}>
+            <YieldAccountSwitcher accountId={accountId} onChange={handleAccountChange} />
+          </Box>
+        </Display.Mobile>
+      </Box>
     )
-  }, [assetInfo, translate])
+  }, [assetInfo, translate, accountId, handleAccountChange])
 
   const loadingGridElement = useMemo(
     () => (

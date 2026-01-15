@@ -1,8 +1,9 @@
 import { Box, Button, Container, Flex, Heading, Text } from '@chakra-ui/react'
-import { memo, useEffect, useMemo } from 'react'
+import { memo, useCallback, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
 
+import { Display } from '@/components/Display'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import {
   COSMOS_ATOM_NATIVE_STAKING_YIELD_ID,
@@ -16,10 +17,12 @@ import {
   SOLANA_SOL_NATIVE_MULTIVALIDATOR_STAKING_YIELD_ID,
 } from '@/lib/yieldxyz/constants'
 import { YieldBalanceType } from '@/lib/yieldxyz/types'
+import { YieldAccountSwitcher } from '@/pages/Yields/components/YieldAccountSwitcher'
 import { YieldHero } from '@/pages/Yields/components/YieldHero'
 import { YieldManager } from '@/pages/Yields/components/YieldManager'
 import { YieldPositionCard } from '@/pages/Yields/components/YieldPositionCard'
 import { YieldStats } from '@/pages/Yields/components/YieldStats'
+import { useYieldAccount } from '@/pages/Yields/YieldAccountContext'
 import { useAllYieldBalances } from '@/react-queries/queries/yieldxyz/useAllYieldBalances'
 import { useYield } from '@/react-queries/queries/yieldxyz/useYield'
 import { useYieldProviders } from '@/react-queries/queries/yieldxyz/useYieldProviders'
@@ -33,6 +36,14 @@ export const YieldDetail = memo(() => {
   const navigate = useNavigate()
   const translate = useTranslate()
   const userCurrencyToUsdRate = useAppSelector(selectUserCurrencyToUsdRate)
+  const { accountId, setAccountId } = useYieldAccount()
+
+  const handleAccountChange = useCallback(
+    (newAccountId: string) => {
+      setAccountId(newAccountId)
+    },
+    [setAccountId],
+  )
 
   const { data: yieldItem, isLoading, error } = useYield(yieldId ?? '')
   const { data: allBalancesData, isFetching: isBalancesFetching } = useAllYieldBalances()
@@ -172,6 +183,16 @@ export const YieldDetail = memo(() => {
         maxW={{ base: 'full', md: 'container.md', lg: 'container.lg' }}
         px={{ base: 4, md: 8, lg: 12 }}
       >
+        <Display.Desktop>
+          <Flex justifyContent='flex-end' pt={4}>
+            <YieldAccountSwitcher accountId={accountId} onChange={handleAccountChange} />
+          </Flex>
+        </Display.Desktop>
+        <Display.Mobile>
+          <Box pt={2} pb={2}>
+            <YieldAccountSwitcher accountId={accountId} onChange={handleAccountChange} />
+          </Box>
+        </Display.Mobile>
         <YieldHero
           yieldItem={yieldItem}
           userBalanceUsd={userBalances.userCurrency}

@@ -1,6 +1,5 @@
 import { Box, Flex, SimpleGrid } from '@chakra-ui/react'
-import { thorchainAssetId } from '@shapeshiftoss/caip'
-import { bn, bnOrZero } from '@shapeshiftoss/chain-adapters'
+import { bn } from '@shapeshiftoss/chain-adapters'
 import { useMemo } from 'react'
 
 import { EmissionsPool } from './EmissionsPool'
@@ -8,35 +7,28 @@ import { StatItem } from './StatItem'
 import { TotalStaked } from './TotalStaked'
 
 import { Text } from '@/components/Text'
-import { fromBaseUnit } from '@/lib/math'
 import { useAffiliateRevenueUsdQuery } from '@/pages/RFOX/hooks/useAffiliateRevenueUsdQuery'
 import { useCurrentEpochMetadataQuery } from '@/pages/RFOX/hooks/useCurrentEpochMetadataQuery'
 import { supportedStakingAssetIds } from '@/pages/RFOX/hooks/useRfoxContext'
-import { selectAssetById, selectMarketDataByAssetIdUserCurrency } from '@/state/slices/selectors'
+import { selectUserCurrencyToUsdRate } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
 const gridColumns = { base: 1, md: 2 }
 
 export const Stats: React.FC = () => {
-  const runeAsset = useAppSelector(state => selectAssetById(state, thorchainAssetId))
-  const runeAssetMarketData = useAppSelector(state =>
-    selectMarketDataByAssetIdUserCurrency(state, thorchainAssetId),
-  )
+  const userCurrencyToUsdRate = useAppSelector(selectUserCurrencyToUsdRate)
 
   const currentEpochMetadataQuery = useCurrentEpochMetadataQuery()
 
-  const affiliateRevenueQuery = useAffiliateRevenueUsdQuery<string>({
+  const affiliateRevenueUsdQuery = useAffiliateRevenueUsdQuery({
     startTimestamp: currentEpochMetadataQuery.data?.epochStartTimestamp,
     endTimestamp: currentEpochMetadataQuery.data?.epochEndTimestamp,
   })
 
   const totalFeesCollectedUserCurrency = useMemo(() => {
-    if (!affiliateRevenueQuery.data) return
-
-    return bn(fromBaseUnit(affiliateRevenueQuery.data, runeAsset?.precision ?? 0))
-      .times(bnOrZero(runeAssetMarketData?.price))
-      .toFixed(2)
-  }, [affiliateRevenueQuery, runeAsset, runeAssetMarketData])
+    if (!affiliateRevenueUsdQuery.data) return
+    return bn(affiliateRevenueUsdQuery.data).times(userCurrencyToUsdRate).toFixed(2)
+  }, [affiliateRevenueUsdQuery.data, userCurrencyToUsdRate])
 
   const foxBurnAmountUserCurrency = useMemo(() => {
     if (!currentEpochMetadataQuery.data) return
@@ -69,12 +61,12 @@ export const Stats: React.FC = () => {
         <StatItem
           description='RFOX.totalFeesCollected'
           amountUserCurrency={totalFeesCollectedUserCurrency}
-          isLoading={affiliateRevenueQuery.isLoading}
+          isLoading={affiliateRevenueUsdQuery.isLoading}
         />
         <StatItem
           description='RFOX.foxBurnAmount'
           amountUserCurrency={foxBurnAmountUserCurrency}
-          isLoading={affiliateRevenueQuery.isLoading || currentEpochMetadataQuery.isLoading}
+          isLoading={affiliateRevenueUsdQuery.isLoading || currentEpochMetadataQuery.isLoading}
         />
         {Emissions}
       </SimpleGrid>

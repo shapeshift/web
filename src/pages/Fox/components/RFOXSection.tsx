@@ -19,7 +19,6 @@ import {
 import {
   foxOnArbitrumOneAssetId,
   fromAssetId,
-  thorchainAssetId,
   uniV2EthFoxArbitrumAssetId,
   usdcOnArbitrumOneAssetId,
 } from '@shapeshiftoss/caip'
@@ -50,7 +49,7 @@ import { useCurrentApyQuery } from '@/pages/RFOX/hooks/useCurrentApyQuery'
 import { useCurrentEpochMetadataQuery } from '@/pages/RFOX/hooks/useCurrentEpochMetadataQuery'
 import { useCurrentEpochRewardsQuery } from '@/pages/RFOX/hooks/useCurrentEpochRewardsQuery'
 import type { UnstakingRequest } from '@/pages/RFOX/hooks/useGetUnstakingRequestsQuery/utils'
-import { useLifetimeRewardsQuery } from '@/pages/RFOX/hooks/useLifetimeRewardsQuery'
+import { useLifetimeRewardsUserCurrencyQuery } from '@/pages/RFOX/hooks/useLifetimeRewardsQuery'
 import { useRFOXContext } from '@/pages/RFOX/hooks/useRfoxContext'
 import { useStakingInfoQuery } from '@/pages/RFOX/hooks/useStakingInfoQuery'
 import { useTimeInPoolQuery } from '@/pages/RFOX/hooks/useTimeInPoolQuery'
@@ -61,7 +60,6 @@ import {
   selectAccountIdByAccountNumberAndChainId,
   selectAssetById,
   selectMarketDataByAssetIdUserCurrency,
-  selectUserCurrencyToUsdRate,
 } from '@/state/slices/selectors'
 import { useAppDispatch, useAppSelector } from '@/state/store'
 
@@ -155,14 +153,10 @@ export const RFOXSection = () => {
   )
 
   const stakingAsset = useAppSelector(state => selectAssetById(state, stakingAssetId))
-  const runeAsset = useAppSelector(state => selectAssetById(state, thorchainAssetId))
   const usdcAsset = useAppSelector(state => selectAssetById(state, usdcOnArbitrumOneAssetId))
 
   const stakingAssetMarketData = useAppSelector(state =>
     selectMarketDataByAssetIdUserCurrency(state, stakingAssetId),
-  )
-  const runeMarketData = useAppSelector(state =>
-    selectMarketDataByAssetIdUserCurrency(state, thorchainAssetId),
   )
   const usdcMarketData = useAppSelector(state =>
     selectMarketDataByAssetIdUserCurrency(state, usdcOnArbitrumOneAssetId),
@@ -237,42 +231,24 @@ export const RFOXSection = () => {
     currentEpochMetadata: currentEpochMetadataQuery.data,
   })
 
-  const userCurrencyToUsdRate = useAppSelector(selectUserCurrencyToUsdRate)
-
-  console.log({ userCurrencyToUsdRate, currentEpochRewardsQuery })
-
-  const currentEpochRewardsCryptoPrecision = useMemo(() => {
-    if (!currentEpochRewardsQuery.data) return '0'
-    if (!usdcMarketData?.price) return '0'
-
-    return bnOrZero(currentEpochRewardsQuery.data)
-      .div(usdcMarketData.price)
-      .toFixed(usdcAsset?.precision ?? 0)
-  }, [currentEpochRewardsQuery.data, usdcAsset, usdcMarketData])
+  const currentEpochRewardsCryptoPrecision = useMemo(
+    () => fromBaseUnit(currentEpochRewardsQuery.data?.toString(), usdcAsset?.precision ?? 0),
+    [currentEpochRewardsQuery.data, usdcAsset?.precision],
+  )
 
   const currentEpochRewardsUserCurrency = useMemo(() => {
-    if (!currentEpochRewardsQuery.data) return '0'
+    if (!usdcMarketData?.price) return '0'
+    if (!currentEpochRewardsCryptoPrecision) return '0'
 
-    // currentEpochRewardsQuery.data is already in USD, convert to user currency
-    return bnOrZero(currentEpochRewardsQuery.data).times(userCurrencyToUsdRate).toFixed(2)
-  }, [currentEpochRewardsQuery.data, userCurrencyToUsdRate])
+    return bnOrZero(currentEpochRewardsCryptoPrecision)
+      .times(bnOrZero(usdcMarketData.price))
+      .toFixed(2)
+  }, [currentEpochRewardsCryptoPrecision, usdcMarketData?.price])
 
-  const lifetimeRewardsQuery = useLifetimeRewardsQuery({
+  const lifetimeRewardsUserCurrencyQuery = useLifetimeRewardsUserCurrencyQuery({
     stakingAssetId,
     stakingAssetAccountId: isConnected ? stakingAssetAccountId : undefined,
   })
-
-  const lifetimeRewardsCryptoPrecision = useMemo(
-    () => fromBaseUnit(lifetimeRewardsQuery.data?.toString(), runeAsset?.precision ?? 0),
-    [lifetimeRewardsQuery.data, runeAsset?.precision],
-  )
-
-  const lifetimeRewardsUserCurrency = useMemo(() => {
-    if (!runeMarketData?.price) return '0'
-    if (!lifetimeRewardsCryptoPrecision) return '0'
-
-    return bnOrZero(lifetimeRewardsCryptoPrecision).times(bnOrZero(runeMarketData.price)).toFixed(2)
-  }, [lifetimeRewardsCryptoPrecision, runeMarketData?.price])
 
   const {
     data: timeInPoolHuman,
@@ -353,7 +329,7 @@ export const RFOXSection = () => {
     translate,
   ])
 
-  if (!(stakingAsset && runeAsset)) return null
+  if (!(stakingAsset && usdcAsset)) return null
 
   if (!isRFOXEnabled) return null
 
@@ -396,7 +372,7 @@ export const RFOXSection = () => {
               <Skeleton isLoaded={!currentEpochRewardsQuery.isLoading}>
                 <Amount.Crypto
                   value={currentEpochRewardsCryptoPrecision}
-                  symbol={runeAsset.symbol ?? ''}
+                  symbol={usdcAsset.symbol ?? ''}
                 />
               </Skeleton>
               <Amount.Fiat
@@ -445,14 +421,9 @@ export const RFOXSection = () => {
               translation='RFOX.lifetimeRewards'
               mb={1}
             />
-            <Skeleton isLoaded={!lifetimeRewardsQuery.isLoading}>
-              <Amount.Crypto
-                fontSize='2xl'
-                value={lifetimeRewardsCryptoPrecision}
-                symbol={runeAsset.symbol ?? ''}
-              />
+            <Skeleton isLoaded={!lifetimeRewardsUserCurrencyQuery.isLoading}>
+              <Amount.Fiat fontSize='2xl' value={lifetimeRewardsUserCurrencyQuery.data} />
             </Skeleton>
-            <Amount.Fiat fontSize='xs' value={lifetimeRewardsUserCurrency} color='text.subtle' />
           </Stack>
 
           <Stack {...stackProps}>

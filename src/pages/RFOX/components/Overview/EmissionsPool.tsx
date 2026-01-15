@@ -18,8 +18,8 @@ type EmissionsPoolProps = {
 export const EmissionsPool: React.FC<EmissionsPoolProps> = ({ stakingAssetId }) => {
   const translate = useTranslate()
 
-  const userCurrencyToUsdRate = useAppSelector(selectUserCurrencyToUsdRate)
   const stakingAsset = useAppSelector(state => selectAssetById(state, stakingAssetId))
+  const userCurrencyToUsdRate = useAppSelector(selectUserCurrencyToUsdRate)
 
   const currentEpochMetadataQuery = useCurrentEpochMetadataQuery()
 

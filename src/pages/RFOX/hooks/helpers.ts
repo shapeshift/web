@@ -11,15 +11,15 @@ import type { CurrentEpochMetadata } from '../types'
 import { bn } from '@/lib/bignumber/bignumber'
 
 /**
- * Calculates the reward for an account in an epoch in USD.
+ * Calculates the reward for an account in an epoch in USDC.
  *
  * NOTE: This is a simplified version of the calculation that is only accurate enough for
  * display purposes due to precision differences between this approach and the internal
  * accounting on-chain.
  */
-export const calcEpochRewardForAccountUsd = (
+export const calcEpochRewardForAccount = (
   rewardUnits: bigint,
-  affiliateRevenueUsd: number,
+  affiliateRevenue: string,
   currentEpochMetadata: CurrentEpochMetadata,
   stakingAssetId: AssetId,
 ) => {
@@ -29,11 +29,11 @@ export const calcEpochRewardForAccountUsd = (
   const distributionRate =
     currentEpochMetadata.distributionRateByStakingContract[getStakingContract(stakingAssetId)] ?? 0
 
-  const distributionAmountUsd = affiliateRevenueUsd * distributionRate
+  const distributionAmountUsdcBaseUnit = bn(affiliateRevenue).times(distributionRate).toFixed(0)
   const percentageShare = bn(rewardUnits.toString()).div(totalRewardUnits.toString())
-  const epochRewardUsd = percentageShare.times(distributionAmountUsd).toFixed()
+  const epochRewardUsdcBaseUnit = percentageShare.times(distributionAmountUsdcBaseUnit).toFixed(0)
 
-  return epochRewardUsd
+  return BigInt(epochRewardUsdcBaseUnit)
 }
 
 export const getRfoxContractCreationBlockNumber = (contractAddress: string) => {

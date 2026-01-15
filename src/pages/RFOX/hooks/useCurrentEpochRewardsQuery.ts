@@ -1,5 +1,6 @@
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
-import { fromAccountId } from '@shapeshiftoss/caip'
+import { fromAccountId, usdcOnArbitrumOneAssetId } from '@shapeshiftoss/caip'
+import { bn, toBaseUnit } from '@shapeshiftoss/utils'
 import type { UseQueryResult } from '@tanstack/react-query'
 import { useQueries } from '@tanstack/react-query'
 import { useCallback } from 'react'
@@ -7,7 +8,7 @@ import { getAddress } from 'viem'
 
 import { getStakingContract } from '../helpers'
 import type { CurrentEpochMetadata, Epoch } from '../types'
-import { calcEpochRewardForAccountUsd } from './helpers'
+import { calcEpochRewardForAccount } from './helpers'
 import {
   getAffiliateRevenueUsdQueryFn,
   getAffiliateRevenueUsdQueryKey,
@@ -16,6 +17,8 @@ import { getEarnedQueryFn, getEarnedQueryKey } from './useEarnedQuery'
 import { fetchEpochHistory, getEpochHistoryQueryKey } from './useEpochHistoryQuery'
 
 import { mergeQueryOutputs } from '@/react-queries/helpers'
+import { selectAssetById, selectMarketDataByAssetIdUserCurrency } from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 type EpochRewardsResultTuple = [
   epochHistory: Epoch[] | undefined,
@@ -37,6 +40,12 @@ export const useCurrentEpochRewardsQuery = ({
   stakingAssetAccountId,
   currentEpochMetadata,
 }: UseCurrentEpochRewardsQueryProps) => {
+  const usdcAsset = useAppSelector(state => selectAssetById(state, usdcOnArbitrumOneAssetId))
+
+  const usdcMarketData = useAppSelector(state =>
+    selectMarketDataByAssetIdUserCurrency(state, usdcOnArbitrumOneAssetId),
+  )
+
   const combine = useCallback(
     (
       queries: [
@@ -55,7 +64,9 @@ export const useCurrentEpochRewardsQuery = ({
           !epochHistory ||
           !currentEpochRewardUnits ||
           !affiliateRevenueUsd ||
-          !currentEpochMetadata
+          !currentEpochMetadata ||
+          !usdcAsset ||
+          !usdcMarketData
         )
           return 0n
 
@@ -73,9 +84,14 @@ export const useCurrentEpochRewardsQuery = ({
 
         const rewardUnits = currentEpochRewardUnits - previousEpochRewardUnits
 
-        return calcEpochRewardForAccountUsd(
+        const affiliateRevenue = toBaseUnit(
+          bn(affiliateRevenueUsd).div(usdcMarketData.price),
+          usdcAsset.precision,
+        )
+
+        return calcEpochRewardForAccount(
           rewardUnits,
-          affiliateRevenueUsd,
+          affiliateRevenue,
           currentEpochMetadata,
           stakingAssetId,
         )
@@ -83,7 +99,7 @@ export const useCurrentEpochRewardsQuery = ({
 
       return mergeQueryOutputs(queries, combineResults)
     },
-    [currentEpochMetadata, stakingAssetId, stakingAssetAccountId],
+    [currentEpochMetadata, stakingAssetId, stakingAssetAccountId, usdcAsset, usdcMarketData],
   )
 
   const combinedQueries = useQueries({

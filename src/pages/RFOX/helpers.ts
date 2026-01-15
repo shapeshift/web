@@ -27,7 +27,7 @@ export const selectFromStakingInfo = (key: keyof StakingInfo, abiStakingInfo: Ab
   return parseAbiStakingInfo(abiStakingInfo)[key]?.toString()
 }
 
-export const selectRuneAddress = (abiStakingInfo: AbiStakingInfo) => {
+export const selectRewardAddress = (abiStakingInfo: AbiStakingInfo) => {
   return selectFromStakingInfo('runeAddress', abiStakingInfo)
 }
 

@@ -67,7 +67,25 @@ export default defineConfig({
           fileName: 'index',
         },
         rollupOptions: {
-          external: ['react', 'react-dom', 'starknet'],
+          external: [
+            'react',
+            'react-dom',
+            'starknet',
+            'tronweb',
+            '@solana/web3.js',
+            '@solana/spl-token',
+            '@mysten/sui/client',
+            '@mysten/sui/transactions',
+            '@near-js/crypto',
+            '@near-js/providers',
+            '@near-js/transactions',
+            '@near-js/utils',
+            '@coral-xyz/anchor',
+            '@arbitrum/sdk',
+            '@cowprotocol/app-data',
+            '@avnu/avnu-sdk',
+            '@cetusprotocol/aggregator-sdk',
+          ],
           output: {
             globals: {
               react: 'React',
@@ -79,7 +97,23 @@ export default defineConfig({
     : {
         outDir: 'dist',
         rollupOptions: {
-          external: ['starknet'],
+          external: [
+            'starknet',
+            'tronweb',
+            '@solana/web3.js',
+            '@solana/spl-token',
+            '@mysten/sui/client',
+            '@mysten/sui/transactions',
+            '@near-js/crypto',
+            '@near-js/providers',
+            '@near-js/transactions',
+            '@near-js/utils',
+            '@coral-xyz/anchor',
+            '@arbitrum/sdk',
+            '@cowprotocol/app-data',
+            '@avnu/avnu-sdk',
+            '@cetusprotocol/aggregator-sdk',
+          ],
         },
       },
 })

@@ -10,7 +10,6 @@ import {
   Th,
   Thead,
   Tr,
-  useColorModeValue,
 } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
 import { memo, useCallback, useMemo } from 'react'
@@ -18,10 +17,9 @@ import { useTranslate } from 'react-polyglot'
 import { useNavigate } from 'react-router-dom'
 
 import { Amount } from '@/components/Amount/Amount'
-import { AssetIcon } from '@/components/AssetIcon'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import type { AugmentedYieldDto } from '@/lib/yieldxyz/types'
-import { resolveYieldInputAssetIcon, toUserCurrency } from '@/lib/yieldxyz/utils'
+import { toUserCurrency } from '@/lib/yieldxyz/utils'
 import type { YieldBalanceAggregate } from '@/react-queries/queries/yieldxyz/useAllYieldBalances'
 import { useYieldProviders } from '@/react-queries/queries/yieldxyz/useYieldProviders'
 import { selectAssetById, selectUserCurrencyToUsdRate } from '@/state/slices/selectors'
@@ -39,8 +37,6 @@ export const YieldActivePositions = memo(
     const navigate = useNavigate()
     const asset = useAppSelector(state => selectAssetById(state, assetId))
     const userCurrencyToUsdRate = useAppSelector(selectUserCurrencyToUsdRate)
-    const hoverBg = useColorModeValue('gray.50', 'whiteAlpha.50')
-    const borderColor = useColorModeValue('gray.100', 'whiteAlpha.100')
 
     const { data: providers } = useYieldProviders()
 
@@ -69,8 +65,6 @@ export const YieldActivePositions = memo(
       [activeYields, aggregated],
     )
 
-    const assetColumnHeader = useMemo(() => translate('yieldXYZ.asset') ?? 'Asset', [translate])
-
     const providerColumnHeader = useMemo(
       () =>
         hasValidators
@@ -87,14 +81,6 @@ export const YieldActivePositions = memo(
       () => translate('yieldXYZ.balance') ?? 'Balance',
       [translate],
     )
-
-    const yourBalanceLabel = useMemo(() => translate('defi.yourBalance'), [translate])
-
-    const renderAssetIcon = useCallback((yieldItem: AugmentedYieldDto) => {
-      const iconSource = resolveYieldInputAssetIcon(yieldItem)
-      if (iconSource.assetId) return <AssetIcon assetId={iconSource.assetId} size='sm' />
-      return <AssetIcon src={iconSource.src} size='sm' />
-    }, [])
 
     const tableRows = useMemo(() => {
       if (!asset) return null
@@ -114,17 +100,9 @@ export const YieldActivePositions = memo(
               return (
                 <Tr
                   key={`${yieldItem.id}-${validator.address}`}
-                  _hover={{ bg: hoverBg, cursor: 'pointer' }}
+                  _hover={{ bg: 'background.surface.raised.base', cursor: 'pointer' }}
                   onClick={() => handleRowClick(yieldItem.id, validator.address)}
                 >
-                  <Td>
-                    <HStack spacing={3}>
-                      {renderAssetIcon(yieldItem)}
-                      <Text fontWeight='bold' fontSize='sm'>
-                        {yieldItem.metadata.name}
-                      </Text>
-                    </HStack>
-                  </Td>
                   <Td>
                     <HStack spacing={2}>
                       {validator.logoURI ? (
@@ -180,17 +158,9 @@ export const YieldActivePositions = memo(
         return (
           <Tr
             key={yieldItem.id}
-            _hover={{ bg: hoverBg, cursor: 'pointer' }}
+            _hover={{ bg: 'background.surface.raised.base', cursor: 'pointer' }}
             onClick={() => handleRowClick(yieldItem.id)}
           >
-            <Td>
-              <HStack spacing={3}>
-                {renderAssetIcon(yieldItem)}
-                <Text fontWeight='bold' fontSize='sm'>
-                  {yieldItem.metadata.name}
-                </Text>
-              </HStack>
-            </Td>
             <Td>
               <HStack spacing={2}>
                 <Avatar
@@ -232,45 +202,25 @@ export const YieldActivePositions = memo(
           </Tr>
         )
       })
-    }, [
-      activeYields,
-      aggregated,
-      asset,
-      getProviderLogo,
-      handleRowClick,
-      hoverBg,
-      renderAssetIcon,
-      userCurrencyToUsdRate,
-    ])
+    }, [activeYields, aggregated, asset, getProviderLogo, handleRowClick, userCurrencyToUsdRate])
 
     if (!asset) return null
     if (activeYields.length === 0) return null
 
     return (
-      <Box>
-        <Text fontSize='sm' color='gray.500' fontWeight='medium' mb={2}>
-          {yourBalanceLabel}
-        </Text>
-        <TableContainer
-          bg='transparent'
-          borderWidth='1px'
-          borderColor={borderColor}
-          borderRadius='xl'
-        >
-          <Table variant='simple'>
-            <Thead bg='whiteAlpha.50'>
-              <Tr>
-                <Th>{assetColumnHeader}</Th>
-                <Th>{providerColumnHeader}</Th>
-                <Th isNumeric>{apyColumnHeader}</Th>
-                <Th isNumeric>{tvlColumnHeader}</Th>
-                <Th isNumeric>{balanceColumnHeader}</Th>
-              </Tr>
-            </Thead>
-            <Tbody>{tableRows}</Tbody>
-          </Table>
-        </TableContainer>
-      </Box>
+      <TableContainer borderWidth='1px' borderColor='border.base' borderRadius='xl'>
+        <Table variant='simple'>
+          <Thead bg='background.surface.raised.base'>
+            <Tr>
+              <Th>{providerColumnHeader}</Th>
+              <Th isNumeric>{apyColumnHeader}</Th>
+              <Th isNumeric>{tvlColumnHeader}</Th>
+              <Th isNumeric>{balanceColumnHeader}</Th>
+            </Tr>
+          </Thead>
+          <Tbody>{tableRows}</Tbody>
+        </Table>
+      </TableContainer>
     )
   },
 )

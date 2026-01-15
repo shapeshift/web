@@ -19,22 +19,22 @@ export const ViewToggle = memo(({ viewMode, setViewMode }: ViewToggleProps) => {
   const handleSetListView = useCallback(() => setViewMode('list'), [setViewMode])
 
   return (
-    <Flex justify='flex-end'>
-      <ButtonGroup size='md' isAttached variant='outline'>
-        <IconButton
-          aria-label='Grid View'
-          icon={gridIcon}
-          onClick={handleSetGridView}
-          isActive={isGridActive}
-        />
-        <IconButton
-          aria-label='List View'
-          icon={listIcon}
-          onClick={handleSetListView}
-          isActive={isListActive}
-        />
-      </ButtonGroup>
-    </Flex>
+    <ButtonGroup size='md' isAttached variant='outline' width={{ base: 'full', md: 'auto' }}>
+      <IconButton
+        aria-label='Grid View'
+        icon={gridIcon}
+        onClick={handleSetGridView}
+        isActive={isGridActive}
+        flex={{ base: 1, md: 'none' }}
+      />
+      <IconButton
+        aria-label='List View'
+        icon={listIcon}
+        onClick={handleSetListView}
+        isActive={isListActive}
+        flex={{ base: 1, md: 'none' }}
+      />
+    </ButtonGroup>
   )
 })
 

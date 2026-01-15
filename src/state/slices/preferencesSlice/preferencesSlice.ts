@@ -113,7 +113,9 @@ export type FeatureFlags = {
   AddressBook: boolean
   AppRating: boolean
   YieldXyz: boolean
+  YieldsPage: boolean
   YieldMultiAccount: boolean
+  EarnTab: boolean
 }
 
 export type Flag = keyof FeatureFlags
@@ -261,7 +263,9 @@ const initialState: Preferences = {
     AddressBook: getConfig().VITE_FEATURE_ADDRESS_BOOK,
     AppRating: getConfig().VITE_FEATURE_APP_RATING,
     YieldXyz: getConfig().VITE_FEATURE_YIELD_XYZ,
+    YieldsPage: getConfig().VITE_FEATURE_YIELDS_PAGE,
     YieldMultiAccount: getConfig().VITE_FEATURE_YIELD_MULTI_ACCOUNT,
+    EarnTab: getConfig().VITE_FEATURE_EARN_TAB,
   },
   selectedLocale: simpleLocale(),
   hasWalletSeenTcyClaimAlert: {},

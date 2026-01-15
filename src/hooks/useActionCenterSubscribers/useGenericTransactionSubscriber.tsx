@@ -158,6 +158,12 @@ export const useGenericTransactionSubscriber = () => {
         })
       }
 
+      // Invalidate yield balances when yield transactions complete in background
+      if (action.transactionMetadata.displayType === GenericTransactionDisplayType.Yield) {
+        queryClient.invalidateQueries({ queryKey: ['yieldxyz', 'allBalances'] })
+        queryClient.invalidateQueries({ queryKey: ['yieldxyz', 'yields'] })
+      }
+
       // No double-toasty
       if (toast.isActive(action.transactionMetadata.txHash)) return
 

@@ -10,6 +10,7 @@ import {
   SimpleGrid,
   Stat,
   Text,
+  useMediaQuery,
 } from '@chakra-ui/react'
 import type { ColumnDef, Row } from '@tanstack/react-table'
 import { getCoreRowModel, getSortedRowModel, useReactTable } from '@tanstack/react-table'
@@ -21,7 +22,15 @@ import { Amount } from '@/components/Amount/Amount'
 import { AssetIcon } from '@/components/AssetIcon'
 import { ChainIcon } from '@/components/ChainMenu'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
-import { YIELD_NETWORK_TO_CHAIN_ID } from '@/lib/yieldxyz/constants'
+import {
+  COSMOS_ATOM_NATIVE_STAKING_YIELD_ID,
+  FIGMENT_VALIDATOR_LOGO,
+  FIGMENT_VALIDATOR_NAME,
+  SHAPESHIFT_VALIDATOR_LOGO,
+  SHAPESHIFT_VALIDATOR_NAME,
+  SOLANA_SOL_NATIVE_MULTIVALIDATOR_STAKING_YIELD_ID,
+  YIELD_NETWORK_TO_CHAIN_ID,
+} from '@/lib/yieldxyz/constants'
 import type { AugmentedYieldDto, YieldNetwork } from '@/lib/yieldxyz/types'
 import { resolveYieldInputAssetIcon } from '@/lib/yieldxyz/utils'
 import { GradientApy } from '@/pages/Yields/components/GradientApy'
@@ -41,6 +50,7 @@ export const YieldAssetDetails = memo(() => {
   const decodedSymbol = useMemo(() => decodeURIComponent(assetSymbol || ''), [assetSymbol])
   const navigate = useNavigate()
   const translate = useTranslate()
+  const [isMobile] = useMediaQuery('(max-width: 768px)')
   const [searchParams, setSearchParams] = useSearchParams()
 
   const viewParam = useMemo(() => searchParams.get('view'), [searchParams])
@@ -51,9 +61,10 @@ export const YieldAssetDetails = memo(() => {
   const setViewMode = useCallback(
     (mode: 'grid' | 'list') => {
       setSearchParams(prev => {
-        if (mode === 'grid') prev.delete('view')
-        else prev.set('view', mode)
-        return prev
+        const next = new URLSearchParams(prev)
+        if (mode === 'grid') next.delete('view')
+        else next.set('view', mode)
+        return next
       })
     },
     [setSearchParams],
@@ -62,10 +73,12 @@ export const YieldAssetDetails = memo(() => {
     selectedNetwork,
     selectedProvider,
     sortOption,
+    selectedType,
     sorting,
     setSorting,
     handleNetworkChange,
     handleProviderChange,
+    handleTypeChange,
     handleSortChange,
   } = useYieldFilters()
 
@@ -80,11 +93,48 @@ export const YieldAssetDetails = memo(() => {
     [yieldProviders],
   )
 
+  const getYieldDisplayInfo = useCallback(
+    (yieldItem: AugmentedYieldDto) => {
+      const isNativeStaking =
+        yieldItem.mechanics.type === 'staking' && yieldItem.mechanics.requiresValidatorSelection
+
+      if (yieldItem.id === COSMOS_ATOM_NATIVE_STAKING_YIELD_ID) {
+        return {
+          name: SHAPESHIFT_VALIDATOR_NAME,
+          logoURI: SHAPESHIFT_VALIDATOR_LOGO,
+          title: translate('yieldXYZ.nativeStaking'),
+        }
+      }
+      if (
+        yieldItem.id === SOLANA_SOL_NATIVE_MULTIVALIDATOR_STAKING_YIELD_ID ||
+        (yieldItem.id.includes('solana') && yieldItem.id.includes('native'))
+      ) {
+        return {
+          name: FIGMENT_VALIDATOR_NAME,
+          logoURI: FIGMENT_VALIDATOR_LOGO,
+          title: translate('yieldXYZ.nativeStaking'),
+        }
+      }
+      if (isNativeStaking) {
+        return {
+          name: yieldItem.metadata.name,
+          logoURI: yieldItem.metadata.logoURI,
+          title: translate('yieldXYZ.nativeStaking'),
+        }
+      }
+      const provider = yieldProviders?.[yieldItem.providerId]
+      return { name: provider?.name, logoURI: provider?.logoURI }
+    },
+    [translate, yieldProviders],
+  )
+
   const assetYields = useMemo(
     () => (yields?.byAssetSymbol && decodedSymbol ? yields.byAssetSymbol[decodedSymbol] || [] : []),
     [yields, decodedSymbol],
   )
 
+  // Networks available for THIS asset - since we're on an asset-specific page,
+  // we show only networks that have yields for this particular asset (not all global networks)
   const networks = useMemo(
     () =>
       Array.from(new Set(assetYields.map(y => y.network))).map(net => ({
@@ -95,6 +145,7 @@ export const YieldAssetDetails = memo(() => {
     [assetYields],
   )
 
+  // Providers available for THIS asset - shows only providers that offer yields for this asset
   const providers = useMemo(
     () =>
       Array.from(new Set(assetYields.map(y => y.providerId))).map(pId => ({
@@ -105,14 +156,25 @@ export const YieldAssetDetails = memo(() => {
     [assetYields, getProviderLogo],
   )
 
+  // Types available for THIS asset
+  const types = useMemo(
+    () =>
+      Array.from(new Set(assetYields.map(y => y.mechanics.type))).map(type => ({
+        id: type,
+        name: type.charAt(0).toUpperCase() + type.slice(1).replace(/-/g, ' '),
+      })),
+    [assetYields],
+  )
+
   const filteredYields = useMemo(
     () =>
       assetYields.filter(y => {
         if (selectedNetwork && y.network !== selectedNetwork) return false
         if (selectedProvider && y.providerId !== selectedProvider) return false
+        if (selectedType && y.mechanics.type !== selectedType) return false
         return true
       }),
-    [assetYields, selectedNetwork, selectedProvider],
+    [assetYields, selectedNetwork, selectedProvider, selectedType],
   )
 
   const assetInfo = useMemo(() => {
@@ -287,6 +349,8 @@ export const YieldAssetDetails = memo(() => {
     onSortingChange: setSorting,
   })
 
+  const sortedRows = table.getSortedRowModel().rows
+
   const handleYieldClick = useCallback(
     (yieldId: string) => {
       const balances = allBalances?.[yieldId]
@@ -320,23 +384,20 @@ export const YieldAssetDetails = memo(() => {
           <Heading size='lg'>
             {translate('yieldXYZ.assetYields', { asset: assetInfo.assetName })}
           </Heading>
-          <Text color='text.subtle'>
-            {translate('yieldXYZ.opportunitiesAvailable', { count: assetYields.length })}
-          </Text>
         </Box>
       </Flex>
     )
-  }, [assetInfo, assetYields.length, translate])
+  }, [assetInfo, translate])
 
   const loadingGridElement = useMemo(
     () => (
-      <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={6}>
+      <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={{ base: 2, md: 6 }}>
         {Array.from({ length: 6 }).map((_, i) => (
-          <YieldItemSkeleton key={i} variant='card' />
+          <YieldItemSkeleton key={i} variant={isMobile ? 'mobile' : 'card'} />
         ))}
       </SimpleGrid>
     ),
-    [],
+    [isMobile],
   )
 
   const loadingListElement = useMemo(
@@ -352,30 +413,35 @@ export const YieldAssetDetails = memo(() => {
 
   const gridViewElement = useMemo(
     () => (
-      <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={6}>
-        {table.getSortedRowModel().rows.map(row => (
-          <YieldItem
-            key={row.original.id}
-            data={{
-              type: 'single',
-              yieldItem: row.original,
-              providerIcon: getProviderLogo(row.original.providerId),
-            }}
-            variant='card'
-            onEnter={() => handleYieldClick(row.original.id)}
-            userBalanceUsd={
-              allBalances?.[row.original.id]
-                ? allBalances[row.original.id].reduce(
-                    (sum, b) => sum.plus(bnOrZero(b.amountUsd)),
-                    bnOrZero(0),
-                  )
-                : undefined
-            }
-          />
-        ))}
+      <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={{ base: 2, md: 6 }}>
+        {sortedRows.map(row => {
+          const displayInfo = getYieldDisplayInfo(row.original)
+          return (
+            <YieldItem
+              key={row.original.id}
+              data={{
+                type: 'single',
+                yieldItem: row.original,
+                providerIcon: displayInfo.logoURI,
+                providerName: displayInfo.name,
+              }}
+              variant={isMobile ? 'mobile' : 'card'}
+              onEnter={() => handleYieldClick(row.original.id)}
+              titleOverride={displayInfo.title}
+              userBalanceUsd={
+                allBalances?.[row.original.id]
+                  ? allBalances[row.original.id].reduce(
+                      (sum, b) => sum.plus(bnOrZero(b.amountUsd)),
+                      bnOrZero(0),
+                    )
+                  : undefined
+              }
+            />
+          )
+        })}
       </SimpleGrid>
     ),
-    [allBalances, getProviderLogo, handleYieldClick, table],
+    [allBalances, getYieldDisplayInfo, handleYieldClick, isMobile, sortedRows],
   )
 
   const listViewElement = useMemo(
@@ -384,14 +450,19 @@ export const YieldAssetDetails = memo(() => {
         <YieldTable table={table} isLoading={false} onRowClick={handleRowClick} />
       </Box>
     ),
-    [handleRowClick, table],
+    // sortedRows needed to trigger re-memoization when filtered data changes (table ref is stable)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [handleRowClick, sortedRows, table],
   )
 
+  // Force grid view (which renders mobile cards) on mobile
+  const effectiveViewMode = isMobile ? 'grid' : viewMode
+
   const contentElement = useMemo(() => {
-    if (isLoading) return viewMode === 'grid' ? loadingGridElement : loadingListElement
+    if (isLoading) return effectiveViewMode === 'grid' ? loadingGridElement : loadingListElement
     if (filteredYields.length === 0)
       return <Text>{translate('yieldXYZ.noYieldsMatchingFilters')}</Text>
-    return viewMode === 'grid' ? gridViewElement : listViewElement
+    return effectiveViewMode === 'grid' ? gridViewElement : listViewElement
   }, [
     filteredYields.length,
     gridViewElement,
@@ -400,11 +471,11 @@ export const YieldAssetDetails = memo(() => {
     loadingGridElement,
     loadingListElement,
     translate,
-    viewMode,
+    effectiveViewMode,
   ])
 
   return (
-    <Container maxW='1200px' py={8}>
+    <Container maxW='1200px' py={{ base: 4, md: 8 }} px={{ base: 4, md: 6 }}>
       <Button
         leftIcon={<ArrowBackIcon />}
         variant='ghost'
@@ -415,27 +486,28 @@ export const YieldAssetDetails = memo(() => {
       </Button>
       {assetHeaderElement}
       <Flex
-        justify='space-between'
-        align='center'
+        justify='flex-end'
+        align={{ base: 'stretch', md: 'center' }}
         mb={6}
         gap={4}
         direction={{ base: 'column', md: 'row' }}
+        width='full'
+        display={isMobile ? 'none' : 'flex'}
       >
-        <Box />
-        <HStack spacing={4} width={{ base: 'full', md: 'auto' }} justify='flex-end'>
-          <YieldFilters
-            networks={networks}
-            selectedNetwork={selectedNetwork}
-            onSelectNetwork={handleNetworkChange}
-            providers={providers}
-            selectedProvider={selectedProvider}
-            onSelectProvider={handleProviderChange}
-            sortOption={sortOption}
-            onSortChange={handleSortChange}
-            mb={0}
-          />
-          <ViewToggle viewMode={viewMode} setViewMode={setViewMode} />
-        </HStack>
+        <YieldFilters
+          networks={networks}
+          selectedNetwork={selectedNetwork}
+          onSelectNetwork={handleNetworkChange}
+          providers={providers}
+          selectedProvider={selectedProvider}
+          onSelectProvider={handleProviderChange}
+          types={types}
+          selectedType={selectedType}
+          onSelectType={handleTypeChange}
+          sortOption={sortOption}
+          onSortChange={handleSortChange}
+        />
+        <ViewToggle viewMode={viewMode} setViewMode={setViewMode} />
       </Flex>
       {contentElement}
     </Container>

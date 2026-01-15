@@ -2,6 +2,7 @@ import {
   Box,
   Button,
   Flex,
+  HStack,
   Icon,
   SimpleGrid,
   Stat,
@@ -9,9 +10,10 @@ import {
   StatLabel,
   StatNumber,
   Text,
+  Tooltip,
 } from '@chakra-ui/react'
 import { memo, useMemo } from 'react'
-import { FaChartPie, FaMoon } from 'react-icons/fa'
+import { FaChartPie, FaInfoCircle, FaMoon } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 
 import { Amount } from '@/components/Amount/Amount'
@@ -31,6 +33,8 @@ type YieldOpportunityStatsProps = {
   allYields: AugmentedYieldDto[] | undefined
   isMyOpportunities?: boolean
   onToggleMyOpportunities?: () => void
+  isConnected: boolean
+  isMobile?: boolean
 }
 
 export const YieldOpportunityStats = memo(function YieldOpportunityStats({
@@ -39,6 +43,8 @@ export const YieldOpportunityStats = memo(function YieldOpportunityStats({
   allYields,
   isMyOpportunities,
   onToggleMyOpportunities,
+  isConnected,
+  isMobile,
 }: YieldOpportunityStatsProps) {
   const translate = useTranslate()
   const userCurrencyToUsdRate = useAppSelector(selectUserCurrencyToUsdRate)
@@ -55,7 +61,7 @@ export const YieldOpportunityStats = memo(function YieldOpportunityStats({
   }, [positions, balances])
 
   const idleValueUsd = useMemo(() => {
-    if (!allYields) return bnOrZero(0)
+    if (!isConnected || !allYields) return bnOrZero(0)
 
     const yieldableAssetIds = new Set(
       allYields.flatMap(
@@ -70,11 +76,11 @@ export const YieldOpportunityStats = memo(function YieldOpportunityStats({
       const bal = portfolioBalances[assetId]
       return bal ? totalIdle.plus(bnOrZero(bal)) : totalIdle
     }, bnOrZero(0))
-  }, [allYields, portfolioBalances])
+  }, [isConnected, allYields, portfolioBalances])
 
   // Calculate weighted APY and potential earnings based on user's actual held assets
   const { weightedApy, potentialEarningsValue } = useMemo(() => {
-    if (!yields?.byInputAssetId || !portfolioBalances) {
+    if (!isConnected || !yields?.byInputAssetId || !portfolioBalances) {
       return { weightedApy: 0, potentialEarningsValue: bnOrZero(0) }
     }
 
@@ -97,7 +103,7 @@ export const YieldOpportunityStats = memo(function YieldOpportunityStats({
       : 0
 
     return { weightedApy: avgApy, potentialEarningsValue: totalEarnings }
-  }, [yields?.byInputAssetId, portfolioBalances])
+  }, [isConnected, yields?.byInputAssetId, portfolioBalances])
 
   const hasActiveDeposits = useMemo(() => activeValueUsd.gt(0), [activeValueUsd])
 
@@ -158,7 +164,7 @@ export const YieldOpportunityStats = memo(function YieldOpportunityStats({
         </Box>
         <Stat>
           <StatLabel fontSize='md' color='blue.200'>
-            {translate('yieldXYZ.activeDeposits')}
+            {translate('yieldXYZ.activePositions')}
           </StatLabel>
           <StatNumber fontSize='3xl' fontWeight='bold' color='white'>
             <Amount.Fiat value={activeValueFormatted} abbreviated />
@@ -187,6 +193,8 @@ export const YieldOpportunityStats = memo(function YieldOpportunityStats({
     )
   }, [onToggleMyOpportunities, buttonBg, buttonHoverBg, buttonText])
 
+  if (isMobile) return null
+
   return (
     <SimpleGrid columns={{ base: 1, md: 3 }} spacing={4} mb={8}>
       {activeDepositsCard}
@@ -207,13 +215,29 @@ export const YieldOpportunityStats = memo(function YieldOpportunityStats({
         <Flex justifyContent='space-between' alignItems='flex-start'>
           <Stat>
             <StatLabel fontSize='md' color='purple.200'>
-              {translate('yieldXYZ.availableToEarn')}
+              <HStack spacing={1}>
+                <Text>{translate('yieldXYZ.availableToEarn')}</Text>
+                <Tooltip label={translate('yieldXYZ.availableToEarnTooltip')} hasArrow>
+                  <Box as='span' cursor='help'>
+                    <Icon as={FaInfoCircle} boxSize={3} color='purple.300' />
+                  </Box>
+                </Tooltip>
+              </HStack>
             </StatLabel>
             <StatNumber fontSize='3xl' fontWeight='bold' color='white'>
               <Amount.Fiat value={idleValueFormatted} abbreviated />
             </StatNumber>
             <StatHelpText color='purple.300'>
-              {translate('yieldXYZ.idleAssetsEarning', { apy: weightedApyFormatted })}
+              <HStack spacing={1}>
+                <Text>
+                  {translate('yieldXYZ.idleAssetsEarning', { apy: weightedApyFormatted })}
+                </Text>
+                <Tooltip label={translate('yieldXYZ.apyTooltip')} hasArrow>
+                  <Box as='span' cursor='help'>
+                    <Icon as={FaInfoCircle} boxSize={3} color='purple.400' />
+                  </Box>
+                </Tooltip>
+              </HStack>
             </StatHelpText>
           </Stat>
           <Flex
@@ -229,15 +253,22 @@ export const YieldOpportunityStats = memo(function YieldOpportunityStats({
             minW='200px'
           >
             <Box textAlign='right'>
-              <Text
-                fontSize='xs'
-                fontWeight='bold'
-                color='purple.100'
-                textTransform='uppercase'
-                letterSpacing='wider'
-              >
-                {translate('yieldXYZ.potentialEarnings')}
-              </Text>
+              <HStack spacing={1} justify='flex-end'>
+                <Text
+                  fontSize='xs'
+                  fontWeight='bold'
+                  color='purple.100'
+                  textTransform='uppercase'
+                  letterSpacing='wider'
+                >
+                  {translate('yieldXYZ.potentialEarnings')}
+                </Text>
+                <Tooltip label={translate('yieldXYZ.potentialEarningsTooltip')} hasArrow>
+                  <Box as='span' cursor='help'>
+                    <Icon as={FaInfoCircle} boxSize={3} color='purple.200' />
+                  </Box>
+                </Tooltip>
+              </HStack>
               <Flex fontSize='xl' fontWeight='bold' color='white' whiteSpace='nowrap'>
                 <Amount.Fiat value={potentialEarnings} abbreviated />
                 <Text ml={1}>{translate('yieldXYZ.perYear')}</Text>

@@ -6,12 +6,12 @@ import {
   IconButton,
   Menu,
   MenuButton,
-  MenuItem,
+  MenuItemOption,
   MenuList,
+  MenuOptionGroup,
   Stack,
   Text,
   Tooltip,
-  useColorModeValue,
 } from '@chakra-ui/react'
 import type { ChainId } from '@shapeshiftoss/caip'
 import React, { memo, useCallback, useMemo } from 'react'
@@ -36,6 +36,11 @@ export type ProviderOption = {
   icon?: string
 }
 
+export type TypeOption = {
+  id: string
+  name: string
+}
+
 type FilterMenuProps = {
   label: string
   value: string | null
@@ -51,73 +56,44 @@ type FilterMenuProps = {
 
 const chevronDownIcon = <ChevronDownIcon />
 
+const ALL_OPTION_VALUE = '__all__'
+
 const FilterMenu = memo(({ label, value, options, onSelect, renderIcon }: FilterMenuProps) => {
   const selectedOption = useMemo(() => options.find(o => o.id === value), [options, value])
   const displayLabel = useMemo(
     () => (selectedOption ? selectedOption.name : label),
     [selectedOption, label],
   )
-  const bg = useColorModeValue('white', 'gray.800')
-  const borderColor = useColorModeValue('gray.200', 'gray.700')
-  const selectedBg = useColorModeValue('blue.50', 'blue.900')
-  const selectedColor = useColorModeValue('blue.600', 'blue.200')
-  const hoverBg = useColorModeValue('gray.50', 'gray.750')
-  const activeBg = useColorModeValue('gray.100', 'gray.700')
-
-  const handleSelectAll = useCallback(() => onSelect(null), [onSelect])
-
-  const hoverStyle = useMemo(() => ({ bg: hoverBg }), [hoverBg])
-  const activeStyle = useMemo(() => ({ bg: activeBg }), [activeBg])
 
   const selectedIcon = useMemo(
     () => (selectedOption && renderIcon ? renderIcon(selectedOption) : null),
     [selectedOption, renderIcon],
   )
 
-  const allItemBg = useMemo(() => (value === null ? selectedBg : undefined), [value, selectedBg])
-  const allItemColor = useMemo(
-    () => (value === null ? selectedColor : undefined),
-    [value, selectedColor],
+  const handleChange = useCallback(
+    (newValue: string | string[]) => {
+      const selectedValue = Array.isArray(newValue) ? newValue[0] : newValue
+      onSelect(selectedValue === ALL_OPTION_VALUE ? null : selectedValue)
+    },
+    [onSelect],
   )
-  const allItemFontWeight = useMemo(() => (value === null ? 'semibold' : undefined), [value])
 
   const menuItems = useMemo(
     () =>
-      options.map(opt => {
-        const isSelected = value === opt.id
-        return (
-          <MenuItem
-            key={opt.id}
-            onClick={() => onSelect(opt.id)}
-            bg={isSelected ? selectedBg : undefined}
-            color={isSelected ? selectedColor : undefined}
-            fontWeight={isSelected ? 'semibold' : undefined}
-          >
-            <HStack spacing={3}>
-              {renderIcon && renderIcon(opt)}
-              <Text>{opt.name}</Text>
-            </HStack>
-          </MenuItem>
-        )
-      }),
-    [options, value, selectedBg, selectedColor, renderIcon, onSelect],
+      options.map(opt => (
+        <MenuItemOption key={opt.id} value={opt.id}>
+          <HStack spacing={3}>
+            {renderIcon && renderIcon(opt)}
+            <Text>{opt.name}</Text>
+          </HStack>
+        </MenuItemOption>
+      )),
+    [options, renderIcon],
   )
 
   return (
     <Menu>
-      <MenuButton
-        as={Button}
-        rightIcon={chevronDownIcon}
-        bg={bg}
-        borderWidth='1px'
-        borderColor={borderColor}
-        variant='outline'
-        size='md'
-        textAlign='left'
-        minW='160px'
-        _hover={hoverStyle}
-        _active={activeStyle}
-      >
+      <MenuButton as={Button} rightIcon={chevronDownIcon} minW='160px'>
         <HStack spacing={2}>
           {selectedIcon}
           <Text isTruncated maxW='120px'>
@@ -125,16 +101,11 @@ const FilterMenu = memo(({ label, value, options, onSelect, renderIcon }: Filter
           </Text>
         </HStack>
       </MenuButton>
-      <MenuList zIndex={10} maxH='300px' overflowY='auto'>
-        <MenuItem
-          onClick={handleSelectAll}
-          bg={allItemBg}
-          color={allItemColor}
-          fontWeight={allItemFontWeight}
-        >
-          {label}
-        </MenuItem>
-        {menuItems}
+      <MenuList zIndex='banner' maxH='300px' overflowY='auto'>
+        <MenuOptionGroup type='radio' value={value ?? ALL_OPTION_VALUE} onChange={handleChange}>
+          <MenuItemOption value={ALL_OPTION_VALUE}>{label}</MenuItemOption>
+          {menuItems}
+        </MenuOptionGroup>
       </MenuList>
     </Menu>
   )
@@ -147,6 +118,9 @@ type YieldFiltersProps = {
   providers: ProviderOption[]
   selectedProvider: string | null
   onSelectProvider: (id: string | null) => void
+  types: TypeOption[]
+  selectedType: string | null
+  onSelectType: (id: string | null) => void
   sortOption: SortOption
   onSortChange: (option: SortOption) => void
 } & StackProps
@@ -159,15 +133,14 @@ export const YieldFilters = memo(
     providers,
     selectedProvider,
     onSelectProvider,
+    types,
+    selectedType,
+    onSelectType,
     sortOption,
     onSortChange,
     ...props
   }: YieldFiltersProps) => {
     const translate = useTranslate()
-    const bg = useColorModeValue('white', 'gray.800')
-    const borderColor = useColorModeValue('gray.200', 'gray.700')
-    const hoverBg = useColorModeValue('gray.50', 'gray.750')
-    const activeBg = useColorModeValue('gray.100', 'gray.700')
 
     const sortOptions = useMemo(
       () => [
@@ -183,6 +156,7 @@ export const YieldFilters = memo(
 
     const allNetworksLabel = useMemo(() => translate('yieldXYZ.allNetworks'), [translate])
     const allProvidersLabel = useMemo(() => translate('yieldXYZ.allProviders'), [translate])
+    const allTypesLabel = useMemo(() => translate('yieldXYZ.allTypes'), [translate])
 
     const renderNetworkIcon = useCallback(
       (opt: { id: string; name: string; icon?: string; chainId?: ChainId }) => {
@@ -204,26 +178,31 @@ export const YieldFilters = memo(
       return <FaSortAmountDown />
     }, [sortOption])
 
-    const hoverStyle = useMemo(() => ({ bg: hoverBg }), [hoverBg])
-    const activeStyle = useMemo(() => ({ bg: activeBg }), [activeBg])
+    const handleSortChange = useCallback(
+      (newValue: string | string[]) => {
+        const selectedValue = Array.isArray(newValue) ? newValue[0] : newValue
+        onSortChange(selectedValue as SortOption)
+      },
+      [onSortChange],
+    )
 
     const sortMenuItems = useMemo(
       () =>
         sortOptions.map(opt => (
-          <MenuItem
-            key={opt.value}
-            onClick={() => onSortChange(opt.value)}
-            color={sortOption === opt.value ? 'blue.500' : 'inherit'}
-            fontWeight={sortOption === opt.value ? 'bold' : 'normal'}
-          >
+          <MenuItemOption key={opt.value} value={opt.value}>
             {opt.label}
-          </MenuItem>
+          </MenuItemOption>
         )),
-      [sortOptions, sortOption, onSortChange],
+      [sortOptions],
     )
 
     return (
-      <Stack direction={{ base: 'column', md: 'row' }} spacing={4} {...props}>
+      <Stack
+        direction={{ base: 'column', md: 'row' }}
+        spacing={4}
+        width={{ base: 'full', md: 'auto' }}
+        {...props}
+      >
         <FilterMenu
           label={allNetworksLabel}
           value={selectedNetwork}
@@ -238,23 +217,25 @@ export const YieldFilters = memo(
           onSelect={onSelectProvider}
           renderIcon={renderProviderIcon}
         />
+        <FilterMenu
+          label={allTypesLabel}
+          value={selectedType}
+          options={types}
+          onSelect={onSelectType}
+        />
         <Menu>
           <Tooltip label='Sort' hasArrow>
             <MenuButton
               as={IconButton}
               aria-label='Sort'
               icon={sortIcon}
-              bg={bg}
-              borderWidth='1px'
-              borderColor={borderColor}
-              variant='outline'
-              size='md'
-              _hover={hoverStyle}
-              _active={activeStyle}
+              width={{ base: 'full', md: 'auto' }}
             />
           </Tooltip>
-          <MenuList zIndex={10} maxH='300px' overflowY='auto'>
-            {sortMenuItems}
+          <MenuList zIndex='banner' maxH='300px' overflowY='auto'>
+            <MenuOptionGroup type='radio' value={sortOption} onChange={handleSortChange}>
+              {sortMenuItems}
+            </MenuOptionGroup>
           </MenuList>
         </Menu>
       </Stack>

@@ -52,6 +52,13 @@ export const YieldDetail = memo(() => {
   )
 
   const { data: yieldItem, isLoading, error } = useYield(yieldId ?? '')
+
+  const selectorAssetId = useMemo(() => {
+    if (yieldItem?.token.assetId) return yieldItem.token.assetId
+    if (yieldItem?.inputTokens?.[0]?.assetId) return yieldItem.inputTokens[0].assetId
+    return undefined
+  }, [yieldItem?.inputTokens, yieldItem?.token.assetId])
+
   const availableAccounts = useAppSelector(state =>
     selectorAssetId
       ? selectPortfolioAccountIdsByAssetIdFilter(state, { assetId: selectorAssetId })
@@ -75,10 +82,6 @@ export const YieldDetail = memo(() => {
   const isBalancesLoading = !allBalancesData && isBalancesFetching
 
   const isYieldMultiAccountEnabled = useFeatureFlag('YieldMultiAccount')
-  const selectorAssetId = useMemo(
-    () => yieldItem?.token.assetId ?? yieldItem?.inputTokens?.[0]?.assetId,
-    [yieldItem?.inputTokens, yieldItem?.token.assetId],
-  )
 
   useEffect(() => {
     if (!selectedAccountId) return

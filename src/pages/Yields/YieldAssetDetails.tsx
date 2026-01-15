@@ -102,6 +102,12 @@ export const YieldAssetDetails = memo(() => {
   const { data: yieldProviders } = useYieldProviders()
   const userCurrencyToUsdRate = useAppSelector(selectUserCurrencyToUsdRate)
 
+  const assetInfo = useMemo(() => {
+    const group = yields?.assetGroups?.find(g => g.symbol === decodedSymbol)
+    if (!group) return null
+    return { assetName: group.name, assetIcon: group.icon, assetId: group.assetId }
+  }, [yields?.assetGroups, decodedSymbol])
+
   const isYieldMultiAccountEnabled = useFeatureFlag('YieldMultiAccount')
   const accountIdsForAsset = useAppSelector(state =>
     assetInfo?.assetId
@@ -227,12 +233,6 @@ export const YieldAssetDetails = memo(() => {
       }),
     [assetYields, selectedNetwork, selectedProvider, selectedType],
   )
-
-  const assetInfo = useMemo(() => {
-    const group = yields?.assetGroups?.find(g => g.symbol === decodedSymbol)
-    if (!group) return null
-    return { assetName: group.name, assetIcon: group.icon, assetId: group.assetId }
-  }, [yields?.assetGroups, decodedSymbol])
 
   const columns = useMemo<ColumnDef<AugmentedYieldDto>[]>(
     () => [

@@ -1,6 +1,7 @@
 import type { ChainId } from '@shapeshiftoss/caip'
 
 import {
+  COSMOS_NETWORK_FALLBACK_APR,
   isSupportedYieldNetwork,
   SHAPESHIFT_COSMOS_VALIDATOR_ADDRESS,
   YIELD_NETWORK_TO_CHAIN_ID,
@@ -16,12 +17,62 @@ export const yieldNetworkToChainId = (network: string): ChainId | undefined => {
 
 const TX_TITLE_PATTERNS: [RegExp, string][] = [
   [/approv/i, 'Approve'],
-  [/supply|deposit|enter/i, 'Deposit'],
-  [/withdraw|exit/i, 'Withdraw'],
+  [/supply|deposit|enter/i, 'Enter'],
+  [/withdraw|exit|unstake|undelegate/i, 'Exit'],
   [/claim/i, 'Claim'],
-  [/unstake/i, 'Unstake'],
-  [/stake/i, 'Stake'],
+  [/stake|delegate/i, 'Enter'],
+  [/bridge/i, 'Bridge'],
+  [/swap/i, 'Swap'],
 ]
+
+// Map of transaction types to user-friendly button labels
+// These should match the action verbs shown in the step row (without the asset symbol)
+// Yield.xyz uses Enter/Exit terminology consistently
+const TX_TYPE_TO_LABEL: Record<string, string> = {
+  APPROVE: 'Approve',
+  APPROVAL: 'Approve',
+  DELEGATE: 'Enter', // Monad uses DELEGATE for staking
+  UNDELEGATE: 'Exit', // Monad uses UNDELEGATE for unstaking
+  STAKE: 'Enter',
+  UNSTAKE: 'Exit',
+  DEPOSIT: 'Enter',
+  WITHDRAW: 'Exit',
+  SUPPLY: 'Enter',
+  EXIT: 'Exit',
+  ENTER: 'Enter',
+  BRIDGE: 'Bridge',
+  SWAP: 'Swap',
+  CLAIM: 'Claim',
+  CLAIM_REWARDS: 'Claim',
+  TRANSFER: 'Transfer',
+}
+
+/**
+ * Gets a clean button label from a transaction type or title.
+ * Used for the main CTA button in the yield action modal.
+ */
+export const getTransactionButtonText = (
+  type: string | undefined,
+  title: string | undefined,
+): string => {
+  // First try to use the transaction type directly
+  if (type) {
+    const normalized = type.toUpperCase().replace(/[_-]/g, '_')
+    if (TX_TYPE_TO_LABEL[normalized]) {
+      return TX_TYPE_TO_LABEL[normalized]
+    }
+    // Fallback: capitalize the type
+    return type.charAt(0).toUpperCase() + type.slice(1).toLowerCase()
+  }
+
+  // Fall back to parsing the title
+  if (title) {
+    const match = TX_TITLE_PATTERNS.find(([pattern]) => pattern.test(title))
+    if (match) return match[1]
+  }
+
+  return 'Confirm'
+}
 
 export const formatYieldTxTitle = (title: string, assetSymbol: string): string => {
   const normalized = title.replace(/ transaction$/i, '').toLowerCase()
@@ -97,3 +148,15 @@ export const sortValidators = (
 
 export const toUserCurrency = (usdAmount: string | number, rate: string | number): string =>
   bnOrZero(usdAmount).times(rate).toFixed()
+
+export const ensureValidatorApr = (validator: ValidatorDto): ValidatorDto =>
+  validator.rewardRate?.total
+    ? validator
+    : {
+        ...validator,
+        rewardRate: {
+          total: COSMOS_NETWORK_FALLBACK_APR,
+          rateType: 'APR' as const,
+          components: validator.rewardRate?.components ?? [],
+        },
+      }

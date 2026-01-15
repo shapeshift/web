@@ -1,5 +1,6 @@
 import { Avatar, Box, Button, Flex, HStack, Icon, Input, Skeleton, Text } from '@chakra-ui/react'
 import { useQueryClient } from '@tanstack/react-query'
+import type { ChangeEvent } from 'react'
 import { memo, useCallback, useMemo, useState } from 'react'
 import { TbSwitchVertical } from 'react-icons/tb'
 import type { NumberFormatValues } from 'react-number-format'
@@ -71,7 +72,7 @@ const unselectedHoverSx = { bg: 'background.surface.raised.hover' }
 
 type CryptoAmountInputProps = {
   value?: string
-  onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void
+  onChange?: (e: ChangeEvent<HTMLInputElement>) => void
   placeholder?: string
   [key: string]: unknown
 }

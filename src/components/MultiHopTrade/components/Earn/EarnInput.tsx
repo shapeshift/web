@@ -20,6 +20,7 @@ import { TradeAssetSelect } from '@/components/AssetSelection/AssetSelection'
 import { FormDivider } from '@/components/FormDivider'
 import { TradeInputTab } from '@/components/MultiHopTrade/types'
 import { useDebounce } from '@/hooks/useDebounce/useDebounce'
+import { useLocaleFormatter } from '@/hooks/useLocaleFormatter/useLocaleFormatter'
 import { useModal } from '@/hooks/useModal/useModal'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bnOrZero, positiveOrZero } from '@/lib/bignumber/bignumber'
@@ -73,6 +74,9 @@ export const EarnInput = memo(
     const navigate = useNavigate()
     const dispatch = useAppDispatch()
     const [isSmallerThanMd] = useMediaQuery(`(max-width: ${breakpoints.md})`, { ssr: false })
+    const {
+      number: { toFiat },
+    } = useLocaleFormatter()
 
     const {
       state: { isConnected, wallet },
@@ -133,10 +137,11 @@ export const EarnInput = memo(
     useEffect(() => {
       if (!sellAsset.assetId || !selectedYieldId) return
 
+      const encodedAssetId = encodeURIComponent(sellAsset.assetId)
       const encodedYieldId = encodeURIComponent(selectedYieldId)
       const baseUnit = sellAmountCryptoBaseUnit ?? '0'
 
-      navigate(`/earn/${sellAsset.assetId}/${encodedYieldId}/${baseUnit}`, { replace: true })
+      navigate(`/earn/${encodedAssetId}/${encodedYieldId}/${baseUnit}`, { replace: true })
     }, [sellAsset.assetId, selectedYieldId, sellAmountCryptoBaseUnit, navigate])
 
     const selectedYield = useMemo(() => {
@@ -201,8 +206,11 @@ export const EarnInput = memo(
       }
 
       if (fieldNames.has('validatorAddress') && yieldChainId) {
-        args.validatorAddress =
-          selectedValidatorAddress || DEFAULT_NATIVE_VALIDATOR_BY_CHAIN_ID[yieldChainId]
+        const validatorAddress =
+          selectedValidatorAddress ?? DEFAULT_NATIVE_VALIDATOR_BY_CHAIN_ID[yieldChainId]
+        if (validatorAddress) {
+          args.validatorAddress = validatorAddress
+        }
       }
 
       if (fieldNames.has('cosmosPubKey') && yieldChainId === cosmosChainId) {
@@ -420,6 +428,10 @@ export const EarnInput = memo(
         .toString()
     }, [estimatedYearlyEarnings, sellAssetUserCurrencyRate])
 
+    const placeholder = useMemo(() => {
+      return toFiat(0, { omitDecimalTrailingZeros: true })
+    }, [toFiat])
+
     const bodyContent = useMemo(
       () => (
         <Flex flexDir='column' height='100%' minHeight={0} overflow='auto'>
@@ -429,7 +441,7 @@ export const EarnInput = memo(
               asset={sellAsset}
               isInputtingFiatSellAmount={isInputtingFiatSellAmount}
               isLoading={isLoadingYields}
-              placeholder={isInputtingFiatSellAmount ? '$0.00' : '0'}
+              placeholder={isInputtingFiatSellAmount ? placeholder : '0'}
               label={translate('earn.stakeAmount')}
               labelPostFix={sellTradeAssetSelect}
               percentOptions={percentOptions}
@@ -458,6 +470,7 @@ export const EarnInput = memo(
         sellAsset,
         isInputtingFiatSellAmount,
         isLoadingYields,
+        placeholder,
         translate,
         sellTradeAssetSelect,
         percentOptions,

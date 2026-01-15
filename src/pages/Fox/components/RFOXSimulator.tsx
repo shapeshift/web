@@ -1,7 +1,7 @@
 import type { FlexProps } from '@chakra-ui/react'
 import { Card, CardBody, Heading, SimpleGrid, Skeleton, Stack } from '@chakra-ui/react'
 import type { AssetId } from '@shapeshiftoss/caip'
-import { thorchainAssetId } from '@shapeshiftoss/caip'
+import { usdcOnArbitrumOneAssetId } from '@shapeshiftoss/caip'
 import { useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 
@@ -35,14 +35,15 @@ export const RFOXSimulator = ({ stakingAssetId }: RFOXSimulatorProps) => {
   const [shapeShiftRevenue, setShapeShiftRevenue] = useState(DEFAULT_SHAPESHIFT_REVENUES)
   const [depositAmount, setDepositAmount] = useState(DEFAULT_DEPOSIT_AMOUNT)
 
+  const stakingAsset = useAppSelector(state => selectAssetById(state, stakingAssetId))
   const stakingAssetUsdPrice = useAppSelector(state =>
     selectUsdRateByAssetId(state, stakingAssetId),
   )
-  const runeUsdPrice = useAppSelector(state => selectUsdRateByAssetId(state, thorchainAssetId))
 
-  const stakingAsset = useAppSelector(state => selectAssetById(state, stakingAssetId))
-
-  const runeAsset = useAppSelector(state => selectAssetById(state, thorchainAssetId))
+  const usdcAsset = useAppSelector(state => selectAssetById(state, usdcOnArbitrumOneAssetId))
+  const usdcUsdPrice = useAppSelector(state =>
+    selectUsdRateByAssetId(state, usdcOnArbitrumOneAssetId),
+  )
 
   const totalStakedCryptoResult = useTotalStakedQuery<string>({
     stakingAssetId,
@@ -75,7 +76,7 @@ export const RFOXSimulator = ({ stakingAssetId }: RFOXSimulatorProps) => {
   const estimatedRewards = useMemo(() => {
     if (!latestEpoch) return
     if (!poolShare) return
-    if (!runeUsdPrice) return
+    if (!usdcUsdPrice) return
 
     // @TODO: we might not need this optional chain here if the data exists
     const distributionRate =
@@ -85,11 +86,11 @@ export const RFOXSimulator = ({ stakingAssetId }: RFOXSimulatorProps) => {
     return bnOrZero(shapeShiftRevenue)
       .times(distributionRate)
       .times(poolShare)
-      .div(runeUsdPrice)
+      .div(usdcUsdPrice)
       .toFixed(2)
-  }, [latestEpoch, shapeShiftRevenue, runeUsdPrice, stakingAssetId, poolShare])
+  }, [latestEpoch, shapeShiftRevenue, usdcUsdPrice, stakingAssetId, poolShare])
 
-  if (!(runeAsset && stakingAsset)) return null
+  if (!(usdcAsset && stakingAsset)) return null
 
   return (
     <Stack
@@ -140,7 +141,7 @@ export const RFOXSimulator = ({ stakingAssetId }: RFOXSimulatorProps) => {
                   <Amount.Crypto
                     fontSize='24px'
                     value={estimatedRewards}
-                    symbol={runeAsset.symbol ?? ''}
+                    symbol={usdcAsset.symbol ?? ''}
                   />
                 </Skeleton>
               </CardBody>

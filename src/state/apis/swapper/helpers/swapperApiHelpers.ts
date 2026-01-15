@@ -121,7 +121,11 @@ export const checkTradingActivity = async (
         gcTime: 0,
       })
 
-      const inboundAddressResponse = selectInboundAddressData(inboundAddresses, assetId)
+      const inboundAddressResponse = selectInboundAddressData(
+        inboundAddresses,
+        assetId,
+        swapperName,
+      )
 
       const mimir = await queryClient.fetchQuery({
         ...getMimirQuery(chainId),

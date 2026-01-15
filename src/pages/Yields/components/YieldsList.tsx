@@ -674,6 +674,7 @@ export const YieldsList = memo(() => {
           {availableYields.map(item => {
             const positionBalanceUsd = getYieldPositionBalanceUsd(item.yield.id)
             const displayInfo = getYieldDisplayInfo(item.yield)
+            const inputSymbol = item.yield.inputTokens?.[0]?.symbol ?? item.yield.token.symbol
             return (
               <YieldItem
                 key={item.yield.id}
@@ -686,7 +687,7 @@ export const YieldsList = memo(() => {
                 variant={isMobile ? 'mobile' : 'card'}
                 userBalanceUsd={positionBalanceUsd}
                 availableBalanceUserCurrency={item.balanceFiat}
-                titleOverride={item.yield.token.symbol}
+                titleOverride={inputSymbol}
                 onEnter={() => handleYieldClick(item.yield.id)}
               />
             )
@@ -801,6 +802,7 @@ export const YieldsList = memo(() => {
           {availableYields.map(item => {
             const positionBalanceUsd = getYieldPositionBalanceUsd(item.yield.id)
             const rowDisplayInfo = getYieldDisplayInfo(item.yield)
+            const rowInputSymbol = item.yield.inputTokens?.[0]?.symbol ?? item.yield.token.symbol
             return (
               <YieldItem
                 key={item.yield.id}
@@ -813,7 +815,7 @@ export const YieldsList = memo(() => {
                 variant='row'
                 userBalanceUsd={positionBalanceUsd}
                 availableBalanceUserCurrency={item.balanceFiat}
-                titleOverride={item.yield.token.symbol}
+                titleOverride={rowInputSymbol}
                 onEnter={() => handleYieldClick(item.yield.id)}
               />
             )
@@ -893,6 +895,7 @@ export const YieldsList = memo(() => {
         <SimpleGrid columns={{ base: 1, md: 3 }} spacing={{ base: 2, md: 4 }}>
           {recommendedYields.map(rec => {
             const recDisplayInfo = getYieldDisplayInfo(rec.yield)
+            const inputSymbol = rec.yield.inputTokens?.[0]?.symbol ?? rec.yield.token.symbol
             return (
               <YieldItem
                 key={rec.yield.id}
@@ -903,8 +906,8 @@ export const YieldsList = memo(() => {
                   providerName: recDisplayInfo.name,
                 }}
                 variant={isMobile ? 'mobile' : 'card'}
-                userBalanceUsd={rec.balanceFiat}
-                titleOverride={rec.yield.token.symbol}
+                availableBalanceUserCurrency={rec.balanceFiat}
+                titleOverride={inputSymbol}
                 onEnter={() => handleYieldClick(rec.yield.id)}
               />
             )

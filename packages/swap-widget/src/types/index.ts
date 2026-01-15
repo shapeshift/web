@@ -13,9 +13,13 @@ import {
   ethChainId,
   fromChainId,
   gnosisChainId,
+  hyperEvmChainId,
+  katanaChainId,
   ltcChainId,
   mayachainChainId,
+  monadChainId,
   optimismChainId,
+  plasmaChainId,
   polygonChainId,
   solanaChainId,
   thorchainChainId,
@@ -178,6 +182,10 @@ export const EVM_CHAIN_IDS = {
   bsc: bscChainId,
   gnosis: gnosisChainId,
   arbitrumNova: arbitrumNovaChainId,
+  monad: monadChainId,
+  hyperEvm: hyperEvmChainId,
+  plasma: plasmaChainId,
+  katana: katanaChainId,
 } as const
 
 export const UTXO_CHAIN_IDS = {

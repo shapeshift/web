@@ -18,8 +18,12 @@ import {
   base,
   bsc,
   gnosis,
+  hyperEvm,
+  katana,
   mainnet,
+  monad,
   optimism,
+  plasma,
   polygon,
 } from 'wagmi/chains'
 
@@ -29,7 +33,21 @@ import type { ThemeConfig } from '../types'
 const config = getDefaultConfig({
   appName: 'ShapeShift Swap Widget',
   projectId: 'f58c0242def84c3b9befe9b1e6086bbd',
-  chains: [mainnet, polygon, arbitrum, arbitrumNova, optimism, base, avalanche, bsc, gnosis],
+  chains: [
+    mainnet,
+    polygon,
+    arbitrum,
+    arbitrumNova,
+    optimism,
+    base,
+    avalanche,
+    bsc,
+    gnosis,
+    monad,
+    hyperEvm,
+    plasma,
+    katana,
+  ],
   ssr: false,
 })
 

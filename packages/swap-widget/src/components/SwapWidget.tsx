@@ -1,5 +1,7 @@
 import './SwapWidget.css'
 
+import { ethChainId, usdcAssetId } from '@shapeshiftoss/caip'
+import { ethereum } from '@shapeshiftoss/utils'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { useCallback, useMemo, useState } from 'react'
 import type { Chain, WalletClient } from 'viem'
@@ -11,8 +13,12 @@ import {
   base,
   bsc,
   gnosis,
+  hyperEvm,
+  katana,
   mainnet,
+  monad,
   optimism,
+  plasma,
   polygon,
 } from 'viem/chains'
 
@@ -36,24 +42,71 @@ const VIEM_CHAINS_BY_ID: Record<number, Chain> = {
   56: bsc,
   100: gnosis,
   137: polygon,
+  143: monad,
+  999: hyperEvm,
   8453: base,
+  9745: plasma,
   42161: arbitrum,
   42170: arbitrumNova,
   43114: avalanche,
+  747474: katana,
+}
+
+const addChainToWallet = async (client: WalletClient, chain: Chain): Promise<void> => {
+  const { id, name, nativeCurrency, rpcUrls, blockExplorers } = chain
+
+  await client.request({
+    method: 'wallet_addEthereumChain',
+    params: [
+      {
+        chainId: `0x${id.toString(16)}`,
+        chainName: name,
+        nativeCurrency,
+        rpcUrls: rpcUrls.default.http,
+        blockExplorerUrls: blockExplorers?.default ? [blockExplorers.default.url] : undefined,
+      },
+    ],
+  })
+}
+
+const switchOrAddChain = async (client: WalletClient, chainId: number): Promise<void> => {
+  const chain = VIEM_CHAINS_BY_ID[chainId]
+
+  try {
+    await client.switchChain({ id: chainId })
+  } catch (error) {
+    const switchError = error as { code?: number; message?: string }
+    const isChainNotAddedError =
+      switchError.code === 4902 ||
+      switchError.message?.toLowerCase().includes('unrecognized chain') ||
+      switchError.message?.toLowerCase().includes('chain not added') ||
+      switchError.message?.toLowerCase().includes('try adding the chain')
+
+    if (isChainNotAddedError && chain) {
+      await addChainToWallet(client, chain)
+      await client.switchChain({ id: chainId })
+    } else {
+      throw error
+    }
+  }
 }
 
 const DEFAULT_SELL_ASSET: Asset = {
-  assetId: 'eip155:1/slip44:60',
-  chainId: 'eip155:1',
-  symbol: 'ETH',
-  name: 'Ethereum',
-  precision: 18,
-  icon: 'https://rawcdn.githack.com/trustwallet/assets/b7a5f12d893fcf58e0eb1dd64478f076857b720b/blockchains/ethereum/info/logo.png',
+  assetId: ethereum.assetId,
+  chainId: ethereum.chainId,
+  symbol: ethereum.symbol,
+  name: ethereum.name,
+  precision: ethereum.precision,
+  icon: ethereum.icon,
+  networkName: ethereum.networkName,
+  explorer: ethereum.explorer,
+  explorerTxLink: ethereum.explorerTxLink,
+  explorerAddressLink: ethereum.explorerAddressLink,
 }
 
 const DEFAULT_BUY_ASSET: Asset = {
-  assetId: 'eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
-  chainId: 'eip155:1',
+  assetId: usdcAssetId,
+  chainId: ethChainId,
   symbol: 'USDC',
   name: 'USD Coin',
   precision: 6,
@@ -217,7 +270,7 @@ const SwapWidgetCore = ({
 
       const currentChainId = await client.getChainId()
       if (currentChainId !== requiredChainId) {
-        await client.switchChain({ id: requiredChainId })
+        await switchOrAddChain(client, requiredChainId)
       }
 
       if (!sellAmountBaseUnit) {

@@ -2,7 +2,7 @@ import { getQuotes } from '@avnu/avnu-sdk'
 import { bn } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
-import { getTreasuryAddressFromChainId } from 'packages/swapper/src/swappers/utils/helpers/helpers'
+import { getTreasuryAddressFromChainId } from '../../utils/helpers/helpers'
 import { v4 as uuid } from 'uuid'
 
 import { getDefaultSlippageDecimalPercentageForSwapper } from '../../../constants'

@@ -321,7 +321,7 @@ export const YieldForm = memo(
         setSelectedPercent(null)
         if (isFiat) {
           const crypto = bnOrZero(values.value)
-            .div(marketData?.price ?? 1)
+            .div(marketData?.price || 1)
             .toFixed()
           setCryptoAmount(crypto)
         } else {

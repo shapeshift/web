@@ -1,9 +1,9 @@
 import { ChevronDownIcon, SearchIcon } from '@chakra-ui/icons'
 import {
+  Avatar,
   Box,
   Button,
   HStack,
-  Image,
   Input,
   InputGroup,
   InputLeftElement,
@@ -130,13 +130,7 @@ const YieldItem = memo(
         textAlign='left'
       >
         <HStack spacing={3} width='full'>
-          <Image
-            src={displayInfo.logoURI}
-            alt={displayInfo.name}
-            boxSize='40px'
-            borderRadius='full'
-            fallbackSrc='https://assets.coingecko.com/coins/images/279/small/ethereum.png'
-          />
+          <Avatar src={displayInfo.logoURI} name={displayInfo.name} size='sm' />
           <VStack align='start' spacing={0} flex={1} minW={0}>
             <Text fontWeight='semibold' fontSize='sm' noOfLines={1}>
               {displayInfo.name}
@@ -265,13 +259,7 @@ export const YieldSelector = memo(
         >
           {selectedYield && selectedDisplayInfo ? (
             <HStack spacing={3} flex={1}>
-              <Image
-                src={selectedDisplayInfo.logoURI}
-                alt={selectedDisplayInfo.name}
-                boxSize='32px'
-                borderRadius='full'
-                fallbackSrc='https://assets.coingecko.com/coins/images/279/small/ethereum.png'
-              />
+              <Avatar src={selectedDisplayInfo.logoURI} name={selectedDisplayInfo.name} size='sm' />
               <Text fontWeight='semibold' fontSize='sm'>
                 {selectedDisplayInfo.name}
               </Text>

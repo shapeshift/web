@@ -19,6 +19,7 @@ import {
   DEFAULT_NATIVE_VALIDATOR_BY_CHAIN_ID,
   SHAPESHIFT_COSMOS_VALIDATOR_ADDRESS,
   SHAPESHIFT_VALIDATOR_LOGO,
+  SHAPESHIFT_VALIDATOR_NAME,
 } from '@/lib/yieldxyz/constants'
 import type { AugmentedYieldDto } from '@/lib/yieldxyz/types'
 import { YieldBalanceType } from '@/lib/yieldxyz/types'
@@ -51,7 +52,6 @@ type YieldFormProps = {
   isSubmitting?: boolean // Optional, if handled externally or to override
 }
 
-const SHAPESHIFT_VALIDATOR_NAME = 'ShapeShift DAO'
 const PRESET_PERCENTAGES = [0.25, 0.5, 0.75, 1] as const
 
 const getEnterActionTextKey = (yieldType: string | undefined): string => {

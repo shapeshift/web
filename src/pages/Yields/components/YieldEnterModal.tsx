@@ -24,6 +24,7 @@ import {
   DEFAULT_NATIVE_VALIDATOR_BY_CHAIN_ID,
   SHAPESHIFT_COSMOS_VALIDATOR_ADDRESS,
   SHAPESHIFT_VALIDATOR_LOGO,
+  SHAPESHIFT_VALIDATOR_NAME,
 } from '@/lib/yieldxyz/constants'
 import type { AugmentedYieldDto } from '@/lib/yieldxyz/types'
 import { getTransactionButtonText } from '@/lib/yieldxyz/utils'
@@ -51,7 +52,6 @@ type YieldEnterModalProps = {
 }
 
 const PRESET_PERCENTAGES = [0.25, 0.5, 0.75, 1] as const
-const SHAPESHIFT_VALIDATOR_NAME = 'ShapeShift DAO'
 
 const INPUT_LENGTH_BREAKPOINTS = {
   FOR_XS_FONT: 22,

@@ -343,13 +343,14 @@ const executeSolanaTransaction = async ({
 }: ExecuteSolanaTransactionInput): Promise<string> => {
   const adapter = assertGetSolanaChainAdapter(chainId)
   const accountNumber = bip44Params?.accountNumber ?? 0
-  const txData = unsignedTransaction.startsWith('0x')
-    ? unsignedTransaction.slice(2)
-    : unsignedTransaction
 
-  const versionedTransaction = VersionedTransaction.deserialize(
-    new Uint8Array(Buffer.from(txData, 'hex')),
-  )
+  // Yield.xyz returns base64 for Solana transactions (Solana convention)
+  // Use isHex from viem to detect hex-encoded transactions
+  const txBytes = isHex(unsignedTransaction)
+    ? new Uint8Array(Buffer.from(unsignedTransaction.slice(2), 'hex'))
+    : new Uint8Array(Buffer.from(unsignedTransaction, 'base64'))
+
+  const versionedTransaction = VersionedTransaction.deserialize(txBytes)
 
   const addressLookupTableAccountKeys = versionedTransaction.message.addressTableLookups.map(
     lookup => lookup.accountKey.toString(),

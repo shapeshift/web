@@ -36,7 +36,7 @@ import {
   selectPortfolioCryptoPrecisionBalanceByFilter,
 } from '@/state/slices/selectors'
 import {
-  selectEarnHasUserEnteredAmount,
+  selectHasUserEnteredAmount,
   selectInputSellAmountCryptoBaseUnit,
   selectInputSellAmountCryptoPrecision,
   selectInputSellAmountUserCurrency,
@@ -81,7 +81,7 @@ export const EarnInput = memo(
     const sellAmountCryptoPrecision = useAppSelector(selectInputSellAmountCryptoPrecision)
     const sellAmountUserCurrency = useAppSelector(selectInputSellAmountUserCurrency)
     const isInputtingFiatSellAmount = useAppSelector(selectIsInputtingFiatSellAmount)
-    const hasUserEnteredAmount = useAppSelector(selectEarnHasUserEnteredAmount)
+    const hasUserEnteredAmount = useAppSelector(selectHasUserEnteredAmount)
     const selectedYieldId = useAppSelector(selectSelectedYieldId)
 
     const { data: yieldsData, isLoading: isLoadingYields } = useYields()

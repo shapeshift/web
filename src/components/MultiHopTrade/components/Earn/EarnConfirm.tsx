@@ -280,8 +280,10 @@ export const EarnConfirm = memo(() => {
               ) : (
                 <Flex direction='column' align='flex-end'>
                   <GradientApy fontSize='sm' fontWeight='bold'>
-                    {estimatedYearlyEarnings} {sellAsset?.symbol ?? ''}
-                    {translate('yieldXYZ.perYear')}
+                    {translate('yieldXYZ.earningsPerYear', {
+                      amount: estimatedYearlyEarnings,
+                      symbol: sellAsset?.symbol ?? '',
+                    })}
                   </GradientApy>
                   {sellAmountUserCurrency && (
                     <Text fontSize='xs' color='text.subtle'>

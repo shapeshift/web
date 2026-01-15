@@ -451,6 +451,7 @@ export const EarnInput = memo(
                 onYieldSelect={handleYieldSelect}
                 isLoading={isLoadingYields}
                 sellAsset={sellAsset}
+                selectedValidator={selectedValidator}
               />
             </Box>
           </Stack>
@@ -472,6 +473,7 @@ export const EarnInput = memo(
         selectedYieldId,
         yieldsForAsset,
         handleYieldSelect,
+        selectedValidator,
       ],
     )
 
@@ -485,7 +487,6 @@ export const EarnInput = memo(
           estimatedYearlyEarnings={estimatedYearlyEarnings}
           estimatedYearlyEarningsUserCurrency={estimatedYearlyEarningsUserCurrency}
           isConnected={isConnected}
-          selectedValidator={selectedValidator}
           isBelowMinimum={isBelowMinimum}
           isInsufficientBalance={isInsufficientBalance}
           networkFeeFiatUserCurrency={networkFeeFiatUserCurrency}
@@ -500,7 +501,6 @@ export const EarnInput = memo(
         estimatedYearlyEarnings,
         estimatedYearlyEarningsUserCurrency,
         isConnected,
-        selectedValidator,
         isBelowMinimum,
         isInsufficientBalance,
         networkFeeFiatUserCurrency,

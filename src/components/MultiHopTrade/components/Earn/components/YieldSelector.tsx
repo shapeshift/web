@@ -19,11 +19,13 @@ import {
   useDisclosure,
   VStack,
 } from '@chakra-ui/react'
+import { cosmosChainId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { memo, useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 
-import type { AugmentedYieldDto, ProviderDto } from '@/lib/yieldxyz/types'
+import { SHAPESHIFT_VALIDATOR_LOGO, SHAPESHIFT_VALIDATOR_NAME } from '@/lib/yieldxyz/constants'
+import type { AugmentedYieldDto, ProviderDto, ValidatorDto } from '@/lib/yieldxyz/types'
 import { GradientApy } from '@/pages/Yields/components/GradientApy'
 import { useYieldProviders } from '@/react-queries/queries/yieldxyz/useYieldProviders'
 
@@ -36,12 +38,21 @@ type YieldSelectorProps = {
   onYieldSelect: (yieldId: string) => void
   isLoading: boolean
   sellAsset: Asset
+  selectedValidator?: ValidatorDto
 }
 
-const getProviderInfo = (
+const isNativeStaking = (type: string | undefined): boolean =>
+  ['native-staking', 'staking'].includes(type ?? '')
+
+const getDisplayInfo = (
   yieldItem: AugmentedYieldDto,
   providers: Record<string, ProviderDto> | undefined,
 ): { name: string; logoURI: string | undefined } => {
+  // For Cosmos native staking, always show ShapeShift DAO
+  if (isNativeStaking(yieldItem.mechanics.type) && yieldItem.chainId === cosmosChainId) {
+    return { name: SHAPESHIFT_VALIDATOR_NAME, logoURI: SHAPESHIFT_VALIDATOR_LOGO }
+  }
+  // For other yields, show provider info
   const provider = providers?.[yieldItem.providerId]
   if (provider) {
     return { name: provider.name, logoURI: provider.logoURI }
@@ -81,10 +92,7 @@ const YieldItem = memo(
       return `${apy.toFixed(2)}%`
     }, [yieldItem.rewardRate?.total])
 
-    const providerInfo = useMemo(
-      () => getProviderInfo(yieldItem, providers),
-      [yieldItem, providers],
-    )
+    const providerInfo = useMemo(() => getDisplayInfo(yieldItem, providers), [yieldItem, providers])
 
     return (
       <Box
@@ -121,8 +129,18 @@ const YieldItem = memo(
   },
 )
 
+const isStakingType = (type: string | undefined): boolean =>
+  ['native-staking', 'pooled-staking', 'staking'].includes(type ?? '')
+
 export const YieldSelector = memo(
-  ({ selectedYieldId, yields, onYieldSelect, isLoading, sellAsset }: YieldSelectorProps) => {
+  ({
+    selectedYieldId,
+    yields,
+    onYieldSelect,
+    isLoading,
+    sellAsset,
+    selectedValidator,
+  }: YieldSelectorProps) => {
     const translate = useTranslate()
     const { isOpen, onOpen, onClose } = useDisclosure()
     const borderColor = useColorModeValue('gray.200', 'gray.700')
@@ -177,10 +195,18 @@ export const YieldSelector = memo(
       return `${apy.toFixed(2)}%`
     }, [selectedYield])
 
-    const selectedProviderInfo = useMemo(
-      () => (selectedYield ? getProviderInfo(selectedYield, providers) : null),
-      [selectedYield, providers],
-    )
+    const selectedDisplayInfo = useMemo(() => {
+      if (!selectedYield) return null
+      // For staking yields with a validator, show validator info
+      if (isStakingType(selectedYield.mechanics.type) && selectedValidator) {
+        return {
+          name: selectedValidator.name,
+          logoURI: selectedValidator.logoURI,
+        }
+      }
+      // Otherwise show provider info
+      return getDisplayInfo(selectedYield, providers)
+    }, [selectedYield, selectedValidator, providers])
 
     if (isLoading) {
       return <Skeleton height='80px' borderRadius='lg' />
@@ -213,17 +239,17 @@ export const YieldSelector = memo(
           rightIcon={chevronDownIcon}
           justifyContent='space-between'
         >
-          {selectedYield && selectedProviderInfo ? (
+          {selectedYield && selectedDisplayInfo ? (
             <HStack spacing={3} flex={1}>
               <Image
-                src={selectedProviderInfo.logoURI}
-                alt={selectedProviderInfo.name}
+                src={selectedDisplayInfo.logoURI}
+                alt={selectedDisplayInfo.name}
                 boxSize='32px'
                 borderRadius='full'
                 fallbackSrc='https://assets.coingecko.com/coins/images/279/small/ethereum.png'
               />
               <Text fontWeight='semibold' fontSize='sm'>
-                {selectedProviderInfo.name}
+                {selectedDisplayInfo.name}
               </Text>
               <Box ml='auto'>
                 <GradientApy fontSize='sm' fontWeight='bold'>

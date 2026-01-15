@@ -10,6 +10,11 @@ import { DialogFooter } from '@/components/Modal/components/DialogFooter'
 import { DialogHeader } from '@/components/Modal/components/DialogHeader'
 import { DialogTitle } from '@/components/Modal/components/DialogTitle'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
+import {
+  SHAPESHIFT_COSMOS_VALIDATOR_ADDRESS,
+  SHAPESHIFT_VALIDATOR_LOGO,
+  SHAPESHIFT_VALIDATOR_NAME,
+} from '@/lib/yieldxyz/constants'
 import type { AugmentedYieldDto } from '@/lib/yieldxyz/types'
 import { getTransactionButtonText } from '@/lib/yieldxyz/utils'
 import { GradientApy } from '@/pages/Yields/components/GradientApy'
@@ -103,6 +108,9 @@ export const YieldActionModal = memo(function YieldActionModal({
     if (yieldItem.mechanics.type === 'staking' && validatorAddress) {
       const validator = validators?.find(v => v.address === validatorAddress)
       if (validator) return { name: validator.name, logoURI: validator.logoURI }
+      if (validatorAddress === SHAPESHIFT_COSMOS_VALIDATOR_ADDRESS) {
+        return { name: SHAPESHIFT_VALIDATOR_NAME, logoURI: SHAPESHIFT_VALIDATOR_LOGO }
+      }
       if (validatorName) return { name: validatorName, logoURI: validatorLogoURI }
     }
     const provider = providers?.[yieldItem.providerId]
@@ -127,10 +135,10 @@ export const YieldActionModal = memo(function YieldActionModal({
 
   const estimatedEarningsAmount = useMemo(
     () =>
-      `${bnOrZero(amount)
-        .times(yieldItem.rewardRate.total)
-        .decimalPlaces(4)
-        .toString()} ${assetSymbol}${translate('yieldXYZ.perYear')}`,
+      translate('yieldXYZ.earningsPerYear', {
+        amount: bnOrZero(amount).times(yieldItem.rewardRate.total).decimalPlaces(4).toString(),
+        symbol: assetSymbol,
+      }),
     [amount, yieldItem.rewardRate.total, assetSymbol, translate],
   )
 

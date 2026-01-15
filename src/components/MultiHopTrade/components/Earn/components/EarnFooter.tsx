@@ -1,16 +1,6 @@
 import { InfoIcon } from '@chakra-ui/icons'
 import type { CardFooterProps, FlexProps } from '@chakra-ui/react'
-import {
-  Box,
-  CardFooter,
-  Flex,
-  HStack,
-  Icon,
-  Image,
-  Skeleton,
-  Text,
-  VStack,
-} from '@chakra-ui/react'
+import { Box, CardFooter, Flex, HStack, Icon, Skeleton, Text, VStack } from '@chakra-ui/react'
 import type { Asset } from '@shapeshiftoss/types'
 import { memo, useMemo } from 'react'
 import { FaGift } from 'react-icons/fa'
@@ -20,7 +10,7 @@ import { useTranslate } from 'react-polyglot'
 import { Amount } from '@/components/Amount/Amount'
 import { ButtonWalletPredicate } from '@/components/ButtonWalletPredicate/ButtonWalletPredicate'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
-import type { AugmentedYieldDto, ValidatorDto } from '@/lib/yieldxyz/types'
+import type { AugmentedYieldDto } from '@/lib/yieldxyz/types'
 import { GradientApy } from '@/pages/Yields/components/GradientApy'
 
 type EarnFooterProps = {
@@ -31,15 +21,11 @@ type EarnFooterProps = {
   estimatedYearlyEarnings: string | undefined
   estimatedYearlyEarningsUserCurrency: string | undefined
   isConnected: boolean
-  selectedValidator: ValidatorDto | undefined
   isBelowMinimum: boolean
   isInsufficientBalance: boolean
   networkFeeFiatUserCurrency: string | undefined
   isQuoteLoading: boolean
 }
-
-const isStakingType = (type: string | undefined): boolean =>
-  ['native-staking', 'pooled-staking', 'staking'].includes(type ?? '')
 
 const footerBgProp = { base: 'background.surface.base', md: 'transparent' }
 const footerPosition: CardFooterProps['position'] = { base: 'sticky', md: 'static' }
@@ -137,7 +123,6 @@ export const EarnFooter = memo(
     estimatedYearlyEarnings,
     estimatedYearlyEarningsUserCurrency,
     isConnected,
-    selectedValidator,
     isBelowMinimum,
     isInsufficientBalance,
     networkFeeFiatUserCurrency,
@@ -207,26 +192,6 @@ export const EarnFooter = memo(
           borderBottomRadius='xl'
           width='full'
         >
-          {selectedYield && isStakingType(selectedYield.mechanics.type) && (
-            <HStack spacing={2}>
-              <Text fontSize='sm' color='text.subtle'>
-                {translate('earn.earnWith')}
-              </Text>
-              <HStack spacing={2}>
-                <Image
-                  src={selectedValidator?.logoURI ?? selectedYield.metadata.logoURI}
-                  alt={selectedValidator?.name ?? selectedYield.metadata.name}
-                  boxSize='20px'
-                  borderRadius='full'
-                  fallbackSrc='https://assets.coingecko.com/coins/images/279/small/ethereum.png'
-                />
-                <Text fontSize='sm' fontWeight='medium'>
-                  {selectedValidator?.name ?? selectedYield.metadata.name}
-                </Text>
-              </HStack>
-            </HStack>
-          )}
-
           {selectedYield && hasUserEnteredAmount && (
             <Box {...statsBoxSx}>
               <Flex justify='space-between' align='center'>

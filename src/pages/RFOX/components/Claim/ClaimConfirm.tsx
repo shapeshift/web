@@ -23,7 +23,6 @@ import { encodeFunctionData } from 'viem'
 
 import type { UnstakingRequest } from '../../hooks/useGetUnstakingRequestsQuery/utils'
 import { useRFOXContext } from '../../hooks/useRfoxContext'
-import { RfoxRoute } from '../../types'
 import type { ClaimRouteProps } from './types'
 
 import { Amount } from '@/components/Amount/Amount'
@@ -33,7 +32,6 @@ import { Row } from '@/components/Row/Row'
 import { SlideTransition } from '@/components/SlideTransition'
 import { Timeline, TimelineItem } from '@/components/Timeline/Timeline'
 import { useEvmFees } from '@/hooks/queries/useEvmFees'
-import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { fromBaseUnit } from '@/lib/math'
@@ -75,7 +73,6 @@ export const ClaimConfirm: FC<Pick<ClaimRouteProps, 'headerComponent'> & ClaimCo
   const translate = useTranslate()
   const wallet = useWallet().state.wallet
   const dispatch = useAppDispatch()
-  const isRFOXFoxEcosystemPageEnabled = useFeatureFlag('RfoxFoxEcosystemPage')
 
   const actions = useAppSelector(selectWalletActions)
 
@@ -99,12 +96,8 @@ export const ClaimConfirm: FC<Pick<ClaimRouteProps, 'headerComponent'> & ClaimCo
   )
 
   const handleGoBack = useCallback(() => {
-    if (isRFOXFoxEcosystemPageEnabled) {
-      return navigate('/fox-ecosystem')
-    }
-
-    navigate(RfoxRoute.Claim)
-  }, [navigate, isRFOXFoxEcosystemPageEnabled])
+    return navigate('/fox-ecosystem')
+  }, [navigate])
 
   const stakingAsset = useAppSelector(state =>
     selectAssetById(state, selectedUnstakingRequest.stakingAssetId),
@@ -280,12 +273,9 @@ export const ClaimConfirm: FC<Pick<ClaimRouteProps, 'headerComponent'> & ClaimCo
   const handleSubmit = useCallback(async () => {
     const txHash = await handleClaim()
     if (!txHash) return
-    if (isRFOXFoxEcosystemPageEnabled) {
-      return navigate(`/fox-ecosystem`)
-    }
 
-    navigate(`${RfoxRoute.Claim}/`)
-  }, [handleClaim, navigate, isRFOXFoxEcosystemPageEnabled])
+    return navigate(`/fox-ecosystem`)
+  }, [handleClaim, navigate])
 
   const claimTx = useAppSelector(gs => selectTxById(gs, serializedClaimTxIndex))
 

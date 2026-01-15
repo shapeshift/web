@@ -109,7 +109,6 @@ export const Header = memo(() => {
   const isWalletConnectToDappsV2Enabled = useFeatureFlag('WalletConnectToDappsV2')
   const isActionCenterEnabled = useFeatureFlag('ActionCenter')
   const isNewWalletManagerEnabled = useFeatureFlag('NewWalletManager')
-  const isRfoxFoxEcosystemPageEnabled = useFeatureFlag('RfoxFoxEcosystemPage')
   const { degradedChainIds } = useDiscoverAccounts()
 
   const hasWallet = Boolean(walletInfo?.deviceId)
@@ -182,7 +181,7 @@ export const Header = memo(() => {
               <NavigationDropdown label='defi.earn' items={earnSubMenuItems} defaultPath='/tcy' />
               <Link
                 as={ReactRouterLink}
-                to={isRfoxFoxEcosystemPageEnabled ? '/fox-ecosystem' : '/fox'}
+                to={'/fox-ecosystem'}
                 fontWeight='medium'
                 color='text.subtle'
                 _hover={{ color: 'text.base', textDecoration: 'none' }}

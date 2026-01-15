@@ -6,9 +6,7 @@ import { useNavigate } from 'react-router-dom'
 
 import { ClaimActionCard } from './ClaimActionCard'
 
-import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { bn } from '@/lib/bignumber/bignumber'
-import { RfoxRoute } from '@/pages/RFOX/types'
 import type { RfoxClaimAction } from '@/state/slices/actionSlice/types'
 import { ActionStatus, GenericTransactionDisplayType } from '@/state/slices/actionSlice/types'
 import { selectAssetById } from '@/state/slices/selectors'
@@ -23,7 +21,6 @@ type RfoxClaimActionCardProps = {
 export const RfoxClaimActionCard = ({ action }: RfoxClaimActionCardProps) => {
   const translate = useTranslate()
   const navigate = useNavigate()
-  const isRFOXFoxEcosystemPageEnabled = useFeatureFlag('RfoxFoxEcosystemPage')
 
   const stakingAsset = useAppSelector(state =>
     selectAssetById(state, action.rfoxClaimActionMetadata.request.stakingAssetId),
@@ -32,20 +29,12 @@ export const RfoxClaimActionCard = ({ action }: RfoxClaimActionCardProps) => {
   const handleClaimClick = useCallback(() => {
     const index = action.rfoxClaimActionMetadata.request.index
 
-    if (!isRFOXFoxEcosystemPageEnabled) {
-      navigate(`${RfoxRoute.Claim}/${index}/confirm`, {
-        state: {
-          selectedUnstakingRequest: action.rfoxClaimActionMetadata.request,
-        },
-      })
-    } else {
-      navigate(`/fox-ecosystem/${index}/confirm`, {
-        state: {
-          selectedUnstakingRequest: action.rfoxClaimActionMetadata.request,
-        },
-      })
-    }
-  }, [action, navigate, isRFOXFoxEcosystemPageEnabled])
+    navigate(`/fox-ecosystem/${index}/confirm`, {
+      state: {
+        selectedUnstakingRequest: action.rfoxClaimActionMetadata.request,
+      },
+    })
+  }, [action, navigate])
 
   const message = useMemo(() => {
     if (!stakingAsset) return null

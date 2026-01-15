@@ -25,7 +25,7 @@ import {
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { TbArrowDown, TbArrowUp } from 'react-icons/tb'
 import { useTranslate } from 'react-polyglot'
-import { useLocation, useNavigate } from 'react-router-dom'
+import { useLocation } from 'react-router-dom'
 
 import { Amount } from '@/components/Amount/Amount'
 import { RFOXIcon } from '@/components/Icons/RFOX'
@@ -112,9 +112,6 @@ export const RFOXSection = () => {
   const isConnected = isWalletConnected || isLedgerReadOnly
 
   const translate = useTranslate()
-  const navigate = useNavigate()
-  const isRFOXEnabled = useFeatureFlag('FoxPageRFOX')
-  const isRFOXFoxEcosystemPageEnabled = useFeatureFlag('RfoxFoxEcosystemPage')
   const isRFOXLPEnabled = useFeatureFlag('RFOX_LP')
   const { assetAccountNumber } = useFoxPageContext()
   const { setStakingAssetAccountId } = useRFOXContext()
@@ -193,12 +190,6 @@ export const RFOXSection = () => {
 
     setStakingAssetAccountId(stakingAssetAccountId)
   }, [selectedUnstakingRequest, setStakingAssetAccountId, stakingAssetAccountId])
-
-  const handleManageClick = useCallback(() => {
-    navigate({
-      pathname: '/rfox',
-    })
-  }, [navigate])
 
   const selectStakingBalanceCryptoPrecision = useCallback(
     (abiStakingInfo: AbiStakingInfo) => {
@@ -294,14 +285,6 @@ export const RFOXSection = () => {
   }, [])
 
   const actionsButtons = useMemo(() => {
-    if (!isRFOXFoxEcosystemPageEnabled) {
-      return (
-        <Button onClick={handleManageClick} colorScheme='gray'>
-          {translate('common.manage')}
-        </Button>
-      )
-    }
-
     return (
       <Flex flexWrap='wrap' gap={2}>
         <Button onClick={handleStakeClick} colorScheme='gray' flex='1 1 auto' leftIcon={tbArrowUp}>
@@ -320,18 +303,9 @@ export const RFOXSection = () => {
         </Button>
       </Flex>
     )
-  }, [
-    isRFOXFoxEcosystemPageEnabled,
-    handleManageClick,
-    handleStakeClick,
-    handleUnstakeClick,
-    handleClaimClick,
-    translate,
-  ])
+  }, [handleStakeClick, handleUnstakeClick, handleClaimClick, translate])
 
   if (!(stakingAsset && usdcAsset)) return null
-
-  if (!isRFOXEnabled) return null
 
   return (
     <Box>

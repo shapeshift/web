@@ -16,7 +16,6 @@ import { RawText } from '@/components/Text'
 import { WalletActions } from '@/context/WalletProvider/actions'
 import { DefiAction } from '@/features/defi/contexts/DefiManagerProvider/DefiCommon'
 import { useBrowserRouter } from '@/hooks/useBrowserRouter/useBrowserRouter'
-import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { useModal } from '@/hooks/useModal/useModal'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
@@ -109,7 +108,6 @@ export const StakingPositionsByProvider: React.FC<StakingPositionsByProviderProp
   const stakingOpportunities = useAppSelector(
     selectAggregatedEarnUserStakingOpportunitiesIncludeEmpty,
   )
-  const isRfoxFoxEcosystemPageEnabled = useFeatureFlag('RfoxFoxEcosystemPage')
   const filteredDown = useMemo(
     () =>
       stakingOpportunities.filter(
@@ -143,7 +141,7 @@ export const StakingPositionsByProvider: React.FC<StakingPositionsByProviderProp
         if (walletDrawer.isOpen) {
           walletDrawer.close()
         }
-        return navigate(isRfoxFoxEcosystemPageEnabled ? '/fox-ecosystem' : '/fox')
+        return navigate('/fox-ecosystem')
       }
 
       if (forceCompactView) {
@@ -153,7 +151,7 @@ export const StakingPositionsByProvider: React.FC<StakingPositionsByProviderProp
 
         switch (provider) {
           case DefiProvider.EthFoxStaking:
-            return navigate(isRfoxFoxEcosystemPageEnabled ? '/fox-ecosystem' : '/fox')
+            return navigate('/fox-ecosystem')
           case DefiProvider.CosmosSdk:
           case DefiProvider.ThorchainSavers:
             return navigate(`/assets/${assetId}`)
@@ -200,16 +198,7 @@ export const StakingPositionsByProvider: React.FC<StakingPositionsByProviderProp
         },
       )
     },
-    [
-      forceCompactView,
-      isConnected,
-      assets,
-      walletDrawer,
-      navigate,
-      location,
-      isRfoxFoxEcosystemPageEnabled,
-      dispatch,
-    ],
+    [forceCompactView, isConnected, assets, walletDrawer, navigate, location, dispatch],
   )
   const columns: Column<StakingEarnOpportunityType>[] = useMemo(
     () => [

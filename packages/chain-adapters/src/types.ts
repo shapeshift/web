@@ -1,6 +1,5 @@
 import type { ChainId, Nominal } from '@shapeshiftoss/caip'
 import type {
-  AptosSignTx,
   BTCSignTx,
   CosmosSignTx,
   ETHSignTx,
@@ -198,7 +197,7 @@ export type ChainSignTx = {
   [KnownChainIds.SolanaMainnet]: SolanaSignTx
   [KnownChainIds.TronMainnet]: tron.TronSignTx
   [KnownChainIds.SuiMainnet]: SuiSignTx
-  [KnownChainIds.AptosMainnet]: AptosSignTx
+  [KnownChainIds.AptosMainnet]: aptos.AptosSignTx
   [KnownChainIds.NearMainnet]: near.NearSignTx
   [KnownChainIds.StarknetMainnet]: StarknetSignTx
 }

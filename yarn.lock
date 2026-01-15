@@ -11755,7 +11755,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/caip@^8.15.0, @shapeshiftoss/caip@^8.16.5, @shapeshiftoss/caip@npm:@shapeshiftoss/caip@8.16.6, @shapeshiftoss/caip@workspace:^, @shapeshiftoss/caip@workspace:packages/caip":
+"@shapeshiftoss/caip@^8.15.0, @shapeshiftoss/caip@npm:@shapeshiftoss/caip@8.16.6, @shapeshiftoss/caip@workspace:^, @shapeshiftoss/caip@workspace:packages/caip":
   version: 0.0.0-use.local
   resolution: "@shapeshiftoss/caip@workspace:packages/caip"
   dependencies:
@@ -11772,7 +11772,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/chain-adapters@^11.3.6, @shapeshiftoss/chain-adapters@npm:@shapeshiftoss/chain-adapters@11.3.7, @shapeshiftoss/chain-adapters@workspace:^, @shapeshiftoss/chain-adapters@workspace:packages/chain-adapters":
+"@shapeshiftoss/chain-adapters@workspace:^, @shapeshiftoss/chain-adapters@workspace:packages/chain-adapters":
   version: 0.0.0-use.local
   resolution: "@shapeshiftoss/chain-adapters@workspace:packages/chain-adapters"
   dependencies:
@@ -11819,7 +11819,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/contracts@^1.0.4, @shapeshiftoss/contracts@workspace:^, @shapeshiftoss/contracts@workspace:packages/contracts":
+"@shapeshiftoss/contracts@workspace:^, @shapeshiftoss/contracts@workspace:packages/contracts":
   version: 0.0.0-use.local
   resolution: "@shapeshiftoss/contracts@workspace:packages/contracts"
   dependencies:
@@ -12331,8 +12331,6 @@ __metadata:
   dependencies:
     "@rainbow-me/rainbowkit": 2.1.7
     "@shapeshiftoss/caip": "npm:@shapeshiftoss/caip@8.16.6"
-    "@shapeshiftoss/chain-adapters": "npm:@shapeshiftoss/chain-adapters@11.3.7"
-    "@shapeshiftoss/swapper": "npm:@shapeshiftoss/swapper@17.6.9"
     "@shapeshiftoss/utils": "npm:@shapeshiftoss/utils@1.0.5"
     "@tanstack/react-query": ^5.69.0
     "@types/react": ^19.0.0
@@ -12353,46 +12351,6 @@ __metadata:
     react-dom: ">=18.0.0"
   languageName: unknown
   linkType: soft
-
-"@shapeshiftoss/swapper@npm:@shapeshiftoss/swapper@17.6.9":
-  version: 17.6.9
-  resolution: "@shapeshiftoss/swapper@npm:17.6.9"
-  dependencies:
-    "@arbitrum/sdk": ^4.0.1
-    "@avnu/avnu-sdk": ^4.0.1
-    "@coral-xyz/anchor": 0.29.0
-    "@cowprotocol/app-data": ^2.3.0
-    "@defuse-protocol/one-click-sdk-typescript": ^0.1.1-0.2
-    "@jup-ag/api": ^6.0.30
-    "@shapeshiftoss/bitcoinjs-lib": 7.0.0-shapeshift.0
-    "@shapeshiftoss/caip": ^8.16.5
-    "@shapeshiftoss/chain-adapters": ^11.3.6
-    "@shapeshiftoss/contracts": ^1.0.4
-    "@shapeshiftoss/hdwallet-core": 1.62.39
-    "@shapeshiftoss/types": ^8.6.5
-    "@shapeshiftoss/unchained-client": ^10.14.8
-    "@shapeshiftoss/utils": ^1.0.4
-    "@sniptt/monads": ^0.5.10
-    "@solana/web3.js": ^1.98.0
-    "@uniswap/sdk-core": ^5.3.1
-    "@uniswap/v3-sdk": ^3.13.1
-    axios: ^1.13.0
-    axios-cache-interceptor: ^1.11.1
-    bignumber.js: ^9.3.1
-    eip-712: ^1.0.0
-    ethers: 6.11.1
-    ethers5: "npm:ethers@5.7.2"
-    lodash: ^4.17.21
-    mixpanel-browser: ^2.67.0
-    node-polyglot: ^2.4.0
-    pretty-ms: 7.0.1
-    qs: ^6.14.1
-    retry-axios: ^2.6.0
-    uuid: ^9.0.0
-    viem: ^2.40.3
-  checksum: 71b644057a41e33722363004da665bcdc55a4999f83ea310337dfa1941ad1c55bc0efa2514658e36bbcde03d75fe2e24d35922ec80b4dcea47459aedde3ebcd9
-  languageName: node
-  linkType: hard
 
 "@shapeshiftoss/swapper@workspace:^, @shapeshiftoss/swapper@workspace:packages/swapper":
   version: 0.0.0-use.local
@@ -12438,7 +12396,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@shapeshiftoss/types@^8.3.0, @shapeshiftoss/types@^8.6.5, @shapeshiftoss/types@workspace:^, @shapeshiftoss/types@workspace:packages/types":
+"@shapeshiftoss/types@^8.3.0, @shapeshiftoss/types@workspace:^, @shapeshiftoss/types@workspace:packages/types":
   version: 0.0.0-use.local
   resolution: "@shapeshiftoss/types@workspace:packages/types"
   dependencies:
@@ -12456,7 +12414,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/unchained-client@^10.1.1, @shapeshiftoss/unchained-client@^10.14.8, @shapeshiftoss/unchained-client@workspace:^, @shapeshiftoss/unchained-client@workspace:packages/unchained-client":
+"@shapeshiftoss/unchained-client@^10.1.1, @shapeshiftoss/unchained-client@workspace:^, @shapeshiftoss/unchained-client@workspace:packages/unchained-client":
   version: 0.0.0-use.local
   resolution: "@shapeshiftoss/unchained-client@workspace:packages/unchained-client"
   dependencies:
@@ -12491,7 +12449,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/utils@^1.0.4, @shapeshiftoss/utils@npm:@shapeshiftoss/utils@1.0.5, @shapeshiftoss/utils@workspace:^, @shapeshiftoss/utils@workspace:packages/utils":
+"@shapeshiftoss/utils@npm:@shapeshiftoss/utils@1.0.5, @shapeshiftoss/utils@workspace:^, @shapeshiftoss/utils@workspace:packages/utils":
   version: 0.0.0-use.local
   resolution: "@shapeshiftoss/utils@workspace:packages/utils"
   dependencies:

@@ -156,7 +156,7 @@ export const YieldEnterModal = memo(
       return accountIdsByNumberAndChain[derivedAccountNumber]?.[chainId]
     })
 
-    const accountId = selectedAccountId ?? defaultAccountId
+    const accountId = selectedAccountId ?? defaultAccountId ?? accountIds[0]
     const hasMultipleAccounts = accountIds.length > 1
     const isAccountSelectorDisabled = !isYieldMultiAccountEnabled || !hasMultipleAccounts
 
@@ -584,6 +584,7 @@ export const YieldEnterModal = memo(
           providerInfo={successProviderInfo}
           transactionSteps={transactionSteps}
           yieldId={yieldItem.id}
+          accountId={accountId}
           onDone={hookHandleClose}
           successMessageKey='successEnter'
         />
@@ -594,6 +595,7 @@ export const YieldEnterModal = memo(
         successProviderInfo,
         transactionSteps,
         yieldItem.id,
+        accountId,
         hookHandleClose,
       ],
     )

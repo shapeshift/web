@@ -726,6 +726,7 @@ export const YieldForm = memo(
           providerInfo={successProviderInfo}
           transactionSteps={transactionSteps}
           yieldId={yieldItem.id}
+          accountId={accountId}
           onDone={handleFormDone}
           successMessageKey={successMessageKey}
         />

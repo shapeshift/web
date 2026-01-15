@@ -21,6 +21,7 @@ import {
   fromAssetId,
   thorchainAssetId,
   uniV2EthFoxArbitrumAssetId,
+  usdcOnArbitrumOneAssetId,
 } from '@shapeshiftoss/caip'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { TbArrowDown, TbArrowUp } from 'react-icons/tb'
@@ -60,6 +61,7 @@ import {
   selectAccountIdByAccountNumberAndChainId,
   selectAssetById,
   selectMarketDataByAssetIdUserCurrency,
+  selectUserCurrencyToUsdRate,
 } from '@/state/slices/selectors'
 import { useAppDispatch, useAppSelector } from '@/state/store'
 
@@ -154,12 +156,16 @@ export const RFOXSection = () => {
 
   const stakingAsset = useAppSelector(state => selectAssetById(state, stakingAssetId))
   const runeAsset = useAppSelector(state => selectAssetById(state, thorchainAssetId))
+  const usdcAsset = useAppSelector(state => selectAssetById(state, usdcOnArbitrumOneAssetId))
 
   const stakingAssetMarketData = useAppSelector(state =>
     selectMarketDataByAssetIdUserCurrency(state, stakingAssetId),
   )
   const runeMarketData = useAppSelector(state =>
     selectMarketDataByAssetIdUserCurrency(state, thorchainAssetId),
+  )
+  const usdcMarketData = useAppSelector(state =>
+    selectMarketDataByAssetIdUserCurrency(state, usdcOnArbitrumOneAssetId),
   )
 
   const foxOnArbAsset = useAppSelector(state => selectAssetById(state, foxOnArbitrumOneAssetId))
@@ -231,19 +237,25 @@ export const RFOXSection = () => {
     currentEpochMetadata: currentEpochMetadataQuery.data,
   })
 
-  const currentEpochRewardsCryptoPrecision = useMemo(
-    () => fromBaseUnit(currentEpochRewardsQuery.data?.toString(), runeAsset?.precision ?? 0),
-    [currentEpochRewardsQuery.data, runeAsset?.precision],
-  )
+  const userCurrencyToUsdRate = useAppSelector(selectUserCurrencyToUsdRate)
+
+  console.log({ userCurrencyToUsdRate, currentEpochRewardsQuery })
+
+  const currentEpochRewardsCryptoPrecision = useMemo(() => {
+    if (!currentEpochRewardsQuery.data) return '0'
+    if (!usdcMarketData?.price) return '0'
+
+    return bnOrZero(currentEpochRewardsQuery.data)
+      .div(usdcMarketData.price)
+      .toFixed(usdcAsset?.precision ?? 0)
+  }, [currentEpochRewardsQuery.data, usdcAsset, usdcMarketData])
 
   const currentEpochRewardsUserCurrency = useMemo(() => {
-    if (!runeMarketData?.price) return '0'
-    if (!currentEpochRewardsCryptoPrecision) return '0'
+    if (!currentEpochRewardsQuery.data) return '0'
 
-    return bnOrZero(currentEpochRewardsCryptoPrecision)
-      .times(bnOrZero(runeMarketData.price))
-      .toFixed(2)
-  }, [currentEpochRewardsCryptoPrecision, runeMarketData?.price])
+    // currentEpochRewardsQuery.data is already in USD, convert to user currency
+    return bnOrZero(currentEpochRewardsQuery.data).times(userCurrencyToUsdRate).toFixed(2)
+  }, [currentEpochRewardsQuery.data, userCurrencyToUsdRate])
 
   const lifetimeRewardsQuery = useLifetimeRewardsQuery({
     stakingAssetId,

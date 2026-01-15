@@ -222,6 +222,7 @@ const validators = {
   VITE_NEAR_INTENTS_API_KEY: str(),
   VITE_FEATURE_TX_HISTORY_BYE_BYE: bool({ default: false }),
   VITE_FEATURE_RFOX_FOX_ECOSYSTEM_PAGE: bool({ default: false }),
+  VITE_AFFILIATE_REVENUE_URL: url(),
   VITE_FEATURE_LEDGER_READ_ONLY: bool({ default: false }),
   VITE_FEATURE_NEW_WALLET_MANAGER: bool({ default: false }),
   VITE_FEATURE_SWAPPER_FIAT_RAMPS: bool({ default: false }),

@@ -184,6 +184,11 @@ export default defineConfig(({ mode }) => {
           changeOrigin: true,
           rewrite: path => path.replace(/^\/notifications-api/, ''),
         },
+        '/affiliate-revenue': {
+          target: 'https://revenue-dashboard-production.up.railway.app',
+          changeOrigin: true,
+          rewrite: path => path.replace(/^\/affiliate-revenue/, ''),
+        },
       },
     },
     preview: {

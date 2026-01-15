@@ -11,15 +11,15 @@ import type { CurrentEpochMetadata } from '../types'
 import { bn } from '@/lib/bignumber/bignumber'
 
 /**
- * Calculates the reward for an account in an epoch in RUNE base units.
+ * Calculates the reward for an account in an epoch in USD.
  *
  * NOTE: This is a simplified version of the calculation that is only accurate enough for
  * display purposes due to precision differences between this approach and the internal
  * accounting on-chain.
  */
-export const calcEpochRewardForAccountRuneBaseUnit = (
+export const calcEpochRewardForAccountUsd = (
   rewardUnits: bigint,
-  affiliateRevenue: bigint,
+  affiliateRevenueUsd: number,
   currentEpochMetadata: CurrentEpochMetadata,
   stakingAssetId: AssetId,
 ) => {
@@ -29,16 +29,11 @@ export const calcEpochRewardForAccountRuneBaseUnit = (
   const distributionRate =
     currentEpochMetadata.distributionRateByStakingContract[getStakingContract(stakingAssetId)] ?? 0
 
-  const distributionAmountRuneBaseUnit = bn(affiliateRevenue.toString())
-    .times(distributionRate)
-    .toFixed(0)
+  const distributionAmountUsd = affiliateRevenueUsd * distributionRate
+  const percentageShare = bn(rewardUnits.toString()).div(totalRewardUnits.toString())
+  const epochRewardUsd = percentageShare.times(distributionAmountUsd).toFixed()
 
-  const epochRewardRuneBaseUnit = bn(rewardUnits.toString())
-    .div(totalRewardUnits.toString())
-    .times(distributionAmountRuneBaseUnit.toString())
-    .toFixed(0)
-
-  return BigInt(epochRewardRuneBaseUnit)
+  return epochRewardUsd
 }
 
 export const getRfoxContractCreationBlockNumber = (contractAddress: string) => {

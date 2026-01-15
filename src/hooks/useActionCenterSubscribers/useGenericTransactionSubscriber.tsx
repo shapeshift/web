@@ -7,7 +7,7 @@ import { useNotificationToast } from '../useNotificationToast'
 
 import { useActionCenterContext } from '@/components/Layout/Header/ActionCenter/ActionCenterContext'
 import { GenericTransactionNotification } from '@/components/Layout/Header/ActionCenter/components/Notifications/GenericTransactionNotification'
-import { getAffiliateRevenueQueryKey } from '@/pages/RFOX/hooks/useAffiliateRevenueQuery'
+import { getAffiliateRevenueUsdQueryKey } from '@/pages/RFOX/hooks/useAffiliateRevenueUsdQuery'
 import { useCurrentEpochMetadataQuery } from '@/pages/RFOX/hooks/useCurrentEpochMetadataQuery'
 import { getEarnedQueryKey } from '@/pages/RFOX/hooks/useEarnedQuery'
 import { getEpochHistoryQueryKey } from '@/pages/RFOX/hooks/useEpochHistoryQuery'
@@ -143,7 +143,7 @@ export const useGenericTransactionSubscriber = () => {
         })
 
         queryClient.invalidateQueries({
-          queryKey: getAffiliateRevenueQueryKey({
+          queryKey: getAffiliateRevenueUsdQueryKey({
             startTimestamp: currentEpochMetadataQuery.data?.epochStartTimestamp,
             endTimestamp: currentEpochMetadataQuery.data?.epochEndTimestamp,
           }),

@@ -9,7 +9,7 @@ import { TotalStaked } from './TotalStaked'
 
 import { Text } from '@/components/Text'
 import { fromBaseUnit } from '@/lib/math'
-import { useAffiliateRevenueQuery } from '@/pages/RFOX/hooks/useAffiliateRevenueQuery'
+import { useAffiliateRevenueUsdQuery } from '@/pages/RFOX/hooks/useAffiliateRevenueUsdQuery'
 import { useCurrentEpochMetadataQuery } from '@/pages/RFOX/hooks/useCurrentEpochMetadataQuery'
 import { supportedStakingAssetIds } from '@/pages/RFOX/hooks/useRfoxContext'
 import { selectAssetById, selectMarketDataByAssetIdUserCurrency } from '@/state/slices/selectors'
@@ -25,7 +25,7 @@ export const Stats: React.FC = () => {
 
   const currentEpochMetadataQuery = useCurrentEpochMetadataQuery()
 
-  const affiliateRevenueQuery = useAffiliateRevenueQuery<string>({
+  const affiliateRevenueQuery = useAffiliateRevenueUsdQuery<string>({
     startTimestamp: currentEpochMetadataQuery.data?.epochStartTimestamp,
     endTimestamp: currentEpochMetadataQuery.data?.epochEndTimestamp,
   })

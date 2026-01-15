@@ -60,7 +60,6 @@ export const YieldPositionCard = memo(
     const accountId = useAppSelector(state => {
       if (contextAccountId) return contextAccountId
       if (!chainId) return undefined
-      if (accountNumber === undefined) return undefined
       const accountIdsByNumberAndChain = selectAccountIdByAccountNumberAndChainId(state)
       return accountIdsByNumberAndChain[accountNumber]?.[chainId]
     })

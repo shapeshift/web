@@ -646,7 +646,21 @@ export const YieldForm = memo(
             suffix={isFiat ? '' : ` ${inputTokenAsset?.symbol}`}
             onValueChange={handleInputChange}
           />
-          <HStack spacing={2} mt={2} onClick={toggleIsFiat} cursor='pointer'>
+          <HStack
+            spacing={2}
+            mt={2}
+            onClick={toggleIsFiat}
+            cursor='pointer'
+            role='button'
+            tabIndex={0}
+            aria-label={translate('trade.switchCurrency')}
+            onKeyDown={e => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault()
+                toggleIsFiat()
+              }
+            }}
+          >
             <Text fontSize='sm' color='text.subtle'>
               {isFiat ? (
                 <Amount.Crypto value={cryptoAmount || '0'} symbol={inputTokenAsset?.symbol} />

@@ -23,6 +23,7 @@ import { useDebounce } from '@/hooks/useDebounce/useDebounce'
 import { useModal } from '@/hooks/useModal/useModal'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bnOrZero, positiveOrZero } from '@/lib/bignumber/bignumber'
+import { fromBaseUnit } from '@/lib/math'
 import { enterYield } from '@/lib/yieldxyz/api'
 import { DEFAULT_NATIVE_VALIDATOR_BY_CHAIN_ID } from '@/lib/yieldxyz/constants'
 import { useYields } from '@/react-queries/queries/yieldxyz/useYields'
@@ -122,9 +123,7 @@ export const EarnInput = memo(
     useEffect(() => {
       if (defaultSellAmountCryptoBaseUnit && defaultSellAsset && !sellAmountCryptoPrecision) {
         const precision = defaultSellAsset.precision ?? 18
-        const amountCryptoPrecision = bnOrZero(defaultSellAmountCryptoBaseUnit)
-          .div(bnOrZero(10).pow(precision))
-          .toString()
+        const amountCryptoPrecision = fromBaseUnit(defaultSellAmountCryptoBaseUnit, precision)
         dispatch(tradeEarnInput.actions.setSellAmountCryptoPrecision(amountCryptoPrecision))
       }
     }, [defaultSellAmountCryptoBaseUnit, defaultSellAsset, sellAmountCryptoPrecision, dispatch])

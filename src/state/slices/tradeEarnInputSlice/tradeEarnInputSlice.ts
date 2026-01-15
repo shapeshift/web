@@ -27,7 +27,7 @@ const initialState: TradeEarnInputState = {
   sellAsset: defaultAsset,
   sellAccountId: undefined,
   buyAccountId: undefined,
-  sellAmountCryptoPrecision: '',
+  sellAmountCryptoPrecision: '0',
   isInputtingFiatSellAmount: false,
   manualReceiveAddress: undefined,
   isManualReceiveAddressValidating: false,

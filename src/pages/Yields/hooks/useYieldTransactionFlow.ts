@@ -13,6 +13,7 @@ import { SECOND_CLASS_CHAINS } from '@/constants/chains'
 import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
+import { toBaseUnit } from '@/lib/math'
 import { enterYield, exitYield, fetchAction, manageYield } from '@/lib/yieldxyz/api'
 import {
   DEFAULT_NATIVE_VALIDATOR_BY_CHAIN_ID,
@@ -458,7 +459,7 @@ export const useYieldTransactionFlow = ({
 
     return {
       validator,
-      amountCryptoBaseUnit: bnOrZero(amount).times(bnOrZero(10).pow(inputTokenDecimals)).toFixed(0),
+      amountCryptoBaseUnit: toBaseUnit(amount, inputTokenDecimals),
       action: action === 'enter' ? 'stake' : action === 'exit' ? 'unstake' : 'claim',
     }
   }, [yieldChainId, validatorAddress, amount, yieldItem, action])

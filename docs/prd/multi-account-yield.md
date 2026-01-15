@@ -157,9 +157,13 @@ Acceptance Criteria (Updated)
 
 - Feature can be enabled via .env.development (VITE_FEATURE_YIELD_XYZ + VITE_FEATURE_YIELD_MULTI_ACCOUNT)
 - /yields list shows aggregated balances and positions across all accounts; no account switcher in list view
-- Yield detail/asset detail pages show a chain-specific account selector; selector hidden/disabled when only one account is available for that chain
+- Yield detail/asset detail pages show the standard AccountSelector UI (reuse existing component), filtered by asset/chain; do not render if there is only one eligible account
+- Yield routes sync `accountId` via query params (hydrate on load; selector updates URL; invalid/missing falls back to first eligible account)
 - Account-specific data updates correctly on switch in detail/asset views; context carries accountNumber for defaults
+- Asset pages show yield positions per account (one row per account+position) with provider column and clear account labels; validator column is replaced by provider naming; no extra “common.account” column
 - Asset pages continue to show yield positions (no regression); account pages continue to work
+- Normalization pass happens immediately after fetching yield balances/opportunities (byAccountId and aggregates) to keep per-account and aggregated views consistent with portfolio normalization patterns
+- Add tests for yield transformation utilities (normalization/aggregation) to prevent regression
 - No regressions when feature flags are disabled
 
 ⬆️ This file is intentionally incomplete.

@@ -3,7 +3,9 @@ import { memo, useCallback, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
 
+import { AccountSelector } from '@/components/AccountSelector/AccountSelector'
 import { Display } from '@/components/Display'
+import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import {
   COSMOS_ATOM_NATIVE_STAKING_YIELD_ID,
@@ -17,7 +19,6 @@ import {
   SOLANA_SOL_NATIVE_MULTIVALIDATOR_STAKING_YIELD_ID,
 } from '@/lib/yieldxyz/constants'
 import { YieldBalanceType } from '@/lib/yieldxyz/types'
-import { YieldAccountSwitcher } from '@/pages/Yields/components/YieldAccountSwitcher'
 import { YieldHero } from '@/pages/Yields/components/YieldHero'
 import { YieldManager } from '@/pages/Yields/components/YieldManager'
 import { YieldPositionCard } from '@/pages/Yields/components/YieldPositionCard'
@@ -27,14 +28,19 @@ import { useAllYieldBalances } from '@/react-queries/queries/yieldxyz/useAllYiel
 import { useYield } from '@/react-queries/queries/yieldxyz/useYield'
 import { useYieldProviders } from '@/react-queries/queries/yieldxyz/useYieldProviders'
 import { useYieldValidators } from '@/react-queries/queries/yieldxyz/useYieldValidators'
-import { selectUserCurrencyToUsdRate } from '@/state/slices/selectors'
+import {
+  selectPortfolioAccountIdsByAssetIdFilter,
+  selectUserCurrencyToUsdRate,
+} from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
 export const YieldDetail = memo(() => {
   const { yieldId } = useParams<{ yieldId: string }>()
-  const [searchParams] = useSearchParams()
+  const [searchParams, setSearchParams] = useSearchParams()
+  const accountIdParam = useMemo(() => searchParams.get('accountId') ?? undefined, [searchParams])
   const navigate = useNavigate()
   const translate = useTranslate()
+
   const userCurrencyToUsdRate = useAppSelector(selectUserCurrencyToUsdRate)
   const { accountId, setAccountId } = useYieldAccount()
 
@@ -46,9 +52,49 @@ export const YieldDetail = memo(() => {
   )
 
   const { data: yieldItem, isLoading, error } = useYield(yieldId ?? '')
-  const { data: allBalancesData, isFetching: isBalancesFetching } = useAllYieldBalances()
+  const availableAccounts = useAppSelector(state =>
+    selectorAssetId
+      ? selectPortfolioAccountIdsByAssetIdFilter(state, { assetId: selectorAssetId })
+      : [],
+  )
+
+  const selectedAccountId = useMemo(() => {
+    if (accountId && availableAccounts.includes(accountId)) return accountId
+    if (accountIdParam && availableAccounts.includes(accountIdParam)) return accountIdParam
+    return availableAccounts[0]
+  }, [accountId, accountIdParam, availableAccounts])
+
+  const balanceAccountIds = useMemo(
+    () => (selectedAccountId ? [selectedAccountId] : undefined),
+    [selectedAccountId],
+  )
+  const { data: allBalancesData, isFetching: isBalancesFetching } = useAllYieldBalances({
+    accountIds: balanceAccountIds,
+  })
   const balances = yieldItem?.id ? allBalancesData?.normalized[yieldItem.id] : undefined
   const isBalancesLoading = !allBalancesData && isBalancesFetching
+
+  const isYieldMultiAccountEnabled = useFeatureFlag('YieldMultiAccount')
+  const selectorAssetId = useMemo(
+    () => yieldItem?.token.assetId ?? yieldItem?.inputTokens?.[0]?.assetId,
+    [yieldItem?.inputTokens, yieldItem?.token.assetId],
+  )
+
+  useEffect(() => {
+    if (!selectedAccountId) return
+    if (accountId === selectedAccountId) return
+    setAccountId(selectedAccountId)
+  }, [accountId, selectedAccountId, setAccountId])
+
+  useEffect(() => {
+    if (!selectedAccountId) return
+    const next = new URLSearchParams(searchParams)
+    if (next.get('accountId') === selectedAccountId) return
+    next.set('accountId', selectedAccountId)
+    setSearchParams(next, { replace: true })
+  }, [selectedAccountId, searchParams, setSearchParams])
+
+  const showAccountSelector = isYieldMultiAccountEnabled && availableAccounts.length > 1
 
   const validatorParam = useMemo(() => searchParams.get('validator'), [searchParams])
   const defaultValidator = useMemo(
@@ -183,16 +229,28 @@ export const YieldDetail = memo(() => {
         maxW={{ base: 'full', md: 'container.md', lg: 'container.lg' }}
         px={{ base: 4, md: 8, lg: 12 }}
       >
-        <Display.Desktop>
-          <Flex justifyContent='flex-end' pt={4}>
-            <YieldAccountSwitcher accountId={accountId} onChange={handleAccountChange} />
-          </Flex>
-        </Display.Desktop>
-        <Display.Mobile>
-          <Box pt={2} pb={2}>
-            <YieldAccountSwitcher accountId={accountId} onChange={handleAccountChange} />
-          </Box>
-        </Display.Mobile>
+        {showAccountSelector && selectorAssetId && (
+          <>
+            <Display.Desktop>
+              <Flex justifyContent='flex-end' pt={4}>
+                <AccountSelector
+                  assetId={selectorAssetId}
+                  accountId={accountId}
+                  onChange={handleAccountChange}
+                />
+              </Flex>
+            </Display.Desktop>
+            <Display.Mobile>
+              <Box pt={2} pb={2}>
+                <AccountSelector
+                  assetId={selectorAssetId}
+                  accountId={accountId}
+                  onChange={handleAccountChange}
+                />
+              </Box>
+            </Display.Mobile>
+          </>
+        )}
         <YieldHero
           yieldItem={yieldItem}
           userBalanceUsd={userBalances.userCurrency}

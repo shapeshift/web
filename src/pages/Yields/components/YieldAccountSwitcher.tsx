@@ -1,7 +1,7 @@
 import { ChevronDownIcon } from '@chakra-ui/icons'
 import type { BoxProps, ButtonProps } from '@chakra-ui/react'
 import { Box, Button, Flex, Menu, MenuButton, MenuItem, MenuList, Text } from '@chakra-ui/react'
-import type { AccountId } from '@shapeshiftoss/caip'
+import type { AccountId, ChainId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
 import { memo, useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -15,12 +15,17 @@ import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { selectWalletType } from '@/state/slices/localWalletSlice/selectors'
 import { accountIdToLabel } from '@/state/slices/portfolioSlice/utils'
-import { selectEnabledWalletAccountIds } from '@/state/slices/selectors'
+import {
+  selectEnabledWalletAccountIds,
+  selectPortfolioAccountIdsByAssetIdFilter,
+} from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
 export type YieldAccountSwitcherProps = {
   accountId: AccountId | undefined
   onChange: (accountId: AccountId) => void
+  filterChainId?: ChainId
+  assetId?: string
   isDisabled?: boolean
   buttonProps?: ButtonProps
   boxProps?: BoxProps
@@ -58,7 +63,15 @@ const AccountMenuItem = memo(({ accountId, isSelected, onAccountClick }: Account
 })
 
 export const YieldAccountSwitcher = memo(
-  ({ accountId, onChange, isDisabled, buttonProps, boxProps }: YieldAccountSwitcherProps) => {
+  ({
+    accountId,
+    onChange,
+    filterChainId,
+    assetId,
+    isDisabled,
+    buttonProps,
+    boxProps,
+  }: YieldAccountSwitcherProps) => {
     const translate = useTranslate()
     const modalChildZIndex = useModalChildZIndex()
 
@@ -73,15 +86,28 @@ export const YieldAccountSwitcher = memo(
     const isYieldMultiAccountEnabled = useFeatureFlag('YieldMultiAccount')
 
     const enabledWalletAccountIds = useAppSelector(selectEnabledWalletAccountIds)
+    const assetFilteredAccountIds = useAppSelector(state =>
+      assetId ? selectPortfolioAccountIdsByAssetIdFilter(state, { assetId }) : [],
+    )
+
+    const filteredAccountIds = useMemo(() => {
+      if (assetId) return assetFilteredAccountIds
+      if (filterChainId) {
+        return enabledWalletAccountIds.filter(
+          walletAccountId => fromAccountId(walletAccountId).chainId === filterChainId,
+        )
+      }
+      return enabledWalletAccountIds
+    }, [assetId, assetFilteredAccountIds, enabledWalletAccountIds, filterChainId])
 
     const hasMultipleAccounts = useMemo(
-      () => enabledWalletAccountIds.length > 1,
-      [enabledWalletAccountIds.length],
+      () => filteredAccountIds.length > 1,
+      [filteredAccountIds.length],
     )
 
     const shouldShow = useMemo(
-      () => isConnected && isYieldMultiAccountEnabled && hasMultipleAccounts,
-      [isConnected, isYieldMultiAccountEnabled, hasMultipleAccounts],
+      () => isConnected && isYieldMultiAccountEnabled && filteredAccountIds.length > 0,
+      [isConnected, isYieldMultiAccountEnabled, filteredAccountIds.length],
     )
 
     const selectedChainId = useMemo(
@@ -130,7 +156,7 @@ export const YieldAccountSwitcher = memo(
 
     const menuItems = useMemo(
       () =>
-        enabledWalletAccountIds.map(walletAccountId => (
+        filteredAccountIds.map(walletAccountId => (
           <AccountMenuItem
             key={walletAccountId}
             accountId={walletAccountId}
@@ -138,10 +164,11 @@ export const YieldAccountSwitcher = memo(
             onAccountClick={handleAccountClick}
           />
         )),
-      [enabledWalletAccountIds, accountId, handleAccountClick],
+      [filteredAccountIds, accountId, handleAccountClick],
     )
 
     if (!shouldShow) return null
+    if (!filteredAccountIds.length) return null
 
     return (
       <Box {...boxProps}>

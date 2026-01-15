@@ -29,7 +29,6 @@ import { useNavigate, useSearchParams } from 'react-router-dom'
 import { Amount } from '@/components/Amount/Amount'
 import { AssetIcon } from '@/components/AssetIcon'
 import { ChainIcon } from '@/components/ChainMenu'
-import { Display } from '@/components/Display'
 import { ResultsEmptyNoWallet } from '@/components/ResultsEmptyNoWallet'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
@@ -72,7 +71,7 @@ export const YieldsList = memo(() => {
   const navigate = useNavigate()
   const { state: walletState } = useWallet()
   const isConnected = useMemo(() => Boolean(walletState.walletInfo), [walletState.walletInfo])
-  const { accountId, setAccountId } = useYieldAccount()
+  const enabledWalletAccountIds = useAppSelector(selectEnabledWalletAccountIds)
   const [isMobile] = useMediaQuery('(max-width: 768px)')
   const [searchParams, setSearchParams] = useSearchParams()
   const tabParam = useMemo(() => searchParams.get('tab'), [searchParams])
@@ -125,7 +124,9 @@ export const YieldsList = memo(() => {
     provider: selectedProvider || undefined,
   })
 
-  const { data: allBalancesData, isFetching: isLoadingBalances } = useAllYieldBalances()
+  const { data: allBalancesData, isFetching: isLoadingBalances } = useAllYieldBalances({
+    accountIds: enabledWalletAccountIds,
+  })
   const allBalances = allBalancesData?.byYieldId
   const { data: yieldProviders } = useYieldProviders()
 
@@ -1060,17 +1061,7 @@ export const YieldsList = memo(() => {
             </Heading>
             {!isMobile && <Text color='text.subtle'>{translate('yieldXYZ.pageSubtitle')}</Text>}
           </Box>
-          <Display.Desktop>
-            <YieldAccountSwitcher accountId={accountId} onChange={setAccountId} />
-          </Display.Desktop>
         </Flex>
-        <Display.Mobile>
-          <YieldAccountSwitcher
-            accountId={accountId}
-            onChange={setAccountId}
-            boxProps={{ mt: 2 }}
-          />
-        </Display.Mobile>
       </Box>
       {errorElement}
       {isConnected && (

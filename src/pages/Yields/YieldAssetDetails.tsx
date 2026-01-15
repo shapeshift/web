@@ -18,10 +18,12 @@ import { memo, useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
 
+import { AccountSelector } from '@/components/AccountSelector/AccountSelector'
 import { Amount } from '@/components/Amount/Amount'
 import { AssetIcon } from '@/components/AssetIcon'
 import { ChainIcon } from '@/components/ChainMenu'
 import { Display } from '@/components/Display'
+import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import {
   COSMOS_ATOM_NATIVE_STAKING_YIELD_ID,
@@ -35,7 +37,6 @@ import {
 import type { AugmentedYieldDto, YieldNetwork } from '@/lib/yieldxyz/types'
 import { resolveYieldInputAssetIcon } from '@/lib/yieldxyz/utils'
 import { GradientApy } from '@/pages/Yields/components/GradientApy'
-import { YieldAccountSwitcher } from '@/pages/Yields/components/YieldAccountSwitcher'
 import { YieldFilters } from '@/pages/Yields/components/YieldFilters'
 import { YieldItem, YieldItemSkeleton } from '@/pages/Yields/components/YieldItem'
 import { YieldTable } from '@/pages/Yields/components/YieldTable'
@@ -45,7 +46,10 @@ import { useYieldAccount } from '@/pages/Yields/YieldAccountContext'
 import { useAllYieldBalances } from '@/react-queries/queries/yieldxyz/useAllYieldBalances'
 import { useYieldProviders } from '@/react-queries/queries/yieldxyz/useYieldProviders'
 import { useYields } from '@/react-queries/queries/yieldxyz/useYields'
-import { selectUserCurrencyToUsdRate } from '@/state/slices/selectors'
+import {
+  selectPortfolioAccountIdsByAssetIdFilter,
+  selectUserCurrencyToUsdRate,
+} from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
 export const YieldAssetDetails = memo(() => {
@@ -98,6 +102,14 @@ export const YieldAssetDetails = memo(() => {
   const userCurrencyToUsdRate = useAppSelector(selectUserCurrencyToUsdRate)
   const { data: allBalancesData } = useAllYieldBalances()
   const allBalances = allBalancesData?.byYieldId
+
+  const isYieldMultiAccountEnabled = useFeatureFlag('YieldMultiAccount')
+  const accountIdsForAsset = useAppSelector(state =>
+    assetInfo?.assetId
+      ? selectPortfolioAccountIdsByAssetIdFilter(state, { assetId: assetInfo.assetId })
+      : [],
+  )
+  const showAccountSelector = isYieldMultiAccountEnabled && accountIdsForAsset.length > 1
 
   const getProviderLogo = useCallback(
     (providerId: string) => yieldProviders?.[providerId]?.logoURI,
@@ -406,18 +418,30 @@ export const YieldAssetDetails = memo(() => {
               </Heading>
             </Box>
           </Flex>
-          <Display.Desktop>
-            <YieldAccountSwitcher accountId={accountId} onChange={handleAccountChange} />
-          </Display.Desktop>
+          {showAccountSelector && assetInfo?.assetId && (
+            <Display.Desktop>
+              <AccountSelector
+                assetId={assetInfo.assetId}
+                accountId={accountId}
+                onChange={handleAccountChange}
+              />
+            </Display.Desktop>
+          )}
         </Flex>
-        <Display.Mobile>
-          <Box mt={4}>
-            <YieldAccountSwitcher accountId={accountId} onChange={handleAccountChange} />
-          </Box>
-        </Display.Mobile>
+        {showAccountSelector && assetInfo?.assetId && (
+          <Display.Mobile>
+            <Box mt={4}>
+              <AccountSelector
+                assetId={assetInfo.assetId}
+                accountId={accountId}
+                onChange={handleAccountChange}
+              />
+            </Box>
+          </Display.Mobile>
+        )}
       </Box>
     )
-  }, [assetInfo, translate, accountId, handleAccountChange])
+  }, [assetInfo, translate, accountId, handleAccountChange, showAccountSelector])
 
   const loadingGridElement = useMemo(
     () => (

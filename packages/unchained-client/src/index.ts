@@ -1,5 +1,7 @@
 export * from './types'
 
+export { ResponseError } from './generated/ethereum/runtime'
+
 export * as ws from './websocket'
 
 export * as evm from './evm'

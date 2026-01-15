@@ -11755,7 +11755,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/caip@^8.15.0, @shapeshiftoss/caip@^8.16.5, @shapeshiftoss/caip@workspace:^, @shapeshiftoss/caip@workspace:packages/caip":
+"@shapeshiftoss/caip@^8.15.0, @shapeshiftoss/caip@^8.16.5, @shapeshiftoss/caip@npm:@shapeshiftoss/caip@8.16.6, @shapeshiftoss/caip@workspace:^, @shapeshiftoss/caip@workspace:packages/caip":
   version: 0.0.0-use.local
   resolution: "@shapeshiftoss/caip@workspace:packages/caip"
   dependencies:
@@ -11772,16 +11772,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/caip@npm:^8.16.6":
-  version: 8.16.6
-  resolution: "@shapeshiftoss/caip@npm:8.16.6"
-  dependencies:
-    axios: ^1.13.0
-  checksum: 09b33502ecc384cba2908f5dfb4abd002c27d73a79b12e638fef9d2e273721d69673e2853adcc1419e9f7581bbd7924839a618df5d363b321f983acd639a72a9
-  languageName: node
-  linkType: hard
-
-"@shapeshiftoss/chain-adapters@^11.3.6, @shapeshiftoss/chain-adapters@workspace:^, @shapeshiftoss/chain-adapters@workspace:packages/chain-adapters":
+"@shapeshiftoss/chain-adapters@^11.3.6, @shapeshiftoss/chain-adapters@npm:@shapeshiftoss/chain-adapters@11.3.7, @shapeshiftoss/chain-adapters@workspace:^, @shapeshiftoss/chain-adapters@workspace:packages/chain-adapters":
   version: 0.0.0-use.local
   resolution: "@shapeshiftoss/chain-adapters@workspace:packages/chain-adapters"
   dependencies:
@@ -11814,37 +11805,6 @@ __metadata:
     viem: ^2.40.3
   languageName: unknown
   linkType: soft
-
-"@shapeshiftoss/chain-adapters@npm:^11.3.7":
-  version: 11.3.7
-  resolution: "@shapeshiftoss/chain-adapters@npm:11.3.7"
-  dependencies:
-    "@mysten/sui": 1.45.0
-    "@near-js/crypto": ^2.5.1
-    "@near-js/providers": ^2.5.1
-    "@near-js/transactions": ^2.5.1
-    "@near-js/utils": ^2.5.1
-    "@shapeshiftoss/caip": ^8.16.6
-    "@shapeshiftoss/hdwallet-core": 1.62.39
-    "@shapeshiftoss/hdwallet-ledger": 1.62.39
-    "@shapeshiftoss/types": ^8.6.6
-    "@shapeshiftoss/unchained-client": ^10.14.8
-    "@shapeshiftoss/utils": ^1.0.5
-    "@solana/spl-token": ^0.4.9
-    "@solana/web3.js": ^1.98.0
-    axios: ^1.13.0
-    bech32: ^2.0.0
-    bignumber.js: ^9.3.1
-    bs58check: ^2.1.2
-    coinselect: ^3.1.13
-    lodash: ^4.17.21
-    multicoin-address-validator: ^0.5.12
-    node-polyglot: ^2.4.0
-    p-queue: ^8.0.1
-    viem: ^2.40.3
-  checksum: e66526cac420a2d3a02e62f96bfbb92cd0d7f23c2d1f71469403019f5be30c6c81eec8d32eec121f4c3c3d6b6b1ce4e7e0876cc9d7642d81cfddeed582f1c6d4
-  languageName: node
-  linkType: hard
 
 "@shapeshiftoss/common-api@npm:^9.3.0":
   version: 9.3.0
@@ -12370,10 +12330,10 @@ __metadata:
   resolution: "@shapeshiftoss/swap-widget@workspace:packages/swap-widget"
   dependencies:
     "@rainbow-me/rainbowkit": 2.1.7
-    "@shapeshiftoss/caip": ^8.16.6
-    "@shapeshiftoss/chain-adapters": ^11.3.7
-    "@shapeshiftoss/swapper": ^17.6.9
-    "@shapeshiftoss/utils": ^1.0.5
+    "@shapeshiftoss/caip": "npm:@shapeshiftoss/caip@8.16.6"
+    "@shapeshiftoss/chain-adapters": "npm:@shapeshiftoss/chain-adapters@11.3.7"
+    "@shapeshiftoss/swapper": "npm:@shapeshiftoss/swapper@17.6.9"
+    "@shapeshiftoss/utils": "npm:@shapeshiftoss/utils@1.0.5"
     "@tanstack/react-query": ^5.69.0
     "@types/react": ^19.0.0
     "@types/react-dom": ^19.0.0
@@ -12393,7 +12353,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@shapeshiftoss/swapper@npm:^17.6.9":
+"@shapeshiftoss/swapper@npm:@shapeshiftoss/swapper@17.6.9":
   version: 17.6.9
   resolution: "@shapeshiftoss/swapper@npm:17.6.9"
   dependencies:
@@ -12495,18 +12455,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/types@npm:^8.6.6":
-  version: 8.6.6
-  resolution: "@shapeshiftoss/types@npm:8.6.6"
-  dependencies:
-    "@cowprotocol/app-data": ^2.3.0
-    "@shapeshiftoss/caip": ^8.16.6
-    ethers5: "npm:ethers@5.7.2"
-    viem: ^2.40.3
-  checksum: 3253e81ca5aaee3a9824082772cd4d30029dd0e0aeeee0dbeb195e6407fa7dddf138c5c0cbb335000a6cbb95f9e96a624acbb60b68ecd1ccd2f893af04e8ed0b
-  languageName: node
-  linkType: hard
-
 "@shapeshiftoss/unchained-client@^10.1.1, @shapeshiftoss/unchained-client@^10.14.8, @shapeshiftoss/unchained-client@workspace:^, @shapeshiftoss/unchained-client@workspace:packages/unchained-client":
   version: 0.0.0-use.local
   resolution: "@shapeshiftoss/unchained-client@workspace:packages/unchained-client"
@@ -12542,7 +12490,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@shapeshiftoss/utils@^1.0.4, @shapeshiftoss/utils@workspace:^, @shapeshiftoss/utils@workspace:packages/utils":
+"@shapeshiftoss/utils@^1.0.4, @shapeshiftoss/utils@npm:@shapeshiftoss/utils@1.0.5, @shapeshiftoss/utils@workspace:^, @shapeshiftoss/utils@workspace:packages/utils":
   version: 0.0.0-use.local
   resolution: "@shapeshiftoss/utils@workspace:packages/utils"
   dependencies:
@@ -12555,20 +12503,6 @@ __metadata:
     lodash: ^4.17.21
   languageName: unknown
   linkType: soft
-
-"@shapeshiftoss/utils@npm:^1.0.5":
-  version: 1.0.5
-  resolution: "@shapeshiftoss/utils@npm:1.0.5"
-  dependencies:
-    "@shapeshiftoss/caip": ^8.16.6
-    "@shapeshiftoss/types": ^8.6.6
-    "@sniptt/monads": ^0.5.10
-    bignumber.js: ^9.3.1
-    dayjs: ^1.11.3
-    lodash: ^4.17.21
-  checksum: a197f1e8552b6391415ea8d12f12289c2d04a6e7af3cd72ee42ac1714fb666d449c49177c52e28ba43046c4bd2e6c90b82b2d25708e076cb57c79d2964f4d06f
-  languageName: node
-  linkType: hard
 
 "@shapeshiftoss/web@workspace:.":
   version: 0.0.0-use.local

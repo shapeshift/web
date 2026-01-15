@@ -12346,6 +12346,7 @@ __metadata:
     typescript: ^5.2.2
     viem: 2.40.3
     vite: ^5.0.0
+    vite-plugin-node-polyfills: ^0.23.0
     wagmi: ^2.9.2
   peerDependencies:
     react: ">=18.0.0"

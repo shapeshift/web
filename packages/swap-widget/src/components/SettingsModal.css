@@ -1,0 +1,133 @@
+.ssw-settings-modal {
+  background: var(--ssw-bg-secondary);
+  border-radius: 16px;
+  width: 100%;
+  max-width: 400px;
+  overflow: hidden;
+  box-shadow: 0 24px 48px rgba(0, 0, 0, 0.2);
+}
+
+.ssw-settings-content {
+  padding: 20px 24px 24px;
+}
+
+.ssw-settings-section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.ssw-settings-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--ssw-text-secondary);
+}
+
+.ssw-info-btn {
+  background: none;
+  border: none;
+  padding: 2px;
+  cursor: pointer;
+  color: var(--ssw-text-muted);
+  border-radius: 50%;
+  transition: color 0.15s ease;
+}
+
+.ssw-info-btn:hover {
+  color: var(--ssw-text-secondary);
+}
+
+.ssw-slippage-options {
+  display: flex;
+  gap: 8px;
+}
+
+.ssw-slippage-btn {
+  flex: 1;
+  padding: 10px 12px;
+  border: 1px solid var(--ssw-border);
+  border-radius: 10px;
+  background: var(--ssw-bg-tertiary);
+  color: var(--ssw-text-primary);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.ssw-slippage-btn:hover {
+  border-color: var(--ssw-accent);
+}
+
+.ssw-slippage-btn.ssw-selected {
+  background: var(--ssw-accent-light);
+  border-color: var(--ssw-accent);
+  color: var(--ssw-accent);
+}
+
+.ssw-slippage-custom {
+  flex: 1.2;
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.ssw-slippage-custom input {
+  width: 100%;
+  padding: 10px 28px 10px 12px;
+  border: 1px solid var(--ssw-border);
+  border-radius: 10px;
+  background: var(--ssw-bg-tertiary);
+  color: var(--ssw-text-primary);
+  font-size: 14px;
+  font-weight: 500;
+  outline: none;
+  transition: border-color 0.15s ease;
+}
+
+.ssw-slippage-custom input:focus {
+  border-color: var(--ssw-accent);
+}
+
+.ssw-slippage-custom input::placeholder {
+  color: var(--ssw-text-muted);
+  font-weight: 400;
+}
+
+.ssw-slippage-custom.ssw-selected input {
+  background: var(--ssw-accent-light);
+  border-color: var(--ssw-accent);
+}
+
+.ssw-slippage-suffix {
+  position: absolute;
+  right: 12px;
+  color: var(--ssw-text-secondary);
+  font-size: 14px;
+  pointer-events: none;
+}
+
+.ssw-slippage-warning {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: rgba(255, 193, 7, 0.1);
+  color: #ffc107;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.ssw-slippage-warning svg {
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.ssw-slippage-warning.ssw-error {
+  background: rgba(244, 67, 54, 0.1);
+  color: #f44336;
+}

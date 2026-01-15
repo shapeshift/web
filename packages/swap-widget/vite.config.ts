@@ -5,9 +5,32 @@ import { nodePolyfills } from 'vite-plugin-node-polyfills'
 
 const isLibBuild = process.env.BUILD_LIB === 'true'
 
-// For whatever reason, globalThis is not defined for the local esbuild environment while
-// using the vite-plugin-node-polyfills plugin. This plugin will appropriately define globalThis
-// to fix this scenario (may be resolved in a future release of vite-plugin-node-polyfills hopefully).
+const externalPatterns = [
+  /^react$/,
+  /^react-dom$/,
+  /starknet/,
+  /tronweb/,
+  /@solana\//,
+  /@mysten\/sui/,
+  /@near-js\//,
+  /@coral-xyz\/anchor/,
+  /@arbitrum\/sdk/,
+  /@cowprotocol\//,
+  /@avnu\//,
+  /@cetusprotocol\//,
+  /@defuse-protocol\//,
+  /@uniswap\//,
+  /node:crypto/,
+  /node:events/,
+]
+
+const isExternal = (id: string) => externalPatterns.some(pattern => pattern.test(id))
+
+const isExternalNonReact = (id: string) => {
+  if (id === 'react' || id === 'react-dom') return false
+  return isExternal(id)
+}
+
 const defineGlobalThis: PluginOption = {
   name: 'define-global-this',
   enforce: 'pre',
@@ -67,25 +90,7 @@ export default defineConfig({
           fileName: 'index',
         },
         rollupOptions: {
-          external: [
-            'react',
-            'react-dom',
-            'starknet',
-            'tronweb',
-            '@solana/web3.js',
-            '@solana/spl-token',
-            '@mysten/sui/client',
-            '@mysten/sui/transactions',
-            '@near-js/crypto',
-            '@near-js/providers',
-            '@near-js/transactions',
-            '@near-js/utils',
-            '@coral-xyz/anchor',
-            '@arbitrum/sdk',
-            '@cowprotocol/app-data',
-            '@avnu/avnu-sdk',
-            '@cetusprotocol/aggregator-sdk',
-          ],
+          external: isExternal,
           output: {
             globals: {
               react: 'React',
@@ -97,23 +102,7 @@ export default defineConfig({
     : {
         outDir: 'dist',
         rollupOptions: {
-          external: [
-            'starknet',
-            'tronweb',
-            '@solana/web3.js',
-            '@solana/spl-token',
-            '@mysten/sui/client',
-            '@mysten/sui/transactions',
-            '@near-js/crypto',
-            '@near-js/providers',
-            '@near-js/transactions',
-            '@near-js/utils',
-            '@coral-xyz/anchor',
-            '@arbitrum/sdk',
-            '@cowprotocol/app-data',
-            '@avnu/avnu-sdk',
-            '@cetusprotocol/aggregator-sdk',
-          ],
+          external: isExternalNonReact,
         },
       },
 })

@@ -24,10 +24,15 @@ import type { Asset } from '@shapeshiftoss/types'
 import { memo, useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 
-import { SHAPESHIFT_VALIDATOR_LOGO, SHAPESHIFT_VALIDATOR_NAME } from '@/lib/yieldxyz/constants'
+import {
+  DEFAULT_NATIVE_VALIDATOR_BY_CHAIN_ID,
+  SHAPESHIFT_VALIDATOR_LOGO,
+  SHAPESHIFT_VALIDATOR_NAME,
+} from '@/lib/yieldxyz/constants'
 import type { AugmentedYieldDto, ProviderDto, ValidatorDto } from '@/lib/yieldxyz/types'
 import { GradientApy } from '@/pages/Yields/components/GradientApy'
 import { useYieldProviders } from '@/react-queries/queries/yieldxyz/useYieldProviders'
+import { useYieldValidators } from '@/react-queries/queries/yieldxyz/useYieldValidators'
 
 const chevronDownIcon = <ChevronDownIcon />
 const searchIcon = <SearchIcon color='text.subtle' />
@@ -87,12 +92,31 @@ const YieldItem = memo(
   }) => {
     const selectedBg = useColorModeValue('blue.50', 'whiteAlpha.100')
 
+    const requiresValidator = yieldItem.mechanics.requiresValidatorSelection
+    const { data: validators } = useYieldValidators(yieldItem.id, requiresValidator)
+
     const apyDisplay = useMemo(() => {
       const apy = (yieldItem.rewardRate?.total ?? 0) * 100
       return `${apy.toFixed(2)}%`
     }, [yieldItem.rewardRate?.total])
 
-    const providerInfo = useMemo(() => getDisplayInfo(yieldItem, providers), [yieldItem, providers])
+    const displayInfo = useMemo(() => {
+      // For staking yields with validators, show the default validator
+      if (requiresValidator && validators?.length) {
+        const chainId = yieldItem.chainId
+        const defaultAddress = chainId ? DEFAULT_NATIVE_VALIDATOR_BY_CHAIN_ID[chainId] : undefined
+        const defaultValidator = defaultAddress
+          ? validators.find(v => v.address === defaultAddress)
+          : undefined
+        const preferredValidator = validators.find(v => v.preferred) ?? validators[0]
+        const validator = defaultValidator ?? preferredValidator
+        if (validator) {
+          return { name: validator.name, logoURI: validator.logoURI }
+        }
+      }
+      // Fall back to the static display info (includes Cosmos ShapeShift DAO fallback)
+      return getDisplayInfo(yieldItem, providers)
+    }, [requiresValidator, validators, yieldItem, providers])
 
     return (
       <Box
@@ -109,15 +133,15 @@ const YieldItem = memo(
       >
         <HStack spacing={3} width='full'>
           <Image
-            src={providerInfo.logoURI}
-            alt={providerInfo.name}
+            src={displayInfo.logoURI}
+            alt={displayInfo.name}
             boxSize='40px'
             borderRadius='full'
             fallbackSrc='https://assets.coingecko.com/coins/images/279/small/ethereum.png'
           />
           <VStack align='start' spacing={0} flex={1} minW={0}>
             <Text fontWeight='semibold' fontSize='sm' noOfLines={1}>
-              {providerInfo.name}
+              {displayInfo.name}
             </Text>
           </VStack>
           <GradientApy fontSize='sm' fontWeight='bold'>

@@ -1,44 +1,55 @@
-import type { SupportedTradeQuoteStepIndex, Swap, TradeQuoteStep } from '@shapeshiftoss/swapper'
-import { SwapStatus, TransactionExecutionState } from '@shapeshiftoss/swapper'
-import { fromBaseUnit } from '@shapeshiftoss/utils'
-import { useCallback, useMemo } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { v4 as uuid } from 'uuid'
+import type {
+  SupportedTradeQuoteStepIndex,
+  Swap,
+  TradeQuoteStep,
+} from "@shapeshiftoss/swapper";
+import { SwapStatus, TransactionExecutionState } from "@shapeshiftoss/swapper";
+import { fromBaseUnit } from "@shapeshiftoss/utils";
+import { useCallback, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
+import { v4 as uuid } from "uuid";
 
-import { getHopExecutionStateButtonTranslation } from '../helpers'
-import { useActiveTradeAllowance } from './useActiveTradeAllowance'
-import { useTradeExecution } from './useTradeExecution'
+import { getHopExecutionStateButtonTranslation } from "../helpers";
+import { useActiveTradeAllowance } from "./useActiveTradeAllowance";
+import { useTradeExecution } from "./useTradeExecution";
 
-import { useGetTradeQuotes } from '@/components/MultiHopTrade/hooks/useGetTradeQuotes/useGetTradeQuotes'
-import { TradeRoutePaths } from '@/components/MultiHopTrade/types'
-import { assertUnreachable } from '@/lib/utils'
-import { swapSlice } from '@/state/slices/swapSlice/swapSlice'
+import { useGetTradeQuotes } from "@/components/MultiHopTrade/hooks/useGetTradeQuotes/useGetTradeQuotes";
+import { TradeRoutePaths } from "@/components/MultiHopTrade/types";
+import { assertUnreachable } from "@/lib/utils";
+import { swapSlice } from "@/state/slices/swapSlice/swapSlice";
 import {
   selectFirstHopSellAccountId,
   selectLastHopBuyAccountId,
-} from '@/state/slices/tradeInputSlice/selectors'
+} from "@/state/slices/tradeInputSlice/selectors";
 import {
   selectActiveQuote,
   selectConfirmedTradeExecutionState,
   selectHopExecutionMetadata,
-} from '@/state/slices/tradeQuoteSlice/selectors'
-import { tradeQuoteSlice } from '@/state/slices/tradeQuoteSlice/tradeQuoteSlice'
-import { HopExecutionState, TradeExecutionState } from '@/state/slices/tradeQuoteSlice/types'
-import { useAppDispatch, useAppSelector, useSelectorWithArgs } from '@/state/store'
+} from "@/state/slices/tradeQuoteSlice/selectors";
+import { tradeQuoteSlice } from "@/state/slices/tradeQuoteSlice/tradeQuoteSlice";
+import {
+  HopExecutionState,
+  TradeExecutionState,
+} from "@/state/slices/tradeQuoteSlice/types";
+import {
+  useAppDispatch,
+  useAppSelector,
+  useSelectorWithArgs,
+} from "@/state/store";
 
 type UseTradeButtonPropsProps = {
-  tradeQuoteStep: TradeQuoteStep
-  currentHopIndex: SupportedTradeQuoteStepIndex
-  activeTradeId: string
-  isExactAllowance: boolean
-}
+  tradeQuoteStep: TradeQuoteStep;
+  currentHopIndex: SupportedTradeQuoteStepIndex;
+  activeTradeId: string;
+  isExactAllowance: boolean;
+};
 
 type TradeButtonProps = {
-  onSubmit: (() => void) | (() => Promise<void>)
-  buttonText: string
-  isLoading: boolean
-  isDisabled: boolean
-}
+  onSubmit: (() => void) | (() => Promise<void>);
+  buttonText: string;
+  isLoading: boolean;
+  isDisabled: boolean;
+};
 
 export const useTradeButtonProps = ({
   tradeQuoteStep,
@@ -46,25 +57,30 @@ export const useTradeButtonProps = ({
   activeTradeId,
   isExactAllowance,
 }: UseTradeButtonPropsProps): TradeButtonProps | undefined => {
-  const dispatch = useAppDispatch()
-  const navigate = useNavigate()
-  const confirmedTradeExecutionState = useAppSelector(selectConfirmedTradeExecutionState)
-  const activeQuote = useAppSelector(selectActiveQuote)
-  const { isFetching, data: tradeQuoteQueryData } = useGetTradeQuotes()
+  const dispatch = useAppDispatch();
+  const navigate = useNavigate();
+  const confirmedTradeExecutionState = useAppSelector(
+    selectConfirmedTradeExecutionState,
+  );
+  const activeQuote = useAppSelector(selectActiveQuote);
+  const { isFetching, data: tradeQuoteQueryData } = useGetTradeQuotes();
 
   const hopExecutionMetadataFilter = useMemo(() => {
     return {
-      tradeId: activeTradeId ?? '',
+      tradeId: activeTradeId ?? "",
       hopIndex: currentHopIndex ?? 0,
-    }
-  }, [activeTradeId, currentHopIndex])
+    };
+  }, [activeTradeId, currentHopIndex]);
 
   const {
     allowanceApproval,
     allowanceReset,
     state: hopExecutionState,
     swap: { state: swapTxState, relayerExplorerTxLink, relayerTxHash },
-  } = useSelectorWithArgs(selectHopExecutionMetadata, hopExecutionMetadataFilter)
+  } = useSelectorWithArgs(
+    selectHopExecutionMetadata,
+    hopExecutionMetadataFilter,
+  );
 
   const {
     handleSignAllowanceApproval,
@@ -78,17 +94,17 @@ export const useTradeButtonProps = ({
     tradeQuoteStep,
     isExactAllowance,
     activeTradeId,
-  })
+  });
 
-  const sellAccountId = useAppSelector(selectFirstHopSellAccountId)
-  const buyAccountId = useAppSelector(selectLastHopBuyAccountId)
+  const sellAccountId = useAppSelector(selectFirstHopSellAccountId);
+  const buyAccountId = useAppSelector(selectLastHopBuyAccountId);
 
   const handleTradeConfirm = useCallback(() => {
-    if (!activeQuote) return
-    if (!sellAccountId) return
+    if (!activeQuote) return;
+    if (!sellAccountId) return;
 
-    const firstStep = activeQuote.steps[0]
-    const lastStep = activeQuote.steps[activeQuote.steps.length - 1]
+    const firstStep = activeQuote.steps[0];
+    const lastStep = activeQuote.steps[activeQuote.steps.length - 1];
 
     const swap: Swap = {
       id: uuid(),
@@ -101,8 +117,10 @@ export const useTradeButtonProps = ({
       swapperName: activeQuote.swapperName,
       sellAsset: firstStep.sellAsset,
       buyAsset: lastStep.buyAsset,
-      sellAmountCryptoBaseUnit: firstStep.sellAmountIncludingProtocolFeesCryptoBaseUnit,
-      expectedBuyAmountCryptoBaseUnit: lastStep.buyAmountAfterFeesCryptoBaseUnit,
+      sellAmountCryptoBaseUnit:
+        firstStep.sellAmountIncludingProtocolFeesCryptoBaseUnit,
+      expectedBuyAmountCryptoBaseUnit:
+        lastStep.buyAmountAfterFeesCryptoBaseUnit,
       sellAmountCryptoPrecision: fromBaseUnit(
         firstStep.sellAmountIncludingProtocolFeesCryptoBaseUnit,
         firstStep.sellAsset.precision,
@@ -118,7 +136,7 @@ export const useTradeButtonProps = ({
         relayerTxHash,
         relayTransactionMetadata: firstStep?.relayTransactionMetadata,
         stepIndex: currentHopIndex,
-        quoteId: activeQuote.id,
+        quoteId: firstStep?.stonfiSpecific?.quoteId ?? activeQuote.id,
         streamingSwapMetadata: {
           maxSwapCount: firstStep.thorchainSpecific?.maxStreamingQuantity ?? 0,
           attemptedSwapCount: 0,
@@ -127,12 +145,12 @@ export const useTradeButtonProps = ({
       },
       isStreaming: activeQuote.isStreaming,
       status: SwapStatus.Idle,
-    }
+    };
 
-    dispatch(swapSlice.actions.upsertSwap(swap))
-    dispatch(swapSlice.actions.setActiveSwapId(swap.id))
+    dispatch(swapSlice.actions.upsertSwap(swap));
+    dispatch(swapSlice.actions.setActiveSwapId(swap.id));
 
-    dispatch(tradeQuoteSlice.actions.confirmTrade(activeQuote.id))
+    dispatch(tradeQuoteSlice.actions.confirmTrade(activeQuote.id));
   }, [
     dispatch,
     activeQuote,
@@ -141,32 +159,33 @@ export const useTradeButtonProps = ({
     sellAccountId,
     relayerExplorerTxLink,
     relayerTxHash,
-  ])
+  ]);
 
-  const executeTrade = useTradeExecution(currentHopIndex, activeTradeId)
+  const executeTrade = useTradeExecution(currentHopIndex, activeTradeId);
 
   const handleSignTx = useCallback(() => {
     if (
-      ![TransactionExecutionState.AwaitingConfirmation, TransactionExecutionState.Failed].includes(
-        swapTxState,
-      )
+      ![
+        TransactionExecutionState.AwaitingConfirmation,
+        TransactionExecutionState.Failed,
+      ].includes(swapTxState)
     ) {
-      console.error('attempted to execute in-progress swap')
-      return
+      console.error("attempted to execute in-progress swap");
+      return;
     }
 
-    return executeTrade()
-  }, [executeTrade, swapTxState])
+    return executeTrade();
+  }, [executeTrade, swapTxState]);
 
   const handleBack = useCallback(() => {
     if (confirmedTradeExecutionState === TradeExecutionState.TradeComplete) {
-      dispatch(tradeQuoteSlice.actions.clear())
+      dispatch(tradeQuoteSlice.actions.clear());
     }
 
-    navigate(TradeRoutePaths.Input)
-  }, [dispatch, navigate, confirmedTradeExecutionState])
+    navigate(TradeRoutePaths.Input);
+  }, [dispatch, navigate, confirmedTradeExecutionState]);
 
-  const buttonText = getHopExecutionStateButtonTranslation(hopExecutionState)
+  const buttonText = getHopExecutionStateButtonTranslation(hopExecutionState);
 
   switch (hopExecutionState) {
     case HopExecutionState.Pending:
@@ -175,7 +194,7 @@ export const useTradeButtonProps = ({
         buttonText,
         isLoading: false, // Instant
         isDisabled: false, // TODO: validate balance etc
-      }
+      };
     case HopExecutionState.AwaitingAllowanceReset:
       return {
         onSubmit: handleSignAllowanceReset,
@@ -188,7 +207,7 @@ export const useTradeButtonProps = ({
           // then that will be an infinite load
           allowanceReset.state === TransactionExecutionState.Complete,
         isDisabled: isAllowanceResetLoading,
-      }
+      };
     case HopExecutionState.AwaitingAllowanceApproval:
       return {
         onSubmit: handleSignAllowanceApproval,
@@ -201,29 +220,29 @@ export const useTradeButtonProps = ({
           // then that will be an infinite load
           allowanceApproval.state === TransactionExecutionState.Complete,
         isDisabled: isAllowanceApprovalLoading,
-      }
+      };
     case HopExecutionState.AwaitingPermit2Eip712Sign:
       return {
         onSubmit: signPermit2,
         buttonText,
         isLoading: false, // Instant
         isDisabled: false,
-      }
+      };
     case HopExecutionState.AwaitingSwap:
       return {
         onSubmit: handleSignTx,
         buttonText,
         isLoading: isFetching,
         isDisabled: !tradeQuoteQueryData,
-      }
+      };
     case HopExecutionState.Complete:
       return {
         onSubmit: handleBack,
         buttonText,
         isLoading: false,
         isDisabled: false,
-      }
+      };
     default:
-      assertUnreachable(hopExecutionState)
+      assertUnreachable(hopExecutionState);
   }
-}
+};

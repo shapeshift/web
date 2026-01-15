@@ -1,5 +1,5 @@
 import { bchAssetId, CHAIN_NAMESPACE, fromAccountId, fromChainId } from '@shapeshiftoss/caip'
-import type { near, SignTx, SignTypedDataInput } from '@shapeshiftoss/chain-adapters'
+import type { near, SignTx, SignTypedDataInput, ton } from '@shapeshiftoss/chain-adapters'
 import { ChainAdapterError, toAddressNList } from '@shapeshiftoss/chain-adapters'
 import type {
   ETHSignTypedData,
@@ -44,6 +44,7 @@ import { assertGetNearChainAdapter } from '@/lib/utils/near'
 import { assertGetSolanaChainAdapter } from '@/lib/utils/solana'
 import { assertGetStarknetChainAdapter } from '@/lib/utils/starknet'
 import { assertGetSuiChainAdapter } from '@/lib/utils/sui'
+import { assertGetTonChainAdapter } from '@/lib/utils/ton'
 import { assertGetTronChainAdapter } from '@/lib/utils/tron'
 import { assertGetUtxoChainAdapter } from '@/lib/utils/utxo'
 import {
@@ -715,7 +716,36 @@ export const useTradeExecution = (
           return
         }
         case CHAIN_NAMESPACE.Ton: {
-          throw new Error('TON swaps are not supported')
+          const adapter = assertGetTonChainAdapter(stepSellAssetChainId)
+
+          const from = await adapter.getAddress({
+            accountNumber,
+            wallet,
+            pubKey:
+              wallet && isTrezor(wallet) ? fromAccountId(sellAssetAccountId).account : undefined,
+          })
+
+          const output = await execution.execTonTransaction({
+            swapperName,
+            tradeQuote,
+            stepIndex: hopIndex,
+            slippageTolerancePercentageDecimal,
+            from,
+            signAndBroadcastTransaction: async (txToSign: ton.TonSignTx) => {
+              const hex = await adapter.signTransaction({ txToSign, wallet })
+
+              const output = await adapter.broadcastTransaction({
+                senderAddress: from,
+                receiverAddress,
+                hex,
+              })
+
+              trackMixpanelEventOnExecute()
+              return output
+            },
+          })
+          cancelPollingRef.current = output?.cancelPolling
+          return
         }
         default:
           assertUnreachable(stepSellAssetChainNamespace)

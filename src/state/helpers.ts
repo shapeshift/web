@@ -52,6 +52,7 @@ export const getEnabledSwappers = (
     CetusSwap,
     SunioSwap,
     AvnuSwap,
+    StonfiSwap,
   }: FeatureFlags,
   isCrossAccountTrade: boolean,
   isSolBuyAssetId: boolean,
@@ -108,7 +109,8 @@ export const getEnabledSwappers = (
       !isLedgerTronSell,
     [SwapperName.Avnu]:
       AvnuSwap && (!isCrossAccountTrade || isCrossAccountTradeSupported(SwapperName.Avnu)),
-    [SwapperName.Stonfi]: false,
+    [SwapperName.Stonfi]:
+      StonfiSwap && (!isCrossAccountTrade || isCrossAccountTradeSupported(SwapperName.Stonfi)),
     [SwapperName.Test]: false,
   }
 }

@@ -23,7 +23,10 @@ const assetToOmnistonAddress = (asset: Asset): { blockchain: number; address: st
   const { assetNamespace, assetReference } = fromAssetId(asset.assetId)
 
   if (assetNamespace === 'slip44') {
-    return { blockchain: Blockchain.TON, address: 'native' }
+    return {
+      blockchain: Blockchain.TON,
+      address: 'EQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAM9c',
+    }
   }
 
   if (assetNamespace === 'jetton') {
@@ -179,6 +182,18 @@ export const getTradeRate = async (input: GetTradeRateInput): Promise<TradeRateR
             resolverName: quote.resolverName,
             tradeStartDeadline: quote.tradeStartDeadline,
             gasBudget: quote.gasBudget,
+            bidAssetAddress: quote.bidAssetAddress ?? bidAssetAddress,
+            askAssetAddress: quote.askAssetAddress ?? askAssetAddress,
+            bidUnits: quote.bidUnits,
+            askUnits: quote.askUnits,
+            referrerAddress: quote.referrerAddress,
+            referrerFeeAsset: quote.referrerFeeAsset,
+            referrerFeeUnits: quote.referrerFeeUnits,
+            protocolFeeAsset: quote.protocolFeeAsset,
+            protocolFeeUnits: quote.protocolFeeUnits,
+            quoteTimestamp: quote.quoteTimestamp,
+            estimatedGasConsumption: quote.estimatedGasConsumption,
+            params: quote.params,
           },
         },
       ],

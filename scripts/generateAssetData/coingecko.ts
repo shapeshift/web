@@ -20,6 +20,7 @@ import {
   starknetChainId,
   suiChainId,
   toAssetId,
+  tonChainId,
   tronChainId,
 } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
@@ -40,6 +41,7 @@ import {
   polygon,
   solana,
   sui,
+  ton,
   tron,
 } from '@shapeshiftoss/utils'
 import axios from 'axios'
@@ -211,6 +213,14 @@ export async function getAssets(chainId: ChainId): Promise<Asset[]> {
           explorerAddressLink: near.explorerAddressLink,
           explorerTxLink: near.explorerTxLink,
         }
+      case tonChainId:
+        return {
+          assetNamespace: ASSET_NAMESPACE.jetton,
+          category: adapters.chainIdToCoingeckoAssetPlatform(chainId),
+          explorer: ton.explorer,
+          explorerAddressLink: ton.explorerAddressLink,
+          explorerTxLink: ton.explorerTxLink,
+        }
       default:
         throw new Error(`no coingecko token support for chainId: ${chainId}`)
     }
@@ -220,7 +230,11 @@ export async function getAssets(chainId: ChainId): Promise<Asset[]> {
 
   return data.tokens.reduce<Asset[]>((prev, token) => {
     try {
-      const assetId = toAssetId({ chainId, assetNamespace, assetReference: token.address })
+      const assetId = toAssetId({
+        chainId,
+        assetNamespace,
+        assetReference: token.address,
+      })
 
       const asset: Asset = {
         assetId,

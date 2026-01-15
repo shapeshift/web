@@ -275,7 +275,23 @@ export const getTradeQuoteOrRateInput = async ({
       } as GetTradeQuoteInput
     }
     case CHAIN_NAMESPACE.Ton: {
-      throw new Error('TON swaps are not supported')
+      const { assertGetTonChainAdapter } = await import('@/lib/utils/ton')
+      const sellAssetChainAdapter = assertGetTonChainAdapter(sellAsset.chainId)
+
+      const sendAddress =
+        wallet && sellAccountNumber !== undefined
+          ? await sellAssetChainAdapter.getAddress({
+              accountNumber: sellAccountNumber,
+              wallet,
+              pubKey,
+            })
+          : undefined
+
+      return {
+        ...tradeQuoteInputCommonArgs,
+        chainId: sellAsset.chainId,
+        sendAddress,
+      } as GetTradeQuoteInput
     }
     default:
       assertUnreachable(chainNamespace)

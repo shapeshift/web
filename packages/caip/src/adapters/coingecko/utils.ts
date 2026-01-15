@@ -47,6 +47,8 @@ import {
   suiAssetId,
   suiChainId,
   thorchainChainId,
+  tonAssetId,
+  tonChainId,
   tronAssetId,
   tronChainId,
   zecChainId,
@@ -313,6 +315,20 @@ export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
         }
       }
 
+      if (Object.keys(platforms).includes(CoingeckoAssetPlatform.Ton)) {
+        try {
+          const assetId = toAssetId({
+            chainNamespace: CHAIN_NAMESPACE.Ton,
+            chainReference: CHAIN_REFERENCE.TonMainnet,
+            assetNamespace: ASSET_NAMESPACE.jetton,
+            assetReference: platforms[CoingeckoAssetPlatform.Ton],
+          })
+          prev[tonChainId][assetId] = id
+        } catch {
+          // unable to create assetId, skip token
+        }
+      }
+
       return prev
     },
     {
@@ -333,6 +349,7 @@ export const parseData = (coins: CoingeckoCoin[]): AssetMap => {
       [tronChainId]: { [tronAssetId]: 'tron' },
       [suiChainId]: { [suiAssetId]: 'sui' },
       [nearChainId]: { [nearAssetId]: 'near' },
+      [tonChainId]: { [tonAssetId]: 'the-open-network' },
     },
   )
 

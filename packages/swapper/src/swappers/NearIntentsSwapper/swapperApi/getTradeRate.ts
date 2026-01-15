@@ -311,6 +311,52 @@ export const getTradeRate = async (
           }
         }
 
+        case CHAIN_NAMESPACE.Near: {
+          try {
+            const sellAdapter = deps.assertGetNearChainAdapter(sellAsset.chainId)
+
+            if (!sendAddress) {
+              return '0'
+            }
+
+            const feeData = await sellAdapter.getFeeData({
+              to: depositAddress,
+              value: sellAmount,
+              chainSpecific: { from: sendAddress },
+            })
+
+            return feeData.fast.txFee
+          } catch (error) {
+            return '0'
+          }
+        }
+
+        case CHAIN_NAMESPACE.Ton: {
+          try {
+            const sellAdapter = deps.assertGetTonChainAdapter(sellAsset.chainId)
+            const contractAddress = isToken(sellAsset.assetId)
+              ? fromAssetId(sellAsset.assetId).assetReference
+              : undefined
+
+            if (!sendAddress) {
+              return '0'
+            }
+
+            const feeData = await sellAdapter.getFeeData({
+              to: depositAddress,
+              value: sellAmount,
+              chainSpecific: {
+                from: sendAddress,
+                contractAddress,
+              },
+            })
+
+            return feeData.fast.txFee
+          } catch (error) {
+            return '0'
+          }
+        }
+
         default:
           return undefined
       }

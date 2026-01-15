@@ -23,7 +23,10 @@ const assetToOmnistonAddress = (asset: Asset): { blockchain: number; address: st
   const { assetNamespace, assetReference } = fromAssetId(asset.assetId)
 
   if (assetNamespace === 'slip44') {
-    return { blockchain: Blockchain.TON, address: 'native' }
+    return {
+      blockchain: Blockchain.TON,
+      address: 'EQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAM9c',
+    }
   }
 
   if (assetNamespace === 'jetton') {
@@ -33,15 +36,21 @@ const assetToOmnistonAddress = (asset: Asset): { blockchain: number; address: st
   return null
 }
 
+type QuoteResult =
+  | { type: 'success'; quote: Quote }
+  | { type: 'noQuote' }
+  | { type: 'timeout' }
+  | { type: 'error'; error: unknown }
+
 const waitForQuote = (
   omniston: Omniston,
   request: Parameters<typeof omniston.requestForQuote>[0],
   timeoutMs: number,
-): Promise<Quote | null> => {
+): Promise<QuoteResult> => {
   return new Promise(resolve => {
     const timer = setTimeout(() => {
       subscription.unsubscribe()
-      resolve(null)
+      resolve({ type: 'timeout' })
     }, timeoutMs)
 
     const subscription = omniston.requestForQuote(request).subscribe({
@@ -49,16 +58,17 @@ const waitForQuote = (
         if (event.type === 'quoteUpdated' && event.quote) {
           clearTimeout(timer)
           subscription.unsubscribe()
-          resolve(event.quote)
+          resolve({ type: 'success', quote: event.quote })
         } else if (event.type === 'noQuote') {
           clearTimeout(timer)
           subscription.unsubscribe()
-          resolve(null)
+          resolve({ type: 'noQuote' })
         }
       },
-      error: () => {
+      error: err => {
         clearTimeout(timer)
-        resolve(null)
+        subscription.unsubscribe()
+        resolve({ type: 'error', error: err })
       },
     })
   })
@@ -95,6 +105,9 @@ export const getTradeQuote = async (input: CommonTradeQuoteInput): Promise<Trade
   const bidAssetAddress = assetToOmnistonAddress(sellAsset)
   const askAssetAddress = assetToOmnistonAddress(buyAsset)
 
+  console.log('bidAssetAddress', bidAssetAddress)
+  console.log('askAssetAddress', askAssetAddress)
+
   if (!bidAssetAddress || !askAssetAddress) {
     return Err(
       makeSwapErrorRight({
@@ -111,7 +124,7 @@ export const getTradeQuote = async (input: CommonTradeQuoteInput): Promise<Trade
       ? Math.round(parseFloat(slippageTolerancePercentageDecimal) * 10000)
       : STONFI_DEFAULT_SLIPPAGE_BPS
 
-    const quote = await waitForQuote(
+    const quoteResult = await waitForQuote(
       omniston,
       {
         settlementMethods: [SettlementMethod.SETTLEMENT_METHOD_SWAP],
@@ -126,7 +139,26 @@ export const getTradeQuote = async (input: CommonTradeQuoteInput): Promise<Trade
       STONFI_QUOTE_TIMEOUT_MS,
     )
 
-    if (!quote) {
+    if (quoteResult.type === 'error') {
+      console.error('[Stonfi] Quote request error:', quoteResult.error)
+      return Err(
+        makeSwapErrorRight({
+          message: `[Stonfi] Connection error while fetching quote`,
+          code: TradeQuoteError.QueryFailed,
+        }),
+      )
+    }
+
+    if (quoteResult.type === 'timeout') {
+      return Err(
+        makeSwapErrorRight({
+          message: `[Stonfi] Quote request timed out`,
+          code: TradeQuoteError.QueryFailed,
+        }),
+      )
+    }
+
+    if (quoteResult.type === 'noQuote') {
       return Err(
         makeSwapErrorRight({
           message: `[Stonfi] No quote available for this pair`,
@@ -135,6 +167,7 @@ export const getTradeQuote = async (input: CommonTradeQuoteInput): Promise<Trade
       )
     }
 
+    const quote = quoteResult.quote
     const buyAmountCryptoBaseUnit = quote.askUnits
     const networkFeeCryptoBaseUnit = quote.gasBudget
 
@@ -180,6 +213,18 @@ export const getTradeQuote = async (input: CommonTradeQuoteInput): Promise<Trade
             resolverName: quote.resolverName,
             tradeStartDeadline: quote.tradeStartDeadline,
             gasBudget: quote.gasBudget,
+            bidAssetAddress: quote.bidAssetAddress ?? bidAssetAddress,
+            askAssetAddress: quote.askAssetAddress ?? askAssetAddress,
+            bidUnits: quote.bidUnits,
+            askUnits: quote.askUnits,
+            referrerAddress: quote.referrerAddress,
+            referrerFeeAsset: quote.referrerFeeAsset,
+            referrerFeeUnits: quote.referrerFeeUnits,
+            protocolFeeAsset: quote.protocolFeeAsset,
+            protocolFeeUnits: quote.protocolFeeUnits,
+            quoteTimestamp: quote.quoteTimestamp,
+            estimatedGasConsumption: quote.estimatedGasConsumption,
+            params: quote.params,
           },
         },
       ],

@@ -31,9 +31,17 @@ export type TonFeeData = {
   storageFee?: string
 }
 
+export type TonRawMessage = {
+  targetAddress: string
+  sendAmount: string
+  payload: string
+  stateInit?: string
+}
+
 export type TonSignTx = {
   addressNList: BIP32Path
-  message: Uint8Array | Buffer
+  message?: Uint8Array | Buffer
+  rawMessages?: TonRawMessage[]
   seqno?: number
   expireAt?: number
   pubKey?: string

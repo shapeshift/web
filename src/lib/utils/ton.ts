@@ -30,31 +30,10 @@ export const assertGetTonChainAdapter = (chainId: ChainId | KnownChainIds): ton.
 export const getTonTransactionStatus = async (txHash: string): Promise<TxStatus> => {
   try {
     const adapter = assertGetTonChainAdapter(tonChainId)
-    const rpcUrl = adapter.getRpcUrl()
-
-    const response = await fetch(rpcUrl, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        id: 1,
-        jsonrpc: '2.0',
-        method: 'getTransactionByHash',
-        params: {
-          hash: txHash,
-        },
-      }),
-    })
-
-    if (!response.ok) return TxStatus.Unknown
-
-    const data = await response.json()
-
-    if (data.error) return TxStatus.Unknown
-    if (!data.result) return TxStatus.Pending
-
-    return TxStatus.Confirmed
+    const status = await adapter.getTransactionStatus(txHash)
+    return status
   } catch (error) {
-    console.error('Error getting TON transaction status:', error)
-    return TxStatus.Unknown
+    console.error('[TON] Error getting transaction status:', error)
+    return TxStatus.Pending
   }
 }

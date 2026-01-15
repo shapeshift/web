@@ -23,4 +23,16 @@ export type StonfiTradeSpecific = {
   resolverName: string
   tradeStartDeadline: number
   gasBudget: string
+  bidAssetAddress: { blockchain: number; address: string }
+  askAssetAddress: { blockchain: number; address: string }
+  bidUnits: string
+  askUnits: string
+  referrerAddress?: { blockchain: number; address: string }
+  referrerFeeAsset?: { blockchain: number; address: string }
+  referrerFeeUnits: string
+  protocolFeeAsset?: { blockchain: number; address: string }
+  protocolFeeUnits: string
+  quoteTimestamp: number
+  estimatedGasConsumption: string
+  params?: unknown
 }

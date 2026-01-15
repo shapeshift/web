@@ -1,12 +1,12 @@
 import { ArrowDownIcon, ArrowUpIcon } from '@chakra-ui/icons'
-import { Box, Flex, IconButton, Spinner, Tag, useMediaQuery } from '@chakra-ui/react'
+import { Box, Button, Flex, IconButton, Spinner, Tag, useMediaQuery } from '@chakra-ui/react'
 import type { ChainId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
-import { matchSorter } from 'match-sorter'
 import { useCallback, useEffect, useMemo, useState, useTransition } from 'react'
 import { useTranslate } from 'react-polyglot'
 import type { Column, Row } from 'react-table'
 
+import type { YieldAggregatedOpportunity } from './hooks/useYieldAsOpportunities'
 import { SearchEmpty } from './SearchEmpty'
 
 import { Amount } from '@/components/Amount/Amount'
@@ -16,30 +16,28 @@ import { ReactTable } from '@/components/ReactTable/ReactTable'
 import { ResultsEmpty } from '@/components/ResultsEmpty'
 import { AssetCell } from '@/components/StakingVaults/Cells'
 import { RawText } from '@/components/Text'
-import { useIsSnapInstalled } from '@/hooks/useIsSnapInstalled/useIsSnapInstalled'
-import { useWallet } from '@/hooks/useWallet/useWallet'
-import { walletSupportsChain } from '@/hooks/useWalletSupportsChain/useWalletSupportsChain'
+import { useBrowserRouter } from '@/hooks/useBrowserRouter/useBrowserRouter'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { isEvmAddress } from '@/lib/utils/isEvmAddress'
 import type { AggregatedOpportunitiesByAssetIdReturn } from '@/state/slices/opportunitiesSlice/types'
-import {
-  selectAccountIdsByChainId,
-  selectAggregatedEarnOpportunitiesByAssetId,
-  selectAssetsSortedByMarketCap,
-  selectIsAnyOpportunitiesApiQueryPending,
-} from '@/state/slices/selectors'
+import { selectAssetsSortedByMarketCap } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 import { breakpoints } from '@/theme/theme'
 
-export type RowProps = Row<AggregatedOpportunitiesByAssetIdReturn>
+export type UnifiedOpportunity = AggregatedOpportunitiesByAssetIdReturn &
+  Partial<YieldAggregatedOpportunity>
+export type RowProps = Row<UnifiedOpportunity>
 
 const cellFlexJustifyContent = { base: 'flex-end', md: 'flex-start' }
 const cellTagSize = { base: 'sm', md: 'md' }
 const initialState = { pageSize: 30 }
+
 export type PositionTableProps = {
   chainId?: ChainId
   searchQuery: string
   forceCompactView?: boolean
+  data?: UnifiedOpportunity[]
+  isLoading?: boolean
 }
 
 const emptyIcon = <DefiIcon boxSize='20px' color='blue.500' />
@@ -47,59 +45,59 @@ const emptyIcon = <DefiIcon boxSize='20px' color='blue.500' />
 export const PositionTable: React.FC<PositionTableProps> = ({
   chainId,
   searchQuery,
+  data,
+  isLoading = false,
   forceCompactView = false,
 }) => {
   'use no memo'
   const translate = useTranslate()
   const assets = useAppSelector(selectAssetsSortedByMarketCap)
-  const isAnyOpportunitiesApiQueriesPending = useAppSelector(
-    selectIsAnyOpportunitiesApiQueryPending,
-  )
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
+  const { navigate } = useBrowserRouter()
 
   const isCompactCols = !isLargerThanMd || forceCompactView
 
-  const [processedRows, setProcessedRows] = useState<AggregatedOpportunitiesByAssetIdReturn[]>([])
+  const basePositions = useMemo(() => data ?? [], [data])
+
+  const filteredByChain = useMemo(() => {
+    if (!chainId) return basePositions
+    return basePositions.filter(position => fromAssetId(position.assetId).chainId === chainId)
+  }, [basePositions, chainId])
+
+  const [processedRows, setProcessedRows] = useState<UnifiedOpportunity[]>([])
   const [, startTransition] = useTransition()
 
-  const selectAggregatedEarnOpportunitiesByAssetIdParams = useMemo(
-    () => ({
-      chainId,
-    }),
-    [chainId],
+  const filterRowsBySearchTerm = useCallback(
+    (rows: UnifiedOpportunity[], filterValue: string) => {
+      if (!filterValue) return rows
+      const search = filterValue.trim().toLowerCase()
+      if (!search) return rows
+
+      if (isEvmAddress(search)) {
+        return rows.filter(row => fromAssetId(row.assetId).assetReference.toLowerCase() === search)
+      }
+
+      return rows.filter(row => {
+        const asset = assets.find(a => a.assetId === row.assetId)
+        const haystack = [asset?.name, asset?.symbol, ...(row.searchable ?? [])]
+        return haystack.some(token => token?.toLowerCase().includes(search))
+      })
+    },
+    [assets],
   )
 
-  const {
-    state: { isConnected, wallet },
-  } = useWallet()
+  const isSearching = useMemo(() => searchQuery.length > 0, [searchQuery])
 
-  const positions = useAppSelector(state =>
-    selectAggregatedEarnOpportunitiesByAssetId(
-      state,
-      selectAggregatedEarnOpportunitiesByAssetIdParams,
-    ),
-  )
+  useEffect(() => {
+    startTransition(() => {
+      const targetRows = isSearching
+        ? filterRowsBySearchTerm(filteredByChain, searchQuery)
+        : filteredByChain
+      setProcessedRows(targetRows)
+    })
+  }, [filteredByChain, filterRowsBySearchTerm, isSearching, searchQuery])
 
-  const { isSnapInstalled } = useIsSnapInstalled()
-  const accountIdsByChainId = useAppSelector(selectAccountIdsByChainId)
-
-  const filteredPositions = useMemo(
-    () =>
-      !isConnected
-        ? positions
-        : positions.filter(position => {
-            const chainAccountIds = accountIdsByChainId[fromAssetId(position.assetId).chainId] ?? []
-            return walletSupportsChain({
-              checkConnectedAccountIds: chainAccountIds,
-              chainId: fromAssetId(position.assetId).chainId,
-              wallet,
-              isSnapInstalled,
-            })
-          }),
-    [accountIdsByChainId, isConnected, isSnapInstalled, positions, wallet],
-  )
-
-  const columns: Column<AggregatedOpportunitiesByAssetIdReturn>[] = useMemo(
+  const columns: Column<UnifiedOpportunity>[] = useMemo(
     () => [
       {
         Header: '#',
@@ -119,16 +117,12 @@ export const PositionTable: React.FC<PositionTableProps> = ({
       },
       {
         Header: translate('defi.totalValue'),
-        id: 'fiatAmount',
         accessor: 'fiatAmount',
         Cell: ({ row }: { row: RowProps }) => {
-          // A fiat amount can be positive or negative (debt) but not zero
           const hasValue =
             bnOrZero(row.original.fiatAmount).gt(0) ||
             bnOrZero(row.original.fiatRewardsAmount).gt(0)
-
           const totalFiatAmount = bnOrZero(row.original.fiatAmount).toFixed(2)
-
           return hasValue ? (
             <Amount.Fiat value={totalFiatAmount} />
           ) : (
@@ -140,18 +134,13 @@ export const PositionTable: React.FC<PositionTableProps> = ({
         Header: translate('defi.apy'),
         accessor: 'apy',
         textAlign: 'right',
-        Cell: ({ row }: { row: RowProps }) =>
-          row.original.apy !== undefined ? (
-            <Flex justifyContent={cellFlexJustifyContent}>
-              <Tag colorScheme='green' size={cellTagSize}>
-                <Amount.Percent value={row.original.apy} />
-              </Tag>
-            </Flex>
-          ) : (
-            <Flex justifyContent={cellFlexJustifyContent}>
-              <RawText variant='sub-text'>-</RawText>
-            </Flex>
-          ),
+        Cell: ({ row }: { row: RowProps }) => (
+          <Flex justifyContent={cellFlexJustifyContent}>
+            <Tag colorScheme='green' size={cellTagSize}>
+              <Amount.Percent value={row.original.apy} />
+            </Tag>
+          </Flex>
+        ),
       },
       {
         Header: () => null,
@@ -171,53 +160,65 @@ export const PositionTable: React.FC<PositionTableProps> = ({
         ),
       },
     ],
-    [translate, isCompactCols, assets],
+    [assets, isCompactCols, translate],
   )
 
-  const filterRowsBySearchTerm = useCallback(
-    (rows: AggregatedOpportunitiesByAssetIdReturn[], filterValue: any) => {
-      if (!filterValue) return rows
-      if (typeof filterValue !== 'string') {
-        return []
+  const handleRowClick = useCallback(
+    (row: RowProps) => {
+      if (row.original.isYield && row.original.yieldOpportunities?.length === 1) {
+        const target = row.original.yieldOpportunities[0]
+        navigate(`/yields/${target.yieldId}`)
+        return
       }
-      const search = filterValue.trim().toLowerCase()
-      if (isEvmAddress(filterValue)) {
-        return rows.filter(
-          row => fromAssetId(row.assetId).assetReference.toLowerCase() === filterValue,
-        )
-      }
-      const assetIds = rows.map(row => row.assetId)
-      const rowAssets = assets.filter(asset => assetIds.includes(asset.assetId))
-      const matchedAssets = matchSorter(rowAssets, search, {
-        keys: ['name', 'symbol'],
-        threshold: matchSorter.rankings.CONTAINS,
-      }).map(asset => asset.assetId)
-      const results = rows.filter(row => matchedAssets.includes(row.assetId))
-      return results
+      row.toggleRowExpanded()
     },
-    [assets],
+    [navigate],
   )
 
-  const isSearching = useMemo(() => searchQuery.length > 0, [searchQuery])
-
-  useEffect(() => {
-    if (!filteredPositions.length) return setProcessedRows([])
-
-    startTransition(() => {
-      const newRows = isSearching
-        ? filterRowsBySearchTerm(filteredPositions, searchQuery)
-        : filteredPositions
-      setProcessedRows(newRows)
-    })
-  }, [filteredPositions, isSearching, searchQuery, filterRowsBySearchTerm])
-
-  const handleRowClick = useCallback((row: RowProps) => row.toggleRowExpanded(), [])
+  const renderYieldSubcomponent = useCallback(
+    (original: UnifiedOpportunity) => {
+      const items = original.yieldOpportunities ?? []
+      if (!items.length) return <RawText>{translate('common.noResults')}</RawText>
+      return (
+        <Flex flexDir='column' gap={3} px={4} py={2}>
+          {items.map(item => (
+            <Flex
+              key={item.yieldId}
+              alignItems='center'
+              justifyContent='space-between'
+              gap={4}
+              wrap='wrap'
+            >
+              <Flex flexDir='column'>
+                <RawText fontWeight='medium'>{item.providerName}</RawText>
+                <RawText variant='sub-text' fontSize='sm'>
+                  {translate('defi.apy')} <Amount.Percent value={item.apy} />
+                </RawText>
+              </Flex>
+              <Flex alignItems='center' gap={4}>
+                <RawText>
+                  <Amount.Fiat value={bnOrZero(item.fiatAmount).toFixed(2)} />
+                </RawText>
+                <Button size='sm' onClick={() => navigate(`/yields/${item.yieldId}`)}>
+                  {translate('common.view')}
+                </Button>
+              </Flex>
+            </Flex>
+          ))}
+        </Flex>
+      )
+    },
+    [navigate, translate],
+  )
 
   const renderSubComponent = useCallback(
-    ({ original }: RowProps) => (
-      <PositionDetails key={original.assetId} {...original} forceCompactView={forceCompactView} />
-    ),
-    [forceCompactView],
+    ({ original }: RowProps) => {
+      if (original.isYield) return renderYieldSubcomponent(original)
+      return (
+        <PositionDetails key={original.assetId} {...original} forceCompactView={forceCompactView} />
+      )
+    },
+    [forceCompactView, renderYieldSubcomponent],
   )
 
   const renderEmptyComponent = useCallback(() => {
@@ -229,8 +230,8 @@ export const PositionTable: React.FC<PositionTableProps> = ({
   }, [searchQuery])
 
   const isInitialProcessing = useMemo(
-    () => !processedRows.length && !isAnyOpportunitiesApiQueriesPending && positions.length,
-    [processedRows, isAnyOpportunitiesApiQueriesPending, positions],
+    () => !processedRows.length && !isLoading && filteredByChain.length > 0,
+    [filteredByChain.length, isLoading, processedRows.length],
   )
 
   if (isInitialProcessing) {
@@ -246,7 +247,7 @@ export const PositionTable: React.FC<PositionTableProps> = ({
       onRowClick={handleRowClick}
       data={processedRows}
       columns={columns}
-      isLoading={isAnyOpportunitiesApiQueriesPending}
+      isLoading={isLoading}
       renderSubComponent={renderSubComponent}
       renderEmptyComponent={renderEmptyComponent}
       initialState={initialState}

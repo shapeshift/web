@@ -7,9 +7,13 @@ import { SwapperName, TradeQuoteError } from '../../../types'
 import { makeSwapErrorRight } from '../../../utils'
 import type { OmnistonAssetAddress } from '../types'
 import { STONFI_DEFAULT_SLIPPAGE_BPS, STONFI_QUOTE_TIMEOUT_MS } from '../utils/constants'
-import { calculateRate, slippageDecimalToBps, validateTonAssets } from '../utils/helpers'
+import {
+  calculateRate,
+  slippageDecimalToBps,
+  validateTonAssets,
+  waitForQuote,
+} from '../utils/helpers'
 import { omnistonManager } from '../utils/omnistonManager'
-import { waitForQuote } from '../utils/quoteHelpers'
 
 const buildStonfiSpecific = (
   quote: Quote,

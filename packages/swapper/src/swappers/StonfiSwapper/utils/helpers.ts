@@ -2,11 +2,12 @@ import { fromAssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { Err } from '@sniptt/monads'
+import type { Omniston, QuoteRequest, QuoteResponseEvent } from '@ston-fi/omniston-sdk'
 import { Blockchain } from '@ston-fi/omniston-sdk'
 
 import { TradeQuoteError } from '../../../types'
 import { makeSwapErrorRight } from '../../../utils'
-import type { OmnistonAssetAddress, TonAssetValidationResult } from '../types'
+import type { OmnistonAssetAddress, QuoteResult, TonAssetValidationResult } from '../types'
 
 export const isTonAsset = (asset: Asset): boolean => {
   return asset.chainId === KnownChainIds.TonMainnet
@@ -101,4 +102,36 @@ export const slippageDecimalToBps = (
   return slippageTolerancePercentageDecimal
     ? Math.round(parseFloat(slippageTolerancePercentageDecimal) * 10000)
     : defaultSlippageBps
+}
+
+export const waitForQuote = (
+  omniston: Omniston,
+  request: QuoteRequest,
+  timeoutMs: number,
+): Promise<QuoteResult> => {
+  return new Promise(resolve => {
+    const timer = setTimeout(() => {
+      subscription.unsubscribe()
+      resolve({ type: 'timeout' })
+    }, timeoutMs)
+
+    const subscription = omniston.requestForQuote(request).subscribe({
+      next: (event: QuoteResponseEvent) => {
+        if (event.type === 'quoteUpdated' && event.quote) {
+          clearTimeout(timer)
+          subscription.unsubscribe()
+          resolve({ type: 'success', quote: event.quote })
+        } else if (event.type === 'noQuote') {
+          clearTimeout(timer)
+          subscription.unsubscribe()
+          resolve({ type: 'noQuote' })
+        }
+      },
+      error: err => {
+        clearTimeout(timer)
+        subscription.unsubscribe()
+        resolve({ type: 'error', error: err })
+      },
+    })
+  })
 }

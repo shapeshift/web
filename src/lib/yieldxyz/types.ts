@@ -238,6 +238,7 @@ export type YieldMechanics = {
   entryLimits: YieldEntryLimits
   arguments: YieldArguments
   supportsLedgerWalletApi?: boolean
+  cooldownPeriod?: { seconds: number }
   possibleFeeTakingMechanisms?: {
     depositFee: boolean
     managementFee: boolean

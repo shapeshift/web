@@ -8,6 +8,7 @@ import { RampErrorBoundary } from '@/components/ErrorBoundary/RampErrorBoundary'
 import { Main } from '@/components/Layout/Main'
 import { SEO } from '@/components/Layout/Seo'
 import { FiatRampAction } from '@/components/Modals/FiatRamps/FiatRampsCommon'
+import { EarnRoutePaths } from '@/components/MultiHopTrade/components/Earn/types'
 import { FiatRampTrade } from '@/components/MultiHopTrade/components/FiatRamps/FiatRampTrade'
 import { FiatRampRoutePaths } from '@/components/MultiHopTrade/components/FiatRamps/types'
 import { LimitOrderRoutePaths } from '@/components/MultiHopTrade/components/LimitOrder/types'
@@ -47,6 +48,9 @@ export const RampTab = () => {
           break
         case TradeInputTab.SellFiat:
           navigate(FiatRampRoutePaths.Sell)
+          break
+        case TradeInputTab.Earn:
+          navigate(EarnRoutePaths.Input)
           break
         default:
           break

@@ -53,6 +53,7 @@ export const clearState = () => {
   store.dispatch(slices.tradeInput.actions.clear())
   store.dispatch(slices.localWallet.actions.clear())
   store.dispatch(slices.limitOrderInput.actions.clear())
+  store.dispatch(slices.tradeEarnInput.actions.clear())
   store.dispatch(slices.limitOrder.actions.clear())
   store.dispatch(slices.gridplus.actions.clear())
   store.dispatch(slices.addressBook.actions.clear())

@@ -114,6 +114,7 @@ type ActionGenericTransactionMetadata = {
   amountCryptoPrecision: string | undefined
   newAddress?: string
   contractName?: string
+  chainName?: string
   cooldownPeriod?: string
   cooldownPeriodSeconds?: number
   thorMemo?: string | null

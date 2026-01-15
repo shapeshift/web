@@ -7,6 +7,7 @@ import { matchPath, Route, Routes, useLocation, useNavigate } from 'react-router
 import { TradingErrorBoundary } from '@/components/ErrorBoundary'
 import { Main } from '@/components/Layout/Main'
 import { SEO } from '@/components/Layout/Seo'
+import { EarnRoutePaths } from '@/components/MultiHopTrade/components/Earn/types'
 import { FiatRampRoutePaths } from '@/components/MultiHopTrade/components/FiatRamps/types'
 import { LimitOrderRoutePaths } from '@/components/MultiHopTrade/components/LimitOrder/types'
 import { TopAssetsCarousel } from '@/components/MultiHopTrade/components/TradeInput/components/TopAssetsCarousel'
@@ -77,6 +78,9 @@ export const TradeTab = memo(() => {
           break
         case TradeInputTab.SellFiat:
           navigate(FiatRampRoutePaths.Sell)
+          break
+        case TradeInputTab.Earn:
+          navigate(EarnRoutePaths.Input)
           break
         default:
           break

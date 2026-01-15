@@ -1,22 +1,28 @@
-import { Box, Heading, Stack, VStack } from '@chakra-ui/react'
+import { Card, CardBody, CardHeader, Heading, Stack, VStack } from '@chakra-ui/react'
 import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { fromAccountId } from '@shapeshiftoss/caip'
-import { memo, useCallback, useMemo } from 'react'
+import { memo, useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useNavigate } from 'react-router-dom'
 
 import { YieldActivePositions } from './YieldActivePositions'
+import { YieldEnterModal } from './YieldEnterModal'
 import { YieldItemSkeleton } from './YieldItem'
 import { YieldOpportunityCard } from './YieldOpportunityCard'
 
 import { getConfig } from '@/config'
 import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
+import { useWallet } from '@/hooks/useWallet/useWallet'
 import type { AugmentedYieldDto } from '@/lib/yieldxyz/types'
 import type { YieldBalanceAggregate } from '@/react-queries/queries/yieldxyz/useAllYieldBalances'
 import { useAllYieldBalances } from '@/react-queries/queries/yieldxyz/useAllYieldBalances'
 import { useYields } from '@/react-queries/queries/yieldxyz/useYields'
-import { selectAssetById } from '@/state/slices/selectors'
-import { useAppSelector } from '@/state/store'
+
+const LoadingContent = (
+  <VStack spacing={4} align='stretch'>
+    <YieldItemSkeleton variant='row' />
+    <YieldItemSkeleton variant='row' />
+  </VStack>
+)
 
 type YieldAssetSectionProps = {
   assetId: AssetId
@@ -25,23 +31,27 @@ type YieldAssetSectionProps = {
 
 export const YieldAssetSection = memo(({ assetId, accountId }: YieldAssetSectionProps) => {
   const translate = useTranslate()
-  const navigate = useNavigate()
   const isYieldXyzEnabled = useFeatureFlag('YieldXyz')
-  const asset = useAppSelector(state => selectAssetById(state, assetId))
+  const {
+    state: { isConnected },
+  } = useWallet()
   const { data: yieldsData, isLoading: isYieldsLoading } = useYields()
   const balanceOptions = useMemo(() => (accountId ? { accountIds: [accountId] } : {}), [accountId])
   const { data: allBalancesData, isLoading: isBalancesLoading } =
     useAllYieldBalances(balanceOptions)
   const isLoading = isYieldsLoading || isBalancesLoading
 
+  const [isEnterModalOpen, setIsEnterModalOpen] = useState(false)
+  const [selectedYield, setSelectedYield] = useState<AugmentedYieldDto | null>(null)
+
   const yields = useMemo(() => {
-    if (!yieldsData?.all || !asset) return []
+    if (!yieldsData?.all) return []
     return yieldsData.all.filter(yieldItem => {
       const matchesToken = yieldItem.token.assetId === assetId
       const matchesInput = yieldItem.inputTokens.some(t => t.assetId === assetId)
       return matchesToken || matchesInput
     })
-  }, [yieldsData, asset, assetId])
+  }, [yieldsData, assetId])
 
   const aggregated = useMemo(() => {
     const multiAccountEnabled = getConfig().VITE_FEATURE_YIELD_MULTI_ACCOUNT
@@ -78,48 +88,45 @@ export const YieldAssetSection = memo(({ assetId, accountId }: YieldAssetSection
 
   const hasActivePositions = Object.keys(aggregated).length > 0
 
-  const handleOpportunityClick = useCallback(
-    (yieldItem: AugmentedYieldDto) => {
-      navigate(`/yields/${yieldItem.id}`)
-    },
-    [navigate],
-  )
+  const handleOpportunityClick = useCallback((yieldItem: AugmentedYieldDto) => {
+    setSelectedYield(yieldItem)
+    setIsEnterModalOpen(true)
+  }, [])
 
-  const yieldHeading = translate('yieldXYZ.yield') ?? 'Yield'
-
-  const loadingContent = useMemo(
-    () => (
-      <VStack spacing={4} align='stretch'>
-        <YieldItemSkeleton variant='row' />
-        <YieldItemSkeleton variant='row' />
-      </VStack>
-    ),
-    [],
-  )
-
-  const activePositionsContent = useMemo(
-    () => <YieldActivePositions aggregated={aggregated} yields={yields} assetId={assetId} />,
-    [aggregated, yields, assetId],
-  )
-
-  const opportunityCardContent = useMemo(() => {
-    if (!bestYield) return null
-    return <YieldOpportunityCard maxApyYield={bestYield} onClick={handleOpportunityClick} />
-  }, [bestYield, handleOpportunityClick])
+  const handleEnterModalClose = useCallback(() => {
+    setIsEnterModalOpen(false)
+    setSelectedYield(null)
+  }, [])
 
   if (!isYieldXyzEnabled) return null
+  if (!isConnected) return null
   if (!isLoading && yields.length === 0) return null
 
   return (
-    <Box mt={6}>
-      <Heading as='h5' fontSize='md' mb={4}>
-        {yieldHeading}
-      </Heading>
-      <Stack spacing={4}>
-        {hasActivePositions && activePositionsContent}
-        {isLoading && loadingContent}
-        {!isLoading && !hasActivePositions && opportunityCardContent}
-      </Stack>
-    </Box>
+    <>
+      <Card variant='dashboard'>
+        <CardHeader borderBottomWidth={{ md: 0 }}>
+          <Heading as='h5'>{translate('yieldXYZ.yield')}</Heading>
+        </CardHeader>
+        <CardBody pt={0}>
+          <Stack spacing={4}>
+            {hasActivePositions && (
+              <YieldActivePositions aggregated={aggregated} yields={yields} assetId={assetId} />
+            )}
+            {isLoading && LoadingContent}
+            {!isLoading && !hasActivePositions && bestYield && (
+              <YieldOpportunityCard maxApyYield={bestYield} onClick={handleOpportunityClick} />
+            )}
+          </Stack>
+        </CardBody>
+      </Card>
+      {selectedYield && (
+        <YieldEnterModal
+          isOpen={isEnterModalOpen}
+          onClose={handleEnterModalClose}
+          yieldItem={selectedYield}
+        />
+      )}
+    </>
   )
 })

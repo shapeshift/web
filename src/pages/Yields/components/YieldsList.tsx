@@ -33,7 +33,17 @@ import { ResultsEmptyNoWallet } from '@/components/ResultsEmptyNoWallet'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { fromBaseUnit } from '@/lib/math'
-import { YIELD_NETWORK_TO_CHAIN_ID } from '@/lib/yieldxyz/constants'
+import {
+  COSMOS_ATOM_NATIVE_STAKING_YIELD_ID,
+  FIGMENT_SOLANA_VALIDATOR_ADDRESS,
+  FIGMENT_VALIDATOR_LOGO,
+  FIGMENT_VALIDATOR_NAME,
+  SHAPESHIFT_COSMOS_VALIDATOR_ADDRESS,
+  SHAPESHIFT_VALIDATOR_LOGO,
+  SHAPESHIFT_VALIDATOR_NAME,
+  SOLANA_SOL_NATIVE_MULTIVALIDATOR_STAKING_YIELD_ID,
+  YIELD_NETWORK_TO_CHAIN_ID,
+} from '@/lib/yieldxyz/constants'
 import type { AugmentedYieldDto, YieldNetwork } from '@/lib/yieldxyz/types'
 import { resolveYieldInputAssetIcon, searchYields } from '@/lib/yieldxyz/utils'
 import { YieldFilters } from '@/pages/Yields/components/YieldFilters'
@@ -143,6 +153,70 @@ export const YieldsList = memo(() => {
     [yieldProviders],
   )
 
+  const getYieldDisplayInfo = useCallback(
+    (yieldItem: AugmentedYieldDto) => {
+      const isNativeStaking =
+        yieldItem.mechanics.type === 'staking' && yieldItem.mechanics.requiresValidatorSelection
+
+      if (yieldItem.id === COSMOS_ATOM_NATIVE_STAKING_YIELD_ID) {
+        return {
+          name: SHAPESHIFT_VALIDATOR_NAME,
+          logoURI: SHAPESHIFT_VALIDATOR_LOGO,
+          title: translate('yieldXYZ.nativeStaking'),
+        }
+      }
+      if (
+        yieldItem.id === SOLANA_SOL_NATIVE_MULTIVALIDATOR_STAKING_YIELD_ID ||
+        (yieldItem.id.includes('solana') && yieldItem.id.includes('native'))
+      ) {
+        return {
+          name: FIGMENT_VALIDATOR_NAME,
+          logoURI: FIGMENT_VALIDATOR_LOGO,
+          title: translate('yieldXYZ.nativeStaking'),
+        }
+      }
+      if (isNativeStaking) {
+        return {
+          name: yieldItem.metadata.name,
+          logoURI: yieldItem.metadata.logoURI,
+          title: translate('yieldXYZ.nativeStaking'),
+        }
+      }
+      const provider = yieldProviders?.[yieldItem.providerId]
+      return { name: provider?.name, logoURI: provider?.logoURI }
+    },
+    [translate, yieldProviders],
+  )
+
+  const getYieldPositionBalanceUsd = useCallback(
+    (yieldId: string) => {
+      const yieldBalances = allBalances?.[yieldId]
+      if (!yieldBalances) return undefined
+
+      // For Cosmos native staking, only show ShapeShift DAO validator balance
+      if (yieldId === COSMOS_ATOM_NATIVE_STAKING_YIELD_ID) {
+        const filteredBalances = yieldBalances.filter(
+          b => b.validator?.address === SHAPESHIFT_COSMOS_VALIDATOR_ADDRESS,
+        )
+        if (filteredBalances.length === 0) return undefined
+        return filteredBalances.reduce((sum, b) => sum.plus(bnOrZero(b.amountUsd)), bnOrZero(0))
+      }
+
+      // For Solana native multivalidator staking, only show Figment validator balance
+      if (yieldId === SOLANA_SOL_NATIVE_MULTIVALIDATOR_STAKING_YIELD_ID) {
+        const filteredBalances = yieldBalances.filter(
+          b => b.validator?.address === FIGMENT_SOLANA_VALIDATOR_ADDRESS,
+        )
+        if (filteredBalances.length === 0) return undefined
+        return filteredBalances.reduce((sum, b) => sum.plus(bnOrZero(b.amountUsd)), bnOrZero(0))
+      }
+
+      // For other yields, sum all balances
+      return yieldBalances.reduce((sum, b) => sum.plus(bnOrZero(b.amountUsd)), bnOrZero(0))
+    },
+    [allBalances],
+  )
+
   const handleSearchChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => setSearchQuery(e.target.value),
     [],
@@ -205,9 +279,9 @@ export const YieldsList = memo(() => {
         if (filteredYields.length === 0) return null
 
         const userGroupBalanceUsd = filteredYields.reduce((acc, y) => {
-          const balances = allBalances?.[y.id]
-          if (!balances) return acc
-          return balances.reduce((sum, b) => sum.plus(bnOrZero(b.amountUsd)), acc)
+          const balance = getYieldPositionBalanceUsd(y.id)
+          if (!balance) return acc
+          return acc.plus(balance)
         }, bnOrZero(0))
 
         return {
@@ -260,7 +334,7 @@ export const YieldsList = memo(() => {
     selectedProvider,
     selectedType,
     searchQuery,
-    allBalances,
+    getYieldPositionBalanceUsd,
     sortOption,
     userCurrencyBalances,
   ])
@@ -448,18 +522,17 @@ export const YieldsList = memo(() => {
         accessorFn: row => row.providerId,
         enableSorting: true,
         sortingFn: 'alphanumeric',
-        cell: ({ row }) => (
-          <HStack spacing={2}>
-            <Avatar
-              src={getProviderLogo(row.original.providerId)}
-              size='xs'
-              name={row.original.providerId}
-            />
-            <Text fontSize='sm' textTransform='capitalize'>
-              {row.original.providerId}
-            </Text>
-          </HStack>
-        ),
+        cell: ({ row }) => {
+          const tableDisplayInfo = getYieldDisplayInfo(row.original)
+          return (
+            <HStack spacing={2}>
+              <Avatar src={tableDisplayInfo.logoURI} size='xs' name={tableDisplayInfo.name} />
+              <Text fontSize='sm' textTransform='capitalize'>
+                {tableDisplayInfo.name ?? row.original.providerId}
+              </Text>
+            </HStack>
+          )
+        },
         meta: { display: { base: 'none', md: 'table-cell' } },
       },
       {
@@ -518,29 +591,17 @@ export const YieldsList = memo(() => {
         header: translate('yieldXYZ.yourBalance'),
         id: 'balance',
         accessorFn: row => {
-          const balances = allBalances?.[row.id]
-          if (!balances) return 0
-          return balances
-            .reduce((sum, b) => sum.plus(bnOrZero(b.amountUsd)), bnOrZero(0))
-            .toNumber()
+          const balance = getYieldPositionBalanceUsd(row.id)
+          return balance?.toNumber() ?? 0
         },
         enableSorting: true,
         sortingFn: (rowA, rowB) => {
-          const balancesA = allBalances?.[rowA.original.id]
-          const balancesB = allBalances?.[rowB.original.id]
-          const a = balancesA
-            ? balancesA.reduce((sum, b) => sum.plus(bnOrZero(b.amountUsd)), bnOrZero(0)).toNumber()
-            : 0
-          const b = balancesB
-            ? balancesB.reduce((sum, b) => sum.plus(bnOrZero(b.amountUsd)), bnOrZero(0)).toNumber()
-            : 0
+          const a = getYieldPositionBalanceUsd(rowA.original.id)?.toNumber() ?? 0
+          const b = getYieldPositionBalanceUsd(rowB.original.id)?.toNumber() ?? 0
           return a === b ? 0 : a > b ? 1 : -1
         },
         cell: ({ row }) => {
-          const balances = allBalances?.[row.original.id]
-          const totalUsd = balances
-            ? balances.reduce((sum, b) => sum.plus(bnOrZero(b.amountUsd)), bnOrZero(0))
-            : bnOrZero(0)
+          const totalUsd = getYieldPositionBalanceUsd(row.original.id) ?? bnOrZero(0)
           if (totalUsd.lte(0)) return null
           const totalUserCurrency = totalUsd.times(userCurrencyToUsdRate).toFixed()
           return (
@@ -552,7 +613,7 @@ export const YieldsList = memo(() => {
         meta: { display: { base: 'none', lg: 'table-cell' } },
       },
     ],
-    [translate, getProviderLogo, allBalances, userCurrencyToUsdRate],
+    [translate, getYieldDisplayInfo, getYieldPositionBalanceUsd, userCurrencyToUsdRate],
   )
 
   const positionsTable = useReactTable({
@@ -611,17 +672,16 @@ export const YieldsList = memo(() => {
       return (
         <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={{ base: 2, md: 6 }}>
           {availableYields.map(item => {
-            const yieldBalances = allBalances?.[item.yield.id]
-            const positionBalanceUsd = yieldBalances
-              ? yieldBalances.reduce((sum, b) => sum.plus(bnOrZero(b.amountUsd)), bnOrZero(0))
-              : undefined
+            const positionBalanceUsd = getYieldPositionBalanceUsd(item.yield.id)
+            const displayInfo = getYieldDisplayInfo(item.yield)
             return (
               <YieldItem
                 key={item.yield.id}
                 data={{
                   type: 'single',
                   yieldItem: item.yield,
-                  providerIcon: getProviderLogo(item.yield.providerId),
+                  providerIcon: displayInfo.logoURI,
+                  providerName: displayInfo.name,
                 }}
                 variant={isMobile ? 'mobile' : 'card'}
                 userBalanceUsd={positionBalanceUsd}
@@ -644,13 +704,15 @@ export const YieldsList = memo(() => {
             const availableUsd = inputAssetId
               ? bnOrZero(userCurrencyBalances[inputAssetId])
               : undefined
+            const singleDisplayInfo = getYieldDisplayInfo(singleYield)
             return (
               <YieldItem
                 key={singleYield.id}
                 data={{
                   type: 'single',
                   yieldItem: singleYield,
-                  providerIcon: getProviderLogo(singleYield.providerId),
+                  providerIcon: singleDisplayInfo.logoURI,
+                  providerName: singleDisplayInfo.name,
                 }}
                 variant={isMobile ? 'mobile' : 'card'}
                 userBalanceUsd={group.userGroupBalanceUsd}
@@ -683,11 +745,11 @@ export const YieldsList = memo(() => {
   }, [
     isMyOpportunities,
     availableYields,
-    allBalances,
+    getYieldPositionBalanceUsd,
     filterSearchString,
     yieldsByAsset,
     isMobile,
-    getProviderLogo,
+    getYieldDisplayInfo,
     handleYieldClick,
     userCurrencyBalances,
   ])
@@ -737,17 +799,16 @@ export const YieldsList = memo(() => {
         <Box borderWidth='1px' borderRadius='xl' overflow='hidden'>
           {listHeader}
           {availableYields.map(item => {
-            const yieldBalances = allBalances?.[item.yield.id]
-            const positionBalanceUsd = yieldBalances
-              ? yieldBalances.reduce((sum, b) => sum.plus(bnOrZero(b.amountUsd)), bnOrZero(0))
-              : undefined
+            const positionBalanceUsd = getYieldPositionBalanceUsd(item.yield.id)
+            const rowDisplayInfo = getYieldDisplayInfo(item.yield)
             return (
               <YieldItem
                 key={item.yield.id}
                 data={{
                   type: 'single',
                   yieldItem: item.yield,
-                  providerIcon: getProviderLogo(item.yield.providerId),
+                  providerIcon: rowDisplayInfo.logoURI,
+                  providerName: rowDisplayInfo.name,
                 }}
                 variant='row'
                 userBalanceUsd={positionBalanceUsd}
@@ -771,13 +832,15 @@ export const YieldsList = memo(() => {
             const availableUsd = inputAssetId
               ? bnOrZero(userCurrencyBalances[inputAssetId])
               : undefined
+            const rowSingleDisplayInfo = getYieldDisplayInfo(singleYield)
             return (
               <YieldItem
                 key={singleYield.id}
                 data={{
                   type: 'single',
                   yieldItem: singleYield,
-                  providerIcon: getProviderLogo(singleYield.providerId),
+                  providerIcon: rowSingleDisplayInfo.logoURI,
+                  providerName: rowSingleDisplayInfo.name,
                 }}
                 variant='row'
                 userBalanceUsd={group.userGroupBalanceUsd}
@@ -810,11 +873,11 @@ export const YieldsList = memo(() => {
   }, [
     isMyOpportunities,
     availableYields,
-    allBalances,
+    getYieldPositionBalanceUsd,
     filterSearchString,
     translate,
     yieldsByAsset,
-    getProviderLogo,
+    getYieldDisplayInfo,
     handleYieldClick,
     userCurrencyBalances,
   ])
@@ -828,20 +891,24 @@ export const YieldsList = memo(() => {
           {translate('yieldXYZ.recommendedForYou')}
         </Text>
         <SimpleGrid columns={{ base: 1, md: 3 }} spacing={{ base: 2, md: 4 }}>
-          {recommendedYields.map(rec => (
-            <YieldItem
-              key={rec.yield.id}
-              data={{
-                type: 'single',
-                yieldItem: rec.yield,
-                providerIcon: getProviderLogo(rec.yield.providerId),
-              }}
-              variant={isMobile ? 'mobile' : 'card'}
-              userBalanceUsd={rec.balanceFiat}
-              titleOverride={rec.yield.token.symbol}
-              onEnter={() => handleYieldClick(rec.yield.id)}
-            />
-          ))}
+          {recommendedYields.map(rec => {
+            const recDisplayInfo = getYieldDisplayInfo(rec.yield)
+            return (
+              <YieldItem
+                key={rec.yield.id}
+                data={{
+                  type: 'single',
+                  yieldItem: rec.yield,
+                  providerIcon: recDisplayInfo.logoURI,
+                  providerName: recDisplayInfo.name,
+                }}
+                variant={isMobile ? 'mobile' : 'card'}
+                userBalanceUsd={rec.balanceFiat}
+                titleOverride={rec.yield.token.symbol}
+                onEnter={() => handleYieldClick(rec.yield.id)}
+              />
+            )
+          })}
         </SimpleGrid>
       </Box>
     )
@@ -850,7 +917,7 @@ export const YieldsList = memo(() => {
     recommendedYields,
     isMyOpportunities,
     translate,
-    getProviderLogo,
+    getYieldDisplayInfo,
     handleYieldClick,
     isMobile,
   ])
@@ -905,29 +972,33 @@ export const YieldsList = memo(() => {
   const positionsGridElement = useMemo(
     () => (
       <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={{ base: 2, md: 6 }}>
-        {positionsTable.getRowModel().rows.map(row => (
-          <YieldItem
-            key={row.id}
-            data={{
-              type: 'single',
-              yieldItem: row.original,
-              providerIcon: getProviderLogo(row.original.providerId),
-            }}
-            variant={isMobile ? 'mobile' : 'card'}
-            onEnter={() => handleYieldClick(row.original.id)}
-            userBalanceUsd={
-              allBalances?.[row.original.id]
-                ? allBalances[row.original.id].reduce(
-                    (sum, b) => sum.plus(bnOrZero(b.amountUsd)),
-                    bnOrZero(0),
-                  )
-                : undefined
-            }
-          />
-        ))}
+        {positionsTable.getRowModel().rows.map(row => {
+          const posDisplayInfo = getYieldDisplayInfo(row.original)
+          return (
+            <YieldItem
+              key={row.id}
+              data={{
+                type: 'single',
+                yieldItem: row.original,
+                providerIcon: posDisplayInfo.logoURI,
+                providerName: posDisplayInfo.name,
+              }}
+              variant={isMobile ? 'mobile' : 'card'}
+              onEnter={() => handleYieldClick(row.original.id)}
+              userBalanceUsd={
+                allBalances?.[row.original.id]
+                  ? allBalances[row.original.id].reduce(
+                      (sum, b) => sum.plus(bnOrZero(b.amountUsd)),
+                      bnOrZero(0),
+                    )
+                  : undefined
+              }
+            />
+          )
+        })}
       </SimpleGrid>
     ),
-    [allBalances, getProviderLogo, handleYieldClick, positionsTable, isMobile],
+    [allBalances, getYieldDisplayInfo, handleYieldClick, positionsTable, isMobile],
   )
 
   const positionsListElement = useMemo(

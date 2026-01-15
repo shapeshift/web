@@ -2699,6 +2699,7 @@
     "earnUpToOnBalance": "You could earn up to %{apy} on your balance",
     "startEarning": "Start earning",
     "maxApy": "Max APY",
+    "nativeStaking": "Native Staking",
     "validator": "Validator",
     "entered": "Entered",
     "claimable": "Claimable",

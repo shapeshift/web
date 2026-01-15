@@ -87,7 +87,14 @@ export const SHAPESHIFT_VALIDATOR: ValidatorDto = {
 export const COSMOS_DECIMALS = 6
 
 export const COSMOS_ATOM_NATIVE_STAKING_YIELD_ID = 'cosmos-atom-native-staking'
+export const SOLANA_SOL_NATIVE_MULTIVALIDATOR_STAKING_YIELD_ID =
+  'solana-sol-native-multivalidator-staking'
+
+export const FIGMENT_SOLANA_VALIDATOR_ADDRESS = 'CcaHc2L43ZWjwCHART3oZoJvHLAe9hzT2DJNUpBzoTN1'
+export const FIGMENT_VALIDATOR_NAME = 'Figment'
+export const FIGMENT_VALIDATOR_LOGO = 'https://assets.stakek.it/validators/figment.png'
 
 export const DEFAULT_NATIVE_VALIDATOR_BY_CHAIN_ID: Partial<Record<ChainId, string>> = {
   [cosmosChainId]: SHAPESHIFT_COSMOS_VALIDATOR_ADDRESS,
+  [solanaChainId]: FIGMENT_SOLANA_VALIDATOR_ADDRESS,
 }

@@ -33,6 +33,7 @@ type SingleYieldData = {
   type: 'single'
   yieldItem: AugmentedYieldDto
   providerIcon?: string
+  providerName?: string
 }
 
 type GroupYieldData = {
@@ -152,7 +153,7 @@ export const YieldItem = memo(
 
     const subtitle = useMemo(() => {
       if (isSingle) {
-        return data.yieldItem.providerId
+        return data.providerName ?? data.yieldItem.providerId
       }
       return `${stats.count} ${
         stats.count === 1 ? translate('yieldXYZ.market') : translate('yieldXYZ.markets')

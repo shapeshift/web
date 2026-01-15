@@ -9,6 +9,11 @@ import { DialogBody } from '@/components/Modal/components/DialogBody'
 import { DialogCloseButton } from '@/components/Modal/components/DialogCloseButton'
 import { DialogHeader } from '@/components/Modal/components/DialogHeader'
 import { DialogTitle } from '@/components/Modal/components/DialogTitle'
+import {
+  COSMOS_ATOM_NATIVE_STAKING_YIELD_ID,
+  DEFAULT_NATIVE_VALIDATOR_BY_CHAIN_ID,
+  SOLANA_SOL_NATIVE_MULTIVALIDATOR_STAKING_YIELD_ID,
+} from '@/lib/yieldxyz/constants'
 import { YieldBalanceType } from '@/lib/yieldxyz/types'
 import { useYieldAccount } from '@/pages/Yields/YieldAccountContext'
 import { useAllYieldBalances } from '@/react-queries/queries/yieldxyz/useAllYieldBalances'
@@ -21,9 +26,23 @@ export const YieldManager = () => {
   const [searchParams] = useSearchParams()
 
   const action = searchParams.get('action') as 'enter' | 'exit' | 'claim' | undefined
-  const validatorAddress = searchParams.get('validator') ?? undefined
+  const validatorParam = searchParams.get('validator') ?? undefined
 
   const { data: yieldItem } = useYield(yieldId ?? '')
+
+  const validatorAddress = useMemo(() => {
+    // For native staking with hardcoded defaults, always use the default validator (ignore URL param)
+    if (
+      yieldId === COSMOS_ATOM_NATIVE_STAKING_YIELD_ID ||
+      yieldId === SOLANA_SOL_NATIVE_MULTIVALIDATOR_STAKING_YIELD_ID ||
+      (yieldId?.includes('solana') && yieldId?.includes('native'))
+    ) {
+      return yieldItem?.chainId
+        ? DEFAULT_NATIVE_VALIDATOR_BY_CHAIN_ID[yieldItem.chainId]
+        : undefined
+    }
+    return validatorParam
+  }, [yieldId, yieldItem?.chainId, validatorParam])
   const { accountNumber } = useYieldAccount()
   const { data: allBalancesData } = useAllYieldBalances()
   const balances = yieldItem?.id ? allBalancesData?.normalized[yieldItem.id] : undefined

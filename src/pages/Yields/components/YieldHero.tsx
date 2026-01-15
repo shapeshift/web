@@ -37,10 +37,17 @@ type YieldHeroProps = {
   userBalanceUsd: string
   userBalanceCrypto: string
   validatorOrProvider: ValidatorOrProviderInfo
+  titleOverride?: string
 }
 
 export const YieldHero = memo(
-  ({ yieldItem, userBalanceUsd, userBalanceCrypto, validatorOrProvider }: YieldHeroProps) => {
+  ({
+    yieldItem,
+    userBalanceUsd,
+    userBalanceCrypto,
+    validatorOrProvider,
+    titleOverride,
+  }: YieldHeroProps) => {
     const navigate = useNavigate()
     const translate = useTranslate()
     const { location } = useBrowserRouter()
@@ -90,7 +97,7 @@ export const YieldHero = memo(
       [yieldItem.mechanics.type, translate],
     )
 
-    const yieldTitle = yieldItem.metadata.name ?? yieldItem.token.symbol
+    const yieldTitle = titleOverride ?? yieldItem.metadata.name ?? yieldItem.token.symbol
 
     const stackedIconElement = useMemo(() => {
       const assetIcon = iconSource.assetId ? (

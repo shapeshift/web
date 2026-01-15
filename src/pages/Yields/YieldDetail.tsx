@@ -5,9 +5,11 @@ import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
 
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import {
+  COSMOS_ATOM_NATIVE_STAKING_YIELD_ID,
   DEFAULT_NATIVE_VALIDATOR_BY_CHAIN_ID,
   SHAPESHIFT_COSMOS_VALIDATOR_ADDRESS,
   SHAPESHIFT_VALIDATOR_LOGO,
+  SOLANA_SOL_NATIVE_MULTIVALIDATOR_STAKING_YIELD_ID,
 } from '@/lib/yieldxyz/constants'
 import { YieldBalanceType } from '@/lib/yieldxyz/types'
 import { YieldHero } from '@/pages/Yields/components/YieldHero'
@@ -16,7 +18,6 @@ import { YieldPositionCard } from '@/pages/Yields/components/YieldPositionCard'
 import { YieldStats } from '@/pages/Yields/components/YieldStats'
 import { useAllYieldBalances } from '@/react-queries/queries/yieldxyz/useAllYieldBalances'
 import { useYield } from '@/react-queries/queries/yieldxyz/useYield'
-import { useYieldProviders } from '@/react-queries/queries/yieldxyz/useYieldProviders'
 import { useYieldValidators } from '@/react-queries/queries/yieldxyz/useYieldValidators'
 import { selectUserCurrencyToUsdRate } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
@@ -41,10 +42,17 @@ export const YieldDetail = memo(() => {
       yieldItem?.chainId ? DEFAULT_NATIVE_VALIDATOR_BY_CHAIN_ID[yieldItem.chainId] : undefined,
     [yieldItem?.chainId],
   )
-  const selectedValidatorAddress = useMemo(
-    () => validatorParam || defaultValidator,
-    [validatorParam, defaultValidator],
-  )
+  const selectedValidatorAddress = useMemo(() => {
+    // For native staking with hardcoded defaults, always use the default validator (ignore URL param)
+    if (
+      yieldId === COSMOS_ATOM_NATIVE_STAKING_YIELD_ID ||
+      yieldId === SOLANA_SOL_NATIVE_MULTIVALIDATOR_STAKING_YIELD_ID ||
+      (yieldId?.includes('solana') && yieldId?.includes('native'))
+    ) {
+      return defaultValidator
+    }
+    return validatorParam || defaultValidator
+  }, [yieldId, validatorParam, defaultValidator])
 
   const isStaking = yieldItem?.mechanics.type === 'staking'
   const shouldFetchValidators = useMemo(
@@ -52,7 +60,6 @@ export const YieldDetail = memo(() => {
     [isStaking, yieldItem?.mechanics.requiresValidatorSelection],
   )
   const { data: validators } = useYieldValidators(yieldItem?.id ?? '', shouldFetchValidators)
-  const { data: providers } = useYieldProviders()
 
   const validatorOrProvider = useMemo(() => {
     if (isStaking && selectedValidatorAddress) {
@@ -62,12 +69,36 @@ export const YieldDetail = memo(() => {
         return { name: SHAPESHIFT_VALIDATOR_NAME, logoURI: SHAPESHIFT_VALIDATOR_LOGO }
       }
     }
-    if (!isStaking && yieldItem && providers) {
-      const provider = providers[yieldItem.providerId]
-      if (provider) return { name: provider.name, logoURI: provider.logoURI }
+    if (!isStaking && yieldItem) {
+      // Extract protocol name from metadata (e.g., "JustLend" from "JustLend Staked TRX")
+      const metadataName = yieldItem.metadata.name
+      const stakedParts = metadataName.split(' Staked ')
+      if (stakedParts.length > 1 && stakedParts[0]) {
+        return { name: stakedParts[0], logoURI: yieldItem.metadata.logoURI }
+      }
+      const onParts = metadataName.split(' on ')
+      if (onParts.length > 1 && onParts[1]) {
+        return { name: onParts[1], logoURI: yieldItem.metadata.logoURI }
+      }
+      // Fallback: capitalize the yield type
+      const yieldType = yieldItem.mechanics.type
+        .split('-')
+        .filter((word): word is string => Boolean(word))
+        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(' ')
+      return { name: yieldType, logoURI: yieldItem.metadata.logoURI }
     }
     return null
-  }, [isStaking, selectedValidatorAddress, validators, yieldItem, providers])
+  }, [isStaking, selectedValidatorAddress, validators, yieldItem])
+
+  const titleOverride = useMemo(() => {
+    if (!yieldItem) return undefined
+    const isNativeStaking =
+      yieldItem.mechanics.type === 'staking' && yieldItem.mechanics.requiresValidatorSelection
+    if (isNativeStaking) return translate('yieldXYZ.nativeStaking')
+    // For non-native staking, use token symbol (consistent with cards)
+    return yieldItem.token.symbol
+  }, [yieldItem, translate])
 
   const userBalances = useMemo(() => {
     if (!balances) return { usd: '0', crypto: '0' }
@@ -154,6 +185,7 @@ export const YieldDetail = memo(() => {
           userBalanceUsd={userBalances.usd}
           userBalanceCrypto={userBalances.crypto}
           validatorOrProvider={validatorOrProvider}
+          titleOverride={titleOverride}
         />
 
         <Flex direction='column' gap={4} mt={6}>

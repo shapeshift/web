@@ -22,7 +22,15 @@ import { Amount } from '@/components/Amount/Amount'
 import { AssetIcon } from '@/components/AssetIcon'
 import { ChainIcon } from '@/components/ChainMenu'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
-import { YIELD_NETWORK_TO_CHAIN_ID } from '@/lib/yieldxyz/constants'
+import {
+  COSMOS_ATOM_NATIVE_STAKING_YIELD_ID,
+  FIGMENT_VALIDATOR_LOGO,
+  FIGMENT_VALIDATOR_NAME,
+  SHAPESHIFT_VALIDATOR_LOGO,
+  SHAPESHIFT_VALIDATOR_NAME,
+  SOLANA_SOL_NATIVE_MULTIVALIDATOR_STAKING_YIELD_ID,
+  YIELD_NETWORK_TO_CHAIN_ID,
+} from '@/lib/yieldxyz/constants'
 import type { AugmentedYieldDto, YieldNetwork } from '@/lib/yieldxyz/types'
 import { resolveYieldInputAssetIcon } from '@/lib/yieldxyz/utils'
 import { GradientApy } from '@/pages/Yields/components/GradientApy'
@@ -83,6 +91,41 @@ export const YieldAssetDetails = memo(() => {
   const getProviderLogo = useCallback(
     (providerId: string) => yieldProviders?.[providerId]?.logoURI,
     [yieldProviders],
+  )
+
+  const getYieldDisplayInfo = useCallback(
+    (yieldItem: AugmentedYieldDto) => {
+      const isNativeStaking =
+        yieldItem.mechanics.type === 'staking' && yieldItem.mechanics.requiresValidatorSelection
+
+      if (yieldItem.id === COSMOS_ATOM_NATIVE_STAKING_YIELD_ID) {
+        return {
+          name: SHAPESHIFT_VALIDATOR_NAME,
+          logoURI: SHAPESHIFT_VALIDATOR_LOGO,
+          title: translate('yieldXYZ.nativeStaking'),
+        }
+      }
+      if (
+        yieldItem.id === SOLANA_SOL_NATIVE_MULTIVALIDATOR_STAKING_YIELD_ID ||
+        (yieldItem.id.includes('solana') && yieldItem.id.includes('native'))
+      ) {
+        return {
+          name: FIGMENT_VALIDATOR_NAME,
+          logoURI: FIGMENT_VALIDATOR_LOGO,
+          title: translate('yieldXYZ.nativeStaking'),
+        }
+      }
+      if (isNativeStaking) {
+        return {
+          name: yieldItem.metadata.name,
+          logoURI: yieldItem.metadata.logoURI,
+          title: translate('yieldXYZ.nativeStaking'),
+        }
+      }
+      const provider = yieldProviders?.[yieldItem.providerId]
+      return { name: provider?.name, logoURI: provider?.logoURI }
+    },
+    [translate, yieldProviders],
   )
 
   const assetYields = useMemo(
@@ -371,29 +414,34 @@ export const YieldAssetDetails = memo(() => {
   const gridViewElement = useMemo(
     () => (
       <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={{ base: 2, md: 6 }}>
-        {sortedRows.map(row => (
-          <YieldItem
-            key={row.original.id}
-            data={{
-              type: 'single',
-              yieldItem: row.original,
-              providerIcon: getProviderLogo(row.original.providerId),
-            }}
-            variant={isMobile ? 'mobile' : 'card'}
-            onEnter={() => handleYieldClick(row.original.id)}
-            userBalanceUsd={
-              allBalances?.[row.original.id]
-                ? allBalances[row.original.id].reduce(
-                    (sum, b) => sum.plus(bnOrZero(b.amountUsd)),
-                    bnOrZero(0),
-                  )
-                : undefined
-            }
-          />
-        ))}
+        {sortedRows.map(row => {
+          const displayInfo = getYieldDisplayInfo(row.original)
+          return (
+            <YieldItem
+              key={row.original.id}
+              data={{
+                type: 'single',
+                yieldItem: row.original,
+                providerIcon: displayInfo.logoURI,
+                providerName: displayInfo.name,
+              }}
+              variant={isMobile ? 'mobile' : 'card'}
+              onEnter={() => handleYieldClick(row.original.id)}
+              titleOverride={displayInfo.title}
+              userBalanceUsd={
+                allBalances?.[row.original.id]
+                  ? allBalances[row.original.id].reduce(
+                      (sum, b) => sum.plus(bnOrZero(b.amountUsd)),
+                      bnOrZero(0),
+                    )
+                  : undefined
+              }
+            />
+          )
+        })}
       </SimpleGrid>
     ),
-    [allBalances, getProviderLogo, handleYieldClick, isMobile, sortedRows],
+    [allBalances, getYieldDisplayInfo, handleYieldClick, isMobile, sortedRows],
   )
 
   const listViewElement = useMemo(

@@ -5,7 +5,11 @@ import { useSearchParams } from 'react-router-dom'
 
 import { Amount } from '@/components/Amount/Amount'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
-import { DEFAULT_NATIVE_VALIDATOR_BY_CHAIN_ID } from '@/lib/yieldxyz/constants'
+import {
+  COSMOS_ATOM_NATIVE_STAKING_YIELD_ID,
+  DEFAULT_NATIVE_VALIDATOR_BY_CHAIN_ID,
+  SOLANA_SOL_NATIVE_MULTIVALIDATOR_STAKING_YIELD_ID,
+} from '@/lib/yieldxyz/constants'
 import type { AugmentedYieldDto } from '@/lib/yieldxyz/types'
 import type { NormalizedYieldBalances } from '@/react-queries/queries/yieldxyz/useAllYieldBalances'
 import { useYieldValidators } from '@/react-queries/queries/yieldxyz/useYieldValidators'
@@ -43,10 +47,17 @@ export const YieldStats = memo(({ yieldItem, balances }: YieldStatsProps) => {
     return validators?.[0]?.address
   }, [yieldItem.chainId, validators])
 
-  const selectedValidatorAddress = useMemo(
-    () => validatorParam || defaultValidator,
-    [validatorParam, defaultValidator],
-  )
+  const selectedValidatorAddress = useMemo(() => {
+    // For native staking with hardcoded defaults, always use the default validator (ignore URL param)
+    if (
+      yieldItem.id === COSMOS_ATOM_NATIVE_STAKING_YIELD_ID ||
+      yieldItem.id === SOLANA_SOL_NATIVE_MULTIVALIDATOR_STAKING_YIELD_ID ||
+      (yieldItem.id.includes('solana') && yieldItem.id.includes('native'))
+    ) {
+      return defaultValidator
+    }
+    return validatorParam || defaultValidator
+  }, [yieldItem.id, validatorParam, defaultValidator])
 
   const selectedValidator = useMemo(() => {
     if (!selectedValidatorAddress) return undefined

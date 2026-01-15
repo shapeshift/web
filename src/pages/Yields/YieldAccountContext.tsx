@@ -1,13 +1,5 @@
 import type { AccountId } from '@shapeshiftoss/caip'
-import React, {
-  createContext,
-  memo,
-  useCallback,
-  useContext,
-  useEffect,
-  useMemo,
-  useState,
-} from 'react'
+import React, { createContext, memo, useCallback, useContext, useMemo, useState } from 'react'
 
 import { selectAccountNumberByAccountId } from '@/state/slices/portfolioSlice/selectors'
 import { selectEnabledWalletAccountIds } from '@/state/slices/selectors'
@@ -26,12 +18,14 @@ export const YieldAccountProvider: React.FC<{
   initialAccountId?: AccountId
 }> = memo(({ children, initialAccountId }) => {
   const enabledWalletAccountIds = useAppSelector(selectEnabledWalletAccountIds)
-  const [accountId, setAccountIdState] = useState<AccountId | undefined>(initialAccountId)
+  const [userSelectedAccountId, setUserSelectedAccountId] = useState<AccountId | undefined>(
+    initialAccountId,
+  )
 
-  useEffect(() => {
-    if (accountId || enabledWalletAccountIds.length === 0) return
-    setAccountIdState(enabledWalletAccountIds[0])
-  }, [accountId, enabledWalletAccountIds])
+  const accountId = useMemo(
+    () => userSelectedAccountId ?? enabledWalletAccountIds[0],
+    [userSelectedAccountId, enabledWalletAccountIds],
+  )
 
   const accountNumber = useAppSelector(state => {
     if (!accountId) return 0
@@ -40,7 +34,7 @@ export const YieldAccountProvider: React.FC<{
   })
 
   const setAccountId = useCallback((nextAccountId: AccountId | undefined) => {
-    setAccountIdState(nextAccountId)
+    setUserSelectedAccountId(nextAccountId)
   }, [])
 
   const value = useMemo(
@@ -56,7 +50,7 @@ export const useYieldAccount = () => {
   if (context === undefined) {
     return {
       accountId: undefined,
-      accountNumber: undefined,
+      accountNumber: 0,
       setAccountId: () => {},
     }
   }

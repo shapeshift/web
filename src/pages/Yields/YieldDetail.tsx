@@ -1,5 +1,5 @@
 import { Box, Button, Container, Flex, Heading, Text } from '@chakra-ui/react'
-import { memo, useCallback, useEffect, useMemo } from 'react'
+import { memo, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
 
@@ -23,7 +23,7 @@ import { YieldHero } from '@/pages/Yields/components/YieldHero'
 import { YieldManager } from '@/pages/Yields/components/YieldManager'
 import { YieldPositionCard } from '@/pages/Yields/components/YieldPositionCard'
 import { YieldStats } from '@/pages/Yields/components/YieldStats'
-import { useYieldAccount } from '@/pages/Yields/YieldAccountContext'
+import { useYieldAccountSync } from '@/pages/Yields/hooks/useYieldAccountSync'
 import { useAllYieldBalances } from '@/react-queries/queries/yieldxyz/useAllYieldBalances'
 import { useYield } from '@/react-queries/queries/yieldxyz/useYield'
 import { useYieldProviders } from '@/react-queries/queries/yieldxyz/useYieldProviders'
@@ -36,20 +36,11 @@ import { useAppSelector } from '@/state/store'
 
 export const YieldDetail = memo(() => {
   const { yieldId } = useParams<{ yieldId: string }>()
-  const [searchParams, setSearchParams] = useSearchParams()
-  const accountIdParam = useMemo(() => searchParams.get('accountId') ?? undefined, [searchParams])
+  const [searchParams] = useSearchParams()
   const navigate = useNavigate()
   const translate = useTranslate()
 
   const userCurrencyToUsdRate = useAppSelector(selectUserCurrencyToUsdRate)
-  const { accountId, setAccountId } = useYieldAccount()
-
-  const handleAccountChange = useCallback(
-    (newAccountId: string) => {
-      setAccountId(newAccountId)
-    },
-    [setAccountId],
-  )
 
   const { data: yieldItem, isLoading, error } = useYield(yieldId ?? '')
 
@@ -65,39 +56,25 @@ export const YieldDetail = memo(() => {
       : [],
   )
 
-  const selectedAccountId = useMemo(() => {
-    if (accountId && availableAccounts.includes(accountId)) return accountId
-    if (accountIdParam && availableAccounts.includes(accountIdParam)) return accountIdParam
-    return availableAccounts[0]
-  }, [accountId, accountIdParam, availableAccounts])
+  const isYieldMultiAccountEnabled = useFeatureFlag('YieldMultiAccount')
 
-  const balanceAccountIds = useMemo(
-    () => (selectedAccountId ? [selectedAccountId] : undefined),
-    [selectedAccountId],
-  )
+  const { selectedAccountId, handleAccountChange } = useYieldAccountSync({
+    availableAccountIds: availableAccounts,
+  })
+
+  const showAccountSelector = isYieldMultiAccountEnabled && availableAccounts.length > 1
+
+  const balanceAccountIds = useMemo(() => {
+    if (!isYieldMultiAccountEnabled)
+      return availableAccounts.length > 0 ? availableAccounts : undefined
+    return selectedAccountId ? [selectedAccountId] : undefined
+  }, [isYieldMultiAccountEnabled, selectedAccountId, availableAccounts])
+
   const { data: allBalancesData, isFetching: isBalancesFetching } = useAllYieldBalances({
     accountIds: balanceAccountIds,
   })
   const balances = yieldItem?.id ? allBalancesData?.normalized[yieldItem.id] : undefined
   const isBalancesLoading = !allBalancesData && isBalancesFetching
-
-  const isYieldMultiAccountEnabled = useFeatureFlag('YieldMultiAccount')
-
-  useEffect(() => {
-    if (!selectedAccountId) return
-    if (accountId === selectedAccountId) return
-    setAccountId(selectedAccountId)
-  }, [accountId, selectedAccountId, setAccountId])
-
-  useEffect(() => {
-    if (!selectedAccountId) return
-    const next = new URLSearchParams(searchParams)
-    if (next.get('accountId') === selectedAccountId) return
-    next.set('accountId', selectedAccountId)
-    setSearchParams(next, { replace: true })
-  }, [selectedAccountId, searchParams, setSearchParams])
-
-  const showAccountSelector = isYieldMultiAccountEnabled && availableAccounts.length > 1
 
   const validatorParam = useMemo(() => searchParams.get('validator'), [searchParams])
   const defaultValidator = useMemo(
@@ -238,7 +215,7 @@ export const YieldDetail = memo(() => {
               <Flex justifyContent='flex-end' pt={4}>
                 <AccountSelector
                   assetId={selectorAssetId}
-                  accountId={accountId}
+                  accountId={selectedAccountId}
                   onChange={handleAccountChange}
                 />
               </Flex>
@@ -247,7 +224,7 @@ export const YieldDetail = memo(() => {
               <Box pt={2} pb={2}>
                 <AccountSelector
                   assetId={selectorAssetId}
-                  accountId={accountId}
+                  accountId={selectedAccountId}
                   onChange={handleAccountChange}
                 />
               </Box>

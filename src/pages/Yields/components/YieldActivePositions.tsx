@@ -190,18 +190,6 @@ export const YieldActivePositions = memo(
                 />
               </Box>
             </Td>
-            <Display.Desktop>
-              <Td>
-                <RawText
-                  fontSize='sm'
-                  color='text.subtle'
-                  fontWeight='medium'
-                  fontFamily='monospace'
-                >
-                  {position.accountLabel}
-                </RawText>
-              </Td>
-            </Display.Desktop>
           </Tr>
         )
       })

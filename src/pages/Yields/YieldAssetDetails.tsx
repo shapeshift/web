@@ -14,7 +14,7 @@ import {
 } from '@chakra-ui/react'
 import type { ColumnDef, Row } from '@tanstack/react-table'
 import { getCoreRowModel, getSortedRowModel, useReactTable } from '@tanstack/react-table'
-import { memo, useCallback, useEffect, useMemo } from 'react'
+import { memo, useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
 
@@ -41,8 +41,8 @@ import { YieldFilters } from '@/pages/Yields/components/YieldFilters'
 import { YieldItem, YieldItemSkeleton } from '@/pages/Yields/components/YieldItem'
 import { YieldTable } from '@/pages/Yields/components/YieldTable'
 import { ViewToggle } from '@/pages/Yields/components/YieldViewHelpers'
+import { useYieldAccountSync } from '@/pages/Yields/hooks/useYieldAccountSync'
 import { useYieldFilters } from '@/pages/Yields/hooks/useYieldFilters'
-import { useYieldAccount } from '@/pages/Yields/YieldAccountContext'
 import { useAllYieldBalances } from '@/react-queries/queries/yieldxyz/useAllYieldBalances'
 import { useYieldProviders } from '@/react-queries/queries/yieldxyz/useYieldProviders'
 import { useYields } from '@/react-queries/queries/yieldxyz/useYields'
@@ -59,15 +59,6 @@ export const YieldAssetDetails = memo(() => {
   const translate = useTranslate()
   const [isMobile] = useMediaQuery('(max-width: 768px)')
   const [searchParams, setSearchParams] = useSearchParams()
-  const accountIdParam = useMemo(() => searchParams.get('accountId') ?? undefined, [searchParams])
-  const { accountId, setAccountId } = useYieldAccount()
-
-  const handleAccountChange = useCallback(
-    (newAccountId: string) => {
-      setAccountId(newAccountId)
-    },
-    [setAccountId],
-  )
 
   const viewParam = useMemo(() => searchParams.get('view'), [searchParams])
   const viewMode = useMemo<'grid' | 'list'>(
@@ -115,35 +106,19 @@ export const YieldAssetDetails = memo(() => {
       : [],
   )
 
-  const selectedAccountId = useMemo(() => {
-    if (accountId && accountIdsForAsset.includes(accountId)) return accountId
-    if (accountIdParam && accountIdsForAsset.includes(accountIdParam)) return accountIdParam
-    return accountIdsForAsset[0]
-  }, [accountId, accountIdParam, accountIdsForAsset])
+  const { selectedAccountId, handleAccountChange } = useYieldAccountSync({
+    availableAccountIds: accountIdsForAsset,
+  })
 
-  const balanceAccountIds = useMemo(
-    () => (selectedAccountId ? [selectedAccountId] : accountIdsForAsset),
-    [selectedAccountId, accountIdsForAsset],
-  )
+  const showAccountSelector = isYieldMultiAccountEnabled && accountIdsForAsset.length > 1
+
+  const balanceAccountIds = useMemo(() => {
+    if (!isYieldMultiAccountEnabled) return accountIdsForAsset
+    return selectedAccountId ? [selectedAccountId] : accountIdsForAsset
+  }, [isYieldMultiAccountEnabled, selectedAccountId, accountIdsForAsset])
 
   const { data: allBalancesData } = useAllYieldBalances({ accountIds: balanceAccountIds })
   const allBalances = allBalancesData?.byYieldId
-
-  useEffect(() => {
-    if (!selectedAccountId) return
-    if (accountId === selectedAccountId) return
-    setAccountId(selectedAccountId)
-  }, [accountId, selectedAccountId, setAccountId])
-
-  useEffect(() => {
-    if (!selectedAccountId) return
-    const next = new URLSearchParams(searchParams)
-    if (next.get('accountId') === selectedAccountId) return
-    next.set('accountId', selectedAccountId)
-    setSearchParams(next, { replace: true })
-  }, [selectedAccountId, searchParams, setSearchParams])
-
-  const showAccountSelector = isYieldMultiAccountEnabled && accountIdsForAsset.length > 1
 
   const getProviderLogo = useCallback(
     (providerId: string) => yieldProviders?.[providerId]?.logoURI,
@@ -450,7 +425,7 @@ export const YieldAssetDetails = memo(() => {
             <Display.Desktop>
               <AccountSelector
                 assetId={assetInfo.assetId}
-                accountId={accountId}
+                accountId={selectedAccountId}
                 onChange={handleAccountChange}
               />
             </Display.Desktop>
@@ -461,7 +436,7 @@ export const YieldAssetDetails = memo(() => {
             <Box mt={4}>
               <AccountSelector
                 assetId={assetInfo.assetId}
-                accountId={accountId}
+                accountId={selectedAccountId}
                 onChange={handleAccountChange}
               />
             </Box>
@@ -469,7 +444,7 @@ export const YieldAssetDetails = memo(() => {
         )}
       </Box>
     )
-  }, [assetInfo, translate, accountId, handleAccountChange, showAccountSelector])
+  }, [assetInfo, translate, selectedAccountId, handleAccountChange, showAccountSelector])
 
   const loadingGridElement = useMemo(
     () => (

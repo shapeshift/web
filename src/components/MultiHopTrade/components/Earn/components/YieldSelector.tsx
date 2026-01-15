@@ -51,17 +51,10 @@ const getProviderInfo = (
 
 const hoverBg = { bg: 'background.surface.raised.hover' }
 
-const getYieldTypeName = (type: string): string => {
-  const typeMap: Record<string, string> = {
-    'native-staking': 'Native Staking',
-    'pooled-staking': 'Pooled Staking',
-    'liquid-staking': 'Liquid Staking',
-    staking: 'Staking',
-    lending: 'Lending',
-    vault: 'Vault',
-    restaking: 'Restaking',
-  }
-  if (typeMap[type]) return typeMap[type]
+const getYieldTypeName = (type: string, translate: (key: string) => string): string => {
+  const translationKey = `earn.yieldTypes.${type}`
+  const translated = translate(translationKey)
+  if (translated !== translationKey) return translated
   return type
     .split('-')
     .filter((word): word is string => Boolean(word))
@@ -270,7 +263,7 @@ export const YieldSelector = memo(
                   Object.entries(groupedYields).map(([type, typeYields]) => (
                     <Box key={type}>
                       <Text fontSize='xs' fontWeight='bold' color='text.subtle' mb={2}>
-                        {getYieldTypeName(type).toUpperCase()}
+                        {getYieldTypeName(type, translate).toUpperCase()}
                       </Text>
                       <VStack spacing={2} align='stretch'>
                         {typeYields.map(yieldItem => (

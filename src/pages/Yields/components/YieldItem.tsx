@@ -355,7 +355,7 @@ export const YieldItem = memo(
                 >
                   {isGroup ? translate('yieldXYZ.maxApy') : translate('yieldXYZ.apy')}
                 </Text>
-                <GradientApy itemProp='medium' justifyContent='flex-end'>
+                <GradientApy fontWeight='medium' justifyContent='flex-end'>
                   {apyFormatted}
                 </GradientApy>
               </Box>

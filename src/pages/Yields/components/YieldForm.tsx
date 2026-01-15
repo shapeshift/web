@@ -1,5 +1,6 @@
 import { Avatar, Box, Button, Flex, HStack, Icon, Input, Skeleton, Text } from '@chakra-ui/react'
 import { useQueryClient } from '@tanstack/react-query'
+import type { ChangeEvent } from 'react'
 import { memo, useCallback, useEffect, useMemo, useState } from 'react'
 import { TbSwitchVertical } from 'react-icons/tb'
 import type { NumberFormatValues } from 'react-number-format'
@@ -98,7 +99,7 @@ const getInputFontSize = (length: number): string => {
 
 type CryptoAmountInputProps = {
   value?: string
-  onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void
+  onChange?: (e: ChangeEvent<HTMLInputElement>) => void
   placeholder?: string
   [key: string]: unknown
 }
@@ -682,15 +683,25 @@ export const YieldForm = memo(
 
     // If Success, render YieldSuccess
     if (isSuccess) {
+      const successAmount = isClaimAction ? claimableAmount : cryptoAmount
+      const successSymbol = isClaimAction
+        ? claimableToken?.symbol ?? ''
+        : inputTokenAsset?.symbol ?? ''
+      const successMessageKey = isClaimAction
+        ? 'successClaim'
+        : action === 'exit'
+        ? 'successExit'
+        : 'successEnter'
+
       return (
         <YieldSuccess
-          amount={cryptoAmount}
-          symbol={inputTokenAsset?.symbol ?? ''}
+          amount={successAmount}
+          symbol={successSymbol}
           providerInfo={successProviderInfo}
           transactionSteps={transactionSteps}
           yieldId={yieldItem.id}
           onDone={handleFormDone}
-          successMessageKey={action === 'exit' ? 'successExit' : 'successEnter'}
+          successMessageKey={successMessageKey}
         />
       )
     }

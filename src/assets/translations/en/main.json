@@ -2804,6 +2804,15 @@
     "noYieldsAvailable": "No yield opportunities available for %{asset}",
     "estimatedYearlyEarnings": "Est. Yearly Earnings",
     "yieldType": "Yield Type",
+    "yieldTypes": {
+      "native-staking": "Native Staking",
+      "pooled-staking": "Pooled Staking",
+      "liquid-staking": "Liquid Staking",
+      "staking": "Staking",
+      "lending": "Lending",
+      "vault": "Vault",
+      "restaking": "Restaking"
+    },
     "confirmEarn": "Confirm Stake",
     "earnWith": "Earn with",
     "belowMinimum": "Below minimum deposit",

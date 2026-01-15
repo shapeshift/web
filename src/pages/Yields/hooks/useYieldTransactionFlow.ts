@@ -91,7 +91,8 @@ export const waitForTransactionConfirmation = (
     () => fetchAction(actionId),
     action => {
       const tx = action.transactions.find(t => t.id === transactionId)
-      return tx?.status !== TransactionStatus.Created
+      if (!tx) return false
+      return tx.status !== TransactionStatus.Created
     },
     action => {
       if (action.status === YieldActionStatus.Failed) return new Error('Action failed')
@@ -291,7 +292,11 @@ export const useYieldTransactionFlow = ({
     assetId: inputTokenAssetId,
     spender: approvalSpender ?? undefined,
     from: userAddress || undefined,
-    isDisabled: !approvalSpender || !isUsdtApprovalResetEnabled || action !== 'enter',
+    isDisabled:
+      !approvalSpender ||
+      !isUsdtApprovalResetEnabled ||
+      action !== 'enter' ||
+      !isUsdtOnEthereumMainnet(inputTokenAssetId, yieldChainId),
     isRefetchEnabled: true,
   })
 

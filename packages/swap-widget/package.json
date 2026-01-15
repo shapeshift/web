@@ -1,0 +1,42 @@
+{
+  "name": "@shapeshiftoss/swap-widget",
+  "version": "0.0.1",
+  "private": true,
+  "description": "Embeddable swap widget using ShapeShift API",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "lint": "eslint src --ext .ts,.tsx",
+    "lint:fix": "eslint src --ext .ts,.tsx --fix",
+    "type-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@rainbow-me/rainbowkit": "2.1.7",
+    "@shapeshiftoss/caip": "npm:@shapeshiftoss/caip@8.16.6",
+    "@shapeshiftoss/utils": "npm:@shapeshiftoss/utils@1.0.5",
+    "@tanstack/react-query": "^5.69.0",
+    "bech32": "^2.0.0",
+    "p-queue": "^8.0.1",
+    "react-virtuoso": "^4.7.11",
+    "viem": "2.40.3",
+    "wagmi": "^2.9.2"
+  },
+  "devDependencies": {
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "@vitejs/plugin-react": "^4.2.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "typescript": "^5.2.2",
+    "vite": "^5.0.0",
+    "vite-plugin-node-polyfills": "^0.23.0"
+  },
+  "peerDependencies": {
+    "react": ">=18.0.0",
+    "react-dom": ">=18.0.0"
+  }
+}

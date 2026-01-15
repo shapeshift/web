@@ -7,10 +7,11 @@ import { useCallback, useMemo, useState } from 'react'
 import { useAccount, useWalletClient, WagmiProvider } from 'wagmi'
 
 import { SwapWidget } from '../components/SwapWidget'
+import type { WagmiConfig } from '../config/wagmi'
 import { createWagmiConfig } from '../config/wagmi'
 import type { ThemeConfig } from '../types'
 
-const config = createWagmiConfig('f58c0242def84c3b9befe9b1e6086bbd')
+const config: WagmiConfig = createWagmiConfig('f58c0242def84c3b9befe9b1e6086bbd')
 
 const queryClient = new QueryClient()
 
@@ -425,7 +426,7 @@ export const App = () => {
   const rainbowTheme = useMemo(() => (theme === 'dark' ? darkTheme() : lightTheme()), [theme])
 
   return (
-    <WagmiProvider config={config}>
+    <WagmiProvider config={config as any}>
       <QueryClientProvider client={queryClient}>
         <RainbowKitProvider theme={rainbowTheme}>
           <DemoContent theme={theme} setTheme={setTheme} />

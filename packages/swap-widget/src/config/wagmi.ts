@@ -1,5 +1,5 @@
 import { getDefaultConfig } from '@rainbow-me/rainbowkit'
-import type { WagmiProviderProps } from 'wagmi'
+import type { Config } from 'wagmi'
 import {
   arbitrum,
   arbitrumNova,
@@ -35,7 +35,7 @@ export const SUPPORTED_CHAINS = [
 export type SupportedChains = typeof SUPPORTED_CHAINS
 export type SupportedChainId = SupportedChains[number]['id']
 
-export type WagmiConfig = WagmiProviderProps['config']
+export type WagmiConfig = Config
 
 export const createWagmiConfig = (
   projectId: string,
@@ -46,4 +46,4 @@ export const createWagmiConfig = (
     projectId,
     chains: SUPPORTED_CHAINS,
     ssr: false,
-  }) as WagmiConfig
+  }) as unknown as WagmiConfig

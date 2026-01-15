@@ -5,6 +5,7 @@ import { useMemo } from 'react'
 import type { WalletClient } from 'viem'
 import { useWalletClient, WagmiProvider } from 'wagmi'
 
+import type { WagmiConfig } from '../config/wagmi'
 import { createWagmiConfig } from '../config/wagmi'
 import type { ThemeMode } from '../types'
 
@@ -30,10 +31,10 @@ export const InternalWalletProvider = ({
   children,
   themeMode,
 }: InternalWalletProviderProps) => {
-  const config = useMemo(() => createWagmiConfig(projectId), [projectId])
+  const config: WagmiConfig = useMemo(() => createWagmiConfig(projectId), [projectId])
 
   return (
-    <WagmiProvider config={config}>
+    <WagmiProvider config={config as any}>
       <QueryClientProvider client={queryClient}>
         <RainbowKitProvider theme={themeMode === 'dark' ? darkTheme() : lightTheme()}>
           <InternalWalletContent>{children}</InternalWalletContent>

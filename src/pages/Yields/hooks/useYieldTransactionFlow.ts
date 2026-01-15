@@ -137,7 +137,7 @@ export const isUsdtOnEthereumMainnet = (
 }
 
 type UseYieldTransactionFlowProps = {
-  yieldItem: AugmentedYieldDto
+  yieldItem: AugmentedYieldDto | undefined
   action: 'enter' | 'exit' | 'manage'
   amount: string
   assetSymbol: string
@@ -180,9 +180,9 @@ export const useYieldTransactionFlow = ({
   const isUsdtApprovalResetEnabled = useFeatureFlag('UsdtApprovalReset')
   const submitHashMutation = useSubmitYieldTransactionHash()
 
-  const inputTokenAssetId = useMemo(() => yieldItem.inputTokens?.[0]?.assetId, [yieldItem])
+  const inputTokenAssetId = useMemo(() => yieldItem?.inputTokens?.[0]?.assetId, [yieldItem])
 
-  const { chainId: yieldChainId } = yieldItem
+  const yieldChainId = yieldItem?.chainId
   const { accountNumber: contextAccountNumber } = useYieldAccount()
 
   const derivedAccountId = useAppSelector(state => {
@@ -252,9 +252,9 @@ export const useYieldTransactionFlow = ({
     isLoading: isQuoteLoading,
     error: quoteError,
   } = useQuery({
-    queryKey: ['yieldxyz', 'quote', action, yieldItem.id, userAddress, txArguments],
+    queryKey: ['yieldxyz', 'quote', action, yieldItem?.id, userAddress, txArguments],
     queryFn: () => {
-      if (!txArguments || !userAddress || !yieldItem.id) throw new Error('Missing arguments')
+      if (!txArguments || !userAddress || !yieldItem?.id) throw new Error('Missing arguments')
 
       if (action === 'manage') {
         if (!passthrough) throw new Error('Missing passthrough for manage action')
@@ -270,7 +270,7 @@ export const useYieldTransactionFlow = ({
       const fn = action === 'enter' ? enterYield : exitYield
       return fn({ yieldId: yieldItem.id, address: userAddress, arguments: txArguments })
     },
-    enabled: !!txArguments && !!wallet && !!accountId && canSubmit && isOpen,
+    enabled: !!txArguments && !!wallet && !!accountId && !!yieldItem && canSubmit && isOpen,
     staleTime: 0,
     gcTime: 0,
     retry: false,
@@ -390,7 +390,7 @@ export const useYieldTransactionFlow = ({
 
   const dispatchNotification = useCallback(
     (tx: TransactionDto, txHash: string) => {
-      if (!yieldChainId || !accountId) return
+      if (!yieldChainId || !accountId || !yieldItem) return
       if (!yieldItem.token.assetId) {
         console.warn('[useYieldTransactionFlow] Cannot dispatch notification: missing assetId')
         return
@@ -444,21 +444,11 @@ export const useYieldTransactionFlow = ({
         }),
       )
     },
-    [
-      dispatch,
-      yieldChainId,
-      accountId,
-      action,
-      yieldItem.token.assetId,
-      yieldItem.metadata.name,
-      yieldItem.network,
-      assetSymbol,
-      amount,
-    ],
+    [dispatch, yieldChainId, accountId, action, yieldItem, assetSymbol, amount],
   )
 
   const buildCosmosStakeArgs = useCallback((): CosmosStakeArgs | undefined => {
-    if (yieldChainId !== cosmosChainId) return undefined
+    if (yieldChainId !== cosmosChainId || !yieldItem) return undefined
 
     const validator = validatorAddress || DEFAULT_NATIVE_VALIDATOR_BY_CHAIN_ID[cosmosChainId]
     if (!validator) return undefined
@@ -575,6 +565,7 @@ export const useYieldTransactionFlow = ({
           loadingMessage: translate('common.confirming'),
         })
 
+        if (!yieldItem?.id) throw new Error('Missing yield item')
         await submitHashMutation.mutateAsync({
           transactionId: tx.id,
           hash: txHash,
@@ -654,7 +645,7 @@ export const useYieldTransactionFlow = ({
       userAddress,
       accountMetadata?.bip44Params,
       feeAsset,
-      yieldItem.id,
+      yieldItem,
       translate,
       updateStepStatus,
       buildCosmosStakeArgs,

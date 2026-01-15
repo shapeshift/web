@@ -9,7 +9,6 @@ import { EarnRoutePaths } from './types'
 import { Amount } from '@/components/Amount/Amount'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { DEFAULT_NATIVE_VALIDATOR_BY_CHAIN_ID } from '@/lib/yieldxyz/constants'
-import type { AugmentedYieldDto } from '@/lib/yieldxyz/types'
 import { getTransactionButtonText } from '@/lib/yieldxyz/utils'
 import { GradientApy } from '@/pages/Yields/components/GradientApy'
 import { TransactionStepsList } from '@/pages/Yields/components/TransactionStepsList'
@@ -31,8 +30,6 @@ import {
   selectSellAccountId,
 } from '@/state/slices/tradeEarnInputSlice/selectors'
 import { useAppSelector } from '@/state/store'
-
-const defaultYieldItem = {} as AugmentedYieldDto
 
 export const EarnConfirm = memo(() => {
   const translate = useTranslate()
@@ -104,7 +101,6 @@ export const EarnConfirm = memo(() => {
   }, [sellAmountCryptoPrecision, sellAssetUserCurrencyRate])
 
   const handleBack = useCallback(() => navigate(EarnRoutePaths.Input), [navigate])
-  const handleClose = useCallback(() => navigate(EarnRoutePaths.Input), [navigate])
 
   const apy = useMemo(
     () => (selectedYield ? (selectedYield.rewardRate?.total ?? 0) * 100 : 0),
@@ -132,11 +128,11 @@ export const EarnConfirm = memo(() => {
     isAllowanceCheckPending,
     isUsdtResetRequired,
   } = useYieldTransactionFlow({
-    yieldItem: selectedYield ?? defaultYieldItem,
+    yieldItem: selectedYield,
     action: 'enter',
     amount: sellAmountCryptoPrecision,
     assetSymbol: sellAsset?.symbol ?? '',
-    onClose: handleClose,
+    onClose: handleBack,
     isOpen: Boolean(selectedYield),
     validatorAddress: selectedValidatorAddress,
     accountId: accountIdToUse,
@@ -210,7 +206,7 @@ export const EarnConfirm = memo(() => {
               providerInfo={providerInfo}
               transactionSteps={transactionSteps}
               yieldId={selectedYieldId}
-              onDone={handleClose}
+              onDone={handleBack}
             />
           </Flex>
         }

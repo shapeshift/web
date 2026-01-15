@@ -57,6 +57,7 @@ export type EarnInputProps = {
   defaultSellAmountCryptoBaseUnit?: string
 }
 
+const SELL_AMOUNT_DEBOUNCE_MS = 500
 const EmptySideComponent: React.FC<SideComponentProps> = () => null
 
 export const EarnInput = memo(
@@ -186,7 +187,7 @@ export const EarnInput = memo(
         : undefined,
     )
 
-    const debouncedAmount = useDebounce(sellAmountCryptoPrecision, 500)
+    const debouncedAmount = useDebounce(sellAmountCryptoPrecision, SELL_AMOUNT_DEBOUNCE_MS)
 
     const txArguments = useMemo(() => {
       if (!selectedYield || !userAddress || !yieldChainId || !debouncedAmount) return null
@@ -295,8 +296,6 @@ export const EarnInput = memo(
       [availableAssetIds],
     )
 
-    const chainIdFilterPredicate = useCallback(() => true, [])
-
     const handleSellAssetClick = useCallback(() => {
       sellAssetSearch.open({
         onAssetClick: (asset: Asset) => {
@@ -304,9 +303,9 @@ export const EarnInput = memo(
         },
         title: 'earn.enterFrom',
         assetFilterPredicate,
-        chainIdFilterPredicate,
+        chainIdFilterPredicate: () => true,
       })
-    }, [assetFilterPredicate, chainIdFilterPredicate, dispatch, sellAssetSearch])
+    }, [assetFilterPredicate, dispatch, sellAssetSearch])
 
     const setSellAsset = useCallback(
       (asset: Asset) => {
@@ -366,7 +365,6 @@ export const EarnInput = memo(
           onAssetChange={setSellAsset}
           onlyConnectedChains={true}
           assetFilterPredicate={assetFilterPredicate}
-          chainIdFilterPredicate={chainIdFilterPredicate}
           showChainDropdown={!isSmallerThanMd}
           buttonProps={assetSelectButtonProps}
           mb={isSmallerThanMd ? 0 : 4}
@@ -377,7 +375,6 @@ export const EarnInput = memo(
         handleSellAssetClick,
         setSellAsset,
         assetFilterPredicate,
-        chainIdFilterPredicate,
         isSmallerThanMd,
         assetSelectButtonProps,
       ],

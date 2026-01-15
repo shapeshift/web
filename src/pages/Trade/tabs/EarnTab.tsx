@@ -4,6 +4,7 @@ import { FormProvider, useForm } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { matchPath, Route, Routes, useLocation, useNavigate } from 'react-router-dom'
 
+import { TradingErrorBoundary } from '@/components/ErrorBoundary'
 import { Main } from '@/components/Layout/Main'
 import { SEO } from '@/components/Layout/Seo'
 import { EarnConfirm } from '@/components/MultiHopTrade/components/Earn/EarnConfirm'
@@ -85,18 +86,27 @@ export const EarnTab = memo(function EarnTab() {
 
   const earnInputElement = useMemo(
     () => (
-      <EarnInput
-        onChangeTab={handleChangeTab}
-        tradeInputRef={tradeInputRef}
-        defaultSellAssetId={defaultSellAssetId}
-        defaultYieldId={defaultYieldId}
-        defaultSellAmountCryptoBaseUnit={defaultSellAmountCryptoBaseUnit}
-      />
+      <TradingErrorBoundary>
+        <EarnInput
+          onChangeTab={handleChangeTab}
+          tradeInputRef={tradeInputRef}
+          defaultSellAssetId={defaultSellAssetId}
+          defaultYieldId={defaultYieldId}
+          defaultSellAmountCryptoBaseUnit={defaultSellAmountCryptoBaseUnit}
+        />
+      </TradingErrorBoundary>
     ),
     [handleChangeTab, defaultSellAssetId, defaultYieldId, defaultSellAmountCryptoBaseUnit],
   )
 
-  const earnConfirmElement = useMemo(() => <EarnConfirm />, [])
+  const earnConfirmElement = useMemo(
+    () => (
+      <TradingErrorBoundary>
+        <EarnConfirm />
+      </TradingErrorBoundary>
+    ),
+    [],
+  )
 
   return (
     <Main pt={mainPaddingTop} mt={mainMarginTop} px={0} display='flex' flex={1} width='full'>

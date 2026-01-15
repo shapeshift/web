@@ -14,6 +14,7 @@ type SharedConfirmProps = {
   footerContent: JSX.Element | null
   onBack: () => void
   headerTranslation: TextPropTypes['translation']
+  isLoading?: boolean
 }
 
 const cardMinHeight = { base: 'calc(100vh - var(--mobile-nav-offset))', md: 'initial' }

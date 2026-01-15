@@ -17,8 +17,6 @@
   "dependencies": {
     "@rainbow-me/rainbowkit": "2.1.7",
     "@shapeshiftoss/caip": "npm:@shapeshiftoss/caip@8.16.6",
-    "@shapeshiftoss/chain-adapters": "npm:@shapeshiftoss/chain-adapters@11.3.7",
-    "@shapeshiftoss/swapper": "npm:@shapeshiftoss/swapper@17.6.9",
     "@shapeshiftoss/utils": "npm:@shapeshiftoss/utils@1.0.5",
     "@tanstack/react-query": "^5.69.0",
     "bech32": "^2.0.0",

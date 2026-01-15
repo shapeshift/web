@@ -24,13 +24,28 @@ import {
   solanaChainId,
   thorchainChainId,
 } from '@shapeshiftoss/caip'
-import { isEvmChainId as _isEvmChainId } from '@shapeshiftoss/chain-adapters'
-import { SwapperName } from '@shapeshiftoss/swapper'
 import { fromBaseUnit, toBaseUnit } from '@shapeshiftoss/utils'
 import { erc20Abi } from 'viem'
 
 export type { AssetId, ChainId }
-export { SwapperName }
+
+export enum SwapperName {
+  Thorchain = 'THORChain',
+  Mayachain = 'MAYAChain',
+  CowSwap = 'CoW Swap',
+  Zrx = '0x',
+  ArbitrumBridge = 'Arbitrum Bridge',
+  Portals = 'Portals',
+  Chainflip = 'Chainflip',
+  Jupiter = 'Jupiter',
+  Relay = 'Relay',
+  ButterSwap = 'ButterSwap',
+  Bebop = 'Bebop',
+  NearIntents = 'NEAR Intents',
+  Cetus = 'Cetus',
+  Sunio = 'Sun.io',
+  Avnu = 'AVNU',
+}
 
 export type Chain = {
   chainId: ChainId
@@ -205,7 +220,10 @@ export const OTHER_CHAIN_IDS = {
   solana: solanaChainId,
 } as const
 
-export const isEvmChainId = _isEvmChainId
+export const isEvmChainId = (chainId: string): boolean => {
+  const { chainNamespace } = fromChainId(chainId as ChainId)
+  return chainNamespace === CHAIN_NAMESPACE.Evm
+}
 
 export const getEvmNetworkId = (chainId: string): number => {
   const { chainReference } = fromChainId(chainId as ChainId)

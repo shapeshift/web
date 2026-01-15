@@ -5,31 +5,14 @@ import { nodePolyfills } from 'vite-plugin-node-polyfills'
 
 const isLibBuild = process.env.BUILD_LIB === 'true'
 
-const externalPatterns = [
-  /^react$/,
-  /^react-dom$/,
-  /starknet/,
-  /tronweb/,
-  /@solana\//,
-  /@mysten\/sui/,
-  /@near-js\//,
-  /@coral-xyz\/anchor/,
-  /@arbitrum\/sdk/,
-  /@cowprotocol\//,
-  /@avnu\//,
-  /@cetusprotocol\//,
-  /@defuse-protocol\//,
-  /@uniswap\//,
-  /node:crypto/,
-  /node:events/,
+const libExternals = [
+  'react',
+  'react-dom',
+  'viem',
+  'wagmi',
+  '@rainbow-me/rainbowkit',
+  '@tanstack/react-query',
 ]
-
-const isExternal = (id: string) => externalPatterns.some(pattern => pattern.test(id))
-
-const isExternalNonReact = (id: string) => {
-  if (id === 'react' || id === 'react-dom') return false
-  return isExternal(id)
-}
 
 const defineGlobalThis: PluginOption = {
   name: 'define-global-this',
@@ -69,11 +52,6 @@ export default defineConfig({
       },
     },
   },
-  resolve: {
-    alias: {
-      'ethers/lib/utils': 'ethers',
-    },
-  },
   server: {
     port: 3001,
     open: false,
@@ -90,7 +68,7 @@ export default defineConfig({
           fileName: 'index',
         },
         rollupOptions: {
-          external: isExternal,
+          external: libExternals,
           output: {
             globals: {
               react: 'React',
@@ -101,8 +79,5 @@ export default defineConfig({
       }
     : {
         outDir: 'dist',
-        rollupOptions: {
-          external: isExternalNonReact,
-        },
       },
 })

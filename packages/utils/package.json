@@ -1,6 +1,6 @@
 {
   "name": "@shapeshiftoss/utils",
-  "version": "1.0.4",
+  "version": "1.0.5-coderabbit-fix.2",
   "packageManager": "yarn@3.5.0",
   "repository": "https://github.com/shapeshift/web",
   "license": "MIT",

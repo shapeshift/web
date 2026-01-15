@@ -1,7 +1,7 @@
 import { toAddressNList } from '@shapeshiftoss/chain-adapters'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import type { TradeStatus as OmnistonTradeStatus } from '@ston-fi/omniston-sdk'
-import { Blockchain, Omniston } from '@ston-fi/omniston-sdk'
+import { Blockchain } from '@ston-fi/omniston-sdk'
 
 import type { SwapperApi, TradeStatus } from '../../types'
 import {
@@ -11,36 +11,11 @@ import {
 } from '../../utils'
 import { getTradeQuote } from './swapperApi/getTradeQuote'
 import { getTradeRate } from './swapperApi/getTradeRate'
-import { STONFI_WEBSOCKET_URL } from './utils/constants'
+import { omnistonManager } from './utils/omnistonManager'
 
 const TRADE_TRACKING_TIMEOUT_MS = 60000
-const CONNECTION_TIMEOUT_MS = 10000
 
-const waitForConnection = (omniston: Omniston): Promise<boolean> => {
-  return new Promise(resolve => {
-    const timer = setTimeout(() => {
-      subscription.unsubscribe()
-      resolve(false)
-    }, CONNECTION_TIMEOUT_MS)
-
-    const subscription = omniston.connectionStatusEvents.subscribe({
-      next: event => {
-        if (event.status === 'connected') {
-          clearTimeout(timer)
-          subscription.unsubscribe()
-          resolve(true)
-        }
-      },
-      error: () => {
-        clearTimeout(timer)
-        resolve(false)
-      },
-    })
-  })
-}
-
-const waitForFirstTradeStatus = async (
-  omniston: Omniston,
+const waitForFirstTradeStatus = (
   request: {
     quoteId: string
     traderWalletAddress: { blockchain: number; address: string }
@@ -48,11 +23,7 @@ const waitForFirstTradeStatus = async (
   },
   timeoutMs: number,
 ): Promise<OmnistonTradeStatus | null> => {
-  const isConnected = await waitForConnection(omniston)
-  if (!isConnected) {
-    console.error('[Stonfi] WebSocket connection timeout')
-    return null
-  }
+  const omniston = omnistonManager.getInstance()
 
   return new Promise(resolve => {
     const timer = setTimeout(() => {
@@ -117,7 +88,7 @@ export const stonfiApi: SwapperApi = {
     let lastError: Error | null = null
 
     for (let attempt = 1; attempt <= maxRetries; attempt++) {
-      const omniston = new Omniston({ apiUrl: STONFI_WEBSOCKET_URL })
+      const omniston = omnistonManager.getInstance()
 
       try {
         const txResponse = await omniston.buildTransfer({
@@ -136,11 +107,16 @@ export const stonfiApi: SwapperApi = {
 
         const expireAt = Math.floor(Date.now() / 1000) + 300
 
+        const convertOmnistonBase64ToHdwalletHex = (base64: string | undefined): string => {
+          if (!base64) return ''
+          return Buffer.from(base64, 'base64').toString('hex')
+        }
+
         const rawMessages = txResponse.ton.messages.map(msg => ({
           targetAddress: msg.targetAddress,
           sendAmount: msg.sendAmount,
-          payload: msg.payload,
-          stateInit: msg.jettonWalletStateInit,
+          payload: convertOmnistonBase64ToHdwalletHex(msg.payload),
+          stateInit: convertOmnistonBase64ToHdwalletHex(msg.jettonWalletStateInit),
         }))
 
         const seqno = await adapter.getSeqno(from)
@@ -161,8 +137,6 @@ export const stonfiApi: SwapperApi = {
         if (attempt < maxRetries) {
           await new Promise(resolve => setTimeout(resolve, 1000 * attempt))
         }
-      } finally {
-        omniston.close()
       }
     }
 
@@ -210,11 +184,8 @@ export const stonfiApi: SwapperApi = {
       return checkTxStatusViaChainAdapter()
     }
 
-    const omniston = new Omniston({ apiUrl: STONFI_WEBSOCKET_URL })
-
     try {
       const tradeStatus = await waitForFirstTradeStatus(
-        omniston,
         {
           quoteId: metadata.quoteId,
           traderWalletAddress: {
@@ -296,8 +267,6 @@ export const stonfiApi: SwapperApi = {
     } catch (err) {
       console.error('[Stonfi] Error checking trade status via Omniston:', err)
       return checkTxStatusViaChainAdapter()
-    } finally {
-      omniston.close()
     }
   },
 }

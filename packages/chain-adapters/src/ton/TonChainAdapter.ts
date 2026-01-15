@@ -3,7 +3,7 @@ import { ASSET_REFERENCE, toAssetId, tonAssetId, tonChainId } from '@shapeshifto
 import type { HDWallet, TonWallet } from '@shapeshiftoss/hdwallet-core'
 import type { Bip44Params, RootBip44Params } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
-import { TxStatus } from '@shapeshiftoss/unchained-client'
+import { TransferType, TxStatus } from '@shapeshiftoss/unchained-client'
 import PQueue from 'p-queue'
 
 import type { ChainAdapter as IChainAdapter } from '../api'
@@ -622,12 +622,24 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TonMainnet> {
     }
   }
 
+  private normalizeAddress(address: string): string {
+    if (!address) return ''
+    return address.replace(/^0:/, '').toLowerCase()
+  }
+
+  private addressesMatch(addr1: string, addr2: string): boolean {
+    return this.normalizeAddress(addr1) === this.normalizeAddress(addr2)
+  }
+
   async parseTx(msgHash: string, pubkey: string): Promise<Transaction> {
     try {
       const msgResult = await this.httpApiRequest<{
         messages?: {
           hash: string
           in_msg_tx_hash?: string
+          source?: string
+          destination?: string
+          value?: string
           created_at?: string
         }[]
       }>(`/api/v3/messages?hash=${encodeURIComponent(msgHash)}`)
@@ -653,21 +665,102 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TonMainnet> {
         }
       }
 
-      const txResult = await this.httpApiRequest<{
+      type TonTxMessage = {
+        source?: string
+        destination?: string
+        value?: string
+      }
+
+      type TonTxResponse = {
         transactions?: {
+          account: string
           hash: string
           lt: string
           now: number
           total_fees: string
           description?: {
             aborted?: boolean
+            action?: {
+              success?: boolean
+            }
           }
+          in_msg?: TonTxMessage
+          out_msgs?: TonTxMessage[]
         }[]
-      }>(`/api/v3/adjacentTransactions?hash=${encodeURIComponent(txHash)}`)
+      }
+
+      const txResult = await this.httpApiRequest<TonTxResponse>(
+        `/api/v3/transactions?hash=${encodeURIComponent(txHash)}&limit=1`,
+      )
 
       const tx = txResult.transactions?.[0]
       const isAborted = tx?.description?.aborted ?? false
-      const status = isAborted ? TxStatus.Failed : TxStatus.Confirmed
+      const actionSuccess = tx?.description?.action?.success ?? true
+      const status = isAborted || !actionSuccess ? TxStatus.Failed : TxStatus.Confirmed
+
+      const transfers: {
+        assetId: string
+        from: string[]
+        to: string[]
+        type: TransferType
+        value: string
+      }[] = []
+
+      if (tx?.in_msg?.value && tx.in_msg.source && tx.in_msg.destination) {
+        const value = tx.in_msg.value
+        if (BigInt(value) > 0n) {
+          const isReceive = this.addressesMatch(tx.in_msg.destination, pubkey)
+          const isSend = this.addressesMatch(tx.in_msg.source, pubkey)
+
+          if (isReceive) {
+            transfers.push({
+              assetId: this.assetId,
+              from: [tx.in_msg.source],
+              to: [tx.in_msg.destination],
+              type: TransferType.Receive,
+              value,
+            })
+          } else if (isSend) {
+            transfers.push({
+              assetId: this.assetId,
+              from: [tx.in_msg.source],
+              to: [tx.in_msg.destination],
+              type: TransferType.Send,
+              value,
+            })
+          }
+        }
+      }
+
+      if (tx?.out_msgs) {
+        for (const outMsg of tx.out_msgs) {
+          if (outMsg.value && outMsg.source && outMsg.destination) {
+            const value = outMsg.value
+            if (BigInt(value) > 0n) {
+              const isSend = this.addressesMatch(outMsg.source, pubkey)
+              const isReceive = this.addressesMatch(outMsg.destination, pubkey)
+
+              if (isSend && !isReceive) {
+                transfers.push({
+                  assetId: this.assetId,
+                  from: [outMsg.source],
+                  to: [outMsg.destination],
+                  type: TransferType.Send,
+                  value,
+                })
+              } else if (isReceive && !isSend) {
+                transfers.push({
+                  assetId: this.assetId,
+                  from: [outMsg.source],
+                  to: [outMsg.destination],
+                  type: TransferType.Receive,
+                  value,
+                })
+              }
+            }
+          }
+        }
+      }
 
       return {
         txid: msgHash,
@@ -683,7 +776,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TonMainnet> {
               value: tx.total_fees,
             }
           : undefined,
-        transfers: [],
+        transfers,
         pubkey,
       }
     } catch (err) {

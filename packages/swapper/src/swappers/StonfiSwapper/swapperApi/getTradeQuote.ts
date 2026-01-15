@@ -1,78 +1,39 @@
-import { fromAssetId } from '@shapeshiftoss/caip'
-import type { Asset } from '@shapeshiftoss/types'
-import { KnownChainIds } from '@shapeshiftoss/types'
 import { Err, Ok } from '@sniptt/monads'
-import type { Quote, QuoteResponseEvent } from '@ston-fi/omniston-sdk'
-import { Blockchain, Omniston, SettlementMethod } from '@ston-fi/omniston-sdk'
+import type { Quote } from '@ston-fi/omniston-sdk'
+import { SettlementMethod } from '@ston-fi/omniston-sdk'
 
 import type { CommonTradeQuoteInput, TradeQuote, TradeQuoteResult } from '../../../types'
 import { SwapperName, TradeQuoteError } from '../../../types'
 import { makeSwapErrorRight } from '../../../utils'
-import {
-  STONFI_DEFAULT_SLIPPAGE_BPS,
-  STONFI_QUOTE_TIMEOUT_MS,
-  STONFI_WEBSOCKET_URL,
-} from '../utils/constants'
-import { isTonAsset } from '../utils/helpers'
+import type { OmnistonAssetAddress } from '../types'
+import { STONFI_DEFAULT_SLIPPAGE_BPS, STONFI_QUOTE_TIMEOUT_MS } from '../utils/constants'
+import { calculateRate, slippageDecimalToBps, validateTonAssets } from '../utils/helpers'
+import { omnistonManager } from '../utils/omnistonManager'
+import { waitForQuote } from '../utils/quoteHelpers'
 
-const STONFI_SWAP_SOURCE = SwapperName.Stonfi
-
-const assetToOmnistonAddress = (asset: Asset): { blockchain: number; address: string } | null => {
-  if (!isTonAsset(asset)) return null
-
-  const { assetNamespace, assetReference } = fromAssetId(asset.assetId)
-
-  if (assetNamespace === 'slip44') {
-    return {
-      blockchain: Blockchain.TON,
-      address: 'EQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAM9c',
-    }
-  }
-
-  if (assetNamespace === 'jetton') {
-    return { blockchain: Blockchain.TON, address: assetReference }
-  }
-
-  return null
-}
-
-type QuoteResult =
-  | { type: 'success'; quote: Quote }
-  | { type: 'noQuote' }
-  | { type: 'timeout' }
-  | { type: 'error'; error: unknown }
-
-const waitForQuote = (
-  omniston: Omniston,
-  request: Parameters<typeof omniston.requestForQuote>[0],
-  timeoutMs: number,
-): Promise<QuoteResult> => {
-  return new Promise(resolve => {
-    const timer = setTimeout(() => {
-      subscription.unsubscribe()
-      resolve({ type: 'timeout' })
-    }, timeoutMs)
-
-    const subscription = omniston.requestForQuote(request).subscribe({
-      next: (event: QuoteResponseEvent) => {
-        if (event.type === 'quoteUpdated' && event.quote) {
-          clearTimeout(timer)
-          subscription.unsubscribe()
-          resolve({ type: 'success', quote: event.quote })
-        } else if (event.type === 'noQuote') {
-          clearTimeout(timer)
-          subscription.unsubscribe()
-          resolve({ type: 'noQuote' })
-        }
-      },
-      error: err => {
-        clearTimeout(timer)
-        subscription.unsubscribe()
-        resolve({ type: 'error', error: err })
-      },
-    })
-  })
-}
+const buildStonfiSpecific = (
+  quote: Quote,
+  bidAssetAddress: OmnistonAssetAddress,
+  askAssetAddress: OmnistonAssetAddress,
+) => ({
+  quoteId: quote.quoteId,
+  resolverId: quote.resolverId,
+  resolverName: quote.resolverName,
+  tradeStartDeadline: quote.tradeStartDeadline,
+  gasBudget: quote.gasBudget,
+  bidAssetAddress: quote.bidAssetAddress ?? bidAssetAddress,
+  askAssetAddress: quote.askAssetAddress ?? askAssetAddress,
+  bidUnits: quote.bidUnits,
+  askUnits: quote.askUnits,
+  referrerAddress: quote.referrerAddress,
+  referrerFeeAsset: quote.referrerFeeAsset,
+  referrerFeeUnits: quote.referrerFeeUnits,
+  protocolFeeAsset: quote.protocolFeeAsset,
+  protocolFeeUnits: quote.protocolFeeUnits,
+  quoteTimestamp: quote.quoteTimestamp,
+  estimatedGasConsumption: quote.estimatedGasConsumption,
+  params: quote.params,
+})
 
 export const getTradeQuote = async (input: CommonTradeQuoteInput): Promise<TradeQuoteResult> => {
   const {
@@ -84,42 +45,19 @@ export const getTradeQuote = async (input: CommonTradeQuoteInput): Promise<Trade
     slippageTolerancePercentageDecimal,
   } = input
 
-  if (sellAsset.chainId !== KnownChainIds.TonMainnet) {
-    return Err(
-      makeSwapErrorRight({
-        message: `[Stonfi] Unsupported sell asset chain: ${sellAsset.chainId}`,
-        code: TradeQuoteError.UnsupportedChain,
-      }),
-    )
+  const validation = validateTonAssets(sellAsset, buyAsset)
+  if (!validation.isValid) {
+    return validation.error
   }
 
-  if (buyAsset.chainId !== KnownChainIds.TonMainnet) {
-    return Err(
-      makeSwapErrorRight({
-        message: `[Stonfi] Cross-chain swaps not supported`,
-        code: TradeQuoteError.CrossChainNotSupported,
-      }),
-    )
-  }
-
-  const bidAssetAddress = assetToOmnistonAddress(sellAsset)
-  const askAssetAddress = assetToOmnistonAddress(buyAsset)
-
-  if (!bidAssetAddress || !askAssetAddress) {
-    return Err(
-      makeSwapErrorRight({
-        message: `[Stonfi] Unable to convert assets to Omniston addresses`,
-        code: TradeQuoteError.UnsupportedTradePair,
-      }),
-    )
-  }
-
-  const omniston = new Omniston({ apiUrl: STONFI_WEBSOCKET_URL })
+  const { bidAssetAddress, askAssetAddress } = validation
+  const omniston = omnistonManager.getInstance()
 
   try {
-    const slippageBps = slippageTolerancePercentageDecimal
-      ? Math.round(parseFloat(slippageTolerancePercentageDecimal) * 10000)
-      : STONFI_DEFAULT_SLIPPAGE_BPS
+    const slippageBps = slippageDecimalToBps(
+      slippageTolerancePercentageDecimal,
+      STONFI_DEFAULT_SLIPPAGE_BPS,
+    )
 
     const quoteResult = await waitForQuote(
       omniston,
@@ -168,16 +106,12 @@ export const getTradeQuote = async (input: CommonTradeQuoteInput): Promise<Trade
     const buyAmountCryptoBaseUnit = quote.askUnits
     const networkFeeCryptoBaseUnit = quote.gasBudget
 
-    const rate =
-      BigInt(buyAmountCryptoBaseUnit) > 0n &&
-      BigInt(sellAmountIncludingProtocolFeesCryptoBaseUnit) > 0n
-        ? (
-            Number(buyAmountCryptoBaseUnit) /
-            Math.pow(10, buyAsset.precision) /
-            (Number(sellAmountIncludingProtocolFeesCryptoBaseUnit) /
-              Math.pow(10, sellAsset.precision))
-          ).toString()
-        : '0'
+    const rate = calculateRate(
+      buyAmountCryptoBaseUnit,
+      sellAmountIncludingProtocolFeesCryptoBaseUnit,
+      buyAsset.precision,
+      sellAsset.precision,
+    )
 
     const tradeQuote: TradeQuote = {
       id: quote.quoteId,
@@ -198,31 +132,13 @@ export const getTradeQuote = async (input: CommonTradeQuoteInput): Promise<Trade
             protocolFees: undefined,
           },
           rate,
-          source: STONFI_SWAP_SOURCE,
+          source: SwapperName.Stonfi,
           buyAsset,
           sellAsset,
           accountNumber,
           allowanceContract: '0x0000000000000000000000000000000000000000',
           estimatedExecutionTimeMs: 30000,
-          stonfiSpecific: {
-            quoteId: quote.quoteId,
-            resolverId: quote.resolverId,
-            resolverName: quote.resolverName,
-            tradeStartDeadline: quote.tradeStartDeadline,
-            gasBudget: quote.gasBudget,
-            bidAssetAddress: quote.bidAssetAddress ?? bidAssetAddress,
-            askAssetAddress: quote.askAssetAddress ?? askAssetAddress,
-            bidUnits: quote.bidUnits,
-            askUnits: quote.askUnits,
-            referrerAddress: quote.referrerAddress,
-            referrerFeeAsset: quote.referrerFeeAsset,
-            referrerFeeUnits: quote.referrerFeeUnits,
-            protocolFeeAsset: quote.protocolFeeAsset,
-            protocolFeeUnits: quote.protocolFeeUnits,
-            quoteTimestamp: quote.quoteTimestamp,
-            estimatedGasConsumption: quote.estimatedGasConsumption,
-            params: quote.params,
-          },
+          stonfiSpecific: buildStonfiSpecific(quote, bidAssetAddress, askAssetAddress),
         },
       ],
     }
@@ -236,7 +152,5 @@ export const getTradeQuote = async (input: CommonTradeQuoteInput): Promise<Trade
         cause: err,
       }),
     )
-  } finally {
-    omniston.close()
   }
 }

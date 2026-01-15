@@ -1,8 +1,34 @@
 import { KnownChainIds } from '@shapeshiftoss/types'
+import type { Result } from '@sniptt/monads'
+import type { Quote } from '@ston-fi/omniston-sdk'
+
+import type { SwapErrorRight } from '../../types'
 
 export type StonfiSupportedChainId = typeof KnownChainIds.TonMainnet
 
 export const stonfiSupportedChainIds = [KnownChainIds.TonMainnet] as const
+
+export type OmnistonAssetAddress = {
+  blockchain: number
+  address: string
+}
+
+export type TonAssetValidationResult =
+  | {
+      isValid: true
+      bidAssetAddress: OmnistonAssetAddress
+      askAssetAddress: OmnistonAssetAddress
+    }
+  | {
+      isValid: false
+      error: Result<never, SwapErrorRight>
+    }
+
+export type QuoteResult =
+  | { type: 'success'; quote: Quote }
+  | { type: 'noQuote' }
+  | { type: 'timeout' }
+  | { type: 'error'; error: unknown }
 
 export type StonfiQuote = {
   quoteId: string
@@ -23,14 +49,14 @@ export type StonfiTradeSpecific = {
   resolverName: string
   tradeStartDeadline: number
   gasBudget: string
-  bidAssetAddress: { blockchain: number; address: string }
-  askAssetAddress: { blockchain: number; address: string }
+  bidAssetAddress: OmnistonAssetAddress
+  askAssetAddress: OmnistonAssetAddress
   bidUnits: string
   askUnits: string
-  referrerAddress?: { blockchain: number; address: string }
-  referrerFeeAsset?: { blockchain: number; address: string }
+  referrerAddress?: OmnistonAssetAddress
+  referrerFeeAsset?: OmnistonAssetAddress
   referrerFeeUnits: string
-  protocolFeeAsset?: { blockchain: number; address: string }
+  protocolFeeAsset?: OmnistonAssetAddress
   protocolFeeUnits: string
   quoteTimestamp: number
   estimatedGasConsumption: string

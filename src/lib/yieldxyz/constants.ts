@@ -55,6 +55,10 @@ export const isSupportedYieldNetwork = (network: string): network is YieldNetwor
 export const YIELD_POLL_INTERVAL_MS = 5000
 export const YIELD_MAX_POLL_ATTEMPTS = 120
 
+// Compute unit safety margin for Solana yield transactions
+// Same as Jupiter swapper (1.6) to handle network volatility
+export const SOLANA_YIELD_COMPUTE_UNIT_MARGIN_MULTIPLIER = 1.6
+
 export const SHAPESHIFT_COSMOS_VALIDATOR_ADDRESS =
   'cosmosvaloper199mlc7fr6ll5t54w7tts7f4s0cvnqgc59nmuxf'
 

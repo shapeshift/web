@@ -18,9 +18,12 @@ import { memo, useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
 
+import { AccountSelector } from '@/components/AccountSelector/AccountSelector'
 import { Amount } from '@/components/Amount/Amount'
 import { AssetIcon } from '@/components/AssetIcon'
 import { ChainIcon } from '@/components/ChainMenu'
+import { Display } from '@/components/Display'
+import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import {
   COSMOS_ATOM_NATIVE_STAKING_YIELD_ID,
@@ -38,11 +41,15 @@ import { YieldFilters } from '@/pages/Yields/components/YieldFilters'
 import { YieldItem, YieldItemSkeleton } from '@/pages/Yields/components/YieldItem'
 import { YieldTable } from '@/pages/Yields/components/YieldTable'
 import { ViewToggle } from '@/pages/Yields/components/YieldViewHelpers'
+import { useYieldAccountSync } from '@/pages/Yields/hooks/useYieldAccountSync'
 import { useYieldFilters } from '@/pages/Yields/hooks/useYieldFilters'
 import { useAllYieldBalances } from '@/react-queries/queries/yieldxyz/useAllYieldBalances'
 import { useYieldProviders } from '@/react-queries/queries/yieldxyz/useYieldProviders'
 import { useYields } from '@/react-queries/queries/yieldxyz/useYields'
-import { selectUserCurrencyToUsdRate } from '@/state/slices/selectors'
+import {
+  selectPortfolioAccountIdsByAssetIdFilter,
+  selectUserCurrencyToUsdRate,
+} from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
 export const YieldAssetDetails = memo(() => {
@@ -85,7 +92,32 @@ export const YieldAssetDetails = memo(() => {
   const { data: yields, isLoading } = useYields()
   const { data: yieldProviders } = useYieldProviders()
   const userCurrencyToUsdRate = useAppSelector(selectUserCurrencyToUsdRate)
-  const { data: allBalancesData } = useAllYieldBalances()
+
+  const assetInfo = useMemo(() => {
+    const group = yields?.assetGroups?.find(g => g.symbol === decodedSymbol)
+    if (!group) return null
+    return { assetName: group.name, assetIcon: group.icon, assetId: group.assetId }
+  }, [yields?.assetGroups, decodedSymbol])
+
+  const isYieldMultiAccountEnabled = useFeatureFlag('YieldMultiAccount')
+  const accountIdsForAsset = useAppSelector(state =>
+    assetInfo?.assetId
+      ? selectPortfolioAccountIdsByAssetIdFilter(state, { assetId: assetInfo.assetId })
+      : [],
+  )
+
+  const { selectedAccountId, handleAccountChange } = useYieldAccountSync({
+    availableAccountIds: accountIdsForAsset,
+  })
+
+  const showAccountSelector = isYieldMultiAccountEnabled && accountIdsForAsset.length > 1
+
+  const balanceAccountIds = useMemo(() => {
+    if (!isYieldMultiAccountEnabled) return accountIdsForAsset
+    return selectedAccountId ? [selectedAccountId] : accountIdsForAsset
+  }, [isYieldMultiAccountEnabled, selectedAccountId, accountIdsForAsset])
+
+  const { data: allBalancesData } = useAllYieldBalances({ accountIds: balanceAccountIds })
   const allBalances = allBalancesData?.byYieldId
 
   const getProviderLogo = useCallback(
@@ -176,12 +208,6 @@ export const YieldAssetDetails = memo(() => {
       }),
     [assetYields, selectedNetwork, selectedProvider, selectedType],
   )
-
-  const assetInfo = useMemo(() => {
-    const group = yields?.assetGroups?.find(g => g.symbol === decodedSymbol)
-    if (!group) return null
-    return { assetName: group.name, assetIcon: group.icon, assetId: group.assetId }
-  }, [yields?.assetGroups, decodedSymbol])
 
   const columns = useMemo<ColumnDef<AugmentedYieldDto>[]>(
     () => [
@@ -374,20 +400,51 @@ export const YieldAssetDetails = memo(() => {
   const assetHeaderElement = useMemo(() => {
     if (!assetInfo) return null
     return (
-      <Flex alignItems='center' gap={4} mb={8}>
-        <AssetIcon
-          {...(assetInfo.assetId ? { assetId: assetInfo.assetId } : { src: assetInfo.assetIcon })}
-          size='lg'
-          showNetworkIcon={false}
-        />
-        <Box>
-          <Heading size='lg'>
-            {translate('yieldXYZ.assetYields', { asset: assetInfo.assetName })}
-          </Heading>
-        </Box>
-      </Flex>
+      <Box mb={8}>
+        <Flex
+          alignItems={{ base: 'flex-start', md: 'center' }}
+          justifyContent='space-between'
+          gap={4}
+          direction={{ base: 'column', md: 'row' }}
+        >
+          <Flex alignItems='center' gap={4}>
+            <AssetIcon
+              {...(assetInfo.assetId
+                ? { assetId: assetInfo.assetId }
+                : { src: assetInfo.assetIcon })}
+              size='lg'
+              showNetworkIcon={false}
+            />
+            <Box>
+              <Heading size='lg'>
+                {translate('yieldXYZ.assetYields', { asset: assetInfo.assetName })}
+              </Heading>
+            </Box>
+          </Flex>
+          {showAccountSelector && assetInfo?.assetId && (
+            <Display.Desktop>
+              <AccountSelector
+                assetId={assetInfo.assetId}
+                accountId={selectedAccountId}
+                onChange={handleAccountChange}
+              />
+            </Display.Desktop>
+          )}
+        </Flex>
+        {showAccountSelector && assetInfo?.assetId && (
+          <Display.Mobile>
+            <Box mt={4}>
+              <AccountSelector
+                assetId={assetInfo.assetId}
+                accountId={selectedAccountId}
+                onChange={handleAccountChange}
+              />
+            </Box>
+          </Display.Mobile>
+        )}
+      </Box>
     )
-  }, [assetInfo, translate])
+  }, [assetInfo, translate, selectedAccountId, handleAccountChange, showAccountSelector])
 
   const loadingGridElement = useMemo(
     () => (

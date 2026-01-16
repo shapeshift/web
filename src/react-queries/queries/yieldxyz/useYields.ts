@@ -50,7 +50,14 @@ const isLowQualityYield = (yieldItem: YieldDto): boolean => {
   return true // filter out - low TVL AND low APY
 }
 
-export const useYields = (params?: { network?: string; provider?: string }) => {
+type UseYieldsParams = {
+  network?: string
+  provider?: string
+  enabled?: boolean
+}
+
+export const useYields = (params?: UseYieldsParams) => {
+  const isEnabled = params?.enabled ?? true
   const { data: allYields, ...queryResult } = useQuery({
     queryKey: ['yieldxyz', 'yields'],
     queryFn: async () => {
@@ -82,6 +89,7 @@ export const useYields = (params?: { network?: string; provider?: string }) => {
       return qualityYields.filter(item => isSupportedYieldNetwork(item.network)).map(augmentYield)
     },
     staleTime: 5 * 60 * 1000,
+    enabled: isEnabled,
   })
 
   const assets = useAppSelector(selectAssets)

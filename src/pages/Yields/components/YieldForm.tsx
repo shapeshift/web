@@ -1,4 +1,5 @@
 import { Avatar, Box, Button, Flex, HStack, Icon, Input, Skeleton, Text } from '@chakra-ui/react'
+import type { AccountId } from '@shapeshiftoss/caip'
 import { useQueryClient } from '@tanstack/react-query'
 import type { ChangeEvent } from 'react'
 import { memo, useCallback, useEffect, useMemo, useState } from 'react'
@@ -34,6 +35,7 @@ import { useYieldValidators } from '@/react-queries/queries/yieldxyz/useYieldVal
 import { allowedDecimalSeparators } from '@/state/slices/preferencesSlice/preferencesSlice'
 import {
   selectAccountIdByAccountNumberAndChainId,
+  selectAccountNumberByAccountId,
   selectAssetById,
   selectMarketDataByAssetIdUserCurrency,
   selectPortfolioAccountIdsByAssetIdFilter,
@@ -46,6 +48,7 @@ type YieldFormProps = {
   balances?: NormalizedYieldBalances
   action: 'enter' | 'exit' | 'claim'
   validatorAddress?: string
+  accountId?: AccountId
   accountNumber?: number
   onClose: () => void
   onDone?: () => void
@@ -141,7 +144,8 @@ export const YieldForm = memo(
     balances,
     action,
     validatorAddress,
-    accountNumber = 0,
+    accountId: accountIdProp,
+    accountNumber,
     onClose,
     onDone,
   }: YieldFormProps) => {
@@ -156,7 +160,7 @@ export const YieldForm = memo(
 
     const [cryptoAmount, setCryptoAmount] = useState('')
     const [isFiat, setIsFiat] = useState(false)
-    const [selectedAccountId, setSelectedAccountId] = useState<string | undefined>()
+    const [selectedAccountId, setSelectedAccountId] = useState<AccountId | undefined>(accountIdProp)
     const [selectedPercent, setSelectedPercent] = useState<number | null>(null)
 
     const { chainId } = yieldItem
@@ -181,10 +185,18 @@ export const YieldForm = memo(
       selectPortfolioAccountIdsByAssetIdFilter(state, accountIdFilter),
     )
 
+    const derivedAccountNumber = useAppSelector(state => {
+      if (accountNumber !== undefined) return accountNumber
+      if (accountIdProp)
+        return selectAccountNumberByAccountId(state, { accountId: accountIdProp }) ?? 0
+      return 0
+    })
+
     const defaultAccountId = useAppSelector(state => {
+      if (accountIdProp) return accountIdProp
       if (!chainId) return undefined
       const accountIdsByNumberAndChain = selectAccountIdByAccountNumberAndChainId(state)
-      return accountIdsByNumberAndChain[accountNumber]?.[chainId]
+      return accountIdsByNumberAndChain[derivedAccountNumber]?.[chainId]
     })
 
     const accountId = selectedAccountId ?? defaultAccountId
@@ -365,7 +377,7 @@ export const YieldForm = memo(
       else onClose()
     }, [onClose, onDone, queryClient, yieldItem.id, action])
 
-    const handleAccountChange = useCallback((newAccountId: string) => {
+    const handleAccountChange = useCallback((newAccountId: AccountId) => {
       setSelectedAccountId(newAccountId)
       setCryptoAmount('')
       setSelectedPercent(null)
@@ -714,6 +726,7 @@ export const YieldForm = memo(
           providerInfo={successProviderInfo}
           transactionSteps={transactionSteps}
           yieldId={yieldItem.id}
+          accountId={accountId}
           onDone={handleFormDone}
           successMessageKey={successMessageKey}
         />
@@ -731,7 +744,7 @@ export const YieldForm = memo(
                 assetId={inputTokenAssetId}
                 accountId={accountId}
                 onChange={handleAccountChange}
-                disabled={isAccountSelectorDisabled}
+                disabled={isAccountSelectorDisabled || isSubmitting}
               />
             </Flex>
           )}

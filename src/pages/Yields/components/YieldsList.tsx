@@ -22,7 +22,7 @@ import {
 } from '@chakra-ui/react'
 import type { ColumnDef, Row } from '@tanstack/react-table'
 import { getCoreRowModel, getSortedRowModel, useReactTable } from '@tanstack/react-table'
-import { memo, useCallback, useEffect, useMemo, useState } from 'react'
+import { memo, useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 
@@ -93,18 +93,11 @@ export const YieldsList = memo(() => {
   const [isMobile] = useMediaQuery('(max-width: 768px)')
   const [searchParams, setSearchParams] = useSearchParams()
   const tabParam = searchParams.get('tab') as YieldTab | null
-  const tabIndex = tabParam ? TAB_PARAM_TO_INDEX[tabParam] ?? 0 : 0
-  const isAvailableToEarnTab = tabParam === YieldTab.AvailableToEarn
-
-  useEffect(() => {
-    if (!tabParam && isConnected) {
-      setSearchParams(prev => {
-        const next = new URLSearchParams(prev)
-        next.set('tab', YieldTab.AvailableToEarn)
-        return next
-      })
-    }
-  }, [tabParam, isConnected, setSearchParams])
+  const tabIndex = useMemo(() => {
+    if (tabParam) return TAB_PARAM_TO_INDEX[tabParam] ?? 0
+    return isConnected ? TAB_PARAM_TO_INDEX[YieldTab.AvailableToEarn] : 0
+  }, [tabParam, isConnected])
+  const isAvailableToEarnTab = tabParam === YieldTab.AvailableToEarn || (!tabParam && isConnected)
   const viewParam = searchParams.get('view')
   const viewMode: 'grid' | 'list' = viewParam === 'list' ? 'list' : 'grid'
   const setViewMode = useCallback(

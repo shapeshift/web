@@ -117,7 +117,7 @@ export const Header = memo(() => {
   const earnSubMenuItems = useMemo(
     () => [
       ...(isYieldXyzEnabled
-        ? [{ label: 'navBar.yields', path: '/yields', icon: TbTrendingUp }]
+        ? [{ label: 'navBar.yields', path: '/yields', icon: TbTrendingUp, isNew: true }]
         : []),
       { label: 'navBar.tcy', path: '/tcy', icon: TCYIcon },
       { label: 'navBar.pools', path: '/pools', icon: TbPool },

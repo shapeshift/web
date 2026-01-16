@@ -13,7 +13,7 @@ import {
   VStack,
 } from '@chakra-ui/react'
 import qs from 'qs'
-import { memo, useCallback } from 'react'
+import { memo, useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 
@@ -43,222 +43,230 @@ type YieldHeroProps = {
   titleOverride?: string
 }
 
-export const YieldHero = memo(
-  ({
-    yieldItem,
-    userBalanceUsd,
-    userBalanceCrypto,
-    validatorOrProvider,
-    titleOverride,
-  }: YieldHeroProps) => {
-    const navigate = useNavigate()
-    const translate = useTranslate()
-    const { location } = useBrowserRouter()
+export const YieldHero = memo(function YieldHero({
+  yieldItem,
+  userBalanceUsd,
+  userBalanceCrypto,
+  validatorOrProvider,
+  titleOverride,
+}: YieldHeroProps) {
+  const navigate = useNavigate()
+  const translate = useTranslate()
+  const { location } = useBrowserRouter()
 
-    const iconSource = resolveYieldInputAssetIcon(yieldItem)
-    const apy = bnOrZero(yieldItem.rewardRate.total).times(100).toFixed(2)
-    const hasExitBalance = bnOrZero(userBalanceCrypto).gt(0)
+  const iconSource = resolveYieldInputAssetIcon(yieldItem)
+  const apy = bnOrZero(yieldItem.rewardRate.total).times(100).toFixed(2)
+  const hasExitBalance = bnOrZero(userBalanceCrypto).gt(0)
 
-    const [searchParams] = useSearchParams()
-    const validator = searchParams.get('validator')
+  const [searchParams] = useSearchParams()
+  const validator = searchParams.get('validator')
 
-    const handleAction = useCallback(
-      (action: 'enter' | 'exit') => {
-        navigate({
-          pathname: location.pathname,
-          search: qs.stringify({
-            action,
-            modal: 'yield',
-            ...(validator ? { validator } : {}),
-          }),
-        })
-      },
-      [navigate, location.pathname, validator],
-    )
+  const handleAction = useCallback(
+    (action: 'enter' | 'exit') => {
+      navigate({
+        pathname: location.pathname,
+        search: qs.stringify({
+          action,
+          modal: 'yield',
+          ...(validator ? { validator } : {}),
+        }),
+      })
+    },
+    [navigate, location.pathname, validator],
+  )
 
-    const handleEnter = useCallback(() => handleAction('enter'), [handleAction])
-    const handleExit = useCallback(() => handleAction('exit'), [handleAction])
+  const handleEnter = useCallback(() => handleAction('enter'), [handleAction])
+  const handleExit = useCallback(() => handleAction('exit'), [handleAction])
 
-    const enterLabel =
-      yieldItem.mechanics.type === 'staking' ? translate('defi.stake') : translate('common.deposit')
+  const isStaking = yieldItem.mechanics.type === 'staking'
+  const enterLabel = isStaking ? translate('defi.stake') : translate('common.deposit')
+  const exitLabel = isStaking ? translate('defi.unstake') : translate('common.withdraw')
 
-    const exitLabel =
-      yieldItem.mechanics.type === 'staking'
-        ? translate('defi.unstake')
-        : translate('common.withdraw')
+  const yieldTitle = titleOverride ?? yieldItem.metadata.name ?? yieldItem.token.symbol
 
-    const yieldTitle = titleOverride ?? yieldItem.metadata.name ?? yieldItem.token.symbol
+  const assetIcon = iconSource.assetId ? (
+    <AssetIcon assetId={iconSource.assetId} size='md' />
+  ) : (
+    <AssetIcon src={iconSource.src} size='md' />
+  )
 
-    const assetIcon = iconSource.assetId ? (
-      <AssetIcon assetId={iconSource.assetId} size='md' />
-    ) : (
-      <AssetIcon src={iconSource.src} size='md' />
-    )
-
-    const hasOverlay = validatorOrProvider?.logoURI || yieldItem.chainId
-
-    const stackedIconElement = !hasOverlay ? (
-      assetIcon
-    ) : (
-      <Box position='relative'>
-        {assetIcon}
-        {validatorOrProvider?.logoURI ? (
-          <Avatar
-            size='2xs'
-            src={validatorOrProvider.logoURI}
-            name={validatorOrProvider.name}
-            position='absolute'
-            bottom='-2px'
-            right='-2px'
-            border='2px solid'
-            borderColor='background.surface.raised.base'
-          />
-        ) : yieldItem.chainId ? (
-          <Box
-            position='absolute'
-            bottom='-2px'
-            right='-2px'
-            bg='background.surface.raised.base'
-            borderRadius='full'
-            p='2px'
-          >
-            <ChainIcon chainId={yieldItem.chainId} boxSize='14px' />
-          </Box>
-        ) : null}
-      </Box>
-    )
-
-    return (
-      <VStack
-        spacing={{ base: 3, md: 4 }}
-        align='center'
-        py={{ base: 4, md: 6 }}
-        px={{ base: 3, md: 6 }}
-      >
-        <Text fontWeight='semibold' fontSize='md'>
-          {yieldTitle}
-        </Text>
-
-        {yieldItem.metadata.deprecated && (
-          <Alert status='error' borderRadius='lg' variant='subtle'>
-            <AlertIcon />
-            <AlertDescription fontSize='sm'>
-              {translate('yieldXYZ.deprecatedDescription')}
-            </AlertDescription>
-          </Alert>
-        )}
-
-        {yieldItem.metadata.underMaintenance && !yieldItem.metadata.deprecated && (
-          <Alert status='warning' borderRadius='lg' variant='subtle'>
-            <AlertIcon />
-            <AlertDescription fontSize='sm'>
-              {translate('yieldXYZ.underMaintenanceDescription')}
-            </AlertDescription>
-          </Alert>
-        )}
-
-        <VStack spacing={2}>
-          <HStack spacing={3} bg='background.surface.raised.base' px={4} py={2} borderRadius='full'>
-            {stackedIconElement}
-            <Text fontWeight='bold' fontSize={{ base: 'md', md: 'lg' }}>
-              {validatorOrProvider?.name ?? yieldItem.token.symbol}
-            </Text>
-            {yieldItem.chainId && (
-              <HStack spacing={1} opacity={0.8}>
-                <ChainIcon chainId={yieldItem.chainId} boxSize='16px' />
-                <Text fontSize='sm' fontWeight='medium' textTransform='capitalize'>
-                  {yieldItem.network}
-                </Text>
-              </HStack>
-            )}
-          </HStack>
-          {yieldItem.metadata.name && yieldItem.metadata.name !== yieldItem.token.symbol && (
-            <Text color='text.subtle' fontSize='sm' textAlign='center'>
-              {yieldItem.metadata.name}
-            </Text>
-          )}
-        </VStack>
-
-        <Badge
-          colorScheme='green'
-          variant='subtle'
+  const overlayElement = (() => {
+    if (validatorOrProvider?.logoURI) {
+      return (
+        <Avatar
+          size='2xs'
+          src={validatorOrProvider.logoURI}
+          name={validatorOrProvider.name}
+          position='absolute'
+          bottom='-2px'
+          right='-2px'
+          border='2px solid'
+          borderColor='background.surface.raised.base'
+        />
+      )
+    }
+    if (yieldItem.chainId) {
+      return (
+        <Box
+          position='absolute'
+          bottom='-2px'
+          right='-2px'
+          bg='background.surface.raised.base'
           borderRadius='full'
-          px={3}
-          py={1.5}
-          fontWeight='bold'
-          fontSize='sm'
+          p='2px'
         >
-          {apy}% {translate('common.apy')}
-        </Badge>
+          <ChainIcon chainId={yieldItem.chainId} boxSize='14px' />
+        </Box>
+      )
+    }
+    return null
+  })()
 
-        {(() => {
-          const docUrl = validatorOrProvider?.documentation ?? yieldItem.metadata.documentation
-          const description = yieldItem.metadata.description
-          if (!description && !docUrl) return null
-          return (
-            <HStack spacing={2} maxW='400px' justify='center'>
-              {description && (
-                <Text color='text.subtle' fontSize='sm' textAlign='center' lineHeight='short'>
-                  {description}
-                </Text>
-              )}
-              {docUrl && (
-                <Link
-                  href={docUrl}
-                  isExternal
-                  color='text.subtle'
-                  _hover={{ color: 'text.base' }}
-                  flexShrink={0}
-                >
-                  <ExternalLinkIcon boxSize={4} />
-                </Link>
-              )}
+  const stackedIconElement = overlayElement ? (
+    <Box position='relative'>
+      {assetIcon}
+      {overlayElement}
+    </Box>
+  ) : (
+    assetIcon
+  )
+
+  const descriptionSection = useMemo(() => {
+    const docUrl = validatorOrProvider?.documentation ?? yieldItem.metadata.documentation
+    const description = yieldItem.metadata.description
+    if (!description && !docUrl) return null
+    return (
+      <HStack spacing={2} maxW='400px' justify='center'>
+        {description && (
+          <Text color='text.subtle' fontSize='sm' textAlign='center' lineHeight='short'>
+            {description}
+          </Text>
+        )}
+        {docUrl && (
+          <Link
+            href={docUrl}
+            isExternal
+            color='text.subtle'
+            _hover={{ color: 'text.base' }}
+            flexShrink={0}
+          >
+            <ExternalLinkIcon boxSize={4} />
+          </Link>
+        )}
+      </HStack>
+    )
+  }, [
+    validatorOrProvider?.documentation,
+    yieldItem.metadata.documentation,
+    yieldItem.metadata.description,
+  ])
+
+  return (
+    <VStack
+      spacing={{ base: 3, md: 4 }}
+      align='center'
+      py={{ base: 4, md: 6 }}
+      px={{ base: 3, md: 6 }}
+    >
+      <Text fontWeight='semibold' fontSize='md'>
+        {yieldTitle}
+      </Text>
+
+      {yieldItem.metadata.deprecated && (
+        <Alert status='error' borderRadius='lg' variant='subtle'>
+          <AlertIcon />
+          <AlertDescription fontSize='sm'>
+            {translate('yieldXYZ.deprecatedDescription')}
+          </AlertDescription>
+        </Alert>
+      )}
+
+      {yieldItem.metadata.underMaintenance && !yieldItem.metadata.deprecated && (
+        <Alert status='warning' borderRadius='lg' variant='subtle'>
+          <AlertIcon />
+          <AlertDescription fontSize='sm'>
+            {translate('yieldXYZ.underMaintenanceDescription')}
+          </AlertDescription>
+        </Alert>
+      )}
+
+      <VStack spacing={2}>
+        <HStack spacing={3} bg='background.surface.raised.base' px={4} py={2} borderRadius='full'>
+          {stackedIconElement}
+          <Text fontWeight='bold' fontSize={{ base: 'md', md: 'lg' }}>
+            {validatorOrProvider?.name ?? yieldItem.token.symbol}
+          </Text>
+          {yieldItem.chainId && (
+            <HStack spacing={1} opacity={0.8}>
+              <ChainIcon chainId={yieldItem.chainId} boxSize='16px' />
+              <Text fontSize='sm' fontWeight='medium' textTransform='capitalize'>
+                {yieldItem.network}
+              </Text>
             </HStack>
-          )
-        })()}
-
-        <VStack spacing={1} textAlign='center'>
-          <Text fontSize={{ base: '3xl', md: '4xl' }} fontWeight='bold' lineHeight='1'>
-            <Amount.Fiat value={userBalanceUsd} />
+          )}
+        </HStack>
+        {yieldItem.metadata.name && yieldItem.metadata.name !== yieldItem.token.symbol && (
+          <Text color='text.subtle' fontSize='sm' textAlign='center'>
+            {yieldItem.metadata.name}
           </Text>
-          <Text color='text.subtle' fontSize={{ base: 'sm', md: 'md' }}>
-            <Amount.Crypto value={userBalanceCrypto} symbol={yieldItem.token.symbol} />
-          </Text>
-        </VStack>
+        )}
+      </VStack>
 
-        <HStack
-          spacing={{ base: 3, md: 4 }}
-          width={{ base: 'full', md: 'auto' }}
-          minW={{ md: '500px', lg: '600px' }}
+      <Badge
+        colorScheme='green'
+        variant='subtle'
+        borderRadius='full'
+        px={3}
+        py={1.5}
+        fontWeight='bold'
+        fontSize='sm'
+      >
+        {apy}% {translate('common.apy')}
+      </Badge>
+
+      {descriptionSection}
+
+      <VStack spacing={1} textAlign='center'>
+        <Text fontSize={{ base: '3xl', md: '4xl' }} fontWeight='bold' lineHeight='1'>
+          <Amount.Fiat value={userBalanceUsd} />
+        </Text>
+        <Text color='text.subtle' fontSize={{ base: 'sm', md: 'md' }}>
+          <Amount.Crypto value={userBalanceCrypto} symbol={yieldItem.token.symbol} />
+        </Text>
+      </VStack>
+
+      <HStack
+        spacing={{ base: 3, md: 4 }}
+        width={{ base: 'full', md: 'auto' }}
+        minW={{ md: '500px', lg: '600px' }}
+      >
+        <Button
+          leftIcon={enterIcon}
+          colorScheme='blue'
+          size='lg'
+          height={14}
+          borderRadius='xl'
+          onClick={handleEnter}
+          flex={1}
+          fontWeight='bold'
         >
+          {enterLabel}
+        </Button>
+        {hasExitBalance && (
           <Button
-            leftIcon={enterIcon}
-            colorScheme='blue'
+            leftIcon={exitIcon}
+            variant='outline'
             size='lg'
             height={14}
             borderRadius='xl'
-            onClick={handleEnter}
+            onClick={handleExit}
             flex={1}
             fontWeight='bold'
           >
-            {enterLabel}
+            {exitLabel}
           </Button>
-          {hasExitBalance && (
-            <Button
-              leftIcon={exitIcon}
-              variant='outline'
-              size='lg'
-              height={14}
-              borderRadius='xl'
-              onClick={handleExit}
-              flex={1}
-              fontWeight='bold'
-            >
-              {exitLabel}
-            </Button>
-          )}
-        </HStack>
-      </VStack>
-    )
-  },
-)
+        )}
+      </HStack>
+    </VStack>
+  )
+})

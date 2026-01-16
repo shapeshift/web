@@ -12,7 +12,7 @@ import {
   Text,
   Tooltip,
 } from '@chakra-ui/react'
-import { memo, useMemo } from 'react'
+import { memo } from 'react'
 import { FaChartPie, FaInfoCircle, FaMoon } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 
@@ -53,18 +53,14 @@ export const YieldOpportunityStats = memo(function YieldOpportunityStats({
   const portfolioBalances = useAppSelector(selectPortfolioUserCurrencyBalances)
   const { data: yields } = useYields()
 
-  const activeValueUsd = useMemo(() => {
-    return positions.reduce((acc, position) => {
-      const positionBalances = balances?.[position.id]
-      if (!positionBalances) return acc
-      const activeBalances = positionBalances.filter(
-        b => b.type === 'active' || b.type === 'locked',
-      )
-      return activeBalances.reduce((sum, b) => sum.plus(bnOrZero(b.amountUsd)), acc)
-    }, bnOrZero(0))
-  }, [positions, balances])
+  const activeValueUsd = positions.reduce((acc, position) => {
+    const positionBalances = balances?.[position.id]
+    if (!positionBalances) return acc
+    const activeBalances = positionBalances.filter(b => b.type === 'active' || b.type === 'locked')
+    return activeBalances.reduce((sum, b) => sum.plus(bnOrZero(b.amountUsd)), acc)
+  }, bnOrZero(0))
 
-  const idleValueUsd = useMemo(() => {
+  const idleValueUsd = (() => {
     if (!isConnected || !allYields) return bnOrZero(0)
 
     const yieldableAssetIds = new Set(
@@ -80,10 +76,9 @@ export const YieldOpportunityStats = memo(function YieldOpportunityStats({
       const bal = portfolioBalances[assetId]
       return bal ? totalIdle.plus(bnOrZero(bal)) : totalIdle
     }, bnOrZero(0))
-  }, [isConnected, allYields, portfolioBalances])
+  })()
 
-  // Calculate weighted APY and potential earnings based on user's actual held assets
-  const { weightedApy, potentialEarningsValue } = useMemo(() => {
+  const { weightedApy, potentialEarningsValue } = (() => {
     if (!isConnected || !yields?.byInputAssetId || !portfolioBalances) {
       return { weightedApy: 0, potentialEarningsValue: bnOrZero(0) }
     }
@@ -93,7 +88,7 @@ export const YieldOpportunityStats = memo(function YieldOpportunityStats({
 
     for (const [assetId, balanceFiat] of Object.entries(portfolioBalances)) {
       const yieldsForAsset = yields.byInputAssetId[assetId]
-      if (!yieldsForAsset?.length) continue // Early bail - no yield for this asset
+      if (!yieldsForAsset?.length) continue
 
       const balance = bnOrZero(balanceFiat)
       const bestApy = Math.max(...yieldsForAsset.map(y => y.rewardRate.total))
@@ -107,7 +102,7 @@ export const YieldOpportunityStats = memo(function YieldOpportunityStats({
       : 0
 
     return { weightedApy: avgApy, potentialEarningsValue: totalEarnings }
-  }, [isConnected, yields?.byInputAssetId, portfolioBalances])
+  })()
 
   const hasActiveDeposits = activeValueUsd.gt(0)
   const activeValueFormatted = activeValueUsd.times(userCurrencyToUsdRate).toFixed()

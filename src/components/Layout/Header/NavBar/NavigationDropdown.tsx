@@ -1,6 +1,8 @@
 import {
+  Badge,
   Box,
   Button,
+  HStack,
   Icon,
   Menu,
   MenuButton,
@@ -23,6 +25,7 @@ type NavigationDropdownItem = {
   label: string
   path: string
   icon?: React.ComponentType
+  isNew?: boolean
 }
 
 type NavigationDropdownProps = {
@@ -134,7 +137,20 @@ export const NavigationDropdown = ({ label, items, defaultPath }: NavigationDrop
                 _hover={menuItemHoverSx}
                 icon={item.icon && <Icon as={item.icon} boxSize={6} />}
               >
-                <Text>{translate(item.label)}</Text>
+                <HStack spacing={2}>
+                  <Text>{translate(item.label)}</Text>
+                  {item.isNew && (
+                    <Badge
+                      colorScheme='blue'
+                      fontSize='2xs'
+                      variant='solid'
+                      borderRadius='full'
+                      px={1.5}
+                    >
+                      {translate('common.new')}
+                    </Badge>
+                  )}
+                </HStack>
               </MenuItem>
             )
           })}

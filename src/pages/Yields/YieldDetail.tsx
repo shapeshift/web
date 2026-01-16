@@ -267,6 +267,7 @@ export const YieldDetail = memo(() => {
               yieldItem={yieldItem}
               balances={balances}
               isBalancesLoading={isBalancesLoading}
+              selectedValidatorAddress={selectedValidatorAddress}
             />
             <YieldAvailableToDeposit
               yieldItem={yieldItem}
@@ -323,6 +324,7 @@ export const YieldDetail = memo(() => {
                 yieldItem={yieldItem}
                 balances={balances}
                 isBalancesLoading={isBalancesLoading}
+                selectedValidatorAddress={selectedValidatorAddress}
               />
               <YieldAvailableToDeposit
                 yieldItem={yieldItem}

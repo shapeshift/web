@@ -19,13 +19,12 @@ import dayjs from 'dayjs'
 import qs from 'qs'
 import { memo, useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useNavigate, useSearchParams } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 import { Amount } from '@/components/Amount/Amount'
 import { Display } from '@/components/Display'
 import { useBrowserRouter } from '@/hooks/useBrowserRouter/useBrowserRouter'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
-import { DEFAULT_NATIVE_VALIDATOR_BY_CHAIN_ID } from '@/lib/yieldxyz/constants'
 import type { AugmentedYieldDto } from '@/lib/yieldxyz/types'
 import { YieldBalanceType } from '@/lib/yieldxyz/types'
 import { useYieldAccount } from '@/pages/Yields/YieldAccountContext'
@@ -54,21 +53,22 @@ type YieldPositionCardProps = {
   yieldItem: AugmentedYieldDto
   balances: NormalizedYieldBalances | undefined
   isBalancesLoading: boolean
+  selectedValidatorAddress: string | undefined
 }
 
 export const YieldPositionCard = memo(
-  ({ yieldItem, balances, isBalancesLoading }: YieldPositionCardProps) => {
+  ({
+    yieldItem,
+    balances,
+    isBalancesLoading,
+    selectedValidatorAddress,
+  }: YieldPositionCardProps) => {
     const translate = useTranslate()
     const navigate = useNavigate()
     const { location } = useBrowserRouter()
-    const [searchParams] = useSearchParams()
-    const validatorParam = searchParams.get('validator')
 
     const { chainId } = yieldItem
     const { accountId: contextAccountId, accountNumber } = useYieldAccount()
-
-    const defaultValidator = chainId ? DEFAULT_NATIVE_VALIDATOR_BY_CHAIN_ID[chainId] : undefined
-    const selectedValidatorAddress = validatorParam || defaultValidator
 
     const accountId = useAppSelector(state => {
       if (contextAccountId) return contextAccountId

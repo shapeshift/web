@@ -7,6 +7,10 @@ import { useTranslate } from 'react-polyglot'
 
 import type { AugmentedYieldDto } from '@/lib/yieldxyz/types'
 
+const swapIcon = <Icon as={MdSwapHoriz} color='text.subtle' />
+const giftIcon = <Icon as={FaGift} color='text.subtle' />
+const infoIcon = <InfoIcon color='text.subtle' />
+
 type ExplainerItem = {
   icon: React.ReactNode
   textKey: string
@@ -20,17 +24,17 @@ const getYieldExplainers = (selectedYield: AugmentedYieldDto): ExplainerItem[] =
     case 'liquid-staking':
       return [
         {
-          icon: <Icon as={MdSwapHoriz} color='text.subtle' />,
+          icon: swapIcon,
           textKey: outputTokenSymbol
             ? 'earn.explainers.liquidStakingReceive'
             : 'earn.explainers.liquidStakingTrade',
         },
         {
-          icon: <Icon as={FaGift} color='text.subtle' />,
+          icon: giftIcon,
           textKey: 'earn.explainers.rewardsSchedule',
         },
         {
-          icon: <InfoIcon color='text.subtle' />,
+          icon: infoIcon,
           textKey: 'earn.explainers.liquidStakingWithdraw',
         },
       ]
@@ -39,28 +43,28 @@ const getYieldExplainers = (selectedYield: AugmentedYieldDto): ExplainerItem[] =
     case 'staking':
       return [
         {
-          icon: <Icon as={FaGift} color='text.subtle' />,
+          icon: giftIcon,
           textKey: 'earn.explainers.rewardsSchedule',
         },
-        { icon: <InfoIcon color='text.subtle' />, textKey: 'earn.explainers.stakingUnbonding' },
+        { icon: infoIcon, textKey: 'earn.explainers.stakingUnbonding' },
       ]
     case 'restaking':
       return [
         {
-          icon: <Icon as={FaGift} color='text.subtle' />,
+          icon: giftIcon,
           textKey: 'earn.explainers.restakingYield',
         },
-        { icon: <InfoIcon color='text.subtle' />, textKey: 'earn.explainers.restakingWithdraw' },
+        { icon: infoIcon, textKey: 'earn.explainers.restakingWithdraw' },
       ]
     case 'vault':
       return [
-        { icon: <Icon as={FaGift} color='text.subtle' />, textKey: 'earn.explainers.vaultYield' },
-        { icon: <InfoIcon color='text.subtle' />, textKey: 'earn.explainers.vaultWithdraw' },
+        { icon: giftIcon, textKey: 'earn.explainers.vaultYield' },
+        { icon: infoIcon, textKey: 'earn.explainers.vaultWithdraw' },
       ]
     case 'lending':
       return [
-        { icon: <Icon as={FaGift} color='text.subtle' />, textKey: 'earn.explainers.lendingYield' },
-        { icon: <InfoIcon color='text.subtle' />, textKey: 'earn.explainers.lendingWithdraw' },
+        { icon: giftIcon, textKey: 'earn.explainers.lendingYield' },
+        { icon: infoIcon, textKey: 'earn.explainers.lendingWithdraw' },
       ]
     default:
       return []

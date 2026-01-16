@@ -9,13 +9,14 @@ import { YieldEnterModal } from './YieldEnterModal'
 import { YieldItemSkeleton } from './YieldItem'
 import { YieldOpportunityCard } from './YieldOpportunityCard'
 
-import { getConfig } from '@/config'
 import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import type { AugmentedYieldDto } from '@/lib/yieldxyz/types'
-import type { YieldBalanceAggregate } from '@/react-queries/queries/yieldxyz/useAllYieldBalances'
+import type { AugmentedYieldBalanceWithAccountId } from '@/react-queries/queries/yieldxyz/useAllYieldBalances'
 import { useAllYieldBalances } from '@/react-queries/queries/yieldxyz/useAllYieldBalances'
 import { useYields } from '@/react-queries/queries/yieldxyz/useYields'
+import { selectEnabledWalletAccountIds } from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 const LoadingContent = (
   <VStack spacing={4} align='stretch'>
@@ -32,11 +33,15 @@ type YieldAssetSectionProps = {
 export const YieldAssetSection = memo(({ assetId, accountId }: YieldAssetSectionProps) => {
   const translate = useTranslate()
   const isYieldXyzEnabled = useFeatureFlag('YieldXyz')
+  const enabledWalletAccountIds = useAppSelector(selectEnabledWalletAccountIds)
   const {
     state: { isConnected },
   } = useWallet()
   const { data: yieldsData, isLoading: isYieldsLoading } = useYields()
-  const balanceOptions = useMemo(() => (accountId ? { accountIds: [accountId] } : {}), [accountId])
+  const balanceOptions = useMemo(
+    () => (accountId ? { accountIds: [accountId] } : { accountIds: enabledWalletAccountIds }),
+    [accountId, enabledWalletAccountIds],
+  )
   const { data: allBalancesData, isLoading: isBalancesLoading } =
     useAllYieldBalances(balanceOptions)
   const isLoading = isYieldsLoading || isBalancesLoading
@@ -53,30 +58,27 @@ export const YieldAssetSection = memo(({ assetId, accountId }: YieldAssetSection
     })
   }, [yieldsData, assetId])
 
-  const aggregated = useMemo(() => {
-    const multiAccountEnabled = getConfig().VITE_FEATURE_YIELD_MULTI_ACCOUNT
-    if (multiAccountEnabled && !accountId) {
-      console.warn('[YieldAssetSection] Multi-account yield enabled but no accountId provided')
-      return {}
-    }
-    if (!allBalancesData?.aggregated || !yields.length) return {}
+  const filteredBalancesByYieldId = useMemo(() => {
+    if (!allBalancesData?.byYieldId || !yields.length) return undefined
 
     const accountFilter = accountId ? fromAccountId(accountId).account.toLowerCase() : null
-    const allBalances = allBalancesData.byYieldId
+    const relevantYieldIds = new Set(yields.map(y => y.id))
 
-    return yields.reduce(
-      (acc, yieldItem) => {
-        const aggregate = allBalancesData.aggregated[yieldItem.id]
-        if (!aggregate) return acc
-        if (accountFilter) {
-          const itemBalances = allBalances?.[yieldItem.id] || []
-          if (!itemBalances.some(b => b.address.toLowerCase() === accountFilter)) return acc
-        }
-        acc[yieldItem.id] = aggregate
-        return acc
-      },
-      {} as Record<string, YieldBalanceAggregate>,
-    )
+    const result: Record<string, AugmentedYieldBalanceWithAccountId[]> = {}
+
+    for (const [yieldId, balances] of Object.entries(allBalancesData.byYieldId)) {
+      if (!relevantYieldIds.has(yieldId)) continue
+
+      const filteredBalances = accountFilter
+        ? balances.filter(b => b.address.toLowerCase() === accountFilter)
+        : balances
+
+      if (filteredBalances.length > 0) {
+        result[yieldId] = filteredBalances
+      }
+    }
+
+    return Object.keys(result).length > 0 ? result : undefined
   }, [allBalancesData, yields, accountId])
 
   const sortedYields = useMemo(
@@ -86,7 +88,7 @@ export const YieldAssetSection = memo(({ assetId, accountId }: YieldAssetSection
 
   const bestYield = sortedYields[0]
 
-  const hasActivePositions = Object.keys(aggregated).length > 0
+  const hasActivePositions = Boolean(filteredBalancesByYieldId)
 
   const handleOpportunityClick = useCallback((yieldItem: AugmentedYieldDto) => {
     setSelectedYield(yieldItem)
@@ -111,8 +113,13 @@ export const YieldAssetSection = memo(({ assetId, accountId }: YieldAssetSection
         <CardBody pt={0}>
           <Stack spacing={4}>
             {hasActivePositions && (
-              <YieldActivePositions aggregated={aggregated} yields={yields} assetId={assetId} />
+              <YieldActivePositions
+                balancesByYieldId={filteredBalancesByYieldId}
+                yields={yields}
+                assetId={assetId}
+              />
             )}
+
             {isLoading && LoadingContent}
             {!isLoading && !hasActivePositions && bestYield && (
               <YieldOpportunityCard maxApyYield={bestYield} onClick={handleOpportunityClick} />
@@ -125,6 +132,7 @@ export const YieldAssetSection = memo(({ assetId, accountId }: YieldAssetSection
           isOpen={isEnterModalOpen}
           onClose={handleEnterModalClose}
           yieldItem={selectedYield}
+          accountId={accountId}
         />
       )}
     </>

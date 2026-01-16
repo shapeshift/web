@@ -2,6 +2,7 @@ import {
   Avatar,
   Box,
   HStack,
+  Stack,
   Table,
   TableContainer,
   Tbody,
@@ -11,28 +12,60 @@ import {
   Thead,
   Tr,
 } from '@chakra-ui/react'
-import type { AssetId } from '@shapeshiftoss/caip'
+import type { AccountId, AssetId } from '@shapeshiftoss/caip'
 import { memo, useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useNavigate } from 'react-router-dom'
 
 import { Amount } from '@/components/Amount/Amount'
+import { Display } from '@/components/Display'
+import { RawText } from '@/components/Text'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import type { AugmentedYieldDto } from '@/lib/yieldxyz/types'
-import { toUserCurrency } from '@/lib/yieldxyz/utils'
-import type { YieldBalanceAggregate } from '@/react-queries/queries/yieldxyz/useAllYieldBalances'
+import type { AugmentedYieldBalanceWithAccountId } from '@/react-queries/queries/yieldxyz/useAllYieldBalances'
 import { useYieldProviders } from '@/react-queries/queries/yieldxyz/useYieldProviders'
+import { accountIdToLabel } from '@/state/slices/portfolioSlice/utils'
 import { selectAssetById, selectUserCurrencyToUsdRate } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
+type AccountBalanceInfo = {
+  totalUsd: string
+  totalCrypto: string
+  validatorAddress?: string
+  validatorName?: string
+  validatorLogo?: string
+}
+
+type AccountYieldPosition = {
+  accountId: AccountId
+  accountLabel: string
+  yieldItem: AugmentedYieldDto
+  providerId: string
+  providerLogo: string | undefined
+  apy: number
+  totalUsd: string
+  totalCrypto: string
+  validatorAddress?: string
+  validatorName?: string
+  validatorLogo?: string
+}
+
 type YieldActivePositionsProps = {
-  aggregated: Record<string, YieldBalanceAggregate>
+  balancesByYieldId: Record<string, AugmentedYieldBalanceWithAccountId[]> | undefined
   yields: AugmentedYieldDto[]
   assetId: AssetId
 }
 
+type HandlePositionClickArgs = {
+  yieldId: string
+  accountId: AccountId
+  validatorAddress?: string
+}
+
+const hoverSx = { bg: 'background.surface.raised.base', cursor: 'pointer' }
+
 export const YieldActivePositions = memo(
-  ({ aggregated, yields, assetId }: YieldActivePositionsProps) => {
+  ({ balancesByYieldId, yields, assetId }: YieldActivePositionsProps) => {
     const translate = useTranslate()
     const navigate = useNavigate()
     const asset = useAppSelector(state => selectAssetById(state, assetId))
@@ -45,132 +78,113 @@ export const YieldActivePositions = memo(
       [providers],
     )
 
-    const activeYields = useMemo(
-      () => yields.filter(y => aggregated[y.id] && bnOrZero(aggregated[y.id].totalUsd).gt(0)),
-      [yields, aggregated],
+    const getProviderName = useCallback(
+      (providerId: string) => providers?.[providerId]?.name ?? providerId,
+      [providers],
     )
 
-    const handleRowClick = useCallback(
-      (yieldId: string, validatorAddress?: string) => {
-        const url = validatorAddress
-          ? `/yields/${yieldId}?validator=${validatorAddress}`
-          : `/yields/${yieldId}`
-        navigate(url)
+    const accountPositions = useMemo((): AccountYieldPosition[] => {
+      if (!balancesByYieldId || !asset) return []
+
+      const positions: AccountYieldPosition[] = []
+      const yieldsMap = new Map(yields.map(y => [y.id, y]))
+
+      for (const [yieldId, balances] of Object.entries(balancesByYieldId)) {
+        const yieldItem = yieldsMap.get(yieldId)
+        if (!yieldItem) continue
+
+        const accountBalances = new Map<AccountId, AccountBalanceInfo>()
+
+        for (const balance of balances) {
+          const { accountId, amountUsd, amount, validator } = balance
+          if (!accountId || bnOrZero(amount).lte(0)) continue
+
+          const existing = accountBalances.get(accountId)
+          if (existing) {
+            accountBalances.set(accountId, {
+              totalUsd: bnOrZero(existing.totalUsd).plus(amountUsd).toFixed(),
+              totalCrypto: bnOrZero(existing.totalCrypto).plus(amount).toFixed(),
+              validatorAddress: existing.validatorAddress ?? validator?.address,
+              validatorName: existing.validatorName ?? validator?.name,
+              validatorLogo: existing.validatorLogo ?? validator?.logoURI,
+            })
+          } else {
+            accountBalances.set(accountId, {
+              totalUsd: amountUsd,
+              totalCrypto: amount,
+              validatorAddress: validator?.address,
+              validatorName: validator?.name,
+              validatorLogo: validator?.logoURI,
+            })
+          }
+        }
+
+        for (const [accountId, balanceInfo] of accountBalances) {
+          positions.push({
+            accountId,
+            accountLabel: accountIdToLabel(accountId),
+            yieldItem,
+            providerId: yieldItem.providerId,
+            providerLogo: getProviderLogo(yieldItem.providerId),
+            apy: bnOrZero(yieldItem.rewardRate.total).times(100).toNumber(),
+            totalUsd: balanceInfo.totalUsd,
+            totalCrypto: balanceInfo.totalCrypto,
+            validatorAddress: balanceInfo.validatorAddress,
+            validatorName: balanceInfo.validatorName,
+            validatorLogo: balanceInfo.validatorLogo,
+          })
+        }
+      }
+
+      return positions.sort((a, b) => bnOrZero(b.totalUsd).minus(a.totalUsd).toNumber())
+    }, [balancesByYieldId, yields, asset, getProviderLogo])
+
+    const handlePositionClick = useCallback(
+      ({ yieldId, accountId, validatorAddress }: HandlePositionClickArgs) => {
+        const params = new URLSearchParams()
+        params.set('accountId', accountId)
+        if (validatorAddress) params.set('validator', validatorAddress)
+        navigate(`/yields/${yieldId}?${params.toString()}`)
       },
       [navigate],
-    )
-
-    const hasValidators = useMemo(
-      () => activeYields.some(y => aggregated[y.id]?.hasValidators),
-      [activeYields, aggregated],
-    )
-
-    const providerColumnHeader = useMemo(
-      () =>
-        hasValidators
-          ? translate('yieldXYZ.validator') ?? 'Validator'
-          : translate('yieldXYZ.provider') ?? 'Provider',
-      [hasValidators, translate],
-    )
-
-    const apyColumnHeader = useMemo(() => translate('yieldXYZ.apy') ?? 'APY', [translate])
-
-    const tvlColumnHeader = useMemo(() => translate('yieldXYZ.tvl') ?? 'TVL', [translate])
-
-    const balanceColumnHeader = useMemo(
-      () => translate('yieldXYZ.balance') ?? 'Balance',
-      [translate],
     )
 
     const tableRows = useMemo(() => {
       if (!asset) return null
 
-      return activeYields.flatMap(yieldItem => {
-        const yieldAggregate = aggregated[yieldItem.id]
-        if (!yieldAggregate) return []
-
-        const apy = bnOrZero(yieldItem.rewardRate.total).times(100).toNumber()
-        const { byValidator, hasValidators, totalUsd, totalCrypto } = yieldAggregate
-
-        if (hasValidators) {
-          return Object.values(byValidator).map(
-            ({ validator, totalUsd: validatorUsd, totalCrypto: validatorCrypto }) => {
-              const totalUserCurrency = toUserCurrency(validatorUsd, userCurrencyToUsdRate)
-
-              return (
-                <Tr
-                  key={`${yieldItem.id}-${validator.address}`}
-                  _hover={{ bg: 'background.surface.raised.base', cursor: 'pointer' }}
-                  onClick={() => handleRowClick(yieldItem.id, validator.address)}
-                >
-                  <Td>
-                    <HStack spacing={2}>
-                      {validator.logoURI ? (
-                        <Avatar src={validator.logoURI} size='xs' name={validator.name} />
-                      ) : (
-                        <Avatar
-                          size='xs'
-                          src={getProviderLogo(yieldItem.providerId)}
-                          name={yieldItem.providerId}
-                        />
-                      )}
-                      <Text fontSize='sm' textTransform='capitalize'>
-                        {validator.name || yieldItem.providerId}
-                      </Text>
-                    </HStack>
-                  </Td>
-                  <Td isNumeric>
-                    <Text
-                      fontWeight='bold'
-                      fontSize='md'
-                      bgGradient='linear(to-r, green.300, blue.400)'
-                      bgClip='text'
-                    >
-                      {apy.toFixed(2)}%
-                    </Text>
-                  </Td>
-                  <Td isNumeric>
-                    <Text fontSize='sm' color='text.subtle'>
-                      -
-                    </Text>
-                  </Td>
-                  <Td isNumeric>
-                    <Box textAlign='right'>
-                      <Amount.Fiat value={totalUserCurrency} fontWeight='bold' color='green.400' />
-                      <Amount.Crypto
-                        value={validatorCrypto}
-                        symbol={asset.symbol}
-                        color='text.subtle'
-                        fontSize='xs'
-                      />
-                    </Box>
-                  </Td>
-                </Tr>
-              )
-            },
-          )
-        }
-
-        const totalUserCurrency = toUserCurrency(totalUsd, userCurrencyToUsdRate)
-        const tvlUsd = yieldItem.statistics?.tvlUsd
-        const tvlUserCurrency = toUserCurrency(tvlUsd, userCurrencyToUsdRate)
+      return accountPositions.map(position => {
+        const totalUserCurrency = bnOrZero(position.totalUsd).times(userCurrencyToUsdRate).toFixed()
+        const displayName = position.validatorName ?? getProviderName(position.providerId)
+        const displayLogo = position.validatorLogo ?? position.providerLogo
 
         return (
           <Tr
-            key={yieldItem.id}
-            _hover={{ bg: 'background.surface.raised.base', cursor: 'pointer' }}
-            onClick={() => handleRowClick(yieldItem.id)}
+            key={`${position.yieldItem.id}-${position.accountId}`}
+            _hover={hoverSx}
+            onClick={() =>
+              handlePositionClick({
+                yieldId: position.yieldItem.id,
+                accountId: position.accountId,
+                validatorAddress: position.validatorAddress,
+              })
+            }
           >
             <Td>
               <HStack spacing={2}>
                 <Avatar
                   size='xs'
-                  src={getProviderLogo(yieldItem.providerId)}
-                  name={yieldItem.providerId}
+                  src={displayLogo}
+                  name={displayName}
+                  bg='background.surface.raised.base'
                 />
-                <Text fontSize='sm' textTransform='capitalize'>
-                  {yieldItem.providerId}
-                </Text>
+                <Box>
+                  <Text fontSize='sm' textTransform='capitalize' fontWeight='medium'>
+                    {displayName}
+                  </Text>
+                  <RawText fontSize='xs' color='text.subtle' fontFamily='monospace'>
+                    {position.accountLabel}
+                  </RawText>
+                </Box>
               </HStack>
             </Td>
             <Td isNumeric>
@@ -180,19 +194,14 @@ export const YieldActivePositions = memo(
                 bgGradient='linear(to-r, green.300, blue.400)'
                 bgClip='text'
               >
-                {apy.toFixed(2)}%
-              </Text>
-            </Td>
-            <Td isNumeric>
-              <Text fontSize='sm' color='text.subtle'>
-                {tvlUsd ? <Amount.Fiat value={tvlUserCurrency} abbreviated /> : '-'}
+                {position.apy.toFixed(2)}%
               </Text>
             </Td>
             <Td isNumeric>
               <Box textAlign='right'>
                 <Amount.Fiat value={totalUserCurrency} fontWeight='bold' color='green.400' />
                 <Amount.Crypto
-                  value={totalCrypto}
+                  value={position.totalCrypto}
                   symbol={asset.symbol}
                   color='text.subtle'
                   fontSize='xs'
@@ -202,25 +211,95 @@ export const YieldActivePositions = memo(
           </Tr>
         )
       })
-    }, [activeYields, aggregated, asset, getProviderLogo, handleRowClick, userCurrencyToUsdRate])
+    }, [accountPositions, asset, getProviderName, handlePositionClick, userCurrencyToUsdRate])
+
+    const mobileRows = useMemo(() => {
+      if (!asset) return []
+
+      return accountPositions.map(position => {
+        const totalUserCurrency = bnOrZero(position.totalUsd).times(userCurrencyToUsdRate).toFixed()
+        const displayName = position.validatorName ?? getProviderName(position.providerId)
+        const displayLogo = position.validatorLogo ?? position.providerLogo
+
+        return (
+          <Box
+            key={`${position.yieldItem.id}-${position.accountId}-mobile`}
+            borderWidth='1px'
+            borderColor='border.base'
+            borderRadius='xl'
+            p={4}
+            bg='background.surface.raised.base'
+            onClick={() =>
+              handlePositionClick({
+                yieldId: position.yieldItem.id,
+                accountId: position.accountId,
+                validatorAddress: position.validatorAddress,
+              })
+            }
+          >
+            <HStack justifyContent='space-between' alignItems='center' mb={2} spacing={3}>
+              <HStack spacing={2} alignItems='center'>
+                <Avatar
+                  size='sm'
+                  src={displayLogo}
+                  name={displayName}
+                  bg='background.surface.raised.base'
+                />
+                <Box>
+                  <Text fontWeight='semibold' fontSize='sm'>
+                    {displayName}
+                  </Text>
+                  <RawText fontSize='xs' color='text.subtle' fontFamily='monospace'>
+                    {position.accountLabel}
+                  </RawText>
+                </Box>
+              </HStack>
+              <Text
+                fontWeight='bold'
+                fontSize='md'
+                bgGradient='linear(to-r, green.300, blue.400)'
+                bgClip='text'
+              >
+                {position.apy.toFixed(2)}%
+              </Text>
+            </HStack>
+            <Box textAlign='right'>
+              <Amount.Fiat value={totalUserCurrency} fontWeight='bold' color='green.400' />
+              <Amount.Crypto
+                value={position.totalCrypto}
+                symbol={asset.symbol}
+                color='text.subtle'
+                fontSize='xs'
+              />
+            </Box>
+          </Box>
+        )
+      })
+    }, [accountPositions, asset, getProviderName, handlePositionClick, userCurrencyToUsdRate])
 
     if (!asset) return null
-    if (activeYields.length === 0) return null
+    if (accountPositions.length === 0) return null
 
     return (
-      <TableContainer borderWidth='1px' borderColor='border.base' borderRadius='xl'>
-        <Table variant='simple'>
-          <Thead bg='background.surface.raised.base'>
-            <Tr>
-              <Th>{providerColumnHeader}</Th>
-              <Th isNumeric>{apyColumnHeader}</Th>
-              <Th isNumeric>{tvlColumnHeader}</Th>
-              <Th isNumeric>{balanceColumnHeader}</Th>
-            </Tr>
-          </Thead>
-          <Tbody>{tableRows}</Tbody>
-        </Table>
-      </TableContainer>
+      <>
+        <Display.Desktop>
+          <TableContainer borderWidth='1px' borderColor='border.base' borderRadius='xl'>
+            <Table variant='simple' size='sm'>
+              <Thead bg='background.surface.raised.base'>
+                <Tr>
+                  <Th>{translate('yieldXYZ.provider')}</Th>
+                  <Th isNumeric>{translate('yieldXYZ.apy')}</Th>
+                  <Th isNumeric>{translate('yieldXYZ.balance')}</Th>
+                </Tr>
+              </Thead>
+              <Tbody>{tableRows}</Tbody>
+            </Table>
+          </TableContainer>
+        </Display.Desktop>
+        <Display.Mobile>
+          <Stack spacing={3}>{mobileRows}</Stack>
+        </Display.Mobile>
+      </>
     )
   },
 )

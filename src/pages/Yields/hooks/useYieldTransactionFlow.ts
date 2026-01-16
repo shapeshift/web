@@ -184,15 +184,17 @@ export const useYieldTransactionFlow = ({
   const inputTokenAssetId = useMemo(() => yieldItem?.inputTokens?.[0]?.assetId, [yieldItem])
 
   const yieldChainId = yieldItem?.chainId
-  const { accountNumber: contextAccountNumber } = useYieldAccount()
+  const { accountId: contextAccountId, accountNumber: contextAccountNumber } = useYieldAccount()
 
   const derivedAccountId = useAppSelector(state => {
-    if (accountIdProp) return undefined
+    if (accountIdProp) return accountIdProp
+    if (contextAccountId) return contextAccountId
     if (!yieldChainId) return undefined
+    if (contextAccountNumber === undefined) return undefined
     return selectAccountIdByAccountNumberAndChainId(state)[contextAccountNumber]?.[yieldChainId]
   })
 
-  const accountId = accountIdProp ?? derivedAccountId
+  const accountId = derivedAccountId
 
   const feeAsset = useAppSelector(state =>
     yieldChainId ? selectFeeAssetByChainId(state, yieldChainId) : undefined,

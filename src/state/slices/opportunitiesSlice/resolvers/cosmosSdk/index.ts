@@ -24,6 +24,7 @@ import type { ReduxState } from '@/state/reducer'
 import { selectAssetById } from '@/state/slices/assetsSlice/selectors'
 import { selectEnabledWalletAccountIds } from '@/state/slices/common-selectors'
 import { selectMarketDataByAssetIdUserCurrency } from '@/state/slices/marketDataSlice/selectors'
+import { selectFeatureFlag } from '@/state/slices/preferencesSlice/selectors'
 
 export const cosmosSdkOpportunityIdsResolver = async ({
   reduxApi,
@@ -31,6 +32,9 @@ export const cosmosSdkOpportunityIdsResolver = async ({
   data: GetOpportunityIdsOutput
 }> => {
   const state = reduxApi.getState() as ReduxState
+  const isYieldXyzEnabled = selectFeatureFlag(state, 'YieldXyz')
+
+  if (isYieldXyzEnabled) return { data: [] }
 
   const portfolioAccountIds = selectEnabledWalletAccountIds(state)
 
@@ -77,6 +81,9 @@ export const cosmosSdkStakingOpportunitiesMetadataResolver = async ({
   data: GetOpportunityMetadataOutput
 }> => {
   const state = reduxApi.getState() as ReduxState
+  const isYieldXyzEnabled = selectFeatureFlag(state, 'YieldXyz')
+  if (isYieldXyzEnabled) return { data: { byId: {}, type: defiType } }
+
   const metadataByValidatorId = await Promise.allSettled(
     validatorIds.map(async validatorId => {
       const { account: validatorAddress, chainId } = fromAccountId(validatorId)
@@ -169,6 +176,13 @@ export const cosmosSdkStakingOpportunitiesUserDataResolver = async ({
 
   const emptyStakingOpportunitiesUserDataByUserStakingId: OpportunitiesState['userStaking']['byId'] =
     {}
+
+  const isYieldXyzEnabled = selectFeatureFlag(state, 'YieldXyz')
+  if (isYieldXyzEnabled) {
+    return Promise.resolve({
+      data: { byId: emptyStakingOpportunitiesUserDataByUserStakingId, type: defiType },
+    })
+  }
 
   try {
     const { account: pubKey, chainId } = fromAccountId(accountId)

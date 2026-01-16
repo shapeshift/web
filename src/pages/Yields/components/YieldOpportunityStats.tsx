@@ -55,8 +55,10 @@ export const YieldOpportunityStats = memo(function YieldOpportunityStats({
     return positions.reduce((acc, position) => {
       const positionBalances = balances?.[position.id]
       if (!positionBalances) return acc
-      const activeBalance = positionBalances.find(b => b.type === 'active' || b.type === 'locked')
-      return acc.plus(bnOrZero(activeBalance?.amountUsd))
+      const activeBalances = positionBalances.filter(
+        b => b.type === 'active' || b.type === 'locked',
+      )
+      return activeBalances.reduce((sum, b) => sum.plus(bnOrZero(b.amountUsd)), acc)
     }, bnOrZero(0))
   }, [positions, balances])
 

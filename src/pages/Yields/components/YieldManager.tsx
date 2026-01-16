@@ -43,7 +43,7 @@ export const YieldManager = () => {
     }
     return validatorParam
   }, [yieldId, yieldItem?.chainId, validatorParam])
-  const { accountNumber } = useYieldAccount()
+  const { accountId, accountNumber } = useYieldAccount()
   const { data: allBalancesData } = useAllYieldBalances()
   const balances = yieldItem?.id ? allBalancesData?.normalized[yieldItem.id] : undefined
 
@@ -87,6 +87,7 @@ export const YieldManager = () => {
           balances={balances}
           action={action ?? 'enter'}
           validatorAddress={validatorAddress}
+          accountId={accountId}
           accountNumber={accountNumber}
           onClose={() => navigate(-1)}
           onDone={() => navigate(-1)}

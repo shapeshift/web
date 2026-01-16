@@ -1,5 +1,6 @@
 import type { ChainId, Nominal } from '@shapeshiftoss/caip'
 import type {
+  AptosSignTx,
   BTCSignTx,
   CosmosSignTx,
   ETHSignTx,
@@ -11,6 +12,7 @@ import type {
   ThorchainSignTx,
 } from '@shapeshiftoss/hdwallet-core'
 import type {
+  AptosChainId,
   ChainSpecific,
   KnownChainIds,
   UtxoAccountType,
@@ -19,6 +21,7 @@ import type {
 import type * as unchained from '@shapeshiftoss/unchained-client'
 import type PQueue from 'p-queue'
 
+import type * as aptos from './aptos/types'
 import type * as cosmossdk from './cosmossdk/types'
 import type * as evm from './evm/types'
 import type * as near from './near/types'
@@ -61,6 +64,7 @@ type ChainSpecificAccount<T> = ChainSpecific<
     [KnownChainIds.SuiMainnet]: sui.Account
     [KnownChainIds.NearMainnet]: near.Account
     [KnownChainIds.StarknetMainnet]: starknet.Account
+    [KnownChainIds.AptosMainnet]: aptos.Account
   }
 >
 
@@ -112,6 +116,7 @@ type ChainSpecificFeeData<T> = ChainSpecific<
     [KnownChainIds.SuiMainnet]: sui.FeeData
     [KnownChainIds.NearMainnet]: near.FeeData
     [KnownChainIds.StarknetMainnet]: starknet.FeeData
+    [KnownChainIds.AptosMainnet]: aptos.FeeData
   }
 >
 
@@ -181,6 +186,7 @@ export type ChainSignTx = {
   [KnownChainIds.ArbitrumNovaMainnet]: ETHSignTx
   [KnownChainIds.BaseMainnet]: ETHSignTx
   [KnownChainIds.MonadMainnet]: ETHSignTx
+  [KnownChainIds.HyperEvmMainnet]: ETHSignTx
   [KnownChainIds.PlasmaMainnet]: ETHSignTx
   [KnownChainIds.KatanaMainnet]: ETHSignTx
   [KnownChainIds.BitcoinMainnet]: BTCSignTx
@@ -196,6 +202,7 @@ export type ChainSignTx = {
   [KnownChainIds.SuiMainnet]: SuiSignTx
   [KnownChainIds.NearMainnet]: near.NearSignTx
   [KnownChainIds.StarknetMainnet]: StarknetSignTx
+  [KnownChainIds.AptosMainnet]: AptosSignTx
 }
 
 export type SignTx<T extends ChainId> = T extends keyof ChainSignTx ? ChainSignTx[T] : never
@@ -252,6 +259,7 @@ export type ChainSpecificBuildTxData<T> = ChainSpecific<
     [KnownChainIds.SuiMainnet]: sui.BuildTxInput
     [KnownChainIds.NearMainnet]: near.BuildTxInput
     [KnownChainIds.StarknetMainnet]: starknet.BuildTxInput
+    [KnownChainIds.AptosMainnet]: aptos.BuildTxInput
   }
 >
 
@@ -355,6 +363,7 @@ type ChainSpecificGetFeeDataInput<T> = ChainSpecific<
     [KnownChainIds.TronMainnet]: tron.GetFeeDataInput
     [KnownChainIds.NearMainnet]: near.GetFeeDataInput
     [KnownChainIds.StarknetMainnet]: starknet.GetFeeDataInput
+    [KnownChainIds.AptosMainnet]: aptos.GetFeeDataInput
   }
 >
 export type GetFeeDataInput<T extends ChainId> = {
@@ -427,6 +436,7 @@ export enum ChainAdapterDisplayName {
   Sui = 'Sui',
   Near = 'NEAR',
   Starknet = 'Starknet',
+  Aptos = 'Aptos',
 }
 
 export type BroadcastTransactionInput = {

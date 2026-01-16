@@ -40,6 +40,7 @@ export enum KnownChainIds {
   SuiMainnet = 'sui:35834a8a',
   NearMainnet = 'near:mainnet',
   StarknetMainnet = 'starknet:SN_MAIN',
+  AptosMainnet = 'aptos:aptos-mainnet',
 }
 
 export type EvmChainId =
@@ -78,6 +79,8 @@ export type SuiChainId = KnownChainIds.SuiMainnet
 export type NearChainId = KnownChainIds.NearMainnet
 
 export type StarknetChainId = KnownChainIds.StarknetMainnet
+
+export type AptosChainId = KnownChainIds.AptosMainnet
 
 export enum WithdrawType {
   DELAYED,

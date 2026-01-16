@@ -27,6 +27,7 @@ export const tronAssetId: AssetId = 'tron:0x2b6653dc/slip44:195'
 export const suiAssetId: AssetId = 'sui:35834a8a/slip44:784'
 export const nearAssetId: AssetId = 'near:mainnet/slip44:397'
 export const starknetAssetId: AssetId = 'starknet:SN_MAIN/slip44:9004'
+export const aptosAssetId: AssetId = 'aptos:aptos-mainnet/slip44:637'
 export const uniV2EthFoxArbitrumAssetId: AssetId =
   'eip155:42161/erc20:0x5f6ce0ca13b87bd738519545d3e018e70e339c24'
 
@@ -91,6 +92,7 @@ export const tronChainId: ChainId = 'tron:0x2b6653dc'
 export const suiChainId: ChainId = 'sui:35834a8a'
 export const nearChainId: ChainId = 'near:mainnet'
 export const starknetChainId: ChainId = 'starknet:SN_MAIN'
+export const aptosChainId: ChainId = 'aptos:aptos-mainnet'
 
 export const CHAIN_NAMESPACE = {
   Evm: 'eip155',
@@ -101,6 +103,7 @@ export const CHAIN_NAMESPACE = {
   Sui: 'sui',
   Near: 'near',
   Starknet: 'starknet',
+  Aptos: 'aptos',
 } as const
 
 type ValidChainMap = {
@@ -109,6 +112,7 @@ type ValidChainMap = {
 
 export const CHAIN_REFERENCE = {
   EthereumMainnet: '1',
+  AptosMainnet: 'aptos-mainnet',
   BitcoinMainnet: '000000000019d6689c085ae165831e93',
   BitcoinCashMainnet: '000000000000000000651ef99cb9fcbe',
   DogecoinMainnet: '00000000001a91e3dace36e2be3bf030',
@@ -135,6 +139,7 @@ export const CHAIN_REFERENCE = {
   SuiMainnet: '35834a8a', // First 8 chars of SUI mainnet genesis hash
   NearMainnet: 'mainnet', // https://docs.reown.com/cloud/chains/chain-list (CAIP-2: near:mainnet)
   StarknetMainnet: 'SN_MAIN', // https://namespaces.chainagnostic.org/starknet/caip2
+  AptosMainnet: 'aptos-mainnet', // https://namespaces.chainagnostic.org/aptos/caip2
 } as const
 
 export const ASSET_NAMESPACE = {
@@ -148,6 +153,7 @@ export const ASSET_NAMESPACE = {
   suiCoin: 'coin',
   nep141: 'nep141', // NEAR fungible token standard: https://nomicon.io/Standards/Tokens/FungibleToken/Core
   starknetToken: 'token',
+  aptosToken: 'token', // Aptos fungible token standard: https://aptos.dev/concepts/accounts#coin
 } as const
 
 export const ASSET_REFERENCE = {
@@ -161,6 +167,7 @@ export const ASSET_REFERENCE = {
   Mayachain: '931',
   Binance: '714',
   Ethereum: '60',
+  Aptos: '637', // https://github.com/satoshilabs/slips/blob/master/slip-0044.md
   AvalancheC: '60', // evm chain which uses ethereum derivation path as common practice
   Optimism: '60', // evm chain which uses ethereum derivation path as common practice
   BnbSmartChain: '60', // evm chain which uses ethereum derivation path as common practice
@@ -188,6 +195,7 @@ export const VALID_CHAIN_IDS: ValidChainMap = Object.freeze({
     CHAIN_REFERENCE.LitecoinMainnet,
     CHAIN_REFERENCE.ZcashMainnet,
   ],
+  [CHAIN_NAMESPACE.Aptos]: [CHAIN_REFERENCE.AptosMainnet],
   [CHAIN_NAMESPACE.Evm]: [
     CHAIN_REFERENCE.EthereumMainnet,
     CHAIN_REFERENCE.AvalancheCChain,
@@ -214,6 +222,7 @@ export const VALID_CHAIN_IDS: ValidChainMap = Object.freeze({
   [CHAIN_NAMESPACE.Sui]: [CHAIN_REFERENCE.SuiMainnet],
   [CHAIN_NAMESPACE.Near]: [CHAIN_REFERENCE.NearMainnet],
   [CHAIN_NAMESPACE.Starknet]: [CHAIN_REFERENCE.StarknetMainnet],
+  [CHAIN_NAMESPACE.Aptos]: [CHAIN_REFERENCE.AptosMainnet],
 })
 
 type ValidAssetNamespace = {
@@ -234,6 +243,7 @@ export const VALID_ASSET_NAMESPACE: ValidAssetNamespace = Object.freeze({
   [CHAIN_NAMESPACE.Sui]: [ASSET_NAMESPACE.slip44, ASSET_NAMESPACE.suiCoin],
   [CHAIN_NAMESPACE.Near]: [ASSET_NAMESPACE.slip44, ASSET_NAMESPACE.nep141],
   [CHAIN_NAMESPACE.Starknet]: [ASSET_NAMESPACE.slip44, ASSET_NAMESPACE.starknetToken],
+  [CHAIN_NAMESPACE.Aptos]: [ASSET_NAMESPACE.slip44, ASSET_NAMESPACE.aptosToken],
 })
 
 // We should prob change this once we add more chains
@@ -260,5 +270,6 @@ export const FEE_ASSET_IDS = [
   suiAssetId,
   nearAssetId,
   starknetAssetId,
+  aptosAssetId,
   zecAssetId,
 ]

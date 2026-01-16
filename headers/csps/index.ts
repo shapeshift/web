@@ -62,8 +62,7 @@ import { csp as walletConnectToDapps } from './plugins/walletConnectToDapps'
 import { csp as railway } from './railway'
 import { csp as relay } from './relay'
 import { csp as sentry } from './sentry'
-import { csp as shapeshiftGateway } from './shapeshiftGateway'
-import { csp as shapeshiftProxy } from './shapeshiftProxy'
+import { csp as shapeshift } from './shapeshift'
 import { csp as snapshots } from './snapshots'
 import { csp as tenderly } from './tenderly'
 import { csp as trezor } from './trezor'
@@ -91,8 +90,7 @@ export const csps = [
   mercle,
   mixPanel,
   sentry,
-  shapeshiftGateway,
-  shapeshiftProxy,
+  shapeshift,
   snapshots,
   tenderly,
   webflow,

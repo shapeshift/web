@@ -505,8 +505,8 @@ export const YieldsList = memo(() => {
       const balances = allBalances?.[yieldId]
       const highestAmountValidator = balances?.[0]?.highestAmountUsdValidator
       const url = highestAmountValidator
-        ? `/yields/${yieldId}?validator=${highestAmountValidator}`
-        : `/yields/${yieldId}`
+        ? `/yield/${yieldId}?validator=${highestAmountValidator}`
+        : `/yield/${yieldId}`
       navigate(url)
     },
     [navigate, allBalances],

@@ -52,7 +52,7 @@ export const YieldSuccess = memo(
       const params = new URLSearchParams()
       if (accountId) params.set('accountId', accountId)
       const queryString = params.toString()
-      navigate(queryString ? `/yields/${yieldId}?${queryString}` : `/yields/${yieldId}`)
+      navigate(queryString ? `/yield/${yieldId}?${queryString}` : `/yield/${yieldId}`)
     }, [yieldId, accountId, navigate])
 
     const providerPillProps = useMemo(

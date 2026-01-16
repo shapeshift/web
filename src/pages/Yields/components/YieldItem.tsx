@@ -124,7 +124,7 @@ export const YieldItem = memo(
         if (stats.canEnter && onEnter) {
           onEnter(data.yieldItem)
         } else {
-          navigate(`/yields/${data.yieldItem.id}`)
+          navigate(`/yield/${data.yieldItem.id}`)
         }
       } else {
         const suffix = searchString ? `?${searchString}` : ''

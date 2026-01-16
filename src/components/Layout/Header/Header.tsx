@@ -73,6 +73,7 @@ export const Header = memo(() => {
   const translate = useTranslate()
   const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`)
   const isYieldXyzEnabled = useFeatureFlag('YieldXyz')
+  const isYieldsPageEnabled = useFeatureFlag('YieldsPage')
 
   const navigate = useNavigate()
   const {
@@ -116,14 +117,14 @@ export const Header = memo(() => {
   const hasWallet = Boolean(walletInfo?.deviceId)
   const earnSubMenuItems = useMemo(
     () => [
-      ...(isYieldXyzEnabled
+      ...(isYieldsPageEnabled
         ? [{ label: 'navBar.yields', path: '/yields', icon: TbTrendingUp, isNew: true }]
         : []),
       { label: 'navBar.tcy', path: '/tcy', icon: TCYIcon },
       { label: 'navBar.pools', path: '/pools', icon: TbPool },
       { label: 'navBar.lending', path: '/lending', icon: TbBuildingBank },
     ],
-    [isYieldXyzEnabled],
+    [isYieldsPageEnabled],
   )
 
   /**

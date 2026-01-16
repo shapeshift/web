@@ -1,6 +1,7 @@
 import { Box, Button, Flex, HStack, IconButton, Text, VStack } from '@chakra-ui/react'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { FiDownload, FiEye, FiEyeOff, FiRefreshCw, FiX } from 'react-icons/fi'
+import { useTranslate } from 'react-polyglot'
 
 import type { PerformanceReport } from '@/lib/performanceProfiler'
 import { profiler } from '@/lib/performanceProfiler'
@@ -8,6 +9,7 @@ import { profiler } from '@/lib/performanceProfiler'
 const REFRESH_INTERVAL_MS = 1000
 
 export const PerformanceProfiler = () => {
+  const t = useTranslate()
   const [metrics, setMetrics] = useState<PerformanceReport | null>(null)
   const [isExpanded, setIsExpanded] = useState(true)
   const [isEnabled, setIsEnabled] = useState(profiler.isEnabled())
@@ -44,6 +46,15 @@ export const PerformanceProfiler = () => {
     setIsExpanded(prev => !prev)
   }, [])
 
+  const toggleTitle = useMemo(
+    () => (isEnabled ? t('perfProfiler.disableProfiling') : t('perfProfiler.enableProfiling')),
+    [isEnabled, t],
+  )
+
+  const expandAriaLabel = useMemo(() => t('perfProfiler.expandAria'), [t])
+  const toggleAriaLabel = useMemo(() => t('perfProfiler.toggleAria'), [t])
+  const collapseAriaLabel = useMemo(() => t('perfProfiler.collapseAria'), [t])
+
   if (!isExpanded) {
     return (
       <Box
@@ -56,7 +67,7 @@ export const PerformanceProfiler = () => {
         p={2}
       >
         <IconButton
-          aria-label='Expand profiler'
+          aria-label={expandAriaLabel}
           icon={<FiEye />}
           size='sm'
           variant='ghost'
@@ -84,19 +95,19 @@ export const PerformanceProfiler = () => {
     >
       <Flex justifyContent='space-between' alignItems='center' mb={2}>
         <Text fontWeight='bold' fontSize='sm'>
-          Perf Profiler
+          {t('perfProfiler.title')}
         </Text>
         <HStack spacing={1}>
           <IconButton
-            aria-label='Toggle profiler'
+            aria-label={toggleAriaLabel}
             icon={isEnabled ? <FiEyeOff /> : <FiEye />}
             size='xs'
             variant='ghost'
             onClick={handleToggleEnabled}
-            title={isEnabled ? 'Disable profiling' : 'Enable profiling'}
+            title={toggleTitle}
           />
           <IconButton
-            aria-label='Collapse'
+            aria-label={collapseAriaLabel}
             icon={<FiX />}
             size='xs'
             variant='ghost'
@@ -107,7 +118,7 @@ export const PerformanceProfiler = () => {
 
       {!isEnabled && (
         <Text color='yellow.400' fontSize='xs' mb={2}>
-          Profiling disabled. Click eye icon to enable.
+          {t('perfProfiler.disabledMessage')}
         </Text>
       )}
 
@@ -117,30 +128,33 @@ export const PerformanceProfiler = () => {
             <Text color='blue.300' fontWeight='semibold'>
               {metrics.browser}
             </Text>
-            <Text color='gray.400'>Session: {Math.round(metrics.sessionDuration / 1000)}s</Text>
+            <Text color='gray.400'>
+              {t('perfProfiler.session')}: {Math.round(metrics.sessionDuration / 1000)}s
+            </Text>
           </Box>
 
           <Box>
             <Text color='cyan.300' fontWeight='semibold'>
-              IndexedDB
+              {t('perfProfiler.indexedDb')}
             </Text>
             <Text>
-              Reads: {metrics.indexedDB.readCount} (avg: {metrics.indexedDB.avgRead}ms, max:{' '}
-              {metrics.indexedDB.maxRead}ms)
+              {t('perfProfiler.reads')}: {metrics.indexedDB.readCount} ({t('perfProfiler.avg')}:{' '}
+              {metrics.indexedDB.avgRead}ms, {t('perfProfiler.max')}: {metrics.indexedDB.maxRead}ms)
             </Text>
             <Text>
-              Writes: {metrics.indexedDB.writeCount} (avg: {metrics.indexedDB.avgWrite}ms, max:{' '}
-              {metrics.indexedDB.maxWrite}ms)
+              {t('perfProfiler.writes')}: {metrics.indexedDB.writeCount} ({t('perfProfiler.avg')}:{' '}
+              {metrics.indexedDB.avgWrite}ms, {t('perfProfiler.max')}: {metrics.indexedDB.maxWrite}
+              ms)
             </Text>
           </Box>
 
           <Box>
             <Text color='green.300' fontWeight='semibold'>
-              Selectors
+              {t('perfProfiler.selectors')}
             </Text>
             <Text>
-              Total calls: {metrics.selectors.total} | Slow ({'>'}16ms):{' '}
-              {metrics.selectors.slowCount}
+              {t('perfProfiler.totalCalls')}: {metrics.selectors.total} | {t('perfProfiler.slow')} (
+              {'>'}16ms): {metrics.selectors.slowCount}
             </Text>
             {metrics.selectors.slowSelectors.slice(0, 5).map(s => (
               <Text key={s.name} color='yellow.200' pl={2}>
@@ -151,11 +165,12 @@ export const PerformanceProfiler = () => {
 
           <Box>
             <Text color='purple.300' fontWeight='semibold'>
-              Asset Search
+              {t('perfProfiler.assetSearch')}
             </Text>
             <Text>
-              Searches: {metrics.assetSearch.searches} | Avg: {metrics.assetSearch.avgLatency}ms |
-              Max: {metrics.assetSearch.maxLatency}ms
+              {t('perfProfiler.searches')}: {metrics.assetSearch.searches} | {t('perfProfiler.avg')}
+              : {metrics.assetSearch.avgLatency}ms | {t('perfProfiler.max')}:{' '}
+              {metrics.assetSearch.maxLatency}ms
             </Text>
           </Box>
 
@@ -167,7 +182,7 @@ export const PerformanceProfiler = () => {
               colorScheme='blue'
               variant='outline'
             >
-              Export
+              {t('perfProfiler.export')}
             </Button>
             <Button
               size='xs'
@@ -176,7 +191,7 @@ export const PerformanceProfiler = () => {
               colorScheme='gray'
               variant='outline'
             >
-              Reset
+              {t('common.reset')}
             </Button>
           </HStack>
         </VStack>

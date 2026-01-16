@@ -36,8 +36,6 @@ export const createProfiledStorage = (enableProfiling: boolean): ProfiledStorage
   }
 }
 
-export const profiledStorage = createProfiledStorage(true)
-
 const isLocalStorageAvailable = typeof localStorage !== 'undefined'
 
 const localStorageAdapter: ProfiledStorage = {

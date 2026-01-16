@@ -64,7 +64,10 @@ export const useAssetSearchWorker = ({
       worker.onmessage = (event: MessageEvent<AssetSearchWorkerOutboundMessage>) => {
         const { type, requestId, payload } = event.data
         if (type !== 'searchResult') return
-        if (requestId !== requestIdRef.current) return
+        if (requestId !== requestIdRef.current) {
+          searchStartTimeRef.current.delete(requestId)
+          return
+        }
 
         const searchInfo = searchStartTimeRef.current.get(requestId)
         if (searchInfo) {
@@ -113,7 +116,10 @@ export const useAssetSearchWorker = ({
       })
       setWorkerSearchState(prev => ({ ...prev, workerState: 'ready' }))
     } else {
-      setWorkerSearchState(prev => ({ ...prev, workerState: 'initializing' }))
+      setWorkerSearchState(prev => ({
+        ...prev,
+        workerState: 'initializing',
+      }))
     }
   }, [assets, primaryAssets])
 
@@ -127,12 +133,17 @@ export const useAssetSearchWorker = ({
       }
 
       if (!searchTerm) {
-        setWorkerSearchState(prev => ({ ...prev, searchResults: null, isSearching: false }))
+        setWorkerSearchState(prev => ({
+          ...prev,
+          searchResults: null,
+          isSearching: false,
+        }))
         return
       }
 
       const nextRequestId = requestIdRef.current + 1
       requestIdRef.current = nextRequestId
+      searchStartTimeRef.current.clear()
       searchStartTimeRef.current.set(nextRequestId, {
         startTime: performance.now(),
         query: searchTerm,
@@ -173,9 +184,17 @@ export const useAssetSearchWorker = ({
       if (workerSearchState.workerState === 'failed') return
 
       if (newSearchString.trim()) {
-        setWorkerSearchState(prev => ({ ...prev, isSearching: true, searchResults: null }))
+        setWorkerSearchState(prev => ({
+          ...prev,
+          isSearching: true,
+          searchResults: null,
+        }))
       } else {
-        setWorkerSearchState(prev => ({ ...prev, isSearching: false, searchResults: null }))
+        setWorkerSearchState(prev => ({
+          ...prev,
+          isSearching: false,
+          searchResults: null,
+        }))
       }
     },
     [workerSearchState.workerState],

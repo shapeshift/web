@@ -77,6 +77,16 @@ export const useYields = (params?: UseYieldsParams) => {
         offset += limit
       }
 
+      // TEMP: Monkey patch for testing maintenance/deprecated badges
+      for (const item of allItems) {
+        if (item.id === 'katana-vbusdc-bbqusdc-0x1445a01a57d7b7663cfd7b4ee0a8ec03b379aabd-4626-vault') {
+          item.metadata.underMaintenance = true
+        }
+        if (item.id === 'polygon-usdt-fusdt-0x6f5e34eff43d9ab7c977512509c53840b5efba85-4626-vault') {
+          item.metadata.deprecated = true
+        }
+      }
+
       const qualityYields = allItems.filter(item => !isLowQualityYield(item))
 
       // Sort by TVL descending (Highest TVL first)

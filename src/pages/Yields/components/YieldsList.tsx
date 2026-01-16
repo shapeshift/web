@@ -483,14 +483,12 @@ export const YieldsList = memo(() => {
     })
 
     return filtered.sort((a, b) => {
-      const aBalance = allBalances[a.id]?.reduce(
-        (sum, bal) => sum.plus(bnOrZero(bal.amountUsd)),
-        bnOrZero(0),
-      )
-      const bBalance = allBalances[b.id]?.reduce(
-        (sum, bal) => sum.plus(bnOrZero(bal.amountUsd)),
-        bnOrZero(0),
-      )
+      const aBalance =
+        allBalances[a.id]?.reduce((sum, bal) => sum.plus(bnOrZero(bal.amountUsd)), bnOrZero(0)) ??
+        bnOrZero(0)
+      const bBalance =
+        allBalances[b.id]?.reduce((sum, bal) => sum.plus(bnOrZero(bal.amountUsd)), bnOrZero(0)) ??
+        bnOrZero(0)
       return bBalance.minus(aBalance).toNumber()
     })
   }, [

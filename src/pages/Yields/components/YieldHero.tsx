@@ -34,6 +34,8 @@ const exitIcon = <ArrowDownIcon />
 type ValidatorOrProviderInfo = {
   name: string
   logoURI?: string
+  description?: string
+  documentation?: string
 } | null
 
 type YieldHeroProps = {
@@ -212,32 +214,31 @@ export const YieldHero = memo(
           {apy}% {translate('common.apy')}
         </Badge>
 
-        {yieldItem.metadata.description && (
-          <Text
-            color='text.subtle'
-            fontSize='sm'
-            textAlign='center'
-            maxW='400px'
-            lineHeight='short'
-          >
-            {yieldItem.metadata.description}
-          </Text>
-        )}
-
-        {yieldItem.metadata.documentation && (
-          <Link
-            href={yieldItem.metadata.documentation}
-            isExternal
-            fontSize='sm'
-            color='text.link'
-            display='flex'
-            alignItems='center'
-            gap={1}
-          >
-            {translate('yieldXYZ.learnMore')}
-            <ExternalLinkIcon boxSize={3} />
-          </Link>
-        )}
+        {(() => {
+          const docUrl = validatorOrProvider?.documentation ?? yieldItem.metadata.documentation
+          const description = yieldItem.metadata.description
+          if (!description && !docUrl) return null
+          return (
+            <HStack spacing={2} maxW='400px' justify='center'>
+              {description && (
+                <Text color='text.subtle' fontSize='sm' textAlign='center' lineHeight='short'>
+                  {description}
+                </Text>
+              )}
+              {docUrl && (
+                <Link
+                  href={docUrl}
+                  isExternal
+                  color='text.subtle'
+                  _hover={{ color: 'text.base' }}
+                  flexShrink={0}
+                >
+                  <ExternalLinkIcon boxSize={4} />
+                </Link>
+              )}
+            </HStack>
+          )
+        })()}
 
         <VStack spacing={1} textAlign='center'>
           <Text fontSize={{ base: '3xl', md: '4xl' }} fontWeight='bold' lineHeight='1'>

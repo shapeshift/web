@@ -115,7 +115,14 @@ export const YieldDetail = memo(() => {
     }
     if (!isStaking && yieldItem) {
       const provider = yieldProviders?.[yieldItem.providerId]
-      if (provider) return { name: provider.name, logoURI: provider.logoURI }
+      if (provider) {
+        return {
+          name: provider.name,
+          logoURI: provider.logoURI,
+          description: provider.description,
+          documentation: provider.references?.[0] ?? provider.website,
+        }
+      }
     }
     return null
   }, [isStaking, selectedValidatorAddress, validators, yieldItem, yieldProviders])

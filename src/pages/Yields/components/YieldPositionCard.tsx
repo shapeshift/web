@@ -132,7 +132,9 @@ export const YieldPositionCard = memo(
     const hasWithdrawable = Boolean(
       withdrawableBalance && bnOrZero(withdrawableBalance.aggregatedAmount).gt(0),
     )
-    const hasClaimable = Boolean(claimableBalance)
+    const hasClaimable = Boolean(
+      claimableBalance && bnOrZero(claimableBalance.aggregatedAmount).gt(0),
+    )
 
     const totalValueUsd = useMemo(
       () =>

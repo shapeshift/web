@@ -59,14 +59,11 @@ export const YieldHero = memo(
     const { location } = useBrowserRouter()
 
     const iconSource = useMemo(() => resolveYieldInputAssetIcon(yieldItem), [yieldItem])
-    const apy = useMemo(
-      () => bnOrZero(yieldItem.rewardRate.total).times(100).toFixed(2),
-      [yieldItem.rewardRate.total],
-    )
-    const hasExitBalance = useMemo(() => bnOrZero(userBalanceCrypto).gt(0), [userBalanceCrypto])
+    const apy = bnOrZero(yieldItem.rewardRate.total).times(100).toFixed(2)
+    const hasExitBalance = bnOrZero(userBalanceCrypto).gt(0)
 
     const [searchParams] = useSearchParams()
-    const validator = useMemo(() => searchParams.get('validator'), [searchParams])
+    const validator = searchParams.get('validator')
 
     const handleBack = useCallback(() => navigate('/yields'), [navigate])
 
@@ -87,21 +84,13 @@ export const YieldHero = memo(
     const handleEnter = useCallback(() => handleAction('enter'), [handleAction])
     const handleExit = useCallback(() => handleAction('exit'), [handleAction])
 
-    const enterLabel = useMemo(
-      () =>
-        yieldItem.mechanics.type === 'staking'
-          ? translate('defi.stake')
-          : translate('common.deposit'),
-      [yieldItem.mechanics.type, translate],
-    )
+    const enterLabel =
+      yieldItem.mechanics.type === 'staking' ? translate('defi.stake') : translate('common.deposit')
 
-    const exitLabel = useMemo(
-      () =>
-        yieldItem.mechanics.type === 'staking'
-          ? translate('defi.unstake')
-          : translate('common.withdraw'),
-      [yieldItem.mechanics.type, translate],
-    )
+    const exitLabel =
+      yieldItem.mechanics.type === 'staking'
+        ? translate('defi.unstake')
+        : translate('common.withdraw')
 
     const yieldTitle = titleOverride ?? yieldItem.metadata.name ?? yieldItem.token.symbol
 
@@ -187,20 +176,27 @@ export const YieldHero = memo(
           </Alert>
         )}
 
-        <HStack spacing={3} bg='background.surface.raised.base' px={4} py={2} borderRadius='full'>
-          {stackedIconElement}
-          <Text fontWeight='bold' fontSize={{ base: 'md', md: 'lg' }}>
-            {validatorOrProvider?.name ?? yieldItem.token.symbol}
-          </Text>
-          {yieldItem.chainId && (
-            <HStack spacing={1} opacity={0.8}>
-              <ChainIcon chainId={yieldItem.chainId} boxSize='16px' />
-              <Text fontSize='sm' fontWeight='medium' textTransform='capitalize'>
-                {yieldItem.network}
-              </Text>
-            </HStack>
+        <VStack spacing={2}>
+          <HStack spacing={3} bg='background.surface.raised.base' px={4} py={2} borderRadius='full'>
+            {stackedIconElement}
+            <Text fontWeight='bold' fontSize={{ base: 'md', md: 'lg' }}>
+              {validatorOrProvider?.name ?? yieldItem.token.symbol}
+            </Text>
+            {yieldItem.chainId && (
+              <HStack spacing={1} opacity={0.8}>
+                <ChainIcon chainId={yieldItem.chainId} boxSize='16px' />
+                <Text fontSize='sm' fontWeight='medium' textTransform='capitalize'>
+                  {yieldItem.network}
+                </Text>
+              </HStack>
+            )}
+          </HStack>
+          {yieldItem.metadata.name && yieldItem.metadata.name !== yieldItem.token.symbol && (
+            <Text color='text.subtle' fontSize='sm' textAlign='center'>
+              {yieldItem.metadata.name}
+            </Text>
           )}
-        </HStack>
+        </VStack>
 
         <Badge
           colorScheme='green'
@@ -269,20 +265,20 @@ export const YieldHero = memo(
           >
             {enterLabel}
           </Button>
-          <Button
-            leftIcon={exitIcon}
-            variant='outline'
-            size='lg'
-            height={14}
-            borderRadius='xl'
-            onClick={handleExit}
-            flex={1}
-            fontWeight='bold'
-            isDisabled={!hasExitBalance}
-            opacity={!hasExitBalance ? 0.6 : 1}
-          >
-            {exitLabel}
-          </Button>
+          {hasExitBalance && (
+            <Button
+              leftIcon={exitIcon}
+              variant='outline'
+              size='lg'
+              height={14}
+              borderRadius='xl'
+              onClick={handleExit}
+              flex={1}
+              fontWeight='bold'
+            >
+              {exitLabel}
+            </Button>
+          )}
         </HStack>
       </VStack>
     )

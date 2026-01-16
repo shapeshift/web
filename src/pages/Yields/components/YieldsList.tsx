@@ -88,13 +88,13 @@ export const YieldsList = memo(() => {
   const translate = useTranslate()
   const navigate = useNavigate()
   const { state: walletState } = useWallet()
-  const isConnected = useMemo(() => Boolean(walletState.walletInfo), [walletState.walletInfo])
+  const isConnected = Boolean(walletState.walletInfo)
   const enabledWalletAccountIds = useAppSelector(selectEnabledWalletAccountIds)
   const [isMobile] = useMediaQuery('(max-width: 768px)')
   const [searchParams, setSearchParams] = useSearchParams()
-  const tabParam = useMemo(() => searchParams.get('tab') as YieldTab | null, [searchParams])
-  const tabIndex = useMemo(() => (tabParam ? TAB_PARAM_TO_INDEX[tabParam] ?? 0 : 0), [tabParam])
-  const isAvailableToEarnTab = useMemo(() => tabParam === YieldTab.AvailableToEarn, [tabParam])
+  const tabParam = searchParams.get('tab') as YieldTab | null
+  const tabIndex = tabParam ? TAB_PARAM_TO_INDEX[tabParam] ?? 0 : 0
+  const isAvailableToEarnTab = tabParam === YieldTab.AvailableToEarn
 
   useEffect(() => {
     if (!tabParam && isConnected) {
@@ -105,11 +105,8 @@ export const YieldsList = memo(() => {
       })
     }
   }, [tabParam, isConnected, setSearchParams])
-  const viewParam = useMemo(() => searchParams.get('view'), [searchParams])
-  const viewMode = useMemo<'grid' | 'list'>(
-    () => (viewParam === 'list' ? 'list' : 'grid'),
-    [viewParam],
-  )
+  const viewParam = searchParams.get('view')
+  const viewMode: 'grid' | 'list' = viewParam === 'list' ? 'list' : 'grid'
   const setViewMode = useCallback(
     (mode: 'grid' | 'list') => {
       setSearchParams(prev => {
@@ -122,7 +119,7 @@ export const YieldsList = memo(() => {
     [setSearchParams],
   )
   const [searchQuery, setSearchQuery] = useState('')
-  const filterSearchString = useMemo(() => searchParams.toString(), [searchParams])
+  const filterSearchString = searchParams.toString()
 
   const {
     selectedNetwork,
@@ -172,6 +169,14 @@ export const YieldsList = memo(() => {
     setSearchParams(prev => {
       const next = new URLSearchParams(prev)
       next.set('tab', YieldTab.AvailableToEarn)
+      return next
+    })
+  }, [setSearchParams])
+
+  const handleNavigateToAllTab = useCallback(() => {
+    setSearchParams(prev => {
+      const next = new URLSearchParams(prev)
+      next.set('tab', YieldTab.All)
       return next
     })
   }, [setSearchParams])
@@ -359,8 +364,21 @@ export const YieldsList = memo(() => {
   ])
 
   const recommendedYields = useMemo(() => {
-    if (!isConnected || !yields?.byInputAssetId || !userCurrencyBalances || !assetBalancesBaseUnit)
+    if (!isConnected || !yields?.unfiltered || !userCurrencyBalances || !assetBalancesBaseUnit)
       return []
+
+    // Build unfiltered byInputAssetId lookup so recommendations are independent of filters
+    const allYieldsByInputAssetId = yields.unfiltered.reduce<Record<string, AugmentedYieldDto[]>>(
+      (acc, item) => {
+        const assetId = item.inputTokens?.[0]?.assetId
+        if (assetId) {
+          if (!acc[assetId]) acc[assetId] = []
+          acc[assetId].push(item)
+        }
+        return acc
+      },
+      {},
+    )
 
     const recommendations: {
       yield: AugmentedYieldDto
@@ -369,7 +387,7 @@ export const YieldsList = memo(() => {
     }[] = []
 
     for (const [assetId, balanceFiat] of Object.entries(userCurrencyBalances)) {
-      const yieldsForAsset = yields.byInputAssetId[assetId]
+      const yieldsForAsset = allYieldsByInputAssetId[assetId]
       if (!yieldsForAsset?.length) continue
 
       const balance = bnOrZero(balanceFiat)
@@ -404,7 +422,7 @@ export const YieldsList = memo(() => {
     return recommendations
       .sort((a, b) => b.potentialEarnings.minus(a.potentialEarnings).toNumber())
       .slice(0, 3)
-  }, [isConnected, yields?.byInputAssetId, userCurrencyBalances, assetBalancesBaseUnit, assets])
+  }, [isConnected, yields?.unfiltered, userCurrencyBalances, assetBalancesBaseUnit, assets])
 
   const availableYields = useMemo(() => {
     if (!isConnected || !yields?.byInputAssetId || !userCurrencyBalances || !assetBalancesBaseUnit)
@@ -459,16 +477,17 @@ export const YieldsList = memo(() => {
   ])
 
   const myPositions = useMemo(() => {
-    if (!yields?.all || !allBalances) return []
-    const positions = yields.all.filter(yieldItem => {
+    if (!yields?.unfiltered || !allBalances) return []
+    const positions = yields.unfiltered.filter(yieldItem => {
       const balances = allBalances[yieldItem.id]
       if (!balances) return false
       return balances.some(b => bnOrZero(b.amount).gt(0))
     })
 
-    return positions.filter(y => {
+    const filtered = positions.filter(y => {
       if (selectedNetwork && y.network !== selectedNetwork) return false
       if (selectedProvider && y.providerId !== selectedProvider) return false
+      if (selectedType && y.mechanics.type !== selectedType) return false
       if (searchQuery) {
         const q = searchQuery.toLowerCase()
         if (
@@ -481,7 +500,26 @@ export const YieldsList = memo(() => {
       }
       return true
     })
-  }, [yields, allBalances, selectedNetwork, selectedProvider, searchQuery])
+
+    return filtered.sort((a, b) => {
+      const aBalance = allBalances[a.id]?.reduce(
+        (sum, bal) => sum.plus(bnOrZero(bal.amountUsd)),
+        bnOrZero(0),
+      )
+      const bBalance = allBalances[b.id]?.reduce(
+        (sum, bal) => sum.plus(bnOrZero(bal.amountUsd)),
+        bnOrZero(0),
+      )
+      return bBalance.minus(aBalance).toNumber()
+    })
+  }, [
+    yields?.unfiltered,
+    allBalances,
+    selectedNetwork,
+    selectedProvider,
+    selectedType,
+    searchQuery,
+  ])
 
   const handleYieldClick = useCallback(
     (yieldId: string) => {
@@ -1018,22 +1056,22 @@ export const YieldsList = memo(() => {
   const positionsGridElement = useMemo(
     () => (
       <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={{ base: 2, md: 6 }}>
-        {positionsTable.getRowModel().rows.map(row => {
-          const posDisplayInfo = getYieldDisplayInfo(row.original)
+        {myPositions.map(position => {
+          const posDisplayInfo = getYieldDisplayInfo(position)
           return (
             <YieldItem
-              key={row.id}
+              key={position.id}
               data={{
                 type: 'single',
-                yieldItem: row.original,
+                yieldItem: position,
                 providerIcon: posDisplayInfo.logoURI,
                 providerName: posDisplayInfo.name,
               }}
               variant={isMobile ? 'mobile' : 'card'}
-              onEnter={() => handleYieldClick(row.original.id)}
+              onEnter={() => handleYieldClick(position.id)}
               userBalanceUsd={
-                allBalances?.[row.original.id]
-                  ? allBalances[row.original.id].reduce(
+                allBalances?.[position.id]
+                  ? allBalances[position.id].reduce(
                       (sum, b) => sum.plus(bnOrZero(b.amountUsd)),
                       bnOrZero(0),
                     )
@@ -1044,21 +1082,23 @@ export const YieldsList = memo(() => {
         })}
       </SimpleGrid>
     ),
-    [allBalances, getYieldDisplayInfo, handleYieldClick, positionsTable, isMobile],
+    [allBalances, getYieldDisplayInfo, handleYieldClick, myPositions, isMobile],
   )
 
   const positionsListElement = useMemo(
     () => (
       <Box borderWidth='1px' borderRadius='xl' overflow='hidden'>
         <YieldTable
-          key={positionsSorting.map(s => `${s.id}-${s.desc}`).join(',')}
+          key={`${positionsSorting.map(s => `${s.id}-${s.desc}`).join(',')}-${
+            myPositions.length
+          }-${myPositions.map(p => p.id).join(',')}`}
           table={positionsTable}
           isLoading={false}
           onRowClick={handleRowClick}
         />
       </Box>
     ),
-    [handleRowClick, positionsSorting, positionsTable],
+    [handleRowClick, positionsSorting, positionsTable, myPositions],
   )
 
   const positionsContentElement = useMemo(() => {
@@ -1111,6 +1151,7 @@ export const YieldsList = memo(() => {
           allYields={yields?.all}
           isAvailableToEarnTab={isAvailableToEarnTab}
           onNavigateToAvailableTab={handleNavigateToAvailableTab}
+          onNavigateToAllTab={handleNavigateToAllTab}
           isConnected={isConnected}
           isMobile={isMobile}
         />

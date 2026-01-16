@@ -22,6 +22,8 @@ import { YieldBalanceType } from '@/lib/yieldxyz/types'
 import { YieldHero } from '@/pages/Yields/components/YieldHero'
 import { YieldManager } from '@/pages/Yields/components/YieldManager'
 import { YieldPositionCard } from '@/pages/Yields/components/YieldPositionCard'
+import { YieldProviderInfo } from '@/pages/Yields/components/YieldProviderInfo'
+import { YieldRelatedMarkets } from '@/pages/Yields/components/YieldRelatedMarkets'
 import { YieldStats } from '@/pages/Yields/components/YieldStats'
 import { useYieldAccountSync } from '@/pages/Yields/hooks/useYieldAccountSync'
 import { useAllYieldBalances } from '@/react-queries/queries/yieldxyz/useAllYieldBalances'
@@ -253,6 +255,15 @@ export const YieldDetail = memo(() => {
             isBalancesLoading={isBalancesLoading}
           />
           <YieldStats yieldItem={yieldItem} balances={balances} />
+          {!isStaking && validatorOrProvider && (
+            <YieldProviderInfo
+              providerId={yieldItem.providerId}
+              providerName={validatorOrProvider.name}
+              providerLogoURI={validatorOrProvider.logoURI}
+              providerWebsite={validatorOrProvider.documentation}
+            />
+          )}
+          <YieldRelatedMarkets currentYieldId={yieldItem.id} tokenSymbol={yieldItem.token.symbol} />
         </Flex>
       </Container>
 

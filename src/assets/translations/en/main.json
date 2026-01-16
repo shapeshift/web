@@ -2808,7 +2808,10 @@
     "deprecatedDescription": "This yield opportunity has been deprecated and may be discontinued soon.",
     "learnMore": "Learn more",
     "noAvailableYields": "No yield opportunities available for your assets",
-    "connectWalletAvailable": "Connect a wallet to see yields available for your assets"
+    "connectWalletAvailable": "Connect a wallet to see yields available for your assets",
+    "aboutProvider": "About %{provider}",
+    "visitWebsite": "Visit Website",
+    "otherYields": "Other %{symbol} Yields"
   },
   "earn": {
     "enterFrom": "Enter from",

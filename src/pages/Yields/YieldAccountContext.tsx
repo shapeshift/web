@@ -1,34 +1,58 @@
+import type { AccountId } from '@shapeshiftoss/caip'
 import React, { createContext, memo, useCallback, useContext, useMemo, useState } from 'react'
 
+import { selectAccountNumberByAccountId } from '@/state/slices/portfolioSlice/selectors'
+import { selectEnabledWalletAccountIds } from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
+
 type YieldAccountContextType = {
+  accountId: AccountId | undefined
   accountNumber: number
-  setAccountNumber: (accountNumber: number) => void
+  setAccountId: (accountId: AccountId | undefined) => void
 }
 
 const YieldAccountContext = createContext<YieldAccountContextType | undefined>(undefined)
 
-export const YieldAccountProvider: React.FC<{ children: React.ReactNode }> = memo(
-  ({ children }) => {
-    const [accountNumber, setAccountNumberState] = useState(0)
+export const YieldAccountProvider: React.FC<{
+  children: React.ReactNode
+  initialAccountId?: AccountId
+}> = memo(({ children, initialAccountId }) => {
+  const enabledWalletAccountIds = useAppSelector(selectEnabledWalletAccountIds)
+  const [userSelectedAccountId, setUserSelectedAccountId] = useState<AccountId | undefined>(
+    initialAccountId,
+  )
 
-    const setAccountNumber = useCallback((accountNumber: number) => {
-      setAccountNumberState(accountNumber)
-    }, [])
+  const accountId = useMemo(
+    () => userSelectedAccountId ?? enabledWalletAccountIds[0],
+    [userSelectedAccountId, enabledWalletAccountIds],
+  )
 
-    const value = useMemo(
-      () => ({ accountNumber, setAccountNumber }),
-      [accountNumber, setAccountNumber],
-    )
+  const accountNumber = useAppSelector(state => {
+    if (!accountId) return 0
+    const foundAccountNumber = selectAccountNumberByAccountId(state, { accountId })
+    return foundAccountNumber ?? 0
+  })
 
-    return <YieldAccountContext.Provider value={value}>{children}</YieldAccountContext.Provider>
-  },
-)
+  const setAccountId = useCallback((nextAccountId: AccountId | undefined) => {
+    setUserSelectedAccountId(nextAccountId)
+  }, [])
+
+  const value = useMemo(
+    () => ({ accountId, accountNumber, setAccountId }),
+    [accountId, accountNumber, setAccountId],
+  )
+
+  return <YieldAccountContext.Provider value={value}>{children}</YieldAccountContext.Provider>
+})
 
 export const useYieldAccount = () => {
   const context = useContext(YieldAccountContext)
-  // Fallback to account 0 when used outside YieldAccountProvider (e.g., YieldAssetSection on asset pages)
   if (context === undefined) {
-    return { accountNumber: 0, setAccountNumber: () => {} }
+    return {
+      accountId: undefined,
+      accountNumber: 0,
+      setAccountId: () => {},
+    }
   }
   return context
 }

@@ -3,6 +3,9 @@ import { memo, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
 
+import { AccountSelector } from '@/components/AccountSelector/AccountSelector'
+import { Display } from '@/components/Display'
+import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import {
   COSMOS_ATOM_NATIVE_STAKING_YIELD_ID,
@@ -20,11 +23,15 @@ import { YieldHero } from '@/pages/Yields/components/YieldHero'
 import { YieldManager } from '@/pages/Yields/components/YieldManager'
 import { YieldPositionCard } from '@/pages/Yields/components/YieldPositionCard'
 import { YieldStats } from '@/pages/Yields/components/YieldStats'
+import { useYieldAccountSync } from '@/pages/Yields/hooks/useYieldAccountSync'
 import { useAllYieldBalances } from '@/react-queries/queries/yieldxyz/useAllYieldBalances'
 import { useYield } from '@/react-queries/queries/yieldxyz/useYield'
 import { useYieldProviders } from '@/react-queries/queries/yieldxyz/useYieldProviders'
 import { useYieldValidators } from '@/react-queries/queries/yieldxyz/useYieldValidators'
-import { selectUserCurrencyToUsdRate } from '@/state/slices/selectors'
+import {
+  selectPortfolioAccountIdsByAssetIdFilter,
+  selectUserCurrencyToUsdRate,
+} from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
 export const YieldDetail = memo(() => {
@@ -32,10 +39,40 @@ export const YieldDetail = memo(() => {
   const [searchParams] = useSearchParams()
   const navigate = useNavigate()
   const translate = useTranslate()
+
   const userCurrencyToUsdRate = useAppSelector(selectUserCurrencyToUsdRate)
 
   const { data: yieldItem, isLoading, error } = useYield(yieldId ?? '')
-  const { data: allBalancesData, isFetching: isBalancesFetching } = useAllYieldBalances()
+
+  const selectorAssetId = useMemo(() => {
+    if (yieldItem?.token.assetId) return yieldItem.token.assetId
+    if (yieldItem?.inputTokens?.[0]?.assetId) return yieldItem.inputTokens[0].assetId
+    return undefined
+  }, [yieldItem?.inputTokens, yieldItem?.token.assetId])
+
+  const availableAccounts = useAppSelector(state =>
+    selectorAssetId
+      ? selectPortfolioAccountIdsByAssetIdFilter(state, { assetId: selectorAssetId })
+      : [],
+  )
+
+  const isYieldMultiAccountEnabled = useFeatureFlag('YieldMultiAccount')
+
+  const { selectedAccountId, handleAccountChange } = useYieldAccountSync({
+    availableAccountIds: availableAccounts,
+  })
+
+  const showAccountSelector = isYieldMultiAccountEnabled && availableAccounts.length > 1
+
+  const balanceAccountIds = useMemo(() => {
+    if (!isYieldMultiAccountEnabled)
+      return availableAccounts.length > 0 ? availableAccounts : undefined
+    return selectedAccountId ? [selectedAccountId] : undefined
+  }, [isYieldMultiAccountEnabled, selectedAccountId, availableAccounts])
+
+  const { data: allBalancesData, isFetching: isBalancesFetching } = useAllYieldBalances({
+    accountIds: balanceAccountIds,
+  })
   const balances = yieldItem?.id ? allBalancesData?.normalized[yieldItem.id] : undefined
   const isBalancesLoading = !allBalancesData && isBalancesFetching
 
@@ -172,6 +209,28 @@ export const YieldDetail = memo(() => {
         maxW={{ base: 'full', md: 'container.md', lg: 'container.lg' }}
         px={{ base: 4, md: 8, lg: 12 }}
       >
+        {showAccountSelector && selectorAssetId && (
+          <>
+            <Display.Desktop>
+              <Flex justifyContent='flex-end' pt={4}>
+                <AccountSelector
+                  assetId={selectorAssetId}
+                  accountId={selectedAccountId}
+                  onChange={handleAccountChange}
+                />
+              </Flex>
+            </Display.Desktop>
+            <Display.Mobile>
+              <Box pt={2} pb={2}>
+                <AccountSelector
+                  assetId={selectorAssetId}
+                  accountId={selectedAccountId}
+                  onChange={handleAccountChange}
+                />
+              </Box>
+            </Display.Mobile>
+          </>
+        )}
         <YieldHero
           yieldItem={yieldItem}
           userBalanceUsd={userBalances.userCurrency}

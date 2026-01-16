@@ -58,6 +58,7 @@ export const YieldActionModal = memo(function YieldActionModal({
   validatorName,
   validatorLogoURI,
   passthrough,
+  accountId,
   ...props
 }: YieldActionModalProps) {
   const translate = useTranslate()
@@ -85,7 +86,7 @@ export const YieldActionModal = memo(function YieldActionModal({
     validatorAddress,
     passthrough,
     manageActionType: props.manageActionType,
-    accountId: props.accountId,
+    accountId,
   })
 
   const shouldFetchValidators = useMemo(
@@ -358,6 +359,7 @@ export const YieldActionModal = memo(function YieldActionModal({
         providerInfo={successProviderInfo}
         transactionSteps={transactionSteps}
         yieldId={yieldItem.id}
+        accountId={accountId}
         onDone={handleClose}
         successMessageKey={successMessageKey}
       />
@@ -368,6 +370,7 @@ export const YieldActionModal = memo(function YieldActionModal({
       successProviderInfo,
       transactionSteps,
       yieldItem.id,
+      accountId,
       handleClose,
       successMessageKey,
     ],

@@ -9,6 +9,7 @@ import type {
   sui,
   ton,
 } from '@shapeshiftoss/chain-adapters'
+import type { TronSignTx } from '@shapeshiftoss/chain-adapters/src/tron/types'
 import type { SolanaSignTx, StarknetSignTx, SuiSignTx } from '@shapeshiftoss/hdwallet-core'
 import type { Asset, EvmChainId } from '@shapeshiftoss/types'
 import { evm, TxStatus } from '@shapeshiftoss/unchained-client'
@@ -18,7 +19,6 @@ import { Err, Ok } from '@sniptt/monads'
 import type { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios'
 import Axios from 'axios'
 import { setupCache } from 'axios-cache-interceptor'
-import type { TronSignTx } from 'packages/chain-adapters/src/tron/types'
 
 import { fetchSafeTransactionInfo } from './safe-utils'
 import type {

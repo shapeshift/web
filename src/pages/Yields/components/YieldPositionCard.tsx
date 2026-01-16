@@ -52,12 +52,13 @@ export const YieldPositionCard = memo(
     const validatorParam = searchParams.get('validator')
 
     const { chainId } = yieldItem
-    const { accountNumber } = useYieldAccount()
+    const { accountId: contextAccountId, accountNumber } = useYieldAccount()
 
     const defaultValidator = chainId ? DEFAULT_NATIVE_VALIDATOR_BY_CHAIN_ID[chainId] : undefined
     const selectedValidatorAddress = validatorParam || defaultValidator
 
     const accountId = useAppSelector(state => {
+      if (contextAccountId) return contextAccountId
       if (!chainId) return undefined
       const accountIdsByNumberAndChain = selectAccountIdByAccountNumberAndChainId(state)
       return accountIdsByNumberAndChain[accountNumber]?.[chainId]

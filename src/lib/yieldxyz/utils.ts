@@ -8,8 +8,6 @@ import {
 } from './constants'
 import type { AugmentedYieldDto, ValidatorDto, YieldIconSource } from './types'
 
-import { bnOrZero } from '@/lib/bignumber/bignumber'
-
 export const yieldNetworkToChainId = (network: string): ChainId | undefined => {
   if (!isSupportedYieldNetwork(network)) return undefined
   return YIELD_NETWORK_TO_CHAIN_ID[network]
@@ -145,9 +143,6 @@ export const sortValidators = (
     return 0
   })
 }
-
-export const toUserCurrency = (usdAmount: string | number, rate: string | number): string =>
-  bnOrZero(usdAmount).times(rate).toFixed()
 
 export const ensureValidatorApr = (validator: ValidatorDto): ValidatorDto =>
   validator.rewardRate?.total

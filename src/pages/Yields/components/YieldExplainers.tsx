@@ -76,7 +76,10 @@ type YieldExplainersProps = {
   sellAssetSymbol?: string
 }
 
-export const YieldExplainers = memo(({ selectedYield, sellAssetSymbol }: YieldExplainersProps) => {
+export const YieldExplainers = memo(function YieldExplainers({
+  selectedYield,
+  sellAssetSymbol,
+}: YieldExplainersProps) {
   const translate = useTranslate()
 
   const explainers = useMemo(() => getYieldExplainers(selectedYield), [selectedYield])

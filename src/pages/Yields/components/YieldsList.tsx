@@ -84,7 +84,7 @@ const TAB_INDEX_TO_PARAM: Record<number, YieldTab> = {
   2: YieldTab.MyPositions,
 }
 
-export const YieldsList = memo(() => {
+export const YieldsList = memo(function YieldsList() {
   const translate = useTranslate()
   const navigate = useNavigate()
   const { state: walletState } = useWallet()

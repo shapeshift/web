@@ -17,9 +17,7 @@ export const YieldProviderInfo = memo(
   ({ providerId, providerName, providerLogoURI, providerWebsite }: YieldProviderInfoProps) => {
     const translate = useTranslate()
 
-    const description = useMemo(() => {
-      return PROVIDER_DESCRIPTIONS[providerId]?.description
-    }, [providerId])
+    const description = useMemo(() => PROVIDER_DESCRIPTIONS[providerId]?.description, [providerId])
 
     if (!description) return null
 

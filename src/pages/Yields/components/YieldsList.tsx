@@ -66,25 +66,10 @@ import { useAppSelector } from '@/state/store'
 
 const tabSelectedSx = { color: 'white', bg: 'blue.500' }
 
-enum YieldTab {
-  All = 'all',
-  AvailableToEarn = 'available',
-  MyPositions = 'my-positions',
-}
+const TAB_PARAMS = ['all', 'available', 'my-positions'] as const
+type YieldTab = (typeof TAB_PARAMS)[number]
 
-const TAB_PARAM_TO_INDEX: Record<string, number> = {
-  [YieldTab.All]: 0,
-  [YieldTab.AvailableToEarn]: 1,
-  [YieldTab.MyPositions]: 2,
-}
-
-const TAB_INDEX_TO_PARAM: Record<number, YieldTab> = {
-  0: YieldTab.All,
-  1: YieldTab.AvailableToEarn,
-  2: YieldTab.MyPositions,
-}
-
-export const YieldsList = memo(function YieldsList() {
+export const YieldsList = memo(() => {
   const translate = useTranslate()
   const navigate = useNavigate()
   const { state: walletState } = useWallet()
@@ -94,10 +79,13 @@ export const YieldsList = memo(function YieldsList() {
   const [searchParams, setSearchParams] = useSearchParams()
   const tabParam = searchParams.get('tab') as YieldTab | null
   const tabIndex = useMemo(() => {
-    if (tabParam) return TAB_PARAM_TO_INDEX[tabParam] ?? 0
-    return isConnected ? TAB_PARAM_TO_INDEX[YieldTab.AvailableToEarn] : 0
+    if (tabParam) {
+      const idx = TAB_PARAMS.indexOf(tabParam)
+      return idx >= 0 ? idx : 0
+    }
+    return isConnected ? 1 : 0
   }, [tabParam, isConnected])
-  const isAvailableToEarnTab = tabParam === YieldTab.AvailableToEarn || (!tabParam && isConnected)
+  const isAvailableToEarnTab = tabParam === 'available' || (!tabParam && isConnected)
   const viewParam = searchParams.get('view')
   const viewMode: 'grid' | 'list' = viewParam === 'list' ? 'list' : 'grid'
   const setViewMode = useCallback(
@@ -151,7 +139,7 @@ export const YieldsList = memo(function YieldsList() {
     (index: number) => {
       setSearchParams(prev => {
         const next = new URLSearchParams(prev)
-        next.set('tab', TAB_INDEX_TO_PARAM[index])
+        next.set('tab', TAB_PARAMS[index])
         return next
       })
     },
@@ -161,7 +149,7 @@ export const YieldsList = memo(function YieldsList() {
   const handleNavigateToAvailableTab = useCallback(() => {
     setSearchParams(prev => {
       const next = new URLSearchParams(prev)
-      next.set('tab', YieldTab.AvailableToEarn)
+      next.set('tab', 'available')
       return next
     })
   }, [setSearchParams])
@@ -169,7 +157,7 @@ export const YieldsList = memo(function YieldsList() {
   const handleNavigateToAllTab = useCallback(() => {
     setSearchParams(prev => {
       const next = new URLSearchParams(prev)
-      next.set('tab', YieldTab.All)
+      next.set('tab', 'all')
       return next
     })
   }, [setSearchParams])

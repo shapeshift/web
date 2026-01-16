@@ -18,15 +18,19 @@ export const YieldAvailableToDeposit = memo(
   ({ yieldItem, inputTokenMarketData }: YieldAvailableToDepositProps) => {
     const translate = useTranslate()
 
-    const inputTokenAssetId = yieldItem.inputTokens[0]?.assetId ?? ''
-    const inputTokenPrecision = yieldItem.inputTokens[0]?.decimals ?? 18
+    const inputToken = yieldItem.inputTokens[0]
+    const inputTokenAssetId = inputToken?.assetId ?? ''
+    const inputTokenPrecision = inputToken?.decimals
 
     const availableBalanceBaseUnit = useAppSelector(state =>
       selectPortfolioCryptoBalanceBaseUnitByFilter(state, { assetId: inputTokenAssetId }),
     )
 
     const availableBalance = useMemo(
-      () => bnOrZero(availableBalanceBaseUnit).shiftedBy(-inputTokenPrecision),
+      () =>
+        inputTokenPrecision
+          ? bnOrZero(availableBalanceBaseUnit).shiftedBy(-inputTokenPrecision)
+          : bnOrZero(0),
       [availableBalanceBaseUnit, inputTokenPrecision],
     )
 
@@ -41,6 +45,8 @@ export const YieldAvailableToDeposit = memo(
     )
 
     const hasAvailableBalance = availableBalance.gt(0)
+
+    if (!inputTokenPrecision) return null
 
     const tooltipLabel = translate('yieldXYZ.availableToDepositTooltip', {
       symbol: yieldItem.token.symbol,

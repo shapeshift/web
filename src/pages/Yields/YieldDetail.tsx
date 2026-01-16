@@ -2,7 +2,7 @@ import { ArrowBackIcon } from '@chakra-ui/icons'
 import type { ResponsiveValue } from '@chakra-ui/react'
 import { Box, Button, Container, Flex, Heading, IconButton, Stack, Text } from '@chakra-ui/react'
 import type { Property } from 'csstype'
-import { memo, useCallback, useEffect } from 'react'
+import { memo, useCallback, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
 
@@ -86,13 +86,12 @@ export const YieldDetail = memo(() => {
 
   const showAccountSelector = isYieldMultiAccountEnabled && availableAccounts.length > 1
 
-  const balanceAccountIds = !isYieldMultiAccountEnabled
-    ? availableAccounts.length > 0
-      ? availableAccounts
-      : undefined
-    : selectedAccountId
-    ? [selectedAccountId]
-    : undefined
+  const balanceAccountIds = useMemo(() => {
+    if (isYieldMultiAccountEnabled) {
+      return selectedAccountId ? [selectedAccountId] : undefined
+    }
+    return availableAccounts.length > 0 ? availableAccounts : undefined
+  }, [isYieldMultiAccountEnabled, selectedAccountId, availableAccounts])
 
   const { data: allBalancesData, isFetching: isBalancesFetching } = useAllYieldBalances({
     accountIds: balanceAccountIds,

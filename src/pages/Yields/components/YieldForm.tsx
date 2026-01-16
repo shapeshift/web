@@ -744,7 +744,7 @@ export const YieldForm = memo(
                 assetId={inputTokenAssetId}
                 accountId={accountId}
                 onChange={handleAccountChange}
-                disabled={isAccountSelectorDisabled}
+                disabled={isAccountSelectorDisabled || isSubmitting}
               />
             </Flex>
           )}

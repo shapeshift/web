@@ -22,7 +22,7 @@ import {
 } from '@chakra-ui/react'
 import type { ColumnDef, Row } from '@tanstack/react-table'
 import { getCoreRowModel, getSortedRowModel, useReactTable } from '@tanstack/react-table'
-import { memo, useCallback, useMemo, useState } from 'react'
+import { memo, useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 
@@ -66,6 +66,24 @@ import { useAppSelector } from '@/state/store'
 
 const tabSelectedSx = { color: 'white', bg: 'blue.500' }
 
+enum YieldTab {
+  All = 'all',
+  AvailableToEarn = 'available',
+  MyPositions = 'my-positions',
+}
+
+const TAB_PARAM_TO_INDEX: Record<string, number> = {
+  [YieldTab.All]: 0,
+  [YieldTab.AvailableToEarn]: 1,
+  [YieldTab.MyPositions]: 2,
+}
+
+const TAB_INDEX_TO_PARAM: Record<number, YieldTab> = {
+  0: YieldTab.All,
+  1: YieldTab.AvailableToEarn,
+  2: YieldTab.MyPositions,
+}
+
 export const YieldsList = memo(() => {
   const translate = useTranslate()
   const navigate = useNavigate()
@@ -74,10 +92,19 @@ export const YieldsList = memo(() => {
   const enabledWalletAccountIds = useAppSelector(selectEnabledWalletAccountIds)
   const [isMobile] = useMediaQuery('(max-width: 768px)')
   const [searchParams, setSearchParams] = useSearchParams()
-  const tabParam = useMemo(() => searchParams.get('tab'), [searchParams])
-  const tabIndex = useMemo(() => (tabParam === 'my-positions' ? 1 : 0), [tabParam])
-  const filterOption = useMemo(() => searchParams.get('filter'), [searchParams])
-  const isMyOpportunities = useMemo(() => filterOption === 'my-assets', [filterOption])
+  const tabParam = useMemo(() => searchParams.get('tab') as YieldTab | null, [searchParams])
+  const tabIndex = useMemo(() => (tabParam ? TAB_PARAM_TO_INDEX[tabParam] ?? 0 : 0), [tabParam])
+  const isAvailableToEarnTab = useMemo(() => tabParam === YieldTab.AvailableToEarn, [tabParam])
+
+  useEffect(() => {
+    if (!tabParam && isConnected) {
+      setSearchParams(prev => {
+        const next = new URLSearchParams(prev)
+        next.set('tab', YieldTab.AvailableToEarn)
+        return next
+      })
+    }
+  }, [tabParam, isConnected, setSearchParams])
   const viewParam = useMemo(() => searchParams.get('view'), [searchParams])
   const viewMode = useMemo<'grid' | 'list'>(
     () => (viewParam === 'list' ? 'list' : 'grid'),
@@ -134,22 +161,20 @@ export const YieldsList = memo(() => {
     (index: number) => {
       setSearchParams(prev => {
         const next = new URLSearchParams(prev)
-        if (index === 0) next.delete('tab')
-        else next.set('tab', 'my-positions')
+        next.set('tab', TAB_INDEX_TO_PARAM[index])
         return next
       })
     },
     [setSearchParams],
   )
 
-  const handleToggleMyOpportunities = useCallback(() => {
+  const handleNavigateToAvailableTab = useCallback(() => {
     setSearchParams(prev => {
       const next = new URLSearchParams(prev)
-      if (isMyOpportunities) next.delete('filter')
-      else next.set('filter', 'my-assets')
+      next.set('tab', YieldTab.AvailableToEarn)
       return next
     })
-  }, [isMyOpportunities, setSearchParams])
+  }, [setSearchParams])
 
   const getProviderLogo = useCallback(
     (providerId: string) => yieldProviders?.[providerId]?.logoURI,
@@ -261,16 +286,9 @@ export const YieldsList = memo(() => {
   const yieldsByAsset = useMemo(() => {
     if (!yields?.assetGroups) return []
 
-    const hasUserBalance = (y: AugmentedYieldDto) => {
-      if (y.inputTokens?.some(t => bnOrZero(userCurrencyBalances[t.assetId || '']).gt(0)))
-        return true
-      return bnOrZero(userCurrencyBalances[y.token.assetId || '']).gt(0)
-    }
-
     return yields.assetGroups
       .map(group => {
         let filteredYields = group.yields
-        if (isMyOpportunities) filteredYields = filteredYields.filter(hasUserBalance)
         if (selectedNetwork)
           filteredYields = filteredYields.filter(y => y.network === selectedNetwork)
         if (selectedProvider)
@@ -332,14 +350,12 @@ export const YieldsList = memo(() => {
     }[]
   }, [
     yields?.assetGroups,
-    isMyOpportunities,
     selectedNetwork,
     selectedProvider,
     selectedType,
     searchQuery,
     getYieldPositionBalanceUsd,
     sortOption,
-    userCurrencyBalances,
   ])
 
   const recommendedYields = useMemo(() => {
@@ -670,34 +686,8 @@ export const YieldsList = memo(() => {
     [translate],
   )
 
-  const allYieldsGridElement = useMemo(() => {
-    if (isMyOpportunities) {
-      return (
-        <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={{ base: 2, md: 6 }}>
-          {availableYields.map(item => {
-            const positionBalanceUsd = getYieldPositionBalanceUsd(item.yield.id)
-            const displayInfo = getYieldDisplayInfo(item.yield)
-            return (
-              <YieldItem
-                key={item.yield.id}
-                data={{
-                  type: 'single',
-                  yieldItem: item.yield,
-                  providerIcon: displayInfo.logoURI,
-                  providerName: displayInfo.name,
-                }}
-                variant={isMobile ? 'mobile' : 'card'}
-                userBalanceUsd={positionBalanceUsd}
-                availableBalanceUserCurrency={item.balanceFiat}
-                onEnter={() => handleYieldClick(item.yield.id)}
-              />
-            )
-          })}
-        </SimpleGrid>
-      )
-    }
-
-    return (
+  const allYieldsGridElement = useMemo(
+    () => (
       <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={{ base: 2, md: 6 }}>
         {yieldsByAsset.map(group => {
           if (group.yields.length === 1) {
@@ -742,21 +732,46 @@ export const YieldsList = memo(() => {
           )
         })}
       </SimpleGrid>
-    )
-  }, [
-    isMyOpportunities,
-    availableYields,
-    getYieldPositionBalanceUsd,
-    filterSearchString,
-    yieldsByAsset,
-    isMobile,
-    getYieldDisplayInfo,
-    handleYieldClick,
-    userCurrencyBalances,
-  ])
+    ),
+    [
+      filterSearchString,
+      yieldsByAsset,
+      isMobile,
+      getYieldDisplayInfo,
+      handleYieldClick,
+      userCurrencyBalances,
+    ],
+  )
 
-  const allYieldsListElement = useMemo(() => {
-    const listHeader = (
+  const availableToEarnGridElement = useMemo(
+    () => (
+      <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={{ base: 2, md: 6 }}>
+        {availableYields.map(item => {
+          const positionBalanceUsd = getYieldPositionBalanceUsd(item.yield.id)
+          const displayInfo = getYieldDisplayInfo(item.yield)
+          return (
+            <YieldItem
+              key={item.yield.id}
+              data={{
+                type: 'single',
+                yieldItem: item.yield,
+                providerIcon: displayInfo.logoURI,
+                providerName: displayInfo.name,
+              }}
+              variant={isMobile ? 'mobile' : 'card'}
+              userBalanceUsd={positionBalanceUsd}
+              availableBalanceUserCurrency={item.balanceFiat}
+              onEnter={() => handleYieldClick(item.yield.id)}
+            />
+          )
+        })}
+      </SimpleGrid>
+    ),
+    [availableYields, getYieldPositionBalanceUsd, isMobile, getYieldDisplayInfo, handleYieldClick],
+  )
+
+  const listHeader = useMemo(
+    () => (
       <Flex
         p={4}
         alignItems='center'
@@ -793,36 +808,12 @@ export const YieldsList = memo(() => {
           </Box>
         </Flex>
       </Flex>
-    )
+    ),
+    [translate],
+  )
 
-    if (isMyOpportunities) {
-      return (
-        <Box borderWidth='1px' borderRadius='xl' overflow='hidden'>
-          {listHeader}
-          {availableYields.map(item => {
-            const positionBalanceUsd = getYieldPositionBalanceUsd(item.yield.id)
-            const rowDisplayInfo = getYieldDisplayInfo(item.yield)
-            return (
-              <YieldItem
-                key={item.yield.id}
-                data={{
-                  type: 'single',
-                  yieldItem: item.yield,
-                  providerIcon: rowDisplayInfo.logoURI,
-                  providerName: rowDisplayInfo.name,
-                }}
-                variant='row'
-                userBalanceUsd={positionBalanceUsd}
-                availableBalanceUserCurrency={item.balanceFiat}
-                onEnter={() => handleYieldClick(item.yield.id)}
-              />
-            )
-          })}
-        </Box>
-      )
-    }
-
-    return (
+  const allYieldsListElement = useMemo(
+    () => (
       <Box borderWidth='1px' borderRadius='xl' overflow='hidden'>
         {listHeader}
         {yieldsByAsset.map(group => {
@@ -868,21 +859,53 @@ export const YieldsList = memo(() => {
           )
         })}
       </Box>
-    )
-  }, [
-    isMyOpportunities,
-    availableYields,
-    getYieldPositionBalanceUsd,
-    filterSearchString,
-    translate,
-    yieldsByAsset,
-    getYieldDisplayInfo,
-    handleYieldClick,
-    userCurrencyBalances,
-  ])
+    ),
+    [
+      listHeader,
+      filterSearchString,
+      yieldsByAsset,
+      getYieldDisplayInfo,
+      handleYieldClick,
+      userCurrencyBalances,
+    ],
+  )
+
+  const availableToEarnListElement = useMemo(
+    () => (
+      <Box borderWidth='1px' borderRadius='xl' overflow='hidden'>
+        {listHeader}
+        {availableYields.map(item => {
+          const positionBalanceUsd = getYieldPositionBalanceUsd(item.yield.id)
+          const rowDisplayInfo = getYieldDisplayInfo(item.yield)
+          return (
+            <YieldItem
+              key={item.yield.id}
+              data={{
+                type: 'single',
+                yieldItem: item.yield,
+                providerIcon: rowDisplayInfo.logoURI,
+                providerName: rowDisplayInfo.name,
+              }}
+              variant='row'
+              userBalanceUsd={positionBalanceUsd}
+              availableBalanceUserCurrency={item.balanceFiat}
+              onEnter={() => handleYieldClick(item.yield.id)}
+            />
+          )
+        })}
+      </Box>
+    ),
+    [
+      listHeader,
+      availableYields,
+      getYieldPositionBalanceUsd,
+      getYieldDisplayInfo,
+      handleYieldClick,
+    ],
+  )
 
   const recommendedStripElement = useMemo(() => {
-    if (!isConnected || recommendedYields.length === 0 || isMyOpportunities) return null
+    if (!isConnected || recommendedYields.length === 0) return null
 
     return (
       <Box mb={6}>
@@ -910,23 +933,14 @@ export const YieldsList = memo(() => {
         </SimpleGrid>
       </Box>
     )
-  }, [
-    isConnected,
-    recommendedYields,
-    isMyOpportunities,
-    translate,
-    getYieldDisplayInfo,
-    handleYieldClick,
-    isMobile,
-  ])
+  }, [isConnected, recommendedYields, translate, getYieldDisplayInfo, handleYieldClick, isMobile])
 
   const allYieldsContentElement = useMemo(() => {
     if (isLoading)
       return viewMode === 'grid' || isMobile
         ? allYieldsLoadingGridElement
         : allYieldsLoadingListElement
-    const isEmpty = isMyOpportunities ? availableYields.length === 0 : yieldsByAsset.length === 0
-    if (isEmpty) return allYieldsEmptyElement
+    if (yieldsByAsset.length === 0) return allYieldsEmptyElement
     return viewMode === 'grid' || isMobile ? allYieldsGridElement : allYieldsListElement
   }, [
     allYieldsEmptyElement,
@@ -935,11 +949,45 @@ export const YieldsList = memo(() => {
     allYieldsLoadingGridElement,
     allYieldsLoadingListElement,
     isLoading,
-    isMyOpportunities,
-    availableYields.length,
     viewMode,
     yieldsByAsset.length,
     isMobile,
+  ])
+
+  const availableToEarnEmptyElement = useMemo(
+    () => (
+      <Box textAlign='center' py={16}>
+        <Text color='text.subtle'>{translate('yieldXYZ.noAvailableYields')}</Text>
+      </Box>
+    ),
+    [translate],
+  )
+
+  const availableToEarnContentElement = useMemo(() => {
+    if (!isConnected)
+      return (
+        <ResultsEmptyNoWallet
+          title='yieldXYZ.connectWallet'
+          body='yieldXYZ.connectWalletAvailable'
+        />
+      )
+    if (isLoading)
+      return viewMode === 'grid' || isMobile
+        ? allYieldsLoadingGridElement
+        : allYieldsLoadingListElement
+    if (availableYields.length === 0) return availableToEarnEmptyElement
+    return viewMode === 'grid' || isMobile ? availableToEarnGridElement : availableToEarnListElement
+  }, [
+    isConnected,
+    isLoading,
+    viewMode,
+    isMobile,
+    allYieldsLoadingGridElement,
+    allYieldsLoadingListElement,
+    availableYields.length,
+    availableToEarnEmptyElement,
+    availableToEarnGridElement,
+    availableToEarnListElement,
   ])
 
   const positionsLoadingElement = useMemo(
@@ -1061,8 +1109,8 @@ export const YieldsList = memo(() => {
           positions={myPositions}
           balances={allBalances}
           allYields={yields?.all}
-          isMyOpportunities={isMyOpportunities}
-          onToggleMyOpportunities={handleToggleMyOpportunities}
+          isAvailableToEarnTab={isAvailableToEarnTab}
+          onNavigateToAvailableTab={handleNavigateToAvailableTab}
           isConnected={isConnected}
           isMobile={isMobile}
         />
@@ -1077,6 +1125,7 @@ export const YieldsList = memo(() => {
       >
         <TabList mb={4} gap={4}>
           <Tab _selected={tabSelectedSx}>{translate('common.all')}</Tab>
+          <Tab _selected={tabSelectedSx}>{translate('yieldXYZ.availableToEarn')}</Tab>
           <Tab _selected={tabSelectedSx}>
             {translate('yieldXYZ.myPositions')} ({myPositions.length})
           </Tab>
@@ -1128,6 +1177,7 @@ export const YieldsList = memo(() => {
         </Flex>
         <TabPanels>
           <TabPanel px={0}>{allYieldsContentElement}</TabPanel>
+          <TabPanel px={0}>{availableToEarnContentElement}</TabPanel>
           <TabPanel px={0}>{positionsContentElement}</TabPanel>
         </TabPanels>
       </Tabs>

@@ -31,8 +31,8 @@ type YieldOpportunityStatsProps = {
   positions: AugmentedYieldDto[]
   balances: Record<string, YieldBalancesResponse['balances']> | undefined
   allYields: AugmentedYieldDto[] | undefined
-  isMyOpportunities?: boolean
-  onToggleMyOpportunities?: () => void
+  isAvailableToEarnTab?: boolean
+  onNavigateToAvailableTab?: () => void
   isConnected: boolean
   isMobile?: boolean
 }
@@ -41,8 +41,8 @@ export const YieldOpportunityStats = memo(function YieldOpportunityStats({
   positions,
   balances,
   allYields,
-  isMyOpportunities,
-  onToggleMyOpportunities,
+  isAvailableToEarnTab,
+  onNavigateToAvailableTab,
   isConnected,
   isMobile,
 }: YieldOpportunityStatsProps) {
@@ -131,18 +131,18 @@ export const YieldOpportunityStats = memo(function YieldOpportunityStats({
   )
 
   const buttonBg = useMemo(
-    () => (isMyOpportunities ? 'whiteAlpha.300' : 'blue.500'),
-    [isMyOpportunities],
+    () => (isAvailableToEarnTab ? 'whiteAlpha.300' : 'blue.500'),
+    [isAvailableToEarnTab],
   )
 
   const buttonHoverBg = useMemo(
-    () => ({ bg: isMyOpportunities ? 'whiteAlpha.400' : 'blue.400' }),
-    [isMyOpportunities],
+    () => ({ bg: isAvailableToEarnTab ? 'whiteAlpha.400' : 'blue.400' }),
+    [isAvailableToEarnTab],
   )
 
   const buttonText = useMemo(
-    () => (isMyOpportunities ? translate('yieldXYZ.showAll') : translate('yieldXYZ.earn')),
-    [isMyOpportunities, translate],
+    () => (isAvailableToEarnTab ? translate('yieldXYZ.showAll') : translate('yieldXYZ.earn')),
+    [isAvailableToEarnTab, translate],
   )
 
   const activeDepositsCard = useMemo(() => {
@@ -180,20 +180,20 @@ export const YieldOpportunityStats = memo(function YieldOpportunityStats({
   }, [hasActiveDeposits, activeValueFormatted, positionsCount, translate])
 
   const toggleButton = useMemo(() => {
-    if (!onToggleMyOpportunities) return null
+    if (!onNavigateToAvailableTab) return null
     return (
       <Button
         size='sm'
         bg={buttonBg}
         color='white'
         _hover={buttonHoverBg}
-        onClick={onToggleMyOpportunities}
+        onClick={onNavigateToAvailableTab}
         width='full'
       >
         {buttonText}
       </Button>
     )
-  }, [onToggleMyOpportunities, buttonBg, buttonHoverBg, buttonText])
+  }, [onNavigateToAvailableTab, buttonBg, buttonHoverBg, buttonText])
 
   if (isMobile) return null
 

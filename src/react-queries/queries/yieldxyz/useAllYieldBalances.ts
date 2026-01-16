@@ -26,6 +26,7 @@ import { useAppSelector } from '@/state/store'
 type UseAllYieldBalancesOptions = {
   networks?: YieldNetwork[]
   accountIds?: string[]
+  enabled?: boolean
 }
 
 export type AugmentedYieldBalanceWithAccountId = AugmentedYieldBalance & {
@@ -219,7 +220,8 @@ const normalizeBalances = (
 }
 
 export const useAllYieldBalances = (options: UseAllYieldBalancesOptions = {}) => {
-  const { networks = SUPPORTED_YIELD_NETWORKS, accountIds: filterAccountIds } = options
+  const { networks = SUPPORTED_YIELD_NETWORKS, accountIds: filterAccountIds, enabled } = options
+  const isEnabled = enabled ?? true
   const { state: walletState } = useWallet()
   const isConnected = Boolean(walletState.walletInfo)
   const { accountId: contextAccountId, accountNumber } = useYieldAccount()
@@ -332,6 +334,7 @@ export const useAllYieldBalances = (options: UseAllYieldBalancesOptions = {}) =>
           }
         : skipToken,
     staleTime: 60000,
+    enabled: isEnabled,
   })
 
   const data = useMemo(() => {

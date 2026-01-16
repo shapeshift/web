@@ -70,15 +70,19 @@ export const YieldDetail = memo(() => {
     selectMarketDataByAssetIdUserCurrency(state, inputTokenAssetId),
   )
 
-  const handleBack = useCallback(() => navigate('/yields'), [navigate])
+  const isYieldMultiAccountEnabled = useFeatureFlag('YieldMultiAccount')
+  const isYieldsPageEnabled = useFeatureFlag('YieldsPage')
+
+  const handleBack = useCallback(
+    () => (isYieldsPageEnabled ? navigate('/yields') : navigate(-1)),
+    [navigate, isYieldsPageEnabled],
+  )
 
   const availableAccounts = useAppSelector(state =>
     selectorAssetId
       ? selectPortfolioAccountIdsByAssetIdFilter(state, { assetId: selectorAssetId })
       : [],
   )
-
-  const isYieldMultiAccountEnabled = useFeatureFlag('YieldMultiAccount')
 
   const { selectedAccountId, handleAccountChange } = useYieldAccountSync({
     availableAccountIds: availableAccounts,
@@ -184,8 +188,8 @@ export const YieldDetail = memo(() => {
   })()
 
   useEffect(() => {
-    if (!yieldId) navigate('/yields')
-  }, [yieldId, navigate])
+    if (!yieldId) navigate(isYieldsPageEnabled ? '/yields' : '/')
+  }, [yieldId, navigate, isYieldsPageEnabled])
 
   const isModalOpen = searchParams.get('modal') === 'yield'
 
@@ -208,7 +212,11 @@ export const YieldDetail = memo(() => {
         <Text color='text.subtle'>
           {error ? String(error) : translate('common.noResultsFound')}
         </Text>
-        <Button mt={8} onClick={() => navigate('/yields')} size='lg'>
+        <Button
+          mt={8}
+          onClick={() => (isYieldsPageEnabled ? navigate('/yields') : navigate(-1))}
+          size='lg'
+        >
           {translate('common.back')}
         </Button>
       </Box>

@@ -5,7 +5,7 @@ import { SettlementMethod } from '@ston-fi/omniston-sdk'
 import type { CommonTradeQuoteInput, TradeQuote, TradeQuoteResult } from '../../../types'
 import { SwapperName, TradeQuoteError } from '../../../types'
 import { makeSwapErrorRight } from '../../../utils'
-import type { OmnistonAssetAddress } from '../types'
+import type { OmnistonAssetAddress, StonfiTradeSpecific } from '../types'
 import { STONFI_DEFAULT_SLIPPAGE_BPS, STONFI_QUOTE_TIMEOUT_MS } from '../utils/constants'
 import {
   calculateRate,
@@ -19,7 +19,7 @@ const buildStonfiSpecific = (
   quote: Quote,
   bidAssetAddress: OmnistonAssetAddress,
   askAssetAddress: OmnistonAssetAddress,
-) => ({
+): StonfiTradeSpecific => ({
   quoteId: quote.quoteId,
   resolverId: quote.resolverId,
   resolverName: quote.resolverName,
@@ -84,6 +84,7 @@ export const getTradeQuote = async (input: CommonTradeQuoteInput): Promise<Trade
         makeSwapErrorRight({
           message: `[Stonfi] Connection error while fetching quote`,
           code: TradeQuoteError.QueryFailed,
+          cause: quoteResult.error,
         }),
       )
     }

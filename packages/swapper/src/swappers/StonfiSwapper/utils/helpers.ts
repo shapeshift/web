@@ -101,9 +101,16 @@ export const slippageDecimalToBps = (
   slippageTolerancePercentageDecimal: string | undefined,
   defaultSlippageBps: number,
 ): number => {
-  return slippageTolerancePercentageDecimal
-    ? Math.round(parseFloat(slippageTolerancePercentageDecimal) * 10000)
-    : defaultSlippageBps
+  if (!slippageTolerancePercentageDecimal) {
+    return defaultSlippageBps
+  }
+
+  const parsed = parseFloat(slippageTolerancePercentageDecimal)
+  if (Number.isNaN(parsed) || !Number.isFinite(parsed) || parsed < 0) {
+    return defaultSlippageBps
+  }
+
+  return Math.round(parsed * 10000)
 }
 
 export const waitForQuote = (

@@ -157,16 +157,37 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TonMainnet> {
   }
 
   private isRetryableError(error: string): boolean {
+    const lowerError = error.toLowerCase()
+
+    const nonRetryablePatterns = [
+      'insufficient',
+      'not enough balance',
+      'invalid',
+      'malformed',
+      'unauthorized',
+      'forbidden',
+      'not found',
+      'bad request',
+      'seqno',
+    ]
+    if (nonRetryablePatterns.some(pattern => lowerError.includes(pattern))) {
+      return false
+    }
+
     const retryablePatterns = [
       'timeout',
-      'ETIMEDOUT',
-      'ECONNRESET',
-      'ECONNREFUSED',
+      'etimedout',
+      'econnreset',
+      'econnrefused',
       'network',
       'temporarily unavailable',
+      'rate limit',
+      '429',
+      '500',
+      '502',
+      '503',
     ]
-    const lowerError = error.toLowerCase()
-    return retryablePatterns.some(pattern => lowerError.includes(pattern.toLowerCase()))
+    return retryablePatterns.some(pattern => lowerError.includes(pattern))
   }
 
   private httpApiRequest<T>(endpoint: string): Promise<T> {
@@ -354,6 +375,41 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TonMainnet> {
     }
   }
 
+  private crc16(data: Uint8Array): number {
+    const poly = 0x1021
+    let crc = 0
+
+    for (const byte of data) {
+      crc ^= byte << 8
+      for (let i = 0; i < 8; i++) {
+        if (crc & 0x8000) {
+          crc = ((crc << 1) ^ poly) & 0xffff
+        } else {
+          crc = (crc << 1) & 0xffff
+        }
+      }
+    }
+
+    return crc
+  }
+
+  private validateUserFriendlyAddressChecksum(address: string): boolean {
+    try {
+      const base64Url = address.replace(/-/g, '+').replace(/_/g, '/')
+      const decoded = Uint8Array.from(atob(base64Url), c => c.charCodeAt(0))
+
+      if (decoded.length !== 36) return false
+
+      const data = decoded.slice(0, 34)
+      const checksum = (decoded[34] << 8) | decoded[35]
+      const calculatedChecksum = this.crc16(data)
+
+      return checksum === calculatedChecksum
+    } catch {
+      return false
+    }
+  }
+
   validateAddress(address: string): Promise<ValidAddressResult> {
     const valid = {
       valid: true,
@@ -371,7 +427,10 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TonMainnet> {
 
     const userFriendlyRegex = /^[A-Za-z0-9+/_-]{48}$/
     if (userFriendlyRegex.test(address)) {
-      return Promise.resolve(valid)
+      if (this.validateUserFriendlyAddressChecksum(address)) {
+        return Promise.resolve(valid)
+      }
+      return Promise.resolve(invalid)
     }
 
     return Promise.resolve(invalid)
@@ -450,10 +509,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TonMainnet> {
       const txToSign = await this.buildSendApiTransaction({ ...input, from })
 
       return {
-        txToSign: {
-          ...txToSign,
-          ...(input.pubKey ? { pubKey: input.pubKey } : {}),
-        },
+        txToSign,
       }
     } catch (err) {
       return ErrorHandler(err, {

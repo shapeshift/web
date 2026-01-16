@@ -12,12 +12,8 @@ export const supportsTon = (wallet: HDWallet): boolean => {
 }
 
 export const isTonChainAdapter = (chainAdapter: unknown): chainAdapter is ton.ChainAdapter => {
-  if (!chainAdapter) return false
-
-  const maybeAdapter = chainAdapter as ton.ChainAdapter
-  if (typeof maybeAdapter.getChainId !== 'function') return false
-
-  return maybeAdapter.getChainId() === tonChainId
+  if (!chainAdapter || typeof chainAdapter !== 'object') return false
+  return (chainAdapter as ton.ChainAdapter).getChainId() === tonChainId
 }
 
 export const assertGetTonChainAdapter = (chainId: ChainId | KnownChainIds): ton.ChainAdapter => {

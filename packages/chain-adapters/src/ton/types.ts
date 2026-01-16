@@ -44,7 +44,6 @@ export type TonSignTx = {
   rawMessages?: TonRawMessage[]
   seqno?: number
   expireAt?: number
-  pubKey?: string
 }
 
 export type Account = TonAccount

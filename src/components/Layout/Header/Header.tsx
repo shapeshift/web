@@ -184,7 +184,7 @@ export const Header = memo(() => {
               <NavigationDropdown
                 label='defi.earn'
                 items={earnSubMenuItems}
-                defaultPath={isYieldXyzEnabled ? '/yields' : '/tcy'}
+                defaultPath={isYieldXyzEnabled && isYieldsPageEnabled ? '/yields' : '/tcy'}
               />
               <Link
                 as={ReactRouterLink}

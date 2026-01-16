@@ -238,13 +238,10 @@ export const YieldHero = memo(
 
         <VStack spacing={1} textAlign='center'>
           <Text fontSize={{ base: '3xl', md: '4xl' }} fontWeight='bold' lineHeight='1'>
-            <Amount.Crypto value={userBalanceCrypto} symbol='' maximumFractionDigits={4} />
+            <Amount.Fiat value={userBalanceUsd} />
           </Text>
           <Text color='text.subtle' fontSize={{ base: 'sm', md: 'md' }}>
-            {yieldItem.token.symbol}
-          </Text>
-          <Text color='text.subtle' fontSize='xs'>
-            <Amount.Fiat value={userBalanceUsd} prefix='≈ ' />
+            <Amount.Crypto value={userBalanceCrypto} symbol={yieldItem.token.symbol} />
           </Text>
         </VStack>
 

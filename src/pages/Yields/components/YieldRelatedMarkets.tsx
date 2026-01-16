@@ -30,7 +30,7 @@ export const YieldRelatedMarkets = memo(
           return inputSymbol === tokenSymbol
         })
         .sort((a, b) => b.rewardRate.total - a.rewardRate.total)
-        .slice(0, 3)
+        .slice(0, 6)
     }, [yields?.all, currentYieldId, tokenSymbol])
 
     const handleYieldClick = useCallback(

@@ -1,5 +1,5 @@
 import { Avatar, Box, Flex, SimpleGrid, Text } from '@chakra-ui/react'
-import { memo, useMemo } from 'react'
+import { memo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useSearchParams } from 'react-router-dom'
 
@@ -33,22 +33,18 @@ export const YieldStats = memo(({ yieldItem, balances }: YieldStatsProps) => {
   )
 
   const [searchParams] = useSearchParams()
-  const validatorParam = useMemo(() => searchParams.get('validator'), [searchParams])
+  const validatorParam = searchParams.get('validator')
 
-  const shouldFetchValidators = useMemo(
-    () => yieldItem.mechanics.type === 'staking' && yieldItem.mechanics.requiresValidatorSelection,
-    [yieldItem.mechanics.type, yieldItem.mechanics.requiresValidatorSelection],
-  )
+  const shouldFetchValidators =
+    yieldItem.mechanics.type === 'staking' && yieldItem.mechanics.requiresValidatorSelection
   const { data: validators } = useYieldValidators(yieldItem.id, shouldFetchValidators)
 
-  const defaultValidator = useMemo(() => {
-    if (yieldItem.chainId && DEFAULT_NATIVE_VALIDATOR_BY_CHAIN_ID[yieldItem.chainId])
-      return DEFAULT_NATIVE_VALIDATOR_BY_CHAIN_ID[yieldItem.chainId]
-    return validators?.[0]?.address
-  }, [yieldItem.chainId, validators])
+  const defaultValidator =
+    yieldItem.chainId && DEFAULT_NATIVE_VALIDATOR_BY_CHAIN_ID[yieldItem.chainId]
+      ? DEFAULT_NATIVE_VALIDATOR_BY_CHAIN_ID[yieldItem.chainId]
+      : validators?.[0]?.address
 
-  const selectedValidatorAddress = useMemo(() => {
-    // For native staking with hardcoded defaults, always use the default validator (ignore URL param)
+  const selectedValidatorAddress = (() => {
     if (
       yieldItem.id === COSMOS_ATOM_NATIVE_STAKING_YIELD_ID ||
       yieldItem.id === SOLANA_SOL_NATIVE_MULTIVALIDATOR_STAKING_YIELD_ID ||
@@ -57,9 +53,9 @@ export const YieldStats = memo(({ yieldItem, balances }: YieldStatsProps) => {
       return defaultValidator
     }
     return validatorParam || defaultValidator
-  }, [yieldItem.id, validatorParam, defaultValidator])
+  })()
 
-  const selectedValidator = useMemo(() => {
+  const selectedValidator = (() => {
     if (!selectedValidatorAddress) return undefined
     const inList = validators?.find(v => v.address === selectedValidatorAddress)
     if (inList) return inList
@@ -67,29 +63,22 @@ export const YieldStats = memo(({ yieldItem, balances }: YieldStatsProps) => {
       ?.validator
     if (inBalances) return inBalances
     return undefined
-  }, [validators, selectedValidatorAddress, balances])
+  })()
 
-  const tvl = useMemo(() => {
-    const validatorTvl =
-      selectedValidator && 'tvl' in selectedValidator ? selectedValidator.tvl : undefined
-    return bnOrZero(yieldItem.statistics?.tvl ?? validatorTvl).toNumber()
-  }, [selectedValidator, yieldItem.statistics?.tvl])
+  const validatorTvl =
+    selectedValidator && 'tvl' in selectedValidator ? selectedValidator.tvl : undefined
+  const tvl = bnOrZero(yieldItem.statistics?.tvl ?? validatorTvl).toNumber()
 
-  const tvlUserCurrency = useMemo(() => {
-    if (yieldItem.statistics?.tvlUsd) {
-      return bnOrZero(yieldItem.statistics.tvlUsd).times(userCurrencyToUsdRate).toFixed()
-    }
-    return bnOrZero(tvl)
-      .times(bnOrZero(inputTokenMarketData?.price))
-      .toFixed()
-  }, [yieldItem.statistics?.tvlUsd, userCurrencyToUsdRate, tvl, inputTokenMarketData?.price])
+  const tvlUserCurrency = yieldItem.statistics?.tvlUsd
+    ? bnOrZero(yieldItem.statistics.tvlUsd).times(userCurrencyToUsdRate).toFixed()
+    : bnOrZero(tvl)
+        .times(bnOrZero(inputTokenMarketData?.price))
+        .toFixed()
 
-  const validatorMetadata = useMemo(() => {
-    if (yieldItem.mechanics.type !== 'staking') return null
-    if (selectedValidator)
-      return { name: selectedValidator.name, logoURI: selectedValidator.logoURI }
-    return null
-  }, [yieldItem.mechanics.type, selectedValidator])
+  const validatorMetadata =
+    yieldItem.mechanics.type === 'staking' && selectedValidator
+      ? { name: selectedValidator.name, logoURI: selectedValidator.logoURI }
+      : null
 
   return (
     <SimpleGrid columns={3} spacing={4} px={{ base: 2, md: 0 }}>

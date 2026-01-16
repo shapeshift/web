@@ -2811,7 +2811,13 @@
     "connectWalletAvailable": "Connect a wallet to see yields available for your assets",
     "aboutProvider": "About %{provider}",
     "visitWebsite": "Visit Website",
-    "otherYields": "Other %{symbol} Yields"
+    "otherYields": "Other %{symbol} Yields",
+    "availableToDeposit": "Available to Deposit",
+    "availableToDepositTooltip": "This is the amount of %{symbol} in your wallet that you can deposit into this yield opportunity.",
+    "potentialEarningsAmount": "%{amount}/yr at %{apy}% APY",
+    "depositNow": "Deposit Now",
+    "strategyInfo": "Strategy Info",
+    "overview": "Overview"
   },
   "earn": {
     "enterFrom": "Enter from",

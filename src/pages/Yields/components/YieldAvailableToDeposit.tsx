@@ -1,0 +1,103 @@
+import { InfoOutlineIcon } from '@chakra-ui/icons'
+import { Box, Card, CardBody, Flex, Heading, HStack, Text, Tooltip, VStack } from '@chakra-ui/react'
+import { memo, useMemo } from 'react'
+import { useTranslate } from 'react-polyglot'
+
+import { Amount } from '@/components/Amount/Amount'
+import { bnOrZero } from '@/lib/bignumber/bignumber'
+import type { AugmentedYieldDto } from '@/lib/yieldxyz/types'
+import { selectPortfolioCryptoBalanceBaseUnitByFilter } from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
+
+type YieldAvailableToDepositProps = {
+  yieldItem: AugmentedYieldDto
+  inputTokenMarketData: { price?: string } | undefined
+}
+
+export const YieldAvailableToDeposit = memo(
+  ({ yieldItem, inputTokenMarketData }: YieldAvailableToDepositProps) => {
+    const translate = useTranslate()
+
+    const inputTokenAssetId = yieldItem.inputTokens[0]?.assetId ?? ''
+    const inputTokenPrecision = yieldItem.inputTokens[0]?.decimals ?? 18
+
+    const availableBalanceBaseUnit = useAppSelector(state =>
+      selectPortfolioCryptoBalanceBaseUnitByFilter(state, { assetId: inputTokenAssetId }),
+    )
+
+    const availableBalance = useMemo(
+      () => bnOrZero(availableBalanceBaseUnit).shiftedBy(-inputTokenPrecision),
+      [availableBalanceBaseUnit, inputTokenPrecision],
+    )
+
+    const availableBalanceFiat = useMemo(
+      () => availableBalance.times(bnOrZero(inputTokenMarketData?.price)),
+      [availableBalance, inputTokenMarketData?.price],
+    )
+
+    const potentialYearlyEarningsFiat = useMemo(
+      () => availableBalanceFiat.times(yieldItem.rewardRate.total),
+      [availableBalanceFiat, yieldItem.rewardRate.total],
+    )
+
+    const hasAvailableBalance = availableBalance.gt(0)
+
+    const tooltipLabel = translate('yieldXYZ.availableToDepositTooltip', {
+      symbol: yieldItem.token.symbol,
+    })
+
+    if (!hasAvailableBalance) return null
+
+    return (
+      <Card variant='dashboard'>
+        <CardBody p={{ base: 4, md: 5 }}>
+          <VStack spacing={4} align='stretch'>
+            <Flex justifyContent='space-between' alignItems='center'>
+              <HStack spacing={2}>
+                <Heading
+                  as='h3'
+                  size='sm'
+                  textTransform='uppercase'
+                  color='text.subtle'
+                  letterSpacing='wider'
+                >
+                  {translate('yieldXYZ.availableToDeposit')}
+                </Heading>
+                <Tooltip label={tooltipLabel} placement='top'>
+                  <InfoOutlineIcon color='text.subtle' boxSize={3} cursor='help' />
+                </Tooltip>
+              </HStack>
+            </Flex>
+
+            <Box>
+              <Text fontSize='2xl' fontWeight='800' lineHeight='1'>
+                <Amount.Fiat value={availableBalanceFiat.toFixed()} />
+              </Text>
+              <Text fontSize='sm' color='text.subtle' mt={1}>
+                <Amount.Crypto
+                  value={availableBalance.toFixed()}
+                  symbol={yieldItem.token.symbol}
+                  abbreviated
+                />
+              </Text>
+            </Box>
+
+            {potentialYearlyEarningsFiat.gt(0) && (
+              <Flex justify='space-between' align='center'>
+                <Text fontSize='sm' color='text.subtle'>
+                  {translate('yieldXYZ.potentialEarnings')}
+                </Text>
+                <Amount.Fiat
+                  fontSize='sm'
+                  fontWeight='semibold'
+                  value={potentialYearlyEarningsFiat.toFixed()}
+                  suffix='/yr'
+                />
+              </Flex>
+            )}
+          </VStack>
+        </CardBody>
+      </Card>
+    )
+  },
+)

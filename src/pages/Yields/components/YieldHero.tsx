@@ -1,4 +1,4 @@
-import { ArrowBackIcon, ArrowDownIcon, ArrowUpIcon, ExternalLinkIcon } from '@chakra-ui/icons'
+import { ArrowDownIcon, ArrowUpIcon, ExternalLinkIcon } from '@chakra-ui/icons'
 import {
   Alert,
   AlertDescription,
@@ -7,15 +7,13 @@ import {
   Badge,
   Box,
   Button,
-  Flex,
   HStack,
-  IconButton,
   Link,
   Text,
   VStack,
 } from '@chakra-ui/react'
 import qs from 'qs'
-import { memo, useCallback, useMemo } from 'react'
+import { memo, useCallback } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 
@@ -27,7 +25,6 @@ import { bnOrZero } from '@/lib/bignumber/bignumber'
 import type { AugmentedYieldDto } from '@/lib/yieldxyz/types'
 import { resolveYieldInputAssetIcon } from '@/lib/yieldxyz/utils'
 
-const backIcon = <ArrowBackIcon />
 const enterIcon = <ArrowUpIcon />
 const exitIcon = <ArrowDownIcon />
 
@@ -58,14 +55,12 @@ export const YieldHero = memo(
     const translate = useTranslate()
     const { location } = useBrowserRouter()
 
-    const iconSource = useMemo(() => resolveYieldInputAssetIcon(yieldItem), [yieldItem])
+    const iconSource = resolveYieldInputAssetIcon(yieldItem)
     const apy = bnOrZero(yieldItem.rewardRate.total).times(100).toFixed(2)
     const hasExitBalance = bnOrZero(userBalanceCrypto).gt(0)
 
     const [searchParams] = useSearchParams()
     const validator = searchParams.get('validator')
-
-    const handleBack = useCallback(() => navigate('/yields'), [navigate])
 
     const handleAction = useCallback(
       (action: 'enter' | 'exit') => {
@@ -94,46 +89,44 @@ export const YieldHero = memo(
 
     const yieldTitle = titleOverride ?? yieldItem.metadata.name ?? yieldItem.token.symbol
 
-    const stackedIconElement = useMemo(() => {
-      const assetIcon = iconSource.assetId ? (
-        <AssetIcon assetId={iconSource.assetId} size='md' />
-      ) : (
-        <AssetIcon src={iconSource.src} size='md' />
-      )
+    const assetIcon = iconSource.assetId ? (
+      <AssetIcon assetId={iconSource.assetId} size='md' />
+    ) : (
+      <AssetIcon src={iconSource.src} size='md' />
+    )
 
-      const hasOverlay = validatorOrProvider?.logoURI || yieldItem.chainId
+    const hasOverlay = validatorOrProvider?.logoURI || yieldItem.chainId
 
-      if (!hasOverlay) return assetIcon
-
-      return (
-        <Box position='relative'>
-          {assetIcon}
-          {validatorOrProvider?.logoURI ? (
-            <Avatar
-              size='2xs'
-              src={validatorOrProvider.logoURI}
-              name={validatorOrProvider.name}
-              position='absolute'
-              bottom='-2px'
-              right='-2px'
-              border='2px solid'
-              borderColor='background.surface.raised.base'
-            />
-          ) : yieldItem.chainId ? (
-            <Box
-              position='absolute'
-              bottom='-2px'
-              right='-2px'
-              bg='background.surface.raised.base'
-              borderRadius='full'
-              p='2px'
-            >
-              <ChainIcon chainId={yieldItem.chainId} boxSize='14px' />
-            </Box>
-          ) : null}
-        </Box>
-      )
-    }, [iconSource, validatorOrProvider, yieldItem.chainId])
+    const stackedIconElement = !hasOverlay ? (
+      assetIcon
+    ) : (
+      <Box position='relative'>
+        {assetIcon}
+        {validatorOrProvider?.logoURI ? (
+          <Avatar
+            size='2xs'
+            src={validatorOrProvider.logoURI}
+            name={validatorOrProvider.name}
+            position='absolute'
+            bottom='-2px'
+            right='-2px'
+            border='2px solid'
+            borderColor='background.surface.raised.base'
+          />
+        ) : yieldItem.chainId ? (
+          <Box
+            position='absolute'
+            bottom='-2px'
+            right='-2px'
+            bg='background.surface.raised.base'
+            borderRadius='full'
+            p='2px'
+          >
+            <ChainIcon chainId={yieldItem.chainId} boxSize='14px' />
+          </Box>
+        ) : null}
+      </Box>
+    )
 
     return (
       <VStack
@@ -142,21 +135,9 @@ export const YieldHero = memo(
         py={{ base: 4, md: 6 }}
         px={{ base: 3, md: 6 }}
       >
-        <Flex width='full' justify='space-between' align='center'>
-          <IconButton
-            aria-label={translate('common.back')}
-            icon={backIcon}
-            variant='ghost'
-            size='sm'
-            color='text.subtle'
-            onClick={handleBack}
-            _hover={{ color: 'text.base' }}
-          />
-          <Text fontWeight='semibold' fontSize='md'>
-            {yieldTitle}
-          </Text>
-          <Box width='32px' />
-        </Flex>
+        <Text fontWeight='semibold' fontSize='md'>
+          {yieldTitle}
+        </Text>
 
         {yieldItem.metadata.deprecated && (
           <Alert status='error' borderRadius='lg' variant='subtle'>

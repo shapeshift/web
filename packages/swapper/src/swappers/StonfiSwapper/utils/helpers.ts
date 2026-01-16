@@ -1,6 +1,7 @@
 import { fromAssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
+import { bn, convertPrecision } from '@shapeshiftoss/utils'
 import { Err } from '@sniptt/monads'
 import type { Omniston, QuoteRequest, QuoteResponseEvent } from '@ston-fi/omniston-sdk'
 import { Blockchain } from '@ston-fi/omniston-sdk'
@@ -85,16 +86,17 @@ export const calculateRate = (
   buyAssetPrecision: number,
   sellAssetPrecision: number,
 ): string => {
-  if (BigInt(buyAmountCryptoBaseUnit) > 0n && BigInt(sellAmountCryptoBaseUnit) > 0n) {
-    return (
-      Number(buyAmountCryptoBaseUnit) /
-      Math.pow(10, buyAssetPrecision) /
-      (Number(sellAmountCryptoBaseUnit) / Math.pow(10, sellAssetPrecision))
-    ).toString()
+  if (bn(buyAmountCryptoBaseUnit).gt(0) && bn(sellAmountCryptoBaseUnit).gt(0)) {
+    return convertPrecision({
+      value: buyAmountCryptoBaseUnit,
+      inputExponent: buyAssetPrecision,
+      outputExponent: sellAssetPrecision,
+    })
+      .dividedBy(bn(sellAmountCryptoBaseUnit))
+      .toFixed()
   }
   return '0'
 }
-
 export const slippageDecimalToBps = (
   slippageTolerancePercentageDecimal: string | undefined,
   defaultSlippageBps: number,

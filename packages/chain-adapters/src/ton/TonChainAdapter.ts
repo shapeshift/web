@@ -122,7 +122,11 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TonMainnet> {
             throw lastError
           }
 
-          return data.result as T
+          if (data.result === undefined) {
+            throw new Error('TON RPC returned success but no result data')
+          }
+
+          return data.result
         } catch (err) {
           if (err instanceof Error && err.message.includes('TON RPC')) {
             throw err

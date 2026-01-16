@@ -452,7 +452,7 @@ export const handleSend = async ({
     if (fromChainId(asset.chainId).chainNamespace === CHAIN_NAMESPACE.Ton) {
       const { accountNumber } = bip44Params
       const adapter = assertGetTonChainAdapter(chainId)
-      const fees = estimatedFees[feeType] as FeeData<KnownChainIds.TonMainnet>
+      const contractAddress = contractAddressOrUndefined(asset.assetId)
 
       return adapter.buildSendTransaction({
         to,
@@ -461,7 +461,8 @@ export const handleSend = async ({
         accountNumber,
         sendMax: sendInput.sendMax,
         chainSpecific: {
-          gasPrice: fees.chainSpecific.gasPrice,
+          contractAddress,
+          memo,
         },
       } as BuildSendTxInput<KnownChainIds.TonMainnet>)
     }

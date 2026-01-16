@@ -103,10 +103,7 @@ export const checkTradingActivity = async (
   tradeType?: TradeType,
 ) => {
   if (error !== undefined) {
-    return {
-      isTradingActiveOnSellPool: false,
-      isTradingActiveOnBuyPool: false,
-    }
+    return { isTradingActiveOnSellPool: false, isTradingActiveOnBuyPool: false }
   }
 
   const [isTradingActiveOnSellPool, isTradingActiveOnBuyPool] = await Promise.all(

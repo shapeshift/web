@@ -140,7 +140,7 @@ export const getTradeQuote = async (input: CommonTradeQuoteInput): Promise<Trade
           buyAsset,
           sellAsset,
           accountNumber,
-          allowanceContract: '0x0000000000000000000000000000000000000000',
+          allowanceContract: '0x0',
           estimatedExecutionTimeMs: 30000,
           stonfiSpecific: buildStonfiSpecific(quote, bidAssetAddress, askAssetAddress),
         },

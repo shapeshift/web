@@ -132,10 +132,7 @@ export const useRfoxBridge = ({ confirmedQuote }: UseRfoxBridgeProps): UseRfoxBr
   )
 
   const sellAssetAccountNumberFilter = useMemo(
-    () => ({
-      assetId: confirmedQuote.sellAssetId,
-      accountId: confirmedQuote.sellAssetAccountId,
-    }),
+    () => ({ assetId: confirmedQuote.sellAssetId, accountId: confirmedQuote.sellAssetAccountId }),
     [confirmedQuote.sellAssetAccountId, confirmedQuote.sellAssetId],
   )
   const sellAssetAccountNumber = useAppSelector(state =>

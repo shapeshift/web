@@ -154,6 +154,7 @@ export const walletSupportsChain = ({
   const isNearEnabled = selectFeatureFlag(store.getState(), 'Near')
   const isPlasmaEnabled = selectFeatureFlag(store.getState(), 'Plasma')
   const isStarknetEnabled = selectFeatureFlag(store.getState(), 'Starknet')
+  const isTonEnabled = selectFeatureFlag(store.getState(), 'Ton')
 
   switch (chainId) {
     case btcChainId:
@@ -224,7 +225,7 @@ export const walletSupportsChain = ({
     case starknetChainId:
       return isStarknetEnabled && supportsStarknet(wallet)
     case tonChainId:
-      return supportsTon(wallet)
+      return isTonEnabled && supportsTon(wallet)
     default: {
       return false
     }

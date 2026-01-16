@@ -16,8 +16,10 @@ import {
 import type { Hex } from 'viem'
 import { isHex, toHex } from 'viem'
 
+import { SOLANA_YIELD_COMPUTE_UNIT_MARGIN_MULTIPLIER } from './constants'
 import type { TransactionDto } from './types'
 
+import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { toBaseUnit } from '@/lib/math'
 import { assertGetCosmosSdkChainAdapter } from '@/lib/utils/cosmosSdk'
 import { assertGetEvmChainAdapter, signAndBroadcast as evmSignAndBroadcast } from '@/lib/utils/evm'
@@ -343,13 +345,14 @@ const executeSolanaTransaction = async ({
 }: ExecuteSolanaTransactionInput): Promise<string> => {
   const adapter = assertGetSolanaChainAdapter(chainId)
   const accountNumber = bip44Params?.accountNumber ?? 0
-  const txData = unsignedTransaction.startsWith('0x')
-    ? unsignedTransaction.slice(2)
-    : unsignedTransaction
 
-  const versionedTransaction = VersionedTransaction.deserialize(
-    new Uint8Array(Buffer.from(txData, 'hex')),
-  )
+  // Yield.xyz returns base64 for Solana transactions (Solana convention)
+  // Use isHex from viem to detect hex-encoded transactions
+  const txBytes = isHex(unsignedTransaction)
+    ? new Uint8Array(Buffer.from(unsignedTransaction.slice(2), 'hex'))
+    : new Uint8Array(Buffer.from(unsignedTransaction, 'base64'))
+
+  const versionedTransaction = VersionedTransaction.deserialize(txBytes)
 
   const addressLookupTableAccountKeys = versionedTransaction.message.addressTableLookups.map(
     lookup => lookup.accountKey.toString(),
@@ -392,11 +395,10 @@ const executeSolanaTransaction = async ({
     adapter.convertInstruction(instruction),
   )
 
-  const STAKE_COMPUTE_UNIT_BUFFER = 50000
-  const estimatedComputeUnits = Math.max(
-    Number(fast.chainSpecific.computeUnits),
-    STAKE_COMPUTE_UNIT_BUFFER,
-  )
+  // Apply safety margin to estimated compute units (same approach as Jupiter swapper)
+  const estimatedComputeUnits = bnOrZero(fast.chainSpecific.computeUnits)
+    .times(SOLANA_YIELD_COMPUTE_UNIT_MARGIN_MULTIPLIER)
+    .toFixed(0)
 
   const txToSign = await adapter.buildSendApiTransaction({
     from,

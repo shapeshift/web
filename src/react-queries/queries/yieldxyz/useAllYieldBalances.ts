@@ -17,12 +17,16 @@ import type {
 } from '@/lib/yieldxyz/types'
 import { YieldBalanceType as YieldBalanceTypeEnum } from '@/lib/yieldxyz/types'
 import { useYieldAccount } from '@/pages/Yields/YieldAccountContext'
-import { selectAccountIdsByAccountNumberAndChainId } from '@/state/slices/selectors'
+import {
+  selectAccountIdsByAccountNumberAndChainId,
+  selectEnabledWalletAccountIds,
+} from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
 type UseAllYieldBalancesOptions = {
   networks?: YieldNetwork[]
   accountIds?: string[]
+  enabled?: boolean
 }
 
 export type AugmentedYieldBalanceWithAccountId = AugmentedYieldBalance & {
@@ -216,30 +220,37 @@ const normalizeBalances = (
 }
 
 export const useAllYieldBalances = (options: UseAllYieldBalancesOptions = {}) => {
-  const { networks = SUPPORTED_YIELD_NETWORKS, accountIds: filterAccountIds } = options
+  const { networks = SUPPORTED_YIELD_NETWORKS, accountIds: filterAccountIds, enabled } = options
+  const isEnabled = enabled ?? true
   const { state: walletState } = useWallet()
   const isConnected = Boolean(walletState.walletInfo)
-  const { accountNumber } = useYieldAccount()
+  const { accountId: contextAccountId, accountNumber } = useYieldAccount()
   const accountIdsByAccountNumberAndChainId = useAppSelector(
     selectAccountIdsByAccountNumberAndChainId,
   )
+  const enabledWalletAccountIds = useAppSelector(selectEnabledWalletAccountIds)
 
   const accountIdsForAccountNumber = useMemo((): AccountId[] => {
+    if (accountNumber === undefined) return []
     const byChainId = accountIdsByAccountNumberAndChainId[accountNumber]
     if (!byChainId) return []
     return Object.values(byChainId).flat().filter(isSome)
   }, [accountIdsByAccountNumberAndChainId, accountNumber])
 
-  const queryPayloads = useMemo(() => {
-    if (!isConnected || accountIdsForAccountNumber.length === 0) return []
+  const targetAccountIds: AccountId[] = useMemo(() => {
+    if (filterAccountIds?.length) return filterAccountIds
+    if (contextAccountId) return [contextAccountId]
+    if (accountIdsForAccountNumber.length) return accountIdsForAccountNumber
+    return enabledWalletAccountIds
+  }, [filterAccountIds, contextAccountId, accountIdsForAccountNumber, enabledWalletAccountIds])
 
-    const targetAccountIds = filterAccountIds ?? accountIdsForAccountNumber
+  const queryPayloads = useMemo(() => {
+    if (!isConnected || targetAccountIds.length === 0) return []
+
     const payloads: { address: string; network: string; chainId: ChainId; accountId: AccountId }[] =
       []
 
     for (const accountId of targetAccountIds) {
-      if (!accountIdsForAccountNumber.includes(accountId)) continue
-
       const { chainId, account } = fromAccountId(accountId)
       const network = CHAIN_ID_TO_YIELD_NETWORK[chainId]
 
@@ -249,7 +260,7 @@ export const useAllYieldBalances = (options: UseAllYieldBalancesOptions = {}) =>
     }
 
     return payloads
-  }, [isConnected, accountIdsForAccountNumber, filterAccountIds, networks])
+  }, [isConnected, targetAccountIds, networks])
 
   const { addressToAccountId, addressToChainId } = useMemo(() => {
     const accountIdMap: Record<string, AccountId> = {}
@@ -323,6 +334,7 @@ export const useAllYieldBalances = (options: UseAllYieldBalancesOptions = {}) =>
           }
         : skipToken,
     staleTime: 60000,
+    enabled: isEnabled,
   })
 
   const data = useMemo(() => {

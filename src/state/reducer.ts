@@ -49,6 +49,7 @@ import { txHistory, txHistoryApi } from './slices/txHistorySlice/txHistorySlice'
 
 import { gridplusSlice } from '@/state/slices/gridplusSlice/gridplusSlice'
 import type { GridPlusState } from '@/state/slices/gridplusSlice/types'
+import { tradeEarnInput } from '@/state/slices/tradeEarnInputSlice/tradeEarnInputSlice'
 import { tradeQuoteSlice } from '@/state/slices/tradeQuoteSlice/tradeQuoteSlice'
 import { tradeRampInput } from '@/state/slices/tradeRampInputSlice/tradeRampInputSlice'
 
@@ -62,6 +63,7 @@ export const slices = {
   tradeInput,
   limitOrderInput,
   tradeRampInput,
+  tradeEarnInput,
   tradeQuote: tradeQuoteSlice,
   limitOrder: limitOrderSlice,
   snapshot,
@@ -166,6 +168,7 @@ export const sliceReducers = {
   tradeInput: tradeInput.reducer,
   limitOrderInput: limitOrderInput.reducer,
   tradeRampInput: tradeRampInput.reducer,
+  tradeEarnInput: tradeEarnInput.reducer,
   opportunities: persistReducer<OpportunitiesState>(
     opportunitiesPersistConfig,
     opportunities.reducer,

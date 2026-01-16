@@ -45,6 +45,7 @@ export const SharedTradeInputHeader = ({
 
   const enableLimitOrders = useFeatureFlag('LimitOrders')
   const enableSwapperFiatRamps = useFeatureFlag('SwapperFiatRamps')
+  const enableEarnTab = useFeatureFlag('EarnTab')
 
   const handleChangeTab = useCallback(
     (newTab: TradeInputTab) => {
@@ -68,6 +69,10 @@ export const SharedTradeInputHeader = ({
 
   const handleClickSellFiat = useCallback(() => {
     handleChangeTab(TradeInputTab.SellFiat)
+  }, [handleChangeTab])
+
+  const handleClickEarn = useCallback(() => {
+    handleChangeTab(TradeInputTab.Earn)
   }, [handleChangeTab])
 
   return (
@@ -125,6 +130,17 @@ export const SharedTradeInputHeader = ({
                 cursor={selectedTab !== TradeInputTab.SellFiat ? 'pointer' : undefined}
               >
                 {translate('fiatRamps.sell')}
+              </Heading>
+            )}
+            {enableEarnTab && !isStandalone && (
+              <Heading
+                as='h5'
+                fontSize='md'
+                color={selectedTab !== TradeInputTab.Earn ? 'text.subtle' : undefined}
+                onClick={handleClickEarn}
+                cursor={selectedTab !== TradeInputTab.Earn ? 'pointer' : undefined}
+              >
+                {translate('navBar.earn')}
               </Heading>
             )}
           </Flex>
@@ -208,6 +224,23 @@ export const SharedTradeInputHeader = ({
                 type='button'
               >
                 {translate('fiatRamps.sell')}
+              </Box>
+            )}
+            {enableEarnTab && !isStandalone && (
+              <Box
+                as='button'
+                px={6}
+                py={2}
+                borderRadius='full'
+                bg={selectedTab === TradeInputTab.Earn ? activeBgColor : 'none'}
+                color={selectedTab === TradeInputTab.Earn ? activeTextColor : 'text.subtle'}
+                fontWeight='bold'
+                fontSize='sm'
+                ml={-2}
+                onClick={handleClickEarn}
+                type='button'
+              >
+                {translate('navBar.earn')}
               </Box>
             )}
           </Flex>

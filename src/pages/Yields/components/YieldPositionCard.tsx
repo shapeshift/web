@@ -1,6 +1,5 @@
 import {
   Alert,
-  AlertIcon,
   Badge,
   Box,
   Button,
@@ -9,20 +8,19 @@ import {
   Divider,
   Flex,
   Heading,
-  HStack,
   Skeleton,
   Text,
-  useColorModeValue,
   VStack,
 } from '@chakra-ui/react'
 import { fromAccountId } from '@shapeshiftoss/caip'
-import { memo, useCallback, useMemo, useState } from 'react'
+import dayjs from 'dayjs'
+import qs from 'qs'
+import { memo, useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useSearchParams } from 'react-router-dom'
-
-import { YieldActionModal } from './YieldActionModal'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 
 import { Amount } from '@/components/Amount/Amount'
+import { useBrowserRouter } from '@/hooks/useBrowserRouter/useBrowserRouter'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { DEFAULT_NATIVE_VALIDATOR_BY_CHAIN_ID } from '@/lib/yieldxyz/constants'
 import type { AugmentedYieldDto } from '@/lib/yieldxyz/types'
@@ -45,51 +43,22 @@ type YieldPositionCardProps = {
   isBalancesLoading: boolean
 }
 
-type ClaimModalData = {
-  amount: string
-  assetSymbol: string
-  assetLogoURI: string | undefined
-  validatorAddress: string | undefined
-  validatorName: string | undefined
-  validatorLogoURI: string | undefined
-  passthrough: string | undefined
-  manageActionType: string | undefined
-}
-
 export const YieldPositionCard = memo(
   ({ yieldItem, balances, isBalancesLoading }: YieldPositionCardProps) => {
-    const [claimModalData, setClaimModalData] = useState<ClaimModalData | null>(null)
     const translate = useTranslate()
-    const cardBg = useColorModeValue('white', 'gray.800')
-    const borderColor = useColorModeValue('gray.100', 'gray.750')
-    const badgeBg = useColorModeValue('blue.50', 'blue.900')
-    const badgeColor = useColorModeValue('blue.700', 'blue.200')
-    const emptyStateBg = useColorModeValue('blue.50', 'blue.900')
-    const emptyStateBorderColor = useColorModeValue('blue.200', 'blue.800')
-    const emptyStateTitleColor = useColorModeValue('blue.700', 'blue.100')
-    const emptyStateTextColor = useColorModeValue('blue.600', 'blue.200')
-    const enteringBg = useColorModeValue('yellow.50', 'yellow.900')
-    const enteringBorderColor = useColorModeValue('yellow.300', 'yellow.700')
-    const enteringTextColor = useColorModeValue('yellow.700', 'yellow.300')
-    const exitingBg = useColorModeValue('orange.50', 'orange.900')
-    const exitingBorderColor = useColorModeValue('orange.300', 'orange.700')
-    const exitingTextColor = useColorModeValue('orange.700', 'orange.300')
-    const withdrawableBg = useColorModeValue('green.50', 'green.900')
-    const withdrawableBorderColor = useColorModeValue('green.300', 'green.700')
-    const withdrawableTextColor = useColorModeValue('green.700', 'green.300')
-    const claimableBg = useColorModeValue('purple.50', 'purple.900')
-    const claimableBorderColor = useColorModeValue('purple.300', 'purple.700')
-    const claimableTextColor = useColorModeValue('purple.700', 'purple.300')
+    const navigate = useNavigate()
+    const { location } = useBrowserRouter()
     const [searchParams] = useSearchParams()
     const validatorParam = searchParams.get('validator')
 
     const { chainId } = yieldItem
-    const { accountNumber } = useYieldAccount()
+    const { accountId: contextAccountId, accountNumber } = useYieldAccount()
 
     const defaultValidator = chainId ? DEFAULT_NATIVE_VALIDATOR_BY_CHAIN_ID[chainId] : undefined
     const selectedValidatorAddress = validatorParam || defaultValidator
 
     const accountId = useAppSelector(state => {
+      if (contextAccountId) return contextAccountId
       if (!chainId) return undefined
       const accountIdsByNumberAndChain = selectAccountIdByAccountNumberAndChainId(state)
       return accountIdsByNumberAndChain[accountNumber]?.[chainId]
@@ -138,10 +107,18 @@ export const YieldPositionCard = memo(
       () => enteringBalance && bnOrZero(enteringBalance.aggregatedAmount).gt(0),
       [enteringBalance],
     )
-    const hasExiting = useMemo(
-      () => exitingBalance && bnOrZero(exitingBalance.aggregatedAmount).gt(0),
-      [exitingBalance],
-    )
+
+    const exitingEntries = useMemo(() => {
+      if (!balances?.raw) return []
+      return balances.raw
+        .filter(b => b.type === YieldBalanceType.Exiting && bnOrZero(b.amount).gt(0))
+        .filter(b => {
+          if (!selectedValidatorAddress) return true
+          return b.validator?.address === selectedValidatorAddress
+        })
+    }, [balances?.raw, selectedValidatorAddress])
+
+    const hasExiting = useMemo(() => exitingEntries.length > 0, [exitingEntries])
     const hasWithdrawable = useMemo(
       () => withdrawableBalance && bnOrZero(withdrawableBalance.aggregatedAmount).gt(0),
       [withdrawableBalance],
@@ -201,19 +178,15 @@ export const YieldPositionCard = memo(
     const totalAmountFixed = useMemo(() => totalAmount.toFixed(), [totalAmount])
 
     const handleClaimClick = useCallback(() => {
-      setClaimModalData({
-        amount: claimableBalance?.amount ?? '0',
-        assetSymbol: claimableBalance?.token.symbol ?? '',
-        assetLogoURI: claimableBalance?.token.logoURI,
-        validatorAddress: selectedValidatorAddress,
-        validatorName: claimableBalance?.validator?.name,
-        validatorLogoURI: claimableBalance?.validator?.logoURI,
-        passthrough: claimAction?.passthrough,
-        manageActionType: claimAction?.type,
+      navigate({
+        pathname: location.pathname,
+        search: qs.stringify({
+          action: 'claim',
+          modal: 'yield',
+          ...(selectedValidatorAddress ? { validator: selectedValidatorAddress } : {}),
+        }),
       })
-    }, [claimableBalance, selectedValidatorAddress, claimAction])
-
-    const handleClaimClose = useCallback(() => setClaimModalData(null), [])
+    }, [navigate, location.pathname, selectedValidatorAddress])
 
     const showPendingActions = useMemo(
       () => hasEntering || hasExiting || hasWithdrawable || hasClaimable,
@@ -230,208 +203,122 @@ export const YieldPositionCard = memo(
       [],
     )
 
-    const emptyStateAlert = useMemo(
-      () => (
-        <Alert
-          status='info'
-          variant='subtle'
-          borderRadius='lg'
-          flexDirection='column'
-          alignItems='start'
-          p={4}
-          bg={emptyStateBg}
-          borderColor={emptyStateBorderColor}
-          border='1px solid'
-        >
-          <Flex alignItems='center' gap={2} mb={1}>
-            <AlertIcon boxSize='20px' color={emptyStateTextColor} mr={0} />
-            <Text fontWeight='bold' color={emptyStateTitleColor}>
-              {translate('yieldXYZ.startEarning')}
-            </Text>
-          </Flex>
-          <Text fontSize='sm' color={emptyStateTextColor}>
-            {translate('yieldXYZ.depositYourToken', { symbol: yieldItem.token.symbol })}
-          </Text>
-        </Alert>
-      ),
-      [
-        emptyStateBg,
-        emptyStateBorderColor,
-        emptyStateTextColor,
-        emptyStateTitleColor,
-        yieldItem.token.symbol,
-        translate,
-      ],
-    )
-
     const enteringSection = useMemo(() => {
       if (!hasEntering) return null
       return (
-        <Flex
-          justify='space-between'
-          align='center'
-          p={3}
-          bg={enteringBg}
-          borderRadius='lg'
-          border='1px solid'
-          borderColor={enteringBorderColor}
-        >
-          <Box>
-            <Text
-              fontSize='xs'
-              fontWeight='bold'
-              color={enteringTextColor}
-              textTransform='uppercase'
-            >
-              {translate('yieldXYZ.entering')}
-            </Text>
-            <Text fontSize='sm' fontWeight='bold'>
-              {formatBalance(enteringBalance)}
-            </Text>
-          </Box>
-          <Badge colorScheme='yellow' variant='solid' fontSize='xs'>
-            {translate('yieldXYZ.pending')}
-          </Badge>
-        </Flex>
+        <Alert status='warning' variant='subtle' borderRadius='lg' p={3}>
+          <Flex justify='space-between' align='center' width='full'>
+            <Box>
+              <Text fontSize='xs' fontWeight='bold' textTransform='uppercase'>
+                {translate('yieldXYZ.entering')}
+              </Text>
+              <Text fontSize='sm' fontWeight='bold'>
+                {formatBalance(enteringBalance)}
+              </Text>
+            </Box>
+            <Badge colorScheme='yellow' variant='solid' fontSize='xs'>
+              {translate('yieldXYZ.pending')}
+            </Badge>
+          </Flex>
+        </Alert>
       )
-    }, [
-      hasEntering,
-      enteringBg,
-      enteringBorderColor,
-      enteringTextColor,
-      translate,
-      formatBalance,
-      enteringBalance,
-    ])
+    }, [hasEntering, translate, formatBalance, enteringBalance])
 
-    const exitingSection = useMemo(() => {
+    const unstakingSection = useMemo(() => {
       if (!hasExiting) return null
-      return (
-        <Flex
-          justify='space-between'
-          align='center'
-          p={3}
-          bg={exitingBg}
-          borderRadius='lg'
-          border='1px solid'
-          borderColor={exitingBorderColor}
-        >
-          <Box>
-            <Text
-              fontSize='xs'
-              fontWeight='bold'
-              color={exitingTextColor}
-              textTransform='uppercase'
-            >
-              {translate('yieldXYZ.exiting')}
-            </Text>
-            <Text fontSize='sm' fontWeight='bold'>
-              {formatBalance(exitingBalance)}
-            </Text>
-          </Box>
-          <Badge colorScheme='orange' variant='solid' fontSize='xs'>
-            {translate('yieldXYZ.pending')}
-          </Badge>
-        </Flex>
-      )
-    }, [
-      hasExiting,
-      exitingBg,
-      exitingBorderColor,
-      exitingTextColor,
-      translate,
-      formatBalance,
-      exitingBalance,
-    ])
+
+      return exitingEntries.map((entry, index) => {
+        const completionDate = entry.date ? dayjs(entry.date) : null
+        const availableDateText = completionDate ? dayjs().to(completionDate) : null
+
+        return (
+          <Alert
+            key={`${entry.address}-${index}`}
+            status='warning'
+            variant='subtle'
+            borderRadius='lg'
+            p={3}
+          >
+            <Flex justify='space-between' align='center' width='full'>
+              <Box>
+                <Text fontSize='xs' fontWeight='bold' textTransform='uppercase'>
+                  {translate('yieldXYZ.unstaking')}
+                </Text>
+                <Text fontSize='sm' fontWeight='bold'>
+                  <Amount.Crypto value={entry.amount} symbol={entry.token.symbol} abbreviated />
+                </Text>
+              </Box>
+              <VStack spacing={1} alignItems='flex-end'>
+                <Badge colorScheme='orange' variant='solid' fontSize='xs'>
+                  {translate('yieldXYZ.pending')}
+                </Badge>
+                {availableDateText && (
+                  <Text fontSize='xs' color='text.subtle'>
+                    {translate('yieldXYZ.availableDate', { date: availableDateText })}
+                  </Text>
+                )}
+              </VStack>
+            </Flex>
+          </Alert>
+        )
+      })
+    }, [hasExiting, exitingEntries, translate])
 
     const withdrawableSection = useMemo(() => {
       if (!hasWithdrawable) return null
       return (
-        <Flex
-          justify='space-between'
-          align='center'
-          p={3}
-          bg={withdrawableBg}
-          borderRadius='lg'
-          border='1px solid'
-          borderColor={withdrawableBorderColor}
-        >
-          <Box>
-            <Text
-              fontSize='xs'
-              fontWeight='bold'
-              color={withdrawableTextColor}
-              textTransform='uppercase'
-            >
-              {translate('yieldXYZ.withdrawable')}
-            </Text>
-            <Text fontSize='sm' fontWeight='bold'>
-              {formatBalance(withdrawableBalance)}
-            </Text>
-          </Box>
-          <Badge colorScheme='green' variant='solid' fontSize='xs'>
-            {translate('yieldXYZ.ready')}
-          </Badge>
-        </Flex>
+        <Alert status='success' variant='subtle' borderRadius='lg' p={3}>
+          <Flex justify='space-between' align='center' width='full'>
+            <Box>
+              <Text fontSize='xs' fontWeight='bold' textTransform='uppercase'>
+                {translate('yieldXYZ.withdrawable')}
+              </Text>
+              <Text fontSize='sm' fontWeight='bold'>
+                {formatBalance(withdrawableBalance)}
+              </Text>
+            </Box>
+            <Badge colorScheme='green' variant='solid' fontSize='xs'>
+              {translate('yieldXYZ.ready')}
+            </Badge>
+          </Flex>
+        </Alert>
       )
-    }, [
-      hasWithdrawable,
-      withdrawableBg,
-      withdrawableBorderColor,
-      withdrawableTextColor,
-      translate,
-      formatBalance,
-      withdrawableBalance,
-    ])
+    }, [hasWithdrawable, translate, formatBalance, withdrawableBalance])
 
     const claimableSection = useMemo(() => {
       if (!hasClaimable) return null
       return (
-        <Flex
-          justify='space-between'
-          align='center'
-          p={3}
-          bg={claimableBg}
-          borderRadius='lg'
-          border='1px solid'
-          borderColor={claimableBorderColor}
-        >
-          <Box>
-            <Text
-              fontSize='xs'
-              fontWeight='bold'
-              color={claimableTextColor}
-              textTransform='uppercase'
-            >
-              {translate('yieldXYZ.claimable')}
-            </Text>
-            <Text fontSize='sm' fontWeight='bold'>
-              {formatBalance(claimableBalance)}
-            </Text>
-          </Box>
-          <HStack spacing={2}>
-            <Badge colorScheme='purple' variant='solid' fontSize='xs'>
-              {translate('yieldXYZ.reward')}
-            </Badge>
-            {claimAction && (
-              <Button
-                size='xs'
-                colorScheme='purple'
-                variant='solid'
-                onClick={handleClaimClick}
-                isDisabled={!canClaim}
-              >
-                {translate('common.claim')}
-              </Button>
-            )}
-          </HStack>
-        </Flex>
+        <Alert status='info' variant='subtle' borderRadius='lg' p={3}>
+          <Flex justify='space-between' align='center' width='full'>
+            <Box>
+              <Text fontSize='xs' fontWeight='bold' textTransform='uppercase'>
+                {translate('yieldXYZ.claimable')}
+              </Text>
+              <Text fontSize='sm' fontWeight='bold'>
+                {formatBalance(claimableBalance)}
+              </Text>
+            </Box>
+            <VStack spacing={1} alignItems='flex-end'>
+              <Badge colorScheme='purple' variant='solid' fontSize='xs'>
+                {translate('yieldXYZ.reward')}
+              </Badge>
+              {claimAction && (
+                <Button
+                  size='xs'
+                  colorScheme='purple'
+                  variant='solid'
+                  onClick={handleClaimClick}
+                  isDisabled={!canClaim}
+                >
+                  {translate('common.claim')}
+                </Button>
+              )}
+            </VStack>
+          </Flex>
+        </Alert>
       )
     }, [
       hasClaimable,
-      claimableBg,
-      claimableBorderColor,
-      claimableTextColor,
       translate,
       formatBalance,
       claimableBalance,
@@ -443,28 +330,20 @@ export const YieldPositionCard = memo(
     const addressBadge = useMemo(() => {
       if (!address) return null
       return (
-        <Badge
-          variant='subtle'
-          colorScheme='blue'
-          borderRadius='full'
-          px={2}
-          py={0.5}
-          bg={badgeBg}
-          color={badgeColor}
-        >
+        <Badge variant='subtle' colorScheme='blue' borderRadius='full' px={2} py={0.5}>
           {addressBadgeText}
         </Badge>
       )
-    }, [address, badgeBg, badgeColor, addressBadgeText])
+    }, [address, addressBadgeText])
 
     const pendingActionsSection = useMemo(() => {
       if (!showPendingActions) return null
       return (
         <>
-          <Divider borderColor={borderColor} />
+          <Divider borderColor='border.base' />
           <VStack spacing={3} align='stretch'>
             {enteringSection}
-            {exitingSection}
+            {unstakingSection}
             {withdrawableSection}
             {claimableSection}
           </VStack>
@@ -472,24 +351,19 @@ export const YieldPositionCard = memo(
       )
     }, [
       showPendingActions,
-      borderColor,
       enteringSection,
-      exitingSection,
+      unstakingSection,
       withdrawableSection,
       claimableSection,
     ])
 
+    if (!accountId) return null
+
     if (isBalancesLoading) {
       return (
-        <Card
-          bg={cardBg}
-          borderRadius='xl'
-          shadow='sm'
-          border='1px solid'
-          borderColor={borderColor}
-        >
-          <CardBody p={6}>
-            <Flex justifyContent='space-between' alignItems='center' mb={6}>
+        <Card variant='dashboard'>
+          <CardBody p={{ base: 4, md: 5 }}>
+            <Flex justifyContent='space-between' alignItems='center' mb={4}>
               <Heading
                 as='h3'
                 size='sm'
@@ -497,9 +371,8 @@ export const YieldPositionCard = memo(
                 color='text.subtle'
                 letterSpacing='wider'
               >
-                {headingText}
+                {translate('yieldXYZ.myPosition')}
               </Heading>
-              {addressBadge}
             </Flex>
             {loadingState}
           </CardBody>
@@ -507,10 +380,12 @@ export const YieldPositionCard = memo(
       )
     }
 
+    if (!hasAnyPosition && !showPendingActions) return null
+
     return (
-      <Card bg={cardBg} borderRadius='xl' shadow='sm' border='1px solid' borderColor={borderColor}>
-        <CardBody p={6}>
-          <Flex justifyContent='space-between' alignItems='center' mb={6}>
+      <Card variant='dashboard'>
+        <CardBody p={{ base: 4, md: 5 }}>
+          <Flex justifyContent='space-between' alignItems='center' mb={4}>
             <Heading
               as='h3'
               size='sm'
@@ -522,7 +397,7 @@ export const YieldPositionCard = memo(
             </Heading>
             {addressBadge}
           </Flex>
-          <VStack spacing={6} align='stretch'>
+          <VStack spacing={4} align='stretch'>
             <Box>
               <Text fontSize='xs' color='text.subtle' mb={1} textTransform='uppercase'>
                 {translate('yieldXYZ.totalValue')}
@@ -538,24 +413,7 @@ export const YieldPositionCard = memo(
                 />
               </Text>
             </Box>
-            {!hasAnyPosition && emptyStateAlert}
             {pendingActionsSection}
-            {claimModalData && (
-              <YieldActionModal
-                yieldItem={yieldItem}
-                action='manage'
-                isOpen={!!claimModalData}
-                onClose={handleClaimClose}
-                amount={claimModalData.amount}
-                assetSymbol={claimModalData.assetSymbol}
-                assetLogoURI={claimModalData.assetLogoURI}
-                validatorAddress={claimModalData.validatorAddress}
-                validatorName={claimModalData.validatorName}
-                validatorLogoURI={claimModalData.validatorLogoURI}
-                passthrough={claimModalData.passthrough}
-                manageActionType={claimModalData.manageActionType}
-              />
-            )}
           </VStack>
         </CardBody>
       </Card>

@@ -43,7 +43,11 @@ import { isUndefined } from 'lodash'
 import PQueue from 'p-queue'
 
 import type { ChainAdapter as IChainAdapter } from '../api'
-import { ChainAdapterError, ErrorHandler } from '../error/ErrorHandler'
+import {
+  ChainAdapterError,
+  ErrorHandler,
+  handleBroadcastTransactionError,
+} from '../error/ErrorHandler'
 import type {
   Account,
   BroadcastTransactionInput,
@@ -411,18 +415,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SolanaMainnet> 
 
       return txHash
     } catch (err) {
-      if ((err as Error).name === 'ResponseError') {
-        const response = await ((err as any).response as Response).json()
-
-        return ErrorHandler(JSON.stringify(response), {
-          translation: 'chainAdapters.errors.broadcastTransactionWithMessage',
-          options: { message: response.message },
-        })
-      }
-
-      return ErrorHandler(err, {
-        translation: 'chainAdapters.errors.broadcastTransaction',
-      })
+      return handleBroadcastTransactionError(err)
     }
   }
 

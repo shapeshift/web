@@ -24,6 +24,7 @@ import { FoxEcosystemPage } from '@/pages/Fox/FoxEcosystemPage'
 import { History } from '@/pages/History/History'
 import { TCYNavIndicator } from '@/pages/TCY/components/TCYNavIndicator'
 import { TCY } from '@/pages/TCY/tcy'
+import { EarnTab } from '@/pages/Trade/tabs/EarnTab'
 import { LimitTab } from '@/pages/Trade/tabs/LimitTab'
 import { RampTab } from '@/pages/Trade/tabs/RampTab'
 import { TradeTab } from '@/pages/Trade/tabs/TradeTab'
@@ -33,6 +34,8 @@ export const TRADE_ROUTE_ASSET_SPECIFIC =
   '/trade/:chainId/:assetSubId/:sellChainId/:sellAssetSubId/:sellAmountCryptoBaseUnit'
 export const LIMIT_ORDER_ROUTE_ASSET_SPECIFIC =
   '/limit/:chainId/:assetSubId/:sellChainId/:sellAssetSubId/:sellAmountCryptoBaseUnit/:limitPriceMode/:limitPriceDirection/:limitPrice'
+export const EARN_ROUTE_ASSET_SPECIFIC =
+  '/earn/:sellChainId/:sellAssetSubId/:yieldId/:sellAmountCryptoBaseUnit'
 
 const Dashboard = makeSuspenseful(
   lazy(() =>
@@ -242,7 +245,7 @@ export const routes: Route[] = [
     category: RouteCategory.Featured,
     priority: 3,
     mobileNav: false,
-    disable: !getConfig().VITE_FEATURE_YIELD_XYZ,
+    disable: !getConfig().VITE_FEATURE_YIELD_XYZ || !getConfig().VITE_FEATURE_YIELDS_PAGE,
   },
   {
     path: '/ramp/*',
@@ -397,6 +400,20 @@ export const routes: Route[] = [
       {
         path: LimitOrderRoutePaths.Orders,
         main: LimitTab,
+        hide: true,
+      },
+    ],
+  },
+  {
+    path: '/earn/*',
+    label: '',
+    hideDesktop: true,
+    main: EarnTab,
+    disable: !getConfig().VITE_FEATURE_EARN_TAB,
+    routes: [
+      {
+        path: EARN_ROUTE_ASSET_SPECIFIC,
+        main: EarnTab,
         hide: true,
       },
     ],

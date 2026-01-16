@@ -12,9 +12,9 @@ import type { TextPropTypes } from '@/components/Text/Text'
 type SharedConfirmProps = {
   bodyContent: JSX.Element
   footerContent: JSX.Element | null
-  isLoading: boolean
   onBack: () => void
   headerTranslation: TextPropTypes['translation']
+  isLoading?: boolean
 }
 
 const cardMinHeight = { base: 'calc(100vh - var(--mobile-nav-offset))', md: 'initial' }

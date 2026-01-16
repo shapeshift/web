@@ -56,7 +56,7 @@ const rightHStackSpacingSx = { base: 2, lg: 4 }
 const searchBoxMaxWSx = { base: 'auto', lg: '400px' }
 const searchBoxMinWSx = { base: 'auto', xl: '300px' }
 
-const tradeSubMenuItems = [
+const baseTradeSubMenuItems = [
   { label: 'navBar.swap', path: '/trade', icon: TbRefresh },
   { label: 'limitOrder.heading', path: '/limit', icon: TbLayersSelected },
   { label: 'fiatRamps.buy', path: '/ramp/buy', icon: TbCreditCard },
@@ -109,6 +109,15 @@ export const Header = memo(() => {
   const isWalletConnectToDappsV2Enabled = useFeatureFlag('WalletConnectToDappsV2')
   const isActionCenterEnabled = useFeatureFlag('ActionCenter')
   const isNewWalletManagerEnabled = useFeatureFlag('NewWalletManager')
+  const isEarnTabEnabled = useFeatureFlag('EarnTab')
+
+  const tradeSubMenuItems = useMemo(
+    () =>
+      isEarnTabEnabled
+        ? [...baseTradeSubMenuItems, { label: 'navBar.earn', path: '/earn', icon: TbTrendingUp }]
+        : baseTradeSubMenuItems,
+    [isEarnTabEnabled],
+  )
   const { degradedChainIds } = useDiscoverAccounts()
 
   const hasWallet = Boolean(walletInfo?.deviceId)

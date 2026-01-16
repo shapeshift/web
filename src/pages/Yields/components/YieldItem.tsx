@@ -17,13 +17,14 @@ import {
   Tooltip,
 } from '@chakra-ui/react'
 import type BigNumber from 'bignumber.js'
-import { memo, useCallback, useMemo } from 'react'
+import { memo, useCallback } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useNavigate } from 'react-router-dom'
 
 import { Amount } from '@/components/Amount/Amount'
 import { AssetIcon } from '@/components/AssetIcon'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
+import { getYieldDisplayName } from '@/lib/yieldxyz/getYieldDisplayName'
 import type { AugmentedYieldDto } from '@/lib/yieldxyz/types'
 import { resolveYieldInputAssetIcon } from '@/lib/yieldxyz/utils'
 import { GradientApy } from '@/pages/Yields/components/GradientApy'
@@ -152,12 +153,12 @@ export const YieldItem = memo(function YieldItem({
         stats.count === 1 ? translate('yieldXYZ.market') : translate('yieldXYZ.markets')
       }`
 
-  const title = titleOverride ?? (isSingle ? data.yieldItem.metadata.name : data.assetSymbol)
+  const title = titleOverride ?? (isSingle ? getYieldDisplayName(data.yieldItem) : data.assetSymbol)
 
   const underMaintenance = isSingle ? data.yieldItem.metadata.underMaintenance : undefined
   const deprecated = isSingle ? data.yieldItem.metadata.deprecated : undefined
 
-  const statusBadge = useMemo(() => {
+  const statusBadge = (() => {
     if (!isSingle) return null
     if (deprecated) {
       return (
@@ -178,7 +179,7 @@ export const YieldItem = memo(function YieldItem({
       )
     }
     return null
-  }, [isSingle, underMaintenance, deprecated, translate])
+  })()
 
   const showAvailable = isSingle && hasAvailable && !hasBalance
 

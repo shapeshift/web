@@ -13,12 +13,13 @@ import {
   Text,
   VStack,
 } from '@chakra-ui/react'
-import { memo, useMemo } from 'react'
+import { memo } from 'react'
 import { useTranslate } from 'react-polyglot'
 
 import { AssetIcon } from '@/components/AssetIcon'
 import { ChainIcon } from '@/components/ChainMenu'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
+import { getYieldDisplayName } from '@/lib/yieldxyz/getYieldDisplayName'
 import type { AugmentedYieldDto } from '@/lib/yieldxyz/types'
 import { resolveYieldInputAssetIcon } from '@/lib/yieldxyz/utils'
 import { GradientApy } from '@/pages/Yields/components/GradientApy'
@@ -42,59 +43,48 @@ export const YieldInfoCard = memo(
 
     const iconSource = resolveYieldInputAssetIcon(yieldItem)
     const apy = bnOrZero(yieldItem.rewardRate.total).times(100).toFixed(2)
-    const yieldTitle = titleOverride ?? yieldItem.metadata.name ?? yieldItem.token.symbol
+    const yieldTitle = titleOverride ?? getYieldDisplayName(yieldItem)
+    const type = yieldItem.mechanics.type
+    const description = yieldItem.metadata.description
 
-    const assetIcon = useMemo(
-      () =>
-        iconSource.assetId ? (
-          <AssetIcon assetId={iconSource.assetId} size='lg' />
-        ) : (
-          <AssetIcon src={iconSource.src} size='lg' />
-        ),
-      [iconSource],
+    const assetIcon = iconSource.assetId ? (
+      <AssetIcon assetId={iconSource.assetId} size='lg' />
+    ) : (
+      <AssetIcon src={iconSource.src} size='lg' />
     )
 
     const hasOverlay = validatorOrProvider?.logoURI || yieldItem.chainId
 
-    const stackedIconElement = useMemo(
-      () =>
-        !hasOverlay ? (
-          assetIcon
-        ) : (
-          <Box position='relative'>
-            {assetIcon}
-            {validatorOrProvider?.logoURI ? (
-              <Avatar
-                size='xs'
-                src={validatorOrProvider.logoURI}
-                name={validatorOrProvider.name}
-                position='absolute'
-                bottom='-4px'
-                right='-4px'
-                border='2px solid'
-                borderColor='background.surface.raised.base'
-              />
-            ) : yieldItem.chainId ? (
-              <Box
-                position='absolute'
-                bottom='-4px'
-                right='-4px'
-                bg='background.surface.raised.base'
-                borderRadius='full'
-                p='3px'
-              >
-                <ChainIcon chainId={yieldItem.chainId} boxSize='16px' />
-              </Box>
-            ) : null}
+    const stackedIconElement = !hasOverlay ? (
+      assetIcon
+    ) : (
+      <Box position='relative'>
+        {assetIcon}
+        {validatorOrProvider?.logoURI ? (
+          <Avatar
+            size='xs'
+            src={validatorOrProvider.logoURI}
+            name={validatorOrProvider.name}
+            position='absolute'
+            bottom='-4px'
+            right='-4px'
+            border='2px solid'
+            borderColor='background.surface.raised.base'
+          />
+        ) : yieldItem.chainId ? (
+          <Box
+            position='absolute'
+            bottom='-4px'
+            right='-4px'
+            bg='background.surface.raised.base'
+            borderRadius='full'
+            p='3px'
+          >
+            <ChainIcon chainId={yieldItem.chainId} boxSize='16px' />
           </Box>
-        ),
-      [assetIcon, hasOverlay, validatorOrProvider, yieldItem.chainId],
+        ) : null}
+      </Box>
     )
-
-    const type = yieldItem.mechanics.type
-    const typeLabel = type.charAt(0).toUpperCase() + type.slice(1)
-
-    const description = yieldItem.metadata.description
 
     return (
       <Card variant='dashboard'>
@@ -165,8 +155,9 @@ export const YieldInfoCard = memo(
                 py={1.5}
                 fontWeight='medium'
                 fontSize='sm'
+                textTransform='capitalize'
               >
-                {typeLabel}
+                {type}
               </Badge>
             </HStack>
 

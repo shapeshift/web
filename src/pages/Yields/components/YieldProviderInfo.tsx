@@ -41,7 +41,7 @@ export const YieldProviderInfo = memo(
                   {description}
                 </Text>
                 {providerWebsite && (
-                  <Link href={providerWebsite} isExternal>
+                  <Link href={providerWebsite} isExternal ml={-2}>
                     <Button
                       variant='ghost'
                       size='sm'

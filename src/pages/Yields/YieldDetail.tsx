@@ -21,6 +21,7 @@ import {
   SHAPESHIFT_VALIDATOR_NAME,
   SOLANA_SOL_NATIVE_MULTIVALIDATOR_STAKING_YIELD_ID,
 } from '@/lib/yieldxyz/constants'
+import { getYieldDisplayName } from '@/lib/yieldxyz/getYieldDisplayName'
 import { YieldBalanceType } from '@/lib/yieldxyz/types'
 import { YieldAvailableToDeposit } from '@/pages/Yields/components/YieldAvailableToDeposit'
 import { YieldHero } from '@/pages/Yields/components/YieldHero'
@@ -150,7 +151,7 @@ export const YieldDetail = memo(() => {
     const isNativeStaking =
       yieldItem.mechanics.type === 'staking' && yieldItem.mechanics.requiresValidatorSelection
     if (isNativeStaking) return translate('yieldXYZ.nativeStaking')
-    return yieldItem.token.symbol
+    return getYieldDisplayName(yieldItem)
   })()
 
   const userBalances = (() => {

@@ -205,11 +205,6 @@ export const YieldHero = memo(function YieldHero({
             </HStack>
           )}
         </HStack>
-        {yieldItem.metadata.name && yieldItem.metadata.name !== yieldItem.token.symbol && (
-          <Text color='text.subtle' fontSize='sm' textAlign='center'>
-            {yieldItem.metadata.name}
-          </Text>
-        )}
       </VStack>
 
       <Badge

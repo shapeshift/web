@@ -42,6 +42,8 @@ export const getChainShortName = (chainId: KnownChainIds) => {
       return 'TRX'
     case KnownChainIds.SuiMainnet:
       return 'SUI'
+    case KnownChainIds.AptosMainnet:
+      return 'APT'
     case KnownChainIds.StarknetMainnet:
       return 'STRK'
     case KnownChainIds.MonadMainnet:

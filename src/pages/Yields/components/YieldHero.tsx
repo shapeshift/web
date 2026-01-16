@@ -1,5 +1,8 @@
 import { ArrowBackIcon, ArrowDownIcon, ArrowUpIcon } from '@chakra-ui/icons'
 import {
+  Alert,
+  AlertDescription,
+  AlertIcon,
   Avatar,
   Badge,
   Box,
@@ -162,6 +165,24 @@ export const YieldHero = memo(
           </Text>
           <Box width='32px' />
         </Flex>
+
+        {yieldItem.metadata.deprecated && (
+          <Alert status='error' borderRadius='lg' variant='subtle'>
+            <AlertIcon />
+            <AlertDescription fontSize='sm'>
+              {translate('yieldXYZ.deprecatedDescription')}
+            </AlertDescription>
+          </Alert>
+        )}
+
+        {yieldItem.metadata.underMaintenance && !yieldItem.metadata.deprecated && (
+          <Alert status='warning' borderRadius='lg' variant='subtle'>
+            <AlertIcon />
+            <AlertDescription fontSize='sm'>
+              {translate('yieldXYZ.underMaintenanceDescription')}
+            </AlertDescription>
+          </Alert>
+        )}
 
         <HStack spacing={3} bg='background.surface.raised.base' px={4} py={2} borderRadius='full'>
           {stackedIconElement}

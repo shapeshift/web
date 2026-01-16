@@ -2801,7 +2801,11 @@
       "initiateFailedDescription": "Failed to initiate transaction sequence.",
       "quoteFailedTitle": "Quote failed",
       "quoteFailedDescription": "Unable to get a quote for this transaction. Please try again."
-    }
+    },
+    "underMaintenance": "Under Maintenance",
+    "underMaintenanceDescription": "This yield opportunity is currently under maintenance. Deposits may be unavailable.",
+    "deprecated": "Deprecated",
+    "deprecatedDescription": "This yield opportunity has been deprecated and may be discontinued soon."
   },
   "earn": {
     "enterFrom": "Enter from",

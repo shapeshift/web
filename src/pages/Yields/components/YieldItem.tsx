@@ -1,6 +1,7 @@
 import {
   Avatar,
   AvatarGroup,
+  Badge,
   Box,
   Card,
   CardBody,
@@ -13,6 +14,7 @@ import {
   StatLabel,
   StatNumber,
   Text,
+  Tooltip,
 } from '@chakra-ui/react'
 import type BigNumber from 'bignumber.js'
 import { memo, useCallback, useMemo } from 'react'
@@ -166,6 +168,30 @@ export const YieldItem = memo(
       return data.assetSymbol
     }, [data, isSingle, titleOverride])
 
+    const statusBadge = useMemo(() => {
+      if (!isSingle) return null
+      const { underMaintenance, deprecated } = data.yieldItem.metadata
+      if (deprecated) {
+        return (
+          <Tooltip label={translate('yieldXYZ.deprecatedDescription')} hasArrow>
+            <Badge colorScheme='red' fontSize='xs' variant='subtle'>
+              {translate('yieldXYZ.deprecated')}
+            </Badge>
+          </Tooltip>
+        )
+      }
+      if (underMaintenance) {
+        return (
+          <Tooltip label={translate('yieldXYZ.underMaintenanceDescription')} hasArrow>
+            <Badge colorScheme='orange' fontSize='xs' variant='subtle'>
+              {translate('yieldXYZ.underMaintenance')}
+            </Badge>
+          </Tooltip>
+        )
+      }
+      return null
+    }, [data, isSingle, translate])
+
     const showAvailable = isSingle && hasAvailable && !hasBalance
 
     const cardStatElement = useMemo(() => {
@@ -311,9 +337,12 @@ export const YieldItem = memo(
           <CardBody p={2}>
             <Flex alignItems='center' gap={2} mb={2}>
               {iconElement}
-              <Text fontWeight='bold' fontSize='md' lineHeight='1.2'>
-                {title}
-              </Text>
+              <HStack spacing={2} flex={1}>
+                <Text fontWeight='bold' fontSize='md' lineHeight='1.2' noOfLines={1}>
+                  {title}
+                </Text>
+                {statusBadge}
+              </HStack>
             </Flex>
 
             <SimpleGrid columns={3} spacing={2}>
@@ -380,9 +409,12 @@ export const YieldItem = memo(
             <Flex alignItems='center' gap={3} flex='1' minW='200px'>
               {iconElement}
               <Box>
-                <Text fontWeight='bold' fontSize='sm'>
-                  {title}
-                </Text>
+                <HStack spacing={2}>
+                  <Text fontWeight='bold' fontSize='sm'>
+                    {title}
+                  </Text>
+                  {statusBadge}
+                </HStack>
                 <Text fontSize='xs' color='text.subtle' textTransform='capitalize'>
                   {subtitle}
                 </Text>
@@ -475,6 +507,7 @@ export const YieldItem = memo(
                 </Flex>
               </Box>
             </Flex>
+            {statusBadge}
           </Flex>
 
           <HStack spacing={6} justify='space-between' mt='auto'>

@@ -110,28 +110,9 @@ export const YieldInfoCard = memo(
 
             <Flex gap={4} align='center'>
               {stackedIconElement}
-              <Box flex={1}>
-                <Heading as='h2' size='md' mb={1}>
-                  {yieldTitle}
-                </Heading>
-                <HStack spacing={2} flexWrap='wrap'>
-                  {validatorOrProvider?.name && (
-                    <HStack spacing={1.5}>
-                      <Text color='text.subtle' fontSize='sm'>
-                        {validatorOrProvider.name}
-                      </Text>
-                    </HStack>
-                  )}
-                  {yieldItem.chainId && (
-                    <HStack spacing={1}>
-                      <ChainIcon chainId={yieldItem.chainId} boxSize='14px' />
-                      <Text color='text.subtle' fontSize='sm' textTransform='capitalize'>
-                        {yieldItem.network}
-                      </Text>
-                    </HStack>
-                  )}
-                </HStack>
-              </Box>
+              <Heading as='h2' size='md'>
+                {yieldTitle}
+              </Heading>
             </Flex>
 
             <HStack spacing={3} flexWrap='wrap'>
@@ -143,7 +124,7 @@ export const YieldInfoCard = memo(
                 borderWidth={1}
                 borderColor='border.base'
               >
-                <GradientApy fontSize='md'>
+                <GradientApy fontSize='sm'>
                   {apy}% {translate('common.apy')}
                 </GradientApy>
               </Box>
@@ -159,6 +140,41 @@ export const YieldInfoCard = memo(
               >
                 {type}
               </Badge>
+            </HStack>
+
+            <HStack spacing={6} flexWrap='wrap'>
+              <HStack spacing={2}>
+                {iconSource.assetId ? (
+                  <AssetIcon assetId={iconSource.assetId} size='xs' />
+                ) : (
+                  <AssetIcon src={iconSource.src} size='xs' />
+                )}
+                <Text fontSize='md' fontWeight='semibold'>
+                  {yieldItem.token.symbol}
+                </Text>
+              </HStack>
+              {yieldItem.chainId && (
+                <HStack spacing={2}>
+                  <ChainIcon chainId={yieldItem.chainId} boxSize='20px' />
+                  <Text fontSize='md' fontWeight='semibold' textTransform='capitalize'>
+                    {yieldItem.network}
+                  </Text>
+                </HStack>
+              )}
+              {validatorOrProvider?.name && (
+                <HStack spacing={2}>
+                  {validatorOrProvider.logoURI && (
+                    <Avatar
+                      size='xs'
+                      src={validatorOrProvider.logoURI}
+                      name={validatorOrProvider.name}
+                    />
+                  )}
+                  <Text fontSize='md' fontWeight='semibold'>
+                    {validatorOrProvider.name}
+                  </Text>
+                </HStack>
+              )}
             </HStack>
 
             {description && (

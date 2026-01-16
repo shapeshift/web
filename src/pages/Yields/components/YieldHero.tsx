@@ -5,7 +5,6 @@ import {
   AlertIcon,
   Avatar,
   Badge,
-  Box,
   Button,
   HStack,
   Link,
@@ -84,53 +83,6 @@ export const YieldHero = memo(function YieldHero({
 
   const yieldTitle = titleOverride ?? yieldItem.metadata.name ?? yieldItem.token.symbol
 
-  const assetIcon = iconSource.assetId ? (
-    <AssetIcon assetId={iconSource.assetId} size='md' />
-  ) : (
-    <AssetIcon src={iconSource.src} size='md' />
-  )
-
-  const overlayElement = (() => {
-    if (validatorOrProvider?.logoURI) {
-      return (
-        <Avatar
-          size='2xs'
-          src={validatorOrProvider.logoURI}
-          name={validatorOrProvider.name}
-          position='absolute'
-          bottom='-2px'
-          right='-2px'
-          border='2px solid'
-          borderColor='background.surface.raised.base'
-        />
-      )
-    }
-    if (yieldItem.chainId) {
-      return (
-        <Box
-          position='absolute'
-          bottom='-2px'
-          right='-2px'
-          bg='background.surface.raised.base'
-          borderRadius='full'
-          p='2px'
-        >
-          <ChainIcon chainId={yieldItem.chainId} boxSize='14px' />
-        </Box>
-      )
-    }
-    return null
-  })()
-
-  const stackedIconElement = overlayElement ? (
-    <Box position='relative'>
-      {assetIcon}
-      {overlayElement}
-    </Box>
-  ) : (
-    assetIcon
-  )
-
   const descriptionSection = useMemo(() => {
     const docUrl = validatorOrProvider?.documentation ?? yieldItem.metadata.documentation
     const description = yieldItem.metadata.description
@@ -190,22 +142,36 @@ export const YieldHero = memo(function YieldHero({
         </Alert>
       )}
 
-      <VStack spacing={2}>
-        <HStack spacing={3} bg='background.surface.raised.base' px={4} py={2} borderRadius='full'>
-          {stackedIconElement}
-          <Text fontWeight='bold' fontSize={{ base: 'md', md: 'lg' }}>
-            {validatorOrProvider?.name ?? yieldItem.token.symbol}
-          </Text>
-          {yieldItem.chainId && (
-            <HStack spacing={1} opacity={0.8}>
-              <ChainIcon chainId={yieldItem.chainId} boxSize='16px' />
-              <Text fontSize='sm' fontWeight='medium' textTransform='capitalize'>
-                {yieldItem.network}
-              </Text>
-            </HStack>
+      <HStack spacing={4} justify='center' flexWrap='wrap'>
+        <HStack spacing={2}>
+          {iconSource.assetId ? (
+            <AssetIcon assetId={iconSource.assetId} size='xs' />
+          ) : (
+            <AssetIcon src={iconSource.src} size='xs' />
           )}
+          <Text fontSize='md' fontWeight='semibold'>
+            {yieldItem.token.symbol}
+          </Text>
         </HStack>
-      </VStack>
+        {yieldItem.chainId && (
+          <HStack spacing={2}>
+            <ChainIcon chainId={yieldItem.chainId} boxSize='20px' />
+            <Text fontSize='md' fontWeight='semibold' textTransform='capitalize'>
+              {yieldItem.network}
+            </Text>
+          </HStack>
+        )}
+        {validatorOrProvider?.name && (
+          <HStack spacing={2}>
+            {validatorOrProvider.logoURI && (
+              <Avatar size='xs' src={validatorOrProvider.logoURI} name={validatorOrProvider.name} />
+            )}
+            <Text fontSize='md' fontWeight='semibold'>
+              {validatorOrProvider.name}
+            </Text>
+          </HStack>
+        )}
+      </HStack>
 
       <Badge
         colorScheme='green'

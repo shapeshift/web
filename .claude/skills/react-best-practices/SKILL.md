@@ -191,6 +191,15 @@ When optimizing a React application:
 - Use immutable array methods
 - Hoist static objects outside components
 
+## Project-specific style preferences
+
+The reference guidelines use `function` keyword syntax for examples, but this project prefers:
+
+1. **Arrow functions for components** - Use `const Component = memo(() => ...)` not `memo(function Component() ...)`
+2. **useMemo over IIFE in TSX** - Use `useMemo(() => ..., [deps])` not `(() => { ... })()`
+3. **Implicit returns when possible** - Use `useMemo(() => value, [deps])` not `useMemo(() => { return value }, [deps])`
+4. **Avoid nested ternaries** - Use useMemo with early returns or IIFE with if/else blocks for complex conditionals
+
 ## Resources
 
 - [React Documentation](https://react.dev)

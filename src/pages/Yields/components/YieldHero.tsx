@@ -1,4 +1,4 @@
-import { ArrowBackIcon, ArrowDownIcon, ArrowUpIcon } from '@chakra-ui/icons'
+import { ArrowBackIcon, ArrowDownIcon, ArrowUpIcon, ExternalLinkIcon } from '@chakra-ui/icons'
 import {
   Alert,
   AlertDescription,
@@ -10,6 +10,7 @@ import {
   Flex,
   HStack,
   IconButton,
+  Link,
   Text,
   VStack,
 } from '@chakra-ui/react'
@@ -221,6 +222,21 @@ export const YieldHero = memo(
           >
             {yieldItem.metadata.description}
           </Text>
+        )}
+
+        {yieldItem.metadata.documentation && (
+          <Link
+            href={yieldItem.metadata.documentation}
+            isExternal
+            fontSize='sm'
+            color='text.link'
+            display='flex'
+            alignItems='center'
+            gap={1}
+          >
+            {translate('yieldXYZ.learnMore')}
+            <ExternalLinkIcon boxSize={3} />
+          </Link>
         )}
 
         <VStack spacing={1} textAlign='center'>

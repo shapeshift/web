@@ -2805,7 +2805,8 @@
     "underMaintenance": "Under Maintenance",
     "underMaintenanceDescription": "This yield opportunity is currently under maintenance. Deposits may be unavailable.",
     "deprecated": "Deprecated",
-    "deprecatedDescription": "This yield opportunity has been deprecated and may be discontinued soon."
+    "deprecatedDescription": "This yield opportunity has been deprecated and may be discontinued soon.",
+    "learnMore": "Learn more"
   },
   "earn": {
     "enterFrom": "Enter from",

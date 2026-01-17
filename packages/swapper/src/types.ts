@@ -474,6 +474,15 @@ export type TradeQuoteStep = {
     estimatedGasConsumption: string
     params?: unknown
   }
+  dedustSpecific?: {
+    poolAddress: string
+    sellAssetAddress: string
+    buyAssetAddress: string
+    sellAmount: string
+    minBuyAmount: string
+    gasBudget: string
+    quoteTimestamp: number
+  }
 }
 
 export type TradeRateStep = Omit<TradeQuoteStep, 'accountNumber'> & {

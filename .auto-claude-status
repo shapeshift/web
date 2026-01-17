@@ -3,7 +3,7 @@
   "spec": "003-feat-add-dedust-swapper",
   "state": "building",
   "subtasks": {
-    "completed": 14,
+    "completed": 16,
     "total": 24,
     "in_progress": 1,
     "failed": 0
@@ -18,8 +18,8 @@
     "max": 1
   },
   "session": {
-    "number": 15,
+    "number": 17,
     "started_at": "2026-01-17T19:13:26.634855"
   },
-  "last_update": "2026-01-17T19:36:48.696445"
+  "last_update": "2026-01-17T19:38:15.145717"
 }

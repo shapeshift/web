@@ -18,16 +18,16 @@ export const isCrossAccountTradeSupported = (swapperName: SwapperName) => {
     case SwapperName.ButterSwap:
     case SwapperName.Bebop:
     case SwapperName.NearIntents:
+    case SwapperName.Stonfi:
+    case SwapperName.Sunio:
       return true
     case SwapperName.Zrx:
     case SwapperName.CowSwap:
     case SwapperName.ArbitrumBridge:
     case SwapperName.Portals:
-    case SwapperName.Cetus:
-    case SwapperName.Sunio:
-    case SwapperName.Avnu:
-    case SwapperName.Stonfi:
     case SwapperName.Test:
+    case SwapperName.Avnu:
+    case SwapperName.Cetus:
       // Technically supported for Arbitrum Bridge, but we disable it for the sake of simplicity for now
       return false
     default:

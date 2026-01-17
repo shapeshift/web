@@ -15,7 +15,7 @@ import { omnistonManager } from './utils/omnistonManager'
 
 const TRADE_TRACKING_TIMEOUT_MS = 60000
 
-const waitForFirstTradeStatus = (
+const waitForFirstTradeStatus = async (
   request: {
     quoteId: string
     traderWalletAddress: { blockchain: number; address: string }
@@ -84,12 +84,12 @@ export const stonfiApi: SwapperApi = {
       params: stonfiSpecific.params,
     }
 
+    const omniston = omnistonManager.getInstance()
+
     const maxRetries = 3
     let lastError: Error | null = null
 
     for (let attempt = 1; attempt <= maxRetries; attempt++) {
-      const omniston = omnistonManager.getInstance()
-
       try {
         const txResponse = await omniston.buildTransfer({
           sourceAddress: { blockchain: Blockchain.TON, address: from },
@@ -107,7 +107,7 @@ export const stonfiApi: SwapperApi = {
 
         const expireAt = Math.floor(Date.now() / 1000) + 300
 
-        const convertOmnistonBase64ToHdwalletHex = (base64: string | undefined): string => {
+        const convertBase64ToHex = (base64: string | undefined): string => {
           if (!base64) return ''
           return Buffer.from(base64, 'base64').toString('hex')
         }
@@ -115,8 +115,8 @@ export const stonfiApi: SwapperApi = {
         const rawMessages = txResponse.ton.messages.map(msg => ({
           targetAddress: msg.targetAddress,
           sendAmount: msg.sendAmount,
-          payload: convertOmnistonBase64ToHdwalletHex(msg.payload),
-          stateInit: convertOmnistonBase64ToHdwalletHex(msg.jettonWalletStateInit),
+          payload: convertBase64ToHex(msg.payload),
+          stateInit: convertBase64ToHex(msg.jettonWalletStateInit),
         }))
 
         const seqno = await adapter.getSeqno(from)
@@ -203,35 +203,47 @@ export const stonfiApi: SwapperApi = {
 
       const statusOneOf = tradeStatus.status
 
-      if (statusOneOf.awaitingTransfer) {
-        return {
-          status: TxStatus.Pending,
-          buyTxHash: undefined,
-          message: 'trade.statuses.awaitingDeposit',
+      if (
+        statusOneOf.awaitingTransfer ||
+        statusOneOf.transferring ||
+        statusOneOf.swapping ||
+        statusOneOf.receivingFunds
+      ) {
+        const chainStatus = await checkTxStatusViaChainAdapter()
+        if (chainStatus.status === TxStatus.Confirmed) {
+          return chainStatus
         }
-      }
 
-      if (statusOneOf.transferring) {
-        return {
-          status: TxStatus.Pending,
-          buyTxHash: undefined,
-          message: 'trade.statuses.depositing',
+        if (statusOneOf.awaitingTransfer) {
+          return {
+            status: TxStatus.Pending,
+            buyTxHash: undefined,
+            message: 'trade.statuses.awaitingDeposit',
+          }
         }
-      }
 
-      if (statusOneOf.swapping) {
-        return {
-          status: TxStatus.Pending,
-          buyTxHash: undefined,
-          message: 'trade.statuses.swapping',
+        if (statusOneOf.transferring) {
+          return {
+            status: TxStatus.Pending,
+            buyTxHash: undefined,
+            message: 'trade.statuses.depositing',
+          }
         }
-      }
 
-      if (statusOneOf.receivingFunds) {
-        return {
-          status: TxStatus.Pending,
-          buyTxHash: undefined,
-          message: 'trade.statuses.receivingFunds',
+        if (statusOneOf.swapping) {
+          return {
+            status: TxStatus.Pending,
+            buyTxHash: undefined,
+            message: 'trade.statuses.swapping',
+          }
+        }
+
+        if (statusOneOf.receivingFunds) {
+          return {
+            status: TxStatus.Pending,
+            buyTxHash: undefined,
+            message: 'trade.statuses.receivingFunds',
+          }
         }
       }
 

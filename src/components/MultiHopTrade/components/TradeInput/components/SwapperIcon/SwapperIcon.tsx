@@ -9,6 +9,7 @@ import BebopIcon from './bebop-icon.png'
 import ButterSwapIcon from './butterswap.png'
 import CetusIcon from './cetus-icon.jpg'
 import ChainflipIcon from './chainflip-icon.png'
+import DedustIcon from './dedust-icon.png'
 import CowIcon from './cow-icon.png'
 import JupiterIcon from './jupiter-icon.svg'
 import MayachainIcon from './maya_logo.png'
@@ -57,6 +58,8 @@ export const SwapperIcon = ({
         return NearIntentsIcon
       case SwapperName.Cetus:
         return CetusIcon
+      case SwapperName.DeDust:
+        return DedustIcon
       case SwapperName.Sunio:
         return SunioIcon
       case SwapperName.Avnu:

@@ -1,6 +1,6 @@
 import { Asset as DedustAsset, PoolType, ReadinessStatus } from '@dedust/sdk'
 import { Err, Ok } from '@sniptt/monads'
-import type { Address } from '@ton/core'
+import { address as tonAddress } from '@ton/core'
 
 import type { GetTradeRateInput, TradeRate, TradeRateResult } from '../../../types'
 import { SwapperName, TradeQuoteError } from '../../../types'
@@ -23,7 +23,7 @@ const dedustAddressToAsset = (dedustAddress: DedustAssetAddress): DedustAsset =>
   if (dedustAddress.type === 'native') {
     return DedustAsset.native()
   }
-  return DedustAsset.jetton(dedustAddress.address as unknown as Address)
+  return DedustAsset.jetton(tonAddress(dedustAddress.address))
 }
 
 const buildDedustSpecific = (

@@ -10,6 +10,7 @@ import { deriveNearAccountIdsAndMetadata } from './near'
 import { deriveSolanaAccountIdsAndMetadata } from './solana'
 import { deriveStarknetAccountIdsAndMetadata } from './starknet'
 import { deriveSuiAccountIdsAndMetadata } from './sui'
+import { deriveTonAccountIdsAndMetadata } from './ton'
 import { deriveTronAccountIdsAndMetadata } from './tron'
 import { deriveUtxoAccountIdsAndMetadata } from './utxo'
 
@@ -24,6 +25,7 @@ export const deriveAccountIdsAndMetadataForChainNamespace = {
   [CHAIN_NAMESPACE.Sui]: deriveSuiAccountIdsAndMetadata,
   [CHAIN_NAMESPACE.Near]: deriveNearAccountIdsAndMetadata,
   [CHAIN_NAMESPACE.Starknet]: deriveStarknetAccountIdsAndMetadata,
+  [CHAIN_NAMESPACE.Ton]: deriveTonAccountIdsAndMetadata,
 } as const
 
 export type DeriveAccountIdsAndMetadataArgs = {
@@ -54,6 +56,7 @@ export const deriveAccountIdsAndMetadata: DeriveAccountIdsAndMetadata = async ar
     [CHAIN_NAMESPACE.Sui]: [],
     [CHAIN_NAMESPACE.Near]: [],
     [CHAIN_NAMESPACE.Starknet]: [],
+    [CHAIN_NAMESPACE.Ton]: [],
   }
   const chainIdsByChainNamespace = chainIds.reduce((acc, chainId) => {
     const { chainNamespace } = fromChainId(chainId)

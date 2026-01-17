@@ -4,7 +4,7 @@ export { QuoteRequest } from '@defuse-protocol/one-click-sdk-typescript'
 export type {
   GetExecutionStatusResponse,
   QuoteResponse,
-  TokenResponse,
+  TokenResponse
 } from '@defuse-protocol/one-click-sdk-typescript'
 export const nearIntentsSupportedChainIds = [
   KnownChainIds.EthereumMainnet,
@@ -26,6 +26,7 @@ export const nearIntentsSupportedChainIds = [
   KnownChainIds.MonadMainnet,
   KnownChainIds.NearMainnet,
   KnownChainIds.PlasmaMainnet,
+  KnownChainIds.TonMainnet,
 ] as const
 
 export type NearIntentsSupportedChainId = (typeof nearIntentsSupportedChainIds)[number]
@@ -50,4 +51,5 @@ export const chainIdToNearIntentsChain: Record<NearIntentsSupportedChainId, stri
   [KnownChainIds.StarknetMainnet]: 'starknet',
   [KnownChainIds.MonadMainnet]: 'monad',
   [KnownChainIds.NearMainnet]: 'near',
+  [KnownChainIds.TonMainnet]: 'ton',
 }

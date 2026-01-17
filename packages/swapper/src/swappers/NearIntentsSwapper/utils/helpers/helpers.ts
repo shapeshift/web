@@ -10,6 +10,28 @@ import type { GetExecutionStatusResponse, TokenResponse } from '../../types'
 import { chainIdToNearIntentsChain } from '../../types'
 import { OneClickService } from '../oneClickService'
 
+const getTokensWithRetry = async (): Promise<TokenResponse[]> => {
+  const maxRetries = 3
+  let lastError: Error | null = null
+
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      return await OneClickService.getTokens()
+    } catch (err) {
+      lastError = err instanceof Error ? err : new Error(String(err))
+      const isWebSocketError = lastError.message.includes('WebSocket is not ready')
+
+      if (isWebSocketError && attempt < maxRetries) {
+        await new Promise(resolve => setTimeout(resolve, 1000 * attempt))
+        continue
+      }
+      throw lastError
+    }
+  }
+
+  throw lastError ?? new Error('Failed to get tokens after retries')
+}
+
 const ATA_RENT_LAMPORTS = 2040000
 
 export const calculateAccountCreationCosts = (instructions: TransactionInstruction[]): string => {
@@ -40,7 +62,7 @@ export const getNearIntentsAsset = ({
 }
 
 const NEP245_CHAINS = ['bsc', 'pol', 'avax', 'op', 'tron', 'monad', 'plasma'] as const
-const TOKEN_LOOKUP_CHAINS = ['sui', 'starknet'] as const
+const TOKEN_LOOKUP_CHAINS = ['sui', 'starknet', 'ton'] as const
 const NEAR_CHAIN = 'near' as const
 const WNEAR_CONTRACT_ADDRESS = 'wrap.near' as const
 
@@ -64,7 +86,7 @@ export const assetToNearIntentsAsset = async (asset: Asset): Promise<string | nu
   // NEAR chain requires special handling
   // Native NEAR maps to wNEAR (wrap.near)
   if (nearNetwork === NEAR_CHAIN) {
-    const tokens = await OneClickService.getTokens()
+    const tokens = await getTokensWithRetry()
     const { assetNamespace, assetReference } = fromAssetId(asset.assetId)
     const isNativeAsset = assetNamespace === 'slip44'
 
@@ -85,7 +107,7 @@ export const assetToNearIntentsAsset = async (asset: Asset): Promise<string | nu
     isNep245Chain(nearNetwork) || isTokenLookupChain(nearNetwork) || asset.chainId === solanaChainId
 
   if (requiresLookup) {
-    const tokens = await OneClickService.getTokens()
+    const tokens = await getTokensWithRetry()
 
     const { assetNamespace, assetReference } = fromAssetId(asset.assetId)
     const isNativeAsset = assetNamespace === 'slip44'

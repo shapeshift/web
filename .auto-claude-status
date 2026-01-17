@@ -3,23 +3,23 @@
   "spec": "003-feat-add-dedust-swapper",
   "state": "building",
   "subtasks": {
-    "completed": 12,
+    "completed": 14,
     "total": 24,
     "in_progress": 1,
     "failed": 0
   },
   "phase": {
-    "current": "Swapper Registration",
+    "current": "Feature Flag Configuration",
     "id": null,
-    "total": 2
+    "total": 5
   },
   "workers": {
     "active": 0,
     "max": 1
   },
   "session": {
-    "number": 13,
+    "number": 15,
     "started_at": "2026-01-17T19:13:26.634855"
   },
-  "last_update": "2026-01-17T19:34:37.121062"
+  "last_update": "2026-01-17T19:36:48.696445"
 }

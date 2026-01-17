@@ -103,6 +103,7 @@ export type FeatureFlags = {
   SunioSwap: boolean
   AvnuSwap: boolean
   StonfiSwap: boolean
+  DedustSwap: boolean
   LazyTxHistory: boolean
   RfoxFoxEcosystemPage: boolean
   LedgerReadOnly: boolean
@@ -253,6 +254,7 @@ const initialState: Preferences = {
     SunioSwap: getConfig().VITE_FEATURE_SUNIO_SWAP,
     AvnuSwap: getConfig().VITE_FEATURE_AVNU_SWAP,
     StonfiSwap: getConfig().VITE_FEATURE_STONFI_SWAP,
+    DedustSwap: getConfig().VITE_FEATURE_DEDUST_SWAP,
     LazyTxHistory: getConfig().VITE_FEATURE_TX_HISTORY_BYE_BYE,
     RfoxFoxEcosystemPage: getConfig().VITE_FEATURE_RFOX_FOX_ECOSYSTEM_PAGE,
     LedgerReadOnly: getConfig().VITE_FEATURE_LEDGER_READ_ONLY,

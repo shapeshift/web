@@ -14,6 +14,8 @@ import { chainflipSwapper } from './swappers/ChainflipSwapper/ChainflipSwapper'
 import { chainflipApi } from './swappers/ChainflipSwapper/endpoints'
 import { cowSwapper } from './swappers/CowSwapper/CowSwapper'
 import { cowApi } from './swappers/CowSwapper/endpoints'
+import { dedustSwapper } from './swappers/DedustSwapper/DedustSwapper'
+import { dedustApi } from './swappers/DedustSwapper/endpoints'
 import { jupiterApi } from './swappers/JupiterSwapper/endpoints'
 import { jupiterSwapper } from './swappers/JupiterSwapper/JupiterSwapper'
 import { mayachainApi } from './swappers/MayachainSwapper/endpoints'
@@ -110,6 +112,10 @@ export const swappers: Record<SwapperName, (SwapperApi & Swapper) | undefined> =
     ...stonfiSwapper,
     ...stonfiApi,
   },
+  [SwapperName.DeDust]: {
+    ...dedustSwapper,
+    ...dedustApi,
+  },
   [SwapperName.Test]: undefined,
 }
 
@@ -126,6 +132,7 @@ const DEFAULT_CETUS_SLIPPAGE_DECIMAL_PERCENTAGE = '0.005'
 const DEFAULT_SUNIO_SLIPPAGE_DECIMAL_PERCENTAGE = '0.005'
 const DEFAULT_AVNU_SLIPPAGE_DECIMAL_PERCENTAGE = '0.005'
 const DEFAULT_STONFI_SLIPPAGE_DECIMAL_PERCENTAGE = '0.01'
+const DEFAULT_DEDUST_SLIPPAGE_DECIMAL_PERCENTAGE = '0.01'
 
 export const getDefaultSlippageDecimalPercentageForSwapper = (
   swapperName: SwapperName | undefined,
@@ -164,6 +171,8 @@ export const getDefaultSlippageDecimalPercentageForSwapper = (
       return DEFAULT_AVNU_SLIPPAGE_DECIMAL_PERCENTAGE
     case SwapperName.Stonfi:
       return DEFAULT_STONFI_SLIPPAGE_DECIMAL_PERCENTAGE
+    case SwapperName.DeDust:
+      return DEFAULT_DEDUST_SLIPPAGE_DECIMAL_PERCENTAGE
     default:
       return assertUnreachable(swapperName)
   }

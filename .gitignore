@@ -42,3 +42,6 @@ yarn-error.log*
 # idea
 *.iml
 .idea/
+
+# Auto Claude data directory
+.auto-claude/

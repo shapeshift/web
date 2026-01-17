@@ -1,5 +1,3 @@
-import { WagmiAdapter } from '@reown/appkit-adapter-wagmi'
-import type { Config } from 'wagmi'
 import {
   arbitrum,
   arbitrumNova,
@@ -11,6 +9,8 @@ import {
   optimism,
   polygon,
 } from '@reown/appkit/networks'
+import { WagmiAdapter } from '@reown/appkit-adapter-wagmi'
+import type { Config } from 'wagmi'
 
 export const SUPPORTED_CHAINS = [
   mainnet,

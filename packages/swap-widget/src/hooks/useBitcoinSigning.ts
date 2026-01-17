@@ -28,10 +28,13 @@ export type UseBitcoinSigningResult = {
   sendTransfer: (params: SendTransferParams) => Promise<string>
   signPsbt: (params: SignPsbtParams) => Promise<string>
   signMessage: (message: string) => Promise<string>
-  getAccountAddresses: () => Promise<string[]>
+  getAccountAddresses: () => string[]
   state: BitcoinSigningState
   reset: () => void
-  checkTxStatus: (txid: string, network?: 'mainnet' | 'testnet') => ReturnType<typeof checkBitcoinStatus>
+  checkTxStatus: (
+    txid: string,
+    network?: 'mainnet' | 'testnet',
+  ) => ReturnType<typeof checkBitcoinStatus>
 }
 
 export const useBitcoinSigning = (): UseBitcoinSigningResult => {
@@ -50,7 +53,8 @@ export const useBitcoinSigning = (): UseBitcoinSigningResult => {
       const accounts = walletProvider.getAccountAddresses?.()
       if (accounts && accounts.length > 0) {
         const nativeSegwitAccount = accounts.find(
-          (account: { purpose?: string }) => account.purpose === 'payment' || account.purpose === '84'
+          (account: { purpose?: string }) =>
+            account.purpose === 'payment' || account.purpose === '84',
         )
         const accountToUse = nativeSegwitAccount ?? accounts[0]
         return typeof accountToUse === 'string' ? accountToUse : accountToUse?.address
@@ -85,7 +89,8 @@ export const useBitcoinSigning = (): UseBitcoinSigningResult => {
         setState(prev => ({ ...prev, isLoading: false, txid }))
         return txid
       } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : 'Failed to send Bitcoin transfer'
+        const errorMessage =
+          error instanceof Error ? error.message : 'Failed to send Bitcoin transfer'
 
         if (
           errorMessage.toLowerCase().includes('rejected') ||
@@ -175,7 +180,7 @@ export const useBitcoinSigning = (): UseBitcoinSigningResult => {
     [walletProvider, address],
   )
 
-  const getAccountAddresses = useCallback(async (): Promise<string[]> => {
+  const getAccountAddresses = useCallback((): string[] => {
     if (!walletProvider) {
       return []
     }
@@ -184,9 +189,11 @@ export const useBitcoinSigning = (): UseBitcoinSigningResult => {
       const accounts = walletProvider.getAccountAddresses?.()
       if (!accounts) return []
 
-      return accounts.map((account: string | { address?: string }) =>
-        typeof account === 'string' ? account : account?.address ?? ''
-      ).filter(Boolean)
+      return accounts
+        .map((account: string | { address?: string }) =>
+          typeof account === 'string' ? account : account?.address ?? '',
+        )
+        .filter(Boolean)
     } catch {
       return []
     }
@@ -200,12 +207,9 @@ export const useBitcoinSigning = (): UseBitcoinSigningResult => {
     })
   }, [])
 
-  const checkTxStatus = useCallback(
-    (txid: string, network: 'mainnet' | 'testnet' = 'mainnet') => {
-      return checkBitcoinStatus(txid, network)
-    },
-    [],
-  )
+  const checkTxStatus = useCallback((txid: string, network: 'mainnet' | 'testnet' = 'mainnet') => {
+    return checkBitcoinStatus(txid, network)
+  }, [])
 
   return useMemo(
     () => ({
@@ -219,6 +223,16 @@ export const useBitcoinSigning = (): UseBitcoinSigningResult => {
       reset,
       checkTxStatus,
     }),
-    [isConnected, address, sendTransfer, signPsbt, signMessage, getAccountAddresses, state, reset, checkTxStatus],
+    [
+      isConnected,
+      address,
+      sendTransfer,
+      signPsbt,
+      signMessage,
+      getAccountAddresses,
+      state,
+      reset,
+      checkTxStatus,
+    ],
   )
 }

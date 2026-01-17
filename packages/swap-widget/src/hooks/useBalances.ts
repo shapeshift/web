@@ -1,10 +1,8 @@
-import { ASSET_NAMESPACE, CHAIN_NAMESPACE, fromAssetId } from '@shapeshiftoss/caip'
 import { useAppKitConnection } from '@reown/appkit-adapter-solana/react'
-import { useAppKitProvider } from '@reown/appkit/react'
-import type { BitcoinConnector } from '@reown/appkit-adapter-bitcoin'
+import { ASSET_NAMESPACE, CHAIN_NAMESPACE, fromAssetId } from '@shapeshiftoss/caip'
+import { PublicKey } from '@solana/web3.js'
 import { useQueries } from '@tanstack/react-query'
 import { getBalance, readContract } from '@wagmi/core'
-import { PublicKey } from '@solana/web3.js'
 import PQueue from 'p-queue'
 import { useMemo } from 'react'
 import { erc20Abi } from 'viem'
@@ -30,8 +28,6 @@ type BalanceResult = {
 }
 
 type BalancesMap = Record<AssetId, BalanceResult>
-
-type ChainTypeResult = 'evm' | 'utxo' | 'solana' | 'other'
 
 type ParsedAssetEvm = {
   chainType: 'evm'
@@ -371,7 +367,11 @@ export const useBitcoinBalance = (
   return useMemo(() => {
     const queryResult = query[0]
     if (!queryResult?.data || !assetId) {
-      return { data: undefined, isLoading: queryResult?.isLoading ?? false, refetch: queryResult?.refetch }
+      return {
+        data: undefined,
+        isLoading: queryResult?.isLoading ?? false,
+        refetch: queryResult?.refetch,
+      }
     }
 
     const { balance } = queryResult.data
@@ -455,7 +455,11 @@ export const useSolanaBalance = (
   return useMemo(() => {
     const queryResult = query[0]
     if (!queryResult?.data || !assetId) {
-      return { data: undefined, isLoading: queryResult?.isLoading ?? false, refetch: queryResult?.refetch }
+      return {
+        data: undefined,
+        isLoading: queryResult?.isLoading ?? false,
+        refetch: queryResult?.refetch,
+      }
     }
 
     const { balance } = queryResult.data
@@ -485,10 +489,10 @@ export const useMultiChainBalance = (
     chainType === 'evm'
       ? evmAddress
       : chainType === 'utxo'
-        ? utxoAddress
-        : chainType === 'solana'
-          ? solanaAddress
-          : undefined
+      ? utxoAddress
+      : chainType === 'solana'
+      ? solanaAddress
+      : undefined
 
   const evmBalance = useAssetBalance(
     chainType === 'evm' ? addressForChain : undefined,
@@ -533,7 +537,12 @@ export const useMultiChainBalances = (
   const { connection } = useAppKitConnection()
 
   const groupedAssets = useMemo(() => {
-    const evm: { assetId: AssetId; chainId: number; tokenAddress?: `0x${string}`; precision: number }[] = []
+    const evm: {
+      assetId: AssetId
+      chainId: number
+      tokenAddress?: `0x${string}`
+      precision: number
+    }[] = []
     const utxo: { assetId: AssetId; precision: number }[] = []
     const solana: { assetId: AssetId; tokenAddress?: string; precision: number }[] = []
 

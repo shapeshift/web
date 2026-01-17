@@ -1,3 +1,5 @@
+import type { BitcoinConnector } from '@reown/appkit-adapter-bitcoin'
+import type { Provider as SolanaProvider } from '@reown/appkit-adapter-solana/react'
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import {
   arbitrumChainId,
@@ -25,8 +27,6 @@ import {
   thorchainChainId,
 } from '@shapeshiftoss/caip'
 import { fromBaseUnit, toBaseUnit } from '@shapeshiftoss/utils'
-import type { BitcoinConnector } from '@reown/appkit-adapter-bitcoin'
-import type { Provider as SolanaProvider } from '@reown/appkit-adapter-solana/react'
 import type { WalletClient } from 'viem'
 import { erc20Abi } from 'viem'
 

@@ -1,16 +1,7 @@
+import type { Connection, SignatureStatus } from '@solana/web3.js'
 import type { PublicClient } from 'viem'
 import { createPublicClient, http } from 'viem'
-import {
-  mainnet,
-  polygon,
-  arbitrum,
-  optimism,
-  base,
-  avalanche,
-  bsc,
-  gnosis,
-} from 'viem/chains'
-import type { Connection, SignatureStatus } from '@solana/web3.js'
+import { arbitrum, avalanche, base, bsc, gnosis, mainnet, optimism, polygon } from 'viem/chains'
 
 export type TransactionStatus = 'pending' | 'confirmed' | 'failed'
 
@@ -253,7 +244,7 @@ export const waitForSolanaConfirmation = async (
   signature: string,
   connection: Connection,
   commitment: 'confirmed' | 'finalized' = 'confirmed',
-  timeoutMs = 60000,
+  _timeoutMs = 60000,
 ): Promise<TransactionStatusResult> => {
   try {
     const latestBlockhash = await connection.getLatestBlockhash()
@@ -305,16 +296,16 @@ export const checkTransactionStatus = async (
       if (!chainId) {
         throw new Error('chainId is required for EVM transactions')
       }
-      return checkEvmStatus(txHash, chainId)
+      return await checkEvmStatus(txHash, chainId)
 
     case 'utxo':
-      return checkBitcoinStatus(txHash, network)
+      return await checkBitcoinStatus(txHash, network)
 
     case 'solana':
       if (!connection) {
         throw new Error('connection is required for Solana transactions')
       }
-      return checkSolanaStatus(txHash, connection)
+      return await checkSolanaStatus(txHash, connection)
 
     default:
       throw new Error(`Unsupported chain type: ${chainType}`)

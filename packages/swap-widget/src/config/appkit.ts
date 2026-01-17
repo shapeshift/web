@@ -1,20 +1,20 @@
-import { createAppKit } from '@reown/appkit/react'
-import { WagmiAdapter } from '@reown/appkit-adapter-wagmi'
-import { BitcoinAdapter } from '@reown/appkit-adapter-bitcoin'
-import { SolanaAdapter } from '@reown/appkit-adapter-solana/react'
 import {
-  mainnet,
-  polygon,
   arbitrum,
   arbitrumNova,
-  optimism,
-  base,
   avalanche,
+  base,
+  bitcoin,
   bsc,
   gnosis,
-  bitcoin,
+  mainnet,
+  optimism,
+  polygon,
   solana,
 } from '@reown/appkit/networks'
+import { createAppKit } from '@reown/appkit/react'
+import { BitcoinAdapter } from '@reown/appkit-adapter-bitcoin'
+import { SolanaAdapter } from '@reown/appkit-adapter-solana/react'
+import { WagmiAdapter } from '@reown/appkit-adapter-wagmi'
 import { PhantomWalletAdapter, SolflareWalletAdapter } from '@solana/wallet-adapter-wallets'
 
 export const EVM_NETWORKS = [
@@ -29,11 +29,7 @@ export const EVM_NETWORKS = [
   gnosis,
 ] as const
 
-export const ALL_NETWORKS = [
-  ...EVM_NETWORKS,
-  bitcoin,
-  solana,
-] as const
+export const ALL_NETWORKS = [...EVM_NETWORKS, bitcoin, solana] as const
 
 export type SupportedNetwork = (typeof ALL_NETWORKS)[number]
 export type EvmNetwork = (typeof EVM_NETWORKS)[number]

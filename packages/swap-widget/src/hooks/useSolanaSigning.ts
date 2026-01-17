@@ -1,8 +1,8 @@
 import { useAppKitProvider } from '@reown/appkit/react'
-import { useAppKitConnection } from '@reown/appkit-adapter-solana/react'
 import type { Provider } from '@reown/appkit-adapter-solana/react'
-import { useCallback, useMemo, useState } from 'react'
+import { useAppKitConnection } from '@reown/appkit-adapter-solana/react'
 import type { Transaction, VersionedTransaction } from '@solana/web3.js'
+import { useCallback, useMemo, useState } from 'react'
 
 import { checkSolanaStatus, waitForSolanaConfirmation } from '../services/transactionStatus'
 
@@ -72,7 +72,8 @@ export const useSolanaSigning = (): UseSolanaSigningResult => {
       try {
         const signature = await walletProvider.sendTransaction(params.transaction, connection)
 
-        const signatureStr = typeof signature === 'string' ? signature : signature?.toString?.() ?? ''
+        const signatureStr =
+          typeof signature === 'string' ? signature : signature?.toString?.() ?? ''
 
         if (!signatureStr) {
           throw new Error('Transaction submitted but no signature returned')
@@ -81,7 +82,8 @@ export const useSolanaSigning = (): UseSolanaSigningResult => {
         setState(prev => ({ ...prev, isLoading: false, signature: signatureStr }))
         return signatureStr
       } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : 'Failed to send Solana transaction'
+        const errorMessage =
+          error instanceof Error ? error.message : 'Failed to send Solana transaction'
 
         if (
           errorMessage.toLowerCase().includes('rejected') ||
@@ -171,7 +173,11 @@ export const useSolanaSigning = (): UseSolanaSigningResult => {
           errorMessage.toLowerCase().includes('user refused') ||
           errorMessage.toLowerCase().includes('user rejected')
         ) {
-          setState(prev => ({ ...prev, isLoading: false, error: 'Message signing rejected by user' }))
+          setState(prev => ({
+            ...prev,
+            isLoading: false,
+            error: 'Message signing rejected by user',
+          }))
           throw new Error('Message signing rejected by user')
         }
 

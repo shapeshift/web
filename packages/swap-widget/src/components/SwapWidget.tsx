@@ -26,8 +26,8 @@ import { createApiClient } from '../api/client'
 import { getBaseAsset } from '../constants/chains'
 import { useChainInfo } from '../hooks/useAssets'
 import { useAssetBalance } from '../hooks/useBalances'
-import { formatUsdValue, useMarketData } from '../hooks/useMarketData'
 import { useBitcoinSigning } from '../hooks/useBitcoinSigning'
+import { formatUsdValue, useMarketData } from '../hooks/useMarketData'
 import { useSolanaSigning } from '../hooks/useSolanaSigning'
 import { useSwapRates } from '../hooks/useSwapRates'
 import type { Asset, SwapWidgetProps, ThemeMode, TradeRate } from '../types'
@@ -210,7 +210,10 @@ const SwapWidgetCore = ({
     sellAssetId: sellAsset.assetId,
     buyAssetId: buyAsset.assetId,
     sellAmountCryptoBaseUnit: sellAmountBaseUnit,
-    enabled: !!sellAmountBaseUnit && sellAmountBaseUnit !== '0' && (isSellAssetEvm || isSellAssetUtxo || isSellAssetSolana),
+    enabled:
+      !!sellAmountBaseUnit &&
+      sellAmountBaseUnit !== '0' &&
+      (isSellAssetEvm || isSellAssetUtxo || isSellAssetSolana),
   })
 
   const walletAddress = useMemo(() => {
@@ -292,9 +295,7 @@ const SwapWidgetCore = ({
         const outerStep = quoteResponse.steps?.[0]
         const innerStep = quoteResponse.quote?.steps?.[0]
         const transactionData =
-          quoteResponse.transactionData ??
-          outerStep?.transactionData ??
-          innerStep?.transactionData
+          quoteResponse.transactionData ?? outerStep?.transactionData ?? innerStep?.transactionData
 
         if (!transactionData) {
           throw new Error(
@@ -383,9 +384,7 @@ const SwapWidgetCore = ({
         const outerStep = quoteResponse.steps?.[0]
         const innerStep = quoteResponse.quote?.steps?.[0]
         const transactionData =
-          quoteResponse.transactionData ??
-          outerStep?.transactionData ??
-          innerStep?.transactionData
+          quoteResponse.transactionData ?? outerStep?.transactionData ?? innerStep?.transactionData
 
         if (!transactionData) {
           throw new Error(
@@ -398,7 +397,8 @@ const SwapWidgetCore = ({
           message: 'Waiting for wallet confirmation...',
         })
 
-        const serializedTransaction = (transactionData as { serializedTransaction?: string }).serializedTransaction
+        const serializedTransaction = (transactionData as { serializedTransaction?: string })
+          .serializedTransaction
 
         if (!serializedTransaction) {
           throw new Error('No serialized transaction in transaction data')
@@ -641,7 +641,16 @@ const SwapWidgetCore = ({
       return
     }
     handleExecuteSwap()
-  }, [walletClient, canExecuteDirectly, canExecuteUtxo, canExecuteSolana, isBitcoinConnected, isSolanaConnected, onConnectWallet, handleExecuteSwap])
+  }, [
+    walletClient,
+    canExecuteDirectly,
+    canExecuteUtxo,
+    canExecuteSolana,
+    isBitcoinConnected,
+    isSolanaConnected,
+    onConnectWallet,
+    handleExecuteSwap,
+  ])
 
   const buttonText = useMemo(() => {
     if (isSellAssetUtxo && canExecuteUtxo) {
@@ -718,7 +727,22 @@ const SwapWidgetCore = ({
     if (!rates?.length) return true
     if (isExecuting) return true
     return false
-  }, [isSellAssetEvm, isSellAssetUtxo, isSellAssetSolana, canExecuteUtxo, canExecuteSolana, isBitcoinConnected, isSolanaConnected, bitcoinState.isLoading, solanaState.isLoading, sellAmount, isLoadingRates, ratesError, rates, isExecuting])
+  }, [
+    isSellAssetEvm,
+    isSellAssetUtxo,
+    isSellAssetSolana,
+    canExecuteUtxo,
+    canExecuteSolana,
+    isBitcoinConnected,
+    isSolanaConnected,
+    bitcoinState.isLoading,
+    solanaState.isLoading,
+    sellAmount,
+    isLoadingRates,
+    ratesError,
+    rates,
+    isExecuting,
+  ])
 
   const { data: sellChainInfo } = useChainInfo(sellAsset.chainId)
   const { data: buyChainInfo } = useChainInfo(buyAsset.chainId)
@@ -1040,7 +1064,9 @@ const SwapWidgetCore = ({
                   if (isSellAssetSolana) {
                     return `https://solscan.io/tx/${txStatus.txHash}`
                   }
-                  return `${sellAsset.explorerTxLink ?? 'https://etherscan.io/tx/'}${txStatus.txHash}`
+                  return `${sellAsset.explorerTxLink ?? 'https://etherscan.io/tx/'}${
+                    txStatus.txHash
+                  }`
                 })()}
                 target='_blank'
                 rel='noopener noreferrer'

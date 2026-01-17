@@ -1,13 +1,13 @@
-import { useQuery, useQueryClient } from '@tanstack/react-query'
-import { useCallback, useEffect, useMemo, useState } from 'react'
 import type { Connection } from '@solana/web3.js'
+import { useQuery } from '@tanstack/react-query'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 
-import {
-  checkTransactionStatus,
-  type ChainType,
-  type TransactionStatus,
-  type TransactionStatusResult,
+import type {
+  ChainType,
+  TransactionStatus,
+  TransactionStatusResult,
 } from '../services/transactionStatus'
+import { checkTransactionStatus } from '../services/transactionStatus'
 
 export type UseTransactionStatusParams = {
   txHash: string | undefined
@@ -54,8 +54,6 @@ export const useTransactionStatus = (
   const [isPolling, setIsPolling] = useState(false)
   const [shouldStop, setShouldStop] = useState(false)
 
-  const queryClient = useQueryClient()
-
   const effectivePollInterval = pollInterval ?? DEFAULT_POLL_INTERVALS[chainType]
 
   const queryKey = useMemo(
@@ -63,11 +61,7 @@ export const useTransactionStatus = (
     [txHash, chainType, chainId, network],
   )
 
-  const {
-    data,
-    isLoading,
-    refetch,
-  } = useQuery({
+  const { data, isLoading, refetch } = useQuery({
     queryKey,
     queryFn: async (): Promise<TransactionStatusResult> => {
       if (!txHash) {
@@ -87,7 +81,7 @@ export const useTransactionStatus = (
       return result
     },
     enabled: enabled && !!txHash && !shouldStop,
-    refetchInterval: (query) => {
+    refetchInterval: query => {
       const currentData = query.state.data
       if (!currentData) return effectivePollInterval
       if (shouldStop) return false
@@ -185,7 +179,15 @@ export const useTransactionWatcher = (params: UseTransactionWatcherParams) => {
       }))
       onError?.(new Error(statusResult.error ?? 'Transaction failed'))
     }
-  }, [statusResult.status, statusResult.confirmations, statusResult.error, state.txHash, state.status, onSuccess, onError])
+  }, [
+    statusResult.status,
+    statusResult.confirmations,
+    statusResult.error,
+    state.txHash,
+    state.status,
+    onSuccess,
+    onError,
+  ])
 
   const startWatching = useCallback((txHash: string, initialMessage?: string) => {
     setState({

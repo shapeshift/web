@@ -3,8 +3,8 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import type { ReactNode } from 'react'
 import { useCallback, useMemo } from 'react'
 import type { WalletClient } from 'viem'
-import { useWalletClient, WagmiProvider } from 'wagmi'
 import type { Config } from 'wagmi'
+import { useWalletClient, WagmiProvider } from 'wagmi'
 
 import { getWagmiAdapter, initializeAppKit } from '../config/appkit'
 import { truncateAddress } from '../types'
@@ -25,10 +25,7 @@ const InternalWalletContent = ({
   return <>{children(walletClient)}</>
 }
 
-export const InternalWalletProvider = ({
-  projectId,
-  children,
-}: InternalWalletProviderProps) => {
+export const InternalWalletProvider = ({ projectId, children }: InternalWalletProviderProps) => {
   const wagmiConfig = useMemo((): Config | undefined => {
     initializeAppKit(projectId)
     const adapter = getWagmiAdapter()

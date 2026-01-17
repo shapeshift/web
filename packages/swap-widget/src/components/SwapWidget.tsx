@@ -856,13 +856,16 @@ const SwapWidgetWithInternalWallet = (
     [props.apiBaseUrl, props.apiKey],
   )
 
-  const themeMode = typeof props.theme === 'string' ? props.theme : props.theme?.mode ?? 'dark'
-
   return (
-    <InternalWalletProvider projectId={props.walletConnectProjectId} themeMode={themeMode}>
+    <InternalWalletProvider projectId={props.walletConnectProjectId}>
       {walletClient => (
         <QueryClientProvider client={queryClient}>
-          <SwapWidgetCore {...props} walletClient={walletClient} apiClient={apiClient} />
+          <SwapWidgetCore
+            {...props}
+            walletClient={walletClient}
+            apiClient={apiClient}
+            enableWalletConnection={true}
+          />
         </QueryClientProvider>
       )}
     </InternalWalletProvider>

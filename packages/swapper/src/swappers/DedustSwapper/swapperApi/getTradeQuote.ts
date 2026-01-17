@@ -55,19 +55,20 @@ export const getTradeQuote = async (input: CommonTradeQuoteInput): Promise<Trade
 
   const validation = validateTonAssets(sellAsset, buyAsset)
   if (!validation.isValid) {
-    return validation.error
+    return validation.error as TradeQuoteResult
   }
 
   const { sellAssetAddress, buyAssetAddress } = validation
+  const client = dedustClientManager.getClient()
   const factory = dedustClientManager.getFactory()
 
   try {
     const sellDedustAsset = dedustAddressToAsset(sellAssetAddress)
     const buyDedustAsset = dedustAddressToAsset(buyAssetAddress)
 
-    const pool = await factory.getPool(PoolType.VOLATILE, [sellDedustAsset, buyDedustAsset])
+    const poolContract = await factory.getPool(PoolType.VOLATILE, [sellDedustAsset, buyDedustAsset])
 
-    if (!pool) {
+    if (!poolContract) {
       return Err(
         makeSwapErrorRight({
           message: `[DeDust] No pool found for this pair`,
@@ -76,6 +77,7 @@ export const getTradeQuote = async (input: CommonTradeQuoteInput): Promise<Trade
       )
     }
 
+    const pool = client.open(poolContract)
     const poolAddress = pool.address.toString()
     const { amountOut } = await pool.getEstimatedSwapOut({
       assetIn: sellDedustAsset,

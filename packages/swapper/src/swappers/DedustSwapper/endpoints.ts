@@ -15,6 +15,7 @@ import { getTradeRate } from './swapperApi/getTradeRate'
 import { dedustClientManager } from './utils/dedustClient'
 
 const SWAP_DEADLINE_SECONDS = 300
+const VAULT_NATIVE_SWAP_OPCODE = 0xea06185d
 
 const buildNativeTonSwapMessage = async (
   poolAddress: string,
@@ -28,11 +29,25 @@ const buildNativeTonSwapMessage = async (
   const nativeVault = client.open(await factory.getNativeVault())
   const nativeVaultAddress = nativeVault.address.toString()
 
-  const swapPayload = VaultNative.createSwapPayload({
-    poolAddress: tonAddress(poolAddress),
-    limit: BigInt(minBuyAmount),
-    deadline: Math.floor(Date.now() / 1000) + SWAP_DEADLINE_SECONDS,
-  })
+  const deadline = Math.floor(Date.now() / 1000) + SWAP_DEADLINE_SECONDS
+  const swapParamsCell = beginCell()
+    .storeUint(deadline, 32)
+    .storeAddress(null)
+    .storeAddress(null)
+    .storeMaybeRef(null)
+    .storeMaybeRef(null)
+    .endCell()
+
+  const swapPayload = beginCell()
+    .storeUint(VAULT_NATIVE_SWAP_OPCODE, 32)
+    .storeUint(0, 64)
+    .storeCoins(BigInt(sellAmount))
+    .storeAddress(tonAddress(poolAddress))
+    .storeUint(0, 1)
+    .storeCoins(BigInt(minBuyAmount))
+    .storeMaybeRef(null)
+    .storeRef(swapParamsCell)
+    .endCell()
 
   const totalSendAmount = (BigInt(sellAmount) + BigInt(gasBudget)).toString()
 
@@ -62,7 +77,9 @@ const buildJettonSwapMessage = async (
   const swapPayload = VaultJetton.createSwapPayload({
     poolAddress: tonAddress(poolAddress),
     limit: BigInt(minBuyAmount),
-    deadline: Math.floor(Date.now() / 1000) + SWAP_DEADLINE_SECONDS,
+    swapParams: {
+      deadline: Math.floor(Date.now() / 1000) + SWAP_DEADLINE_SECONDS,
+    },
   })
 
   const jettonRoot = client.open(JettonRoot.createFromAddress(jettonMasterAddr))

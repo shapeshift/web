@@ -1,6 +1,6 @@
+import { Asset as DedustAsset, JettonRoot, VaultJetton, VaultNative } from '@dedust/sdk'
 import { toAddressNList } from '@shapeshiftoss/chain-adapters'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
-import { Asset as DedustAsset, JettonRoot, VaultJetton, VaultNative } from '@dedust/sdk'
 import type { Address } from '@ton/core'
 import { address as tonAddress, beginCell, toNano } from '@ton/core'
 
@@ -107,13 +107,7 @@ export const dedustApi: SwapperApi = {
 
     const adapter = assertGetTonChainAdapter(sellAsset.chainId)
 
-    const {
-      poolAddress,
-      sellAssetAddress,
-      sellAmount,
-      minBuyAmount,
-      gasBudget,
-    } = dedustSpecific
+    const { poolAddress, sellAssetAddress, sellAmount, minBuyAmount, gasBudget } = dedustSpecific
 
     const maxRetries = 3
     let lastError: Error | null = null

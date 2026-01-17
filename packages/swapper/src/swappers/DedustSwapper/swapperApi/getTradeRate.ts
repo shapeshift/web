@@ -1,6 +1,6 @@
 import { Asset as DedustAsset, PoolType } from '@dedust/sdk'
-import type { Address } from '@ton/core'
 import { Err, Ok } from '@sniptt/monads'
+import type { Address } from '@ton/core'
 
 import type { GetTradeRateInput, TradeRate, TradeRateResult } from '../../../types'
 import { SwapperName, TradeQuoteError } from '../../../types'

@@ -1,6 +1,6 @@
 import { Asset as DedustAsset, PoolType } from '@dedust/sdk'
-import type { Address } from '@ton/core'
 import { Err, Ok } from '@sniptt/monads'
+import type { Address } from '@ton/core'
 
 import type { CommonTradeQuoteInput, TradeQuote, TradeQuoteResult } from '../../../types'
 import { SwapperName, TradeQuoteError } from '../../../types'
@@ -98,7 +98,8 @@ export const getTradeQuote = async (input: CommonTradeQuoteInput): Promise<Trade
     )
     const minBuyAmount = calculateMinBuyAmount(buyAmountCryptoBaseUnit, slippageBps)
 
-    const gasBudget = sellAssetAddress.type === 'native' ? DEDUST_GAS_BUDGET_TON : DEDUST_GAS_BUDGET_JETTON
+    const gasBudget =
+      sellAssetAddress.type === 'native' ? DEDUST_GAS_BUDGET_TON : DEDUST_GAS_BUDGET_JETTON
 
     const rate = calculateRate(
       buyAmountCryptoBaseUnit,

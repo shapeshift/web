@@ -3385,9 +3385,10 @@
     "eip155:1/erc20:0x5732046a883704404f284ce41ffadd5b007fd668",
     "eip155:56/erc20:0x935a544bf5816e3a7c13db2efe3009ffda0acda2"
   ],
-  "eip155:56/erc20:0x76a797a59ba2c17726896976b7b3747bfd1d220f": [
+  "ton:mainnet/slip44:607": [
     "eip155:1/erc20:0x582d872a1b094fc48f5de31d3b73f2d9be47def1",
-    "eip155:56/erc20:0x76a797a59ba2c17726896976b7b3747bfd1d220f"
+    "eip155:56/erc20:0x76a797a59ba2c17726896976b7b3747bfd1d220f",
+    "ton:mainnet/slip44:607"
   ],
   "eip155:42161/erc20:0x40bd670a58238e6e230c430bbb5ce6ec0d40df48": [
     "eip155:8453/erc20:0xbaa5cc21fd487b8fcc2f632f3f4e8d37262a0842",
@@ -6043,7 +6044,8 @@
     "starknet:SN_MAIN/token:0x53c91253bc9682c04929ca02ed00b3e423f6710d2ee7e0d5ebb06f3ecf368a8",
     "eip155:747474/erc20:0x203a662b0bd271a6ed5a60edfbd04bfce608fd36",
     "near:mainnet/nep141:a0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.factory.bridge.near",
-    "sui:35834a8a/coin:0xdba34672e30cb065b1f93e3ab55318768fd6fef66c15942c9f7cb846e2f900e7::usdc::USDC"
+    "sui:35834a8a/coin:0xdba34672e30cb065b1f93e3ab55318768fd6fef66c15942c9f7cb846e2f900e7::usdc::USDC",
+    "ton:mainnet/jetton:EQB-MPwrd1G6WKNkLz_VnV6WqBDd142KMQv-g1O-8QUA3728"
   ],
   "eip155:8453/erc20:0x9c632e6aaa3ea73f91554f8a3cb2ed2f29605e0c": [
     "eip155:56/erc20:0x7324c7c0d95cebc73eea7e85cbaac0dbdf88a05b",
@@ -8316,7 +8318,8 @@
     "eip155:747474/erc20:0x2dca96907fde857dd3d816880a0df407eeb2d2f2",
     "near:mainnet/nep141:dac17f958d2ee523a2206206994597c13d831ec7.factory.bridge.near",
     "near:mainnet/nep141:usdt.tether-token.near",
-    "sui:35834a8a/coin:0x375f70cf2ae4c00bf37117d0c85a2c71545e6ee05c4a5c7d282cd66a4504b068::usdt::USDT"
+    "sui:35834a8a/coin:0x375f70cf2ae4c00bf37117d0c85a2c71545e6ee05c4a5c7d282cd66a4504b068::usdt::USDT",
+    "ton:mainnet/jetton:EQCxE6mUtQJKFnGfaROTKOt1lZbDiiX1kCixRv7Nw2Id_sDs"
   ],
   "eip155:1/erc20:0xdb9783ca04bbd64fe2c6d7b9503a979b3de30729": [
     "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp/token:XsAsZLF4MmsvS1sDxRMrUz7REjHfwbC9UAMXSRBqgEB",

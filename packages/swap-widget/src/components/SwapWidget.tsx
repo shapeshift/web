@@ -28,6 +28,7 @@ import { useChainInfo } from '../hooks/useAssets'
 import { useAssetBalance } from '../hooks/useBalances'
 import { formatUsdValue, useMarketData } from '../hooks/useMarketData'
 import { useBitcoinSigning } from '../hooks/useBitcoinSigning'
+import { useSolanaSigning } from '../hooks/useSolanaSigning'
 import { useSwapRates } from '../hooks/useSwapRates'
 import type { Asset, SwapWidgetProps, ThemeMode, TradeRate } from '../types'
 import { formatAmount, getChainType, getEvmNetworkId, parseAmount, truncateAddress } from '../types'
@@ -179,8 +180,10 @@ const SwapWidgetCore = ({
   const isSellAssetEvm = sellChainType === 'evm'
   const isBuyAssetEvm = buyChainType === 'evm'
   const isSellAssetUtxo = sellChainType === 'utxo'
+  const isSellAssetSolana = sellChainType === 'solana'
   const canExecuteDirectly = isSellAssetEvm && isBuyAssetEvm
   const canExecuteUtxo = isSellAssetUtxo
+  const canExecuteSolana = isSellAssetSolana
 
   const {
     isConnected: isBitcoinConnected,
@@ -192,6 +195,14 @@ const SwapWidgetCore = ({
   } = useBitcoinSigning()
 
   const {
+    isConnected: isSolanaConnected,
+    address: solanaAddress,
+    sendTransaction: sendSolanaTransaction,
+    state: solanaState,
+    reset: resetSolanaState,
+  } = useSolanaSigning()
+
+  const {
     data: rates,
     isLoading: isLoadingRates,
     error: ratesError,
@@ -199,7 +210,7 @@ const SwapWidgetCore = ({
     sellAssetId: sellAsset.assetId,
     buyAssetId: buyAsset.assetId,
     sellAmountCryptoBaseUnit: sellAmountBaseUnit,
-    enabled: !!sellAmountBaseUnit && sellAmountBaseUnit !== '0' && (isSellAssetEvm || isSellAssetUtxo),
+    enabled: !!sellAmountBaseUnit && sellAmountBaseUnit !== '0' && (isSellAssetEvm || isSellAssetUtxo || isSellAssetSolana),
   })
 
   const walletAddress = useMemo(() => {
@@ -333,6 +344,88 @@ const SwapWidgetCore = ({
           refetchSellBalance?.()
           refetchBuyBalance?.()
         }, 10000)
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : 'Transaction failed'
+        setTxStatus({ status: 'error', message: errorMessage })
+        onSwapError?.(error as Error)
+      } finally {
+        setIsExecuting(false)
+      }
+
+      return
+    }
+
+    if (isSellAssetSolana && canExecuteSolana) {
+      if (!isSolanaConnected || !solanaAddress) {
+        return
+      }
+
+      const rateToUse = selectedRate ?? rates?.[0]
+      if (!rateToUse || !sellAmountBaseUnit) {
+        return
+      }
+
+      setIsExecuting(true)
+      resetSolanaState()
+
+      try {
+        const slippageDecimal = (parseFloat(slippage) / 100).toString()
+        const quoteResponse = await apiClient.getQuote({
+          sellAssetId: sellAsset.assetId,
+          buyAssetId: buyAsset.assetId,
+          sellAmountCryptoBaseUnit: sellAmountBaseUnit,
+          sendAddress: solanaAddress,
+          receiveAddress: effectiveReceiveAddress || solanaAddress,
+          swapperName: rateToUse.swapperName,
+          slippageTolerancePercentageDecimal: slippageDecimal,
+        })
+
+        const outerStep = quoteResponse.steps?.[0]
+        const innerStep = quoteResponse.quote?.steps?.[0]
+        const transactionData =
+          quoteResponse.transactionData ??
+          outerStep?.transactionData ??
+          innerStep?.transactionData
+
+        if (!transactionData) {
+          throw new Error(
+            `No transaction data returned. Response keys: ${Object.keys(quoteResponse).join(', ')}`,
+          )
+        }
+
+        setTxStatus({
+          status: 'pending',
+          message: 'Waiting for wallet confirmation...',
+        })
+
+        const serializedTransaction = (transactionData as { serializedTransaction?: string }).serializedTransaction
+
+        if (!serializedTransaction) {
+          throw new Error('No serialized transaction in transaction data')
+        }
+
+        const { VersionedTransaction } = await import('@solana/web3.js')
+        const transactionBuffer = Buffer.from(serializedTransaction, 'base64')
+        const transaction = VersionedTransaction.deserialize(transactionBuffer)
+
+        const signature = await sendSolanaTransaction({ transaction })
+
+        setTxStatus({
+          status: 'pending',
+          txHash: signature,
+          message: 'Transaction broadcast. Waiting for confirmation...',
+        })
+
+        setTxStatus({ status: 'success', txHash: signature, message: 'Swap initiated!' })
+        onSwapSuccess?.(signature)
+
+        setSellAmount('')
+        setSelectedRate(null)
+
+        setTimeout(() => {
+          refetchSellBalance?.()
+          refetchBuyBalance?.()
+        }, 5000)
       } catch (error) {
         const errorMessage = error instanceof Error ? error.message : 'Transaction failed'
         setTxStatus({ status: 'error', message: errorMessage })
@@ -511,13 +604,19 @@ const SwapWidgetCore = ({
     effectiveReceiveAddress,
     canExecuteDirectly,
     canExecuteUtxo,
+    canExecuteSolana,
     isSellAssetEvm,
     isSellAssetUtxo,
+    isSellAssetSolana,
     isBitcoinConnected,
     bitcoinAddress,
     sendBitcoinTransfer,
     signPsbt,
     resetBitcoinState,
+    isSolanaConnected,
+    solanaAddress,
+    sendSolanaTransaction,
+    resetSolanaState,
     sellAsset,
     buyAsset,
     sellAmount,
@@ -534,18 +633,30 @@ const SwapWidgetCore = ({
     if (canExecuteUtxo && !isBitcoinConnected) {
       return
     }
+    if (canExecuteSolana && !isSolanaConnected) {
+      return
+    }
     if (!walletClient && canExecuteDirectly && onConnectWallet) {
       onConnectWallet()
       return
     }
     handleExecuteSwap()
-  }, [walletClient, canExecuteDirectly, canExecuteUtxo, isBitcoinConnected, onConnectWallet, handleExecuteSwap])
+  }, [walletClient, canExecuteDirectly, canExecuteUtxo, canExecuteSolana, isBitcoinConnected, isSolanaConnected, onConnectWallet, handleExecuteSwap])
 
   const buttonText = useMemo(() => {
     if (isSellAssetUtxo && canExecuteUtxo) {
       if (!sellAmount) return 'Enter an amount'
       if (!isBitcoinConnected) return 'Connect Bitcoin Wallet'
       if (bitcoinState.isLoading || isExecuting) return 'Executing...'
+      if (isLoadingRates) return 'Finding rates...'
+      if (ratesError) return 'No routes available'
+      if (!rates?.length) return 'No routes found'
+      return 'Swap'
+    }
+    if (isSellAssetSolana && canExecuteSolana) {
+      if (!sellAmount) return 'Enter an amount'
+      if (!isSolanaConnected) return 'Connect Solana Wallet'
+      if (solanaState.isLoading || isExecuting) return 'Executing...'
       if (isLoadingRates) return 'Finding rates...'
       if (ratesError) return 'No routes available'
       if (!rates?.length) return 'No routes found'
@@ -564,10 +675,14 @@ const SwapWidgetCore = ({
     walletClient,
     canExecuteDirectly,
     canExecuteUtxo,
+    canExecuteSolana,
     isSellAssetEvm,
     isSellAssetUtxo,
+    isSellAssetSolana,
     isBitcoinConnected,
+    isSolanaConnected,
     bitcoinState.isLoading,
+    solanaState.isLoading,
     sellAmount,
     isLoadingRates,
     ratesError,
@@ -586,6 +701,16 @@ const SwapWidgetCore = ({
       if (isExecuting) return true
       return false
     }
+    if (isSellAssetSolana && canExecuteSolana) {
+      if (!sellAmount) return true
+      if (!isSolanaConnected) return true
+      if (solanaState.isLoading) return true
+      if (isLoadingRates) return true
+      if (ratesError) return true
+      if (!rates?.length) return true
+      if (isExecuting) return true
+      return false
+    }
     if (!isSellAssetEvm) return false
     if (!sellAmount) return true
     if (isLoadingRates) return true
@@ -593,7 +718,7 @@ const SwapWidgetCore = ({
     if (!rates?.length) return true
     if (isExecuting) return true
     return false
-  }, [isSellAssetEvm, isSellAssetUtxo, canExecuteUtxo, isBitcoinConnected, bitcoinState.isLoading, sellAmount, isLoadingRates, ratesError, rates, isExecuting])
+  }, [isSellAssetEvm, isSellAssetUtxo, isSellAssetSolana, canExecuteUtxo, canExecuteSolana, isBitcoinConnected, isSolanaConnected, bitcoinState.isLoading, solanaState.isLoading, sellAmount, isLoadingRates, ratesError, rates, isExecuting])
 
   const { data: sellChainInfo } = useChainInfo(sellAsset.chainId)
   const { data: buyChainInfo } = useChainInfo(buyAsset.chainId)
@@ -681,6 +806,9 @@ const SwapWidgetCore = ({
             )}
             {bitcoinAddress && isSellAssetUtxo && (
               <span className='ssw-wallet-badge'>{truncateAddress(bitcoinAddress)}</span>
+            )}
+            {solanaAddress && isSellAssetSolana && (
+              <span className='ssw-wallet-badge'>{truncateAddress(solanaAddress)}</span>
             )}
           </div>
 
@@ -908,6 +1036,9 @@ const SwapWidgetCore = ({
                 href={(() => {
                   if (isSellAssetUtxo) {
                     return `https://mempool.space/tx/${txStatus.txHash}`
+                  }
+                  if (isSellAssetSolana) {
+                    return `https://solscan.io/tx/${txStatus.txHash}`
                   }
                   return `${sellAsset.explorerTxLink ?? 'https://etherscan.io/tx/'}${txStatus.txHash}`
                 })()}

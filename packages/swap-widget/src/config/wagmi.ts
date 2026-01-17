@@ -1,4 +1,4 @@
-import { getDefaultConfig } from '@rainbow-me/rainbowkit'
+import { WagmiAdapter } from '@reown/appkit-adapter-wagmi'
 import type { Config } from 'wagmi'
 import {
   arbitrum,
@@ -7,14 +7,10 @@ import {
   base,
   bsc,
   gnosis,
-  hyperEvm,
-  katana,
   mainnet,
-  monad,
   optimism,
-  plasma,
   polygon,
-} from 'wagmi/chains'
+} from '@reown/appkit/networks'
 
 export const SUPPORTED_CHAINS = [
   mainnet,
@@ -26,10 +22,6 @@ export const SUPPORTED_CHAINS = [
   avalanche,
   bsc,
   gnosis,
-  monad,
-  hyperEvm,
-  plasma,
-  katana,
 ] as const
 
 export type SupportedChains = typeof SUPPORTED_CHAINS
@@ -37,13 +29,21 @@ export type SupportedChainId = SupportedChains[number]['id']
 
 export type WagmiConfig = Config
 
-export const createWagmiConfig = (
-  projectId: string,
-  appName: string = 'ShapeShift Swap Widget',
-): WagmiConfig =>
-  getDefaultConfig({
-    appName,
-    projectId,
-    chains: SUPPORTED_CHAINS,
-    ssr: false,
-  }) as unknown as WagmiConfig
+let wagmiAdapterInstance: WagmiAdapter | null = null
+
+export const createWagmiAdapter = (projectId: string): WagmiAdapter => {
+  if (!wagmiAdapterInstance) {
+    wagmiAdapterInstance = new WagmiAdapter({
+      networks: SUPPORTED_CHAINS,
+      projectId,
+    })
+  }
+  return wagmiAdapterInstance
+}
+
+export const getWagmiAdapter = (): WagmiAdapter | null => wagmiAdapterInstance
+
+export const createWagmiConfig = (projectId: string): WagmiConfig => {
+  const adapter = createWagmiAdapter(projectId)
+  return adapter.wagmiConfig as WagmiConfig
+}

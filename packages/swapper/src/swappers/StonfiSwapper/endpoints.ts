@@ -15,7 +15,7 @@ import { omnistonManager } from './utils/omnistonManager'
 
 const TRADE_TRACKING_TIMEOUT_MS = 60000
 
-const waitForFirstTradeStatus = async (
+const waitForFirstTradeStatus = (
   request: {
     quoteId: string
     traderWalletAddress: { blockchain: number; address: string }

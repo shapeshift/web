@@ -128,7 +128,29 @@ export const getTradeQuote = async (
       ],
     }
 
-    const quoteResponse: QuoteResponse = await OneClickService.getQuote(quoteRequest)
+    const maxRetries = 3
+    let quoteResponse: QuoteResponse | null = null
+    let lastError: Error | null = null
+
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+      try {
+        quoteResponse = await OneClickService.getQuote(quoteRequest)
+        break
+      } catch (err) {
+        lastError = err instanceof Error ? err : new Error(String(err))
+        const isWebSocketError = lastError.message.includes('WebSocket is not ready')
+
+        if (isWebSocketError && attempt < maxRetries) {
+          await new Promise(resolve => setTimeout(resolve, 1000 * attempt))
+          continue
+        }
+        throw lastError
+      }
+    }
+
+    if (!quoteResponse) {
+      throw lastError ?? new Error('Failed to get quote after retries')
+    }
 
     const { quote } = quoteResponse
 
@@ -276,6 +298,24 @@ export const getTradeQuote = async (
               tokenContractAddress,
             },
             sendMax: false,
+          })
+
+          return { networkFeeCryptoBaseUnit: feeData.fast.txFee }
+        }
+
+        case CHAIN_NAMESPACE.Ton: {
+          const sellAdapter = deps.assertGetTonChainAdapter(sellAsset.chainId)
+          const contractAddress = isToken(sellAsset.assetId)
+            ? fromAssetId(sellAsset.assetId).assetReference
+            : undefined
+
+          const feeData = await sellAdapter.getFeeData({
+            to: depositAddress,
+            value: sellAmount,
+            chainSpecific: {
+              from,
+              contractAddress,
+            },
           })
 
           return { networkFeeCryptoBaseUnit: feeData.fast.txFee }

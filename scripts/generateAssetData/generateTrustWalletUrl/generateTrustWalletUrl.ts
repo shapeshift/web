@@ -14,6 +14,7 @@ export const generateTrustWalletUrl = (assetId: AssetId) => {
     tron: 'tron',
     sui: 'sui',
     near: 'near',
+    ton: 'ton',
   }
 
   const trustWalletChainName = chainNamespaceToTrustWallet[chainNamespace]

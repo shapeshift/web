@@ -199,6 +199,9 @@ describe('adapters:coingecko:utils', () => {
         'starknet:SN_MAIN': {
           'starknet:SN_MAIN/slip44:9004': 'starknet',
         },
+        'ton:mainnet': {
+          'ton:mainnet/slip44:607': 'the-open-network',
+        },
       }
       expect(result).toEqual(expected)
     })

@@ -27,6 +27,7 @@ import { getBaseAsset } from '../constants/chains'
 import { useChainInfo } from '../hooks/useAssets'
 import { useAssetBalance } from '../hooks/useBalances'
 import { formatUsdValue, useMarketData } from '../hooks/useMarketData'
+import { useBitcoinSigning } from '../hooks/useBitcoinSigning'
 import { useSwapRates } from '../hooks/useSwapRates'
 import type { Asset, SwapWidgetProps, ThemeMode, TradeRate } from '../types'
 import { formatAmount, getChainType, getEvmNetworkId, parseAmount, truncateAddress } from '../types'
@@ -173,9 +174,22 @@ const SwapWidgetCore = ({
     [sellAmount, sellAsset.precision],
   )
 
-  const isSellAssetEvm = getChainType(sellAsset.chainId) === 'evm'
-  const isBuyAssetEvm = getChainType(buyAsset.chainId) === 'evm'
+  const sellChainType = getChainType(sellAsset.chainId)
+  const buyChainType = getChainType(buyAsset.chainId)
+  const isSellAssetEvm = sellChainType === 'evm'
+  const isBuyAssetEvm = buyChainType === 'evm'
+  const isSellAssetUtxo = sellChainType === 'utxo'
   const canExecuteDirectly = isSellAssetEvm && isBuyAssetEvm
+  const canExecuteUtxo = isSellAssetUtxo
+
+  const {
+    isConnected: isBitcoinConnected,
+    address: bitcoinAddress,
+    sendTransfer: sendBitcoinTransfer,
+    signPsbt,
+    state: bitcoinState,
+    reset: resetBitcoinState,
+  } = useBitcoinSigning()
 
   const {
     data: rates,
@@ -185,7 +199,7 @@ const SwapWidgetCore = ({
     sellAssetId: sellAsset.assetId,
     buyAssetId: buyAsset.assetId,
     sellAmountCryptoBaseUnit: sellAmountBaseUnit,
-    enabled: !!sellAmountBaseUnit && sellAmountBaseUnit !== '0' && isSellAssetEvm,
+    enabled: !!sellAmountBaseUnit && sellAmountBaseUnit !== '0' && (isSellAssetEvm || isSellAssetUtxo),
   })
 
   const walletAddress = useMemo(() => {
@@ -239,6 +253,97 @@ const SwapWidgetCore = ({
   )
 
   const handleExecuteSwap = useCallback(async () => {
+    if (isSellAssetUtxo && canExecuteUtxo) {
+      if (!isBitcoinConnected || !bitcoinAddress) {
+        return
+      }
+
+      const rateToUse = selectedRate ?? rates?.[0]
+      if (!rateToUse || !sellAmountBaseUnit) {
+        return
+      }
+
+      setIsExecuting(true)
+      resetBitcoinState()
+
+      try {
+        const slippageDecimal = (parseFloat(slippage) / 100).toString()
+        const quoteResponse = await apiClient.getQuote({
+          sellAssetId: sellAsset.assetId,
+          buyAssetId: buyAsset.assetId,
+          sellAmountCryptoBaseUnit: sellAmountBaseUnit,
+          sendAddress: bitcoinAddress,
+          receiveAddress: effectiveReceiveAddress || bitcoinAddress,
+          swapperName: rateToUse.swapperName,
+          slippageTolerancePercentageDecimal: slippageDecimal,
+        })
+
+        const outerStep = quoteResponse.steps?.[0]
+        const innerStep = quoteResponse.quote?.steps?.[0]
+        const transactionData =
+          quoteResponse.transactionData ??
+          outerStep?.transactionData ??
+          innerStep?.transactionData
+
+        if (!transactionData) {
+          throw new Error(
+            `No transaction data returned. Response keys: ${Object.keys(quoteResponse).join(', ')}`,
+          )
+        }
+
+        setTxStatus({
+          status: 'pending',
+          message: 'Waiting for wallet confirmation...',
+        })
+
+        const psbt = (transactionData as { psbt?: string }).psbt
+        const recipientAddress = transactionData.to
+        const value = transactionData.value ?? sellAmountBaseUnit
+
+        let txid: string
+
+        if (psbt) {
+          txid = await signPsbt({
+            psbt,
+            signInputs: {},
+            broadcast: true,
+          })
+        } else if (recipientAddress) {
+          txid = await sendBitcoinTransfer({
+            recipientAddress,
+            amount: value,
+          })
+        } else {
+          throw new Error('No PSBT or recipient address in transaction data')
+        }
+
+        setTxStatus({
+          status: 'pending',
+          txHash: txid,
+          message: 'Transaction broadcast. Waiting for confirmation...',
+        })
+
+        setTxStatus({ status: 'success', txHash: txid, message: 'Swap initiated!' })
+        onSwapSuccess?.(txid)
+
+        setSellAmount('')
+        setSelectedRate(null)
+
+        setTimeout(() => {
+          refetchSellBalance?.()
+          refetchBuyBalance?.()
+        }, 10000)
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : 'Transaction failed'
+        setTxStatus({ status: 'error', message: errorMessage })
+        onSwapError?.(error as Error)
+      } finally {
+        setIsExecuting(false)
+      }
+
+      return
+    }
+
     if (!isSellAssetEvm) {
       const params = new URLSearchParams({
         sellAssetId: sellAsset.assetId,
@@ -405,7 +510,14 @@ const SwapWidgetCore = ({
     walletAddress,
     effectiveReceiveAddress,
     canExecuteDirectly,
+    canExecuteUtxo,
     isSellAssetEvm,
+    isSellAssetUtxo,
+    isBitcoinConnected,
+    bitcoinAddress,
+    sendBitcoinTransfer,
+    signPsbt,
+    resetBitcoinState,
     sellAsset,
     buyAsset,
     sellAmount,
@@ -419,14 +531,26 @@ const SwapWidgetCore = ({
   ])
 
   const handleButtonClick = useCallback(() => {
+    if (canExecuteUtxo && !isBitcoinConnected) {
+      return
+    }
     if (!walletClient && canExecuteDirectly && onConnectWallet) {
       onConnectWallet()
       return
     }
     handleExecuteSwap()
-  }, [walletClient, canExecuteDirectly, onConnectWallet, handleExecuteSwap])
+  }, [walletClient, canExecuteDirectly, canExecuteUtxo, isBitcoinConnected, onConnectWallet, handleExecuteSwap])
 
   const buttonText = useMemo(() => {
+    if (isSellAssetUtxo && canExecuteUtxo) {
+      if (!sellAmount) return 'Enter an amount'
+      if (!isBitcoinConnected) return 'Connect Bitcoin Wallet'
+      if (bitcoinState.isLoading || isExecuting) return 'Executing...'
+      if (isLoadingRates) return 'Finding rates...'
+      if (ratesError) return 'No routes available'
+      if (!rates?.length) return 'No routes found'
+      return 'Swap'
+    }
     if (!isSellAssetEvm) return 'Proceed on ShapeShift'
     if (!sellAmount) return 'Enter an amount'
     if (!walletClient && canExecuteDirectly) return 'Connect Wallet'
@@ -439,7 +563,11 @@ const SwapWidgetCore = ({
   }, [
     walletClient,
     canExecuteDirectly,
+    canExecuteUtxo,
     isSellAssetEvm,
+    isSellAssetUtxo,
+    isBitcoinConnected,
+    bitcoinState.isLoading,
     sellAmount,
     isLoadingRates,
     ratesError,
@@ -448,14 +576,24 @@ const SwapWidgetCore = ({
   ])
 
   const isButtonDisabled = useMemo(() => {
-    if (!isSellAssetEvm) return false // Allow non-EVM without amount
+    if (isSellAssetUtxo && canExecuteUtxo) {
+      if (!sellAmount) return true
+      if (!isBitcoinConnected) return true
+      if (bitcoinState.isLoading) return true
+      if (isLoadingRates) return true
+      if (ratesError) return true
+      if (!rates?.length) return true
+      if (isExecuting) return true
+      return false
+    }
+    if (!isSellAssetEvm) return false
     if (!sellAmount) return true
     if (isLoadingRates) return true
     if (ratesError) return true
     if (!rates?.length) return true
     if (isExecuting) return true
     return false
-  }, [isSellAssetEvm, sellAmount, isLoadingRates, ratesError, rates, isExecuting])
+  }, [isSellAssetEvm, isSellAssetUtxo, canExecuteUtxo, isBitcoinConnected, bitcoinState.isLoading, sellAmount, isLoadingRates, ratesError, rates, isExecuting])
 
   const { data: sellChainInfo } = useChainInfo(sellAsset.chainId)
   const { data: buyChainInfo } = useChainInfo(buyAsset.chainId)
@@ -540,6 +678,9 @@ const SwapWidgetCore = ({
             <span className='ssw-section-label'>Sell</span>
             {walletAddress && isSellAssetEvm && (
               <span className='ssw-wallet-badge'>{truncateAddress(walletAddress)}</span>
+            )}
+            {bitcoinAddress && isSellAssetUtxo && (
+              <span className='ssw-wallet-badge'>{truncateAddress(bitcoinAddress)}</span>
             )}
           </div>
 
@@ -764,7 +905,12 @@ const SwapWidgetCore = ({
             <span className='ssw-tx-status-message'>{txStatus.message}</span>
             {txStatus.txHash && (
               <a
-                href={`${sellAsset.explorerTxLink ?? 'https://etherscan.io/tx/'}${txStatus.txHash}`}
+                href={(() => {
+                  if (isSellAssetUtxo) {
+                    return `https://mempool.space/tx/${txStatus.txHash}`
+                  }
+                  return `${sellAsset.explorerTxLink ?? 'https://etherscan.io/tx/'}${txStatus.txHash}`
+                })()}
                 target='_blank'
                 rel='noopener noreferrer'
                 className='ssw-tx-status-link'

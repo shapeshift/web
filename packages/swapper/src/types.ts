@@ -101,6 +101,7 @@ export enum SwapperName {
   Sunio = 'Sun.io',
   Avnu = 'AVNU',
   Stonfi = 'STON.fi',
+  DeDust = 'DeDust',
 }
 
 export type SwapSource = SwapperName | `${SwapperName} • ${string}`

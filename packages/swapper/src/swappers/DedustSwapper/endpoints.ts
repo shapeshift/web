@@ -1,4 +1,4 @@
-import { Asset as DedustAsset, JettonRoot, VaultJetton, VaultNative } from '@dedust/sdk'
+import { Asset as DedustAsset, JettonRoot, VaultJetton } from '@dedust/sdk'
 import { toAddressNList } from '@shapeshiftoss/chain-adapters'
 import { TxStatus } from '@shapeshiftoss/unchained-client'
 import type { Address } from '@ton/core'

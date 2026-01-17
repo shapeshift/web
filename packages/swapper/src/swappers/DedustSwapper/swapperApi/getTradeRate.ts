@@ -1,4 +1,4 @@
-import { Asset as DedustAsset, PoolType } from '@dedust/sdk'
+import { Asset as DedustAsset, PoolType, ReadinessStatus } from '@dedust/sdk'
 import { Err, Ok } from '@sniptt/monads'
 import type { Address } from '@ton/core'
 
@@ -78,6 +78,17 @@ export const getTradeRate = async (input: GetTradeRateInput): Promise<TradeRateR
 
     const pool = client.open(poolContract)
     const poolAddress = pool.address.toString()
+
+    const readinessStatus = await pool.getReadinessStatus()
+    if (readinessStatus !== ReadinessStatus.READY) {
+      return Err(
+        makeSwapErrorRight({
+          message: `[DeDust] Pool is not ready for swaps (status: ${readinessStatus})`,
+          code: TradeQuoteError.UnsupportedTradePair,
+        }),
+      )
+    }
+
     const { amountOut } = await pool.getEstimatedSwapOut({
       assetIn: sellDedustAsset,
       amountIn: BigInt(sellAmountIncludingProtocolFeesCryptoBaseUnit),

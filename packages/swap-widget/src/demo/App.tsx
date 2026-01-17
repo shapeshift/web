@@ -1,17 +1,17 @@
-import '@rainbow-me/rainbowkit/styles.css'
 import './App.css'
 
-import { ConnectButton, darkTheme, lightTheme, RainbowKitProvider } from '@rainbow-me/rainbowkit'
+import { useAppKit, useAppKitAccount } from '@reown/appkit/react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { useCallback, useMemo, useState } from 'react'
-import { useAccount, useWalletClient, WagmiProvider } from 'wagmi'
+import { useWalletClient, WagmiProvider } from 'wagmi'
+import type { Config } from 'wagmi'
 
 import { SwapWidget } from '../components/SwapWidget'
-import type { WagmiConfig } from '../config/wagmi'
-import { createWagmiConfig } from '../config/wagmi'
+import { getWagmiAdapter, initializeAppKit } from '../config/appkit'
 import type { ThemeConfig } from '../types'
+import { truncateAddress } from '../types'
 
-const config: WagmiConfig = createWagmiConfig('f58c0242def84c3b9befe9b1e6086bbd')
+const PROJECT_ID = 'f58c0242def84c3b9befe9b1e6086bbd'
 
 const queryClient = new QueryClient()
 
@@ -63,8 +63,31 @@ type DemoContentProps = {
   setTheme: (theme: 'light' | 'dark') => void
 }
 
+const ConnectButton = () => {
+  const { open } = useAppKit()
+  const { address, isConnected } = useAppKitAccount()
+
+  const handleClick = useCallback(() => {
+    open()
+  }, [open])
+
+  if (!isConnected) {
+    return (
+      <button onClick={handleClick} type='button' className='demo-connect-btn'>
+        Connect Wallet
+      </button>
+    )
+  }
+
+  return (
+    <button onClick={handleClick} type='button' className='demo-connect-btn demo-connected'>
+      {address ? truncateAddress(address) : 'Connected'}
+    </button>
+  )
+}
+
 const DemoContent = ({ theme, setTheme }: DemoContentProps) => {
-  const { address, isConnected } = useAccount()
+  const { address, isConnected } = useAppKitAccount()
   const { data: walletClient } = useWalletClient()
   const [showCustomizer, setShowCustomizer] = useState(true)
 
@@ -178,7 +201,7 @@ const DemoContent = ({ theme, setTheme }: DemoContentProps) => {
             </svg>
             Customize
           </button>
-          <ConnectButton showBalance={false} />
+          <ConnectButton />
         </div>
       </header>
 
@@ -423,14 +446,20 @@ const DemoContent = ({ theme, setTheme }: DemoContentProps) => {
 export const App = () => {
   const [theme, setTheme] = useState<'light' | 'dark'>('dark')
 
-  const rainbowTheme = useMemo(() => (theme === 'dark' ? darkTheme() : lightTheme()), [theme])
+  const wagmiConfig = useMemo((): Config | undefined => {
+    initializeAppKit(PROJECT_ID)
+    const adapter = getWagmiAdapter()
+    return adapter?.wagmiConfig
+  }, [])
+
+  if (!wagmiConfig) {
+    return null
+  }
 
   return (
-    <WagmiProvider config={config as any}>
+    <WagmiProvider config={wagmiConfig}>
       <QueryClientProvider client={queryClient}>
-        <RainbowKitProvider theme={rainbowTheme}>
-          <DemoContent theme={theme} setTheme={setTheme} />
-        </RainbowKitProvider>
+        <DemoContent theme={theme} setTheme={setTheme} />
       </QueryClientProvider>
     </WagmiProvider>
   )

@@ -25,6 +25,7 @@ import type * as near from './near/types'
 import type * as solana from './solana/types'
 import type * as starknet from './starknet/types'
 import type * as sui from './sui/types'
+import type * as ton from './ton/types'
 import type * as tron from './tron/types'
 import type * as utxo from './utxo/types'
 
@@ -61,6 +62,7 @@ type ChainSpecificAccount<T> = ChainSpecific<
     [KnownChainIds.SuiMainnet]: sui.Account
     [KnownChainIds.NearMainnet]: near.Account
     [KnownChainIds.StarknetMainnet]: starknet.Account
+    [KnownChainIds.TonMainnet]: ton.Account
   }
 >
 
@@ -112,6 +114,7 @@ type ChainSpecificFeeData<T> = ChainSpecific<
     [KnownChainIds.SuiMainnet]: sui.FeeData
     [KnownChainIds.NearMainnet]: near.FeeData
     [KnownChainIds.StarknetMainnet]: starknet.FeeData
+    [KnownChainIds.TonMainnet]: ton.FeeData
   }
 >
 
@@ -196,6 +199,7 @@ export type ChainSignTx = {
   [KnownChainIds.SuiMainnet]: SuiSignTx
   [KnownChainIds.NearMainnet]: near.NearSignTx
   [KnownChainIds.StarknetMainnet]: StarknetSignTx
+  [KnownChainIds.TonMainnet]: ton.TonSignTx
 }
 
 export type SignTx<T extends ChainId> = T extends keyof ChainSignTx ? ChainSignTx[T] : never
@@ -252,6 +256,7 @@ export type ChainSpecificBuildTxData<T> = ChainSpecific<
     [KnownChainIds.SuiMainnet]: sui.BuildTxInput
     [KnownChainIds.NearMainnet]: near.BuildTxInput
     [KnownChainIds.StarknetMainnet]: starknet.BuildTxInput
+    [KnownChainIds.TonMainnet]: ton.BuildTxInput
   }
 >
 
@@ -355,6 +360,7 @@ type ChainSpecificGetFeeDataInput<T> = ChainSpecific<
     [KnownChainIds.TronMainnet]: tron.GetFeeDataInput
     [KnownChainIds.NearMainnet]: near.GetFeeDataInput
     [KnownChainIds.StarknetMainnet]: starknet.GetFeeDataInput
+    [KnownChainIds.TonMainnet]: ton.GetFeeDataInput
   }
 >
 export type GetFeeDataInput<T extends ChainId> = {
@@ -427,6 +433,7 @@ export enum ChainAdapterDisplayName {
   Sui = 'Sui',
   Near = 'NEAR',
   Starknet = 'Starknet',
+  Ton = 'TON',
 }
 
 export type BroadcastTransactionInput = {

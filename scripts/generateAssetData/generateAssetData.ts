@@ -44,6 +44,7 @@ import * as polygon from './polygon'
 import * as solana from './solana'
 import * as starknet from './starknet'
 import * as sui from './sui'
+import * as tonModule from './ton'
 import * as tronModule from './tron'
 import { filterOutBlacklistedAssets, getSortedAssetIds } from './utils'
 
@@ -76,6 +77,7 @@ const generateAssetData = async () => {
   const starknetAssets = await starknet.getAssets()
   const tronAssets = await tronModule.getAssets()
   const suiAssets = await sui.getAssets()
+  const tonAssets = await tonModule.getAssets()
   const nearAssets = await near.getAssets()
 
   // all assets, included assets to be blacklisted
@@ -108,6 +110,7 @@ const generateAssetData = async () => {
     ...starknetAssets,
     ...tronAssets,
     ...suiAssets,
+    ...tonAssets,
     ...nearAssets,
   ]
 

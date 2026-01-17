@@ -42,6 +42,8 @@ export const getLedgerAppName = (chainId: ChainId | KnownChainIds | undefined) =
       return 'Tron'
     case KnownChainIds.NearMainnet:
       return 'NEAR'
+    case KnownChainIds.TonMainnet:
+      return 'TON'
     default:
       throw Error(`Unsupported chainId: ${chainId}`)
   }
@@ -76,6 +78,8 @@ const getCoin = (chainId: ChainId | KnownChainIds) => {
       return 'Tron'
     case KnownChainIds.NearMainnet:
       return 'Near'
+    case KnownChainIds.TonMainnet:
+      return 'Ton'
     default:
       throw Error(`Unsupported chainId: ${chainId}`)
   }

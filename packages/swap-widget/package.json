@@ -15,9 +15,14 @@
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
-    "@rainbow-me/rainbowkit": "2.1.7",
+    "@reown/appkit": "^1.8.15",
+    "@reown/appkit-adapter-bitcoin": "^1.8.15",
+    "@reown/appkit-adapter-solana": "^1.8.14",
+    "@reown/appkit-adapter-wagmi": "^1.8.15",
     "@shapeshiftoss/caip": "npm:@shapeshiftoss/caip@8.16.6",
     "@shapeshiftoss/utils": "npm:@shapeshiftoss/utils@1.0.5",
+    "@solana/wallet-adapter-wallets": "^0.19.32",
+    "@solana/web3.js": "^1.98.0",
     "@tanstack/react-query": "^5.69.0",
     "bech32": "^2.0.0",
     "p-queue": "^8.0.1",

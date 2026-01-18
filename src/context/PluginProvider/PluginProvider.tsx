@@ -1,4 +1,5 @@
 import type { ChainId } from '@shapeshiftoss/caip'
+import { GENERIC_EVM_CHAINS } from '@shapeshiftoss/caip'
 import type { ChainAdapter } from '@shapeshiftoss/chain-adapters'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import type { JSX } from 'react'
@@ -132,7 +133,11 @@ export const PluginProvider = ({ children }: PluginProviderProps): JSX.Element =
       return true
     })
 
-    setSupportedChains(_supportedChains)
+    const genericChainIds = featureFlags.GenericEvmChains
+      ? GENERIC_EVM_CHAINS.map(chain => chain.chainId as ChainId)
+      : []
+
+    setSupportedChains([..._supportedChains, ...genericChainIds])
   }, [chainAdapterManager, featureFlags, pluginManager, plugins])
 
   const values = useMemo(

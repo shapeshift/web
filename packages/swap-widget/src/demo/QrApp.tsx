@@ -1,11 +1,9 @@
 import './App.css'
 
-import { ConnectButton } from '@rainbow-me/rainbowkit'
 import { useCallback, useMemo, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
-import { useAccount, useWalletClient } from 'wagmi'
 
-import { SwapWidget } from '../components/SwapWidget'
+import { QrSwapWidget } from '../components/QrSwapWidget'
 import type { ThemeConfig } from '../types'
 
 type ThemeColors = {
@@ -51,11 +49,9 @@ const THEME_PRESETS: {
   },
 ]
 
-export const App = () => {
+export const QrApp = () => {
   const location = useLocation()
   const [theme, setTheme] = useState<'light' | 'dark'>('dark')
-  const { address, isConnected } = useAccount()
-  const { data: walletClient } = useWalletClient()
   const [showCustomizer, setShowCustomizer] = useState(true)
 
   const [darkColors, setDarkColors] = useState<ThemeColors>({
@@ -107,23 +103,15 @@ export const App = () => {
 };
 
 // Usage:
-<SwapWidget theme={themeConfig.dark} />
+<QrSwapWidget theme={themeConfig.dark} />
 // or
-<SwapWidget theme={themeConfig.light} />`
+<QrSwapWidget theme={themeConfig.light} />`
 
     navigator.clipboard.writeText(code).then(() => {
       setCopied(true)
       setTimeout(() => setCopied(false), 2000)
     })
   }, [darkColors, lightColors])
-
-  const handleSwapSuccess = (txHash: string) => {
-    console.log('Swap successful:', txHash)
-  }
-
-  const handleSwapError = (error: Error) => {
-    console.error('Swap failed:', error)
-  }
 
   const demoStyle = useMemo(
     () =>
@@ -217,16 +205,15 @@ export const App = () => {
             </svg>
             Customize
           </button>
-          <ConnectButton showBalance={false} />
         </div>
       </header>
 
       <main className='demo-main'>
         <div className='demo-content'>
           <div className='demo-hero'>
-            <h1 className='demo-title'>Swap Widget</h1>
+            <h1 className='demo-title'>QR Code Swap Widget</h1>
             <p className='demo-subtitle'>
-              Embeddable multi-chain swap widget powered by ShapeShift
+              Wallet-less swap widget with QR code payment - powered by ShapeShift
             </p>
           </div>
 
@@ -384,22 +371,6 @@ export const App = () => {
                 </div>
 
                 <div className='demo-customizer-section'>
-                  <span className='demo-customizer-label'>Connection</span>
-                  <div className='demo-connection-info'>
-                    {isConnected ? (
-                      <>
-                        <span className='demo-connected-badge'>Connected</span>
-                        <span className='demo-address'>
-                          {address?.slice(0, 6)}...{address?.slice(-4)}
-                        </span>
-                      </>
-                    ) : (
-                      <span className='demo-disconnected'>Not connected</span>
-                    )}
-                  </div>
-                </div>
-
-                <div className='demo-customizer-section'>
                   <button className='demo-copy-btn' onClick={copyConfig} type='button'>
                     {copied ? (
                       <>
@@ -437,16 +408,7 @@ export const App = () => {
             )}
 
             <div className='demo-widget-container'>
-              <SwapWidget
-                apiKey='test-api-key-123'
-                theme={themeConfig}
-                walletClient={walletClient ?? undefined}
-                onSwapSuccess={handleSwapSuccess}
-                onSwapError={handleSwapError}
-                showPoweredBy={true}
-                enableWalletConnection={true}
-                defaultReceiveAddress={'0x1234567890123456789012345678901234567890'}
-              />
+              <QrSwapWidget apiKey='test-api-key-123' theme={themeConfig} showPoweredBy={true} />
             </div>
           </div>
         </div>

@@ -12360,8 +12360,10 @@ __metadata:
     "@vitejs/plugin-react": ^4.2.0
     bech32: ^2.0.0
     p-queue: ^8.0.1
+    qrcode.react: ^4.2.0
     react: ^19.0.0
     react-dom: ^19.0.0
+    react-router-dom: ^7.12.0
     react-virtuoso: ^4.7.11
     typescript: ^5.2.2
     viem: 2.40.3
@@ -20660,6 +20662,13 @@ __metadata:
   version: 0.4.1
   resolution: "cookie@npm:0.4.1"
   checksum: bd7c47f5d94ab70ccdfe8210cde7d725880d2fcda06d8e375afbdd82de0c8d3b73541996e9ce57d35f67f672c4ee6d60208adec06b3c5fc94cebb85196084cf8
+  languageName: node
+  linkType: hard
+
+"cookie@npm:^1.0.1":
+  version: 1.1.1
+  resolution: "cookie@npm:1.1.1"
+  checksum: e40c4ff817a73ec0a41413654ca9a71e6207bd6e511151bb1d307aef2903eb59771127a85474afe0e12a8982804f7b03cce0bda798b55c306aca9608b4b9acab
   languageName: node
   linkType: hard
 
@@ -31212,6 +31221,15 @@ pvutils@latest:
   languageName: node
   linkType: hard
 
+"qrcode.react@npm:^4.2.0":
+  version: 4.2.0
+  resolution: "qrcode.react@npm:4.2.0"
+  peerDependencies:
+    react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
+  checksum: fe7f496bb3696eedf4113390c6feda386e7a5e5d69d12fcc2489c55ecec467f682dc99b0d8085afbeb8ed3962c1f7554b26225cd78b72e78416f9506abbebd5d
+  languageName: node
+  linkType: hard
+
 "qrcode@npm:1.4.4":
   version: 1.4.4
   resolution: "qrcode@npm:1.4.4"
@@ -31773,6 +31791,18 @@ pvutils@latest:
   languageName: node
   linkType: hard
 
+"react-router-dom@npm:^7.12.0":
+  version: 7.12.0
+  resolution: "react-router-dom@npm:7.12.0"
+  dependencies:
+    react-router: 7.12.0
+  peerDependencies:
+    react: ">=18"
+    react-dom: ">=18"
+  checksum: 3d0977127ff4f2cdab011a7fee2d1d9fbf63cdcd1bed2c97f4b7799af4da3da2542badb8419dcdcde323df9cd27b7e1263c03f6dd8a6f2b185fa6ef937ccc0b3
+  languageName: node
+  linkType: hard
+
 "react-router@npm:6.30.0":
   version: 6.30.0
   resolution: "react-router@npm:6.30.0"
@@ -31781,6 +31811,22 @@ pvutils@latest:
   peerDependencies:
     react: ">=16.8"
   checksum: 35fe773f62b1943cf5ae65056e5d1acbfba50a572a908699881889f073639d42e0d839df107af48a7a058254d59505699b5d68831a714fe6d9aafce982403458
+  languageName: node
+  linkType: hard
+
+"react-router@npm:7.12.0":
+  version: 7.12.0
+  resolution: "react-router@npm:7.12.0"
+  dependencies:
+    cookie: ^1.0.1
+    set-cookie-parser: ^2.6.0
+  peerDependencies:
+    react: ">=18"
+    react-dom: ">=18"
+  peerDependenciesMeta:
+    react-dom:
+      optional: true
+  checksum: f59b399a968cdd9254b711be74e35e1ae365e00a7c908e22a5d80a45ef3ff6ecaf5add40b31ecedfdbe1f82455bb451e0d3b053d64fa2dfb9364af0942c88ea6
   languageName: node
   linkType: hard
 
@@ -33545,6 +33591,13 @@ pvutils@latest:
   version: 2.4.8
   resolution: "set-cookie-parser@npm:2.4.8"
   checksum: e15b5df9a56ab06d4895286033a6aff7b318ad024310df058b5821b3539cc06f716ef529618cac0dd78df40e37830de715f388c0f97f84062dd9be2326efcd0c
+  languageName: node
+  linkType: hard
+
+"set-cookie-parser@npm:^2.6.0":
+  version: 2.7.2
+  resolution: "set-cookie-parser@npm:2.7.2"
+  checksum: 9e1b09e7184079c81f9ba4d2db3222854adf4e6e4fe73982388367649386a93e7f9b979333ddeba22610706def93c2478f34c3324fe223528cb2c4c879a2c2d3
   languageName: node
   linkType: hard
 

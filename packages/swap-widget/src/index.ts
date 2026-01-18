@@ -1,4 +1,5 @@
 export { SwapWidget } from './components/SwapWidget'
+export { QrSwapWidget } from './components/QrSwapWidget'
 
 export type {
   Asset,

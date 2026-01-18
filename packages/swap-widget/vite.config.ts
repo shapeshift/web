@@ -55,6 +55,13 @@ export default defineConfig({
   server: {
     port: 3001,
     open: false,
+    proxy: {
+      '/api/send-swap': {
+        target: 'http://localhost:3004',
+        changeOrigin: true,
+        rewrite: path => path.replace(/^\/api\/send-swap/, ''),
+      },
+    },
   },
   preview: {
     port: Number(process.env.PORT) || 3000,

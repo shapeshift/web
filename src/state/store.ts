@@ -57,6 +57,8 @@ export const clearState = () => {
   store.dispatch(slices.limitOrder.actions.clear())
   store.dispatch(slices.gridplus.actions.clear())
   store.dispatch(slices.addressBook.actions.clear())
+  store.dispatch(slices.stopLoss.actions.clear())
+  store.dispatch(slices.stopLossInput.actions.reset())
 
   store.dispatch(apiSlices.assetApi.util.resetApiState())
   store.dispatch(apiSlices.marketApi.util.resetApiState())
@@ -91,9 +93,9 @@ const actionSanitizer = (action: any) => {
   ]
   return blackList.includes(action.type)
     ? {
-        ...action,
-        payload: 'see actionSanitizer in store.ts',
-      }
+      ...action,
+      payload: 'see actionSanitizer in store.ts',
+    }
     : action
 }
 

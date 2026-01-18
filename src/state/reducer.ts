@@ -44,6 +44,8 @@ import { preferences } from './slices/preferencesSlice/preferencesSlice'
 import { swapSlice } from './slices/swapSlice/swapSlice'
 import type { SwapState } from './slices/swapSlice/types'
 import { tradeInput } from './slices/tradeInputSlice/tradeInputSlice'
+import { stopLossInputSlice } from './slices/stopLossInputSlice/stopLossInputSlice'
+import { stopLossSlice } from './slices/stopLossSlice/stopLossSlice'
 import type { TxHistory } from './slices/txHistorySlice/txHistorySlice'
 import { txHistory, txHistoryApi } from './slices/txHistorySlice/txHistorySlice'
 
@@ -66,6 +68,8 @@ export const slices = {
   tradeEarnInput,
   tradeQuote: tradeQuoteSlice,
   limitOrder: limitOrderSlice,
+  stopLoss: stopLossSlice,
+  stopLossInput: stopLossInputSlice,
   snapshot,
   localWallet: localWalletSlice,
   gridplus: gridplusSlice,
@@ -175,6 +179,8 @@ export const sliceReducers = {
   ),
   tradeQuote: tradeQuoteSlice.reducer,
   limitOrder: limitOrderSlice.reducer,
+  stopLoss: stopLossSlice.reducer,
+  stopLossInput: stopLossInputSlice.reducer,
   snapshot: persistReducer<SnapshotState>(snapshotPersistConfig, snapshot.reducer),
   localWallet: persistReducer<LocalWalletState>(
     localWalletSlicePersistConfig,

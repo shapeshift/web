@@ -52,6 +52,8 @@ export const HYPERLIQUID_RATE_LIMIT_BACKOFF_MS = 1000
 export const HYPERLIQUID_WS_RECONNECT_INTERVAL_MS = 3000
 export const HYPERLIQUID_WS_MAX_RECONNECT_ATTEMPTS = 10
 export const HYPERLIQUID_WS_PING_INTERVAL_MS = 30000
+export const HYPERLIQUID_RECONNECT_DELAY_BASE_MS = 1000
+export const HYPERLIQUID_RECONNECT_DELAY_MAX_MS = 30000
 
 // ============================================================================
 // Polling Configuration

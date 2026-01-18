@@ -15,7 +15,7 @@ import {
   TradeForm,
 } from '@/pages/Perps/components'
 import { useHyperliquid, useMarkets, useOrderbook, usePositions } from '@/pages/Perps/hooks'
-import { perpsSlice } from '@/state/slices/perpsSlice'
+import { perpsSlice, PerpsOrderSubmissionState } from '@/state/slices/perpsSlice'
 import {
   selectOrderFormPostOnly,
   selectOrderFormPrice,
@@ -127,7 +127,7 @@ export const Perps = memo(() => {
 
     if (!price) return
 
-    dispatch(perpsSlice.actions.setOrderSubmissionState({ state: 'signing' }))
+    dispatch(perpsSlice.actions.setOrderSubmissionState(PerpsOrderSubmissionState.Signing))
 
     try {
       const orderRequest = buildOrderRequest({
@@ -141,7 +141,7 @@ export const Perps = memo(() => {
         }),
       })
 
-      dispatch(perpsSlice.actions.setOrderSubmissionState({ state: 'submitting' }))
+      dispatch(perpsSlice.actions.setOrderSubmissionState(PerpsOrderSubmissionState.Submitting))
 
       const response = await placeOrder({
         orders: [orderRequest],
@@ -157,7 +157,7 @@ export const Perps = memo(() => {
         throw new Error(orderStatus.error)
       }
 
-      dispatch(perpsSlice.actions.setOrderSubmissionState({ state: 'complete' }))
+      dispatch(perpsSlice.actions.setOrderSubmissionState(PerpsOrderSubmissionState.Complete))
       dispatch(perpsSlice.actions.resetOrderForm())
 
       if (walletAddress) {
@@ -165,12 +165,8 @@ export const Perps = memo(() => {
       }
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Order placement failed'
-      dispatch(
-        perpsSlice.actions.setOrderSubmissionState({
-          state: 'failed',
-          error: errorMessage,
-        }),
-      )
+      dispatch(perpsSlice.actions.setOrderSubmissionState(PerpsOrderSubmissionState.Failed))
+      dispatch(perpsSlice.actions.setOrderSubmissionError(errorMessage))
     }
   }, [
     selectedMarket,

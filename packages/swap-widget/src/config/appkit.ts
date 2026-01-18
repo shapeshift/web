@@ -49,7 +49,7 @@ let appKitInitialized = false
 export const createWagmiAdapter = (projectId: string): WagmiAdapter => {
   if (!wagmiAdapter) {
     wagmiAdapter = new WagmiAdapter({
-      networks: EVM_NETWORKS,
+      networks: [...EVM_NETWORKS],
       projectId,
     })
   }
@@ -66,7 +66,7 @@ export const createBitcoinAdapter = (): BitcoinAdapter => {
 export const createSolanaAdapter = (): SolanaAdapter => {
   if (!solanaAdapter) {
     solanaAdapter = new SolanaAdapter({
-      wallets: [new PhantomWalletAdapter(), new SolflareWalletAdapter()],
+      wallets: [new PhantomWalletAdapter(), new SolflareWalletAdapter()] as any,
     })
   }
   return solanaAdapter
@@ -86,7 +86,7 @@ export const initializeAppKit = (projectId: string): void => {
   createAppKit({
     adapters: [wagmi, btc, sol],
     projectId,
-    networks: ALL_NETWORKS,
+    networks: [...ALL_NETWORKS],
     metadata: APP_METADATA,
   })
 

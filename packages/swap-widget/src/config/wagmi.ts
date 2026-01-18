@@ -34,7 +34,7 @@ let wagmiAdapterInstance: WagmiAdapter | null = null
 export const createWagmiAdapter = (projectId: string): WagmiAdapter => {
   if (!wagmiAdapterInstance) {
     wagmiAdapterInstance = new WagmiAdapter({
-      networks: SUPPORTED_CHAINS,
+      networks: [...SUPPORTED_CHAINS],
       projectId,
     })
   }

@@ -4,6 +4,28 @@ import { useCallback, useMemo, useState } from 'react'
 
 import { checkBitcoinStatus } from '../services/transactionStatus'
 
+type AccountAddress = string | { address?: string; purpose?: string }
+
+type AccountAddressArray = AccountAddress[]
+
+type BitcoinConnectorExtended = BitcoinConnector & {
+  getAccountAddresses?: () => Promise<AccountAddressArray> | AccountAddressArray
+  sendTransfer?: (params: {
+    recipientAddress: string
+    amount: string
+    memo?: string
+  }) => Promise<string | { txid?: string; hash?: string }>
+  signPSBT?: (params: {
+    psbt: string
+    signInputs: Record<string, number[]>
+    broadcast?: boolean
+  }) => Promise<string | { txid?: string; psbt?: string }>
+  signMessage?: (params: {
+    message: string
+    address: string
+  }) => Promise<string | { signature?: string }>
+}
+
 export type SendTransferParams = {
   recipientAddress: string
   amount: string
@@ -38,7 +60,8 @@ export type UseBitcoinSigningResult = {
 }
 
 export const useBitcoinSigning = (): UseBitcoinSigningResult => {
-  const { walletProvider, isConnected } = useAppKitProvider<BitcoinConnector>('bip122')
+  const { walletProvider } = useAppKitProvider<BitcoinConnector>('bip122')
+  const provider = walletProvider as BitcoinConnectorExtended | undefined
 
   const [state, setState] = useState<BitcoinSigningState>({
     isLoading: false,
@@ -47,14 +70,20 @@ export const useBitcoinSigning = (): UseBitcoinSigningResult => {
   })
 
   const address = useMemo(() => {
-    if (!walletProvider || !isConnected) return undefined
+    if (!provider) return undefined
 
     try {
-      const accounts = walletProvider.getAccountAddresses?.()
-      if (accounts && accounts.length > 0) {
+      const accountsResult = provider.getAccountAddresses?.()
+      const accounts: AccountAddressArray | undefined =
+        accountsResult instanceof Promise
+          ? undefined
+          : (accountsResult as AccountAddressArray | undefined)
+
+      if (accounts && Array.isArray(accounts) && accounts.length > 0) {
         const nativeSegwitAccount = accounts.find(
-          (account: { purpose?: string }) =>
-            account.purpose === 'payment' || account.purpose === '84',
+          (account: AccountAddress) =>
+            typeof account !== 'string' &&
+            (account.purpose === 'payment' || account.purpose === '84'),
         )
         const accountToUse = nativeSegwitAccount ?? accounts[0]
         return typeof accountToUse === 'string' ? accountToUse : accountToUse?.address
@@ -63,18 +92,18 @@ export const useBitcoinSigning = (): UseBitcoinSigningResult => {
       return undefined
     }
     return undefined
-  }, [walletProvider, isConnected])
+  }, [provider])
 
   const sendTransfer = useCallback(
     async (params: SendTransferParams): Promise<string> => {
-      if (!walletProvider) {
+      if (!provider?.sendTransfer) {
         throw new Error('Bitcoin wallet not connected')
       }
 
       setState(prev => ({ ...prev, isLoading: true, error: undefined, txid: undefined }))
 
       try {
-        const result = await walletProvider.sendTransfer({
+        const result = await provider.sendTransfer({
           recipientAddress: params.recipientAddress,
           amount: params.amount,
           ...(params.memo && { memo: params.memo }),
@@ -106,19 +135,19 @@ export const useBitcoinSigning = (): UseBitcoinSigningResult => {
         throw error
       }
     },
-    [walletProvider],
+    [provider],
   )
 
   const signPsbt = useCallback(
     async (params: SignPsbtParams): Promise<string> => {
-      if (!walletProvider) {
+      if (!provider?.signPSBT) {
         throw new Error('Bitcoin wallet not connected')
       }
 
       setState(prev => ({ ...prev, isLoading: true, error: undefined, txid: undefined }))
 
       try {
-        const result = await walletProvider.signPsbt({
+        const result = await provider.signPSBT({
           psbt: params.psbt,
           signInputs: params.signInputs,
           broadcast: params.broadcast ?? true,
@@ -150,24 +179,30 @@ export const useBitcoinSigning = (): UseBitcoinSigningResult => {
         throw error
       }
     },
-    [walletProvider],
+    [provider],
   )
 
   const signMessage = useCallback(
     async (message: string): Promise<string> => {
-      if (!walletProvider) {
+      if (!provider?.signMessage) {
         throw new Error('Bitcoin wallet not connected')
       }
 
       setState(prev => ({ ...prev, isLoading: true, error: undefined }))
 
       try {
-        const signature = await walletProvider.signMessage({
+        const signature = await provider.signMessage({
           message,
           address: address ?? '',
         })
 
-        const signatureStr = typeof signature === 'string' ? signature : signature?.signature ?? ''
+        const signatureObj = signature as string | { signature?: string }
+        const signatureStr =
+          typeof signatureObj === 'string'
+            ? signatureObj
+            : (signatureObj && typeof signatureObj === 'object' && 'signature' in signatureObj
+                ? signatureObj.signature
+                : '') ?? ''
 
         setState(prev => ({ ...prev, isLoading: false }))
         return signatureStr
@@ -177,27 +212,32 @@ export const useBitcoinSigning = (): UseBitcoinSigningResult => {
         throw error
       }
     },
-    [walletProvider, address],
+    [provider, address],
   )
 
   const getAccountAddresses = useCallback((): string[] => {
-    if (!walletProvider) {
+    if (!provider) {
       return []
     }
 
     try {
-      const accounts = walletProvider.getAccountAddresses?.()
-      if (!accounts) return []
+      const accountsResult = provider.getAccountAddresses?.()
+      const accounts: AccountAddressArray | undefined =
+        accountsResult instanceof Promise
+          ? undefined
+          : (accountsResult as AccountAddressArray | undefined)
+
+      if (!accounts || !Array.isArray(accounts)) return []
 
       return accounts
-        .map((account: string | { address?: string }) =>
+        .map((account: AccountAddress) =>
           typeof account === 'string' ? account : account?.address ?? '',
         )
-        .filter(Boolean)
+        .filter((addr: string | undefined): addr is string => Boolean(addr))
     } catch {
       return []
     }
-  }, [walletProvider])
+  }, [provider])
 
   const reset = useCallback(() => {
     setState({
@@ -210,6 +250,8 @@ export const useBitcoinSigning = (): UseBitcoinSigningResult => {
   const checkTxStatus = useCallback((txid: string, network: 'mainnet' | 'testnet' = 'mainnet') => {
     return checkBitcoinStatus(txid, network)
   }, [])
+
+  const isConnected = !!provider && !!address
 
   return useMemo(
     () => ({

@@ -6,6 +6,19 @@ import { useCallback, useMemo, useState } from 'react'
 
 import { checkSolanaStatus, waitForSolanaConfirmation } from '../services/transactionStatus'
 
+type AnyTransaction = Transaction | VersionedTransaction
+type TransactionSignature = string | { toString?: () => string }
+type MessageSignature = Uint8Array
+
+type SolanaProviderExtended = Provider & {
+  sendTransaction?: (
+    transaction: AnyTransaction,
+    connection: unknown,
+  ) => Promise<TransactionSignature>
+  signTransaction?: <T extends AnyTransaction>(transaction: T) => Promise<T>
+  signMessage?: (message: Uint8Array) => Promise<MessageSignature>
+}
+
 export type SendTransactionParams = {
   transaction: Transaction | VersionedTransaction
 }
@@ -37,7 +50,8 @@ export type UseSolanaSigningResult = {
 }
 
 export const useSolanaSigning = (): UseSolanaSigningResult => {
-  const { walletProvider, isConnected } = useAppKitProvider<Provider>('solana')
+  const { walletProvider } = useAppKitProvider<Provider>('solana')
+  const provider = walletProvider as SolanaProviderExtended | undefined
   const { connection } = useAppKitConnection()
 
   const [state, setState] = useState<SolanaSigningState>({
@@ -47,19 +61,26 @@ export const useSolanaSigning = (): UseSolanaSigningResult => {
   })
 
   const address = useMemo(() => {
-    if (!walletProvider || !isConnected) return undefined
+    if (!provider) {
+      return undefined
+    }
 
     try {
-      const publicKey = walletProvider.publicKey
-      return publicKey?.toBase58?.() ?? publicKey?.toString?.() ?? undefined
+      const publicKey = provider.publicKey
+      if (!publicKey) {
+        return undefined
+      }
+
+      const addressStr = publicKey?.toBase58?.() ?? publicKey?.toString?.() ?? undefined
+      return addressStr
     } catch {
       return undefined
     }
-  }, [walletProvider, isConnected])
+  }, [provider])
 
   const sendTransaction = useCallback(
     async (params: SendTransactionParams): Promise<string> => {
-      if (!walletProvider) {
+      if (!provider?.sendTransaction) {
         throw new Error('Solana wallet not connected')
       }
 
@@ -70,7 +91,7 @@ export const useSolanaSigning = (): UseSolanaSigningResult => {
       setState(prev => ({ ...prev, isLoading: true, error: undefined, signature: undefined }))
 
       try {
-        const signature = await walletProvider.sendTransaction(params.transaction, connection)
+        const signature = await provider.sendTransaction(params.transaction, connection)
 
         const signatureStr =
           typeof signature === 'string' ? signature : signature?.toString?.() ?? ''
@@ -100,23 +121,19 @@ export const useSolanaSigning = (): UseSolanaSigningResult => {
         throw error
       }
     },
-    [walletProvider, connection],
+    [provider, connection],
   )
 
   const signTransaction = useCallback(
     async <T extends Transaction | VersionedTransaction>(transaction: T): Promise<T> => {
-      if (!walletProvider) {
-        throw new Error('Solana wallet not connected')
-      }
-
-      if (!walletProvider.signTransaction) {
-        throw new Error('Wallet does not support signTransaction')
+      if (!provider?.signTransaction) {
+        throw new Error('Solana wallet not connected or does not support signTransaction')
       }
 
       setState(prev => ({ ...prev, isLoading: true, error: undefined }))
 
       try {
-        const signedTransaction = await walletProvider.signTransaction(transaction)
+        const signedTransaction = await provider.signTransaction(transaction)
 
         setState(prev => ({ ...prev, isLoading: false }))
         return signedTransaction as T
@@ -138,17 +155,13 @@ export const useSolanaSigning = (): UseSolanaSigningResult => {
         throw error
       }
     },
-    [walletProvider],
+    [provider],
   )
 
   const signMessage = useCallback(
     async (params: SignMessageParams): Promise<Uint8Array> => {
-      if (!walletProvider) {
-        throw new Error('Solana wallet not connected')
-      }
-
-      if (!walletProvider.signMessage) {
-        throw new Error('Wallet does not support signMessage')
+      if (!provider?.signMessage) {
+        throw new Error('Solana wallet not connected or does not support signMessage')
       }
 
       setState(prev => ({ ...prev, isLoading: true, error: undefined }))
@@ -159,7 +172,7 @@ export const useSolanaSigning = (): UseSolanaSigningResult => {
             ? new TextEncoder().encode(params.message)
             : params.message
 
-        const signature = await walletProvider.signMessage(messageBytes)
+        const signature = await provider.signMessage(messageBytes)
 
         setState(prev => ({ ...prev, isLoading: false }))
         return signature
@@ -185,7 +198,7 @@ export const useSolanaSigning = (): UseSolanaSigningResult => {
         throw error
       }
     },
-    [walletProvider],
+    [provider],
   )
 
   const reset = useCallback(() => {
@@ -204,7 +217,10 @@ export const useSolanaSigning = (): UseSolanaSigningResult => {
           error: 'Solana connection not available',
         })
       }
-      return checkSolanaStatus(signature, connection)
+      return checkSolanaStatus(
+        signature,
+        connection as unknown as Parameters<typeof checkSolanaStatus>[1],
+      )
     },
     [connection],
   )
@@ -217,14 +233,20 @@ export const useSolanaSigning = (): UseSolanaSigningResult => {
           error: 'Solana connection not available',
         })
       }
-      return waitForSolanaConfirmation(signature, connection, commitment)
+      return waitForSolanaConfirmation(
+        signature,
+        connection as unknown as Parameters<typeof waitForSolanaConfirmation>[1],
+        commitment,
+      )
     },
     [connection],
   )
 
+  const actuallyConnected = !!address && !!connection
+
   return useMemo(
     () => ({
-      isConnected,
+      isConnected: actuallyConnected,
       address,
       connection,
       sendTransaction,
@@ -236,7 +258,7 @@ export const useSolanaSigning = (): UseSolanaSigningResult => {
       waitForConfirmation,
     }),
     [
-      isConnected,
+      actuallyConnected,
       address,
       connection,
       sendTransaction,

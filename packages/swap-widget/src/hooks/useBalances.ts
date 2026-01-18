@@ -6,7 +6,7 @@ import { getBalance, readContract } from '@wagmi/core'
 import PQueue from 'p-queue'
 import { useMemo } from 'react'
 import { erc20Abi } from 'viem'
-import { useBalance, useConfig } from 'wagmi'
+import { useConfig } from 'wagmi'
 
 import type { SupportedChainId } from '../config/wagmi'
 import type { AssetId } from '../types'
@@ -123,70 +123,6 @@ const fetchBitcoinBalance = async (
   const totalBalance = (confirmedBalance ?? 0) + (mempoolBalance ?? 0)
 
   return totalBalance.toString()
-}
-
-export const useAssetBalance = (
-  address: string | undefined,
-  assetId: AssetId | undefined,
-  precision: number = 18,
-) => {
-  const parsed = assetId ? parseAssetId(assetId) : null
-  const isNative = parsed && !parsed.tokenAddress
-  const isErc20 = parsed && !!parsed.tokenAddress
-
-  const nativeChainId = isNative ? (parsed.chainId as SupportedChainId) : undefined
-  const erc20ChainId = isErc20 ? (parsed.chainId as SupportedChainId) : undefined
-
-  const {
-    data: nativeBalance,
-    isLoading: isNativeLoading,
-    refetch: refetchNative,
-  } = useBalance({
-    address: address as `0x${string}` | undefined,
-    // @ts-ignore - swap-widget supports more chains than main app's wagmi type registration
-    chainId: nativeChainId,
-    query: {
-      enabled: !!address && !!isNative,
-      staleTime: 60_000,
-      refetchOnWindowFocus: false,
-    },
-  })
-
-  const {
-    data: erc20Balance,
-    isLoading: isErc20Loading,
-    refetch: refetchErc20,
-  } = useBalance({
-    address: address as `0x${string}` | undefined,
-    // @ts-ignore - swap-widget supports more chains than main app's wagmi type registration
-    chainId: erc20ChainId,
-    token: isErc20 ? parsed.tokenAddress : undefined,
-    query: {
-      enabled: !!address && !!isErc20,
-      staleTime: 60_000,
-      refetchOnWindowFocus: false,
-    },
-  })
-
-  const balance = isNative ? nativeBalance : isErc20 ? erc20Balance : undefined
-  const isLoading = isNative ? isNativeLoading : isErc20 ? isErc20Loading : false
-  const refetch = isNative ? refetchNative : isErc20 ? refetchErc20 : undefined
-
-  return useMemo(() => {
-    if (!balance || !assetId) {
-      return { data: undefined, isLoading, refetch }
-    }
-
-    return {
-      data: {
-        assetId,
-        balance: balance.value.toString(),
-        balanceFormatted: formatAmount(balance.value.toString(), precision),
-      },
-      isLoading,
-      refetch,
-    }
-  }, [balance, assetId, precision, isLoading, refetch])
 }
 
 export const useEvmBalances = (
@@ -484,6 +420,7 @@ export const useMultiChainBalance = (
 ) => {
   const parsed = assetId ? parseAssetIdMultiChain(assetId) : null
   const chainType = parsed?.chainType ?? 'other'
+  const config = useConfig()
 
   const addressForChain =
     chainType === 'evm'
@@ -494,11 +431,78 @@ export const useMultiChainBalance = (
       ? solanaAddress
       : undefined
 
-  const evmBalance = useAssetBalance(
-    chainType === 'evm' ? addressForChain : undefined,
-    chainType === 'evm' ? assetId : undefined,
-    precision,
-  )
+  const evmParsed = chainType === 'evm' && parsed?.chainType === 'evm' ? parsed : null
+  const isErc20 = evmParsed && evmParsed.tokenAddress
+
+  const evmQuery = useQueries({
+    queries: [
+      {
+        queryKey: [
+          'singleEvmBalance',
+          evmAddress,
+          assetId,
+          evmParsed?.evmChainId,
+          evmParsed?.tokenAddress,
+        ],
+        queryFn: async () => {
+          if (!evmAddress || !assetId || !evmParsed) return null
+          try {
+            if (isErc20 && evmParsed.tokenAddress) {
+              const result = await readContract(config, {
+                address: evmParsed.tokenAddress,
+                abi: erc20Abi,
+                functionName: 'balanceOf',
+                args: [evmAddress as `0x${string}`],
+                chainId: evmParsed.evmChainId,
+              })
+              return {
+                assetId,
+                balance: (result as bigint).toString(),
+                precision,
+              }
+            }
+            const result = await getBalance(config, {
+              address: evmAddress as `0x${string}`,
+              // @ts-ignore
+              chainId: evmParsed.evmChainId,
+            })
+            return {
+              assetId,
+              balance: result.value.toString(),
+              precision,
+            }
+          } catch {
+            return null
+          }
+        },
+        enabled: chainType === 'evm' && !!evmAddress && !!assetId,
+        staleTime: 60_000,
+        refetchOnWindowFocus: false,
+      },
+    ],
+  })
+
+  const evmBalance = useMemo(() => {
+    const queryResult = evmQuery[0]
+    if (!queryResult?.data || !assetId) {
+      return {
+        data: undefined,
+        isLoading: queryResult?.isLoading ?? false,
+        refetch: queryResult?.refetch,
+      }
+    }
+
+    const { balance } = queryResult.data
+    return {
+      data: {
+        assetId,
+        balance,
+        balanceFormatted: formatAmount(balance, precision),
+      },
+      isLoading: queryResult.isLoading,
+      refetch: queryResult.refetch,
+    }
+  }, [evmQuery, assetId, precision])
 
   const utxoBalance = useBitcoinBalance(
     chainType === 'utxo' ? addressForChain : undefined,
@@ -687,10 +691,11 @@ export const useMultiChainBalances = (
     ;[...evmQueries, ...utxoQueries, ...solanaQueries].forEach(query => {
       if (query.data) {
         const { assetId, balance, precision } = query.data
+        const formatted = formatAmount(balance, precision)
         result[assetId] = {
           assetId,
           balance,
-          balanceFormatted: formatAmount(balance, precision),
+          balanceFormatted: formatted,
         }
       }
     })

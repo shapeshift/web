@@ -19,7 +19,17 @@ export type BitcoinTransactionStatus = {
   block_time?: number
 }
 
-const EVM_CHAINS_BY_ID: Record<number, typeof mainnet> = {
+type EvmChain =
+  | typeof mainnet
+  | typeof optimism
+  | typeof bsc
+  | typeof gnosis
+  | typeof polygon
+  | typeof base
+  | typeof arbitrum
+  | typeof avalanche
+
+const EVM_CHAINS_BY_ID: Record<number, EvmChain> = {
   1: mainnet,
   10: optimism,
   56: bsc,

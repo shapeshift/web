@@ -25,7 +25,7 @@ import {
 import { createApiClient } from '../api/client'
 import { getBaseAsset } from '../constants/chains'
 import { useChainInfo } from '../hooks/useAssets'
-import { useAssetBalance } from '../hooks/useBalances'
+import { useMultiChainBalance } from '../hooks/useBalances'
 import { useBitcoinSigning } from '../hooks/useBitcoinSigning'
 import { formatUsdValue, useMarketData } from '../hooks/useMarketData'
 import { useSolanaSigning } from '../hooks/useSolanaSigning'
@@ -197,6 +197,7 @@ const SwapWidgetCore = ({
   const {
     isConnected: isSolanaConnected,
     address: solanaAddress,
+    connection: solanaConnection,
     sendTransaction: sendSolanaTransaction,
     state: solanaState,
     reset: resetSolanaState,
@@ -233,12 +234,25 @@ const SwapWidgetCore = ({
     data: sellAssetBalance,
     isLoading: isSellBalanceLoading,
     refetch: refetchSellBalance,
-  } = useAssetBalance(walletAddress, sellAsset.assetId, sellAsset.precision)
+  } = useMultiChainBalance(
+    walletAddress,
+    bitcoinAddress,
+    solanaAddress,
+    sellAsset.assetId,
+    sellAsset.precision,
+  )
+
   const {
     data: buyAssetBalance,
     isLoading: isBuyBalanceLoading,
     refetch: refetchBuyBalance,
-  } = useAssetBalance(walletAddress, buyAsset.assetId, buyAsset.precision)
+  } = useMultiChainBalance(
+    walletAddress,
+    bitcoinAddress,
+    solanaAddress,
+    buyAsset.assetId,
+    buyAsset.precision,
+  )
 
   const handleSwapTokens = useCallback(() => {
     const tempSell = sellAsset
@@ -381,14 +395,14 @@ const SwapWidgetCore = ({
           slippageTolerancePercentageDecimal: slippageDecimal,
         })
 
-        const outerStep = quoteResponse.steps?.[0]
         const innerStep = quoteResponse.quote?.steps?.[0]
-        const transactionData =
-          quoteResponse.transactionData ?? outerStep?.transactionData ?? innerStep?.transactionData
+        const solanaTransactionMetadata = (innerStep as any)?.solanaTransactionMetadata
 
-        if (!transactionData) {
+        if (!solanaTransactionMetadata?.instructions) {
           throw new Error(
-            `No transaction data returned. Response keys: ${Object.keys(quoteResponse).join(', ')}`,
+            `No Solana transaction metadata returned. Response keys: ${Object.keys(
+              quoteResponse,
+            ).join(', ')}`,
           )
         }
 
@@ -397,16 +411,34 @@ const SwapWidgetCore = ({
           message: 'Waiting for wallet confirmation...',
         })
 
-        const serializedTransaction = (transactionData as { serializedTransaction?: string })
-          .serializedTransaction
-
-        if (!serializedTransaction) {
-          throw new Error('No serialized transaction in transaction data')
+        if (!solanaConnection) {
+          throw new Error('Solana connection not available')
         }
 
-        const { VersionedTransaction } = await import('@solana/web3.js')
-        const transactionBuffer = Buffer.from(serializedTransaction, 'base64')
-        const transaction = VersionedTransaction.deserialize(transactionBuffer)
+        const { Transaction, PublicKey, TransactionInstruction } = await import('@solana/web3.js')
+
+        const instructions = solanaTransactionMetadata.instructions.map((ix: any) => {
+          const keys = ix.keys.map((key: any) => ({
+            pubkey: new PublicKey(key.pubkey),
+            isSigner: key.isSigner,
+            isWritable: key.isWritable,
+          }))
+
+          const data = Buffer.from(ix.data.data)
+
+          return new TransactionInstruction({
+            keys,
+            programId: new PublicKey(ix.programId),
+            data,
+          })
+        })
+
+        const transaction = new Transaction().add(...instructions)
+
+        const { blockhash } = await solanaConnection.getLatestBlockhash('confirmed')
+
+        transaction.recentBlockhash = blockhash
+        transaction.feePayer = new PublicKey(solanaAddress)
 
         const signature = await sendSolanaTransaction({ transaction })
 
@@ -615,6 +647,7 @@ const SwapWidgetCore = ({
     resetBitcoinState,
     isSolanaConnected,
     solanaAddress,
+    solanaConnection,
     sendSolanaTransaction,
     resetSolanaState,
     sellAsset,
@@ -878,7 +911,7 @@ const SwapWidgetCore = ({
 
           <div className='ssw-section-footer'>
             <span className='ssw-usd-value'>{sellUsdValue}</span>
-            {walletAddress &&
+            {(walletAddress || bitcoinAddress || solanaAddress) &&
               (isSellBalanceLoading ? (
                 <span className='ssw-balance-skeleton' />
               ) : sellAssetBalance ? (
@@ -976,7 +1009,7 @@ const SwapWidgetCore = ({
 
           <div className='ssw-section-footer'>
             <span className='ssw-usd-value'>{buyUsdValue}</span>
-            {walletAddress &&
+            {(walletAddress || bitcoinAddress || solanaAddress) &&
               (isBuyBalanceLoading ? (
                 <span className='ssw-balance-skeleton' />
               ) : buyAssetBalance ? (

@@ -5,8 +5,10 @@ import { Virtuoso } from 'react-virtuoso'
 
 import type { ChainInfo } from '../hooks/useAssets'
 import { useAssets, useChains } from '../hooks/useAssets'
-import { useEvmBalances } from '../hooks/useBalances'
+import { useMultiChainBalances } from '../hooks/useBalances'
+import { useBitcoinSigning } from '../hooks/useBitcoinSigning'
 import { useAllMarketData } from '../hooks/useMarketData'
+import { useSolanaSigning } from '../hooks/useSolanaSigning'
 import type { Asset, AssetId, ChainId } from '../types'
 
 const VISIBLE_BUFFER = 10
@@ -150,8 +152,13 @@ export const TokenSelectModal = ({
 
   const assetIds = useMemo(() => visibleAssets.map(a => a.assetId), [visibleAssets])
 
-  const { data: balances, loadingAssetIds } = useEvmBalances(
+  const { address: bitcoinAddress } = useBitcoinSigning()
+  const { address: solanaAddress } = useSolanaSigning()
+
+  const { data: balances, loadingAssetIds } = useMultiChainBalances(
     walletAddress,
+    bitcoinAddress,
+    solanaAddress,
     assetIds,
     assetPrecisions,
   )
@@ -347,7 +354,7 @@ export const TokenSelectModal = ({
                           </span>
                         </div>
                         <div className='ssw-token-right'>
-                          {walletAddress &&
+                          {(walletAddress || bitcoinAddress || solanaAddress) &&
                             (loadingAssetIds.has(asset.assetId) ? (
                               <span className='ssw-token-balance-skeleton' />
                             ) : balance && balance.balance !== '0' ? (

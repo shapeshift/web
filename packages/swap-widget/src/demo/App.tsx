@@ -1,15 +1,10 @@
 import './App.css'
 
-import { useAppKit, useAppKitAccount } from '@reown/appkit/react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { useCallback, useMemo, useState } from 'react'
-import type { Config } from 'wagmi'
-import { useWalletClient, WagmiProvider } from 'wagmi'
 
 import { SwapWidget } from '../components/SwapWidget'
-import { getWagmiAdapter, initializeAppKit } from '../config/appkit'
 import type { ThemeConfig } from '../types'
-import { truncateAddress } from '../types'
 
 const PROJECT_ID = 'f58c0242def84c3b9befe9b1e6086bbd'
 
@@ -63,32 +58,7 @@ type DemoContentProps = {
   setTheme: (theme: 'light' | 'dark') => void
 }
 
-const ConnectButton = () => {
-  const { open } = useAppKit()
-  const { address, isConnected } = useAppKitAccount()
-
-  const handleClick = useCallback(() => {
-    open()
-  }, [open])
-
-  if (!isConnected) {
-    return (
-      <button onClick={handleClick} type='button' className='demo-connect-btn'>
-        Connect Wallet
-      </button>
-    )
-  }
-
-  return (
-    <button onClick={handleClick} type='button' className='demo-connect-btn demo-connected'>
-      {address ? truncateAddress(address) : 'Connected'}
-    </button>
-  )
-}
-
 const DemoContent = ({ theme, setTheme }: DemoContentProps) => {
-  const { address, isConnected } = useAppKitAccount()
-  const { data: walletClient } = useWalletClient()
   const [showCustomizer, setShowCustomizer] = useState(true)
 
   const [darkColors, setDarkColors] = useState<ThemeColors>({
@@ -201,7 +171,6 @@ const DemoContent = ({ theme, setTheme }: DemoContentProps) => {
             </svg>
             Customize
           </button>
-          <ConnectButton />
         </div>
       </header>
 
@@ -368,22 +337,6 @@ const DemoContent = ({ theme, setTheme }: DemoContentProps) => {
                 </div>
 
                 <div className='demo-customizer-section'>
-                  <span className='demo-customizer-label'>Connection</span>
-                  <div className='demo-connection-info'>
-                    {isConnected ? (
-                      <>
-                        <span className='demo-connected-badge'>Connected</span>
-                        <span className='demo-address'>
-                          {address?.slice(0, 6)}...{address?.slice(-4)}
-                        </span>
-                      </>
-                    ) : (
-                      <span className='demo-disconnected'>Not connected</span>
-                    )}
-                  </div>
-                </div>
-
-                <div className='demo-customizer-section'>
                   <button className='demo-copy-btn' onClick={copyConfig} type='button'>
                     {copied ? (
                       <>
@@ -424,12 +377,11 @@ const DemoContent = ({ theme, setTheme }: DemoContentProps) => {
               <SwapWidget
                 apiKey='test-api-key-123'
                 theme={themeConfig}
-                walletClient={walletClient ?? undefined}
                 onSwapSuccess={handleSwapSuccess}
                 onSwapError={handleSwapError}
                 showPoweredBy={true}
                 enableWalletConnection={true}
-                defaultReceiveAddress={'0x1234567890123456789012345678901234567890'}
+                walletConnectProjectId={PROJECT_ID}
               />
             </div>
           </div>
@@ -446,21 +398,9 @@ const DemoContent = ({ theme, setTheme }: DemoContentProps) => {
 export const App = () => {
   const [theme, setTheme] = useState<'light' | 'dark'>('dark')
 
-  const wagmiConfig = useMemo((): Config | undefined => {
-    initializeAppKit(PROJECT_ID)
-    const adapter = getWagmiAdapter()
-    return adapter?.wagmiConfig
-  }, [])
-
-  if (!wagmiConfig) {
-    return null
-  }
-
   return (
-    <WagmiProvider config={wagmiConfig}>
-      <QueryClientProvider client={queryClient}>
-        <DemoContent theme={theme} setTheme={setTheme} />
-      </QueryClientProvider>
-    </WagmiProvider>
+    <QueryClientProvider client={queryClient}>
+      <DemoContent theme={theme} setTheme={setTheme} />
+    </QueryClientProvider>
   )
 }

@@ -189,6 +189,7 @@ export const mockStore: ReduxState = {
       YieldsPage: false,
       YieldMultiAccount: false,
       EarnTab: false,
+      GenericEvmChains: false,
     },
     showTopAssetsCarousel: true,
     quickBuyAmounts: [10, 50, 100],

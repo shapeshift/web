@@ -691,8 +691,10 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TonMainnet> {
     return this.normalizeAddress(addr1) === this.normalizeAddress(addr2)
   }
 
-  async parseTx(msgHash: string, pubkey: string): Promise<Transaction> {
+  async parseTx(txHashOrTx: unknown, pubkey: string): Promise<Transaction> {
     try {
+      const msgHash = typeof txHashOrTx === 'string' ? txHashOrTx : String(txHashOrTx)
+
       const msgResult = await this.httpApiRequest<{
         messages?: {
           hash: string

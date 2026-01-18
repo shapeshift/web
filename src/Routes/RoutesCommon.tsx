@@ -153,6 +153,16 @@ const WalletConnectDeepLink = makeSuspenseful(
   true,
 )
 
+const PerpsPage = makeSuspenseful(
+  lazy(() =>
+    import('@/pages/Perps/Perps').then(({ Perps }) => ({
+      default: Perps,
+    })),
+  ),
+  {},
+  true,
+)
+
 /**
  * WARNING: whenever routes that contain user addresses are edited here, we need
  * to make sure that we update the tests in lib/mixpanel/helpers.test.ts and
@@ -250,6 +260,16 @@ export const routes: Route[] = [
     priority: 3,
     mobileNav: false,
     disable: !getConfig().VITE_FEATURE_YIELD_XYZ || !getConfig().VITE_FEATURE_YIELDS_PAGE,
+  },
+  {
+    path: '/perps/*',
+    label: 'navBar.perps',
+    icon: <TbGraph />,
+    main: PerpsPage,
+    category: RouteCategory.Featured,
+    priority: 4,
+    mobileNav: false,
+    disable: !getConfig().VITE_FEATURE_HYPERLIQUID_PERPS,
   },
   {
     path: '/ramp/*',

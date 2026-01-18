@@ -1,5 +1,5 @@
-import { fromAssetId, GENERIC_EVM_CHAINS } from '@shapeshiftoss/caip'
 import type { EvmGenericChainConfig } from '@shapeshiftoss/caip'
+import { fromAssetId, GENERIC_EVM_CHAINS } from '@shapeshiftoss/caip'
 import type { ChainAdapter } from '@shapeshiftoss/chain-adapters'
 import { generic } from '@shapeshiftoss/chain-adapters'
 import type { KnownChainIds } from '@shapeshiftoss/types'

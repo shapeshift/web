@@ -21,8 +21,7 @@ export const GENERIC_EVM_CHAINS: EvmGenericChainConfig[] = []
 
 export const getGenericChainConfig = (
   chainId: EvmGenericChainId | string,
-): EvmGenericChainConfig | undefined =>
-  GENERIC_EVM_CHAINS.find(chain => chain.chainId === chainId)
+): EvmGenericChainConfig | undefined => GENERIC_EVM_CHAINS.find(chain => chain.chainId === chainId)
 
 export const isGenericChainId = (
   maybeChainId: EvmGenericChainId | string,

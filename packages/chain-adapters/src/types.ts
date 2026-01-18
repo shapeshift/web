@@ -11,7 +11,6 @@ import type {
   ThorchainSignTx,
 } from '@shapeshiftoss/hdwallet-core'
 import type {
-  AnyEvmChainId,
   ChainSpecific,
   EvmGenericChainId,
   KnownChainIds,
@@ -68,8 +67,8 @@ type ChainSpecificAccountMapping = {
 type ChainSpecificAccount<T> = T extends keyof ChainSpecificAccountMapping
   ? { chainSpecific: ChainSpecificAccountMapping[T] }
   : T extends EvmGenericChainId
-    ? { chainSpecific: evm.Account }
-    : ChainSpecific<T, ChainSpecificAccountMapping>
+  ? { chainSpecific: evm.Account }
+  : ChainSpecific<T, ChainSpecificAccountMapping>
 
 export type Account<T extends ChainId> = {
   balance: string
@@ -123,8 +122,8 @@ type ChainSpecificFeeDataMapping = {
 type ChainSpecificFeeData<T> = T extends keyof ChainSpecificFeeDataMapping
   ? { chainSpecific: ChainSpecificFeeDataMapping[T] }
   : T extends EvmGenericChainId
-    ? { chainSpecific: evm.FeeData }
-    : ChainSpecific<T, ChainSpecificFeeDataMapping>
+  ? { chainSpecific: evm.FeeData }
+  : ChainSpecific<T, ChainSpecificFeeDataMapping>
 
 export type FeeData<T extends ChainId> = {
   txFee: string
@@ -213,8 +212,8 @@ export type ChainSignTx = {
 export type SignTx<T extends ChainId> = T extends keyof ChainSignTx
   ? ChainSignTx[T]
   : T extends `eip155:${number}`
-    ? ETHSignTx
-    : never
+  ? ETHSignTx
+  : never
 
 export type BuildSendTxInput<T extends ChainId> = {
   to: string
@@ -272,8 +271,8 @@ type ChainSpecificBuildTxDataMapping = {
 export type ChainSpecificBuildTxData<T> = T extends keyof ChainSpecificBuildTxDataMapping
   ? { chainSpecific: ChainSpecificBuildTxDataMapping[T] }
   : T extends EvmGenericChainId
-    ? { chainSpecific: evm.BuildTxInput }
-    : ChainSpecific<T, ChainSpecificBuildTxDataMapping>
+  ? { chainSpecific: evm.BuildTxInput }
+  : ChainSpecific<T, ChainSpecificBuildTxDataMapping>
 
 type BuildValidatorTxInput<T extends ChainId> = Omit<BuildSendTxInput<T>, 'to'> & {
   validator: string
@@ -379,8 +378,8 @@ type ChainSpecificGetFeeDataInputMapping = {
 type ChainSpecificGetFeeDataInput<T> = T extends keyof ChainSpecificGetFeeDataInputMapping
   ? { chainSpecific: ChainSpecificGetFeeDataInputMapping[T] }
   : T extends EvmGenericChainId
-    ? { chainSpecific: evm.GetFeeDataInput }
-    : ChainSpecific<T, ChainSpecificGetFeeDataInputMapping>
+  ? { chainSpecific: evm.GetFeeDataInput }
+  : ChainSpecific<T, ChainSpecificGetFeeDataInputMapping>
 export type GetFeeDataInput<T extends ChainId> = {
   // Optional hex-encoded calldata for EVM chains, UTF-8 for others
   // NOT to be used with ERC20s since this will be used in-place of the ERC20 calldata

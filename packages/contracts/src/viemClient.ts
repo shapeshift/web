@@ -1,5 +1,5 @@
-import type { ChainId } from '@shapeshiftoss/caip'
-import {
+import type {
+  ChainId,
   type EvmGenericChainConfig,
   type EvmGenericChainId,
   getGenericChainConfig,

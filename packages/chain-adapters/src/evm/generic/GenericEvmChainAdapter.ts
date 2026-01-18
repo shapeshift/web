@@ -1,5 +1,4 @@
-import type { AssetId } from '@shapeshiftoss/caip'
-import type { EvmGenericChainConfig, EvmGenericChainId } from '@shapeshiftoss/caip'
+import type { AssetId, EvmGenericChainConfig, EvmGenericChainId } from '@shapeshiftoss/caip'
 import type { RootBip44Params } from '@shapeshiftoss/types'
 
 import type { TokenInfo } from '../SecondClassEvmAdapter'

@@ -223,7 +223,10 @@ export abstract class EvmBaseAdapter<T extends AnyEvmChainId> implements IChainA
     }
 
     // TODO: use asset-service baseAssets.ts after lib is moved into web (circular dependency)
-    const targetNetworkByChainId: Record<string, { name: string; symbol: string; explorer: string }> = {
+    const targetNetworkByChainId: Record<
+      string,
+      { name: string; symbol: string; explorer: string }
+    > = {
       [KnownChainIds.AvalancheMainnet]: {
         name: 'Avalanche',
         symbol: 'AVAX',

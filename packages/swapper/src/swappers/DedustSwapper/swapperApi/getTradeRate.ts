@@ -247,11 +247,26 @@ export const getTradeRate = async (input: GetTradeRateInput): Promise<TradeRateR
       bestDirectQuote = stableQuote || volatileQuote
     }
 
-    // Determine if multi-hop is better than direct
-    const useMultiHop =
-      multiHopRoute && (!bestDirectQuote || multiHopRoute.amountOut > bestDirectQuote.amountOut)
+    // Only use multi-hop if:
+    // 1. We have a direct pool quote to compare against, AND multi-hop is better
+    // 2. OR if there's no direct pool, the multi-hop rate must be reasonable (>= 1% of input)
+    // This prevents returning catastrophically bad routes (e.g., 2.8 USDE for 10,000 USDT)
+    let useMultiHop = false
+    if (multiHopRoute) {
+      if (bestDirectQuote) {
+        // Compare multi-hop vs direct - use multi-hop only if it's better
+        useMultiHop = multiHopRoute.amountOut > bestDirectQuote.amountOut
+      } else {
+        // No direct pool - check if multi-hop rate is reasonable
+        // Reject if output is less than 1% of input (accounting for same-decimal assets)
+        // This catches catastrophic routing failures like getting 2.8 for 10,000
+        const minAcceptableRatio = BigInt(100) // 1% = 1/100
+        const isReasonableRate = multiHopRoute.amountOut * minAcceptableRatio >= amountIn
+        useMultiHop = isReasonableRate
+      }
+    }
 
-    if (!bestDirectQuote && !multiHopRoute) {
+    if (!bestDirectQuote && !useMultiHop) {
       return Err(
         makeSwapErrorRight({
           message: `[DeDust] No pool found for this pair`,

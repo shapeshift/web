@@ -58,6 +58,10 @@ export type EvmChainId =
   | KnownChainIds.PlasmaMainnet
   | KnownChainIds.KatanaMainnet
 
+export type EvmGenericChainId = `eip155:${number}`
+
+export type AnyEvmChainId = EvmChainId | EvmGenericChainId
+
 export type CosmosSdkChainId =
   | KnownChainIds.CosmosMainnet
   | KnownChainIds.ThorchainMainnet

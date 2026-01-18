@@ -691,6 +691,97 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TonMainnet> {
     return this.normalizeAddress(addr1) === this.normalizeAddress(addr2)
   }
 
+  private async parseJettonTransfers(
+    txHash: string,
+    pubkey: string,
+  ): Promise<
+    {
+      assetId: string
+      from: string[]
+      to: string[]
+      type: TransferType
+      value: string
+    }[]
+  > {
+    try {
+      const response = await this.httpApiRequest<{
+        jetton_transfers?: {
+          source?: string
+          destination?: string
+          amount?: string
+          jetton_master?: string
+        }[]
+        address_book?: Record<string, { user_friendly: string }>
+      }>(`/api/v3/jetton/transfers?tx_hash=${encodeURIComponent(txHash)}`)
+
+      if (!response.jetton_transfers || response.jetton_transfers.length === 0) {
+        return []
+      }
+
+      const transfers: {
+        assetId: string
+        from: string[]
+        to: string[]
+        type: TransferType
+        value: string
+      }[] = []
+
+      const addressBook = response.address_book ?? {}
+
+      for (const transfer of response.jetton_transfers) {
+        if (
+          !transfer.source ||
+          !transfer.destination ||
+          !transfer.amount ||
+          !transfer.jetton_master
+        ) {
+          continue
+        }
+
+        const sourceUserFriendly = addressBook[transfer.source]?.user_friendly ?? transfer.source
+        const destUserFriendly =
+          addressBook[transfer.destination]?.user_friendly ?? transfer.destination
+        const jettonUserFriendly =
+          addressBook[transfer.jetton_master]?.user_friendly ?? transfer.jetton_master
+
+        const isSend = this.addressesMatch(sourceUserFriendly, pubkey)
+        const isReceive = this.addressesMatch(destUserFriendly, pubkey)
+
+        if (!isSend && !isReceive) continue
+
+        const assetId = toAssetId({
+          chainId: this.chainId,
+          assetNamespace: 'jetton',
+          assetReference: jettonUserFriendly,
+        })
+
+        if (isSend) {
+          transfers.push({
+            assetId,
+            from: [sourceUserFriendly],
+            to: [destUserFriendly],
+            type: TransferType.Send,
+            value: transfer.amount,
+          })
+        }
+
+        if (isReceive) {
+          transfers.push({
+            assetId,
+            from: [sourceUserFriendly],
+            to: [destUserFriendly],
+            type: TransferType.Receive,
+            value: transfer.amount,
+          })
+        }
+      }
+
+      return transfers
+    } catch {
+      return []
+    }
+  }
+
   private parse(tx: TonTx, pubkey: string, txid: string): Transaction {
     const isAborted = tx.description?.aborted ?? false
     const actionSuccess = tx.description?.action?.success ?? true
@@ -826,7 +917,14 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TonMainnet> {
         throw new Error(`Transaction not found: ${txHash}`)
       }
 
-      return this.parse(tx, pubkey, msgHash)
+      const parsedTx = this.parse(tx, pubkey, msgHash)
+
+      const jettonTransfers = await this.parseJettonTransfers(txHash, pubkey)
+
+      return {
+        ...parsedTx,
+        transfers: [...parsedTx.transfers, ...jettonTransfers],
+      }
     } catch (err) {
       return ErrorHandler(err, {
         translation: 'chainAdapters.errors.parseTx',

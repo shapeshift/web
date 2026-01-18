@@ -40,6 +40,7 @@ import { csp as avnu } from './defi/swappers/Avnu'
 import { csp as bebop } from './defi/swappers/Bebop'
 import { csp as butterSwap } from './defi/swappers/ButterSwap'
 import { csp as cowSwap } from './defi/swappers/CowSwap'
+import { csp as dedust } from './defi/swappers/Dedust'
 import { csp as nearIntents } from './defi/swappers/NearIntents'
 import { csp as oneInch } from './defi/swappers/OneInch'
 import { csp as portals } from './defi/swappers/Portals'
@@ -142,6 +143,7 @@ export const csps = [
   nearIntents,
   oneInch,
   portals,
+  dedust,
   stonfi,
   sunio,
   thor,

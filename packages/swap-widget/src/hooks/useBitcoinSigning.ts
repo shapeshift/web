@@ -1,6 +1,6 @@
 import { useAppKitProvider } from '@reown/appkit/react'
 import type { BitcoinConnector } from '@reown/appkit-adapter-bitcoin'
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 
 import { checkBitcoinStatus } from '../services/transactionStatus'
 
@@ -50,7 +50,7 @@ export type UseBitcoinSigningResult = {
   sendTransfer: (params: SendTransferParams) => Promise<string>
   signPsbt: (params: SignPsbtParams) => Promise<string>
   signMessage: (message: string) => Promise<string>
-  getAccountAddresses: () => string[]
+  getAccountAddresses: () => Promise<string[]>
   state: BitcoinSigningState
   reset: () => void
   checkTxStatus: (
@@ -69,29 +69,60 @@ export const useBitcoinSigning = (): UseBitcoinSigningResult => {
     txid: undefined,
   })
 
-  const address = useMemo(() => {
-    if (!provider) return undefined
+  const [address, setAddress] = useState<string | undefined>(undefined)
 
-    try {
-      const accountsResult = provider.getAccountAddresses?.()
-      const accounts: AccountAddressArray | undefined =
-        accountsResult instanceof Promise
-          ? undefined
-          : (accountsResult as AccountAddressArray | undefined)
-
-      if (accounts && Array.isArray(accounts) && accounts.length > 0) {
-        const nativeSegwitAccount = accounts.find(
-          (account: AccountAddress) =>
-            typeof account !== 'string' &&
-            (account.purpose === 'payment' || account.purpose === '84'),
-        )
-        const accountToUse = nativeSegwitAccount ?? accounts[0]
-        return typeof accountToUse === 'string' ? accountToUse : accountToUse?.address
-      }
-    } catch {
-      return undefined
+  useEffect(() => {
+    if (!provider) {
+      setAddress(undefined)
+      return
     }
-    return undefined
+
+    const fetchAddress = async () => {
+      try {
+        const accountsResult = provider.getAccountAddresses?.()
+
+        const accounts: AccountAddressArray | undefined =
+          accountsResult instanceof Promise
+            ? await accountsResult
+            : (accountsResult as AccountAddressArray | undefined)
+
+        if (accounts && Array.isArray(accounts) && accounts.length > 0) {
+          const taprootByPurpose = accounts.find(
+            (account: AccountAddress) =>
+              typeof account !== 'string' && (account.purpose === '86' || account.purpose === 86),
+          )
+
+          const taprootByPrefix = accounts.find((account: AccountAddress) => {
+            const addr = typeof account === 'string' ? account : account?.address
+            return addr?.startsWith('bc1p')
+          })
+
+          const nativeSegwitAccount = accounts.find(
+            (account: AccountAddress) =>
+              typeof account !== 'string' && (account.purpose === '84' || account.purpose === 84),
+          )
+          const paymentAccount = accounts.find(
+            (account: AccountAddress) =>
+              typeof account !== 'string' && account.purpose === 'payment',
+          )
+
+          const accountToUse =
+            taprootByPurpose ??
+            taprootByPrefix ??
+            nativeSegwitAccount ??
+            paymentAccount ??
+            accounts[0]
+          const addr = typeof accountToUse === 'string' ? accountToUse : accountToUse?.address
+          setAddress(addr)
+        } else {
+          setAddress(undefined)
+        }
+      } catch {
+        setAddress(undefined)
+      }
+    }
+
+    fetchAddress()
   }, [provider])
 
   const sendTransfer = useCallback(
@@ -215,7 +246,7 @@ export const useBitcoinSigning = (): UseBitcoinSigningResult => {
     [provider, address],
   )
 
-  const getAccountAddresses = useCallback((): string[] => {
+  const getAccountAddresses = useCallback(async (): Promise<string[]> => {
     if (!provider) {
       return []
     }
@@ -224,15 +255,16 @@ export const useBitcoinSigning = (): UseBitcoinSigningResult => {
       const accountsResult = provider.getAccountAddresses?.()
       const accounts: AccountAddressArray | undefined =
         accountsResult instanceof Promise
-          ? undefined
+          ? await accountsResult
           : (accountsResult as AccountAddressArray | undefined)
 
       if (!accounts || !Array.isArray(accounts)) return []
 
       return accounts
-        .map((account: AccountAddress) =>
-          typeof account === 'string' ? account : account?.address ?? '',
-        )
+        .map((account: AccountAddress) => {
+          if (typeof account === 'string') return account
+          return account?.address ?? ''
+        })
         .filter((addr: string | undefined): addr is string => Boolean(addr))
     } catch {
       return []

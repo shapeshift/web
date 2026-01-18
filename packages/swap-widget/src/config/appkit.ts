@@ -6,8 +6,12 @@ import {
   bitcoin,
   bsc,
   gnosis,
+  hyperEvm,
+  katana,
   mainnet,
+  monad,
   optimism,
+  plasma,
   polygon,
   solana,
 } from '@reown/appkit/networks'
@@ -27,6 +31,10 @@ export const EVM_NETWORKS = [
   avalanche,
   bsc,
   gnosis,
+  monad,
+  hyperEvm,
+  plasma,
+  katana,
 ] as const
 
 export const ALL_NETWORKS = [...EVM_NETWORKS, bitcoin, solana] as const

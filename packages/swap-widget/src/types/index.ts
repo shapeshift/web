@@ -251,12 +251,21 @@ export const getChainType = (chainId: string): 'evm' | 'utxo' | 'cosmos' | 'sola
   }
 }
 
-export const formatAmount = (amount: string, decimals: number, maxDecimals = 6): string => {
-  const result = fromBaseUnit(amount, decimals, maxDecimals)
+export const formatAmount = (amount: string, decimals: number, maxDecimals?: number): string => {
+  const effectiveMaxDecimals = maxDecimals ?? Math.min(decimals, 8)
+  const result = fromBaseUnit(amount, decimals, effectiveMaxDecimals)
   const num = Number(result)
   if (num === 0) return '0'
-  if (num < 0.0001) return '< 0.0001'
-  return num.toLocaleString(undefined, { maximumFractionDigits: maxDecimals })
+
+  const threshold = Math.pow(10, -effectiveMaxDecimals)
+  if (num > 0 && num < threshold) {
+    return `< ${threshold.toFixed(effectiveMaxDecimals)}`
+  }
+
+  return num.toLocaleString(undefined, {
+    maximumFractionDigits: effectiveMaxDecimals,
+    minimumFractionDigits: 0,
+  })
 }
 
 export const parseAmount = (amount: string, decimals: number): string => {

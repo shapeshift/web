@@ -1,10 +1,10 @@
 import { useAppKitConnection } from '@reown/appkit-adapter-solana/react'
 import { ASSET_NAMESPACE, CHAIN_NAMESPACE, fromAssetId } from '@shapeshiftoss/caip'
-import { PublicKey } from '@solana/web3.js'
-import { useQueries } from '@tanstack/react-query'
+import { Connection, PublicKey } from '@solana/web3.js'
+import { useQueries, useQueryClient } from '@tanstack/react-query'
 import { getBalance, readContract } from '@wagmi/core'
 import PQueue from 'p-queue'
-import { useMemo } from 'react'
+import { useCallback, useMemo } from 'react'
 import { erc20Abi } from 'viem'
 import { useConfig } from 'wagmi'
 
@@ -48,6 +48,7 @@ type ParsedAssetSolana = {
 type ParsedAsset = ParsedAssetEvm | ParsedAssetUtxo | ParsedAssetSolana | null
 
 const MEMPOOL_API_BASE = 'https://mempool.space/api'
+const SOLANA_PUBLIC_RPC = 'https://api.mainnet-beta.solana.com'
 
 const parseAssetIdMultiChain = (assetId: AssetId): ParsedAsset => {
   try {
@@ -328,7 +329,7 @@ export const useSolanaBalance = (
   assetId: AssetId | undefined,
   precision: number = 9,
 ) => {
-  const { connection } = useAppKitConnection()
+  const { connection: walletConnection } = useAppKitConnection()
   const parsed = assetId ? parseAssetIdMultiChain(assetId) : null
   const isSolana = parsed?.chainType === 'solana'
   const isNative = isSolana && !('tokenAddress' in parsed && parsed.tokenAddress)
@@ -339,7 +340,9 @@ export const useSolanaBalance = (
       {
         queryKey: ['solanaBalance', address, assetId, isNative],
         queryFn: async () => {
-          if (!address || !assetId || !isSolana || !connection) return null
+          if (!address || !assetId || !isSolana) return null
+
+          const connection = walletConnection ?? new Connection(SOLANA_PUBLIC_RPC, 'confirmed')
 
           try {
             const pubKey = new PublicKey(address)
@@ -381,7 +384,7 @@ export const useSolanaBalance = (
             return null
           }
         },
-        enabled: !!address && !!assetId && isSolana && !!connection,
+        enabled: !!address && !!assetId && isSolana,
         staleTime: 30_000,
         refetchOnWindowFocus: false,
       },
@@ -538,7 +541,8 @@ export const useMultiChainBalances = (
   assetPrecisions: Record<AssetId, number>,
 ) => {
   const config = useConfig()
-  const { connection } = useAppKitConnection()
+  const { connection: walletConnection } = useAppKitConnection()
+  const queryClient = useQueryClient()
 
   const groupedAssets = useMemo(() => {
     const evm: {
@@ -642,7 +646,10 @@ export const useMultiChainBalances = (
     queries: groupedAssets.solana.map(asset => ({
       queryKey: ['multiChainBalance', 'solana', solanaAddress, asset.assetId, asset.tokenAddress],
       queryFn: async () => {
-        if (!solanaAddress || !connection) return null
+        if (!solanaAddress) return null
+
+        const connection = walletConnection ?? new Connection(SOLANA_PUBLIC_RPC, 'confirmed')
+
         try {
           const pubKey = new PublicKey(solanaAddress)
 
@@ -679,7 +686,7 @@ export const useMultiChainBalances = (
           return null
         }
       },
-      enabled: !!solanaAddress && !!connection,
+      enabled: !!solanaAddress,
       staleTime: 30_000,
       refetchOnWindowFocus: false,
     })),
@@ -730,5 +737,81 @@ export const useMultiChainBalances = (
     return loading
   }, [evmQueries, utxoQueries, solanaQueries, groupedAssets])
 
-  return { data: balances, isLoading, loadingAssetIds }
+  const refetch = useCallback(() => {
+    queryClient.invalidateQueries({
+      predicate: query => {
+        const key = query.queryKey
+        return (
+          (Array.isArray(key) && key[0] === 'multiChainBalance') ||
+          key[0] === 'nativeBalance' ||
+          key[0] === 'erc20Balance' ||
+          key[0] === 'utxoBalance' ||
+          key[0] === 'solanaBalance'
+        )
+      },
+    })
+  }, [queryClient])
+
+  const refetchSpecific = useCallback(
+    (targetAssetIds: AssetId[]) => {
+      queryClient.invalidateQueries({
+        predicate: query => {
+          const key = query.queryKey as unknown[]
+          if (!Array.isArray(key) || key[0] !== 'multiChainBalance') return false
+
+          return targetAssetIds.some(assetId => {
+            const evmAsset = groupedAssets.evm.find(a => a.assetId === assetId)
+            if (evmAsset) {
+              const expectedKey = [
+                'multiChainBalance',
+                'evm',
+                evmAddress,
+                evmAsset.chainId,
+                evmAsset.tokenAddress,
+              ]
+              if (
+                key.length === expectedKey.length &&
+                key.every((val, idx) => val === expectedKey[idx])
+              ) {
+                return true
+              }
+            }
+
+            const utxoAsset = groupedAssets.utxo.find(a => a.assetId === assetId)
+            if (utxoAsset) {
+              const expectedKey = ['multiChainBalance', 'utxo', utxoAddress, assetId]
+              if (
+                key.length === expectedKey.length &&
+                key.every((val, idx) => val === expectedKey[idx])
+              ) {
+                return true
+              }
+            }
+
+            const solanaAsset = groupedAssets.solana.find(a => a.assetId === assetId)
+            if (solanaAsset) {
+              const expectedKey = [
+                'multiChainBalance',
+                'solana',
+                solanaAddress,
+                assetId,
+                solanaAsset.tokenAddress,
+              ]
+              if (
+                key.length === expectedKey.length &&
+                key.every((val, idx) => val === expectedKey[idx])
+              ) {
+                return true
+              }
+            }
+
+            return false
+          })
+        },
+      })
+    },
+    [queryClient, groupedAssets, evmAddress, utxoAddress, solanaAddress],
+  )
+
+  return { data: balances, isLoading, loadingAssetIds, refetch, refetchSpecific }
 }

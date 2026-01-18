@@ -181,7 +181,7 @@ const SwapWidgetCore = ({
   const isBuyAssetEvm = buyChainType === 'evm'
   const isSellAssetUtxo = sellChainType === 'utxo'
   const isSellAssetSolana = sellChainType === 'solana'
-  const canExecuteDirectly = isSellAssetEvm && isBuyAssetEvm
+  const canExecuteDirectly = isSellAssetEvm
   const canExecuteUtxo = isSellAssetUtxo
   const canExecuteSolana = isSellAssetSolana
 
@@ -223,8 +223,22 @@ const SwapWidgetCore = ({
   }, [walletClient])
 
   const effectiveReceiveAddress = useMemo(() => {
-    return customReceiveAddress || defaultReceiveAddress || walletAddress || ''
-  }, [customReceiveAddress, defaultReceiveAddress, walletAddress])
+    if (customReceiveAddress) return customReceiveAddress
+    if (defaultReceiveAddress) return defaultReceiveAddress
+
+    if (buyChainType === 'utxo' && bitcoinAddress) return bitcoinAddress
+    if (buyChainType === 'solana' && solanaAddress) return solanaAddress
+    if (buyChainType === 'evm' && walletAddress) return walletAddress
+
+    return walletAddress || ''
+  }, [
+    customReceiveAddress,
+    defaultReceiveAddress,
+    buyChainType,
+    bitcoinAddress,
+    solanaAddress,
+    walletAddress,
+  ])
 
   const isCustomAddress = useMemo(() => {
     return !!customReceiveAddress && customReceiveAddress !== walletAddress
@@ -242,14 +256,21 @@ const SwapWidgetCore = ({
     sellAsset.precision,
   )
 
+  const buyAssetAddressForBalance = useMemo(() => {
+    if (buyChainType === 'evm') return effectiveReceiveAddress || walletAddress
+    if (buyChainType === 'utxo') return effectiveReceiveAddress || bitcoinAddress
+    if (buyChainType === 'solana') return effectiveReceiveAddress || solanaAddress
+    return effectiveReceiveAddress
+  }, [buyChainType, effectiveReceiveAddress, walletAddress, bitcoinAddress, solanaAddress])
+
   const {
     data: buyAssetBalance,
     isLoading: isBuyBalanceLoading,
     refetch: refetchBuyBalance,
   } = useMultiChainBalance(
-    walletAddress,
-    bitcoinAddress,
-    solanaAddress,
+    buyChainType === 'evm' ? buyAssetAddressForBalance : walletAddress,
+    buyChainType === 'utxo' ? buyAssetAddressForBalance : bitcoinAddress,
+    buyChainType === 'solana' ? buyAssetAddressForBalance : solanaAddress,
     buyAsset.assetId,
     buyAsset.precision,
   )
@@ -280,217 +301,208 @@ const SwapWidgetCore = ({
     [onAssetSelect],
   )
 
-  const handleExecuteSwap = useCallback(async () => {
-    if (isSellAssetUtxo && canExecuteUtxo) {
-      if (!isBitcoinConnected || !bitcoinAddress) {
-        return
-      }
-
-      const rateToUse = selectedRate ?? rates?.[0]
-      if (!rateToUse || !sellAmountBaseUnit) {
-        return
-      }
-
-      setIsExecuting(true)
-      resetBitcoinState()
-
-      try {
-        const slippageDecimal = (parseFloat(slippage) / 100).toString()
-        const quoteResponse = await apiClient.getQuote({
-          sellAssetId: sellAsset.assetId,
-          buyAssetId: buyAsset.assetId,
-          sellAmountCryptoBaseUnit: sellAmountBaseUnit,
-          sendAddress: bitcoinAddress,
-          receiveAddress: effectiveReceiveAddress || bitcoinAddress,
-          swapperName: rateToUse.swapperName,
-          slippageTolerancePercentageDecimal: slippageDecimal,
-        })
-
-        const outerStep = quoteResponse.steps?.[0]
-        const innerStep = quoteResponse.quote?.steps?.[0]
-        const transactionData =
-          quoteResponse.transactionData ?? outerStep?.transactionData ?? innerStep?.transactionData
-
-        if (!transactionData) {
-          throw new Error(
-            `No transaction data returned. Response keys: ${Object.keys(quoteResponse).join(', ')}`,
-          )
-        }
-
-        setTxStatus({
-          status: 'pending',
-          message: 'Waiting for wallet confirmation...',
-        })
-
-        const psbt = (transactionData as { psbt?: string }).psbt
-        const recipientAddress = transactionData.to
-        const value = transactionData.value ?? sellAmountBaseUnit
-
-        let txid: string
-
-        if (psbt) {
-          txid = await signPsbt({
-            psbt,
-            signInputs: {},
-            broadcast: true,
-          })
-        } else if (recipientAddress) {
-          txid = await sendBitcoinTransfer({
-            recipientAddress,
-            amount: value,
-          })
-        } else {
-          throw new Error('No PSBT or recipient address in transaction data')
-        }
-
-        setTxStatus({
-          status: 'pending',
-          txHash: txid,
-          message: 'Transaction broadcast. Waiting for confirmation...',
-        })
-
-        setTxStatus({ status: 'success', txHash: txid, message: 'Swap initiated!' })
-        onSwapSuccess?.(txid)
-
-        setSellAmount('')
-        setSelectedRate(null)
-
-        setTimeout(() => {
-          refetchSellBalance?.()
-          refetchBuyBalance?.()
-        }, 10000)
-      } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : 'Transaction failed'
-        setTxStatus({ status: 'error', message: errorMessage })
-        onSwapError?.(error as Error)
-      } finally {
-        setIsExecuting(false)
-      }
-
-      return
-    }
-
-    if (isSellAssetSolana && canExecuteSolana) {
-      if (!isSolanaConnected || !solanaAddress) {
-        return
-      }
-
-      const rateToUse = selectedRate ?? rates?.[0]
-      if (!rateToUse || !sellAmountBaseUnit) {
-        return
-      }
-
-      setIsExecuting(true)
-      resetSolanaState()
-
-      try {
-        const slippageDecimal = (parseFloat(slippage) / 100).toString()
-        const quoteResponse = await apiClient.getQuote({
-          sellAssetId: sellAsset.assetId,
-          buyAssetId: buyAsset.assetId,
-          sellAmountCryptoBaseUnit: sellAmountBaseUnit,
-          sendAddress: solanaAddress,
-          receiveAddress: effectiveReceiveAddress || solanaAddress,
-          swapperName: rateToUse.swapperName,
-          slippageTolerancePercentageDecimal: slippageDecimal,
-        })
-
-        const innerStep = quoteResponse.quote?.steps?.[0]
-        const solanaTransactionMetadata = (innerStep as any)?.solanaTransactionMetadata
-
-        if (!solanaTransactionMetadata?.instructions) {
-          throw new Error(
-            `No Solana transaction metadata returned. Response keys: ${Object.keys(
-              quoteResponse,
-            ).join(', ')}`,
-          )
-        }
-
-        setTxStatus({
-          status: 'pending',
-          message: 'Waiting for wallet confirmation...',
-        })
-
-        if (!solanaConnection) {
-          throw new Error('Solana connection not available')
-        }
-
-        const { Transaction, PublicKey, TransactionInstruction } = await import('@solana/web3.js')
-
-        const instructions = solanaTransactionMetadata.instructions.map((ix: any) => {
-          const keys = ix.keys.map((key: any) => ({
-            pubkey: new PublicKey(key.pubkey),
-            isSigner: key.isSigner,
-            isWritable: key.isWritable,
-          }))
-
-          const data = Buffer.from(ix.data.data)
-
-          return new TransactionInstruction({
-            keys,
-            programId: new PublicKey(ix.programId),
-            data,
-          })
-        })
-
-        const transaction = new Transaction().add(...instructions)
-
-        const { blockhash } = await solanaConnection.getLatestBlockhash('confirmed')
-
-        transaction.recentBlockhash = blockhash
-        transaction.feePayer = new PublicKey(solanaAddress)
-
-        const signature = await sendSolanaTransaction({ transaction })
-
-        setTxStatus({
-          status: 'pending',
-          txHash: signature,
-          message: 'Transaction broadcast. Waiting for confirmation...',
-        })
-
-        setTxStatus({ status: 'success', txHash: signature, message: 'Swap initiated!' })
-        onSwapSuccess?.(signature)
-
-        setSellAmount('')
-        setSelectedRate(null)
-
-        setTimeout(() => {
-          refetchSellBalance?.()
-          refetchBuyBalance?.()
-        }, 5000)
-      } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : 'Transaction failed'
-        setTxStatus({ status: 'error', message: errorMessage })
-        onSwapError?.(error as Error)
-      } finally {
-        setIsExecuting(false)
-      }
-
-      return
-    }
-
-    if (!isSellAssetEvm) {
-      const params = new URLSearchParams({
-        sellAssetId: sellAsset.assetId,
-        buyAssetId: buyAsset.assetId,
-        sellAmount,
-      })
-      window.open(`https://app.shapeshift.com/trade?${params.toString()}`, '_blank')
-      return
-    }
+  const executeUtxoSwap = useCallback(async () => {
+    if (!isBitcoinConnected || !bitcoinAddress) return
 
     const rateToUse = selectedRate ?? rates?.[0]
-    if (!rateToUse || !walletClient || !walletAddress) return
+    if (!rateToUse || !sellAmountBaseUnit) return
 
-    if (!canExecuteDirectly) {
-      const params = new URLSearchParams({
+    setIsExecuting(true)
+    resetBitcoinState()
+
+    try {
+      const slippageDecimal = (parseFloat(slippage) / 100).toString()
+      const quoteResponse = await apiClient.getQuote({
         sellAssetId: sellAsset.assetId,
         buyAssetId: buyAsset.assetId,
-        sellAmount,
+        sellAmountCryptoBaseUnit: sellAmountBaseUnit,
+        sendAddress: bitcoinAddress,
+        receiveAddress: effectiveReceiveAddress || bitcoinAddress,
+        swapperName: rateToUse.swapperName,
+        slippageTolerancePercentageDecimal: slippageDecimal,
       })
-      window.open(`https://app.shapeshift.com/trade?${params.toString()}`, '_blank')
-      return
+
+      const outerStep = quoteResponse.steps?.[0]
+      const innerStep = quoteResponse.quote?.steps?.[0]
+      const transactionData =
+        quoteResponse.transactionData ?? outerStep?.transactionData ?? innerStep?.transactionData
+
+      if (!transactionData) {
+        throw new Error(
+          `No transaction data returned. Response keys: ${Object.keys(quoteResponse).join(', ')}`,
+        )
+      }
+
+      setTxStatus({ status: 'pending', message: 'Waiting for wallet confirmation...' })
+
+      const psbt = (transactionData as { psbt?: string }).psbt
+      const recipientAddress = transactionData.to
+      const value = transactionData.value ?? sellAmountBaseUnit
+
+      let txid: string
+
+      if (psbt) {
+        txid = await signPsbt({ psbt, signInputs: {}, broadcast: true })
+      } else if (recipientAddress) {
+        txid = await sendBitcoinTransfer({ recipientAddress, amount: value })
+      } else {
+        throw new Error('No PSBT or recipient address in transaction data')
+      }
+
+      setTxStatus({
+        status: 'pending',
+        txHash: txid,
+        message: 'Transaction broadcast. Waiting for confirmation...',
+      })
+
+      setTxStatus({ status: 'success', txHash: txid, message: 'Swap initiated!' })
+      onSwapSuccess?.(txid)
+
+      setSellAmount('')
+      setSelectedRate(null)
+
+      setTimeout(() => {
+        refetchSellBalance?.()
+        refetchBuyBalance?.()
+      }, 10000)
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Transaction failed'
+      setTxStatus({ status: 'error', message: errorMessage })
+      onSwapError?.(error as Error)
+    } finally {
+      setIsExecuting(false)
     }
+  }, [
+    isBitcoinConnected,
+    bitcoinAddress,
+    selectedRate,
+    rates,
+    sellAmountBaseUnit,
+    resetBitcoinState,
+    slippage,
+    apiClient,
+    sellAsset.assetId,
+    buyAsset.assetId,
+    effectiveReceiveAddress,
+    signPsbt,
+    sendBitcoinTransfer,
+    onSwapSuccess,
+    onSwapError,
+    refetchSellBalance,
+    refetchBuyBalance,
+  ])
+
+  const executeSolanaSwap = useCallback(async () => {
+    if (!isSolanaConnected || !solanaAddress) return
+
+    const rateToUse = selectedRate ?? rates?.[0]
+    if (!rateToUse || !sellAmountBaseUnit) return
+
+    setIsExecuting(true)
+    resetSolanaState()
+
+    try {
+      const slippageDecimal = (parseFloat(slippage) / 100).toString()
+      const quoteResponse = await apiClient.getQuote({
+        sellAssetId: sellAsset.assetId,
+        buyAssetId: buyAsset.assetId,
+        sellAmountCryptoBaseUnit: sellAmountBaseUnit,
+        sendAddress: solanaAddress,
+        receiveAddress: effectiveReceiveAddress || solanaAddress,
+        swapperName: rateToUse.swapperName,
+        slippageTolerancePercentageDecimal: slippageDecimal,
+      })
+
+      const innerStep = quoteResponse.quote?.steps?.[0]
+      const solanaTransactionMetadata = (innerStep as any)?.solanaTransactionMetadata
+
+      if (!solanaTransactionMetadata?.instructions) {
+        throw new Error(
+          `No Solana transaction metadata returned. Response keys: ${Object.keys(
+            quoteResponse,
+          ).join(', ')}`,
+        )
+      }
+
+      setTxStatus({ status: 'pending', message: 'Waiting for wallet confirmation...' })
+
+      if (!solanaConnection) {
+        throw new Error('Solana connection not available')
+      }
+
+      const { Transaction, PublicKey, TransactionInstruction } = await import('@solana/web3.js')
+
+      const instructions = solanaTransactionMetadata.instructions.map((ix: any) => {
+        const keys = ix.keys.map((key: any) => ({
+          pubkey: new PublicKey(key.pubkey),
+          isSigner: key.isSigner,
+          isWritable: key.isWritable,
+        }))
+
+        const data = Buffer.from(ix.data.data)
+
+        return new TransactionInstruction({
+          keys,
+          programId: new PublicKey(ix.programId),
+          data,
+        })
+      })
+
+      const transaction = new Transaction().add(...instructions)
+
+      const { blockhash } = await solanaConnection.getLatestBlockhash('confirmed')
+
+      transaction.recentBlockhash = blockhash
+      transaction.feePayer = new PublicKey(solanaAddress)
+
+      const signature = await sendSolanaTransaction({ transaction })
+
+      setTxStatus({
+        status: 'pending',
+        txHash: signature,
+        message: 'Transaction broadcast. Waiting for confirmation...',
+      })
+
+      setTxStatus({ status: 'success', txHash: signature, message: 'Swap initiated!' })
+      onSwapSuccess?.(signature)
+
+      setSellAmount('')
+      setSelectedRate(null)
+
+      setTimeout(() => {
+        refetchSellBalance?.()
+        refetchBuyBalance?.()
+      }, 5000)
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Transaction failed'
+      setTxStatus({ status: 'error', message: errorMessage })
+      onSwapError?.(error as Error)
+    } finally {
+      setIsExecuting(false)
+    }
+  }, [
+    isSolanaConnected,
+    solanaAddress,
+    selectedRate,
+    rates,
+    sellAmountBaseUnit,
+    resetSolanaState,
+    slippage,
+    apiClient,
+    sellAsset.assetId,
+    buyAsset.assetId,
+    effectiveReceiveAddress,
+    solanaConnection,
+    sendSolanaTransaction,
+    onSwapSuccess,
+    onSwapError,
+    refetchSellBalance,
+    refetchBuyBalance,
+  ])
+
+  const executeEvmSwap = useCallback(async () => {
+    const rateToUse = selectedRate ?? rates?.[0]
+    if (!rateToUse || !walletClient || !walletAddress) return
 
     setIsExecuting(true)
 
@@ -597,10 +609,7 @@ const SwapWidgetCore = ({
       const value = transactionData.value ?? '0'
       const gasLimit = transactionData.gasLimit as string | undefined
 
-      setTxStatus({
-        status: 'pending',
-        message: 'Waiting for confirmation...',
-      })
+      setTxStatus({ status: 'pending', message: 'Waiting for confirmation...' })
 
       const txHash = await client.sendTransaction({
         to: to as `0x${string}`,
@@ -617,10 +626,25 @@ const SwapWidgetCore = ({
       setSellAmount('')
       setSelectedRate(null)
 
+      const isCrossChain = !isBuyAssetEvm || sellAsset.chainId !== buyAsset.chainId
+
       setTimeout(() => {
         refetchSellBalance?.()
-        refetchBuyBalance?.()
       }, 3000)
+
+      if (isCrossChain) {
+        setTimeout(() => {
+          refetchBuyBalance?.()
+        }, 15000)
+
+        setTimeout(() => {
+          refetchBuyBalance?.()
+        }, 30000)
+      } else {
+        setTimeout(() => {
+          refetchBuyBalance?.()
+        }, 3000)
+      }
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Transaction failed'
       setTxStatus({ status: 'error', message: errorMessage })
@@ -633,33 +657,55 @@ const SwapWidgetCore = ({
     rates,
     walletClient,
     walletAddress,
-    effectiveReceiveAddress,
-    canExecuteDirectly,
-    canExecuteUtxo,
-    canExecuteSolana,
-    isSellAssetEvm,
-    isSellAssetUtxo,
-    isSellAssetSolana,
-    isBitcoinConnected,
-    bitcoinAddress,
-    sendBitcoinTransfer,
-    signPsbt,
-    resetBitcoinState,
-    isSolanaConnected,
-    solanaAddress,
-    solanaConnection,
-    sendSolanaTransaction,
-    resetSolanaState,
-    sellAsset,
-    buyAsset,
-    sellAmount,
     sellAmountBaseUnit,
     slippage,
     apiClient,
+    sellAsset.assetId,
+    sellAsset.chainId,
+    buyAsset.assetId,
+    buyAsset.chainId,
+    isBuyAssetEvm,
+    effectiveReceiveAddress,
     onSwapSuccess,
     onSwapError,
     refetchSellBalance,
     refetchBuyBalance,
+  ])
+
+  const redirectToShapeShift = useCallback(() => {
+    const params = new URLSearchParams({
+      sellAssetId: sellAsset.assetId,
+      buyAssetId: buyAsset.assetId,
+      sellAmount,
+    })
+    window.open(`https://app.shapeshift.com/trade?${params.toString()}`, '_blank')
+  }, [sellAsset.assetId, buyAsset.assetId, sellAmount])
+
+  const handleExecuteSwap = useCallback(() => {
+    if (isSellAssetUtxo && canExecuteUtxo) {
+      return executeUtxoSwap()
+    }
+
+    if (isSellAssetSolana && canExecuteSolana) {
+      return executeSolanaSwap()
+    }
+
+    if (!isSellAssetEvm || !canExecuteDirectly) {
+      return redirectToShapeShift()
+    }
+
+    return executeEvmSwap()
+  }, [
+    isSellAssetUtxo,
+    canExecuteUtxo,
+    executeUtxoSwap,
+    isSellAssetSolana,
+    canExecuteSolana,
+    executeSolanaSwap,
+    isSellAssetEvm,
+    canExecuteDirectly,
+    redirectToShapeShift,
+    executeEvmSwap,
   ])
 
   const handleButtonClick = useCallback(() => {
@@ -733,32 +779,22 @@ const SwapWidgetCore = ({
   ])
 
   const isButtonDisabled = useMemo(() => {
+    if (!sellAmount || isLoadingRates || ratesError || !rates?.length || isExecuting) {
+      return true
+    }
+
     if (isSellAssetUtxo && canExecuteUtxo) {
-      if (!sellAmount) return true
-      if (!isBitcoinConnected) return true
-      if (bitcoinState.isLoading) return true
-      if (isLoadingRates) return true
-      if (ratesError) return true
-      if (!rates?.length) return true
-      if (isExecuting) return true
-      return false
+      return !isBitcoinConnected || bitcoinState.isLoading
     }
+
     if (isSellAssetSolana && canExecuteSolana) {
-      if (!sellAmount) return true
-      if (!isSolanaConnected) return true
-      if (solanaState.isLoading) return true
-      if (isLoadingRates) return true
-      if (ratesError) return true
-      if (!rates?.length) return true
-      if (isExecuting) return true
+      return !isSolanaConnected || solanaState.isLoading
+    }
+
+    if (!isSellAssetEvm) {
       return false
     }
-    if (!isSellAssetEvm) return false
-    if (!sellAmount) return true
-    if (isLoadingRates) return true
-    if (ratesError) return true
-    if (!rates?.length) return true
-    if (isExecuting) return true
+
     return false
   }, [
     isSellAssetEvm,
@@ -1149,6 +1185,7 @@ const SwapWidgetCore = ({
         disabledChainIds={disabledChainIds}
         allowedChainIds={allowedChainIds}
         walletAddress={walletAddress}
+        currentAssetIds={[sellAsset.assetId, buyAsset.assetId]}
       />
 
       <SettingsModal

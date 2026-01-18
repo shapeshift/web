@@ -32,6 +32,7 @@ type TokenSelectModalProps = {
   disabledChainIds?: ChainId[]
   allowedChainIds?: ChainId[]
   walletAddress?: string
+  currentAssetIds?: AssetId[]
 }
 
 const isNativeAsset = (assetId: string): boolean => {
@@ -66,6 +67,7 @@ export const TokenSelectModal = ({
   disabledChainIds = [],
   allowedChainIds,
   walletAddress,
+  currentAssetIds = [],
 }: TokenSelectModalProps) => {
   useLockBodyScroll(isOpen)
   const [searchQuery, setSearchQuery] = useState('')
@@ -155,13 +157,17 @@ export const TokenSelectModal = ({
   const { address: bitcoinAddress } = useBitcoinSigning()
   const { address: solanaAddress } = useSolanaSigning()
 
-  const { data: balances, loadingAssetIds } = useMultiChainBalances(
-    walletAddress,
-    bitcoinAddress,
-    solanaAddress,
-    assetIds,
-    assetPrecisions,
-  )
+  const {
+    data: balances,
+    loadingAssetIds,
+    refetchSpecific,
+  } = useMultiChainBalances(walletAddress, bitcoinAddress, solanaAddress, assetIds, assetPrecisions)
+
+  useEffect(() => {
+    if (isOpen && currentAssetIds.length > 0) {
+      refetchSpecific?.(currentAssetIds)
+    }
+  }, [isOpen, currentAssetIds, refetchSpecific])
 
   const { data: marketData } = useAllMarketData()
 

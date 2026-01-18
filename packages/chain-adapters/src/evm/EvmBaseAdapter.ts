@@ -99,7 +99,7 @@ export const isEvmChainId = (
 }
 
 export interface ChainAdapterArgs<T = unchained.evm.Api> {
-  chainId?: EvmChainId
+  chainId?: AnyEvmChainId
   providers: {
     http: T
     ws: unchained.ws.Client<unchained.evm.types.Tx>
@@ -223,7 +223,7 @@ export abstract class EvmBaseAdapter<T extends AnyEvmChainId> implements IChainA
     }
 
     // TODO: use asset-service baseAssets.ts after lib is moved into web (circular dependency)
-    const targetNetwork = {
+    const targetNetworkByChainId: Record<string, { name: string; symbol: string; explorer: string }> = {
       [KnownChainIds.AvalancheMainnet]: {
         name: 'Avalanche',
         symbol: 'AVAX',
@@ -289,7 +289,12 @@ export abstract class EvmBaseAdapter<T extends AnyEvmChainId> implements IChainA
         symbol: 'ETH',
         explorer: 'https://katanascan.com',
       },
-    }[this.chainId]
+    }
+    const targetNetwork = targetNetworkByChainId[this.chainId] ?? {
+      name: this.getDisplayName(),
+      symbol: this.getDisplayName(),
+      explorer: '',
+    }
 
     try {
       await wallet.ethSwitchChain({

@@ -11,7 +11,9 @@ import type {
   ThorchainSignTx,
 } from '@shapeshiftoss/hdwallet-core'
 import type {
+  AnyEvmChainId,
   ChainSpecific,
+  EvmGenericChainId,
   KnownChainIds,
   UtxoAccountType,
   UtxoChainId,
@@ -33,38 +35,41 @@ import type * as utxo from './utxo/types'
 export type ContractInteraction = Nominal<'contract-interaction', 'ContractInteraction'>
 export const CONTRACT_INTERACTION: ContractInteraction = 'contract-interaction' as const
 
-type ChainSpecificAccount<T> = ChainSpecific<
-  T,
-  {
-    [KnownChainIds.EthereumMainnet]: evm.Account
-    [KnownChainIds.AvalancheMainnet]: evm.Account
-    [KnownChainIds.OptimismMainnet]: evm.Account
-    [KnownChainIds.BnbSmartChainMainnet]: evm.Account
-    [KnownChainIds.PolygonMainnet]: evm.Account
-    [KnownChainIds.GnosisMainnet]: evm.Account
-    [KnownChainIds.ArbitrumMainnet]: evm.Account
-    [KnownChainIds.ArbitrumNovaMainnet]: evm.Account
-    [KnownChainIds.BaseMainnet]: evm.Account
-    [KnownChainIds.MonadMainnet]: evm.Account
-    [KnownChainIds.HyperEvmMainnet]: evm.Account
-    [KnownChainIds.PlasmaMainnet]: evm.Account
-    [KnownChainIds.KatanaMainnet]: evm.Account
-    [KnownChainIds.BitcoinMainnet]: utxo.Account
-    [KnownChainIds.BitcoinCashMainnet]: utxo.Account
-    [KnownChainIds.DogecoinMainnet]: utxo.Account
-    [KnownChainIds.LitecoinMainnet]: utxo.Account
-    [KnownChainIds.ZcashMainnet]: utxo.Account
-    [KnownChainIds.CosmosMainnet]: cosmossdk.Account
-    [KnownChainIds.ThorchainMainnet]: cosmossdk.Account
-    [KnownChainIds.MayachainMainnet]: cosmossdk.Account
-    [KnownChainIds.SolanaMainnet]: solana.Account
-    [KnownChainIds.TronMainnet]: tron.Account
-    [KnownChainIds.SuiMainnet]: sui.Account
-    [KnownChainIds.NearMainnet]: near.Account
-    [KnownChainIds.StarknetMainnet]: starknet.Account
-    [KnownChainIds.TonMainnet]: ton.Account
-  }
->
+type ChainSpecificAccountMapping = {
+  [KnownChainIds.EthereumMainnet]: evm.Account
+  [KnownChainIds.AvalancheMainnet]: evm.Account
+  [KnownChainIds.OptimismMainnet]: evm.Account
+  [KnownChainIds.BnbSmartChainMainnet]: evm.Account
+  [KnownChainIds.PolygonMainnet]: evm.Account
+  [KnownChainIds.GnosisMainnet]: evm.Account
+  [KnownChainIds.ArbitrumMainnet]: evm.Account
+  [KnownChainIds.ArbitrumNovaMainnet]: evm.Account
+  [KnownChainIds.BaseMainnet]: evm.Account
+  [KnownChainIds.MonadMainnet]: evm.Account
+  [KnownChainIds.HyperEvmMainnet]: evm.Account
+  [KnownChainIds.PlasmaMainnet]: evm.Account
+  [KnownChainIds.KatanaMainnet]: evm.Account
+  [KnownChainIds.BitcoinMainnet]: utxo.Account
+  [KnownChainIds.BitcoinCashMainnet]: utxo.Account
+  [KnownChainIds.DogecoinMainnet]: utxo.Account
+  [KnownChainIds.LitecoinMainnet]: utxo.Account
+  [KnownChainIds.ZcashMainnet]: utxo.Account
+  [KnownChainIds.CosmosMainnet]: cosmossdk.Account
+  [KnownChainIds.ThorchainMainnet]: cosmossdk.Account
+  [KnownChainIds.MayachainMainnet]: cosmossdk.Account
+  [KnownChainIds.SolanaMainnet]: solana.Account
+  [KnownChainIds.TronMainnet]: tron.Account
+  [KnownChainIds.SuiMainnet]: sui.Account
+  [KnownChainIds.NearMainnet]: near.Account
+  [KnownChainIds.StarknetMainnet]: starknet.Account
+  [KnownChainIds.TonMainnet]: ton.Account
+}
+
+type ChainSpecificAccount<T> = T extends keyof ChainSpecificAccountMapping
+  ? { chainSpecific: ChainSpecificAccountMapping[T] }
+  : T extends EvmGenericChainId
+    ? { chainSpecific: evm.Account }
+    : ChainSpecific<T, ChainSpecificAccountMapping>
 
 export type Account<T extends ChainId> = {
   balance: string
@@ -85,38 +90,41 @@ export enum FeeDataKey {
   Fast = 'fast',
 }
 
-type ChainSpecificFeeData<T> = ChainSpecific<
-  T,
-  {
-    [KnownChainIds.EthereumMainnet]: evm.FeeData
-    [KnownChainIds.AvalancheMainnet]: evm.FeeData
-    [KnownChainIds.OptimismMainnet]: evm.FeeData
-    [KnownChainIds.BnbSmartChainMainnet]: evm.FeeData
-    [KnownChainIds.PolygonMainnet]: evm.FeeData
-    [KnownChainIds.GnosisMainnet]: evm.FeeData
-    [KnownChainIds.ArbitrumMainnet]: evm.FeeData
-    [KnownChainIds.ArbitrumNovaMainnet]: evm.FeeData
-    [KnownChainIds.BaseMainnet]: evm.FeeData
-    [KnownChainIds.MonadMainnet]: evm.FeeData
-    [KnownChainIds.HyperEvmMainnet]: evm.FeeData
-    [KnownChainIds.PlasmaMainnet]: evm.FeeData
-    [KnownChainIds.KatanaMainnet]: evm.FeeData
-    [KnownChainIds.BitcoinMainnet]: utxo.FeeData
-    [KnownChainIds.BitcoinCashMainnet]: utxo.FeeData
-    [KnownChainIds.DogecoinMainnet]: utxo.FeeData
-    [KnownChainIds.LitecoinMainnet]: utxo.FeeData
-    [KnownChainIds.ZcashMainnet]: utxo.FeeData
-    [KnownChainIds.CosmosMainnet]: cosmossdk.FeeData
-    [KnownChainIds.ThorchainMainnet]: cosmossdk.FeeData
-    [KnownChainIds.MayachainMainnet]: cosmossdk.FeeData
-    [KnownChainIds.SolanaMainnet]: solana.FeeData
-    [KnownChainIds.TronMainnet]: tron.FeeData
-    [KnownChainIds.SuiMainnet]: sui.FeeData
-    [KnownChainIds.NearMainnet]: near.FeeData
-    [KnownChainIds.StarknetMainnet]: starknet.FeeData
-    [KnownChainIds.TonMainnet]: ton.FeeData
-  }
->
+type ChainSpecificFeeDataMapping = {
+  [KnownChainIds.EthereumMainnet]: evm.FeeData
+  [KnownChainIds.AvalancheMainnet]: evm.FeeData
+  [KnownChainIds.OptimismMainnet]: evm.FeeData
+  [KnownChainIds.BnbSmartChainMainnet]: evm.FeeData
+  [KnownChainIds.PolygonMainnet]: evm.FeeData
+  [KnownChainIds.GnosisMainnet]: evm.FeeData
+  [KnownChainIds.ArbitrumMainnet]: evm.FeeData
+  [KnownChainIds.ArbitrumNovaMainnet]: evm.FeeData
+  [KnownChainIds.BaseMainnet]: evm.FeeData
+  [KnownChainIds.MonadMainnet]: evm.FeeData
+  [KnownChainIds.HyperEvmMainnet]: evm.FeeData
+  [KnownChainIds.PlasmaMainnet]: evm.FeeData
+  [KnownChainIds.KatanaMainnet]: evm.FeeData
+  [KnownChainIds.BitcoinMainnet]: utxo.FeeData
+  [KnownChainIds.BitcoinCashMainnet]: utxo.FeeData
+  [KnownChainIds.DogecoinMainnet]: utxo.FeeData
+  [KnownChainIds.LitecoinMainnet]: utxo.FeeData
+  [KnownChainIds.ZcashMainnet]: utxo.FeeData
+  [KnownChainIds.CosmosMainnet]: cosmossdk.FeeData
+  [KnownChainIds.ThorchainMainnet]: cosmossdk.FeeData
+  [KnownChainIds.MayachainMainnet]: cosmossdk.FeeData
+  [KnownChainIds.SolanaMainnet]: solana.FeeData
+  [KnownChainIds.TronMainnet]: tron.FeeData
+  [KnownChainIds.SuiMainnet]: sui.FeeData
+  [KnownChainIds.NearMainnet]: near.FeeData
+  [KnownChainIds.StarknetMainnet]: starknet.FeeData
+  [KnownChainIds.TonMainnet]: ton.FeeData
+}
+
+type ChainSpecificFeeData<T> = T extends keyof ChainSpecificFeeDataMapping
+  ? { chainSpecific: ChainSpecificFeeDataMapping[T] }
+  : T extends EvmGenericChainId
+    ? { chainSpecific: evm.FeeData }
+    : ChainSpecific<T, ChainSpecificFeeDataMapping>
 
 export type FeeData<T extends ChainId> = {
   txFee: string
@@ -202,7 +210,11 @@ export type ChainSignTx = {
   [KnownChainIds.TonMainnet]: ton.TonSignTx
 }
 
-export type SignTx<T extends ChainId> = T extends keyof ChainSignTx ? ChainSignTx[T] : never
+export type SignTx<T extends ChainId> = T extends keyof ChainSignTx
+  ? ChainSignTx[T]
+  : T extends `eip155:${number}`
+    ? ETHSignTx
+    : never
 
 export type BuildSendTxInput<T extends ChainId> = {
   to: string
@@ -215,7 +227,7 @@ export type BuildSendTxInput<T extends ChainId> = {
   pubKey?: string
 } & ChainSpecificBuildTxData<T>
 
-export type BuildSendApiTxInput<T extends KnownChainIds> = Omit<BuildSendTxInput<T>, 'wallet'> & {
+export type BuildSendApiTxInput<T extends ChainId> = Omit<BuildSendTxInput<T>, 'wallet'> & {
   from: string
   /** Optional override for wallet-specific derivation paths (e.g., BIP44 vs Ledger Live) */
   addressNList?: number[]
@@ -227,38 +239,41 @@ export type UtxoBuildSendApiTxInput<T extends UtxoChainId> = Omit<BuildSendTxInp
   skipToAddressValidation?: boolean
 }
 
-export type ChainSpecificBuildTxData<T> = ChainSpecific<
-  T,
-  {
-    [KnownChainIds.EthereumMainnet]: evm.BuildTxInput
-    [KnownChainIds.AvalancheMainnet]: evm.BuildTxInput
-    [KnownChainIds.OptimismMainnet]: evm.BuildTxInput
-    [KnownChainIds.BnbSmartChainMainnet]: evm.BuildTxInput
-    [KnownChainIds.PolygonMainnet]: evm.BuildTxInput
-    [KnownChainIds.GnosisMainnet]: evm.BuildTxInput
-    [KnownChainIds.ArbitrumMainnet]: evm.BuildTxInput
-    [KnownChainIds.ArbitrumNovaMainnet]: evm.BuildTxInput
-    [KnownChainIds.BaseMainnet]: evm.BuildTxInput
-    [KnownChainIds.MonadMainnet]: evm.BuildTxInput
-    [KnownChainIds.HyperEvmMainnet]: evm.BuildTxInput
-    [KnownChainIds.PlasmaMainnet]: evm.BuildTxInput
-    [KnownChainIds.KatanaMainnet]: evm.BuildTxInput
-    [KnownChainIds.BitcoinMainnet]: utxo.BuildTxInput
-    [KnownChainIds.BitcoinCashMainnet]: utxo.BuildTxInput
-    [KnownChainIds.DogecoinMainnet]: utxo.BuildTxInput
-    [KnownChainIds.LitecoinMainnet]: utxo.BuildTxInput
-    [KnownChainIds.ZcashMainnet]: utxo.BuildTxInput
-    [KnownChainIds.CosmosMainnet]: cosmossdk.BuildTxInput
-    [KnownChainIds.ThorchainMainnet]: cosmossdk.BuildTxInput
-    [KnownChainIds.MayachainMainnet]: cosmossdk.BuildTxInput
-    [KnownChainIds.SolanaMainnet]: solana.BuildTxInput
-    [KnownChainIds.TronMainnet]: tron.BuildTxInput
-    [KnownChainIds.SuiMainnet]: sui.BuildTxInput
-    [KnownChainIds.NearMainnet]: near.BuildTxInput
-    [KnownChainIds.StarknetMainnet]: starknet.BuildTxInput
-    [KnownChainIds.TonMainnet]: ton.BuildTxInput
-  }
->
+type ChainSpecificBuildTxDataMapping = {
+  [KnownChainIds.EthereumMainnet]: evm.BuildTxInput
+  [KnownChainIds.AvalancheMainnet]: evm.BuildTxInput
+  [KnownChainIds.OptimismMainnet]: evm.BuildTxInput
+  [KnownChainIds.BnbSmartChainMainnet]: evm.BuildTxInput
+  [KnownChainIds.PolygonMainnet]: evm.BuildTxInput
+  [KnownChainIds.GnosisMainnet]: evm.BuildTxInput
+  [KnownChainIds.ArbitrumMainnet]: evm.BuildTxInput
+  [KnownChainIds.ArbitrumNovaMainnet]: evm.BuildTxInput
+  [KnownChainIds.BaseMainnet]: evm.BuildTxInput
+  [KnownChainIds.MonadMainnet]: evm.BuildTxInput
+  [KnownChainIds.HyperEvmMainnet]: evm.BuildTxInput
+  [KnownChainIds.PlasmaMainnet]: evm.BuildTxInput
+  [KnownChainIds.KatanaMainnet]: evm.BuildTxInput
+  [KnownChainIds.BitcoinMainnet]: utxo.BuildTxInput
+  [KnownChainIds.BitcoinCashMainnet]: utxo.BuildTxInput
+  [KnownChainIds.DogecoinMainnet]: utxo.BuildTxInput
+  [KnownChainIds.LitecoinMainnet]: utxo.BuildTxInput
+  [KnownChainIds.ZcashMainnet]: utxo.BuildTxInput
+  [KnownChainIds.CosmosMainnet]: cosmossdk.BuildTxInput
+  [KnownChainIds.ThorchainMainnet]: cosmossdk.BuildTxInput
+  [KnownChainIds.MayachainMainnet]: cosmossdk.BuildTxInput
+  [KnownChainIds.SolanaMainnet]: solana.BuildTxInput
+  [KnownChainIds.TronMainnet]: tron.BuildTxInput
+  [KnownChainIds.SuiMainnet]: sui.BuildTxInput
+  [KnownChainIds.NearMainnet]: near.BuildTxInput
+  [KnownChainIds.StarknetMainnet]: starknet.BuildTxInput
+  [KnownChainIds.TonMainnet]: ton.BuildTxInput
+}
+
+export type ChainSpecificBuildTxData<T> = T extends keyof ChainSpecificBuildTxDataMapping
+  ? { chainSpecific: ChainSpecificBuildTxDataMapping[T] }
+  : T extends EvmGenericChainId
+    ? { chainSpecific: evm.BuildTxInput }
+    : ChainSpecific<T, ChainSpecificBuildTxDataMapping>
 
 type BuildValidatorTxInput<T extends ChainId> = Omit<BuildSendTxInput<T>, 'to'> & {
   validator: string
@@ -275,7 +290,7 @@ export type BuildRedelegateTxInput<T extends ChainId> = Omit<BuildSendTxInput<T>
   toValidator: string
 }
 
-export type BuildDepositTxInput<T extends KnownChainIds> = Omit<BuildSendApiTxInput<T>, 'to'> & {
+export type BuildDepositTxInput<T extends ChainId> = Omit<BuildSendApiTxInput<T>, 'to'> & {
   memo: string
 }
 
@@ -334,35 +349,38 @@ export type GetAddressInputBase = {
 
 export type GetAddressInput = GetAddressInputBase | utxo.GetAddressInput
 
-type ChainSpecificGetFeeDataInput<T> = ChainSpecific<
-  T,
-  {
-    [KnownChainIds.EthereumMainnet]: evm.GetFeeDataInput
-    [KnownChainIds.AvalancheMainnet]: evm.GetFeeDataInput
-    [KnownChainIds.OptimismMainnet]: evm.GetFeeDataInput
-    [KnownChainIds.BnbSmartChainMainnet]: evm.GetFeeDataInput
-    [KnownChainIds.PolygonMainnet]: evm.GetFeeDataInput
-    [KnownChainIds.GnosisMainnet]: evm.GetFeeDataInput
-    [KnownChainIds.ArbitrumMainnet]: evm.GetFeeDataInput
-    [KnownChainIds.ArbitrumNovaMainnet]: evm.GetFeeDataInput
-    [KnownChainIds.BaseMainnet]: evm.GetFeeDataInput
-    [KnownChainIds.MonadMainnet]: evm.GetFeeDataInput
-    [KnownChainIds.HyperEvmMainnet]: evm.GetFeeDataInput
-    [KnownChainIds.PlasmaMainnet]: evm.GetFeeDataInput
-    [KnownChainIds.KatanaMainnet]: evm.GetFeeDataInput
-    [KnownChainIds.BitcoinMainnet]: utxo.GetFeeDataInput
-    [KnownChainIds.BitcoinCashMainnet]: utxo.GetFeeDataInput
-    [KnownChainIds.DogecoinMainnet]: utxo.GetFeeDataInput
-    [KnownChainIds.LitecoinMainnet]: utxo.GetFeeDataInput
-    [KnownChainIds.ZcashMainnet]: utxo.GetFeeDataInput
-    [KnownChainIds.SolanaMainnet]: solana.GetFeeDataInput
-    [KnownChainIds.SuiMainnet]: sui.GetFeeDataInput
-    [KnownChainIds.TronMainnet]: tron.GetFeeDataInput
-    [KnownChainIds.NearMainnet]: near.GetFeeDataInput
-    [KnownChainIds.StarknetMainnet]: starknet.GetFeeDataInput
-    [KnownChainIds.TonMainnet]: ton.GetFeeDataInput
-  }
->
+type ChainSpecificGetFeeDataInputMapping = {
+  [KnownChainIds.EthereumMainnet]: evm.GetFeeDataInput
+  [KnownChainIds.AvalancheMainnet]: evm.GetFeeDataInput
+  [KnownChainIds.OptimismMainnet]: evm.GetFeeDataInput
+  [KnownChainIds.BnbSmartChainMainnet]: evm.GetFeeDataInput
+  [KnownChainIds.PolygonMainnet]: evm.GetFeeDataInput
+  [KnownChainIds.GnosisMainnet]: evm.GetFeeDataInput
+  [KnownChainIds.ArbitrumMainnet]: evm.GetFeeDataInput
+  [KnownChainIds.ArbitrumNovaMainnet]: evm.GetFeeDataInput
+  [KnownChainIds.BaseMainnet]: evm.GetFeeDataInput
+  [KnownChainIds.MonadMainnet]: evm.GetFeeDataInput
+  [KnownChainIds.HyperEvmMainnet]: evm.GetFeeDataInput
+  [KnownChainIds.PlasmaMainnet]: evm.GetFeeDataInput
+  [KnownChainIds.KatanaMainnet]: evm.GetFeeDataInput
+  [KnownChainIds.BitcoinMainnet]: utxo.GetFeeDataInput
+  [KnownChainIds.BitcoinCashMainnet]: utxo.GetFeeDataInput
+  [KnownChainIds.DogecoinMainnet]: utxo.GetFeeDataInput
+  [KnownChainIds.LitecoinMainnet]: utxo.GetFeeDataInput
+  [KnownChainIds.ZcashMainnet]: utxo.GetFeeDataInput
+  [KnownChainIds.SolanaMainnet]: solana.GetFeeDataInput
+  [KnownChainIds.SuiMainnet]: sui.GetFeeDataInput
+  [KnownChainIds.TronMainnet]: tron.GetFeeDataInput
+  [KnownChainIds.NearMainnet]: near.GetFeeDataInput
+  [KnownChainIds.StarknetMainnet]: starknet.GetFeeDataInput
+  [KnownChainIds.TonMainnet]: ton.GetFeeDataInput
+}
+
+type ChainSpecificGetFeeDataInput<T> = T extends keyof ChainSpecificGetFeeDataInputMapping
+  ? { chainSpecific: ChainSpecificGetFeeDataInputMapping[T] }
+  : T extends EvmGenericChainId
+    ? { chainSpecific: evm.GetFeeDataInput }
+    : ChainSpecific<T, ChainSpecificGetFeeDataInputMapping>
 export type GetFeeDataInput<T extends ChainId> = {
   // Optional hex-encoded calldata for EVM chains, UTF-8 for others
   // NOT to be used with ERC20s since this will be used in-place of the ERC20 calldata

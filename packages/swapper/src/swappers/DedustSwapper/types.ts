@@ -36,6 +36,18 @@ export type DedustQuote = {
 
 export type DedustPoolType = 'STABLE' | 'VOLATILE'
 
+/**
+ * Represents a single hop in a swap route
+ */
+export type DedustSwapHop = {
+  poolAddress: string
+  poolType: DedustPoolType
+  sellAssetAddress: string
+  buyAssetAddress: string
+  sellAmount: string
+  expectedBuyAmount: string
+}
+
 export type DedustTradeSpecific = {
   poolAddress: string
   poolType: DedustPoolType
@@ -45,4 +57,6 @@ export type DedustTradeSpecific = {
   minBuyAmount: string
   gasBudget: string
   quoteTimestamp: number
+  /** For multi-hop swaps, contains the route details. Empty for single-hop swaps. */
+  hops?: DedustSwapHop[]
 }

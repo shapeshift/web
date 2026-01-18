@@ -5,7 +5,12 @@ import { address as tonAddress } from '@ton/core'
 import type { GetTradeRateInput, TradeRate, TradeRateResult } from '../../../types'
 import { SwapperName, TradeQuoteError } from '../../../types'
 import { makeSwapErrorRight } from '../../../utils'
-import type { DedustAssetAddress, DedustPoolType, DedustTradeSpecific } from '../types'
+import type {
+  DedustAssetAddress,
+  DedustPoolType,
+  DedustSwapHop,
+  DedustTradeSpecific,
+} from '../types'
 import {
   DEDUST_DEFAULT_SLIPPAGE_BPS,
   DEDUST_GAS_BUDGET_JETTON,
@@ -34,6 +39,7 @@ const buildDedustSpecific = (
   sellAmount: string,
   minBuyAmount: string,
   gasBudget: string,
+  hops?: DedustSwapHop[],
 ): DedustTradeSpecific => ({
   poolAddress,
   poolType,
@@ -43,12 +49,23 @@ const buildDedustSpecific = (
   minBuyAmount,
   gasBudget,
   quoteTimestamp: Date.now(),
+  hops,
 })
 
 type PoolQuoteResult = {
   amountOut: bigint
   poolAddress: string
   poolType: DedustPoolType
+}
+
+/**
+ * Multi-hop route result containing both hops
+ */
+type MultiHopRouteResult = {
+  amountOut: bigint
+  hop1: PoolQuoteResult
+  hop2: PoolQuoteResult
+  intermediateAmount: bigint
 }
 
 /**
@@ -96,6 +113,85 @@ const tryGetPoolQuote = async (
   }
 }
 
+/**
+ * Try to find a multi-hop route through TON (native asset).
+ * This helps find better rates for pairs that don't have direct pools with good liquidity.
+ * Route: sellAsset -> TON -> buyAsset
+ */
+const tryGetMultiHopRoute = async (
+  factory: ReturnType<typeof dedustClientManager.getFactory>,
+  client: ReturnType<typeof dedustClientManager.getClient>,
+  sellDedustAsset: DedustAsset,
+  buyDedustAsset: DedustAsset,
+  amountIn: bigint,
+): Promise<MultiHopRouteResult | null> => {
+  // Skip if either asset is already TON (no point in routing through same asset)
+  const tonAsset = DedustAsset.native()
+
+  try {
+    // Try both STABLE and VOLATILE for first hop (sellAsset -> TON)
+    const [hop1Stable, hop1Volatile] = await Promise.all([
+      tryGetPoolQuote(factory, client, PoolType.STABLE, sellDedustAsset, tonAsset, amountIn),
+      tryGetPoolQuote(factory, client, PoolType.VOLATILE, sellDedustAsset, tonAsset, amountIn),
+    ])
+
+    // Select best first hop
+    let bestHop1: PoolQuoteResult | null = null
+    if (hop1Stable && hop1Volatile) {
+      bestHop1 = hop1Stable.amountOut >= hop1Volatile.amountOut ? hop1Stable : hop1Volatile
+    } else {
+      bestHop1 = hop1Stable || hop1Volatile
+    }
+
+    if (!bestHop1) {
+      return null
+    }
+
+    const intermediateAmount = bestHop1.amountOut
+
+    // Try both STABLE and VOLATILE for second hop (TON -> buyAsset)
+    const [hop2Stable, hop2Volatile] = await Promise.all([
+      tryGetPoolQuote(
+        factory,
+        client,
+        PoolType.STABLE,
+        tonAsset,
+        buyDedustAsset,
+        intermediateAmount,
+      ),
+      tryGetPoolQuote(
+        factory,
+        client,
+        PoolType.VOLATILE,
+        tonAsset,
+        buyDedustAsset,
+        intermediateAmount,
+      ),
+    ])
+
+    // Select best second hop
+    let bestHop2: PoolQuoteResult | null = null
+    if (hop2Stable && hop2Volatile) {
+      bestHop2 = hop2Stable.amountOut >= hop2Volatile.amountOut ? hop2Stable : hop2Volatile
+    } else {
+      bestHop2 = hop2Stable || hop2Volatile
+    }
+
+    if (!bestHop2) {
+      return null
+    }
+
+    return {
+      amountOut: bestHop2.amountOut,
+      hop1: bestHop1,
+      hop2: bestHop2,
+      intermediateAmount,
+    }
+  } catch {
+    return null
+  }
+}
+
 export const getTradeRate = async (input: GetTradeRateInput): Promise<TradeRateResult> => {
   const {
     sellAsset,
@@ -119,10 +215,14 @@ export const getTradeRate = async (input: GetTradeRateInput): Promise<TradeRateR
     const buyDedustAsset = dedustAddressToAsset(buyAssetAddress)
     const amountIn = BigInt(sellAmountIncludingProtocolFeesCryptoBaseUnit)
 
-    // Try both STABLE and VOLATILE pools to find the best rate
+    // Check if either asset is TON (native) - skip multi-hop if so
+    const sellIsTon = sellAssetAddress.type === 'native'
+    const buyIsTon = buyAssetAddress.type === 'native'
+
+    // Try direct pools (STABLE and VOLATILE) in parallel with multi-hop route
     // STABLE pools use StableSwap curves optimized for stablecoin pairs
     // VOLATILE pools use standard constant product (x*y=k) formula
-    const [stableQuote, volatileQuote] = await Promise.all([
+    const [stableQuote, volatileQuote, multiHopRoute] = await Promise.all([
       tryGetPoolQuote(factory, client, PoolType.STABLE, sellDedustAsset, buyDedustAsset, amountIn),
       tryGetPoolQuote(
         factory,
@@ -132,21 +232,26 @@ export const getTradeRate = async (input: GetTradeRateInput): Promise<TradeRateR
         buyDedustAsset,
         amountIn,
       ),
+      // Only try multi-hop if neither asset is TON
+      sellIsTon || buyIsTon
+        ? Promise.resolve(null)
+        : tryGetMultiHopRoute(factory, client, sellDedustAsset, buyDedustAsset, amountIn),
     ])
 
-    // Select the pool with the best output amount
-    let bestQuote: PoolQuoteResult | null = null
-
+    // Select the best direct pool
+    let bestDirectQuote: PoolQuoteResult | null = null
     if (stableQuote && volatileQuote) {
-      // Both pools exist - use the one with better rate
-      bestQuote = stableQuote.amountOut >= volatileQuote.amountOut ? stableQuote : volatileQuote
-    } else if (stableQuote) {
-      bestQuote = stableQuote
-    } else if (volatileQuote) {
-      bestQuote = volatileQuote
+      bestDirectQuote =
+        stableQuote.amountOut >= volatileQuote.amountOut ? stableQuote : volatileQuote
+    } else {
+      bestDirectQuote = stableQuote || volatileQuote
     }
 
-    if (!bestQuote) {
+    // Determine if multi-hop is better than direct
+    const useMultiHop =
+      multiHopRoute && (!bestDirectQuote || multiHopRoute.amountOut > bestDirectQuote.amountOut)
+
+    if (!bestDirectQuote && !multiHopRoute) {
       return Err(
         makeSwapErrorRight({
           message: `[DeDust] No pool found for this pair`,
@@ -155,16 +260,64 @@ export const getTradeRate = async (input: GetTradeRateInput): Promise<TradeRateR
       )
     }
 
-    const { amountOut, poolAddress, poolType } = bestQuote
-    const buyAmountCryptoBaseUnit = amountOut.toString()
+    // Build the rate based on whether we're using multi-hop or direct
+    let buyAmountCryptoBaseUnit: string
+    let poolAddress: string
+    let poolType: DedustPoolType
+    let hops: DedustSwapHop[] | undefined
+    // Multi-hop requires extra gas for two swaps
+    let gasBudgetMultiplier = 1
+
+    if (useMultiHop && multiHopRoute) {
+      buyAmountCryptoBaseUnit = multiHopRoute.amountOut.toString()
+      // Use the first hop's pool address as the primary (for identification)
+      poolAddress = multiHopRoute.hop1.poolAddress
+      poolType = multiHopRoute.hop1.poolType
+      gasBudgetMultiplier = 2 // Two swaps
+
+      // Build hop details for multi-hop execution
+      hops = [
+        {
+          poolAddress: multiHopRoute.hop1.poolAddress,
+          poolType: multiHopRoute.hop1.poolType,
+          sellAssetAddress: sellAssetAddress.address,
+          buyAssetAddress: 'native', // TON
+          sellAmount: sellAmountIncludingProtocolFeesCryptoBaseUnit,
+          expectedBuyAmount: multiHopRoute.intermediateAmount.toString(),
+        },
+        {
+          poolAddress: multiHopRoute.hop2.poolAddress,
+          poolType: multiHopRoute.hop2.poolType,
+          sellAssetAddress: 'native', // TON
+          buyAssetAddress: buyAssetAddress.address,
+          sellAmount: multiHopRoute.intermediateAmount.toString(),
+          expectedBuyAmount: multiHopRoute.amountOut.toString(),
+        },
+      ]
+    } else if (bestDirectQuote) {
+      buyAmountCryptoBaseUnit = bestDirectQuote.amountOut.toString()
+      poolAddress = bestDirectQuote.poolAddress
+      poolType = bestDirectQuote.poolType
+    } else {
+      // This shouldn't happen given the check above, but TypeScript needs it
+      return Err(
+        makeSwapErrorRight({
+          message: `[DeDust] No pool found for this pair`,
+          code: TradeQuoteError.NoRouteFound,
+        }),
+      )
+    }
+
     const slippageBps = slippageDecimalToBps(
       slippageTolerancePercentageDecimal,
       DEDUST_DEFAULT_SLIPPAGE_BPS,
     )
     const minBuyAmount = calculateMinBuyAmount(buyAmountCryptoBaseUnit, slippageBps)
 
-    const gasBudget =
+    const baseGasBudget =
       sellAssetAddress.type === 'native' ? DEDUST_GAS_BUDGET_TON : DEDUST_GAS_BUDGET_JETTON
+    // Apply multiplier for multi-hop (need gas for both swaps)
+    const gasBudget = (BigInt(baseGasBudget) * BigInt(gasBudgetMultiplier)).toString()
 
     const rate = calculateRate(
       buyAmountCryptoBaseUnit,
@@ -181,6 +334,7 @@ export const getTradeRate = async (input: GetTradeRateInput): Promise<TradeRateR
       sellAmountIncludingProtocolFeesCryptoBaseUnit,
       minBuyAmount,
       gasBudget,
+      hops,
     )
 
     const tradeRate: TradeRate = {
@@ -207,7 +361,7 @@ export const getTradeRate = async (input: GetTradeRateInput): Promise<TradeRateR
           sellAsset,
           accountNumber: undefined,
           allowanceContract: '0x0',
-          estimatedExecutionTimeMs: 30000,
+          estimatedExecutionTimeMs: useMultiHop ? 60000 : 30000, // Multi-hop takes longer
           dedustSpecific,
         },
       ],

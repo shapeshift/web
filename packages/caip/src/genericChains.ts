@@ -18,3 +18,16 @@ export type EvmGenericChainConfig = {
 }
 
 export const GENERIC_EVM_CHAINS: EvmGenericChainConfig[] = []
+
+export const getGenericChainConfig = (
+  chainId: EvmGenericChainId | string,
+): EvmGenericChainConfig | undefined =>
+  GENERIC_EVM_CHAINS.find(chain => chain.chainId === chainId)
+
+export const isGenericChainId = (
+  maybeChainId: EvmGenericChainId | string,
+): maybeChainId is EvmGenericChainId =>
+  GENERIC_EVM_CHAINS.some(chain => chain.chainId === maybeChainId)
+
+export const getGenericChainAssetId = (chainId: EvmGenericChainId | string): AssetId | undefined =>
+  getGenericChainConfig(chainId)?.nativeAssetId

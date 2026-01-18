@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
-import type { EvmGenericChainConfig } from '@shapeshiftoss/caip'
+
 import { GenericEvmChainAdapter, isGenericEvmChainAdapter } from './GenericEvmChainAdapter'
 
 vi.mock('ethers', () => ({
@@ -7,16 +7,6 @@ vi.mock('ethers', () => ({
   Interface: vi.fn(),
   JsonRpcProvider: vi.fn().mockImplementation(() => ({})),
 }))
-
-const mockConfig: EvmGenericChainConfig = {
-  chainId: 'eip155:12345',
-  name: 'TestChain',
-  displayName: 'Test Chain',
-  nativeAssetId: 'eip155:12345/slip44:60',
-  rpcUrl: 'https://rpc.test.com',
-  iconName: 'test',
-  explorerUrl: 'https://explorer.test.com',
-}
 
 describe('GenericEvmChainAdapter', () => {
   describe('isGenericEvmChainAdapter', () => {

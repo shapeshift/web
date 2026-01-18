@@ -1,8 +1,9 @@
 import { describe, expect, it } from 'vitest'
+
 import {
   GENERIC_EVM_CHAINS,
-  getGenericChainConfig,
   getGenericChainAssetId,
+  getGenericChainConfig,
   isGenericChainId,
 } from './genericChains'
 

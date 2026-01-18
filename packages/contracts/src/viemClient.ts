@@ -1,9 +1,5 @@
-import {
-  type ChainId,
-  type EvmGenericChainConfig,
-  type EvmGenericChainId,
-  getGenericChainConfig,
-} from '@shapeshiftoss/caip'
+import type { ChainId, EvmGenericChainConfig, EvmGenericChainId } from '@shapeshiftoss/caip'
+import { getGenericChainConfig } from '@shapeshiftoss/caip'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import assert from 'assert'
 import type { PublicClient } from 'viem'

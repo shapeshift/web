@@ -1,0 +1,39 @@
+{
+  "sandbox": {
+    "enabled": true,
+    "autoAllowBashIfSandboxed": true
+  },
+  "permissions": {
+    "defaultMode": "acceptEdits",
+    "allow": [
+      "Read(./**)",
+      "Write(./**)",
+      "Edit(./**)",
+      "Glob(./**)",
+      "Grep(./**)",
+      "Read(/Users/mini/Projects/web/.auto-claude/worktrees/tasks/004-i-ve-been-doing-an-attempt-at-supporting-evms-chai/**)",
+      "Write(/Users/mini/Projects/web/.auto-claude/worktrees/tasks/004-i-ve-been-doing-an-attempt-at-supporting-evms-chai/**)",
+      "Edit(/Users/mini/Projects/web/.auto-claude/worktrees/tasks/004-i-ve-been-doing-an-attempt-at-supporting-evms-chai/**)",
+      "Glob(/Users/mini/Projects/web/.auto-claude/worktrees/tasks/004-i-ve-been-doing-an-attempt-at-supporting-evms-chai/**)",
+      "Grep(/Users/mini/Projects/web/.auto-claude/worktrees/tasks/004-i-ve-been-doing-an-attempt-at-supporting-evms-chai/**)",
+      "Read(/Users/mini/Projects/web/.auto-claude/worktrees/tasks/004-i-ve-been-doing-an-attempt-at-supporting-evms-chai/.auto-claude/specs/004-i-ve-been-doing-an-attempt-at-supporting-evms-chai/**)",
+      "Write(/Users/mini/Projects/web/.auto-claude/worktrees/tasks/004-i-ve-been-doing-an-attempt-at-supporting-evms-chai/.auto-claude/specs/004-i-ve-been-doing-an-attempt-at-supporting-evms-chai/**)",
+      "Edit(/Users/mini/Projects/web/.auto-claude/worktrees/tasks/004-i-ve-been-doing-an-attempt-at-supporting-evms-chai/.auto-claude/specs/004-i-ve-been-doing-an-attempt-at-supporting-evms-chai/**)",
+      "Read(/Users/mini/Projects/web/.auto-claude/**)",
+      "Write(/Users/mini/Projects/web/.auto-claude/**)",
+      "Edit(/Users/mini/Projects/web/.auto-claude/**)",
+      "Glob(/Users/mini/Projects/web/.auto-claude/**)",
+      "Grep(/Users/mini/Projects/web/.auto-claude/**)",
+      "Bash(*)",
+      "WebFetch(*)",
+      "WebSearch(*)",
+      "mcp__context7__resolve-library-id(*)",
+      "mcp__context7__get-library-docs(*)",
+      "mcp__graphiti-memory__search_nodes(*)",
+      "mcp__graphiti-memory__search_facts(*)",
+      "mcp__graphiti-memory__add_episode(*)",
+      "mcp__graphiti-memory__get_episodes(*)",
+      "mcp__graphiti-memory__get_entity_edge(*)"
+    ]
+  }
+}

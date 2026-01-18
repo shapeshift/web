@@ -1,0 +1,25 @@
+{
+  "active": true,
+  "spec": "004-i-ve-been-doing-an-attempt-at-supporting-evms-chai",
+  "state": "building",
+  "subtasks": {
+    "completed": 16,
+    "total": 22,
+    "in_progress": 1,
+    "failed": 0
+  },
+  "phase": {
+    "current": "Plugin Integration",
+    "id": null,
+    "total": 4
+  },
+  "workers": {
+    "active": 0,
+    "max": 1
+  },
+  "session": {
+    "number": 17,
+    "started_at": "2026-01-18T02:12:41.107262"
+  },
+  "last_update": "2026-01-18T02:33:30.410558"
+}

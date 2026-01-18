@@ -23,7 +23,6 @@ import {
   useColorModeValue,
   VStack,
 } from '@chakra-ui/react'
-import { bnOrZero } from '@/lib/bignumber/bignumber'
 import type { ChangeEvent, FormEvent } from 'react'
 import { memo, useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -31,6 +30,7 @@ import { useTranslate } from 'react-polyglot'
 import { Amount } from '@/components/Amount/Amount'
 import { WalletActions } from '@/context/WalletProvider/actions'
 import { useWallet } from '@/hooks/useWallet/useWallet'
+import { bnOrZero } from '@/lib/bignumber/bignumber'
 import type { AugmentedMarket, OrderSide, OrderType } from '@/lib/hyperliquid/types'
 import { formatLeverage, formatPrice } from '@/lib/hyperliquid/utils'
 import { PerpsOrderSubmissionState, perpsSlice } from '@/state/slices/perpsSlice/perpsSlice'
@@ -171,7 +171,8 @@ const OrderSummary = memo(({ side, size, price, leverage, market }: OrderSummary
     return bnOrZero(orderValue).div(leverage).toString()
   }, [orderValue, leverage])
 
-  const sideLabel = side === 'B' ? translate('perps.tradeForm.long') : translate('perps.tradeForm.short')
+  const sideLabel =
+    side === 'B' ? translate('perps.tradeForm.long') : translate('perps.tradeForm.short')
   const sideColor = side === 'B' ? 'green.500' : 'red.500'
 
   if (!market || !bnOrZero(size).gt(0)) return null
@@ -216,9 +217,7 @@ export const TradeForm = memo(
   ({ selectedMarket, isLoading, isWalletConnected, onSubmitOrder }: TradeFormProps) => {
     const translate = useTranslate()
     const dispatch = useAppDispatch()
-    const {
-      dispatch: walletDispatch,
-    } = useWallet()
+    const { dispatch: walletDispatch } = useWallet()
 
     const borderColor = useColorModeValue('gray.200', 'gray.700')
     const bgColor = useColorModeValue('white', 'gray.800')
@@ -381,13 +380,7 @@ export const TradeForm = memo(
 
     if (isLoading) {
       return (
-        <Box
-          borderRadius='lg'
-          border='1px solid'
-          borderColor={borderColor}
-          bg={bgColor}
-          p={4}
-        >
+        <Box borderRadius='lg' border='1px solid' borderColor={borderColor} bg={bgColor} p={4}>
           <VStack spacing={4} align='stretch'>
             <Skeleton height='40px' />
             <Skeleton height='60px' />
@@ -409,12 +402,7 @@ export const TradeForm = memo(
         bg={bgColor}
         overflow='hidden'
       >
-        <Tabs
-          index={isBuy ? 0 : 1}
-          onChange={handleSideChange}
-          variant='unstyled'
-          isFitted
-        >
+        <Tabs index={isBuy ? 0 : 1} onChange={handleSideChange} variant='unstyled' isFitted>
           <TabList borderBottomWidth={1} borderColor={borderColor}>
             <Tab
               py={3}
@@ -462,12 +450,7 @@ export const TradeForm = memo(
                   {translate('perps.tradeForm.price')}
                 </FormLabel>
                 {midPrice && (
-                  <Button
-                    size='xs'
-                    variant='link'
-                    color='blue.500'
-                    onClick={handleSetMarketPrice}
-                  >
+                  <Button size='xs' variant='link' color='blue.500' onClick={handleSetMarketPrice}>
                     {translate('perps.tradeForm.useMarket')}
                   </Button>
                 )}
@@ -496,12 +479,7 @@ export const TradeForm = memo(
               <FormLabel mb={0} fontSize='sm'>
                 {translate('perps.tradeForm.size')}
               </FormLabel>
-              <Button
-                size='xs'
-                variant='link'
-                color='text.subtle'
-                onClick={toggleSizeUnit}
-              >
+              <Button size='xs' variant='link' color='text.subtle' onClick={toggleSizeUnit}>
                 {isSizeInUsd ? 'USD' : selectedMarket?.coin ?? 'COIN'}
               </Button>
             </Flex>
@@ -523,7 +501,8 @@ export const TradeForm = memo(
             </InputGroup>
             {bnOrZero(orderFormSize).gt(0) && effectivePrice && (
               <Text fontSize='xs' color='text.subtle' mt={1}>
-                {translate('perps.tradeForm.estimatedValue')}: <Amount.Fiat value={sizeUsdValue} fontSize='xs' />
+                {translate('perps.tradeForm.estimatedValue')}:{' '}
+                <Amount.Fiat value={sizeUsdValue} fontSize='xs' />
               </Text>
             )}
           </FormControl>
@@ -535,19 +514,11 @@ export const TradeForm = memo(
           />
 
           <HStack spacing={4}>
-            <Checkbox
-              isChecked={orderFormReduceOnly}
-              onChange={handleReduceOnlyChange}
-              size='sm'
-            >
+            <Checkbox isChecked={orderFormReduceOnly} onChange={handleReduceOnlyChange} size='sm'>
               <Text fontSize='sm'>{translate('perps.tradeForm.reduceOnly')}</Text>
             </Checkbox>
             {!isMarketOrder && (
-              <Checkbox
-                isChecked={orderFormPostOnly}
-                onChange={handlePostOnlyChange}
-                size='sm'
-              >
+              <Checkbox isChecked={orderFormPostOnly} onChange={handlePostOnlyChange} size='sm'>
                 <Text fontSize='sm'>{translate('perps.tradeForm.postOnly')}</Text>
               </Checkbox>
             )}

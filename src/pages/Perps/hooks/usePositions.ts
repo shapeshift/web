@@ -1,23 +1,18 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 
+import type { UnsubscribeFn } from '@/lib/hyperliquid/client'
 import {
   fetchClearinghouseState,
   fetchOpenOrders,
   placeOrder,
   subscribeToOrderUpdates,
   subscribeToUserFills,
-  type UnsubscribeFn,
 } from '@/lib/hyperliquid/client'
 import {
   HYPERLIQUID_RECONNECT_DELAY_BASE_MS,
   HYPERLIQUID_RECONNECT_DELAY_MAX_MS,
 } from '@/lib/hyperliquid/constants'
-import type {
-  ClearinghouseState,
-  Fill,
-  OpenOrder,
-  ParsedPosition,
-} from '@/lib/hyperliquid/types'
+import type { ClearinghouseState, Fill, OpenOrder, ParsedPosition } from '@/lib/hyperliquid/types'
 import { PositionSide } from '@/lib/hyperliquid/types'
 import { buildLimitOrderType, buildOrderRequest } from '@/lib/hyperliquid/utils'
 import { perpsSlice } from '@/state/slices/perpsSlice'
@@ -99,6 +94,7 @@ export const usePositions = (config: UsePositionsConfig): UsePositionsResult => 
   const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null)
   const pollingIntervalRef = useRef<NodeJS.Timeout | null>(null)
   const userAddressRef = useRef(userAddress)
+  const subscribeInternalRef = useRef<() => void>(() => {})
 
   userAddressRef.current = userAddress
 
@@ -164,7 +160,7 @@ export const usePositions = (config: UsePositionsConfig): UsePositionsResult => 
 
     reconnectTimeoutRef.current = setTimeout(() => {
       if (userAddressRef.current) {
-        subscribeInternal()
+        subscribeInternalRef.current()
       }
     }, delay)
   }, [clearReconnectTimeout])
@@ -213,6 +209,8 @@ export const usePositions = (config: UsePositionsConfig): UsePositionsResult => 
       scheduleReconnect()
     }
   }, [handleUserFill, handleOrderUpdate, scheduleReconnect])
+
+  subscribeInternalRef.current = subscribeInternal
 
   const subscribe = useCallback(() => {
     if (!userAddress) {
@@ -304,7 +302,7 @@ export const usePositions = (config: UsePositionsConfig): UsePositionsResult => 
     return () => {
       unsubscribe()
     }
-  }, [userAddress, autoSubscribe, pollingInterval])
+  }, [userAddress, autoSubscribe, pollingInterval, fetchPositionsData, subscribe, unsubscribe])
 
   useEffect(() => {
     return () => {

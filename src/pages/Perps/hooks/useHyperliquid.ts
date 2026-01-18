@@ -9,12 +9,16 @@ import {
   fetchMetaAndAssetCtxs,
   fetchOpenOrders,
   getCurrentNetwork,
-  getExchangeClient,
   initializeClients,
   isWalletConnected,
   setWallet,
 } from '@/lib/hyperliquid/client'
-import type { ClearinghouseState, MetaAndAssetCtxs, OpenOrder, PerpsMeta } from '@/lib/hyperliquid/types'
+import type {
+  ClearinghouseState,
+  MetaAndAssetCtxs,
+  OpenOrder,
+  PerpsMeta,
+} from '@/lib/hyperliquid/types'
 import { perpsSlice } from '@/state/slices/perpsSlice'
 import { useAppDispatch, useAppSelector } from '@/state/store'
 
@@ -46,7 +50,8 @@ const DEFAULT_CONFIG: UseHyperliquidConfig = {
 }
 
 export const useHyperliquid = (config: UseHyperliquidConfig = {}): UseHyperliquidResult => {
-  const { network = DEFAULT_CONFIG.network, autoInitialize = DEFAULT_CONFIG.autoInitialize } = config
+  const { network = DEFAULT_CONFIG.network, autoInitialize = DEFAULT_CONFIG.autoInitialize } =
+    config
 
   const dispatch = useAppDispatch()
   const {
@@ -66,7 +71,8 @@ export const useHyperliquid = (config: UseHyperliquidConfig = {}): UseHyperliqui
       setIsInitialized(true)
       setError(undefined)
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to initialize Hyperliquid clients'
+      const errorMessage =
+        err instanceof Error ? err.message : 'Failed to initialize Hyperliquid clients'
       setError(errorMessage)
       setIsInitialized(false)
     }
@@ -89,8 +95,9 @@ export const useHyperliquid = (config: UseHyperliquidConfig = {}): UseHyperliqui
         throw new Error('Failed to get wallet address')
       }
 
-      const viemWalletClient = (wallet as unknown as { getViemWalletClient?: () => WalletClient })
-        .getViemWalletClient?.()
+      const viemWalletClient = (
+        wallet as unknown as { getViemWalletClient?: () => WalletClient }
+      ).getViemWalletClient?.()
 
       if (!viemWalletClient) {
         throw new Error('Wallet does not support viem. Please use a compatible wallet.')
@@ -100,7 +107,8 @@ export const useHyperliquid = (config: UseHyperliquidConfig = {}): UseHyperliqui
       dispatch(perpsSlice.actions.setWalletAddress(address))
       dispatch(perpsSlice.actions.setWalletInitialized(true))
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to connect wallet to Hyperliquid'
+      const errorMessage =
+        err instanceof Error ? err.message : 'Failed to connect wallet to Hyperliquid'
       setError(errorMessage)
       dispatch(perpsSlice.actions.setWalletInitialized(false))
     } finally {
@@ -125,10 +133,9 @@ export const useHyperliquid = (config: UseHyperliquidConfig = {}): UseHyperliqui
       dispatch(perpsSlice.actions.setPositionsLoading(true))
       dispatch(perpsSlice.actions.setOpenOrdersLoading(true))
 
-      const [clearinghouseState, openOrders]: [ClearinghouseState, OpenOrder[]] = await Promise.all([
-        fetchClearinghouseState({ user: address }),
-        fetchOpenOrders({ user: address }),
-      ])
+      const [clearinghouseState, openOrders]: [ClearinghouseState, OpenOrder[]] = await Promise.all(
+        [fetchClearinghouseState({ user: address }), fetchOpenOrders({ user: address })],
+      )
 
       dispatch(perpsSlice.actions.setAccountState(clearinghouseState))
       dispatch(perpsSlice.actions.setOpenOrders(openOrders))
@@ -174,7 +181,8 @@ export const useHyperliquid = (config: UseHyperliquidConfig = {}): UseHyperliqui
     try {
       return await fetchMetaAndAssetCtxs()
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to fetch meta and asset contexts'
+      const errorMessage =
+        err instanceof Error ? err.message : 'Failed to fetch meta and asset contexts'
       setError(errorMessage)
       return undefined
     }

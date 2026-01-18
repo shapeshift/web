@@ -48,12 +48,8 @@ export const ORDER_TYPES = {
     { name: 't', type: 'OrderType' },
     { name: 'c', type: 'string' },
   ],
-  OrderType: [
-    { name: 'limit', type: 'LimitType' },
-  ],
-  LimitType: [
-    { name: 'tif', type: 'string' },
-  ],
+  OrderType: [{ name: 'limit', type: 'LimitType' }],
+  LimitType: [{ name: 'tif', type: 'string' }],
 } as const
 
 export const ORDER_ACTION_TYPES = {
@@ -179,32 +175,34 @@ export const APPROVE_BUILDER_FEE_TYPES = {
 
 export type OrderAction = {
   type: 'order'
-  orders: Array<{
+  orders: {
     a: number
     b: boolean
     p: string
     s: string
     r: boolean
-    t: { limit: { tif: string } } | { trigger: { isMarket: boolean; triggerPx: string; tpsl: string } }
+    t:
+      | { limit: { tif: string } }
+      | { trigger: { isMarket: boolean; triggerPx: string; tpsl: string } }
     c?: string
-  }>
+  }[]
   grouping: 'na' | 'normalTpsl' | 'positionTpsl'
 }
 
 export type CancelAction = {
   type: 'cancel'
-  cancels: Array<{
+  cancels: {
     a: number
     o: number
-  }>
+  }[]
 }
 
 export type CancelByCloidAction = {
   type: 'cancelByCloid'
-  cancels: Array<{
+  cancels: {
     asset: number
     cloid: string
-  }>
+  }[]
 }
 
 export type ModifyAction = {
@@ -215,10 +213,10 @@ export type ModifyAction = {
 
 export type BatchModifyAction = {
   type: 'batchModify'
-  modifies: Array<{
+  modifies: {
     oid: number
     order: OrderAction['orders'][0]
-  }>
+  }[]
 }
 
 export type UpdateLeverageAction = {

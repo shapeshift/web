@@ -259,14 +259,12 @@ export const perpsSlice = createSlice({
       },
     ),
 
-    setOrderSubmissionError: create.reducer(
-      (state, action: PayloadAction<string | undefined>) => {
-        state.orderSubmission.error = action.payload
-        if (action.payload) {
-          state.orderSubmission.state = PerpsOrderSubmissionState.Failed
-        }
-      },
-    ),
+    setOrderSubmissionError: create.reducer((state, action: PayloadAction<string | undefined>) => {
+      state.orderSubmission.error = action.payload
+      if (action.payload) {
+        state.orderSubmission.state = PerpsOrderSubmissionState.Failed
+      }
+    }),
 
     setOrderSubmissionComplete: create.reducer((state, action: PayloadAction<string>) => {
       state.orderSubmission.state = PerpsOrderSubmissionState.Complete

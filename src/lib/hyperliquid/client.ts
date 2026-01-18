@@ -13,9 +13,9 @@ import {
 import type { WalletClient } from 'viem'
 
 import type {
-  CandleInterval,
   CancelRequest,
   CancelResponse,
+  CandleInterval,
   ClearinghouseState,
   Fill,
   L2BookData,
@@ -97,7 +97,10 @@ export const getInfoClient = (): InfoClient => {
   if (!infoClientInstance) {
     initializeClients()
   }
-  return infoClientInstance!
+  if (!infoClientInstance) {
+    throw new Error('Failed to initialize InfoClient')
+  }
+  return infoClientInstance
 }
 
 export const getExchangeClient = (): ExchangeClient | null => {
@@ -108,7 +111,10 @@ export const getSubscriptionClient = (): SubscriptionClient => {
   if (!subscriptionClientInstance) {
     initializeClients()
   }
-  return subscriptionClientInstance!
+  if (!subscriptionClientInstance) {
+    throw new Error('Failed to initialize SubscriptionClient')
+  }
+  return subscriptionClientInstance
 }
 
 export const setWallet = (wallet: WalletClient): void => {
@@ -263,7 +269,9 @@ export const fetchCandleSnapshot = async (params: {
   }[]
 }
 
-export const fetchUserRateLimit = async (params: { user: string }): Promise<{
+export const fetchUserRateLimit = async (params: {
+  user: string
+}): Promise<{
   cumVlm: string
   nRequestsUsed: number
   nRequestsCap: number
@@ -293,7 +301,9 @@ export const placeOrder = async (params: {
   return response as OrderResponse
 }
 
-export const cancelOrder = async (params: { cancels: CancelRequest[] }): Promise<CancelResponse> => {
+export const cancelOrder = async (params: {
+  cancels: CancelRequest[]
+}): Promise<CancelResponse> => {
   const client = getExchangeClient()
   if (!client) {
     throw new Error('Exchange client not initialized. Please connect a wallet.')

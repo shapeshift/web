@@ -1,12 +1,4 @@
-import {
-  Box,
-  Flex,
-  HStack,
-  Skeleton,
-  Text,
-  useColorModeValue,
-  VStack,
-} from '@chakra-ui/react'
+import { Box, Flex, HStack, Skeleton, Text, useColorModeValue, VStack } from '@chakra-ui/react'
 import { memo, useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 
@@ -91,14 +83,7 @@ const OrderbookRow = memo(
     return (
       <Box position='relative' _hover={hoverBg} cursor='pointer' transition='all 0.1s'>
         <Box style={depthBarStyle} />
-        <HStack
-          px={2}
-          py={0.5}
-          spacing={0}
-          justify='space-between'
-          position='relative'
-          zIndex={1}
-        >
+        <HStack px={2} py={0.5} spacing={0} justify='space-between' position='relative' zIndex={1}>
           <Text
             flex={1}
             fontSize='xs'
@@ -121,13 +106,7 @@ const OrderbookRow = memo(
           >
             {formattedSize}
           </Text>
-          <Text
-            flex={1}
-            fontSize='xs'
-            fontFamily='mono'
-            textAlign='right'
-            color='text.subtle'
-          >
+          <Text flex={1} fontSize='xs' fontFamily='mono' textAlign='right' color='text.subtle'>
             {formattedTotal}
           </Text>
         </HStack>
@@ -141,7 +120,14 @@ const OrderbookHeader = memo(() => {
   const headerColor = useColorModeValue('gray.500', 'gray.400')
 
   return (
-    <HStack px={2} py={1} spacing={0} justify='space-between' borderBottomWidth={1} borderColor='border.base'>
+    <HStack
+      px={2}
+      py={1}
+      spacing={0}
+      justify='space-between'
+      borderBottomWidth={1}
+      borderColor='border.base'
+    >
       <Text
         flex={1}
         fontSize='xs'
@@ -203,7 +189,14 @@ const SpreadRow = memo(({ spread, spreadPercent, midPrice, priceDecimals }: Spre
   }, [spreadPercent])
 
   return (
-    <Box py={1.5} px={2} bg={bgColor} borderTopWidth={1} borderBottomWidth={1} borderColor='border.base'>
+    <Box
+      py={1.5}
+      px={2}
+      bg={bgColor}
+      borderTopWidth={1}
+      borderBottomWidth={1}
+      borderColor='border.base'
+    >
       <Flex justify='space-between' align='center'>
         <HStack spacing={2}>
           <Text fontSize='sm' fontWeight='bold' fontFamily='mono' color={midPriceColor}>
@@ -239,12 +232,7 @@ const EmptyOrderbook = memo(() => {
   const translate = useTranslate()
 
   return (
-    <Flex
-      justify='center'
-      align='center'
-      py={8}
-      color='text.subtle'
-    >
+    <Flex justify='center' align='center' py={8} color='text.subtle'>
       <Text fontSize='sm'>{translate('perps.orderbook.noData')}</Text>
     </Flex>
   )
@@ -255,14 +243,7 @@ const OrderbookError = memo(({ error }: { error: string }) => {
   const errorColor = useColorModeValue('red.500', 'red.400')
 
   return (
-    <Flex
-      justify='center'
-      align='center'
-      py={8}
-      color={errorColor}
-      direction='column'
-      gap={2}
-    >
+    <Flex justify='center' align='center' py={8} color={errorColor} direction='column' gap={2}>
       <Text fontSize='sm' fontWeight='medium'>
         {translate('perps.orderbook.error')}
       </Text>
@@ -302,12 +283,7 @@ export const Orderbook = memo(
 
     if (error) {
       return (
-        <Box
-          borderRadius='lg'
-          border='1px solid'
-          borderColor={borderColor}
-          overflow='hidden'
-        >
+        <Box borderRadius='lg' border='1px solid' borderColor={borderColor} overflow='hidden'>
           <OrderbookError error={error} />
         </Box>
       )
@@ -315,12 +291,7 @@ export const Orderbook = memo(
 
     if (isLoading || !orderbook) {
       return (
-        <Box
-          borderRadius='lg'
-          border='1px solid'
-          borderColor={borderColor}
-          overflow='hidden'
-        >
+        <Box borderRadius='lg' border='1px solid' borderColor={borderColor} overflow='hidden'>
           <OrderbookHeader />
           <OrderbookSkeleton levels={maxLevels} />
           <Box py={2} borderTopWidth={1} borderBottomWidth={1} borderColor='border.base'>
@@ -335,12 +306,7 @@ export const Orderbook = memo(
 
     if (!hasData) {
       return (
-        <Box
-          borderRadius='lg'
-          border='1px solid'
-          borderColor={borderColor}
-          overflow='hidden'
-        >
+        <Box borderRadius='lg' border='1px solid' borderColor={borderColor} overflow='hidden'>
           <OrderbookHeader />
           <EmptyOrderbook />
         </Box>
@@ -348,12 +314,7 @@ export const Orderbook = memo(
     }
 
     return (
-      <Box
-        borderRadius='lg'
-        border='1px solid'
-        borderColor={borderColor}
-        overflow='hidden'
-      >
+      <Box borderRadius='lg' border='1px solid' borderColor={borderColor} overflow='hidden'>
         <OrderbookHeader />
 
         <VStack spacing={0} align='stretch'>

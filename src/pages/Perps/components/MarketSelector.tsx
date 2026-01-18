@@ -121,15 +121,7 @@ const SortButton = memo(({ label, isActive, onClick }: SortButtonProps) => {
 })
 
 const PopularMarketChip = memo(
-  ({
-    coin,
-    isSelected,
-    onClick,
-  }: {
-    coin: string
-    isSelected: boolean
-    onClick: () => void
-  }) => {
+  ({ coin, isSelected, onClick }: { coin: string; isSelected: boolean; onClick: () => void }) => {
     const activeBg = useColorModeValue('blue.100', 'blue.800')
     const activeColor = useColorModeValue('blue.700', 'blue.200')
 

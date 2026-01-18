@@ -1,7 +1,6 @@
 import {
   Badge,
   Box,
-  Button,
   Flex,
   HStack,
   IconButton,
@@ -45,8 +44,6 @@ type PositionRowProps = {
   isClosing: boolean
   onClose?: () => Promise<void>
   onSelect?: () => void
-  longColor: string
-  shortColor: string
   pnlPositiveColor: string
   pnlNegativeColor: string
 }
@@ -61,8 +58,6 @@ const PositionRow = memo(
     isClosing,
     onClose,
     onSelect,
-    longColor,
-    shortColor,
     pnlPositiveColor,
     pnlNegativeColor,
   }: PositionRowProps) => {
@@ -71,7 +66,6 @@ const PositionRow = memo(
     const liquidationColor = useColorModeValue('orange.500', 'orange.300')
 
     const isLong = position.side === PositionSide.Long
-    const sideColor = isLong ? longColor : shortColor
     const sideLabel = isLong
       ? translate('perps.positions.long')
       : translate('perps.positions.short')
@@ -134,11 +128,7 @@ const PositionRow = memo(
             <Text fontSize='sm' fontWeight='semibold'>
               {position.coin}
             </Text>
-            <Badge
-              colorScheme={isLong ? 'green' : 'red'}
-              fontSize='xs'
-              textTransform='uppercase'
-            >
+            <Badge colorScheme={isLong ? 'green' : 'red'} fontSize='xs' textTransform='uppercase'>
               {sideLabel}
             </Badge>
           </HStack>
@@ -432,8 +422,6 @@ export const PositionsList = memo(
     const translate = useTranslate()
     const borderColor = useColorModeValue('gray.200', 'gray.700')
     const bgColor = useColorModeValue('white', 'gray.800')
-    const longColor = useColorModeValue('green.500', 'green.400')
-    const shortColor = useColorModeValue('red.500', 'red.400')
     const pnlPositiveColor = useColorModeValue('green.500', 'green.400')
     const pnlNegativeColor = useColorModeValue('red.500', 'red.400')
     const headerBgColor = useColorModeValue('gray.50', 'whiteAlpha.50')
@@ -542,12 +530,8 @@ export const PositionsList = memo(
                   szDecimals={szDecimals}
                   priceDecimals={priceDecimals}
                   isClosing={closingPosition === position.coin}
-                  onClose={
-                    onClosePosition ? () => handleClosePosition(position.coin) : undefined
-                  }
+                  onClose={onClosePosition ? () => handleClosePosition(position.coin) : undefined}
                   onSelect={onSelectPosition ? () => onSelectPosition(position) : undefined}
-                  longColor={longColor}
-                  shortColor={shortColor}
                   pnlPositiveColor={pnlPositiveColor}
                   pnlNegativeColor={pnlNegativeColor}
                 />

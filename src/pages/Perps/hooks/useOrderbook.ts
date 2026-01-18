@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 
-import { fetchL2Book, subscribeToL2Book, type UnsubscribeFn } from '@/lib/hyperliquid/client'
+import type { UnsubscribeFn } from '@/lib/hyperliquid/client'
+import { fetchL2Book, subscribeToL2Book } from '@/lib/hyperliquid/client'
 import {
   HYPERLIQUID_DEFAULT_ORDERBOOK_LEVELS,
   HYPERLIQUID_RECONNECT_DELAY_BASE_MS,
@@ -58,6 +59,7 @@ export const useOrderbook = (config: UseOrderbookConfig): UseOrderbookResult => 
   const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null)
   const isSubscribedRef = useRef(false)
   const coinRef = useRef(coin)
+  const subscribeInternalRef = useRef<() => void>(() => {})
 
   coinRef.current = coin
 
@@ -94,7 +96,7 @@ export const useOrderbook = (config: UseOrderbookConfig): UseOrderbookResult => 
 
     reconnectTimeoutRef.current = setTimeout(() => {
       if (isSubscribedRef.current && coinRef.current) {
-        subscribeInternal()
+        subscribeInternalRef.current()
       }
     }, delay)
   }, [clearReconnectTimeout])
@@ -124,6 +126,8 @@ export const useOrderbook = (config: UseOrderbookConfig): UseOrderbookResult => 
       scheduleReconnect()
     }
   }, [dispatch, handleL2BookUpdate, nSigFigs, scheduleReconnect])
+
+  subscribeInternalRef.current = subscribeInternal
 
   const subscribe = useCallback(() => {
     if (!coin) {
@@ -176,7 +180,7 @@ export const useOrderbook = (config: UseOrderbookConfig): UseOrderbookResult => 
     return () => {
       unsubscribe()
     }
-  }, [coin, autoSubscribe])
+  }, [coin, autoSubscribe, subscribe, unsubscribe])
 
   useEffect(() => {
     return () => {

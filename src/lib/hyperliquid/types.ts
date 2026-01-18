@@ -180,11 +180,11 @@ export type OrderResponse = {
   response?: {
     type: 'order'
     data: {
-      statuses: Array<{
+      statuses: {
         resting?: { oid: number }
         filled?: { totalSz: string; avgPx: string; oid: number }
         error?: string
-      }>
+      }[]
     }
   }
 }

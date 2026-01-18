@@ -2,7 +2,7 @@ import { createSelector } from '@reduxjs/toolkit'
 import { bn } from '@shapeshiftoss/utils'
 import createCachedSelector from 're-reselect'
 
-import { perpsSlice, PerpsOrderSubmissionState } from './perpsSlice'
+import { PerpsOrderSubmissionState, perpsSlice } from './perpsSlice'
 
 import type { AugmentedMarket, ParsedPosition } from '@/lib/hyperliquid/types'
 import type { ReduxState } from '@/state/reducer'
@@ -70,7 +70,11 @@ export const selectIsAnyDataLoading = createSelector(
   selectOpenOrdersLoading,
   selectAccountStateLoading,
   (marketsLoading, orderbookLoading, positionsLoading, openOrdersLoading, accountStateLoading) =>
-    marketsLoading || orderbookLoading || positionsLoading || openOrdersLoading || accountStateLoading,
+    marketsLoading ||
+    orderbookLoading ||
+    positionsLoading ||
+    openOrdersLoading ||
+    accountStateLoading,
 )
 
 export const selectHasAnyError = createSelector(
@@ -80,7 +84,9 @@ export const selectHasAnyError = createSelector(
   selectOpenOrdersError,
   selectAccountStateError,
   (marketsError, orderbookError, positionsError, openOrdersError, accountStateError) =>
-    Boolean(marketsError || orderbookError || positionsError || openOrdersError || accountStateError),
+    Boolean(
+      marketsError || orderbookError || positionsError || openOrdersError || accountStateError,
+    ),
 )
 
 export const selectFirstError = createSelector(
@@ -160,7 +166,11 @@ export const selectIsReadyToTrade = createSelector(
   selectMarketsLoading,
   selectMarketsError,
   (isWalletInitialized, walletAddress, accountState, marketsLoading, marketsError) =>
-    isWalletInitialized && Boolean(walletAddress) && Boolean(accountState) && !marketsLoading && !marketsError,
+    isWalletInitialized &&
+    Boolean(walletAddress) &&
+    Boolean(accountState) &&
+    !marketsLoading &&
+    !marketsError,
 )
 
 export const selectOrderFormReduceOnly = createSelector(

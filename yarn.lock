@@ -9575,6 +9575,27 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@nktkas/hyperliquid@npm:^0.30.2":
+  version: 0.30.2
+  resolution: "@nktkas/hyperliquid@npm:0.30.2"
+  dependencies:
+    "@nktkas/rews": ^1.2.3
+    "@noble/hashes": ^2.0.1
+    micro-eth-signer: ^0.18.1
+    valibot: 1.2.0
+  bin:
+    hyperliquid: esm/bin/cli.js
+  checksum: 6ec0776eed60de9844baa35dded0112504679016fce29428dfbd440a659577d98499f405e8abe054224b56dc23f72c28b6c770b66051061a4e1766441d869d54
+  languageName: node
+  linkType: hard
+
+"@nktkas/rews@npm:^1.2.3":
+  version: 1.2.3
+  resolution: "@nktkas/rews@npm:1.2.3"
+  checksum: 49301b08c73b9c60beeb29d23bdb0259760199043e24ab63cb188015b4f2fca3712024390fbbf0a0bdc1b7399e88e0fb62186d1f58003d71db2be8fb0808a688
+  languageName: node
+  linkType: hard
+
 "@noble/ciphers@npm:1.2.1":
   version: 1.2.1
   resolution: "@noble/ciphers@npm:1.2.1"
@@ -9688,6 +9709,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@noble/curves@npm:^2.0.0":
+  version: 2.0.1
+  resolution: "@noble/curves@npm:2.0.1"
+  dependencies:
+    "@noble/hashes": 2.0.1
+  checksum: b6844f350d629bb6de55d3a123bc148403901c8b8eed77d2132a389d080d553242bcf1e06913bf51f51e395849ec70b9a8e8902c19e562ea3c6538bb0240d92f
+  languageName: node
+  linkType: hard
+
 "@noble/curves@npm:~1.7.0":
   version: 1.7.0
   resolution: "@noble/curves@npm:1.7.0"
@@ -9778,6 +9808,13 @@ __metadata:
   version: 1.8.0
   resolution: "@noble/hashes@npm:1.8.0"
   checksum: c94e98b941963676feaba62475b1ccfa8341e3f572adbb3b684ee38b658df44100187fa0ef4220da580b13f8d27e87d5492623c8a02ecc61f23fb9960c7918f5
+  languageName: node
+  linkType: hard
+
+"@noble/hashes@npm:2.0.1, @noble/hashes@npm:^2.0.0, @noble/hashes@npm:^2.0.1":
+  version: 2.0.1
+  resolution: "@noble/hashes@npm:2.0.1"
+  checksum: aea67a671ca464027cd512d07666a804bd99abc343ba98c93ee8463a1c870c5594f8de468279ef3c60f3b23b6330db9f1a92bd23723b8a911ec73bddc9420248
   languageName: node
   linkType: hard
 
@@ -11413,6 +11450,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@scure/base@npm:2.0.0":
+  version: 2.0.0
+  resolution: "@scure/base@npm:2.0.0"
+  checksum: 15d10f154256f52bb3e02b63cdf93b6df6db3814fa4c61a8bb2d339831aec7859609fb715b93c7fc852755f0fe67fb6411664c06159745711bf38af3b10ab93e
+  languageName: node
+  linkType: hard
+
 "@scure/base@npm:^1.0.0, @scure/base@npm:^1.1.1, @scure/base@npm:^1.1.3, @scure/base@npm:~1.1.2":
   version: 1.1.3
   resolution: "@scure/base@npm:1.1.3"
@@ -12536,6 +12580,7 @@ __metadata:
     "@near-js/transactions": ^2.5.1
     "@near-js/types": ^2.5.1
     "@near-js/utils": ^2.5.1
+    "@nktkas/hyperliquid": ^0.30.2
     "@peculiar/webcrypto": ^1.3.3
     "@react-spring/web": ^9.7.4
     "@reduxjs/toolkit": ^2.6.1
@@ -28627,10 +28672,30 @@ __metadata:
   languageName: node
   linkType: hard
 
+"micro-eth-signer@npm:^0.18.1":
+  version: 0.18.1
+  resolution: "micro-eth-signer@npm:0.18.1"
+  dependencies:
+    "@noble/curves": ^2.0.0
+    "@noble/hashes": ^2.0.0
+    micro-packed: ^0.8.0
+  checksum: 8ec09676b6a485121797564021c2157e6871b09b8d7a108d3d622e8ced01dba51e57155e2032f1cac0bcbe353a6ff59c368d1095238fdc21f995a4edccd5274b
+  languageName: node
+  linkType: hard
+
 "micro-ftch@npm:^0.3.1":
   version: 0.3.1
   resolution: "micro-ftch@npm:0.3.1"
   checksum: 0e496547253a36e98a83fb00c628c53c3fb540fa5aaeaf718438873785afd193244988c09d219bb1802984ff227d04938d9571ef90fe82b48bd282262586aaff
+  languageName: node
+  linkType: hard
+
+"micro-packed@npm:^0.8.0":
+  version: 0.8.0
+  resolution: "micro-packed@npm:0.8.0"
+  dependencies:
+    "@scure/base": 2.0.0
+  checksum: 9aa54bcf067f474973dd00becadec08d0796be1af57924f804ad4e416c0e53bf30b289199562c21f66c78526df9e964f050fd25b92091fac23c14f5f7da930f5
   languageName: node
   linkType: hard
 
@@ -36333,6 +36398,18 @@ pvutils@latest:
   languageName: node
   linkType: hard
 
+"valibot@npm:1.2.0, valibot@npm:^1.2.0":
+  version: 1.2.0
+  resolution: "valibot@npm:1.2.0"
+  peerDependencies:
+    typescript: ">=5"
+  peerDependenciesMeta:
+    typescript:
+      optional: true
+  checksum: 2d63ef5e45dc9b0d430640e908f07aa7172e8a3ee1653d92f99d8f5e0b84558e0829a2cda8c75150df91eb2f51ba3222d055753336ea6ca3af82e7ded4e71703
+  languageName: node
+  linkType: hard
+
 "valibot@npm:^0.36.0":
   version: 0.36.0
   resolution: "valibot@npm:0.36.0"
@@ -36361,18 +36438,6 @@ pvutils@latest:
     typescript:
       optional: true
   checksum: aa2608d503175f4a8b8c0bc70f025cf857aca6ac8f60639407689c0f901c3f0dc2271f5e3c3a10843b5cf7283e6c232a5f09309419e4502e7909a76dc0b470e7
-  languageName: node
-  linkType: hard
-
-"valibot@npm:^1.2.0":
-  version: 1.2.0
-  resolution: "valibot@npm:1.2.0"
-  peerDependencies:
-    typescript: ">=5"
-  peerDependenciesMeta:
-    typescript:
-      optional: true
-  checksum: 2d63ef5e45dc9b0d430640e908f07aa7172e8a3ee1653d92f99d8f5e0b84558e0829a2cda8c75150df91eb2f51ba3222d055753336ea6ca3af82e7ded4e71703
   languageName: node
   linkType: hard
 

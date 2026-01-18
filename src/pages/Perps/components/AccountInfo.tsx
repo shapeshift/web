@@ -17,13 +17,13 @@ import {
   VStack,
 } from '@chakra-ui/react'
 import { memo, useCallback, useMemo } from 'react'
-import { FaExclamationTriangle, FaExternalLinkAlt, FaWallet } from 'react-icons/fa'
+import { FaExternalLinkAlt, FaWallet } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 
 import { Amount } from '@/components/Amount/Amount'
-import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { WalletActions } from '@/context/WalletProvider/actions'
 import { useWallet } from '@/hooks/useWallet/useWallet'
+import { bnOrZero } from '@/lib/bignumber/bignumber'
 import {
   selectAccountState,
   selectAccountStateError,
@@ -144,7 +144,6 @@ const MarginUsageGauge = memo(({ usagePercent, isLoading }: MarginUsageGaugeProp
 })
 
 const walletIcon = <FaWallet />
-const warningIcon = <FaExclamationTriangle />
 const externalLinkIcon = <FaExternalLinkAlt />
 
 type WalletNotConnectedProps = {
@@ -167,11 +166,7 @@ const WalletNotConnected = memo(({ onConnect }: WalletNotConnectedProps) => {
           {translate('perps.account.connectWalletDescription')}
         </Text>
       </VStack>
-      <Button
-        colorScheme='blue'
-        onClick={onConnect}
-        leftIcon={walletIcon}
-      >
+      <Button colorScheme='blue' onClick={onConnect} leftIcon={walletIcon}>
         {translate('common.connectWallet')}
       </Button>
     </VStack>
@@ -279,114 +274,51 @@ const AccountSkeleton = memo(() => {
   )
 })
 
-export const AccountInfo = memo(
-  ({ isWalletConnected, onInitializeWallet }: AccountInfoProps) => {
-    const translate = useTranslate()
-    const { dispatch: walletDispatch } = useWallet()
+export const AccountInfo = memo(({ isWalletConnected, onInitializeWallet }: AccountInfoProps) => {
+  const translate = useTranslate()
+  const { dispatch: walletDispatch } = useWallet()
 
-    const borderColor = useColorModeValue('gray.200', 'gray.700')
-    const bgColor = useColorModeValue('white', 'gray.800')
-    const headerBgColor = useColorModeValue('gray.50', 'whiteAlpha.50')
-    const pnlPositiveColor = useColorModeValue('green.500', 'green.400')
-    const pnlNegativeColor = useColorModeValue('red.500', 'red.400')
+  const borderColor = useColorModeValue('gray.200', 'gray.700')
+  const bgColor = useColorModeValue('white', 'gray.800')
+  const headerBgColor = useColorModeValue('gray.50', 'whiteAlpha.50')
+  const pnlPositiveColor = useColorModeValue('green.500', 'green.400')
+  const pnlNegativeColor = useColorModeValue('red.500', 'red.400')
 
-    const isWalletInitialized = useAppSelector(selectIsWalletInitialized)
-    const walletAddress = useAppSelector(selectWalletAddress)
-    const accountState = useAppSelector(selectAccountState)
-    const accountStateLoading = useAppSelector(selectAccountStateLoading)
-    const accountStateError = useAppSelector(selectAccountStateError)
-    const accountValue = useAppSelector(selectAccountValue)
-    const totalMarginUsed = useAppSelector(selectTotalMarginUsed)
-    const availableMargin = useAppSelector(selectAvailableMargin)
-    const withdrawable = useAppSelector(selectWithdrawable)
-    const marginUsagePercent = useAppSelector(selectMarginUsagePercent)
-    const totalUnrealizedPnl = useAppSelector(selectTotalUnrealizedPnl)
-    const positionCount = useAppSelector(selectPositionCount)
+  const isWalletInitialized = useAppSelector(selectIsWalletInitialized)
+  const walletAddress = useAppSelector(selectWalletAddress)
+  const accountState = useAppSelector(selectAccountState)
+  const accountStateLoading = useAppSelector(selectAccountStateLoading)
+  const accountStateError = useAppSelector(selectAccountStateError)
+  const accountValue = useAppSelector(selectAccountValue)
+  const totalMarginUsed = useAppSelector(selectTotalMarginUsed)
+  const availableMargin = useAppSelector(selectAvailableMargin)
+  const withdrawable = useAppSelector(selectWithdrawable)
+  const marginUsagePercent = useAppSelector(selectMarginUsagePercent)
+  const totalUnrealizedPnl = useAppSelector(selectTotalUnrealizedPnl)
+  const positionCount = useAppSelector(selectPositionCount)
 
-    const handleConnect = useCallback(() => {
-      walletDispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
-    }, [walletDispatch])
+  const handleConnect = useCallback(() => {
+    walletDispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true })
+  }, [walletDispatch])
 
-    const hasLowCollateral = useMemo(() => {
-      if (!accountValue) return false
-      return bnOrZero(accountValue).lt(LOW_COLLATERAL_THRESHOLD)
-    }, [accountValue])
+  const hasLowCollateral = useMemo(() => {
+    if (!accountValue) return false
+    return bnOrZero(accountValue).lt(LOW_COLLATERAL_THRESHOLD)
+  }, [accountValue])
 
-    const isPnlPositive = useMemo(() => {
-      return bnOrZero(totalUnrealizedPnl).gte(0)
-    }, [totalUnrealizedPnl])
+  const isPnlPositive = useMemo(() => {
+    return bnOrZero(totalUnrealizedPnl).gte(0)
+  }, [totalUnrealizedPnl])
 
-    const pnlColor = isPnlPositive ? pnlPositiveColor : pnlNegativeColor
-    const pnlPrefix = isPnlPositive ? '+' : ''
+  const pnlColor = isPnlPositive ? pnlPositiveColor : pnlNegativeColor
+  const pnlPrefix = isPnlPositive ? '+' : ''
 
-    const truncatedAddress = useMemo(() => {
-      if (!walletAddress) return ''
-      return `${walletAddress.slice(0, 6)}...${walletAddress.slice(-4)}`
-    }, [walletAddress])
+  const truncatedAddress = useMemo(() => {
+    if (!walletAddress) return ''
+    return `${walletAddress.slice(0, 6)}...${walletAddress.slice(-4)}`
+  }, [walletAddress])
 
-    if (!isWalletConnected) {
-      return (
-        <Box
-          borderRadius='lg'
-          border='1px solid'
-          borderColor={borderColor}
-          bg={bgColor}
-          overflow='hidden'
-        >
-          <Box p={3} borderBottomWidth={1} borderColor={borderColor} bg={headerBgColor}>
-            <Text fontSize='sm' fontWeight='semibold'>
-              {translate('perps.account.title')}
-            </Text>
-          </Box>
-          <Box p={4}>
-            <WalletNotConnected onConnect={handleConnect} />
-          </Box>
-        </Box>
-      )
-    }
-
-    if (accountStateLoading && !accountState) {
-      return (
-        <Box
-          borderRadius='lg'
-          border='1px solid'
-          borderColor={borderColor}
-          bg={bgColor}
-          overflow='hidden'
-        >
-          <Box p={3} borderBottomWidth={1} borderColor={borderColor} bg={headerBgColor}>
-            <Text fontSize='sm' fontWeight='semibold'>
-              {translate('perps.account.title')}
-            </Text>
-          </Box>
-          <Box p={4}>
-            <AccountSkeleton />
-          </Box>
-        </Box>
-      )
-    }
-
-    if (accountStateError) {
-      return (
-        <Box
-          borderRadius='lg'
-          border='1px solid'
-          borderColor={borderColor}
-          bg={bgColor}
-          overflow='hidden'
-        >
-          <Box p={3} borderBottomWidth={1} borderColor={borderColor} bg={headerBgColor}>
-            <Text fontSize='sm' fontWeight='semibold'>
-              {translate('perps.account.title')}
-            </Text>
-          </Box>
-          <Box p={4}>
-            <AccountError error={accountStateError} />
-          </Box>
-        </Box>
-      )
-    }
-
+  if (!isWalletConnected) {
     return (
       <Box
         borderRadius='lg'
@@ -396,97 +328,149 @@ export const AccountInfo = memo(
         overflow='hidden'
       >
         <Box p={3} borderBottomWidth={1} borderColor={borderColor} bg={headerBgColor}>
-          <Flex justify='space-between' align='center'>
-            <Text fontSize='sm' fontWeight='semibold'>
-              {translate('perps.account.title')}
-            </Text>
-            {walletAddress && (
-              <Text fontSize='xs' color='text.subtle' fontFamily='mono'>
-                {truncatedAddress}
-              </Text>
-            )}
-          </Flex>
+          <Text fontSize='sm' fontWeight='semibold'>
+            {translate('perps.account.title')}
+          </Text>
         </Box>
-
-        <VStack spacing={4} p={4} align='stretch'>
-          {!isWalletInitialized && (
-            <WalletNotInitialized onInitialize={onInitializeWallet} />
-          )}
-
-          {isWalletInitialized && hasLowCollateral && (
-            <InsufficientCollateral accountValue={accountValue} />
-          )}
-
-          <Flex justify='space-between' align='center' gap={4}>
-            <VStack spacing={2} align='stretch' flex={1}>
-              <AccountStatRow
-                label={translate('perps.account.accountValue')}
-                value={accountValue}
-                isLoading={accountStateLoading}
-              />
-              <AccountStatRow
-                label={translate('perps.account.marginUsed')}
-                value={totalMarginUsed}
-                isLoading={accountStateLoading}
-              />
-              <AccountStatRow
-                label={translate('perps.account.availableMargin')}
-                value={availableMargin}
-                isLoading={accountStateLoading}
-              />
-              <AccountStatRow
-                label={translate('perps.account.withdrawable')}
-                value={withdrawable}
-                isLoading={accountStateLoading}
-                tooltip={translate('perps.account.withdrawableTooltip')}
-              />
-            </VStack>
-            <MarginUsageGauge
-              usagePercent={marginUsagePercent}
-              isLoading={accountStateLoading}
-            />
-          </Flex>
-
-          {positionCount > 0 && (
-            <Box
-              bg={useColorModeValue('gray.50', 'whiteAlpha.50')}
-              borderRadius='lg'
-              p={3}
-            >
-              <HStack justify='space-between'>
-                <VStack spacing={0} align='flex-start'>
-                  <Text fontSize='xs' color='text.subtle'>
-                    {translate('perps.account.unrealizedPnl')}
-                  </Text>
-                  <Text fontSize='xs' color='text.subtle'>
-                    ({positionCount} {translate('perps.account.positions')})
-                  </Text>
-                </VStack>
-                <Amount.Fiat
-                  value={totalUnrealizedPnl}
-                  fontSize='md'
-                  fontWeight='bold'
-                  color={pnlColor}
-                  prefix={pnlPrefix}
-                />
-              </HStack>
-            </Box>
-          )}
-
-          <Button
-            as='a'
-            href={HYPERLIQUID_DEPOSIT_URL}
-            target='_blank'
-            rel='noopener noreferrer'
-            size='sm'
-            variant='outline'
-            rightIcon={externalLinkIcon}
-            width='full'
-          >
-            {translate('perps.account.manageOnHyperliquid')}
-          </Button>
-        </VStack>
+        <Box p={4}>
+          <WalletNotConnected onConnect={handleConnect} />
+        </Box>
       </Box>
     )
-  },
-)
+  }
+
+  if (accountStateLoading && !accountState) {
+    return (
+      <Box
+        borderRadius='lg'
+        border='1px solid'
+        borderColor={borderColor}
+        bg={bgColor}
+        overflow='hidden'
+      >
+        <Box p={3} borderBottomWidth={1} borderColor={borderColor} bg={headerBgColor}>
+          <Text fontSize='sm' fontWeight='semibold'>
+            {translate('perps.account.title')}
+          </Text>
+        </Box>
+        <Box p={4}>
+          <AccountSkeleton />
+        </Box>
+      </Box>
+    )
+  }
+
+  if (accountStateError) {
+    return (
+      <Box
+        borderRadius='lg'
+        border='1px solid'
+        borderColor={borderColor}
+        bg={bgColor}
+        overflow='hidden'
+      >
+        <Box p={3} borderBottomWidth={1} borderColor={borderColor} bg={headerBgColor}>
+          <Text fontSize='sm' fontWeight='semibold'>
+            {translate('perps.account.title')}
+          </Text>
+        </Box>
+        <Box p={4}>
+          <AccountError error={accountStateError} />
+        </Box>
+      </Box>
+    )
+  }
+
+  return (
+    <Box
+      borderRadius='lg'
+      border='1px solid'
+      borderColor={borderColor}
+      bg={bgColor}
+      overflow='hidden'
+    >
+      <Box p={3} borderBottomWidth={1} borderColor={borderColor} bg={headerBgColor}>
+        <Flex justify='space-between' align='center'>
+          <Text fontSize='sm' fontWeight='semibold'>
+            {translate('perps.account.title')}
+          </Text>
+          {walletAddress && (
+            <Text fontSize='xs' color='text.subtle' fontFamily='mono'>
+              {truncatedAddress}
+            </Text>
+          )}
+        </Flex>
+      </Box>
+
+      <VStack spacing={4} p={4} align='stretch'>
+        {!isWalletInitialized && <WalletNotInitialized onInitialize={onInitializeWallet} />}
+
+        {isWalletInitialized && hasLowCollateral && (
+          <InsufficientCollateral accountValue={accountValue} />
+        )}
+
+        <Flex justify='space-between' align='center' gap={4}>
+          <VStack spacing={2} align='stretch' flex={1}>
+            <AccountStatRow
+              label={translate('perps.account.accountValue')}
+              value={accountValue}
+              isLoading={accountStateLoading}
+            />
+            <AccountStatRow
+              label={translate('perps.account.marginUsed')}
+              value={totalMarginUsed}
+              isLoading={accountStateLoading}
+            />
+            <AccountStatRow
+              label={translate('perps.account.availableMargin')}
+              value={availableMargin}
+              isLoading={accountStateLoading}
+            />
+            <AccountStatRow
+              label={translate('perps.account.withdrawable')}
+              value={withdrawable}
+              isLoading={accountStateLoading}
+              tooltip={translate('perps.account.withdrawableTooltip')}
+            />
+          </VStack>
+          <MarginUsageGauge usagePercent={marginUsagePercent} isLoading={accountStateLoading} />
+        </Flex>
+
+        {positionCount > 0 && (
+          <Box bg={headerBgColor} borderRadius='lg' p={3}>
+            <HStack justify='space-between'>
+              <VStack spacing={0} align='flex-start'>
+                <Text fontSize='xs' color='text.subtle'>
+                  {translate('perps.account.unrealizedPnl')}
+                </Text>
+                <Text fontSize='xs' color='text.subtle'>
+                  ({positionCount} {translate('perps.account.positions')})
+                </Text>
+              </VStack>
+              <Amount.Fiat
+                value={totalUnrealizedPnl}
+                fontSize='md'
+                fontWeight='bold'
+                color={pnlColor}
+                prefix={pnlPrefix}
+              />
+            </HStack>
+          </Box>
+        )}
+
+        <Button
+          as='a'
+          href={HYPERLIQUID_DEPOSIT_URL}
+          target='_blank'
+          rel='noopener noreferrer'
+          size='sm'
+          variant='outline'
+          rightIcon={externalLinkIcon}
+          width='full'
+        >
+          {translate('perps.account.manageOnHyperliquid')}
+        </Button>
+      </VStack>
+    </Box>
+  )
+})

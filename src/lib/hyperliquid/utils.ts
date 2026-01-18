@@ -3,33 +3,28 @@
 // Formatting, parsing, and helper utilities for Hyperliquid integration
 // ============================================================================
 
-import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
-
-import {
-  HYPERLIQUID_COLLATERAL_DECIMALS,
-  HYPERLIQUID_DEFAULT_ORDERBOOK_LEVELS,
-} from './constants'
-import {
-  type AugmentedMarket,
-  type Candle,
-  type ClearinghouseState,
-  type Fill,
-  type L2BookData,
-  type MetaAndAssetCtxs,
-  type OpenOrder,
-  OrderSide,
-  type OrderTypeSpec,
-  type ParsedCandle,
-  type ParsedFill,
-  type ParsedOrderbook,
-  type ParsedOrderbookLevel,
-  type ParsedPosition,
-  type PerpsMeta,
-  type Position,
-  PositionSide,
-  TimeInForce,
-  type UniverseAsset,
+import { HYPERLIQUID_COLLATERAL_DECIMALS, HYPERLIQUID_DEFAULT_ORDERBOOK_LEVELS } from './constants'
+import type {
+  AugmentedMarket,
+  Candle,
+  ClearinghouseState,
+  Fill,
+  L2BookData,
+  MetaAndAssetCtxs,
+  OpenOrder,
+  OrderTypeSpec,
+  ParsedCandle,
+  ParsedFill,
+  ParsedOrderbook,
+  ParsedOrderbookLevel,
+  ParsedPosition,
+  PerpsMeta,
+  Position,
+  UniverseAsset,
 } from './types'
+import { OrderSide, PositionSide, TimeInForce } from './types'
+
+import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
 
 // ============================================================================
 // Price Formatting
@@ -47,10 +42,7 @@ export const formatPriceWithCommas = (price: string | number, decimals: number =
   return value.toFormat(decimals)
 }
 
-export const formatSignificantFigures = (
-  value: string | number,
-  sigFigs: number = 5,
-): string => {
+export const formatSignificantFigures = (value: string | number, sigFigs: number = 5): string => {
   const num = bnOrZero(value)
   if (num.isZero()) return '0'
   return num.precision(sigFigs).toString()
@@ -116,7 +108,9 @@ export const parseLeverageInput = (input: string): number | null => {
 // Order Building Utilities
 // ============================================================================
 
-export const buildLimitOrderType = (tif: TimeInForce = TimeInForce.GoodTilCanceled): OrderTypeSpec => ({
+export const buildLimitOrderType = (
+  tif: TimeInForce = TimeInForce.GoodTilCanceled,
+): OrderTypeSpec => ({
   limit: { tif },
 })
 
@@ -158,7 +152,10 @@ export const buildOrderRequest = (params: {
   }
 }
 
-export const buildCancelRequest = (assetIndex: number, orderId: number): { a: number; o: number } => ({
+export const buildCancelRequest = (
+  assetIndex: number,
+  orderId: number,
+): { a: number; o: number } => ({
   a: assetIndex,
   o: orderId,
 })
@@ -177,7 +174,10 @@ export const parseOrderbook = (
   const askTotal = asks.slice(0, maxLevels).reduce((acc, level) => acc.plus(level.sz), bn(0))
   const maxTotal = bn.max(bidTotal, askTotal)
 
-  const parseBidLevel = (level: { px: string; sz: string; n: number }, runningTotal: string): ParsedOrderbookLevel => ({
+  const parseBidLevel = (
+    level: { px: string; sz: string; n: number },
+    runningTotal: string,
+  ): ParsedOrderbookLevel => ({
     price: level.px,
     size: level.sz,
     total: runningTotal,
@@ -185,7 +185,10 @@ export const parseOrderbook = (
     percentage: maxTotal.isZero() ? 0 : bnOrZero(runningTotal).div(maxTotal).times(100).toNumber(),
   })
 
-  const parseAskLevel = (level: { px: string; sz: string; n: number }, runningTotal: string): ParsedOrderbookLevel => ({
+  const parseAskLevel = (
+    level: { px: string; sz: string; n: number },
+    runningTotal: string,
+  ): ParsedOrderbookLevel => ({
     price: level.px,
     size: level.sz,
     total: runningTotal,
@@ -323,7 +326,9 @@ export const parseCandles = (candles: Candle[]): ParsedCandle[] => {
   return candles.map(parseCandle).sort((a, b) => a.time - b.time)
 }
 
-export const candleToLightweightChart = (candle: ParsedCandle): {
+export const candleToLightweightChart = (
+  candle: ParsedCandle,
+): {
   time: number
   open: number
   high: number
@@ -337,7 +342,9 @@ export const candleToLightweightChart = (candle: ParsedCandle): {
   close: candle.close,
 })
 
-export const candlesToLightweightChart = (candles: ParsedCandle[]): {
+export const candlesToLightweightChart = (
+  candles: ParsedCandle[],
+): {
   time: number
   open: number
   high: number
@@ -349,7 +356,7 @@ export const candlesToLightweightChart = (candles: ParsedCandle[]): {
 // Fill Parsing
 // ============================================================================
 
-export const parseFill = (fill: Fill, markPrice?: string): ParsedFill => {
+export const parseFill = (fill: Fill): ParsedFill => {
   const price = bnOrZero(fill.px)
   const size = bnOrZero(fill.sz)
   const value = price.times(size).toString()
@@ -411,20 +418,20 @@ export const searchMarkets = (markets: AugmentedMarket[], query: string): Augmen
   const search = query.toLowerCase().trim()
   return markets.filter(
     market =>
-      market.coin.toLowerCase().includes(search) ||
-      market.name.toLowerCase().includes(search),
+      market.coin.toLowerCase().includes(search) || market.name.toLowerCase().includes(search),
   )
 }
 
 export const sortMarketsByVolume = (markets: AugmentedMarket[]): AugmentedMarket[] => {
-  return [...markets].sort((a, b) =>
-    bnOrZero(b.dayNtlVlm).minus(bnOrZero(a.dayNtlVlm)).toNumber(),
-  )
+  return [...markets].sort((a, b) => bnOrZero(b.dayNtlVlm).minus(bnOrZero(a.dayNtlVlm)).toNumber())
 }
 
 export const sortMarketsByPriceChange = (markets: AugmentedMarket[]): AugmentedMarket[] => {
   return [...markets].sort((a, b) =>
-    bnOrZero(b.priceChangePercent24h).abs().minus(bnOrZero(a.priceChangePercent24h).abs()).toNumber(),
+    bnOrZero(b.priceChangePercent24h)
+      .abs()
+      .minus(bnOrZero(a.priceChangePercent24h).abs())
+      .toNumber(),
   )
 }
 
@@ -452,16 +459,12 @@ export const searchOrders = (orders: OpenOrder[], query: string): OpenOrder[] =>
   if (!query) return orders
   const search = query.toLowerCase().trim()
   return orders.filter(
-    order =>
-      order.coin.toLowerCase().includes(search) ||
-      order.oid.toString().includes(search),
+    order => order.coin.toLowerCase().includes(search) || order.oid.toString().includes(search),
   )
 }
 
 export const getOrderSide = (side: string): OrderSide => {
-  return side.toLowerCase() === 'b' || side.toLowerCase() === 'buy'
-    ? OrderSide.Buy
-    : OrderSide.Sell
+  return side.toLowerCase() === 'b' || side.toLowerCase() === 'buy' ? OrderSide.Buy : OrderSide.Sell
 }
 
 export const getOrderSideLabel = (side: OrderSide | string): string => {
@@ -505,16 +508,21 @@ export const hasOpenPositions = (state: ClearinghouseState): boolean => {
 }
 
 export const calculateTotalUnrealizedPnl = (state: ClearinghouseState): string => {
-  return state.assetPositions.reduce((total, ap) => {
-    return total.plus(ap.position.unrealizedPnl)
-  }, bn(0)).toString()
+  return state.assetPositions
+    .reduce((total, ap) => {
+      return total.plus(ap.position.unrealizedPnl)
+    }, bn(0))
+    .toString()
 }
 
 // ============================================================================
 // Collateral Utilities
 // ============================================================================
 
-export const formatCollateral = (amount: string | number, decimals: number = HYPERLIQUID_COLLATERAL_DECIMALS): string => {
+export const formatCollateral = (
+  amount: string | number,
+  decimals: number = HYPERLIQUID_COLLATERAL_DECIMALS,
+): string => {
   const value = bnOrZero(amount)
   return value.toFixed(decimals)
 }
@@ -533,10 +541,7 @@ export const isInsufficientCollateral = (
   return bnOrZero(requiredMargin).gt(bnOrZero(availableBalance))
 }
 
-export const calculateRequiredMargin = (
-  notionalValue: string,
-  leverage: number,
-): string => {
+export const calculateRequiredMargin = (notionalValue: string, leverage: number): string => {
   if (leverage <= 0) return notionalValue
   return bnOrZero(notionalValue).div(leverage).toString()
 }
@@ -648,7 +653,10 @@ export const parseHyperliquidError = (error: unknown): { code: string; message: 
       return { code: 'INVALID_SIGNATURE', message: 'Invalid signature' }
     }
     if (message.includes('rate limit') || message.includes('429')) {
-      return { code: 'RATE_LIMIT_EXCEEDED', message: 'Rate limit exceeded. Please try again later.' }
+      return {
+        code: 'RATE_LIMIT_EXCEEDED',
+        message: 'Rate limit exceeded. Please try again later.',
+      }
     }
     if (message.includes('order')) {
       return { code: 'INVALID_ORDER', message: error.message }

@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
-import { fetchMetaAndAssetCtxs, subscribeToAllMids, type UnsubscribeFn } from '@/lib/hyperliquid/client'
+import type { UnsubscribeFn } from '@/lib/hyperliquid/client'
+import { fetchMetaAndAssetCtxs, subscribeToAllMids } from '@/lib/hyperliquid/client'
 import {
   HYPERLIQUID_DEFAULT_MARKET,
   HYPERLIQUID_POLL_INTERVAL_MS,
@@ -8,7 +9,12 @@ import {
   HYPERLIQUID_RECONNECT_DELAY_MAX_MS,
 } from '@/lib/hyperliquid/constants'
 import type { AugmentedMarket, MetaAndAssetCtxs } from '@/lib/hyperliquid/types'
-import { parseMetaToMarkets, searchMarkets, sortMarketsByName, sortMarketsByVolume } from '@/lib/hyperliquid/utils'
+import {
+  parseMetaToMarkets,
+  searchMarkets,
+  sortMarketsByName,
+  sortMarketsByVolume,
+} from '@/lib/hyperliquid/utils'
 import { perpsSlice } from '@/state/slices/perpsSlice'
 import { useAppDispatch, useAppSelector } from '@/state/store'
 
@@ -77,6 +83,7 @@ export const useMarkets = (config: UseMarketsConfig = {}): UseMarketsResult => {
   const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null)
   const pollingIntervalRef = useRef<NodeJS.Timeout | null>(null)
   const marketsRef = useRef<AugmentedMarket[]>([])
+  const subscribeInternalRef = useRef<() => void>(() => {})
 
   marketsRef.current = markets
 
@@ -126,7 +133,7 @@ export const useMarkets = (config: UseMarketsConfig = {}): UseMarketsResult => {
     reconnectAttemptRef.current += 1
 
     reconnectTimeoutRef.current = setTimeout(() => {
-      subscribeInternal()
+      subscribeInternalRef.current()
     }, delay)
   }, [clearReconnectTimeout])
 
@@ -173,6 +180,8 @@ export const useMarkets = (config: UseMarketsConfig = {}): UseMarketsResult => {
     }
   }, [handleAllMidsUpdate, scheduleReconnect])
 
+  subscribeInternalRef.current = subscribeInternal
+
   const subscribe = useCallback(() => {
     reconnectAttemptRef.current = 0
     subscribeInternal()
@@ -218,6 +227,8 @@ export const useMarkets = (config: UseMarketsConfig = {}): UseMarketsResult => {
         break
       case 'priceChange':
         result = sortMarketsByPriceChange(result)
+        break
+      default:
         break
     }
 

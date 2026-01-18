@@ -1,4 +1,4 @@
-import { Box, Flex, Grid, GridItem, Heading, useColorModeValue, VStack } from '@chakra-ui/react'
+import { Box, Grid, GridItem, Heading, useColorModeValue, VStack } from '@chakra-ui/react'
 import { memo, useCallback, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 
@@ -17,7 +17,6 @@ import {
 import { useHyperliquid, useMarkets, useOrderbook, usePositions } from '@/pages/Perps/hooks'
 import { perpsSlice } from '@/state/slices/perpsSlice'
 import {
-  selectOrderFormLeverage,
   selectOrderFormPostOnly,
   selectOrderFormPrice,
   selectOrderFormReduceOnly,
@@ -50,13 +49,7 @@ export const Perps = memo(() => {
   const borderColor = useColorModeValue('gray.200', 'gray.700')
   const bgColor = useColorModeValue('white', 'gray.800')
 
-  const {
-    isInitialized,
-    isWalletConnected,
-    walletAddress,
-    connectWallet,
-    fetchAccountData,
-  } = useHyperliquid()
+  const { isWalletConnected, walletAddress, connectWallet, fetchAccountData } = useHyperliquid()
 
   const {
     markets,
@@ -70,10 +63,7 @@ export const Perps = memo(() => {
     selectMarket,
   } = useMarkets()
 
-  const selectedCoin = useMemo(
-    () => selectedMarket?.coin ?? null,
-    [selectedMarket],
-  )
+  const selectedCoin = useMemo(() => selectedMarket?.coin ?? null, [selectedMarket])
 
   const {
     orderbook,
@@ -92,7 +82,6 @@ export const Perps = memo(() => {
   const orderFormSide = useAppSelector(selectOrderFormSide)
   const orderFormPrice = useAppSelector(selectOrderFormPrice)
   const orderFormSize = useAppSelector(selectOrderFormSize)
-  const orderFormLeverage = useAppSelector(selectOrderFormLeverage)
   const orderFormReduceOnly = useAppSelector(selectOrderFormReduceOnly)
   const orderFormPostOnly = useAppSelector(selectOrderFormPostOnly)
 
@@ -134,9 +123,7 @@ export const Perps = memo(() => {
 
     const assetIndex = selectedMarket.assetIndex
     const isBuy = orderFormSide === 'buy'
-    const price = orderFormType === 'market'
-      ? (isBuy ? '9999999' : '0.00001')
-      : orderFormPrice
+    const price = orderFormType === 'market' ? (isBuy ? '9999999' : '0.00001') : orderFormPrice
 
     if (!price) return
 
@@ -178,10 +165,12 @@ export const Perps = memo(() => {
       }
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Order placement failed'
-      dispatch(perpsSlice.actions.setOrderSubmissionState({
-        state: 'failed',
-        error: errorMessage,
-      }))
+      dispatch(
+        perpsSlice.actions.setOrderSubmissionState({
+          state: 'failed',
+          error: errorMessage,
+        }),
+      )
     }
   }, [
     selectedMarket,
@@ -284,37 +273,15 @@ export const Perps = memo(() => {
         gap={4}
         width='full'
       >
-        <GridItem
-          display={{ base: 'block', xl: 'none' }}
-          colSpan={{ base: 1, lg: 2 }}
-        >
-          <Box
-            bg={bgColor}
-            borderRadius='lg'
-            borderWidth='1px'
-            borderColor={borderColor}
-            p={4}
-          >
+        <GridItem display={{ base: 'block', xl: 'none' }} colSpan={{ base: 1, lg: 2 }}>
+          <Box bg={bgColor} borderRadius='lg' borderWidth='1px' borderColor={borderColor} p={4}>
             {marketSelectorElement}
           </Box>
         </GridItem>
 
-        <GridItem
-          display={{ base: 'none', xl: 'flex' }}
-          rowSpan={3}
-        >
-          <VStack
-            spacing={4}
-            width='full'
-            align='stretch'
-          >
-            <Box
-              bg={bgColor}
-              borderRadius='lg'
-              borderWidth='1px'
-              borderColor={borderColor}
-              p={4}
-            >
+        <GridItem display={{ base: 'none', xl: 'flex' }} rowSpan={3}>
+          <VStack spacing={4} width='full' align='stretch'>
+            <Box bg={bgColor} borderRadius='lg' borderWidth='1px' borderColor={borderColor} p={4}>
               <VStack spacing={4} align='stretch'>
                 <Heading size='sm'>{translate('perps.markets')}</Heading>
                 {marketSelectorElement}
@@ -349,18 +316,9 @@ export const Perps = memo(() => {
           </Box>
         </GridItem>
 
-        <GridItem
-          rowSpan={{ base: 1, lg: 2 }}
-          colSpan={1}
-        >
+        <GridItem rowSpan={{ base: 1, lg: 2 }} colSpan={1}>
           <VStack spacing={4} align='stretch' height='full'>
-            <Box
-              bg={bgColor}
-              borderRadius='lg'
-              borderWidth='1px'
-              borderColor={borderColor}
-              p={4}
-            >
+            <Box bg={bgColor} borderRadius='lg' borderWidth='1px' borderColor={borderColor} p={4}>
               {accountInfoElement}
             </Box>
 
@@ -378,13 +336,7 @@ export const Perps = memo(() => {
         </GridItem>
 
         <GridItem display={{ base: 'block', xl: 'none' }}>
-          <Box
-            bg={bgColor}
-            borderRadius='lg'
-            borderWidth='1px'
-            borderColor={borderColor}
-            p={4}
-          >
+          <Box bg={bgColor} borderRadius='lg' borderWidth='1px' borderColor={borderColor} p={4}>
             <VStack spacing={4} align='stretch'>
               <Heading size='sm'>{translate('perps.orderbook.title')}</Heading>
               {orderbookElement}
@@ -393,13 +345,7 @@ export const Perps = memo(() => {
         </GridItem>
 
         <GridItem colSpan={{ base: 1, lg: 2, xl: 2 }}>
-          <Box
-            bg={bgColor}
-            borderRadius='lg'
-            borderWidth='1px'
-            borderColor={borderColor}
-            p={4}
-          >
+          <Box bg={bgColor} borderRadius='lg' borderWidth='1px' borderColor={borderColor} p={4}>
             <VStack spacing={4} align='stretch'>
               <Heading size='sm'>{translate('perps.positions.title')}</Heading>
               {positionsListElement}

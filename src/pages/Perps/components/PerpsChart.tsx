@@ -15,12 +15,16 @@ import { useTranslate } from 'react-polyglot'
 
 import { SimpleChart } from '@/components/SimpleChart/SimpleChart'
 import type { ChartInterval } from '@/components/SimpleChart/utils'
-import { fetchCandleSnapshot, subscribeToCandle, type UnsubscribeFn } from '@/lib/hyperliquid/client'
-import { HYPERLIQUID_CANDLE_INTERVALS } from '@/lib/hyperliquid/constants'
+import type { UnsubscribeFn } from '@/lib/hyperliquid/client'
+import { fetchCandleSnapshot, subscribeToCandle } from '@/lib/hyperliquid/client'
 import type { Candle, CandleInterval } from '@/lib/hyperliquid/types'
-import { candlesToLightweightChart, getTimestampForInterval, parseCandles } from '@/lib/hyperliquid/utils'
-import { useAppDispatch, useAppSelector } from '@/state/store'
+import {
+  candlesToLightweightChart,
+  getTimestampForInterval,
+  parseCandles,
+} from '@/lib/hyperliquid/utils'
 import { perpsSlice } from '@/state/slices/perpsSlice/perpsSlice'
+import { useAppDispatch, useAppSelector } from '@/state/store'
 
 type PerpsChartProps = {
   coin: string | null
@@ -155,28 +159,25 @@ export const PerpsChart = memo(({ coin, height = 400 }: PerpsChartProps) => {
     let unsubscribe: UnsubscribeFn | undefined
 
     const subscribe = () => {
-      unsubscribe = subscribeToCandle(
-        { coin, interval: chartInterval },
-        (data) => {
-          const newCandle: OhlcData<UTCTimestamp> = {
-            time: Math.floor(data.t / 1000) as UTCTimestamp,
-            open: parseFloat(data.o),
-            high: parseFloat(data.h),
-            low: parseFloat(data.l),
-            close: parseFloat(data.c),
+      unsubscribe = subscribeToCandle({ coin, interval: chartInterval }, data => {
+        const newCandle: OhlcData<UTCTimestamp> = {
+          time: Math.floor(data.t / 1000) as UTCTimestamp,
+          open: parseFloat(data.o),
+          high: parseFloat(data.h),
+          low: parseFloat(data.l),
+          close: parseFloat(data.c),
+        }
+
+        setCandles(prev => {
+          if (prev.length === 0) return [newCandle]
+
+          const lastCandle = prev[prev.length - 1]
+          if (lastCandle.time === newCandle.time) {
+            return [...prev.slice(0, -1), newCandle]
           }
-
-          setCandles(prev => {
-            if (prev.length === 0) return [newCandle]
-
-            const lastCandle = prev[prev.length - 1]
-            if (lastCandle.time === newCandle.time) {
-              return [...prev.slice(0, -1), newCandle]
-            }
-            return [...prev, newCandle]
-          })
-        },
-      )
+          return [...prev, newCandle]
+        })
+      })
     }
 
     subscribe()
@@ -206,13 +207,7 @@ export const PerpsChart = memo(({ coin, height = 400 }: PerpsChartProps) => {
 
   if (!coin) {
     return (
-      <Box
-        height={height}
-        borderRadius='lg'
-        border='1px solid'
-        borderColor={borderColor}
-        p={4}
-      >
+      <Box height={height} borderRadius='lg' border='1px solid' borderColor={borderColor} p={4}>
         <Center h='full'>
           <Text color='text.subtle' fontSize='sm'>
             {translate('perps.chart.selectMarket')}
@@ -224,13 +219,7 @@ export const PerpsChart = memo(({ coin, height = 400 }: PerpsChartProps) => {
 
   if (isLoading && candles.length === 0) {
     return (
-      <Box
-        height={height}
-        borderRadius='lg'
-        border='1px solid'
-        borderColor={borderColor}
-        p={4}
-      >
+      <Box height={height} borderRadius='lg' border='1px solid' borderColor={borderColor} p={4}>
         <Flex direction='column' h='full'>
           <HStack spacing={1} mb={4} flexWrap='wrap'>
             {CHART_INTERVALS.map(({ value }) => (
@@ -247,13 +236,7 @@ export const PerpsChart = memo(({ coin, height = 400 }: PerpsChartProps) => {
 
   if (error) {
     return (
-      <Box
-        height={height}
-        borderRadius='lg'
-        border='1px solid'
-        borderColor={borderColor}
-        p={4}
-      >
+      <Box height={height} borderRadius='lg' border='1px solid' borderColor={borderColor} p={4}>
         <Flex direction='column' h='full'>
           <HStack spacing={1} mb={4} flexWrap='wrap'>
             {intervalButtons}
@@ -273,13 +256,7 @@ export const PerpsChart = memo(({ coin, height = 400 }: PerpsChartProps) => {
 
   if (candles.length === 0) {
     return (
-      <Box
-        height={height}
-        borderRadius='lg'
-        border='1px solid'
-        borderColor={borderColor}
-        p={4}
-      >
+      <Box height={height} borderRadius='lg' border='1px solid' borderColor={borderColor} p={4}>
         <Flex direction='column' h='full'>
           <HStack spacing={1} mb={4} flexWrap='wrap'>
             {intervalButtons}

@@ -12128,6 +12128,7 @@
   ],
   "eip155:1/erc20:0xca14007eff0db1f8135f4c25b34de49ab0d42766": [
     "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp/token:HsRpHQn6VbyMs5b5j5SV6xQ2VvpvvCCzu19GjytVSCoz",
-    "eip155:1/erc20:0xca14007eff0db1f8135f4c25b34de49ab0d42766"
+    "eip155:1/erc20:0xca14007eff0db1f8135f4c25b34de49ab0d42766",
+    "starknet:SN_MAIN/slip44:9004"
   ]
 }

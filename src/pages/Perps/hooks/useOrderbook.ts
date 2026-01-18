@@ -101,11 +101,11 @@ export const useOrderbook = (config: UseOrderbookConfig): UseOrderbookResult => 
     }, delay)
   }, [clearReconnectTimeout])
 
-  const subscribeInternal = useCallback(() => {
+  const subscribeInternal = useCallback(async () => {
     if (!coinRef.current) return
 
     if (unsubscribeRef.current) {
-      unsubscribeRef.current()
+      await unsubscribeRef.current()
       unsubscribeRef.current = null
     }
 
@@ -117,7 +117,7 @@ export const useOrderbook = (config: UseOrderbookConfig): UseOrderbookResult => 
         subscriptionParams.nSigFigs = nSigFigs
       }
 
-      unsubscribeRef.current = subscribeToL2Book(subscriptionParams, handleL2BookUpdate)
+      unsubscribeRef.current = await subscribeToL2Book(subscriptionParams, handleL2BookUpdate)
       isSubscribedRef.current = true
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to subscribe to orderbook'
@@ -140,12 +140,12 @@ export const useOrderbook = (config: UseOrderbookConfig): UseOrderbookResult => 
     subscribeInternal()
   }, [coin, dispatch, subscribeInternal])
 
-  const unsubscribe = useCallback(() => {
+  const unsubscribe = useCallback(async () => {
     isSubscribedRef.current = false
     clearReconnectTimeout()
 
     if (unsubscribeRef.current) {
-      unsubscribeRef.current()
+      await unsubscribeRef.current()
       unsubscribeRef.current = null
     }
 
@@ -186,7 +186,7 @@ export const useOrderbook = (config: UseOrderbookConfig): UseOrderbookResult => 
     return () => {
       clearReconnectTimeout()
       if (unsubscribeRef.current) {
-        unsubscribeRef.current()
+        void unsubscribeRef.current()
         unsubscribeRef.current = null
       }
     }

@@ -50,6 +50,7 @@ import { csp as discord } from './discord'
 import { csp as banxa } from './fiatRamps/banxa'
 import { csp as onRamper } from './fiatRamps/onRamper'
 import { csp as hypelab } from './hypelab'
+import { csp as hyperliquid } from './hyperliquid'
 import { csp as interFont } from './InterFont'
 import { csp as jupiter } from './jupiter'
 import { csp as ledger } from './ledger'
@@ -68,6 +69,7 @@ import { csp as shapeshiftGateway } from './shapeshiftGateway'
 import { csp as shapeshiftProxy } from './shapeshiftProxy'
 import { csp as snapshots } from './snapshots'
 import { csp as tenderly } from './tenderly'
+import { csp as tradingView } from './tradingView'
 import { csp as trezor } from './trezor'
 import { csp as coinbase } from './wallets/coinbase'
 import { csp as gridplus } from './wallets/gridplus'
@@ -81,6 +83,7 @@ import { csp as yieldxyz } from './yieldxyz'
 export const csps = [
   base,
   hypelab,
+  hyperliquid,
   alchemy,
   moralis,
   chainflip,
@@ -97,6 +100,7 @@ export const csps = [
   shapeshiftProxy,
   snapshots,
   tenderly,
+  tradingView,
   webflow,
   arbitrum,
   arbitrumNova,

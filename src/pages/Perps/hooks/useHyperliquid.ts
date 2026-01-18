@@ -1,3 +1,4 @@
+import { ethChainId } from '@shapeshiftoss/caip'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import type { WalletClient } from 'viem'
 
@@ -19,6 +20,8 @@ import type {
   OpenOrder,
   PerpsMeta,
 } from '@/lib/hyperliquid/types'
+import { PositionSide } from '@/lib/hyperliquid/types'
+import { assertGetEvmChainAdapter } from '@/lib/utils/evm'
 import { perpsSlice } from '@/state/slices/perpsSlice'
 import { useAppDispatch, useAppSelector } from '@/state/store'
 
@@ -88,8 +91,12 @@ export const useHyperliquid = (config: UseHyperliquidConfig = {}): UseHyperliqui
     setError(undefined)
 
     try {
-      const ethWallet = wallet as { ethGetAddress?: () => Promise<string | null> }
-      const address = await ethWallet.ethGetAddress?.()
+      console.log('[Hyperliquid] Attempting to connect wallet...')
+
+      const adapter = assertGetEvmChainAdapter(ethChainId)
+      const address = await adapter.getAddress({ accountNumber: 0, wallet })
+
+      console.log('[Hyperliquid] Got address:', address)
 
       if (!address) {
         throw new Error('Failed to get wallet address')
@@ -99,16 +106,21 @@ export const useHyperliquid = (config: UseHyperliquidConfig = {}): UseHyperliqui
         wallet as unknown as { getViemWalletClient?: () => WalletClient }
       ).getViemWalletClient?.()
 
+      console.log('[Hyperliquid] Viem wallet client:', viemWalletClient ? 'Found' : 'Not found')
+
       if (!viemWalletClient) {
         throw new Error('Wallet does not support viem. Please use a compatible wallet.')
       }
 
+      console.log('[Hyperliquid] Setting wallet in Hyperliquid client...')
       setWallet(viemWalletClient)
       dispatch(perpsSlice.actions.setWalletAddress(address))
       dispatch(perpsSlice.actions.setWalletInitialized(true))
+      console.log('[Hyperliquid] Wallet connected successfully')
     } catch (err) {
       const errorMessage =
         err instanceof Error ? err.message : 'Failed to connect wallet to Hyperliquid'
+      console.error('[Hyperliquid] Wallet connection error:', errorMessage, err)
       setError(errorMessage)
       dispatch(perpsSlice.actions.setWalletInitialized(false))
     } finally {
@@ -144,7 +156,7 @@ export const useHyperliquid = (config: UseHyperliquidConfig = {}): UseHyperliqui
         .filter(ap => parseFloat(ap.position.szi) !== 0)
         .map(ap => ({
           coin: ap.position.coin,
-          side: parseFloat(ap.position.szi) > 0 ? ('long' as const) : ('short' as const),
+          side: parseFloat(ap.position.szi) > 0 ? PositionSide.Long : PositionSide.Short,
           size: Math.abs(parseFloat(ap.position.szi)).toString(),
           sizeUsd: ap.position.positionValue,
           entryPrice: ap.position.entryPx,
@@ -199,6 +211,34 @@ export const useHyperliquid = (config: UseHyperliquidConfig = {}): UseHyperliqui
       disconnectWallet()
     }
   }, [isWalletProviderConnected, isWalletInitializedInStore, disconnectWallet])
+
+  useEffect(() => {
+    console.log('[Hyperliquid] Auto-connect check:', {
+      isWalletProviderConnected,
+      hasWallet: !!wallet,
+      isInitialized,
+      isWalletInitializedInStore,
+      isConnecting,
+    })
+
+    if (
+      isWalletProviderConnected &&
+      wallet &&
+      isInitialized &&
+      !isWalletInitializedInStore &&
+      !isConnecting
+    ) {
+      console.log('[Hyperliquid] Auto-connecting wallet...')
+      void connectWallet()
+    }
+  }, [
+    isWalletProviderConnected,
+    wallet,
+    isInitialized,
+    isWalletInitializedInStore,
+    isConnecting,
+    connectWallet,
+  ])
 
   const result = useMemo(
     (): UseHyperliquidResult => ({

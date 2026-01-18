@@ -35,7 +35,7 @@ type UsePositionsResult = {
   refetch: () => Promise<void>
   closePosition: (coin: string, assetIndex: number) => Promise<void>
   subscribe: () => void
-  unsubscribe: () => void
+  unsubscribe: () => Promise<void>
 }
 
 const DEFAULT_CONFIG: UsePositionsConfig = {
@@ -94,7 +94,7 @@ export const usePositions = (config: UsePositionsConfig): UsePositionsResult => 
   const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null)
   const pollingIntervalRef = useRef<NodeJS.Timeout | null>(null)
   const userAddressRef = useRef(userAddress)
-  const subscribeInternalRef = useRef<() => void>(() => {})
+  const subscribeInternalRef = useRef<() => Promise<void>>(async () => {})
 
   userAddressRef.current = userAddress
 
@@ -183,24 +183,27 @@ export const usePositions = (config: UsePositionsConfig): UsePositionsResult => 
     [fetchPositionsData],
   )
 
-  const subscribeInternal = useCallback(() => {
+  const subscribeInternal = useCallback(async () => {
     const address = userAddressRef.current
     if (!address) return
 
     if (unsubscribeFillsRef.current) {
-      unsubscribeFillsRef.current()
+      await unsubscribeFillsRef.current()
       unsubscribeFillsRef.current = null
     }
 
     if (unsubscribeOrdersRef.current) {
-      unsubscribeOrdersRef.current()
+      await unsubscribeOrdersRef.current()
       unsubscribeOrdersRef.current = null
     }
 
     try {
-      unsubscribeFillsRef.current = subscribeToUserFills({ user: address }, handleUserFill)
+      unsubscribeFillsRef.current = await subscribeToUserFills({ user: address }, handleUserFill)
 
-      unsubscribeOrdersRef.current = subscribeToOrderUpdates({ user: address }, handleOrderUpdate)
+      unsubscribeOrdersRef.current = await subscribeToOrderUpdates(
+        { user: address },
+        handleOrderUpdate,
+      )
 
       setIsSubscribed(true)
       reconnectAttemptRef.current = 0
@@ -218,20 +221,20 @@ export const usePositions = (config: UsePositionsConfig): UsePositionsResult => 
     }
 
     reconnectAttemptRef.current = 0
-    subscribeInternal()
+    void subscribeInternal()
   }, [userAddress, subscribeInternal])
 
-  const unsubscribe = useCallback(() => {
+  const unsubscribe = useCallback(async () => {
     clearReconnectTimeout()
     clearPollingInterval()
 
     if (unsubscribeFillsRef.current) {
-      unsubscribeFillsRef.current()
+      await unsubscribeFillsRef.current()
       unsubscribeFillsRef.current = null
     }
 
     if (unsubscribeOrdersRef.current) {
-      unsubscribeOrdersRef.current()
+      await unsubscribeOrdersRef.current()
       unsubscribeOrdersRef.current = null
     }
 
@@ -290,17 +293,17 @@ export const usePositions = (config: UsePositionsConfig): UsePositionsResult => 
     if (autoSubscribe && userAddress) {
       subscribe()
 
-      if (pollingInterval > 0) {
+      if (pollingInterval && pollingInterval > 0) {
         pollingIntervalRef.current = setInterval(() => {
           if (userAddressRef.current) {
-            fetchPositionsData()
+            void fetchPositionsData()
           }
         }, pollingInterval)
       }
     }
 
     return () => {
-      unsubscribe()
+      void unsubscribe()
     }
   }, [userAddress, autoSubscribe, pollingInterval, fetchPositionsData, subscribe, unsubscribe])
 
@@ -309,11 +312,11 @@ export const usePositions = (config: UsePositionsConfig): UsePositionsResult => 
       clearReconnectTimeout()
       clearPollingInterval()
       if (unsubscribeFillsRef.current) {
-        unsubscribeFillsRef.current()
+        void unsubscribeFillsRef.current()
         unsubscribeFillsRef.current = null
       }
       if (unsubscribeOrdersRef.current) {
-        unsubscribeOrdersRef.current()
+        void unsubscribeOrdersRef.current()
         unsubscribeOrdersRef.current = null
       }
     }

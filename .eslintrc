@@ -11,7 +11,8 @@
     "dist",
     "coverage",
     "generated",
-    "node_modules"
+    "node_modules",
+    "public/charting_library"
   ],
   "plugins": [
     "jest",

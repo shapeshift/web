@@ -1,0 +1,1 @@
+export { TradingViewChart } from './TradingViewChart'

@@ -400,35 +400,35 @@ export const withdraw = async (params: {
 // Subscription Client Methods (WebSocket)
 // ============================================================================
 
-export type UnsubscribeFn = () => void
+export type UnsubscribeFn = () => Promise<void>
 
-export const subscribeToAllMids = (
+export const subscribeToAllMids = async (
   callback: (data: { mids: Record<string, string> }) => void,
-): UnsubscribeFn => {
+): Promise<UnsubscribeFn> => {
   const client = getSubscriptionClient()
-  client.allMids({}, callback)
-  return () => client.unsubscribe({ type: 'allMids' })
+  const subscription = await client.allMids({}, callback)
+  return () => subscription.unsubscribe()
 }
 
-export const subscribeToL2Book = (
+export const subscribeToL2Book = async (
   params: { coin: string; nSigFigs?: number; mantissa?: number },
   callback: (data: L2BookData) => void,
-): UnsubscribeFn => {
+): Promise<UnsubscribeFn> => {
   const client = getSubscriptionClient()
-  client.l2Book(params, callback as (data: unknown) => void)
-  return () => client.unsubscribe({ type: 'l2Book', coin: params.coin })
+  const subscription = await client.l2Book(params, callback as (data: unknown) => void)
+  return () => subscription.unsubscribe()
 }
 
-export const subscribeToTrades = (
+export const subscribeToTrades = async (
   params: { coin: string },
   callback: (data: { coin: string; side: string; px: string; sz: string; time: number }[]) => void,
-): UnsubscribeFn => {
+): Promise<UnsubscribeFn> => {
   const client = getSubscriptionClient()
-  client.trades(params, callback as (data: unknown) => void)
-  return () => client.unsubscribe({ type: 'trades', coin: params.coin })
+  const subscription = await client.trades(params, callback as (data: unknown) => void)
+  return () => subscription.unsubscribe()
 }
 
-export const subscribeToCandle = (
+export const subscribeToCandle = async (
   params: { coin: string; interval: CandleInterval },
   callback: (data: {
     t: number
@@ -442,28 +442,28 @@ export const subscribeToCandle = (
     v: string
     n: number
   }) => void,
-): UnsubscribeFn => {
+): Promise<UnsubscribeFn> => {
   const client = getSubscriptionClient()
-  client.candle(params, callback as (data: unknown) => void)
-  return () => client.unsubscribe({ type: 'candle', coin: params.coin, interval: params.interval })
+  const subscription = await client.candle(params, callback as (data: unknown) => void)
+  return () => subscription.unsubscribe()
 }
 
-export const subscribeToUserFills = (
+export const subscribeToUserFills = async (
   params: { user: string },
   callback: (data: Fill) => void,
-): UnsubscribeFn => {
+): Promise<UnsubscribeFn> => {
   const client = getSubscriptionClient()
-  client.userFills(params, callback as (data: unknown) => void)
-  return () => client.unsubscribe({ type: 'userFills', user: params.user })
+  const subscription = await client.userFills(params, callback as (data: unknown) => void)
+  return () => subscription.unsubscribe()
 }
 
-export const subscribeToOrderUpdates = (
+export const subscribeToOrderUpdates = async (
   params: { user: string },
   callback: (data: { order: OpenOrder; status: string; statusTimestamp: number }) => void,
-): UnsubscribeFn => {
+): Promise<UnsubscribeFn> => {
   const client = getSubscriptionClient()
-  client.orderUpdates(params, callback as (data: unknown) => void)
-  return () => client.unsubscribe({ type: 'orderUpdates', user: params.user })
+  const subscription = await client.orderUpdates(params, callback as (data: unknown) => void)
+  return () => subscription.unsubscribe()
 }
 
 // ============================================================================

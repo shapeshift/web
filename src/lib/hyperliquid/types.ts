@@ -438,6 +438,7 @@ export type ApiResponse<T> = {
 export type AugmentedMarket = {
   coin: string
   assetId: AssetId | undefined
+  assetIndex: number
   name: string
   szDecimals: number
   maxLeverage: number

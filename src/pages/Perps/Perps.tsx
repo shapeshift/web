@@ -5,6 +5,7 @@ import { useTranslate } from 'react-polyglot'
 import { Main } from '@/components/Layout/Main'
 import { SEO } from '@/components/Layout/Seo'
 import { placeOrder } from '@/lib/hyperliquid/client'
+import { OrderSide, OrderType, TimeInForce } from '@/lib/hyperliquid/types'
 import { buildLimitOrderType, buildOrderRequest } from '@/lib/hyperliquid/utils'
 import {
   AccountInfo,
@@ -15,7 +16,7 @@ import {
   TradeForm,
 } from '@/pages/Perps/components'
 import { useHyperliquid, useMarkets, useOrderbook, usePositions } from '@/pages/Perps/hooks'
-import { perpsSlice, PerpsOrderSubmissionState } from '@/state/slices/perpsSlice'
+import { PerpsOrderSubmissionState, perpsSlice } from '@/state/slices/perpsSlice'
 import {
   selectOrderFormPostOnly,
   selectOrderFormPrice,
@@ -76,7 +77,12 @@ export const Perps = memo(() => {
     isLoading: isPositionsLoading,
     error: positionsError,
     closePosition,
-  } = usePositions({ userAddress: walletAddress })
+  } = usePositions({
+    userAddress: walletAddress,
+    autoFetch: isWalletConnected,
+    autoSubscribe: isWalletConnected,
+    pollingInterval: 0,
+  })
 
   const orderFormType = useAppSelector(selectOrderFormType)
   const orderFormSide = useAppSelector(selectOrderFormSide)
@@ -122,8 +128,9 @@ export const Perps = memo(() => {
     if (!selectedMarket || !orderFormSize) return
 
     const assetIndex = selectedMarket.assetIndex
-    const isBuy = orderFormSide === 'buy'
-    const price = orderFormType === 'market' ? (isBuy ? '9999999' : '0.00001') : orderFormPrice
+    const isBuy = orderFormSide === OrderSide.Buy
+    const price =
+      orderFormType === OrderType.Market ? (isBuy ? '9999999' : '0.00001') : orderFormPrice
 
     if (!price) return
 
@@ -136,9 +143,9 @@ export const Perps = memo(() => {
         price,
         size: orderFormSize,
         reduceOnly: orderFormReduceOnly,
-        orderType: buildLimitOrderType({
-          tif: orderFormPostOnly ? 'Alo' : 'Gtc',
-        }),
+        orderType: buildLimitOrderType(
+          orderFormPostOnly ? TimeInForce.AllOrNone : TimeInForce.GoodTilCanceled,
+        ),
       })
 
       dispatch(perpsSlice.actions.setOrderSubmissionState(PerpsOrderSubmissionState.Submitting))

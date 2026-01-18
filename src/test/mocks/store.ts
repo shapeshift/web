@@ -3,6 +3,7 @@ import { SortOptionsKeys } from '@/components/SortDropdown/types'
 import { DEFAULT_HISTORY_TIMEFRAME } from '@/constants/Config'
 import { FiatCurrencyTypeEnum } from '@/constants/FiatCurrencyTypeEnum'
 import { fiatCurrencyItemsByCode } from '@/lib/fiatCurrencies/fiatCurrencies'
+import { CandleInterval, OrderSide, OrderType, TimeInForce } from '@/lib/hyperliquid/types'
 import { MarketsCategories } from '@/pages/Markets/constants'
 import type { ReduxState } from '@/state/reducer'
 import { defaultAsset } from '@/state/slices/assetsSlice/assetsSlice'
@@ -11,6 +12,7 @@ import {
   LimitPriceMode,
   PriceDirection,
 } from '@/state/slices/limitOrderInputSlice/constants'
+import { PerpsOrderSubmissionState } from '@/state/slices/perpsSlice'
 import {
   CurrencyFormats,
   HomeMarketView,
@@ -423,5 +425,44 @@ export const mockStore: ReduxState = {
       rehydrated: false,
     },
     byAccountId: {},
+  },
+  perps: {
+    selectedMarket: null,
+    markets: [],
+    marketsLoading: false,
+    marketsError: undefined,
+    orderbook: null,
+    orderbookLoading: false,
+    orderbookError: undefined,
+    positions: [],
+    positionsLoading: false,
+    positionsError: undefined,
+    openOrders: [],
+    openOrdersLoading: false,
+    openOrdersError: undefined,
+    accountState: null,
+    accountStateLoading: false,
+    accountStateError: undefined,
+    orderForm: {
+      orderType: OrderType.Limit,
+      side: OrderSide.Buy,
+      price: '',
+      size: '',
+      leverage: 1,
+      reduceOnly: false,
+      postOnly: false,
+      timeInForce: TimeInForce.GoodTilCanceled,
+      takeProfitPrice: '',
+      stopLossPrice: '',
+    },
+    orderSubmission: {
+      state: PerpsOrderSubmissionState.Idle,
+      orderId: undefined,
+      error: undefined,
+    },
+    chartInterval: CandleInterval.OneHour,
+    isWalletInitialized: false,
+    walletAddress: undefined,
+    lastUpdateTimestamp: undefined,
   },
 }

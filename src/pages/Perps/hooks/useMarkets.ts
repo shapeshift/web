@@ -164,14 +164,14 @@ export const useMarkets = (config: UseMarketsConfig = {}): UseMarketsResult => {
     [dispatch],
   )
 
-  const subscribeInternal = useCallback(() => {
+  const subscribeInternal = useCallback(async () => {
     if (unsubscribeRef.current) {
-      unsubscribeRef.current()
+      await unsubscribeRef.current()
       unsubscribeRef.current = null
     }
 
     try {
-      unsubscribeRef.current = subscribeToAllMids(handleAllMidsUpdate)
+      unsubscribeRef.current = await subscribeToAllMids(handleAllMidsUpdate)
       setIsSubscribed(true)
       reconnectAttemptRef.current = 0
     } catch (err) {
@@ -187,12 +187,12 @@ export const useMarkets = (config: UseMarketsConfig = {}): UseMarketsResult => {
     subscribeInternal()
   }, [subscribeInternal])
 
-  const unsubscribe = useCallback(() => {
+  const unsubscribe = useCallback(async () => {
     clearReconnectTimeout()
     clearPollingInterval()
 
     if (unsubscribeRef.current) {
-      unsubscribeRef.current()
+      await unsubscribeRef.current()
       unsubscribeRef.current = null
     }
 
@@ -243,28 +243,31 @@ export const useMarkets = (config: UseMarketsConfig = {}): UseMarketsResult => {
 
   const hasMarkets = markets.length > 0
 
+  const startPolling = useCallback(() => {
+    if (pollingInterval > 0) {
+      pollingIntervalRef.current = setInterval(() => {
+        void fetchMarketsData()
+      }, pollingInterval)
+    }
+  }, [pollingInterval, fetchMarketsData])
+
   useEffect(() => {
     if (autoSubscribe && hasMarkets) {
-      subscribe()
-
-      if (pollingInterval > 0) {
-        pollingIntervalRef.current = setInterval(() => {
-          fetchMarketsData()
-        }, pollingInterval)
-      }
+      void subscribe()
+      startPolling()
     }
 
     return () => {
-      unsubscribe()
+      void unsubscribe()
     }
-  }, [autoSubscribe, hasMarkets, pollingInterval, subscribe, unsubscribe, fetchMarketsData])
+  }, [autoSubscribe, hasMarkets, subscribe, unsubscribe, startPolling])
 
   useEffect(() => {
     return () => {
       clearReconnectTimeout()
       clearPollingInterval()
       if (unsubscribeRef.current) {
-        unsubscribeRef.current()
+        void unsubscribeRef.current()
         unsubscribeRef.current = null
       }
     }

@@ -24,7 +24,7 @@ import type {
 } from './types'
 import { OrderSide, PositionSide, TimeInForce } from './types'
 
-import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
+import { BigNumber, bn, bnOrZero } from '@/lib/bignumber/bignumber'
 
 // ============================================================================
 // Price Formatting
@@ -172,7 +172,7 @@ export const parseOrderbook = (
 
   const bidTotal = bids.slice(0, maxLevels).reduce((acc, level) => acc.plus(level.sz), bn(0))
   const askTotal = asks.slice(0, maxLevels).reduce((acc, level) => acc.plus(level.sz), bn(0))
-  const maxTotal = bn.max(bidTotal, askTotal)
+  const maxTotal = BigNumber.max(bidTotal, askTotal)
 
   const parseBidLevel = (
     level: { px: string; sz: string; n: number },
@@ -397,6 +397,7 @@ export const parseMetaToMarkets = (metaAndCtxs: MetaAndAssetCtxs): AugmentedMark
     return {
       coin: asset.name,
       assetId: undefined,
+      assetIndex: index,
       name: asset.name,
       szDecimals: asset.szDecimals,
       maxLeverage: asset.maxLeverage,

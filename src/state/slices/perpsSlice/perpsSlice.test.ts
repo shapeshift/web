@@ -1,6 +1,5 @@
 import { describe, expect, it } from 'vitest'
 
-import type { ParsedOrderbook, ParsedPosition } from '@/lib/hyperliquid/types'
 import { PerpsOrderSubmissionState, perpsSlice } from './perpsSlice'
 import {
   selectHasOpenPositions,
@@ -13,6 +12,8 @@ import {
   selectOrderSubmissionState,
   selectSelectedMarket,
 } from './selectors'
+
+import type { ParsedOrderbook, ParsedPosition } from '@/lib/hyperliquid/types'
 
 describe('perpsSlice', () => {
   describe('reducers', () => {
@@ -53,7 +54,10 @@ describe('perpsSlice', () => {
           time: 1234567890,
         }
 
-        const newState = perpsSlice.reducer(initialState, perpsSlice.actions.setOrderbook(orderbook))
+        const newState = perpsSlice.reducer(
+          initialState,
+          perpsSlice.actions.setOrderbook(orderbook),
+        )
 
         expect(newState.orderbook).toEqual(orderbook)
         expect(newState.orderbookLoading).toBe(false)

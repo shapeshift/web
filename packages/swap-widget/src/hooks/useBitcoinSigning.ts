@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 
 import { checkBitcoinStatus } from '../services/transactionStatus'
 
-type AccountAddress = string | { address?: string; purpose?: string }
+type AccountAddress = string | { address?: string; purpose?: string | number }
 
 type AccountAddressArray = AccountAddress[]
 

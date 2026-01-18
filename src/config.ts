@@ -106,6 +106,7 @@ const validators = {
   VITE_FEATURE_BASE: bool({ default: false }),
   VITE_FEATURE_MONAD: bool({ default: false }),
   VITE_FEATURE_HYPEREVM: bool({ default: false }),
+  VITE_FEATURE_HYPERLIQUID_PERPS: bool({ default: false }),
   VITE_FEATURE_PLASMA: bool({ default: false }),
   VITE_FEATURE_KATANA: bool({ default: false }),
   VITE_FEATURE_MAYACHAIN: bool({ default: false }),

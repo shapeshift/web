@@ -5098,6 +5098,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@dedust/sdk@npm:^0.8.7":
+  version: 0.8.7
+  resolution: "@dedust/sdk@npm:0.8.7"
+  peerDependencies:
+    "@ton/core": ">=0.52.0"
+    "@tonconnect/sdk": ">=2.1.2"
+    axios: ">=1.5.0"
+  checksum: 906d49e8b6a7c233d05b3ca52f73a90e3a11fd2b8fa7407e0cc47dee8c997cf04bfe85b93de15a849a49131992e8a595605bcd6cbcd45516ae0b335eef02b02a
+  languageName: node
+  linkType: hard
+
 "@defuse-protocol/one-click-sdk-typescript@npm:^0.1.1-0.2":
   version: 0.1.10
   resolution: "@defuse-protocol/one-click-sdk-typescript@npm:0.1.10"
@@ -12382,6 +12393,7 @@ __metadata:
     "@avnu/avnu-sdk": ^4.0.1
     "@coral-xyz/anchor": 0.29.0
     "@cowprotocol/app-data": ^2.3.0
+    "@dedust/sdk": ^0.8.7
     "@defuse-protocol/one-click-sdk-typescript": ^0.1.1-0.2
     "@jup-ag/api": ^6.0.30
     "@shapeshiftoss/bitcoinjs-lib": 7.0.0-shapeshift.0
@@ -12395,6 +12407,7 @@ __metadata:
     "@sniptt/monads": ^0.5.10
     "@solana/web3.js": ^1.98.0
     "@ston-fi/omniston-sdk": ^0.7.8
+    "@ton/ton": ^16.1.0
     "@types/lodash": ^4.14.178
     "@types/mixpanel-browser": ^2.38.1
     "@types/node-polyglot": ^2.4.2

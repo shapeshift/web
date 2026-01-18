@@ -101,6 +101,7 @@ export enum SwapperName {
   Sunio = 'Sun.io',
   Avnu = 'AVNU',
   Stonfi = 'STON.fi',
+  DeDust = 'DeDust',
 }
 
 export type SwapSource = SwapperName | `${SwapperName} • ${string}`
@@ -472,6 +473,16 @@ export type TradeQuoteStep = {
     quoteTimestamp: number
     estimatedGasConsumption: string
     params?: unknown
+  }
+  dedustSpecific?: {
+    poolAddress: string
+    poolType: 'STABLE' | 'VOLATILE'
+    sellAssetAddress: string
+    buyAssetAddress: string
+    sellAmount: string
+    minBuyAmount: string
+    gasBudget: string
+    quoteTimestamp: number
   }
 }
 

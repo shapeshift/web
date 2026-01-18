@@ -27,6 +27,7 @@ export const isCrossAccountTradeSupported = (swapperName: SwapperName) => {
     case SwapperName.Sunio:
     case SwapperName.Avnu:
     case SwapperName.Stonfi:
+    case SwapperName.DeDust:
     case SwapperName.Test:
       // Technically supported for Arbitrum Bridge, but we disable it for the sake of simplicity for now
       return false
@@ -53,6 +54,7 @@ export const getEnabledSwappers = (
     SunioSwap,
     AvnuSwap,
     StonfiSwap,
+    DedustSwap,
   }: FeatureFlags,
   isCrossAccountTrade: boolean,
   isSolBuyAssetId: boolean,
@@ -111,6 +113,8 @@ export const getEnabledSwappers = (
       AvnuSwap && (!isCrossAccountTrade || isCrossAccountTradeSupported(SwapperName.Avnu)),
     [SwapperName.Stonfi]:
       StonfiSwap && (!isCrossAccountTrade || isCrossAccountTradeSupported(SwapperName.Stonfi)),
+    [SwapperName.DeDust]:
+      DedustSwap && (!isCrossAccountTrade || isCrossAccountTradeSupported(SwapperName.DeDust)),
     [SwapperName.Test]: false,
   }
 }

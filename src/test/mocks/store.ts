@@ -176,6 +176,7 @@ export const mockStore: ReduxState = {
       SunioSwap: false,
       AvnuSwap: false,
       StonfiSwap: false,
+      DedustSwap: false,
       LazyTxHistory: false,
       RfoxFoxEcosystemPage: false,
       QuickBuy: false,

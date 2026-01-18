@@ -1,5 +1,5 @@
-import type {
-  ChainId,
+import {
+  type ChainId,
   type EvmGenericChainConfig,
   type EvmGenericChainId,
   getGenericChainConfig,

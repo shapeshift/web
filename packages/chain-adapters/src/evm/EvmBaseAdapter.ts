@@ -22,7 +22,7 @@ import {
   supportsPlasma,
   supportsPolygon,
 } from '@shapeshiftoss/hdwallet-core'
-import type { Bip44Params, EvmChainId, RootBip44Params } from '@shapeshiftoss/types'
+import type { AnyEvmChainId, Bip44Params, EvmChainId, RootBip44Params } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import type * as unchained from '@shapeshiftoss/unchained-client'
 import BigNumber from 'bignumber.js'
@@ -109,14 +109,14 @@ export interface ChainAdapterArgs<T = unchained.evm.Api> {
 
 export interface EvmBaseAdapterArgs extends ChainAdapterArgs {
   assetId: AssetId
-  chainId: EvmChainId
+  chainId: AnyEvmChainId
   rootBip44Params: RootBip44Params
   supportedChainIds: ChainId[]
   parser: unchained.evm.BaseTransactionParser<unchained.evm.types.Tx>
 }
 
-export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdapter<T> {
-  protected readonly chainId: EvmChainId
+export abstract class EvmBaseAdapter<T extends AnyEvmChainId> implements IChainAdapter<T> {
+  protected readonly chainId: AnyEvmChainId
   protected readonly rootBip44Params: RootBip44Params
   protected readonly supportedChainIds: ChainId[]
   protected readonly providers: {

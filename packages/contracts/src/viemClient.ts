@@ -120,7 +120,7 @@ export const createGenericViemClient = (config: EvmGenericChainConfig): PublicCl
 
   const viemChain =
     config.viemChainKey !== undefined
-      ? chains[config.viemChainKey]
+      ? (chains[config.viemChainKey] as chains.Chain)
       : defineChain({
           id: networkId,
           name: config.name,
@@ -153,7 +153,7 @@ export const createGenericViemClient = (config: EvmGenericChainConfig): PublicCl
 
   const rpcUrls = config.rpcUrl ? [config.rpcUrl] : []
   const client = createPublicClient({
-    chain: viemChain,
+    chain: viemChain as chains.Chain,
     transport: fallback(rpcUrls.filter(Boolean).map(url => http(url))),
   }) as PublicClient
 

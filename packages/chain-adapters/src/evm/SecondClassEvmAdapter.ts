@@ -2,7 +2,7 @@ import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import { ASSET_NAMESPACE, hyperEvmChainId, toAssetId } from '@shapeshiftoss/caip'
 import type { evm } from '@shapeshiftoss/common-api'
 import { MULTICALL3_CONTRACT, viemClientByChainId } from '@shapeshiftoss/contracts'
-import type { EvmChainId, RootBip44Params } from '@shapeshiftoss/types'
+import type { AnyEvmChainId, RootBip44Params } from '@shapeshiftoss/types'
 import { TransferType, TxStatus } from '@shapeshiftoss/unchained-client'
 import { Contract, Interface, JsonRpcProvider } from 'ethers'
 import PQueue from 'p-queue'
@@ -38,7 +38,7 @@ export type TokenInfo = {
   precision: number
 }
 
-export type SecondClassEvmAdapterArgs<T extends EvmChainId> = {
+export type SecondClassEvmAdapterArgs<T extends AnyEvmChainId> = {
   assetId: AssetId
   chainId: T
   rootBip44Params: RootBip44Params
@@ -47,7 +47,7 @@ export type SecondClassEvmAdapterArgs<T extends EvmChainId> = {
   getKnownTokens: () => TokenInfo[]
 }
 
-export abstract class SecondClassEvmAdapter<T extends EvmChainId> extends EvmBaseAdapter<T> {
+export abstract class SecondClassEvmAdapter<T extends AnyEvmChainId> extends EvmBaseAdapter<T> {
   protected provider: JsonRpcProvider
   protected multicall: Contract
   protected erc20Interface: Interface

@@ -49,6 +49,7 @@ import { txHistory, txHistoryApi } from './slices/txHistorySlice/txHistorySlice'
 
 import { gridplusSlice } from '@/state/slices/gridplusSlice/gridplusSlice'
 import type { GridPlusState } from '@/state/slices/gridplusSlice/types'
+import { perpsSlice } from '@/state/slices/perpsSlice'
 import { tradeEarnInput } from '@/state/slices/tradeEarnInputSlice/tradeEarnInputSlice'
 import { tradeQuoteSlice } from '@/state/slices/tradeQuoteSlice/tradeQuoteSlice'
 import { tradeRampInput } from '@/state/slices/tradeRampInputSlice/tradeRampInputSlice'
@@ -70,6 +71,7 @@ export const slices = {
   localWallet: localWalletSlice,
   gridplus: gridplusSlice,
   addressBook: addressBookSlice,
+  perps: perpsSlice,
 }
 
 const preferencesPersistConfig = {
@@ -184,6 +186,7 @@ export const sliceReducers = {
   swap: persistReducer<SwapState>(swapPersistConfig, swapSlice.reducer),
   gridplus: persistReducer<GridPlusState>(gridplusPersistConfig, gridplusSlice.reducer),
   addressBook: persistReducer<AddressBookState>(addressBookPersistConfig, addressBookSlice.reducer),
+  perps: perpsSlice.reducer,
 }
 
 export const apiSlices = {

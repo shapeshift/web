@@ -476,6 +476,7 @@ export type TradeQuoteStep = {
   }
   dedustSpecific?: {
     poolAddress: string
+    poolType: 'STABLE' | 'VOLATILE'
     sellAssetAddress: string
     buyAssetAddress: string
     sellAmount: string

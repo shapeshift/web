@@ -34,8 +34,11 @@ export type DedustQuote = {
   quoteTimestamp: number
 }
 
+export type DedustPoolType = 'STABLE' | 'VOLATILE'
+
 export type DedustTradeSpecific = {
   poolAddress: string
+  poolType: DedustPoolType
   sellAssetAddress: string
   buyAssetAddress: string
   sellAmount: string

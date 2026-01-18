@@ -5,7 +5,7 @@ import { address as tonAddress } from '@ton/core'
 import type { CommonTradeQuoteInput, TradeQuote, TradeQuoteResult } from '../../../types'
 import { SwapperName, TradeQuoteError } from '../../../types'
 import { makeSwapErrorRight } from '../../../utils'
-import type { DedustAssetAddress, DedustTradeSpecific } from '../types'
+import type { DedustAssetAddress, DedustPoolType, DedustTradeSpecific } from '../types'
 import {
   DEDUST_DEFAULT_SLIPPAGE_BPS,
   DEDUST_GAS_BUDGET_JETTON,
@@ -28,6 +28,7 @@ const dedustAddressToAsset = (dedustAddress: DedustAssetAddress): DedustAsset =>
 
 const buildDedustSpecific = (
   poolAddress: string,
+  poolType: DedustPoolType,
   sellAssetAddress: DedustAssetAddress,
   buyAssetAddress: DedustAssetAddress,
   sellAmount: string,
@@ -35,6 +36,7 @@ const buildDedustSpecific = (
   gasBudget: string,
 ): DedustTradeSpecific => ({
   poolAddress,
+  poolType,
   sellAssetAddress: sellAssetAddress.address,
   buyAssetAddress: buyAssetAddress.address,
   sellAmount,
@@ -42,6 +44,57 @@ const buildDedustSpecific = (
   gasBudget,
   quoteTimestamp: Date.now(),
 })
+
+type PoolQuoteResult = {
+  amountOut: bigint
+  poolAddress: string
+  poolType: DedustPoolType
+}
+
+/**
+ * Try to get a quote from a specific pool type.
+ * Returns null if pool doesn't exist or isn't ready.
+ */
+const tryGetPoolQuote = async (
+  factory: ReturnType<typeof dedustClientManager.getFactory>,
+  client: ReturnType<typeof dedustClientManager.getClient>,
+  poolType: PoolType,
+  sellDedustAsset: DedustAsset,
+  buyDedustAsset: DedustAsset,
+  amountIn: bigint,
+): Promise<PoolQuoteResult | null> => {
+  try {
+    const poolContract = await factory.getPool(poolType, [sellDedustAsset, buyDedustAsset])
+
+    if (!poolContract) {
+      return null
+    }
+
+    const pool = client.open(poolContract)
+    const readinessStatus = await pool.getReadinessStatus()
+
+    if (readinessStatus !== ReadinessStatus.READY) {
+      return null
+    }
+
+    const { amountOut } = await pool.getEstimatedSwapOut({
+      assetIn: sellDedustAsset,
+      amountIn,
+    })
+
+    if (amountOut <= 0n) {
+      return null
+    }
+
+    return {
+      amountOut,
+      poolAddress: pool.address.toString(),
+      poolType: poolType === PoolType.STABLE ? 'STABLE' : 'VOLATILE',
+    }
+  } catch {
+    return null
+  }
+}
 
 export const getTradeQuote = async (input: CommonTradeQuoteInput): Promise<TradeQuoteResult> => {
   const {
@@ -65,10 +118,36 @@ export const getTradeQuote = async (input: CommonTradeQuoteInput): Promise<Trade
   try {
     const sellDedustAsset = dedustAddressToAsset(sellAssetAddress)
     const buyDedustAsset = dedustAddressToAsset(buyAssetAddress)
+    const amountIn = BigInt(sellAmountIncludingProtocolFeesCryptoBaseUnit)
 
-    const poolContract = await factory.getPool(PoolType.VOLATILE, [sellDedustAsset, buyDedustAsset])
+    // Try both STABLE and VOLATILE pools to find the best rate
+    // STABLE pools use StableSwap curves optimized for stablecoin pairs
+    // VOLATILE pools use standard constant product (x*y=k) formula
+    const [stableQuote, volatileQuote] = await Promise.all([
+      tryGetPoolQuote(factory, client, PoolType.STABLE, sellDedustAsset, buyDedustAsset, amountIn),
+      tryGetPoolQuote(
+        factory,
+        client,
+        PoolType.VOLATILE,
+        sellDedustAsset,
+        buyDedustAsset,
+        amountIn,
+      ),
+    ])
 
-    if (!poolContract) {
+    // Select the pool with the best output amount
+    let bestQuote: PoolQuoteResult | null = null
+
+    if (stableQuote && volatileQuote) {
+      // Both pools exist - use the one with better rate
+      bestQuote = stableQuote.amountOut >= volatileQuote.amountOut ? stableQuote : volatileQuote
+    } else if (stableQuote) {
+      bestQuote = stableQuote
+    } else if (volatileQuote) {
+      bestQuote = volatileQuote
+    }
+
+    if (!bestQuote) {
       return Err(
         makeSwapErrorRight({
           message: `[DeDust] No pool found for this pair`,
@@ -77,33 +156,7 @@ export const getTradeQuote = async (input: CommonTradeQuoteInput): Promise<Trade
       )
     }
 
-    const pool = client.open(poolContract)
-    const poolAddress = pool.address.toString()
-
-    const readinessStatus = await pool.getReadinessStatus()
-    if (readinessStatus !== ReadinessStatus.READY) {
-      return Err(
-        makeSwapErrorRight({
-          message: `[DeDust] Pool is not ready for swaps (status: ${readinessStatus})`,
-          code: TradeQuoteError.UnsupportedTradePair,
-        }),
-      )
-    }
-
-    const { amountOut } = await pool.getEstimatedSwapOut({
-      assetIn: sellDedustAsset,
-      amountIn: BigInt(sellAmountIncludingProtocolFeesCryptoBaseUnit),
-    })
-
-    if (amountOut <= 0n) {
-      return Err(
-        makeSwapErrorRight({
-          message: `[DeDust] Pool returned zero output amount`,
-          code: TradeQuoteError.NoRouteFound,
-        }),
-      )
-    }
-
+    const { amountOut, poolAddress, poolType } = bestQuote
     const buyAmountCryptoBaseUnit = amountOut.toString()
     const slippageBps = slippageDecimalToBps(
       slippageTolerancePercentageDecimal,
@@ -123,6 +176,7 @@ export const getTradeQuote = async (input: CommonTradeQuoteInput): Promise<Trade
 
     const dedustSpecific = buildDedustSpecific(
       poolAddress,
+      poolType,
       sellAssetAddress,
       buyAssetAddress,
       sellAmountIncludingProtocolFeesCryptoBaseUnit,

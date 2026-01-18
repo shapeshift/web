@@ -24,7 +24,7 @@ import type {
 } from '../types'
 import { ChainAdapterDisplayName, ValidAddressResultType } from '../types'
 import { toAddressNList, verifyLedgerAppOpen } from '../utils'
-import type { TonFeeData, TonSignTx, TonToken } from './types'
+import type { TonFeeData, TonSignTx, TonToken, TonTx, TonTxMessage } from './types'
 
 const supportsTon = (wallet: HDWallet): wallet is TonWallet => {
   return '_supportsTon' in wallet && (wallet as TonWallet)._supportsTon === true
@@ -691,6 +691,91 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TonMainnet> {
     return this.normalizeAddress(addr1) === this.normalizeAddress(addr2)
   }
 
+  private parse(tx: TonTx, pubkey: string, txid: string): Transaction {
+    const isAborted = tx.description?.aborted ?? false
+    const actionSuccess = tx.description?.action?.success ?? true
+    const status = isAborted || !actionSuccess ? TxStatus.Failed : TxStatus.Confirmed
+
+    const transfers: {
+      assetId: string
+      from: string[]
+      to: string[]
+      type: TransferType
+      value: string
+    }[] = []
+
+    if (tx.in_msg?.value && tx.in_msg.source && tx.in_msg.destination) {
+      const value = tx.in_msg.value
+      if (BigInt(value) > 0n) {
+        const isReceive = this.addressesMatch(tx.in_msg.destination, pubkey)
+        const isSend = this.addressesMatch(tx.in_msg.source, pubkey)
+
+        if (isReceive) {
+          transfers.push({
+            assetId: this.assetId,
+            from: [tx.in_msg.source],
+            to: [tx.in_msg.destination],
+            type: TransferType.Receive,
+            value,
+          })
+        } else if (isSend) {
+          transfers.push({
+            assetId: this.assetId,
+            from: [tx.in_msg.source],
+            to: [tx.in_msg.destination],
+            type: TransferType.Send,
+            value,
+          })
+        }
+      }
+    }
+
+    if (tx.out_msgs) {
+      for (const outMsg of tx.out_msgs) {
+        if (outMsg.value && outMsg.source && outMsg.destination) {
+          const value = outMsg.value
+          if (BigInt(value) > 0n) {
+            const isSend = this.addressesMatch(outMsg.source, pubkey)
+            const isReceive = this.addressesMatch(outMsg.destination, pubkey)
+
+            if (isSend && !isReceive) {
+              transfers.push({
+                assetId: this.assetId,
+                from: [outMsg.source],
+                to: [outMsg.destination],
+                type: TransferType.Send,
+                value,
+              })
+            } else if (isReceive && !isSend) {
+              transfers.push({
+                assetId: this.assetId,
+                from: [outMsg.source],
+                to: [outMsg.destination],
+                type: TransferType.Receive,
+                value,
+              })
+            }
+          }
+        }
+      }
+    }
+
+    const isSend = transfers.some(transfer => transfer.type === TransferType.Send)
+
+    return {
+      txid,
+      blockHeight: parseInt(tx.lt, 10) || 0,
+      blockTime: tx.now || 0,
+      blockHash: undefined,
+      chainId: this.chainId,
+      confirmations: status === TxStatus.Confirmed ? 1 : 0,
+      status,
+      transfers,
+      pubkey,
+      ...(isSend && tx.total_fees && { fee: { assetId: this.assetId, value: tx.total_fees } }),
+    }
+  }
+
   async parseTx(txHashOrTx: unknown, pubkey: string): Promise<Transaction> {
     try {
       const msgHash = typeof txHashOrTx === 'string' ? txHashOrTx : String(txHashOrTx)
@@ -727,28 +812,8 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TonMainnet> {
         }
       }
 
-      type TonTxMessage = {
-        source?: string
-        destination?: string
-        value?: string
-      }
-
       type TonTxResponse = {
-        transactions?: {
-          account: string
-          hash: string
-          lt: string
-          now: number
-          total_fees: string
-          description?: {
-            aborted?: boolean
-            action?: {
-              success?: boolean
-            }
-          }
-          in_msg?: TonTxMessage
-          out_msgs?: TonTxMessage[]
-        }[]
+        transactions?: TonTx[]
       }
 
       const txResult = await this.httpApiRequest<TonTxResponse>(
@@ -756,91 +821,12 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TonMainnet> {
       )
 
       const tx = txResult.transactions?.[0]
-      const isAborted = tx?.description?.aborted ?? false
-      const actionSuccess = tx?.description?.action?.success ?? true
-      const status = isAborted || !actionSuccess ? TxStatus.Failed : TxStatus.Confirmed
 
-      const transfers: {
-        assetId: string
-        from: string[]
-        to: string[]
-        type: TransferType
-        value: string
-      }[] = []
-
-      if (tx?.in_msg?.value && tx.in_msg.source && tx.in_msg.destination) {
-        const value = tx.in_msg.value
-        if (BigInt(value) > 0n) {
-          const isReceive = this.addressesMatch(tx.in_msg.destination, pubkey)
-          const isSend = this.addressesMatch(tx.in_msg.source, pubkey)
-
-          if (isReceive) {
-            transfers.push({
-              assetId: this.assetId,
-              from: [tx.in_msg.source],
-              to: [tx.in_msg.destination],
-              type: TransferType.Receive,
-              value,
-            })
-          } else if (isSend) {
-            transfers.push({
-              assetId: this.assetId,
-              from: [tx.in_msg.source],
-              to: [tx.in_msg.destination],
-              type: TransferType.Send,
-              value,
-            })
-          }
-        }
+      if (!tx) {
+        throw new Error(`Transaction not found: ${txHash}`)
       }
 
-      if (tx?.out_msgs) {
-        for (const outMsg of tx.out_msgs) {
-          if (outMsg.value && outMsg.source && outMsg.destination) {
-            const value = outMsg.value
-            if (BigInt(value) > 0n) {
-              const isSend = this.addressesMatch(outMsg.source, pubkey)
-              const isReceive = this.addressesMatch(outMsg.destination, pubkey)
-
-              if (isSend && !isReceive) {
-                transfers.push({
-                  assetId: this.assetId,
-                  from: [outMsg.source],
-                  to: [outMsg.destination],
-                  type: TransferType.Send,
-                  value,
-                })
-              } else if (isReceive && !isSend) {
-                transfers.push({
-                  assetId: this.assetId,
-                  from: [outMsg.source],
-                  to: [outMsg.destination],
-                  type: TransferType.Receive,
-                  value,
-                })
-              }
-            }
-          }
-        }
-      }
-
-      return {
-        txid: msgHash,
-        blockHeight: tx ? parseInt(tx.lt, 10) || 0 : 0,
-        blockTime: tx?.now || 0,
-        blockHash: undefined,
-        chainId: this.chainId,
-        confirmations: status === TxStatus.Confirmed ? 1 : 0,
-        status,
-        fee: tx?.total_fees
-          ? {
-              assetId: this.assetId,
-              value: tx.total_fees,
-            }
-          : undefined,
-        transfers,
-        pubkey,
-      }
+      return this.parse(tx, pubkey, msgHash)
     } catch (err) {
       return ErrorHandler(err, {
         translation: 'chainAdapters.errors.parseTx',

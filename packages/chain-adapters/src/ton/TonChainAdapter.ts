@@ -24,7 +24,7 @@ import type {
 } from '../types'
 import { ChainAdapterDisplayName, ValidAddressResultType } from '../types'
 import { toAddressNList, verifyLedgerAppOpen } from '../utils'
-import type { TonFeeData, TonSignTx, TonToken, TonTx, TonTxMessage } from './types'
+import type { TonFeeData, TonSignTx, TonToken, TonTx } from './types'
 
 const supportsTon = (wallet: HDWallet): wallet is TonWallet => {
   return '_supportsTon' in wallet && (wallet as TonWallet)._supportsTon === true

@@ -523,7 +523,8 @@
     "tokens": "Tokens",
     "swap": "Swap",
     "yields": "Yields",
-    "earn": "Earn"
+    "earn": "Earn",
+    "perps": "Perps"
   },
   "shapeShiftMenu": {
     "products": "Products",
@@ -2285,6 +2286,91 @@
       "yield-aggregator": "Yield Aggregator",
       "pool": "Pool",
       "clp": "CLP"
+    }
+  },
+  "perps": {
+    "markets": "Markets",
+    "selectMarket": "Select Market",
+    "perpetual": "Perpetual",
+    "noMarketsAvailable": "No markets available",
+    "sortBy": "Sort by",
+    "volume": "Volume",
+    "name": "Name",
+    "change": "24h Change",
+    "orderbook": {
+      "title": "Orderbook",
+      "price": "Price",
+      "size": "Size",
+      "total": "Total",
+      "spread": "Spread",
+      "noData": "No orderbook data available",
+      "error": "Failed to load orderbook"
+    },
+    "positions": {
+      "title": "Positions",
+      "long": "Long",
+      "short": "Short",
+      "closePosition": "Close Position",
+      "market": "Market",
+      "size": "Size",
+      "entryPrice": "Entry Price",
+      "markPrice": "Mark Price",
+      "liqPrice": "Liq. Price",
+      "pnl": "P&L",
+      "margin": "Margin",
+      "noPositions": "No open positions",
+      "error": "Failed to load positions",
+      "totalPositions": "Total Positions",
+      "totalMargin": "Total Margin",
+      "totalPnl": "Total P&L"
+    },
+    "account": {
+      "title": "Account",
+      "accountValue": "Account Value",
+      "marginUsed": "Margin Used",
+      "marginUsage": "Margin Usage",
+      "availableMargin": "Available Margin",
+      "withdrawable": "Withdrawable",
+      "withdrawableTooltip": "Amount available to withdraw from your Hyperliquid account",
+      "unrealizedPnl": "Unrealized P&L",
+      "positions": "positions",
+      "manageOnHyperliquid": "Manage on Hyperliquid",
+      "connectWalletTitle": "Connect Wallet",
+      "connectWalletDescription": "Connect your wallet to start trading perpetuals on Hyperliquid",
+      "walletNotInitialized": "Wallet Not Initialized",
+      "walletNotInitializedDescription": "Your wallet needs to be initialized on Hyperliquid before you can trade. Deposit USDC to get started.",
+      "initializeWallet": "Initialize Wallet",
+      "depositOnHyperliquid": "Deposit on Hyperliquid",
+      "insufficientCollateral": "Insufficient Collateral",
+      "insufficientCollateralDescription": "You need at least %{minAmount} USDC to start trading. Current balance: %{currentAmount} USDC",
+      "depositUsdc": "Deposit USDC",
+      "error": "Failed to load account data"
+    },
+    "tradeForm": {
+      "long": "Long",
+      "short": "Short",
+      "buy": "Buy",
+      "sell": "Sell",
+      "price": "Price",
+      "size": "Size",
+      "leverage": "Leverage",
+      "direction": "Direction",
+      "orderValue": "Order Value",
+      "marginRequired": "Margin Required",
+      "estimatedValue": "Est. Value",
+      "useMarket": "Market",
+      "reduceOnly": "Reduce Only",
+      "postOnly": "Post Only",
+      "availableMargin": "Available Margin",
+      "currentPosition": "Current Position",
+      "selectMarket": "Select a market",
+      "enterAmount": "Enter amount",
+      "signing": "Signing...",
+      "submitting": "Submitting..."
+    },
+    "chart": {
+      "selectMarket": "Select a market to view chart",
+      "noData": "No chart data available"
     }
   },
   "RFOX": {

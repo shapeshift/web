@@ -1,4 +1,5 @@
 import { Avatar, Box, Button, Flex, Heading, Icon, Text, VStack } from '@chakra-ui/react'
+import type { AccountId } from '@shapeshiftoss/caip'
 import { memo, useCallback, useEffect, useMemo } from 'react'
 import ReactCanvasConfetti from 'react-canvas-confetti'
 import { FaCheck } from 'react-icons/fa'
@@ -20,9 +21,15 @@ type YieldSuccessProps = {
   providerInfo: ProviderInfo | null
   transactionSteps: TransactionStep[]
   yieldId?: string
+  accountId?: AccountId
   onDone: () => void
   showConfetti?: boolean
-  successMessageKey?: 'successEnter' | 'successExit' | 'successClaim'
+  successMessageKey?:
+    | 'successEnter'
+    | 'successExit'
+    | 'successClaim'
+    | 'successUnstaked'
+    | 'successWithdrawn'
 }
 
 export const YieldSuccess = memo(
@@ -32,6 +39,7 @@ export const YieldSuccess = memo(
     providerInfo,
     transactionSteps,
     yieldId,
+    accountId,
     onDone,
     showConfetti = true,
     successMessageKey = 'successEnter',
@@ -46,8 +54,11 @@ export const YieldSuccess = memo(
 
     const handleViewPosition = useCallback(() => {
       if (!yieldId) return
-      navigate(`/yields/${yieldId}`)
-    }, [yieldId, navigate])
+      const params = new URLSearchParams()
+      if (accountId) params.set('accountId', accountId)
+      const queryString = params.toString()
+      navigate(queryString ? `/yields/${yieldId}?${queryString}` : `/yields/${yieldId}`)
+    }, [yieldId, accountId, navigate])
 
     const providerPillProps = useMemo(
       () =>

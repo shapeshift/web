@@ -77,6 +77,8 @@
     }
   },
   "dependencies": {
+    "@ai-sdk/react": "^3.0.41",
+    "@ai-sdk/ui-utils": "^1.2.11",
     "@arbitrum/sdk": "^4.0.1",
     "@cetusprotocol/aggregator-sdk": "^1.4.2",
     "@cetusprotocol/cetus-sui-clmm-sdk": "5.4.0",
@@ -146,6 +148,7 @@
     "@visx/xychart": "^3.12.0",
     "@walletconnect/core": "^2.20.2",
     "@walletconnect/utils": "^2.20.2",
+    "ai": "^6.0.39",
     "alchemy-sdk": "^3.4.1",
     "axios": "^1.13.5",
     "axios-cache-interceptor": "^1.11.1",
@@ -201,6 +204,7 @@
     "react-hook-form": "^7.51.5",
     "react-icons": "^5.5.0",
     "react-intersection-observer": "^9.13.1",
+    "react-markdown": "^10.1.0",
     "react-multi-ref": "^1.0.1",
     "react-number-format": "^5.4.4",
     "react-polyglot": "^0.7.2",
@@ -216,6 +220,7 @@
     "react-virtuoso": "^4.7.11",
     "react-window": "^1.8.11",
     "redux-persist": "^6.0.0",
+    "remark-gfm": "^4.0.1",
     "reselect": "^5.1.1",
     "resize-observer-polyfill": "^1.5.1",
     "retry-axios": "^2.6.0",

@@ -54,6 +54,40 @@ export const filterAssetsByChainSupport = <T extends { assetId: AssetId; chainId
   })
 }
 
+/**
+ * Prioritizes primary assets over non-primary assets in search results,
+ * re-sorting primary assets by their original input order (market cap).
+ *
+ * After matchSorter finds relevant assets, this function ensures that primary assets
+ * (major/canonical tokens like USDC, USDT) appear before non-primary assets (bridged
+ * variants, wrapped tokens). Unlike simple filtering, this re-sorts primary assets
+ * by their original position in the input array, which corresponds to market cap order.
+ *
+ * This solves a critical issue: matchSorter ranks by match quality, so "Tether" (USDT)
+ * ranks lower than "USDT0" when searching "usd" because "Tether" doesn't contain "usd"
+ * in the name. By re-sorting primaries by market cap, USDT appears before obscure tokens.
+ *
+ * @param matchedAssets - Assets returned by matchSorter (in match quality order)
+ * @param originalAssets - Original input array (in market cap order)
+ */
+export const prioritizePrimaryAssets = <T extends SearchableAsset>(
+  matchedAssets: T[],
+  originalAssets: T[],
+): T[] => {
+  if (!matchedAssets.length) return matchedAssets
+
+  // Create a set of matched asset IDs for O(1) lookup
+  const matchedIds = new Set(matchedAssets.map(a => a.assetId))
+
+  // Get primary assets in original (market cap) order
+  const primaryAssets = originalAssets.filter(a => a.isPrimary && matchedIds.has(a.assetId))
+
+  // Get non-primary assets in matchSorter order
+  const nonPrimaryAssets = matchedAssets.filter(a => !a.isPrimary)
+
+  return [...primaryAssets, ...nonPrimaryAssets]
+}
+
 export const searchAssets = <T extends SearchableAsset>(
   searchTerm: string,
   assets: T[],
@@ -79,5 +113,8 @@ export const searchAssets = <T extends SearchableAsset>(
     },
   }
 
-  return matchSorter(assets, searchTerm, configWithBaseSort)
+  const results = matchSorter(assets, searchTerm, configWithBaseSort)
+
+  // Prioritize primary assets (in market cap order) over non-primary assets
+  return prioritizePrimaryAssets(results, assets)
 }

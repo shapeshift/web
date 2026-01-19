@@ -1,5 +1,7 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 
+import { isExactSymbolMatch } from './utils'
+
 type DeduplicatableAsset = {
   assetId: AssetId
   symbol: string
@@ -26,21 +28,23 @@ export function deduplicateAssets<T extends DeduplicatableAsset>(
   const familyToAsset = new Map<string, T>()
   const searchLower = searchString?.toLowerCase() ?? ''
 
-  const hasExactSymbolMatch = assets.some(a => a.symbol.toLowerCase() === searchLower)
+  const hasExactSymbolMatch = searchLower
+    ? assets.some(a => isExactSymbolMatch(searchLower, a.symbol))
+    : false
 
   for (const asset of assets) {
     const familyKey = asset.relatedAssetKey ?? asset.assetId
     const existing = familyToAsset.get(familyKey)
 
-    const isExactMatch = hasExactSymbolMatch && asset.symbol.toLowerCase() === searchLower
-    const existingIsExactMatch =
-      hasExactSymbolMatch && existing?.symbol.toLowerCase() === searchLower
+    const isExact = hasExactSymbolMatch && isExactSymbolMatch(searchLower, asset.symbol)
+    const existingIsExact =
+      hasExactSymbolMatch && existing && isExactSymbolMatch(searchLower, existing.symbol)
 
     if (!existing) {
       familyToAsset.set(familyKey, asset)
     } else if (asset.isPrimary && !existing.isPrimary) {
       familyToAsset.set(familyKey, asset)
-    } else if (isExactMatch && !existingIsExactMatch && !existing.isPrimary) {
+    } else if (isExact && !existingIsExact && !existing.isPrimary) {
       familyToAsset.set(familyKey, asset)
     }
   }

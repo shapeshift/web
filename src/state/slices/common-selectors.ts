@@ -24,6 +24,7 @@ import { preferences } from './preferencesSlice/preferencesSlice'
 
 import {
   deduplicateAssets,
+  MINIMUM_MARKET_CAP_THRESHOLD,
   searchAssets,
   shouldSearchAllAssets as shouldSearchAllAssetsUtil,
 } from '@/lib/assetSearch'
@@ -529,19 +530,22 @@ export const selectAssetsBySearchQuery = createCachedSelector(
     const primaryAssetIds = new Set(primaryAssets.map(a => a.assetId))
     const primarySymbols = new Set(primaryAssets.map(a => a.symbol.toLowerCase()))
 
+    // Note: Unlike the worker's handleSearch, this selector doesn't have an activeChainId check
+    // because it's used for global search (header) which always searches across all chains.
+    // The worker adds `activeChainId !== 'All'` for trade asset search with chain filtering.
     const useAllAssets =
       isContractAddressSearch ||
       shouldSearchAllAssetsUtil(searchQuery, allAssets, primaryAssetIds, primarySymbols)
 
     const sortedAssets = useAllAssets ? allAssets : primaryAssets
 
+    // Filter out spam tokens (low market cap) but keep assets with no market data
     const filteredAssets = sortedAssets.filter(asset => {
-      const marketCap = marketDataUsd[asset.assetId]?.marketCap
-      return bnOrZero(marketCap).isZero() || bnOrZero(marketCap).gte(1000)
+      const marketCap = bnOrZero(marketDataUsd[asset.assetId]?.marketCap)
+      return marketCap.isZero() || marketCap.gte(MINIMUM_MARKET_CAP_THRESHOLD)
     })
 
     const matchedAssets = searchAssets(searchQuery, filteredAssets)
-
     const deduplicated = deduplicateAssets(matchedAssets, searchQuery)
 
     return limit ? deduplicated.slice(0, limit) : deduplicated

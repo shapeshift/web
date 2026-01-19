@@ -7,7 +7,8 @@ import type { AssetId } from '@shapeshiftoss/caip'
  * with a unique symbol (one that doesn't exist in primary assets).
  *
  * Examples:
- * - "USD" → false (matches primary symbol USDC, USDT)
+ * - "BTC" → false (BTC is a primary symbol, no non-primary unique symbols start with "btc")
+ * - "USD" → true (could match USDC.E which is a non-primary unique symbol)
  * - "AXLUSDC" → true (AXLUSDC is not a primary symbol)
  * - "VBUSD" → true (could match VBUSDC which is not a primary symbol)
  *

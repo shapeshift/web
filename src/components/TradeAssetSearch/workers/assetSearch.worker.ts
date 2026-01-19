@@ -19,12 +19,14 @@ import {
 } from '@/lib/assetSearch'
 import { isContractAddress } from '@/lib/utils/isContractAddress'
 
-let assets: SearchableAsset[] = []
+// Internal state
+let allAssets: SearchableAsset[] = []
 let primaryAssets: SearchableAsset[] = []
+// Derived from primaryAssets for efficient lookups in shouldSearchAllAssets
 let primaryAssetIds: Set<AssetId> = new Set()
 let primarySymbols: Set<string> = new Set()
 
-function handleSearch(msg: AssetSearchWorkerInboundMessage & { type: 'search' }): void {
+const handleSearch = (msg: AssetSearchWorkerInboundMessage & { type: 'search' }): void => {
   const {
     searchString,
     activeChainId,
@@ -34,12 +36,16 @@ function handleSearch(msg: AssetSearchWorkerInboundMessage & { type: 'search' })
 
   const isContractAddressSearch = isContractAddress(searchString)
 
-  const useAllAssets =
+  // Decide which asset set to search:
+  // - Contract address searches always use all assets to find related variants
+  // - Chain-specific searches use all assets (filtered by chain later)
+  // - "All" chains uses primaries unless search matches a non-primary unique symbol (e.g., AXLUSDC)
+  const useAll =
     isContractAddressSearch ||
     activeChainId !== 'All' ||
-    shouldSearchAllAssetsUtil(searchString, assets, primaryAssetIds, primarySymbols)
+    shouldSearchAllAssetsUtil(searchString, allAssets, primaryAssetIds, primarySymbols)
 
-  const searchableAssets = useAllAssets ? assets : primaryAssets
+  const searchableAssets = useAll ? allAssets : primaryAssets
 
   const preFiltered = filterAssetsByChainSupport(searchableAssets, {
     activeChainId,
@@ -47,6 +53,7 @@ function handleSearch(msg: AssetSearchWorkerInboundMessage & { type: 'search' })
     walletConnectedChainIds,
   })
   const filtered = searchAssets(searchString, preFiltered)
+  // Deduplicate by relatedAssetKey to group related assets (e.g., USDC on multiple chains)
   const deduplicated = deduplicateAssets(filtered, searchString)
 
   const result: AssetSearchWorkerOutboundMessage = {
@@ -68,7 +75,7 @@ self.onmessage = (event: MessageEvent<AssetSearchWorkerInboundMessage>) => {
       break
     }
     case 'updateAssets': {
-      assets = data.payload.assets
+      allAssets = data.payload.assets
       break
     }
     case 'search': {

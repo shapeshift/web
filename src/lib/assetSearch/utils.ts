@@ -5,6 +5,9 @@ import type { SearchableAsset } from './types'
 
 import { isEvmAddress } from '@/lib/utils/isEvmAddress'
 
+/** Minimum market cap threshold in USD to include in search results (filters spam tokens) */
+export const MINIMUM_MARKET_CAP_THRESHOLD = 1000
+
 export function isSearchableAsset(assetId: AssetId): boolean {
   return !isNft(assetId)
 }

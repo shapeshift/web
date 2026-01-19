@@ -29,16 +29,24 @@ type GasFeeDataEstimate = {
   slow: GasFeeData
 }
 
-const EVM_UNCHAINED_URLS: Record<string, string> = {
-  [KnownChainIds.EthereumMainnet]: 'https://api.ethereum.shapeshift.com',
-  [KnownChainIds.ArbitrumMainnet]: 'https://api.arbitrum.shapeshift.com',
-  [KnownChainIds.OptimismMainnet]: 'https://api.optimism.shapeshift.com',
-  [KnownChainIds.PolygonMainnet]: 'https://api.polygon.shapeshift.com',
-  [KnownChainIds.GnosisMainnet]: 'https://api.gnosis.shapeshift.com',
-  [KnownChainIds.AvalancheMainnet]: 'https://api.avalanche.shapeshift.com',
-  [KnownChainIds.BnbSmartChainMainnet]: 'https://api.bnbsmartchain.shapeshift.com',
-  [KnownChainIds.BaseMainnet]: 'https://api.base.shapeshift.com',
-  [KnownChainIds.ArbitrumNovaMainnet]: 'https://api.arbitrum-nova.shapeshift.com',
+const getEvmUnchainedUrls = (): Record<string, string> => {
+  const config = getServerConfig()
+  return {
+    [KnownChainIds.EthereumMainnet]: config.VITE_UNCHAINED_ETHEREUM_HTTP_URL,
+    [KnownChainIds.ArbitrumMainnet]:
+      process.env.UNCHAINED_ARBITRUM_HTTP_URL || 'https://api.arbitrum.shapeshift.com',
+    [KnownChainIds.OptimismMainnet]:
+      process.env.UNCHAINED_OPTIMISM_HTTP_URL || 'https://api.optimism.shapeshift.com',
+    [KnownChainIds.PolygonMainnet]:
+      process.env.UNCHAINED_POLYGON_HTTP_URL || 'https://api.polygon.shapeshift.com',
+    [KnownChainIds.GnosisMainnet]:
+      process.env.UNCHAINED_GNOSIS_HTTP_URL || 'https://api.gnosis.shapeshift.com',
+    [KnownChainIds.AvalancheMainnet]: config.VITE_UNCHAINED_AVALANCHE_HTTP_URL,
+    [KnownChainIds.BnbSmartChainMainnet]: config.VITE_UNCHAINED_BNBSMARTCHAIN_HTTP_URL,
+    [KnownChainIds.BaseMainnet]: config.VITE_UNCHAINED_BASE_HTTP_URL,
+    [KnownChainIds.ArbitrumNovaMainnet]:
+      process.env.UNCHAINED_ARBITRUM_NOVA_HTTP_URL || 'https://api.arbitrum-nova.shapeshift.com',
+  }
 }
 
 const fetchGasFees = async (unchainedUrl: string): Promise<GasFeeDataEstimate> => {
@@ -67,7 +75,8 @@ const fetchGasFees = async (unchainedUrl: string): Promise<GasFeeDataEstimate> =
 }
 
 const createMinimalEvmAdapter = (chainId: ChainId) => {
-  const unchainedUrl = EVM_UNCHAINED_URLS[chainId]
+  const evmUnchainedUrls = getEvmUnchainedUrls()
+  const unchainedUrl = evmUnchainedUrls[chainId]
   if (!unchainedUrl) {
     throw new Error(`No Unchained URL configured for chain ${chainId}`)
   }
@@ -122,7 +131,8 @@ export const createServerSwapperDeps = (assetsById: AssetsByIdPartial): SwapperD
   ) => ChainAdapter<KnownChainIds>,
 
   assertGetEvmChainAdapter: ((chainId: ChainId) => {
-    const unchainedUrl = EVM_UNCHAINED_URLS[chainId]
+    const evmUnchainedUrls = getEvmUnchainedUrls()
+    const unchainedUrl = evmUnchainedUrls[chainId]
     if (unchainedUrl) {
       return createMinimalEvmAdapter(chainId)
     }

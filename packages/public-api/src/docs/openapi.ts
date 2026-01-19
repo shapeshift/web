@@ -32,7 +32,9 @@ const AssetSchema = registry.register(
     symbol: z.string().openapi({ example: 'ETH' }),
     precision: z.number().openapi({ example: 18 }),
     color: z.string().openapi({ example: '#5C6BC0' }),
-    icon: z.string().openapi({ example: 'https://assets.coincap.io/assets/icons/eth@2x.png' }),
+    icon: z.string().openapi({
+      example: 'https://assets.coincap.io/assets/icons/eth@2x.png',
+    }),
     explorer: z.string().openapi({ example: 'https://etherscan.io' }),
     explorerAddressLink: z.string().openapi({ example: 'https://etherscan.io/address/' }),
     explorerTxLink: z.string().openapi({ example: 'https://etherscan.io/tx/' }),
@@ -95,6 +97,8 @@ const RateResponseSchema = registry.register(
         steps: z.number(),
         estimatedExecutionTimeMs: z.number().optional(),
         priceImpactPercentageDecimal: z.string().optional(),
+        affiliateBps: z.string(),
+        networkFeeCryptoBaseUnit: z.string().optional(),
         error: z
           .object({
             code: z.string(),

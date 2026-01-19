@@ -15,7 +15,7 @@ import { memo, useCallback, useMemo, useState } from 'react'
 import { useTranslate } from 'react-polyglot'
 
 import { Amount } from '@/components/Amount/Amount'
-import { SwapperModal } from '@/components/SwapperModal'
+import { SwapperModal } from '@/components/SwapperModal/SwapperModal'
 import { KeyManager } from '@/context/WalletProvider/KeyManager'
 import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { useWallet } from '@/hooks/useWallet/useWallet'

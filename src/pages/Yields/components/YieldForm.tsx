@@ -24,7 +24,11 @@ import {
 } from '@/lib/yieldxyz/constants'
 import type { AugmentedYieldDto } from '@/lib/yieldxyz/types'
 import { YieldBalanceType } from '@/lib/yieldxyz/types'
-import { getTransactionButtonText } from '@/lib/yieldxyz/utils'
+import {
+  getTransactionButtonText,
+  getYieldActionLabelKeys,
+  isStakingYieldType,
+} from '@/lib/yieldxyz/utils'
 import { GradientApy } from '@/pages/Yields/components/GradientApy'
 import { TransactionStepsList } from '@/pages/Yields/components/TransactionStepsList'
 import { YieldExplainers } from '@/pages/Yields/components/YieldExplainers'
@@ -57,36 +61,6 @@ type YieldFormProps = {
 }
 
 const PRESET_PERCENTAGES = [0.25, 0.5, 0.75, 1] as const
-
-const getEnterActionTextKey = (yieldType: string | undefined): string => {
-  switch (yieldType) {
-    case 'native-staking':
-    case 'pooled-staking':
-    case 'liquid-staking':
-    case 'staking':
-      return 'defi.stake'
-    case 'vault':
-      return 'common.deposit'
-    case 'lending':
-      return 'common.supply'
-    default:
-      return 'common.deposit'
-  }
-}
-
-const getExitActionTextKey = (yieldType: string | undefined): string => {
-  switch (yieldType) {
-    case 'native-staking':
-    case 'pooled-staking':
-    case 'liquid-staking':
-    case 'staking':
-      return 'defi.unstake'
-    case 'vault':
-    case 'lending':
-    default:
-      return 'common.withdraw'
-  }
-}
 
 const INPUT_LENGTH_BREAKPOINTS = {
   FOR_XS_FONT: 22,
@@ -224,7 +198,7 @@ export const YieldForm = memo(
 
     const { data: providers } = useYieldProviders()
 
-    const isStaking = yieldItem.mechanics.type === 'staking'
+    const isStaking = isStakingYieldType(yieldItem.mechanics.type)
 
     const selectedValidatorMetadata = useMemo(() => {
       if (!isStaking || !selectedValidatorAddress) return null
@@ -474,14 +448,12 @@ export const YieldForm = memo(
       const firstCreatedTx = quoteData?.transactions?.find(tx => tx.status === 'CREATED')
       if (firstCreatedTx) return getTransactionButtonText(firstCreatedTx.type, firstCreatedTx.title)
 
-      const yieldType = yieldItem.mechanics.type
+      const actionLabelKeys = getYieldActionLabelKeys(yieldItem.mechanics.type)
       if (action === 'enter') {
-        const actionKey = getEnterActionTextKey(yieldType)
-        return `${translate(actionKey)} ${inputTokenAsset?.symbol ?? ''}`
+        return `${translate(actionLabelKeys.enter)} ${inputTokenAsset?.symbol ?? ''}`
       }
       if (action === 'exit') {
-        const actionKey = getExitActionTextKey(yieldType)
-        return `${translate(actionKey)} ${inputTokenAsset?.symbol ?? ''}`
+        return `${translate(actionLabelKeys.exit)} ${inputTokenAsset?.symbol ?? ''}`
       }
       if (action === 'claim') {
         return `${translate('common.claim')} ${claimableToken?.symbol ?? ''}`

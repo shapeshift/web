@@ -2675,6 +2675,9 @@
     "enter": "Enter",
     "exit": "Exit",
     "enterAsset": "Enter %{asset}",
+    "actions": {
+      "restake": "Restake"
+    },
     "yield": "Yield",
     "apy": "APY",
     "apr": "APR",

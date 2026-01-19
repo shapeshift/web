@@ -45,7 +45,7 @@ import {
   YIELD_NETWORK_TO_CHAIN_ID,
 } from '@/lib/yieldxyz/constants'
 import type { AugmentedYieldDto, YieldNetwork } from '@/lib/yieldxyz/types'
-import { resolveYieldInputAssetIcon, searchYields } from '@/lib/yieldxyz/utils'
+import { isStakingYieldType, resolveYieldInputAssetIcon, searchYields } from '@/lib/yieldxyz/utils'
 import { YieldFilters } from '@/pages/Yields/components/YieldFilters'
 import { YieldItem, YieldItemSkeleton } from '@/pages/Yields/components/YieldItem'
 import { YieldOpportunityStats } from '@/pages/Yields/components/YieldOpportunityStats'
@@ -170,7 +170,8 @@ export const YieldsList = memo(() => {
   const getYieldDisplayInfo = useCallback(
     (yieldItem: AugmentedYieldDto) => {
       const isNativeStaking =
-        yieldItem.mechanics.type === 'staking' && yieldItem.mechanics.requiresValidatorSelection
+        isStakingYieldType(yieldItem.mechanics.type) &&
+        yieldItem.mechanics.requiresValidatorSelection
 
       if (yieldItem.id === COSMOS_ATOM_NATIVE_STAKING_YIELD_ID) {
         return {

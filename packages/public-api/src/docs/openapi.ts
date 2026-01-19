@@ -255,10 +255,10 @@ Once the user selects a rate, request an executable quote with transaction data:
 POST /v1/swap/quote
 {
   "sellAssetId": "eip155:1/slip44:60",
-  "buyAssetId": "eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
+  "buyAssetId": "bip122:000000000019d6689c085ae165831e93/slip44:0",
   "sellAmountCryptoBaseUnit": "1000000000000000000",
-  "swapperName": "0x",
-  "receiveAddress": "0x...",
+  "swapperName": "Relay",
+  "receiveAddress": "bc1q...",
   "sendAddress": "0x..."
 }
 \`\`\`

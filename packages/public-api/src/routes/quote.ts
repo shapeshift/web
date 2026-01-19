@@ -30,18 +30,18 @@ const getSwapperModule = async () => {
 export const QuoteRequestSchema = z.object({
   sellAssetId: z.string().min(1).openapi({ example: 'eip155:1/slip44:60' }),
   buyAssetId: z.string().min(1).openapi({
-    example: 'eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
+    example: 'bip122:000000000019d6689c085ae165831e93/slip44:0',
   }),
   sellAmountCryptoBaseUnit: z.string().min(1).openapi({ example: '1000000000000000000' }),
   receiveAddress: z
     .string()
     .min(1)
-    .openapi({ example: '0x742d35Cc6634C0532925a3b844Bc9e7595f2bD28' }),
+    .openapi({ example: 'bc1qar0srrr7xfkvy5l643lydnw9re59gtzzwf5mdq' }),
   sendAddress: z
     .string()
     .optional()
-    .openapi({ example: '0x742d35Cc6634C0532925a3b844Bc9e7595f2bD28' }),
-  swapperName: z.string().min(1).openapi({ example: '0x' }),
+    .openapi({ example: '0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045' }),
+  swapperName: z.string().min(1).openapi({ example: 'Relay' }),
   slippageTolerancePercentageDecimal: z.string().optional().openapi({ example: '0.01' }),
   allowMultiHop: booleanFromString.optional().default(true).openapi({ example: true }),
   accountNumber: z.coerce.number().optional().default(0).openapi({ example: 0 }),

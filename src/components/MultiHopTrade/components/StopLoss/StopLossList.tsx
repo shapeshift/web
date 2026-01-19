@@ -8,15 +8,21 @@ import { selectAllOrders } from '@/state/slices/stopLossSlice/selectors'
 import { useAppSelector } from '@/state/store'
 import { selectAssetById } from '@/state/slices/assetsSlice/selectors'
 
+import { bnOrZero } from '@/lib/bignumber/bignumber'
+
 // Helper component to display order details with asset info
 const StopLossOrderRow = ({ order }: { order: any }) => {
     const sellAsset = useAppSelector(state => selectAssetById(state, order.params.sellAssetId ?? ''))
+
+    const sellAmountCryptoPrecision = bnOrZero(order.params.sellAmountCryptoBaseUnit)
+        .div(bnOrZero(10).pow(sellAsset?.precision ?? 18))
+        .toString()
 
     return (
         <Box>
             <Text translation={['navBar.stopLoss.orderSummary', { status: order.status }]} />
             <Amount.Crypto
-                value={order.params.sellAmountCryptoBaseUnit}
+                value={sellAmountCryptoPrecision}
                 symbol={sellAsset?.symbol ?? ''}
             />
             <Text translation={['navBar.stopLoss.triggerDetails', {

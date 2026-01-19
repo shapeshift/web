@@ -7,8 +7,6 @@ import { StopLossConfirm } from './StopLossConfirm'
 import { StopLossInput } from './StopLossInput'
 import { StopLossList } from './StopLossList'
 
-import { useAppDispatch, useAppSelector } from '@/state/store'
-
 export type StopLossProps = {
     tradeInputRef: React.MutableRefObject<HTMLDivElement | null>
     isCompact?: boolean

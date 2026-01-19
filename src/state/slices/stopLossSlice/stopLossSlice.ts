@@ -22,7 +22,12 @@ const makeOrderSubmissionDraft = (
     id: string,
 ): StopLossSubmissionMetadata => {
     if (!orderSubmission[id]) {
-        orderSubmission[id] = { ...stopLossSubmissionInitialState }
+        orderSubmission[id] = {
+            ...stopLossSubmissionInitialState,
+            allowanceReset: { ...stopLossSubmissionInitialState.allowanceReset },
+            allowanceApproval: { ...stopLossSubmissionInitialState.allowanceApproval },
+            stopLossOrder: { ...stopLossSubmissionInitialState.stopLossOrder },
+        }
     }
     return orderSubmission[id] as StopLossSubmissionMetadata
 }

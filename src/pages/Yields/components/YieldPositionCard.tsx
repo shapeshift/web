@@ -26,6 +26,7 @@ import { useBrowserRouter } from '@/hooks/useBrowserRouter/useBrowserRouter'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import type { AugmentedYieldDto } from '@/lib/yieldxyz/types'
 import { YieldBalanceType } from '@/lib/yieldxyz/types'
+import { getYieldActionLabelKeys } from '@/lib/yieldxyz/utils'
 import { YieldAddMore } from '@/pages/Yields/components/YieldAddMore'
 import { useYieldAccount } from '@/pages/Yields/YieldAccountContext'
 import type {
@@ -157,13 +158,9 @@ export const YieldPositionCard = memo(
     const handleEnter = useCallback(() => navigateToAction('enter'), [navigateToAction])
     const handleExit = useCallback(() => navigateToAction('exit'), [navigateToAction])
 
-    const enterLabel =
-      yieldItem.mechanics.type === 'staking' ? translate('defi.stake') : translate('common.deposit')
-
-    const exitLabel =
-      yieldItem.mechanics.type === 'staking'
-        ? translate('defi.unstake')
-        : translate('common.withdraw')
+    const actionLabelKeys = getYieldActionLabelKeys(yieldItem.mechanics.type)
+    const enterLabel = translate(actionLabelKeys.enter)
+    const exitLabel = translate(actionLabelKeys.exit)
 
     const showPendingActions = hasEntering || hasExiting || hasWithdrawable || hasClaimable
 

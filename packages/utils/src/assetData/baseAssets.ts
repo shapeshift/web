@@ -468,3 +468,19 @@ export const starknet: Readonly<Asset> = Object.freeze({
   explorerTxLink: 'https://starkscan.co/tx/',
   relatedAssetKey: null,
 })
+
+export const ton: Readonly<Asset> = Object.freeze({
+  assetId: caip.tonAssetId,
+  chainId: caip.tonChainId,
+  name: 'Toncoin',
+  networkName: 'TON',
+  symbol: 'TON',
+  precision: 9,
+  color: '#0098EA',
+  networkColor: '#0098EA',
+  icon: 'https://assets.coingecko.com/coins/images/17980/large/ton_symbol.png?1696517498',
+  explorer: 'https://tonscan.org',
+  explorerAddressLink: 'https://tonscan.org/address/',
+  explorerTxLink: 'https://tonscan.org/tx/',
+  relatedAssetKey: null,
+})

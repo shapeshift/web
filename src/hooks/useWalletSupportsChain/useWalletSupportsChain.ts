@@ -24,6 +24,7 @@ import {
   starknetChainId,
   suiChainId,
   thorchainChainId,
+  tonChainId,
   tronChainId,
   zecChainId,
 } from '@shapeshiftoss/caip'
@@ -64,6 +65,7 @@ import { useWallet } from '@/hooks/useWallet/useWallet'
 import { METAMASK_RDNS } from '@/lib/mipd'
 import { isLedgerHDWallet, isNativeHDWallet, isTrezorHDWallet } from '@/lib/utils'
 import { supportsNear } from '@/lib/utils/near'
+import { supportsTon } from '@/lib/utils/ton'
 import { selectAccountIdsByChainIdFilter } from '@/state/slices/portfolioSlice/selectors'
 import { selectFeatureFlag } from '@/state/slices/selectors'
 import { store, useAppSelector } from '@/state/store'
@@ -152,6 +154,7 @@ export const walletSupportsChain = ({
   const isNearEnabled = selectFeatureFlag(store.getState(), 'Near')
   const isPlasmaEnabled = selectFeatureFlag(store.getState(), 'Plasma')
   const isStarknetEnabled = selectFeatureFlag(store.getState(), 'Starknet')
+  const isTonEnabled = selectFeatureFlag(store.getState(), 'Ton')
 
   switch (chainId) {
     case btcChainId:
@@ -221,6 +224,8 @@ export const walletSupportsChain = ({
       return isNearEnabled && supportsNear(wallet)
     case starknetChainId:
       return isStarknetEnabled && supportsStarknet(wallet)
+    case tonChainId:
+      return isTonEnabled && supportsTon(wallet)
     default: {
       return false
     }

@@ -12,7 +12,7 @@ import {
   Text,
   Tooltip,
 } from '@chakra-ui/react'
-import { memo } from 'react'
+import { memo, useMemo } from 'react'
 import { FaChartPie, FaInfoCircle, FaMoon } from 'react-icons/fa'
 import { useTranslate } from 'react-polyglot'
 
@@ -53,14 +53,20 @@ export const YieldOpportunityStats = memo(function YieldOpportunityStats({
   const portfolioBalances = useAppSelector(selectPortfolioUserCurrencyBalances)
   const { data: yields } = useYields()
 
-  const activeValueUsd = positions.reduce((acc, position) => {
-    const positionBalances = balances?.[position.id]
-    if (!positionBalances) return acc
-    const activeBalances = positionBalances.filter(b => b.type === 'active' || b.type === 'locked')
-    return activeBalances.reduce((sum, b) => sum.plus(bnOrZero(b.amountUsd)), acc)
-  }, bnOrZero(0))
+  const activeValueUsd = useMemo(
+    () =>
+      positions.reduce((acc, position) => {
+        const positionBalances = balances?.[position.id]
+        if (!positionBalances) return acc
+        const activeBalances = positionBalances.filter(
+          b => b.type === 'active' || b.type === 'locked',
+        )
+        return activeBalances.reduce((sum, b) => sum.plus(bnOrZero(b.amountUsd)), acc)
+      }, bnOrZero(0)),
+    [positions, balances],
+  )
 
-  const idleValueUsd = (() => {
+  const idleValueUsd = useMemo(() => {
     if (!isConnected || !allYields) return bnOrZero(0)
 
     const yieldableAssetIds = new Set(
@@ -76,9 +82,9 @@ export const YieldOpportunityStats = memo(function YieldOpportunityStats({
       const bal = portfolioBalances[assetId]
       return bal ? totalIdle.plus(bnOrZero(bal)) : totalIdle
     }, bnOrZero(0))
-  })()
+  }, [isConnected, allYields, portfolioBalances])
 
-  const { weightedApy, potentialEarningsValue } = (() => {
+  const { weightedApy, potentialEarningsValue } = useMemo(() => {
     if (!isConnected || !yields?.byInputAssetId || !portfolioBalances) {
       return { weightedApy: 0, potentialEarningsValue: bnOrZero(0) }
     }
@@ -102,7 +108,7 @@ export const YieldOpportunityStats = memo(function YieldOpportunityStats({
       : 0
 
     return { weightedApy: avgApy, potentialEarningsValue: totalEarnings }
-  })()
+  }, [isConnected, yields?.byInputAssetId, portfolioBalances])
 
   const hasActiveDeposits = activeValueUsd.gt(0)
   const activeValueFormatted = activeValueUsd.times(userCurrencyToUsdRate).toFixed()

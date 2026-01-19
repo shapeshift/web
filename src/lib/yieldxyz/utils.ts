@@ -155,3 +155,52 @@ export const ensureValidatorApr = (validator: ValidatorDto): ValidatorDto =>
           components: validator.rewardRate?.components ?? [],
         },
       }
+
+/**
+ * Translation keys for yield action labels based on yield type.
+ * Enter = deposit/stake/restake action
+ * Exit = withdraw/unstake action
+ */
+export type YieldActionLabelKeys = {
+  enter: string
+  exit: string
+}
+
+/**
+ * Gets the appropriate translation keys for yield actions based on yield type.
+ *
+ * Yield types and their terminology:
+ * - staking, native-staking, pooled-staking, liquid-staking → Stake/Unstake
+ * - restaking → Restake/Unstake
+ * - vault, lending, and others → Deposit/Withdraw
+ */
+export const getYieldActionLabelKeys = (yieldType: string): YieldActionLabelKeys => {
+  switch (yieldType) {
+    case 'staking':
+    case 'native-staking':
+    case 'pooled-staking':
+    case 'liquid-staking':
+      return { enter: 'defi.stake', exit: 'defi.unstake' }
+    case 'restaking':
+      return { enter: 'yieldXYZ.actions.restake', exit: 'defi.unstake' }
+    case 'vault':
+    case 'lending':
+    default:
+      return { enter: 'common.deposit', exit: 'common.withdraw' }
+  }
+}
+
+const STAKING_YIELD_TYPES = new Set([
+  'staking',
+  'native-staking',
+  'pooled-staking',
+  'liquid-staking',
+  'restaking',
+])
+
+/**
+ * Checks if a yield type uses staking terminology (stake/unstake).
+ */
+export const isStakingYieldType = (yieldType: string): boolean => {
+  return STAKING_YIELD_TYPES.has(yieldType)
+}

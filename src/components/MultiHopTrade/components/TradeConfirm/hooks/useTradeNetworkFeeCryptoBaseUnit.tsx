@@ -22,6 +22,7 @@ import { assertGetNearChainAdapter } from '@/lib/utils/near'
 import { assertGetSolanaChainAdapter } from '@/lib/utils/solana'
 import { assertGetStarknetChainAdapter } from '@/lib/utils/starknet'
 import { assertGetSuiChainAdapter } from '@/lib/utils/sui'
+import { assertGetTonChainAdapter } from '@/lib/utils/ton'
 import { assertGetTronChainAdapter } from '@/lib/utils/tron'
 import { assertGetUtxoChainAdapter } from '@/lib/utils/utxo'
 import { selectPortfolioAccountMetadataByAccountId } from '@/state/slices/selectors'
@@ -282,6 +283,27 @@ export const useTradeNetworkFeeCryptoBaseUnit = ({
                   chainId: hop.sellAsset.chainId,
                   config: getConfig(),
                   assertGetStarknetChainAdapter,
+                })
+                return output
+              }
+              case CHAIN_NAMESPACE.Ton: {
+                if (!swapper.getTonTransactionFees) throw Error('missing getTonTransactionFees')
+
+                const adapter = assertGetTonChainAdapter(stepSellAssetChainId)
+                const from = await adapter.getAddress({
+                  accountNumber,
+                  wallet,
+                  ...(skipDeviceDerivation ? { pubKey } : {}),
+                })
+
+                const output = await swapper.getTonTransactionFees({
+                  tradeQuote,
+                  from,
+                  stepIndex: hopIndex,
+                  slippageTolerancePercentageDecimal,
+                  chainId: hop.sellAsset.chainId,
+                  config: getConfig(),
+                  assertGetTonChainAdapter,
                 })
                 return output
               }

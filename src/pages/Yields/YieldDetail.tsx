@@ -103,7 +103,7 @@ export const YieldDetail = memo(() => {
     ? DEFAULT_NATIVE_VALIDATOR_BY_CHAIN_ID[yieldItem.chainId]
     : undefined
 
-  const selectedValidatorAddress = (() => {
+  const selectedValidatorAddress = useMemo(() => {
     if (
       yieldId === COSMOS_ATOM_NATIVE_STAKING_YIELD_ID ||
       yieldId === SOLANA_SOL_NATIVE_MULTIVALIDATOR_STAKING_YIELD_ID ||
@@ -112,14 +112,14 @@ export const YieldDetail = memo(() => {
       return defaultValidator
     }
     return validatorParam || defaultValidator
-  })()
+  }, [yieldId, defaultValidator, validatorParam])
 
   const isStaking = yieldItem?.mechanics.type === 'staking'
   const shouldFetchValidators = isStaking && yieldItem?.mechanics.requiresValidatorSelection
   const { data: validators } = useYieldValidators(yieldItem?.id ?? '', shouldFetchValidators)
   const { data: yieldProviders } = useYieldProviders()
 
-  const validatorOrProvider = (() => {
+  const validatorOrProvider = useMemo(() => {
     if (isStaking && selectedValidatorAddress) {
       const found = validators?.find(v => v.address === selectedValidatorAddress)
       if (found) return { name: found.name, logoURI: found.logoURI }
@@ -142,17 +142,17 @@ export const YieldDetail = memo(() => {
       }
     }
     return null
-  })()
+  }, [isStaking, selectedValidatorAddress, validators, yieldItem, yieldProviders])
 
-  const titleOverride = (() => {
+  const titleOverride = useMemo(() => {
     if (!yieldItem) return undefined
     const isNativeStaking =
       yieldItem.mechanics.type === 'staking' && yieldItem.mechanics.requiresValidatorSelection
     if (isNativeStaking) return translate('yieldXYZ.nativeStaking')
     return getYieldDisplayName(yieldItem)
-  })()
+  }, [yieldItem, translate])
 
-  const userBalances = (() => {
+  const userBalances = useMemo(() => {
     if (!balances) return { userCurrency: '0', crypto: '0' }
 
     const balancesByType = selectedValidatorAddress
@@ -180,7 +180,7 @@ export const YieldDetail = memo(() => {
       userCurrency: totalUsd.times(userCurrencyToUsdRate).toFixed(),
       crypto: totalCrypto.toFixed(),
     }
-  })()
+  }, [balances, selectedValidatorAddress, userCurrencyToUsdRate])
 
   useEffect(() => {
     if (!yieldId) navigate('/yields')
@@ -188,30 +188,36 @@ export const YieldDetail = memo(() => {
 
   const isModalOpen = searchParams.get('modal') === 'yield'
 
-  const loadingElement = (
-    <Box py={20}>
-      <Flex direction='column' gap={8} alignItems='center'>
-        <Text color='text.subtle' fontSize='lg'>
-          {translate('common.loadingText')}
-        </Text>
-      </Flex>
-    </Box>
+  const loadingElement = useMemo(
+    () => (
+      <Box py={20}>
+        <Flex direction='column' gap={8} alignItems='center'>
+          <Text color='text.subtle' fontSize='lg'>
+            {translate('common.loadingText')}
+          </Text>
+        </Flex>
+      </Box>
+    ),
+    [translate],
   )
 
-  const errorElement = (
-    <Box py={20}>
-      <Box textAlign='center' py={16} bg='background.surface.raised.base' borderRadius='2xl'>
-        <Heading as='h2' size='xl' mb={4}>
-          {translate('common.error')}
-        </Heading>
-        <Text color='text.subtle'>
-          {error ? String(error) : translate('common.noResultsFound')}
-        </Text>
-        <Button mt={8} onClick={() => navigate('/yields')} size='lg'>
-          {translate('common.back')}
-        </Button>
+  const errorElement = useMemo(
+    () => (
+      <Box py={20}>
+        <Box textAlign='center' py={16} bg='background.surface.raised.base' borderRadius='2xl'>
+          <Heading as='h2' size='xl' mb={4}>
+            {translate('common.error')}
+          </Heading>
+          <Text color='text.subtle'>
+            {error ? String(error) : translate('common.noResultsFound')}
+          </Text>
+          <Button mt={8} onClick={() => navigate('/yields')} size='lg'>
+            {translate('common.back')}
+          </Button>
+        </Box>
       </Box>
-    </Box>
+    ),
+    [error, navigate, translate],
   )
 
   const headerComponent = useMemo(

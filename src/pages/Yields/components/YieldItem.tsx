@@ -17,7 +17,7 @@ import {
   Tooltip,
 } from '@chakra-ui/react'
 import type BigNumber from 'bignumber.js'
-import { memo, useCallback } from 'react'
+import { memo, useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useNavigate } from 'react-router-dom'
 
@@ -56,6 +56,7 @@ type YieldItemProps = {
   onEnter?: (yieldItem: AugmentedYieldDto) => void
   searchString?: string
   titleOverride?: string
+  showAvailableOnly?: boolean
 }
 
 export const YieldItem = memo(
@@ -67,6 +68,7 @@ export const YieldItem = memo(
     onEnter,
     searchString,
     titleOverride,
+    showAvailableOnly = false,
   }: YieldItemProps) => {
     const navigate = useNavigate()
     const translate = useTranslate()
@@ -116,7 +118,7 @@ export const YieldItem = memo(
       ? userBalanceUsd.times(userCurrencyToUsdRate).toFixed()
       : undefined
 
-    const hasBalance = userBalanceUsd && userBalanceUsd.gt(0)
+    const hasBalance = userBalanceUsd && userBalanceUsd.gt(0) && !showAvailableOnly
     const hasAvailable = availableBalanceUserCurrency && availableBalanceUserCurrency.gt(0)
 
     const handleClick = useCallback(() => {
@@ -160,7 +162,7 @@ export const YieldItem = memo(
     const underMaintenance = isSingle ? data.yieldItem.metadata.underMaintenance : undefined
     const deprecated = isSingle ? data.yieldItem.metadata.deprecated : undefined
 
-    const statusBadge = (() => {
+    const statusBadge = useMemo(() => {
       if (!isSingle) return null
       if (deprecated) {
         return (
@@ -181,7 +183,7 @@ export const YieldItem = memo(
         )
       }
       return null
-    })()
+    }, [isSingle, deprecated, underMaintenance, translate])
 
     const showAvailable = isSingle && hasAvailable && !hasBalance
 

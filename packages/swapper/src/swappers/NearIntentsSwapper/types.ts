@@ -16,6 +16,7 @@ export const nearIntentsSupportedChainIds = [
   KnownChainIds.AvalancheMainnet,
   KnownChainIds.OptimismMainnet,
   KnownChainIds.BitcoinMainnet,
+  KnownChainIds.BitcoinCashMainnet,
   KnownChainIds.DogecoinMainnet,
   KnownChainIds.ZcashMainnet,
   KnownChainIds.SolanaMainnet,
@@ -24,6 +25,8 @@ export const nearIntentsSupportedChainIds = [
   KnownChainIds.StarknetMainnet,
   KnownChainIds.MonadMainnet,
   KnownChainIds.NearMainnet,
+  KnownChainIds.PlasmaMainnet,
+  KnownChainIds.TonMainnet,
 ] as const
 
 export type NearIntentsSupportedChainId = (typeof nearIntentsSupportedChainIds)[number]
@@ -38,12 +41,15 @@ export const chainIdToNearIntentsChain: Record<NearIntentsSupportedChainId, stri
   [KnownChainIds.AvalancheMainnet]: 'avax',
   [KnownChainIds.OptimismMainnet]: 'op',
   [KnownChainIds.BitcoinMainnet]: 'btc',
+  [KnownChainIds.BitcoinCashMainnet]: 'bch',
   [KnownChainIds.DogecoinMainnet]: 'doge',
   [KnownChainIds.ZcashMainnet]: 'zec',
+  [KnownChainIds.PlasmaMainnet]: 'plasma',
   [KnownChainIds.SolanaMainnet]: 'sol',
   [KnownChainIds.TronMainnet]: 'tron',
   [KnownChainIds.SuiMainnet]: 'sui',
   [KnownChainIds.StarknetMainnet]: 'starknet',
   [KnownChainIds.MonadMainnet]: 'monad',
   [KnownChainIds.NearMainnet]: 'near',
+  [KnownChainIds.TonMainnet]: 'ton',
 }

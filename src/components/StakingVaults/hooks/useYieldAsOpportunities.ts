@@ -126,22 +126,6 @@ export const useYieldAsOpportunities = (
       })
     })
 
-    console.debug(
-      '[useYieldAsOpportunities] Result:',
-      JSON.stringify(
-        result.map(r => ({
-          assetId: r.assetId,
-          fiatAmount: r.fiatAmount,
-          yieldOpportunities: r.yieldOpportunities.map(y => ({
-            providerName: y.providerName,
-            fiatAmount: y.fiatAmount,
-          })),
-        })),
-        null,
-        2,
-      ),
-    )
-
     return result
   }, [yieldBalancesData?.aggregated, yieldsData?.all])
 

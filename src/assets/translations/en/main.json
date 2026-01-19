@@ -2714,6 +2714,7 @@
     "preferred": "Preferred",
     "pending": "Pending",
     "ready": "Ready",
+    "bestReturn": "Best Return",
     "highestApy": "Highest APY",
     "lowestApy": "Lowest APY",
     "highestTvl": "Highest TVL",

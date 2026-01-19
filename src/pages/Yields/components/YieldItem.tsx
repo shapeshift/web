@@ -56,6 +56,7 @@ type YieldItemProps = {
   onEnter?: (yieldItem: AugmentedYieldDto) => void
   searchString?: string
   titleOverride?: string
+  showAvailableOnly?: boolean
 }
 
 export const YieldItem = memo(
@@ -67,6 +68,7 @@ export const YieldItem = memo(
     onEnter,
     searchString,
     titleOverride,
+    showAvailableOnly = false,
   }: YieldItemProps) => {
     const navigate = useNavigate()
     const translate = useTranslate()
@@ -116,7 +118,7 @@ export const YieldItem = memo(
       ? userBalanceUsd.times(userCurrencyToUsdRate).toFixed()
       : undefined
 
-    const hasBalance = userBalanceUsd && userBalanceUsd.gt(0)
+    const hasBalance = userBalanceUsd && userBalanceUsd.gt(0) && !showAvailableOnly
     const hasAvailable = availableBalanceUserCurrency && availableBalanceUserCurrency.gt(0)
 
     const handleClick = useCallback(() => {

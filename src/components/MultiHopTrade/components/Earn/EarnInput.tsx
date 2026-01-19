@@ -392,16 +392,27 @@ export const EarnInput = memo(
       return yieldsData.byInputAssetId[sellAsset.assetId] ?? []
     }, [sellAsset?.assetId, yieldsData?.byInputAssetId])
 
+    const defaultYieldForAsset = useMemo(() => {
+      if (yieldsForAsset.length === 0) return undefined
+
+      const sortedByApy = [...yieldsForAsset].sort(
+        (a, b) => (b.rewardRate?.total ?? 0) - (a.rewardRate?.total ?? 0),
+      )
+
+      const userBalance = bnOrZero(sellAssetBalanceCryptoPrecision)
+      const actionableYield = sortedByApy.find(y => {
+        const minDepositAmount = bnOrZero(y.mechanics?.entryLimits?.minimum)
+        return minDepositAmount.lte(0) || userBalance.gte(minDepositAmount)
+      })
+
+      return actionableYield ?? sortedByApy[0]
+    }, [yieldsForAsset, sellAssetBalanceCryptoPrecision])
+
     useEffect(() => {
-      if (yieldsForAsset.length > 0 && !selectedYieldId) {
-        const sortedByApy = [...yieldsForAsset].sort(
-          (a, b) => (b.rewardRate?.total ?? 0) - (a.rewardRate?.total ?? 0),
-        )
-        if (sortedByApy[0]) {
-          dispatch(tradeEarnInput.actions.setSelectedYieldId(sortedByApy[0].id))
-        }
+      if (defaultYieldForAsset && !selectedYieldId) {
+        dispatch(tradeEarnInput.actions.setSelectedYieldId(defaultYieldForAsset.id))
       }
-    }, [yieldsForAsset, selectedYieldId, dispatch])
+    }, [defaultYieldForAsset, selectedYieldId, dispatch])
 
     const handleSubmit = useCallback(
       (e: FormEvent<unknown>) => {

@@ -49,6 +49,26 @@ function handleSearch(msg: AssetSearchWorkerInboundMessage & { type: 'search' })
   const filtered = searchAssets(searchString, preFiltered)
   const deduplicated = deduplicateAssetsBySymbol(filtered)
 
+  // Debug logging for USDT issue
+  if (searchString.toLowerCase().startsWith('usd')) {
+    const usdtInPreFiltered = preFiltered.filter(a => a.symbol === 'USDT')
+    const usdtInFiltered = filtered.filter(a => a.symbol === 'USDT')
+    const usdtInDeduplicated = deduplicated.filter(a => a.symbol === 'USDT')
+    console.log('[Worker Debug]', {
+      searchString,
+      useAllAssets,
+      totalSearchable: searchableAssets.length,
+      totalPreFiltered: preFiltered.length,
+      totalFiltered: filtered.length,
+      totalDeduplicated: deduplicated.length,
+      usdtInPreFiltered: usdtInPreFiltered.length,
+      usdtInFiltered: usdtInFiltered.length,
+      usdtInDeduplicated: usdtInDeduplicated.length,
+      firstUsdtPrimary: usdtInPreFiltered[0]?.isPrimary,
+      primarySymbolsHasUsdt: primarySymbols.has('usdt'),
+    })
+  }
+
   const result: AssetSearchWorkerOutboundMessage = {
     type: 'searchResult',
     requestId: msg.requestId,

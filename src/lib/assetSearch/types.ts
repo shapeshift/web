@@ -5,6 +5,7 @@ export interface SearchableAsset {
   name: string
   symbol: string
   chainId: ChainId
+  isPrimary?: boolean
 }
 
 export interface AssetSearchWorkerMessages {

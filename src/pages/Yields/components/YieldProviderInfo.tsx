@@ -11,26 +11,22 @@ import {
   Link,
   Text,
 } from '@chakra-ui/react'
-import { memo, useMemo } from 'react'
+import { memo } from 'react'
 import { useTranslate } from 'react-polyglot'
 
 import { Display } from '@/components/Display'
-import { PROVIDER_DESCRIPTIONS } from '@/lib/yieldxyz/providerDescriptions'
 
 type YieldProviderInfoProps = {
   providerId: string
   providerName: string
   providerLogoURI?: string
   providerWebsite?: string
+  description?: string
 }
 
 export const YieldProviderInfo = memo(
-  ({ providerId, providerName, providerLogoURI, providerWebsite }: YieldProviderInfoProps) => {
+  ({ providerName, providerLogoURI, providerWebsite, description }: YieldProviderInfoProps) => {
     const translate = useTranslate()
-
-    const description = useMemo(() => PROVIDER_DESCRIPTIONS[providerId]?.description, [providerId])
-
-    if (!description) return null
 
     return (
       <Box>

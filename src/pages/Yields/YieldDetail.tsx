@@ -320,6 +320,7 @@ export const YieldDetail = memo(() => {
                   providerName={validatorOrProvider.name}
                   providerLogoURI={validatorOrProvider.logoURI}
                   providerWebsite={validatorOrProvider.documentation}
+                  description={validatorOrProvider.description}
                 />
               )}
               <YieldRelatedMarkets

@@ -56,6 +56,7 @@ export const SwapperModalContent = memo(function SwapperModalContent({
           defaultBuyAssetId={defaultBuyAssetId}
           defaultSellAssetId={defaultSellAssetId}
           onChangeTab={handleChangeTab}
+          isCompact
           isStandalone
         />
       </TradingErrorBoundary>

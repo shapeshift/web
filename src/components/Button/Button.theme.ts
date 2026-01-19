@@ -62,6 +62,7 @@ export const ButtonStyle: ComponentStyleConfig = {
   variants: {
     solid: (props: StyleFunctionProps) => {
       const { colorScheme: c } = props
+      const isGreen = c === 'green'
       if (c === 'gray') {
         return {
           bg: 'background.button.secondary.base',
@@ -79,6 +80,9 @@ export const ButtonStyle: ComponentStyleConfig = {
       return {
         bg: `${c}.500`,
         color: 'white',
+        _dark: {
+          color: isGreen ? 'black' : 'white',
+        },
         _hover: {
           bg: mode(`${c}.500`, `${c}.300`)(props),
           _disabled: {

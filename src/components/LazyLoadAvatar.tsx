@@ -15,7 +15,6 @@ export const LazyLoadAvatar: React.FC<LazyLoadAvatarProps> = ({
   borderRadius,
   name,
   icon,
-  boxSize,
   bg,
   ...rest
 }) => {
@@ -31,8 +30,7 @@ export const LazyLoadAvatar: React.FC<LazyLoadAvatarProps> = ({
   return (
     <SkeletonCircle
       isLoaded={Boolean(imageLoaded || (imageError && name))}
-      boxSize={boxSize}
-      size={boxSize === undefined ? skeletonSize : undefined}
+      size={skeletonSize}
       borderRadius={borderRadius}
       {...rest}
     >

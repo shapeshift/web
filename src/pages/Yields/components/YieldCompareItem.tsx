@@ -64,7 +64,7 @@ export const YieldCompareItem = memo(
         _last={{ borderBottomWidth: 0, borderBottomRadius: 'xl' }}
         cursor='pointer'
       >
-        <CardBody display='flex' alignItems='center' gap={3}>
+        <CardBody display='flex' alignItems='center' gap={3} px={3}>
           <Box position='relative'>
             <Avatar size='sm' src={providerIcon} name={displayProviderName} />
             {chainIcon && (

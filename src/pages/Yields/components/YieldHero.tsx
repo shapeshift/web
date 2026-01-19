@@ -182,6 +182,7 @@ export const YieldHero = memo(
           px={{ base: 3, md: 6 }}
           zIndex={1}
         >
+          {assetIcon}
           <Text fontWeight='semibold' fontSize='md'>
             {yieldTitle}
           </Text>
@@ -205,18 +206,6 @@ export const YieldHero = memo(
           )}
 
           <HStack spacing={2} justify='center' flexWrap='wrap'>
-            <Tag borderRadius='full' pr={3} py={2} bg='background.button.secondary.base'>
-              <TagLeftIcon
-                as={AssetIcon}
-                assetId={iconSource.assetId}
-                src={iconSource.src}
-                size='xs'
-                boxSize='20px'
-              />
-              <Text fontSize='sm' fontWeight='semibold'>
-                {yieldItem.token.symbol}
-              </Text>
-            </Tag>
             {yieldItem.chainId && (
               <Tag borderRadius='full' pr={3} py={2} bg='background.button.secondary.base'>
                 <TagLeftIcon as={ChainIcon} chainId={yieldItem.chainId} boxSize='20px' />

@@ -13,9 +13,9 @@ import {
 } from '@chakra-ui/react'
 import { memo, useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useNavigate } from 'react-router-dom'
 
 import { Amount } from '@/components/Amount/Amount'
+import { useTradeNavigation } from '@/components/MultiHopTrade/hooks/useTradeNavigation'
 import { KeyManager } from '@/context/WalletProvider/KeyManager'
 import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { useWallet } from '@/hooks/useWallet/useWallet'
@@ -33,7 +33,7 @@ type YieldAvailableToDepositProps = {
 export const YieldAvailableToDeposit = memo(
   ({ yieldItem, inputTokenMarketData }: YieldAvailableToDepositProps) => {
     const translate = useTranslate()
-    const navigate = useNavigate()
+    const { navigateToTrade } = useTradeNavigation()
     const {
       state: { isConnected },
     } = useWallet()
@@ -76,8 +76,8 @@ export const YieldAvailableToDeposit = memo(
     const hasAvailableBalance = availableBalance.gt(0)
 
     const handleGetAsset = useCallback(() => {
-      navigate(`/trade/${inputTokenAssetId}`)
-    }, [navigate, inputTokenAssetId])
+      navigateToTrade(inputTokenAssetId)
+    }, [navigateToTrade, inputTokenAssetId])
 
     if (!inputTokenPrecision || !hasWallet) return null
 

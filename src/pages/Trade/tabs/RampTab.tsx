@@ -52,6 +52,9 @@ export const RampTab = () => {
         case TradeInputTab.Earn:
           navigate(EarnRoutePaths.Input)
           break
+        case TradeInputTab.StopLoss:
+          navigate('/stop-loss/')
+          break
         default:
           break
       }

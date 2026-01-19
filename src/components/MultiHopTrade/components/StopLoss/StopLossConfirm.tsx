@@ -12,12 +12,16 @@ import {
 } from '@/state/slices/stopLossInputSlice/stopLossInputSlice'
 import { useAppDispatch, useAppSelector } from '@/state/store'
 
+import { bnOrZero } from '@/lib/bignumber/bignumber'
+import { selectAssetById } from '@/state/slices/assetsSlice/selectors'
+
 export const StopLossConfirm = () => {
     const translate = useTranslate()
     const dispatch = useAppDispatch()
     const navigate = useNavigate()
 
     const sellAssetId = useAppSelector(stopLossInputSelectors.selectSellAssetId)
+    const sellAsset = useAppSelector(state => selectAssetById(state, sellAssetId ?? ''))
     const sellAmountCryptoPrecision = useAppSelector(
         stopLossInputSelectors.selectSellAmountCryptoPrecision,
     )
@@ -30,11 +34,15 @@ export const StopLossConfirm = () => {
     const handleConfirm = useCallback(() => {
         if (!sellAssetId || !buyAssetId || !sellAccountId) return
 
+        const sellAmountCryptoBaseUnit = bnOrZero(sellAmountCryptoPrecision)
+            .times(bnOrZero(10).pow(sellAsset?.precision ?? 18))
+            .toFixed(0)
+
         dispatch(
             stopLossSlice.actions.createOrder({
                 sellAssetId,
                 buyAssetId,
-                sellAmountCryptoBaseUnit: sellAmountCryptoPrecision, // Need to convert to base unit in real implementation
+                sellAmountCryptoBaseUnit,
                 triggerType,
                 triggerValue,
                 entryPrice: currentPrice,
@@ -60,23 +68,23 @@ export const StopLossConfirm = () => {
     return (
         <Card flex={1} borderRadius='xl'>
             <VStack spacing={6} p={6} align='stretch'>
-                <Text translation='stopLoss.confirmTitle' fontSize='xl' fontWeight='bold' />
+                <Text translation='navBar.stopLoss.confirmTitle' fontSize='xl' fontWeight='bold' />
 
                 <VStack align='start' spacing={2}>
-                    <Text translation='stopLoss.confirmAmount' />
-                    <Text translation={['stopLoss.value', { value: sellAmountCryptoPrecision }]} />
+                    <Text translation='navBar.stopLoss.confirmAmount' />
+                    <Text translation={['navBar.stopLoss.value', { value: sellAmountCryptoPrecision }]} />
 
-                    <Text translation='stopLoss.confirmTrigger' />
+                    <Text translation='navBar.stopLoss.confirmTrigger' />
                     <Text
                         translation={[
-                            'stopLoss.triggerDetails',
+                            'navBar.stopLoss.triggerDetails',
                             { type: triggerType, value: triggerValue },
                         ]}
                     />
                 </VStack>
 
                 <Button colorScheme='blue' size='lg' onClick={handleConfirm} width='full'>
-                    {translate('stopLoss.confirmOrder')}
+                    {translate('navBar.stopLoss.confirmOrder')}
                 </Button>
             </VStack>
         </Card>

@@ -31,6 +31,7 @@ import { TCY } from '@/pages/TCY/tcy'
 import { EarnTab } from '@/pages/Trade/tabs/EarnTab'
 import { LimitTab } from '@/pages/Trade/tabs/LimitTab'
 import { RampTab } from '@/pages/Trade/tabs/RampTab'
+import { StopLossTab } from '@/pages/Trade/tabs/StopLossTab'
 import { TradeTab } from '@/pages/Trade/tabs/TradeTab'
 import { makeSuspenseful } from '@/utils/makeSuspenseful'
 
@@ -38,6 +39,8 @@ export const TRADE_ROUTE_ASSET_SPECIFIC =
   '/trade/:chainId/:assetSubId/:sellChainId/:sellAssetSubId/:sellAmountCryptoBaseUnit'
 export const LIMIT_ORDER_ROUTE_ASSET_SPECIFIC =
   '/limit/:chainId/:assetSubId/:sellChainId/:sellAssetSubId/:sellAmountCryptoBaseUnit/:limitPriceMode/:limitPriceDirection/:limitPrice'
+export const STOP_LOSS_ROUTE_ASSET_SPECIFIC =
+  '/stop-loss/:chainId/:assetSubId/:sellChainId/:sellAssetSubId'
 export const EARN_ROUTE_ASSET_SPECIFIC =
   '/earn/:sellChainId/:sellAssetSubId/:yieldId/:sellAmountCryptoBaseUnit'
 
@@ -395,6 +398,24 @@ export const routes: Route[] = [
     path: '/wc',
     main: WalletConnectDeepLink,
     hide: true,
+  },
+  {
+    path: '/stop-loss/*',
+    label: '',
+    hideDesktop: true,
+    main: StopLossTab,
+    routes: [
+      {
+        path: STOP_LOSS_ROUTE_ASSET_SPECIFIC,
+        main: StopLossTab,
+        hide: true,
+      },
+      {
+        path: 'confirm',
+        main: StopLossTab,
+        hide: true,
+      },
+    ],
   },
   {
     path: '/limit/*',

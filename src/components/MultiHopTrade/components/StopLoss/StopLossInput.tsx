@@ -21,10 +21,10 @@ import {
     stopLossInputActions,
     stopLossInputSelectors,
 } from '@/state/slices/stopLossInputSlice/stopLossInputSlice'
+import { StopLossTriggerType } from '@/state/slices/stopLossSlice/types'
 import { useAppDispatch, useAppSelector } from '@/state/store'
 
 export type StopLossInputProps = {
-    tradeInputRef: React.MutableRefObject<HTMLDivElement | null>
     isCompact?: boolean
 }
 
@@ -46,10 +46,10 @@ export const StopLossInput = ({ isCompact }: StopLossInputProps) => {
     return (
         <Card flex={1} borderRadius='xl'>
             <VStack spacing={6} p={6} align='stretch'>
-                <RawText translation='stopLoss.title' fontSize='xl' fontWeight='bold' />
+                <RawText translation='navBar.stopLoss.title' fontSize='xl' fontWeight='bold' />
 
                 <FormControl>
-                    <FormLabel>{translate('stopLoss.amount')}</FormLabel>
+                    <FormLabel>{translate('navBar.stopLoss.amount')}</FormLabel>
                     <InputGroup>
                         <Input
                             value={sellAmountCryptoPrecision}
@@ -62,20 +62,20 @@ export const StopLossInput = ({ isCompact }: StopLossInputProps) => {
                 </FormControl>
 
                 <FormControl>
-                    <FormLabel>{translate('stopLoss.triggerType')}</FormLabel>
+                    <FormLabel>{translate('navBar.stopLoss.triggerType')}</FormLabel>
                     <Select
                         value={triggerType}
                         onChange={e =>
-                            dispatch(stopLossInputActions.setTriggerType(e.target.value as any))
+                            dispatch(stopLossInputActions.setTriggerType(e.target.value as StopLossTriggerType))
                         }
                     >
-                        <option value='price'>{translate('stopLoss.price')}</option>
-                        <option value='percentage'>{translate('stopLoss.percentage')}</option>
+                        <option value='price'>{translate('navBar.stopLoss.price')}</option>
+                        <option value='percentage'>{translate('navBar.stopLoss.percentage')}</option>
                     </Select>
                 </FormControl>
 
                 <FormControl>
-                    <FormLabel>{translate('stopLoss.triggerValue')}</FormLabel>
+                    <FormLabel>{translate('navBar.stopLoss.triggerValue')}</FormLabel>
                     <InputGroup>
                         <Input
                             value={triggerValue}
@@ -87,7 +87,7 @@ export const StopLossInput = ({ isCompact }: StopLossInputProps) => {
                 </FormControl>
 
                 <Button colorScheme='blue' size='lg' onClick={handleSubmit} width='full'>
-                    {translate('stopLoss.reviewOrder')}
+                    {translate('navBar.stopLoss.reviewOrder')}
                 </Button>
             </VStack>
         </Card>

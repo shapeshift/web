@@ -1,10 +1,31 @@
 import { Box, VStack } from '@chakra-ui/react'
 import { useTranslate } from 'react-polyglot'
 
+import { Amount } from '@/components/Amount/Amount'
 import { Card } from '@/components/Card/Card'
 import { Text } from '@/components/Text'
 import { selectAllOrders } from '@/state/slices/stopLossSlice/selectors'
 import { useAppSelector } from '@/state/store'
+import { selectAssetById } from '@/state/slices/assetsSlice/selectors'
+
+// Helper component to display order details with asset info
+const StopLossOrderRow = ({ order }: { order: any }) => {
+    const sellAsset = useAppSelector(state => selectAssetById(state, order.params.sellAssetId ?? ''))
+
+    return (
+        <Box>
+            <Text translation={['navBar.stopLoss.orderSummary', { status: order.status }]} />
+            <Amount.Crypto
+                value={order.params.sellAmountCryptoBaseUnit}
+                symbol={sellAsset?.symbol ?? ''}
+            />
+            <Text translation={['navBar.stopLoss.triggerDetails', {
+                type: order.params.triggerType,
+                value: order.params.triggerValue
+            }]} />
+        </Box>
+    )
+}
 
 export const StopLossList = () => {
     const translate = useTranslate()
@@ -13,7 +34,7 @@ export const StopLossList = () => {
     if (orders.length === 0) {
         return (
             <Card flex={1} borderRadius='xl' p={6}>
-                <Text translation='stopLoss.noOrders' textAlign='center' color='gray.500' />
+                <Text translation='navBar.stopLoss.noOrders' textAlign='center' color='gray.500' />
             </Card>
         )
     }
@@ -21,7 +42,7 @@ export const StopLossList = () => {
     return (
         <Card flex={1} borderRadius='xl' p={4}>
             <VStack spacing={4} align='stretch'>
-                <Text translation='stopLoss.activeOrders' fontWeight='bold' />
+                <Text translation='navBar.stopLoss.activeOrders' fontWeight='bold' />
                 {orders.map(order => (
                     <Box
                         key={order.id}
@@ -30,16 +51,7 @@ export const StopLossList = () => {
                         borderRadius='md'
                         borderColor='gray.700'
                     >
-                        <Text
-                            translation={[
-                                'stopLoss.orderSummary',
-                                {
-                                    status: order.status,
-                                    amount: order.params.sellAmountCryptoBaseUnit,
-                                    trigger: `${order.params.triggerValue} ${order.params.triggerType}`,
-                                },
-                            ]}
-                        />
+                        <StopLossOrderRow order={order} />
                     </Box>
                 ))}
             </VStack>

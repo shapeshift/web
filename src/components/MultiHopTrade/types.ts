@@ -18,6 +18,7 @@ export type GetReceiveAddressArgs = {
 export enum TradeInputTab {
   Trade = 'trade',
   LimitOrder = 'limitOrder',
+  StopLoss = 'stopLoss',
   BuyFiat = 'buy',
   SellFiat = 'sell',
   Earn = 'earn',

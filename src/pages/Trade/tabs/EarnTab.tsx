@@ -73,6 +73,9 @@ export const EarnTab = memo(function EarnTab() {
         case TradeInputTab.Earn:
           navigate(EarnRoutePaths.Input)
           break
+        case TradeInputTab.StopLoss:
+          navigate('/stop-loss/')
+          break
         default:
           break
       }

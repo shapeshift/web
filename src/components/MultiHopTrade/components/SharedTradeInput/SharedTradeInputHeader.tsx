@@ -63,6 +63,10 @@ export const SharedTradeInputHeader = ({
     handleChangeTab(TradeInputTab.LimitOrder)
   }, [handleChangeTab])
 
+  const handleClickStopLoss = useCallback(() => {
+    handleChangeTab(TradeInputTab.StopLoss)
+  }, [handleChangeTab])
+
   const handleClickBuyFiat = useCallback(() => {
     handleChangeTab(TradeInputTab.BuyFiat)
   }, [handleChangeTab])
@@ -108,6 +112,17 @@ export const SharedTradeInputHeader = ({
                 cursor={selectedTab !== TradeInputTab.LimitOrder ? 'pointer' : undefined}
               >
                 {translate('limitOrder.heading')}
+              </Heading>
+            )}
+            {!isStandalone && (
+              <Heading
+                as='h5'
+                fontSize='md'
+                color={selectedTab !== TradeInputTab.StopLoss ? 'text.subtle' : undefined}
+                onClick={handleClickStopLoss}
+                cursor={selectedTab !== TradeInputTab.StopLoss ? 'pointer' : undefined}
+              >
+                {translate('navBar.stopLoss.title')}
               </Heading>
             )}
             {enableSwapperFiatRamps && !isStandalone && (

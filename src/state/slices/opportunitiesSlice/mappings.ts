@@ -192,6 +192,8 @@ export const CHAIN_ID_TO_SUPPORTED_DEFI_OPPORTUNITIES: Record<
   [KnownChainIds.HyperEvmMainnet]: [],
   [KnownChainIds.PlasmaMainnet]: [],
   [KnownChainIds.KatanaMainnet]: [],
+  [KnownChainIds.CeloMainnet]: [],
+  [KnownChainIds.SeiMainnet]: [],
   [KnownChainIds.ZcashMainnet]: [],
   [KnownChainIds.NearMainnet]: [],
   [KnownChainIds.TonMainnet]: [],

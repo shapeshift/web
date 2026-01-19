@@ -7,6 +7,7 @@ import {
   bchAssetId,
   bscAssetId,
   btcAssetId,
+  celoAssetId,
   cosmosAssetId,
   dogeAssetId,
   ethAssetId,
@@ -20,6 +21,7 @@ import {
   optimismAssetId,
   plasmaAssetId,
   polygonAssetId,
+  seiAssetId,
   solAssetId,
   starknetAssetId,
   suiAssetId,
@@ -89,6 +91,10 @@ export const chainIdToFeeAssetId = (_chainId: ChainId): AssetId => {
       return nearAssetId
     case KnownChainIds.TonMainnet:
       return tonAssetId
+    case KnownChainIds.CeloMainnet:
+      return celoAssetId
+    case KnownChainIds.SeiMainnet:
+      return seiAssetId
     default:
       return assertUnreachable(chainId)
   }

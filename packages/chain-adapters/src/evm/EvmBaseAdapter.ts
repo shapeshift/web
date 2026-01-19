@@ -88,6 +88,8 @@ export const evmChainIds = [
   KnownChainIds.HyperEvmMainnet,
   KnownChainIds.PlasmaMainnet,
   KnownChainIds.KatanaMainnet,
+  KnownChainIds.CeloMainnet,
+  KnownChainIds.SeiMainnet,
 ] as const
 
 export type EvmChainAdapter = EvmBaseAdapter<EvmChainId>
@@ -291,6 +293,16 @@ export abstract class EvmBaseAdapter<T extends AnyEvmChainId> implements IChainA
         name: 'Ethereum',
         symbol: 'ETH',
         explorer: 'https://katanascan.com',
+      },
+      [KnownChainIds.CeloMainnet]: {
+        name: 'Celo',
+        symbol: 'CELO',
+        explorer: 'https://celoscan.io',
+      },
+      [KnownChainIds.SeiMainnet]: {
+        name: 'Sei',
+        symbol: 'SEI',
+        explorer: 'https://www.seiscan.app',
       },
     }
     const targetNetwork = targetNetworkByChainId[this.chainId] ?? {

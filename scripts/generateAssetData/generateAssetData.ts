@@ -38,7 +38,7 @@ import * as gnosis from './gnosis'
 import * as hyperevm from './hyperevm'
 import * as katana from './katana'
 import * as monad from './monad'
-import * as celo from './celo'
+import * as celoModule from './celo'
 // import * as sei from './sei'
 import * as near from './near'
 import * as optimism from './optimism'
@@ -76,7 +76,7 @@ const generateAssetData = async () => {
   const monadAssets = await monad.getAssets()
   const hyperevmAssets = await hyperevm.getAssets()
   const katanaAssets = await katana.getAssets()
-  const celoAssets = await celo.getAssets()
+  const celoAssets = await celoModule.getAssets()
   // const seiAssets = await sei.getAssets()
   const plasmaAssets = await plasma.getAssets()
   const solanaAssets = await solana.getAssets()

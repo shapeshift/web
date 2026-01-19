@@ -12,6 +12,7 @@ import {
   bitcoin,
   bitcoincash,
   bnbsmartchain,
+  celo,
   dogecoin,
   ethereum,
   gnosis,
@@ -24,6 +25,7 @@ import {
   optimism,
   plasma,
   polygon,
+  sei,
   solana,
   starknet,
   sui,
@@ -90,6 +92,10 @@ export const getBaseAsset = (chainId: ChainId): Readonly<Asset> => {
       return zcash
     case KnownChainIds.TonMainnet:
       return ton
+    case KnownChainIds.CeloMainnet:
+      return celo
+    case KnownChainIds.SeiMainnet:
+      return sei
     default:
       return assertUnreachable(knownChainId)
   }

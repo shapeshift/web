@@ -12,6 +12,7 @@ import {
   ethChainId,
   gnosisChainId,
   hyperEvmChainId,
+  isGenericChainId,
   katanaChainId,
   ltcChainId,
   mayachainChainId,
@@ -227,6 +228,9 @@ export const walletSupportsChain = ({
     case tonChainId:
       return isTonEnabled && supportsTon(wallet)
     default: {
+      if (isGenericChainId(chainId)) {
+        return supportsETH(wallet)
+      }
       return false
     }
   }

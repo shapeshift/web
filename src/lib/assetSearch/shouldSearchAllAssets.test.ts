@@ -42,7 +42,9 @@ describe('shouldSearchAllAssets', () => {
   })
 
   it('returns true for exact non-primary unique symbol (AXLUSDC)', () => {
-    expect(shouldSearchAllAssets('axlusdc', allAssets, PRIMARY_ASSET_IDS, PRIMARY_SYMBOLS)).toBe(true)
+    expect(shouldSearchAllAssets('axlusdc', allAssets, PRIMARY_ASSET_IDS, PRIMARY_SYMBOLS)).toBe(
+      true,
+    )
   })
 
   it('returns true for partial non-primary unique symbol (VB → VBUSDC)', () => {
@@ -51,7 +53,9 @@ describe('shouldSearchAllAssets', () => {
   })
 
   it('returns true for USDC.E search (non-primary unique symbol)', () => {
-    expect(shouldSearchAllAssets('usdc.e', allAssets, PRIMARY_ASSET_IDS, PRIMARY_SYMBOLS)).toBe(true)
+    expect(shouldSearchAllAssets('usdc.e', allAssets, PRIMARY_ASSET_IDS, PRIMARY_SYMBOLS)).toBe(
+      true,
+    )
   })
 
   it('returns false for completely unrelated search', () => {
@@ -63,7 +67,11 @@ describe('shouldSearchAllAssets', () => {
   })
 
   it('handles case insensitivity', () => {
-    expect(shouldSearchAllAssets('AXLUSDC', allAssets, PRIMARY_ASSET_IDS, PRIMARY_SYMBOLS)).toBe(true)
-    expect(shouldSearchAllAssets('Axlusdc', allAssets, PRIMARY_ASSET_IDS, PRIMARY_SYMBOLS)).toBe(true)
+    expect(shouldSearchAllAssets('AXLUSDC', allAssets, PRIMARY_ASSET_IDS, PRIMARY_SYMBOLS)).toBe(
+      true,
+    )
+    expect(shouldSearchAllAssets('Axlusdc', allAssets, PRIMARY_ASSET_IDS, PRIMARY_SYMBOLS)).toBe(
+      true,
+    )
   })
 })

@@ -138,12 +138,7 @@ export const BTC_MAINNET: TestAsset = {
 }
 
 // Primary asset sets for shouldSearchAllAssets tests
-export const PRIMARY_ASSETS = [
-  USDC_ETH_PRIMARY,
-  USDT_ETH_PRIMARY,
-  ETH_MAINNET,
-  BTC_MAINNET,
-]
+export const PRIMARY_ASSETS = [USDC_ETH_PRIMARY, USDT_ETH_PRIMARY, ETH_MAINNET, BTC_MAINNET]
 
 export const PRIMARY_ASSET_IDS = new Set(PRIMARY_ASSETS.map(a => a.assetId))
 export const PRIMARY_SYMBOLS = new Set(PRIMARY_ASSETS.map(a => a.symbol.toLowerCase()))

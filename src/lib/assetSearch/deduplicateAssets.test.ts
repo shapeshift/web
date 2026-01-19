@@ -129,9 +129,27 @@ describe('deduplicateAssets', () => {
     const axlusdtFamily = 'eip155:1/erc20:axlusdt-family'
     const assets = [
       { ...AXLUSDC_OPTIMISM, relatedAssetKey: axlusdcFamily, isPrimary: false },
-      { ...AXLUSDC_OPTIMISM, assetId: 'eip155:1/erc20:axlusdc-primary' as const, relatedAssetKey: axlusdcFamily, isPrimary: true },
-      { ...AXLUSDC_ARBITRUM, symbol: 'AXLUSDT', name: 'Axelar USDT', relatedAssetKey: axlusdtFamily, isPrimary: false },
-      { ...AXLUSDC_ARBITRUM, assetId: 'eip155:1/erc20:axlusdt-primary' as const, symbol: 'AXLUSDT', name: 'Axelar USDT', relatedAssetKey: axlusdtFamily, isPrimary: true },
+      {
+        ...AXLUSDC_OPTIMISM,
+        assetId: 'eip155:1/erc20:axlusdc-primary' as const,
+        relatedAssetKey: axlusdcFamily,
+        isPrimary: true,
+      },
+      {
+        ...AXLUSDC_ARBITRUM,
+        symbol: 'AXLUSDT',
+        name: 'Axelar USDT',
+        relatedAssetKey: axlusdtFamily,
+        isPrimary: false,
+      },
+      {
+        ...AXLUSDC_ARBITRUM,
+        assetId: 'eip155:1/erc20:axlusdt-primary' as const,
+        symbol: 'AXLUSDT',
+        name: 'Axelar USDT',
+        relatedAssetKey: axlusdtFamily,
+        isPrimary: true,
+      },
     ]
 
     const result = deduplicateAssets(assets, 'axlusd')
@@ -249,7 +267,11 @@ describe('deduplicateAssetsBySymbol (deprecated)', () => {
   })
 
   it('prefers primary assets over non-primary when same symbol', () => {
-    const assets = [USDT_OPTIMISM, USDT_ETH_PRIMARY, { ...USDT_OPTIMISM, assetId: 'eip155:42161/usdt' as const }]
+    const assets = [
+      USDT_OPTIMISM,
+      USDT_ETH_PRIMARY,
+      { ...USDT_OPTIMISM, assetId: 'eip155:42161/usdt' as const },
+    ]
 
     const result = deduplicateAssetsBySymbol(assets)
 

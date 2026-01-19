@@ -78,7 +78,7 @@ export const YieldItem = memo(
     const isSingle = data.type === 'single'
     const isGroup = data.type === 'group'
 
-    const stats = (() => {
+    const stats = useMemo(() => {
       if (isSingle) {
         const y = data.yieldItem
         return {
@@ -110,7 +110,7 @@ export const YieldItem = memo(
         name: data.assetName,
         canEnter: true,
       }
-    })()
+    }, [data, isSingle, yieldProviders])
 
     const apyFormatted = `${(stats.apy * 100).toFixed(2)}%`
     const tvlUserCurrency = bnOrZero(stats.tvlUsd).times(userCurrencyToUsdRate).toFixed()
@@ -134,7 +134,7 @@ export const YieldItem = memo(
       }
     }, [data, isSingle, navigate, onEnter, searchString, stats.canEnter])
 
-    const iconElement = (() => {
+    const iconElement = useMemo(() => {
       if (isSingle) {
         const iconSource = resolveYieldInputAssetIcon(data.yieldItem)
         const size = variant === 'card' ? 'md' : 'sm'
@@ -148,7 +148,7 @@ export const YieldItem = memo(
         return <AssetIcon assetId={data.assetId} size={size} showNetworkIcon={false} />
       }
       return <AssetIcon src={data.assetIcon} size={size} />
-    })()
+    }, [data, isSingle, variant])
 
     const subtitle = isSingle
       ? data.providerName ?? data.yieldItem.providerId
@@ -187,7 +187,7 @@ export const YieldItem = memo(
 
     const showAvailable = isSingle && hasAvailable && !hasBalance
 
-    const cardStatElement = (() => {
+    const cardStatElement = useMemo(() => {
       if (hasBalance) {
         return (
           <>
@@ -222,17 +222,24 @@ export const YieldItem = memo(
           </StatNumber>
         </>
       )
-    })()
+    }, [
+      hasBalance,
+      showAvailable,
+      userBalanceUserCurrency,
+      availableBalanceUserCurrency,
+      tvlUserCurrency,
+      translate,
+    ])
 
     const showAvailableInRow = isSingle && hasAvailable
 
-    const mobileBalanceLabelKey = (() => {
+    const mobileBalanceLabelKey = useMemo(() => {
       if (hasBalance) return 'yieldXYZ.balance'
       if (showAvailable) return 'common.available'
       return 'yieldXYZ.balance'
-    })()
+    }, [hasBalance, showAvailable])
 
-    const mobileBalanceElement = (() => {
+    const mobileBalanceElement = useMemo(() => {
       if (hasBalance) {
         return (
           <Text fontWeight='medium' color='blue.400'>
@@ -252,9 +259,9 @@ export const YieldItem = memo(
           —
         </Text>
       )
-    })()
+    }, [hasBalance, showAvailable, userBalanceUserCurrency, availableBalanceUserCurrency])
 
-    const rowBalanceElement = (() => {
+    const rowBalanceElement = useMemo(() => {
       if (hasBalance && showAvailableInRow) {
         return (
           <Box>
@@ -301,7 +308,13 @@ export const YieldItem = memo(
           —
         </Text>
       )
-    })()
+    }, [
+      hasBalance,
+      showAvailableInRow,
+      userBalanceUserCurrency,
+      availableBalanceUserCurrency,
+      translate,
+    ])
 
     if (variant === 'mobile') {
       return (

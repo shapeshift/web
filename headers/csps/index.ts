@@ -1,3 +1,4 @@
+import { csp as agenticChat } from './agenticChat'
 import { csp as alchemy } from './alchemy'
 import { csp as trustwallet } from './assetService/trustwallet'
 import { csp as base } from './base'
@@ -80,6 +81,7 @@ import { csp as yieldxyz } from './yieldxyz'
 
 export const csps = [
   base,
+  agenticChat,
   hypelab,
   alchemy,
   moralis,

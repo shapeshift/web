@@ -1,11 +1,13 @@
 import { Box, Flex, Text, useColorModeValue } from '@chakra-ui/react'
 import type { UIMessage } from 'ai'
+import { isToolOrDynamicToolUIPart } from 'ai'
 import { memo, useEffect, useMemo, useRef } from 'react'
 import { useTranslate } from 'react-polyglot'
 
 import type { AgenticChatHelpers } from '../hooks/useAgenticChat'
 import { LoadingIndicator } from './LoadingIndicator'
 import { Markdown } from './Markdown'
+import { ToolInvocationRenderer } from './ToolInvocationRenderer'
 
 type ChatProps = {
   chat: AgenticChatHelpers
@@ -14,10 +16,9 @@ type ChatProps = {
 type MessageItemProps = {
   message: UIMessage
   userBg: string
-  assistantBg: string
 }
 
-const MessageItem = memo(({ message, userBg, assistantBg }: MessageItemProps) => {
+const MessageItem = memo(({ message, userBg }: MessageItemProps) => {
   const textContent = useMemo(
     () =>
       message.parts
@@ -27,18 +28,32 @@ const MessageItem = memo(({ message, userBg, assistantBg }: MessageItemProps) =>
     [message.parts],
   )
 
-  if (textContent.trim().length === 0) return null
+  const toolInvocations = useMemo(
+    () => message.parts.filter(isToolOrDynamicToolUIPart),
+    [message.parts],
+  )
+
+  const hasContent = textContent.trim().length > 0 || toolInvocations.length > 0
+
+  if (!hasContent) return null
+
+  const isUser = message.role === 'user'
+
+  const bubbleStyles = isUser
+    ? {
+        bg: userBg,
+        px: 3,
+        py: 2,
+        borderRadius: 'lg',
+      }
+    : {}
 
   return (
-    <Box
-      alignSelf={message.role === 'user' ? 'flex-end' : 'flex-start'}
-      bg={message.role === 'user' ? userBg : assistantBg}
-      px={3}
-      py={2}
-      borderRadius='lg'
-      maxWidth='80%'
-    >
-      <Markdown>{textContent}</Markdown>
+    <Box alignSelf={isUser ? 'flex-end' : 'flex-start'} maxW='80%' {...bubbleStyles}>
+      {toolInvocations.map(toolPart => (
+        <ToolInvocationRenderer key={toolPart.toolCallId} toolPart={toolPart} />
+      ))}
+      {textContent.trim().length > 0 && <Markdown>{textContent}</Markdown>}
     </Box>
   )
 })
@@ -53,7 +68,6 @@ export const Chat = ({ chat }: ChatProps) => {
   const shouldAutoScrollRef = useRef(true)
 
   const userBg = useColorModeValue('blue.50', 'blue.900')
-  const assistantBg = useColorModeValue('gray.50', 'gray.700')
 
   useEffect(() => {
     const viewport = viewportRef.current
@@ -93,12 +107,7 @@ export const Chat = ({ chat }: ChatProps) => {
       ) : (
         <>
           {messages.map((message: UIMessage) => (
-            <MessageItem
-              key={message.id}
-              message={message}
-              userBg={userBg}
-              assistantBg={assistantBg}
-            />
+            <MessageItem key={message.id} message={message} userBg={userBg} />
           ))}
           {isLoading && <LoadingIndicator />}
           <div ref={bottomRef} />

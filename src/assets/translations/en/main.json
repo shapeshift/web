@@ -208,7 +208,44 @@
     "emptyState": "How can I help you today?",
     "placeholder": "Type a message...",
     "stop": "Stop",
-    "send": "Send"
+    "send": "Send",
+    "tools": {
+      "send": {
+        "title": "Send Crypto",
+        "receivedFrom": "Received from %{address}",
+        "steps": {
+          "preparation": "Preparing send transaction",
+          "send": "Sign and send transaction"
+        },
+        "errors": {
+          "prepareFailed": "Failed to prepare send transaction",
+          "sendFailed": "Send failed: %{error}",
+          "noWallet": "No wallet connected",
+          "accountNotFound": "Account not found"
+        },
+        "success": {
+          "transactionSent": "Transaction sent: %{txHash}"
+        }
+      },
+      "swap": {
+        "title": "Swap",
+        "receivedFrom": "Received from %{address}",
+        "steps": {
+          "quote": "Getting swap quote",
+          "networkSwitch": "Switch to %{network}",
+          "networkSwitchGeneric": "Switch network",
+          "approval": "Approve token spending",
+          "approvalConfirmation": "Waiting for approval confirmation",
+          "swap": "Execute swap"
+        },
+        "errors": {
+          "quoteFailed": "Failed to get swap quote",
+          "swapFailed": "Swap execution failed: %{error}",
+          "noWallet": "No wallet connected",
+          "accountNotFound": "Account not found"
+        }
+      }
+    }
   },
   "quickBuy": {
     "title": "Quick Buy %{assetOnChain}",

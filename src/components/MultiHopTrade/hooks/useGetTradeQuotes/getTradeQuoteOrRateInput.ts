@@ -274,6 +274,25 @@ export const getTradeQuoteOrRateInput = async ({
         sendAddress,
       } as GetTradeQuoteInput
     }
+    case CHAIN_NAMESPACE.Ton: {
+      const { assertGetTonChainAdapter } = await import('@/lib/utils/ton')
+      const sellAssetChainAdapter = assertGetTonChainAdapter(sellAsset.chainId)
+
+      const sendAddress =
+        wallet && sellAccountNumber !== undefined
+          ? await sellAssetChainAdapter.getAddress({
+              accountNumber: sellAccountNumber,
+              wallet,
+              pubKey,
+            })
+          : undefined
+
+      return {
+        ...tradeQuoteInputCommonArgs,
+        chainId: sellAsset.chainId,
+        sendAddress,
+      } as GetTradeQuoteInput
+    }
     default:
       assertUnreachable(chainNamespace)
   }

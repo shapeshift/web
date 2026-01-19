@@ -12,7 +12,6 @@ import {
   HStack,
   Skeleton,
   Text,
-  Tooltip,
   VStack,
 } from '@chakra-ui/react'
 import { fromAccountId } from '@shapeshiftoss/caip'
@@ -24,9 +23,7 @@ import { useNavigate } from 'react-router-dom'
 
 import { Amount } from '@/components/Amount/Amount'
 import { Display } from '@/components/Display'
-import { WalletActions } from '@/context/WalletProvider/actions'
 import { useBrowserRouter } from '@/hooks/useBrowserRouter/useBrowserRouter'
-import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import type { AugmentedYieldDto } from '@/lib/yieldxyz/types'
 import { YieldBalanceType } from '@/lib/yieldxyz/types'
@@ -70,7 +67,6 @@ export const YieldPositionCard = memo(
     const translate = useTranslate()
     const navigate = useNavigate()
     const { location } = useBrowserRouter()
-    const { dispatch: walletDispatch } = useWallet()
 
     const { chainId } = yieldItem
     const { accountId: contextAccountId, accountNumber } = useYieldAccount()
@@ -141,10 +137,6 @@ export const YieldPositionCard = memo(
       claimableBalance && bnOrZero(claimableBalance.aggregatedAmount).gt(0),
     )
 
-    const hasActive = Boolean(activeBalance && bnOrZero(activeBalance.aggregatedAmount).gt(0))
-
-    const canExit = hasActive || hasWithdrawable
-
     const totalValueUsd = useMemo(
       () =>
         [activeBalance, enteringBalance, exitingBalance, withdrawableBalance].reduce(
@@ -207,20 +199,10 @@ export const YieldPositionCard = memo(
     const handleClaimClick = useCallback(() => navigateToAction('claim'), [navigateToAction])
     const handleEnter = useCallback(() => navigateToAction('enter'), [navigateToAction])
     const handleExit = useCallback(() => navigateToAction('exit'), [navigateToAction])
-    const handleConnectWallet = useCallback(
-      () => walletDispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true }),
-      [walletDispatch],
-    )
 
     const actionLabelKeys = getYieldActionLabelKeys(yieldItem.mechanics.type)
     const enterLabel = translate(actionLabelKeys.enter)
     const exitLabel = translate(actionLabelKeys.exit)
-
-    const exitDisabledReason = useMemo(() => {
-      if (!hasAnyPosition) return translate('yieldXYZ.noActivePosition')
-      if (!canExit) return translate('yieldXYZ.noWithdrawableAmount')
-      return undefined
-    }, [hasAnyPosition, canExit, translate])
 
     const showPendingActions = hasEntering || hasExiting || hasWithdrawable || hasClaimable
 
@@ -378,7 +360,9 @@ export const YieldPositionCard = memo(
       claimableSection,
     ])
 
-    if (accountId && isBalancesLoading) {
+    if (!accountId) return null
+
+    if (isBalancesLoading) {
       return (
         <Card variant='dashboard'>
           <CardBody p={{ base: 4, md: 5 }}>
@@ -420,62 +404,46 @@ export const YieldPositionCard = memo(
                 {translate('yieldXYZ.totalValue')}
               </Text>
               <Text fontSize='3xl' fontWeight='800' lineHeight='1'>
-                <Amount.Fiat value={accountId ? totalValueUserCurrency : '0'} abbreviated />
+                <Amount.Fiat value={totalValueUserCurrency} abbreviated />
               </Text>
               <Text fontSize='sm' color='text.subtle' mt={1}>
                 <Amount.Crypto
-                  value={accountId ? totalAmountFixed : '0'}
+                  value={totalAmountFixed}
                   symbol={yieldItem.token.symbol}
                   abbreviated
                 />
               </Text>
             </Box>
-            {accountId && pendingActionsSection}
+            {pendingActionsSection}
             <Display.Desktop>
-              {accountId ? (
-                <HStack spacing={3} pt={2}>
-                  <Button
-                    leftIcon={enterIcon}
-                    colorScheme='blue'
-                    size='lg'
-                    height={12}
-                    borderRadius='xl'
-                    onClick={handleEnter}
-                    flex={1}
-                    fontWeight='bold'
-                  >
-                    {enterLabel}
-                  </Button>
-                  <Tooltip label={exitDisabledReason} isDisabled={!exitDisabledReason}>
-                    <Button
-                      leftIcon={exitIcon}
-                      variant='outline'
-                      size='lg'
-                      height={12}
-                      borderRadius='xl'
-                      onClick={handleExit}
-                      flex={1}
-                      fontWeight='bold'
-                      isDisabled={!canExit}
-                    >
-                      {exitLabel}
-                    </Button>
-                  </Tooltip>
-                </HStack>
-              ) : (
+              <HStack spacing={3} pt={2}>
                 <Button
+                  leftIcon={enterIcon}
                   colorScheme='blue'
                   size='lg'
                   height={12}
                   borderRadius='xl'
-                  onClick={handleConnectWallet}
-                  width='full'
+                  onClick={handleEnter}
+                  flex={1}
                   fontWeight='bold'
-                  mt={2}
                 >
-                  {translate('common.connectWallet')}
+                  {enterLabel}
                 </Button>
-              )}
+                {hasAnyPosition && (
+                  <Button
+                    leftIcon={exitIcon}
+                    variant='outline'
+                    size='lg'
+                    height={12}
+                    borderRadius='xl'
+                    onClick={handleExit}
+                    flex={1}
+                    fontWeight='bold'
+                  >
+                    {exitLabel}
+                  </Button>
+                )}
+              </HStack>
             </Display.Desktop>
           </VStack>
         </CardBody>

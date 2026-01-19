@@ -28,6 +28,7 @@ import {
   starknet,
   sui,
   thorchain,
+  ton,
   tron,
   zcash,
 } from './baseAssets'
@@ -87,6 +88,8 @@ export const getBaseAsset = (chainId: ChainId): Readonly<Asset> => {
       return near
     case KnownChainIds.ZcashMainnet:
       return zcash
+    case KnownChainIds.TonMainnet:
+      return ton
     default:
       return assertUnreachable(knownChainId)
   }

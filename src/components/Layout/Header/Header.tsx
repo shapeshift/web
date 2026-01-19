@@ -83,24 +83,16 @@ export const Header = memo(() => {
   const height = useMemo(() => ref.current?.getBoundingClientRect()?.height ?? 0, [])
   const { scrollY } = useScroll()
 
-  // Responsive display based on viewport width
-  const searchBoxDisplay = useMemo(
-    () => ({
-      base: 'none',
-      '2xl': 'flex',
-      // Hide at smaller breakpoints where it would get cramped
-      xl: 'none',
-    }),
-    [],
-  )
+  const searchBoxDisplay = {
+    base: 'none',
+    '2xl': 'flex',
+    xl: 'none',
+  }
 
-  const iconButtonDisplay = useMemo(
-    () => ({
-      base: 'flex',
-      '2xl': 'none',
-    }),
-    [],
-  )
+  const iconButtonDisplay = {
+    base: 'flex',
+    '2xl': 'none',
+  }
 
   useEffect(() => {
     return scrollY.onChange(() => setY(scrollY.get()))
@@ -124,12 +116,12 @@ export const Header = memo(() => {
   const hasWallet = Boolean(walletInfo?.deviceId)
   const earnSubMenuItems = useMemo(
     () => [
+      ...(isYieldXyzEnabled
+        ? [{ label: 'navBar.yields', path: '/yields', icon: TbTrendingUp, isNew: true }]
+        : []),
       { label: 'navBar.tcy', path: '/tcy', icon: TCYIcon },
       { label: 'navBar.pools', path: '/pools', icon: TbPool },
       { label: 'navBar.lending', path: '/lending', icon: TbBuildingBank },
-      ...(isYieldXyzEnabled
-        ? [{ label: 'navBar.yields', path: '/yields', icon: TbTrendingUp }]
-        : []),
     ],
     [isYieldXyzEnabled],
   )
@@ -188,7 +180,11 @@ export const Header = memo(() => {
                 items={exploreSubMenuItems}
                 defaultPath='/assets'
               />
-              <NavigationDropdown label='defi.earn' items={earnSubMenuItems} defaultPath='/tcy' />
+              <NavigationDropdown
+                label='defi.earn'
+                items={earnSubMenuItems}
+                defaultPath={isYieldXyzEnabled ? '/yields' : '/tcy'}
+              />
               <Link
                 as={ReactRouterLink}
                 to={isRfoxFoxEcosystemPageEnabled ? '/fox-ecosystem' : '/fox'}

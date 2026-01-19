@@ -2694,8 +2694,6 @@
     "gasToken": "Gas Token",
     "entering": "Entering...",
     "exiting": "Exiting...",
-    "unstakingLoading": "Unstaking...",
-    "withdrawing": "Withdrawing...",
     "unstaking": "Unstaking",
     "availableDate": "available %{date}",
     "withdrawable": "Withdrawable",
@@ -2781,8 +2779,6 @@
     "successEnter": "You successfully entered %{amount} %{symbol}",
     "successExit": "You successfully exited %{amount} %{symbol}",
     "successClaim": "You successfully claimed %{amount} %{symbol}",
-    "successUnstaked": "You successfully unstaked %{amount} %{symbol}",
-    "successWithdrawn": "You successfully withdrew %{amount} %{symbol}",
     "viewPosition": "View Position",
     "via": "via",
     "resetAllowance": "Reset Allowance",
@@ -2836,11 +2832,8 @@
     "availableToDepositTooltip": "This is the amount of %{symbol} in your wallet that you can deposit into this yield opportunity.",
     "potentialEarningsAmount": "%{amount}/yr at %{apy}% APY",
     "depositNow": "Deposit Now",
-    "getAsset": "Get %{symbol}",
     "strategyInfo": "Strategy Info",
-    "overview": "Overview",
-    "noActivePosition": "You don't have any active position",
-    "noWithdrawableAmount": "No withdrawable amount"
+    "overview": "Overview"
   },
   "earn": {
     "enterFrom": "Enter from",

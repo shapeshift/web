@@ -31,6 +31,7 @@ describe('getTradeRate', () => {
       assertGetSuiChainAdapter: () => vi.fn() as any,
       assertGetNearChainAdapter: () => vi.fn() as any,
       assertGetStarknetChainAdapter: () => vi.fn() as any,
+      assertGetTonChainAdapter: () => vi.fn() as any,
       config: {
         VITE_BUTTERSWAP_CLIENT_ID: 'test',
       } as any,
@@ -74,6 +75,7 @@ describe('getTradeRate', () => {
       assertGetSuiChainAdapter: () => vi.fn() as any,
       assertGetNearChainAdapter: () => vi.fn() as any,
       assertGetStarknetChainAdapter: () => vi.fn() as any,
+      assertGetTonChainAdapter: () => vi.fn() as any,
       config: {
         VITE_BUTTERSWAP_CLIENT_ID: 'test',
       } as any,

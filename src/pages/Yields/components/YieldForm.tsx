@@ -1,4 +1,5 @@
 import { Avatar, Box, Button, Flex, HStack, Icon, Input, Skeleton, Text } from '@chakra-ui/react'
+import type { AccountId } from '@shapeshiftoss/caip'
 import { useQueryClient } from '@tanstack/react-query'
 import type { ChangeEvent } from 'react'
 import { memo, useCallback, useEffect, useMemo, useState } from 'react'
@@ -23,9 +24,14 @@ import {
 } from '@/lib/yieldxyz/constants'
 import type { AugmentedYieldDto } from '@/lib/yieldxyz/types'
 import { YieldBalanceType } from '@/lib/yieldxyz/types'
-import { getTransactionButtonText } from '@/lib/yieldxyz/utils'
+import {
+  getTransactionButtonText,
+  getYieldActionLabelKeys,
+  isStakingYieldType,
+} from '@/lib/yieldxyz/utils'
 import { GradientApy } from '@/pages/Yields/components/GradientApy'
 import { TransactionStepsList } from '@/pages/Yields/components/TransactionStepsList'
+import { YieldExplainers } from '@/pages/Yields/components/YieldExplainers'
 import { YieldSuccess } from '@/pages/Yields/components/YieldSuccess'
 import { ModalStep, useYieldTransactionFlow } from '@/pages/Yields/hooks/useYieldTransactionFlow'
 import type { NormalizedYieldBalances } from '@/react-queries/queries/yieldxyz/useAllYieldBalances'
@@ -34,6 +40,7 @@ import { useYieldValidators } from '@/react-queries/queries/yieldxyz/useYieldVal
 import { allowedDecimalSeparators } from '@/state/slices/preferencesSlice/preferencesSlice'
 import {
   selectAccountIdByAccountNumberAndChainId,
+  selectAccountNumberByAccountId,
   selectAssetById,
   selectMarketDataByAssetIdUserCurrency,
   selectPortfolioAccountIdsByAssetIdFilter,
@@ -46,6 +53,7 @@ type YieldFormProps = {
   balances?: NormalizedYieldBalances
   action: 'enter' | 'exit' | 'claim'
   validatorAddress?: string
+  accountId?: AccountId
   accountNumber?: number
   onClose: () => void
   onDone?: () => void
@@ -53,36 +61,6 @@ type YieldFormProps = {
 }
 
 const PRESET_PERCENTAGES = [0.25, 0.5, 0.75, 1] as const
-
-const getEnterActionTextKey = (yieldType: string | undefined): string => {
-  switch (yieldType) {
-    case 'native-staking':
-    case 'pooled-staking':
-    case 'liquid-staking':
-    case 'staking':
-      return 'defi.stake'
-    case 'vault':
-      return 'common.deposit'
-    case 'lending':
-      return 'common.supply'
-    default:
-      return 'common.deposit'
-  }
-}
-
-const getExitActionTextKey = (yieldType: string | undefined): string => {
-  switch (yieldType) {
-    case 'native-staking':
-    case 'pooled-staking':
-    case 'liquid-staking':
-    case 'staking':
-      return 'defi.unstake'
-    case 'vault':
-    case 'lending':
-    default:
-      return 'common.withdraw'
-  }
-}
 
 const INPUT_LENGTH_BREAKPOINTS = {
   FOR_XS_FONT: 22,
@@ -141,7 +119,8 @@ export const YieldForm = memo(
     balances,
     action,
     validatorAddress,
-    accountNumber = 0,
+    accountId: accountIdProp,
+    accountNumber,
     onClose,
     onDone,
   }: YieldFormProps) => {
@@ -156,7 +135,7 @@ export const YieldForm = memo(
 
     const [cryptoAmount, setCryptoAmount] = useState('')
     const [isFiat, setIsFiat] = useState(false)
-    const [selectedAccountId, setSelectedAccountId] = useState<string | undefined>()
+    const [selectedAccountId, setSelectedAccountId] = useState<AccountId | undefined>(accountIdProp)
     const [selectedPercent, setSelectedPercent] = useState<number | null>(null)
 
     const { chainId } = yieldItem
@@ -181,10 +160,18 @@ export const YieldForm = memo(
       selectPortfolioAccountIdsByAssetIdFilter(state, accountIdFilter),
     )
 
+    const derivedAccountNumber = useAppSelector(state => {
+      if (accountNumber !== undefined) return accountNumber
+      if (accountIdProp)
+        return selectAccountNumberByAccountId(state, { accountId: accountIdProp }) ?? 0
+      return 0
+    })
+
     const defaultAccountId = useAppSelector(state => {
+      if (accountIdProp) return accountIdProp
       if (!chainId) return undefined
       const accountIdsByNumberAndChain = selectAccountIdByAccountNumberAndChainId(state)
-      return accountIdsByNumberAndChain[accountNumber]?.[chainId]
+      return accountIdsByNumberAndChain[derivedAccountNumber]?.[chainId]
     })
 
     const accountId = selectedAccountId ?? defaultAccountId
@@ -211,7 +198,7 @@ export const YieldForm = memo(
 
     const { data: providers } = useYieldProviders()
 
-    const isStaking = yieldItem.mechanics.type === 'staking'
+    const isStaking = isStakingYieldType(yieldItem.mechanics.type)
 
     const selectedValidatorMetadata = useMemo(() => {
       if (!isStaking || !selectedValidatorAddress) return null
@@ -365,7 +352,7 @@ export const YieldForm = memo(
       else onClose()
     }, [onClose, onDone, queryClient, yieldItem.id, action])
 
-    const handleAccountChange = useCallback((newAccountId: string) => {
+    const handleAccountChange = useCallback((newAccountId: AccountId) => {
       setSelectedAccountId(newAccountId)
       setCryptoAmount('')
       setSelectedPercent(null)
@@ -461,14 +448,12 @@ export const YieldForm = memo(
       const firstCreatedTx = quoteData?.transactions?.find(tx => tx.status === 'CREATED')
       if (firstCreatedTx) return getTransactionButtonText(firstCreatedTx.type, firstCreatedTx.title)
 
-      const yieldType = yieldItem.mechanics.type
+      const actionLabelKeys = getYieldActionLabelKeys(yieldItem.mechanics.type)
       if (action === 'enter') {
-        const actionKey = getEnterActionTextKey(yieldType)
-        return `${translate(actionKey)} ${inputTokenAsset?.symbol ?? ''}`
+        return `${translate(actionLabelKeys.enter)} ${inputTokenAsset?.symbol ?? ''}`
       }
       if (action === 'exit') {
-        const actionKey = getExitActionTextKey(yieldType)
-        return `${translate(actionKey)} ${inputTokenAsset?.symbol ?? ''}`
+        return `${translate(actionLabelKeys.exit)} ${inputTokenAsset?.symbol ?? ''}`
       }
       if (action === 'claim') {
         return `${translate('common.claim')} ${claimableToken?.symbol ?? ''}`
@@ -714,6 +699,7 @@ export const YieldForm = memo(
           providerInfo={successProviderInfo}
           transactionSteps={transactionSteps}
           yieldId={yieldItem.id}
+          accountId={accountId}
           onDone={handleFormDone}
           successMessageKey={successMessageKey}
         />
@@ -731,11 +717,14 @@ export const YieldForm = memo(
                 assetId={inputTokenAssetId}
                 accountId={accountId}
                 onChange={handleAccountChange}
-                disabled={isAccountSelectorDisabled}
+                disabled={isAccountSelectorDisabled || isSubmitting}
               />
             </Flex>
           )}
           {!isClaimAction && statsContent}
+          {!isClaimAction && (
+            <YieldExplainers selectedYield={yieldItem} sellAssetSymbol={inputTokenAsset?.symbol} />
+          )}
           {stepsToShow.length > 0 && <TransactionStepsList steps={stepsToShow} />}
         </Flex>
 

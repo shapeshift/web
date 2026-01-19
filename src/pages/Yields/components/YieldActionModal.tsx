@@ -16,11 +16,7 @@ import {
   SHAPESHIFT_VALIDATOR_NAME,
 } from '@/lib/yieldxyz/constants'
 import type { AugmentedYieldDto } from '@/lib/yieldxyz/types'
-import {
-  getTransactionButtonText,
-  getYieldActionLabelKeys,
-  isStakingYieldType,
-} from '@/lib/yieldxyz/utils'
+import { getTransactionButtonText, isStakingYieldType } from '@/lib/yieldxyz/utils'
 import { GradientApy } from '@/pages/Yields/components/GradientApy'
 import { TransactionStepsList } from '@/pages/Yields/components/TransactionStepsList'
 import { YieldAssetFlow } from '@/pages/Yields/components/YieldAssetFlow'
@@ -95,11 +91,6 @@ export const YieldActionModal = memo(function YieldActionModal({
 
   const isStaking = useMemo(
     () => isStakingYieldType(yieldItem.mechanics.type),
-    [yieldItem.mechanics.type],
-  )
-
-  const actionLabelKeys = useMemo(
-    () => getYieldActionLabelKeys(yieldItem.mechanics.type),
     [yieldItem.mechanics.type],
   )
 
@@ -195,11 +186,9 @@ export const YieldActionModal = memo(function YieldActionModal({
       return transactionSteps[activeStepIndex].loadingMessage
     }
     if (action === 'enter') return translate('yieldXYZ.entering')
-    if (action === 'exit') {
-      return translate(isStaking ? 'yieldXYZ.unstakingLoading' : 'yieldXYZ.withdrawing')
-    }
+    if (action === 'exit') return translate('yieldXYZ.exiting')
     return translate('common.claiming')
-  }, [isQuoteLoading, action, translate, activeStepIndex, transactionSteps, isStaking])
+  }, [isQuoteLoading, action, translate, activeStepIndex, transactionSteps])
 
   const buttonText = useMemo(() => {
     // Use the current step's type/title for a clean button label (e.g., "Enter", "Exit", "Approve")
@@ -217,27 +206,16 @@ export const YieldActionModal = memo(function YieldActionModal({
       return getTransactionButtonText(firstCreatedTx.type, firstCreatedTx.title)
     }
     // Fallback to action-based text
-    if (action === 'enter') return translate(actionLabelKeys.enter)
-    if (action === 'exit') return translate(actionLabelKeys.exit)
+    if (action === 'enter') return translate('yieldXYZ.enter')
+    if (action === 'exit') return translate('yieldXYZ.exit')
     return translate('common.claim')
-  }, [
-    action,
-    translate,
-    activeStepIndex,
-    transactionSteps,
-    quoteData,
-    isUsdtResetRequired,
-    actionLabelKeys,
-  ])
+  }, [action, translate, activeStepIndex, transactionSteps, quoteData, isUsdtResetRequired])
 
   const modalHeading = useMemo(() => {
     if (action === 'enter') return translate('yieldXYZ.enterSymbol', { symbol: assetSymbol })
-    if (action === 'exit') {
-      const exitKey = isStaking ? 'yieldXYZ.unstakeSymbol' : 'yieldXYZ.withdrawSymbol'
-      return translate(exitKey, { symbol: assetSymbol })
-    }
+    if (action === 'exit') return translate('yieldXYZ.exitSymbol', { symbol: assetSymbol })
     return translate('yieldXYZ.claimSymbol', { symbol: assetSymbol })
-  }, [action, assetSymbol, translate, isStaking])
+  }, [action, assetSymbol, translate])
 
   const networkAvatarSrc = useMemo(
     () => feeAsset?.networkIcon ?? feeAsset?.icon,
@@ -371,10 +349,9 @@ export const YieldActionModal = memo(function YieldActionModal({
 
   const successMessageKey = useMemo(() => {
     if (action === 'enter') return 'successEnter' as const
-    if (action === 'exit')
-      return isStaking ? ('successUnstaked' as const) : ('successWithdrawn' as const)
+    if (action === 'exit') return 'successExit' as const
     return 'successClaim' as const
-  }, [action, isStaking])
+  }, [action])
 
   const successProviderInfo = useMemo(
     () => (vaultMetadata ? { name: vaultMetadata.name, logoURI: vaultMetadata.logoURI } : null),

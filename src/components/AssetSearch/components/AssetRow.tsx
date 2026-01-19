@@ -20,6 +20,7 @@ import { KeyManager } from '@/context/WalletProvider/KeyManager'
 import { useCopyToClipboard } from '@/hooks/useCopyToClipboard'
 import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { useWallet } from '@/hooks/useWallet/useWallet'
+import { isExactSymbolMatch } from '@/lib/assetSearch'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { firstNonZeroDecimal } from '@/lib/math'
 import { chainIdToChainDisplayName, middleEllipsis } from '@/lib/utils'
@@ -69,6 +70,7 @@ export const AssetRow: FC<AssetRowProps> = memo(
       hideZeroBalanceAmounts,
       assetFilterPredicate,
       chainIdFilterPredicate,
+      searchString,
     },
     showPrice = false,
     onImportClick,
@@ -247,7 +249,10 @@ export const AssetRow: FC<AssetRowProps> = memo(
       changePercent24Hr,
     ])
 
-    if (showRelatedAssets && filteredRelatedAssetIds.length > 1) {
+    const isExactMatchOnNonPrimaryAsset =
+      searchString && !asset.isPrimary && isExactSymbolMatch(searchString, asset.symbol)
+
+    if (showRelatedAssets && filteredRelatedAssetIds.length > 1 && !isExactMatchOnNonPrimaryAsset) {
       return (
         <GroupedAssetRow
           asset={asset}

@@ -9,6 +9,10 @@ import { isEvmAddress } from '@/lib/utils/isEvmAddress'
 
 export const isSearchableAsset = (assetId: AssetId): boolean => !isNft(assetId)
 
+export function isExactSymbolMatch(searchQuery: string, symbol: string): boolean {
+  return searchQuery.toLowerCase() === symbol.toLowerCase()
+}
+
 export const filterAssetsByEthAddress = <T extends { assetId: AssetId }>(
   address: string,
   assets: T[],

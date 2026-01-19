@@ -207,6 +207,7 @@ export const SearchTermAssetList = ({
           showRelatedAssets={activeChainId === 'All' && !isContractAddress(searchString)}
           isLoading={isLoadingCustomTokens || isAssetListLoading || workerSearchState.isSearching}
           height={isLargerThanMd ? '50vh' : '70vh'}
+          searchString={searchString}
         />
       </Box>
     </>

@@ -25,10 +25,11 @@ type MarketsTableVirtualizedProps = {
   rows: Asset[]
   onRowClick: (asset: Asset) => void
   onRowLongPress?: (asset: Asset) => void
+  searchString?: string
 }
 
 export const MarketsTableVirtualized: React.FC<MarketsTableVirtualizedProps> = memo(
-  ({ rows, onRowClick, onRowLongPress }) => {
+  ({ rows, onRowClick, onRowLongPress, searchString }) => {
     const translate = useTranslate()
     const { navigateToTrade } = useTradeNavigation()
     const [isLargerThanMd] = useMediaQuery(`(min-width: ${breakpoints['md']})`, { ssr: false })
@@ -161,6 +162,7 @@ export const MarketsTableVirtualized: React.FC<MarketsTableVirtualizedProps> = m
             height='100vh'
             showRelatedAssets
             showPrice
+            searchString={searchString}
           />
         </Box>
       )

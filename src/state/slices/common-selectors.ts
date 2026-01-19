@@ -23,6 +23,7 @@ import {
 import { portfolio } from './portfolioSlice/portfolioSlice'
 import { preferences } from './preferencesSlice/preferencesSlice'
 
+import { isExactSymbolMatch } from '@/lib/assetSearch'
 import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
 import { fromBaseUnit } from '@/lib/math'
 import { isSome } from '@/lib/utils'
@@ -521,12 +522,14 @@ export const selectAssetsBySearchQuery = createCachedSelector(
   (primaryAssets, allAssets, marketDataUsd, searchQuery, limit): Asset[] => {
     if (!searchQuery) return primaryAssets.slice(0, limit)
 
-    // Contract address searches need all assets to find related variants
-    // Name/symbol searches use primaries to avoid duplicates
     const isContractAddressSearch = isContractAddress(searchQuery)
-    const sortedAssets = isContractAddressSearch ? allAssets : primaryAssets
+    const primaryAssetIds = new Set(primaryAssets.map(a => a.assetId))
+    const hasExactNonPrimarySymbolMatch = allAssets.some(
+      asset => isExactSymbolMatch(searchQuery, asset.symbol) && !primaryAssetIds.has(asset.assetId),
+    )
+    const sortedAssets =
+      isContractAddressSearch || hasExactNonPrimarySymbolMatch ? allAssets : primaryAssets
 
-    // Filters by low market-cap to avoid spew
     const filteredAssets = sortedAssets.filter(asset => {
       const marketCap = marketDataUsd[asset.assetId]?.marketCap
       return bnOrZero(marketCap).isZero() || bnOrZero(marketCap).gte(1000)

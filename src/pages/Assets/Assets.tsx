@@ -79,6 +79,7 @@ export const Assets = () => {
           rows={rows}
           onRowClick={handleRowClick}
           onRowLongPress={handleRowLongPress}
+          searchString={searchQuery}
         />
       </ComponentErrorBoundary>
     </Main>

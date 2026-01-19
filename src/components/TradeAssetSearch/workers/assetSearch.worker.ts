@@ -4,19 +4,27 @@
   and responds to search requests with filtered assetIds.
 */
 
+import type { AssetId } from '@shapeshiftoss/caip'
+
 import type {
   AssetSearchWorkerInboundMessage,
   AssetSearchWorkerOutboundMessage,
   SearchableAsset,
 } from '@/lib/assetSearch'
-import { filterAssetsByChainSupport, searchAssets } from '@/lib/assetSearch'
+import { filterAssetsByChainSupport, isExactSymbolMatch, searchAssets } from '@/lib/assetSearch'
 import { isContractAddress } from '@/lib/utils/isContractAddress'
 
-// Internal state
-let ASSETS: SearchableAsset[] = []
-let PRIMARY_ASSETS: SearchableAsset[] = []
+let assets: SearchableAsset[] = []
+let primaryAssets: SearchableAsset[] = []
+let primaryAssetIds: Set<AssetId> = new Set()
 
-const handleSearch = (msg: AssetSearchWorkerInboundMessage & { type: 'search' }): void => {
+function hasExactNonPrimarySymbolMatch(searchString: string): boolean {
+  return assets.some(
+    asset => isExactSymbolMatch(searchString, asset.symbol) && !primaryAssetIds.has(asset.assetId),
+  )
+}
+
+function handleSearch(msg: AssetSearchWorkerInboundMessage & { type: 'search' }): void {
   const {
     searchString,
     activeChainId,
@@ -25,24 +33,25 @@ const handleSearch = (msg: AssetSearchWorkerInboundMessage & { type: 'search' })
   } = msg.payload
 
   const isContractAddressSearch = isContractAddress(searchString)
-  const assets = (() => {
-    if (isContractAddressSearch) return ASSETS // Always use all assets for contract address searches
-    if (activeChainId === 'All') return PRIMARY_ASSETS // Use primaries for name/symbol searches on "All"
-    return ASSETS // Use all assets for chain-specific searches
+
+  const searchableAssets = (() => {
+    if (isContractAddressSearch) return assets
+    if (activeChainId !== 'All') return assets
+    if (hasExactNonPrimarySymbolMatch(searchString)) return assets
+    return primaryAssets
   })()
 
-  const preFiltered = filterAssetsByChainSupport(assets, {
+  const preFiltered = filterAssetsByChainSupport(searchableAssets, {
     activeChainId,
     allowWalletUnsupportedAssets,
     walletConnectedChainIds,
   })
   const filtered = searchAssets(searchString, preFiltered)
 
-  const assetIds = filtered.map(a => a.assetId)
   const result: AssetSearchWorkerOutboundMessage = {
     type: 'searchResult',
     requestId: msg.requestId,
-    payload: { assetIds },
+    payload: { assetIds: filtered.map(a => a.assetId) },
   }
   postMessage(result)
 }
@@ -52,11 +61,12 @@ self.onmessage = (event: MessageEvent<AssetSearchWorkerInboundMessage>) => {
   const data = event.data
   switch (data.type) {
     case 'updatePrimaryAssets': {
-      PRIMARY_ASSETS = data.payload.assets
+      primaryAssets = data.payload.assets
+      primaryAssetIds = new Set(primaryAssets.map(a => a.assetId))
       break
     }
     case 'updateAssets': {
-      ASSETS = data.payload.assets
+      assets = data.payload.assets
       break
     }
     case 'search': {

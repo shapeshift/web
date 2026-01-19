@@ -281,6 +281,7 @@ export const ExploreCategory = () => {
             showRelatedAssets
             handleLongPress={handleAssetLongPress}
             rowComponent={category === MarketsCategories.OneClickDefi ? PortalAssetRow : undefined}
+            searchString={searchString}
           />
         </Box>
       </Main>

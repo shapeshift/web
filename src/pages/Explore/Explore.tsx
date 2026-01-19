@@ -214,6 +214,7 @@ export const Explore = memo(() => {
               showPrice
               showRelatedAssets
               handleLongPress={handleAssetLongPress}
+              searchString={searchString}
             />
           )}
         </Box>

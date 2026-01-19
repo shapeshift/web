@@ -19,9 +19,14 @@ export const AssetResults: React.FC<AssetResultsProps> = ({ results, onClick, se
   const showRelatedAssets = useMemo(() => !isContractAddress(searchQuery ?? ''), [searchQuery])
   const renderItems = useMemo(
     () => (
-      <AssetList assets={results} handleClick={onClick} showRelatedAssets={showRelatedAssets} />
+      <AssetList
+        assets={results}
+        handleClick={onClick}
+        showRelatedAssets={showRelatedAssets}
+        searchString={searchQuery}
+      />
     ),
-    [results, onClick, showRelatedAssets],
+    [results, onClick, showRelatedAssets, searchQuery],
   )
 
   if (searchQuery && !results.length) return null

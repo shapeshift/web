@@ -44,6 +44,7 @@ export function filterAssetsByChainSupport<T extends { assetId: AssetId; chainId
   if (activeChainId !== 'All' && !isChainSupported) return []
 
   return assets.filter(asset => {
+    // Always filter out NFTs
     if (!isSearchableAsset(asset.assetId)) return false
 
     if (activeChainId === 'All') {

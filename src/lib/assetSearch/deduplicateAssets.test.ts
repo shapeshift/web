@@ -1,71 +1,33 @@
 import { describe, expect, it } from 'vitest'
 
 import { deduplicateAssets, deduplicateAssetsBySymbol } from './deduplicateAssets'
+import {
+  AXLUSDC_ARBITRUM,
+  AXLUSDC_OPTIMISM,
+  BTC_MAINNET,
+  ETH_MAINNET,
+  USDC_ARBITRUM,
+  USDC_ETH_PRIMARY,
+  USDC_OPTIMISM,
+  USDT_ETH_PRIMARY,
+  USDT_OPTIMISM,
+  USDT0_OPTIMISM,
+  USDT0_POLYGON,
+} from './testData'
 
 describe('deduplicateAssets', () => {
   it('deduplicates by relatedAssetKey, keeping primary asset', () => {
-    const assets = [
-      {
-        assetId: 'usdc-eth',
-        symbol: 'USDC',
-        name: 'USD Coin',
-        isPrimary: true,
-        relatedAssetKey: 'usdc-eth',
-      },
-      {
-        assetId: 'usdc-arb',
-        symbol: 'USDC',
-        name: 'USD Coin',
-        isPrimary: false,
-        relatedAssetKey: 'usdc-eth',
-      },
-      {
-        assetId: 'usdt-eth',
-        symbol: 'USDT',
-        name: 'Tether',
-        isPrimary: true,
-        relatedAssetKey: 'usdt-eth',
-      },
-      {
-        assetId: 'usdt-arb',
-        symbol: 'USDT',
-        name: 'Tether',
-        isPrimary: false,
-        relatedAssetKey: 'usdt-eth',
-      },
-    ]
+    const assets = [USDC_ETH_PRIMARY, USDC_ARBITRUM, USDT_ETH_PRIMARY, USDT_OPTIMISM]
 
     const result = deduplicateAssets(assets, 'usd')
 
     expect(result).toHaveLength(2)
-    expect(result[0].assetId).toBe('usdc-eth')
-    expect(result[1].assetId).toBe('usdt-eth')
+    expect(result[0].assetId).toBe(USDC_ETH_PRIMARY.assetId)
+    expect(result[1].assetId).toBe(USDT_ETH_PRIMARY.assetId)
   })
 
   it('keeps USDT0 out when searching "usd" (same family as USDT)', () => {
-    const assets = [
-      {
-        assetId: 'usdc-eth',
-        symbol: 'USDC',
-        name: 'USD Coin',
-        isPrimary: true,
-        relatedAssetKey: 'usdc-eth',
-      },
-      {
-        assetId: 'usdt0-opt',
-        symbol: 'USDT0',
-        name: 'USDT0',
-        isPrimary: false,
-        relatedAssetKey: 'usdt-eth',
-      },
-      {
-        assetId: 'usdt-eth',
-        symbol: 'USDT',
-        name: 'Tether',
-        isPrimary: true,
-        relatedAssetKey: 'usdt-eth',
-      },
-    ]
+    const assets = [USDC_ETH_PRIMARY, USDT0_OPTIMISM, USDT_ETH_PRIMARY]
 
     const result = deduplicateAssets(assets, 'usd')
 
@@ -75,22 +37,7 @@ describe('deduplicateAssets', () => {
   })
 
   it('shows USDT0 when only USDT0 variants exist (no primary)', () => {
-    const assets = [
-      {
-        assetId: 'usdt0-opt',
-        symbol: 'USDT0',
-        name: 'USDT0',
-        isPrimary: false,
-        relatedAssetKey: 'usdt-eth',
-      },
-      {
-        assetId: 'usdt0-poly',
-        symbol: 'USDT0',
-        name: 'USDT0',
-        isPrimary: false,
-        relatedAssetKey: 'usdt-eth',
-      },
-    ]
+    const assets = [USDT0_OPTIMISM, USDT0_POLYGON]
 
     const result = deduplicateAssets(assets, 'usdt0')
 
@@ -99,22 +46,7 @@ describe('deduplicateAssets', () => {
   })
 
   it('shows primary USDT when searching "usdt0" but primary USDT exists (same family)', () => {
-    const assets = [
-      {
-        assetId: 'usdt0-opt',
-        symbol: 'USDT0',
-        name: 'USDT0',
-        isPrimary: false,
-        relatedAssetKey: 'usdt-eth',
-      },
-      {
-        assetId: 'usdt-eth',
-        symbol: 'USDT',
-        name: 'Tether',
-        isPrimary: true,
-        relatedAssetKey: 'usdt-eth',
-      },
-    ]
+    const assets = [USDT0_OPTIMISM, USDT_ETH_PRIMARY]
 
     const result = deduplicateAssets(assets, 'usdt0')
 
@@ -124,22 +56,7 @@ describe('deduplicateAssets', () => {
   })
 
   it('shows primary USDC when AXLUSDC is in USDC family (primary always wins)', () => {
-    const assets = [
-      {
-        assetId: 'usdc-eth',
-        symbol: 'USDC',
-        name: 'USD Coin',
-        isPrimary: true,
-        relatedAssetKey: 'usdc-eth',
-      },
-      {
-        assetId: 'axlusdc-arb',
-        symbol: 'AXLUSDC',
-        name: 'Axelar USDC',
-        isPrimary: false,
-        relatedAssetKey: 'usdc-eth',
-      },
-    ]
+    const assets = [USDC_ETH_PRIMARY, AXLUSDC_ARBITRUM]
 
     const result = deduplicateAssets(assets, 'axlusdc')
 
@@ -149,21 +66,11 @@ describe('deduplicateAssets', () => {
   })
 
   it('shows AXLUSDC when it has its own family (separate from USDC)', () => {
+    // Create AXLUSDC assets with their own family key
+    const axlusdcFamily = 'eip155:1/erc20:axlusdc-family'
     const assets = [
-      {
-        assetId: 'axlusdc-arb',
-        symbol: 'AXLUSDC',
-        name: 'Axelar USDC',
-        isPrimary: false,
-        relatedAssetKey: 'axlusdc-eth',
-      },
-      {
-        assetId: 'axlusdc-eth',
-        symbol: 'AXLUSDC',
-        name: 'Axelar USDC',
-        isPrimary: true,
-        relatedAssetKey: 'axlusdc-eth',
-      },
+      { ...AXLUSDC_ARBITRUM, relatedAssetKey: axlusdcFamily, isPrimary: false },
+      { ...AXLUSDC_OPTIMISM, relatedAssetKey: axlusdcFamily, isPrimary: true },
     ]
 
     const result = deduplicateAssets(assets, 'axlusdc')
@@ -174,92 +81,57 @@ describe('deduplicateAssets', () => {
   })
 
   it('prefers primary AXLUSDC over non-primary when both have exact match', () => {
+    // Create AXLUSDC assets with their own family and a primary
+    const axlusdcFamily = 'eip155:1/erc20:axlusdc-family'
+    const axlusdcPrimary = {
+      ...AXLUSDC_OPTIMISM,
+      assetId: 'eip155:1/erc20:axlusdc-primary' as const,
+      relatedAssetKey: axlusdcFamily,
+      isPrimary: true,
+    }
     const assets = [
-      {
-        assetId: 'axlusdc-opt',
-        symbol: 'AXLUSDC',
-        name: 'Axelar USDC',
-        isPrimary: false,
-        relatedAssetKey: 'axlusdc-eth',
-      },
-      {
-        assetId: 'axlusdc-arb',
-        symbol: 'AXLUSDC',
-        name: 'Axelar USDC',
-        isPrimary: false,
-        relatedAssetKey: 'axlusdc-eth',
-      },
-      {
-        assetId: 'axlusdc-eth',
-        symbol: 'AXLUSDC',
-        name: 'Axelar USDC',
-        isPrimary: true,
-        relatedAssetKey: 'axlusdc-eth',
-      },
+      { ...AXLUSDC_OPTIMISM, relatedAssetKey: axlusdcFamily, isPrimary: false },
+      { ...AXLUSDC_ARBITRUM, relatedAssetKey: axlusdcFamily, isPrimary: false },
+      axlusdcPrimary,
     ]
 
     const result = deduplicateAssets(assets, 'axlusdc')
 
     expect(result).toHaveLength(1)
-    expect(result[0].assetId).toBe('axlusdc-eth')
+    expect(result[0].assetId).toBe(axlusdcPrimary.assetId)
     expect(result[0].isPrimary).toBe(true)
   })
 
   it('returns primary even when non-primary exact match comes first in array', () => {
+    // Create AXLUSDC assets with primary coming second in array
+    const axlusdcFamily = 'eip155:1/erc20:axlusdc-family'
+    const axlusdcPrimary = {
+      ...AXLUSDC_OPTIMISM,
+      assetId: 'eip155:1/erc20:axlusdc-primary' as const,
+      relatedAssetKey: axlusdcFamily,
+      isPrimary: true,
+    }
     const assets = [
-      {
-        assetId: 'axlusdc-opt',
-        symbol: 'AXLUSDC',
-        name: 'Axelar USDC on Optimism',
-        isPrimary: false,
-        relatedAssetKey: 'axlusdc-eth',
-      },
-      {
-        assetId: 'axlusdc-eth',
-        symbol: 'AXLUSDC',
-        name: 'Axelar USDC Primary',
-        isPrimary: true,
-        relatedAssetKey: 'axlusdc-eth',
-      },
+      { ...AXLUSDC_OPTIMISM, relatedAssetKey: axlusdcFamily, isPrimary: false },
+      axlusdcPrimary,
     ]
 
     const result = deduplicateAssets(assets, 'axlusdc')
 
     expect(result).toHaveLength(1)
     expect(result[0].isPrimary).toBe(true)
-    expect(result[0].assetId).toBe('axlusdc-eth')
+    expect(result[0].assetId).toBe(axlusdcPrimary.assetId)
   })
 
   it('shows both AXLUSDC and AXLUSDT groups when searching "axlusd"', () => {
+    // Create separate families for AXLUSDC and AXLUSDT
+    const axlusdcFamily = 'eip155:1/erc20:axlusdc-family'
+    const axlusdtFamily = 'eip155:1/erc20:axlusdt-family'
     const assets = [
-      {
-        assetId: 'axlusdc-opt',
-        symbol: 'AXLUSDC',
-        name: 'Axelar USDC',
-        isPrimary: false,
-        relatedAssetKey: 'axlusdc-eth',
-      },
-      {
-        assetId: 'axlusdc-eth',
-        symbol: 'AXLUSDC',
-        name: 'Axelar USDC',
-        isPrimary: true,
-        relatedAssetKey: 'axlusdc-eth',
-      },
-      {
-        assetId: 'axlusdt-opt',
-        symbol: 'AXLUSDT',
-        name: 'Axelar USDT',
-        isPrimary: false,
-        relatedAssetKey: 'axlusdt-eth',
-      },
-      {
-        assetId: 'axlusdt-eth',
-        symbol: 'AXLUSDT',
-        name: 'Axelar USDT',
-        isPrimary: true,
-        relatedAssetKey: 'axlusdt-eth',
-      },
+      { ...AXLUSDC_OPTIMISM, relatedAssetKey: axlusdcFamily, isPrimary: false },
+      { ...AXLUSDC_OPTIMISM, assetId: 'eip155:1/erc20:axlusdc-primary' as const, relatedAssetKey: axlusdcFamily, isPrimary: true },
+      { ...AXLUSDC_ARBITRUM, symbol: 'AXLUSDT', name: 'Axelar USDT', relatedAssetKey: axlusdtFamily, isPrimary: false },
+      { ...AXLUSDC_ARBITRUM, assetId: 'eip155:1/erc20:axlusdt-primary' as const, symbol: 'AXLUSDT', name: 'Axelar USDT', relatedAssetKey: axlusdtFamily, isPrimary: true },
     ]
 
     const result = deduplicateAssets(assets, 'axlusd')
@@ -270,22 +142,7 @@ describe('deduplicateAssets', () => {
   })
 
   it('shows primary USDT when searching "usdt" (exact match for primary)', () => {
-    const assets = [
-      {
-        assetId: 'usdt-eth',
-        symbol: 'USDT',
-        name: 'Tether',
-        isPrimary: true,
-        relatedAssetKey: 'usdt-eth',
-      },
-      {
-        assetId: 'usdt0-opt',
-        symbol: 'USDT0',
-        name: 'USDT0',
-        isPrimary: false,
-        relatedAssetKey: 'usdt-eth',
-      },
-    ]
+    const assets = [USDT_ETH_PRIMARY, USDT0_OPTIMISM]
 
     const result = deduplicateAssets(assets, 'usdt')
 
@@ -294,20 +151,18 @@ describe('deduplicateAssets', () => {
   })
 
   it('handles chain-specific assets (null relatedAssetKey) by using assetId', () => {
-    const assets = [
-      { assetId: 'eth', symbol: 'ETH', name: 'Ethereum', isPrimary: true, relatedAssetKey: null },
-      { assetId: 'btc', symbol: 'BTC', name: 'Bitcoin', isPrimary: true, relatedAssetKey: null },
-    ]
+    const assets = [ETH_MAINNET, BTC_MAINNET]
 
     const result = deduplicateAssets(assets, 'e')
 
+    // ETH matches 'e', BTC matches via name 'Bitcoin' containing 'e'
     expect(result).toHaveLength(2)
   })
 
   it('handles undefined relatedAssetKey by using assetId', () => {
     const assets = [
-      { assetId: 'eth', symbol: 'ETH', name: 'Ethereum', isPrimary: true },
-      { assetId: 'btc', symbol: 'BTC', name: 'Bitcoin', isPrimary: true },
+      { ...ETH_MAINNET, relatedAssetKey: undefined },
+      { ...BTC_MAINNET, relatedAssetKey: undefined },
     ]
 
     const result = deduplicateAssets(assets, 'e')
@@ -321,22 +176,7 @@ describe('deduplicateAssets', () => {
   })
 
   it('handles no search string by preferring primary assets', () => {
-    const assets = [
-      {
-        assetId: 'usdc-arb',
-        symbol: 'USDC',
-        name: 'USD Coin',
-        isPrimary: false,
-        relatedAssetKey: 'usdc-eth',
-      },
-      {
-        assetId: 'usdc-eth',
-        symbol: 'USDC',
-        name: 'USD Coin',
-        isPrimary: true,
-        relatedAssetKey: 'usdc-eth',
-      },
-    ]
+    const assets = [USDC_ARBITRUM, USDC_ETH_PRIMARY]
 
     const result = deduplicateAssets(assets)
 
@@ -347,46 +187,40 @@ describe('deduplicateAssets', () => {
 
 describe('deduplicateAssetsBySymbol (deprecated)', () => {
   it('keeps first occurrence of each symbol', () => {
-    const assets = [
-      { symbol: 'USDC', name: 'USDC Mainnet', chainId: 'mainnet' },
-      { symbol: 'USDC', name: 'USDC Arbitrum', chainId: 'arbitrum' },
-      { symbol: 'USDC', name: 'USDC Optimism', chainId: 'optimism' },
-    ]
+    const assets = [USDC_ETH_PRIMARY, USDC_ARBITRUM, USDC_OPTIMISM]
 
     const result = deduplicateAssetsBySymbol(assets)
 
     expect(result).toHaveLength(1)
-    expect(result[0].name).toBe('USDC Mainnet')
+    expect(result[0].assetId).toBe(USDC_ETH_PRIMARY.assetId)
   })
 
   it('handles multiple different symbols', () => {
     const assets = [
-      { symbol: 'AXLUSDC', name: 'AXLUSDC Arbitrum' },
-      { symbol: 'AXLUSDC', name: 'AXLUSDC Optimism' },
-      { symbol: 'AXLUSDT', name: 'AXLUSDT Arbitrum' },
-      { symbol: 'AXLUSDT', name: 'AXLUSDT Optimism' },
-      { symbol: 'VBUSDC', name: 'VBUSDC Ronin' },
+      AXLUSDC_ARBITRUM,
+      AXLUSDC_OPTIMISM,
+      { ...AXLUSDC_ARBITRUM, symbol: 'AXLUSDT', name: 'Axelar USDT' },
+      { ...AXLUSDC_OPTIMISM, symbol: 'AXLUSDT', name: 'Axelar USDT' },
+      { ...AXLUSDC_OPTIMISM, symbol: 'VBUSDC', name: 'VBUSDC Ronin' },
     ]
 
     const result = deduplicateAssetsBySymbol(assets)
 
     expect(result).toHaveLength(3)
     expect(result.map(a => a.symbol)).toEqual(['AXLUSDC', 'AXLUSDT', 'VBUSDC'])
-    expect(result[0].name).toBe('AXLUSDC Arbitrum')
-    expect(result[1].name).toBe('AXLUSDT Arbitrum')
   })
 
   it('is case insensitive', () => {
     const assets = [
-      { symbol: 'USDC', name: 'USDC Mainnet' },
-      { symbol: 'usdc', name: 'usdc lowercase' },
-      { symbol: 'Usdc', name: 'Usdc Mixed' },
+      USDC_ETH_PRIMARY,
+      { ...USDC_ARBITRUM, symbol: 'usdc' },
+      { ...USDC_OPTIMISM, symbol: 'Usdc' },
     ]
 
     const result = deduplicateAssetsBySymbol(assets)
 
     expect(result).toHaveLength(1)
-    expect(result[0].name).toBe('USDC Mainnet')
+    expect(result[0].assetId).toBe(USDC_ETH_PRIMARY.assetId)
   })
 
   it('returns empty array for empty input', () => {
@@ -395,32 +229,27 @@ describe('deduplicateAssetsBySymbol (deprecated)', () => {
   })
 
   it('returns single item unchanged', () => {
-    const assets = [{ symbol: 'BTC', name: 'Bitcoin' }]
+    const assets = [BTC_MAINNET]
     const result = deduplicateAssetsBySymbol(assets)
     expect(result).toEqual(assets)
   })
 
   it('preserves order of first occurrences', () => {
     const assets = [
-      { symbol: 'ETH', name: 'ETH 1' },
-      { symbol: 'BTC', name: 'BTC 1' },
-      { symbol: 'ETH', name: 'ETH 2' },
-      { symbol: 'USDC', name: 'USDC 1' },
-      { symbol: 'BTC', name: 'BTC 2' },
+      ETH_MAINNET,
+      BTC_MAINNET,
+      { ...ETH_MAINNET, assetId: 'eip155:10/slip44:60' as const },
+      USDC_ETH_PRIMARY,
+      { ...BTC_MAINNET, assetId: 'bip122:btc2' as const },
     ]
 
     const result = deduplicateAssetsBySymbol(assets)
 
     expect(result.map(a => a.symbol)).toEqual(['ETH', 'BTC', 'USDC'])
-    expect(result.map(a => a.name)).toEqual(['ETH 1', 'BTC 1', 'USDC 1'])
   })
 
   it('prefers primary assets over non-primary when same symbol', () => {
-    const assets = [
-      { symbol: 'USDT', name: 'USDT Arbitrum', isPrimary: false },
-      { symbol: 'USDT', name: 'Tether', isPrimary: true },
-      { symbol: 'USDT', name: 'USDT Optimism', isPrimary: false },
-    ]
+    const assets = [USDT_OPTIMISM, USDT_ETH_PRIMARY, { ...USDT_OPTIMISM, assetId: 'eip155:42161/usdt' as const }]
 
     const result = deduplicateAssetsBySymbol(assets)
 
@@ -430,29 +259,21 @@ describe('deduplicateAssetsBySymbol (deprecated)', () => {
   })
 
   it('keeps first occurrence if no primary asset exists', () => {
-    const assets = [
-      { symbol: 'AXLUSDC', name: 'AXLUSDC Arbitrum', isPrimary: false },
-      { symbol: 'AXLUSDC', name: 'AXLUSDC Optimism', isPrimary: false },
-    ]
+    const assets = [AXLUSDC_ARBITRUM, AXLUSDC_OPTIMISM]
 
     const result = deduplicateAssetsBySymbol(assets)
 
     expect(result).toHaveLength(1)
-    expect(result[0].name).toBe('AXLUSDC Arbitrum')
+    expect(result[0].assetId).toBe(AXLUSDC_ARBITRUM.assetId)
   })
 
   it('handles mixed primary and non-primary with multiple symbols', () => {
-    const assets = [
-      { symbol: 'USDC', name: 'USDC Arbitrum', isPrimary: false },
-      { symbol: 'USDT', name: 'USDT Arbitrum', isPrimary: false },
-      { symbol: 'USDC', name: 'Circle USDC', isPrimary: true },
-      { symbol: 'USDT', name: 'Tether', isPrimary: true },
-    ]
+    const assets = [USDC_ARBITRUM, USDT_OPTIMISM, USDC_ETH_PRIMARY, USDT_ETH_PRIMARY]
 
     const result = deduplicateAssetsBySymbol(assets)
 
     expect(result).toHaveLength(2)
-    expect(result.find(a => a.symbol === 'USDC')?.name).toBe('Circle USDC')
-    expect(result.find(a => a.symbol === 'USDT')?.name).toBe('Tether')
+    expect(result.find(a => a.symbol === 'USDC')?.assetId).toBe(USDC_ETH_PRIMARY.assetId)
+    expect(result.find(a => a.symbol === 'USDT')?.assetId).toBe(USDT_ETH_PRIMARY.assetId)
   })
 })

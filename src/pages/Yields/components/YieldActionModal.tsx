@@ -166,8 +166,8 @@ export const YieldActionModal = memo(function YieldActionModal({
   )
 
   const showValidatorRow = useMemo(
-    () => isStaking && vaultMetadata.name !== 'Vault',
-    [isStaking, vaultMetadata.name],
+    () => isStaking && Boolean(validatorAddress),
+    [isStaking, validatorAddress],
   )
 
   const isButtonDisabled = useMemo(
@@ -292,7 +292,7 @@ export const YieldActionModal = memo(function YieldActionModal({
             </Flex>
           </Flex>
         )}
-        {!isStaking && (
+        {!showValidatorRow && (
           <Flex justify='space-between' align='center' mt={3}>
             <Text fontSize='sm' color='text.subtle'>
               {translate('yieldXYZ.provider')}
@@ -328,7 +328,6 @@ export const YieldActionModal = memo(function YieldActionModal({
       estimatedEarningsAmount,
       estimatedEarningsFiat,
       showValidatorRow,
-      isStaking,
       vaultMetadata.logoURI,
       vaultMetadata.name,
       feeAsset,

@@ -86,7 +86,7 @@ export const YieldHero = memo(
 
     const descriptionSection = useMemo(() => {
       const docUrl = validatorOrProvider?.documentation ?? yieldItem.metadata.documentation
-      const description = yieldItem.metadata.description
+      const description = validatorOrProvider?.description ?? yieldItem.metadata.description
       if (!description && !docUrl) return null
       return (
         <HStack spacing={2} maxW='400px' justify='center'>
@@ -109,6 +109,7 @@ export const YieldHero = memo(
         </HStack>
       )
     }, [
+      validatorOrProvider?.description,
       validatorOrProvider?.documentation,
       yieldItem.metadata.documentation,
       yieldItem.metadata.description,

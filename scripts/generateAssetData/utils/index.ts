@@ -15,7 +15,10 @@ import type { CoinGeckoMarketCap } from '@/lib/market-service/coingecko/coingeck
 // blacklist wormhole assets as well - users can't hold a balance and we don't support wormholes
 export const filterOutBlacklistedAssets = (unfilteredAssetData: Asset[]) =>
   filter(unfilteredAssetData, asset => {
-    return !(blacklist.includes(asset.assetId) || asset.name.toLowerCase().includes('wormhole'))
+    return !(
+      blacklist.includes(asset.assetId) ||
+      asset.name?.toLowerCase().includes('wormhole')
+    )
   })
 
 const getAssetIdsSortedByMarketCap = async (): Promise<AssetId[]> => {

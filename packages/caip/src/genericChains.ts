@@ -17,7 +17,26 @@ export type EvmGenericChainConfig = {
   explorerUrl?: string
 }
 
-export const GENERIC_EVM_CHAINS: EvmGenericChainConfig[] = []
+export const GENERIC_EVM_CHAINS: EvmGenericChainConfig[] = [
+  {
+    chainId: 'eip155:42220',
+    name: 'celo',
+    displayName: 'Celo',
+    nativeAssetId: 'eip155:42220/slip44:60',
+    iconName: 'celo',
+    viemChainKey: 'celo',
+    explorerUrl: 'https://celoscan.io',
+  },
+  // {
+  //   chainId: 'eip155:1329',
+  //   name: 'sei',
+  //   displayName: 'Sei',
+  //   nativeAssetId: 'eip155:1329/slip44:60',
+  //   iconName: 'sei',
+  //   viemChainKey: 'sei',
+  //   explorerUrl: 'https://seitrace.com',
+  // },
+]
 
 export const getGenericChainConfig = (
   chainId: EvmGenericChainId | string,

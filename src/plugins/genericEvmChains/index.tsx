@@ -3,6 +3,7 @@ import { fromAssetId, GENERIC_EVM_CHAINS } from '@shapeshiftoss/caip'
 import type { ChainAdapter } from '@shapeshiftoss/chain-adapters'
 import { generic } from '@shapeshiftoss/chain-adapters'
 import type { KnownChainIds } from '@shapeshiftoss/types'
+import * as viemChains from 'viem/chains'
 
 import { getAssetService } from '@/lib/asset-service'
 import type { Plugins } from '@/plugins/types'
@@ -27,6 +28,8 @@ const createGetKnownTokens = (config: EvmGenericChainConfig) => () => {
 export default function register(): Plugins {
   return GENERIC_EVM_CHAINS.map(config => {
     const pluginId = `${config.name}ChainAdapter`
+    const numericChainId = config.chainId.split(':')[1]
+    const rpcUrlEnvKey = `VITE_GENERIC_CHAIN_${numericChainId}_NODE_URL`
 
     return [
       pluginId,
@@ -38,15 +41,24 @@ export default function register(): Plugins {
             [
               config.chainId,
               () => {
-                if (!config.rpcUrl) {
+                let rpcUrl = config.rpcUrl || import.meta.env[rpcUrlEnvKey]
+
+                if (!rpcUrl && config.viemChainKey) {
+                  const viemChain = viemChains[config.viemChainKey]
+                  if (viemChain?.rpcUrls?.default?.http?.[0]) {
+                    rpcUrl = viemChain.rpcUrls.default.http[0]
+                  }
+                }
+
+                if (!rpcUrl) {
                   throw new Error(
-                    `Missing RPC URL for generic chain ${config.name} (${config.chainId})`,
+                    `Missing RPC URL for generic chain ${config.name} (${config.chainId}). Please set ${rpcUrlEnvKey} in your .env file.`,
                   )
                 }
 
                 return new generic.GenericEvmChainAdapter({
-                  config,
-                  rpcUrl: config.rpcUrl,
+                  config: { ...config, rpcUrl },
+                  rpcUrl,
                   getKnownTokens: createGetKnownTokens(config),
                 }) as unknown as ChainAdapter<KnownChainIds>
               },

@@ -389,6 +389,38 @@ export const katana: Readonly<Asset> = Object.freeze({
   relatedAssetKey: 'eip155:1/slip44:60',
 })
 
+export const celo: Readonly<Asset> = Object.freeze({
+  assetId: caip.celoAssetId,
+  chainId: caip.celoChainId,
+  name: 'Celo',
+  networkName: 'Celo',
+  symbol: 'CELO',
+  precision: 18,
+  color: '#FCFF52',
+  networkColor: '#FCFF52',
+  icon: 'https://assets.coingecko.com/coins/images/11090/large/InjXBNx9_400x400.jpg?1696511031',
+  explorer: 'https://celoscan.io',
+  explorerAddressLink: 'https://celoscan.io/address/',
+  explorerTxLink: 'https://celoscan.io/tx/',
+  relatedAssetKey: null,
+})
+
+export const sei: Readonly<Asset> = Object.freeze({
+  assetId: caip.seiAssetId,
+  chainId: caip.seiChainId,
+  name: 'Sei',
+  networkName: 'Sei',
+  symbol: 'SEI',
+  precision: 18,
+  color: '#8B0000',
+  networkColor: '#8B0000',
+  icon: 'https://assets.coingecko.com/coins/images/28205/large/Sei_Logo_-_Transparent.png?1696527207',
+  explorer: 'https://seitrace.com',
+  explorerAddressLink: 'https://seitrace.com/address/',
+  explorerTxLink: 'https://seitrace.com/tx/',
+  relatedAssetKey: null,
+})
+
 export const solana: Readonly<Asset> = Object.freeze({
   assetId: caip.solAssetId,
   chainId: caip.solanaChainId,

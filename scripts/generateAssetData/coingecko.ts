@@ -7,6 +7,7 @@ import {
   avalancheChainId,
   baseChainId,
   bscChainId,
+  celoChainId,
   ethChainId,
   gnosisChainId,
   hyperEvmChainId,
@@ -16,6 +17,7 @@ import {
   optimismChainId,
   plasmaChainId,
   polygonChainId,
+  seiChainId,
   solanaChainId,
   starknetChainId,
   suiChainId,
@@ -30,6 +32,7 @@ import {
   avax,
   base,
   bnbsmartchain,
+  celo,
   ethereum,
   gnosis,
   hyperevm,
@@ -39,6 +42,7 @@ import {
   optimism,
   plasma,
   polygon,
+  sei,
   solana,
   sui,
   ton,
@@ -172,6 +176,22 @@ export async function getAssets(chainId: ChainId): Promise<Asset[]> {
           explorer: katana.explorer,
           explorerAddressLink: katana.explorerAddressLink,
           explorerTxLink: katana.explorerTxLink,
+        }
+      case celoChainId:
+        return {
+          assetNamespace: ASSET_NAMESPACE.erc20,
+          category: adapters.chainIdToCoingeckoAssetPlatform(chainId),
+          explorer: celo.explorer,
+          explorerAddressLink: celo.explorerAddressLink,
+          explorerTxLink: celo.explorerTxLink,
+        }
+      case seiChainId:
+        return {
+          assetNamespace: ASSET_NAMESPACE.erc20,
+          category: adapters.chainIdToCoingeckoAssetPlatform(chainId),
+          explorer: sei.explorer,
+          explorerAddressLink: sei.explorerAddressLink,
+          explorerTxLink: sei.explorerTxLink,
         }
       case solanaChainId:
         return {

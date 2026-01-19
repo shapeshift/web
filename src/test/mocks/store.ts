@@ -420,4 +420,13 @@ export const mockStore: ReduxState = {
     },
     byAccountId: {},
   },
+  agenticChat: {
+    _persist: {
+      version: 0,
+      rehydrated: false,
+    },
+    historicalToolIds: [],
+    runtimeToolStates: {},
+    persistedTransactions: [],
+  },
 }

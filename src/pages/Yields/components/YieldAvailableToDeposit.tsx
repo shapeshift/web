@@ -16,9 +16,12 @@ import { useTranslate } from 'react-polyglot'
 
 import { Amount } from '@/components/Amount/Amount'
 import { SwapperModal } from '@/components/SwapperModal'
+import { KeyManager } from '@/context/WalletProvider/KeyManager'
+import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import type { AugmentedYieldDto } from '@/lib/yieldxyz/types'
+import { selectWalletType } from '@/state/slices/localWalletSlice/selectors'
 import { selectPortfolioCryptoBalanceBaseUnitByFilter } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
@@ -31,8 +34,18 @@ export const YieldAvailableToDeposit = memo(
   ({ yieldItem, inputTokenMarketData }: YieldAvailableToDepositProps) => {
     const translate = useTranslate()
     const [isSwapperModalOpen, setIsSwapperModalOpen] = useState(false)
-    const { state: walletState } = useWallet()
-    const isConnected = useMemo(() => Boolean(walletState.walletInfo), [walletState.walletInfo])
+    const {
+      state: { isConnected },
+    } = useWallet()
+    const isLedgerReadOnlyEnabled = useFeatureFlag('LedgerReadOnly')
+    const walletType = useAppSelector(selectWalletType)
+    const isLedgerReadOnly = isLedgerReadOnlyEnabled && walletType === KeyManager.Ledger
+
+    // Either wallet is physically connected, or it's a Ledger in read-only mode
+    const hasWallet = useMemo(
+      () => isConnected || isLedgerReadOnly,
+      [isConnected, isLedgerReadOnly],
+    )
 
     const inputToken = yieldItem.inputTokens[0]
     const inputTokenAssetId = inputToken?.assetId ?? ''
@@ -65,7 +78,7 @@ export const YieldAvailableToDeposit = memo(
     const handleOpenSwapperModal = useCallback(() => setIsSwapperModalOpen(true), [])
     const handleCloseSwapperModal = useCallback(() => setIsSwapperModalOpen(false), [])
 
-    if (!inputTokenPrecision || !isConnected) return null
+    if (!inputTokenPrecision || !hasWallet) return null
 
     const tooltipLabel = translate('yieldXYZ.availableToDepositTooltip', {
       symbol: yieldItem.token.symbol,

@@ -96,6 +96,7 @@
 - Add English copy to `src/assets/translations/en/main.json` (find appropriate section)
 - Ignore other language translation files - only update English
 - Use the translation hook: `useTranslate()` from `react-polyglot`
+- **Both steps required**: Translations must be (1) added to `en/main.json` AND (2) consumed via `translate('key')` - missing either step results in untranslated strings showing raw keys
 
 ### Feature Flags
 - Feature flags are stored in Redux state under `preferences.featureFlags`

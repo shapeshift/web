@@ -1,9 +1,9 @@
-import { Box, Heading, SimpleGrid, useMediaQuery } from '@chakra-ui/react'
+import { Box, Card, CardBody, Heading, VStack } from '@chakra-ui/react'
 import { memo, useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useNavigate } from 'react-router-dom'
 
-import { YieldItem } from '@/pages/Yields/components/YieldItem'
+import { YieldCompareItem } from '@/pages/Yields/components/YieldCompareItem'
 import { useYieldProviders } from '@/react-queries/queries/yieldxyz/useYieldProviders'
 import { useYields } from '@/react-queries/queries/yieldxyz/useYields'
 
@@ -16,7 +16,6 @@ export const YieldRelatedMarkets = memo(
   ({ currentYieldId, tokenSymbol }: YieldRelatedMarketsProps) => {
     const translate = useTranslate()
     const navigate = useNavigate()
-    const [isMobile] = useMediaQuery('(max-width: 768px)')
     const { data: yields } = useYields()
     const { data: yieldProviders } = useYieldProviders()
 
@@ -43,7 +42,7 @@ export const YieldRelatedMarkets = memo(
     const getProviderInfo = useCallback(
       (providerId: string) => {
         const provider = yieldProviders?.[providerId]
-        return { name: provider?.name, logo: provider?.logoURI }
+        return { name: provider?.name, icon: provider?.logoURI }
       },
       [yieldProviders],
     )
@@ -55,24 +54,24 @@ export const YieldRelatedMarkets = memo(
         <Heading as='h3' size='md' mb={4}>
           {translate('yieldXYZ.otherYields', { symbol: tokenSymbol })}
         </Heading>
-        <SimpleGrid columns={{ base: 1, md: 3 }} spacing={4}>
-          {relatedYields.map(y => {
-            const providerInfo = getProviderInfo(y.providerId)
-            return (
-              <YieldItem
-                key={y.id}
-                data={{
-                  type: 'single',
-                  yieldItem: y,
-                  providerIcon: providerInfo.logo,
-                  providerName: providerInfo.name,
-                }}
-                variant={isMobile ? 'mobile' : 'card'}
-                onEnter={() => handleYieldClick(y.id)}
-              />
-            )
-          })}
-        </SimpleGrid>
+        <Card>
+          <CardBody px={2} py={2}>
+            <VStack spacing={0} align='stretch'>
+              {relatedYields.map(y => {
+                const providerInfo = getProviderInfo(y.providerId)
+                return (
+                  <YieldCompareItem
+                    key={y.id}
+                    yieldItem={y}
+                    providerName={providerInfo.name}
+                    providerIcon={providerInfo.icon}
+                    onClick={() => handleYieldClick(y.id)}
+                  />
+                )
+              })}
+            </VStack>
+          </CardBody>
+        </Card>
       </Box>
     )
   },

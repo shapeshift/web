@@ -44,7 +44,8 @@ export const CardStyle = {
     elevated: () => ({
       container: {
         bg: 'background.surface.raised.base',
-        borderColor: 'border.base',
+        boxShadow:
+          '0 1px 0 var(--chakra-colors-border-base) inset, 0 0 0 1px var(--chakra-colors-border-base) inset',
       },
     }),
     unstyled: {

@@ -1,6 +1,5 @@
-import { ArrowBackIcon } from '@chakra-ui/icons'
 import type { ResponsiveValue } from '@chakra-ui/react'
-import { Box, Button, Container, Flex, Heading, IconButton, Stack, Text } from '@chakra-ui/react'
+import { Box, Button, Flex, Heading, Stack, Text } from '@chakra-ui/react'
 import type { Property } from 'csstype'
 import { memo, useCallback, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
@@ -8,6 +7,8 @@ import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
 
 import { AccountSelector } from '@/components/AccountSelector/AccountSelector'
 import { Display } from '@/components/Display'
+import { PageBackButton, PageHeader } from '@/components/Layout/Header/PageHeader'
+import { Main } from '@/components/Layout/Main'
 import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import {
@@ -42,8 +43,6 @@ import {
   selectUserCurrencyToUsdRate,
 } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
-
-const backIcon = <ArrowBackIcon />
 
 const layoutDirection: ResponsiveValue<Property.FlexDirection> = {
   base: 'column',
@@ -190,17 +189,17 @@ export const YieldDetail = memo(() => {
   const isModalOpen = searchParams.get('modal') === 'yield'
 
   const loadingElement = (
-    <Container maxW={{ base: 'full', md: 'container.md' }} py={20}>
+    <Box py={20}>
       <Flex direction='column' gap={8} alignItems='center'>
         <Text color='text.subtle' fontSize='lg'>
           {translate('common.loadingText')}
         </Text>
       </Flex>
-    </Container>
+    </Box>
   )
 
   const errorElement = (
-    <Container maxW={{ base: 'full', md: 'container.md' }} py={20}>
+    <Box py={20}>
       <Box textAlign='center' py={16} bg='background.surface.raised.base' borderRadius='2xl'>
         <Heading as='h2' size='xl' mb={4}>
           {translate('common.error')}
@@ -212,67 +211,76 @@ export const YieldDetail = memo(() => {
           {translate('common.back')}
         </Button>
       </Box>
-    </Container>
+    </Box>
   )
 
-  if (isLoading) return loadingElement
-  if (error || !yieldItem) return errorElement
-
-  return (
-    <Box bg='background.surface.base' minH='100vh' pb={20}>
-      <Container
-        maxW={{ base: 'full', md: 'container.md', lg: '1400px' }}
-        px={{ base: 4, md: 8, lg: 12 }}
-      >
-        <Flex py={4} align='center' justify='space-between'>
-          <IconButton
-            aria-label={translate('common.back')}
-            icon={backIcon}
-            variant='ghost'
-            size='sm'
-            color='text.subtle'
-            onClick={handleBack}
-            _hover={{ color: 'text.base' }}
-          />
+  const headerComponent = useMemo(
+    () => (
+      <PageHeader>
+        <PageHeader.Left>
+          <PageBackButton onBack={handleBack} />
+        </PageHeader.Left>
+        <Display>
+          <Display.Mobile>
+            {showAccountSelector && selectorAssetId && (
+              <PageHeader.Middle>
+                <AccountSelector
+                  assetId={selectorAssetId}
+                  accountId={selectedAccountId}
+                  onChange={handleAccountChange}
+                  showBalance={false}
+                  showIcon={false}
+                />
+              </PageHeader.Middle>
+            )}
+          </Display.Mobile>
           <Display.Desktop>
             {showAccountSelector && selectorAssetId && (
-              <AccountSelector
-                assetId={selectorAssetId}
-                accountId={selectedAccountId}
-                onChange={handleAccountChange}
-              />
+              <PageHeader.Right>
+                <AccountSelector
+                  assetId={selectorAssetId}
+                  accountId={selectedAccountId}
+                  onChange={handleAccountChange}
+                  showBalance={false}
+                  showIcon={false}
+                />
+              </PageHeader.Right>
             )}
           </Display.Desktop>
-        </Flex>
+        </Display>
+      </PageHeader>
+    ),
+    [handleBack, showAccountSelector, selectorAssetId, selectedAccountId, handleAccountChange],
+  )
 
+  const containerPaddingX = useMemo(() => ({ base: 4, xl: 0 }), [])
+
+  if (isLoading)
+    return (
+      <Main headerComponent={headerComponent} isSubPage>
+        <Box px={containerPaddingX}>{loadingElement}</Box>
+      </Main>
+    )
+  if (error || !yieldItem)
+    return (
+      <Main headerComponent={headerComponent} isSubPage>
+        <Box px={containerPaddingX}>{errorElement}</Box>
+      </Main>
+    )
+
+  return (
+    <Main headerComponent={headerComponent} isSubPage>
+      <Box px={containerPaddingX} pb={20}>
         <Display.Mobile>
-          {showAccountSelector && selectorAssetId && (
-            <Flex justify='center' mb={2}>
-              <AccountSelector
-                assetId={selectorAssetId}
-                accountId={selectedAccountId}
-                onChange={handleAccountChange}
-              />
-            </Flex>
-          )}
           <YieldHero
             yieldItem={yieldItem}
             userBalanceUsd={userBalances.userCurrency}
             userBalanceCrypto={userBalances.crypto}
             validatorOrProvider={validatorOrProvider}
             titleOverride={titleOverride}
+            inputTokenMarketData={inputTokenMarketData}
           />
           <Stack gap={4} mt={4}>
-            <YieldPositionCard
-              yieldItem={yieldItem}
-              balances={balances}
-              isBalancesLoading={isBalancesLoading}
-              selectedValidatorAddress={selectedValidatorAddress}
-            />
-            <YieldAvailableToDeposit
-              yieldItem={yieldItem}
-              inputTokenMarketData={inputTokenMarketData}
-            />
             <YieldStats yieldItem={yieldItem} balances={balances} />
             {!isStaking && validatorOrProvider && (
               <YieldProviderInfo
@@ -296,8 +304,10 @@ export const YieldDetail = memo(() => {
                 yieldItem={yieldItem}
                 validatorOrProvider={validatorOrProvider}
                 titleOverride={titleOverride}
+                userBalanceUserCurrency={userBalances.userCurrency}
+                userBalanceCrypto={userBalances.crypto}
               />
-              <YieldStats yieldItem={yieldItem} balances={balances} />
+
               {!isStaking && validatorOrProvider && (
                 <YieldProviderInfo
                   providerId={yieldItem.providerId}
@@ -325,17 +335,20 @@ export const YieldDetail = memo(() => {
                 balances={balances}
                 isBalancesLoading={isBalancesLoading}
                 selectedValidatorAddress={selectedValidatorAddress}
+                inputTokenMarketData={inputTokenMarketData}
               />
               <YieldAvailableToDeposit
                 yieldItem={yieldItem}
                 inputTokenMarketData={inputTokenMarketData}
+                hasPosition={bnOrZero(userBalances.crypto).gt(0)}
               />
+              <YieldStats yieldItem={yieldItem} balances={balances} variant='list' />
             </Stack>
           </Flex>
         </Display.Desktop>
-      </Container>
 
-      {isModalOpen && <YieldManager />}
-    </Box>
+        {isModalOpen && <YieldManager />}
+      </Box>
+    </Main>
   )
 })

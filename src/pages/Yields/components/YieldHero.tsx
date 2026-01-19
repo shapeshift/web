@@ -5,9 +5,14 @@ import {
   AlertIcon,
   Avatar,
   Badge,
+  Box,
   Button,
+  Card,
+  Flex,
   HStack,
   Link,
+  Tag,
+  TagLeftIcon,
   Text,
   VStack,
 } from '@chakra-ui/react'
@@ -23,6 +28,9 @@ import { useBrowserRouter } from '@/hooks/useBrowserRouter/useBrowserRouter'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import type { AugmentedYieldDto } from '@/lib/yieldxyz/types'
 import { resolveYieldInputAssetIcon } from '@/lib/yieldxyz/utils'
+import { GradientApy } from '@/pages/Yields/components/GradientApy'
+import { selectPortfolioCryptoBalanceBaseUnitByFilter } from '@/state/slices/selectors'
+import { useAppSelector } from '@/state/store'
 
 const enterIcon = <ArrowUpIcon />
 const exitIcon = <ArrowDownIcon />
@@ -40,6 +48,7 @@ type YieldHeroProps = {
   userBalanceCrypto: string
   validatorOrProvider: ValidatorOrProviderInfo
   titleOverride?: string
+  inputTokenMarketData: { price?: string } | undefined
 }
 
 export const YieldHero = memo(
@@ -49,6 +58,7 @@ export const YieldHero = memo(
     userBalanceCrypto,
     validatorOrProvider,
     titleOverride,
+    inputTokenMarketData,
   }: YieldHeroProps) => {
     const navigate = useNavigate()
     const translate = useTranslate()
@@ -56,7 +66,44 @@ export const YieldHero = memo(
 
     const iconSource = resolveYieldInputAssetIcon(yieldItem)
     const apy = bnOrZero(yieldItem.rewardRate.total).times(100).toFixed(2)
-    const hasExitBalance = bnOrZero(userBalanceCrypto).gt(0)
+    const hasPosition = bnOrZero(userBalanceCrypto).gt(0)
+
+    // Available to deposit logic
+    const inputToken = yieldItem.inputTokens[0]
+    const inputTokenAssetId = inputToken?.assetId ?? ''
+    const inputTokenPrecision = inputToken?.decimals
+
+    const assetIcon = useMemo(() => {
+      if (iconSource.assetId) {
+        return <AssetIcon assetId={iconSource.assetId} size='2xl' />
+      }
+      return <AssetIcon src={iconSource.src} size='2xl' />
+    }, [iconSource])
+
+    const availableBalanceBaseUnit = useAppSelector(state =>
+      selectPortfolioCryptoBalanceBaseUnitByFilter(state, { assetId: inputTokenAssetId }),
+    )
+
+    const availableBalance = useMemo(
+      () =>
+        inputTokenPrecision
+          ? bnOrZero(availableBalanceBaseUnit).shiftedBy(-inputTokenPrecision)
+          : bnOrZero(0),
+      [availableBalanceBaseUnit, inputTokenPrecision],
+    )
+
+    const availableBalanceFiat = useMemo(
+      () => availableBalance.times(bnOrZero(inputTokenMarketData?.price)),
+      [availableBalance, inputTokenMarketData?.price],
+    )
+
+    const potentialYearlyEarningsFiat = useMemo(
+      () => availableBalanceFiat.times(yieldItem.rewardRate.total),
+      [availableBalanceFiat, yieldItem.rewardRate.total],
+    )
+
+    const hasAvailableBalance = availableBalance.gt(0)
+    const showAvailableToDeposit = !hasPosition && hasAvailableBalance
 
     const [searchParams] = useSearchParams()
     const validator = searchParams.get('validator')
@@ -115,125 +162,205 @@ export const YieldHero = memo(
     ])
 
     return (
-      <VStack
-        spacing={{ base: 3, md: 4 }}
-        align='center'
-        py={{ base: 4, md: 6 }}
-        px={{ base: 3, md: 6 }}
-      >
-        <Text fontWeight='semibold' fontSize='md'>
-          {yieldTitle}
-        </Text>
-
-        {yieldItem.metadata.deprecated && (
-          <Alert status='error' borderRadius='lg' variant='subtle'>
-            <AlertIcon />
-            <AlertDescription fontSize='sm'>
-              {translate('yieldXYZ.deprecatedDescription')}
-            </AlertDescription>
-          </Alert>
-        )}
-
-        {yieldItem.metadata.underMaintenance && !yieldItem.metadata.deprecated && (
-          <Alert status='warning' borderRadius='lg' variant='subtle'>
-            <AlertIcon />
-            <AlertDescription fontSize='sm'>
-              {translate('yieldXYZ.underMaintenanceDescription')}
-            </AlertDescription>
-          </Alert>
-        )}
-
-        <HStack spacing={4} justify='center' flexWrap='wrap'>
-          <HStack spacing={2}>
-            {iconSource.assetId ? (
-              <AssetIcon assetId={iconSource.assetId} size='xs' />
-            ) : (
-              <AssetIcon src={iconSource.src} size='xs' />
-            )}
-            <Text fontSize='md' fontWeight='semibold'>
-              {yieldItem.token.symbol}
-            </Text>
-          </HStack>
-          {yieldItem.chainId && (
-            <HStack spacing={2}>
-              <ChainIcon chainId={yieldItem.chainId} boxSize='20px' />
-              <Text fontSize='md' fontWeight='semibold' textTransform='capitalize'>
-                {yieldItem.network}
-              </Text>
-            </HStack>
-          )}
-          {validatorOrProvider?.name && (
-            <HStack spacing={2}>
-              {validatorOrProvider.logoURI && (
-                <Avatar
-                  size='xs'
-                  src={validatorOrProvider.logoURI}
-                  name={validatorOrProvider.name}
-                />
-              )}
-              <Text fontSize='md' fontWeight='semibold'>
-                {validatorOrProvider.name}
-              </Text>
-            </HStack>
-          )}
-        </HStack>
-
-        <Badge
-          colorScheme='green'
-          variant='subtle'
-          borderRadius='full'
-          px={3}
-          py={1.5}
-          fontWeight='bold'
-          fontSize='sm'
+      <Card position='relative' overflow='hidden'>
+        <Box
+          position='absolute'
+          top='-15%'
+          left={0}
+          right={0}
+          bottom={0}
+          zIndex={0}
+          filter='blur(50px)'
         >
-          {apy}% {translate('common.apy')}
-        </Badge>
-
-        {descriptionSection}
-
-        <VStack spacing={1} textAlign='center'>
-          <Text fontSize={{ base: '3xl', md: '4xl' }} fontWeight='bold' lineHeight='1'>
-            <Amount.Fiat value={userBalanceUsd} />
-          </Text>
-          <Text color='text.subtle' fontSize={{ base: 'sm', md: 'md' }}>
-            <Amount.Crypto value={userBalanceCrypto} symbol={yieldItem.token.symbol} />
-          </Text>
-        </VStack>
-
-        <HStack
+          {assetIcon}
+        </Box>
+        <VStack
           spacing={{ base: 3, md: 4 }}
-          width={{ base: 'full', md: 'auto' }}
-          minW={{ md: '500px', lg: '600px' }}
+          align='center'
+          py={{ base: 4, md: 6 }}
+          px={{ base: 3, md: 6 }}
+          zIndex={1}
         >
-          <Button
-            leftIcon={enterIcon}
-            colorScheme='blue'
-            size='lg'
-            height={14}
-            borderRadius='xl'
-            onClick={handleEnter}
-            flex={1}
-            fontWeight='bold'
-          >
-            {enterLabel}
-          </Button>
-          {hasExitBalance && (
-            <Button
-              leftIcon={exitIcon}
-              variant='outline'
-              size='lg'
-              height={14}
-              borderRadius='xl'
-              onClick={handleExit}
-              flex={1}
-              fontWeight='bold'
-            >
-              {exitLabel}
-            </Button>
+          <Text fontWeight='semibold' fontSize='md'>
+            {yieldTitle}
+          </Text>
+
+          {yieldItem.metadata.deprecated && (
+            <Alert status='error' borderRadius='lg' variant='subtle'>
+              <AlertIcon />
+              <AlertDescription fontSize='sm'>
+                {translate('yieldXYZ.deprecatedDescription')}
+              </AlertDescription>
+            </Alert>
           )}
-        </HStack>
-      </VStack>
+
+          {yieldItem.metadata.underMaintenance && !yieldItem.metadata.deprecated && (
+            <Alert status='warning' borderRadius='lg' variant='subtle'>
+              <AlertIcon />
+              <AlertDescription fontSize='sm'>
+                {translate('yieldXYZ.underMaintenanceDescription')}
+              </AlertDescription>
+            </Alert>
+          )}
+
+          <HStack spacing={2} justify='center' flexWrap='wrap'>
+            <Tag borderRadius='full' pr={3} py={2} bg='background.button.secondary.base'>
+              <TagLeftIcon
+                as={AssetIcon}
+                assetId={iconSource.assetId}
+                src={iconSource.src}
+                size='xs'
+                boxSize='20px'
+              />
+              <Text fontSize='sm' fontWeight='semibold'>
+                {yieldItem.token.symbol}
+              </Text>
+            </Tag>
+            {yieldItem.chainId && (
+              <Tag borderRadius='full' pr={3} py={2} bg='background.button.secondary.base'>
+                <TagLeftIcon as={ChainIcon} chainId={yieldItem.chainId} boxSize='20px' />
+                <Text fontSize='sm' fontWeight='semibold' textTransform='capitalize'>
+                  {yieldItem.network}
+                </Text>
+              </Tag>
+            )}
+            {validatorOrProvider?.name && (
+              <Tag borderRadius='full' pr={3} py={2} bg='background.button.secondary.base'>
+                {validatorOrProvider.logoURI && (
+                  <TagLeftIcon
+                    as={Avatar}
+                    size='xs'
+                    src={validatorOrProvider.logoURI}
+                    name={validatorOrProvider.name}
+                  />
+                )}
+                <Text fontSize='sm' fontWeight='semibold'>
+                  {validatorOrProvider.name}
+                </Text>
+              </Tag>
+            )}
+          </HStack>
+
+          {hasPosition ? (
+            <>
+              <VStack spacing={1} textAlign='center' py={8}>
+                <Text color='text.subtle' fontSize='xs' lineHeight={1}>
+                  {translate('yieldXYZ.myPosition')}
+                </Text>
+                <HStack spacing={2} align='center'>
+                  <Text fontSize='4xl' fontWeight='bold' lineHeight='1'>
+                    <Amount.Fiat value={userBalanceUsd} />
+                  </Text>
+                  <Badge
+                    colorScheme='green'
+                    fontSize='sm'
+                    px={2}
+                    py={1}
+                    borderRadius='full'
+                    fontWeight='semibold'
+                  >
+                    {apy}% {translate('common.apy')}
+                  </Badge>
+                </HStack>
+                <Text color='text.subtle' fontSize='sm'>
+                  <Amount.Crypto value={userBalanceCrypto} symbol={yieldItem.token.symbol} />
+                </Text>
+              </VStack>
+
+              <HStack spacing={3} width='full'>
+                <Button
+                  leftIcon={enterIcon}
+                  colorScheme='blue'
+                  size='lg'
+                  borderRadius='xl'
+                  onClick={handleEnter}
+                  flex={1}
+                  fontWeight='bold'
+                >
+                  {enterLabel}
+                </Button>
+                <Button
+                  leftIcon={exitIcon}
+                  variant='outline'
+                  size='lg'
+                  borderRadius='xl'
+                  onClick={handleExit}
+                  flex={1}
+                  fontWeight='bold'
+                >
+                  {exitLabel}
+                </Button>
+              </HStack>
+            </>
+          ) : (
+            <>
+              <GradientApy fontSize='4xl'>
+                {apy}% {translate('common.apy')}
+              </GradientApy>
+
+              {!hasPosition && descriptionSection}
+
+              {showAvailableToDeposit && (
+                <Box
+                  bg='transparent'
+                  borderRadius='xl'
+                  p={4}
+                  width='full'
+                  position='relative'
+                  boxShadow='0 1px 0 var(--chakra-colors-border-base) inset, 0 0 0 1px var(--chakra-colors-border-base) inset'
+                >
+                  <Box
+                    bgGradient='linear(to-bl, green.500, blackAlpha.500)'
+                    position='absolute'
+                    top={0}
+                    left={0}
+                    right={0}
+                    bottom={0}
+                    opacity={0.1}
+                    zIndex={0}
+                    borderRadius='xl'
+                  />
+                  <VStack spacing={3} align='stretch'>
+                    <Flex justify='space-between' align='center'>
+                      <Text fontSize='sm' color='text.subtle'>
+                        {translate('yieldXYZ.availableToDeposit')}
+                      </Text>
+                      <Text fontSize='md' fontWeight='semibold'>
+                        <Amount.Fiat value={availableBalanceFiat.toFixed()} />
+                      </Text>
+                    </Flex>
+                    {potentialYearlyEarningsFiat.gt(0) && (
+                      <Flex justify='space-between' align='center'>
+                        <Text fontSize='sm' color='text.subtle'>
+                          {translate('yieldXYZ.potentialEarnings')}
+                        </Text>
+                        <Amount.Fiat
+                          fontSize='md'
+                          color='text.success'
+                          fontWeight='semibold'
+                          value={potentialYearlyEarningsFiat.toFixed()}
+                          suffix='/yr'
+                        />
+                      </Flex>
+                    )}
+                  </VStack>
+                </Box>
+              )}
+
+              <Button
+                colorScheme='green'
+                size='lg'
+                width='full'
+                borderRadius='xl'
+                onClick={handleEnter}
+                fontWeight='bold'
+              >
+                {translate('yieldXYZ.startEarning')}
+              </Button>
+            </>
+          )}
+        </VStack>
+      </Card>
     )
   },
 )

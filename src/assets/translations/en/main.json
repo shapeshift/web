@@ -2817,7 +2817,10 @@
     "potentialEarningsAmount": "%{amount}/yr at %{apy}% APY",
     "depositNow": "Deposit Now",
     "strategyInfo": "Strategy Info",
-    "overview": "Overview"
+    "overview": "Overview",
+    "availableToAdd": "%{amount} %{symbol} available",
+    "earnUpTo": "Earn up to",
+    "addMore": "Add More"
   },
   "earn": {
     "enterFrom": "Enter from",

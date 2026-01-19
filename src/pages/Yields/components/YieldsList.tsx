@@ -2,7 +2,6 @@ import { SearchIcon } from '@chakra-ui/icons'
 import {
   Avatar,
   Box,
-  Container,
   Flex,
   Heading,
   HStack,
@@ -29,6 +28,9 @@ import { useNavigate, useSearchParams } from 'react-router-dom'
 import { Amount } from '@/components/Amount/Amount'
 import { AssetIcon } from '@/components/AssetIcon'
 import { ChainIcon } from '@/components/ChainMenu'
+import { Display } from '@/components/Display'
+import { PageHeader } from '@/components/Layout/Header/PageHeader'
+import { Main } from '@/components/Layout/Main'
 import { ResultsEmptyNoWallet } from '@/components/ResultsEmptyNoWallet'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
@@ -1105,102 +1107,115 @@ export const YieldsList = memo(() => {
     isMobile,
   ])
 
+  const headerComponent = useMemo(
+    () => (
+      <PageHeader>
+        <Display.Mobile>
+          <PageHeader.Middle>
+            <PageHeader.Title>{translate('yieldXYZ.pageTitle')}</PageHeader.Title>
+          </PageHeader.Middle>
+          <PageHeader.Right>{null}</PageHeader.Right>
+        </Display.Mobile>
+        <Display.Desktop>
+          <PageHeader.Left>
+            <Box mb={8}>
+              <Heading as='h2' size='xl' mb={2}>
+                {translate('yieldXYZ.pageTitle')}
+              </Heading>
+              <Text color='text.subtle'>{translate('yieldXYZ.pageSubtitle')}</Text>
+            </Box>
+          </PageHeader.Left>
+        </Display.Desktop>
+      </PageHeader>
+    ),
+    [translate],
+  )
+
+  const containerPaddingX = useMemo(() => ({ base: 4, xl: 0 }), [])
+
   return (
-    <Container maxW='1200px' py={8} px={{ base: 4, md: 6 }}>
-      <Box mb={8}>
-        <Flex
-          justifyContent='space-between'
-          alignItems={{ base: 'flex-start', md: 'center' }}
-          direction={{ base: 'column', md: 'row' }}
-          gap={4}
+    <Main headerComponent={headerComponent}>
+      <Box py={4} px={containerPaddingX}>
+        {errorElement}
+        {isConnected && (
+          <YieldOpportunityStats
+            positions={myPositions}
+            balances={allBalances}
+            allYields={yields?.all}
+            isAvailableToEarnTab={isAvailableToEarnTab}
+            onNavigateToAvailableTab={handleNavigateToAvailableTab}
+            onNavigateToAllTab={handleNavigateToAllTab}
+            isConnected={isConnected}
+            isMobile={isMobile}
+          />
+        )}
+        {recommendedStripElement}
+        <Tabs
+          variant='soft-rounded'
+          colorScheme='blue'
+          isLazy
+          index={tabIndex}
+          onChange={handleTabChange}
         >
-          <Box>
-            <Heading as='h2' size='xl' mb={2}>
-              {translate('yieldXYZ.pageTitle')}
-            </Heading>
-            {!isMobile && <Text color='text.subtle'>{translate('yieldXYZ.pageSubtitle')}</Text>}
-          </Box>
-        </Flex>
-      </Box>
-      {errorElement}
-      {isConnected && (
-        <YieldOpportunityStats
-          positions={myPositions}
-          balances={allBalances}
-          allYields={yields?.all}
-          isAvailableToEarnTab={isAvailableToEarnTab}
-          onNavigateToAvailableTab={handleNavigateToAvailableTab}
-          onNavigateToAllTab={handleNavigateToAllTab}
-          isConnected={isConnected}
-          isMobile={isMobile}
-        />
-      )}
-      {recommendedStripElement}
-      <Tabs
-        variant='soft-rounded'
-        colorScheme='blue'
-        isLazy
-        index={tabIndex}
-        onChange={handleTabChange}
-      >
-        <TabList mb={4} gap={4}>
-          <Tab _selected={tabSelectedSx}>{translate('common.all')}</Tab>
-          <Tab _selected={tabSelectedSx}>{translate('yieldXYZ.availableToEarn')}</Tab>
-          <Tab _selected={tabSelectedSx}>
-            {translate('yieldXYZ.myPositions')} ({myPositions.length})
-          </Tab>
-        </TabList>
-        <Flex
-          justify='space-between'
-          align='center'
-          mb={{ base: 2, md: 4 }}
-          gap={2}
-          direction={{ base: 'column', md: 'row' }}
-        >
-          <InputGroup maxW={{ base: 'full', md: '300px' }} size='md'>
-            <InputLeftElement pointerEvents='none'>
-              <SearchIcon color='text.subtle' />
-            </InputLeftElement>
-            <Input
-              placeholder={translate('common.search')}
-              value={searchQuery}
-              onChange={handleSearchChange}
-              borderRadius='full'
-            />
-          </InputGroup>
+          <TabList mb={4} gap={4}>
+            <Tab _selected={tabSelectedSx}>{translate('common.all')}</Tab>
+            <Tab _selected={tabSelectedSx}>{translate('yieldXYZ.availableToEarn')}</Tab>
+            <Tab _selected={tabSelectedSx}>
+              {translate('yieldXYZ.myPositions')} ({myPositions.length})
+            </Tab>
+          </TabList>
           <Flex
-            gap={4}
-            width={{ base: 'full', md: 'auto' }}
+            justify='space-between'
+            align='center'
+            mb={{ base: 2, md: 4 }}
+            gap={2}
             direction={{ base: 'column', md: 'row' }}
-            align={{ base: 'stretch', md: 'center' }}
           >
-            {!isMobile && (
-              <>
-                <YieldFilters
-                  networks={networks}
-                  selectedNetwork={selectedNetwork}
-                  onSelectNetwork={handleNetworkChange}
-                  providers={providers}
-                  selectedProvider={selectedProvider}
-                  onSelectProvider={handleProviderChange}
-                  types={types}
-                  selectedType={selectedType}
-                  onSelectType={handleTypeChange}
-                  sortOption={sortOption}
-                  onSortChange={handleSortChange}
-                  mb={0}
-                />
-                <ViewToggle viewMode={viewMode} setViewMode={setViewMode} />
-              </>
-            )}
+            <InputGroup maxW={{ base: 'full', md: '300px' }} size='md'>
+              <InputLeftElement pointerEvents='none'>
+                <SearchIcon color='text.subtle' />
+              </InputLeftElement>
+              <Input
+                placeholder={translate('common.search')}
+                value={searchQuery}
+                onChange={handleSearchChange}
+                borderRadius='full'
+              />
+            </InputGroup>
+            <Flex
+              gap={4}
+              width={{ base: 'full', md: 'auto' }}
+              direction={{ base: 'column', md: 'row' }}
+              align={{ base: 'stretch', md: 'center' }}
+            >
+              {!isMobile && (
+                <>
+                  <YieldFilters
+                    networks={networks}
+                    selectedNetwork={selectedNetwork}
+                    onSelectNetwork={handleNetworkChange}
+                    providers={providers}
+                    selectedProvider={selectedProvider}
+                    onSelectProvider={handleProviderChange}
+                    types={types}
+                    selectedType={selectedType}
+                    onSelectType={handleTypeChange}
+                    sortOption={sortOption}
+                    onSortChange={handleSortChange}
+                    mb={0}
+                  />
+                  <ViewToggle viewMode={viewMode} setViewMode={setViewMode} />
+                </>
+              )}
+            </Flex>
           </Flex>
-        </Flex>
-        <TabPanels>
-          <TabPanel px={0}>{allYieldsContentElement}</TabPanel>
-          <TabPanel px={0}>{availableToEarnContentElement}</TabPanel>
-          <TabPanel px={0}>{positionsContentElement}</TabPanel>
-        </TabPanels>
-      </Tabs>
-    </Container>
+          <TabPanels>
+            <TabPanel px={0}>{allYieldsContentElement}</TabPanel>
+            <TabPanel px={0}>{availableToEarnContentElement}</TabPanel>
+            <TabPanel px={0}>{positionsContentElement}</TabPanel>
+          </TabPanels>
+        </Tabs>
+      </Box>
+    </Main>
   )
 })

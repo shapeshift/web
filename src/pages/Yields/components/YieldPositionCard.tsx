@@ -14,7 +14,6 @@ import {
   Text,
   VStack,
 } from '@chakra-ui/react'
-import { fromAccountId } from '@shapeshiftoss/caip'
 import dayjs from 'dayjs'
 import qs from 'qs'
 import { memo, useCallback, useMemo } from 'react'
@@ -27,16 +26,13 @@ import { useBrowserRouter } from '@/hooks/useBrowserRouter/useBrowserRouter'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import type { AugmentedYieldDto } from '@/lib/yieldxyz/types'
 import { YieldBalanceType } from '@/lib/yieldxyz/types'
+import { YieldAddMore } from '@/pages/Yields/components/YieldAddMore'
 import { useYieldAccount } from '@/pages/Yields/YieldAccountContext'
 import type {
   AggregatedBalance,
   NormalizedYieldBalances,
 } from '@/react-queries/queries/yieldxyz/useAllYieldBalances'
-import { useYieldValidators } from '@/react-queries/queries/yieldxyz/useYieldValidators'
-import {
-  selectAccountIdByAccountNumberAndChainId,
-  selectUserCurrencyToUsdRate,
-} from '@/state/slices/selectors'
+import { selectAccountIdByAccountNumberAndChainId } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
 const enterIcon = <ArrowUpIcon />
@@ -54,6 +50,7 @@ type YieldPositionCardProps = {
   balances: NormalizedYieldBalances | undefined
   isBalancesLoading: boolean
   selectedValidatorAddress: string | undefined
+  inputTokenMarketData: { price?: string } | undefined
 }
 
 export const YieldPositionCard = memo(
@@ -62,6 +59,7 @@ export const YieldPositionCard = memo(
     balances,
     isBalancesLoading,
     selectedValidatorAddress,
+    inputTokenMarketData,
   }: YieldPositionCardProps) => {
     const translate = useTranslate()
     const navigate = useNavigate()
@@ -76,12 +74,6 @@ export const YieldPositionCard = memo(
       const accountIdsByNumberAndChain = selectAccountIdByAccountNumberAndChainId(state)
       return accountIdsByNumberAndChain[accountNumber]?.[chainId]
     })
-    const userCurrencyToUsdRate = useAppSelector(selectUserCurrencyToUsdRate)
-
-    const address = useMemo(
-      () => (accountId ? fromAccountId(accountId).account : undefined),
-      [accountId],
-    )
 
     const balancesByType = useMemo(() => {
       if (!balances) return undefined
@@ -136,20 +128,6 @@ export const YieldPositionCard = memo(
       claimableBalance && bnOrZero(claimableBalance.aggregatedAmount).gt(0),
     )
 
-    const totalValueUsd = useMemo(
-      () =>
-        [activeBalance, enteringBalance, exitingBalance, withdrawableBalance].reduce(
-          (sum, b) => sum.plus(bnOrZero(b?.aggregatedAmountUsd)),
-          bnOrZero(0),
-        ),
-      [activeBalance, enteringBalance, exitingBalance, withdrawableBalance],
-    )
-
-    const totalValueUserCurrency = useMemo(
-      () => totalValueUsd.times(userCurrencyToUsdRate).toFixed(),
-      [totalValueUsd, userCurrencyToUsdRate],
-    )
-
     const totalAmount = useMemo(
       () =>
         [activeBalance, enteringBalance, exitingBalance, withdrawableBalance].reduce(
@@ -160,26 +138,6 @@ export const YieldPositionCard = memo(
     )
 
     const hasAnyPosition = totalAmount.gt(0)
-
-    const { data: validators } = useYieldValidators(yieldItem.id)
-
-    const selectedValidatorName = useMemo(() => {
-      if (!selectedValidatorAddress) return undefined
-      const found = validators?.find(v => v.address === selectedValidatorAddress)
-      if (found) return found.name
-      const foundInBalances = balances?.raw.find(
-        b => b.validator?.address === selectedValidatorAddress,
-      )
-      return foundInBalances?.validator?.name
-    }, [validators, selectedValidatorAddress, balances])
-
-    const headingText = selectedValidatorName
-      ? translate('yieldXYZ.myValidatorPosition', { validator: selectedValidatorName })
-      : translate('yieldXYZ.myPosition')
-
-    const addressBadgeText = address ? `${address.slice(0, 4)}...${address.slice(-4)}` : ''
-
-    const totalAmountFixed = totalAmount.toFixed()
 
     const navigateToAction = useCallback(
       (action: 'claim' | 'enter' | 'exit') => {
@@ -333,15 +291,6 @@ export const YieldPositionCard = memo(
       canClaim,
     ])
 
-    const addressBadge = useMemo(() => {
-      if (!address) return null
-      return (
-        <Badge variant='subtle' colorScheme='blue' borderRadius='full' px={2} py={0.5}>
-          {addressBadgeText}
-        </Badge>
-      )
-    }, [address, addressBadgeText])
-
     const pendingActionsSection = useMemo(() => {
       if (!showPendingActions) return null
       return (
@@ -364,6 +313,7 @@ export const YieldPositionCard = memo(
     ])
 
     if (!accountId) return null
+    if (!isBalancesLoading && !hasAnyPosition) return null
 
     if (isBalancesLoading) {
       return (
@@ -387,39 +337,12 @@ export const YieldPositionCard = memo(
     }
 
     return (
-      <Card variant='dashboard'>
+      <Card>
         <CardBody p={{ base: 4, md: 5 }}>
-          <Flex justifyContent='space-between' alignItems='center' mb={4}>
-            <Heading
-              as='h3'
-              size='sm'
-              textTransform='uppercase'
-              color='text.subtle'
-              letterSpacing='wider'
-            >
-              {headingText}
-            </Heading>
-            {addressBadge}
-          </Flex>
           <VStack spacing={4} align='stretch'>
-            <Box>
-              <Text fontSize='xs' color='text.subtle' mb={1} textTransform='uppercase'>
-                {translate('yieldXYZ.totalValue')}
-              </Text>
-              <Text fontSize='3xl' fontWeight='800' lineHeight='1'>
-                <Amount.Fiat value={totalValueUserCurrency} abbreviated />
-              </Text>
-              <Text fontSize='sm' color='text.subtle' mt={1}>
-                <Amount.Crypto
-                  value={totalAmountFixed}
-                  symbol={yieldItem.token.symbol}
-                  abbreviated
-                />
-              </Text>
-            </Box>
             {pendingActionsSection}
             <Display.Desktop>
-              <HStack spacing={3} pt={2}>
+              <HStack spacing={3}>
                 <Button
                   leftIcon={enterIcon}
                   colorScheme='blue'
@@ -447,6 +370,11 @@ export const YieldPositionCard = memo(
                   </Button>
                 )}
               </HStack>
+              <YieldAddMore
+                yieldItem={yieldItem}
+                inputTokenMarketData={inputTokenMarketData}
+                hasPosition={hasAnyPosition}
+              />
             </Display.Desktop>
           </VStack>
         </CardBody>

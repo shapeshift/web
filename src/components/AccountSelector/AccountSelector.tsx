@@ -32,6 +32,8 @@ export type AccountSelectorProps = {
   disabled?: boolean
   buttonProps?: ButtonProps
   boxProps?: BoxProps
+  showBalance?: boolean
+  showIcon?: boolean
 }
 
 const chevronIconSx = {
@@ -39,7 +41,16 @@ const chevronIconSx = {
 }
 
 export const AccountSelector: FC<AccountSelectorProps> = memo(
-  ({ assetId, accountId: selectedAccountId, onChange, disabled, buttonProps, boxProps }) => {
+  ({
+    assetId,
+    accountId: selectedAccountId,
+    onChange,
+    disabled,
+    buttonProps,
+    boxProps,
+    showBalance = true,
+    showIcon = true,
+  }) => {
     const translate = useTranslate()
     const { isOpen, onOpen, onClose } = useDisclosure()
     const {
@@ -120,7 +131,7 @@ export const AccountSelector: FC<AccountSelectorProps> = memo(
             {...buttonProps}
           >
             <HStack spacing={3} flex={1}>
-              <AssetIcon assetId={assetId} size='sm' borderRadius='full' />
+              {showIcon && <AssetIcon assetId={assetId} size='sm' borderRadius='full' />}
               <VStack align='start' spacing={0} flex={1}>
                 {accountNumber !== undefined && (
                   <Text fontSize='xs' color='text.subtle'>
@@ -132,7 +143,7 @@ export const AccountSelector: FC<AccountSelectorProps> = memo(
                     <MiddleEllipsis value={fromAccountId(selectedAccountId).account} />
                   )}
                 </Text>
-                {selectedAccountDetails && (
+                {selectedAccountDetails && showBalance && (
                   <Flex alignItems='center' gap={1}>
                     <Amount.Crypto
                       value={selectedAccountDetails.cryptoBalance}

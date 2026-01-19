@@ -3,7 +3,6 @@ import {
   Avatar,
   Box,
   Button,
-  Container,
   Flex,
   Heading,
   HStack,
@@ -23,6 +22,7 @@ import { Amount } from '@/components/Amount/Amount'
 import { AssetIcon } from '@/components/AssetIcon'
 import { ChainIcon } from '@/components/ChainMenu'
 import { Display } from '@/components/Display'
+import { Main } from '@/components/Layout/Main'
 import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import {
@@ -531,42 +531,54 @@ export const YieldAssetDetails = memo(() => {
     effectiveViewMode,
   ])
 
+  const headerComponent = useMemo(
+    () => (
+      <>
+        <Button
+          leftIcon={<ArrowBackIcon />}
+          variant='ghost'
+          onClick={() => navigate('/yields')}
+          mb={6}
+        >
+          {translate('common.back')}
+        </Button>
+        {assetHeaderElement}
+      </>
+    ),
+    [assetHeaderElement, navigate, translate],
+  )
+
+  const containerPaddingX = useMemo(() => ({ base: 4, xl: 0 }), [])
+
   return (
-    <Container maxW='1200px' py={{ base: 4, md: 8 }} px={{ base: 4, md: 6 }}>
-      <Button
-        leftIcon={<ArrowBackIcon />}
-        variant='ghost'
-        onClick={() => navigate('/yields')}
-        mb={6}
-      >
-        {translate('common.back')}
-      </Button>
-      {assetHeaderElement}
-      <Flex
-        justify='flex-end'
-        align={{ base: 'stretch', md: 'center' }}
-        mb={6}
-        gap={4}
-        direction={{ base: 'column', md: 'row' }}
-        width='full'
-        display={isMobile ? 'none' : 'flex'}
-      >
-        <YieldFilters
-          networks={networks}
-          selectedNetwork={selectedNetwork}
-          onSelectNetwork={handleNetworkChange}
-          providers={providers}
-          selectedProvider={selectedProvider}
-          onSelectProvider={handleProviderChange}
-          types={types}
-          selectedType={selectedType}
-          onSelectType={handleTypeChange}
-          sortOption={sortOption}
-          onSortChange={handleSortChange}
-        />
-        <ViewToggle viewMode={viewMode} setViewMode={setViewMode} />
-      </Flex>
-      {contentElement}
-    </Container>
+    <Main headerComponent={headerComponent} isSubPage>
+      <Box py={4} px={containerPaddingX}>
+        <Flex
+          justify='flex-end'
+          align={{ base: 'stretch', md: 'center' }}
+          mb={6}
+          gap={4}
+          direction={{ base: 'column', md: 'row' }}
+          width='full'
+          display={isMobile ? 'none' : 'flex'}
+        >
+          <YieldFilters
+            networks={networks}
+            selectedNetwork={selectedNetwork}
+            onSelectNetwork={handleNetworkChange}
+            providers={providers}
+            selectedProvider={selectedProvider}
+            onSelectProvider={handleProviderChange}
+            types={types}
+            selectedType={selectedType}
+            onSelectType={handleTypeChange}
+            sortOption={sortOption}
+            onSortChange={handleSortChange}
+          />
+          <ViewToggle viewMode={viewMode} setViewMode={setViewMode} />
+        </Flex>
+        {contentElement}
+      </Box>
+    </Main>
   )
 })

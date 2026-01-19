@@ -80,7 +80,7 @@ export const ButtonStyle: ComponentStyleConfig = {
         bg: `${c}.500`,
         color: 'white',
         _hover: {
-          bg: mode(`${c}.600`, `${c}.300`)(props),
+          bg: mode(`${c}.500`, `${c}.300`)(props),
           _disabled: {
             bg: `${c}.500`,
           },

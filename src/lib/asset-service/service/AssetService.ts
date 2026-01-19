@@ -16,6 +16,7 @@ import {
   solanaChainId,
   starknetChainId,
   suiChainId,
+  tonChainId,
   tronChainId,
   zecChainId,
 } from '@shapeshiftoss/caip'
@@ -126,6 +127,7 @@ class _AssetService {
       if (!config.VITE_FEATURE_NEAR && asset.chainId === nearChainId) return false
       if (!config.VITE_FEATURE_ZCASH && asset.chainId === zecChainId) return false
       if (!config.VITE_FEATURE_STARKNET && asset.chainId === starknetChainId) return false
+      if (!config.VITE_FEATURE_TON && asset.chainId === tonChainId) return false
       return true
     })
 

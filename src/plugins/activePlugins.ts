@@ -23,6 +23,7 @@ import solana from '@/plugins/solana'
 import starknet from '@/plugins/starknet'
 import sui from '@/plugins/sui'
 import thorchain from '@/plugins/thorchain'
+import ton from '@/plugins/ton'
 import tron from '@/plugins/tron'
 import walletConnectToDapps from '@/plugins/walletConnectToDapps'
 import zcash from '@/plugins/zcash'
@@ -53,6 +54,7 @@ export const activePlugins = [
   starknet,
   sui,
   thorchain,
+  ton,
   tron,
   walletConnectToDapps,
   zcash,

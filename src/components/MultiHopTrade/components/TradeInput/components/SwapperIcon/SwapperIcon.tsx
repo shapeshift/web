@@ -15,6 +15,7 @@ import MayachainIcon from './maya_logo.png'
 import NearIntentsIcon from './near-intents-icon.png'
 import PortalsIcon from './portals-icon.png'
 import RelayIcon from './relay-icon.svg'
+import StonfiIcon from './stonfi-icon.png'
 import SunioIcon from './sunio-icon.png'
 import THORChainIcon from './thorchain-icon.png'
 
@@ -60,6 +61,8 @@ export const SwapperIcon = ({
         return SunioIcon
       case SwapperName.Avnu:
         return AvnuIcon
+      case SwapperName.Stonfi:
+        return StonfiIcon
       case SwapperName.Test:
         return ''
       default:

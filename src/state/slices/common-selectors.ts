@@ -23,6 +23,10 @@ import {
 import { portfolio } from './portfolioSlice/portfolioSlice'
 import { preferences } from './preferencesSlice/preferencesSlice'
 
+import {
+  deduplicateAssetsBySymbol,
+  shouldSearchAllAssets as shouldSearchAllAssetsUtil,
+} from '@/lib/assetSearch'
 import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
 import { fromBaseUnit } from '@/lib/math'
 import { isSome } from '@/lib/utils'
@@ -524,29 +528,12 @@ export const selectAssetsBySearchQuery = createCachedSelector(
     const isContractAddressSearch = isContractAddress(searchQuery)
     const primaryAssetIds = new Set(primaryAssets.map(a => a.assetId))
     const primarySymbols = new Set(primaryAssets.map(a => a.symbol.toLowerCase()))
-    const searchLower = searchQuery.toLowerCase()
 
-    // Check if search term is a prefix of any primary symbol
-    // e.g., "USD" → "USDC" (search is prefix of symbol) → use primaryAssets
-    // NOTE: We intentionally don't check the reverse (symbol is prefix of search)
-    // because short primary symbols like "V", "AX" would incorrectly match "VBUSDC", "AXLUSDC"
-    const couldMatchPrimarySymbol = Array.from(primarySymbols).some(symbol =>
-      symbol.startsWith(searchLower),
-    )
+    const useAllAssets =
+      isContractAddressSearch ||
+      shouldSearchAllAssetsUtil(searchQuery, allAssets, primaryAssetIds, primarySymbols)
 
-    // Use allAssets when search could match a non-primary asset with a unique symbol
-    // e.g., "VBUSD" → "VBUSDC" (which is not in primarySymbols)
-    const shouldSearchAllAssets =
-      !couldMatchPrimarySymbol &&
-      allAssets.some(asset => {
-        if (primaryAssetIds.has(asset.assetId)) return false
-        const symbolLower = asset.symbol.toLowerCase()
-        if (primarySymbols.has(symbolLower)) return false
-        return symbolLower.startsWith(searchLower)
-      })
-
-    const sortedAssets =
-      isContractAddressSearch || shouldSearchAllAssets ? allAssets : primaryAssets
+    const sortedAssets = useAllAssets ? allAssets : primaryAssets
 
     const filteredAssets = sortedAssets.filter(asset => {
       const marketCap = marketDataUsd[asset.assetId]?.marketCap
@@ -565,7 +552,10 @@ export const selectAssetsBySearchQuery = createCachedSelector(
       baseSort: (a, b) => (indexMap.get(a.item) ?? 0) - (indexMap.get(b.item) ?? 0),
     })
 
-    return limit ? matchedAssets.slice(0, limit) : matchedAssets
+    // Deduplicate by symbol to avoid showing multiple rows for the same asset on different chains
+    const deduplicated = deduplicateAssetsBySymbol(matchedAssets)
+
+    return limit ? deduplicated.slice(0, limit) : deduplicated
   },
 )((_state: ReduxState, filter) => filter?.searchQuery ?? 'assetsBySearchQuery')
 

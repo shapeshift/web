@@ -30,6 +30,7 @@ import { isAssetSupportedByWallet } from '@/state/slices/portfolioSlice/utils'
 import { selectRelatedAssetIdsInclusiveSorted } from '@/state/slices/related-assets-selectors'
 import {
   selectAssetById,
+  selectAssets,
   selectMarketDataByAssetIdUserCurrency,
   selectPortfolioCryptoPrecisionBalanceByFilter,
   selectPortfolioUserCurrencyBalanceByAssetId,
@@ -109,16 +110,44 @@ export const AssetRow: FC<AssetRowProps> = memo(
       relatedAssetIdsFilter,
     )
 
+    const assetsById = useAppSelector(selectAssets)
+
+    // Find the primary asset's symbol from the related group
+    const primarySymbol = useMemo(() => {
+      for (const relatedAssetId of relatedAssetIds) {
+        const relatedAsset = assetsById[relatedAssetId]
+        if (relatedAsset?.isPrimary) return relatedAsset.symbol
+      }
+      return asset.symbol
+    }, [relatedAssetIds, assetsById, asset.symbol])
+
     // Filter related assets by predicates if provided (same pattern as AssetChainDropdown)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // For non-primary assets, also filter to only show same-symbol variants
+    // e.g., AXLUSDC should only show AXLUSDC on different chains, not USDC or USDC.E
     const filteredRelatedAssetIds = useMemo(() => {
-      return relatedAssetIds.filter(assetId => {
-        const { chainId } = fromAssetId(assetId)
+      return relatedAssetIds.filter(relatedAssetId => {
+        const { chainId } = fromAssetId(relatedAssetId)
         const isChainAllowed = chainIdFilterPredicate?.(chainId) ?? true
-        const isAssetAllowed = assetFilterPredicate?.(assetId) ?? true
-        return isChainAllowed && isAssetAllowed
+        const isAssetAllowed = assetFilterPredicate?.(relatedAssetId) ?? true
+        if (!isChainAllowed || !isAssetAllowed) return false
+
+        // For non-primary assets, only include related assets with the same symbol
+        if (!asset.isPrimary) {
+          const relatedAsset = assetsById[relatedAssetId]
+          if (!relatedAsset) return false
+          return relatedAsset.symbol === asset.symbol
+        }
+
+        return true
       })
-    }, [relatedAssetIds, chainIdFilterPredicate, assetFilterPredicate])
+    }, [
+      relatedAssetIds,
+      chainIdFilterPredicate,
+      assetFilterPredicate,
+      asset.isPrimary,
+      asset.symbol,
+      assetsById,
+    ])
 
     const filter = useMemo(() => ({ assetId }), [assetId])
     const isSupported = wallet && isAssetSupportedByWallet(assetId, wallet)
@@ -249,10 +278,21 @@ export const AssetRow: FC<AssetRowProps> = memo(
       changePercent24Hr,
     ])
 
-    const isExactMatchOnNonPrimaryAsset =
-      searchString && !asset.isPrimary && isExactSymbolMatch(searchString, asset.symbol)
+    // Only skip grouping when:
+    // 1. User is searching for a specific non-primary symbol (e.g., "AXLUSDC")
+    // 2. That symbol is DIFFERENT from the primary asset's symbol
+    // This ensures USDC chain variants still group when searching "USDC"
+    const isSearchingForUniqueNonPrimarySymbol =
+      searchString &&
+      !asset.isPrimary &&
+      asset.symbol !== primarySymbol &&
+      isExactSymbolMatch(searchString, asset.symbol)
 
-    if (showRelatedAssets && filteredRelatedAssetIds.length > 1 && !isExactMatchOnNonPrimaryAsset) {
+    if (
+      showRelatedAssets &&
+      filteredRelatedAssetIds.length > 1 &&
+      !isSearchingForUniqueNonPrimarySymbol
+    ) {
       return (
         <GroupedAssetRow
           asset={asset}

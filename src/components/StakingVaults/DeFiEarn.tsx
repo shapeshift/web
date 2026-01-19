@@ -106,9 +106,11 @@ export const DeFiEarn: React.FC<DefiEarnProps> = ({
       }
     })
 
-    const result = Array.from(map.values()).sort((a, b) =>
-      bnOrZero(b.fiatAmount).minus(bnOrZero(a.fiatAmount)).toNumber(),
-    )
+    const result = Array.from(map.values()).sort((a, b) => {
+      const balanceDiff = bnOrZero(b.fiatAmount).minus(bnOrZero(a.fiatAmount)).toNumber()
+      if (balanceDiff !== 0) return balanceDiff
+      return bnOrZero(b.apy).minus(bnOrZero(a.apy)).toNumber()
+    })
     console.debug(
       '[DeFiEarn] Final merged data:',
       JSON.stringify(

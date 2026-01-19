@@ -36,7 +36,7 @@ export const YieldAddMore = memo(
 
     const availableBalance = useMemo(
       () =>
-        inputTokenPrecision
+        typeof inputTokenPrecision === 'number'
           ? bnOrZero(availableBalanceBaseUnit).shiftedBy(-inputTokenPrecision)
           : bnOrZero(0),
       [availableBalanceBaseUnit, inputTokenPrecision],
@@ -55,14 +55,15 @@ export const YieldAddMore = memo(
     const hasAvailableBalance = availableBalance.gt(0)
 
     const handleEnter = useCallback(() => {
+      const existingParams = qs.parse(location.search, { ignoreQueryPrefix: true })
       navigate({
         pathname: location.pathname,
-        search: qs.stringify({ action: 'enter', modal: 'yield' }),
+        search: qs.stringify({ ...existingParams, action: 'enter', modal: 'yield' }),
       })
-    }, [navigate, location.pathname])
+    }, [navigate, location.pathname, location.search])
 
     // Only show when user has a position AND has available balance to add
-    if (!hasPosition || !hasAvailableBalance || !inputTokenPrecision) return null
+    if (!hasPosition || !hasAvailableBalance || typeof inputTokenPrecision !== 'number') return null
 
     return (
       <Alert
@@ -104,7 +105,7 @@ export const YieldAddMore = memo(
                   color='text.success'
                   fontWeight='semibold'
                   value={potentialYearlyEarningsFiat.toFixed()}
-                  suffix='/yr'
+                  suffix={translate('yieldXYZ.perYear')}
                 />
               </Text>
             )}

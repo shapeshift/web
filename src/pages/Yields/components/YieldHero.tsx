@@ -86,7 +86,7 @@ export const YieldHero = memo(
 
     const availableBalance = useMemo(
       () =>
-        inputTokenPrecision
+        inputTokenPrecision != null
           ? bnOrZero(availableBalanceBaseUnit).shiftedBy(-inputTokenPrecision)
           : bnOrZero(0),
       [availableBalanceBaseUnit, inputTokenPrecision],
@@ -98,8 +98,8 @@ export const YieldHero = memo(
     )
 
     const potentialYearlyEarningsFiat = useMemo(
-      () => availableBalanceFiat.times(yieldItem.rewardRate.total),
-      [availableBalanceFiat, yieldItem.rewardRate.total],
+      () => availableBalanceFiat.times(bnOrZero(yieldItem?.rewardRate?.total)),
+      [availableBalanceFiat, yieldItem?.rewardRate?.total],
     )
 
     const hasAvailableBalance = availableBalance.gt(0)

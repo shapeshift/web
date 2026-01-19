@@ -51,6 +51,7 @@ export const YieldCompareItem = memo(
     return (
       <Card
         as='button'
+        type='button'
         bg='transparent'
         onClick={handleClick}
         w='full'

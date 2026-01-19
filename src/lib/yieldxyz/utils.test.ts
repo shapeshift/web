@@ -5,6 +5,8 @@ import type { AugmentedYieldDto, ValidatorDto } from './types'
 import {
   ensureValidatorApr,
   getTransactionButtonText,
+  getYieldActionLabelKeys,
+  isStakingYieldType,
   resolveYieldInputAssetIcon,
   searchValidators,
   searchYields,
@@ -241,5 +243,75 @@ describe('ensureValidatorApr', () => {
     } as unknown as ValidatorDto
     const result = ensureValidatorApr(validator)
     expect(result.rewardRate?.components).toHaveLength(1)
+  })
+})
+
+describe('getYieldActionLabelKeys', () => {
+  it('should return stake/unstake for staking yield types', () => {
+    expect(getYieldActionLabelKeys('staking')).toEqual({
+      enter: 'defi.stake',
+      exit: 'defi.unstake',
+    })
+    expect(getYieldActionLabelKeys('native-staking')).toEqual({
+      enter: 'defi.stake',
+      exit: 'defi.unstake',
+    })
+    expect(getYieldActionLabelKeys('pooled-staking')).toEqual({
+      enter: 'defi.stake',
+      exit: 'defi.unstake',
+    })
+    expect(getYieldActionLabelKeys('liquid-staking')).toEqual({
+      enter: 'defi.stake',
+      exit: 'defi.unstake',
+    })
+  })
+
+  it('should return restake/unstake for restaking yield types', () => {
+    expect(getYieldActionLabelKeys('restaking')).toEqual({
+      enter: 'yieldXYZ.actions.restake',
+      exit: 'defi.unstake',
+    })
+  })
+
+  it('should return deposit/withdraw for vault yield types', () => {
+    expect(getYieldActionLabelKeys('vault')).toEqual({
+      enter: 'common.deposit',
+      exit: 'common.withdraw',
+    })
+  })
+
+  it('should return deposit/withdraw for lending yield types', () => {
+    expect(getYieldActionLabelKeys('lending')).toEqual({
+      enter: 'common.deposit',
+      exit: 'common.withdraw',
+    })
+  })
+
+  it('should return deposit/withdraw for unknown yield types', () => {
+    expect(getYieldActionLabelKeys('unknown')).toEqual({
+      enter: 'common.deposit',
+      exit: 'common.withdraw',
+    })
+    expect(getYieldActionLabelKeys('')).toEqual({
+      enter: 'common.deposit',
+      exit: 'common.withdraw',
+    })
+  })
+})
+
+describe('isStakingYieldType', () => {
+  it('should return true for staking-related yield types', () => {
+    expect(isStakingYieldType('staking')).toBe(true)
+    expect(isStakingYieldType('native-staking')).toBe(true)
+    expect(isStakingYieldType('pooled-staking')).toBe(true)
+    expect(isStakingYieldType('liquid-staking')).toBe(true)
+    expect(isStakingYieldType('restaking')).toBe(true)
+  })
+
+  it('should return false for non-staking yield types', () => {
+    expect(isStakingYieldType('vault')).toBe(false)
+    expect(isStakingYieldType('lending')).toBe(false)
+    expect(isStakingYieldType('unknown')).toBe(false)
+    expect(isStakingYieldType('')).toBe(false)
   })
 })

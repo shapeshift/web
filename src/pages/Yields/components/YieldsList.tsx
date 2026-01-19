@@ -45,7 +45,7 @@ import {
   YIELD_NETWORK_TO_CHAIN_ID,
 } from '@/lib/yieldxyz/constants'
 import type { AugmentedYieldDto, YieldNetwork } from '@/lib/yieldxyz/types'
-import { resolveYieldInputAssetIcon, searchYields } from '@/lib/yieldxyz/utils'
+import { isStakingYieldType, resolveYieldInputAssetIcon, searchYields } from '@/lib/yieldxyz/utils'
 import { YieldFilters } from '@/pages/Yields/components/YieldFilters'
 import { YieldItem, YieldItemSkeleton } from '@/pages/Yields/components/YieldItem'
 import { YieldOpportunityStats } from '@/pages/Yields/components/YieldOpportunityStats'
@@ -113,7 +113,7 @@ export const YieldsList = memo(() => {
     handleProviderChange,
     handleTypeChange,
     handleSortChange,
-  } = useYieldFilters()
+  } = useYieldFilters(isAvailableToEarnTab)
 
   const userCurrencyBalances = useAppSelector(selectPortfolioUserCurrencyBalances)
   const assetBalancesBaseUnit = useAppSelector(selectPortfolioAssetBalancesBaseUnit)
@@ -170,7 +170,8 @@ export const YieldsList = memo(() => {
   const getYieldDisplayInfo = useCallback(
     (yieldItem: AugmentedYieldDto) => {
       const isNativeStaking =
-        yieldItem.mechanics.type === 'staking' && yieldItem.mechanics.requiresValidatorSelection
+        isStakingYieldType(yieldItem.mechanics.type) &&
+        yieldItem.mechanics.requiresValidatorSelection
 
       if (yieldItem.id === COSMOS_ATOM_NATIVE_STAKING_YIELD_ID) {
         return {
@@ -236,38 +237,79 @@ export const YieldsList = memo(() => {
     [],
   )
 
-  const networks = useMemo(
+  const unfilteredAvailableYields = useMemo(() => {
+    if (!isConnected || !yields?.byInputAssetId || !userCurrencyBalances || !assetBalancesBaseUnit)
+      return []
+
+    const available: AugmentedYieldDto[] = []
+
+    for (const [assetId, balanceFiat] of Object.entries(userCurrencyBalances)) {
+      const yieldsForAsset = yields.byInputAssetId[assetId]
+      if (!yieldsForAsset?.length) continue
+
+      const balance = bnOrZero(balanceFiat)
+      if (balance.lte(0)) continue
+
+      const eligibleYields = yieldsForAsset.filter(y => {
+        const minDeposit = bnOrZero(y.mechanics?.entryLimits?.minimum)
+        if (minDeposit.gt(0)) {
+          const asset = assets[assetId]
+          if (!asset) return false
+          const baseBalance = bnOrZero(assetBalancesBaseUnit[assetId])
+          const balanceHuman = bnOrZero(fromBaseUnit(baseBalance, asset.precision))
+          if (balanceHuman.lt(minDeposit)) return false
+        }
+        return true
+      })
+
+      available.push(...eligibleYields)
+    }
+
+    return available
+  }, [isConnected, yields?.byInputAssetId, userCurrencyBalances, assetBalancesBaseUnit, assets])
+
+  const filterSourceYields = useMemo(
     () =>
-      yields?.meta?.networks
-        ? yields.meta.networks.map(net => ({
-            id: net,
-            name: net.charAt(0).toUpperCase() + net.slice(1),
-            chainId: YIELD_NETWORK_TO_CHAIN_ID[net as YieldNetwork],
-          }))
-        : [],
-    [yields],
+      isAvailableToEarnTab && unfilteredAvailableYields.length > 0
+        ? unfilteredAvailableYields
+        : undefined,
+    [isAvailableToEarnTab, unfilteredAvailableYields],
   )
 
-  const providers = useMemo(
-    () =>
-      yields?.meta?.providers
-        ? yields.meta.providers.map(pId => ({
-            id: pId,
-            name: pId.charAt(0).toUpperCase() + pId.slice(1),
-            icon: getProviderLogo(pId),
-          }))
-        : [],
-    [yields, getProviderLogo],
-  )
+  const networks = useMemo(() => {
+    const sourceNetworks = filterSourceYields
+      ? [...new Set(filterSourceYields.map(y => y.network))]
+      : yields?.meta?.networks ?? []
+
+    return sourceNetworks.map(net => ({
+      id: net,
+      name: net.charAt(0).toUpperCase() + net.slice(1),
+      chainId: YIELD_NETWORK_TO_CHAIN_ID[net as YieldNetwork],
+    }))
+  }, [filterSourceYields, yields?.meta?.networks])
+
+  const providers = useMemo(() => {
+    const sourceProviders = filterSourceYields
+      ? [...new Set(filterSourceYields.map(y => y.providerId))]
+      : yields?.meta?.providers ?? []
+
+    return sourceProviders.map(pId => ({
+      id: pId,
+      name: pId.charAt(0).toUpperCase() + pId.slice(1),
+      icon: getProviderLogo(pId),
+    }))
+  }, [filterSourceYields, yields?.meta?.providers, getProviderLogo])
 
   const types = useMemo(() => {
-    if (!yields?.all) return []
-    const uniqueTypes = [...new Set(yields.all.map(y => y.mechanics.type))]
+    const sourceYields = filterSourceYields ?? yields?.all
+    if (!sourceYields) return []
+
+    const uniqueTypes = [...new Set(sourceYields.map(y => y.mechanics.type))]
     return uniqueTypes.map(type => ({
       id: type,
       name: type.charAt(0).toUpperCase() + type.slice(1).replace(/-/g, ' '),
     }))
-  }, [yields])
+  }, [filterSourceYields, yields?.all])
 
   const yieldsByAsset = useMemo(() => {
     if (!yields?.assetGroups) return []
@@ -345,11 +387,9 @@ export const YieldsList = memo(() => {
   ])
 
   const recommendedYields = useMemo(() => {
-    if (!isConnected || !yields?.unfiltered || !userCurrencyBalances || !assetBalancesBaseUnit)
-      return []
+    if (!unfilteredAvailableYields.length || !userCurrencyBalances) return []
 
-    // Build unfiltered byInputAssetId lookup so recommendations are independent of filters
-    const allYieldsByInputAssetId = yields.unfiltered.reduce<Record<string, AugmentedYieldDto[]>>(
+    const yieldsByAssetId = unfilteredAvailableYields.reduce<Record<string, AugmentedYieldDto[]>>(
       (acc, item) => {
         const assetId = item.inputTokens?.[0]?.assetId
         if (assetId) {
@@ -367,29 +407,11 @@ export const YieldsList = memo(() => {
       potentialEarnings: ReturnType<typeof bnOrZero>
     }[] = []
 
-    for (const [assetId, balanceFiat] of Object.entries(userCurrencyBalances)) {
-      const yieldsForAsset = allYieldsByInputAssetId[assetId]
-      if (!yieldsForAsset?.length) continue
-
-      const balance = bnOrZero(balanceFiat)
+    for (const [assetId, yieldsForAsset] of Object.entries(yieldsByAssetId)) {
+      const balance = bnOrZero(userCurrencyBalances[assetId])
       if (balance.lte(0)) continue
 
-      // Filter to only include yields where user meets the minimum requirement
-      const eligibleYields = yieldsForAsset.filter(y => {
-        const minDeposit = bnOrZero(y.mechanics?.entryLimits?.minimum)
-        if (minDeposit.lte(0)) return true
-
-        // minDeposit is human readable (e.g. 32), so convert base balance to human
-        const asset = assets[assetId]
-        if (!asset) return false
-        const baseBalance = bnOrZero(assetBalancesBaseUnit[assetId])
-        const balanceHuman = bnOrZero(fromBaseUnit(baseBalance, asset.precision))
-        return balanceHuman.gte(minDeposit)
-      })
-
-      if (!eligibleYields.length) continue
-
-      const bestYield = eligibleYields.reduce((best, current) =>
+      const bestYield = yieldsForAsset.reduce((best, current) =>
         current.rewardRate.total > best.rewardRate.total ? current : best,
       )
 
@@ -403,58 +425,70 @@ export const YieldsList = memo(() => {
     return recommendations
       .sort((a, b) => b.potentialEarnings.minus(a.potentialEarnings).toNumber())
       .slice(0, 3)
-  }, [isConnected, yields?.unfiltered, userCurrencyBalances, assetBalancesBaseUnit, assets])
+  }, [unfilteredAvailableYields, userCurrencyBalances])
 
   const availableYields = useMemo(() => {
-    if (!isConnected || !yields?.byInputAssetId || !userCurrencyBalances || !assetBalancesBaseUnit)
-      return []
+    if (!unfilteredAvailableYields.length || !userCurrencyBalances) return []
 
     const available: {
       yield: AugmentedYieldDto
       balanceFiat: ReturnType<typeof bnOrZero>
     }[] = []
 
-    for (const [assetId, balanceFiat] of Object.entries(userCurrencyBalances)) {
-      const yieldsForAsset = yields.byInputAssetId[assetId]
-      if (!yieldsForAsset?.length) continue
+    for (const yieldItem of unfilteredAvailableYields) {
+      const inputAssetId = yieldItem.inputTokens?.[0]?.assetId
+      if (!inputAssetId) continue
 
-      const balance = bnOrZero(balanceFiat)
-      if (balance.lte(0)) continue
+      const balanceFiat = bnOrZero(userCurrencyBalances[inputAssetId])
 
-      const eligibleYields = yieldsForAsset.filter(y => {
-        const minDeposit = bnOrZero(y.mechanics?.entryLimits?.minimum)
-        if (minDeposit.gt(0)) {
-          const asset = assets[assetId]
-          if (!asset) return false
-          const baseBalance = bnOrZero(assetBalancesBaseUnit[assetId])
-          const balanceHuman = bnOrZero(fromBaseUnit(baseBalance, asset.precision))
-          if (balanceHuman.lt(minDeposit)) return false
-        }
-        if (selectedNetwork && y.network !== selectedNetwork) return false
-        if (selectedProvider && y.providerId !== selectedProvider) return false
-        if (selectedType && y.mechanics.type !== selectedType) return false
-        if (searchQuery && !searchYields([y], searchQuery).length) return false
-        return true
-      })
+      if (selectedNetwork && yieldItem.network !== selectedNetwork) continue
+      if (selectedProvider && yieldItem.providerId !== selectedProvider) continue
+      if (selectedType && yieldItem.mechanics.type !== selectedType) continue
+      if (searchQuery && !searchYields([yieldItem], searchQuery).length) continue
 
-      for (const yieldItem of eligibleYields) {
-        available.push({ yield: yieldItem, balanceFiat: balance })
-      }
+      available.push({ yield: yieldItem, balanceFiat })
     }
 
-    return available.sort((a, b) =>
-      bnOrZero(b.yield.rewardRate.total).minus(a.yield.rewardRate.total).toNumber(),
-    )
+    return available.sort((a, b) => {
+      switch (sortOption) {
+        case 'yearly-return-desc': {
+          const aYearlyReturn = bnOrZero(a.yield.rewardRate.total).times(a.balanceFiat)
+          const bYearlyReturn = bnOrZero(b.yield.rewardRate.total).times(b.balanceFiat)
+          const diff = bYearlyReturn.minus(aYearlyReturn).toNumber()
+          if (diff !== 0) return diff
+          return bnOrZero(b.yield.rewardRate.total).minus(a.yield.rewardRate.total).toNumber()
+        }
+        case 'apy-desc':
+          return bnOrZero(b.yield.rewardRate.total).minus(a.yield.rewardRate.total).toNumber()
+        case 'apy-asc':
+          return bnOrZero(a.yield.rewardRate.total).minus(b.yield.rewardRate.total).toNumber()
+        case 'tvl-desc':
+          return bnOrZero(b.yield.statistics?.tvlUsd)
+            .minus(a.yield.statistics?.tvlUsd ?? 0)
+            .toNumber()
+        case 'tvl-asc':
+          return bnOrZero(a.yield.statistics?.tvlUsd)
+            .minus(b.yield.statistics?.tvlUsd ?? 0)
+            .toNumber()
+        case 'name-asc':
+          return a.yield.token.symbol.localeCompare(b.yield.token.symbol)
+        case 'name-desc':
+          return b.yield.token.symbol.localeCompare(a.yield.token.symbol)
+        default: {
+          const aYearlyReturnDefault = bnOrZero(a.yield.rewardRate.total).times(a.balanceFiat)
+          const bYearlyReturnDefault = bnOrZero(b.yield.rewardRate.total).times(b.balanceFiat)
+          return bYearlyReturnDefault.minus(aYearlyReturnDefault).toNumber()
+        }
+      }
+    })
   }, [
-    isConnected,
-    yields?.byInputAssetId,
+    unfilteredAvailableYields,
     userCurrencyBalances,
-    assetBalancesBaseUnit,
-    assets,
     selectedNetwork,
     selectedProvider,
     selectedType,
     searchQuery,
+    sortOption,
   ])
 
   const myPositions = useMemo(() => {
@@ -779,6 +813,7 @@ export const YieldsList = memo(() => {
               userBalanceUsd={positionBalanceUsd}
               availableBalanceUserCurrency={item.balanceFiat}
               onEnter={() => handleYieldClick(item.yield.id)}
+              showAvailableOnly
             />
           )
         })}
@@ -907,6 +942,7 @@ export const YieldsList = memo(() => {
               userBalanceUsd={positionBalanceUsd}
               availableBalanceUserCurrency={item.balanceFiat}
               onEnter={() => handleYieldClick(item.yield.id)}
+              showAvailableOnly
             />
           )
         })}

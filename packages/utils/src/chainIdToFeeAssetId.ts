@@ -24,6 +24,7 @@ import {
   starknetAssetId,
   suiAssetId,
   thorchainAssetId,
+  tonAssetId,
   tronAssetId,
   zecAssetId,
 } from '@shapeshiftoss/caip'
@@ -86,6 +87,8 @@ export const chainIdToFeeAssetId = (_chainId: ChainId): AssetId => {
       return zecAssetId
     case KnownChainIds.NearMainnet:
       return nearAssetId
+    case KnownChainIds.TonMainnet:
+      return tonAssetId
     default:
       return assertUnreachable(chainId)
   }

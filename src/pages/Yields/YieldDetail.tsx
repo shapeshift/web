@@ -108,7 +108,7 @@ export const YieldDetail = memo(() => {
     ? DEFAULT_NATIVE_VALIDATOR_BY_CHAIN_ID[yieldItem.chainId]
     : undefined
 
-  const selectedValidatorAddress = (() => {
+  const selectedValidatorAddress = useMemo(() => {
     if (
       yieldId === COSMOS_ATOM_NATIVE_STAKING_YIELD_ID ||
       yieldId === SOLANA_SOL_NATIVE_MULTIVALIDATOR_STAKING_YIELD_ID ||
@@ -117,7 +117,7 @@ export const YieldDetail = memo(() => {
       return defaultValidator
     }
     return validatorParam || defaultValidator
-  })()
+  }, [yieldId, defaultValidator, validatorParam])
 
   const isStaking = yieldItem?.mechanics.type === 'staking'
   const shouldFetchValidators = isStaking && yieldItem?.mechanics.requiresValidatorSelection
@@ -149,13 +149,13 @@ export const YieldDetail = memo(() => {
     return null
   })()
 
-  const titleOverride = (() => {
+  const titleOverride = useMemo(() => {
     if (!yieldItem) return undefined
     const isNativeStaking =
       yieldItem.mechanics.type === 'staking' && yieldItem.mechanics.requiresValidatorSelection
     if (isNativeStaking) return translate('yieldXYZ.nativeStaking')
     return getYieldDisplayName(yieldItem)
-  })()
+  }, [yieldItem, translate])
 
   const userBalances = (() => {
     if (!balances) return { userCurrency: '0', crypto: '0' }

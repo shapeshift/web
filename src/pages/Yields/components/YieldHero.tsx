@@ -22,7 +22,7 @@ import { ChainIcon } from '@/components/ChainMenu'
 import { useBrowserRouter } from '@/hooks/useBrowserRouter/useBrowserRouter'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import type { AugmentedYieldDto } from '@/lib/yieldxyz/types'
-import { resolveYieldInputAssetIcon } from '@/lib/yieldxyz/utils'
+import { getYieldActionLabelKeys, resolveYieldInputAssetIcon } from '@/lib/yieldxyz/utils'
 
 const enterIcon = <ArrowUpIcon />
 const exitIcon = <ArrowDownIcon />
@@ -78,15 +78,15 @@ export const YieldHero = memo(
     const handleEnter = useCallback(() => handleAction('enter'), [handleAction])
     const handleExit = useCallback(() => handleAction('exit'), [handleAction])
 
-    const isStaking = yieldItem.mechanics.type === 'staking'
-    const enterLabel = isStaking ? translate('defi.stake') : translate('common.deposit')
-    const exitLabel = isStaking ? translate('defi.unstake') : translate('common.withdraw')
+    const actionLabelKeys = getYieldActionLabelKeys(yieldItem.mechanics.type)
+    const enterLabel = translate(actionLabelKeys.enter)
+    const exitLabel = translate(actionLabelKeys.exit)
 
     const yieldTitle = titleOverride ?? yieldItem.metadata.name ?? yieldItem.token.symbol
 
     const descriptionSection = useMemo(() => {
       const docUrl = validatorOrProvider?.documentation ?? yieldItem.metadata.documentation
-      const description = yieldItem.metadata.description
+      const description = validatorOrProvider?.description ?? yieldItem.metadata.description
       if (!description && !docUrl) return null
       return (
         <HStack spacing={2} maxW='400px' justify='center'>
@@ -109,6 +109,7 @@ export const YieldHero = memo(
         </HStack>
       )
     }, [
+      validatorOrProvider?.description,
       validatorOrProvider?.documentation,
       yieldItem.metadata.documentation,
       yieldItem.metadata.description,

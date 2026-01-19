@@ -4,7 +4,6 @@ import { memo, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 
 import { Display } from '@/components/Display'
-import { PROVIDER_DESCRIPTIONS } from '@/lib/yieldxyz/providerDescriptions'
 
 type YieldProviderInfoProps = {
   providerId: string
@@ -17,7 +16,11 @@ export const YieldProviderInfo = memo(
   ({ providerId, providerName, providerLogoURI, providerWebsite }: YieldProviderInfoProps) => {
     const translate = useTranslate()
 
-    const description = useMemo(() => PROVIDER_DESCRIPTIONS[providerId]?.description, [providerId])
+    const descriptionKey = `yieldXYZ.providerDescriptions.${providerId}`
+    const description = useMemo(() => {
+      const translated = translate(descriptionKey)
+      return translated !== descriptionKey ? translated : null
+    }, [translate, descriptionKey])
 
     if (!description) return null
 

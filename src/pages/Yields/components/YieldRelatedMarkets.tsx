@@ -35,7 +35,7 @@ export const YieldRelatedMarkets = memo(
 
     const handleYieldClick = useCallback(
       (yieldId: string) => {
-        navigate(`/yield/${yieldId}`)
+        navigate(`/yields/${yieldId}`)
       },
       [navigate],
     )

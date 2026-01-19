@@ -16,6 +16,7 @@ import type {
   Swap,
   Swapper,
   SwapperApi,
+  TonTransactionExecutionInput,
   TradeExecutionEventMap,
   TronTransactionExecutionInput,
   UtxoTransactionExecutionInput,
@@ -38,6 +39,7 @@ import { assertGetNearChainAdapter } from './utils/near'
 import { assertGetSolanaChainAdapter } from './utils/solana'
 import { assertGetStarknetChainAdapter } from './utils/starknet'
 import { assertGetSuiChainAdapter } from './utils/sui'
+import { assertGetTonChainAdapter } from './utils/ton'
 import { assertGetTronChainAdapter } from './utils/tron'
 import { assertGetUtxoChainAdapter } from './utils/utxo'
 
@@ -91,6 +93,7 @@ export const fetchTradeStatus = async ({
     assertGetUtxoChainAdapter,
     assertGetCosmosSdkChainAdapter,
     assertGetSolanaChainAdapter,
+    assertGetTonChainAdapter,
     assertGetTronChainAdapter,
     assertGetSuiChainAdapter,
     assertGetNearChainAdapter,
@@ -185,6 +188,7 @@ export class TradeExecution {
           chainflipSwapId: tradeQuote.steps[0]?.chainflipSpecific?.chainflipSwapId,
           nearIntentsSpecific: tradeQuote.steps[0]?.nearIntentsSpecific,
           relayTransactionMetadata: tradeQuote.steps[0]?.relayTransactionMetadata,
+          quoteId: tradeQuote.steps[0]?.stonfiSpecific?.quoteId ?? swap.metadata.quoteId,
           stepIndex,
         },
       }
@@ -750,6 +754,57 @@ export class TradeExecution {
       })
 
       return await swapper.executeStarknetTransaction(unsignedTxResult, {
+        signAndBroadcastTransaction,
+      })
+    }
+
+    return await this._execWalletAgnostic(
+      {
+        swapperName,
+        tradeQuote,
+        stepIndex,
+        slippageTolerancePercentageDecimal,
+      },
+      buildSignBroadcast,
+    )
+  }
+
+  async execTonTransaction({
+    swapperName,
+    tradeQuote,
+    stepIndex,
+    slippageTolerancePercentageDecimal,
+    from,
+    signAndBroadcastTransaction,
+  }: TonTransactionExecutionInput) {
+    const buildSignBroadcast = async (
+      swapper: Swapper & SwapperApi,
+      {
+        tradeQuote,
+        chainId,
+        stepIndex,
+        slippageTolerancePercentageDecimal,
+        config,
+      }: CommonGetUnsignedTransactionArgs,
+    ) => {
+      if (!swapper.getUnsignedTonTransaction) {
+        throw Error('missing implementation for getUnsignedTonTransaction')
+      }
+      if (!swapper.executeTonTransaction) {
+        throw Error('missing implementation for executeTonTransaction')
+      }
+
+      const unsignedTxResult = await swapper.getUnsignedTonTransaction({
+        tradeQuote,
+        chainId,
+        stepIndex,
+        slippageTolerancePercentageDecimal,
+        from,
+        config,
+        assertGetTonChainAdapter,
+      })
+
+      return await swapper.executeTonTransaction(unsignedTxResult, {
         signAndBroadcastTransaction,
       })
     }

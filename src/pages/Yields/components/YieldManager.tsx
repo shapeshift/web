@@ -15,6 +15,7 @@ import {
   SOLANA_SOL_NATIVE_MULTIVALIDATOR_STAKING_YIELD_ID,
 } from '@/lib/yieldxyz/constants'
 import { YieldBalanceType } from '@/lib/yieldxyz/types'
+import { getYieldActionLabelKeys } from '@/lib/yieldxyz/utils'
 import { useYieldAccount } from '@/pages/Yields/YieldAccountContext'
 import { useAllYieldBalances } from '@/react-queries/queries/yieldxyz/useAllYieldBalances'
 import { useYield } from '@/react-queries/queries/yieldxyz/useYield'
@@ -49,24 +50,21 @@ export const YieldManager = () => {
 
   const inputTokenSymbol = yieldItem?.inputTokens[0]?.symbol
   const claimableTokenSymbol = balances?.byType[YieldBalanceType.Claimable]?.token?.symbol
-  const isStaking = yieldItem?.mechanics.type === 'staking'
 
   const title = useMemo(() => {
+    if (!yieldItem) return translate('yieldXYZ.manage')
+    const actionLabelKeys = getYieldActionLabelKeys(yieldItem.mechanics.type)
     if (action === 'enter') {
-      return isStaking
-        ? translate('yieldXYZ.stakeSymbol', { symbol: inputTokenSymbol })
-        : translate('yieldXYZ.depositSymbol', { symbol: inputTokenSymbol })
+      return `${translate(actionLabelKeys.enter)} ${inputTokenSymbol ?? ''}`
     }
     if (action === 'exit') {
-      return isStaking
-        ? translate('yieldXYZ.unstakeSymbol', { symbol: inputTokenSymbol })
-        : translate('yieldXYZ.withdrawSymbol', { symbol: inputTokenSymbol })
+      return `${translate(actionLabelKeys.exit)} ${inputTokenSymbol ?? ''}`
     }
     if (action === 'claim') {
       return translate('yieldXYZ.claimSymbol', { symbol: claimableTokenSymbol ?? '' })
     }
     return translate('yieldXYZ.manage')
-  }, [action, isStaking, translate, inputTokenSymbol, claimableTokenSymbol])
+  }, [action, yieldItem, translate, inputTokenSymbol, claimableTokenSymbol])
 
   if (!yieldItem) return null
 

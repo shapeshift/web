@@ -5,6 +5,7 @@ import {
   executeSolanaTransaction,
   executeStarknetTransaction,
   executeSuiTransaction,
+  executeTonTransaction,
   executeTronTransaction,
 } from '../../utils'
 
@@ -15,6 +16,7 @@ export const nearIntentsSwapper: Swapper = {
   executeTronTransaction,
   executeSuiTransaction,
   executeNearTransaction,
+  executeTonTransaction,
   executeUtxoTransaction: (txToSign, { signAndBroadcastTransaction }) => {
     return signAndBroadcastTransaction(txToSign)
   },

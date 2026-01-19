@@ -61,7 +61,9 @@ export const PluginProvider = ({ children }: PluginProviderProps): JSX.Element =
     let pluginRoutes: Route[] = []
 
     // newly registered will be default + what comes from plugins
-    const newChainAdapters: { [k in ChainId]?: () => ChainAdapter<KnownChainIds> } = {}
+    const newChainAdapters: {
+      [k in ChainId]?: () => ChainAdapter<KnownChainIds>
+    } = {}
 
     // register providers from each plugin
     for (const plugin of pluginManager.values()) {
@@ -124,6 +126,8 @@ export const PluginProvider = ({ children }: PluginProviderProps): JSX.Element =
       if (!featureFlags.BnbSmartChain && chainId === KnownChainIds.BnbSmartChainMainnet)
         return false
       if (!featureFlags.Tron && chainId === KnownChainIds.TronMainnet) return false
+      if (!featureFlags.Ton && chainId === KnownChainIds.TonMainnet) return false
+      if (!featureFlags.Near && chainId === KnownChainIds.NearMainnet) return false
       if (!featureFlags.Zcash && chainId === KnownChainIds.ZcashMainnet) return false
       return true
     })

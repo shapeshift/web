@@ -5,6 +5,7 @@ import type {
   TradeQuote,
   TradeQuoteStep,
 } from '@shapeshiftoss/swapper'
+import { isNativeEvmAsset } from '@shapeshiftoss/swapper'
 import type { Request, Response } from 'express'
 import { v4 as uuidv4 } from 'uuid'
 import { z } from 'zod'
@@ -27,10 +28,9 @@ const getSwapperModule = async () => {
 // Request validation schema - swapperName is string, validated later
 export const QuoteRequestSchema = z.object({
   sellAssetId: z.string().min(1).openapi({ example: 'eip155:1/slip44:60' }),
-  buyAssetId: z
-    .string()
-    .min(1)
-    .openapi({ example: 'eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48' }),
+  buyAssetId: z.string().min(1).openapi({
+    example: 'eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
+  }),
   sellAmountCryptoBaseUnit: z.string().min(1).openapi({ example: '1000000000000000000' }),
   receiveAddress: z
     .string()
@@ -90,27 +90,21 @@ const extractTransactionData = (step: TradeQuoteStep): ApiQuoteStep['transaction
   return undefined
 }
 
-// Helper to build approval info
 const buildApprovalInfo = (step: TradeQuoteStep, _sellAssetId: string): ApprovalInfo => {
   const { chainNamespace } = fromChainId(step.sellAsset.chainId)
 
-  // Only EVM tokens need approval
   if (chainNamespace !== 'eip155') {
     return { isRequired: false, spender: '' }
   }
 
-  // Native assets don't need approval
-  if (step.sellAsset.assetId.includes('slip44:60')) {
+  if (isNativeEvmAsset(step.sellAsset.assetId)) {
     return { isRequired: false, spender: '' }
   }
 
-  // If there's an allowance contract, approval may be needed
   if (step.allowanceContract) {
     return {
-      isRequired: true, // Consumer should check current allowance
+      isRequired: true,
       spender: step.allowanceContract,
-      // Approval transaction data - consumer builds this themselves
-      // or we could provide it if needed
     }
   }
 
@@ -170,7 +164,9 @@ export const getQuote = async (req: Request, res: Response): Promise<void> => {
     // Validate swapper exists
     const swapper = swappers[validSwapperName]
     if (!swapper) {
-      res.status(400).json({ error: `Swapper not available: ${swapperName}` } as ErrorResponse)
+      res.status(400).json({
+        error: `Swapper not available: ${swapperName}`,
+      } as ErrorResponse)
       return
     }
 
@@ -225,7 +221,9 @@ export const getQuote = async (req: Request, res: Response): Promise<void> => {
     )
 
     if (!result) {
-      res.status(404).json({ error: 'No quote available from this swapper' } as ErrorResponse)
+      res.status(404).json({
+        error: 'No quote available from this swapper',
+      } as ErrorResponse)
       return
     }
 

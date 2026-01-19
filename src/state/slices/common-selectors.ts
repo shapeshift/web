@@ -25,7 +25,7 @@ import { preferences } from './preferencesSlice/preferencesSlice'
 
 import {
   deduplicateAssets,
-  prioritizePrimaryAssets,
+  prioritizeBySymbolMatch,
   shouldSearchAllAssets as shouldSearchAllAssetsUtil,
 } from '@/lib/assetSearch'
 import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
@@ -553,8 +553,8 @@ export const selectAssetsBySearchQuery = createCachedSelector(
       baseSort: (a, b) => (indexMap.get(a.item) ?? 0) - (indexMap.get(b.item) ?? 0),
     })
 
-    // Prioritize primary assets (in market cap order) to ensure major tokens appear first
-    const prioritizedAssets = prioritizePrimaryAssets(matchedAssets, filteredAssets)
+    // Prioritize by symbol match quality to ensure USDC/USDT appear before LP pools
+    const prioritizedAssets = prioritizeBySymbolMatch(matchedAssets, filteredAssets, searchQuery)
 
     // Deduplicate by relatedAssetKey to show one row per asset family
     const deduplicated = deduplicateAssets(prioritizedAssets, searchQuery)

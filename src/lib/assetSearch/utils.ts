@@ -55,37 +55,57 @@ export const filterAssetsByChainSupport = <T extends { assetId: AssetId; chainId
 }
 
 /**
- * Prioritizes primary assets over non-primary assets in search results,
- * re-sorting primary assets by their original input order (market cap).
+ * Prioritizes search results by symbol match quality, then by original order (market cap).
  *
- * After matchSorter finds relevant assets, this function ensures that primary assets
- * (major/canonical tokens like USDC, USDT) appear before non-primary assets (bridged
- * variants, wrapped tokens). Unlike simple filtering, this re-sorts primary assets
- * by their original position in the input array, which corresponds to market cap order.
+ * This ensures that when searching "usd":
+ * 1. USDC, USDT appear first (symbols start with "usd")
+ * 2. LP pools like "Yearn USDC yVault Pool" (name contains "usdc") appear after
  *
- * This solves a critical issue: matchSorter ranks by match quality, so "Tether" (USDT)
- * ranks lower than "USDT0" when searching "usd" because "Tether" doesn't contain "usd"
- * in the name. By re-sorting primaries by market cap, USDT appears before obscure tokens.
+ * Without this, matchSorter would rank LP pools higher because their names contain
+ * the search term while USDT's name "Tether" doesn't.
  *
- * @param matchedAssets - Assets returned by matchSorter (in match quality order)
+ * Groups (in order of priority):
+ * 1. Exact symbol match (search "usdc" → USDC)
+ * 2. Symbol starts with search term (search "usd" → USDC, USDT, USDS)
+ * 3. Other matches (name contains search term → LP pools, etc.)
+ *
+ * Within each group, assets maintain their original order (market cap).
+ *
+ * @param matchedAssets - Assets returned by matchSorter
  * @param originalAssets - Original input array (in market cap order)
+ * @param searchTerm - The search term to match against
  */
-export const prioritizePrimaryAssets = <T extends SearchableAsset>(
+export const prioritizeBySymbolMatch = <T extends SearchableAsset>(
   matchedAssets: T[],
   originalAssets: T[],
+  searchTerm: string,
 ): T[] => {
-  if (!matchedAssets.length) return matchedAssets
+  if (!matchedAssets.length || !searchTerm) return matchedAssets
 
-  // Create a set of matched asset IDs for O(1) lookup
+  const searchLower = searchTerm.toLowerCase()
   const matchedIds = new Set(matchedAssets.map(a => a.assetId))
 
-  // Get primary assets in original (market cap) order
-  const primaryAssets = originalAssets.filter(a => a.isPrimary && matchedIds.has(a.assetId))
+  // Get matched assets in original (market cap) order
+  const matchedInOriginalOrder = originalAssets.filter(a => matchedIds.has(a.assetId))
 
-  // Get non-primary assets in matchSorter order
-  const nonPrimaryAssets = matchedAssets.filter(a => !a.isPrimary)
+  // Group by symbol match quality
+  const exactSymbolMatch: T[] = []
+  const symbolStartsWith: T[] = []
+  const otherMatches: T[] = []
 
-  return [...primaryAssets, ...nonPrimaryAssets]
+  for (const asset of matchedInOriginalOrder) {
+    const symbolLower = asset.symbol.toLowerCase()
+
+    if (symbolLower === searchLower) {
+      exactSymbolMatch.push(asset)
+    } else if (symbolLower.startsWith(searchLower)) {
+      symbolStartsWith.push(asset)
+    } else {
+      otherMatches.push(asset)
+    }
+  }
+
+  return [...exactSymbolMatch, ...symbolStartsWith, ...otherMatches]
 }
 
 export const searchAssets = <T extends SearchableAsset>(
@@ -115,6 +135,6 @@ export const searchAssets = <T extends SearchableAsset>(
 
   const results = matchSorter(assets, searchTerm, configWithBaseSort)
 
-  // Prioritize primary assets (in market cap order) over non-primary assets
-  return prioritizePrimaryAssets(results, assets)
+  // Prioritize by symbol match quality to ensure USDC/USDT appear before LP pools
+  return prioritizeBySymbolMatch(results, assets, searchTerm)
 }

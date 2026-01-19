@@ -20,7 +20,6 @@ import { KeyManager } from '@/context/WalletProvider/KeyManager'
 import { useCopyToClipboard } from '@/hooks/useCopyToClipboard'
 import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { useWallet } from '@/hooks/useWallet/useWallet'
-import { isExactSymbolMatch } from '@/lib/assetSearch'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { firstNonZeroDecimal } from '@/lib/math'
 import { chainIdToChainDisplayName, middleEllipsis } from '@/lib/utils'
@@ -71,7 +70,6 @@ export const AssetRow: FC<AssetRowProps> = memo(
       hideZeroBalanceAmounts,
       assetFilterPredicate,
       chainIdFilterPredicate,
-      searchString,
     },
     showPrice = false,
     onImportClick,
@@ -111,15 +109,6 @@ export const AssetRow: FC<AssetRowProps> = memo(
     )
 
     const assetsById = useAppSelector(selectAssets)
-
-    // Find the primary asset's symbol from the related group
-    const primarySymbol = useMemo(() => {
-      for (const relatedAssetId of relatedAssetIds) {
-        const relatedAsset = assetsById[relatedAssetId]
-        if (relatedAsset?.isPrimary) return relatedAsset.symbol
-      }
-      return asset.symbol
-    }, [relatedAssetIds, assetsById, asset.symbol])
 
     // Filter related assets by predicates if provided (same pattern as AssetChainDropdown)
     // For non-primary assets, also filter to only show same-symbol variants
@@ -278,21 +267,7 @@ export const AssetRow: FC<AssetRowProps> = memo(
       changePercent24Hr,
     ])
 
-    // Only skip grouping when:
-    // 1. User is searching for a specific non-primary symbol (e.g., "AXLUSDC")
-    // 2. That symbol is DIFFERENT from the primary asset's symbol
-    // This ensures USDC chain variants still group when searching "USDC"
-    const isSearchingForUniqueNonPrimarySymbol =
-      searchString &&
-      !asset.isPrimary &&
-      asset.symbol !== primarySymbol &&
-      isExactSymbolMatch(searchString, asset.symbol)
-
-    if (
-      showRelatedAssets &&
-      filteredRelatedAssetIds.length > 1 &&
-      !isSearchingForUniqueNonPrimarySymbol
-    ) {
+    if (showRelatedAssets && filteredRelatedAssetIds.length > 1) {
       return (
         <GroupedAssetRow
           asset={asset}

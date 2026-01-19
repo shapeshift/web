@@ -11,17 +11,36 @@ import type {
   AssetSearchWorkerOutboundMessage,
   SearchableAsset,
 } from '@/lib/assetSearch'
-import { filterAssetsByChainSupport, isExactSymbolMatch, searchAssets } from '@/lib/assetSearch'
+import { filterAssetsByChainSupport, searchAssets } from '@/lib/assetSearch'
 import { isContractAddress } from '@/lib/utils/isContractAddress'
 
 let assets: SearchableAsset[] = []
 let primaryAssets: SearchableAsset[] = []
 let primaryAssetIds: Set<AssetId> = new Set()
+let primarySymbols: Set<string> = new Set()
 
-function hasExactNonPrimarySymbolMatch(searchString: string): boolean {
-  return assets.some(
-    asset => isExactSymbolMatch(searchString, asset.symbol) && !primaryAssetIds.has(asset.assetId),
+function shouldSearchAllAssets(searchString: string): boolean {
+  const searchLower = searchString.toLowerCase()
+
+  // Check if search term is a prefix of any primary symbol
+  // e.g., "USD" → "USDC" (search is prefix of symbol) → use primaryAssets
+  // NOTE: We intentionally don't check the reverse (symbol is prefix of search)
+  // because short primary symbols like "V", "AX" would incorrectly match "VBUSDC", "AXLUSDC"
+  const couldMatchPrimarySymbol = Array.from(primarySymbols).some(symbol =>
+    symbol.startsWith(searchLower),
   )
+
+  // If search could match a primary symbol, use primaryAssets (grouping will show related)
+  if (couldMatchPrimarySymbol) return false
+
+  // Check if search could match a non-primary asset with a unique symbol
+  // e.g., "VBUSD" → "VBUSDC" (which is not in primarySymbols)
+  return assets.some(asset => {
+    if (primaryAssetIds.has(asset.assetId)) return false
+    const symbolLower = asset.symbol.toLowerCase()
+    if (primarySymbols.has(symbolLower)) return false
+    return symbolLower.startsWith(searchLower)
+  })
 }
 
 function handleSearch(msg: AssetSearchWorkerInboundMessage & { type: 'search' }): void {
@@ -37,7 +56,7 @@ function handleSearch(msg: AssetSearchWorkerInboundMessage & { type: 'search' })
   const searchableAssets = (() => {
     if (isContractAddressSearch) return assets
     if (activeChainId !== 'All') return assets
-    if (hasExactNonPrimarySymbolMatch(searchString)) return assets
+    if (shouldSearchAllAssets(searchString)) return assets
     return primaryAssets
   })()
 
@@ -63,6 +82,7 @@ self.onmessage = (event: MessageEvent<AssetSearchWorkerInboundMessage>) => {
     case 'updatePrimaryAssets': {
       primaryAssets = data.payload.assets
       primaryAssetIds = new Set(primaryAssets.map(a => a.assetId))
+      primarySymbols = new Set(primaryAssets.map(a => a.symbol.toLowerCase()))
       break
     }
     case 'updateAssets': {

@@ -126,12 +126,15 @@ export const ExploreCategory = () => {
       return hasPositiveMarketCapAndOver1000 && asset.chainId === selectedChainId
     })
 
+    const indexMap = new Map(filteredAssets.map((asset, index) => [asset, index]))
+
     const matchedAssets = matchSorter(filteredAssets, searchString, {
       keys: [
         { key: 'name', threshold: matchSorter.rankings.MATCHES },
         { key: 'symbol', threshold: matchSorter.rankings.WORD_STARTS_WITH },
         { key: 'assetId', threshold: matchSorter.rankings.CONTAINS },
       ],
+      baseSort: (a, b) => (indexMap.get(a.item) ?? 0) - (indexMap.get(b.item) ?? 0),
     })
 
     return matchedAssets.slice(0, 20)

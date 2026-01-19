@@ -31,9 +31,11 @@ export const Assets = () => {
       return []
     }
     const search = filterValue.trim().toLowerCase()
+    const indexMap = new Map(rows.map((asset, index) => [asset, index]))
     const matchedAssets = matchSorter(rows, search, {
       keys: ['name', 'symbol'],
       threshold: matchSorter.rankings.CONTAINS,
+      baseSort: (a, b) => (indexMap.get(a.item) ?? 0) - (indexMap.get(b.item) ?? 0),
     })
     return matchedAssets
   }, [])

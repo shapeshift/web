@@ -66,5 +66,18 @@ export const searchAssets = <T extends SearchableAsset>(
     return filterAssetsByEthAddress(searchTerm, assets)
   }
 
-  return matchSorter(assets, searchTerm, config)
+  // Create an index map for O(1) lookup of original positions
+  const indexMap = new Map(assets.map((asset, index) => [asset, index]))
+
+  // Add baseSort to preserve input order (market cap) within same ranking tier
+  const configWithBaseSort = {
+    ...config,
+    baseSort: (a: { item: T }, b: { item: T }) => {
+      const indexA = indexMap.get(a.item) ?? 0
+      const indexB = indexMap.get(b.item) ?? 0
+      return indexA - indexB
+    },
+  }
+
+  return matchSorter(assets, searchTerm, configWithBaseSort)
 }

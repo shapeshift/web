@@ -23,7 +23,6 @@ import {
 import { portfolio } from './portfolioSlice/portfolioSlice'
 import { preferences } from './preferencesSlice/preferencesSlice'
 
-import { isExactSymbolMatch } from '@/lib/assetSearch'
 import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
 import { fromBaseUnit } from '@/lib/math'
 import { isSome } from '@/lib/utils'
@@ -524,22 +523,46 @@ export const selectAssetsBySearchQuery = createCachedSelector(
 
     const isContractAddressSearch = isContractAddress(searchQuery)
     const primaryAssetIds = new Set(primaryAssets.map(a => a.assetId))
-    const hasExactNonPrimarySymbolMatch = allAssets.some(
-      asset => isExactSymbolMatch(searchQuery, asset.symbol) && !primaryAssetIds.has(asset.assetId),
+    const primarySymbols = new Set(primaryAssets.map(a => a.symbol.toLowerCase()))
+    const searchLower = searchQuery.toLowerCase()
+
+    // Check if search term is a prefix of any primary symbol
+    // e.g., "USD" → "USDC" (search is prefix of symbol) → use primaryAssets
+    // NOTE: We intentionally don't check the reverse (symbol is prefix of search)
+    // because short primary symbols like "V", "AX" would incorrectly match "VBUSDC", "AXLUSDC"
+    const couldMatchPrimarySymbol = Array.from(primarySymbols).some(symbol =>
+      symbol.startsWith(searchLower),
     )
+
+    // Use allAssets when search could match a non-primary asset with a unique symbol
+    // e.g., "VBUSD" → "VBUSDC" (which is not in primarySymbols)
+    const shouldSearchAllAssets =
+      !couldMatchPrimarySymbol &&
+      allAssets.some(asset => {
+        if (primaryAssetIds.has(asset.assetId)) return false
+        const symbolLower = asset.symbol.toLowerCase()
+        if (primarySymbols.has(symbolLower)) return false
+        return symbolLower.startsWith(searchLower)
+      })
+
     const sortedAssets =
-      isContractAddressSearch || hasExactNonPrimarySymbolMatch ? allAssets : primaryAssets
+      isContractAddressSearch || shouldSearchAllAssets ? allAssets : primaryAssets
 
     const filteredAssets = sortedAssets.filter(asset => {
       const marketCap = marketDataUsd[asset.assetId]?.marketCap
       return bnOrZero(marketCap).isZero() || bnOrZero(marketCap).gte(1000)
     })
+
+    // Create index map for O(1) lookup to preserve input order (market cap) within same rank
+    const indexMap = new Map(filteredAssets.map((asset, index) => [asset, index]))
+
     const matchedAssets = matchSorter(filteredAssets, searchQuery, {
       keys: [
         { key: 'name', threshold: matchSorter.rankings.MATCHES },
         { key: 'symbol', threshold: matchSorter.rankings.WORD_STARTS_WITH },
         { key: 'assetId', threshold: matchSorter.rankings.CONTAINS },
       ],
+      baseSort: (a, b) => (indexMap.get(a.item) ?? 0) - (indexMap.get(b.item) ?? 0),
     })
 
     return limit ? matchedAssets.slice(0, limit) : matchedAssets

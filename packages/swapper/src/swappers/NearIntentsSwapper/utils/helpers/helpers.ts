@@ -61,7 +61,7 @@ export const getNearIntentsAsset = ({
   return `nep141:${nearNetwork}-${contractAddress.toLowerCase()}.omft.near`
 }
 
-const NEP245_CHAINS = ['bsc', 'pol', 'avax', 'op', 'tron', 'monad'] as const
+const NEP245_CHAINS = ['bsc', 'pol', 'avax', 'op', 'tron', 'monad', 'plasma'] as const
 const TOKEN_LOOKUP_CHAINS = ['sui', 'starknet', 'ton'] as const
 const NEAR_CHAIN = 'near' as const
 const WNEAR_CONTRACT_ADDRESS = 'wrap.near' as const

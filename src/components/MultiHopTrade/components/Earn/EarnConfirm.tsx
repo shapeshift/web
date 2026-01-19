@@ -13,6 +13,7 @@ import { getTransactionButtonText } from '@/lib/yieldxyz/utils'
 import { GradientApy } from '@/pages/Yields/components/GradientApy'
 import { TransactionStepsList } from '@/pages/Yields/components/TransactionStepsList'
 import { YieldAssetFlow } from '@/pages/Yields/components/YieldAssetFlow'
+import { YieldExplainers } from '@/pages/Yields/components/YieldExplainers'
 import { YieldSuccess } from '@/pages/Yields/components/YieldSuccess'
 import { ModalStep, useYieldTransactionFlow } from '@/pages/Yields/hooks/useYieldTransactionFlow'
 import { useYieldProviders } from '@/react-queries/queries/yieldxyz/useYieldProviders'
@@ -309,6 +310,12 @@ export const EarnConfirm = memo(() => {
             </HStack>
           )}
         </Box>
+
+        {selectedYield && (
+          <Box mt={4}>
+            <YieldExplainers selectedYield={selectedYield} sellAssetSymbol={sellAsset?.symbol} />
+          </Box>
+        )}
 
         {stepsToShow.length > 0 && (
           <Box mt={4}>

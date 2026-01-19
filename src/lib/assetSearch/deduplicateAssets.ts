@@ -8,57 +8,43 @@ type DeduplicatableAsset = {
 }
 
 /**
- * Deduplicates assets by relatedAssetKey (asset family), with smart handling for exact symbol matches.
+ * Deduplicates assets by relatedAssetKey (asset family).
  *
- * This ensures that:
- * - General searches like "usd" show one row per asset family (USDC, USDT) not multiple variants (USDT + USDT0)
- * - Specific searches like "axlusdc" or "usdt0" show that specific variant (exact match takes priority)
- * - Primary assets are preferred when no exact symbol match exists
+ * Priority order:
+ * 1. Primary asset (always wins within family - ensures groups are shown, not single variants)
+ * 2. Exact symbol match (only if no primary exists in family)
+ * 3. First asset in order (fallback)
  *
  * @param assets - Array of assets to deduplicate
  * @param searchString - The search string used to find these assets
- * @returns Array with one asset per family, preferring exact matches then primary assets
+ * @returns Array with one asset per family, preferring primary assets
  */
 export function deduplicateAssets<T extends DeduplicatableAsset>(
   assets: T[],
   searchString?: string,
 ): T[] {
   const familyToAsset = new Map<string, T>()
-  const searchLower = searchString?.toLowerCase() || ''
+  const searchLower = searchString?.toLowerCase() ?? ''
 
-  // First pass: identify if search exactly matches any symbol in results
-  const exactMatchSymbol = assets.find(a => a.symbol.toLowerCase() === searchLower)?.symbol
+  const hasExactSymbolMatch = assets.some(a => a.symbol.toLowerCase() === searchLower)
 
-  // Second pass: find the best asset for each family
   for (const asset of assets) {
-    // Use relatedAssetKey as family key, fall back to assetId for chain-specific assets
-    const familyKey = asset.relatedAssetKey || asset.assetId
+    const familyKey = asset.relatedAssetKey ?? asset.assetId
     const existing = familyToAsset.get(familyKey)
 
-    // Priority rules:
-    // 1. Exact symbol match for non-primary (if searching for specific variant)
-    // 2. Primary asset (default for general searches)
-    // 3. First occurrence (fallback)
-
-    const isExactMatch =
-      exactMatchSymbol && asset.symbol.toLowerCase() === exactMatchSymbol.toLowerCase()
+    const isExactMatch = hasExactSymbolMatch && asset.symbol.toLowerCase() === searchLower
     const existingIsExactMatch =
-      existing &&
-      exactMatchSymbol &&
-      existing.symbol.toLowerCase() === exactMatchSymbol.toLowerCase()
+      hasExactSymbolMatch && existing?.symbol.toLowerCase() === searchLower
 
     if (!existing) {
       familyToAsset.set(familyKey, asset)
-    } else if (isExactMatch && !existingIsExactMatch) {
-      // Prefer exact symbol match
+    } else if (asset.isPrimary && !existing.isPrimary) {
       familyToAsset.set(familyKey, asset)
-    } else if (!existingIsExactMatch && asset.isPrimary && !existing.isPrimary) {
-      // Prefer primary if no exact match
+    } else if (isExactMatch && !existingIsExactMatch && !existing.isPrimary) {
       familyToAsset.set(familyKey, asset)
     }
   }
 
-  // Third pass: filter to keep only selected assets, maintaining order
   const selectedAssets = new Set(familyToAsset.values())
   return assets.filter(asset => selectedAssets.has(asset))
 }

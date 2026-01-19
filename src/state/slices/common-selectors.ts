@@ -4,7 +4,6 @@ import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import type { Asset, PartialRecord } from '@shapeshiftoss/types'
 import orderBy from 'lodash/orderBy'
 import pickBy from 'lodash/pickBy'
-import { matchSorter } from 'match-sorter'
 import createCachedSelector from 're-reselect'
 import { createSelector } from 'reselect'
 
@@ -25,7 +24,7 @@ import { preferences } from './preferencesSlice/preferencesSlice'
 
 import {
   deduplicateAssets,
-  prioritizeBySymbolMatch,
+  searchAssets,
   shouldSearchAllAssets as shouldSearchAllAssetsUtil,
 } from '@/lib/assetSearch'
 import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
@@ -541,23 +540,9 @@ export const selectAssetsBySearchQuery = createCachedSelector(
       return bnOrZero(marketCap).isZero() || bnOrZero(marketCap).gte(1000)
     })
 
-    // Create index map for O(1) lookup to preserve input order (market cap) within same rank
-    const indexMap = new Map(filteredAssets.map((asset, index) => [asset, index]))
+    const matchedAssets = searchAssets(searchQuery, filteredAssets)
 
-    const matchedAssets = matchSorter(filteredAssets, searchQuery, {
-      keys: [
-        { key: 'name', threshold: matchSorter.rankings.MATCHES },
-        { key: 'symbol', threshold: matchSorter.rankings.WORD_STARTS_WITH },
-        { key: 'assetId', threshold: matchSorter.rankings.CONTAINS },
-      ],
-      baseSort: (a, b) => (indexMap.get(a.item) ?? 0) - (indexMap.get(b.item) ?? 0),
-    })
-
-    // Prioritize by symbol match quality to ensure USDC/USDT appear before LP pools
-    const prioritizedAssets = prioritizeBySymbolMatch(matchedAssets, filteredAssets, searchQuery)
-
-    // Deduplicate by relatedAssetKey to show one row per asset family
-    const deduplicated = deduplicateAssets(prioritizedAssets, searchQuery)
+    const deduplicated = deduplicateAssets(matchedAssets, searchQuery)
 
     return limit ? deduplicated.slice(0, limit) : deduplicated
   },

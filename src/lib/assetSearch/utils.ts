@@ -1,140 +1,92 @@
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import { fromAssetId, isNft } from '@shapeshiftoss/caip'
-import { matchSorter } from 'match-sorter'
 
-import { ASSET_SEARCH_MATCH_SORTER_CONFIG } from './config'
 import type { SearchableAsset } from './types'
 
 import { isEvmAddress } from '@/lib/utils/isEvmAddress'
 
-export const isSearchableAsset = (assetId: AssetId): boolean => !isNft(assetId)
+export function isSearchableAsset(assetId: AssetId): boolean {
+  return !isNft(assetId)
+}
 
 export function isExactSymbolMatch(searchQuery: string, symbol: string): boolean {
   return searchQuery.toLowerCase() === symbol.toLowerCase()
 }
 
-export const filterAssetsByEthAddress = <T extends { assetId: AssetId }>(
+export function filterAssetsByEthAddress<T extends { assetId: AssetId }>(
   address: string,
   assets: T[],
-): T[] => {
+): T[] {
   const searchLower = address.toLowerCase()
   return assets.filter(
     asset => fromAssetId(asset.assetId).assetReference.toLowerCase() === searchLower,
   )
 }
 
-export const filterAssetsByChainSupport = <T extends { assetId: AssetId; chainId: ChainId }>(
+export function filterAssetsByChainSupport<T extends { assetId: AssetId; chainId: ChainId }>(
   assets: T[],
   options: {
     activeChainId?: ChainId | 'All'
     allowWalletUnsupportedAssets?: boolean
     walletConnectedChainIds: ChainId[]
   },
-): T[] => {
+): T[] {
   const { activeChainId, allowWalletUnsupportedAssets, walletConnectedChainIds } = options
 
+  if (!activeChainId) return []
+
+  const isChainSupported =
+    allowWalletUnsupportedAssets || walletConnectedChainIds.includes(activeChainId as ChainId)
+
+  if (activeChainId !== 'All' && !isChainSupported) return []
+
   return assets.filter(asset => {
-    // Always filter out NFTs
     if (!isSearchableAsset(asset.assetId)) return false
 
     if (activeChainId === 'All') {
-      if (allowWalletUnsupportedAssets) return true
-      return walletConnectedChainIds.includes(asset.chainId)
+      return allowWalletUnsupportedAssets || walletConnectedChainIds.includes(asset.chainId)
     }
 
-    if (
-      activeChainId &&
-      !allowWalletUnsupportedAssets &&
-      !walletConnectedChainIds.includes(activeChainId)
-    ) {
-      return false
-    }
-
-    return activeChainId ? asset.chainId === activeChainId : false
+    return asset.chainId === activeChainId
   })
 }
 
-/**
- * Prioritizes search results by symbol match quality, then by original order (market cap).
- *
- * This ensures that when searching "usd":
- * 1. USDC, USDT appear first (symbols start with "usd")
- * 2. LP pools like "Yearn USDC yVault Pool" (name contains "usdc") appear after
- *
- * Without this, matchSorter would rank LP pools higher because their names contain
- * the search term while USDT's name "Tether" doesn't.
- *
- * Groups (in order of priority):
- * 1. Exact symbol match (search "usdc" → USDC)
- * 2. Symbol starts with search term (search "usd" → USDC, USDT, USDS)
- * 3. Other matches (name contains search term → LP pools, etc.)
- *
- * Within each group, assets maintain their original order (market cap).
- *
- * @param matchedAssets - Assets returned by matchSorter
- * @param originalAssets - Original input array (in market cap order)
- * @param searchTerm - The search term to match against
- */
-export const prioritizeBySymbolMatch = <T extends SearchableAsset>(
-  matchedAssets: T[],
-  originalAssets: T[],
-  searchTerm: string,
-): T[] => {
-  if (!matchedAssets.length || !searchTerm) return matchedAssets
+function scoreAsset(asset: SearchableAsset, search: string): number {
+  const sym = asset.symbol.toLowerCase()
+  const name = asset.name.toLowerCase()
 
-  const searchLower = searchTerm.toLowerCase()
-  const matchedIds = new Set(matchedAssets.map(a => a.assetId))
+  if (sym === search) return 0
+  if (sym.startsWith(search)) return 10
+  if (sym.includes(search)) return 20
 
-  // Get matched assets in original (market cap) order
-  const matchedInOriginalOrder = originalAssets.filter(a => matchedIds.has(a.assetId))
+  if (name === search) return 30
+  if (name.startsWith(search)) return 40
+  if (name.includes(search)) return 50
 
-  // Group by symbol match quality
-  const exactSymbolMatch: T[] = []
-  const symbolStartsWith: T[] = []
-  const otherMatches: T[] = []
+  if (asset.assetId.toLowerCase().includes(search)) return 60
 
-  for (const asset of matchedInOriginalOrder) {
-    const symbolLower = asset.symbol.toLowerCase()
-
-    if (symbolLower === searchLower) {
-      exactSymbolMatch.push(asset)
-    } else if (symbolLower.startsWith(searchLower)) {
-      symbolStartsWith.push(asset)
-    } else {
-      otherMatches.push(asset)
-    }
-  }
-
-  return [...exactSymbolMatch, ...symbolStartsWith, ...otherMatches]
+  return 1000
 }
 
-export const searchAssets = <T extends SearchableAsset>(
-  searchTerm: string,
-  assets: T[],
-  config = ASSET_SEARCH_MATCH_SORTER_CONFIG,
-): T[] => {
-  if (!assets) return []
+export function searchAssets<T extends SearchableAsset>(searchTerm: string, assets: T[]): T[] {
+  if (!assets?.length) return []
   if (!searchTerm) return assets
 
   if (isEvmAddress(searchTerm)) {
     return filterAssetsByEthAddress(searchTerm, assets)
   }
 
-  // Create an index map for O(1) lookup of original positions
-  const indexMap = new Map(assets.map((asset, index) => [asset, index]))
+  const search = searchTerm.toLowerCase()
 
-  // Add baseSort to preserve input order (market cap) within same ranking tier
-  const configWithBaseSort = {
-    ...config,
-    baseSort: (a: { item: T }, b: { item: T }) => {
-      const indexA = indexMap.get(a.item) ?? 0
-      const indexB = indexMap.get(b.item) ?? 0
-      return indexA - indexB
-    },
-  }
+  const scored = assets
+    .map((asset, originalIndex) => ({
+      asset,
+      score: scoreAsset(asset, search),
+      originalIndex,
+    }))
+    .filter(x => x.score < 1000)
 
-  const results = matchSorter(assets, searchTerm, configWithBaseSort)
+  scored.sort((a, b) => a.score - b.score || a.originalIndex - b.originalIndex)
 
-  // Prioritize by symbol match quality to ensure USDC/USDT appear before LP pools
-  return prioritizeBySymbolMatch(results, assets, searchTerm)
+  return scored.map(x => x.asset)
 }

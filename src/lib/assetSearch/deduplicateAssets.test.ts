@@ -74,7 +74,7 @@ describe('deduplicateAssets', () => {
     expect(result.find(a => a.symbol === 'USDT0')).toBeUndefined()
   })
 
-  it('shows USDT0 when searching "usdt0" (exact match)', () => {
+  it('shows USDT0 when only USDT0 variants exist (no primary)', () => {
     const assets = [
       {
         assetId: 'usdt0-opt',
@@ -85,6 +85,23 @@ describe('deduplicateAssets', () => {
       },
       {
         assetId: 'usdt0-poly',
+        symbol: 'USDT0',
+        name: 'USDT0',
+        isPrimary: false,
+        relatedAssetKey: 'usdt-eth',
+      },
+    ]
+
+    const result = deduplicateAssets(assets, 'usdt0')
+
+    expect(result).toHaveLength(1)
+    expect(result[0].symbol).toBe('USDT0')
+  })
+
+  it('shows primary USDT when searching "usdt0" but primary USDT exists (same family)', () => {
+    const assets = [
+      {
+        assetId: 'usdt0-opt',
         symbol: 'USDT0',
         name: 'USDT0',
         isPrimary: false,
@@ -102,10 +119,11 @@ describe('deduplicateAssets', () => {
     const result = deduplicateAssets(assets, 'usdt0')
 
     expect(result).toHaveLength(1)
-    expect(result[0].symbol).toBe('USDT0')
+    expect(result[0].symbol).toBe('USDT')
+    expect(result[0].isPrimary).toBe(true)
   })
 
-  it('shows AXLUSDC when searching "axlusdc" (exact match for non-primary)', () => {
+  it('shows primary USDC when AXLUSDC is in USDC family (primary always wins)', () => {
     const assets = [
       {
         assetId: 'usdc-eth',
@@ -126,7 +144,129 @@ describe('deduplicateAssets', () => {
     const result = deduplicateAssets(assets, 'axlusdc')
 
     expect(result).toHaveLength(1)
+    expect(result[0].symbol).toBe('USDC')
+    expect(result[0].isPrimary).toBe(true)
+  })
+
+  it('shows AXLUSDC when it has its own family (separate from USDC)', () => {
+    const assets = [
+      {
+        assetId: 'axlusdc-arb',
+        symbol: 'AXLUSDC',
+        name: 'Axelar USDC',
+        isPrimary: false,
+        relatedAssetKey: 'axlusdc-eth',
+      },
+      {
+        assetId: 'axlusdc-eth',
+        symbol: 'AXLUSDC',
+        name: 'Axelar USDC',
+        isPrimary: true,
+        relatedAssetKey: 'axlusdc-eth',
+      },
+    ]
+
+    const result = deduplicateAssets(assets, 'axlusdc')
+
+    expect(result).toHaveLength(1)
     expect(result[0].symbol).toBe('AXLUSDC')
+    expect(result[0].isPrimary).toBe(true)
+  })
+
+  it('prefers primary AXLUSDC over non-primary when both have exact match', () => {
+    const assets = [
+      {
+        assetId: 'axlusdc-opt',
+        symbol: 'AXLUSDC',
+        name: 'Axelar USDC',
+        isPrimary: false,
+        relatedAssetKey: 'axlusdc-eth',
+      },
+      {
+        assetId: 'axlusdc-arb',
+        symbol: 'AXLUSDC',
+        name: 'Axelar USDC',
+        isPrimary: false,
+        relatedAssetKey: 'axlusdc-eth',
+      },
+      {
+        assetId: 'axlusdc-eth',
+        symbol: 'AXLUSDC',
+        name: 'Axelar USDC',
+        isPrimary: true,
+        relatedAssetKey: 'axlusdc-eth',
+      },
+    ]
+
+    const result = deduplicateAssets(assets, 'axlusdc')
+
+    expect(result).toHaveLength(1)
+    expect(result[0].assetId).toBe('axlusdc-eth')
+    expect(result[0].isPrimary).toBe(true)
+  })
+
+  it('returns primary even when non-primary exact match comes first in array', () => {
+    const assets = [
+      {
+        assetId: 'axlusdc-opt',
+        symbol: 'AXLUSDC',
+        name: 'Axelar USDC on Optimism',
+        isPrimary: false,
+        relatedAssetKey: 'axlusdc-eth',
+      },
+      {
+        assetId: 'axlusdc-eth',
+        symbol: 'AXLUSDC',
+        name: 'Axelar USDC Primary',
+        isPrimary: true,
+        relatedAssetKey: 'axlusdc-eth',
+      },
+    ]
+
+    const result = deduplicateAssets(assets, 'axlusdc')
+
+    expect(result).toHaveLength(1)
+    expect(result[0].isPrimary).toBe(true)
+    expect(result[0].assetId).toBe('axlusdc-eth')
+  })
+
+  it('shows both AXLUSDC and AXLUSDT groups when searching "axlusd"', () => {
+    const assets = [
+      {
+        assetId: 'axlusdc-opt',
+        symbol: 'AXLUSDC',
+        name: 'Axelar USDC',
+        isPrimary: false,
+        relatedAssetKey: 'axlusdc-eth',
+      },
+      {
+        assetId: 'axlusdc-eth',
+        symbol: 'AXLUSDC',
+        name: 'Axelar USDC',
+        isPrimary: true,
+        relatedAssetKey: 'axlusdc-eth',
+      },
+      {
+        assetId: 'axlusdt-opt',
+        symbol: 'AXLUSDT',
+        name: 'Axelar USDT',
+        isPrimary: false,
+        relatedAssetKey: 'axlusdt-eth',
+      },
+      {
+        assetId: 'axlusdt-eth',
+        symbol: 'AXLUSDT',
+        name: 'Axelar USDT',
+        isPrimary: true,
+        relatedAssetKey: 'axlusdt-eth',
+      },
+    ]
+
+    const result = deduplicateAssets(assets, 'axlusd')
+
+    expect(result).toHaveLength(2)
+    expect(result.map(a => a.symbol)).toEqual(['AXLUSDC', 'AXLUSDT'])
+    expect(result.every(a => a.isPrimary)).toBe(true)
   })
 
   it('shows primary USDT when searching "usdt" (exact match for primary)', () => {

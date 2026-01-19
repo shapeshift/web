@@ -50,6 +50,7 @@ const layoutDirection: ResponsiveValue<Property.FlexDirection> = {
 }
 
 const actionColumnMaxWidth = { base: '100%', lg: '500px' }
+const containerPaddingX = { base: 4, xl: 0 }
 
 export const YieldDetail = memo(() => {
   const { yieldId } = useParams<{ yieldId: string }>()
@@ -258,8 +259,6 @@ export const YieldDetail = memo(() => {
     ),
     [handleBack, showAccountSelector, selectorAssetId, selectedAccountId, handleAccountChange],
   )
-
-  const containerPaddingX = useMemo(() => ({ base: 4, xl: 0 }), [])
 
   if (isLoading)
     return (

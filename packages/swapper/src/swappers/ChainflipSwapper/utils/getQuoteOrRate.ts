@@ -127,16 +127,16 @@ export const getQuoteOrRate = async (
 
   if (maybeQuoteResponse.isErr()) {
     const error = maybeQuoteResponse.unwrapErr()
-    const cause = error.cause as AxiosError<any, any>
+    const cause = error.cause as AxiosError<any, any> | undefined
 
     if (
-      cause.message.includes('code 400') &&
-      cause.response?.data.detail.includes('Amount outside asset bounds')
+      cause?.message?.includes('code 400') &&
+      cause?.response?.data?.detail?.includes('Amount outside asset bounds')
     ) {
       return Err(
         createTradeAmountTooSmallErr({
           assetId: sellAsset.assetId,
-          minAmountCryptoBaseUnit: cause.response?.data.errors.minimalAmountNative[0],
+          minAmountCryptoBaseUnit: cause.response?.data?.errors?.minimalAmountNative?.[0],
         }),
       )
     }

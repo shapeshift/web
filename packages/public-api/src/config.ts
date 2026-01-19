@@ -15,7 +15,7 @@ export const getServerConfig = (): SwapperConfig => ({
   VITE_FEATURE_THORCHAINSWAP_L1_TO_LONGTAIL:
     process.env.FEATURE_THORCHAINSWAP_L1_TO_LONGTAIL === 'true',
   VITE_THORCHAIN_MIDGARD_URL:
-    process.env.THORCHAIN_MIDGARD_URL || 'https://midgard.thorchain.info/v2',
+    process.env.THORCHAIN_MIDGARD_URL || 'https://midgard.ninerealms.com/v2',
   VITE_MAYACHAIN_MIDGARD_URL:
     process.env.MAYACHAIN_MIDGARD_URL || 'https://midgard.mayachain.info/v2',
   VITE_UNCHAINED_BITCOIN_HTTP_URL:

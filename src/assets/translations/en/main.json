@@ -201,6 +201,15 @@
   "accountSelector": {
     "chooseAccount": "Choose Account"
   },
+  "agenticChat": {
+    "title": "ShapeShift Agent",
+    "openChat": "Open chat",
+    "closeChat": "Close chat",
+    "emptyState": "How can I help you today?",
+    "placeholder": "Type a message...",
+    "stop": "Stop",
+    "send": "Send"
+  },
   "quickBuy": {
     "title": "Quick Buy %{assetOnChain}",
     "nativeNotAvailable": "Quick Buy not available on native assets",

@@ -4,6 +4,7 @@ import { MemoryRouter } from 'react-router-dom'
 
 import { SwapperModalContent } from './SwapperModalContent'
 
+import { Display } from '@/components/Display'
 import { Dialog } from '@/components/Modal/components/Dialog'
 import { DialogBody } from '@/components/Modal/components/DialogBody'
 import { DialogCloseButton } from '@/components/Modal/components/DialogCloseButton'
@@ -46,16 +47,18 @@ export const SwapperModal = memo(
           size: { base: 'full', md: 'md' },
         }}
       >
-        <DialogHeader>
-          <DialogHeader.Left>{null}</DialogHeader.Left>
-          <DialogHeader.Middle>
-            <DialogTitle>Trade</DialogTitle>
-          </DialogHeader.Middle>
-          <DialogHeader.Right>
-            <DialogCloseButton />
-          </DialogHeader.Right>
-        </DialogHeader>
-        <DialogBody py={0} flex={1} display='flex' flexDirection='column'>
+        <Display.Mobile>
+          <DialogHeader>
+            <DialogHeader.Left>{null}</DialogHeader.Left>
+            <DialogHeader.Middle>
+              <DialogTitle>Trade</DialogTitle>
+            </DialogHeader.Middle>
+            <DialogHeader.Right>
+              <DialogCloseButton />
+            </DialogHeader.Right>
+          </DialogHeader>
+        </Display.Mobile>
+        <DialogBody py={0} px={{ base: 4, md: 0 }} flex={1} display='flex' flexDirection='column'>
           {isOpen && (
             <MemoryRouter initialEntries={initialEntries} initialIndex={0}>
               <SwapperModalContent

@@ -12,7 +12,7 @@ RUN apk add --no-cache python3 make g++ openjdk17-jre
 COPY package.json yarn.lock .yarnrc.yml ./
 COPY .yarn ./.yarn
 
-# Copy all package.json files for workspace resolution
+# Copy ALL package.json files for workspace resolution (yarn requires all workspaces to be present)
 COPY packages/public-api/package.json ./packages/public-api/
 COPY packages/caip/package.json ./packages/caip/
 COPY packages/types/package.json ./packages/types/
@@ -22,6 +22,7 @@ COPY packages/chain-adapters/package.json ./packages/chain-adapters/
 COPY packages/unchained-client/package.json ./packages/unchained-client/
 COPY packages/contracts/package.json ./packages/contracts/
 COPY packages/errors/package.json ./packages/errors/
+COPY packages/swap-widget/package.json ./packages/swap-widget/
 
 # Install dependencies with Railway cache mount (skip build/postinstall scripts that require git/cypress/etc)
 RUN --mount=type=cache,id=s/5fa4b228-de48-4bb3-90d6-807d0c6e7f1c-/root/.yarn/berry/cache,target=/root/.yarn/berry/cache \

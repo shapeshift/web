@@ -29,6 +29,12 @@ type GasFeeDataEstimate = {
   slow: GasFeeData
 }
 
+type UtxoNetworkFees = {
+  fast: { satsPerKiloByte: number }
+  average: { satsPerKiloByte: number }
+  slow: { satsPerKiloByte: number }
+}
+
 const getEvmUnchainedUrls = (): Record<string, string> => {
   const config = getServerConfig()
   return {
@@ -46,6 +52,16 @@ const getEvmUnchainedUrls = (): Record<string, string> => {
     [KnownChainIds.BaseMainnet]: config.VITE_UNCHAINED_BASE_HTTP_URL,
     [KnownChainIds.ArbitrumNovaMainnet]:
       process.env.UNCHAINED_ARBITRUM_NOVA_HTTP_URL || 'https://api.arbitrum-nova.shapeshift.com',
+  }
+}
+
+const getUtxoUnchainedUrls = (): Record<string, string> => {
+  const config = getServerConfig()
+  return {
+    [KnownChainIds.BitcoinMainnet]: config.VITE_UNCHAINED_BITCOIN_HTTP_URL,
+    [KnownChainIds.DogecoinMainnet]: config.VITE_UNCHAINED_DOGECOIN_HTTP_URL,
+    [KnownChainIds.LitecoinMainnet]: config.VITE_UNCHAINED_LITECOIN_HTTP_URL,
+    [KnownChainIds.BitcoinCashMainnet]: config.VITE_UNCHAINED_BITCOINCASH_HTTP_URL,
   }
 }
 
@@ -112,6 +128,85 @@ const createMinimalEvmAdapter = (chainId: ChainId) => {
   }
 }
 
+const createMinimalUtxoAdapter = (chainId: ChainId) => {
+  const utxoUnchainedUrls = getUtxoUnchainedUrls()
+  const unchainedUrl = utxoUnchainedUrls[chainId]
+  if (!unchainedUrl) {
+    throw new Error(`No Unchained URL configured for UTXO chain ${chainId}`)
+  }
+
+  const getFeeAssetId = () => {
+    switch (chainId) {
+      case KnownChainIds.BitcoinMainnet:
+        return 'bip122:000000000019d6689c085ae165831e93/slip44:0'
+      case KnownChainIds.DogecoinMainnet:
+        return 'bip122:00000000001a91e3dace36e2be3bf030/slip44:3'
+      case KnownChainIds.LitecoinMainnet:
+        return 'bip122:12a765e31ffd4059bada1e25190f6e98/slip44:2'
+      case KnownChainIds.BitcoinCashMainnet:
+        return 'bip122:000000000000000000651ef99cb9fcbe/slip44:145'
+      default:
+        throw new Error(`Unknown UTXO chain ${chainId}`)
+    }
+  }
+
+  const getDisplayName = () => {
+    switch (chainId) {
+      case KnownChainIds.BitcoinMainnet:
+        return 'Bitcoin'
+      case KnownChainIds.DogecoinMainnet:
+        return 'Dogecoin'
+      case KnownChainIds.LitecoinMainnet:
+        return 'Litecoin'
+      case KnownChainIds.BitcoinCashMainnet:
+        return 'Bitcoin Cash'
+      default:
+        return chainId
+    }
+  }
+
+  return {
+    getChainId: () => chainId,
+    getFeeAssetId,
+    getDisplayName,
+    getFeeData: async (_input: {
+      to: string
+      value: string
+      chainSpecific: { pubkey: string; opReturnData?: string }
+    }) => {
+      const response = await fetch(`${unchainedUrl}/api/v1/fees`)
+      if (!response.ok) {
+        throw new Error(`Failed to fetch UTXO fees: ${response.statusText}`)
+      }
+      const networkFees = (await response.json()) as UtxoNetworkFees
+
+      const fastPerByte = String(Math.round(networkFees.fast.satsPerKiloByte / 1000))
+      const averagePerByte = String(Math.round(networkFees.average.satsPerKiloByte / 1000))
+      const slowPerByte = String(Math.round(networkFees.slow.satsPerKiloByte / 1000))
+
+      const ESTIMATED_TX_SIZE = 250
+      const fastFee = String(parseInt(fastPerByte) * ESTIMATED_TX_SIZE)
+      const averageFee = String(parseInt(averagePerByte) * ESTIMATED_TX_SIZE)
+      const slowFee = String(parseInt(slowPerByte) * ESTIMATED_TX_SIZE)
+
+      return {
+        fast: {
+          txFee: fastFee,
+          chainSpecific: { satoshiPerByte: fastPerByte },
+        },
+        average: {
+          txFee: averageFee,
+          chainSpecific: { satoshiPerByte: averagePerByte },
+        },
+        slow: {
+          txFee: slowFee,
+          chainSpecific: { satoshiPerByte: slowPerByte },
+        },
+      }
+    },
+  }
+}
+
 const createStubAdapter = (type: string) => {
   return () => {
     throw new Error(
@@ -139,9 +234,15 @@ export const createServerSwapperDeps = (assetsById: AssetsByIdPartial): SwapperD
     throw new Error(`Chain adapter EVM for ${chainId} not implemented in public API.`)
   }) as unknown as (chainId: ChainId) => EvmChainAdapter,
 
-  assertGetUtxoChainAdapter: createStubAdapter('UTXO') as unknown as (
-    chainId: ChainId,
-  ) => UtxoChainAdapter,
+  assertGetUtxoChainAdapter: ((chainId: ChainId) => {
+    const utxoUnchainedUrls = getUtxoUnchainedUrls()
+    const unchainedUrl = utxoUnchainedUrls[chainId]
+    if (unchainedUrl) {
+      return createMinimalUtxoAdapter(chainId)
+    }
+    throw new Error(`Chain adapter UTXO for ${chainId} not implemented in public API.`)
+  }) as unknown as (chainId: ChainId) => UtxoChainAdapter,
+
   assertGetCosmosSdkChainAdapter: createStubAdapter('CosmosSdk') as unknown as (
     chainId: ChainId,
   ) => CosmosSdkChainAdapter,

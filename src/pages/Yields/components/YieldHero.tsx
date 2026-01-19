@@ -329,7 +329,7 @@ export const YieldHero = memo(
                           color='text.success'
                           fontWeight='semibold'
                           value={potentialYearlyEarningsFiat.toFixed()}
-                          suffix='/yr'
+                          suffix={translate('yieldXYZ.perYear')}
                         />
                       </Flex>
                     )}

@@ -1,8 +1,211 @@
 import { describe, expect, it } from 'vitest'
 
-import { deduplicateAssetsBySymbol } from './deduplicateAssets'
+import { deduplicateAssets, deduplicateAssetsBySymbol } from './deduplicateAssets'
 
-describe('deduplicateAssetsBySymbol', () => {
+describe('deduplicateAssets', () => {
+  it('deduplicates by relatedAssetKey, keeping primary asset', () => {
+    const assets = [
+      {
+        assetId: 'usdc-eth',
+        symbol: 'USDC',
+        name: 'USD Coin',
+        isPrimary: true,
+        relatedAssetKey: 'usdc-eth',
+      },
+      {
+        assetId: 'usdc-arb',
+        symbol: 'USDC',
+        name: 'USD Coin',
+        isPrimary: false,
+        relatedAssetKey: 'usdc-eth',
+      },
+      {
+        assetId: 'usdt-eth',
+        symbol: 'USDT',
+        name: 'Tether',
+        isPrimary: true,
+        relatedAssetKey: 'usdt-eth',
+      },
+      {
+        assetId: 'usdt-arb',
+        symbol: 'USDT',
+        name: 'Tether',
+        isPrimary: false,
+        relatedAssetKey: 'usdt-eth',
+      },
+    ]
+
+    const result = deduplicateAssets(assets, 'usd')
+
+    expect(result).toHaveLength(2)
+    expect(result[0].assetId).toBe('usdc-eth')
+    expect(result[1].assetId).toBe('usdt-eth')
+  })
+
+  it('keeps USDT0 out when searching "usd" (same family as USDT)', () => {
+    const assets = [
+      {
+        assetId: 'usdc-eth',
+        symbol: 'USDC',
+        name: 'USD Coin',
+        isPrimary: true,
+        relatedAssetKey: 'usdc-eth',
+      },
+      {
+        assetId: 'usdt0-opt',
+        symbol: 'USDT0',
+        name: 'USDT0',
+        isPrimary: false,
+        relatedAssetKey: 'usdt-eth',
+      },
+      {
+        assetId: 'usdt-eth',
+        symbol: 'USDT',
+        name: 'Tether',
+        isPrimary: true,
+        relatedAssetKey: 'usdt-eth',
+      },
+    ]
+
+    const result = deduplicateAssets(assets, 'usd')
+
+    expect(result).toHaveLength(2)
+    expect(result.map(a => a.symbol)).toEqual(['USDC', 'USDT'])
+    expect(result.find(a => a.symbol === 'USDT0')).toBeUndefined()
+  })
+
+  it('shows USDT0 when searching "usdt0" (exact match)', () => {
+    const assets = [
+      {
+        assetId: 'usdt0-opt',
+        symbol: 'USDT0',
+        name: 'USDT0',
+        isPrimary: false,
+        relatedAssetKey: 'usdt-eth',
+      },
+      {
+        assetId: 'usdt0-poly',
+        symbol: 'USDT0',
+        name: 'USDT0',
+        isPrimary: false,
+        relatedAssetKey: 'usdt-eth',
+      },
+      {
+        assetId: 'usdt-eth',
+        symbol: 'USDT',
+        name: 'Tether',
+        isPrimary: true,
+        relatedAssetKey: 'usdt-eth',
+      },
+    ]
+
+    const result = deduplicateAssets(assets, 'usdt0')
+
+    expect(result).toHaveLength(1)
+    expect(result[0].symbol).toBe('USDT0')
+  })
+
+  it('shows AXLUSDC when searching "axlusdc" (exact match for non-primary)', () => {
+    const assets = [
+      {
+        assetId: 'usdc-eth',
+        symbol: 'USDC',
+        name: 'USD Coin',
+        isPrimary: true,
+        relatedAssetKey: 'usdc-eth',
+      },
+      {
+        assetId: 'axlusdc-arb',
+        symbol: 'AXLUSDC',
+        name: 'Axelar USDC',
+        isPrimary: false,
+        relatedAssetKey: 'usdc-eth',
+      },
+    ]
+
+    const result = deduplicateAssets(assets, 'axlusdc')
+
+    expect(result).toHaveLength(1)
+    expect(result[0].symbol).toBe('AXLUSDC')
+  })
+
+  it('shows primary USDT when searching "usdt" (exact match for primary)', () => {
+    const assets = [
+      {
+        assetId: 'usdt-eth',
+        symbol: 'USDT',
+        name: 'Tether',
+        isPrimary: true,
+        relatedAssetKey: 'usdt-eth',
+      },
+      {
+        assetId: 'usdt0-opt',
+        symbol: 'USDT0',
+        name: 'USDT0',
+        isPrimary: false,
+        relatedAssetKey: 'usdt-eth',
+      },
+    ]
+
+    const result = deduplicateAssets(assets, 'usdt')
+
+    expect(result).toHaveLength(1)
+    expect(result[0].symbol).toBe('USDT')
+  })
+
+  it('handles chain-specific assets (null relatedAssetKey) by using assetId', () => {
+    const assets = [
+      { assetId: 'eth', symbol: 'ETH', name: 'Ethereum', isPrimary: true, relatedAssetKey: null },
+      { assetId: 'btc', symbol: 'BTC', name: 'Bitcoin', isPrimary: true, relatedAssetKey: null },
+    ]
+
+    const result = deduplicateAssets(assets, 'e')
+
+    expect(result).toHaveLength(2)
+  })
+
+  it('handles undefined relatedAssetKey by using assetId', () => {
+    const assets = [
+      { assetId: 'eth', symbol: 'ETH', name: 'Ethereum', isPrimary: true },
+      { assetId: 'btc', symbol: 'BTC', name: 'Bitcoin', isPrimary: true },
+    ]
+
+    const result = deduplicateAssets(assets, 'e')
+
+    expect(result).toHaveLength(2)
+  })
+
+  it('returns empty array for empty input', () => {
+    const result = deduplicateAssets([], 'usd')
+    expect(result).toEqual([])
+  })
+
+  it('handles no search string by preferring primary assets', () => {
+    const assets = [
+      {
+        assetId: 'usdc-arb',
+        symbol: 'USDC',
+        name: 'USD Coin',
+        isPrimary: false,
+        relatedAssetKey: 'usdc-eth',
+      },
+      {
+        assetId: 'usdc-eth',
+        symbol: 'USDC',
+        name: 'USD Coin',
+        isPrimary: true,
+        relatedAssetKey: 'usdc-eth',
+      },
+    ]
+
+    const result = deduplicateAssets(assets)
+
+    expect(result).toHaveLength(1)
+    expect(result[0].isPrimary).toBe(true)
+  })
+})
+
+describe('deduplicateAssetsBySymbol (deprecated)', () => {
   it('keeps first occurrence of each symbol', () => {
     const assets = [
       { symbol: 'USDC', name: 'USDC Mainnet', chainId: 'mainnet' },

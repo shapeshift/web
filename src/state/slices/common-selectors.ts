@@ -24,7 +24,7 @@ import { portfolio } from './portfolioSlice/portfolioSlice'
 import { preferences } from './preferencesSlice/preferencesSlice'
 
 import {
-  deduplicateAssetsBySymbol,
+  deduplicateAssets,
   shouldSearchAllAssets as shouldSearchAllAssetsUtil,
 } from '@/lib/assetSearch'
 import { bn, bnOrZero } from '@/lib/bignumber/bignumber'
@@ -552,8 +552,8 @@ export const selectAssetsBySearchQuery = createCachedSelector(
       baseSort: (a, b) => (indexMap.get(a.item) ?? 0) - (indexMap.get(b.item) ?? 0),
     })
 
-    // Deduplicate by symbol to avoid showing multiple rows for the same asset on different chains
-    const deduplicated = deduplicateAssetsBySymbol(matchedAssets)
+    // Deduplicate by relatedAssetKey to show one row per asset family
+    const deduplicated = deduplicateAssets(matchedAssets, searchQuery)
 
     return limit ? deduplicated.slice(0, limit) : deduplicated
   },

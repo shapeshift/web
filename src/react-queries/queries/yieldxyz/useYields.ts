@@ -174,6 +174,7 @@ export const useYields = (params?: UseYieldsParams) => {
 
     return {
       all: filtered,
+      unfiltered: allYields,
       byId,
       ids,
       byAssetSymbol,

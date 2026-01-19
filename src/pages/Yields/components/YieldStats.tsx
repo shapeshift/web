@@ -11,6 +11,7 @@ import {
   SOLANA_SOL_NATIVE_MULTIVALIDATOR_STAKING_YIELD_ID,
 } from '@/lib/yieldxyz/constants'
 import type { AugmentedYieldDto } from '@/lib/yieldxyz/types'
+import { isStakingYieldType } from '@/lib/yieldxyz/utils'
 import type { NormalizedYieldBalances } from '@/react-queries/queries/yieldxyz/useAllYieldBalances'
 import { useYieldValidators } from '@/react-queries/queries/yieldxyz/useYieldValidators'
 import {
@@ -33,22 +34,21 @@ export const YieldStats = memo(({ yieldItem, balances }: YieldStatsProps) => {
   )
 
   const [searchParams] = useSearchParams()
-  const validatorParam = useMemo(() => searchParams.get('validator'), [searchParams])
+  const validatorParam = searchParams.get('validator')
 
-  const shouldFetchValidators = useMemo(
-    () => yieldItem.mechanics.type === 'staking' && yieldItem.mechanics.requiresValidatorSelection,
-    [yieldItem.mechanics.type, yieldItem.mechanics.requiresValidatorSelection],
-  )
+  const isStaking = isStakingYieldType(yieldItem.mechanics.type)
+  const shouldFetchValidators = isStaking && yieldItem.mechanics.requiresValidatorSelection
   const { data: validators } = useYieldValidators(yieldItem.id, shouldFetchValidators)
 
-  const defaultValidator = useMemo(() => {
-    if (yieldItem.chainId && DEFAULT_NATIVE_VALIDATOR_BY_CHAIN_ID[yieldItem.chainId])
-      return DEFAULT_NATIVE_VALIDATOR_BY_CHAIN_ID[yieldItem.chainId]
-    return validators?.[0]?.address
-  }, [yieldItem.chainId, validators])
+  const defaultValidator = useMemo(
+    () =>
+      yieldItem.chainId && DEFAULT_NATIVE_VALIDATOR_BY_CHAIN_ID[yieldItem.chainId]
+        ? DEFAULT_NATIVE_VALIDATOR_BY_CHAIN_ID[yieldItem.chainId]
+        : validators?.[0]?.address,
+    [yieldItem.chainId, validators],
+  )
 
   const selectedValidatorAddress = useMemo(() => {
-    // For native staking with hardcoded defaults, always use the default validator (ignore URL param)
     if (
       yieldItem.id === COSMOS_ATOM_NATIVE_STAKING_YIELD_ID ||
       yieldItem.id === SOLANA_SOL_NATIVE_MULTIVALIDATOR_STAKING_YIELD_ID ||
@@ -67,7 +67,7 @@ export const YieldStats = memo(({ yieldItem, balances }: YieldStatsProps) => {
       ?.validator
     if (inBalances) return inBalances
     return undefined
-  }, [validators, selectedValidatorAddress, balances])
+  }, [selectedValidatorAddress, validators, balances?.raw])
 
   const tvl = useMemo(() => {
     const validatorTvl =
@@ -75,21 +75,23 @@ export const YieldStats = memo(({ yieldItem, balances }: YieldStatsProps) => {
     return bnOrZero(yieldItem.statistics?.tvl ?? validatorTvl).toNumber()
   }, [selectedValidator, yieldItem.statistics?.tvl])
 
-  const tvlUserCurrency = useMemo(() => {
-    if (yieldItem.statistics?.tvlUsd) {
-      return bnOrZero(yieldItem.statistics.tvlUsd).times(userCurrencyToUsdRate).toFixed()
-    }
-    return bnOrZero(tvl)
-      .times(bnOrZero(inputTokenMarketData?.price))
-      .toFixed()
-  }, [yieldItem.statistics?.tvlUsd, userCurrencyToUsdRate, tvl, inputTokenMarketData?.price])
+  const tvlUserCurrency = useMemo(
+    () =>
+      yieldItem.statistics?.tvlUsd
+        ? bnOrZero(yieldItem.statistics.tvlUsd).times(userCurrencyToUsdRate).toFixed()
+        : bnOrZero(tvl)
+            .times(bnOrZero(inputTokenMarketData?.price))
+            .toFixed(),
+    [yieldItem.statistics?.tvlUsd, userCurrencyToUsdRate, tvl, inputTokenMarketData?.price],
+  )
 
-  const validatorMetadata = useMemo(() => {
-    if (yieldItem.mechanics.type !== 'staking') return null
-    if (selectedValidator)
-      return { name: selectedValidator.name, logoURI: selectedValidator.logoURI }
-    return null
-  }, [yieldItem.mechanics.type, selectedValidator])
+  const validatorMetadata = useMemo(
+    () =>
+      isStaking && selectedValidator
+        ? { name: selectedValidator.name, logoURI: selectedValidator.logoURI }
+        : null,
+    [isStaking, selectedValidator],
+  )
 
   return (
     <SimpleGrid columns={3} spacing={4} px={{ base: 2, md: 0 }}>

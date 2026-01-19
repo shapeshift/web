@@ -29,9 +29,10 @@ import {
   SHAPESHIFT_VALIDATOR_NAME,
 } from '@/lib/yieldxyz/constants'
 import type { AugmentedYieldDto } from '@/lib/yieldxyz/types'
-import { getTransactionButtonText } from '@/lib/yieldxyz/utils'
+import { getTransactionButtonText, isStakingYieldType } from '@/lib/yieldxyz/utils'
 import { GradientApy } from '@/pages/Yields/components/GradientApy'
 import { TransactionStepsList } from '@/pages/Yields/components/TransactionStepsList'
+import { YieldExplainers } from '@/pages/Yields/components/YieldExplainers'
 import { YieldSuccess } from '@/pages/Yields/components/YieldSuccess'
 import { ModalStep, useYieldTransactionFlow } from '@/pages/Yields/hooks/useYieldTransactionFlow'
 import { useYieldProviders } from '@/react-queries/queries/yieldxyz/useYieldProviders'
@@ -179,7 +180,7 @@ export const YieldEnterModal = memo(
 
     const { data: providers } = useYieldProviders()
 
-    const isStaking = yieldItem.mechanics.type === 'staking'
+    const isStaking = isStakingYieldType(yieldItem.mechanics.type)
 
     const selectedValidatorMetadata = useMemo(() => {
       if (!isStaking || !selectedValidatorAddress) return null
@@ -634,6 +635,10 @@ export const YieldEnterModal = memo(
                 </Flex>
               )}
               {statsContent}
+              <YieldExplainers
+                selectedYield={yieldItem}
+                sellAssetSymbol={inputTokenAsset?.symbol}
+              />
               {stepsToShow.length > 0 && <TransactionStepsList steps={stepsToShow} />}
             </Flex>
           )}

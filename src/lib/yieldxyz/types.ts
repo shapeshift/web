@@ -313,6 +313,8 @@ export type ProviderDto = {
   logoURI: string
   description?: string
   documentation?: string
+  website?: string
+  references?: string[]
 }
 
 export type ProvidersResponse = {

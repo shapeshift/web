@@ -265,7 +265,7 @@ export const StakingPositionsByProvider: React.FC<StakingPositionsByProviderProp
           const isRunePool = opp.assetId === thorchainAssetId
           const providerName = isRunePool ? 'RUNEPool' : opp.version ?? opp.provider
           const iconElement = opp.isYield ? (
-            <AssetIcon assetId={opp.assetId as AssetId} size='sm' />
+            <AssetIcon assetId={opp.assetId} size='sm' />
           ) : (
             <LazyLoadAvatar
               size='sm'

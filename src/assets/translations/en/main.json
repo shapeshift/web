@@ -2779,6 +2779,8 @@
     "successEnter": "You successfully entered %{amount} %{symbol}",
     "successExit": "You successfully exited %{amount} %{symbol}",
     "successClaim": "You successfully claimed %{amount} %{symbol}",
+    "successUnstaked": "You successfully unstaked %{amount} %{symbol}",
+    "successWithdrawn": "You successfully withdrew %{amount} %{symbol}",
     "viewPosition": "View Position",
     "via": "via",
     "resetAllowance": "Reset Allowance",

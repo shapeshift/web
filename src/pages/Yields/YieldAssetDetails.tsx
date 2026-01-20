@@ -201,12 +201,20 @@ export const YieldAssetDetails = memo(() => {
   const filteredYields = useMemo(
     () =>
       assetYields.filter(y => {
+        const isDisabled = !y.status.enter || y.metadata.underMaintenance || y.metadata.deprecated
+        if (isDisabled) {
+          const balances = allBalances?.[y.id]
+          const hasBalance =
+            balances &&
+            balances.reduce((sum, b) => sum.plus(bnOrZero(b.amountUsd)), bnOrZero(0)).gt(0)
+          if (!hasBalance) return false
+        }
         if (selectedNetwork && y.network !== selectedNetwork) return false
         if (selectedProvider && y.providerId !== selectedProvider) return false
         if (selectedType && y.mechanics.type !== selectedType) return false
         return true
       }),
-    [assetYields, selectedNetwork, selectedProvider, selectedType],
+    [assetYields, allBalances, selectedNetwork, selectedProvider, selectedType],
   )
 
   const columns = useMemo<ColumnDef<AugmentedYieldDto>[]>(

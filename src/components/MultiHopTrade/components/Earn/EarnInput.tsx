@@ -389,7 +389,10 @@ export const EarnInput = memo(
 
     const yieldsForAsset = useMemo(() => {
       if (!sellAsset?.assetId || !yieldsData?.byInputAssetId) return []
-      return yieldsData.byInputAssetId[sellAsset.assetId] ?? []
+      const allYields = yieldsData.byInputAssetId[sellAsset.assetId] ?? []
+      return allYields.filter(
+        y => y.status.enter && !y.metadata.underMaintenance && !y.metadata.deprecated,
+      )
     }, [sellAsset?.assetId, yieldsData?.byInputAssetId])
 
     const defaultYieldForAsset = useMemo(() => {
@@ -401,11 +404,13 @@ export const EarnInput = memo(
 
       const userBalance = bnOrZero(sellAssetBalanceCryptoPrecision)
       const actionableYield = sortedByApy.find(y => {
+        if (!y.status.enter) return false
         const minDepositAmount = bnOrZero(y.mechanics?.entryLimits?.minimum)
         return minDepositAmount.lte(0) || userBalance.gte(minDepositAmount)
       })
 
-      return actionableYield ?? sortedByApy[0]
+      const enabledYield = actionableYield ?? sortedByApy.find(y => y.status.enter)
+      return enabledYield ?? sortedByApy[0]
     }, [yieldsForAsset, sellAssetBalanceCryptoPrecision])
 
     useEffect(() => {

@@ -251,6 +251,7 @@ export const YieldsList = memo(() => {
       if (balance.lte(0)) continue
 
       const eligibleYields = yieldsForAsset.filter(y => {
+        if (!y.status.enter || y.metadata.underMaintenance || y.metadata.deprecated) return false
         const minDeposit = bnOrZero(y.mechanics?.entryLimits?.minimum)
         if (minDeposit.gt(0)) {
           const asset = assets[assetId]
@@ -316,7 +317,12 @@ export const YieldsList = memo(() => {
 
     return yields.assetGroups
       .map(group => {
-        let filteredYields = group.yields
+        let filteredYields = group.yields.filter(y => {
+          const isDisabled = !y.status.enter || y.metadata.underMaintenance || y.metadata.deprecated
+          if (!isDisabled) return true
+          const hasBalance = bnOrZero(getYieldPositionBalanceUsd(y.id)).gt(0)
+          return hasBalance
+        })
         if (selectedNetwork)
           filteredYields = filteredYields.filter(y => y.network === selectedNetwork)
         if (selectedProvider)

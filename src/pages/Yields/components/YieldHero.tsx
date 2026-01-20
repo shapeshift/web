@@ -144,6 +144,17 @@ export const YieldHero = memo(
           </Alert>
         )}
 
+        {!yieldItem.status.enter &&
+          !yieldItem.metadata.deprecated &&
+          !yieldItem.metadata.underMaintenance && (
+            <Alert status='warning' borderRadius='lg' variant='subtle'>
+              <AlertIcon />
+              <AlertDescription fontSize='sm'>
+                {translate('yieldXYZ.depositsDisabledDescription')}
+              </AlertDescription>
+            </Alert>
+          )}
+
         <HStack spacing={4} justify='center' flexWrap='wrap'>
           <HStack spacing={2}>
             {iconSource.assetId ? (

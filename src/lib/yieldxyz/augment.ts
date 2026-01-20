@@ -129,12 +129,17 @@ export const augmentYield = (yieldDto: YieldDto): AugmentedYieldDto => {
   const chainId = chainIdFromYieldDto(yieldDto)
   const evmNetworkId = parseEvmNetworkId(yieldDto.chainId)
 
+  const augmentedToken = augmentYieldToken(yieldDto.token, chainId)
+  const inputTokens = yieldDto.inputTokens?.length
+    ? yieldDto.inputTokens.map(t => augmentYieldToken(t, chainId))
+    : [augmentedToken]
+
   return {
     ...yieldDto,
     chainId,
     evmNetworkId,
-    token: augmentYieldToken(yieldDto.token, chainId),
-    inputTokens: yieldDto.inputTokens.map(t => augmentYieldToken(t, chainId)),
+    token: augmentedToken,
+    inputTokens,
     outputToken: yieldDto.outputToken
       ? augmentYieldToken(yieldDto.outputToken, chainId)
       : undefined,

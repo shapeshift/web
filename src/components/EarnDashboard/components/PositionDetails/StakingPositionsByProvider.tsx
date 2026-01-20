@@ -145,23 +145,10 @@ export const StakingPositionsByProvider: React.FC<StakingPositionsByProviderProp
     [ids, stakingOpportunities],
   )
 
-  const filteredDown = useMemo<UnifiedPosition[]>(() => {
-    const result = [...yieldPositionsAsUnified, ...legacyFiltered]
-    console.debug(
-      '[StakingPositionsByProvider] filteredDown:',
-      JSON.stringify(
-        result.map(r => ({
-          id: r.id,
-          provider: r.provider,
-          isYield: (r as UnifiedPosition).isYield,
-          fiatAmount: r.fiatAmount,
-        })),
-        null,
-        2,
-      ),
-    )
-    return result
-  }, [yieldPositionsAsUnified, legacyFiltered])
+  const filteredDown = useMemo<UnifiedPosition[]>(
+    () => [...yieldPositionsAsUnified, ...legacyFiltered],
+    [yieldPositionsAsUnified, legacyFiltered],
+  )
 
   const handleClick = useCallback(
     (row: RowProps, action: DefiAction) => {

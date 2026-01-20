@@ -108,6 +108,17 @@ export const YieldInfoCard = memo(
               </Alert>
             )}
 
+            {!yieldItem.status.enter &&
+              !yieldItem.metadata.deprecated &&
+              !yieldItem.metadata.underMaintenance && (
+                <Alert status='warning' borderRadius='lg' variant='subtle'>
+                  <AlertIcon />
+                  <AlertDescription fontSize='sm'>
+                    {translate('yieldXYZ.depositsDisabledDescription')}
+                  </AlertDescription>
+                </Alert>
+              )}
+
             <Flex gap={4} align='center'>
               {stackedIconElement}
               <Heading as='h2' size='md'>

@@ -1,4 +1,17 @@
-import { Avatar, Box, Button, Flex, HStack, Icon, Input, Skeleton, Text } from '@chakra-ui/react'
+import {
+  Alert,
+  AlertDescription,
+  AlertIcon,
+  Avatar,
+  Box,
+  Button,
+  Flex,
+  HStack,
+  Icon,
+  Input,
+  Skeleton,
+  Text,
+} from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { useQueryClient } from '@tanstack/react-query'
 import type { ChangeEvent } from 'react'
@@ -412,9 +425,16 @@ export const YieldForm = memo(
       return null
     }, [isStaking, selectedValidatorMetadata, providerMetadata])
 
+    const isActionDisabled = useMemo(() => {
+      if (action === 'enter') return !yieldItem.status.enter
+      if (action === 'exit') return !yieldItem.status.exit
+      return false
+    }, [action, yieldItem.status.enter, yieldItem.status.exit])
+
     const buttonDisabled = useMemo(() => {
       if (!isConnected) return false
       if (isLoading) return true
+      if (isActionDisabled) return true
       if (isClaimAction) {
         return !claimAction || !claimableAmount || bnOrZero(claimableAmount).lte(0)
       }
@@ -422,6 +442,7 @@ export const YieldForm = memo(
     }, [
       isConnected,
       isLoading,
+      isActionDisabled,
       isClaimAction,
       claimAction,
       claimableAmount,
@@ -698,6 +719,20 @@ export const YieldForm = memo(
 
     const stepsToShow = activeStepIndex >= 0 ? transactionSteps : displaySteps
 
+    const actionDisabledAlert = useMemo(() => {
+      if (!isActionDisabled) return null
+      const descriptionKey =
+        action === 'enter'
+          ? 'yieldXYZ.depositsDisabledDescription'
+          : 'yieldXYZ.withdrawalsDisabledDescription'
+      return (
+        <Alert status='warning' borderRadius='lg'>
+          <AlertIcon />
+          <AlertDescription>{translate(descriptionKey)}</AlertDescription>
+        </Alert>
+      )
+    }, [isActionDisabled, action, translate])
+
     // If Success, render YieldSuccess
     if (isSuccess) {
       const successAmount = isClaimAction ? claimableAmount : cryptoAmount
@@ -726,6 +761,7 @@ export const YieldForm = memo(
     return (
       <Flex direction='column' gap={4} height='100%' maxH='100%' overflow='hidden'>
         <Flex direction='column' gap={4} flex={1} overflowY='auto'>
+          {actionDisabledAlert}
           {inputContent}
           {!isClaimAction && percentButtons}
           {!isClaimAction && inputTokenAssetId && accountId && (

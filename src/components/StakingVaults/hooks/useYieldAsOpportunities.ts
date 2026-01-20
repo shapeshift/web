@@ -45,6 +45,13 @@ export const useYieldAsOpportunities = (
       const inputAssetId = yieldItem.inputTokens?.[0]?.assetId
       if (!inputAssetId) return
 
+      const hasBalance = bnOrZero(yieldBalancesData?.aggregated[yieldItem.id]?.totalUsd).gt(0)
+      const isDisabled =
+        !yieldItem.status.enter ||
+        yieldItem.metadata.underMaintenance ||
+        yieldItem.metadata.deprecated
+      if (isDisabled && !hasBalance) return
+
       if (!aggregatedByAssetId[inputAssetId]) {
         aggregatedByAssetId[inputAssetId] = {
           assetId: inputAssetId,

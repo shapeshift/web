@@ -13,11 +13,13 @@ import { useAppDispatch, useAppSelector } from '@/state/store'
 type SwapperModalContentProps = {
   defaultBuyAssetId?: AssetId
   defaultSellAssetId?: AssetId
+  onSuccess?: () => void
 }
 
 export const SwapperModalContent = memo(function SwapperModalContent({
   defaultBuyAssetId,
   defaultSellAssetId,
+  onSuccess,
 }: SwapperModalContentProps) {
   const methods = useForm({ mode: 'onChange' })
   const navigate = useNavigate()
@@ -56,6 +58,7 @@ export const SwapperModalContent = memo(function SwapperModalContent({
           defaultBuyAssetId={defaultBuyAssetId}
           defaultSellAssetId={defaultSellAssetId}
           onChangeTab={handleChangeTab}
+          onSuccess={onSuccess}
           isCompact
           isStandalone
         />

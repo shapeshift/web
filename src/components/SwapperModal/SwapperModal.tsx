@@ -17,6 +17,7 @@ import { useAppDispatch } from '@/state/store'
 type SwapperModalProps = {
   isOpen: boolean
   onClose: () => void
+  onSuccess?: () => void
   defaultBuyAssetId?: AssetId
   defaultSellAssetId?: AssetId
 }
@@ -29,7 +30,7 @@ const initialEntries = [
 ]
 
 export const SwapperModal = memo(
-  ({ isOpen, onClose, defaultBuyAssetId, defaultSellAssetId }: SwapperModalProps) => {
+  ({ isOpen, onClose, onSuccess, defaultBuyAssetId, defaultSellAssetId }: SwapperModalProps) => {
     const dispatch = useAppDispatch()
 
     const handleClose = useCallback(() => {
@@ -64,6 +65,7 @@ export const SwapperModal = memo(
               <SwapperModalContent
                 defaultBuyAssetId={defaultBuyAssetId}
                 defaultSellAssetId={defaultSellAssetId}
+                onSuccess={onSuccess}
               />
             </MemoryRouter>
           )}

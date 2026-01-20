@@ -133,6 +133,7 @@ export const YieldAvailableToDeposit = memo(
           <SwapperModal
             isOpen={isSwapperModalOpen}
             onClose={handleCloseSwapperModal}
+            onSuccess={handleCloseSwapperModal}
             defaultBuyAssetId={inputTokenAssetId}
           />
         </>

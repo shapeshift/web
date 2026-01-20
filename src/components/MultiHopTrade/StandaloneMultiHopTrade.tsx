@@ -25,7 +25,9 @@ import {
 import { tradeInput } from '@/state/slices/tradeInputSlice/tradeInputSlice'
 import { useAppDispatch, useAppSelector } from '@/state/store'
 
-export type StandaloneTradeCardProps = TradeCardProps
+export type StandaloneTradeCardProps = TradeCardProps & {
+  onSuccess?: () => void
+}
 
 const GetTradeRates = () => {
   useGetTradeRates()
@@ -38,6 +40,7 @@ export const StandaloneMultiHopTrade = memo(
     defaultSellAssetId,
     isCompact,
     onChangeTab,
+    onSuccess,
     isStandalone,
   }: StandaloneTradeCardProps) => {
     const dispatch = useAppDispatch()
@@ -129,6 +132,7 @@ export const StandaloneMultiHopTrade = memo(
       <StandaloneTradeRoutes
         isCompact={isCompact}
         onChangeTab={onChangeTab}
+        onSuccess={onSuccess}
         isStandalone={isStandalone}
       />
     )
@@ -139,10 +143,11 @@ type StandaloneTradeRoutesProps = {
   isCompact?: boolean
   isStandalone?: boolean
   onChangeTab: (newTab: TradeInputTab) => void
+  onSuccess?: () => void
 }
 
 const StandaloneTradeRoutes = memo(
-  ({ isCompact, isStandalone, onChangeTab }: StandaloneTradeRoutesProps) => {
+  ({ isCompact, isStandalone, onChangeTab, onSuccess }: StandaloneTradeRoutesProps) => {
     const location = useLocation()
 
     const tradeInputRef = useRef<HTMLDivElement | null>(null)
@@ -165,7 +170,10 @@ const StandaloneTradeRoutes = memo(
     }, [location.pathname])
 
     // Create memoized elements for each route
-    const tradeConfirmElement = useMemo(() => <TradeConfirm isCompact={isCompact} />, [isCompact])
+    const tradeConfirmElement = useMemo(
+      () => <TradeConfirm isCompact={isCompact} onSuccess={onSuccess} />,
+      [isCompact, onSuccess],
+    )
 
     const verifyAddressesElement = useMemo(() => <VerifyAddresses />, [])
 

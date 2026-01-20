@@ -1,6 +1,6 @@
 import { Stepper, usePrevious } from '@chakra-ui/react'
 import { isArbitrumBridgeTradeQuoteOrRate } from '@shapeshiftoss/swapper'
-import { useCallback, useEffect, useMemo } from 'react'
+import { useCallback, useEffect, useMemo, useRef } from 'react'
 import { Navigate, useNavigate } from 'react-router-dom'
 
 import { useTrackTradeQuotes } from '../../hooks/useGetTradeQuotes/hooks/useTrackTradeQuotes'
@@ -26,7 +26,12 @@ import { tradeQuoteSlice } from '@/state/slices/tradeQuoteSlice/tradeQuoteSlice'
 import { TradeExecutionState } from '@/state/slices/tradeQuoteSlice/types'
 import { useAppDispatch, useAppSelector } from '@/state/store'
 
-export const TradeConfirm = ({ isCompact }: { isCompact: boolean | undefined }) => {
+type TradeConfirmProps = {
+  isCompact?: boolean
+  onSuccess?: () => void
+}
+
+export const TradeConfirm = ({ isCompact, onSuccess }: TradeConfirmProps) => {
   const navigate = useNavigate()
   const { isLoading } = useIsApprovalInitiallyNeeded()
   const dispatch = useAppDispatch()
@@ -50,6 +55,21 @@ export const TradeConfirm = ({ isCompact }: { isCompact: boolean | undefined }) 
     () => confirmedTradeExecutionState === TradeExecutionState.TradeComplete,
     [confirmedTradeExecutionState],
   )
+
+  const hasCalledOnSuccess = useRef(false)
+
+  useEffect(() => {
+    if (isTradeComplete && onSuccess && !hasCalledOnSuccess.current) {
+      hasCalledOnSuccess.current = true
+      onSuccess()
+    }
+  }, [isTradeComplete, onSuccess])
+
+  useEffect(() => {
+    if (confirmedTradeExecutionState !== TradeExecutionState.TradeComplete) {
+      hasCalledOnSuccess.current = false
+    }
+  }, [confirmedTradeExecutionState])
 
   const handleBack = useCallback(() => {
     if (isTradeComplete) {

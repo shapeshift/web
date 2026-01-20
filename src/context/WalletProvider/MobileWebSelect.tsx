@@ -31,7 +31,9 @@ import { WalletConnectDirectRow } from './WalletConnectV2/components/WalletConne
 import { useWalletConnectV2Pairing } from './WalletConnectV2/useWalletConnectV2Pairing'
 
 import { ChainIcon } from '@/components/ChainMenu'
+import { GridPlusIcon } from '@/components/Icons/GridPlusIcon'
 import { PhantomIcon } from '@/components/Icons/PhantomIcon'
+import { TrezorIcon } from '@/components/Icons/TrezorIcon'
 import { Dialog } from '@/components/Modal/components/Dialog'
 import { DialogBody } from '@/components/Modal/components/DialogBody'
 import { DialogFooter } from '@/components/Modal/components/DialogFooter'
@@ -56,12 +58,23 @@ export const MobileWebSelect: React.FC<PropsWithChildren<MobileWebSelectProps>> 
   const { isOpen: isCollapseOpen, onToggle: onCollapseToggle } = useDisclosure({
     defaultIsOpen: true,
   })
+  const { isOpen: isHardwareCollapseOpen, onToggle: onHardwareCollapseToggle } = useDisclosure()
   const { connect } = useWallet()
   const navigate = useNavigate()
 
   const handlePhantomConnect = useCallback(() => {
     navigate('/phantom/connect')
     connect(KeyManager.Phantom, false)
+  }, [connect, navigate])
+
+  const handleTrezorConnect = useCallback(() => {
+    navigate('/trezor/connect')
+    connect(KeyManager.Trezor, false)
+  }, [connect, navigate])
+
+  const handleGridPlusConnect = useCallback(() => {
+    navigate('/gridplus/connect')
+    connect(KeyManager.GridPlus, false)
   }, [connect, navigate])
 
   return (
@@ -150,6 +163,37 @@ export const MobileWebSelect: React.FC<PropsWithChildren<MobileWebSelectProps>> 
             {children}
           </Box>
         </Collapse>
+        {!isMobile && (
+          <>
+            <Flex
+              px={4}
+              height='44px'
+              width='full'
+              justifyContent='space-between'
+              alignItems='center'
+              onClick={onHardwareCollapseToggle}
+            >
+              <Text translation='common.hardwareWallets' fontWeight='bold' />
+              <Icon as={isHardwareCollapseOpen ? TbChevronUp : TbChevronDown} />
+            </Flex>
+            <Collapse in={isHardwareCollapseOpen} style={collapseStyle}>
+              <Box px={2} width='full'>
+                <WalletListButton
+                  name='Trezor'
+                  icon={<TrezorIcon />}
+                  onSelect={handleTrezorConnect}
+                  isSelected={false}
+                />
+                <WalletListButton
+                  name='GridPlus'
+                  icon={<GridPlusIcon />}
+                  onSelect={handleGridPlusConnect}
+                  isSelected={false}
+                />
+              </Box>
+            </Collapse>
+          </>
+        )}
       </DialogFooter>
     </Dialog>
   )

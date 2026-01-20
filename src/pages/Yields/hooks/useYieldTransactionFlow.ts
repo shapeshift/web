@@ -186,15 +186,13 @@ export const useYieldTransactionFlow = ({
   const yieldChainId = yieldItem?.chainId
   const { accountId: contextAccountId, accountNumber: contextAccountNumber } = useYieldAccount()
 
-  const derivedAccountId = useAppSelector(state => {
+  const accountId = useAppSelector(state => {
     if (accountIdProp) return accountIdProp
     if (contextAccountId) return contextAccountId
     if (!yieldChainId) return undefined
     if (contextAccountNumber === undefined) return undefined
     return selectAccountIdByAccountNumberAndChainId(state)[contextAccountNumber]?.[yieldChainId]
   })
-
-  const accountId = derivedAccountId
 
   const feeAsset = useAppSelector(state =>
     yieldChainId ? selectFeeAssetByChainId(state, yieldChainId) : undefined,
@@ -221,12 +219,12 @@ export const useYieldTransactionFlow = ({
     if (!yieldItem || !userAddress || !yieldChainId) return null
     if (action !== 'manage' && !amount) return null
 
-    const fields =
-      action === 'enter'
-        ? yieldItem.mechanics.arguments.enter.fields
-        : action === 'exit'
-        ? yieldItem.mechanics.arguments.exit.fields
-        : []
+    const getFields = () => {
+      if (action === 'enter') return yieldItem.mechanics.arguments.enter.fields
+      if (action === 'exit') return yieldItem.mechanics.arguments.exit.fields
+      return []
+    }
+    const fields = getFields()
 
     const fieldNames = new Set(fields.map(field => field.name))
     const args: Record<string, unknown> = {}
@@ -356,7 +354,11 @@ export const useYieldTransactionFlow = ({
         ...quoteData.transactions
           .filter(tx => tx.status === TransactionStatus.Created)
           .map((tx, i) => ({
-            title: formatYieldTxTitle(tx.title || `Transaction ${i + 1}`, assetSymbol),
+            title: formatYieldTxTitle(
+              tx.title || `Transaction ${i + 1}`,
+              assetSymbol,
+              yieldItem?.mechanics.type,
+            ),
             originalTitle: tx.title || '',
             type: tx.type,
             status: 'pending' as const,
@@ -369,6 +371,7 @@ export const useYieldTransactionFlow = ({
     transactionSteps,
     quoteData,
     assetSymbol,
+    yieldItem?.mechanics.type,
     isAllowanceCheckPending,
     isUsdtResetRequired,
     translate,
@@ -400,19 +403,27 @@ export const useYieldTransactionFlow = ({
       }
 
       const isApproval = tx.title?.toLowerCase().includes('approv')
-      const actionType = isApproval
-        ? ActionType.Approve
-        : action === 'enter'
-        ? ActionType.Deposit
-        : action === 'exit'
-        ? ActionType.Withdraw
-        : ActionType.Claim
 
-      const displayType = isApproval
-        ? GenericTransactionDisplayType.Approve
-        : action === 'manage'
-        ? GenericTransactionDisplayType.Claim
-        : GenericTransactionDisplayType.Yield
+      type GenericActionType =
+        | typeof ActionType.Approve
+        | typeof ActionType.Deposit
+        | typeof ActionType.Withdraw
+        | typeof ActionType.Claim
+
+      const getActionType = (): GenericActionType => {
+        if (isApproval) return ActionType.Approve
+        if (action === 'enter') return ActionType.Deposit
+        if (action === 'exit') return ActionType.Withdraw
+        return ActionType.Claim
+      }
+      const actionType = getActionType()
+
+      const getDisplayType = (): GenericTransactionDisplayType => {
+        if (isApproval) return GenericTransactionDisplayType.Approve
+        if (action === 'manage') return GenericTransactionDisplayType.Claim
+        return GenericTransactionDisplayType.Yield
+      }
+      const displayType = getDisplayType()
 
       // TODO(gomes): handle claim notifications - there's more logic TBD here (e.g. unbonding periods).
       // For now, KISS and simply don't handle claims in action center.
@@ -439,7 +450,7 @@ export const useYieldTransactionFlow = ({
             accountId,
             message:
               typeMessagesMap[actionType] ??
-              formatYieldTxTitle(tx.title || 'Transaction', assetSymbol),
+              formatYieldTxTitle(tx.title || 'Transaction', assetSymbol, yieldItem.mechanics.type),
             amountCryptoPrecision: amount,
             contractName: yieldItem.metadata.name,
             chainName: yieldItem.network,
@@ -759,7 +770,11 @@ export const useYieldTransactionFlow = ({
       }
       steps.push(
         ...transactions.map((tx, i) => ({
-          title: formatYieldTxTitle(tx.title || `Transaction ${i + 1}`, assetSymbol),
+          title: formatYieldTxTitle(
+            tx.title || `Transaction ${i + 1}`,
+            assetSymbol,
+            yieldItem?.mechanics.type,
+          ),
           originalTitle: tx.title || '',
           type: tx.type,
           status: 'pending' as const,
@@ -802,6 +817,7 @@ export const useYieldTransactionFlow = ({
     assetSymbol,
     translate,
     showErrorToast,
+    yieldItem?.mechanics.type,
   ])
 
   return useMemo(

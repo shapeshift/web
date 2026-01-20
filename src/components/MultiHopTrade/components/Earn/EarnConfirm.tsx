@@ -9,7 +9,7 @@ import { EarnRoutePaths } from './types'
 import { Amount } from '@/components/Amount/Amount'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { DEFAULT_NATIVE_VALIDATOR_BY_CHAIN_ID } from '@/lib/yieldxyz/constants'
-import { getTransactionButtonText } from '@/lib/yieldxyz/utils'
+import { getTransactionButtonText, getYieldActionLabelKeys } from '@/lib/yieldxyz/utils'
 import { GradientApy } from '@/pages/Yields/components/GradientApy'
 import { TransactionStepsList } from '@/pages/Yields/components/TransactionStepsList'
 import { YieldAssetFlow } from '@/pages/Yields/components/YieldAssetFlow'
@@ -157,14 +157,25 @@ export const EarnConfirm = memo(() => {
       return translate('yieldXYZ.resetAllowance')
     }
     // Before execution starts, use the first CREATED transaction from quoteData
+    const yieldType = selectedYield?.mechanics.type
     const firstCreatedTx = quoteData?.transactions?.find(tx => tx.status === 'CREATED')
     if (firstCreatedTx) {
-      return getTransactionButtonText(firstCreatedTx.type, firstCreatedTx.title)
+      return getTransactionButtonText(firstCreatedTx.type, firstCreatedTx.title, yieldType)
     }
     // Fallback states
     if (isLoading) return translate('common.loadingText')
-    return translate('yieldXYZ.enter')
-  }, [activeStepIndex, transactionSteps, isUsdtResetRequired, quoteData, isLoading, translate])
+    if (!yieldType) return translate('common.deposit')
+    const actionLabelKeys = getYieldActionLabelKeys(yieldType)
+    return translate(actionLabelKeys.enter)
+  }, [
+    activeStepIndex,
+    transactionSteps,
+    isUsdtResetRequired,
+    quoteData,
+    isLoading,
+    translate,
+    selectedYield?.mechanics.type,
+  ])
 
   const providerInfo = useMemo(() => {
     if (selectedValidator) {
@@ -297,9 +308,7 @@ export const EarnConfirm = memo(() => {
           {providerInfo && (
             <HStack justify='space-between' mt={3}>
               <Text color='text.subtle' fontSize='sm'>
-                {selectedValidator
-                  ? translate('yieldXYZ.validator')
-                  : translate('yieldXYZ.provider')}
+                {translate(selectedValidator ? 'yieldXYZ.validator' : 'yieldXYZ.provider')}
               </Text>
               <HStack spacing={2}>
                 <Avatar size='xs' src={providerInfo.logoURI} name={providerInfo.name} />

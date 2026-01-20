@@ -2,7 +2,7 @@ import type { CardFooterProps } from '@chakra-ui/react'
 import { Card, CardBody, CardFooter, CardHeader, Heading } from '@chakra-ui/react'
 import type { JSX } from 'react'
 
-import { cardstyles } from '../../const'
+import { cardstyles, modalCardStyles } from '../../const'
 import { WithBackButton } from '../WithBackButton'
 
 import { TradeSlideTransition } from '@/components/MultiHopTrade/TradeSlideTransition'
@@ -15,6 +15,7 @@ type SharedConfirmProps = {
   onBack: () => void
   headerTranslation: TextPropTypes['translation']
   isLoading?: boolean
+  isModal?: boolean
 }
 
 const cardMinHeight = { base: 'calc(100vh - var(--mobile-nav-offset))', md: 'initial' }
@@ -25,10 +26,17 @@ export const SharedConfirm = ({
   footerContent,
   onBack,
   headerTranslation,
+  isModal,
 }: SharedConfirmProps) => {
   return (
     <TradeSlideTransition>
-      <Card flex={1} width='full' maxWidth='500px' minHeight={cardMinHeight} {...cardstyles}>
+      <Card
+        flex={1}
+        width='full'
+        maxWidth='500px'
+        minHeight={cardMinHeight}
+        {...(isModal ? modalCardStyles : cardstyles)}
+      >
         <CardHeader px={6} pt={4} borderTop={'none'}>
           <WithBackButton onBack={onBack}>
             <Heading textAlign='center' fontSize='md'>

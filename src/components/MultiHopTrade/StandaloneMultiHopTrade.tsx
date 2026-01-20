@@ -27,6 +27,7 @@ import { useAppDispatch, useAppSelector } from '@/state/store'
 
 export type StandaloneTradeCardProps = TradeCardProps & {
   onSuccess?: () => void
+  isModal?: boolean
 }
 
 const GetTradeRates = () => {
@@ -42,6 +43,7 @@ export const StandaloneMultiHopTrade = memo(
     onChangeTab,
     onSuccess,
     isStandalone,
+    isModal,
   }: StandaloneTradeCardProps) => {
     const dispatch = useAppDispatch()
     const location = useLocation()
@@ -134,6 +136,7 @@ export const StandaloneMultiHopTrade = memo(
         onChangeTab={onChangeTab}
         onSuccess={onSuccess}
         isStandalone={isStandalone}
+        isModal={isModal}
       />
     )
   },
@@ -142,12 +145,13 @@ export const StandaloneMultiHopTrade = memo(
 type StandaloneTradeRoutesProps = {
   isCompact?: boolean
   isStandalone?: boolean
+  isModal?: boolean
   onChangeTab: (newTab: TradeInputTab) => void
   onSuccess?: () => void
 }
 
 const StandaloneTradeRoutes = memo(
-  ({ isCompact, isStandalone, onChangeTab, onSuccess }: StandaloneTradeRoutesProps) => {
+  ({ isCompact, isStandalone, isModal, onChangeTab, onSuccess }: StandaloneTradeRoutesProps) => {
     const location = useLocation()
 
     const tradeInputRef = useRef<HTMLDivElement | null>(null)
@@ -171,8 +175,8 @@ const StandaloneTradeRoutes = memo(
 
     // Create memoized elements for each route
     const tradeConfirmElement = useMemo(
-      () => <TradeConfirm isCompact={isCompact} onSuccess={onSuccess} />,
-      [isCompact, onSuccess],
+      () => <TradeConfirm isCompact={isCompact} isModal={isModal} onSuccess={onSuccess} />,
+      [isCompact, isModal, onSuccess],
     )
 
     const verifyAddressesElement = useMemo(() => <VerifyAddresses />, [])
@@ -200,12 +204,13 @@ const StandaloneTradeRoutes = memo(
       () => (
         <TradeInput
           isCompact={isCompact}
+          isModal={isModal}
           tradeInputRef={tradeInputRef}
           onChangeTab={onChangeTab}
           isStandalone={isStandalone}
         />
       ),
-      [isCompact, onChangeTab, isStandalone],
+      [isCompact, isModal, onChangeTab, isStandalone],
     )
 
     return (

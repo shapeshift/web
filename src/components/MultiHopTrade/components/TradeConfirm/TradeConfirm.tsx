@@ -1,6 +1,6 @@
 import { Stepper, usePrevious } from '@chakra-ui/react'
 import { isArbitrumBridgeTradeQuoteOrRate } from '@shapeshiftoss/swapper'
-import { useCallback, useEffect, useMemo, useRef } from 'react'
+import { useCallback, useEffect, useMemo } from 'react'
 import { Navigate, useNavigate } from 'react-router-dom'
 
 import { useTrackTradeQuotes } from '../../hooks/useGetTradeQuotes/hooks/useTrackTradeQuotes'
@@ -28,10 +28,11 @@ import { useAppDispatch, useAppSelector } from '@/state/store'
 
 type TradeConfirmProps = {
   isCompact?: boolean
+  isModal?: boolean
   onSuccess?: () => void
 }
 
-export const TradeConfirm = ({ isCompact, onSuccess }: TradeConfirmProps) => {
+export const TradeConfirm = ({ isCompact, isModal, onSuccess }: TradeConfirmProps) => {
   const navigate = useNavigate()
   const { isLoading } = useIsApprovalInitiallyNeeded()
   const dispatch = useAppDispatch()
@@ -55,21 +56,6 @@ export const TradeConfirm = ({ isCompact, onSuccess }: TradeConfirmProps) => {
     () => confirmedTradeExecutionState === TradeExecutionState.TradeComplete,
     [confirmedTradeExecutionState],
   )
-
-  const hasCalledOnSuccess = useRef(false)
-
-  useEffect(() => {
-    if (isTradeComplete && onSuccess && !hasCalledOnSuccess.current) {
-      hasCalledOnSuccess.current = true
-      onSuccess()
-    }
-  }, [isTradeComplete, onSuccess])
-
-  useEffect(() => {
-    if (confirmedTradeExecutionState !== TradeExecutionState.TradeComplete) {
-      hasCalledOnSuccess.current = false
-    }
-  }, [confirmedTradeExecutionState])
 
   const handleBack = useCallback(() => {
     if (isTradeComplete) {
@@ -110,9 +96,18 @@ export const TradeConfirm = ({ isCompact, onSuccess }: TradeConfirmProps) => {
         isCompact={isCompact}
         tradeQuoteStep={tradeQuoteStep}
         activeTradeId={activeTradeId}
+        onSwapTxBroadcast={onSuccess}
       />
     )
-  }, [isTradeComplete, activeQuote, tradeQuoteLastHop, tradeQuoteStep, activeTradeId, isCompact])
+  }, [
+    isTradeComplete,
+    activeQuote,
+    tradeQuoteLastHop,
+    tradeQuoteStep,
+    activeTradeId,
+    isCompact,
+    onSuccess,
+  ])
 
   const isArbitrumBridgeWithdraw = useMemo(() => {
     return isArbitrumBridgeTradeQuoteOrRate(activeQuote) && activeQuote.direction === 'withdrawal'
@@ -161,6 +156,7 @@ export const TradeConfirm = ({ isCompact, onSuccess }: TradeConfirmProps) => {
       isLoading={isLoading}
       onBack={handleBack}
       headerTranslation={headerTranslation}
+      isModal={isModal}
     />
   )
 }

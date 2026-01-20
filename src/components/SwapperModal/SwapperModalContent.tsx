@@ -61,6 +61,7 @@ export const SwapperModalContent = memo(function SwapperModalContent({
           onSuccess={onSuccess}
           isCompact
           isStandalone
+          isModal
         />
       </TradingErrorBoundary>
     </FormProvider>

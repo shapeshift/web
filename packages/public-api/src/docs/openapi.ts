@@ -74,11 +74,17 @@ const SolanaTransactionDataSchema = z.object({
   addressLookupTableAddresses: z.array(z.string()),
 })
 
-const UtxoTransactionDataSchema = z.object({
-  type: z.literal('utxo').openapi({ example: 'utxo' }),
+const UtxoPsbtTransactionDataSchema = z.object({
+  type: z.literal('utxo_psbt').openapi({ example: 'utxo_psbt' }),
   psbt: z.string(),
-  sendAddress: z.string(),
   opReturnData: z.string().optional(),
+})
+
+const UtxoDepositTransactionDataSchema = z.object({
+  type: z.literal('utxo_deposit').openapi({ example: 'utxo_deposit' }),
+  depositAddress: z.string(),
+  memo: z.string(),
+  value: z.string(),
 })
 
 const CosmosTransactionDataSchema = z.object({
@@ -101,7 +107,8 @@ const CowswapOrderDataSchema = z.object({
 const TransactionDataSchema = z.discriminatedUnion('type', [
   EvmTransactionDataSchema,
   SolanaTransactionDataSchema,
-  UtxoTransactionDataSchema,
+  UtxoPsbtTransactionDataSchema,
+  UtxoDepositTransactionDataSchema,
   CosmosTransactionDataSchema,
   CowswapOrderDataSchema,
 ])

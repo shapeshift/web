@@ -10,6 +10,7 @@ import {
   Flex,
   Heading,
   HStack,
+  Tag,
   Text,
   VStack,
 } from '@chakra-ui/react'
@@ -53,39 +54,6 @@ export const YieldInfoCard = memo(
       <AssetIcon src={iconSource.src} size='lg' />
     )
 
-    const hasOverlay = validatorOrProvider?.logoURI || yieldItem.chainId
-
-    const stackedIconElement = !hasOverlay ? (
-      assetIcon
-    ) : (
-      <Box position='relative'>
-        {assetIcon}
-        {validatorOrProvider?.logoURI ? (
-          <Avatar
-            size='xs'
-            src={validatorOrProvider.logoURI}
-            name={validatorOrProvider.name}
-            position='absolute'
-            bottom='-4px'
-            right='-4px'
-            border='2px solid'
-            borderColor='background.surface.raised.base'
-          />
-        ) : yieldItem.chainId ? (
-          <Box
-            position='absolute'
-            bottom='-4px'
-            right='-4px'
-            bg='background.surface.raised.base'
-            borderRadius='full'
-            p='3px'
-          >
-            <ChainIcon chainId={yieldItem.chainId} boxSize='16px' />
-          </Box>
-        ) : null}
-      </Box>
-    )
-
     return (
       <Card>
         <CardBody p={{ base: 4, md: 6 }}>
@@ -109,10 +77,33 @@ export const YieldInfoCard = memo(
             )}
 
             <Flex gap={4} align='center'>
-              {stackedIconElement}
+              {assetIcon}
               <Heading as='h2' size='md'>
                 {yieldTitle}
               </Heading>
+              <HStack spacing={2} flexWrap='wrap' ml='auto'>
+                <Tag borderRadius='full' px={3} textTransform='capitalize' alignSelf='stretch'>
+                  {type}
+                </Tag>
+                {yieldItem.chainId && (
+                  <Tag gap={1} borderRadius='full' p={2} textTransform='capitalize'>
+                    <ChainIcon chainId={yieldItem.chainId} boxSize='20px' />
+                    {yieldItem.network}
+                  </Tag>
+                )}
+                {validatorOrProvider?.name && (
+                  <Tag gap={1} borderRadius='full' p={2}>
+                    {validatorOrProvider.logoURI && (
+                      <Avatar
+                        boxSize='20px'
+                        src={validatorOrProvider.logoURI}
+                        name={validatorOrProvider.name}
+                      />
+                    )}
+                    {validatorOrProvider.name}
+                  </Tag>
+                )}
+              </HStack>
             </Flex>
 
             <HStack spacing={3} flexWrap='wrap'>
@@ -121,53 +112,6 @@ export const YieldInfoCard = memo(
                   {apy}% {translate('common.apy')}
                 </GradientApy>
               </Box>
-              <Badge
-                colorScheme='gray'
-                variant='subtle'
-                borderRadius='full'
-                px={3}
-                py={1.5}
-                fontWeight='medium'
-                fontSize='sm'
-                textTransform='capitalize'
-              >
-                {type}
-              </Badge>
-            </HStack>
-
-            <HStack spacing={6} flexWrap='wrap'>
-              <HStack spacing={2}>
-                {iconSource.assetId ? (
-                  <AssetIcon assetId={iconSource.assetId} size='xs' />
-                ) : (
-                  <AssetIcon src={iconSource.src} size='xs' />
-                )}
-                <Text fontSize='md' fontWeight='semibold'>
-                  {yieldItem.token.symbol}
-                </Text>
-              </HStack>
-              {yieldItem.chainId && (
-                <HStack spacing={2}>
-                  <ChainIcon chainId={yieldItem.chainId} boxSize='20px' />
-                  <Text fontSize='md' fontWeight='semibold' textTransform='capitalize'>
-                    {yieldItem.network}
-                  </Text>
-                </HStack>
-              )}
-              {validatorOrProvider?.name && (
-                <HStack spacing={2}>
-                  {validatorOrProvider.logoURI && (
-                    <Avatar
-                      size='xs'
-                      src={validatorOrProvider.logoURI}
-                      name={validatorOrProvider.name}
-                    />
-                  )}
-                  <Text fontSize='md' fontWeight='semibold'>
-                    {validatorOrProvider.name}
-                  </Text>
-                </HStack>
-              )}
             </HStack>
 
             {description && (

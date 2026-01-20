@@ -2680,7 +2680,6 @@
     "asset": "Asset",
     "provider": "Provider",
     "balance": "Balance",
-    "yourBalance": "Your Balance",
     "noYields": "No yield opportunities available",
     "connectWallet": "Connect a wallet to view yields",
     "stats": "Stats",
@@ -2744,7 +2743,6 @@
     "network": "Network",
     "market": "market",
     "markets": "markets",
-    "protocol": "protocol",
     "chain": "chain",
     "chains": "chains",
     "reward": "Reward",
@@ -2762,7 +2760,6 @@
     "earningsPerYear": "%{amount} %{symbol} /yr",
     "recommendedForYou": "Recommended for you",
     "earn": "Earn",
-    "myBalance": "My Balance",
     "providers": "Providers",
     "successStaked": "You successfully staked %{amount} %{symbol}",
     "successUnstaked": "You successfully unstaked %{amount} %{symbol}",
@@ -2803,7 +2800,6 @@
     "depositsDisabledDescription": "Deposits are temporarily unavailable for this yield opportunity.",
     "withdrawalsDisabled": "Withdrawals Disabled",
     "withdrawalsDisabledDescription": "Withdrawals are temporarily unavailable for this yield opportunity.",
-    "learnMore": "Learn more",
     "noAvailableYields": "No yield opportunities available for your assets",
     "connectWalletAvailable": "Connect a wallet to see yields available for your assets",
     "aboutProvider": "About %{provider}",
@@ -2823,7 +2819,8 @@
     "otherYields": "Other %{symbol} Yields",
     "availableToDeposit": "Available to Deposit",
     "availableToDepositTooltip": "This is the amount of %{symbol} in your wallet that you can deposit into this yield opportunity.",
-    "getAsset": "Get %{symbol}"
+    "getAsset": "Get %{symbol}",
+    "manage": "Manage"
   },
   "earn": {
     "enterFrom": "Enter from",

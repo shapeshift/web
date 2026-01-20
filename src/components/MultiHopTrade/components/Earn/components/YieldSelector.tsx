@@ -98,7 +98,7 @@ const YieldItem = memo(
       return `${apy.toFixed(2)}%`
     }, [yieldItem.rewardRate?.total])
 
-    const displayInfo = useMemo(() => {
+    const providerOrValidatorInfo = useMemo(() => {
       // For staking yields with validators, show the default validator
       if (requiresValidator && validators?.length) {
         const chainId = yieldItem.chainId
@@ -130,11 +130,25 @@ const YieldItem = memo(
         textAlign='left'
       >
         <HStack spacing={3} width='full'>
-          <Avatar src={displayInfo.logoURI} name={displayInfo.name} size='sm' />
+          <Avatar
+            src={providerOrValidatorInfo.logoURI}
+            name={providerOrValidatorInfo.name}
+            size='sm'
+          />
           <VStack align='start' spacing={0} flex={1} minW={0}>
             <Text fontWeight='semibold' fontSize='sm' noOfLines={1}>
-              {displayInfo.name}
+              {yieldItem.metadata.name}
             </Text>
+            <HStack spacing={1}>
+              <Avatar
+                src={providerOrValidatorInfo.logoURI}
+                name={providerOrValidatorInfo.name}
+                size='2xs'
+              />
+              <Text fontSize='xs' color='text.subtle' noOfLines={1}>
+                {providerOrValidatorInfo.name}
+              </Text>
+            </HStack>
           </VStack>
           <GradientApy fontSize='sm' fontWeight='bold'>
             {apyDisplay}
@@ -260,9 +274,21 @@ export const YieldSelector = memo(
           {selectedYield && selectedDisplayInfo ? (
             <HStack spacing={3} flex={1}>
               <Avatar src={selectedDisplayInfo.logoURI} name={selectedDisplayInfo.name} size='sm' />
-              <Text fontWeight='semibold' fontSize='sm'>
-                {selectedDisplayInfo.name}
-              </Text>
+              <VStack align='start' spacing={0} flex={1} minW={0}>
+                <Text fontWeight='semibold' fontSize='sm' noOfLines={1}>
+                  {selectedYield.metadata.name}
+                </Text>
+                <HStack spacing={1}>
+                  <Avatar
+                    src={selectedDisplayInfo.logoURI}
+                    name={selectedDisplayInfo.name}
+                    size='2xs'
+                  />
+                  <Text fontSize='xs' color='text.subtle' noOfLines={1}>
+                    {selectedDisplayInfo.name}
+                  </Text>
+                </HStack>
+              </VStack>
               <Box ml='auto'>
                 <GradientApy fontSize='sm' fontWeight='bold'>
                   {selectedApyDisplay}

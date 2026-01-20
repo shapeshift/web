@@ -15,16 +15,12 @@ import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { toBaseUnit } from '@/lib/math'
 import { enterYield, exitYield, fetchAction, manageYield } from '@/lib/yieldxyz/api'
-import {
-  DEFAULT_NATIVE_VALIDATOR_BY_CHAIN_ID,
-  YIELD_MAX_POLL_ATTEMPTS,
-  YIELD_POLL_INTERVAL_MS,
-} from '@/lib/yieldxyz/constants'
+import { YIELD_MAX_POLL_ATTEMPTS, YIELD_POLL_INTERVAL_MS } from '@/lib/yieldxyz/constants'
 import type { CosmosStakeArgs } from '@/lib/yieldxyz/executeTransaction'
 import { executeTransaction } from '@/lib/yieldxyz/executeTransaction'
 import type { ActionDto, AugmentedYieldDto, TransactionDto } from '@/lib/yieldxyz/types'
 import { ActionStatus as YieldActionStatus, TransactionStatus } from '@/lib/yieldxyz/types'
-import { formatYieldTxTitle } from '@/lib/yieldxyz/utils'
+import { formatYieldTxTitle, getDefaultValidatorForYield } from '@/lib/yieldxyz/utils'
 import { useYieldAccount } from '@/pages/Yields/YieldAccountContext'
 import { reactQueries } from '@/react-queries'
 import { useAllowance } from '@/react-queries/hooks/useAllowance'
@@ -238,8 +234,8 @@ export const useYieldTransactionFlow = ({
     }
 
     const validatorField = fields.find(f => f.name === 'validatorAddress')
-    if (validatorField && yieldChainId) {
-      args.validatorAddress = validatorAddress || DEFAULT_NATIVE_VALIDATOR_BY_CHAIN_ID[yieldChainId]
+    if (validatorField && yieldItem) {
+      args.validatorAddress = validatorAddress || getDefaultValidatorForYield(yieldItem.id)
     }
 
     if (fieldNames.has('cosmosPubKey') && yieldChainId === cosmosChainId) {
@@ -465,7 +461,7 @@ export const useYieldTransactionFlow = ({
   const buildCosmosStakeArgs = useCallback((): CosmosStakeArgs | undefined => {
     if (yieldChainId !== cosmosChainId || !yieldItem) return undefined
 
-    const validator = validatorAddress || DEFAULT_NATIVE_VALIDATOR_BY_CHAIN_ID[cosmosChainId]
+    const validator = validatorAddress || getDefaultValidatorForYield(yieldItem.id)
     if (!validator) return undefined
 
     const inputTokenDecimals =

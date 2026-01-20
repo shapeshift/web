@@ -9,9 +9,8 @@ import { DialogBody } from '@/components/Modal/components/DialogBody'
 import { DialogCloseButton } from '@/components/Modal/components/DialogCloseButton'
 import { DialogHeader } from '@/components/Modal/components/DialogHeader'
 import { DialogTitle } from '@/components/Modal/components/DialogTitle'
-import { DEFAULT_NATIVE_VALIDATOR_BY_CHAIN_ID } from '@/lib/yieldxyz/constants'
 import { YieldBalanceType } from '@/lib/yieldxyz/types'
-import { getYieldActionLabelKeys } from '@/lib/yieldxyz/utils'
+import { getDefaultValidatorForYield, getYieldActionLabelKeys } from '@/lib/yieldxyz/utils'
 import { useYieldAccount } from '@/pages/Yields/YieldAccountContext'
 import { useAllYieldBalances } from '@/react-queries/queries/yieldxyz/useAllYieldBalances'
 import { useYield } from '@/react-queries/queries/yieldxyz/useYield'
@@ -30,12 +29,9 @@ export const YieldManager = () => {
   const requiresValidatorSelection = yieldItem?.mechanics.requiresValidatorSelection ?? false
 
   const validatorAddress = useMemo(() => {
-    if (!requiresValidatorSelection) return undefined
-    return (
-      validatorParam ||
-      (yieldItem?.chainId ? DEFAULT_NATIVE_VALIDATOR_BY_CHAIN_ID[yieldItem.chainId] : undefined)
-    )
-  }, [requiresValidatorSelection, validatorParam, yieldItem?.chainId])
+    if (!requiresValidatorSelection || !yieldItem) return undefined
+    return validatorParam || getDefaultValidatorForYield(yieldItem.id)
+  }, [requiresValidatorSelection, validatorParam, yieldItem])
   const { accountId, accountNumber } = useYieldAccount()
   const { data: allBalancesData } = useAllYieldBalances()
   const balances = yieldItem?.id ? allBalancesData?.normalized[yieldItem.id] : undefined

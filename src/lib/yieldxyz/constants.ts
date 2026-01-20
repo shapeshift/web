@@ -98,7 +98,10 @@ export const FIGMENT_SOLANA_VALIDATOR_ADDRESS = 'CcaHc2L43ZWjwCHART3oZoJvHLAe9hz
 export const FIGMENT_VALIDATOR_NAME = 'Figment'
 export const FIGMENT_VALIDATOR_LOGO = 'https://assets.stakek.it/validators/figment.png'
 
-export const DEFAULT_NATIVE_VALIDATOR_BY_CHAIN_ID: Partial<Record<ChainId, string>> = {
-  [cosmosChainId]: SHAPESHIFT_COSMOS_VALIDATOR_ADDRESS,
-  [solanaChainId]: FIGMENT_SOLANA_VALIDATOR_ADDRESS,
+// Default validators by yield ID - used for yields that require validator selection
+export const DEFAULT_VALIDATOR_BY_YIELD_ID: Record<string, string> = {
+  // ShapeShift DAO
+  [COSMOS_ATOM_NATIVE_STAKING_YIELD_ID]: SHAPESHIFT_COSMOS_VALIDATOR_ADDRESS,
+  // Figment
+  [SOLANA_SOL_NATIVE_MULTIVALIDATOR_STAKING_YIELD_ID]: FIGMENT_SOLANA_VALIDATOR_ADDRESS,
 }

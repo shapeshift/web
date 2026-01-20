@@ -11,7 +11,6 @@ import { Display } from '@/components/Display'
 import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import {
-  DEFAULT_NATIVE_VALIDATOR_BY_CHAIN_ID,
   FIGMENT_SOLANA_VALIDATOR_ADDRESS,
   FIGMENT_VALIDATOR_LOGO,
   FIGMENT_VALIDATOR_NAME,
@@ -21,6 +20,7 @@ import {
 } from '@/lib/yieldxyz/constants'
 import { getYieldDisplayName } from '@/lib/yieldxyz/getYieldDisplayName'
 import { YieldBalanceType } from '@/lib/yieldxyz/types'
+import { getDefaultValidatorForYield } from '@/lib/yieldxyz/utils'
 import { YieldAvailableToDeposit } from '@/pages/Yields/components/YieldAvailableToDeposit'
 import { YieldHero } from '@/pages/Yields/components/YieldHero'
 import { YieldInfoCard } from '@/pages/Yields/components/YieldInfoCard'
@@ -98,9 +98,7 @@ export const YieldDetail = memo(() => {
   const isBalancesLoading = !allBalancesData && isBalancesFetching
 
   const validatorParam = searchParams.get('validator')
-  const defaultValidator = yieldItem?.chainId
-    ? DEFAULT_NATIVE_VALIDATOR_BY_CHAIN_ID[yieldItem.chainId]
-    : undefined
+  const defaultValidator = yieldItem?.id ? getDefaultValidatorForYield(yieldItem.id) : undefined
 
   const isStaking = yieldItem?.mechanics.type === 'staking'
   const requiresValidatorSelection = yieldItem?.mechanics.requiresValidatorSelection ?? false

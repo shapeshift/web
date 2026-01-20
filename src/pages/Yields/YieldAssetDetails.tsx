@@ -35,7 +35,11 @@ import {
   YIELD_NETWORK_TO_CHAIN_ID,
 } from '@/lib/yieldxyz/constants'
 import type { AugmentedYieldDto, YieldNetwork } from '@/lib/yieldxyz/types'
-import { isYieldDisabled, resolveYieldInputAssetIcon } from '@/lib/yieldxyz/utils'
+import {
+  getDefaultValidatorForYield,
+  isYieldDisabled,
+  resolveYieldInputAssetIcon,
+} from '@/lib/yieldxyz/utils'
 import { GradientApy } from '@/pages/Yields/components/GradientApy'
 import { YieldFilters } from '@/pages/Yields/components/YieldFilters'
 import { YieldItem, YieldItemSkeleton } from '@/pages/Yields/components/YieldItem'
@@ -386,14 +390,11 @@ export const YieldAssetDetails = memo(() => {
 
   const handleYieldClick = useCallback(
     (yieldId: string) => {
-      const balances = allBalances?.[yieldId]
-      const highestAmountValidator = balances?.[0]?.highestAmountUsdValidator
-      const url = highestAmountValidator
-        ? `/yields/${yieldId}?validator=${highestAmountValidator}`
-        : `/yields/${yieldId}`
+      const validator = getDefaultValidatorForYield(yieldId)
+      const url = validator ? `/yields/${yieldId}?validator=${validator}` : `/yields/${yieldId}`
       navigate(url)
     },
-    [allBalances, navigate],
+    [navigate],
   )
 
   const handleRowClick = useCallback(

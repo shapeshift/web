@@ -5,13 +5,8 @@ import { useSearchParams } from 'react-router-dom'
 
 import { Amount } from '@/components/Amount/Amount'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
-import {
-  COSMOS_ATOM_NATIVE_STAKING_YIELD_ID,
-  DEFAULT_NATIVE_VALIDATOR_BY_CHAIN_ID,
-  SOLANA_SOL_NATIVE_MULTIVALIDATOR_STAKING_YIELD_ID,
-} from '@/lib/yieldxyz/constants'
 import type { AugmentedYieldDto } from '@/lib/yieldxyz/types'
-import { isStakingYieldType } from '@/lib/yieldxyz/utils'
+import { getDefaultValidatorForYield, isStakingYieldType } from '@/lib/yieldxyz/utils'
 import type { NormalizedYieldBalances } from '@/react-queries/queries/yieldxyz/useAllYieldBalances'
 import { useYieldValidators } from '@/react-queries/queries/yieldxyz/useYieldValidators'
 import {
@@ -41,21 +36,13 @@ export const YieldStats = memo(({ yieldItem, balances }: YieldStatsProps) => {
   const { data: validators } = useYieldValidators(yieldItem.id, shouldFetchValidators)
 
   const defaultValidator = useMemo(
-    () =>
-      yieldItem.chainId && DEFAULT_NATIVE_VALIDATOR_BY_CHAIN_ID[yieldItem.chainId]
-        ? DEFAULT_NATIVE_VALIDATOR_BY_CHAIN_ID[yieldItem.chainId]
-        : validators?.[0]?.address,
-    [yieldItem.chainId, validators],
+    () => getDefaultValidatorForYield(yieldItem.id) ?? validators?.[0]?.address,
+    [yieldItem.id, validators],
   )
 
   const selectedValidatorAddress = useMemo(() => {
-    if (
-      yieldItem.id === COSMOS_ATOM_NATIVE_STAKING_YIELD_ID ||
-      yieldItem.id === SOLANA_SOL_NATIVE_MULTIVALIDATOR_STAKING_YIELD_ID ||
-      (yieldItem.id.includes('solana') && yieldItem.id.includes('native'))
-    ) {
-      return defaultValidator
-    }
+    const enforced = getDefaultValidatorForYield(yieldItem.id)
+    if (enforced) return enforced
     return validatorParam || defaultValidator
   }, [yieldItem.id, validatorParam, defaultValidator])
 

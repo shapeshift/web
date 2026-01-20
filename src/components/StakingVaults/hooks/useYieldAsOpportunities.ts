@@ -1,11 +1,9 @@
 import type { AssetId } from '@shapeshiftoss/caip'
-import { fromAssetId } from '@shapeshiftoss/caip'
 import { useMemo } from 'react'
 
 import { bnOrZero } from '@/lib/bignumber/bignumber'
-import { DEFAULT_NATIVE_VALIDATOR_BY_CHAIN_ID } from '@/lib/yieldxyz/constants'
 import type { AugmentedYieldDto } from '@/lib/yieldxyz/types'
-import { isYieldDisabled } from '@/lib/yieldxyz/utils'
+import { getDefaultValidatorForYield, isYieldDisabled } from '@/lib/yieldxyz/utils'
 import { useAllYieldBalances } from '@/react-queries/queries/yieldxyz/useAllYieldBalances'
 import { useYields } from '@/react-queries/queries/yieldxyz/useYields'
 import type { AggregatedOpportunitiesByAssetIdReturn } from '@/state/slices/opportunitiesSlice/types'
@@ -68,13 +66,12 @@ export const useYieldAsOpportunities = (
       }
 
       const balancesForYield = yieldBalancesData?.aggregated[yieldItem.id]
-      const { chainId } = fromAssetId(inputAssetId)
 
       let totalUsd: string
       let totalCrypto: string
 
       if (balancesForYield?.hasValidators) {
-        const defaultValidatorAddress = DEFAULT_NATIVE_VALIDATOR_BY_CHAIN_ID[chainId]
+        const defaultValidatorAddress = getDefaultValidatorForYield(yieldItem.id)
         const validatorAddresses = Object.keys(balancesForYield.byValidator)
         const selectedValidatorAddress = defaultValidatorAddress ?? validatorAddresses[0]
         const validatorBalance = selectedValidatorAddress

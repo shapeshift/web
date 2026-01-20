@@ -26,8 +26,7 @@ import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bnOrZero, positiveOrZero } from '@/lib/bignumber/bignumber'
 import { fromBaseUnit } from '@/lib/math'
 import { enterYield } from '@/lib/yieldxyz/api'
-import { DEFAULT_NATIVE_VALIDATOR_BY_CHAIN_ID } from '@/lib/yieldxyz/constants'
-import { isYieldDisabled } from '@/lib/yieldxyz/utils'
+import { getDefaultValidatorForYield, isYieldDisabled } from '@/lib/yieldxyz/utils'
 import { useYields } from '@/react-queries/queries/yieldxyz/useYields'
 import { useYieldValidators } from '@/react-queries/queries/yieldxyz/useYieldValidators'
 import {
@@ -160,9 +159,8 @@ export const EarnInput = memo(
     )
 
     const selectedValidator = useMemo(() => {
-      if (!requiresValidatorSelection || !validators?.length) return undefined
-      const chainId = selectedYield?.chainId
-      const defaultAddress = chainId ? DEFAULT_NATIVE_VALIDATOR_BY_CHAIN_ID[chainId] : undefined
+      if (!requiresValidatorSelection || !validators?.length || !selectedYield) return undefined
+      const defaultAddress = getDefaultValidatorForYield(selectedYield.id)
       if (defaultAddress) {
         return (
           validators.find(v => v.address === defaultAddress) ??
@@ -171,7 +169,7 @@ export const EarnInput = memo(
         )
       }
       return validators.find(v => v.preferred) ?? validators[0]
-    }, [requiresValidatorSelection, validators, selectedYield?.chainId])
+    }, [requiresValidatorSelection, validators, selectedYield])
 
     const selectedValidatorAddress = selectedValidator?.address
 
@@ -206,9 +204,9 @@ export const EarnInput = memo(
         args.receiverAddress = userAddress
       }
 
-      if (fieldNames.has('validatorAddress') && yieldChainId) {
+      if (fieldNames.has('validatorAddress') && selectedYield) {
         const validatorAddress =
-          selectedValidatorAddress ?? DEFAULT_NATIVE_VALIDATOR_BY_CHAIN_ID[yieldChainId]
+          selectedValidatorAddress ?? getDefaultValidatorForYield(selectedYield.id)
         if (validatorAddress) {
           args.validatorAddress = validatorAddress
         }

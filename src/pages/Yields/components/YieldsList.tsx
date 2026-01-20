@@ -46,6 +46,7 @@ import {
 } from '@/lib/yieldxyz/constants'
 import type { AugmentedYieldDto, YieldNetwork } from '@/lib/yieldxyz/types'
 import {
+  getDefaultValidatorForYield,
   isStakingYieldType,
   isYieldDisabled,
   resolveYieldInputAssetIcon,
@@ -556,14 +557,11 @@ export const YieldsList = memo(() => {
 
   const handleYieldClick = useCallback(
     (yieldId: string) => {
-      const balances = allBalances?.[yieldId]
-      const highestAmountValidator = balances?.[0]?.highestAmountUsdValidator
-      const url = highestAmountValidator
-        ? `/yields/${yieldId}?validator=${highestAmountValidator}`
-        : `/yields/${yieldId}`
+      const validator = getDefaultValidatorForYield(yieldId)
+      const url = validator ? `/yields/${yieldId}?validator=${validator}` : `/yields/${yieldId}`
       navigate(url)
     },
-    [navigate, allBalances],
+    [navigate],
   )
 
   const handleRowClick = useCallback(

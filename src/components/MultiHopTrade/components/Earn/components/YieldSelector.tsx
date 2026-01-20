@@ -22,12 +22,9 @@ import { DialogBody } from '@/components/Modal/components/DialogBody'
 import { DialogCloseButton } from '@/components/Modal/components/DialogCloseButton'
 import { DialogHeader } from '@/components/Modal/components/DialogHeader'
 import { DialogTitle } from '@/components/Modal/components/DialogTitle'
-import {
-  DEFAULT_NATIVE_VALIDATOR_BY_CHAIN_ID,
-  SHAPESHIFT_VALIDATOR_LOGO,
-  SHAPESHIFT_VALIDATOR_NAME,
-} from '@/lib/yieldxyz/constants'
+import { SHAPESHIFT_VALIDATOR_LOGO, SHAPESHIFT_VALIDATOR_NAME } from '@/lib/yieldxyz/constants'
 import type { AugmentedYieldDto, ProviderDto, ValidatorDto } from '@/lib/yieldxyz/types'
+import { getDefaultValidatorForYield } from '@/lib/yieldxyz/utils'
 import { GradientApy } from '@/pages/Yields/components/GradientApy'
 import { useYieldProviders } from '@/react-queries/queries/yieldxyz/useYieldProviders'
 import { useYieldValidators } from '@/react-queries/queries/yieldxyz/useYieldValidators'
@@ -101,8 +98,7 @@ const YieldItem = memo(
     const providerOrValidatorInfo = useMemo(() => {
       // For staking yields with validators, show the default validator
       if (requiresValidator && validators?.length) {
-        const chainId = yieldItem.chainId
-        const defaultAddress = chainId ? DEFAULT_NATIVE_VALIDATOR_BY_CHAIN_ID[chainId] : undefined
+        const defaultAddress = getDefaultValidatorForYield(yieldItem.id)
         const defaultValidator = defaultAddress
           ? validators.find(v => v.address === defaultAddress)
           : undefined

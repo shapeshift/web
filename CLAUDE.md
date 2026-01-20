@@ -79,6 +79,13 @@
 - Avoid `let` variable assignments - prefer `const` with inline IIFE switch statements or extract to functions for conditional logic
 - For static JSX icon elements (e.g., `<TbCopy />`) that don't depend on state/props, define them as constants outside the component to avoid re-renders instead of using useMemo
 
+### CLI Tool Preferences
+- Prefer `rg` (ripgrep) over `grep` for searching - it's faster and respects .gitignore
+- Use `jq` for querying and manipulating JSON files instead of reading entire files into context
+  - Example: `jq '.yieldXYZ | keys' src/assets/translations/en/main.json` to list keys
+  - Example: `jq '.someKey.nested' file.json` to extract specific values
+- This is especially important for large JSON files (like generated data or translation files) to avoid context bloat and improve performance
+
 ### Git & Version Control
 - Never commit changes unless explicitly requested
 - When creating commits, follow the Git Safety Protocol (see session notes)

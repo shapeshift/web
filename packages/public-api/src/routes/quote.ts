@@ -14,7 +14,14 @@ import { getAsset, getAssetsById } from '../assets'
 import { DEFAULT_AFFILIATE_BPS } from '../config'
 import { booleanFromString } from '../lib/zod'
 import { createServerSwapperDeps } from '../swapperDeps'
-import type { ApiQuoteStep, ApprovalInfo, ErrorResponse, QuoteResponse } from '../types'
+import type {
+  ApiQuoteStep,
+  ApprovalInfo,
+  ErrorResponse,
+  EvmTransactionData,
+  QuoteResponse,
+  TransactionData,
+} from '../types'
 
 // Lazy load swapper to avoid import issues at module load time
 let swapperModule: Awaited<ReturnType<typeof importSwapperModule>> | null = null
@@ -47,20 +54,36 @@ export const QuoteRequestSchema = z.object({
   accountNumber: z.coerce.number().optional().default(0).openapi({ example: 0 }),
 })
 
-// Helper to extract transaction data from quote step
-const extractTransactionData = (step: TradeQuoteStep): ApiQuoteStep['transactionData'] => {
-  // Check for various swapper-specific transaction metadata
+const getEvmChainIdNumber = (chainId: string): number => {
+  const { chainReference } = fromChainId(chainId)
+  return parseInt(chainReference, 10)
+}
+
+const extractEvmTransactionData = (step: TradeQuoteStep): EvmTransactionData | undefined => {
+  const chainId = getEvmChainIdNumber(step.sellAsset.chainId)
+
   if (step.zrxTransactionMetadata) {
-    return {
+    const txData: EvmTransactionData = {
+      type: 'evm',
+      chainId,
       to: step.zrxTransactionMetadata.to,
       data: step.zrxTransactionMetadata.data,
       value: step.zrxTransactionMetadata.value,
       gasLimit: step.zrxTransactionMetadata.gas,
     }
+    if (step.permit2Eip712) {
+      txData.signatureRequired = {
+        type: 'permit2',
+        eip712: step.permit2Eip712,
+      }
+    }
+    return txData
   }
 
   if (step.portalsTransactionMetadata) {
     return {
+      type: 'evm',
+      chainId,
       to: step.portalsTransactionMetadata.to,
       data: step.portalsTransactionMetadata.data,
       value: step.portalsTransactionMetadata.value,
@@ -70,6 +93,8 @@ const extractTransactionData = (step: TradeQuoteStep): ApiQuoteStep['transaction
 
   if (step.bebopTransactionMetadata) {
     return {
+      type: 'evm',
+      chainId,
       to: step.bebopTransactionMetadata.to,
       data: step.bebopTransactionMetadata.data,
       value: step.bebopTransactionMetadata.value,
@@ -79,6 +104,8 @@ const extractTransactionData = (step: TradeQuoteStep): ApiQuoteStep['transaction
 
   if (step.butterSwapTransactionMetadata) {
     return {
+      type: 'evm',
+      chainId,
       to: step.butterSwapTransactionMetadata.to,
       data: step.butterSwapTransactionMetadata.data,
       value: step.butterSwapTransactionMetadata.value,
@@ -86,8 +113,27 @@ const extractTransactionData = (step: TradeQuoteStep): ApiQuoteStep['transaction
     }
   }
 
-  // For THORChain/MAYAChain and other swappers, transaction is built differently
-  // The consumer will need to use the quote data to build the transaction
+  if (step.relayTransactionMetadata?.to && step.relayTransactionMetadata?.data) {
+    return {
+      type: 'evm',
+      chainId,
+      to: step.relayTransactionMetadata.to,
+      data: step.relayTransactionMetadata.data,
+      value: step.relayTransactionMetadata.value ?? '0',
+      gasLimit: step.relayTransactionMetadata.gasLimit,
+    }
+  }
+
+  return undefined
+}
+
+const extractTransactionData = (step: TradeQuoteStep): TransactionData | undefined => {
+  const { chainNamespace } = fromChainId(step.sellAsset.chainId)
+
+  if (chainNamespace === 'eip155') {
+    return extractEvmTransactionData(step)
+  }
+
   return undefined
 }
 
@@ -269,8 +315,7 @@ export const getQuote = async (req: Request, res: Response): Promise<void> => {
       networkFeeCryptoBaseUnit: firstStep.feeData.networkFeeCryptoBaseUnit,
       steps: quote.steps.map(transformQuoteStep),
       approval: buildApprovalInfo(firstStep, sellAssetId),
-      expiresAt: now + 60_000, // 60 second expiry
-      quote, // Include full quote for advanced consumers
+      expiresAt: now + 60_000,
     }
 
     res.json(response)

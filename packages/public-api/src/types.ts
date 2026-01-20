@@ -1,8 +1,68 @@
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
-import type { SwapperName, TradeQuote, TradeQuoteError, TradeRate } from '@shapeshiftoss/swapper'
+import type { SwapperName, TradeQuoteError } from '@shapeshiftoss/swapper'
 import type { Asset } from '@shapeshiftoss/types'
+import type { TypedData } from 'eip-712'
 
-// Partner configuration
+export type Permit2SignatureRequired = {
+  type: 'permit2'
+  eip712: TypedData
+}
+
+export type EvmTransactionData = {
+  type: 'evm'
+  chainId: number
+  to: string
+  data: string
+  value: string
+  gasLimit?: string
+  signatureRequired?: Permit2SignatureRequired
+}
+
+export type SolanaTransactionData = {
+  type: 'solana'
+  instructions: {
+    programId: string
+    keys: {
+      pubkey: string
+      isSigner: boolean
+      isWritable: boolean
+    }[]
+    data: string
+  }[]
+  addressLookupTableAddresses: string[]
+}
+
+export type UtxoTransactionData = {
+  type: 'utxo'
+  psbt: string
+  sendAddress: string
+  opReturnData?: string
+}
+
+export type CosmosTransactionData = {
+  type: 'cosmos'
+  chainId: string
+  to: string
+  value: string
+  memo?: string
+}
+
+export type CowswapOrderData = {
+  type: 'cowswap'
+  order: unknown
+  signatureRequired: {
+    type: 'eip712'
+    eip712: TypedData
+  }
+}
+
+export type TransactionData =
+  | EvmTransactionData
+  | SolanaTransactionData
+  | UtxoTransactionData
+  | CosmosTransactionData
+  | CowswapOrderData
+
 export type PartnerConfig = {
   id: string
   apiKeyHash: string
@@ -16,7 +76,6 @@ export type PartnerConfig = {
   createdAt: Date
 }
 
-// API Request Types
 export type RatesRequest = {
   sellAssetId: AssetId
   buyAssetId: AssetId
@@ -43,7 +102,6 @@ export type StatusRequest = {
   swapperName: SwapperName
 }
 
-// API Response Types
 export type ApiRate = {
   swapperName: SwapperName
   rate: string
@@ -74,12 +132,7 @@ export type ApiQuoteStep = {
   allowanceContract: string
   estimatedExecutionTimeMs: number | undefined
   source: string
-  transactionData?: {
-    to: string
-    data: string
-    value: string
-    gasLimit?: string
-  }
+  transactionData?: TransactionData
 }
 
 export type ApprovalInfo = {
@@ -107,7 +160,6 @@ export type QuoteResponse = {
   steps: ApiQuoteStep[]
   approval: ApprovalInfo
   expiresAt: number
-  quote: TradeQuote | TradeRate
 }
 
 export type StatusResponse = {
@@ -165,7 +217,6 @@ export type ErrorResponse = {
   details?: unknown
 }
 
-// Extend Express Request to include partner info
 declare global {
   namespace Express {
     interface Request {

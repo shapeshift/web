@@ -3,6 +3,7 @@ import { memo, useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useNavigate } from 'react-router-dom'
 
+import { isYieldDisabled } from '@/lib/yieldxyz/utils'
 import { YieldItem } from '@/pages/Yields/components/YieldItem'
 import { useYieldProviders } from '@/react-queries/queries/yieldxyz/useYieldProviders'
 import { useYields } from '@/react-queries/queries/yieldxyz/useYields'
@@ -26,6 +27,7 @@ export const YieldRelatedMarkets = memo(
       return yields.all
         .filter(y => {
           if (y.id === currentYieldId) return false
+          if (isYieldDisabled(y)) return false
           const inputSymbol = y.inputTokens?.[0]?.symbol || y.token.symbol
           return inputSymbol === tokenSymbol
         })

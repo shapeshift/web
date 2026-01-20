@@ -5,6 +5,7 @@ import { useMemo } from 'react'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { DEFAULT_NATIVE_VALIDATOR_BY_CHAIN_ID } from '@/lib/yieldxyz/constants'
 import type { AugmentedYieldDto } from '@/lib/yieldxyz/types'
+import { isYieldDisabled } from '@/lib/yieldxyz/utils'
 import { useAllYieldBalances } from '@/react-queries/queries/yieldxyz/useAllYieldBalances'
 import { useYields } from '@/react-queries/queries/yieldxyz/useYields'
 import type { AggregatedOpportunitiesByAssetIdReturn } from '@/state/slices/opportunitiesSlice/types'
@@ -46,11 +47,7 @@ export const useYieldAsOpportunities = (
       if (!inputAssetId) return
 
       const hasBalance = bnOrZero(yieldBalancesData?.aggregated[yieldItem.id]?.totalUsd).gt(0)
-      const isDisabled =
-        !yieldItem.status.enter ||
-        yieldItem.metadata.underMaintenance ||
-        yieldItem.metadata.deprecated
-      if (isDisabled && !hasBalance) return
+      if (isYieldDisabled(yieldItem) && !hasBalance) return
 
       if (!aggregatedByAssetId[inputAssetId]) {
         aggregatedByAssetId[inputAssetId] = {

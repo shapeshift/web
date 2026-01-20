@@ -27,6 +27,7 @@ import { bnOrZero, positiveOrZero } from '@/lib/bignumber/bignumber'
 import { fromBaseUnit } from '@/lib/math'
 import { enterYield } from '@/lib/yieldxyz/api'
 import { DEFAULT_NATIVE_VALIDATOR_BY_CHAIN_ID } from '@/lib/yieldxyz/constants'
+import { isYieldDisabled } from '@/lib/yieldxyz/utils'
 import { useYields } from '@/react-queries/queries/yieldxyz/useYields'
 import { useYieldValidators } from '@/react-queries/queries/yieldxyz/useYieldValidators'
 import {
@@ -390,9 +391,7 @@ export const EarnInput = memo(
     const yieldsForAsset = useMemo(() => {
       if (!sellAsset?.assetId || !yieldsData?.byInputAssetId) return []
       const allYields = yieldsData.byInputAssetId[sellAsset.assetId] ?? []
-      return allYields.filter(
-        y => y.status.enter && !y.metadata.underMaintenance && !y.metadata.deprecated,
-      )
+      return allYields.filter(y => !isYieldDisabled(y))
     }, [sellAsset?.assetId, yieldsData?.byInputAssetId])
 
     const defaultYieldForAsset = useMemo(() => {

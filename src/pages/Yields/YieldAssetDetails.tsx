@@ -35,7 +35,7 @@ import {
   YIELD_NETWORK_TO_CHAIN_ID,
 } from '@/lib/yieldxyz/constants'
 import type { AugmentedYieldDto, YieldNetwork } from '@/lib/yieldxyz/types'
-import { resolveYieldInputAssetIcon } from '@/lib/yieldxyz/utils'
+import { isYieldDisabled, resolveYieldInputAssetIcon } from '@/lib/yieldxyz/utils'
 import { GradientApy } from '@/pages/Yields/components/GradientApy'
 import { YieldFilters } from '@/pages/Yields/components/YieldFilters'
 import { YieldItem, YieldItemSkeleton } from '@/pages/Yields/components/YieldItem'
@@ -201,8 +201,7 @@ export const YieldAssetDetails = memo(() => {
   const filteredYields = useMemo(
     () =>
       assetYields.filter(y => {
-        const isDisabled = !y.status.enter || y.metadata.underMaintenance || y.metadata.deprecated
-        if (isDisabled) {
+        if (isYieldDisabled(y)) {
           const balances = allBalances?.[y.id]
           const hasBalance =
             balances &&
@@ -330,7 +329,7 @@ export const YieldAssetDetails = memo(() => {
         meta: { display: { base: 'none', md: 'table-cell' } },
       },
       {
-        header: translate('yieldXYZ.yourBalance'),
+        header: translate('yieldXYZ.balance'),
         id: 'balance',
         accessorFn: row => {
           const balances = allBalances?.[row.id]

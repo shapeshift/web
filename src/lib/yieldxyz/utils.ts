@@ -337,3 +337,8 @@ export const getYieldSuccessMessageKey = (
       return assertNever(yieldType)
   }
 }
+
+export const isYieldDisabled = (
+  yieldItem: Pick<AugmentedYieldDto, 'status' | 'metadata'>,
+): boolean =>
+  !yieldItem.status.enter || yieldItem.metadata.underMaintenance || yieldItem.metadata.deprecated

@@ -2,6 +2,8 @@ import { useCallback, useMemo, useState } from 'react'
 import { Route, Routes } from 'react-router-dom'
 
 import { PairBody } from '../components/PairBody'
+import { TrezorCallback } from './TrezorCallback'
+import { TrezorDeepLinkTest } from './TrezorDeepLinkTest'
 
 import { TrezorIcon } from '@/components/Icons/TrezorIcon'
 import { WalletActions } from '@/context/WalletProvider/actions'
@@ -73,6 +75,8 @@ export const TrezorRoutes = () => {
 
   return (
     <Routes>
+      <Route path='/callback' element={<TrezorCallback />} />
+      <Route path='/test' element={<TrezorDeepLinkTest />} />
       <Route path='/*' element={pairBody} />
     </Routes>
   )

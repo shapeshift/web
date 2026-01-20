@@ -41,6 +41,26 @@ const MobileConnect = makeSuspenseful(
   ),
 )
 
+const TrezorDeepLinkTest = makeSuspenseful(
+  lazy(() =>
+    import('@/context/WalletProvider/NewWalletViews/routes/TrezorDeepLinkTest').then(
+      ({ TrezorDeepLinkTest }) => ({
+        default: TrezorDeepLinkTest,
+      }),
+    ),
+  ),
+)
+
+const TrezorCallback = makeSuspenseful(
+  lazy(() =>
+    import('@/context/WalletProvider/NewWalletViews/routes/TrezorCallback').then(
+      ({ TrezorCallback }) => ({
+        default: TrezorCallback,
+      }),
+    ),
+  ),
+)
+
 const tradeRedirect = <Navigate to={TradeRoutePaths.Input} replace />
 const walletEarnRedirect = <Navigate to='/wallet/earn' replace />
 
@@ -160,6 +180,22 @@ export const AppRoutes = memo(() => {
         element={
           <Layout>
             <Flags />
+          </Layout>
+        }
+      />
+      <Route
+        path='/trezor-test'
+        element={
+          <Layout>
+            <TrezorDeepLinkTest />
+          </Layout>
+        }
+      />
+      <Route
+        path='/trezor/callback'
+        element={
+          <Layout>
+            <TrezorCallback />
           </Layout>
         }
       />

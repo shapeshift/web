@@ -146,6 +146,26 @@ const extractEvmTransactionData = (step: TradeQuoteStep): EvmTransactionData | u
     }
   }
 
+  if (step.chainflipSpecific?.chainflipDepositAddress) {
+    return {
+      type: 'evm',
+      chainId,
+      to: step.chainflipSpecific.chainflipDepositAddress,
+      data: '0x',
+      value: step.sellAmountIncludingProtocolFeesCryptoBaseUnit,
+    }
+  }
+
+  if (step.nearIntentsSpecific?.depositAddress) {
+    return {
+      type: 'evm',
+      chainId,
+      to: step.nearIntentsSpecific.depositAddress,
+      data: '0x',
+      value: step.sellAmountIncludingProtocolFeesCryptoBaseUnit,
+    }
+  }
+
   return undefined
 }
 

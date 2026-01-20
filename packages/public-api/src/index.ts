@@ -1,92 +1,85 @@
-import "./setupZod";
+import './setupZod'
 
-import cors from "cors";
-import express from "express";
+import cors from 'cors'
+import express from 'express'
 
-import { initAssets } from "./assets";
-import { API_HOST, API_PORT } from "./config";
-import { apiKeyAuth, optionalApiKeyAuth } from "./middleware/auth";
-import { getAssetById, getAssetCount, getAssets } from "./routes/assets";
-import { getChainCount, getChains } from "./routes/chains";
-import { docsRouter } from "./routes/docs";
-import { getQuote } from "./routes/quote";
-import { getRates } from "./routes/rates";
+import { initAssets } from './assets'
+import { API_HOST, API_PORT } from './config'
+import { apiKeyAuth, optionalApiKeyAuth } from './middleware/auth'
+import { getAssetById, getAssetCount, getAssets } from './routes/assets'
+import { getChainCount, getChains } from './routes/chains'
+import { docsRouter } from './routes/docs'
+import { getQuote } from './routes/quote'
+import { getRates } from './routes/rates'
 
-const app = express();
+const app = express()
 
 // Middleware
-app.use(cors());
-app.use(express.json());
+app.use(cors())
+app.use(express.json())
 
 // Root endpoint - API info
-app.get("/", (_req, res) => {
+app.get('/', (_req, res) => {
   res.json({
-    name: "ShapeShift API",
-    version: "1.0.0",
-    description: "Decentralized swap and asset discovery API",
-    documentation: "/docs",
+    name: 'ShapeShift API',
+    version: '1.0.0',
+    description: 'Decentralized swap and asset discovery API',
+    documentation: '/docs',
     endpoints: {
-      health: "GET /health",
-      chains: "GET /v1/chains",
-      chainCount: "GET /v1/chains/count",
-      assets: "GET /v1/assets",
-      assetCount: "GET /v1/assets/count",
-      assetById: "GET /v1/assets/:assetId",
-      swapRates: "GET /v1/swap/rates",
-      swapQuote: "POST /v1/swap/quote",
+      health: 'GET /health',
+      chains: 'GET /v1/chains',
+      chainCount: 'GET /v1/chains/count',
+      assets: 'GET /v1/assets',
+      assetCount: 'GET /v1/assets/count',
+      assetById: 'GET /v1/assets/:assetId',
+      swapRates: 'GET /v1/swap/rates',
+      swapQuote: 'POST /v1/swap/quote',
     },
-  });
-});
+  })
+})
 
 // Health check (no auth required)
-app.get("/health", (_req, res) => {
-  res.json({ status: "ok", timestamp: Date.now() });
-});
+app.get('/health', (_req, res) => {
+  res.json({ status: 'ok', timestamp: Date.now() })
+})
 
 // API v1 routes
-const v1Router = express.Router();
+const v1Router = express.Router()
 
 // Swap endpoints (require API key)
-v1Router.get("/swap/rates", apiKeyAuth, getRates);
-v1Router.post("/swap/quote", apiKeyAuth, getQuote);
+v1Router.get('/swap/rates', apiKeyAuth, getRates)
+v1Router.post('/swap/quote', apiKeyAuth, getQuote)
 
 // Chain endpoints (optional auth)
-v1Router.get("/chains", optionalApiKeyAuth, getChains);
-v1Router.get("/chains/count", optionalApiKeyAuth, getChainCount);
+v1Router.get('/chains', optionalApiKeyAuth, getChains)
+v1Router.get('/chains/count', optionalApiKeyAuth, getChainCount)
 
 // Asset endpoints (optional auth)
-v1Router.get("/assets", optionalApiKeyAuth, getAssets);
-v1Router.get("/assets/count", optionalApiKeyAuth, getAssetCount);
-v1Router.get("/assets/:assetId(*)", optionalApiKeyAuth, getAssetById);
+v1Router.get('/assets', optionalApiKeyAuth, getAssets)
+v1Router.get('/assets/count', optionalApiKeyAuth, getAssetCount)
+v1Router.get('/assets/:assetId(*)', optionalApiKeyAuth, getAssetById)
 
-app.use("/v1", v1Router);
-app.use("/docs", docsRouter);
+app.use('/v1', v1Router)
+app.use('/docs', docsRouter)
 
 // 404 handler
 app.use((_req, res) => {
-  res.status(404).json({ error: "Not found" });
-});
+  res.status(404).json({ error: 'Not found' })
+})
 
 // Error handler
-app.use(
-  (
-    err: Error,
-    _req: express.Request,
-    res: express.Response,
-    _next: express.NextFunction,
-  ) => {
-    console.error("Unhandled error:", err);
-    res.status(500).json({ error: "Internal server error" });
-  },
-);
+app.use((err: Error, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
+  console.error('Unhandled error:', err)
+  res.status(500).json({ error: 'Internal server error' })
+})
 
 // Start server
 const startServer = async () => {
-  console.log("Initializing assets...");
-  await initAssets();
+  console.log('Initializing assets...')
+  await initAssets()
 
   app.listen(API_PORT, API_HOST, () => {
-    console.log(`Public API server running at http://${API_HOST}:${API_PORT}`);
+    console.log(`Public API server running at http://${API_HOST}:${API_PORT}`)
     console.log(`
 Available endpoints:
   GET  /health                    - Health check
@@ -101,8 +94,8 @@ Available endpoints:
 Authentication:
   Include 'X-API-Key' header with your API key for /v1/swap/* endpoints.
   Test API key: test-api-key-123
-    `);
-  });
-};
+    `)
+  })
+}
 
-startServer().catch(console.error);
+startServer().catch(console.error)

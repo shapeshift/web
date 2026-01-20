@@ -1,68 +1,59 @@
-import "../setupZod";
+import '../setupZod'
 
-import {
-  OpenApiGeneratorV3,
-  OpenAPIRegistry,
-} from "@asteasolutions/zod-to-openapi";
-import { z } from "zod";
+import { OpenApiGeneratorV3, OpenAPIRegistry } from '@asteasolutions/zod-to-openapi'
+import { z } from 'zod'
 
-import { AssetRequestSchema, AssetsListRequestSchema } from "../routes/assets";
-import { QuoteRequestSchema } from "../routes/quote";
-import { RatesRequestSchema } from "../routes/rates";
+import { AssetRequestSchema, AssetsListRequestSchema } from '../routes/assets'
+import { QuoteRequestSchema } from '../routes/quote'
+import { RatesRequestSchema } from '../routes/rates'
 
-export const registry = new OpenAPIRegistry();
+export const registry = new OpenAPIRegistry()
 
 // Register reusable schemas
 // We should probably define the response schemas with Zod too, but for now we'll do best effort with the request schemas
 // and basic response structures.
 
 // Security Schemes
-registry.registerComponent("securitySchemes", "apiKeyAuth", {
-  type: "apiKey",
-  in: "header",
-  name: "X-API-Key",
-});
+registry.registerComponent('securitySchemes', 'apiKeyAuth', {
+  type: 'apiKey',
+  in: 'header',
+  name: 'X-API-Key',
+})
 
 // --- Definitions ---
 
 // Asset
 const AssetSchema = registry.register(
-  "Asset",
+  'Asset',
   z.object({
-    assetId: z.string().openapi({ example: "eip155:1/slip44:60" }),
-    chainId: z.string().openapi({ example: "eip155:1" }),
-    name: z.string().openapi({ example: "Ethereum" }),
-    symbol: z.string().openapi({ example: "ETH" }),
+    assetId: z.string().openapi({ example: 'eip155:1/slip44:60' }),
+    chainId: z.string().openapi({ example: 'eip155:1' }),
+    name: z.string().openapi({ example: 'Ethereum' }),
+    symbol: z.string().openapi({ example: 'ETH' }),
     precision: z.number().openapi({ example: 18 }),
-    color: z.string().openapi({ example: "#5C6BC0" }),
+    color: z.string().openapi({ example: '#5C6BC0' }),
     icon: z.string().openapi({
-      example: "https://assets.coincap.io/assets/icons/eth@2x.png",
+      example: 'https://assets.coincap.io/assets/icons/eth@2x.png',
     }),
-    explorer: z.string().openapi({ example: "https://etherscan.io" }),
-    explorerAddressLink: z
-      .string()
-      .openapi({ example: "https://etherscan.io/address/" }),
-    explorerTxLink: z.string().openapi({ example: "https://etherscan.io/tx/" }),
+    explorer: z.string().openapi({ example: 'https://etherscan.io' }),
+    explorerAddressLink: z.string().openapi({ example: 'https://etherscan.io/address/' }),
+    explorerTxLink: z.string().openapi({ example: 'https://etherscan.io/tx/' }),
   }),
-);
+)
 
 // Quote Response Step
 const QuoteStepSchema = registry.register(
-  "QuoteStep",
+  'QuoteStep',
   z.object({
     sellAsset: AssetSchema,
     buyAsset: AssetSchema,
-    sellAmountCryptoBaseUnit: z
-      .string()
-      .openapi({ example: "1000000000000000000" }),
-    buyAmountAfterFeesCryptoBaseUnit: z
-      .string()
-      .openapi({ example: "995000000" }),
+    sellAmountCryptoBaseUnit: z.string().openapi({ example: '1000000000000000000' }),
+    buyAmountAfterFeesCryptoBaseUnit: z.string().openapi({ example: '995000000' }),
     allowanceContract: z
       .string()
-      .openapi({ example: "0xdef1c0ded9bec7f1a1670819833240f027b25eff" }),
+      .openapi({ example: '0xdef1c0ded9bec7f1a1670819833240f027b25eff' }),
     estimatedExecutionTimeMs: z.number().optional().openapi({ example: 60000 }),
-    source: z.string().openapi({ example: "0x" }),
+    source: z.string().openapi({ example: '0x' }),
     transactionData: z
       .object({
         to: z.string(),
@@ -72,72 +63,67 @@ const QuoteStepSchema = registry.register(
       })
       .optional(),
   }),
-);
+)
 
 // Quote Response
 const QuoteResponseSchema = registry.register(
-  "QuoteResponse",
+  'QuoteResponse',
   z.object({
     quoteId: z.string().uuid(),
-    swapperName: z.string().openapi({ example: "0x" }),
-    rate: z.string().openapi({ example: "0.995" }),
+    swapperName: z.string().openapi({ example: '0x' }),
+    rate: z.string().openapi({ example: '0.995' }),
     sellAsset: AssetSchema,
     buyAsset: AssetSchema,
     sellAmountCryptoBaseUnit: z.string(),
     buyAmountBeforeFeesCryptoBaseUnit: z.string(),
     buyAmountAfterFeesCryptoBaseUnit: z.string(),
-    affiliateBps: z.string().openapi({ example: "10" }),
-    slippageTolerancePercentageDecimal: z
-      .string()
-      .optional()
-      .openapi({ example: "0.01" }),
+    affiliateBps: z.string().openapi({ example: '10' }),
+    slippageTolerancePercentageDecimal: z.string().optional().openapi({ example: '0.01' }),
     steps: z.array(QuoteStepSchema),
     expiresAt: z.number(),
   }),
-);
+)
 
 const ChainTypeSchema = z.enum([
-  "evm",
-  "utxo",
-  "cosmos",
-  "solana",
-  "tron",
-  "sui",
-  "near",
-  "starknet",
-  "ton",
-]);
+  'evm',
+  'utxo',
+  'cosmos',
+  'solana',
+  'tron',
+  'sui',
+  'near',
+  'starknet',
+  'ton',
+])
 
 const ChainSchema = registry.register(
-  "Chain",
+  'Chain',
   z.object({
-    chainId: z.string().openapi({ example: "eip155:1" }),
-    name: z.string().openapi({ example: "Ethereum" }),
-    type: ChainTypeSchema.openapi({ example: "evm" }),
-    symbol: z.string().openapi({ example: "ETH" }),
+    chainId: z.string().openapi({ example: 'eip155:1' }),
+    name: z.string().openapi({ example: 'Ethereum' }),
+    type: ChainTypeSchema.openapi({ example: 'evm' }),
+    symbol: z.string().openapi({ example: 'ETH' }),
     precision: z.number().openapi({ example: 18 }),
-    color: z.string().openapi({ example: "#5C6BC0" }),
-    networkColor: z.string().optional().openapi({ example: "#5C6BC0" }),
+    color: z.string().openapi({ example: '#5C6BC0' }),
+    networkColor: z.string().optional().openapi({ example: '#5C6BC0' }),
     icon: z.string().optional().openapi({
       example:
-        "https://rawcdn.githack.com/trustwallet/assets/32e51d582a890b3dd3135fe3ee7c20c2fd699a6d/blockchains/ethereum/info/logo.png",
+        'https://rawcdn.githack.com/trustwallet/assets/32e51d582a890b3dd3135fe3ee7c20c2fd699a6d/blockchains/ethereum/info/logo.png',
     }),
     networkIcon: z.string().optional().openapi({
       example:
-        "https://rawcdn.githack.com/trustwallet/assets/32e51d582a890b3dd3135fe3ee7c20c2fd699a6d/blockchains/ethereum/info/logo.png",
+        'https://rawcdn.githack.com/trustwallet/assets/32e51d582a890b3dd3135fe3ee7c20c2fd699a6d/blockchains/ethereum/info/logo.png',
     }),
-    explorer: z.string().openapi({ example: "https://etherscan.io" }),
-    explorerAddressLink: z
-      .string()
-      .openapi({ example: "https://etherscan.io/address/" }),
-    explorerTxLink: z.string().openapi({ example: "https://etherscan.io/tx/" }),
-    nativeAssetId: z.string().openapi({ example: "eip155:1/slip44:60" }),
+    explorer: z.string().openapi({ example: 'https://etherscan.io' }),
+    explorerAddressLink: z.string().openapi({ example: 'https://etherscan.io/address/' }),
+    explorerTxLink: z.string().openapi({ example: 'https://etherscan.io/tx/' }),
+    nativeAssetId: z.string().openapi({ example: 'eip155:1/slip44:60' }),
   }),
-);
+)
 
 // Rate Response
 const RateResponseSchema = registry.register(
-  "RateResponse",
+  'RateResponse',
   z.object({
     rates: z.array(
       z.object({
@@ -161,22 +147,21 @@ const RateResponseSchema = registry.register(
     timestamp: z.number(),
     expiresAt: z.number(),
   }),
-);
+)
 
 // --- Paths ---
 
 registry.registerPath({
-  method: "get",
-  path: "/v1/chains",
-  summary: "List supported chains",
-  description:
-    "Get a list of all supported blockchain networks, sorted alphabetically by name.",
-  tags: ["Chains"],
+  method: 'get',
+  path: '/v1/chains',
+  summary: 'List supported chains',
+  description: 'Get a list of all supported blockchain networks, sorted alphabetically by name.',
+  tags: ['Chains'],
   responses: {
     200: {
-      description: "List of chains",
+      description: 'List of chains',
       content: {
-        "application/json": {
+        'application/json': {
           schema: z.object({
             chains: z.array(ChainSchema),
             timestamp: z.number(),
@@ -185,19 +170,19 @@ registry.registerPath({
       },
     },
   },
-});
+})
 
 registry.registerPath({
-  method: "get",
-  path: "/v1/chains/count",
-  summary: "Get chain count",
-  description: "Get the total number of supported blockchain networks.",
-  tags: ["Chains"],
+  method: 'get',
+  path: '/v1/chains/count',
+  summary: 'Get chain count',
+  description: 'Get the total number of supported blockchain networks.',
+  tags: ['Chains'],
   responses: {
     200: {
-      description: "Chain count",
+      description: 'Chain count',
       content: {
-        "application/json": {
+        'application/json': {
           schema: z.object({
             count: z.number().openapi({ example: 28 }),
             timestamp: z.number(),
@@ -206,24 +191,23 @@ registry.registerPath({
       },
     },
   },
-});
+})
 
 // GET /v1/assets
 registry.registerPath({
-  method: "get",
-  path: "/v1/assets",
-  summary: "List supported assets",
-  description:
-    "Get a list of all supported assets, optionally filtered by chain.",
-  tags: ["Assets"],
+  method: 'get',
+  path: '/v1/assets',
+  summary: 'List supported assets',
+  description: 'Get a list of all supported assets, optionally filtered by chain.',
+  tags: ['Assets'],
   request: {
     query: AssetsListRequestSchema,
   },
   responses: {
     200: {
-      description: "List of assets",
+      description: 'List of assets',
       content: {
-        "application/json": {
+        'application/json': {
           schema: z.object({
             assets: z.array(AssetSchema),
             timestamp: z.number(),
@@ -232,73 +216,73 @@ registry.registerPath({
       },
     },
   },
-});
+})
 
 // GET /v1/assets/{assetId}
 registry.registerPath({
-  method: "get",
-  path: "/v1/assets/{assetId}",
-  summary: "Get asset by ID",
-  description: "Get details of a specific asset by its ID (URL encoded).",
-  tags: ["Assets"],
+  method: 'get',
+  path: '/v1/assets/{assetId}',
+  summary: 'Get asset by ID',
+  description: 'Get details of a specific asset by its ID (URL encoded).',
+  tags: ['Assets'],
   request: {
     params: AssetRequestSchema,
   },
   responses: {
     200: {
-      description: "Asset details",
+      description: 'Asset details',
       content: {
-        "application/json": {
+        'application/json': {
           schema: AssetSchema,
         },
       },
     },
     404: {
-      description: "Asset not found",
+      description: 'Asset not found',
     },
   },
-});
+})
 
 // GET /v1/swap/rates
 registry.registerPath({
-  method: "get",
-  path: "/v1/swap/rates",
-  summary: "Get swap rates",
+  method: 'get',
+  path: '/v1/swap/rates',
+  summary: 'Get swap rates',
   description:
-    "Get informative swap rates from all available swappers. This does not create a transaction.",
-  tags: ["Swaps"],
+    'Get informative swap rates from all available swappers. This does not create a transaction.',
+  tags: ['Swaps'],
   security: [{ apiKeyAuth: [] }],
   request: {
     query: RatesRequestSchema,
   },
   responses: {
     200: {
-      description: "Swap rates",
+      description: 'Swap rates',
       content: {
-        "application/json": {
+        'application/json': {
           schema: RateResponseSchema,
         },
       },
     },
     400: {
-      description: "Invalid request",
+      description: 'Invalid request',
     },
   },
-});
+})
 
 // POST /v1/swap/quote
 registry.registerPath({
-  method: "post",
-  path: "/v1/swap/quote",
-  summary: "Get executable quote",
+  method: 'post',
+  path: '/v1/swap/quote',
+  summary: 'Get executable quote',
   description:
-    "Get an executable quote for a swap, including transaction data. Requires a specific swapper name.",
-  tags: ["Swaps"],
+    'Get an executable quote for a swap, including transaction data. Requires a specific swapper name.',
+  tags: ['Swaps'],
   security: [{ apiKeyAuth: [] }],
   request: {
     body: {
       content: {
-        "application/json": {
+        'application/json': {
           schema: QuoteRequestSchema,
         },
       },
@@ -306,27 +290,27 @@ registry.registerPath({
   },
   responses: {
     200: {
-      description: "Swap quote",
+      description: 'Swap quote',
       content: {
-        "application/json": {
+        'application/json': {
           schema: QuoteResponseSchema,
         },
       },
     },
     400: {
-      description: "Invalid request or unavailable swapper",
+      description: 'Invalid request or unavailable swapper',
     },
   },
-});
+})
 
 export const generateOpenApiDocument = () => {
-  const generator = new OpenApiGeneratorV3(registry.definitions);
+  const generator = new OpenApiGeneratorV3(registry.definitions)
 
   return generator.generateDocument({
-    openapi: "3.0.0",
+    openapi: '3.0.0',
     info: {
-      version: "1.0.0",
-      title: "ShapeShift Public API",
+      version: '1.0.0',
+      title: 'ShapeShift Public API',
       description: `The ShapeShift Public API enables developers to integrate multi-chain swap functionality into their applications. Access rates from multiple DEX aggregators and execute swaps across supported blockchains.
 
 ## Integration Overview
@@ -377,9 +361,6 @@ Assets use CAIP-19 format: \`{chainId}/{assetNamespace}:{assetReference}\`
 - Native BTC: \`bip122:000000000019d6689c085ae165831e93/slip44:0\`
 `,
     },
-    servers: [
-      { url: "https://api.shapeshift.com" },
-      { url: "http://localhost:3001" },
-    ],
-  });
-};
+    servers: [{ url: 'https://api.shapeshift.com' }, { url: 'http://localhost:3001' }],
+  })
+}

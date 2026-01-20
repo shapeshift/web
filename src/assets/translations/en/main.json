@@ -2672,9 +2672,7 @@
   "yieldXYZ": {
     "pageTitle": "Yields",
     "pageSubtitle": "Discover and manage yield opportunities across multiple chains",
-    "actions": {
-      "restake": "Restake"
-    },
+    "actions": {},
     "yield": "Yield",
     "apy": "APY",
     "apr": "APR",
@@ -2770,7 +2768,6 @@
     "successUnstaked": "You successfully unstaked %{amount} %{symbol}",
     "successDeposited": "You successfully deposited %{amount} %{symbol}",
     "successWithdrawn": "You successfully withdrew %{amount} %{symbol}",
-    "successRestaked": "You successfully restaked %{amount} %{symbol}",
     "successClaim": "You successfully claimed %{amount} %{symbol}",
     "viewPosition": "View Position",
     "via": "via",

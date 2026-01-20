@@ -278,9 +278,9 @@ describe('getYieldActionLabelKeys', () => {
     })
   })
 
-  it('should return restake/unstake for restaking yield types', () => {
+  it('should return stake/unstake for restaking yield types', () => {
     expect(getYieldActionLabelKeys('restaking')).toEqual({
-      enter: 'yieldXYZ.actions.restake',
+      enter: 'defi.stake',
       exit: 'defi.unstake',
     })
   })
@@ -344,8 +344,8 @@ describe('getYieldSuccessMessageKey', () => {
     expect(getYieldSuccessMessageKey('pooled-staking', 'enter')).toBe('successStaked')
   })
 
-  it('should return restake success key for restaking enter', () => {
-    expect(getYieldSuccessMessageKey('restaking', 'enter')).toBe('successRestaked')
+  it('should return staking success key for restaking yield types', () => {
+    expect(getYieldSuccessMessageKey('restaking', 'enter')).toBe('successStaked')
     expect(getYieldSuccessMessageKey('restaking', 'exit')).toBe('successUnstaked')
   })
 

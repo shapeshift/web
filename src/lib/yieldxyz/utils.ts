@@ -208,8 +208,7 @@ const assertNever = (value: never): never => {
  * Gets the appropriate translation keys for yield actions based on yield type.
  *
  * Yield types and their terminology:
- * - staking, native-staking, pooled-staking, liquid-staking → Stake/Unstake
- * - restaking → Restake/Unstake
+ * - staking, native-staking, pooled-staking, liquid-staking, restaking → Stake/Unstake
  * - vault, lending → Deposit/Withdraw
  */
 export const getYieldActionLabelKeys = (yieldType: YieldType): YieldActionLabelKeys => {
@@ -218,9 +217,8 @@ export const getYieldActionLabelKeys = (yieldType: YieldType): YieldActionLabelK
     case 'native-staking':
     case 'pooled-staking':
     case 'liquid-staking':
-      return { enter: 'defi.stake', exit: 'defi.unstake' }
     case 'restaking':
-      return { enter: 'yieldXYZ.actions.restake', exit: 'defi.unstake' }
+      return { enter: 'defi.stake', exit: 'defi.unstake' }
     case 'vault':
     case 'lending':
       return { enter: 'common.deposit', exit: 'common.withdraw' }
@@ -317,7 +315,6 @@ export type YieldSuccessMessageKey =
   | 'successUnstaked'
   | 'successDeposited'
   | 'successWithdrawn'
-  | 'successRestaked'
   | 'successClaim'
 
 export const getYieldSuccessMessageKey = (
@@ -331,9 +328,8 @@ export const getYieldSuccessMessageKey = (
     case 'native-staking':
     case 'pooled-staking':
     case 'liquid-staking':
-      return action === 'enter' ? 'successStaked' : 'successUnstaked'
     case 'restaking':
-      return action === 'enter' ? 'successRestaked' : 'successUnstaked'
+      return action === 'enter' ? 'successStaked' : 'successUnstaked'
     case 'vault':
     case 'lending':
       return action === 'enter' ? 'successDeposited' : 'successWithdrawn'

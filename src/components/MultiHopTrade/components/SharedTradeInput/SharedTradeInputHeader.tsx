@@ -61,12 +61,21 @@ export const SharedTradeInputHeader = ({
 
   const isSwapOrLimit =
     selectedTab === TradeInputTab.Trade || selectedTab === TradeInputTab.LimitOrder
+  const isBuyOrSell =
+    selectedTab === TradeInputTab.BuyFiat || selectedTab === TradeInputTab.SellFiat
   const showOrderTypeSwitcher = enableLimitOrders && !isStandalone && isSwapOrLimit
+  const showBuySellSwitcher = enableSwapperFiatRamps && !isStandalone && isBuyOrSell
 
   const orderTypeLabel = useMemo(() => {
     return selectedTab === TradeInputTab.LimitOrder
       ? translate('limitOrder.heading')
       : translate('navBar.market')
+  }, [selectedTab, translate])
+
+  const buySellLabel = useMemo(() => {
+    return selectedTab === TradeInputTab.SellFiat
+      ? translate('fiatRamps.sell')
+      : translate('fiatRamps.buy')
   }, [selectedTab, translate])
 
   const handleChangeTab = useCallback(
@@ -101,6 +110,14 @@ export const SharedTradeInputHeader = ({
     handleChangeTab(TradeInputTab.SellFiat)
   }, [handleChangeTab])
 
+  const handleToggleBuySell = useCallback(() => {
+    if (selectedTab === TradeInputTab.SellFiat) {
+      handleChangeTab(TradeInputTab.BuyFiat)
+    } else {
+      handleChangeTab(TradeInputTab.SellFiat)
+    }
+  }, [selectedTab, handleChangeTab])
+
   const handleClickEarn = useCallback(() => {
     handleChangeTab(TradeInputTab.Earn)
   }, [handleChangeTab])
@@ -133,22 +150,11 @@ export const SharedTradeInputHeader = ({
               <Heading
                 as='h5'
                 fontSize='md'
-                color={selectedTab !== TradeInputTab.BuyFiat ? 'text.subtle' : undefined}
+                color={!isBuyOrSell ? 'text.subtle' : undefined}
                 onClick={handleClickBuyFiat}
-                cursor={selectedTab !== TradeInputTab.BuyFiat ? 'pointer' : undefined}
+                cursor={!isBuyOrSell ? 'pointer' : undefined}
               >
-                {translate('fiatRamps.buy')}
-              </Heading>
-            )}
-            {enableSwapperFiatRamps && !isStandalone && (
-              <Heading
-                as='h5'
-                fontSize='md'
-                color={selectedTab !== TradeInputTab.SellFiat ? 'text.subtle' : undefined}
-                onClick={handleClickSellFiat}
-                cursor={selectedTab !== TradeInputTab.SellFiat ? 'pointer' : undefined}
-              >
-                {translate('fiatRamps.sell')}
+                {translate('navBar.buyCryptoShort')}
               </Heading>
             )}
             {enableEarnTab && !isStandalone && (
@@ -181,6 +187,24 @@ export const SharedTradeInputHeader = ({
               onClick={handleToggleOrderType}
             >
               {orderTypeLabel}
+            </Button>
+            <Divider borderColor='border.subtle' />
+          </Flex>
+        )}
+        {showBuySellSwitcher && (
+          <Flex alignItems='center' mt={4}>
+            <Divider borderColor='border.subtle' />
+            <Button
+              variant='outline'
+              size='sm'
+              borderRadius='full'
+              px={4}
+              flexShrink={0}
+              rightIcon={selectorIcon}
+              fontWeight='medium'
+              onClick={handleToggleBuySell}
+            >
+              {buySellLabel}
             </Button>
             <Divider borderColor='border.subtle' />
           </Flex>

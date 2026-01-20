@@ -7,6 +7,7 @@ import { initAssets } from './assets'
 import { API_HOST, API_PORT } from './config'
 import { apiKeyAuth, optionalApiKeyAuth } from './middleware/auth'
 import { getAssetById, getAssetCount, getAssets } from './routes/assets'
+import { getChainCount, getChains } from './routes/chains'
 import { docsRouter } from './routes/docs'
 import { getQuote } from './routes/quote'
 import { getRates } from './routes/rates'
@@ -26,6 +27,8 @@ app.get('/', (_req, res) => {
     documentation: '/docs',
     endpoints: {
       health: 'GET /health',
+      chains: 'GET /v1/chains',
+      chainCount: 'GET /v1/chains/count',
       assets: 'GET /v1/assets',
       assetCount: 'GET /v1/assets/count',
       assetById: 'GET /v1/assets/:assetId',
@@ -46,6 +49,10 @@ const v1Router = express.Router()
 // Swap endpoints (require API key)
 v1Router.get('/swap/rates', apiKeyAuth, getRates)
 v1Router.post('/swap/quote', apiKeyAuth, getQuote)
+
+// Chain endpoints (optional auth)
+v1Router.get('/chains', optionalApiKeyAuth, getChains)
+v1Router.get('/chains/count', optionalApiKeyAuth, getChainCount)
 
 // Asset endpoints (optional auth)
 v1Router.get('/assets', optionalApiKeyAuth, getAssets)
@@ -76,6 +83,8 @@ const startServer = async () => {
     console.log(`
 Available endpoints:
   GET  /health                    - Health check
+  GET  /v1/chains                 - List supported chains
+  GET  /v1/chains/count           - Get chain count
   GET  /v1/swap/rates             - Get swap rates from all swappers
   POST /v1/swap/quote             - Get executable quote with tx data
   GET  /v1/assets                 - List supported assets

@@ -84,6 +84,43 @@ const QuoteResponseSchema = registry.register(
   }),
 )
 
+const ChainTypeSchema = z.enum([
+  'evm',
+  'utxo',
+  'cosmos',
+  'solana',
+  'tron',
+  'sui',
+  'near',
+  'starknet',
+  'ton',
+])
+
+const ChainSchema = registry.register(
+  'Chain',
+  z.object({
+    chainId: z.string().openapi({ example: 'eip155:1' }),
+    name: z.string().openapi({ example: 'Ethereum' }),
+    type: ChainTypeSchema.openapi({ example: 'evm' }),
+    symbol: z.string().openapi({ example: 'ETH' }),
+    precision: z.number().openapi({ example: 18 }),
+    color: z.string().openapi({ example: '#5C6BC0' }),
+    networkColor: z.string().optional().openapi({ example: '#5C6BC0' }),
+    icon: z.string().optional().openapi({
+      example:
+        'https://rawcdn.githack.com/trustwallet/assets/32e51d582a890b3dd3135fe3ee7c20c2fd699a6d/blockchains/ethereum/info/logo.png',
+    }),
+    networkIcon: z.string().optional().openapi({
+      example:
+        'https://rawcdn.githack.com/trustwallet/assets/32e51d582a890b3dd3135fe3ee7c20c2fd699a6d/blockchains/ethereum/info/logo.png',
+    }),
+    explorer: z.string().openapi({ example: 'https://etherscan.io' }),
+    explorerAddressLink: z.string().openapi({ example: 'https://etherscan.io/address/' }),
+    explorerTxLink: z.string().openapi({ example: 'https://etherscan.io/tx/' }),
+    nativeAssetId: z.string().openapi({ example: 'eip155:1/slip44:60' }),
+  }),
+)
+
 // Rate Response
 const RateResponseSchema = registry.register(
   'RateResponse',
@@ -113,6 +150,48 @@ const RateResponseSchema = registry.register(
 )
 
 // --- Paths ---
+
+registry.registerPath({
+  method: 'get',
+  path: '/v1/chains',
+  summary: 'List supported chains',
+  description: 'Get a list of all supported blockchain networks, sorted alphabetically by name.',
+  tags: ['Chains'],
+  responses: {
+    200: {
+      description: 'List of chains',
+      content: {
+        'application/json': {
+          schema: z.object({
+            chains: z.array(ChainSchema),
+            timestamp: z.number(),
+          }),
+        },
+      },
+    },
+  },
+})
+
+registry.registerPath({
+  method: 'get',
+  path: '/v1/chains/count',
+  summary: 'Get chain count',
+  description: 'Get the total number of supported blockchain networks.',
+  tags: ['Chains'],
+  responses: {
+    200: {
+      description: 'Chain count',
+      content: {
+        'application/json': {
+          schema: z.object({
+            count: z.number().openapi({ example: 28 }),
+            timestamp: z.number(),
+          }),
+        },
+      },
+    },
+  },
+})
 
 // GET /v1/assets
 registry.registerPath({
@@ -236,20 +315,26 @@ export const generateOpenApiDocument = () => {
 
 ## Integration Overview
 
-### 1. Get Supported Assets
-First, fetch the list of supported assets to populate your UI:
+### 1. Get Supported Chains
+First, fetch the list of supported blockchain networks:
+\`\`\`
+GET /v1/chains
+\`\`\`
+
+### 2. Get Supported Assets
+Fetch the list of supported assets to populate your UI:
 \`\`\`
 GET /v1/assets
 \`\`\`
 
-### 2. Get Swap Rates
+### 3. Get Swap Rates
 When a user wants to swap, fetch rates from all available swappers to find the best deal:
 \`\`\`
 GET /v1/swap/rates?sellAssetId=eip155:1/slip44:60&buyAssetId=eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48&sellAmountCryptoBaseUnit=1000000000000000000
 \`\`\`
 This returns rates from THORChain, 0x, CoW Swap, and other supported swappers.
 
-### 3. Get Executable Quote
+### 4. Get Executable Quote
 Once the user selects a rate, request an executable quote with transaction data:
 \`\`\`
 POST /v1/swap/quote
@@ -263,7 +348,7 @@ POST /v1/swap/quote
 }
 \`\`\`
 
-### 4. Execute the Swap
+### 5. Execute the Swap
 Use the returned \`transactionData\` to build and sign a transaction with the user's wallet, then broadcast it to the network.
 
 ## Authentication

@@ -23,11 +23,13 @@ import { useNavigate } from 'react-router-dom'
 
 import { Amount } from '@/components/Amount/Amount'
 import { Display } from '@/components/Display'
+import { WalletActions } from '@/context/WalletProvider/actions'
 import { useBrowserRouter } from '@/hooks/useBrowserRouter/useBrowserRouter'
+import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import type { AugmentedYieldDto } from '@/lib/yieldxyz/types'
 import { YieldBalanceType } from '@/lib/yieldxyz/types'
-import { getYieldActionLabelKeys } from '@/lib/yieldxyz/utils'
+import { getYieldActionLabelKeys, getYieldPendingStatusKeys } from '@/lib/yieldxyz/utils'
 import { useYieldAccount } from '@/pages/Yields/YieldAccountContext'
 import type {
   AggregatedBalance,
@@ -67,6 +69,12 @@ export const YieldPositionCard = memo(
     const translate = useTranslate()
     const navigate = useNavigate()
     const { location } = useBrowserRouter()
+    const { dispatch: walletDispatch } = useWallet()
+
+    const handleConnectWallet = useCallback(
+      () => walletDispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true }),
+      [walletDispatch],
+    )
 
     const { chainId } = yieldItem
     const { accountId: contextAccountId, accountNumber } = useYieldAccount()
@@ -201,6 +209,7 @@ export const YieldPositionCard = memo(
     const handleExit = useCallback(() => navigateToAction('exit'), [navigateToAction])
 
     const actionLabelKeys = getYieldActionLabelKeys(yieldItem.mechanics.type)
+    const pendingStatusKeys = getYieldPendingStatusKeys(yieldItem.mechanics.type)
     const enterLabel = translate(actionLabelKeys.enter)
     const exitLabel = translate(actionLabelKeys.exit)
 
@@ -213,7 +222,7 @@ export const YieldPositionCard = memo(
           <Flex justify='space-between' align='center' width='full'>
             <Box>
               <Text fontSize='xs' fontWeight='bold' textTransform='uppercase'>
-                {translate('yieldXYZ.entering')}
+                {translate(pendingStatusKeys.enter)}
               </Text>
               <Text fontSize='sm' fontWeight='bold'>
                 {formatBalance(enteringBalance)}
@@ -225,7 +234,7 @@ export const YieldPositionCard = memo(
           </Flex>
         </Alert>
       )
-    }, [hasEntering, translate, formatBalance, enteringBalance])
+    }, [hasEntering, translate, formatBalance, enteringBalance, pendingStatusKeys.enter])
 
     const unstakingSection = useMemo(() => {
       if (!hasExiting) return null
@@ -245,7 +254,7 @@ export const YieldPositionCard = memo(
             <Flex justify='space-between' align='center' width='full'>
               <Box>
                 <Text fontSize='xs' fontWeight='bold' textTransform='uppercase'>
-                  {translate('yieldXYZ.unstaking')}
+                  {translate(pendingStatusKeys.exit)}
                 </Text>
                 <Text fontSize='sm' fontWeight='bold'>
                   <Amount.Crypto value={entry.amount} symbol={entry.token.symbol} abbreviated />
@@ -265,7 +274,7 @@ export const YieldPositionCard = memo(
           </Alert>
         )
       })
-    }, [hasExiting, exitingEntries, translate])
+    }, [hasExiting, exitingEntries, translate, pendingStatusKeys.exit])
 
     const withdrawableSection = useMemo(() => {
       if (!hasWithdrawable) return null
@@ -360,7 +369,49 @@ export const YieldPositionCard = memo(
       claimableSection,
     ])
 
-    if (!accountId) return null
+    if (!accountId) {
+      return (
+        <Card variant='dashboard'>
+          <CardBody p={{ base: 4, md: 5 }}>
+            <Flex justifyContent='space-between' alignItems='center' mb={4}>
+              <Heading
+                as='h3'
+                size='sm'
+                textTransform='uppercase'
+                color='text.subtle'
+                letterSpacing='wider'
+              >
+                {translate('yieldXYZ.myPosition')}
+              </Heading>
+            </Flex>
+            <VStack spacing={4} align='stretch'>
+              <Box>
+                <Text fontSize='xs' color='text.subtle' mb={1} textTransform='uppercase'>
+                  {translate('yieldXYZ.totalValue')}
+                </Text>
+                <Text fontSize='3xl' fontWeight='800' lineHeight='1'>
+                  <Amount.Fiat value='0' />
+                </Text>
+                <Text fontSize='sm' color='text.subtle' mt={1}>
+                  <Amount.Crypto value='0' symbol={yieldItem.token.symbol} abbreviated />
+                </Text>
+              </Box>
+              <Button
+                colorScheme='blue'
+                size='lg'
+                height={12}
+                borderRadius='xl'
+                onClick={handleConnectWallet}
+                width='full'
+                fontWeight='bold'
+              >
+                {translate('common.connectWallet')}
+              </Button>
+            </VStack>
+          </CardBody>
+        </Card>
+      )
+    }
 
     if (isBalancesLoading) {
       return (

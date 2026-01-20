@@ -1,5 +1,16 @@
 import { ExternalLinkIcon } from '@chakra-ui/icons'
-import { Avatar, Box, Button, Flex, Heading, HStack, Link, Text } from '@chakra-ui/react'
+import {
+  Avatar,
+  Box,
+  Button,
+  Card,
+  CardBody,
+  Flex,
+  Heading,
+  HStack,
+  Link,
+  Text,
+} from '@chakra-ui/react'
 import { memo, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 
@@ -27,36 +38,38 @@ export const YieldProviderInfo = memo(
     return (
       <Box>
         <Display.Desktop>
-          <Box bg='background.surface.raised.base' borderRadius='xl' p={6} mt={6}>
-            <Flex gap={6} align='flex-start'>
-              <Flex flex={1} direction='column' gap={4}>
-                <HStack spacing={3}>
-                  {providerLogoURI && (
-                    <Avatar size='md' src={providerLogoURI} name={providerName} />
+          <Card>
+            <CardBody>
+              <Flex gap={6} align='flex-start'>
+                <Flex flex={1} direction='column' gap={4}>
+                  <HStack spacing={3}>
+                    {providerLogoURI && (
+                      <Avatar size='md' src={providerLogoURI} name={providerName} />
+                    )}
+                    <Heading as='h3' size='md'>
+                      {translate('yieldXYZ.aboutProvider', { provider: providerName })}
+                    </Heading>
+                  </HStack>
+                  <Text color='text.subtle' fontSize='sm' lineHeight='tall'>
+                    {description}
+                  </Text>
+                  {providerWebsite && (
+                    <Link href={providerWebsite} isExternal ml={-2}>
+                      <Button
+                        variant='ghost'
+                        size='sm'
+                        rightIcon={<ExternalLinkIcon />}
+                        color='text.subtle'
+                        _hover={{ color: 'text.base' }}
+                      >
+                        {translate('yieldXYZ.visitWebsite')}
+                      </Button>
+                    </Link>
                   )}
-                  <Heading as='h3' size='md'>
-                    {translate('yieldXYZ.aboutProvider', { provider: providerName })}
-                  </Heading>
-                </HStack>
-                <Text color='text.subtle' fontSize='sm' lineHeight='tall'>
-                  {description}
-                </Text>
-                {providerWebsite && (
-                  <Link href={providerWebsite} isExternal ml={-2}>
-                    <Button
-                      variant='ghost'
-                      size='sm'
-                      rightIcon={<ExternalLinkIcon />}
-                      color='text.subtle'
-                      _hover={{ color: 'text.base' }}
-                    >
-                      {translate('yieldXYZ.visitWebsite')}
-                    </Button>
-                  </Link>
-                )}
+                </Flex>
               </Flex>
-            </Flex>
-          </Box>
+            </CardBody>
+          </Card>
         </Display.Desktop>
 
         <Display.Mobile>

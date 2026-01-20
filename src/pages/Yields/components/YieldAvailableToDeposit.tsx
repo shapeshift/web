@@ -55,18 +55,12 @@ export const YieldAvailableToDeposit = memo(
     if (!hasAvailableBalance) return null
 
     return (
-      <Card variant='dashboard'>
+      <Card>
         <CardBody p={{ base: 4, md: 5 }}>
           <VStack spacing={4} align='stretch'>
             <Flex justifyContent='space-between' alignItems='center'>
               <HStack spacing={2}>
-                <Heading
-                  as='h3'
-                  size='sm'
-                  textTransform='uppercase'
-                  color='text.subtle'
-                  letterSpacing='wider'
-                >
+                <Heading as='h3' size='sm' color='text.subtle'>
                   {translate('yieldXYZ.availableToDeposit')}
                 </Heading>
                 <Tooltip label={tooltipLabel} placement='top'>
@@ -96,8 +90,9 @@ export const YieldAvailableToDeposit = memo(
                 <Amount.Fiat
                   fontSize='sm'
                   fontWeight='semibold'
+                  color='text.success'
                   value={potentialYearlyEarningsFiat.toFixed()}
-                  suffix='/yr'
+                  suffix={translate('yieldXYZ.perYear')}
                 />
               </Flex>
             )}

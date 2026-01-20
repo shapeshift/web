@@ -11,7 +11,6 @@ import { Display } from '@/components/Display'
 import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import {
-  COSMOS_ATOM_NATIVE_STAKING_YIELD_ID,
   DEFAULT_NATIVE_VALIDATOR_BY_CHAIN_ID,
   FIGMENT_SOLANA_VALIDATOR_ADDRESS,
   FIGMENT_VALIDATOR_LOGO,
@@ -19,7 +18,6 @@ import {
   SHAPESHIFT_COSMOS_VALIDATOR_ADDRESS,
   SHAPESHIFT_VALIDATOR_LOGO,
   SHAPESHIFT_VALIDATOR_NAME,
-  SOLANA_SOL_NATIVE_MULTIVALIDATOR_STAKING_YIELD_ID,
 } from '@/lib/yieldxyz/constants'
 import { getYieldDisplayName } from '@/lib/yieldxyz/getYieldDisplayName'
 import { YieldBalanceType } from '@/lib/yieldxyz/types'
@@ -104,24 +102,19 @@ export const YieldDetail = memo(() => {
     ? DEFAULT_NATIVE_VALIDATOR_BY_CHAIN_ID[yieldItem.chainId]
     : undefined
 
-  const selectedValidatorAddress = useMemo(() => {
-    if (
-      yieldId === COSMOS_ATOM_NATIVE_STAKING_YIELD_ID ||
-      yieldId === SOLANA_SOL_NATIVE_MULTIVALIDATOR_STAKING_YIELD_ID ||
-      (yieldId?.includes('solana') && yieldId?.includes('native'))
-    ) {
-      return defaultValidator
-    }
-    return validatorParam || defaultValidator
-  }, [yieldId, validatorParam, defaultValidator])
-
   const isStaking = yieldItem?.mechanics.type === 'staking'
-  const shouldFetchValidators = isStaking && yieldItem?.mechanics.requiresValidatorSelection
+  const requiresValidatorSelection = yieldItem?.mechanics.requiresValidatorSelection ?? false
+  const shouldFetchValidators = isStaking && requiresValidatorSelection
+
+  const selectedValidatorAddress = useMemo(() => {
+    if (!requiresValidatorSelection) return undefined
+    return validatorParam || defaultValidator
+  }, [requiresValidatorSelection, validatorParam, defaultValidator])
   const { data: validators } = useYieldValidators(yieldItem?.id ?? '', shouldFetchValidators)
   const { data: yieldProviders } = useYieldProviders()
 
   const validatorOrProvider = useMemo(() => {
-    if (isStaking && selectedValidatorAddress) {
+    if (isStaking && requiresValidatorSelection && selectedValidatorAddress) {
       const found = validators?.find(v => v.address === selectedValidatorAddress)
       if (found) return { name: found.name, logoURI: found.logoURI }
       if (selectedValidatorAddress === SHAPESHIFT_COSMOS_VALIDATOR_ADDRESS) {
@@ -131,7 +124,7 @@ export const YieldDetail = memo(() => {
         return { name: FIGMENT_VALIDATOR_NAME, logoURI: FIGMENT_VALIDATOR_LOGO }
       }
     }
-    if (!isStaking && yieldItem) {
+    if (yieldItem) {
       const provider = yieldProviders?.[yieldItem.providerId]
       if (provider) {
         return {
@@ -143,7 +136,14 @@ export const YieldDetail = memo(() => {
       }
     }
     return null
-  }, [isStaking, selectedValidatorAddress, validators, yieldItem, yieldProviders])
+  }, [
+    isStaking,
+    requiresValidatorSelection,
+    selectedValidatorAddress,
+    validators,
+    yieldItem,
+    yieldProviders,
+  ])
 
   const titleOverride = useMemo(() => {
     if (!yieldItem) return undefined

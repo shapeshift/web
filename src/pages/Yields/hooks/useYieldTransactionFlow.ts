@@ -237,7 +237,8 @@ export const useYieldTransactionFlow = ({
       args.receiverAddress = userAddress
     }
 
-    if (fieldNames.has('validatorAddress') && yieldChainId) {
+    const validatorField = fields.find(f => f.name === 'validatorAddress')
+    if (validatorField && yieldChainId) {
       args.validatorAddress = validatorAddress || DEFAULT_NATIVE_VALIDATOR_BY_CHAIN_ID[yieldChainId]
     }
 

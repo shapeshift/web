@@ -191,19 +191,20 @@ export const YieldForm = memo(
     )
 
     const selectedValidatorAddress = useMemo(() => {
+      if (!shouldFetchValidators) return undefined
       if (validatorAddress) return validatorAddress
       if (chainId && DEFAULT_NATIVE_VALIDATOR_BY_CHAIN_ID[chainId]) {
         return DEFAULT_NATIVE_VALIDATOR_BY_CHAIN_ID[chainId]
       }
       return validators?.[0]?.address
-    }, [chainId, validators, validatorAddress])
+    }, [shouldFetchValidators, chainId, validators, validatorAddress])
 
     const { data: providers } = useYieldProviders()
 
     const isStaking = isStakingYieldType(yieldItem.mechanics.type)
 
     const selectedValidatorMetadata = useMemo(() => {
-      if (!isStaking || !selectedValidatorAddress) return null
+      if (!shouldFetchValidators || !selectedValidatorAddress) return null
       const found = validators?.find(v => v.address === selectedValidatorAddress)
       if (found) return found
       if (selectedValidatorAddress === SHAPESHIFT_COSMOS_VALIDATOR_ADDRESS) {
@@ -214,7 +215,7 @@ export const YieldForm = memo(
         }
       }
       return null
-    }, [isStaking, selectedValidatorAddress, validators])
+    }, [shouldFetchValidators, selectedValidatorAddress, validators])
 
     const providerMetadata = useMemo(() => {
       if (!providers) return null

@@ -56,6 +56,7 @@ type TradeFooterButtonProps = {
   activeTradeId: string
   isExactAllowance: boolean
   isLoading?: boolean
+  onSwapTxBroadcast?: () => void
 }
 
 export const TradeFooterButton: FC<TradeFooterButtonProps> = ({
@@ -64,6 +65,7 @@ export const TradeFooterButton: FC<TradeFooterButtonProps> = ({
   activeTradeId,
   isExactAllowance,
   isLoading = false,
+  onSwapTxBroadcast,
 }) => {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [shouldShowWarningAcknowledgement, setShouldShowWarningAcknowledgement] = useState(false)
@@ -76,6 +78,7 @@ export const TradeFooterButton: FC<TradeFooterButtonProps> = ({
     currentHopIndex,
     activeTradeId,
     isExactAllowance,
+    onSwapTxBroadcast,
   })
   const translate = useTranslate()
   const swapperName = useAppSelector(selectActiveSwapperName)

@@ -122,6 +122,43 @@ export type AssetsResponse = {
   timestamp: number
 }
 
+export type ChainType =
+  | 'evm'
+  | 'utxo'
+  | 'cosmos'
+  | 'solana'
+  | 'tron'
+  | 'sui'
+  | 'near'
+  | 'starknet'
+  | 'ton'
+
+export type Chain = {
+  chainId: ChainId
+  name: string
+  type: ChainType
+  symbol: string
+  precision: number
+  color: string
+  networkColor?: string
+  icon?: string
+  networkIcon?: string
+  explorer: string
+  explorerAddressLink: string
+  explorerTxLink: string
+  nativeAssetId: AssetId
+}
+
+export type ChainsResponse = {
+  chains: Chain[]
+  timestamp: number
+}
+
+export type ChainCountResponse = {
+  count: number
+  timestamp: number
+}
+
 export type ErrorResponse = {
   error: string
   code?: string

@@ -18,7 +18,37 @@ export const runSmokeTests = async (): Promise<TestSuiteResult> => {
     }),
   )
 
-  // 2. Asset Count (Critical)
+  // 2. Chain Count (Critical)
+  results.push(
+    await runTest('Chain count', true, async () => {
+      const res = await fetchWithTimeout(`${API_URL}/v1/chains/count`, {})
+      if (!res.ok) throw new Error(`Chain count failed: ${res.status}`)
+      const data = (await res.json()) as { count?: number }
+      if (typeof data.count !== 'number' || data.count === 0) {
+        throw new Error(`Invalid chain count: ${data.count}`)
+      }
+    }),
+  )
+
+  // 3. Chain List (Critical)
+  results.push(
+    await runTest('Chain list', true, async () => {
+      const res = await fetchWithTimeout(`${API_URL}/v1/chains`, {})
+      if (!res.ok) throw new Error(`Chain list failed: ${res.status}`)
+      const data = (await res.json()) as {
+        chains?: { chainId?: string; name?: string; type?: string }[]
+      }
+      if (!Array.isArray(data.chains) || data.chains.length === 0) {
+        throw new Error('No chains returned')
+      }
+      const firstChain = data.chains[0]
+      if (!firstChain.chainId || !firstChain.name || !firstChain.type) {
+        throw new Error('Invalid chain structure')
+      }
+    }),
+  )
+
+  // 4. Asset Count (Critical)
   results.push(
     await runTest('Asset count', true, async () => {
       const res = await fetchWithTimeout(`${API_URL}/v1/assets/count`, {})
@@ -30,7 +60,7 @@ export const runSmokeTests = async (): Promise<TestSuiteResult> => {
     }),
   )
 
-  // 3. Asset List (Critical)
+  // 5. Asset List (Critical)
   results.push(
     await runTest('Asset list', true, async () => {
       const res = await fetchWithTimeout(`${API_URL}/v1/assets?limit=10`, {})
@@ -42,7 +72,7 @@ export const runSmokeTests = async (): Promise<TestSuiteResult> => {
     }),
   )
 
-  // 4. Single Asset Lookup (Critical)
+  // 6. Single Asset Lookup (Critical)
   results.push(
     await runTest('Single asset lookup (ETH)', true, async () => {
       const assetId = encodeURIComponent(ASSET_IDS.ETH)
@@ -55,7 +85,7 @@ export const runSmokeTests = async (): Promise<TestSuiteResult> => {
     }),
   )
 
-  // 5. Rates Auth Check (Critical)
+  // 7. Rates Auth Check (Critical)
   results.push(
     await runTest('Rates requires auth', true, async () => {
       const params = new URLSearchParams({
@@ -68,7 +98,7 @@ export const runSmokeTests = async (): Promise<TestSuiteResult> => {
     }),
   )
 
-  // 6. Quote Auth Check (Critical)
+  // 8. Quote Auth Check (Critical)
   results.push(
     await runTest('Quote requires auth', true, async () => {
       const res = await fetchWithTimeout(`${API_URL}/v1/swap/quote`, {
@@ -86,7 +116,7 @@ export const runSmokeTests = async (): Promise<TestSuiteResult> => {
     }),
   )
 
-  // 7. EVM Same-Chain Rates (Informative)
+  // 9. EVM Same-Chain Rates (Informative)
   const evmPair = TEST_PAIRS.evmSameChain[0]
   results.push(
     await runTest(`Rates: ${evmPair.name}`, false, async () => {
@@ -136,7 +166,7 @@ export const runSmokeTests = async (): Promise<TestSuiteResult> => {
     }),
   )
 
-  // 8. Cross-Chain Rates (Informative)
+  // 10. Cross-Chain Rates (Informative)
   const crossChainPair = TEST_PAIRS.crossChain[0]
   results.push(
     await runTest(`Rates: ${crossChainPair.name}`, false, async () => {

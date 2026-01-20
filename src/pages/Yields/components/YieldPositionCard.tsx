@@ -1,3 +1,4 @@
+import { ArrowDownIcon, ArrowUpIcon } from '@chakra-ui/icons'
 import {
   Alert,
   Badge,
@@ -8,6 +9,7 @@ import {
   Divider,
   Flex,
   Heading,
+  HStack,
   Skeleton,
   Text,
   VStack,
@@ -17,14 +19,15 @@ import dayjs from 'dayjs'
 import qs from 'qs'
 import { memo, useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useNavigate, useSearchParams } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 import { Amount } from '@/components/Amount/Amount'
+import { Display } from '@/components/Display'
 import { useBrowserRouter } from '@/hooks/useBrowserRouter/useBrowserRouter'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
-import { DEFAULT_NATIVE_VALIDATOR_BY_CHAIN_ID } from '@/lib/yieldxyz/constants'
 import type { AugmentedYieldDto } from '@/lib/yieldxyz/types'
 import { YieldBalanceType } from '@/lib/yieldxyz/types'
+import { getYieldActionLabelKeys } from '@/lib/yieldxyz/utils'
 import { useYieldAccount } from '@/pages/Yields/YieldAccountContext'
 import type {
   AggregatedBalance,
@@ -37,27 +40,39 @@ import {
 } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
+const enterIcon = <ArrowUpIcon />
+const exitIcon = <ArrowDownIcon />
+
+const loadingState = (
+  <VStack align='stretch' spacing={4}>
+    <Skeleton height='60px' />
+    <Skeleton height='40px' />
+  </VStack>
+)
+
 type YieldPositionCardProps = {
   yieldItem: AugmentedYieldDto
   balances: NormalizedYieldBalances | undefined
   isBalancesLoading: boolean
+  selectedValidatorAddress: string | undefined
 }
 
 export const YieldPositionCard = memo(
-  ({ yieldItem, balances, isBalancesLoading }: YieldPositionCardProps) => {
+  ({
+    yieldItem,
+    balances,
+    isBalancesLoading,
+    selectedValidatorAddress,
+  }: YieldPositionCardProps) => {
     const translate = useTranslate()
     const navigate = useNavigate()
     const { location } = useBrowserRouter()
-    const [searchParams] = useSearchParams()
-    const validatorParam = searchParams.get('validator')
 
     const { chainId } = yieldItem
-    const { accountNumber } = useYieldAccount()
-
-    const defaultValidator = chainId ? DEFAULT_NATIVE_VALIDATOR_BY_CHAIN_ID[chainId] : undefined
-    const selectedValidatorAddress = validatorParam || defaultValidator
+    const { accountId: contextAccountId, accountNumber } = useYieldAccount()
 
     const accountId = useAppSelector(state => {
+      if (contextAccountId) return contextAccountId
       if (!chainId) return undefined
       const accountIdsByNumberAndChain = selectAccountIdByAccountNumberAndChainId(state)
       return accountIdsByNumberAndChain[accountNumber]?.[chainId]
@@ -102,10 +117,7 @@ export const YieldPositionCard = memo(
       )
     }, [])
 
-    const hasEntering = useMemo(
-      () => enteringBalance && bnOrZero(enteringBalance.aggregatedAmount).gt(0),
-      [enteringBalance],
-    )
+    const hasEntering = Boolean(enteringBalance && bnOrZero(enteringBalance.aggregatedAmount).gt(0))
 
     const exitingEntries = useMemo(() => {
       if (!balances?.raw) return []
@@ -117,12 +129,13 @@ export const YieldPositionCard = memo(
         })
     }, [balances?.raw, selectedValidatorAddress])
 
-    const hasExiting = useMemo(() => exitingEntries.length > 0, [exitingEntries])
-    const hasWithdrawable = useMemo(
-      () => withdrawableBalance && bnOrZero(withdrawableBalance.aggregatedAmount).gt(0),
-      [withdrawableBalance],
+    const hasExiting = exitingEntries.length > 0
+    const hasWithdrawable = Boolean(
+      withdrawableBalance && bnOrZero(withdrawableBalance.aggregatedAmount).gt(0),
     )
-    const hasClaimable = useMemo(() => Boolean(claimableBalance), [claimableBalance])
+    const hasClaimable = Boolean(
+      claimableBalance && bnOrZero(claimableBalance.aggregatedAmount).gt(0),
+    )
 
     const totalValueUsd = useMemo(
       () =>
@@ -147,7 +160,7 @@ export const YieldPositionCard = memo(
       [activeBalance, enteringBalance, exitingBalance, withdrawableBalance],
     )
 
-    const hasAnyPosition = useMemo(() => totalAmount.gt(0), [totalAmount])
+    const hasAnyPosition = totalAmount.gt(0)
 
     const { data: validators } = useYieldValidators(yieldItem.id)
 
@@ -161,46 +174,37 @@ export const YieldPositionCard = memo(
       return foundInBalances?.validator?.name
     }, [validators, selectedValidatorAddress, balances])
 
-    const headingText = useMemo(
-      () =>
-        selectedValidatorName
-          ? translate('yieldXYZ.myValidatorPosition', { validator: selectedValidatorName })
-          : translate('yieldXYZ.myPosition'),
-      [selectedValidatorName, translate],
+    const headingText = selectedValidatorName
+      ? translate('yieldXYZ.myValidatorPosition', { validator: selectedValidatorName })
+      : translate('yieldXYZ.myPosition')
+
+    const addressBadgeText = address ? `${address.slice(0, 4)}...${address.slice(-4)}` : ''
+
+    const totalAmountFixed = totalAmount.toFixed()
+
+    const navigateToAction = useCallback(
+      (action: 'claim' | 'enter' | 'exit') => {
+        navigate({
+          pathname: location.pathname,
+          search: qs.stringify({
+            action,
+            modal: 'yield',
+            ...(selectedValidatorAddress ? { validator: selectedValidatorAddress } : {}),
+          }),
+        })
+      },
+      [navigate, location.pathname, selectedValidatorAddress],
     )
 
-    const addressBadgeText = useMemo(
-      () => (address ? `${address.slice(0, 4)}...${address.slice(-4)}` : ''),
-      [address],
-    )
+    const handleClaimClick = useCallback(() => navigateToAction('claim'), [navigateToAction])
+    const handleEnter = useCallback(() => navigateToAction('enter'), [navigateToAction])
+    const handleExit = useCallback(() => navigateToAction('exit'), [navigateToAction])
 
-    const totalAmountFixed = useMemo(() => totalAmount.toFixed(), [totalAmount])
+    const actionLabelKeys = getYieldActionLabelKeys(yieldItem.mechanics.type)
+    const enterLabel = translate(actionLabelKeys.enter)
+    const exitLabel = translate(actionLabelKeys.exit)
 
-    const handleClaimClick = useCallback(() => {
-      navigate({
-        pathname: location.pathname,
-        search: qs.stringify({
-          action: 'claim',
-          modal: 'yield',
-          ...(selectedValidatorAddress ? { validator: selectedValidatorAddress } : {}),
-        }),
-      })
-    }, [navigate, location.pathname, selectedValidatorAddress])
-
-    const showPendingActions = useMemo(
-      () => hasEntering || hasExiting || hasWithdrawable || hasClaimable,
-      [hasEntering, hasExiting, hasWithdrawable, hasClaimable],
-    )
-
-    const loadingState = useMemo(
-      () => (
-        <VStack align='stretch' spacing={4}>
-          <Skeleton height='60px' />
-          <Skeleton height='40px' />
-        </VStack>
-      ),
-      [],
-    )
+    const showPendingActions = hasEntering || hasExiting || hasWithdrawable || hasClaimable
 
     const enteringSection = useMemo(() => {
       if (!hasEntering) return null
@@ -379,8 +383,6 @@ export const YieldPositionCard = memo(
       )
     }
 
-    if (!hasAnyPosition && !showPendingActions) return null
-
     return (
       <Card variant='dashboard'>
         <CardBody p={{ base: 4, md: 5 }}>
@@ -413,6 +415,36 @@ export const YieldPositionCard = memo(
               </Text>
             </Box>
             {pendingActionsSection}
+            <Display.Desktop>
+              <HStack spacing={3} pt={2}>
+                <Button
+                  leftIcon={enterIcon}
+                  colorScheme='blue'
+                  size='lg'
+                  height={12}
+                  borderRadius='xl'
+                  onClick={handleEnter}
+                  flex={1}
+                  fontWeight='bold'
+                >
+                  {enterLabel}
+                </Button>
+                {hasAnyPosition && (
+                  <Button
+                    leftIcon={exitIcon}
+                    variant='outline'
+                    size='lg'
+                    height={12}
+                    borderRadius='xl'
+                    onClick={handleExit}
+                    flex={1}
+                    fontWeight='bold'
+                  >
+                    {exitLabel}
+                  </Button>
+                )}
+              </HStack>
+            </Display.Desktop>
           </VStack>
         </CardBody>
       </Card>

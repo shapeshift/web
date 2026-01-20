@@ -16,7 +16,7 @@ import {
   SHAPESHIFT_VALIDATOR_NAME,
 } from '@/lib/yieldxyz/constants'
 import type { AugmentedYieldDto } from '@/lib/yieldxyz/types'
-import { getTransactionButtonText } from '@/lib/yieldxyz/utils'
+import { getTransactionButtonText, isStakingYieldType } from '@/lib/yieldxyz/utils'
 import { GradientApy } from '@/pages/Yields/components/GradientApy'
 import { TransactionStepsList } from '@/pages/Yields/components/TransactionStepsList'
 import { YieldAssetFlow } from '@/pages/Yields/components/YieldAssetFlow'
@@ -58,6 +58,7 @@ export const YieldActionModal = memo(function YieldActionModal({
   validatorName,
   validatorLogoURI,
   passthrough,
+  accountId,
   ...props
 }: YieldActionModalProps) {
   const translate = useTranslate()
@@ -85,12 +86,17 @@ export const YieldActionModal = memo(function YieldActionModal({
     validatorAddress,
     passthrough,
     manageActionType: props.manageActionType,
-    accountId: props.accountId,
+    accountId,
   })
 
+  const isStaking = useMemo(
+    () => isStakingYieldType(yieldItem.mechanics.type),
+    [yieldItem.mechanics.type],
+  )
+
   const shouldFetchValidators = useMemo(
-    () => yieldItem.mechanics.type === 'staking' && yieldItem.mechanics.requiresValidatorSelection,
-    [yieldItem.mechanics.type, yieldItem.mechanics.requiresValidatorSelection],
+    () => isStaking && yieldItem.mechanics.requiresValidatorSelection,
+    [isStaking, yieldItem.mechanics.requiresValidatorSelection],
   )
 
   const { data: validators } = useYieldValidators(yieldItem.id, shouldFetchValidators)
@@ -105,7 +111,7 @@ export const YieldActionModal = memo(function YieldActionModal({
   )
 
   const vaultMetadata = useMemo(() => {
-    if (yieldItem.mechanics.type === 'staking' && validatorAddress) {
+    if (isStaking && validatorAddress) {
       const validator = validators?.find(v => v.address === validatorAddress)
       if (validator) return { name: validator.name, logoURI: validator.logoURI }
       if (validatorAddress === SHAPESHIFT_COSMOS_VALIDATOR_ADDRESS) {
@@ -116,7 +122,15 @@ export const YieldActionModal = memo(function YieldActionModal({
     const provider = providers?.[yieldItem.providerId]
     if (provider) return { name: provider.name, logoURI: provider.logoURI }
     return { name: 'Vault', logoURI: yieldItem.metadata.logoURI }
-  }, [yieldItem, validatorAddress, validatorName, validatorLogoURI, validators, providers])
+  }, [
+    isStaking,
+    yieldItem,
+    validatorAddress,
+    validatorName,
+    validatorLogoURI,
+    validators,
+    providers,
+  ])
 
   const chainId = useMemo(() => yieldItem.chainId ?? '', [yieldItem.chainId])
   const feeAsset = useAppSelector(state => selectFeeAssetByChainId(state, chainId))
@@ -151,14 +165,9 @@ export const YieldActionModal = memo(function YieldActionModal({
     [amount, yieldItem.rewardRate.total, marketData?.price],
   )
 
-  const isStaking = useMemo(
-    () => yieldItem.mechanics.type === 'staking',
-    [yieldItem.mechanics.type],
-  )
-
   const showValidatorRow = useMemo(
-    () => isStaking && vaultMetadata.name !== 'Vault',
-    [isStaking, vaultMetadata.name],
+    () => isStaking && Boolean(validatorAddress),
+    [isStaking, validatorAddress],
   )
 
   const isButtonDisabled = useMemo(
@@ -283,7 +292,7 @@ export const YieldActionModal = memo(function YieldActionModal({
             </Flex>
           </Flex>
         )}
-        {!isStaking && (
+        {!showValidatorRow && (
           <Flex justify='space-between' align='center' mt={3}>
             <Text fontSize='sm' color='text.subtle'>
               {translate('yieldXYZ.provider')}
@@ -319,7 +328,6 @@ export const YieldActionModal = memo(function YieldActionModal({
       estimatedEarningsAmount,
       estimatedEarningsFiat,
       showValidatorRow,
-      isStaking,
       vaultMetadata.logoURI,
       vaultMetadata.name,
       feeAsset,
@@ -358,6 +366,7 @@ export const YieldActionModal = memo(function YieldActionModal({
         providerInfo={successProviderInfo}
         transactionSteps={transactionSteps}
         yieldId={yieldItem.id}
+        accountId={accountId}
         onDone={handleClose}
         successMessageKey={successMessageKey}
       />
@@ -368,6 +377,7 @@ export const YieldActionModal = memo(function YieldActionModal({
       successProviderInfo,
       transactionSteps,
       yieldItem.id,
+      accountId,
       handleClose,
       successMessageKey,
     ],

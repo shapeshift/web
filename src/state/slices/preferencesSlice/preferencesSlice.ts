@@ -29,6 +29,7 @@ export type FeatureFlags = {
   Starknet: boolean
   Tron: boolean
   Sui: boolean
+  Ton: boolean
   Near: boolean
   Base: boolean
   Mayachain: boolean
@@ -101,6 +102,7 @@ export type FeatureFlags = {
   CetusSwap: boolean
   SunioSwap: boolean
   AvnuSwap: boolean
+  StonfiSwap: boolean
   LazyTxHistory: boolean
   RfoxFoxEcosystemPage: boolean
   LedgerReadOnly: boolean
@@ -177,6 +179,7 @@ const initialState: Preferences = {
     Starknet: getConfig().VITE_FEATURE_STARKNET,
     Tron: getConfig().VITE_FEATURE_TRON,
     Sui: getConfig().VITE_FEATURE_SUI,
+    Ton: getConfig().VITE_FEATURE_TON,
     Near: getConfig().VITE_FEATURE_NEAR,
     Base: getConfig().VITE_FEATURE_BASE,
     Mayachain: getConfig().VITE_FEATURE_MAYACHAIN,
@@ -249,6 +252,7 @@ const initialState: Preferences = {
     CetusSwap: getConfig().VITE_FEATURE_CETUS_SWAP,
     SunioSwap: getConfig().VITE_FEATURE_SUNIO_SWAP,
     AvnuSwap: getConfig().VITE_FEATURE_AVNU_SWAP,
+    StonfiSwap: getConfig().VITE_FEATURE_STONFI_SWAP,
     LazyTxHistory: getConfig().VITE_FEATURE_TX_HISTORY_BYE_BYE,
     RfoxFoxEcosystemPage: getConfig().VITE_FEATURE_RFOX_FOX_ECOSYSTEM_PAGE,
     LedgerReadOnly: getConfig().VITE_FEATURE_LEDGER_READ_ONLY,

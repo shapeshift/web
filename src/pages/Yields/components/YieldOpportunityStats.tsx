@@ -31,8 +31,9 @@ type YieldOpportunityStatsProps = {
   positions: AugmentedYieldDto[]
   balances: Record<string, YieldBalancesResponse['balances']> | undefined
   allYields: AugmentedYieldDto[] | undefined
-  isMyOpportunities?: boolean
-  onToggleMyOpportunities?: () => void
+  isAvailableToEarnTab?: boolean
+  onNavigateToAvailableTab?: () => void
+  onNavigateToAllTab?: () => void
   isConnected: boolean
   isMobile?: boolean
 }
@@ -41,8 +42,9 @@ export const YieldOpportunityStats = memo(function YieldOpportunityStats({
   positions,
   balances,
   allYields,
-  isMyOpportunities,
-  onToggleMyOpportunities,
+  isAvailableToEarnTab,
+  onNavigateToAvailableTab,
+  onNavigateToAllTab,
   isConnected,
   isMobile,
 }: YieldOpportunityStatsProps) {
@@ -51,14 +53,18 @@ export const YieldOpportunityStats = memo(function YieldOpportunityStats({
   const portfolioBalances = useAppSelector(selectPortfolioUserCurrencyBalances)
   const { data: yields } = useYields()
 
-  const activeValueUsd = useMemo(() => {
-    return positions.reduce((acc, position) => {
-      const positionBalances = balances?.[position.id]
-      if (!positionBalances) return acc
-      const activeBalance = positionBalances.find(b => b.type === 'active' || b.type === 'locked')
-      return acc.plus(bnOrZero(activeBalance?.amountUsd))
-    }, bnOrZero(0))
-  }, [positions, balances])
+  const activeValueUsd = useMemo(
+    () =>
+      positions.reduce((acc, position) => {
+        const positionBalances = balances?.[position.id]
+        if (!positionBalances) return acc
+        const activeBalances = positionBalances.filter(
+          b => b.type === 'active' || b.type === 'locked',
+        )
+        return activeBalances.reduce((sum, b) => sum.plus(bnOrZero(b.amountUsd)), acc)
+      }, bnOrZero(0)),
+    [positions, balances],
+  )
 
   const idleValueUsd = useMemo(() => {
     if (!isConnected || !allYields) return bnOrZero(0)
@@ -78,7 +84,6 @@ export const YieldOpportunityStats = memo(function YieldOpportunityStats({
     }, bnOrZero(0))
   }, [isConnected, allYields, portfolioBalances])
 
-  // Calculate weighted APY and potential earnings based on user's actual held assets
   const { weightedApy, potentialEarningsValue } = useMemo(() => {
     if (!isConnected || !yields?.byInputAssetId || !portfolioBalances) {
       return { weightedApy: 0, potentialEarningsValue: bnOrZero(0) }
@@ -89,7 +94,7 @@ export const YieldOpportunityStats = memo(function YieldOpportunityStats({
 
     for (const [assetId, balanceFiat] of Object.entries(portfolioBalances)) {
       const yieldsForAsset = yields.byInputAssetId[assetId]
-      if (!yieldsForAsset?.length) continue // Early bail - no yield for this asset
+      if (!yieldsForAsset?.length) continue
 
       const balance = bnOrZero(balanceFiat)
       const bestApy = Math.max(...yieldsForAsset.map(y => y.rewardRate.total))
@@ -105,99 +110,57 @@ export const YieldOpportunityStats = memo(function YieldOpportunityStats({
     return { weightedApy: avgApy, potentialEarningsValue: totalEarnings }
   }, [isConnected, yields?.byInputAssetId, portfolioBalances])
 
-  const hasActiveDeposits = useMemo(() => activeValueUsd.gt(0), [activeValueUsd])
+  const hasActiveDeposits = activeValueUsd.gt(0)
+  const activeValueFormatted = activeValueUsd.times(userCurrencyToUsdRate).toFixed()
+  const idleValueFormatted = idleValueUsd.toFixed()
+  const potentialEarnings = potentialEarningsValue.toFixed()
+  const weightedApyFormatted = weightedApy.toFixed(2)
+  const positionsCount = positions.length
+  const gridColumn = { md: hasActiveDeposits ? 'span 2' : 'span 3' }
+  const buttonBg = isAvailableToEarnTab ? 'whiteAlpha.300' : 'blue.500'
+  const buttonHoverBg = { bg: isAvailableToEarnTab ? 'whiteAlpha.400' : 'blue.400' }
+  const buttonText = isAvailableToEarnTab
+    ? translate('yieldXYZ.showAll')
+    : translate('yieldXYZ.earn')
 
-  const activeValueFormatted = useMemo(
-    () => activeValueUsd.times(userCurrencyToUsdRate).toFixed(),
-    [activeValueUsd, userCurrencyToUsdRate],
-  )
-
-  const idleValueFormatted = useMemo(() => idleValueUsd.toFixed(), [idleValueUsd])
-
-  const potentialEarnings = useMemo(
-    () => potentialEarningsValue.toFixed(),
-    [potentialEarningsValue],
-  )
-
-  const weightedApyFormatted = useMemo(() => weightedApy.toFixed(2), [weightedApy])
-
-  const positionsCount = useMemo(() => positions.length, [positions.length])
-
-  const gridColumn = useMemo(
-    () => ({ md: hasActiveDeposits ? 'span 2' : 'span 3' }),
-    [hasActiveDeposits],
-  )
-
-  const buttonBg = useMemo(
-    () => (isMyOpportunities ? 'whiteAlpha.300' : 'blue.500'),
-    [isMyOpportunities],
-  )
-
-  const buttonHoverBg = useMemo(
-    () => ({ bg: isMyOpportunities ? 'whiteAlpha.400' : 'blue.400' }),
-    [isMyOpportunities],
-  )
-
-  const buttonText = useMemo(
-    () => (isMyOpportunities ? translate('yieldXYZ.showAll') : translate('yieldXYZ.earn')),
-    [isMyOpportunities, translate],
-  )
-
-  const activeDepositsCard = useMemo(() => {
-    if (!hasActiveDeposits) return null
-    return (
-      <Box
-        bgGradient='linear(to-br, blue.800, blue.900)'
-        p={6}
-        borderRadius='2xl'
-        boxShadow='xl'
-        border='1px solid'
-        borderColor='blue.700'
-        position='relative'
-        overflow='hidden'
-        display='flex'
-        flexDirection='column'
-        justifyContent='center'
-      >
-        <Box position='absolute' right={-4} top={-4} opacity={0.1}>
-          {chartPieIcon}
-        </Box>
-        <Stat>
-          <StatLabel fontSize='md' color='blue.200'>
-            {translate('yieldXYZ.activePositions')}
-          </StatLabel>
-          <StatNumber fontSize='3xl' fontWeight='bold' color='white'>
-            <Amount.Fiat value={activeValueFormatted} abbreviated />
-          </StatNumber>
-          <StatHelpText color='blue.300'>
-            {translate('yieldXYZ.acrossPositions', { count: positionsCount })}
-          </StatHelpText>
-        </Stat>
-      </Box>
-    )
-  }, [hasActiveDeposits, activeValueFormatted, positionsCount, translate])
-
-  const toggleButton = useMemo(() => {
-    if (!onToggleMyOpportunities) return null
-    return (
-      <Button
-        size='sm'
-        bg={buttonBg}
-        color='white'
-        _hover={buttonHoverBg}
-        onClick={onToggleMyOpportunities}
-        width='full'
-      >
-        {buttonText}
-      </Button>
-    )
-  }, [onToggleMyOpportunities, buttonBg, buttonHoverBg, buttonText])
+  const toggleButtonClickHandler = isAvailableToEarnTab
+    ? onNavigateToAllTab
+    : onNavigateToAvailableTab
 
   if (isMobile) return null
 
   return (
     <SimpleGrid columns={{ base: 1, md: 3 }} spacing={4} mb={8}>
-      {activeDepositsCard}
+      {hasActiveDeposits && (
+        <Box
+          bgGradient='linear(to-br, blue.800, blue.900)'
+          p={6}
+          borderRadius='2xl'
+          boxShadow='xl'
+          border='1px solid'
+          borderColor='blue.700'
+          position='relative'
+          overflow='hidden'
+          display='flex'
+          flexDirection='column'
+          justifyContent='center'
+        >
+          <Box position='absolute' right={-4} top={-4} opacity={0.1}>
+            {chartPieIcon}
+          </Box>
+          <Stat>
+            <StatLabel fontSize='md' color='blue.200'>
+              {translate('yieldXYZ.activePositions')}
+            </StatLabel>
+            <StatNumber fontSize='3xl' fontWeight='bold' color='white'>
+              <Amount.Fiat value={activeValueFormatted} abbreviated />
+            </StatNumber>
+            <StatHelpText color='blue.300'>
+              {translate('yieldXYZ.acrossPositions', { count: positionsCount })}
+            </StatHelpText>
+          </Stat>
+        </Box>
+      )}
       <Box
         bgGradient='linear(to-br, purple.800, purple.900)'
         p={6}
@@ -274,7 +237,18 @@ export const YieldOpportunityStats = memo(function YieldOpportunityStats({
                 <Text ml={1}>{translate('yieldXYZ.perYear')}</Text>
               </Flex>
             </Box>
-            {toggleButton}
+            {toggleButtonClickHandler && (
+              <Button
+                size='sm'
+                bg={buttonBg}
+                color='white'
+                _hover={buttonHoverBg}
+                onClick={toggleButtonClickHandler}
+                width='full'
+              >
+                {buttonText}
+              </Button>
+            )}
           </Flex>
         </Flex>
       </Box>

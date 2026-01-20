@@ -1,4 +1,5 @@
 import { Avatar, Box, Button, Flex, HStack, Icon, Input, Skeleton, Text } from '@chakra-ui/react'
+import type { AccountId } from '@shapeshiftoss/caip'
 import { useQueryClient } from '@tanstack/react-query'
 import type { ChangeEvent } from 'react'
 import { memo, useCallback, useMemo, useState } from 'react'
@@ -28,9 +29,10 @@ import {
   SHAPESHIFT_VALIDATOR_NAME,
 } from '@/lib/yieldxyz/constants'
 import type { AugmentedYieldDto } from '@/lib/yieldxyz/types'
-import { getTransactionButtonText } from '@/lib/yieldxyz/utils'
+import { getTransactionButtonText, isStakingYieldType } from '@/lib/yieldxyz/utils'
 import { GradientApy } from '@/pages/Yields/components/GradientApy'
 import { TransactionStepsList } from '@/pages/Yields/components/TransactionStepsList'
+import { YieldExplainers } from '@/pages/Yields/components/YieldExplainers'
 import { YieldSuccess } from '@/pages/Yields/components/YieldSuccess'
 import { ModalStep, useYieldTransactionFlow } from '@/pages/Yields/hooks/useYieldTransactionFlow'
 import { useYieldProviders } from '@/react-queries/queries/yieldxyz/useYieldProviders'
@@ -38,6 +40,7 @@ import { useYieldValidators } from '@/react-queries/queries/yieldxyz/useYieldVal
 import { allowedDecimalSeparators } from '@/state/slices/preferencesSlice/preferencesSlice'
 import {
   selectAccountIdByAccountNumberAndChainId,
+  selectAccountNumberByAccountId,
   selectAssetById,
   selectMarketDataByAssetIdUserCurrency,
   selectPortfolioAccountIdsByAssetIdFilter,
@@ -49,6 +52,7 @@ type YieldEnterModalProps = {
   isOpen: boolean
   onClose: () => void
   yieldItem: AugmentedYieldDto
+  accountId?: AccountId
   accountNumber?: number
 }
 
@@ -106,7 +110,13 @@ const YieldEnterModalSkeleton = memo(() => (
 ))
 
 export const YieldEnterModal = memo(
-  ({ isOpen, onClose, yieldItem, accountNumber = 0 }: YieldEnterModalProps) => {
+  ({
+    isOpen,
+    onClose,
+    yieldItem,
+    accountId: accountIdProp,
+    accountNumber,
+  }: YieldEnterModalProps) => {
     const queryClient = useQueryClient()
     const translate = useTranslate()
     const { state: walletState, dispatch: walletDispatch } = useWallet()
@@ -118,7 +128,7 @@ export const YieldEnterModal = memo(
 
     const [cryptoAmount, setCryptoAmount] = useState('')
     const [isFiat, setIsFiat] = useState(false)
-    const [selectedAccountId, setSelectedAccountId] = useState<string | undefined>()
+    const [selectedAccountId, setSelectedAccountId] = useState<AccountId | undefined>(accountIdProp)
     const [selectedPercent, setSelectedPercent] = useState<number | null>(null)
 
     const { chainId } = yieldItem
@@ -133,13 +143,21 @@ export const YieldEnterModal = memo(
       selectPortfolioAccountIdsByAssetIdFilter(state, accountIdFilter),
     )
 
-    const defaultAccountId = useAppSelector(state => {
-      if (!chainId) return undefined
-      const accountIdsByNumberAndChain = selectAccountIdByAccountNumberAndChainId(state)
-      return accountIdsByNumberAndChain[accountNumber]?.[chainId]
+    const derivedAccountNumber = useAppSelector(state => {
+      if (accountNumber !== undefined) return accountNumber
+      if (accountIdProp) return selectAccountNumberByAccountId(state, { accountId: accountIdProp })
+      return undefined
     })
 
-    const accountId = selectedAccountId ?? defaultAccountId
+    const defaultAccountId = useAppSelector(state => {
+      if (accountIdProp) return accountIdProp
+      if (!chainId) return undefined
+      if (derivedAccountNumber === undefined) return undefined
+      const accountIdsByNumberAndChain = selectAccountIdByAccountNumberAndChainId(state)
+      return accountIdsByNumberAndChain[derivedAccountNumber]?.[chainId]
+    })
+
+    const accountId = selectedAccountId ?? defaultAccountId ?? accountIds[0]
     const hasMultipleAccounts = accountIds.length > 1
     const isAccountSelectorDisabled = !isYieldMultiAccountEnabled || !hasMultipleAccounts
 
@@ -162,7 +180,7 @@ export const YieldEnterModal = memo(
 
     const { data: providers } = useYieldProviders()
 
-    const isStaking = yieldItem.mechanics.type === 'staking'
+    const isStaking = isStakingYieldType(yieldItem.mechanics.type)
 
     const selectedValidatorMetadata = useMemo(() => {
       if (!isStaking || !selectedValidatorAddress) return null
@@ -567,6 +585,7 @@ export const YieldEnterModal = memo(
           providerInfo={successProviderInfo}
           transactionSteps={transactionSteps}
           yieldId={yieldItem.id}
+          accountId={accountId}
           onDone={hookHandleClose}
           successMessageKey='successEnter'
         />
@@ -577,6 +596,7 @@ export const YieldEnterModal = memo(
         successProviderInfo,
         transactionSteps,
         yieldItem.id,
+        accountId,
         hookHandleClose,
       ],
     )
@@ -610,11 +630,15 @@ export const YieldEnterModal = memo(
                     assetId={inputTokenAssetId}
                     accountId={accountId}
                     onChange={handleAccountChange}
-                    disabled={isAccountSelectorDisabled}
+                    disabled={isAccountSelectorDisabled || isSubmitting}
                   />
                 </Flex>
               )}
               {statsContent}
+              <YieldExplainers
+                selectedYield={yieldItem}
+                sellAssetSymbol={inputTokenAsset?.symbol}
+              />
               {stepsToShow.length > 0 && <TransactionStepsList steps={stepsToShow} />}
             </Flex>
           )}

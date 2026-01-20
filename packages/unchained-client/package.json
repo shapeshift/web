@@ -1,6 +1,6 @@
 {
   "name": "@shapeshiftoss/unchained-client",
-  "version": "10.14.8",
+  "version": "10.14.9-coderabbit-fix.2",
   "repository": "https://github.com/shapeshift/web",
   "license": "MIT",
   "type": "module",
@@ -22,7 +22,9 @@
   },
   "scripts": {
     "build": "yarn clean && yarn generate && yarn run -T tsc --build && yarn postbuild",
+    "build:docker": "yarn clean:dist && yarn run -T tsc --build && yarn postbuild",
     "clean": "rm -rf dist src/generated",
+    "clean:dist": "rm -rf dist",
     "dev": "yarn run -T tsc --build --watch",
     "generate": "TS_POST_PROCESS_FILE=./generator/post_process.sh JAVA_OPTS='-Dlog.level=error' openapi-generator-cli generate",
     "postbuild": "yarn postbuild:esm && yarn postbuild:cjs",

@@ -7,6 +7,7 @@ import type {
   solana,
   starknet,
   sui,
+  ton,
 } from '@shapeshiftoss/chain-adapters'
 import type { TronSignTx } from '@shapeshiftoss/chain-adapters/src/tron/types'
 import type { SolanaSignTx, StarknetSignTx, SuiSignTx } from '@shapeshiftoss/hdwallet-core'
@@ -29,6 +30,7 @@ import type {
   SuiTransactionExecutionProps,
   SupportedTradeQuoteStepIndex,
   SwapErrorRight,
+  TonTransactionExecutionProps,
   TradeQuote,
   TradeQuoteStep,
   TradeRate,
@@ -217,6 +219,13 @@ export const executeStarknetTransaction = (
   return callbacks.signAndBroadcastTransaction(txToSign)
 }
 
+export const executeTonTransaction = (
+  txToSign: ton.TonSignTx,
+  callbacks: TonTransactionExecutionProps,
+) => {
+  return callbacks.signAndBroadcastTransaction(txToSign)
+}
+
 export const createDefaultStatusResponse = (buyTxHash?: string) => ({
   status: TxStatus.Unknown,
   buyTxHash,
@@ -263,7 +272,9 @@ export const checkSafeTransactionStatus = async ({
   // Transaction executed on-chain
   if (isExecutedSafeTx) {
     const adapter = assertGetEvmChainAdapter(chainId)
-    const tx = await adapter.httpProvider.getTransaction({ txid: transaction.transactionHash })
+    const tx = await adapter.httpProvider.getTransaction({
+      txid: transaction.transactionHash,
+    })
     const status = evm.getTxStatus(tx)
 
     return {

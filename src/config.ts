@@ -128,14 +128,22 @@ const validators = {
   VITE_FEATURE_WC_DIRECT_CONNECTION: bool({ default: false }),
   VITE_WALLET_CONNECT_TO_DAPPS_PROJECT_ID: str({ default: '' }),
   VITE_WALLET_CONNECT_WALLET_PROJECT_ID: str({ default: '' }),
-  VITE_WALLET_CONNECT_RELAY_URL: str({ default: 'wss://relay.walletconnect.com' }),
+  VITE_WALLET_CONNECT_RELAY_URL: str({
+    default: 'wss://relay.walletconnect.com',
+  }),
   VITE_TOKEMAK_STATS_URL: url({ default: 'https://stats.tokemaklabs.com/' }),
   VITE_BOARDROOM_API_BASE_URL: url({
     default: 'https://api.boardroom.info/v1/protocols/shapeshift/',
   }),
-  VITE_BOARDROOM_APP_BASE_URL: url({ default: 'https://boardroom.io/shapeshift/' }),
-  VITE_THORCHAIN_MIDGARD_URL: url({ default: 'https://midgard.thorchain.info/v2' }),
-  VITE_MAYACHAIN_MIDGARD_URL: url({ default: 'https://midgard.mayachain.info/v2' }),
+  VITE_BOARDROOM_APP_BASE_URL: url({
+    default: 'https://boardroom.io/shapeshift/',
+  }),
+  VITE_THORCHAIN_MIDGARD_URL: url({
+    default: 'https://midgard.thorchain.info/v2',
+  }),
+  VITE_MAYACHAIN_MIDGARD_URL: url({
+    default: 'https://midgard.mayachain.info/v2',
+  }),
   VITE_COWSWAP_BASE_URL: url({ default: 'https://api.cow.fi' }),
   VITE_ONRAMPER_WIDGET_URL: url(),
   VITE_ONRAMPER_API_URL: url(),
@@ -147,9 +155,13 @@ const validators = {
   VITE_KEEPKEY_UPDATER_BASE_URL: url({
     default: 'https://github.com/keepkey/keepkey-desktop/releases/download/',
   }),
-  VITE_ETHERSCAN_API_KEY: str({ default: 'XT8BI6VDYUGD9675X861ATHZNK3AN6HRMF' }),
+  VITE_ETHERSCAN_API_KEY: str({
+    default: 'XT8BI6VDYUGD9675X861ATHZNK3AN6HRMF',
+  }),
   VITE_MIXPANEL_TOKEN: str({ default: '' }),
-  VITE_SNAPSHOT_BASE_URL: url({ default: 'https://snapshot.org/#/shapeshiftdao.eth' }),
+  VITE_SNAPSHOT_BASE_URL: url({
+    default: 'https://snapshot.org/#/shapeshiftdao.eth',
+  }),
   VITE_FEATURE_MIXPANEL: bool({ default: false }),
   VITE_ENABLE_HYPELAB: bool({ default: false }),
   VITE_HYPELAB_PROPERTY_SLUG: str({ default: '' }),
@@ -243,6 +255,7 @@ const validators = {
   VITE_YIELD_XYZ_API_KEY: str({ default: '' }),
   VITE_YIELD_XYZ_BASE_URL: url({ default: 'https://api.yield.xyz/v1' }),
   VITE_FEATURE_YIELD_MULTI_ACCOUNT: bool({ default: false }),
+  VITE_FEATURE_PERFORMANCE_PROFILER: bool({ default: false }),
 }
 
 function reporter<T>({ errors }: envalid.ReporterOptions<T>) {
@@ -256,5 +269,7 @@ function reporter<T>({ errors }: envalid.ReporterOptions<T>) {
 }
 
 export const getConfig = memoize(() => {
-  return Object.freeze({ ...cleanEnv(import.meta.env ?? process.env, validators, { reporter }) })
+  return Object.freeze({
+    ...cleanEnv(import.meta.env ?? process.env, validators, { reporter }),
+  })
 })

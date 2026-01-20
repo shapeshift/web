@@ -2869,5 +2869,27 @@
       "lendingYield": "Interest accrues to your position automatically",
       "lendingWithdraw": "When withdrawing, your assets will be available immediately"
     }
+  },
+  "perfProfiler": {
+    "title": "Perf Profiler",
+    "export": "Export",
+    "reset": "Reset",
+    "disabledMessage": "Profiling disabled. Click eye icon to enable.",
+    "toggleAria": "Toggle profiler",
+    "collapseAria": "Collapse",
+    "expandAria": "Expand profiler",
+    "enableProfiling": "Enable profiling",
+    "disableProfiling": "Disable profiling",
+    "session": "Session",
+    "indexedDb": "IndexedDB",
+    "reads": "Reads",
+    "writes": "Writes",
+    "avg": "avg",
+    "max": "max",
+    "selectors": "Selectors",
+    "totalCalls": "Total calls",
+    "slow": "Slow",
+    "assetSearch": "Asset Search",
+    "searches": "Searches"
   }
 }

@@ -62,11 +62,7 @@ export const ExploreCategory = () => {
   const isSearching = Boolean(searchString.length)
 
   const categoryHook = useMemo(() => {
-    if (category === MarketsCategories.OneClickDefi) {
-      return CATEGORY_TO_QUERY_HOOK[MarketsCategories.Trending]
-    }
-
-    if (category) {
+    if (category && category !== MarketsCategories.OneClickDefi) {
       return CATEGORY_TO_QUERY_HOOK[category]
     }
 

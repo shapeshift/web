@@ -22,7 +22,6 @@ export const Assets = () => {
   const [searchQuery, setSearchQuery] = useState('')
   const navigate = useNavigate()
   const assetsNoSpam = useAppSelector(selectAssetsNoSpam)
-  const isSearching = useMemo(() => searchQuery.length > 0, [searchQuery])
   const assetActionsDrawer = useModal('assetActionsDrawer')
 
   const filterRowsBySearchTerm = useCallback((rows: Asset[], filterValue: unknown) => {
@@ -30,8 +29,8 @@ export const Assets = () => {
     return searchAssets(filterValue.trim(), rows)
   }, [])
   const rows = useMemo(() => {
-    return isSearching ? filterRowsBySearchTerm(assetsNoSpam, searchQuery) : assetsNoSpam
-  }, [assetsNoSpam, filterRowsBySearchTerm, isSearching, searchQuery])
+    return searchQuery ? filterRowsBySearchTerm(assetsNoSpam, searchQuery) : assetsNoSpam
+  }, [assetsNoSpam, filterRowsBySearchTerm, searchQuery])
 
   const handleRowClick = useCallback(
     (asset: Asset) => {

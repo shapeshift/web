@@ -84,7 +84,7 @@ export const YieldHero = memo(
 
     const yieldTitle = titleOverride ?? yieldItem.metadata.name ?? yieldItem.token.symbol
 
-    const descriptionSection = useMemo(() => {
+    const maybeDescriptionSection = useMemo(() => {
       const docUrl = validatorOrProvider?.documentation ?? yieldItem.metadata.documentation
       const description = validatorOrProvider?.description ?? yieldItem.metadata.description
       if (!description && !docUrl) return null
@@ -202,7 +202,7 @@ export const YieldHero = memo(
           {apy}% {translate('common.apy')}
         </Badge>
 
-        {descriptionSection}
+        {maybeDescriptionSection}
 
         <VStack spacing={1} textAlign='center'>
           <Text fontSize={{ base: '3xl', md: '4xl' }} fontWeight='bold' lineHeight='1'>

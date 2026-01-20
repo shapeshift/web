@@ -111,7 +111,7 @@ export const YieldDetail = memo(() => {
   const { data: validators } = useYieldValidators(yieldItem?.id ?? '', shouldFetchValidators)
   const { data: yieldProviders } = useYieldProviders()
 
-  const validatorOrProvider = useMemo(() => {
+  const maybeValidatorOrProvider = useMemo(() => {
     if (isStaking && requiresValidatorSelection && selectedValidatorAddress) {
       const found = validators?.find(v => v.address === selectedValidatorAddress)
       if (found) return { name: found.name, logoURI: found.logoURI }
@@ -263,7 +263,7 @@ export const YieldDetail = memo(() => {
             yieldItem={yieldItem}
             userBalanceUsd={userBalances.userCurrency}
             userBalanceCrypto={userBalances.crypto}
-            validatorOrProvider={validatorOrProvider}
+            validatorOrProvider={maybeValidatorOrProvider}
             titleOverride={titleOverride}
           />
           <Stack gap={4} mt={4}>
@@ -278,12 +278,12 @@ export const YieldDetail = memo(() => {
               inputTokenMarketData={inputTokenMarketData}
             />
             <YieldStats yieldItem={yieldItem} balances={balances} />
-            {!isStaking && validatorOrProvider && (
+            {!isStaking && maybeValidatorOrProvider && (
               <YieldProviderInfo
                 providerId={yieldItem.providerId}
-                providerName={validatorOrProvider.name}
-                providerLogoURI={validatorOrProvider.logoURI}
-                providerWebsite={validatorOrProvider.documentation}
+                providerName={maybeValidatorOrProvider.name}
+                providerLogoURI={maybeValidatorOrProvider.logoURI}
+                providerWebsite={maybeValidatorOrProvider.documentation}
               />
             )}
             <YieldRelatedMarkets
@@ -298,16 +298,16 @@ export const YieldDetail = memo(() => {
             <Stack gap={4} flex={1}>
               <YieldInfoCard
                 yieldItem={yieldItem}
-                validatorOrProvider={validatorOrProvider}
+                validatorOrProvider={maybeValidatorOrProvider}
                 titleOverride={titleOverride}
               />
               <YieldStats yieldItem={yieldItem} balances={balances} />
-              {!isStaking && validatorOrProvider && (
+              {!isStaking && maybeValidatorOrProvider && (
                 <YieldProviderInfo
                   providerId={yieldItem.providerId}
-                  providerName={validatorOrProvider.name}
-                  providerLogoURI={validatorOrProvider.logoURI}
-                  providerWebsite={validatorOrProvider.documentation}
+                  providerName={maybeValidatorOrProvider.name}
+                  providerLogoURI={maybeValidatorOrProvider.logoURI}
+                  providerWebsite={maybeValidatorOrProvider.documentation}
                 />
               )}
               <YieldRelatedMarkets

@@ -51,11 +51,13 @@ type TradeConfirmFooterProps = {
   tradeQuoteStep: TradeQuoteStep
   activeTradeId: string
   isCompact: boolean | undefined
+  onSwapTxBroadcast?: () => void
 }
 
 export const TradeConfirmFooter: FC<TradeConfirmFooterProps> = ({
   tradeQuoteStep,
   activeTradeId,
+  onSwapTxBroadcast,
 }) => {
   const [isExactAllowance, toggleIsExactAllowance] = useToggle(true)
   const translate = useTranslate()
@@ -412,6 +414,7 @@ export const TradeConfirmFooter: FC<TradeConfirmFooterProps> = ({
         activeTradeId={activeTradeId}
         isExactAllowance={isExactAllowance}
         isLoading={isNetworkFeeCryptoBaseUnitLoading || isNetworkFeeCryptoBaseUnitRefetching}
+        onSwapTxBroadcast={onSwapTxBroadcast}
       />
     )
   }, [
@@ -421,6 +424,7 @@ export const TradeConfirmFooter: FC<TradeConfirmFooterProps> = ({
     isExactAllowance,
     isNetworkFeeCryptoBaseUnitLoading,
     isNetworkFeeCryptoBaseUnitRefetching,
+    onSwapTxBroadcast,
   ])
 
   return (

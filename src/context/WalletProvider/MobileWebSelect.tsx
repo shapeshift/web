@@ -46,7 +46,9 @@ export const MobileWebSelect: React.FC<PropsWithChildren<MobileWebSelectProps>> 
 }) => {
   const translate = useTranslate()
   const { pairDevice, isLoading, error } = useWalletConnectV2Pairing()
-  const { isOpen: isCollapseOpen, onToggle: onCollapseToggle } = useDisclosure()
+  const { isOpen: isCollapseOpen, onToggle: onCollapseToggle } = useDisclosure({
+    defaultIsOpen: true,
+  })
 
   return (
     <Dialog isOpen={isOpen} onClose={onClose} height='auto'>

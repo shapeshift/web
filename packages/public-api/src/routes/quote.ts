@@ -17,6 +17,7 @@ import { createServerSwapperDeps } from '../swapperDeps'
 import type {
   ApiQuoteStep,
   ApprovalInfo,
+  CosmosTransactionData,
   ErrorResponse,
   EvmTransactionData,
   QuoteResponse,
@@ -170,14 +171,14 @@ const extractSolanaTransactionData = (step: TradeQuoteStep): SolanaTransactionDa
   }
 }
 
-type UtxoExtractionContext = {
+type DepositExtractionContext = {
   memo?: string
   depositAddress?: string
 }
 
 const extractUtxoTransactionData = (
   step: TradeQuoteStep,
-  context: UtxoExtractionContext = {},
+  context: DepositExtractionContext = {},
 ): UtxoTransactionData | undefined => {
   if (step.relayTransactionMetadata?.psbt) {
     return {
@@ -208,9 +209,26 @@ const extractUtxoTransactionData = (
   return undefined
 }
 
+const extractCosmosTransactionData = (
+  step: TradeQuoteStep,
+  context: DepositExtractionContext = {},
+): CosmosTransactionData | undefined => {
+  if (context.depositAddress && context.memo !== undefined) {
+    return {
+      type: 'cosmos',
+      chainId: step.sellAsset.chainId,
+      to: context.depositAddress,
+      value: step.sellAmountIncludingProtocolFeesCryptoBaseUnit,
+      memo: context.memo,
+    }
+  }
+
+  return undefined
+}
+
 const extractTransactionData = (
   step: TradeQuoteStep,
-  context: UtxoExtractionContext = {},
+  context: DepositExtractionContext = {},
 ): TransactionData | undefined => {
   const { chainNamespace } = fromChainId(step.sellAsset.chainId)
 
@@ -224,6 +242,10 @@ const extractTransactionData = (
 
   if (chainNamespace === 'bip122') {
     return extractUtxoTransactionData(step, context)
+  }
+
+  if (chainNamespace === 'cosmos') {
+    return extractCosmosTransactionData(step, context)
   }
 
   return undefined
@@ -253,7 +275,7 @@ const buildApprovalInfo = (step: TradeQuoteStep, _sellAssetId: string): Approval
 // Transform quote step to API format
 const transformQuoteStep = (
   step: TradeQuoteStep,
-  context: UtxoExtractionContext = {},
+  context: DepositExtractionContext = {},
 ): ApiQuoteStep => ({
   sellAsset: step.sellAsset,
   buyAsset: step.buyAsset,
@@ -396,17 +418,17 @@ export const getQuote = async (req: Request, res: Response): Promise<void> => {
     const now = Date.now()
 
     const thorLikeQuote = quote as ThorLikeQuote
-    let utxoContext: UtxoExtractionContext = {}
+    let depositContext: DepositExtractionContext = {}
 
     if (thorLikeQuote.memo) {
       const { chainNamespace } = fromChainId(firstStep.sellAsset.chainId)
-      if (chainNamespace === 'bip122') {
+      if (chainNamespace === 'bip122' || chainNamespace === 'cosmos') {
         const depositAddress = await fetchInboundAddress(
           firstStep.sellAsset.assetId,
           validSwapperName,
         )
         if (depositAddress) {
-          utxoContext = {
+          depositContext = {
             memo: thorLikeQuote.memo,
             depositAddress,
           }
@@ -426,7 +448,7 @@ export const getQuote = async (req: Request, res: Response): Promise<void> => {
       affiliateBps: quote.affiliateBps,
       slippageTolerancePercentageDecimal: quote.slippageTolerancePercentageDecimal,
       networkFeeCryptoBaseUnit: firstStep.feeData.networkFeeCryptoBaseUnit,
-      steps: quote.steps.map(step => transformQuoteStep(step, utxoContext)),
+      steps: quote.steps.map(step => transformQuoteStep(step, depositContext)),
       approval: buildApprovalInfo(firstStep, sellAssetId),
       expiresAt: now + 60_000,
     }

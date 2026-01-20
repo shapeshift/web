@@ -11,7 +11,7 @@ import { v4 as uuidv4 } from 'uuid'
 import { z } from 'zod'
 
 import { getAsset, getAssetsById } from '../assets'
-import { DEFAULT_AFFILIATE_BPS } from '../config'
+import { DEFAULT_AFFILIATE_BPS, getServerConfig } from '../config'
 import { booleanFromString } from '../lib/zod'
 import { createServerSwapperDeps } from '../swapperDeps'
 import type {
@@ -22,9 +22,11 @@ import type {
   QuoteResponse,
   SolanaTransactionData,
   TransactionData,
+  UtxoTransactionData,
 } from '../types'
 
-// Lazy load swapper to avoid import issues at module load time
+type ThorLikeQuote = TradeQuote & { memo?: string }
+
 let swapperModule: Awaited<ReturnType<typeof importSwapperModule>> | null = null
 const importSwapperModule = () => import('@shapeshiftoss/swapper')
 const getSwapperModule = async () => {
@@ -32,6 +34,24 @@ const getSwapperModule = async () => {
     swapperModule = await importSwapperModule()
   }
   return swapperModule
+}
+
+const fetchInboundAddress = async (
+  assetId: string,
+  swapperName: SwapperName,
+): Promise<string | undefined> => {
+  const { getInboundAddressDataForChain, getDaemonUrl } = await getSwapperModule()
+
+  const config = getServerConfig()
+  const daemonUrl = getDaemonUrl(config, swapperName)
+
+  const result = await getInboundAddressDataForChain(daemonUrl, assetId, false, swapperName)
+
+  if (result.isOk()) {
+    return result.unwrap().address
+  }
+
+  return undefined
 }
 
 // Request validation schema - swapperName is string, validated later
@@ -150,7 +170,48 @@ const extractSolanaTransactionData = (step: TradeQuoteStep): SolanaTransactionDa
   }
 }
 
-const extractTransactionData = (step: TradeQuoteStep): TransactionData | undefined => {
+type UtxoExtractionContext = {
+  memo?: string
+  depositAddress?: string
+}
+
+const extractUtxoTransactionData = (
+  step: TradeQuoteStep,
+  context: UtxoExtractionContext = {},
+): UtxoTransactionData | undefined => {
+  if (step.relayTransactionMetadata?.psbt) {
+    return {
+      type: 'utxo_psbt',
+      psbt: step.relayTransactionMetadata.psbt,
+      opReturnData: step.relayTransactionMetadata.opReturnData,
+    }
+  }
+
+  if (step.chainflipSpecific?.chainflipDepositAddress) {
+    return {
+      type: 'utxo_deposit',
+      depositAddress: step.chainflipSpecific.chainflipDepositAddress,
+      memo: '',
+      value: step.sellAmountIncludingProtocolFeesCryptoBaseUnit,
+    }
+  }
+
+  if (context.depositAddress && context.memo !== undefined) {
+    return {
+      type: 'utxo_deposit',
+      depositAddress: context.depositAddress,
+      memo: context.memo,
+      value: step.sellAmountIncludingProtocolFeesCryptoBaseUnit,
+    }
+  }
+
+  return undefined
+}
+
+const extractTransactionData = (
+  step: TradeQuoteStep,
+  context: UtxoExtractionContext = {},
+): TransactionData | undefined => {
   const { chainNamespace } = fromChainId(step.sellAsset.chainId)
 
   if (chainNamespace === 'eip155') {
@@ -159,6 +220,10 @@ const extractTransactionData = (step: TradeQuoteStep): TransactionData | undefin
 
   if (chainNamespace === 'solana') {
     return extractSolanaTransactionData(step)
+  }
+
+  if (chainNamespace === 'bip122') {
+    return extractUtxoTransactionData(step, context)
   }
 
   return undefined
@@ -186,7 +251,10 @@ const buildApprovalInfo = (step: TradeQuoteStep, _sellAssetId: string): Approval
 }
 
 // Transform quote step to API format
-const transformQuoteStep = (step: TradeQuoteStep): ApiQuoteStep => ({
+const transformQuoteStep = (
+  step: TradeQuoteStep,
+  context: UtxoExtractionContext = {},
+): ApiQuoteStep => ({
   sellAsset: step.sellAsset,
   buyAsset: step.buyAsset,
   sellAmountCryptoBaseUnit: step.sellAmountIncludingProtocolFeesCryptoBaseUnit,
@@ -194,7 +262,7 @@ const transformQuoteStep = (step: TradeQuoteStep): ApiQuoteStep => ({
   allowanceContract: step.allowanceContract,
   estimatedExecutionTimeMs: step.estimatedExecutionTimeMs,
   source: step.source,
-  transactionData: extractTransactionData(step),
+  transactionData: extractTransactionData(step, context),
 })
 
 export const getQuote = async (req: Request, res: Response): Promise<void> => {
@@ -324,9 +392,27 @@ export const getQuote = async (req: Request, res: Response): Promise<void> => {
     // Calculate total buy amount (sum of all steps for multi-hop)
     const lastStep = quote.steps[quote.steps.length - 1]
 
-    // Build response
     const quoteId = uuidv4()
     const now = Date.now()
+
+    const thorLikeQuote = quote as ThorLikeQuote
+    let utxoContext: UtxoExtractionContext = {}
+
+    if (thorLikeQuote.memo) {
+      const { chainNamespace } = fromChainId(firstStep.sellAsset.chainId)
+      if (chainNamespace === 'bip122') {
+        const depositAddress = await fetchInboundAddress(
+          firstStep.sellAsset.assetId,
+          validSwapperName,
+        )
+        if (depositAddress) {
+          utxoContext = {
+            memo: thorLikeQuote.memo,
+            depositAddress,
+          }
+        }
+      }
+    }
 
     const response: QuoteResponse = {
       quoteId,
@@ -340,7 +426,7 @@ export const getQuote = async (req: Request, res: Response): Promise<void> => {
       affiliateBps: quote.affiliateBps,
       slippageTolerancePercentageDecimal: quote.slippageTolerancePercentageDecimal,
       networkFeeCryptoBaseUnit: firstStep.feeData.networkFeeCryptoBaseUnit,
-      steps: quote.steps.map(transformQuoteStep),
+      steps: quote.steps.map(step => transformQuoteStep(step, utxoContext)),
       approval: buildApprovalInfo(firstStep, sellAssetId),
       expiresAt: now + 60_000,
     }

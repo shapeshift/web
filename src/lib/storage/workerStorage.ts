@@ -17,7 +17,10 @@ type PendingRequest = {
   reject: (error: Error) => void
   key: string
   type: 'read' | 'write'
+  timeoutId: ReturnType<typeof setTimeout>
 }
+
+const OPERATION_TIMEOUT_MS = 10000
 
 class WorkerStorage {
   private worker: Worker | null = null
@@ -25,6 +28,7 @@ class WorkerStorage {
   private requestId = 0
   private initPromise: Promise<void> | null = null
   private profilingEnabled: boolean
+  private keyLocks: Map<string, Promise<void>> = new Map()
 
   constructor(enableProfiling: boolean) {
     this.profilingEnabled = enableProfiling
@@ -76,6 +80,7 @@ class WorkerStorage {
     const pending = this.pendingRequests.get(data.requestId)
     if (!pending) return
 
+    clearTimeout(pending.timeoutId)
     this.pendingRequests.delete(data.requestId)
 
     if (data.type === 'error') {
@@ -96,6 +101,22 @@ class WorkerStorage {
     }
   }
 
+  private withKeyLock<T>(key: string, operation: () => Promise<T>): Promise<T> {
+    const lastOp = this.keyLocks.get(key) ?? Promise.resolve()
+    const thisOp = lastOp.then(
+      () => operation(),
+      () => operation(),
+    )
+    this.keyLocks.set(
+      key,
+      thisOp.then(
+        () => {},
+        () => {},
+      ),
+    )
+    return thisOp
+  }
+
   private sendMessage(
     message: Exclude<IndexedDBWorkerInboundMessage, { type: 'ping' }>,
     key: string,
@@ -107,7 +128,21 @@ class WorkerStorage {
         return
       }
 
-      this.pendingRequests.set(message.requestId, { resolve, reject, key, type })
+      const timeoutId = setTimeout(() => {
+        const pending = this.pendingRequests.get(message.requestId)
+        if (pending) {
+          this.pendingRequests.delete(message.requestId)
+          pending.reject(new Error(`Operation timeout: ${key}`))
+        }
+      }, OPERATION_TIMEOUT_MS)
+
+      this.pendingRequests.set(message.requestId, {
+        resolve,
+        reject,
+        key,
+        type,
+        timeoutId,
+      })
       this.worker.postMessage(message)
     })
   }
@@ -122,38 +157,55 @@ class WorkerStorage {
     }
 
     const requestId = ++this.requestId
-    const message: IndexedDBWorkerInboundMessage = { type: 'getItem', requestId, key }
+    const message: IndexedDBWorkerInboundMessage = {
+      type: 'getItem',
+      requestId,
+      key,
+    }
     const result = await this.sendMessage(message, key, 'read')
     return result as T | null
   }
 
-  async setItem<T>(key: string, value: T): Promise<T> {
-    await this.init()
+  setItem<T>(key: string, value: T): Promise<T> {
+    return this.withKeyLock(key, async () => {
+      await this.init()
 
-    if (!this.worker) {
-      console.warn('[WorkerStorage] Worker not available, falling back to direct localforage')
-      const localforage = await import('localforage')
-      return localforage.default.setItem<T>(key, value)
-    }
+      if (!this.worker) {
+        console.warn('[WorkerStorage] Worker not available, falling back to direct localforage')
+        const localforage = await import('localforage')
+        return localforage.default.setItem<T>(key, value)
+      }
 
-    const requestId = ++this.requestId
-    const message: IndexedDBWorkerInboundMessage = { type: 'setItem', requestId, key, value }
-    await this.sendMessage(message, key, 'write')
-    return value
+      const requestId = ++this.requestId
+      const message: IndexedDBWorkerInboundMessage = {
+        type: 'setItem',
+        requestId,
+        key,
+        value,
+      }
+      await this.sendMessage(message, key, 'write')
+      return value
+    })
   }
 
-  async removeItem(key: string): Promise<void> {
-    await this.init()
+  removeItem(key: string): Promise<void> {
+    return this.withKeyLock(key, async () => {
+      await this.init()
 
-    if (!this.worker) {
-      console.warn('[WorkerStorage] Worker not available, falling back to direct localforage')
-      const localforage = await import('localforage')
-      return localforage.default.removeItem(key)
-    }
+      if (!this.worker) {
+        console.warn('[WorkerStorage] Worker not available, falling back to direct localforage')
+        const localforage = await import('localforage')
+        return localforage.default.removeItem(key)
+      }
 
-    const requestId = ++this.requestId
-    const message: IndexedDBWorkerInboundMessage = { type: 'removeItem', requestId, key }
-    await this.sendMessage(message, key, 'write')
+      const requestId = ++this.requestId
+      const message: IndexedDBWorkerInboundMessage = {
+        type: 'removeItem',
+        requestId,
+        key,
+      }
+      await this.sendMessage(message, key, 'write')
+    })
   }
 }
 

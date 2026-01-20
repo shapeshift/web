@@ -214,10 +214,7 @@ describe('searchAssets', () => {
 
   describe('address search', () => {
     it('matches by contract address', () => {
-      const returnedAssets = searchAssets(
-        '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
-        usdAssets,
-      )
+      const returnedAssets = searchAssets('0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48', usdAssets)
       expect(returnedAssets.length).toBe(1)
       expect(returnedAssets[0].symbol).toBe('USDC')
     })

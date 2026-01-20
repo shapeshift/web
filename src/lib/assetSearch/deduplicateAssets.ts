@@ -1,13 +1,10 @@
-import type { AssetId } from '@shapeshiftoss/caip'
-
+import type { SearchableAsset } from './types'
 import { isExactMatch } from './utils'
 
-type DeduplicatableAsset = {
-  assetId: AssetId
-  symbol: string
-  isPrimary?: boolean
-  relatedAssetKey?: AssetId | null
-}
+type DeduplicatableAsset = Pick<
+  SearchableAsset,
+  'assetId' | 'symbol' | 'isPrimary' | 'relatedAssetKey'
+>
 
 /**
  * Deduplicates assets by relatedAssetKey (asset family).
@@ -16,15 +13,11 @@ type DeduplicatableAsset = {
  * 1. Primary asset (always wins within family - ensures groups are shown, not single variants)
  * 2. Exact symbol match (only if no primary exists in family)
  * 3. First asset in order (fallback)
- *
- * @param assets - Array of assets to deduplicate
- * @param searchString - The search string used to find these assets
- * @returns Array with one asset per family, preferring primary assets
  */
-export function deduplicateAssets<T extends DeduplicatableAsset>(
+export const deduplicateAssets = <T extends DeduplicatableAsset>(
   assets: T[],
   searchString?: string,
-): T[] {
+): T[] => {
   const familyToAsset = new Map<string, T>()
   const searchLower = searchString?.toLowerCase() ?? ''
 

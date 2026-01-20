@@ -1,5 +1,9 @@
 import type { AssetId } from '@shapeshiftoss/caip'
 
+import type { SearchableAsset } from './types'
+
+type SearchableAssetMinimal = Pick<SearchableAsset, 'assetId' | 'symbol' | 'name'>
+
 /**
  * Determines whether to search all assets or just primary assets.
  *
@@ -15,18 +19,13 @@ import type { AssetId } from '@shapeshiftoss/caip'
  * - "VBUSD" → true (could match VBUSDC which is not a primary symbol)
  * - "Axelar Bridged" → true (matches name "Axelar Bridged USDC" of non-primary asset)
  * - "Lombard" → true (matches name "Lombard Staked BTC" if LBTC is a unique symbol)
- *
- * @param searchQuery - The search term
- * @param allAssets - All available assets
- * @param primaryAssetIds - Set of asset IDs that are primary
- * @param primarySymbols - Set of symbols from primary assets (lowercase)
  */
-export function shouldSearchAllAssets<T extends { assetId: AssetId; symbol: string; name: string }>(
+export const shouldSearchAllAssets = <T extends SearchableAssetMinimal>(
   searchQuery: string,
   allAssets: T[],
   primaryAssetIds: Set<AssetId>,
   primarySymbols: Set<string>,
-): boolean {
+): boolean => {
   const searchLower = searchQuery.toLowerCase()
 
   // Check if search could match a non-primary asset with a unique symbol

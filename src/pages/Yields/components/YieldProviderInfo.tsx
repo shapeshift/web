@@ -49,23 +49,23 @@ export const YieldProviderInfo = memo(
                     <Heading as='h3' size='md'>
                       {translate('yieldXYZ.aboutProvider', { provider: providerName })}
                     </Heading>
+                    {providerWebsite && (
+                      <Link href={providerWebsite} isExternal ml='auto'>
+                        <Button
+                          variant='ghost'
+                          size='sm'
+                          rightIcon={<ExternalLinkIcon />}
+                          color='text.subtle'
+                          _hover={{ color: 'text.base' }}
+                        >
+                          {translate('yieldXYZ.visitWebsite')}
+                        </Button>
+                      </Link>
+                    )}
                   </HStack>
                   <Text color='text.subtle' fontSize='sm' lineHeight='tall'>
                     {description}
                   </Text>
-                  {providerWebsite && (
-                    <Link href={providerWebsite} isExternal ml={-2}>
-                      <Button
-                        variant='ghost'
-                        size='sm'
-                        rightIcon={<ExternalLinkIcon />}
-                        color='text.subtle'
-                        _hover={{ color: 'text.base' }}
-                      >
-                        {translate('yieldXYZ.visitWebsite')}
-                      </Button>
-                    </Link>
-                  )}
                 </Flex>
               </Flex>
             </CardBody>

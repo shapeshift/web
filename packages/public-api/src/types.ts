@@ -141,12 +141,12 @@ export type Chain = {
   precision: number
   color: string
   networkColor?: string
-  icon: string | undefined
+  icon?: string
   networkIcon?: string
   explorer: string
   explorerAddressLink: string
   explorerTxLink: string
-  nativeAssetId: string
+  nativeAssetId: AssetId
 }
 
 export type ChainsResponse = {

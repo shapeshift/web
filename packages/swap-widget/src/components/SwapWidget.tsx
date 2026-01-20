@@ -29,7 +29,7 @@ import { useBitcoinSigning } from '../hooks/useBitcoinSigning'
 import { formatUsdValue, useMarketData } from '../hooks/useMarketData'
 import { useSolanaSigning } from '../hooks/useSolanaSigning'
 import { useSwapRates } from '../hooks/useSwapRates'
-import type { Asset, SwapWidgetProps, ThemeMode, TradeRate } from '../types'
+import type { Asset, EvmTransactionData, SwapWidgetProps, ThemeMode, TradeRate } from '../types'
 import { formatAmount, getChainType, getEvmNetworkId, parseAmount, truncateAddress } from '../types'
 import { AddressInputModal } from './AddressInputModal'
 import { QuoteSelector } from './QuoteSelector'
@@ -616,17 +616,7 @@ const SwapWidgetCore = ({
         }
       }
 
-      const outerStep = quoteResponse.steps?.[0]
-      const innerStep = quoteResponse.quote?.steps?.[0]
-
-      const transactionData =
-        quoteResponse.transactionData ??
-        outerStep?.transactionData ??
-        outerStep?.relayTransactionMetadata ??
-        outerStep?.butterSwapTransactionMetadata ??
-        innerStep?.transactionData ??
-        innerStep?.relayTransactionMetadata ??
-        innerStep?.butterSwapTransactionMetadata
+      const transactionData = quoteResponse.steps?.[0]?.transactionData
 
       if (!transactionData) {
         throw new Error(
@@ -634,10 +624,17 @@ const SwapWidgetCore = ({
         )
       }
 
-      const to = transactionData.to as string
-      const data = transactionData.data as string
-      const value = transactionData.value ?? '0'
-      const gasLimit = transactionData.gasLimit as string | undefined
+      if (transactionData.type !== 'evm') {
+        throw new Error(
+          `Unsupported transaction type: ${transactionData.type}. Only EVM transactions are supported.`,
+        )
+      }
+
+      const evmTxData: EvmTransactionData = transactionData
+      const to = evmTxData.to
+      const data = evmTxData.data
+      const value = evmTxData.value
+      const gasLimit = evmTxData.gasLimit
 
       setTxStatus({ status: 'pending', message: 'Waiting for confirmation...' })
 

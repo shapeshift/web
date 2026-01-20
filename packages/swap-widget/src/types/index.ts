@@ -157,31 +157,100 @@ export type RatesResponse = {
   rates: TradeRate[]
 }
 
-type TransactionData = {
+export type EvmTransactionData = {
+  type: 'evm'
+  chainId: number
   to: string
   data: string
-  value?: string
+  value: string
   gasLimit?: string
-  chainId?: number
-  relayId?: string
 }
 
-type QuoteStep = {
+export type SolanaTransactionData = {
+  type: 'solana'
+  instructions: {
+    programId: string
+    keys: {
+      pubkey: string
+      isSigner: boolean
+      isWritable: boolean
+    }[]
+    data: string
+  }[]
+  addressLookupTableAddresses: string[]
+}
+
+export type UtxoPsbtTransactionData = {
+  type: 'utxo_psbt'
+  psbt: string
+  opReturnData?: string
+}
+
+export type UtxoDepositTransactionData = {
+  type: 'utxo_deposit'
+  depositAddress: string
+  memo: string
+  value: string
+}
+
+export type UtxoTransactionData = UtxoPsbtTransactionData | UtxoDepositTransactionData
+
+export type CosmosTransactionData = {
+  type: 'cosmos'
+  chainId: string
+  to: string
+  value: string
+  memo?: string
+}
+
+export type CowswapOrderData = {
+  type: 'cowswap'
+  order: unknown
+}
+
+export type TransactionData =
+  | EvmTransactionData
+  | SolanaTransactionData
+  | UtxoTransactionData
+  | CosmosTransactionData
+  | CowswapOrderData
+
+export type ApiQuoteStep = {
+  sellAsset: Asset
+  buyAsset: Asset
+  sellAmountCryptoBaseUnit: string
+  buyAmountAfterFeesCryptoBaseUnit: string
+  allowanceContract: string
+  estimatedExecutionTimeMs: number | undefined
+  source: string
   transactionData?: TransactionData
-  relayTransactionMetadata?: TransactionData
-  butterSwapTransactionMetadata?: TransactionData
+}
+
+export type ApprovalInfo = {
+  isRequired: boolean
+  spender: string
+  approvalTx?: {
+    to: string
+    data: string
+    value: string
+  }
 }
 
 export type QuoteResponse = {
-  quote?: {
-    steps?: QuoteStep[]
-  }
-  transactionData?: TransactionData
-  steps?: QuoteStep[]
-  approval?: {
-    isRequired: boolean
-    spender: string
-  }
+  quoteId: string
+  swapperName: SwapperName
+  rate: string
+  sellAsset: Asset
+  buyAsset: Asset
+  sellAmountCryptoBaseUnit: string
+  buyAmountBeforeFeesCryptoBaseUnit: string
+  buyAmountAfterFeesCryptoBaseUnit: string
+  affiliateBps: string
+  slippageTolerancePercentageDecimal: string | undefined
+  networkFeeCryptoBaseUnit: string | undefined
+  steps: ApiQuoteStep[]
+  approval: ApprovalInfo
+  expiresAt: number
 }
 
 export { erc20Abi as ERC20_ABI }

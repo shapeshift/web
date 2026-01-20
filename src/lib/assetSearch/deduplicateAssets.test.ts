@@ -1,18 +1,23 @@
 import { describe, expect, it } from 'vitest'
 
-import { deduplicateAssets, deduplicateAssetsBySymbol } from './deduplicateAssets'
+import { deduplicateAssets } from './deduplicateAssets'
 import {
   AXLUSDC_ARBITRUM,
   AXLUSDC_OPTIMISM,
+  AXLUSDT_ARBITRUM,
+  AXLUSDT_OPTIMISM,
+  BRIDGED_USDT_OPTIMISM,
   BTC_MAINNET,
   ETH_MAINNET,
+  LBTC_BASE_PRIMARY,
+  LBTC_ETH,
   USDC_ARBITRUM,
   USDC_ETH_PRIMARY,
-  USDC_OPTIMISM,
   USDT_ETH_PRIMARY,
   USDT_OPTIMISM,
   USDT0_OPTIMISM,
   USDT0_POLYGON,
+  VBUSDC_KATANA,
 } from './testData'
 
 describe('deduplicateAssets', () => {
@@ -201,101 +206,118 @@ describe('deduplicateAssets', () => {
     expect(result).toHaveLength(1)
     expect(result[0].isPrimary).toBe(true)
   })
-})
 
-describe('deduplicateAssetsBySymbol (deprecated)', () => {
-  it('keeps first occurrence of each symbol', () => {
-    const assets = [USDC_ETH_PRIMARY, USDC_ARBITRUM, USDC_OPTIMISM]
+  describe('name search grouping', () => {
+    it('groups "Axelar Bridged" name search results by family', () => {
+      // AXLUSDC and AXLUSDT are in different families (USDC and USDT families)
+      const assets = [AXLUSDC_OPTIMISM, AXLUSDC_ARBITRUM, AXLUSDT_OPTIMISM, AXLUSDT_ARBITRUM]
 
-    const result = deduplicateAssetsBySymbol(assets)
+      const result = deduplicateAssets(assets, 'Axelar Bridged')
 
-    expect(result).toHaveLength(1)
-    expect(result[0].assetId).toBe(USDC_ETH_PRIMARY.assetId)
-  })
+      // Should show one from each family
+      expect(result).toHaveLength(2)
+      expect(result.map(a => a.symbol).sort()).toEqual(['AXLUSDC', 'AXLUSDT'])
+    })
 
-  it('handles multiple different symbols', () => {
-    const assets = [
-      AXLUSDC_ARBITRUM,
-      AXLUSDC_OPTIMISM,
-      { ...AXLUSDC_ARBITRUM, symbol: 'AXLUSDT', name: 'Axelar USDT' },
-      { ...AXLUSDC_OPTIMISM, symbol: 'AXLUSDT', name: 'Axelar USDT' },
-      { ...AXLUSDC_OPTIMISM, symbol: 'VBUSDC', name: 'VBUSDC Ronin' },
-    ]
+    it('returns primary USDC when searching "Axelar Bridged USDC" (AXLUSDC is in USDC family)', () => {
+      const assets = [USDC_ETH_PRIMARY, AXLUSDC_OPTIMISM, AXLUSDC_ARBITRUM]
 
-    const result = deduplicateAssetsBySymbol(assets)
+      const result = deduplicateAssets(assets, 'Axelar Bridged USDC')
 
-    expect(result).toHaveLength(3)
-    expect(result.map(a => a.symbol)).toEqual(['AXLUSDC', 'AXLUSDT', 'VBUSDC'])
-  })
+      // AXLUSDC is in USDC family, so primary USDC wins
+      expect(result).toHaveLength(1)
+      expect(result[0].symbol).toBe('USDC')
+      expect(result[0].isPrimary).toBe(true)
+    })
 
-  it('is case insensitive', () => {
-    const assets = [
-      USDC_ETH_PRIMARY,
-      { ...USDC_ARBITRUM, symbol: 'usdc' },
-      { ...USDC_OPTIMISM, symbol: 'Usdc' },
-    ]
+    it('returns primary USDT when searching "Axelar Bridged USDT" (AXLUSDT is in USDT family)', () => {
+      const assets = [USDT_ETH_PRIMARY, AXLUSDT_OPTIMISM, AXLUSDT_ARBITRUM]
 
-    const result = deduplicateAssetsBySymbol(assets)
+      const result = deduplicateAssets(assets, 'Axelar Bridged USDT')
 
-    expect(result).toHaveLength(1)
-    expect(result[0].assetId).toBe(USDC_ETH_PRIMARY.assetId)
-  })
+      // AXLUSDT is in USDT family, so primary USDT wins
+      expect(result).toHaveLength(1)
+      expect(result[0].symbol).toBe('USDT')
+      expect(result[0].isPrimary).toBe(true)
+    })
 
-  it('returns empty array for empty input', () => {
-    const result = deduplicateAssetsBySymbol([])
-    expect(result).toEqual([])
-  })
+    it('groups "Lombard" name search results', () => {
+      const assets = [LBTC_BASE_PRIMARY, LBTC_ETH]
 
-  it('returns single item unchanged', () => {
-    const assets = [BTC_MAINNET]
-    const result = deduplicateAssetsBySymbol(assets)
-    expect(result).toEqual(assets)
-  })
+      const result = deduplicateAssets(assets, 'Lombard')
 
-  it('preserves order of first occurrences', () => {
-    const assets = [
-      ETH_MAINNET,
-      BTC_MAINNET,
-      { ...ETH_MAINNET, assetId: 'eip155:10/slip44:60' as const },
-      USDC_ETH_PRIMARY,
-      { ...BTC_MAINNET, assetId: 'bip122:btc2' as const },
-    ]
+      // Both are in the same family, should return primary
+      expect(result).toHaveLength(1)
+      expect(result[0].isPrimary).toBe(true)
+    })
 
-    const result = deduplicateAssetsBySymbol(assets)
+    it('groups "Lombard Staked BTC" exact name search', () => {
+      const assets = [LBTC_ETH, LBTC_BASE_PRIMARY]
 
-    expect(result.map(a => a.symbol)).toEqual(['ETH', 'BTC', 'USDC'])
-  })
+      const result = deduplicateAssets(assets, 'Lombard Staked BTC')
 
-  it('prefers primary assets over non-primary when same symbol', () => {
-    const assets = [
-      USDT_OPTIMISM,
-      USDT_ETH_PRIMARY,
-      { ...USDT_OPTIMISM, assetId: 'eip155:42161/usdt' as const },
-    ]
+      expect(result).toHaveLength(1)
+      expect(result[0].name).toBe('Lombard Staked BTC')
+      expect(result[0].isPrimary).toBe(true)
+    })
 
-    const result = deduplicateAssetsBySymbol(assets)
+    it('returns primary USDC when searching "VaultBridge Bridged USDC" (VBUSDC is in USDC family)', () => {
+      const assets = [USDC_ETH_PRIMARY, VBUSDC_KATANA]
 
-    expect(result).toHaveLength(1)
-    expect(result[0].name).toBe('Tether')
-    expect(result[0].isPrimary).toBe(true)
-  })
+      const result = deduplicateAssets(assets, 'VaultBridge Bridged USDC')
 
-  it('keeps first occurrence if no primary asset exists', () => {
-    const assets = [AXLUSDC_ARBITRUM, AXLUSDC_OPTIMISM]
+      // VBUSDC is in USDC family
+      expect(result).toHaveLength(1)
+      expect(result[0].symbol).toBe('USDC')
+      expect(result[0].isPrimary).toBe(true)
+    })
 
-    const result = deduplicateAssetsBySymbol(assets)
+    it('shows VBUSDC when no primary USDC in results', () => {
+      const assets = [VBUSDC_KATANA]
 
-    expect(result).toHaveLength(1)
-    expect(result[0].assetId).toBe(AXLUSDC_ARBITRUM.assetId)
-  })
+      const result = deduplicateAssets(assets, 'VaultBridge')
 
-  it('handles mixed primary and non-primary with multiple symbols', () => {
-    const assets = [USDC_ARBITRUM, USDT_OPTIMISM, USDC_ETH_PRIMARY, USDT_ETH_PRIMARY]
+      expect(result).toHaveLength(1)
+      expect(result[0].symbol).toBe('VBUSDC')
+    })
 
-    const result = deduplicateAssetsBySymbol(assets)
+    it('returns primary USDT when searching "Bridged USDT" (in USDT family)', () => {
+      const assets = [USDT_ETH_PRIMARY, BRIDGED_USDT_OPTIMISM]
 
-    expect(result).toHaveLength(2)
-    expect(result.find(a => a.symbol === 'USDC')?.assetId).toBe(USDC_ETH_PRIMARY.assetId)
-    expect(result.find(a => a.symbol === 'USDT')?.assetId).toBe(USDT_ETH_PRIMARY.assetId)
+      const result = deduplicateAssets(assets, 'Bridged USDT')
+
+      expect(result).toHaveLength(1)
+      expect(result[0].symbol).toBe('USDT')
+      expect(result[0].isPrimary).toBe(true)
+    })
+
+    it('groups all "Bridged" assets by their families', () => {
+      const assets = [
+        USDC_ETH_PRIMARY,
+        USDT_ETH_PRIMARY,
+        AXLUSDC_OPTIMISM,
+        AXLUSDT_OPTIMISM,
+        VBUSDC_KATANA,
+        BRIDGED_USDT_OPTIMISM,
+      ]
+
+      const result = deduplicateAssets(assets, 'Bridged')
+
+      // All bridged assets are in USDC or USDT families, primaries win
+      expect(result).toHaveLength(2)
+      expect(result.map(a => a.symbol).sort()).toEqual(['USDC', 'USDT'])
+      expect(result.every(a => a.isPrimary)).toBe(true)
+    })
+
+    it('handles "Bitcoin" exact name search (single asset, no grouping needed)', () => {
+      // Note: deduplicateAssets receives pre-filtered search results
+      // BTC_MAINNET has null relatedAssetKey, so it groups by assetId
+      const assets = [BTC_MAINNET]
+
+      const result = deduplicateAssets(assets, 'Bitcoin')
+
+      expect(result).toHaveLength(1)
+      expect(result[0].name).toBe('Bitcoin')
+    })
   })
 })

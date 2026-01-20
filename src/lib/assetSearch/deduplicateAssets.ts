@@ -52,24 +52,3 @@ export function deduplicateAssets<T extends DeduplicatableAsset>(
   const selectedAssets = new Set(familyToAsset.values())
   return assets.filter(asset => selectedAssets.has(asset))
 }
-
-/**
- * @deprecated Use deduplicateAssets instead which handles relatedAssetKey properly
- *
- * Deduplicates assets by symbol, preferring primary assets over non-primary ones.
- */
-export function deduplicateAssetsBySymbol<T extends { symbol: string; isPrimary?: boolean }>(
-  assets: T[],
-): T[] {
-  const symbolToAsset = new Map<string, T>()
-  for (const asset of assets) {
-    const symbolLower = asset.symbol.toLowerCase()
-    const existing = symbolToAsset.get(symbolLower)
-    if (!existing || (asset.isPrimary && !existing.isPrimary)) {
-      symbolToAsset.set(symbolLower, asset)
-    }
-  }
-
-  const selectedAssets = new Set(symbolToAsset.values())
-  return assets.filter(asset => selectedAssets.has(asset))
-}

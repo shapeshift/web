@@ -1,29 +1,16 @@
 import { describe, expect, it } from 'vitest'
 
 import { shouldSearchAllAssets } from './shouldSearchAllAssets'
-import { ALL_ASSETS, PRIMARY_ASSET_IDS, PRIMARY_SYMBOLS } from './testData'
+import {
+  ALL_ASSETS,
+  PRIMARY_ASSET_IDS,
+  PRIMARY_SYMBOLS,
+  USDC_E_POLYGON,
+  VBUSDC_KATANA,
+} from './testData'
 
 describe('shouldSearchAllAssets', () => {
-  // Add a USDC.E and VBUSDC for specific test cases
-  const USDC_E_POLYGON = {
-    assetId: 'eip155:137/erc20:0x2791bca1f2de4661ed88a30c99a7a9449aa84174' as const,
-    symbol: 'USDC.E',
-    name: 'USD Coin (PoS)',
-    chainId: 'eip155:137' as const,
-    relatedAssetKey: 'eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48' as const,
-    isPrimary: false,
-  }
-
-  const VBUSDC_RONIN = {
-    assetId: 'eip155:747474/erc20:0x203a662b0bd271a6ed5a60edfbd04bfce608fd36' as const,
-    symbol: 'VBUSDC',
-    name: 'VaultBridge Bridged USDC',
-    chainId: 'eip155:747474' as const,
-    relatedAssetKey: 'eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48' as const,
-    isPrimary: false,
-  }
-
-  const allAssets = [...ALL_ASSETS, USDC_E_POLYGON, VBUSDC_RONIN]
+  const allAssets = [...ALL_ASSETS, USDC_E_POLYGON, VBUSDC_KATANA]
 
   it('returns true when search could match both primary and non-primary unique symbols (USD → USDC, USDC.E)', () => {
     // "usd" matches primary USDC/USDT, but also non-primary USDC.E
@@ -62,7 +49,7 @@ describe('shouldSearchAllAssets', () => {
     expect(shouldSearchAllAssets('xyz', allAssets, PRIMARY_ASSET_IDS, PRIMARY_SYMBOLS)).toBe(false)
   })
 
-  it('returns false for BTC search (primary symbol, no non-primary unique matches)', () => {
+  it('returns false for BTC search (LBTC is now a primary symbol)', () => {
     expect(shouldSearchAllAssets('btc', allAssets, PRIMARY_ASSET_IDS, PRIMARY_SYMBOLS)).toBe(false)
   })
 
@@ -73,5 +60,68 @@ describe('shouldSearchAllAssets', () => {
     expect(shouldSearchAllAssets('Axlusdc', allAssets, PRIMARY_ASSET_IDS, PRIMARY_SYMBOLS)).toBe(
       true,
     )
+  })
+
+  describe('name-based search', () => {
+    it('returns true when search matches non-primary asset name (Axelar Bridged → AXLUSDC)', () => {
+      // "Axelar Bridged" matches the name "Axelar Bridged USDC" of AXLUSDC
+      // AXLUSDC has a unique symbol not in primarySymbols
+      expect(
+        shouldSearchAllAssets('Axelar Bridged', allAssets, PRIMARY_ASSET_IDS, PRIMARY_SYMBOLS),
+      ).toBe(true)
+    })
+
+    it('returns true for partial name match (Axelar → AXLUSDC)', () => {
+      expect(shouldSearchAllAssets('Axelar', allAssets, PRIMARY_ASSET_IDS, PRIMARY_SYMBOLS)).toBe(
+        true,
+      )
+    })
+
+    it('returns true for name containing search (Bridged → multiple bridged assets)', () => {
+      expect(shouldSearchAllAssets('Bridged', allAssets, PRIMARY_ASSET_IDS, PRIMARY_SYMBOLS)).toBe(
+        true,
+      )
+    })
+
+    it('returns true for VaultBridge name search', () => {
+      expect(
+        shouldSearchAllAssets('VaultBridge', allAssets, PRIMARY_ASSET_IDS, PRIMARY_SYMBOLS),
+      ).toBe(true)
+    })
+
+    it('returns true for Ethereum search (spam token has unique symbol "ETHEREUM")', () => {
+      expect(shouldSearchAllAssets('Ethereum', allAssets, PRIMARY_ASSET_IDS, PRIMARY_SYMBOLS)).toBe(
+        true,
+      )
+    })
+
+    it('returns false for name only matching non-primary with non-unique symbol (USDC on Optimism)', () => {
+      // USDC on Optimism has name "USDC" and symbol "USDC" which is in primarySymbols
+      // So even though it's non-primary, its symbol isn't unique
+      expect(shouldSearchAllAssets('USDC', allAssets, PRIMARY_ASSET_IDS, PRIMARY_SYMBOLS)).toBe(
+        true,
+      ) // Still true because USDC.E is unique
+    })
+
+    it('handles case insensitive name search', () => {
+      expect(
+        shouldSearchAllAssets('axelar bridged', allAssets, PRIMARY_ASSET_IDS, PRIMARY_SYMBOLS),
+      ).toBe(true)
+      expect(
+        shouldSearchAllAssets('AXELAR BRIDGED', allAssets, PRIMARY_ASSET_IDS, PRIMARY_SYMBOLS),
+      ).toBe(true)
+    })
+
+    it('returns false for Lombard name search (LBTC is now a primary symbol)', () => {
+      expect(shouldSearchAllAssets('Lombard', allAssets, PRIMARY_ASSET_IDS, PRIMARY_SYMBOLS)).toBe(
+        false,
+      )
+    })
+
+    it('returns true for Bitcoin name search (spam token has unique symbol "BITCOIN")', () => {
+      expect(shouldSearchAllAssets('Bitcoin', allAssets, PRIMARY_ASSET_IDS, PRIMARY_SYMBOLS)).toBe(
+        true,
+      )
+    })
   })
 })

@@ -141,7 +141,6 @@ export const AssetSearch: FC<AssetSearchProps> = ({
           handleClick={handleClick}
           disableUnsupported={!allowWalletUnsupportedAssets}
           showRelatedAssets={showRelatedAssets}
-          searchString={searchString}
         />
       </Box>
     </>

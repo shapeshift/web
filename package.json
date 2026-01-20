@@ -26,7 +26,7 @@
     "clean:packages": "yarn workspaces foreach -ptiv --exclude @shapeshiftoss/web run clean",
     "codemod:clear-assets-migration": "jscodeshift -t src/state/migrations/transformClearAssets.ts --parser=ts --extensions=ts src/state/migrations/index.ts",
     "deadcode": "yarn ts-prune",
-    "dev:web": "vite",
+    "dev:web": "NODE_OPTIONS=--max-old-space-size=8192 vite",
     "dev:web:linked": "GENERATE_SOURCEMAP=false BROWSER=none yarn dev:web",
     "dev:packages": "yarn tsc --build --watch --preserveWatchOutput tsconfig.packages.json",
     "dev:swap-widget": "yarn workspace @shapeshiftoss/swap-widget dev",

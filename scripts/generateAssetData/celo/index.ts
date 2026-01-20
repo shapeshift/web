@@ -26,7 +26,10 @@ export const getAssets = async (): Promise<Asset[]> => {
   const [portalsPools, portalsAssets] = partition(_portalsAssets, 'isPool')
 
   const allAssets = uniqBy(
-    portalsPools.concat(assets).concat(portalsAssets).concat([unfreeze(celo)]),
+    portalsPools
+      .concat(assets)
+      .concat(portalsAssets)
+      .concat([unfreeze(celo)]),
     'assetId',
   )
 

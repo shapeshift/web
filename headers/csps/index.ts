@@ -17,6 +17,7 @@ import { csp as generic } from './chains/generic'
 import { csp as gnosis } from './chains/gnosis'
 import { csp as hyperevm } from './chains/hyperevm'
 import { csp as katana } from './chains/katana'
+import { csp as linea } from './chains/linea'
 import { csp as litecoin } from './chains/litecoin'
 import { csp as mayachain } from './chains/mayachain'
 import { csp as monad } from './chains/monad'
@@ -109,6 +110,7 @@ export const csps = [
   bnbsmartchain,
   celo,
   cosmos,
+  linea,
   dogecoin,
   ethereum,
   generic,

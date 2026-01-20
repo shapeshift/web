@@ -93,6 +93,7 @@ export type RelayFees = {
 
 export type QuoteDetails = {
   currencyOut: RelayCurrencyData
+  currencyIn: RelayCurrencyData
   rate: string
   slippageTolerance: {
     origin: {

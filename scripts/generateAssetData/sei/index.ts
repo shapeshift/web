@@ -18,10 +18,7 @@ export const getAssets = async (): Promise<Asset[]> => {
   // portals pools *have* to be first since they may also exist as regular assets
   const [portalsPools, portalsAssets] = partition(_portalsAssets, 'isPool')
 
-  const allAssets = uniqBy(
-    portalsPools.concat(portalsAssets).concat([unfreeze(sei)]),
-    'assetId',
-  )
+  const allAssets = uniqBy(portalsPools.concat(portalsAssets).concat([unfreeze(sei)]), 'assetId')
 
   return allAssets
 }

@@ -35,8 +35,11 @@ import { MixPanelEvent, SwapperName, TradeQuoteError } from '../../../types'
 import { getInputOutputRate, makeSwapErrorRight } from '../../../utils'
 import { simulateWithStateOverrides } from '../../../utils/tenderly'
 import { isNativeEvmAsset } from '../../utils/helpers/helpers'
-import type { chainIdToRelayChainId as relayChainMapImplementation } from '../constant'
-import { MAXIMUM_SUPPORTED_RELAY_STEPS, relayErrorCodeToTradeQuoteError } from '../constant'
+import {
+  getRelayChainId,
+  MAXIMUM_SUPPORTED_RELAY_STEPS,
+  relayErrorCodeToTradeQuoteError,
+} from '../constant'
 import { getRelayAssetAddress } from '../utils/getRelayAssetAddress'
 import { relayTokenToAsset } from '../utils/relayTokenToAsset'
 import { relayTokenToAssetId } from '../utils/relayTokenToAssetId'
@@ -55,23 +58,19 @@ import { getRelayPsbtRelayer } from './getRelayPsbtRelayer'
 export async function getTrade(args: {
   input: RelayTradeInputParams<'quote'>
   deps: SwapperDeps
-  relayChainMap: typeof relayChainMapImplementation
 }): Promise<Result<TradeQuote[], SwapErrorRight>>
 
 export async function getTrade(args: {
   input: RelayTradeInputParams<'rate'>
   deps: SwapperDeps
-  relayChainMap: typeof relayChainMapImplementation
 }): Promise<Result<TradeRate[], SwapErrorRight>>
 
 export async function getTrade<T extends 'quote' | 'rate'>({
   input,
   deps,
-  relayChainMap,
 }: {
   input: RelayTradeInputParams<T>
   deps: SwapperDeps
-  relayChainMap: typeof relayChainMapImplementation
 }): Promise<Result<TradeQuote[] | TradeRate[], SwapErrorRight>> {
   const {
     sellAsset,
@@ -87,8 +86,8 @@ export async function getTrade<T extends 'quote' | 'rate'>({
     ? convertDecimalPercentageToBasisPoints(input.slippageTolerancePercentageDecimal).toFixed()
     : undefined
 
-  const sellRelayChainId = relayChainMap[sellAsset.chainId]
-  const buyRelayChainId = relayChainMap[buyAsset.chainId]
+  const sellRelayChainId = getRelayChainId(sellAsset.chainId)
+  const buyRelayChainId = getRelayChainId(buyAsset.chainId)
 
   if (
     !isEvmChainId(sellAsset.chainId) &&
@@ -245,7 +244,7 @@ export async function getTrade<T extends 'quote' | 'rate'>({
 
   const { data: quote } = maybeQuote.unwrap()
 
-  const { slippageTolerance, currencyOut, timeEstimate } = quote.details
+  const { slippageTolerance, currencyIn, currencyOut, timeEstimate } = quote.details
 
   const buyAmountAfterFeesCryptoBaseUnit = currencyOut.amount
 
@@ -257,6 +256,20 @@ export async function getTrade<T extends 'quote' | 'rate'>({
   })
 
   const { currency: relayToken } = currencyOut
+
+  // When Relay converts native tokens to ERC20, use the ERC20 version from currencyIn
+  // This ensures approval flow checks the correct asset
+  const actualSellAsset = (() => {
+    const currencyInAssetId = relayTokenToAssetId(currencyIn.currency)
+
+    // If Relay's input currency doesn't match our sellAsset, use Relay's version (ERC20)
+    if (currencyInAssetId !== sellAsset.assetId) {
+      const maybeErc20Asset = deps.assetsById[currencyInAssetId]
+      if (maybeErc20Asset) return maybeErc20Asset
+    }
+
+    return sellAsset
+  })()
 
   const swapSteps = quote.steps.filter(step => step.id !== 'approve')
 
@@ -659,7 +672,7 @@ export async function getTrade<T extends 'quote' | 'rate'>({
       buyAmountAfterFeesCryptoBaseUnit,
       sellAmountIncludingProtocolFeesCryptoBaseUnit,
       buyAsset,
-      sellAsset,
+      sellAsset: actualSellAsset,
       accountNumber,
       feeData: {
         networkFeeCryptoBaseUnit,

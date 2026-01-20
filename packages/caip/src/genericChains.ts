@@ -27,6 +27,15 @@ export const GENERIC_EVM_CHAINS: EvmGenericChainConfig[] = [
     viemChainKey: 'celo',
     explorerUrl: 'https://celoscan.io',
   },
+  {
+    chainId: 'eip155:59144',
+    name: 'linea',
+    displayName: 'Linea',
+    nativeAssetId: 'eip155:59144/slip44:60',
+    iconName: 'linea',
+    viemChainKey: 'linea',
+    explorerUrl: 'https://lineascan.build',
+  },
   // {
   //   chainId: 'eip155:1329',
   //   name: 'sei',

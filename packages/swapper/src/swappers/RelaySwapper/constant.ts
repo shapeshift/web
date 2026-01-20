@@ -1,3 +1,4 @@
+import type { ChainId } from '@shapeshiftoss/caip'
 import {
   arbitrumChainId,
   avalancheChainId,
@@ -5,6 +6,7 @@ import {
   bscChainId,
   btcChainId,
   ethChainId,
+  fromChainId,
   gnosisChainId,
   hyperEvmChainId,
   katanaChainId,
@@ -15,6 +17,7 @@ import {
   solanaChainId,
   tronChainId,
 } from '@shapeshiftoss/caip'
+import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import invert from 'lodash/invert'
 import { zeroAddress } from 'viem'
 import {
@@ -53,6 +56,24 @@ export const chainIdToRelayChainId = {
   [hyperEvmChainId]: hyperEvm.id,
   [plasmaChainId]: plasma.id,
   [katanaChainId]: katana.id,
+}
+
+export const getRelayChainId = (chainId: ChainId): number | undefined => {
+  const knownChainId = chainIdToRelayChainId[chainId]
+  if (knownChainId !== undefined) return knownChainId
+
+  if (isEvmChainId(chainId)) {
+    return Number(fromChainId(chainId).chainReference)
+  }
+
+  return undefined
+}
+
+export const getChainIdFromRelayChainId = (relayChainId: number): ChainId | undefined => {
+  const knownChainId = relayChainIdToChainId[relayChainId]
+  if (knownChainId) return knownChainId
+
+  return `eip155:${relayChainId}` as ChainId
 }
 
 export enum RelayStatusMessage {

@@ -12,7 +12,7 @@ import {
   getExecutableTradeStep,
   isExecutableTradeQuote,
 } from '../../utils'
-import { chainIdToRelayChainId } from './constant'
+import { getRelayChainId } from './constant'
 import { getTradeQuote } from './getTradeQuote/getTradeQuote'
 import { getTradeRate } from './getTradeRate/getTradeRate'
 import { getLatestRelayStatusMessage } from './utils/getLatestRelayStatusMessage'
@@ -24,8 +24,8 @@ import type { RelayStatus } from './utils/types'
 const txIndexingMap: Map<string, boolean> = new Map()
 
 export const relayApi: SwapperApi = {
-  getTradeQuote: (input, deps) => getTradeQuote(input, deps, chainIdToRelayChainId),
-  getTradeRate: (input, deps) => getTradeRate(input, deps, chainIdToRelayChainId),
+  getTradeQuote: (input, deps) => getTradeQuote(input, deps),
+  getTradeRate: (input, deps) => getTradeRate(input, deps),
   getEvmTransactionFees: async ({
     from,
     stepIndex,
@@ -207,14 +207,17 @@ export const relayApi: SwapperApi = {
         txHash,
       }
       // We don't need to handle the response here, we just want to notify the relay indexer
-      await notifyTransactionIndexing(
-        {
-          requestId: swap.metadata.relayTransactionMetadata.relayId,
-          chainId: chainIdToRelayChainId[chainId].toString(),
-          tx: JSON.stringify(relayTxParam),
-        },
-        config,
-      )
+      const relayChainId = getRelayChainId(chainId)
+      if (relayChainId !== undefined) {
+        await notifyTransactionIndexing(
+          {
+            requestId: swap.metadata.relayTransactionMetadata.relayId,
+            chainId: relayChainId.toString(),
+            tx: JSON.stringify(relayTxParam),
+          },
+          config,
+        )
+      }
 
       txIndexingMap.set(swap.id, true)
     }

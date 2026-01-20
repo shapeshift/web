@@ -262,14 +262,32 @@ export abstract class SecondClassEvmAdapter<T extends AnyEvmChainId> extends Evm
     try {
       const estimateGasBody = this.buildEstimateGasBody(input)
 
-      const gasLimit = await this.requestQueue.add(() =>
-        this.provider.estimateGas({
-          from: estimateGasBody.from,
-          to: estimateGasBody.to,
-          value: estimateGasBody.value ? BigInt(estimateGasBody.value) : undefined,
-          data: estimateGasBody.data,
-        }),
-      )
+      let gasLimit: bigint
+      try {
+        gasLimit = await this.requestQueue.add(() =>
+          this.provider.estimateGas({
+            from: estimateGasBody.from,
+            to: estimateGasBody.to,
+            value: estimateGasBody.value ? BigInt(estimateGasBody.value) : undefined,
+            data: estimateGasBody.data,
+          }),
+        )
+      } catch (estimateError) {
+        const errorMessage = String(estimateError)
+        const isFallbackNeeded =
+          estimateError instanceof Error &&
+          (errorMessage.includes('allowance') ||
+            errorMessage.includes('insufficient') ||
+            errorMessage.includes('revert'))
+
+        if (isFallbackNeeded && estimateGasBody.data) {
+          const dataLength = estimateGasBody.data.length
+          const fallbackGasLimit = dataLength > 1000 ? '500000' : '300000'
+          gasLimit = BigInt(fallbackGasLimit)
+        } else {
+          throw estimateError
+        }
+      }
 
       const { fast, average, slow } = await this.getGasFeeData()
 

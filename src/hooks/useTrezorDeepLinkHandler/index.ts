@@ -1,0 +1,1 @@
+export { useTrezorDeepLinkHandler } from './useTrezorDeepLinkHandler'

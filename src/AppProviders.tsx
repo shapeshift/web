@@ -7,6 +7,7 @@ import { HashRouter } from 'react-router-dom'
 import { PersistGate } from 'redux-persist/integration/react'
 import { WagmiProvider } from 'wagmi'
 
+import { TrezorDeepLinkHandler } from './components/TrezorDeepLinkHandler'
 import { WalletViewsRouter } from './context/WalletProvider/WalletViewsRouter'
 import { ScrollToTop } from './Routes/ScrollToTop'
 
@@ -73,6 +74,7 @@ export function AppProviders({ children }: ProvidersProps) {
                   <PersistGate loading={splashScreen} persistor={persistor}>
                     <HashRouter basename='/'>
                       <ScrollToTop />
+                      <TrezorDeepLinkHandler />
                       <BrowserRouterProvider>
                         <ModalStackProvider>
                           <WalletProvider>

@@ -3,16 +3,9 @@
  * isPrimary = relatedAssetKey is null OR equals assetId
  */
 
-import type { AssetId, ChainId } from '@shapeshiftoss/caip'
+import type { SearchableAsset } from './types'
 
-export type TestAsset = {
-  assetId: AssetId
-  symbol: string
-  name: string
-  chainId: ChainId
-  relatedAssetKey: AssetId | null
-  isPrimary: boolean
-}
+export type TestAsset = Required<SearchableAsset>
 
 // USDC Family - all share the same relatedAssetKey
 export const USDC_ETH_PRIMARY: TestAsset = {

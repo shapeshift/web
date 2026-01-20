@@ -62,28 +62,72 @@ User sees search results
 
 The search uses a custom score-based ranking system rather than fuzzy matching libraries like Fuse.js. This provides more predictable results for crypto asset searches where exact/prefix symbol matches should rank higher than fuzzy matches.
 
+### Score Constants
+
+```typescript
+const SCORE = {
+  PRIMARY_NAME_EXACT: -10,    // Primary asset exact name match (e.g., "Bitcoin" → BTC)
+  PRIMARY_SYMBOL_EXACT: -9,   // Primary asset exact symbol match (e.g., "btc" → BTC)
+  PRIMARY_NAME_PREFIX: -6,    // Primary asset name prefix (e.g., "Bit" → Bitcoin)
+  PRIMARY_SYMBOL_PREFIX: -6,  // Primary asset symbol prefix (e.g., "bt" → BTC)
+  SYMBOL_EXACT: 0,            // Non-primary exact symbol match
+  SYMBOL_PREFIX: 10,          // Symbol starts with search
+  SYMBOL_CONTAINS: 20,        // Symbol contains search
+  NAME_EXACT: 30,             // Exact name match
+  NAME_PREFIX: 40,            // Name starts with search
+  NAME_CONTAINS: 50,          // Name contains search
+  ASSET_ID_CONTAINS: 60,      // AssetId/address contains search
+  NO_MATCH: 1000,             // No match (filtered out)
+} as const
+```
+
 ### Score Function (`scoreAsset`)
 
 ```typescript
-function scoreAsset(asset: SearchableAsset, search: string): number {
-  // Symbol matching (highest priority)
-  if (symbol === search) return 0        // Exact match
-  if (symbol.startsWith(search)) return 10  // Prefix match
-  if (symbol.includes(search)) return 20    // Contains
+function scoreAsset(asset: SearchableAsset, search: string, originalIndex: number): number {
+  // For primary assets, find the BEST score among all matches
+  // PRIMARY_SYMBOL bonus requires: short symbol (≤5 chars) AND high market cap (top 500)
+  // This filters spam tokens that copy popular symbols like BTC, ETH
+  if (asset.isPrimary) {
+    let bestScore = SCORE.NO_MATCH
+    if (name === search) bestScore = Math.min(bestScore, SCORE.PRIMARY_NAME_EXACT)
+    if (name.startsWith(search)) bestScore = Math.min(bestScore, SCORE.PRIMARY_NAME_PREFIX)
+    const isHighMarketCap = originalIndex < 500
+    if (symbol.length <= 5 && isHighMarketCap) {
+      if (symbol === search) bestScore = Math.min(bestScore, SCORE.PRIMARY_SYMBOL_EXACT)
+      if (symbol.startsWith(search)) bestScore = Math.min(bestScore, SCORE.PRIMARY_SYMBOL_PREFIX)
+    }
+    if (bestScore < SCORE.NO_MATCH) return bestScore
+  }
 
-  // Name matching
-  if (name === search) return 30
-  if (name.startsWith(search)) return 40
-  if (name.includes(search)) return 50
+  // Standard matching for non-primary assets (or primary assets without matches above)
+  if (symbol === search) return SCORE.SYMBOL_EXACT
+  if (symbol.startsWith(search)) return SCORE.SYMBOL_PREFIX
+  if (symbol.includes(search)) return SCORE.SYMBOL_CONTAINS
 
-  // AssetId/address matching (lowest priority)
-  if (assetId.includes(search)) return 60
+  if (name === search) return SCORE.NAME_EXACT
+  if (name.startsWith(search)) return SCORE.NAME_PREFIX
+  if (name.includes(search)) return SCORE.NAME_CONTAINS
 
-  return 1000  // No match (filtered out)
+  if (assetId.includes(search)) return SCORE.ASSET_ID_CONTAINS
+
+  return SCORE.NO_MATCH
 }
 ```
 
-Lower scores = better matches. Results are sorted by score, with original order preserved for equal scores.
+### Sorting Logic
+
+Lower scores = better matches. Results are sorted by:
+1. **Primary sort**: Score (lower is better)
+2. **Secondary sort** (non-primary assets only): Prefer assets with `relatedAssetKey` over orphans (helps legitimate bridged tokens rank above random LP/spam tokens)
+3. **Tertiary sort**: Original array order (preserves market cap ordering)
+
+### Spam Token Filtering
+
+Primary assets get a scoring bonus, but with safeguards against spam:
+- **Symbol length check**: PRIMARY_SYMBOL bonus only applies to symbols ≤5 chars (filters "BITCOIN", "ETHEREUM" spam tokens)
+- **Market cap threshold**: PRIMARY_SYMBOL bonus only applies to top 500 assets by market cap (filters low-cap spam copying "BTC", "ETH")
+- **Name matching**: PRIMARY_NAME bonus still applies to help legitimate assets like "Bitcoin" rank above spam
 
 ### Exact Symbol Match (`isExactSymbolMatch`)
 ```typescript
@@ -188,4 +232,6 @@ Modify `AssetRow.tsx`:
 Update `SearchableAsset` type in `types.ts` and add scoring logic in `scoreAsset`.
 
 ### Adjusting spam filtering
-The `MINIMUM_MARKET_CAP_THRESHOLD` constant in `utils.ts` controls the minimum market cap to include in results.
+Two mechanisms filter spam tokens:
+1. **Market cap threshold**: `MINIMUM_MARKET_CAP_THRESHOLD` in `utils.ts` (used in `common-selectors.ts`) sets minimum market cap to include in results
+2. **Search scoring**: Primary assets only get symbol bonus if `originalIndex < 500` (market cap proxy) AND `symbol.length <= 5` (filters spam tokens with long symbols like "BITCOIN")

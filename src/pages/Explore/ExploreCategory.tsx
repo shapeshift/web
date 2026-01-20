@@ -4,7 +4,6 @@ import type { ChainId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { bnOrZero } from '@shapeshiftoss/utils'
 import { debounce } from 'lodash'
-import { matchSorter } from 'match-sorter'
 import type { ChangeEvent, FormEvent } from 'react'
 import { useCallback, useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
@@ -27,6 +26,7 @@ import { SEO } from '@/components/Layout/Seo'
 import { OrderDirection } from '@/components/OrderDropdown/types'
 import { SortOptionsKeys } from '@/components/SortDropdown/types'
 import { useModal } from '@/hooks/useModal/useModal'
+import { searchAssets } from '@/lib/assetSearch'
 import { isSome } from '@/lib/utils'
 import { PortalAssetRow } from '@/pages/Explore/components/PortalAssetRow'
 import { marketData } from '@/state/slices/marketDataSlice/marketDataSlice'
@@ -126,18 +126,7 @@ export const ExploreCategory = () => {
       return hasPositiveMarketCapAndOver1000 && asset.chainId === selectedChainId
     })
 
-    const indexMap = new Map(filteredAssets.map((asset, index) => [asset, index]))
-
-    const matchedAssets = matchSorter(filteredAssets, searchString, {
-      keys: [
-        { key: 'name', threshold: matchSorter.rankings.MATCHES },
-        { key: 'symbol', threshold: matchSorter.rankings.WORD_STARTS_WITH },
-        { key: 'assetId', threshold: matchSorter.rankings.CONTAINS },
-      ],
-      baseSort: (a, b) => (indexMap.get(a.item) ?? 0) - (indexMap.get(b.item) ?? 0),
-    })
-
-    return matchedAssets.slice(0, 20)
+    return searchAssets(searchString, filteredAssets).slice(0, 20)
   }, [
     oneClickDefiAssets,
     categoryAssets,
@@ -284,7 +273,6 @@ export const ExploreCategory = () => {
             showRelatedAssets
             handleLongPress={handleAssetLongPress}
             rowComponent={category === MarketsCategories.OneClickDefi ? PortalAssetRow : undefined}
-            searchString={searchString}
           />
         </Box>
       </Main>

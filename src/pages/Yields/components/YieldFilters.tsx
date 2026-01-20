@@ -21,7 +21,14 @@ import { useTranslate } from 'react-polyglot'
 import { AssetIcon } from '@/components/AssetIcon'
 import { ChainIcon } from '@/components/ChainMenu'
 
-export type SortOption = 'apy-desc' | 'apy-asc' | 'tvl-desc' | 'tvl-asc' | 'name-asc' | 'name-desc'
+export type SortOption =
+  | 'yearly-return-desc'
+  | 'apy-desc'
+  | 'apy-asc'
+  | 'tvl-desc'
+  | 'tvl-asc'
+  | 'name-asc'
+  | 'name-desc'
 
 export type NetworkOption = {
   id: string
@@ -144,6 +151,10 @@ export const YieldFilters = memo(
 
     const sortOptions = useMemo(
       () => [
+        {
+          value: 'yearly-return-desc' as const,
+          label: translate('yieldXYZ.bestReturn'),
+        },
         { value: 'apy-desc' as const, label: translate('yieldXYZ.highestApy') },
         { value: 'apy-asc' as const, label: translate('yieldXYZ.lowestApy') },
         { value: 'tvl-desc' as const, label: translate('yieldXYZ.highestTvl') },

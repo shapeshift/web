@@ -4,7 +4,11 @@ import { SHAPESHIFT_COSMOS_VALIDATOR_ADDRESS } from './constants'
 import type { AugmentedYieldDto, ValidatorDto } from './types'
 import {
   ensureValidatorApr,
+  formatYieldTxTitle,
   getTransactionButtonText,
+  getYieldActionLabelKeys,
+  getYieldSuccessMessageKey,
+  isStakingYieldType,
   resolveYieldInputAssetIcon,
   searchValidators,
   searchYields,
@@ -17,10 +21,20 @@ describe('getTransactionButtonText', () => {
     expect(getTransactionButtonText('claim-rewards', undefined)).toBe('Claim')
   })
 
-  it('should fallback to parsing title when type is unknown', () => {
+  it('should use vault terminology (deposit/withdraw) by default', () => {
     expect(getTransactionButtonText(undefined, 'Approve token')).toBe('Approve')
-    expect(getTransactionButtonText(undefined, 'Deposit ETH transaction')).toBe('Enter')
+    expect(getTransactionButtonText(undefined, 'Deposit ETH transaction')).toBe('Deposit')
     expect(getTransactionButtonText(undefined, 'Claim rewards')).toBe('Claim')
+    expect(getTransactionButtonText('DEPOSIT', undefined)).toBe('Deposit')
+    expect(getTransactionButtonText('WITHDRAW', undefined)).toBe('Withdraw')
+  })
+
+  it('should use staking terminology when yieldType is staking', () => {
+    expect(getTransactionButtonText('STAKE', undefined, 'staking')).toBe('Stake')
+    expect(getTransactionButtonText('UNSTAKE', undefined, 'staking')).toBe('Unstake')
+    expect(getTransactionButtonText('DEPOSIT', undefined, 'liquid-staking')).toBe('Stake')
+    expect(getTransactionButtonText('WITHDRAW', undefined, 'liquid-staking')).toBe('Unstake')
+    expect(getTransactionButtonText(undefined, 'Deposit ETH', 'native-staking')).toBe('Stake')
   })
 
   it('should return Confirm as final fallback', () => {
@@ -241,5 +255,111 @@ describe('ensureValidatorApr', () => {
     } as unknown as ValidatorDto
     const result = ensureValidatorApr(validator)
     expect(result.rewardRate?.components).toHaveLength(1)
+  })
+})
+
+describe('getYieldActionLabelKeys', () => {
+  it('should return stake/unstake for staking yield types', () => {
+    expect(getYieldActionLabelKeys('staking')).toEqual({
+      enter: 'defi.stake',
+      exit: 'defi.unstake',
+    })
+    expect(getYieldActionLabelKeys('native-staking')).toEqual({
+      enter: 'defi.stake',
+      exit: 'defi.unstake',
+    })
+    expect(getYieldActionLabelKeys('pooled-staking')).toEqual({
+      enter: 'defi.stake',
+      exit: 'defi.unstake',
+    })
+    expect(getYieldActionLabelKeys('liquid-staking')).toEqual({
+      enter: 'defi.stake',
+      exit: 'defi.unstake',
+    })
+  })
+
+  it('should return stake/unstake for restaking yield types', () => {
+    expect(getYieldActionLabelKeys('restaking')).toEqual({
+      enter: 'defi.stake',
+      exit: 'defi.unstake',
+    })
+  })
+
+  it('should return deposit/withdraw for vault yield types', () => {
+    expect(getYieldActionLabelKeys('vault')).toEqual({
+      enter: 'common.deposit',
+      exit: 'common.withdraw',
+    })
+  })
+
+  it('should return deposit/withdraw for lending yield types', () => {
+    expect(getYieldActionLabelKeys('lending')).toEqual({
+      enter: 'common.deposit',
+      exit: 'common.withdraw',
+    })
+  })
+})
+
+describe('isStakingYieldType', () => {
+  it('should return true for staking-related yield types', () => {
+    expect(isStakingYieldType('staking')).toBe(true)
+    expect(isStakingYieldType('native-staking')).toBe(true)
+    expect(isStakingYieldType('pooled-staking')).toBe(true)
+    expect(isStakingYieldType('liquid-staking')).toBe(true)
+    expect(isStakingYieldType('restaking')).toBe(true)
+  })
+
+  it('should return false for non-staking yield types', () => {
+    expect(isStakingYieldType('vault')).toBe(false)
+    expect(isStakingYieldType('lending')).toBe(false)
+  })
+})
+
+describe('formatYieldTxTitle', () => {
+  it('should use vault terminology by default', () => {
+    expect(formatYieldTxTitle('Deposit ETH', 'ETH')).toBe('Deposit ETH')
+    expect(formatYieldTxTitle('Withdraw ETH transaction', 'ETH')).toBe('Withdraw ETH')
+    expect(formatYieldTxTitle('Approve ETH', 'ETH')).toBe('Approve ETH')
+  })
+
+  it('should use staking terminology when yieldType is staking', () => {
+    expect(formatYieldTxTitle('Deposit ETH', 'ETH', 'staking')).toBe('Stake ETH')
+    expect(formatYieldTxTitle('Withdraw ETH', 'ETH', 'liquid-staking')).toBe('Unstake ETH')
+    expect(formatYieldTxTitle('Exit ETH', 'ETH', 'native-staking')).toBe('Unstake ETH')
+    expect(formatYieldTxTitle('Unstake ETH', 'ETH', 'pooled-staking')).toBe('Unstake ETH')
+  })
+
+  it('should preserve unknown titles', () => {
+    expect(formatYieldTxTitle('Custom action', 'ETH')).toBe('Custom action')
+    expect(formatYieldTxTitle('Custom action', 'ETH', 'staking')).toBe('Custom action')
+  })
+})
+
+describe('getYieldSuccessMessageKey', () => {
+  it('should return staking success keys for staking yield types', () => {
+    expect(getYieldSuccessMessageKey('staking', 'enter')).toBe('successStaked')
+    expect(getYieldSuccessMessageKey('staking', 'exit')).toBe('successUnstaked')
+    expect(getYieldSuccessMessageKey('native-staking', 'enter')).toBe('successStaked')
+    expect(getYieldSuccessMessageKey('liquid-staking', 'exit')).toBe('successUnstaked')
+    expect(getYieldSuccessMessageKey('pooled-staking', 'enter')).toBe('successStaked')
+  })
+
+  it('should return staking success key for restaking yield types', () => {
+    expect(getYieldSuccessMessageKey('restaking', 'enter')).toBe('successStaked')
+    expect(getYieldSuccessMessageKey('restaking', 'exit')).toBe('successUnstaked')
+  })
+
+  it('should return vault success keys for vault/lending yield types', () => {
+    expect(getYieldSuccessMessageKey('vault', 'enter')).toBe('successDeposited')
+    expect(getYieldSuccessMessageKey('vault', 'exit')).toBe('successWithdrawn')
+    expect(getYieldSuccessMessageKey('lending', 'enter')).toBe('successDeposited')
+    expect(getYieldSuccessMessageKey('lending', 'exit')).toBe('successWithdrawn')
+  })
+
+  it('should return successClaim for claim and manage actions', () => {
+    expect(getYieldSuccessMessageKey('staking', 'claim')).toBe('successClaim')
+    expect(getYieldSuccessMessageKey('vault', 'claim')).toBe('successClaim')
+    expect(getYieldSuccessMessageKey('staking', 'manage')).toBe('successClaim')
+    expect(getYieldSuccessMessageKey('vault', 'manage')).toBe('successClaim')
   })
 })

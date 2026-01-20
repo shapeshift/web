@@ -99,16 +99,14 @@ export const useYieldAsOpportunities = (
           : yieldItem.rewardRate.total.toString()
         : yieldItem.rewardRate.total.toString()
 
-      if (bnOrZero(totalUsd).gt(0.01) || bnOrZero(totalCrypto).gt(0)) {
-        aggregatedByAssetId[inputAssetId].yieldOpportunities.push({
-          yieldId: yieldItem.id,
-          providerName: yieldItem.metadata.name || yieldItem.providerId,
-          providerIcon: yieldItem.metadata.logoURI,
-          apy: yieldItem.rewardRate.total.toString(),
-          fiatAmount: bnOrZero(totalUsd).toFixed(2),
-          cryptoAmount: bnOrZero(totalCrypto).toString(),
-        })
-      }
+      aggregatedByAssetId[inputAssetId].yieldOpportunities.push({
+        yieldId: yieldItem.id,
+        providerName: yieldItem.metadata.name || yieldItem.providerId,
+        providerIcon: yieldItem.metadata.logoURI,
+        apy: yieldItem.rewardRate.total.toString(),
+        fiatAmount: bnOrZero(totalUsd).toFixed(2),
+        cryptoAmount: bnOrZero(totalCrypto).toString(),
+      })
 
       const searchable = aggregatedByAssetId[inputAssetId].searchable
       const tokenSymbol = yieldItem.inputTokens?.[0]?.symbol ?? yieldItem.token.symbol
@@ -127,22 +125,6 @@ export const useYieldAsOpportunities = (
         return bnOrZero(b.apy).minus(bnOrZero(a.apy)).toNumber()
       })
     })
-
-    console.debug(
-      '[useYieldAsOpportunities] Result:',
-      JSON.stringify(
-        result.map(r => ({
-          assetId: r.assetId,
-          fiatAmount: r.fiatAmount,
-          yieldOpportunities: r.yieldOpportunities.map(y => ({
-            providerName: y.providerName,
-            fiatAmount: y.fiatAmount,
-          })),
-        })),
-        null,
-        2,
-      ),
-    )
 
     return result
   }, [yieldBalancesData?.aggregated, yieldsData?.all])

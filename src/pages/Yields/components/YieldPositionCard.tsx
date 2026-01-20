@@ -1,3 +1,4 @@
+import { ArrowDownIcon, ArrowUpIcon } from '@chakra-ui/icons'
 import {
   Alert,
   Badge,
@@ -8,6 +9,7 @@ import {
   Divider,
   Flex,
   Heading,
+  HStack,
   Skeleton,
   Text,
   VStack,
@@ -17,14 +19,17 @@ import dayjs from 'dayjs'
 import qs from 'qs'
 import { memo, useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
-import { useNavigate, useSearchParams } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
 import { Amount } from '@/components/Amount/Amount'
+import { Display } from '@/components/Display'
+import { WalletActions } from '@/context/WalletProvider/actions'
 import { useBrowserRouter } from '@/hooks/useBrowserRouter/useBrowserRouter'
+import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
-import { DEFAULT_NATIVE_VALIDATOR_BY_CHAIN_ID } from '@/lib/yieldxyz/constants'
 import type { AugmentedYieldDto } from '@/lib/yieldxyz/types'
 import { YieldBalanceType } from '@/lib/yieldxyz/types'
+import { getYieldActionLabelKeys, getYieldPendingStatusKeys } from '@/lib/yieldxyz/utils'
 import { useYieldAccount } from '@/pages/Yields/YieldAccountContext'
 import type {
   AggregatedBalance,
@@ -37,25 +42,42 @@ import {
 } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
+const enterIcon = <ArrowUpIcon />
+const exitIcon = <ArrowDownIcon />
+
+const loadingState = (
+  <VStack align='stretch' spacing={4}>
+    <Skeleton height='60px' />
+    <Skeleton height='40px' />
+  </VStack>
+)
+
 type YieldPositionCardProps = {
   yieldItem: AugmentedYieldDto
   balances: NormalizedYieldBalances | undefined
   isBalancesLoading: boolean
+  selectedValidatorAddress: string | undefined
 }
 
 export const YieldPositionCard = memo(
-  ({ yieldItem, balances, isBalancesLoading }: YieldPositionCardProps) => {
+  ({
+    yieldItem,
+    balances,
+    isBalancesLoading,
+    selectedValidatorAddress,
+  }: YieldPositionCardProps) => {
     const translate = useTranslate()
     const navigate = useNavigate()
     const { location } = useBrowserRouter()
-    const [searchParams] = useSearchParams()
-    const validatorParam = searchParams.get('validator')
+    const { dispatch: walletDispatch } = useWallet()
+
+    const handleConnectWallet = useCallback(
+      () => walletDispatch({ type: WalletActions.SET_WALLET_MODAL, payload: true }),
+      [walletDispatch],
+    )
 
     const { chainId } = yieldItem
     const { accountId: contextAccountId, accountNumber } = useYieldAccount()
-
-    const defaultValidator = chainId ? DEFAULT_NATIVE_VALIDATOR_BY_CHAIN_ID[chainId] : undefined
-    const selectedValidatorAddress = validatorParam || defaultValidator
 
     const accountId = useAppSelector(state => {
       if (contextAccountId) return contextAccountId
@@ -103,10 +125,7 @@ export const YieldPositionCard = memo(
       )
     }, [])
 
-    const hasEntering = useMemo(
-      () => enteringBalance && bnOrZero(enteringBalance.aggregatedAmount).gt(0),
-      [enteringBalance],
-    )
+    const hasEntering = Boolean(enteringBalance && bnOrZero(enteringBalance.aggregatedAmount).gt(0))
 
     const exitingEntries = useMemo(() => {
       if (!balances?.raw) return []
@@ -118,12 +137,13 @@ export const YieldPositionCard = memo(
         })
     }, [balances?.raw, selectedValidatorAddress])
 
-    const hasExiting = useMemo(() => exitingEntries.length > 0, [exitingEntries])
-    const hasWithdrawable = useMemo(
-      () => withdrawableBalance && bnOrZero(withdrawableBalance.aggregatedAmount).gt(0),
-      [withdrawableBalance],
+    const hasExiting = exitingEntries.length > 0
+    const hasWithdrawable = Boolean(
+      withdrawableBalance && bnOrZero(withdrawableBalance.aggregatedAmount).gt(0),
     )
-    const hasClaimable = useMemo(() => Boolean(claimableBalance), [claimableBalance])
+    const hasClaimable = Boolean(
+      claimableBalance && bnOrZero(claimableBalance.aggregatedAmount).gt(0),
+    )
 
     const totalValueUsd = useMemo(
       () =>
@@ -148,7 +168,7 @@ export const YieldPositionCard = memo(
       [activeBalance, enteringBalance, exitingBalance, withdrawableBalance],
     )
 
-    const hasAnyPosition = useMemo(() => totalAmount.gt(0), [totalAmount])
+    const hasAnyPosition = totalAmount.gt(0)
 
     const { data: validators } = useYieldValidators(yieldItem.id)
 
@@ -162,46 +182,38 @@ export const YieldPositionCard = memo(
       return foundInBalances?.validator?.name
     }, [validators, selectedValidatorAddress, balances])
 
-    const headingText = useMemo(
-      () =>
-        selectedValidatorName
-          ? translate('yieldXYZ.myValidatorPosition', { validator: selectedValidatorName })
-          : translate('yieldXYZ.myPosition'),
-      [selectedValidatorName, translate],
+    const headingText = selectedValidatorName
+      ? translate('yieldXYZ.myValidatorPosition', { validator: selectedValidatorName })
+      : translate('yieldXYZ.myPosition')
+
+    const addressBadgeText = address ? `${address.slice(0, 4)}...${address.slice(-4)}` : ''
+
+    const totalAmountFixed = totalAmount.toFixed()
+
+    const navigateToAction = useCallback(
+      (action: 'claim' | 'enter' | 'exit') => {
+        navigate({
+          pathname: location.pathname,
+          search: qs.stringify({
+            action,
+            modal: 'yield',
+            ...(selectedValidatorAddress ? { validator: selectedValidatorAddress } : {}),
+          }),
+        })
+      },
+      [navigate, location.pathname, selectedValidatorAddress],
     )
 
-    const addressBadgeText = useMemo(
-      () => (address ? `${address.slice(0, 4)}...${address.slice(-4)}` : ''),
-      [address],
-    )
+    const handleClaimClick = useCallback(() => navigateToAction('claim'), [navigateToAction])
+    const handleEnter = useCallback(() => navigateToAction('enter'), [navigateToAction])
+    const handleExit = useCallback(() => navigateToAction('exit'), [navigateToAction])
 
-    const totalAmountFixed = useMemo(() => totalAmount.toFixed(), [totalAmount])
+    const actionLabelKeys = getYieldActionLabelKeys(yieldItem.mechanics.type)
+    const pendingStatusKeys = getYieldPendingStatusKeys(yieldItem.mechanics.type)
+    const enterLabel = translate(actionLabelKeys.enter)
+    const exitLabel = translate(actionLabelKeys.exit)
 
-    const handleClaimClick = useCallback(() => {
-      navigate({
-        pathname: location.pathname,
-        search: qs.stringify({
-          action: 'claim',
-          modal: 'yield',
-          ...(selectedValidatorAddress ? { validator: selectedValidatorAddress } : {}),
-        }),
-      })
-    }, [navigate, location.pathname, selectedValidatorAddress])
-
-    const showPendingActions = useMemo(
-      () => hasEntering || hasExiting || hasWithdrawable || hasClaimable,
-      [hasEntering, hasExiting, hasWithdrawable, hasClaimable],
-    )
-
-    const loadingState = useMemo(
-      () => (
-        <VStack align='stretch' spacing={4}>
-          <Skeleton height='60px' />
-          <Skeleton height='40px' />
-        </VStack>
-      ),
-      [],
-    )
+    const showPendingActions = hasEntering || hasExiting || hasWithdrawable || hasClaimable
 
     const enteringSection = useMemo(() => {
       if (!hasEntering) return null
@@ -210,7 +222,7 @@ export const YieldPositionCard = memo(
           <Flex justify='space-between' align='center' width='full'>
             <Box>
               <Text fontSize='xs' fontWeight='bold' textTransform='uppercase'>
-                {translate('yieldXYZ.entering')}
+                {translate(pendingStatusKeys.enter)}
               </Text>
               <Text fontSize='sm' fontWeight='bold'>
                 {formatBalance(enteringBalance)}
@@ -222,7 +234,7 @@ export const YieldPositionCard = memo(
           </Flex>
         </Alert>
       )
-    }, [hasEntering, translate, formatBalance, enteringBalance])
+    }, [hasEntering, translate, formatBalance, enteringBalance, pendingStatusKeys.enter])
 
     const unstakingSection = useMemo(() => {
       if (!hasExiting) return null
@@ -242,7 +254,7 @@ export const YieldPositionCard = memo(
             <Flex justify='space-between' align='center' width='full'>
               <Box>
                 <Text fontSize='xs' fontWeight='bold' textTransform='uppercase'>
-                  {translate('yieldXYZ.unstaking')}
+                  {translate(pendingStatusKeys.exit)}
                 </Text>
                 <Text fontSize='sm' fontWeight='bold'>
                   <Amount.Crypto value={entry.amount} symbol={entry.token.symbol} abbreviated />
@@ -262,7 +274,7 @@ export const YieldPositionCard = memo(
           </Alert>
         )
       })
-    }, [hasExiting, exitingEntries, translate])
+    }, [hasExiting, exitingEntries, translate, pendingStatusKeys.exit])
 
     const withdrawableSection = useMemo(() => {
       if (!hasWithdrawable) return null
@@ -357,7 +369,49 @@ export const YieldPositionCard = memo(
       claimableSection,
     ])
 
-    if (!accountId) return null
+    if (!accountId) {
+      return (
+        <Card variant='dashboard'>
+          <CardBody p={{ base: 4, md: 5 }}>
+            <Flex justifyContent='space-between' alignItems='center' mb={4}>
+              <Heading
+                as='h3'
+                size='sm'
+                textTransform='uppercase'
+                color='text.subtle'
+                letterSpacing='wider'
+              >
+                {translate('yieldXYZ.myPosition')}
+              </Heading>
+            </Flex>
+            <VStack spacing={4} align='stretch'>
+              <Box>
+                <Text fontSize='xs' color='text.subtle' mb={1} textTransform='uppercase'>
+                  {translate('yieldXYZ.totalValue')}
+                </Text>
+                <Text fontSize='3xl' fontWeight='800' lineHeight='1'>
+                  <Amount.Fiat value='0' />
+                </Text>
+                <Text fontSize='sm' color='text.subtle' mt={1}>
+                  <Amount.Crypto value='0' symbol={yieldItem.token.symbol} abbreviated />
+                </Text>
+              </Box>
+              <Button
+                colorScheme='blue'
+                size='lg'
+                height={12}
+                borderRadius='xl'
+                onClick={handleConnectWallet}
+                width='full'
+                fontWeight='bold'
+              >
+                {translate('common.connectWallet')}
+              </Button>
+            </VStack>
+          </CardBody>
+        </Card>
+      )
+    }
 
     if (isBalancesLoading) {
       return (
@@ -379,8 +433,6 @@ export const YieldPositionCard = memo(
         </Card>
       )
     }
-
-    if (!hasAnyPosition && !showPendingActions) return null
 
     return (
       <Card variant='dashboard'>
@@ -414,6 +466,36 @@ export const YieldPositionCard = memo(
               </Text>
             </Box>
             {pendingActionsSection}
+            <Display.Desktop>
+              <HStack spacing={3} pt={2}>
+                <Button
+                  leftIcon={enterIcon}
+                  colorScheme='blue'
+                  size='lg'
+                  height={12}
+                  borderRadius='xl'
+                  onClick={handleEnter}
+                  flex={1}
+                  fontWeight='bold'
+                >
+                  {enterLabel}
+                </Button>
+                {hasAnyPosition && (
+                  <Button
+                    leftIcon={exitIcon}
+                    variant='outline'
+                    size='lg'
+                    height={12}
+                    borderRadius='xl'
+                    onClick={handleExit}
+                    flex={1}
+                    fontWeight='bold'
+                  >
+                    {exitLabel}
+                  </Button>
+                )}
+              </HStack>
+            </Display.Desktop>
           </VStack>
         </CardBody>
       </Card>

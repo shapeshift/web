@@ -6,6 +6,8 @@ import type { SortOption } from '@/pages/Yields/components/YieldFilters'
 
 const getSortingFromOption = (sortOption: SortOption): SortingState => {
   switch (sortOption) {
+    case 'yearly-return-desc':
+      return [{ id: 'yearly-return', desc: true }]
     case 'apy-desc':
       return [{ id: 'apy', desc: true }]
     case 'apy-asc':
@@ -23,15 +25,16 @@ const getSortingFromOption = (sortOption: SortOption): SortingState => {
   }
 }
 
-export const useYieldFilters = () => {
+export const useYieldFilters = (isAvailableToEarnTab = false) => {
   const [searchParams, setSearchParams] = useSearchParams()
 
   const selectedNetwork = useMemo(() => searchParams.get('network'), [searchParams])
   const selectedProvider = useMemo(() => searchParams.get('provider'), [searchParams])
   const selectedType = useMemo(() => searchParams.get('type'), [searchParams])
+  const defaultSort = isAvailableToEarnTab ? 'yearly-return-desc' : 'apy-desc'
   const sortOption = useMemo(
-    () => (searchParams.get('sort') as SortOption) || 'apy-desc',
-    [searchParams],
+    () => (searchParams.get('sort') as SortOption) || defaultSort,
+    [searchParams, defaultSort],
   )
 
   const sorting = useMemo(() => getSortingFromOption(sortOption), [sortOption])

@@ -24,9 +24,16 @@ import {
 } from '@/lib/yieldxyz/constants'
 import type { AugmentedYieldDto } from '@/lib/yieldxyz/types'
 import { YieldBalanceType } from '@/lib/yieldxyz/types'
-import { getTransactionButtonText } from '@/lib/yieldxyz/utils'
+import {
+  getTransactionButtonText,
+  getYieldActionLabelKeys,
+  getYieldMinAmountKey,
+  getYieldSuccessMessageKey,
+  isStakingYieldType,
+} from '@/lib/yieldxyz/utils'
 import { GradientApy } from '@/pages/Yields/components/GradientApy'
 import { TransactionStepsList } from '@/pages/Yields/components/TransactionStepsList'
+import { YieldExplainers } from '@/pages/Yields/components/YieldExplainers'
 import { YieldSuccess } from '@/pages/Yields/components/YieldSuccess'
 import { ModalStep, useYieldTransactionFlow } from '@/pages/Yields/hooks/useYieldTransactionFlow'
 import type { NormalizedYieldBalances } from '@/react-queries/queries/yieldxyz/useAllYieldBalances'
@@ -56,36 +63,6 @@ type YieldFormProps = {
 }
 
 const PRESET_PERCENTAGES = [0.25, 0.5, 0.75, 1] as const
-
-const getEnterActionTextKey = (yieldType: string | undefined): string => {
-  switch (yieldType) {
-    case 'native-staking':
-    case 'pooled-staking':
-    case 'liquid-staking':
-    case 'staking':
-      return 'defi.stake'
-    case 'vault':
-      return 'common.deposit'
-    case 'lending':
-      return 'common.supply'
-    default:
-      return 'common.deposit'
-  }
-}
-
-const getExitActionTextKey = (yieldType: string | undefined): string => {
-  switch (yieldType) {
-    case 'native-staking':
-    case 'pooled-staking':
-    case 'liquid-staking':
-    case 'staking':
-      return 'defi.unstake'
-    case 'vault':
-    case 'lending':
-    default:
-      return 'common.withdraw'
-  }
-}
 
 const INPUT_LENGTH_BREAKPOINTS = {
   FOR_XS_FONT: 22,
@@ -223,7 +200,7 @@ export const YieldForm = memo(
 
     const { data: providers } = useYieldProviders()
 
-    const isStaking = yieldItem.mechanics.type === 'staking'
+    const isStaking = isStakingYieldType(yieldItem.mechanics.type)
 
     const selectedValidatorMetadata = useMemo(() => {
       if (!isStaking || !selectedValidatorAddress) return null
@@ -458,12 +435,21 @@ export const YieldForm = memo(
 
       if (isSubmitting && transactionSteps.length > 0) {
         const activeStep = transactionSteps.find(s => s.status !== 'success')
-        if (activeStep) return getTransactionButtonText(activeStep.type, activeStep.originalTitle)
+        if (activeStep)
+          return getTransactionButtonText(
+            activeStep.type,
+            activeStep.originalTitle,
+            yieldItem.mechanics.type,
+          )
       }
 
       if (activeStepIndex >= 0 && transactionSteps[activeStepIndex]) {
         const currentStep = transactionSteps[activeStepIndex]
-        return getTransactionButtonText(currentStep.type, currentStep.originalTitle)
+        return getTransactionButtonText(
+          currentStep.type,
+          currentStep.originalTitle,
+          yieldItem.mechanics.type,
+        )
       }
 
       if (isUsdtResetRequired) {
@@ -471,16 +457,19 @@ export const YieldForm = memo(
       }
 
       const firstCreatedTx = quoteData?.transactions?.find(tx => tx.status === 'CREATED')
-      if (firstCreatedTx) return getTransactionButtonText(firstCreatedTx.type, firstCreatedTx.title)
+      if (firstCreatedTx)
+        return getTransactionButtonText(
+          firstCreatedTx.type,
+          firstCreatedTx.title,
+          yieldItem.mechanics.type,
+        )
 
-      const yieldType = yieldItem.mechanics.type
+      const actionLabelKeys = getYieldActionLabelKeys(yieldItem.mechanics.type)
       if (action === 'enter') {
-        const actionKey = getEnterActionTextKey(yieldType)
-        return `${translate(actionKey)} ${inputTokenAsset?.symbol ?? ''}`
+        return `${translate(actionLabelKeys.enter)} ${inputTokenAsset?.symbol ?? ''}`
       }
       if (action === 'exit') {
-        const actionKey = getExitActionTextKey(yieldType)
-        return `${translate(actionKey)} ${inputTokenAsset?.symbol ?? ''}`
+        return `${translate(actionLabelKeys.exit)} ${inputTokenAsset?.symbol ?? ''}`
       }
       if (action === 'claim') {
         return `${translate('common.claim')} ${claimableToken?.symbol ?? ''}`
@@ -593,7 +582,7 @@ export const YieldForm = memo(
           {minDeposit && bnOrZero(minDeposit).gt(0) && action === 'enter' && (
             <Flex justify='space-between' align='center' mt={3}>
               <Text fontSize='sm' color='text.subtle'>
-                {translate('yieldXYZ.minEnter')}
+                {translate(getYieldMinAmountKey(yieldItem.mechanics.type))}
               </Text>
               <Text
                 fontSize='sm'
@@ -619,6 +608,7 @@ export const YieldForm = memo(
         minDeposit,
         isBelowMinimum,
         action,
+        yieldItem.mechanics.type,
       ],
     )
 
@@ -713,11 +703,10 @@ export const YieldForm = memo(
       const successSymbol = isClaimAction
         ? claimableToken?.symbol ?? ''
         : inputTokenAsset?.symbol ?? ''
-      const successMessageKey = isClaimAction
-        ? 'successClaim'
-        : action === 'exit'
-        ? 'successExit'
-        : 'successEnter'
+      const successMessageKey = getYieldSuccessMessageKey(
+        yieldItem.mechanics.type,
+        isClaimAction ? 'claim' : action,
+      )
 
       return (
         <YieldSuccess
@@ -749,6 +738,9 @@ export const YieldForm = memo(
             </Flex>
           )}
           {!isClaimAction && statsContent}
+          {!isClaimAction && (
+            <YieldExplainers selectedYield={yieldItem} sellAssetSymbol={inputTokenAsset?.symbol} />
+          )}
           {stepsToShow.length > 0 && <TransactionStepsList steps={stepsToShow} />}
         </Flex>
 

@@ -137,6 +137,9 @@ export const accountIdToLabel = (accountId: AccountId): string => {
     case zecChainId:
       return 'Zcash'
     default: {
+      if (evmChainIds.includes(chainId as EvmChainId)) {
+        return middleEllipsis(pubkey)
+      }
       return ''
     }
   }

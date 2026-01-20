@@ -162,12 +162,9 @@ export abstract class EvmBaseAdapter<T extends AnyEvmChainId> implements IChainA
     return { ...this.rootBip44Params, accountNumber, isChange: false, addressIndex: 0 }
   }
 
-  protected assertSupportsChain(
-    wallet: HDWallet,
-    chainReference?: number,
-  ): asserts wallet is ETHWallet {
+  protected assertSupportsChain(wallet: HDWallet): asserts wallet is ETHWallet {
     const support = (() => {
-      switch (chainReference ?? Number(fromChainId(this.chainId).chainReference)) {
+      switch (Number(fromChainId(this.chainId).chainReference)) {
         case Number(fromChainId(KnownChainIds.AvalancheMainnet).chainReference):
           return supportsAvalanche(wallet)
         case Number(fromChainId(KnownChainIds.BnbSmartChainMainnet).chainReference):
@@ -195,7 +192,8 @@ export abstract class EvmBaseAdapter<T extends AnyEvmChainId> implements IChainA
         case Number(fromChainId(KnownChainIds.KatanaMainnet).chainReference):
           return supportsKatana(wallet)
         default:
-          return false
+          // For generic EVM chains (Celo, Sei, etc.), just check if wallet supports ETH
+          return supportsETH(wallet)
       }
     })()
 
@@ -489,7 +487,7 @@ export abstract class EvmBaseAdapter<T extends AnyEvmChainId> implements IChainA
     try {
       const { txToSign, wallet } = signTxInput
 
-      this.assertSupportsChain(wallet, txToSign.chainId)
+      this.assertSupportsChain(wallet)
       await verifyLedgerAppOpen(this.chainId, wallet)
 
       const signedTx = await wallet.ethSignTx(txToSign)
@@ -517,7 +515,7 @@ export abstract class EvmBaseAdapter<T extends AnyEvmChainId> implements IChainA
         receiverAddress !== CONTRACT_INTERACTION && assertAddressNotSanctioned(receiverAddress),
       ])
 
-      this.assertSupportsChain(wallet, txToSign.chainId)
+      this.assertSupportsChain(wallet)
       await this.assertSwitchChain(wallet)
 
       const txHash = await wallet.ethSendTx?.(txToSign)

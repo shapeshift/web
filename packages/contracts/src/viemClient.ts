@@ -147,10 +147,14 @@ export const createGenericViemClient = (config: EvmGenericChainConfig): PublicCl
             : undefined,
         })
 
-  const rpcUrls = config.rpcUrl ? [config.rpcUrl] : []
+  // Use custom RPC URL if provided, otherwise use chain's default RPC URLs
+  const rpcUrls = config.rpcUrl
+    ? [config.rpcUrl]
+    : viemChain.rpcUrls.default.http.filter(Boolean)
+
   const client = createPublicClient({
     chain: viemChain as chains.Chain,
-    transport: fallback(rpcUrls.filter(Boolean).map(url => http(url))),
+    transport: fallback(rpcUrls.map(url => http(url))),
   }) as PublicClient
 
   genericChainClientCache.set(config.chainId, client)

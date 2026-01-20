@@ -67,6 +67,7 @@ import { store, useAppDispatch, useAppSelector } from '@/state/store'
 export const useTradeExecution = (
   hopIndex: SupportedTradeQuoteStepIndex,
   confirmedTradeId: TradeQuote['id'],
+  onSwapTxBroadcast?: () => void,
 ) => {
   const translate = useTranslate()
   const dispatch = useAppDispatch()
@@ -237,6 +238,8 @@ export const useTradeExecution = (
             },
           })
         }
+
+        onSwapTxBroadcast?.()
 
         // Don't navigate away during QuickBuy - let the QuickBuy component handle the success state
         if (!isQuickBuy) {
@@ -772,6 +775,7 @@ export const useTradeExecution = (
     swapsById,
     toast,
     isQuickBuy,
+    onSwapTxBroadcast,
   ])
 
   return executeTrade

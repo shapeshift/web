@@ -1,13 +1,25 @@
 import type { CardHeaderProps } from '@chakra-ui/react'
-import { Box, CardHeader, Flex, Grid, Heading, useColorModeValue } from '@chakra-ui/react'
+import {
+  Box,
+  Button,
+  CardHeader,
+  Divider,
+  Flex,
+  Grid,
+  Heading,
+  useColorModeValue,
+} from '@chakra-ui/react'
 import type { JSX } from 'react'
-import { useCallback, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
+import { LuChevronsUpDown } from 'react-icons/lu'
 import { useTranslate } from 'react-polyglot'
 
 import { TradeInputTab } from '../../types'
 
 import { Display } from '@/components/Display'
 import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
+
+const selectorIcon = <LuChevronsUpDown fontSize='1em' />
 
 type SharedTradeInputHeaderProps = {
   initialTab: TradeInputTab
@@ -47,6 +59,16 @@ export const SharedTradeInputHeader = ({
   const enableSwapperFiatRamps = useFeatureFlag('SwapperFiatRamps')
   const enableEarnTab = useFeatureFlag('EarnTab')
 
+  const isSwapOrLimit =
+    selectedTab === TradeInputTab.Trade || selectedTab === TradeInputTab.LimitOrder
+  const showOrderTypeSwitcher = enableLimitOrders && !isStandalone && isSwapOrLimit
+
+  const orderTypeLabel = useMemo(() => {
+    return selectedTab === TradeInputTab.LimitOrder
+      ? translate('limitOrder.heading')
+      : translate('navBar.market')
+  }, [selectedTab, translate])
+
   const handleChangeTab = useCallback(
     (newTab: TradeInputTab) => {
       setSelectedTab(newTab)
@@ -62,6 +84,14 @@ export const SharedTradeInputHeader = ({
   const handleClickLimitOrder = useCallback(() => {
     handleChangeTab(TradeInputTab.LimitOrder)
   }, [handleChangeTab])
+
+  const handleToggleOrderType = useCallback(() => {
+    if (selectedTab === TradeInputTab.LimitOrder) {
+      handleChangeTab(TradeInputTab.Trade)
+    } else {
+      handleChangeTab(TradeInputTab.LimitOrder)
+    }
+  }, [selectedTab, handleChangeTab])
 
   const handleClickBuyFiat = useCallback(() => {
     handleChangeTab(TradeInputTab.BuyFiat)
@@ -93,23 +123,12 @@ export const SharedTradeInputHeader = ({
             <Heading
               as='h5'
               fontSize='md'
-              color={selectedTab !== TradeInputTab.Trade ? 'text.subtle' : undefined}
+              color={!isSwapOrLimit ? 'text.subtle' : undefined}
               onClick={handleClickTrade}
-              cursor={selectedTab !== TradeInputTab.Trade ? 'pointer' : undefined}
+              cursor={!isSwapOrLimit ? 'pointer' : undefined}
             >
               {translate('navBar.swap')}
             </Heading>
-            {enableLimitOrders && !isStandalone && (
-              <Heading
-                as='h5'
-                fontSize='md'
-                color={selectedTab !== TradeInputTab.LimitOrder ? 'text.subtle' : undefined}
-                onClick={handleClickLimitOrder}
-                cursor={selectedTab !== TradeInputTab.LimitOrder ? 'pointer' : undefined}
-              >
-                {translate('limitOrder.heading')}
-              </Heading>
-            )}
             {enableSwapperFiatRamps && !isStandalone && (
               <Heading
                 as='h5'
@@ -148,6 +167,24 @@ export const SharedTradeInputHeader = ({
             {rightContent}
           </Flex>
         </Flex>
+        {showOrderTypeSwitcher && (
+          <Flex alignItems='center' mt={4}>
+            <Divider borderColor='border.subtle' />
+            <Button
+              variant='outline'
+              size='sm'
+              borderRadius='full'
+              px={4}
+              flexShrink={0}
+              rightIcon={selectorIcon}
+              fontWeight='medium'
+              onClick={handleToggleOrderType}
+            >
+              {orderTypeLabel}
+            </Button>
+            <Divider borderColor='border.subtle' />
+          </Flex>
+        )}
       </Display.Desktop>
       <Display.Mobile>
         <Grid templateColumns='1fr auto 1fr' alignItems='center' justifyContent='space-between'>

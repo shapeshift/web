@@ -14,8 +14,18 @@ export const RatesRequestSchema = z.object({
   buyAssetId: z.string().min(1).openapi({
     example: 'eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
   }),
-  sellAmountCryptoBaseUnit: z.string().min(1).openapi({ example: '1000000000000000000' }),
-  slippageTolerancePercentageDecimal: z.string().optional().openapi({ example: '0.01' }),
+  sellAmountCryptoBaseUnit: z
+    .string()
+    .regex(/^\d+$/, 'sellAmountCryptoBaseUnit must be a positive integer')
+    .openapi({ example: '1000000000000000000' }),
+  slippageTolerancePercentageDecimal: z
+    .string()
+    .regex(
+      /^(?:\d+)(?:\.\d+)?$/,
+      'slippageTolerancePercentageDecimal must be a non-negative decimal number',
+    )
+    .optional()
+    .openapi({ example: '0.01' }),
   allowMultiHop: booleanFromString.optional().default(true).openapi({ example: true }),
 })
 

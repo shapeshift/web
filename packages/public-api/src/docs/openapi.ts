@@ -41,7 +41,71 @@ const AssetSchema = registry.register(
   }),
 )
 
-// Quote Response Step
+const EvmTransactionDataSchema = z.object({
+  type: z.literal('evm').openapi({ example: 'evm' }),
+  chainId: z.number().openapi({ example: 1 }),
+  to: z.string().openapi({ example: '0xdef1c0ded9bec7f1a1670819833240f027b25eff' }),
+  data: z.string().openapi({ example: '0x...' }),
+  value: z.string().openapi({ example: '1000000000000000000' }),
+  gasLimit: z.string().optional().openapi({ example: '300000' }),
+  signatureRequired: z
+    .object({
+      type: z.literal('permit2'),
+      eip712: z.record(z.unknown()),
+    })
+    .optional(),
+})
+
+const SolanaTransactionDataSchema = z.object({
+  type: z.literal('solana').openapi({ example: 'solana' }),
+  instructions: z.array(
+    z.object({
+      programId: z.string(),
+      keys: z.array(
+        z.object({
+          pubkey: z.string(),
+          isSigner: z.boolean(),
+          isWritable: z.boolean(),
+        }),
+      ),
+      data: z.string(),
+    }),
+  ),
+  addressLookupTableAddresses: z.array(z.string()),
+})
+
+const UtxoTransactionDataSchema = z.object({
+  type: z.literal('utxo').openapi({ example: 'utxo' }),
+  psbt: z.string(),
+  sendAddress: z.string(),
+  opReturnData: z.string().optional(),
+})
+
+const CosmosTransactionDataSchema = z.object({
+  type: z.literal('cosmos').openapi({ example: 'cosmos' }),
+  chainId: z.string(),
+  to: z.string(),
+  value: z.string(),
+  memo: z.string().optional(),
+})
+
+const CowswapOrderDataSchema = z.object({
+  type: z.literal('cowswap').openapi({ example: 'cowswap' }),
+  order: z.record(z.unknown()),
+  signatureRequired: z.object({
+    type: z.literal('eip712'),
+    eip712: z.record(z.unknown()),
+  }),
+})
+
+const TransactionDataSchema = z.discriminatedUnion('type', [
+  EvmTransactionDataSchema,
+  SolanaTransactionDataSchema,
+  UtxoTransactionDataSchema,
+  CosmosTransactionDataSchema,
+  CowswapOrderDataSchema,
+])
+
 const QuoteStepSchema = registry.register(
   'QuoteStep',
   z.object({
@@ -54,14 +118,7 @@ const QuoteStepSchema = registry.register(
       .openapi({ example: '0xdef1c0ded9bec7f1a1670819833240f027b25eff' }),
     estimatedExecutionTimeMs: z.number().optional().openapi({ example: 60000 }),
     source: z.string().openapi({ example: '0x' }),
-    transactionData: z
-      .object({
-        to: z.string(),
-        data: z.string(),
-        value: z.string(),
-        gasLimit: z.string().optional(),
-      })
-      .optional(),
+    transactionData: TransactionDataSchema.optional(),
   }),
 )
 

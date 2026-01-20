@@ -124,8 +124,8 @@ export const StakingPositionsByProvider: React.FC<StakingPositionsByProviderProp
     if (!yieldOpportunities?.length) return []
     return yieldOpportunities.map(y => ({
       id: y.yieldId,
-      assetId: y.inputAssetId ?? y.yieldId,
-      underlyingAssetId: y.inputAssetId ?? y.yieldId,
+      assetId: y.inputAssetId,
+      underlyingAssetId: y.inputAssetId,
       provider: y.providerName,
       apy: y.apy,
       fiatAmount: y.fiatAmount,

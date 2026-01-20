@@ -12,7 +12,7 @@ export type YieldOpportunityDisplay = {
   yieldId: string
   providerName: string
   providerIcon?: string
-  inputAssetId?: AssetId
+  inputAssetId: AssetId
   apy: string
   fiatAmount: string
   cryptoAmount: string

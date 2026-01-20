@@ -1,4 +1,5 @@
 import type { GetTradeRateInput } from '@shapeshiftoss/swapper'
+import { TradeQuoteError } from '@shapeshiftoss/swapper'
 import type { Request, Response } from 'express'
 import { z } from 'zod'
 
@@ -156,7 +157,7 @@ export const getRates = async (req: Request, res: Response): Promise<void> => {
             affiliateBps: DEFAULT_AFFILIATE_BPS,
             networkFeeCryptoBaseUnit: undefined,
             error: {
-              code: error.code || ('UnknownError' as any),
+              code: error.code ?? TradeQuoteError.UnknownError,
               message: error.message,
             },
           }

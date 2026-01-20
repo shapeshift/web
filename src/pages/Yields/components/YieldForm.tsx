@@ -27,6 +27,8 @@ import { YieldBalanceType } from '@/lib/yieldxyz/types'
 import {
   getTransactionButtonText,
   getYieldActionLabelKeys,
+  getYieldMinAmountKey,
+  getYieldSuccessMessageKey,
   isStakingYieldType,
 } from '@/lib/yieldxyz/utils'
 import { GradientApy } from '@/pages/Yields/components/GradientApy'
@@ -433,12 +435,21 @@ export const YieldForm = memo(
 
       if (isSubmitting && transactionSteps.length > 0) {
         const activeStep = transactionSteps.find(s => s.status !== 'success')
-        if (activeStep) return getTransactionButtonText(activeStep.type, activeStep.originalTitle)
+        if (activeStep)
+          return getTransactionButtonText(
+            activeStep.type,
+            activeStep.originalTitle,
+            yieldItem.mechanics.type,
+          )
       }
 
       if (activeStepIndex >= 0 && transactionSteps[activeStepIndex]) {
         const currentStep = transactionSteps[activeStepIndex]
-        return getTransactionButtonText(currentStep.type, currentStep.originalTitle)
+        return getTransactionButtonText(
+          currentStep.type,
+          currentStep.originalTitle,
+          yieldItem.mechanics.type,
+        )
       }
 
       if (isUsdtResetRequired) {
@@ -446,7 +457,12 @@ export const YieldForm = memo(
       }
 
       const firstCreatedTx = quoteData?.transactions?.find(tx => tx.status === 'CREATED')
-      if (firstCreatedTx) return getTransactionButtonText(firstCreatedTx.type, firstCreatedTx.title)
+      if (firstCreatedTx)
+        return getTransactionButtonText(
+          firstCreatedTx.type,
+          firstCreatedTx.title,
+          yieldItem.mechanics.type,
+        )
 
       const actionLabelKeys = getYieldActionLabelKeys(yieldItem.mechanics.type)
       if (action === 'enter') {
@@ -566,7 +582,7 @@ export const YieldForm = memo(
           {minDeposit && bnOrZero(minDeposit).gt(0) && action === 'enter' && (
             <Flex justify='space-between' align='center' mt={3}>
               <Text fontSize='sm' color='text.subtle'>
-                {translate('yieldXYZ.minEnter')}
+                {translate(getYieldMinAmountKey(yieldItem.mechanics.type))}
               </Text>
               <Text
                 fontSize='sm'
@@ -592,6 +608,7 @@ export const YieldForm = memo(
         minDeposit,
         isBelowMinimum,
         action,
+        yieldItem.mechanics.type,
       ],
     )
 
@@ -686,11 +703,10 @@ export const YieldForm = memo(
       const successSymbol = isClaimAction
         ? claimableToken?.symbol ?? ''
         : inputTokenAsset?.symbol ?? ''
-      const successMessageKey = isClaimAction
-        ? 'successClaim'
-        : action === 'exit'
-        ? 'successExit'
-        : 'successEnter'
+      const successMessageKey = getYieldSuccessMessageKey(
+        yieldItem.mechanics.type,
+        isClaimAction ? 'claim' : action,
+      )
 
       return (
         <YieldSuccess

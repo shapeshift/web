@@ -3,7 +3,6 @@ import {
   AlertDescription,
   AlertIcon,
   Avatar,
-  Badge,
   Box,
   Card,
   CardBody,

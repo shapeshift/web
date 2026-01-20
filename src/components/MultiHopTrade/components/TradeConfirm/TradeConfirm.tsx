@@ -26,7 +26,13 @@ import { tradeQuoteSlice } from '@/state/slices/tradeQuoteSlice/tradeQuoteSlice'
 import { TradeExecutionState } from '@/state/slices/tradeQuoteSlice/types'
 import { useAppDispatch, useAppSelector } from '@/state/store'
 
-export const TradeConfirm = ({ isCompact }: { isCompact: boolean | undefined }) => {
+type TradeConfirmProps = {
+  isCompact?: boolean
+  isModal?: boolean
+  onSuccess?: () => void
+}
+
+export const TradeConfirm = ({ isCompact, isModal, onSuccess }: TradeConfirmProps) => {
   const navigate = useNavigate()
   const { isLoading } = useIsApprovalInitiallyNeeded()
   const dispatch = useAppDispatch()
@@ -90,9 +96,18 @@ export const TradeConfirm = ({ isCompact }: { isCompact: boolean | undefined }) 
         isCompact={isCompact}
         tradeQuoteStep={tradeQuoteStep}
         activeTradeId={activeTradeId}
+        onSwapTxBroadcast={onSuccess}
       />
     )
-  }, [isTradeComplete, activeQuote, tradeQuoteLastHop, tradeQuoteStep, activeTradeId, isCompact])
+  }, [
+    isTradeComplete,
+    activeQuote,
+    tradeQuoteLastHop,
+    tradeQuoteStep,
+    activeTradeId,
+    isCompact,
+    onSuccess,
+  ])
 
   const isArbitrumBridgeWithdraw = useMemo(() => {
     return isArbitrumBridgeTradeQuoteOrRate(activeQuote) && activeQuote.direction === 'withdrawal'
@@ -141,6 +156,7 @@ export const TradeConfirm = ({ isCompact }: { isCompact: boolean | undefined }) 
       isLoading={isLoading}
       onBack={handleBack}
       headerTranslation={headerTranslation}
+      isModal={isModal}
     />
   )
 }

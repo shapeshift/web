@@ -2819,7 +2819,11 @@
     "otherYields": "Other %{symbol} Yields",
     "availableToDeposit": "Available to Deposit",
     "availableToDepositTooltip": "This is the amount of %{symbol} in your wallet that you can deposit into this yield opportunity.",
-    "getAsset": "Get %{symbol}"
+    "getAsset": "Get %{symbol}",
+    "potentialEarningsAmount": "%{amount}/yr at %{apy}% APY",
+    "depositNow": "Deposit Now",
+    "strategyInfo": "Strategy Info",
+    "overview": "Overview"
   },
   "earn": {
     "enterFrom": "Enter from",

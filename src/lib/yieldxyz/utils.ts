@@ -6,76 +6,110 @@ import {
   SHAPESHIFT_COSMOS_VALIDATOR_ADDRESS,
   YIELD_NETWORK_TO_CHAIN_ID,
 } from './constants'
-import type { AugmentedYieldDto, ValidatorDto, YieldIconSource } from './types'
+import type { AugmentedYieldDto, ValidatorDto, YieldIconSource, YieldType } from './types'
 
 export const yieldNetworkToChainId = (network: string): ChainId | undefined => {
   if (!isSupportedYieldNetwork(network)) return undefined
   return YIELD_NETWORK_TO_CHAIN_ID[network]
 }
 
-const TX_TITLE_PATTERNS: [RegExp, string][] = [
-  [/approv/i, 'Approve'],
-  [/supply|deposit|enter/i, 'Enter'],
-  [/withdraw|exit|unstake|undelegate/i, 'Exit'],
-  [/claim/i, 'Claim'],
-  [/stake|delegate/i, 'Enter'],
-  [/bridge/i, 'Bridge'],
-  [/swap/i, 'Swap'],
+type TxTitlePattern = {
+  pattern: RegExp
+  staking: string
+  vault: string
+}
+
+const TX_TITLE_PATTERNS: TxTitlePattern[] = [
+  { pattern: /approv/i, staking: 'Approve', vault: 'Approve' },
+  { pattern: /supply|deposit|enter/i, staking: 'Stake', vault: 'Deposit' },
+  { pattern: /withdraw|exit/i, staking: 'Unstake', vault: 'Withdraw' },
+  { pattern: /unstake|undelegate/i, staking: 'Unstake', vault: 'Withdraw' },
+  { pattern: /claim/i, staking: 'Claim', vault: 'Claim' },
+  { pattern: /stake|delegate/i, staking: 'Stake', vault: 'Deposit' },
+  { pattern: /bridge/i, staking: 'Bridge', vault: 'Bridge' },
+  { pattern: /swap/i, staking: 'Swap', vault: 'Swap' },
 ]
 
-// Map of transaction types to user-friendly button labels
-// These should match the action verbs shown in the step row (without the asset symbol)
-// Yield.xyz uses Enter/Exit terminology consistently
-const TX_TYPE_TO_LABEL: Record<string, string> = {
-  APPROVE: 'Approve',
-  APPROVAL: 'Approve',
-  DELEGATE: 'Enter', // Monad uses DELEGATE for staking
-  UNDELEGATE: 'Exit', // Monad uses UNDELEGATE for unstaking
-  STAKE: 'Enter',
-  UNSTAKE: 'Exit',
-  DEPOSIT: 'Enter',
-  WITHDRAW: 'Exit',
-  SUPPLY: 'Enter',
-  EXIT: 'Exit',
-  ENTER: 'Enter',
-  BRIDGE: 'Bridge',
-  SWAP: 'Swap',
-  CLAIM: 'Claim',
-  CLAIM_REWARDS: 'Claim',
-  TRANSFER: 'Transfer',
+type TxTypeLabels = {
+  staking: string
+  vault: string
+}
+
+const TX_TYPE_TO_LABELS: Record<string, TxTypeLabels> = {
+  APPROVE: { staking: 'Approve', vault: 'Approve' },
+  APPROVAL: { staking: 'Approve', vault: 'Approve' },
+  DELEGATE: { staking: 'Stake', vault: 'Deposit' },
+  UNDELEGATE: { staking: 'Unstake', vault: 'Withdraw' },
+  STAKE: { staking: 'Stake', vault: 'Deposit' },
+  UNSTAKE: { staking: 'Unstake', vault: 'Withdraw' },
+  DEPOSIT: { staking: 'Stake', vault: 'Deposit' },
+  WITHDRAW: { staking: 'Unstake', vault: 'Withdraw' },
+  SUPPLY: { staking: 'Stake', vault: 'Deposit' },
+  EXIT: { staking: 'Unstake', vault: 'Withdraw' },
+  ENTER: { staking: 'Stake', vault: 'Deposit' },
+  BRIDGE: { staking: 'Bridge', vault: 'Bridge' },
+  SWAP: { staking: 'Swap', vault: 'Swap' },
+  CLAIM: { staking: 'Claim', vault: 'Claim' },
+  CLAIM_REWARDS: { staking: 'Claim', vault: 'Claim' },
+  TRANSFER: { staking: 'Transfer', vault: 'Transfer' },
+}
+
+type TerminologyKey = 'staking' | 'vault'
+
+const isStakingType = (yieldType: YieldType): boolean => {
+  switch (yieldType) {
+    case 'staking':
+    case 'native-staking':
+    case 'pooled-staking':
+    case 'liquid-staking':
+    case 'restaking':
+      return true
+    case 'vault':
+    case 'lending':
+      return false
+    default:
+      // This shouldn't happen but satisfies exhaustiveness check
+      assertNever(yieldType)
+      return false
+  }
 }
 
 /**
  * Gets a clean button label from a transaction type or title.
- * Used for the main CTA button in the yield action modal.
+ * Uses yield-type-aware terminology (stake/unstake vs deposit/withdraw).
  */
 export const getTransactionButtonText = (
   type: string | undefined,
   title: string | undefined,
+  yieldType?: YieldType,
 ): string => {
-  // First try to use the transaction type directly
+  const labelKey: TerminologyKey = yieldType && isStakingType(yieldType) ? 'staking' : 'vault'
+
   if (type) {
     const normalized = type.toUpperCase().replace(/[_-]/g, '_')
-    if (TX_TYPE_TO_LABEL[normalized]) {
-      return TX_TYPE_TO_LABEL[normalized]
-    }
-    // Fallback: capitalize the type
+    const labels = TX_TYPE_TO_LABELS[normalized]
+    if (labels) return labels[labelKey]
     return type.charAt(0).toUpperCase() + type.slice(1).toLowerCase()
   }
 
-  // Fall back to parsing the title
   if (title) {
-    const match = TX_TITLE_PATTERNS.find(([pattern]) => pattern.test(title))
-    if (match) return match[1]
+    const match = TX_TITLE_PATTERNS.find(p => p.pattern.test(title))
+    if (match) return match[labelKey]
   }
 
   return 'Confirm'
 }
 
-export const formatYieldTxTitle = (title: string, assetSymbol: string): string => {
+export const formatYieldTxTitle = (
+  title: string,
+  assetSymbol: string,
+  yieldType?: YieldType,
+): string => {
+  const labelKey: TerminologyKey = yieldType && isStakingType(yieldType) ? 'staking' : 'vault'
+
   const normalized = title.replace(/ transaction$/i, '').toLowerCase()
-  const match = TX_TITLE_PATTERNS.find(([pattern]) => pattern.test(normalized))
-  if (match) return `${match[1]} ${assetSymbol}`
+  const match = TX_TITLE_PATTERNS.find(p => p.pattern.test(normalized))
+  if (match) return `${match[labelKey]} ${assetSymbol}`
   return normalized.charAt(0).toUpperCase() + normalized.slice(1)
 }
 
@@ -166,15 +200,19 @@ export type YieldActionLabelKeys = {
   exit: string
 }
 
+const assertNever = (value: never): never => {
+  throw new Error(`Unhandled yield type: ${value}`)
+}
+
 /**
  * Gets the appropriate translation keys for yield actions based on yield type.
  *
  * Yield types and their terminology:
  * - staking, native-staking, pooled-staking, liquid-staking → Stake/Unstake
  * - restaking → Restake/Unstake
- * - vault, lending, and others → Deposit/Withdraw
+ * - vault, lending → Deposit/Withdraw
  */
-export const getYieldActionLabelKeys = (yieldType: string): YieldActionLabelKeys => {
+export const getYieldActionLabelKeys = (yieldType: YieldType): YieldActionLabelKeys => {
   switch (yieldType) {
     case 'staking':
     case 'native-staking':
@@ -185,22 +223,121 @@ export const getYieldActionLabelKeys = (yieldType: string): YieldActionLabelKeys
       return { enter: 'yieldXYZ.actions.restake', exit: 'defi.unstake' }
     case 'vault':
     case 'lending':
-    default:
       return { enter: 'common.deposit', exit: 'common.withdraw' }
+    default:
+      return assertNever(yieldType)
   }
 }
 
-const STAKING_YIELD_TYPES = new Set([
-  'staking',
-  'native-staking',
-  'pooled-staking',
-  'liquid-staking',
-  'restaking',
-])
+export type YieldLoadingStateKeys = {
+  enter: string
+  exit: string
+}
 
-/**
- * Checks if a yield type uses staking terminology (stake/unstake).
- */
-export const isStakingYieldType = (yieldType: string): boolean => {
-  return STAKING_YIELD_TYPES.has(yieldType)
+export const getYieldLoadingStateKeys = (yieldType: YieldType): YieldLoadingStateKeys => {
+  switch (yieldType) {
+    case 'staking':
+    case 'native-staking':
+    case 'pooled-staking':
+    case 'liquid-staking':
+    case 'restaking':
+      return { enter: 'yieldXYZ.staking', exit: 'yieldXYZ.unstaking' }
+    case 'vault':
+    case 'lending':
+      return { enter: 'yieldXYZ.depositing', exit: 'yieldXYZ.withdrawing' }
+    default:
+      return assertNever(yieldType)
+  }
+}
+
+export type YieldHeadingKeys = {
+  enter: string
+  exit: string
+}
+
+export const getYieldHeadingKeys = (yieldType: YieldType): YieldHeadingKeys => {
+  switch (yieldType) {
+    case 'staking':
+    case 'native-staking':
+    case 'pooled-staking':
+    case 'liquid-staking':
+    case 'restaking':
+      return { enter: 'yieldXYZ.stakeSymbol', exit: 'yieldXYZ.unstakeSymbol' }
+    case 'vault':
+    case 'lending':
+      return { enter: 'yieldXYZ.depositSymbol', exit: 'yieldXYZ.withdrawSymbol' }
+    default:
+      return assertNever(yieldType)
+  }
+}
+
+export type YieldPendingStatusKeys = {
+  enter: string
+  exit: string
+}
+
+export const getYieldPendingStatusKeys = (yieldType: YieldType): YieldPendingStatusKeys => {
+  switch (yieldType) {
+    case 'staking':
+    case 'native-staking':
+    case 'pooled-staking':
+    case 'liquid-staking':
+    case 'restaking':
+      return { enter: 'yieldXYZ.stakingPending', exit: 'yieldXYZ.unstakingPending' }
+    case 'vault':
+    case 'lending':
+      return { enter: 'yieldXYZ.depositingPending', exit: 'yieldXYZ.withdrawingPending' }
+    default:
+      return assertNever(yieldType)
+  }
+}
+
+export const getYieldMinAmountKey = (yieldType: YieldType): string => {
+  switch (yieldType) {
+    case 'staking':
+    case 'native-staking':
+    case 'pooled-staking':
+    case 'liquid-staking':
+    case 'restaking':
+      return 'yieldXYZ.minStake'
+    case 'vault':
+    case 'lending':
+      return 'yieldXYZ.minDeposit'
+    default:
+      return assertNever(yieldType)
+  }
+}
+
+export const isStakingYieldType = (yieldType: YieldType): boolean => {
+  return isStakingType(yieldType)
+}
+
+export type YieldSuccessMessageKey =
+  | 'successStaked'
+  | 'successUnstaked'
+  | 'successDeposited'
+  | 'successWithdrawn'
+  | 'successRestaked'
+  | 'successClaim'
+
+export const getYieldSuccessMessageKey = (
+  yieldType: YieldType,
+  action: 'enter' | 'exit' | 'claim' | 'manage',
+): YieldSuccessMessageKey => {
+  if (action === 'claim' || action === 'manage') return 'successClaim'
+
+  switch (yieldType) {
+    case 'staking':
+    case 'native-staking':
+    case 'pooled-staking':
+    case 'liquid-staking':
+      return action === 'enter' ? 'successStaked' : 'successUnstaked'
+    case 'restaking':
+      return action === 'enter' ? 'successRestaked' : 'successUnstaked'
+    case 'vault':
+    case 'lending':
+      return action === 'enter' ? 'successDeposited' : 'successWithdrawn'
+    default:
+      return assertNever(yieldType)
+  }
 }

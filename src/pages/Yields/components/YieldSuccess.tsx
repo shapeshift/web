@@ -10,6 +10,8 @@ import { useConfetti } from '../hooks/useConfetti'
 import type { TransactionStep } from '../hooks/useYieldTransactionFlow'
 import { TransactionStepsList } from './TransactionStepsList'
 
+import type { YieldSuccessMessageKey } from '@/lib/yieldxyz/utils'
+
 type ProviderInfo = {
   name: string
   logoURI: string | undefined
@@ -24,12 +26,7 @@ type YieldSuccessProps = {
   accountId?: AccountId
   onDone: () => void
   showConfetti?: boolean
-  successMessageKey?:
-    | 'successEnter'
-    | 'successExit'
-    | 'successClaim'
-    | 'successUnstaked'
-    | 'successWithdrawn'
+  successMessageKey?: YieldSuccessMessageKey
 }
 
 export const YieldSuccess = memo(
@@ -42,7 +39,7 @@ export const YieldSuccess = memo(
     accountId,
     onDone,
     showConfetti = true,
-    successMessageKey = 'successEnter',
+    successMessageKey = 'successStaked',
   }: YieldSuccessProps) => {
     const translate = useTranslate()
     const navigate = useNavigate()

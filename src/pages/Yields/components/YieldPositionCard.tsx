@@ -29,7 +29,7 @@ import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import type { AugmentedYieldDto } from '@/lib/yieldxyz/types'
 import { YieldBalanceType } from '@/lib/yieldxyz/types'
-import { getYieldActionLabelKeys } from '@/lib/yieldxyz/utils'
+import { getYieldActionLabelKeys, getYieldPendingStatusKeys } from '@/lib/yieldxyz/utils'
 import { useYieldAccount } from '@/pages/Yields/YieldAccountContext'
 import type {
   AggregatedBalance,
@@ -209,6 +209,7 @@ export const YieldPositionCard = memo(
     const handleExit = useCallback(() => navigateToAction('exit'), [navigateToAction])
 
     const actionLabelKeys = getYieldActionLabelKeys(yieldItem.mechanics.type)
+    const pendingStatusKeys = getYieldPendingStatusKeys(yieldItem.mechanics.type)
     const enterLabel = translate(actionLabelKeys.enter)
     const exitLabel = translate(actionLabelKeys.exit)
 
@@ -221,7 +222,7 @@ export const YieldPositionCard = memo(
           <Flex justify='space-between' align='center' width='full'>
             <Box>
               <Text fontSize='xs' fontWeight='bold' textTransform='uppercase'>
-                {translate('yieldXYZ.entering')}
+                {translate(pendingStatusKeys.enter)}
               </Text>
               <Text fontSize='sm' fontWeight='bold'>
                 {formatBalance(enteringBalance)}
@@ -233,7 +234,7 @@ export const YieldPositionCard = memo(
           </Flex>
         </Alert>
       )
-    }, [hasEntering, translate, formatBalance, enteringBalance])
+    }, [hasEntering, translate, formatBalance, enteringBalance, pendingStatusKeys.enter])
 
     const unstakingSection = useMemo(() => {
       if (!hasExiting) return null
@@ -253,7 +254,7 @@ export const YieldPositionCard = memo(
             <Flex justify='space-between' align='center' width='full'>
               <Box>
                 <Text fontSize='xs' fontWeight='bold' textTransform='uppercase'>
-                  {translate('yieldXYZ.unstaking')}
+                  {translate(pendingStatusKeys.exit)}
                 </Text>
                 <Text fontSize='sm' fontWeight='bold'>
                   <Amount.Crypto value={entry.amount} symbol={entry.token.symbol} abbreviated />
@@ -273,7 +274,7 @@ export const YieldPositionCard = memo(
           </Alert>
         )
       })
-    }, [hasExiting, exitingEntries, translate])
+    }, [hasExiting, exitingEntries, translate, pendingStatusKeys.exit])
 
     const withdrawableSection = useMemo(() => {
       if (!hasWithdrawable) return null

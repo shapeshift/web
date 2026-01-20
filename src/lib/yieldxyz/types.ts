@@ -30,6 +30,15 @@ export enum ActionIntent {
   Manage = 'manage',
 }
 
+export type YieldType =
+  | 'staking'
+  | 'native-staking'
+  | 'pooled-staking'
+  | 'liquid-staking'
+  | 'restaking'
+  | 'vault'
+  | 'lending'
+
 export enum ActionStatus {
   Canceled = 'CANCELED',
   Created = 'CREATED',
@@ -230,7 +239,7 @@ export type YieldEntryLimits = {
 }
 
 export type YieldMechanics = {
-  type: string
+  type: YieldType
   requiresValidatorSelection: boolean
   rewardSchedule: string
   rewardClaiming: string

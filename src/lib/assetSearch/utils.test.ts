@@ -76,7 +76,8 @@ const assets: Asset[] = [
   },
 ]
 
-const stablecoinAssets: Asset[] = [
+// USD-like stablecoins, for name/symbol testing purposes
+const usdAssets: Asset[] = [
   {
     chainId: 'eip155:1',
     assetId: 'eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
@@ -180,12 +181,12 @@ describe('searchAssets', () => {
 
   describe('symbol match priority', () => {
     it('prioritizes exact symbol match over prefix match', () => {
-      const returnedAssets = searchAssets('usdc', stablecoinAssets)
+      const returnedAssets = searchAssets('usdc', usdAssets)
       expect(returnedAssets[0].symbol).toBe('USDC')
     })
 
     it('prioritizes symbol prefix match over name/symbol-contains match', () => {
-      const returnedAssets = searchAssets('usd', stablecoinAssets)
+      const returnedAssets = searchAssets('usd', usdAssets)
       expect(returnedAssets.map(a => a.symbol)).toEqual([
         'USDC',
         'USDT',
@@ -196,17 +197,17 @@ describe('searchAssets', () => {
     })
 
     it('matches by name when symbol does not match', () => {
-      const returnedAssets = searchAssets('tether', stablecoinAssets)
+      const returnedAssets = searchAssets('tether', usdAssets)
       expect(returnedAssets[0].symbol).toBe('USDT')
     })
 
     it('prioritizes exact symbol over symbol-contains', () => {
-      const returnedAssets = searchAssets('axlusdc', stablecoinAssets)
+      const returnedAssets = searchAssets('axlusdc', usdAssets)
       expect(returnedAssets[0].symbol).toBe('axlUSDC')
     })
 
     it('matches symbol containing search term', () => {
-      const returnedAssets = searchAssets('vault', stablecoinAssets)
+      const returnedAssets = searchAssets('vault', usdAssets)
       expect(returnedAssets[0].symbol).toBe('yvUSDC')
     })
   })
@@ -215,7 +216,7 @@ describe('searchAssets', () => {
     it('matches by contract address', () => {
       const returnedAssets = searchAssets(
         '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48',
-        stablecoinAssets,
+        usdAssets,
       )
       expect(returnedAssets.length).toBe(1)
       expect(returnedAssets[0].symbol).toBe('USDC')
@@ -225,9 +226,9 @@ describe('searchAssets', () => {
   describe('preserves original order within score tiers', () => {
     it('maintains market cap order for assets with same score', () => {
       const orderedAssets: Asset[] = [
-        { ...stablecoinAssets[0], symbol: 'USD1', name: 'USD One' },
-        { ...stablecoinAssets[1], symbol: 'USD2', name: 'USD Two' },
-        { ...stablecoinAssets[2], symbol: 'USD3', name: 'USD Three' },
+        { ...usdAssets[0], symbol: 'USD1', name: 'USD One' },
+        { ...usdAssets[1], symbol: 'USD2', name: 'USD Two' },
+        { ...usdAssets[2], symbol: 'USD3', name: 'USD Three' },
       ]
       const returnedAssets = searchAssets('usd', orderedAssets)
       expect(returnedAssets.map(a => a.symbol)).toEqual(['USD1', 'USD2', 'USD3'])
@@ -237,84 +238,84 @@ describe('searchAssets', () => {
   describe('name search', () => {
     const nameSearchAssets: Asset[] = [
       {
-        ...stablecoinAssets[0],
+        ...usdAssets[0],
         assetId: BTC_MAINNET.assetId,
         chainId: BTC_MAINNET.chainId,
         symbol: BTC_MAINNET.symbol,
         name: BTC_MAINNET.name,
       },
       {
-        ...stablecoinAssets[0],
+        ...usdAssets[0],
         assetId: ETH_MAINNET.assetId,
         chainId: ETH_MAINNET.chainId,
         symbol: ETH_MAINNET.symbol,
         name: ETH_MAINNET.name,
       },
       {
-        ...stablecoinAssets[0],
+        ...usdAssets[0],
         assetId: LBTC_BASE_PRIMARY.assetId,
         chainId: LBTC_BASE_PRIMARY.chainId,
         symbol: LBTC_BASE_PRIMARY.symbol,
         name: LBTC_BASE_PRIMARY.name,
       },
       {
-        ...stablecoinAssets[0],
+        ...usdAssets[0],
         assetId: LBTC_ETH.assetId,
         chainId: LBTC_ETH.chainId,
         symbol: LBTC_ETH.symbol,
         name: LBTC_ETH.name,
       },
       {
-        ...stablecoinAssets[0],
+        ...usdAssets[0],
         assetId: AXLUSDC_OPTIMISM.assetId,
         chainId: AXLUSDC_OPTIMISM.chainId,
         symbol: AXLUSDC_OPTIMISM.symbol,
         name: AXLUSDC_OPTIMISM.name,
       },
       {
-        ...stablecoinAssets[0],
+        ...usdAssets[0],
         assetId: AXLUSDC_ARBITRUM.assetId,
         chainId: AXLUSDC_ARBITRUM.chainId,
         symbol: AXLUSDC_ARBITRUM.symbol,
         name: AXLUSDC_ARBITRUM.name,
       },
       {
-        ...stablecoinAssets[0],
+        ...usdAssets[0],
         assetId: AXLUSDT_OPTIMISM.assetId,
         chainId: AXLUSDT_OPTIMISM.chainId,
         symbol: AXLUSDT_OPTIMISM.symbol,
         name: AXLUSDT_OPTIMISM.name,
       },
       {
-        ...stablecoinAssets[0],
+        ...usdAssets[0],
         assetId: AXLUSDT_ARBITRUM.assetId,
         chainId: AXLUSDT_ARBITRUM.chainId,
         symbol: AXLUSDT_ARBITRUM.symbol,
         name: AXLUSDT_ARBITRUM.name,
       },
       {
-        ...stablecoinAssets[0],
+        ...usdAssets[0],
         assetId: VBUSDC_KATANA.assetId,
         chainId: VBUSDC_KATANA.chainId,
         symbol: VBUSDC_KATANA.symbol,
         name: VBUSDC_KATANA.name,
       },
       {
-        ...stablecoinAssets[0],
+        ...usdAssets[0],
         assetId: BRIDGED_USDT_OPTIMISM.assetId,
         chainId: BRIDGED_USDT_OPTIMISM.chainId,
         symbol: BRIDGED_USDT_OPTIMISM.symbol,
         name: BRIDGED_USDT_OPTIMISM.name,
       },
       {
-        ...stablecoinAssets[0],
+        ...usdAssets[0],
         assetId: USDC_ETH_PRIMARY.assetId,
         chainId: USDC_ETH_PRIMARY.chainId,
         symbol: USDC_ETH_PRIMARY.symbol,
         name: USDC_ETH_PRIMARY.name,
       },
       {
-        ...stablecoinAssets[0],
+        ...usdAssets[0],
         assetId: USDT_ETH_PRIMARY.assetId,
         chainId: USDT_ETH_PRIMARY.chainId,
         symbol: USDT_ETH_PRIMARY.symbol,
@@ -406,7 +407,7 @@ describe('searchAssets', () => {
     const spamAndRealAssets: Asset[] = [
       // Spam token with symbol "BITCOIN"
       {
-        ...stablecoinAssets[0],
+        ...usdAssets[0],
         assetId: 'eip155:1/erc20:0xspambitcoin1' as `${string}:${string}/${string}:${string}`,
         chainId: 'eip155:1',
         symbol: 'BITCOIN',
@@ -415,7 +416,7 @@ describe('searchAssets', () => {
       },
       // Another spam token with symbol "BITCOIN"
       {
-        ...stablecoinAssets[0],
+        ...usdAssets[0],
         assetId: 'eip155:1/erc20:0xspambitcoin2' as `${string}:${string}/${string}:${string}`,
         chainId: 'eip155:1',
         symbol: 'BITCOIN',
@@ -424,7 +425,7 @@ describe('searchAssets', () => {
       },
       // Real Bitcoin (primary asset)
       {
-        ...stablecoinAssets[0],
+        ...usdAssets[0],
         assetId: BTC_MAINNET.assetId,
         chainId: BTC_MAINNET.chainId,
         symbol: BTC_MAINNET.symbol,
@@ -433,7 +434,7 @@ describe('searchAssets', () => {
       },
       // Spam token with symbol "ETHEREUM"
       {
-        ...stablecoinAssets[0],
+        ...usdAssets[0],
         assetId: 'eip155:1/erc20:0xspamethereum' as `${string}:${string}/${string}:${string}`,
         chainId: 'eip155:1',
         symbol: 'ETHEREUM',
@@ -442,7 +443,7 @@ describe('searchAssets', () => {
       },
       // Real Ethereum (primary asset)
       {
-        ...stablecoinAssets[0],
+        ...usdAssets[0],
         assetId: ETH_MAINNET.assetId,
         chainId: ETH_MAINNET.chainId,
         symbol: ETH_MAINNET.symbol,
@@ -500,7 +501,7 @@ describe('searchAssets', () => {
       const axelarAssets: Asset[] = [
         // Uniswap LP token (non-primary, name contains "Axelar")
         {
-          ...stablecoinAssets[0],
+          ...usdAssets[0],
           assetId: 'eip155:1/erc20:0xlptoken1' as `${string}:${string}/${string}:${string}`,
           chainId: 'eip155:1',
           symbol: 'AXELAR WRAPPED LAVA/WETH',
@@ -509,7 +510,7 @@ describe('searchAssets', () => {
         },
         // Another Uniswap LP token
         {
-          ...stablecoinAssets[0],
+          ...usdAssets[0],
           assetId: 'eip155:1/erc20:0xlptoken2' as `${string}:${string}/${string}:${string}`,
           chainId: 'eip155:1',
           symbol: 'AXELAR/USD COIN',
@@ -518,7 +519,7 @@ describe('searchAssets', () => {
         },
         // Real Axelar (primary)
         {
-          ...stablecoinAssets[0],
+          ...usdAssets[0],
           assetId: 'eip155:1/erc20:0xaxelar' as `${string}:${string}/${string}:${string}`,
           chainId: 'eip155:1',
           symbol: 'AXL',
@@ -527,7 +528,7 @@ describe('searchAssets', () => {
         },
         // Axelar Bridged USDC (primary, name starts with "Axelar")
         {
-          ...stablecoinAssets[0],
+          ...usdAssets[0],
           assetId: AXLUSDC_OPTIMISM.assetId,
           chainId: AXLUSDC_OPTIMISM.chainId,
           symbol: AXLUSDC_OPTIMISM.symbol,
@@ -556,7 +557,7 @@ describe('searchAssets', () => {
       const mixedAssets: Asset[] = [
         // Orphan LP token (no relatedAssetKey, name contains "pool")
         {
-          ...stablecoinAssets[0],
+          ...usdAssets[0],
           assetId: 'eip155:1/erc20:0xlptoken1' as `${string}:${string}/${string}:${string}`,
           symbol: 'FAKE1',
           name: 'Uniswap USDC Pool Token',
@@ -564,7 +565,7 @@ describe('searchAssets', () => {
         },
         // Another orphan LP token
         {
-          ...stablecoinAssets[0],
+          ...usdAssets[0],
           assetId: 'eip155:1/erc20:0xlptoken2' as `${string}:${string}/${string}:${string}`,
           symbol: 'FAKE2',
           name: 'Curve USDC Pool Token',
@@ -572,7 +573,7 @@ describe('searchAssets', () => {
         },
         // Asset with relatedAssetKey (part of a family), name also contains "pool"
         {
-          ...stablecoinAssets[0],
+          ...usdAssets[0],
           assetId: 'eip155:1/erc20:0xreal' as `${string}:${string}/${string}:${string}`,
           symbol: 'REAL',
           name: 'Real Staking Pool Token',

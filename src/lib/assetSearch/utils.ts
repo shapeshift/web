@@ -27,7 +27,7 @@ export function isSearchableAsset(assetId: AssetId): boolean {
   return !isNft(assetId)
 }
 
-export function isExactSymbolMatch(searchQuery: string, symbol: string): boolean {
+export function isExactMatch(searchQuery: string, symbol: string): boolean {
   return searchQuery.toLowerCase() === symbol.toLowerCase()
 }
 

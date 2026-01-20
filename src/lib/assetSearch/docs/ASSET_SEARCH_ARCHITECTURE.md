@@ -129,9 +129,9 @@ Primary assets get a scoring bonus, but with safeguards against spam:
 - **Market cap threshold**: PRIMARY_SYMBOL bonus only applies to top 500 assets by market cap (filters low-cap spam copying "BTC", "ETH")
 - **Name matching**: PRIMARY_NAME bonus still applies to help legitimate assets like "Bitcoin" rank above spam
 
-### Exact Symbol Match (`isExactSymbolMatch`)
+### Exact Symbol Match (`isExactMatch`)
 ```typescript
-function isExactSymbolMatch(searchString: string, symbol: string): boolean
+function isExactMatch(searchString: string, symbol: string): boolean
 ```
 Case-insensitive comparison for determining exact symbol matches.
 

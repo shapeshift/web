@@ -2,7 +2,7 @@
 
 ## Overview
 
-The asset search system provides fuzzy search across all supported assets with intelligent grouping, deduplication, and ranking. The search algorithm uses a score-based ranking approach similar to Uniswap's token search (exact match > prefix > contains).
+The asset search system provides score-based search across all supported assets with intelligent grouping, deduplication, and ranking. The search algorithm uses exact/prefix/contains matching similar to Uniswap's token search (exact match > prefix > contains).
 
 ## Data Flow
 
@@ -60,7 +60,7 @@ User sees search results
 
 ## Search Algorithm
 
-The search uses a custom score-based ranking system rather than fuzzy matching libraries like Fuse.js. This provides more predictable results for crypto asset searches where exact/prefix symbol matches should rank higher than fuzzy matches.
+The search uses a custom score-based ranking system rather than fuzzy matching libraries like Fuse.js. This provides more predictable results for crypto asset searches where exact/prefix symbol matches should rank higher.
 
 ### Score Constants
 

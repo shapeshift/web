@@ -23,32 +23,29 @@ const SCORE = {
   NO_MATCH: 1000,
 } as const
 
-export function isSearchableAsset(assetId: AssetId): boolean {
-  return !isNft(assetId)
-}
+export const isSearchableAsset = (assetId: AssetId): boolean => !isNft(assetId)
 
-export function isExactMatch(searchQuery: string, symbol: string): boolean {
-  return searchQuery.toLowerCase() === symbol.toLowerCase()
-}
+export const isExactMatch = (searchQuery: string, symbol: string): boolean =>
+  searchQuery.toLowerCase() === symbol.toLowerCase()
 
-export function filterAssetsByEthAddress<T extends { assetId: AssetId }>(
+export const filterAssetsByEthAddress = <T extends { assetId: AssetId }>(
   address: string,
   assets: T[],
-): T[] {
+): T[] => {
   const searchLower = address.toLowerCase()
   return assets.filter(
     asset => fromAssetId(asset.assetId).assetReference.toLowerCase() === searchLower,
   )
 }
 
-export function filterAssetsByChainSupport<T extends { assetId: AssetId; chainId: ChainId }>(
+export const filterAssetsByChainSupport = <T extends { assetId: AssetId; chainId: ChainId }>(
   assets: T[],
   options: {
     activeChainId?: ChainId | 'All'
     allowWalletUnsupportedAssets?: boolean
     walletConnectedChainIds: ChainId[]
   },
-): T[] {
+): T[] => {
   const { activeChainId, allowWalletUnsupportedAssets, walletConnectedChainIds } = options
 
   if (!activeChainId) return []
@@ -59,7 +56,6 @@ export function filterAssetsByChainSupport<T extends { assetId: AssetId; chainId
   if (activeChainId !== 'All' && !isChainSupported) return []
 
   return assets.filter(asset => {
-    // Always filter out NFTs
     if (!isSearchableAsset(asset.assetId)) return false
 
     if (activeChainId === 'All') {
@@ -70,7 +66,7 @@ export function filterAssetsByChainSupport<T extends { assetId: AssetId; chainId
   })
 }
 
-function scoreAsset(asset: SearchableAsset, search: string, originalIndex: number): number {
+const scoreAsset = (asset: SearchableAsset, search: string, originalIndex: number): number => {
   const sym = asset.symbol.toLowerCase()
   const name = asset.name.toLowerCase()
 
@@ -102,7 +98,7 @@ function scoreAsset(asset: SearchableAsset, search: string, originalIndex: numbe
   return SCORE.NO_MATCH
 }
 
-export function searchAssets<T extends SearchableAsset>(searchTerm: string, assets: T[]): T[] {
+export const searchAssets = <T extends SearchableAsset>(searchTerm: string, assets: T[]): T[] => {
   if (!assets?.length) return []
   if (!searchTerm) return assets
 

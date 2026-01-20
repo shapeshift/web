@@ -13,6 +13,7 @@ export type YieldOpportunityDisplay = {
   yieldId: string
   providerName: string
   providerIcon?: string
+  inputAssetId?: AssetId
   apy: string
   fiatAmount: string
   cryptoAmount: string
@@ -103,6 +104,7 @@ export const useYieldAsOpportunities = (
         yieldId: yieldItem.id,
         providerName: yieldItem.metadata.name || yieldItem.providerId,
         providerIcon: yieldItem.metadata.logoURI,
+        inputAssetId,
         apy: yieldItem.rewardRate.total.toString(),
         fiatAmount: bnOrZero(totalUsd).toFixed(2),
         cryptoAmount: bnOrZero(totalCrypto).toString(),

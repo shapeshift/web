@@ -65,28 +65,39 @@ const getUtxoUnchainedUrls = (): Record<string, string> => {
   }
 }
 
+const GAS_FEES_TIMEOUT_MS = 10_000
+
 const fetchGasFees = async (unchainedUrl: string): Promise<GasFeeDataEstimate> => {
-  const response = await fetch(`${unchainedUrl}/api/v1/gas/fees`)
-  if (!response.ok) {
-    throw new Error(`Failed to fetch gas fees: ${response.statusText}`)
-  }
-  const data = (await response.json()) as GasFeeDataEstimate
-  return {
-    fast: {
-      gasPrice: data.fast.gasPrice,
-      maxFeePerGas: data.fast.maxFeePerGas,
-      maxPriorityFeePerGas: data.fast.maxPriorityFeePerGas,
-    },
-    average: {
-      gasPrice: data.average.gasPrice,
-      maxFeePerGas: data.average.maxFeePerGas,
-      maxPriorityFeePerGas: data.average.maxPriorityFeePerGas,
-    },
-    slow: {
-      gasPrice: data.slow.gasPrice,
-      maxFeePerGas: data.slow.maxFeePerGas,
-      maxPriorityFeePerGas: data.slow.maxPriorityFeePerGas,
-    },
+  const controller = new AbortController()
+  const timeout = setTimeout(() => controller.abort(), GAS_FEES_TIMEOUT_MS)
+
+  try {
+    const response = await fetch(`${unchainedUrl}/api/v1/gas/fees`, {
+      signal: controller.signal,
+    })
+    if (!response.ok) {
+      throw new Error(`Failed to fetch gas fees: ${response.statusText}`)
+    }
+    const data = (await response.json()) as GasFeeDataEstimate
+    return {
+      fast: {
+        gasPrice: data.fast.gasPrice,
+        maxFeePerGas: data.fast.maxFeePerGas,
+        maxPriorityFeePerGas: data.fast.maxPriorityFeePerGas,
+      },
+      average: {
+        gasPrice: data.average.gasPrice,
+        maxFeePerGas: data.average.maxFeePerGas,
+        maxPriorityFeePerGas: data.average.maxPriorityFeePerGas,
+      },
+      slow: {
+        gasPrice: data.slow.gasPrice,
+        maxFeePerGas: data.slow.maxFeePerGas,
+        maxPriorityFeePerGas: data.slow.maxPriorityFeePerGas,
+      },
+    }
+  } finally {
+    clearTimeout(timeout)
   }
 }
 

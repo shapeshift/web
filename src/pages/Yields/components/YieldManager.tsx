@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useCallback, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
 
@@ -58,17 +58,24 @@ export const YieldManager = () => {
     return translate('yieldXYZ.manage')
   }, [action, yieldItem, translate, inputTokenSymbol, claimableTokenSymbol])
 
+  const handleClose = useCallback(() => {
+    const newParams = new URLSearchParams(searchParams)
+    newParams.delete('modal')
+    newParams.delete('action')
+    navigate({ search: newParams.toString() }, { replace: true })
+  }, [navigate, searchParams])
+
   if (!yieldItem) return null
 
   return (
-    <Dialog isOpen={true} onClose={() => navigate(-1)} isFullScreen>
+    <Dialog isOpen={true} onClose={handleClose} isFullScreen>
       <DialogHeader>
         <DialogHeader.Left>{null}</DialogHeader.Left>
         <DialogHeader.Middle>
           <DialogTitle>{title}</DialogTitle>
         </DialogHeader.Middle>
         <DialogHeader.Right>
-          <DialogCloseButton onClick={() => navigate(-1)} />
+          <DialogCloseButton onClick={handleClose} />
         </DialogHeader.Right>
       </DialogHeader>
       <DialogBody py={0} px={4} flex={1}>
@@ -79,8 +86,8 @@ export const YieldManager = () => {
           validatorAddress={validatorAddress}
           accountId={accountId}
           accountNumber={accountNumber}
-          onClose={() => navigate(-1)}
-          onDone={() => navigate(-1)}
+          onClose={handleClose}
+          onDone={handleClose}
         />
       </DialogBody>
     </Dialog>

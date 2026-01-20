@@ -20,6 +20,7 @@ import type {
   ErrorResponse,
   EvmTransactionData,
   QuoteResponse,
+  SolanaTransactionData,
   TransactionData,
 } from '../types'
 
@@ -127,11 +128,37 @@ const extractEvmTransactionData = (step: TradeQuoteStep): EvmTransactionData | u
   return undefined
 }
 
+const extractSolanaTransactionData = (step: TradeQuoteStep): SolanaTransactionData | undefined => {
+  if (!step.solanaTransactionMetadata?.instructions) {
+    return undefined
+  }
+
+  const instructions = step.solanaTransactionMetadata.instructions.map(ix => ({
+    programId: ix.programId.toBase58(),
+    keys: ix.keys.map(key => ({
+      pubkey: key.pubkey.toBase58(),
+      isSigner: key.isSigner,
+      isWritable: key.isWritable,
+    })),
+    data: Buffer.from(ix.data).toString('base64'),
+  }))
+
+  return {
+    type: 'solana',
+    instructions,
+    addressLookupTableAddresses: step.solanaTransactionMetadata.addressLookupTableAddresses,
+  }
+}
+
 const extractTransactionData = (step: TradeQuoteStep): TransactionData | undefined => {
   const { chainNamespace } = fromChainId(step.sellAsset.chainId)
 
   if (chainNamespace === 'eip155') {
     return extractEvmTransactionData(step)
+  }
+
+  if (chainNamespace === 'solana') {
+    return extractSolanaTransactionData(step)
   }
 
   return undefined

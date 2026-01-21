@@ -265,7 +265,7 @@ export abstract class CosmosSdkBaseAdapter<T extends CosmosSdkChainId> implement
           rewards: account.rewards,
         },
         pubkey: account.pubkey,
-      } as unknown as Account<T>
+      } as Account<T>
     } catch (err) {
       return ErrorHandler(err, {
         translation: 'chainAdapters.errors.getAccount',

@@ -22,7 +22,6 @@ import {
   optimismAssetId,
   plasmaAssetId,
   polygonAssetId,
-  seiAssetId,
   solAssetId,
   starknetAssetId,
   suiAssetId,
@@ -96,8 +95,6 @@ export const chainIdToFeeAssetId = (_chainId: ChainId): AssetId => {
       return celoAssetId
     case KnownChainIds.LineaMainnet:
       return lineaAssetId
-    case KnownChainIds.SeiMainnet:
-      return seiAssetId
     default:
       return assertUnreachable(chainId)
   }

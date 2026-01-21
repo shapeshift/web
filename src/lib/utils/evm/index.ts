@@ -2,10 +2,15 @@ import type { AccountId, ChainId } from '@shapeshiftoss/caip'
 import { CHAIN_NAMESPACE, fromAccountId } from '@shapeshiftoss/caip'
 import type { ContractInteraction, EvmChainAdapter, SignTx } from '@shapeshiftoss/chain-adapters'
 import { evm, isEvmChainId } from '@shapeshiftoss/chain-adapters'
-import { ContractType, getOrCreateContractByType } from '@shapeshiftoss/contracts'
+import {
+  ContractType,
+  getOrCreateContractByType,
+  viemClientByChainId,
+} from '@shapeshiftoss/contracts'
 import type { HDWallet } from '@shapeshiftoss/hdwallet-core'
 import { supportsETH } from '@shapeshiftoss/hdwallet-core'
 import type { EvmChainId, KnownChainIds } from '@shapeshiftoss/types'
+import { TxStatus } from '@shapeshiftoss/unchained-client'
 import { encodeFunctionData, getAddress } from 'viem'
 
 import { getSupportedChainIdsByChainNamespace } from '..'
@@ -214,3 +219,37 @@ export const accountIdsToEvmAddresses = (accountIds: AccountId[]): string[] =>
         .map(({ account }) => account),
     ),
   )
+
+export const getEvmTransactionStatus = async (
+  chainId: ChainId,
+  txHash: string,
+): Promise<TxStatus> => {
+  const viemClient = viemClientByChainId[chainId]
+  if (!viemClient) {
+    console.error(`No viem client found for chainId: ${chainId}`)
+    return TxStatus.Unknown
+  }
+
+  try {
+    const receipt = await viemClient.getTransactionReceipt({
+      hash: txHash as `0x${string}`,
+    })
+
+    if (!receipt) return TxStatus.Pending
+
+    if (receipt.status === 'success') return TxStatus.Confirmed
+    if (receipt.status === 'reverted') return TxStatus.Failed
+
+    return TxStatus.Unknown
+  } catch (error) {
+    if (
+      error instanceof Error &&
+      (error.message.includes('could not be found') ||
+        error.message.includes('Transaction receipt with hash'))
+    ) {
+      return TxStatus.Pending
+    }
+    console.error(`Error fetching ${chainId} transaction status:`, error)
+    return TxStatus.Unknown
+  }
+}

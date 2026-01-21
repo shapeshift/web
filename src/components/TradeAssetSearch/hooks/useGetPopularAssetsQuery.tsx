@@ -82,28 +82,27 @@ export const queryFn = async () => {
     result.All.push(asset)
   }
 
-  // For chains with few cross-chain popular assets, supplement with top chain-specific assets
   const MIN_POPULAR_ASSETS_PER_CHAIN = 50
   const primaryAssetsSortedByMarketCap = selectPrimaryAssetsSortedByMarketCap(store.getState())
   const assetsSortedByMarketCap = selectAssetsSortedByMarketCap(store.getState())
 
-  // Chains where most tokens are non-primary (bridged from other chains) need all assets, not just primary
-  const chainsNeedingAllAssets: Set<ChainId> = new Set([lineaChainId, celoChainId])
+  const genericEvmChainIds: ChainId[] = [lineaChainId, celoChainId]
+
+  for (const chainId of genericEvmChainIds) {
+    if (!result[chainId]) result[chainId] = []
+  }
 
   Object.keys(result).forEach(chainId => {
     if (chainId === 'All') return
     if (result[chainId].length >= MIN_POPULAR_ASSETS_PER_CHAIN) return
 
-    // For chains with few primary assets, use all assets; otherwise use primary assets only
-    const sourceAssets = chainsNeedingAllAssets.has(chainId as ChainId)
+    const isGenericEvmChain = genericEvmChainIds.includes(chainId as ChainId)
+    const sourceAssets = isGenericEvmChain
       ? assetsSortedByMarketCap
       : primaryAssetsSortedByMarketCap
-
-    // Find chain-specific assets sorted by market cap
     const chainAssets = sourceAssets.filter(asset => asset.chainId === chainId)
     const existingAssetIds = new Set(result[chainId].map(a => a.assetId))
 
-    // Add chain assets until we reach the minimum
     for (const asset of chainAssets) {
       if (result[chainId].length >= MIN_POPULAR_ASSETS_PER_CHAIN) break
       if (!existingAssetIds.has(asset.assetId)) {

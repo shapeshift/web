@@ -21,7 +21,6 @@ import {
   optimism,
   plasma,
   polygon,
-  sei,
 } from 'viem/chains'
 
 export const viemEthMainnetClient = createPublicClient({
@@ -108,15 +107,6 @@ export const viemCeloClient = createPublicClient({
   chain: celo,
   transport: fallback(
     [process.env.VITE_CELO_NODE_URL, 'https://forno.celo.org']
-      .filter(Boolean)
-      .map(url => http(url)),
-  ),
-}) as PublicClient
-
-export const viemSeiClient = createPublicClient({
-  chain: sei,
-  transport: fallback(
-    [process.env.VITE_SEI_NODE_URL, 'https://evm-rpc.sei-apis.com']
       .filter(Boolean)
       .map(url => http(url)),
   ),
@@ -215,7 +205,6 @@ export const viemClientByChainId: Record<ChainId, PublicClient> = {
   [KnownChainIds.KatanaMainnet]: viemKatanaClient,
   [KnownChainIds.CeloMainnet]: viemCeloClient,
   [KnownChainIds.LineaMainnet]: viemLineaClient,
-  [KnownChainIds.SeiMainnet]: viemSeiClient,
 }
 
 export const viemNetworkIdByChainId: Record<ChainId, number> = {
@@ -234,7 +223,6 @@ export const viemNetworkIdByChainId: Record<ChainId, number> = {
   [KnownChainIds.KatanaMainnet]: katana.id,
   [KnownChainIds.CeloMainnet]: celo.id,
   [KnownChainIds.LineaMainnet]: linea.id,
-  [KnownChainIds.SeiMainnet]: sei.id,
 }
 
 export const viemClientByNetworkId: Record<number, PublicClient> = {
@@ -253,7 +241,6 @@ export const viemClientByNetworkId: Record<number, PublicClient> = {
   [katana.id]: viemKatanaClient,
   [celo.id]: viemCeloClient,
   [linea.id]: viemLineaClient,
-  [sei.id]: viemSeiClient,
 }
 
 export const assertGetViemClient = (chainId: ChainId): PublicClient => {

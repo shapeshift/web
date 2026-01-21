@@ -422,22 +422,6 @@ export const linea: Readonly<Asset> = Object.freeze({
   relatedAssetKey: 'eip155:1/slip44:60',
 })
 
-export const sei: Readonly<Asset> = Object.freeze({
-  assetId: caip.seiAssetId,
-  chainId: caip.seiChainId,
-  name: 'Sei',
-  networkName: 'Sei',
-  symbol: 'SEI',
-  precision: 18,
-  color: '#8B0000',
-  networkColor: '#8B0000',
-  icon: 'https://assets.coingecko.com/coins/images/28205/large/Sei_Logo_-_Transparent.png?1696527207',
-  explorer: 'https://seitrace.com',
-  explorerAddressLink: 'https://seitrace.com/address/',
-  explorerTxLink: 'https://seitrace.com/tx/',
-  relatedAssetKey: null,
-})
-
 export const solana: Readonly<Asset> = Object.freeze({
   assetId: caip.solAssetId,
   chainId: caip.solanaChainId,

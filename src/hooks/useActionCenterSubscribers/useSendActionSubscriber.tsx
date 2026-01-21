@@ -11,14 +11,12 @@ import { GenericTransactionNotification } from '@/components/Layout/Header/Actio
 import { getConfig } from '@/config'
 import { SECOND_CLASS_CHAINS } from '@/constants/chains'
 import { getChainAdapterManager } from '@/context/PluginProvider/chainAdapterSingleton'
-import { getCeloTransactionStatus } from '@/lib/utils/celo'
+import { getEvmTransactionStatus } from '@/lib/utils/evm'
 import { getHyperEvmTransactionStatus } from '@/lib/utils/hyperevm'
 import { getKatanaTransactionStatus } from '@/lib/utils/katana'
-import { getLineaTransactionStatus } from '@/lib/utils/linea'
 import { getMonadTransactionStatus } from '@/lib/utils/monad'
 import { getNearTransactionStatus } from '@/lib/utils/near'
 import { getPlasmaTransactionStatus } from '@/lib/utils/plasma'
-import { getSeiTransactionStatus } from '@/lib/utils/sei'
 import { getStarknetTransactionStatus, isStarknetChainAdapter } from '@/lib/utils/starknet'
 import { getSuiTransactionStatus } from '@/lib/utils/sui'
 import { getTonTransactionStatus } from '@/lib/utils/ton'
@@ -212,6 +210,13 @@ export const useSendActionSubscriber = () => {
                     katanaTxStatus === TxStatus.Confirmed || katanaTxStatus === TxStatus.Failed
                   break
                 }
+                case KnownChainIds.CeloMainnet:
+                case KnownChainIds.LineaMainnet: {
+                  const evmTxStatus = await getEvmTransactionStatus(chainId, txHash)
+                  isConfirmed =
+                    evmTxStatus === TxStatus.Confirmed || evmTxStatus === TxStatus.Failed
+                  break
+                }
                 case KnownChainIds.NearMainnet: {
                   const nearTxStatus = await getNearTransactionStatus(txHash)
                   isConfirmed =
@@ -258,24 +263,6 @@ export const useSendActionSubscriber = () => {
 
                     isConfirmed = starknetTxStatus === TxStatus.Confirmed
                   }
-                  break
-                }
-                case KnownChainIds.CeloMainnet: {
-                  const celoTxStatus = await getCeloTransactionStatus(txHash)
-                  isConfirmed =
-                    celoTxStatus === TxStatus.Confirmed || celoTxStatus === TxStatus.Failed
-                  break
-                }
-                case KnownChainIds.SeiMainnet: {
-                  const seiTxStatus = await getSeiTransactionStatus(txHash)
-                  isConfirmed =
-                    seiTxStatus === TxStatus.Confirmed || seiTxStatus === TxStatus.Failed
-                  break
-                }
-                case KnownChainIds.LineaMainnet: {
-                  const lineaTxStatus = await getLineaTransactionStatus(txHash)
-                  isConfirmed =
-                    lineaTxStatus === TxStatus.Confirmed || lineaTxStatus === TxStatus.Failed
                   break
                 }
                 default:

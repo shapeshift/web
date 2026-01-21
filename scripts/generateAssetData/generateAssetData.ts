@@ -14,7 +14,6 @@ import {
   maya,
   mayachain,
   ruji,
-  // sei,
   tcy,
   thorchain,
   unfreeze,
@@ -41,7 +40,6 @@ import * as hyperevm from './hyperevm'
 import * as katana from './katana'
 import * as lineaModule from './linea'
 import * as monad from './monad'
-// import * as sei from './sei'
 import * as near from './near'
 import * as optimism from './optimism'
 import { overrideAssets } from './overrides'
@@ -80,7 +78,7 @@ const generateAssetData = async () => {
   const katanaAssets = await katana.getAssets()
   const celoAssets = await celoModule.getAssets()
   const lineaAssets = await lineaModule.getAssets()
-  // const seiAssets = await sei.getAssets()
+
   const plasmaAssets = await plasma.getAssets()
   const solanaAssets = await solana.getAssets()
   const starknetAssets = await starknet.getAssets()
@@ -118,8 +116,6 @@ const generateAssetData = async () => {
     ...celoAssets,
     unfreeze(linea),
     ...lineaAssets,
-    // unfreeze(sei),
-    // ...seiAssets,
     ...plasmaAssets,
     ...solanaAssets,
     ...starknetAssets,

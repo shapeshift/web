@@ -26,7 +26,6 @@ import {
   optimism,
   plasma,
   polygon,
-  sei,
   solana,
   starknet,
   sui,
@@ -97,8 +96,6 @@ export const getBaseAsset = (chainId: ChainId): Readonly<Asset> => {
       return celo
     case KnownChainIds.LineaMainnet:
       return linea
-    case KnownChainIds.SeiMainnet:
-      return sei
     default:
       return assertUnreachable(knownChainId)
   }

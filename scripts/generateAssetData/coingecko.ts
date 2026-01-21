@@ -18,7 +18,6 @@ import {
   optimismChainId,
   plasmaChainId,
   polygonChainId,
-  seiChainId,
   solanaChainId,
   starknetChainId,
   suiChainId,
@@ -44,7 +43,6 @@ import {
   optimism,
   plasma,
   polygon,
-  sei,
   solana,
   sui,
   ton,
@@ -195,14 +193,7 @@ export async function getAssets(chainId: ChainId): Promise<Asset[]> {
           explorerAddressLink: linea.explorerAddressLink,
           explorerTxLink: linea.explorerTxLink,
         }
-      case seiChainId:
-        return {
-          assetNamespace: ASSET_NAMESPACE.erc20,
-          category: adapters.chainIdToCoingeckoAssetPlatform(chainId),
-          explorer: sei.explorer,
-          explorerAddressLink: sei.explorerAddressLink,
-          explorerTxLink: sei.explorerTxLink,
-        }
+
       case solanaChainId:
         return {
           assetNamespace: ASSET_NAMESPACE.splToken,

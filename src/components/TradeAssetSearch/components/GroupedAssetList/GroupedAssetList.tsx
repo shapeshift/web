@@ -83,6 +83,8 @@ export const GroupedAssetList = ({
     (index: number) => {
       const asset = assets[index]
 
+      if (!asset) return null
+
       const itemData = {
         assets: [asset],
         handleClick: onAssetClick,

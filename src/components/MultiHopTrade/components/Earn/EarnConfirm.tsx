@@ -8,8 +8,11 @@ import { EarnRoutePaths } from './types'
 
 import { Amount } from '@/components/Amount/Amount'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
-import { DEFAULT_NATIVE_VALIDATOR_BY_CHAIN_ID } from '@/lib/yieldxyz/constants'
-import { getTransactionButtonText, getYieldActionLabelKeys } from '@/lib/yieldxyz/utils'
+import {
+  getDefaultValidatorForYield,
+  getTransactionButtonText,
+  getYieldActionLabelKeys,
+} from '@/lib/yieldxyz/utils'
 import { GradientApy } from '@/pages/Yields/components/GradientApy'
 import { TransactionStepsList } from '@/pages/Yields/components/TransactionStepsList'
 import { YieldAssetFlow } from '@/pages/Yields/components/YieldAssetFlow'
@@ -73,16 +76,15 @@ export const EarnConfirm = memo(() => {
   const { data: providers } = useYieldProviders()
 
   const selectedValidatorAddress = useMemo(() => {
-    if (!requiresValidatorSelection || !validators?.length) return undefined
-    const chainId = selectedYield?.chainId
-    const defaultAddress = chainId ? DEFAULT_NATIVE_VALIDATOR_BY_CHAIN_ID[chainId] : undefined
+    if (!requiresValidatorSelection || !validators?.length || !selectedYield) return undefined
+    const defaultAddress = getDefaultValidatorForYield(selectedYield.id)
     if (defaultAddress) {
       const defaultValidator = validators.find(v => v.address === defaultAddress)
       if (defaultValidator) return defaultValidator.address
     }
     const preferred = validators.find(v => v.preferred)
     return preferred?.address ?? validators[0]?.address
-  }, [requiresValidatorSelection, validators, selectedYield?.chainId])
+  }, [requiresValidatorSelection, validators, selectedYield])
 
   const selectedValidator = useMemo(() => {
     if (!selectedValidatorAddress || !validators?.length) return undefined

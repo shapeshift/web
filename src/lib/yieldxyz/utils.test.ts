@@ -1,10 +1,11 @@
 import { describe, expect, it } from 'vitest'
 
-import { SHAPESHIFT_COSMOS_VALIDATOR_ADDRESS } from './constants'
+import { FIGMENT_SOLANA_VALIDATOR_ADDRESS, SHAPESHIFT_COSMOS_VALIDATOR_ADDRESS } from './constants'
 import type { AugmentedYieldDto, ValidatorDto } from './types'
 import {
   ensureValidatorApr,
   formatYieldTxTitle,
+  getDefaultValidatorForYield,
   getTransactionButtonText,
   getYieldActionLabelKeys,
   getYieldSuccessMessageKey,
@@ -361,5 +362,25 @@ describe('getYieldSuccessMessageKey', () => {
     expect(getYieldSuccessMessageKey('vault', 'claim')).toBe('successClaim')
     expect(getYieldSuccessMessageKey('staking', 'manage')).toBe('successClaim')
     expect(getYieldSuccessMessageKey('vault', 'manage')).toBe('successClaim')
+  })
+})
+
+describe('getDefaultValidatorForYield', () => {
+  it('should return ShapeShift DAO validator for cosmos-atom-native-staking', () => {
+    expect(getDefaultValidatorForYield('cosmos-atom-native-staking')).toBe(
+      SHAPESHIFT_COSMOS_VALIDATOR_ADDRESS,
+    )
+  })
+
+  it('should return Figment validator for solana-sol-native-multivalidator-staking', () => {
+    expect(getDefaultValidatorForYield('solana-sol-native-multivalidator-staking')).toBe(
+      FIGMENT_SOLANA_VALIDATOR_ADDRESS,
+    )
+  })
+
+  it('should return undefined for yields without enforced validators', () => {
+    expect(getDefaultValidatorForYield('ethereum-eth-lido-staking')).toBeUndefined()
+    expect(getDefaultValidatorForYield('solana-sol-lido-staking')).toBeUndefined()
+    expect(getDefaultValidatorForYield('some-random-yield')).toBeUndefined()
   })
 })

@@ -1,4 +1,17 @@
-import { Avatar, Box, Button, Flex, HStack, Icon, Input, Skeleton, Text } from '@chakra-ui/react'
+import {
+  Alert,
+  AlertDescription,
+  AlertIcon,
+  Avatar,
+  Box,
+  Button,
+  Flex,
+  HStack,
+  Icon,
+  Input,
+  Skeleton,
+  Text,
+} from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { useQueryClient } from '@tanstack/react-query'
 import type { ChangeEvent } from 'react'
@@ -17,7 +30,6 @@ import { useLocaleFormatter } from '@/hooks/useLocaleFormatter/useLocaleFormatte
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import {
-  DEFAULT_NATIVE_VALIDATOR_BY_CHAIN_ID,
   SHAPESHIFT_COSMOS_VALIDATOR_ADDRESS,
   SHAPESHIFT_VALIDATOR_LOGO,
   SHAPESHIFT_VALIDATOR_NAME,
@@ -25,6 +37,7 @@ import {
 import type { AugmentedYieldDto } from '@/lib/yieldxyz/types'
 import { YieldBalanceType } from '@/lib/yieldxyz/types'
 import {
+  getDefaultValidatorForYield,
   getTransactionButtonText,
   getYieldActionLabelKeys,
   getYieldMinAmountKey,
@@ -191,19 +204,19 @@ export const YieldForm = memo(
     )
 
     const selectedValidatorAddress = useMemo(() => {
+      if (!shouldFetchValidators) return undefined
       if (validatorAddress) return validatorAddress
-      if (chainId && DEFAULT_NATIVE_VALIDATOR_BY_CHAIN_ID[chainId]) {
-        return DEFAULT_NATIVE_VALIDATOR_BY_CHAIN_ID[chainId]
-      }
+      const defaultValidator = getDefaultValidatorForYield(yieldItem.id)
+      if (defaultValidator) return defaultValidator
       return validators?.[0]?.address
-    }, [chainId, validators, validatorAddress])
+    }, [shouldFetchValidators, validators, validatorAddress, yieldItem.id])
 
     const { data: providers } = useYieldProviders()
 
     const isStaking = isStakingYieldType(yieldItem.mechanics.type)
 
-    const selectedValidatorMetadata = useMemo(() => {
-      if (!isStaking || !selectedValidatorAddress) return null
+    const maybeSelectedValidatorMetadata = useMemo(() => {
+      if (!shouldFetchValidators || !selectedValidatorAddress) return null
       const found = validators?.find(v => v.address === selectedValidatorAddress)
       if (found) return found
       if (selectedValidatorAddress === SHAPESHIFT_COSMOS_VALIDATOR_ADDRESS) {
@@ -214,9 +227,9 @@ export const YieldForm = memo(
         }
       }
       return null
-    }, [isStaking, selectedValidatorAddress, validators])
+    }, [shouldFetchValidators, selectedValidatorAddress, validators])
 
-    const providerMetadata = useMemo(() => {
+    const maybeProviderMetadata = useMemo(() => {
       if (!providers) return null
       return providers[yieldItem.providerId]
     }, [providers, yieldItem.providerId])
@@ -395,25 +408,32 @@ export const YieldForm = memo(
       }
     }, [step])
 
-    const successProviderInfo = useMemo(() => {
-      if (isStaking && selectedValidatorMetadata) {
+    const maybeSuccessProviderInfo = useMemo(() => {
+      if (isStaking && maybeSelectedValidatorMetadata) {
         return {
-          name: selectedValidatorMetadata.name,
-          logoURI: selectedValidatorMetadata.logoURI,
+          name: maybeSelectedValidatorMetadata.name,
+          logoURI: maybeSelectedValidatorMetadata.logoURI,
         }
       }
-      if (providerMetadata) {
+      if (maybeProviderMetadata) {
         return {
-          name: providerMetadata.name,
-          logoURI: providerMetadata.logoURI,
+          name: maybeProviderMetadata.name,
+          logoURI: maybeProviderMetadata.logoURI,
         }
       }
       return null
-    }, [isStaking, selectedValidatorMetadata, providerMetadata])
+    }, [isStaking, maybeSelectedValidatorMetadata, maybeProviderMetadata])
+
+    const isActionDisabled = useMemo(() => {
+      if (action === 'enter') return !yieldItem.status.enter
+      if (action === 'exit') return !yieldItem.status.exit
+      return false
+    }, [action, yieldItem.status.enter, yieldItem.status.exit])
 
     const buttonDisabled = useMemo(() => {
       if (!isConnected) return false
       if (isLoading) return true
+      if (isActionDisabled) return true
       if (isClaimAction) {
         return !claimAction || !claimableAmount || bnOrZero(claimableAmount).lte(0)
       }
@@ -421,6 +441,7 @@ export const YieldForm = memo(
     }, [
       isConnected,
       isLoading,
+      isActionDisabled,
       isClaimAction,
       claimAction,
       claimableAmount,
@@ -549,7 +570,7 @@ export const YieldForm = memo(
               </Flex>
             </Flex>
           )}
-          {isStaking && selectedValidatorMetadata && (
+          {isStaking && maybeSelectedValidatorMetadata && (
             <Flex justify='space-between' align='center' mt={3}>
               <Text fontSize='sm' color='text.subtle'>
                 {translate('yieldXYZ.validator')}
@@ -557,24 +578,28 @@ export const YieldForm = memo(
               <Flex align='center' gap={2}>
                 <Avatar
                   size='xs'
-                  src={selectedValidatorMetadata.logoURI}
-                  name={selectedValidatorMetadata.name}
+                  src={maybeSelectedValidatorMetadata.logoURI}
+                  name={maybeSelectedValidatorMetadata.name}
                 />
                 <Text fontSize='sm' fontWeight='medium'>
-                  {selectedValidatorMetadata.name}
+                  {maybeSelectedValidatorMetadata.name}
                 </Text>
               </Flex>
             </Flex>
           )}
-          {!isStaking && providerMetadata && (
+          {!isStaking && maybeProviderMetadata && (
             <Flex justify='space-between' align='center' mt={3}>
               <Text fontSize='sm' color='text.subtle'>
                 {translate('yieldXYZ.provider')}
               </Text>
               <Flex align='center' gap={2}>
-                <Avatar size='xs' src={providerMetadata.logoURI} name={providerMetadata.name} />
+                <Avatar
+                  size='xs'
+                  src={maybeProviderMetadata.logoURI}
+                  name={maybeProviderMetadata.name}
+                />
                 <Text fontSize='sm' fontWeight='medium'>
-                  {providerMetadata.name}
+                  {maybeProviderMetadata.name}
                 </Text>
               </Flex>
             </Flex>
@@ -603,8 +628,8 @@ export const YieldForm = memo(
         inputTokenAsset?.symbol,
         estimatedYearlyEarningsFiat,
         isStaking,
-        selectedValidatorMetadata,
-        providerMetadata,
+        maybeSelectedValidatorMetadata,
+        maybeProviderMetadata,
         minDeposit,
         isBelowMinimum,
         action,
@@ -697,6 +722,20 @@ export const YieldForm = memo(
 
     const stepsToShow = activeStepIndex >= 0 ? transactionSteps : displaySteps
 
+    const maybeActionDisabledAlert = useMemo(() => {
+      if (!isActionDisabled) return null
+      const descriptionKey =
+        action === 'enter'
+          ? 'yieldXYZ.depositsDisabledDescription'
+          : 'yieldXYZ.withdrawalsDisabledDescription'
+      return (
+        <Alert status='warning' borderRadius='lg'>
+          <AlertIcon />
+          <AlertDescription>{translate(descriptionKey)}</AlertDescription>
+        </Alert>
+      )
+    }, [isActionDisabled, action, translate])
+
     // If Success, render YieldSuccess
     if (isSuccess) {
       const successAmount = isClaimAction ? claimableAmount : cryptoAmount
@@ -712,7 +751,7 @@ export const YieldForm = memo(
         <YieldSuccess
           amount={successAmount}
           symbol={successSymbol}
-          providerInfo={successProviderInfo}
+          providerInfo={maybeSuccessProviderInfo}
           transactionSteps={transactionSteps}
           yieldId={yieldItem.id}
           accountId={accountId}
@@ -725,6 +764,7 @@ export const YieldForm = memo(
     return (
       <Flex direction='column' gap={4} height='100%' maxH='100%' overflow='hidden'>
         <Flex direction='column' gap={4} flex={1} overflowY='auto'>
+          {maybeActionDisabledAlert}
           {inputContent}
           {!isClaimAction && percentButtons}
           {!isClaimAction && inputTokenAssetId && accountId && (

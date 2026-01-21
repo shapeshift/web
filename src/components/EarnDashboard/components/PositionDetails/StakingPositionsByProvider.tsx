@@ -10,6 +10,7 @@ import { useLocation } from 'react-router-dom'
 import type { Column, Row } from 'react-table'
 
 import { Amount } from '@/components/Amount/Amount'
+import { AssetIcon } from '@/components/AssetIcon'
 import { LazyLoadAvatar } from '@/components/LazyLoadAvatar'
 import { ReactTable } from '@/components/ReactTable/ReactTable'
 import type { YieldOpportunityDisplay } from '@/components/StakingVaults/hooks/useYieldAsOpportunities'
@@ -123,8 +124,8 @@ export const StakingPositionsByProvider: React.FC<StakingPositionsByProviderProp
     if (!yieldOpportunities?.length) return []
     return yieldOpportunities.map(y => ({
       id: y.yieldId,
-      assetId: y.yieldId,
-      underlyingAssetId: y.yieldId,
+      assetId: y.inputAssetId,
+      underlyingAssetId: y.inputAssetId,
       provider: y.providerName,
       apy: y.apy,
       fiatAmount: y.fiatAmount,
@@ -144,23 +145,10 @@ export const StakingPositionsByProvider: React.FC<StakingPositionsByProviderProp
     [ids, stakingOpportunities],
   )
 
-  const filteredDown = useMemo<UnifiedPosition[]>(() => {
-    const result = [...yieldPositionsAsUnified, ...legacyFiltered]
-    console.debug(
-      '[StakingPositionsByProvider] filteredDown:',
-      JSON.stringify(
-        result.map(r => ({
-          id: r.id,
-          provider: r.provider,
-          isYield: (r as UnifiedPosition).isYield,
-          fiatAmount: r.fiatAmount,
-        })),
-        null,
-        2,
-      ),
-    )
-    return result
-  }, [yieldPositionsAsUnified, legacyFiltered])
+  const filteredDown = useMemo<UnifiedPosition[]>(
+    () => [...yieldPositionsAsUnified, ...legacyFiltered],
+    [yieldPositionsAsUnified, legacyFiltered],
+  )
 
   const handleClick = useCallback(
     (row: RowProps, action: DefiAction) => {
@@ -276,14 +264,19 @@ export const StakingPositionsByProvider: React.FC<StakingPositionsByProviderProp
           if (opp.opportunityName) subText.push(opp.opportunityName)
           const isRunePool = opp.assetId === thorchainAssetId
           const providerName = isRunePool ? 'RUNEPool' : opp.version ?? opp.provider
+          const iconElement = opp.isYield ? (
+            <AssetIcon assetId={opp.assetId} size='sm' />
+          ) : (
+            <LazyLoadAvatar
+              size='sm'
+              bg='transparent'
+              src={opp.icon ?? getMetadataForProvider(opp.provider)?.icon ?? ''}
+              key={`provider-icon-${opp.id}`}
+            />
+          )
           return (
             <Flex gap={4} alignItems='center'>
-              <LazyLoadAvatar
-                size='sm'
-                bg='transparent'
-                src={opp.icon ?? getMetadataForProvider(opp.provider)?.icon ?? ''}
-                key={`provider-icon-${opp.id}`}
-              />
+              {iconElement}
               <Flex flexDir='column'>
                 <RawText>{providerName}</RawText>
                 <RawText textTransform='capitalize' variant='sub-text' size='xs'>

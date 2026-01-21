@@ -161,6 +161,7 @@ export const YieldItem = memo(
 
     const underMaintenance = isSingle ? data.yieldItem.metadata.underMaintenance : undefined
     const deprecated = isSingle ? data.yieldItem.metadata.deprecated : undefined
+    const depositsDisabled = isSingle ? !data.yieldItem.status.enter : false
 
     const statusBadge = useMemo(() => {
       if (!isSingle) return null
@@ -182,8 +183,17 @@ export const YieldItem = memo(
           </Tooltip>
         )
       }
+      if (depositsDisabled) {
+        return (
+          <Tooltip label={translate('yieldXYZ.depositsDisabledDescription')} hasArrow>
+            <Badge colorScheme='orange' fontSize='xs' variant='subtle'>
+              {translate('yieldXYZ.depositsDisabled')}
+            </Badge>
+          </Tooltip>
+        )
+      }
       return null
-    }, [isSingle, deprecated, underMaintenance, translate])
+    }, [isSingle, deprecated, underMaintenance, depositsDisabled, translate])
 
     const showAvailable = isSingle && hasAvailable && !hasBalance
 

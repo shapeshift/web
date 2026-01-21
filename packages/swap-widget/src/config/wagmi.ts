@@ -30,13 +30,15 @@ export type SupportedChainId = SupportedChains[number]['id']
 export type WagmiConfig = Config
 
 let wagmiAdapterInstance: WagmiAdapter | null = null
+let wagmiAdapterProjectId: string | null = null
 
 export const createWagmiAdapter = (projectId: string): WagmiAdapter => {
-  if (!wagmiAdapterInstance) {
+  if (!wagmiAdapterInstance || wagmiAdapterProjectId !== projectId) {
     wagmiAdapterInstance = new WagmiAdapter({
       networks: [...SUPPORTED_CHAINS],
       projectId,
     })
+    wagmiAdapterProjectId = projectId
   }
   return wagmiAdapterInstance
 }

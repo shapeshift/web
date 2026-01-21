@@ -1,6 +1,6 @@
 import { Button, Icon, Text, VStack } from '@chakra-ui/react'
 import { useQueryClient } from '@tanstack/react-query'
-import { useCallback } from 'react'
+import { useCallback, useRef } from 'react'
 import { IoIosCheckmarkCircle } from 'react-icons/io'
 import { useTranslate } from 'react-polyglot'
 import type { Location } from 'react-router-dom'
@@ -33,8 +33,12 @@ export const CreateSuccess = ({ onClose }: CreateSuccessProps) => {
   const queryClient = useQueryClient()
   const { dispatch, getAdapter } = useWallet()
   const localWallet = useLocalWallet()
+  const saveAttemptedRef = useRef(false)
 
   const saveAndSelectWallet = useCallback(async () => {
+    if (saveAttemptedRef.current) return
+    saveAttemptedRef.current = true
+
     if (location.state?.vault?.label && location.state?.vault?.mnemonic) {
       const wallet = await addWallet({
         label: location.state.vault.label,

@@ -1,6 +1,6 @@
 import { Button, Icon, VStack } from '@chakra-ui/react'
 import type { NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
-import { useCallback } from 'react'
+import { useCallback, useRef } from 'react'
 import { IoIosCheckmarkCircle } from 'react-icons/io'
 import { useTranslate } from 'react-polyglot'
 import type { Location } from 'react-router-dom'
@@ -32,9 +32,12 @@ export const ImportSuccess = ({ onClose }: ImportSuccessProps) => {
   const { getAdapter, dispatch } = useWallet()
   const localWallet = useLocalWallet()
   const translate = useTranslate()
+  const hasConnectedRef = useRef(false)
 
   const handleWalletConnection = useCallback(async () => {
+    if (hasConnectedRef.current) return
     if (!location.state?.vault) return
+    hasConnectedRef.current = true
     const adapter = await getAdapter(KeyManager.Mobile)
     if (!adapter) throw new Error('Native adapter not found')
     try {

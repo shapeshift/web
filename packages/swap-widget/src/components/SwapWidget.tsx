@@ -458,6 +458,9 @@ const SwapWidgetCore = ({
           isWritable: key.isWritable,
         }))
 
+        if (!ix.data?.data) {
+          throw new Error(`Invalid instruction data for programId: ${ix.programId}`)
+        }
         const data = Buffer.from(ix.data.data)
 
         return new TransactionInstruction({

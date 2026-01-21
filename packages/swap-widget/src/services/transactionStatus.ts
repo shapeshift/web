@@ -254,7 +254,6 @@ export const waitForSolanaConfirmation = async (
   signature: string,
   connection: Connection,
   commitment: 'confirmed' | 'finalized' = 'confirmed',
-  _timeoutMs = 60000,
 ): Promise<TransactionStatusResult> => {
   try {
     const latestBlockhash = await connection.getLatestBlockhash()

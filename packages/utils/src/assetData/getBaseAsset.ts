@@ -18,6 +18,7 @@ import {
   gnosis,
   hyperevm,
   katana,
+  linea,
   litecoin,
   mayachain,
   monad,
@@ -94,6 +95,8 @@ export const getBaseAsset = (chainId: ChainId): Readonly<Asset> => {
       return ton
     case KnownChainIds.CeloMainnet:
       return celo
+    case KnownChainIds.LineaMainnet:
+      return linea
     case KnownChainIds.SeiMainnet:
       return sei
     default:

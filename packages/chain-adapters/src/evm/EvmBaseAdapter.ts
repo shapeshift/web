@@ -89,6 +89,7 @@ export const evmChainIds = [
   KnownChainIds.PlasmaMainnet,
   KnownChainIds.KatanaMainnet,
   KnownChainIds.CeloMainnet,
+  KnownChainIds.LineaMainnet,
   KnownChainIds.SeiMainnet,
 ] as const
 
@@ -97,7 +98,8 @@ export type EvmChainAdapter = EvmBaseAdapter<EvmChainId>
 export const isEvmChainId = (
   maybeEvmChainId: string | EvmChainId,
 ): maybeEvmChainId is EvmChainId => {
-  return evmChainIds.includes(maybeEvmChainId as EvmChainId)
+  if (evmChainIds.includes(maybeEvmChainId as EvmChainId)) return true
+  return maybeEvmChainId.startsWith('eip155:')
 }
 
 export interface ChainAdapterArgs<T = unchained.evm.Api> {
@@ -296,6 +298,11 @@ export abstract class EvmBaseAdapter<T extends AnyEvmChainId> implements IChainA
         name: 'Celo',
         symbol: 'CELO',
         explorer: 'https://celoscan.io',
+      },
+      [KnownChainIds.LineaMainnet]: {
+        name: 'Ethereum',
+        symbol: 'ETH',
+        explorer: 'https://lineascan.build',
       },
       [KnownChainIds.SeiMainnet]: {
         name: 'Sei',

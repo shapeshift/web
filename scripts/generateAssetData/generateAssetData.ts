@@ -9,6 +9,7 @@ import {
   bitcoincash,
   celo,
   dogecoin,
+  linea,
   litecoin,
   maya,
   mayachain,
@@ -38,6 +39,7 @@ import { generateRelatedAssetIndex } from './generateRelatedAssetIndex/generateR
 import * as gnosis from './gnosis'
 import * as hyperevm from './hyperevm'
 import * as katana from './katana'
+import * as lineaModule from './linea'
 import * as monad from './monad'
 // import * as sei from './sei'
 import * as near from './near'
@@ -77,6 +79,7 @@ const generateAssetData = async () => {
   const hyperevmAssets = await hyperevm.getAssets()
   const katanaAssets = await katana.getAssets()
   const celoAssets = await celoModule.getAssets()
+  const lineaAssets = await lineaModule.getAssets()
   // const seiAssets = await sei.getAssets()
   const plasmaAssets = await plasma.getAssets()
   const solanaAssets = await solana.getAssets()
@@ -113,6 +116,8 @@ const generateAssetData = async () => {
     ...katanaAssets,
     unfreeze(celo),
     ...celoAssets,
+    unfreeze(linea),
+    ...lineaAssets,
     // unfreeze(sei),
     // ...seiAssets,
     ...plasmaAssets,

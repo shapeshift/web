@@ -60,7 +60,9 @@ export const chainIdToRelayChainId = {
 
 export const getRelayChainId = (chainId: ChainId): number | undefined => {
   const knownChainId = chainIdToRelayChainId[chainId]
-  if (knownChainId !== undefined) return knownChainId
+  if (knownChainId !== undefined) {
+    return knownChainId
+  }
 
   if (isEvmChainId(chainId)) {
     return Number(fromChainId(chainId).chainReference)

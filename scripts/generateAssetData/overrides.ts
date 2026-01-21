@@ -27,4 +27,8 @@ export const overrideAssets: Record<AssetId, Partial<Asset>> = {
     name: 'USD Coin',
     precision: 6,
   },
+  'eip155:42220/erc20:0x471ece3750da237f93b8e339c536989b8978a438': {
+    name: 'Wrapped CELO',
+    symbol: 'WCELO',
+  },
 }

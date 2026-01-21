@@ -15,6 +15,9 @@ export const SECOND_CLASS_CHAINS: readonly KnownChainIds[] = [
   KnownChainIds.KatanaMainnet,
   KnownChainIds.NearMainnet,
   KnownChainIds.StarknetMainnet,
+  KnownChainIds.CeloMainnet,
+  KnownChainIds.SeiMainnet,
+  KnownChainIds.LineaMainnet,
 ]
 
 // returns known ChainIds as an array, excluding the ones that are currently flagged off

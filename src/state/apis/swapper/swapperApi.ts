@@ -204,10 +204,23 @@ export const swapperApi = createApi({
               return { data: {} }
             }
 
+            console.log({
+              swapperName,
+              rateResult,
+              isError: rateResult?.isErr(),
+              errorCode: rateResult?.isErr() ? rateResult.unwrapErr().code : undefined,
+              noQuotes,
+              hasTimeoutQuote,
+            })
+
             const quotesWithInputOutputRatios = processQuoteResultWithRatios(
               rateResultWithFallback,
               getState,
             )
+
+            console.log({
+              quotesWithInputOutputRatios,
+            })
 
             const processedQuotes: ApiQuote[] = await Promise.all(
               quotesWithInputOutputRatios.map(quoteData =>

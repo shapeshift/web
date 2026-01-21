@@ -405,6 +405,23 @@ export const celo: Readonly<Asset> = Object.freeze({
   relatedAssetKey: null,
 })
 
+export const linea: Readonly<Asset> = Object.freeze({
+  assetId: caip.lineaAssetId,
+  chainId: caip.lineaChainId,
+  name: 'Ethereum',
+  networkName: 'Linea',
+  symbol: 'ETH',
+  precision: 18,
+  color: '#5C6BC0',
+  networkColor: '#121212',
+  icon: 'https://rawcdn.githack.com/trustwallet/assets/32e51d582a890b3dd3135fe3ee7c20c2fd699a6d/blockchains/ethereum/info/logo.png',
+  networkIcon: 'https://lineascan.build/assets/linea/images/svg/logos/chain-light.svg',
+  explorer: 'https://lineascan.build',
+  explorerAddressLink: 'https://lineascan.build/address/',
+  explorerTxLink: 'https://lineascan.build/tx/',
+  relatedAssetKey: 'eip155:1/slip44:60',
+})
+
 export const sei: Readonly<Asset> = Object.freeze({
   assetId: caip.seiAssetId,
   chainId: caip.seiChainId,

@@ -12,6 +12,7 @@ import {
   gnosisChainId,
   hyperEvmChainId,
   katanaChainId,
+  lineaChainId,
   monadChainId,
   nearChainId,
   optimismChainId,
@@ -37,6 +38,7 @@ import {
   gnosis,
   hyperevm,
   katana,
+  linea,
   monad,
   near,
   optimism,
@@ -184,6 +186,14 @@ export async function getAssets(chainId: ChainId): Promise<Asset[]> {
           explorer: celo.explorer,
           explorerAddressLink: celo.explorerAddressLink,
           explorerTxLink: celo.explorerTxLink,
+        }
+      case lineaChainId:
+        return {
+          assetNamespace: ASSET_NAMESPACE.erc20,
+          category: adapters.chainIdToCoingeckoAssetPlatform(chainId),
+          explorer: linea.explorer,
+          explorerAddressLink: linea.explorerAddressLink,
+          explorerTxLink: linea.explorerTxLink,
         }
       case seiChainId:
         return {

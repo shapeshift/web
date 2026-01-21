@@ -25,6 +25,9 @@ export type RelayTransactionMetadata = {
   psbt?: string
   opReturnData?: string
   relayId: string
+  // When Relay converts native → wrapped (e.g., native CELO → wrapped CELO),
+  // this stores the wrapped asset that needs approval
+  assetRequiringApproval?: Asset
 }
 
 export type RelayStatus = {

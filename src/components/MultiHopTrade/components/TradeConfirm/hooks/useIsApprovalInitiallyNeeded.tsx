@@ -27,10 +27,14 @@ const useIsApprovalInitiallyNeededForHop = (
 ) => {
   const [isApprovalInitiallyNeeded, setIsApprovalInitiallyNeeded] = useState<boolean | undefined>()
 
+  // Use wrapped asset if Relay specified one (e.g., native CELO → wrapped CELO)
+  const assetForApproval =
+    tradeQuoteStep?.relayTransactionMetadata?.assetRequiringApproval ?? tradeQuoteStep?.sellAsset
+
   const { allowanceCryptoBaseUnitResult, isAllowanceApprovalRequired } =
     useIsAllowanceApprovalRequired({
       amountCryptoBaseUnit: tradeQuoteStep?.sellAmountIncludingProtocolFeesCryptoBaseUnit,
-      assetId: tradeQuoteStep?.sellAsset.assetId,
+      assetId: assetForApproval?.assetId,
       from: sellAssetAccountId ? fromAccountId(sellAssetAccountId).account : undefined,
       spender: tradeQuoteStep?.allowanceContract,
       isDisabled: isApprovalInitiallyNeeded !== undefined,
@@ -43,14 +47,26 @@ const useIsApprovalInitiallyNeededForHop = (
   }, [tradeQuoteId])
 
   useEffect(() => {
-    // We already have *initial* approval requirements. The whole intent of this hook is to return initial allowance requirements,
-    // so we never want to overwrite them with subsequent allowance results.
     if (isApprovalInitiallyNeeded !== undefined) return
-    if (allowanceCryptoBaseUnitResult.isLoading || isAllowanceApprovalRequired === undefined) return
+    if (allowanceCryptoBaseUnitResult.isLoading) return
 
-    setIsApprovalInitiallyNeeded(isAllowanceApprovalRequired)
+    if (allowanceCryptoBaseUnitResult.isError) {
+      setIsApprovalInitiallyNeeded(true)
+      return
+    }
+
+    if (allowanceCryptoBaseUnitResult.isSuccess && isAllowanceApprovalRequired === undefined) {
+      setIsApprovalInitiallyNeeded(false)
+      return
+    }
+
+    if (isAllowanceApprovalRequired !== undefined) {
+      setIsApprovalInitiallyNeeded(isAllowanceApprovalRequired)
+    }
   }, [
     allowanceCryptoBaseUnitResult.isLoading,
+    allowanceCryptoBaseUnitResult.isError,
+    allowanceCryptoBaseUnitResult.isSuccess,
     isApprovalInitiallyNeeded,
     isAllowanceApprovalRequired,
   ])
@@ -72,9 +88,13 @@ const useIsAllowanceResetInitiallyRequiredForHop = (
     return isPermit2Hop(tradeQuoteStep)
   }, [tradeQuoteStep])
 
+  // Use wrapped asset if Relay specified one (e.g., native CELO → wrapped CELO)
+  const assetForApproval =
+    tradeQuoteStep?.relayTransactionMetadata?.assetRequiringApproval ?? tradeQuoteStep?.sellAsset
+
   const { isAllowanceResetRequired, isLoading } = useIsAllowanceResetRequired({
     amountCryptoBaseUnit: tradeQuoteStep?.sellAmountIncludingProtocolFeesCryptoBaseUnit,
-    assetId: tradeQuoteStep?.sellAsset.assetId,
+    assetId: assetForApproval?.assetId,
     from: sellAssetAccountId ? fromAccountId(sellAssetAccountId).account : undefined,
     spender: tradeQuoteStep?.allowanceContract,
     isDisabled: isPermit2,
@@ -159,11 +179,13 @@ export const useIsApprovalInitiallyNeeded = () => {
   useEffect(() => {
     if (isFirstHopLoading || (secondHop !== undefined && isSecondHopLoading)) return
     if (!activeQuote?.id) return
+    if (isApprovalInitiallyNeededForFirstHop === undefined) return
+    if (secondHop !== undefined && isApprovalInitiallyNeededForSecondHop === undefined) return
 
     dispatch(
       tradeQuoteSlice.actions.setInitialApprovalRequirements({
         id: activeQuote.id,
-        firstHop: isApprovalInitiallyNeededForFirstHop ?? false,
+        firstHop: isApprovalInitiallyNeededForFirstHop,
         secondHop: isApprovalInitiallyNeededForSecondHop ?? false,
       }),
     )
@@ -198,7 +220,9 @@ export const useIsApprovalInitiallyNeeded = () => {
   ])
 
   const result = useMemo(
-    () => ({ isLoading: isFirstHopLoading || (Boolean(isMultiHopTrade) && isSecondHopLoading) }),
+    () => ({
+      isLoading: isFirstHopLoading || (Boolean(isMultiHopTrade) && isSecondHopLoading),
+    }),
     [isFirstHopLoading, isMultiHopTrade, isSecondHopLoading],
   )
 

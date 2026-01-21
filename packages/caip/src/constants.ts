@@ -21,6 +21,7 @@ export const hyperEvmAssetId: AssetId = 'eip155:999/slip44:60'
 export const plasmaAssetId: AssetId = 'eip155:9745/slip44:60'
 export const katanaAssetId: AssetId = 'eip155:747474/slip44:60'
 export const celoAssetId: AssetId = 'eip155:42220/slip44:60'
+export const lineaAssetId: AssetId = 'eip155:59144/slip44:60'
 export const seiAssetId: AssetId = 'eip155:1329/slip44:60'
 export const solAssetId: AssetId = 'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp/slip44:501'
 export const wrappedSolAssetId: AssetId =
@@ -84,6 +85,7 @@ export const hyperEvmChainId: ChainId = 'eip155:999'
 export const plasmaChainId: ChainId = 'eip155:9745'
 export const katanaChainId: ChainId = 'eip155:747474'
 export const celoChainId: ChainId = 'eip155:42220'
+export const lineaChainId: ChainId = 'eip155:59144'
 export const seiChainId: ChainId = 'eip155:1329'
 
 export const cosmosChainId: ChainId = 'cosmos:cosmoshub-4'
@@ -138,6 +140,7 @@ export const CHAIN_REFERENCE = {
   PlasmaMainnet: '9745', // https://chainlist.org/chain/9745
   KatanaMainnet: '747474', // https://docs.katana.network
   CeloMainnet: '42220', // https://chainlist.org/chain/42220
+  LineaMainnet: '59144', // https://chainlist.org/chain/59144
   SeiMainnet: '1329', // https://chainlist.org/chain/1329
   SolanaMainnet: '5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp', // https://namespaces.chainagnostic.org/solana/caip2
   TronMainnet: '0x2b6653dc', // https://developers.tron.network/docs/networks
@@ -185,6 +188,7 @@ export const ASSET_REFERENCE = {
   Plasma: '60', // evm chain which uses ethereum derivation path as common practice
   Katana: '60', // evm chain which uses ethereum derivation path as common practice
   Celo: '60', // evm chain which uses ethereum derivation path as common practice
+  Linea: '60', // evm chain which uses ethereum derivation path as common practice
   Sei: '60', // evm chain which uses ethereum derivation path as common practice
   Solana: '501',
   Tron: '195',
@@ -217,6 +221,7 @@ export const VALID_CHAIN_IDS: ValidChainMap = Object.freeze({
     CHAIN_REFERENCE.PlasmaMainnet,
     CHAIN_REFERENCE.KatanaMainnet,
     CHAIN_REFERENCE.CeloMainnet,
+    CHAIN_REFERENCE.LineaMainnet,
     CHAIN_REFERENCE.SeiMainnet,
   ],
   [CHAIN_NAMESPACE.CosmosSdk]: [
@@ -274,6 +279,7 @@ export const FEE_ASSET_IDS = [
   baseAssetId,
   monadAssetId,
   celoAssetId,
+  lineaAssetId,
   seiAssetId,
   solAssetId,
   tronAssetId,

@@ -80,17 +80,33 @@ export const processQuoteResultWithRatios = (
   }
 
   return quoteResult.unwrap().map((quote: TradeQuote | TradeRate) => {
-    const inputOutputRatio = getInputOutputRatioFromQuote({
-      // We need to get the freshest state after fetching market data above
-      state: getState() as ReduxState,
-      quote,
-      swapperName: quoteResult.swapperName,
-    })
-    return {
-      quote,
-      error: undefined,
-      inputOutputRatio,
-      swapperName: quoteResult.swapperName,
+    try {
+      const inputOutputRatio = getInputOutputRatioFromQuote({
+        // We need to get the freshest state after fetching market data above
+        state: getState() as ReduxState,
+        quote,
+        swapperName: quoteResult.swapperName,
+      })
+
+      console.log({
+        quote,
+        swapperName: quoteResult.swapperName,
+        inputOutputRatio,
+      })
+      return {
+        quote,
+        error: undefined,
+        inputOutputRatio,
+        swapperName: quoteResult.swapperName,
+      }
+    } catch (error) {
+      console.error(error)
+      return {
+        quote,
+        error: undefined,
+        inputOutputRatio: 0,
+        swapperName: quoteResult.swapperName,
+      }
     }
   })
 }
@@ -103,7 +119,10 @@ export const checkTradingActivity = async (
   tradeType?: TradeType,
 ) => {
   if (error !== undefined) {
-    return { isTradingActiveOnSellPool: false, isTradingActiveOnBuyPool: false }
+    return {
+      isTradingActiveOnSellPool: false,
+      isTradingActiveOnBuyPool: false,
+    }
   }
 
   const [isTradingActiveOnSellPool, isTradingActiveOnBuyPool] = await Promise.all(

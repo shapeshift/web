@@ -18,6 +18,7 @@ import {
   gnosisChainId,
   hyperEvmChainId,
   katanaChainId,
+  lineaChainId,
   mayachainChainId,
   monadChainId,
   nearChainId,
@@ -55,6 +56,7 @@ export enum CoingeckoAssetPlatform {
   Plasma = 'plasma',
   Katana = 'katana',
   Celo = 'celo',
+  Linea = 'linea',
   Sei = 'sei-network',
   Solana = 'solana',
   Starknet = 'starknet',
@@ -120,6 +122,8 @@ export const chainIdToCoingeckoAssetPlatform = (chainId: ChainId): string => {
           return CoingeckoAssetPlatform.Katana
         case CHAIN_REFERENCE.CeloMainnet:
           return CoingeckoAssetPlatform.Celo
+        case CHAIN_REFERENCE.LineaMainnet:
+          return CoingeckoAssetPlatform.Linea
         case CHAIN_REFERENCE.SeiMainnet:
           return CoingeckoAssetPlatform.Sei
         default:
@@ -233,6 +237,8 @@ export const coingeckoAssetPlatformToChainId = (
       return katanaChainId
     case CoingeckoAssetPlatform.Celo:
       return celoChainId
+    case CoingeckoAssetPlatform.Linea:
+      return lineaChainId
     case CoingeckoAssetPlatform.Sei:
       return seiChainId
     case CoingeckoAssetPlatform.Cosmos:

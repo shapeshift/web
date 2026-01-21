@@ -36,15 +36,6 @@ export const GENERIC_EVM_CHAINS: EvmGenericChainConfig[] = [
     viemChainKey: 'linea',
     explorerUrl: 'https://lineascan.build',
   },
-  // {
-  //   chainId: 'eip155:1329',
-  //   name: 'sei',
-  //   displayName: 'Sei',
-  //   nativeAssetId: 'eip155:1329/slip44:60',
-  //   iconName: 'sei',
-  //   viemChainKey: 'sei',
-  //   explorerUrl: 'https://seitrace.com',
-  // },
 ]
 
 export const getGenericChainConfig = (

@@ -14,6 +14,7 @@ import {
   gnosisAssetId,
   hyperEvmAssetId,
   katanaAssetId,
+  lineaAssetId,
   ltcAssetId,
   mayachainAssetId,
   monadAssetId,
@@ -93,6 +94,8 @@ export const chainIdToFeeAssetId = (_chainId: ChainId): AssetId => {
       return tonAssetId
     case KnownChainIds.CeloMainnet:
       return celoAssetId
+    case KnownChainIds.LineaMainnet:
+      return lineaAssetId
     case KnownChainIds.SeiMainnet:
       return seiAssetId
     default:

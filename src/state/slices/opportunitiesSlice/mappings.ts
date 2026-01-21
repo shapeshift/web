@@ -193,6 +193,7 @@ export const CHAIN_ID_TO_SUPPORTED_DEFI_OPPORTUNITIES: Record<
   [KnownChainIds.PlasmaMainnet]: [],
   [KnownChainIds.KatanaMainnet]: [],
   [KnownChainIds.CeloMainnet]: [],
+  [KnownChainIds.LineaMainnet]: [],
   [KnownChainIds.SeiMainnet]: [],
   [KnownChainIds.ZcashMainnet]: [],
   [KnownChainIds.NearMainnet]: [],

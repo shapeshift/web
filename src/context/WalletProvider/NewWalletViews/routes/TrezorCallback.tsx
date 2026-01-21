@@ -90,21 +90,35 @@ export const TrezorCallback = () => {
   useEffect(() => {
     const processCallback = async () => {
       const id = searchParams.get('id')
+      const responseInHash = searchParams.get('response')
 
-      console.log('[TrezorCallback] Processing callback, id:', id)
+      console.log('[TrezorCallback] Processing callback:', {
+        id,
+        responseInHash: responseInHash ? `${responseInHash.substring(0, 50)}...` : null,
+        fullUrl: window.location.href,
+        search: window.location.search,
+        hash: window.location.hash,
+      })
 
-      // Check for response in window.location.search (before hash)
-      // Trezor Suite puts response there, not in hash route params
+      // Check for response in hash route params first (/#/trezor/callback?id=x&response=y)
+      // Then check window.location.search (before hash)
       const searchBeforeHash = new URLSearchParams(window.location.search)
       const responseInSearch = searchBeforeHash.get('response')
 
-      if (responseInSearch) {
-        console.log('[TrezorCallback] Found response in window.location.search')
+      const response = responseInHash || responseInSearch
+      const responseSource = responseInHash
+        ? 'hash params'
+        : responseInSearch
+        ? 'search params'
+        : null
+
+      if (response) {
+        console.log('[TrezorCallback] Found response in', responseSource)
         const pendingRequest = getPendingRequest()
 
         if (pendingRequest) {
           try {
-            const parsedResponse = JSON.parse(decodeURIComponent(responseInSearch))
+            const parsedResponse = JSON.parse(decodeURIComponent(response))
             console.log('[TrezorCallback] Parsed response:', parsedResponse)
 
             storeResponse({
@@ -113,9 +127,7 @@ export const TrezorCallback = () => {
             })
 
             // Clean URL
-            const cleanUrl =
-              window.location.origin + window.location.pathname + window.location.hash
-            window.history.replaceState({}, '', cleanUrl.replace(/\?[^#]*/, ''))
+            window.history.replaceState({}, '', window.location.origin + '/#/trezor/callback')
 
             // Now complete pairing - the patch will find the stored response
             await completePairing()
@@ -134,8 +146,8 @@ export const TrezorCallback = () => {
         }
       }
 
-      // No response found
-      console.error('[TrezorCallback] No response parameter found')
+      // No response found - log full URL for debugging
+      console.error('[TrezorCallback] No response parameter found in URL:', window.location.href)
       setStatus('error')
       setErrorMessage('Missing response from Trezor. Please try connecting again.')
     }

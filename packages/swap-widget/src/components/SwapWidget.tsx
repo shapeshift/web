@@ -364,7 +364,7 @@ const SwapWidgetCore = ({
         message: 'Transaction broadcast. Waiting for confirmation...',
       })
 
-      setTxStatus({ status: 'success', txHash: txid, message: 'Swap initiated!' })
+      setTxStatus({ status: 'success', txHash: txid, message: 'Transaction submitted!' })
       onSwapSuccess?.(txid)
 
       setSellAmount('')
@@ -407,6 +407,15 @@ const SwapWidgetCore = ({
 
     const rateToUse = selectedRate ?? rates?.[0]
     if (!rateToUse || !sellAmountBaseUnit) return
+
+    if (sellAssetBalance?.balance) {
+      const balanceBigInt = BigInt(sellAssetBalance.balance)
+      const amountBigInt = BigInt(sellAmountBaseUnit)
+      if (amountBigInt > balanceBigInt) {
+        setTxStatus({ status: 'error', message: 'Insufficient balance' })
+        return
+      }
+    }
 
     setIsExecuting(true)
     resetSolanaState()
@@ -473,7 +482,7 @@ const SwapWidgetCore = ({
         message: 'Transaction broadcast. Waiting for confirmation...',
       })
 
-      setTxStatus({ status: 'success', txHash: signature, message: 'Swap initiated!' })
+      setTxStatus({ status: 'success', txHash: signature, message: 'Transaction submitted!' })
       onSwapSuccess?.(signature)
 
       setSellAmount('')
@@ -496,6 +505,7 @@ const SwapWidgetCore = ({
     selectedRate,
     rates,
     sellAmountBaseUnit,
+    sellAssetBalance,
     resetSolanaState,
     slippage,
     apiClient,
@@ -513,6 +523,15 @@ const SwapWidgetCore = ({
   const executeEvmSwap = useCallback(async () => {
     const rateToUse = selectedRate ?? rates?.[0]
     if (!rateToUse || !walletClient || !walletAddress) return
+
+    if (sellAmountBaseUnit && sellAssetBalance?.balance) {
+      const balanceBigInt = BigInt(sellAssetBalance.balance)
+      const amountBigInt = BigInt(sellAmountBaseUnit)
+      if (amountBigInt > balanceBigInt) {
+        setTxStatus({ status: 'error', message: 'Insufficient balance' })
+        return
+      }
+    }
 
     setIsExecuting(true)
 
@@ -630,7 +649,7 @@ const SwapWidgetCore = ({
         account: walletAddress as `0x${string}`,
       })
 
-      setTxStatus({ status: 'success', txHash, message: 'Swap successful!' })
+      setTxStatus({ status: 'success', txHash, message: 'Transaction submitted!' })
       onSwapSuccess?.(txHash)
 
       setSellAmount('')
@@ -668,6 +687,7 @@ const SwapWidgetCore = ({
     walletClient,
     walletAddress,
     sellAmountBaseUnit,
+    sellAssetBalance,
     slippage,
     apiClient,
     sellAsset.assetId,
@@ -749,6 +769,7 @@ const SwapWidgetCore = ({
     if (isSellAssetUtxo && canExecuteUtxo) {
       if (!sellAmount) return 'Enter an amount'
       if (!isBitcoinConnected) return 'Connect Bitcoin Wallet'
+      if (!effectiveReceiveAddress) return 'Enter receive address'
       if (bitcoinState.isLoading || isExecuting) return 'Executing...'
       if (isLoadingRates) return 'Finding rates...'
       if (ratesError) return 'No routes available'
@@ -758,6 +779,7 @@ const SwapWidgetCore = ({
     if (isSellAssetSolana && canExecuteSolana) {
       if (!sellAmount) return 'Enter an amount'
       if (!isSolanaConnected) return 'Connect Solana Wallet'
+      if (!effectiveReceiveAddress) return 'Enter receive address'
       if (solanaState.isLoading || isExecuting) return 'Executing...'
       if (isLoadingRates) return 'Finding rates...'
       if (ratesError) return 'No routes available'
@@ -767,6 +789,7 @@ const SwapWidgetCore = ({
     if (!isSellAssetEvm) return 'Proceed on ShapeShift'
     if (!sellAmount) return 'Enter an amount'
     if (!walletClient && canExecuteDirectly) return 'Connect Wallet'
+    if (!effectiveReceiveAddress) return 'Enter receive address'
     if (isLoadingRates) return 'Finding rates...'
     if (ratesError) return 'No routes available'
     if (!rates?.length) return 'No routes found'
@@ -790,10 +813,15 @@ const SwapWidgetCore = ({
     ratesError,
     rates,
     isExecuting,
+    effectiveReceiveAddress,
   ])
 
   const isButtonDisabled = useMemo(() => {
     if (!sellAmount || isLoadingRates || ratesError || !rates?.length || isExecuting) {
+      return true
+    }
+
+    if (!effectiveReceiveAddress) {
       return true
     }
 
@@ -825,6 +853,7 @@ const SwapWidgetCore = ({
     ratesError,
     rates,
     isExecuting,
+    effectiveReceiveAddress,
   ])
 
   const { data: sellChainInfo } = useChainInfo(sellAsset.chainId)
@@ -928,6 +957,7 @@ const SwapWidgetCore = ({
               onChange={e => {
                 setSellAmount(e.target.value.replace(/[^0-9.]/g, ''))
                 setSelectedRate(null)
+                setTxStatus(null)
               }}
             />
             <button
@@ -1214,9 +1244,17 @@ const SwapWidgetCore = ({
         onClose={() => setIsAddressModalOpen(false)}
         chainId={buyAsset.chainId}
         chainName={buyChainInfo?.name ?? buyAsset.networkName ?? buyAsset.name}
-        currentAddress={customReceiveAddress || walletAddress || ''}
+        currentAddress={customReceiveAddress || effectiveReceiveAddress || ''}
         onAddressChange={setCustomReceiveAddress}
-        walletAddress={walletAddress}
+        walletAddress={
+          buyChainType === 'evm'
+            ? walletAddress
+            : buyChainType === 'utxo'
+            ? bitcoinAddress
+            : buyChainType === 'solana'
+            ? solanaAddress
+            : undefined
+        }
       />
     </div>
   )

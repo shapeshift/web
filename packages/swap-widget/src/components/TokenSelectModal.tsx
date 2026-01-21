@@ -1,5 +1,6 @@
 import './TokenSelectModal.css'
 
+import { bnOrZero } from '@shapeshiftoss/utils'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Virtuoso } from 'react-virtuoso'
 
@@ -368,13 +369,14 @@ export const TokenSelectModal = ({
                                 {marketData?.[asset.assetId]?.price && (
                                   <span className='ssw-token-fiat-value'>
                                     $
-                                    {(
-                                      (Number(balance.balance) / Math.pow(10, asset.precision)) *
-                                      Number(marketData[asset.assetId].price)
-                                    ).toLocaleString(undefined, {
-                                      minimumFractionDigits: 2,
-                                      maximumFractionDigits: 2,
-                                    })}
+                                    {bnOrZero(balance.balance)
+                                      .div(bnOrZero(10).pow(asset.precision))
+                                      .times(bnOrZero(marketData[asset.assetId].price))
+                                      .toNumber()
+                                      .toLocaleString(undefined, {
+                                        minimumFractionDigits: 2,
+                                        maximumFractionDigits: 2,
+                                      })}
                                   </span>
                                 )}
                                 <span className='ssw-token-balance'>

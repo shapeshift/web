@@ -11033,35 +11033,35 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@reown/appkit-adapter-bitcoin@npm:^1.8.15":
-  version: 1.8.16
-  resolution: "@reown/appkit-adapter-bitcoin@npm:1.8.16"
+"@reown/appkit-adapter-bitcoin@npm:^1.8.17":
+  version: 1.8.17
+  resolution: "@reown/appkit-adapter-bitcoin@npm:1.8.17"
   dependencies:
     "@exodus/bitcoin-wallet-standard": 0.0.0
-    "@reown/appkit": 1.8.16
-    "@reown/appkit-common": 1.8.16
-    "@reown/appkit-controllers": 1.8.16
-    "@reown/appkit-polyfills": 1.8.16
-    "@reown/appkit-utils": 1.8.16
+    "@reown/appkit": 1.8.17
+    "@reown/appkit-common": 1.8.17
+    "@reown/appkit-controllers": 1.8.17
+    "@reown/appkit-polyfills": 1.8.17
+    "@reown/appkit-utils": 1.8.17
     "@wallet-standard/app": 1.1.0
     "@wallet-standard/base": 1.1.0
-    "@walletconnect/universal-provider": 2.23.1
+    "@walletconnect/universal-provider": 2.23.2
     bitcoinjs-lib: 6.1.7
     sats-connect: 3.5.0
-  checksum: 3d815b1286c24dae950c6009d906ef05d7e198ca3833557eb40d43f3181fc39acb901a491907adfa83ef43895087f804d2189b8c4c77662697786e50fc562912
+  checksum: 73c79069e6e51f6dddb9c22f7db4a0482e34ef234c66f25ffe5479ad814cdf1188484c394400cfa64dcc68460ae5c6b01816df6af42dcd14a8ccf6c8e29084fc
   languageName: node
   linkType: hard
 
-"@reown/appkit-adapter-solana@npm:^1.8.14":
-  version: 1.8.16
-  resolution: "@reown/appkit-adapter-solana@npm:1.8.16"
+"@reown/appkit-adapter-solana@npm:^1.8.17":
+  version: 1.8.17
+  resolution: "@reown/appkit-adapter-solana@npm:1.8.17"
   dependencies:
-    "@reown/appkit": 1.8.16
-    "@reown/appkit-common": 1.8.16
-    "@reown/appkit-controllers": 1.8.16
-    "@reown/appkit-polyfills": 1.8.16
-    "@reown/appkit-utils": 1.8.16
-    "@reown/appkit-wallet": 1.8.16
+    "@reown/appkit": 1.8.17
+    "@reown/appkit-common": 1.8.17
+    "@reown/appkit-controllers": 1.8.17
+    "@reown/appkit-polyfills": 1.8.17
+    "@reown/appkit-utils": 1.8.17
+    "@reown/appkit-wallet": 1.8.17
     "@solana/spl-token": 0.4.14
     "@solana/wallet-adapter-base": 0.9.27
     "@solana/wallet-standard-features": 1.3.0
@@ -11070,8 +11070,8 @@ __metadata:
     "@wallet-standard/app": 1.1.0
     "@wallet-standard/base": 1.1.0
     "@wallet-standard/features": 1.1.0
-    "@walletconnect/types": 2.23.1
-    "@walletconnect/universal-provider": 2.23.1
+    "@walletconnect/types": 2.23.2
+    "@walletconnect/universal-provider": 2.23.2
     borsh: 0.7.0
     bs58: 6.0.0
     valtio: 2.1.7
@@ -11080,32 +11080,32 @@ __metadata:
       optional: true
     bs58:
       optional: true
-  checksum: b5995cbb5df3ea31962be24ed51590ff5993a4adeed63b87cd26fa0a9c19419da95738dc54cd79fcb6ec9993ac27fe1f9d1dcafbc0ced5bc4116522522086ef4
+  checksum: 9ebe2ec94e6d20cac0b3ffef9f0949cb63c434ce1792b1d9721aeff0fa4f259e159a0a0e79659a1293d98a5590c9669d1d9434c42ffd0e7ebad912d040996356
   languageName: node
   linkType: hard
 
-"@reown/appkit-adapter-wagmi@npm:^1.8.15":
-  version: 1.8.16
-  resolution: "@reown/appkit-adapter-wagmi@npm:1.8.16"
+"@reown/appkit-adapter-wagmi@npm:^1.8.17":
+  version: 1.8.17
+  resolution: "@reown/appkit-adapter-wagmi@npm:1.8.17"
   dependencies:
-    "@reown/appkit": 1.8.16
-    "@reown/appkit-common": 1.8.16
-    "@reown/appkit-controllers": 1.8.16
-    "@reown/appkit-polyfills": 1.8.16
-    "@reown/appkit-scaffold-ui": 1.8.16
-    "@reown/appkit-utils": 1.8.16
-    "@reown/appkit-wallet": 1.8.16
+    "@reown/appkit": 1.8.17
+    "@reown/appkit-common": 1.8.17
+    "@reown/appkit-controllers": 1.8.17
+    "@reown/appkit-polyfills": 1.8.17
+    "@reown/appkit-scaffold-ui": 1.8.17
+    "@reown/appkit-utils": 1.8.17
+    "@reown/appkit-wallet": 1.8.17
     "@wagmi/connectors": ">=5.9.9"
-    "@walletconnect/universal-provider": 2.23.1
+    "@walletconnect/universal-provider": 2.23.2
     valtio: 2.1.7
   peerDependencies:
     "@wagmi/core": ">=2.21.2"
-    viem: ">=2.37.9"
-    wagmi: ">=2.17.5"
+    viem: ">=2.44.2"
+    wagmi: ">=2.19.5"
   dependenciesMeta:
     "@wagmi/connectors":
       optional: true
-  checksum: 8946bd29a83a71b895eb91e0e1e44c42a9b3b5b0b19df82e9afe986bac574bd8094fc5bfea66145e7e629a496b329e7454727c803e25209426900f96a8489f8c
+  checksum: cc6cab4ac8bd4afdead754c317db4f373e82924c524a3cc9d56bf1ecc244c493c32444db190aa9acd0fa47327f57413939136803431b5181b3a1dcc4063334cf
   languageName: node
   linkType: hard
 
@@ -11131,14 +11131,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@reown/appkit-common@npm:1.8.16":
-  version: 1.8.16
-  resolution: "@reown/appkit-common@npm:1.8.16"
+"@reown/appkit-common@npm:1.8.17":
+  version: 1.8.17
+  resolution: "@reown/appkit-common@npm:1.8.17"
   dependencies:
     big.js: 6.2.2
     dayjs: 1.11.13
-    viem: ">=2.37.9"
-  checksum: 66b4bc9c6d29177d9bd289cf0863da2441f7bd2fe7770ccd8ef1d6f7036b19be3082235fd730ad2f470249dd36d30e87c42a3bbeef0a552cad1bc9be30d424e6
+    viem: ">=2.44.2"
+  checksum: 33701dab89862514c800baecd49c79489b109d676cbee5e9fec54e28a2fe1ddf29d6ceeb294b5375085a4f4fae43be4f451e5e50e201043b9a1971e0ef46659d
   languageName: node
   linkType: hard
 
@@ -11168,30 +11168,30 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@reown/appkit-controllers@npm:1.8.16":
-  version: 1.8.16
-  resolution: "@reown/appkit-controllers@npm:1.8.16"
+"@reown/appkit-controllers@npm:1.8.17":
+  version: 1.8.17
+  resolution: "@reown/appkit-controllers@npm:1.8.17"
   dependencies:
-    "@reown/appkit-common": 1.8.16
-    "@reown/appkit-wallet": 1.8.16
-    "@walletconnect/universal-provider": 2.23.1
+    "@reown/appkit-common": 1.8.17
+    "@reown/appkit-wallet": 1.8.17
+    "@walletconnect/universal-provider": 2.23.2
     valtio: 2.1.7
-    viem: ">=2.37.9"
-  checksum: c2917155bab4ac661ecf9d33cc4546b9b04633855dfa8b2dd111d69e70b8bb508aae8e3506194e8930613ef19bb436d2b66701a6ddc57a9a066dfec8400edb20
+    viem: ">=2.44.2"
+  checksum: ab79bd712fd90d52d440fdf58a45da886d01ee5c0d8f65228b0c83686f0e4cecd4ec953cdce47c00ad428d607219f7acc4a36f76a36a35f828b1e4262477ff99
   languageName: node
   linkType: hard
 
-"@reown/appkit-pay@npm:1.8.16":
-  version: 1.8.16
-  resolution: "@reown/appkit-pay@npm:1.8.16"
+"@reown/appkit-pay@npm:1.8.17":
+  version: 1.8.17
+  resolution: "@reown/appkit-pay@npm:1.8.17"
   dependencies:
-    "@reown/appkit-common": 1.8.16
-    "@reown/appkit-controllers": 1.8.16
-    "@reown/appkit-ui": 1.8.16
-    "@reown/appkit-utils": 1.8.16
+    "@reown/appkit-common": 1.8.17
+    "@reown/appkit-controllers": 1.8.17
+    "@reown/appkit-ui": 1.8.17
+    "@reown/appkit-utils": 1.8.17
     lit: 3.3.0
     valtio: 2.1.7
-  checksum: d340b93c61a16e152d5212be34527bf054d42107fdcb3fa330f0041045346ff35a1d06817a4f9b430cdb7bd96b461e31ae719021f3feb0ef98a1d128d0e582f0
+  checksum: 0ae8ebbda5b2b0bd61bf44808137aacffab462285620a2a1add012531ffa6823ae2c17bef0d70416e0584a303063684811a5215e8315191f308532b70116d160
   languageName: node
   linkType: hard
 
@@ -11213,12 +11213,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@reown/appkit-polyfills@npm:1.8.16":
-  version: 1.8.16
-  resolution: "@reown/appkit-polyfills@npm:1.8.16"
+"@reown/appkit-polyfills@npm:1.8.17":
+  version: 1.8.17
+  resolution: "@reown/appkit-polyfills@npm:1.8.17"
   dependencies:
     buffer: 6.0.3
-  checksum: 5745de587d41b8c55b984a1aa5b4e2362898e91b8e4894f905fb4b4c65a7bc1296046e4f51ed0a4085ae079303fcc7c3f100c900a7a46aaf0239757154a611af
+  checksum: 9762de974114be4182e197d3d273842b732308349ba9c4daf00a78c2fce7c10695ff07a8bb0c8abae79240f98e165f6cefb83ddd0e771fcb03bbb6d0930994c1
   languageName: node
   linkType: hard
 
@@ -11250,18 +11250,18 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@reown/appkit-scaffold-ui@npm:1.8.16":
-  version: 1.8.16
-  resolution: "@reown/appkit-scaffold-ui@npm:1.8.16"
+"@reown/appkit-scaffold-ui@npm:1.8.17":
+  version: 1.8.17
+  resolution: "@reown/appkit-scaffold-ui@npm:1.8.17"
   dependencies:
-    "@reown/appkit-common": 1.8.16
-    "@reown/appkit-controllers": 1.8.16
-    "@reown/appkit-pay": 1.8.16
-    "@reown/appkit-ui": 1.8.16
-    "@reown/appkit-utils": 1.8.16
-    "@reown/appkit-wallet": 1.8.16
+    "@reown/appkit-common": 1.8.17
+    "@reown/appkit-controllers": 1.8.17
+    "@reown/appkit-pay": 1.8.17
+    "@reown/appkit-ui": 1.8.17
+    "@reown/appkit-utils": 1.8.17
+    "@reown/appkit-wallet": 1.8.17
     lit: 3.3.0
-  checksum: 3351c8dd82aeba169ac0a81ce5ee08aa89ac0a9c40a29eb1103186591af19a47bb5417a071aa2b28aae7ebc3ff05aeecc86bc6554d9c95e55a635992d3860621
+  checksum: e3685a6d176c0af4b72389c8ac7297ad2d3bdc5e6dea7257bc8fbbcfe232871c302f491dd1224a9ec071c0b9136a76fb8673d13c526ebfaf0cd1821e1bafcd9d
   languageName: node
   linkType: hard
 
@@ -11291,17 +11291,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@reown/appkit-ui@npm:1.8.16":
-  version: 1.8.16
-  resolution: "@reown/appkit-ui@npm:1.8.16"
+"@reown/appkit-ui@npm:1.8.17":
+  version: 1.8.17
+  resolution: "@reown/appkit-ui@npm:1.8.17"
   dependencies:
     "@phosphor-icons/webcomponents": 2.1.5
-    "@reown/appkit-common": 1.8.16
-    "@reown/appkit-controllers": 1.8.16
-    "@reown/appkit-wallet": 1.8.16
+    "@reown/appkit-common": 1.8.17
+    "@reown/appkit-controllers": 1.8.17
+    "@reown/appkit-wallet": 1.8.17
     lit: 3.3.0
     qrcode: 1.5.3
-  checksum: de926cd0cafb973b13d5de77220a6a034252ec2d7e831d016bd26b467df523e8115e71e4e63182caca3f383564c74ab6fb9046e4a55665280d16fbfc8ed7832c
+  checksum: 734b3b56e772e5b80a9689cea96404df491ba9b3f17612960698d93da8dabc9b503a3fe7af74b160980b634b02ce69cb547b4ba9c9f48e7592fe4441a798aa39
   languageName: node
   linkType: hard
 
@@ -11341,22 +11341,22 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@reown/appkit-utils@npm:1.8.16":
-  version: 1.8.16
-  resolution: "@reown/appkit-utils@npm:1.8.16"
+"@reown/appkit-utils@npm:1.8.17":
+  version: 1.8.17
+  resolution: "@reown/appkit-utils@npm:1.8.17"
   dependencies:
     "@base-org/account": 2.4.0
-    "@reown/appkit-common": 1.8.16
-    "@reown/appkit-controllers": 1.8.16
-    "@reown/appkit-polyfills": 1.8.16
-    "@reown/appkit-wallet": 1.8.16
+    "@reown/appkit-common": 1.8.17
+    "@reown/appkit-controllers": 1.8.17
+    "@reown/appkit-polyfills": 1.8.17
+    "@reown/appkit-wallet": 1.8.17
     "@safe-global/safe-apps-provider": 0.18.6
     "@safe-global/safe-apps-sdk": 9.1.0
     "@wallet-standard/wallet": 1.1.0
-    "@walletconnect/logger": 3.0.1
-    "@walletconnect/universal-provider": 2.23.1
+    "@walletconnect/logger": 3.0.2
+    "@walletconnect/universal-provider": 2.23.2
     valtio: 2.1.7
-    viem: ">=2.37.9"
+    viem: ">=2.44.2"
   peerDependencies:
     valtio: 2.1.7
   dependenciesMeta:
@@ -11366,7 +11366,7 @@ __metadata:
       optional: true
     "@safe-global/safe-apps-sdk":
       optional: true
-  checksum: ac8c9d8c82160251ecf0ec392b80c1a9fcac66312fc6865690330db5e4bcfb584007d50b0f2933b2f6cccf9a85ff6e5e37550c522a19e67caab05f4c6319c343
+  checksum: 408214bfc7746cf46623dbcae35c1357153ebc56044c5ab8d0ad37b9b08149304b9d58478b61742d6630e6c8ae2158dea1ef61770495bc44e0248d427dfa9676
   languageName: node
   linkType: hard
 
@@ -11394,15 +11394,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@reown/appkit-wallet@npm:1.8.16":
-  version: 1.8.16
-  resolution: "@reown/appkit-wallet@npm:1.8.16"
+"@reown/appkit-wallet@npm:1.8.17":
+  version: 1.8.17
+  resolution: "@reown/appkit-wallet@npm:1.8.17"
   dependencies:
-    "@reown/appkit-common": 1.8.16
-    "@reown/appkit-polyfills": 1.8.16
-    "@walletconnect/logger": 3.0.1
+    "@reown/appkit-common": 1.8.17
+    "@reown/appkit-polyfills": 1.8.17
+    "@walletconnect/logger": 3.0.2
     zod: 3.22.4
-  checksum: cad859421aaa629c838624c75186efaf5b25f32691ab9341c765479c7dfb5916db9e9a51ea49ffff3028dce73c1714ea1b3dae201d23d4179809443c41730efa
+  checksum: 732d98549765c18947c15949d3fa681f8ba343cafb717a8cc3a84c24acab38103731141045251ef0b514e1831ef9ce105162dfa09b73b5e204d0682a261a745f
   languageName: node
   linkType: hard
 
@@ -11446,28 +11446,28 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@reown/appkit@npm:1.8.16, @reown/appkit@npm:^1.8.15":
-  version: 1.8.16
-  resolution: "@reown/appkit@npm:1.8.16"
+"@reown/appkit@npm:1.8.17, @reown/appkit@npm:^1.8.17":
+  version: 1.8.17
+  resolution: "@reown/appkit@npm:1.8.17"
   dependencies:
     "@lit/react": 1.0.8
-    "@reown/appkit-common": 1.8.16
-    "@reown/appkit-controllers": 1.8.16
-    "@reown/appkit-pay": 1.8.16
-    "@reown/appkit-polyfills": 1.8.16
-    "@reown/appkit-scaffold-ui": 1.8.16
-    "@reown/appkit-ui": 1.8.16
-    "@reown/appkit-utils": 1.8.16
-    "@reown/appkit-wallet": 1.8.16
-    "@walletconnect/universal-provider": 2.23.1
+    "@reown/appkit-common": 1.8.17
+    "@reown/appkit-controllers": 1.8.17
+    "@reown/appkit-pay": 1.8.17
+    "@reown/appkit-polyfills": 1.8.17
+    "@reown/appkit-scaffold-ui": 1.8.17
+    "@reown/appkit-ui": 1.8.17
+    "@reown/appkit-utils": 1.8.17
+    "@reown/appkit-wallet": 1.8.17
+    "@walletconnect/universal-provider": 2.23.2
     bs58: 6.0.0
     semver: 7.7.2
     valtio: 2.1.7
-    viem: ">=2.37.9"
+    viem: ">=2.44.2"
   dependenciesMeta:
     "@lit/react":
       optional: true
-  checksum: 616f208238dcf9acc6c527d53c9946b3feb489099938469ad9643e3d7b44c8e209e51a993303a0d048b651eeda5a8e9ceb8973f85cc7eccbfdb33bf7566fdb37
+  checksum: 626d5b159cb27711309f698ec6de6cc219593572dcdc1c781c1c3b8a39fb7d6a8bd2371a12298910674ad065d1b358aa11ef5bea9ad8b55575219ddd275a0697
   languageName: node
   linkType: hard
 
@@ -13047,10 +13047,10 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@shapeshiftoss/swap-widget@workspace:packages/swap-widget"
   dependencies:
-    "@reown/appkit": ^1.8.15
-    "@reown/appkit-adapter-bitcoin": ^1.8.15
-    "@reown/appkit-adapter-solana": ^1.8.14
-    "@reown/appkit-adapter-wagmi": ^1.8.15
+    "@reown/appkit": ^1.8.17
+    "@reown/appkit-adapter-bitcoin": ^1.8.17
+    "@reown/appkit-adapter-solana": ^1.8.17
+    "@reown/appkit-adapter-wagmi": ^1.8.17
     "@shapeshiftoss/caip": "npm:@shapeshiftoss/caip@8.16.6"
     "@shapeshiftoss/utils": "npm:@shapeshiftoss/utils@1.0.5"
     "@solana/wallet-adapter-wallets": ^0.19.32
@@ -19039,9 +19039,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@walletconnect/core@npm:2.23.1":
-  version: 2.23.1
-  resolution: "@walletconnect/core@npm:2.23.1"
+"@walletconnect/core@npm:2.23.2":
+  version: 2.23.2
+  resolution: "@walletconnect/core@npm:2.23.2"
   dependencies:
     "@walletconnect/heartbeat": 1.2.2
     "@walletconnect/jsonrpc-provider": 1.0.14
@@ -19049,18 +19049,18 @@ __metadata:
     "@walletconnect/jsonrpc-utils": 1.0.8
     "@walletconnect/jsonrpc-ws-connection": 1.0.16
     "@walletconnect/keyvaluestorage": 1.1.1
-    "@walletconnect/logger": 3.0.1
+    "@walletconnect/logger": 3.0.2
     "@walletconnect/relay-api": 1.0.11
     "@walletconnect/relay-auth": 1.1.0
     "@walletconnect/safe-json": 1.0.2
     "@walletconnect/time": 1.0.2
-    "@walletconnect/types": 2.23.1
-    "@walletconnect/utils": 2.23.1
+    "@walletconnect/types": 2.23.2
+    "@walletconnect/utils": 2.23.2
     "@walletconnect/window-getters": 1.0.1
     es-toolkit: 1.39.3
     events: 3.3.0
     uint8arrays: 3.1.1
-  checksum: 6d9f6e75180fb22062dc2c760b00e34aa8c733adb76661767f4b8b79e30ced698059e71924f90bceabd3195f8a44b6e7b615887e69b15d9115e233e720feaa9b
+  checksum: bb15550e1406c2f6ca9593a5c4fa52559714789ee38f37531ec05d48675ef44b454218d38a1448fdea39d064a5a374590c6e58f276a202133c65754fa3b302be
   languageName: node
   linkType: hard
 
@@ -19315,13 +19315,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@walletconnect/logger@npm:3.0.1":
-  version: 3.0.1
-  resolution: "@walletconnect/logger@npm:3.0.1"
+"@walletconnect/logger@npm:3.0.2":
+  version: 3.0.2
+  resolution: "@walletconnect/logger@npm:3.0.2"
   dependencies:
     "@walletconnect/safe-json": ^1.0.2
     pino: 10.0.0
-  checksum: c83e03fa76f40a6d81e3a7fb9f2c5c6f73ef011327bb3266b02ecac6d9b5f3972069a9a63d93d8df9dce1b90ae0ea310ae6be3e253967c3a1e79322890353fa6
+  checksum: 4c5f59ab30cf9ba14eaad1913ca8fd97423aa402d202781e2aca077315f08a5d40229ee34b1954ccf2f2dd7238b44759d0f0d5a50f672955d675f4d71806b049
   languageName: node
   linkType: hard
 
@@ -19561,20 +19561,20 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@walletconnect/sign-client@npm:2.23.1":
-  version: 2.23.1
-  resolution: "@walletconnect/sign-client@npm:2.23.1"
+"@walletconnect/sign-client@npm:2.23.2":
+  version: 2.23.2
+  resolution: "@walletconnect/sign-client@npm:2.23.2"
   dependencies:
-    "@walletconnect/core": 2.23.1
+    "@walletconnect/core": 2.23.2
     "@walletconnect/events": 1.0.1
     "@walletconnect/heartbeat": 1.2.2
     "@walletconnect/jsonrpc-utils": 1.0.8
-    "@walletconnect/logger": 3.0.1
+    "@walletconnect/logger": 3.0.2
     "@walletconnect/time": 1.0.2
-    "@walletconnect/types": 2.23.1
-    "@walletconnect/utils": 2.23.1
+    "@walletconnect/types": 2.23.2
+    "@walletconnect/utils": 2.23.2
     events: 3.3.0
-  checksum: 0ca81219b0f90174a22890632da2fb2c8bea01e2b022f69321e65cf413474db01a72e62cf2af9ba174369765d9d2255d370c80bdb6cf1e22daf79f02f0d9fa58
+  checksum: 4eb42a38dd40c8afda675040c827e79aa49e2484c3a5658e767eeb12d4ec0113a5ad03342577a300dc2b8d12a228b7160238559ca6b360cd51d0222317d76671
   languageName: node
   linkType: hard
 
@@ -19697,17 +19697,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@walletconnect/types@npm:2.23.1":
-  version: 2.23.1
-  resolution: "@walletconnect/types@npm:2.23.1"
+"@walletconnect/types@npm:2.23.2":
+  version: 2.23.2
+  resolution: "@walletconnect/types@npm:2.23.2"
   dependencies:
     "@walletconnect/events": 1.0.1
     "@walletconnect/heartbeat": 1.2.2
     "@walletconnect/jsonrpc-types": 1.0.4
     "@walletconnect/keyvaluestorage": 1.1.1
-    "@walletconnect/logger": 3.0.1
+    "@walletconnect/logger": 3.0.2
     events: 3.3.0
-  checksum: 9ba16b197308b7f28add993381385dbe0851bd00d910aa1709fa16ce5ce4ffb865b0cf234b1fdf066f079ad57e4ec7c8c9082776ef2594c1c54ab3553a6b6e3c
+  checksum: a1db22b51f232b79c2094452b14cd5d944d4d8ad6302ac4770ad78b39eb7b644f9252868efd15d4ed8e7c32c7aae8f74610850566b305b758adc7944d41dc2e0
   languageName: node
   linkType: hard
 
@@ -19815,9 +19815,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@walletconnect/universal-provider@npm:2.23.1":
-  version: 2.23.1
-  resolution: "@walletconnect/universal-provider@npm:2.23.1"
+"@walletconnect/universal-provider@npm:2.23.2":
+  version: 2.23.2
+  resolution: "@walletconnect/universal-provider@npm:2.23.2"
   dependencies:
     "@walletconnect/events": 1.0.1
     "@walletconnect/jsonrpc-http-connection": 1.0.8
@@ -19825,13 +19825,13 @@ __metadata:
     "@walletconnect/jsonrpc-types": 1.0.4
     "@walletconnect/jsonrpc-utils": 1.0.8
     "@walletconnect/keyvaluestorage": 1.1.1
-    "@walletconnect/logger": 3.0.1
-    "@walletconnect/sign-client": 2.23.1
-    "@walletconnect/types": 2.23.1
-    "@walletconnect/utils": 2.23.1
+    "@walletconnect/logger": 3.0.2
+    "@walletconnect/sign-client": 2.23.2
+    "@walletconnect/types": 2.23.2
+    "@walletconnect/utils": 2.23.2
     es-toolkit: 1.39.3
     events: 3.3.0
-  checksum: 75116af22d6b7ba968aa4564fb8b79c8ad7292f4b0ebd70bdf4d5c832397027ae1cb9fbbe763112c56262d78b387f9c52cf9c63a2034f5a7a5c3af8195b2024d
+  checksum: f573efd1250f440ac86760cb96f071455ae2731c9bff5b40071757d0797184503f449747a1b5068fe94fb083989c7b65cf4caad1199ded8a5a339c56a66d217e
   languageName: node
   linkType: hard
 
@@ -19986,9 +19986,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@walletconnect/utils@npm:2.23.1":
-  version: 2.23.1
-  resolution: "@walletconnect/utils@npm:2.23.1"
+"@walletconnect/utils@npm:2.23.2":
+  version: 2.23.2
+  resolution: "@walletconnect/utils@npm:2.23.2"
   dependencies:
     "@msgpack/msgpack": 3.1.2
     "@noble/ciphers": 1.3.0
@@ -19997,12 +19997,12 @@ __metadata:
     "@scure/base": 1.2.6
     "@walletconnect/jsonrpc-utils": 1.0.8
     "@walletconnect/keyvaluestorage": 1.1.1
-    "@walletconnect/logger": 3.0.1
+    "@walletconnect/logger": 3.0.2
     "@walletconnect/relay-api": 1.0.11
     "@walletconnect/relay-auth": 1.1.0
     "@walletconnect/safe-json": 1.0.2
     "@walletconnect/time": 1.0.2
-    "@walletconnect/types": 2.23.1
+    "@walletconnect/types": 2.23.2
     "@walletconnect/window-getters": 1.0.1
     "@walletconnect/window-metadata": 1.0.1
     blakejs: 1.2.1
@@ -20010,7 +20010,7 @@ __metadata:
     detect-browser: 5.3.0
     ox: 0.9.3
     uint8arrays: 3.1.1
-  checksum: 5dadeb03a3d8fae39f1150363dd3cab9501884e2a78cc43530aad1278e50f6c99afd46c0af9057018eb33e049251d3a2e352c69380b6a34a7b13e72d6739c2bd
+  checksum: a302943ab190ef8fc804385d5dc5e8c46924a5712baaabaf3874763364a14395d11f0d95396788cbc28c5a09e38a444f79e16c49635dc6915f48f6f8bea4b05e
   languageName: node
   linkType: hard
 
@@ -40022,7 +40022,7 @@ pvutils@latest:
   languageName: node
   linkType: hard
 
-"viem@npm:>=2.37.9, viem@npm:^2.1.1, viem@npm:^2.21.26, viem@npm:^2.31.7":
+"viem@npm:>=2.44.2, viem@npm:^2.1.1, viem@npm:^2.21.26, viem@npm:^2.31.7":
   version: 2.44.4
   resolution: "viem@npm:2.44.4"
   dependencies:

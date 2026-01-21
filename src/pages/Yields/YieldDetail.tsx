@@ -11,18 +11,16 @@ import { Display } from '@/components/Display'
 import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import {
-  COSMOS_ATOM_NATIVE_STAKING_YIELD_ID,
-  DEFAULT_NATIVE_VALIDATOR_BY_CHAIN_ID,
   FIGMENT_SOLANA_VALIDATOR_ADDRESS,
   FIGMENT_VALIDATOR_LOGO,
   FIGMENT_VALIDATOR_NAME,
   SHAPESHIFT_COSMOS_VALIDATOR_ADDRESS,
   SHAPESHIFT_VALIDATOR_LOGO,
   SHAPESHIFT_VALIDATOR_NAME,
-  SOLANA_SOL_NATIVE_MULTIVALIDATOR_STAKING_YIELD_ID,
 } from '@/lib/yieldxyz/constants'
 import { getYieldDisplayName } from '@/lib/yieldxyz/getYieldDisplayName'
 import { YieldBalanceType } from '@/lib/yieldxyz/types'
+import { getDefaultValidatorForYield } from '@/lib/yieldxyz/utils'
 import { YieldAvailableToDeposit } from '@/pages/Yields/components/YieldAvailableToDeposit'
 import { YieldHero } from '@/pages/Yields/components/YieldHero'
 import { YieldInfoCard } from '@/pages/Yields/components/YieldInfoCard'
@@ -100,28 +98,21 @@ export const YieldDetail = memo(() => {
   const isBalancesLoading = !allBalancesData && isBalancesFetching
 
   const validatorParam = searchParams.get('validator')
-  const defaultValidator = yieldItem?.chainId
-    ? DEFAULT_NATIVE_VALIDATOR_BY_CHAIN_ID[yieldItem.chainId]
-    : undefined
-
-  const selectedValidatorAddress = useMemo(() => {
-    if (
-      yieldId === COSMOS_ATOM_NATIVE_STAKING_YIELD_ID ||
-      yieldId === SOLANA_SOL_NATIVE_MULTIVALIDATOR_STAKING_YIELD_ID ||
-      (yieldId?.includes('solana') && yieldId?.includes('native'))
-    ) {
-      return defaultValidator
-    }
-    return validatorParam || defaultValidator
-  }, [yieldId, validatorParam, defaultValidator])
+  const defaultValidator = yieldItem?.id ? getDefaultValidatorForYield(yieldItem.id) : undefined
 
   const isStaking = yieldItem?.mechanics.type === 'staking'
-  const shouldFetchValidators = isStaking && yieldItem?.mechanics.requiresValidatorSelection
+  const requiresValidatorSelection = yieldItem?.mechanics.requiresValidatorSelection ?? false
+  const shouldFetchValidators = isStaking && requiresValidatorSelection
+
+  const selectedValidatorAddress = useMemo(() => {
+    if (!requiresValidatorSelection) return undefined
+    return validatorParam || defaultValidator
+  }, [requiresValidatorSelection, validatorParam, defaultValidator])
   const { data: validators } = useYieldValidators(yieldItem?.id ?? '', shouldFetchValidators)
   const { data: yieldProviders } = useYieldProviders()
 
-  const validatorOrProvider = useMemo(() => {
-    if (isStaking && selectedValidatorAddress) {
+  const maybeValidatorOrProvider = useMemo(() => {
+    if (isStaking && requiresValidatorSelection && selectedValidatorAddress) {
       const found = validators?.find(v => v.address === selectedValidatorAddress)
       if (found) return { name: found.name, logoURI: found.logoURI }
       if (selectedValidatorAddress === SHAPESHIFT_COSMOS_VALIDATOR_ADDRESS) {
@@ -131,7 +122,7 @@ export const YieldDetail = memo(() => {
         return { name: FIGMENT_VALIDATOR_NAME, logoURI: FIGMENT_VALIDATOR_LOGO }
       }
     }
-    if (!isStaking && yieldItem) {
+    if (yieldItem) {
       const provider = yieldProviders?.[yieldItem.providerId]
       if (provider) {
         return {
@@ -141,9 +132,23 @@ export const YieldDetail = memo(() => {
           documentation: provider.references?.[0] ?? provider.website,
         }
       }
+      // Fallback for providers not in the API (e.g., drift)
+      // NOTE: This shouldn't happen and is a bug upstream, currently happens w/ Drift.
+      // Report to Yield if you see some other provider missing in /providers in the future.
+      return {
+        name: yieldItem.providerId.charAt(0).toUpperCase() + yieldItem.providerId.slice(1),
+        logoURI: yieldItem.metadata.logoURI,
+      }
     }
     return null
-  }, [isStaking, selectedValidatorAddress, validators, yieldItem, yieldProviders])
+  }, [
+    isStaking,
+    requiresValidatorSelection,
+    selectedValidatorAddress,
+    validators,
+    yieldItem,
+    yieldProviders,
+  ])
 
   const titleOverride = useMemo(() => {
     if (!yieldItem) return undefined
@@ -265,7 +270,7 @@ export const YieldDetail = memo(() => {
             yieldItem={yieldItem}
             userBalanceUsd={userBalances.userCurrency}
             userBalanceCrypto={userBalances.crypto}
-            validatorOrProvider={validatorOrProvider}
+            validatorOrProvider={maybeValidatorOrProvider}
             titleOverride={titleOverride}
           />
           <Stack gap={4} mt={4}>
@@ -280,12 +285,12 @@ export const YieldDetail = memo(() => {
               inputTokenMarketData={inputTokenMarketData}
             />
             <YieldStats yieldItem={yieldItem} balances={balances} />
-            {!isStaking && validatorOrProvider && (
+            {(!isStaking || !requiresValidatorSelection) && maybeValidatorOrProvider && (
               <YieldProviderInfo
                 providerId={yieldItem.providerId}
-                providerName={validatorOrProvider.name}
-                providerLogoURI={validatorOrProvider.logoURI}
-                providerWebsite={validatorOrProvider.documentation}
+                providerName={maybeValidatorOrProvider.name}
+                providerLogoURI={maybeValidatorOrProvider.logoURI}
+                providerWebsite={maybeValidatorOrProvider.documentation}
               />
             )}
             <YieldRelatedMarkets
@@ -300,16 +305,16 @@ export const YieldDetail = memo(() => {
             <Stack gap={4} flex={1}>
               <YieldInfoCard
                 yieldItem={yieldItem}
-                validatorOrProvider={validatorOrProvider}
+                validatorOrProvider={maybeValidatorOrProvider}
                 titleOverride={titleOverride}
               />
               <YieldStats yieldItem={yieldItem} balances={balances} />
-              {!isStaking && validatorOrProvider && (
+              {(!isStaking || !requiresValidatorSelection) && maybeValidatorOrProvider && (
                 <YieldProviderInfo
                   providerId={yieldItem.providerId}
-                  providerName={validatorOrProvider.name}
-                  providerLogoURI={validatorOrProvider.logoURI}
-                  providerWebsite={validatorOrProvider.documentation}
+                  providerName={maybeValidatorOrProvider.name}
+                  providerLogoURI={maybeValidatorOrProvider.logoURI}
+                  providerWebsite={maybeValidatorOrProvider.documentation}
                 />
               )}
               <YieldRelatedMarkets

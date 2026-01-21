@@ -45,7 +45,13 @@ import {
   YIELD_NETWORK_TO_CHAIN_ID,
 } from '@/lib/yieldxyz/constants'
 import type { AugmentedYieldDto, YieldNetwork } from '@/lib/yieldxyz/types'
-import { isStakingYieldType, resolveYieldInputAssetIcon, searchYields } from '@/lib/yieldxyz/utils'
+import {
+  getDefaultValidatorForYield,
+  isStakingYieldType,
+  isYieldDisabled,
+  resolveYieldInputAssetIcon,
+  searchYields,
+} from '@/lib/yieldxyz/utils'
 import { YieldFilters } from '@/pages/Yields/components/YieldFilters'
 import { YieldItem, YieldItemSkeleton } from '@/pages/Yields/components/YieldItem'
 import { YieldOpportunityStats } from '@/pages/Yields/components/YieldOpportunityStats'
@@ -237,20 +243,32 @@ export const YieldsList = memo(() => {
     [],
   )
 
+  const unfilteredByInputAssetId = useMemo(() => {
+    if (!yields?.unfiltered) return {}
+    return yields.unfiltered.reduce<Record<string, AugmentedYieldDto[]>>((acc, item) => {
+      const assetId = item.inputTokens?.[0]?.assetId
+      if (assetId) {
+        if (!acc[assetId]) acc[assetId] = []
+        acc[assetId].push(item)
+      }
+      return acc
+    }, {})
+  }, [yields?.unfiltered])
+
   const unfilteredAvailableYields = useMemo(() => {
-    if (!isConnected || !yields?.byInputAssetId || !userCurrencyBalances || !assetBalancesBaseUnit)
-      return []
+    if (!isConnected || !userCurrencyBalances || !assetBalancesBaseUnit) return []
 
     const available: AugmentedYieldDto[] = []
 
     for (const [assetId, balanceFiat] of Object.entries(userCurrencyBalances)) {
-      const yieldsForAsset = yields.byInputAssetId[assetId]
+      const yieldsForAsset = unfilteredByInputAssetId[assetId]
       if (!yieldsForAsset?.length) continue
 
       const balance = bnOrZero(balanceFiat)
       if (balance.lte(0)) continue
 
       const eligibleYields = yieldsForAsset.filter(y => {
+        if (isYieldDisabled(y)) return false
         const minDeposit = bnOrZero(y.mechanics?.entryLimits?.minimum)
         if (minDeposit.gt(0)) {
           const asset = assets[assetId]
@@ -266,7 +284,7 @@ export const YieldsList = memo(() => {
     }
 
     return available
-  }, [isConnected, yields?.byInputAssetId, userCurrencyBalances, assetBalancesBaseUnit, assets])
+  }, [isConnected, unfilteredByInputAssetId, userCurrencyBalances, assetBalancesBaseUnit, assets])
 
   const filterSourceYields = useMemo(
     () =>
@@ -316,7 +334,10 @@ export const YieldsList = memo(() => {
 
     return yields.assetGroups
       .map(group => {
-        let filteredYields = group.yields
+        let filteredYields = group.yields.filter(y => {
+          if (!isYieldDisabled(y)) return true
+          return bnOrZero(getYieldPositionBalanceUsd(y.id)).gt(0)
+        })
         if (selectedNetwork)
           filteredYields = filteredYields.filter(y => y.network === selectedNetwork)
         if (selectedProvider)
@@ -536,14 +557,11 @@ export const YieldsList = memo(() => {
 
   const handleYieldClick = useCallback(
     (yieldId: string) => {
-      const balances = allBalances?.[yieldId]
-      const highestAmountValidator = balances?.[0]?.highestAmountUsdValidator
-      const url = highestAmountValidator
-        ? `/yields/${yieldId}?validator=${highestAmountValidator}`
-        : `/yields/${yieldId}`
+      const validator = getDefaultValidatorForYield(yieldId)
+      const url = validator ? `/yields/${yieldId}?validator=${validator}` : `/yields/${yieldId}`
       navigate(url)
     },
-    [navigate, allBalances],
+    [navigate],
   )
 
   const handleRowClick = useCallback(
@@ -658,7 +676,7 @@ export const YieldsList = memo(() => {
         meta: { display: { base: 'none', md: 'table-cell' } },
       },
       {
-        header: translate('yieldXYZ.yourBalance'),
+        header: translate('yieldXYZ.balance'),
         id: 'balance',
         accessorFn: row => {
           const balance = getYieldPositionBalanceUsd(row.id)
@@ -855,7 +873,7 @@ export const YieldsList = memo(() => {
           </Box>
           <Box flex='1' display={{ base: 'none', md: 'block' }} textAlign='right'>
             <Text fontSize='xs' fontWeight='bold' color='text.subtle' textTransform='uppercase'>
-              {translate('yieldXYZ.myBalance')}
+              {translate('yieldXYZ.balance')}
             </Text>
           </Box>
         </Flex>

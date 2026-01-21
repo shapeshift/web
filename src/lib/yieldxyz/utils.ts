@@ -2,6 +2,7 @@ import type { ChainId } from '@shapeshiftoss/caip'
 
 import {
   COSMOS_NETWORK_FALLBACK_APR,
+  DEFAULT_VALIDATOR_BY_YIELD_ID,
   isSupportedYieldNetwork,
   SHAPESHIFT_COSMOS_VALIDATOR_ADDRESS,
   YIELD_NETWORK_TO_CHAIN_ID,
@@ -12,6 +13,13 @@ export const yieldNetworkToChainId = (network: string): ChainId | undefined => {
   if (!isSupportedYieldNetwork(network)) return undefined
   return YIELD_NETWORK_TO_CHAIN_ID[network]
 }
+
+/**
+ * Get the default validator address for a yield ID.
+ * Returns the enforced validator for yields that require validator selection.
+ */
+export const getDefaultValidatorForYield = (yieldId: string): string | undefined =>
+  DEFAULT_VALIDATOR_BY_YIELD_ID[yieldId]
 
 type TxTitlePattern = {
   pattern: RegExp
@@ -337,3 +345,8 @@ export const getYieldSuccessMessageKey = (
       return assertNever(yieldType)
   }
 }
+
+export const isYieldDisabled = (
+  yieldItem: Pick<AugmentedYieldDto, 'status' | 'metadata'>,
+): boolean =>
+  !yieldItem.status.enter || yieldItem.metadata.underMaintenance || yieldItem.metadata.deprecated

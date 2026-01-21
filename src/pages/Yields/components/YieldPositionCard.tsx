@@ -415,16 +415,10 @@ export const YieldPositionCard = memo(
 
     if (isBalancesLoading) {
       return (
-        <Card variant='dashboard'>
+        <Card>
           <CardBody p={{ base: 4, md: 5 }}>
             <Flex justifyContent='space-between' alignItems='center' mb={4}>
-              <Heading
-                as='h3'
-                size='sm'
-                textTransform='uppercase'
-                color='text.subtle'
-                letterSpacing='wider'
-              >
+              <Heading as='h3' size='sm' color='text.subtle'>
                 {translate('yieldXYZ.myPosition')}
               </Heading>
             </Flex>
@@ -435,16 +429,10 @@ export const YieldPositionCard = memo(
     }
 
     return (
-      <Card variant='dashboard'>
+      <Card>
         <CardBody p={{ base: 4, md: 5 }}>
           <Flex justifyContent='space-between' alignItems='center' mb={4}>
-            <Heading
-              as='h3'
-              size='sm'
-              textTransform='uppercase'
-              color='text.subtle'
-              letterSpacing='wider'
-            >
+            <Heading as='h3' size='sm' color='text.subtle'>
               {headingText}
             </Heading>
             {addressBadge}
@@ -477,6 +465,12 @@ export const YieldPositionCard = memo(
                   onClick={handleEnter}
                   flex={1}
                   fontWeight='bold'
+                  isDisabled={!yieldItem.status.enter}
+                  title={
+                    !yieldItem.status.enter
+                      ? translate('yieldXYZ.depositsDisabledDescription')
+                      : undefined
+                  }
                 >
                   {enterLabel}
                 </Button>
@@ -490,6 +484,12 @@ export const YieldPositionCard = memo(
                     onClick={handleExit}
                     flex={1}
                     fontWeight='bold'
+                    isDisabled={!yieldItem.status.exit}
+                    title={
+                      !yieldItem.status.exit
+                        ? translate('yieldXYZ.withdrawalsDisabledDescription')
+                        : undefined
+                    }
                   >
                     {exitLabel}
                   </Button>

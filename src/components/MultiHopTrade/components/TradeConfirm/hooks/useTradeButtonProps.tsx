@@ -31,6 +31,7 @@ type UseTradeButtonPropsProps = {
   currentHopIndex: SupportedTradeQuoteStepIndex
   activeTradeId: string
   isExactAllowance: boolean
+  onSwapTxBroadcast?: () => void
 }
 
 type TradeButtonProps = {
@@ -45,6 +46,7 @@ export const useTradeButtonProps = ({
   currentHopIndex,
   activeTradeId,
   isExactAllowance,
+  onSwapTxBroadcast,
 }: UseTradeButtonPropsProps): TradeButtonProps | undefined => {
   const dispatch = useAppDispatch()
   const navigate = useNavigate()
@@ -143,7 +145,7 @@ export const useTradeButtonProps = ({
     relayerTxHash,
   ])
 
-  const executeTrade = useTradeExecution(currentHopIndex, activeTradeId)
+  const executeTrade = useTradeExecution(currentHopIndex, activeTradeId, onSwapTxBroadcast)
 
   const handleSignTx = useCallback(() => {
     if (

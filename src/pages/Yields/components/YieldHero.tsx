@@ -1,12 +1,13 @@
-import { ArrowBackIcon, ArrowDownIcon, ArrowUpIcon } from '@chakra-ui/icons'
+import { ArrowDownIcon, ArrowUpIcon, ExternalLinkIcon } from '@chakra-ui/icons'
 import {
+  Alert,
+  AlertDescription,
+  AlertIcon,
   Avatar,
   Badge,
-  Box,
   Button,
-  Flex,
   HStack,
-  IconButton,
+  Link,
   Text,
   VStack,
 } from '@chakra-ui/react'
@@ -21,15 +22,16 @@ import { ChainIcon } from '@/components/ChainMenu'
 import { useBrowserRouter } from '@/hooks/useBrowserRouter/useBrowserRouter'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import type { AugmentedYieldDto } from '@/lib/yieldxyz/types'
-import { resolveYieldInputAssetIcon } from '@/lib/yieldxyz/utils'
+import { getYieldActionLabelKeys, resolveYieldInputAssetIcon } from '@/lib/yieldxyz/utils'
 
-const backIcon = <ArrowBackIcon />
 const enterIcon = <ArrowUpIcon />
 const exitIcon = <ArrowDownIcon />
 
 type ValidatorOrProviderInfo = {
   name: string
   logoURI?: string
+  description?: string
+  documentation?: string
 } | null
 
 type YieldHeroProps = {
@@ -52,17 +54,12 @@ export const YieldHero = memo(
     const translate = useTranslate()
     const { location } = useBrowserRouter()
 
-    const iconSource = useMemo(() => resolveYieldInputAssetIcon(yieldItem), [yieldItem])
-    const apy = useMemo(
-      () => bnOrZero(yieldItem.rewardRate.total).times(100).toFixed(2),
-      [yieldItem.rewardRate.total],
-    )
-    const hasExitBalance = useMemo(() => bnOrZero(userBalanceCrypto).gt(0), [userBalanceCrypto])
+    const iconSource = resolveYieldInputAssetIcon(yieldItem)
+    const apy = bnOrZero(yieldItem.rewardRate.total).times(100).toFixed(2)
+    const hasExitBalance = bnOrZero(userBalanceCrypto).gt(0)
 
     const [searchParams] = useSearchParams()
-    const validator = useMemo(() => searchParams.get('validator'), [searchParams])
-
-    const handleBack = useCallback(() => navigate('/yields'), [navigate])
+    const validator = searchParams.get('validator')
 
     const handleAction = useCallback(
       (action: 'enter' | 'exit') => {
@@ -81,64 +78,42 @@ export const YieldHero = memo(
     const handleEnter = useCallback(() => handleAction('enter'), [handleAction])
     const handleExit = useCallback(() => handleAction('exit'), [handleAction])
 
-    const enterLabel = useMemo(
-      () =>
-        yieldItem.mechanics.type === 'staking'
-          ? translate('defi.stake')
-          : translate('common.deposit'),
-      [yieldItem.mechanics.type, translate],
-    )
-
-    const exitLabel = useMemo(
-      () =>
-        yieldItem.mechanics.type === 'staking'
-          ? translate('defi.unstake')
-          : translate('common.withdraw'),
-      [yieldItem.mechanics.type, translate],
-    )
+    const actionLabelKeys = getYieldActionLabelKeys(yieldItem.mechanics.type)
+    const enterLabel = translate(actionLabelKeys.enter)
+    const exitLabel = translate(actionLabelKeys.exit)
 
     const yieldTitle = titleOverride ?? yieldItem.metadata.name ?? yieldItem.token.symbol
 
-    const stackedIconElement = useMemo(() => {
-      const assetIcon = iconSource.assetId ? (
-        <AssetIcon assetId={iconSource.assetId} size='md' />
-      ) : (
-        <AssetIcon src={iconSource.src} size='md' />
-      )
-
-      const hasOverlay = validatorOrProvider?.logoURI || yieldItem.chainId
-
-      if (!hasOverlay) return assetIcon
-
+    const maybeDescriptionSection = useMemo(() => {
+      const docUrl = validatorOrProvider?.documentation ?? yieldItem.metadata.documentation
+      const description = validatorOrProvider?.description ?? yieldItem.metadata.description
+      if (!description && !docUrl) return null
       return (
-        <Box position='relative'>
-          {assetIcon}
-          {validatorOrProvider?.logoURI ? (
-            <Avatar
-              size='2xs'
-              src={validatorOrProvider.logoURI}
-              name={validatorOrProvider.name}
-              position='absolute'
-              bottom='-2px'
-              right='-2px'
-              border='2px solid'
-              borderColor='background.surface.raised.base'
-            />
-          ) : yieldItem.chainId ? (
-            <Box
-              position='absolute'
-              bottom='-2px'
-              right='-2px'
-              bg='background.surface.raised.base'
-              borderRadius='full'
-              p='2px'
+        <HStack spacing={2} maxW='400px' justify='center'>
+          {description && (
+            <Text color='text.subtle' fontSize='sm' textAlign='center' lineHeight='short'>
+              {description}
+            </Text>
+          )}
+          {docUrl && (
+            <Link
+              href={docUrl}
+              isExternal
+              color='text.subtle'
+              _hover={{ color: 'text.base' }}
+              flexShrink={0}
             >
-              <ChainIcon chainId={yieldItem.chainId} boxSize='14px' />
-            </Box>
-          ) : null}
-        </Box>
+              <ExternalLinkIcon boxSize={4} />
+            </Link>
+          )}
+        </HStack>
       )
-    }, [iconSource, validatorOrProvider, yieldItem.chainId])
+    }, [
+      validatorOrProvider?.description,
+      validatorOrProvider?.documentation,
+      yieldItem.metadata.documentation,
+      yieldItem.metadata.description,
+    ])
 
     return (
       <VStack
@@ -147,32 +122,69 @@ export const YieldHero = memo(
         py={{ base: 4, md: 6 }}
         px={{ base: 3, md: 6 }}
       >
-        <Flex width='full' justify='space-between' align='center'>
-          <IconButton
-            aria-label={translate('common.back')}
-            icon={backIcon}
-            variant='ghost'
-            size='sm'
-            color='text.subtle'
-            onClick={handleBack}
-            _hover={{ color: 'text.base' }}
-          />
-          <Text fontWeight='semibold' fontSize='md'>
-            {yieldTitle}
-          </Text>
-          <Box width='32px' />
-        </Flex>
+        <Text fontWeight='semibold' fontSize='md'>
+          {yieldTitle}
+        </Text>
 
-        <HStack spacing={3} bg='background.surface.raised.base' px={4} py={2} borderRadius='full'>
-          {stackedIconElement}
-          <Text fontWeight='bold' fontSize={{ base: 'md', md: 'lg' }}>
-            {validatorOrProvider?.name ?? yieldItem.token.symbol}
-          </Text>
+        {yieldItem.metadata.deprecated && (
+          <Alert status='error' borderRadius='lg' variant='subtle'>
+            <AlertIcon />
+            <AlertDescription fontSize='sm'>
+              {translate('yieldXYZ.deprecatedDescription')}
+            </AlertDescription>
+          </Alert>
+        )}
+
+        {yieldItem.metadata.underMaintenance && !yieldItem.metadata.deprecated && (
+          <Alert status='warning' borderRadius='lg' variant='subtle'>
+            <AlertIcon />
+            <AlertDescription fontSize='sm'>
+              {translate('yieldXYZ.underMaintenanceDescription')}
+            </AlertDescription>
+          </Alert>
+        )}
+
+        {!yieldItem.status.enter &&
+          !yieldItem.metadata.deprecated &&
+          !yieldItem.metadata.underMaintenance && (
+            <Alert status='warning' borderRadius='lg' variant='subtle'>
+              <AlertIcon />
+              <AlertDescription fontSize='sm'>
+                {translate('yieldXYZ.depositsDisabledDescription')}
+              </AlertDescription>
+            </Alert>
+          )}
+
+        <HStack spacing={4} justify='center' flexWrap='wrap'>
+          <HStack spacing={2}>
+            {iconSource.assetId ? (
+              <AssetIcon assetId={iconSource.assetId} size='xs' />
+            ) : (
+              <AssetIcon src={iconSource.src} size='xs' />
+            )}
+            <Text fontSize='md' fontWeight='semibold'>
+              {yieldItem.token.symbol}
+            </Text>
+          </HStack>
           {yieldItem.chainId && (
-            <HStack spacing={1} opacity={0.8}>
-              <ChainIcon chainId={yieldItem.chainId} boxSize='16px' />
-              <Text fontSize='sm' fontWeight='medium' textTransform='capitalize'>
+            <HStack spacing={2}>
+              <ChainIcon chainId={yieldItem.chainId} boxSize='20px' />
+              <Text fontSize='md' fontWeight='semibold' textTransform='capitalize'>
                 {yieldItem.network}
+              </Text>
+            </HStack>
+          )}
+          {validatorOrProvider?.name && (
+            <HStack spacing={2}>
+              {validatorOrProvider.logoURI && (
+                <Avatar
+                  size='xs'
+                  src={validatorOrProvider.logoURI}
+                  name={validatorOrProvider.name}
+                />
+              )}
+              <Text fontSize='md' fontWeight='semibold'>
+                {validatorOrProvider.name}
               </Text>
             </HStack>
           )}
@@ -190,27 +202,14 @@ export const YieldHero = memo(
           {apy}% {translate('common.apy')}
         </Badge>
 
-        {yieldItem.metadata.description && (
-          <Text
-            color='text.subtle'
-            fontSize='sm'
-            textAlign='center'
-            maxW='400px'
-            lineHeight='short'
-          >
-            {yieldItem.metadata.description}
-          </Text>
-        )}
+        {maybeDescriptionSection}
 
         <VStack spacing={1} textAlign='center'>
           <Text fontSize={{ base: '3xl', md: '4xl' }} fontWeight='bold' lineHeight='1'>
-            <Amount.Crypto value={userBalanceCrypto} symbol='' maximumFractionDigits={4} />
+            <Amount.Fiat value={userBalanceUsd} />
           </Text>
           <Text color='text.subtle' fontSize={{ base: 'sm', md: 'md' }}>
-            {yieldItem.token.symbol}
-          </Text>
-          <Text color='text.subtle' fontSize='xs'>
-            <Amount.Fiat value={userBalanceUsd} prefix='≈ ' />
+            <Amount.Crypto value={userBalanceCrypto} symbol={yieldItem.token.symbol} />
           </Text>
         </VStack>
 
@@ -231,20 +230,20 @@ export const YieldHero = memo(
           >
             {enterLabel}
           </Button>
-          <Button
-            leftIcon={exitIcon}
-            variant='outline'
-            size='lg'
-            height={14}
-            borderRadius='xl'
-            onClick={handleExit}
-            flex={1}
-            fontWeight='bold'
-            isDisabled={!hasExitBalance}
-            opacity={!hasExitBalance ? 0.6 : 1}
-          >
-            {exitLabel}
-          </Button>
+          {hasExitBalance && (
+            <Button
+              leftIcon={exitIcon}
+              variant='outline'
+              size='lg'
+              height={14}
+              borderRadius='xl'
+              onClick={handleExit}
+              flex={1}
+              fontWeight='bold'
+            >
+              {exitLabel}
+            </Button>
+          )}
         </HStack>
       </VStack>
     )

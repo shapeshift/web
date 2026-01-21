@@ -86,12 +86,14 @@ type TradeInputProps = {
   tradeInputRef: React.MutableRefObject<HTMLDivElement | null>
   isCompact?: boolean
   isStandalone?: boolean
+  isModal?: boolean
   onChangeTab: (newTab: TradeInputTab) => void
 }
 
 export const TradeInput = ({
   isCompact,
   isStandalone,
+  isModal,
   tradeInputRef,
   onChangeTab,
 }: TradeInputProps) => {
@@ -609,6 +611,7 @@ export const TradeInput = ({
         onSubmit={handleTradeQuoteConfirm}
         onChangeTab={onChangeTab}
         isStandalone={isStandalone}
+        isModal={isModal}
       />
     </>
   )

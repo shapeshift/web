@@ -1,5 +1,8 @@
-import { Box, Button, Container, Flex, Heading, Text } from '@chakra-ui/react'
-import { memo, useEffect, useMemo } from 'react'
+import { ArrowBackIcon } from '@chakra-ui/icons'
+import type { ResponsiveValue } from '@chakra-ui/react'
+import { Box, Button, Container, Flex, Heading, IconButton, Stack, Text } from '@chakra-ui/react'
+import type { Property } from 'csstype'
+import { memo, useCallback, useEffect, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
 
@@ -8,20 +11,23 @@ import { Display } from '@/components/Display'
 import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import {
-  COSMOS_ATOM_NATIVE_STAKING_YIELD_ID,
-  DEFAULT_NATIVE_VALIDATOR_BY_CHAIN_ID,
   FIGMENT_SOLANA_VALIDATOR_ADDRESS,
   FIGMENT_VALIDATOR_LOGO,
   FIGMENT_VALIDATOR_NAME,
   SHAPESHIFT_COSMOS_VALIDATOR_ADDRESS,
   SHAPESHIFT_VALIDATOR_LOGO,
   SHAPESHIFT_VALIDATOR_NAME,
-  SOLANA_SOL_NATIVE_MULTIVALIDATOR_STAKING_YIELD_ID,
 } from '@/lib/yieldxyz/constants'
+import { getYieldDisplayName } from '@/lib/yieldxyz/getYieldDisplayName'
 import { YieldBalanceType } from '@/lib/yieldxyz/types'
+import { getDefaultValidatorForYield } from '@/lib/yieldxyz/utils'
+import { YieldAvailableToDeposit } from '@/pages/Yields/components/YieldAvailableToDeposit'
 import { YieldHero } from '@/pages/Yields/components/YieldHero'
+import { YieldInfoCard } from '@/pages/Yields/components/YieldInfoCard'
 import { YieldManager } from '@/pages/Yields/components/YieldManager'
 import { YieldPositionCard } from '@/pages/Yields/components/YieldPositionCard'
+import { YieldProviderInfo } from '@/pages/Yields/components/YieldProviderInfo'
+import { YieldRelatedMarkets } from '@/pages/Yields/components/YieldRelatedMarkets'
 import { YieldStats } from '@/pages/Yields/components/YieldStats'
 import { useYieldAccountSync } from '@/pages/Yields/hooks/useYieldAccountSync'
 import { useAllYieldBalances } from '@/react-queries/queries/yieldxyz/useAllYieldBalances'
@@ -29,10 +35,20 @@ import { useYield } from '@/react-queries/queries/yieldxyz/useYield'
 import { useYieldProviders } from '@/react-queries/queries/yieldxyz/useYieldProviders'
 import { useYieldValidators } from '@/react-queries/queries/yieldxyz/useYieldValidators'
 import {
+  selectMarketDataByAssetIdUserCurrency,
   selectPortfolioAccountIdsByAssetIdFilter,
   selectUserCurrencyToUsdRate,
 } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
+
+const backIcon = <ArrowBackIcon />
+
+const layoutDirection: ResponsiveValue<Property.FlexDirection> = {
+  base: 'column',
+  lg: 'row',
+}
+
+const actionColumnMaxWidth = { base: '100%', lg: '500px' }
 
 export const YieldDetail = memo(() => {
   const { yieldId } = useParams<{ yieldId: string }>()
@@ -44,11 +60,15 @@ export const YieldDetail = memo(() => {
 
   const { data: yieldItem, isLoading, error } = useYield(yieldId ?? '')
 
-  const selectorAssetId = useMemo(() => {
-    if (yieldItem?.token.assetId) return yieldItem.token.assetId
-    if (yieldItem?.inputTokens?.[0]?.assetId) return yieldItem.inputTokens[0].assetId
-    return undefined
-  }, [yieldItem?.inputTokens, yieldItem?.token.assetId])
+  const selectorAssetId =
+    yieldItem?.token.assetId ?? yieldItem?.inputTokens?.[0]?.assetId ?? undefined
+
+  const inputTokenAssetId = yieldItem?.inputTokens[0]?.assetId ?? ''
+  const inputTokenMarketData = useAppSelector(state =>
+    selectMarketDataByAssetIdUserCurrency(state, inputTokenAssetId),
+  )
+
+  const handleBack = useCallback(() => navigate('/yields'), [navigate])
 
   const availableAccounts = useAppSelector(state =>
     selectorAssetId
@@ -65,9 +85,10 @@ export const YieldDetail = memo(() => {
   const showAccountSelector = isYieldMultiAccountEnabled && availableAccounts.length > 1
 
   const balanceAccountIds = useMemo(() => {
-    if (!isYieldMultiAccountEnabled)
-      return availableAccounts.length > 0 ? availableAccounts : undefined
-    return selectedAccountId ? [selectedAccountId] : undefined
+    if (isYieldMultiAccountEnabled) {
+      return selectedAccountId ? [selectedAccountId] : undefined
+    }
+    return availableAccounts.length > 0 ? availableAccounts : undefined
   }, [isYieldMultiAccountEnabled, selectedAccountId, availableAccounts])
 
   const { data: allBalancesData, isFetching: isBalancesFetching } = useAllYieldBalances({
@@ -76,34 +97,22 @@ export const YieldDetail = memo(() => {
   const balances = yieldItem?.id ? allBalancesData?.normalized[yieldItem.id] : undefined
   const isBalancesLoading = !allBalancesData && isBalancesFetching
 
-  const validatorParam = useMemo(() => searchParams.get('validator'), [searchParams])
-  const defaultValidator = useMemo(
-    () =>
-      yieldItem?.chainId ? DEFAULT_NATIVE_VALIDATOR_BY_CHAIN_ID[yieldItem.chainId] : undefined,
-    [yieldItem?.chainId],
-  )
-  const selectedValidatorAddress = useMemo(() => {
-    // For native staking with hardcoded defaults, always use the default validator (ignore URL param)
-    if (
-      yieldId === COSMOS_ATOM_NATIVE_STAKING_YIELD_ID ||
-      yieldId === SOLANA_SOL_NATIVE_MULTIVALIDATOR_STAKING_YIELD_ID ||
-      (yieldId?.includes('solana') && yieldId?.includes('native'))
-    ) {
-      return defaultValidator
-    }
-    return validatorParam || defaultValidator
-  }, [yieldId, validatorParam, defaultValidator])
+  const validatorParam = searchParams.get('validator')
+  const defaultValidator = yieldItem?.id ? getDefaultValidatorForYield(yieldItem.id) : undefined
 
   const isStaking = yieldItem?.mechanics.type === 'staking'
-  const shouldFetchValidators = useMemo(
-    () => isStaking && yieldItem?.mechanics.requiresValidatorSelection,
-    [isStaking, yieldItem?.mechanics.requiresValidatorSelection],
-  )
+  const requiresValidatorSelection = yieldItem?.mechanics.requiresValidatorSelection ?? false
+  const shouldFetchValidators = isStaking && requiresValidatorSelection
+
+  const selectedValidatorAddress = useMemo(() => {
+    if (!requiresValidatorSelection) return undefined
+    return validatorParam || defaultValidator
+  }, [requiresValidatorSelection, validatorParam, defaultValidator])
   const { data: validators } = useYieldValidators(yieldItem?.id ?? '', shouldFetchValidators)
   const { data: yieldProviders } = useYieldProviders()
 
-  const validatorOrProvider = useMemo(() => {
-    if (isStaking && selectedValidatorAddress) {
+  const maybeValidatorOrProvider = useMemo(() => {
+    if (isStaking && requiresValidatorSelection && selectedValidatorAddress) {
       const found = validators?.find(v => v.address === selectedValidatorAddress)
       if (found) return { name: found.name, logoURI: found.logoURI }
       if (selectedValidatorAddress === SHAPESHIFT_COSMOS_VALIDATOR_ADDRESS) {
@@ -113,20 +122,40 @@ export const YieldDetail = memo(() => {
         return { name: FIGMENT_VALIDATOR_NAME, logoURI: FIGMENT_VALIDATOR_LOGO }
       }
     }
-    if (!isStaking && yieldItem) {
+    if (yieldItem) {
       const provider = yieldProviders?.[yieldItem.providerId]
-      if (provider) return { name: provider.name, logoURI: provider.logoURI }
+      if (provider) {
+        return {
+          name: provider.name,
+          logoURI: provider.logoURI,
+          description: provider.description,
+          documentation: provider.references?.[0] ?? provider.website,
+        }
+      }
+      // Fallback for providers not in the API (e.g., drift)
+      // NOTE: This shouldn't happen and is a bug upstream, currently happens w/ Drift.
+      // Report to Yield if you see some other provider missing in /providers in the future.
+      return {
+        name: yieldItem.providerId.charAt(0).toUpperCase() + yieldItem.providerId.slice(1),
+        logoURI: yieldItem.metadata.logoURI,
+      }
     }
     return null
-  }, [isStaking, selectedValidatorAddress, validators, yieldItem, yieldProviders])
+  }, [
+    isStaking,
+    requiresValidatorSelection,
+    selectedValidatorAddress,
+    validators,
+    yieldItem,
+    yieldProviders,
+  ])
 
   const titleOverride = useMemo(() => {
     if (!yieldItem) return undefined
     const isNativeStaking =
       yieldItem.mechanics.type === 'staking' && yieldItem.mechanics.requiresValidatorSelection
     if (isNativeStaking) return translate('yieldXYZ.nativeStaking')
-    // For non-native staking, use token symbol (consistent with cards)
-    return yieldItem.token.symbol
+    return getYieldDisplayName(yieldItem)
   }, [yieldItem, translate])
 
   const userBalances = useMemo(() => {
@@ -163,10 +192,7 @@ export const YieldDetail = memo(() => {
     if (!yieldId) navigate('/yields')
   }, [yieldId, navigate])
 
-  const isModalOpen = useMemo(() => {
-    const modal = searchParams.get('modal')
-    return modal === 'yield'
-  }, [searchParams])
+  const isModalOpen = searchParams.get('modal') === 'yield'
 
   const loadingElement = useMemo(
     () => (
@@ -206,47 +232,118 @@ export const YieldDetail = memo(() => {
   return (
     <Box bg='background.surface.base' minH='100vh' pb={20}>
       <Container
-        maxW={{ base: 'full', md: 'container.md', lg: 'container.lg' }}
+        maxW={{ base: 'full', md: 'container.md', lg: '1400px' }}
         px={{ base: 4, md: 8, lg: 12 }}
       >
-        {showAccountSelector && selectorAssetId && (
-          <>
-            <Display.Desktop>
-              <Flex justifyContent='flex-end' pt={4}>
-                <AccountSelector
-                  assetId={selectorAssetId}
-                  accountId={selectedAccountId}
-                  onChange={handleAccountChange}
-                />
-              </Flex>
-            </Display.Desktop>
-            <Display.Mobile>
-              <Box pt={2} pb={2}>
-                <AccountSelector
-                  assetId={selectorAssetId}
-                  accountId={selectedAccountId}
-                  onChange={handleAccountChange}
-                />
-              </Box>
-            </Display.Mobile>
-          </>
-        )}
-        <YieldHero
-          yieldItem={yieldItem}
-          userBalanceUsd={userBalances.userCurrency}
-          userBalanceCrypto={userBalances.crypto}
-          validatorOrProvider={validatorOrProvider}
-          titleOverride={titleOverride}
-        />
-
-        <Flex direction='column' gap={4} mt={6}>
-          <YieldPositionCard
-            yieldItem={yieldItem}
-            balances={balances}
-            isBalancesLoading={isBalancesLoading}
+        <Flex py={4} align='center' justify='space-between'>
+          <IconButton
+            aria-label={translate('common.back')}
+            icon={backIcon}
+            variant='ghost'
+            size='sm'
+            color='text.subtle'
+            onClick={handleBack}
+            _hover={{ color: 'text.base' }}
           />
-          <YieldStats yieldItem={yieldItem} balances={balances} />
+          <Display.Desktop>
+            {showAccountSelector && selectorAssetId && (
+              <AccountSelector
+                assetId={selectorAssetId}
+                accountId={selectedAccountId}
+                onChange={handleAccountChange}
+              />
+            )}
+          </Display.Desktop>
         </Flex>
+
+        <Display.Mobile>
+          {showAccountSelector && selectorAssetId && (
+            <Flex justify='center' mb={2}>
+              <AccountSelector
+                assetId={selectorAssetId}
+                accountId={selectedAccountId}
+                onChange={handleAccountChange}
+              />
+            </Flex>
+          )}
+          <YieldHero
+            yieldItem={yieldItem}
+            userBalanceUsd={userBalances.userCurrency}
+            userBalanceCrypto={userBalances.crypto}
+            validatorOrProvider={maybeValidatorOrProvider}
+            titleOverride={titleOverride}
+          />
+          <Stack gap={4} mt={4}>
+            <YieldPositionCard
+              yieldItem={yieldItem}
+              balances={balances}
+              isBalancesLoading={isBalancesLoading}
+              selectedValidatorAddress={selectedValidatorAddress}
+            />
+            <YieldAvailableToDeposit
+              yieldItem={yieldItem}
+              inputTokenMarketData={inputTokenMarketData}
+            />
+            <YieldStats yieldItem={yieldItem} balances={balances} />
+            {(!isStaking || !requiresValidatorSelection) && maybeValidatorOrProvider && (
+              <YieldProviderInfo
+                providerId={yieldItem.providerId}
+                providerName={maybeValidatorOrProvider.name}
+                providerLogoURI={maybeValidatorOrProvider.logoURI}
+                providerWebsite={maybeValidatorOrProvider.documentation}
+              />
+            )}
+            <YieldRelatedMarkets
+              currentYieldId={yieldItem.id}
+              tokenSymbol={yieldItem.token.symbol}
+            />
+          </Stack>
+        </Display.Mobile>
+
+        <Display.Desktop>
+          <Flex gap={6} flexDir={layoutDirection}>
+            <Stack gap={4} flex={1}>
+              <YieldInfoCard
+                yieldItem={yieldItem}
+                validatorOrProvider={maybeValidatorOrProvider}
+                titleOverride={titleOverride}
+              />
+              <YieldStats yieldItem={yieldItem} balances={balances} />
+              {(!isStaking || !requiresValidatorSelection) && maybeValidatorOrProvider && (
+                <YieldProviderInfo
+                  providerId={yieldItem.providerId}
+                  providerName={maybeValidatorOrProvider.name}
+                  providerLogoURI={maybeValidatorOrProvider.logoURI}
+                  providerWebsite={maybeValidatorOrProvider.documentation}
+                />
+              )}
+              <YieldRelatedMarkets
+                currentYieldId={yieldItem.id}
+                tokenSymbol={yieldItem.token.symbol}
+              />
+            </Stack>
+
+            <Stack
+              gap={4}
+              maxW={actionColumnMaxWidth}
+              w='full'
+              position='sticky'
+              top={4}
+              alignSelf='flex-start'
+            >
+              <YieldPositionCard
+                yieldItem={yieldItem}
+                balances={balances}
+                isBalancesLoading={isBalancesLoading}
+                selectedValidatorAddress={selectedValidatorAddress}
+              />
+              <YieldAvailableToDeposit
+                yieldItem={yieldItem}
+                inputTokenMarketData={inputTokenMarketData}
+              />
+            </Stack>
+          </Flex>
+        </Display.Desktop>
       </Container>
 
       {isModalOpen && <YieldManager />}

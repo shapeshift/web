@@ -29,6 +29,11 @@ const getPendingRequest = (): TrezorDeepLinkRequest | null => {
   return data ? JSON.parse(data) : null
 }
 
+const getStoredResponse = (): TrezorDeepLinkResponse | null => {
+  const data = localStorage.getItem(STORAGE_KEY_RESPONSE)
+  return data ? JSON.parse(data) : null
+}
+
 const storeResponse = (response: TrezorDeepLinkResponse): void => {
   localStorage.setItem(STORAGE_KEY_RESPONSE, JSON.stringify(response))
 }
@@ -89,65 +94,63 @@ export const TrezorCallback = () => {
 
   useEffect(() => {
     const processCallback = async () => {
+      console.log('[TrezorCallback] Processing callback...')
+
+      // FIRST: Check if useTrezorDeepLinkHandler already stored the response
+      // This happens when response comes in window.location.search - the handler
+      // processes it at app startup before this component even renders
+      const storedResponse = getStoredResponse()
+      if (storedResponse) {
+        console.log('[TrezorCallback] Found stored response in localStorage, completing pairing')
+        await completePairing()
+        return
+      }
+
+      // SECOND: Check URL params (in case handler didn't catch it)
       const id = searchParams.get('id')
       const responseInHash = searchParams.get('response')
-
-      console.log('[TrezorCallback] Processing callback:', {
-        id,
-        responseInHash: responseInHash ? `${responseInHash.substring(0, 50)}...` : null,
-        fullUrl: window.location.href,
-        search: window.location.search,
-        hash: window.location.hash,
-      })
-
-      // Check for response in hash route params first (/#/trezor/callback?id=x&response=y)
-      // Then check window.location.search (before hash)
       const searchBeforeHash = new URLSearchParams(window.location.search)
       const responseInSearch = searchBeforeHash.get('response')
 
+      console.log('[TrezorCallback] URL check:', {
+        id,
+        responseInHash: responseInHash ? 'present' : null,
+        responseInSearch: responseInSearch ? 'present' : null,
+        fullUrl: window.location.href,
+      })
+
       const response = responseInHash || responseInSearch
-      const responseSource = responseInHash
-        ? 'hash params'
-        : responseInSearch
-        ? 'search params'
-        : null
 
       if (response) {
-        console.log('[TrezorCallback] Found response in', responseSource)
         const pendingRequest = getPendingRequest()
+        console.log('[TrezorCallback] Found response in URL, pendingRequest:', !!pendingRequest)
 
-        if (pendingRequest) {
-          try {
-            const parsedResponse = JSON.parse(decodeURIComponent(response))
-            console.log('[TrezorCallback] Parsed response:', parsedResponse)
+        try {
+          const parsedResponse = JSON.parse(decodeURIComponent(response))
+          console.log('[TrezorCallback] Parsed response from URL')
 
-            storeResponse({
-              id: pendingRequest.id,
-              response: parsedResponse,
-            })
+          // Store it (use pending request id if available, otherwise use id from URL)
+          storeResponse({
+            id: pendingRequest?.id || id || 'unknown',
+            response: parsedResponse,
+          })
 
-            // Clean URL
-            window.history.replaceState({}, '', window.location.origin + '/#/trezor/callback')
+          // Clean URL
+          window.history.replaceState({}, '', window.location.origin + '/#/trezor/callback')
 
-            // Now complete pairing - the patch will find the stored response
-            await completePairing()
-            return
-          } catch (e) {
-            console.error('[TrezorCallback] Failed to parse response:', e)
-            setStatus('error')
-            setErrorMessage('Failed to parse Trezor response')
-            return
-          }
-        } else {
-          console.error('[TrezorCallback] No pending request found')
+          // Complete pairing
+          await completePairing()
+          return
+        } catch (e) {
+          console.error('[TrezorCallback] Failed to parse response:', e)
           setStatus('error')
-          setErrorMessage('No pending request found. Please try connecting again.')
+          setErrorMessage('Failed to parse Trezor response')
           return
         }
       }
 
-      // No response found - log full URL for debugging
-      console.error('[TrezorCallback] No response parameter found in URL:', window.location.href)
+      // No response found anywhere
+      console.error('[TrezorCallback] No response found in localStorage or URL')
       setStatus('error')
       setErrorMessage('Missing response from Trezor. Please try connecting again.')
     }

@@ -219,12 +219,18 @@ export const useBitcoinSigning = (): UseBitcoinSigningResult => {
         throw new Error('Bitcoin wallet not connected')
       }
 
+      if (!address) {
+        const errorMessage = 'No Bitcoin address available to sign with'
+        setState(prev => ({ ...prev, isLoading: false, error: errorMessage }))
+        throw new Error(errorMessage)
+      }
+
       setState(prev => ({ ...prev, isLoading: true, error: undefined }))
 
       try {
         const signature = await provider.signMessage({
           message,
-          address: address ?? '',
+          address,
         })
 
         const signatureObj = signature as string | { signature?: string }
@@ -234,6 +240,10 @@ export const useBitcoinSigning = (): UseBitcoinSigningResult => {
             : (signatureObj && typeof signatureObj === 'object' && 'signature' in signatureObj
                 ? signatureObj.signature
                 : '') ?? ''
+
+        if (!signatureStr) {
+          throw new Error('Signing succeeded but no signature returned')
+        }
 
         setState(prev => ({ ...prev, isLoading: false }))
         return signatureStr

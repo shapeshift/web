@@ -307,6 +307,15 @@ const SwapWidgetCore = ({
     const rateToUse = selectedRate ?? rates?.[0]
     if (!rateToUse || !sellAmountBaseUnit) return
 
+    if (sellAssetBalance?.balance) {
+      const balanceBigInt = BigInt(sellAssetBalance.balance)
+      const amountBigInt = BigInt(sellAmountBaseUnit)
+      if (amountBigInt > balanceBigInt) {
+        setTxStatus({ status: 'error', message: 'Insufficient balance' })
+        return
+      }
+    }
+
     setIsExecuting(true)
     resetBitcoinState()
 
@@ -378,6 +387,7 @@ const SwapWidgetCore = ({
     selectedRate,
     rates,
     sellAmountBaseUnit,
+    sellAssetBalance,
     resetBitcoinState,
     slippage,
     apiClient,

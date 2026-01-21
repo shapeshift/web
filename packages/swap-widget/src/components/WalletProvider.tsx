@@ -1,7 +1,7 @@
 import { useAppKit, useAppKitAccount } from '@reown/appkit/react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import type { ReactNode } from 'react'
-import { useCallback, useMemo } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import type { WalletClient } from 'viem'
 import type { Config } from 'wagmi'
 import { useWalletClient, WagmiProvider } from 'wagmi'
@@ -26,11 +26,18 @@ const InternalWalletContent = ({
 }
 
 export const InternalWalletProvider = ({ projectId, children }: InternalWalletProviderProps) => {
-  const wagmiConfig = useMemo((): Config | undefined => {
+  const [isInitialized, setIsInitialized] = useState(false)
+
+  useEffect(() => {
     initializeAppKit(projectId)
+    setIsInitialized(true)
+  }, [projectId])
+
+  const wagmiConfig = useMemo((): Config | undefined => {
+    if (!isInitialized) return undefined
     const adapter = getWagmiAdapter()
     return adapter?.wagmiConfig
-  }, [projectId])
+  }, [isInitialized])
 
   if (!wagmiConfig) {
     return null

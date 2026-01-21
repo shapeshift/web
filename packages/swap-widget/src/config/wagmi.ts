@@ -42,8 +42,3 @@ export const createWagmiAdapter = (projectId: string): WagmiAdapter => {
 }
 
 export const getWagmiAdapter = (): WagmiAdapter | null => wagmiAdapterInstance
-
-export const createWagmiConfig = (projectId: string): WagmiConfig => {
-  const adapter = createWagmiAdapter(projectId)
-  return adapter.wagmiConfig as WagmiConfig
-}

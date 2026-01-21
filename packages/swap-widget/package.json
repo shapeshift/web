@@ -15,10 +15,10 @@
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
-    "@reown/appkit": "^1.8.15",
-    "@reown/appkit-adapter-bitcoin": "^1.8.15",
+    "@reown/appkit": "^1.8.14",
+    "@reown/appkit-adapter-bitcoin": "^1.8.14",
     "@reown/appkit-adapter-solana": "^1.8.14",
-    "@reown/appkit-adapter-wagmi": "^1.8.15",
+    "@reown/appkit-adapter-wagmi": "^1.8.14",
     "@shapeshiftoss/caip": "npm:@shapeshiftoss/caip@8.16.6",
     "@shapeshiftoss/utils": "npm:@shapeshiftoss/utils@1.0.5",
     "@solana/wallet-adapter-wallets": "^0.19.32",

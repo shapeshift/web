@@ -119,9 +119,11 @@ const fetchBitcoinBalance = async (
   }
 
   const data = await response.json()
-  const confirmedBalance = data.chain_stats?.funded_txo_sum - data.chain_stats?.spent_txo_sum
-  const mempoolBalance = data.mempool_stats?.funded_txo_sum - data.mempool_stats?.spent_txo_sum
-  const totalBalance = (confirmedBalance ?? 0) + (mempoolBalance ?? 0)
+  const confirmedFunded = data.chain_stats?.funded_txo_sum ?? 0
+  const confirmedSpent = data.chain_stats?.spent_txo_sum ?? 0
+  const mempoolFunded = data.mempool_stats?.funded_txo_sum ?? 0
+  const mempoolSpent = data.mempool_stats?.spent_txo_sum ?? 0
+  const totalBalance = confirmedFunded - confirmedSpent + (mempoolFunded - mempoolSpent)
 
   return totalBalance.toString()
 }

@@ -18,12 +18,19 @@ import { v4 as uuid } from 'uuid'
 
 import { App } from './App'
 import { AppProviders } from './AppProviders'
+import { PerformanceProfiler } from './components/PerformanceProfiler'
 import { getConfig } from './config'
 import { renderConsoleArt } from './lib/consoleArt'
+import { profiler } from './lib/performanceProfiler'
 import { reportWebVitals } from './lib/reportWebVitals'
 import { httpClientIntegration } from './utils/sentry/httpclient'
 
 const enableReactScan = false
+const enablePerformanceProfiler = getConfig().VITE_FEATURE_PERFORMANCE_PROFILER
+
+if (enablePerformanceProfiler) {
+  profiler.enable()
+}
 
 const SENTRY_ENABLED = true
 
@@ -222,6 +229,7 @@ root.render(
   <React.StrictMode>
     <AppProviders>
       <App />
+      {enablePerformanceProfiler && <PerformanceProfiler />}
     </AppProviders>
   </React.StrictMode>,
 )

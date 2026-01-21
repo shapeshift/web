@@ -1,17 +1,12 @@
-import '@rainbow-me/rainbowkit/styles.css'
 import './App.css'
 
-import { ConnectButton, darkTheme, lightTheme, RainbowKitProvider } from '@rainbow-me/rainbowkit'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { useCallback, useMemo, useState } from 'react'
-import { useAccount, useWalletClient, WagmiProvider } from 'wagmi'
 
 import { SwapWidget } from '../components/SwapWidget'
-import type { WagmiConfig } from '../config/wagmi'
-import { createWagmiConfig } from '../config/wagmi'
 import type { ThemeConfig } from '../types'
 
-const config: WagmiConfig = createWagmiConfig('f58c0242def84c3b9befe9b1e6086bbd')
+const PROJECT_ID = 'f58c0242def84c3b9befe9b1e6086bbd'
 
 const queryClient = new QueryClient()
 
@@ -64,8 +59,6 @@ type DemoContentProps = {
 }
 
 const DemoContent = ({ theme, setTheme }: DemoContentProps) => {
-  const { address, isConnected } = useAccount()
-  const { data: walletClient } = useWalletClient()
   const [showCustomizer, setShowCustomizer] = useState(true)
 
   const [darkColors, setDarkColors] = useState<ThemeColors>({
@@ -178,7 +171,6 @@ const DemoContent = ({ theme, setTheme }: DemoContentProps) => {
             </svg>
             Customize
           </button>
-          <ConnectButton showBalance={false} />
         </div>
       </header>
 
@@ -345,22 +337,6 @@ const DemoContent = ({ theme, setTheme }: DemoContentProps) => {
                 </div>
 
                 <div className='demo-customizer-section'>
-                  <span className='demo-customizer-label'>Connection</span>
-                  <div className='demo-connection-info'>
-                    {isConnected ? (
-                      <>
-                        <span className='demo-connected-badge'>Connected</span>
-                        <span className='demo-address'>
-                          {address?.slice(0, 6)}...{address?.slice(-4)}
-                        </span>
-                      </>
-                    ) : (
-                      <span className='demo-disconnected'>Not connected</span>
-                    )}
-                  </div>
-                </div>
-
-                <div className='demo-customizer-section'>
                   <button className='demo-copy-btn' onClick={copyConfig} type='button'>
                     {copied ? (
                       <>
@@ -401,12 +377,11 @@ const DemoContent = ({ theme, setTheme }: DemoContentProps) => {
               <SwapWidget
                 apiKey='test-api-key-123'
                 theme={themeConfig}
-                walletClient={walletClient ?? undefined}
                 onSwapSuccess={handleSwapSuccess}
                 onSwapError={handleSwapError}
                 showPoweredBy={true}
                 enableWalletConnection={true}
-                defaultReceiveAddress={'0x1234567890123456789012345678901234567890'}
+                walletConnectProjectId={PROJECT_ID}
               />
             </div>
           </div>
@@ -423,15 +398,9 @@ const DemoContent = ({ theme, setTheme }: DemoContentProps) => {
 export const App = () => {
   const [theme, setTheme] = useState<'light' | 'dark'>('dark')
 
-  const rainbowTheme = useMemo(() => (theme === 'dark' ? darkTheme() : lightTheme()), [theme])
-
   return (
-    <WagmiProvider config={config as any}>
-      <QueryClientProvider client={queryClient}>
-        <RainbowKitProvider theme={rainbowTheme}>
-          <DemoContent theme={theme} setTheme={setTheme} />
-        </RainbowKitProvider>
-      </QueryClientProvider>
-    </WagmiProvider>
+    <QueryClientProvider client={queryClient}>
+      <DemoContent theme={theme} setTheme={setTheme} />
+    </QueryClientProvider>
   )
 }

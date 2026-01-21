@@ -24,8 +24,11 @@ import { bnOrZero } from '@/lib/bignumber/bignumber'
 import type { AugmentedYieldDto } from '@/lib/yieldxyz/types'
 import type { AugmentedYieldBalanceWithAccountId } from '@/react-queries/queries/yieldxyz/useAllYieldBalances'
 import { useYieldProviders } from '@/react-queries/queries/yieldxyz/useYieldProviders'
-import { accountIdToLabel } from '@/state/slices/portfolioSlice/utils'
-import { selectAssetById, selectUserCurrencyToUsdRate } from '@/state/slices/selectors'
+import {
+  selectAccountNumberByAccountId,
+  selectAssetById,
+  selectUserCurrencyToUsdRate,
+} from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
 type AccountBalanceInfo = {
@@ -83,6 +86,35 @@ export const YieldActivePositions = memo(
       [providers],
     )
 
+    const uniqueAccountIds = useMemo((): AccountId[] => {
+      if (!balancesByYieldId) return []
+      const accountIdSet = new Set<AccountId>()
+      for (const balances of Object.values(balancesByYieldId)) {
+        for (const balance of balances) {
+          if (balance.accountId) accountIdSet.add(balance.accountId)
+        }
+      }
+      return Array.from(accountIdSet)
+    }, [balancesByYieldId])
+
+    const accountNumberByAccountId = useAppSelector(state => {
+      const mapping: Record<AccountId, number | undefined> = {}
+      for (const accountId of uniqueAccountIds) {
+        mapping[accountId] = selectAccountNumberByAccountId(state, { accountId })
+      }
+      return mapping
+    })
+
+    const getAccountLabel = useCallback(
+      (accountId: AccountId) => {
+        const accountNumber = accountNumberByAccountId[accountId]
+        return accountNumber !== undefined
+          ? translate('accounts.accountNumber', { accountNumber })
+          : translate('accounts.account')
+      },
+      [accountNumberByAccountId, translate],
+    )
+
     const accountPositions = useMemo((): AccountYieldPosition[] => {
       if (!balancesByYieldId || !asset) return []
 
@@ -122,7 +154,7 @@ export const YieldActivePositions = memo(
         for (const [accountId, balanceInfo] of accountBalances) {
           positions.push({
             accountId,
-            accountLabel: accountIdToLabel(accountId),
+            accountLabel: getAccountLabel(accountId),
             yieldItem,
             providerId: yieldItem.providerId,
             providerLogo: getProviderLogo(yieldItem.providerId),
@@ -137,7 +169,7 @@ export const YieldActivePositions = memo(
       }
 
       return positions.sort((a, b) => bnOrZero(b.totalUsd).minus(a.totalUsd).toNumber())
-    }, [balancesByYieldId, yields, asset, getProviderLogo])
+    }, [balancesByYieldId, yields, asset, getProviderLogo, getAccountLabel])
 
     const handlePositionClick = useCallback(
       ({ yieldId, accountId, validatorAddress }: HandlePositionClickArgs) => {

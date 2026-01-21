@@ -1,4 +1,17 @@
-import { Avatar, Box, Button, Flex, HStack, Icon, Input, Skeleton, Text } from '@chakra-ui/react'
+import {
+  Alert,
+  AlertDescription,
+  AlertIcon,
+  Avatar,
+  Box,
+  Button,
+  Flex,
+  HStack,
+  Icon,
+  Input,
+  Skeleton,
+  Text,
+} from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { useQueryClient } from '@tanstack/react-query'
 import type { ChangeEvent } from 'react'
@@ -17,16 +30,23 @@ import { useLocaleFormatter } from '@/hooks/useLocaleFormatter/useLocaleFormatte
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import {
-  DEFAULT_NATIVE_VALIDATOR_BY_CHAIN_ID,
   SHAPESHIFT_COSMOS_VALIDATOR_ADDRESS,
   SHAPESHIFT_VALIDATOR_LOGO,
   SHAPESHIFT_VALIDATOR_NAME,
 } from '@/lib/yieldxyz/constants'
 import type { AugmentedYieldDto } from '@/lib/yieldxyz/types'
 import { YieldBalanceType } from '@/lib/yieldxyz/types'
-import { getTransactionButtonText } from '@/lib/yieldxyz/utils'
+import {
+  getDefaultValidatorForYield,
+  getTransactionButtonText,
+  getYieldActionLabelKeys,
+  getYieldMinAmountKey,
+  getYieldSuccessMessageKey,
+  isStakingYieldType,
+} from '@/lib/yieldxyz/utils'
 import { GradientApy } from '@/pages/Yields/components/GradientApy'
 import { TransactionStepsList } from '@/pages/Yields/components/TransactionStepsList'
+import { YieldExplainers } from '@/pages/Yields/components/YieldExplainers'
 import { YieldSuccess } from '@/pages/Yields/components/YieldSuccess'
 import { ModalStep, useYieldTransactionFlow } from '@/pages/Yields/hooks/useYieldTransactionFlow'
 import type { NormalizedYieldBalances } from '@/react-queries/queries/yieldxyz/useAllYieldBalances'
@@ -56,36 +76,6 @@ type YieldFormProps = {
 }
 
 const PRESET_PERCENTAGES = [0.25, 0.5, 0.75, 1] as const
-
-const getEnterActionTextKey = (yieldType: string | undefined): string => {
-  switch (yieldType) {
-    case 'native-staking':
-    case 'pooled-staking':
-    case 'liquid-staking':
-    case 'staking':
-      return 'defi.stake'
-    case 'vault':
-      return 'common.deposit'
-    case 'lending':
-      return 'common.supply'
-    default:
-      return 'common.deposit'
-  }
-}
-
-const getExitActionTextKey = (yieldType: string | undefined): string => {
-  switch (yieldType) {
-    case 'native-staking':
-    case 'pooled-staking':
-    case 'liquid-staking':
-    case 'staking':
-      return 'defi.unstake'
-    case 'vault':
-    case 'lending':
-    default:
-      return 'common.withdraw'
-  }
-}
 
 const INPUT_LENGTH_BREAKPOINTS = {
   FOR_XS_FONT: 22,
@@ -214,19 +204,19 @@ export const YieldForm = memo(
     )
 
     const selectedValidatorAddress = useMemo(() => {
+      if (!shouldFetchValidators) return undefined
       if (validatorAddress) return validatorAddress
-      if (chainId && DEFAULT_NATIVE_VALIDATOR_BY_CHAIN_ID[chainId]) {
-        return DEFAULT_NATIVE_VALIDATOR_BY_CHAIN_ID[chainId]
-      }
+      const defaultValidator = getDefaultValidatorForYield(yieldItem.id)
+      if (defaultValidator) return defaultValidator
       return validators?.[0]?.address
-    }, [chainId, validators, validatorAddress])
+    }, [shouldFetchValidators, validators, validatorAddress, yieldItem.id])
 
     const { data: providers } = useYieldProviders()
 
-    const isStaking = yieldItem.mechanics.type === 'staking'
+    const isStaking = isStakingYieldType(yieldItem.mechanics.type)
 
-    const selectedValidatorMetadata = useMemo(() => {
-      if (!isStaking || !selectedValidatorAddress) return null
+    const maybeSelectedValidatorMetadata = useMemo(() => {
+      if (!shouldFetchValidators || !selectedValidatorAddress) return null
       const found = validators?.find(v => v.address === selectedValidatorAddress)
       if (found) return found
       if (selectedValidatorAddress === SHAPESHIFT_COSMOS_VALIDATOR_ADDRESS) {
@@ -237,9 +227,9 @@ export const YieldForm = memo(
         }
       }
       return null
-    }, [isStaking, selectedValidatorAddress, validators])
+    }, [shouldFetchValidators, selectedValidatorAddress, validators])
 
-    const providerMetadata = useMemo(() => {
+    const maybeProviderMetadata = useMemo(() => {
       if (!providers) return null
       return providers[yieldItem.providerId]
     }, [providers, yieldItem.providerId])
@@ -418,25 +408,32 @@ export const YieldForm = memo(
       }
     }, [step])
 
-    const successProviderInfo = useMemo(() => {
-      if (isStaking && selectedValidatorMetadata) {
+    const maybeSuccessProviderInfo = useMemo(() => {
+      if (isStaking && maybeSelectedValidatorMetadata) {
         return {
-          name: selectedValidatorMetadata.name,
-          logoURI: selectedValidatorMetadata.logoURI,
+          name: maybeSelectedValidatorMetadata.name,
+          logoURI: maybeSelectedValidatorMetadata.logoURI,
         }
       }
-      if (providerMetadata) {
+      if (maybeProviderMetadata) {
         return {
-          name: providerMetadata.name,
-          logoURI: providerMetadata.logoURI,
+          name: maybeProviderMetadata.name,
+          logoURI: maybeProviderMetadata.logoURI,
         }
       }
       return null
-    }, [isStaking, selectedValidatorMetadata, providerMetadata])
+    }, [isStaking, maybeSelectedValidatorMetadata, maybeProviderMetadata])
+
+    const isActionDisabled = useMemo(() => {
+      if (action === 'enter') return !yieldItem.status.enter
+      if (action === 'exit') return !yieldItem.status.exit
+      return false
+    }, [action, yieldItem.status.enter, yieldItem.status.exit])
 
     const buttonDisabled = useMemo(() => {
       if (!isConnected) return false
       if (isLoading) return true
+      if (isActionDisabled) return true
       if (isClaimAction) {
         return !claimAction || !claimableAmount || bnOrZero(claimableAmount).lte(0)
       }
@@ -444,6 +441,7 @@ export const YieldForm = memo(
     }, [
       isConnected,
       isLoading,
+      isActionDisabled,
       isClaimAction,
       claimAction,
       claimableAmount,
@@ -458,12 +456,21 @@ export const YieldForm = memo(
 
       if (isSubmitting && transactionSteps.length > 0) {
         const activeStep = transactionSteps.find(s => s.status !== 'success')
-        if (activeStep) return getTransactionButtonText(activeStep.type, activeStep.originalTitle)
+        if (activeStep)
+          return getTransactionButtonText(
+            activeStep.type,
+            activeStep.originalTitle,
+            yieldItem.mechanics.type,
+          )
       }
 
       if (activeStepIndex >= 0 && transactionSteps[activeStepIndex]) {
         const currentStep = transactionSteps[activeStepIndex]
-        return getTransactionButtonText(currentStep.type, currentStep.originalTitle)
+        return getTransactionButtonText(
+          currentStep.type,
+          currentStep.originalTitle,
+          yieldItem.mechanics.type,
+        )
       }
 
       if (isUsdtResetRequired) {
@@ -471,16 +478,19 @@ export const YieldForm = memo(
       }
 
       const firstCreatedTx = quoteData?.transactions?.find(tx => tx.status === 'CREATED')
-      if (firstCreatedTx) return getTransactionButtonText(firstCreatedTx.type, firstCreatedTx.title)
+      if (firstCreatedTx)
+        return getTransactionButtonText(
+          firstCreatedTx.type,
+          firstCreatedTx.title,
+          yieldItem.mechanics.type,
+        )
 
-      const yieldType = yieldItem.mechanics.type
+      const actionLabelKeys = getYieldActionLabelKeys(yieldItem.mechanics.type)
       if (action === 'enter') {
-        const actionKey = getEnterActionTextKey(yieldType)
-        return `${translate(actionKey)} ${inputTokenAsset?.symbol ?? ''}`
+        return `${translate(actionLabelKeys.enter)} ${inputTokenAsset?.symbol ?? ''}`
       }
       if (action === 'exit') {
-        const actionKey = getExitActionTextKey(yieldType)
-        return `${translate(actionKey)} ${inputTokenAsset?.symbol ?? ''}`
+        return `${translate(actionLabelKeys.exit)} ${inputTokenAsset?.symbol ?? ''}`
       }
       if (action === 'claim') {
         return `${translate('common.claim')} ${claimableToken?.symbol ?? ''}`
@@ -560,7 +570,7 @@ export const YieldForm = memo(
               </Flex>
             </Flex>
           )}
-          {isStaking && selectedValidatorMetadata && (
+          {isStaking && maybeSelectedValidatorMetadata && (
             <Flex justify='space-between' align='center' mt={3}>
               <Text fontSize='sm' color='text.subtle'>
                 {translate('yieldXYZ.validator')}
@@ -568,24 +578,28 @@ export const YieldForm = memo(
               <Flex align='center' gap={2}>
                 <Avatar
                   size='xs'
-                  src={selectedValidatorMetadata.logoURI}
-                  name={selectedValidatorMetadata.name}
+                  src={maybeSelectedValidatorMetadata.logoURI}
+                  name={maybeSelectedValidatorMetadata.name}
                 />
                 <Text fontSize='sm' fontWeight='medium'>
-                  {selectedValidatorMetadata.name}
+                  {maybeSelectedValidatorMetadata.name}
                 </Text>
               </Flex>
             </Flex>
           )}
-          {!isStaking && providerMetadata && (
+          {!isStaking && maybeProviderMetadata && (
             <Flex justify='space-between' align='center' mt={3}>
               <Text fontSize='sm' color='text.subtle'>
                 {translate('yieldXYZ.provider')}
               </Text>
               <Flex align='center' gap={2}>
-                <Avatar size='xs' src={providerMetadata.logoURI} name={providerMetadata.name} />
+                <Avatar
+                  size='xs'
+                  src={maybeProviderMetadata.logoURI}
+                  name={maybeProviderMetadata.name}
+                />
                 <Text fontSize='sm' fontWeight='medium'>
-                  {providerMetadata.name}
+                  {maybeProviderMetadata.name}
                 </Text>
               </Flex>
             </Flex>
@@ -593,7 +607,7 @@ export const YieldForm = memo(
           {minDeposit && bnOrZero(minDeposit).gt(0) && action === 'enter' && (
             <Flex justify='space-between' align='center' mt={3}>
               <Text fontSize='sm' color='text.subtle'>
-                {translate('yieldXYZ.minEnter')}
+                {translate(getYieldMinAmountKey(yieldItem.mechanics.type))}
               </Text>
               <Text
                 fontSize='sm'
@@ -614,11 +628,12 @@ export const YieldForm = memo(
         inputTokenAsset?.symbol,
         estimatedYearlyEarningsFiat,
         isStaking,
-        selectedValidatorMetadata,
-        providerMetadata,
+        maybeSelectedValidatorMetadata,
+        maybeProviderMetadata,
         minDeposit,
         isBelowMinimum,
         action,
+        yieldItem.mechanics.type,
       ],
     )
 
@@ -707,23 +722,36 @@ export const YieldForm = memo(
 
     const stepsToShow = activeStepIndex >= 0 ? transactionSteps : displaySteps
 
+    const maybeActionDisabledAlert = useMemo(() => {
+      if (!isActionDisabled) return null
+      const descriptionKey =
+        action === 'enter'
+          ? 'yieldXYZ.depositsDisabledDescription'
+          : 'yieldXYZ.withdrawalsDisabledDescription'
+      return (
+        <Alert status='warning' borderRadius='lg'>
+          <AlertIcon />
+          <AlertDescription>{translate(descriptionKey)}</AlertDescription>
+        </Alert>
+      )
+    }, [isActionDisabled, action, translate])
+
     // If Success, render YieldSuccess
     if (isSuccess) {
       const successAmount = isClaimAction ? claimableAmount : cryptoAmount
       const successSymbol = isClaimAction
         ? claimableToken?.symbol ?? ''
         : inputTokenAsset?.symbol ?? ''
-      const successMessageKey = isClaimAction
-        ? 'successClaim'
-        : action === 'exit'
-        ? 'successExit'
-        : 'successEnter'
+      const successMessageKey = getYieldSuccessMessageKey(
+        yieldItem.mechanics.type,
+        isClaimAction ? 'claim' : action,
+      )
 
       return (
         <YieldSuccess
           amount={successAmount}
           symbol={successSymbol}
-          providerInfo={successProviderInfo}
+          providerInfo={maybeSuccessProviderInfo}
           transactionSteps={transactionSteps}
           yieldId={yieldItem.id}
           accountId={accountId}
@@ -736,6 +764,7 @@ export const YieldForm = memo(
     return (
       <Flex direction='column' gap={4} height='100%' maxH='100%' overflow='hidden'>
         <Flex direction='column' gap={4} flex={1} overflowY='auto'>
+          {maybeActionDisabledAlert}
           {inputContent}
           {!isClaimAction && percentButtons}
           {!isClaimAction && inputTokenAssetId && accountId && (
@@ -749,6 +778,9 @@ export const YieldForm = memo(
             </Flex>
           )}
           {!isClaimAction && statsContent}
+          {!isClaimAction && (
+            <YieldExplainers selectedYield={yieldItem} sellAssetSymbol={inputTokenAsset?.symbol} />
+          )}
           {stepsToShow.length > 0 && <TransactionStepsList steps={stepsToShow} />}
         </Flex>
 

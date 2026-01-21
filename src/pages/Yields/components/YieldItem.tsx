@@ -1,6 +1,7 @@
 import {
   Avatar,
   AvatarGroup,
+  Badge,
   Box,
   Card,
   CardBody,
@@ -13,6 +14,7 @@ import {
   StatLabel,
   StatNumber,
   Text,
+  Tooltip,
 } from '@chakra-ui/react'
 import type BigNumber from 'bignumber.js'
 import { memo, useCallback, useMemo } from 'react'
@@ -22,6 +24,7 @@ import { useNavigate } from 'react-router-dom'
 import { Amount } from '@/components/Amount/Amount'
 import { AssetIcon } from '@/components/AssetIcon'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
+import { getYieldDisplayName } from '@/lib/yieldxyz/getYieldDisplayName'
 import type { AugmentedYieldDto } from '@/lib/yieldxyz/types'
 import { resolveYieldInputAssetIcon } from '@/lib/yieldxyz/utils'
 import { GradientApy } from '@/pages/Yields/components/GradientApy'
@@ -53,6 +56,7 @@ type YieldItemProps = {
   onEnter?: (yieldItem: AugmentedYieldDto) => void
   searchString?: string
   titleOverride?: string
+  showAvailableOnly?: boolean
 }
 
 export const YieldItem = memo(
@@ -64,6 +68,7 @@ export const YieldItem = memo(
     onEnter,
     searchString,
     titleOverride,
+    showAvailableOnly = false,
   }: YieldItemProps) => {
     const navigate = useNavigate()
     const translate = useTranslate()
@@ -107,19 +112,13 @@ export const YieldItem = memo(
       }
     }, [data, isSingle, yieldProviders])
 
-    const apyFormatted = useMemo(() => `${(stats.apy * 100).toFixed(2)}%`, [stats.apy])
+    const apyFormatted = `${(stats.apy * 100).toFixed(2)}%`
+    const tvlUserCurrency = bnOrZero(stats.tvlUsd).times(userCurrencyToUsdRate).toFixed()
+    const userBalanceUserCurrency = userBalanceUsd
+      ? userBalanceUsd.times(userCurrencyToUsdRate).toFixed()
+      : undefined
 
-    const tvlUserCurrency = useMemo(
-      () => bnOrZero(stats.tvlUsd).times(userCurrencyToUsdRate).toFixed(),
-      [stats.tvlUsd, userCurrencyToUsdRate],
-    )
-
-    const userBalanceUserCurrency = useMemo(
-      () => (userBalanceUsd ? userBalanceUsd.times(userCurrencyToUsdRate).toFixed() : undefined),
-      [userBalanceUsd, userCurrencyToUsdRate],
-    )
-
-    const hasBalance = userBalanceUsd && userBalanceUsd.gt(0)
+    const hasBalance = userBalanceUsd && userBalanceUsd.gt(0) && !showAvailableOnly
     const hasAvailable = availableBalanceUserCurrency && availableBalanceUserCurrency.gt(0)
 
     const handleClick = useCallback(() => {
@@ -151,20 +150,50 @@ export const YieldItem = memo(
       return <AssetIcon src={data.assetIcon} size={size} />
     }, [data, isSingle, variant])
 
-    const subtitle = useMemo(() => {
-      if (isSingle) {
-        return data.providerName ?? data.yieldItem.providerId
-      }
-      return `${stats.count} ${
-        stats.count === 1 ? translate('yieldXYZ.market') : translate('yieldXYZ.markets')
-      }`
-    }, [data, isSingle, stats.count, translate])
+    const subtitle = isSingle
+      ? data.providerName ?? data.yieldItem.providerId
+      : `${stats.count} ${
+          stats.count === 1 ? translate('yieldXYZ.market') : translate('yieldXYZ.markets')
+        }`
 
-    const title = useMemo(() => {
-      if (titleOverride) return titleOverride
-      if (isSingle) return data.yieldItem.metadata.name
-      return data.assetSymbol
-    }, [data, isSingle, titleOverride])
+    const title =
+      titleOverride ?? (isSingle ? getYieldDisplayName(data.yieldItem) : data.assetSymbol)
+
+    const underMaintenance = isSingle ? data.yieldItem.metadata.underMaintenance : undefined
+    const deprecated = isSingle ? data.yieldItem.metadata.deprecated : undefined
+    const depositsDisabled = isSingle ? !data.yieldItem.status.enter : false
+
+    const statusBadge = useMemo(() => {
+      if (!isSingle) return null
+      if (deprecated) {
+        return (
+          <Tooltip label={translate('yieldXYZ.deprecatedDescription')} hasArrow>
+            <Badge colorScheme='red' fontSize='xs' variant='subtle'>
+              {translate('yieldXYZ.deprecated')}
+            </Badge>
+          </Tooltip>
+        )
+      }
+      if (underMaintenance) {
+        return (
+          <Tooltip label={translate('yieldXYZ.underMaintenanceDescription')} hasArrow>
+            <Badge colorScheme='orange' fontSize='xs' variant='subtle'>
+              {translate('yieldXYZ.underMaintenance')}
+            </Badge>
+          </Tooltip>
+        )
+      }
+      if (depositsDisabled) {
+        return (
+          <Tooltip label={translate('yieldXYZ.depositsDisabledDescription')} hasArrow>
+            <Badge colorScheme='orange' fontSize='xs' variant='subtle'>
+              {translate('yieldXYZ.depositsDisabled')}
+            </Badge>
+          </Tooltip>
+        )
+      }
+      return null
+    }, [isSingle, deprecated, underMaintenance, depositsDisabled, translate])
 
     const showAvailable = isSingle && hasAvailable && !hasBalance
 
@@ -311,9 +340,12 @@ export const YieldItem = memo(
           <CardBody p={2}>
             <Flex alignItems='center' gap={2} mb={2}>
               {iconElement}
-              <Text fontWeight='bold' fontSize='md' lineHeight='1.2'>
-                {title}
-              </Text>
+              <HStack spacing={2} flex={1}>
+                <Text fontWeight='bold' fontSize='md' lineHeight='1.2' noOfLines={1}>
+                  {title}
+                </Text>
+                {statusBadge}
+              </HStack>
             </Flex>
 
             <SimpleGrid columns={3} spacing={2}>
@@ -380,9 +412,12 @@ export const YieldItem = memo(
             <Flex alignItems='center' gap={3} flex='1' minW='200px'>
               {iconElement}
               <Box>
-                <Text fontWeight='bold' fontSize='sm'>
-                  {title}
-                </Text>
+                <HStack spacing={2}>
+                  <Text fontWeight='bold' fontSize='sm'>
+                    {title}
+                  </Text>
+                  {statusBadge}
+                </HStack>
                 <Text fontSize='xs' color='text.subtle' textTransform='capitalize'>
                   {subtitle}
                 </Text>
@@ -475,6 +510,7 @@ export const YieldItem = memo(
                 </Flex>
               </Box>
             </Flex>
+            {statusBadge}
           </Flex>
 
           <HStack spacing={6} justify='space-between' mt='auto'>

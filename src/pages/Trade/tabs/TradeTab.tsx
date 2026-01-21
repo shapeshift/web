@@ -90,7 +90,7 @@ export const TradeTab = memo(() => {
   )
 
   const title = useMemo(() => {
-    return translate('navBar.trade')
+    return translate('navBar.swap')
   }, [translate])
 
   const tradeElement = useMemo(

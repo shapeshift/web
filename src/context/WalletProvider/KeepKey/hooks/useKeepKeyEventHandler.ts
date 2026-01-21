@@ -36,7 +36,10 @@ export const useKeepKeyEventHandler = (
     // Failure to check for the localWalletType will result in a bunch of random bugs on other wallets
     // being mistakenly identified as KeepKey
     const { localWalletType } = localWallet
-    if (localWalletType !== KeyManager.KeepKey) return
+    const isKeepKeyModalOpen = state.modalType === KeyManager.KeepKey
+    const isKeepKeyConnected = localWalletType === KeyManager.KeepKey
+    const shouldAttachListeners = isKeepKeyModalOpen || isKeepKeyConnected
+    if (!shouldAttachListeners) return
     const handleEvent = (e: [deviceId: string, message: Event]) => {
       const [deviceId, event] = e
       const { message_enum, message_type, message, from_wallet } = event
@@ -214,6 +217,7 @@ export const useKeepKeyEventHandler = (
         const id = keyring.getAlias(deviceId)
         const wallet = keyring.get(id)
         if (wallet && id === state.walletInfo?.deviceId) {
+          if (state.isConnected) return
           // This gets the firmware version needed for some KeepKey "supportsX" functions
           await wallet.getFeatures()
           // Show the label from the wallet instead of a generic name
@@ -277,7 +281,10 @@ export const useKeepKeyEventHandler = (
     loadWallet,
     isUpdatingPin,
     modal,
-    state.walletInfo,
+    state.walletInfo?.deviceId,
+    state.walletInfo?.icon,
+    state.walletInfo?.name,
+    state.isConnected,
     setDeviceState,
     disposition,
     toast,

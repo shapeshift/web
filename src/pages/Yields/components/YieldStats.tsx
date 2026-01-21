@@ -1,16 +1,12 @@
-import { Avatar, Box, Flex, SimpleGrid, Text } from '@chakra-ui/react'
+import { Avatar, Box, Card, CardBody, Flex, SimpleGrid, Text } from '@chakra-ui/react'
 import { memo, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useSearchParams } from 'react-router-dom'
 
 import { Amount } from '@/components/Amount/Amount'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
-import {
-  COSMOS_ATOM_NATIVE_STAKING_YIELD_ID,
-  DEFAULT_NATIVE_VALIDATOR_BY_CHAIN_ID,
-  SOLANA_SOL_NATIVE_MULTIVALIDATOR_STAKING_YIELD_ID,
-} from '@/lib/yieldxyz/constants'
 import type { AugmentedYieldDto } from '@/lib/yieldxyz/types'
+import { getDefaultValidatorForYield, isStakingYieldType } from '@/lib/yieldxyz/utils'
 import type { NormalizedYieldBalances } from '@/react-queries/queries/yieldxyz/useAllYieldBalances'
 import { useYieldValidators } from '@/react-queries/queries/yieldxyz/useYieldValidators'
 import {
@@ -33,29 +29,20 @@ export const YieldStats = memo(({ yieldItem, balances }: YieldStatsProps) => {
   )
 
   const [searchParams] = useSearchParams()
-  const validatorParam = useMemo(() => searchParams.get('validator'), [searchParams])
+  const validatorParam = searchParams.get('validator')
 
-  const shouldFetchValidators = useMemo(
-    () => yieldItem.mechanics.type === 'staking' && yieldItem.mechanics.requiresValidatorSelection,
-    [yieldItem.mechanics.type, yieldItem.mechanics.requiresValidatorSelection],
-  )
+  const isStaking = isStakingYieldType(yieldItem.mechanics.type)
+  const shouldFetchValidators = isStaking && yieldItem.mechanics.requiresValidatorSelection
   const { data: validators } = useYieldValidators(yieldItem.id, shouldFetchValidators)
 
-  const defaultValidator = useMemo(() => {
-    if (yieldItem.chainId && DEFAULT_NATIVE_VALIDATOR_BY_CHAIN_ID[yieldItem.chainId])
-      return DEFAULT_NATIVE_VALIDATOR_BY_CHAIN_ID[yieldItem.chainId]
-    return validators?.[0]?.address
-  }, [yieldItem.chainId, validators])
+  const defaultValidator = useMemo(
+    () => getDefaultValidatorForYield(yieldItem.id) ?? validators?.[0]?.address,
+    [yieldItem.id, validators],
+  )
 
   const selectedValidatorAddress = useMemo(() => {
-    // For native staking with hardcoded defaults, always use the default validator (ignore URL param)
-    if (
-      yieldItem.id === COSMOS_ATOM_NATIVE_STAKING_YIELD_ID ||
-      yieldItem.id === SOLANA_SOL_NATIVE_MULTIVALIDATOR_STAKING_YIELD_ID ||
-      (yieldItem.id.includes('solana') && yieldItem.id.includes('native'))
-    ) {
-      return defaultValidator
-    }
+    const enforced = getDefaultValidatorForYield(yieldItem.id)
+    if (enforced) return enforced
     return validatorParam || defaultValidator
   }, [yieldItem.id, validatorParam, defaultValidator])
 
@@ -67,7 +54,7 @@ export const YieldStats = memo(({ yieldItem, balances }: YieldStatsProps) => {
       ?.validator
     if (inBalances) return inBalances
     return undefined
-  }, [validators, selectedValidatorAddress, balances])
+  }, [selectedValidatorAddress, validators, balances?.raw])
 
   const tvl = useMemo(() => {
     const validatorTvl =
@@ -75,64 +62,74 @@ export const YieldStats = memo(({ yieldItem, balances }: YieldStatsProps) => {
     return bnOrZero(yieldItem.statistics?.tvl ?? validatorTvl).toNumber()
   }, [selectedValidator, yieldItem.statistics?.tvl])
 
-  const tvlUserCurrency = useMemo(() => {
-    if (yieldItem.statistics?.tvlUsd) {
-      return bnOrZero(yieldItem.statistics.tvlUsd).times(userCurrencyToUsdRate).toFixed()
-    }
-    return bnOrZero(tvl)
-      .times(bnOrZero(inputTokenMarketData?.price))
-      .toFixed()
-  }, [yieldItem.statistics?.tvlUsd, userCurrencyToUsdRate, tvl, inputTokenMarketData?.price])
+  const tvlUserCurrency = useMemo(
+    () =>
+      yieldItem.statistics?.tvlUsd
+        ? bnOrZero(yieldItem.statistics.tvlUsd).times(userCurrencyToUsdRate).toFixed()
+        : bnOrZero(tvl)
+            .times(bnOrZero(inputTokenMarketData?.price))
+            .toFixed(),
+    [yieldItem.statistics?.tvlUsd, userCurrencyToUsdRate, tvl, inputTokenMarketData?.price],
+  )
 
-  const validatorMetadata = useMemo(() => {
-    if (yieldItem.mechanics.type !== 'staking') return null
-    if (selectedValidator)
-      return { name: selectedValidator.name, logoURI: selectedValidator.logoURI }
-    return null
-  }, [yieldItem.mechanics.type, selectedValidator])
+  const validatorMetadata = useMemo(
+    () =>
+      isStaking && selectedValidator
+        ? { name: selectedValidator.name, logoURI: selectedValidator.logoURI }
+        : null,
+    [isStaking, selectedValidator],
+  )
 
   return (
-    <SimpleGrid columns={3} spacing={4} px={{ base: 2, md: 0 }}>
-      <Box>
-        <Text fontSize='xs' color='text.subtle' textTransform='uppercase' mb={1}>
-          {translate('yieldXYZ.tvl')}
-        </Text>
-        <Amount.Fiat value={tvlUserCurrency} abbreviated fontSize='sm' fontWeight='bold' />
-      </Box>
-
-      <Box>
-        <Text fontSize='xs' color='text.subtle' textTransform='uppercase' mb={1}>
-          {translate('yieldXYZ.rewardSchedule')}
-        </Text>
-        <Text fontSize='sm' fontWeight='bold' textTransform='capitalize'>
-          {yieldItem.mechanics.rewardSchedule}
-        </Text>
-      </Box>
-
-      <Box>
-        <Text fontSize='xs' color='text.subtle' textTransform='uppercase' mb={1}>
-          {translate('yieldXYZ.type')}
-        </Text>
-        <Text fontSize='sm' fontWeight='bold' textTransform='capitalize'>
-          {yieldItem.mechanics.type}
-        </Text>
-      </Box>
-
-      {validatorMetadata && (
-        <Box>
-          <Text fontSize='xs' color='text.subtle' textTransform='uppercase' mb={1}>
-            {translate('yieldXYZ.validator')}
-          </Text>
-          <Flex align='center' gap={1}>
-            {validatorMetadata.logoURI && (
-              <Avatar size='2xs' src={validatorMetadata.logoURI} name={validatorMetadata.name} />
-            )}
-            <Text fontSize='sm' fontWeight='bold'>
-              {validatorMetadata.name}
+    <Card>
+      <CardBody>
+        <SimpleGrid columns={3} spacing={4}>
+          <Box>
+            <Text fontSize='xs' color='text.subtle' textTransform='uppercase' mb={1}>
+              {translate('yieldXYZ.tvl')}
             </Text>
-          </Flex>
-        </Box>
-      )}
-    </SimpleGrid>
+            <Amount.Fiat value={tvlUserCurrency} abbreviated fontSize='sm' fontWeight='bold' />
+          </Box>
+
+          <Box>
+            <Text fontSize='xs' color='text.subtle' textTransform='uppercase' mb={1}>
+              {translate('yieldXYZ.rewardSchedule')}
+            </Text>
+            <Text fontSize='sm' fontWeight='bold' textTransform='capitalize'>
+              {yieldItem.mechanics.rewardSchedule}
+            </Text>
+          </Box>
+
+          <Box>
+            <Text fontSize='xs' color='text.subtle' textTransform='uppercase' mb={1}>
+              {translate('yieldXYZ.type')}
+            </Text>
+            <Text fontSize='sm' fontWeight='bold' textTransform='capitalize'>
+              {yieldItem.mechanics.type}
+            </Text>
+          </Box>
+
+          {validatorMetadata && (
+            <Box>
+              <Text fontSize='xs' color='text.subtle' textTransform='uppercase' mb={1}>
+                {translate('yieldXYZ.validator')}
+              </Text>
+              <Flex align='center' gap={1}>
+                {validatorMetadata.logoURI && (
+                  <Avatar
+                    size='2xs'
+                    src={validatorMetadata.logoURI}
+                    name={validatorMetadata.name}
+                  />
+                )}
+                <Text fontSize='sm' fontWeight='bold'>
+                  {validatorMetadata.name}
+                </Text>
+              </Flex>
+            </Box>
+          )}
+        </SimpleGrid>
+      </CardBody>
+    </Card>
   )
 })

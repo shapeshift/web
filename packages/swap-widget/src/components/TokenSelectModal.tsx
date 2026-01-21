@@ -1,12 +1,15 @@
 import './TokenSelectModal.css'
 
+import { bnOrZero } from '@shapeshiftoss/utils'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Virtuoso } from 'react-virtuoso'
 
 import type { ChainInfo } from '../hooks/useAssets'
 import { useAssets, useChains } from '../hooks/useAssets'
-import { useEvmBalances } from '../hooks/useBalances'
+import { useMultiChainBalances } from '../hooks/useBalances'
+import { useBitcoinSigning } from '../hooks/useBitcoinSigning'
 import { useAllMarketData } from '../hooks/useMarketData'
+import { useSolanaSigning } from '../hooks/useSolanaSigning'
 import type { Asset, AssetId, ChainId } from '../types'
 
 const VISIBLE_BUFFER = 10
@@ -30,6 +33,7 @@ type TokenSelectModalProps = {
   disabledChainIds?: ChainId[]
   allowedChainIds?: ChainId[]
   walletAddress?: string
+  currentAssetIds?: AssetId[]
 }
 
 const isNativeAsset = (assetId: string): boolean => {
@@ -64,6 +68,7 @@ export const TokenSelectModal = ({
   disabledChainIds = [],
   allowedChainIds,
   walletAddress,
+  currentAssetIds = [],
 }: TokenSelectModalProps) => {
   useLockBodyScroll(isOpen)
   const [searchQuery, setSearchQuery] = useState('')
@@ -150,11 +155,20 @@ export const TokenSelectModal = ({
 
   const assetIds = useMemo(() => visibleAssets.map(a => a.assetId), [visibleAssets])
 
-  const { data: balances, loadingAssetIds } = useEvmBalances(
-    walletAddress,
-    assetIds,
-    assetPrecisions,
-  )
+  const { address: bitcoinAddress } = useBitcoinSigning()
+  const { address: solanaAddress } = useSolanaSigning()
+
+  const {
+    data: balances,
+    loadingAssetIds,
+    refetchSpecific,
+  } = useMultiChainBalances(walletAddress, bitcoinAddress, solanaAddress, assetIds, assetPrecisions)
+
+  useEffect(() => {
+    if (isOpen && currentAssetIds.length > 0) {
+      refetchSpecific?.(currentAssetIds)
+    }
+  }, [isOpen, currentAssetIds, refetchSpecific])
 
   const { data: marketData } = useAllMarketData()
 
@@ -347,7 +361,7 @@ export const TokenSelectModal = ({
                           </span>
                         </div>
                         <div className='ssw-token-right'>
-                          {walletAddress &&
+                          {(walletAddress || bitcoinAddress || solanaAddress) &&
                             (loadingAssetIds.has(asset.assetId) ? (
                               <span className='ssw-token-balance-skeleton' />
                             ) : balance && balance.balance !== '0' ? (
@@ -355,13 +369,14 @@ export const TokenSelectModal = ({
                                 {marketData?.[asset.assetId]?.price && (
                                   <span className='ssw-token-fiat-value'>
                                     $
-                                    {(
-                                      (Number(balance.balance) / Math.pow(10, asset.precision)) *
-                                      Number(marketData[asset.assetId].price)
-                                    ).toLocaleString(undefined, {
-                                      minimumFractionDigits: 2,
-                                      maximumFractionDigits: 2,
-                                    })}
+                                    {bnOrZero(balance.balance)
+                                      .div(bnOrZero(10).pow(asset.precision))
+                                      .times(bnOrZero(marketData[asset.assetId].price))
+                                      .toNumber()
+                                      .toLocaleString(undefined, {
+                                        minimumFractionDigits: 2,
+                                        maximumFractionDigits: 2,
+                                      })}
                                   </span>
                                 )}
                                 <span className='ssw-token-balance'>

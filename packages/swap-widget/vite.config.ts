@@ -10,7 +10,10 @@ const libExternals = [
   'react-dom',
   'viem',
   'wagmi',
-  '@rainbow-me/rainbowkit',
+  '@reown/appkit',
+  '@reown/appkit-adapter-wagmi',
+  '@reown/appkit-adapter-bitcoin',
+  '@reown/appkit-adapter-solana',
   '@tanstack/react-query',
 ]
 

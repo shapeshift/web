@@ -1,3 +1,5 @@
+import type { BitcoinConnector } from '@reown/appkit-adapter-bitcoin'
+import type { Provider as SolanaProvider } from '@reown/appkit-adapter-solana/react'
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import {
   arbitrumChainId,
@@ -29,6 +31,8 @@ import type { WalletClient } from 'viem'
 import { erc20Abi } from 'viem'
 
 export type { AssetId, ChainId }
+export type { BitcoinConnector }
+export type { SolanaProvider }
 
 export enum SwapperName {
   Thorchain = 'THORChain',
@@ -247,12 +251,21 @@ export const getChainType = (chainId: string): 'evm' | 'utxo' | 'cosmos' | 'sola
   }
 }
 
-export const formatAmount = (amount: string, decimals: number, maxDecimals = 6): string => {
-  const result = fromBaseUnit(amount, decimals, maxDecimals)
+export const formatAmount = (amount: string, decimals: number, maxDecimals?: number): string => {
+  const effectiveMaxDecimals = maxDecimals ?? Math.min(decimals, 8)
+  const result = fromBaseUnit(amount, decimals, effectiveMaxDecimals)
   const num = Number(result)
   if (num === 0) return '0'
-  if (num < 0.0001) return '< 0.0001'
-  return num.toLocaleString(undefined, { maximumFractionDigits: maxDecimals })
+
+  const threshold = Math.pow(10, -effectiveMaxDecimals)
+  if (num > 0 && num < threshold) {
+    return `< ${threshold.toFixed(effectiveMaxDecimals)}`
+  }
+
+  return num.toLocaleString(undefined, {
+    maximumFractionDigits: effectiveMaxDecimals,
+    minimumFractionDigits: 0,
+  })
 }
 
 export const parseAmount = (amount: string, decimals: number): string => {
@@ -262,4 +275,34 @@ export const parseAmount = (amount: string, decimals: number): string => {
 export const truncateAddress = (address: string, chars = 4): string => {
   if (address.length <= chars * 2 + 2) return address
   return `${address.slice(0, chars + 2)}...${address.slice(-chars)}`
+}
+
+export type TransactionStatus = 'pending' | 'confirmed' | 'failed'
+
+export type TransactionStatusResult = {
+  status: TransactionStatus
+  confirmations?: number
+  blockNumber?: number
+  error?: string
+}
+
+export type BitcoinTransactionStatus = {
+  confirmed: boolean
+  block_height?: number
+  block_hash?: string
+  block_time?: number
+}
+
+export type WalletProviderNamespace = 'eip155' | 'bip122' | 'solana'
+
+export type MultiChainAddress = {
+  namespace: WalletProviderNamespace
+  address: string
+  chainId?: ChainId
+}
+
+export type MultiChainWalletState = {
+  isConnected: boolean
+  addresses: MultiChainAddress[]
+  activeNamespace?: WalletProviderNamespace
 }

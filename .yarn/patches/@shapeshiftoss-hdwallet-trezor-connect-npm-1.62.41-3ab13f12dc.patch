@@ -1,0 +1,64 @@
+diff --git a/dist/transport.js b/dist/transport.js
+index 8b8ccb01c59f75a688bed83d5fd5141086728484..f2559875771f8a62a30722c47c841740ac964a86 100644
+--- a/dist/transport.js
++++ b/dist/transport.js
+@@ -36,7 +36,9 @@ exports.TrezorConnectTransport = exports.POPUP = void 0;
+ const core = __importStar(require("@shapeshiftoss/hdwallet-core"));
+ const trezor = __importStar(require("@shapeshiftoss/hdwallet-trezor"));
+ const connect_web_1 = __importStar(require("@trezor/connect-web"));
+-exports.POPUP = true;
++// --- MOBILE DEEP LINK PATCH: Disable popup on mobile ---
++const isMobileDevice = typeof navigator !== 'undefined' && /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
++exports.POPUP = !isMobileDevice;
+ class TrezorConnectTransport extends trezor.TrezorTransport {
+     static cancellable(inProgress) {
+         return __awaiter(this, void 0, void 0, function* () {
+@@ -122,6 +124,48 @@ class TrezorConnectTransport extends trezor.TrezorTransport {
+         });
+     }
+     static callQuiet(device, method, msg) {
++        // --- BEGIN TREZOR MOBILE DEEP LINK PATCH ---
++        if (isMobileDevice && typeof window !== 'undefined') {
++            const STORAGE_KEY_REQUEST = 'trezor_deeplink_request';
++            const STORAGE_KEY_RESPONSE = 'trezor_deeplink_response';
++            // Check for stored response from previous deep link
++            const storedResponseStr = localStorage.getItem(STORAGE_KEY_RESPONSE);
++            const storedRequestStr = localStorage.getItem(STORAGE_KEY_REQUEST);
++            if (storedResponseStr && storedRequestStr) {
++                try {
++                    const storedRequest = JSON.parse(storedRequestStr);
++                    if (storedRequest.method === method) {
++                        const storedResponse = JSON.parse(storedResponseStr);
++                        localStorage.removeItem(STORAGE_KEY_RESPONSE);
++                        localStorage.removeItem(STORAGE_KEY_REQUEST);
++                        console.log('[TrezorDeepLink] Returning stored response for', method);
++                        return Promise.resolve(storedResponse.response);
++                    }
++                }
++                catch (e) {
++                    console.error('[TrezorDeepLink] Failed to parse stored data:', e);
++                }
++            }
++            // No stored response - initiate deep link redirect
++            const requestId = crypto.randomUUID();
++            const callbackUrl = `${window.location.origin}/#/trezor/callback`;
++            const callbackWithId = `${callbackUrl}?id=${requestId}`;
++            const params = Object.assign({ device }, msg);
++            const encodedParams = encodeURIComponent(JSON.stringify(params));
++            const encodedCallback = encodeURIComponent(callbackWithId);
++            const deepLinkUrl = `https://connect.trezor.io/9/deeplink/1/?method=${method}&params=${encodedParams}&callback=${encodedCallback}`;
++            localStorage.setItem(STORAGE_KEY_REQUEST, JSON.stringify({
++                id: requestId,
++                method: method,
++                params: params,
++                timestamp: Date.now(),
++                returnUrl: window.location.href
++            }));
++            console.log('[TrezorDeepLink] Redirecting to Trezor Suite for', method);
++            window.location.href = deepLinkUrl;
++            return Promise.reject(new Error('TREZOR_DEEPLINK_REDIRECT'));
++        }
++        // --- END TREZOR MOBILE DEEP LINK PATCH ---
+         return __awaiter(this, void 0, void 0, function* () {
+             // TrezorConnect only lets us make one call at a time. If this library is
+             // used in a concurrent environment like say, React, then we need to guard

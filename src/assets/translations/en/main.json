@@ -1539,6 +1539,7 @@
       "connect": {
         "header": "Pair Trezor",
         "body": "Connect your Trezor device and click Pair",
+        "bodyMobile": "Tap Pair to open Trezor Suite and approve on your device",
         "button": "Pair"
       }
     },

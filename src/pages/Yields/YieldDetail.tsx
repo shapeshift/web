@@ -132,6 +132,13 @@ export const YieldDetail = memo(() => {
           documentation: provider.references?.[0] ?? provider.website,
         }
       }
+      // Fallback for providers not in the API (e.g., drift)
+      // NOTE: This shouldn't happen and is a bug upstream, currently happens w/ Drift.
+      // Report to Yield if you see some other provider missing in /providers in the future.
+      return {
+        name: yieldItem.providerId.charAt(0).toUpperCase() + yieldItem.providerId.slice(1),
+        logoURI: yieldItem.metadata.logoURI,
+      }
     }
     return null
   }, [
@@ -278,7 +285,7 @@ export const YieldDetail = memo(() => {
               inputTokenMarketData={inputTokenMarketData}
             />
             <YieldStats yieldItem={yieldItem} balances={balances} />
-            {!isStaking && maybeValidatorOrProvider && (
+            {(!isStaking || !requiresValidatorSelection) && maybeValidatorOrProvider && (
               <YieldProviderInfo
                 providerId={yieldItem.providerId}
                 providerName={maybeValidatorOrProvider.name}
@@ -302,7 +309,7 @@ export const YieldDetail = memo(() => {
                 titleOverride={titleOverride}
               />
               <YieldStats yieldItem={yieldItem} balances={balances} />
-              {!isStaking && maybeValidatorOrProvider && (
+              {(!isStaking || !requiresValidatorSelection) && maybeValidatorOrProvider && (
                 <YieldProviderInfo
                   providerId={yieldItem.providerId}
                   providerName={maybeValidatorOrProvider.name}

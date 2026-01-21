@@ -2813,7 +2813,11 @@
       "kamino": "Kamino is a Solana DeFi suite unifying lending, liquidity, and leverage into one platform. Runs an Immunefi program with up to $1.5M maximum bounty.",
       "fluid": "Fluid is a liquidity layer built by the Instadapp team, connecting lending, DEX, borrowing, and stablecoin markets into one efficient system. Multiply audited by top-tier security firms, live since 2024, with $0.5M in bug bounty incentives.",
       "venus": "Venus is a lending and borrowing protocol focused on BNB Chain. Emphasizes security through third-party audits and an ongoing bug bounty program.",
-      "gearbox": "Gearbox is a composable leverage protocol enabling credit accounts that plug into DeFi strategies. Multiply audited by top-tier security firms, live since 2021, with $0.2M in bug bounty incentives."
+      "gearbox": "Gearbox is a composable leverage protocol enabling credit accounts that plug into DeFi strategies. Multiply audited by top-tier security firms, live since 2021, with $0.2M in bug bounty incentives.",
+      "yearn": "Yearn is a decentralized suite of products helping individuals, DAOs, and other protocols earn yield on their digital assets. Multiply audited by top-tier security firms, live since 2020, with $0.2M in bug bounty incentives.",
+      "spark": "Spark is a decentralized lending protocol powered by the Sky (formerly MakerDAO) ecosystem, allowing users to borrow DAI and other stablecoins at competitive rates. Runs an Immunefi program with up to $5M maximum bounty.",
+      "rocket-pool": "Rocket Pool is a decentralized Ethereum liquid staking protocol that issues rETH. Multiply audited by top-tier security firms, live since 2021, with $0.5M in bug bounty incentives.",
+      "drift": "Drift is a decentralized perpetuals exchange and lending platform built on Solana. Runs an Immunefi program with up to $0.5M maximum bounty."
     },
     "otherYields": "Other %{symbol} Yields",
     "availableToDeposit": "Available to Deposit",

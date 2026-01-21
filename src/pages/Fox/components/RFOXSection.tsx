@@ -9,6 +9,7 @@ import {
   Flex,
   Heading,
   HStack,
+  Icon,
   SimpleGrid,
   Skeleton,
   Stack,
@@ -23,7 +24,7 @@ import {
   usdcOnArbitrumOneAssetId,
 } from '@shapeshiftoss/caip'
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { TbArrowDown, TbArrowUp } from 'react-icons/tb'
+import { TbAlertTriangle, TbArrowDown, TbArrowUp } from 'react-icons/tb'
 import { useTranslate } from 'react-polyglot'
 import { useLocation } from 'react-router-dom'
 
@@ -287,9 +288,16 @@ export const RFOXSection = () => {
   const actionsButtons = useMemo(() => {
     return (
       <Flex flexWrap='wrap' gap={2}>
-        <Button onClick={handleStakeClick} colorScheme='gray' flex='1 1 auto' leftIcon={tbArrowUp}>
-          {translate('defi.stake')}
-        </Button>
+        {stakingAssetId === foxOnArbitrumOneAssetId && (
+          <Button
+            onClick={handleStakeClick}
+            colorScheme='gray'
+            flex='1 1 auto'
+            leftIcon={tbArrowUp}
+          >
+            {translate('defi.stake')}
+          </Button>
+        )}
         <Button
           onClick={handleUnstakeClick}
           colorScheme='gray'
@@ -303,13 +311,28 @@ export const RFOXSection = () => {
         </Button>
       </Flex>
     )
-  }, [handleStakeClick, handleUnstakeClick, handleClaimClick, translate])
+  }, [handleStakeClick, handleUnstakeClick, handleClaimClick, translate, stakingAssetId])
 
   if (!(stakingAsset && usdcAsset)) return null
 
   return (
     <Box>
       <Divider mt={2} mb={6} />
+      <Card bg='yellow.500' borderColor='yellow.600' borderWidth={1} borderRadius='lg'>
+        <CardBody py={2} px={4}>
+          <Flex alignItems='center' gap={2}>
+            <Icon as={TbAlertTriangle} boxSize={6} color='black' />
+            <Box>
+              <CText fontWeight='bold' color='black'>
+                {translate('RFOX.lpSunsetWarningTitle')}
+              </CText>
+              <CText fontSize='sm' color='black'>
+                {translate('RFOX.lpSunsetWarningDescription')}
+              </CText>
+            </Box>
+          </Flex>
+        </CardBody>
+      </Card>
       <Box py={4} px={containerPaddingX} id='rfox'>
         <Flex sx={headerSx}>
           <Box mb={headerTitleMb}>

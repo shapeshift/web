@@ -465,6 +465,12 @@ export const YieldPositionCard = memo(
                   onClick={handleEnter}
                   flex={1}
                   fontWeight='bold'
+                  isDisabled={!yieldItem.status.enter}
+                  title={
+                    !yieldItem.status.enter
+                      ? translate('yieldXYZ.depositsDisabledDescription')
+                      : undefined
+                  }
                 >
                   {enterLabel}
                 </Button>
@@ -478,6 +484,12 @@ export const YieldPositionCard = memo(
                     onClick={handleExit}
                     flex={1}
                     fontWeight='bold'
+                    isDisabled={!yieldItem.status.exit}
+                    title={
+                      !yieldItem.status.exit
+                        ? translate('yieldXYZ.withdrawalsDisabledDescription')
+                        : undefined
+                    }
                   >
                     {exitLabel}
                   </Button>

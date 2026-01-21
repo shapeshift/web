@@ -35,7 +35,11 @@ import {
   YIELD_NETWORK_TO_CHAIN_ID,
 } from '@/lib/yieldxyz/constants'
 import type { AugmentedYieldDto, YieldNetwork } from '@/lib/yieldxyz/types'
-import { resolveYieldInputAssetIcon } from '@/lib/yieldxyz/utils'
+import {
+  getDefaultValidatorForYield,
+  isYieldDisabled,
+  resolveYieldInputAssetIcon,
+} from '@/lib/yieldxyz/utils'
 import { GradientApy } from '@/pages/Yields/components/GradientApy'
 import { YieldFilters } from '@/pages/Yields/components/YieldFilters'
 import { YieldItem, YieldItemSkeleton } from '@/pages/Yields/components/YieldItem'
@@ -201,12 +205,19 @@ export const YieldAssetDetails = memo(() => {
   const filteredYields = useMemo(
     () =>
       assetYields.filter(y => {
+        if (isYieldDisabled(y)) {
+          const balances = allBalances?.[y.id]
+          const hasBalance =
+            balances &&
+            balances.reduce((sum, b) => sum.plus(bnOrZero(b.amountUsd)), bnOrZero(0)).gt(0)
+          if (!hasBalance) return false
+        }
         if (selectedNetwork && y.network !== selectedNetwork) return false
         if (selectedProvider && y.providerId !== selectedProvider) return false
         if (selectedType && y.mechanics.type !== selectedType) return false
         return true
       }),
-    [assetYields, selectedNetwork, selectedProvider, selectedType],
+    [assetYields, allBalances, selectedNetwork, selectedProvider, selectedType],
   )
 
   const columns = useMemo<ColumnDef<AugmentedYieldDto>[]>(
@@ -322,7 +333,7 @@ export const YieldAssetDetails = memo(() => {
         meta: { display: { base: 'none', md: 'table-cell' } },
       },
       {
-        header: translate('yieldXYZ.yourBalance'),
+        header: translate('yieldXYZ.balance'),
         id: 'balance',
         accessorFn: row => {
           const balances = allBalances?.[row.id]
@@ -379,14 +390,11 @@ export const YieldAssetDetails = memo(() => {
 
   const handleYieldClick = useCallback(
     (yieldId: string) => {
-      const balances = allBalances?.[yieldId]
-      const highestAmountValidator = balances?.[0]?.highestAmountUsdValidator
-      const url = highestAmountValidator
-        ? `/yield/${yieldId}?validator=${highestAmountValidator}`
-        : `/yield/${yieldId}`
+      const validator = getDefaultValidatorForYield(yieldId)
+      const url = validator ? `/yields/${yieldId}?validator=${validator}` : `/yields/${yieldId}`
       navigate(url)
     },
-    [allBalances, navigate],
+    [navigate],
   )
 
   const handleRowClick = useCallback(

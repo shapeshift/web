@@ -7,6 +7,7 @@ import { agenticChatSlice } from '../../../state/slices/agenticChatSlice/agentic
 import type { PersistedToolState } from '../../../state/slices/agenticChatSlice/types'
 import { selectPortfolioAccountMetadataByAccountId } from '../../../state/slices/portfolioSlice/selectors'
 import { useAppDispatch, useAppSelector } from '../../../state/store'
+import { getToolStateStatus, validateExecutionContext } from '../lib/executionUtils'
 import { createStepPhaseMap, getStepStatus, StepStatus } from '../lib/stepUtils'
 import { executeEvmTransaction, executeSolanaTransaction } from '../lib/walletIntegration'
 import type { SendOutput } from '../types/toolOutput'
@@ -130,15 +131,13 @@ export const useSendExecution = (
       let sendTxHash: string | undefined
 
       try {
+        validateExecutionContext(walletState, accountId, accountMetadata)
+
         const { tx } = data
 
-        // Validate wallet and account metadata are available
-        if (!walletState.wallet) {
-          throw new Error('No wallet connected')
-        }
-        if (!accountId || !accountMetadata) {
-          throw new Error('Account not found')
-        }
+        const wallet = walletState.wallet!
+        const validAccountId = accountId!
+        const validAccountMetadata = accountMetadata!
 
         // Step 0: Preparation (completed by this point)
         setState(draft => {
@@ -155,16 +154,16 @@ export const useSendExecution = (
         if (chainNamespace === CHAIN_NAMESPACE.Evm) {
           sendTxHash = await executeEvmTransaction({
             tx,
-            wallet: walletState.wallet,
-            accountId,
-            accountMetadata,
+            wallet,
+            accountId: validAccountId,
+            accountMetadata: validAccountMetadata,
           })
         } else if (chainNamespace === CHAIN_NAMESPACE.Solana) {
           sendTxHash = await executeSolanaTransaction({
             tx,
-            wallet: walletState.wallet,
-            accountId,
-            accountMetadata,
+            wallet,
+            accountId: validAccountId,
+            accountMetadata: validAccountMetadata,
           })
         } else {
           throw new Error(`Unsupported chain: ${chainNamespace}`)
@@ -205,13 +204,7 @@ export const useSendExecution = (
     },
   )
 
-  const preparationStepStatus = (() => {
-    if (toolState === 'output-error') return StepStatus.FAILED
-    if (toolState === 'input-streaming' || toolState === 'input-available')
-      return StepStatus.IN_PROGRESS
-    if (toolState === 'output-available') return StepStatus.COMPLETE
-    return StepStatus.NOT_STARTED
-  })()
+  const preparationStepStatus = getToolStateStatus(toolState)
 
   return {
     steps: [

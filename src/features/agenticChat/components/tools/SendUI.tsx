@@ -1,19 +1,18 @@
 import { Box, Text, useColorModeValue } from '@chakra-ui/react'
-import { memo, useMemo } from 'react'
+import { useMemo } from 'react'
+import { useTranslate } from 'react-polyglot'
 
 import { SendStep, StepStatus, useSendExecution } from '../../hooks/useSendExecution'
 import type { ToolUIProps } from '../../types/toolInvocation'
 import type { SendOutput } from '../../types/toolOutput'
 import { TxStepCard } from './TxStepCard'
 
-const firstFourLastFour = (address: string): string => {
-  if (address.length <= 8) return address
-  return `${address.slice(0, 6)}...${address.slice(-4)}`
-}
+import { middleEllipsis } from '@/lib/utils'
 
-export const SendUI = memo(({ toolPart }: ToolUIProps) => {
+export const SendUI = ({ toolPart }: ToolUIProps) => {
   const { state, output, toolCallId } = toolPart
   const sendOutput = output as SendOutput | undefined
+  const translate = useTranslate()
 
   const sendData = state === 'output-available' && sendOutput ? sendOutput : null
   const { error, steps, sendTxHash } = useSendExecution(toolCallId, state, sendData)
@@ -36,15 +35,23 @@ export const SendUI = memo(({ toolPart }: ToolUIProps) => {
 
   const footerMessage = (() => {
     if (toolPart.state === 'output-error') {
-      return { type: 'error' as const, text: 'Failed to prepare send transaction' }
+      return {
+        type: 'error' as const,
+        text: translate('agenticChat.agenticChatTools.send.errors.prepareFailed'),
+      }
     }
     if (error) {
-      return { type: 'error' as const, text: `Send failed: ${error}` }
+      return {
+        type: 'error' as const,
+        text: translate('agenticChat.agenticChatTools.send.errors.sendFailed', { error }),
+      }
     }
     if (sendTxHash) {
       return {
         type: 'success' as const,
-        text: `Transaction sent: ${firstFourLastFour(sendTxHash)}`,
+        text: translate('agenticChat.agenticChatTools.send.success.transactionSent', {
+          txHash: middleEllipsis(sendTxHash),
+        }),
       }
     }
     return null
@@ -55,7 +62,7 @@ export const SendUI = memo(({ toolPart }: ToolUIProps) => {
       <TxStepCard.Header>
         <TxStepCard.HeaderRow>
           <Text fontSize='lg' fontWeight='semibold'>
-            Send Crypto
+            {translate('agenticChat.agenticChatTools.send.title')}
           </Text>
         </TxStepCard.HeaderRow>
       </TxStepCard.Header>
@@ -63,10 +70,10 @@ export const SendUI = memo(({ toolPart }: ToolUIProps) => {
       <TxStepCard.Content>
         <TxStepCard.Stepper completedCount={completedCount} totalCount={2}>
           <TxStepCard.Step status={preparationStep.status} connectorBottom>
-            Preparing send transaction
+            {translate('agenticChat.agenticChatTools.send.steps.preparation')}
           </TxStepCard.Step>
           <TxStepCard.Step status={sendStep.status} connectorTop>
-            Sign and send transaction
+            {translate('agenticChat.agenticChatTools.send.steps.send')}
           </TxStepCard.Step>
           {footerMessage && (
             <Box mt={4}>
@@ -83,6 +90,4 @@ export const SendUI = memo(({ toolPart }: ToolUIProps) => {
       </TxStepCard.Content>
     </TxStepCard.Root>
   )
-})
-
-SendUI.displayName = 'SendUI'
+}

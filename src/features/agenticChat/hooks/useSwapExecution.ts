@@ -9,6 +9,7 @@ import { agenticChatSlice } from '../../../state/slices/agenticChatSlice/agentic
 import type { PersistedToolState } from '../../../state/slices/agenticChatSlice/types'
 import { selectPortfolioAccountMetadataByAccountId } from '../../../state/slices/portfolioSlice/selectors'
 import { useAppDispatch, useAppSelector } from '../../../state/store'
+import { getToolStateStatus, validateExecutionContext } from '../lib/executionUtils'
 import { createStepPhaseMap, getStepStatus, StepStatus } from '../lib/stepUtils'
 import { executeEvmTransaction, executeSolanaTransaction } from '../lib/walletIntegration'
 import type { SwapOutput } from '../types/toolOutput'
@@ -20,18 +21,16 @@ type SwapData = SwapOutput
 
 export enum SwapStep {
   QUOTE = 0,
-  NETWORK_SWITCH = 1,
-  APPROVAL = 2,
-  APPROVAL_CONFIRMATION = 3,
-  SWAP = 4,
-  COMPLETE = 5,
+  APPROVAL = 1,
+  APPROVAL_CONFIRMATION = 2,
+  SWAP = 3,
+  COMPLETE = 4,
 }
 
 export { StepStatus }
 
 const SWAP_PHASES = createStepPhaseMap<SwapStep>({
   [SwapStep.QUOTE]: 'quote_complete',
-  [SwapStep.NETWORK_SWITCH]: 'network_switch_complete',
   [SwapStep.APPROVAL]: 'approval_complete',
   [SwapStep.APPROVAL_CONFIRMATION]: 'approval_confirmation_complete',
   [SwapStep.SWAP]: 'swap_complete',
@@ -89,7 +88,6 @@ export type SwapStepInfo = {
 
 type UseSwapExecutionResult = {
   steps: SwapStepInfo[]
-  networkName?: string
   error?: string
   approvalTxHash?: string
   swapTxHash?: string
@@ -144,15 +142,13 @@ export const useSwapExecution = (
       let swapTxHash: string | undefined
 
       try {
-        // Validate wallet and account metadata are available
-        if (!walletState.wallet) {
-          throw new Error('No wallet connected')
-        }
-        if (!accountId || !accountMetadata) {
-          throw new Error('Account not found')
-        }
+        validateExecutionContext(walletState, accountId, accountMetadata)
 
         const { needsApproval, approvalTx, swapTx } = data
+
+        const wallet = walletState.wallet!
+        const validAccountId = accountId!
+        const validAccountMetadata = accountMetadata!
 
         // Detect chain namespace
         const chainNamespace = fromChainId(swapTx.chainId).chainNamespace
@@ -162,25 +158,17 @@ export const useSwapExecution = (
           if (!draft.completedSteps.includes(SwapStep.QUOTE)) {
             draft.completedSteps.push(SwapStep.QUOTE)
           }
-          draft.currentStep = SwapStep.NETWORK_SWITCH
+          draft.currentStep = needsApproval ? SwapStep.APPROVAL : SwapStep.SWAP
           draft.error = undefined
         })
 
-        // Step 1: Network switch (handled automatically by chain adapter)
-        setState(draft => {
-          if (!draft.completedSteps.includes(SwapStep.NETWORK_SWITCH)) {
-            draft.completedSteps.push(SwapStep.NETWORK_SWITCH)
-          }
-          draft.currentStep = needsApproval ? SwapStep.APPROVAL : SwapStep.SWAP
-        })
-
-        // Step 2 & 3: Approval (if needed, EVM only)
+        // Step 1 & 2: Approval (if needed, EVM only)
         if (needsApproval && approvalTx && chainNamespace === CHAIN_NAMESPACE.Evm) {
           approvalTxHash = await executeEvmTransaction({
             tx: approvalTx,
-            wallet: walletState.wallet,
-            accountId,
-            accountMetadata,
+            wallet,
+            accountId: validAccountId,
+            accountMetadata: validAccountMetadata,
           })
 
           setState(draft => {
@@ -203,20 +191,20 @@ export const useSwapExecution = (
           })
         }
 
-        // Step 4: Execute swap
+        // Step 3: Execute swap
         if (chainNamespace === CHAIN_NAMESPACE.Evm) {
           swapTxHash = await executeEvmTransaction({
             tx: swapTx,
-            wallet: walletState.wallet,
-            accountId,
-            accountMetadata,
+            wallet,
+            accountId: validAccountId,
+            accountMetadata: validAccountMetadata,
           })
         } else if (chainNamespace === CHAIN_NAMESPACE.Solana) {
           swapTxHash = await executeSolanaTransaction({
             tx: swapTx,
-            wallet: walletState.wallet,
-            accountId,
-            accountMetadata,
+            wallet,
+            accountId: validAccountId,
+            accountMetadata: validAccountMetadata,
           })
         } else {
           throw new Error(`Unsupported chain: ${chainNamespace}`)
@@ -236,7 +224,6 @@ export const useSwapExecution = (
           currentStep: SwapStep.COMPLETE,
           completedSteps: [
             SwapStep.QUOTE,
-            SwapStep.NETWORK_SWITCH,
             ...(needsApproval
               ? [SwapStep.APPROVAL, SwapStep.APPROVAL_CONFIRMATION, SwapStep.SWAP]
               : [SwapStep.SWAP]),
@@ -264,18 +251,11 @@ export const useSwapExecution = (
     },
   )
 
-  const quoteStepStatus = (() => {
-    if (toolState === 'output-error') return StepStatus.FAILED
-    if (toolState === 'input-streaming' || toolState === 'input-available')
-      return StepStatus.IN_PROGRESS
-    if (toolState === 'output-available') return StepStatus.COMPLETE
-    return StepStatus.NOT_STARTED
-  })()
+  const quoteStepStatus = getToolStateStatus(toolState)
 
   return {
     steps: [
       { step: SwapStep.QUOTE, status: quoteStepStatus },
-      { step: SwapStep.NETWORK_SWITCH, status: getStepStatus(SwapStep.NETWORK_SWITCH, state) },
       { step: SwapStep.APPROVAL, status: getStepStatus(SwapStep.APPROVAL, state) },
       {
         step: SwapStep.APPROVAL_CONFIRMATION,
@@ -283,7 +263,6 @@ export const useSwapExecution = (
       },
       { step: SwapStep.SWAP, status: getStepStatus(SwapStep.SWAP, state) },
     ],
-    networkName: swapData?.swapData?.sellAsset?.network,
     error: state.error,
     approvalTxHash: state.approvalTxHash,
     swapTxHash: state.swapTxHash,

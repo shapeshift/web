@@ -118,3 +118,175 @@ export type SwapOutput = {
   swapTx: Transaction
   swapData: SwapData
 }
+
+export type CancelLimitOrderOutput = {
+  orderId: string
+  chainId: number
+  network: string
+  signingData: {
+    domain: unknown
+    types: { OrderCancellations: { name: string; type: string }[] }
+    primaryType: 'OrderCancellations'
+    message: { orderUids: string[] }
+  }
+  trackingUrl: string
+}
+
+export type CreateLimitOrderOutput = {
+  summary: {
+    sellAsset: {
+      symbol: string
+      amount: string
+    }
+    buyAsset: {
+      symbol: string
+      estimatedAmount: string
+    }
+    network: string
+    limitPrice: string
+    expiresAt: string
+    provider: string
+  }
+  signingData: unknown
+  orderParams: {
+    sellToken: string
+    buyToken: string
+    sellAmount: string
+    buyAmount: string
+    validTo: number
+    receiver: string
+    chainId: number
+  }
+  needsApproval: boolean
+  approvalTx?: {
+    from: string
+    to: string
+    data: string
+    value: string
+    chainId: string
+  }
+  approvalTarget: string
+  trackingUrl: string
+}
+
+export type NewCoinsOutput = {
+  coins: {
+    id: string
+    assetId?: string
+    symbol: string
+    name: string
+    activatedAtFormatted: string
+  }[]
+}
+
+export type TrendingTokensOutput = {
+  tokens: {
+    id: string
+    assetId?: string
+    symbol: string
+    name: string
+    price: string | null
+    priceChange24h: number | null
+    rank: number
+  }[]
+}
+
+export type TopGainersLosersOutput = {
+  gainers: {
+    id: string
+    assetId?: string
+    symbol: string
+    name: string
+    price: string | null
+    priceChange24h: number
+  }[]
+  losers: {
+    id: string
+    assetId?: string
+    symbol: string
+    name: string
+    price: string | null
+    priceChange24h: number
+  }[]
+  duration: string
+}
+
+export type PortfolioOutput = {
+  totalValue: string
+  accountAddress?: string
+  network?: string
+  assets: {
+    assetId: string
+    symbol: string
+    name: string
+    balance: string
+    price: string | null
+    value: string | null
+  }[]
+}
+
+export type GetAssetsOutput = {
+  assets: {
+    assetId: string
+    symbol: string
+    name: string
+    price: string
+    icon?: string
+    marketCap?: string | null
+    volume24h?: string | null
+    fdv?: string | null
+    priceChange24h?: number | null
+    circulatingSupply?: string | null
+    totalSupply?: string | null
+    maxSupply?: string | null
+    sentimentVotesUpPercentage?: number | null
+    sentimentVotesDownPercentage?: number | null
+    marketCapRank?: number | null
+    description?: string | null
+  }[]
+}
+
+export type ReceiveOutput = {
+  address: string
+  network: string
+  chainName: string
+  asset: {
+    assetId: string
+    symbol: string
+    name: string
+  }
+}
+
+export type GetLimitOrdersOutput = {
+  orders: {
+    orderId: string
+    status: 'open' | 'fulfilled' | 'cancelled' | 'expired' | 'presignaturePending'
+    network: string
+    sellTokenSymbol: string
+    buyTokenSymbol: string
+    sellAmount: string
+    buyAmount: string
+    filledPercent: number
+    expiresAt: string
+    trackingUrl: string
+  }[]
+}
+
+export type GetTransactionHistoryOutput = {
+  transactions: {
+    txid: string
+    type: 'send' | 'receive' | 'swap' | 'contract'
+    status: 'success' | 'failed' | 'pending'
+    timestamp: number
+    from: string
+    to: string
+    value: string
+    fee: string
+    network: string
+    tokenTransfers?: {
+      symbol: string
+      amount: string
+      decimals: number
+    }[]
+  }[]
+}

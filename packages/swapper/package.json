@@ -36,6 +36,7 @@
     "@cowprotocol/app-data": "^2.3.0",
     "@defuse-protocol/one-click-sdk-typescript": "^0.1.1-0.2",
     "@jup-ag/api": "^6.0.30",
+    "@mysten/sui": "^1.45.2",
     "@shapeshiftoss/bitcoinjs-lib": "7.0.0-shapeshift.0",
     "@shapeshiftoss/caip": "workspace:^",
     "@shapeshiftoss/chain-adapters": "workspace:^",

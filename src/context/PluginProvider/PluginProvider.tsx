@@ -130,11 +130,7 @@ export const PluginProvider = ({ children }: PluginProviderProps): JSX.Element =
       if (!featureFlags.Ton && chainId === KnownChainIds.TonMainnet) return false
       if (!featureFlags.Near && chainId === KnownChainIds.NearMainnet) return false
       if (!featureFlags.Zcash && chainId === KnownChainIds.ZcashMainnet) return false
-      if (
-        chainId === KnownChainIds.CeloMainnet ||
-        chainId === KnownChainIds.LineaMainnet ||
-        chainId === KnownChainIds.SeiMainnet
-      )
+      if (chainId === KnownChainIds.CeloMainnet || chainId === KnownChainIds.LineaMainnet)
         return false
       return true
     })

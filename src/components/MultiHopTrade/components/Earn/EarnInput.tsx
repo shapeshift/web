@@ -26,7 +26,7 @@ import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bnOrZero, positiveOrZero } from '@/lib/bignumber/bignumber'
 import { fromBaseUnit } from '@/lib/math'
 import { enterYield } from '@/lib/yieldxyz/api'
-import { DEFAULT_NATIVE_VALIDATOR_BY_CHAIN_ID } from '@/lib/yieldxyz/constants'
+import { getDefaultValidatorForYield, isYieldDisabled } from '@/lib/yieldxyz/utils'
 import { useYields } from '@/react-queries/queries/yieldxyz/useYields'
 import { useYieldValidators } from '@/react-queries/queries/yieldxyz/useYieldValidators'
 import {
@@ -159,9 +159,8 @@ export const EarnInput = memo(
     )
 
     const selectedValidator = useMemo(() => {
-      if (!requiresValidatorSelection || !validators?.length) return undefined
-      const chainId = selectedYield?.chainId
-      const defaultAddress = chainId ? DEFAULT_NATIVE_VALIDATOR_BY_CHAIN_ID[chainId] : undefined
+      if (!requiresValidatorSelection || !validators?.length || !selectedYield) return undefined
+      const defaultAddress = getDefaultValidatorForYield(selectedYield.id)
       if (defaultAddress) {
         return (
           validators.find(v => v.address === defaultAddress) ??
@@ -170,7 +169,7 @@ export const EarnInput = memo(
         )
       }
       return validators.find(v => v.preferred) ?? validators[0]
-    }, [requiresValidatorSelection, validators, selectedYield?.chainId])
+    }, [requiresValidatorSelection, validators, selectedYield])
 
     const selectedValidatorAddress = selectedValidator?.address
 
@@ -205,9 +204,9 @@ export const EarnInput = memo(
         args.receiverAddress = userAddress
       }
 
-      if (fieldNames.has('validatorAddress') && yieldChainId) {
+      if (fieldNames.has('validatorAddress') && selectedYield) {
         const validatorAddress =
-          selectedValidatorAddress ?? DEFAULT_NATIVE_VALIDATOR_BY_CHAIN_ID[yieldChainId]
+          selectedValidatorAddress ?? getDefaultValidatorForYield(selectedYield.id)
         if (validatorAddress) {
           args.validatorAddress = validatorAddress
         }
@@ -389,19 +388,33 @@ export const EarnInput = memo(
 
     const yieldsForAsset = useMemo(() => {
       if (!sellAsset?.assetId || !yieldsData?.byInputAssetId) return []
-      return yieldsData.byInputAssetId[sellAsset.assetId] ?? []
+      const allYields = yieldsData.byInputAssetId[sellAsset.assetId] ?? []
+      return allYields.filter(y => !isYieldDisabled(y))
     }, [sellAsset?.assetId, yieldsData?.byInputAssetId])
 
+    const defaultYieldForAsset = useMemo(() => {
+      if (yieldsForAsset.length === 0) return undefined
+
+      const sortedByApy = [...yieldsForAsset].sort(
+        (a, b) => (b.rewardRate?.total ?? 0) - (a.rewardRate?.total ?? 0),
+      )
+
+      const userBalance = bnOrZero(sellAssetBalanceCryptoPrecision)
+      const actionableYield = sortedByApy.find(y => {
+        if (!y.status.enter) return false
+        const minDepositAmount = bnOrZero(y.mechanics?.entryLimits?.minimum)
+        return minDepositAmount.lte(0) || userBalance.gte(minDepositAmount)
+      })
+
+      const enabledYield = actionableYield ?? sortedByApy.find(y => y.status.enter)
+      return enabledYield ?? sortedByApy[0]
+    }, [yieldsForAsset, sellAssetBalanceCryptoPrecision])
+
     useEffect(() => {
-      if (yieldsForAsset.length > 0 && !selectedYieldId) {
-        const sortedByApy = [...yieldsForAsset].sort(
-          (a, b) => (b.rewardRate?.total ?? 0) - (a.rewardRate?.total ?? 0),
-        )
-        if (sortedByApy[0]) {
-          dispatch(tradeEarnInput.actions.setSelectedYieldId(sortedByApy[0].id))
-        }
+      if (defaultYieldForAsset && !selectedYieldId) {
+        dispatch(tradeEarnInput.actions.setSelectedYieldId(defaultYieldForAsset.id))
       }
-    }, [yieldsForAsset, selectedYieldId, dispatch])
+    }, [defaultYieldForAsset, selectedYieldId, dispatch])
 
     const handleSubmit = useCallback(
       (e: FormEvent<unknown>) => {

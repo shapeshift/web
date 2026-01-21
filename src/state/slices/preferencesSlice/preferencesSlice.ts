@@ -37,6 +37,8 @@ export type FeatureFlags = {
   HyperEvm: boolean
   Plasma: boolean
   Katana: boolean
+  Celo: boolean
+  Linea: boolean
   Zcash: boolean
   ThorSwap: boolean
   WalletConnectToDapps: boolean
@@ -188,6 +190,8 @@ const initialState: Preferences = {
     HyperEvm: getConfig().VITE_FEATURE_HYPEREVM,
     Plasma: getConfig().VITE_FEATURE_PLASMA,
     Katana: getConfig().VITE_FEATURE_KATANA,
+    Celo: getConfig().VITE_FEATURE_CELO,
+    Linea: getConfig().VITE_FEATURE_LINEA,
     Zcash: getConfig().VITE_FEATURE_ZCASH,
     ThorSwap: getConfig().VITE_FEATURE_THOR_SWAP,
     WalletConnectToDappsV2: getConfig().VITE_FEATURE_WALLET_CONNECT_TO_DAPPS_V2,

@@ -62,13 +62,13 @@ import { csp as exchangeRates } from './marketService/exchangeRates'
 import { csp as mercle } from './mercle'
 import { csp as mixPanel } from './mixPanel'
 import { csp as moralis } from './moralis'
+import { csp as pinata } from './pinata'
 import { csp as foxPage } from './plugins/foxPage'
 import { csp as walletConnectToDapps } from './plugins/walletConnectToDapps'
 import { csp as railway } from './railway'
 import { csp as relay } from './relay'
 import { csp as sentry } from './sentry'
-import { csp as shapeshiftGateway } from './shapeshiftGateway'
-import { csp as shapeshiftProxy } from './shapeshiftProxy'
+import { csp as shapeshift } from './shapeshift'
 import { csp as snapshots } from './snapshots'
 import { csp as tenderly } from './tenderly'
 import { csp as trezor } from './trezor'
@@ -96,8 +96,8 @@ export const csps = [
   mercle,
   mixPanel,
   sentry,
-  shapeshiftGateway,
-  shapeshiftProxy,
+  pinata,
+  shapeshift,
   snapshots,
   tenderly,
   webflow,

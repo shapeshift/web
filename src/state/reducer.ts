@@ -1,5 +1,4 @@
 import { combineReducers } from '@reduxjs/toolkit'
-import localforage from 'localforage'
 import { createMigrate, persistReducer } from 'redux-persist'
 
 import { abiApi } from './apis/abi/abiApi'
@@ -47,6 +46,9 @@ import { tradeInput } from './slices/tradeInputSlice/tradeInputSlice'
 import type { TxHistory } from './slices/txHistorySlice/txHistorySlice'
 import { txHistory, txHistoryApi } from './slices/txHistorySlice/txHistorySlice'
 
+import { getConfig } from '@/config'
+import { createLocalStorageAdapter } from '@/lib/profiledStorage'
+import { createWorkerStorage } from '@/lib/storage/workerStorage'
 import { gridplusSlice } from '@/state/slices/gridplusSlice/gridplusSlice'
 import type { GridPlusState } from '@/state/slices/gridplusSlice/types'
 import { tradeEarnInput } from '@/state/slices/tradeEarnInputSlice/tradeEarnInputSlice'
@@ -72,91 +74,110 @@ export const slices = {
   addressBook: addressBookSlice,
 }
 
+const isProfilingEnabled = getConfig().VITE_FEATURE_PERFORMANCE_PROFILER
+const storage = createWorkerStorage(isProfilingEnabled)
+const localStorageAdapter = createLocalStorageAdapter(isProfilingEnabled)
+
+const PERSIST_THROTTLE_MS = 1000
+
 const preferencesPersistConfig = {
   key: 'preferences',
-  storage: localforage,
+  storage: localStorageAdapter,
   blacklist: ['featureFlags'],
+  throttle: PERSIST_THROTTLE_MS,
 }
 
 const txHistoryPersistConfig = {
   key: 'txHistory',
-  storage: localforage,
+  storage,
   version: Math.max(...Object.keys(clearTxHistoryMigrations).map(Number)),
   migrate: createMigrate(clearTxHistoryMigrations, { debug: false }),
+  throttle: PERSIST_THROTTLE_MS,
 }
 
 const portfolioPersistConfig = {
   key: 'portfolio',
-  storage: localforage,
+  storage,
   version: Math.max(...Object.keys(clearPortfolioMigrations).map(Number)),
   migrate: createMigrate(clearPortfolioMigrations, { debug: false }),
+  throttle: PERSIST_THROTTLE_MS,
 }
 
 const opportunitiesPersistConfig = {
   key: 'opportunities',
-  storage: localforage,
+  storage,
   version: Math.max(...Object.keys(clearOpportunitiesMigrations).map(Number)),
   migrate: createMigrate(clearOpportunitiesMigrations, { debug: false }),
+  throttle: PERSIST_THROTTLE_MS,
 }
 
 const snapshotPersistConfig = {
   key: 'snapshot',
-  storage: localforage,
+  storage,
   version: Math.max(...Object.keys(clearSnapshotMigrations).map(Number)),
   migrate: createMigrate(clearSnapshotMigrations, { debug: false }),
+  throttle: PERSIST_THROTTLE_MS,
 }
 
 const localWalletSlicePersistConfig = {
   key: 'localWallet',
-  storage: localforage,
+  storage: localStorageAdapter,
   version: Math.max(...Object.keys(localWalletMigrations).map(Number)),
   migrate: createMigrate(localWalletMigrations, { debug: false }),
+  throttle: PERSIST_THROTTLE_MS,
 }
 
 const marketDataPersistConfig = {
   key: 'marketData',
-  storage: localforage,
+  storage,
   version: Math.max(...Object.keys(clearMarketDataMigrations).map(Number)),
   migrate: createMigrate(clearMarketDataMigrations, { debug: false }),
+  throttle: PERSIST_THROTTLE_MS,
 }
 
 const assetsPersistConfig = {
   key: 'assets',
-  storage: localforage,
+  storage,
   version: Math.max(...Object.keys(clearAssetsMigrations).map(Number)),
   migrate: createMigrate(clearAssetsMigrations, { debug: false }),
+  throttle: PERSIST_THROTTLE_MS,
 }
 
 const limitOrderApiPersistConfig = {
   key: 'limitOrderApi',
-  storage: localforage,
+  storage,
   version: 0,
+  throttle: PERSIST_THROTTLE_MS,
 }
 
 const actionPersistConfig = {
   key: 'action',
-  storage: localforage,
+  storage,
   version: Math.max(...Object.keys(clearActionMigrations).map(Number)),
   migrate: createMigrate(clearActionMigrations, { debug: false }),
+  throttle: PERSIST_THROTTLE_MS,
 }
 
 const swapPersistConfig = {
   key: 'swap',
-  storage: localforage,
+  storage,
   version: Math.max(...Object.keys(clearSwapsMigrations).map(Number)),
+  throttle: PERSIST_THROTTLE_MS,
 }
 
 const gridplusPersistConfig = {
   key: 'gridplus',
-  storage: localforage,
+  storage: localStorageAdapter,
   version: 0,
+  throttle: PERSIST_THROTTLE_MS,
 }
 
 const addressBookPersistConfig = {
   key: 'addressBook',
-  storage: localforage,
+  storage: localStorageAdapter,
   version: Math.max(...Object.keys(clearAddressBookMigrations).map(Number)),
   migrate: createMigrate(clearAddressBookMigrations, { debug: false }),
+  throttle: PERSIST_THROTTLE_MS,
 }
 
 export const sliceReducers = {

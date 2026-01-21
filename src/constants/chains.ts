@@ -16,7 +16,6 @@ export const SECOND_CLASS_CHAINS: readonly KnownChainIds[] = [
   KnownChainIds.NearMainnet,
   KnownChainIds.StarknetMainnet,
   KnownChainIds.CeloMainnet,
-  KnownChainIds.SeiMainnet,
   KnownChainIds.LineaMainnet,
 ]
 

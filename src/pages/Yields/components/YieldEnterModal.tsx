@@ -23,15 +23,23 @@ import { useLocaleFormatter } from '@/hooks/useLocaleFormatter/useLocaleFormatte
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import {
-  DEFAULT_NATIVE_VALIDATOR_BY_CHAIN_ID,
   SHAPESHIFT_COSMOS_VALIDATOR_ADDRESS,
   SHAPESHIFT_VALIDATOR_LOGO,
   SHAPESHIFT_VALIDATOR_NAME,
 } from '@/lib/yieldxyz/constants'
 import type { AugmentedYieldDto } from '@/lib/yieldxyz/types'
-import { getTransactionButtonText } from '@/lib/yieldxyz/utils'
+import {
+  getDefaultValidatorForYield,
+  getTransactionButtonText,
+  getYieldActionLabelKeys,
+  getYieldHeadingKeys,
+  getYieldMinAmountKey,
+  getYieldSuccessMessageKey,
+  isStakingYieldType,
+} from '@/lib/yieldxyz/utils'
 import { GradientApy } from '@/pages/Yields/components/GradientApy'
 import { TransactionStepsList } from '@/pages/Yields/components/TransactionStepsList'
+import { YieldExplainers } from '@/pages/Yields/components/YieldExplainers'
 import { YieldSuccess } from '@/pages/Yields/components/YieldSuccess'
 import { ModalStep, useYieldTransactionFlow } from '@/pages/Yields/hooks/useYieldTransactionFlow'
 import { useYieldProviders } from '@/react-queries/queries/yieldxyz/useYieldProviders'
@@ -171,15 +179,14 @@ export const YieldEnterModal = memo(
     )
 
     const selectedValidatorAddress = useMemo(() => {
-      if (chainId && DEFAULT_NATIVE_VALIDATOR_BY_CHAIN_ID[chainId]) {
-        return DEFAULT_NATIVE_VALIDATOR_BY_CHAIN_ID[chainId]
-      }
+      const defaultValidator = getDefaultValidatorForYield(yieldItem.id)
+      if (defaultValidator) return defaultValidator
       return validators?.[0]?.address
-    }, [chainId, validators])
+    }, [validators, yieldItem.id])
 
     const { data: providers } = useYieldProviders()
 
-    const isStaking = yieldItem.mechanics.type === 'staking'
+    const isStaking = isStakingYieldType(yieldItem.mechanics.type)
 
     const selectedValidatorMetadata = useMemo(() => {
       if (!isStaking || !selectedValidatorAddress) return null
@@ -356,12 +363,21 @@ export const YieldEnterModal = memo(
 
       if (isSubmitting && transactionSteps.length > 0) {
         const activeStep = transactionSteps.find(s => s.status !== 'success')
-        if (activeStep) return getTransactionButtonText(activeStep.type, activeStep.originalTitle)
+        if (activeStep)
+          return getTransactionButtonText(
+            activeStep.type,
+            activeStep.originalTitle,
+            yieldItem.mechanics.type,
+          )
       }
 
       if (activeStepIndex >= 0 && transactionSteps[activeStepIndex]) {
         const currentStep = transactionSteps[activeStepIndex]
-        return getTransactionButtonText(currentStep.type, currentStep.originalTitle)
+        return getTransactionButtonText(
+          currentStep.type,
+          currentStep.originalTitle,
+          yieldItem.mechanics.type,
+        )
       }
 
       if (isUsdtResetRequired) {
@@ -369,9 +385,15 @@ export const YieldEnterModal = memo(
       }
 
       const firstCreatedTx = quoteData?.transactions?.find(tx => tx.status === 'CREATED')
-      if (firstCreatedTx) return getTransactionButtonText(firstCreatedTx.type, firstCreatedTx.title)
+      if (firstCreatedTx)
+        return getTransactionButtonText(
+          firstCreatedTx.type,
+          firstCreatedTx.title,
+          yieldItem.mechanics.type,
+        )
 
-      return translate('yieldXYZ.enterAsset', { asset: inputTokenAsset?.symbol })
+      const actionLabelKeys = getYieldActionLabelKeys(yieldItem.mechanics.type)
+      return `${translate(actionLabelKeys.enter)} ${inputTokenAsset?.symbol ?? ''}`
     }, [
       isConnected,
       isQuoteActive,
@@ -382,12 +404,14 @@ export const YieldEnterModal = memo(
       quoteData,
       translate,
       inputTokenAsset?.symbol,
+      yieldItem.mechanics.type,
     ])
 
+    const headingKeys = getYieldHeadingKeys(yieldItem.mechanics.type)
     const modalTitle = useMemo(() => {
       if (step === ModalStep.Success) return translate('common.success')
-      return translate('yieldXYZ.enterAsset', { asset: inputTokenAsset?.symbol })
-    }, [translate, inputTokenAsset?.symbol, step])
+      return translate(headingKeys.enter, { symbol: inputTokenAsset?.symbol })
+    }, [translate, inputTokenAsset?.symbol, step, headingKeys.enter])
 
     const percentButtons = useMemo(
       () => (
@@ -481,7 +505,7 @@ export const YieldEnterModal = memo(
           {minDeposit && bnOrZero(minDeposit).gt(0) && (
             <Flex justify='space-between' align='center' mt={3}>
               <Text fontSize='sm' color='text.subtle'>
-                {translate('yieldXYZ.minEnter')}
+                {translate(getYieldMinAmountKey(yieldItem.mechanics.type))}
               </Text>
               <Text
                 fontSize='sm'
@@ -506,6 +530,7 @@ export const YieldEnterModal = memo(
         providerMetadata,
         minDeposit,
         isBelowMinimum,
+        yieldItem.mechanics.type,
       ],
     )
 
@@ -576,6 +601,8 @@ export const YieldEnterModal = memo(
     const isInProgress = step === ModalStep.InProgress
     const isSuccess = step === ModalStep.Success
 
+    const successMessageKey = getYieldSuccessMessageKey(yieldItem.mechanics.type, 'enter')
+
     const successContent = useMemo(
       () => (
         <YieldSuccess
@@ -586,7 +613,7 @@ export const YieldEnterModal = memo(
           yieldId={yieldItem.id}
           accountId={accountId}
           onDone={hookHandleClose}
-          successMessageKey='successEnter'
+          successMessageKey={successMessageKey}
         />
       ),
       [
@@ -597,6 +624,7 @@ export const YieldEnterModal = memo(
         yieldItem.id,
         accountId,
         hookHandleClose,
+        successMessageKey,
       ],
     )
 
@@ -634,6 +662,10 @@ export const YieldEnterModal = memo(
                 </Flex>
               )}
               {statsContent}
+              <YieldExplainers
+                selectedYield={yieldItem}
+                sellAssetSymbol={inputTokenAsset?.symbol}
+              />
               {stepsToShow.length > 0 && <TransactionStepsList steps={stepsToShow} />}
             </Flex>
           )}

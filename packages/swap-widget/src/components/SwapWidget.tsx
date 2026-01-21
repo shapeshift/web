@@ -226,11 +226,11 @@ const SwapWidgetCore = ({
     if (customReceiveAddress) return customReceiveAddress
     if (defaultReceiveAddress) return defaultReceiveAddress
 
-    if (buyChainType === 'utxo' && bitcoinAddress) return bitcoinAddress
-    if (buyChainType === 'solana' && solanaAddress) return solanaAddress
-    if (buyChainType === 'evm' && walletAddress) return walletAddress
+    if (buyChainType === 'utxo') return bitcoinAddress ?? ''
+    if (buyChainType === 'solana') return solanaAddress ?? ''
+    if (buyChainType === 'evm') return walletAddress ?? ''
 
-    return walletAddress || ''
+    return ''
   }, [
     customReceiveAddress,
     defaultReceiveAddress,
@@ -688,7 +688,11 @@ const SwapWidgetCore = ({
       buyAssetId: buyAsset.assetId,
       sellAmount,
     })
-    window.open(`https://app.shapeshift.com/trade?${params.toString()}`, '_blank')
+    window.open(
+      `https://app.shapeshift.com/trade?${params.toString()}`,
+      '_blank',
+      'noopener,noreferrer',
+    )
   }, [sellAsset.assetId, buyAsset.assetId, sellAmount])
 
   const handleExecuteSwap = useCallback(() => {

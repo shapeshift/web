@@ -60,7 +60,7 @@ export const RampTab = () => {
   )
 
   const title = useMemo(() => {
-    return translate('navBar.trade')
+    return translate('navBar.swap')
   }, [translate])
 
   const buyElement = useMemo(

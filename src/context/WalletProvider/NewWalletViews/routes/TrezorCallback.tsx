@@ -1,6 +1,12 @@
 import { Center, CircularProgress, Text, VStack } from '@chakra-ui/react'
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
+
+import { TrezorIcon } from '@/components/Icons/TrezorIcon'
+import { WalletActions } from '@/context/WalletProvider/actions'
+import { KeyManager } from '@/context/WalletProvider/KeyManager'
+import { useLocalWallet } from '@/context/WalletProvider/local-wallet'
+import { useWallet } from '@/hooks/useWallet/useWallet'
 
 const STORAGE_KEY_REQUEST = 'trezor_deeplink_request'
 const STORAGE_KEY_RESPONSE = 'trezor_deeplink_response'
@@ -23,10 +29,6 @@ const getPendingRequest = (): TrezorDeepLinkRequest | null => {
   return data ? JSON.parse(data) : null
 }
 
-const clearPendingRequest = (): void => {
-  localStorage.removeItem(STORAGE_KEY_REQUEST)
-}
-
 const storeResponse = (response: TrezorDeepLinkResponse): void => {
   localStorage.setItem(STORAGE_KEY_RESPONSE, JSON.stringify(response))
 }
@@ -34,62 +36,115 @@ const storeResponse = (response: TrezorDeepLinkResponse): void => {
 export const TrezorCallback = () => {
   const [searchParams] = useSearchParams()
   const navigate = useNavigate()
-  const [status, setStatus] = useState<'processing' | 'success' | 'error'>('processing')
+  const { dispatch: walletDispatch, getAdapter } = useWallet()
+  const localWallet = useLocalWallet()
+  const [status, setStatus] = useState<'processing' | 'pairing' | 'success' | 'error'>('processing')
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
 
-  useEffect(() => {
-    const id = searchParams.get('id')
-    const responseParam = searchParams.get('response')
-
-    console.log('[TrezorCallback] Received callback with params:', {
-      id,
-      responseParam: responseParam ? `${responseParam.substring(0, 100)}...` : null,
-    })
-
-    if (!id || !responseParam) {
-      console.error('[TrezorCallback] Missing id or response parameter')
-      setStatus('error')
-      setErrorMessage('Missing callback parameters')
-      return
-    }
-
-    const pendingRequest = getPendingRequest()
-    console.log('[TrezorCallback] Pending request:', pendingRequest)
-
-    if (!pendingRequest || pendingRequest.id !== id) {
-      console.error('[TrezorCallback] No matching pending request for callback')
-      setStatus('error')
-      setErrorMessage('No matching pending request')
-      return
-    }
+  const completePairing = useCallback(async () => {
+    setStatus('pairing')
+    console.log('[TrezorCallback] Starting wallet pairing...')
 
     try {
-      const parsedResponse = JSON.parse(decodeURIComponent(responseParam))
-      console.log('[TrezorCallback] Parsed response:', parsedResponse)
+      const adapter = await getAdapter(KeyManager.Trezor)
+      if (!adapter) {
+        throw new Error('Failed to get Trezor adapter')
+      }
 
-      storeResponse({
-        id,
-        response: parsedResponse,
+      const wallet = await adapter.pairDevice()
+      if (!wallet) {
+        throw new Error('Failed to pair Trezor device')
+      }
+
+      const deviceId = await wallet.getDeviceID()
+      console.log('[TrezorCallback] Pairing successful, deviceId:', deviceId)
+
+      walletDispatch({
+        type: WalletActions.SET_WALLET,
+        payload: {
+          wallet,
+          name: 'Trezor',
+          icon: TrezorIcon,
+          deviceId,
+          connectedType: KeyManager.Trezor,
+        },
       })
+      walletDispatch({
+        type: WalletActions.SET_IS_CONNECTED,
+        payload: true,
+      })
+      localWallet.setLocalWallet({ type: KeyManager.Trezor, deviceId })
 
-      clearPendingRequest()
       setStatus('success')
 
-      const returnPath = new URL(pendingRequest.returnUrl).pathname
-      console.log('[TrezorCallback] Navigating to:', returnPath)
-
       setTimeout(() => {
-        navigate(returnPath)
-      }, 1000)
-    } catch (e) {
-      console.error('[TrezorCallback] Failed to parse response:', e)
+        navigate('/')
+      }, 1500)
+    } catch (e: any) {
+      console.error('[TrezorCallback] Pairing failed:', e)
       setStatus('error')
-      setErrorMessage('Failed to parse response')
+      setErrorMessage(e?.message || 'Failed to connect Trezor')
     }
-  }, [navigate, searchParams])
+  }, [getAdapter, localWallet, navigate, walletDispatch])
+
+  useEffect(() => {
+    const processCallback = async () => {
+      const id = searchParams.get('id')
+
+      console.log('[TrezorCallback] Processing callback, id:', id)
+
+      // Check for response in window.location.search (before hash)
+      // Trezor Suite puts response there, not in hash route params
+      const searchBeforeHash = new URLSearchParams(window.location.search)
+      const responseInSearch = searchBeforeHash.get('response')
+
+      if (responseInSearch) {
+        console.log('[TrezorCallback] Found response in window.location.search')
+        const pendingRequest = getPendingRequest()
+
+        if (pendingRequest) {
+          try {
+            const parsedResponse = JSON.parse(decodeURIComponent(responseInSearch))
+            console.log('[TrezorCallback] Parsed response:', parsedResponse)
+
+            storeResponse({
+              id: pendingRequest.id,
+              response: parsedResponse,
+            })
+
+            // Clean URL
+            const cleanUrl =
+              window.location.origin + window.location.pathname + window.location.hash
+            window.history.replaceState({}, '', cleanUrl.replace(/\?[^#]*/, ''))
+
+            // Now complete pairing - the patch will find the stored response
+            await completePairing()
+            return
+          } catch (e) {
+            console.error('[TrezorCallback] Failed to parse response:', e)
+            setStatus('error')
+            setErrorMessage('Failed to parse Trezor response')
+            return
+          }
+        } else {
+          console.error('[TrezorCallback] No pending request found')
+          setStatus('error')
+          setErrorMessage('No pending request found. Please try connecting again.')
+          return
+        }
+      }
+
+      // No response found
+      console.error('[TrezorCallback] No response parameter found')
+      setStatus('error')
+      setErrorMessage('Missing response from Trezor. Please try connecting again.')
+    }
+
+    processCallback()
+  }, [completePairing, searchParams])
 
   return (
-    <Center height='100%' py={12}>
+    <Center height='100vh' py={12}>
       <VStack spacing={4}>
         {status === 'processing' && (
           <>
@@ -97,20 +152,29 @@ export const TrezorCallback = () => {
             <Text>Processing Trezor response...</Text>
           </>
         )}
+        {status === 'pairing' && (
+          <>
+            <CircularProgress isIndeterminate color='blue.500' />
+            <Text>Connecting Trezor wallet...</Text>
+          </>
+        )}
         {status === 'success' && (
           <>
-            <Text color='green.500' fontWeight='bold'>
-              Success!
+            <Text color='green.500' fontWeight='bold' fontSize='xl'>
+              ✓ Trezor Connected!
             </Text>
-            <Text>Redirecting back...</Text>
+            <Text>Redirecting to dashboard...</Text>
           </>
         )}
         {status === 'error' && (
           <>
             <Text color='red.500' fontWeight='bold'>
-              Error
+              Connection Failed
             </Text>
             <Text>{errorMessage}</Text>
+            <Text fontSize='sm' color='gray.500'>
+              Please close this tab and try again.
+            </Text>
           </>
         )}
       </VStack>

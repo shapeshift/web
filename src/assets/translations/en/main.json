@@ -2508,7 +2508,7 @@
     "foxToken": "FOX Token",
     "24hrPriceChange": "24h Price Change",
     "rfox": {
-      "totalSymbolBurn": "Total %{symbol} Burn",
+      "totalBurn": "Total Burn",
       "simulateTitle": "rFOX Simulator",
       "simulateSubtle": "Simulate your rFOX staking yield",
       "estimatedRewards": "Estimated Rewards",

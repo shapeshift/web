@@ -11,8 +11,8 @@ import { Amount } from '@/components/Amount/Amount'
 import { Text } from '@/components/Text'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { fromBaseUnit } from '@/lib/math'
-import { getStakingContract, selectLatestEpoch } from '@/pages/RFOX/helpers'
-import { useEpochHistoryQuery } from '@/pages/RFOX/hooks/useEpochHistoryQuery'
+import { getStakingContract } from '@/pages/RFOX/helpers'
+import { useCurrentEpochMetadataQuery } from '@/pages/RFOX/hooks/useCurrentEpochMetadataQuery'
 import { useTotalStakedQuery } from '@/pages/RFOX/hooks/useGetTotalStaked'
 import { selectAssetById, selectUsdRateByAssetId } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
@@ -60,35 +60,26 @@ export const RFOXSimulator = ({ stakingAssetId }: RFOXSimulatorProps) => {
       .toFixed(4)
   }, [totalStakedCryptoResult.data, depositAmount])
 
-  const { data: latestEpoch } = useEpochHistoryQuery({ select: selectLatestEpoch })
+  const { data: epochMetadata } = useCurrentEpochMetadataQuery()
 
-  const estimatedFoxBurn = useMemo(() => {
-    if (!latestEpoch) return
+  const estimatedBurn = useMemo(() => {
+    if (!epochMetadata) return
     if (!stakingAsset) return
     if (!stakingAssetUsdPrice) return
 
-    return bnOrZero(shapeShiftRevenue)
-      .times(latestEpoch.burnRate)
-      .div(stakingAssetUsdPrice)
-      .toFixed(0)
-  }, [latestEpoch, shapeShiftRevenue, stakingAssetUsdPrice, stakingAsset])
+    return bnOrZero(shapeShiftRevenue).times(epochMetadata.burnRate).toFixed(2)
+  }, [epochMetadata, shapeShiftRevenue, stakingAssetUsdPrice, stakingAsset])
 
   const estimatedRewards = useMemo(() => {
-    if (!latestEpoch) return
+    if (!epochMetadata) return
     if (!poolShare) return
     if (!usdcUsdPrice) return
 
-    // @TODO: we might not need this optional chain here if the data exists
     const distributionRate =
-      latestEpoch.detailsByStakingContract[getStakingContract(stakingAssetId)]?.distributionRate ??
-      0
+      epochMetadata.distributionRateByStakingContract[getStakingContract(stakingAssetId)] ?? 0
 
-    return bnOrZero(shapeShiftRevenue)
-      .times(distributionRate)
-      .times(poolShare)
-      .div(usdcUsdPrice)
-      .toFixed(2)
-  }, [latestEpoch, shapeShiftRevenue, usdcUsdPrice, stakingAssetId, poolShare])
+    return bnOrZero(shapeShiftRevenue).times(distributionRate).times(poolShare).toFixed(2)
+  }, [epochMetadata, shapeShiftRevenue, usdcUsdPrice, stakingAssetId, poolShare])
 
   if (!(usdcAsset && stakingAsset)) return null
 
@@ -138,34 +129,16 @@ export const RFOXSimulator = ({ stakingAssetId }: RFOXSimulatorProps) => {
                 />
 
                 <Skeleton isLoaded={Boolean(estimatedRewards)}>
-                  <Amount.Crypto
-                    fontSize='24px'
-                    value={estimatedRewards}
-                    symbol={usdcAsset.symbol ?? ''}
-                  />
+                  <Amount.Fiat fontSize='24px' value={estimatedRewards} />
                 </Skeleton>
               </CardBody>
             </Card>
             <Card>
               <CardBody py={4} px={4}>
-                <Text
-                  fontSize='md'
-                  color='text.subtle'
-                  // we need to pass a local scope arg here, so we need an anonymous function wrapper
-                  translation={[
-                    'foxPage.rfox.totalSymbolBurn',
-                    {
-                      symbol: stakingAsset.symbol,
-                    },
-                  ]}
-                />
+                <Text fontSize='md' color='text.subtle' translation='foxPage.rfox.totalBurn' />
 
-                <Skeleton isLoaded={Boolean(estimatedFoxBurn !== undefined)}>
-                  <Amount.Crypto
-                    fontSize='24px'
-                    value={estimatedFoxBurn}
-                    symbol={stakingAsset.symbol ?? ''}
-                  />
+                <Skeleton isLoaded={Boolean(estimatedBurn !== undefined)}>
+                  <Amount.Fiat fontSize='24px' value={estimatedBurn} />
                 </Skeleton>
               </CardBody>
             </Card>

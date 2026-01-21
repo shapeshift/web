@@ -2696,6 +2696,7 @@
     "withdrawable": "引き出し可能",
     "type": "タイプ",
     "totalValue": "合計金額",
+    "myPosition": "私の立場",
     "myPositions": "保有ポジション",
     "myValidatorPosition": "私の%{validator}ポジション",
     "earnUpToOnBalance": "残高に応じて最大 %{apy} を獲得できます",

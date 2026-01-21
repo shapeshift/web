@@ -205,7 +205,7 @@ export const routes: Route[] = [
   },
   {
     path: '/trade/*',
-    label: 'navBar.trade',
+    label: 'navBar.swap',
     shortLabel: 'common.trade',
     icon: <SwapIcon />,
     mobileNav: true,

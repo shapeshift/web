@@ -97,7 +97,7 @@ export const SharedTradeInputHeader = ({
               onClick={handleClickTrade}
               cursor={selectedTab !== TradeInputTab.Trade ? 'pointer' : undefined}
             >
-              {translate('navBar.trade')}
+              {translate('navBar.swap')}
             </Heading>
             {enableLimitOrders && !isStandalone && (
               <Heading
@@ -173,7 +173,7 @@ export const SharedTradeInputHeader = ({
               onClick={handleClickTrade}
               type='button'
             >
-              {translate('navBar.market')}
+              {translate('navBar.swap')}
             </Box>
             {enableLimitOrders && !isStandalone && (
               <Box

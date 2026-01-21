@@ -1,4 +1,4 @@
-import { Avatar, Box, Flex, SimpleGrid, Text } from '@chakra-ui/react'
+import { Avatar, Box, Card, CardBody, Flex, SimpleGrid, Text } from '@chakra-ui/react'
 import { memo, useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useSearchParams } from 'react-router-dom'
@@ -92,47 +92,55 @@ export const YieldStats = memo(({ yieldItem, balances }: YieldStatsProps) => {
   )
 
   return (
-    <SimpleGrid columns={3} spacing={4} px={{ base: 2, md: 0 }}>
-      <Box>
-        <Text fontSize='xs' color='text.subtle' textTransform='uppercase' mb={1}>
-          {translate('yieldXYZ.tvl')}
-        </Text>
-        <Amount.Fiat value={tvlUserCurrency} abbreviated fontSize='sm' fontWeight='bold' />
-      </Box>
-
-      <Box>
-        <Text fontSize='xs' color='text.subtle' textTransform='uppercase' mb={1}>
-          {translate('yieldXYZ.rewardSchedule')}
-        </Text>
-        <Text fontSize='sm' fontWeight='bold' textTransform='capitalize'>
-          {yieldItem.mechanics.rewardSchedule}
-        </Text>
-      </Box>
-
-      <Box>
-        <Text fontSize='xs' color='text.subtle' textTransform='uppercase' mb={1}>
-          {translate('yieldXYZ.type')}
-        </Text>
-        <Text fontSize='sm' fontWeight='bold' textTransform='capitalize'>
-          {yieldItem.mechanics.type}
-        </Text>
-      </Box>
-
-      {validatorMetadata && (
-        <Box>
-          <Text fontSize='xs' color='text.subtle' textTransform='uppercase' mb={1}>
-            {translate('yieldXYZ.validator')}
-          </Text>
-          <Flex align='center' gap={1}>
-            {validatorMetadata.logoURI && (
-              <Avatar size='2xs' src={validatorMetadata.logoURI} name={validatorMetadata.name} />
-            )}
-            <Text fontSize='sm' fontWeight='bold'>
-              {validatorMetadata.name}
+    <Card>
+      <CardBody>
+        <SimpleGrid columns={3} spacing={4}>
+          <Box>
+            <Text fontSize='xs' color='text.subtle' textTransform='uppercase' mb={1}>
+              {translate('yieldXYZ.tvl')}
             </Text>
-          </Flex>
-        </Box>
-      )}
-    </SimpleGrid>
+            <Amount.Fiat value={tvlUserCurrency} abbreviated fontSize='sm' fontWeight='bold' />
+          </Box>
+
+          <Box>
+            <Text fontSize='xs' color='text.subtle' textTransform='uppercase' mb={1}>
+              {translate('yieldXYZ.rewardSchedule')}
+            </Text>
+            <Text fontSize='sm' fontWeight='bold' textTransform='capitalize'>
+              {yieldItem.mechanics.rewardSchedule}
+            </Text>
+          </Box>
+
+          <Box>
+            <Text fontSize='xs' color='text.subtle' textTransform='uppercase' mb={1}>
+              {translate('yieldXYZ.type')}
+            </Text>
+            <Text fontSize='sm' fontWeight='bold' textTransform='capitalize'>
+              {yieldItem.mechanics.type}
+            </Text>
+          </Box>
+
+          {validatorMetadata && (
+            <Box>
+              <Text fontSize='xs' color='text.subtle' textTransform='uppercase' mb={1}>
+                {translate('yieldXYZ.validator')}
+              </Text>
+              <Flex align='center' gap={1}>
+                {validatorMetadata.logoURI && (
+                  <Avatar
+                    size='2xs'
+                    src={validatorMetadata.logoURI}
+                    name={validatorMetadata.name}
+                  />
+                )}
+                <Text fontSize='sm' fontWeight='bold'>
+                  {validatorMetadata.name}
+                </Text>
+              </Flex>
+            </Box>
+          )}
+        </SimpleGrid>
+      </CardBody>
+    </Card>
   )
 })

@@ -187,6 +187,18 @@ export const TrezorCallback = () => {
             <Text fontSize='xs' color='gray.500' wordBreak='break-all' maxW='90vw' mt={4}>
               URL: {typeof window !== 'undefined' ? window.location.href : 'N/A'}
             </Text>
+            <Text fontSize='xs' color='gray.500' wordBreak='break-all' maxW='90vw' mt={2}>
+              Request:{' '}
+              {typeof window !== 'undefined'
+                ? localStorage.getItem('trezor_deeplink_request') || 'null'
+                : 'N/A'}
+            </Text>
+            <Text fontSize='xs' color='gray.500' wordBreak='break-all' maxW='90vw' mt={2}>
+              Response:{' '}
+              {typeof window !== 'undefined'
+                ? localStorage.getItem('trezor_deeplink_response') || 'null'
+                : 'N/A'}
+            </Text>
             <Text fontSize='sm' color='gray.500' mt={4}>
               Please close this tab and try again.
             </Text>

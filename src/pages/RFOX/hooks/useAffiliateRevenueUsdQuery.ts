@@ -38,15 +38,10 @@ export const getAffiliateRevenueUsdQueryFn = ({
     const startDate = new Date(startTimestamp).toISOString().split('T')[0]
     const endDate = new Date(endTimestamp).toISOString().split('T')[0]
 
-    const url = `${baseUrl}api/v1/affiliate/revenue?startDate=${startDate}&endDate=${endDate}`
+    const url = `${baseUrl}/api/v1/affiliate/revenue?startDate=${startDate}&endDate=${endDate}`
     const { data } = await axios.get<{ totalUsd: number }>(url)
 
-    try {
-      return data.totalUsd
-    } catch (error) {
-      console.error({ data })
-      throw Error('Error parsing affiliate revenue')
-    }
+    return data.totalUsd
   }
 }
 

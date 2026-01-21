@@ -367,6 +367,16 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.SolanaMainnet> 
 
       this.assertSupportsChain(wallet)
 
+      if (!instructions || instructions.length === 0) {
+        throw new Error('At least one instruction is required')
+      }
+
+      if (input.computeUnitLimit && input.computeUnitLimit > MAX_COMPUTE_UNITS) {
+        throw new Error(
+          `Compute unit limit ${input.computeUnitLimit} exceeds maximum of ${MAX_COMPUTE_UNITS}`,
+        )
+      }
+
       await this.getAddress({ accountNumber, wallet, pubKey })
 
       const { blockhash } = await this.connection.getLatestBlockhash()

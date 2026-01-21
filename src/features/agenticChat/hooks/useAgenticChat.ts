@@ -2,7 +2,7 @@ import { useChat } from '@ai-sdk/react'
 import { fromAccountId, solanaChainId } from '@shapeshiftoss/caip'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import { DefaultChatTransport } from 'ai'
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useMemo, useRef, useState } from 'react'
 
 import { getConfig } from '@/config'
 import { selectEnabledWalletAccountIds } from '@/state/slices/common-selectors'
@@ -36,14 +36,17 @@ export const useAgenticChat = () => {
     }
   }, [accountIds])
 
+  const walletContextRef = useRef(walletContext)
+  walletContextRef.current = walletContext
+
   const agenticServerBaseUrl = getConfig().VITE_AGENTIC_SERVER_BASE_URL
   const transport = useMemo(
     () =>
       new DefaultChatTransport({
         api: `${agenticServerBaseUrl}/api/chat`,
-        body: walletContext,
+        body: () => walletContextRef.current,
       }),
-    [agenticServerBaseUrl, walletContext],
+    [agenticServerBaseUrl],
   )
 
   const chat = useChat({

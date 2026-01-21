@@ -38,6 +38,7 @@ export function useToolExecutionEffect<TData, TState>(
 
   const executeRef = useRef(execute)
   const setStateRef = useRef(setState)
+  const hasExecutedRef = useRef(false)
   executeRef.current = execute
   setStateRef.current = setState
 
@@ -50,6 +51,11 @@ export function useToolExecutionEffect<TData, TState>(
       return
     }
 
+    if (hasExecutedRef.current) {
+      return
+    }
+
+    hasExecutedRef.current = true
     dispatch(agenticChatSlice.actions.initializeRuntimeState({ toolCallId, state: initialState }))
 
     const executeWrapper = async () => {
@@ -61,7 +67,12 @@ export function useToolExecutionEffect<TData, TState>(
     }
 
     void executeWrapper()
-  }, [toolCallId, data, hasRuntimeState, dispatch, initialState])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [toolCallId, data, hasRuntimeState, dispatch])
+
+  useEffect(() => {
+    hasExecutedRef.current = false
+  }, [toolCallId])
 
   return {
     state,

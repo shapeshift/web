@@ -1,22 +1,22 @@
-import { Box, Skeleton, Text, useColorModeValue } from '@chakra-ui/react'
-import { memo, useMemo } from 'react'
+import { Box, Flex, Skeleton, Text, useColorModeValue } from '@chakra-ui/react'
+import { useMemo } from 'react'
+import { useTranslate } from 'react-polyglot'
 
 import { StepStatus, useSwapExecution } from '../../hooks/useSwapExecution'
 import type { ToolUIProps } from '../../types/toolInvocation'
 import type { SwapOutput } from '../../types/toolOutput'
 import { TxStepCard } from './TxStepCard'
 
-const firstFourLastFour = (address: string): string => {
-  if (address.length <= 8) return address
-  return `${address.slice(0, 6)}...${address.slice(-4)}`
-}
+import { Amount } from '@/components/Amount/Amount'
+import { middleEllipsis } from '@/lib/utils'
 
-export const SwapUI = memo(({ toolPart }: ToolUIProps) => {
+export const SwapUI = ({ toolPart }: ToolUIProps) => {
   const { state, output, toolCallId } = toolPart
   const swapOutput = output as SwapOutput | undefined
+  const translate = useTranslate()
 
   const swapData = state === 'output-available' && swapOutput ? swapOutput : null
-  const { error, steps, networkName } = useSwapExecution(toolCallId, state, swapData)
+  const { error, steps } = useSwapExecution(toolCallId, state, swapData)
 
   const mutedColor = useColorModeValue('gray.600', 'gray.400')
   const errorColor = useColorModeValue('red.500', 'red.400')
@@ -27,9 +27,9 @@ export const SwapUI = memo(({ toolPart }: ToolUIProps) => {
     [steps],
   )
 
-  const [quoteStep, networkStep, approvalStep, confirmationStep, swapStep] = steps
+  const [quoteStep, approvalStep, confirmationStep, swapStep] = steps
 
-  if (!quoteStep || !networkStep || !approvalStep || !confirmationStep || !swapStep) {
+  if (!quoteStep || !approvalStep || !confirmationStep || !swapStep) {
     return null
   }
 
@@ -38,8 +38,15 @@ export const SwapUI = memo(({ toolPart }: ToolUIProps) => {
 
   const footerMessage = (() => {
     if (state === 'output-error')
-      return { type: 'error' as const, text: 'Failed to get swap quote' }
-    if (error) return { type: 'error' as const, text: `Swap execution failed: ${error}` }
+      return {
+        type: 'error' as const,
+        text: translate('agenticChat.agenticChatTools.swap.errors.quoteFailed'),
+      }
+    if (error)
+      return {
+        type: 'error' as const,
+        text: translate('agenticChat.agenticChatTools.swap.errors.swapFailed', { error }),
+      }
     return null
   })()
 
@@ -53,20 +60,33 @@ export const SwapUI = memo(({ toolPart }: ToolUIProps) => {
         <TxStepCard.HeaderRow>
           {address && (
             <Text fontSize='xs' color={mutedColor} fontWeight='normal'>
-              Received from {firstFourLastFour(address)}
+              {translate('agenticChat.agenticChatTools.swap.receivedFrom', {
+                address: middleEllipsis(address),
+              })}
             </Text>
           )}
-          <Text fontSize='sm' color={mutedColor} fontWeight='normal'>
-            {summary?.buyAsset ? (
-              `$${summary.buyAsset.estimatedValueUSD}`
-            ) : isLoading ? (
-              <Skeleton height='20px' width='60px' />
-            ) : (
-              '—'
-            )}
-          </Text>
+          {summary?.buyAsset?.estimatedValueUSD ? (
+            <Amount.Fiat
+              value={summary.buyAsset.estimatedValueUSD}
+              fontSize='sm'
+              color={mutedColor}
+              fontWeight='normal'
+            />
+          ) : isLoading ? (
+            <Skeleton height='20px' width='60px' />
+          ) : (
+            <Text fontSize='sm' color={mutedColor} fontWeight='normal'>
+              —
+            </Text>
+          )}
         </TxStepCard.HeaderRow>
-        <TxStepCard.HeaderRow>
+        <Flex
+          alignItems='flex-start'
+          justifyContent='space-between'
+          gap={2}
+          flexDirection='column'
+          w='full'
+        >
           {summary ? (
             <Text fontSize='lg' fontWeight='semibold'>
               {summary.sellAsset.symbol.toUpperCase()} → {summary.buyAsset.symbol.toUpperCase()}
@@ -75,7 +95,7 @@ export const SwapUI = memo(({ toolPart }: ToolUIProps) => {
             <Skeleton height='28px' width='120px' />
           ) : (
             <Text fontSize='lg' fontWeight='semibold'>
-              Swap
+              {translate('agenticChat.agenticChatTools.swap.title')}
             </Text>
           )}
           {isLoading ? (
@@ -86,24 +106,21 @@ export const SwapUI = memo(({ toolPart }: ToolUIProps) => {
               symbol={swap?.buyAsset.symbol.toUpperCase()}
             />
           )}
-        </TxStepCard.HeaderRow>
+        </Flex>
       </TxStepCard.Header>
 
-      <TxStepCard.Stepper completedCount={completedCount} totalCount={5}>
+      <TxStepCard.Stepper completedCount={completedCount} totalCount={4}>
         <TxStepCard.Step status={quoteStep.status} connectorBottom>
-          Getting swap quote
-        </TxStepCard.Step>
-        <TxStepCard.Step status={networkStep.status} connectorTop connectorBottom>
-          {networkName ? `Switch to ${networkName}` : 'Switch network'}
+          {translate('agenticChat.agenticChatTools.swap.steps.quote')}
         </TxStepCard.Step>
         <TxStepCard.Step status={approvalStep.status} connectorTop connectorBottom>
-          Approve token spending
+          {translate('agenticChat.agenticChatTools.swap.steps.approval')}
         </TxStepCard.Step>
         <TxStepCard.Step status={confirmationStep.status} connectorTop connectorBottom>
-          Confirming approval
+          {translate('agenticChat.agenticChatTools.swap.steps.approvalConfirmation')}
         </TxStepCard.Step>
         <TxStepCard.Step status={swapStep.status} connectorTop>
-          Sign swap transaction
+          {translate('agenticChat.agenticChatTools.swap.steps.swap')}
         </TxStepCard.Step>
         {footerMessage && (
           <Box mt={4}>
@@ -120,6 +137,4 @@ export const SwapUI = memo(({ toolPart }: ToolUIProps) => {
       </TxStepCard.Stepper>
     </TxStepCard.Root>
   )
-})
-
-SwapUI.displayName = 'SwapUI'
+}

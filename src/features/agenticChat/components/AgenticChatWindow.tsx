@@ -1,13 +1,22 @@
-import { Box, Flex, IconButton, Text, useColorModeValue, useMediaQuery } from '@chakra-ui/react'
+import {
+  Box,
+  Flex,
+  IconButton,
+  Spinner,
+  Text,
+  useColorModeValue,
+  useMediaQuery,
+} from '@chakra-ui/react'
+import { lazy, Suspense } from 'react'
 import { FiX } from 'react-icons/fi'
 import { useTranslate } from 'react-polyglot'
-
-import { Chat } from './Chat'
-import { Composer } from './Composer'
 
 import { Dialog } from '@/components/Modal/components/Dialog'
 import { useAgenticChat } from '@/features/agenticChat/hooks/useAgenticChat'
 import { breakpoints } from '@/theme/theme'
+
+const Chat = lazy(() => import('./Chat').then(m => ({ default: m.Chat })))
+const Composer = lazy(() => import('./Composer').then(m => ({ default: m.Composer })))
 
 const CLOSE_ICON = <FiX />
 
@@ -48,13 +57,21 @@ export const AgenticChatWindow = ({ isOpen, onClose }: AgenticChatWindowProps) =
         />
       </Flex>
 
-      <Flex direction='column' flex={1} minHeight={0}>
-        <Chat chat={chat} />
-      </Flex>
+      <Suspense
+        fallback={
+          <Flex flex={1} alignItems='center' justifyContent='center'>
+            <Spinner />
+          </Flex>
+        }
+      >
+        <Flex direction='column' flex={1} minHeight={0}>
+          <Chat chat={chat} />
+        </Flex>
 
-      <Box p={4} borderTop='1px solid' borderColor={borderColor}>
-        <Composer chat={chat} />
-      </Box>
+        <Box p={4} borderTop='1px solid' borderColor={borderColor}>
+          <Composer chat={chat} />
+        </Box>
+      </Suspense>
     </>
   )
 

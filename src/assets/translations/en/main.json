@@ -209,7 +209,8 @@
     "placeholder": "Type a message...",
     "stop": "Stop",
     "send": "Send",
-    "tools": {
+    "txStepProgress": "%{completedCount} of %{totalCount} complete",
+    "agenticChatTools": {
       "send": {
         "title": "Send Crypto",
         "receivedFrom": "Received from %{address}",
@@ -235,14 +236,110 @@
           "networkSwitch": "Switch to %{network}",
           "networkSwitchGeneric": "Switch network",
           "approval": "Approve token spending",
-          "approvalConfirmation": "Waiting for approval confirmation",
-          "swap": "Execute swap"
+          "approvalConfirmation": "Confirming approval",
+          "swap": "Sign swap transaction"
         },
         "errors": {
           "quoteFailed": "Failed to get swap quote",
           "swapFailed": "Swap execution failed: %{error}",
           "noWallet": "No wallet connected",
           "accountNotFound": "Account not found"
+        }
+      },
+      "cancelLimitOrder": {
+        "title": "Cancel Limit Order",
+        "steps": {
+          "prepare": "Preparing cancellation",
+          "sign": "Sign cancellation",
+          "submit": "Submitting cancellation"
+        },
+        "errors": {
+          "prepareFailed": "Failed to prepare cancellation",
+          "signFailed": "Failed to sign cancellation",
+          "submitFailed": "Failed to cancel order: %{error}",
+          "noWallet": "No wallet connected",
+          "accountNotFound": "Account not found"
+        }
+      },
+      "createLimitOrder": {
+        "title": "Create Limit Order",
+        "steps": {
+          "prepare": "Preparing order",
+          "approval": "Approve token spending",
+          "approvalConfirmation": "Confirming approval",
+          "sign": "Sign order",
+          "submit": "Submitting order"
+        },
+        "errors": {
+          "prepareFailed": "Failed to prepare order",
+          "approvalFailed": "Token approval failed",
+          "signFailed": "Failed to sign order",
+          "submitFailed": "Failed to create order: %{error}",
+          "noWallet": "No wallet connected",
+          "accountNotFound": "Account not found"
+        }
+      },
+      "newCoins": {
+        "title": "Recently Added",
+        "subtitle": "New coins on CoinGecko"
+      },
+      "trendingTokens": {
+        "title": "Trending on CoinGecko",
+        "subtitle": "24h trending tokens"
+      },
+      "topGainersLosers": {
+        "gainersTitle": "Top Gainers (%{duration})",
+        "losersTitle": "Top Losers (%{duration})"
+      },
+      "portfolio": {
+        "title": "Portfolio",
+        "totalValue": "Total Value",
+        "accountLabel": "Account",
+        "networkLabel": "Network",
+        "emptyState": "No assets in portfolio"
+      },
+      "getAssets": {
+        "title": "Assets",
+        "balance": "Balance",
+        "value": "Value",
+        "network": "Network",
+        "emptyState": "No assets found"
+      },
+      "receive": {
+        "title": "Receive",
+        "receiveOn": "Receive %{symbol} on %{network}",
+        "copyAddress": "Copy address",
+        "copied": "Copied!",
+        "warning": "Only send %{network}-compatible tokens to this address"
+      },
+      "getLimitOrders": {
+        "title": "Limit Orders",
+        "openOrders": "%{count} open",
+        "noOrders": "No limit orders found",
+        "status": {
+          "open": "Open",
+          "fulfilled": "Filled",
+          "cancelled": "Cancelled",
+          "expired": "Expired",
+          "presignaturePending": "Pending"
+        },
+        "sellLabel": "Sell",
+        "buyLabel": "Buy",
+        "expiresLabel": "Expires"
+      },
+      "getTransactionHistory": {
+        "title": "Recent Transactions",
+        "noTransactions": "No transactions found",
+        "type": {
+          "send": "Send",
+          "receive": "Receive",
+          "swap": "Swap",
+          "contract": "Contract"
+        },
+        "status": {
+          "success": "Confirmed",
+          "failed": "Failed",
+          "pending": "Pending"
         }
       }
     }

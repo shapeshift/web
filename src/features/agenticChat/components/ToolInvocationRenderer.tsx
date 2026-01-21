@@ -3,26 +3,42 @@ import type { ComponentType } from 'react'
 import { memo } from 'react'
 
 import type { ToolUIProps } from '../types/toolInvocation'
+import { CancelLimitOrderUI } from './tools/CancelLimitOrderUI'
+import { CreateLimitOrderUI } from './tools/CreateLimitOrderUI'
+import { GetAssetsUI } from './tools/GetAssetsUI'
+import { GetLimitOrdersUI } from './tools/GetLimitOrdersUI'
+import { GetTransactionHistoryUI } from './tools/GetTransactionHistoryUI'
+import { NewCoinsUI } from './tools/NewCoinsUI'
+import { PortfolioUI } from './tools/PortfolioUI'
+import { ReceiveUI } from './tools/ReceiveUI'
 import { SendUI } from './tools/SendUI'
 import { SwapUI } from './tools/SwapUI'
-import { UnknownToolUI } from './UnknownToolUI'
+import { TopGainersLosersUI } from './tools/TopGainersLosersUI'
+import { TrendingTokensUI } from './tools/TrendingTokensUI'
 
-const TOOL_UI_MAP: Record<string, ComponentType<ToolUIProps>> = {
+const TOOL_UI_MAP: Record<string, ComponentType<ToolUIProps> | null> = {
   sendTool: SendUI,
   initiateSwapTool: SwapUI,
   initiateSwapUsdTool: SwapUI,
-  // Additional tools will be added here as they are implemented
-  // switchNetworkTool: NetworkSwitchUI,
-  // createLimitOrderTool: LimitOrderUI,
-  // cancelLimitOrderTool: CancelLimitOrderUI,
+  cancelLimitOrderTool: CancelLimitOrderUI,
+  createLimitOrderTool: CreateLimitOrderUI,
+  getLimitOrdersTool: GetLimitOrdersUI,
+  mathCalculatorTool: null,
+  getAssetsTool: GetAssetsUI,
+  transactionHistoryTool: GetTransactionHistoryUI,
+  getNewCoinsTool: NewCoinsUI,
+  portfolioTool: PortfolioUI,
+  receiveTool: ReceiveUI,
+  getTopGainersLosersTool: TopGainersLosersUI,
+  getTrendingTokensTool: TrendingTokensUI,
 }
 
 export const ToolInvocationRenderer = memo(({ toolPart }: ToolUIProps) => {
   const toolName = getToolOrDynamicToolName(toolPart)
   const ToolComponent = TOOL_UI_MAP[toolName]
 
-  if (!ToolComponent) {
-    return <UnknownToolUI toolPart={toolPart} />
+  if (ToolComponent === null || ToolComponent === undefined) {
+    return null
   }
 
   return <ToolComponent toolPart={toolPart} />

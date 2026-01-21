@@ -184,7 +184,10 @@ export const TrezorCallback = () => {
               Connection Failed
             </Text>
             <Text>{errorMessage}</Text>
-            <Text fontSize='sm' color='gray.500'>
+            <Text fontSize='xs' color='gray.500' wordBreak='break-all' maxW='90vw' mt={4}>
+              URL: {typeof window !== 'undefined' ? window.location.href : 'N/A'}
+            </Text>
+            <Text fontSize='sm' color='gray.500' mt={4}>
               Please close this tab and try again.
             </Text>
           </>

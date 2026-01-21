@@ -1,0 +1,39 @@
+{
+  "sandbox": {
+    "enabled": true,
+    "autoAllowBashIfSandboxed": true
+  },
+  "permissions": {
+    "defaultMode": "acceptEdits",
+    "allow": [
+      "Read(./**)",
+      "Write(./**)",
+      "Edit(./**)",
+      "Glob(./**)",
+      "Grep(./**)",
+      "Read(/Users/mini/Projects/web/.auto-claude/worktrees/tasks/010-clicking-off-of-view-wallet-in-create-wallet-flow-/**)",
+      "Write(/Users/mini/Projects/web/.auto-claude/worktrees/tasks/010-clicking-off-of-view-wallet-in-create-wallet-flow-/**)",
+      "Edit(/Users/mini/Projects/web/.auto-claude/worktrees/tasks/010-clicking-off-of-view-wallet-in-create-wallet-flow-/**)",
+      "Glob(/Users/mini/Projects/web/.auto-claude/worktrees/tasks/010-clicking-off-of-view-wallet-in-create-wallet-flow-/**)",
+      "Grep(/Users/mini/Projects/web/.auto-claude/worktrees/tasks/010-clicking-off-of-view-wallet-in-create-wallet-flow-/**)",
+      "Read(/Users/mini/Projects/web/.auto-claude/worktrees/tasks/010-clicking-off-of-view-wallet-in-create-wallet-flow-/.auto-claude/specs/010-clicking-off-of-view-wallet-in-create-wallet-flow-/**)",
+      "Write(/Users/mini/Projects/web/.auto-claude/worktrees/tasks/010-clicking-off-of-view-wallet-in-create-wallet-flow-/.auto-claude/specs/010-clicking-off-of-view-wallet-in-create-wallet-flow-/**)",
+      "Edit(/Users/mini/Projects/web/.auto-claude/worktrees/tasks/010-clicking-off-of-view-wallet-in-create-wallet-flow-/.auto-claude/specs/010-clicking-off-of-view-wallet-in-create-wallet-flow-/**)",
+      "Read(/Users/mini/Projects/web/.auto-claude/**)",
+      "Write(/Users/mini/Projects/web/.auto-claude/**)",
+      "Edit(/Users/mini/Projects/web/.auto-claude/**)",
+      "Glob(/Users/mini/Projects/web/.auto-claude/**)",
+      "Grep(/Users/mini/Projects/web/.auto-claude/**)",
+      "Bash(*)",
+      "WebFetch(*)",
+      "WebSearch(*)",
+      "mcp__context7__resolve-library-id(*)",
+      "mcp__context7__get-library-docs(*)",
+      "mcp__graphiti-memory__search_nodes(*)",
+      "mcp__graphiti-memory__search_facts(*)",
+      "mcp__graphiti-memory__add_episode(*)",
+      "mcp__graphiti-memory__get_episodes(*)",
+      "mcp__graphiti-memory__get_entity_edge(*)"
+    ]
+  }
+}

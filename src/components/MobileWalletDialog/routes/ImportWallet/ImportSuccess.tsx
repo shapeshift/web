@@ -1,6 +1,6 @@
 import { Button, Icon, VStack } from '@chakra-ui/react'
 import type { NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
-import { useCallback, useRef } from 'react'
+import { useCallback, useEffect, useRef } from 'react'
 import { IoIosCheckmarkCircle } from 'react-icons/io'
 import { useTranslate } from 'react-polyglot'
 import type { Location } from 'react-router-dom'
@@ -82,6 +82,10 @@ export const ImportSuccess = ({ onClose }: ImportSuccessProps) => {
     appDispatch(setWelcomeModal({ show: true }))
     setTimeout(() => location.state?.vault?.revoke(), 500)
   }, [onClose, appDispatch, setWelcomeModal, handleWalletConnection, location.state?.vault])
+
+  useEffect(() => {
+    handleWalletConnection()
+  }, [handleWalletConnection])
 
   return (
     <SlideTransition>

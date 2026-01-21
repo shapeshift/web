@@ -1,6 +1,6 @@
 import { Button, Icon, Text, VStack } from '@chakra-ui/react'
 import { useQueryClient } from '@tanstack/react-query'
-import { useCallback, useRef } from 'react'
+import { useCallback, useEffect, useRef } from 'react'
 import { IoIosCheckmarkCircle } from 'react-icons/io'
 import { useTranslate } from 'react-polyglot'
 import type { Location } from 'react-router-dom'
@@ -96,6 +96,10 @@ export const CreateSuccess = ({ onClose }: CreateSuccessProps) => {
     appDispatch,
     setWelcomeModal,
   ])
+
+  useEffect(() => {
+    saveAndSelectWallet()
+  }, [saveAndSelectWallet])
 
   const handleViewWallet = useCallback(() => {
     saveAndSelectWallet()

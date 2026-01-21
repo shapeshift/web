@@ -2738,6 +2738,7 @@
     "claimSymbol": "Talep %{symbol}",
     "stakeSymbol": "Hisse %{symbol}",
     "unstakeSymbol": "Hisseyi Kaldır %{symbol}",
+    "depositSymbol": "Yatırma %{symbol}",
     "withdrawSymbol": "Çekme %{symbol}",
     "claimableRewards": "Talep edilebilir ödüller",
     "noActivePositions": "Şu anda aktif getiri sağlayan herhangi bir pozisyonunuz bulunmamaktadır.",

@@ -18,6 +18,7 @@ import { getNearTransactionStatus } from '@/lib/utils/near'
 import { getPlasmaTransactionStatus } from '@/lib/utils/plasma'
 import { getStarknetTransactionStatus, isStarknetChainAdapter } from '@/lib/utils/starknet'
 import { getSuiTransactionStatus } from '@/lib/utils/sui'
+import { getTonTransactionStatus } from '@/lib/utils/ton'
 import { getTronTransactionStatus } from '@/lib/utils/tron'
 import { actionSlice } from '@/state/slices/actionSlice/actionSlice'
 import { selectPendingWalletSendActions } from '@/state/slices/actionSlice/selectors'
@@ -212,6 +213,12 @@ export const useSendActionSubscriber = () => {
                   const nearTxStatus = await getNearTransactionStatus(txHash)
                   isConfirmed =
                     nearTxStatus === TxStatus.Confirmed || nearTxStatus === TxStatus.Failed
+                  break
+                }
+                case KnownChainIds.TonMainnet: {
+                  const tonTxStatus = await getTonTransactionStatus(txHash)
+                  isConfirmed =
+                    tonTxStatus === TxStatus.Confirmed || tonTxStatus === TxStatus.Failed
                   break
                 }
                 case KnownChainIds.StarknetMainnet: {

@@ -194,6 +194,7 @@ export const CHAIN_ID_TO_SUPPORTED_DEFI_OPPORTUNITIES: Record<
   [KnownChainIds.KatanaMainnet]: [],
   [KnownChainIds.ZcashMainnet]: [],
   [KnownChainIds.NearMainnet]: [],
+  [KnownChainIds.TonMainnet]: [],
 }
 
 // Single opportunity metadata resolvers

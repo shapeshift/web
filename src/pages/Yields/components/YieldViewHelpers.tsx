@@ -54,7 +54,7 @@ export const ListHeader = memo(({ isGroup = true }: ListHeaderProps) => {
     [translate, isGroup],
   )
   const tvlText = useMemo(() => translate('yieldXYZ.tvl'), [translate])
-  const balanceText = useMemo(() => translate('yieldXYZ.myBalance'), [translate])
+  const balanceText = useMemo(() => translate('yieldXYZ.balance'), [translate])
   const providerText = useMemo(
     () => (isGroup ? translate('yieldXYZ.providers') : translate('yieldXYZ.provider')),
     [translate, isGroup],

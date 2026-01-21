@@ -194,7 +194,7 @@ export const getAddressFormatHint = (chainId: ChainId): string => {
       return prefix ? `${prefix}1...` : 'Enter address'
     }
     case 'solana':
-      return 'Base58 address'
+      return 'Enter Solana address'
     default:
       return 'Enter address'
   }

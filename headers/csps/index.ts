@@ -26,6 +26,7 @@ import { csp as solana } from './chains/solana'
 import { csp as starknet } from './chains/starknet'
 import { csp as sui } from './chains/sui'
 import { csp as thorchain } from './chains/thorchain'
+import { csp as ton } from './chains/ton'
 import { csp as tron } from './chains/tron'
 import { csp as zcash } from './chains/zcash'
 import { csp as chatwoot } from './chatwoot'
@@ -42,6 +43,7 @@ import { csp as cowSwap } from './defi/swappers/CowSwap'
 import { csp as nearIntents } from './defi/swappers/NearIntents'
 import { csp as oneInch } from './defi/swappers/OneInch'
 import { csp as portals } from './defi/swappers/Portals'
+import { csp as stonfi } from './defi/swappers/Stonfi'
 import { csp as sunio } from './defi/swappers/Sunio'
 import { csp as thor } from './defi/swappers/Thor'
 import { csp as discord } from './discord'
@@ -57,6 +59,7 @@ import { csp as exchangeRates } from './marketService/exchangeRates'
 import { csp as mercle } from './mercle'
 import { csp as mixPanel } from './mixPanel'
 import { csp as moralis } from './moralis'
+import { csp as pinata } from './pinata'
 import { csp as foxPage } from './plugins/foxPage'
 import { csp as walletConnectToDapps } from './plugins/walletConnectToDapps'
 import { csp as railway } from './railway'
@@ -90,6 +93,7 @@ export const csps = [
   mercle,
   mixPanel,
   sentry,
+  pinata,
   shapeshift,
   snapshots,
   tenderly,
@@ -114,6 +118,7 @@ export const csps = [
   starknet,
   sui,
   thorchain,
+  ton,
   tron,
   zcash,
   mayachain,
@@ -137,6 +142,7 @@ export const csps = [
   nearIntents,
   oneInch,
   portals,
+  stonfi,
   sunio,
   thor,
   butterSwap,

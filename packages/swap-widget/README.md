@@ -75,7 +75,7 @@ function App() {
 | `theme`                  | `ThemeMode \| ThemeConfig`                      | `"dark"`         | Theme mode (`"light"` or `"dark"`) or full theme configuration.                                            |
 | `defaultSlippage`        | `string`                                        | `"0.5"`          | Default slippage tolerance percentage.                                                                     |
 | `showPoweredBy`          | `boolean`                                       | `true`           | Show "Powered by ShapeShift" branding.                                                                     |
-| `enableWalletConnection` | `boolean`                                       | `false`          | Enable built-in wallet connection UI using RainbowKit. Requires `walletConnectProjectId`.                  |
+| `enableWalletConnection` | `boolean`                                       | `false`          | Enable built-in wallet connection UI using Reown AppKit. Supports EVM, Bitcoin, and Solana wallets. Requires `walletConnectProjectId`. |
 | `walletConnectProjectId` | `string`                                        | -                | WalletConnect project ID for the built-in wallet connection. Get one at <https://cloud.walletconnect.com>. |
 | `defaultReceiveAddress`  | `string`                                        | -                | Fixed receive address for swaps. When set, users cannot change the receive address.                        |
 
@@ -136,22 +136,24 @@ function App() {
 }
 ```
 
-### With Wallet Connection (wagmi/viem)
+### With External Wallet Connection (wagmi/viem)
+
+If you already have wagmi set up in your application, you can pass the wallet client directly:
 
 ```tsx
 import { SwapWidget } from "@shapeshiftoss/swap-widget";
 import { useWalletClient } from "wagmi";
-import { useConnectModal } from "@rainbow-me/rainbowkit";
 
 function App() {
   const { data: walletClient } = useWalletClient();
-  const { openConnectModal } = useConnectModal();
 
   return (
     <SwapWidget
       apiKey="your-api-key"
       walletClient={walletClient}
-      onConnectWallet={openConnectModal}
+      onConnectWallet={() => {
+        // Your custom wallet connection logic
+      }}
       onSwapSuccess={(txHash) => {
         console.log("Swap successful:", txHash);
       }}
@@ -230,9 +232,9 @@ function App() {
 }
 ```
 
-### With Built-in Wallet Connection
+### With Built-in Wallet Connection (Multi-Chain)
 
-The widget can manage wallet connections internally using RainbowKit. This is useful when you don't have an existing wallet connection setup.
+The widget can manage wallet connections internally using Reown AppKit, which supports EVM chains, Bitcoin, and Solana. This is useful when you don't have an existing wallet connection setup.
 
 ```tsx
 import { SwapWidget } from "@shapeshiftoss/swap-widget";
@@ -248,6 +250,12 @@ function App() {
   );
 }
 ```
+
+When `enableWalletConnection` is true, the widget will:
+- Show a "Connect" button that opens the AppKit modal
+- Support connecting EVM wallets (MetaMask, WalletConnect, etc.)
+- Support connecting Bitcoin wallets via WalletConnect
+- Support connecting Solana wallets (Phantom, Solflare, etc.)
 
 ### With Fixed Receive Address
 
@@ -466,10 +474,14 @@ import {
 
 ## Notes and Limitations
 
-### EVM vs Non-EVM Swaps
+### Multi-Chain Swap Support
 
-- **EVM swaps** (e.g., ETH to USDC, MATIC to WETH) can be executed directly within the widget when a wallet is connected via the `walletClient` prop.
-- **Non-EVM swaps** (e.g., BTC to ETH, SOL to USDC) redirect the user to [app.shapeshift.com](https://app.shapeshift.com) to complete the transaction. This is because non-EVM chains require different wallet types.
+The widget supports swaps across multiple blockchain types:
+
+- **EVM swaps** (e.g., ETH to USDC, MATIC to WETH) can be executed directly within the widget when a wallet is connected via the `walletClient` prop or through the built-in AppKit wallet connection.
+- **Bitcoin/UTXO swaps** - When using the built-in wallet connection (`enableWalletConnection={true}`), Bitcoin and other UTXO chains can be signed directly via WalletConnect-compatible wallets.
+- **Solana swaps** - Solana transactions can be signed via Phantom, Solflare, or other Solana wallets when using the built-in wallet connection.
+- **Unsupported chains** - Swaps involving chains without wallet support will redirect to [app.shapeshift.com](https://app.shapeshift.com) to complete the transaction.
 
 ### API Key
 

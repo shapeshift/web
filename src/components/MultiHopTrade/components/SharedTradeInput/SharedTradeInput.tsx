@@ -2,7 +2,7 @@ import type { CardProps } from '@chakra-ui/react'
 import { Box, Card, Center, Flex, useMediaQuery } from '@chakra-ui/react'
 import type { FormEvent, JSX } from 'react'
 
-import { cardstyles } from '../../const'
+import { cardstyles, modalCardStyles } from '../../const'
 import { SharedTradeInputHeader } from '../SharedTradeInput/SharedTradeInputHeader'
 import { useSharedWidth } from '../TradeInput/hooks/useSharedWidth'
 
@@ -32,6 +32,7 @@ type SharedTradeInputProps = {
   onChangeTab: (newTab: TradeInputTab) => void
   onSubmit: (e: FormEvent<unknown>) => void
   isStandalone?: boolean
+  isModal?: boolean
 }
 
 const cardBorderRadius = { base: '0', md: '2xl' }
@@ -53,6 +54,7 @@ export const SharedTradeInput: React.FC<SharedTradeInputProps> = ({
   onChangeTab,
   onSubmit,
   isStandalone,
+  isModal,
 }) => {
   const [isSmallerThanMd] = useMediaQuery(`(max-width: ${breakpoints.md})`, { ssr: false })
   const [isSmallerThanXl] = useMediaQuery(`(max-width: ${breakpoints.xl})`, { ssr: false })
@@ -79,7 +81,7 @@ export const SharedTradeInput: React.FC<SharedTradeInputProps> = ({
               borderRadius={cardBorderRadius}
               minHeight={cardMinHeight}
               height={!hasUserEnteredAmount && isSmallerThanMd ? cardMinHeight.base : 'initial'}
-              {...cardstyles}
+              {...(isModal ? modalCardStyles : cardstyles)}
             >
               <SharedTradeInputHeader
                 initialTab={tradeInputTab}

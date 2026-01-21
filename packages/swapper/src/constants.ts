@@ -24,6 +24,8 @@ import { portalsApi } from './swappers/PortalsSwapper/endpoints'
 import { portalsSwapper } from './swappers/PortalsSwapper/PortalsSwapper'
 import { relaySwapper } from './swappers/RelaySwapper'
 import { relayApi } from './swappers/RelaySwapper/endpoints'
+import { stonfiApi } from './swappers/StonfiSwapper/endpoints'
+import { stonfiSwapper } from './swappers/StonfiSwapper/StonfiSwapper'
 import { sunioApi } from './swappers/SunioSwapper/endpoints'
 import { sunioSwapper } from './swappers/SunioSwapper/SunioSwapper'
 import { thorchainApi } from './swappers/ThorchainSwapper/endpoints'
@@ -104,22 +106,26 @@ export const swappers: Record<SwapperName, (SwapperApi & Swapper) | undefined> =
     ...avnuSwapper,
     ...avnuApi,
   },
+  [SwapperName.Stonfi]: {
+    ...stonfiSwapper,
+    ...stonfiApi,
+  },
   [SwapperName.Test]: undefined,
 }
 
-// Slippage defaults. Don't export these to ensure the getDefaultSlippageDecimalPercentageForSwapper helper function is used.
-const DEFAULT_SLIPPAGE_DECIMAL_PERCENTAGE = '0.002' // .2%
-const DEFAULT_COWSWAP_SLIPPAGE_DECIMAL_PERCENTAGE = '0.005' // .5%
-const DEFAULT_NEAR_INTENTS_SLIPPAGE_DECIMAL_PERCENTAGE = '0.005' // .5%
-const DEFAULT_PORTALS_SLIPPAGE_DECIMAL_PERCENTAGE = '0.025' // 2.5%
-const DEFAULT_THOR_SLIPPAGE_DECIMAL_PERCENTAGE = '0.01' // 1%
-const DEFAULT_MAYA_SLIPPAGE_DECIMAL_PERCENTAGE = '0.01' // 1%
-const DEFAULT_ARBITRUM_BRIDGE_SLIPPAGE_DECIMAL_PERCENTAGE = '0' // no slippage for Arbitrum Bridge, so no slippage tolerance
-const DEFAULT_CHAINFLIP_SLIPPAGE_DECIMAL_PERCENTAGE = '0.02' // 2%
-const DEFAULT_BUTTERSWAP_SLIPPAGE_DECIMAL_PERCENTAGE = '0.015' // 1.5%
-const DEFAULT_CETUS_SLIPPAGE_DECIMAL_PERCENTAGE = '0.005' // .5%
-const DEFAULT_SUNIO_SLIPPAGE_DECIMAL_PERCENTAGE = '0.005' // .5%
-const DEFAULT_AVNU_SLIPPAGE_DECIMAL_PERCENTAGE = '0.005' // .5%
+const DEFAULT_SLIPPAGE_DECIMAL_PERCENTAGE = '0.002'
+const DEFAULT_COWSWAP_SLIPPAGE_DECIMAL_PERCENTAGE = '0.005'
+const DEFAULT_NEAR_INTENTS_SLIPPAGE_DECIMAL_PERCENTAGE = '0.005'
+const DEFAULT_PORTALS_SLIPPAGE_DECIMAL_PERCENTAGE = '0.025'
+const DEFAULT_THOR_SLIPPAGE_DECIMAL_PERCENTAGE = '0.01'
+const DEFAULT_MAYA_SLIPPAGE_DECIMAL_PERCENTAGE = '0.01'
+const DEFAULT_ARBITRUM_BRIDGE_SLIPPAGE_DECIMAL_PERCENTAGE = '0'
+const DEFAULT_CHAINFLIP_SLIPPAGE_DECIMAL_PERCENTAGE = '0.02'
+const DEFAULT_BUTTERSWAP_SLIPPAGE_DECIMAL_PERCENTAGE = '0.015'
+const DEFAULT_CETUS_SLIPPAGE_DECIMAL_PERCENTAGE = '0.005'
+const DEFAULT_SUNIO_SLIPPAGE_DECIMAL_PERCENTAGE = '0.005'
+const DEFAULT_AVNU_SLIPPAGE_DECIMAL_PERCENTAGE = '0.005'
+const DEFAULT_STONFI_SLIPPAGE_DECIMAL_PERCENTAGE = '0.01'
 
 export const getDefaultSlippageDecimalPercentageForSwapper = (
   swapperName: SwapperName | undefined,
@@ -156,6 +162,8 @@ export const getDefaultSlippageDecimalPercentageForSwapper = (
       return DEFAULT_SUNIO_SLIPPAGE_DECIMAL_PERCENTAGE
     case SwapperName.Avnu:
       return DEFAULT_AVNU_SLIPPAGE_DECIMAL_PERCENTAGE
+    case SwapperName.Stonfi:
+      return DEFAULT_STONFI_SLIPPAGE_DECIMAL_PERCENTAGE
     default:
       return assertUnreachable(swapperName)
   }

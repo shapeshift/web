@@ -1,10 +1,9 @@
 import type { AssetId } from '@shapeshiftoss/caip'
-import { fromAssetId } from '@shapeshiftoss/caip'
 import { useMemo } from 'react'
 
 import { bnOrZero } from '@/lib/bignumber/bignumber'
-import { DEFAULT_NATIVE_VALIDATOR_BY_CHAIN_ID } from '@/lib/yieldxyz/constants'
 import type { AugmentedYieldDto } from '@/lib/yieldxyz/types'
+import { getDefaultValidatorForYield, isYieldDisabled } from '@/lib/yieldxyz/utils'
 import { useAllYieldBalances } from '@/react-queries/queries/yieldxyz/useAllYieldBalances'
 import { useYields } from '@/react-queries/queries/yieldxyz/useYields'
 import type { AggregatedOpportunitiesByAssetIdReturn } from '@/state/slices/opportunitiesSlice/types'
@@ -13,6 +12,7 @@ export type YieldOpportunityDisplay = {
   yieldId: string
   providerName: string
   providerIcon?: string
+  inputAssetId: AssetId
   apy: string
   fiatAmount: string
   cryptoAmount: string
@@ -44,6 +44,9 @@ export const useYieldAsOpportunities = (
       const inputAssetId = yieldItem.inputTokens?.[0]?.assetId
       if (!inputAssetId) return
 
+      const hasBalance = bnOrZero(yieldBalancesData?.aggregated[yieldItem.id]?.totalUsd).gt(0)
+      if (isYieldDisabled(yieldItem) && !hasBalance) return
+
       if (!aggregatedByAssetId[inputAssetId]) {
         aggregatedByAssetId[inputAssetId] = {
           assetId: inputAssetId,
@@ -63,13 +66,12 @@ export const useYieldAsOpportunities = (
       }
 
       const balancesForYield = yieldBalancesData?.aggregated[yieldItem.id]
-      const { chainId } = fromAssetId(inputAssetId)
 
       let totalUsd: string
       let totalCrypto: string
 
       if (balancesForYield?.hasValidators) {
-        const defaultValidatorAddress = DEFAULT_NATIVE_VALIDATOR_BY_CHAIN_ID[chainId]
+        const defaultValidatorAddress = getDefaultValidatorForYield(yieldItem.id)
         const validatorAddresses = Object.keys(balancesForYield.byValidator)
         const selectedValidatorAddress = defaultValidatorAddress ?? validatorAddresses[0]
         const validatorBalance = selectedValidatorAddress
@@ -99,16 +101,15 @@ export const useYieldAsOpportunities = (
           : yieldItem.rewardRate.total.toString()
         : yieldItem.rewardRate.total.toString()
 
-      if (bnOrZero(totalUsd).gt(0.01) || bnOrZero(totalCrypto).gt(0)) {
-        aggregatedByAssetId[inputAssetId].yieldOpportunities.push({
-          yieldId: yieldItem.id,
-          providerName: yieldItem.metadata.name || yieldItem.providerId,
-          providerIcon: yieldItem.metadata.logoURI,
-          apy: yieldItem.rewardRate.total.toString(),
-          fiatAmount: bnOrZero(totalUsd).toFixed(2),
-          cryptoAmount: bnOrZero(totalCrypto).toString(),
-        })
-      }
+      aggregatedByAssetId[inputAssetId].yieldOpportunities.push({
+        yieldId: yieldItem.id,
+        providerName: yieldItem.metadata.name || yieldItem.providerId,
+        providerIcon: yieldItem.metadata.logoURI,
+        inputAssetId,
+        apy: yieldItem.rewardRate.total.toString(),
+        fiatAmount: bnOrZero(totalUsd).toFixed(2),
+        cryptoAmount: bnOrZero(totalCrypto).toString(),
+      })
 
       const searchable = aggregatedByAssetId[inputAssetId].searchable
       const tokenSymbol = yieldItem.inputTokens?.[0]?.symbol ?? yieldItem.token.symbol
@@ -127,22 +128,6 @@ export const useYieldAsOpportunities = (
         return bnOrZero(b.apy).minus(bnOrZero(a.apy)).toNumber()
       })
     })
-
-    console.debug(
-      '[useYieldAsOpportunities] Result:',
-      JSON.stringify(
-        result.map(r => ({
-          assetId: r.assetId,
-          fiatAmount: r.fiatAmount,
-          yieldOpportunities: r.yieldOpportunities.map(y => ({
-            providerName: y.providerName,
-            fiatAmount: y.fiatAmount,
-          })),
-        })),
-        null,
-        2,
-      ),
-    )
 
     return result
   }, [yieldBalancesData?.aggregated, yieldsData?.all])

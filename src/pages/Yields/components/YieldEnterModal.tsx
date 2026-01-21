@@ -23,13 +23,13 @@ import { useLocaleFormatter } from '@/hooks/useLocaleFormatter/useLocaleFormatte
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import {
-  DEFAULT_NATIVE_VALIDATOR_BY_CHAIN_ID,
   SHAPESHIFT_COSMOS_VALIDATOR_ADDRESS,
   SHAPESHIFT_VALIDATOR_LOGO,
   SHAPESHIFT_VALIDATOR_NAME,
 } from '@/lib/yieldxyz/constants'
 import type { AugmentedYieldDto } from '@/lib/yieldxyz/types'
 import {
+  getDefaultValidatorForYield,
   getTransactionButtonText,
   getYieldActionLabelKeys,
   getYieldHeadingKeys,
@@ -179,11 +179,10 @@ export const YieldEnterModal = memo(
     )
 
     const selectedValidatorAddress = useMemo(() => {
-      if (chainId && DEFAULT_NATIVE_VALIDATOR_BY_CHAIN_ID[chainId]) {
-        return DEFAULT_NATIVE_VALIDATOR_BY_CHAIN_ID[chainId]
-      }
+      const defaultValidator = getDefaultValidatorForYield(yieldItem.id)
+      if (defaultValidator) return defaultValidator
       return validators?.[0]?.address
-    }, [chainId, validators])
+    }, [validators, yieldItem.id])
 
     const { data: providers } = useYieldProviders()
 

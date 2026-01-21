@@ -84,7 +84,7 @@ export const YieldHero = memo(
 
     const yieldTitle = titleOverride ?? yieldItem.metadata.name ?? yieldItem.token.symbol
 
-    const descriptionSection = useMemo(() => {
+    const maybeDescriptionSection = useMemo(() => {
       const docUrl = validatorOrProvider?.documentation ?? yieldItem.metadata.documentation
       const description = validatorOrProvider?.description ?? yieldItem.metadata.description
       if (!description && !docUrl) return null
@@ -144,6 +144,17 @@ export const YieldHero = memo(
           </Alert>
         )}
 
+        {!yieldItem.status.enter &&
+          !yieldItem.metadata.deprecated &&
+          !yieldItem.metadata.underMaintenance && (
+            <Alert status='warning' borderRadius='lg' variant='subtle'>
+              <AlertIcon />
+              <AlertDescription fontSize='sm'>
+                {translate('yieldXYZ.depositsDisabledDescription')}
+              </AlertDescription>
+            </Alert>
+          )}
+
         <HStack spacing={4} justify='center' flexWrap='wrap'>
           <HStack spacing={2}>
             {iconSource.assetId ? (
@@ -191,7 +202,7 @@ export const YieldHero = memo(
           {apy}% {translate('common.apy')}
         </Badge>
 
-        {descriptionSection}
+        {maybeDescriptionSection}
 
         <VStack spacing={1} textAlign='center'>
           <Text fontSize={{ base: '3xl', md: '4xl' }} fontWeight='bold' lineHeight='1'>

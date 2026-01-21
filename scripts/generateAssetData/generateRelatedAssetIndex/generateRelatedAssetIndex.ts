@@ -11,6 +11,7 @@ import {
   fromAssetId,
   katanaAssetId,
   optimismAssetId,
+  starknetAssetId,
 } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { createThrottle, isToken } from '@shapeshiftoss/utils'
@@ -48,6 +49,10 @@ const REGEN_ALL = process.env.REGEN_ALL === 'true'
 const manualRelatedAssetIndex: Record<AssetId, AssetId[]> = {
   [ethAssetId]: [optimismAssetId, arbitrumAssetId, arbitrumNovaAssetId, baseAssetId, katanaAssetId],
   [foxAssetId]: [foxOnArbitrumOneAssetId],
+  [starknetAssetId]: [
+    'eip155:1/erc20:0xca14007eff0db1f8135f4c25b34de49ab0d42766',
+    'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp/token:HsRpHQn6VbyMs5b5j5SV6xQ2VvpvvCCzu19GjytVSCoz',
+  ],
 }
 
 // Category → Canonical Asset mapping for bridged tokens

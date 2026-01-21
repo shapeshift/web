@@ -271,7 +271,7 @@ const extractTransactionData = (
   return undefined
 }
 
-const buildApprovalInfo = (step: TradeQuoteStep, _sellAssetId: string): ApprovalInfo => {
+const buildApprovalInfo = (step: TradeQuoteStep): ApprovalInfo => {
   const { chainNamespace } = fromChainId(step.sellAsset.chainId)
 
   if (chainNamespace !== 'eip155') {
@@ -447,11 +447,16 @@ export const getQuote = async (req: Request, res: Response): Promise<void> => {
           firstStep.sellAsset.assetId,
           validSwapperName,
         )
-        if (depositAddress) {
-          depositContext = {
-            memo: thorLikeQuote.memo,
-            depositAddress,
-          }
+        if (!depositAddress) {
+          res.status(503).json({
+            error: 'Failed to fetch deposit address for this swap',
+            code: 'DEPOSIT_ADDRESS_UNAVAILABLE',
+          } as ErrorResponse)
+          return
+        }
+        depositContext = {
+          memo: thorLikeQuote.memo,
+          depositAddress,
         }
       }
     }
@@ -469,7 +474,7 @@ export const getQuote = async (req: Request, res: Response): Promise<void> => {
       slippageTolerancePercentageDecimal: quote.slippageTolerancePercentageDecimal,
       networkFeeCryptoBaseUnit: firstStep.feeData.networkFeeCryptoBaseUnit,
       steps: quote.steps.map(step => transformQuoteStep(step, depositContext)),
-      approval: buildApprovalInfo(firstStep, sellAssetId),
+      approval: buildApprovalInfo(firstStep),
       expiresAt: now + 60_000,
     }
 

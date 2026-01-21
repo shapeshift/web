@@ -206,6 +206,10 @@ export type CosmosTransactionData = {
 export type CowswapOrderData = {
   type: 'cowswap'
   order: unknown
+  signatureRequired: {
+    type: 'eip712'
+    eip712: Record<string, unknown>
+  }
 }
 
 export type TransactionData =

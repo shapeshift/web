@@ -20,6 +20,8 @@ import type {
   SignAndBroadcastTransactionInput,
   SignTxInput,
   Transaction,
+  TxHistoryInput,
+  TxHistoryResponse,
   ValidAddressResult,
 } from '../types'
 import { ChainAdapterDisplayName, ValidAddressResultType } from '../types'
@@ -436,8 +438,96 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TonMainnet> {
     return Promise.resolve(invalid)
   }
 
-  getTxHistory(): Promise<never> {
-    throw new Error('TON transaction history not yet implemented')
+  async getTxHistory(input: TxHistoryInput): Promise<TxHistoryResponse> {
+    try {
+      const { pubkey, cursor, pageSize = 25, requestQueue, knownTxIds } = input
+
+      const offset = cursor ? parseInt(cursor, 10) : 0
+
+      const fetchTxHistory = async () => {
+        const response = await this.httpApiRequest<{
+          transactions?: TonTx[]
+          address_book?: Record<string, { user_friendly: string }>
+        }>(
+          `/api/v3/transactions?account=${encodeURIComponent(
+            pubkey,
+          )}&limit=${pageSize}&offset=${offset}&sort=desc`,
+        )
+        return response
+      }
+
+      const data = requestQueue ? await requestQueue.add(fetchTxHistory) : await fetchTxHistory()
+
+      if (!data?.transactions || data.transactions.length === 0) {
+        return {
+          cursor: '',
+          pubkey,
+          transactions: [],
+          txIds: [],
+        }
+      }
+
+      const addressBook = data.address_book ?? {}
+
+      const transactions: Transaction[] = []
+      const txIds: string[] = []
+
+      for (const tx of data.transactions) {
+        const txid = tx.hash
+
+        if (knownTxIds?.has(txid)) continue
+
+        txIds.push(txid)
+
+        const normalizedTx: TonTx = {
+          ...tx,
+          in_msg: tx.in_msg
+            ? {
+                ...tx.in_msg,
+                source: tx.in_msg.source
+                  ? addressBook[tx.in_msg.source]?.user_friendly ?? tx.in_msg.source
+                  : tx.in_msg.source,
+                destination: tx.in_msg.destination
+                  ? addressBook[tx.in_msg.destination]?.user_friendly ?? tx.in_msg.destination
+                  : tx.in_msg.destination,
+              }
+            : tx.in_msg,
+          out_msgs: tx.out_msgs?.map(msg => ({
+            ...msg,
+            source: msg.source ? addressBook[msg.source]?.user_friendly ?? msg.source : msg.source,
+            destination: msg.destination
+              ? addressBook[msg.destination]?.user_friendly ?? msg.destination
+              : msg.destination,
+          })),
+        }
+
+        const parsedTx = this.parse(normalizedTx, pubkey, txid)
+
+        const fetchJettonTransfers = () => this.parseJettonTransfers(txid, pubkey)
+
+        const jettonTransfers = requestQueue
+          ? await requestQueue.add(fetchJettonTransfers)
+          : await fetchJettonTransfers()
+
+        transactions.push({
+          ...parsedTx,
+          transfers: [...parsedTx.transfers, ...jettonTransfers],
+        })
+      }
+
+      const nextCursor = data.transactions.length === pageSize ? String(offset + pageSize) : ''
+
+      return {
+        cursor: nextCursor,
+        pubkey,
+        transactions,
+        txIds,
+      }
+    } catch (err) {
+      return ErrorHandler(err, {
+        translation: 'chainAdapters.errors.getTxHistory',
+      })
+    }
   }
 
   async getSeqno(address: string): Promise<number> {
@@ -905,6 +995,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TonMainnet> {
 
       type TonTxResponse = {
         transactions?: TonTx[]
+        address_book?: Record<string, { user_friendly: string }>
       }
 
       const txResult = await this.httpApiRequest<TonTxResponse>(
@@ -917,7 +1008,31 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TonMainnet> {
         throw new Error(`Transaction not found: ${txHash}`)
       }
 
-      const parsedTx = this.parse(tx, pubkey, msgHash)
+      const addressBook = txResult.address_book ?? {}
+
+      const normalizedTx: TonTx = {
+        ...tx,
+        in_msg: tx.in_msg
+          ? {
+              ...tx.in_msg,
+              source: tx.in_msg.source
+                ? addressBook[tx.in_msg.source]?.user_friendly ?? tx.in_msg.source
+                : tx.in_msg.source,
+              destination: tx.in_msg.destination
+                ? addressBook[tx.in_msg.destination]?.user_friendly ?? tx.in_msg.destination
+                : tx.in_msg.destination,
+            }
+          : tx.in_msg,
+        out_msgs: tx.out_msgs?.map(msg => ({
+          ...msg,
+          source: msg.source ? addressBook[msg.source]?.user_friendly ?? msg.source : msg.source,
+          destination: msg.destination
+            ? addressBook[msg.destination]?.user_friendly ?? msg.destination
+            : msg.destination,
+        })),
+      }
+
+      const parsedTx = this.parse(normalizedTx, pubkey, msgHash)
 
       const jettonTransfers = await this.parseJettonTransfers(txHash, pubkey)
 

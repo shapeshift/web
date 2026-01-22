@@ -106,7 +106,7 @@ export const viemKatanaClient = createPublicClient({
 export const viemCeloClient = createPublicClient({
   chain: celo,
   transport: fallback(
-    [process.env.VITE_CELO_NODE_URL, 'https://forno.celo.org']
+    [process.env.VITE_CELO_NODE_URL ?? 'https://forno.celo.org']
       .filter(Boolean)
       .map(url => http(url)),
   ),
@@ -115,7 +115,7 @@ export const viemCeloClient = createPublicClient({
 export const viemLineaClient = createPublicClient({
   chain: linea,
   transport: fallback(
-    [process.env.VITE_LINEA_NODE_URL, 'https://rpc.linea.build']
+    [process.env.VITE_LINEA_NODE_URL ?? 'https://rpc.linea.build']
       .filter(Boolean)
       .map(url => http(url)),
   ),

@@ -28,7 +28,7 @@ export type RelayTransactionMetadata = {
   // When Relay converts native → wrapped (e.g., native CELO → wrapped CELO),
   // this stores the wrapped asset that needs approval
   assetRequiringApproval?: Asset
-  orderId: string
+  orderId: string | undefined
 }
 
 export type RelayStatus = {
@@ -152,7 +152,7 @@ export type RelayQuoteStep = {
 }
 
 export type RelayProtocolV2 = {
-  orderId: string
+  orderId: string | undefined
   orderData?: unknown
   paymentDetails?: {
     chainId: string

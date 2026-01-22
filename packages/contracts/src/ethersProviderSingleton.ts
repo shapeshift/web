@@ -4,6 +4,7 @@ import { KnownChainIds } from '@shapeshiftoss/types'
 import { assertUnreachable } from '@shapeshiftoss/utils'
 import { JsonRpcProvider } from 'ethers'
 import { ethers as ethersV5 } from 'ethers5'
+import { celo, linea } from 'viem/chains'
 
 export const rpcUrlByChainId = (chainId: EvmChainId): string => {
   const url = (() => {
@@ -35,9 +36,9 @@ export const rpcUrlByChainId = (chainId: EvmChainId): string => {
       case KnownChainIds.KatanaMainnet:
         return process.env.VITE_KATANA_NODE_URL
       case KnownChainIds.CeloMainnet:
-        return process.env.VITE_CELO_NODE_URL
+        return process.env.VITE_CELO_NODE_URL ?? celo.rpcUrls.default.http[0]
       case KnownChainIds.LineaMainnet:
-        return process.env.VITE_LINEA_NODE_URL
+        return process.env.VITE_LINEA_NODE_URL ?? linea.rpcUrls.default.http[0]
       default:
         return assertUnreachable(chainId)
     }

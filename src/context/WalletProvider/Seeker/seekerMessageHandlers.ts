@@ -7,15 +7,6 @@
  * This file mirrors the pattern in MobileWallet/mobileMessageHandlers.ts
  */
 
-type Command =
-  | 'seekerCheckAvailability'
-  | 'seekerAuthorize'
-  | 'seekerDeauthorize'
-  | 'seekerGetAddress'
-  | 'seekerGetStatus'
-  | 'seekerSignTransaction'
-  | 'seekerSignAndSendTransaction'
-
 type Message =
   | { cmd: 'seekerCheckAvailability' }
   | { cmd: 'seekerAuthorize'; cluster?: 'mainnet-beta' | 'devnet' | 'testnet' }

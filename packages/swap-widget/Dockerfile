@@ -2,7 +2,7 @@ FROM node:20-slim AS builder
 
 WORKDIR /app
 
-COPY packages/swap-widget ./
+COPY . ./
 
 RUN corepack enable
 RUN yarn install

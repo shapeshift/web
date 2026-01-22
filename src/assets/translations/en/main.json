@@ -1572,6 +1572,26 @@
         "button": "Pair"
       }
     },
+    "seeker": {
+      "errors": {
+        "connectFailure": "Unable to connect Seeker wallet",
+        "notAvailable": "Seeker wallet is not available on this device. Please ensure you are using a Seeker device or have an MWA-compatible wallet installed.",
+        "checkFailed": "Unable to check Seeker wallet availability",
+        "authFailed": "Authorization failed. Please try again.",
+        "mobileOnly": "Seeker wallet is only available in the ShapeShift mobile app",
+        "signFailed": "Failed to sign transaction",
+        "sendFailed": "Failed to send transaction"
+      },
+      "connect": {
+        "header": "Connect Seeker Wallet",
+        "body": "Connect your Solana Seeker wallet to access Solana on ShapeShift",
+        "button": "Connect"
+      },
+      "failure": {
+        "header": "Seeker Connection Failed",
+        "body": "Unable to connect to Seeker wallet. Please ensure Mobile Wallet Adapter is available and try again."
+      }
+    },
     "metaMaskSnap": {
       "title": "Multichain support is now available for MetaMask!",
       "subtitle": "Add the Multichain Snap on Metamask to send, receive, track, trade, and earn with the following chains:",

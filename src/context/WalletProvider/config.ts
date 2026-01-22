@@ -8,6 +8,7 @@ import type { WebUSBLedgerAdapter as LedgerAdapter } from '@shapeshiftoss/hdwall
 import type { MetaMaskAdapter } from '@shapeshiftoss/hdwallet-metamask-multichain'
 import type { NativeAdapter } from '@shapeshiftoss/hdwallet-native'
 import type { PhantomAdapter } from '@shapeshiftoss/hdwallet-phantom'
+// Seeker uses mobile app message handlers, not hdwallet - NativeAdapter used as placeholder type
 import type { TrezorAdapter } from '@shapeshiftoss/hdwallet-trezor-connect'
 import type { VultisigAdapter } from '@shapeshiftoss/hdwallet-vultisig'
 import type { WalletConnectV2Adapter } from '@shapeshiftoss/hdwallet-walletconnectv2'
@@ -26,6 +27,7 @@ import { MobileConfig } from './MobileWallet/config'
 import { NativeConfig } from './NativeWallet/config'
 import { PhantomConfig } from './Phantom/config'
 import { KeepKeyRoutes } from './routes'
+import { SeekerConfig } from './Seeker/config'
 import { TrezorConfig } from './Trezor/config'
 import { NativeWalletRoutes } from './types'
 import { VultisigConfig } from './Vultisig/config'
@@ -284,6 +286,17 @@ const PhantomFailure = lazy(() =>
   })),
 )
 
+const SeekerConnect = lazy(() =>
+  import('./Seeker/components/Connect').then(({ SeekerConnect }) => ({
+    default: SeekerConnect,
+  })),
+)
+const SeekerFailure = lazy(() =>
+  import('./Seeker/components/Failure').then(({ SeekerFailure }) => ({
+    default: SeekerFailure,
+  })),
+)
+
 const VultisigConnect = lazy(() =>
   import('./Vultisig/components/Connect').then(({ VultisigConnect }) => ({
     default: VultisigConnect,
@@ -372,6 +385,8 @@ export type SupportedWalletInfoByKeyManager = {
   [KeyManager.Keplr]: SupportedWalletInfo<typeof KeplrAdapter>
   [KeyManager.Ledger]: SupportedWalletInfo<typeof LedgerAdapter>
   [KeyManager.Phantom]: SupportedWalletInfo<typeof PhantomAdapter>
+  // Seeker uses mobile app message handlers, NativeAdapter as placeholder type
+  [KeyManager.Seeker]: SupportedWalletInfo<typeof NativeAdapter>
   [KeyManager.Vultisig]: SupportedWalletInfo<typeof VultisigAdapter>
   [KeyManager.MetaMask]: SupportedWalletInfo<typeof MetaMaskAdapter | typeof MetaMaskAdapter>
   [KeyManager.Trezor]: SupportedWalletInfo<typeof TrezorAdapter>
@@ -454,6 +469,13 @@ export const SUPPORTED_WALLETS: SupportedWalletInfoByKeyManager = {
     routes: [
       { path: '/phantom/connect', component: PhantomConnect },
       { path: '/phantom/failure', component: PhantomFailure },
+    ],
+  },
+  [KeyManager.Seeker]: {
+    ...SeekerConfig,
+    routes: [
+      { path: '/seeker/connect', component: SeekerConnect },
+      { path: '/seeker/failure', component: SeekerFailure },
     ],
   },
   [KeyManager.Vultisig]: {

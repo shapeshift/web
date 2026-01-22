@@ -25,7 +25,7 @@ export type RelayTransactionMetadata = {
   psbt?: string
   opReturnData?: string
   relayId: string
-  orderId: string
+  orderId: string | undefined
 }
 
 export type RelayStatus = {
@@ -148,7 +148,7 @@ export type RelayQuoteStep = {
 }
 
 export type RelayProtocolV2 = {
-  orderId: string
+  orderId: string | undefined
   orderData?: unknown
   paymentDetails?: {
     chainId: string

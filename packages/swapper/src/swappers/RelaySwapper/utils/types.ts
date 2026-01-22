@@ -28,6 +28,7 @@ export type RelayTransactionMetadata = {
   // When Relay converts native → wrapped (e.g., native CELO → wrapped CELO),
   // this stores the wrapped asset that needs approval
   assetRequiringApproval?: Asset
+  orderId: string
 }
 
 export type RelayStatus = {
@@ -150,10 +151,26 @@ export type RelayQuoteStep = {
   items?: RelayQuoteItem[]
 }
 
+export type RelayProtocolV2 = {
+  orderId: string
+  orderData?: unknown
+  paymentDetails?: {
+    chainId: string
+    depository: string
+    currency: string
+    amount: string
+  }
+}
+
+export type RelayProtocol = {
+  v2?: RelayProtocolV2
+}
+
 export type RelayQuote = {
   fees: RelayFees
   details: QuoteDetails
   steps: RelayQuoteStep[]
+  protocol?: RelayProtocol
 }
 
 export const isRelayQuoteUtxoItemData = (

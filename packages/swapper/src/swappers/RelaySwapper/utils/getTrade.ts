@@ -245,6 +245,16 @@ export async function getTrade<T extends 'quote' | 'rate'>({
 
   const { data: quote } = maybeQuote.unwrap()
 
+  const orderId = quote.protocol?.v2?.orderId
+  if (!orderId) {
+    return Err(
+      makeSwapErrorRight({
+        message: 'Relay quote missing protocol.v2.orderId',
+        code: TradeQuoteError.UnknownError,
+      }),
+    )
+  }
+
   const { slippageTolerance, currencyIn, currencyOut, timeEstimate } = quote.details
 
   const buyAmountAfterFeesCryptoBaseUnit = currencyOut.amount
@@ -533,7 +543,7 @@ export async function getTrade<T extends 'quote' | 'rate'>({
         value: sellAmountIncludingProtocolFeesCryptoBaseUnit,
         chainSpecific: {
           pubkey: xpub ?? getRelayDefaultUserAddress(sellAsset.chainId),
-          opReturnData: firstStep.requestId,
+          opReturnData: orderId,
         },
         sendMax: false,
       }
@@ -628,10 +638,11 @@ export async function getTrade<T extends 'quote' | 'rate'>({
           relayTransactionMetadata: {
             from: sendAddress,
             psbt: selectedItem.data.psbt,
-            opReturnData: quoteStep.requestId,
+            opReturnData: orderId,
             to: relayer,
             relayId: quote.steps[0].requestId,
             assetRequiringApproval,
+            orderId,
           },
           solanaTransactionMetadata: undefined,
         }
@@ -653,6 +664,7 @@ export async function getTrade<T extends 'quote' | 'rate'>({
             chainId: Number(fromChainId(sellAsset.chainId).chainReference),
             relayId: quote.steps[0].requestId,
             assetRequiringApproval,
+            orderId,
           },
           solanaTransactionMetadata: undefined,
         }
@@ -668,6 +680,7 @@ export async function getTrade<T extends 'quote' | 'rate'>({
           relayTransactionMetadata: {
             relayId: quote.steps[0].requestId,
             assetRequiringApproval,
+            orderId,
           },
         }
       }
@@ -678,6 +691,7 @@ export async function getTrade<T extends 'quote' | 'rate'>({
           solanaTransactionMetadata: undefined,
           relayTransactionMetadata: {
             relayId: quote.steps[0].requestId,
+            orderId,
             to: selectedItem.data?.parameter?.contract_address,
             assetRequiringApproval,
           },

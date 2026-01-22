@@ -7,7 +7,7 @@ import { useCallback, useMemo, useState } from 'react'
 import { checkSolanaStatus, waitForSolanaConfirmation } from '../services/transactionStatus'
 
 type AnyTransaction = Transaction | VersionedTransaction
-type TransactionSignature = string | { toString?: () => string }
+type TransactionSignature = string | { toString: () => string }
 type MessageSignature = Uint8Array
 
 type SolanaProviderExtended = Provider & {
@@ -91,10 +91,13 @@ export const useSolanaSigning = (): UseSolanaSigningResult => {
       setState(prev => ({ ...prev, isLoading: true, error: undefined, signature: undefined }))
 
       try {
-        const signature = await provider.sendTransaction(params.transaction, connection)
+        const signature: TransactionSignature = await provider.sendTransaction(
+          params.transaction,
+          connection,
+        )
 
         const signatureStr =
-          typeof signature === 'string' ? signature : signature?.toString?.() ?? ''
+          typeof signature === 'string' ? signature : signature.toString()
 
         if (!signatureStr) {
           throw new Error('Transaction submitted but no signature returned')

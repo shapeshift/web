@@ -63,12 +63,19 @@ describe('adapters:coingecko', () => {
         assetNamespace: 'slip44',
         assetReference: ASSET_REFERENCE.Base,
       })
+      const ethOnLinea = toAssetId({
+        chainNamespace,
+        chainReference: CHAIN_REFERENCE.LineaMainnet,
+        assetNamespace: 'slip44',
+        assetReference: ASSET_REFERENCE.Linea,
+      })
       expect(coingeckoToAssetIds('ethereum')).toEqual([
         ethOnEthereum,
         ethOnOptimism,
         ethOnArbitrum,
         ethOnArbitrumNova,
         ethOnBase,
+        ethOnLinea,
       ])
     })
 
@@ -194,6 +201,12 @@ describe('adapters:coingecko', () => {
         assetNamespace: 'erc20',
         assetReference: '0xb88339cb7199b77e23db6e890353e22632ba630f',
       })
+      const usdcOnCelo = toAssetId({
+        chainNamespace: CHAIN_NAMESPACE.Evm,
+        chainReference: CHAIN_REFERENCE.CeloMainnet,
+        assetNamespace: 'erc20',
+        assetReference: '0xceba9300f2b948710d2653dd7b07f33a8b32118c',
+      })
       const usdcOnStarknet = toAssetId({
         chainNamespace: CHAIN_NAMESPACE.Starknet,
         chainReference: CHAIN_REFERENCE.StarknetMainnet,
@@ -215,6 +228,7 @@ describe('adapters:coingecko', () => {
         usdcOnBase,
         usdcOnMonad,
         usdcOnHyperEvm,
+        usdcOnCelo,
         usdcOnSolana,
         usdcOnStarknet,
         usdcOnSui,

@@ -22,7 +22,7 @@ import {
   supportsPlasma,
   supportsPolygon,
 } from '@shapeshiftoss/hdwallet-core'
-import type { Bip44Params, EvmChainId, RootBip44Params } from '@shapeshiftoss/types'
+import type { AnyEvmChainId, Bip44Params, EvmChainId, RootBip44Params } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import type * as unchained from '@shapeshiftoss/unchained-client'
 import BigNumber from 'bignumber.js'
@@ -88,6 +88,8 @@ export const evmChainIds = [
   KnownChainIds.HyperEvmMainnet,
   KnownChainIds.PlasmaMainnet,
   KnownChainIds.KatanaMainnet,
+  KnownChainIds.CeloMainnet,
+  KnownChainIds.LineaMainnet,
 ] as const
 
 export type EvmChainAdapter = EvmBaseAdapter<EvmChainId>
@@ -95,11 +97,12 @@ export type EvmChainAdapter = EvmBaseAdapter<EvmChainId>
 export const isEvmChainId = (
   maybeEvmChainId: string | EvmChainId,
 ): maybeEvmChainId is EvmChainId => {
-  return evmChainIds.includes(maybeEvmChainId as EvmChainId)
+  if (evmChainIds.includes(maybeEvmChainId as EvmChainId)) return true
+  return maybeEvmChainId.startsWith('eip155:')
 }
 
 export interface ChainAdapterArgs<T = unchained.evm.Api> {
-  chainId?: EvmChainId
+  chainId?: AnyEvmChainId
   providers: {
     http: T
     ws: unchained.ws.Client<unchained.evm.types.Tx>
@@ -109,14 +112,14 @@ export interface ChainAdapterArgs<T = unchained.evm.Api> {
 
 export interface EvmBaseAdapterArgs extends ChainAdapterArgs {
   assetId: AssetId
-  chainId: EvmChainId
+  chainId: AnyEvmChainId
   rootBip44Params: RootBip44Params
   supportedChainIds: ChainId[]
   parser: unchained.evm.BaseTransactionParser<unchained.evm.types.Tx>
 }
 
-export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdapter<T> {
-  protected readonly chainId: EvmChainId
+export abstract class EvmBaseAdapter<T extends AnyEvmChainId> implements IChainAdapter<T> {
+  protected readonly chainId: AnyEvmChainId
   protected readonly rootBip44Params: RootBip44Params
   protected readonly supportedChainIds: ChainId[]
   protected readonly providers: {
@@ -160,12 +163,9 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
     return { ...this.rootBip44Params, accountNumber, isChange: false, addressIndex: 0 }
   }
 
-  protected assertSupportsChain(
-    wallet: HDWallet,
-    chainReference?: number,
-  ): asserts wallet is ETHWallet {
+  protected assertSupportsChain(wallet: HDWallet): asserts wallet is ETHWallet {
     const support = (() => {
-      switch (chainReference ?? Number(fromChainId(this.chainId).chainReference)) {
+      switch (Number(fromChainId(this.chainId).chainReference)) {
         case Number(fromChainId(KnownChainIds.AvalancheMainnet).chainReference):
           return supportsAvalanche(wallet)
         case Number(fromChainId(KnownChainIds.BnbSmartChainMainnet).chainReference):
@@ -193,7 +193,8 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
         case Number(fromChainId(KnownChainIds.KatanaMainnet).chainReference):
           return supportsKatana(wallet)
         default:
-          return false
+          // For generic EVM chains (Celo, Sei, etc.), just check if wallet supports ETH
+          return supportsETH(wallet)
       }
     })()
 
@@ -223,7 +224,10 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
     }
 
     // TODO: use asset-service baseAssets.ts after lib is moved into web (circular dependency)
-    const targetNetwork = {
+    const targetNetworkByChainId: Record<
+      string,
+      { name: string; symbol: string; explorer: string }
+    > = {
       [KnownChainIds.AvalancheMainnet]: {
         name: 'Avalanche',
         symbol: 'AVAX',
@@ -289,7 +293,22 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
         symbol: 'ETH',
         explorer: 'https://katanascan.com',
       },
-    }[this.chainId]
+      [KnownChainIds.CeloMainnet]: {
+        name: 'Celo',
+        symbol: 'CELO',
+        explorer: 'https://celoscan.io',
+      },
+      [KnownChainIds.LineaMainnet]: {
+        name: 'Ethereum',
+        symbol: 'ETH',
+        explorer: 'https://lineascan.build',
+      },
+    }
+    const targetNetwork = targetNetworkByChainId[this.chainId] ?? {
+      name: this.getDisplayName(),
+      symbol: this.getDisplayName(),
+      explorer: '',
+    }
 
     try {
       await wallet.ethSwitchChain({
@@ -469,7 +488,7 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
     try {
       const { txToSign, wallet } = signTxInput
 
-      this.assertSupportsChain(wallet, txToSign.chainId)
+      this.assertSupportsChain(wallet)
       await verifyLedgerAppOpen(this.chainId, wallet)
 
       const signedTx = await wallet.ethSignTx(txToSign)
@@ -497,7 +516,7 @@ export abstract class EvmBaseAdapter<T extends EvmChainId> implements IChainAdap
         receiverAddress !== CONTRACT_INTERACTION && assertAddressNotSanctioned(receiverAddress),
       ])
 
-      this.assertSupportsChain(wallet, txToSign.chainId)
+      this.assertSupportsChain(wallet)
       await this.assertSwitchChain(wallet)
 
       const txHash = await wallet.ethSendTx?.(txToSign)

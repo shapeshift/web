@@ -35,17 +35,21 @@ export const useAllowanceApproval = (
     selectHopSellAccountId(state, hopSellAccountIdFilter),
   )
 
+  // Use wrapped asset if Relay specified one (e.g., native CELO → wrapped CELO)
+  const assetForApproval =
+    tradeQuoteStep?.relayTransactionMetadata?.assetRequiringApproval ?? tradeQuoteStep?.sellAsset
+
   const { allowanceCryptoBaseUnitResult, isAllowanceApprovalRequired } =
     useIsAllowanceApprovalRequired({
       amountCryptoBaseUnit: tradeQuoteStep?.sellAmountIncludingProtocolFeesCryptoBaseUnit,
-      assetId: tradeQuoteStep?.sellAsset.assetId,
+      assetId: assetForApproval?.assetId,
       from: sellAssetAccountId ? fromAccountId(sellAssetAccountId).account : undefined,
       spender: tradeQuoteStep?.allowanceContract,
     })
 
   const { evmFeesResult } = useApprovalFees({
     amountCryptoBaseUnit: tradeQuoteStep.sellAmountIncludingProtocolFeesCryptoBaseUnit,
-    assetId: tradeQuoteStep.sellAsset.assetId,
+    assetId: assetForApproval.assetId,
     from: sellAssetAccountId ? fromAccountId(sellAssetAccountId).account : undefined,
     allowanceType,
     spender: tradeQuoteStep.allowanceContract,
@@ -89,7 +93,7 @@ export const useAllowanceApproval = (
     ...reactQueries.mutations.approve({
       accountNumber: tradeQuoteStep.accountNumber,
       amountCryptoBaseUnit: approvalAmountCryptoBaseUnit,
-      assetId: tradeQuoteStep.sellAsset.assetId,
+      assetId: assetForApproval.assetId,
       spender: tradeQuoteStep.allowanceContract,
       from: sellAssetAccountId ? fromAccountId(sellAssetAccountId).account : undefined,
       wallet,

@@ -389,6 +389,39 @@ export const katana: Readonly<Asset> = Object.freeze({
   relatedAssetKey: 'eip155:1/slip44:60',
 })
 
+export const celo: Readonly<Asset> = Object.freeze({
+  assetId: caip.celoAssetId,
+  chainId: caip.celoChainId,
+  name: 'Celo',
+  networkName: 'Celo',
+  symbol: 'CELO',
+  precision: 18,
+  color: '#FCFF52',
+  networkColor: '#FCFF52',
+  icon: 'https://assets.coingecko.com/coins/images/11090/large/InjXBNx9_400x400.jpg?1696511031',
+  explorer: 'https://celoscan.io',
+  explorerAddressLink: 'https://celoscan.io/address/',
+  explorerTxLink: 'https://celoscan.io/tx/',
+  relatedAssetKey: null,
+})
+
+export const linea: Readonly<Asset> = Object.freeze({
+  assetId: caip.lineaAssetId,
+  chainId: caip.lineaChainId,
+  name: 'Ethereum',
+  networkName: 'Linea',
+  symbol: 'ETH',
+  precision: 18,
+  color: '#5C6BC0',
+  networkColor: '#121212',
+  icon: 'https://rawcdn.githack.com/trustwallet/assets/32e51d582a890b3dd3135fe3ee7c20c2fd699a6d/blockchains/ethereum/info/logo.png',
+  networkIcon: 'https://lineascan.build/assets/linea/images/svg/logos/chain-light.svg',
+  explorer: 'https://lineascan.build',
+  explorerAddressLink: 'https://lineascan.build/address/',
+  explorerTxLink: 'https://lineascan.build/tx/',
+  relatedAssetKey: 'eip155:1/slip44:60',
+})
+
 export const solana: Readonly<Asset> = Object.freeze({
   assetId: caip.solAssetId,
   chainId: caip.solanaChainId,

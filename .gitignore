@@ -42,4 +42,9 @@ yarn-error.log*
 # idea
 *.iml
 .idea/
+
+# Auto Claude / AI tooling
+.auto-claude/
+.auto-claude-*
+.claude_settings.json
 .playwright-mcp/

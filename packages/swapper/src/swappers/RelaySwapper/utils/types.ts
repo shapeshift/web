@@ -25,7 +25,10 @@ export type RelayTransactionMetadata = {
   psbt?: string
   opReturnData?: string
   relayId: string
-  orderId: string
+  // When Relay converts native → wrapped (e.g., native CELO → wrapped CELO),
+  // this stores the wrapped asset that needs approval
+  assetRequiringApproval?: Asset
+  orderId: string | undefined
 }
 
 export type RelayStatus = {
@@ -94,6 +97,7 @@ export type RelayFees = {
 
 export type QuoteDetails = {
   currencyOut: RelayCurrencyData
+  currencyIn: RelayCurrencyData
   rate: string
   slippageTolerance: {
     origin: {
@@ -148,7 +152,7 @@ export type RelayQuoteStep = {
 }
 
 export type RelayProtocolV2 = {
-  orderId: string
+  orderId: string | undefined
   orderData?: unknown
   paymentDetails?: {
     chainId: string

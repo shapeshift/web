@@ -23,6 +23,9 @@ const getHopTotalNetworkFeeFiatPrecisionWithGetFeeAssetRate = (
 ): BigNumber => {
   const feeAsset = selectFeeAssetById(state, tradeQuoteStep?.sellAsset.assetId)
 
+  console.log({
+    feeAsset,
+  })
   if (feeAsset === undefined)
     throw Error(`missing fee asset for assetId ${tradeQuoteStep.sellAsset.assetId}`)
 
@@ -64,6 +67,9 @@ const _getTotalNetworkFeeUsdPrecision = (
 
   const getFeeAssetUsdRate = (feeAssetId: AssetId) => {
     const feeAsset = selectFeeAssetById(state, feeAssetId)
+    console.log({
+      feeAsset,
+    })
     if (feeAsset === undefined) throw Error(`missing fee asset for assetId ${feeAssetId}`)
     const feeAssetMarketData = marketDataUsd[feeAsset.assetId]
     if (feeAssetMarketData === undefined)

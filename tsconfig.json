@@ -48,6 +48,9 @@
     "node_modules",
     "**/__mocks__",
     "**/*.js",
+    "**/dist/**",
+    "packages/*/dist/**",
+    "packages/unchained-client/src/generated/**",
     "src/lib/asset-service/service/encodedAssetData.json",
     "src/lib/asset-service/service/encodedRelatedAssetIndex.json"
   ],

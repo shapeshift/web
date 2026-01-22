@@ -7,7 +7,7 @@ import {
 } from '@shapeshiftoss/caip'
 import type { GetFeeDataInput } from '@shapeshiftoss/chain-adapters'
 import { evm, isEvmChainId } from '@shapeshiftoss/chain-adapters'
-import type { UtxoChainId } from '@shapeshiftoss/types'
+import type { Asset, UtxoChainId } from '@shapeshiftoss/types'
 import {
   bnOrZero,
   convertBasisPointsToPercentage,
@@ -35,8 +35,12 @@ import { MixPanelEvent, SwapperName, TradeQuoteError } from '../../../types'
 import { getInputOutputRate, makeSwapErrorRight } from '../../../utils'
 import { simulateWithStateOverrides } from '../../../utils/tenderly'
 import { isNativeEvmAsset } from '../../utils/helpers/helpers'
-import type { chainIdToRelayChainId as relayChainMapImplementation } from '../constant'
-import { MAXIMUM_SUPPORTED_RELAY_STEPS, relayErrorCodeToTradeQuoteError } from '../constant'
+import {
+  getChainIdFromRelayChainId,
+  getRelayChainId,
+  MAXIMUM_SUPPORTED_RELAY_STEPS,
+  relayErrorCodeToTradeQuoteError,
+} from '../constant'
 import { getRelayAssetAddress } from '../utils/getRelayAssetAddress'
 import { relayTokenToAsset } from '../utils/relayTokenToAsset'
 import { relayTokenToAssetId } from '../utils/relayTokenToAssetId'
@@ -55,23 +59,19 @@ import { getRelayPsbtRelayer } from './getRelayPsbtRelayer'
 export async function getTrade(args: {
   input: RelayTradeInputParams<'quote'>
   deps: SwapperDeps
-  relayChainMap: typeof relayChainMapImplementation
 }): Promise<Result<TradeQuote[], SwapErrorRight>>
 
 export async function getTrade(args: {
   input: RelayTradeInputParams<'rate'>
   deps: SwapperDeps
-  relayChainMap: typeof relayChainMapImplementation
 }): Promise<Result<TradeRate[], SwapErrorRight>>
 
 export async function getTrade<T extends 'quote' | 'rate'>({
   input,
   deps,
-  relayChainMap,
 }: {
   input: RelayTradeInputParams<T>
   deps: SwapperDeps
-  relayChainMap: typeof relayChainMapImplementation
 }): Promise<Result<TradeQuote[] | TradeRate[], SwapErrorRight>> {
   const {
     sellAsset,
@@ -87,8 +87,8 @@ export async function getTrade<T extends 'quote' | 'rate'>({
     ? convertDecimalPercentageToBasisPoints(input.slippageTolerancePercentageDecimal).toFixed()
     : undefined
 
-  const sellRelayChainId = relayChainMap[sellAsset.chainId]
-  const buyRelayChainId = relayChainMap[buyAsset.chainId]
+  const sellRelayChainId = getRelayChainId(sellAsset.chainId)
+  const buyRelayChainId = getRelayChainId(buyAsset.chainId)
 
   if (
     !isEvmChainId(sellAsset.chainId) &&
@@ -246,7 +246,7 @@ export async function getTrade<T extends 'quote' | 'rate'>({
   const { data: quote } = maybeQuote.unwrap()
 
   const orderId = quote.protocol?.v2?.orderId
-  if (!orderId) {
+  if (!orderId && sellAsset.chainId === btcChainId) {
     return Err(
       makeSwapErrorRight({
         message: 'Relay quote missing protocol.v2.orderId',
@@ -255,7 +255,7 @@ export async function getTrade<T extends 'quote' | 'rate'>({
     )
   }
 
-  const { slippageTolerance, currencyOut, timeEstimate } = quote.details
+  const { slippageTolerance, currencyIn, currencyOut, timeEstimate } = quote.details
 
   const buyAmountAfterFeesCryptoBaseUnit = currencyOut.amount
 
@@ -267,6 +267,35 @@ export async function getTrade<T extends 'quote' | 'rate'>({
   })
 
   const { currency: relayToken } = currencyOut
+
+  const assetRequiringApproval = (() => {
+    const currencyInAssetId = relayTokenToAssetId(currencyIn.currency)
+
+    if (currencyInAssetId !== sellAsset.assetId) {
+      const knownAsset = deps.assetsById[currencyInAssetId]
+      if (knownAsset) return knownAsset
+
+      const { currency } = currencyIn
+      const chainId = getChainIdFromRelayChainId(currency.chainId)
+      if (chainId) {
+        return {
+          assetId: currencyInAssetId,
+          chainId,
+          name: currency.name,
+          symbol: currency.symbol,
+          precision: currency.decimals,
+          color: '#000000',
+          icon: '',
+          explorer: '',
+          explorerAddressLink: '',
+          explorerTxLink: '',
+          relatedAssetKey: null,
+        } satisfies Asset
+      }
+    }
+
+    return undefined
+  })()
 
   const swapSteps = quote.steps.filter(step => step.id !== 'approve')
 
@@ -612,6 +641,7 @@ export async function getTrade<T extends 'quote' | 'rate'>({
             opReturnData: orderId,
             to: relayer,
             relayId: quote.steps[0].requestId,
+            assetRequiringApproval,
             orderId,
           },
           solanaTransactionMetadata: undefined,
@@ -619,6 +649,8 @@ export async function getTrade<T extends 'quote' | 'rate'>({
       }
 
       if (isRelayQuoteEvmItemData(selectedItem.data)) {
+        // allowanceContract is the spender (router), NOT the token address
+        // The approval system uses assetRequiringApproval for the token
         return {
           allowanceContract: selectedItem.data?.to ?? '',
           relayTransactionMetadata: {
@@ -631,6 +663,7 @@ export async function getTrade<T extends 'quote' | 'rate'>({
             gasLimit: selectedItem.data?.gas,
             chainId: Number(fromChainId(sellAsset.chainId).chainReference),
             relayId: quote.steps[0].requestId,
+            assetRequiringApproval,
             orderId,
           },
           solanaTransactionMetadata: undefined,
@@ -646,6 +679,7 @@ export async function getTrade<T extends 'quote' | 'rate'>({
           },
           relayTransactionMetadata: {
             relayId: quote.steps[0].requestId,
+            assetRequiringApproval,
             orderId,
           },
         }
@@ -659,6 +693,7 @@ export async function getTrade<T extends 'quote' | 'rate'>({
             relayId: quote.steps[0].requestId,
             orderId,
             to: selectedItem.data?.parameter?.contract_address,
+            assetRequiringApproval,
           },
         }
       }
@@ -666,14 +701,14 @@ export async function getTrade<T extends 'quote' | 'rate'>({
       throw new Error('Relay quote step contains no data')
     })()
 
-    return {
+    const step = {
       allowanceContract,
       rate,
       buyAmountBeforeFeesCryptoBaseUnit,
       buyAmountAfterFeesCryptoBaseUnit,
       sellAmountIncludingProtocolFeesCryptoBaseUnit,
       buyAsset,
-      sellAsset,
+      sellAsset, // Always return the original requested asset, not what Relay converts it to
       accountNumber,
       feeData: {
         networkFeeCryptoBaseUnit,
@@ -691,6 +726,8 @@ export async function getTrade<T extends 'quote' | 'rate'>({
       solanaTransactionMetadata,
       relayTransactionMetadata,
     }
+
+    return step
   })
 
   const baseQuoteOrRate = {
@@ -727,5 +764,6 @@ export async function getTrade<T extends 'quote' | 'rate'>({
     receiveAddress,
     quoteOrRate: 'rate' as const,
   }
+
   return Ok([tradeRate])
 }

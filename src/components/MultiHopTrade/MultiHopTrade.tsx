@@ -119,11 +119,12 @@ const TradeRoutes = memo(({ isCompact, isStandalone, onChangeTab }: TradeRoutesP
   const tradeInputRef = useRef<HTMLDivElement | null>(null)
 
   const shouldUseTradeRates = useMemo(() => {
-    // We want to fetch rates when the user is on the trade input or any asset-specific trade route
+    // We want to fetch rates when the user is on the trade input, quote list, or any asset-specific trade route
     // but not on confirm, verify-addresses, etc.
     const pathname = location.pathname
 
     const isTradeInputPath = pathname === TradeRoutePaths.Input
+    const isQuoteListPath = pathname.includes(TradeRoutePaths.QuoteList)
     // Poor man's matchPath to check if the path is an asset-specific trade route i.e if it starts with /trade
     // but is none of /trade subroutes
     const isAssetSpecificPath =
@@ -132,7 +133,7 @@ const TradeRoutes = memo(({ isCompact, isStandalone, onChangeTab }: TradeRoutesP
       !pathname.includes(TradeRoutePaths.VerifyAddresses) &&
       !pathname.includes(TradeRoutePaths.QuoteList)
 
-    return isTradeInputPath || isAssetSpecificPath
+    return isTradeInputPath || isQuoteListPath || isAssetSpecificPath
   }, [location.pathname])
 
   const wrappedQuoteList = useCallback(

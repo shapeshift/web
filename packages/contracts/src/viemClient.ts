@@ -1,17 +1,21 @@
-import type { ChainId } from '@shapeshiftoss/caip'
+import type { ChainId, EvmGenericChainConfig, EvmGenericChainId } from '@shapeshiftoss/caip'
+import { getGenericChainConfig } from '@shapeshiftoss/caip'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import assert from 'assert'
 import type { PublicClient } from 'viem'
-import { createPublicClient, fallback, http } from 'viem'
+import { createPublicClient, defineChain, fallback, http } from 'viem'
+import * as chains from 'viem/chains'
 import {
   arbitrum,
   arbitrumNova,
   avalanche,
   base,
   bsc,
+  celo,
   gnosis,
   hyperEvm,
   katana,
+  linea,
   mainnet,
   monad,
   optimism,
@@ -99,6 +103,92 @@ export const viemKatanaClient = createPublicClient({
   transport: fallback([process.env.VITE_KATANA_NODE_URL].filter(Boolean).map(url => http(url))),
 }) as PublicClient
 
+export const viemCeloClient = createPublicClient({
+  chain: celo,
+  transport: fallback(
+    [process.env.VITE_CELO_NODE_URL ?? 'https://forno.celo.org']
+      .filter(Boolean)
+      .map(url => http(url)),
+  ),
+}) as PublicClient
+
+export const viemLineaClient = createPublicClient({
+  chain: linea,
+  transport: fallback(
+    [process.env.VITE_LINEA_NODE_URL ?? 'https://rpc.linea.build']
+      .filter(Boolean)
+      .map(url => http(url)),
+  ),
+}) as PublicClient
+
+const genericChainClientCache: Map<EvmGenericChainId, PublicClient> = new Map()
+
+const extractNetworkId = (chainId: EvmGenericChainId): number => {
+  const parts = chainId.split(':')
+  return parseInt(parts[1], 10)
+}
+
+export const createGenericViemClient = (config: EvmGenericChainConfig): PublicClient => {
+  const cached = genericChainClientCache.get(config.chainId)
+  if (cached) return cached
+
+  const networkId = extractNetworkId(config.chainId)
+
+  const viemChain =
+    config.viemChainKey !== undefined
+      ? (chains[config.viemChainKey] as chains.Chain)
+      : defineChain({
+          id: networkId,
+          name: config.name,
+          nativeCurrency: {
+            decimals: 18,
+            name: config.name,
+            symbol: config.name.substring(0, 4).toUpperCase(),
+          },
+          rpcUrls: {
+            default: {
+              http: config.rpcUrl ? [config.rpcUrl] : [],
+            },
+          },
+          blockExplorers: config.explorerUrl
+            ? {
+                default: {
+                  name: 'Explorer',
+                  url: config.explorerUrl,
+                },
+              }
+            : undefined,
+          contracts: config.multicallAddress
+            ? {
+                multicall3: {
+                  address: config.multicallAddress,
+                },
+              }
+            : undefined,
+        })
+
+  // Use custom RPC URL if provided, otherwise use chain's default RPC URLs
+  const rpcUrls = config.rpcUrl ? [config.rpcUrl] : viemChain.rpcUrls.default.http.filter(Boolean)
+
+  const client = createPublicClient({
+    chain: viemChain as chains.Chain,
+    transport: fallback(rpcUrls.map(url => http(url))),
+  }) as PublicClient
+
+  genericChainClientCache.set(config.chainId, client)
+  return client
+}
+
+export const getOrCreateViemClient = (chainId: ChainId): PublicClient | undefined => {
+  const knownClient = viemClientByChainId[chainId]
+  if (knownClient) return knownClient
+
+  const genericConfig = getGenericChainConfig(chainId)
+  if (genericConfig) return createGenericViemClient(genericConfig)
+
+  return undefined
+}
+
 export const viemClientByChainId: Record<ChainId, PublicClient> = {
   [KnownChainIds.EthereumMainnet]: viemEthMainnetClient,
   [KnownChainIds.BnbSmartChainMainnet]: viemBscClient,
@@ -113,6 +203,8 @@ export const viemClientByChainId: Record<ChainId, PublicClient> = {
   [KnownChainIds.HyperEvmMainnet]: viemHyperEvmClient,
   [KnownChainIds.PlasmaMainnet]: viemPlasmaClient,
   [KnownChainIds.KatanaMainnet]: viemKatanaClient,
+  [KnownChainIds.CeloMainnet]: viemCeloClient,
+  [KnownChainIds.LineaMainnet]: viemLineaClient,
 }
 
 export const viemNetworkIdByChainId: Record<ChainId, number> = {
@@ -129,6 +221,8 @@ export const viemNetworkIdByChainId: Record<ChainId, number> = {
   [KnownChainIds.HyperEvmMainnet]: hyperEvm.id,
   [KnownChainIds.PlasmaMainnet]: plasma.id,
   [KnownChainIds.KatanaMainnet]: katana.id,
+  [KnownChainIds.CeloMainnet]: celo.id,
+  [KnownChainIds.LineaMainnet]: linea.id,
 }
 
 export const viemClientByNetworkId: Record<number, PublicClient> = {
@@ -145,6 +239,8 @@ export const viemClientByNetworkId: Record<number, PublicClient> = {
   [hyperEvm.id]: viemHyperEvmClient,
   [plasma.id]: viemPlasmaClient,
   [katana.id]: viemKatanaClient,
+  [celo.id]: viemCeloClient,
+  [linea.id]: viemLineaClient,
 }
 
 export const assertGetViemClient = (chainId: ChainId): PublicClient => {

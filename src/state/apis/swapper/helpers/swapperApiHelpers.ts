@@ -69,6 +69,11 @@ export const processQuoteResultWithRatios = (
 ) => {
   if (quoteResult.isErr()) {
     const error: SwapErrorRight = quoteResult.unwrapErr()
+
+    console.log({
+      error,
+      swapperName: quoteResult.swapperName,
+    })
     return [
       {
         quote: undefined,
@@ -80,9 +85,18 @@ export const processQuoteResultWithRatios = (
   }
 
   return quoteResult.unwrap().map((quote: TradeQuote | TradeRate) => {
+    console.log({
+      quote,
+    })
     const inputOutputRatio = getInputOutputRatioFromQuote({
       // We need to get the freshest state after fetching market data above
       state: getState() as ReduxState,
+      quote,
+      swapperName: quoteResult.swapperName,
+    })
+
+    console.log({
+      inputOutputRatio,
       quote,
       swapperName: quoteResult.swapperName,
     })

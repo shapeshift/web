@@ -9,13 +9,11 @@ import type {
   TradeQuote,
 } from '../../../types'
 import { makeSwapErrorRight } from '../../../utils'
-import type { chainIdToRelayChainId as relayChainMapImplementation } from '../constant'
 import { getTrade } from '../utils/getTrade'
 
 export const getTradeQuote = async (
   input: CommonTradeQuoteInput,
   deps: SwapperDeps,
-  relayChainMap: typeof relayChainMapImplementation,
 ): Promise<Result<TradeQuote[], SwapErrorRight>> => {
   if (!input.sendAddress) {
     return Err(
@@ -46,7 +44,7 @@ export const getTradeQuote = async (
     xpub: 'xpub' in input ? (input as GetUtxoTradeQuoteInput).xpub : undefined,
   }
 
-  const quotesResult = await getTrade({ input: args, deps, relayChainMap })
+  const quotesResult = await getTrade({ input: args, deps })
 
   return quotesResult
 }

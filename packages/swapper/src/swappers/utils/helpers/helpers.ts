@@ -1,6 +1,8 @@
 import type { AssetId, ChainId } from '@shapeshiftoss/caip'
 import {
   arbitrumAssetId,
+  ASSET_NAMESPACE,
+  ASSET_REFERENCE,
   avalancheAssetId,
   baseAssetId,
   bscAssetId,
@@ -13,6 +15,7 @@ import {
   plasmaAssetId,
   polygonAssetId,
 } from '@shapeshiftoss/caip'
+import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import type { TreasuryChainId } from '@shapeshiftoss/utils'
 import {
@@ -31,7 +34,7 @@ import {
 } from '@shapeshiftoss/utils'
 
 export const isNativeEvmAsset = (assetId: AssetId): boolean => {
-  const { chainId } = fromAssetId(assetId)
+  const { chainId, assetNamespace, assetReference } = fromAssetId(assetId)
   switch (chainId) {
     case KnownChainIds.EthereumMainnet:
       return assetId === ethAssetId
@@ -56,6 +59,11 @@ export const isNativeEvmAsset = (assetId: AssetId): boolean => {
     case KnownChainIds.KatanaMainnet:
       return assetId === katanaAssetId
     default:
+      if (isEvmChainId(chainId)) {
+        return (
+          assetNamespace === ASSET_NAMESPACE.slip44 && assetReference === ASSET_REFERENCE.Ethereum
+        )
+      }
       return false
   }
 }

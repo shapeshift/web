@@ -210,7 +210,7 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
           nextReceiveAddressIndex: data.nextReceiveAddressIndex,
         },
         pubkey: data.pubkey,
-      } as Account<T>
+      } as unknown as Account<T>
     } catch (err) {
       return ErrorHandler(err, {
         translation: 'chainAdapters.errors.getAccount',
@@ -492,7 +492,7 @@ export abstract class UtxoBaseAdapter<T extends UtxoChainId> implements IChainAd
         fast: { txFee: String(fastFee), chainSpecific: { satoshiPerByte: fastPerByte } },
         average: { txFee: String(averageFee), chainSpecific: { satoshiPerByte: averagePerByte } },
         slow: { txFee: String(slowFee), chainSpecific: { satoshiPerByte: slowPerByte } },
-      } as FeeDataEstimate<T>
+      } as unknown as FeeDataEstimate<T>
     } catch (err) {
       return ErrorHandler(err, {
         translation: 'chainAdapters.errors.getFeeData',

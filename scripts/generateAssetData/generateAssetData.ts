@@ -7,7 +7,9 @@ import {
   atom,
   bitcoin,
   bitcoincash,
+  celo,
   dogecoin,
+  linea,
   litecoin,
   maya,
   mayachain,
@@ -28,6 +30,7 @@ import * as arbitrumNova from './arbitrumNova'
 import * as avalanche from './avalanche'
 import * as base from './base'
 import * as bnbsmartchain from './bnbsmartchain'
+import * as celoModule from './celo'
 import { compressGeneratedAssets } from './compressAssets'
 import { ASSET_DATA_PATH, GENERATED_DIR, RELATED_ASSET_INDEX_PATH } from './constants'
 import * as ethereum from './ethereum'
@@ -35,6 +38,7 @@ import { generateRelatedAssetIndex } from './generateRelatedAssetIndex/generateR
 import * as gnosis from './gnosis'
 import * as hyperevm from './hyperevm'
 import * as katana from './katana'
+import * as lineaModule from './linea'
 import * as monad from './monad'
 import * as near from './near'
 import * as optimism from './optimism'
@@ -72,6 +76,9 @@ const generateAssetData = async () => {
   const monadAssets = await monad.getAssets()
   const hyperevmAssets = await hyperevm.getAssets()
   const katanaAssets = await katana.getAssets()
+  const celoAssets = await celoModule.getAssets()
+  const lineaAssets = await lineaModule.getAssets()
+
   const plasmaAssets = await plasma.getAssets()
   const solanaAssets = await solana.getAssets()
   const starknetAssets = await starknet.getAssets()
@@ -105,6 +112,10 @@ const generateAssetData = async () => {
     ...monadAssets,
     ...hyperevmAssets,
     ...katanaAssets,
+    unfreeze(celo),
+    ...celoAssets,
+    unfreeze(linea),
+    ...lineaAssets,
     ...plasmaAssets,
     ...solanaAssets,
     ...starknetAssets,

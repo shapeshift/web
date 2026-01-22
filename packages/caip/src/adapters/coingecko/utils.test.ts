@@ -148,6 +148,12 @@ describe('adapters:coingecko:utils', () => {
           'eip155:56/slip44:60': 'binancecoin',
           'eip155:56/erc20:0x2170ed0880ac9a755fd29b2688956bd959f933f8': 'weth',
         },
+        'eip155:42220': {
+          'eip155:42220/slip44:60': 'celo',
+        },
+        'eip155:59144': {
+          'eip155:59144/slip44:60': 'ethereum',
+        },
         'eip155:10': {
           'eip155:10/slip44:60': 'ethereum',
           'eip155:10/erc20:0x4200000000000000000000000000000000000006': 'weth',

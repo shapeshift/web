@@ -12,11 +12,13 @@ import {
   bitcoin,
   bitcoincash,
   bnbsmartchain,
+  celo,
   dogecoin,
   ethereum,
   gnosis,
   hyperevm,
   katana,
+  linea,
   litecoin,
   mayachain,
   monad,
@@ -90,6 +92,10 @@ export const getBaseAsset = (chainId: ChainId): Readonly<Asset> => {
       return zcash
     case KnownChainIds.TonMainnet:
       return ton
+    case KnownChainIds.CeloMainnet:
+      return celo
+    case KnownChainIds.LineaMainnet:
+      return linea
     default:
       return assertUnreachable(knownChainId)
   }

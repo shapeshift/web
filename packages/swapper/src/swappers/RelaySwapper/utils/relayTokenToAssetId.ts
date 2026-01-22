@@ -13,15 +13,18 @@ import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 
 import {
   DEFAULT_RELAY_EVM_TOKEN_ADDRESS,
+  getChainIdFromRelayChainId,
   RELAY_BTC_TOKEN_ADDRESS,
   RELAY_SOLANA_TOKEN_ADDRESS,
   RELAY_TRON_TOKEN_ADDRESS,
-  relayChainIdToChainId,
 } from '../constant'
 import type { RelayToken } from './types'
 
 export const relayTokenToAssetId = (relayToken: RelayToken): AssetId => {
-  const chainId = relayChainIdToChainId[relayToken.chainId]
+  const chainId = getChainIdFromRelayChainId(relayToken.chainId)
+  if (!chainId) {
+    throw Error(`Relay chainId '${relayToken.chainId}' not supported`)
+  }
   const { chainReference } = fromChainId(chainId)
 
   const isNativeAsset = (() => {
@@ -142,7 +145,14 @@ export const relayTokenToAssetId = (relayToken: RelayToken): AssetId => {
           assetNamespace: ASSET_NAMESPACE.slip44,
         }
       default:
-        throw Error(`chainId '${relayToken.chainId}' not supported`)
+        // For generic EVM chains (Celo, Linea, etc.), use slip44:60 (Ethereum)
+        if (isEvmChainId(chainId)) {
+          return {
+            assetReference: ASSET_REFERENCE.Ethereum,
+            assetNamespace: ASSET_NAMESPACE.slip44,
+          }
+        }
+        throw Error(`chainId '${chainId}' (relay chainId: ${relayToken.chainId}) not supported`)
     }
   })()
 

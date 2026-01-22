@@ -58,6 +58,10 @@ export const getChainShortName = (chainId: KnownChainIds) => {
       return 'NEAR'
     case KnownChainIds.TonMainnet:
       return 'TON'
+    case KnownChainIds.CeloMainnet:
+      return 'CELO'
+    case KnownChainIds.LineaMainnet:
+      return 'LINEA'
     default: {
       assertUnreachable(chainId)
     }

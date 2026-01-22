@@ -14,11 +14,12 @@ export const relayTokenToAsset = (
 ): Result<Asset, SwapErrorRight> => {
   const assetId = relayTokenToAssetId(relayToken)
   const maybeAsset = assets[assetId]
+
   if (maybeAsset) return Ok(maybeAsset)
 
   return Err(
     makeSwapErrorRight({
-      message: 'Unknown relay token',
+      message: `Unknown relay token: ${assetId}`,
     }),
   )
 }

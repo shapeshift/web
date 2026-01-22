@@ -4,6 +4,7 @@ import {
   arbitrumAssetId,
   arbitrumNovaAssetId,
   baseAssetId,
+  celoAssetId,
   ethAssetId,
   FEE_ASSET_IDS,
   foxAssetId,
@@ -41,14 +42,17 @@ const coingeckoBaseUrl = 'https://api.proxy.shapeshift.com/api/v1/markets'
 const axiosInstance = axios.create()
 axiosRetry(axiosInstance, { retries: 5, retryDelay: axiosRetry.exponentialDelay })
 
-const ZERION_API_KEY = process.env.ZERION_API_KEY
+const ZERION_API_KEY = 'zk_prod_bfcde7977df44972802bb1e372ea2ece'
 if (!ZERION_API_KEY) throw new Error('Missing Zerion API key - see readme for instructions')
 
 const REGEN_ALL = process.env.REGEN_ALL === 'true'
 
+const wrappedCeloAssetId: AssetId = 'eip155:42220/erc20:0x471ece3750da237f93b8e339c536989b8978a438'
+
 const manualRelatedAssetIndex: Record<AssetId, AssetId[]> = {
   [ethAssetId]: [optimismAssetId, arbitrumAssetId, arbitrumNovaAssetId, baseAssetId, katanaAssetId],
   [foxAssetId]: [foxOnArbitrumOneAssetId],
+  [celoAssetId]: [wrappedCeloAssetId],
   [starknetAssetId]: [
     'eip155:1/erc20:0xca14007eff0db1f8135f4c25b34de49ab0d42766',
     'solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp/token:HsRpHQn6VbyMs5b5j5SV6xQ2VvpvvCCzu19GjytVSCoz',

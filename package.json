@@ -128,6 +128,7 @@
     "@shapeshiftoss/unchained-client": "workspace:^",
     "@shapeshiftoss/utils": "workspace:^",
     "@sniptt/monads": "^0.5.10",
+    "@solana-mobile/wallet-standard-mobile": "^0.4.4",
     "@solana/pay": "^0.2.6",
     "@solana/web3.js": "^1.98.0",
     "@tanstack/pacer": "^0.9.0",

@@ -20,6 +20,7 @@ import { App } from './App'
 import { AppProviders } from './AppProviders'
 import { PerformanceProfiler } from './components/PerformanceProfiler'
 import { getConfig } from './config'
+import { registerMobileWalletAdapter } from './context/WalletProvider/Seeker/registerMwa'
 import { renderConsoleArt } from './lib/consoleArt'
 import { profiler } from './lib/performanceProfiler'
 import { reportWebVitals } from './lib/reportWebVitals'
@@ -37,6 +38,10 @@ const SENTRY_ENABLED = true
 scan({
   enabled: window.location.hostname === 'localhost' && enableReactScan,
 })
+
+// Register Mobile Wallet Adapter (MWA) for Seeker and other MWA-compatible wallets
+// This makes MWA-compatible wallets available via Wallet Standard on supported devices
+registerMobileWalletAdapter()
 
 // Sentry is disabled on localhost by default
 // To test locally, set VITE_ENABLE_SENTRY_LOCALHOST=true in your .env.local file

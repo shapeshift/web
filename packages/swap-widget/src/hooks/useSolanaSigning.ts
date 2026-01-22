@@ -96,8 +96,7 @@ export const useSolanaSigning = (): UseSolanaSigningResult => {
           connection,
         )
 
-        const signatureStr =
-          typeof signature === 'string' ? signature : signature.toString()
+        const signatureStr = typeof signature === 'string' ? signature : signature.toString()
 
         if (!signatureStr) {
           throw new Error('Transaction submitted but no signature returned')

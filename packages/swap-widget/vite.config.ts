@@ -45,10 +45,7 @@ export default defineConfig({
         }) as unknown as PluginOption,
         react(),
       ]
-    : [
-        defineGlobalThis,
-        react(),
-      ],
+    : [defineGlobalThis, react()],
   define: {
     'process.env': {},
   },

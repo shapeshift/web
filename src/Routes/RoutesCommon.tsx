@@ -141,6 +141,16 @@ const YieldsPage = makeSuspenseful(
   true,
 )
 
+const YieldDetailPage = makeSuspenseful(
+  lazy(() =>
+    import('@/pages/Yields/YieldDetailPage').then(({ YieldDetailPage }) => ({
+      default: YieldDetailPage,
+    })),
+  ),
+  {},
+  true,
+)
+
 const WalletConnectDeepLink = makeSuspenseful(
   lazy(() =>
     import('@/pages/WalletConnectDeepLink/WalletConnectDeepLink').then(
@@ -240,6 +250,12 @@ export const routes: Route[] = [
     priority: 3,
     mobileNav: false,
     disable: !getConfig().VITE_FEATURE_MARKETS,
+  },
+  {
+    path: '/yield/:yieldId/*',
+    main: YieldDetailPage,
+    hide: true,
+    disable: !getConfig().VITE_FEATURE_YIELD_XYZ,
   },
   {
     path: '/yields/*',

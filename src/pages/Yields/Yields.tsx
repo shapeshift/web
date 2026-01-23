@@ -17,3 +17,11 @@ export const Yields = memo(() => (
     </Routes>
   </YieldAccountProvider>
 ))
+
+export const YieldDetailRouter = memo(() => (
+  <Routes>
+    <Route path='enter' element={<YieldDetail />} />
+    <Route path='exit' element={<YieldDetail />} />
+    <Route index element={<YieldDetail />} />
+  </Routes>
+))

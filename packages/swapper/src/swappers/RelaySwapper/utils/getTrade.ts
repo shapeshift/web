@@ -246,7 +246,7 @@ export async function getTrade<T extends 'quote' | 'rate'>({
   const { data: quote } = maybeQuote.unwrap()
 
   const orderId = quote.protocol?.v2?.orderId
-  if (!orderId) {
+  if (!orderId && sellAsset.chainId === btcChainId) {
     return Err(
       makeSwapErrorRight({
         message: 'Relay quote missing protocol.v2.orderId',

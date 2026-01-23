@@ -61,8 +61,11 @@ export const agenticChatSlice = createSlice({
       state.isChatOpen = true
       state.pendingMessage = action.payload ?? null
     },
-    closeChat: state => {
+    endChat: state => {
       state.isChatOpen = false
+      state.pendingMessage = null
+    },
+    clearPendingMessage: state => {
       state.pendingMessage = null
     },
     clear: state => {

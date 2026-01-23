@@ -13,6 +13,7 @@ import {
 } from '@chakra-ui/react'
 import type { FC } from 'react'
 import { memo, useCallback, useMemo } from 'react'
+import { FiArrowLeft } from 'react-icons/fi'
 import { TbDots, TbEyeOff, TbSettings } from 'react-icons/tb'
 import { useTranslate } from 'react-polyglot'
 import { useNavigate } from 'react-router-dom'
@@ -43,6 +44,8 @@ type DrawerHeaderProps = {
   onSwitchProvider: () => void
   onClose?: () => void
   onSettingsClick?: () => void
+  isChatOpen?: boolean
+  onBackFromChat?: () => void
 }
 
 export const DrawerWalletHeader: FC<DrawerHeaderProps> = memo(
@@ -54,6 +57,8 @@ export const DrawerWalletHeader: FC<DrawerHeaderProps> = memo(
     onDisconnect,
     onSwitchProvider,
     onSettingsClick,
+    isChatOpen,
+    onBackFromChat,
   }) => {
     const translate = useTranslate()
     const settings = useModal('settings')
@@ -107,8 +112,17 @@ export const DrawerWalletHeader: FC<DrawerHeaderProps> = memo(
     if (!isConnected || isLocked || !walletInfo) return null
 
     return (
-      <Flex align='center' px={4} pt={4} justify='space-between'>
+      <Flex align='center' px={4} pt={4} pb={isChatOpen ? 4 : 0} justify='space-between'>
         <Flex align='center' gap={2}>
+          {isChatOpen && onBackFromChat && (
+            <IconButton
+              icon={<FiArrowLeft />}
+              aria-label={translate('common.back')}
+              onClick={onBackFromChat}
+              variant='ghost'
+              size='sm'
+            />
+          )}
           <ProfileAvatar size='md' borderRadius='full' />
           <Text fontWeight='medium'>{label}</Text>
         </Flex>

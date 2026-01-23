@@ -1,7 +1,5 @@
-import { Box, Flex, IconButton, Spinner, Text, useColorModeValue } from '@chakra-ui/react'
-import { lazy, memo, Suspense, useCallback, useEffect } from 'react'
-import { FiX } from 'react-icons/fi'
-import { useTranslate } from 'react-polyglot'
+import { Box, Flex, Spinner, useColorModeValue } from '@chakra-ui/react'
+import { lazy, memo, Suspense, useEffect, useRef } from 'react'
 
 import { useAgenticChat } from '@/features/agenticChat/hooks/useAgenticChat'
 import { agenticChatSlice } from '@/state/slices/agenticChatSlice/agenticChatSlice'
@@ -10,55 +8,25 @@ import { useAppDispatch, useAppSelector } from '@/state/store'
 const Chat = lazy(() => import('./Chat').then(m => ({ default: m.Chat })))
 const Composer = lazy(() => import('./Composer').then(m => ({ default: m.Composer })))
 
-const CLOSE_ICON = <FiX />
-
 export const DrawerChatContent = memo(() => {
-  const translate = useTranslate()
   const dispatch = useAppDispatch()
   const chat = useAgenticChat()
+  const { setInput } = chat
   const pendingMessage = useAppSelector(agenticChatSlice.selectors.selectPendingMessage)
+  const pendingMessageRef = useRef(pendingMessage)
 
-  const headerBg = useColorModeValue('gray.50', 'gray.900')
-  const borderColor = useColorModeValue('gray.200', 'gray.700')
-
-  const handleClose = useCallback(() => {
-    dispatch(agenticChatSlice.actions.closeChat())
-  }, [dispatch])
+  const drawerBg = useColorModeValue('gray.50', 'gray.800')
 
   useEffect(() => {
-    if (pendingMessage) {
-      chat.sendMessage({
-        role: 'user',
-        parts: [{ type: 'text', text: pendingMessage }],
-      })
-      dispatch(agenticChatSlice.actions.closeChat())
-      dispatch(agenticChatSlice.actions.openChat())
+    const initialMessage = pendingMessageRef.current
+    if (initialMessage) {
+      setInput(initialMessage)
+      dispatch(agenticChatSlice.actions.clearPendingMessage())
     }
-  }, [pendingMessage, chat, dispatch])
+  }, [setInput, dispatch])
 
   return (
-    <>
-      <Flex
-        bg={headerBg}
-        px={4}
-        py={3}
-        alignItems='center'
-        justifyContent='space-between'
-        borderBottom='1px solid'
-        borderColor={borderColor}
-      >
-        <Text fontWeight='semibold' fontSize='md'>
-          {translate('agenticChat.title')}
-        </Text>
-        <IconButton
-          icon={CLOSE_ICON}
-          aria-label={translate('agenticChat.closeChat')}
-          onClick={handleClose}
-          size='sm'
-          variant='ghost'
-        />
-      </Flex>
-
+    <Flex direction='column' flex={1} overflow='hidden' minHeight={0} bg={drawerBg}>
       <Suspense
         fallback={
           <Flex flex={1} alignItems='center' justifyContent='center'>
@@ -66,14 +34,12 @@ export const DrawerChatContent = memo(() => {
           </Flex>
         }
       >
-        <Flex direction='column' flex={1} minHeight={0}>
-          <Chat chat={chat} />
-        </Flex>
+        <Chat chat={chat} />
 
-        <Box p={4} borderTop='1px solid' borderColor={borderColor}>
+        <Box px={4} pb={4} pt={2} flexShrink={0}>
           <Composer chat={chat} />
         </Box>
       </Suspense>
-    </>
+    </Flex>
   )
 })

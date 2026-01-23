@@ -74,6 +74,7 @@ export const useAgenticChat = () => {
   return {
     ...chat,
     input,
+    setInput,
     handleInputChange,
     handleSubmit,
   }

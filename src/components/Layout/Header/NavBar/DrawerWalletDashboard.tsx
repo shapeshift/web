@@ -30,7 +30,7 @@ import { DrawerChatContent } from '@/features/agenticChat/components/DrawerChatC
 import { useModal } from '@/hooks/useModal/useModal'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { agenticChatSlice } from '@/state/slices/agenticChatSlice/agenticChatSlice'
-import { useAppSelector } from '@/state/store'
+import { useAppDispatch, useAppSelector } from '@/state/store'
 import { makeSuspenseful } from '@/utils/makeSuspenseful'
 
 const tabSpinnerStyle = { height: '200px' }
@@ -127,6 +127,7 @@ type DrawerWalletDashboardProps = {
 export const DrawerWalletDashboard: FC<DrawerWalletDashboardProps> = memo(
   ({ onClose, onSettingsClick, isOpen }) => {
     const translate = useTranslate()
+    const reduxDispatch = useAppDispatch()
     const send = useModal('send')
     const receive = useModal('receive')
     const isChatOpen = useAppSelector(agenticChatSlice.selectors.selectIsChatOpen)
@@ -176,22 +177,29 @@ export const DrawerWalletDashboard: FC<DrawerWalletDashboardProps> = memo(
       onClose()
     }, [disconnect, onClose])
 
+    const handleBackFromChat = useCallback(() => {
+      reduxDispatch(agenticChatSlice.actions.endChat())
+    }, [reduxDispatch])
+
     return (
       <>
+        <DrawerWalletHeader
+          walletInfo={walletInfo}
+          isConnected={isConnected}
+          isLocked={isLocked}
+          connectedType={connectedType}
+          onDisconnect={handleDisconnect}
+          onSwitchProvider={handleSwitchProvider}
+          onClose={onClose}
+          onSettingsClick={onSettingsClick}
+          isChatOpen={isChatOpen}
+          onBackFromChat={handleBackFromChat}
+        />
+
         {isChatOpen ? (
           <DrawerChatContent />
         ) : (
           <>
-            <DrawerWalletHeader
-              walletInfo={walletInfo}
-              isConnected={isConnected}
-              isLocked={isLocked}
-              connectedType={connectedType}
-              onDisconnect={handleDisconnect}
-              onSwitchProvider={handleSwitchProvider}
-              onClose={onClose}
-              onSettingsClick={onSettingsClick}
-            />
             <Box pt={6} pb={8}>
               <Suspense fallback={<Skeleton height='36px' width='100px' mx='auto' />}>
                 <WalletBalanceChange showErroredAccounts={false} />

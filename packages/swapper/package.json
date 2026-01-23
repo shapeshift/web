@@ -56,7 +56,7 @@
     "eip-712": "^1.0.0",
     "ethers": "6.11.1",
     "ethers5": "npm:ethers@5.7.2",
-    "lodash": "^4.17.21",
+    "lodash": "^4.17.23",
     "mixpanel-browser": "^2.67.0",
     "node-polyglot": "^2.4.0",
     "pretty-ms": "7.0.1",

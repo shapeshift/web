@@ -9,6 +9,8 @@ const initialState: AgenticChatState = {
   historicalToolIds: [],
   runtimeToolStates: {},
   persistedTransactions: [],
+  isChatOpen: false,
+  pendingMessage: null,
 }
 
 export const agenticChatSlice = createSlice({
@@ -55,10 +57,20 @@ export const agenticChatSlice = createSlice({
         )
       }
     },
+    openChat: (state, action: PayloadAction<string | undefined>) => {
+      state.isChatOpen = true
+      state.pendingMessage = action.payload ?? null
+    },
+    closeChat: state => {
+      state.isChatOpen = false
+      state.pendingMessage = null
+    },
     clear: state => {
       state.historicalToolIds = []
       state.runtimeToolStates = {}
       state.persistedTransactions = []
+      state.isChatOpen = false
+      state.pendingMessage = null
     },
   },
   selectors: {
@@ -70,5 +82,7 @@ export const agenticChatSlice = createSlice({
       state.persistedTransactions.find(tx => tx.toolCallId === toolCallId),
     selectIsHistorical: (state, toolCallId: string) => state.historicalToolIds.includes(toolCallId),
     selectHasRuntimeState: (state, toolCallId: string) => toolCallId in state.runtimeToolStates,
+    selectIsChatOpen: state => state.isChatOpen,
+    selectPendingMessage: state => state.pendingMessage,
   },
 })

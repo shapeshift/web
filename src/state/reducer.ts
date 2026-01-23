@@ -187,7 +187,7 @@ const agenticChatPersistConfig = {
   key: 'agenticChat',
   storage: localforage,
   version: 0,
-  blacklist: ['runtimeToolStates'],
+  blacklist: ['runtimeToolStates', 'isChatOpen', 'pendingMessage'],
 }
 
 export const sliceReducers = {

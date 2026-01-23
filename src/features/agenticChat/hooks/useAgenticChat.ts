@@ -5,12 +5,14 @@ import { DefaultChatTransport } from 'ai'
 import { useCallback, useMemo, useState } from 'react'
 
 import { getConfig } from '@/config'
+import { useErrorToast } from '@/hooks/useErrorToast/useErrorToast'
 import { selectEnabledWalletAccountIds } from '@/state/slices/common-selectors'
 import { useAppSelector } from '@/state/store'
 
 export const useAgenticChat = () => {
   const accountIds = useAppSelector(selectEnabledWalletAccountIds)
   const [input, setInput] = useState('')
+  const { showErrorToast } = useErrorToast()
 
   const walletContext = useMemo(() => {
     const evmAddresses = new Set<string>()
@@ -60,12 +62,17 @@ export const useAgenticChat = () => {
       const trimmedInput = input.trim()
       if (!trimmedInput) return
       setInput('')
-      await chat.sendMessage({
-        role: 'user',
-        parts: [{ type: 'text', text: trimmedInput }],
-      })
+      try {
+        await chat.sendMessage({
+          role: 'user',
+          parts: [{ type: 'text', text: trimmedInput }],
+        })
+      } catch (error) {
+        setInput(trimmedInput)
+        showErrorToast(error)
+      }
     },
-    [input, chat],
+    [input, chat, showErrorToast],
   )
 
   return {

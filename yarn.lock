@@ -78,19 +78,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@ai-sdk/provider-utils@npm:2.2.8":
-  version: 2.2.8
-  resolution: "@ai-sdk/provider-utils@npm:2.2.8"
-  dependencies:
-    "@ai-sdk/provider": 1.1.3
-    nanoid: ^3.3.8
-    secure-json-parse: ^2.7.0
-  peerDependencies:
-    zod: ^3.23.8
-  checksum: 15487a4b4f1cc4eb72d7fc7afb71506f7bf439b538ef98b0c189a2b6d0dd72f10614c716c2206390b2624d6aeeb0799a0dad86010f6a505bbd9bd1b1d76adc60
-  languageName: node
-  linkType: hard
-
 "@ai-sdk/provider-utils@npm:4.0.8":
   version: 4.0.8
   resolution: "@ai-sdk/provider-utils@npm:4.0.8"
@@ -101,15 +88,6 @@ __metadata:
   peerDependencies:
     zod: ^3.25.76 || ^4.1.8
   checksum: 79c8bca2efb268f3c89aee02f980b2feeac4896f1f8b7e25380992048d5c09702fb7991dc13c699e483a9c1de9107faf6919598756a9086c99bab4cb1daa601c
-  languageName: node
-  linkType: hard
-
-"@ai-sdk/provider@npm:1.1.3":
-  version: 1.1.3
-  resolution: "@ai-sdk/provider@npm:1.1.3"
-  dependencies:
-    json-schema: ^0.4.0
-  checksum: 197b5907aaca7d96b0d114c3456d46fa1134e6d98bb22617c2bd28b3592c1ab79d524ea894209cedc0e74695ee250b2a32de7d084122fd047565b64cbba009bb
   languageName: node
   linkType: hard
 
@@ -133,19 +111,6 @@ __metadata:
   peerDependencies:
     react: ^18 || ~19.0.1 || ~19.1.2 || ^19.2.1
   checksum: 407beb867bb6bc52d1ba8c34b23f3586cb59ecd982d93faaaa21ae09edc456aaa8b1bff52551629689eb644885fd4ed5a6152d79c3a94b0ffefe696c301e46c4
-  languageName: node
-  linkType: hard
-
-"@ai-sdk/ui-utils@npm:^1.2.11":
-  version: 1.2.11
-  resolution: "@ai-sdk/ui-utils@npm:1.2.11"
-  dependencies:
-    "@ai-sdk/provider": 1.1.3
-    "@ai-sdk/provider-utils": 2.2.8
-    zod-to-json-schema: ^3.24.1
-  peerDependencies:
-    zod: ^3.23.8
-  checksum: 8ea01d026923aae73a06810f33ce24020fc7f001331ac0b801d2a8be576d42353abdd3344278dcfdb4eb43914c38b4fb7d3305354a6cd2ba0cb5359f1fd01a49
   languageName: node
   linkType: hard
 
@@ -12600,7 +12565,6 @@ __metadata:
   resolution: "@shapeshiftoss/web@workspace:."
   dependencies:
     "@ai-sdk/react": ^3.0.41
-    "@ai-sdk/ui-utils": ^1.2.11
     "@arbitrum/sdk": ^4.0.1
     "@cetusprotocol/aggregator-sdk": ^1.4.2
     "@cetusprotocol/cetus-sui-clmm-sdk": 5.4.0
@@ -34418,13 +34382,6 @@ pvutils@latest:
   languageName: node
   linkType: hard
 
-"secure-json-parse@npm:^2.7.0":
-  version: 2.7.0
-  resolution: "secure-json-parse@npm:2.7.0"
-  checksum: d9d7d5a01fc6db6115744ba23cf9e67ecfe8c524d771537c062ee05ad5c11b64c730bc58c7f33f60bd6877f96b86f0ceb9ea29644e4040cb757f6912d4dd6737
-  languageName: node
-  linkType: hard
-
 "secure-random@npm:^1.1.2":
   version: 1.1.2
   resolution: "secure-random@npm:1.1.2"
@@ -39124,15 +39081,6 @@ pvutils@latest:
   version: 0.1.0
   resolution: "yocto-queue@npm:0.1.0"
   checksum: f77b3d8d00310def622123df93d4ee654fc6a0096182af8bd60679ddcdfb3474c56c6c7190817c84a2785648cdee9d721c0154eb45698c62176c322fb46fc700
-  languageName: node
-  linkType: hard
-
-"zod-to-json-schema@npm:^3.24.1":
-  version: 3.25.1
-  resolution: "zod-to-json-schema@npm:3.25.1"
-  peerDependencies:
-    zod: ^3.25 || ^4
-  checksum: 2033915aed81729544398a0000a63fb474972a654df712610343b8143c254d26f5d76cbee02b135648f299a0dc71be79a724d25a71a755085b438c7bfac6b9c8
   languageName: node
   linkType: hard
 

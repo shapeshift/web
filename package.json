@@ -72,7 +72,6 @@
   },
   "dependencies": {
     "@ai-sdk/react": "^3.0.41",
-    "@ai-sdk/ui-utils": "^1.2.11",
     "@arbitrum/sdk": "^4.0.1",
     "@cetusprotocol/aggregator-sdk": "^1.4.2",
     "@cetusprotocol/cetus-sui-clmm-sdk": "5.4.0",

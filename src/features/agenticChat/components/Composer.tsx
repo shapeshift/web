@@ -18,18 +18,17 @@ export const Composer = ({ chat }: ComposerProps) => {
   const textareaRef = useRef<HTMLTextAreaElement>(null)
 
   const borderColor = useColorModeValue('gray.200', 'gray.600')
-  const isLoading = status === 'streaming'
+  const isLoading = status === 'submitted' || status === 'streaming'
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
       if (e.key === 'Enter' && !e.shiftKey) {
         e.preventDefault()
-        if (input.trim()) {
-          handleSubmit()
-        }
+        if (isLoading || !input.trim()) return
+        handleSubmit()
       }
     },
-    [input, handleSubmit],
+    [isLoading, input, handleSubmit],
   )
 
   const adjustHeight = useCallback(() => {

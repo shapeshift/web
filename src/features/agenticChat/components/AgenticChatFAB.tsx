@@ -1,5 +1,5 @@
 import { Box, IconButton, useColorModeValue } from '@chakra-ui/react'
-import { useState } from 'react'
+import { useCallback, useState } from 'react'
 import { FiMessageSquare } from 'react-icons/fi'
 import { useTranslate } from 'react-polyglot'
 
@@ -17,6 +17,9 @@ export const AgenticChatFAB = () => {
   const bg = useColorModeValue('blue.500', 'blue.300')
   const hoverBg = useColorModeValue('blue.600', 'blue.400')
 
+  const handleOpen = useCallback(() => setIsOpen(true), [])
+  const handleClose = useCallback(() => setIsOpen(false), [])
+
   if (!isEnabled) return null
 
   return (
@@ -30,7 +33,7 @@ export const AgenticChatFAB = () => {
         <IconButton
           icon={MESSAGE_SQUARE_ICON}
           aria-label={translate('agenticChat.openChat')}
-          onClick={() => setIsOpen(true)}
+          onClick={handleOpen}
           bg={bg}
           color='white'
           borderRadius='full'
@@ -39,7 +42,7 @@ export const AgenticChatFAB = () => {
           _hover={{ bg: hoverBg }}
         />
       </Box>
-      <AgenticChatWindow isOpen={isOpen} onClose={() => setIsOpen(false)} />
+      <AgenticChatWindow isOpen={isOpen} onClose={handleClose} />
     </>
   )
 }

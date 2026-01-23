@@ -458,8 +458,17 @@ export const checkStarknetSwapStatus = async ({
     const adapter = assertGetStarknetChainAdapter(starknetChainId)
     const provider = adapter.getStarknetProvider()
 
-    const receipt: any = await provider.getTransactionReceipt(txHash)
+    // Use raw RPC call for better compatibility with various RPC providers
+    const response = await provider.fetch('starknet_getTransactionReceipt', [txHash])
+    const result: { result?: { execution_status?: string }; error?: unknown } =
+      await response.json()
 
+    // If there's an error or no result, transaction might still be pending
+    if (result.error || !result.result) {
+      return createDefaultStatusResponse(txHash)
+    }
+
+    const receipt = result.result
     const status =
       receipt.execution_status === 'SUCCEEDED'
         ? TxStatus.Confirmed
@@ -473,7 +482,7 @@ export const checkStarknetSwapStatus = async ({
       message: undefined,
     }
   } catch (e) {
-    console.error(e)
+    // Don't log expected errors during status polling (tx might still be pending)
     return createDefaultStatusResponse(txHash)
   }
 }

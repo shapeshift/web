@@ -66,7 +66,7 @@ export const YieldOpportunityStats = memo(function YieldOpportunityStats({
     [positions, balances],
   )
 
-  const idleValueUsd = useMemo(() => {
+  const idleValueUsd = (() => {
     if (!isConnected || !allYields) return bnOrZero(0)
 
     const yieldableAssetIds = new Set(
@@ -82,7 +82,7 @@ export const YieldOpportunityStats = memo(function YieldOpportunityStats({
       const bal = portfolioBalances[assetId]
       return bal ? totalIdle.plus(bnOrZero(bal)) : totalIdle
     }, bnOrZero(0))
-  }, [isConnected, allYields, portfolioBalances])
+  })()
 
   const { weightedApy, potentialEarningsValue } = useMemo(() => {
     if (!isConnected || !yields?.byInputAssetId || !portfolioBalances) {

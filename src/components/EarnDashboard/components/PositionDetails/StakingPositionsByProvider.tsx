@@ -158,7 +158,7 @@ export const StakingPositionsByProvider: React.FC<StakingPositionsByProviderProp
         if (walletDrawer.isOpen) {
           walletDrawer.close()
         }
-        navigate(`/yields/${opportunity.yieldId}`)
+        navigate(`/yield/${opportunity.yieldId}`)
         return
       }
 

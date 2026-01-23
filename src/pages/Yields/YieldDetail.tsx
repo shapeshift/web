@@ -68,15 +68,19 @@ export const YieldDetail = memo(() => {
     selectMarketDataByAssetIdUserCurrency(state, inputTokenAssetId),
   )
 
-  const handleBack = useCallback(() => navigate('/yields'), [navigate])
+  const isYieldMultiAccountEnabled = useFeatureFlag('YieldMultiAccount')
+  const isYieldsPageEnabled = useFeatureFlag('YieldsPage')
+
+  const handleBack = useCallback(
+    () => (isYieldsPageEnabled ? navigate('/yields') : navigate(-1)),
+    [navigate, isYieldsPageEnabled],
+  )
 
   const availableAccounts = useAppSelector(state =>
     selectorAssetId
       ? selectPortfolioAccountIdsByAssetIdFilter(state, { assetId: selectorAssetId })
       : [],
   )
-
-  const isYieldMultiAccountEnabled = useFeatureFlag('YieldMultiAccount')
 
   const { selectedAccountId, handleAccountChange } = useYieldAccountSync({
     availableAccountIds: availableAccounts,
@@ -158,7 +162,7 @@ export const YieldDetail = memo(() => {
     return getYieldDisplayName(yieldItem)
   }, [yieldItem, translate])
 
-  const userBalances = useMemo(() => {
+  const userBalances = (() => {
     if (!balances) return { userCurrency: '0', crypto: '0' }
 
     const balancesByType = selectedValidatorAddress
@@ -186,44 +190,42 @@ export const YieldDetail = memo(() => {
       userCurrency: totalUsd.times(userCurrencyToUsdRate).toFixed(),
       crypto: totalCrypto.toFixed(),
     }
-  }, [balances, selectedValidatorAddress, userCurrencyToUsdRate])
+  })()
 
   useEffect(() => {
-    if (!yieldId) navigate('/yields')
-  }, [yieldId, navigate])
+    if (!yieldId) navigate(isYieldsPageEnabled ? '/yields' : '/')
+  }, [yieldId, navigate, isYieldsPageEnabled])
 
   const isModalOpen = searchParams.get('modal') === 'yield'
 
-  const loadingElement = useMemo(
-    () => (
-      <Container maxW={{ base: 'full', md: 'container.md' }} py={20}>
-        <Flex direction='column' gap={8} alignItems='center'>
-          <Text color='text.subtle' fontSize='lg'>
-            {translate('common.loadingText')}
-          </Text>
-        </Flex>
-      </Container>
-    ),
-    [translate],
+  const loadingElement = (
+    <Container maxW={{ base: 'full', md: 'container.md' }} py={20}>
+      <Flex direction='column' gap={8} alignItems='center'>
+        <Text color='text.subtle' fontSize='lg'>
+          {translate('common.loadingText')}
+        </Text>
+      </Flex>
+    </Container>
   )
 
-  const errorElement = useMemo(
-    () => (
-      <Container maxW={{ base: 'full', md: 'container.md' }} py={20}>
-        <Box textAlign='center' py={16} bg='background.surface.raised.base' borderRadius='2xl'>
-          <Heading as='h2' size='xl' mb={4}>
-            {translate('common.error')}
-          </Heading>
-          <Text color='text.subtle'>
-            {error ? String(error) : translate('common.noResultsFound')}
-          </Text>
-          <Button mt={8} onClick={() => navigate('/yields')} size='lg'>
-            {translate('common.back')}
-          </Button>
-        </Box>
-      </Container>
-    ),
-    [error, navigate, translate],
+  const errorElement = (
+    <Container maxW={{ base: 'full', md: 'container.md' }} py={20}>
+      <Box textAlign='center' py={16} bg='background.surface.raised.base' borderRadius='2xl'>
+        <Heading as='h2' size='xl' mb={4}>
+          {translate('common.error')}
+        </Heading>
+        <Text color='text.subtle'>
+          {error ? String(error) : translate('common.noResultsFound')}
+        </Text>
+        <Button
+          mt={8}
+          onClick={() => (isYieldsPageEnabled ? navigate('/yields') : navigate(-1))}
+          size='lg'
+        >
+          {translate('common.back')}
+        </Button>
+      </Box>
+    </Container>
   )
 
   if (isLoading) return loadingElement

@@ -1,6 +1,6 @@
 import { quoteToCalls } from '@avnu/avnu-sdk'
 import { toAddressNList } from '@shapeshiftoss/chain-adapters'
-import { CallData, hash, num } from 'starknet'
+import { CallData, hash, num, validateAndParseAddress } from 'starknet'
 
 import type { SwapperApi, TradeStatus } from '../../types'
 import {
@@ -11,6 +11,33 @@ import {
 } from '../../utils'
 import { getTradeQuote } from './swapperApi/getTradeQuote'
 import { getTradeRate } from './swapperApi/getTradeRate'
+
+/**
+ * Normalize a value to hex format for Starknet RPC
+ * Handles various input types: decimal strings, hex strings (with/without 0x), numbers, BigInts
+ */
+const toHexString = (value: unknown): string => {
+  const strValue = String(value)
+
+  // Already a proper hex string with 0x prefix
+  if (strValue.startsWith('0x')) {
+    return strValue
+  }
+
+  // Check if it looks like a hex string without 0x prefix (contains a-f characters)
+  // Starknet addresses and felts often come as hex without 0x prefix
+  if (/^[0-9a-fA-F]+$/.test(strValue) && /[a-fA-F]/.test(strValue)) {
+    return `0x${strValue}`
+  }
+
+  // Otherwise treat as decimal and convert to hex
+  try {
+    return num.toHex(strValue)
+  } catch {
+    // If conversion fails, assume it's already hex and add prefix
+    return `0x${strValue}`
+  }
+}
 
 export const avnuApi: SwapperApi = {
   getTradeQuote,
@@ -35,17 +62,26 @@ export const avnuApi: SwapperApi = {
 
     const adapter = assertGetStarknetChainAdapter(sellAsset.chainId)
 
+    // Normalize the from address to ensure consistent format
+    // Starknet addresses can have different representations (with/without leading zeros)
+    const normalizedFrom = validateAndParseAddress(from)
+
     // Convert slippage from decimal percentage string to number for AVNU format (e.g., "0.01" = 1%)
+    // Use a slightly higher default slippage (2%) to account for quote staleness
     const slippage: number = slippageTolerancePercentageDecimal
       ? parseFloat(slippageTolerancePercentageDecimal)
-      : 0.01
+      : 0.02
 
     // Get the swap calls from AVNU SDK
     const { calls: avnuCalls } = await quoteToCalls({
       quoteId: avnuSpecific.quoteId,
       slippage,
-      takerAddress: from,
+      takerAddress: normalizedFrom,
     })
+
+    if (!avnuCalls || avnuCalls.length === 0) {
+      throw new Error('No swap calls returned from AVNU - quote may have expired')
+    }
 
     // Build the full invoke transaction calldata from AVNU calls
     // Format: [call_array_length, contract1, selector1, calldata_len1, ...calldata1, ...]
@@ -55,33 +91,30 @@ export const avnuApi: SwapperApi = {
       const rawCalldata = call.calldata ?? []
       const calldataArray = Array.isArray(rawCalldata) ? rawCalldata : CallData.compile(rawCalldata)
       const selector = hash.getSelectorFromName(call.entrypoint)
+      // Normalize contract address from AVNU to ensure consistent format
+      const normalizedContractAddress = validateAndParseAddress(call.contractAddress)
 
       fullCalldata.push(
-        call.contractAddress,
+        normalizedContractAddress,
         selector,
         calldataArray.length.toString(),
-        ...calldataArray.map(cd => cd.toString()),
+        ...calldataArray.map(cd => String(cd)),
       )
     }
 
-    // Format calldata for RPC (convert numbers to hex)
-    const formattedCalldata = fullCalldata.map(data => {
-      if (!data.startsWith('0x')) {
-        return num.toHex(data)
-      }
-      return data
-    })
+    // Format calldata for RPC (convert all values to proper hex format)
+    const formattedCalldata = fullCalldata.map(toHexString)
 
     // Get nonce using adapter method (checks deployment status and returns appropriate nonce)
     const chainIdHex = await adapter.getStarknetProvider().getChainId()
-    const nonce = await adapter.getNonce(from)
+    const nonce = await adapter.getNonce(normalizedFrom)
 
     // Estimate fees for the multi-call swap transaction
     const version = '0x3' as const
     const estimateTx = {
       type: 'INVOKE',
       version,
-      sender_address: from,
+      sender_address: normalizedFrom,
       calldata: formattedCalldata,
       signature: [],
       nonce,
@@ -156,7 +189,7 @@ export const avnuApi: SwapperApi = {
 
     // Calculate transaction hash for signing
     const invokeHashInputs = {
-      senderAddress: from,
+      senderAddress: normalizedFrom,
       version,
       compiledCalldata: formattedCalldata,
       chainId: chainIdHex,
@@ -189,7 +222,7 @@ export const avnuApi: SwapperApi = {
       addressNList: toAddressNList(adapter.getBip44Params({ accountNumber })),
       txHash,
       _txDetails: {
-        fromAddress: from,
+        fromAddress: normalizedFrom,
         calldata: formattedCalldata,
         nonce,
         version,

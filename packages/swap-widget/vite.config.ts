@@ -10,7 +10,10 @@ const libExternals = [
   'react-dom',
   'viem',
   'wagmi',
-  '@rainbow-me/rainbowkit',
+  '@reown/appkit',
+  '@reown/appkit-adapter-wagmi',
+  '@reown/appkit-adapter-bitcoin',
+  '@reown/appkit-adapter-solana',
   '@tanstack/react-query',
 ]
 
@@ -30,18 +33,19 @@ const defineGlobalThis: PluginOption = {
 
 // eslint-disable-next-line import/no-default-export
 export default defineConfig({
-  plugins: [
-    defineGlobalThis,
-    nodePolyfills({
-      globals: {
-        Buffer: true,
-        global: true,
-        process: true,
-      },
-      protocolImports: true,
-    }) as unknown as PluginOption,
-    react(),
-  ],
+  plugins: isLibBuild
+    ? [
+        defineGlobalThis,
+        nodePolyfills({
+          globals: {
+            Buffer: true,
+            global: true,
+            process: true,
+          },
+        }) as unknown as PluginOption,
+        react(),
+      ]
+    : [defineGlobalThis, react()],
   define: {
     'process.env': {},
   },

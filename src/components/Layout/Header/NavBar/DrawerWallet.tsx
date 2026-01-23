@@ -1,6 +1,6 @@
 import { Drawer, DrawerContent, DrawerOverlay } from '@chakra-ui/react'
 import type { FC } from 'react'
-import { memo, useCallback, useMemo } from 'react'
+import { memo, useCallback, useEffect, useMemo } from 'react'
 import { MemoryRouter, Route, Routes, useNavigate } from 'react-router-dom'
 
 import { DrawerSettings } from './DrawerSettings'
@@ -10,6 +10,8 @@ import { ManageHiddenAssetsContent } from '@/components/ManageHiddenAssets/Manag
 import { SettingsRoutes } from '@/components/Modals/Settings/SettingsCommon'
 import { useModalRegistration } from '@/context/ModalStackProvider'
 import { useModal } from '@/hooks/useModal/useModal'
+import { agenticChatSlice } from '@/state/slices/agenticChatSlice/agenticChatSlice'
+import { useAppDispatch } from '@/state/store'
 
 const initialEntries = ['/', ...Object.values(SettingsRoutes)]
 
@@ -58,10 +60,17 @@ export const DrawerWalletInner: FC<DrawerWalletInnerProps> = memo(({ onClose, is
 
 export const DrawerWallet: FC = memo(() => {
   const { isOpen, close: onClose } = useModal('walletDrawer')
+  const dispatch = useAppDispatch()
   const { modalContentProps, overlayProps, modalProps } = useModalRegistration({
     isOpen,
     onClose,
   })
+
+  useEffect(() => {
+    if (!isOpen) {
+      dispatch(agenticChatSlice.actions.closeChat())
+    }
+  }, [isOpen, dispatch])
 
   return (
     <Drawer placement='right' size='sm' {...modalProps}>

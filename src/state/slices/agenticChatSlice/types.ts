@@ -14,4 +14,6 @@ export type AgenticChatState = {
   historicalToolIds: string[]
   runtimeToolStates: Record<string, unknown>
   persistedTransactions: PersistedToolState[]
+  isChatOpen: boolean
+  pendingMessage: string | null
 }

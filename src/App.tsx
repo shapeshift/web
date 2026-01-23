@@ -11,7 +11,6 @@ import { useAppSelector } from './state/store'
 
 import { ConsentBanner } from '@/components/ConsentBanner'
 import { IconCircle } from '@/components/IconCircle'
-import { AgenticChatFAB } from '@/features/agenticChat'
 import { useAddAccountsGuard } from '@/hooks/useAddAccountsGuard/useAddAccountsGuard'
 import { useAppleSearchAdsAttribution } from '@/hooks/useAppleSearchAdsAttribution/useAppleSearchAdsAttribution'
 import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
@@ -66,7 +65,6 @@ export const App = () => {
     <>
       {showConsentBanner && isMixpanelEnabled && !isMobileApp && <ConsentBanner />}
       <AppRoutes />
-      <AgenticChatFAB />
     </>
   )
 }

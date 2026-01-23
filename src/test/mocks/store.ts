@@ -432,5 +432,7 @@ export const mockStore: ReduxState = {
     historicalToolIds: [],
     runtimeToolStates: {},
     persistedTransactions: [],
+    isChatOpen: false,
+    pendingMessage: null,
   },
 }

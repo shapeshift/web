@@ -13732,7 +13732,6 @@ __metadata:
     "@types/semver": ^7.3.10
     "@types/ssri": ^7.1.1
     "@types/uuid": ^9.0.5
-    "@userback/widget": ^0.3.12
     "@visx/gradient": ^3.3.0
     "@visx/grid": ^3.5.0
     "@visx/responsive": ^3.10.2
@@ -18727,13 +18726,6 @@ __metadata:
     "@uniswap/v3-core": 1.0.0
     "@uniswap/v3-periphery": ^1.0.1
   checksum: 5a68e59f33d4761956ad735c8ce5ea6e566076bd260ea0a0bb4b3a0db237719e39f21a22eb0a5a231141efdf0154bfe03f690612d632898f33192b4442c888b3
-  languageName: node
-  linkType: hard
-
-"@userback/widget@npm:^0.3.12":
-  version: 0.3.12
-  resolution: "@userback/widget@npm:0.3.12"
-  checksum: 4c4670fc577f438f2111e30129ea61cbfafa2ce3cf4edf77c7903bdabab13e289f3d38cc9e1b999433c816f324b2abf9cace2d3750f2d8393d7fb15d5e535add
   languageName: node
   linkType: hard
 

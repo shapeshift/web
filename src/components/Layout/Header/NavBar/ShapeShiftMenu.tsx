@@ -25,7 +25,7 @@ import { FoxIcon } from '@/components/Icons/FoxIcon'
 import { OGIcon } from '@/components/Icons/OGIcon'
 import { ShapeShiftLogoText } from '@/components/Icons/ShapeShiftLogoText'
 import { WalletIcon } from '@/components/Icons/WalletIcon'
-import { getUserbackInstance } from '@/components/UserbackWidget'
+import { openUserbackWidget } from '@/components/UserbackWidget'
 import { useHoverIntent } from '@/hooks/useHoverIntent'
 import { breakpoints } from '@/theme/theme'
 
@@ -135,12 +135,7 @@ export const ShapeShiftMenu = () => {
 
   const handleFeedbackClick = useCallback((e: React.MouseEvent) => {
     e.preventDefault()
-    const userback = getUserbackInstance()
-    if (userback) {
-      userback.openForm()
-    } else {
-      console.warn('Userback not yet initialized')
-    }
+    openUserbackWidget()
   }, [])
 
   const afterSx = useMemo(

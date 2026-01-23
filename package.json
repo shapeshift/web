@@ -134,7 +134,6 @@
     "@tanstack/react-query": "^5.69.0",
     "@tanstack/react-table": "^8.20.6",
     "@tanstack/react-virtual": "^3.11.2",
-    "@userback/widget": "^0.3.12",
     "@visx/gradient": "^3.3.0",
     "@visx/grid": "^3.5.0",
     "@visx/responsive": "^3.10.2",

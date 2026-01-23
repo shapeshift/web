@@ -1,7 +1,5 @@
-import { Box, Flex, IconButton, Spinner, Text, useColorModeValue } from '@chakra-ui/react'
-import { lazy, memo, Suspense, useCallback, useEffect } from 'react'
-import { FiX } from 'react-icons/fi'
-import { useTranslate } from 'react-polyglot'
+import { Box, Flex, Spinner, useColorModeValue } from '@chakra-ui/react'
+import { lazy, memo, Suspense, useEffect } from 'react'
 
 import { useAgenticChat } from '@/features/agenticChat/hooks/useAgenticChat'
 import { agenticChatSlice } from '@/state/slices/agenticChatSlice/agenticChatSlice'
@@ -10,20 +8,12 @@ import { useAppDispatch, useAppSelector } from '@/state/store'
 const Chat = lazy(() => import('./Chat').then(m => ({ default: m.Chat })))
 const Composer = lazy(() => import('./Composer').then(m => ({ default: m.Composer })))
 
-const CLOSE_ICON = <FiX />
-
 export const DrawerChatContent = memo(() => {
-  const translate = useTranslate()
   const dispatch = useAppDispatch()
   const chat = useAgenticChat()
   const pendingMessage = useAppSelector(agenticChatSlice.selectors.selectPendingMessage)
 
-  const headerBg = useColorModeValue('gray.50', 'gray.900')
   const borderColor = useColorModeValue('gray.200', 'gray.700')
-
-  const handleClose = useCallback(() => {
-    dispatch(agenticChatSlice.actions.closeChat())
-  }, [dispatch])
 
   useEffect(() => {
     if (pendingMessage) {
@@ -37,28 +27,7 @@ export const DrawerChatContent = memo(() => {
   }, [pendingMessage, chat, dispatch])
 
   return (
-    <>
-      <Flex
-        bg={headerBg}
-        px={4}
-        py={3}
-        alignItems='center'
-        justifyContent='space-between'
-        borderBottom='1px solid'
-        borderColor={borderColor}
-      >
-        <Text fontWeight='semibold' fontSize='md'>
-          {translate('agenticChat.title')}
-        </Text>
-        <IconButton
-          icon={CLOSE_ICON}
-          aria-label={translate('agenticChat.closeChat')}
-          onClick={handleClose}
-          size='sm'
-          variant='ghost'
-        />
-      </Flex>
-
+    <Flex direction='column' flex={1} overflow='hidden' minHeight={0}>
       <Suspense
         fallback={
           <Flex flex={1} alignItems='center' justifyContent='center'>
@@ -70,10 +39,10 @@ export const DrawerChatContent = memo(() => {
           <Chat chat={chat} />
         </Flex>
 
-        <Box p={4} borderTop='1px solid' borderColor={borderColor}>
+        <Box p={4} borderTop='1px solid' borderColor={borderColor} flexShrink={0}>
           <Composer chat={chat} />
         </Box>
       </Suspense>
-    </>
+    </Flex>
   )
 })

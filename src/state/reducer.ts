@@ -47,6 +47,8 @@ import { tradeInput } from './slices/tradeInputSlice/tradeInputSlice'
 import type { TxHistory } from './slices/txHistorySlice/txHistorySlice'
 import { txHistory, txHistoryApi } from './slices/txHistorySlice/txHistorySlice'
 
+import { agenticChatSlice } from '@/state/slices/agenticChatSlice/agenticChatSlice'
+import type { AgenticChatState } from '@/state/slices/agenticChatSlice/types'
 import { gridplusSlice } from '@/state/slices/gridplusSlice/gridplusSlice'
 import type { GridPlusState } from '@/state/slices/gridplusSlice/types'
 import { tradeEarnInput } from '@/state/slices/tradeEarnInputSlice/tradeEarnInputSlice'
@@ -70,6 +72,7 @@ export const slices = {
   localWallet: localWalletSlice,
   gridplus: gridplusSlice,
   addressBook: addressBookSlice,
+  agenticChat: agenticChatSlice,
 }
 
 const preferencesPersistConfig = {
@@ -159,6 +162,13 @@ const addressBookPersistConfig = {
   migrate: createMigrate(clearAddressBookMigrations, { debug: false }),
 }
 
+const agenticChatPersistConfig = {
+  key: 'agenticChat',
+  storage: localforage,
+  version: 0,
+  blacklist: ['runtimeToolStates'],
+}
+
 export const sliceReducers = {
   assets: persistReducer<AssetsState>(assetsPersistConfig, assets.reducer),
   marketData: persistReducer<MarketDataState>(marketDataPersistConfig, marketData.reducer),
@@ -184,6 +194,7 @@ export const sliceReducers = {
   swap: persistReducer<SwapState>(swapPersistConfig, swapSlice.reducer),
   gridplus: persistReducer<GridPlusState>(gridplusPersistConfig, gridplusSlice.reducer),
   addressBook: persistReducer<AddressBookState>(addressBookPersistConfig, addressBookSlice.reducer),
+  agenticChat: persistReducer<AgenticChatState>(agenticChatPersistConfig, agenticChatSlice.reducer),
 }
 
 export const apiSlices = {

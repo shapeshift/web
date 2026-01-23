@@ -32,20 +32,11 @@ export const Composer = ({ chat }: ComposerProps) => {
     [input, handleSubmit],
   )
 
-  const adjustHeight = useCallback(() => {
-    const textarea = textareaRef.current
-    if (textarea) {
-      textarea.style.height = 'auto'
-      textarea.style.height = `${Math.min(textarea.scrollHeight, 200)}px`
-    }
-  }, [])
-
   const handleChange = useCallback(
     (e: React.ChangeEvent<HTMLTextAreaElement>) => {
       handleInputChange(e)
-      adjustHeight()
     },
-    [handleInputChange, adjustHeight],
+    [handleInputChange],
   )
 
   return (
@@ -57,8 +48,8 @@ export const Composer = ({ chat }: ComposerProps) => {
         onKeyDown={handleKeyDown}
         placeholder={translate('agenticChat.placeholder')}
         resize='none'
-        minHeight='44px'
-        maxHeight='200px'
+        rows={1}
+        py={3}
         flex={1}
         borderColor={borderColor}
         _focus={{ borderColor: 'blue.500' }}
@@ -66,12 +57,18 @@ export const Composer = ({ chat }: ComposerProps) => {
         data-form-type='other'
         data-lpignore='true'
         data-1p-ignore='true'
+        sx={{
+          minHeight: '48px',
+          maxHeight: '200px',
+          fieldSizing: 'content',
+        }}
       />
       <IconButton
         icon={isLoading ? STOP_ICON : SEND_ICON}
         aria-label={translate(isLoading ? 'agenticChat.stop' : 'agenticChat.send')}
         onClick={isLoading ? stop : () => handleSubmit()}
-        size='sm'
+        height='48px'
+        minWidth='48px'
         colorScheme='blue'
         isDisabled={!isLoading && !input.trim()}
       />

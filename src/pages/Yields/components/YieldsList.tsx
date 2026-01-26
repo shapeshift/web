@@ -35,10 +35,8 @@ import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { fromBaseUnit } from '@/lib/math'
 import {
   COSMOS_ATOM_NATIVE_STAKING_YIELD_ID,
-  FIGMENT_SOLANA_VALIDATOR_ADDRESS,
   FIGMENT_VALIDATOR_LOGO,
   FIGMENT_VALIDATOR_NAME,
-  SHAPESHIFT_COSMOS_VALIDATOR_ADDRESS,
   SHAPESHIFT_VALIDATOR_LOGO,
   SHAPESHIFT_VALIDATOR_NAME,
   SOLANA_SOL_NATIVE_MULTIVALIDATOR_STAKING_YIELD_ID,
@@ -212,27 +210,7 @@ export const YieldsList = memo(() => {
   const getYieldPositionBalanceUsd = useCallback(
     (yieldId: string) => {
       const yieldBalances = allBalances?.[yieldId]
-      if (!yieldBalances) return undefined
-
-      // For Cosmos native staking, only show ShapeShift DAO validator balance
-      if (yieldId === COSMOS_ATOM_NATIVE_STAKING_YIELD_ID) {
-        const filteredBalances = yieldBalances.filter(
-          b => b.validator?.address === SHAPESHIFT_COSMOS_VALIDATOR_ADDRESS,
-        )
-        if (filteredBalances.length === 0) return undefined
-        return filteredBalances.reduce((sum, b) => sum.plus(bnOrZero(b.amountUsd)), bnOrZero(0))
-      }
-
-      // For Solana native multivalidator staking, only show Figment validator balance
-      if (yieldId === SOLANA_SOL_NATIVE_MULTIVALIDATOR_STAKING_YIELD_ID) {
-        const filteredBalances = yieldBalances.filter(
-          b => b.validator?.address === FIGMENT_SOLANA_VALIDATOR_ADDRESS,
-        )
-        if (filteredBalances.length === 0) return undefined
-        return filteredBalances.reduce((sum, b) => sum.plus(bnOrZero(b.amountUsd)), bnOrZero(0))
-      }
-
-      // For other yields, sum all balances
+      if (!yieldBalances || yieldBalances.length === 0) return undefined
       return yieldBalances.reduce((sum, b) => sum.plus(bnOrZero(b.amountUsd)), bnOrZero(0))
     },
     [allBalances],

@@ -8,7 +8,11 @@ import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { isSome } from '@/lib/utils'
 import { fetchAggregateBalances } from '@/lib/yieldxyz/api'
 import { augmentYieldBalances } from '@/lib/yieldxyz/augment'
-import { CHAIN_ID_TO_YIELD_NETWORK, SUPPORTED_YIELD_NETWORKS } from '@/lib/yieldxyz/constants'
+import {
+  CHAIN_ID_TO_YIELD_NETWORK,
+  DEFAULT_VALIDATOR_BY_YIELD_ID,
+  SUPPORTED_YIELD_NETWORKS,
+} from '@/lib/yieldxyz/constants'
 import type {
   AugmentedYieldBalance,
   YieldBalanceType,
@@ -312,6 +316,11 @@ export const useAllYieldBalances = (options: UseAllYieldBalancesOptions = {}) =>
               }
 
               for (const balance of augmentedBalances) {
+                const defaultValidator = DEFAULT_VALIDATOR_BY_YIELD_ID[item.yieldId]
+                if (defaultValidator && balance.validator?.address !== defaultValidator) {
+                  continue
+                }
+
                 const network = item.yieldId.split('-')[0]
                 const lookupKey = `${balance.address.toLowerCase()}:${network}`
                 let accountId = addressToAccountId[lookupKey]

@@ -1,5 +1,5 @@
 import { Avatar, Box, Button, Flex, HStack, Skeleton, Text, VStack } from '@chakra-ui/react'
-import { memo, useCallback, useEffect, useMemo } from 'react'
+import { memo, useCallback, useEffect, useMemo, useRef } from 'react'
 import { useTranslate } from 'react-polyglot'
 import { useNavigate } from 'react-router-dom'
 
@@ -33,11 +33,13 @@ import {
   selectSelectedYieldId,
   selectSellAccountId,
 } from '@/state/slices/tradeEarnInputSlice/selectors'
-import { useAppSelector } from '@/state/store'
+import { tradeEarnInput } from '@/state/slices/tradeEarnInputSlice/tradeEarnInputSlice'
+import { useAppDispatch, useAppSelector } from '@/state/store'
 
 export const EarnConfirm = memo(() => {
   const translate = useTranslate()
   const navigate = useNavigate()
+  const dispatch = useAppDispatch()
 
   const sellAsset = useAppSelector(selectInputSellAsset)
   const sellAmountCryptoPrecision = useAppSelector(selectInputSellAmountCryptoPrecision)
@@ -141,6 +143,19 @@ export const EarnConfirm = memo(() => {
     accountId: accountIdToUse,
   })
 
+  // Track step in ref for cleanup
+  const stepRef = useRef(step)
+  stepRef.current = step
+
+  // Clear Redux when unmounting from success state to prevent re-access
+  useEffect(() => {
+    return () => {
+      if (stepRef.current === ModalStep.Success) {
+        dispatch(tradeEarnInput.actions.clear())
+      }
+    }
+  }, [dispatch])
+
   // Align loading states with YieldEnterModal
   const isQuoteActive = isQuoteLoading || isAllowanceCheckPending
   const isLoading = isLoadingYields || isQuoteActive
@@ -193,22 +208,6 @@ export const EarnConfirm = memo(() => {
     return null
   }, [selectedValidator, selectedYield, providers])
 
-  if (!selectedYield) {
-    return (
-      <SharedConfirm
-        bodyContent={
-          <VStack spacing={4} p={6} flex={1} justify='center'>
-            <Text>{translate('earn.selectYieldOpportunity')}</Text>
-            <Button onClick={handleBack}>{translate('common.goBack')}</Button>
-          </VStack>
-        }
-        footerContent={null}
-        onBack={handleBack}
-        headerTranslation='earn.confirmEarn'
-      />
-    )
-  }
-
   if (step === ModalStep.Success) {
     return (
       <SharedConfirm
@@ -227,6 +226,22 @@ export const EarnConfirm = memo(() => {
         footerContent={null}
         onBack={handleBack}
         headerTranslation='yieldXYZ.success'
+      />
+    )
+  }
+
+  if (!selectedYield) {
+    return (
+      <SharedConfirm
+        bodyContent={
+          <VStack spacing={4} p={6} flex={1} justify='center'>
+            <Text>{translate('earn.selectYieldOpportunity')}</Text>
+            <Button onClick={handleBack}>{translate('common.goBack')}</Button>
+          </VStack>
+        }
+        footerContent={null}
+        onBack={handleBack}
+        headerTranslation='earn.confirmEarn'
       />
     )
   }

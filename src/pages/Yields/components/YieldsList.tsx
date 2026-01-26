@@ -558,7 +558,7 @@ export const YieldsList = memo(() => {
   const handleYieldClick = useCallback(
     (yieldId: string) => {
       const validator = getDefaultValidatorForYield(yieldId)
-      const url = validator ? `/yields/${yieldId}?validator=${validator}` : `/yields/${yieldId}`
+      const url = validator ? `/yield/${yieldId}?validator=${validator}` : `/yield/${yieldId}`
       navigate(url)
     },
     [navigate],

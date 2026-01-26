@@ -13,7 +13,7 @@ import {
   AddressLookupTableAccount,
   PublicKey,
   TransactionMessage,
-  VersionedTransaction,
+  VersionedMessage,
 } from '@solana/web3.js'
 
 import { getDefaultSlippageDecimalPercentageForSwapper } from '../../../constants'
@@ -196,16 +196,22 @@ export const getTradeQuote = async (
   const maybeSolanaTransactionMetadata = await (async () => {
     if (sellAsset.chainId !== solanaChainId) return Ok(undefined)
 
-    const txData = buildTx.data.startsWith('0x') ? buildTx.data.slice(2) : buildTx.data
-    const versionedTransaction = VersionedTransaction.deserialize(
-      new Uint8Array(Buffer.from(txData, 'hex')),
-    )
-
-    const adapter = _deps.assertGetSolanaChainAdapter(sellAsset.chainId)
-
     try {
-      const addressLookupTableAccountKeys = versionedTransaction.message.addressTableLookups.map(
-        lookup => lookup.accountKey.toString(),
+      const txData = buildTx.data.startsWith('0x') ? buildTx.data.slice(2) : buildTx.data
+      const txBytes = new Uint8Array(Buffer.from(txData, 'hex'))
+
+      // Parse past the signatures to get to the message
+      // Serialized format: compact-u16 signature count + signatures (64 bytes each) + message
+      const signatureCount = txBytes[0]
+      const messageOffset = 1 + signatureCount * 64
+      const messageBytes = txBytes.slice(messageOffset)
+
+      const versionedMessage = VersionedMessage.deserialize(messageBytes)
+
+      const adapter = _deps.assertGetSolanaChainAdapter(sellAsset.chainId)
+
+      const addressLookupTableAccountKeys = versionedMessage.addressTableLookups.map(
+        (lookup: { accountKey: { toString: () => string } }) => lookup.accountKey.toString(),
       )
 
       const addressLookupTableAccountsInfos = await adapter.getAddressLookupTableAccounts(
@@ -224,7 +230,7 @@ export const getTradeQuote = async (
       // This is required to properly resolve all account addresses in the transaction
       // Without lookup tables, the transaction would fail during execution
       // Reference: https://dev.jup.ag/docs/old/additional-topics/composing-with-versioned-transaction
-      const instructions = TransactionMessage.decompile(versionedTransaction.message, {
+      const instructions = TransactionMessage.decompile(versionedMessage, {
         addressLookupTableAccounts,
       }).instructions
 
@@ -235,7 +241,7 @@ export const getTradeQuote = async (
     } catch (error) {
       return Err(
         makeSwapErrorRight({
-          message: `[getTradeQuote] Error decompiling VersionedMessage: ${error}`,
+          message: `[getTradeQuote] Error processing Solana transaction: ${error}`,
           code: TradeQuoteError.UnknownError,
         }),
       )
@@ -270,6 +276,7 @@ export const getTradeQuote = async (
       gasLimit: bnOrZero(route.gasEstimatedTarget).toFixed(),
       method: buildTx.method,
       args: buildTx.args,
+      serializedSolanaTransaction: sellAsset.chainId === solanaChainId ? buildTx.data : undefined,
     },
     ...(solanaTransactionMetadata && {
       solanaTransactionMetadata,

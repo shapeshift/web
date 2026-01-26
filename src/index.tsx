@@ -20,7 +20,8 @@ import { App } from './App'
 import { AppProviders } from './AppProviders'
 import { PerformanceProfiler } from './components/PerformanceProfiler'
 import { getConfig } from './config'
-import { registerMobileWalletAdapter } from './context/WalletProvider/Seeker/registerMwa'
+// NOTE: registerMobileWalletAdapter disabled - see comment below
+// import { registerMobileWalletAdapter } from './context/WalletProvider/Seeker/registerMwa'
 import { renderConsoleArt } from './lib/consoleArt'
 import { profiler } from './lib/performanceProfiler'
 import { reportWebVitals } from './lib/reportWebVitals'
@@ -39,9 +40,11 @@ scan({
   enabled: window.location.hostname === 'localhost' && enableReactScan,
 })
 
-// Register Mobile Wallet Adapter (MWA) for Seeker and other MWA-compatible wallets
-// This makes MWA-compatible wallets available via Wallet Standard on supported devices
-registerMobileWalletAdapter()
+// NOTE: registerMobileWalletAdapter() disabled - we use custom postMessage handlers instead
+// The @solana-mobile/wallet-standard-mobile package requires Buffer polyfills which can
+// cause issues in mobile WebView contexts. Our SeekerConnect component uses postMessage
+// to communicate with the mobile app's SeekerWalletManager which handles MWA natively.
+// registerMobileWalletAdapter()
 
 // Sentry is disabled on localhost by default
 // To test locally, set VITE_ENABLE_SENTRY_LOCALHOST=true in your .env.local file

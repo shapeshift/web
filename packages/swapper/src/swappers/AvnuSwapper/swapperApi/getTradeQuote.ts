@@ -2,6 +2,7 @@ import { getQuotes } from '@avnu/avnu-sdk'
 import { bn } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
+import { validateAndParseAddress } from 'starknet'
 import { v4 as uuid } from 'uuid'
 
 import { getDefaultSlippageDecimalPercentageForSwapper } from '../../../constants'
@@ -76,11 +77,16 @@ export const getTradeQuote = async (
     const sellTokenAddress = getTokenAddress(sellAsset)
     const buyTokenAddress = getTokenAddress(buyAsset)
 
+    // Normalize addresses to ensure consistent format across quote and execution
+    // Starknet addresses can have different representations (with/without leading zeros)
+    const normalizedSendAddress = validateAndParseAddress(sendAddress)
+    const normalizedReceiveAddress = validateAndParseAddress(receiveAddress)
+
     const quotes = await getQuotes({
       sellTokenAddress,
       buyTokenAddress,
       sellAmount: BigInt(sellAmount),
-      takerAddress: sendAddress,
+      takerAddress: normalizedSendAddress,
       size: 1,
       integratorFees: affiliateBps ? BigInt(affiliateBps) : undefined,
       integratorFeeRecipient: getTreasuryAddressFromChainId(sellAsset.chainId),
@@ -111,10 +117,10 @@ export const getTradeQuote = async (
     const sellAdapter = deps.assertGetStarknetChainAdapter(sellAsset.chainId)
 
     const feeData = await sellAdapter.getFeeData({
-      to: receiveAddress,
+      to: normalizedReceiveAddress,
       value: sellAmount,
       chainSpecific: {
-        from: sendAddress,
+        from: normalizedSendAddress,
         tokenContractAddress: sellTokenAddress,
       },
       sendMax: false,
@@ -142,7 +148,7 @@ export const getTradeQuote = async (
 
     const tradeQuote: TradeQuote = {
       id: uuid(),
-      receiveAddress,
+      receiveAddress: normalizedReceiveAddress,
       affiliateBps,
       rate,
       slippageTolerancePercentageDecimal:

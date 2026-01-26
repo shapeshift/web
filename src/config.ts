@@ -200,6 +200,7 @@ const validators = {
   VITE_PORTALS_BASE_URL: url(),
   VITE_ZERION_BASE_URL: url(),
   VITE_FEATURE_PHANTOM_WALLET: bool({ default: false }),
+  VITE_FEATURE_TONCONNECT_WALLET: bool({ default: true }),
   VITE_FEATURE_FOX_PAGE: bool({ default: false }),
   VITE_FEATURE_FOX_PAGE_RFOX: bool({ default: false }),
   VITE_FEATURE_FOX_PAGE_FOX_SECTION: bool({ default: true }),

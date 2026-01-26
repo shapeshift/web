@@ -13705,6 +13705,8 @@ __metadata:
     "@tanstack/react-table": ^8.20.6
     "@tanstack/react-virtual": ^3.11.2
     "@testing-library/react": ^13.3.0
+    "@tonconnect/sdk": ^3.3.1
+    "@tonconnect/ui-react": ^2.3.1
     "@types/bip21": ^2.0.0
     "@types/cli-progress": ^3.11.5
     "@types/d3-array": ^3.0.1
@@ -16546,6 +16548,70 @@ __metadata:
     "@ton/core": ">=0.62.0 <1.0.0"
     "@ton/crypto": ">=3.2.0"
   checksum: cc08c3aea7a3722436fe801a2f9f15b314e83bb7534fc7a2a6e9d590b6d7791e8a47e7f930f4ee3f683933e4470d5575fe23d2dab7bfcf718bc8641c9574210f
+  languageName: node
+  linkType: hard
+
+"@tonconnect/isomorphic-eventsource@npm:0.0.2":
+  version: 0.0.2
+  resolution: "@tonconnect/isomorphic-eventsource@npm:0.0.2"
+  dependencies:
+    eventsource: ^2.0.2
+  checksum: e19ab965129e6be8a019c8d8d3a2e2b88aca4b9b42389b747370f96a2411de79676b96122040e068396f8fd54662e0dab947d9d6bd41dc403172343cc6de8796
+  languageName: node
+  linkType: hard
+
+"@tonconnect/isomorphic-fetch@npm:0.0.3":
+  version: 0.0.3
+  resolution: "@tonconnect/isomorphic-fetch@npm:0.0.3"
+  dependencies:
+    node-fetch: ^2.6.9
+  checksum: cb9c72d760263b92a17fdba05c5888d650fcaad7df1f91770ee6c218e829f02256e695e4a2086c62f27cabece8c0952fab2d00f7a613060a8d433ff1b8dd8c37
+  languageName: node
+  linkType: hard
+
+"@tonconnect/protocol@npm:2.3.0":
+  version: 2.3.0
+  resolution: "@tonconnect/protocol@npm:2.3.0"
+  dependencies:
+    tweetnacl: ^1.0.3
+    tweetnacl-util: ^0.15.1
+  checksum: 5a7baadb7154a409b0baf2f3e6c449f06a128e19a45540538e7070f49bc7a4ddba94cca30e9d0c813441a2a5edd356b89058659bc0012042b6ef5f3d48a433d5
+  languageName: node
+  linkType: hard
+
+"@tonconnect/sdk@npm:3.3.1, @tonconnect/sdk@npm:^3.3.1":
+  version: 3.3.1
+  resolution: "@tonconnect/sdk@npm:3.3.1"
+  dependencies:
+    "@tonconnect/isomorphic-eventsource": 0.0.2
+    "@tonconnect/isomorphic-fetch": 0.0.3
+    "@tonconnect/protocol": 2.3.0
+  checksum: d86a83041034f552c7d77964e1f2ce4dac397474a7e4e18617bef4fb5cb30264c64dc4d09c89473c30b4678ed65738e6a90ab5ac9a05cddd54c308321bd0ed32
+  languageName: node
+  linkType: hard
+
+"@tonconnect/ui-react@npm:^2.3.1":
+  version: 2.3.1
+  resolution: "@tonconnect/ui-react@npm:2.3.1"
+  dependencies:
+    "@tonconnect/ui": 2.3.1
+  peerDependencies:
+    react: ">=17.0.0"
+    react-dom: ">=17.0.0"
+  checksum: ba95d29d9c931581bce4ff66d679b6f0a111d5c91cf1d796630f42d330034d3a81cd170cbed4089b16d46b171562969dc269e6d3719327a4d32005399986f1bd
+  languageName: node
+  linkType: hard
+
+"@tonconnect/ui@npm:2.3.1":
+  version: 2.3.1
+  resolution: "@tonconnect/ui@npm:2.3.1"
+  dependencies:
+    "@tonconnect/sdk": 3.3.1
+    classnames: ^2.5.1
+    csstype: ^3.1.3
+    deepmerge: ^4.3.1
+    ua-parser-js: ^1.0.35
+  checksum: fe3f5c3002c8ba1dd5ffa829044cd123683005020f64bda8ff2828ec491ddccc2b6006d18ee8f9258c36ad740ed4eb49aa3e8f60ed0fde4f4d2e83c9e905fc4f
   languageName: node
   linkType: hard
 
@@ -23733,6 +23799,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"classnames@npm:^2.5.1":
+  version: 2.5.1
+  resolution: "classnames@npm:2.5.1"
+  checksum: da424a8a6f3a96a2e87d01a432ba19315503294ac7e025f9fece656db6b6a0f7b5003bb1fbb51cbb0d9624d964f1b9bb35a51c73af9b2434c7b292c42231c1e5
+  languageName: node
+  linkType: hard
+
 "clean-css@npm:^4.1.6, clean-css@npm:^4.2.3":
   version: 4.2.4
   resolution: "clean-css@npm:4.2.4"
@@ -24690,6 +24763,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"csstype@npm:^3.1.3":
+  version: 3.2.3
+  resolution: "csstype@npm:3.2.3"
+  checksum: cb882521b3398958a1ce6ca98c011aec0bde1c77ecaf8a1dd4db3b112a189939beae3b1308243b2fe50fc27eb3edeb0f73a5a4d91d928765dc6d5ecc7bda92ee
+  languageName: node
+  linkType: hard
+
 "csv-generate@npm:^3.4.3":
   version: 3.4.3
   resolution: "csv-generate@npm:3.4.3"
@@ -25154,6 +25234,13 @@ __metadata:
   version: 4.2.2
   resolution: "deepmerge@npm:4.2.2"
   checksum: a8c43a1ed8d6d1ed2b5bf569fa4c8eb9f0924034baf75d5d406e47e157a451075c4db353efea7b6bcc56ec48116a8ce72fccf867b6e078e7c561904b5897530b
+  languageName: node
+  linkType: hard
+
+"deepmerge@npm:^4.3.1":
+  version: 4.3.1
+  resolution: "deepmerge@npm:4.3.1"
+  checksum: 2024c6a980a1b7128084170c4cf56b0fd58a63f2da1660dcfe977415f27b17dbe5888668b59d0b063753f3220719d5e400b7f113609489c90160bb9a5518d052
   languageName: node
   linkType: hard
 
@@ -33506,7 +33593,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"node-fetch@npm:^2.6.0, node-fetch@npm:^2.6.12, node-fetch@npm:^2.6.7, node-fetch@npm:^2.7.0":
+"node-fetch@npm:^2.6.0, node-fetch@npm:^2.6.12, node-fetch@npm:^2.6.7, node-fetch@npm:^2.6.9, node-fetch@npm:^2.7.0":
   version: 2.7.0
   resolution: "node-fetch@npm:2.7.0"
   dependencies:
@@ -40115,6 +40202,15 @@ pvutils@latest:
   version: 1.0.33
   resolution: "ua-parser-js@npm:1.0.33"
   checksum: 460adef51235267345b221842979b6b167543725d03f7c9c4f9ca6af4da835a71d016390da139d2b32828063c4730dcfae6e53b9dce815f4000be4e1fe1c7737
+  languageName: node
+  linkType: hard
+
+"ua-parser-js@npm:^1.0.35":
+  version: 1.0.41
+  resolution: "ua-parser-js@npm:1.0.41"
+  bin:
+    ua-parser-js: script/cli.js
+  checksum: a57c258ea3a242ade7601460ddf9a7e990d8d8bffc15df2ca87057a81993ca19f5045432c744d07bf2d9f280665d84aebb08630c5af5bea3922fdbe8f6fe6cb0
   languageName: node
   linkType: hard
 

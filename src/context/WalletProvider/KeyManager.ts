@@ -11,4 +11,5 @@ export enum KeyManager {
   Trezor = 'trezor',
   Vultisig = 'vultisig',
   GridPlus = 'gridplus',
+  TonConnect = 'tonconnect',
 }

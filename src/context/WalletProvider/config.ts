@@ -26,6 +26,8 @@ import { MobileConfig } from './MobileWallet/config'
 import { NativeConfig } from './NativeWallet/config'
 import { PhantomConfig } from './Phantom/config'
 import { KeepKeyRoutes } from './routes'
+import { TonConnectConfig } from './TonConnect/config'
+import type { TonConnectAdapter } from './TonConnect/TonConnectAdapter'
 import { TrezorConfig } from './Trezor/config'
 import { NativeWalletRoutes } from './types'
 import { VultisigConfig } from './Vultisig/config'
@@ -295,6 +297,17 @@ const VultisigFailure = lazy(() =>
   })),
 )
 
+const TonConnectConnect = lazy(() =>
+  import('./TonConnect/components/Connect').then(({ TonConnectConnect }) => ({
+    default: TonConnectConnect,
+  })),
+)
+const TonConnectFailure = lazy(() =>
+  import('./TonConnect/components/Failure').then(({ TonConnectFailure }) => ({
+    default: TonConnectFailure,
+  })),
+)
+
 const MetaMaskMenu = lazy(() =>
   import('./MetaMask/components/MetaMaskMenu').then(({ MetaMaskMenu }) => ({
     default: MetaMaskMenu,
@@ -377,6 +390,7 @@ export type SupportedWalletInfoByKeyManager = {
   [KeyManager.Trezor]: SupportedWalletInfo<typeof TrezorAdapter>
   [KeyManager.WalletConnectV2]: SupportedWalletInfo<typeof WalletConnectV2Adapter>
   [KeyManager.GridPlus]: SupportedWalletInfo<typeof GridPlusAdapter>
+  [KeyManager.TonConnect]: SupportedWalletInfo<typeof TonConnectAdapter>
 }
 
 export const SUPPORTED_WALLETS: SupportedWalletInfoByKeyManager = {
@@ -508,6 +522,13 @@ export const SUPPORTED_WALLETS: SupportedWalletInfoByKeyManager = {
         default: GridPlusMenu,
       })),
     ),
+  },
+  [KeyManager.TonConnect]: {
+    ...TonConnectConfig,
+    routes: [
+      { path: '/tonconnect/connect', component: TonConnectConnect },
+      { path: '/tonconnect/failure', component: TonConnectFailure },
+    ],
   },
 }
 

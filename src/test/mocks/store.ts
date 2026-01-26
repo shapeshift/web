@@ -150,6 +150,7 @@ export const mockStore: ReduxState = {
       PortalsSwap: false,
       Markets: false,
       PhantomWallet: false,
+      TonConnectWallet: false,
       FoxPage: false,
       FoxPageRFOX: false,
       FoxPageFoxSection: false,

@@ -77,6 +77,7 @@ export type FeatureFlags = {
   RunePoolWithdraw: boolean
   Markets: boolean
   PhantomWallet: boolean
+  TonConnectWallet: boolean
   FoxPage: boolean
   FoxPageRFOX: boolean
   FoxPageFoxSection: boolean
@@ -227,6 +228,7 @@ const initialState: Preferences = {
     RunePoolWithdraw: getConfig().VITE_FEATURE_RUNEPOOL_WITHDRAW,
     Markets: getConfig().VITE_FEATURE_MARKETS,
     PhantomWallet: getConfig().VITE_FEATURE_PHANTOM_WALLET,
+    TonConnectWallet: getConfig().VITE_FEATURE_TONCONNECT_WALLET,
     FoxPage: getConfig().VITE_FEATURE_FOX_PAGE,
     FoxPageRFOX: getConfig().VITE_FEATURE_FOX_PAGE_RFOX,
     FoxPageFoxSection: getConfig().VITE_FEATURE_FOX_PAGE_FOX_SECTION,

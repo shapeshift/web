@@ -12,6 +12,7 @@ import type { VultisigAdapter } from '@shapeshiftoss/hdwallet-vultisig'
 import type { WalletConnectV2Adapter } from '@shapeshiftoss/hdwallet-walletconnectv2'
 
 import type { KeyManager } from './KeyManager'
+import type { TonConnectAdapter } from './TonConnect/TonConnectAdapter'
 
 export type AdaptersByKeyManager = {
   [KeyManager.Mobile]: NativeAdapter
@@ -26,6 +27,7 @@ export type AdaptersByKeyManager = {
   [KeyManager.Coinbase]: CoinbaseAdapter
   [KeyManager.Vultisig]: VultisigAdapter
   [KeyManager.GridPlus]: GridPlusAdapter
+  [KeyManager.TonConnect]: TonConnectAdapter
 }
 
 export enum NativeWalletRoutes {

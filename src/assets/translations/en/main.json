@@ -1572,6 +1572,20 @@
         "button": "Pair"
       }
     },
+    "tonConnect": {
+      "errors": {
+        "connectFailure": "Unable to connect TON wallet"
+      },
+      "connect": {
+        "header": "Connect TON Wallet",
+        "body": "Click Connect to pair your TON wallet using TON Connect",
+        "button": "Connect"
+      },
+      "failure": {
+        "header": "Connection Failed",
+        "body": "Unable to connect your TON wallet. Please try again."
+      }
+    },
     "metaMaskSnap": {
       "title": "Multichain support is now available for MetaMask!",
       "subtitle": "Add the Multichain Snap on Metamask to send, receive, track, trade, and earn with the following chains:",

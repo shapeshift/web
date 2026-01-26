@@ -67,7 +67,7 @@ export const Chat = ({ chat }: ChatProps) => {
   const bottomRef = useRef<HTMLDivElement>(null)
   const shouldAutoScrollRef = useRef(true)
 
-  const userBg = useColorModeValue('blue.50', 'blue.900')
+  const userBg = useColorModeValue('blue.50', 'blue.600')
 
   useEffect(() => {
     const viewport = viewportRef.current
@@ -97,7 +97,8 @@ export const Chat = ({ chat }: ChatProps) => {
       gap={3}
       flex={1}
       overflowY='auto'
-      p={4}
+      px={4}
+      pb={2}
       minHeight={0}
     >
       {isEmpty ? (

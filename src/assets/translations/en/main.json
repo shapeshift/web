@@ -203,6 +203,7 @@
   },
   "agenticChat": {
     "title": "ShapeShift Agent",
+    "aiChat": "AI Chat",
     "openChat": "Open chat",
     "closeChat": "Close chat",
     "emptyState": "How can I help you today?",

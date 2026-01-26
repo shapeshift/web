@@ -165,10 +165,8 @@ export const useGetTradeQuotes = () => {
   const shouldFetchTradeQuotes = useMemo(() => {
     return Boolean(
       hasFocus &&
-        // Only fetch quote if the current "quote" is a rate (which we have gotten from input step)
         activeTrade &&
         !isExecutableTradeQuote(activeTrade) &&
-        // and if we're actually at pre-execution time
         isFetchStep &&
         sellAccountId &&
         sellAccountMetadata &&

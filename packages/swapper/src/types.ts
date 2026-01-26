@@ -434,6 +434,7 @@ export type TradeQuoteStep = {
     data: string
     value: Hex
     gasLimit: string
+    serializedSolanaTransaction?: string
   }
   sunioTransactionMetadata?: {
     route: {

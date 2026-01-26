@@ -6,6 +6,7 @@ import { ConnectModal } from '@/context/WalletProvider/components/ConnectModal'
 import { KeyManager } from '@/context/WalletProvider/KeyManager'
 import { useLocalWallet } from '@/context/WalletProvider/local-wallet'
 import { SeekerConfig } from '@/context/WalletProvider/Seeker/config'
+import { SeekerHDWallet } from '@/context/WalletProvider/Seeker/SeekerAdapter'
 import {
   checkSeekerAvailability,
   seekerAuthorize,
@@ -76,17 +77,12 @@ export const SeekerConnect = () => {
 
       const { name, icon } = SeekerConfig
       const deviceId = `seeker:${result.address}`
+      const wallet = new SeekerHDWallet(deviceId, result.address)
 
-      // For Seeker, we don't have an hdwallet instance - the signing happens
-      // via the mobile app's MWA integration. We'll need to create a custom
-      // wallet object that proxies signing requests.
-      //
-      // For now, we store the connection info and let chain-adapters handle
-      // the signing via the message handlers.
       dispatch({
         type: WalletActions.SET_WALLET,
         payload: {
-          wallet: null, // No hdwallet instance - signing via mobile app
+          wallet,
           name,
           icon,
           deviceId,

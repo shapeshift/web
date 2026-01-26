@@ -20,10 +20,7 @@ export const SeekerIcon = createIcon({
         </linearGradient>
       </defs>
       <circle cx='64' cy='64' r='60' fill='url(#seeker-gradient)' />
-      <path
-        d='M94.5 55.5L64 86L33.5 55.5L40.5 48.5L64 72L87.5 48.5L94.5 55.5Z'
-        fill='white'
-      />
+      <path d='M94.5 55.5L64 86L33.5 55.5L40.5 48.5L64 72L87.5 48.5L94.5 55.5Z' fill='white' />
       <path d='M94.5 42L64 72.5L33.5 42L40.5 35L64 58.5L87.5 35L94.5 42Z' fill='white' />
     </svg>
   ),

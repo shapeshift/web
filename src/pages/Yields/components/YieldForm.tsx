@@ -587,7 +587,7 @@ export const YieldForm = memo(
               </Flex>
             </Flex>
           )}
-          {!isStaking && maybeProviderMetadata && (
+          {(!isStaking || !maybeSelectedValidatorMetadata) && maybeProviderMetadata && (
             <Flex justify='space-between' align='center' mt={3}>
               <Text fontSize='sm' color='text.subtle'>
                 {translate('yieldXYZ.provider')}

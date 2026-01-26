@@ -34,7 +34,6 @@ import { Main } from '@/components/Layout/Main'
 import { SEO } from '@/components/Layout/Seo'
 import { Text } from '@/components/Text'
 import { useAssetSearchWorker } from '@/components/TradeAssetSearch/hooks/useAssetSearchWorker'
-import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { useModal } from '@/hooks/useModal/useModal'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { vibrate } from '@/lib/vibrate'
@@ -90,7 +89,6 @@ export const Explore = memo(() => {
   'use no memo'
   const translate = useTranslate()
   const navigate = useNavigate()
-  const isRfoxFoxEcosystemPageEnabled = useFeatureFlag('RfoxFoxEcosystemPage')
   const assetActionsDrawer = useModal('assetActionsDrawer')
 
   usePrefetchExploreCategories()
@@ -128,8 +126,8 @@ export const Explore = memo(() => {
   }, [navigate])
 
   const handleFoxClick = useCallback(() => {
-    navigate(isRfoxFoxEcosystemPageEnabled ? '/fox-ecosystem' : '/fox')
-  }, [navigate, isRfoxFoxEcosystemPageEnabled])
+    navigate('/fox-ecosystem')
+  }, [navigate])
 
   const handleTCYClick = useCallback(() => {
     navigate('/tcy')

@@ -8,11 +8,9 @@ import type { Route } from './helpers'
 import { RouteCategory } from './helpers'
 
 import { ExploreIcon } from '@/components/Icons/Explore'
-import { FoxIcon } from '@/components/Icons/FoxIcon'
 import { FoxPageIcon } from '@/components/Icons/FoxPageIcon'
 import { HomeIcon } from '@/components/Icons/Home'
 import { PoolsIcon } from '@/components/Icons/Pools'
-import { RFOXIcon } from '@/components/Icons/RFOX'
 import { SwapIcon } from '@/components/Icons/SwapIcon'
 import { TCYIcon } from '@/components/Icons/TCYIcon'
 import { WalletIcon } from '@/components/Icons/WalletIcon'
@@ -23,9 +21,7 @@ import { assetIdPaths } from '@/hooks/useRouteAssetId/useRouteAssetId'
 import { Accounts } from '@/pages/Accounts/Accounts'
 import { ExploreCategory } from '@/pages/Explore/ExploreCategory'
 import { FoxEcosystemPage } from '@/pages/Fox/FoxEcosystemPage'
-import { FoxPage } from '@/pages/Fox/FoxPage'
 import { History } from '@/pages/History/History'
-import { RFOX } from '@/pages/RFOX/RFOX'
 import { TCYNavIndicator } from '@/pages/TCY/components/TCYNavIndicator'
 import { TCY } from '@/pages/TCY/tcy'
 import { EarnTab } from '@/pages/Trade/tabs/EarnTab'
@@ -332,33 +328,12 @@ export const routes: Route[] = [
     ],
   },
   {
-    path: '/rfox/*',
-    label: 'navBar.rFOX',
-    icon: <RFOXIcon />,
-    mobileNav: false,
-    priority: 1,
-    main: RFOX,
-    category: RouteCategory.Fox,
-    disable: !getConfig().VITE_FEATURE_RFOX || getConfig().VITE_FEATURE_RFOX_FOX_ECOSYSTEM_PAGE,
-  },
-  {
-    path: '/fox',
-    label: 'navBar.foxEcosystem',
-    icon: <FoxIcon />,
-    main: FoxPage,
-    category: RouteCategory.Fox,
-    priority: 6,
-    mobileNav: false,
-    disable: !getConfig().VITE_FEATURE_FOX_PAGE || getConfig().VITE_FEATURE_RFOX_FOX_ECOSYSTEM_PAGE,
-  },
-  {
     path: '/fox-ecosystem/*',
     label: 'navBar.foxEcosystem',
     icon: <FoxPageIcon />,
     main: FoxEcosystemPage,
     priority: 6,
     mobileNav: false,
-    disable: !getConfig().VITE_FEATURE_RFOX_FOX_ECOSYSTEM_PAGE,
   },
   {
     path: '/tcy/*',

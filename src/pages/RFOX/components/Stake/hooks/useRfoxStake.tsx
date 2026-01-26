@@ -25,6 +25,7 @@ import {
   createBuildCustomTxInput,
   isGetFeesWithWalletEIP1559SupportArgs,
 } from '@/lib/utils/evm'
+import { STUB_RUNE_ADDRESS } from '@/pages/RFOX/constants'
 import { getStakingContract } from '@/pages/RFOX/helpers'
 import { reactQueries } from '@/react-queries'
 import { useAllowance } from '@/react-queries/hooks/useAllowance'
@@ -46,7 +47,6 @@ import { serializeTxIndex } from '@/state/slices/txHistorySlice/utils'
 import { useAppDispatch, useAppSelector } from '@/state/store'
 
 type UseRfoxStakeProps = {
-  runeAddress: string | undefined
   stakingAssetId: AssetId
   stakingAssetAccountId: AccountId | undefined
   amountCryptoBaseUnit: string
@@ -69,7 +69,6 @@ type UseRfoxStakeReturn = {
 
 export const useRfoxStake = ({
   amountCryptoBaseUnit,
-  runeAddress,
   stakingAssetId,
   stakingAssetAccountId,
   methods,
@@ -123,14 +122,14 @@ export const useRfoxStake = ({
   )
 
   const stakeCallData = useMemo(() => {
-    if (!(isValidStakingAmount && runeAddress && stakingAsset)) return
+    if (!(isValidStakingAmount && stakingAsset)) return
 
     return encodeFunctionData({
       abi: RFOX_ABI,
       functionName: 'stake',
-      args: [BigInt(amountCryptoBaseUnit), runeAddress],
+      args: [BigInt(amountCryptoBaseUnit), STUB_RUNE_ADDRESS],
     })
-  }, [amountCryptoBaseUnit, isValidStakingAmount, runeAddress, stakingAsset])
+  }, [amountCryptoBaseUnit, isValidStakingAmount, stakingAsset])
 
   const approvalCallData = useMemo(() => {
     if (!stakingAsset) return
@@ -312,7 +311,6 @@ export const useRfoxStake = ({
         stakeMutation.isIdle &&
           hasEnoughBalance &&
           isValidStakingAmount &&
-          runeAddress &&
           !Boolean(errors?.amountFieldInput || errors?.manualRuneAddress) &&
           allowanceQuery.isSuccess &&
           !isApprovalRequired,
@@ -324,7 +322,6 @@ export const useRfoxStake = ({
       hasEnoughBalance,
       isApprovalRequired,
       isValidStakingAmount,
-      runeAddress,
       stakeMutation.isIdle,
     ],
   )

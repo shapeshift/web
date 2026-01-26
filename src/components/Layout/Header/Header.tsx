@@ -102,7 +102,6 @@ export const Header = memo(() => {
   const isWalletConnectToDappsV2Enabled = useFeatureFlag('WalletConnectToDappsV2')
   const isActionCenterEnabled = useFeatureFlag('ActionCenter')
   const isNewWalletManagerEnabled = useFeatureFlag('NewWalletManager')
-  const isRfoxFoxEcosystemPageEnabled = useFeatureFlag('RfoxFoxEcosystemPage')
   const isEarnTabEnabled = useFeatureFlag('EarnTab')
 
   const tradeSubMenuItems = useMemo(
@@ -188,7 +187,7 @@ export const Header = memo(() => {
               />
               <Link
                 as={ReactRouterLink}
-                to={isRfoxFoxEcosystemPageEnabled ? '/fox-ecosystem' : '/fox'}
+                to={'/fox-ecosystem'}
                 fontWeight='medium'
                 color='text.subtle'
                 _hover={{ color: 'text.base', textDecoration: 'none' }}

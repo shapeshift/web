@@ -31,7 +31,6 @@ import { SlideTransition } from '@/components/SlideTransition'
 import { Timeline, TimelineItem } from '@/components/Timeline/Timeline'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { fromBaseUnit, toBaseUnit } from '@/lib/math'
-import { middleEllipsis } from '@/lib/utils'
 import { getStakingContract, selectStakingBalance } from '@/pages/RFOX/helpers'
 import { useStakingBalanceOfQuery } from '@/pages/RFOX/hooks/useStakingBalanceOfQuery'
 import { useStakingInfoQuery } from '@/pages/RFOX/hooks/useStakingInfoQuery'
@@ -128,7 +127,6 @@ export const StakeConfirm: React.FC<StakeConfirmProps & StakeRouteProps> = ({
     },
   } = useRfoxStake({
     amountCryptoBaseUnit: confirmedQuote.stakingAmountCryptoBaseUnit,
-    runeAddress: confirmedQuote.runeAddress,
     stakingAssetId: confirmedQuote.stakingAssetId,
     stakingAssetAccountId: confirmedQuote.stakingAssetAccountId,
     // Assume true at confirm since already validated
@@ -364,20 +362,6 @@ export const StakeConfirm: React.FC<StakeConfirmProps & StakeRouteProps> = ({
           </Timeline>
         </Stack>
       </CardBody>
-      <CardFooter
-        borderTopWidth={1}
-        borderColor='border.subtle'
-        flexDir='column'
-        gap={4}
-        px={6}
-        py={4}
-        bg='background.surface.raised.accent'
-      >
-        <CustomRow>
-          <Row.Label>{translate('RFOX.thorchainRewardAddress')}</Row.Label>
-          <Row.Value>{middleEllipsis(confirmedQuote.runeAddress)}</Row.Value>
-        </CustomRow>
-      </CardFooter>
       <CardFooter
         borderTopWidth={1}
         borderColor='border.subtle'

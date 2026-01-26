@@ -273,7 +273,7 @@ export const YieldEnterModal = memo(
 
     const displayValue = useMemo(() => {
       if (isFiat) {
-        return fiatAmount.toFixed(2)
+        return fiatAmount.isZero() ? '' : fiatAmount.toFixed(2)
       }
       return cryptoAmount
     }, [isFiat, fiatAmount, cryptoAmount])

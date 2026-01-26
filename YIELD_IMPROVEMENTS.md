@@ -25,7 +25,11 @@
 
 ---
 
-## Pending
-
 ### Issue 2: Fiat Mode Placeholder Styled as Value (Low Priority)
-Fix fiat mode showing "$0.00" as actual value instead of placeholder styling.
+**Problem:** In yield enter modals, when amount is 0 in fiat mode, "$0.00" was styled as an actual value instead of placeholder styling.
+
+**Files Modified:**
+- `src/pages/Yields/components/YieldEnterModal.tsx` - line 276
+- `src/pages/Yields/components/YieldForm.tsx` - line 338
+
+**Fix:** Return empty string when fiat amount is zero to trigger placeholder styling (`fiatAmount.isZero() ? '' : fiatAmount.toFixed(2)`).

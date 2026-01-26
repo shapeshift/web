@@ -208,6 +208,14 @@ export const EarnConfirm = memo(() => {
     return null
   }, [selectedValidator, selectedYield, providers])
 
+  const handleViewPosition = useCallback(() => {
+    if (!selectedYieldId) return
+    const params = new URLSearchParams()
+    if (accountIdToUse) params.set('accountId', accountIdToUse)
+    const queryString = params.toString()
+    navigate(queryString ? `/yield/${selectedYieldId}?${queryString}` : `/yield/${selectedYieldId}`)
+  }, [selectedYieldId, accountIdToUse, navigate])
+
   if (step === ModalStep.Success) {
     return (
       <SharedConfirm
@@ -220,10 +228,30 @@ export const EarnConfirm = memo(() => {
               transactionSteps={transactionSteps}
               yieldId={selectedYieldId}
               onDone={handleBack}
+              showButtons={false}
             />
           </Flex>
         }
-        footerContent={null}
+        footerContent={
+          <Box p={4}>
+            <VStack spacing={3} width='full'>
+              {selectedYieldId && (
+                <Button colorScheme='blue' size='lg' width='full' onClick={handleViewPosition}>
+                  {translate('yieldXYZ.viewPosition')}
+                </Button>
+              )}
+              <Button
+                variant={selectedYieldId ? 'ghost' : 'solid'}
+                colorScheme={selectedYieldId ? undefined : 'blue'}
+                size='lg'
+                width='full'
+                onClick={handleBack}
+              >
+                {translate('common.close')}
+              </Button>
+            </VStack>
+          </Box>
+        }
         onBack={handleBack}
         headerTranslation='yieldXYZ.success'
       />

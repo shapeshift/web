@@ -14,10 +14,18 @@
 
 ---
 
-## Pending
-
 ### Issue 1: Success Step Footer Dead Space (Medium Priority)
-Move success buttons from YieldSuccess body into footerContent prop to eliminate dead space below buttons.
+**Problem:** The success step in the Earn trade modal had dead/empty space below the "View Position" and "Close" buttons.
+
+**Files Modified:**
+- `src/pages/Yields/components/YieldSuccess.tsx` - Added `showButtons` prop
+- `src/components/MultiHopTrade/components/Earn/EarnConfirm.tsx` - Moved buttons to footerContent
+
+**Fix:** Added `showButtons` prop to `YieldSuccess` component and moved buttons from body content to `footerContent` prop in `EarnConfirm.tsx`, matching the pattern used by input/confirm steps.
+
+---
+
+## Pending
 
 ### Issue 2: Fiat Mode Placeholder Styled as Value (Low Priority)
 Fix fiat mode showing "$0.00" as actual value instead of placeholder styling.

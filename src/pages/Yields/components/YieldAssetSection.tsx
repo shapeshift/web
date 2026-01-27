@@ -12,6 +12,7 @@ import { YieldOpportunityCard } from './YieldOpportunityCard'
 import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import type { AugmentedYieldDto } from '@/lib/yieldxyz/types'
+import { getBestActionableYield } from '@/lib/yieldxyz/utils'
 import type { AugmentedYieldBalanceWithAccountId } from '@/react-queries/queries/yieldxyz/useAllYieldBalances'
 import { useAllYieldBalances } from '@/react-queries/queries/yieldxyz/useAllYieldBalances'
 import { useYields } from '@/react-queries/queries/yieldxyz/useYields'
@@ -81,12 +82,7 @@ export const YieldAssetSection = memo(({ assetId, accountId }: YieldAssetSection
     return Object.keys(result).length > 0 ? result : undefined
   }, [allBalancesData, yields, accountId])
 
-  const sortedYields = useMemo(
-    () => [...yields].sort((a, b) => b.rewardRate.total - a.rewardRate.total),
-    [yields],
-  )
-
-  const bestYield = sortedYields[0]
+  const bestYield = useMemo(() => getBestActionableYield(yields), [yields])
 
   const hasActivePositions = Boolean(filteredBalancesByYieldId)
 

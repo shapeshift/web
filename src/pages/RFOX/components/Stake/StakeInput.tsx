@@ -99,7 +99,7 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
     return supportedStakingAssetIds
       .filter(assetId => assetId !== uniV2EthFoxArbitrumAssetId)
       .concat(l1AssetId)
-  }, [l1AssetId])
+  }, [l1AssetId, supportedStakingAssetIds, uniV2EthFoxArbitrumAssetId])
 
   const assets = useAppSelector(selectAssets)
 

@@ -1,6 +1,6 @@
 import { Button, Icon, Text, VStack } from '@chakra-ui/react'
 import { useQueryClient } from '@tanstack/react-query'
-import { useCallback, useEffect, useRef } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { IoIosCheckmarkCircle } from 'react-icons/io'
 import { useTranslate } from 'react-polyglot'
 import type { Location } from 'react-router-dom'
@@ -34,10 +34,29 @@ export const CreateSuccess = ({ onClose }: CreateSuccessProps) => {
   const { dispatch, getAdapter } = useWallet()
   const localWallet = useLocalWallet()
   const saveAttemptedRef = useRef(false)
+  const connectionAttemptedRef = useRef(false)
+  const [isConnecting, setIsConnecting] = useState(false)
 
-  const saveAndSelectWallet = useCallback(async () => {
+  const saveWallet = useCallback(async () => {
     if (saveAttemptedRef.current) return
     saveAttemptedRef.current = true
+
+    if (location.state?.vault?.label && location.state?.vault?.mnemonic) {
+      const wallet = await addWallet({
+        label: location.state.vault.label,
+        mnemonic: location.state.vault.mnemonic,
+      })
+
+      if (wallet) {
+        await queryClient.invalidateQueries({ queryKey: ['listWallets'] })
+        wallet.revoke()
+      }
+    }
+  }, [location.state?.vault, queryClient])
+
+  const handleWalletConnection = useCallback(async () => {
+    if (connectionAttemptedRef.current) return
+    connectionAttemptedRef.current = true
 
     if (location.state?.vault?.label && location.state?.vault?.mnemonic) {
       const wallet = await addWallet({
@@ -83,40 +102,30 @@ export const CreateSuccess = ({ onClose }: CreateSuccessProps) => {
           console.log(e)
         }
       }
-      await queryClient.invalidateQueries({ queryKey: ['listWallets'] })
       wallet.revoke()
       appDispatch(setWelcomeModal({ show: true }))
     }
-  }, [
-    location.state?.vault,
-    dispatch,
-    getAdapter,
-    localWallet,
-    queryClient,
-    appDispatch,
-    setWelcomeModal,
-  ])
+  }, [location.state?.vault, dispatch, getAdapter, localWallet, appDispatch, setWelcomeModal])
 
   useEffect(() => {
-    saveAndSelectWallet()
-  }, [saveAndSelectWallet])
+    saveWallet()
+  }, [saveWallet])
 
-  const handleViewWallet = useCallback(() => {
-    saveAndSelectWallet()
-    onClose()
-  }, [onClose, saveAndSelectWallet])
-
-  const handleClose = useCallback(() => {
-    saveAndSelectWallet()
-    onClose()
-    appDispatch(setWelcomeModal({ show: true }))
-  }, [onClose, appDispatch, setWelcomeModal, saveAndSelectWallet])
+  const handleViewWallet = useCallback(async () => {
+    setIsConnecting(true)
+    try {
+      await handleWalletConnection()
+      onClose()
+    } finally {
+      setIsConnecting(false)
+    }
+  }, [onClose, handleWalletConnection])
 
   return (
     <SlideTransition>
       <DialogHeader>
         <DialogHeaderRight>
-          <DialogCloseButton onClick={handleClose} />
+          <DialogCloseButton onClick={onClose} />
         </DialogHeaderRight>
       </DialogHeader>
       <DialogBody>
@@ -134,7 +143,14 @@ export const CreateSuccess = ({ onClose }: CreateSuccessProps) => {
         </VStack>
       </DialogBody>
       <DialogFooter>
-        <Button colorScheme='blue' size='lg' width='full' onClick={handleViewWallet}>
+        <Button
+          colorScheme='blue'
+          size='lg'
+          width='full'
+          onClick={handleViewWallet}
+          isLoading={isConnecting}
+          loadingText={translate('walletProvider.manualBackup.success.viewWallet')}
+        >
           {translate('walletProvider.manualBackup.success.viewWallet')}
         </Button>
       </DialogFooter>

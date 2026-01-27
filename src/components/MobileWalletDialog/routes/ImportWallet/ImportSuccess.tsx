@@ -1,6 +1,7 @@
 import { Button, Icon, VStack } from '@chakra-ui/react'
 import type { NativeHDWallet } from '@shapeshiftoss/hdwallet-native'
-import { useCallback, useEffect, useRef } from 'react'
+import { useQueryClient } from '@tanstack/react-query'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { IoIosCheckmarkCircle } from 'react-icons/io'
 import { useTranslate } from 'react-polyglot'
 import type { Location } from 'react-router-dom'
@@ -32,12 +33,25 @@ export const ImportSuccess = ({ onClose }: ImportSuccessProps) => {
   const { getAdapter, dispatch } = useWallet()
   const localWallet = useLocalWallet()
   const translate = useTranslate()
-  const hasConnectedRef = useRef(false)
+  const queryClient = useQueryClient()
+  const connectionAttemptedRef = useRef(false)
+  const refreshAttemptedRef = useRef(false)
+  const [isConnecting, setIsConnecting] = useState(false)
+
+  const refreshWalletList = useCallback(async () => {
+    if (refreshAttemptedRef.current) return
+    refreshAttemptedRef.current = true
+    await queryClient.invalidateQueries({ queryKey: ['listWallets'] })
+  }, [queryClient])
+
+  useEffect(() => {
+    refreshWalletList()
+  }, [refreshWalletList])
 
   const handleWalletConnection = useCallback(async () => {
-    if (hasConnectedRef.current) return
+    if (connectionAttemptedRef.current) return
     if (!location.state?.vault) return
-    hasConnectedRef.current = true
+    connectionAttemptedRef.current = true
     const adapter = await getAdapter(KeyManager.Mobile)
     if (!adapter) throw new Error('Native adapter not found')
     try {
@@ -70,22 +84,28 @@ export const ImportSuccess = ({ onClose }: ImportSuccessProps) => {
           type: WalletActions.SET_CONNECTOR_TYPE,
           payload: { modalType: KeyManager.Mobile, isMipdProvider: false },
         })
+        appDispatch(setWelcomeModal({ show: true }))
       }
     } catch (e) {
       console.log(e)
     }
-  }, [getAdapter, location.state?.vault, dispatch, localWallet])
+  }, [getAdapter, location.state?.vault, dispatch, localWallet, appDispatch, setWelcomeModal])
+
+  const handleViewWallet = useCallback(async () => {
+    setIsConnecting(true)
+    try {
+      await handleWalletConnection()
+      onClose()
+      setTimeout(() => location.state?.vault?.revoke(), 500)
+    } finally {
+      setIsConnecting(false)
+    }
+  }, [onClose, handleWalletConnection, location.state?.vault])
 
   const handleClose = useCallback(() => {
-    handleWalletConnection()
     onClose()
-    appDispatch(setWelcomeModal({ show: true }))
     setTimeout(() => location.state?.vault?.revoke(), 500)
-  }, [onClose, appDispatch, setWelcomeModal, handleWalletConnection, location.state?.vault])
-
-  useEffect(() => {
-    handleWalletConnection()
-  }, [handleWalletConnection])
+  }, [onClose, location.state?.vault])
 
   return (
     <SlideTransition>
@@ -112,7 +132,14 @@ export const ImportSuccess = ({ onClose }: ImportSuccessProps) => {
         </VStack>
       </DialogBody>
       <DialogFooter>
-        <Button colorScheme='blue' size='lg' width='full' onClick={handleClose}>
+        <Button
+          colorScheme='blue'
+          size='lg'
+          width='full'
+          onClick={handleViewWallet}
+          isLoading={isConnecting}
+          loadingText={translate('walletProvider.manualBackup.success.viewWallet')}
+        >
           {translate('walletProvider.manualBackup.success.viewWallet')}
         </Button>
       </DialogFooter>

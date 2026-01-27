@@ -289,6 +289,111 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TronMainnet> {
     }
   }
 
+  async buildCustomApiTx(input: {
+    from: string
+    to: string
+    accountNumber: number
+    data: string
+    value: string
+    method?: string
+    args?: { type: string; value: unknown }[]
+  }): Promise<TronSignTx> {
+    try {
+      const { from, to, accountNumber, data, value, method, args } = input
+
+      const tronWeb = new TronWeb({
+        fullHost: this.rpcUrl,
+      })
+
+      let txData: TronUnsignedTx
+
+      if (method && args) {
+        const parameter = args.map(arg => ({
+          type: arg.type,
+          value: arg.value,
+        }))
+
+        const options = {
+          feeLimit: 100_000_000,
+          callValue: Number(value) || 0,
+        }
+
+        const result = await this.requestQueue.add(() =>
+          tronWeb.transactionBuilder.triggerSmartContract(
+            to,
+            method,
+            options,
+            parameter,
+            from,
+          ),
+        )
+
+        if (!result.result || !result.result.result) {
+          throw new Error('Failed to build Tron custom transaction with method/args')
+        }
+
+        txData = result.transaction
+      } else {
+        const callData = data.startsWith('0x') ? data.slice(2) : data
+
+        const requestBody = {
+          owner_address: from,
+          contract_address: to,
+          data: callData,
+          fee_limit: 100_000_000,
+          call_value: Number(value) || 0,
+          visible: true,
+        }
+
+        const response = await this.requestQueue.add(() =>
+          fetch(`${this.rpcUrl}/wallet/triggersmartcontract`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(requestBody),
+          }),
+        )
+
+        const result = await response.json()
+
+        if (result.Error || !result.transaction) {
+          throw new Error(`TronGrid API error: ${result.Error || 'No transaction returned'}`)
+        }
+
+        txData = result.transaction
+      }
+
+      if (!txData.raw_data_hex) {
+        throw new Error('Failed to create transaction')
+      }
+
+      const rawDataHexValue: any = txData.raw_data_hex
+      const rawDataHex =
+        typeof rawDataHexValue === 'string'
+          ? rawDataHexValue
+          : Buffer.isBuffer(rawDataHexValue)
+          ? rawDataHexValue.toString('hex')
+          : Array.isArray(rawDataHexValue)
+          ? Buffer.from(rawDataHexValue).toString('hex')
+          : (() => {
+              throw new Error(`Unexpected raw_data_hex type: ${typeof rawDataHexValue}`)
+            })()
+
+      if (!/^[0-9a-fA-F]+$/.test(rawDataHex)) {
+        throw new Error(`Invalid raw_data_hex format: ${rawDataHex.slice(0, 100)}`)
+      }
+
+      return {
+        addressNList: toAddressNList(this.getBip44Params({ accountNumber })),
+        rawDataHex,
+        transaction: txData,
+      }
+    } catch (err) {
+      return ErrorHandler(err, {
+        translation: 'chainAdapters.errors.buildTransaction',
+      })
+    }
+  }
+
   async buildSendTransaction(input: BuildSendTxInput<KnownChainIds.TronMainnet>): Promise<{
     txToSign: TronSignTx
   }> {

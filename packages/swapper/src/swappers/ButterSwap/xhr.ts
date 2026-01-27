@@ -82,6 +82,8 @@ export const getButterRoute = async ({
 
   const isSameChainSolanaSwap =
     sellAsset.chainId === solanaChainId && buyAsset.chainId === solanaChainId
+  const isSameChainTronSwap =
+    sellAsset.chainId === tronChainId && buyAsset.chainId === tronChainId
 
   const params = {
     fromChainId: butterFromChainId,
@@ -95,6 +97,7 @@ export const getButterRoute = async ({
     affiliate,
     // This is only required to collect affiliate fees for same-chain Solana swaps. For EVM swaps the default referrer address (EVM) of the affiliate code is used.
     ...(isSameChainSolanaSwap && { referrer: getTreasuryAddressFromChainId(solanaChainId) }),
+    ...(isSameChainTronSwap && { referrer: getTreasuryAddressFromChainId(tronChainId) }),
   }
   const result = await butterService.get<RouteResponse>('/route', { params })
   if (result.isErr()) return Err(result.unwrapErr())

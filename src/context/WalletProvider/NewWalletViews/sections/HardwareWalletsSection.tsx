@@ -1,12 +1,16 @@
 import type { ComponentWithAs, IconProps } from '@chakra-ui/react'
 import { Box, Button, Flex, Stack, Text as CText, useColorModeValue } from '@chakra-ui/react'
-import { useCallback } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 
 import { Text } from '@/components/Text'
+import { WalletActions } from '@/context/WalletProvider/actions'
 import { GridPlusConfig } from '@/context/WalletProvider/GridPlus/config'
 import { KeepKeyConfig } from '@/context/WalletProvider/KeepKey/config'
 import { KeyManager } from '@/context/WalletProvider/KeyManager'
 import { LedgerConfig } from '@/context/WalletProvider/Ledger/config'
+import { useLocalWallet } from '@/context/WalletProvider/local-wallet'
+import { SeekerConfig } from '@/context/WalletProvider/Seeker/config'
+import { checkSeekerAvailability } from '@/context/WalletProvider/Seeker/seekerMessageHandlers'
 import { TrezorConfig } from '@/context/WalletProvider/Trezor/config'
 import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { useWallet } from '@/hooks/useWallet/useWallet'
@@ -15,6 +19,7 @@ const LedgerIcon = LedgerConfig.icon
 const TrezorIcon = TrezorConfig.icon
 const KeepKeyIcon = KeepKeyConfig.icon
 const GridPlusIcon = GridPlusConfig.icon
+const SeekerIcon = SeekerConfig.icon
 
 type WalletOptionProps = {
   connect: () => void
@@ -62,7 +67,21 @@ export const HardwareWalletsSection = ({
   selectedWalletId: string | null
   onWalletSelect: (id: string, initialRoute: string) => void
 }) => {
-  const { connect } = useWallet()
+  const { connect, dispatch } = useWallet()
+  const localWallet = useLocalWallet()
+  const [isSeekerAvailable, setIsSeekerAvailable] = useState(false)
+
+  useEffect(() => {
+    const checkSeeker = async () => {
+      try {
+        const result = await checkSeekerAvailability()
+        setIsSeekerAvailable(result.available)
+      } catch (error) {
+        setIsSeekerAvailable(false)
+      }
+    }
+    checkSeeker()
+  }, [])
 
   const handleConnectLedger = useCallback(() => {
     onWalletSelect(KeyManager.Ledger, '/ledger/connect')
@@ -83,6 +102,61 @@ export const HardwareWalletsSection = ({
     onWalletSelect(KeyManager.GridPlus, '/gridplus/connect')
     connect(KeyManager.GridPlus, false)
   }, [connect, onWalletSelect])
+
+  const handleConnectSeeker = useCallback(async () => {
+    try {
+      const { SEEKER_DEFAULT_CLUSTER } = await import('@/context/WalletProvider/Seeker/config')
+      const {
+        seekerAuthorize,
+        checkSeekerAvailability,
+        seekerDeauthorize,
+        seekerGetAddress,
+        seekerGetStatus,
+        seekerSignTransaction,
+        seekerSignAndSendTransaction,
+      } = await import('@/context/WalletProvider/Seeker/seekerMessageHandlers')
+
+      const authResult = await seekerAuthorize(SEEKER_DEFAULT_CLUSTER)
+
+      if (!authResult.success || !authResult.address) {
+        console.error('Seeker authorization failed')
+        return
+      }
+
+      const { SeekerHDWallet } = await import('@shapeshiftoss/hdwallet-seeker')
+
+      const messageHandler = {
+        checkAvailability: checkSeekerAvailability,
+        authorize: seekerAuthorize,
+        deauthorize: seekerDeauthorize,
+        getAddress: seekerGetAddress,
+        getStatus: seekerGetStatus,
+        signTransaction: seekerSignTransaction,
+        signAndSendTransaction: seekerSignAndSendTransaction,
+      }
+
+      const deviceId = `seeker-${Date.now()}`
+      const wallet = new SeekerHDWallet(deviceId, authResult.address, messageHandler)
+
+      const { icon } = SeekerConfig
+      const name = authResult.label || SeekerConfig.name
+      await wallet.initialize()
+
+      dispatch({
+        type: WalletActions.SET_WALLET,
+        payload: { wallet, name, icon, deviceId, connectedType: KeyManager.Seeker },
+      })
+      dispatch({
+        type: WalletActions.SET_IS_CONNECTED,
+        payload: true,
+      })
+      dispatch({ type: WalletActions.SET_IS_LOCKED, payload: false })
+      localWallet.setLocalWallet({ type: KeyManager.Seeker, deviceId })
+      dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
+    } catch (error) {
+      console.error('Error connecting to Seeker:', error)
+    }
+  }, [dispatch, localWallet])
 
   const isGridPlusWalletEnabled = useFeatureFlag('GridPlusWallet')
   const isTrezorWalletEnabled = useFeatureFlag('TrezorWallet')
@@ -125,6 +199,15 @@ export const HardwareWalletsSection = ({
           isDisabled={isLoading && selectedWalletId !== KeyManager.GridPlus}
           icon={GridPlusIcon}
           name={GridPlusConfig.name}
+        />
+      )}
+      {isSeekerAvailable && (
+        <WalletOption
+          connect={handleConnectSeeker}
+          isSelected={selectedWalletId === KeyManager.Seeker}
+          isDisabled={isLoading && selectedWalletId !== KeyManager.Seeker}
+          icon={SeekerIcon}
+          name={SeekerConfig.name}
         />
       )}
     </Stack>

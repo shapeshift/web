@@ -262,15 +262,10 @@ export const NewWalletViewsSwitch = () => {
           {isMobile ? (
             <>
               <MobileWalletsSection showHeader={false} />
-              <InstalledWalletsSection
-                isLoading={isLoading}
+              <HardwareWalletsSection
                 selectedWalletId={selectedWalletId}
                 onWalletSelect={handleWalletSelect}
-              />
-              <OthersSection
                 isLoading={isLoading}
-                selectedWalletId={selectedWalletId}
-                onWalletSelect={handleWalletSelect}
               />
             </>
           ) : (

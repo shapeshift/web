@@ -7,12 +7,12 @@ import type { WebUSBLedgerAdapter } from '@shapeshiftoss/hdwallet-ledger-webusb'
 import type { MetaMaskAdapter } from '@shapeshiftoss/hdwallet-metamask-multichain'
 import type { NativeAdapter } from '@shapeshiftoss/hdwallet-native'
 import type { PhantomAdapter } from '@shapeshiftoss/hdwallet-phantom'
+import type { SeekerHDWallet } from '@shapeshiftoss/hdwallet-seeker'
 import type { TrezorAdapter } from '@shapeshiftoss/hdwallet-trezor-connect'
 import type { VultisigAdapter } from '@shapeshiftoss/hdwallet-vultisig'
 import type { WalletConnectV2Adapter } from '@shapeshiftoss/hdwallet-walletconnectv2'
 
 import type { KeyManager } from './KeyManager'
-import type { SeekerHDWallet } from './Seeker/SeekerAdapter'
 
 export type AdaptersByKeyManager = {
   [KeyManager.Mobile]: NativeAdapter

@@ -12,15 +12,12 @@ import { isGridPlus } from '@shapeshiftoss/hdwallet-gridplus'
 import { isTrezor } from '@shapeshiftoss/hdwallet-trezor'
 import type { SupportedTradeQuoteStepIndex, TradeQuote } from '@shapeshiftoss/swapper'
 import {
-  getExecutableTradeStep,
   getHopByIndex,
   isExecutableTradeQuote,
   SolanaLogsError,
   SwapperName,
   TradeExecutionEvent,
 } from '@shapeshiftoss/swapper'
-
-import { SeekerHDWallet } from '@/context/WalletProvider/Seeker/SeekerAdapter'
 import type { CosmosSdkChainId, EvmChainId, TronChainId, UtxoChainId } from '@shapeshiftoss/types'
 import type { TypedData } from 'eip-712'
 import camelCase from 'lodash/camelCase'
@@ -381,16 +378,12 @@ export const useTradeExecution = (
       execution.on(TradeExecutionEvent.Fail, onFail)
       execution.on(TradeExecutionEvent.Error, onFail)
 
-      try {
-        const { accountType, bip44Params } = accountMetadata
+      const { accountType, bip44Params } = accountMetadata
       const accountNumber = bip44Params.accountNumber
       const stepSellAssetChainId = hop.sellAsset.chainId
       const stepBuyAssetAssetId = hop.buyAsset.assetId
 
-      if (!isExecutableTradeQuote(tradeQuote)) {
-        const quoteType = (tradeQuote as { quoteOrRate?: string })?.quoteOrRate ?? 'unknown'
-        throw new Error(`Unable to execute trade: quote type is "${quoteType}", expected "quote" with receiveAddress`)
-      }
+      if (!isExecutableTradeQuote(tradeQuote)) throw new Error('Unable to execute trade')
 
       const skipDeviceDerivation = wallet && (isTrezor(wallet) || isGridPlus(wallet))
       const pubKey = fromAccountId(sellAssetAccountId).account
@@ -589,67 +582,16 @@ export const useTradeExecution = (
             slippageTolerancePercentageDecimal,
             from,
             signAndBroadcastTransaction: async (txToSign: SolanaSignTx) => {
-              try {
-                const isSeeker = wallet instanceof SeekerHDWallet
-                const step = getExecutableTradeStep(tradeQuote, hopIndex)
-                const serializedTx = step.butterSwapTransactionMetadata?.serializedSolanaTransaction
+              const hex = await adapter.signTransaction({ txToSign, wallet })
 
-                if (isSeeker && serializedTx) {
-                  const { VersionedTransaction, VersionedMessage, AddressLookupTableAccount, PublicKey, TransactionMessage } = await import('@solana/web3.js')
-                  const seekerWallet = wallet as SeekerHDWallet
-                  
-                  const txHex = serializedTx.startsWith('0x') ? serializedTx.slice(2) : serializedTx
-                  const txBytes = new Uint8Array(Buffer.from(txHex, 'hex'))
-                  
-                  const signatureCount = txBytes[0]
-                  const messageOffset = 1 + signatureCount * 64
-                  const messageBytes = txBytes.slice(messageOffset)
-                  
-                  const originalMessage = VersionedMessage.deserialize(messageBytes)
-                  
-                  const { blockhash } = await adapter.getConnection().getLatestBlockhash()
-                  
-                  const lookupTableAddresses = originalMessage.addressTableLookups.map(
-                    (lookup: { accountKey: { toBase58: () => string } }) => lookup.accountKey.toBase58()
-                  )
-                  const lookupTableInfos = await adapter.getAddressLookupTableAccounts(lookupTableAddresses)
-                  const lookupTableAccounts = lookupTableInfos.map(info =>
-                    new AddressLookupTableAccount({
-                      key: new PublicKey(info.key),
-                      state: AddressLookupTableAccount.deserialize(new Uint8Array(info.data)),
-                    })
-                  )
-                  
-                  const decompiled = TransactionMessage.decompile(originalMessage, {
-                    addressLookupTableAccounts: lookupTableAccounts,
-                  })
-                  
-                  decompiled.recentBlockhash = blockhash
-                  
-                  const newMessage = decompiled.compileToV0Message(lookupTableAccounts)
-                  const unsignedTx = new VersionedTransaction(newMessage)
-                  const txBase64 = Buffer.from(unsignedTx.serialize()).toString('base64')
-                  
-                  const result = await seekerWallet.signAndBroadcastTx(txBase64)
-                  trackMixpanelEventOnExecute()
-                  return result.signature
-                }
+              const output = await adapter.broadcastTransaction({
+                senderAddress: from,
+                receiverAddress,
+                hex,
+              })
 
-                const hex = await adapter.signTransaction({ txToSign, wallet })
-
-                const output = await adapter.broadcastTransaction({
-                  senderAddress: from,
-                  receiverAddress,
-                  hex,
-                })
-
-                trackMixpanelEventOnExecute()
-                return output
-              } catch (e) {
-                const err = e as Error
-                alert(`Solana tx error: ${err.message}`)
-                throw e
-              }
+              trackMixpanelEventOnExecute()
+              return output
             },
           })
           cancelPollingRef.current = output?.cancelPolling
@@ -810,9 +752,6 @@ export const useTradeExecution = (
         }
         default:
           assertUnreachable(stepSellAssetChainNamespace)
-      }
-      } catch (e) {
-        onFail(e)
       }
     })
   }, [

@@ -44,7 +44,7 @@ export const YieldStats = memo(({ yieldItem, balances }: YieldStatsProps) => {
     const enforced = getDefaultValidatorForYield(yieldItem.id)
     if (enforced) return enforced
     return validatorParam || defaultValidator
-  }, [yieldItem.id, validatorParam, defaultValidator])
+  }, [yieldItem.id, defaultValidator, validatorParam])
 
   const selectedValidator = useMemo(() => {
     if (!selectedValidatorAddress) return undefined
@@ -56,11 +56,9 @@ export const YieldStats = memo(({ yieldItem, balances }: YieldStatsProps) => {
     return undefined
   }, [selectedValidatorAddress, validators, balances?.raw])
 
-  const tvl = useMemo(() => {
-    const validatorTvl =
-      selectedValidator && 'tvl' in selectedValidator ? selectedValidator.tvl : undefined
-    return bnOrZero(yieldItem.statistics?.tvl ?? validatorTvl).toNumber()
-  }, [selectedValidator, yieldItem.statistics?.tvl])
+  const validatorTvl =
+    selectedValidator && 'tvl' in selectedValidator ? selectedValidator.tvl : undefined
+  const tvl = bnOrZero(yieldItem.statistics?.tvl ?? validatorTvl).toNumber()
 
   const tvlUserCurrency = useMemo(
     () =>

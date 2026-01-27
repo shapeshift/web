@@ -172,7 +172,7 @@
     "js-file-download": "^0.4.12",
     "lightweight-charts": "^4.1.3",
     "localforage": "^1.10.0",
-    "lodash": "^4.17.21",
+    "lodash": "^4.17.23",
     "match-sorter": "^6.3.0",
     "mipd": "^0.0.7",
     "mixpanel-browser": "^2.67.0",

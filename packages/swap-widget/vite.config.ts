@@ -33,18 +33,19 @@ const defineGlobalThis: PluginOption = {
 
 // eslint-disable-next-line import/no-default-export
 export default defineConfig({
-  plugins: [
-    defineGlobalThis,
-    nodePolyfills({
-      globals: {
-        Buffer: true,
-        global: true,
-        process: true,
-      },
-      protocolImports: true,
-    }) as unknown as PluginOption,
-    react(),
-  ],
+  plugins: isLibBuild
+    ? [
+        defineGlobalThis,
+        nodePolyfills({
+          globals: {
+            Buffer: true,
+            global: true,
+            process: true,
+          },
+        }) as unknown as PluginOption,
+        react(),
+      ]
+    : [defineGlobalThis, react()],
   define: {
     'process.env': {},
   },

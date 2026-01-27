@@ -43,6 +43,3 @@ yarn-error.log*
 *.iml
 .idea/
 .playwright-mcp/
-
-# Auto Claude data directory
-.auto-claude/

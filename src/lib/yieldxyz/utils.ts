@@ -9,6 +9,8 @@ import {
 } from './constants'
 import type { AugmentedYieldDto, ValidatorDto, YieldIconSource, YieldType } from './types'
 
+import { bnOrZero } from '@/lib/bignumber/bignumber'
+
 export const yieldNetworkToChainId = (network: string): ChainId | undefined => {
   if (!isSupportedYieldNetwork(network)) return undefined
   return YIELD_NETWORK_TO_CHAIN_ID[network]
@@ -350,3 +352,13 @@ export const isYieldDisabled = (
   yieldItem: Pick<AugmentedYieldDto, 'status' | 'metadata'>,
 ): boolean =>
   !yieldItem.status.enter || yieldItem.metadata.underMaintenance || yieldItem.metadata.deprecated
+
+export const getBestActionableYield = (
+  yields: AugmentedYieldDto[],
+): AugmentedYieldDto | undefined => {
+  const actionable = yields.filter(y => !isYieldDisabled(y))
+  if (actionable.length === 0) return undefined
+  return actionable.reduce((best, current) =>
+    bnOrZero(current.rewardRate.total).gt(best.rewardRate.total) ? current : best,
+  )
+}

@@ -2,7 +2,7 @@ import { TimeIcon } from '@chakra-ui/icons'
 import { lazy } from 'react'
 import { FaCreditCard, FaFlag } from 'react-icons/fa'
 import { RiExchangeFundsLine } from 'react-icons/ri'
-import { TbGraph } from 'react-icons/tb'
+import { TbGraph, TbTrendingUp } from 'react-icons/tb'
 
 import type { Route } from './helpers'
 import { RouteCategory } from './helpers'
@@ -193,7 +193,7 @@ export const routes: Route[] = [
   {
     path: '/yields/*',
     label: 'navBar.earn',
-    icon: <TbGraph />,
+    icon: <TbTrendingUp />,
     mobileNav: true,
     hideDesktop: true,
     main: YieldsPage,

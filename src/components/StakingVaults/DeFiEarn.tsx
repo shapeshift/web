@@ -1,10 +1,11 @@
 import type { FlexProps, ResponsiveValue } from '@chakra-ui/react'
-import { Box, Flex } from '@chakra-ui/react'
+import { Box, Flex, Tooltip } from '@chakra-ui/react'
 import type { ChainId } from '@shapeshiftoss/caip'
 import { fromAssetId } from '@shapeshiftoss/caip'
 import type { Property } from 'csstype'
 import type { JSX } from 'react'
 import { useMemo, useState } from 'react'
+import { useTranslate } from 'react-polyglot'
 
 import { GlobalFilter } from './GlobalFilter'
 import { useFetchOpportunities } from './hooks/useFetchOpportunities'
@@ -13,6 +14,7 @@ import type { PositionTableProps, UnifiedOpportunity } from './PositionTable'
 import { PositionTable } from './PositionTable'
 
 import { ChainDropdown } from '@/components/ChainDropdown/ChainDropdown'
+import { CircularProgress } from '@/components/CircularProgress/CircularProgress'
 import { knownChainIds } from '@/constants/chains'
 import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { useQuery } from '@/hooks/useQuery/useQuery'
@@ -41,6 +43,7 @@ export const DeFiEarn: React.FC<DefiEarnProps> = ({
   forceCompactView,
   ...rest
 }) => {
+  const translate = useTranslate()
   const {
     state: { isConnected },
   } = useWallet()
@@ -107,7 +110,7 @@ export const DeFiEarn: React.FC<DefiEarnProps> = ({
     return Array.from(new Set([...chainIdsFromWallet, ...yieldChainIds]))
   }, [chainIdsFromWallet, isYieldXyzEnabled, yieldOpportunities])
 
-  const isLoading = isOpportunitiesLoading || (isYieldXyzEnabled && isYieldLoading)
+  const isTableLoading = isYieldXyzEnabled ? isYieldLoading : isOpportunitiesLoading
 
   return (
     <Flex width='full' flexDir='column' gap={6}>
@@ -129,8 +132,19 @@ export const DeFiEarn: React.FC<DefiEarnProps> = ({
             showAll
             includeBalance
           />
-          <Flex flex={1} maxWidth={globalFilterFlexMaxWidth} width='full' gap={4}>
+          <Flex
+            flex={1}
+            maxWidth={globalFilterFlexMaxWidth}
+            width='full'
+            gap={4}
+            alignItems='center'
+          >
             <GlobalFilter setSearchQuery={setSearchQuery} searchQuery={searchQuery} />
+            {isOpportunitiesLoading && (
+              <Tooltip label={translate('defi.loadingMorePositions')}>
+                <CircularProgress size='5' />
+              </Tooltip>
+            )}
           </Flex>
         </Flex>
       </Flex>
@@ -140,7 +154,7 @@ export const DeFiEarn: React.FC<DefiEarnProps> = ({
           searchQuery={searchQuery}
           forceCompactView={forceCompactView}
           data={mergedData}
-          isLoading={isLoading}
+          isLoading={isTableLoading}
           {...positionTableProps}
         />
       </Box>

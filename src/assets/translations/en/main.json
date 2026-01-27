@@ -452,6 +452,7 @@
     "balance": "Balance",
     "netWorth": "Net Worth",
     "loadingAccounts": "Loaded %{portfolioAccountsLoaded} accounts",
+    "loadingMorePositions": "More DeFi positions are still loading",
     "walletBalanceChange24Hr": "24-hour change",
     "earnBody": "Earn passive income by staking your assets or depositing them into a DeFi strategy.",
     "noAccountsOpportunities": "You have no accounts for this asset, so staking opportunities are currently unavailable.",

@@ -5,6 +5,7 @@ import type { AugmentedYieldDto, ValidatorDto } from './types'
 import {
   ensureValidatorApr,
   formatYieldTxTitle,
+  getBestActionableYield,
   getDefaultValidatorForYield,
   getTransactionButtonText,
   getYieldActionLabelKeys,
@@ -382,5 +383,83 @@ describe('getDefaultValidatorForYield', () => {
     expect(getDefaultValidatorForYield('ethereum-eth-lido-staking')).toBeUndefined()
     expect(getDefaultValidatorForYield('solana-sol-lido-staking')).toBeUndefined()
     expect(getDefaultValidatorForYield('some-random-yield')).toBeUndefined()
+  })
+})
+
+describe('getBestActionableYield', () => {
+  const createMockYield = (
+    id: string,
+    apy: number,
+    options: { enterDisabled?: boolean; underMaintenance?: boolean; deprecated?: boolean } = {},
+  ): AugmentedYieldDto =>
+    ({
+      id,
+      rewardRate: { total: apy, rateType: 'APY', components: [] },
+      status: { enter: !options.enterDisabled, exit: true },
+      metadata: {
+        name: `Yield ${id}`,
+        underMaintenance: options.underMaintenance ?? false,
+        deprecated: options.deprecated ?? false,
+      },
+    }) as unknown as AugmentedYieldDto
+
+  it('should return undefined for empty array', () => {
+    expect(getBestActionableYield([])).toBeUndefined()
+  })
+
+  it('should return undefined when all yields are disabled', () => {
+    const yields = [
+      createMockYield('a', 0.1, { enterDisabled: true }),
+      createMockYield('b', 0.2, { underMaintenance: true }),
+      createMockYield('c', 0.3, { deprecated: true }),
+    ]
+    expect(getBestActionableYield(yields)).toBeUndefined()
+  })
+
+  it('should return highest APY yield when multiple are actionable', () => {
+    const yields = [
+      createMockYield('low', 0.05),
+      createMockYield('high', 0.15),
+      createMockYield('mid', 0.1),
+    ]
+    const result = getBestActionableYield(yields)
+    expect(result?.id).toBe('high')
+  })
+
+  it('should filter out yields with enter disabled', () => {
+    const yields = [
+      createMockYield('disabled-high', 0.2, { enterDisabled: true }),
+      createMockYield('enabled-low', 0.05),
+    ]
+    const result = getBestActionableYield(yields)
+    expect(result?.id).toBe('enabled-low')
+  })
+
+  it('should filter out yields under maintenance', () => {
+    const yields = [
+      createMockYield('maintenance-high', 0.2, { underMaintenance: true }),
+      createMockYield('active-low', 0.05),
+    ]
+    const result = getBestActionableYield(yields)
+    expect(result?.id).toBe('active-low')
+  })
+
+  it('should filter out deprecated yields', () => {
+    const yields = [
+      createMockYield('deprecated-high', 0.2, { deprecated: true }),
+      createMockYield('active-low', 0.05),
+    ]
+    const result = getBestActionableYield(yields)
+    expect(result?.id).toBe('active-low')
+  })
+
+  it('should return the only actionable yield', () => {
+    const yields = [
+      createMockYield('disabled', 0.3, { enterDisabled: true }),
+      createMockYield('only-active', 0.1),
+      createMockYield('maintenance', 0.25, { underMaintenance: true }),
+    ]
+    const result = getBestActionableYield(yields)
+    expect(result?.id).toBe('only-active')
   })
 })

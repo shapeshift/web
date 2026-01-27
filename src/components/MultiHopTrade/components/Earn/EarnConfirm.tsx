@@ -367,7 +367,7 @@ export const EarnConfirm = memo(() => {
 
         {selectedYield && (
           <Box mt={4}>
-            <YieldExplainers selectedYield={selectedYield} sellAssetSymbol={sellAsset?.symbol} />
+            <YieldExplainers selectedYield={selectedYield} sellAssetSymbol={sellAsset?.symbol} action='enter' />
           </Box>
         )}
 

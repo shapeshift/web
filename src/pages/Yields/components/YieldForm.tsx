@@ -10,6 +10,7 @@ import {
   Icon,
   Skeleton,
   Text,
+  VStack,
 } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { useQueryClient } from '@tanstack/react-query'
@@ -506,23 +507,27 @@ export const YieldForm = memo(
 
     const statsContent = useMemo(
       () => (
-        <Box
+        <VStack
+          spacing={3}
+          align='stretch'
           bg='background.surface.raised.base'
           borderRadius='xl'
           p={4}
           borderWidth='1px'
           borderColor='border.base'
         >
-          <Flex justify='space-between' align='center'>
-            <Text fontSize='sm' color='text.subtle'>
-              {translate('yieldXYZ.currentApy')}
-            </Text>
-            <GradientApy fontSize='sm' fontWeight='bold'>
-              {apyDisplay}
-            </GradientApy>
-          </Flex>
-          {hasAmount && (
-            <Flex justify='space-between' align='center' mt={3}>
+          {action === 'enter' && (
+            <Flex justify='space-between' align='center'>
+              <Text fontSize='sm' color='text.subtle'>
+                {translate('yieldXYZ.currentApy')}
+              </Text>
+              <GradientApy fontSize='sm' fontWeight='bold'>
+                {apyDisplay}
+              </GradientApy>
+            </Flex>
+          )}
+          {action === 'enter' && hasAmount && (
+            <Flex justify='space-between' align='center'>
               <Text fontSize='sm' color='text.subtle'>
                 {translate('yieldXYZ.estYearlyEarnings')}
               </Text>
@@ -537,7 +542,7 @@ export const YieldForm = memo(
             </Flex>
           )}
           {isStaking && maybeSelectedValidatorMetadata && (
-            <Flex justify='space-between' align='center' mt={3}>
+            <Flex justify='space-between' align='center'>
               <Text fontSize='sm' color='text.subtle'>
                 {translate('yieldXYZ.validator')}
               </Text>
@@ -554,7 +559,7 @@ export const YieldForm = memo(
             </Flex>
           )}
           {(!isStaking || !maybeSelectedValidatorMetadata) && maybeProviderMetadata && (
-            <Flex justify='space-between' align='center' mt={3}>
+            <Flex justify='space-between' align='center'>
               <Text fontSize='sm' color='text.subtle'>
                 {translate('yieldXYZ.provider')}
               </Text>
@@ -571,7 +576,7 @@ export const YieldForm = memo(
             </Flex>
           )}
           {minDeposit && bnOrZero(minDeposit).gt(0) && action === 'enter' && (
-            <Flex justify='space-between' align='center' mt={3}>
+            <Flex justify='space-between' align='center'>
               <Text fontSize='sm' color='text.subtle'>
                 {translate(getYieldMinAmountKey(yieldItem.mechanics.type))}
               </Text>
@@ -584,7 +589,7 @@ export const YieldForm = memo(
               </Text>
             </Flex>
           )}
-        </Box>
+        </VStack>
       ),
       [
         translate,
@@ -748,7 +753,11 @@ export const YieldForm = memo(
           )}
           {!isClaimAction && statsContent}
           {!isClaimAction && (
-            <YieldExplainers selectedYield={yieldItem} sellAssetSymbol={inputTokenAsset?.symbol} />
+            <YieldExplainers
+              selectedYield={yieldItem}
+              sellAssetSymbol={inputTokenAsset?.symbol}
+              action={action}
+            />
           )}
           {stepsToShow.length > 0 && <TransactionStepsList steps={stepsToShow} />}
         </Flex>

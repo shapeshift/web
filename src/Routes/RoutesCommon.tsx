@@ -1,7 +1,7 @@
 import { lazy } from 'react'
 import { FaCreditCard, FaFlag } from 'react-icons/fa'
 import { RiExchangeFundsLine } from 'react-icons/ri'
-import { TbGraph, TbSeeding } from 'react-icons/tb'
+import { TbGraph } from 'react-icons/tb'
 
 import type { Route } from './helpers'
 import { RouteCategory } from './helpers'
@@ -191,7 +191,7 @@ export const routes: Route[] = [
   {
     path: '/yields/*',
     label: 'navBar.earn',
-    icon: <TbSeeding />,
+    icon: <TbGraph />,
     mobileNav: true,
     hideDesktop: true,
     main: YieldsPage,

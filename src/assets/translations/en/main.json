@@ -2395,7 +2395,9 @@
     "emissionsPoolHelper": "The total amount of rewards to be distributed %{symbol} stakers",
     "foxBurnAmount": "FOX Burn Amount (This Epoch)",
     "pendingDistribution": "Pending Distribution",
-    "selectRuneAddress": "Select a RUNE address"
+    "selectRuneAddress": "Select a RUNE address",
+    "lpSunsetWarningTitle": "Program Ended",
+    "lpSunsetWarningDescription": "The Arbitrum WETH/FOX Rewards program has been sunset. Please un-stake and claim your balance at your earliest convenience."
   },
   "TCY": {
     "stake": "Stake",
@@ -2508,7 +2510,7 @@
     "foxToken": "FOX Token",
     "24hrPriceChange": "24h Price Change",
     "rfox": {
-      "totalSymbolBurn": "Total %{symbol} Burn",
+      "totalBurn": "Total Burn",
       "simulateTitle": "rFOX Simulator",
       "simulateSubtle": "Simulate your rFOX staking yield",
       "estimatedRewards": "Estimated Rewards",

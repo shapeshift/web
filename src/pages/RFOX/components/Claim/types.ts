@@ -9,5 +9,4 @@ export enum ClaimRoutePaths {
 
 export type ClaimRouteProps = {
   headerComponent?: JSX.Element
-  setStepIndex?: (index: number) => void
 }

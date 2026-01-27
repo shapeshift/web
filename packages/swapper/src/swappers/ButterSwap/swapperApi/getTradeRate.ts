@@ -1,4 +1,4 @@
-import { btcAssetId, btcChainId, solanaChainId } from '@shapeshiftoss/caip'
+import { btcAssetId, btcChainId, solanaChainId, tronChainId } from '@shapeshiftoss/caip'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
 import {
   bn,
@@ -42,7 +42,8 @@ export const getTradeRate = async (
   if (
     !isEvmChainId(sellAsset.chainId) &&
     sellAsset.chainId !== btcChainId &&
-    sellAsset.chainId !== solanaChainId
+    sellAsset.chainId !== solanaChainId &&
+    sellAsset.chainId !== tronChainId
   ) {
     return Err(
       makeSwapErrorRight({

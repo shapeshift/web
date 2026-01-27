@@ -41,8 +41,6 @@ interface ImportMetaEnv {
   readonly VITE_FEATURE_RUNEPOOL_DEPOSIT: string
   readonly VITE_FEATURE_RUNEPOOL_WITHDRAW: string
   readonly VITE_FEATURE_MARKETS: string
-  readonly VITE_FEATURE_FOX_PAGE: string
-  readonly VITE_FEATURE_FOX_PAGE_RFOX: string
   readonly VITE_FEATURE_FOX_PAGE_FOX_SECTION: string
   readonly VITE_FEATURE_FOX_PAGE_FOX_FARMING_SECTION: string
   readonly VITE_FEATURE_FOX_PAGE_GOVERNANCE: string
@@ -126,6 +124,7 @@ interface ImportMetaEnv {
   readonly VITE_FEATURE_YIELD_MULTI_ACCOUNT: string
   readonly VITE_YIELD_XYZ_API_KEY: string
   readonly VITE_YIELD_XYZ_BASE_URL: string
+  readonly VITE_AFFILIATE_REVENUE_URL: string
 
   // Unchained URLs and node URLs - present in all envs (prod, development, private)
   // even though they're not present in base env

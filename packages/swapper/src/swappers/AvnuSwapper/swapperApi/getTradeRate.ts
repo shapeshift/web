@@ -2,6 +2,7 @@ import { getQuotes } from '@avnu/avnu-sdk'
 import { bn } from '@shapeshiftoss/utils'
 import type { Result } from '@sniptt/monads'
 import { Err, Ok } from '@sniptt/monads'
+import { validateAndParseAddress } from 'starknet'
 import { v4 as uuid } from 'uuid'
 
 import { getDefaultSlippageDecimalPercentageForSwapper } from '../../../constants'
@@ -47,6 +48,10 @@ export const getTradeRate = async (
     const sellTokenAddress = getTokenAddress(sellAsset)
     const buyTokenAddress = getTokenAddress(buyAsset)
 
+    // Normalize receive address if provided (for fee estimation)
+    // Rate quotes may not have a receive address, so this is optional
+    const normalizedReceiveAddress = receiveAddress ? validateAndParseAddress(receiveAddress) : ''
+
     const quotes = await getQuotes({
       sellTokenAddress,
       buyTokenAddress,
@@ -82,10 +87,10 @@ export const getTradeRate = async (
 
     // For rate quotes, use receiveAddress as a dummy from/to for fee estimation
     const feeData = await sellAdapter.getFeeData({
-      to: receiveAddress ?? '',
+      to: normalizedReceiveAddress,
       value: sellAmount,
       chainSpecific: {
-        from: receiveAddress ?? '',
+        from: normalizedReceiveAddress,
         tokenContractAddress: sellTokenAddress,
       },
       sendMax: false,
@@ -113,7 +118,7 @@ export const getTradeRate = async (
 
     const tradeRate: TradeRate = {
       id: uuid(),
-      receiveAddress,
+      receiveAddress: normalizedReceiveAddress || receiveAddress,
       affiliateBps,
       rate,
       slippageTolerancePercentageDecimal:

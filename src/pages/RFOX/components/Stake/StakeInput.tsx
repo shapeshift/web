@@ -14,7 +14,6 @@ import { FormProvider, useForm, useWatch } from 'react-hook-form'
 import { useTranslate } from 'react-polyglot'
 import { useNavigate } from 'react-router-dom'
 
-import { AddressSelection } from '../AddressSelection'
 import { ChainNotSupported } from '../Shared/ChainNotSupported'
 import { ConnectWallet } from '../Shared/ConnectWallet'
 import type { RfoxBridgeQuote } from './Bridge/types'
@@ -28,7 +27,6 @@ import { InfoAcknowledgement } from '@/components/Acknowledgement/InfoAcknowledg
 import { Amount } from '@/components/Amount/Amount'
 import { TradeAssetSelect } from '@/components/AssetSelection/AssetSelection'
 import { ButtonWalletPredicate } from '@/components/ButtonWalletPredicate/ButtonWalletPredicate'
-import { FormDivider } from '@/components/FormDivider'
 import { TradeAssetInput } from '@/components/MultiHopTrade/components/TradeAssetInput'
 import { Row } from '@/components/Row/Row'
 import { SlideTransition } from '@/components/SlideTransition'
@@ -39,10 +37,8 @@ import { useWallet } from '@/hooks/useWallet/useWallet'
 import { useWalletSupportsChain } from '@/hooks/useWalletSupportsChain/useWalletSupportsChain'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { toBaseUnit } from '@/lib/math'
-import { selectRuneAddress } from '@/pages/RFOX/helpers'
 import { useCooldownPeriodQuery } from '@/pages/RFOX/hooks/useCooldownPeriodQuery'
 import { supportedStakingAssetIds, useRFOXContext } from '@/pages/RFOX/hooks/useRfoxContext'
-import { useStakingInfoQuery } from '@/pages/RFOX/hooks/useStakingInfoQuery'
 import { marketApi } from '@/state/slices/marketDataSlice/marketDataSlice'
 import {
   selectAssetById,
@@ -66,8 +62,6 @@ const formControlProps = {
 type StakeInputProps = {
   stakingAssetId?: AssetId
   l1AssetId?: AssetId
-  onRuneAddressChange: (address: string | undefined) => void
-  runeAddress: string | undefined
   setConfirmedQuote: (quote: RfoxStakingQuote | undefined) => void
 }
 
@@ -75,16 +69,12 @@ const defaultFormValues = {
   amountFieldInput: '',
   amountCryptoPrecision: '',
   amountUserCurrency: '',
-  manualRuneAddress: '',
 }
 
 export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
   l1AssetId = foxAssetId,
   headerComponent,
-  onRuneAddressChange,
-  runeAddress,
   setConfirmedQuote,
-  setStepIndex,
 }) => {
   const dispatch = useAppDispatch()
   const translate = useTranslate()
@@ -121,12 +111,6 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
     () => (stakingAssetAccountId ? fromAccountId(stakingAssetAccountId).account : undefined),
     [stakingAssetAccountId],
   )
-
-  const { data: currentRuneAddress } = useStakingInfoQuery({
-    accountId: stakingAssetAccountId,
-    stakingAssetId,
-    select: selectRuneAddress,
-  })
 
   const { isFetching: isDiscoveringAccounts } = useDiscoverAccounts()
 
@@ -261,7 +245,6 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
     },
   } = useRfoxStake({
     amountCryptoBaseUnit,
-    runeAddress: currentRuneAddress || runeAddress,
     stakingAssetId,
     stakingAssetAccountId,
     hasEnoughBalance,
@@ -272,13 +255,6 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
 
   const { data: cooldownPeriodData } = useCooldownPeriodQuery(stakingAssetId)
 
-  const handleRuneAddressChange = useCallback(
-    (address: string | undefined) => {
-      onRuneAddressChange(address)
-    },
-    [onRuneAddressChange],
-  )
-
   const handleWarning = useCallback(() => {
     setShowWarning(true)
   }, [])
@@ -288,7 +264,6 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
       !(
         selectedAssetAccountId &&
         stakingAssetAccountId &&
-        (runeAddress || currentRuneAddress) &&
         selectedStakingAsset &&
         isValidStakingAmount
       )
@@ -302,8 +277,6 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
         amountCryptoPrecision,
         selectedStakingAsset.precision,
       ),
-      // typescript is borked, one of them is defined because of the early return
-      runeAddress: currentRuneAddress || runeAddress || '',
     }
 
     setConfirmedQuote(_confirmedQuote)
@@ -326,7 +299,6 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
   }, [
     selectedAssetAccountId,
     stakingAssetAccountId,
-    runeAddress,
     selectedStakingAsset,
     stakingAssetId,
     selectedStakingAssetId,
@@ -335,7 +307,6 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
     setConfirmedQuote,
     isBridgeRequired,
     navigate,
-    currentRuneAddress,
   ])
 
   const buyAssetSearch = useModal('buyAssetSearch')
@@ -491,21 +462,10 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
   const submitButtonText = useMemo(() => {
     if (isDiscoveringAccounts) return translate('common.accountsLoading')
 
-    if (errors.manualRuneAddress?.type === 'required') return translate('RFOX.selectRuneAddress')
-
     return (
-      errors.amountFieldInput?.message ||
-      errors.manualRuneAddress?.message ||
-      chainNotSupportedByWalletCopy ||
-      translate('RFOX.stake')
+      errors.amountFieldInput?.message || chainNotSupportedByWalletCopy || translate('RFOX.stake')
     )
-  }, [
-    chainNotSupportedByWalletCopy,
-    errors.amountFieldInput,
-    errors.manualRuneAddress,
-    translate,
-    isDiscoveringAccounts,
-  ])
+  }, [chainNotSupportedByWalletCopy, errors.amountFieldInput, translate, isDiscoveringAccounts])
 
   if (!selectedStakingAsset) return null
 
@@ -565,12 +525,6 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
             cryptoAmount={amountCryptoPrecision}
             fiatAmount={amountUserCurrency}
           />
-          <FormDivider />
-          <AddressSelection
-            selectedAddress={runeAddress}
-            onRuneAddressChange={handleRuneAddressChange}
-            setStepIndex={setStepIndex}
-          />
           <Collapse in={collapseIn}>
             {stakingAssetAccountId && (
               <StakeSummary
@@ -624,7 +578,6 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
             isValidWallet={Boolean(isChainSupportedByWallet || isDiscoveringAccounts)}
             isDisabled={Boolean(
               errors.amountFieldInput ||
-                (!runeAddress && !currentRuneAddress) ||
                 !isValidStakingAmount ||
                 !(isStakeFeesSuccess || isGetApprovalFeesSuccess) ||
                 isDiscoveringAccounts ||
@@ -635,13 +588,7 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
             onClick={handleWarning}
             isLoading={isGetApprovalFeesLoading || isStakeFeesLoading}
             colorScheme={
-              Boolean(
-                errors.amountFieldInput ||
-                  // Required rewards input isn't an error per se
-                  (errors.manualRuneAddress && errors.manualRuneAddress.type !== 'required'),
-              ) && !isDiscoveringAccounts
-                ? 'red'
-                : 'blue'
+              Boolean(errors.amountFieldInput) && !isDiscoveringAccounts ? 'red' : 'blue'
             }
           >
             {submitButtonText}

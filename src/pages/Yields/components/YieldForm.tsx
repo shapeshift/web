@@ -116,14 +116,28 @@ export const YieldForm = memo(
     const inputTokenAssetId = inputToken?.assetId
 
     const claimableBalance = useMemo(() => balances?.byType[YieldBalanceType.Claimable], [balances])
-    const claimableToken = claimableBalance?.token
-    const claimableAmount = claimableBalance?.aggregatedAmount ?? '0'
+    const withdrawableBalance = useMemo(
+      () => balances?.byType[YieldBalanceType.Withdrawable],
+      [balances],
+    )
+    const claimableToken = claimableBalance?.token ?? withdrawableBalance?.token
+    const claimableAmount =
+      claimableBalance?.aggregatedAmount ?? withdrawableBalance?.aggregatedAmount ?? '0'
     const isClaimAction = action === 'claim'
 
-    const claimAction = useMemo(
+    const claimableClaimAction = useMemo(
       () => claimableBalance?.pendingActions?.find(a => a.type.toUpperCase().includes('CLAIM')),
       [claimableBalance],
     )
+
+    const claimAction = useMemo(
+      () =>
+        claimableClaimAction ??
+        withdrawableBalance?.pendingActions?.find(a => a.type.toUpperCase().includes('CLAIM')),
+      [claimableClaimAction, withdrawableBalance],
+    )
+
+    const isWithdrawableClaim = !claimableClaimAction && Boolean(claimAction)
 
     const accountIdFilter = useMemo(
       () => ({ assetId: inputTokenAssetId ?? '' }),
@@ -600,7 +614,9 @@ export const YieldForm = memo(
               <Amount.Crypto value={claimableAmount} symbol={claimableToken.symbol} />
             </Text>
             <Text fontSize='sm' color='text.subtle' mt={2}>
-              {translate('yieldXYZ.claimableRewards')}
+              {translate(
+                isWithdrawableClaim ? 'yieldXYZ.readyToClaim' : 'yieldXYZ.claimableRewards',
+              )}
             </Text>
           </Flex>
         )
@@ -654,6 +670,7 @@ export const YieldForm = memo(
     }, [
       isLoading,
       isClaimAction,
+      isWithdrawableClaim,
       claimableToken,
       claimableAmount,
       translate,

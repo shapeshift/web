@@ -66,7 +66,7 @@ const TX_TYPE_TO_LABELS: Record<string, TxTypeLabels> = {
 
 type TerminologyKey = 'staking' | 'vault'
 
-const isStakingType = (yieldType: YieldType): boolean => {
+export const isStakingYieldType = (yieldType: YieldType): boolean => {
   switch (yieldType) {
     case 'staking':
     case 'native-staking':
@@ -78,7 +78,6 @@ const isStakingType = (yieldType: YieldType): boolean => {
     case 'lending':
       return false
     default:
-      // This shouldn't happen but satisfies exhaustiveness check
       assertNever(yieldType)
       return false
   }
@@ -93,7 +92,7 @@ export const getTransactionButtonText = (
   title: string | undefined,
   yieldType?: YieldType,
 ): string => {
-  const labelKey: TerminologyKey = yieldType && isStakingType(yieldType) ? 'staking' : 'vault'
+  const labelKey: TerminologyKey = yieldType && isStakingYieldType(yieldType) ? 'staking' : 'vault'
 
   if (type) {
     const normalized = type.toUpperCase().replace(/[_-]/g, '_')
@@ -115,7 +114,7 @@ export const formatYieldTxTitle = (
   assetSymbol: string,
   yieldType?: YieldType,
 ): string => {
-  const labelKey: TerminologyKey = yieldType && isStakingType(yieldType) ? 'staking' : 'vault'
+  const labelKey: TerminologyKey = yieldType && isStakingYieldType(yieldType) ? 'staking' : 'vault'
 
   const normalized = title.replace(/ transaction$/i, '').toLowerCase()
   const match = TX_TITLE_PATTERNS.find(p => p.pattern.test(normalized))
@@ -314,10 +313,6 @@ export const getYieldMinAmountKey = (yieldType: YieldType): string => {
     default:
       return assertNever(yieldType)
   }
-}
-
-export const isStakingYieldType = (yieldType: YieldType): boolean => {
-  return isStakingType(yieldType)
 }
 
 export type YieldSuccessMessageKey =

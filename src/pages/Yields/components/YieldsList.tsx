@@ -33,19 +33,10 @@ import { ResultsEmptyNoWallet } from '@/components/ResultsEmptyNoWallet'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
 import { fromBaseUnit } from '@/lib/math'
-import {
-  COSMOS_ATOM_NATIVE_STAKING_YIELD_ID,
-  FIGMENT_VALIDATOR_LOGO,
-  FIGMENT_VALIDATOR_NAME,
-  SHAPESHIFT_VALIDATOR_LOGO,
-  SHAPESHIFT_VALIDATOR_NAME,
-  SOLANA_SOL_NATIVE_MULTIVALIDATOR_STAKING_YIELD_ID,
-  YIELD_NETWORK_TO_CHAIN_ID,
-} from '@/lib/yieldxyz/constants'
+import { YIELD_NETWORK_TO_CHAIN_ID } from '@/lib/yieldxyz/constants'
 import type { AugmentedYieldDto, YieldNetwork } from '@/lib/yieldxyz/types'
 import {
   getDefaultValidatorForYield,
-  isStakingYieldType,
   isYieldDisabled,
   resolveYieldInputAssetIcon,
   searchYields,
@@ -55,6 +46,7 @@ import { YieldItem, YieldItemSkeleton } from '@/pages/Yields/components/YieldIte
 import { YieldOpportunityStats } from '@/pages/Yields/components/YieldOpportunityStats'
 import { YieldTable } from '@/pages/Yields/components/YieldTable'
 import { ViewToggle } from '@/pages/Yields/components/YieldViewHelpers'
+import { useYieldDisplayInfo } from '@/pages/Yields/hooks/useYieldDisplayInfo'
 import { useYieldFilters } from '@/pages/Yields/hooks/useYieldFilters'
 import { useAllYieldBalances } from '@/react-queries/queries/yieldxyz/useAllYieldBalances'
 import { useYieldProviders } from '@/react-queries/queries/yieldxyz/useYieldProviders'
@@ -69,6 +61,7 @@ import {
 import { useAppSelector } from '@/state/store'
 
 const tabSelectedSx = { color: 'white', bg: 'blue.500' }
+const searchIcon = <SearchIcon color='text.subtle' />
 
 const TAB_PARAMS = ['all', 'available', 'my-positions'] as const
 type YieldTab = (typeof TAB_PARAMS)[number]
@@ -138,6 +131,7 @@ export const YieldsList = memo(() => {
   })
   const allBalances = allBalancesData?.byYieldId
   const { data: yieldProviders } = useYieldProviders()
+  const getYieldDisplayInfo = useYieldDisplayInfo(yieldProviders)
 
   const handleTabChange = useCallback(
     (index: number) => {
@@ -169,42 +163,6 @@ export const YieldsList = memo(() => {
   const getProviderLogo = useCallback(
     (providerId: string) => yieldProviders?.[providerId]?.logoURI,
     [yieldProviders],
-  )
-
-  const getYieldDisplayInfo = useCallback(
-    (yieldItem: AugmentedYieldDto) => {
-      const isNativeStaking =
-        isStakingYieldType(yieldItem.mechanics.type) &&
-        yieldItem.mechanics.requiresValidatorSelection
-
-      if (yieldItem.id === COSMOS_ATOM_NATIVE_STAKING_YIELD_ID) {
-        return {
-          name: SHAPESHIFT_VALIDATOR_NAME,
-          logoURI: SHAPESHIFT_VALIDATOR_LOGO,
-          title: translate('yieldXYZ.nativeStaking'),
-        }
-      }
-      if (
-        yieldItem.id === SOLANA_SOL_NATIVE_MULTIVALIDATOR_STAKING_YIELD_ID ||
-        (yieldItem.id.includes('solana') && yieldItem.id.includes('native'))
-      ) {
-        return {
-          name: FIGMENT_VALIDATOR_NAME,
-          logoURI: FIGMENT_VALIDATOR_LOGO,
-          title: translate('yieldXYZ.nativeStaking'),
-        }
-      }
-      if (isNativeStaking) {
-        return {
-          name: yieldItem.metadata.name,
-          logoURI: yieldItem.metadata.logoURI,
-          title: translate('yieldXYZ.nativeStaking'),
-        }
-      }
-      const provider = yieldProviders?.[yieldItem.providerId]
-      return { name: provider?.name, logoURI: provider?.logoURI }
-    },
-    [translate, yieldProviders],
   )
 
   const getYieldPositionBalanceUsd = useCallback(
@@ -1190,9 +1148,7 @@ export const YieldsList = memo(() => {
           direction={{ base: 'column', md: 'row' }}
         >
           <InputGroup maxW={{ base: 'full', md: '300px' }} size='md'>
-            <InputLeftElement pointerEvents='none'>
-              <SearchIcon color='text.subtle' />
-            </InputLeftElement>
+            <InputLeftElement pointerEvents='none'>{searchIcon}</InputLeftElement>
             <Input
               placeholder={translate('common.search')}
               value={searchQuery}

@@ -285,10 +285,15 @@ export const useAllYieldBalances = (options: UseAllYieldBalancesOptions = {}) =>
 
               const augmentedBalances = augmentYieldBalances(item.balances, chainId)
 
+              const defaultValidator = DEFAULT_VALIDATOR_BY_YIELD_ID[item.yieldId]
+              const filteredBalances = augmentedBalances.filter(
+                balance => !defaultValidator || balance.validator?.address === defaultValidator,
+              )
+
               let highestAmountUsd = bnOrZero(0)
               let highestAmountUsdValidator: string | undefined
 
-              for (const balance of augmentedBalances) {
+              for (const balance of filteredBalances) {
                 const usd = bnOrZero(balance.amountUsd)
                 if (balance.validator?.address && usd.gt(highestAmountUsd)) {
                   highestAmountUsd = usd
@@ -300,12 +305,7 @@ export const useAllYieldBalances = (options: UseAllYieldBalancesOptions = {}) =>
                 balanceMap[item.yieldId] = []
               }
 
-              for (const balance of augmentedBalances) {
-                const defaultValidator = DEFAULT_VALIDATOR_BY_YIELD_ID[item.yieldId]
-                if (defaultValidator && balance.validator?.address !== defaultValidator) {
-                  continue
-                }
-
+              for (const balance of filteredBalances) {
                 const network = item.yieldId.split('-')[0]
                 const lookupKey = `${balance.address.toLowerCase()}:${network}`
                 let accountId = addressToAccountId[lookupKey]

@@ -1,25 +1,17 @@
-import { lazy, Suspense } from 'react'
+import { useMemo } from 'react'
+import { Route, Routes } from 'react-router-dom'
 
-import { useWallet } from '@/hooks/useWallet/useWallet'
-import { defaultSuspenseFallback } from '@/utils/makeSuspenseful'
+import { SeekerConnect } from '../../Seeker/components/Connect'
+import { SeekerFailure } from '../../Seeker/components/Failure'
 
-const SeekerConnect = lazy(() =>
-  import('@/context/WalletProvider/Seeker/components/Connect').then(({ SeekerConnect }) => ({
-    default: SeekerConnect,
-  })),
-)
-
-// Seeker routes component for the new wallet flow
 export const SeekerRoutes = () => {
-  const {
-    state: { modalType },
-  } = useWallet()
-
-  if (!modalType) return null
+  const seekerConnectElement = useMemo(() => <SeekerConnect />, [])
+  const seekerFailureElement = useMemo(() => <SeekerFailure />, [])
 
   return (
-    <Suspense fallback={defaultSuspenseFallback}>
-      <SeekerConnect />
-    </Suspense>
+    <Routes>
+      <Route path='/seeker/connect' element={seekerConnectElement} />
+      <Route path='/seeker/failure' element={seekerFailureElement} />
+    </Routes>
   )
 }

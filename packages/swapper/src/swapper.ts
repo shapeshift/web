@@ -41,18 +41,7 @@ export const getTradeQuotes = async (
   } catch (e) {
     // This should never happen but it may - we should be using monadic error handling all the way through swapper call stack
     // in case this logs an error from a rejected promise, it means we throw somewhere and forgot to handle errors the monadic way
-    const errorMessage = e instanceof Error ? e.message : String(e)
-    console.error(`[${swapperName}] Unhandled error in getTradeQuotes:`, e)
-    return {
-      isErr: () => true,
-      isOk: () => false,
-      unwrapErr: () =>
-        makeSwapErrorRight({
-          message: `[${swapperName}] Unhandled error: ${errorMessage}`,
-          code: TradeQuoteError.UnknownError,
-        }),
-      swapperName,
-    } as QuoteResult
+    console.error('Unhandled error. Use monadic error handling: ', e)
   }
 }
 

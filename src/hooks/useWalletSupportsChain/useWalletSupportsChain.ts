@@ -130,10 +130,6 @@ export const walletSupportsChain = ({
     return checkConnectedAccountIds !== false && checkConnectedAccountIds.length > 0
   }
 
-  if (!wallet && connectedType === KeyManager.Seeker) {
-    return chainId === solanaChainId
-  }
-
   if (!wallet) {
     return false
   }

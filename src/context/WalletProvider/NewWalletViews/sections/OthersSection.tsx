@@ -2,12 +2,10 @@ import { Box, Button, Flex, Stack, useColorModeValue } from '@chakra-ui/react'
 import { useCallback } from 'react'
 
 import { CoinbaseIcon } from '@/components/Icons/CoinbaseIcon'
-import { SeekerIcon } from '@/components/Icons/SeekerIcon'
 import { WalletConnectIcon } from '@/components/Icons/WalletConnectIcon'
 import { Text } from '@/components/Text'
 import { KeyManager } from '@/context/WalletProvider/KeyManager'
 import { useWallet } from '@/hooks/useWallet/useWallet'
-// TODO: Re-enable after debugging: import { isMobile as isMobileApp } from '@/lib/globals'
 import { useMipdProviders } from '@/lib/mipd'
 
 const WalletConnectOption = ({
@@ -86,42 +84,6 @@ const CoinbaseQROption = ({
   )
 }
 
-const SeekerOption = ({
-  connect,
-  isSelected,
-  isDisabled,
-}: {
-  connect: () => void
-  isSelected: boolean
-  isDisabled: boolean
-}) => {
-  const backgroundColor = useColorModeValue('blackAlpha.100', 'whiteAlpha.100')
-
-  return (
-    <Box
-      as={Button}
-      key='seeker'
-      variant='ghost'
-      whiteSpace='normal'
-      px={4}
-      ml='-16px'
-      mr='-16px'
-      py={2.5}
-      borderRadius='md'
-      onClick={connect}
-      bg={isSelected ? backgroundColor : undefined}
-      isDisabled={isDisabled}
-    >
-      <Flex alignItems='center' width='full'>
-        <Box boxSize='24px' mr={3}>
-          <SeekerIcon />
-        </Box>
-        <Text translation='walletProvider.seeker.name' fontSize='md' fontWeight='medium' />
-      </Flex>
-    </Box>
-  )
-}
-
 export const OthersSection = ({
   isLoading,
   selectedWalletId,
@@ -148,20 +110,9 @@ export const OthersSection = ({
     connect(KeyManager.Coinbase, false)
   }, [connect, onWalletSelect])
 
-  const handleSeekerConnect = useCallback(() => {
-    onWalletSelect(KeyManager.Seeker, '/seeker/connect')
-    connect(KeyManager.Seeker, false)
-  }, [connect, onWalletSelect])
-
   return (
     <Stack spacing={2} my={6}>
       <Text fontSize='sm' fontWeight='medium' color='gray.500' translation='common.others' />
-      {/* Show Seeker wallet option - TODO: restrict to mobile app context after debugging */}
-      <SeekerOption
-        connect={handleSeekerConnect}
-        isSelected={selectedWalletId === KeyManager.Seeker}
-        isDisabled={isLoading && selectedWalletId !== KeyManager.Seeker}
-      />
       <WalletConnectOption
         connect={handleConnectWalletConnect}
         isSelected={selectedWalletId === KeyManager.WalletConnectV2}

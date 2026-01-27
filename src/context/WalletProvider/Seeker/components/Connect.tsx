@@ -1,97 +1,69 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
-import { WalletActions } from '@/context/WalletProvider/actions'
-import { ConnectModal } from '@/context/WalletProvider/components/ConnectModal'
-import { KeyManager } from '@/context/WalletProvider/KeyManager'
-import { useLocalWallet } from '@/context/WalletProvider/local-wallet'
-import { SeekerConfig } from '@/context/WalletProvider/Seeker/config'
-import { SeekerHDWallet } from '@/context/WalletProvider/Seeker/SeekerAdapter'
+import { ConnectModal } from '../../components/ConnectModal'
+import { SeekerConfig, SEEKER_DEFAULT_CLUSTER } from '../config'
 import {
   checkSeekerAvailability,
   seekerAuthorize,
-} from '@/context/WalletProvider/Seeker/seekerMessageHandlers'
-import { useWallet } from '@/hooks/useWallet/useWallet'
-import { isMobile } from '@/lib/globals'
+  seekerDeauthorize,
+  seekerGetAddress,
+  seekerGetStatus,
+  seekerSignAndSendTransaction,
+  seekerSignTransaction,
+} from '../seekerMessageHandlers'
 
-/**
- * Seeker Wallet Connect Component
- *
- * This component handles connection to Solana Mobile's Seeker wallet.
- * It communicates with the mobile app's SeekerWalletManager via postMessage.
- *
- * NOTE: Seeker wallet is only available when running in the ShapeShift mobile app
- * on a Seeker device (or device with MWA-compatible wallet installed).
- */
+import { WalletActions } from '@/context/WalletProvider/actions'
+import { KeyManager } from '@/context/WalletProvider/KeyManager'
+import { useLocalWallet } from '@/context/WalletProvider/local-wallet'
+import { useWallet } from '@/hooks/useWallet/useWallet'
+
 export const SeekerConnect = () => {
   const navigate = useNavigate()
   const { dispatch } = useWallet()
   const localWallet = useLocalWallet()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [isAvailable, setIsAvailable] = useState<boolean | null>(null)
 
   const setErrorLoading = useCallback((e: string | null) => {
     setError(e)
     setLoading(false)
   }, [])
 
-  // Check Seeker availability on mount
-  useEffect(() => {
-    if (!isMobile) {
-      setIsAvailable(false)
-      return
-    }
-
-    void checkSeekerAvailability()
-      .then(result => {
-        setIsAvailable(result.available)
-        if (!result.available) {
-          setError('walletProvider.seeker.errors.notAvailable')
-        }
-      })
-      .catch(() => {
-        setIsAvailable(false)
-        setError('walletProvider.seeker.errors.checkFailed')
-      })
-  }, [])
-
   const pairDevice = useCallback(async () => {
-    if (!isMobile) {
-      setErrorLoading('walletProvider.seeker.errors.mobileOnly')
-      return
-    }
-
     setError(null)
     setLoading(true)
 
     try {
-      // Request authorization from Seeker wallet via mobile app
-      const result = await seekerAuthorize('mainnet-beta')
+      const authResult = await seekerAuthorize(SEEKER_DEFAULT_CLUSTER)
 
-      if (!result.success || !result.address) {
-        setErrorLoading(result.error ?? 'walletProvider.seeker.errors.authFailed')
-        navigate('/seeker/failure')
-        return
+      if (!authResult.success || !authResult.address) {
+        setErrorLoading('walletProvider.errors.walletNotFound')
+        throw new Error('Seeker authorization failed or returned no address')
       }
 
-      const { name, icon } = SeekerConfig
-      const deviceId = `seeker:${result.address}`
-      const wallet = new SeekerHDWallet(deviceId, result.address)
+      const { SeekerHDWallet } = await import('@shapeshiftoss/hdwallet-seeker')
+
+      const messageHandler = {
+        checkAvailability: checkSeekerAvailability,
+        authorize: seekerAuthorize,
+        deauthorize: seekerDeauthorize,
+        getAddress: seekerGetAddress,
+        getStatus: seekerGetStatus,
+        signTransaction: seekerSignTransaction,
+        signAndSendTransaction: seekerSignAndSendTransaction,
+      }
+
+      const deviceId = `seeker-${Date.now()}`
+      const wallet = new SeekerHDWallet(deviceId, authResult.address, messageHandler)
+
+      const { icon } = SeekerConfig
+      const name = authResult.label || SeekerConfig.name
+      await wallet.initialize()
 
       dispatch({
         type: WalletActions.SET_WALLET,
-        payload: {
-          wallet,
-          name,
-          icon,
-          deviceId,
-          connectedType: KeyManager.Seeker,
-          meta: {
-            address: result.address,
-            label: result.label,
-          },
-        },
+        payload: { wallet, name, icon, deviceId, connectedType: KeyManager.Seeker },
       })
       dispatch({
         type: WalletActions.SET_IS_CONNECTED,
@@ -100,33 +72,23 @@ export const SeekerConnect = () => {
       dispatch({ type: WalletActions.SET_IS_LOCKED, payload: false })
       localWallet.setLocalWallet({ type: KeyManager.Seeker, deviceId })
       dispatch({ type: WalletActions.SET_WALLET_MODAL, payload: false })
-    } catch (e: unknown) {
-      const errorMessage = e instanceof Error ? e.message : 'Unknown error'
-      console.error('Seeker Connect: There was an error connecting', e)
-      setErrorLoading(errorMessage)
+    } catch (e: any) {
+      console.error(e, 'Seeker Connect: There was an error initializing the wallet')
+      setErrorLoading(e.message)
       navigate('/seeker/failure')
     }
 
     setLoading(false)
   }, [dispatch, navigate, localWallet, setErrorLoading])
 
-  // Show different UI based on availability
-  const bodyText =
-    isAvailable === false
-      ? 'walletProvider.seeker.errors.notAvailable'
-      : 'walletProvider.seeker.connect.body'
-
-  const buttonDisabled = !isAvailable || loading
-
   return (
     <ConnectModal
       headerText={'walletProvider.seeker.connect.header'}
-      bodyText={bodyText}
+      bodyText={'walletProvider.seeker.connect.body'}
       buttonText={'walletProvider.seeker.connect.button'}
       onPairDeviceClick={pairDevice}
       loading={loading}
       error={error}
-      isButtonDisabled={buttonDisabled}
     />
   )
 }

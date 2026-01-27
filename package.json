@@ -128,7 +128,6 @@
     "@shapeshiftoss/unchained-client": "workspace:^",
     "@shapeshiftoss/utils": "workspace:^",
     "@sniptt/monads": "^0.5.10",
-    "@solana-mobile/wallet-standard-mobile": "^0.4.4",
     "@solana/pay": "^0.2.6",
     "@solana/web3.js": "^1.98.0",
     "@tanstack/pacer": "^0.9.0",
@@ -223,7 +222,8 @@
     "viem": "2.40.3",
     "wagmi": "^2.9.2",
     "web-vitals": "^2.1.4",
-    "wouter": "^3.6.0"
+    "wouter": "^3.6.0",
+    "@shapeshiftoss/hdwallet-seeker": "^1.62.42"
   },
   "devDependencies": {
     "@commitlint/cli": "^15.0.0",

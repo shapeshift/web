@@ -42,12 +42,6 @@ export const handleBroadcastTransactionError = async (
   try {
     if (!isResponseError(err)) throw err
 
-    if (err.response.bodyUsed) {
-      return ErrorHandler(err.message, {
-        translation: 'chainAdapters.errors.broadcastTransaction',
-      })
-    }
-
     const response = await err.response.clone().json()
 
     const message = (() => {
@@ -107,9 +101,7 @@ export const ErrorHandler = async (err: unknown, metadata?: ErrorMetadata): Prom
     if (metadata) throw new ChainAdapterError(response, metadata)
     throw new Error(response)
   } else if (isResponseError(err)) {
-    const response = err.response.bodyUsed
-      ? err.message
-      : JSON.stringify(await err.response.clone().json())
+    const response = JSON.stringify(await err.response.clone().json())
     if (metadata) throw new ChainAdapterError(response, metadata)
     throw new Error(response)
   } else if (err instanceof Error || err instanceof ChainAdapterError) {

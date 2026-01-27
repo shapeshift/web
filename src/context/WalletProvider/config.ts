@@ -8,7 +8,7 @@ import type { WebUSBLedgerAdapter as LedgerAdapter } from '@shapeshiftoss/hdwall
 import type { MetaMaskAdapter } from '@shapeshiftoss/hdwallet-metamask-multichain'
 import type { NativeAdapter } from '@shapeshiftoss/hdwallet-native'
 import type { PhantomAdapter } from '@shapeshiftoss/hdwallet-phantom'
-// Seeker uses mobile app message handlers, not hdwallet - NativeAdapter used as placeholder type
+import type { SeekerHDWallet } from '@shapeshiftoss/hdwallet-seeker'
 import type { TrezorAdapter } from '@shapeshiftoss/hdwallet-trezor-connect'
 import type { VultisigAdapter } from '@shapeshiftoss/hdwallet-vultisig'
 import type { WalletConnectV2Adapter } from '@shapeshiftoss/hdwallet-walletconnectv2'
@@ -385,8 +385,7 @@ export type SupportedWalletInfoByKeyManager = {
   [KeyManager.Keplr]: SupportedWalletInfo<typeof KeplrAdapter>
   [KeyManager.Ledger]: SupportedWalletInfo<typeof LedgerAdapter>
   [KeyManager.Phantom]: SupportedWalletInfo<typeof PhantomAdapter>
-  // Seeker uses mobile app message handlers, NativeAdapter as placeholder type
-  [KeyManager.Seeker]: SupportedWalletInfo<typeof NativeAdapter>
+  [KeyManager.Seeker]: SupportedWalletInfo<typeof SeekerHDWallet>
   [KeyManager.Vultisig]: SupportedWalletInfo<typeof VultisigAdapter>
   [KeyManager.MetaMask]: SupportedWalletInfo<typeof MetaMaskAdapter | typeof MetaMaskAdapter>
   [KeyManager.Trezor]: SupportedWalletInfo<typeof TrezorAdapter>

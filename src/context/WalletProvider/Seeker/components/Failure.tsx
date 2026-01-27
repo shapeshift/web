@@ -1,10 +1,15 @@
-import { FailureModal } from '@/context/WalletProvider/components/FailureModal'
+import { ModalBody, ModalHeader } from '@chakra-ui/react'
+import { Text } from '@/components/Text'
 
 export const SeekerFailure = () => {
   return (
-    <FailureModal
-      headerText={'walletProvider.seeker.failure.header'}
-      bodyText={'walletProvider.seeker.failure.body'}
-    />
+    <>
+      <ModalHeader>
+        <Text translation='walletProvider.seeker.failure.header' />
+      </ModalHeader>
+      <ModalBody>
+        <Text translation='walletProvider.seeker.failure.body' />
+      </ModalBody>
+    </>
   )
 }

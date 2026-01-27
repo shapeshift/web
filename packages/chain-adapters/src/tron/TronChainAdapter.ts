@@ -301,6 +301,16 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TronMainnet> {
     try {
       const { from, to, accountNumber, data, value, method, args } = input
 
+      console.log('[TronChainAdapter] buildCustomApiTx called with:', {
+        from,
+        to,
+        value,
+        method,
+        argsCount: args?.length,
+        dataLength: data?.length,
+        dataStart: data?.substring(0, 20),
+      })
+
       const tronWeb = new TronWeb({
         fullHost: this.rpcUrl,
       })
@@ -361,6 +371,12 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TronMainnet> {
 
         txData = result.transaction
       }
+
+      console.log('[TronChainAdapter] Transaction built:', {
+        hasRawDataHex: !!txData.raw_data_hex,
+        rawDataHexLength: txData.raw_data_hex?.length,
+        rawDataType: typeof txData.raw_data_hex,
+      })
 
       if (!txData.raw_data_hex) {
         throw new Error('Failed to create transaction')

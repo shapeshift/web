@@ -63,17 +63,7 @@ export const getTradeQuote = async (
     )
   }
 
-  // Temporarily disable Tron support until we resolve contract revert issues
-  // The swap transaction is being built correctly but Butter's contract keeps reverting
-  // TODO: Investigate why Butter's Tron contract reverts and re-enable once fixed
-  if (sellAsset.chainId === tronChainId || buyAsset.chainId === tronChainId) {
-    return Err(
-      makeSwapErrorRight({
-        message: `Tron support temporarily disabled`,
-        code: TradeQuoteError.UnsupportedChain,
-      }),
-    )
-  }
+  // TODO: Monitor Tron swap success rate and investigate any recurring issues
 
   // Yes, this is supposed to be supported as per checks above, but currently, Butter doesn't yield any quotes for BTC sells
   if (sellAsset.assetId === btcAssetId) {
@@ -171,6 +161,19 @@ export const getTradeQuote = async (
         code: TradeQuoteError.QueryFailed,
       }),
     )
+  }
+
+  // Debug logging for Tron transactions
+  if (sellAsset.chainId === tronChainId) {
+    console.log('[ButterSwap Tron Debug]', {
+      to: buildTx.to,
+      value: buildTx.value,
+      method: buildTx.method,
+      args: buildTx.args,
+      dataLength: buildTx.data?.length,
+      dataStart: buildTx.data?.substring(0, 20),
+      contract: route.contract,
+    })
   }
 
   // Fee asset for network fees

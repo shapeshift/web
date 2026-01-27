@@ -91,6 +91,7 @@
 - When creating commits, follow the Git Safety Protocol (see session notes)
 - Main branch is `develop` - use this for PRs
 - Branch naming: Use descriptive names (e.g., `feat_gridplus`, `fix_wallet_connect`)
+- When opening PRs (via `gh`, Aviator `av`, or any CLI tool), ALWAYS use the `.github/PULL_REQUEST_TEMPLATE.md` template as the base for the PR body
 
 ### UI/UX Standards
 - Account for light/dark mode using `useColorModeValue` hook

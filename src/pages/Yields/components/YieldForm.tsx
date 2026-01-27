@@ -8,14 +8,12 @@ import {
   Flex,
   HStack,
   Icon,
-  Input,
   Skeleton,
   Text,
 } from '@chakra-ui/react'
 import type { AccountId } from '@shapeshiftoss/caip'
 import { useQueryClient } from '@tanstack/react-query'
-import type { ChangeEvent } from 'react'
-import { memo, useCallback, useEffect, useMemo, useState } from 'react'
+import { memo, useCallback, useMemo, useState } from 'react'
 import { TbSwitchVertical } from 'react-icons/tb'
 import type { NumberFormatValues } from 'react-number-format'
 import { NumericFormat } from 'react-number-format'
@@ -24,6 +22,7 @@ import { useTranslate } from 'react-polyglot'
 import { AccountSelector } from '@/components/AccountSelector/AccountSelector'
 import { Amount } from '@/components/Amount/Amount'
 import { AssetIcon } from '@/components/AssetIcon'
+import { CryptoAmountInput } from '@/components/CryptoAmountInput/CryptoAmountInput'
 import { WalletActions } from '@/context/WalletProvider/actions'
 import { useFeatureFlag } from '@/hooks/useFeatureFlag/useFeatureFlag'
 import { useLocaleFormatter } from '@/hooks/useLocaleFormatter/useLocaleFormatter'
@@ -76,47 +75,6 @@ type YieldFormProps = {
 }
 
 const PRESET_PERCENTAGES = [0.25, 0.5, 0.75, 1] as const
-
-const INPUT_LENGTH_BREAKPOINTS = {
-  FOR_XS_FONT: 22,
-  FOR_SM_FONT: 14,
-  FOR_MD_FONT: 10,
-} as const
-
-const getInputFontSize = (length: number): string => {
-  if (length >= INPUT_LENGTH_BREAKPOINTS.FOR_XS_FONT) return '24px'
-  if (length >= INPUT_LENGTH_BREAKPOINTS.FOR_SM_FONT) return '30px'
-  if (length >= INPUT_LENGTH_BREAKPOINTS.FOR_MD_FONT) return '38px'
-  return '48px'
-}
-
-type CryptoAmountInputProps = {
-  value?: string
-  onChange?: (e: ChangeEvent<HTMLInputElement>) => void
-  placeholder?: string
-  [key: string]: unknown
-}
-
-const CryptoAmountInput = (props: CryptoAmountInputProps) => {
-  const valueLength = useMemo(() => (props.value ? String(props.value).length : 0), [props.value])
-  const fontSize = useMemo(() => getInputFontSize(valueLength), [valueLength])
-
-  return (
-    <Input
-      size='lg'
-      fontSize={fontSize}
-      lineHeight={fontSize}
-      fontWeight='medium'
-      textAlign='center'
-      border='none'
-      borderRadius='lg'
-      bg='transparent'
-      variant='unstyled'
-      color={props.value ? 'text.base' : 'text.subtle'}
-      {...props}
-    />
-  )
-}
 
 const YieldFormSkeleton = memo(() => (
   <Flex direction='column' gap={4} align='center' py={8}>
@@ -335,7 +293,7 @@ export const YieldForm = memo(
 
     const displayValue = useMemo(() => {
       if (isFiat) {
-        return fiatAmount.toFixed(2)
+        return fiatAmount.isZero() ? '' : fiatAmount.toFixed(2)
       }
       return cryptoAmount
     }, [isFiat, fiatAmount, cryptoAmount])
@@ -401,12 +359,6 @@ export const YieldForm = memo(
     })
 
     const isQuoteActive = isQuoteLoading || isAllowanceCheckPending
-
-    useEffect(() => {
-      if (step === ModalStep.Success) {
-        // Here we could auto-close or let YieldSuccess handle it
-      }
-    }, [step])
 
     const maybeSuccessProviderInfo = useMemo(() => {
       if (isStaking && maybeSelectedValidatorMetadata) {
@@ -587,7 +539,7 @@ export const YieldForm = memo(
               </Flex>
             </Flex>
           )}
-          {!isStaking && maybeProviderMetadata && (
+          {(!isStaking || !maybeSelectedValidatorMetadata) && maybeProviderMetadata && (
             <Flex justify='space-between' align='center' mt={3}>
               <Text fontSize='sm' color='text.subtle'>
                 {translate('yieldXYZ.provider')}

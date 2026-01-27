@@ -41,7 +41,12 @@ export const ImportSuccess = ({ onClose }: ImportSuccessProps) => {
   const refreshWalletList = useCallback(async () => {
     if (refreshAttemptedRef.current) return
     refreshAttemptedRef.current = true
-    await queryClient.invalidateQueries({ queryKey: ['listWallets'] })
+    try {
+      await queryClient.invalidateQueries({ queryKey: ['listWallets'] })
+    } catch (e) {
+      console.error('Failed to refresh wallet list:', e)
+      refreshAttemptedRef.current = false
+    }
   }, [queryClient])
 
   useEffect(() => {
@@ -52,9 +57,11 @@ export const ImportSuccess = ({ onClose }: ImportSuccessProps) => {
     if (connectionAttemptedRef.current) return
     if (!location.state?.vault) return
     connectionAttemptedRef.current = true
-    const adapter = await getAdapter(KeyManager.Mobile)
-    if (!adapter) throw new Error('Native adapter not found')
+
     try {
+      const adapter = await getAdapter(KeyManager.Mobile)
+      if (!adapter) throw new Error('Native adapter not found')
+
       const deviceId = location.state.vault.id ?? ''
       const wallet = (await adapter.pairDevice(deviceId)) as NativeHDWallet
       const mnemonic = location.state.vault.mnemonic
@@ -87,7 +94,8 @@ export const ImportSuccess = ({ onClose }: ImportSuccessProps) => {
         appDispatch(setWelcomeModal({ show: true }))
       }
     } catch (e) {
-      console.log(e)
+      console.error('Failed to connect wallet:', e)
+      connectionAttemptedRef.current = false
     }
   }, [getAdapter, location.state?.vault, dispatch, localWallet, appDispatch, setWelcomeModal])
 

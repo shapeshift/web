@@ -35,6 +35,7 @@ export const CreateSuccess = ({ onClose }: CreateSuccessProps) => {
   const localWallet = useLocalWallet()
   const saveAttemptedRef = useRef(false)
   const connectionAttemptedRef = useRef(false)
+  const savedWalletRef = useRef<Awaited<ReturnType<typeof addWallet>> | null>(null)
   const [isConnecting, setIsConnecting] = useState(false)
 
   const saveWallet = useCallback(async () => {
@@ -42,14 +43,19 @@ export const CreateSuccess = ({ onClose }: CreateSuccessProps) => {
     saveAttemptedRef.current = true
 
     if (location.state?.vault?.label && location.state?.vault?.mnemonic) {
-      const wallet = await addWallet({
-        label: location.state.vault.label,
-        mnemonic: location.state.vault.mnemonic,
-      })
+      try {
+        const wallet = await addWallet({
+          label: location.state.vault.label,
+          mnemonic: location.state.vault.mnemonic,
+        })
 
-      if (wallet) {
-        await queryClient.invalidateQueries({ queryKey: ['listWallets'] })
-        wallet.revoke()
+        if (wallet) {
+          savedWalletRef.current = wallet
+          await queryClient.invalidateQueries({ queryKey: ['listWallets'] })
+        }
+      } catch (e) {
+        console.error('Failed to save wallet:', e)
+        saveAttemptedRef.current = false
       }
     }
   }, [location.state?.vault, queryClient])
@@ -58,58 +64,64 @@ export const CreateSuccess = ({ onClose }: CreateSuccessProps) => {
     if (connectionAttemptedRef.current) return
     connectionAttemptedRef.current = true
 
-    if (location.state?.vault?.label && location.state?.vault?.mnemonic) {
-      const wallet = await addWallet({
-        label: location.state.vault.label,
-        mnemonic: location.state.vault.mnemonic,
-      })
+    const wallet = savedWalletRef.current
+    if (!wallet || !location.state?.vault?.mnemonic) {
+      connectionAttemptedRef.current = false
+      return
+    }
 
-      if (!wallet) {
-        return
-      }
-
+    try {
       const adapter = await getAdapter(KeyManager.Mobile)
       const deviceId = wallet.id
       if (adapter && deviceId) {
         const { name, icon } = MobileConfig
-        try {
-          const walletInstance = await adapter.pairDevice(deviceId)
-          await walletInstance?.loadDevice({ mnemonic: location.state?.vault?.mnemonic ?? '' })
+        const walletInstance = await adapter.pairDevice(deviceId)
+        await walletInstance?.loadDevice({ mnemonic: location.state?.vault?.mnemonic ?? '' })
 
-          if (!(await walletInstance?.isInitialized())) {
-            await walletInstance?.initialize()
-          }
-          dispatch({
-            type: WalletActions.SET_WALLET,
-            payload: {
-              wallet: walletInstance,
-              name,
-              icon,
-              deviceId,
-              meta: { label: location.state?.vault?.label },
-              connectedType: KeyManager.Mobile,
-            },
-          })
-          dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
-          dispatch({
-            type: WalletActions.SET_CONNECTOR_TYPE,
-            payload: { modalType: KeyManager.Mobile, isMipdProvider: false },
-          })
-
-          localWallet.setLocalWallet({ type: KeyManager.Mobile, deviceId })
-          localWallet.setLocalNativeWalletName(location.state?.vault?.label ?? 'label')
-        } catch (e) {
-          console.log(e)
+        if (!(await walletInstance?.isInitialized())) {
+          await walletInstance?.initialize()
         }
+        dispatch({
+          type: WalletActions.SET_WALLET,
+          payload: {
+            wallet: walletInstance,
+            name,
+            icon,
+            deviceId,
+            meta: { label: location.state?.vault?.label },
+            connectedType: KeyManager.Mobile,
+          },
+        })
+        dispatch({ type: WalletActions.SET_IS_CONNECTED, payload: true })
+        dispatch({
+          type: WalletActions.SET_CONNECTOR_TYPE,
+          payload: { modalType: KeyManager.Mobile, isMipdProvider: false },
+        })
+
+        localWallet.setLocalWallet({ type: KeyManager.Mobile, deviceId })
+        localWallet.setLocalNativeWalletName(location.state?.vault?.label ?? 'label')
+        appDispatch(setWelcomeModal({ show: true }))
       }
       wallet.revoke()
-      appDispatch(setWelcomeModal({ show: true }))
+      savedWalletRef.current = null
+    } catch (e) {
+      console.error('Failed to connect wallet:', e)
+      connectionAttemptedRef.current = false
     }
   }, [location.state?.vault, dispatch, getAdapter, localWallet, appDispatch, setWelcomeModal])
 
   useEffect(() => {
     saveWallet()
   }, [saveWallet])
+
+  useEffect(() => {
+    return () => {
+      if (savedWalletRef.current) {
+        savedWalletRef.current.revoke()
+        savedWalletRef.current = null
+      }
+    }
+  }, [])
 
   const handleViewWallet = useCallback(async () => {
     setIsConnecting(true)

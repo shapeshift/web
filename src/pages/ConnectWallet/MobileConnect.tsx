@@ -90,9 +90,10 @@ export const MobileConnect = () => {
 
   const error = useMemo(() => {
     if (queryError) {
-      return queryError instanceof Error
-        ? queryError.message
-        : 'walletProvider.shapeShift.load.error.fetchingWallets'
+      if (queryError instanceof Error) {
+        console.error('Failed to fetch wallets:', queryError.message)
+      }
+      return 'walletProvider.shapeShift.load.error.fetchingWallets'
     }
     if (!wallets.length && !isLoading) {
       return 'walletProvider.shapeShift.load.error.noWallet'

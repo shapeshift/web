@@ -27,6 +27,7 @@ type YieldSuccessProps = {
   onDone: () => void
   showConfetti?: boolean
   successMessageKey?: YieldSuccessMessageKey
+  showButtons?: boolean
 }
 
 export const YieldSuccess = memo(
@@ -40,6 +41,7 @@ export const YieldSuccess = memo(
     onDone,
     showConfetti = true,
     successMessageKey = 'successStaked',
+    showButtons = true,
   }: YieldSuccessProps) => {
     const translate = useTranslate()
     const navigate = useNavigate()
@@ -124,22 +126,24 @@ export const YieldSuccess = memo(
             </Box>
           )}
 
-          <VStack spacing={3} width='full' pt={2}>
-            {yieldId && (
-              <Button colorScheme='blue' width='full' size='lg' onClick={handleViewPosition}>
-                {translate('yieldXYZ.viewPosition')}
+          {showButtons && (
+            <VStack spacing={3} width='full' pt={2}>
+              {yieldId && (
+                <Button colorScheme='blue' width='full' size='lg' onClick={handleViewPosition}>
+                  {translate('yieldXYZ.viewPosition')}
+                </Button>
+              )}
+              <Button
+                variant={yieldId ? 'ghost' : 'solid'}
+                colorScheme={yieldId ? undefined : 'blue'}
+                width='full'
+                size='lg'
+                onClick={onDone}
+              >
+                {translate('common.close')}
               </Button>
-            )}
-            <Button
-              variant={yieldId ? 'ghost' : 'solid'}
-              colorScheme={yieldId ? undefined : 'blue'}
-              width='full'
-              size='lg'
-              onClick={onDone}
-            >
-              {translate('common.close')}
-            </Button>
-          </VStack>
+            </VStack>
+          )}
         </VStack>
       </>
     )

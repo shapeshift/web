@@ -46,6 +46,28 @@ export type TonSignTx = {
   expireAt?: number
 }
 
+export type TonTxMessage = {
+  source?: string
+  destination?: string
+  value?: string
+}
+
+export type TonTx = {
+  account: string
+  hash: string
+  lt: string
+  now: number
+  total_fees: string
+  description?: {
+    aborted?: boolean
+    action?: {
+      success?: boolean
+    }
+  }
+  in_msg?: TonTxMessage
+  out_msgs?: TonTxMessage[]
+}
+
 export type Account = TonAccount
 export type FeeData = TonFeeData
 export type GetFeeDataInput = TonGetFeeDataInput

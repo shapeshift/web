@@ -25,13 +25,15 @@ export const getUnsignedTronTransaction = ({
   const adapter = assertGetTronChainAdapter(sellAsset.chainId)
 
   if (butterSwapTransactionMetadata) {
-    const { to, data, method, args } = butterSwapTransactionMetadata
+    const { to, data, method, args, value: butterValue } = butterSwapTransactionMetadata
 
     if (!to) throw new Error('Missing Butter swap contract address')
     if (!data) throw new Error('Missing Butter swap transaction data')
 
+    // Use Butter's value field which includes swap fees for same-chain swaps
+    // For native TRX sells, also include the sell amount
     const isNativeTron = sellAsset.assetId === tronAssetId
-    const value = isNativeTron ? step.sellAmountIncludingProtocolFeesCryptoBaseUnit : '0'
+    const value = isNativeTron ? step.sellAmountIncludingProtocolFeesCryptoBaseUnit : butterValue
 
     return adapter.buildCustomApiTx({
       from,

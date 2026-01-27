@@ -299,84 +299,37 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TronMainnet> {
     args?: { type: string; value: unknown }[]
   }): Promise<TronSignTx> {
     try {
-      const { from, to, accountNumber, data, value, method, args } = input
+      const { from, to, accountNumber, data, value } = input
 
-      console.log('[TronChainAdapter] buildCustomApiTx called with:', {
-        from,
-        to,
-        value,
-        method,
-        argsCount: args?.length,
-        dataLength: data?.length,
-        dataStart: data?.substring(0, 20),
-      })
-
-      const tronWeb = new TronWeb({
-        fullHost: this.rpcUrl,
-      })
-
+      // Always use raw data field instead of method/args to ensure correct method selector
+      // TronWeb's triggerSmartContract computes method selectors differently than expected
+      const callData = data.startsWith('0x') ? data.slice(2) : data
       let txData: TronUnsignedTx
 
-      if (method && args) {
-        const parameter = args.map(arg => ({
-          type: arg.type,
-          value: arg.value,
-        }))
-
-        const options = {
-          feeLimit: 100_000_000,
-          callValue: Number(value) || 0,
-        }
-
-        const result = await this.requestQueue.add(() =>
-          tronWeb.transactionBuilder.triggerSmartContract(
-            to,
-            method,
-            options,
-            parameter,
-            from,
-          ),
-        )
-
-        if (!result.result || !result.result.result) {
-          throw new Error('Failed to build Tron custom transaction with method/args')
-        }
-
-        txData = result.transaction
-      } else {
-        const callData = data.startsWith('0x') ? data.slice(2) : data
-
-        const requestBody = {
-          owner_address: from,
-          contract_address: to,
-          data: callData,
-          fee_limit: 100_000_000,
-          call_value: Number(value) || 0,
-          visible: true,
-        }
-
-        const response = await this.requestQueue.add(() =>
-          fetch(`${this.rpcUrl}/wallet/triggersmartcontract`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(requestBody),
-          }),
-        )
-
-        const result = await response.json()
-
-        if (result.Error || !result.transaction) {
-          throw new Error(`TronGrid API error: ${result.Error || 'No transaction returned'}`)
-        }
-
-        txData = result.transaction
+      const requestBody = {
+        owner_address: from,
+        contract_address: to,
+        data: callData,
+        fee_limit: 100_000_000,
+        call_value: Number(value) || 0,
+        visible: true,
       }
 
-      console.log('[TronChainAdapter] Transaction built:', {
-        hasRawDataHex: !!txData.raw_data_hex,
-        rawDataHexLength: txData.raw_data_hex?.length,
-        rawDataType: typeof txData.raw_data_hex,
-      })
+      const response = await this.requestQueue.add(() =>
+        fetch(`${this.rpcUrl}/wallet/triggersmartcontract`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(requestBody),
+        }),
+      )
+
+      const result = await response.json()
+
+      if (result.Error || !result.transaction) {
+        throw new Error(`TronGrid API error: ${result.Error || 'No transaction returned'}`)
+      }
+
+      txData = result.transaction
 
       if (!txData.raw_data_hex) {
         throw new Error('Failed to create transaction')

@@ -1,3 +1,4 @@
+import { TimeIcon } from '@chakra-ui/icons'
 import { lazy } from 'react'
 import { FaCreditCard, FaFlag } from 'react-icons/fa'
 import { RiExchangeFundsLine } from 'react-icons/ri'
@@ -20,6 +21,7 @@ import { assetIdPaths } from '@/hooks/useRouteAssetId/useRouteAssetId'
 import { Accounts } from '@/pages/Accounts/Accounts'
 import { ExploreCategory } from '@/pages/Explore/ExploreCategory'
 import { FoxEcosystemPage } from '@/pages/Fox/FoxEcosystemPage'
+import { History } from '@/pages/History/History'
 import { TCYNavIndicator } from '@/pages/TCY/components/TCYNavIndicator'
 import { TCY } from '@/pages/TCY/tcy'
 import { EarnTab } from '@/pages/Trade/tabs/EarnTab'
@@ -197,6 +199,13 @@ export const routes: Route[] = [
     main: YieldsPage,
     priority: 7,
     disable: !getConfig().VITE_FEATURE_YIELD_XYZ || !getConfig().VITE_FEATURE_YIELDS_PAGE,
+  },
+  {
+    path: '/history',
+    label: 'navBar.history',
+    icon: <TimeIcon />,
+    main: History,
+    hide: true,
   },
   {
     path: '/trade/*',

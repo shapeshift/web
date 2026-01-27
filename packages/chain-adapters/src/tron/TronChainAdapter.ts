@@ -335,12 +335,12 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TronMainnet> {
         throw new Error('Failed to create transaction')
       }
 
-      const rawDataHexValue: any = txData.raw_data_hex
+      const rawDataHexValue = txData.raw_data_hex
       const rawDataHex =
         typeof rawDataHexValue === 'string'
           ? rawDataHexValue
           : Buffer.isBuffer(rawDataHexValue)
-          ? rawDataHexValue.toString('hex')
+          ? (rawDataHexValue as Buffer).toString('hex')
           : Array.isArray(rawDataHexValue)
           ? Buffer.from(rawDataHexValue).toString('hex')
           : (() => {

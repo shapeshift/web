@@ -289,6 +289,80 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TronMainnet> {
     }
   }
 
+  async buildCustomApiTx(input: {
+    from: string
+    to: string
+    accountNumber: number
+    data: string
+    value: string
+    method?: string
+    args?: { type: string; value: unknown }[]
+  }): Promise<TronSignTx> {
+    try {
+      const { from, to, accountNumber, data, value } = input
+
+      // Always use raw data field instead of method/args to ensure correct method selector
+      // TronWeb's triggerSmartContract computes method selectors differently than expected
+      const callData = data.startsWith('0x') ? data.slice(2) : data
+      let txData: TronUnsignedTx
+
+      const requestBody = {
+        owner_address: from,
+        contract_address: to,
+        data: callData,
+        fee_limit: 100_000_000,
+        call_value: Number(value) || 0,
+        visible: true,
+      }
+
+      const response = await this.requestQueue.add(() =>
+        fetch(`${this.rpcUrl}/wallet/triggersmartcontract`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(requestBody),
+        }),
+      )
+
+      const result = await response.json()
+
+      if (result.Error || !result.transaction) {
+        throw new Error(`TronGrid API error: ${result.Error || 'No transaction returned'}`)
+      }
+
+      txData = result.transaction
+
+      if (!txData.raw_data_hex) {
+        throw new Error('Failed to create transaction')
+      }
+
+      const rawDataHexValue = txData.raw_data_hex
+      const rawDataHex =
+        typeof rawDataHexValue === 'string'
+          ? rawDataHexValue
+          : Buffer.isBuffer(rawDataHexValue)
+          ? (rawDataHexValue as Buffer).toString('hex')
+          : Array.isArray(rawDataHexValue)
+          ? Buffer.from(rawDataHexValue).toString('hex')
+          : (() => {
+              throw new Error(`Unexpected raw_data_hex type: ${typeof rawDataHexValue}`)
+            })()
+
+      if (!/^[0-9a-fA-F]+$/.test(rawDataHex)) {
+        throw new Error(`Invalid raw_data_hex format: ${rawDataHex.slice(0, 100)}`)
+      }
+
+      return {
+        addressNList: toAddressNList(this.getBip44Params({ accountNumber })),
+        rawDataHex,
+        transaction: txData,
+      }
+    } catch (err) {
+      return ErrorHandler(err, {
+        translation: 'chainAdapters.errors.buildTransaction',
+      })
+    }
+  }
+
   async buildSendTransaction(input: BuildSendTxInput<KnownChainIds.TronMainnet>): Promise<{
     txToSign: TronSignTx
   }> {

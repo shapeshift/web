@@ -48,6 +48,7 @@ export const YieldAvailableToDeposit = memo(
     )
 
     const inputToken = yieldItem.inputTokens[0]
+    const inputTokenSymbol = inputToken?.symbol ?? yieldItem.token.symbol
     const inputTokenAssetId = inputToken?.assetId ?? ''
     const inputTokenPrecision = inputToken?.decimals
 
@@ -81,7 +82,7 @@ export const YieldAvailableToDeposit = memo(
     if (!inputTokenPrecision || !hasWallet) return null
 
     const tooltipLabel = translate('yieldXYZ.availableToDepositTooltip', {
-      symbol: yieldItem.token.symbol,
+      symbol: inputTokenSymbol,
     })
 
     if (!hasAvailableBalance) {
@@ -112,7 +113,7 @@ export const YieldAvailableToDeposit = memo(
                     <Amount.Fiat value='0' />
                   </Text>
                   <Text fontSize='sm' color='text.subtle' mt={1}>
-                    <Amount.Crypto value='0' symbol={yieldItem.token.symbol} abbreviated />
+                    <Amount.Crypto value='0' symbol={inputTokenSymbol} abbreviated />
                   </Text>
                 </Box>
 
@@ -125,7 +126,7 @@ export const YieldAvailableToDeposit = memo(
                   width='full'
                   fontWeight='bold'
                 >
-                  {translate('yieldXYZ.getAsset', { symbol: yieldItem.token.symbol })}
+                  {translate('yieldXYZ.getAsset', { symbol: inputTokenSymbol })}
                 </Button>
               </VStack>
             </CardBody>
@@ -162,7 +163,7 @@ export const YieldAvailableToDeposit = memo(
               <Text fontSize='sm' color='text.subtle' mt={1}>
                 <Amount.Crypto
                   value={availableBalance.toFixed()}
-                  symbol={yieldItem.token.symbol}
+                  symbol={inputTokenSymbol}
                   abbreviated
                 />
               </Text>

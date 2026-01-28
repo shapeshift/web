@@ -63,6 +63,8 @@ export const getTradeQuote = async (
     )
   }
 
+  // TODO: Debug why same-chain Tron swaps revert (swapAndCall method works on EVM but 0 successful on Tron)
+
   // Yes, this is supposed to be supported as per checks above, but currently, Butter doesn't yield any quotes for BTC sells
   if (sellAsset.assetId === btcAssetId) {
     return Err(
@@ -259,13 +261,15 @@ export const getTradeQuote = async (
     buyAsset,
     sellAsset,
     accountNumber,
-    allowanceContract: route.contract ?? '0x0',
+    allowanceContract: sellAsset.chainId === tronChainId ? buildTx.to : route.contract ?? '0x0',
     estimatedExecutionTimeMs: route.timeEstimated * 1000,
     butterSwapTransactionMetadata: {
       to: buildTx.to,
       data: buildTx.data,
       value: buildTx.value,
       gasLimit: bnOrZero(route.gasEstimatedTarget).toFixed(),
+      method: buildTx.method,
+      args: buildTx.args,
     },
     ...(solanaTransactionMetadata && {
       solanaTransactionMetadata,

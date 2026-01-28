@@ -5,6 +5,7 @@ import {
   foxOnArbitrumOneAssetId,
   fromAccountId,
   fromAssetId,
+  uniV2EthFoxArbitrumAssetId,
 } from '@shapeshiftoss/caip'
 import type { Asset, KnownChainIds } from '@shapeshiftoss/types'
 import { getChainShortName, isSome } from '@shapeshiftoss/utils'
@@ -92,8 +93,12 @@ export const StakeInput: React.FC<StakeInputProps & StakeRouteProps> = ({
     stakingAssetAccountId,
   } = useRFOXContext()
 
+  // WETH/FOX staking is now disabled - the Arbitrum WETH/FOX Rewards program has been sunset.
+  // See PR #11668 for details. Users can still unstake and claim at their convenience.
   const stakingAssetIds = useMemo(() => {
-    return supportedStakingAssetIds.concat(l1AssetId)
+    return supportedStakingAssetIds
+      .filter(assetId => assetId !== uniV2EthFoxArbitrumAssetId)
+      .concat(l1AssetId)
   }, [l1AssetId])
 
   const assets = useAppSelector(selectAssets)

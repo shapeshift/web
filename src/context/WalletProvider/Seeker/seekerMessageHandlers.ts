@@ -91,3 +91,10 @@ export const seekerSignAndSendTransaction = (transaction: string): Promise<Seeke
     transaction,
   })
 }
+
+export const seekerGetPublicKey = (derivationPath: string): Promise<{ publicKey: string }> => {
+  return postMessage<{ publicKey: string }>({
+    cmd: 'seekerGetPublicKey',
+    derivationPath,
+  })
+}

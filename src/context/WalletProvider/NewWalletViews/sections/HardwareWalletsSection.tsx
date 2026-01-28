@@ -111,6 +111,7 @@ export const HardwareWalletsSection = ({
         checkSeekerAvailability,
         seekerDeauthorize,
         seekerGetAddress,
+        seekerGetPublicKey,
         seekerGetStatus,
         seekerSignTransaction,
         seekerSignAndSendTransaction,
@@ -133,6 +134,7 @@ export const HardwareWalletsSection = ({
         getStatus: seekerGetStatus,
         signTransaction: seekerSignTransaction,
         signAndSendTransaction: seekerSignAndSendTransaction,
+        getPublicKey: seekerGetPublicKey,
       }
 
       const deviceId = `seeker-${Date.now()}`

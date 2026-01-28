@@ -8,6 +8,7 @@ import {
   seekerAuthorize,
   seekerDeauthorize,
   seekerGetAddress,
+  seekerGetPublicKey,
   seekerGetStatus,
   seekerSignAndSendTransaction,
   seekerSignTransaction,
@@ -52,6 +53,7 @@ export const SeekerConnect = () => {
         getStatus: seekerGetStatus,
         signTransaction: seekerSignTransaction,
         signAndSendTransaction: seekerSignAndSendTransaction,
+        getPublicKey: seekerGetPublicKey,
       }
 
       const deviceId = `seeker-${Date.now()}`

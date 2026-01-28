@@ -2830,7 +2830,8 @@
     "potentialEarningsAmount": "%{amount}/yr at %{apy}% APY",
     "depositNow": "Deposit Now",
     "strategyInfo": "Strategy Info",
-    "overview": "Overview"
+    "overview": "Overview",
+    "readyToClaim": "Ready to claim"
   },
   "earn": {
     "enterFrom": "Enter from",

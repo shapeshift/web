@@ -61,6 +61,7 @@ const TX_TYPE_TO_LABELS: Record<string, TxTypeLabels> = {
   SWAP: { staking: 'Swap', vault: 'Swap' },
   CLAIM: { staking: 'Claim', vault: 'Claim' },
   CLAIM_REWARDS: { staking: 'Claim', vault: 'Claim' },
+  CLAIM_UNSTAKED: { staking: 'Claim', vault: 'Claim' },
   TRANSFER: { staking: 'Transfer', vault: 'Transfer' },
 }
 
@@ -113,8 +114,15 @@ export const formatYieldTxTitle = (
   title: string,
   assetSymbol: string,
   yieldType?: YieldType,
+  txType?: string,
 ): string => {
   const labelKey: TerminologyKey = yieldType && isStakingYieldType(yieldType) ? 'staking' : 'vault'
+
+  if (txType) {
+    const normalizedType = txType.toUpperCase().replace(/[_-]/g, '_')
+    const typeLabels = TX_TYPE_TO_LABELS[normalizedType]
+    if (typeLabels) return `${typeLabels[labelKey]} ${assetSymbol}`
+  }
 
   const normalized = title.replace(/ transaction$/i, '').toLowerCase()
   const match = TX_TITLE_PATTERNS.find(p => p.pattern.test(normalized))

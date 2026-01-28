@@ -428,9 +428,13 @@ export const YieldsList = memo(() => {
             .minus(b.yield.statistics?.tvlUsd ?? 0)
             .toNumber()
         case 'name-asc':
-          return a.yield.token.symbol.localeCompare(b.yield.token.symbol)
+          return (a.yield.inputTokens[0]?.symbol ?? a.yield.token.symbol).localeCompare(
+            b.yield.inputTokens[0]?.symbol ?? b.yield.token.symbol,
+          )
         case 'name-desc':
-          return b.yield.token.symbol.localeCompare(a.yield.token.symbol)
+          return (b.yield.inputTokens[0]?.symbol ?? b.yield.token.symbol).localeCompare(
+            a.yield.inputTokens[0]?.symbol ?? a.yield.token.symbol,
+          )
         default: {
           const aYearlyReturnDefault = bnOrZero(a.yield.rewardRate.total).times(a.balanceFiat)
           const bYearlyReturnDefault = bnOrZero(b.yield.rewardRate.total).times(b.balanceFiat)
@@ -513,7 +517,7 @@ export const YieldsList = memo(() => {
       {
         header: translate('yieldXYZ.yield'),
         id: 'pool',
-        accessorFn: row => row.token.symbol,
+        accessorFn: row => row.inputTokens[0]?.symbol ?? row.token.symbol,
         enableSorting: true,
         sortingFn: 'alphanumeric',
         cell: ({ row }) => {
@@ -527,7 +531,7 @@ export const YieldsList = memo(() => {
               )}
               <Box>
                 <Text fontWeight='bold' fontSize='sm' noOfLines={1} lineHeight='shorter'>
-                  {row.original.token.symbol}
+                  {row.original.inputTokens[0]?.symbol ?? row.original.token.symbol}
                 </Text>
                 {row.original.chainId && (
                   <HStack spacing={1}>

@@ -22,6 +22,7 @@ import type { CancelLimitOrderOutput } from '../types/toolOutput'
 import { useToolExecutionEffect } from './useToolExecutionEffect'
 
 import { getConfig } from '@/config'
+import { useNotificationToast } from '@/hooks/useNotificationToast'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { assertGetEvmChainAdapter } from '@/lib/utils/evm'
 
@@ -55,11 +56,13 @@ const initialCancelLimitOrderState: CancelLimitOrderState = {
 
 function stateToPersistedState(
   toolCallId: string,
+  conversationId: string,
   state: CancelLimitOrderState,
   toolOutput: CancelLimitOrderOutput | null,
 ): PersistedToolState {
   return {
     toolCallId,
+    conversationId,
     toolType: 'cancel_limit_order',
     timestamp: Date.now(),
     phases: CANCEL_LIMIT_ORDER_PHASES.toPhases(state.completedSteps, state.error),
@@ -103,10 +106,12 @@ export const useCancelLimitOrderExecution = (
   data: CancelLimitOrderOutput | null,
 ): UseCancelLimitOrderExecutionResult => {
   const dispatch = useAppDispatch()
+  const toast = useNotificationToast()
   const hasHydratedRef = useRef(false)
   const lastToolCallIdRef = useRef<string | undefined>(undefined)
   const { state: walletState } = useWallet()
 
+  const activeConversationId = useAppSelector(agenticChatSlice.selectors.selectActiveConversationId)
   const hasRuntimeState = useAppSelector(state =>
     Boolean(state.agenticChat.runtimeToolStates[toolCallId]),
   )
@@ -145,12 +150,13 @@ export const useCancelLimitOrderExecution = (
       let signature: string | undefined
 
       try {
-        validateExecutionContext(walletState, accountId, accountMetadata)
+        const { wallet, accountMetadata: validAccountMetadata } = validateExecutionContext(
+          walletState,
+          accountId,
+          accountMetadata,
+        )
 
         const { orderId, chainId } = cancelData
-
-        const wallet = walletState.wallet!
-        const validAccountMetadata = accountMetadata!
 
         setState(draft => {
           if (!draft.completedSteps.includes(CancelLimitOrderStep.PREPARE)) {
@@ -220,8 +226,19 @@ export const useCancelLimitOrderExecution = (
           ],
           signature,
         }
-        const persisted = stateToPersistedState(toolCallId, finalState, cancelData)
+        const persisted = stateToPersistedState(
+          toolCallId,
+          activeConversationId ?? '',
+          finalState,
+          cancelData,
+        )
         dispatch(agenticChatSlice.actions.persistTransaction(persisted))
+
+        toast({
+          title: 'Order Cancelled',
+          description: 'Your limit order has been successfully cancelled',
+          status: 'success',
+        })
       } catch (error) {
         const errorMessage = error instanceof Error ? error.message : String(error)
         let errorState: CancelLimitOrderState | undefined
@@ -232,7 +249,12 @@ export const useCancelLimitOrderExecution = (
         })
 
         if (errorState) {
-          const persisted = stateToPersistedState(toolCallId, errorState, data)
+          const persisted = stateToPersistedState(
+            toolCallId,
+            activeConversationId ?? '',
+            errorState,
+            data,
+          )
           dispatch(agenticChatSlice.actions.persistTransaction(persisted))
         }
       }

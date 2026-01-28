@@ -15,6 +15,7 @@ import { executeEvmTransaction, executeSolanaTransaction } from '../lib/walletIn
 import type { SwapOutput } from '../types/toolOutput'
 import { useToolExecutionEffect } from './useToolExecutionEffect'
 
+import { useNotificationToast } from '@/hooks/useNotificationToast'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 
 type SwapData = SwapOutput
@@ -52,11 +53,13 @@ const initialSwapState: SwapState = {
 
 function swapStateToPersistedState(
   toolCallId: string,
+  conversationId: string,
   state: SwapState,
   swapOutput: SwapOutput | null,
 ): PersistedToolState {
   return {
     toolCallId,
+    conversationId,
     toolType: 'swap',
     timestamp: Date.now(),
     phases: SWAP_PHASES.toPhases(state.completedSteps, state.error),
@@ -99,10 +102,12 @@ export const useSwapExecution = (
   swapData: SwapData | null,
 ): UseSwapExecutionResult => {
   const dispatch = useAppDispatch()
+  const toast = useNotificationToast()
   const hasHydratedRef = useRef(false)
   const lastToolCallIdRef = useRef<string | undefined>(undefined)
   const { state: walletState } = useWallet()
 
+  const activeConversationId = useAppSelector(agenticChatSlice.selectors.selectActiveConversationId)
   const hasRuntimeState = useAppSelector(state =>
     Boolean(state.agenticChat.runtimeToolStates[toolCallId]),
   )
@@ -142,13 +147,13 @@ export const useSwapExecution = (
       let swapTxHash: string | undefined
 
       try {
-        validateExecutionContext(walletState, accountId, accountMetadata)
+        const {
+          wallet,
+          accountId: validAccountId,
+          accountMetadata: validAccountMetadata,
+        } = validateExecutionContext(walletState, accountId, accountMetadata)
 
         const { needsApproval, approvalTx, swapTx } = data
-
-        const wallet = walletState.wallet!
-        const validAccountId = accountId!
-        const validAccountMetadata = accountMetadata!
 
         // Detect chain namespace
         const chainNamespace = fromChainId(swapTx.chainId).chainNamespace
@@ -231,8 +236,19 @@ export const useSwapExecution = (
           approvalTxHash,
           swapTxHash,
         }
-        const persisted = swapStateToPersistedState(toolCallId, finalState, data)
+        const persisted = swapStateToPersistedState(
+          toolCallId,
+          activeConversationId ?? '',
+          finalState,
+          data,
+        )
         dispatch(agenticChatSlice.actions.persistTransaction(persisted))
+
+        toast({
+          title: 'Swap Successful',
+          description: 'Your swap transaction has been completed',
+          status: 'success',
+        })
       } catch (error) {
         const errorMessage = error instanceof Error ? error.message : String(error)
         let errorState: SwapState | undefined
@@ -244,7 +260,12 @@ export const useSwapExecution = (
 
         // Persist error state
         if (errorState) {
-          const persisted = swapStateToPersistedState(toolCallId, errorState, data)
+          const persisted = swapStateToPersistedState(
+            toolCallId,
+            activeConversationId ?? '',
+            errorState,
+            data,
+          )
           dispatch(agenticChatSlice.actions.persistTransaction(persisted))
         }
       }

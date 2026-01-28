@@ -19,11 +19,13 @@ export function validateExecutionContext(
   walletState: WalletState,
   accountId: AccountId | undefined,
   accountMetadata: AccountMetadata | undefined,
-): asserts walletState is { wallet: HDWallet } {
+): { wallet: HDWallet; accountId: AccountId; accountMetadata: AccountMetadata } {
   if (!walletState.wallet) {
     throw new Error('No wallet connected')
   }
   if (!accountId || !accountMetadata) {
     throw new Error('Account not found')
   }
+
+  return { wallet: walletState.wallet, accountId, accountMetadata }
 }

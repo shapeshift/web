@@ -27,6 +27,7 @@ import { WalletBalanceChange } from '@/components/WalletBalanceChange/WalletBala
 import { WalletActions } from '@/context/WalletProvider/actions'
 import { DrawerChatButton } from '@/features/agenticChat/components/DrawerChatButton'
 import { DrawerChatContent } from '@/features/agenticChat/components/DrawerChatContent'
+import { DrawerChatHistory } from '@/features/agenticChat/components/DrawerChatHistory'
 import { useModal } from '@/hooks/useModal/useModal'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { agenticChatSlice } from '@/state/slices/agenticChatSlice/agenticChatSlice'
@@ -131,6 +132,7 @@ export const DrawerWalletDashboard: FC<DrawerWalletDashboardProps> = memo(
     const send = useModal('send')
     const receive = useModal('receive')
     const isChatOpen = useAppSelector(agenticChatSlice.selectors.selectIsChatOpen)
+    const isChatHistoryOpen = useAppSelector(agenticChatSlice.selectors.selectIsChatHistoryOpen)
 
     const [activeTabIndex, setActiveTabIndex] = useState(0)
     const [loadedTabs, setLoadedTabs] = useState(new Set<number>())
@@ -178,7 +180,7 @@ export const DrawerWalletDashboard: FC<DrawerWalletDashboardProps> = memo(
     }, [disconnect, onClose])
 
     const handleBackFromChat = useCallback(() => {
-      reduxDispatch(agenticChatSlice.actions.closeChat())
+      reduxDispatch(agenticChatSlice.actions.endChat())
     }, [reduxDispatch])
 
     return (
@@ -196,9 +198,9 @@ export const DrawerWalletDashboard: FC<DrawerWalletDashboardProps> = memo(
           onBackFromChat={handleBackFromChat}
         />
 
-        {isChatOpen ? (
-          <DrawerChatContent />
-        ) : (
+        {isChatOpen && isChatHistoryOpen && <DrawerChatHistory />}
+        {isChatOpen && !isChatHistoryOpen && <DrawerChatContent />}
+        {!isChatOpen && (
           <>
             <Box pt={6} pb={8}>
               <Suspense fallback={<Skeleton height='36px' width='100px' mx='auto' />}>

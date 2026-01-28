@@ -41,8 +41,8 @@ export function getStepStatus<TStep extends number>(
   state: StepState<TStep>,
 ): StepStatus {
   if (state.failedStep === step) return StepStatus.FAILED
-  if (state.currentStep < step) return StepStatus.NOT_STARTED
-  if (state.currentStep === step && !state.error) return StepStatus.IN_PROGRESS
   if (state.completedSteps.includes(step)) return StepStatus.COMPLETE
+  if (state.currentStep === step) return StepStatus.IN_PROGRESS
+  if (state.currentStep < step) return StepStatus.NOT_STARTED
   return StepStatus.SKIPPED
 }

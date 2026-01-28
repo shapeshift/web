@@ -1,7 +1,7 @@
 import type { PayloadAction } from '@reduxjs/toolkit'
 import { createSlice } from '@reduxjs/toolkit'
 
-import type { AgenticChatState, PersistedToolState } from './types'
+import type { AgenticChatState, Conversation, PersistedToolState } from './types'
 
 const MAX_PERSISTED_TRANSACTIONS = 500
 
@@ -11,6 +11,9 @@ const initialState: AgenticChatState = {
   persistedTransactions: [],
   isChatOpen: false,
   pendingMessage: null,
+  conversations: [],
+  activeConversationId: null,
+  isChatHistoryOpen: false,
 }
 
 export const agenticChatSlice = createSlice({
@@ -20,6 +23,9 @@ export const agenticChatSlice = createSlice({
     markAsHistorical: (state, action: PayloadAction<string[]>) => {
       const newIds = action.payload.filter(id => !state.historicalToolIds.includes(id))
       state.historicalToolIds.push(...newIds)
+    },
+    clearHistoricalTools: state => {
+      state.historicalToolIds = []
     },
     initializeRuntimeState: (
       state,
@@ -61,9 +67,64 @@ export const agenticChatSlice = createSlice({
       state.isChatOpen = true
       state.pendingMessage = action.payload ?? null
     },
-    closeChat: state => {
+    endChat: state => {
       state.isChatOpen = false
       state.pendingMessage = null
+    },
+    clearPendingMessage: state => {
+      state.pendingMessage = null
+    },
+    openChatHistory: state => {
+      state.isChatHistoryOpen = true
+    },
+    closeChatHistory: state => {
+      state.isChatHistoryOpen = false
+    },
+    createConversation: (
+      state,
+      action: PayloadAction<{ id: string; title?: string; walletAddress?: string }>,
+    ) => {
+      const { id, title = 'New Conversation', walletAddress } = action.payload
+      const now = new Date().toISOString()
+      state.conversations.push({
+        id,
+        title,
+        createdAt: now,
+        updatedAt: now,
+        walletAddress,
+      })
+      state.activeConversationId = id
+    },
+    updateConversation: (
+      state,
+      action: PayloadAction<{ id: string; updates: Partial<Conversation> }>,
+    ) => {
+      const { id, updates } = action.payload
+      const conversation = state.conversations.find(c => c.id === id)
+      if (conversation) {
+        Object.assign(conversation, updates)
+        conversation.updatedAt = new Date().toISOString()
+      }
+    },
+    deleteConversation: (state, action: PayloadAction<string>) => {
+      const conversationId = action.payload
+      state.conversations = state.conversations.filter(c => c.id !== conversationId)
+      state.persistedTransactions = state.persistedTransactions.filter(
+        tx => tx.conversationId !== conversationId,
+      )
+      if (state.activeConversationId === conversationId) {
+        const sortedConversations = state.conversations
+          .slice()
+          .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())
+        state.activeConversationId = sortedConversations[0]?.id ?? null
+      }
+    },
+    setActiveConversation: (state, action: PayloadAction<string>) => {
+      state.activeConversationId = action.payload
+    },
+    clearConversations: state => {
+      state.conversations = []
+      state.activeConversationId = null
     },
     clear: state => {
       state.historicalToolIds = []
@@ -71,6 +132,9 @@ export const agenticChatSlice = createSlice({
       state.persistedTransactions = []
       state.isChatOpen = false
       state.pendingMessage = null
+      state.conversations = []
+      state.activeConversationId = null
+      state.isChatHistoryOpen = false
     },
   },
   selectors: {
@@ -84,5 +148,10 @@ export const agenticChatSlice = createSlice({
     selectHasRuntimeState: (state, toolCallId: string) => toolCallId in state.runtimeToolStates,
     selectIsChatOpen: state => state.isChatOpen,
     selectPendingMessage: state => state.pendingMessage,
+    selectConversations: state => state.conversations,
+    selectActiveConversationId: state => state.activeConversationId,
+    selectIsChatHistoryOpen: state => state.isChatHistoryOpen,
+    selectActiveConversation: state =>
+      state.conversations.find(c => c.id === state.activeConversationId),
   },
 })

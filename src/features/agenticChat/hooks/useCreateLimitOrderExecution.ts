@@ -11,6 +11,8 @@ import { agenticChatSlice } from '../../../state/slices/agenticChatSlice/agentic
 import type { PersistedToolState } from '../../../state/slices/agenticChatSlice/types'
 import { selectPortfolioAccountMetadataByAccountId } from '../../../state/slices/portfolioSlice/selectors'
 import { useAppDispatch, useAppSelector } from '../../../state/store'
+import type { CowSigningData } from '../lib/cowConstants'
+import { getCowNetwork } from '../lib/cowConstants'
 import { getToolStateStatus, validateExecutionContext } from '../lib/executionUtils'
 import { createStepPhaseMap, getStepStatus, StepStatus } from '../lib/stepUtils'
 import { executeEvmTransaction } from '../lib/walletIntegration'
@@ -18,6 +20,7 @@ import type { CreateLimitOrderOutput } from '../types/toolOutput'
 import { useToolExecutionEffect } from './useToolExecutionEffect'
 
 import { getConfig } from '@/config'
+import { useNotificationToast } from '@/hooks/useNotificationToast'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { assertGetEvmChainAdapter } from '@/lib/utils/evm'
 
@@ -57,11 +60,13 @@ const initialCreateLimitOrderState: CreateLimitOrderState = {
 
 function stateToPersistedState(
   toolCallId: string,
+  conversationId: string,
   state: CreateLimitOrderState,
   toolOutput: CreateLimitOrderOutput | null,
 ): PersistedToolState {
   return {
     toolCallId,
+    conversationId,
     toolType: 'limit_order',
     timestamp: Date.now(),
     phases: CREATE_LIMIT_ORDER_PHASES.toPhases(state.completedSteps, state.error),
@@ -111,10 +116,12 @@ export const useCreateLimitOrderExecution = (
   data: CreateLimitOrderOutput | null,
 ): UseCreateLimitOrderExecutionResult => {
   const dispatch = useAppDispatch()
+  const toast = useNotificationToast()
   const hasHydratedRef = useRef(false)
   const lastToolCallIdRef = useRef<string | undefined>(undefined)
   const { state: walletState } = useWallet()
 
+  const activeConversationId = useAppSelector(agenticChatSlice.selectors.selectActiveConversationId)
   const hasRuntimeState = useAppSelector(state =>
     Boolean(state.agenticChat.runtimeToolStates[toolCallId]),
   )
@@ -153,13 +160,13 @@ export const useCreateLimitOrderExecution = (
       let signature: string | undefined
 
       try {
-        validateExecutionContext(walletState, accountId, accountMetadata)
+        const {
+          wallet,
+          accountId: validAccountId,
+          accountMetadata: validAccountMetadata,
+        } = validateExecutionContext(walletState, accountId, accountMetadata)
 
         const { needsApproval, approvalTx, orderParams, signingData } = orderOutput
-
-        const wallet = walletState.wallet!
-        const validAccountId = accountId!
-        const validAccountMetadata = accountMetadata!
 
         setState(draft => {
           if (!draft.completedSteps.includes(CreateLimitOrderStep.PREPARE)) {
@@ -249,8 +256,7 @@ export const useCreateLimitOrderExecution = (
 
         const config = getConfig()
         const baseUrl = config.VITE_COWSWAP_BASE_URL
-        const networkName =
-          orderParams.chainId === 1 ? 'mainnet' : orderParams.chainId === 100 ? 'xdai' : 'mainnet'
+        const networkName = getCowNetwork(orderParams.chainId)
 
         const orderPayload = {
           sellToken: orderParams.sellToken,
@@ -260,7 +266,7 @@ export const useCreateLimitOrderExecution = (
           buyAmount: orderParams.buyAmount,
           validTo: orderParams.validTo,
           appData:
-            (signingData as any).message?.appData ||
+            (signingData as CowSigningData).message.appData ||
             '0x0000000000000000000000000000000000000000000000000000000000000000',
           feeAmount: '0',
           kind: 'sell',
@@ -311,8 +317,19 @@ export const useCreateLimitOrderExecution = (
           signature,
           trackingUrl: orderOutput.trackingUrl,
         }
-        const persisted = stateToPersistedState(toolCallId, finalState, orderOutput)
+        const persisted = stateToPersistedState(
+          toolCallId,
+          activeConversationId ?? '',
+          finalState,
+          orderOutput,
+        )
         dispatch(agenticChatSlice.actions.persistTransaction(persisted))
+
+        toast({
+          title: 'Limit Order Created',
+          description: 'Your limit order has been successfully created',
+          status: 'success',
+        })
       } catch (error) {
         const errorMessage = error instanceof Error ? error.message : String(error)
         let errorState: CreateLimitOrderState | undefined
@@ -323,7 +340,12 @@ export const useCreateLimitOrderExecution = (
         })
 
         if (errorState) {
-          const persisted = stateToPersistedState(toolCallId, errorState, data)
+          const persisted = stateToPersistedState(
+            toolCallId,
+            activeConversationId ?? '',
+            errorState,
+            data,
+          )
           dispatch(agenticChatSlice.actions.persistTransaction(persisted))
         }
       }

@@ -1,15 +1,28 @@
 import { useChat } from '@ai-sdk/react'
 import { fromAccountId, solanaChainId } from '@shapeshiftoss/caip'
 import { isEvmChainId } from '@shapeshiftoss/chain-adapters'
+import type { UIMessage } from 'ai'
 import { DefaultChatTransport } from 'ai'
-import { useCallback, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+
+import { deleteMessages, loadMessages, saveMessages } from '../utils/conversationStorage'
+import {
+  extractTitleFromMessages,
+  extractToolIds,
+  generateConversationId,
+} from '../utils/conversationUtils'
 
 import { getConfig } from '@/config'
+import { agenticChatSlice } from '@/state/slices/agenticChatSlice/agenticChatSlice'
 import { selectEnabledWalletAccountIds } from '@/state/slices/common-selectors'
-import { useAppSelector } from '@/state/store'
+import { useAppDispatch, useAppSelector } from '@/state/store'
 
 export const useAgenticChat = () => {
+  const dispatch = useAppDispatch()
   const accountIds = useAppSelector(selectEnabledWalletAccountIds)
+  const activeConversationId = useAppSelector(agenticChatSlice.selectors.selectActiveConversationId)
+  const activeConversation = useAppSelector(agenticChatSlice.selectors.selectActiveConversation)
+  const isChatOpen = useAppSelector(agenticChatSlice.selectors.selectIsChatOpen)
   const [input, setInput] = useState('')
 
   const walletContext = useMemo(() => {
@@ -36,6 +49,8 @@ export const useAgenticChat = () => {
     }
   }, [accountIds])
 
+  // Keep wallet context in ref so transport body function always has latest wallet data
+  // without recreating the transport (which would trigger unnecessary reconnections)
   const walletContextRef = useRef(walletContext)
   walletContextRef.current = walletContext
 
@@ -51,7 +66,66 @@ export const useAgenticChat = () => {
 
   const chat = useChat({
     transport,
+    onFinish: useCallback(
+      ({ messages }: { messages: UIMessage[] }) => {
+        if (!activeConversationId || messages.length === 0) return
+
+        const title = extractTitleFromMessages(messages, activeConversation)
+
+        if (!activeConversation) {
+          const evmAddress = walletContextRef.current.evmAddress
+          dispatch(
+            agenticChatSlice.actions.createConversation({
+              id: activeConversationId,
+              title,
+              walletAddress: evmAddress,
+            }),
+          )
+        } else {
+          dispatch(
+            agenticChatSlice.actions.updateConversation({
+              id: activeConversationId,
+              updates: { title },
+            }),
+          )
+        }
+
+        saveMessages(activeConversationId, messages)
+      },
+      [activeConversationId, activeConversation, dispatch],
+    ),
   })
+
+  const { setMessages } = chat
+  const lastLoadedIdRef = useRef<string | undefined>(undefined)
+
+  useEffect(() => {
+    if (!isChatOpen) return
+
+    if (!activeConversationId) {
+      const newConversationId = generateConversationId()
+      dispatch(agenticChatSlice.actions.setActiveConversation(newConversationId))
+      setMessages([])
+      lastLoadedIdRef.current = newConversationId
+      return
+    }
+
+    if (activeConversationId !== lastLoadedIdRef.current) {
+      const messages = loadMessages(activeConversationId)
+      setMessages(messages)
+
+      dispatch(agenticChatSlice.actions.clearHistoricalTools())
+
+      if (messages.length > 0) {
+        const toolIds = extractToolIds(messages)
+        if (toolIds.length > 0) {
+          dispatch(agenticChatSlice.actions.markAsHistorical(toolIds))
+        }
+      }
+
+      lastLoadedIdRef.current = activeConversationId
+    }
+  }, [activeConversationId, isChatOpen, dispatch, setMessages])
 
   const handleInputChange = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setInput(e.target.value)
@@ -71,11 +145,21 @@ export const useAgenticChat = () => {
     [input, chat],
   )
 
+  const handleDeleteConversation = useCallback(
+    (conversationId: string) => {
+      deleteMessages(conversationId)
+      dispatch(agenticChatSlice.actions.deleteConversation(conversationId))
+    },
+    [dispatch],
+  )
+
   return {
     ...chat,
     input,
+    setInput,
     handleInputChange,
     handleSubmit,
+    handleDeleteConversation,
   }
 }
 

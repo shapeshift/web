@@ -53,7 +53,11 @@ const MessageItem = memo(({ message, userBg }: MessageItemProps) => {
       {toolInvocations.map(toolPart => (
         <ToolInvocationRenderer key={toolPart.toolCallId} toolPart={toolPart} />
       ))}
-      {textContent.trim().length > 0 && <Markdown>{textContent}</Markdown>}
+      {textContent.trim().length > 0 && (
+        <Box mt={toolInvocations.length > 0 ? 3 : 0}>
+          <Markdown>{textContent}</Markdown>
+        </Box>
+      )}
     </Box>
   )
 })
@@ -97,8 +101,11 @@ export const Chat = ({ chat }: ChatProps) => {
       gap={3}
       flex={1}
       overflowY='auto'
-      p={4}
+      px={4}
+      pt={4}
+      pb={2}
       minHeight={0}
+      className='scroll-container'
     >
       {isEmpty ? (
         <Flex flex={1} alignItems='center' justifyContent='center'>

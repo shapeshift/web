@@ -140,7 +140,7 @@ type ExecuteEvmTransactionInput = {
   bip44Params?: { purpose: number; coinType: number; accountNumber: number }
 }
 
-const toHexOrDefault = (value: string | number | undefined, fallback: Hex): Hex => {
+export const toHexOrDefault = (value: string | number | undefined, fallback: Hex): Hex => {
   if (value === undefined || value === null || value === '') return fallback
   if (typeof value === 'number') return toHex(value)
   if (isHex(value)) return value as Hex
@@ -151,7 +151,7 @@ const toHexOrDefault = (value: string | number | undefined, fallback: Hex): Hex 
   }
 }
 
-const toHexData = (value: string | undefined): Hex => {
+export const toHexData = (value: string | undefined): Hex => {
   if (!value) return '0x'
   return isHex(value) ? (value as Hex) : value.startsWith('0x') ? (value as Hex) : '0x'
 }
@@ -337,6 +337,14 @@ type ExecuteSolanaTransactionInput = {
   bip44Params?: { purpose: number; coinType: number; accountNumber: number }
 }
 
+// Yield.xyz returns hex without 0x prefix for Solana transactions, while Solana convention is base64.
+// Handles both hex (with/without 0x prefix) and base64 encodings.
+export const decodeSolanaTransaction = (unsignedTransaction: string): Uint8Array => {
+  return isHex(unsignedTransaction) || isHex(`0x${unsignedTransaction}`)
+    ? new Uint8Array(Buffer.from(unsignedTransaction.replace(/^0x/, ''), 'hex'))
+    : new Uint8Array(Buffer.from(unsignedTransaction, 'base64'))
+}
+
 const executeSolanaTransaction = async ({
   unsignedTransaction,
   chainId,
@@ -346,11 +354,7 @@ const executeSolanaTransaction = async ({
   const adapter = assertGetSolanaChainAdapter(chainId)
   const accountNumber = bip44Params?.accountNumber ?? 0
 
-  // Yield.xyz returns base64 for Solana transactions (Solana convention)
-  // Use isHex from viem to detect hex-encoded transactions
-  const txBytes = isHex(unsignedTransaction)
-    ? new Uint8Array(Buffer.from(unsignedTransaction.slice(2), 'hex'))
-    : new Uint8Array(Buffer.from(unsignedTransaction, 'base64'))
+  const txBytes = decodeSolanaTransaction(unsignedTransaction)
 
   const versionedTransaction = VersionedTransaction.deserialize(txBytes)
 

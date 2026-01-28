@@ -14,7 +14,7 @@ import {
 import type { FC } from 'react'
 import { memo, useCallback, useMemo } from 'react'
 import { FiArrowLeft } from 'react-icons/fi'
-import { TbDots, TbEyeOff, TbSettings } from 'react-icons/tb'
+import { TbDots, TbEyeOff, TbHistory, TbSettings } from 'react-icons/tb'
 import { useTranslate } from 'react-polyglot'
 import { useNavigate } from 'react-router-dom'
 
@@ -26,14 +26,16 @@ import type { InitialState } from '@/context/WalletProvider/WalletProvider'
 import { useModal } from '@/hooks/useModal/useModal'
 import { useMipdProviders } from '@/lib/mipd'
 import { ProfileAvatar } from '@/pages/Dashboard/components/ProfileAvatar/ProfileAvatar'
+import { agenticChatSlice } from '@/state/slices/agenticChatSlice/agenticChatSlice'
 import { gridplusSlice } from '@/state/slices/gridplusSlice/gridplusSlice'
 import { selectWalletRdns } from '@/state/slices/localWalletSlice/selectors'
-import { useAppSelector } from '@/state/store'
+import { useAppDispatch, useAppSelector } from '@/state/store'
 
 const settingsIcon = <TbSettings />
 const dotsIcon = <Icon as={TbDots} />
 const eyeOffIcon = <Icon as={TbEyeOff} />
 const qrCodeIcon = <QRCodeIcon />
+const historyIcon = <TbHistory />
 
 type DrawerHeaderProps = {
   walletInfo: InitialState['walletInfo']
@@ -61,9 +63,11 @@ export const DrawerWalletHeader: FC<DrawerHeaderProps> = memo(
     onBackFromChat,
   }) => {
     const translate = useTranslate()
+    const dispatch = useAppDispatch()
     const settings = useModal('settings')
     const qrCode = useModal('qrCode')
     const navigate = useNavigate()
+    const isChatHistoryOpen = useAppSelector(agenticChatSlice.selectors.selectIsChatHistoryOpen)
 
     const maybeRdns = useAppSelector(selectWalletRdns)
     const activeSafeCard = useAppSelector(gridplusSlice.selectors.selectActiveSafeCard)
@@ -92,6 +96,10 @@ export const DrawerWalletHeader: FC<DrawerHeaderProps> = memo(
       qrCode.open({})
     }, [qrCode])
 
+    const handleChatHistoryClick = useCallback(() => {
+      dispatch(agenticChatSlice.actions.openChatHistory())
+    }, [dispatch])
+
     const handleManageHiddenAssetsClick = useCallback(() => {
       navigate('/manage-hidden-assets')
     }, [navigate])
@@ -112,13 +120,17 @@ export const DrawerWalletHeader: FC<DrawerHeaderProps> = memo(
     if (!isConnected || isLocked || !walletInfo) return null
 
     return (
-      <Flex align='center' px={4} pt={4} justify='space-between'>
+      <Flex align='center' px={4} pt={4} pb={isChatOpen ? 4 : 0} justify='space-between'>
         <Flex align='center' gap={2}>
           {isChatOpen && onBackFromChat && (
             <IconButton
               icon={<FiArrowLeft />}
               aria-label={translate('common.back')}
-              onClick={onBackFromChat}
+              onClick={
+                isChatHistoryOpen
+                  ? () => dispatch(agenticChatSlice.actions.closeChatHistory())
+                  : onBackFromChat
+              }
               variant='ghost'
               size='sm'
             />
@@ -127,14 +139,25 @@ export const DrawerWalletHeader: FC<DrawerHeaderProps> = memo(
           <Text fontWeight='medium'>{label}</Text>
         </Flex>
         <Flex gap={2}>
-          <IconButton
-            aria-label={translate('modals.send.qrCode')}
-            isRound
-            fontSize='lg'
-            icon={qrCodeIcon}
-            size='md'
-            onClick={handleQrCodeClick}
-          />
+          {isChatOpen ? (
+            <IconButton
+              aria-label={translate('agenticChat.chatHistory')}
+              isRound
+              fontSize='lg'
+              icon={historyIcon}
+              size='md'
+              onClick={handleChatHistoryClick}
+            />
+          ) : (
+            <IconButton
+              aria-label={translate('modals.send.qrCode')}
+              isRound
+              fontSize='lg'
+              icon={qrCodeIcon}
+              size='md'
+              onClick={handleQrCodeClick}
+            />
+          )}
           <IconButton
             aria-label='Settings'
             isRound

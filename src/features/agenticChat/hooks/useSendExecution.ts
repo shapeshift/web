@@ -13,6 +13,7 @@ import { executeEvmTransaction, executeSolanaTransaction } from '../lib/walletIn
 import type { SendOutput } from '../types/toolOutput'
 import { useToolExecutionEffect } from './useToolExecutionEffect'
 
+import { useNotificationToast } from '@/hooks/useNotificationToast'
 import { useWallet } from '@/hooks/useWallet/useWallet'
 
 type SendData = SendOutput
@@ -45,11 +46,13 @@ const initialSendState: SendState = {
 
 function sendStateToPersistedState(
   toolCallId: string,
+  conversationId: string,
   state: SendState,
   sendOutput: SendOutput | null,
 ): PersistedToolState {
   return {
     toolCallId,
+    conversationId,
     toolType: 'send',
     timestamp: Date.now(),
     phases: SEND_PHASES.toPhases(state.completedSteps, state.error),
@@ -89,10 +92,12 @@ export const useSendExecution = (
   sendData: SendData | null,
 ): UseSendExecutionResult => {
   const dispatch = useAppDispatch()
+  const toast = useNotificationToast()
   const hasHydratedRef = useRef(false)
   const lastToolCallIdRef = useRef<string | undefined>(undefined)
   const { state: walletState } = useWallet()
 
+  const activeConversationId = useAppSelector(agenticChatSlice.selectors.selectActiveConversationId)
   const hasRuntimeState = useAppSelector(state =>
     Boolean(state.agenticChat.runtimeToolStates[toolCallId]),
   )
@@ -131,13 +136,13 @@ export const useSendExecution = (
       let sendTxHash: string | undefined
 
       try {
-        validateExecutionContext(walletState, accountId, accountMetadata)
+        const {
+          wallet,
+          accountId: validAccountId,
+          accountMetadata: validAccountMetadata,
+        } = validateExecutionContext(walletState, accountId, accountMetadata)
 
         const { tx } = data
-
-        const wallet = walletState.wallet!
-        const validAccountId = accountId!
-        const validAccountMetadata = accountMetadata!
 
         // Step 0: Preparation (completed by this point)
         setState(draft => {
@@ -184,8 +189,19 @@ export const useSendExecution = (
           completedSteps: [SendStep.PREPARATION, SendStep.SEND],
           sendTxHash,
         }
-        const persisted = sendStateToPersistedState(toolCallId, finalState, data)
+        const persisted = sendStateToPersistedState(
+          toolCallId,
+          activeConversationId ?? '',
+          finalState,
+          data,
+        )
         dispatch(agenticChatSlice.actions.persistTransaction(persisted))
+
+        toast({
+          title: 'Send Successful',
+          description: 'Your send transaction has been completed',
+          status: 'success',
+        })
       } catch (error) {
         const errorMessage = error instanceof Error ? error.message : String(error)
         let errorState: SendState | undefined
@@ -197,7 +213,12 @@ export const useSendExecution = (
 
         // Persist error state
         if (errorState) {
-          const persisted = sendStateToPersistedState(toolCallId, errorState, data)
+          const persisted = sendStateToPersistedState(
+            toolCallId,
+            activeConversationId ?? '',
+            errorState,
+            data,
+          )
           dispatch(agenticChatSlice.actions.persistTransaction(persisted))
         }
       }

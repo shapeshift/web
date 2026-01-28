@@ -343,7 +343,15 @@
           "pending": "Pending"
         }
       }
-    }
+    },
+    "chatHistory": "Chat History",
+    "newChat": "New Chat",
+    "deleteConversation": "Delete Conversation",
+    "deleteConfirmation": "Are you sure you want to delete this conversation?",
+    "noConversations": "No conversations yet",
+    "newConversation": "New Conversation",
+    "searchChats": "Search your chats...",
+    "noMatchingConversations": "No matching conversations"
   },
   "quickBuy": {
     "title": "Quick Buy %{assetOnChain}",

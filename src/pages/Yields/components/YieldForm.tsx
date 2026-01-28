@@ -121,9 +121,6 @@ export const YieldForm = memo(
       () => balances?.byType[YieldBalanceType.Withdrawable],
       [balances],
     )
-    const claimableToken = claimableBalance?.token ?? withdrawableBalance?.token
-    const claimableAmount =
-      claimableBalance?.aggregatedAmount ?? withdrawableBalance?.aggregatedAmount ?? '0'
     const isClaimAction = action === 'claim'
 
     const claimableClaimAction = useMemo(
@@ -139,6 +136,18 @@ export const YieldForm = memo(
     )
 
     const isWithdrawableClaim = !claimableClaimAction && Boolean(claimAction)
+
+    const effectiveClaimBalance = useMemo(() => {
+      if (isWithdrawableClaim) return withdrawableBalance
+
+      const hasClaimableAmount = !bnOrZero(claimableBalance?.aggregatedAmount).isZero()
+      if (hasClaimableAmount) return claimableBalance
+
+      return withdrawableBalance
+    }, [isWithdrawableClaim, claimableBalance, withdrawableBalance])
+
+    const claimableToken = effectiveClaimBalance?.token
+    const claimableAmount = effectiveClaimBalance?.aggregatedAmount ?? '0'
 
     const accountIdFilter = useMemo(
       () => ({ assetId: inputTokenAssetId ?? '' }),

@@ -2,7 +2,7 @@ import { TimeIcon } from '@chakra-ui/icons'
 import { lazy } from 'react'
 import { FaCreditCard, FaFlag } from 'react-icons/fa'
 import { RiExchangeFundsLine } from 'react-icons/ri'
-import { TbGraph } from 'react-icons/tb'
+import { TbGraph, TbTrendingUp } from 'react-icons/tb'
 
 import type { Route } from './helpers'
 import { RouteCategory } from './helpers'
@@ -191,13 +191,21 @@ export const routes: Route[] = [
     hide: true,
   },
   {
+    path: '/yields/*',
+    label: 'navBar.earn',
+    icon: <TbTrendingUp />,
+    mobileNav: true,
+    hideDesktop: true,
+    main: YieldsPage,
+    priority: 7,
+    disable: !getConfig().VITE_FEATURE_YIELD_XYZ || !getConfig().VITE_FEATURE_YIELDS_PAGE,
+  },
+  {
     path: '/history',
     label: 'navBar.history',
     icon: <TimeIcon />,
-    mobileNav: true,
-    hideDesktop: true,
     main: History,
-    priority: 7,
+    hide: true,
   },
   {
     path: '/trade/*',

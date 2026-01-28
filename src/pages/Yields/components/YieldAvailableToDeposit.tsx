@@ -49,8 +49,8 @@ export const YieldAvailableToDeposit = memo(
 
     const inputToken = yieldItem.inputTokens[0]
     const inputTokenSymbol = inputToken?.symbol ?? yieldItem.token.symbol
-    const inputTokenAssetId = inputToken?.assetId ?? ''
-    const inputTokenPrecision = inputToken?.decimals
+    const inputTokenAssetId = inputToken?.assetId ?? yieldItem.token.assetId ?? ''
+    const inputTokenPrecision = inputToken?.decimals ?? yieldItem.token.decimals
 
     const availableBalanceBaseUnit = useAppSelector(state =>
       selectPortfolioCryptoBalanceBaseUnitByFilter(state, { assetId: inputTokenAssetId }),

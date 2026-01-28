@@ -665,6 +665,7 @@ export const YieldEnterModal = memo(
               <YieldExplainers
                 selectedYield={yieldItem}
                 sellAssetSymbol={inputTokenAsset?.symbol}
+                action='enter'
               />
               {stepsToShow.length > 0 && <TransactionStepsList steps={stepsToShow} />}
             </Flex>

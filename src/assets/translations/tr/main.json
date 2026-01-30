@@ -2691,7 +2691,6 @@
     "gasToken": "Gaz Jetonu",
     "entering": "Giriş yapılıyor...",
     "exiting": "Çıkılıyor...",
-    "unstaking": "Hisse Kaldır",
     "availableDate": "uygun %{date}",
     "withdrawable": "Çekilebilir",
     "type": "Tip",

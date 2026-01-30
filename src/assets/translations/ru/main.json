@@ -2691,7 +2691,6 @@
     "gasToken": "Токен на газ",
     "entering": "Вход...",
     "exiting": "Выход...",
-    "unstaking": "Вывод средств",
     "availableDate": "доступно %{date}",
     "withdrawable": "Снимаемый",
     "type": "Тип",

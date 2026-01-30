@@ -2691,7 +2691,6 @@
     "gasToken": "Jeton de carburant",
     "entering": "Investissement en cours...",
     "exiting": "Sortie en cours...",
-    "unstaking": "Déstaking",
     "availableDate": "disponible %{date}",
     "withdrawable": "Retrait possible",
     "type": "Type",

@@ -2691,7 +2691,6 @@
     "gasToken": "Токен для комісії",
     "entering": "Вхід...",
     "exiting": "Вихід...",
-    "unstaking": "Зняття стейкінгу",
     "availableDate": "доступно  %{date}",
     "withdrawable": "Можна вивести",
     "type": "Тип",

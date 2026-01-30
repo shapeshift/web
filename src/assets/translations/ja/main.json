@@ -2691,7 +2691,6 @@
     "gasToken": "ガストークン",
     "entering": "入力中...",
     "exiting": "終了中...",
-    "unstaking": "ステーキング解除",
     "availableDate": "%{date}から利用可能",
     "withdrawable": "引き出し可能",
     "type": "タイプ",

@@ -2691,7 +2691,6 @@
     "gasToken": "Gas 代币",
     "entering": "进入中...",
     "exiting": "退出中...",
-    "unstaking": "取消质押",
     "availableDate": "将在 %{date} 可用",
     "withdrawable": "可提现",
     "type": "类型",

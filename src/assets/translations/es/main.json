@@ -2691,7 +2691,6 @@
     "gasToken": "Token para Gas",
     "entering": "Entrando...",
     "exiting": "Saliendo...",
-    "unstaking": "Unstaking",
     "availableDate": "disponible %{date}",
     "withdrawable": "Retirable",
     "type": "Tipo",

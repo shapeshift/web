@@ -2691,7 +2691,6 @@
     "gasToken": "Gas Token",
     "entering": "Eingabe...",
     "exiting": "Beenden...",
-    "unstaking": "Unstaking",
     "availableDate": "verfügbar %{date}",
     "withdrawable": "Abhebbar",
     "type": "Art",

@@ -310,8 +310,9 @@ export const Form: React.FC<SendFormProps> = ({ initialAssetId, input = '', acco
 
         methods.setValue(SendFormFields.Input, address)
 
-        // Update assetId and accountId if detected from QR code
-        if (maybeUrlResult.assetId) {
+        // Update assetId and accountId only if from payment URI (not plain address)
+        // Plain addresses should preserve the user's selected asset
+        if (urlDirectResult && maybeUrlResult.assetId) {
           methods.setValue(SendFormFields.AssetId, maybeUrlResult.assetId)
 
           // Get accounts for this asset to ensure we have a valid accountId

@@ -2797,6 +2797,7 @@
     },
     "underMaintenance": "En cours de maintenance",
     "underMaintenanceDescription": "Cette opportunité de rendement est actuellement en maintenance. Les dépôts peuvent être indisponibles.",
+    "deprecated": "Déprécié",
     "deprecatedDescription": "Cette opportunité de rendement a été dépréciée et pourrait bientôt être arrêtée.",
     "depositsDisabled": "Dépôts désactivés",
     "depositsDisabledDescription": "Les dépôts sont temporairement indisponibles pour cette opportunité de rendement.",

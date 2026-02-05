@@ -2869,6 +2869,7 @@
     }
   },
   "perfProfiler": {
+    "title": "性能分析器",
     "export": "导出",
     "reset": "充值",
     "disabledMessage": "用户画像功能已禁用。点击眼睛图标来启用。",

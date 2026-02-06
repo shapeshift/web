@@ -1,5 +1,5 @@
 import { CardBody, CardFooter, Collapse, Flex, Skeleton, Stack } from '@chakra-ui/react'
-import { fromAssetId } from '@shapeshiftoss/caip'
+import { fromAssetId, uniV2EthFoxArbitrumAssetId } from '@shapeshiftoss/caip'
 import type { Asset } from '@shapeshiftoss/types'
 import { isSome } from '@shapeshiftoss/utils'
 import { useCallback, useEffect, useMemo, useState } from 'react'
@@ -277,7 +277,7 @@ export const UnstakeInput: React.FC<UnstakeRouteProps & UnstakeInputProps> = ({
         stakingAssetAccountId &&
         hasEnteredValue &&
         stakingAsset &&
-        cooldownPeriodData?.cooldownPeriod
+        cooldownPeriodData?.cooldownPeriod !== undefined
       )
     )
       return
@@ -286,7 +286,7 @@ export const UnstakeInput: React.FC<UnstakeRouteProps & UnstakeInputProps> = ({
       stakingAssetAccountId,
       stakingAssetId,
       unstakingAmountCryptoBaseUnit: toBaseUnit(amountCryptoPrecision, stakingAsset.precision),
-      cooldownPeriod: cooldownPeriodData?.cooldownPeriod,
+      cooldownPeriod: cooldownPeriodData.cooldownPeriod,
     })
 
     navigate(UnstakeRoutePaths.Confirm)
@@ -300,6 +300,11 @@ export const UnstakeInput: React.FC<UnstakeRouteProps & UnstakeInputProps> = ({
     stakingAssetAccountId,
     stakingAssetId,
   ])
+
+  const handleUnstakeClick = useMemo(() => {
+    if (stakingAssetId === uniV2EthFoxArbitrumAssetId) return handleSubmit
+    return handleWarning
+  }, [handleSubmit, handleWarning, stakingAssetId])
 
   const validateHasEnoughFeeBalance = useCallback(
     (input: string) => {
@@ -479,11 +484,11 @@ export const UnstakeInput: React.FC<UnstakeRouteProps & UnstakeInputProps> = ({
               !hasEnteredValue ||
                 !isUnstakeFeesSuccess ||
                 Boolean(errors.amountFieldInput) ||
-                !cooldownPeriodData?.cooldownPeriodSeconds,
+                cooldownPeriodData?.cooldownPeriodSeconds === undefined,
             )}
             size='lg'
             mx={-2}
-            onClick={handleWarning}
+            onClick={handleUnstakeClick}
             colorScheme={Boolean(errors.amountFieldInput) ? 'red' : 'blue'}
             isLoading={isUnstakeFeesLoading}
           >

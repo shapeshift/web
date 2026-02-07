@@ -49,12 +49,14 @@ const APP_METADATA = {
   icons: ['https://shapeshift.com/icon.png'],
 }
 
+const projectId = import.meta.env.VITE_WALLET_CONNECT_WALLET_PROJECT_ID as string
+
 let wagmiAdapter: WagmiAdapter | null = null
 let bitcoinAdapter: BitcoinAdapter | null = null
 let solanaAdapter: SolanaAdapter | null = null
 let appKitInitialized = false
 
-export const createWagmiAdapter = (projectId: string): WagmiAdapter => {
+export const createWagmiAdapter = (): WagmiAdapter => {
   if (!wagmiAdapter) {
     wagmiAdapter = new WagmiAdapter({
       networks: [...EVM_NETWORKS],
@@ -82,12 +84,12 @@ export const createSolanaAdapter = (): SolanaAdapter => {
 
 export const getWagmiAdapter = (): WagmiAdapter | null => wagmiAdapter
 
-export const initializeAppKit = (projectId: string): void => {
+export const initializeAppKit = (): void => {
   if (appKitInitialized) {
     return
   }
 
-  const wagmi = createWagmiAdapter(projectId)
+  const wagmi = createWagmiAdapter()
   const btc = createBitcoinAdapter()
   const sol = createSolanaAdapter()
 

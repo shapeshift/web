@@ -75,8 +75,7 @@ function App() {
 | `theme`                  | `ThemeMode \| ThemeConfig`                      | `"dark"`         | Theme mode (`"light"` or `"dark"`) or full theme configuration.                                            |
 | `defaultSlippage`        | `string`                                        | `"0.5"`          | Default slippage tolerance percentage.                                                                     |
 | `showPoweredBy`          | `boolean`                                       | `true`           | Show "Powered by ShapeShift" branding.                                                                     |
-| `enableWalletConnection` | `boolean`                                       | `false`          | Enable built-in wallet connection UI using Reown AppKit. Supports EVM, Bitcoin, and Solana wallets. Requires `walletConnectProjectId`. |
-| `walletConnectProjectId` | `string`                                        | -                | WalletConnect project ID for the built-in wallet connection. Get one at <https://cloud.walletconnect.com>. |
+| `enableWalletConnection` | `boolean`                                       | `false`          | Enable built-in wallet connection UI using Reown AppKit. Supports EVM, Bitcoin, and Solana wallets. Uses `VITE_WALLET_CONNECT_WALLET_PROJECT_ID` env var. |
 | `defaultReceiveAddress`  | `string`                                        | -                | Fixed receive address for swaps. When set, users cannot change the receive address.                        |
 
 ## Theming
@@ -244,7 +243,6 @@ function App() {
     <SwapWidget
       apiKey="your-api-key"
       enableWalletConnection={true}
-      walletConnectProjectId="your-walletconnect-project-id"
       theme="dark"
     />
   );

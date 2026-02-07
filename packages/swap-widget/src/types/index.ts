@@ -149,7 +149,6 @@ export type SwapWidgetProps = {
   defaultSlippage?: string
   showPoweredBy?: boolean
   enableWalletConnection?: boolean
-  walletConnectProjectId?: string
   defaultReceiveAddress?: string
   ratesRefetchInterval?: number
 }

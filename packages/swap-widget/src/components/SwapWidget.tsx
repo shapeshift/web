@@ -1276,16 +1276,14 @@ const SwapWidgetWithExternalWallet = (props: SwapWidgetProps) => {
   )
 }
 
-const SwapWidgetWithInternalWallet = (
-  props: SwapWidgetProps & { walletConnectProjectId: string },
-) => {
+const SwapWidgetWithInternalWallet = (props: SwapWidgetProps) => {
   const apiClient = useMemo(
     () => createApiClient({ baseUrl: props.apiBaseUrl, apiKey: props.apiKey }),
     [props.apiBaseUrl, props.apiKey],
   )
 
   return (
-    <InternalWalletProvider projectId={props.walletConnectProjectId}>
+    <InternalWalletProvider>
       {walletClient => (
         <QueryClientProvider client={queryClient}>
           <SwapWidgetCore
@@ -1301,13 +1299,8 @@ const SwapWidgetWithInternalWallet = (
 }
 
 export const SwapWidget = (props: SwapWidgetProps) => {
-  if (props.enableWalletConnection && props.walletConnectProjectId) {
-    return (
-      <SwapWidgetWithInternalWallet
-        {...props}
-        walletConnectProjectId={props.walletConnectProjectId}
-      />
-    )
+  if (props.enableWalletConnection) {
+    return <SwapWidgetWithInternalWallet {...props} />
   }
 
   return <SwapWidgetWithExternalWallet {...props} />

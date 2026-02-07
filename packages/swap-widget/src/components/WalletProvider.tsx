@@ -12,7 +12,6 @@ import { truncateAddress } from '../types'
 const queryClient = new QueryClient()
 
 type InternalWalletProviderProps = {
-  projectId: string
   children: (walletClient: WalletClient | undefined) => ReactNode
 }
 
@@ -25,13 +24,13 @@ const InternalWalletContent = ({
   return <>{children(walletClient)}</>
 }
 
-export const InternalWalletProvider = ({ projectId, children }: InternalWalletProviderProps) => {
+export const InternalWalletProvider = ({ children }: InternalWalletProviderProps) => {
   const [isInitialized, setIsInitialized] = useState(false)
 
   useEffect(() => {
-    initializeAppKit(projectId)
+    initializeAppKit()
     setIsInitialized(true)
-  }, [projectId])
+  }, [])
 
   const wagmiConfig = useMemo((): Config | undefined => {
     if (!isInitialized) return undefined

@@ -6,8 +6,6 @@ import { useCallback, useMemo, useState } from 'react'
 import { SwapWidget } from '../components/SwapWidget'
 import type { ThemeConfig } from '../types'
 
-const PROJECT_ID = 'f58c0242def84c3b9befe9b1e6086bbd'
-
 const queryClient = new QueryClient()
 
 type ThemeColors = {
@@ -381,7 +379,6 @@ const DemoContent = ({ theme, setTheme }: DemoContentProps) => {
                 onSwapError={handleSwapError}
                 showPoweredBy={true}
                 enableWalletConnection={true}
-                walletConnectProjectId={PROJECT_ID}
               />
             </div>
           </div>

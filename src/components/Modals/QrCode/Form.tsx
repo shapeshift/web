@@ -45,7 +45,7 @@ const scanRedirect = <Navigate to={SendRoutes.Scan} replace />
 
 const formStyle = { height: '100%' }
 
-export const Form: React.FC<QrCodeFormProps> = ({ accountId }) => {
+export const Form: React.FC<QrCodeFormProps> = ({ assetId: initialAssetId, accountId }) => {
   const navigate = useNavigate()
   const { handleFormSend } = useFormSend()
   const selectedCurrency = useAppSelector(preferences.selectors.selectSelectedCurrency)
@@ -63,7 +63,7 @@ export const Form: React.FC<QrCodeFormProps> = ({ accountId }) => {
       accountId,
       to: '',
       vanityAddress: '',
-      assetId: '',
+      assetId: initialAssetId ?? '',
       feeType: FeeDataKey.Average,
       amountCryptoPrecision: '',
       fiatAmount: '',

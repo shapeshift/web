@@ -2,6 +2,7 @@ import type { AccountId, AssetId, ChainId } from '@shapeshiftoss/caip'
 import { CHAIN_NAMESPACE, fromAccountId, fromAssetId, toAccountId } from '@shapeshiftoss/caip'
 import type { FeeDataEstimate } from '@shapeshiftoss/chain-adapters'
 import { FeeDataKey } from '@shapeshiftoss/chain-adapters'
+import { isToken } from '@shapeshiftoss/utils'
 import { AnimatePresence } from 'framer-motion'
 import { useCallback, useMemo, useState } from 'react'
 import { FormProvider, useForm, useWatch } from 'react-hook-form'
@@ -312,12 +313,29 @@ export const Form: React.FC<SendFormProps> = ({ initialAssetId, input = '', acco
 
         // Update assetId and accountId if detected from QR code
         if (maybeUrlResult.assetId) {
-          methods.setValue(SendFormFields.AssetId, maybeUrlResult.assetId)
+          const { chainNamespace } = fromAssetId(maybeUrlResult.assetId)
+          const supportsErc681 =
+            chainNamespace === CHAIN_NAMESPACE.Evm || chainNamespace === CHAIN_NAMESPACE.Solana
+          const isAmbiguousAsset = supportsErc681 && !isToken(maybeUrlResult.assetId)
+
+          // If the QR code didn't explicitly specify a token (plain address scan),
+          // and we already have an asset from the page context on the same chain, keep it
+          const resolvedAssetId = (() => {
+            if (isAmbiguousAsset && initialAssetId) {
+              const { chainNamespace: contextChainNamespace } = fromAssetId(initialAssetId)
+              if (contextChainNamespace === chainNamespace) {
+                return initialAssetId
+              }
+            }
+            return maybeUrlResult.assetId
+          })()
+
+          methods.setValue(SendFormFields.AssetId, resolvedAssetId)
 
           // Get accounts for this asset to ensure we have a valid accountId
           const state = store.getState()
           const accountIds = selectPortfolioAccountIdsByAssetIdFilter(state, {
-            assetId: maybeUrlResult.assetId,
+            assetId: resolvedAssetId,
           })
           const accountId = accountIds[0]
 
@@ -348,7 +366,7 @@ export const Form: React.FC<SendFormProps> = ({ initialAssetId, input = '', acco
         setAddressError(e.message)
       }
     },
-    [navigate, methods],
+    [initialAssetId, navigate, methods],
   )
 
   const qrCodeScanner = useMemo(

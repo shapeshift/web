@@ -242,6 +242,10 @@ export const Form: React.FC<QrCodeFormProps> = ({ assetId: initialAssetId, accou
               const chainMatch = contextChainNamespace === chainNamespace
               if (chainMatch) {
                 methods.setValue(SendFormFields.AssetId, initialAssetId)
+                if (initialAssetId !== maybeUrlResult.assetId) {
+                  methods.setValue(SendFormFields.AmountCryptoPrecision, '')
+                  methods.setValue(SendFormFields.FiatAmount, '')
+                }
                 const state = store.getState()
                 const contextAccountIds = selectPortfolioAccountIdsByAssetIdFilter(state, {
                   assetId: initialAssetId,

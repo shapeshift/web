@@ -343,23 +343,23 @@ export const Form: React.FC<SendFormProps> = ({ initialAssetId, input = '', acco
           if (accountId) {
             methods.setValue(SendFormFields.AccountId, accountId)
           }
-        }
 
-        if (maybeUrlResult.assetId && maybeUrlResult.amountCryptoPrecision) {
-          const marketData = selectMarketDataByAssetIdUserCurrency(
-            store.getState(),
-            maybeUrlResult.assetId ?? '',
-          )
-          methods.setValue(
-            SendFormFields.AmountCryptoPrecision,
-            maybeUrlResult.amountCryptoPrecision,
-          )
-          methods.setValue(
-            SendFormFields.FiatAmount,
-            bnOrZero(maybeUrlResult.amountCryptoPrecision)
-              .times(bnOrZero(marketData?.price))
-              .toString(),
-          )
+          if (maybeUrlResult.amountCryptoPrecision && resolvedAssetId === maybeUrlResult.assetId) {
+            const marketData = selectMarketDataByAssetIdUserCurrency(
+              store.getState(),
+              maybeUrlResult.assetId ?? '',
+            )
+            methods.setValue(
+              SendFormFields.AmountCryptoPrecision,
+              maybeUrlResult.amountCryptoPrecision,
+            )
+            methods.setValue(
+              SendFormFields.FiatAmount,
+              bnOrZero(maybeUrlResult.amountCryptoPrecision)
+                .times(bnOrZero(marketData?.price))
+                .toString(),
+            )
+          }
         }
         navigate(SendRoutes.Address)
       } catch (e: any) {

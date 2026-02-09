@@ -1,0 +1,24 @@
+{
+  "extends": "../../tsconfig.packages.json",
+  "compilerOptions": {
+    "module": "commonjs",
+    "rootDir": "src",
+    "outDir": "dist/cjs",
+    "tsBuildInfoFile": "dist/cjs/.tsbuildinfo",
+    "skipLibCheck": true
+  },
+  "include": [
+    "src/**/*"
+  ],
+  "exclude": [
+    "dist",
+    "**/*.test.ts",
+    "**/__tests__/**",
+    "**/__mocks__/**"
+  ],
+  "references": [
+    {
+      "path": "../hdwallet-keepkey/tsconfig.cjs.json"
+    }
+  ]
+}

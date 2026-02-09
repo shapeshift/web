@@ -1,0 +1,44 @@
+{
+  "name": "@shapeshiftoss/hdwallet-native-vault",
+  "version": "1.62.41",
+  "license": "MIT",
+  "type": "module",
+  "main": "dist/cjs/index.js",
+  "module": "dist/esm/index.js",
+  "types": "dist/esm/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/esm/index.js",
+      "require": "./dist/cjs/index.js",
+      "types": "./dist/esm/index.d.ts"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "yarn clean && yarn run -T tsc --build && yarn postbuild",
+    "clean": "rm -rf dist",
+    "dev": "yarn run -T tsc --build --watch",
+    "postbuild": "yarn postbuild:esm && yarn postbuild:cjs",
+    "postbuild:esm": "yarn run -T tsc-esm-fix --target=dist/esm --ext=.js",
+    "postbuild:cjs": "echo '{\"type\": \"commonjs\"}' > dist/cjs/package.json"
+  },
+  "dependencies": {
+    "@bitcoinerlab/secp256k1": "^1.1.1",
+    "@shapeshiftoss/hdwallet-native": "workspace:^",
+    "bip39": "^3.0.4",
+    "hash-wasm": "^4.11.0",
+    "idb-keyval": "^6.0.3",
+    "jose": "^4.3.5",
+    "p-lazy": "^3.1.0",
+    "type-assertions": "^1.1.0",
+    "uuid": "^8.3.2"
+  },
+  "devDependencies": {
+    "fake-indexeddb": "^3.1.7"
+  }
+}

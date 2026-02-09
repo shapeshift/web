@@ -1,0 +1,30 @@
+{
+  "extends": "../../tsconfig.packages.json",
+  "compilerOptions": {
+    "module": "esnext",
+    "rootDir": "src",
+    "outDir": "dist/esm",
+    "tsBuildInfoFile": "dist/esm/.tsbuildinfo",
+    "skipLibCheck": true,
+    "types": [
+      "w3c-web-usb"
+    ]
+  },
+  "include": [
+    "src/**/*"
+  ],
+  "exclude": [
+    "dist",
+    "**/*.test.ts",
+    "**/__tests__/**",
+    "**/__mocks__/**"
+  ],
+  "references": [
+    {
+      "path": "../hdwallet-core/tsconfig.esm.json"
+    },
+    {
+      "path": "../hdwallet-keepkey/tsconfig.esm.json"
+    }
+  ]
+}

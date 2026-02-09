@@ -1,0 +1,40 @@
+{
+  "name": "@shapeshiftoss/hdwallet-coinbase",
+  "version": "1.62.41",
+  "license": "MIT",
+  "type": "module",
+  "main": "dist/cjs/index.js",
+  "module": "dist/esm/index.js",
+  "types": "dist/esm/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/esm/index.js",
+      "require": "./dist/cjs/index.js",
+      "types": "./dist/esm/index.d.ts"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "yarn clean && yarn run -T tsc --build && yarn postbuild",
+    "clean": "rm -rf dist",
+    "dev": "yarn run -T tsc --build --watch",
+    "postbuild": "yarn postbuild:esm && yarn postbuild:cjs",
+    "postbuild:esm": "yarn run -T tsc-esm-fix --target=dist/esm --ext=.js",
+    "postbuild:cjs": "echo '{\"type\": \"commonjs\"}' > dist/cjs/package.json"
+  },
+  "dependencies": {
+    "@coinbase/wallet-sdk": "^3.6.6",
+    "@shapeshiftoss/hdwallet-core": "workspace:^",
+    "eth-rpc-errors": "^4.0.3",
+    "ethers": "5.7.2",
+    "lodash": "^4.17.21"
+  },
+  "devDependencies": {
+    "@types/lodash": "^4.14.168"
+  }
+}

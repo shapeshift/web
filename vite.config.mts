@@ -50,6 +50,20 @@ for (const dirent of fs.readdirSync(publicPath, { withFileTypes: true })) {
 // For whatever reason, globalThis is not defined for the local esbuild environment while
 // using the vite-plugin-node-polyfills plugin. This plugin will appropriately define globalThis
 // to fix this scenario (may be resolved in a future release of vite-plugin-node-polyfills hopefully).
+// hdwallet workspace packages depend on ethers v5 (BigNumber, providers, etc.)
+// but Vite pre-bundles the root's ethers v6 for bare 'ethers' imports.
+// This plugin conditionally resolves 'ethers' to 'ethers5' (npm:ethers@5.7.2)
+// only when the importer is an hdwallet source file, preserving ethers v6 for the root app.
+const resolveEthersV5ForHdwallet: PluginOption = {
+  name: 'resolve-ethers-v5-hdwallet',
+  enforce: 'pre',
+  async resolveId(source, importer) {
+    if (source === 'ethers' && importer && /\/packages\/hdwallet-/.test(importer)) {
+      return this.resolve('ethers5', importer, { skipSelf: true })
+    }
+  },
+}
+
 const defineGlobalThis: PluginOption = {
   name: 'define-global-this',
   enforce: 'pre',
@@ -115,6 +129,7 @@ export default defineConfig(({ mode }) => {
 
   return {
     plugins: [
+      resolveEthersV5ForHdwallet,
       mode === 'development' && !process.env.DEPLOY && defineGlobalThis,
       nodePolyfills({
         globals: {
@@ -208,7 +223,7 @@ export default defineConfig(({ mode }) => {
       target: 'esnext',
       commonjsOptions: {
         transformMixedEsModules: true,
-        exclude: ['@shapeshiftoss/caip', '@shapeshiftoss/types'],
+        exclude: ['@shapeshiftoss/caip', '@shapeshiftoss/types', /^@shapeshiftoss\/hdwallet-/],
       },
       chunkSizeWarningLimit: 2000,
       rollupOptions: {

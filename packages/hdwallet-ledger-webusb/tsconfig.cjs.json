@@ -1,0 +1,30 @@
+{
+  "extends": "../../tsconfig.packages.json",
+  "compilerOptions": {
+    "module": "commonjs",
+    "rootDir": "src",
+    "outDir": "dist/cjs",
+    "tsBuildInfoFile": "dist/cjs/.tsbuildinfo",
+    "skipLibCheck": true,
+    "types": [
+      "w3c-web-usb"
+    ]
+  },
+  "include": [
+    "src/**/*"
+  ],
+  "exclude": [
+    "dist",
+    "**/*.test.ts",
+    "**/__tests__/**",
+    "**/__mocks__/**"
+  ],
+  "references": [
+    {
+      "path": "../hdwallet-core/tsconfig.cjs.json"
+    },
+    {
+      "path": "../hdwallet-ledger/tsconfig.cjs.json"
+    }
+  ]
+}

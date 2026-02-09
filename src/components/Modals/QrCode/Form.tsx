@@ -130,7 +130,8 @@ export const Form: React.FC<QrCodeFormProps> = ({ accountId }) => {
               await pair?.({ uri: decodedText })
               handleClose()
             } catch (error: unknown) {
-              if ((error as Error)?.message.includes('Pairing already exists')) {
+              const errorMessage = error instanceof Error ? error.message : String(error)
+              if (errorMessage.includes('Pairing already exists')) {
                 toast({
                   title: translate('plugins.walletConnectToDapps.errors.errorConnectingToDapp'),
                   description: translate(
@@ -142,6 +143,13 @@ export const Form: React.FC<QrCodeFormProps> = ({ accountId }) => {
                 })
               } else {
                 captureException(error)
+                toast({
+                  title: translate('plugins.walletConnectToDapps.errors.errorConnectingToDapp'),
+                  description: errorMessage,
+                  status: 'error',
+                  duration: 5000,
+                  isClosable: true,
+                })
               }
               handleClose()
             }

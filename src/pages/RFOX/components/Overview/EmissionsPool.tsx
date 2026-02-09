@@ -1,16 +1,14 @@
 import type { AssetId } from '@shapeshiftoss/caip'
-import { thorchainAssetId } from '@shapeshiftoss/caip'
-import { bn, bnOrZero } from '@shapeshiftoss/chain-adapters'
+import { bn } from '@shapeshiftoss/chain-adapters'
 import { useMemo } from 'react'
 import { useTranslate } from 'react-polyglot'
 
 import { StatItem } from './StatItem'
 
-import { fromBaseUnit } from '@/lib/math'
 import { getStakingContract } from '@/pages/RFOX/helpers'
-import { useAffiliateRevenueQuery } from '@/pages/RFOX/hooks/useAffiliateRevenueQuery'
+import { useAffiliateRevenueUsdQuery } from '@/pages/RFOX/hooks/useAffiliateRevenueUsdQuery'
 import { useCurrentEpochMetadataQuery } from '@/pages/RFOX/hooks/useCurrentEpochMetadataQuery'
-import { selectAssetById, selectMarketDataByAssetIdUserCurrency } from '@/state/slices/selectors'
+import { selectAssetById, selectUserCurrencyToUsdRate } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
 type EmissionsPoolProps = {
@@ -20,27 +18,18 @@ type EmissionsPoolProps = {
 export const EmissionsPool: React.FC<EmissionsPoolProps> = ({ stakingAssetId }) => {
   const translate = useTranslate()
 
-  const runeAsset = useAppSelector(state => selectAssetById(state, thorchainAssetId))
-  const runeAssetMarketData = useAppSelector(state =>
-    selectMarketDataByAssetIdUserCurrency(state, thorchainAssetId),
-  )
-
   const stakingAsset = useAppSelector(state => selectAssetById(state, stakingAssetId))
+  const userCurrencyToUsdRate = useAppSelector(selectUserCurrencyToUsdRate)
 
   const currentEpochMetadataQuery = useCurrentEpochMetadataQuery()
 
-  const affiliateRevenueQuery = useAffiliateRevenueQuery<string>({
+  const affiliateRevenueUsdQuery = useAffiliateRevenueUsdQuery<string>({
     startTimestamp: currentEpochMetadataQuery.data?.epochStartTimestamp,
     endTimestamp: currentEpochMetadataQuery.data?.epochEndTimestamp,
-    select: (totalRevenue: bigint) => {
-      return bn(fromBaseUnit(totalRevenue.toString(), runeAsset?.precision ?? 0))
-        .times(bnOrZero(runeAssetMarketData?.price))
-        .toFixed(2)
-    },
   })
 
   const emissionsPoolUserCurrency = useMemo(() => {
-    if (!affiliateRevenueQuery.data) return
+    if (!affiliateRevenueUsdQuery.data) return
     if (!currentEpochMetadataQuery.data) return
 
     const distributionRate =
@@ -48,15 +37,23 @@ export const EmissionsPool: React.FC<EmissionsPoolProps> = ({ stakingAssetId }) 
         getStakingContract(stakingAssetId)
       ]
 
-    return bn(affiliateRevenueQuery.data).times(distributionRate).toFixed(2)
-  }, [affiliateRevenueQuery, currentEpochMetadataQuery, stakingAssetId])
+    return bn(affiliateRevenueUsdQuery.data)
+      .times(userCurrencyToUsdRate)
+      .times(distributionRate)
+      .toFixed(2)
+  }, [
+    affiliateRevenueUsdQuery.data,
+    currentEpochMetadataQuery.data,
+    stakingAssetId,
+    userCurrencyToUsdRate,
+  ])
 
   return (
     <StatItem
       description={translate('RFOX.emissionsPool', { symbol: stakingAsset?.symbol })}
       helperDescription={translate('RFOX.emissionsPoolHelper', { symbol: stakingAsset?.symbol })}
       amountUserCurrency={emissionsPoolUserCurrency}
-      isLoading={affiliateRevenueQuery.isLoading || currentEpochMetadataQuery.isLoading}
+      isLoading={affiliateRevenueUsdQuery.isLoading || currentEpochMetadataQuery.isLoading}
     />
   )
 }

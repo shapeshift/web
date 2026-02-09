@@ -48,9 +48,12 @@
     "insufficientAmountForGas": "Solde %{assetSymbol}.%{chainSymbol} insuffisant pour couvrir le carburant",
     "invalidAddress": "Adresse invalide",
     "deposit": "Déposer",
+    "supply": "Approvisionner",
     "withdraw": "Retirer",
     "withdrawal": "Retrait",
     "claim": "Réclamer",
+    "claiming": "Réclamation en cours...",
+    "confirming": "Confirmation en cours...",
     "withdrawAndClaim": "Retirer et réclamer",
     "overview": "Vue d'ensemble",
     "connectWallet": "Connecter un porte-monnaie",
@@ -177,6 +180,7 @@
     "featureDisabled": "Cette fonctionnalité est temporairement désactivée.",
     "yes": "Oui",
     "activeAccount": "Compte actif",
+    "selectAccount": "Sélectionner un compte",
     "update": "Mettre à jour",
     "apy": "APY",
     "installed": "Installé",
@@ -345,27 +349,28 @@
     }
   },
   "defi": {
+    "yourBalance": "Votre solde",
     "modals": {
       "learnMore": {
         "next": "Suivant",
         "close": "Fermer",
         "headers": {
-          "aboutStakingRewards": "À propos des récompenses de mises",
-          "unstaking": "Démiser vos %{assetName}",
+          "aboutStakingRewards": "À propos des récompenses de staking",
+          "unstaking": "Déstaker vos %{assetName}",
           "risks": "Y a-t-il des risques ?"
         },
         "bodies": {
           "rateFluctuationInfo": "Le taux de %{assetName} que vous gagnez, le taux annuel de retour (APR), fluctue généralement entre 7% et 20%.",
-          "amountStakingInfo": "Vous pouvez miser n'importe quel montant en %{assetName} et ils commenceront immédiatement à gagner des récompenses.",
+          "amountStakingInfo": "Vous pouvez staker n'importe quel montant en %{assetName} et ils commenceront immédiatement à gagner des récompenses.",
           "withdrawInfo": "Vous pouvez retirer vos récompenses à tout moment, cela requiert des frais de carburant modestes d'environ 0,01 $.",
-          "unbondingInfo": "Lorsque vous démisez vos jetons, ils restent verrouillés durant %{unbondingDays} jours, au cours desquels ils ne sont pas récompensés. Après ces %{unbondingDays} jours, vos %{assetName} retourneront dans votre porte-monnaie principal.",
-          "slashingInfo": "La mise est effectuée grâce un validateur. C'est extrêmement rare, mais si le validateur avec lequel vous avez effectué la mise se trompe en autorisant des transactions fausses ou incorrectes, vous pouvez perdre une partie de vos actifs.",
+          "unbondingInfo": "Lorsque vous déstakez vos jetons, ils restent verrouillés durant %{unbondingDays} jours, au cours desquels ils ne sont pas récompensés. Après ces %{unbondingDays} jours, vos %{assetName} retourneront dans votre porte-monnaie principal.",
+          "slashingInfo": "Le staking est effectuée grâce un validateur. C'est extrêmement rare, mais si le validateur avec lequel vous avez staké se trompe en autorisant des transactions fausses ou incorrectes, vous pouvez perdre une partie de vos actifs.",
           "partnerInfo": "Nous avons mitigé ce risque en nous associant à un validateur réputé — qui dispose d'une infrastructure sécurisée, fiable et auditée."
         }
       },
       "cosmosOverview": {
-        "withdrawals": "En cours de démise",
-        "emptyWithdraws": "Les demandes de démise en attente s'affichent ici.",
+        "withdrawals": "En cours de déstaking",
+        "emptyWithdraws": "Les demandes de déstaking en attente s'affichent ici.",
         "availableDate": "disponible %{date}"
       },
       "foxyOverview": {
@@ -376,7 +381,7 @@
       },
       "foxFarmingOverview": {
         "header": "Déposer des jetons LP ETH-FOX dans %{opportunity} pour gagner",
-        "body": "Autorisez et misez vos jetons de liquidité pour gagner des récompenses bonus en FOX.",
+        "body": "Autorisez et stakez vos jetons de liquidité pour gagner des récompenses bonus en FOX.",
         "rewards": "Les récompenses que vous gagnez s'accumuleront automatiquement.",
         "cta": "Déposer des jetons LP ETH-FOX maintenant"
       },
@@ -394,7 +399,7 @@
         "claimYour": "Réclamer vos %{opportunity}"
       },
       "saversVaults": {
-        "description": "Gagnez du rendement sur vos %{asset} grâce aux THORChain Savers Vaults. Il n'y a pas de temps de blocage et les récompenses s'accumulent automatiquement. Le rendement sur THORChain provient des frais d'échange et des récompenses de blocs. Le rendement unilatéral est plafonné à la moitié du rendement bilatéral des fournisseurs de liquidité.",
+        "description": "Gagnez du rendement sur vos %{asset} grâce aux THORChain Savers Vaults. Il n'y a pas de temps de verrouillage et les récompenses s'accumulent automatiquement. Le rendement sur THORChain provient des frais d'échange et des récompenses de blocs. Le rendement unilatéral est plafonné à la moitié du rendement bilatéral des fournisseurs de liquidité.",
         "runePoolDescription": "RUNEPool vous permet de gagner des %{asset} en plus en poolant vos %{asset} avec d'autres. Vous n'avez pas à choisir de pools spécifiques, tout le monde partage les performances globales.",
         "runePoolOverviewDescription": "RUNEPool optimise l'utilisation des RUNE en les déposant dans tous les pools de liquidités compatibles POL de THORChain. En regroupant les RUNE dans ces pools, les participants gagnent l'APY combiné mais sont exposés aux pertes impermanentes globales. Au lieu de choisir des pools individuels, les utilisateurs bénéficient de la performance globale, en investissant en réalité dans un indice RUNE et de tous les actifs compatibles POL de THORChain. Cela simplifie la mise à disposition de liquidités et réduit le risque individuel.",
         "vaultCap": "Plafond du Vault",
@@ -434,9 +439,9 @@
     "transactionFailed": "Transaction échouée",
     "notEnoughFundsInReserve": "Fonds insuffisants dans le contrat de réserve de liquidité",
     "provider": "Fournisseur",
-    "stake": "Miser",
+    "stake": "Staker",
     "version": "Version",
-    "unstake": "Démiser",
+    "unstake": "Déstaker",
     "claim": "Réclamer",
     "earn": "Gagner",
     "asset": "Actif",
@@ -447,18 +452,19 @@
     "balance": "Solde",
     "netWorth": "Patrimoine net",
     "loadingAccounts": "%{portfolioAccountsLoaded} comptes chargés",
+    "loadingMorePositions": "Plus de positions DeFi sont en cours de chargement.",
     "walletBalanceChange24Hr": "Évolution sur 24 heures",
-    "earnBody": "Gagnez des revenus passifs en misant vos actifs ou en les déposant dans une stratégie DeFi.",
-    "noAccountsOpportunities": "Vous n'avez aucun compte pour cet actif, les opportunités de mise ne sont donc pas disponibles actuellement.",
+    "earnBody": "Gagnez des revenus passifs en stakant vos actifs ou en les déposant dans une stratégie DeFi.",
+    "noAccountsOpportunities": "Vous n'avez aucun compte pour cet actif, ainsi les opportunités de staking ne sont pas disponibles actuellement.",
     "overview": "Vue d'ensemble",
     "myPositions": "Mes positions",
     "myPositionsBody": "Une liste de vos positions DeFi actives.",
     "liquidityLockupWarning": "Il y a une période de verrouillage de %{time}. Pendant la période de verrouillage, vous ne pouvez pas accéder à vos liquidités.",
     "liquidityLocked": "Liquidité verrouillée (%{time})",
-    "stakingBalance": "Solde des mises",
+    "stakingBalance": "Solde de staking",
     "totalValue": "Valeur totale",
     "claimableRewards": "Récompenses réclamables",
-    "stakingPosition": "Position de mises",
+    "stakingPosition": "Position de staking",
     "liquidityPool": "Pool de liquidités",
     "noActivePositions": "Aucune position active",
     "viewOnChain": "Voir sur la chaîne",
@@ -503,7 +509,6 @@
     "featureFlags": "Indicateurs de fonctionnalité",
     "wallet": "Porte-monnaie",
     "explore": "Explorer",
-    "trade": "Échanger/Bridger",
     "market": "Marché",
     "limitOrder": "Ordres à cours limité",
     "buyCrypto": "Acheter/Vendre des cryptos",
@@ -516,7 +521,9 @@
     "ecosystem": "Écosystème",
     "markets": "Marchés",
     "tokens": "Jetons",
-    "swap": "Échanger"
+    "swap": "Échanger",
+    "yields": "Rendements",
+    "earn": "Gagner"
   },
   "shapeShiftMenu": {
     "products": "Produits",
@@ -570,16 +577,16 @@
         "executeTransaction": "Réclamation"
       },
       "rfox": {
-        "stake": "Miser",
+        "stake": "Staker",
         "withdraw": "Retirer",
-        "unstakeRequest": "Demande de démise",
+        "unstakeRequest": "Demande de déstake",
         "setRuneAddress": "Définir l'adresse RUNE",
         "reward": "Distribution des récompenses"
       },
       "tcy": {
-        "stake": "Miser",
+        "stake": "Staker",
         "withdraw": "Retirer",
-        "unstakeRequest": "Demande de démise",
+        "unstakeRequest": "Demande de déstake",
         "setRuneAddress": "Définir l'adresse RUNE",
         "reward": "Distribution des récompenses"
       },
@@ -606,8 +613,8 @@
       },
       "uniV2": {
         "addLiquidityETH": "Ajout de liquidités",
-        "stake": "Mise",
-        "exit": "Démise",
+        "stake": "Staker",
+        "exit": "Déstaker",
         "removeLiquidityETH": "Retrait de liquidités"
       },
       "thorchain": {
@@ -623,11 +630,11 @@
         "loanRepaymentRefundNative": "Restitution de prêt + Remboursement",
         "out": "Sortant reçu",
         "refund": "Remboursement",
-        "stake": "Miser",
+        "stake": "Staker",
         "swapOut": "Échange reçu",
         "swap": "Échange",
         "swapRefund": "Remboursement d'échange",
-        "unstake": "Démiser",
+        "unstake": "Déstaker",
         "withdraw": "Retrait demandé",
         "withdrawNative": "Retrait",
         "withdrawOut": "Retrait reçu"
@@ -640,9 +647,9 @@
         "swapRefund": "Remboursement d'échange"
       },
       "foxy": {
-        "stake": "Mise",
-        "unstake": "Démise",
-        "instantUnstake": "Démise instantanée",
+        "stake": "Stake",
+        "unstake": "Déstake",
+        "instantUnstake": "Déstake instantané",
         "claimWithdraw": "Réclamation de retrait"
       },
       "erc20": {
@@ -840,7 +847,7 @@
     "or": "ou",
     "onChainName": "sur %{chainName}",
     "unknownGas": "(inconnu)",
-    "receiveAddressDescription": "Aucune adresse %{chainName} trouvée dans le porte-monnaie connecté. Entez manuellement une adresse",
+    "receiveAddressDescription": "Aucune adresse %{chainName} trouvée dans le porte-monnaie connecté. Entrez manuellement une adresse",
     "disableThorTaprootReceive": "Nous avons détecté que vous envoyez vers une adresse Bitcoin Taproot. En raison des limitations de THORChain, la réception de BTC vers une adresse Taproot n'est actuellement pas prise en charge. Veuillez entrer une autre adresse.",
     "toContinue": "pour continuer.",
     "enableMetaMaskSnap": "utilisez le Snap MultiChain",
@@ -1187,11 +1194,11 @@
       "claimFrom": "Réclamer depuis %{opportunity}"
     },
     "stake": {
-      "stakeYour": "Miser vos %{opportunity}",
+      "stakeYour": "Staker vos %{opportunity}",
       "status": {
         "pending": "Votre transaction a été diffusée et est en attente de confirmation.",
-        "success": "Vous avez effectué avec succès le mise de vos %{opportunity}.",
-        "failed": "Il y a eu un problème avec votre transaction de mise."
+        "success": "Vous avez staké vos %{opportunity} avec succès.",
+        "failed": "Il y a eu un problème avec votre transaction de staking."
       }
     },
     "withdraw": {
@@ -1234,7 +1241,7 @@
       "withdrawTo": "Retirer vers",
       "amountToDeposit": "Montant à déposer",
       "amountDeposited": "Montant déposé",
-      "amountToStake": "Montant à miser",
+      "amountToStake": "Montant à staker",
       "amountToWithdraw": "Montant à retirer",
       "withdrawTime": "Délai du retrait",
       "withdrawFee": "Frais de retrait",
@@ -1848,7 +1855,7 @@
       },
       "accountTokens": "Jetons du compte",
       "relatedAssets": "Actifs connexes",
-      "stakingBody": "Gagnez des revenus passifs en misant vos actifs ou en les déposant dans une stratégie DeFi."
+      "stakingBody": "Gagnez des revenus passifs en stakant vos actifs ou en les déposant dans une stratégie DeFi."
     }
   },
   "accounts": {
@@ -2268,10 +2275,10 @@
     },
     "tcy": {
       "title": "TCY",
-      "body": "Misez des TCY et gagnez des RUNE."
+      "body": "Stakez des TCY et gagnez des RUNE."
     },
     "tags": {
-      "liquid-staking": "Mises liquides",
+      "liquid-staking": "Staking liquide",
       "yield": "Rendement",
       "lending": "Prêts",
       "rwa": "RWA",
@@ -2281,25 +2288,25 @@
     }
   },
   "RFOX": {
-    "stakeInitiated": "Mise initiée",
-    "unstakeInitiated": "Démise initiée",
+    "stakeInitiated": "Staking initié",
+    "unstakeInitiated": "Déstaking initié",
     "claimWithdraw": "Réclamer le retrait",
-    "staking": "Mises en rFOX",
+    "staking": "Staking rFOX",
     "bridge": "Bridger",
     "bridgeFunds": "Bridger des fonds",
-    "bridgeSuccess": "Vos fonds ont été bridgés avec succès. Vous pouvez maintenant continuer vers les mises.",
-    "stake": "Miser",
-    "unstake": "Démiser",
+    "bridgeSuccess": "Vos fonds ont été bridgés avec succès. Vous pouvez maintenant poursuivre avec le staking.",
+    "stake": "Staker",
+    "unstake": "Déstaker",
     "claim": "Réclamer",
     "rewards": "Récompenses",
     "chainNotSupportedByWallet": "Chaîne non prise en charge par le porte-monnaie",
     "changeAddress": "Changer d'adresse",
     "sameAddressNotAllowed": "Même adresse non autorisée",
-    "stakingDetails": "Détails de mise",
-    "stakeAmount": "Montant à miser",
-    "unstakeAmount": "Montant à démiser",
-    "confirmAndStake": "Confirmer et miser",
-    "confirmAndUnstake": "Confirmer et démiser",
+    "stakingDetails": "Détails du staking",
+    "stakeAmount": "Montant à staker",
+    "unstakeAmount": "Montant à déstaker",
+    "confirmAndStake": "Confirmer et staker",
+    "confirmAndUnstake": "Confirmer et déstaker",
     "confirmAndClaim": "Confirmer et réclamer",
     "shapeShiftFee": "Frais ShapeShift",
     "lockupPeriod": "Période de verrouillage",
@@ -2308,19 +2315,19 @@
     "rewardAddressHelper": "C'est ici que les récompenses seront envoyées",
     "useWalletAddress": "Utiliser l'adresse du porte-monnaie",
     "useCustomAddress": "Utiliser une adresse personnalisée",
-    "stakeWarning": "Lorsque vous misez vos jetons %{symbol}, sachez que la période de verrouillage est de %{cooldownPeriod}. Cela signifie que si vous décidez de retirer vos jetons, vous devrez attendre %{cooldownPeriod} avant de pouvoir réclamer vos fonds.",
-    "bridgeCta": "Vous avez sélectionné %{assetSymbol} sur %{originNetwork}, mais vous aurez besoin de %{assetSymbol} sur %{destinationNetwork} pour miser. Nous pouvons vous aider à transférer vos fonds vers %{destinationNetwork}. Souhaitez-vous que nous vous guidions dans le processus ?",
-    "unstakeWarning": "Avant de pouvoir réclamer vos %{symbol}, la période de repos est de %{cooldownPeriod}. Une fois ce délai écoulé, vous pourrez réclamer votre montant démisé.",
+    "stakeWarning": "Lorsque vous stakez vos jetons %{symbol}, sachez que la période de verrouillage est de %{cooldownPeriod}. Cela signifie que si vous décidez déstaker vos jetons, vous devrez attendre %{cooldownPeriod} avant de pouvoir réclamer vos fonds.",
+    "bridgeCta": "Vous avez sélectionné %{assetSymbol} sur %{originNetwork}, mais vous aurez besoin de %{assetSymbol} sur %{destinationNetwork} pour staker. Nous pouvons vous aider à transférer vos fonds vers %{destinationNetwork}. Souhaitez-vous que nous vous guidions dans le processus ?",
+    "unstakeWarning": "Avant de pouvoir réclamer vos %{symbol}, la période de repos est de %{cooldownPeriod}. Une fois ce délai écoulé, vous pourrez réclamer votre montant déstaké.",
     "tooltips": {
-      "stakeAmount": "C'est le montant en FOX que vous miserez",
-      "unstakeAmount": "C'est le montant en FOX que vous démiserez",
-      "lockupPeriod": "C'est le temps que vous devrez attendre après avoir démisé pour réclamer vos FOX.",
+      "stakeAmount": "C'est le montant en FOX que vous stakerez",
+      "unstakeAmount": "C'est le montant en FOX que vous déstakerez",
+      "lockupPeriod": "C'est le temps que vous devrez attendre après avoir déstaké pour réclamer vos FOX.",
       "shareOfPool": "Il s'agit du pourcentage des frais que vous gagnerez.",
       "unstakePendingCooldown": "Réclamation disponible %{cooldownPeriodHuman}",
       "cooldownComplete": "Temps de repos terminé %{cooldownPeriodHuman}"
     },
-    "stakeSuccess": "Vous avez misé %{amount} %{symbol} avec succès",
-    "stakePending": "Mise en cours de %{amount} %{symbol}...",
+    "stakeSuccess": "Vous avez staké %{amount} %{symbol} avec succès",
+    "stakePending": "Staking de %{amount} %{symbol} en cours...",
     "changeAddressPending": "Adresse de récompenses RFOX en cours de changement pour %{newAddress}",
     "changeAddressSuccess": "Adresse de récompenses RFOX changée pour %{newAddress}",
     "unstakePending": "Demande de retrait de %{amount} %{symbol}",
@@ -2336,16 +2343,16 @@
     "noClaimsAvailable": "Aucune réclamation disponible",
     "errorFetchingClaims": "Une erreur s'est produite lors de la récupération des réclamations",
     "noClaimsAvailableDescription": "Vous n'avez aucune réclamation disponible",
-    "unstakeNow": "Démiser pour réclamer les FOX",
+    "unstakeNow": "Déstaker pour réclamer les FOX",
     "bridgeAndConfirm": "Bridger et confirmer",
     "noSupportedChains": "Chaîne non prise en charge",
     "noSupportedChainsDescription": "Ajoutez %{chainLabel} ou connectez-vous à un porte-monnaie qui la prend en charge.",
-    "myStakedBalance": "Mon solde misé",
-    "myStakedBalanceHelper": "Le montant en %{symbol} que vous avez misé",
+    "myStakedBalance": "Mon solde staké",
+    "myStakedBalanceHelper": "Le montant en %{symbol} que vous avez staké",
     "pendingRewardsBalance": "Solde des récompenses en attente",
     "pendingRewardsBalanceHelper": "Il s'agit uniquement d'une estimation de vos récompenses en attente, basée sur les revenus de l’époque à ce jour. Toute la comptabilité est effectuée à la fin de l'époque et ne peut pas être calculée exactement avant la fin du mois.",
     "lifetimeRewards": "Récompenses cumulées",
-    "lifetimeRewardsHelper": "Le total des récompenses que vous avez gagnées en misant vos %{symbol} à ce jour",
+    "lifetimeRewardsHelper": "Le total à ce jour des récompenses que vous avez gagnées en stakant vos %{symbol}",
     "timeInPool": "Temps dans le pool",
     "timeInPoolHelper": "Le temps dans le pool correspond au dépôt le plus ancien dans rFOX",
     "positionDetails": "Détails de la position",
@@ -2354,52 +2361,54 @@
       "title": "FAQ",
       "what": {
         "title": "Qu’est-ce que rFOX ?",
-        "body": "rFOX est un terme utilisé pour décrire les avantages et les récompenses que vous recevez lorsque vous misez vos jetons FOX sur Arbitrum. Actuellement, vous verrouillez et déverrouillez les jetons « vanilla » FOX (sur Arbitrum) pour les émissions de mises."
+        "body": "rFOX est un terme utilisé pour décrire les avantages et les récompenses que vous recevez lorsque vous stakez vos jetons FOX sur Arbitrum. Actuellement, vous verrouillez et déverrouillez les jetons « vanilla » FOX (sur Arbitrum) pour les émissions de staking."
       },
       "why": {
-        "title": "Pourquoi miser vos FOX ?",
-        "body": "La mise de vos FOX vous permet de gagner régulièrement des paiements en RUNE provenant de la trésorerie de la DAO, fournissant un flux constant de revenus passifs en RUNE par époque. De plus, une partie des RUNE reçus par la DAO est utilisée pour acheter des FOX sur le marché libre et les brûler, réduisant ainsi la masse monétaire totale. La mise promeut également un alignement de ShapeShift DAO avec l'écosystème THORChain, contribuant ainsi à leur croissance et à leurs succès. Le processus de mise nécessite une période minimale de 28 jours avant la démise, encourageant l'engagement et la stabilité au sein de la communauté."
+        "title": "Pourquoi staker vos FOX ?",
+        "body": "Le staking de vos FOX vous permet de gagner régulièrement des paiements en RUNE provenant de la trésorerie de la DAO, fournissant un flux constant de revenus passifs en RUNE par époque. De plus, une partie des RUNE reçus par la DAO est utilisée pour acheter des FOX sur le marché libre et les brûler, réduisant ainsi la masse monétaire totale. Le staking promeut également un alignement de ShapeShift DAO avec l'écosystème THORChain, contribuant ainsi à leur croissance et à leurs succès. Le processus de staking nécessite une période minimale de 28 jours avant le destaking, encourageant l'engagement et la stabilité au sein de la communauté."
       },
       "stake": {
-        "title": "Comment miser mes FOX ?",
-        "body": "Pour miser vos FOX, vous utilisez l'interface de mise pour verrouiller vos jetons FOX dans le contrat de mise. Vous devrez signer un message ou une transaction pour désigner l'adresse où vos récompenses RUNE seront payées. Lorsque vous aurez misé, vous commencerez à gagner des récompenses RUNE par bloc dans le cadre de vos avantages de mise."
+        "title": "Comment staker mes FOX ?",
+        "body": "Pour staker vos FOX, vous utilisez l'interface de staking pour verrouiller vos jetons FOX dans le contrat de staking. Vous devrez signer un message ou une transaction pour désigner l'adresse où vos récompenses RUNE seront payées. Lorsque vous aurez staké, vous commencerez à gagner des récompenses RUNE par bloc dans le cadre de vos avantages de staking."
       },
       "unstake": {
-        "title": "Que se passe-t-il lorsque je démise ?",
-        "body": "Lorsque vous décidez de démiser, il y a une période minimale de 28 jours avant la démise. Pendant ce temps, vos FOX restent verrouillés et vous cessez de recevoir des émissions RUNE. Après la période de démise, vous pourrez débloquer et récupérer vos jetons FOX normaux."
+        "title": "Que se passe-t-il lorsque je déstake ?",
+        "body": "Lorsque vous décidez de déstaker, il y a une période minimale de 28 jours de destaking. Pendant ce temps, vos FOX restent verrouillés et vous cessez de recevoir des émissions RUNE. Après la période de déstaking, vous pourrez débloquer et récupérer vos jetons FOX normaux."
       },
       "cooldown": {
         "title": "Quelle est la durée de la période de repos ?",
-        "body": "La période de repos pour le retrait des jetons FOX est de 28 jours. Pendant ce temps, vos jetons restent verrouillés et ne peuvent être transférés."
+        "body": "La période de repos pour le destaking de jetons FOX est de 28 jours. Pendant ce temps, vos jetons restent verrouillés et ne peuvent pas être transférés."
       },
       "multipleUnstaking": {
-        "title": "Puis-je avoir plusieurs montants en cours de démise ?",
-        "body": "Oui, vous pouvez avoir plusieurs montants en cours de démise. Chaque action de démise aura sa propre période de repos de 28 jours."
+        "title": "Puis-je avoir plusieurs montants en cours de déstaking ?",
+        "body": "Oui, vous pouvez avoir plusieurs montants en cours de déstaking. Chaque action de déstaking aura sa propre période de repos de 28 jours."
       },
       "connect": {
-        "title": "Quel est le rapport entre le total de frais collectés, le total misé en FOX, le pool d'émissions et le montant de FOX brûlés ?",
-        "body": "Les frais collectés par la DAO sont en RUNE natifs. Une partie de ces RUNE est distribuée aux miseurs FOX en guise de récompenses, tandis qu'une autre partie est utilisée pour acheter des FOX sur le marché libre et les brûler, réduisant ainsi la masse monétaire globale de FOX. Le montant total misé en FOX influence la distribution des récompenses en RUNE, car les récompenses sont distribuées au prorata du montant des FOX misés. Le pool d'émissions représente la quantité de FOX disponibles pour les récompenses des mises, et le montant de FOX brûlés est la partie des FOX achetés et brûlés à l'aide des RUNE collectés grâce aux frais."
+        "title": "Quel est le rapport entre le total de frais collectés, le total staké en FOX, le pool d'émissions et le montant de FOX brûlés ?",
+        "body": "Les frais collectés par la DAO sont en RUNE natifs. Une partie de ces RUNE est distribuée aux stakeurs FOX en guise de récompenses, tandis qu'une autre partie est utilisée pour acheter des FOX sur le marché libre et les brûler, réduisant ainsi la masse monétaire globale de FOX. Le montant total staké en FOX influence la distribution des récompenses en RUNE, car les récompenses sont distribuées au prorata du montant des FOX stakés. Le pool d'émissions représente la quantité de FOX disponibles pour les récompenses de staking, et le montant de FOX brûlés est la partie des FOX achetés et brûlés à l'aide des RUNE collectés grâce aux frais."
       }
     },
     "totals": "Totaux rFOX",
-    "totalStaked": "Total des %{symbol} misés",
-    "totalStakedHelper": "Le montant total des %{symbol} misés",
+    "totalStaked": "Total des %{symbol} stakés",
+    "totalStakedHelper": "Le montant total des %{symbol} stakés",
     "totalFeesCollected": "Total des frais collectés (cette époque)",
     "emissionsPool": "Pool d'émissions %{symbol} (cette époque)",
-    "emissionsPoolHelper": "Le montant total des récompenses à distribuer aux miseurs %{symbol}",
+    "emissionsPoolHelper": "Le montant total des récompenses à distribuer aux stakeurs %{symbol}",
     "foxBurnAmount": "Montant de FOX brûlés (cette époque)",
     "pendingDistribution": "Distribution en attente",
-    "selectRuneAddress": "Sélectionnez une adresse RUNE"
+    "selectRuneAddress": "Sélectionnez une adresse RUNE",
+    "lpSunsetWarningTitle": "Le programme est terminé.",
+    "lpSunsetWarningDescription": "Le programme de récompenses pour WETH/FOX sur Arbitrum est désormais terminé. Veuillez unstaker et réclamer vos fonds à votre plus proche convenance."
   },
   "TCY": {
-    "stake": "Miser",
-    "unstake": "Démiser",
-    "staking": "Mises TCY",
+    "stake": "Staker",
+    "unstake": "Déstaker",
+    "staking": "Staking TCY",
     "myPosition": "Ma position",
-    "myStakedBalance": "Mon solde misé",
-    "myStakedBalanceHelper": "Le montant en %{symbol} que vous avez misé",
+    "myStakedBalance": "Mon solde staké",
+    "myStakedBalanceHelper": "Le montant en %{symbol} que vous avez staké",
     "myRewardsBalance": "Mon solde de récompenses RUNE",
-    "myRewardsBalanceHelper": "Le montant des récompenses de mises RUNE. Distribué automatiquement sur votre porte-monnaie quotidiennement.",
+    "myRewardsBalanceHelper": "Le montant des récompenses de staking RUNE. Distribué automatiquement sur votre porte-monnaie quotidiennement.",
     "claimNow": "Vous aviez une position d'épargne/prêt sur Thorchain. Vous pouvez réclamer vos TCY dès maintenant.",
     "claimsEmpty": {
       "emptyTitle": "Aucune réclamation disponible",
@@ -2412,8 +2421,8 @@
       "missingFundsForGasAlert": "Montant en %{symbol} insuffisant, il vous faut au moins %{amount} %{symbol} pour finaliser la transaction. Nous vous recommandons d'envoyer un peu plus afin de couvrir d’éventuelles fluctuations de frais de réseau.",
       "confirmTitle": "Confirmer la réclamation",
       "networkFee": "Frais de réseau",
-      "confirmAndClaim": "Réclamer et miser",
-      "notice": "Vous réclamez %{amount} TCY. Ils seront automatiquement misés. Démisez-les à tout moment pour les recevoir dans votre porte-monnaie."
+      "confirmAndClaim": "Réclamer et staker",
+      "notice": "Vous réclamez %{amount} TCY. Ils seront automatiquement stakés. Déstakez-les à tout moment pour les recevoir dans votre porte-monnaie."
     },
     "claimAddressInput": {
       "label": "Adresse de réclamation",
@@ -2427,16 +2436,16 @@
     },
     "stakeInput": {
       "amount": "Montant",
-      "stake": "Miser",
+      "stake": "Staker",
       "amountPlaceholder": "Entrez le montant"
     },
     "stakeConfirm": {
-      "confirmTitle": "Confirmer la mise",
-      "confirmAndStake": "Confirmer et miser"
+      "confirmTitle": "Confirmer le staking",
+      "confirmAndStake": "Confirmer et et staker"
     },
     "unstakeConfirm": {
-      "confirmTitle": "Confirmer la démise",
-      "confirmAndUnstake": "Confirmer et démiser"
+      "confirmTitle": "Confirmer le déstaking",
+      "confirmAndUnstake": "Confirmer et déstaker"
     },
     "cta": {
       "title": "Les réclamations THORChain TCY sont arrivées !",
@@ -2498,13 +2507,13 @@
   },
   "foxPage": {
     "title": "Tableau de bord du jeton FOX",
-    "description": "Depuis 2019, notre jeton FOX évolue sans cesse et offre aux utilisateurs une gamme d'utilités et d'avantages en constante expansion. Aujourd'hui, notre jeton de gouvernance ERC-20 vous offre une part des revenus sur THORChain et vous permet d'influencer l'avenir de ShapeShift grâce à vos votes. Misez, échangez, achetez, approvisionnez et gérez vos avoirs FOX ici.",
+    "description": "Depuis 2019, notre jeton FOX évolue sans cesse et offre aux utilisateurs une gamme d'utilités et d'avantages en constante expansion. Aujourd'hui, notre jeton de gouvernance ERC-20 vous offre une part des revenus sur THORChain et vous permet d'influencer l'avenir de ShapeShift grâce à vos votes. Stakez, échangez, achetez, approvisionnez et gérez vos avoirs FOX ici.",
     "foxToken": "Jeton FOX",
     "24hrPriceChange": "Évolution du prix sur 24h",
     "rfox": {
-      "totalSymbolBurn": "Total des %{symbol} brûlés",
+      "totalBurn": "Total brûlé",
       "simulateTitle": "Simulateur rFOX",
-      "simulateSubtle": "Simulez le rendement de votre mise rFOX",
+      "simulateSubtle": "Simulez le rendement de votre staking rFOX",
       "estimatedRewards": "Récompenses estimées",
       "depositAmount": "Montant du dépôt",
       "shapeshiftRevenue": "Revenus de ShapeShift",
@@ -2512,9 +2521,9 @@
     },
     "foxFarming": {
       "title": "Farming de FOX+",
-      "description": "Vous en avez assez de déplacer vos %{rewardAssetSymbol} d'un farming à l'autre ? Misez simplement vos %{assetSymbol} et gagnez des %{rewardAssetSymbol} en permanence.",
+      "description": "Vous en avez assez de déplacer vos %{rewardAssetSymbol} d'un farming à l'autre ? Stakez simplement vos %{assetSymbol} et gagnez des %{rewardAssetSymbol} en permanence.",
       "totalClaimableRewards": "Total des récompenses réclamables",
-      "totalStakingValue": "Valeur totale misée",
+      "totalStakingValue": "Valeur totale du staking",
       "nextEpoch": "Prochaine époque"
     },
     "governance": {
@@ -2635,15 +2644,15 @@
       "expired": "Votre ordre d'achat de %{buyAmountAndSymbol} contre %{sellAmountAndSymbol} a expiré."
     },
     "rfox": {
-      "unstakeReady": "Votre démise de %{amount} %{symbol} est prête à être réclamée.",
-      "unstakeTxPending": "Votre démise de %{amount} %{symbol} est en attente.",
-      "unstakeTxComplete": "Votre démise de %{amount} %{symbol} est terminée."
+      "unstakeReady": "Votre déstake de %{amount} %{symbol} est prêt à être réclamé.",
+      "unstakeTxPending": "Votre déstake de %{amount} %{symbol} est en attente.",
+      "unstakeTxComplete": "Votre déstake de %{amount} %{symbol} est terminé."
     },
     "tcy": {
-      "stakePending": "Votre mise de %{amount} %{symbol} est en cours de traitement...",
-      "unstakePending": "Votre démise de %{amount} %{symbol} est en cours de traitement...",
-      "stakeComplete": "Votre mise de %{amount} %{symbol} est terminée.",
-      "unstakeComplete": "Votre démise de %{amount} %{symbol} est terminée.",
+      "stakePending": "Votre stake de %{amount} %{symbol} est en cours de traitement...",
+      "unstakePending": "Votre déstake de %{amount} %{symbol} est en cours de traitement...",
+      "stakeComplete": "Votre stake de %{amount} %{symbol} est terminé.",
+      "unstakeComplete": "Votre déstake de %{amount} %{symbol} est terminé.",
       "claimReady": "Votre réclamation TCY de %{amount} %{symbol} est prête.",
       "claimTxPending": "Votre réclamation TCY de %{amount} %{symbol} est en attente.",
       "claimTxComplete": "Votre réclamation TCY de %{amount} %{symbol} est terminée."
@@ -2661,5 +2670,224 @@
         "description": "Votre récompense de %{amountAndSymbol} est terminée."
       }
     }
+  },
+  "yieldXYZ": {
+    "pageTitle": "Rendements",
+    "pageSubtitle": "Découvrez et gérez les opportunités de rendements sur plusieurs chaînes.",
+    "actions": {
+    },
+    "yield": "Rendement",
+    "apy": "APY",
+    "apr": "APR",
+    "tvl": "TVL",
+    "asset": "Actif",
+    "provider": "Fournisseur",
+    "balance": "Solde",
+    "noYields": "Aucune opportunité de rendement disponible",
+    "connectWallet": "Connectez un porte-monnaie pour consulter les rendements",
+    "stats": "Statistiques",
+    "minStake": "Stake min.",
+    "minDeposit": "Dépôt min.",
+    "rewardSchedule": "Planning des récompenses",
+    "staking": "Staking en cours ...",
+    "unstaking": "Unstaking en cours ...",
+    "depositing": "Dépôt en cours ...",
+    "withdrawing": "Retrait en cours ...",
+    "stakingPending": "Staking",
+    "unstakingPending": "Unstaking en cours",
+    "depositingPending": "Dépôt en cours",
+    "withdrawingPending": "Retrait en cours",
+    "availableDate": "disponible %{date}",
+    "withdrawable": "Retrait possible",
+    "type": "Type",
+    "totalValue": "Valeur totale",
+    "myPosition": "Ma position",
+    "myPositions": "Mes positions",
+    "myValidatorPosition": "Ma position %{validator}",
+    "earnUpToOnBalance": "Vous pourriez gagner jusqu'à %{apy} sur votre solde",
+    "startEarning": "Commencez à gagner",
+    "maxApy": "APY max.",
+    "nativeStaking": "Staking natif",
+    "validator": "Validateur",
+    "staked": "Staké",
+    "claimable": "Réclamable",
+    "loadingQuote": "Chargement du devis...",
+    "preferred": "Préféré",
+    "pending": "En attente",
+    "ready": "Prêt",
+    "bestReturn": "Meilleur rendement",
+    "highestApy": "APY le plus élevé",
+    "lowestApy": "APY le plus bas",
+    "highestTvl": "TVL la plus élevée",
+    "lowestTvl": "TVL la plus basse",
+    "nameAZ": "Nom (A-Z)",
+    "nameZA": "Nom (Z-A)",
+    "allNetworks": "Tous les réseaux",
+    "allProviders": "Tous les fournisseurs",
+    "allTypes": "Tous les types",
+    "showAll": "Montrer tout",
+    "searchValidator": "Rechercher un validateur",
+    "success": "Succès !",
+    "transactions": "Transactions",
+    "currentApy": "APY actuel",
+    "estYearlyEarnings": "Revenus annuels estimés",
+    "switch": "Changer",
+    "claimSymbol": "Réclamer les %{symbol}",
+    "stakeSymbol": "Staker des %{symbol}",
+    "unstakeSymbol": "Déstaker des %{symbol}",
+    "depositSymbol": "Déposer des %{symbol}",
+    "withdrawSymbol": "Retirer des %{symbol}",
+    "claimableRewards": "Récompenses à réclamer",
+    "noActivePositions": "Vous n'avez aucune position de rendement active.",
+    "connectWalletPositions": "Connectez un porte-monnaie pour consulter vos positions de rendements actives.",
+    "view": "Voir",
+    "close": "Fermer",
+    "estEarnings": "Revenus estimés",
+    "network": "Réseau",
+    "market": "marché",
+    "markets": "marchés",
+    "chain": "chaîne",
+    "chains": "chaînes",
+    "reward": "Récompense",
+    "assetYields": "Rendements %{asset}",
+    "noYieldsMatchingFilters": "Aucun résultat ne correspond aux filtres.",
+    "activePositions": "Positions actives",
+    "acrossPositions": "Sur %{count} positions",
+    "availableToEarn": "Disponible pour gagner",
+    "idleAssetsEarning": "Actifs inutilisés pouvant générer jusqu'à %{apy}% APY",
+    "potentialEarnings": "Gains potentiels",
+    "potentialEarningsTooltip": "Revenus annuels estimés en fonction de votre solde inutilisé × le meilleur APY disponible pour chaque actif.",
+    "availableToEarnTooltip": "Solde total des actifs inutilisés présentant des opportunités de rendements.",
+    "apyTooltip": "Rendement annuel en pourcentage indiqué par le fournisseur. Ces taux peuvent fluctuer au fil du temps.",
+    "perYear": "/an",
+    "earningsPerYear": "%{amount} %{symbol} /an",
+    "recommendedForYou": "Recommandé pour vous",
+    "earn": "Gagner",
+    "providers": "Fournisseurs",
+    "successStaked": "Vous avez staké %{amount} %{symbol} avec succès",
+    "successUnstaked": "Vous avez unstaké %{amount} %{symbol} avec succès",
+    "successDeposited": "Vous avez déposé %{amount} %{symbol} avec succès",
+    "successWithdrawn": "Vous avez retiré %{amount} %{symbol} avec succès",
+    "successClaim": "Vous avez réclamé %{amount} %{symbol} avec succès",
+    "viewPosition": "Voir la position",
+    "via": "via",
+    "resetAllowance": "Réinitialiser l'allocation",
+    "loading": {
+      "signInWallet": "Signer dans le porte-monnaie",
+      "waiting": "En attene",
+      "done": "Terminé",
+      "failed": "Échoué",
+      "preparingTransaction": "Préparation de la transaction..."
+    },
+    "errors": {
+      "walletNotConnected": "Porte-monnaie non connecté",
+      "broadcastFailed": "Échec de la diffusion de la transaction",
+      "transactionFailedTitle": "La transaction a échoué",
+      "transactionFailedDescription": "Veuillez réessayer.",
+      "unsupportedNetworkTitle": "Réseau non pris en charge",
+      "unsupportedNetworkDescription": "Ce réseau de rendements n'est pas encore pris en charge.",
+      "walletNotConnectedTitle": "Porte-monnaie non connecté",
+      "walletNotConnectedDescription": "Connectez un porte-monnaie compatible avec ce réseau pour continuer.",
+      "enterAmountTitle": "Entrez un montant",
+      "enterAmountDescription": "Le montant doit être supérieur à zéro.",
+      "initiateFailedTitle": "Erreur",
+      "initiateFailedDescription": "Échec d'initialisation de la séquence de transaction.",
+      "quoteFailedTitle": "Devis échoué",
+      "quoteFailedDescription": "Impossible d'obtenir un devis pour cette transaction. Veuillez réessayer."
+    },
+    "underMaintenance": "En cours de maintenance",
+    "underMaintenanceDescription": "Cette opportunité de rendement est actuellement en maintenance. Les dépôts peuvent être indisponibles.",
+    "deprecated": "Déprécié",
+    "deprecatedDescription": "Cette opportunité de rendement a été dépréciée et pourrait bientôt être arrêtée.",
+    "depositsDisabled": "Dépôts désactivés",
+    "depositsDisabledDescription": "Les dépôts sont temporairement indisponibles pour cette opportunité de rendement.",
+    "withdrawalsDisabled": "Retraits désactivés",
+    "withdrawalsDisabledDescription": "Les retraits sont temporairement indisponibles pour cette opportunité de rendement.",
+    "noAvailableYields": "Aucune opportunité de rendement n'est disponible pour vos actifs.",
+    "connectWalletAvailable": "Connectez un porte-monnaie pour consulter les rendements disponibles pour vos actifs.",
+    "aboutProvider": "Informations sur %{provider}",
+    "visitWebsite": "Visitez le site web",
+    "providerDescriptions": {
+      "morpho": "Morpho est un protocole d'infrastructure pour les marchés monétaires et les coffres-forts, audité à plusieurs reprises par des sociétés de sécurité renommées, opérationnel depuis 2022, avec 2.5 millions de dollars de primes pour la découverte de bugs.",
+      "morpho-aave": "Morpho est un protocole d'infrastructure pour les marchés monétaires et les coffres-forts, audité à plusieurs reprises par des sociétés de sécurité renommées, opérationnel depuis 2022, avec 2.5 millions de dollars de primes pour la découverte de bugs.",
+      "morpho-compound": "Morpho est un protocole d'infrastructure pour les marchés monétaires et les coffres-forts, audité à plusieurs reprises par des sociétés de sécurité renommées, opérationnel depuis 2022, avec 2.5 millions de dollars de primes pour la découverte de bugs.",
+      "lido": "Lido est un protocole de staking liquide qui permet aux utilisateurs de staker de l'ETH tout en conservant leur liquidité via stETH. Audité à plusieurs reprises par des entreprises de sécurité renommées, il est opérationnel depuis 2020 et offre 2 millions de dollars de primes pour la découverte de bugs.",
+      "aave": "Aave est une plateforme multichaîne de prêts permettant aux utilisateurs de prêter, d'emprunter et de développer des stratégies avancées. Auditée par des sociétés de sécurité renommées, elle est en ligne depuis 2017 et offre 1 million de dollars de primes pour la découverte de bugs.",
+      "compound": "Compound est une plateforme DeFi fondamentale pour les marchés monétaires, avec des taux d'intérêts algorithmiques. Auditée par des entreprises de sécurité de renommées, elle est en ligne depuis 2018 et offre 1 million de dollars de primes pour la découverte de bugs.",
+      "kamino": "Kamino est une suite d'outils DeFi de Solana qui réunit prêts, liquidités et effet de levier sur une seule plateforme. Elle propose un programme ImmuneFi avec une prime maximale de 1.5 million de dollars.",
+      "fluid": "Fluid est une plateforme de liquidités développée par l'équipe Instadapp, qui connecte les marchés de prêts et d'emprunts, des DEX et des stablecoins au sein d'un système performant. Auditée à plusieurs reprises par des sociétés de sécurité renommées, elle est opérationnelle depuis 2024 et offre 0.5 million dollars de primes pour la découverte de bugs.",
+      "venus": "Venus est un protocole de prêts et d'emprunts basé sur la blockchain BNB. Il met l'accent sur la sécurité grâce à des audits réalisés par des tiers et à un programme de primes pour la découverte de bugs.",
+      "gearbox": "Gearbox est un protocole de levier composable qui permet de créer des comptes de crédit connectés à des stratégies DeFi. Audité par des entreprises de sécurité de renommées, il est opérationnel depuis 2021 et offre 0.2 million dollars de primes pour découverte de bugs.",
+      "yearn": "Yearn est une suite de produits décentralisés permettant aux particuliers, aux DAO et à d'autres protocoles de générer des revenus sur leurs actifs numériques. Auditée par des entreprises de sécurité renommées, elle est en ligne depuis 2020 et offre 0.2 million de dollars de primes pour la découverte de bugs.",
+      "spark": "Spark est un protocole de prêts décentralisés basé sur l'écosystème Sky (anciennement MakerDAO), permettant aux utilisateurs d'emprunter des DAI et d'autres stablecoins à des taux compétitifs. Il propose un programme Immunefi avec une prime maximale de 5 millions de dollars.",
+      "rocket-pool": "Rocket Pool est un protocole décentralisé de staking liquide sur Ethereum qui émet des rETH. Audité à plusieurs reprises par des entreprises de sécurité renommées, il est opérationnel depuis 2021 et offre 0.5 million de dollars de primes à la découverte de bugs.",
+      "drift": "Drift est une plateforme décentralisée d'échanges perpétuels et de prêts construite sur Solana. Elle propose un programme Immunefi avec une prime maximale de 0.5 million de dollars."
+    },
+    "otherYields": "Autres rendements %{symbol}",
+    "availableToDeposit": "Disponible pour déposer",
+    "availableToDepositTooltip": "Il s'agit du montant en %{symbol} dans votre porte-monnaie que vous pouvez déposer dans cette opportunité de rendement.",
+    "getAsset": "Obtenir des %{symbol}",
+    "manage": "Gérer",
+    "potentialEarningsAmount": "%{amount}/an à %{apy}% APY",
+    "depositNow": "Déposez maintenant",
+    "strategyInfo": "Informations sur la stratégie",
+    "overview": "Vue d'ensemble"
+  },
+  "earn": {
+    "enterFrom": "Investir depuis",
+    "stakeAmount": "Montant du stake",
+    "selectYieldOpportunity": "Sélectionner une opportunité de rendements",
+    "selectYieldFor": "Sélectionner le rendement pour %{asset}",
+    "noYieldsAvailable": "Aucune opportunité de rendement disponible pour %{asset}",
+    "estimatedYearlyEarnings": "Revenus annuels estimés",
+    "yieldType": "Type de rendement",
+    "yieldTypes": {
+      "native-staking": "Staking natif",
+      "pooled-staking": "Staking en pool",
+      "liquid-staking": "Staking liquide",
+      "staking": "Staking",
+      "lending": "Prêts",
+      "vault": "Coffres",
+      "restaking": "Restaking"
+    },
+    "confirmEarn": "Confirmer le stake",
+    "earnWith": "Gagner avec",
+    "belowMinimum": "Dépôt inférieur au minimum",
+    "minimumDeposit": "Dépôt minimum",
+    "explainers": {
+      "liquidStakingReceive": "Vous recevrez des %{symbol} que vous pourrez échanger à tout moment.",
+      "liquidStakingTrade": "Vous pouvez échanger vos jetons de staking liquides à tout moment.",
+      "liquidStakingWithdraw": "Lors du retrait, vos actifs seront immédiatement disponibles.",
+      "rewardsSchedule": "Les récompenses sont distribuées tous les %{schedule} et s'accumulent automatiquement",
+      "stakingUnbonding": "Lors du déstaking, une période de verrouillage de %{days} jours est nécessaire avant que les jetons ne soient disponibles.",
+      "restakingYield": "Les récompenses en Restaking sont automatiquement accumulées dans votre position.",
+      "restakingWithdraw": "Lors d'un retrait, vos actifs peuvent faire l'objet d'une période de déverrouillage",
+      "vaultYield": "Les rendements s'accumulent automatiquement dans votre position.",
+      "vaultWithdraw": "Lors du retrait, vos actifs seront immédiatement disponibles.",
+      "lendingYield": "Les intérêts s'accumulent automatiquement dans votre position.",
+      "lendingWithdraw": "Lors du retrait, vos actifs seront immédiatement disponibles."
+    }
+  },
+  "perfProfiler": {
+    "title": "Profilage des performances",
+    "export": "Exporter",
+    "reset": "Réinitialiser",
+    "disabledMessage": "Profilage désactivé. Cliquez sur l'icône en forme d'œil pour l'activer.",
+    "toggleAria": "Basculer le profileur",
+    "collapseAria": "Réduire",
+    "expandAria": "Développer le profileur",
+    "enableProfiling": "Activer le profilage",
+    "disableProfiling": "Désactiver le profilage",
+    "session": "Session",
+    "indexedDb": "IndexedDB",
+    "reads": "Lectures",
+    "writes": "Écritures",
+    "avg": "moyenne",
+    "max": "max",
+    "selectors": "Sélecteurs",
+    "totalCalls": "Total des appels",
+    "slow": "Lent",
+    "assetSearch": "Recherche d'actifs",
+    "searches": "Recherches"
   }
 }

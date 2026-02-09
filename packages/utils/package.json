@@ -35,7 +35,7 @@
     "@sniptt/monads": "^0.5.10",
     "bignumber.js": "^9.3.1",
     "dayjs": "^1.11.3",
-    "lodash-es": "^4.17.21"
+    "lodash-es": "^4.17.23"
   },
   "devDependencies": {
     "@types/lodash-es": "^4.17.12"

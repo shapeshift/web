@@ -32,11 +32,11 @@ const ClaimConfirm = makeSuspenseful(
   defaultBoxSpinnerStyle,
 )
 
-export const Claim: React.FC<ClaimRouteProps> = ({ headerComponent, setStepIndex }) => {
-  return <ClaimRoutes headerComponent={headerComponent} setStepIndex={setStepIndex} />
+export const Claim: React.FC<ClaimRouteProps> = ({ headerComponent }) => {
+  return <ClaimRoutes headerComponent={headerComponent} />
 }
 
-export const ClaimRoutes: React.FC<ClaimRouteProps> = ({ headerComponent, setStepIndex }) => {
+export const ClaimRoutes: React.FC<ClaimRouteProps> = ({ headerComponent }) => {
   const location = useLocation()
 
   const [claimTxid, setClaimTxid] = useState<string | undefined>()
@@ -46,8 +46,8 @@ export const ClaimRoutes: React.FC<ClaimRouteProps> = ({ headerComponent, setSte
     | undefined
 
   const renderClaimSelect = useCallback(() => {
-    return <ClaimSelect headerComponent={headerComponent} setStepIndex={setStepIndex} />
-  }, [headerComponent, setStepIndex])
+    return <ClaimSelect headerComponent={headerComponent} />
+  }, [headerComponent])
 
   const renderClaimConfirm = useCallback(() => {
     if (!selectedUnstakingRequest) return null

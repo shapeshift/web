@@ -434,6 +434,8 @@ export type TradeQuoteStep = {
     data: string
     value: Hex
     gasLimit: string
+    method?: string
+    args?: { type: string; value: unknown }[]
   }
   sunioTransactionMetadata?: {
     route: {

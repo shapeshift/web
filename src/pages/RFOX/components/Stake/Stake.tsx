@@ -53,18 +53,17 @@ const BridgeStatus = makeSuspenseful(
 
 const StakeEntries = [StakeRoutePaths.Input, StakeRoutePaths.Confirm]
 
-export const Stake: React.FC<StakeRouteProps> = ({ headerComponent, setStepIndex }) => {
+export const Stake: React.FC<StakeRouteProps> = ({ headerComponent }) => {
   return (
     <MemoryRouter initialEntries={StakeEntries} initialIndex={0}>
-      <StakeRoutes headerComponent={headerComponent} setStepIndex={setStepIndex} />
+      <StakeRoutes headerComponent={headerComponent} />
     </MemoryRouter>
   )
 }
 
-export const StakeRoutes: React.FC<StakeRouteProps> = ({ headerComponent, setStepIndex }) => {
+export const StakeRoutes: React.FC<StakeRouteProps> = ({ headerComponent }) => {
   const location = useLocation()
 
-  const [runeAddress, setRuneAddress] = useState<string | undefined>()
   const [confirmedQuote, setConfirmedQuote] = useState<RfoxStakingQuote | undefined>()
   const [stakeTxid, setStakeTxid] = useState<string | undefined>()
 
@@ -77,14 +76,11 @@ export const StakeRoutes: React.FC<StakeRouteProps> = ({ headerComponent, setSte
     return (
       <StakeInput
         stakingAssetId={stakingAssetId}
-        runeAddress={runeAddress}
         headerComponent={headerComponent}
-        setStepIndex={setStepIndex}
-        onRuneAddressChange={setRuneAddress}
         setConfirmedQuote={setConfirmedQuote}
       />
     )
-  }, [headerComponent, runeAddress, setStepIndex, stakingAssetId])
+  }, [headerComponent, stakingAssetId])
 
   const renderStakeConfirm = useCallback(() => {
     if (!confirmedQuote) return null
@@ -93,12 +89,11 @@ export const StakeRoutes: React.FC<StakeRouteProps> = ({ headerComponent, setSte
       <StakeConfirm
         stakeTxid={stakeTxid}
         setStakeTxid={setStakeTxid}
-        setStepIndex={setStepIndex}
         confirmedQuote={confirmedQuote}
         headerComponent={headerComponent}
       />
     )
-  }, [confirmedQuote, headerComponent, stakeTxid, setStepIndex])
+  }, [confirmedQuote, headerComponent, stakeTxid])
 
   const renderBridgeConfirm = useCallback(() => {
     if (!maybeBridgeQuote) return null

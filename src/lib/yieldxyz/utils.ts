@@ -9,6 +9,8 @@ import {
 } from './constants'
 import type { AugmentedYieldDto, ValidatorDto, YieldIconSource, YieldType } from './types'
 
+import { bnOrZero } from '@/lib/bignumber/bignumber'
+
 export const yieldNetworkToChainId = (network: string): ChainId | undefined => {
   if (!isSupportedYieldNetwork(network)) return undefined
   return YIELD_NETWORK_TO_CHAIN_ID[network]
@@ -64,7 +66,7 @@ const TX_TYPE_TO_LABELS: Record<string, TxTypeLabels> = {
 
 type TerminologyKey = 'staking' | 'vault'
 
-const isStakingType = (yieldType: YieldType): boolean => {
+export const isStakingYieldType = (yieldType: YieldType): boolean => {
   switch (yieldType) {
     case 'staking':
     case 'native-staking':
@@ -76,7 +78,6 @@ const isStakingType = (yieldType: YieldType): boolean => {
     case 'lending':
       return false
     default:
-      // This shouldn't happen but satisfies exhaustiveness check
       assertNever(yieldType)
       return false
   }
@@ -91,7 +92,7 @@ export const getTransactionButtonText = (
   title: string | undefined,
   yieldType?: YieldType,
 ): string => {
-  const labelKey: TerminologyKey = yieldType && isStakingType(yieldType) ? 'staking' : 'vault'
+  const labelKey: TerminologyKey = yieldType && isStakingYieldType(yieldType) ? 'staking' : 'vault'
 
   if (type) {
     const normalized = type.toUpperCase().replace(/[_-]/g, '_')
@@ -113,7 +114,7 @@ export const formatYieldTxTitle = (
   assetSymbol: string,
   yieldType?: YieldType,
 ): string => {
-  const labelKey: TerminologyKey = yieldType && isStakingType(yieldType) ? 'staking' : 'vault'
+  const labelKey: TerminologyKey = yieldType && isStakingYieldType(yieldType) ? 'staking' : 'vault'
 
   const normalized = title.replace(/ transaction$/i, '').toLowerCase()
   const match = TX_TITLE_PATTERNS.find(p => p.pattern.test(normalized))
@@ -314,10 +315,6 @@ export const getYieldMinAmountKey = (yieldType: YieldType): string => {
   }
 }
 
-export const isStakingYieldType = (yieldType: YieldType): boolean => {
-  return isStakingType(yieldType)
-}
-
 export type YieldSuccessMessageKey =
   | 'successStaked'
   | 'successUnstaked'
@@ -350,3 +347,13 @@ export const isYieldDisabled = (
   yieldItem: Pick<AugmentedYieldDto, 'status' | 'metadata'>,
 ): boolean =>
   !yieldItem.status.enter || yieldItem.metadata.underMaintenance || yieldItem.metadata.deprecated
+
+export const getBestActionableYield = (
+  yields: AugmentedYieldDto[],
+): AugmentedYieldDto | undefined => {
+  const actionable = yields.filter(y => !isYieldDisabled(y))
+  if (actionable.length === 0) return undefined
+  return actionable.reduce((best, current) =>
+    bnOrZero(current.rewardRate.total).gt(best.rewardRate.total) ? current : best,
+  )
+}

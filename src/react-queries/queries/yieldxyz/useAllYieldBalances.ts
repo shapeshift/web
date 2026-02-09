@@ -5,10 +5,13 @@ import { useMemo } from 'react'
 
 import { useWallet } from '@/hooks/useWallet/useWallet'
 import { bnOrZero } from '@/lib/bignumber/bignumber'
-import { isSome } from '@/lib/utils'
 import { fetchAggregateBalances } from '@/lib/yieldxyz/api'
 import { augmentYieldBalances } from '@/lib/yieldxyz/augment'
-import { CHAIN_ID_TO_YIELD_NETWORK, SUPPORTED_YIELD_NETWORKS } from '@/lib/yieldxyz/constants'
+import {
+  CHAIN_ID_TO_YIELD_NETWORK,
+  DEFAULT_VALIDATOR_BY_YIELD_ID,
+  SUPPORTED_YIELD_NETWORKS,
+} from '@/lib/yieldxyz/constants'
 import type {
   AugmentedYieldBalance,
   YieldBalanceType,
@@ -17,10 +20,7 @@ import type {
 } from '@/lib/yieldxyz/types'
 import { YieldBalanceType as YieldBalanceTypeEnum } from '@/lib/yieldxyz/types'
 import { useYieldAccount } from '@/pages/Yields/YieldAccountContext'
-import {
-  selectAccountIdsByAccountNumberAndChainId,
-  selectEnabledWalletAccountIds,
-} from '@/state/slices/selectors'
+import { selectEnabledWalletAccountIds } from '@/state/slices/selectors'
 import { useAppSelector } from '@/state/store'
 
 type UseAllYieldBalancesOptions = {
@@ -224,25 +224,14 @@ export const useAllYieldBalances = (options: UseAllYieldBalancesOptions = {}) =>
   const isEnabled = enabled ?? true
   const { state: walletState } = useWallet()
   const isConnected = Boolean(walletState.walletInfo)
-  const { accountId: contextAccountId, accountNumber } = useYieldAccount()
-  const accountIdsByAccountNumberAndChainId = useAppSelector(
-    selectAccountIdsByAccountNumberAndChainId,
-  )
+  const { accountId: contextAccountId } = useYieldAccount()
   const enabledWalletAccountIds = useAppSelector(selectEnabledWalletAccountIds)
-
-  const accountIdsForAccountNumber = useMemo((): AccountId[] => {
-    if (accountNumber === undefined) return []
-    const byChainId = accountIdsByAccountNumberAndChainId[accountNumber]
-    if (!byChainId) return []
-    return Object.values(byChainId).flat().filter(isSome)
-  }, [accountIdsByAccountNumberAndChainId, accountNumber])
 
   const targetAccountIds: AccountId[] = useMemo(() => {
     if (filterAccountIds?.length) return filterAccountIds
     if (contextAccountId) return [contextAccountId]
-    if (accountIdsForAccountNumber.length) return accountIdsForAccountNumber
     return enabledWalletAccountIds
-  }, [filterAccountIds, contextAccountId, accountIdsForAccountNumber, enabledWalletAccountIds])
+  }, [filterAccountIds, contextAccountId, enabledWalletAccountIds])
 
   const queryPayloads = useMemo(() => {
     if (!isConnected || targetAccountIds.length === 0) return []
@@ -296,10 +285,15 @@ export const useAllYieldBalances = (options: UseAllYieldBalancesOptions = {}) =>
 
               const augmentedBalances = augmentYieldBalances(item.balances, chainId)
 
+              const defaultValidator = DEFAULT_VALIDATOR_BY_YIELD_ID[item.yieldId]
+              const filteredBalances = augmentedBalances.filter(
+                balance => !defaultValidator || balance.validator?.address === defaultValidator,
+              )
+
               let highestAmountUsd = bnOrZero(0)
               let highestAmountUsdValidator: string | undefined
 
-              for (const balance of augmentedBalances) {
+              for (const balance of filteredBalances) {
                 const usd = bnOrZero(balance.amountUsd)
                 if (balance.validator?.address && usd.gt(highestAmountUsd)) {
                   highestAmountUsd = usd
@@ -311,7 +305,7 @@ export const useAllYieldBalances = (options: UseAllYieldBalancesOptions = {}) =>
                 balanceMap[item.yieldId] = []
               }
 
-              for (const balance of augmentedBalances) {
+              for (const balance of filteredBalances) {
                 const network = item.yieldId.split('-')[0]
                 const lookupKey = `${balance.address.toLowerCase()}:${network}`
                 let accountId = addressToAccountId[lookupKey]

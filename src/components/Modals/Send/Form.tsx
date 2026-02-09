@@ -14,7 +14,6 @@ import { SendFormFields, SendRoutes } from './SendCommon'
 import { maybeFetchChangeAddress } from './utils'
 import { Address } from './views/Address'
 import { Confirm } from './views/Confirm'
-import { Status } from './views/Status'
 
 import { SendAmountDetails } from '@/components/Modals/Send/views/SendAmountDetails'
 import { QrCodeScanner } from '@/components/QrCodeScanner/QrCodeScanner'
@@ -35,7 +34,6 @@ import {
 } from '@/state/slices/selectors'
 import { store, useAppSelector } from '@/state/store'
 
-const status = <Status />
 const sendAmount = <SendAmountDetails />
 const address = <Address />
 
@@ -55,7 +53,6 @@ export type SendInput<T extends ChainId = ChainId> = {
   [SendFormFields.SendMax]: boolean
   [SendFormFields.VanityAddress]: string
   [SendFormFields.CustomNonce]?: string
-  [SendFormFields.TxHash]?: string
   [SendFormFields.ChangeAddress]?: string
 }
 
@@ -105,7 +102,6 @@ export const Form: React.FC<SendFormProps> = ({ initialAssetId, input = '', acco
       amountCryptoPrecision: '',
       fiatAmount: '',
       fiatSymbol: selectedCurrency,
-      txHash: '',
     },
   })
 
@@ -290,7 +286,6 @@ export const Form: React.FC<SendFormProps> = ({ initialAssetId, input = '', acco
               <Route path={SendRoutes.AmountDetails}>{sendAmount}</Route>
               <Route path={SendRoutes.Scan}>{qrCodeScanner}</Route>
               <Route path={SendRoutes.Confirm}>{confirm}</Route>
-              <Route path={SendRoutes.Status}>{status}</Route>
               <Route path='/'>{selectRedirect}</Route>
             </Switch>
           )}

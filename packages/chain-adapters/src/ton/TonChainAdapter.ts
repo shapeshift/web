@@ -4,6 +4,7 @@ import type { HDWallet, TonWallet } from '@shapeshiftoss/hdwallet-core'
 import type { Bip44Params, RootBip44Params } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { TransferType, TxStatus } from '@shapeshiftoss/unchained-client'
+import { base64ToHex, hexToBase64, isHexHash } from '@shapeshiftoss/utils'
 import { Address } from '@ton/core'
 import PQueue from 'p-queue'
 
@@ -62,6 +63,209 @@ const PROXY_TON_CONTRACTS = new Set([
   'EQCM3B12QK1e4yZSf8GtBRT0aLMNyEsBc_DhVfRRtOEffLez',
   'EQBnGWMCf3-FZZq1W4IWcWiGAc3PHuZ0_H-7sad2oY00o83S',
 ])
+
+export const addressesMatch = (addr1: string, addr2: string): boolean => {
+  if (!addr1 || !addr2) return false
+  if (addr1 === addr2) return true
+  try {
+    return Address.parse(addr1).equals(Address.parse(addr2))
+  } catch {
+    const normalize = (a: string) => a.replace(/^0:/, '').toLowerCase()
+    return normalize(addr1) === normalize(addr2)
+  }
+}
+
+export const isProxyTon = (jettonMaster: string): boolean => {
+  if (PROXY_TON_CONTRACTS.has(jettonMaster)) return true
+  try {
+    const parsed = Address.parse(jettonMaster)
+    for (const known of PROXY_TON_CONTRACTS) {
+      try {
+        if (parsed.equals(Address.parse(known))) return true
+      } catch {
+        continue
+      }
+    }
+  } catch {}
+  return false
+}
+
+export const resolveAddresses = (
+  tx: TonTx,
+  addressBook: Record<string, { user_friendly: string }>,
+): TonTx => {
+  const resolve = (addr: string | undefined): string | undefined =>
+    addr ? addressBook[addr]?.user_friendly ?? addr : addr
+
+  return {
+    ...tx,
+    in_msg: tx.in_msg
+      ? {
+          ...tx.in_msg,
+          source: resolve(tx.in_msg.source),
+          destination: resolve(tx.in_msg.destination),
+        }
+      : tx.in_msg,
+    out_msgs: tx.out_msgs?.map(msg => ({
+      ...msg,
+      source: resolve(msg.source),
+      destination: resolve(msg.destination),
+    })),
+  }
+}
+
+export const buildJettonTransfers = (
+  jettonTransfers: JettonTransferRecord[],
+  traceId: string,
+  pubkey: string,
+  addressBook: Record<string, { user_friendly: string }>,
+  chainId: ChainId,
+): TxTransfer[] => {
+  const transfers: TxTransfer[] = []
+
+  const matching = jettonTransfers.filter(jt => jt.trace_id === traceId)
+  if (matching.length === 0) return transfers
+
+  const friendly = (addr: string) => addressBook[addr]?.user_friendly ?? addr
+
+  for (const transfer of matching) {
+    if (!transfer.source || !transfer.destination || !transfer.amount || !transfer.jetton_master)
+      continue
+
+    const sourceUserFriendly = friendly(transfer.source)
+    const destUserFriendly = friendly(transfer.destination)
+    const jettonUserFriendly = friendly(transfer.jetton_master)
+
+    if (isProxyTon(jettonUserFriendly)) continue
+
+    const isSend = addressesMatch(sourceUserFriendly, pubkey)
+    const isReceive = addressesMatch(destUserFriendly, pubkey)
+
+    if (!isSend && !isReceive) continue
+
+    const assetId = toAssetId({
+      chainId,
+      assetNamespace: 'jetton',
+      assetReference: jettonUserFriendly,
+    })
+
+    if (isSend) {
+      transfers.push({
+        assetId,
+        from: [sourceUserFriendly],
+        to: [destUserFriendly],
+        type: TransferType.Send,
+        value: transfer.amount,
+      })
+    }
+
+    if (isReceive) {
+      transfers.push({
+        assetId,
+        from: [sourceUserFriendly],
+        to: [destUserFriendly],
+        type: TransferType.Receive,
+        value: transfer.amount,
+      })
+    }
+  }
+
+  return transfers
+}
+
+export const parseTonTx = (
+  tx: TonTx,
+  pubkey: string,
+  txid: string,
+  assetId: AssetId,
+  chainId: ChainId,
+): Transaction => {
+  const isAborted = tx.description?.aborted ?? false
+  const actionSuccess = tx.description?.action?.success ?? true
+  const status = isAborted || !actionSuccess ? TxStatus.Failed : TxStatus.Confirmed
+
+  const transfers: TxTransfer[] = []
+
+  if (tx.in_msg?.value && tx.in_msg.source && tx.in_msg.destination) {
+    const inMsgDecodedType = tx.in_msg.message_content?.decoded?.['@type']
+    const isExcess = inMsgDecodedType === 'excess'
+    const value = tx.in_msg.value
+    if (BigInt(value) > 0n && !isExcess) {
+      const isReceive = addressesMatch(tx.in_msg.destination, pubkey)
+      const isSend = addressesMatch(tx.in_msg.source, pubkey)
+
+      if (isSend) {
+        transfers.push({
+          assetId,
+          from: [tx.in_msg.source],
+          to: [tx.in_msg.destination],
+          type: TransferType.Send,
+          value,
+        })
+      }
+      if (isReceive) {
+        transfers.push({
+          assetId,
+          from: [tx.in_msg.source],
+          to: [tx.in_msg.destination],
+          type: TransferType.Receive,
+          value,
+        })
+      }
+    }
+  }
+
+  if (tx.out_msgs) {
+    for (const outMsg of tx.out_msgs) {
+      if (outMsg.value && outMsg.source && outMsg.destination) {
+        const decodedType = outMsg.message_content?.decoded?.['@type']
+        const value =
+          decodedType === 'pton_ton_transfer' &&
+          outMsg.message_content?.decoded?.ton_amount?.amount?.value
+            ? outMsg.message_content.decoded.ton_amount.amount.value
+            : outMsg.value
+        if (BigInt(value) > 0n) {
+          const isSend = addressesMatch(outMsg.source, pubkey)
+          const isReceive = addressesMatch(outMsg.destination, pubkey)
+
+          if (isSend) {
+            transfers.push({
+              assetId,
+              from: [outMsg.source],
+              to: [outMsg.destination],
+              type: TransferType.Send,
+              value,
+            })
+          }
+          if (isReceive) {
+            transfers.push({
+              assetId,
+              from: [outMsg.source],
+              to: [outMsg.destination],
+              type: TransferType.Receive,
+              value,
+            })
+          }
+        }
+      }
+    }
+  }
+
+  const isSend = transfers.some(transfer => transfer.type === TransferType.Send)
+
+  return {
+    txid,
+    blockHeight: Number(tx.lt) || 0,
+    blockTime: tx.now || 0,
+    blockHash: undefined,
+    chainId,
+    confirmations: status === TxStatus.Confirmed ? 1 : 0,
+    status,
+    transfers,
+    pubkey,
+    ...(isSend && tx.total_fees && { fee: { assetId, value: tx.total_fees } }),
+  }
+}
 
 export class ChainAdapter implements IChainAdapter<KnownChainIds.TonMainnet> {
   static readonly rootBip44Params: RootBip44Params = {
@@ -459,19 +663,25 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TonMainnet> {
       const txIds: string[] = []
 
       for (const tx of data.transactions) {
-        const txid = this.base64ToHex(tx.hash)
+        const txid = base64ToHex(tx.hash)
 
         if (knownTxIds?.has(txid)) continue
 
         txIds.push(txid)
 
-        const normalizedTx = this.resolveAddresses(tx, addressBook)
-        const parsedTx = this.parse(normalizedTx, pubkey, txid)
+        const normalizedTx = resolveAddresses(tx, addressBook)
+        const parsedTx = parseTonTx(normalizedTx, pubkey, txid, this.assetId, this.chainId)
 
         const traceId = tx.trace_id ?? tx.hash
         const shouldAttachJettons = jettonOwnerTx[traceId] === tx.hash
         const jettonTransfers = shouldAttachJettons
-          ? this.buildJettonTransfers(jettonData.jetton_transfers, traceId, pubkey, jettonAddrBook)
+          ? buildJettonTransfers(
+              jettonData.jetton_transfers,
+              traceId,
+              pubkey,
+              jettonAddrBook,
+              this.chainId,
+            )
           : []
 
         const hasJettonSends = jettonTransfers.some(t => t.type === TransferType.Send)
@@ -637,7 +847,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TonMainnet> {
         boc: signedTx,
       })
 
-      return this.base64ToHex(result.hash ?? '')
+      return base64ToHex(result.hash ?? '')
     } catch (err) {
       return ErrorHandler(err, {
         translation: 'chainAdapters.errors.broadcastTransaction',
@@ -745,77 +955,6 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TonMainnet> {
     }
   }
 
-  private base64ToHex(b64: string): string {
-    if (!b64) return b64
-    try {
-      return Buffer.from(b64, 'base64').toString('hex')
-    } catch {
-      return b64
-    }
-  }
-
-  private hexToBase64(hex: string): string {
-    try {
-      return Buffer.from(hex, 'hex').toString('base64')
-    } catch {
-      return hex
-    }
-  }
-
-  private isHexHash(str: string): boolean {
-    return str.length === 64 && /^[0-9a-f]+$/i.test(str)
-  }
-
-  private resolveAddresses(
-    tx: TonTx,
-    addressBook: Record<string, { user_friendly: string }>,
-  ): TonTx {
-    const resolve = (addr: string | undefined): string | undefined =>
-      addr ? addressBook[addr]?.user_friendly ?? addr : addr
-
-    return {
-      ...tx,
-      in_msg: tx.in_msg
-        ? {
-            ...tx.in_msg,
-            source: resolve(tx.in_msg.source),
-            destination: resolve(tx.in_msg.destination),
-          }
-        : tx.in_msg,
-      out_msgs: tx.out_msgs?.map(msg => ({
-        ...msg,
-        source: resolve(msg.source),
-        destination: resolve(msg.destination),
-      })),
-    }
-  }
-
-  private addressesMatch(addr1: string, addr2: string): boolean {
-    if (!addr1 || !addr2) return false
-    if (addr1 === addr2) return true
-    try {
-      return Address.parse(addr1).equals(Address.parse(addr2))
-    } catch {
-      const normalize = (a: string) => a.replace(/^0:/, '').toLowerCase()
-      return normalize(addr1) === normalize(addr2)
-    }
-  }
-
-  private isProxyTon(jettonMaster: string): boolean {
-    if (PROXY_TON_CONTRACTS.has(jettonMaster)) return true
-    try {
-      const parsed = Address.parse(jettonMaster)
-      for (const known of PROXY_TON_CONTRACTS) {
-        try {
-          if (parsed.equals(Address.parse(known))) return true
-        } catch {
-          continue
-        }
-      }
-    } catch {}
-    return false
-  }
-
   private async fetchJettonTransfers(
     pubkey: string,
     startLt: string,
@@ -843,152 +982,6 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TonMainnet> {
     }
   }
 
-  private buildJettonTransfers(
-    jettonTransfers: JettonTransferRecord[],
-    traceId: string,
-    pubkey: string,
-    addressBook: Record<string, { user_friendly: string }>,
-  ): TxTransfer[] {
-    const transfers: TxTransfer[] = []
-
-    const matching = jettonTransfers.filter(jt => jt.trace_id === traceId)
-    if (matching.length === 0) return transfers
-
-    const friendly = (addr: string) => addressBook[addr]?.user_friendly ?? addr
-
-    for (const transfer of matching) {
-      if (!transfer.source || !transfer.destination || !transfer.amount || !transfer.jetton_master)
-        continue
-
-      const sourceUserFriendly = friendly(transfer.source)
-      const destUserFriendly = friendly(transfer.destination)
-      const jettonUserFriendly = friendly(transfer.jetton_master)
-
-      if (this.isProxyTon(jettonUserFriendly)) continue
-
-      const isSend = this.addressesMatch(sourceUserFriendly, pubkey)
-      const isReceive = this.addressesMatch(destUserFriendly, pubkey)
-
-      if (!isSend && !isReceive) continue
-
-      const assetId = toAssetId({
-        chainId: this.chainId,
-        assetNamespace: 'jetton',
-        assetReference: jettonUserFriendly,
-      })
-
-      if (isSend) {
-        transfers.push({
-          assetId,
-          from: [sourceUserFriendly],
-          to: [destUserFriendly],
-          type: TransferType.Send,
-          value: transfer.amount,
-        })
-      }
-
-      if (isReceive) {
-        transfers.push({
-          assetId,
-          from: [sourceUserFriendly],
-          to: [destUserFriendly],
-          type: TransferType.Receive,
-          value: transfer.amount,
-        })
-      }
-    }
-
-    return transfers
-  }
-
-  private parse(tx: TonTx, pubkey: string, txid: string): Transaction {
-    const isAborted = tx.description?.aborted ?? false
-    const actionSuccess = tx.description?.action?.success ?? true
-    const status = isAborted || !actionSuccess ? TxStatus.Failed : TxStatus.Confirmed
-
-    const transfers: TxTransfer[] = []
-
-    if (tx.in_msg?.value && tx.in_msg.source && tx.in_msg.destination) {
-      const inMsgDecodedType = tx.in_msg.message_content?.decoded?.['@type']
-      const isExcess = inMsgDecodedType === 'excess'
-      const value = tx.in_msg.value
-      if (BigInt(value) > 0n && !isExcess) {
-        const isReceive = this.addressesMatch(tx.in_msg.destination, pubkey)
-        const isSend = this.addressesMatch(tx.in_msg.source, pubkey)
-
-        if (isSend) {
-          transfers.push({
-            assetId: this.assetId,
-            from: [tx.in_msg.source],
-            to: [tx.in_msg.destination],
-            type: TransferType.Send,
-            value,
-          })
-        }
-        if (isReceive) {
-          transfers.push({
-            assetId: this.assetId,
-            from: [tx.in_msg.source],
-            to: [tx.in_msg.destination],
-            type: TransferType.Receive,
-            value,
-          })
-        }
-      }
-    }
-
-    if (tx.out_msgs) {
-      for (const outMsg of tx.out_msgs) {
-        if (outMsg.value && outMsg.source && outMsg.destination) {
-          const decodedType = outMsg.message_content?.decoded?.['@type']
-          const value =
-            decodedType === 'pton_ton_transfer' &&
-            outMsg.message_content?.decoded?.ton_amount?.amount?.value
-              ? outMsg.message_content.decoded.ton_amount.amount.value
-              : outMsg.value
-          if (BigInt(value) > 0n) {
-            const isSend = this.addressesMatch(outMsg.source, pubkey)
-            const isReceive = this.addressesMatch(outMsg.destination, pubkey)
-
-            if (isSend) {
-              transfers.push({
-                assetId: this.assetId,
-                from: [outMsg.source],
-                to: [outMsg.destination],
-                type: TransferType.Send,
-                value,
-              })
-            }
-            if (isReceive) {
-              transfers.push({
-                assetId: this.assetId,
-                from: [outMsg.source],
-                to: [outMsg.destination],
-                type: TransferType.Receive,
-                value,
-              })
-            }
-          }
-        }
-      }
-    }
-
-    const isSend = transfers.some(transfer => transfer.type === TransferType.Send)
-
-    return {
-      txid,
-      blockHeight: Number(tx.lt) || 0,
-      blockTime: tx.now || 0,
-      blockHash: undefined,
-      chainId: this.chainId,
-      confirmations: status === TxStatus.Confirmed ? 1 : 0,
-      status,
-      transfers,
-      pubkey,
-      ...(isSend && tx.total_fees && { fee: { assetId: this.assetId, value: tx.total_fees } }),
-    }
-  }
-
   async parseTx(txHashOrTx: unknown, pubkey: string): Promise<Transaction> {
     try {
       if (typeof txHashOrTx !== 'string') {
@@ -996,8 +989,8 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TonMainnet> {
       }
       const inputHash = txHashOrTx
 
-      const apiHash = this.isHexHash(inputHash) ? this.hexToBase64(inputHash) : inputHash
-      const txid = this.isHexHash(inputHash) ? inputHash : this.base64ToHex(inputHash)
+      const apiHash = isHexHash(inputHash) ? hexToBase64(inputHash) : inputHash
+      const txid = isHexHash(inputHash) ? inputHash : base64ToHex(inputHash)
 
       const msgResult = await this.httpApiRequest<{
         messages?: {
@@ -1059,11 +1052,12 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TonMainnet> {
         ...jettonData.address_book,
       }
 
-      const jettonTransfers = this.buildJettonTransfers(
+      const jettonTransfers = buildJettonTransfers(
         jettonData.jetton_transfers,
         traceId,
         pubkey,
         addressBook,
+        this.chainId,
       )
 
       const hasJettonSends = jettonTransfers.some(t => t.type === TransferType.Send)
@@ -1080,8 +1074,8 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TonMainnet> {
       const seen = new Set<string>()
 
       for (const traceTx of txsToProcess) {
-        const normalizedTraceTx = this.resolveAddresses(traceTx, addressBook)
-        const parsed = this.parse(normalizedTraceTx, pubkey, txid)
+        const normalizedTraceTx = resolveAddresses(traceTx, addressBook)
+        const parsed = parseTonTx(normalizedTraceTx, pubkey, txid, this.assetId, this.chainId)
         for (const transfer of parsed.transfers) {
           if (hasJettonSends && transfer.type === TransferType.Send) continue
           if (hasJettonReceives && transfer.type === TransferType.Receive) continue
@@ -1093,7 +1087,7 @@ export class ChainAdapter implements IChainAdapter<KnownChainIds.TonMainnet> {
       }
 
       const allTransfers = [...nativeTransfers, ...jettonTransfers]
-      const normalizedPrimary = this.resolveAddresses(primaryTx, addressBook)
+      const normalizedPrimary = resolveAddresses(primaryTx, addressBook)
       const isAborted = normalizedPrimary.description?.aborted ?? false
       const actionSuccess = normalizedPrimary.description?.action?.success ?? true
       const status = isAborted || !actionSuccess ? TxStatus.Failed : TxStatus.Confirmed

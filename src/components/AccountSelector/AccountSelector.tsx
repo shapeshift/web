@@ -70,9 +70,10 @@ export const AccountSelector: FC<AccountSelectorProps> = memo(
     const selectedAccountDetails = useMemo(() => {
       if (!selectedAccountId || !asset) return null
 
-      const rawBalance = accountBalancesBaseUnit?.[selectedAccountId]?.[assetId]
-
-      const cryptoBalance = fromBaseUnit(rawBalance ?? 0, asset.precision ?? 0)
+      const cryptoBalance = fromBaseUnit(
+        accountBalancesBaseUnit?.[selectedAccountId]?.[assetId] ?? 0,
+        asset.precision ?? 0,
+      )
       const fiatBalance = bnOrZero(cryptoBalance).times(marketDataPrice)
 
       return {

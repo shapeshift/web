@@ -1185,7 +1185,8 @@
   ],
   "eip155:1/erc20:0x1bbe973bef3a977fc51cbed703e8ffdefe001fed": [
     "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp/token:FMQjDvT1GztVxdvYgMBEde4L54fftFGx9m5GmbqeJGM5",
-    "eip155:1/erc20:0x1bbe973bef3a977fc51cbed703e8ffdefe001fed"
+    "eip155:1/erc20:0x1bbe973bef3a977fc51cbed703e8ffdefe001fed",
+    "eip155:8453/erc20:0x0ffebc403f2d3dd9ea5501ca03916e98967acb2d"
   ],
   "eip155:56/erc20:0x2e156a3e09782a785345b7a33c46c71596ffd551": [
     "eip155:1/erc20:0x1c3547dfa9ce7acd9c54ae49244575fa65bc75e2",
@@ -1300,7 +1301,8 @@
     "eip155:1/erc20:0x1f7fd18926a9646f4ff62952706dfcaed7b544bb",
     "eip155:42161/erc20:0xed6c7a7b116876a4bf225cbf044681f070684fa5",
     "eip155:43114/erc20:0x30c74769ea97c6454e2a4d4e9d2da947c64ca1e0",
-    "eip155:137/erc20:0x79103b27fc21c81f7c6cb5caff78901b45a972d5"
+    "eip155:137/erc20:0x79103b27fc21c81f7c6cb5caff78901b45a972d5",
+    "eip155:56/erc20:0x58b4591a3fd16041f28686098431b1374c3bb789"
   ],
   "eip155:1/erc20:0x1f7e5118521b550bb1a9b435727c003eb033fc51": [
     "eip155:137/erc20:0xd6a33f67b733d422c821c36f0f79ca145b930d01",
@@ -6024,7 +6026,6 @@
   ],
   "eip155:43114/erc20:0xafc43610c7840b20b90caaf93759be5b54b291c9": [
     "eip155:56/erc20:0x68784ffaa6ff05e3e04575df77960dc1d9f42b4a",
-    "eip155:1/erc20:0xa11bd36801d8fa4448f0ac4ea7a62e3634ce8c7c",
     "eip155:137/erc20:0x04429fbb948bbd09327763214b45e505a5293346",
     "eip155:43114/erc20:0xafc43610c7840b20b90caaf93759be5b54b291c9",
     "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp/token:a11bdAAuV8iB2fu7X6AxAvDTo1QZ8FXB3kk5eecdasp",
@@ -12134,5 +12135,9 @@
   "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp/token:9ckR7pPPvyPadACDTzLwK2ZAEeUJ3qGSnzPs8bVaHrSy": [
     "eip155:56/erc20:0xea953ea6634d55dac6697c436b1e81a679db5882",
     "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp/token:9ckR7pPPvyPadACDTzLwK2ZAEeUJ3qGSnzPs8bVaHrSy"
+  ],
+  "eip155:1/erc20:0xc5d6a7b61d18afa11435a889557b068bb9f29930": [
+    "eip155:56/erc20:0x8ba9da757d1d66c58b1ae7e2ed6c04087348a82d",
+    "eip155:1/erc20:0xc5d6a7b61d18afa11435a889557b068bb9f29930"
   ]
 }

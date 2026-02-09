@@ -14,6 +14,10 @@ import {
 import { selectInternalAccountIdByAddress } from '@/state/slices/addressBookSlice/selectors'
 import { store, useAppDispatch } from '@/state/store'
 
+type UseCompleteSendFlowArgs = {
+  handleClose: () => void
+}
+
 type CompleteSendFlowArgs = {
   txHash: string
   to: string
@@ -22,7 +26,7 @@ type CompleteSendFlowArgs = {
   amountCryptoPrecision: string
 }
 
-export const useCompleteSendFlow = (handleClose: () => void) => {
+export const useCompleteSendFlow = ({ handleClose }: UseCompleteSendFlowArgs) => {
   const dispatch = useAppDispatch()
   const { isDrawerOpen, openActionCenter } = useActionCenterContext()
   const toast = useNotificationToast({ duration: isDrawerOpen ? 5000 : null })

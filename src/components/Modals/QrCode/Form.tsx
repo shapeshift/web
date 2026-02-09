@@ -52,7 +52,7 @@ export const Form: React.FC<QrCodeFormProps> = ({ accountId }) => {
   const { isOpen, close: handleClose } = useModal('qrCode')
   const [walletConnectDappUrl, setWalletConnectDappUrl] = useState('')
 
-  const completeSendFlow = useCompleteSendFlow(handleClose)
+  const completeSendFlow = useCompleteSendFlow({ handleClose })
 
   const methods = useForm<SendInput>({
     mode: 'onChange',

@@ -119,7 +119,7 @@ export const Form: React.FC<SendFormProps> = ({ initialAssetId, input = '', acco
     qrCode.close()
   }, [qrCode, send])
 
-  const completeSendFlow = useCompleteSendFlow(handleClose)
+  const completeSendFlow = useCompleteSendFlow({ handleClose })
 
   const handleSubmit = useCallback(
     async (data: SendInput) => {

@@ -1,12 +1,13 @@
 import { tonAssetId, tonChainId } from '@shapeshiftoss/caip'
 import { TransferType, TxStatus } from '@shapeshiftoss/unchained-client'
-import { base64ToHex, hexToBase64, isHexHash } from '@shapeshiftoss/utils'
+import { base64ToHex, hexToBase64 } from '@shapeshiftoss/utils'
 import { describe, expect, it } from 'vitest'
 
 import {
   addressesMatch,
   buildJettonTransfers,
   ChainAdapter,
+  isHexHash,
   isProxyTon,
   parseTonTx,
   resolveAddresses,

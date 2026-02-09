@@ -4,7 +4,7 @@ import type { HDWallet, TonWallet } from '@shapeshiftoss/hdwallet-core'
 import type { Bip44Params, RootBip44Params } from '@shapeshiftoss/types'
 import { KnownChainIds } from '@shapeshiftoss/types'
 import { TransferType, TxStatus } from '@shapeshiftoss/unchained-client'
-import { base64ToHex, hexToBase64, isHexHash } from '@shapeshiftoss/utils'
+import { base64ToHex, hexToBase64 } from '@shapeshiftoss/utils'
 import { Address } from '@ton/core'
 import PQueue from 'p-queue'
 
@@ -63,6 +63,11 @@ const PROXY_TON_CONTRACTS = new Set([
   'EQCM3B12QK1e4yZSf8GtBRT0aLMNyEsBc_DhVfRRtOEffLez',
   'EQBnGWMCf3-FZZq1W4IWcWiGAc3PHuZ0_H-7sad2oY00o83S',
 ])
+
+const TON_HASH_HEX_LENGTH = 64
+export const isHexHash = (str: string): boolean => {
+  return str.length === TON_HASH_HEX_LENGTH && /^[0-9a-f]+$/i.test(str)
+}
 
 export const addressesMatch = (addr1: string, addr2: string): boolean => {
   if (!addr1 || !addr2) return false

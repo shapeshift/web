@@ -26,6 +26,7 @@ import { ConnectModal } from '@/plugins/walletConnectToDapps/components/modals/c
 import { preferences } from '@/state/slices/preferencesSlice/preferencesSlice'
 import {
   selectAssetById,
+  selectFirstAccountIdByChainId,
   selectMarketDataByAssetIdUserCurrency,
   selectPortfolioAccountIdsByAssetIdFilter,
 } from '@/state/slices/selectors'
@@ -76,19 +77,29 @@ export const Form: React.FC<QrCodeFormProps> = ({ accountId }) => {
   const handleAssetSelect = useCallback(
     (assetId: AssetId) => {
       const asset = selectAssetById(store.getState(), assetId ?? '')
-      // This should never happen, but tsc
       if (!asset) return
       methods.setValue(SendFormFields.AssetId, asset.assetId)
+      methods.setValue(SendFormFields.AmountCryptoPrecision, '')
+      methods.setValue(SendFormFields.FiatAmount, '')
+      methods.setValue(SendFormFields.FiatSymbol, selectedCurrency)
 
-      if (isSmallerThanMd) {
-        navigate(SendRoutes.Address)
-        return
+      const detectedAccountId = selectFirstAccountIdByChainId(
+        store.getState(),
+        fromAssetId(assetId).chainId,
+      )
+      if (detectedAccountId) {
+        methods.setValue(SendFormFields.AccountId, detectedAccountId)
       }
-      // On desktop, go directly to AmountDetails
-      // On mobile, go to Address first
-      navigate(SendRoutes.AmountDetails)
+
+      requestAnimationFrame(() => {
+        if (isSmallerThanMd) {
+          navigate(SendRoutes.Address)
+          return
+        }
+        navigate(SendRoutes.AmountDetails)
+      })
     },
-    [methods, navigate, isSmallerThanMd],
+    [methods, navigate, isSmallerThanMd, selectedCurrency],
   )
 
   const handleBack = useCallback(() => {
@@ -180,16 +191,14 @@ export const Form: React.FC<QrCodeFormProps> = ({ accountId }) => {
             )
           }
 
-          // Update accountId to match the scanned asset
-          if (maybeUrlResult.assetId && !accountId) {
-            // Get accounts for this asset to ensure we have a valid accountId
+          // Always update accountId to match the scanned asset's chain
+          if (maybeUrlResult.assetId) {
             const state = store.getState()
             const accountIds = selectPortfolioAccountIdsByAssetIdFilter(state, {
               assetId: maybeUrlResult.assetId,
             })
             const detectedAccountId = accountIds[0]
 
-            // Only set accountId if one exists for this asset
             if (detectedAccountId) {
               methods.setValue(SendFormFields.AccountId, detectedAccountId)
             }
@@ -241,7 +250,6 @@ export const Form: React.FC<QrCodeFormProps> = ({ accountId }) => {
     () => <Confirm handleSubmit={methods.handleSubmit(handleSubmit)} />,
     [methods, handleSubmit],
   )
-  const statusElement = useMemo(() => <Status />, [])
 
   if (walletConnectDappUrl)
     return <ConnectModal initialUri={walletConnectDappUrl} isOpen={isOpen} onClose={handleClose} />

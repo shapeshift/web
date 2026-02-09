@@ -39,7 +39,7 @@
     "bs58check": "^4.0.0",
     "crypto-js": "^4.2.0",
     "gridplus-sdk": "^3.2.0",
-    "lodash": "^4.17.21"
+    "lodash": "^4.17.23"
   },
   "devDependencies": {
     "@types/crypto-js": "^4.2.2",

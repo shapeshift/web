@@ -52,12 +52,10 @@ export class NativeAdapter {
   }
 
   async initialize(): Promise<number> {
-    console.log("[hdwallet-native][WORKSPACE] NativeAdapter.initialize() called");
     return 0;
   }
 
   async pairDevice(deviceId: string): Promise<native.NativeHDWallet | null> {
-    console.log("[hdwallet-native][WORKSPACE] NativeAdapter.pairDevice() called, deviceId:", deviceId);
     let wallet: core.HDWallet | null = this.keyring.get(deviceId);
     if (!wallet && deviceId) {
       // If a wallet with that ID hasn't been added to the keychain, then create it

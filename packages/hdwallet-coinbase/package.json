@@ -32,9 +32,9 @@
     "@shapeshiftoss/hdwallet-core": "workspace:^",
     "eth-rpc-errors": "^4.0.3",
     "ethers": "5.7.2",
-    "lodash": "^4.17.21"
+    "lodash": "^4.17.23"
   },
   "devDependencies": {
-    "@types/lodash": "^4.14.168"
+    "@types/lodash": "^4.14.178"
   }
 }

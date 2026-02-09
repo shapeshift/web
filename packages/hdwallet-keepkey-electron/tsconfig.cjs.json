@@ -18,6 +18,9 @@
   ],
   "references": [
     {
+      "path": "../hdwallet-core/tsconfig.cjs.json"
+    },
+    {
       "path": "../hdwallet-keepkey/tsconfig.cjs.json"
     }
   ]

@@ -1,0 +1,36 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "composite": true,
+    "declaration": true,
+    "noEmit": false
+  },
+  "include": [],
+  "exclude": [],
+  "references": [
+    { "path": "./packages/hdwallet-coinbase" },
+    { "path": "./packages/hdwallet-core" },
+    { "path": "./packages/hdwallet-gridplus" },
+    { "path": "./packages/hdwallet-keepkey" },
+    { "path": "./packages/hdwallet-keepkey-chromeusb" },
+    { "path": "./packages/hdwallet-keepkey-electron" },
+    { "path": "./packages/hdwallet-keepkey-nodehid" },
+    { "path": "./packages/hdwallet-keepkey-nodewebusb" },
+    { "path": "./packages/hdwallet-keepkey-tcp" },
+    { "path": "./packages/hdwallet-keepkey-webusb" },
+    { "path": "./packages/hdwallet-keplr" },
+    { "path": "./packages/hdwallet-ledger" },
+    { "path": "./packages/hdwallet-ledger-webhid" },
+    { "path": "./packages/hdwallet-ledger-webusb" },
+    { "path": "./packages/hdwallet-metamask-multichain" },
+    { "path": "./packages/hdwallet-native" },
+    { "path": "./packages/hdwallet-native-vault" },
+    { "path": "./packages/hdwallet-phantom" },
+    { "path": "./packages/hdwallet-portis" },
+    { "path": "./packages/hdwallet-trezor" },
+    { "path": "./packages/hdwallet-trezor-connect" },
+    { "path": "./packages/hdwallet-vultisig" },
+    { "path": "./packages/hdwallet-walletconnect" },
+    { "path": "./packages/hdwallet-walletconnectv2" }
+  ]
+}

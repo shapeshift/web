@@ -32,14 +32,14 @@
     "@shapeshiftoss/bitcoinjs-lib": "7.0.0-shapeshift.2",
     "@shapeshiftoss/hdwallet-core": "workspace:^",
     "base64-js": "^1.5.1",
-    "bip32": "^2.0.4",
+    "bip32": "^2.0.5",
     "bitcoinjs-message": "^2.1.0",
     "ethers": "5.7.2",
-    "lodash": "^4.17.15",
+    "lodash": "^4.17.23",
     "p-lazy": "^3.1.0",
     "web3": "^1.5.1"
   },
   "devDependencies": {
-    "@types/lodash": "^4.14.168"
+    "@types/lodash": "^4.14.178"
   }
 }

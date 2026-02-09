@@ -55,7 +55,6 @@ type LoadDevice = Omit<core.LoadDevice, "mnemonic"> & {
 
 export class NativeHDWalletInfoBase implements core.HDWalletInfo {
   getVendor(): string {
-    console.log("[hdwallet-native][WORKSPACE] getVendor() called");
     return "Native";
   }
 
@@ -316,7 +315,6 @@ export class NativeHDWallet
     tonMasterKey,
   }: NativeAdapterArgs) {
     super();
-    console.log("[hdwallet-native][WORKSPACE] NativeHDWallet constructor called, deviceId:", deviceId);
     if (mnemonic) {
       this.#secp256k1MasterKey = (async () => {
         const isolatedMnemonic =
@@ -427,7 +425,6 @@ export class NativeHDWallet
 
   // eslint-disable-next-line no-console
   async initialize(): Promise<boolean | null> {
-    console.log("[hdwallet-native][WORKSPACE] NativeHDWallet.initialize() called");
     return this.needsMnemonic(
       !!this.#secp256k1MasterKey && !!this.#ed25519MasterKey && !!this.#starkMasterKey,
       async () => {
@@ -463,7 +460,6 @@ export class NativeHDWallet
           await Promise.all(initPromises);
 
           this.#initialized = true;
-          console.log("[hdwallet-native][WORKSPACE] NativeHDWallet.initialize() succeeded");
         } catch (e) {
           console.error("NativeHDWallet:initialize:error", e);
           this.#initialized = false;
@@ -531,7 +527,6 @@ export class NativeHDWallet
   async recover(): Promise<void> {}
 
   async loadDevice(msg?: LoadDevice): Promise<void> {
-    console.log("[hdwallet-native][WORKSPACE] NativeHDWallet.loadDevice() called");
     this.#secp256k1MasterKey = Promise.resolve(
       await (async (mnemonic, secp256k1MasterKey) => {
         if (secp256k1MasterKey !== undefined) {

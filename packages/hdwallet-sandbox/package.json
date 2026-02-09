@@ -1,0 +1,47 @@
+{
+  "name": "@shapeshiftoss/hdwallet-sandbox",
+  "version": "1.62.41",
+  "license": "MIT",
+  "private": true,
+  "type": "module",
+  "browserslist": "> 0.5%, last 2 versions, not dead",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build --outDir public",
+    "clean": "rm -rf node_modules public"
+  },
+  "dependencies": {
+    "@esm2cjs/p-queue": "^7.3.0",
+    "@metamask/eth-sig-util": "^7.0.0",
+    "@shapeshiftoss/hdwallet-coinbase": "workspace:^",
+    "@shapeshiftoss/hdwallet-core": "workspace:^",
+    "@shapeshiftoss/hdwallet-gridplus": "workspace:^",
+    "@shapeshiftoss/hdwallet-keepkey": "workspace:^",
+    "@shapeshiftoss/hdwallet-keepkey-tcp": "workspace:^",
+    "@shapeshiftoss/hdwallet-keepkey-webusb": "workspace:^",
+    "@shapeshiftoss/hdwallet-keplr": "workspace:^",
+    "@shapeshiftoss/hdwallet-ledger": "workspace:^",
+    "@shapeshiftoss/hdwallet-ledger-webhid": "workspace:^",
+    "@shapeshiftoss/hdwallet-ledger-webusb": "workspace:^",
+    "@shapeshiftoss/hdwallet-metamask-multichain": "workspace:^",
+    "@shapeshiftoss/hdwallet-native": "workspace:^",
+    "@shapeshiftoss/hdwallet-phantom": "workspace:^",
+    "@shapeshiftoss/hdwallet-portis": "workspace:^",
+    "@shapeshiftoss/hdwallet-trezor": "workspace:^",
+    "@shapeshiftoss/hdwallet-trezor-connect": "workspace:^",
+    "@shapeshiftoss/hdwallet-vultisig": "workspace:^",
+    "@shapeshiftoss/hdwallet-walletconnect": "workspace:^",
+    "@shapeshiftoss/hdwallet-walletconnectv2": "workspace:^",
+    "bip32": "^2.0.5",
+    "eip-712": "^1.0.0",
+    "jquery": "^3.7.1",
+    "json": "^9.0.6",
+    "source-map": "^0.8.0-beta.0",
+    "web3": "^1.5.1"
+  },
+  "devDependencies": {
+    "@types/jquery": "^3.5.22",
+    "vite": "6.4.1",
+    "vite-plugin-node-polyfills": "^0.23.0"
+  }
+}

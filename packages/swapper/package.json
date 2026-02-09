@@ -46,7 +46,7 @@
     "@shapeshiftoss/unchained-client": "workspace:^",
     "@shapeshiftoss/utils": "workspace:^",
     "@sniptt/monads": "^0.5.10",
-    "@solana/web3.js": "^1.98.0",
+    "@solana/web3.js": "1.98.0",
     "@ston-fi/omniston-sdk": "^0.7.8",
     "@uniswap/sdk-core": "^5.3.1",
     "@uniswap/v3-sdk": "^3.13.1",

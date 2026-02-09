@@ -6498,6 +6498,23 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@esm2cjs/p-queue@npm:^7.3.0":
+  version: 7.3.0
+  resolution: "@esm2cjs/p-queue@npm:7.3.0"
+  dependencies:
+    "@esm2cjs/p-timeout": ^5.0.2
+    eventemitter3: ^4.0.7
+  checksum: fe9c5433e4ae3d3a417e52a5752591ca644663f7b5b7e025fe3e7e11667713ee4bee26a69f7b57d06c70cfdcc39a27b81bdf86f88416fad94e9c54f9ff5fad66
+  languageName: node
+  linkType: hard
+
+"@esm2cjs/p-timeout@npm:^5.0.2":
+  version: 5.1.0
+  resolution: "@esm2cjs/p-timeout@npm:5.1.0"
+  checksum: e586799a8232a90b5bad38b6b72b0da1c4da15efac1719662afc6d4ec575fa53c49a0204263612ae2d5012dd62df7fd9e577e5b7b65b183e1b9de52b5783303d
+  languageName: node
+  linkType: hard
+
 "@ethereumjs/common@npm:3.2.0, @ethereumjs/common@npm:^3.2.0":
   version: 3.2.0
   resolution: "@ethereumjs/common@npm:3.2.0"
@@ -12954,7 +12971,7 @@ __metadata:
     "@shapeshiftoss/unchained-client": "workspace:^"
     "@shapeshiftoss/utils": "workspace:^"
     "@solana/spl-token": ^0.4.9
-    "@solana/web3.js": ^1.98.0
+    "@solana/web3.js": 1.98.0
     "@ton/core": ^0.62.1
     "@ton/crypto": ^3.3.0
     "@types/bs58check": ^2.1.0
@@ -13037,10 +13054,10 @@ __metadata:
   dependencies:
     "@coinbase/wallet-sdk": ^3.6.6
     "@shapeshiftoss/hdwallet-core": "workspace:^"
-    "@types/lodash": ^4.14.168
+    "@types/lodash": ^4.14.178
     eth-rpc-errors: ^4.0.3
     ethers: 5.7.2
-    lodash: ^4.17.21
+    lodash: ^4.17.23
   languageName: unknown
   linkType: soft
 
@@ -13050,14 +13067,14 @@ __metadata:
   dependencies:
     "@shapeshiftoss/bitcoinjs-lib": 7.0.0-shapeshift.2
     "@shapeshiftoss/proto-tx-builder": 0.10.0
-    "@solana/web3.js": ^1.98.0
+    "@solana/web3.js": 1.98.0
     "@types/google-protobuf": ^3.15.1
-    "@types/lodash": ^4.14.168
+    "@types/lodash": ^4.14.178
     bs58check: ^4.0.0
     eip-712: ^1.0.0
     ethers: 5.7.2
     eventemitter2: ^5.0.1
-    lodash: ^4.17.21
+    lodash: ^4.17.23
     rxjs: ^6.4.0
     type-assertions: ^1.1.0
   languageName: unknown
@@ -13097,8 +13114,29 @@ __metadata:
     bs58check: ^4.0.0
     crypto-js: ^4.2.0
     gridplus-sdk: ^3.2.0
-    lodash: ^4.17.21
+    lodash: ^4.17.23
     typedoc: ^0.20.36
+  languageName: unknown
+  linkType: soft
+
+"@shapeshiftoss/hdwallet-integration@workspace:packages/hdwallet-integration":
+  version: 0.0.0-use.local
+  resolution: "@shapeshiftoss/hdwallet-integration@workspace:packages/hdwallet-integration"
+  dependencies:
+    "@bitcoinerlab/secp256k1": ^1.1.1
+    "@shapeshiftoss/hdwallet-core": "workspace:^"
+    "@shapeshiftoss/hdwallet-keepkey": "workspace:^"
+    "@shapeshiftoss/hdwallet-keepkey-nodewebusb": "workspace:^"
+    "@shapeshiftoss/hdwallet-keepkey-tcp": "workspace:^"
+    "@shapeshiftoss/hdwallet-ledger": "workspace:^"
+    "@shapeshiftoss/hdwallet-metamask-multichain": "workspace:^"
+    "@shapeshiftoss/hdwallet-native": "workspace:^"
+    "@shapeshiftoss/hdwallet-portis": "workspace:^"
+    "@shapeshiftoss/hdwallet-trezor": "workspace:^"
+    "@shapeshiftoss/hdwallet-vultisig": "workspace:^"
+    fast-json-stable-stringify: ^2.1.0
+    msw: ^0.27.1
+    whatwg-fetch: ^3.6.2
   languageName: unknown
   linkType: soft
 
@@ -13135,7 +13173,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@shapeshiftoss/hdwallet-keepkey-nodewebusb@workspace:packages/hdwallet-keepkey-nodewebusb":
+"@shapeshiftoss/hdwallet-keepkey-nodewebusb@workspace:^, @shapeshiftoss/hdwallet-keepkey-nodewebusb@workspace:packages/hdwallet-keepkey-nodewebusb":
   version: 0.0.0-use.local
   resolution: "@shapeshiftoss/hdwallet-keepkey-nodewebusb@workspace:packages/hdwallet-keepkey-nodewebusb"
   dependencies:
@@ -13147,7 +13185,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@shapeshiftoss/hdwallet-keepkey-tcp@workspace:packages/hdwallet-keepkey-tcp":
+"@shapeshiftoss/hdwallet-keepkey-tcp@workspace:^, @shapeshiftoss/hdwallet-keepkey-tcp@workspace:packages/hdwallet-keepkey-tcp":
   version: 0.0.0-use.local
   resolution: "@shapeshiftoss/hdwallet-keepkey-tcp@workspace:packages/hdwallet-keepkey-tcp"
   dependencies:
@@ -13186,18 +13224,18 @@ __metadata:
     "@types/crypto-js": ^4.0.0
     "@types/google-protobuf": ^3.15.1
     "@types/icepick": ^2.3.0
-    "@types/lodash": ^4.14.168
+    "@types/lodash": ^4.14.178
     "@types/semver": ^6.2.2
     bignumber.js: ^9.0.1
     bnb-javascript-sdk-nobroadcast: 2.16.15
     bs58: ^5.0.0
     bs58check: ^4.0.0
-    crypto-js: ^4.0.0
+    crypto-js: ^4.2.0
     eip55: ^2.1.0
     ethers: 5.7.2
     google-protobuf: ^3.15.8
     icepick: ^2.4.0
-    lodash: ^4.17.21
+    lodash: ^4.17.23
     p-lazy: ^3.1.0
     semver: ^7.3.8
     typedoc: ^0.20.36
@@ -13215,9 +13253,9 @@ __metadata:
     "@shapeshiftoss/hdwallet-core": "workspace:^"
     "@shapeshiftoss/proto-tx-builder": 0.10.0
     "@shapeshiftoss/types": "workspace:^"
-    "@types/lodash": ^4.14.168
+    "@types/lodash": ^4.14.178
     base64-js: ^1.5.1
-    lodash: ^4.17.21
+    lodash: ^4.17.23
   languageName: unknown
   linkType: soft
 
@@ -13270,19 +13308,19 @@ __metadata:
     "@mysten/ledgerjs-hw-app-sui": ^0.7.0
     "@shapeshiftoss/bitcoinjs-lib": 7.0.0-shapeshift.2
     "@shapeshiftoss/hdwallet-core": "workspace:^"
-    "@solana/web3.js": ^1.98.0
+    "@solana/web3.js": 1.98.0
     "@types/bchaddrjs": ^0.4.0
     "@types/ethereumjs-tx": 1.0.1
     "@types/ethereumjs-util": ^6.1.0
     "@types/ripemd160": ^2.0.2
     base64-js: ^1.5.1
     bchaddrjs: ^0.4.4
-    bitcoinjs-message: ^2.0.0
+    bitcoinjs-message: ^2.1.0
     bs58check: ^4.0.0
     ethereumjs-tx: 1.3.7
     ethereumjs-util: ^6.1.0
     ethers: 5.7.2
-    lodash: ^4.17.21
+    lodash: ^4.17.23
     typedoc: ^0.20.36
   languageName: unknown
   linkType: soft
@@ -13298,10 +13336,10 @@ __metadata:
     "@shapeshiftoss/metamask-snaps-adapter": ^1.0.12
     "@shapeshiftoss/metamask-snaps-types": ^1.0.12
     "@types/express": ^4.17.17
-    "@types/lodash": ^4.14.168
+    "@types/lodash": ^4.14.178
     eth-rpc-errors: ^4.0.3
     ethers: 5.7.2
-    lodash: ^4.17.21
+    lodash: ^4.17.23
     mipd: ^0.0.7
   languageName: unknown
   linkType: soft
@@ -13337,7 +13375,7 @@ __metadata:
     "@shapeshiftoss/bitcoinjs-lib": 7.0.0-shapeshift.2
     "@shapeshiftoss/hdwallet-core": "workspace:^"
     "@shapeshiftoss/proto-tx-builder": 0.10.0
-    "@solana/web3.js": ^1.98.0
+    "@solana/web3.js": 1.98.0
     "@ton/core": ^0.62.1
     "@ton/crypto": ^3.3.0
     "@ton/ton": ^16.1.0
@@ -13346,7 +13384,7 @@ __metadata:
     "@types/bs58": ^4.0.1
     "@types/crypto-js": ^4.0.0
     "@types/elliptic": ^6.4.12
-    "@types/lodash": ^4.14.168
+    "@types/lodash": ^4.14.178
     "@types/node-fetch": ^2.5.10
     "@types/wif": ^2.0.2
     "@zxing/text-encoding": ^0.9.0
@@ -13359,14 +13397,14 @@ __metadata:
     bs58: ^4.0.1
     bs58check: ^4.0.0
     cosmjs-types: ^0.4.1
-    crypto-js: ^4.0.0
+    crypto-js: ^4.2.0
     ecpair: ^3.0.0-rc.0
     eip-712: ^1.0.0
     ethers: 5.7.2
     eventemitter2: ^5.0.1
     funtypes: ^3.0.1
     hash-wasm: ^4.11.0
-    lodash: ^4.17.21
+    lodash: ^4.17.23
     msw: ^0.27.1
     node-fetch: ^2.6.1
     p-lazy: ^3.1.0
@@ -13382,29 +13420,66 @@ __metadata:
   dependencies:
     "@shapeshiftoss/bitcoinjs-lib": 7.0.0-shapeshift.2
     "@shapeshiftoss/hdwallet-core": "workspace:^"
-    "@solana/web3.js": ^1.98.0
-    "@types/lodash": ^4.14.168
+    "@solana/web3.js": 1.98.0
+    "@types/lodash": ^4.14.178
     base64-js: ^1.5.1
-    bitcoinjs-message: ^2.0.0
+    bitcoinjs-message: ^2.1.0
     ethers: 5.7.2
-    lodash: ^4.17.21
+    lodash: ^4.17.23
   languageName: unknown
   linkType: soft
 
-"@shapeshiftoss/hdwallet-portis@workspace:packages/hdwallet-portis":
+"@shapeshiftoss/hdwallet-portis@workspace:^, @shapeshiftoss/hdwallet-portis@workspace:packages/hdwallet-portis":
   version: 0.0.0-use.local
   resolution: "@shapeshiftoss/hdwallet-portis@workspace:packages/hdwallet-portis"
   dependencies:
     "@portis/web3": 3.0.10
     "@shapeshiftoss/bitcoinjs-lib": 7.0.0-shapeshift.2
     "@shapeshiftoss/hdwallet-core": "workspace:^"
-    "@types/lodash": ^4.14.168
+    "@types/lodash": ^4.14.178
     base64-js: ^1.5.1
-    bip32: ^2.0.4
+    bip32: ^2.0.5
     bitcoinjs-message: ^2.1.0
     ethers: 5.7.2
-    lodash: ^4.17.15
+    lodash: ^4.17.23
     p-lazy: ^3.1.0
+    web3: ^1.5.1
+  languageName: unknown
+  linkType: soft
+
+"@shapeshiftoss/hdwallet-sandbox@workspace:packages/hdwallet-sandbox":
+  version: 0.0.0-use.local
+  resolution: "@shapeshiftoss/hdwallet-sandbox@workspace:packages/hdwallet-sandbox"
+  dependencies:
+    "@esm2cjs/p-queue": ^7.3.0
+    "@metamask/eth-sig-util": ^7.0.0
+    "@shapeshiftoss/hdwallet-coinbase": "workspace:^"
+    "@shapeshiftoss/hdwallet-core": "workspace:^"
+    "@shapeshiftoss/hdwallet-gridplus": "workspace:^"
+    "@shapeshiftoss/hdwallet-keepkey": "workspace:^"
+    "@shapeshiftoss/hdwallet-keepkey-tcp": "workspace:^"
+    "@shapeshiftoss/hdwallet-keepkey-webusb": "workspace:^"
+    "@shapeshiftoss/hdwallet-keplr": "workspace:^"
+    "@shapeshiftoss/hdwallet-ledger": "workspace:^"
+    "@shapeshiftoss/hdwallet-ledger-webhid": "workspace:^"
+    "@shapeshiftoss/hdwallet-ledger-webusb": "workspace:^"
+    "@shapeshiftoss/hdwallet-metamask-multichain": "workspace:^"
+    "@shapeshiftoss/hdwallet-native": "workspace:^"
+    "@shapeshiftoss/hdwallet-phantom": "workspace:^"
+    "@shapeshiftoss/hdwallet-portis": "workspace:^"
+    "@shapeshiftoss/hdwallet-trezor": "workspace:^"
+    "@shapeshiftoss/hdwallet-trezor-connect": "workspace:^"
+    "@shapeshiftoss/hdwallet-vultisig": "workspace:^"
+    "@shapeshiftoss/hdwallet-walletconnect": "workspace:^"
+    "@shapeshiftoss/hdwallet-walletconnectv2": "workspace:^"
+    "@types/jquery": ^3.5.22
+    bip32: ^2.0.5
+    eip-712: ^1.0.0
+    jquery: ^3.7.1
+    json: ^9.0.6
+    source-map: ^0.8.0-beta.0
+    vite: 6.4.1
+    vite-plugin-node-polyfills: ^0.23.0
     web3: ^1.5.1
   languageName: unknown
   linkType: soft
@@ -13427,11 +13502,11 @@ __metadata:
     "@ethereumjs/tx": 4.2.0
     "@shapeshiftoss/hdwallet-core": "workspace:^"
     "@types/bchaddrjs": ^0.4.0
-    "@types/lodash": ^4.14.168
+    "@types/lodash": ^4.14.178
     base64-js: ^1.5.1
     bchaddrjs: ^0.4.4
     ethers: 5.7.2
-    lodash: ^4.17.21
+    lodash: ^4.17.23
     typedoc: ^0.20.36
   languageName: unknown
   linkType: soft
@@ -13444,12 +13519,12 @@ __metadata:
     "@cosmjs/stargate": ^0.28.13
     "@shapeshiftoss/bitcoinjs-lib": 7.0.0-shapeshift.2
     "@shapeshiftoss/hdwallet-core": "workspace:^"
-    "@solana/web3.js": ^1.98.0
-    "@types/lodash": ^4.14.168
+    "@solana/web3.js": 1.98.0
+    "@types/lodash": ^4.14.178
     base64-js: ^1.5.1
-    bitcoinjs-message: ^2.0.0
+    bitcoinjs-message: ^2.1.0
     ethers: 5.7.2
-    lodash: ^4.17.21
+    lodash: ^4.17.23
   languageName: unknown
   linkType: soft
 
@@ -13606,7 +13681,7 @@ __metadata:
     "@shapeshiftoss/caip": "npm:@shapeshiftoss/caip@8.16.6"
     "@shapeshiftoss/utils": "npm:@shapeshiftoss/utils@1.0.5"
     "@solana/wallet-adapter-wallets": ^0.19.32
-    "@solana/web3.js": ^1.98.0
+    "@solana/web3.js": 1.98.0
     "@tanstack/react-query": ^5.69.0
     "@types/react": ^19.0.0
     "@types/react-dom": ^19.0.0
@@ -13647,7 +13722,7 @@ __metadata:
     "@shapeshiftoss/unchained-client": "workspace:^"
     "@shapeshiftoss/utils": "workspace:^"
     "@sniptt/monads": ^0.5.10
-    "@solana/web3.js": ^1.98.0
+    "@solana/web3.js": 1.98.0
     "@ston-fi/omniston-sdk": ^0.7.8
     "@types/lodash": ^4.14.178
     "@types/mixpanel-browser": ^2.38.1
@@ -13817,7 +13892,7 @@ __metadata:
     "@shapeshiftoss/utils": "workspace:^"
     "@sniptt/monads": ^0.5.10
     "@solana/pay": ^0.2.6
-    "@solana/web3.js": ^1.98.0
+    "@solana/web3.js": 1.98.0
     "@tanstack/pacer": ^0.9.0
     "@tanstack/react-query": ^5.69.0
     "@tanstack/react-table": ^8.20.6
@@ -16078,6 +16153,29 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@solana/web3.js@npm:1.98.0, @solana/web3.js@npm:^1.36.0, @solana/web3.js@npm:^1.50.1, @solana/web3.js@npm:^1.56.2, @solana/web3.js@npm:^1.63.1, @solana/web3.js@npm:^1.66.2":
+  version: 1.98.0
+  resolution: "@solana/web3.js@npm:1.98.0"
+  dependencies:
+    "@babel/runtime": ^7.25.0
+    "@noble/curves": ^1.4.2
+    "@noble/hashes": ^1.4.0
+    "@solana/buffer-layout": ^4.0.1
+    agentkeepalive: ^4.5.0
+    bigint-buffer: ^1.1.5
+    bn.js: ^5.2.1
+    borsh: ^0.7.0
+    bs58: ^4.0.1
+    buffer: 6.0.3
+    fast-stable-stringify: ^1.0.0
+    jayson: ^4.1.1
+    node-fetch: ^2.7.0
+    rpc-websockets: ^9.0.2
+    superstruct: ^2.0.2
+  checksum: f2c39e53e2aa4ba893565b2914112f203d15dcc23d6170edf6f696e735a24469989896827ecc456b99a8c6781c96f1a12a22277e6f82d65545b0925546ab7b8f
+  languageName: node
+  linkType: hard
+
 "@solana/web3.js@npm:1.98.4, @solana/web3.js@npm:^1.91.4, @solana/web3.js@npm:^1.98.1, @solana/web3.js@npm:^1.98.2":
   version: 1.98.4
   resolution: "@solana/web3.js@npm:1.98.4"
@@ -16121,29 +16219,6 @@ __metadata:
     rpc-websockets: ^7.5.1
     superstruct: ^0.14.2
   checksum: 7e8ae7775f0df82d7d796befd1f2f95482e5935e6879dba7aa6c65093cb7a09158b965e3aba15e218c2652efaa7ec77c2287c01f343e4ec08afd1a298c16a039
-  languageName: node
-  linkType: hard
-
-"@solana/web3.js@npm:^1.36.0, @solana/web3.js@npm:^1.50.1, @solana/web3.js@npm:^1.56.2, @solana/web3.js@npm:^1.63.1, @solana/web3.js@npm:^1.66.2, @solana/web3.js@npm:^1.98.0":
-  version: 1.98.0
-  resolution: "@solana/web3.js@npm:1.98.0"
-  dependencies:
-    "@babel/runtime": ^7.25.0
-    "@noble/curves": ^1.4.2
-    "@noble/hashes": ^1.4.0
-    "@solana/buffer-layout": ^4.0.1
-    agentkeepalive: ^4.5.0
-    bigint-buffer: ^1.1.5
-    bn.js: ^5.2.1
-    borsh: ^0.7.0
-    bs58: ^4.0.1
-    buffer: 6.0.3
-    fast-stable-stringify: ^1.0.0
-    jayson: ^4.1.1
-    node-fetch: ^2.7.0
-    rpc-websockets: ^9.0.2
-    superstruct: ^2.0.2
-  checksum: f2c39e53e2aa4ba893565b2914112f203d15dcc23d6170edf6f696e735a24469989896827ecc456b99a8c6781c96f1a12a22277e6f82d65545b0925546ab7b8f
   languageName: node
   linkType: hard
 
@@ -18042,6 +18117,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/jquery@npm:^3.5.22":
+  version: 3.5.33
+  resolution: "@types/jquery@npm:3.5.33"
+  dependencies:
+    "@types/sizzle": "*"
+  checksum: 63a654cb5a141f794f8d2704891b851742bf40d1ef9c8ce7c38900b6e6aedded9324273d52a7a8ab5ddc17b395991b51e566119d4c14b160fef11342bdf18b3a
+  languageName: node
+  linkType: hard
+
 "@types/js-levenshtein@npm:^1.1.0":
   version: 1.1.1
   resolution: "@types/js-levenshtein@npm:1.1.1"
@@ -18131,13 +18215,6 @@ __metadata:
   version: 4.14.182
   resolution: "@types/lodash@npm:4.14.182"
   checksum: 7dd137aa9dbabd632408bd37009d984655164fa1ecc3f2b6eb94afe35bf0a5852cbab6183148d883e9c73a958b7fec9a9bcf7c8e45d41195add6a18c34958209
-  languageName: node
-  linkType: hard
-
-"@types/lodash@npm:^4.14.168":
-  version: 4.17.23
-  resolution: "@types/lodash@npm:4.17.23"
-  checksum: 38638641526759688656b9930c0a2714536bdc2b84d5a2d4dc4b7825ba39a74ceedcc9971a9c7511189dad987426135b647616e4f49f2d67893617bdb7c85f84
   languageName: node
   linkType: hard
 
@@ -18591,6 +18668,13 @@ __metadata:
   dependencies:
     "@types/node": "*"
   checksum: c31bf04eb9620829dc3c91bced74ac934ad039d20d20893fb5acac0f08769cbd4eef3bf7502a0289c7be59c3e9cfa456147b4e88bff47dd1b9efb4995ba5d5a3
+  languageName: node
+  linkType: hard
+
+"@types/sizzle@npm:*":
+  version: 2.3.10
+  resolution: "@types/sizzle@npm:2.3.10"
+  checksum: 7898ae8c147d6804e1eb7811664bf6e58c382840b03a56976c668f17fbc76f752c4086bddb0d6c6d54e279a9259cf4fbb61a6ee968dac98615c42350f6f57d6a
   languageName: node
   linkType: hard
 
@@ -23006,7 +23090,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"bitcoinjs-message@npm:^2.0.0, bitcoinjs-message@npm:^2.1.0":
+"bitcoinjs-message@npm:^2.1.0":
   version: 2.2.0
   resolution: "bitcoinjs-message@npm:2.2.0"
   dependencies:
@@ -31933,6 +32017,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"jquery@npm:^3.7.1":
+  version: 3.7.1
+  resolution: "jquery@npm:3.7.1"
+  checksum: 4370b8139d6ae82867eb6f7f21d1edccf1d1bdf41c0840920ea80d366c2cd5dbe1ceebb110ee9772aa839b04400faa1572c5c560b507c688ed7b61cea26c0e27
+  languageName: node
+  linkType: hard
+
 "js-base64@npm:^3.7.2, js-base64@npm:^3.7.4":
   version: 3.7.8
   resolution: "js-base64@npm:3.7.8"
@@ -32249,6 +32340,15 @@ __metadata:
   bin:
     json5: lib/cli.js
   checksum: 2a7436a93393830bce797d4626275152e37e877b265e94ca69c99e3d20c2b9dab021279146a39cdb700e71b2dd32a4cebd1514cd57cee102b1af906ce5040349
+  languageName: node
+  linkType: hard
+
+"json@npm:^9.0.6":
+  version: 9.0.6
+  resolution: "json@npm:9.0.6"
+  bin:
+    json: ./lib/json.js
+  checksum: b9f16874e5bab435ad2e68f5a110549da8e28a4795a24c46e52c97a4f4fc5087f2ceb197eed4f8413fa24a7f7008af3da26caeec7739ca86ec25c2da146af9d5
   languageName: node
   linkType: hard
 
@@ -39296,7 +39396,7 @@ pvutils@latest:
   languageName: node
   linkType: hard
 
-"source-map@npm:~0.8.0-beta.0":
+"source-map@npm:^0.8.0-beta.0, source-map@npm:~0.8.0-beta.0":
   version: 0.8.0-beta.0
   resolution: "source-map@npm:0.8.0-beta.0"
   dependencies:
@@ -43102,6 +43202,13 @@ pvutils@latest:
   version: 3.6.2
   resolution: "whatwg-fetch@npm:3.6.2"
   checksum: ee976b7249e7791edb0d0a62cd806b29006ad7ec3a3d89145921ad8c00a3a67e4be8f3fb3ec6bc7b58498724fd568d11aeeeea1f7827e7e1e5eae6c8a275afed
+  languageName: node
+  linkType: hard
+
+"whatwg-fetch@npm:^3.6.2":
+  version: 3.6.20
+  resolution: "whatwg-fetch@npm:3.6.20"
+  checksum: c58851ea2c4efe5c2235f13450f426824cf0253c1d45da28f45900290ae602a20aff2ab43346f16ec58917d5562e159cd691efa368354b2e82918c2146a519c5
   languageName: node
   linkType: hard
 

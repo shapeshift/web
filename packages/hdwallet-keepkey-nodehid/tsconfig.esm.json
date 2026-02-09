@@ -18,6 +18,9 @@
   ],
   "references": [
     {
+      "path": "../hdwallet-core/tsconfig.esm.json"
+    },
+    {
       "path": "../hdwallet-keepkey/tsconfig.esm.json"
     }
   ]

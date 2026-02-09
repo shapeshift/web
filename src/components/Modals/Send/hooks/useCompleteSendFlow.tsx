@@ -31,16 +31,13 @@ export const useCompleteSendFlow = (handleClose: () => void) => {
     ({ txHash, to, accountId, assetId, amountCryptoPrecision }: CompleteSendFlowArgs) => {
       const { chainId, chainNamespace } = fromAccountId(accountId)
 
-      const internalReceiveAccountId = (() => {
-        if (chainNamespace === CHAIN_NAMESPACE.Evm) {
-          return toAccountId({ chainId, account: to })
-        }
-
-        return selectInternalAccountIdByAddress(store.getState(), {
-          accountAddress: to,
-          chainId,
-        })
-      })()
+      const internalReceiveAccountId =
+        chainNamespace === CHAIN_NAMESPACE.Evm
+          ? toAccountId({ chainId, account: to })
+          : selectInternalAccountIdByAddress(store.getState(), {
+              accountAddress: to,
+              chainId,
+            })
 
       const accountIdsToRefetch = [accountId]
 

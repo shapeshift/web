@@ -191,17 +191,11 @@ export const Form: React.FC<QrCodeFormProps> = ({ accountId }) => {
             )
           }
 
-          // Always update accountId to match the scanned asset's chain
-          if (maybeUrlResult.assetId) {
-            const state = store.getState()
-            const accountIds = selectPortfolioAccountIdsByAssetIdFilter(state, {
-              assetId: maybeUrlResult.assetId,
-            })
-            const detectedAccountId = accountIds[0]
-
-            if (detectedAccountId) {
-              methods.setValue(SendFormFields.AccountId, detectedAccountId)
-            }
+          const accountIds = selectPortfolioAccountIdsByAssetIdFilter(store.getState(), {
+            assetId: maybeUrlResult.assetId,
+          })
+          if (accountIds[0]) {
+            methods.setValue(SendFormFields.AccountId, accountIds[0])
           }
 
           const { chainNamespace } = fromAssetId(maybeUrlResult.assetId)

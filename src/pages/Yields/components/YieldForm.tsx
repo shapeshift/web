@@ -223,7 +223,9 @@ export const YieldForm = memo(
     }, [providers, yieldItem.providerId])
 
     const inputTokenAsset = useAppSelector(state => selectAssetById(state, inputTokenAssetId ?? ''))
-    const outputTokenAsset = useAppSelector(state => selectAssetById(state, displayAssetId ?? ''))
+    const outputTokenAsset = useAppSelector(state =>
+      selectAssetById(state, outputTokenAssetId ?? ''),
+    )
     const displayAsset = isExitWithOutputToken
       ? outputTokenAsset ?? inputTokenAsset
       : inputTokenAsset

@@ -67,6 +67,10 @@ const TX_TYPE_TO_LABELS: Record<string, TxTypeLabels> = {
 
 type TerminologyKey = 'staking' | 'vault'
 
+const assertNever = (value: never): never => {
+  throw new Error(`Unhandled yield type: ${value}`)
+}
+
 export const isStakingYieldType = (yieldType: YieldType): boolean => {
   switch (yieldType) {
     case 'staking':
@@ -79,8 +83,7 @@ export const isStakingYieldType = (yieldType: YieldType): boolean => {
     case 'lending':
       return false
     default:
-      assertNever(yieldType)
-      return false
+      return assertNever(yieldType)
   }
 }
 
@@ -232,10 +235,6 @@ export const ensureValidatorApr = (validator: ValidatorDto): ValidatorDto =>
 export type YieldActionLabelKeys = {
   enter: string
   exit: string
-}
-
-const assertNever = (value: never): never => {
-  throw new Error(`Unhandled yield type: ${value}`)
 }
 
 /**

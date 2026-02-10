@@ -1,6 +1,7 @@
 import type { ComponentWithAs, IconProps } from '@chakra-ui/react'
 import { Box, Button, Flex, Stack, Text as CText, useColorModeValue } from '@chakra-ui/react'
-import { useCallback, useEffect, useState } from 'react'
+import { useQuery } from '@tanstack/react-query'
+import { useCallback } from 'react'
 
 import { Text } from '@/components/Text'
 import { WalletActions } from '@/context/WalletProvider/actions'
@@ -79,19 +80,15 @@ export const HardwareWalletsSection = ({
 }) => {
   const { connect, dispatch } = useWallet()
   const localWallet = useLocalWallet()
-  const [isSeekerAvailable, setIsSeekerAvailable] = useState(false)
 
-  useEffect(() => {
-    const checkSeeker = async () => {
-      try {
-        const result = await checkSeekerAvailability()
-        setIsSeekerAvailable(result.available)
-      } catch (error) {
-        setIsSeekerAvailable(false)
-      }
-    }
-    checkSeeker()
-  }, [])
+  const { data: isSeekerAvailable = false } = useQuery({
+    queryKey: ['seekerAvailability'],
+    queryFn: async () => {
+      const result = await checkSeekerAvailability()
+      return result.available
+    },
+    staleTime: Infinity,
+  })
 
   const handleConnectLedger = useCallback(() => {
     onWalletSelect(KeyManager.Ledger, '/ledger/connect')

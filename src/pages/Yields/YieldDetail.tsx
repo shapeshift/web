@@ -297,7 +297,7 @@ export const YieldDetail = memo(() => {
             )}
             <YieldRelatedMarkets
               currentYieldId={yieldItem.id}
-              tokenSymbol={yieldItem.token.symbol}
+              tokenSymbol={yieldItem.inputTokens[0]?.symbol ?? yieldItem.token.symbol}
             />
           </Stack>
         </Display.Mobile>
@@ -321,7 +321,7 @@ export const YieldDetail = memo(() => {
               )}
               <YieldRelatedMarkets
                 currentYieldId={yieldItem.id}
-                tokenSymbol={yieldItem.token.symbol}
+                tokenSymbol={yieldItem.inputTokens[0]?.symbol ?? yieldItem.token.symbol}
               />
             </Stack>
 

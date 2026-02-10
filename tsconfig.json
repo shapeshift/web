@@ -5,6 +5,7 @@
     "lib": ["dom", "dom.iterable", "esnext"],
     "types": ["vite/client"],
     "skipLibCheck": true,
+    "incremental": true,
     "noEmit": true,
 
     /* Type Checking */

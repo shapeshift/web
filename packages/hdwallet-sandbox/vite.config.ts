@@ -5,7 +5,7 @@ import { nodePolyfills } from 'vite-plugin-node-polyfills'
 const resolveEthersV5ForHdwallet: PluginOption = {
   name: 'resolve-ethers-v5-hdwallet',
   enforce: 'pre',
-  async resolveId(source, importer) {
+  resolveId(source, importer) {
     if (
       (source === 'ethers' || source.startsWith('ethers/')) &&
       importer &&
@@ -17,6 +17,7 @@ const resolveEthersV5ForHdwallet: PluginOption = {
   },
 }
 
+// eslint-disable-next-line import/no-default-export
 export default defineConfig({
   optimizeDeps: {
     include: ['@ethereumjs/tx', 'gridplus-sdk > @ethereumjs/tx'],

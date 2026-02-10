@@ -1,6 +1,7 @@
 import { rest } from 'msw'
 import { setupServer } from 'msw/node'
 
+// eslint-disable-next-line import/no-default-export
 export default function newMswMock(handlers: Record<string, Record<string, unknown>> = {}) {
   Object.values(handlers).forEach(x => {
     Object.entries(x).forEach(([k, v]) => {

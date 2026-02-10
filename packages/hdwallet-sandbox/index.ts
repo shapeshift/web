@@ -216,7 +216,7 @@ $native.on('click', async e => {
   $('#keyring select').val(await wallet.getDeviceID())
 })
 
-$gridplus.on('click', async e => {
+$gridplus.on('click', e => {
   e.preventDefault()
 
   let deviceId = ''
@@ -356,7 +356,7 @@ async function deviceConnected(deviceId) {
     await deviceConnected(deviceId)
   })
 
-  keyring.on(['*', '*', core.Events.DISCONNECT], async deviceId => {
+  keyring.on(['*', '*', core.Events.DISCONNECT], deviceId => {
     $keyring.find(`option[value="${deviceId}"]`).remove()
   })
 
@@ -498,7 +498,7 @@ window['mnemonicOpen'] = function () {
   document.getElementById('#mnemonicModal').className = 'modal opened'
 }
 
-window['mnemonicEntered'] = async function () {
+window['mnemonicEntered'] = function () {
   const input = document.getElementById('#mnemonicInput') as HTMLInputElement
   wallet.loadDevice({ mnemonic: input.value })
   document.getElementById('#mnemonicModal').className = 'modal'
@@ -1330,13 +1330,13 @@ $thorchainSignSwap.on('click', async e => {
   }
   if (
     !($thorchainDestAddress.val() as string).match(/^[a-z0-9]+$/i) &&
-    $thorchainDestAddress.val() != ''
+    $thorchainDestAddress.val() !== ''
   ) {
     console.info($thorchainDestAddress.val())
     $thorchainSwapResults.val('Invalid destination address')
     return
   }
-  if (!($thorchainAmount.val() as string).match(/^\d*\.?\d*$/) && $thorchainAmount.val() != '') {
+  if (!($thorchainAmount.val() as string).match(/^\d*\.?\d*$/) && $thorchainAmount.val() !== '') {
     $thorchainSwapResults.val('Amount is not a number')
     return
   }
@@ -1485,13 +1485,13 @@ $thorchainSignAddLiquidity.on('click', async e => {
   }
   if (
     !($thorchainDestAddress.val() as string).match(/^[a-z0-9]+$/i) &&
-    $thorchainDestAddress.val() != ''
+    $thorchainDestAddress.val() !== ''
   ) {
     console.info($thorchainDestAddress.val())
     $thorchainAddLiquidityResults.val('Invalid destination address')
     return
   }
-  if (!($thorchainAmount.val() as string).match(/^\d*\.?\d*$/) && $thorchainAmount.val() != '') {
+  if (!($thorchainAmount.val() as string).match(/^\d*\.?\d*$/) && $thorchainAmount.val() !== '') {
     $thorchainAddLiquidityResults.val('Amount is not a number')
     return
   }
@@ -2767,11 +2767,11 @@ function erc20SetSetSelected(selectedButton: any) {
   erc20ButtonContentMap
     .map(o => o.button)
     .forEach(button => {
-      if (button == selectedButton) {
+      if (button === selectedButton) {
         button.attr('class', 'button')
         $erc20DynamicContainer.empty()
         $erc20DynamicContainer.append(
-          erc20ButtonContentMap.filter(o => o.button == button)[0].content,
+          erc20ButtonContentMap.filter(o => o.button === button)[0].content,
         )
         erc20Selected = button
       } else {
@@ -2780,37 +2780,37 @@ function erc20SetSetSelected(selectedButton: any) {
     })
 }
 
-$erc20Addr.on('click', async e => {
+$erc20Addr.on('click', e => {
   e.preventDefault()
   erc20SetSetSelected($erc20Addr)
 })
 
-$erc20TotalSupply.on('click', async e => {
+$erc20TotalSupply.on('click', e => {
   e.preventDefault()
   erc20SetSetSelected($erc20TotalSupply)
 })
 
-$erc20BalanceOf.on('click', async e => {
+$erc20BalanceOf.on('click', e => {
   e.preventDefault()
   erc20SetSetSelected($erc20BalanceOf)
 })
 
-$erc20Allowance.on('click', async e => {
+$erc20Allowance.on('click', e => {
   e.preventDefault()
   erc20SetSetSelected($erc20Allowance)
 })
 
-$erc20Transfer.on('click', async e => {
+$erc20Transfer.on('click', e => {
   e.preventDefault()
   erc20SetSetSelected($erc20Transfer)
 })
 
-$erc20Approve.on('click', async e => {
+$erc20Approve.on('click', e => {
   e.preventDefault()
   erc20SetSetSelected($erc20Approve)
 })
 
-$erc20TransferFrom.on('click', async e => {
+$erc20TransferFrom.on('click', e => {
   e.preventDefault()
   erc20SetSetSelected($erc20TransferFrom)
 })
@@ -2886,7 +2886,7 @@ $erc20Submit.on('click', async () => {
         console.info('oops', erc20Selected)
         return
     }
-    if (erc20Selected != $erc20Addr) {
+    if (erc20Selected !== $erc20Addr) {
       result = await wallet.ethSignTx({
         addressNList: hardenedPath.concat(relPath),
         nonce: '0x0',

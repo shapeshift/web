@@ -18,7 +18,7 @@ export class CipherString {
       try {
         const header = cipher.split(".");
         this.encryptionType = Number(header[0]);
-        [data, iv, mac] = (header[1] ?? "").split("|");
+        [data, iv, mac] = (header[1] as string).split("|");
       } catch (e) {
         throw new Error("Invalid cipher string");
       }

@@ -10,7 +10,7 @@ function mockTraps(mock: () => unknown) {
 }
 
 function doMock<T extends object>(target: T) {
-  const mock = jest.fn();
+  const mock = vi.fn();
   return [
     typeof target === "object" || typeof target === "function" ? new Proxy(target, mockTraps(mock)) : target,
     mock,
@@ -18,7 +18,7 @@ function doMock<T extends object>(target: T) {
 }
 
 export function bind(obj: Record<string, () => unknown>, prop: string, ...args: any[]) {
-  const mock = jest.fn();
+  const mock = vi.fn();
   const [objProxy, objMock] = doMock(obj);
   objMock.mockImplementation(() => mock());
   const argProxies = args.map((arg) => {

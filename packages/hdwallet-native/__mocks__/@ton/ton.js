@@ -1,10 +1,10 @@
 module.exports = {
   WalletContractV4: {
-    create: jest.fn().mockReturnValue({
-      address: { toString: jest.fn().mockReturnValue("mock-address") },
+    create: vi.fn().mockReturnValue({
+      address: { toString: vi.fn().mockReturnValue("mock-address") },
       init: { code: null, data: null },
-      createTransfer: jest.fn(),
+      createTransfer: vi.fn(),
     }),
   },
-  TonClient: jest.fn(),
+  TonClient: vi.fn(),
 };

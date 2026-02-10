@@ -78,18 +78,5 @@ jobs:
       - name: Build HDWallet Packages
         run: yarn hdwallet:build
 
-      - name: Wait for KeepKey Emulator
-        run: |
-          echo "Waiting for KeepKey emulator on port 5000..."
-          for i in $(seq 1 30); do
-            if curl -s http://localhost:5000/exchange/device > /dev/null 2>&1; then
-              echo "Emulator ready"
-              exit 0
-            fi
-            sleep 2
-          done
-          echo "Emulator failed to start"
-          exit 1
-
       - name: Integration Tests
         run: yarn hdwallet:test:integration

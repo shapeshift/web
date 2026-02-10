@@ -215,6 +215,7 @@ export default defineConfig(({ mode }) => {
         'ethers/lib/utils': 'ethers5/lib/utils.js',
         'ethers/lib/utils.js': 'ethers5/lib/utils.js',
         'dayjs/locale': resolve(__dirname, 'node_modules/dayjs/locale'),
+        '@shapeshiftoss/hdwallet-core': resolve(__dirname, './packages/hdwallet-core/src'),
         '@shapeshiftoss/caip': resolve(__dirname, './packages/caip/src'),
         '@shapeshiftoss/types': resolve(__dirname, './packages/types/src'),
       },
@@ -223,7 +224,7 @@ export default defineConfig(({ mode }) => {
       target: 'esnext',
       commonjsOptions: {
         transformMixedEsModules: true,
-        exclude: ['@shapeshiftoss/caip', '@shapeshiftoss/types', /^@shapeshiftoss\/hdwallet-/],
+        exclude: ['@shapeshiftoss/caip', '@shapeshiftoss/types'],
       },
       chunkSizeWarningLimit: 2000,
       rollupOptions: {
@@ -237,45 +238,21 @@ export default defineConfig(({ mode }) => {
               if (id.match(/(react-icons|@react-spring|react-datepicker|react-dom)/)) return 'react'
               if (id.match(/(dayjs|lodash|@formatjs)/)) return 'utils'
               if (id.match(/(@redux|@tanstack)/)) return 'state'
-              if (id.match(/(@metaplex-foundation|@solana)/)) return 'solana'
-              if (id.match(/(starknet|@avnu|@starknet-io)/)) return 'starknet'
               if (id.match(/(@sentry|mixpanel|@moralisweb3|moralis)/)) return 'sdk'
               if (id.match(/(embla-carousel)/)) return 'carousel'
               if (id.includes('lightweight-charts')) return 'charts'
               if (id.includes('html5-qrcode')) return 'qr-scanner'
               if (id.includes('react-scan')) return 'react-scan'
               if (id.includes('styled-components')) return 'styled-components'
-              if (id.includes('protobufjs')) return 'protobuf'
               if (id.includes('date-fns')) return 'date-fns'
-              // Group ledger with its crypto dependencies to avoid circular chunk deps
-              if (id.match(/(@ledgerhq|@noble|@scure|@bitgo)/)) return 'ledger'
-              if (id.includes('cosmjs-types')) return 'cosmjs-types'
-              if (id.includes('osmojs')) return 'osmojs'
-              if (id.includes('@arbitrum')) return '@arbitrum'
-              if (id.includes('@metamask')) return '@metamask'
-              if (id.includes('@walletconnect')) return '@walletconnect'
-              if (id.includes('@keepkey/keepkey-sdk')) return '@keepkey'
-              if (id.includes('bnb-javascript-sdk-nobroadcast')) return 'bnb-sdk'
-              if (id.includes('gridplus-sdk')) return 'gridplus-sdk'
-              if (id.includes('tronweb')) return 'tronweb'
-              if (id.includes('viem')) return 'viem'
-              if (id.includes('@mysten')) return '@mysten'
               if (id.includes('valibot')) return 'valibot'
               if (id.includes('@0noco/graphqllsp')) return 'graphqllsp'
-
-              // Those chunks should be imported last as they heavily rely on other chunks and default order doesnt work
-              if (id.includes('@cetusprotocol')) return 'z-@cetusprotocol'
-              if (id.includes('graphql')) return 'z-graphql'
 
               return null
             }
 
             if (id.includes('assets/translations')) return 'translations'
-            if (id.includes('packages/unchained-client')) return 'unchained-client'
             if (id.includes('localAssetData')) return 'local-asset-data'
-
-            // This chunk should be imported last as it heavily relies on other chunks and default order doesnt work
-            if (id.includes('packages/chain-adapters')) return 'z-chain-adapters'
 
             return null
           },

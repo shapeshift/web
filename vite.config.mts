@@ -215,6 +215,8 @@ export default defineConfig(({ mode }) => {
         'ethers/lib/utils': 'ethers5/lib/utils.js',
         'ethers/lib/utils.js': 'ethers5/lib/utils.js',
         'dayjs/locale': resolve(__dirname, 'node_modules/dayjs/locale'),
+        '@shapeshiftoss/hdwallet-native/nativeEvents': resolve(__dirname, './packages/hdwallet-native/src/nativeEvents.ts'),
+        '@shapeshiftoss/hdwallet-native/crypto/revocable': resolve(__dirname, './packages/hdwallet-native/src/crypto/isolation/engines/default/revocable.ts'),
         '@shapeshiftoss/hdwallet-core': resolve(__dirname, './packages/hdwallet-core/src'),
         '@shapeshiftoss/caip': resolve(__dirname, './packages/caip/src'),
         '@shapeshiftoss/types': resolve(__dirname, './packages/types/src'),

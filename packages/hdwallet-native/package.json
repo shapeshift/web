@@ -11,6 +11,14 @@
       "import": "./dist/esm/index.js",
       "require": "./dist/cjs/index.js",
       "types": "./dist/esm/index.d.ts"
+    },
+    "./nativeEvents": {
+      "import": "./dist/esm/nativeEvents.js",
+      "types": "./dist/esm/nativeEvents.d.ts"
+    },
+    "./crypto/revocable": {
+      "import": "./dist/esm/crypto/isolation/engines/default/revocable.js",
+      "types": "./dist/esm/crypto/isolation/engines/default/revocable.d.ts"
     }
   },
   "files": [

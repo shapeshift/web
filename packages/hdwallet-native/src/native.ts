@@ -13,6 +13,7 @@ import * as Isolation from './crypto/isolation'
 import { MixinNativeETHWallet, MixinNativeETHWalletInfo } from './ethereum'
 import { MixinNativeKavaWallet, MixinNativeKavaWalletInfo } from './kava'
 import { MixinNativeMayachainWallet, MixinNativeMayachainWalletInfo } from './mayachain'
+import { NativeEvents } from './nativeEvents'
 import { MixinNativeNearWallet, MixinNativeNearWalletInfo } from './near'
 import { MixinNativeOsmosisWallet, MixinNativeOsmosisWalletInfo } from './osmosis'
 import { MixinNativeSecretWallet, MixinNativeSecretWalletInfo } from './secret'
@@ -23,11 +24,7 @@ import { MixinNativeTerraWallet, MixinNativeTerraWalletInfo } from './terra'
 import { MixinNativeThorchainWallet, MixinNativeThorchainWalletInfo } from './thorchain'
 import { MixinNativeTonWallet, MixinNativeTonWalletInfo } from './ton'
 import { MixinNativeTronWallet, MixinNativeTronWalletInfo } from './tron'
-
-export enum NativeEvents {
-  MNEMONIC_REQUIRED = 'MNEMONIC_REQUIRED',
-  READY = 'READY',
-}
+export { NativeEvents } from './nativeEvents'
 
 function isMnemonicInterface(x: unknown): x is Isolation.Core.BIP39.Mnemonic {
   return core.isIndexable(x) && typeof x.toSeed === 'function'

@@ -22,6 +22,8 @@
       "@shapeshiftoss/hdwallet-core/wallet": ["packages/hdwallet-core/src/wallet"],
       "@shapeshiftoss/hdwallet-core/keyring": ["packages/hdwallet-core/src/keyring"],
       "@shapeshiftoss/hdwallet-core/event": ["packages/hdwallet-core/src/event"],
+      "@shapeshiftoss/hdwallet-native/nativeEvents": ["packages/hdwallet-native/src/nativeEvents"],
+      "@shapeshiftoss/hdwallet-native/crypto/revocable": ["packages/hdwallet-native/src/crypto/isolation/engines/default/revocable"],
       "@shapeshiftoss/*": ["packages/*/src"],
       "mswMock": ["packages/hdwallet-native/__mocks__/mswMock"],
       "untouchableMock": ["packages/hdwallet-native/__mocks__/untouchableMock"]

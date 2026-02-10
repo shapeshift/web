@@ -1,5 +1,5 @@
 import type { ComponentWithAs, IconProps } from '@chakra-ui/react'
-import { Box, Button, Text as CText, Flex, Stack, useColorModeValue } from '@chakra-ui/react'
+import { Box, Button, Flex, Stack, Text as CText, useColorModeValue } from '@chakra-ui/react'
 import { useCallback, useEffect, useState } from 'react'
 
 import { Text } from '@/components/Text'

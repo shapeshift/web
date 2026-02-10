@@ -1,6 +1,7 @@
 import * as core from '@shapeshiftoss/hdwallet-core'
 import mswMockFactory from 'mswMock'
 import * as untouchable from 'untouchableMock'
+import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 
 import * as native from './native'
 

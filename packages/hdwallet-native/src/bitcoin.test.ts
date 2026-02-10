@@ -2,6 +2,7 @@ import * as core from '@shapeshiftoss/hdwallet-core'
 import cloneDeep from 'lodash/cloneDeep'
 import mswMockFactory from 'mswMock'
 import * as untouchable from 'untouchableMock'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import * as native from './native'
 
@@ -71,9 +72,9 @@ const BIP44_BENCHMARK_TX = benchmarkTx(
 const BIP49_BENCHMARK_TX_INPUT_TXID =
   '918f59f7144fa389f66b6776e3417e1ec356214e18684050237acc056d5efbc1'
 // (We're not using it but this is real on-chain data we don't want to lose track of)
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const BIP49_BENCHMARK_TX_INPUT_HEX =
   '01000000015c4813fb3e0203e3bfa21420d62f88d2f89d39a63fde0f6ef2b08c406bda5f7f000000006a47304402205c9c26e213470dcb1c6b9399cb6cfda2c2dfece806ef10d6e5a889e39bc2e201022027d07373261478c4c43fa7044d6128f48a496cb8c97b93e4460887c664e0ef960121022a6e02f34ea72544c24f96cde286916d162de1f448396c62943b72ea16e6fb47ffffffff028f8011f8000000001976a914d32f4064914d28c30f5b309a73435588e0161f7b88ac2a5d00000000000017a914c9e193b1af9e4349d2ee53b4190e2bd36e59719e8700000000'
+void BIP49_BENCHMARK_TX_INPUT_HEX
 const BIP49_BENCHMARK_TX_OUTPUT_ADDR = '1EC9SktW9Y4kS4iW48idshNg9eNeBdY5Xi'
 const BIP49_BENCHMARK_TX_OUTPUT =
   '01000000000101c1fb5e6d05cc7a23504068184e2156c31e7e41e376676bf689a34f14f7598f910100000017160014ef01be1e6c7709df95c0ed763aa3b845286bbe80ffffffff01a25c0000000000001976a91490b54270b8fb85ade07261e9edc99f96fd197de588ac02483045022100ee6c831ceb78d97d1e0c24d0de62a4e87494a436157a7f2291065523f3f673f9022055b24caa363a8c51a7ed9dce546e25aefbcf9af7a08f2ed63a3bf37c9978c167012102f770feae292b5b3f41d8c81220c2568cb73eb8042def35e648dfe048e4b41b1100000000'
@@ -186,7 +187,7 @@ describe('NativeBTCWalletInfo', () => {
           scriptType: 'p2wpkh',
           addressNList: core.bip32ToAddressNList("m/84'/0'/0'"),
         },
-      ],
+      ] as core.BTCAccountPath[],
     ],
     [
       'BIP44',
@@ -199,7 +200,7 @@ describe('NativeBTCWalletInfo', () => {
           scriptType: 'p2pkh',
           addressNList: core.bip32ToAddressNList("m/44'/0'/1337'"),
         },
-      ],
+      ] as core.BTCAccountPath[],
     ],
     [
       'BIP49',
@@ -212,7 +213,7 @@ describe('NativeBTCWalletInfo', () => {
           scriptType: 'p2sh-p2wpkh',
           addressNList: core.bip32ToAddressNList("m/49'/0'/1337'"),
         },
-      ],
+      ] as core.BTCAccountPath[],
     ],
     [
       'BIP84',
@@ -225,11 +226,11 @@ describe('NativeBTCWalletInfo', () => {
           scriptType: 'p2wpkh',
           addressNList: core.bip32ToAddressNList("m/84'/0'/1337'"),
         },
-      ],
+      ] as core.BTCAccountPath[],
     ],
   ])(
     'should return the correct account paths for %s',
-    (_, coin, scriptType: any, accountIdx, out) => {
+    (_: string, coin: string, scriptType: any, accountIdx: number, out: core.BTCAccountPath[]) => {
       expect(info.btcGetAccountPaths({ coin, scriptType, accountIdx })).toMatchObject(out)
     },
   )
@@ -250,19 +251,22 @@ describe('NativeBTCWalletInfo', () => {
       ['BIP49', 'Bitcoin', 'p2sh-p2wpkh', "m/49'/0'/0'", "m/49'/0'/1'"],
       ['BIP84', 'Bitcoin', 'p2wpkh', "m/84'/0'/0'", "m/84'/0'/1'"],
       ['Bitcoin Cash', 'BitcoinCash', 'p2pkh', "m/44'/145'/1337'", "m/44'/145'/1338'"],
-    ])('should work for %s', (_, coin, scriptType: any, inPath, outPath) => {
-      expect(
-        info.btcNextAccountPath({
+    ])(
+      'should work for %s',
+      (_: string, coin: string, scriptType: any, inPath: string, outPath: string) => {
+        expect(
+          info.btcNextAccountPath({
+            coin,
+            scriptType,
+            addressNList: core.bip32ToAddressNList(inPath),
+          }),
+        ).toMatchObject({
           coin,
           scriptType,
-          addressNList: core.bip32ToAddressNList(inPath),
-        }),
-      ).toMatchObject({
-        coin,
-        scriptType,
-        addressNList: core.bip32ToAddressNList(outPath),
-      })
-    })
+          addressNList: core.bip32ToAddressNList(outPath),
+        })
+      },
+    )
 
     it.each([
       ['BIP44 with p2sh-p2wpkh scripts', 'Bitcoin', 'p2sh-p2wpkh', "m/44'/0'/0'"],
@@ -275,7 +279,7 @@ describe('NativeBTCWalletInfo', () => {
       ['a lowercase coin name', 'bitcoin', 'p2pkh', "m/44'/0'/0'"],
       ['a bad coin name', 'foobar', 'p2pkh', "m/44'/0'/0'"],
       ['a bad script type name', 'Bitcoin', 'foobar', "m/44'/0'/0'"],
-    ])('should not work for %s', (_, coin, scriptType: any, path) => {
+    ])('should not work for %s', (_: string, coin: string, scriptType: any, path: string) => {
       expect(
         info.btcNextAccountPath({
           coin,
@@ -291,7 +295,7 @@ describe('NativeBTCWalletInfo', () => {
       ['BIP84', "m/84'/0'/0'/0/0", 'p2wpkh'],
     ])(
       'should not work for a %s path with an unrecognized purpose field',
-      (_, path, scriptType: any) => {
+      (_: string, path: string, scriptType: any) => {
         const mock = vi
           .spyOn(core, 'describeUTXOPath')
           .mockReturnValue(
@@ -357,17 +361,20 @@ describe('NativeBTCWallet', () => {
         ["m/44'/145'/1337'/123/4", 'bitcoincash:qzrgv3veuqtu9g345w3hz8kwx796ty6vuu7hqstryu'],
       ],
     ],
-  ])('should generate correct %s addresses', async (_, coin, scriptType: any, addrSpec) => {
-    for (const [path, addr] of addrSpec) {
-      expect(
-        await wallet.btcGetAddress({
-          coin,
-          scriptType,
-          addressNList: core.bip32ToAddressNList(path),
-        }),
-      ).toBe(addr)
-    }
-  })
+  ])(
+    'should generate correct %s addresses',
+    async (_: string, coin: string, scriptType: any, addrSpec: string[][]) => {
+      for (const [path, addr] of addrSpec) {
+        expect(
+          await wallet.btcGetAddress({
+            coin,
+            scriptType,
+            addressNList: core.bip32ToAddressNList(path),
+          }),
+        ).toBe(addr)
+      }
+    },
+  )
 
   it('does not support p2sh addresses', async () => {
     await expect(

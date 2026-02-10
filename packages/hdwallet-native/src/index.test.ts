@@ -1,3 +1,5 @@
+import { describe, expect, it } from 'vitest'
+
 import * as library from './'
 
 describe('Exports all expected classes', () => {

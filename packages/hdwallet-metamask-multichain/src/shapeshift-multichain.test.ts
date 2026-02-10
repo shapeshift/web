@@ -1,5 +1,6 @@
 import * as core from '@shapeshiftoss/hdwallet-core'
 import type { EIP6963ProviderInfo } from 'mipd'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { MetaMaskMultiChainHDWallet, MetaMaskMultiChainHDWalletInfo } from '.'
 

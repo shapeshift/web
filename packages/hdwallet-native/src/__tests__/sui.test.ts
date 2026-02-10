@@ -1,4 +1,5 @@
 import * as core from '@shapeshiftoss/hdwallet-core'
+import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 
 import { NativeHDWallet } from '../native'
 

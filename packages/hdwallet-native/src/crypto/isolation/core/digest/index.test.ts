@@ -1,3 +1,5 @@
+import { describe, expect, it } from 'vitest'
+
 import { Algorithms } from '.'
 import { fromWordArray, toWordArray } from './algorithms'
 

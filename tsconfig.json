@@ -19,7 +19,9 @@
     "moduleResolution": "node",
     "paths": {
       "@/*": ["src/*"],
-      "@shapeshiftoss/*": ["packages/*/src"]
+      "@shapeshiftoss/*": ["packages/*/src"],
+      "mswMock": ["packages/hdwallet-native/__mocks__/mswMock"],
+      "untouchableMock": ["packages/hdwallet-native/__mocks__/untouchableMock"]
     },
     "resolveJsonModule": true,
 

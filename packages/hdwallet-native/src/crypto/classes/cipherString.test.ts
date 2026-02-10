@@ -1,3 +1,5 @@
+import { describe, expect, it } from 'vitest'
+
 import { CipherString, EncryptedObject, EncryptionType, SymmetricCryptoKey } from '.'
 
 describe('CipherString', () => {

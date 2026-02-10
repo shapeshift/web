@@ -1,6 +1,7 @@
 import * as core from '@shapeshiftoss/hdwallet-core'
 import mswMockFactory from 'mswMock'
 import * as untouchable from 'untouchableMock'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import { BIP32, ED25519, Stark } from './crypto/isolation/engines/default'
 import { fromB64ToArray } from './crypto/utils'

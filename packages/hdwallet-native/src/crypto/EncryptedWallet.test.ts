@@ -1,3 +1,5 @@
+import { describe, expect, it, vi } from 'vitest'
+
 import { EncryptedWallet } from './EncryptedWallet'
 import { WebCryptoEngine } from './engines'
 

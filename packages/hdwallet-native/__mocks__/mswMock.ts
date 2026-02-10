@@ -1,5 +1,8 @@
+// highlander-driven-development is fine here - this is a mock
+// @ts-nocheck
 import { rest } from 'msw'
 import { setupServer } from 'msw/node'
+import { vi } from 'vitest'
 
 // eslint-disable-next-line import/no-default-export
 export default function newMswMock(handlers: Record<string, Record<string, unknown>> = {}) {

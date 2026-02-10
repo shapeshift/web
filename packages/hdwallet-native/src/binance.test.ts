@@ -2,6 +2,7 @@ import * as core from '@shapeshiftoss/hdwallet-core'
 import * as bnbSdk from 'bnb-javascript-sdk-nobroadcast'
 import mswMockFactory from 'mswMock'
 import * as untouchable from 'untouchableMock'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import * as native from './native'
 

@@ -1,10 +1,12 @@
+import { describe, expect, it } from 'vitest'
+
 import type { HDWallet } from './wallet'
 import { infoBTC, infoETH, supportsBTC, supportsDebugLink, supportsETH } from './wallet'
 
 describe('wallet : guards', () => {
   it.each([infoBTC, infoETH, supportsBTC, supportsETH, supportsDebugLink])(
     'should return falsy for `null`',
-    method => {
+    (method: (wallet: any) => boolean) => {
       expect(method(undefined as any)).toBeFalsy()
       expect(method(null as any)).toBeFalsy()
       expect(method({} as any)).toBeFalsy()

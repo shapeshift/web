@@ -1,3 +1,5 @@
+import { describe, expect, it, test } from 'vitest'
+
 import {
   bip32Like,
   bip32ToAddressNList,
@@ -17,7 +19,7 @@ describe('isArray', () => {
 })
 
 describe('toHexString', () => {
-  test.each(['', '123456', 'abcdef'])('toHexString(fromHexString("%s")) == "%s"', str => {
+  test.each(['', '123456', 'abcdef'])('toHexString(fromHexString("%s")) == "%s"', (str: string) => {
     expect(toHexString(fromHexString(str))).toEqual(str)
   })
 })
@@ -64,7 +66,7 @@ describe('bip32ToAddressNList', () => {
 
   it.each(['///', "m/2147483692'/0'/0'/0/0", "ceci n'est pas une bip32 path"])(
     "to throw on invalid input: '%s'",
-    str => {
+    (str: string) => {
       expect(() => {
         bip32ToAddressNList(str)
       }).toThrow()
@@ -77,7 +79,7 @@ describe('stripHexPrefix', () => {
     ['0x', ''],
     ['12345', '12345'],
     ['', ''],
-  ])('stripHexPrefix("%s")', (a, expected) => {
+  ])('stripHexPrefix("%s")', (a: string, expected: string) => {
     it(`returns '${expected}'`, () => {
       expect(stripHexPrefix(a)).toEqual(expected)
     })

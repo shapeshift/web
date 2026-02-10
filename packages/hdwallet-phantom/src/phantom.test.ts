@@ -1,4 +1,5 @@
 import * as core from '@shapeshiftoss/hdwallet-core'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { PhantomHDWallet } from '.'
 import type { PhantomSolanaProvider, PhantomUtxoProvider } from './types'

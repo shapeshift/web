@@ -1,4 +1,5 @@
 import * as core from '@shapeshiftoss/hdwallet-core'
+import { describe, expect, it } from 'vitest'
 
 import { NativeAdapter } from './adapter'
 import { NativeHDWallet } from './native'

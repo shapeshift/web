@@ -1,3 +1,5 @@
+import { describe, expect, it } from 'vitest'
+
 import { EncryptionType } from './encryptionType'
 import { SymmetricCryptoKey } from './symmetricCryptoKey'
 

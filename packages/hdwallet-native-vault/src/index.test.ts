@@ -2,6 +2,7 @@ import * as native from '@shapeshiftoss/hdwallet-native'
 import * as idb from 'idb-keyval'
 // import * as jose from "jose";
 import * as uuid from 'uuid'
+import { beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { GENERATE_MNEMONIC, Vault } from '.'
 import { deterministicGetRandomValues } from './deterministicGetRandomValues.test'

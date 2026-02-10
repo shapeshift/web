@@ -1,3 +1,5 @@
+import { describe, expect, it } from 'vitest'
+
 import * as Core from '../../core'
 import * as Dummy from './'
 

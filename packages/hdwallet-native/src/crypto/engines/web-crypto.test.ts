@@ -1,4 +1,5 @@
 import * as core from '@shapeshiftoss/hdwallet-core'
+import { describe, expect, it } from 'vitest'
 
 import CryptoHelper from '../CryptoHelper'
 import * as utils from '../utils'

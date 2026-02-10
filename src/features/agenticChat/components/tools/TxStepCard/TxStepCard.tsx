@@ -149,7 +149,7 @@ const TxStepCardStep = ({
         return (
           <Flex position='relative' alignItems='center' justifyContent='center' boxSize={5}>
             <Icon as={FaCircle} boxSize={5} color='red.500' />
-            <Icon as={FaTimes} boxSize={3} color='red.500' position='absolute' />
+            <Icon as={FaTimes} boxSize={3} color='white' position='absolute' />
           </Flex>
         )
       case StepStatus.SKIPPED:

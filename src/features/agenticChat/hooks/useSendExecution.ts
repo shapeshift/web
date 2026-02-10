@@ -69,11 +69,13 @@ function sendStateToPersistedState(
 }
 
 function persistedStateToSendState(persisted: PersistedToolState): SendState {
+  const completedSteps = SEND_PHASES.fromPhases(persisted.phases)
+  const hasError = persisted.phases.includes('error')
   return {
-    currentStep: SendStep.COMPLETE,
-    completedSteps: SEND_PHASES.fromPhases(persisted.phases),
+    currentStep: hasError ? (persisted.meta.failedStep as SendStep) : SendStep.COMPLETE,
+    completedSteps,
     sendTxHash: persisted.meta.sendTxHash as string | undefined,
-    error: persisted.meta.error as string | undefined,
+    error: hasError ? (persisted.meta.error as string) : undefined,
     failedStep: persisted.meta.failedStep as SendStep | undefined,
   }
 }

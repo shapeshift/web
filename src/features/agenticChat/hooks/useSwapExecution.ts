@@ -77,13 +77,15 @@ function swapStateToPersistedState(
 }
 
 function persistedStateToSwapState(persisted: PersistedToolState): SwapState {
+  const completedSteps = SWAP_PHASES.fromPhases(persisted.phases)
   const hasError = persisted.phases.includes('error')
   return {
-    currentStep: SwapStep.COMPLETE,
-    completedSteps: SWAP_PHASES.fromPhases(persisted.phases),
+    currentStep: hasError ? (persisted.meta.failedStep as SwapStep) : SwapStep.COMPLETE,
+    completedSteps,
     approvalTxHash: persisted.meta.approvalTxHash as string | undefined,
     swapTxHash: persisted.meta.swapTxHash as string | undefined,
     error: hasError ? (persisted.meta.error as string) : undefined,
+    failedStep: persisted.meta.failedStep as SwapStep | undefined,
   }
 }
 

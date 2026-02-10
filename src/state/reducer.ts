@@ -185,7 +185,7 @@ const addressBookPersistConfig = {
 
 const agenticChatPersistConfig = {
   key: 'agenticChat',
-  storage: localforage,
+  storage: localStorageAdapter,
   version: 0,
   blacklist: [
     'runtimeToolStates',
@@ -195,6 +195,7 @@ const agenticChatPersistConfig = {
     'activeConversationId',
     'historicalToolIds',
   ],
+  throttle: PERSIST_THROTTLE_MS,
 }
 
 export const sliceReducers = {

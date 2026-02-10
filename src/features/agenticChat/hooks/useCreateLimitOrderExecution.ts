@@ -1,3 +1,4 @@
+import { toAccountId } from '@shapeshiftoss/caip'
 import { assertGetViemClient } from '@shapeshiftoss/contracts'
 import { signCowMessage } from '@shapeshiftoss/swapper'
 import type { DynamicToolUIPart } from 'ai'
@@ -133,7 +134,10 @@ export const useCreateLimitOrderExecution = (
   )
 
   const accountId = data?.orderParams
-    ? `eip155:${data.orderParams.chainId}:${data.orderParams.receiver}`
+    ? toAccountId({
+        chainId: `eip155:${data.orderParams.chainId}`,
+        account: data.orderParams.receiver,
+      })
     : undefined
   const accountMetadata = useAppSelector(state =>
     accountId ? selectPortfolioAccountMetadataByAccountId(state, { accountId }) : undefined,

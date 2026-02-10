@@ -79,7 +79,6 @@ export const MarketsRow: React.FC<MarketsRowProps> = ({
   const [selectedSort, setSelectedSort] = useState<SortOptionsKeys>(
     (params.category && sortOptionsByCategory[params.category]?.[0]) ?? SortOptionsKeys.Volume,
   )
-  const isArbitrumNovaEnabled = useAppSelector(state => selectFeatureFlag(state, 'ArbitrumNova'))
   const isSuiEnabled = useAppSelector(state => selectFeatureFlag(state, 'Sui'))
   const isPlasmaEnabled = useAppSelector(state => selectFeatureFlag(state, 'Plasma'))
   const isHyperEvmEnabled = useAppSelector(state => selectFeatureFlag(state, 'HyperEvm'))
@@ -90,21 +89,13 @@ export const MarketsRow: React.FC<MarketsRowProps> = ({
     const baseChainIds = supportedChainIds ?? Object.values(KnownChainIds)
 
     return baseChainIds.filter(chainId => {
-      if (!isArbitrumNovaEnabled && chainId === KnownChainIds.ArbitrumNovaMainnet) return false
       if (!isSuiEnabled && chainId === KnownChainIds.SuiMainnet) return false
       if (!isPlasmaEnabled && chainId === KnownChainIds.PlasmaMainnet) return false
       if (!isHyperEvmEnabled && chainId === KnownChainIds.HyperEvmMainnet) return false
       if (!isKatanaEnabled && chainId === KnownChainIds.KatanaMainnet) return false
       return true
     })
-  }, [
-    supportedChainIds,
-    isArbitrumNovaEnabled,
-    isSuiEnabled,
-    isPlasmaEnabled,
-    isHyperEvmEnabled,
-    isKatanaEnabled,
-  ])
+  }, [supportedChainIds, isSuiEnabled, isPlasmaEnabled, isHyperEvmEnabled, isKatanaEnabled])
 
   const Title = useMemo(() => {
     if (!title) return null

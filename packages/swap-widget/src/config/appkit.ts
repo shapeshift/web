@@ -1,6 +1,5 @@
 import {
   arbitrum,
-  arbitrumNova,
   avalanche,
   base,
   bitcoin,
@@ -25,7 +24,6 @@ export const EVM_NETWORKS = [
   mainnet,
   polygon,
   arbitrum,
-  arbitrumNova,
   optimism,
   base,
   avalanche,

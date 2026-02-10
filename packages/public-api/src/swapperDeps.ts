@@ -50,8 +50,6 @@ const getEvmUnchainedUrls = (): Record<string, string> => {
     [KnownChainIds.AvalancheMainnet]: config.VITE_UNCHAINED_AVALANCHE_HTTP_URL,
     [KnownChainIds.BnbSmartChainMainnet]: config.VITE_UNCHAINED_BNBSMARTCHAIN_HTTP_URL,
     [KnownChainIds.BaseMainnet]: config.VITE_UNCHAINED_BASE_HTTP_URL,
-    [KnownChainIds.ArbitrumNovaMainnet]:
-      process.env.UNCHAINED_ARBITRUM_NOVA_HTTP_URL || 'https://api.arbitrum-nova.shapeshift.com',
   }
 }
 
@@ -129,8 +127,6 @@ const createMinimalEvmAdapter = (chainId: ChainId) => {
           return 'eip155:56/slip44:714'
         case KnownChainIds.BaseMainnet:
           return 'eip155:8453/slip44:60'
-        case KnownChainIds.ArbitrumNovaMainnet:
-          return 'eip155:42170/slip44:60'
         default:
           return `${chainId}/slip44:60`
       }

@@ -5,7 +5,6 @@ import { KnownChainIds } from '@shapeshiftoss/types'
 import { assertUnreachable } from '../assertUnreachable'
 import {
   arbitrum,
-  arbitrumNova,
   atom,
   avax,
   base,
@@ -50,8 +49,6 @@ export const getBaseAsset = (chainId: ChainId): Readonly<Asset> => {
       return gnosis
     case KnownChainIds.ArbitrumMainnet:
       return arbitrum
-    case KnownChainIds.ArbitrumNovaMainnet:
-      return arbitrumNova
     case KnownChainIds.BaseMainnet:
       return base
     case KnownChainIds.SolanaMainnet:

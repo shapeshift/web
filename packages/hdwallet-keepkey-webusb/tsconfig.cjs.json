@@ -5,7 +5,6 @@
     "rootDir": "src",
     "outDir": "dist/cjs",
     "tsBuildInfoFile": "dist/cjs/.tsbuildinfo",
-    "skipLibCheck": true,
     "types": [
       "w3c-web-usb"
     ]

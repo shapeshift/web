@@ -113,11 +113,8 @@ export const getTransactionButtonText = (
   return 'Confirm'
 }
 
-/**
- * Resolves the asset symbol to display in transaction step labels.
- * Approvals on exit always show the receipt/output token since native assets can't be approved.
- * All other steps show the input/underlying token (which matches the API denomination).
- */
+const APPROVAL_TX_TYPES = new Set(['APPROVAL', 'APPROVE'])
+
 export const resolveAssetSymbolForTx = (
   txType: string | undefined,
   action: 'enter' | 'exit' | 'manage',
@@ -125,8 +122,7 @@ export const resolveAssetSymbolForTx = (
   outputTokenSymbol: string | undefined,
 ): string => {
   if (action !== 'exit' || !outputTokenSymbol || !txType) return assetSymbol
-  const normalizedType = txType.toUpperCase()
-  if (normalizedType === 'APPROVAL' || normalizedType === 'APPROVE') return outputTokenSymbol
+  if (APPROVAL_TX_TYPES.has(txType.toUpperCase())) return outputTokenSymbol
   return assetSymbol
 }
 
